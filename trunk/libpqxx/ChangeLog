@@ -1,3 +1,6 @@
+2004-12-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx:
+  - Apply PQXX_LIBEXPORT to sleep_seconds(), thanks Chris Pike
 2004-12-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test000.cxx:
   - Added min()/max() workaround, thanks Chris Piker

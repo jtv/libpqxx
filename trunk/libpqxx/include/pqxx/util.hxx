@@ -699,7 +699,7 @@ private:
 };
 
 /// Sleep for the given number of seconds
-void sleep_seconds(int);
+void PQXX_LIBEXPORT sleep_seconds(int);
 
 } // namespace internal
 } // namespace pqxx
