@@ -43,7 +43,6 @@ pqxx::Result_size_type pqxx::Cursor::SetCount(pqxx::Result_size_type Count)
 }
 
 
-// TODO: Maybe splice stream interface (with m_Done & m_Count) out of Cursor?
 pqxx::Cursor &pqxx::Cursor::operator>>(pqxx::Result &R)
 {
   R = Fetch(m_Count);

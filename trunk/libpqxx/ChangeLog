@@ -1,3 +1,8 @@
+2002-09-29 14:00 Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/connection.h:
+  - Documented log table creation and contents
+ src/connection.cxx:
+  - GetNotifs() frees notification structs a little earlier
 2002-09-27 02:45 Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection.cxx:
   - Made GetNotifs() a little more aggressive in freeing PGnotify structs
