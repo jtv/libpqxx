@@ -93,6 +93,7 @@ pqxx::Connection::Connection(const char ConnInfo[], bool Immediate) :
 }
 
 
+/*
 pqxx::Connection::Connection() :
   m_ConnInfo(string()),
   m_Conn(0),
@@ -103,6 +104,7 @@ pqxx::Connection::Connection() :
   m_Trace(0)
 {
 }
+*/
 
 
 pqxx::Connection::~Connection()
