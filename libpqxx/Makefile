@@ -1,4 +1,7 @@
 # Quick & ugly makefile hack, edit to fit your own environment
+#
+# Set O variable to determine compiler optimization level; defaults to 1 for
+# that little extra code analysis, but O=0 should improve compilation speed.
 
 # Options for the "dist" target (source distribution):
 # What to call the source distribution tarball
@@ -26,23 +29,23 @@ SQL_DIALECT=-DDIALECT_POSTGRESQL
 # Location where PostgreSQL headers are found
 PGSQLINC=/usr/include/postgresql
 
+# What to call the library file, and how to link it into an executable.
+LIBNAME=lib/libpqxx.a
+LIBOPT=-lpqxx
+
 # Commands and command line options used by GNU Make's default rules
 CXX=colorgcc
 CXXFLAGS=-Wall -pedantic -ffor-scope -Wshadow -Wcast-align -Wpointer-arith \
-	-Wwrite-strings -Woverloaded-virtual -Wtraditional -O $(EXTRACXX)
+	-Wwrite-strings -Woverloaded-virtual -Wtraditional -O$O $(EXTRACXX)
 
-CPPFLAGS=-I$(PGSQLINC) -I$(PGSQLINC)/internal -DLACK_ITERATOR -DLACK_LIMITS \
-	$(SQL_DIALECT) $(STD)
+CPPFLAGS=-I$(PGSQLINC) -I$(PGSQLINC)/internal -Iinclude -DLACK_ITERATOR \
+	-DLACK_LIMITS $(SQL_DIALECT) $(STD)
 LD=g++
 AR=ar
-LDFLAGS=-L/usr/lib/postgresql -L.
-LOADLIBES=-lpq
+LDFLAGS=-L/usr/lib/postgresql -Llib
+LOADLIBES=-lpq $(LIBOPT) -lstdc++
 RM=rm -f
 
-
-# What to call the library file, and how to link it into an executable.
-LIBNAME=libpqxx.a
-LIBOPT=-lpqxx
 
 
 # *****************************************************************************
@@ -52,78 +55,35 @@ LIBOPT=-lpqxx
 
 
 EXECS=test1 test2 test3 test4 test5 test6 test7 test8 test9 test10 test11 \
-	test12 test13 test14 test15 test16 test17 test18
-EXECOBJS=test1.o test2.o test3.o test4.o test5.o test6.o test7.o test8.o \
-	test9.o test10.o test11.o test12.o test13.o test14.o test15.o \
-	test16.o test17.o test18.o
-LIBOBJS=pg_connection.o pg_cursor.o pg_nontransaction.o pg_result.o pg_robusttransaction.o \
-	pg_tablereader.o pg_tablestream.o pg_tablewriter.o pg_transaction.o \
+	test12 test13 test14 test15 test16 test17 test18 test19 test20
+EXECOBJS=test1.o test2.o test3.o test4.o test5.o \
+	test6.o test7.o test8.o test9.o test10.o \
+	test11.o test12.o test13.o test14.o test15.o \
+	test16.o test17.o test18.o test19.o test20.o
+LIBOBJS=pg_connection.o pg_cursor.o pg_nontransaction.o \
+	pg_result.o pg_robusttransaction.o pg_tablereader.o \
+	pg_tablestream.o pg_tablewriter.o pg_transaction.o \
 	pg_transactionitf.o
 
 
-.PHONY: all clean distclean dist
+.PHONY: all clean distclean dist check
+
+vpath %.cc src test
+vpath %.o obj
 
 all: $(EXECS)
 
-test1: test1.o $(LIBNAME)
-	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
-
-test2: test2.o $(LIBNAME)
-	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
-
-test3: test3.o $(LIBNAME)
-	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
-
-test4: test4.o $(LIBNAME)
-	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
-
-test5: test5.o $(LIBNAME)
-	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
-
-test6: test6.o $(LIBNAME)
-	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
-
-test7: test7.o $(LIBNAME)
-	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
-
-test8: test8.o $(LIBNAME)
-	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
-
-test9: test9.o $(LIBNAME)
-	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
-
-test10: test10.o $(LIBNAME)
-	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
-
-test11: test11.o $(LIBNAME)
-	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
-
-test12: test12.o $(LIBNAME)
-	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
-
-test13: test13.o $(LIBNAME)
-	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
-
-test14: test14.o $(LIBNAME)
-	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
-
-test15: test15.o $(LIBNAME)
-	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
-
-test16: test16.o $(LIBNAME)
-	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
-
-test17: test17.o $(LIBNAME)
-	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
-
-test18: test18.o $(LIBNAME)
-	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
+$(EXECS) : $(LIBNAME)
 
 
 $(LIBNAME): $(LIBOBJS)
 	$(AR) -r $(LIBNAME) $(LIBOBJS)
 
 check: $(EXECS)
+	@echo "Cleaning up any garbage from previous failed test runs"
+	psql $(DBNAME) -c "DELETE FROM events WHERE year=1977"
+	@echo
+	@echo "======== STARTING TEST RUN ========"
 	./test1 $(CONNSTR)
 	./test2 $(CONNSTR)
 	./test3 $(CONNSTR) 10
@@ -142,7 +102,15 @@ check: $(EXECS)
 	./test16 $(CONNSTR)
 	./test17 $(CONNSTR)
 	./test18 $(CONNSTR)
+	./test19 $(CONNSTR)
+	./test20 $(CONNSTR)
+	@echo
+	@echo "======== TEST RUN COMPLETED ========"
+	@echo
+	@echo "Checking for remaining transaction records:"
 	psql $(DBNAME) -c "SELECT * FROM PQXXLOG_$(DBUSER)"
+	@echo "Checking for remaining test garbage:"
+	psql $(DBNAME) -c "SELECT * FROM events WHERE year=1977"
 
 clean: 
 	$(RM) $(LIBOBJS) $(EXECOBJS) a.out

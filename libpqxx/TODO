@@ -4,7 +4,8 @@ Error handling
 
 General
 (*) Decent build instructions
-(*) Unit tests with complete method coverage
+(*) Get object files into obj/ directory
+(*) Great Renaming of header files
 
 Porting
 (*) Port to mySQL etc., then refactor to separate front/back interfaces
