@@ -4,6 +4,7 @@
  - On Visual C++, now defines NOMINMAX, fixing large object support
  - Workaround for BSD grep
  - Improvements for builds from CVS
+ - Sample config headers for Sun ONE Studio 8
 2.4.2
  - Fix minor problems with Apple's version of g++ 3.3
  - Fix problem with MingW on Windows
