@@ -68,6 +68,7 @@ AC_MSG_RESULT(${enable_maintainer_mode})
 # always right)
 if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 	for option in \
+		-Werror \
 		-ffor-scope \
 		-fstrict-aliasing \
 		-funit-at-a-time \
@@ -343,9 +344,6 @@ AC_TRY_COMPILE([struct A{void foo(int){}};struct B:A{using A::foo;void foo(int,b
 		[Define if function overloading using "using" breaks])
 	 usingdecl='no'])
 AC_MSG_RESULT($usingdecl)
-
-AC_CHECK_TYPE([ptrdiff_t],
-	[AC_DEFINE(PQXX_HAVE_PTRDIFF_T, 1, [Define if ptrdiff_t exists])])
 
 AC_PROG_MAKE_SET
 
