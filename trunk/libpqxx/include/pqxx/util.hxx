@@ -22,6 +22,7 @@
 #include <stdexcept>
 #include <string>
 #include <typeinfo>
+#include <vector>
 
 extern "C"
 {
@@ -144,6 +145,76 @@ template<> inline PGSTD::string to_string(const signed char &Obj)
 template<> inline PGSTD::string to_string(const unsigned char &Obj)
 	{ return error_ambiguous_string_conversion(Obj); }
 
+
+/// Container of items with easy contents initialization and string rendering
+/** Designed as a wrapper around an arbitrary container type, this class lets
+ * you easily create a container object and provide its contents in the same
+ * line.  Regular addition methods such as push_back() will also still work, but
+ * you can now write things like: "items<int> numbers; numbers(1)(2)(3)(4);"
+ *
+ * Up to five elements may be specified directly as constructor arguments, e.g.
+ * "items<int> numbers(1,2,3,4);"
+ *
+ * One thing that cannot be done with this simple class is create const objects
+ * with nontrivial contents.  This is because the function invocation operator 
+ * (which is being used to add items) modifies the container rather than
+ * creating a new one.  This was done to keep performance within reasonable
+ * bounds.
+ */
+template<typename T=PGSTD::string, typename CONT=PGSTD::vector<T> >
+class items : public CONT
+{
+public:
+  /// Create empty items list
+  items() : CONT() {}							//[]
+  /// Create items list with one element
+  explicit items(const T &t) : CONT() { push_back(t); }			//[]
+  items(const T &t1, const T &t2) : CONT() 				//[]
+  	{ push_back(t1); push_back(t2); }
+  items(const T &t1, const T &t2, const T &t3) : CONT() 		//[]
+  	{ push_back(t1); push_back(t2); push_back(t3); }
+  items(const T &t1, const T &t2, const T &t3, const T &t4) : CONT() 	//[]
+  	{ push_back(t1); push_back(t2); push_back(t3); push_back(t4); }
+  items(const T&t1,const T&t2,const T&t3,const T&t4,const T&t5):CONT() 	//[]
+  	{push_back(t1);push_back(t2);push_back(t3);push_back(t4);push_back(t5);}
+  /// Copy container
+  items(const CONT &c) : CONT(c) {}					//[]
+
+  /// Add element to items list
+  items &operator()(const T &t)						//[]
+  {
+    push_back(t);
+    return *this;
+  }
+};
+
+
+/// Render items list as a string, using given separator between items
+template<typename ITER> inline
+PGSTD::string separated_list(const PGSTD::string &sep,
+    ITER begin,
+    ITER end)								//[]
+{
+  PGSTD::string result;
+  if (begin != end)
+  {
+    result = to_string(*begin);
+    for (++begin; begin != end; ++begin)
+    {
+      result += sep;
+      result += to_string(*begin);
+    }
+  }
+  return result;
+}
+
+/// Render items in a container as a string, using given separator
+template<typename CONTAINER> inline
+PGSTD::string separated_list(const PGSTD::string &sep,
+    const CONTAINER &c)							//[]
+{
+  return separated_list(sep, c.begin(), c.end());
+}
 
 
 /// Private namespace for libpqxx's internal use; do not access
