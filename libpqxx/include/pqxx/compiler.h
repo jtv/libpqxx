@@ -19,7 +19,7 @@
 #define PQXX_COMPILER_H
 
 // Workarounds & definitions needed to compile libpqxx into a library
-#include "pqxx/config.h"
+#include "pqxx/internalconfig.h"
 #include "pqxx/libcompiler.h"
 
 

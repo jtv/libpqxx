@@ -1,5 +1,7 @@
 2.2.2
  - Bugfix in fieldstream w.r.t. reading strings on some systems
+ - Renamed config.h to internalconfig.h to avoid confusion
+ - Even fewer client-visible macros exported by libconfig.h
 2.2.1
  - New, 2.x-style string conversions without locale problem
  - Documentation improvements
