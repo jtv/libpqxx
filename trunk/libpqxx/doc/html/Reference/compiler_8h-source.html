@@ -24,7 +24,7 @@
 00016 <span class="preprocessor">#include "<a class="code" href="config_8h.html">pqxx/config.h</a>"</span>
 00017 
 00018 <span class="preprocessor">#ifdef BROKEN_ITERATOR</span>
-00019 <span class="preprocessor"></span><span class="keyword">namespace </span><a class="code" href="config_8h.html#a22">PGSTD</a>
+00019 <span class="preprocessor"></span><span class="keyword">namespace </span><a class="code" href="config_8h.html#a23">PGSTD</a>
 00020 {
 00022 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> Cat, 
 00023          <span class="keyword">typename</span> T, 
@@ -48,7 +48,7 @@
 00041 <span class="preprocessor"></span><span class="preprocessor">#include &lt;limits&gt;</span>
 00042 <span class="preprocessor">#else // HAVE_LIMITS</span>
 00043 <span class="preprocessor"></span><span class="preprocessor">#include &lt;climits&gt;</span>
-<a name="l00044"></a><a class="code" href="namespacePGSTD.html">00044</a> <span class="keyword">namespace </span><a class="code" href="config_8h.html#a22">PGSTD</a>
+<a name="l00044"></a><a class="code" href="namespacePGSTD.html">00044</a> <span class="keyword">namespace </span><a class="code" href="config_8h.html#a23">PGSTD</a>
 00045 {
 <a name="l00047"></a><a class="code" href="structPGSTD_1_1numeric__limits.html">00047</a> <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">struct </span><a class="code" href="structPGSTD_1_1numeric__limits.html">numeric_limits</a>
 00048 {
@@ -62,14 +62,19 @@
 00056 <span class="preprocessor">#endif // HAVE_LIMITS</span>
 00057 <span class="preprocessor"></span>
 00058 
-00059 <span class="comment">// Used for Windows DLL</span>
-00060 <span class="preprocessor">#ifndef PQXX_LIBEXPORT</span>
-00061 <span class="preprocessor"></span><span class="preprocessor">#define PQXX_LIBEXPORT</span>
-00062 <span class="preprocessor"></span><span class="preprocessor">#endif</span>
+00059 <span class="preprocessor">#ifndef HAVE_ABS_LONG</span>
+00060 <span class="preprocessor"></span><span class="comment">// For compilers that feel abs(long) is ambiguous</span>
+<a name="l00061"></a><a class="code" href="compiler_8h.html#a0">00061</a> <span class="keywordtype">long</span> <a class="code" href="compiler_8h.html#a0">abs</a>(<span class="keywordtype">long</span> n) { <span class="keywordflow">return</span> (n &gt;= 0) ? n : -n; }
+00062 <span class="preprocessor">#endif // HAVE_ABS_LONG</span>
 00063 <span class="preprocessor"></span>
-00064 <span class="preprocessor">#endif</span>
-00065 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Tue Mar 11 12:42:47 2003 for libpqxx by
+00064 <span class="comment">// Used for Windows DLL</span>
+00065 <span class="preprocessor">#ifndef PQXX_LIBEXPORT</span>
+00066 <span class="preprocessor"></span><span class="preprocessor">#define PQXX_LIBEXPORT</span>
+00067 <span class="preprocessor"></span><span class="preprocessor">#endif</span>
+00068 <span class="preprocessor"></span>
+00069 <span class="preprocessor">#endif</span>
+00070 <span class="preprocessor"></span>
+</pre></div><hr><address style="align: right;"><small>Generated on Fri Mar 14 15:17:15 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>
