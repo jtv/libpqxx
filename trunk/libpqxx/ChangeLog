@@ -5,8 +5,6 @@
   - Removed const from CacheMap for SUN Workshop, thanks jluu@cdcixis-cm.com
  include/pqxx/connection.h:
   - Complete test coverage for asyncconnection
- include/pqxx/libcompiler.h:
-  - Added forgotten #include <cstdlib>, thanks gborg@martinshouse.com
  src/cursor.cxx:
   - Replaced abs(long) by labs(long) (jluu@cdcixis-cm.com)
  test/test065.cxx:

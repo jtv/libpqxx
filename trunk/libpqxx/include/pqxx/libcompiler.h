@@ -20,8 +20,6 @@
 // Workarounds & definitions that need to be included even in library's headers
 #include "pqxx/libconfig.h"
 
-#include <cstdlib>
-
 #ifdef PQXX_BROKEN_ITERATOR
 namespace PGSTD
 {
