@@ -3,6 +3,7 @@
   - More examples
  Makefile:
   - No longer removes old library.  Same difference.
+  - Abstracted away source tarball, source directory name
 2002-02-02 18:45
  Docs:
   - More on exceptions, more on executing queries.
