@@ -7,7 +7,7 @@
  *      definitions for the Pg::Result class and support classes.
  *   Pg::Result represents the set of result tuples from a database query
  *
- * Copyright (c) 2001, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  *-------------------------------------------------------------------------
  */
@@ -18,6 +18,10 @@
 #include <stdexcept>
 
 #include "pg_util.h"
+
+/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+ */
+
 
 // TODO: Support postgres arrays
 // TODO: Cursor-based bidirectional iterators for hidden incremental retrieval
@@ -35,11 +39,12 @@ namespace Pg
 class Result
 {
 public:
-  Result() : m_Result(0), m_Refcount(0) {}
-  Result(const Result &rhs) : m_Result(0), m_Refcount(0) { MakeRef(rhs); }
-  ~Result() { LoseRef(); }
+  Result() : m_Result(0), m_Refcount(0) {}				//[?]
+  Result(const Result &rhs) : 						//[t1]
+	  m_Result(0), m_Refcount(0) { MakeRef(rhs); }
+  ~Result() { LoseRef(); }						//[t1]
   
-  Result &operator=(const Result &);
+  Result &operator=(const Result &);					//[t10]
 
   typedef Result_size_type size_type;
   class Field;

@@ -7,7 +7,7 @@
  *      definition of the Pg::Trigger functor interface.
  *   Pg::Trigger describes a database trigger to wait on, and what it does
  *
- * Copyright (c) 2001, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  *-------------------------------------------------------------------------
  */
