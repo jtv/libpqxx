@@ -31,13 +31,23 @@ int main(int argc, char *argv[])
     Transaction T(C, "test30");
 
     Result R( T.Exec(("SELECT * FROM " + Table).c_str()) );
+    if (R.empty())
+      throw runtime_error("Table " + Table + " was empty.  "
+	                  "Sorry, that's not enough to run this test");
 
     // Print column names
     for (Result::Tuple::size_type c = 0; c < R.Columns(); ++c)
     {
       string N= R.ColumnName(c);
       cout << c << ":\t" << N << endl;
-      if (R.ColumnNumber(N) != c)
+
+      if (R[0].ColumnNumber(N) != R.ColumnNumber(N))
+	throw logic_error("Tuple::ColumnNumber(" + N + ") is " + 
+	                  ToString(R[0].ColumnNumber(N)) + ", "
+			  "but Result::ColumnNumber(" + N + ") is " +
+			  ToString(R.ColumnNumber(N)));
+
+      if (R[0].ColumnNumber(N.c_str()) != c)
 	throw logic_error("Expected column '" + N + 
 			  "' to be no. " + ToString(c) + ", "
 			  "but it was no. " + ToString(R.ColumnNumber(N)));
