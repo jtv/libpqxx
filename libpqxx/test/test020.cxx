@@ -25,7 +25,7 @@ using namespace pqxx;
 // It is assumed to consist of an integer key called year, and a string.
 namespace
 {
-int BoringYear = 1977;
+const unsigned long BoringYear = 1977;
 
 } // namespace
 

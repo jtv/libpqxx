@@ -65,6 +65,41 @@ int main(int, char *argv[])
     if (R[0][0].as<int>() != int(R[0][0].as<unsigned int>()))
       throw runtime_error("Are there really that many rows in " + Table + "?");
 
+    int i;
+    from_string(R[0][0].c_str(), i);
+    if (i != R[0][0].as<int>())
+      throw runtime_error("from_string() yielded " + to_string(i) + " "
+	  "for '" + R[0][0].c_str() + "'");
+    from_string(string(R[0][0].c_str()), i);
+    if (i != R[0][0].as<int>())
+      throw runtime_error("from_string(const char[],int &) "
+	  "inconsistent with from_string(const std::string &,int &)");
+
+    unsigned int ui;
+    from_string(R[0][0].c_str(), ui);
+    if (int(ui) != i)
+      throw runtime_error("from_string() yields different unsigned int");
+
+    long l;
+    from_string(R[0][0].c_str(), l);
+    if (i != l)
+      throw runtime_error("from_string() yields int that differs from long");
+
+    unsigned long ul;
+    from_string(R[0][0].c_str(), ul);
+    if (ui != l)
+      throw runtime_error("from_string() yields different unsigned long");
+
+    short s;
+    from_string(R[0][0].c_str(), s);
+    if (s != i)
+      throw runtime_error("from_string() yields different short");
+
+    unsigned short us;
+    from_string(R[0][0].c_str(), us);
+    if (us != ui)
+      throw runtime_error("from_string() yields different unsigned short");
+
     // Create an SQL cursor and, for good measure, muddle up its state a bit.
     const string CurName = "MYCUR";
     T.Exec("DECLARE " + CurName + " CURSOR FOR SELECT * FROM " + Table);

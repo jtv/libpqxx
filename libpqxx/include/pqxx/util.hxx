@@ -84,26 +84,26 @@ template<typename T> PGSTD::string error_ambiguous_string_conversion(T);
  */
 template<typename T> void from_string(const char Str[], T &Obj);
 
-template<> void from_string(const char Str[], long &);			//[]
-template<> void from_string(const char Str[], unsigned long &);		//[]
-template<> void from_string(const char Str[], int &);			//[]
-template<> void from_string(const char Str[], unsigned int &);		//[]
-template<> void from_string(const char Str[], short &);			//[]
-template<> void from_string(const char Str[], unsigned short &);	//[]
-template<> void from_string(const char Str[], float &);			//[]
-template<> void from_string(const char Str[], double &);		//[]
-template<> void from_string(const char Str[], long double &);		//[]
-template<> void from_string(const char Str[], bool &);			//[]
+template<> void from_string(const char Str[], long &);			//[t45]
+template<> void from_string(const char Str[], unsigned long &);		//[t45]
+template<> void from_string(const char Str[], int &);			//[t45]
+template<> void from_string(const char Str[], unsigned int &);		//[t45]
+template<> void from_string(const char Str[], short &);			//[t45]
+template<> void from_string(const char Str[], unsigned short &);	//[t45]
+template<> void from_string(const char Str[], float &);			//[t46]
+template<> void from_string(const char Str[], double &);		//[t46]
+template<> void from_string(const char Str[], long double &);		//[t46]
+template<> void from_string(const char Str[], bool &);			//[t76]
 
-template<> inline void from_string(const char Str[],PGSTD::string &Obj)	//[]
+template<> inline void from_string(const char Str[],PGSTD::string &Obj)	//[t46]
 	{ Obj = Str; }
 
 template<typename T> 
-  inline void from_string(const PGSTD::string &Str, T &Obj) 		//[]
+  inline void from_string(const PGSTD::string &Str, T &Obj) 		//[t45]
 	{ from_string(Str.c_str(), Obj); }
 
 template<> inline void 
-from_string(const PGSTD::string &Str, PGSTD::string &Obj) 		//[]
+from_string(const PGSTD::string &Str, PGSTD::string &Obj) 		//[t46]
 	{ Obj = Str; }
 
 template<> inline void
@@ -119,25 +119,25 @@ from_string(const PGSTD::string &, const unsigned char &Obj)
  * resulting string will be human-readable and in a format suitable for use in
  * SQL queries.
  */
-template<typename T> PGSTD::string to_string(const T &);		//[]
+template<typename T> PGSTD::string to_string(const T &);
 
-template<> PGSTD::string to_string(const short &);			//[]
-template<> PGSTD::string to_string(const unsigned short &);		//[]
-template<> PGSTD::string to_string(const int &);			//[]
-template<> PGSTD::string to_string(const unsigned int &);		//[]
-template<> PGSTD::string to_string(const long &);			//[]
-template<> PGSTD::string to_string(const unsigned long &);		//[]
-template<> PGSTD::string to_string(const float &);			//[]
-template<> PGSTD::string to_string(const double &);			//[]
-template<> PGSTD::string to_string(const long double &);		//[]
-template<> PGSTD::string to_string(const bool &);			//[]
+template<> PGSTD::string to_string(const short &);			//[t76]
+template<> PGSTD::string to_string(const unsigned short &);		//[t76]
+template<> PGSTD::string to_string(const int &);			//[t10]
+template<> PGSTD::string to_string(const unsigned int &);		//[t13]
+template<> PGSTD::string to_string(const long &);			//[t18]
+template<> PGSTD::string to_string(const unsigned long &);		//[t20]
+template<> PGSTD::string to_string(const float &);			//[t74]
+template<> PGSTD::string to_string(const double &);			//[t74]
+template<> PGSTD::string to_string(const long double &);		//[t74]
+template<> PGSTD::string to_string(const bool &);			//[t76]
 
-inline PGSTD::string to_string(const char Obj[]) 			//[]
+inline PGSTD::string to_string(const char Obj[]) 			//[t14]
 	{ return PGSTD::string(Obj); }
 
-inline PGSTD::string to_string(const PGSTD::string &Obj) {return Obj;}	//[]
+inline PGSTD::string to_string(const PGSTD::string &Obj) {return Obj;}	//[t21]
 
-template<> PGSTD::string to_string(const char &);			//[]
+template<> PGSTD::string to_string(const char &);			//[t21]
 
 template<> inline PGSTD::string to_string(const signed char &Obj)
 	{ return error_ambiguous_string_conversion(Obj); }
@@ -347,6 +347,9 @@ template<typename T> inline PGSTD::string Quote(T Obj)
 
 namespace internal
 {
+void freepqmem(void *);
+void freenotif(PGnotify *);
+
 /// Keep track of a libpq-allocated pointer to be free()d automatically.
 /** Ownership policy is simple: object dies when PQAlloc object's value does.
  * If the available PostgreSQL development files supply PQfreemem() or 
@@ -411,11 +414,7 @@ public:
 private:
   void freemem() throw ()
   {
-#if defined(PQXX_HAVE_PQFREEMEM)
-    PQfreemem(reinterpret_cast<unsigned char *>(m_Obj));
-#else
-    free(m_Obj);
-#endif
+    freepqmem(m_Obj);
   }
 
   PQAlloc(const PQAlloc &);		// Not allowed
@@ -426,13 +425,7 @@ private:
 /// Special version for notify structures, using PQfreeNotify() if available
 template<> inline void PQAlloc<PGnotify>::freemem() throw ()
 {
-#if defined(PQXX_HAVE_PQFREEMEM)
-    PQfreemem(reinterpret_cast<unsigned char *>(m_Obj));
-#elif defined(PQXX_HAVE_PQFREENOTIFY)
-    PQfreeNotify(m_Obj);
-#else
-    free(m_Obj);
-#endif
+  freenotif(m_Obj);
 }
 
 

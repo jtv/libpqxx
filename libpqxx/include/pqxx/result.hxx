@@ -333,7 +333,7 @@ public:
   bool empty() const { return !m_Result || !PQntuples(m_Result); }	//[t11]
   size_type capacity() const { return size(); }				//[t20]
 
-  void swap(result &other) throw ();					//[]
+  void swap(result &other) throw ();					//[t77]
 
   const tuple operator[](size_type i) const throw () 			//[t2]
   	{ return tuple(this, i); }
@@ -465,6 +465,15 @@ inline STREAM &operator<<(STREAM &S, const pqxx::result::field &F)	//[t46]
 }
 
 
+/// Convert a field's string contents to another type
+template<typename T>
+inline void from_string(const result::field &F, T &Obj)			//[t46]
+	{ from_string(F.c_str(), Obj); }
+
+/// Convert a field to a string
+template<>
+inline PGSTD::string to_string(const result::field &Obj)		//[t74]
+	{ return to_string(Obj.c_str()); }
 
 inline result::field 
 result::tuple::operator[](result::tuple::size_type i) const  throw ()
