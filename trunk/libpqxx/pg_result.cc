@@ -127,18 +127,38 @@ void Pg::Result::LoseRef() throw ()
 }
 
 
+const char *Pg::Result::GetValue(Pg::Result::size_type Row, 
+		                 Pg::Result::Tuple::size_type Col) const
+{
+  return PQgetvalue(m_Result, Row, Col);
+}
+
+
+bool Pg::Result::GetIsNull(Pg::Result::size_type Row,
+		           Pg::Result::Tuple::size_type Col) const
+{
+  return PQgetisnull(m_Result, Row, Col);
+}
+
+Pg::Result::Field::size_type Pg::Result::GetLength(Pg::Result::size_type Row,
+                                   Pg::Result::Field::size_type Col) const
+{
+  return PQgetlength(m_Result, Row, Col);
+}
+
 
 // Tuple
 
 Pg::Result::Field Pg::Result::Tuple::operator[](const char f[]) const
 {
-  return Field(*this, PQfnumber(Result_c_ptr(), f));
+  return Field(*this, m_Home->ColumnNumber(f));
 }
 
 
 Pg::Result::Field Pg::Result::Tuple::at(const char f[]) const
 {
-  const int fnum = PQfnumber(Result_c_ptr(), f);
+  const int fnum = m_Home->ColumnNumber(f);
+  // TODO: Build check into ColumnNumber()
   if (fnum == -1)
     throw invalid_argument(string("Unknown field '") + f + "'");
 
@@ -160,25 +180,25 @@ Pg::Result::Field Pg::Result::Tuple::at(Pg::Result::Tuple::size_type i) const
 
 const char *Pg::Result::Field::c_str() const
 {
-  return PQgetvalue(Result_c_ptr(), m_Index, m_Col);
+  return m_Home->GetValue(m_Index, m_Col);
 }
 
 
 const char *Pg::Result::Field::name() const
 {
-  return PQfname(Result_c_ptr(), m_Col);
+  return m_Home->ColumnName(m_Col);
 }
 
 
 int Pg::Result::Field::size() const
 {
-  return PQgetlength(Result_c_ptr(), m_Index, m_Col);
+  return m_Home->GetLength(m_Index, m_Col);
 }
 
 
 bool Pg::Result::Field::is_null() const
 {
-  return PQgetisnull(Result_c_ptr(), m_Index, m_Col);
+  return m_Home->GetIsNull(m_Index, m_Col);
 }
 
 

@@ -274,7 +274,7 @@ Pg::Result Pg::Connection::Exec(const char Q[],
 
   Result R( PQexec(m_Conn, Q) );
 
-  while ((Retries > 0) && !R.c_ptr() && !IsOpen())
+  while ((Retries > 0) && !R && !IsOpen())
   {
     Retries--;
 
@@ -282,7 +282,7 @@ Pg::Result Pg::Connection::Exec(const char Q[],
     if (IsOpen()) R = PQexec(m_Conn, Q);
   }
 
-  if (!R.c_ptr()) throw broken_connection();
+  if (!R) throw broken_connection();
   R.CheckStatus();
 
   GetNotifs();
