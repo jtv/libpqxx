@@ -76,9 +76,12 @@ public:
 
   /// Create a transaction.  The optional name, if given, must begin with a
   /// letter and may contain letters and digits only.
-  explicit transaction(connection_base &C,
-		       const PGSTD::string &TName=PGSTD::string()) :	//[t1]
+  explicit transaction(connection_base &C, const PGSTD::string &TName):	//[t1]
     basic_transaction(C, isolation_tag::name(), TName) 
+    	{ Begin(); }
+
+  explicit transaction(connection_base &C) :				//[t1]
+    basic_transaction(C, isolation_tag::name(), PGSTD::string()) 
     	{ Begin(); }
 
   virtual ~transaction() throw () { End(); }
