@@ -49,10 +49,7 @@ template<typename T> struct numeric_limits
   static T max() throw ();
   static T min() throw ();
 };
-
-/// Work around lacking std::max()
 template<> inline long numeric_limits<long>::max() throw () {return LONG_MAX;}
-/// Work around lacking std::min()
 template<> inline long numeric_limits<long>::min() throw () {return LONG_MIN;}
 }
 #endif // PQXX_HAVE_LIMITS
