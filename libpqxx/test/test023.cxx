@@ -13,7 +13,7 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-// Example program for libpqxx.  Send notification to self, using defered
+// Example program for libpqxx.  Send notification to self, using deferred
 // connection.
 //
 // Usage: test023
