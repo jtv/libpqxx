@@ -15,6 +15,7 @@
 #define PQXX_CONNECTION_H
 
 #include <map>
+#include <memory>
 #include <stdexcept>
 
 #include "pqxx/transactor.h"
