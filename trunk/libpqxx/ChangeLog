@@ -1,4 +1,6 @@
 2005-02-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/compiler.h:
+  - Check if evil min() and max() aren't defined already, thanks Bart Samwel!
  src/pipeline.cxx:
   - More fixes for SunC++
   - One error with SunC++ remains (std::distance() won't work)
