@@ -2,9 +2,9 @@
 #include <stdexcept>
 #include <vector>
 
-#include "pqxx/connection.h"
-#include "pqxx/tablereader.h"
-#include "pqxx/transaction.h"
+#include <pqxx/connection.h>
+#include <pqxx/tablereader.h>
+#include <pqxx/transaction.h>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -12,7 +12,7 @@ using namespace pqxx;
 
 // Simple test program for libpqxx.  Read a table using a TableReader, which 
 // may be faster than a conventional query.  A TableReader is really a frontend
-// for a COPY command.
+// for a PostgreSQL COPY TO stdout command.
 //
 // Usage: test8 [connect-string] [table]
 //

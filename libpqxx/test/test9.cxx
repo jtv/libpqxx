@@ -3,10 +3,10 @@
 #include <stdexcept>
 #include <vector>
 
-#include "pqxx/connection.h"
-#include "pqxx/tablereader.h"
-#include "pqxx/tablewriter.h"
-#include "pqxx/transaction.h"
+#include <pqxx/connection.h>
+#include <pqxx/tablereader.h>
+#include <pqxx/tablewriter.h>
+#include <pqxx/transaction.h>
 
 using namespace PGSTD;
 using namespace pqxx;
