@@ -33,18 +33,19 @@ typedef int Tuple_size_type;
 
 /// C-style format strings for various built-in types.  Only allowed for
 /// certain types, for which this function is explicitly specialized below.
-template<typename T> inline const char *FmtString(const T &);
+template<typename T> inline const char *FmtString(T);
 
 // Not implemented to prevent accidents with irregular meaning of argument:
-// template<> inline const char *FmtString(const char *const &) { return "%s"; }
+// template<> inline const char *FmtString(const char *&) { return "%s"; }
 
-template<> inline const char *FmtString(const int &)           { return  "%i"; }
-template<> inline const char *FmtString(const long &)          { return "%li"; }
-template<> inline const char *FmtString(const unsigned &)      { return  "%u"; }
-template<> inline const char *FmtString(const unsigned long &) { return "%lu"; }
-template<> inline const char *FmtString(const float &)         { return  "%f"; }
-template<> inline const char *FmtString(const double &)        { return "%lf"; }
-template<> inline const char *FmtString(const char &)          { return  "%c"; }
+template<> inline const char *FmtString(int)           { return  "%i"; }
+template<> inline const char *FmtString(long)          { return "%li"; }
+template<> inline const char *FmtString(unsigned)      { return  "%u"; }
+template<> inline const char *FmtString(unsigned long) { return "%lu"; }
+template<> inline const char *FmtString(float)         { return  "%f"; }
+template<> inline const char *FmtString(double)        { return "%lf"; }
+template<> inline const char *FmtString(char)          { return  "%c"; }
+template<> inline const char *FmtString(unsigned char) { return  "%c"; }
 
 
 /// Convert object of built-in type to string
@@ -58,6 +59,21 @@ template<typename T> inline PGSTD::string ToString(const T &Obj)
 
 template<> inline PGSTD::string ToString(const PGSTD::string &Obj) {return Obj;}
 template<> inline PGSTD::string ToString(const char *const &Obj) { return Obj; }
+
+template<> inline PGSTD::string ToString(const bool &Obj) 
+{ 
+  return ToString(unsigned(Obj));
+}
+
+template<> inline PGSTD::string ToString(const short &Obj)
+{
+  return ToString(int(Obj));
+}
+
+template<> inline PGSTD::string ToString(const unsigned short &Obj)
+{
+  return ToString(unsigned(Obj));
+}
 
 
 template<typename T> inline void FromString(const char Str[], T &Obj)
@@ -85,6 +101,29 @@ template<> inline void FromString(const char Str[], const char *&Obj)
   if (!Str)
     throw PGSTD::runtime_error("Attempt to read NULL string");
   Obj = Str;
+}
+
+template<> inline void FromString(const char Str[], bool &Obj)
+{
+  if (!Str)
+    throw PGSTD::runtime_error("Attempt to read NULL string");
+
+  switch (Str[0])
+  {
+  case 0:
+  case 'f':
+    Obj = false;
+    break;
+  case '0':
+    {
+      int I;
+      FromString(Str, I);
+      Obj = (I != 0);
+    }
+    break;
+  default:
+    Obj = true;
+  }
 }
 
 
