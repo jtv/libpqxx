@@ -1,5 +1,6 @@
 2.4.3
- - Yet another workaround for Visual C++ .NET 2003
+ - Yet more workarounds for bugs in Visual C++ .NET 2003
+ - Fixes large object support with Visual C++ (bug was in the compiler) 
  - Workaround for BSD grep
 2.4.2
  - Fix minor problems with Apple's version of g++ 3.3
