@@ -152,7 +152,7 @@ private:
  * the original you passed in, executing the copies only and retaining a "clean"
  * original.
  */
-template<typename TRANSACTOR> 
+template<typename TRANSACTOR>
 inline void pqxx::connection_base::perform(const TRANSACTOR &T,
                                            int Attempts)
 {
@@ -184,7 +184,7 @@ inline void pqxx::connection_base::perform(const TRANSACTOR &T,
     }
     catch (const PGSTD::exception &e)
     {
-      // Could be any kind of error.  
+      // Could be any kind of error.
 #ifdef PQXX_DEPRECATED_TRANSACTION_CALLBACKS
       T2.OnAbort(e.what());
 #endif

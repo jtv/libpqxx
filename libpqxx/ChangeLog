@@ -1,4 +1,7 @@
 2005-02-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Added some braces to variable expansions, just to be sure
+2005-02-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, config/sample-headers/libpq/7.4/config-internal-libpq.h,
  config/sample-headers/libpq/8.0/config-public-libpq.h,
  include/pqxx/Makefile.am, include/pqxx/util.hxx, test/test002.cxx:
