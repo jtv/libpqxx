@@ -1,6 +1,12 @@
-2.3.1
+2.4.0
  - Fixes incompatibility with some implementations of Unix "cut" program
+ - Fixes "ptrdiff_t redefinition" problem in some environments
+ - More container-like tuples, so fields can be iterated
+ - All size_type types are now unsigned
  - More conservative robusttransaction--thanks Tom Lane
+ - Stream-like extraction operator for result field conversion
+ - Warnings about deprecated headers now suppressed while compiling library
+ - Iterator constructors and copy assignments now have empty throw specs
 2.3.0
  - Generates MinGW Makefile automatically
  - Documents MinGW build
