@@ -171,6 +171,33 @@ private:
   bool m_connecting;
 };
 
+
+/// Nonfunctional, always-null connection class for debugging purposes
+/** @warning You don't want to use this class in normal code.
+ * Written purely for debugging of exception handling, this "connection" class
+ * always fails to connect, and the internal connection pointer always remains
+ * null.
+ */
+class PQXX_LIBEXPORT nullconnection : public connection_base
+{
+public:
+  /// Constructor.  Completely neglects to do anything.
+  nullconnection() : connection_base("") {}				//[t0]
+  /// Constructor.  Completely neglects to do anything.
+  explicit nullconnection(const PGSTD::string &c) :			//[t0]
+  	connection_base(c) {}
+  /// Constructor.  Completely neglects to do anything.
+  explicit nullconnection(const char c[]) :				//[t0]
+    	connection_base(c) {}
+
+  virtual ~nullconnection() throw ();
+
+private:
+  virtual void startconnect() {}
+  virtual void completeconnect() {}
+  virtual void dropconnect() throw () {}
+};
+
 }
 
 

@@ -24,6 +24,8 @@
 using namespace PGSTD;
 using namespace pqxx::internal::pq;
 
+// TODO: Existing structure doesn't call SetupState()!
+
 pqxx::connection::connection() :
   connection_base(0)
 {
@@ -170,4 +172,8 @@ void pqxx::asyncconnection::completeconnect()
   } while (pollstatus != PGRES_POLLING_OK);
 }
 
+
+pqxx::nullconnection::~nullconnection() throw ()
+{
+}
 
