@@ -22,7 +22,3 @@ Triggers
 Nonblocking operation
 (*) Separate query issuing from receipt of results
 (*) Support select()
-
-Debian packaging
-(*) Write and use doc-base entry for documentation
-
