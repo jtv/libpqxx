@@ -1,10 +1,6 @@
-Check
-(*) Move "check" postgres parameters into configure.ac
-
 Results
 (*) Conceive metadata model
 (*) Allow direct mapping onto structs, using member ptr template args (?)
-(*) Caching, "lazy-fetch" result sets
 (*) Optimize null check in "not null" fields?
 
 RobustTransaction
@@ -13,7 +9,6 @@ RobustTransaction
 Streams
 (*) Provide metadata information in TableStream
 (*) Work streamable (and prefetching!) result sets into Stream hierarchy
-(*) Refactor, adding streams that return 1 tuple at a time
 
 Triggers
 (*) Allow access to Connection's triggers list?
