@@ -13,7 +13,7 @@
  */
 #include <stdexcept>
 
-#include "pqxx/connectionitf.h"
+#include "pqxx/connection_base.h"
 #include "pqxx/result.h"
 #include "pqxx/robusttransaction.h"
 
@@ -32,9 +32,9 @@ namespace
 const Oid pqxxInvalidOid(InvalidOid);
 } // namespace
 
-pqxx::RobustTransaction::RobustTransaction(ConnectionItf &C, 
+pqxx::RobustTransaction::RobustTransaction(Connection_base &C, 
                                            const string &TName) :
-  TransactionItf(C, TName),
+  Transaction_base(C, TName),
   m_ID(pqxxInvalidOid),
   m_LogTable()
 {

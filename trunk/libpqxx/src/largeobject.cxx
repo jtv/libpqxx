@@ -23,21 +23,21 @@ using namespace PGSTD;
 namespace
 {
 
-inline int StdModeToPQMode(ios_base::openmode mode)
+inline int StdModeToPQMode(ios::openmode mode)
 {
-  return ((mode & ios_base::in)  ? INV_READ  : 0) |
-         ((mode & ios_base::out) ? INV_WRITE : 0);
+  return ((mode & ios::in)  ? INV_READ  : 0) |
+         ((mode & ios::out) ? INV_WRITE : 0);
 }
 
 
-inline int StdDirToPQDir(ios_base::seekdir dir)
+inline int StdDirToPQDir(ios::seekdir dir)
 {
   int pqdir;
   switch (dir)
   {
-  case PGSTD::ios_base::beg: pqdir=SEEK_SET; break;
-  case PGSTD::ios_base::cur: pqdir=SEEK_CUR; break;
-  case PGSTD::ios_base::end: pqdir=SEEK_END; break;
+  case PGSTD::ios::beg: pqdir=SEEK_SET; break;
+  case PGSTD::ios::cur: pqdir=SEEK_CUR; break;
+  case PGSTD::ios::end: pqdir=SEEK_END; break;
 
   /* Default clause added for two reasons: one, to silence compiler warning
    * about values not handled in switch (due to tackiness in std headers), and
@@ -61,7 +61,7 @@ pqxx::LargeObject::LargeObject() :
 }
 
 
-pqxx::LargeObject::LargeObject(TransactionItf &T) :
+pqxx::LargeObject::LargeObject(Transaction_base &T) :
   m_ID()
 {
   m_ID = lo_creat(RawConnection(T), INV_READ|INV_WRITE);
@@ -71,7 +71,7 @@ pqxx::LargeObject::LargeObject(TransactionItf &T) :
 }
 
 
-pqxx::LargeObject::LargeObject(TransactionItf &T, const string &File) :
+pqxx::LargeObject::LargeObject(Transaction_base &T, const string &File) :
   m_ID()
 {
   m_ID = lo_import(RawConnection(T), File.c_str());
@@ -87,7 +87,7 @@ pqxx::LargeObject::LargeObject(const LargeObjectAccess &O) :
 }
 
 
-void pqxx::LargeObject::to_file(TransactionItf &T, const string &File) const
+void pqxx::LargeObject::to_file(Transaction_base &T, const string &File) const
 {
   if (lo_export(RawConnection(T), id(), File.c_str()) == -1)
     throw runtime_error("Could not export large object " + ToString(m_ID) + " "
@@ -96,7 +96,7 @@ void pqxx::LargeObject::to_file(TransactionItf &T, const string &File) const
 }
 
 
-void pqxx::LargeObject::remove(TransactionItf &T) const
+void pqxx::LargeObject::remove(Transaction_base &T) const
 {
   if (lo_unlink(RawConnection(T), id()) == -1)
     throw runtime_error("Could not delete large object " + 
@@ -111,8 +111,8 @@ string pqxx::LargeObject::Reason() const
 }
 
 
-pqxx::LargeObjectAccess::LargeObjectAccess(TransactionItf &T,
-                                           ios_base::openmode mode) :
+pqxx::LargeObjectAccess::LargeObjectAccess(Transaction_base &T,
+                                           openmode mode) :
   LargeObject(T),
   m_Trans(T),
   m_fd(-1)
@@ -121,9 +121,9 @@ pqxx::LargeObjectAccess::LargeObjectAccess(TransactionItf &T,
 }
 
 
-pqxx::LargeObjectAccess::LargeObjectAccess(TransactionItf &T,
+pqxx::LargeObjectAccess::LargeObjectAccess(Transaction_base &T,
     					   Oid O,
-					   ios_base::openmode mode) :
+					   openmode mode) :
   LargeObject(O),
   m_Trans(T),
   m_fd(-1)
@@ -132,9 +132,9 @@ pqxx::LargeObjectAccess::LargeObjectAccess(TransactionItf &T,
 }
 
 
-pqxx::LargeObjectAccess::LargeObjectAccess(TransactionItf &T,
+pqxx::LargeObjectAccess::LargeObjectAccess(Transaction_base &T,
     					   LargeObject O,
-					   ios_base::openmode mode) :
+					   openmode mode) :
   LargeObject(O),
   m_Trans(T),
   m_fd(-1)
@@ -143,9 +143,9 @@ pqxx::LargeObjectAccess::LargeObjectAccess(TransactionItf &T,
 }
 
 
-pqxx::LargeObjectAccess::LargeObjectAccess(TransactionItf &T,
+pqxx::LargeObjectAccess::LargeObjectAccess(Transaction_base &T,
 					   const string &File,
-					   ios_base::openmode mode) :
+					   openmode mode) :
   LargeObject(T, File),
   m_Trans(T),
   m_fd(-1)
@@ -155,7 +155,7 @@ pqxx::LargeObjectAccess::LargeObjectAccess(TransactionItf &T,
 
 
 pqxx::LargeObjectAccess::size_type 
-pqxx::LargeObjectAccess::seek(size_type dest, ios_base::seekdir dir)
+pqxx::LargeObjectAccess::seek(size_type dest, seekdir dir)
 {
   const size_type Result = cseek(dest, dir);
   if (Result == -1)
@@ -165,7 +165,7 @@ pqxx::LargeObjectAccess::seek(size_type dest, ios_base::seekdir dir)
 }
 
 
-long pqxx::LargeObjectAccess::cseek(long dest, ios_base::seekdir dir) throw ()
+long pqxx::LargeObjectAccess::cseek(long dest, seekdir dir) throw ()
 {
   return lo_lseek(RawConnection(), m_fd, dest, StdDirToPQDir(dir));
 }
@@ -214,7 +214,7 @@ pqxx::LargeObjectAccess::read(char Buf[], size_type Len)
 }
 
 
-void pqxx::LargeObjectAccess::open(ios_base::openmode mode)
+void pqxx::LargeObjectAccess::open(openmode mode)
 {
   m_fd = lo_open(RawConnection(), id(), StdModeToPQMode(mode));
   if (m_fd < 0)

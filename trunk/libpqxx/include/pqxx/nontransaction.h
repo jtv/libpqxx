@@ -14,9 +14,9 @@
 #ifndef PQXX_NONTRANSACTION_H
 #define PQXX_NONTRANSACTION_H
 
-#include "pqxx/connectionitf.h"
+#include "pqxx/connection_base.h"
 #include "pqxx/result.h"
-#include "pqxx/transactionitf.h"
+#include "pqxx/transaction_base.h"
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */
@@ -26,7 +26,7 @@ namespace pqxx
 {
 /// Simple "Transaction" class offering no transactional integrity.
 /**
- * NonTransaction, like Transaction or any other TransactionItf-derived class,
+ * NonTransaction, like Transaction or any other Transaction_base-derived class,
  * provides access to a database through a connection.  Unlike its siblings,
  * however, NonTransaction does not maintain any kind of transactional 
  * integrity.  This may be useful eg. for read-only access to the database that
@@ -41,7 +41,7 @@ namespace pqxx
  * Some database features that require a backend transaction, such as cursors or
  * large objects, will not work in a NonTransaction.
  */
-class PQXX_LIBEXPORT NonTransaction : public TransactionItf
+class PQXX_LIBEXPORT NonTransaction : public Transaction_base
 {
 public:
   /// Constructor.
@@ -50,9 +50,9 @@ public:
    * @param NName an optional name for the transaction, beginning with a letter
    * and containing only letters and digits.
    */
-  explicit NonTransaction(ConnectionItf &C, 
+  explicit NonTransaction(Connection_base &C, 
 		          const PGSTD::string &NName=PGSTD::string()) :	//[t14]
-    TransactionItf(C, NName) { Begin(); }
+    Transaction_base(C, NName) { Begin(); }
 
   virtual ~NonTransaction();						//[t14]
 

@@ -6,6 +6,9 @@
 /* Define if abs() works on long ints */
 #undef HAVE_ABS_LONG
 
+/* Define if std defines the char_traits template and <char> specialization */
+#undef HAVE_CHAR_TRAITS
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
@@ -38,6 +41,9 @@
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
+
+/* Define if you have the <streambuf> header; if not, <streambuf.h> is used */
+#undef HAVE_STREAMBUF
 
 /* Define to 1 if you have the <strings.h> header file. */
 #undef HAVE_STRINGS_H

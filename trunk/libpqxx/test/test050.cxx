@@ -1,3 +1,5 @@
+#include <cerrno>
+#include <cstring>
 #include <iostream>
 #include <sstream>
 
@@ -68,18 +70,18 @@ public:
 	                "from large object after writing");
     }
 
-    string::size_type Offset = A.cseek(0, ios_base::cur);
+    string::size_type Offset = A.cseek(0, ios::cur);
     if (Offset != Contents.size())
       throw logic_error("Expected to be at position " + 
 	                 ToString(Contents.size()) + " in large object, "
 			 "but cseek(0, cur) returned " + ToString(Offset));
     
-    Offset = A.cseek(1, ios_base::beg);
+    Offset = A.cseek(1, ios::beg);
     if (Offset != 1)
       throw logic_error("After seeking to position 1 in large object, cseek() "
 	                "returned " + ToString(Offset));
 
-    Offset = A.cseek(-1, ios_base::cur);
+    Offset = A.cseek(-1, ios::cur);
     if (Offset != 0)
       throw logic_error("After seeking -1 from position 1 in large object, "
 	                "cseek() returned " + ToString(Offset));

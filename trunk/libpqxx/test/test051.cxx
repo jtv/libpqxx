@@ -34,7 +34,7 @@ public:
     char Buf[200];
     const LargeObjectAccess::size_type Size = sizeof(Buf) - 1;
 
-    LargeObjectAccess::size_type Offset = A.seek(0, ios_base::beg);
+    LargeObjectAccess::size_type Offset = A.seek(0, ios::beg);
     if (Offset != 0)
       throw logic_error("After seeking to start of large object, "
 	                "seek() returned " + ToString(Offset));
@@ -50,13 +50,13 @@ public:
 	                "got '" + Buf + "' back");
 
     // Now write contents again, this time as a C string
-    Offset = A.seek(-Read, ios_base::end);
+    Offset = A.seek(-Read, ios::end);
     if (Offset != 0)
       throw logic_error("Tried to seek back to beginning, got " +
 	                ToString(Offset));
 
     A.write(Buf, Read);
-    A.seek(0, ios_base::beg);
+    A.seek(0, ios::beg);
     Read = A.read(Buf, Size);
     Buf[Read] = '\0';
     if (Contents != Buf)

@@ -31,6 +31,8 @@ Streams
 (*) Allow single-level insertion with endt/endr manipulators
 
 Tests
+(*) Full test coverage
+(*) Floating-point tests
 (*) Mixed-mode, seeking lostream tests
 
 Triggers

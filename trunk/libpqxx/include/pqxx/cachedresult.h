@@ -22,7 +22,7 @@
 namespace pqxx
 {
 
-class TransactionItf;
+class Transaction_base;
 
 // TODO: Forward-only mode of operation?  Or write separate stream class?
 
@@ -61,7 +61,7 @@ public:
    * @param Granularity determines how large the blocks of data used internally
    * will be; must be at least 2.
    */
-  explicit CachedResult(pqxx::TransactionItf &T,
+  explicit CachedResult(pqxx::Transaction_base &T,
                         const char Query[],
 			const PGSTD::string &BaseName="query",
                         size_type Granularity=100);			//[t40]

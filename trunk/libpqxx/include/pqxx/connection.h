@@ -14,7 +14,7 @@
 #ifndef PQXX_CONNECTION_H
 #define PQXX_CONNECTION_H
 
-#include "pqxx/connectionitf.h"
+#include "pqxx/connection_base.h"
 
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
@@ -27,17 +27,20 @@ namespace pqxx
 /** This is the class you typically need when you first work with a database 
  * through libpqxx.  Its constructor immediately opens a connection.  Another
  * option is to defer actual connection to the database until it's actually
- * needed; the LazyConnection class implements such "lazy" behaviour.
+ * needed; the LazyConnection class implements such "lazy" behaviour.  Most of
+ * the documentation that you'll need to use this class is in its base class,
+ * Connection_base.
  *
- * The advantage of having an immediate connection is that errors in setting
- * up the connection will occur during construction of the connection object,
- * rather than at some later point further down your program.
+ * The advantage of having an "immediate" connection (represented by this class)
+ * is that errors in setting up the connection will occur during construction of
+ * the connection object, rather than at some later point further down your 
+ * program.
  *
- * This class is a near-trivial implementation of the ConnectionItf
- * interface defined in connectionitf.h.  All features of any interest to
+ * This class is a near-trivial implementation of the Connection_base
+ * interface defined in connection_base.h.  All features of any interest to
  * client programmers are defined there.
  */
-class PQXX_LIBEXPORT Connection : public ConnectionItf
+class PQXX_LIBEXPORT Connection : public Connection_base
 {
 public:
   /// Constructor.  Sets up connection without connection string.
@@ -65,22 +68,22 @@ public:
  * actually open a connection; the connection is only created when it is 
  * actually used.
  *
- * This class is a trivial implementation of the ConnectionItf interface 
- * defined in connectionitf.h.  All features of any interest to client 
+ * This class is a trivial implementation of the Connection_base interface 
+ * defined in connection_base.h.  All features of any interest to client 
  * programmers are defined there.
  */
-class PQXX_LIBEXPORT LazyConnection : public ConnectionItf
+class PQXX_LIBEXPORT LazyConnection : public Connection_base
 {
 public:
   /// Constructor.  Sets up lazy connection.
-  LazyConnection() : ConnectionItf(0) {}				//[t23]
+  LazyConnection() : Connection_base(0) {}				//[t23]
 
   /// Constructor.  Sets up lazy connection.
   /** @param ConnInfo a PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.
    */
   explicit LazyConnection(const PGSTD::string &ConnInfo) :		//[t21]
-    ConnectionItf(ConnInfo) {}
+    Connection_base(ConnInfo) {}
 
   /// Constructor.  Sets up lazy connection.
   /** @param ConnInfo a PostgreSQL connection string specifying any required
@@ -88,7 +91,7 @@ public:
    * case, a null pointer is taken as the empty string.
    */
   explicit LazyConnection(const char ConnInfo[]) :			//[t22]
-    ConnectionItf(ConnInfo) {}
+    Connection_base(ConnInfo) {}
 
   virtual ~LazyConnection();
 };

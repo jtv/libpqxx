@@ -15,8 +15,8 @@
 #define PQXX_ROBUSTTRANSACTION_H
 
 
-#include "pqxx/connectionitf.h"
-#include "pqxx/transactionitf.h"
+#include "pqxx/connection_base.h"
+#include "pqxx/transaction_base.h"
 
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
@@ -94,7 +94,7 @@ namespace pqxx
  * records in it represent states 2-4 above).  RobustTransaction will attempt to
  * recreate the table at its next time of use.
  */
-class PQXX_LIBEXPORT RobustTransaction : public TransactionItf
+class PQXX_LIBEXPORT RobustTransaction : public Transaction_base
 {
 public:
   /// Constructor.
@@ -102,7 +102,7 @@ public:
    * @param C connection that this RobustTransaction should live inside.
    * @param Name optional human-readable name for this RobustTransaction.
    */
-  explicit RobustTransaction(ConnectionItf &C,
+  explicit RobustTransaction(Connection_base &C,
 		             const PGSTD::string &Name=PGSTD::string());//[t16]
 
   virtual ~RobustTransaction();						//[t16]

@@ -44,7 +44,7 @@ class PQXX_LIBEXPORT TableWriter : public TableStream
 public:
   typedef unsigned size_type;
 
-  TableWriter(TransactionItf &Trans, const PGSTD::string &WName);	//[t5]
+  TableWriter(Transaction_base &Trans, const PGSTD::string &WName);	//[t5]
   ~TableWriter();							//[t5]
 
   template<typename IT> void insert(IT Begin, IT End);			//[t5]

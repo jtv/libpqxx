@@ -49,7 +49,7 @@ public:
 
   void operator()(argument_type &T)
   {
-    LargeObjectAccess A(T, m_Object.id(), ios_base::out);
+    LargeObjectAccess A(T, m_Object.id(), ios::out);
     cout << "Writing to large object #" << LargeObject(A).id() << endl;
     A.write(Contents);
   }

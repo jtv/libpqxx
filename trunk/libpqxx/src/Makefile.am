@@ -1,6 +1,6 @@
 lib_LTLIBRARIES = libpqxx.la
 libpqxx_la_SOURCES = cachedresult.cxx \
-	connectionitf.cxx \
+	connection_base.cxx \
 	connection.cxx \
 	cursor.cxx \
 	largeobject.cxx \
@@ -11,7 +11,7 @@ libpqxx_la_SOURCES = cachedresult.cxx \
 	tablestream.cxx \
 	tablewriter.cxx \
 	transaction.cxx \
-	transactionitf.cxx
+	transaction_base.cxx
 
 libpqxx_la_LDFLAGS = -version-info @sonumber@ ${POSTGRES_LIB}
 

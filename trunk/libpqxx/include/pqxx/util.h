@@ -132,10 +132,11 @@ template<> inline void FromString(const char Str[], bool &Obj)
 }
 
 
-/// Generate SQL-quoted version of string.  If EmptyIsNull is set, an empty
-/// string will generate the null value rather than an empty string.
-template<typename T> PGSTD::string Quote(const T &Obj, bool EmptyIsNull=false);
-
+/// Quote string for use in SQL
+/** Generate SQL-quoted version of string.  If EmptyIsNull is set, an empty
+ * string will generate the null value rather than an empty string.
+ */
+template<typename T> inline PGSTD::string Quote(const T &Obj, bool EmptyIsNull);
 
 /// std::string version, on which the other versions are built
 template<> inline PGSTD::string Quote(const PGSTD::string &Obj, 
@@ -209,7 +210,7 @@ template<> inline PGSTD::string Quote(const char *const & Obj,
  * template here.
  */
 template<int LEN> inline PGSTD::string Quote(const char (&Obj)[LEN],
-    					     bool EmptyIsNull=false)	//[t18]
+    					     bool EmptyIsNull)		//[t18]
 {
   return Quote(PGSTD::string(Obj), EmptyIsNull);
 }
@@ -224,9 +225,92 @@ template<typename T> inline PGSTD::string Quote(const T &Obj, bool EmptyIsNull)
 }
 
 
+/// Quote string for use in SQL
+/** This version of the function never generates null values.
+ */
+template<typename T> inline PGSTD::string Quote(T Obj)
+{
+  return Quote(Obj, false);
+}
+
+
 
 /// Return user-readable name for a class.  Specialize this whereever used.
 template<typename T> PGSTD::string Classname(const T *);
+
+
+/// Keep track of a libpq-allocated pointer to be free()d automatically.
+/** Ownership policy is simple: object dies when PQAlloc object's value does.
+ * If the available PostgreSQL development files supply PQfreemem(), this is
+ * used to free the memory.  If not, free() is used instead.  This matters on
+ * Windows, where memory allocated by a DLL must be freed by the same DLL.
+ */
+template<typename T> class PQAlloc
+{
+  T *m_Obj;
+public:
+  PQAlloc() : m_Obj(0) {}
+
+  /// Assume ownership of a pointer
+  explicit PQAlloc(T *obj) : m_Obj(obj) {}
+
+  ~PQAlloc() { close(); }
+
+  /// Assume ownership of a pointer, freeing the previous one (if any)
+  /** If the new and the old pointer are identical, no action is performed.
+   */
+  PQAlloc &operator=(T *obj) throw ()
+  { 
+    if (obj != m_Obj)
+    {
+      close();
+      m_Obj = obj;
+    }
+    return *this;
+  }
+
+  /// Is this pointer non-null?
+  operator bool() const throw () { return m_Obj != 0; }
+
+  /// Is this pointer null?
+  bool operator!() const throw () { return !m_Obj; }
+
+  /// Dereference pointer
+  /** Throws a logic_error if the pointer is null.
+   */
+  T *operator->() const throw (PGSTD::logic_error)
+  {
+    if (!m_Obj) throw PGSTD::logic_error("Null pointer dereferenced");
+    return m_Obj;
+  }
+
+  /// Dereference pointer
+  /** Throws a logic_error if the pointer is null.
+   */
+  T &operator*() const throw (PGSTD::logic_error) { return *operator->(); }
+
+  /// Obtain underlying pointer
+  /** Ownership of the pointer's memory remains with the PQAlloc object
+   */
+  T *c_ptr() const throw () { return m_Obj; }
+
+  /// Free and reset current pointer (if any)
+  void close() throw () { if (m_Obj) freemem(); m_Obj = 0; }
+
+private:
+  void freemem() throw ()
+  {
+#ifdef HAVE_PQFREEMEM
+    PQfreemem(m_Obj);
+#else
+    free(m_Obj);
+#endif
+  }
+
+  PQAlloc(const PQAlloc &);		// Not allowed
+  PQAlloc &operator=(const PQAlloc &);	// Not allowed
+};
+
 
 
 /// Ensure proper opening/closing of GUEST objects related to a "host" object,
@@ -240,9 +324,9 @@ class Unique
 public:
   Unique() : m_Guest(0) {}
 
-  const GUEST *get() const throw () { return m_Guest; }
+  GUEST *get() const throw () { return m_Guest; }
 
-  void Register(const GUEST *G)
+  void Register(GUEST *G)
   {
     if (!G) throw PGSTD::logic_error("Internal libpqxx error: NULL " + 
 		                     Classname(G));
@@ -267,7 +351,7 @@ public:
     m_Guest = G;
   }
 
-  void Unregister(const GUEST *G)
+  void Unregister(GUEST *G)
   {
     if (G != m_Guest)
     {
@@ -293,7 +377,7 @@ public:
   }
 
 private:
-  const GUEST *m_Guest;
+  GUEST *m_Guest;
 
   // Not allowed:
   Unique(const Unique &);

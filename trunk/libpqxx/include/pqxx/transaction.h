@@ -38,8 +38,8 @@
 //   T.Abort();		// Usually not needed; same happens when T's life ends.
 // }
 
-#include "pqxx/connectionitf.h"
-#include "pqxx/transactionitf.h"
+#include "pqxx/connection_base.h"
+#include "pqxx/transaction_base.h"
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */
@@ -75,12 +75,12 @@ namespace pqxx
  * this since application-specific considerations become important at this 
  * point.
  */
-class PQXX_LIBEXPORT Transaction : public TransactionItf
+class PQXX_LIBEXPORT Transaction : public Transaction_base
 {
 public:
   /// Create a transaction.  The optional name, if given, must begin with a
   /// letter and may contain letters and digits only.
-  explicit Transaction(ConnectionItf &, 
+  explicit Transaction(Connection_base &, 
 		       const PGSTD::string &Name=PGSTD::string());	//[t1]
 
   virtual ~Transaction();						//[t1]

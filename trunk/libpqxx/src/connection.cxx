@@ -15,19 +15,19 @@
 #include "pqxx/connection.h"
 
 pqxx::Connection::Connection() :
-  ConnectionItf(0)
+  Connection_base(0)
 {
   Connect();
 }
 
 pqxx::Connection::Connection(const PGSTD::string &ConnInfo) :
-  ConnectionItf(ConnInfo)
+  Connection_base(ConnInfo)
 {
   Connect();
 }
 
 pqxx::Connection::Connection(const char ConnInfo[]) :
-  ConnectionItf(ConnInfo)
+  Connection_base(ConnInfo)
 {
   Connect();
 }

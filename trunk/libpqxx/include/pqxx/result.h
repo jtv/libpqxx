@@ -275,7 +275,7 @@ private:
   bool GetIsNull(size_type Row, Tuple::size_type Col) const;
   Field::size_type GetLength(size_type Row, Tuple::size_type Col) const;
 
-  friend class ConnectionItf;
+  friend class Connection_base;
   explicit Result(PGresult *rhs) : m_Result(rhs), m_Refcount(0) {MakeRef(rhs);}
   Result &operator=(PGresult *);
   bool operator!() const throw () { return !m_Result; }
@@ -290,6 +290,74 @@ private:
   void MakeRef(const Result &);
   void LoseRef() throw ();
 };
+
+
+/// Reveals "unescaped" version of PostgreSQL bytea string
+/** This class represents a postgres-internal buffer containing the original,
+ * binary string represented by a field of type bytea.  The raw value returned
+ * by such a field contains escape sequences for certain characters, which are
+ * filtered out by BinaryString.
+ * The BinaryString retains its value even if the Result it was obtained from is
+ * destroyed, but it cannot be copied or assigned.
+ */
+class BinaryString : private PQAlloc<unsigned char>
+{
+  typedef PQAlloc<unsigned char> super;
+public:
+  typedef size_t size_type;
+
+  /// Read and unescape bytea field
+  /** The field will be zero-terminated, even if the original bytea field isn't.
+   * @param F the field to read; must be a bytea field
+   */
+  explicit BinaryString(const Result::Field &F) : 			//[]
+    super(),
+    m_size(0)
+  {
+    super::operator=(PQunescapeBytea(reinterpret_cast<unsigned char *>(
+	    const_cast<char *>(F.c_str())), &m_size));
+
+    // TODO: More useful error message!  Distinguish bad_alloc from parse error
+    if (!c_ptr()) 
+      throw std::runtime_error("Unable to read bytea field");
+  }
+
+  /// Size of unescaped buffer, including terminating zero
+  size_type size() const throw () { return m_size; }			//[]
+
+  /// Unescaped field contents 
+  const unsigned char *bytes() const throw () { return c_ptr(); }	//[]
+
+private:
+  size_type m_size;
+};
+
+
+/// Write a result field to any type of stream
+/** This can be convenient when writing a Field to an output stream.  More
+ * importantly, it lets you write a Field to e.g. a stringstream which you can
+ * then use to read, format and convert the field in ways that to() does not
+ * support.  
+ *
+ * Example: parse a Field into a variable of the nonstandard "long long" type.
+ *
+ * extern Result R;
+ * long long L;
+ * stringstream S;
+ *
+ * // Write field's string into S
+ * S << R[0][0];
+ *
+ * // Parse contents of S into L
+ * S >> L;
+ */
+template<typename STREAM>
+inline STREAM &operator<<(STREAM &S, const pqxx::Result::Field &F)	//[t46]
+{
+  S << F.c_str();
+  return S;
+}
+
 
 
 inline Result::Field 
@@ -361,32 +429,6 @@ inline Result::const_iterator Result::end() const
 }
 
 } // namespace pqxx
-
-
-/// Write a result field to any type of stream
-/** This can be convenient when writing a Field to an output stream.  More
- * importantly, it lets you write a Field to e.g. a stringstream which you can
- * then use to read, format and convert the field in ways that to() does not
- * support.  
- *
- * Example: parse a Field into a variable of the nonstandard "long long" type.
- *
- * extern Result R;
- * long long L;
- * stringstream S;
- *
- * // Write field's string into S
- * S << R[0][0];
- *
- * // Parse contents of S into L
- * S >> L;
- */
-template<typename STREAM>
-inline STREAM &operator<<(STREAM &S, const pqxx::Result::Field &F)	//[t46]
-{
-  S << F.c_str();
-  return S;
-}
 
 
 

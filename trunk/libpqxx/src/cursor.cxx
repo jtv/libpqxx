@@ -20,7 +20,7 @@
 using namespace PGSTD;
 
 
-pqxx::Cursor::Cursor(pqxx::TransactionItf &T, 
+pqxx::Cursor::Cursor(pqxx::Transaction_base &T, 
 		     const char Query[],
 		     const string &BaseName,
 		     size_type Count) :
@@ -36,11 +36,11 @@ pqxx::Cursor::Cursor(pqxx::TransactionItf &T,
             BaseName + "_" + T.Name() + "_" + ToString(T.GetUniqueCursorNum()) +
 	    "\"";
 
-  m_Trans.Exec("DECLARE " + m_Name + " CURSOR FOR " + Query);
+  m_Trans.Exec("DECLARE " + m_Name + " SCROLL CURSOR FOR " + Query);
 }
 
 
-pqxx::Cursor::Cursor(pqxx::TransactionItf &T,
+pqxx::Cursor::Cursor(pqxx::Transaction_base &T,
     	             const Result::Field &Name,
 		     size_type Count) :
   m_Trans(T),

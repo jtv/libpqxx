@@ -55,7 +55,7 @@ class TestTrig : public Trigger
   bool m_Done;
 
 public:
-  explicit TestTrig(ConnectionItf &C) : Trigger(C, "trig"), m_Done(false) {}
+  explicit TestTrig(Connection_base &C) : Trigger(C, "trig"), m_Done(false) {}
 
   virtual void operator()(int be_pid)
   {
