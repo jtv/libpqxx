@@ -41,8 +41,11 @@ pqxx::tablestream::~tablestream() throw ()
 
 void pqxx::tablestream::base_close()
 {
-  m_Finished = true;
-  unregister_me();
+  if (!is_finished())
+  {
+    m_Finished = true;
+    unregister_me();
+  }
 }
 
 

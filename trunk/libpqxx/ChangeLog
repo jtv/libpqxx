@@ -1,3 +1,13 @@
+2004-06-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/transaction_base.hxx:
+  - Removed erroneous "throw ()" for EndCopyWrite(), thanks Simon Elbaz
+  - Experimental version of exec() taking a stringstream
+ src/connection_base.cxx:
+  - Trimmed some fat, possible bug out of EndCopyWrite()
+ src/result.cxx:
+  - Accepts null query string
+ src/tablestream.cxx:
+  - Made base_close() idempotent, or at least more obviously so
 2004-05-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in, include/pqxx/result.hxx, src/util.cxx:
   - Workarounds for the infamous non-release "gcc 2.96", thanks Arjen Baart
