@@ -74,6 +74,14 @@ pqxx::binarystring::binarystring(const result::field &F) :
 }
 
 
+bool pqxx::binarystring::operator==(const binarystring &rhs) const throw ()
+{
+  if (rhs.size() != size()) return false;
+  for (size_type i=0; i<size(); ++i) if (rhs[i] != data()[i]) return false;
+  return true;
+}
+
+
 pqxx::binarystring::const_reference pqxx::binarystring::at(size_type n) const
 {
   if (n >= m_size)
@@ -90,7 +98,13 @@ pqxx::binarystring::const_reference pqxx::binarystring::at(size_type n) const
 void pqxx::binarystring::swap(binarystring &rhs)
 {
   const size_type s(m_size);
+  // This can fail, so do it first
   m_str.swap(rhs.m_str);
+
+  // PQAlloc<>::swap() is nothrow
+  super::swap(rhs);
+
+  // This part very obviously can't go wrong, so do it last
   m_size = rhs.m_size;
   rhs.m_size = s;
 }
