@@ -444,6 +444,7 @@ const char *pqxx::connection_base::ErrMsg() const
 
 pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 {
+  // TODO: "Single-query" vsn based on PQexecParams() & private multi-query one
   activate();
 
   result R( PQexec(m_Conn, Query) );
@@ -458,6 +459,30 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
   // TODO: Is this really right?  What if there's just no memory?
   if (!R) throw broken_connection();
   R.CheckStatus(Query);
+  get_notifs();
+  return R;
+}
+
+
+pqxx::result pqxx::connection_base::exec_prepared(const char QueryName[],
+	int NumParams,
+	const char *const *Params,
+	int Retries)
+{
+  activate();
+  result R(PQexecPrepared(m_Conn, QueryName, NumParams, Params, NULL, NULL, 0));
+
+  while ((Retries > 0) && !R && !is_open())
+  {
+    Retries--;
+    Reset();
+    if (is_open()) 
+      R = PQexecPrepared(m_Conn, QueryName, NumParams, Params, NULL, NULL, 0);
+  }
+
+  // TODO: Is this really right?  What if there's just no memory?
+  if (!R) throw broken_connection();
+  R.CheckStatus(QueryName);
   get_notifs();
   return R;
 }
