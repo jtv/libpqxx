@@ -100,6 +100,9 @@ int main(int, char *argv[])
       if (notifs)
 	throw logic_error("Got " + to_string(notifs) + 
 	    " unexpected notification(s)!");
+      // Sleep one second using a libpqxx-internal function.  Kids, don't try
+      // this at home!  The pqxx::internal namespace is not for third-party use
+      // and may change radically at any time.
       pqxx::internal::sleep_seconds(1);
       notifs = C.get_notifs();
       cout << ".";
