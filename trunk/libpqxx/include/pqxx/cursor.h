@@ -62,6 +62,9 @@ class result;
  * cursor's positioning logic will get horribly confused.  For this reason, 
  * Cursor should only be used inside serializable transactions.  This class is
  * to be replaced by a C++-style iterator interface.
+ *
+ * @deprecated This class was not ported to the 2.x libpqxx API because it is to
+ * be replaced by a container/iterator interface.
  */
 
 class PQXX_LIBEXPORT Cursor

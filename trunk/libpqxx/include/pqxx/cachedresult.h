@@ -40,12 +40,15 @@ namespace pqxx
  * row-by-row, but in chunks of configurable size.  For internal computational
  * reasons, these chunks (called "blocks" here) must be at least 2 rows large.  
  *
- * CAUTION: PostgreSQL currently doesn't always let you move cursors backwards,
+ * @warning PostgreSQL currently doesn't always let you move cursors backwards,
  * which is a feature this class relies upon.  As a result, cachedresult will
  * only work on certain types of queries.  To make things worse, there is no
  * documentation to define exactly which queries those are.  Therefore the only
  * way to use cachedresult at this time is to test carefully.  Hopefully this
  * can be fixed in the future.
+ *
+ * @deprecated This class was not ported to the 2.x libpqxx API because it is to
+ * be replaced by a container/iterator interface.
  */
 class PQXX_LIBEXPORT cachedresult
 {
