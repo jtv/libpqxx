@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      Various utility functions for libpqxx
  *
- * Copyright (c) 2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -153,44 +153,51 @@ string pqxx::internal::Quote_charptr(const char Obj[], bool EmptyIsNull)
 }
 
 
-string pqxx::internal::UniqueRegisterError(const void *New,
-	const void *Old,
-	const string &ClassName,
-	const string &NewName)
+string pqxx::internal::namedclass::description() const throw ()
 {
-  string Result;
-  if (!New) 
-    Result = "libpqxx internal error: NULL " + ClassName;
-  else if (!Old)
-    throw logic_error("libpqxx internal error: unique<" + 
-	ClassName + "> error, but both old and new pointers are valid");
-  else if (Old == New)
-    Result = ClassName + " '" + NewName + "' "
-	"started more than once without closing";
-  else
-    Result = "Started " + ClassName + " '" + NewName + "' "
-	"while '" + NewName + "' was still active";
-
-  return Result;
+  try
+  {
+    string desc = classname();
+    if (!name().empty()) desc += " '" + name() + "'";
+    return desc;
+  }
+  catch (const exception &)
+  {
+    // Oops, string composition failed!  Probably out of memory.
+    // Let's try something easier.
+  }
+  return name().empty() ? classname() : name();
 }
 
 
-string pqxx::internal::UniqueUnregisterError(const void *New,
-	const void *Old,
-	const string &ClassName,
-	const string &NewName,
-	const string &OldName)
+void pqxx::internal::CheckUniqueRegistration(const namedclass *New,
+    const namedclass *Old)
 {
-  string Result;
   if (!New) 
-    Result = "Closing NULL " + ClassName;
-  else if (!Old)
-    Result = "Closing " + ClassName + " '" + NewName + "' "
-    	"which wasn't open";
-  else
-    Result = "Closing wrong " + ClassName + "; expect '" + OldName + "' "
-    	"but got '" + NewName + "'";
-  return Result;
+    throw logic_error("libpqxx internal error: NULL pointer registered");
+  if (Old)
+  {
+    if (Old == New)
+      throw logic_error("Started " + New->description() + " twice");
+    throw logic_error("Started " + New->description() + " "
+		      "while " + Old->description() + " still active");
+  }
 }
 
+
+void pqxx::internal::CheckUniqueUnregistration(const namedclass *New,
+    const namedclass *Old)
+{
+  if (New != Old)
+  {
+    if (!New)
+      throw logic_error("Expected to close " + Old->description() + ", "
+	  		"but got NULL pointer instead");
+    if (!Old)
+      throw logic_error("Closed " + New->description() + ", "
+	 		"which wasn't open");
+    throw logic_error("Closed " + New->description() + "; "
+		      "expected to close " + Old->description());
+  }
+}
 

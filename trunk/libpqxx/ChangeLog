@@ -1,3 +1,27 @@
+2004-01-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
+ include/pqxx/util.hxx, src/connection_base.cxx, src/transaction_base.cxx,
+ src/util.cxx:
+  - Split namedclass base class out of transactionfocus 
+  - Added description() to easily construct a full name for a namedclass
+  - Moved unique<> to internal namespace
+  - Made unique<> assume its guest is a namedclass
+  - Simplified error message generation using namedclass
+  - Rewrote unique<> error checking
+ include/pqxx/pipeline.hxx, include/pqxx/tablereader.hxx,
+ include/pqxx/tablestream.hxx, include/pqxx/tablewriter.hxx,
+ include/pqxx/transaction_base.hxx, src/pipeline.cxx, src/tablereader.cxx,
+ src/tablestream.cxx, src/tablewriter.cxx, src/transaction_base.cxx:
+  - Finally introduced transactionfocus class
+  - Reworked Classname() system
+2004-01-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result.hxx:
+  - Created fieldstream
+ include/pqxx/util.hxx:
+  - Added PQXX_LIBEXPORT where needed, thanks david@firepro.co.za.
+ test/test074.cxx:
+  - New
+  - Tests fieldstream
 2004-01-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/*.hxx:
   - Introduced "internal" namespace

@@ -25,8 +25,8 @@
 using namespace PGSTD;
 
 
-pqxx::pipeline::pipeline(transaction_base &t) :
-  m_home(t),
+pqxx::pipeline::pipeline(transaction_base &t, const string &PName) :
+  pqxx::internal::transactionfocus(t, PName, "pipeline"),
   m_queries(),
   m_waiting(),
   m_completed(),
@@ -184,18 +184,6 @@ pqxx::pipeline::query_id pqxx::pipeline::generate_id()
 }
 
 
-void pqxx::pipeline::attach()
-{
-  // TODO: TODO: TODO:
-}
-
-
-void pqxx::pipeline::detach()
-{
-  // TODO: TODO: TODO:
-}
-
-
 void pqxx::pipeline::send_waiting()
 {
   if (m_waiting.empty() || !m_sent.empty() || m_retain || m_error) return;
@@ -226,9 +214,9 @@ void pqxx::pipeline::send_waiting()
   }
   Cum.resize(Cum.size()-Separator.size());
 
-  m_home.start_exec(Cum);
+  m_Trans.start_exec(Cum);
   m_sent.swap(m_waiting);
-  attach();
+  register_me();
 }
 
 
@@ -243,10 +231,10 @@ void pqxx::pipeline::consumeresults()
   R.reserve(m_sent.size() + 1);
 
   // TODO: Improve exception-safety!
-  for (PGresult *r=m_home.get_result(); r; r=m_home.get_result())
+  for (PGresult *r=m_Trans.get_result(); r; r=m_Trans.get_result())
     R.push_back(result(r));
 
-  detach();
+  unregister_me();
 
   vector<result>::size_type R_size = R.size(), sentsize = m_sent.size();
 
@@ -273,7 +261,7 @@ void pqxx::pipeline::consumeresults()
     for (QueryQueue::size_type i=0; i<sentsize; ++i)
       m_completed.insert(make_pair(m_sent[i], R[0]));
 
-    if (!dynamic_cast<dbtransaction *>(&m_home))
+    if (!dynamic_cast<dbtransaction *>(&m_Trans))
     {
       /* We're not in a backend transaction, so we can continue to issue
        * transactions.  Execute the queries in the batch one by one to try and
@@ -286,7 +274,7 @@ void pqxx::pipeline::consumeresults()
 	{
 	  try
 	  {
-	    m_completed[m_sent[i]] = m_home.exec(m_queries[m_sent[i]]);
+	    m_completed[m_sent[i]] = m_Trans.exec(m_queries[m_sent[i]]);
 	  }
 	  catch (const sql_error &)
 	  {

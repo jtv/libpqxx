@@ -39,7 +39,7 @@ namespace pqxx
  * further down your program.
  *
  * This class is a near-trivial implementation of the connection_base
- * interface defined in connection_base.h.  All features of any interest to
+ * interface defined in connection_base.hxx.  All features of any interest to
  * client programmers are defined there.
  */
 class PQXX_LIBEXPORT connection : public connection_base
@@ -81,7 +81,7 @@ private:
  * actually used.
  *
  * This class is a trivial implementation of the connection_base interface 
- * defined in connection_base.h.  All features of any interest to client 
+ * defined in connection_base.hxx.  All features of any interest to client 
  * programmers are defined there.
  */
 class PQXX_LIBEXPORT lazyconnection : public connection_base

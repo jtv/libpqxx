@@ -26,17 +26,6 @@
 
 namespace pqxx
 {
-class nontransaction;
-
-namespace internal
-{
-/// Human-readable class names for use by unique template.
-template<> inline PGSTD::string Classname(const nontransaction *) 
-{ 
-  return "nontransaction"; 
-}
-} // namespace internal
-
 
 /// Simple "transaction" class offering no transactional integrity.
 /**
@@ -71,7 +60,7 @@ public:
    */
   explicit nontransaction(connection_base &C, 
 		          const PGSTD::string &NName=PGSTD::string()) :	//[t14]
-    transaction_base(C, NName) { Begin(); }
+    transaction_base(C, NName, "nontransaction") { Begin(); }
 
   virtual ~nontransaction();						//[t14]
 

@@ -43,6 +43,7 @@ class result;
 class transaction_base;
 class trigger;
 
+
 /// Base class for user-definable error/warning message processor
 /** To define a custom method of handling notices, derive a new class from
  * noticer and override the virtual function "operator()(const char[]) throw()"
@@ -55,16 +56,6 @@ struct PQXX_LIBEXPORT noticer : PGSTD::unary_function<const char[], void>
 };
 
 
-namespace internal
-{
-/// Human-readable class names for use by unique template.
-template<> inline PGSTD::string Classname(const transaction_base *) 
-{ 
-  return "transaction_base"; 
-}
-} // namespace internal
-
-
 /// connection_base abstract base class; represents a connection to a database.
 /** This is the first class to look at when you wish to work with a database 
  * through libpqxx.  Depending on the implementing concrete child class, a
@@ -72,8 +63,8 @@ template<> inline PGSTD::string Classname(const transaction_base *)
  * first used.  The connection is automatically closed upon destruction, if it 
  * hasn't already been closed manually.
  * To query or manipulate the database once connected, use one of the 
- * transaction classes (see pqxx/transaction_base.h) or preferably the 
- * transactor framework (see pqxx/transactor.h).
+ * transaction classes (see pqxx/transaction_base.hxx) or preferably the 
+ * transactor framework (see pqxx/transactor.hxx).
  * A word of caution: if a network connection to the database server fails, the
  * connection will be restored automatically (although any transaction going on
  * at the time will have to be aborted).  This also means that any information
@@ -334,7 +325,7 @@ private:
   /// Connection handle
   PGconn *m_Conn;
   /// Active transaction on connection, if any
-  unique<transaction_base> m_Trans;
+  internal::unique<transaction_base> m_Trans;
 
   /// User-defined notice processor, if any
   PGSTD::auto_ptr<noticer> m_Noticer;

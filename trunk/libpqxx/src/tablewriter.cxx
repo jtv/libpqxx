@@ -7,7 +7,7 @@
  *      implementation of the pqxx::tablewriter class.
  *   pqxx::tablewriter enables optimized batch updates to a database table
  *
- * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -27,7 +27,7 @@ using namespace PGSTD;
 pqxx::tablewriter::tablewriter(transaction_base &T, 
     const string &WName,
     const string &Null) :
-  tablestream(T, WName, Null),
+  tablestream(T, WName, Null, "tablewriter"),
   m_PendingLine()
 {
   T.BeginCopyWrite(WName);
@@ -43,7 +43,7 @@ pqxx::tablewriter::~tablewriter() throw ()
   }
   catch (const exception &e)
   {
-    RegisterPendingError(e.what());
+    reg_pending_error(e.what());
   }
 }
 
@@ -75,7 +75,7 @@ void pqxx::tablewriter::WriteRawLine(const string &Line)
    * line and send that through first.
    */
   flush_pending();
-  if (!Trans().WriteCopyLine(Line, true)) m_PendingLine = Line;
+  if (!m_Trans.WriteCopyLine(Line, true)) m_PendingLine = Line;
 }
 
 
@@ -83,7 +83,7 @@ void pqxx::tablewriter::flush_pending()
 {
   if (!m_PendingLine.empty())
   {
-    if (!Trans().WriteCopyLine(m_PendingLine))
+    if (!m_Trans.WriteCopyLine(m_PendingLine))
       throw logic_error("libpqxx internal error: "
 	  "writing pending line in async mode");
 #ifdef PQXX_HAVE_STRING_CLEAR
@@ -109,7 +109,7 @@ void pqxx::tablewriter::writer_close()
     base_close();
     try 
     { 
-      Trans().EndCopyWrite(); 
+      m_Trans.EndCopyWrite(); 
     } 
     catch (const exception &) 
     {

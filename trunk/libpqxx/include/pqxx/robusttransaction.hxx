@@ -60,15 +60,6 @@ private:
   bool CheckTransactionRecord(IDType ID);
 };
 
-namespace internal
-{
-/// Human-readable class names for use by unique template.
-template<> inline PGSTD::string Classname(const basic_robusttransaction *) 
-{ 
-  return "basic_robusttransaction"; 
-}
-} // namespace internal
-
 
 
 /// Slightly slower, better-fortified version of transaction
@@ -153,16 +144,6 @@ public:
   virtual ~robusttransaction() throw () { End(); }
 };
 
-
-/// Human-readable class names for use by unique template.
-template<isolation_level ISOLATIONLEVEL> 
-inline PGSTD::string Classname(const robusttransaction<ISOLATIONLEVEL> *) 
-{ 
-  return "robusttransaction<" + 
-    isolation_traits<ISOLATIONLEVEL>::name() +
-    ">";
-}
-
-}
+} // namespace pqxx
 
 

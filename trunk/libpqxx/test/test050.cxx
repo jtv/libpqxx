@@ -51,7 +51,8 @@ public:
   void operator()(argument_type &T)
   {
     largeobjectaccess A(T, m_Object);
-    cout << "Writing to large object #" << largeobject(A).id() << endl;
+    A.process_notice("Writing to large object #" + 
+	ToString(largeobject(A).id()) + "\n");
     long Bytes = A.cwrite(Contents.c_str(), Contents.size());
     if (Bytes != long(Contents.size()))
       throw logic_error("Tried to write " + ToString(Contents.size()) + " "
