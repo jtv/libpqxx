@@ -30,26 +30,24 @@
 <tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a3">LargeObjectAccess</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, const PGSTD::string &amp;File, PGSTD::ios_base::openmode mode=PGSTD::ios_base::in|PGSTD::ios_base::out)</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Import large object from a local file and open it.</em> <a href="#a3"></a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a4">~LargeObjectAccess</a> ()</td></tr>
-<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a5">to_file</a> (const char File[]) const</td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a5">to_file</a> (const PGSTD::string &amp;File) const</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Export large object's contents to a local file.</em> <a href="#a5"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a6">to_file</a> (const PGSTD::string &amp;File) const</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Export large object's contents to a local file.</em> <a href="#a6"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a7">write</a> (const char Buf[], <a class="el" href="classpqxx_1_1LargeObject.html#s0">size_type</a> Len)</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Write data to large object.</em> <a href="#a7"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a8">write</a> (const PGSTD::string &amp;Buf)</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Write string to large object.</em> <a href="#a8"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top><a class="el" href="classpqxx_1_1LargeObject.html#s0">size_type</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a9">read</a> (char Buf[], <a class="el" href="classpqxx_1_1LargeObject.html#s0">size_type</a> Len)</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Read data from large object.</em> <a href="#a9"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top><a class="el" href="classpqxx_1_1LargeObject.html#s0">size_type</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a10">seek</a> (<a class="el" href="classpqxx_1_1LargeObject.html#s0">size_type</a> dest, PGSTD::ios_base::seekdir dir)</td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a6">write</a> (const char Buf[], <a class="el" href="classpqxx_1_1LargeObject.html#s0">size_type</a> Len)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Write data to large object.</em> <a href="#a6"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a7">write</a> (const PGSTD::string &amp;Buf)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Write string to large object.</em> <a href="#a7"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classpqxx_1_1LargeObject.html#s0">size_type</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a8">read</a> (char Buf[], <a class="el" href="classpqxx_1_1LargeObject.html#s0">size_type</a> Len)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Read data from large object.</em> <a href="#a8"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classpqxx_1_1LargeObject.html#s0">size_type</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a9">seek</a> (<a class="el" href="classpqxx_1_1LargeObject.html#s0">size_type</a> dest, PGSTD::ios_base::seekdir dir)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Seek in large object's data stream.</em> <a href="#a9"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>long&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a10">cseek</a> (long dest, PGSTD::ios_base::seekdir dir)  throw ()</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Seek in large object's data stream.</em> <a href="#a10"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>long&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a11">cseek</a> (long dest, PGSTD::ios_base::seekdir dir)  throw ()</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Seek in large object's data stream.</em> <a href="#a11"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>long&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a12">cwrite</a> (const char Buf[], <a class="el" href="classpqxx_1_1LargeObject.html#s0">size_type</a> Len)  throw ()</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Write to large object's data stream.</em> <a href="#a12"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>long&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a13">cread</a> (char Buf[], <a class="el" href="classpqxx_1_1LargeObject.html#s0">size_type</a> Len)  throw ()</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Read from large object's data stream.</em> <a href="#a13"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>Oid&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a14">id</a> () const  throw ()</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Object identifier.</em> <a href="#a14"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>long&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a11">cwrite</a> (const char Buf[], <a class="el" href="classpqxx_1_1LargeObject.html#s0">size_type</a> Len)  throw ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Write to large object's data stream.</em> <a href="#a11"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>long&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a12">cread</a> (char Buf[], <a class="el" href="classpqxx_1_1LargeObject.html#s0">size_type</a> Len)  throw ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Read from large object's data stream.</em> <a href="#a12"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>Oid&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObjectAccess.html#a13">id</a> () const  throw ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Object identifier.</em> <a href="#a13"></a><em></em></font><br><br></td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 Accessor for large object's contents.
@@ -150,7 +148,7 @@ Create new large object and open it.
         <tr>
           <td></td>
           <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"><code> [explicit]</code></td>
+          <td class="md" colspan="2"></td>
         </tr>
 
       </table>
@@ -312,7 +310,7 @@ Creates a large object containing the data found in the given file. <dl compact>
   </tr>
 </table>
 <hr><h2>Member Function Documentation</h2>
-<a name="a13" doxytag="pqxx::LargeObjectAccess::cread"></a><p>
+<a name="a12" doxytag="pqxx::LargeObjectAccess::cread"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -358,7 +356,7 @@ Does not throw exception in case of error; inspect return value and errno instea
     </td>
   </tr>
 </table>
-<a name="a11" doxytag="pqxx::LargeObjectAccess::cseek"></a><p>
+<a name="a10" doxytag="pqxx::LargeObjectAccess::cseek"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -404,7 +402,7 @@ Does not throw exception in case of error; inspect return value and errno instea
     </td>
   </tr>
 </table>
-<a name="a12" doxytag="pqxx::LargeObjectAccess::cwrite"></a><p>
+<a name="a11" doxytag="pqxx::LargeObjectAccess::cwrite"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -450,7 +448,7 @@ Does not throw exception in case of error; inspect return value and errno instea
     </td>
   </tr>
 </table>
-<a name="a14" doxytag="pqxx::LargeObjectAccess::id"></a><p>
+<a name="a13" doxytag="pqxx::LargeObjectAccess::id"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -480,7 +478,7 @@ Object identifier.
 The number returned by this function identifies the large object in the database we're connected to.     </td>
   </tr>
 </table>
-<a name="a9" doxytag="pqxx::LargeObjectAccess::read"></a><p>
+<a name="a8" doxytag="pqxx::LargeObjectAccess::read"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -526,7 +524,7 @@ Returns the number of bytes read, which may be less than the number of bytes req
     </td>
   </tr>
 </table>
-<a name="a10" doxytag="pqxx::LargeObjectAccess::seek"></a><p>
+<a name="a9" doxytag="pqxx::LargeObjectAccess::seek"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -566,7 +564,7 @@ Seek in large object's data stream.
 Returns the new position in the large object. Throws an exception if an error occurs.     </td>
   </tr>
 </table>
-<a name="a6" doxytag="pqxx::LargeObjectAccess::to_file"></a><p>
+<a name="a5" doxytag="pqxx::LargeObjectAccess::to_file"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -602,43 +600,7 @@ Writes the data stored in the large object to the given file. <dl compact><dt><b
     </td>
   </tr>
 </table>
-<a name="a5" doxytag="pqxx::LargeObjectAccess::to_file"></a><p>
-<table width="100%" cellpadding="2" cellspacing="0" border="0">
-  <tr>
-    <td class="md">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"> void pqxx::LargeObjectAccess::to_file </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">const char&nbsp;</td>
-          <td class="mdname1" valign="top" nowrap>&nbsp; <em>File</em>[]          </td>
-          <td class="md" valign="top">)&nbsp;</td>
-          <td class="md" nowrap> const</td>
-        </tr>
-
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing=5 cellpadding=0 border=0>
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-Export large object's contents to a local file.
-<p>
-Writes the data stored in the large object to the given file. <dl compact><dt><b>Parameters:</b></dt><dd>
-  <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign=top><em>File</em>&nbsp;</td><td>a filename on the client's filesystem </td></tr>
-  </table>
-</dl>
-    </td>
-  </tr>
-</table>
-<a name="a8" doxytag="pqxx::LargeObjectAccess::write"></a><p>
+<a name="a7" doxytag="pqxx::LargeObjectAccess::write"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -674,7 +636,7 @@ If not all bytes could be written, an exception is thrown. <dl compact><dt><b>Pa
     </td>
   </tr>
 </table>
-<a name="a7" doxytag="pqxx::LargeObjectAccess::write"></a><p>
+<a name="a6" doxytag="pqxx::LargeObjectAccess::write"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -722,7 +684,7 @@ If not all bytes could be written, an exception is thrown. <dl compact><dt><b>Pa
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="largeobject_8h-source.html">largeobject.h</a><li><a class="el" href="largeobject_8cxx.html">largeobject.cxx</a></ul>
-<hr><address style="align: right;"><small>Generated on Sun Mar 30 00:06:58 2003 for libpqxx by
+<hr><address style="align: right;"><small>Generated on Sun Mar 30 20:02:13 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

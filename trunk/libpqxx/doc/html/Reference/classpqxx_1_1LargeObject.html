@@ -45,12 +45,10 @@
 <tr><td>&nbsp;</td><td><font size=-1><em>Comparison is only valid between large objects in the same database.</em> <a href="#a10"></a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a11">operator&gt;</a> (const LargeObject &amp;other) const</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Comparison is only valid between large objects in the same database.</em> <a href="#a11"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a12">to_file</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, const char File[]) const</td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a12">to_file</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, const PGSTD::string &amp;File) const</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Export large object's contents to a local file.</em> <a href="#a12"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a13">to_file</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, const PGSTD::string &amp;File) const</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Export large object's contents to a local file.</em> <a href="#a13"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a14">remove</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T) const</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Delete large object from database.</em> <a href="#a14"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a13">remove</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T) const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Delete large object from database.</em> <a href="#a13"></a><em></em></font><br><br></td></tr>
 <tr><td colspan=2><br><h2>Protected Member Functions</h2></td></tr>
 <tr><td nowrap align=right valign=top>PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#b0">Reason</a> () const</td></tr>
 <tr><td colspan=2><br><h2>Static Protected Member Functions</h2></td></tr>
@@ -544,7 +542,7 @@ Comparison is only valid between large objects in the same database.
     </td>
   </tr>
 </table>
-<a name="a14" doxytag="pqxx::LargeObject::remove"></a><p>
+<a name="a13" doxytag="pqxx::LargeObject::remove"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -580,7 +578,7 @@ As opposed to its low-level equivalent cunlink, this will throw an exception if 
     </td>
   </tr>
 </table>
-<a name="a13" doxytag="pqxx::LargeObject::to_file"></a><p>
+<a name="a12" doxytag="pqxx::LargeObject::to_file"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -626,55 +624,9 @@ Writes the data stored in the large object to the given file. <dl compact><dt><b
     </td>
   </tr>
 </table>
-<a name="a12" doxytag="pqxx::LargeObject::to_file"></a><p>
-<table width="100%" cellpadding="2" cellspacing="0" border="0">
-  <tr>
-    <td class="md">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"> void pqxx::LargeObject::to_file </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top"><a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;&nbsp;</td>
-          <td class="mdname" nowrap>&nbsp; <em>T</em>, </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td class="md" nowrap>const char&nbsp;</td>
-          <td class="mdname" nowrap>&nbsp; <em>File</em>[]</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"> const</td>
-        </tr>
-
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing=5 cellpadding=0 border=0>
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-Export large object's contents to a local file.
-<p>
-Writes the data stored in the large object to the given file. <dl compact><dt><b>Parameters:</b></dt><dd>
-  <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign=top><em>T</em>&nbsp;</td><td>the transaction in which the object is to be accessed </td></tr>
-    <tr><td valign=top><em>File</em>&nbsp;</td><td>a filename on the client's filesystem </td></tr>
-  </table>
-</dl>
-    </td>
-  </tr>
-</table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="largeobject_8h-source.html">largeobject.h</a><li><a class="el" href="largeobject_8cxx.html">largeobject.cxx</a></ul>
-<hr><address style="align: right;"><small>Generated on Sun Mar 30 00:06:58 2003 for libpqxx by
+<hr><address style="align: right;"><small>Generated on Sun Mar 30 20:02:13 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

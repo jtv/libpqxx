@@ -87,9 +87,9 @@ pqxx::LargeObject::LargeObject(const LargeObjectAccess &O) :
 }
 
 
-void pqxx::LargeObject::to_file(TransactionItf &T, const char File[]) const
+void pqxx::LargeObject::to_file(TransactionItf &T, const string &File) const
 {
-  if (lo_export(RawConnection(T), id(), File) == -1)
+  if (lo_export(RawConnection(T), id(), File.c_str()) == -1)
     throw runtime_error("Could not export large object " + ToString(m_ID) + " "
 	                "to file '" + File + "': " +
 			Reason());

@@ -45,9 +45,6 @@ public:
   TableReader(TransactionItf &, const PGSTD::string &RName);		//[t6]
   ~TableReader();							//[t6]
 
-  TableReader &operator>>(Result &);					//[]
-  TableReader &operator>>(PGSTD::string &);				//[]
-
   template<typename TUPLE> TableReader &operator>>(TUPLE &);		//[t8]
 
   operator bool() const throw () { return !m_Done; }			//[t6]

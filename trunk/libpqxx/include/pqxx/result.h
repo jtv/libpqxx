@@ -78,6 +78,9 @@ public:
 
     Result::size_type Row() const { return m_Index; }			//[t11]
 
+    size_type ColumnNumber(const char ColName[]) const 			//[]
+    	{ return m_Home->ColumnNumber(ColName); }
+
   protected:
     const Result *m_Home;
     Result::size_type m_Index;

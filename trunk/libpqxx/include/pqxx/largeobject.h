@@ -58,7 +58,7 @@ public:
    * @param T the backend transaction in which the large object is to be created
    * @param File a filename on the client program's filesystem
    */
-  LargeObject(TransactionItf &T, const PGSTD::string &File);		//[]
+  LargeObject(TransactionItf &T, const PGSTD::string &File);		//[t53]
 
   /// Take identity of an opened large object
   /** Copy identity of already opened large object.  Note that this may be done
@@ -97,17 +97,7 @@ public:
    * @param T the transaction in which the object is to be accessed
    * @param File a filename on the client's filesystem
    */
-  void to_file(TransactionItf &T, const char File[]) const;		//[]
-
-  /// Export large object's contents to a local file
-  /** Writes the data stored in the large object to the given file.
-   * @param T the transaction in which the object is to be accessed
-   * @param File a filename on the client's filesystem
-   */
-  void to_file(TransactionItf &T, const PGSTD::string &File) const 	//[]
-  { 
-    to_file(T, File.c_str()); 
-  }
+  void to_file(TransactionItf &T, const PGSTD::string &File) const; 	//[t52]
 
   /// Delete large object from database
   /** As opposed to its low-level equivalent cunlink, this will throw an
@@ -152,11 +142,11 @@ public:
    * @param O object identifier for the given object
    * @param mode access mode, defaults to ios_base::in | ios_base::out
    */
-  explicit LargeObjectAccess(TransactionItf &T, 
-			     Oid O,
-			     PGSTD::ios_base::openmode mode = 
-				PGSTD::ios_base::in | 
-				PGSTD::ios_base::out);			//[]
+  LargeObjectAccess(TransactionItf &T, 
+		    Oid O,
+		    PGSTD::ios_base::openmode mode = 
+			PGSTD::ios_base::in | 
+			PGSTD::ios_base::out);				//[t52]
 
   /// Open given large object
   /** Open a large object with the given identity for reading and/or writing
@@ -179,7 +169,7 @@ public:
   LargeObjectAccess(TransactionItf &T, 
 		    const PGSTD::string &File,
 		    PGSTD::ios_base::openmode mode = 
-			PGSTD::ios_base::in | PGSTD::ios_base::out);	//[]
+			PGSTD::ios_base::in | PGSTD::ios_base::out);	//[t55]
 
   ~LargeObjectAccess() { close(); }
 
@@ -193,16 +183,7 @@ public:
   /** Writes the data stored in the large object to the given file.
    * @param File a filename on the client's filesystem
    */
-  void to_file(const char File[]) const 				//[]
-  { 
-    LargeObject::to_file(m_Trans, File); 
-  }
-
-  /// Export large object's contents to a local file
-  /** Writes the data stored in the large object to the given file.
-   * @param File a filename on the client's filesystem
-   */
-  void to_file(const PGSTD::string &File) const 			//[]
+  void to_file(const PGSTD::string &File) const 			//[t54]
   { 
     LargeObject::to_file(m_Trans, File); 
   }
@@ -212,7 +193,7 @@ public:
    * @param Buf the data to write
    * @param Len the number of bytes from Buf to write
    */
-  void write(const char Buf[], size_type Len);				//[]
+  void write(const char Buf[], size_type Len);				//[t51]
 
   /// Write string to large object
   /** If not all bytes could be written, an exception is thrown.

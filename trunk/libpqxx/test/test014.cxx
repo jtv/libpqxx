@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 
 #include <pqxx/connection.h>
@@ -44,6 +45,8 @@ int main(int, char *argv[])
     // This is not a memory leak: C stores MyNoticer in an auto_ptr that will
     // delete the object on destruction.
     C.SetNoticer(auto_ptr<Noticer>(MyNoticer));
+
+    assert(C.GetNoticer() == MyNoticer);
 
     // Now use our Noticer to output a diagnostic message.  Note that the
     // message must end in a newline.

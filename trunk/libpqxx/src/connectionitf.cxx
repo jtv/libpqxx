@@ -153,8 +153,7 @@ void pqxx::ConnectionItf::Deactivate() const
 void pqxx::ConnectionItf::SetClientEncoding(const char Encoding[])
 {
   if (PQsetClientEncoding(m_Conn, Encoding) != 0)
-    throw runtime_error("Could not set client encoding to " +
-	                string(Encoding));
+    throw runtime_error(ErrMsg());
 }
 
 

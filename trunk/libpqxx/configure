@@ -8529,8 +8529,6 @@ if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 		-Wwrite-strings  \
 		-Wconversion \
 		-Wsign-compare \
-		-Wmissing-noreturn \
-		-Wmissing-format-attribute  \
 		-Wredundant-decls \
 		-Wabi \
 		-Wctor-dtor-privacy \
