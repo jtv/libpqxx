@@ -1,5 +1,7 @@
 2.2.5
- - Early work on new cursors interface
+ - First new cursor classes!
+ - Fixed strange failure in tablewriter during large insertions
+ - Updated tutorial
 2.2.4
  - New utility class template, items<> for easy container initialization
  - New utility function template, separated_list()
