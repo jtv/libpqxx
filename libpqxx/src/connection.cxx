@@ -44,15 +44,12 @@ pqxx::connection::connection(const char ConnInfo[]) :
   do_startconnect();
 }
 
-pqxx::connection::~connection() throw ()
-{
-}
-
-
-// Work around problem with Sun CC 5.1
-pqxx::lazyconnection::~lazyconnection() throw ()
-{
-}
+// Conflicting workarounds for Windows and SUN CC 5.1; see header
+#ifndef _WIN32
+pqxx::connection::~connection() throw () { close(); }
+pqxx::lazyconnection::~lazyconnection() throw () { close(); }
+pqxx::asyncconnection::~asyncconnection() throw () {do_dropconnect(); close();}
+#endif	// _WIN32
 
 
 pqxx::asyncconnection::asyncconnection() :
@@ -76,13 +73,6 @@ pqxx::asyncconnection::asyncconnection(const char ConnInfo[]) :
   m_connecting(false)
 {
   do_startconnect();
-}
-
-
-// Work around problem with Sun CC 5.1
-pqxx::asyncconnection::~asyncconnection() throw ()
-{
-  do_dropconnect();
 }
 
 
