@@ -445,7 +445,6 @@ const char *pqxx::connection_base::ErrMsg() const
 
 pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 {
-  // TODO: "Single-query" vsn based on PQexecParams() & private multi-query one
   activate();
 
   result R( PQexec(m_Conn, Query) );
@@ -457,8 +456,12 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
     if (is_open()) R = PQexec(m_Conn, Query);
   }
 
-  // TODO: Is this really right?  What if there's just no memory?
-  if (!R) throw broken_connection();
+  if (!R)
+  {
+    // A shame we can't detect out-of-memory to turn this into a bad_alloc...
+    if (!is_open()) throw broken_connection();
+    throw runtime_error(ErrMsg());
+  }
   R.CheckStatus(Query);
   get_notifs();
   return R;
@@ -481,8 +484,11 @@ pqxx::result pqxx::connection_base::exec_prepared(const char QueryName[],
       R = PQexecPrepared(m_Conn, QueryName, NumParams, Params, NULL, NULL, 0);
   }
 
-  // TODO: Is this really right?  What if there's just no memory?
-  if (!R) throw broken_connection();
+  if (!R)
+  {
+    if (!is_open()) throw broken_connection();
+    throw runtime_error(ErrMsg());
+  }
   R.CheckStatus(QueryName);
   get_notifs();
   return R;

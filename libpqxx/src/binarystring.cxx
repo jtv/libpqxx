@@ -41,8 +41,7 @@ pqxx::binarystring::binarystring(const result::field &F) :
 
   size_t sz = 0;
   super::operator=(PQunescapeBytea(p, &sz));
-  // TODO: More useful error message--report cause of the problem!
-  if (!c_ptr()) throw runtime_error("Unable to read bytea field");
+  if (!c_ptr()) throw bad_alloc();
   m_size = sz;
 
 #else
@@ -101,8 +100,7 @@ string pqxx::escape_binary(const unsigned char bin[], size_t len)
   unsigned char *p = const_cast<unsigned char *>(bin);
   PQAlloc<unsigned char> A(PQescapeBytea(p, len, &escapedlen));
   const char *cstr = reinterpret_cast<const char *>(A.c_ptr());
-  // TODO: Find out the nature of the problem, if any!
-  if (!cstr) throw runtime_error("Could not escape binary string!");
+  if (!cstr) throw bad_alloc();
   return string(cstr, escapedlen-1);
 #else
   string result;
