@@ -1,7 +1,9 @@
 #include <cstdio>
 #include <iostream>
+#include <vector>
 
 #include "pg_connection.h"
+#include "pg_tablewriter.h"
 #include "pg_transaction.h"
 #include "pg_result.h"
 
@@ -67,6 +69,10 @@ pair<int,int> CountEvents(Transaction &T)
 // performed correctly.
 void Test(Connection &C, bool ExplicitAbort)
 {
+  vector<string> BoringTuple;
+  BoringTuple.push_back(ToString(BoringYear));
+  BoringTuple.push_back("yawn");
+
   pair<int,int> EventCounts;
 
   // First run our doomed transaction.  This will refuse to run if an event
@@ -86,9 +92,19 @@ void Test(Connection &C, bool ExplicitAbort)
 			  Table);
 
     // Now let's try to introduce a tuple for our Boring Year
-    Doomed.Exec(("INSERT INTO " + Table + " VALUES (" +
-		 ToString(BoringYear) + ", "
-		 "'yawn')").c_str());
+    {
+      TableWriter W(Doomed, "InsertEvent");
+
+      const string Literal = W.ezinekoT(BoringTuple);
+      const string Expected = ToString(BoringYear) + "\t" + BoringTuple[1];
+      if (Literal != Expected)
+	throw logic_error("TableWriter writes new tuple as '" +
+			  Literal + "', "
+			  "ought to be '" +
+			  Expected + "'");
+
+      W.push_back(BoringTuple);
+    }
 
     const pair<int,int> Recount = CountEvents(Doomed);
     if (Recount.second != 1)

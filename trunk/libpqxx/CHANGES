@@ -1,3 +1,8 @@
+2002-03-01 00:15
+ TableWriter:
+  - Full test coverage
+ Test10:
+  - Used TableWriter to insert tuple
 2002-02-28 23:30
  Test13:
   - Created
