@@ -1,3 +1,8 @@
+2002-12-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.h, src/cursor.cxx:
+  - Introduced size_type typedef
+ test/test13, test/test18, test/test32, test/test37:
+  - Prepend "(Expected)" to error messages that are supposed to be there
 2002-12-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cursor.h:
   - Add warning about not all queries allowing cursors to go backwards
