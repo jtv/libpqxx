@@ -1,16 +1,19 @@
 2.4.1
+ - Several bugs in icursor_iterator fixed; incompatible interface changes
  - Tightens throw specifications on begin(), end(), size(), capacity()
  - Containers define reference and pointer types
  - Implements swap() in all container types
  - Implements == and != in all container types
- - Stabilizes new (but still partial) cursor interface
- - icursor_iterator thinks only in stride granularity
- - Several bugs in icursor_iterator fixed
+ - Stabilizes new (but still limited) cursor interface
+ - icursor_iterator thinks purely in stride granularity
+ - Introduces </<=/>/>= comparisons for icursor_iterators
  - Allows "adopted SQL cursors" in new cursor interface
- - Reference-counting in binarystrings, so they can be copied
+ - Reference-counting in binarystrings, so they can be copied (and efficiently)
  - Fixes reference-to-temporary problem with std::reverse_iterator in results
  - Result/tuple reverse_iterators no longer require std::reverse_iterator
- - Fixes incompatibility with some implementations of Unix "cut" program again
+ - Includes some sample config headers (in config/sample-headers)
+ - Replaces iffy autoconf checks (avoid failures with maintainer mode's -Werror)
+ - Fixes incompatibility with some implementations of Unix "cut" program (again)
 2.4.0
  - Fixes incompatibility with some implementations of Unix "cut" program
  - Fixes "ptrdiff_t redefinition" problem in some environments

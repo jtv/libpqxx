@@ -109,15 +109,7 @@ public:
 
     size_type size() const throw () { return m_Home->columns(); }	//[t11]
 
-    void swap(tuple &rhs) throw ()					//[t11]
-    {
-      const result *const h(m_Home);
-      const result::size_type i(m_Index);
-      m_Home = rhs.m_Home;
-      m_Index = rhs.m_Index;
-      rhs.m_Home = h;
-      rhs.m_Index = i;
-    }
+    void swap(tuple &) throw ();					//[t11]
 
     result::size_type rownumber() const throw () { return m_Index; }	//[t11]
 
@@ -252,9 +244,7 @@ public:
      */
     template<typename T> bool to(T &Obj) const				//[t3]
     {
-      if (is_null())
-        return false;
-
+      if (is_null()) return false;
       try
       {
         from_string(c_str(), Obj);
@@ -389,7 +379,7 @@ public:
 
     inline const_iterator operator+(difference_type) const;		//[t12]
     friend const_iterator
-    operator+(difference_type, const_iterator);			//[t12]
+    operator+(difference_type, const_iterator);				//[t12]
     inline const_iterator operator-(difference_type) const;		//[t12]
     inline difference_type operator-(const_iterator) const;		//[t12]
 
@@ -422,20 +412,10 @@ public:
     reference operator*() const throw () { return *operator->(); }	//[t75]
     const_reverse_iterator operator++()					//[t75]
 	{ iterator_type::operator--(); return *this; }
-    const_reverse_iterator operator++(int)				//[t75]
-    {
-      const const_reverse_iterator tmp(*this);
-      iterator_type::operator--();
-      return tmp;
-    }
+    const_reverse_iterator operator++(int);				//[t75]
     const_reverse_iterator &operator--() 				//[t75]
 	{ iterator_type::operator++(); return *this; }
-    const_reverse_iterator operator--(int)				//[t75]
-    {
-      const_reverse_iterator tmp(*this);
-      iterator_type::operator++();
-      return tmp;
-    }
+    const_reverse_iterator operator--(int);				//[t75]
     const_reverse_iterator operator+(difference_type i) const		//[t75]
 	{ return const_reverse_iterator(iterator_type(*this)-i); }
     const_reverse_iterator &operator+=(difference_type i)		//[t75]
@@ -550,20 +530,10 @@ public:
     reference operator*() const throw () { return *operator->(); }	//[t82]
     const_reverse_fielditerator operator++()				//[t82]
 	{ iterator_type::operator--(); return *this; }
-    const_reverse_fielditerator operator++(int)				//[t82]
-    {
-      const const_reverse_fielditerator tmp(*this);
-      iterator_type::operator--();
-      return tmp;
-    }
+    const_reverse_fielditerator operator++(int);			//[t82]
     const_reverse_fielditerator &operator--() 				//[t82]
 	{ iterator_type::operator++(); return *this; }
-    const_reverse_fielditerator operator--(int)				//[t82]
-    {
-      const_reverse_fielditerator tmp(*this);
-      iterator_type::operator++();
-      return tmp;
-    }
+    const_reverse_fielditerator operator--(int);			//[t82]
     const_reverse_fielditerator operator+(difference_type i) const	//[t82]
 	{ return const_reverse_fielditerator(iterator_type(*this)-i); }
     const_reverse_fielditerator &operator+=(difference_type i)		//[t82]
@@ -657,9 +627,9 @@ public:
   const char *column_name(tuple::size_type Number) const;		//[t11]
 
   /// Type of given column
-  inline oid column_type(tuple::size_type ColNum) const;		//[t7]
+  oid column_type(tuple::size_type ColNum) const;			//[t7]
   /// Type of given column
-  inline oid column_type(int ColNum) const				//[t7]
+  oid column_type(int ColNum) const					//[t7]
   	{ return column_type(tuple::size_type(ColNum)); }
 
   /// Type of given column
@@ -805,97 +775,45 @@ inline result::tuple::const_reverse_iterator result::tuple::rend() const
 
 inline result::const_iterator 
 result::const_iterator::operator+(difference_type o) const
-{
-  return const_iterator(m_Home, m_Index + o);
-}
+	{ return const_iterator(m_Home, m_Index + o); }
 
 inline result::const_iterator 
 operator+(result::const_iterator::difference_type o, result::const_iterator i)
-{
-  return i + o;
-}
+	{ return i + o; }
 
 inline result::const_iterator 
 result::const_iterator::operator-(difference_type o) const
-{
-  return const_iterator(m_Home, m_Index - o);
-}
+	{ return const_iterator(m_Home, m_Index - o); }
 
 inline result::const_iterator::difference_type 
 result::const_iterator::operator-(const_iterator i) const
-{ 
-  return num()-i.num(); 
-}
+	{ return num()-i.num(); }
 
 inline result::const_iterator result::end() const throw ()
-{ 
-  return const_iterator(this, size()); 
-}
+	{ return const_iterator(this, size()); }
 
 
 inline result::const_reverse_iterator
 operator+(result::const_reverse_iterator::difference_type n,
 	  const result::const_reverse_iterator &i)
-{
-  return result::const_reverse_iterator(i.base() - n);
-}
+	{ return result::const_reverse_iterator(i.base() - n); }
 
 inline result::const_fielditerator 
 result::const_fielditerator::operator+(difference_type o) const
-{
-  return const_fielditerator(m_tup, col() + o);
-}
+	{ return const_fielditerator(m_tup, col() + o); }
 
 inline result::const_fielditerator 
 operator+(result::const_fielditerator::difference_type o,
 	  result::const_fielditerator i)
-{
-  return i + o;
-}
+	{ return i + o; }
 
 inline result::const_fielditerator 
 result::const_fielditerator::operator-(difference_type o) const
-{
-  return const_fielditerator(m_tup, col() - o);
-}
+	{ return const_fielditerator(m_tup, col() - o); }
 
 inline result::const_fielditerator::difference_type 
 result::const_fielditerator::operator-(const_fielditerator i) const
-{ 
-  return num()-i.num(); 
-}
-
-
-inline oid result::column_type(tuple::size_type ColNum) const
-{
-  const oid T = PQftype(c_ptr(), ColNum);
-  if (T == oid_none)
-    throw PGSTD::invalid_argument(
-		"Attempt to retrieve type of nonexistant column " +
-	        to_string(ColNum) + " "
-		"of query result");
-  return T;
-}
-
-
-
-#ifdef PQXX_HAVE_PQFTABLE
-inline oid result::column_table(tuple::size_type ColNum) const
-{
-  const oid T = PQftable(c_ptr(), ColNum);
-
-  /* If we get oid_none, it may be because the column is computed, or because
-   * we got an invalid row number.
-   */
-  // TODO: Skip this if we first computed the column name ourselves
-  if ((T == oid_none) &&
-      (ColNum >= columns()))
-    throw PGSTD::invalid_argument("Attempt to retrieve table ID for column " +
-				  to_string(ColNum) + " "
-				  "out of " + to_string(columns()));
-  return T;
-}
-#endif
+	{ return num()-i.num(); }
 
 
 template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
@@ -933,14 +851,9 @@ protected:
 
 protected:
   virtual pos_type seekoff(off_type, seekdir, openmode)
-  {
-    return traits_type::eof();
-  }
-
+	{ return traits_type::eof(); } 
   virtual pos_type seekpos(pos_type, openmode) {return traits_type::eof();}
-
   virtual int_type overflow(int_type) { return traits_type::eof(); }
-
   virtual int_type underflow() { return traits_type::eof(); }
 
 private:
@@ -1007,13 +920,13 @@ typedef basic_fieldstream<char> fieldstream;
 /* 
 [1] Scott Meyers, in one of his essential books, "Effective C++" and "More 
 Effective C++", points out that it is good style to have any class containing 
-a member of pointer type define its own destructor--just to show that it knows
-what it is doing.  This helps prevent nasty memory leak / double deletion bugs
-typically resulting from programmers' omission to deal with such issues in
-their destructors.
+a member of pointer type define a destructor--just to show that it knows what it
+is doing with the pointer.  This helps prevent nasty memory leak / double
+deletion bugs typically resulting from programmers' omission to deal with such
+issues in their destructors.
 
 The -Weffc++ option in gcc generates warnings for noncompliance with Scott's
-style guidelines, and hence necessitates the definition of this destructor,\
+style guidelines, and hence necessitates the definition of this destructor,
 trivial as it may be.
 
 [2] IIRC Alex Stepanov, the inventor of the STL, once remarked that having

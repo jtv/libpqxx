@@ -1,3 +1,25 @@
+2004-11-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers:
+  - New
+  - For distributing sample configuration headers
+ configure.ac.in:
+  - Replace autoconf's function checks with -Werror-proof code
+ include/pqxx/cursor.hxx, src/cursor.cxx:
+  - Took out a lot of inlining
+  - Added </<=/>/>= operators to icursor_iterator
+  - Full test coverage
+ include/pqxx/Makefile.am:
+  - Reinstated compiler.h as a distributed (but not installed) file
+  - Reinstated config-internal-autotools.h as distributed (but not installed)
+ include/pqxx/result.hxx, src/result.hxx:
+  - Took out a lot of inlining
+ test/test081.cxx:
+  - Test stride()
+ test/test084.cxx:
+  - Licked icursor_iterator problems (most bugs were in test program :)
+  - Test </<=/>/>= operators
+ tools/preprelease:
+  - Fixed symbols listing; used to cut off function before second argument
 2004-11-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.hxx, src/util.cxx:
   - Lots more work on icursor_iterator but still not quite right

@@ -46,17 +46,9 @@ public:
   const PGSTD::string &name() const throw () { return m_name; }		//[t81]
 
 protected:
-  cursor_base(transaction_base *context,
+  cursor_base(transaction_base *,
       const PGSTD::string &cname,
-      bool embellish_name = true) :
-  	m_context(context), m_done(false), m_name(cname)
-  {
-    if (embellish_name)
-    {
-      m_name += "_";
-      m_name += to_string(get_unique_cursor_num());
-    }
-  }
+      bool embellish_name = true);
 
   transaction_base *m_context;
   bool m_done;
@@ -175,21 +167,21 @@ public:
    * @param stride must be a positive number
    */
   void set_stride(difference_type stride);				//[t81]
-  difference_type stride() const throw () { return m_stride; }		//[]
+  difference_type stride() const throw () { return m_stride; }		//[t81]
 
 private:
   void declare(const PGSTD::string &query);
   result fetch();
 
   friend class icursor_iterator;
-  size_type forward(size_type n=1) { m_maxpos += n*m_stride; return m_maxpos; }
+  size_type forward(size_type n=1);
   void insert_iterator(icursor_iterator *) throw ();
   void remove_iterator(icursor_iterator *) const throw ();
 
   void service_iterators(size_type);
 
   difference_type m_stride;
-  size_type m_realpos, m_maxpos;
+  size_type m_realpos, m_reqpos;
 
   mutable icursor_iterator *m_iterators;
 };
@@ -245,12 +237,12 @@ public:
   bool operator==(const icursor_iterator &rhs) const;			//[t84]
   bool operator!=(const icursor_iterator &rhs) const throw ()		//[t84]
   	{ return !operator==(rhs); }
-  bool operator<(const icursor_iterator &rhs) const;			//[]
-  bool operator>(const icursor_iterator &rhs) const			//[]
+  bool operator<(const icursor_iterator &rhs) const;			//[t84]
+  bool operator>(const icursor_iterator &rhs) const			//[t84]
 	{ return rhs < *this; }
-  bool operator<=(const icursor_iterator &rhs) const			//[]
+  bool operator<=(const icursor_iterator &rhs) const			//[t84]
 	{ return !(*this > rhs); }
-  bool operator>=(const icursor_iterator &rhs) const			//[]
+  bool operator>=(const icursor_iterator &rhs) const			//[t84]
 	{ return !(*this < rhs); }
 
 private:

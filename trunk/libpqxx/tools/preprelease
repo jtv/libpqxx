@@ -123,7 +123,7 @@ grep '^FAIL:' $LOGFILE 2>>$ERRLOG || true
 grep '^All [0-9]* tests passed' $LOGFILE
 
 log "Generating symbol table"
-nm --demangle src/.libs/libpqxx.a | cut -d' ' -f 3  | grep -v '^_' | grep -v '^$' | grep -i '^pqxx' | sort -u -o $SOURCEDIR/lib/SYMBOLS.$PQXXVERSION
+nm --demangle src/.libs/libpqxx.a | cut -d' ' -f 3-  | grep -v '^_' | grep -v '^$' | grep -i '^pqxx' | sort -u -o $SOURCEDIR/lib/SYMBOLS.$PQXXVERSION
 
 log "Creating release version of $TARBALL"
 command "make dist" nice
