@@ -44,9 +44,19 @@ class PQXX_LIBEXPORT tablewriter : public tablestream
 public:
   typedef unsigned size_type;
 
-  tablewriter(transaction_base &Trans, 
+  tablewriter(transaction_base &, 
       const PGSTD::string &WName,
       const PGSTD::string &Null=PGSTD::string());			//[t5]
+
+  /// Write only the given sequence of columns
+  /** The backend supports this starting at PostgreSQL version 7.3.
+   */
+  template<typename ITER>
+  tablewriter(transaction_base &, 
+      const PGSTD::string &WName,
+      ITER begincolumns,
+      ITER endcolumns,
+      const PGSTD::string &Null=PGSTD::string());			//[]
   ~tablewriter() throw ();						//[t5]
 
   template<typename IT> void insert(IT Begin, IT End);			//[t5]
@@ -87,6 +97,9 @@ public:
 #endif
 
 private:
+  void setup(transaction_base &, 
+      const PGSTD::string &WName,
+      const PGSTD::string &Columns = PGSTD::string());
   void WriteRawLine(const PGSTD::string &);
   void flush_pending();
   void writer_close();
@@ -136,6 +149,19 @@ private:
 
 namespace pqxx
 {
+
+template<typename ITER> inline
+tablewriter::tablewriter(transaction_base &T,
+    const PGSTD::string &WName,
+    ITER begincolumns,
+    ITER endcolumns,
+    const PGSTD::string &Null) :
+  tablestream(T, WName, Null, "tablewriter"),
+  m_PendingLine()
+{
+  setup(T, WName, columnlist(begincolumns, endcolumns));
+}
+
 
 inline PGSTD::string tablewriter::EscapeAny(const PGSTD::string &t) const
 {

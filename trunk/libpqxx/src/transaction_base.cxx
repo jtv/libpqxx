@@ -360,15 +360,28 @@ void pqxx::transaction_base::CheckPendingError()
 }
 
 
-void pqxx::transaction_base::BeginCopyRead(const string &Table)
+namespace
 {
-  exec("COPY " + Table + " TO STDOUT");
+string MakeCopyString(const string &Table, const string &Columns)
+{
+  string Q = "COPY " + Table + " ";
+  if (!Columns.empty()) Q += "(" + Columns + ") ";
+  return Q;
+}
+} // namespace
+
+
+void pqxx::transaction_base::BeginCopyRead(const string &Table, 
+    const string &Columns)
+{
+  exec(MakeCopyString(Table, Columns) + "TO STDOUT");
 }
 
 
-void pqxx::transaction_base::BeginCopyWrite(const string &Table)
+void pqxx::transaction_base::BeginCopyWrite(const string &Table,
+    const string &Columns)
 {
-  exec("COPY " + Table + " FROM STDIN");
+  exec(MakeCopyString(Table, Columns) + "FROM STDIN");
   m_Conn.go_async();
 }
 
@@ -376,12 +389,14 @@ void pqxx::transaction_base::BeginCopyWrite(const string &Table)
 void pqxx::internal::transactionfocus::register_me()
 {
   m_Trans.RegisterFocus(this);
+  m_registered = true;
 }
 
 
 void pqxx::internal::transactionfocus::unregister_me() throw ()
 {
   m_Trans.UnregisterFocus(this);
+  m_registered = false;
 }
 
 void pqxx::internal::transactionfocus::reg_pending_error(const string &err) throw ()

@@ -30,8 +30,7 @@ pqxx::tablewriter::tablewriter(transaction_base &T,
   tablestream(T, WName, Null, "tablewriter"),
   m_PendingLine()
 {
-  T.BeginCopyWrite(WName);
-  register_me();
+  setup(T, WName);
 }
 
 
@@ -45,6 +44,15 @@ pqxx::tablewriter::~tablewriter() throw ()
   {
     reg_pending_error(e.what());
   }
+}
+
+
+void pqxx::tablewriter::setup(transaction_base &T,
+    const string &WName,
+    const string &Columns)
+{
+  T.BeginCopyWrite(WName, Columns);
+  register_me();
 }
 
 

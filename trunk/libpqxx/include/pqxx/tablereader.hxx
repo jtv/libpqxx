@@ -46,6 +46,17 @@ public:
   tablereader(transaction_base &, 
       const PGSTD::string &RName,
       const PGSTD::string &Null=PGSTD::string());			//[t6]
+
+  /// Read only the given sequence of columns
+  /** The backend supports this starting at PostgreSQL version 7.3.
+   */
+  template<typename ITER>
+  tablereader(transaction_base &, 
+      const PGSTD::string &RName,
+      ITER begincolumns,
+      ITER endcolumns,
+      const PGSTD::string &Null=PGSTD::string());			//[t80]
+
   ~tablereader() throw ();						//[t6]
 
   template<typename TUPLE> tablereader &operator>>(TUPLE &);		//[t8]
@@ -81,6 +92,9 @@ public:
 #endif
 
 private:
+  void setup(transaction_base &T,
+      const PGSTD::string &RName,
+      const PGSTD::string &Columns=PGSTD::string());
   void reader_close();
   PGSTD::string extract_field(const PGSTD::string &, 
       PGSTD::string::size_type &) const;
@@ -89,13 +103,24 @@ private:
 };
 
 
-}
-
 // TODO: Find meaningful definition of input iterator
 
 
+template<typename ITER> inline
+tablereader::tablereader(transaction_base &T, 
+    const PGSTD::string &RName,
+    ITER begincolumns,
+    ITER endcolumns,
+    const PGSTD::string &Null) :
+  tablestream(T, RName, Null, "tablereader"),
+  m_Done(true)
+{
+  setup(T, RName, columnlist(begincolumns, endcolumns));
+}
+
+
 template<typename TUPLE> 
-inline void pqxx::tablereader::tokenize(PGSTD::string Line, TUPLE &T) const
+inline void tablereader::tokenize(PGSTD::string Line, TUPLE &T) const
 {
   PGSTD::back_insert_iterator<TUPLE> ins = PGSTD::back_inserter(T);
 
@@ -106,11 +131,13 @@ inline void pqxx::tablereader::tokenize(PGSTD::string Line, TUPLE &T) const
 
 
 template<typename TUPLE> 
-inline pqxx::tablereader &pqxx::tablereader::operator>>(TUPLE &T)
+inline tablereader &pqxx::tablereader::operator>>(TUPLE &T)
 {
   PGSTD::string Line;
   if (get_raw_line(Line)) tokenize(Line, T);
   return *this;
 }
 
+
+} // namespace pqxx
 
