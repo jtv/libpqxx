@@ -564,12 +564,6 @@ void pqxx::connection_base::unprepare(const string &name)
 }
 
 
-pqxx::result pqxx::connection_base::exec_prepared(const string &name)
-	{ return pq_exec_prepared(name.c_str(), 0, 0); }
-
-pqxx::result pqxx::connection_base::exec_prepared(const char name[])
-	{ return pq_exec_prepared(name, 0, 0); }
-
 pqxx::result pqxx::connection_base::pq_exec_prepared(const string &pname,
 	int nparams,
 	const char *const *params)
@@ -583,6 +577,7 @@ pqxx::result pqxx::connection_base::pq_exec_prepared(const string &pname,
   // "Register" (i.e., define) prepared statement with backend on demand
   if (!p->second.registered)
   {
+    // TODO: Wrap in nested transaction if backend supports it!
     stringstream P;
     P << "PREPARE " << pname << ' ' << p->second.parameters 
       << " AS " << p->second.definition;
