@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_cursor.cc
+ *	cursor.cc
  *
  *   DESCRIPTION
  *      implementation of the Pg::Cursor class.

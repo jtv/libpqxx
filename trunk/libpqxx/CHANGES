@@ -1,6 +1,9 @@
+2002-03-20 01:30
+ All:
+  - Renamed library source files to match new header file names
 2002-03-20 01:00
  All:
-  - Great Renaming of header files
+  - Great Renaming of header files (pg_*.h to pqxx/*.h)
 2002-03-20 00:30
  All:
   - Moved library header files into include directory

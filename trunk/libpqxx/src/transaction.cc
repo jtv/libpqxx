@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_transaction.cc
+ *	transaction.cc
  *
  *   DESCRIPTION
  *      implementation of the Pg::Transaction class.

@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_nontransaction.cc
+ *	nontransaction.cc
  *
  *   DESCRIPTION
  *      implementation of the Pg::NonTransaction class.

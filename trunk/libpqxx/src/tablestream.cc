@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_tablestream.cc
+ *	tablestream.cc
  *
  *   DESCRIPTION
  *      implementation of the Pg::TableStream class.
