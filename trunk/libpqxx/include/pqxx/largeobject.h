@@ -247,7 +247,8 @@ private:
 };
 
 
-// TODO: Create i, o wrappers (easier construction, no template brackets)
+// TODO: Create i, o stream classes
+// TODO: Allow the creator to select a buffer size
 /// Streambuf to use large objects in standard I/O streams @warning Experimental
 /** @warning Still experimental.  May change profoundly.
  *
@@ -362,12 +363,12 @@ private:
 
   void initialize(PGSTD::ios_base::openmode mode)
   {
-    if (mode & PGSTD::ios::in) 
+    if (mode & PGSTD::ios_base::in) 
     {
       m_G = new char_type[m_BufSize];
       setg(m_G, m_G, m_G);
     }
-    if (mode & PGSTD::ios::out)
+    if (mode & PGSTD::ios_base::out)
     {
       m_P = new char_type[m_BufSize];
       setp(m_P, m_P + m_BufSize);
@@ -380,6 +381,96 @@ private:
   // Get & put buffers
   char_type *m_G, *m_P;
 };
+
+
+template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> > 
+class basic_ilostream : public PGSTD::basic_istream<CHAR, TRAITS>
+{
+public:
+  typedef CHAR char_type;
+  typedef TRAITS traits_type;
+  typedef typename traits_type::int_type int_type;
+  typedef typename traits_type::pos_type pos_type;
+  typedef typename traits_type::off_type off_type;
+
+  basic_ilostream(TransactionItf &T, LargeObject O) :
+    PGSTD::basic_istream<CHAR,TRAITS>(&m_Buf),
+    m_Buf(T, O, PGSTD::ios_base::in) 
+  { 
+  }
+
+  basic_ilostream(TransactionItf &T, Oid O) :
+    PGSTD::basic_istream<CHAR,TRAITS>(&m_Buf),
+    m_Buf(T, O, PGSTD::ios_base::in) 
+  { 
+  }
+
+private:
+  largeobject_streambuf<CHAR,TRAITS> m_Buf;
+};
+
+typedef basic_ilostream<char> ilostream;
+
+template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> > 
+class basic_olostream : public PGSTD::basic_ostream<CHAR, TRAITS>
+{
+public:
+  typedef CHAR char_type;
+  typedef TRAITS traits_type;
+  typedef typename traits_type::int_type int_type;
+  typedef typename traits_type::pos_type pos_type;
+  typedef typename traits_type::off_type off_type;
+
+  basic_olostream(TransactionItf &T, LargeObject O) :
+    PGSTD::basic_ostream<CHAR,TRAITS>(&m_Buf),
+    m_Buf(T, O, PGSTD::ios_base::out) 
+  { 
+  }
+
+  basic_olostream(TransactionItf &T, Oid O) :
+    PGSTD::basic_ostream<CHAR,TRAITS>(&m_Buf),
+    m_Buf(T, O, PGSTD::ios_base::out) 
+  { 
+  }
+
+  ~basic_olostream() { m_Buf.pubsync(); m_Buf.pubsync(); }
+
+private:
+  largeobject_streambuf<CHAR,TRAITS> m_Buf;
+};
+
+typedef basic_olostream<char> olostream;
+
+
+template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> > 
+class basic_lostream : public PGSTD::basic_iostream<CHAR, TRAITS>
+{
+public:
+  typedef CHAR char_type;
+  typedef TRAITS traits_type;
+  typedef typename traits_type::int_type int_type;
+  typedef typename traits_type::pos_type pos_type;
+  typedef typename traits_type::off_type off_type;
+
+  basic_lostream(TransactionItf &T, LargeObject O) :
+    PGSTD::basic_iostream<CHAR,TRAITS>(&m_Buf),
+    m_Buf(T, O) 
+  { 
+  }
+
+  basic_lostream(TransactionItf &T, Oid O) :
+    PGSTD::basic_iostream<CHAR,TRAITS>(&m_Buf),
+    m_Buf(T, O) 
+  { 
+  }
+
+  ~basic_lostream() { m_Buf.pubsync(); m_Buf.pubsync(); }
+
+private:
+  largeobject_streambuf<CHAR,TRAITS> m_Buf;
+};
+
+typedef basic_lostream<char> lostream;
 
 }
 
