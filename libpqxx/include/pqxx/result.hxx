@@ -27,7 +27,6 @@
 /* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
 
-// TODO: Replace refcounting with circular-list: exception-free construction!
 // TODO: Support SQL arrays
 // TODO: value_type, reference, const_reference, difference_type
 // TODO: container comparisons
@@ -46,9 +45,9 @@ namespace pqxx
 class PQXX_LIBEXPORT result
 {
 public:
-  result() throw () : m_Result(0), m_Refcount(0) {}			//[t3]
+  result() throw () : m_Result(0), m_l(this), m_r(this) {}		//[t3]
   result(const result &rhs) throw () :					//[t1]
-	  m_Result(0), m_Refcount(0) { MakeRef(rhs); }
+	  m_Result(0), m_l(this), m_r(this) { MakeRef(rhs); }
   ~result() { LoseRef(); }						//[t1]
   
   result &operator=(const result &) throw ();				//[t10]
@@ -415,7 +414,7 @@ public:
 
 private:
   PGresult *m_Result;
-  mutable int *m_Refcount;
+  mutable const result *m_l, *m_r;
 
   friend class result::field;
   const char *GetValue(size_type Row, tuple::size_type Col) const;
@@ -424,7 +423,8 @@ private:
 
   friend class connection_base;
   friend class pipeline;
-  explicit result(PGresult *rhs) : m_Result(rhs), m_Refcount(0) {MakeRef(rhs);}
+  explicit result(PGresult *rhs) throw () : 
+    m_Result(rhs), m_l(this), m_r(this) {MakeRef(rhs);}
   result &operator=(PGresult *);
   bool operator!() const throw () { return !m_Result; }
   operator bool() const throw () { return m_Result != 0; }
@@ -437,7 +437,7 @@ private:
   const char *CmdStatus() const throw () { return PQcmdStatus(m_Result); }
 
 
-  void MakeRef(PGresult *);
+  void MakeRef(PGresult *) throw ();
   void MakeRef(const result &) throw ();
   void LoseRef() throw ();
 };

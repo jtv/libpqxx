@@ -1,5 +1,6 @@
 2.2.6
- - Complete pipeline rewrite, for better exception safety
+ - Complete "pipeline" rewrite, for better exception safety
+ - New garbage collection scheme for "result;" constructors now exception-free
 2.2.5
  - First new cursor classes!
  - Fixed strange failure in tablewriter during large insertions
