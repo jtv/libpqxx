@@ -20,6 +20,10 @@
 #include <locale>
 #endif
 
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
 #include <cerrno>
 #include <new>
 #include <sstream>
@@ -132,7 +136,9 @@ template<typename T> inline void from_string_unsigned(const char Str[], T &Obj)
 template<typename T> inline void from_string_float(const char Str[], T &Obj)
 {
   stringstream S(Str);
+#ifdef PQXX_HAVE_LOCALE
   S.imbue(locale("C"));
+#endif
   T result;
   if (!(S >> result))
     throw runtime_error("Could not convert string to numeric value: '" +
@@ -264,7 +270,9 @@ template<typename T> inline string to_string_unsigned(T Obj)
 template<typename T> inline string to_string_fallback(T Obj)
 {
   stringstream S;
+#ifdef PQXX_HAVE_LOCALE
   S.imbue(locale("C"));
+#endif
   S << Obj;
   string R;
   S >> R;
@@ -587,7 +595,7 @@ void pqxx::internal::freenotif(PGnotify *p)
 
 void pqxx::internal::sleep_seconds(int s)
 {
-#ifdef PQXX_HAVE_SLEEP
+#if defined(PQXX_HAVE_SLEEP)
   // Use POSIX.1 sleep() if available
   sleep(s);
 #elif defined(_WIN32)
