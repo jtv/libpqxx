@@ -1,3 +1,11 @@
+2004-01-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Changed default installation prefix to /usr/local, thanks Arjen Baart!
+ Makefile.am:
+  - Added bin_SCRIPTS (patch by Arjen Baart)
+ pqxx-config.in:
+  - New (Arjen Baart)
+  - Similar to PostgreSQL pg_config script for configuration parameters
 2004-01-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
  include/pqxx/util.hxx, src/connection_base.cxx, src/transaction_base.cxx,

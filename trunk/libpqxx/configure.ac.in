@@ -17,7 +17,7 @@ AC_CONFIG_SRCDIR([src/connection.cxx])
 AM_CONFIG_HEADER([include/pqxx/config.h include/pqxx/libconfig.h])
 
 # default prefix for installs
-AC_PREFIX_DEFAULT(/usr/local/pqxx)
+AC_PREFIX_DEFAULT(/usr/local)
 
 # Checks for programs.
 AC_PROG_CXX
