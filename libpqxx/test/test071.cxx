@@ -1,3 +1,5 @@
+#include <pqxx/compiler.h>
+
 #include <iostream>
 #include <map>
 #include <stdexcept>
@@ -65,9 +67,11 @@ int main(int, char *argv[])
 	throw logic_error("Query #" + ToString(c->first) + " "
 	    "not running after resume()");
 
+#ifdef PQXX_HAVE_REVERSE_ITERATOR
     // Retrieve results in reverse order
     for (Exp::reverse_iterator c=values.rbegin(); c!=values.rend(); ++c)
       checkresult(P, c);
+#endif	// PQXX_HAVE_REVERSE_ITERATOR
 
     values.clear();
     P.retain();
