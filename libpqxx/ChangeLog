@@ -1,3 +1,6 @@
+2004-02-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/libcompiler.h:
+  - Fixed SUN compiler version check (thanks Jon Meinecke, Greg Webber)
 2004-02-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Check for functional count_if() (Jon Meinecke)
