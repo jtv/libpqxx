@@ -31,8 +31,6 @@ int main(int, char *argv[])
     // Start transaction within context of connection
     work T(C, "test2");
 
-    const string Table = "pg_tables";
-
     // Perform query within transaction
     result R( T.exec("SELECT * FROM pg_tables") );
 
