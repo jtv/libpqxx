@@ -64,6 +64,7 @@ int main(int argc, char *argv[])
 	{ "2002", "libpqxx" },
 	{ "1989", "Ode an die Freiheit" },
 	{ "2001", "New millennium" },
+        { "1974", "" },
 	{   "97", "Asian crisis" },
 	{   "01", "A Space Odyssey" },
         {0,0}

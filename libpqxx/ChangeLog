@@ -1,3 +1,6 @@
+2004-06-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test005.cxx, test/test006.cxx:
+  - Added rows ending in empty-string fields, thanks slava@perlx.com
 2004-06-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/transaction_base.hxx:
   - Removed erroneous "throw ()" for EndCopyWrite(), thanks Simon Elbaz
