@@ -1,6 +1,13 @@
+2003-06-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ README:
+  - Started list of projects using libpqxx
+ include/pqxx/cursor.h:
+  - Workaround for MetroWerks 8.3
 2003-06-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
  COPYING:
   - Finally written out
+ README-UPGRADE:
+  - New
  include/pqxx/largeobject.h, include/pqxx/result.h, 
  include/pqxx/tablewriter.h:
   - Added some forgotten PQXX_LIBEXPORTs

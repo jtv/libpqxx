@@ -256,3 +256,16 @@ requiressl
 
 Settings in the connection strings override the environment variables, which in
 turn override the default.
+
+
+APPENDIX A - Projects Using libpqxx
+
+As found on Google:
+
+Genea 			http://savannah.nongnu.org/projects/genea/
+Vocal / Mascarpone	http://www.vovida.org/
+
+
+Confirmed by authors:
+
+OKE 			http://www.liacs.nl/home/bsamwel/oke/prerelease-0.10/
