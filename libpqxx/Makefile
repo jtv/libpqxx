@@ -11,6 +11,7 @@ SRCDIR=libpqxx
 # actually use for anything else.  Recommended practice is to set up a database 
 # with this name locally.
 DBNAME=libpqxx
+DBUSER=`whoami`
 CONNSTR="dbname=$(DBNAME)"
 
 # Set SQL dialect to use
@@ -51,10 +52,10 @@ LIBOPT=-lpqxx
 
 
 EXECS=test1 test2 test3 test4 test5 test6 test7 test8 test9 test10 test11 \
-	test12 test13 test14 test15 test16 test17
+	test12 test13 test14 test15 test16 test17 test18
 EXECOBJS=test1.o test2.o test3.o test4.o test5.o test6.o test7.o test8.o \
 	test9.o test10.o test11.o test12.o test13.o test14.o test15.o \
-	test16.o test17.o
+	test16.o test17.o test18.o
 LIBOBJS=pg_connection.o pg_cursor.o pg_nontransaction.o pg_result.o pg_robusttransaction.o \
 	pg_tablereader.o pg_tablestream.o pg_tablewriter.o pg_transaction.o \
 	pg_transactionitf.o
@@ -115,6 +116,9 @@ test16: test16.o $(LIBNAME)
 test17: test17.o $(LIBNAME)
 	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
 
+test18: test18.o $(LIBNAME)
+	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
+
 
 $(LIBNAME): $(LIBOBJS)
 	$(AR) -r $(LIBNAME) $(LIBOBJS)
@@ -137,6 +141,8 @@ check: $(EXECS)
 	./test15 $(CONNSTR)
 	./test16 $(CONNSTR)
 	./test17 $(CONNSTR)
+	./test18 $(CONNSTR)
+	psql $(DBNAME) -c "SELECT * FROM PQXXLOG_$(DBUSER)"
 
 clean: 
 	$(RM) $(LIBOBJS) $(EXECOBJS) a.out

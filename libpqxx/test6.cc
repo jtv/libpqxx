@@ -42,7 +42,7 @@ class ClearTable : public Transactor
 public:
   ClearTable(string Table) : m_Table(Table) {}
 
-  void operator()(Transaction &T)
+  void operator()(TRANSACTIONTYPE &T)
   {
     T.Exec(("DELETE FROM " + m_Table).c_str());
   }
@@ -78,7 +78,7 @@ public:
   }
 
   // Transaction definition
-  void operator()(Transaction &T)
+  void operator()(TRANSACTIONTYPE &T)
   {
     TableReader Org(m_orgTrans, m_orgTable);
     TableWriter Dst(T, m_dstTable);

@@ -1,4 +1,11 @@
-2002-03-06 00:30
+2002-03-05 17:45
+ Makefile:
+  - Now queries log table at end of regression test; should be empty
+ Test4, Test6, Test7, Test13, Test15, Test17:
+  - Recommended practice is now to use TRANSACTIONTYPE in Transactors
+ Test18:
+  - Created
+2002-03-05 00:30
  RobustTransaction:
   - Initial implementation
  Test14:
@@ -7,7 +14,7 @@
   - Created
  Test17:
   - Created
-2002-03-05 22:00
+2002-03-04 22:00
  RobustTransaction:
   - Created as outline based on Transaction
 2002-03-04 00:30
