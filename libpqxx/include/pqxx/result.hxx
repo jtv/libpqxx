@@ -318,6 +318,14 @@ public:
     const_iterator(const result *r, result::size_type i) : tuple(r, i) {}
   };
 
+#ifndef PQXX_WORKAROUND_VC7
+  typedef PGSTD::reverse_iterator<const_iterator> const_reverse_iterator;
+  const_reverse_iterator rbegin() const 				//[]
+  	{ return const_reverse_iterator(begin()); }
+  const_reverse_iterator rend() const					//[]
+   	{ return const_reverse_iterator(end()); }
+#endif
+
   const_iterator begin() const { return const_iterator(this, 0); }	//[t1]
   inline const_iterator end() const;					//[t1]
   // TODO: Reverse iterators
