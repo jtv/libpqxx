@@ -125,24 +125,26 @@ template<>
 	public iterator<output_iterator_tag, void,void,void,void>
 {
 public:
-  explicit back_insert_iterator(pqxx::tablewriter &W) : m_Writer(&W) {}	//[]
+  explicit back_insert_iterator(pqxx::tablewriter &W) throw () :	//[t83]
+    m_Writer(&W) {}
 
-  back_insert_iterator &operator=(const back_insert_iterator &rhs)	//[]
+  back_insert_iterator &
+    operator=(const back_insert_iterator &rhs) throw () 		//[t83]
   {
     m_Writer = rhs.m_Writer;
     return *this;
   }
 
   template<typename TUPLE> 
-  back_insert_iterator &operator=(const TUPLE &T)			//[]
+  back_insert_iterator &operator=(const TUPLE &T)			//[t83]
   {
     m_Writer->insert(T);
     return *this;
   }
 
-  back_insert_iterator &operator++() { return *this; }			//[]
-  back_insert_iterator &operator++(int) { return *this; }		//[]
-  back_insert_iterator &operator*() { return *this; }			//[]
+  back_insert_iterator &operator++() { return *this; }			//[t83]
+  back_insert_iterator &operator++(int) { return *this; }		//[t83]
+  back_insert_iterator &operator*() { return *this; }			//[t83]
 
 private:
   pqxx::tablewriter *m_Writer;
