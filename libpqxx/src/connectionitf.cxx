@@ -208,8 +208,8 @@ bool pqxx::ConnectionItf::is_open() const
 }
 
 
-auto_ptr<pqxx::Noticer> 
-pqxx::ConnectionItf::SetNoticer(auto_ptr<pqxx::Noticer> N)
+auto_ptr<Noticer> 
+pqxx::ConnectionItf::SetNoticer(auto_ptr<Noticer> N)
 {
   if (N.get()) PQsetNoticeProcessor(m_Conn, pqxxNoticeCaller, N.get());
   else PQsetNoticeProcessor(m_Conn, 0, 0);
