@@ -1,4 +1,9 @@
 2004-04-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+  - Accept double-quoted trigger names, thanks slava@perlx.com
+ test/test078.cxx:
+  - Test with unusual trigger name, as intended
+2004-04-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, src/connection_base.cxx:
   - Notification-related functions return number of notifications received
   - New await_notification() functions sleep until notification arrives

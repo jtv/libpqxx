@@ -60,7 +60,7 @@ public:
 
   virtual ~trigger() throw () { m_Conn.RemoveTrigger(this); }		//[t4]
 
-  PGSTD::string name() const { return m_Name; }				//[t4]
+  const PGSTD::string &name() const { return m_Name; }			//[t4]
 
   /// Overridable: action to invoke when trigger is notified.
   /**
