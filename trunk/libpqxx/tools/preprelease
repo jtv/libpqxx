@@ -67,9 +67,13 @@ log "Generating autoconf/automake files"
 command ./autogen.sh nice
 
 log "Generating reference documentation"
+mkdir -p doc/html/Reference
+rm -rf doc/html/Reference/*
 command doxygen nice
 
 log "Generating tutorial"
+mkdir -p doc/html/Tutorial
+rm -rf doc/html/Tutorial/*
 command "xmlto -o doc/html/Tutorial xhtml doc/libpqxx.xml"
 
 log "Creating $TARBALL"
