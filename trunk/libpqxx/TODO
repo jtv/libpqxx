@@ -3,7 +3,6 @@ All Over
 
 Build system
 (*) Isolate compiler-dependent and libpq-dependent config items; templates
-(*) Auto-generate win32/MinGW.mak
 (*) Completely support building outside the source directory
 (*) Ensure there is a way to build without -rpath and use that for the
     Debian packaging.
@@ -15,8 +14,8 @@ Connections
 (*) Connection pooling support
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
 (*) libpqxx-level trace output
-(*) Ask for, and cache, backend version if needed
-(*) Speed up connection state restoration by concatenating queries
+(*) Probe, and cache, backend feature set if needed
+(*) Speed up connection state restoration by concatenating queries (pipeline?)
 
 Containers
 (*) size_type must be unsigned, difference_type must be signed
@@ -27,6 +26,7 @@ Containers
 (*) front() & back()
 
 Cursors
+(*) Older backends don't have NO SCROLL etc.!
 (*) Think about positioning and nested transactions
 (*) Investigate WITH HOLD feature (nontransaction cursors)
 (*) In PostgreSQL 7.4, MOVE and FETCH are much improved (PQcmdTuples()!)
@@ -41,7 +41,7 @@ Large Objects
 
 Results
 (*) Convert to/from date/time values
-(*) Splice out an interface definition
+(*) Splice out a reusable interface definition
 (*) Real encoding support (PQmblen(), PQenv2encoding())
 (*) Check for handling of nul characters
 (*) Support PQftablecol()
@@ -49,7 +49,6 @@ Results
 (*) Allow direct mapping onto structs, using member ptr template args
 
 Streams
-(*) Test tablewriter column lists
 (*) Permit column list test failures on pre-7.3 postgres backends
 (*) Provide metadata information in tablestream
 (*) Can we have a tablestream that looks more like a result?
@@ -63,10 +62,9 @@ Tests
 
 Transactions
 (*) German's locking idea for robusttransaction
-(*) [pgsql 7.5] Create log table "WITH OIDS" if appropriate
-(*) [pgsql 7.5] Support two-phase commit with separate transaction class(es)
-(*) [pgsql 7.5] Support nested transactions
-(*) [pgsql 7.5] See if transactions are still aborted on error
+(*) [pgsql 8.0] Create log table "WITH OIDS" if appropriate
+(*) [pgsql 8.0] Support two-phase commit with separate transaction class(es)
+(*) [pgsql 8.0] Support nested transactions and savepoints
 (*) User schema support for robusttransaction log table
 (*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
 (*) Support constraints definition
