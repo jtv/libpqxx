@@ -310,7 +310,7 @@ AC_MSG_RESULT(yes)
 # Check presence and version of strerror_r()
 if test "$enable_thread_safety" = "yes" ; then
 AC_MSG_CHECKING([for strerror_r])
-AC_TRY_COMPILE([#include <string.h>],[strerror_r(0,0,0)],
+AC_TRY_COMPILE([#include <cstring>],[strerror_r(0,0,0)],
 	[AC_DEFINE(PQXX_HAVE_STRERROR_R,1,[Define if strerror_r exists])],
 	[AC_MSG_ERROR([
 No definition of strerror_r, the thread-safe version of strerror(), was found in
