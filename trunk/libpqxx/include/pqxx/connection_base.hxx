@@ -100,7 +100,7 @@ public:
   void disconnect() throw ();						//[t2]
 
   /// Is this connection open?
-  bool is_open() const;							//[t1]
+  bool is_open() const throw ();					//[t1]
 
   /// Perform the transaction defined by a transactor-based object.
   /** The function may create and execute several copies of the transactor
@@ -125,19 +125,22 @@ public:
    * deleted.
    * @param N the new message handler; must not be null or equal to the old one
    */
-  PGSTD::auto_ptr<noticer> set_noticer(PGSTD::auto_ptr<noticer> N);	//[t14]
+  PGSTD::auto_ptr<noticer> set_noticer(PGSTD::auto_ptr<noticer> N) 
+    throw ();								//[t14]
   noticer *get_noticer() const throw () { return m_Noticer.get(); }	//[t14]
 
   /// Invoke notice processor function.  The message should end in newline.
   void process_notice(const char[]) throw ();				//[t14]
-  /// Invoke notice processor function.  The message should end in newline.
-  void process_notice(const PGSTD::string &msg) throw () 		//[t14]
-  	{ process_notice(msg.c_str()); }
+  /// Invoke notice processor function.  Newline at end is recommended.
+  void process_notice(const PGSTD::string &msg) throw ();		//[t14]
 
   /// Enable tracing to a given output stream, or NULL to disable.
-  void trace(FILE *);							//[t3]
+  void trace(FILE *) throw ();						//[t3]
 
   /// Check for pending trigger notifications and take appropriate action.
+  /** Exceptions thrown by client-registered trigger handlers are reported, but
+   * not passed on outside this function.
+   */
   void get_notifs();							//[t4]
 
   // Miscellaneous query functions (probably not needed very often)
@@ -171,7 +174,7 @@ public:
    * transaction fails, which may be due to a lost connection, then this number
    * will have become invalid at some point within the transaction.
    */
-  int backendpid() const						//[t1]
+  int backendpid() const throw ()					//[t1]
     	{ return m_Conn ? PQbackendPID(m_Conn) : 0; }
 
   /// Explicitly activate deferred or deactivated connection.
@@ -299,13 +302,12 @@ protected:
   /// For implementation classes: set connection structure pointer
   void set_conn(PGconn *C) throw () { m_Conn = C; }
 
-protected:
   void wait_read() const;
   void wait_write() const;
 
 private:
   void SetupState();
-  void InternalSetTrace();
+  void InternalSetTrace() throw ();
   int Status() const { return PQstatus(m_Conn); }
   const char *ErrMsg() const;
   void Reset();
@@ -317,6 +319,7 @@ private:
   void go_sync();
   void go_async();
   PGSTD::string RawGetVar(const PGSTD::string &);
+  void process_notice_raw(const char msg[]) throw ();
 
 
   /// Connection string
