@@ -190,7 +190,8 @@ void pqxx::basic_robusttransaction::CreateTransactionRecord()
 	                "(name, date) "
 			"VALUES "
 	                "(" +
-	                Quote(name(), true) + ", "
+			(name().empty() ? "null" : "'"+sqlesc(name())+"'") +
+			", "
 	                "CURRENT_TIMESTAMP"
 	                ")";
 
