@@ -74,3 +74,6 @@ clean:
 distclean: clean
 	$(RM) $(EXECS)
 
+dist: distclean
+	tar -C.. -czf ../libpqxx.tar.gz libpqxx
+
