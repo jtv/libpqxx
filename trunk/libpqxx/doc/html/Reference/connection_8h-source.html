@@ -35,36 +35,40 @@
 <a name="l00040"></a><a class="code" href="classpqxx_1_1Connection.html">00040</a> <span class="keyword">class </span>PQXX_LIBEXPORT Connection : <span class="keyword">public</span> <a class="code" href="classpqxx_1_1ConnectionItf.html">ConnectionItf</a>
 00041 {
 00042 <span class="keyword">public</span>:
-00044 
-00047   <span class="keyword">explicit</span> Connection(<span class="keyword">const</span> PGSTD::string &amp;ConnInfo);                   <span class="comment">//[t2]</span>
-00048 
-00050 
-00054   <span class="keyword">explicit</span> Connection(<span class="keyword">const</span> <span class="keywordtype">char</span> ConnInfo[]);                           <span class="comment">//[t1]</span>
-00055 
-00056   <span class="keyword">virtual</span> ~Connection();
-00057 };
+00044   Connection();                                                         <span class="comment">//[t1]</span>
+00045 
+00047 
+00050   <span class="keyword">explicit</span> Connection(<span class="keyword">const</span> PGSTD::string &amp;ConnInfo);                   <span class="comment">//[t2]</span>
+00051 
+00053 
+00057   <span class="keyword">explicit</span> Connection(<span class="keyword">const</span> <span class="keywordtype">char</span> ConnInfo[]);                           <span class="comment">//[t3]</span>
 00058 
-00059 
+00059   <span class="keyword">virtual</span> ~Connection();
+00060 };
 00061 
-<a name="l00069"></a><a class="code" href="classpqxx_1_1LazyConnection.html">00069</a> <span class="keyword">class </span>PQXX_LIBEXPORT LazyConnection : <span class="keyword">public</span> <a class="code" href="classpqxx_1_1ConnectionItf.html">ConnectionItf</a>
-00070 {
-00071 <span class="keyword">public</span>:
-00073 
-<a name="l00076"></a><a class="code" href="classpqxx_1_1LazyConnection.html#a0">00076</a>   <span class="keyword">explicit</span> LazyConnection(<span class="keyword">const</span> PGSTD::string &amp;ConnInfo) :              <span class="comment">//[t21]</span>
-00077     <a class="code" href="classpqxx_1_1ConnectionItf.html">ConnectionItf</a>(ConnInfo) {}
-00078 
-00080 
-<a name="l00084"></a><a class="code" href="classpqxx_1_1LazyConnection.html#a1">00084</a>   <span class="keyword">explicit</span> LazyConnection(<span class="keyword">const</span> <span class="keywordtype">char</span> ConnInfo[]) :                      <span class="comment">//[t22]</span>
-00085     <a class="code" href="classpqxx_1_1ConnectionItf.html">ConnectionItf</a>(ConnInfo) {}
+00062 
+00064 
+<a name="l00072"></a><a class="code" href="classpqxx_1_1LazyConnection.html">00072</a> <span class="keyword">class </span>PQXX_LIBEXPORT LazyConnection : <span class="keyword">public</span> <a class="code" href="classpqxx_1_1ConnectionItf.html">ConnectionItf</a>
+00073 {
+00074 <span class="keyword">public</span>:
+<a name="l00076"></a><a class="code" href="classpqxx_1_1LazyConnection.html#a0">00076</a>   LazyConnection() : <a class="code" href="classpqxx_1_1ConnectionItf.html">ConnectionItf</a>(0) {}                                <span class="comment">//[t23]</span>
+00077 
+00079 
+<a name="l00082"></a><a class="code" href="classpqxx_1_1LazyConnection.html#a1">00082</a>   <span class="keyword">explicit</span> LazyConnection(<span class="keyword">const</span> PGSTD::string &amp;ConnInfo) :              <span class="comment">//[t21]</span>
+00083     <a class="code" href="classpqxx_1_1ConnectionItf.html">ConnectionItf</a>(ConnInfo) {}
+00084 
 00086 
-00087   <span class="keyword">virtual</span> ~LazyConnection();
-00088 };
-00089 
-00090 }
-00091 
-00092 <span class="preprocessor">#endif</span>
-00093 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Sat Mar 29 02:19:05 2003 for libpqxx by
+<a name="l00090"></a><a class="code" href="classpqxx_1_1LazyConnection.html#a2">00090</a>   <span class="keyword">explicit</span> LazyConnection(<span class="keyword">const</span> <span class="keywordtype">char</span> ConnInfo[]) :                      <span class="comment">//[t22]</span>
+00091     <a class="code" href="classpqxx_1_1ConnectionItf.html">ConnectionItf</a>(ConnInfo) {}
+00092 
+00093   <span class="keyword">virtual</span> ~LazyConnection();
+00094 };
+00095 
+00096 }
+00097 
+00098 <span class="preprocessor">#endif</span>
+00099 <span class="preprocessor"></span>
+</pre></div><hr><address style="align: right;"><small>Generated on Sat Mar 29 16:02:51 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>
