@@ -657,6 +657,8 @@ void pqxx::internal::freenotif(PGnotify *p)
 
 void pqxx::internal::sleep_seconds(int s)
 {
+  if (s <= 0) return;
+
 #if defined(PQXX_HAVE_SLEEP)
   // Use POSIX.1 sleep() if available
   sleep(s);
@@ -670,8 +672,17 @@ void pqxx::internal::sleep_seconds(int s)
   struct timeval timeout;
   timeout.tv_sec = s;
   timeout.tv_usec = 0;
-  if (select(0, &F, &F, &F, &timeout) == -1)
-    throw runtime_error(strerror(errno));
+  if (select(0, &F, &F, &F, &timeout) == -1) switch (errno)
+  {
+  case EINVAL:	// Invalid timeout
+	throw out_of_range("Invalid timeout value: " + to_string(s));
+  case EINTR:	// Interrupted by signal
+	break;
+  case ENOMEM:	// Out of memory
+	throw bad_alloc();
+  default:
+    throw logic_error("libpqxx internal error in select()");
+  }
 #endif
 }
 
