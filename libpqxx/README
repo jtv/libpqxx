@@ -52,30 +52,22 @@ to indicate the base PostgreSQL library and include path.  The build procedure
 expects to find subdirectories include/ and lib/ there.  If, for instance, you
 have the PostgreSQL headers and libraries in /usr/local/pgsql/include/ and
 /usr/local/pgsql/libs/ respectively, all you need to specify this to the
-configure script is "--with-postgres=/usr/local/pgsql".
+configure script is "--with-postgres=/usr/local/pgsql".  If your PostgreSQL
+directories aren't laid out in this way, read on.
 
 --with-postgres-include=<path>
 to indicate just the PostgreSQL include path.  This is not needed if you use 
 the --with-postgres option.  If, for instance, the PostgreSQL headers are not 
-in your standard include path but in /usr/include/postgresql/, then what you 
-need to specify is "--with-postgres=/usr/include/postgresql".
+in your standard include path but in /usr/local/include/postgresql/, then what 
+you need to specify is "--with-postgres=/usr/local/include/postgresql".
 
 --with-postgres-lib=<path>
 to indicate the path to PostgreSQL's libpq library.  If, for instance, this
 library is in /usr/local/postgresql/lib, then you need to specify the configure
 option "--with-postgres-lib=/usr/local/postgresql/lib/".
 
-To configure on a RedHat-like system, use "--with-postgres=/usr/local/pgsql".
-Debian systems use "--with-postgres-include=/usr/include/postgresql".  If your
-system requires a different setting, please let me know.
-
-Some users have reported problems finding PostgreSQL's libpq-fe.h header file,
-despite passing the correct options to the configure script.  This could be due 
-to two things: first, make sure you do have the PostgreSQL development package
-installed.  Second, there appear to have been some changes to the name of this
-header recently.  In this case, please let me know which version of postgres
-you're running and what the frontend include file is called there, and I'll try
-to incorporate a workaround.
+Sensible defaults have been provided for Debian and RedHat systems.  If your 
+system requires different settings, please let me know.
 
 
 2. Make
