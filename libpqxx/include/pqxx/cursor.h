@@ -152,8 +152,8 @@ public:
       m_Name(Name.c_str()),
       m_Count(Count),
       m_Done(false),
-      m_Pos(pos_unknown),
-      m_Size(pos_unknown)
+      m_Pos(size_type(pos_unknown)),
+      m_Size(size_type(pos_unknown))
   {
     // Trigger build error if T has insufficient isolation level
     error_permitted_isolation_level(PQXX_TYPENAME TRANSACTION::isolation_tag());
