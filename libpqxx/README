@@ -165,8 +165,8 @@ static version of the library, or (ii) adding a link in /usr/local/lib to the
 dynamic libpqxx library, or (iii) adding libpqxx's lib/ directory to your
 loader's search path before running your program.  This is in decreasing order 
 of preference, so try (i) first, and only resort to (iii) if both (i) and (ii) 
-fail.  On Linux systems, the loader's search path can be extended by setting
-the LD_LIBRARY_PATH variable.
+fail.  On Unix-like systems including Linux, the loader's search path can be
+extended by setting the LD_LIBRARY_PATH variable.
 
 Enjoy!
 
