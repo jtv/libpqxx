@@ -11,6 +11,7 @@
  *
  *-------------------------------------------------------------------------
  */
+#include <algorithm>
 #include <stdexcept>
 
 #include "pqxx/connection.h"
@@ -204,22 +205,21 @@ void pqxx::Connection::AddTrigger(pqxx::Trigger *T)
 }
 
 
-void pqxx::Connection::RemoveTrigger(const pqxx::Trigger *T) throw ()
+void pqxx::Connection::RemoveTrigger(pqxx::Trigger *T) throw ()
 {
   if (!T) return;
 
   try
   {
-    const string TName = T->Name();
-    const TriggerList::iterator l = m_Triggers.lower_bound(TName),
-                                u = m_Triggers.upper_bound(TName);
+    TriggerList::value_type E = make_pair(string(T->Name()), T);
+    typedef pair<TriggerList::iterator, TriggerList::iterator> Range;
+    Range R = m_Triggers.equal_range(E.first);
 
-    TriggerList::iterator i;
-    for (i = l; (i != u) && (i->second != T); ++i);
+    const TriggerList::iterator i = find(R.first, R.second, E);
 
-    if (i == u) 
+    if (i == R.second) 
       ProcessNotice("Attempt to remove unknown trigger '" + 
-		    string(TName) + 
+		    E.first + 
 		    "'");
     else
       m_Triggers.erase(i);
@@ -251,8 +251,10 @@ void pqxx::Connection::GetNotifs()
       }
       catch (const exception &e)
       {
-	ProcessNotice("Exception in trigger handler: " + 
-		      string(e.what()) +
+	ProcessNotice("Exception in trigger handler '" +
+		      i->first + 
+		      "': " + 
+		      e.what() +
 		      "\n");
       }
   }
@@ -296,35 +298,38 @@ void pqxx::Connection::Reset(const char OnReconnect[])
   // Attempt to restore connection
   PQreset(m_Conn);
 
-  // Reinstate all active triggers
-  try
+  if (!m_Triggers.empty())
   {
-    const TriggerList::const_iterator End = m_Triggers.end();
-    string Last;
-    for (TriggerList::const_iterator i = m_Triggers.begin(); i != End; ++i)
+    // Reinstate all active triggers
+    try
     {
-      // m_Triggers is supposed to be able to handle multiple Triggers waiting
-      // on the same event; issue just one LISTEN for each event.
-      // TODO: Change TriggerList to be a multimap once compiler supports it
-      if (i->first != Last)
+      const TriggerList::const_iterator End = m_Triggers.end();
+      string Last;
+      for (TriggerList::const_iterator i = m_Triggers.begin(); i != End; ++i)
       {
-        Result R( PQexec(m_Conn, ("LISTEN " + i->first).c_str()) );
-        R.CheckStatus();
-	Last = i->first;
+        // m_Triggers is supposed to be able to handle multiple Triggers waiting
+        // on the same event; issue just one LISTEN for each event.
+        // TODO: Change TriggerList to be a multimap once compiler supports it
+        if (i->first != Last)
+        {
+          Result R( PQexec(m_Conn, ("LISTEN " + i->first).c_str()) );
+          R.CheckStatus();
+	  Last = i->first;
+        }
+      }
+
+      // Perform any extra patchup work involved in restoring the connection,
+      // typically set up a transaction.
+      if (OnReconnect)
+      {
+        Result Temp( PQexec(m_Conn, OnReconnect) );
+        Temp.CheckStatus();
       }
     }
-
-    // Perform any extra patchup work involved in restoring the connection,
-    // typically set up a transaction.
-    if (OnReconnect)
+    catch (...)
     {
-      Result Temp( PQexec(m_Conn, OnReconnect) );
-      Temp.CheckStatus();
+      if (IsOpen()) throw;
     }
-  }
-  catch (...)
-  {
-    if (IsOpen()) throw;
   }
 }
 

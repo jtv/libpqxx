@@ -16,6 +16,7 @@
 
 #include "config.h"
 
+#include <numeric>
 #include <string>
 
 #include "pqxx/tablestream.h"
@@ -64,6 +65,19 @@ public:
 
 private:
   void WriteRawLine(PGSTD::string);
+
+  class FieldConverter
+  {
+  public:
+    FieldConverter(const PGSTD::string &N) : Null(N) {}
+    template<typename T> PGSTD::string operator()(const PGSTD::string &,
+		                                  T) const;
+    PGSTD::string operator()(const PGSTD::string &, const char *) const;
+  private:
+    static PGSTD::string PGNull() { return "\\N"; }
+    static void Escape(PGSTD::string &);
+    PGSTD::string Null;
+  };
 };
 
 }
@@ -98,42 +112,55 @@ private:
 
 
 
+void pqxx::TableWriter::FieldConverter::Escape(PGSTD::string &S)
+{
+  const char Special[] = "\n\t\\";
+
+  // TODO: Is this legal if that j+2 happens to point just past the end of S?
+  for (PGSTD::string::size_type j = S.find_first_of(Special);
+       j != PGSTD::string::npos;
+       j = S.find_first_of(Special, j+2))
+    S.insert(j, 1, '\\');
+}
+
+
+template<typename T> inline PGSTD::string
+pqxx::TableWriter::FieldConverter::operator()(const PGSTD::string &S,
+		                              T i) const
+{
+  PGSTD::string Field = ToString(i);
+  return S + ((Field == Null) ? PGNull() : Field);
+}
+
+
+template<> inline PGSTD::string 
+pqxx::TableWriter::FieldConverter::operator()(const PGSTD::string &S,
+		                              PGSTD::string i) const
+{
+  if (i == Null) i = PGNull();
+  else Escape(i);
+  return S + i + '\t';
+}
+
+
+inline PGSTD::string
+pqxx::TableWriter::FieldConverter::operator()(const PGSTD::string &S,
+		                              const char *i) const
+{
+  return operator()(S, PGSTD::string(i));
+}
+
+
 template<typename IT> 
 inline PGSTD::string pqxx::TableWriter::ezinekoT(IT Begin, IT End) const
 {
-  PGSTD::string Line;
-
-  for (; Begin != End; ++Begin)
-  {
-    PGSTD::string Field = ToString(*Begin);
-
-    if (Field == NullStr())
-    {
-      Field = "\\N";
-    }
-    else
-    {
-      for (PGSTD::string::size_type j=0; j<Field.size(); ++j)
-      {
-        switch (Field[j])
-        {
-        case '\n':
-        case '\t':
-	case '\\':
-	  Field.insert(j, 1, '\\');
-	  ++j;
-	  break;
-        }
-      }
-    }
-
-    Line += Field;
-    Line += '\t';
-  }
+  PGSTD::string Line = PGSTD::accumulate(Begin, 
+		                         End, 
+					 PGSTD::string(), 
+					 FieldConverter(NullStr()));
 
   // Above algorithm generates one separating tab too many.  Take it back.
-  if (!Line.empty())
-    Line.erase(Line.size()-1);
+  if (!Line.empty()) Line.erase(Line.size()-1);
 
   return Line;
 }

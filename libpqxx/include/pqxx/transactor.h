@@ -27,8 +27,6 @@ namespace pqxx
 {
 class Transaction;
 
-// TODO: Derive from std::unary_function or whatever it was called
-
 /** Some transactions may be replayed if their connection fails, until they do 
  * succeed.  These can be encapsulated in a Transactor-derived classes.  The 
  * Transactor framework will take care of setting up a backend transaction 
@@ -64,7 +62,10 @@ public:
   /** Select the quality of service for your transactor by overriding this in
    * your derived class.
    */
-  typedef Transaction TRANSACTIONTYPE;
+  typedef Transaction argument_type;
+
+  /// Required to make Transactor adaptable
+  typedef void result_type;
 
   /// Overridable transaction definition.
   /** Will be retried if connection goes bad, but not if an exception is thrown 
@@ -73,7 +74,7 @@ public:
    * operation.  It is generally recommended that a Transactor modify only 
    * itself and T from inside this operator.
    */
-  void operator()(TRANSACTIONTYPE &T);					//[t4]
+  void operator()(argument_type &T);					//[t4]
 
   // Overridable member functions, called by Connection::Perform() if attempt 
   // to run transaction fails/succeeds, respectively, or if the connection is

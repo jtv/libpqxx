@@ -48,7 +48,6 @@ template<> inline PGSTD::string Classname(const TableStream *)
 }
 
 
-
 /// Interface definition (and common code) for "transaction" classes.  All 
 /// database access must be channeled through one of these classes for safety,
 /// although not all implementations of this interface need to provide full
