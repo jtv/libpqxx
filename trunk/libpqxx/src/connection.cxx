@@ -29,7 +29,7 @@ pqxx::connection::connection() :
   startconnect();
 }
 
-pqxx::connection::connection(const PGSTD::string &ConnInfo) :
+pqxx::connection::connection(const string &ConnInfo) :
   connection_base(ConnInfo)
 {
   startconnect();
