@@ -72,11 +72,12 @@ const pqxx::Result &pqxx::CachedResult::Fetch() const
 {
   size_type Pos = m_Cursor.Pos();
 
-  Result R( m_Cursor.Fetch(m_Granularity) );
+  const Result R( m_Cursor.Fetch(m_Granularity) );
 
   if (!R.empty()) 
   {
-    m_Cache.insert(make_pair(BlockFor(Pos), R));
+    pair<const long, const Result> tmp_pair(BlockFor(Pos), R);
+    m_Cache.insert(tmp_pair);
     // TODO: Use iterator returned by insert().  
     return m_Cache[BlockFor(Pos)];
   }
