@@ -115,6 +115,8 @@ pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
   if (Actual > abs(Intended))
     throw logic_error("libpqxx internal error: Moved/fetched too many rows");
 
+  size_type Offset = Actual;
+
   if (Actual < abs(Intended))
   {
     // There is a nonexistant row before the first one in the result set, and 
@@ -125,7 +127,7 @@ pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
     {
       // We've moved off either edge of our result set; add the one, 
       // nonexistant row that wasn't counted in the status string we got.
-      Actual++;
+      Offset++;
     }
     else if (Intended < 0)
     {
@@ -133,35 +135,35 @@ pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
       // first actual row, or we were on the nonexistant row before the first
       // actual row and so didn't move at all.  Just set up Actual so that we
       // end up at our starting position, which is where we must be.
-      Actual = m_Pos - pos_start;
+      Offset = m_Pos - pos_start;
     }
     else if (m_Size != pos_unknown)
     {
       // We either just walked off the right edge (moving at least one row in 
       // the process), or had done so already (in which case we haven't moved).
-      Actual = (m_Size + pos_start + 1) - m_Pos;
+      Offset = (m_Size + pos_start + 1) - m_Pos;
     }
     else
     {
       // This is the hard one.  Assume that we haven't seen the "right edge"
       // before, because m_Size hasn't been set yet.  Therefore, we must have 
       // just stepped off the edge (and m_Size will be set now).
-      Actual++;
+      Offset++;
     }
 
-    if ((Actual > abs(Intended)) && (m_Pos != pos_unknown))
+    if ((Offset > abs(Intended)) && (m_Pos != pos_unknown))
       throw logic_error("libpqxx internal error: Confused cursor position");
   }
 
-  if (Intended < 0) Actual = -Actual;
-  m_Pos += Actual;
+  if (Intended < 0) Offset = -Offset;
+  m_Pos += Offset;
 
-  if ((Actual < Intended) && (m_Size == pos_unknown))
+  if ((Intended > 0) && (Actual < Intended) && (m_Size == pos_unknown))
     m_Size = m_Pos - pos_start - 1;
 
   m_Done = !Actual;
 
-  return Actual;
+  return Offset;
 }
 
 
