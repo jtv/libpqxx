@@ -1,3 +1,12 @@
+1.8.0
+ - Compiles on gcc 2.95 again (heavy streambuf workarounds in largeobject.h)
+ - ConnectionItf renamed to Connection_base, TransactionItf to Transaction_base
+ - connectionitf.h is now connection_base.h, transactionitf.h connection_base.h
+1.7.8
+ - BinaryString class for unescaping bytea strings
+ - PQAlloc template keeps track of libpq-allocated objects
+ - Removed some consts in Unique<>, ConnectionItf, sorry!
+ - Can now set session variables on connections, transactions
 1.7.7
  - ./configure also looks for postgres in /usr/local/pgsql
  - test007 now uses SQL_ASCII as its test encoding

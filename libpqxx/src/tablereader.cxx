@@ -17,7 +17,7 @@
 using namespace PGSTD;
 
 
-pqxx::TableReader::TableReader(TransactionItf &T, const string &RName) :
+pqxx::TableReader::TableReader(Transaction_base &T, const string &RName) :
   TableStream(T, RName),
   m_Done(true)
 {

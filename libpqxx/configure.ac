@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 1.7.7, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 1.8.0, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 1.7.7)
+AM_INIT_AUTOMAKE(libpqxx, 1.8.0)
 
 # Library version numbering - see "info libtool versioning 'libtool
 # versioning'" for details.
@@ -97,6 +97,21 @@ if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 	done
 	unset option
 fi
+
+streambuf=yes
+AC_CHECK_HEADER(streambuf,AC_DEFINE(HAVE_STREAMBUF,1,
+[Define if you have the <streambuf> header; if not, <streambuf.h> is used]),
+streambuf=no)
+# AC_MSG_RESULT($streambuf)
+
+AC_MSG_CHECKING([char_traits template])
+char_traits=yes
+AC_TRY_COMPILE([#include <string>], [PGSTD::char_traits<char>::eof()], AC_DEFINE(HAVE_CHAR_TRAITS, 1,
+[Define if std defines the char_traits template and <char> specialization]),
+char_traits=no)
+AC_MSG_RESULT($char_traits)
+
+
 AC_LANG_POP(C++)
 
 # Where are the postgres includes...

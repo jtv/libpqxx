@@ -25,7 +25,7 @@ public:
   void operator()(argument_type &T)
   {
 
-    LargeObjectAccess A(T, "pqxxlo.txt", ios_base::in);
+    LargeObjectAccess A(T, "pqxxlo.txt", ios::in);
     m_Object = LargeObject(A);
     cout << "Imported '" << m_File << "' "
             "to large object #" << m_Object.id() << endl;

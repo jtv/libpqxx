@@ -13,7 +13,7 @@
  */
 #include <stdexcept>
 
-#include "pqxx/connectionitf.h"
+#include "pqxx/connection_base.h"
 #include "pqxx/result.h"
 #include "pqxx/transaction.h"
 
@@ -26,8 +26,8 @@ using namespace PGSTD;
 #define SQL_ROLLBACK_WORK 	"ROLLBACK"
 
 
-pqxx::Transaction::Transaction(ConnectionItf &C, const string &TName) :
-  TransactionItf(C, TName)
+pqxx::Transaction::Transaction(Connection_base &C, const string &TName) :
+  Transaction_base(C, TName)
 {
   Begin();
 }

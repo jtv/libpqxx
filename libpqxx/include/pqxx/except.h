@@ -45,6 +45,7 @@ public:
 	PGSTD::runtime_error(whatarg), m_Q(Q) { }
   virtual ~sql_error() throw () {}
 
+  /// The query whose execution triggered the exception
   const PGSTD::string &query() const { return m_Q; }
 };
 

@@ -364,11 +364,11 @@
  
     <listitem>
      <para>
-      <literal>TransactionItf</literal> defines the common public interface for
-      the <literal>Transaction</>-like classes: <literal>NonTransaction</>,
+      <literal>Transaction_base</literal> defines the common public interface 
+      for the <literal>Transaction</>-like classes: <literal>NonTransaction</>,
       <literal>RobustTransaction</>, and <literal>Transaction</> itself.  To
       look up methods available in these classes, see the definition (or
-      documentation) for <literal>TransactionItf</literal> instead.
+      documentation) for <literal>Transaction_base</literal> instead.
      </para>
     </listitem>
 

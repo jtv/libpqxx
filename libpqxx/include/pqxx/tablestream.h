@@ -27,7 +27,7 @@ namespace pqxx
 
 // TODO: Non-blocking access to help hide network latencies
 
-class TransactionItf;
+class Transaction_base;
 
 
 /// Base class for streaming data to/from database tables.
@@ -42,7 +42,7 @@ class TransactionItf;
 class PQXX_LIBEXPORT TableStream
 {
 public:
-  TableStream(TransactionItf &Trans, 
+  TableStream(Transaction_base &Trans, 
 	      const PGSTD::string &Name, 
 	      const PGSTD::string &Null=PGSTD::string());			//[t6]
   virtual ~TableStream() =0;						//[t6]
@@ -50,11 +50,11 @@ public:
   PGSTD::string Name() const { return m_Name; }				//[t10]
 
 protected:
-  TransactionItf &Trans() const throw () { return m_Trans; }
+  Transaction_base &Trans() const throw () { return m_Trans; }
   PGSTD::string NullStr() const { return m_Null; }
 
 private:
-  TransactionItf &m_Trans;
+  Transaction_base &m_Trans;
   PGSTD::string m_Name;
   PGSTD::string m_Null;
 

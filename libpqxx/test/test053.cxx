@@ -46,7 +46,7 @@ public:
   void operator()(argument_type &T)
   {
     char Buf[200];
-    LargeObjectAccess O(T, m_Object, ios_base::in);
+    LargeObjectAccess O(T, m_Object, ios::in);
     Buf[O.read(Buf, sizeof(Buf)-1)] = '\0';
     if (Contents != Buf)
       throw runtime_error("Expected large object #" + 

@@ -1,3 +1,40 @@
+2003-05-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac, include/pqxx/largeobject.h, test/test051.cxx, test/test052.cxx,
+ test/test053.cxx, test/test055.cxx:
+  - Got large object support to compile with gcc 2.95
+ include/pqxx/*.h, src/*.cxx, test/test*.cxx:
+  - Renamed ConnectionItf to Connection_base, similar for TransactionItf
+2003-05-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac, include/pqxx/compiler.h:
+  - Workaround for gcc 2.95: missing std::char_traits
+ configure.ac, include/pqxx/largeobject.h:
+  - Workaround for gcc 2.95: missing <streambuf>
+ include/pqxx/largeobject.h:
+  - Workaround for gcc 2.95: missing std::ios_base
+ include/pqxx/util.h:
+  - Workaround for gcc 2.95: default args in template function specializations
+2003-05-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/cursor.cxx:
+  - Declare all cursors SCROLL for now
+2003-05-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connectionitf.h, include/pqxx/transactionitf.h, 
+ include/pqxx/util.h, src/connectionitf.cxx, src/transactionitf.cxx:
+  - Made lots of things non-const in Unique<>, ConnectionItf, TransactionItf
+  - Session variables interface in ConnectionItf, TransactionItf
+  - SetClientEncoding() now just sets CLIENT_ENCODING variable
+2003-05-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connectionitf.h, src/connectionitf.cxx:
+  - Restore client encoding upon recovering connection
+  - Added some documentation
+ include/pqxx/result.h:
+  - Moved template operator<<(..., Field) into pqxx namespace
+ include/pqxx/util.h:
+  - More documentation for PQAlloc
+2003-05-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.h, src/connectionitf.cxx:
+  - Moved PQAlloc<> from connectionitf.cxx to util.h
+ include/pqxx/result.h:
+  - Added BinaryString
 2003-04-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  debian/*:
   - Replaced Ray Dassen's Debian packaging with Greg Hookey's.  Thanks to both!

@@ -18,7 +18,7 @@
 using namespace PGSTD;
 
 
-pqxx::TableWriter::TableWriter(TransactionItf &T, const string &WName) :
+pqxx::TableWriter::TableWriter(Transaction_base &T, const string &WName) :
   TableStream(T, WName)
 {
   T.BeginCopyWrite(WName);

@@ -7,6 +7,7 @@ include_HEADERS=all.h \
 	compiler.h \
 	config.h \
 	connection.h \
+	connection_base.h \
 	connectionitf.h \
 	cursor.h \
 	except.h \
@@ -18,6 +19,7 @@ include_HEADERS=all.h \
 	tablestream.h \
 	tablewriter.h \
 	transaction.h \
+	transaction_base.h \
 	transactionitf.h \
 	transactor.h \
 	trigger.h \

@@ -18,7 +18,7 @@
 #ifdef BROKEN_ITERATOR
 namespace PGSTD
 {
-/// Deal with lacking iterator template definition in <iterator>
+/// Work around lacking iterator template definition in <iterator>
 template<typename Cat, 
          typename T, 
 	 typename Dist, 
@@ -36,6 +36,23 @@ template<typename Cat,
 #include <iterator>
 #endif // BROKEN_ITERATOR
 
+#ifndef HAVE_CHAR_TRAITS
+namespace PGSTD
+{
+/// Work around missing std::char_traits
+template<typename CHAR> struct char_traits {};
+/// Work around missing std::char_traits<char>
+template<> struct char_traits<char>
+{
+  typedef int int_type;
+  typedef size_t pos_type;
+  typedef ptrdiff_t off_type;
+
+  static int_type eof() { return -1; }
+};
+}
+#endif
+
 
 #ifdef HAVE_LIMITS
 #include <limits>
@@ -43,14 +60,16 @@ template<typename Cat,
 #include <climits>
 namespace PGSTD
 {
-/// Deal with lacking "limits" header
+/// Work around lacking "limits" header
 template<typename T> struct numeric_limits
 {
   static T max() throw ();
   static T min() throw ();
 };
 
+/// Work around lacking std::max()
 template<> inline long numeric_limits<long>::max() throw () {return LONG_MAX;}
+/// Work around lacking std::min()
 template<> inline long numeric_limits<long>::min() throw () {return LONG_MIN;}
 }
 #endif // HAVE_LIMITS
