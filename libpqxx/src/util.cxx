@@ -20,6 +20,7 @@
 #include <locale>
 #endif
 
+#include <cerrno>
 #include <new>
 #include <sstream>
 
