@@ -1,8 +1,12 @@
+2.3.1
+ - Fixes incompatibility with some implementations of Unix "cut" program
 2.3.0
  - Generates MinGW Makefile automatically
  - Documents MinGW build
- - Workaround for missing PQexecPrepared()
- - Removed virtual function call from connection_base destructor
+ - Workaround for missing prepared-statement support
+ - Potential bug fixed in closing of connections
+ - Fixed incompatibility between new cursor streams and older backends
+ - Removed pqxxbench
 2.2.9
  - Bugfix in removing trigger
  - Added "failed connection" to regression test
