@@ -1,9 +1,10 @@
-Error handling
-(*) Check whether transaction still open (consistency with backend)
-
-General
+Build
+(*) Move "check" postgres parameters into configure script
 (*) README & build instructions
 (*) Get object files into obj/ directory
+
+Error handling
+(*) Check whether transaction still open if possible (consistency with backend)
 
 Porting
 (*) Make TableStream classes respect DIALECT
