@@ -82,7 +82,7 @@ void pqxx::result::CheckStatus(const string &Query) const
     throw sql_error(PQresultErrorMessage(m_Result), Query);
 
   default:
-    throw logic_error("Internal libpqxx error: "
+    throw logic_error("libpqxx internal error: "
 		      "pqxx::result: Unrecognized response code " +
 		      ToString(int(PQresultStatus(m_Result))));
   }

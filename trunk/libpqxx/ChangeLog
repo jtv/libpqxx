@@ -1,3 +1,30 @@
+2003-11-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Bumped abi revision for first time
+  - Disabled check for new COPY interface for now (doesn't work yet)
+ doc/html/CVS, doc/html/Reference/CVS, doc/html/Tutorial/CVS:
+  - Removed
+ include/pqxx/libconfig.h.in:
+  - Check for PQputCopyData() and friends
+ include/pqxx/connection_base.hxx, include/pqxx/result.hxx,
+ include/pqxx/tablereader.hxx, include/pqxx/transaction_base.hxx,
+ include/pqxx/trigger.hxx:
+  - Moved all deprecated functions to bottom of public class sections
+ include/pqxx/connection_base.hxx, src/connection_base.cxx:
+  - Use new COPY interface, if available
+ include/pqxx/tablereader.hxx:
+  - Support escaping of carriage returns
+ Makefile.am:
+  - Remove doc/CVS from distribution archive if present
+ src/connection_base.cxx, src/result.cxx, src/robusttransaction.cxx,
+ src/transaction_base.cxx:
+  - Rewrote "Internal libpqxx" error messages to "libpqxx internal error"
+ src/connection_base.cxx:
+  - For old COPY interface, increase line buffer to 10000 chars
+ src/tablewriter.cxx:
+  - Delegated EndCopyWrite() to transaction
+ tools/preprelease:
+  - Create HTML documentation directories, and make sure they're empty
 2003-11-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/largeobject.hxx, src/binarystring.cxx, src/util.cxx:
   - Included <new>.  Thanks Jaroslaw Staniek!

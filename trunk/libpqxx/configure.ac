@@ -6,9 +6,9 @@ AM_INIT_AUTOMAKE(libpqxx, 2.1.2)
 
 # Library version numbering - see "info libtool versioning 'libtool
 # versioning'" for details.
-abi_current=0
-abi_revision=1
-abi_age=0
+abi_current=2
+abi_revision=0
+abi_age=1
 sonumber=${abi_current}:${abi_revision}:${abi_age}
 AC_SUBST(sonumber)
 
@@ -310,7 +310,15 @@ pqftable=yes
 AC_CHECK_DECL(PQftable,
 	[AC_DEFINE(PQXX_HAVE_PQFTABLE, 1, [Define if PostgreSQL has PQftable()])],
 	[pqftable=no],
-	[#include <${with_postgres_include}/libpq-fe.h]>)
+	[#include <${with_postgres_include}/libpq-fe.h>])
+
+#AC_MSG_CHECKING([for new COPY functions])
+#AH_TEMPLATE(PQputCopyData,[Do we have PQputCopyData() and related functions?])
+#pqputcopy=yes
+#AC_CHECK_DECL(PQputCopyData,
+#	[AC_DEFINE(PQXX_HAVE_PQPUTCOPY, 1, [Define if PostgreSQL has PQputCopyData() and related functions])],
+#	[pqputcopy=no],
+#	[#include <${with_postgres_include}/libpq-fe.h>])
 
 AC_LANG_PUSH(C++)
 AC_CHECK_HEADERS([limits iterator])

@@ -43,6 +43,9 @@
 /* Define if PostgreSQL has PQftable() */
 #undef PQXX_HAVE_PQFTABLE
 
+/* Define if PostgreSQL has PQputCopyData() and related functions */
+#undef PQXX_HAVE_PQPUTCOPY
+
 /* Define if you have the <streambuf> header; if not, <streambuf.h> is used */
 #undef PQXX_HAVE_STREAMBUF
 

@@ -13,7 +13,6 @@ export DH_COMPAT=3
 DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
-
 CFLAGS = -Wall -g
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
@@ -52,7 +51,7 @@ build-stamp:  config.status
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp 
+	rm -f build-stamp
 
 	# Add here commands to clean up after the build process.
 	-$(MAKE) distclean
@@ -62,7 +61,9 @@ endif
 ifneq "$(wildcard /usr/share/misc/config.guess)" ""
 	cp -f /usr/share/misc/config.guess config/config.guess
 endif
-
+	# Remove CVS dirs present in upstream tarball, so they don't
+	# get packaged by accident.
+	find . -name CVS -print0 | xargs -0 rm -rf
 
 	dh_clean
 
@@ -72,49 +73,40 @@ install: build
 	dh_clean -k
 	dh_installdirs
 
-	# Add here commands to install the package into debian/tmp
-	$(MAKE) install prefix=$(CURDIR)/debian/tmp/usr
+#	Install into virtual root
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 
 	# We don't want an RPATH in a Debian package
 	chrpath --delete debian/tmp/usr/lib/lib*.so
 
+	dh_install
 
 # Build architecture-independent files here.
-binary-indep: build install
+binary-indep: install
 # We have nothing to do by default.
 
 # Build architecture-dependent files here.
-binary-arch: build install
+binary-arch: install
 	dh_testdir
 	dh_testroot
-	dh_movefiles
 
-#	dh_installdebconf	
-	dh_installdocs -plibpqxx0
-	dh_link usr/share/doc/libpqxx0 usr/share/doc/libpqxx-dev
+	dh_installdocs
 	dh_installexamples
 	dh_installmenu
-#	dh_installlogrotate
-#	dh_installemacsen
-#	dh_installpam
-#	dh_installmime
-#	dh_installinit
 	dh_installcron
 	dh_installman
 	dh_installinfo
-#	dh_undocumented
-	dh_installchangelogs -plibpqxx0 ChangeLog
+	dh_installchangelogs ChangeLog
 	dh_link
 	dh_strip
 	dh_compress
 	dh_fixperms
 	dh_makeshlibs
 	dh_installdeb
-#	dh_perl
 	dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
 
 binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install 
+.PHONY: build clean binary-indep binary-arch binary install

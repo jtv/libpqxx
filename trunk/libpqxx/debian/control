@@ -1,12 +1,12 @@
 Source: libpqxx
 Section: libs
 Priority: optional
-Maintainer: Greg Hookey <debian@deadly.ca>
-Build-Depends: debhelper (>> 3.0.0),postgresql-dev, chrpath
-Standards-Version: 3.5.9
+Maintainer: Roger Leigh <rleigh@debian.org>
+Build-Depends: debhelper (>> 3.0.0), postgresql-dev, chrpath
+Standards-Version: 3.6.1
 
 Package: libpqxx-dev
-Section: devel
+Section: libdevel
 Architecture: any
 Depends: libpqxx0 (= ${Source-Version})
 Description: C++ library to connect to PostgreSQL (development files)

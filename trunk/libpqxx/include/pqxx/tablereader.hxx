@@ -52,14 +52,6 @@ public:
   operator bool() const throw () { return !m_Done; }			//[t6]
   bool operator!() const throw () { return m_Done; }			//[t6]
 
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use get_raw_line() instead
-  bool GetRawLine(PGSTD::string &L) { return get_raw_line(L); }
-  /// @deprecated Use tokenize<>() instead
-  template<typename TUPLE> void Tokenize(PGSTD::string L, TUPLE &T) const
-  	{ tokenize(L, T); }
-#endif
-
   /// Read a line of raw, unparsed table data
   /** Returns whether a line could be read.
    * @param Line is set to the raw data line read from the table.
@@ -68,6 +60,15 @@ public:
 
   template<typename TUPLE> 
   void tokenize(PGSTD::string, TUPLE &) const;				//[t8]
+
+
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use get_raw_line() instead
+  bool GetRawLine(PGSTD::string &L) { return get_raw_line(L); }
+  /// @deprecated Use tokenize<>() instead
+  template<typename TUPLE> void Tokenize(PGSTD::string L, TUPLE &T) const
+  	{ tokenize(L, T); }
+#endif
 
 private:
   bool m_Done;
@@ -117,6 +118,12 @@ inline void pqxx::tablereader::tokenize(PGSTD::string Line,
 	Line.replace(i++, 2, "\n");
 	break;
 
+      case 'r':
+	Line.replace(i++, 2, "\r");
+	break;
+
+      // TODO: Octal values
+      // TODO: Backspace, form feed, vertical tab
       default:
         Line.erase(i, 1);
       }

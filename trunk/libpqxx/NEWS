@@ -1,5 +1,9 @@
 2.1.2
  - Compile fix for gcc libstdc++ 2.9, thanks Jaroslaw Staniek
+ - Moved deprecated functions below current ones
+ - Cleanups for Debian packaging (thanks Roger Leigh, new Debian maintainer!)
+ - Updated authors listings
+ - Bumped ABI version number for the first time (now 2/0/1)
 2.1.1
  - More workarounds for gcc 2.95
  - Automated tools keep test makefiles up to date

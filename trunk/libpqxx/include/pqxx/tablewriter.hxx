@@ -23,6 +23,7 @@
 
 #include "pqxx/tablestream"
 
+// TODO: New variant class with async write (and explicit commit)
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */
@@ -61,6 +62,12 @@ public:
   // Copy table from one database to another
   tablewriter &operator<<(tablereader &);				//[t6]
 
+  /// Translate tuple of data to a string in DBMS-specific format.  This
+  /// is not portable between databases.
+  template<typename IT> PGSTD::string generate(IT Begin, IT End) const;	//[t10]
+  template<typename TUPLE> PGSTD::string generate(const TUPLE &) const;	//[t10]
+
+
 #ifdef PQXX_DEPRECATED_HEADERS
   /// @deprecated Use generate() instead
   template<typename IT> PGSTD::string ezinekoT(IT Begin, IT End) const
@@ -69,12 +76,6 @@ public:
   template<typename TUPLE> PGSTD::string ezinekoT(const TUPLE &T) const
     	{ return generate(T); }
 #endif
-
-  /// Translate tuple of data to a string in DBMS-specific format.  This
-  /// is not portable between databases.
-  template<typename IT> PGSTD::string generate(IT Begin, IT End) const;	//[t10]
-  template<typename TUPLE> PGSTD::string generate(const TUPLE &) const;	//[t10]
-
 
 private:
   void WriteRawLine(const PGSTD::string &);
@@ -110,8 +111,10 @@ private:
 
 namespace PGSTD
 {
-// Specialized back_insert_iterator for tablewriter, doesn't require a 
-// value_type to be defined.  Accepts any container type instead.
+/// Specialized back_insert_iterator for tablewriter
+/** Doesn't require a value_type to be defined.  Accepts any container type 
+ * instead.
+ */
 template<> 
   class back_insert_iterator<pqxx::tablewriter> :			//[t9]
 	public iterator<output_iterator_tag, void,void,void,void>

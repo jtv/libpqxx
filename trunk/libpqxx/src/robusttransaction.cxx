@@ -92,7 +92,7 @@ void pqxx::basic_robusttransaction::do_commit()
   const IDType ID = m_ID;
 
   if (ID == oid_none) 
-    throw logic_error("Internal libpqxx error: transaction " 
+    throw logic_error("libpqxx internal error: transaction " 
 		      "'" + name() + "' " 
 		     "has no ID");
 

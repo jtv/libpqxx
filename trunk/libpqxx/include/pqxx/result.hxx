@@ -81,19 +81,6 @@ public:
 
     inline size_type size() const;					//[t11]
 
-#ifdef PQXX_DEPRECATED_HEADERS
-    /// @deprecated Use rownumber() instead
-    result::size_type Row() const { return rownumber(); }
-
-    /// @deprecated Use column_number() instead
-    size_type ColumnNumber(const PGSTD::string &ColName) const 
-    	{ return m_Home->ColumnNumber(ColName); }
-
-    /// @deprecated Use column_number() instead
-    size_type ColumnNumber(const char ColName[]) const 
-    	{ return m_Home->ColumnNumber(ColName); }
-#endif
-
     result::size_type rownumber() const { return m_Index; }		//[t11]
 
     /// Number of given column (throws exception if it doesn't exist)
@@ -123,6 +110,21 @@ public:
       	{ return column_table(column_number(ColName)); }
 #endif
 
+
+#ifdef PQXX_DEPRECATED_HEADERS
+    /// @deprecated Use rownumber() instead
+    result::size_type Row() const { return rownumber(); }
+
+    /// @deprecated Use column_number() instead
+    size_type ColumnNumber(const PGSTD::string &ColName) const 
+    	{ return m_Home->ColumnNumber(ColName); }
+
+    /// @deprecated Use column_number() instead
+    size_type ColumnNumber(const char ColName[]) const 
+    	{ return m_Home->ColumnNumber(ColName); }
+#endif
+
+
   protected:
     const result *m_Home;
     result::size_type m_Index;
@@ -130,12 +132,6 @@ public:
     // Not allowed:
     tuple();
   };
-
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated For compatibility with old Tuple class
-  typedef tuple Tuple;
-#endif
-
 
   /// Reference to a field in a result set.
   /** A field represents one entry in a tuple.  It represents an actual value 
@@ -161,11 +157,6 @@ public:
      * or to C++ strings.
      */
     const char *c_str() const {return m_Home->GetValue(m_Index,m_Col);}	//[t2]
-
-#ifdef PQXX_DEPRECATED_HEADERS
-    /// @deprecated Use name() instead
-    const char *Name() const {return name();}
-#endif
 
     /// Column name
     inline const char *name() const;					//[t11]
@@ -256,15 +247,14 @@ public:
 
     size_type size() const { return m_Home->GetLength(m_Index,m_Col); }	//[t11]
 
-  private:
+#ifdef PQXX_DEPRECATED_HEADERS
+    /// @deprecated Use name() instead
+    const char *Name() const {return name();}
+#endif
 
+  private:
     tuple::size_type m_Col;
   };
-
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated For compatibility with old Field class
-  typedef field Field;
-#endif
 
   /// Iterator for rows (tuples) in a query result set.
   /** A result, once obtained, cannot be modified.  Therefore there is no
@@ -342,21 +332,6 @@ public:
 
   void clear() { LoseRef(); }						//[t20]
 
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use columns() instead
-  tuple::size_type Columns() const { return columns(); }
-
-  /// @deprecated Use column_number() instead
-  tuple::size_type ColumnNumber(const char Name[]) const
-  	{return PQfnumber(m_Result,Name);}
-  /// @deprecated Use column_number() instead
-  tuple::size_type ColumnNumber(const PGSTD::string &Name) const
-  	{return ColumnNumber(Name.c_str());}
-  /// @deprecated Use column_name() instead
-  const char *ColumnName(tuple::size_type Number) const
-  	{return PQfname(m_Result,Number);}
-#endif
-
   /// Number of columns in result
   tuple::size_type columns() const { return PQnfields(m_Result); }	//[t11]
 
@@ -390,12 +365,6 @@ public:
     	{ return column_table(column_number(ColName)); }
 #endif
 
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use inserted_oid() instead
-  oid InsertedOid() const { return inserted_oid(); }
-  /// @deprecated Use affected_rows() instead
-  size_type AffectedRows() const { return affected_rows(); }
-#endif
 
   /// If command was INSERT of 1 row, return oid of inserted row
   /** Returns oid_none otherwise. 
@@ -406,6 +375,30 @@ public:
   /// If command was INSERT, UPDATE, or DELETE, return number of affected rows
   /*** Returns zero for all other commands. */
   size_type affected_rows() const;					//[t7]
+
+
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated For compatibility with old Tuple class
+  typedef tuple Tuple;
+  /// @deprecated For compatibility with old Field class
+  typedef field Field;
+  /// @deprecated Use inserted_oid() instead
+  oid InsertedOid() const { return inserted_oid(); }
+  /// @deprecated Use affected_rows() instead
+  size_type AffectedRows() const { return affected_rows(); }
+  /// @deprecated Use columns() instead
+  tuple::size_type Columns() const { return columns(); }
+  /// @deprecated Use column_number() instead
+  tuple::size_type ColumnNumber(const char Name[]) const
+  	{return PQfnumber(m_Result,Name);}
+  /// @deprecated Use column_number() instead
+  tuple::size_type ColumnNumber(const PGSTD::string &Name) const
+  	{return ColumnNumber(Name.c_str());}
+  /// @deprecated Use column_name() instead
+  const char *ColumnName(tuple::size_type Number) const
+  	{return PQfname(m_Result,Number);}
+#endif
+
 
 private:
   PGresult *m_Result;

@@ -33,20 +33,14 @@ pqxx::tablewriter::tablewriter(transaction_base &T, const string &WName) :
 
 pqxx::tablewriter::~tablewriter()
 {
-  try
-  {
-    Trans().WriteCopyLine("\\.");
-  }
-  catch (const exception &e)
-  {
-    Trans().process_notice(e.what());
-  }
+  Trans().EndCopyWrite();
 }
 
 
 pqxx::tablewriter &pqxx::tablewriter::operator<<(pqxx::tablereader &R)
 {
   string Line;
+  // TODO: Can we do this in binary mode? (Might require protocol version check)
   while (R.get_raw_line(Line))
     WriteRawLine(Line);
 

@@ -61,13 +61,14 @@ protected:
     m_StartCmd("START TRANSACTION ISOLATION LEVEL " + IsolationString)
   {}
 
+  /// The SQL command needed to start this type of transaction
+  const PGSTD::string &startcommand() const { return m_StartCmd; }
+
+
 #ifdef PQXX_DEPRECATED_HEADERS
   /// @deprecated Use startcommand() instead
   const PGSTD::string &StartCmd() const { return startcommand(); }
 #endif
-
-  /// The SQL command needed to start this type of transaction
-  const PGSTD::string &startcommand() const { return m_StartCmd; }
 
 private:
 
