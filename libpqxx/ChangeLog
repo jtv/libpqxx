@@ -1,3 +1,8 @@
+2002-12-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/cursor.cxx:
+  - Use ALL and BACKWARD ALL instead of highest/lowest representable numbers
+ test/test19.cxx, test/test38.cxx:
+  - Replaced hardcoded table name by command-line argument as intended
 2002-12-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac:
   - Bumped revision to 1.2.0.
