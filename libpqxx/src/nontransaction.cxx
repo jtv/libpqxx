@@ -23,8 +23,8 @@ pqxx::NonTransaction::~NonTransaction()
 }
 
 
-pqxx::Result pqxx::NonTransaction::DoExec(const char C[])
+pqxx::Result pqxx::NonTransaction::DoExec(const char Query[])
 {
-  return DirectExec(C, 2, 0);
+  return DirectExec(Query, 2, 0);
 }
 

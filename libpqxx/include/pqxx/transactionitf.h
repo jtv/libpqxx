@@ -59,11 +59,25 @@ public:
   void Commit();							//[t1]
   void Abort();								//[t10]
 
-  /// Execute query directly
-  Result Exec(const char[]);						//[t1]
+  /// Execute query
+  /** Perform a query in this transaction.
+   * @param Query the query or command to execute
+   * @param Desc optional identifier for query, to help pinpoint SQL errors
+   */
+  Result Exec(const char Query[], 
+      	      const PGSTD::string &Desc=PGSTD::string());		//[t1]
 
-  /// Execute query directly.
-  Result Exec(const PGSTD::string &Q) { return Exec(Q.c_str()); }	//[t2]
+  /// Execute query
+  /** Perform a query in this transaction.  This version may be slightly
+   * slower than the version taking a const char[], although the difference is
+   * not likely to be very noticeable compared to the time required to execute
+   * even a simple query.
+   * @param Query the query or command to execute
+   * @param Desc optional identifier for query, to help pinpoint SQL errors
+   */
+  Result Exec(const PGSTD::string &Query,
+              const PGSTD::string &Desc=PGSTD::string()) 		//[t2]
+  	{ return Exec(Query.c_str(), Desc); }
 
   /// Have connection process warning message
   void ProcessNotice(const char Msg[]) { m_Conn.ProcessNotice(Msg); }	//[t14]
@@ -91,7 +105,7 @@ protected:
 
   /// To be implemented by derived implementation class.
   virtual void DoBegin() =0;
-  virtual Result DoExec(const char C[]) =0;
+  virtual Result DoExec(const char Query[]) =0;
   virtual void DoCommit() =0;
   virtual void DoAbort() =0;
 

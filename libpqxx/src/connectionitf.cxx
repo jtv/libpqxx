@@ -364,20 +364,20 @@ const char *pqxx::ConnectionItf::ErrMsg() const
 }
 
 
-pqxx::Result pqxx::ConnectionItf::Exec(const char Q[], 
+pqxx::Result pqxx::ConnectionItf::Exec(const char Query[], 
                                        int Retries, 
 				       const char OnReconnect[])
 {
   Activate();
 
-  Result R( PQexec(m_Conn, Q) );
+  Result R( PQexec(m_Conn, Query) );
 
   while ((Retries > 0) && !R && !is_open())
   {
     Retries--;
 
     Reset(OnReconnect);
-    if (is_open()) R = PQexec(m_Conn, Q);
+    if (is_open()) R = PQexec(m_Conn, Query);
   }
 
   if (!R) throw broken_connection();

@@ -49,22 +49,16 @@ void pqxx::Transaction::DoBegin()
 
 
 
-pqxx::Result pqxx::Transaction::DoExec(const char C[])
+pqxx::Result pqxx::Transaction::DoExec(const char Query[])
 {
   Result R;
   try
   {
-    R = DirectExec(C, 0, SQL_BEGIN_WORK);
+    R = DirectExec(Query, 0, SQL_BEGIN_WORK);
   }
   catch (const exception &)
   {
-    try
-    {
-      Abort();
-    }
-    catch (const exception &)
-    {
-    }
+    try { Abort(); } catch (const exception &) { }
     throw;
   }
 

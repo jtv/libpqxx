@@ -126,13 +126,7 @@ void pqxx::TransactionItf::Abort()
     break;
 
   case st_active:
-    try
-    {
-      DoAbort();
-    }
-    catch (const exception &)
-    {
-    }
+    try { DoAbort(); } catch (const exception &) { }
     break;
 
   case st_aborted:
@@ -160,12 +154,17 @@ void pqxx::TransactionItf::Abort()
 }
 
 
-pqxx::Result pqxx::TransactionItf::Exec(const char C[])
+pqxx::Result pqxx::TransactionItf::Exec(const char Query[],
+    					const string &Desc)
 {
+  const string N = (Desc.empty() ? "" : "'" + Desc + "'");
+
   if (m_Stream.get())
-    throw logic_error("Attempt to execute query on transaction '" + 
+    throw logic_error("Attempt to execute query '" + N + " on transaction '" + 
 		      Name() + 
-		      "' while stream still open");
+		      "' while stream '" +
+		      m_Stream.get()->Name() +
+		      "' is still open");
 
   switch (m_Status)
   {
@@ -178,17 +177,19 @@ pqxx::Result pqxx::TransactionItf::Exec(const char C[])
     break;
 
   case st_committed:
-    throw logic_error("Attempt to execute query in committed transaction '" +
+    throw logic_error("Attempt to execute query " + N + " "
+	              "in committed transaction '" +
 		      Name() +
 		      "'");
 
   case st_aborted:
-    throw logic_error("Attempt to execute query in aborted transaction '" +
+    throw logic_error("Attempt to execute query " + N + " "
+	              "in aborted transaction '" +
 		      Name() +
 		      "'");
 
   case st_in_doubt:
-    throw logic_error("Attempt to execute query in transaction '" + 
+    throw logic_error("Attempt to execute query " + N + " in transaction '" + 
 		      Name() + 
 		      "', which is in indeterminate state");
   default:
@@ -196,7 +197,8 @@ pqxx::Result pqxx::TransactionItf::Exec(const char C[])
 		      "invalid status code");
   }
 
-  return DoExec(C);
+  // TODO: Pass Name to DoExec(), and from there on down
+  return DoExec(Query);
 }
 
 
