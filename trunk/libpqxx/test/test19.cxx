@@ -45,7 +45,7 @@ void DumpRows(const vector<string> &V)
 } // namespace
 
 
-int main(int argc, char *argv[])
+int main(int, char *argv[])
 {
   try
   {

@@ -32,7 +32,7 @@ void ReportWarning(void *, const char msg[])
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
 // called template1, or "host=foo.bar.net user=smith" to connect to a
 // backend running on host foo.bar.net, logging in as user smith.
-int main(int argc, char *argv[])
+int main(int, char *argv[])
 {
   try
   {

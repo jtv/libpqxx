@@ -159,7 +159,7 @@ void Test(Connection &C, bool ExplicitAbort)
 } // namespace
 
 
-int main(int argc, char *argv[])
+int main(int, char *argv[])
 {
   try
   {
