@@ -73,6 +73,7 @@ class PQXX_LIBEXPORT Cursor
 
 public:
   typedef result::size_type size_type;
+  typedef result::difference_type difference_type;
 
   enum pos { pos_unknown = -1, pos_start = 0 };
 
@@ -99,7 +100,7 @@ public:
     Cursor(TRANSACTION &T,
            const char Query[], 
 	   const PGSTD::string &BaseName="cur",
-	   size_type Count=dist_next) :					//[t3]
+	   difference_type Count=dist_next) :				//[t3]
       m_Trans(T),
       m_Name(),
       m_Count(Count),
@@ -146,7 +147,7 @@ public:
   template<typename TRANSACTION>
     Cursor(TRANSACTION &T,
            const result::field &Name,
-	   size_type Count=dist_next) :					//[t45]
+	   difference_type Count=dist_next) :				//[t45]
       m_Trans(T),
       m_Name(Name.c_str()),
       m_Count(Count),
@@ -159,7 +160,7 @@ public:
   }
 
   /// Set new stride, ie. the number of rows to fetch at a time.
-  size_type SetCount(size_type);					//[t19]
+  difference_type SetCount(difference_type);				//[t19]
 
   /// Fetch Count rows of data.
   /** The first row returned, if any, will be the one directly before (if Count
@@ -171,7 +172,7 @@ public:
    *
    * The number of rows fetched will not exceed Count, but it may be lower.
    */
-  result Fetch(size_type Count);					//[t19]
+  result Fetch(difference_type Count);					//[t19]
 
   /// Move forward by Count rows (negative for backwards) through the data set.
   /** Returns the number of rows skipped.  This need not be the same number
@@ -182,7 +183,7 @@ public:
    * exception during the operation will leave the cursor in an unknown 
    * position.
    */
-  size_type Move(size_type Count);					//[t42]
+  difference_type Move(difference_type Count);				//[t42]
 
   void MoveTo(size_type);						//[t44]
 
@@ -191,13 +192,13 @@ public:
    * comfortably conceive, this may not actually be all remaining rows in the 
    * result set.
    */
-  static size_type ALL() throw ();					//[t3]
+  static difference_type ALL() throw ();				//[t3]
 
   /// Constant: "next fetch/move should cover just the next row."
-  static size_type NEXT() throw () { return dist_next; }		//[t19]
+  static difference_type NEXT() throw () { return dist_next; }		//[t19]
 
   /// Constant: "next fetch/move should go back one row."
-  static size_type PRIOR() throw () { return -1; }			//[t19]
+  static difference_type PRIOR() throw () { return -1; }		//[t19]
 
   /// Constant: "next fetch/move goes backwards, spanning as many rows as 
   /// possible.
@@ -205,7 +206,7 @@ public:
    * machine can comfortably conceive, this may not bring you all the way back
    * to the beginning.
    */
-  static size_type BACKWARD_ALL() throw ();				//[t19]
+  static difference_type BACKWARD_ALL() throw ();			//[t19]
 
   /// Fetch rows.
   /** The number of rows retrieved will be no larger than (but may be lower
@@ -223,9 +224,9 @@ public:
   bool operator!() const throw () { return m_Done; }			//[t3]
 
   /// Move N rows forward.
-  Cursor &operator+=(size_type N) { Move(N); return *this;}		//[t19]
+  Cursor &operator+=(difference_type N) { Move(N); return *this;}	//[t19]
   /// Move N rows backward.
-  Cursor &operator-=(size_type N) { Move(-N); return *this;}		//[t19]
+  Cursor &operator-=(difference_type N) { Move(-N); return *this;}	//[t19]
 
   /// Number of actual tuples, or pos_unknown if not currently known.
   /** Size will become known when the cursor passes the end of the result set, 
@@ -250,14 +251,18 @@ public:
    * an unknown_position exception to be thrown.
    */
   size_type Pos() const throw (unknown_position)			//[t43]
-  { if (m_Pos==pos_unknown) throw unknown_position(m_Name); return m_Pos; }
+  {
+    if (m_Pos==size_type(pos_unknown)) throw unknown_position(m_Name);
+    return m_Pos;
+  }
 
 
 private:
-  static PGSTD::string OffsetString(size_type);
+  static PGSTD::string OffsetString(difference_type);
   void init(const PGSTD::string &BaseName, const char Query[]);
-  PGSTD::string MakeFetchCmd(size_type) const;
-  size_type NormalizedMove(size_type Intended, size_type Actual);
+  PGSTD::string MakeFetchCmd(difference_type) const;
+  difference_type NormalizedMove(difference_type Intended,
+      difference_type Actual);
 
 #ifndef PQXX_WORKAROUND_VC7
   /// Only defined for permitted isolation levels (in this case, serializable)
@@ -281,10 +286,10 @@ private:
 
   transaction_base &m_Trans;
   PGSTD::string m_Name;
-  size_type m_Count;
+  difference_type m_Count;
   bool m_Done;
   size_type m_Pos;
-  size_type m_Size;
+  difference_type m_Size;
 
   // Not allowed:
   Cursor(const Cursor &);

@@ -37,14 +37,15 @@ class PQXX_LIBEXPORT cursor_base
 {
 public:
   typedef result::size_type size_type;
+  typedef result::difference_type difference_type;
 
   operator void *() const { return m_done ? 0 : &s_dummy; }		//[t81]
   bool operator!() const { return m_done; }				//[t81]
 
-  static size_type all() throw ();					//[t81]
-  static size_type next() throw () { return 1; }			//[t81]
-  static size_type prior() throw () { return -1; }			//[]
-  static size_type backward_all() throw ();				//[]
+  static difference_type all() throw ();				//[t81]
+  static difference_type next() throw () { return 1; }			//[t81]
+  static difference_type prior() throw () { return -1; }		//[]
+  static difference_type backward_all() throw ();			//[]
 
   const PGSTD::string &name() const throw () { return m_name; }		//[t81]
 
@@ -76,23 +77,23 @@ private:
 };
 
 
-inline cursor_base::size_type cursor_base::all() throw ()
+inline cursor_base::difference_type cursor_base::all() throw ()
 {
 #ifdef _MSC_VER
   // Microsoft's compiler defines max() and min() macros!  Others may as well
   return INT_MAX;
 #else
-  return PGSTD::numeric_limits<size_type>::max();
+  return PGSTD::numeric_limits<difference_type>::max();
 #endif
 }
 
-inline cursor_base::size_type cursor_base::backward_all() throw ()
+inline cursor_base::difference_type cursor_base::backward_all() throw ()
 {
 #ifdef _MSC_VER
   // Microsoft's compiler defines max() and min() macros!  Others may as well
   return INT_MIN + 1;
 #else
-  return PGSTD::numeric_limits<size_type>::min() + 1;
+  return PGSTD::numeric_limits<difference_type>::min() + 1;
 #endif
 }
 
@@ -123,7 +124,7 @@ public:
   icursorstream(transaction_base &context,
       const PGSTD::string &query,
       const PGSTD::string &basename,
-      size_type stride=1);						//[t81]
+      difference_type stride=1);					//[t81]
 
   /// Read new value into given result object; same as operator >>
   /** The result set may continue any number of rows from zero to the chosen
@@ -144,13 +145,13 @@ public:
   /**
    * @param stride must be a positive number
    */
-  void set_stride(size_type stride);					//[t81]
+  void set_stride(difference_type stride);				//[t81]
 
 private:
   void declare(const PGSTD::string &query);
   result fetch();
 
-  size_type m_stride;
+  difference_type m_stride;
 };
 
 
@@ -182,11 +183,13 @@ class PQXX_LIBEXPORT icursor_iterator :
 public:
   typedef icursorstream istream_type;
   typedef istream_type::size_type size_type;
+  typedef istream_type::difference_type difference_type;
 
-  icursor_iterator() : m_stream(0), m_here(), m_fresh(true), m_pos(0){}	//[]
-  icursor_iterator(istream_type &s) :					//[]
+  icursor_iterator() throw () :						//[]
+    m_stream(0), m_here(), m_fresh(true), m_pos(0) {}
+  icursor_iterator(istream_type &s) throw () :				//[]
     m_stream(&s), m_here(), m_fresh(false), m_pos(0) {}
-  icursor_iterator(const icursor_iterator &rhs) : 			//[]
+  icursor_iterator(const icursor_iterator &rhs) throw () : 		//[]
     m_stream(rhs.m_stream),
     m_here(rhs.m_here),
     m_fresh(rhs.m_fresh),
@@ -201,7 +204,7 @@ public:
   icursor_iterator operator++(int)					//[]
   	{ icursor_iterator old(*this); read(); return old; }
 
-  icursor_iterator &operator+=(size_type n)				//[]
+  icursor_iterator &operator+=(difference_type n)			//[]
   {
     m_stream->ignore(n);
     m_fresh = false;
@@ -209,7 +212,7 @@ public:
     return *this;
   }
 
-  icursor_iterator &operator=(const icursor_iterator &rhs)		//[]
+  icursor_iterator &operator=(const icursor_iterator &rhs) throw ()	//[]
   {
     m_here = rhs.m_here;	// (Already protected against self-assignment)
     m_stream = rhs.m_stream;	// (Does not throw, so we're exception-safe)
