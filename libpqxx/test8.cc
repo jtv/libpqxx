@@ -38,18 +38,41 @@ int main(int argc, char *argv[])
     // Begin a transaction acting on our current connection
     Transaction T(C, "test8");
 
-    // Set up a TableReader stream to read data from table pg_tables
-    TableReader Stream(T, Table);
+    vector<string> R, First;
 
-    // Read results into string vectors and print them
-    vector<string> R;
-    for (int n=0; (Stream >> R); ++n)
     {
-      cout << n << ": ";
-      for (vector<string>::const_iterator i = R.begin(); i != R.end(); ++i)
-        cout << *i << '\t';
-      cout << endl;
-      R.clear();
+      // Set up a TableReader stream to read data from table pg_tables
+      TableReader Stream(T, Table);
+
+      // Read results into string vectors and print them
+      for (int n=0; (Stream >> R); ++n)
+      {
+        // Keep the first row for later consistency check
+        if (n == 0) First = R;
+
+        cout << n << ": ";
+        for (vector<string>::const_iterator i = R.begin(); i != R.end(); ++i)
+          cout << *i << '\t';
+        cout << endl;
+        R.clear();
+      }
+    }
+
+    // Verify the contents we got for the first row
+    if (!First.empty())
+    {
+      TableReader Verify(T, Table);
+      string Line;
+
+      if (!Verify.GetRawLine(Line))
+	throw logic_error("TableReader got rows the first time around, "
+	                  "but none the second time!");
+
+      cout << "First tuple was: " << endl << Line << endl;
+
+      Verify.Tokenize(Line, R);
+      if (R != First)
+        throw logic_error("Got different results re-parsing first tuple!");
     }
   }
   catch (const exception &e)

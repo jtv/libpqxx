@@ -54,6 +54,13 @@ public:
 };
 
 
+void CheckState(TableReader &R)
+{
+  if (!R != !bool(R))
+    throw logic_error("TableReader " + R.Name() + " in inconsistent state!");
+}
+
+
 class CopyTable : public Transactor
 {
   Transaction &m_orgTrans;  // Transaction giving us access to original table
@@ -76,11 +83,15 @@ public:
     TableReader Org(m_orgTrans, m_orgTable);
     TableWriter Dst(T, m_dstTable);
 
+    CheckState(Org);
+
     // Copy table Org into table Dst.  This transfers all the data to the 
     // frontend and back to the backend.  Since in this example Ord and Dst are
     // really in the same database, we'd do this differently in real life; a
     // simple SQL query would suffice.
     Dst << Org;
+
+    CheckState(Org);
   }
 
   void OnCommit()
