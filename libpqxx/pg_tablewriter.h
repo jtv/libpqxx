@@ -18,6 +18,10 @@
 
 #include "pg_tablestream.h"
 
+
+/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+ */
+
 namespace Pg
 {
 class TableReader;	// See pg_tablereader.h
@@ -25,17 +29,17 @@ class TableReader;	// See pg_tablereader.h
 class TableWriter : public TableStream
 {
 public:
-  TableWriter(Transaction &Trans, PGSTD::string Name);
-  ~TableWriter();
+  TableWriter(Transaction &Trans, PGSTD::string Name);			//[t5]
+  ~TableWriter();							//[t5]
 
   template<typename TUPLE> TableWriter &operator<<(const TUPLE &);
-  template<typename TUPLE> void insert(const TUPLE &);
-  template<typename TUPLE> void push_back(const TUPLE &T) { insert(T); }
+  template<typename TUPLE> void insert(const TUPLE &);			//[t5]
+  template<typename TUPLE> void push_back(const TUPLE &T) {insert(T);}	//[]
 
   // Copy table from one database to another
-  TableWriter &operator<<(TableReader &);
+  TableWriter &operator<<(TableReader &);				//[t6]
 
-  template<typename TUPLE> PGSTD::string ezinekoT(const TUPLE &) const;
+  template<typename TUPLE> PGSTD::string ezinekoT(const TUPLE &) const;	//[]
 
 private:
   void WriteRawLine(PGSTD::string);
@@ -46,13 +50,14 @@ private:
 
 // Specialized back_insert_iterator for TableWriter, doesn't require a 
 // value_type to be defined.  Accepts any container type instead.
-template<> class PGSTD::back_insert_iterator<Pg::TableWriter> : 
+template<> class PGSTD::back_insert_iterator<Pg::TableWriter> : 	//[t9]
 	public PGSTD::iterator<PGSTD::output_iterator_tag, void,void,void,void>
 {
 public:
   explicit back_insert_iterator(Pg::TableWriter &W) : m_Writer(W) {}
 
-  template<typename TUPLE> back_insert_iterator &operator=(const TUPLE &T)
+  template<typename TUPLE> 
+  back_insert_iterator &operator=(const TUPLE &T)
   {
     m_Writer.insert(T);
     return *this;

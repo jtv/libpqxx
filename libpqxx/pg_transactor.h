@@ -39,6 +39,10 @@
  * Perform() makes to run it.
  */
 
+/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+ */
+
+
 namespace Pg
 {
 class Transaction;
@@ -46,14 +50,15 @@ class Transaction;
 class Transactor
 {
 public:
-  explicit Transactor(PGSTD::string TName="AnonymousTransactor"):m_Name(TName){}
+  explicit Transactor(PGSTD::string TName="AnonymousTransactor") :	//[t4]
+    m_Name(TName) {}
 
   // Overridable transaction definition.  Will be retried if connection goes
   // bad, but not if an exception is thrown while the connection remains open.
   // The parameter is a dedicated transaction context created to perform this
   // operation.  It is generally recommended that a Transactor modify only
   // itself and this Transaction object from here.
-  void operator()(Transaction &);
+  void operator()(Transaction &);					//[t4]
 
   // Overridable member functions, called by Connection::Perform() if attempt 
   // to run transaction fails/succeeds, respectively.  Use these to patch up
@@ -61,10 +66,10 @@ public:
   // If your OnCommit() function should throw an exception, the actual back-end 
   // transaction will still be committed so the effects on the database remain.
   // The OnAbort() function is not allowed to throw exceptions at all.
-  void OnAbort(const char Reason[]) throw () {}
-  void OnCommit() {}
+  void OnAbort(const char Reason[]) throw () {}				//[]
+  void OnCommit() {}							//[]
 
-  PGSTD::string Name() const { return m_Name; }
+  PGSTD::string Name() const { return m_Name; }				//[]
 
 private:
   PGSTD::string m_Name;
