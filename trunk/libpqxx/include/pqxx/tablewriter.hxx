@@ -102,15 +102,12 @@ private:
       const PGSTD::string &WName,
       const PGSTD::string &Columns = PGSTD::string());
   void WriteRawLine(const PGSTD::string &);
-  void flush_pending();
   void writer_close();
   PGSTD::string EscapeAny(const char *) const;
   PGSTD::string EscapeAny(const PGSTD::string &) const;
   template<typename T> PGSTD::string EscapeAny(const T &) const;
 
   static PGSTD::string Escape(const PGSTD::string &);
-
-  PGSTD::string m_PendingLine;
 };
 
 } // namespace pqxx
@@ -157,8 +154,7 @@ tablewriter::tablewriter(transaction_base &T,
     ITER begincolumns,
     ITER endcolumns,
     const PGSTD::string &Null) :
-  tablestream(T, WName, Null, "tablewriter"),
-  m_PendingLine()
+  tablestream(T, WName, Null, "tablewriter")
 {
   setup(T, WName, columnlist(begincolumns, endcolumns));
 }

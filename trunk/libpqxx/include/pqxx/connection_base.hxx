@@ -336,8 +336,6 @@ private:
   void halfconnect();
   int set_fdmask() const;
   void clear_fdmask() throw ();
-  void go_sync();
-  void go_async();
   PGSTD::string RawGetVar(const PGSTD::string &);
   void process_notice_raw(const char msg[]) throw ();
 
@@ -374,7 +372,7 @@ private:
   void UnregisterTransaction(transaction_base *) throw ();
   void MakeEmpty(result &, ExecStatusType=PGRES_EMPTY_QUERY);
   bool ReadCopyLine(PGSTD::string &);
-  bool WriteCopyLine(const PGSTD::string &, bool async=false);
+  void WriteCopyLine(const PGSTD::string &);
   void EndCopyWrite();
   void start_exec(const PGSTD::string &);
   PGresult *get_result();

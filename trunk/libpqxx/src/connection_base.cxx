@@ -677,45 +677,33 @@ bool pqxx::connection_base::ReadCopyLine(string &Line)
 }
 
 
-bool pqxx::connection_base::WriteCopyLine(const string &Line, bool async)
+void pqxx::connection_base::WriteCopyLine(const string &Line)
 {
   if (!is_open())
     throw logic_error("libpqxx internal error: "
 	              "WriteCopyLine() without connection");
 
-  bool OK, Result;
-  int PutRes;
   const string L = Line + '\n';
   const char *const LC = L.c_str();
   const string::size_type Len = L.size();
 
 #ifdef PQXX_HAVE_PQPUTCOPY
-  if (async) go_async();
-  PutRes = PQputCopyData(m_Conn, LC, Len);
-  if (async) go_sync();
-  OK = (PutRes != -1);
-  Result = (PutRes != 0);
-#else
-  PutRes = PQputnbytes(m_Conn, LC, Len);
-  OK = (PutRes != EOF);
-  Result = true;
-#endif
-  if (!OK)
+  if (PQputCopyData(m_Conn, LC, Len) <= 0)
   {
     const string Msg = string("Error writing to table: ") + ErrMsg();
-#ifdef PQXX_HAVE_PQPUTCOPY
     PQendcopy(m_Conn);
-#endif
     throw runtime_error(Msg);
   }
-  return Result;
+#else
+  if (PQputnbytes(m_Conn, LC, Len) == EOF)
+    throw runtime_error(string("Error writing to table: ") + ErrMsg());
+#endif
 }
 
 
 void pqxx::connection_base::EndCopyWrite()
 {
 #ifdef PQXX_HAVE_PQPUTCOPY
-  go_sync();
   int Res = PQputCopyEnd(m_Conn, NULL);
   switch (Res)
   {
@@ -832,19 +820,6 @@ int pqxx::connection_base::await_notification(long seconds, long microseconds)
     notifs = get_notifs();
   }
   return notifs;
-}
-
-
-void pqxx::connection_base::go_sync()
-{
-  if (PQsetnonblocking(m_Conn, false)==-1)
-    throw runtime_error("Return to blocking mode failed: "+string(ErrMsg()));
-}
-
-void pqxx::connection_base::go_async()
-{
-  if (PQsetnonblocking(m_Conn, true)==-1)
-    throw runtime_error("Could not go to nonblocking mode: "+string(ErrMsg()));
 }
 
 
