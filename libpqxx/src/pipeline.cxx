@@ -47,7 +47,6 @@ pqxx::pipeline::pipeline(transaction_base &t, const string &PName) :
   m_error(qid_limit())
 {
   m_issuedrange = make_pair(m_queries.end(), m_queries.end());
-  invariant();
   register_me();
 }
 
@@ -61,8 +60,6 @@ pqxx::pipeline::~pipeline() throw ()
 
 pipeline::query_id pqxx::pipeline::insert(const string &q)
 {
-  invariant();
-
   const query_id qid = generate_id();
   pqxxassert(qid > 0);
   pqxxassert(m_queries.lower_bound(qid)==m_queries.end());
@@ -77,7 +74,6 @@ pipeline::query_id pqxx::pipeline::insert(const string &q)
 
   pqxxassert(m_issuedrange.first != m_queries.end());
   pqxxassert(m_issuedrange.second != m_queries.end());
-  invariant();
 
   if (m_num_waiting > m_retain)
   {
@@ -85,16 +81,12 @@ pipeline::query_id pqxx::pipeline::insert(const string &q)
     if (!have_pending()) issue();
   }
 
-  invariant();
-
   return qid;
 }
 
 
 void pqxx::pipeline::complete()
 {
-  invariant();
-
   if (have_pending()) receive(m_issuedrange.second);
   if (m_num_waiting && (m_error == qid_limit()))
   {
@@ -106,7 +98,6 @@ void pqxx::pipeline::complete()
     receive(m_queries.end());
     pqxxassert((m_error!=qid_limit()) || !have_pending());
   }
-  invariant();
   pqxxassert((m_num_waiting == 0) || (m_error != qid_limit()));
   pqxxassert(!m_dummy_pending);
 }
@@ -114,16 +105,12 @@ void pqxx::pipeline::complete()
 
 void pqxx::pipeline::flush()
 {
-  invariant();
-
   if (m_queries.empty()) return;
   if (have_pending()) receive(m_issuedrange.second);
   m_issuedrange.first = m_issuedrange.second = m_queries.end();
   m_num_waiting = 0;
   m_dummy_pending = false;
   m_queries.clear();
-
-  invariant();
 }
 
 
@@ -146,8 +133,6 @@ pair<pipeline::query_id, result> pqxx::pipeline::retrieve()
 
 int pqxx::pipeline::retain(int retain_max)
 {
-  invariant();
-
   if (retain_max < 0)
     throw range_error("Attempt to make pipeline retain " +
 	to_string(retain_max) + " queries");
@@ -157,69 +142,18 @@ int pqxx::pipeline::retain(int retain_max)
 
   if (m_num_waiting >= m_retain) resume();
 
-  invariant();
-
   return oldvalue;
 }
 
 
 void pqxx::pipeline::resume()
 {
-  invariant();
-
   if (have_pending()) receive_if_available();
   if (!have_pending() && m_num_waiting)
   {
     issue();
     receive_if_available();
   }
-
-  invariant();
-}
-
-
-void pqxx::pipeline::invariant() const
-{
-  pqxxassert(m_q_id >= 0);
-  pqxxassert(m_q_id <= qid_limit());
-
-  pqxxassert(m_retain >= 0);
-  pqxxassert(m_num_waiting >= 0);
-
-  const QueryMap::const_iterator 
-    start_of_issued = m_issuedrange.first,
-    end_of_issued = m_issuedrange.second;
-
-  if (m_queries.empty()) pqxxassert(start_of_issued==m_queries.end());
-  pqxxassert(distance(m_queries.begin(), start_of_issued) >= 0);
-  pqxxassert(distance(m_issuedrange.first, m_issuedrange.second) >= 0);
-  pqxxassert(distance(end_of_issued, m_queries.end()) >= 0);
-
-  if (!m_queries.empty())
-  {
-    pqxxassert(m_queries.begin()->first > 0);
-    pqxxassert(m_queries.rbegin()->first < (m_q_id+1));
-
-    pqxxassert(m_num_waiting >= 0);
-    pqxxassert(size_t(m_num_waiting) <= size_t(m_queries.size()));
-
-    if (have_pending())
-    {
-      pqxxassert(m_issuedrange.first != m_queries.end());
-      if (m_error == qid_limit())
-        pqxxassert(m_num_waiting == distance(end_of_issued, m_queries.end()));
-    }
-  }
-  else
-  {
-    pqxxassert(m_issuedrange.first == m_queries.end());
-    pqxxassert(m_issuedrange.second == m_queries.end());
-    pqxxassert(!have_pending());
-    pqxxassert(!m_num_waiting);
-    pqxxassert(!m_dummy_pending);
-  }
-
-  pqxxassert(m_error != 0);
 }
 
 
@@ -238,7 +172,6 @@ void pqxx::pipeline::issue()
   pqxxassert(!have_pending());
   pqxxassert(!m_dummy_pending);
   pqxxassert(m_num_waiting);
-  invariant();
 
   // Retrieve that NULL result for the last query, if needed
   obtain_result();
@@ -271,8 +204,6 @@ void pqxx::pipeline::issue()
   m_issuedrange.first = oldest;
   m_issuedrange.second = m_queries.end();
   m_num_waiting -= num_issued;
-
-  invariant();
 }
 
 
@@ -287,7 +218,6 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 {
   pqxxassert(!m_dummy_pending);
   pqxxassert(!m_queries.empty());
-  invariant();
 
   internal::pq::PGresult *r = m_Trans.get_result();
   if (!r)
@@ -315,8 +245,6 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 
   m_issuedrange.first->second.set_result(res);
   ++m_issuedrange.first;
-
-  invariant();
 
   return true;
 }
@@ -410,15 +338,12 @@ void pqxx::pipeline::obtain_dummy()
 
   pqxxassert(m_issuedrange.first != m_queries.end());
   pqxxassert(m_error <= m_q_id);
-  invariant();
 }
 
 
 pair<pipeline::query_id, result>
 pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 {
-  invariant();
-
   if (q == m_queries.end())
     throw logic_error("Attempt to retrieve result for unknown query");
 
@@ -466,8 +391,6 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 
   m_queries.erase(q);
 
-  invariant();
-
   R.CheckStatus(query);
   return P;
 }
@@ -482,21 +405,16 @@ void pqxx::pipeline::get_further_available_results()
 
 void pqxx::pipeline::receive_if_available()
 {
-  invariant();
-
   m_Trans.consume_input();
   if (m_Trans.is_busy()) return;
 
   if (m_dummy_pending) obtain_dummy();
   if (have_pending()) get_further_available_results();
-
-  invariant();
 }
 
 
 void pqxx::pipeline::receive(pipeline::QueryMap::const_iterator stop)
 {
-  invariant();
   pqxxassert(have_pending());
 
   if (m_dummy_pending) obtain_dummy();

@@ -123,9 +123,6 @@ public:
   void resume();							//[t70]
 
 private:
-  /// For validation only, should eventually disappear
-  void invariant() const;
-
   class Query
   {
   public:
