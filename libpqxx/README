@@ -1,15 +1,31 @@
+Introduction
 
 Welcome to libpqxx, a C++ API to the PostgreSQL database management system.
+Therefore, this package requires PostgreSQL to be installed--including the C
+headers for client development.  The library builds on top of PostgreSQL's
+standard C API, libpq.
 
-To get started quickly on a Unix-like system, enter:
+This is still a very early version.  The code appears to be quite stable 
+already, but the configuration and build process is not complete yet.  Expect a
+few problems getting this to work!
+
+To get started quickly on a Unix-like system, do:
 
 ./configure	# (plus suitable arguments, to set up the build environment)
 make		# (to build the library)
-make check	# (to run the library's self-test suite)
-make install	# (with superuser privileges, to install the library)
+
+# (set environment for regression test--IMPORTANT, see under "make check" below)
+# (this example assumes a dedicated libpqxx test database called pqxx)
+export PGDATABASE=pqxx
+
+make check	# (to run the library's self-test suite; see below)
+make install	# (with superuser privileges, to install the library; see below)
 
 Once this has succeeded, you should be able to link your own programs with 
 libpqxx.
+
+
+1. Configure
 
 But first, a word on those "suitable arguments."  These may or may not be
 needed on your particular system, so do try omitting them at first.  The most 
@@ -36,4 +52,79 @@ option "--with-postgres-lib=/usr/local/postgresql/lib/".
 To configure on a RedHat-like system, use "--with-postgres=/usr/local/pgsql".
 Debian systems use "--with-postgres-include=/usr/include/postgresql".  If your
 system requires a different setting, please let me know.
+
+Some users have reported problems finding PostgreSQL's libpq-fe.h header file,
+despite passing the correct options to the configure script.  This could be due 
+to two things: first, make sure you do have the PostgreSQL development package
+installed.  Second, there appear to have been some changes to the name of this
+header recently.  In this case, please let me know which version of postgres
+you're running and what the frontend include file is called there, and I'll try
+to incorporate a workaround.
+
+
+2. Make
+
+One problem some people run into at this stage is that the header files for
+PostgreSQL need the OpenSSL header files to work.  If this happens to you, make
+sure openssl is installed and try again.
+
+Otherwise, if the "make" part of the build procedure fails, you're probably
+using a different compiler or compiler version than I am.  If your C++ compiler
+is more than a few years old (say, gcc prior to 2.95 or Visual C++ up to 6.0),
+just forget it.  It won't work until you get an up-to-date compiler.
+
+If, on the other hand, you're using a shiny new compiler and you're getting
+errors or warnings, please let me know about them so I can fix them.  
+
+
+3. Make Check
+
+This part is optional.  It is recommended that you do this, but there is one
+Very Important Caveat that could affect your existing data.  See below.
+
+This is where you compile and run the regression test that typically exercises 
+all public methods in the library.  Obviously something or other will have to go
+wrong at this point, right?
+
+Indeed.  The "make check" procedure needs a database to play with.  In this
+database, it will create two tables "events" and "orgevents," as well as some
+tables for its own use whose names are prefixed with pqxx.  CAUTION: if this
+database already contains tables with any of these names, either the check will
+fail, or worse, the original data will be erased.
+
+So choose your test database with caution.  Obviously the safest thing to do is
+to set up a separate database for this.
+
+To direct the regression test to the right database, set the following
+environment variables as needed before running "make check":
+
+	PGDATABASE	(name of database; defaults to your user name)
+	PGHOST		(database server; defaults to local machine)
+	PGPORT		(PostgreSQL port to connect to; default is 5432)
+	PGUSER		(your PostgreSQL user ID; defaults to your login name)
+
+This should get you through the regression test to ensure that everything's
+working properly.  If it isn't, and it's not something you can fix by tweaking
+your PostgreSQL setup, let me know about it and I'll try to fix it.
+
+
+4. Make Install
+
+This is supposed to install the libpqxx library and header files to your
+system.  Supposed to, because at the time of this text's writing it doesn't
+install the header files yet.  The library is installed to a new directory
+/usr/local/pqxx/lib by default (which will probably change in the near future),
+but for now you'll have to copy over the header files by default.
+
+The best thing to do about this in the current version is to first first run
+"make install", then manually copy the include/ directory to /usr/local/pqxx so
+that /usr/local/pqxx will contain two directories, include and lib.  Eventually
+these files will hopefully be moved in with the PostgreSQL files somewhere.
+
+Assuming this succeeds, you should now be able to build your own programs by
+adding /usr/local/pqxx/include to your include path, and /usr/local/pqxx/lib to
+your library search path.  See the documentation and the test programs for more
+information on using libpqxx.
+
+Enjoy!
 

@@ -1,3 +1,7 @@
+2002-05-04 19:30, v0.2.2: 
+ - more STL conformance
+ - fixed regression test
+ - test6 now copies "orgevents" to "events" by default
 2002-04-28 23:45 Version bumped to 0.2
 2002-04-28 23:45 Self-generated distribution archive
 2002-04-27 14:20 Replaced automake symlinks with actual files

@@ -1,10 +1,11 @@
 Build
-(*) Move "check" postgres parameters into configure.ac
+(*) Find solution to libpq-fe.h problem
 (*) Get object files into obj/ directory, library binary into lib/
-(*) Get make install to actually install headers
+(*) Get "make install" to actually install headers
 (*) Finalize license
 
 Check
+(*) Move "check" postgres parameters into configure.ac
 (*) Test 8 appears to mistranslate tabs on console output
 
 Error handling
