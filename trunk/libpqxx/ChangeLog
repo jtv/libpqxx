@@ -1,3 +1,11 @@
+2004-09-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in:
+  - Added PQXX_HAVE_SLEEP for POSIX sleep() (internal/compiler)
+ include/pqxx/util.hxx, src/util.cxx, test/test004.cxx, test/test023.cxx:
+  - New sleep_seconds() to hide POSIX sleep() / Windows Sleep() / select()
+ include/pqxx/robusttransaction.hxx, src/robusttransaction.cxx:
+  - Add m_backendpid field
+  - Wait until old backend dies, or query is finished (thanks Tom Lane)
 2004-09-02  Roger Leigh  <rleigh@debian.org>
  configure.ac.in:
   - Put the configitems in an AC_CONFIG_COMMANDS macro, so that they
