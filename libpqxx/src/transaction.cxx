@@ -13,7 +13,7 @@
  */
 #include <stdexcept>
 
-#include "pqxx/connection.h"
+#include "pqxx/connectionitf.h"
 #include "pqxx/result.h"
 #include "pqxx/transaction.h"
 
@@ -26,7 +26,7 @@ using namespace PGSTD;
 #define SQL_ROLLBACK_WORK 	"ROLLBACK"
 
 
-pqxx::Transaction::Transaction(Connection &C, const string &TName) :
+pqxx::Transaction::Transaction(ConnectionItf &C, const string &TName) :
   TransactionItf(C, TName)
 {
   Begin();
@@ -81,7 +81,7 @@ void pqxx::Transaction::DoCommit()
   }
   catch (const exception &e)
   {
-    if (!Conn().IsOpen())
+    if (!Conn().is_open())
     {
       // We've lost the connection while committing.  There is just no way of
       // telling what happened on the other end.  >8-O

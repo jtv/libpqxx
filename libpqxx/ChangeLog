@@ -1,6 +1,29 @@
+2003-03-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/largeobject.h:
+  - Documentation improvements
+  - ilostream, olostream, lostream now have user-definable buffer size
+ include/pqxx/result.h, include/pqxx/tablewriter.h:
+  - More work on reducing Visual C++ workarounds, thanks Key88sf!
+ test/test049.cxx:
+  - Uses a few standard algorithms on Result
 2003-03-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/largeobject.h, src/largobject.cxx:
+  - Added C++-style read/write to LargeObjectAccess
+  - Documented return values of cread(), cwrite()
+  - largeobject_streambuf now has user-definable buffer size
+2003-03-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connectionitf.h:
+  - New
+ include/pqxx/connection.h:
+  - Removed deprecated C-style NoticeProcessors
+  - Removed deprecated IsOpen()
+  - Split Connection into class hierarchy
  include/pqxx/largeobject.h, src/largeobject.cxx:
   - Silence warning about C-style cast in InvalidOid macro
+ test/test001.cxx, test/test002.cxx, test/test014.cxx, README:
+  - Moved optional complexity out of test001 for clarity
+ test/test049.cxx:
+  - New
 2003-03-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  README:
   - Documented connection strings

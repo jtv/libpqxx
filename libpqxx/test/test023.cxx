@@ -60,7 +60,7 @@ class TestTrig : public Trigger
   bool m_Done;
 
 public:
-  explicit TestTrig(Connection &C) : Trigger(C, "trig"), m_Done(false) {}
+  explicit TestTrig(ConnectionItf &C) : Trigger(C, "trig"), m_Done(false) {}
 
   virtual void operator()(int be_pid)
   {
@@ -111,7 +111,7 @@ int main(int, char *argv[])
 {
   try
   {
-    Connection C(argv[1], false);
+    LazyConnection C(argv[1]);
     cout << "Adding trigger..." << endl;
     TestTrig Trig(C);
 

@@ -154,15 +154,45 @@ long pqxx::LargeObjectAccess::cseek(long dest, ios_base::seekdir dir) throw ()
 }
 
 
-long pqxx::LargeObjectAccess::cwrite(const char Buf[], size_t Len) throw ()
+long pqxx::LargeObjectAccess::cwrite(const char Buf[], size_type Len) throw ()
 {
-  return lo_write(RawConnection(), m_fd, const_cast<char *>(Buf), Len);
+  return max(lo_write(RawConnection(), m_fd, const_cast<char *>(Buf), Len), -1);
 }
 
 
-long pqxx::LargeObjectAccess::cread(char Buf[], size_t Bytes) throw ()
+long pqxx::LargeObjectAccess::cread(char Buf[], size_type Bytes) throw ()
 {
-  return lo_read(RawConnection(), m_fd, Buf, Bytes);
+  return max(lo_read(RawConnection(), m_fd, Buf, Bytes), -1);
+}
+
+
+void pqxx::LargeObjectAccess::write(const char Buf[], size_type Len)
+{
+  const long Bytes = cwrite(Buf, Len);
+  if (Bytes < Len)
+  {
+    if (Bytes < 0)
+      throw runtime_error("Error writing to large object "
+                          "#" + ToString(id()) + ": " +
+	                  strerror(errno));
+    if (Bytes == 0)
+      throw runtime_error("Could not write to large object #" + ToString(id()));
+
+    throw runtime_error("Wanted to write " + ToString(Len) + " bytes "
+	                "to large object #" + ToString(id()) + "; "
+			"could only write " + ToString(Bytes));
+  }
+}
+
+
+pqxx::LargeObjectAccess::size_type 
+pqxx::LargeObjectAccess::read(char Buf[], size_type Len)
+{
+  const long Bytes = cread(Buf, Len);
+  if (Bytes < 0)
+    throw runtime_error("Error reading from large object #" + ToString(id()) +
+	                ": " + strerror(errno));
+  return Bytes;
 }
 
 

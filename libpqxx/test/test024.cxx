@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
   try
   {
     // Set up a deferred connection to the backend
-    Connection C(argv[1], false);
+    LazyConnection C(argv[1]);
 
     string TableName((argc > 2) ? argv[2] : "orgevents");
 

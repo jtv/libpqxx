@@ -14,7 +14,7 @@
  */
 #include <stdexcept>
 
-#include "pqxx/connection.h"
+#include "pqxx/connectionitf.h"
 #include "pqxx/result.h"
 #include "pqxx/tablestream.h"
 #include "pqxx/transactionitf.h"
@@ -23,7 +23,7 @@
 using namespace PGSTD;
 
 
-pqxx::TransactionItf::TransactionItf(Connection &C, const string &TName) :
+pqxx::TransactionItf::TransactionItf(ConnectionItf &C, const string &TName) :
   m_Conn(C),
   m_Name(TName),
   m_UniqueCursorNum(1),

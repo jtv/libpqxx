@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
       throw invalid_argument("Expected number for second argument");
     if (BlockSize == 0) BlockSize = Cursor::ALL();
 
-    Connection C(argv[1], false);
+    LazyConnection C(argv[1]);
 
     // Enable all sorts of debug output.  C will remember this setting until it
     // gets to the point where it actually needs to connect to the database.

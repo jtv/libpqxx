@@ -15,7 +15,7 @@
 #define PQXX_ROBUSTTRANSACTION_H
 
 
-#include "pqxx/connection.h"
+#include "pqxx/connectionitf.h"
 #include "pqxx/transactionitf.h"
 
 
@@ -99,10 +99,10 @@ class PQXX_LIBEXPORT RobustTransaction : public TransactionItf
 public:
   /// Constructor.
   /** Creates RobustTransaction.
-   * @param C Connection that this RobustTransaction should live inside.
+   * @param C connection that this RobustTransaction should live inside.
    * @param Name optional human-readable name for this RobustTransaction.
    */
-  explicit RobustTransaction(Connection &C,
+  explicit RobustTransaction(ConnectionItf &C,
 		             const PGSTD::string &Name=PGSTD::string());//[t16]
 
   virtual ~RobustTransaction();						//[t16]

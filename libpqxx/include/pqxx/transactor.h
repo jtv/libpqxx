@@ -40,10 +40,10 @@ class Transaction;
  * their higher-level code (application using those business rules).  The 
  * former go into the Transactor-based class.
  *
- * Pass an object of your Transactor-based class to Connection::Perform() to
- * execute the transaction code embedded in it (see pqxx/connection.h).
+ * Pass an object of your Transactor-based class to ConnectionItf::Perform() to
+ * execute the transaction code embedded in it (see pqxx/connectionitf.h).
  *
- * Connection::Perform() is actually a template, specializing itself to any
+ * ConnectionItf::Perform() is actually a template, specializing itself to any
  * Transactor type you pass to it.  This means you will have to pass it a
  * reference of your object's ultimate static type; runtime polymorphism is
  * not allowed.  Hence the absence of virtual methods in Transactor.  The
@@ -77,7 +77,7 @@ public:
    */
   void operator()(argument_type &T);					//[t4]
 
-  // Overridable member functions, called by Connection::Perform() if attempt 
+  // Overridable member functions, called by ConnectionItf::Perform() if attempt
   // to run transaction fails/succeeds, respectively, or if the connection is
   // lost at just the wrong moment, goes into an indeterminate state.  Use 
   // these to patch up runtime state to match events, if needed, or to report 

@@ -1,14 +1,13 @@
 Build system
-(*) .pc file (http://www.freedesktop.org/software/pkgconfig/)
 (*) Completely support building outside the source directory
 
 Connections
 (*) Separate failed_connection exception type
-(*) Break out various creation synchronicity options
 (*) Connection pooling support
+(*) AsyncConnection
 
 Documentation
-(*) Find a better format for the tutorial
+(*) Find a better documentation format for the tutorial
 (*) Re-translate the tutorial to HTML (preferably as part of build procedure)
 
 Nonblocking operation
@@ -17,7 +16,7 @@ Nonblocking operation
 
 Results
 (*) Conceive metadata model
-(*) Allow direct mapping onto structs, using member ptr template args (?)
+(*) Allow direct mapping onto structs, using member ptr template args
 
 RobustTransaction
 (*) User schema support for log table
@@ -28,15 +27,6 @@ Streams
 Tests
 (*) Complete test coverage
 (*) More large object tests
-(*) Move optional stuff out of test001 to make it a more concise example
-(*) Add some tests using standard library's algorithms
- - find_if
- - count_if
- - transform
- - replace_copy_if
- - partial_sort_copy
- - lower_bound
- - binary_search
 
 Triggers
 (*) Allow access to Connection's triggers list?

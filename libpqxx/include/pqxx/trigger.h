@@ -26,7 +26,7 @@ namespace pqxx
 /** To listen on a database trigger, derive your own class from Trigger and
  * define its function call operator to perform whatever action you wish to
  * take when the given trigger arrives.  Then create an object of that class
- * and pass it to your Connection.  DO NOT set triggers directly through SQL,
+ * and pass it to your connection.  DO NOT set triggers directly through SQL,
  * or they won't be restored when your connection fails--and you'll have no
  * way to notice.
  *
@@ -44,12 +44,12 @@ namespace pqxx
 class PQXX_LIBEXPORT Trigger
 {
 public:
-  /// Constructor.  Registers the trigger with Connection C.
+  /// Constructor.  Registers the trigger with connection C.
   /**
    * @param C the connection this trigger resides in.
    * @param N a name for the trigger.
    */
-  Trigger(Connection &C, const PGSTD::string &N) : 			//[t4]
+  Trigger(ConnectionItf &C, const PGSTD::string &N) : 			//[t4]
     m_Conn(C), m_Name(N) { m_Conn.AddTrigger(this); }
 
   virtual ~Trigger() { m_Conn.RemoveTrigger(this); }			//[t4]
@@ -65,10 +65,10 @@ public:
   virtual void operator()(int be_pid) =0;				//[t4]
 
 protected:
-  Connection &Conn() const throw () { return m_Conn; }			//[t4]
+  ConnectionItf &Conn() const throw () { return m_Conn; }		//[t4]
 
 private:
-  Connection &m_Conn;
+  ConnectionItf &m_Conn;
   PGSTD::string m_Name;
 };
 

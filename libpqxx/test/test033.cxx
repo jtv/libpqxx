@@ -21,7 +21,7 @@ int main(int, char *argv[])
 {
   try
   {
-    Connection C(argv[1], false);
+    LazyConnection C(argv[1]);
 
     // Begin a "non-transaction" acting on our current connection.  This is
     // really all the transactional integrity we need since we're only 

@@ -37,14 +37,43 @@ int main(int, char *argv[])
   {
     Connection C(argv[1]);
 
+    // Tell C to report its warnings through std::cerr instead of the default
+    // (which is to print to stderr).  This is done just to show that the way
+    // messages are processed can be changed by the client program.
     C.SetNoticer(auto_ptr<Noticer>(new ReportWarning));
+
+    // Now use our Noticer to output a diagnostic message.  Note that the
+    // message must end in a newline.
+    C.ProcessNotice("Opened connection\n");
+
+    // ProcessNotice() can take either a C++ string or a C-style const char *.
+    const string HostName = (C.HostName() ? C.HostName() : "<local>");
+    C.ProcessNotice(string() +
+		    "database=" + C.DbName() + ", "
+		    "username=" + C.UserName() + ", "
+		    "hostname=" + HostName + ", "
+		    "port=" + ToString(C.Port()) + ", "
+		    "options='" + C.Options() + "', "
+		    "backendpid=" + ToString(C.BackendPID()) + "\n");
 
     // Begin a "non-transaction" acting on our current connection.  This is
     // really all the transactional integrity we need since we're only 
     // performing one query which does not modify the database.
     NonTransaction T(C, "test14");
 
+    // The Transaction family of classes also has ProcessNotice() functions.
+    // These simply pass the notice through to their connection, but this may
+    // be more convenient in some cases.  All ProcessNotice() functions accept
+    // C++ strings as well as C strings.
+    T.ProcessNotice(string("Started nontransaction\n"));
+
     Result R( T.Exec("SELECT * FROM pg_tables") );
+
+    // Give some feedback to the test program's user prior to the real work
+    T.ProcessNotice(ToString(R.size()) + " "
+		    "result tuples in transaction " +
+		    T.Name() +
+		    "\n");
 
     for (Result::const_iterator c = R.begin(); c != R.end(); ++c)
     {

@@ -26,7 +26,7 @@
  */
 
 
-#include "pqxx/connection.h"
+#include "pqxx/connectionitf.h"
 #include "pqxx/result.h"
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
@@ -35,7 +35,7 @@
 
 namespace pqxx
 {
-class Connection; 	// See pqxx/connection.h
+class ConnectionItf; 	// See pqxx/connectionitf.h
 class Result; 		// See pqxx/result.h
 class TableStream;	// See pqxx/tablestream.h
 
@@ -65,21 +65,21 @@ public:
   /// Execute query directly.
   Result Exec(const PGSTD::string &Q) { return Exec(Q.c_str()); }	//[t2]
 
-  /// Have Connection process warning message
-  void ProcessNotice(const char Msg[]) { m_Conn.ProcessNotice(Msg); }	//[t1]
-  /// Have Connection process warning message
-  void ProcessNotice(const PGSTD::string &Msg) 				//[t1]
+  /// Have connection process warning message
+  void ProcessNotice(const char Msg[]) { m_Conn.ProcessNotice(Msg); }	//[t14]
+  /// Have connection process warning message
+  void ProcessNotice(const PGSTD::string &Msg) 				//[t14]
   	{ m_Conn.ProcessNotice(Msg); }
 
   PGSTD::string Name() const { return m_Name; }				//[t1]
 
   /// Connection this transaction is running in
-  Connection &Conn() const { return m_Conn; }				//[]
+  ConnectionItf &Conn() const { return m_Conn; }			//[]
 
 protected:
   /// Create a transaction.  The optional name, if given, must begin with a
   /// letter and may contain letters and digits only.
-  explicit TransactionItf(Connection &, 
+  explicit TransactionItf(ConnectionItf &, 
 		          const PGSTD::string &TName=PGSTD::string());
 
   /// Begin transaction.  To be called by implementing class, typically from 
@@ -103,8 +103,8 @@ protected:
 private:
   /* A Transaction goes through the following stages in its lifecycle:
    *  - nascent: the transaction hasn't actually begun yet.  If our connection 
-   *    fails at this stage, the Connection may recover and the Transaction can 
-   *    attempt to establish itself again.
+   *    fails at this stage, it may recover and the Transaction can attempt to
+   *    establish itself again.
    *  - active: the transaction has begun.  Since no commit command has been 
    *    issued, abortion is implicit if the connection fails now.
    *  - aborted: an abort has been issued; the transaction is terminated and 
@@ -145,7 +145,7 @@ private:
   	{ m_Conn.BeginCopyWrite(Table); }
   void WriteCopyLine(const PGSTD::string &L) { m_Conn.WriteCopyLine(L); }
 
-  Connection &m_Conn;
+  ConnectionItf &m_Conn;
 
   PGSTD::string m_Name;
   int m_UniqueCursorNum;

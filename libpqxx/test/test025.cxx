@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 
     // Set up two connections to the backend: one to read our original table,
     // and another to write our copy
-    Connection orgC(ConnStr, false), dstC(ConnStr, false);
+    LazyConnection orgC(ConnStr), dstC(ConnStr);
 
     // Select our original and destination table names
     const string orgTable = ((argc > 2) ? argv[2] : "orgevents");

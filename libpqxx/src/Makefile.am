@@ -1,5 +1,6 @@
 lib_LTLIBRARIES = libpqxx.la
 libpqxx_la_SOURCES = cachedresult.cxx \
+	connectionitf.cxx \
 	connection.cxx \
 	cursor.cxx \
 	largeobject.cxx \
