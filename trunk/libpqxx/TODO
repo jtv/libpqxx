@@ -9,7 +9,6 @@ Connections
 (*) Separate failed_connection exception type if connection never succeeds?
 (*) Connection pooling support
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
-(*) Support constraints definition
 
 Cursors
 (*) Provide iterator interface
@@ -45,6 +44,7 @@ Transactions
 (*) User schema support for robusttransaction log table
 (*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
 (*) Support querying of variables (local map is "cache" for session state)
+(*) Support constraints definition
 
 Tests
 (*) Floating-point tests

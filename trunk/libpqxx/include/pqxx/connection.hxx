@@ -68,6 +68,10 @@ public:
   explicit connection(const char ConnInfo[]);				//[t3]
 
   virtual ~connection();
+
+private:
+  virtual void startconnect();
+  virtual void completeconnect();
 };
 
 
@@ -84,24 +88,45 @@ class PQXX_LIBEXPORT lazyconnection : public connection_base
 {
 public:
   /// Constructor.  Sets up lazy connection.
-  lazyconnection() : connection_base(0) {}				//[t23]
+  lazyconnection();							//[t23]
 
   /// Constructor.  Sets up lazy connection.
   /** @param ConnInfo a PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.
    */
-  explicit lazyconnection(const PGSTD::string &ConnInfo) :		//[t21]
-    connection_base(ConnInfo) {}
+  explicit lazyconnection(const PGSTD::string &ConnInfo);		//[t21]
 
   /// Constructor.  Sets up lazy connection.
   /** @param ConnInfo a PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.  As a special
    * case, a null pointer is taken as the empty string.
    */
-  explicit lazyconnection(const char ConnInfo[]) :			//[t22]
-    connection_base(ConnInfo) {}
+  explicit lazyconnection(const char ConnInfo[]);			//[t22]
 
   virtual ~lazyconnection();
+
+private:
+  virtual void startconnect() {}
+  virtual void completeconnect();
+};
+
+
+/// Asynchronous connection class; connects "in the background"
+class PQXX_LIBEXPORT asyncconnection : public connection_base
+{
+public:
+  asyncconnection(); 							//[t63]
+  explicit asyncconnection(const PGSTD::string &ConnInfo);		//[]
+  explicit asyncconnection(const char ConnInfo[]);			//[]
+  virtual ~asyncconnection();
+
+private:
+  virtual void startconnect();
+  virtual void completeconnect();
+  virtual void dropconnect() { m_connecting = false; }
+
+  /// Is a connection attempt in progress?
+  bool m_connecting;
 };
 
 }

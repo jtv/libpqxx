@@ -203,6 +203,7 @@ template<> inline void FromString(const char Str[], bool &Obj)
  */
 template<typename T> inline PGSTD::string Quote(const T &Obj, bool EmptyIsNull);
 
+// TODO: Take this out of the header!
 /// std::string version, on which the other versions are built
 template<> inline PGSTD::string Quote(const PGSTD::string &Obj, 
 		                      bool EmptyIsNull)
@@ -258,6 +259,7 @@ template<> inline PGSTD::string Quote(const PGSTD::string &Obj,
 }
 
 
+// TODO: Take this out of the header!
 /// In the special case of const char *, the null pointer is represented as
 /// the null value.
 template<> inline PGSTD::string Quote(const char *const & Obj, 
@@ -409,6 +411,7 @@ public:
 
   void Register(GUEST *G)
   {
+    // TODO: Take error generation out of the header!
     if (!G) throw PGSTD::logic_error("Internal libpqxx error: NULL " + 
 		                     Classname(G));
     
@@ -434,6 +437,7 @@ public:
 
   void Unregister(GUEST *G)
   {
+    // TODO: Move error generation out of the header!
     if (G != m_Guest)
     {
       if (!G) 
@@ -444,14 +448,13 @@ public:
 			         " '" +
 			         G->name() +
 			         "' which wasn't open");
-      else
-	throw PGSTD::logic_error("Closing wrong " + 
-			         Classname(G) +
-			         "; expected '" +
-			         m_Guest->name() +
-			         "' but got '" +
-			         G->name() +
-			         "'");
+      throw PGSTD::logic_error("Closing wrong " + 
+			       Classname(G) +
+			       "; expected '" +
+			       m_Guest->name() +
+			       "' but got '" +
+			       G->name() +
+			       "'");
     }
 
     m_Guest = 0;

@@ -6,6 +6,9 @@
 /* Define if preprocessor supports nonstandard "warning" directive */
 #undef PQXX_HAVE_CPP_WARNING
 
+/* Define if preprocessor supports pragma "warning" */
+#undef PQXX_HAVE_CPP_PRAGMA_WARNING
+
 /* Define to 1 if you have the <iterator> header file. */
 #undef HAVE_ITERATOR
 
@@ -14,6 +17,10 @@
 
 /* Define to 1 if the system has the type `ptrdiff_t'. */
 #undef HAVE_PTRDIFF_T
+
+/* Define if the sys/select.h header defines a working select() and friends,
+   as per POSIX 1003.1-2001 */
+#undef PQXX_HAVE_SYS_SELECT_H
 
 /* Do we have InvalidOid definition? */
 #undef InvalidOid

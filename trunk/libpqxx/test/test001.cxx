@@ -25,6 +25,9 @@ int main()
     // Perform a query on the database, storing result tuples in R.
     result R( T.exec("SELECT * FROM pg_tables") );
 
+    // We're expecting to find some tables...
+    if (R.empty()) throw logic_error("No tables found!");
+
     // Process each successive result tuple
     for (result::const_iterator c = R.begin(); c != R.end(); ++c)
     {

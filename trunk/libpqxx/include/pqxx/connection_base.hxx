@@ -194,19 +194,19 @@ public:
 
   /// Name of database we're connected to, if any.
   const char *dbname()							//[t1]
-  	{ activate(); return PQdb(m_Conn); }
+  	{ halfconnect(); return PQdb(m_Conn); }
 
   /// Database user ID we're connected under, if any.
   const char *username()						//[t1]
-  	{ activate(); return  PQuser(m_Conn); }
+  	{ halfconnect(); return  PQuser(m_Conn); }
 
   /// Address of server (NULL for local connections).
   const char *hostname()						//[t1]
-  	{ activate(); return PQhost(m_Conn); }
+  	{ halfconnect(); return PQhost(m_Conn); }
 
   /// Server port number we're connected to.
   const char *port()		 					//[t1]
-  	{ activate(); return PQport(m_Conn); }
+  	{ halfconnect(); return PQport(m_Conn); }
 
   /// Full connection string as used to set up this connection.
   const char *options() const throw () 					//[t1]
@@ -248,7 +248,7 @@ public:
    * Deactivate().  A good time to call Activate() might be just before you
    * first open a transaction on a lazy connection.
    */
-  void activate() { if (!m_Conn) Connect(); }				//[t12]
+  void activate() { Connect(); }					//[t12]
 
   /// Explicitly deactivate connection.
   /** Like its counterpart Activate(), this method is entirely optional.  
@@ -290,6 +290,21 @@ protected:
   /// To be used by implementation classes: really connect to database
   void Connect();
 
+  /// Overridable: initiate a connection
+  virtual void startconnect() =0;
+
+  /// Overridable: complete an initiated connection
+  virtual void completeconnect() =0;
+
+  /// Overridable: drop any specialized state related to connection attempt
+  virtual void dropconnect() {}
+
+  /// For implementation classes: do we have a connection structure?
+  PGconn *get_conn() const throw () { return m_Conn; }
+
+  /// For implementation classes: set connection structure pointer
+  void set_conn(PGconn *C) throw () { m_Conn = C; }
+
 private:
   void SetupState();
   void InternalSetTrace();
@@ -298,9 +313,11 @@ private:
   void Reset(const char OnReconnect[]=0);
   void close() throw ();
   void RestoreVars();
+  void halfconnect();
 
   /// Connection string
   PGSTD::string m_ConnInfo;
+
   /// Connection handle
   PGconn *m_Conn;
   /// Active transaction on connection, if any

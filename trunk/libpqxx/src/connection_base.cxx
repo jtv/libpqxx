@@ -63,30 +63,21 @@ pqxx::connection_base::connection_base(const char ConnInfo[]) :
 
 void pqxx::connection_base::Connect()
 {
-  if (m_Conn) throw logic_error("libqxx internal error: spurious Connect()");
-
-  m_Conn = PQconnectdb(m_ConnInfo.c_str());
-
-  if (!m_Conn)
-    throw broken_connection();
-
   if (!is_open())
   {
-    const string Msg( ErrMsg() );
-    disconnect();
-    throw broken_connection(Msg);
-  }
+    startconnect();
+    completeconnect();
 
-  if (Status() != CONNECTION_OK)
-  {
-    const string Msg( ErrMsg() );
-    disconnect();
-    throw runtime_error(Msg);
-  }
+    if (!is_open())
+    {
+      const string Msg( ErrMsg() );
+      disconnect();
+      throw broken_connection(Msg);
+    }
 
-  SetupState();
+    SetupState();
+  }
 }
-
 
 
 void pqxx::connection_base::deactivate()
@@ -97,9 +88,16 @@ void pqxx::connection_base::deactivate()
       throw logic_error("Attempt to deactivate connection while transaction "
 	                "'" + m_Trans.get()->name() + "' "
 			"still open");
-
-    disconnect();
   }
+  disconnect();
+}
+
+
+/// Initiate a connection, to at least the point where we have a PQconn
+void pqxx::connection_base::halfconnect()
+{
+  startconnect();
+  if (!m_Conn) completeconnect();
 }
 
 
@@ -108,11 +106,13 @@ void pqxx::connection_base::set_variable(const PGSTD::string &Var,
 {
   if (m_Trans.get())
   {
+    // We're in a transaction.  The variable should go in there.
     m_Trans.get()->set_variable(Var, Value);
   }
   else
   {
-    RawSetVar(Var, Value);
+    // We're not in a transaction.  Set a session variable.
+    if (is_open()) RawSetVar(Var, Value);
     m_Vars[Var] = Value;
   }
 }
@@ -126,6 +126,13 @@ void pqxx::connection_base::SetupState()
 {
   if (!m_Conn) 
     throw logic_error("libpqxx internal error: SetupState() on no connection");
+
+  if (Status() != CONNECTION_OK)
+  {
+    const string Msg( ErrMsg() );
+    disconnect();
+    throw runtime_error(Msg);
+  }
 
   if (m_Noticer.get())
     PQsetNoticeProcessor(m_Conn, pqxxNoticeCaller, m_Noticer.get());
@@ -160,6 +167,7 @@ void pqxx::connection_base::SetupState()
 
 void pqxx::connection_base::disconnect() throw ()
 {
+  dropconnect();
   if (m_Conn)
   {
     PQfinish(m_Conn);
@@ -170,18 +178,20 @@ void pqxx::connection_base::disconnect() throw ()
 
 bool pqxx::connection_base::is_open() const
 {
-  return m_Conn && (Status() != CONNECTION_BAD);
+  return m_Conn && (Status() == CONNECTION_OK);
 }
 
 
 PGSTD::auto_ptr<pqxx::noticer> 
 pqxx::connection_base::set_noticer(PGSTD::auto_ptr<noticer> N)
 {
-  if (N.get()) PQsetNoticeProcessor(m_Conn, pqxxNoticeCaller, N.get());
-  else PQsetNoticeProcessor(m_Conn, 0, 0);
+  if (m_Conn)
+  {
+    if (N.get()) PQsetNoticeProcessor(m_Conn, pqxxNoticeCaller, N.get());
+    else PQsetNoticeProcessor(m_Conn, 0, 0);
+  }
   
   auto_ptr<noticer> Old = m_Noticer;
-  // TODO: Can this line fail?  If yes, we'd be killing Old prematurely...
   m_Noticer = N;
 
   return Old;
@@ -279,7 +289,7 @@ void pqxx::connection_base::RemoveTrigger(pqxx::trigger *T) throw ()
 
 void pqxx::connection_base::get_notifs()
 {
-  if (!m_Conn) return;
+  if (!is_open()) return;
 
   PQconsumeInput(m_Conn);
 
@@ -345,8 +355,14 @@ pqxx::result pqxx::connection_base::Exec(const char Query[],
 
 void pqxx::connection_base::Reset(const char OnReconnect[])
 {
+  // Forget about any previously ongoing connection attempts
+  dropconnect();
+
   // Attempt to set up or restore connection
-  if (!m_Conn) Connect();
+  if (!m_Conn) 
+  {
+    Connect();
+  }
   else 
   {
     PQreset(m_Conn);
@@ -396,7 +412,6 @@ void pqxx::connection_base::close() throw ()
 
 void pqxx::connection_base::RawSetVar(const string &Var, const string &Value)
 {
-    activate();
     Exec(("SET " + Var + "=" + Value).c_str(), 0);
 }
 
@@ -455,9 +470,9 @@ void pqxx::connection_base::BeginCopyRead(const string &Table)
 
 bool pqxx::connection_base::ReadCopyLine(string &Line)
 {
-  if (!m_Conn)
+  if (!is_open())
     throw logic_error("Internal libpqxx error: "
-	              "ReadCopyLine() on null connection");
+	              "ReadCopyLine() without connection");
 
   char Buf[256];
   bool LineComplete = false;
@@ -504,9 +519,9 @@ void pqxx::connection_base::BeginCopyWrite(const string &Table)
 
 void pqxx::connection_base::WriteCopyLine(const string &Line)
 {
-  if (!m_Conn)
+  if (!is_open())
     throw logic_error("Internal libpqxx error: "
-	              "WriteCopyLine() on null connection");
+	              "WriteCopyLine() without connection");
 
   PQputline(m_Conn, (Line + "\n").c_str());
 }

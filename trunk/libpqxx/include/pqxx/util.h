@@ -17,8 +17,10 @@
 #ifndef PQXX_UTIL_H
 #define PQXX_UTIL_H
 
-#ifdef PQXX_HAVE_CPP_WARNING
-#warning "Deprecated libpqxx header included.  Use the headers without '.h'"
+#if defined(PQXX_HAVE_CPP_WARNING)
+#warning "Deprecated libpqxx header included.  Use headers without '.h'"
+#elif defined(PQXX_HAVE_CPP_PRAGMA_WARNING)
+#pragma warning("Deprecated libpqxx header included.  Use headers without '.h'")
 #endif
 
 #define PQXX_DEPRECATED_HEADERS

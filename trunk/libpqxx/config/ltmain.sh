@@ -56,7 +56,7 @@ modename="$progname"
 PROGRAM=ltmain.sh
 PACKAGE=libtool
 VERSION=1.5.0a
-TIMESTAMP=" (1.1220.2.33 2003/09/29 11:43:50) Debian$Rev: 103 $"
+TIMESTAMP=" (1.1220.2.33 2003/09/29 11:43:50) Debian$Rev: 131 $"
 
 default_mode=
 help="Try \`$progname --help' for more information."
@@ -177,6 +177,7 @@ do
       ;;
     tag)
       tagname="$arg"
+      preserve_args="${preserve_args}=$arg"
 
       # Check whether tagname contains only valid characters
       case $tagname in
@@ -239,6 +240,7 @@ do
   --debug)
     $echo "$progname: enabling shell trace mode"
     set -x
+    preserve_args="$preserve_args $arg"
     ;;
 
   --dry-run | -n)
@@ -269,6 +271,7 @@ do
 
   --quiet | --silent)
     show=:
+    preserve_args="$preserve_args $arg"
     ;;
 
   --tag) prevopt="--tag" prev=tag ;;
@@ -276,6 +279,7 @@ do
     set tag "$optarg" ${1+"$@"}
     shift
     prev=tag
+    preserve_args="$preserve_args --tag"
     ;;
 
   -dlopen)
@@ -1297,7 +1301,7 @@ EOF
 	;;
 
      -pthread|-pthreads|-kthread|-Kthread|-mthreads|--thread-safe|-mt)
-	deplibs="$deplibs $arg"
+	# deplibs="$deplibs $arg"
 	;;
 
       -module)
@@ -1817,7 +1821,7 @@ EOF
 	case $deplib in
 	-pthread|-pthreads|-kthread|-Kthread|-mthreads|--thread-safe|-mt)
 	  deplibs="$deplib $deplibs"
-	  test "$linkmode" = lib && newdependency_libs="$deplib $newdependency_libs"
+	  # test "$linkmode" = lib && newdependency_libs="$deplib $newdependency_libs"
 	  continue
 	  ;;
 	-l*)
@@ -5077,7 +5081,7 @@ fi\
 	fi
       done
       # Quote the link command for shipping.
-      relink_command="(cd `pwd`; $SHELL $0 --mode=relink $libtool_args @inst_prefix_dir@)"
+      relink_command="(cd `pwd`; $SHELL $0 $preserve_args --mode=relink $libtool_args @inst_prefix_dir@)"
       relink_command=`$echo "X$relink_command" | $Xsed -e "$sed_quote_subst"`
       if test "$hardcode_automatic" = yes ; then
         relink_command=
@@ -5702,7 +5706,7 @@ relink_command=\"$relink_command\""
     if test -n "$current_libdirs"; then
       # Maybe just do a dry run.
       test -n "$run" && current_libdirs=" -n$current_libdirs"
-      exec_cmd='$SHELL $0 --finish$current_libdirs'
+      exec_cmd='$SHELL $0 $preserve_args --finish$current_libdirs'
     else
       exit 0
     fi
