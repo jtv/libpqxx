@@ -45,7 +45,7 @@ public:
   typedef content_type char_type;
   typedef PGSTD::char_traits<char_type>::char_type value_type;
   typedef size_t size_type;
-  typedef ptrdiff_t difference_type;
+  typedef long difference_type;
   typedef const value_type &const_reference;
   typedef const value_type *const_pointer;
   typedef const_pointer const_iterator;
