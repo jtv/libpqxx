@@ -31,7 +31,7 @@ class PQXX_LIBEXPORT broken_connection : public PGSTD::runtime_error
 {
 public:
   broken_connection() : PGSTD::runtime_error("Connection to back end failed") {}
-  explicit broken_connection(const PGSTD::string &whatarg) : 
+  explicit broken_connection(const PGSTD::string &whatarg) :
     PGSTD::runtime_error(whatarg) {}
 };
 
@@ -44,7 +44,7 @@ class PQXX_LIBEXPORT sql_error : public PGSTD::runtime_error
 
 public:
   sql_error() : PGSTD::runtime_error("Failed query"), m_Q() {}
-  explicit sql_error(const PGSTD::string &whatarg) : 
+  explicit sql_error(const PGSTD::string &whatarg) :
 	PGSTD::runtime_error(whatarg), m_Q() {}
   sql_error(const PGSTD::string &whatarg, const PGSTD::string &Q) :
 	PGSTD::runtime_error(whatarg), m_Q(Q) {}
@@ -65,7 +65,7 @@ public:
 class PQXX_LIBEXPORT in_doubt_error : public PGSTD::runtime_error
 {
 public:
-  explicit in_doubt_error(const PGSTD::string &whatarg) : 
+  explicit in_doubt_error(const PGSTD::string &whatarg) :
 	PGSTD::runtime_error(whatarg) {}
 };
 
