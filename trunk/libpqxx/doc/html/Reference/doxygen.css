@@ -40,10 +40,10 @@ TD.indexvalue {
    margin-top     : 2px; 
    margin-bottom  : 2px  
 }
-FONT.keyword       { color: #008000 }
-FONT.keywordtype   { color: #604020 }
-FONT.keywordflow   { color: #e08000 }
-FONT.comment       { color: #800000 }
-FONT.preprocessor  { color: #806020 }
-FONT.stringliteral { color: #002080 }
-FONT.charliteral   { color: #008080 }
+span.keyword       { color: #008000 }
+span.keywordtype   { color: #604020 }
+span.keywordflow   { color: #e08000 }
+span.comment       { color: #800000 }
+span.preprocessor  { color: #806020 }
+span.stringliteral { color: #002080 }
+span.charliteral   { color: #008080 }

@@ -31,10 +31,16 @@ using namespace PGSTD;
 #define SQL_ROLLBACK_WORK 	"ROLLBACK WORK"
 #endif // DIALECT_POSTGRESQL 
 
+// Workaround: define alias for InvalidOid to reduce g++ warnings about
+// C-style cast used in InvalidOid's definition
+namespace
+{
+const Oid pqxxInvalidOid(InvalidOid);
+} // namespace
 
 pqxx::RobustTransaction::RobustTransaction(Connection &C, string TName) :
   TransactionItf(C, TName),
-  m_ID(InvalidOid),
+  m_ID(pqxxInvalidOid),
   m_LogTable()
 {
   m_LogTable = string("PQXXLOG_") + Conn().UserName();
@@ -94,7 +100,7 @@ void pqxx::RobustTransaction::DoCommit()
 {
   const IDType ID = m_ID;
 
-  if (ID == InvalidOid) 
+  if (ID == pqxxInvalidOid) 
     throw logic_error("Internal libpqxx error: transaction " 
 		      "'" + Name() + "' " 
 		     "has no ID");
@@ -105,7 +111,7 @@ void pqxx::RobustTransaction::DoCommit()
   }
   catch (const exception &e)
   {
-    m_ID = InvalidOid;
+    m_ID = pqxxInvalidOid;
     if (!Conn().IsOpen())
     {
       // We've lost the connection while committing.  We'll have to go back to
@@ -155,14 +161,14 @@ void pqxx::RobustTransaction::DoCommit()
     }
   }
 
-  m_ID = InvalidOid;
+  m_ID = pqxxInvalidOid;
   DeleteTransactionRecord(ID);
 }
 
 
 void pqxx::RobustTransaction::DoAbort()
 {
-  m_ID = InvalidOid;
+  m_ID = pqxxInvalidOid;
 
   // Rollback transaction.  Our transaction record will be dropped as a side
   // effect, which is what we want since "it never happened."
@@ -197,14 +203,14 @@ void pqxx::RobustTransaction::CreateTransactionRecord()
 
   m_ID = DirectExec(Insert.c_str(), 0, 0).InsertedOid();
 
-  if (m_ID == InvalidOid) 
+  if (m_ID == pqxxInvalidOid) 
     throw runtime_error("Could not create transaction log record");
 }
 
 
 void pqxx::RobustTransaction::DeleteTransactionRecord(IDType ID) throw ()
 {
-  if (ID == InvalidOid) return;
+  if (ID == pqxxInvalidOid) return;
 
   try
   {
@@ -216,13 +222,13 @@ void pqxx::RobustTransaction::DeleteTransactionRecord(IDType ID) throw ()
     DirectExec(Del.c_str(), 20, 0);
 
     // Now that we've arrived here, we're sure that record is quite dead.
-    ID = InvalidOid;
+    ID = pqxxInvalidOid;
   }
   catch (const exception &e)
   {
   }
 
-  if (ID != InvalidOid) try
+  if (ID != pqxxInvalidOid) try
   {
     ProcessNotice("WARNING: "
 	          "Failed to delete obsolete transaction record with oid " + 

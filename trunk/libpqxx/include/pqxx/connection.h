@@ -78,8 +78,10 @@ public:
    * parameters, such as server, port, database, and password.
    * @param Immediate if set, makes the connection immediately.  This is the
    * default.  If not set, the creation of the underlying database connection is
-   * deferred until necessitated by actual use, and then performed 
-   * transparently.
+   * deferred until necessitated by actual use, and the Connection remains in a
+   * deactivated state.  It will be activated transparently when calls to its
+   * member functions make it necessary to do so.  This regime is referred to as
+   * a "lazy" connection.
    */
   explicit Connection(const PGSTD::string &ConnInfo, 
                       bool Immediate=true);				//[t1]
@@ -88,7 +90,7 @@ public:
   ~Connection();							//[t1]
 
   /// Explicitly close connection.
-  void Disconnect() throw ();						//[t2]
+  void Disconnect() const throw ();					//[t2]
 
   /// Is this connection open?
   bool IsOpen() const;							//[t1]
@@ -123,19 +125,19 @@ public:
  
   /// Name of database we're connected to, if any.
   const char *DbName() const throw ()					//[t1]
-  	{ return m_Conn ? PQdb(m_Conn) : ""; }
+  	{ Activate(); return PQdb(m_Conn); }
 
   /// Database user ID we're connected under, if any.
   const char *UserName() const throw ()					//[t1]
-  	{ return m_Conn ? PQuser(m_Conn) : ""; }
+  	{ Activate(); return  PQuser(m_Conn); }
 
   /// Address of server (NULL for local connections).
   const char *HostName() const throw ()					//[t1]
-  	{ return m_Conn ? PQhost(m_Conn) : ""; }
+  	{ Activate(); return PQhost(m_Conn); }
 
   /// Server port number we're connected to.
   const char *Port() const throw () 					//[t1]
-  	{ return m_Conn ? PQport(m_Conn) : ""; }
+  	{ Activate(); return PQport(m_Conn); }
 
   /// Full connection string as used to set up this connection.
   const char *Options() const throw () 					//[t1]
@@ -149,20 +151,47 @@ public:
    * transaction fails, which may be due to a lost connection, then this number
    * will have become invalid at some point within the transaction.
    */
-  int BackendPID() const;						//[t1]
+  int BackendPID() const						//[t1]
+    	{ return m_Conn ? PQbackendPID(m_Conn) : 0; }
+
+  /// Explicitly activate deferred or deactivated connection.
+  /** Use of this method is entirely optional.  Whenever a Connection is used
+   * while in a deferred or deactivated state, it will transparently try to
+   * bring itself into an actiaveted state.  This function is best viewed as an
+   * explicit hint to the Connection that "if you're not in an active state, now
+   * would be a good time to get into one."  Whether a Connection is currently
+   * in an active state or not makes no real difference to its functionality.
+   * There is also no particular need to match calls to Activate() with calls to
+   * Deactivate().  A good time to call Activate() might be just before you
+   * first open a transaction on a lazy connection.
+   */
+  void Activate() const { if (!m_Conn) Connect(); }			//[]
+
+  /// Explicitly deactivate connection.
+  /** Like its counterpart Activate(), this method is entirely optional.  
+   * Calling this function really only makes sense if you won't be using this
+   * Connection for a while and want to reduce the number of open connections on
+   * the database server.
+   * There is no particular need to match or pair calls to Deactivate() with
+   * calls to Activate(), but calling Deactivate() during a transaction is an
+   * error.
+   */
+  void Deactivate() const;						//[]
 
 private:
-  void Connect();
-  void SetupState();
+  void Connect() const;
+  void SetupState() const;
+  void InternalSetTrace() const;
   int Status() const { return PQstatus(m_Conn); }
   const char *ErrMsg() const;
   void Reset(const char OnReconnect[]=0);
 
-  PGSTD::string m_ConnInfo;	// Connection string
-  PGconn *m_Conn;		// Connection handle
-  Unique<TransactionItf> m_Trans;// Active transaction on connection, if any
+  PGSTD::string m_ConnInfo;	/// Connection string
+  mutable PGconn *m_Conn;	/// Connection handle
+  Unique<TransactionItf> m_Trans;/// Active transaction on connection, if any
 
-  NoticeProcessor m_NoticeProcessor;// Client-set notice processor function
+  /// Client-set notice processor function
+  mutable NoticeProcessor m_NoticeProcessor;
   void *m_NoticeProcessorArg;	// Client-set argument to notice processor func
   FILE *m_Trace;		// File to trace to, if any
 
