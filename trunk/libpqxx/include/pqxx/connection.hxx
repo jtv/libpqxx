@@ -123,7 +123,7 @@ public:
 private:
   virtual void startconnect();
   virtual void completeconnect();
-  virtual void dropconnect() { m_connecting = false; }
+  virtual void dropconnect() throw () { m_connecting = false; }
 
   /// Is a connection attempt in progress?
   bool m_connecting;
