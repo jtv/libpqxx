@@ -81,7 +81,7 @@ pqxx::Connection::Connection(const string &ConnInfo, bool Immediate) :
 
 
 pqxx::Connection::Connection(const char ConnInfo[], bool Immediate) :
-  m_ConnInfo(ConnInfo ? ConnInfo : string()),
+  m_ConnInfo(ConnInfo ? ConnInfo : ""),
   m_Conn(0),
   m_Trans(),
   m_NoticeProcessor(0),
@@ -308,7 +308,10 @@ void pqxx::Connection::RemoveTrigger(pqxx::Trigger *T) throw ()
 
   try
   {
-    TriggerList::value_type E = make_pair(string(T->Name()), T);
+    // Keep Sun compiler happy...  Hope it doesn't annoy other compilers
+    pair<const string, Trigger *> tmp_pair(T->Name(), T);
+    TriggerList::value_type E = tmp_pair;
+
     typedef pair<TriggerList::iterator, TriggerList::iterator> Range;
     Range R = m_Triggers.equal_range(E.first);
 

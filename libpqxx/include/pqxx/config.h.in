@@ -3,6 +3,9 @@
 /* Define if <iterator> lacks an iterator template definition */
 #undef BROKEN_ITERATOR
 
+/* Define if abs() works on long ints */
+#undef HAVE_ABS_LONG
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 

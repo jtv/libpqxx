@@ -11,6 +11,8 @@
  *
  *-------------------------------------------------------------------------
  */
+#include <cstdlib>
+
 #include "pqxx/cursor.h"
 #include "pqxx/result.h"
 #include "pqxx/transaction.h"

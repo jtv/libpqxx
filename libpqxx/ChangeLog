@@ -1,3 +1,8 @@
+2003-03-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac, include/pqxx/compiler.h:
+  - Check & workaround for "ambiguous abs(long)" error on Sun compiler
+ src/connection.cxx, src/cursor.cxx:
+  - Changes to make Sun compiler happy (thanks Jeroen van Erp)
 2003-03-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/html/Reference/*lostream*.html:
   - New
