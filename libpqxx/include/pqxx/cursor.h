@@ -4,8 +4,8 @@
  *	pqxx/cursor.h
  *
  *   DESCRIPTION
- *      definition of the Pg::Cursor class.
- *   Pg::Cursor represents a database cursor.
+ *      definition of the pqxx::Cursor class.
+ *   pqxx::Cursor represents a database cursor.
  *
  * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -34,7 +34,7 @@
  */
 
 
-namespace Pg
+namespace pqxx
 {
 class Result;
 class Transaction;

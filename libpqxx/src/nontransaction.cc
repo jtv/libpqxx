@@ -4,8 +4,8 @@
  *	nontransaction.cc
  *
  *   DESCRIPTION
- *      implementation of the Pg::NonTransaction class.
- *   Pg::Transaction provides nontransactional database access
+ *      implementation of the pqxx::NonTransaction class.
+ *   pqxx::Transaction provides nontransactional database access
  *
  * Copyright (c) 2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -17,13 +17,13 @@
 
 using namespace PGSTD;
 
-Pg::NonTransaction::~NonTransaction()
+pqxx::NonTransaction::~NonTransaction()
 {
   End();
 }
 
 
-Pg::Result Pg::NonTransaction::DoExec(const char C[])
+pqxx::Result pqxx::NonTransaction::DoExec(const char C[])
 {
   return DirectExec(C, 2, 0);
 }

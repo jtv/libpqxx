@@ -4,8 +4,8 @@
  *	pqxx/trigger.h
  *
  *   DESCRIPTION
- *      definition of the Pg::Trigger functor interface.
- *   Pg::Trigger describes a database trigger to wait on, and what it does
+ *      definition of the pqxx::Trigger functor interface.
+ *   pqxx::Trigger describes a database trigger to wait on, and what it does
  *
  * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -19,7 +19,7 @@
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */
 
-namespace Pg
+namespace pqxx
 {
 
 // To listen on a database trigger, derive your own class from Trigger and

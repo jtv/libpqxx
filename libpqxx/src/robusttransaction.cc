@@ -4,8 +4,8 @@
  *	robusttransaction.cc
  *
  *   DESCRIPTION
- *      implementation of the Pg::RobustTransaction class.
- *   Pg::RobustTransaction is a slower but safer transaction class
+ *      implementation of the pqxx::RobustTransaction class.
+ *   pqxx::RobustTransaction is a slower but safer transaction class
  *
  * Copyright (c) 2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -33,10 +33,10 @@ using namespace PGSTD;
 
 
 // Postfix strings for constructing sequence/index names for table
-string Pg::RobustTransaction::s_SeqPostfix("_ID");
-string Pg::RobustTransaction::s_IdxPostfix("_IDX");
+string pqxx::RobustTransaction::s_SeqPostfix("_ID");
+string pqxx::RobustTransaction::s_IdxPostfix("_IDX");
 
-Pg::RobustTransaction::RobustTransaction(Connection &C, string TName) :
+pqxx::RobustTransaction::RobustTransaction(Connection &C, string TName) :
   TransactionItf(C, TName),
   m_ID(0),
   m_LogTable()
@@ -47,14 +47,14 @@ Pg::RobustTransaction::RobustTransaction(Connection &C, string TName) :
 
 
 
-Pg::RobustTransaction::~RobustTransaction()
+pqxx::RobustTransaction::~RobustTransaction()
 {
   End();
 }
 
 
 
-void Pg::RobustTransaction::DoBegin()
+void pqxx::RobustTransaction::DoBegin()
 {
   CreateLogTable();
 
@@ -66,7 +66,7 @@ void Pg::RobustTransaction::DoBegin()
 
 
 
-Pg::Result Pg::RobustTransaction::DoExec(const char C[])
+pqxx::Result pqxx::RobustTransaction::DoExec(const char C[])
 {
   Result R;
   try
@@ -90,7 +90,7 @@ Pg::Result Pg::RobustTransaction::DoExec(const char C[])
 
 
 
-void Pg::RobustTransaction::DoCommit()
+void pqxx::RobustTransaction::DoCommit()
 {
   const IDType ID = m_ID;
 
@@ -159,7 +159,7 @@ void Pg::RobustTransaction::DoCommit()
 }
 
 
-void Pg::RobustTransaction::DoAbort()
+void pqxx::RobustTransaction::DoAbort()
 {
   m_ID = 0;
 
@@ -170,7 +170,7 @@ void Pg::RobustTransaction::DoAbort()
 
 
 // Create transaction log table if it didn't already exist
-void Pg::RobustTransaction::CreateLogTable()
+void pqxx::RobustTransaction::CreateLogTable()
 {
   // Create log table in case it doesn't already exist.  This code must only be 
   // executed before the backend transaction has properly started.
@@ -189,7 +189,7 @@ void Pg::RobustTransaction::CreateLogTable()
 }
 
 
-void Pg::RobustTransaction::CreateTransactionRecord()
+void pqxx::RobustTransaction::CreateTransactionRecord()
 {
   const string MakeID = "SELECT nextval('" + m_LogTable + s_SeqPostfix + "')";
   
@@ -215,7 +215,7 @@ void Pg::RobustTransaction::CreateTransactionRecord()
 }
 
 
-void Pg::RobustTransaction::DeleteTransactionRecord(IDType ID) throw ()
+void pqxx::RobustTransaction::DeleteTransactionRecord(IDType ID) throw ()
 {
   if (!ID) return;
 
@@ -250,7 +250,7 @@ void Pg::RobustTransaction::DeleteTransactionRecord(IDType ID) throw ()
 
 
 // Attempt to establish whether transaction record with given ID still exists
-bool Pg::RobustTransaction::CheckTransactionRecord(IDType ID)
+bool pqxx::RobustTransaction::CheckTransactionRecord(IDType ID)
 {
   const string Find = "SELECT id FROM " + m_LogTable + " "
 	              "WHERE id=" + ToString(ID);

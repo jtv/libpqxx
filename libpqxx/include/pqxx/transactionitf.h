@@ -5,7 +5,7 @@
  *
  *   DESCRIPTION
  *      common code and definitions for the transaction classes.
- *   Pg::TransactionItf defines the interface for any abstract class that
+ *   pqxx::TransactionItf defines the interface for any abstract class that
  *   represents a database transaction
  *
  * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
@@ -35,7 +35,7 @@
 
 // TODO: Any user-friendliness we can add to invoking stored procedures?
 
-namespace Pg
+namespace pqxx
 {
 class Connection; 	// See pqxx/connection.h
 class Result; 		// See pqxx/result.h

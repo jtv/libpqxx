@@ -7,7 +7,7 @@
 #include "pqxx/result.h"
 
 using namespace PGSTD;
-using namespace Pg;
+using namespace pqxx;
 
 
 // Simple test program for libpqxx.  Write a predetermined data set to a table

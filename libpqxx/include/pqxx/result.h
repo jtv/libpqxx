@@ -4,8 +4,8 @@
  *	pqxx/result.h
  *
  *   DESCRIPTION
- *      definitions for the Pg::Result class and support classes.
- *   Pg::Result represents the set of result tuples from a database query
+ *      definitions for the pqxx::Result class and support classes.
+ *   pqxx::Result represents the set of result tuples from a database query
  *
  * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -26,7 +26,7 @@
 // TODO: Support postgres arrays
 // TODO: Cursor-based bidirectional iterators for hidden incremental retrieval
 
-namespace Pg
+namespace pqxx
 {
 
 // Query or command result set.  This behaves pretty much as a container (as 

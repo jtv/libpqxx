@@ -4,8 +4,8 @@
  *	transaction.cc
  *
  *   DESCRIPTION
- *      implementation of the Pg::Transaction class.
- *   Pg::Transaction represents a database transaction
+ *      implementation of the pqxx::Transaction class.
+ *   pqxx::Transaction represents a database transaction
  *
  * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -32,7 +32,7 @@ using namespace PGSTD;
 #endif // DIALECT_POSTGRESQL 
 
 
-Pg::Transaction::Transaction(Connection &C, string TName) :
+pqxx::Transaction::Transaction(Connection &C, string TName) :
   TransactionItf(C, TName)
 {
   Begin();
@@ -40,14 +40,14 @@ Pg::Transaction::Transaction(Connection &C, string TName) :
 
 
 
-Pg::Transaction::~Transaction()
+pqxx::Transaction::~Transaction()
 {
   End();
 }
 
 
 
-void Pg::Transaction::DoBegin()
+void pqxx::Transaction::DoBegin()
 {
   // Start backend transaction
   DirectExec(SQL_BEGIN_WORK, 2, 0);
@@ -55,7 +55,7 @@ void Pg::Transaction::DoBegin()
 
 
 
-Pg::Result Pg::Transaction::DoExec(const char C[])
+pqxx::Result pqxx::Transaction::DoExec(const char C[])
 {
   Result R;
   try
@@ -79,7 +79,7 @@ Pg::Result Pg::Transaction::DoExec(const char C[])
 
 
 
-void Pg::Transaction::DoCommit()
+void pqxx::Transaction::DoCommit()
 {
   try
   {
@@ -112,7 +112,7 @@ void Pg::Transaction::DoCommit()
 }
 
 
-void Pg::Transaction::DoAbort()
+void pqxx::Transaction::DoAbort()
 {
   DirectExec(SQL_ROLLBACK_WORK, 0, 0);
 }

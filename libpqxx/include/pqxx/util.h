@@ -27,7 +27,7 @@ extern "C"
 #include "pqxx/compiler.h"
 
 
-namespace Pg
+namespace pqxx
 {
 typedef long Result_size_type;
 typedef int Tuple_size_type;

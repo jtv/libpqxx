@@ -4,8 +4,8 @@
  *	tablewriter.cc
  *
  *   DESCRIPTION
- *      implementation of the Pg::TableWriter class.
- *   Pg::TableWriter enables optimized batch updates to a database table
+ *      implementation of the pqxx::TableWriter class.
+ *   pqxx::TableWriter enables optimized batch updates to a database table
  *
  * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -18,14 +18,14 @@
 using namespace PGSTD;
 
 
-Pg::TableWriter::TableWriter(Transaction &T, string WName) :
+pqxx::TableWriter::TableWriter(Transaction &T, string WName) :
   TableStream(T, WName)
 {
   T.BeginCopyWrite(WName);
 }
 
 
-Pg::TableWriter::~TableWriter()
+pqxx::TableWriter::~TableWriter()
 {
   try
   {
@@ -38,7 +38,7 @@ Pg::TableWriter::~TableWriter()
 }
 
 
-Pg::TableWriter &Pg::TableWriter::operator<<(Pg::TableReader &R)
+pqxx::TableWriter &pqxx::TableWriter::operator<<(pqxx::TableReader &R)
 {
   string Line;
   while (R.GetRawLine(Line))
@@ -48,7 +48,7 @@ Pg::TableWriter &Pg::TableWriter::operator<<(Pg::TableReader &R)
 }
 
 
-void Pg::TableWriter::WriteRawLine(string Line)
+void pqxx::TableWriter::WriteRawLine(string Line)
 {
   Trans().WriteCopyLine(Line);
 }

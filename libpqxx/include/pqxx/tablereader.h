@@ -4,8 +4,8 @@
  *	pqxx/tablereader.h
  *
  *   DESCRIPTION
- *      definition of the Pg::TableReader class.
- *   Pg::TableReader enables optimized batch reads from a database table
+ *      definition of the pqxx::TableReader class.
+ *   pqxx::TableReader enables optimized batch reads from a database table
  *
  * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -23,7 +23,7 @@
  */
 
 
-namespace Pg
+namespace pqxx
 {
 
 // A TableReader provides efficient read access to a database table.  This is
@@ -65,7 +65,7 @@ private:
 
 
 template<typename TUPLE> 
-inline void Pg::TableReader::Tokenize(PGSTD::string Line, TUPLE &T) const
+inline void pqxx::TableReader::Tokenize(PGSTD::string Line, TUPLE &T) const
 {
   PGSTD::back_insert_iterator<TUPLE> ins = PGSTD::back_inserter(T);
 
@@ -104,7 +104,7 @@ inline void Pg::TableReader::Tokenize(PGSTD::string Line, TUPLE &T) const
 
 
 template<typename TUPLE> 
-inline Pg::TableReader &Pg::TableReader::operator>>(TUPLE &T)
+inline pqxx::TableReader &pqxx::TableReader::operator>>(TUPLE &T)
 {
   PGSTD::string Line;
   if (GetRawLine(Line)) Tokenize(Line, T);

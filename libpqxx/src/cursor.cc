@@ -4,8 +4,8 @@
  *	cursor.cc
  *
  *   DESCRIPTION
- *      implementation of the Pg::Cursor class.
- *   Pg::Cursor represents a database cursor.
+ *      implementation of the pqxx::Cursor class.
+ *   pqxx::Cursor represents a database cursor.
  *
  * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -18,10 +18,10 @@
 using namespace PGSTD;
 
 
-Pg::Cursor::Cursor(Pg::Transaction &T, 
+pqxx::Cursor::Cursor(pqxx::Transaction &T, 
 		   const char Query[],
 		   string BaseName,
-		   Pg::Result_size_type Count) :
+		   pqxx::Result_size_type Count) :
   m_Trans(T),
   m_Name(BaseName),
   m_Count(Count),
@@ -34,7 +34,7 @@ Pg::Cursor::Cursor(Pg::Transaction &T,
 }
 
 
-Pg::Result_size_type Pg::Cursor::SetCount(Pg::Result_size_type Count)
+pqxx::Result_size_type pqxx::Cursor::SetCount(pqxx::Result_size_type Count)
 {
   Result_size_type Old = m_Count;
   m_Done = false;
@@ -44,7 +44,7 @@ Pg::Result_size_type Pg::Cursor::SetCount(Pg::Result_size_type Count)
 
 
 // TODO: Maybe splice stream interface (with m_Done & m_Count) out of Cursor?
-Pg::Cursor &Pg::Cursor::operator>>(Pg::Result &R)
+pqxx::Cursor &pqxx::Cursor::operator>>(pqxx::Result &R)
 {
   R = Fetch(m_Count);
   m_Done = R.empty();
@@ -52,9 +52,9 @@ Pg::Cursor &Pg::Cursor::operator>>(Pg::Result &R)
 }
 
 
-Pg::Result Pg::Cursor::Fetch(Pg::Result_size_type Count)
+pqxx::Result pqxx::Cursor::Fetch(pqxx::Result_size_type Count)
 {
-  Pg::Result R;
+  pqxx::Result R;
 
   if (Count == 0) 
   {
@@ -68,7 +68,7 @@ Pg::Result Pg::Cursor::Fetch(Pg::Result_size_type Count)
 }
 
 
-void Pg::Cursor::Move(Pg::Result_size_type Count)
+void pqxx::Cursor::Move(pqxx::Result_size_type Count)
 {
   if (Count == 0) return;
 
@@ -84,7 +84,7 @@ void Pg::Cursor::Move(Pg::Result_size_type Count)
 }
 
 
-string Pg::Cursor::MakeFetchCmd(Pg::Result_size_type Count) const
+string pqxx::Cursor::MakeFetchCmd(pqxx::Result_size_type Count) const
 {
   if (!Count) throw logic_error("Internal libpqxx error: Cursor: zero count");
   return "FETCH " + ToString(Count) + " IN " + m_Name;

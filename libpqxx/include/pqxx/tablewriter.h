@@ -4,8 +4,8 @@
  *	pqxx/tablewriter.h
  *
  *   DESCRIPTION
- *      definition of the Pg::TableWriter class.
- *   Pg::TableWriter enables optimized batch updates to a database table
+ *      definition of the pqxx::TableWriter class.
+ *   pqxx::TableWriter enables optimized batch updates to a database table
  *
  * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -22,7 +22,7 @@
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */
 
-namespace Pg
+namespace pqxx
 {
 class TableReader;	// See pqxx/tablereader.h
 
@@ -50,11 +50,11 @@ private:
 
 // Specialized back_insert_iterator for TableWriter, doesn't require a 
 // value_type to be defined.  Accepts any container type instead.
-template<> class PGSTD::back_insert_iterator<Pg::TableWriter> : 	//[t9]
+template<> class PGSTD::back_insert_iterator<pqxx::TableWriter> : 	//[t9]
 	public PGSTD::iterator<PGSTD::output_iterator_tag, void,void,void,void>
 {
 public:
-  explicit back_insert_iterator(Pg::TableWriter &W) : m_Writer(W) {}
+  explicit back_insert_iterator(pqxx::TableWriter &W) : m_Writer(W) {}
 
   template<typename TUPLE> 
   back_insert_iterator &operator=(const TUPLE &T)
@@ -68,14 +68,14 @@ public:
   back_insert_iterator &operator*() { return *this; }
 
 private:
-  Pg::TableWriter &m_Writer;
+  pqxx::TableWriter &m_Writer;
 };
 
 
 
 
 template<typename TUPLE> 
-inline PGSTD::string Pg::TableWriter::ezinekoT(const TUPLE &T) const
+inline PGSTD::string pqxx::TableWriter::ezinekoT(const TUPLE &T) const
 {
   PGSTD::string Line;
 
@@ -115,14 +115,14 @@ inline PGSTD::string Pg::TableWriter::ezinekoT(const TUPLE &T) const
 }
 
 
-template<typename TUPLE> inline void Pg::TableWriter::insert(const TUPLE &T)
+template<typename TUPLE> inline void pqxx::TableWriter::insert(const TUPLE &T)
 {
   WriteRawLine(ezinekoT(T));
 }
 
 
 template<typename TUPLE> 
-inline Pg::TableWriter &Pg::TableWriter::operator<<(const TUPLE &T)
+inline pqxx::TableWriter &pqxx::TableWriter::operator<<(const TUPLE &T)
 {
   insert(T);
   return *this;

@@ -4,8 +4,8 @@
  *	pqxx/transaction.h
  *
  *   DESCRIPTION
- *      definition of the Pg::Transaction class.
- *   Pg::Transaction represents a database transaction
+ *      definition of the pqxx::Transaction class.
+ *   pqxx::Transaction represents a database transaction
  *
  * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -47,7 +47,7 @@
 
 // TODO: Any user-friendliness we can add to invoking stored procedures?
 
-namespace Pg
+namespace pqxx
 {
 
 

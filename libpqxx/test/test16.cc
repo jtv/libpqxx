@@ -5,7 +5,7 @@
 #include "pqxx/result.h"
 
 using namespace PGSTD;
-using namespace Pg;
+using namespace pqxx;
 
 
 // Define, locally but with C linkage, a function to process warnings
