@@ -36,8 +36,6 @@ AM_CONDITIONAL([BUILD_REFERENCE], [test -n "$DOXYGEN"])
 AC_PATH_PROG([XMLTO], [xmlto])
 AM_CONDITIONAL([BUILD_TUTORIAL], [test -n "$XMLTO"])
 
-# TODO: Rename PGSTD to PQXXSTD
-# TODO: Allow PQXX_PQ_IN_NAMESPACE to be defined by command line option
 
 # check that std namespace is actually called std
 # not sure how to check for other namespaces...
@@ -50,6 +48,8 @@ AC_TRY_COMPILE(
 	, AC_MSG_ERROR([Can't find std namespace])
 )
 AC_MSG_RESULT($std)
+
+# TODO: Allow PQXX_PQ_IN_NAMESPACE to be defined by command line option
 
 AM_MAINTAINER_MODE
 

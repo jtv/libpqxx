@@ -2,6 +2,9 @@
  - Fix problems building shared library in Visual C++
  - Fix autobuild in Debian, which was broken by mistake in BSD grep workaround
  - Remove stray CVS directories from distribution archive
+ - Workaround for Visual C++ problem when issuing messages from destructors
+ - Yet more workarounds for Visual C++ bugs
+ - Fix situation where connection state might not be restored after failure
 2.4.3
  - Yet more workarounds for bugs in Visual C++ .NET 2003
  - Fixes for SunC++ 5.5

@@ -1,3 +1,26 @@
+2005-02-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test058.cxx:
+  - Work around another Visual C++ bug, thanks Christian Nettesheim
+2005-02-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, src/connection_base.cxx:
+  - Replaced problematic halfconnect() by full activate()
+  - Included missing pqxx/libcompiler.h
+  - Introduced nonnoticer, disable_noticer
+ include/pqxx/connection.hxx, include/pqxx/dbtransaction.hxx,
+ include/pqxx/except.hxx, include/pqxx/isolation.hxx,
+ include/pqxx/nontransaction.hxx, include/pqxx/result.hxx,
+ include/pqxx/robusttransaction.hxx, include/pqxx/tablereader.hxx,
+ include/pqxx/tablewriter.hxx, include/pqxx/transaction_base.hxx,
+ include/pqxx/transaction.hxx, include/pqxx/transactor.hxx,
+ include/pqxx/trigger.hxx:
+  - Included missing pqxx/libcompiler.h (just in case)
+ include/pqxx/libcompiler.h:
+  - New Visual C++ workaround macro PQXX_QUIET_DESTRUCTORS
+ include/pqxx/robusttransaction.hxx, include/pqxx/transaction.hxx,
+ include/pqxx/trigger.hxx, src/connection_base.cxx, src/largeobject.cxx,
+ src/pipeline.cxx, src/tablereader.cxx, src/tablewriter.cxx,
+ src/transaction_base.cxx:
+  - Silence message noticer during destructors in Visual C++
 2005-02-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Fixed Debian autobuild, thanks Roger Leigh
