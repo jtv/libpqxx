@@ -115,6 +115,7 @@ public:
    * are sent to the backend.
    */
   void retain() 				{ m_retain = true; }	//[t70]
+  // TODO: Make retain() set a max. number of queries to retain
 
   /// Resume retained query emission (harmless when not needed)
   void resume();							//[t70]
@@ -140,6 +141,9 @@ private:
   query_id m_nextid;
   bool m_retain;
   bool m_error;
+
+  /// Expect extra result for "Bart Samwel's Genius Trick(tm)" empty query?
+  bool m_bsgt;
 
   /// Not allowed
   pipeline(const pipeline &);
