@@ -24,21 +24,20 @@ template<typename T> string UnStream(T &Stream)
 class WriteLargeObject : public Transactor
 {
 public:
-  WriteLargeObject(const string &Contents, Oid &ID) : 
+  WriteLargeObject(const string &Contents, LargeObject &O) : 
     Transactor("WriteLargeObject"),
     m_Contents(Contents),
-    m_Object(InvalidOid),
-    m_ObjectOutput(ID)
+    m_Object(),
+    m_ObjectOutput(O)
   {
   }
 
   void operator()(argument_type &T)
   {
-    LargeObject L(T);
-    m_Object = L.id();
-    cout << "Created large object #" << m_Object << endl;
+    m_Object = LargeObject(T);
+    cout << "Created large object #" << m_Object.id() << endl;
 
-    largeobject_streambuf<> O(T, L, ios::out);
+    largeobject_streambuf<> O(T, m_Object, ios::out);
     ostream OS(&O);
     OS << m_Contents << endl;
   }
@@ -50,25 +49,25 @@ public:
 
 private:
   string m_Contents;
-  Oid m_Object;
-  Oid &m_ObjectOutput;
+  LargeObject m_Object;
+  LargeObject &m_ObjectOutput;
 };
 
 
 class ReadLargeObject : public Transactor
 {
 public:
-  ReadLargeObject(string &Contents, Oid ID) :
+  ReadLargeObject(string &Contents, LargeObject O) :
     Transactor("ReadLargeObject"),
     m_Contents(),
     m_ContentsOutput(Contents),
-    m_Object(ID)
+    m_Object(O)
   {
   }
 
   void operator()(argument_type &T)
   {
-    largeobject_streambuf<> I(T, m_Object, ios::in);
+    largeobject_streambuf<> I(T, m_Object.id(), ios::in);
     istream S(&I);
     m_Contents = UnStream(S);
   }
@@ -81,8 +80,24 @@ public:
 private:
   string m_Contents;
   string &m_ContentsOutput;
-  Oid m_Object;
+  LargeObject m_Object;
 };
+
+
+class DeleteLargeObject : public Transactor
+{
+public:
+  DeleteLargeObject(LargeObject O) : m_Object(O) {}
+
+  void operator()(argument_type &T)
+  {
+    m_Object.remove(T);
+  }
+
+private:
+  LargeObject m_Object;
+};
+
 
 }
 
@@ -101,13 +116,15 @@ int main(int, char *argv[])
   {
     Connection C(argv[1]);
 
-    Oid Obj;
+    LargeObject Obj(InvalidOid);
     const string Contents = "Testing, testing, 1-2-3";
 
     C.Perform(WriteLargeObject(Contents, Obj));
 
     string Readback;		// Contents as read back from large object
     C.Perform(ReadLargeObject(Readback, Obj));
+
+    C.Perform(DeleteLargeObject(Obj));
 
     /* Reconstruct what will happen to our contents string if we put it into a
      * stream and then read it back.  We can compare this with what comes back
