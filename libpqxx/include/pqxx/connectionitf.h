@@ -4,7 +4,7 @@
  *	pqxx/connectionitf.h
  *
  *   DESCRIPTION
- *      Backward compatibility for when connection_base was still ConnectionItf
+ *      This header is deprecated.  Use "connection_base" instead.
  *
  * Copyright (c) 2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -17,7 +17,8 @@
 #ifndef PQXX_CONNECTIONITF_H
 #define PQXX_CONNECTIONITF_H
 
-#include "pqxx/connection_base.h"
+#include "pqxx/util.h"
+#include "pqxx/connection_base"
 
 namespace pqxx
 {

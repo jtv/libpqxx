@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include <pqxx/connection.h>
-#include <pqxx/transaction.h>
-#include <pqxx/result.h>
+#include <pqxx/connection>
+#include <pqxx/transaction>
+#include <pqxx/result>
 
 using namespace PGSTD;
 using namespace pqxx;

@@ -1,9 +1,9 @@
 #include <cstdio>
 #include <iostream>
 
-#include <pqxx/connection.h>
-#include <pqxx/transaction.h>
-#include <pqxx/result.h>
+#include <pqxx/connection>
+#include <pqxx/transaction>
+#include <pqxx/result>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     const string Table = ((argc >= 3) ? argv[2] : "pg_tables");
 
     lazyconnection C(argv[1]);
-    Transaction T(C, "test30");
+    transaction<> T(C, "test30");
 
     result R( T.Exec(("SELECT * FROM " + Table).c_str()) );
     if (R.empty())

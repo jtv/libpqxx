@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 
-#include <pqxx/all.h>
+#include <pqxx/all>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -21,7 +21,7 @@ int main(int, char *argv[])
   try
   {
     connection C(argv[1]);
-    Transaction T(C, "test46");
+    transaction<> T(C, "test46");
     result R( T.Exec("SELECT count(*) FROM pg_tables") );
 
     cout << "Count was " << R.at(0).at(0) << endl;

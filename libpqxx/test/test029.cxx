@@ -2,10 +2,10 @@
 #include <iostream>
 #include <vector>
 
-#include <pqxx/connection.h>
-#include <pqxx/tablewriter.h>
-#include <pqxx/transaction.h>
-#include <pqxx/result.h>
+#include <pqxx/connection>
+#include <pqxx/tablewriter>
+#include <pqxx/transaction>
+#include <pqxx/result>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -34,7 +34,7 @@ const string Table = "pqxxevents";
 
 
 // Count events, and boring events, in table
-pair<int,int> CountEvents(Transaction &T)
+pair<int,int> CountEvents(transaction_base &T)
 {
   const string EventsQuery = "SELECT count(*) FROM " + Table;
   const string BoringQuery = EventsQuery + 
@@ -69,7 +69,7 @@ void Test(connection_base &C, bool ExplicitAbort)
   {
     // Begin a transaction acting on our current connection; we'll abort it
     // later though.
-    Transaction Doomed(C, "Doomed");
+    transaction<> Doomed(C, "Doomed");
 
     // Verify that our Boring Year was not yet in the events table
     EventCounts = CountEvents(Doomed);
@@ -124,7 +124,7 @@ void Test(connection_base &C, bool ExplicitAbort)
   // Now check that we're back in the original state.  Note that this may go
   // wrong if somebody managed to change the table between our two 
   // transactions.
-  Transaction Checkup(C, "Checkup");
+  transaction<> Checkup(C, "Checkup");
 
   const pair<int,int> NewEvents = CountEvents(Checkup);
   if (NewEvents.first != EventCounts.first)

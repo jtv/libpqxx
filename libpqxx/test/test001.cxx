@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
 
-#include <pqxx/all.h>
+#include <pqxx/all>
 
 using namespace PGSTD;
 using namespace pqxx;

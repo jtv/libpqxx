@@ -2,11 +2,11 @@
 #include <iostream>
 #include <stdexcept>
 
-#include <pqxx/connection.h>
-#include <pqxx/nontransaction.h>
-#include <pqxx/result.h>
-#include <pqxx/robusttransaction.h>
-#include <pqxx/transactor.h>
+#include <pqxx/connection>
+#include <pqxx/nontransaction>
+#include <pqxx/result>
+#include <pqxx/robusttransaction>
+#include <pqxx/transactor>
 
 using namespace PGSTD;
 using namespace pqxx;

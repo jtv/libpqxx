@@ -2,9 +2,9 @@
 #include <stdexcept>
 #include <vector>
 
-#include <pqxx/connection.h>
-#include <pqxx/tablereader.h>
-#include <pqxx/transaction.h>
+#include <pqxx/connection>
+#include <pqxx/tablereader>
+#include <pqxx/transaction>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -29,13 +29,13 @@ int main(int argc, char *argv[])
   try
   {
     // Set up a connection to the backend
-    LazyConnection C(argv[1]);
+    lazyconnection C(argv[1]);
 
     string Table = "pqxxevents";
     if (argc > 2) Table = argv[2];
 
     // Begin a transaction acting on our current connection
-    Transaction T(C, "test27");
+    transaction<> T(C, "test27");
 
     vector<string> R, First;
 

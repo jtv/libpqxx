@@ -4,7 +4,7 @@
  *	pqxx/all.h
  *
  *   DESCRIPTION
- *      Convenience header: include all libpqxx definitions
+ *      This header is deprecated.  Use "all" instead (no ".h")
  *
  * Copyright (c) 2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *

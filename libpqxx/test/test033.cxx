@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include <pqxx/connection.h>
-#include <pqxx/nontransaction.h>
-#include <pqxx/result.h>
+#include <pqxx/connection>
+#include <pqxx/nontransaction>
+#include <pqxx/result>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -26,7 +26,7 @@ int main(int, char *argv[])
     // Begin a "non-transaction" acting on our current connection.  This is
     // really all the transactional integrity we need since we're only 
     // performing one query which does not modify the database.
-    NonTransaction T(C, "test33");
+    nontransaction T(C, "test33");
 
     result R( T.Exec("SELECT * FROM pg_tables") );
 
@@ -39,7 +39,7 @@ int main(int, char *argv[])
     }
 
     // "Commit" the non-transaction.  This doesn't really do anything since
-    // NonTransaction doesn't start a backend transaction.
+    // nontransaction doesn't start a backend transaction.
     T.Commit();
   }
   catch (const sql_error &e)

@@ -2,9 +2,9 @@
 #include <stdexcept>
 #include <vector>
 
-#include <pqxx/connection.h>
-#include <pqxx/tablereader.h>
-#include <pqxx/transaction.h>
+#include <pqxx/connection>
+#include <pqxx/tablereader>
+#include <pqxx/transaction>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     if (argc > 2) Table = argv[2];
 
     // Begin a transaction acting on our current connection
-    Transaction T(C, "test8");
+    transaction<> T(C, "test8");
 
     vector<string> R, First;
 

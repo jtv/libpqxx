@@ -3,8 +3,7 @@
 #include <iostream>
 #include <sstream>
 
-#include <pqxx/all.h>
-#include <pqxx/largeobject.h>
+#include <pqxx/all>
 
 using namespace PGSTD;
 using namespace pqxx;

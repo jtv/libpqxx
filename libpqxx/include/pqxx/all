@@ -1,0 +1,26 @@
+/*-------------------------------------------------------------------------
+ *
+ *   FILE
+ *	pqxx/all
+ *
+ *   DESCRIPTION
+ *      Convenience header: include all libpqxx definitions
+ *
+ * Copyright (c) 2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
+ *
+ *-------------------------------------------------------------------------
+ */
+#include "pqxx/connection"
+#include "pqxx/largeobject"
+#include "pqxx/transaction"
+#include "pqxx/nontransaction"
+#include "pqxx/robusttransaction"
+#include "pqxx/transactor"
+#include "pqxx/tablereader"
+#include "pqxx/tablewriter"
+#include "pqxx/trigger"
+

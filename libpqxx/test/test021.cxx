@@ -1,9 +1,9 @@
 #include <cassert>
 #include <iostream>
 
-#include <pqxx/connection.h>
-#include <pqxx/transaction.h>
-#include <pqxx/result.h>
+#include <pqxx/connection>
+#include <pqxx/transaction>
+#include <pqxx/result>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -36,7 +36,7 @@ int main(int, char *argv[])
 		    "options='" + C.Options() + "', "
 		    "backendpid=" + ToString(C.BackendPID()) + "\n");
 
-    Transaction T(C, "test21");
+    transaction<> T(C, "test21");
 
     // By now our connection should really have been created
     C.ProcessNotice("Printing details on actual connection\n");

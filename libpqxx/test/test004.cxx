@@ -2,11 +2,11 @@
 #include <cstring>
 #include <iostream>
 
-#include <pqxx/connection.h>
-#include <pqxx/transaction.h>
-#include <pqxx/transactor.h>
-#include <pqxx/trigger.h>
-#include <pqxx/result.h>
+#include <pqxx/connection>
+#include <pqxx/transaction>
+#include <pqxx/transactor>
+#include <pqxx/trigger>
+#include <pqxx/result>
 
 
 using namespace PGSTD;

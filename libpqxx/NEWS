@@ -1,8 +1,10 @@
 1.9.1
+ - tablestream destructor crashed if table didn't exist (thanks Sean [Rogers?])
+ - Renamed all header files to remove ".h" suffix
  - Tables created by regression test now prefixed with "pqxx" for safety
  - Large objects now considered stable
  - Added tests 57-59
- - Fixed compile error in largeobject.h
+ - Fixed compile error in largeobject
  - Updated Windows makefiles
 1.9.0
  - EVERYTHING HAS CHANGED.  Read the list or run into trouble!

@@ -1,9 +1,9 @@
 #include <cassert>
 #include <iostream>
 
-#include <pqxx/connection.h>
-#include <pqxx/nontransaction.h>
-#include <pqxx/result.h>
+#include <pqxx/connection>
+#include <pqxx/nontransaction>
+#include <pqxx/result>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -65,7 +65,7 @@ int main(int, char *argv[])
     // Begin a "non-transaction" acting on our current connection.  This is
     // really all the transactional integrity we need since we're only 
     // performing one query which does not modify the database.
-    NonTransaction T(C, "test14");
+    nontransaction T(C, "test14");
 
     // The Transaction family of classes also has ProcessNotice() functions.
     // These simply pass the notice through to their connection, but this may

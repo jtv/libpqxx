@@ -5,11 +5,11 @@
 #include <string>
 #include <vector>
 
-#include <pqxx/connection.h>
+#include <pqxx/connection>
 #include <pqxx/cursor.h>
-#include <pqxx/transaction.h>
-#include <pqxx/transactor.h>
-#include <pqxx/result.h>
+#include <pqxx/transaction>
+#include <pqxx/transactor>
+#include <pqxx/result>
 
 using namespace PGSTD;
 using namespace pqxx;

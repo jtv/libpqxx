@@ -1,10 +1,10 @@
 #include <iostream>
 #include <vector>
 
-#include <pqxx/connection.h>
-#include <pqxx/tablewriter.h>
-#include <pqxx/transaction.h>
-#include <pqxx/result.h>
+#include <pqxx/connection>
+#include <pqxx/tablewriter>
+#include <pqxx/transaction>
+#include <pqxx/result>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     cout << "Dropping old " << TableName << endl;
     try
     {
-      Transaction Drop(C, "drop_" + TableName);
+      transaction<> Drop(C, "drop_" + TableName);
       Drop.Exec(("DROP TABLE " + TableName).c_str());
       Drop.Commit();
     }
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     }
 
     // Now begin new transaction to create new table & write data
-    Transaction T(C, "test5");
+    transaction<> T(C, "test5");
 
     T.Exec(("CREATE TABLE " + 
 	    TableName + 
