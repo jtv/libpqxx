@@ -1,3 +1,6 @@
+2005-02-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ pqxx-config.in:
+  - Fixed painful typo in help output, thanks Tommi Maekitalo
 2005-02-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx:
   - Fixed broken workaround for SunC++ problem, thanks again mark@markround.com
