@@ -1,4 +1,8 @@
 2004-02-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/isolation.hxx:
+  - Removed unused implemented() functions
+ include/pqxx/libcompiler.h:
+  - Trying PQXX_TYPENAME workaround for SUN compiler...
  test/test046.cxx, test/test049.cxx, test/test074.cxx:
   - Compile fixes, thanks Greg Webber!
 2004-02-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
