@@ -1,3 +1,6 @@
+2003-09-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.h, src/cursor.cxx:
+  - Moved ALL() and BACKWARD_ALL() to cursor.cxx so they can use config.h.
 2003-09-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac, include/pqxx/*, test/test*.cxx:
   - Renamed configure macros used in header files
