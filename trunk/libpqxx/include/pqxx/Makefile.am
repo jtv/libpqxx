@@ -3,11 +3,14 @@ MAINTAINERCLEANFILES=Makefile.in
 
 includedir=@includedir@/pqxx
 
-nodist_include_HEADERS = \
+
+nodist_noinst_HEADERS = \
 	config.h \
 	config-internal-autotools.h \
 	config-internal-compiler.h \
-	config-internal-libpq.h \
+	config-internal-libpq.h
+
+nodist_include_HEADERS = \
 	config-public-compiler.h \
 	config-public-libpq.h
 
