@@ -47,13 +47,13 @@ public:
   TableReader &operator>>(PGSTD::string &);
   template<typename TUPLE> TableReader &operator>>(TUPLE &);		//[t8]
 
-  operator bool() const { return !m_Done; }				//[t8]
-  bool operator!() const { return m_Done; }				//[]
+  operator bool() const { return !m_Done; }				//[t6]
+  bool operator!() const { return m_Done; }				//[t6]
 
-  bool GetRawLine(PGSTD::string &Line);					//[]
+  bool GetRawLine(PGSTD::string &Line);					//[t8]
 
   template<typename TUPLE> 
-  void Tokenize(PGSTD::string, TUPLE &) const;				//[]
+  void Tokenize(PGSTD::string, TUPLE &) const;				//[t8]
 
 private:
   bool m_Done;

@@ -1,3 +1,10 @@
+2002-03-02 14:15
+ TableReader:
+  - Full test coverage
+ Test6:
+  - Added consistency check for TableReader's operator!()/operator bool()
+ Test8:
+  - Added consistency check for TableReader's GetRawLine()/Tokenize()
 2002-03-01 00:45
  TableStream:
   - Full test coverage
