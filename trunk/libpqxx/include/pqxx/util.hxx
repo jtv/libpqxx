@@ -571,7 +571,7 @@ public:
 
   const PGSTD::string &name() const throw () { return m_Name; }		//[t1]
   const PGSTD::string &classname() const throw () {return m_Classname;}	//[t73]
-  PGSTD::string description() const throw ();				//[t73]
+  PGSTD::string description() const;
 
 private:
   PGSTD::string m_Name, m_Classname;
