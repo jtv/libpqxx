@@ -3,9 +3,6 @@
 /* Define if <iterator> lacks an iterator template definition */
 #undef BROKEN_ITERATOR
 
-/* Use postgres SQL? */
-#undef DIALECT_POSTGRESQL
-
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 

@@ -12,26 +12,26 @@
 00004 <span class="comment">/* Define if &lt;iterator&gt; lacks an iterator template definition */</span>
 <a name="l00005"></a><a class="code" href="config_8h.html#a0">00005</a> <span class="preprocessor">#define BROKEN_ITERATOR 1</span>
 00006 <span class="preprocessor"></span>
-00007 <span class="comment">/* Use postgres SQL? */</span>
-<a name="l00008"></a><a class="code" href="config_8h.html#a1">00008</a> <span class="preprocessor">#define DIALECT_POSTGRESQL 1</span>
+00007 <span class="comment">/* Define to 1 if you have the &lt;dlfcn.h&gt; header file. */</span>
+<a name="l00008"></a><a class="code" href="config_8h.html#a1">00008</a> <span class="preprocessor">#define HAVE_DLFCN_H 1</span>
 00009 <span class="preprocessor"></span>
-00010 <span class="comment">/* Define to 1 if you have the &lt;dlfcn.h&gt; header file. */</span>
-<a name="l00011"></a><a class="code" href="config_8h.html#a2">00011</a> <span class="preprocessor">#define HAVE_DLFCN_H 1</span>
+00010 <span class="comment">/* Define to 1 if you have the &lt;inttypes.h&gt; header file. */</span>
+<a name="l00011"></a><a class="code" href="config_8h.html#a2">00011</a> <span class="preprocessor">#define HAVE_INTTYPES_H 1</span>
 00012 <span class="preprocessor"></span>
-00013 <span class="comment">/* Define to 1 if you have the &lt;inttypes.h&gt; header file. */</span>
-<a name="l00014"></a><a class="code" href="config_8h.html#a3">00014</a> <span class="preprocessor">#define HAVE_INTTYPES_H 1</span>
+00013 <span class="comment">/* Define to 1 if you have the &lt;iterator&gt; header file. */</span>
+<a name="l00014"></a><a class="code" href="config_8h.html#a3">00014</a> <span class="preprocessor">#define HAVE_ITERATOR 1</span>
 00015 <span class="preprocessor"></span>
-00016 <span class="comment">/* Define to 1 if you have the &lt;iterator&gt; header file. */</span>
-<a name="l00017"></a><a class="code" href="config_8h.html#a4">00017</a> <span class="preprocessor">#define HAVE_ITERATOR 1</span>
+00016 <span class="comment">/* Define to 1 if you have the `pq' library (-lpq). */</span>
+<a name="l00017"></a><a class="code" href="config_8h.html#a4">00017</a> <span class="preprocessor">#define HAVE_LIBPQ 1</span>
 00018 <span class="preprocessor"></span>
-00019 <span class="comment">/* Define to 1 if you have the `pq' library (-lpq). */</span>
-<a name="l00020"></a><a class="code" href="config_8h.html#a5">00020</a> <span class="preprocessor">#define HAVE_LIBPQ 1</span>
-00021 <span class="preprocessor"></span>
-00022 <span class="comment">/* Define to 1 if you have the &lt;limits&gt; header file. */</span>
-00023 <span class="comment">/* #undef HAVE_LIMITS */</span>
-00024 
-00025 <span class="comment">/* Define to 1 if you have the &lt;memory.h&gt; header file. */</span>
-<a name="l00026"></a><a class="code" href="config_8h.html#a6">00026</a> <span class="preprocessor">#define HAVE_MEMORY_H 1</span>
+00019 <span class="comment">/* Define to 1 if you have the &lt;limits&gt; header file. */</span>
+00020 <span class="comment">/* #undef HAVE_LIMITS */</span>
+00021 
+00022 <span class="comment">/* Define to 1 if you have the &lt;memory.h&gt; header file. */</span>
+<a name="l00023"></a><a class="code" href="config_8h.html#a5">00023</a> <span class="preprocessor">#define HAVE_MEMORY_H 1</span>
+00024 <span class="preprocessor"></span>
+00025 <span class="comment">/* Define if PostgreSQL version being compiled against has PQescapeString() */</span>
+<a name="l00026"></a><a class="code" href="config_8h.html#a6">00026</a> <span class="preprocessor">#define HAVE_PQESCAPESTRING 1</span>
 00027 <span class="preprocessor"></span>
 00028 <span class="comment">/* Define to 1 if the system has the type `ptrdiff_t'. */</span>
 <a name="l00029"></a><a class="code" href="config_8h.html#a7">00029</a> <span class="preprocessor">#define HAVE_PTRDIFF_T 1</span>
@@ -48,8 +48,8 @@
 00040 <span class="comment">/* Define to 1 if you have the &lt;string.h&gt; header file. */</span>
 <a name="l00041"></a><a class="code" href="config_8h.html#a11">00041</a> <span class="preprocessor">#define HAVE_STRING_H 1</span>
 00042 <span class="preprocessor"></span>
-00043 <span class="comment">/* Define if the sys/select.h header (defining the fd_set type and related</span>
-00044 <span class="comment">   macros) is available */</span>
+00043 <span class="comment">/* Define if the sys/select.h header defines a working select() and friends,</span>
+00044 <span class="comment">   as per POSIX 1003.1-2001 */</span>
 <a name="l00045"></a><a class="code" href="config_8h.html#a12">00045</a> <span class="preprocessor">#define HAVE_SYS_SELECT_H 1</span>
 00046 <span class="preprocessor"></span>
 00047 <span class="comment">/* Define to 1 if you have the &lt;sys/stat.h&gt; header file. */</span>
@@ -74,33 +74,36 @@
 <a name="l00066"></a><a class="code" href="config_8h.html#a18">00066</a> <span class="preprocessor">#define PACKAGE_NAME "libpqxx"</span>
 00067 <span class="preprocessor"></span>
 00068 <span class="comment">/* Define to the full name and version of this package. */</span>
-<a name="l00069"></a><a class="code" href="config_8h.html#a19">00069</a> <span class="preprocessor">#define PACKAGE_STRING "libpqxx 1.2.2"</span>
+<a name="l00069"></a><a class="code" href="config_8h.html#a19">00069</a> <span class="preprocessor">#define PACKAGE_STRING "libpqxx 1.2.5"</span>
 00070 <span class="preprocessor"></span>
 00071 <span class="comment">/* Define to the one symbol short name of this package. */</span>
 <a name="l00072"></a><a class="code" href="config_8h.html#a20">00072</a> <span class="preprocessor">#define PACKAGE_TARNAME "libpqxx"</span>
 00073 <span class="preprocessor"></span>
 00074 <span class="comment">/* Define to the version of this package. */</span>
-<a name="l00075"></a><a class="code" href="config_8h.html#a21">00075</a> <span class="preprocessor">#define PACKAGE_VERSION "1.2.2"</span>
+<a name="l00075"></a><a class="code" href="config_8h.html#a21">00075</a> <span class="preprocessor">#define PACKAGE_VERSION "1.2.5"</span>
 00076 <span class="preprocessor"></span>
 00077 <span class="comment">/* Does the standard namespace exist? */</span>
 <a name="l00078"></a><a class="code" href="config_8h.html#a22">00078</a> <span class="preprocessor">#define PGSTD std</span>
 00079 <span class="preprocessor"></span>
-00080 <span class="comment">/* Define to 1 if you have the ANSI C header files. */</span>
-<a name="l00081"></a><a class="code" href="config_8h.html#a23">00081</a> <span class="preprocessor">#define STDC_HEADERS 1</span>
-00082 <span class="preprocessor"></span>
-00083 <span class="comment">/* Version number of package */</span>
-<a name="l00084"></a><a class="code" href="config_8h.html#a24">00084</a> <span class="preprocessor">#define VERSION "1.2.2"</span>
+00080 <span class="comment">/* Do we have a PQescapeString function? */</span>
+00081 <span class="comment">/* #undef PQescapeString */</span>
+00082 
+00083 <span class="comment">/* Define to 1 if you have the ANSI C header files. */</span>
+<a name="l00084"></a><a class="code" href="config_8h.html#a23">00084</a> <span class="preprocessor">#define STDC_HEADERS 1</span>
 00085 <span class="preprocessor"></span>
-00086 <span class="comment">/* Define to empty if `const' does not conform to ANSI C. */</span>
-00087 <span class="comment">/* #undef const */</span>
-00088 
-00089 <span class="comment">/* Define as `__inline' if that's what the C compiler calls it, or to nothing</span>
-00090 <span class="comment">   if it is not supported. */</span>
-00091 <span class="comment">/* #undef inline */</span>
-00092 
-00093 <span class="comment">/* Define to `unsigned' if &lt;sys/types.h&gt; does not define. */</span>
-00094 <span class="comment">/* #undef size_t */</span>
-</pre></div><hr><address style="align: right;"><small>Generated on Tue Dec 3 01:37:34 2002 for libpqxx by
+00086 <span class="comment">/* Version number of package */</span>
+<a name="l00087"></a><a class="code" href="config_8h.html#a24">00087</a> <span class="preprocessor">#define VERSION "1.2.5"</span>
+00088 <span class="preprocessor"></span>
+00089 <span class="comment">/* Define to empty if `const' does not conform to ANSI C. */</span>
+00090 <span class="comment">/* #undef const */</span>
+00091 
+00092 <span class="comment">/* Define as `__inline' if that's what the C compiler calls it, or to nothing</span>
+00093 <span class="comment">   if it is not supported. */</span>
+00094 <span class="comment">/* #undef inline */</span>
+00095 
+00096 <span class="comment">/* Define to `unsigned' if &lt;sys/types.h&gt; does not define. */</span>
+00097 <span class="comment">/* #undef size_t */</span>
+</pre></div><hr><address style="align: right;"><small>Generated on Mon Dec 9 01:51:45 2002 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc1 </small></address>

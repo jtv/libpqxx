@@ -34,6 +34,13 @@ class TransactionItf;
  * The class uses a Cursor internally to fetch results.  Data are not fetched
  * row-by-row, but in chunks of configurable size.  For internal computational
  * reasons, these chunks (called "blocks" here) must be at least 2 rows large.  
+ *
+ * CAUTION: PostgreSQL currently doesn't always let you move cursors backwards,
+ * which is a feature this class relies upon.  As a result, CachedResult will
+ * only work on certain types of queries.  To make things worse, there is no
+ * documentation to define exactly which queries those are.  Therefore the only
+ * way to use CachedResult at this time is to test carefully.  Hopefully this
+ * can be fixed in the future.
  */
 class PQXX_LIBEXPORT CachedResult
 {

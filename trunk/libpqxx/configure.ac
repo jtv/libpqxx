@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 1.2.4, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 1.2.5, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 1.2.4)
+AM_INIT_AUTOMAKE(libpqxx, 1.2.5)
 
 # Library version numbering - see "info libtool versioning 'libtool
 # versioning'" for details.
@@ -101,26 +101,6 @@ if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 	unset option
 fi
 AC_LANG_POP(C++)
-
-# does the user want to use postgres-style SQL?
-AC_MSG_CHECKING(using PostgreSQL specific SQL)
-AH_TEMPLATE(DIALECT_POSTGRESQL,[Use postgres SQL?])
-AC_ARG_ENABLE(postgres-dialect,
-AC_HELP_STRING(
-	[--enable-postgres-dialect]
-	, [Use postgres-specific SQL statements (default is yes)])
-	,
-		if test "$enableval" = yes; then
-			AC_DEFINE(DIALECT_POSTGRESQL)
-			enable_postgres_dialect=yes
-		else
-			enable_postgres_dialect=no
-		fi
-	,
-		enable_postgres_dialect=yes
-		AC_DEFINE(DIALECT_POSTGRESQL)
-)
-AC_MSG_RESULT($enable_postgres_dialect)
 
 # Where are the postgres includes...
 AC_CHECK_FILE([/usr/include/postgresql/libpq-fe.h],

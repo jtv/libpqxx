@@ -1,3 +1,9 @@
+2002-12-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cachedresult.h:
+  - Added cautionary comment about limitations in PostgreSQL
+2002-12-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac, src/cursor.cxx, src/robusttransaction.cxx, src/transaction.cxx:
+  - Removed DIALECT_POSTGRESQL setting
 2002-12-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.h:
   - Fixed missing PGSTD:: qualification for std::exception

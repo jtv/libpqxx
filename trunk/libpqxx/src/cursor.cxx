@@ -73,13 +73,7 @@ void pqxx::Cursor::Move(pqxx::Result_size_type Count)
 
   m_Done = false;
 
-#ifdef DIALECT_POSTGRESQL
   m_Trans.Exec(("MOVE " + OffsetString(Count) + " IN " + m_Name).c_str());
-#else
-  // Standard SQL doesn't have a MOVE command.  Use a FETCH instead, and ignore
-  // its results.
-  m_Trans.Exec(MakeFetchCmd(Count).c_str());
-#endif
 }
 
 
