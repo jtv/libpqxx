@@ -1,0 +1,21 @@
+MAINTAINERCLEANFILES=Makefile.in
+	stamp-h.in
+
+includedir=$(prefix)/include/pqxx
+include_HEADERS=compiler.h \
+	config.h \
+	connection.h \
+	cursor.h \
+	nontransaction.h \
+	result.h \
+	robusttransaction.h \
+	tablereader.h \
+	tablestream.h \
+	tablewriter.h \
+	transaction.h \
+	transactionitf.h \
+	transactor.h \
+	trigger.h \
+	util.h
+
+

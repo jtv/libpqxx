@@ -1,0 +1,6 @@
+files
+tmp
+libpqxx-dev
+libpqxx0
+*.debhelper
+*.substvars

@@ -1,0 +1,12 @@
+Document: libpqxx-reference
+Title: libpqxx Reference Manual
+Author: Jeroen T. Vermeulen <jtv@xs4all.nl>
+Abstract: A C++ API to the PostgreSQL DBMS
+ Reference documentation for libpqxx, a C++ library that allows easy and
+ reliable access to the PostgreSQL object-relational database management
+ system.
+Section: Apps/Database
+
+Format: HTML
+Index: /usr/share/doc/libpqxx-dev/html/index.html
+Files: /usr/share/doc/libpqxx-dev/html/*.html
