@@ -1,11 +1,17 @@
 2002-10-15  J.H.M. Dassen (Ray) <jdassen@debian.org>
+ debian/libpqxx-dev.files: 
+  - Include .la file
+ debian/rules:
+  - Update config.{guess,sub} from autotools-dev if possible.
+  - Ensure all files installed by "make install" end up in a package.
+  - Relax shlib dependency to >= the upstream version.
  autogen.sh:
- - libtoolize --force
- - make it possible to skip configure step through an environment variable.
+  - libtoolize --force
+  - Make it possible to skip configure step through an environment variable.
  config/config.guess, config/config.sub, config/ltmain.sh:
- - Regenerated with current libtool
+  - Regenerated with current libtool
  debian/changelog, debian/control, debian/rules:
- - Updated for new Debian policy revision.
+  - Updated for new Debian policy revision.
 2002-10-13 16:00 Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
   - Check for automake-1.7

@@ -43,6 +43,9 @@ version=`ls src/.libs/lib*.so.* | \
 major=`ls src/.libs/lib*.so.* | \
  awk '{if (match($$0,/\.so\.[0-9]+$$/)) print substr($$0,RSTART+4)}'`
 
+upstreamversion=$(shell dpkg-parsechangelog | grep Version | head -1 | sed -e 's/Version: //g' -e 's/-[A-Za-z0-9\.]*$$//g')
+
+
 sources-update:
 	env NOCONFIGURE=1 sh ./autogen.sh -v
 
@@ -75,6 +78,18 @@ clean:
 
 	rm -rf src/.libs src/*.la src/*.o src/*.lo \
 		include/pqxx/config.h include/pqxx/stamp-h
+
+	# Update config.{sub,guess} from autotools-dev, if possible.
+	-for f in config/config.sub config/config.guess ; do \
+		if test -r /usr/share/misc/`basename $$f` ; then \
+			OLDDATE=`./$$f -t | tr -d -` ; \
+			NEWDATE=$$(/usr/share/misc/`basename $$f` -t | tr -d -) ; \
+			if [ $$OLDDATE -lt $$NEWDATE ] ; then \
+				echo "GNU config automated update of $$f (replacing $$OLDDATE with $$NEWDATE)" 1>&2 ; \
+				cp -f /usr/share/misc/`basename $$f` $$f ; \
+			fi; \
+		fi; \
+	done
 
 	dh_clean
 
@@ -116,6 +131,9 @@ binary-arch: build install
 	dh_testroot
 	dh_movefiles
 
+	# Ensure there are no leftover files
+	find `pwd`/debian/tmp -type d -depth | xargs rmdir 2>&1
+
 #	dh_installdebconf	
 	dh_installdocs
 
@@ -138,7 +156,7 @@ binary-arch: build install
 	dh_strip
 	dh_compress
 	dh_fixperms
-	dh_makeshlibs
+	dh_makeshlibs -plibpqxx0 -V 'libpqxx0 (>= $(upstreamversion))'
 	dh_installdeb
 #	dh_perl
 	dh_shlibdeps
