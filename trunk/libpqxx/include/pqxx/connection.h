@@ -109,13 +109,6 @@ public:
    */
   explicit Connection(const char ConnInfo[], bool Immediate=true);	//[t2]
 
-  // /// Constructor.  Sets up a lazy connection with an empty connect string.
-  // /** Note that this version of Connection is deferred by default, making it
-  //  * easier to create connection pools where not every connection object is
-  //  * going to be used.
-  //  */
-  // Connection();								//[t43]
-
   /// Destructor.  Implicitly closes the connection.
   ~Connection();							//[t1]
 

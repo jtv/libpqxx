@@ -168,7 +168,7 @@ Normally the configure script would do this for you.
 
 If you're using Microsoft's compiler, you'll probably need to define the
 preprocessor macro NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION in the config.h file
-to work around what appears to be a compiler bug in Visual C++.NET.
+to work around what appears to be a compiler bug in Visual C++.
 
 Good luck!
 

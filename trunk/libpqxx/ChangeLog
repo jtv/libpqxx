@@ -1,3 +1,6 @@
+2003-02-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection.h, src/connection.cxx:
+  - Removed default constructor completely
 2003-02-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection.h, src/connection.cxx, test/test43.cxx:
   - #include <memory>
