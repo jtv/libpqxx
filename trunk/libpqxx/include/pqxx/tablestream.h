@@ -25,8 +25,7 @@
 namespace pqxx
 {
 
-// TODO: Async access to help hide network latencies
-// TODO: Binary COPY
+// TODO: Non-blocking access to help hide network latencies
 
 class TransactionItf;
 
