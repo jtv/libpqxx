@@ -76,7 +76,7 @@ script, or it will fail with a message like:
 
 configure: error: PostgreSQL configuration script was not found
 
-Of if you don't want to have pg_config in your path for whatever reason, or you
+Or if you don't want to have pg_config in your path for whatever reason, or you
 have multiple PostgreSQL installations on your system (each with their own copy
 of pg_config, naturally) and wish to override the default version, add an option
 like
@@ -97,6 +97,12 @@ working on).
 The configure scripts supports many other options to tweak how and where libpqxx
 is to be built and installed; try the --help option to get an overview if you're
 interested.
+
+If configuration just absolutely plain won't work for whatever reason: take a
+look in the config/sample-headers/ directory.  Here you will find configuration
+headers for various compilers and libpq versions.  Pick the config-internal-*.h
+and config-public-*.h headers for the compiler and libpq version most closely
+matching your own, and see if they work for you.
 
 
 2. Make
@@ -385,6 +391,15 @@ done using the options
 while linking.  Note that both libraries must be in your link path, so the 
 linker knows where to find them; any dynamic libraries you use must also be in
 a place where the loader can find them when loading your program at runtime.
+
+Some users have reported problems using the above syntax, however, particularly
+when multiple versions of libpqxx are partially or incorrectly installed on the
+system.  If you get massive link errors, try removing the "-lpqxx" argument from
+the command line and replacing it with the name of the libpqxx library binary
+(typically libpqxx.a, but you'll have to add the path to its location as well,
+e.g. /usr/local/pqxx/lib/libpqxx.a) instead.  This will ensure that the linker
+will use that exact version of the library rather than one found elsewhere on
+the system.
 
 
 APPENDIX A - Links
