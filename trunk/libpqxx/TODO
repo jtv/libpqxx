@@ -1,11 +1,7 @@
-Documentation
-(*) Compile to HTML
-
 Error handling
-(*) Check for unexpectedly open/closed transactions (appears to be possible)
+(*) Check whether transaction still open (consistency with backend)
 
 General
-(*) Turn regression test into a script
 (*) README & build instructions
 (*) Get object files into obj/ directory
 
@@ -16,7 +12,7 @@ Porting
 
 Results
 (*) Allow querying of field types
-(*) Allow direct mapping onto structs, using member ref template args (?)
+(*) Allow direct mapping onto structs, using member ptr template args (?)
 
 Streams
 (*) Provide metadata information in TableStream

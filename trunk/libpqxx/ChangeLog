@@ -1,3 +1,18 @@
+2002-04-02 01:45  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ TableWriter:
+  - Wrapped back_insert_iterator specialization in namespace PGSTD { ... }
+ Test1, Test2, Test4, Test7, Test10, Test14, Test15, Test16, Test17, Test19:
+  - Made argc anonymous to silence "unused parameter" warnings
+ TransactionItf:
+  - Begin() now calls End() on failure (thanks Clinton James for bug report)
+  - End() now ignores redundant invocations
+  - Destructor checks that End() has been called
+  - Added empty throw specification to End()
+2002-04-01 01:45  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ Configure:
+  - More help from John Anderson
+ TableWriter:
+  - Enclosed std::back_insert_iterator specialization in namespace PGSTD
 2002-03-31 01:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
  All:
   - Integrated John Anderson's autoconf/automake files and Ray Dassen's fixes
