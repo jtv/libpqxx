@@ -8,4 +8,6 @@ config.status
 configure
 configure-stamp
 libtool
-
+install-sh
+missing
+mkinstalldirs
