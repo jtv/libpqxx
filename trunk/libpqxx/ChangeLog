@@ -1,3 +1,25 @@
+2002-05-27 22:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ Makefile.am:
+  - Removed autom4te.cache from MAINTAINERCLEANFILES (won't work for dirs)
+ include/pqxx/connection.h:
+  - Renamed Transactor::TRANSACTIONTYPE to argument_type
+  - Made RemoveTrigger take non-const argument
+ include/pqxx/result.h:
+  - Fixed documentation comment
+ include/pqxx/tablewriter.h:
+  - Rewrote ezinekoT() to make more use of STL
+  - Low-level optimizations
+ include/pqxx/transactor.h, test/test(1[357]|[467]).cxx, doc/libpqxx.sgml:
+  - Renamed Transactor::TRANSACTIONTYPE to argument_type
+ include/pqxx/util.h:
+  - Rewrote Quote() to make more use of STL
+ src/connection.cxx:
+  - Rewrote RemoveTrigger() to make more use of STL
+ test/test5.cxx:
+  - Added row with empty field to test data set
+2002-05-20 15:15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/transactor.h:
+  - Made adaptable (argument_type etc. typedefs)
 2002-05-20 05:45  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac:
   - Moved config.h.in into include/pqxx

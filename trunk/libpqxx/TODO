@@ -1,7 +1,7 @@
 Build
-(*) Find solution to libpq-fe.h problem
-(*) Get object files into obj/ directory, library binary into lib/
 (*) Get "make install" to actually install headers
+(*) Look at a-a-t.org for alternative build system
+(*) Get object files into obj/ directory, library binary into lib/
 (*) Finalize license
 
 Check
@@ -24,6 +24,9 @@ Streams
 (*) Provide metadata information in TableStream
 (*) Work streamable (and prefetching!) result sets into Stream hierarchy
 (*) Refactor, adding streams that return 1 tuple at a time
+
+Transactors
+(*) Fix "nested typedefs" situation
 
 Triggers
 (*) Allow access to Connection's triggers list?
