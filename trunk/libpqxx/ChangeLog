@@ -1,3 +1,6 @@
+2005-01-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Workaround for BSD grep which doesn't support "-f -"
 2005-01-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cursor.h:
   - Fixed typo in Sun compiler workaround, thanks mark@markround.com
