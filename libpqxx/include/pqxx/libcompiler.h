@@ -17,6 +17,28 @@
 #ifndef PQXX_LIBCOMPILER_H
 #define PQXX_LIBCOMPILER_H
 
+#ifdef _MSC_VER
+
+// TODO: Restrict this to compiler versions known to be affected
+/* Work around a particularly pernicious and deliberate bug in Visual C++:
+ * min() and max() are defined as macros, which can have some very nasty
+ * consequences.  This compiler bug can be switched off by defining NOMINMAX.
+ *
+ * We don't like making choices for the user and defining environmental macros
+ * of our own accord, but in this case it's the only way to compile without
+ * incurring a significant risk of bugs--and there doesn't appear to be any
+ * downside.  One wonders why this compiler wart is being maintained at all,
+ * since the introduction of inline functions back in the 20th century.
+ */
+#if defined(min) || defined(max)
+#error "Oops: min() and/or max() are defined as preprocessor macros.\
+  Define NOMINMAX macro before including any system headers!"
+#endif
+#define NOMINMAX
+
+#endif
+
+
 // Workarounds & definitions that need to be included even in library's headers
 #include "pqxx/config-public-compiler.h"
 
@@ -119,23 +141,6 @@ template<> struct char_traits<unsigned char>
 #if !defined(PQXX_LIBEXPORT) && !defined(_LIB)
 #define PQXX_LIBEXPORT __declspec(dllimport)
 #endif	// PQXX_LIBEXPORT _LIB
-
-// TODO: Restrict this to compiler versions known to be affected
-/* Work around a particularly pernicious and deliberate bug in Visual C++:
- * min() and max() are defined as macros, which can have some very nasty
- * consequences.  This compiler bug can be switched off by defining NOMINMAX.
- *
- * We don't like making choices for the user and defining environmental macros
- * of our own accord, but in this case it's the only way to compile without
- * incurring a significant risk of bugs--and there doesn't appear to be any
- * downside.  One wonders why this compiler wart is being maintained at all,
- * since the introduction of inline functions back in the 20th century.
- */
-#if defined(min) || defined(max)
-#error "Oops: min() and/or max() are defined as preprocessor macros.\
-  Define NOMINMAX macro before including any system headers!"
-#endif
-#define NOMINMAX
 
 /// Apparently Visual C++.NET 2003 breaks on stdout/stderr output in destructors
 /** Defining this macro will disable all error or warning messages whenever a
