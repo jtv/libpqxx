@@ -221,7 +221,7 @@ void pqxx::RobustTransaction::DeleteTransactionRecord(IDType ID) throw ()
 
     DirectExec(Del.c_str(), 20, 0);
 
-    // Now that we've arrived here, we're sure that record is quite dead.
+    // Now that we've arrived here, we're almost sure that record is quite dead.
     ID = pqxxInvalidOid;
   }
   catch (const exception &e)

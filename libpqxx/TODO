@@ -1,20 +1,17 @@
-Connection
-(*) Add activate/deactivate methods (throw when in transaction)
-
 Check
 (*) Move "check" postgres parameters into configure.ac
+(*) Test 19 fails when reading rows backwards: expects 1 row, gets 0
 
 Porting
-(*) Make TableStream classes respect DIALECT
+(*) Make all SQL respect DIALECT
 (*) Hide DBMS-specific connect string
-(*) Port to mySQL etc., then refactor to separate front/back interfaces
 
 Results
 (*) Allow querying of field types
 (*) Allow direct mapping onto structs, using member ptr template args (?)
+(*) Conceive metadata model
 
 RobustTransaction
-(*) Document transaction log tables so they can be pre-created by DBA
 (*) User schema support for log table
 
 Streams
