@@ -36,7 +36,7 @@ public:
 
     // Overwrite terminating zero
     largeobjectaccess::size_type Here = A.seek(-1, ios::cur);
-    if (Here != Contents.size()-1)
+    if (Here != largeobjectaccess::size_type(Contents.size()-1))
       throw logic_error("Expected to move back 1 byte to " + 
 	                ToString(Contents.size()-1) + ", "
 			"ended up at " + ToString(Here));
@@ -44,7 +44,7 @@ public:
     
     // Now check that we really did
     A.seek(-1, ios::cur);
-    if (Here != Contents.size()-1)
+    if (Here != largeobjectaccess::size_type(Contents.size()-1))
       throw logic_error("Inconsistent seek: ended up at " + ToString(Here));
 
     char Check;

@@ -23,7 +23,7 @@ int main(int, char *argv[])
 {
   try
   {
-    const string TestStr = "Nasty\n\030Test\n\t String\r\0 With Trailer";
+    const string TestStr = "Nasty\n\030Test\n\t String\r\0 With Trailer\\\\\0";
 
     connection C(argv[1]);
     work T(C, "test62");

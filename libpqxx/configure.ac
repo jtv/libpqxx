@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 2.0.0, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 2.0.1, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 2.0.0)
+AM_INIT_AUTOMAKE(libpqxx, 2.0.1)
 
 # Library version numbering - see "info libtool versioning 'libtool
 # versioning'" for details.
@@ -119,6 +119,13 @@ AC_TRY_COMPILE([#warning cpp supports warning directive], [], AC_DEFINE(PQXX_HAV
 cpp_warning=no)
 AC_MSG_RESULT($cpp_warning)
 
+AC_MSG_CHECKING(["warning" preprocessor pragma])
+cpp_pragma_warning=yes
+AC_TRY_COMPILE([#pragma warning("cpp supports warning pragma")], [], AC_DEFINE(PQXX_HAVE_CPP_PRAGMA_WARNING, 1,
+[Define if preprocessor supports pragma "warning"]),
+cpp_pragma_warning=no)
+AC_MSG_RESULT($cpp_pragma_warning)
+
 AC_LANG_POP(C++)
 
 # Where are the postgres includes...
@@ -232,6 +239,19 @@ AC_TRY_COMPILE(
 	,select_h=no
 )
 AC_MSG_RESULT($select_h)
+
+AC_MSG_CHECKING([if select() accepts NULL fdsets])
+select_accepts_null=yes
+AC_TRY_COMPILE(
+	[#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>],
+	[fd_set s;FD_ZERO(&s);FD_SET(1,&s);return select(2,NULL,&s,&s,NULL)<=0],
+	AC_DEFINE(PQXX_SELECT_ACCEPTS_NULL,1,
+[Define if select() accepts NULL fd_set arguments]),
+	select_accepts_null=no
+)
+AC_MSG_RESULT($select_accepts_null)
 
 AC_MSG_CHECKING([InvalidOid])
 AH_TEMPLATE(InvalidOid,[Do we have InvalidOid definition?])

@@ -1,6 +1,32 @@
+2003-11-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Added check for #pragma warning("...")
+  - See if select() accepts NULL fd_set arguments
+ include/pqxx/config.h.in, include/pqxx/libconfig.h.in:
+  - Moved <sys/select.h> check to public configuration file
+ include/pqxx/connection.hxx, include/pqxx/connection_base.hxx:
+  - New overridables startconnect(), completeconnect(), dropconnect()
+  - New class asyncconnection
+  - Getters/setters only require a PQconn, not a working connection
+  - Made is_open() more strict
+  - New function halfconnect(): ensure just that there is a valid PQconn
+ include/pqxx/util.h:
+  - Issue #pragma warning if #warning not available
+ src/connection.cxx, src/connection_base.cxx:
+  - Connect() while already connected is no longer an error
+  - New class asyncconnection
+ test/test001.cxx:
+  - Check for nonempty result
+ test/test004.cxx, test/test023.cxx:
+  - No longer include <pqxx/compiler.h>
+ test/test058.cxx:
+  - Quenched some comparison sign warnings
+ test/test063.cxx
+  - New
+  - Tests asyncconnection
 2003-10-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac, include/pqxx/config.h.in:
-  - Check for PQescapeBytea() and PQunescapeBytea() (thanks Costin)
+  - Check for PQescapeBytea() and PQunescapeBytea() (thanks Costin Musteata)
  Doxyfile:
   - Removed obsolete doxygen parameters
  src/binarystring.cxx:

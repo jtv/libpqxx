@@ -45,8 +45,8 @@ pqxx::binarystring::binarystring(const result::field &F) :
 
 #else
 
-  string result;
-  for (int i=0; i<F.size(); ++i)
+  m_str.reserve(F.size());
+  for (result::field::size_type i=0; i<F.size(); ++i)
   {
     unsigned char c = p[i];
     if (c == '\\')
@@ -58,15 +58,15 @@ pqxx::binarystring::binarystring(const result::field &F) :
 	i += 2;
       }
     }
-    result += char(c);
+    m_str += char(c);
   }
 
-  m_size = result.size();
-  char *buf = malloc(m_size+1);
+  m_size = m_str.size();
+  void *buf = malloc(m_size+1);
   if (!buf)
     throw bad_alloc();
-  super::operator=(buf);
-  strcpy(buf, result.c_str());
+  super::operator=(static_cast<unsigned char *>(buf));
+  strcpy(static_cast<char *>(buf), m_str.c_str());
 
 #endif
 }
@@ -104,7 +104,8 @@ string pqxx::escape_binary(const unsigned char bin[], size_t len)
   return string(cstr, escapedlen-1);
 #else
   string result;
-  for (int i=0; i<len; ++i)
+  result.reserve(len);
+  for (size_t i=0; i<len; ++i)
   {
     if (bin[i] & 0x80)
     {

@@ -1,7 +1,9 @@
+2.0.1
+ - Asynchronous connections
 2.0.0
  - New stable release!
  - Includes all changes since 1.5 release.
- - Bunch of workarounds for Microsoft Visual C++ 7 problems.  Thanks Costin!
+ - Workarounds for Microsoft Visual C++ 7 problems.  Thanks Costin Musteata!
  - No longer need to define PQXX_NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
  - Integrated Windows configuration into regular configuration
  - Only uses #warning if preprocessor supports it

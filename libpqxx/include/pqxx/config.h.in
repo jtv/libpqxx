@@ -78,6 +78,9 @@
 /* Define if function overloading using "using" breaks */
 #undef PQXX_BROKEN_USING_DECL
 
+/* Define if preprocessor supports pragma "warning" */
+#undef PQXX_HAVE_CPP_PRAGMA_WARNING
+
 /* Define if preprocessor supports nonstandard "warning" directive */
 #undef PQXX_HAVE_CPP_WARNING
 
@@ -105,6 +108,9 @@
 /* Define if the sys/select.h header defines a working select() and friends,
    as per POSIX 1003.1-2001 */
 #undef PQXX_HAVE_SYS_SELECT_H
+
+/* Define if select() accepts NULL fd_set arguments */
+#undef PQXX_SELECT_ACCEPTS_NULL
 
 /* Do we have a PQescapeBytea function? */
 #undef PQescapeBytea

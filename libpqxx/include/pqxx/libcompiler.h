@@ -66,10 +66,12 @@ template<> struct char_traits<char>
 #error If you're using Visual C++, you'll need at least version 7 (VC.NET)
 #endif	// _MSC_VER < 1300
 
-// Workarounds for Visual C++.NET
+// Workarounds for Visual C++.NET (2003 version does seem to work)
+#if _MSC_VER < 1310
 #define PQXX_WORKAROUND_VC7
 #define PQXX_NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
 #define PQXX_TYPENAME
+#endif	// _MSC_VER < 1310
 #pragma warning (disable: 4290)
 #pragma warning (disable: 4786)
 #pragma warning (disable: 4251 4275 4273)
