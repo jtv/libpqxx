@@ -87,7 +87,7 @@ LINK32_FLAGS=kernel32.lib wsock32.lib user32.lib gdi32.lib winspool.lib \\
 	/out:"\$(OUTFILE).dll" /implib:"\$(OUTFILE).lib" \\
 	\$(LINK32_FLAG_EXTRA) \$(LIBPATH)
 
-LIB32=link.exe -lb
+LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"\$(OUTFILE).lib"
 
 LINK32_OBJS= \$(LINK32_OBJ_EXTRA) \\
