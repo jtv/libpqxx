@@ -1,7 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT([libpqxx],[0.1],[Jeroen T. Vermeulen <jtv@xs4all.nl>])
-AM_INIT_AUTOMAKE(libpqxx, 0.1)
+AC_INIT(libpqxx, 0.2, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_CONFIG_AUX_DIR(config)
+AM_INIT_AUTOMAKE(libpqxx, 0.2)
 AC_CONFIG_SRCDIR([src/connection.cxx])
 AM_CONFIG_HEADER(config.h)
 
@@ -29,8 +30,9 @@ AC_TRY_COMPILE(
 )
 AC_MSG_RESULT($std)
 
+AM_MAINTAINER_MODE
+
 # see if we want verbose compiler warnings
-# TODO: Don't we invoke AM_MAINTAINER_MODE?
 AC_MSG_CHECKING([maintainer mode])
 AC_ARG_ENABLE(maintainer-mode,
 	AC_HELP_STRING(
@@ -200,5 +202,6 @@ AC_CHECK_TYPES([ptrdiff_t])
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset])
 
-AC_CONFIG_FILES([Makefile doc/Makefile src/Makefile test/Makefile include/Makefile])
+AC_CONFIG_FILES([Makefile config/Makefile doc/Makefile src/Makefile test/Makefile include/Makefile])
 AC_OUTPUT
+

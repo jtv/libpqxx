@@ -1,1 +1,1 @@
-SUBDIRS = src test include
+SUBDIRS = config doc include src test
