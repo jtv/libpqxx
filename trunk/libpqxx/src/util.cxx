@@ -81,6 +81,7 @@ void pqxx::FromString_bool(const char Str[], bool &Obj)
     OK = !(Str[1] &&
 	   (strcmp(Str+1, "rue") != 0) &&
 	   (strcmp(Str+1, "RUE") != 0));
+    break;
 
   default:
     OK = false;

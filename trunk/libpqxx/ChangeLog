@@ -3,6 +3,8 @@
   - Warning about syntax errors
  src/pipeline.cxx:
   - Better handling of awkward error situations
+ src/util.cxx:
+  - Fixed bool conversion (missing break), thanks Roger Leigh!
  test/test072.cxx:
   - Tests runtime error rather than SQL syntax error
   - Succeeds now
