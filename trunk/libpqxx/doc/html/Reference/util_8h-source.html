@@ -36,65 +36,65 @@
 00028 
 00029 <span class="keyword">namespace </span>pqxx
 00030 {
-<a name="l00031"></a><a class="code" href="namespacepqxx.html#a1">00031</a> <span class="keyword">typedef</span> <span class="keywordtype">long</span> <a class="code" href="namespacepqxx.html#a1">Result_size_type</a>;
-<a name="l00032"></a><a class="code" href="namespacepqxx.html#a2">00032</a> <span class="keyword">typedef</span> <span class="keywordtype">int</span> <a class="code" href="namespacepqxx.html#a2">Tuple_size_type</a>;
+<a name="l00031"></a><a class="code" href="namespacepqxx.html#a4">00031</a> <span class="keyword">typedef</span> <span class="keywordtype">long</span> <a class="code" href="namespacepqxx.html#a4">Result_size_type</a>;
+<a name="l00032"></a><a class="code" href="namespacepqxx.html#a5">00032</a> <span class="keyword">typedef</span> <span class="keywordtype">int</span> <a class="code" href="namespacepqxx.html#a5">Tuple_size_type</a>;
 00033 
-00036 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a6">FmtString</a>(T);
+00036 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a9">FmtString</a>(T);
 00037 
 00038 <span class="comment">// Not implemented to prevent accidents with irregular meaning of argument:</span>
 00039 <span class="comment">// template&lt;&gt; inline const char *FmtString(const char *&amp;) { return "%s"; }</span>
 00040 
-<a name="l00041"></a><a class="code" href="namespacepqxx.html#a7">00041</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a6">FmtString</a>(<span class="keywordtype">int</span>)           { <span class="keywordflow">return</span>  <span class="stringliteral">"%i"</span>; }
-<a name="l00042"></a><a class="code" href="namespacepqxx.html#a8">00042</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a6">FmtString</a>(<span class="keywordtype">long</span>)          { <span class="keywordflow">return</span> <span class="stringliteral">"%li"</span>; }
-<a name="l00043"></a><a class="code" href="namespacepqxx.html#a9">00043</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a6">FmtString</a>(<span class="keywordtype">unsigned</span>)      { <span class="keywordflow">return</span>  <span class="stringliteral">"%u"</span>; }
-00044 <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a6">FmtString</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span>) { <span class="keywordflow">return</span> <span class="stringliteral">"%lu"</span>; }
-<a name="l00045"></a><a class="code" href="namespacepqxx.html#a10">00045</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a6">FmtString</a>(<span class="keywordtype">float</span>)         { <span class="keywordflow">return</span>  <span class="stringliteral">"%f"</span>; }
-<a name="l00046"></a><a class="code" href="namespacepqxx.html#a11">00046</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a6">FmtString</a>(<span class="keywordtype">double</span>)        { <span class="keywordflow">return</span> <span class="stringliteral">"%lf"</span>; }
-00047 <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a6">FmtString</a>(<span class="keywordtype">long</span> <span class="keywordtype">double</span>)   { <span class="keywordflow">return</span> <span class="stringliteral">"%Lf"</span>; }
-<a name="l00048"></a><a class="code" href="namespacepqxx.html#a12">00048</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a6">FmtString</a>(<span class="keywordtype">char</span>)          { <span class="keywordflow">return</span>  <span class="stringliteral">"%c"</span>; }
-00049 <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a6">FmtString</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">char</span>) { <span class="keywordflow">return</span>  <span class="stringliteral">"%c"</span>; }
+<a name="l00041"></a><a class="code" href="namespacepqxx.html#a10">00041</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a9">FmtString</a>(<span class="keywordtype">int</span>)           { <span class="keywordflow">return</span>  <span class="stringliteral">"%i"</span>; }
+<a name="l00042"></a><a class="code" href="namespacepqxx.html#a11">00042</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a9">FmtString</a>(<span class="keywordtype">long</span>)          { <span class="keywordflow">return</span> <span class="stringliteral">"%li"</span>; }
+<a name="l00043"></a><a class="code" href="namespacepqxx.html#a12">00043</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a9">FmtString</a>(<span class="keywordtype">unsigned</span>)      { <span class="keywordflow">return</span>  <span class="stringliteral">"%u"</span>; }
+00044 <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a9">FmtString</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span>) { <span class="keywordflow">return</span> <span class="stringliteral">"%lu"</span>; }
+<a name="l00045"></a><a class="code" href="namespacepqxx.html#a13">00045</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a9">FmtString</a>(<span class="keywordtype">float</span>)         { <span class="keywordflow">return</span>  <span class="stringliteral">"%f"</span>; }
+<a name="l00046"></a><a class="code" href="namespacepqxx.html#a14">00046</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a9">FmtString</a>(<span class="keywordtype">double</span>)        { <span class="keywordflow">return</span> <span class="stringliteral">"%lf"</span>; }
+00047 <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a9">FmtString</a>(<span class="keywordtype">long</span> <span class="keywordtype">double</span>)   { <span class="keywordflow">return</span> <span class="stringliteral">"%Lf"</span>; }
+<a name="l00048"></a><a class="code" href="namespacepqxx.html#a15">00048</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a9">FmtString</a>(<span class="keywordtype">char</span>)          { <span class="keywordflow">return</span>  <span class="stringliteral">"%c"</span>; }
+00049 <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="namespacepqxx.html#a9">FmtString</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">char</span>) { <span class="keywordflow">return</span>  <span class="stringliteral">"%c"</span>; }
 00050 
 00051 
-<a name="l00053"></a><a class="code" href="namespacepqxx.html#a13">00053</a> <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a13">ToString</a>(<span class="keyword">const</span> T &amp;Obj)
+<a name="l00053"></a><a class="code" href="namespacepqxx.html#a16">00053</a> <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a16">ToString</a>(<span class="keyword">const</span> T &amp;Obj)
 00054 {
 00055   <span class="comment">// TODO: Find a decent way to determine max string length at compile time!</span>
 00056   <span class="keywordtype">char</span> Buf[500];
-00057   sprintf(Buf, <a class="code" href="namespacepqxx.html#a6">FmtString</a>(Obj), Obj);
+00057   sprintf(Buf, <a class="code" href="namespacepqxx.html#a9">FmtString</a>(Obj), Obj);
 00058   <span class="keywordflow">return</span> PGSTD::string(Buf);
 00059 }
 00060 
-<a name="l00061"></a><a class="code" href="namespacepqxx.html#a14">00061</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a13">ToString</a>(<span class="keyword">const</span> PGSTD::string &amp;Obj) {<span class="keywordflow">return</span> Obj;}
-<a name="l00062"></a><a class="code" href="namespacepqxx.html#a15">00062</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a13">ToString</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *<span class="keyword">const</span> &amp;Obj) { <span class="keywordflow">return</span> Obj; }
+<a name="l00061"></a><a class="code" href="namespacepqxx.html#a17">00061</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a16">ToString</a>(<span class="keyword">const</span> PGSTD::string &amp;Obj) {<span class="keywordflow">return</span> Obj;}
+<a name="l00062"></a><a class="code" href="namespacepqxx.html#a18">00062</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a16">ToString</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *<span class="keyword">const</span> &amp;Obj) { <span class="keywordflow">return</span> Obj; }
 00063 
-<a name="l00064"></a><a class="code" href="namespacepqxx.html#a16">00064</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a13">ToString</a>(<span class="keyword">const</span> <span class="keywordtype">bool</span> &amp;Obj) 
+<a name="l00064"></a><a class="code" href="namespacepqxx.html#a19">00064</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a16">ToString</a>(<span class="keyword">const</span> <span class="keywordtype">bool</span> &amp;Obj) 
 00065 { 
-00066   <span class="keywordflow">return</span> <a class="code" href="namespacepqxx.html#a13">ToString</a>(<span class="keywordtype">unsigned</span>(Obj));
+00066   <span class="keywordflow">return</span> <a class="code" href="namespacepqxx.html#a16">ToString</a>(<span class="keywordtype">unsigned</span>(Obj));
 00067 }
 00068 
-<a name="l00069"></a><a class="code" href="namespacepqxx.html#a17">00069</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a13">ToString</a>(<span class="keyword">const</span> <span class="keywordtype">short</span> &amp;Obj)
+<a name="l00069"></a><a class="code" href="namespacepqxx.html#a20">00069</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a16">ToString</a>(<span class="keyword">const</span> <span class="keywordtype">short</span> &amp;Obj)
 00070 {
-00071   <span class="keywordflow">return</span> <a class="code" href="namespacepqxx.html#a13">ToString</a>(<span class="keywordtype">int</span>(Obj));
+00071   <span class="keywordflow">return</span> <a class="code" href="namespacepqxx.html#a16">ToString</a>(<span class="keywordtype">int</span>(Obj));
 00072 }
 00073 
-<a name="l00074"></a><a class="code" href="namespacepqxx.html#a18">00074</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a13">ToString</a>(<span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> &amp;Obj)
+<a name="l00074"></a><a class="code" href="namespacepqxx.html#a21">00074</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a16">ToString</a>(<span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> &amp;Obj)
 00075 {
-00076   <span class="keywordflow">return</span> <a class="code" href="namespacepqxx.html#a13">ToString</a>(<span class="keywordtype">unsigned</span>(Obj));
+00076   <span class="keywordflow">return</span> <a class="code" href="namespacepqxx.html#a16">ToString</a>(<span class="keywordtype">unsigned</span>(Obj));
 00077 }
 00078 
 00079 
-<a name="l00080"></a><a class="code" href="namespacepqxx.html#a19">00080</a> <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="namespacepqxx.html#a19">FromString</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> Str[], T &amp;Obj)
+<a name="l00080"></a><a class="code" href="namespacepqxx.html#a22">00080</a> <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="namespacepqxx.html#a22">FromString</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> Str[], T &amp;Obj)
 00081 {
 00082   <span class="keywordflow">if</span> (!Str) <span class="keywordflow">throw</span> PGSTD::runtime_error(<span class="stringliteral">"Attempt to convert NULL string to "</span> +
 00083                                      PGSTD::string(<span class="keyword">typeid</span>(T).name()));
 00084 
-00085   <span class="keywordflow">if</span> (sscanf(Str, <a class="code" href="namespacepqxx.html#a6">FmtString</a>(Obj), &amp;Obj) != 1)
+00085   <span class="keywordflow">if</span> (sscanf(Str, <a class="code" href="namespacepqxx.html#a9">FmtString</a>(Obj), &amp;Obj) != 1)
 00086     <span class="keywordflow">throw</span> PGSTD::runtime_error(<span class="stringliteral">"Cannot convert value '"</span> + 
 00087                              PGSTD::string(Str) + 
 00088                              <span class="stringliteral">"' to "</span> + <span class="keyword">typeid</span>(T).name());
 00089 }
 00090 
 00091 
-<a name="l00092"></a><a class="code" href="namespacepqxx.html#a20">00092</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="namespacepqxx.html#a19">FromString</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> Str[], PGSTD::string &amp;Obj)
+<a name="l00092"></a><a class="code" href="namespacepqxx.html#a23">00092</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="namespacepqxx.html#a22">FromString</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> Str[], PGSTD::string &amp;Obj)
 00093 {
 00094   <span class="keywordflow">if</span> (!Str) 
 00095     <span class="keywordflow">throw</span> PGSTD::runtime_error(<span class="stringliteral">"Attempt to convert NULL C string to C++ "</span>
@@ -103,14 +103,14 @@
 00098 }
 00099 
 00100 
-<a name="l00101"></a><a class="code" href="namespacepqxx.html#a21">00101</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="namespacepqxx.html#a19">FromString</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> Str[], <span class="keyword">const</span> <span class="keywordtype">char</span> *&amp;Obj)
+<a name="l00101"></a><a class="code" href="namespacepqxx.html#a24">00101</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="namespacepqxx.html#a22">FromString</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> Str[], <span class="keyword">const</span> <span class="keywordtype">char</span> *&amp;Obj)
 00102 {
 00103   <span class="keywordflow">if</span> (!Str)
 00104     <span class="keywordflow">throw</span> PGSTD::runtime_error(<span class="stringliteral">"Attempt to read NULL string"</span>);
 00105   Obj = Str;
 00106 }
 00107 
-<a name="l00108"></a><a class="code" href="namespacepqxx.html#a22">00108</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="namespacepqxx.html#a19">FromString</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> Str[], <span class="keywordtype">bool</span> &amp;Obj)
+<a name="l00108"></a><a class="code" href="namespacepqxx.html#a25">00108</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="namespacepqxx.html#a22">FromString</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> Str[], <span class="keywordtype">bool</span> &amp;Obj)
 00109 {
 00110   <span class="keywordflow">if</span> (!Str)
 00111     <span class="keywordflow">throw</span> PGSTD::runtime_error(<span class="stringliteral">"Attempt to read NULL string"</span>);
@@ -124,7 +124,7 @@
 00119   <span class="keywordflow">case</span> <span class="charliteral">'0'</span>:
 00120     {
 00121       <span class="keywordtype">int</span> I;
-00122       <a class="code" href="namespacepqxx.html#a19">FromString</a>(Str, I);
+00122       <a class="code" href="namespacepqxx.html#a22">FromString</a>(Str, I);
 00123       Obj = (I != 0);
 00124     }
 00125     <span class="keywordflow">break</span>;
@@ -134,10 +134,10 @@
 00129 }
 00130 
 00131 
-00134 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; PGSTD::string <a class="code" href="namespacepqxx.html#a23">Quote</a>(<span class="keyword">const</span> T &amp;Obj, <span class="keywordtype">bool</span> EmptyIsNull=<span class="keyword">false</span>);
+00134 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; PGSTD::string <a class="code" href="namespacepqxx.html#a26">Quote</a>(<span class="keyword">const</span> T &amp;Obj, <span class="keywordtype">bool</span> EmptyIsNull=<span class="keyword">false</span>);
 00135 
 00136 
-<a name="l00138"></a><a class="code" href="namespacepqxx.html#a24">00138</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a23">Quote</a>(<span class="keyword">const</span> PGSTD::string &amp;Obj, 
+<a name="l00138"></a><a class="code" href="namespacepqxx.html#a27">00138</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a26">Quote</a>(<span class="keyword">const</span> PGSTD::string &amp;Obj, 
 00139                                       <span class="keywordtype">bool</span> EmptyIsNull)
 00140 {
 00141   <span class="keywordflow">if</span> (EmptyIsNull &amp;&amp; Obj.empty()) <span class="keywordflow">return</span> <span class="stringliteral">"null"</span>;
@@ -191,22 +191,22 @@
 00189 }
 00190 
 00191 
-<a name="l00194"></a><a class="code" href="namespacepqxx.html#a25">00194</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a23">Quote</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *<span class="keyword">const</span> &amp; Obj, 
+<a name="l00194"></a><a class="code" href="namespacepqxx.html#a28">00194</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a26">Quote</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *<span class="keyword">const</span> &amp; Obj, 
 00195                                       <span class="keywordtype">bool</span> EmptyIsNull)
 00196 {
 00197   <span class="keywordflow">if</span> (!Obj) <span class="keywordflow">return</span> <span class="stringliteral">"null"</span>;
-00198   <span class="keywordflow">return</span> <a class="code" href="namespacepqxx.html#a23">Quote</a>(PGSTD::string(Obj), EmptyIsNull);
+00198   <span class="keywordflow">return</span> <a class="code" href="namespacepqxx.html#a26">Quote</a>(PGSTD::string(Obj), EmptyIsNull);
 00199 }
 00200 
 00201 
-<a name="l00205"></a><a class="code" href="namespacepqxx.html#a23">00205</a> <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a23">Quote</a>(<span class="keyword">const</span> T &amp;Obj, <span class="keywordtype">bool</span> EmptyIsNull)
+<a name="l00205"></a><a class="code" href="namespacepqxx.html#a26">00205</a> <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a26">Quote</a>(<span class="keyword">const</span> T &amp;Obj, <span class="keywordtype">bool</span> EmptyIsNull)
 00206 {
-00207   <span class="keywordflow">return</span> <a class="code" href="namespacepqxx.html#a23">Quote</a>(<a class="code" href="namespacepqxx.html#a13">ToString</a>(Obj), EmptyIsNull);
+00207   <span class="keywordflow">return</span> <a class="code" href="namespacepqxx.html#a26">Quote</a>(<a class="code" href="namespacepqxx.html#a16">ToString</a>(Obj), EmptyIsNull);
 00208 }
 00209 
 00210 
 00211 
-00213 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; PGSTD::string <a class="code" href="namespacepqxx.html#a3">Classname</a>(<span class="keyword">const</span> T *);
+00213 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; PGSTD::string <a class="code" href="namespacepqxx.html#a6">Classname</a>(<span class="keyword">const</span> T *);
 00214 
 00215 
 00221 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> GUEST&gt;
@@ -220,18 +220,18 @@
 <a name="l00229"></a><a class="code" href="classpqxx_1_1Unique.html#a2">00229</a>   <span class="keywordtype">void</span> <a class="code" href="classpqxx_1_1Unique.html#a2">Register</a>(<span class="keyword">const</span> GUEST *G)
 00230   {
 00231     <span class="keywordflow">if</span> (!G) <span class="keywordflow">throw</span> PGSTD::logic_error(<span class="stringliteral">"Internal libpqxx error: NULL "</span> + 
-00232                                      <a class="code" href="namespacepqxx.html#a3">Classname</a>(G));
+00232                                      <a class="code" href="namespacepqxx.html#a6">Classname</a>(G));
 00233     
 00234     <span class="keywordflow">if</span> (m_Guest)
 00235     {
 00236       <span class="keywordflow">if</span> (G == m_Guest)
-00237         <span class="keywordflow">throw</span> PGSTD::logic_error(<a class="code" href="namespacepqxx.html#a3">Classname</a>(G) +
+00237         <span class="keywordflow">throw</span> PGSTD::logic_error(<a class="code" href="namespacepqxx.html#a6">Classname</a>(G) +
 00238                                  <span class="stringliteral">" '"</span> +
 00239                                  G-&gt;Name() +
 00240                                  <span class="stringliteral">"' started more than once without closing"</span>);
 00241 
 00242       <span class="keywordflow">throw</span> PGSTD::logic_error(<span class="stringliteral">"Started "</span> + 
-00243                                <a class="code" href="namespacepqxx.html#a3">Classname</a>(G) +
+00243                                <a class="code" href="namespacepqxx.html#a6">Classname</a>(G) +
 00244                                <span class="stringliteral">" '"</span> + 
 00245                                G-&gt;Name() + 
 00246                                <span class="stringliteral">"' while '"</span> +
@@ -247,16 +247,16 @@
 00256     <span class="keywordflow">if</span> (G != m_Guest)
 00257     {
 00258       <span class="keywordflow">if</span> (!G) 
-00259         <span class="keywordflow">throw</span> PGSTD::logic_error(<span class="stringliteral">"Closing NULL "</span> + <a class="code" href="namespacepqxx.html#a3">Classname</a>(G));
+00259         <span class="keywordflow">throw</span> PGSTD::logic_error(<span class="stringliteral">"Closing NULL "</span> + <a class="code" href="namespacepqxx.html#a6">Classname</a>(G));
 00260       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (!m_Guest)
 00261         <span class="keywordflow">throw</span> PGSTD::logic_error(<span class="stringliteral">"Closing "</span> + 
-00262                                  <a class="code" href="namespacepqxx.html#a3">Classname</a>(G) +
+00262                                  <a class="code" href="namespacepqxx.html#a6">Classname</a>(G) +
 00263                                  <span class="stringliteral">" '"</span> +
 00264                                  G-&gt;Name() +
 00265                                  <span class="stringliteral">"' which wasn't open"</span>);
 00266       <span class="keywordflow">else</span>
 00267         <span class="keywordflow">throw</span> PGSTD::logic_error(<span class="stringliteral">"Closing wrong "</span> + 
-00268                                  <a class="code" href="namespacepqxx.html#a3">Classname</a>(G) +
+00268                                  <a class="code" href="namespacepqxx.html#a6">Classname</a>(G) +
 00269                                  <span class="stringliteral">"; expected '"</span> +
 00270                                  m_Guest-&gt;Name() +
 00271                                  <span class="stringliteral">"' but got '"</span> +
@@ -279,7 +279,7 @@
 00288 
 00289 <span class="preprocessor">#endif</span>
 00290 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Fri Mar 7 21:10:06 2003 for libpqxx by
+</pre></div><hr><address style="align: right;"><small>Generated on Tue Mar 11 12:42:48 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

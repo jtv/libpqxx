@@ -46,7 +46,7 @@
 00045   
 00046   Result &amp;operator=(<span class="keyword">const</span> Result &amp;);                                    <span class="comment">//[t10]</span>
 00047 
-<a name="l00048"></a><a class="code" href="classpqxx_1_1Result.html#s0">00048</a>   <span class="keyword">typedef</span> <a class="code" href="namespacepqxx.html#a1">Result_size_type</a> size_type;
+<a name="l00048"></a><a class="code" href="classpqxx_1_1Result.html#s0">00048</a>   <span class="keyword">typedef</span> <a class="code" href="namespacepqxx.html#a4">Result_size_type</a> size_type;
 00049   <span class="keyword">class </span><a class="code" href="classpqxx_1_1Result_1_1Field.html">Field</a>;
 00050 
 00051   <span class="comment">// TODO: Field iterators</span>
@@ -55,7 +55,7 @@
 <a name="l00062"></a><a class="code" href="classpqxx_1_1Result_1_1Tuple.html">00062</a>   <span class="keyword">class </span>PQXX_LIBEXPORT Tuple
 00063   {
 00064   <span class="keyword">public</span>:
-<a name="l00065"></a><a class="code" href="classpqxx_1_1Result_1_1Tuple.html#s0">00065</a>     <span class="keyword">typedef</span> <a class="code" href="namespacepqxx.html#a2">Tuple_size_type</a> size_type;
+<a name="l00065"></a><a class="code" href="classpqxx_1_1Result_1_1Tuple.html#s0">00065</a>     <span class="keyword">typedef</span> <a class="code" href="namespacepqxx.html#a5">Tuple_size_type</a> size_type;
 <a name="l00066"></a><a class="code" href="classpqxx_1_1Result_1_1Tuple.html#a0">00066</a>     Tuple(<span class="keyword">const</span> Result *r, Result::size_type i) : m_Home(r), m_Index(i) {}
 <a name="l00067"></a><a class="code" href="classpqxx_1_1Result_1_1Tuple.html#a1">00067</a>     ~Tuple() {} <span class="comment">// Yes Scott Meyers, you're absolutely right[1]</span>
 00068 
@@ -101,7 +101,7 @@
 00122 
 00123       <span class="keywordflow">try</span>
 00124       {
-00125         <a class="code" href="namespacepqxx.html#a19">FromString</a>(c_str(), Obj);
+00125         <a class="code" href="namespacepqxx.html#a22">FromString</a>(c_str(), Obj);
 00126       }
 00127       <span class="keywordflow">catch</span> (<span class="keyword">const</span> PGSTD::exception &amp;e)
 00128       {
@@ -188,9 +188,9 @@
 <a name="l00223"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a13">00223</a>     <span class="keywordtype">bool</span> operator&gt;=(<span class="keyword">const</span> const_iterator &amp;i) <span class="keyword">const</span>                      <span class="comment">//[t12]</span>
 00224         {<span class="keywordflow">return</span> m_Index&gt;=i.m_Index;}
 00225 
-00226     <span class="keyword">inline</span> const_iterator <a class="code" href="namespacepqxx.html#a4">operator+</a>(difference_type o) <span class="keyword">const</span>;           <span class="comment">//[t12]</span>
+00226     <span class="keyword">inline</span> const_iterator <a class="code" href="namespacepqxx.html#a7">operator+</a>(difference_type o) <span class="keyword">const</span>;           <span class="comment">//[t12]</span>
 00227 
-00228     <span class="keyword">friend</span> const_iterator <a class="code" href="namespacepqxx.html#a4">operator+</a>(difference_type o, 
+00228     <span class="keyword">friend</span> const_iterator <a class="code" href="namespacepqxx.html#a7">operator+</a>(difference_type o, 
 00229                                     const_iterator i);                  <span class="comment">//[t12]</span>
 00230 
 00231     <span class="keyword">inline</span> const_iterator operator-(difference_type o) <span class="keyword">const</span>;           <span class="comment">//[t12]</span>
@@ -304,7 +304,7 @@
 00346 }
 00347 
 00348 <span class="keyword">inline</span> Result::const_iterator 
-<a name="l00349"></a><a class="code" href="namespacepqxx.html#a4">00349</a> <a class="code" href="namespacepqxx.html#a4">operator+</a>(Result::const_iterator::difference_type o, 
+<a name="l00349"></a><a class="code" href="namespacepqxx.html#a7">00349</a> <a class="code" href="namespacepqxx.html#a7">operator+</a>(Result::const_iterator::difference_type o, 
 00350           <a class="code" href="classpqxx_1_1Result_1_1const__iterator.html">Result::const_iterator</a> i)
 00351 {
 00352   <span class="keywordflow">return</span> i + o;
@@ -360,7 +360,7 @@
 00419 
 00420 <span class="preprocessor">#endif</span>
 00421 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Fri Mar 7 21:10:06 2003 for libpqxx by
+</pre></div><hr><address style="align: right;"><small>Generated on Tue Mar 11 12:42:48 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

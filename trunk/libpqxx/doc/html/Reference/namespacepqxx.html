@@ -11,6 +11,9 @@
 <table border=0 cellpadding=0 cellspacing=0>
 <tr><td></td></tr>
 <tr><td colspan=2><br><h2>Compounds</h2></td></tr>
+<tr><td nowrap align=right valign=top>class &nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1basic__ilostream.html">basic_ilostream</a></td></tr>
+<tr><td nowrap align=right valign=top>class &nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1basic__lostream.html">basic_lostream</a></td></tr>
+<tr><td nowrap align=right valign=top>class &nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1basic__olostream.html">basic_olostream</a></td></tr>
 <tr><td nowrap align=right valign=top>class &nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1broken__connection.html">broken_connection</a></td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Exception class for lost backend connection.</em> <a href="classpqxx_1_1broken__connection.html#_details">More...</a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top>class &nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1CachedResult.html">CachedResult</a></td></tr>
@@ -65,39 +68,86 @@
 <tr><td nowrap align=right valign=top>class &nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1Unique.html">Unique</a></td></tr>
 <tr><td colspan=2><br><h2>Typedefs</h2></td></tr>
 <tr><td nowrap align=right valign=top>typedef void(*&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a0">NoticeProcessor</a> )(void *arg, const char *msg)</td></tr>
-<tr><td nowrap align=right valign=top>typedef long&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a1">Result_size_type</a></td></tr>
-<tr><td nowrap align=right valign=top>typedef int&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a2">Tuple_size_type</a></td></tr>
+<tr><td nowrap align=right valign=top>typedef <a class="el" href="classpqxx_1_1basic__ilostream.html">basic_ilostream</a>&lt; char &gt;&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a1">ilostream</a></td></tr>
+<tr><td nowrap align=right valign=top>typedef <a class="el" href="classpqxx_1_1basic__olostream.html">basic_olostream</a>&lt; char &gt;&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a2">olostream</a></td></tr>
+<tr><td nowrap align=right valign=top>typedef <a class="el" href="classpqxx_1_1basic__lostream.html">basic_lostream</a>&lt; char &gt;&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a3">lostream</a></td></tr>
+<tr><td nowrap align=right valign=top>typedef long&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a4">Result_size_type</a></td></tr>
+<tr><td nowrap align=right valign=top>typedef int&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a5">Tuple_size_type</a></td></tr>
 <tr><td colspan=2><br><h2>Functions</h2></td></tr>
-<tr><td nowrap align=right valign=top>template&lt;&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a3">Classname</a> (const <a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> *)</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Human-readable class names for use by <a class="el" href="classpqxx_1_1Unique.html">Unique</a> template.</em> <a href="#a3"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top><a class="el" href="classpqxx_1_1Result_1_1const__iterator.html">Result::const_iterator</a>&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a4">operator+</a> (Result::const_iterator::difference_type o, <a class="el" href="classpqxx_1_1Result_1_1const__iterator.html">Result::const_iterator</a> i)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a5">Classname</a> (const <a class="el" href="classpqxx_1_1TableStream.html">TableStream</a> *)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;typename T&gt; const char *&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a6">FmtString</a> (T)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;&gt; const char *&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a7">FmtString</a> (int)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;&gt; const char *&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a8">FmtString</a> (long)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;&gt; const char *&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a9">FmtString</a> (unsigned)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;&gt; const char *&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a10">FmtString</a> (float)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;&gt; const char *&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a11">FmtString</a> (double)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;&gt; const char *&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a12">FmtString</a> (char)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;typename T&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a13">ToString</a> (const T &amp;Obj)</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Convert object of built-in type to string.</em> <a href="#a13"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>template&lt;&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a14">ToString</a> (const PGSTD::string &amp;Obj)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a15">ToString</a> (const char *const &amp;Obj)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a16">ToString</a> (const bool &amp;Obj)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a17">ToString</a> (const short &amp;Obj)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a18">ToString</a> (const unsigned short &amp;Obj)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;typename T&gt; void&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a19">FromString</a> (const char Str[], T &amp;Obj)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;&gt; void&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a20">FromString</a> (const char Str[], PGSTD::string &amp;Obj)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;&gt; void&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a21">FromString</a> (const char Str[], const char *&amp;Obj)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;&gt; void&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a22">FromString</a> (const char Str[], bool &amp;Obj)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;typename T&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a23">Quote</a> (const T &amp;Obj, bool EmptyIsNull=false)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a24">Quote</a> (const PGSTD::string &amp;Obj, bool EmptyIsNull)</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>std::string version, on which the other versions are built</em> <a href="#a24"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>template&lt;&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a25">Quote</a> (const char *const &amp;Obj, bool EmptyIsNull)</td></tr>
-<tr><td nowrap align=right valign=top>template&lt;typename T&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a26">Classname</a> (const T *)</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Return user-readable name for a class. Specialize this whereever used.</em> <a href="#a26"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>template&lt;&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a6">Classname</a> (const <a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> *)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Human-readable class names for use by <a class="el" href="classpqxx_1_1Unique.html">Unique</a> template.</em> <a href="#a6"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classpqxx_1_1Result_1_1const__iterator.html">Result::const_iterator</a>&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a7">operator+</a> (Result::const_iterator::difference_type o, <a class="el" href="classpqxx_1_1Result_1_1const__iterator.html">Result::const_iterator</a> i)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a8">Classname</a> (const <a class="el" href="classpqxx_1_1TableStream.html">TableStream</a> *)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;typename T&gt; const char *&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a9">FmtString</a> (T)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;&gt; const char *&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a10">FmtString</a> (int)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;&gt; const char *&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a11">FmtString</a> (long)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;&gt; const char *&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a12">FmtString</a> (unsigned)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;&gt; const char *&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a13">FmtString</a> (float)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;&gt; const char *&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a14">FmtString</a> (double)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;&gt; const char *&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a15">FmtString</a> (char)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;typename T&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a16">ToString</a> (const T &amp;Obj)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Convert object of built-in type to string.</em> <a href="#a16"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>template&lt;&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a17">ToString</a> (const PGSTD::string &amp;Obj)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a18">ToString</a> (const char *const &amp;Obj)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a19">ToString</a> (const bool &amp;Obj)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a20">ToString</a> (const short &amp;Obj)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a21">ToString</a> (const unsigned short &amp;Obj)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;typename T&gt; void&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a22">FromString</a> (const char Str[], T &amp;Obj)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;&gt; void&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a23">FromString</a> (const char Str[], PGSTD::string &amp;Obj)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;&gt; void&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a24">FromString</a> (const char Str[], const char *&amp;Obj)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;&gt; void&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a25">FromString</a> (const char Str[], bool &amp;Obj)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;typename T&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a26">Quote</a> (const T &amp;Obj, bool EmptyIsNull=false)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a27">Quote</a> (const PGSTD::string &amp;Obj, bool EmptyIsNull)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>std::string version, on which the other versions are built</em> <a href="#a27"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>template&lt;&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a28">Quote</a> (const char *const &amp;Obj, bool EmptyIsNull)</td></tr>
+<tr><td nowrap align=right valign=top>template&lt;typename T&gt; PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="namespacepqxx.html#a29">Classname</a> (const T *)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Return user-readable name for a class. Specialize this whereever used.</em> <a href="#a29"></a><em></em></font><br><br></td></tr>
 </table>
 <hr><h2>Typedef Documentation</h2>
+<a name="a1" doxytag="pqxx::ilostream"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> typedef <a class="el" href="classpqxx_1_1basic__ilostream.html">basic_ilostream</a>&lt;char&gt; pqxx::ilostream
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a3" doxytag="pqxx::lostream"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> typedef <a class="el" href="classpqxx_1_1basic__lostream.html">basic_lostream</a>&lt;char&gt; pqxx::lostream
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
 <a name="a0" doxytag="pqxx::NoticeProcessor"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
@@ -121,7 +171,29 @@
     </td>
   </tr>
 </table>
-<a name="a1" doxytag="pqxx::Result_size_type"></a><p>
+<a name="a2" doxytag="pqxx::olostream"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> typedef <a class="el" href="classpqxx_1_1basic__olostream.html">basic_olostream</a>&lt;char&gt; pqxx::olostream
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a4" doxytag="pqxx::Result_size_type"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -143,7 +215,7 @@
     </td>
   </tr>
 </table>
-<a name="a2" doxytag="pqxx::Tuple_size_type"></a><p>
+<a name="a5" doxytag="pqxx::Tuple_size_type"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -166,7 +238,7 @@
   </tr>
 </table>
 <hr><h2>Function Documentation</h2>
-<a name="a26" doxytag="pqxx::Classname"></a><p>
+<a name="a29" doxytag="pqxx::Classname"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -201,7 +273,7 @@ Return user-readable name for a class. Specialize this whereever used.
     </td>
   </tr>
 </table>
-<a name="a5" doxytag="pqxx::Classname"></a><p>
+<a name="a8" doxytag="pqxx::Classname"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -234,7 +306,7 @@ template&lt;&gt; </td>
     </td>
   </tr>
 </table>
-<a name="a3" doxytag="pqxx::Classname"></a><p>
+<a name="a6" doxytag="pqxx::Classname"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -269,7 +341,7 @@ Human-readable class names for use by <a class="el" href="classpqxx_1_1Unique.ht
     </td>
   </tr>
 </table>
-<a name="a12" doxytag="pqxx::FmtString"></a><p>
+<a name="a15" doxytag="pqxx::FmtString"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -302,7 +374,7 @@ template&lt;&gt; </td>
     </td>
   </tr>
 </table>
-<a name="a11" doxytag="pqxx::FmtString"></a><p>
+<a name="a14" doxytag="pqxx::FmtString"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -335,7 +407,7 @@ template&lt;&gt; </td>
     </td>
   </tr>
 </table>
-<a name="a10" doxytag="pqxx::FmtString"></a><p>
+<a name="a13" doxytag="pqxx::FmtString"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -368,7 +440,7 @@ template&lt;&gt; </td>
     </td>
   </tr>
 </table>
-<a name="a9" doxytag="pqxx::FmtString"></a><p>
+<a name="a12" doxytag="pqxx::FmtString"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -401,7 +473,7 @@ template&lt;&gt; </td>
     </td>
   </tr>
 </table>
-<a name="a8" doxytag="pqxx::FmtString"></a><p>
+<a name="a11" doxytag="pqxx::FmtString"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -434,7 +506,7 @@ template&lt;&gt; </td>
     </td>
   </tr>
 </table>
-<a name="a7" doxytag="pqxx::FmtString"></a><p>
+<a name="a10" doxytag="pqxx::FmtString"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -467,7 +539,7 @@ template&lt;&gt; </td>
     </td>
   </tr>
 </table>
-<a name="a6" doxytag="pqxx::FmtString"></a><p>
+<a name="a9" doxytag="pqxx::FmtString"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -500,7 +572,7 @@ template&lt;typename T&gt; </td>
 C-style format strings for various built-in types. Only allowed for certain types, for which this function is explicitly specialized below.     </td>
   </tr>
 </table>
-<a name="a22" doxytag="pqxx::FromString"></a><p>
+<a name="a25" doxytag="pqxx::FromString"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -542,7 +614,7 @@ template&lt;&gt; </td>
     </td>
   </tr>
 </table>
-<a name="a21" doxytag="pqxx::FromString"></a><p>
+<a name="a24" doxytag="pqxx::FromString"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -584,7 +656,7 @@ template&lt;&gt; </td>
     </td>
   </tr>
 </table>
-<a name="a20" doxytag="pqxx::FromString"></a><p>
+<a name="a23" doxytag="pqxx::FromString"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -626,7 +698,7 @@ template&lt;&gt; </td>
     </td>
   </tr>
 </table>
-<a name="a19" doxytag="pqxx::FromString"></a><p>
+<a name="a22" doxytag="pqxx::FromString"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -668,7 +740,7 @@ template&lt;typename T&gt; </td>
     </td>
   </tr>
 </table>
-<a name="a4" doxytag="pqxx::operator+"></a><p>
+<a name="a7" doxytag="pqxx::operator+"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -706,7 +778,7 @@ template&lt;typename T&gt; </td>
     </td>
   </tr>
 </table>
-<a name="a25" doxytag="pqxx::Quote"></a><p>
+<a name="a28" doxytag="pqxx::Quote"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -748,7 +820,7 @@ template&lt;&gt; </td>
 In the special case of const char *, the null pointer is represented as the null value.     </td>
   </tr>
 </table>
-<a name="a24" doxytag="pqxx::Quote"></a><p>
+<a name="a27" doxytag="pqxx::Quote"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -792,7 +864,7 @@ std::string version, on which the other versions are built
     </td>
   </tr>
 </table>
-<a name="a23" doxytag="pqxx::Quote"></a><p>
+<a name="a26" doxytag="pqxx::Quote"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -834,7 +906,7 @@ template&lt;typename T&gt; </td>
 Generate SQL-quoted version of string. If EmptyIsNull is set, an empty string will generate the null value rather than an empty string.     </td>
   </tr>
 </table>
-<a name="a18" doxytag="pqxx::ToString"></a><p>
+<a name="a21" doxytag="pqxx::ToString"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -867,7 +939,7 @@ template&lt;&gt; </td>
     </td>
   </tr>
 </table>
-<a name="a17" doxytag="pqxx::ToString"></a><p>
+<a name="a20" doxytag="pqxx::ToString"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -900,7 +972,7 @@ template&lt;&gt; </td>
     </td>
   </tr>
 </table>
-<a name="a16" doxytag="pqxx::ToString"></a><p>
+<a name="a19" doxytag="pqxx::ToString"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -933,7 +1005,7 @@ template&lt;&gt; </td>
     </td>
   </tr>
 </table>
-<a name="a15" doxytag="pqxx::ToString"></a><p>
+<a name="a18" doxytag="pqxx::ToString"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -966,7 +1038,7 @@ template&lt;&gt; </td>
     </td>
   </tr>
 </table>
-<a name="a14" doxytag="pqxx::ToString"></a><p>
+<a name="a17" doxytag="pqxx::ToString"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -999,7 +1071,7 @@ template&lt;&gt; </td>
     </td>
   </tr>
 </table>
-<a name="a13" doxytag="pqxx::ToString"></a><p>
+<a name="a16" doxytag="pqxx::ToString"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -1034,7 +1106,7 @@ Convert object of built-in type to string.
     </td>
   </tr>
 </table>
-<hr><address style="align: right;"><small>Generated on Fri Mar 7 21:10:07 2003 for libpqxx by
+<hr><address style="align: right;"><small>Generated on Tue Mar 11 12:42:48 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>
