@@ -253,6 +253,14 @@ AC_CHECK_DECL(PQfreemem,
 	[pqfreemem=no],
 	[#include <${with_postgres_include}/libpq-fe.h]>)
 
+AC_MSG_CHECKING([PQfreeNotify()])
+AH_TEMPLATE(PQfreeNotify,[Do we have a PQfreeNotify function?])
+pqfreenotify=yes
+AC_CHECK_DECL(PQfreeNotify,
+	[AC_DEFINE(HAVE_PQFREENOTIFY, 1, [Define if PostgreSQL has PQfreeNotify()])],
+	[pqfreenotify=no],
+	[#include <${with_postgres_include}/libpq-fe.h]>)
+
 AC_MSG_CHECKING([PQftable()])
 AH_TEMPLATE(PQftable,[Do we have a PQftable function?])
 pqftable=yes
@@ -286,6 +294,16 @@ AC_TRY_COMPILE([#include <cstdlib>]
 	 abslong='yes'],
 	[abslong='no'])
 AC_MSG_RESULT($abslong)
+
+AC_MSG_CHECKING([whether overloaded using-declarations work])
+AC_TRY_COMPILE([struct A{foo(int){}};struct B{using A::foo;foo(int,bool){}};],
+	[B b;b.foo(1,true);],
+	[usingdecl='yes'],
+	[AC_DEFINE(BROKEN_USING_DECL,
+		1,
+		[Define if function overloading using "using" breaks])
+	 usingdecl='no'])
+AC_MSG_RESULT($usingdecl)
 
 AC_LANG_POP(C++)
 

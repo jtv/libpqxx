@@ -214,6 +214,19 @@ public:
     largeobject::to_file(m_Trans, File); 
   }
 
+#ifdef BROKEN_USING_DECL
+  /// Export large object's contents to a local file
+  /** Writes the data stored in the large object to the given file.
+   * @param T the transaction in which the object is to be accessed
+   * @param File a filename on the client's filesystem
+   */
+  void to_file(dbtransaction &T, const PGSTD::string &F) const
+  	{ largeobject::to_file(T, F); }
+#else
+  using largeobject::to_file;
+#endif
+
+
   /// Write data to large object
   /** If not all bytes could be written, an exception is thrown.
    * @param Buf the data to write
@@ -273,7 +286,6 @@ public:
   off_type cread(char Buf[], size_type Len) throw ();			//[t50]
 
   using largeobject::remove;
-  using largeobject::to_file;
 
   using largeobject::operator==;
   using largeobject::operator!=;
@@ -393,9 +405,9 @@ protected:
     char *const pp = pptr();
     if (!pp) return EoF();
     char *const pb = pbase();
-    int_type result = 0;
+    int_type res = 0;
 
-    if (pp > pb) result = AdjustEOF(m_Obj.cwrite(pb, pp-pb));
+    if (pp > pb) res = AdjustEOF(m_Obj.cwrite(pb, pp-pb));
     setp(m_P, m_P + m_BufSize);
 
     // Write that one more character, if it's there.
@@ -404,16 +416,16 @@ protected:
       *pptr() = char(ch);
       pbump(1);
     }
-    return result;
+    return res;
   }
 
   virtual int_type underflow()
   {
     if (!gptr()) return EoF();
     char *const eb = eback();
-    const int result = AdjustEOF(m_Obj.cread(eback(), m_BufSize));
-    setg(eb, eb, eb + ((result==EoF()) ? 0 : result));
-    return (!result || (result == EoF())) ? EoF() : *eb;
+    const int res = AdjustEOF(m_Obj.cread(eback(), m_BufSize));
+    setg(eb, eb, eb + ((res==EoF()) ? 0 : res));
+    return (!res || (res == EoF())) ? EoF() : *eb;
   }
 
 private:

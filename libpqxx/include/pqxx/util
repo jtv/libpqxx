@@ -270,9 +270,10 @@ template<typename T> PGSTD::string Classname(const T *);
 
 /// Keep track of a libpq-allocated pointer to be free()d automatically.
 /** Ownership policy is simple: object dies when PQAlloc object's value does.
- * If the available PostgreSQL development files supply PQfreemem(), this is
- * used to free the memory.  If not, free() is used instead.  This matters on
- * Windows, where memory allocated by a DLL must be freed by the same DLL.
+ * If the available PostgreSQL development files supply PQfreemem() or 
+ * PQfreeNotify(), this is used to free the memory.  If not, free() is used 
+ * instead.  This matters on Windows, where memory allocated by a DLL must be 
+ * freed by the same DLL.
  */
 template<typename T> class PQXX_LIBEXPORT PQAlloc
 {
@@ -329,7 +330,7 @@ public:
 private:
   void freemem() throw ()
   {
-#ifdef HAVE_PQFREEMEM
+#if defined(HAVE_PQFREEMEM)
     PQfreemem(reinterpret_cast<unsigned char *>(m_Obj));
 #else
     free(m_Obj);
@@ -339,6 +340,19 @@ private:
   PQAlloc(const PQAlloc &);		// Not allowed
   PQAlloc &operator=(const PQAlloc &);	// Not allowed
 };
+
+
+/// Special version for notify structures, using PQfreeNotify() if available
+template<> inline void PQAlloc<PGnotify>::freemem() throw ()
+{
+#if defined(HAVE_PQFREEMEM)
+    PQfreemem(reinterpret_cast<unsigned char *>(m_Obj));
+#elif defined(HAVE_PQFREENOTIFY)
+    PQfreeNotify(m_Obj);
+#else
+    free(m_Obj);
+#endif
+}
 
 
 
