@@ -86,7 +86,7 @@ public:
       int Y;
 
       // Read year, and if it is non-null, note its converted value
-      if (r[0].to(Y)) m_Conversions[Y] = To4Digits(Y);
+      if (r[0] >> Y) m_Conversions[Y] = To4Digits(Y);
 
       // See if type identifiers are consistent
       const oid tctype = r->column_type(0);
