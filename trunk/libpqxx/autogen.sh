@@ -38,7 +38,7 @@ automake${ver} --verbose --add-missing --copy
 autoconf
 
 conf_flags="--enable-maintainer-mode $CONFIG_ARGS"
-if test x$NOCONFIGURE = x; then
+if test -z "$NOCONFIGURE" ; then
 	echo Running $srcdir/configure $conf_flags "$@" ...
 	./configure $conf_flags "$@" \
 	&& echo Now type \`make\' to compile $PKG_NAME || exit 1
