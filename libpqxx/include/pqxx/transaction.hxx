@@ -31,7 +31,7 @@
 // Usage example: double all wages
 //
 // extern connection C;
-// transaction<> T(C);
+// work T(C);
 // try
 // {
 //   T.exec("UPDATE employees SET wage=wage*2");
@@ -93,6 +93,10 @@ public:
 
   virtual ~transaction() { End(); }
 };
+
+
+/// Bog-standard, default transaction type
+typedef transaction<> work;
 
 
 /// Human-readable class names for use by unique template.

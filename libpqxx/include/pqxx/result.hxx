@@ -65,14 +65,15 @@ public:
   {
   public:
     typedef tuple_size_type size_type;
-    tuple(const result *r, result::size_type i) : m_Home(r), m_Index(i) {}
+    tuple(const result *r, result::size_type i) throw() : 
+      m_Home(r), m_Index(i) {}
     ~tuple() {} // Yes Scott Meyers, you're absolutely right[1]
 
-    inline field operator[](size_type) const;				//[t1]
+    inline field operator[](size_type) const throw ();			//[t1]
     field operator[](const char[]) const;				//[t11]
     field operator[](const PGSTD::string &s) const 			//[t11]
     	{ return operator[](s.c_str()); }
-    field at(size_type) const;						//[t10]
+    field at(size_type) const throw (PGSTD::out_of_range);		//[t10]
     field at(const char[]) const;					//[t11]
     field at(const PGSTD::string &s) const { return at(s.c_str()); }	//[t11]
 
@@ -148,7 +149,8 @@ public:
      * @param R tuple that this field is part of.
      * @param C column number of this field.
      */
-    field(const tuple &R, tuple::size_type C) : tuple(R), m_Col(C) {}	//[t1]
+    field(const tuple &R, tuple::size_type C) throw () : 		//[t1]
+    	tuple(R), m_Col(C) {}
 
     /// Read as plain C string
     /** Since the field's data is stored internally in the form of a 
@@ -198,10 +200,10 @@ public:
       }
       catch (const PGSTD::exception &e)
       {
-	throw PGSTD::runtime_error("Error reading field " + 
-			           PGSTD::string(name()) +
-				   ": " +
-				   e.what());
+	throw PGSTD::domain_error("Error reading field " + 
+			          PGSTD::string(name()) +
+				  ": " +
+				  e.what());
       }
       return true;
     }
@@ -236,6 +238,15 @@ public:
     {
       T Obj;
       to(Obj, Default);
+      return Obj;
+    }
+
+    /// Return value as object of given type, or throw exception if null
+    template<typename T> T as() const					//[t45]
+    {
+      T Obj;
+      const bool NotNull = to(Obj);
+      if (!NotNull) throw PGSTD::domain_error("Attempt to read null field");
       return Obj;
     }
 
@@ -323,8 +334,9 @@ public:
   bool empty() const { return !m_Result || !PQntuples(m_Result); }	//[t11]
   size_type capacity() const { return size(); }				//[t20]
 
-  const tuple operator[](size_type i) const { return tuple(this, i); }	//[t2]
-  const tuple at(size_type) const;					//[t10]
+  const tuple operator[](size_type i) const throw () 			//[t2]
+  	{ return tuple(this, i); }
+  const tuple at(size_type) const throw (PGSTD::out_of_range);		//[t10]
 
   void clear() { LoseRef(); }						//[t20]
 
@@ -447,7 +459,7 @@ inline STREAM &operator<<(STREAM &S, const pqxx::result::field &F)	//[t46]
 
 
 inline result::field 
-result::tuple::operator[](result::tuple::size_type i) const 
+result::tuple::operator[](result::tuple::size_type i) const  throw ()
 { 
   return field(*this, i); 
 }

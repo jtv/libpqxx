@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     cout << "Dropping old " << TableName << endl;
     try
     {
-      transaction<> Drop(C, "drop_" + TableName);
+      work Drop(C, "drop_" + TableName);
       Drop.exec("DROP TABLE " + TableName);
       Drop.commit();
     }
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
       cerr << "Couldn't drop table: " << e.what() << endl;
     }
 
-    transaction<> T(C, "test5");
+    work T(C, "test5");
 
     T.exec("CREATE TABLE " + TableName + "(year INTEGER, event VARCHAR)");
 

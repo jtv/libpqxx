@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
     const string dstTable = ((argc > 3) ? argv[3] : "pqxxevents");
 
     // Set up a transaction to access the original table from
-    transaction<> orgTrans(orgC, "test25org");
+    work orgTrans(orgC, "test25org");
  
     // Attempt to create table.  Ignore errors, as they're probably one of:
     // (1) Table already exists--fine with us

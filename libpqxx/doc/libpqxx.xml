@@ -421,6 +421,13 @@
 	  in these classes, see the definition (or documentation) for
 	  <literal>transaction_base</literal> instead.
 	</para>
+	<para>
+	  You'll usually want to refer to the default 
+	  <literal>transaction</literal>
+	  type as <literal>work</literal>, a typedef that means 
+	  "<literal>transaction</literal> with default (read-committed) 
+	  isolation level."
+	</para>
       </listitem>
 
       <listitem>
@@ -776,6 +783,13 @@
 	  <programlisting>
 	    transaction&lt;&gt; Xaction(Conn, "DemoTransaction");
 	  </programlisting>
+
+	  Or, alternatively (once you get fed up with typing 
+	  <literal>transaction&lt;&gt;</literal>):
+
+	  <programlisting>
+	    work Xaction(Conn, "DemoTransaction");
+	  </programlisting>
 	</para>
 
 	<para>
@@ -854,7 +868,7 @@
 	    <listitem>
 	      <programlisting>
 		{
-		transaction&lt;&gt; Xaction(Conn, "DemoTransaction");
+		work Xaction(Conn, "DemoTransaction");
 
 		// (Queries)
 
@@ -864,7 +878,7 @@
 
 	    <listitem>
 	      <programlisting>
-		transaction&lt;&gt; *XactionP = new transaction&lt;&gt;(Conn, "DemoTransaction");
+		work *XactionP = new work(Conn, "DemoTransaction");
 
 		// (Queries)
 
@@ -876,7 +890,7 @@
 	      <programlisting>
 		try
 		{
-		transaction&lt;&gt; Xaction(Conn, "DemoTransaction");
+		work Xaction(Conn, "DemoTransaction");
 
 		// (Queries)
 
@@ -900,8 +914,7 @@
 	      <para>
 		Throwing an exception from a destructor to report the error
 		would have serious effects on program correctness.
-		<emphasis>Never throw exceptions from a
-		  destructor.</emphasis>
+		<emphasis>Never throw exceptions from a destructor.</emphasis>
 	      </para>
 	    </footnote>
 	    and the transaction will die of natural causes (either it has
@@ -918,7 +931,7 @@
 	  </para>
 
 	  <programlisting>
-	    transaction&lt;&gt; Xaction(Conn, "DemoTransaction");
+	    work Xaction(Conn, "DemoTransaction");
 	    try
 	    {
 	    // (Queries)
@@ -977,7 +990,7 @@
       </para>
 
       <programlisting>
-	void DeleteEntry(transaction&lt;&gt; &amp;T, string Table, long ID)
+	void DeleteEntry(work &amp;T, string Table, long ID)
 	{
 	T.Exec("DELETE FROM " + Table + " WHERE ID=" + ID);
 	}

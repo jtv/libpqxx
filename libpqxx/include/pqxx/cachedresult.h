@@ -33,9 +33,10 @@ namespace pqxx
  * similar to that of result, with certain restrictions and different 
  * performance characteristics.  A cachedresult must live in the context of a
  * backend transaction, so that it can fetch further rows as they are needed.
- * Furthermore, the transaction must have serializable isolation level to ensure
- * that the result set of the query remains unchanged while parts of it are
- * cached.
+ * @warning
+ * The transaction must have serializable isolation level to ensure that the 
+ * result set of the query remains unchanged while parts of it are cached.  This
+ * class is to be replaced by a C++-style iterator interface.
  *
  * The class uses a Cursor internally to fetch results.  Data are not fetched
  * row-by-row, but in chunks of configurable size.  For internal computational

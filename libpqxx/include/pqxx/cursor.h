@@ -57,10 +57,11 @@ class result;
  * have to experiment before using cursors for anything but plain forward-only
  * result set iteration.
  *
- * A Cursor is only valid within the transaction in which it was created.  The
- * result set must not change during its existence, or the cursor's positioning
- * logic will get horribly confused.  For this reason, Cursor should only be
- * used inside serializable transactions.
+ * @warning A Cursor is only valid within the transaction in which it was 
+ * created.  The result set must not change during its existence, or the 
+ * cursor's positioning logic will get horribly confused.  For this reason, 
+ * Cursor should only be used inside serializable transactions.  This class is
+ * to be replaced by a C++-style iterator interface.
  */
 
 class PQXX_LIBEXPORT Cursor

@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
     }
 
     connection C(argv[1]);
-    transaction<> T(C, "test49");
+    work T(C, "test49");
 
     result R( T.exec("SELECT * FROM " + Table + " ORDER BY " + Key) );
     cout << "Read " << R.size() << " tuples." << endl;

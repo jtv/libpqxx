@@ -1,7 +1,8 @@
 Build system
 (*) Check for <sstream> presence (and what if it ain't there?)
 (*) Completely support building outside the source directory
-(*) Make Makefile translate tutorial to HTML
+(*) Ensure there is a way to build without -rpath and use that for the
+    Debian packaging.
 (*) Switch from dh_movefiles to dh_install for Debian packaging.
 
 Connections
@@ -11,8 +12,6 @@ Connections
 (*) Support constraints definition
 
 Cursors
-(*) Splice out absolute positioning logic (requires serializable transaction!)
-(*) Splice out forward-only functionality
 (*) Provide iterator interface
 (*) Investigate WITH HOLD feature (nontransaction cursors)
 (*) From 7.4, MOVE and FETCH will be much improved (PQcmdTuples()!)
@@ -42,7 +41,8 @@ Streams
 (*) Allow single-level insertion with endt/endr manipulators
 
 Transactions
-(*) What if robusttransaction reconnects while "in-doubt" attempt still ongoing?
+(*) German's locking idea for robusttransaction!
+(*) Think about isolation level for robusttransaction's reconnect-check
 (*) User schema support for robusttransaction log table
 (*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
 (*) Support querying of variables (local map is "cache" for session state)

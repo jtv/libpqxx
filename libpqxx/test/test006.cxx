@@ -77,13 +77,13 @@ void CheckState(tablereader &R)
 
 class CopyTable : public transactor<>
 {
-  transaction<> &m_orgTrans; // Transaction giving us access to original table
-  string m_orgTable;	     // Original table's name
-  string m_dstTable;	     // Destination table's name
+  work &m_orgTrans;	// Transaction giving us access to original table
+  string m_orgTable;	// Original table's name
+  string m_dstTable;	// Destination table's name
 
 public:
   // Constructor--pass parameters for operation here
-  CopyTable(transaction<> &OrgTrans, string OrgTable, string DstTable) :
+  CopyTable(work &OrgTrans, string OrgTable, string DstTable) :
     transactor<>("CopyTable"),
     m_orgTrans(OrgTrans),
     m_orgTable(OrgTable),
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
     const string dstTable = ((argc > 3) ? argv[3] : "pqxxevents");
 
     // Set up a transaction to access the original table from
-    transaction<> orgTrans(orgC, "test6org");
+    work orgTrans(orgC, "test6org");
  
     // Attempt to create table.  Ignore errors, as they're probably one of:
     // (1) Table already exists--fine with us

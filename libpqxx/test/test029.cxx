@@ -69,7 +69,7 @@ void Test(connection_base &C, bool ExplicitAbort)
   {
     // Begin a transaction acting on our current connection; we'll abort it
     // later though.
-    transaction<> Doomed(C, "Doomed");
+    work Doomed(C, "Doomed");
 
     // Verify that our Boring Year was not yet in the events table
     EventCounts = CountEvents(Doomed);
@@ -124,7 +124,7 @@ void Test(connection_base &C, bool ExplicitAbort)
   // Now check that we're back in the original state.  Note that this may go
   // wrong if somebody managed to change the table between our two 
   // transactions.
-  transaction<> Checkup(C, "Checkup");
+  work Checkup(C, "Checkup");
 
   const pair<int,int> NewEvents = CountEvents(Checkup);
   if (NewEvents.first != EventCounts.first)

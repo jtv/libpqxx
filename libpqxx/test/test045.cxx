@@ -58,7 +58,7 @@ int main(int, char *argv[])
     // Count rows.
     result R( T.Exec("SELECT count(*) FROM " + Table) );
 
-    if (R.at(0).at(0).as(0) <= 10) 
+    if (R.at(0).at(0).as<long>() <= 10) 
       throw runtime_error("Not enough rows in '" + Table + "' "
 		          "for serious testing.  Sorry.");
 

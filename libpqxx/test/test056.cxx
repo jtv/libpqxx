@@ -14,7 +14,7 @@ int main()
   try
   {
     connection C;
-    transaction<> T(C, "test56");
+    work T(C, "test56");
 
     try
     {

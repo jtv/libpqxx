@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     const string Table = ((argc >= 3) ? argv[2] : "pg_tables");
 
     lazyconnection C(argv[1]);
-    transaction<> T(C, "test30");
+    work T(C, "test30");
 
     result R( T.exec(("SELECT * FROM " + Table).c_str()) );
     if (R.empty())

@@ -29,7 +29,7 @@ int main(int, char *argv[])
     connection C(ConnectString);
 
     // Start transaction within context of connection
-    transaction<> T(C, "test2");
+    work T(C, "test2");
 
     const string Table = "pg_tables";
 
