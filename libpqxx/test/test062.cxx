@@ -57,7 +57,7 @@ int main(int, char *argv[])
       if (c == B.end())
 	throw logic_error("Premature end to binary string at " + to_string(i));
 
-      if (B.data()[i] != TestStr.at(i))
+      if (char(B.data()[i]) != TestStr.at(i))
 	throw logic_error("Binary string byte " + to_string(i) + " "
 	    "got changed from '" + to_string(char(TestStr[i])) + "' "
 	    "to '" + to_string(char(B.data()[i])) + "'");
@@ -81,7 +81,7 @@ int main(int, char *argv[])
       if (r == B.rend())
 	throw logic_error("Premature rend to binary string at " + to_string(i));
 
-      if (B[i-1] != TestStr.at(i-1))
+      if (char(B[i-1]) != char(TestStr.at(i-1)))
 	throw logic_error("Reverse iterator differs at " + to_string(i));
     }
     if (r != B.rend())
