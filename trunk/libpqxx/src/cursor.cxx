@@ -19,228 +19,122 @@
 
 #include <cstdlib>
 
-#include "pqxx/cursor.h"
+#include "pqxx/cursor"
+
 #include "pqxx/result"
 #include "pqxx/transaction"
 
 using namespace PGSTD;
 
 
-void pqxx::Cursor::init(const string &BaseName, const char Query[])
+int pqxx::cursor_base::get_unique_cursor_num()
 {
-  // Give ourselves a locally unique name based on connection name
-  m_Name += "\"" + 
-            BaseName + "_" + 
-	    m_Trans.name() + "_" + 
-	    to_string(m_Trans.GetUniqueCursorNum()) +
-	    "\"";
-
-  m_Trans.Exec("DECLARE " + m_Name + " SCROLL CURSOR FOR " + Query);
+  if (!m_context) throw logic_error("libpqxx internal error: "
+      "cursor in get_unique_cursor_num() has no transaction");
+  return m_context->GetUniqueCursorNum();
 }
 
 
-pqxx::Cursor::size_type pqxx::Cursor::SetCount(size_type Count)
+pqxx::const_forward_cursor::const_forward_cursor() :
+  cursor_base(),
+  m_name(),
+  m_stride(0),
+  m_lastdata()
 {
-  size_type Old = m_Count;
-  m_Done = false;
-  m_Count = Count;
-  return Old;
 }
 
 
-pqxx::Cursor &pqxx::Cursor::operator>>(pqxx::result &R)
+pqxx::const_forward_cursor::const_forward_cursor(const const_forward_cursor &x):
+  cursor_base(x.m_context),
+  m_name(x.m_name),
+  m_stride(x.m_stride),
+  m_lastdata(x.m_lastdata)
 {
-  R = Fetch(m_Count);
-  m_Done = R.empty();
+}
+
+
+pqxx::const_forward_cursor::const_forward_cursor(transaction_base &context,
+    const string &query,
+    size_type stride) :
+  cursor_base(&context),
+  m_name(),
+  m_stride(stride),
+  m_lastdata()
+{
+  m_name = m_context->name() + "_cfc";
+  declare(query);
+  fetch();
+}
+
+
+pqxx::const_forward_cursor::const_forward_cursor(transaction_base &context,
+    const string &query,
+    const string &cname,
+    size_type stride) :
+  cursor_base(&context),
+  m_name(cname),
+  m_stride(stride),
+  m_lastdata()
+{
+  declare(query);
+  fetch();
+}
+
+
+pqxx::const_forward_cursor &pqxx::const_forward_cursor::operator++()
+{
+  fetch();
   return *this;
 }
 
 
-pqxx::result pqxx::Cursor::Fetch(size_type Count)
+pqxx::const_forward_cursor pqxx::const_forward_cursor::operator++(int)
 {
-  result R;
-
-  if (!Count)
-  {
-    m_Trans.MakeEmpty(R);
-    return R;
-  }
-
-  const string Cmd( MakeFetchCmd(Count) );
-
-  try
-  {
-    R = m_Trans.Exec(Cmd.c_str());
-  }
-  catch (const exception &)
-  {
-    m_Pos = pos_unknown;
-    throw;
-  }
-
-  NormalizedMove(Count, R.size());
-
-  return R;
+  fetch();
+  return *this;
 }
 
 
-pqxx::result::size_type pqxx::Cursor::Move(size_type Count)
+bool pqxx::const_forward_cursor::operator==(const const_forward_cursor &x) const
 {
-  if (!Count) return 0;
-  if ((Count < 0) && (m_Pos == pos_start)) return 0;
+  // Result is only interesting for "at-end" comparisons
+  return m_lastdata.empty() && x.m_lastdata.empty();
+}
 
-  m_Done = false;
-  const string Cmd( "MOVE " + OffsetString(Count) + " IN " + m_Name);
-  long int A = 0;
 
-  try
+pqxx::const_forward_cursor &
+pqxx::const_forward_cursor::operator=(const const_forward_cursor &x)
+{
+  if (&x != this)
   {
-    result R( m_Trans.Exec(Cmd.c_str()) );
-    if (!sscanf(R.CmdStatus(), "MOVE %ld", &A))
-      throw runtime_error("Didn't understand database's reply to MOVE: "
-	                    "'" + string(R.CmdStatus()) + "'");
+    // Copy to temporaries to improve exception robustness
+    result lastdata_tmp(x.m_lastdata);
+    string name_tmp(x.m_name);
+
+    // Object's state change should be exception-free
+    m_lastdata.swap(lastdata_tmp);
+    m_name.swap(name_tmp);
+    m_stride = x.m_stride;
+    m_context = x.m_context;
   }
-  catch (const exception &)
-  {
-    m_Pos = pos_unknown;
-    throw;
-  }
-
-  return NormalizedMove(Count, A);
+  return *this;
 }
 
 
-pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
-                                                     size_type Actual)
+void pqxx::const_forward_cursor::declare(const string &query)
 {
-  if (Actual < 0) 
-    throw logic_error("libpqxx internal error: Negative rowcount");
-  if (Actual > labs(Intended))
-    throw logic_error("libpqxx internal error: Moved/fetched too many rows "
-	              "(wanted " + to_string(Intended) + ", "
-		      "got " + to_string(Actual) + ")");
+  m_name += "_";
+  m_name += to_string(get_unique_cursor_num());
 
-  size_type Offset = Actual;
-
-  if (m_Pos == pos_unknown)
-  {
-    if (Actual < labs(Intended))
-    {
-      if (Intended < 0)
-      {
-	// Must have gone back to starting position
-	m_Pos = pos_start;
-      }
-      else if (m_Size == pos_unknown)
-      {
-	// Oops.  We'd want to set result set size at this point, but we can't
-	// because we don't know our position.
-	// TODO: Deal with this more elegantly.
-	throw runtime_error("Can't determine result set size: "
-	                    "Cursor position unknown at end of set");
-      }
-    }
-    // Nothing more we can do to update our position
-    return (Intended > 0) ? Actual : -Actual;
-  }
-
-  if (Actual < labs(Intended))
-  {
-    // There is a nonexistant row before the first one in the result set, and 
-    // one after the last row, where we may be positioned.  Unfortunately 
-    // PostgreSQL only reports "real" rows, making it really hard to figure out
-    // how many rows we've really moved.
-    if (Actual)
-    {
-      // We've moved off either edge of our result set; add the one, 
-      // nonexistant row that wasn't counted in the status string we got.
-      Offset++;
-    }
-    else if (Intended < 0)
-    {
-      // We've either moved off the "left" edge of our result set from the 
-      // first actual row, or we were on the nonexistant row before the first
-      // actual row and so didn't move at all.  Just set up Actual so that we
-      // end up at our starting position, which is where we must be.
-      Offset = m_Pos - pos_start;
-    }
-    else if (m_Size != pos_unknown)
-    {
-      // We either just walked off the right edge (moving at least one row in 
-      // the process), or had done so already (in which case we haven't moved).
-      // In the case at hand, we already know where the right-hand edge of the
-      // result set is, so we use that to compute our offset.
-      Offset = (m_Size + pos_start + 1) - m_Pos;
-    }
-    else
-    {
-      // This is the hard one.  Assume that we haven't seen the "right edge"
-      // before, because m_Size hasn't been set yet.  Therefore, we must have 
-      // just stepped off the edge (and m_Size will be set now).
-      Offset++;
-    }
-
-    if ((Offset > labs(Intended)) && (m_Pos != pos_unknown))
-    {
-      m_Pos = pos_unknown;
-      throw logic_error("libpqxx internal error: Confused cursor position");
-    }
-  }
-
-  if (Intended < 0) Offset = -Offset;
-  m_Pos += Offset;
-
-  if ((Intended > 0) && (Actual < Intended) && (m_Size == pos_unknown))
-    m_Size = m_Pos - pos_start - 1;
-
-  m_Done = !Actual;
-
-  return Offset;
+  m_context->exec("DECLARE \""+m_name+"\" NO SCROLL FOR READ ONLY FOR "+query,
+	"[DECLARE "+m_name+"]");
 }
 
 
-void pqxx::Cursor::MoveTo(size_type Dest)
+void pqxx::const_forward_cursor::fetch()
 {
-  // If we don't know where we are, go back to the beginning first.
-  if (m_Pos == pos_unknown) Move(BACKWARD_ALL());
-
-  Move(Dest - Pos());
-}
-
-
-pqxx::Cursor::size_type pqxx::Cursor::ALL() throw ()
-{
-#ifdef _WIN32
-  return INT_MAX;
-#else	// _WIN32
-  return numeric_limits<result::size_type>::max();
-#endif	// _WIN32
-}
-
-
-pqxx::Cursor::size_type pqxx::Cursor::BACKWARD_ALL() throw ()
-{
-#ifdef _WIN32
-  return INT_MIN + 1;
-#else	// _WIN32
-  return numeric_limits<result::size_type>::min() + 1;
-#endif	// _WIN32
-}
-
-
-
-string pqxx::Cursor::OffsetString(size_type Count)
-{
-  if (Count == ALL()) return "ALL";
-  else if (Count == BACKWARD_ALL()) return "BACKWARD ALL";
-
-  return to_string(Count);
-}
-
-
-string pqxx::Cursor::MakeFetchCmd(size_type Count) const
-{
-  return "FETCH " + OffsetString(Count) + " IN " + m_Name;
+  m_lastdata =
+  	m_context->exec("FETCH "+to_string(m_stride)+" IN \""+m_name+"\"");
 }
 
 

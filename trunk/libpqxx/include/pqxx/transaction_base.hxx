@@ -264,6 +264,7 @@ private:
   void CheckPendingError();
 
   friend class Cursor;
+  friend class cursor_base;
   int GetUniqueCursorNum() { return m_UniqueCursorNum++; }
   void MakeEmpty(result &R) const { m_Conn.MakeEmpty(R); }
 

@@ -15,8 +15,8 @@
  *
  *-------------------------------------------------------------------------
  */
-#ifndef PQXX_CURSOR_H
-#define PQXX_CURSOR_H
+#ifndef PQXX_OLD_CURSOR_H
+#define PQXX_OLD_CURSOR_H
 
 #include "pqxx/result.h"
 #include "pqxx/transaction_base.h"
