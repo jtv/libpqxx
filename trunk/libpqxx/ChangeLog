@@ -1,3 +1,10 @@
+2004-08-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+  - activate() also when don't have PQexecPrepared()
+ tools/Makefile.am:
+  - Removed pqxxbench
+ tools/pqxxbench.cxx, tools/pqxxbench.in:
+  - Deleted
 2004-08-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/result.cxx:
   - Workaround for missing PQresultErrorField(), thanks webmaster@tsukaeru.net
