@@ -237,6 +237,7 @@ void pqxx::pipeline::consumeresults()
 
   unregister_me();
 
+  // TODO: Don't wait for all results in the batch to come in!
   vector<result>::size_type R_size = R.size(), sentsize = m_sent.size();
 
   if (!R_size)

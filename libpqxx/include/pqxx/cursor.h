@@ -66,6 +66,8 @@ class result;
 
 class PQXX_LIBEXPORT Cursor
 {
+  enum { dist_next=1 };
+
 public:
   typedef result::size_type size_type;
 
@@ -94,7 +96,7 @@ public:
     Cursor(TRANSACTION &T,
            const char Query[], 
 	   const PGSTD::string &BaseName="cur",
-	   size_type Count=NEXT()) :					//[t3]
+	   size_type Count=dist_next) :					//[t3]
       m_Trans(T),
       m_Name(),
       m_Count(Count),
@@ -141,7 +143,7 @@ public:
   template<typename TRANSACTION>
     Cursor(TRANSACTION &T,
            const result::field &Name,
-	   size_type Count=NEXT()) :					//[t45]
+	   size_type Count=dist_next) :					//[t45]
       m_Trans(T),
       m_Name(Name.c_str()),
       m_Count(Count),
@@ -189,7 +191,7 @@ public:
   static size_type ALL() throw ();					//[t3]
 
   /// Constant: "next fetch/move should cover just the next row."
-  static size_type NEXT() throw () { return 1; }			//[t19]
+  static size_type NEXT() throw () { return dist_next; }		//[t19]
 
   /// Constant: "next fetch/move should go back one row."
   static size_type PRIOR() throw () { return -1; }			//[t19]
