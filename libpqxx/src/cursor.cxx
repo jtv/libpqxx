@@ -115,7 +115,7 @@ pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
 {
   if (Actual < 0) 
     throw logic_error("libpqxx internal error: Negative rowcount");
-  if (Actual > abs(Intended))
+  if (Actual > labs(Intended))
     throw logic_error("libpqxx internal error: Moved/fetched too many rows "
 	              "(wanted " + ToString(Intended) + ", "
 		      "got " + ToString(Actual) + ")");
@@ -124,7 +124,7 @@ pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
 
   if (m_Pos == pos_unknown)
   {
-    if (Actual < abs(Intended))
+    if (Actual < labs(Intended))
     {
       if (Intended < 0)
       {
@@ -144,7 +144,7 @@ pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
     return (Intended > 0) ? Actual : -Actual;
   }
 
-  if (Actual < abs(Intended))
+  if (Actual < labs(Intended))
   {
     // There is a nonexistant row before the first one in the result set, and 
     // one after the last row, where we may be positioned.  Unfortunately 
@@ -180,7 +180,7 @@ pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
       Offset++;
     }
 
-    if ((Offset > abs(Intended)) && (m_Pos != pos_unknown))
+    if ((Offset > labs(Intended)) && (m_Pos != pos_unknown))
     {
       m_Pos = pos_unknown;
       throw logic_error("libpqxx internal error: Confused cursor position");

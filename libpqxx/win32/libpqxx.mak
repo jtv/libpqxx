@@ -86,7 +86,8 @@ LINK32_OBJS= $(LINK32_OBJ_EXTRA) \
 	"$(INTDIR)\tablestream.obj" \
 	"$(INTDIR)\tablewriter.obj" \
 	"$(INTDIR)\transaction_base.obj" \
-	"$(INTDIR)\transaction.obj"
+	"$(INTDIR)\transaction.obj" \
+	"$(INTDIR)\util.obj" \
 
 RSC=rc.exe
 RSC_PROJ=/l 0x409 /fo"$(INTDIR)\libpqxx.res"
@@ -214,6 +215,10 @@ SOURCE=..\src\transaction.cxx
 
 SOURCE=..\src\transaction_base.cxx
 "$(INTDIR)\transaction_base.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\src\util.cxx
+"$(INTDIR)\util.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
 !ENDIF

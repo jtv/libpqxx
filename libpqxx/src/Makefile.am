@@ -12,7 +12,8 @@ libpqxx_la_SOURCES = binarystring.cxx \
 	tablestream.cxx \
 	tablewriter.cxx \
 	transaction.cxx \
-	transaction_base.cxx
+	transaction_base.cxx \
+	util.cxx
 
 libpqxx_la_LDFLAGS = -version-info @sonumber@ ${POSTGRES_LIB}
 

@@ -150,12 +150,13 @@ template<typename T> inline void FromString(const char Str[], T &Obj)
 }
 
 
+/// For libpqxx internal use only: convert C string to C++ string
+void FromString_string(const char Str[], PGSTD::string &Obj);
+
+
 template<> inline void FromString(const char Str[], PGSTD::string &Obj)
 {
-  if (!Str) 
-    throw PGSTD::runtime_error("Attempt to convert NULL C string to C++ "
-	                       "string");
-  Obj = Str;
+  FromString_string(Str, Obj);
 }
 
 
@@ -166,34 +167,21 @@ template<> inline void FromString(const char Str[], const char *&Obj)
   Obj = Str;
 }
 
+
+void FromString_ucharptr(const char Str[], const unsigned char *&Obj);
+
 template<> inline void FromString(const char Str[], const unsigned char *&Obj)
 {
-  const char *C;
-  FromString(Str, C);
-  Obj = reinterpret_cast<const unsigned char *>(C);
+  FromString_ucharptr(Str, Obj);
 }
+
+
+/// For libpqxx internal use only: convert string to bool
+void FromString_bool(const char Str[], bool &Obj);
 
 template<> inline void FromString(const char Str[], bool &Obj)
 {
-  if (!Str)
-    throw PGSTD::runtime_error("Attempt to read NULL string");
-
-  switch (Str[0])
-  {
-  case 0:
-  case 'f':
-    Obj = false;
-    break;
-  case '0':
-    {
-      int I;
-      FromString(Str, I);
-      Obj = (I != 0);
-    }
-    break;
-  default:
-    Obj = true;
-  }
+  FromString_bool(Str, Obj);
 }
 
 
@@ -201,72 +189,28 @@ template<> inline void FromString(const char Str[], bool &Obj)
 /** Generate SQL-quoted version of string.  If EmptyIsNull is set, an empty
  * string will generate the null value rather than an empty string.
  */
-template<typename T> inline PGSTD::string Quote(const T &Obj, bool EmptyIsNull);
+template<typename T> PGSTD::string Quote(const T &Obj, bool EmptyIsNull);
 
-// TODO: Take this out of the header!
+
+/// For libpqxx internal use only: quote std::string
+PGSTD::string Quote_string(const PGSTD::string &Obj, bool EmptyIsNull);
+
+
 /// std::string version, on which the other versions are built
-template<> inline PGSTD::string Quote(const PGSTD::string &Obj, 
-		                      bool EmptyIsNull)
+template<> 
+inline PGSTD::string Quote(const PGSTD::string &Obj, bool EmptyIsNull)
 {
-  if (EmptyIsNull && Obj.empty()) return "null";
-
-  PGSTD::string Result;
-  Result.reserve(Obj.size() + 2);
-  Result += "'";
-
-#ifdef PQXX_HAVE_PQESCAPESTRING
-
-  char *const Buf = new char[2*Obj.size() + 1];
-  try
-  {
-    PQescapeString(Buf, Obj.c_str(), Obj.size());
-    Result += Buf;
-  }
-  catch (const PGSTD::exception &)
-  {
-    delete [] Buf;
-    throw;
-  }
-  delete [] Buf;
-
-#else
-
-  for (PGSTD::string::size_type i=0; i < Obj.size(); ++i)
-  {
-    if (isgraph(Obj[i]))
-    {
-      switch (Obj[i])
-      {
-      case '\'':
-      case '\\':
-	Result += '\\';
-      }
-      Result += Obj[i];
-    }
-    else
-    {
-        char s[10];
-        sprintf(s, 
-	        "\\%03o", 
-		static_cast<unsigned int>(static_cast<unsigned char>(Obj[i])));
-        Result.append(s, 4);
-    }
-  }
-
-#endif
-
-  return Result + '\'';
+  return Quote_string(Obj, EmptyIsNull);
 }
 
+/// For libpqxx internal use only: quote const char *
+PGSTD::string Quote_charptr(const char Obj[], bool EmptyIsNull);
 
-// TODO: Take this out of the header!
-/// In the special case of const char *, the null pointer is represented as
-/// the null value.
-template<> inline PGSTD::string Quote(const char *const & Obj, 
-		                      bool EmptyIsNull)
+
+/// Special case for const char *, accepting null pointer as null value
+template<> inline PGSTD::string Quote(const char *const & Obj, bool EmptyIsNull)
 {
-  if (!Obj) return "null";
-  return Quote(PGSTD::string(Obj), EmptyIsNull);
+  return Quote_charptr(Obj, EmptyIsNull);
 }
 
 
@@ -279,7 +223,7 @@ template<> inline PGSTD::string Quote(const char *const & Obj,
 template<int LEN> inline PGSTD::string Quote(const char (&Obj)[LEN],
     					     bool EmptyIsNull)		//[t18]
 {
-  return Quote(PGSTD::string(Obj), EmptyIsNull);
+  return Quote_charptr(Obj, EmptyIsNull);
 }
 
 
@@ -392,6 +336,19 @@ template<> inline void PQAlloc<PGnotify>::freemem() throw ()
 }
 
 
+/// For libpqxx internal use only: compose error message
+PGSTD::string UniqueRegisterError(const void *New,
+    				  const void *Old,
+    				  const PGSTD::string &ClassName,
+    			 	  const PGSTD::string &NewName);
+
+/// For libpqxx internal use only: compose error message 
+PGSTD::string UniqueUnregisterError(const void *New,
+    				    const void *Old,
+				    const PGSTD::string &ClassName,
+				    const PGSTD::string &NewName,
+				    const PGSTD::string &OldName);
+
 
 /// Ensure proper opening/closing of GUEST objects related to a "host" object
 /** Only a single GUEST may exist for a single host at any given time.  The 
@@ -411,51 +368,23 @@ public:
 
   void Register(GUEST *G)
   {
-    // TODO: Take error generation out of the header!
-    if (!G) throw PGSTD::logic_error("Internal libpqxx error: NULL " + 
-		                     Classname(G));
-    
-    if (m_Guest)
-    {
-      if (G == m_Guest)
-        throw PGSTD::logic_error(Classname(G) +
-			         " '" +
-			         G->name() +
-			         "' started more than once without closing");
+    if (!G || m_Guest)
+      throw PGSTD::logic_error(UniqueRegisterError(G,
+	    m_Guest,
+	    Classname(G),
+	    (G ? G->name() : "")));
 
-      throw PGSTD::logic_error("Started " + 
-		               Classname(G) +
-			       " '" + 
-			       G->name() + 
-			       "' while '" +
-			       m_Guest->name() +
-			       "' was still active");
-    }
-    
     m_Guest = G;
   }
 
   void Unregister(GUEST *G)
   {
-    // TODO: Move error generation out of the header!
     if (G != m_Guest)
-    {
-      if (!G) 
-	throw PGSTD::logic_error("Closing NULL " + Classname(G));
-      else if (!m_Guest)
-	throw PGSTD::logic_error("Closing " + 
-			         Classname(G) +
-			         " '" +
-			         G->name() +
-			         "' which wasn't open");
-      throw PGSTD::logic_error("Closing wrong " + 
-			       Classname(G) +
-			       "; expected '" +
-			       m_Guest->name() +
-			       "' but got '" +
-			       G->name() +
-			       "'");
-    }
+      throw PGSTD::logic_error(UniqueUnregisterError(G, 
+	  m_Guest,
+	  Classname(G),
+	  (G ? G->name() : ""),
+	  (m_Guest ? m_Guest->name() : "")));
 
     m_Guest = 0;
   }

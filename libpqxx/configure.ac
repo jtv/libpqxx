@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 2.0.1, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 2.1.0, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 2.0.1)
+AM_INIT_AUTOMAKE(libpqxx, 2.1.0)
 
 # Library version numbering - see "info libtool versioning 'libtool
 # versioning'" for details.
@@ -325,18 +325,6 @@ AC_TRY_COMPILE([#include <iterator>],
 			[Define if <iterator> lacks an iterator template definition])
       	 it='no'])
 AC_MSG_RESULT($it)
-
-# See if abs() works on a long int
-AC_MSG_CHECKING([for abs(long int)])
-AC_TRY_COMPILE([#include <cstdlib>]
-               [#include <cmath>],
-	[using namespace PGSTD;long a=-2000000000; long b=abs(a);],
-	[AC_DEFINE(HAVE_ABS_LONG,
-		1,
-		[Define if abs() works on long ints])
-	 abslong='yes'],
-	[abslong='no'])
-AC_MSG_RESULT($abslong)
 
 AC_MSG_CHECKING([whether overloaded using-declarations work])
 AC_TRY_COMPILE([struct A{foo(int){}};struct B{using A::foo;foo(int,bool){}};],

@@ -94,7 +94,7 @@ const string &pqxx::binarystring::str() const
 
 string pqxx::escape_binary(const unsigned char bin[], size_t len)
 {
-#ifdef PQXX_HAVE_PQUNESCAPEBYTEA
+#ifdef PQXX_HAVE_PQESCAPEBYTEA
   size_t escapedlen = 0;
   unsigned char *p = const_cast<unsigned char *>(bin);
   PQAlloc<unsigned char> A(PQescapeBytea(p, len, &escapedlen));

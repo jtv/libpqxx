@@ -1,3 +1,32 @@
+2003-11-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac, include/pqxx/compiler.h, include/pqxx/config.h.in:
+  - Removed abs(long) workaround
+ include/pqxx/cachedresult.h:
+  - Removed const from CacheMap for SUN Workshop, thanks jluu@cdcixis-cm.com
+ include/pqxx/connection.h:
+  - Complete test coverage for asyncconnection
+ include/pqxx/libcompiler.h:
+  - Added forgotten #include <cstdlib>, thanks gborg@martinshouse.com
+ src/cursor.cxx:
+  - Replaced abs(long) by labs(long) (jluu@cdcixis-cm.com)
+ test/test065.cxx:
+  - Test asyncconnection's std::string constructor
+2003-11-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/libconfig.h.in:
+  - PQXX_HAVE_PQESCAPESTRING no longer visible during client compilation
+ include/pqxx/util.hxx:
+  - Moved some code to new util.cxx source file
+ src/util.cxx:
+  - New
+  - Stricter input check on conversion to bool
+ test/test064.cxx, test/test065.cxx, test/test066.cxx, test/test067.cxx, 
+ test/068.cxx:
+  - New
+  - Test asyncconnection
+ win32/libpqxx.mak:
+  - Added util.cxx/util.obj
+ win32/test.mak:
+  - Added new tests starting with number 60
 2003-11-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac:
   - Added check for #pragma warning("...")

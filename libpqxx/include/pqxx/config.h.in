@@ -1,8 +1,5 @@
 /* include/pqxx/config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Define if abs() works on long ints */
-#undef HAVE_ABS_LONG
-
 /* Define if std defines the char_traits template and <char> specialization */
 #undef HAVE_CHAR_TRAITS
 

@@ -116,8 +116,8 @@ class PQXX_LIBEXPORT asyncconnection : public connection_base
 {
 public:
   asyncconnection(); 							//[t63]
-  explicit asyncconnection(const PGSTD::string &ConnInfo);		//[]
-  explicit asyncconnection(const char ConnInfo[]);			//[]
+  explicit asyncconnection(const PGSTD::string &ConnInfo);		//[t65]
+  explicit asyncconnection(const char ConnInfo[]);			//[t64]
   virtual ~asyncconnection();
 
 private:

@@ -35,9 +35,6 @@
 /* Define if function overloading using "using" breaks */
 #define PQXX_BROKEN_USING_DECL 1
 
-/* Define if PostgreSQL has PQescapeString() */
-#define PQXX_HAVE_PQESCAPESTRING 1
-
 /* Define if PostgreSQL has PQfreemem() */
 #define PQXX_HAVE_PQFREEMEM 1
 
