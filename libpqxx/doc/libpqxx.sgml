@@ -33,6 +33,15 @@
      <itemizedlist>
       <listitem>
        <para>
+        Not using exceptions.  Many libraries return a status code and expect
+	the caller to check for errors "if it's interested."  <strong>Of 
+	course</strong> he's interested.  But checking each and every call is
+	tedious and error prone.
+       </para>
+      </listitem>
+
+      <listitem>
+       <para>
         Ad-hoc exception classes.  Programs using such libraries need to deal 
 	with various incompatible exception hierarchies, and error handling
 	becomes a total nightmare.
@@ -564,6 +573,18 @@ catch (...)
 }
 Xaction.Commit(); // ERROR: Xaction has already aborted!
       </programlisting>
+      <para>
+       For this reason, it is recommended to always include the "commit"
+       operation inside the <literal>try</literal> block (if any) surrounding
+       the transaction code, <strong>not</strong> after the 
+       <literal>catch</literal> block.
+      </para>
+      <para>
+       Think of it as a natural extension of structural programming: the
+       transaction is "nested" within the connection, and the transaction code
+       can be "nested" in a <literal>try</literal>/<literal>catch</literal>
+       block.
+      </para>
      </listitem>
 
     </itemizedlist>
@@ -578,12 +599,168 @@ Xaction.Commit(); // ERROR: Xaction has already aborted!
 
    <sect2>
     <title>Executing queries</title>
-    TODO: Write!
+    <para>
+     So let's execute an actual query.  There is no "query class" in
+     <productname>libpqxx</productname>; we're trying to keep your life simple.
+    </para>
+    <para>
+     A query is executed within a <literal>Transaction</literal> by passing
+     the query string to its <functionname>Exec</functionname> method.  If the
+     query fails to execute properly, this method will throw the appropriate
+     exception.
+    </para>
+     
+    <para>
+     The query itself is a standard C string, ie. a 
+     <literal>const char *</literal> but you'll frequently want to use a C++ 
+     <literal>string</literal> to make it easy to include variables:
+    </para>
+    <programlisting>
+void DeleteEntry(Transaction &T, string Table, long ID)
+{
+  T.Exec(("DELETE FROM " + Table + " WHERE ID=" + ID).c_str());
+}
+    </programlisting>
+    <para>
+     It seems inconvenient that <functionname>Exec</functionname> does not
+     accept C++ <literal>string</>s directly.  This choice was made to prevent
+     the interface from inviting you to write inefficient code that makes
+     multiple unnecessary conversions between C strings and C++ 
+     <literal>string</>s.
+    </para>
    </sect2>
 
    <sect2>
     <title>Getting query results</title>
-    TODO: Write!
+    <para>
+     Obviously not all queries are commands--the more common kind actually
+     returns useful data.  Result data in <productname>libpqxx</productname>
+     are encapsulated in a <literal>Result</literal> object, which acts as a
+     container similar to the STL's <literal>vector</literal> template.
+    </para>
+    <programlisting>
+Result R = T.Exec("SELECT firstname FROM employee WHERE lastname='Ng'");
+    </programlisting>
+    <para>
+     Two ways are provided to get at individual rows in a 
+     <literal>Result</literal>: through indexing with the array index operator
+     <literal>[]</literal>, and through random-access iterators.  Either way,
+     this will give you a <literal>Result::Tuple</literal> object that in turn
+     can be addressed with the array index operator to get at its individual
+     fields.
+    </para>
+    <para>
+     Thus, <literal>R[0]</literal> will return the first (<italics>zeroeth</>)
+     tuple in R.  You won't normally want to bother with <literal>Tuple</>s
+     though; they don't contain the actual data, but rather serve as 
+     placeholders to later tell <literal>Result</literal> which fields to fetch
+     when field values from the tuple are requested.  The class exists mostly 
+     for technical reasons related to the array index operators<footnote>
+       This is an instance of the <italics>Proxy</italics> design pattern,
+       needed to allow a <literal>Result</literal> to be indexed as if it were
+       a two-dimensional array.  C++'s array index operator doesn't allow this
+       usage directly, but the operator can be applied to the result of a
+       previous use of the same operator.  The "result in the middle" needs to
+       have a type of its own, though.
+     </footnote>.
+     What you'll usually do is index the row directly to get at the field you
+     want, eg. <literal>R[0][0]</literal> to get the first field of the first
+     row.
+    </para>
+    <para>
+     Array indexing of tuples also works with the fields' names instead of 
+     their numbers, eg.:
+    </para>
+    <programlisting>
+// Process employees' names one by one.  ProcessNames() doesn't know exactly
+// what columns are going to be in R, but there must be one called "lastname".
+void ProcessNames(Result R)
+{
+  for (Result::size_type i = 0; i != R.size(); ++i)
+    Process(R[i]["lastname"]);
+}
+    </programlisting>
+    <para>
+     As for the alternative, accessing the result tuples through an iterator,
+     only <literal>const</literal> iterators are provided so the contents of
+     the result cannot be modified.  Use these iterators as random-access
+     iterators like with any STL-like container:
+    </para>
+    <programlisting>
+for (Result::const_iterator i = R.begin(); i != R.end(); ++i)
+  Process(*i);
+    </programlisting>
+    <para>
+     Iterators may be incremented or decremented (whether pre- or post-), they
+     may be added to or subtracted from to jump through the result tuples;
+     their positions may be compared (provided they point into the same
+     <literal>Result</>, and they may be dereferenced through the <literal>*</>
+     or <literal>-&gt;</literal> operators.
+    </para>
+    <para>
+     Finally, the iterated tuples' fields may be addressed using the array 
+     index operator on the iterator directly, eg. <literal>R.begin()[0]</>
+     gets you the first field of <literal>R</>'s first row, just like
+     <literal>R[0][0]</> would<footnote>
+      Or <literal>(*R.begin())[0]</literal>.  It may seem quirky to have
+      <literal>R.begin()</> and <literal>*R.begin()</> mean the same thing, but
+      it makes practical use of iterators a lot easier.
+     </footnote>.
+    </para>
+    <para>
+     Either way, once you've indexed the <literal>Result::Tuple</> you get a 
+     <literal>Result::Field</>--which is another placeholder, but this time
+     encapsulates an actual field value in our query result.  A 
+     <literal>Field</> <literal>F</> also knows its column name, which can be 
+     obtained as <literal>F.name()</>.
+    </para>
+    <para>
+     Again, there is more than one way to read the field's value.  Let's start
+     out with the easy one, <functionname>c_str</>, which reads the value as a 
+     C string:
+    </para>
+    <programlisting>
+cout &lt;&lt; "Name: " &lt;&lt; F.c_str() &lt;&lt; endl;
+    </programlisting>
+    <para>
+     This will return the empty string (<literal>""</>) if field F has the
+     null value.  Use <functionname>is_null</> to see if this is the case:
+    </para>
+    <programlisting>
+if (!F.is_null())
+  cout &lt;&lt; "Name: " &lt;&lt; F.c_str() &lt;&lt; endl;
+    </programlisting>
+    <para>
+     In practice of course, not all data is going to consist of strings.  Many
+     fields will be integer values, or decimals, or Booleans.  To convert the
+     field's value to one of these, use its <functionname>to</> method.  This
+     adapts itself to the type of variable you pass it, expecting the field
+     value to be of an appropriate form for that type:
+    </para>
+    <programlisting>
+// Pay an employee his salary.  Add bonus for managers.
+// The employee tuple must contain the fields
+void PaySalary(Result::const_iterator empl)
+{
+  long id;
+  float salary;
+  bool is_manager=false;
+
+  // Get id.  Must never be null.
+  if (!i[0].to(id)) throw runtime_error("No id!");
+
+  // Get salary.  If this employee has no salary, skip payment.
+  if (!i[1].to(salary)) return;
+
+  // Get manager status.  If field is null, variable's original value (false)
+  // will be preserved.
+  i[2].to(is_manager);
+
+  if (is_manager) salary += Bonus;
+
+  TransferMoney(id, salary);
+}
+    </programlisting>
    </sect2>
 
   </sect1>
