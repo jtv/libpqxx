@@ -1,3 +1,13 @@
+2004-01-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/pipeline.hxx:
+  - Full test coverage
+  - Added retain() and resume()
+  - Better error message when retrieving result for unknown query
+ src/connection_base.cxx:
+  - Fix: combination of asyncconnection/nontransaction/pipeline didn't connect
+ test/test069.cxx, test/test070.cxx, test/test071.cxx, test/test072.cxx:
+  - New
+  - Test pipeline class
 2004-01-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
   - Check for automake 1.8

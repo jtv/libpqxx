@@ -56,7 +56,7 @@ modename="$progname"
 PROGRAM=ltmain.sh
 PACKAGE=libtool
 VERSION=1.5.0a
-TIMESTAMP=" (1.1220.2.35 2003/11/12 18:51:58) Debian$Rev: 159 $"
+TIMESTAMP=" (1.1220.2.35 2003/11/12 18:51:58) Debian$Rev: 179 $"
 
 default_mode=
 help="Try \`$progname --help' for more information."
@@ -858,7 +858,7 @@ EOF
       ;;
     esac
     libtool_args="$nonopt"
-    base_compile="$nonopt"
+    base_compile="$nonopt $@"
     compile_command="$nonopt"
     finalize_command="$nonopt"
 
@@ -908,7 +908,7 @@ EOF
     # Only attempt this if the compiler in the base link
     # command doesn't match the default compiler.
     if test -n "$available_tags" && test -z "$tagname"; then
-      case "$base_compile " in
+      case $base_compile in
       # Blanks in the command may have been stripped by the calling shell,
       # but not from the CC environment variable when configure was run.
       "$CC "* | " $CC "* | "`$echo $CC` "* | " `$echo $CC` "*) ;;
@@ -919,7 +919,7 @@ EOF
 	  if grep "^# ### BEGIN LIBTOOL TAG CONFIG: $z$" < "$0" > /dev/null; then
 	    # Evaluate the configuration.
 	    eval "`${SED} -n -e '/^# ### BEGIN LIBTOOL TAG CONFIG: '$z'$/,/^# ### END LIBTOOL TAG CONFIG: '$z'$/p' < $0`"
-	    case "$base_compile " in
+	    case $base_compile in
 	    "$CC "* | " $CC "* | "`$echo $CC` "* | " `$echo $CC` "*)
 	      # The compiler in $compile_command matches
 	      # the one in the tagged configuration.
@@ -975,7 +975,6 @@ EOF
     # Go through the arguments, transforming them on the way.
     while test "$#" -gt 0; do
       arg="$1"
-      base_compile="$base_compile $arg"
       shift
       case $arg in
       *[\[\~\#\^\&\*\(\)\{\}\|\;\<\>\?\'\ \	]*|*]*|"")
@@ -5638,7 +5637,7 @@ relink_command=\"$relink_command\""
 	      tmpdir="/tmp"
 	      test -n "$TMPDIR" && tmpdir="$TMPDIR"
 	      tmpdir="$tmpdir/libtool-$$"
-	      if $mkdir -p "$tmpdir" && chmod 700 "$tmpdir"; then :
+	      if $mkdir "$tmpdir" && chmod 700 "$tmpdir"; then :
 	      else
 		$echo "$modename: error: cannot create temporary directory \`$tmpdir'" 1>&2
 		continue
