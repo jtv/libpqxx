@@ -53,10 +53,10 @@ pair<int,int> CountEvents(Transaction &T)
       BoringCount = 0;
 
   Result R( T.Exec(EventsQuery.c_str()) );
-  R[0][0].to(EventsCount);
+  R.at(0).at(0).to(EventsCount);
 
   R = T.Exec(BoringQuery.c_str());
-  R[0][0].to(BoringCount);
+  R.at(0).at(0).to(BoringCount);
 
   return make_pair(EventsCount, BoringCount);
 }

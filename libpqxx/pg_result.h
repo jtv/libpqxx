@@ -66,7 +66,7 @@ public:
     Field operator[](size_type i) const { return Field(*this, i); }
     Field operator[](const char[]) const;
     Field operator[](PGSTD::string s) const {return operator[](s.c_str());}
-    Field at(size_type) const;
+    Field at(size_type) const;						//[t10]
     Field at(const char[]) const;
     Field at(PGSTD::string s) const { return at(s.c_str()); }
 
@@ -185,15 +185,15 @@ public:
     const_iterator(const Result *r, Result::size_type i) : Tuple(r, i) {}
   };
 
-  const_iterator begin() const { return const_iterator(this, 0); }
-  const_iterator end() const { return const_iterator(this, size()); }
+  const_iterator begin() const { return const_iterator(this, 0); }	//[t1]
+  const_iterator end() const { return const_iterator(this, size()); }	//[t1]
   // TODO: Handle reverse iterators
 
-  size_type size() const { return m_Result ? PQntuples(m_Result) : 0; }
+  size_type size() const { return m_Result ? PQntuples(m_Result) : 0; }	//[t2]
   bool empty() const { return !m_Result || !PQntuples(m_Result); }
 
-  const Tuple operator[](size_type i) const { return Tuple(this, i); }
-  const Tuple at(size_type i) const;
+  const Tuple operator[](size_type i) const { return Tuple(this, i); }	//[t2]
+  const Tuple at(size_type i) const;					//[t10]
 
   Tuple::size_type Columns() const { return PQnfields(m_Result); }
   // TODO: Check for nonexistant columns!!!
