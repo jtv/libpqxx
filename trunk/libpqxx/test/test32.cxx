@@ -71,6 +71,7 @@ public:
 class FailedInsert : public Transactor
 {
   string m_Table;
+  static string LastReason;
 public:
   FailedInsert(string Table) : 
     Transactor("FailedInsert"), 
@@ -89,7 +90,12 @@ public:
 
   void OnAbort(const char Reason[]) throw ()
   {
-    cerr << "(Expected) Transactor " << Name() << " failed: " << Reason << endl;
+    if (Reason != LastReason)
+    {
+      cerr << "(Expected) Transactor " << Name() << " failed: " 
+	    << Reason << endl;
+      LastReason = Reason;
+    }
   }
 
   void OnCommit()
@@ -103,6 +109,7 @@ public:
   }
 };
 
+string FailedInsert::LastReason;
 
 } // namespace
 
