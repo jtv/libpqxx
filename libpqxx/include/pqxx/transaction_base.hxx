@@ -284,6 +284,8 @@ private:
   friend class pipeline;
   void start_exec(const PGSTD::string &Q) { m_Conn.start_exec(Q); }
   PGresult *get_result() { return m_Conn.get_result(); }
+  void consume_input() throw () { m_Conn.consume_input(); }
+  bool is_busy() const throw () { return m_Conn.is_busy(); }
 
   connection_base &m_Conn;
 

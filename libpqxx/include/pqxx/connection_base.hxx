@@ -387,6 +387,10 @@ private:
   void AddTrigger(trigger *);
   void RemoveTrigger(trigger *) throw ();
 
+  friend class pipeline;
+  void consume_input() throw () { PQconsumeInput(m_Conn); }
+  bool is_busy() const throw () { return PQisBusy(m_Conn); }
+
   // Not allowed:
   connection_base(const connection_base &);
   connection_base &operator=(const connection_base &);

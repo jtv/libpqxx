@@ -1,3 +1,5 @@
+2.2.6
+ - Complete pipeline rewrite, for better exception safety
 2.2.5
  - First new cursor classes!
  - Fixed strange failure in tablewriter during large insertions

@@ -57,15 +57,10 @@ int main(int, char *argv[])
     values.clear();
 
     // Insert more queries returning various numbers
-    P.retain();
+    P.retain(20);
     for (int i=100; i>90; --i) values[P.insert("SELECT " + to_string(i))] = i;
 
-    // See that all queries are issued on resume()
     P.resume();
-    for (Exp::const_iterator c=values.begin(); c!=values.end(); ++c)
-      if (!P.is_running(c->first))
-	throw logic_error("Query #" + to_string(c->first) + " "
-	    "not running after resume()");
 
 #ifdef PQXX_HAVE_REVERSE_ITERATOR
     // Retrieve results in reverse order
@@ -74,12 +69,10 @@ int main(int, char *argv[])
 #endif	// PQXX_HAVE_REVERSE_ITERATOR
 
     values.clear();
-    P.retain();
+    P.retain(10);
     for (int i=1010; i>1000; --i) values[P.insert("SELECT "+to_string(i))] = i;
     for (Exp::const_iterator c=values.begin(); c!=values.end(); ++c)
     {
-      if (P.is_running(c->first))
-	cout << "Query #" << c->first << " issued despite retain()" << endl;
       if (P.is_finished(c->first))
 	cout << "Query #" << c->first << " completed despite retain()" << endl;
     }
@@ -87,7 +80,7 @@ int main(int, char *argv[])
     // See that all results are retrieved by complete()
     P.complete();
     for (Exp::const_iterator c=values.begin(); c!=values.end(); ++c)
-      if (!P.is_running(c->first))
+      if (!P.is_finished(c->first))
 	throw logic_error("Query #" + to_string(c->first) + " "
 	    "not finished after complete()");
   }
