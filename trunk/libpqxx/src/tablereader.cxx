@@ -176,12 +176,15 @@ string pqxx::tablereader::extract_field(const string &Line,
 	  break;
 
     	case 'b':
+	  // TODO: Escape code?
 	  R += char(8);
 	  break;	// Backspace
     	case 'v':
+	  // TODO: Escape code?
 	  R += char(11);
 	  break;	// Vertical tab
     	case 'f':
+	  // TODO: Escape code?
 	  R += char(12);
 	  break;	// Form feed
     	case 'n':
