@@ -95,7 +95,7 @@ public:
 
   void operator()(argument_type &T)
   {
-    T.exec("NOTIFY " + m_Trigger);
+    T.exec("NOTIFY \"" + m_Trigger + "\"");
     Backend_PID = T.conn().backendpid();
   }
 
