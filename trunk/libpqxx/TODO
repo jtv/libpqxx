@@ -41,6 +41,11 @@ Streams
 
 Transactions
 (*) German's locking idea for robusttransaction
+(*) [pgsql 7.5] Try to use two-phase commit if appropriate
+(*) [pgsql 7.5] Create log table "WITH OIDS" if appropriate
+(*) [pgsql 7.5] Support two-phase commit with separate transaction class(es)
+(*) [pgsql 7.5] Support nested transactions
+(*) [pgsql 7.5] See if transactions are still aborted on error
 (*) User schema support for robusttransaction log table
 (*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
 (*) Support constraints definition
