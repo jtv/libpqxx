@@ -25,7 +25,7 @@ namespace pqxx
 class LargeObjectAccess;
 
 
-/// Identity of a large object. @warning Experimental--can and will change soon
+/// Identity of a large object
 /** This class encapsulates the identity of a large object.  To access the
  * contents of the object, create a LargeObjectAccess, a largeobject_streambuf,
  * or an ilostream, an olostream or a lostream around the LargeObject.
@@ -65,7 +65,7 @@ public:
    * as an implicit conversion.
    * @param O already opened large object to copy identity from
    */
-  LargeObject(const LargeObjectAccess &O);				//[]
+  LargeObject(const LargeObjectAccess &O);				//[t50]
 
   /// Object identifier
   /** The number returned by this function identifies the large object in the
@@ -74,22 +74,22 @@ public:
   Oid id() const throw () { return m_ID; }				//[t48]
 
   /// Comparison is only valid between large objects in the same database.
-  bool operator==(const LargeObject &other) const 			//[]
+  bool operator==(const LargeObject &other) const 			//[t51]
 	  { return m_ID == other.m_ID; }
   /// Comparison is only valid between large objects in the same database.
-  bool operator!=(const LargeObject &other) const 			//[]
+  bool operator!=(const LargeObject &other) const 			//[t51]
 	  { return m_ID != other.m_ID; }
   /// Comparison is only valid between large objects in the same database.
-  bool operator<=(const LargeObject &other) const 			//[]
+  bool operator<=(const LargeObject &other) const 			//[t51]
 	  { return m_ID <= other.m_ID; }
   /// Comparison is only valid between large objects in the same database.
-  bool operator>=(const LargeObject &other) const 			//[]
+  bool operator>=(const LargeObject &other) const 			//[t51]
 	  { return m_ID >= other.m_ID; }
   /// Comparison is only valid between large objects in the same database.
-  bool operator<(const LargeObject &other) const 			//[]
+  bool operator<(const LargeObject &other) const 			//[t51]
 	  { return m_ID < other.m_ID; }
   /// Comparison is only valid between large objects in the same database.
-  bool operator>(const LargeObject &other) const 			//[]
+  bool operator>(const LargeObject &other) const 			//[t51]
 	  { return m_ID > other.m_ID; }
 
   /// Export large object's contents to a local file
@@ -122,12 +122,14 @@ protected:
     return T.Conn().RawConnection();
   }
 
+  PGSTD::string Reason() const;
+
 private:
   Oid m_ID;
 };
 
 
-/// Accessor for large object's contents. @warning Still experimental!
+/// Accessor for large object's contents.
 class LargeObjectAccess : private LargeObject
 {
 public:
@@ -141,7 +143,7 @@ public:
   explicit LargeObjectAccess(TransactionItf &T, 
 			     PGSTD::ios_base::openmode mode = 
 				PGSTD::ios_base::in | 
-				PGSTD::ios_base::out);			//[]
+				PGSTD::ios_base::out);			//[t51]
 
   /// Open large object with given Oid
   /** Convert combination of a transaction and object identifier into a
@@ -162,11 +164,11 @@ public:
    * @param O identity for the large object to be accessed
    * @param mode access mode, defaults to ios_base::in | ios_base::out
    */
-  explicit LargeObjectAccess(TransactionItf &T, 
-			     LargeObject O,
-			     PGSTD::ios_base::openmode mode = 
+  LargeObjectAccess(TransactionItf &T, 
+		    LargeObject O,
+		    PGSTD::ios_base::openmode mode = 
 				PGSTD::ios_base::in | 
-				PGSTD::ios_base::out);			//[]
+				PGSTD::ios_base::out);			//[t50]
 
   /// Import large object from a local file and open it
   /** Creates a large object containing the data found in the given file.
@@ -191,7 +193,7 @@ public:
   /** Writes the data stored in the large object to the given file.
    * @param File a filename on the client's filesystem
    */
-  void to_file(const char File[]) const 
+  void to_file(const char File[]) const 				//[]
   { 
     LargeObject::to_file(m_Trans, File); 
   }
@@ -200,7 +202,7 @@ public:
   /** Writes the data stored in the large object to the given file.
    * @param File a filename on the client's filesystem
    */
-  void to_file(const PGSTD::string &File) const 
+  void to_file(const PGSTD::string &File) const 			//[]
   { 
     LargeObject::to_file(m_Trans, File); 
   }
@@ -210,13 +212,13 @@ public:
    * @param Buf the data to write
    * @param Len the number of bytes from Buf to write
    */
-  void write(const char Buf[], size_type Len);
+  void write(const char Buf[], size_type Len);				//[]
 
   /// Write string to large object
   /** If not all bytes could be written, an exception is thrown.
    * @param Buf the data to write; no terminating zero is written
    */
-  void write(const PGSTD::string &Buf) 
+  void write(const PGSTD::string &Buf)					//[t50]
   	{ write(Buf.c_str(), Buf.size()); }
 
   /// Read data from large object
@@ -226,33 +228,42 @@ public:
    * @param Buf the location to store the read data in
    * @param Len the number of bytes to try and read
    */
-  size_type read(char Buf[], size_type Len);
+  size_type read(char Buf[], size_type Len);				//[t50]
 
-  // TODO: Document return value
   /// Seek in large object's data stream
-  /** Does not throw exception in case of error; inspect return value instead.
+  /** Returns the new position in the large object.  Throws an exception if an
+   * error occurs.
+   */
+  size_type seek(size_type dest, PGSTD::ios_base::seekdir dir);		//[t51]
+
+  /// Seek in large object's data stream
+  /** Does not throw exception in case of error; inspect return value and errno
+   * instead.
+   * Returns new position in large object, or -1 if an error occurred.
    * @param dest offset to go to
    * @param dir origin to which dest is relative: ios_base::beg (from beginning 
    *        of the object), ios_base::cur (from current access position), or
    *        ios_base;:end (from end of object)
    */
-  long cseek(long dest, PGSTD::ios_base::seekdir dir) throw ();
+  long cseek(long dest, PGSTD::ios_base::seekdir dir) throw ();		//[t50]
     
   /// Write to large object's data stream
-  /** Does not throw exception in case of error; inspect return value instead.
+  /** Does not throw exception in case of error; inspect return value and errno
+   * instead.
    * Returns number of bytes actually written, or -1 if an error occurred.
    * @param Buf bytes to write
    * @param Len number of bytes to write
    */
-  long cwrite(const char Buf[], size_type Len) throw ();
+  long cwrite(const char Buf[], size_type Len) throw ();		//[t50]
 
   /// Read from large object's data stream
-  /** Does not throw exception in case of error; inspect return value instead.
+  /** Does not throw exception in case of error; inspect return value and errno
+   * instead.
    * Returns number of bytes actually read, or -1 if an error occurred.
    * @param Buf area where bytes should be stored
    * @param Len number of bytes to read
    */
-  long cread(char Buf[], size_type Len) throw ();
+  long cread(char Buf[], size_type Len) throw ();			//[t50]
 
   using LargeObject::operator==;
   using LargeObject::operator!=;
@@ -262,6 +273,7 @@ public:
   using LargeObject::operator>=;
 
 private:
+  PGSTD::string Reason() const;
   PGconn *RawConnection() { return LargeObject::RawConnection(m_Trans); }
 
   void open(PGSTD::ios_base::openmode mode);
@@ -277,10 +289,8 @@ private:
 };
 
 
-/// Streambuf to use large objects in standard I/O streams @warning Experimental
-/** @warning Still experimental.  May change profoundly.
- *
- * The standard streambuf classes provide uniform access to data storage such
+/// Streambuf to use large objects in standard I/O streams
+/** The standard streambuf classes provide uniform access to data storage such
  * as files or string buffers, so they can be accessed using standard input or
  * output streams.  This streambuf implementation provides similar access to
  * large objects, so they can be read and written using the same stream classes.
@@ -439,7 +449,7 @@ public:
    */
   basic_ilostream(TransactionItf &T, 
                   LargeObject O, 
-		  LargeObject::size_type BufSize=512) :
+		  LargeObject::size_type BufSize=512) :			//[]
     PGSTD::basic_istream<CHAR,TRAITS>(&m_Buf),
     m_Buf(T, O, in, BufSize) 
   { 
@@ -452,7 +462,7 @@ public:
    */
   basic_ilostream(TransactionItf &T, 
                   Oid O, 
-		  LargeObject::size_type BufSize=512) :
+		  LargeObject::size_type BufSize=512) :			//[t48]
     PGSTD::basic_istream<CHAR,TRAITS>(&m_Buf),
     m_Buf(T, O, in, BufSize) 
   { 
@@ -490,7 +500,7 @@ public:
    */
   basic_olostream(TransactionItf &T, 
                   LargeObject O,
-		  LargeObject::size_type BufSize=512) :
+		  LargeObject::size_type BufSize=512) :			//[t48]
     PGSTD::basic_ostream<CHAR,TRAITS>(&m_Buf),
     m_Buf(T, O, out, BufSize) 
   { 
@@ -503,7 +513,7 @@ public:
    */
   basic_olostream(TransactionItf &T, 
       		  Oid O,
-		  LargeObject::size_type BufSize=512) :
+		  LargeObject::size_type BufSize=512) :			//[]
     PGSTD::basic_ostream<CHAR,TRAITS>(&m_Buf),
     m_Buf(T, O, out, BufSize) 
   { 
@@ -543,7 +553,7 @@ public:
    */
   basic_lostream(TransactionItf &T, 
       		 LargeObject O,
-		 LargeObject::size_type BufSize=512) :
+		 LargeObject::size_type BufSize=512) :			//[]
     PGSTD::basic_iostream<CHAR,TRAITS>(&m_Buf),
     m_Buf(T, O, in | out, BufSize) 
   { 
@@ -556,7 +566,7 @@ public:
    */
   basic_lostream(TransactionItf &T, 
       		 Oid O,
-		 LargeObject::size_type BufSize=512) :
+		 LargeObject::size_type BufSize=512) :			//[]
     PGSTD::basic_iostream<CHAR,TRAITS>(&m_Buf),
     m_Buf(T, O, in | out, BufSize) 
   { 

@@ -10,19 +10,13 @@ using namespace pqxx;
 // Simple test program for libpqxx.  Open connection to database, start
 // a transaction, and perform a query inside it.
 //
-// Usage: test1 [connect-string]
-//
-// Where connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
-int main(int, char *argv[])
+// Usage: test1
+int main()
 {
   try
   {
-    // Set up a connection to the backend.  The connection string is optional;
-    // a null pointer will also work.
-    Connection C(argv[1]);
+    // Set up a connection to the backend.
+    Connection C;
 
     // Begin a transaction acting on our current connection.  Give it a human-
     // readable name so the library can include it in error messages.

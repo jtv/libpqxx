@@ -40,6 +40,9 @@ namespace pqxx
 class PQXX_LIBEXPORT Connection : public ConnectionItf
 {
 public:
+  /// Constructor.  Sets up connection without connection string.
+  Connection();								//[t1]
+
   /// Constructor.  Sets up connection based on PostgreSQL connection string.
   /** @param ConnInfo a PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.
@@ -51,7 +54,7 @@ public:
    * parameters, such as server, port, database, and password.  As a special
    * case, a null pointer is taken as the empty string.
    */
-  explicit Connection(const char ConnInfo[]);				//[t1]
+  explicit Connection(const char ConnInfo[]);				//[t3]
 
   virtual ~Connection();
 };
@@ -69,6 +72,9 @@ public:
 class PQXX_LIBEXPORT LazyConnection : public ConnectionItf
 {
 public:
+  /// Constructor.  Sets up lazy connection.
+  LazyConnection() : ConnectionItf(0) {}				//[t23]
+
   /// Constructor.  Sets up lazy connection.
   /** @param ConnInfo a PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.

@@ -1,3 +1,19 @@
+2003-03-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection.h, src/connection.cxx, test/test001.cxx, 
+ test/test023.cxx:
+  - Default constructors for Connection and LazyConnection
+ include/pqxx/largeobject.h:
+  - Better test coverage
+  - Added LargeObjectAccess::seek()
+  - Documented LargeObjectAccess::cseek() return value
+  - Added Reason() functions to LargeObject, LargeObjectAccess
+ src/largeobject.cxx:
+  - Added Reason() functions to LargeObject, LargeObjectAccess
+  - Use Reason() to describe some errors more accurately
+ test/test050.cxx:
+  - More devious mixed-mode access
+ test/test051.cxx:
+  - New
 2003-03-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac:
   - Check for PQfreemem()

@@ -92,7 +92,7 @@ void pqxx::LargeObject::to_file(TransactionItf &T, const char File[]) const
   if (lo_export(RawConnection(T), id(), File) == -1)
     throw runtime_error("Could not export large object " + ToString(m_ID) + " "
 	                "to file '" + File + "': " +
-			strerror(errno));
+			Reason());
 }
 
 
@@ -101,7 +101,13 @@ void pqxx::LargeObject::remove(TransactionItf &T) const
   if (lo_unlink(RawConnection(T), id()) == -1)
     throw runtime_error("Could not delete large object " + 
 	                ToString(m_ID) + ": " +
-			strerror(errno));
+			Reason());
+}
+
+
+string pqxx::LargeObject::Reason() const
+{
+  return (id() == pqxxInvalidOid) ? "No object selected" : strerror(errno);
 }
 
 
@@ -148,6 +154,17 @@ pqxx::LargeObjectAccess::LargeObjectAccess(TransactionItf &T,
 }
 
 
+pqxx::LargeObjectAccess::size_type 
+pqxx::LargeObjectAccess::seek(size_type dest, ios_base::seekdir dir)
+{
+  const size_type Result = cseek(dest, dir);
+  if (Result == -1)
+    throw runtime_error("Error seeking in large object: " + Reason()); 
+
+  return Result;
+}
+
+
 long pqxx::LargeObjectAccess::cseek(long dest, ios_base::seekdir dir) throw ()
 {
   return lo_lseek(RawConnection(), m_fd, dest, StdDirToPQDir(dir));
@@ -174,9 +191,10 @@ void pqxx::LargeObjectAccess::write(const char Buf[], size_type Len)
     if (Bytes < 0)
       throw runtime_error("Error writing to large object "
                           "#" + ToString(id()) + ": " +
-	                  strerror(errno));
+	                  Reason());
     if (Bytes == 0)
-      throw runtime_error("Could not write to large object #" + ToString(id()));
+      throw runtime_error("Could not write to large object #" + 
+	                  ToString(id()) + ": " + Reason());
 
     throw runtime_error("Wanted to write " + ToString(Len) + " bytes "
 	                "to large object #" + ToString(id()) + "; "
@@ -191,7 +209,7 @@ pqxx::LargeObjectAccess::read(char Buf[], size_type Len)
   const long Bytes = cread(Buf, Len);
   if (Bytes < 0)
     throw runtime_error("Error reading from large object #" + ToString(id()) +
-	                ": " + strerror(errno));
+	                ": " + Reason());
   return Bytes;
 }
 
@@ -201,12 +219,18 @@ void pqxx::LargeObjectAccess::open(ios_base::openmode mode)
   m_fd = lo_open(RawConnection(), id(), StdModeToPQMode(mode));
   if (m_fd < 0)
     throw runtime_error("Could not open large object " + ToString(id()) + ": " +
-	                strerror(errno));
+	                Reason());
 }
 
 
 void pqxx::LargeObjectAccess::close()
 {
   if (m_fd >= 0) lo_close(RawConnection(), m_fd);
+}
+
+
+string pqxx::LargeObjectAccess::Reason() const
+{
+  return (m_fd == -1) ? "No object opened" : LargeObject::Reason();
 }
 
