@@ -12,6 +12,17 @@ if test -x /usr/bin/automake-1.7 ; then
 	ver="-1.7"
 fi
 
+# The VERSION file defines our versioning
+PQXXVERSION=`grep '\<PQXXVERSION\>' VERSION | sed -e 's/^[[:space:]A-Z_]*//' | sed -e 's/[[:space:]]*#.*$//'`
+ABI_CURRENT=`grep '\<ABI_CURRENT\>' VERSION | sed -e 's/^[[:space:]A-Z_]*//' | sed -e 's/[[:space:]]*#.*$//'`
+ABI_REVISION=`grep '\<ABI_REVISION\>' VERSION | sed -e 's/^[[:space:]A-Z_]*//' | sed -e 's/[[:space:]]*#.*$//'`
+ABI_AGE=`grep '\<ABI_AGE\>' VERSION | sed -e 's/^[[:space:]A-Z_]*//' | sed -e 's/[[:space:]]*#.*$//'`
+echo -n "libpqxx version $PQXXVERSION, " 
+echo "ABI $ABI_CURRENT.$ABI_REVISION.$ABI_AGE"
+
+# Generate configure.ac based on current version numbers
+sed -e "s/@PQXXVERSION@/$PQXXVERSION/g" configure.ac.in | sed -e "s/@ABI_CURRENT@/$ABI_CURRENT/g" | sed -e "s/@ABI_REVISION@/$ABI_REVISION/g" | sed -e "s/@ABI_AGE@/$ABI_AGE/g" >configure.ac
+
 # Generate test/Makefile.am
 ./tools/maketestam.pl test >test/Makefile.am
 
