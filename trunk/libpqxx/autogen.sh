@@ -3,8 +3,8 @@
 
 aclocal
 autoheader
-libtoolize --automake
-automake --add-missing --copy
+libtoolize --automake --copy
+automake --verbose --add-missing --copy
 autoconf
 
 ./configure --enable-maintainer-mode

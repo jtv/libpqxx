@@ -1,0 +1,15 @@
+This package was debianized by J.H.M. Dassen <jdassen@debian.org> on
+Tue, 30 Jul 2002 16:22:57 +0200.
+
+It was downloaded from the CVS repository 
+:pserver:anoncvs@anoncvs.postgresql.org:/projects/cvsroot
+module interfaces/libpqxx .
+
+Primary upstream author(s): Jeroen T. Vermeulen <jtv@xs4all.nl>.
+See AUTHORS and ChangeLog for full credits.
+
+Copyright:
+
+This is a preliminary version of libpqxx.  Distribution and use are allowed
+under the same conditions as the main PostgreSQL project.
+

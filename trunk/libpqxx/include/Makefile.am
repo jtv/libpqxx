@@ -1,2 +1,2 @@
-MAINTAINERCLEANFILES=Makefile.in pqxx/config.h.in~
+SUBDIRS = pqxx
 

@@ -25,3 +25,10 @@ Nonblocking operation
 (*) Separate query issuing from receipt of results
 (*) Support select()
 
+Debian packaging
+( ) Write and use doc-base entry for documentation
+
+Build system
+
+( ) Work on the clean, maintainer-clean, dist-clean targets; see
+    debian/rules for stuff that isn't cleaned out properly yet.
