@@ -52,6 +52,8 @@ public:
    * case, a null pointer is taken as the empty string.
    */
   explicit Connection(const char ConnInfo[]);				//[t1]
+
+  virtual ~Connection();
 };
 
 
@@ -81,6 +83,8 @@ public:
    */
   explicit LazyConnection(const char ConnInfo[]) :			//[t22]
     ConnectionItf(ConnInfo) {}
+
+  virtual ~LazyConnection();
 };
 
 }

@@ -1,3 +1,6 @@
+2003-03-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection.h, src/connection.cxx:
+  - Explicit destructors to work around another problem with Sun CC 5.1
 2003-03-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac:
   - Changed check for abs(long) to be more likely to fail
