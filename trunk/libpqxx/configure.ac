@@ -45,7 +45,6 @@ AC_MSG_RESULT(${enable_maintainer_mode})
 # Let's try to get the compiler to be helpful
 # (Omit the -Waggregate-return and -Weffc++ options because they currently
 # yield too many warnings in gcc's standard headers)
-# (Omit -Wdisabled-optimization)
 if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 	for option in \
 		-ffor-scope \
@@ -197,12 +196,7 @@ AC_LANG_POP(C++)
 AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
-# AC_STRUCT_TM
 AC_CHECK_TYPES([ptrdiff_t])
-
-# Checks for library functions.
-# AC_FUNC_MALLOC
-# AC_CHECK_FUNCS([memset])
 
 AC_PROG_MAKE_SET
 
