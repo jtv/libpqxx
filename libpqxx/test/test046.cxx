@@ -40,6 +40,12 @@ int main(int, char *argv[])
     if (L != L2)
       throw logic_error("Different conversion methods gave different results!");
   }
+  catch (const sql_error &e)
+  {
+    cerr << "SQL error: " << e.what() << endl
+         << "Query was: '" << e.query() << "'" << endl;
+    return 1;
+  }
   catch (const exception &e)
   {
     cerr << "Exception: " << e.what() << endl;

@@ -138,6 +138,12 @@ int main(int, char *argv[])
     C.Perform(WriteLargeObject(Obj));
     C.Perform(DeleteLargeObject(Obj));
   }
+  catch (const sql_error &e)
+  {
+    cerr << "SQL error: " << e.what() << endl
+         << "Query was: '" << e.query() << "'" << endl;
+    return 1;
+  }
   catch (const exception &e)
   {
     cerr << "Exception: " << e.what() << endl;

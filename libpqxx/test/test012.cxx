@@ -150,6 +150,14 @@ int main(int argc, char *argv[])
 	throw logic_error("Found more nulls than there were rows!");
     }
   }
+  catch (const sql_error &e)
+  {
+    // If we're interested in the text of a failed query, we can write separate
+    // exception handling code for this type of exception
+    cerr << "SQL error: " << e.what() << endl
+         << "Query was: '" << e.query() << "'" << endl;
+    return 1;
+  }
   catch (const exception &e)
   {
     // All exceptions thrown by libpqxx are derived from std::exception

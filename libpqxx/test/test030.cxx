@@ -86,6 +86,12 @@ int main(int argc, char *argv[])
       cout << "(Table is empty.)" << endl;
     }
   }
+  catch (const sql_error &e)
+  {
+    cerr << "SQL error: " << e.what() << endl
+         << "Query was: '" << e.query() << "'" << endl;
+    return 1;
+  }
   catch (const exception &e)
   {
     // All exceptions thrown by libpqxx are derived from std::exception

@@ -41,9 +41,10 @@ int main(int argc, char *argv[])
       Drop.Exec(("DROP TABLE " + TableName).c_str());
       Drop.Commit();
     }
-    catch (const exception &e)
+    catch (const sql_error &e)
     {
-      cerr << "(Expected) Couldn't drop table: " << e.what() << endl;
+      cerr << "(Expected) Couldn't drop table: " << e.what() << endl
+	   << "Query was: " << e.query() << endl;
     }
 
     // Now begin new transaction to create new table & write data
@@ -99,6 +100,14 @@ int main(int argc, char *argv[])
 
     // Now that our TableWriter is closed, it's safe to commit T.
     T.Commit();
+  }
+  catch (const sql_error &e)
+  {
+    // If we're interested in the text of a failed query, we can write separate
+    // exception handling code for this type of exception
+    cerr << "SQL error: " << e.what() << endl
+         << "Query was: '" << e.query() << "'" << endl;
+    return 1;
   }
   catch (const exception &e)
   {

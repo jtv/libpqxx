@@ -69,6 +69,12 @@ int main(int argc, char *argv[])
 
     T.Commit();
   }
+  catch (const sql_error &e)
+  {
+    cerr << "SQL error: " << e.what() << endl
+         << "Query was: '" << e.query() << "'" << endl;
+    return 1;
+  }
   catch (const exception &e)
   {
     cerr << "Exception: " << e.what() << endl;

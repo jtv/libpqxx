@@ -134,15 +134,19 @@ int main(int, char *argv[])
 	 ++i)
       cout << '\t' << i->first << "\t-> " << i->second << endl;
   }
+  catch (const sql_error &e)
+  {
+    cerr << "SQL error: " << e.what() << endl
+         << "Query was: '" << e.query() << "'" << endl;
+    return 1;
+  }
   catch (const exception &e)
   {
-    // All exceptions thrown by libpqxx are derived from std::exception
     cerr << "Exception: " << e.what() << endl;
     return 2;
   }
   catch (...)
   {
-    // This is really unexpected (see above)
     cerr << "Unhandled exception" << endl;
     return 100;
   }
