@@ -18,7 +18,18 @@
 
 #include "pqxx/compiler.h"
 
-/* Some transactions may be replayed if their connection fails, until they do 
+
+/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+ */
+
+
+namespace pqxx
+{
+class Transaction;
+
+// TODO: Derive from std::unary_function or whatever it was called
+
+/** Some transactions may be replayed if their connection fails, until they do 
  * succeed.  These can be encapsulated in a Transactor-derived classes.  The 
  * Transactor framework will take care of setting up a backend transaction 
  * context for the operation, and of aborting and retrying if its connection 
@@ -43,48 +54,62 @@
  * used to create a "clean" copy of your transactor for every attempt that 
  * Perform() makes to run it.
  */
-
-/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
- */
-
-
-namespace pqxx
-{
-class Transaction;
-
-// TODO: Derive from std::unary_function or whatever it was called
-
 class PQXX_LIBEXPORT Transactor
 {
 public:
   explicit Transactor(PGSTD::string TName="AnonymousTransactor") :	//[t4]
     m_Name(TName) {}
 
-  // Define transaction class to use as a wrapper for this code.  Currently
-  // only supports the basic Transaction class, but various alternatives with
-  // different levels of safety may be introduced later.
+  /// Define transaction class to use as a wrapper for this code.  
+  /** Select the quality of service for your transactor by overriding this in
+   * your derived class.
+   */
   typedef Transaction TRANSACTIONTYPE;
 
-  // Overridable transaction definition.  Will be retried if connection goes
-  // bad, but not if an exception is thrown while the connection remains open.
-  // The parameter is a dedicated transaction context created to perform this
-  // operation.  It is generally recommended that a Transactor modify only
-  // itself and this Transaction object from here.
-  void operator()(TRANSACTIONTYPE &);					//[t4]
+  /// Overridable transaction definition.
+  /** Will be retried if connection goes bad, but not if an exception is thrown 
+   * while the connection remains open.
+   * @param T a dedicated transaction context created to perform this 
+   * operation.  It is generally recommended that a Transactor modify only 
+   * itself and T from inside this operator.
+   */
+  void operator()(TRANSACTIONTYPE &T);					//[t4]
 
   // Overridable member functions, called by Connection::Perform() if attempt 
   // to run transaction fails/succeeds, respectively, or if the connection is
   // lost at just the wrong moment, goes into an indeterminate state.  Use 
   // these to patch up runtime state to match events, if needed, or to report 
   // failure conditions.
-  // If your OnCommit() function should throw an exception, the actual back-end 
-  // transaction will still be committed so the effects on the database remain.
-  // The OnAbort() and OnDoubt() functions are not allowed to throw exceptions 
-  // at all.
+
+  /// Overridable function to be called if transaction is aborted.
+  /** This need not imply complete failure; the Transactor will automatically
+   * retry the operation a number of times before giving up.  OnAbort() will be
+   * called for each of the failed attempts.
+   * The Reason argument is an error string describing why the transaction 
+   * failed. 
+   */
   void OnAbort(const char /*Reason*/[]) throw () {}			//[t13]
+
+  /// Overridable function to be called when committing the transaction. 
+  /** If your OnCommit() throws an exception, the actual back-end transaction
+   * will remain committed, so any changes in the database remain.
+   */
   void OnCommit() {}							//[t6]
+
+  /// Overridable function to be called when going into limbo between committing
+  /// and aborting.
+  /** This may happen if the connection to the backend is lost while attempting
+   * to commit.  In that case, the backend may have committed the transaction
+   * but is unable to confirm this to the frontend; or the backend may have
+   * failed completely, causing the transaction to be aborted.  The best way to
+   * deal with this situation is to wave red flags in the user's face and ask
+   * him to investigate.
+   * Also, the RobustTransaction class is intended to reduce the chances of this
+   * error occurring.
+   */
   void OnDoubt() throw () {}						//[t13]
 
+  /// The Transactor's name.
   PGSTD::string Name() const { return m_Name; }				//[t13]
 
 private:
