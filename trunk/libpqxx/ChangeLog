@@ -1,3 +1,28 @@
+2004-08-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Added several warning options
+ include/pqxx/connection.hxx, src/connection.cxx:
+  - New nullconnection class for testing
+ include/pqxx/connection_base.hxx, src/connection_base.cxx:
+  - Updated activate()/deactivate() documentation to lower-case API
+  - Made Status() throw ()
+  - Made ErrMsg() throw ()
+ include/pqxx/result.hxx:
+  - Removed initialize()'s empty throw specification
+ include/pqxx/robusttransaction.hxx, include/pqxx/transaction.hxx:
+  - Separate single-arg and "named" constructors instead of default arg
+ include/pqxx/util.hxx, src/util.cxx:
+  - Removed namedclass::description()'s empty throw specification
+ src/connection_base.cxx:
+  - Forgot to read result after removing trigger
+  - No longer list open triggers when closing connection
+  - Extra checks for connection being open
+ test/test000.cxx:
+  - Add nullconnection checks
+ test/test005.cxx, test/test013.cxx, test/test018.cxx, test/test032.cxx,
+ test/test037.cxx, test/test040.cxx, test/test041.cxx, test/test056.cxx,
+ test/test070.cxx, test/test072.cxx, test/test073.cxx:
+  - Send "expected" messages to cout instead of cerr
 2004-08-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh: 
   - Check for PQexecPrepared()
