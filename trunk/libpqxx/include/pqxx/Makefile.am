@@ -1,7 +1,7 @@
 MAINTAINERCLEANFILES=Makefile.in
 	stamp-h.in
 
-includedir=$(prefix)/include/pqxx
+includedir=@includedir@/pqxx
 include_HEADERS= pqxx all.h \
 	binarystring binarystring.hxx \
 	cachedresult.h \
