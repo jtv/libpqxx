@@ -1,3 +1,39 @@
 
 Welcome to libpqxx, a C++ API to the PostgreSQL database management system.
 
+To get started quickly on a Unix-like system, enter:
+
+./configure	# (plus suitable arguments, to set up the build environment)
+make		# (to build the library)
+make check	# (to run the library's self-test suite)
+make install	# (with superuser privileges, to install the library)
+
+Once this has succeeded, you should be able to link your own programs with 
+libpqxx.
+
+But first, a word on those "suitable arguments."  These may or may not be
+needed on your particular system, so do try omitting them at first.  The most 
+important options are:
+
+--with-postgres=<path>
+to indicate the base PostgreSQL library and include path.  The build procedure 
+expects to find subdirectories include/ and lib/ there.  If, for instance, you
+have the PostgreSQL headers and libraries in /usr/local/pgsql/include/ and
+/usr/local/pgsql/libs/ respectively, all you need to specify this to the
+configure script is "--with-postgres=/usr/local/pgsql".
+
+--with-postgres-include=<path>
+to indicate just the PostgreSQL include path.  This is not needed if you use 
+the --with-postgres option.  If, for instance, the PostgreSQL headers are not 
+in your standard include path but in /usr/include/postgresql/, then what you 
+need to specify is "--with-postgres=/usr/include/postgresql".
+
+--with-postgres-lib=<path>
+to indicate the path to PostgreSQL's libpq library.  If, for instance, this
+library is in /usr/local/postgresql/lib, then you need to specify the configure
+option "--with-postgres-lib=/usr/local/postgresql/lib/".
+
+To configure on a RedHat-like system, use "--with-postgres=/usr/local/pgsql".
+Debian systems use "--with-postgres-include=/usr/include/postgresql".  If your
+system requires a different setting, please let me know.
+

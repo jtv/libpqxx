@@ -1,6 +1,8 @@
-Jeroen T. Vermeulen <jtv@xs4all.nl>.  Wrote first versions.
+Jeroen T. Vermeulen <jtv@xs4all.nl>.  Wrote the code.
 
 John Anderson <panic@semiosix.com>.  Set up configure files.
 
 Clinton James <cjames@callone.net>.  Ported to Microsoft Visual C++.
+
+Ray Dassen <jdassen@debian.org>.  Debugged configure files.
 
