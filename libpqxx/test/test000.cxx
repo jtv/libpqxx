@@ -67,6 +67,14 @@ inline void strconv(string type, const char Obj[], string expected)
   check(expected, Objstr, type);
 }
 
+const double not_a_number =
+#if defined(PQXX_HAVE_QUIET_NAN)
+  numeric_limits<double>::quiet_NaN();
+#elif defined(PQXX_HAVE_NAN)
+  nan("");
+#else
+  0.0/0.0;
+#endif
 
 } // namespace
 
@@ -127,7 +135,7 @@ int main()
     strconv("long", long_min, to_string(long_min));
     strconv("long", long_max, to_string(long_max));
     strconv("double", 0.0, "0");
-    strconv("double", numeric_limits<double>::quiet_NaN(), "nan");
+    strconv("double", not_a_number, "nan");
     strconv("string", string(), "");
     strconv("string", weirdstr, weirdstr);
 
