@@ -32,7 +32,7 @@ class Result;
 class TransactionItf;
 
 /// SQL cursor class.
-/** Cursor behaves as an output stream generating Result objects.  They may
+/** Cursor behaves as an output stream generating Result objects.  It may
  * be used to fetch rows individually or in blocks, in which case each Result
  * coming out of the stream may contain more than one Tuple.  A cursor may be
  * positioned on any row of data, or on an "imaginary" row before the first
@@ -51,6 +51,8 @@ class TransactionItf;
  * is no documentation on which queries do and which queries don't so you may
  * have to experiment before using cursors for anything but plain forward-only
  * result set iteration.
+ *
+ * A Cursor is only valid within the transaction in which it was created.
  */
 
 class PQXX_LIBEXPORT Cursor
@@ -84,6 +86,41 @@ public:
          const char Query[], 
 	 const PGSTD::string &BaseName="cur",
 	 size_type Count=NEXT());					//[t3]
+
+  /// Special-purpose constructor.  Adopts existing SQL cursor.  Use with care.
+  /**
+   * Forms a Cursor object around an existing SQL cursor, as returned by e.g.
+   * a function.  The SQL cursor will be destroyed by the Cursor destructor as
+   * if it had been created by the Cursor object.  The cursor can only be used
+   * inside the transaction that created it.
+   *
+   * Use this creation method only with great care.  Read on for important 
+   * caveats.
+   *
+   * The Cursor object does not know the current position of the SQL cursor. 
+   * For complicated technical reasons, this will cause trouble when the cursor
+   * reaches the end of the result set.  Therefore, before you ever move the 
+   * resulting Cursor forward, you should always move it backwards with a
+   * Move(Cursor::BACKWARD_ALL()).  This will reset the internal position
+   * counter to the beginning of the result set.
+   *
+   * Once the Cursor object is created, never try to access the underlying SQL
+   * cursor in any way.  There is no way for libpqxx to check for this, and it
+   * could potentially undermine operation of the Cursor object in unexpected
+   * ways.
+   *
+   * Passing the name of the cursor as a string is not allowed, both to avoid
+   * confusion with the constructor that creates its own SQL cursor, and to
+   * discourage unnecessary manual cursor creation.
+   *
+   * @param T must be the transaction in which the cursor was created.
+   * @param Name query result field with the name of the existing SQL cursor.
+   * @param Count the stride of the cursor, ie. the number of rows fetched at a
+   * time.  This defaults to 1.
+   */
+  Cursor(TransactionItf &T,
+         const Result::Field &Name,
+	 size_type Count=NEXT());					//[]
 
   /// Set new stride, ie. the number of rows to fetch at a time.
   size_type SetCount(size_type);					//[t19]

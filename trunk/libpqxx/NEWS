@@ -1,3 +1,13 @@
+1.4.5
+ - fixed crash CachedResult that was less shallow than I thought
+1.4.4
+ - (forgot to save cursor.cxx with new constructor in 1.4.4, sorry)
+1.4.3
+ - all tests now have three-digit numbers
+ - Cursor can adopt SQL cursor returned by a function
+1.4.2
+ - bugfix in CachedResult when accessing empty Results
+ - minor documentation improvements
 1.4.1
  - documents new homepage: http://pqxx.tk/
  - Connection constructor accepts null connect string

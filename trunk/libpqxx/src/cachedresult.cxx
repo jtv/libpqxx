@@ -17,13 +17,17 @@
 
 using namespace PGSTD;
 
+
+
 pqxx::CachedResult::CachedResult(pqxx::TransactionItf &Trans,
                                  const char Query[],
 				 const PGSTD::string &BaseName,
 				 size_type Granularity) :
   m_Granularity(Granularity),
   m_Cache(),
-  m_Cursor(Trans, Query, BaseName, Granularity)
+  m_Cursor(Trans, Query, BaseName, Granularity),
+  m_EmptyResult(),
+  m_HaveEmpty(false)
 {
   // We can't accept granularity of 1 here, because some block number 
   // arithmetic might overflow.
@@ -69,14 +73,26 @@ void pqxx::CachedResult::MoveTo(blocknum Block) const
 }
 
 
-pqxx::Result pqxx::CachedResult::Fetch() const
+const pqxx::Result &pqxx::CachedResult::Fetch() const
 {
   size_type Pos = m_Cursor.Pos();
 
   Result R( m_Cursor.Fetch(m_Granularity) );
-  if (!R.empty()) m_Cache.insert(make_pair(BlockFor(Pos), CacheEntry(R)));
 
-  return R;
+  if (!R.empty()) 
+  {
+    m_Cache.insert(make_pair(BlockFor(Pos), R));
+    // TODO: Use iterator returned by insert().  
+    return m_Cache[BlockFor(Pos)];
+  }
+
+  if (!m_HaveEmpty)
+  {
+    m_EmptyResult = R;
+    m_HaveEmpty = true;
+  }
+
+  return m_EmptyResult;
 }
 
 

@@ -36,6 +36,19 @@ pqxx::Cursor::Cursor(pqxx::TransactionItf &T,
 }
 
 
+pqxx::Cursor::Cursor(pqxx::TransactionItf &T,
+    	             const Result::Field &Name,
+		     size_type Count) :
+  m_Trans(T),
+  m_Name(Name.c_str()),
+  m_Count(Count),
+  m_Done(false),
+  m_Pos(pos_unknown),
+  m_Size(pos_unknown)
+{
+}
+
+
 pqxx::Cursor::size_type pqxx::Cursor::SetCount(size_type Count)
 {
   size_type Old = m_Count;

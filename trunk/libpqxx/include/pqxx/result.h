@@ -104,6 +104,11 @@ public:
     Field(const Tuple &R, Tuple::size_type C) : Tuple(R), m_Col(C) {}	//[t1]
 
     /// Read as plain C string
+    /** Since the field's data is stored internally in the form of a 
+     * zero-terminated C string, this is the fastest way to read it.  Use the
+     * to() functions to convert the string to other types such as int, or to
+     * C++ strings.
+     */
     const char *c_str() const {return m_Home->GetValue(m_Index,m_Col);}	//[t2]
 
     /// Column name
