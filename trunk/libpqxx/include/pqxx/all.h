@@ -23,5 +23,6 @@
 #include "pqxx/transactor.h"
 #include "pqxx/tablereader.h"
 #include "pqxx/tablewriter.h"
+#include "pqxx/transactionitf.h"
 #include "pqxx/trigger.h"
 
