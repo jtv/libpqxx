@@ -321,23 +321,7 @@ bool pqxx::pipeline::obtain_result(bool really_expect)
   if (suc != m_queries.end()) m_issuedrange.first = suc->first;
   else m_issuedrange.first = m_issuedrange.second;
 
-
-  // Believe it or not, this is the hard part.  Converting r to a result
-  // object may fail for lack of memory (just to allocate that silly reference
-  // count!) in which case we've got nowhere to store it.  This is so serious
-  // that the only sensible response is to go catatonic and refuse all further
-  // operation.  It's not like the program will have much chance when memory
-  // is this scarce anyway.
-  // TODO: Exception-free result construction; remove error handling code here
-  try
-  {
-    q->second.set_result(result(r));
-  }
-  catch (const exception &)
-  {
-    set_error_at(q->first);
-    throw;
-  }
+  q->second.set_result(result(r));
 
   invariant();
 
