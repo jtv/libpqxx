@@ -1,5 +1,11 @@
 # Quick & ugly makefile hack, edit to fit your own environment
 
+# Options for the "dist" target (source distribution):
+# What to call the source distribution tarball
+ARCHIVE_SRC=libpqxx.tar.gz
+# What the source directory (where this file resides) is called
+SRCDIR=libpqxx
+
 # Options used to connect to test database when running the self test.  Suit to 
 # your own environment, but best keep it out of the way of any database you 
 # actually use for anything else.  Recommended practice is to set up a database 
@@ -100,5 +106,6 @@ distclean: clean
 	$(RM) $(LIBNAME) $(EXECS)
 
 dist: distclean
-	tar -C.. -czf ../libpqxx.tar.gz libpqxx
+	tar -C.. -czf ../$(ARCHIVE_SRC) $(SRCDIR)
+	tar tvzf ../$(ARCHIVE_SRC)
 
