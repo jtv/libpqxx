@@ -576,3 +576,25 @@ void pqxx::internal::freenotif(PGnotify *p)
 #endif
 }
 
+
+void pqxx::internal::sleep_seconds(int s)
+{
+#ifdef PQXX_HAVE_SLEEP
+  // Use POSIX.1 sleep() if available
+  sleep(s);
+#elif defined(_WIN32)
+  // Windows has its own Sleep(), which speaks milliseconds
+  Sleep(s*1000);
+#else
+  // If all else fails, use select() on nothing and specify a timeout
+  fd_set F;
+  FD_ZERO(&F);
+  struct timeval timeout;
+  timeout.tv_sec = s;
+  timeout.tv_usec = 0;
+  if (select(0, &F, &F, &F, &timeout) == -1)
+    throw runtime_error(strerror(errno));
+#endif
+}
+
+
