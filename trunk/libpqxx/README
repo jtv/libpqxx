@@ -198,3 +198,55 @@ need, test001.cxx should give you a pretty good idea of what a libpqxx program
 can look like.
 
 
+Programming with libpqxx
+
+Your first program will involve the libpqxx classes Connection (connection.h),
+Transaction (conforming to the interface defined in transactionitf.h), and 
+probably Result (result.h).  In short, you create a Connection based on a
+Postgres connection string (see below), create a Transaction in the context of
+that Connection, and run one or more queries on the Transaction which return
+Result objects.
+
+Postgres connection strings state which database server you wish to connect to,
+under which username, using which password, and so on.  Their format defined in
+the documentation for libpq, the C client interface for PostgreSQL.
+Alternatively, these values may be defined by setting certain environment 
+variables as documented in e.g. the manual for psql, the command line interface
+to the database.  Again the definitions are the same for libpqxx-based programs.
+
+The connection strings and variables are not fully and accurately documented 
+here; this document will tell you just enough to get going.  Check the 
+PostgreSQL documentation for authoritative information.   
+
+The connection string consists of attribute=value pairs separated by spaces, 
+e.g. "user=john password=1x2y3z4".  The valid attributes include:
+
+host
+	Name of server to connect to, or the full file path (beginning with a 
+	slash) to a Unix-domain socket on the local machine.  Defaults to 
+	"/tmp".  Equivalent to (but overrides) environment variable PGHOST.
+
+hostaddr
+	IP address of a server to connect to; mutually exclusive with "host".
+
+port
+	Port number at the server host to connect to, or socket file name
+	extension for Unix-domain connections.  Equivalent to (but overrides) 
+	environment variable PGPORT.
+
+dbname
+	Name of the database to connect to.  A single server may host multiple
+	databases.  Defaults to the same name as the current user's name.
+	Equivalent to (but overrides) environment variable PGDATABASE.
+
+user
+	User name to connect under.  This defaults to the name of the current
+	user, although PostgreSQL users are not necessarily the same thing as
+	system users.
+
+requiressl
+	If set to 1, demands an encrypted SSL connection (and fails if no SSL
+	connection can be created).
+
+Settings in the connection strings override the environment variables, which in
+turn override the default.
