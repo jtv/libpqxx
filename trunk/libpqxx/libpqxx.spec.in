@@ -33,7 +33,7 @@ Libraries, include files, etc you can use to develop PostgreSQL applications in 
 %setup -q
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%prefix --sysconfdir="/etc" --mandir=%{_mandir}
+CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%prefix --sysconfdir="/etc" --mandir=%{_mandir} --enable-shared
 make
 
 %install

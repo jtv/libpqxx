@@ -16,7 +16,10 @@
  */
 #include "pqxx/compiler.h"
 
+#ifdef PQXX_HAVE_LOCALE
 #include <locale>
+#endif
+
 #include <new>
 #include <sstream>
 
