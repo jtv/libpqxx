@@ -1,3 +1,11 @@
+2004-01-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/pipeline.hxx, src/pipeline.cxx, test/test072.cxx:
+  - Pipeline refuses to (re-)issue queries behind a failure
+ src/pipeline.cxx:
+  - Implemented Bart's trick
+  - In nontransactions, manages to pinpoint queries causing syntax errors
+ test/test073.txt:
+  - New
 2004-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Added warning about auto-generation of configure.ac
@@ -6,6 +14,10 @@
   - No longer need --with-postgres etc. (thanks Peter!)
  TODO:
   - Bart Samwel found great solution for pipeline's one major weakness
+ win32/Makefile.am:
+  - Added MinGW.mak to distribution
+ win32/MinGW.mak:
+  - New.  Thanks Pasquale Fersini!
 2004-01-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/pipeline.hxx:
   - Warning about syntax errors

@@ -61,10 +61,22 @@ script provided by Postgres to find them automatically.
 In the new setup, however, the configure script must be able to find and run 
 this new script.  It's called pg_config, and it should be in the bin/ 
 subdirectory of wherever Postgres is installed on your system.  Make sure this
-directory is represented to your executable path before you run the configure
+directory is represented in your executable path before you run the configure
 script, or it will fail with a message like:
 
 configure: error: PostgreSQL configuration script was not found
+
+Of if you don't want to have pg_config in your path for whatever reason, or you
+have multiple PostgreSQL installations on your system (each with their own copy
+of pg_config, naturally) and wish to override the default version, add an option
+like
+
+	PG_CONFIG=/home/me/postgres/bin/pg_config
+
+to your "configure" command line, where /home/me/postgres/bin/pg_config is an
+example of where your preferred copy of pg_config might be.  This would indicate
+to the configure script that you wish to build a libpqxx based on the postres
+version found in /home/me/postgres.
 
 Finally, if you wish to install the libpqxx you're going to build in a custom
 location, such as your home directory /home/me, you can specify this to the

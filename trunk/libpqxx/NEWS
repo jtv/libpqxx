@@ -1,5 +1,6 @@
 2.2.0
  - Uses Postgres-provided script to find Postgres (thanks Peter Eisentraut)
+ - Which means no more configure arguments required on Irix (thanks Arjen Baart)
  - Makefile for MinGW compiler (thanks Pasquale Fersini)
  - New pipeline class for throughput optimization
  - More Windows compilation fixes

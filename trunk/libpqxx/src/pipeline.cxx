@@ -31,7 +31,8 @@ pqxx::pipeline::pipeline(transaction_base &t) :
   m_waiting(),
   m_completed(),
   m_nextid(1),
-  m_retain(false)
+  m_retain(false),
+  m_error(false)
 {
 }
 
@@ -86,6 +87,7 @@ void pqxx::pipeline::flush()
   m_sent.clear();
   m_completed.clear();
   m_queries.clear();
+  m_error = false;
   resume();
 }
 
@@ -106,7 +108,14 @@ pair<pqxx::pipeline::query_id, pqxx::result>
 pqxx::pipeline::deliver(map<query_id, pqxx::result>::iterator i)
 {
   if (i == m_completed.end())
+  {
+    // TODO: Report what went wrong with which query
+    // TODO: Throw sql_error
+    if (m_error)
+      throw runtime_error("Could not get result from pipeline: "
+	  "preceding query failed");
     throw logic_error("libpqxx internal error: delivering from empty pipeline");
+  }
 
   pair<query_id, result> out = *i;
   m_completed.erase(i);
@@ -133,12 +142,9 @@ pair<pqxx::pipeline::query_id, pqxx::result> pqxx::pipeline::retrieve()
   if (m_completed.empty())
   {
     if (m_sent.empty() && m_waiting.empty())
-      throw logic_error("Attempt to retrieve result from empty query pipeline");
+      throw logic_error("Attempt to retrieve query result from empty pipeline");
     resume();
     consumeresults();
-
-    if (m_completed.empty())
-      throw logic_error("libpqxx internal error: no results in pipeline");
   }
 
   return deliver(m_completed.begin());
@@ -194,10 +200,23 @@ void pqxx::pipeline::detach()
 
 void pqxx::pipeline::send_waiting()
 {
-  if (m_waiting.empty() || !m_sent.empty() || m_retain) return;
+  if (m_waiting.empty() || !m_sent.empty() || m_retain || m_error) return;
 
   static const string Separator = "; ";
   string Cum;
+  
+  /* Bart Samwel's Genius Trick(tm)
+   * If we get only a single result, and it represents an error (as will be the
+   * case if there's more than one query, for instance) then it may be either a
+   * syntax error anywhere in the cumulated query, or it may be a normal error 
+   * that happens to occur in the first query.  The difference matters because
+   * in the former case we may want to pinpoint the cause of the error.
+   *
+   * To make sure we can tell the difference if there's more than one query, we
+   * prepend one that cannot generate an error.  Now if we get only a single
+   * result, we know there's a syntax error.
+   */
+  if (m_waiting.size() > 1) Cum = "SELECT 0" + Separator;
 
   for (vector<query_id>::const_iterator i = m_waiting.begin(); 
        i != m_waiting.end(); 
@@ -219,13 +238,13 @@ void pqxx::pipeline::send_waiting()
 
 void pqxx::pipeline::consumeresults()
 {
-  if (m_waiting.empty() && m_sent.empty()) return;
+  if ((m_waiting.empty() && m_sent.empty()) || m_error) return;
   send_waiting();
 
   vector<result> R;
 
   // Reduce risk of exceptions at awkward moments
-  R.reserve(m_sent.size());
+  R.reserve(m_sent.size() + 1);
   m_waiting.reserve(m_waiting.size() + m_sent.size());
 
   // TODO: Improve exception-safety!
@@ -234,39 +253,129 @@ void pqxx::pipeline::consumeresults()
 
   detach();
 
-  if (R.size() > m_sent.size())
-    throw logic_error("libpqxx internal error: "
-	              "expected " + ToString(m_sent.size()) + " results "
-		      "from pipeline, got " + ToString(R.size()));
+  vector<result>::size_type R_size = R.size(), sentsize = m_sent.size();
 
-  // TODO: Prevent queries behind errors from being re-issued!
-  // TODO: Separate exception for "query not executed because of earlier error"?
-  const vector<result>::size_type R_size = R.size();
-  if ((m_sent.size() == 1) || 
-      (R_size != 1) || 
-      (dynamic_cast<dbtransaction *>(&m_home)))
+  if (!R_size)
+    throw logic_error("libpqxx internal error: got no result from pipeline");
+
+  if (R_size > sentsize+1)
+    throw logic_error("libpqxx internal error: "
+	              "expected " + ToString(sentsize) + " results "
+		      "from pipeline, got " + ToString(R_size));
+
+  if ((R_size == 1) && (sentsize > 1))
   {
-    // Move queries for which we have results to m_completed, and push the rest
-    // back to the front of m_waiting.  The resulting state should be as if we
-    // were issuing the queries sequentially.
-    // There's one icky case that may get us here: a syntax error in any of the
-    // queries, while we're in a dbtransaction.  In that case, we won't be able
-    // to do much at all, so we might as well report that one error as the 
-    // result for the first query.
-    for (vector<result>::size_type i=0; i<R_size; ++i)
-      m_completed.insert(make_pair(m_sent[i], R[i]));
-    m_waiting.insert(m_waiting.begin(), m_sent.begin()+R_size, m_sent.end());
+    /* Syntax error that comes from one of the queries in the batch, and we
+     * don't know which (if there was only one in the first place, we'd treat
+     * this as a regular result).  Register the same error result for all 
+     * results in the batch.
+     */
+    // TODO: Improve error reporting
+    m_error = true;
+    /* As a first approximation, just register the same error for all queries in
+     * the batch, so at least the user gets the message about what went wrong.
+     */
+    for (vector<query_id>::size_type i=0; i<sentsize; ++i)
+      m_completed.insert(make_pair(m_sent[i], R[0]));
+
+    if (!dynamic_cast<dbtransaction *>(&m_home))
+    {
+      /* We're not in a backend transaction, so we can continue to issue
+       * transactions.  Execute the queries in the batch one by one to try and
+       * pinpoint which was the one containing the error.
+       */
+      // TODO: Attempt replay!
+      vector<query_id>::size_type i;
+      try
+      {
+        for (i=0; i<sentsize; ++i)
+	{
+	  try
+	  {
+	    m_completed[m_sent[i]] = m_home.exec(m_queries[m_sent[i]]);
+	  }
+	  catch (const sql_error &)
+	  {
+	    /* This ought to be our syntax error.  Break out of the loop, 
+	     * because the rest of the queries already have their results set to
+	     * be the syntax error.  This is what we want.
+	     */
+	    throw;
+	  }
+	  catch (const logic_error &e)
+	  {
+	    // Internal error.  Make sure it gets reported.
+	    throw;
+	  }
+	  catch (const exception &)
+	  {
+	    /* Some other error.  Since we're doing nice-to-have work, not
+	     * anything essential, it's probably best to continue quietly in
+	     * hopes of doing some good.
+	     */
+	  }
+	}
+      }
+      catch (const sql_error &)
+      {
+	// Okay, looks like we have our m_completed in the desired state now.
+      }
+    }
   }
   else
   {
-    // Oops.  We got one result for multiple queries.  This may mean there's a
-    // syntax error in one of them--and we don't know which.
-    // But since we're not in a backend transaction, which would have been
-    // aborted by now, we may get away with replaying the queries one by one to
-    // pinpoint the problem more accurately.
-    // TODO: Reissue sequentially (is this safe?)
-    m_completed.insert(make_pair(m_sent[0], R[0]));
-    m_waiting.insert(m_waiting.begin(), m_sent.begin()+1, m_sent.end());
+    // Normal situation: the first R_size queries were parsed and performed
+    if (sentsize > 1)
+    {
+      // Strip that safe query we prepended to identify syntax errors
+      R.erase(R.begin());
+      R_size--;
+    }
+    if (R_size < sentsize) m_error = true;
+
+    // TODO: Exception safety goes to hell here...
+    // Promote finished queries (successful or not) to completed
+    for (vector<result>::size_type i=0; i<R_size; ++i)
+    {
+      try
+      {
+        m_completed.insert(make_pair(m_sent[i], R[i]));
+      }
+      catch (const exception &)
+      {
+	/* Oops.  Well, at least try to make sure we don't leave stuff in
+	 * m_sent that's now also in m_completed.
+	 */
+	m_error = true;
+	if (i > 0) m_sent.erase(m_sent.begin(), m_sent.begin()+i-1);
+	throw;
+      }
+    }
+
+    // Push back any queries behind the last one to be executed
+    try
+    {
+      m_waiting.insert(m_waiting.begin(), m_sent.begin()+R_size, m_sent.end());
+    }
+    catch (const exception &)
+    {
+      // Not much we can do here, except remember we're in an error state
+      m_error = true;
+      throw;
+    }
+
+    // That last result may still be an error...
+    if (!m_error)
+    {
+      try
+      {
+        R[R_size-1].CheckStatus(m_queries[m_sent[R_size-1]]);
+      }
+      catch (const exception &)
+      {
+        m_error = true;
+      }
+    }
   }
   m_sent.clear();
 

@@ -35,18 +35,28 @@ int main(int, char *argv[])
     // See that we can process the queries without stumbling over the error
     P.complete();
 
-    // See how far we get in retrieving the successful results
+    // We should be able to get the first result, which preceeds the error
     cout << "Retrieving initial result..." << endl;
     const int res_1 = P.retrieve(id_1).at(0).at(0).as<int>();
     cout << " - result was " << res_1 << endl;
     if (res_1 != 1) throw logic_error("Expected 1, got " + ToString(res_1));
-    cout << "Restrieving closing result..." << endl;
-    const int res_2 = P.retrieve(id_2).at(0).at(0).as<int>();
-    cout << " - result was " << res_2 << endl;
-    if (res_2 != 2) throw logic_error("Expected 2, got " + ToString(res_2));
+
+    // We should *not* get a result for the query behind the error
+    cout << "Restrieving post-error result..." << endl;
+    bool failed = true;
+    try
+    {
+      P.retrieve(id_2).at(0).at(0).as<int>();
+      failed = false;
+    }
+    catch (const exception &e)
+    {
+      cerr << "(Expected) " << e.what() << endl;
+    }
+    if (!failed) throw logic_error("Pipeline wrongly resumed after SQL error");
 
     // Now see that we get an exception when we touch the failed result
-    bool failed = true;
+    cout << "Retrieving result for failed query..." << endl;
     try
     {
       P.retrieve(id_f);
