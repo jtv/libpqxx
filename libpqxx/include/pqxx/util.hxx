@@ -246,7 +246,7 @@ template<typename T> struct deref_ptr { T operator()(T *i) const {return *i;} };
 
 /// Access iterators using ACCESS functor, returning separator-separated list 
 template<typename ITER, typename ACCESS> inline
-PGSTD::string separated_list(const PGSTD::string &sep,			//[]
+PGSTD::string separated_list(const PGSTD::string &sep,			//[t0]
     ITER begin,
     ITER end,
     ACCESS access)
