@@ -1,4 +1,6 @@
 2004-06-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Added -funit-at-a-time for g++ 3.4
  doc/libpqxx.html:
   - Replaced Exec() with exec()
   - Replaced Perform() with perform()
