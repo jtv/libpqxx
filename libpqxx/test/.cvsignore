@@ -4,3 +4,4 @@ Makefile
 Makefile.am
 Makefile.in
 test[0-9][0-9][0-9]
+*.swp

@@ -11,6 +11,7 @@ configure.lineno
 configure-stamp
 install-sh
 libpqxx.pc
+libpqxx.spec
 libtool
 missing
 mkinstalldirs
