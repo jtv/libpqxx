@@ -1,15 +1,11 @@
 Check
 (*) Move "check" postgres parameters into configure.ac
-(*) Test 19 fails when reading rows backwards: expects 1 row, gets 0
-
-Porting
-(*) Make all SQL respect DIALECT
-(*) Hide DBMS-specific connect string
+(*) Test 19 fails on some platforms while reading rows backwards: expects 1 
+    row, gets 0
 
 Results
-(*) Allow querying of field types
-(*) Allow direct mapping onto structs, using member ptr template args (?)
 (*) Conceive metadata model
+(*) Allow direct mapping onto structs, using member ptr template args (?)
 
 RobustTransaction
 (*) User schema support for log table
@@ -29,6 +25,3 @@ Nonblocking operation
 Debian packaging
 (*) Write and use doc-base entry for documentation
 
-Build system
-(*) Work on the clean, maintainer-clean, dist-clean targets; see
-    debian/rules for stuff that isn't cleaned out properly yet.

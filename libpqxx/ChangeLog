@@ -1,3 +1,13 @@
+2002-10-13 16:00 Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh:
+  - Check for automake-1.7
+ configure, */Makefile.in:
+  - Regenerated with automake 1.7
+ configure.ac:
+  - Check for <sys/select.h>
+  - Bumped revision to 1.1.2
+ test/test23.cxx, test/test4.cxx:
+  - Replaced Sleep()/sleep() and Windows workaround by select()
 2002-09-29 14:00 Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/connection.h:
   - Documented log table creation and contents

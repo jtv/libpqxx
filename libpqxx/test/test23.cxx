@@ -1,27 +1,11 @@
+#include <cerrno>
+#include <cstring>
 #include <iostream>
 
 #include <pqxx/connection.h>
 #include <pqxx/transaction.h>
 #include <pqxx/trigger.h>
 #include <pqxx/result.h>
-
-
-// Make sure we have the Unix sleep() function, which Windows provides in a
-// slightly different form
-#ifdef _MSC_VER
-#define WIN32_LEAN_AND_MEAN
-#include "windows.h"
-inline void sleep(unsigned seconds)
-{
-  Sleep(seconds * 1000);
-}
-#else
-extern "C"
-{
-#include <unistd.h>
-}
-#endif
-
 
 
 using namespace PGSTD;
@@ -37,6 +21,38 @@ using namespace pqxx;
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
 // called template1, or "host=foo.bar.net user=smith" to connect to a
 // backend running on host foo.bar.net, logging in as user smith.
+
+#ifdef WIN32
+#include <windows.h>
+#else
+extern "C"
+{
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#else
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+}
+#endif
+
+
+namespace
+{
+
+// Reasonably portable way to sleep for a given number of seconds
+void Sleep(int seconds)
+{
+  fd_set F;
+  FD_ZERO(&F);
+  struct timeval timeout;
+  timeout.tv_sec = seconds;
+  timeout.tv_usec = 0;
+  if (select(0, &F, &F, &F, &timeout) == -1)
+    throw runtime_error(strerror(errno));
+}
+
 
 // Sample implementation of trigger handler
 class TestTrig : public Trigger
@@ -89,6 +105,7 @@ public:
   }
 };
 
+} // namespace
 
 int main(int, char *argv[])
 {
@@ -103,7 +120,7 @@ int main(int, char *argv[])
 
     for (int i=0; (i < 20) && !Trig.Done(); ++i)
     {
-      sleep(1);
+      Sleep(1);
       C.GetNotifs();
       cout << ".";
     }
