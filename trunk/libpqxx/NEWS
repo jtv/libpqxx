@@ -1,6 +1,8 @@
 2.4.2
  - Fix minor problems with Apple's version of g++ 3.3
  - Fix problem with MingW on Windows
+ - Workarounds and fixes for Visual C++.NET 2003
+ - Renewed compatibility with g++ 2.95
  - More sample configuration headers
  - Updated reference documentation
  - Removed assert code

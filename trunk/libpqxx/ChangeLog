@@ -1,3 +1,15 @@
+2004-11-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.hxx, include/pqxx.pipeline.hxx:
+  - Made inclusion of <limits> conditional on PQXX_HAVE_LIMITS
+  - Fall back on INT_MAX/INT_MIN workaround if no <limits> available
+ include/pqxx/result.hxx:
+  - Remove assignment, comparison between reverse and regular iterators
+  - Fixes problems with g++ 2.95
+ src/util.cxx:
+  - Include <unistd.h> if available
+  - Make uses of locale conditional on PQXX_HAVE_LOCALE
+ test/test058.cxx:
+  - Removed unused largeobject variable
 2004-11-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/compiler/VisualC++.NET-2003/config-internal.compiler.h,
  config/sample-headers/libpq/7.4/config-internal-libpq.h,
