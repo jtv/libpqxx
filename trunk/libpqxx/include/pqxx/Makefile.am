@@ -2,7 +2,8 @@ MAINTAINERCLEANFILES=Makefile.in
 	stamp-h.in
 
 includedir=$(prefix)/include/pqxx
-include_HEADERS=compiler.h \
+include_HEADERS=cachedresult.h \
+	compiler.h \
 	config.h \
 	connection.h \
 	cursor.h \

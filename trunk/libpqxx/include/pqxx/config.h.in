@@ -24,6 +24,9 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
+/* Define if PostgreSQL version being compiled against has PQescapeString() */
+#undef HAVE_PQESCAPESTRING
+
 /* Define to 1 if the system has the type `ptrdiff_t'. */
 #undef HAVE_PTRDIFF_T
 
@@ -39,8 +42,8 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
-/* Define if the sys/select.h header (defining the fd_set type and related
-   macros) is available */
+/* Define if the sys/select.h header defines a working select() and friends,
+   as per POSIX 1003.1-2001 */
 #undef HAVE_SYS_SELECT_H
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
@@ -75,6 +78,9 @@
 
 /* Does the standard namespace exist? */
 #undef PGSTD
+
+/* Do we have a PQescapeString function? */
+#undef PQescapeString
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS

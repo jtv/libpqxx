@@ -1,7 +1,5 @@
 Check
 (*) Move "check" postgres parameters into configure.ac
-(*) Test 19 fails on some platforms while reading rows backwards: expects 1 
-    row, gets 0
 
 Results
 (*) Conceive metadata model
