@@ -7,7 +7,7 @@
  *      implementation of the pqxx::Cursor class.
  *   pqxx::Cursor represents a database cursor.
  *
- * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -210,13 +210,21 @@ void pqxx::Cursor::MoveTo(size_type Dest)
 
 pqxx::Cursor::size_type pqxx::Cursor::ALL() throw ()
 {
+#ifdef _WIN32
+  return INT_MAX;
+#else	// _WIN32
   return numeric_limits<result::size_type>::max();
+#endif	// _WIN32
 }
 
 
 pqxx::Cursor::size_type pqxx::Cursor::BACKWARD_ALL() throw ()
 {
+#ifdef _WIN32
+  return INT_MIN + 1;
+#else	// _WIN32
   return numeric_limits<result::size_type>::min() + 1;
+#endif	// _WIN32
 }
 
 

@@ -8,8 +8,8 @@
 /* Define if preprocessor supports nonstandard "warning" directive */
 #undef PQXX_HAVE_CPP_WARNING
 
-/* Define if preprocessor supports pragma "warning" */
-#undef PQXX_HAVE_CPP_PRAGMA_WARNING
+/* Define if preprocessor supports pragma "message" */
+#undef PQXX_HAVE_CPP_PRAGMA_MESSAGE
 
 /* Define to 1 if you have the <iterator> header file. */
 #undef PQXX_HAVE_ITERATOR

@@ -1,10 +1,10 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 2.1.4, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 2.2.0, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 2.1.4)
+AM_INIT_AUTOMAKE(libpqxx, 2.2.0)
 
-PQXXVERSION=2.1.4
+PQXXVERSION=2.2.0
 AC_SUBST(PQXXVERSION)
 
 AC_CONFIG_SRCDIR([src/connection.cxx])
@@ -119,12 +119,12 @@ AC_TRY_COMPILE([#warning cpp supports warning directive], [], AC_DEFINE(PQXX_HAV
 cpp_warning=no)
 AC_MSG_RESULT($cpp_warning)
 
-AC_MSG_CHECKING(["warning" preprocessor pragma])
-cpp_pragma_warning=yes
-AC_TRY_COMPILE([#pragma warning("cpp supports warning pragma")], [], AC_DEFINE(PQXX_HAVE_CPP_PRAGMA_WARNING, 1,
-[Define if preprocessor supports pragma "warning"]),
-cpp_pragma_warning=no)
-AC_MSG_RESULT($cpp_pragma_warning)
+AC_MSG_CHECKING(["message" preprocessor pragma])
+cpp_pragma_message=yes
+AC_TRY_COMPILE([#pragma message("cpp supports message pragma")], [], AC_DEFINE(PQXX_HAVE_CPP_PRAGMA_MESSAGE, 1,
+[Define if preprocessor supports pragma "message"]),
+cpp_pragma_message=no)
+AC_MSG_RESULT($cpp_pragma_message)
 
 AC_LANG_POP(C++)
 
@@ -325,6 +325,16 @@ AC_CHECK_HEADER(limits,
 	[AC_DEFINE(PQXX_HAVE_LIMITS, 1, [Define if <limits> exists])])
 AC_CHECK_HEADER(iterator,
 	[AC_DEFINE(PQXX_HAVE_ITERATOR, 1, [Define if <iterator> exists])])
+
+AC_MSG_CHECKING([whether std::string has a clear() function])
+AC_TRY_COMPILE([#include <string>],
+	[PGSTD::string i;i.clear()],
+	[string_clear='yes'],
+	[AC_DEFINE(PQXX_HAVE_STRING_CLEAR,
+			1,
+			[Define if string class has the clear() function])
+		string_clear='no'])
+AC_MSG_RESULT($string_clear)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_MSG_CHECKING([whether <iterator> defines a usable iterator template])

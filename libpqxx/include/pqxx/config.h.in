@@ -106,8 +106,8 @@
 #undef PQXX_HAVE_CHAR_TRAITS
 
 /* 
-   Define if preprocessor supports pragma "warning" */
-#undef PQXX_HAVE_CPP_PRAGMA_WARNING
+   Define if preprocessor supports pragma "message" */
+#undef PQXX_HAVE_CPP_PRAGMA_MESSAGE
 
 /* 
    Define if preprocessor supports nonstandard "warning" directive */
@@ -158,6 +158,11 @@
    Define if you have the <streambuf> header; if
    not, <streambuf.h> is used */
 #undef PQXX_HAVE_STREAMBUF
+
+/* 
+   Define if string class has the clear() function
+   */
+#undef PQXX_HAVE_STRING_CLEAR
 
 /* 
    Define if the sys/select.h header defines a working

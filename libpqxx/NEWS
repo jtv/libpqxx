@@ -1,5 +1,6 @@
 2.2.0
  - New pipeline class for throughput optimization
+ - More Windows compilation fixes
 2.1.3
  - Makefile fixes for Visual C++, thanks Paresh Patel
  - Library ABI versioning implemented, thanks Roger Leigh
