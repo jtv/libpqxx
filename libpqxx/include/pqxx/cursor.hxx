@@ -78,7 +78,7 @@ private:
 
 inline cursor_base::size_type cursor_base::all() throw ()
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
   // Microsoft's compiler defines max() and min() macros!  Others may as well
   return INT_MAX;
 #else
@@ -88,7 +88,7 @@ inline cursor_base::size_type cursor_base::all() throw ()
 
 inline cursor_base::size_type cursor_base::backward_all() throw ()
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
   // Microsoft's compiler defines max() and min() macros!  Others may as well
   return INT_MIN + 1;
 #else
