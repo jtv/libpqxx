@@ -57,11 +57,6 @@ public:
 
   virtual ~trigger() { m_Conn.RemoveTrigger(this); }			//[t4]
 
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use name() instead
-  PGSTD::string Name() const { return name(); }
-#endif
-
   PGSTD::string name() const { return m_Name; }				//[t4]
 
   /// Overridable: action to invoke when trigger is notified.
@@ -71,6 +66,12 @@ public:
    * the connection may have changed by the time this method is called.
    */
   virtual void operator()(int be_pid) =0;				//[t4]
+
+
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use name() instead
+  PGSTD::string Name() const { return name(); }
+#endif
 
 protected:
   connection_base &Conn() const throw () { return m_Conn; }		//[t23]

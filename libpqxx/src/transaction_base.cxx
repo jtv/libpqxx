@@ -89,7 +89,7 @@ void pqxx::transaction_base::commit()
 		      "committed again while in an undetermined state\n");
 
   default:
-    throw logic_error("Internal libpqxx error: pqxx::transaction: invalid status code");
+    throw logic_error("libpqxx internal error: pqxx::transaction: invalid status code");
   }
  
   // Tricky one.  If stream is nested in transaction but inside the same scope,
@@ -155,7 +155,7 @@ void pqxx::transaction_base::abort()
     return;
 
   default:
-    throw logic_error("Internal libpqxx error: pqxx::transaction: invalid status code");
+    throw logic_error("libpqxx internal error: pqxx::transaction: invalid status code");
   }
 
   m_Status = st_aborted;
@@ -202,7 +202,7 @@ pqxx::result pqxx::transaction_base::exec(const char Query[],
 		      name() + 
 		      "', which is in indeterminate state");
   default:
-    throw logic_error("Internal libpqxx error: pqxx::transaction: "
+    throw logic_error("libpqxx internal error: pqxx::transaction: "
 		      "invalid status code");
   }
 
@@ -222,7 +222,7 @@ void pqxx::transaction_base::set_variable(const PGSTD::string &Var,
 void pqxx::transaction_base::Begin()
 {
   if (m_Status != st_nascent)
-    throw logic_error("Internal libpqxx error: pqxx::transaction: "
+    throw logic_error("libpqxx internal error: pqxx::transaction: "
 		      "Begin() called while not in nascent state");
 
   try

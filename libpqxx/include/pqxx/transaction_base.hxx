@@ -67,13 +67,6 @@ public:
 
   virtual ~transaction_base() =0;					//[t1]
 
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use commit() instead
-  void Commit() { commit(); }
-  /// @deprecated Use abort() instead
-  void Abort() { abort(); }
-#endif
-
   /// Commit the transaction
   /** Unless this function is called explicitly, the transaction will not be
    * committed (actually the nontransaction implementation breaks this rule,
@@ -95,15 +88,6 @@ public:
    */
   void abort();								//[t10]
 
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use exec() instead
-  result Exec(const char Q[], const PGSTD::string &D=PGSTD::string())
-	{ return exec(Q,D); }
-  /// @deprecated Use exec() instead
-  result Exec(const PGSTD::string &Q, const PGSTD::string &D=PGSTD::string())
-    	{ return exec(Q,D); }
-#endif
-
   /// Execute query
   /** Perform a query in this transaction.
    * @param Query the query or command to execute
@@ -124,13 +108,6 @@ public:
               const PGSTD::string &Desc=PGSTD::string()) 		//[t2]
   	{ return exec(Query.c_str(), Desc); }
 
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use process_notice() instead
-  void ProcessNotice(const char M[]) const { return process_notice(M); }
-  /// @deprecated Use process_notice() instead
-  void ProcessNotice(const PGSTD::string &M) const { return process_notice(M); }
-#endif
-
   /// Have connection process warning message
   void process_notice(const char Msg[]) const 				//[t14]
   	{ m_Conn.process_notice(Msg); }
@@ -138,24 +115,10 @@ public:
   void process_notice(const PGSTD::string &Msg) const			//[t14]
   	{ m_Conn.process_notice(Msg); }
 
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use name() instead
-  PGSTD::string Name() const { return name(); }
-
-  /// @deprecated Use conn() instead
-  connection_base &Conn() const { return conn(); }
-#endif
-
   PGSTD::string name() const { return m_Name; }				//[t1]
 
   /// Connection this transaction is running in
   connection_base &conn() const { return m_Conn; }			//[t4]
-
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use set_variable() instead
-  void SetVariable(const PGSTD::string &Var, const PGSTD::string &Val)
-    	{ set_variable(Var,Val); }
-#endif
 
   /// Set session variable in this connection
   /** The new value is typically forgotten if the transaction aborts.  
@@ -168,6 +131,30 @@ public:
    */
   void set_variable(const PGSTD::string &Var, const PGSTD::string &Val);//[t61]
 
+
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use commit() instead
+  void Commit() { commit(); }
+  /// @deprecated Use abort() instead
+  void Abort() { abort(); }
+  /// @deprecated Use exec() instead
+  result Exec(const char Q[], const PGSTD::string &D=PGSTD::string())
+	{ return exec(Q,D); }
+  /// @deprecated Use exec() instead
+  result Exec(const PGSTD::string &Q, const PGSTD::string &D=PGSTD::string())
+    	{ return exec(Q,D); }
+  /// @deprecated Use process_notice() instead
+  void ProcessNotice(const char M[]) const { return process_notice(M); }
+  /// @deprecated Use process_notice() instead
+  void ProcessNotice(const PGSTD::string &M) const { return process_notice(M); }
+  /// @deprecated Use name() instead
+  PGSTD::string Name() const { return name(); }
+  /// @deprecated Use conn() instead
+  connection_base &Conn() const { return conn(); }
+  /// @deprecated Use set_variable() instead
+  void SetVariable(const PGSTD::string &Var, const PGSTD::string &Val)
+    	{ set_variable(Var,Val); }
+#endif
 
 protected:
   /// Create a transaction.  The optional name, if given, must begin with a
@@ -240,6 +227,7 @@ private:
   void BeginCopyWrite(const PGSTD::string &Table) 
   	{ m_Conn.BeginCopyWrite(Table); }
   void WriteCopyLine(const PGSTD::string &L) { m_Conn.WriteCopyLine(L); }
+  void EndCopyWrite() throw () { m_Conn.EndCopyWrite(); }
 
   connection_base &m_Conn;
 

@@ -98,22 +98,11 @@ public:
   /// Destructor.  Implicitly closes the connection.
   virtual ~connection_base() =0;					//[t1]
 
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use disconnect() instead
-  void Disconnect() throw () { disconnect(); }
-#endif
-
   /// Explicitly close connection.
   void disconnect() throw ();						//[t2]
 
   /// Is this connection open?
   bool is_open() const;							//[t1]
-
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use perform() instead
-  template<typename TRANSACTOR> void Perform(const TRANSACTOR &T, int A=3)
-	{ return perform(T,A); }
-#endif
 
   /// Perform the transaction defined by a transactor-based object.
   /** The function may create and execute several copies of the transactor
@@ -126,20 +115,6 @@ public:
    */
   template<typename TRANSACTOR> 
   void perform(const TRANSACTOR &T, int Attempts=3);			//[t4]
-
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use set_noticer() instead
-  PGSTD::auto_ptr<noticer> SetNoticer(PGSTD::auto_ptr<noticer> N)
-  	{ return set_noticer(N); }
-  /// @deprecated Use get_noticer() instead
-  noticer *GetNoticer() const throw () 
-  	{ return get_noticer(); }
-  /// @deprecated Use process_notice() instead
-  void ProcessNotice(const char msg[]) throw () { return process_notice(msg); }
-  /// @deprecated Use process_notice() instead
-  void ProcessNotice(const PGSTD::string &msg) throw () 
-  	{ return process_notice(msg); }
-#endif
 
   // TODO: Define a default noticer (mainly to help out Windows users)
   /// Set handler for postgresql errors or warning messages.
@@ -161,14 +136,6 @@ public:
   void process_notice(const PGSTD::string &msg) throw () 		//[t14]
   	{ process_notice(msg.c_str()); }
 
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use trace() instead
-  void Trace(FILE *F) { trace(F); }
-
-  /// @deprecated Use get_notifs() instead
-  void GetNotifs() { get_notifs(); }
-#endif
-
   /// Enable tracing to a given output stream, or NULL to disable.
   void trace(FILE *);							//[t3]
 
@@ -177,21 +144,6 @@ public:
 
   // Miscellaneous query functions (probably not needed very often)
  
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use dbname() instead
-  const char *DbName() { return dbname(); }
-  /// @deprecated Use username() instead
-  const char *UserName() { return username(); }
-  /// @deprecated Use hostname() instead
-  const char *HostName() { return hostname(); }
-  /// @deprecated Use port() instead
-  const char *Port() { return port(); }
-  /// @deprecated Use options() instead
-  const char *Options() const throw () { return options(); }
-  /// @deprecated Use backendpid() instead
-  int BackendPID() const { return backendpid(); }
-#endif
-
   /// Name of database we're connected to, if any.
   const char *dbname()							//[t1]
   	{ halfconnect(); return PQdb(m_Conn); }
@@ -223,19 +175,6 @@ public:
    */
   int backendpid() const						//[t1]
     	{ return m_Conn ? PQbackendPID(m_Conn) : 0; }
-
-
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use activate() instead
-  void Activate() { activate(); }
-  /// @deprecated Use deactivate() instead
-  void Deactivate() { deactivate(); }
-  /// @deprecated Use set_client_encoding() instead
-  void SetClientEncoding(const PGSTD::string &E) { set_client_encoding(E); }
-  /// @deprecated Use set_variable() instead
-  void SetVariable(const PGSTD::string &Var, const PGSTD::string &Val)
-  	{ set_variable(Var, Val); }
-#endif
 
   /// Explicitly activate deferred or deactivated connection.
   /** Use of this method is entirely optional.  Whenever a connection is used
@@ -285,6 +224,52 @@ public:
    */
   void set_variable(const PGSTD::string &Var, 
       		    const PGSTD::string &Value);			//[t60]
+
+
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use disconnect() instead
+  void Disconnect() throw () { disconnect(); }
+  /// @deprecated Use perform() instead
+  template<typename TRANSACTOR> void Perform(const TRANSACTOR &T, int A=3)
+	{ return perform(T,A); }
+  /// @deprecated Use set_noticer() instead
+  PGSTD::auto_ptr<noticer> SetNoticer(PGSTD::auto_ptr<noticer> N)
+  	{ return set_noticer(N); }
+  /// @deprecated Use get_noticer() instead
+  noticer *GetNoticer() const throw () 
+  	{ return get_noticer(); }
+  /// @deprecated Use process_notice() instead
+  void ProcessNotice(const char msg[]) throw () { return process_notice(msg); }
+  /// @deprecated Use process_notice() instead
+  void ProcessNotice(const PGSTD::string &msg) throw () 
+  	{ return process_notice(msg); }
+  /// @deprecated Use trace() instead
+  void Trace(FILE *F) { trace(F); }
+  /// @deprecated Use get_notifs() instead
+  void GetNotifs() { get_notifs(); }
+  /// @deprecated Use dbname() instead
+  const char *DbName() { return dbname(); }
+  /// @deprecated Use username() instead
+  const char *UserName() { return username(); }
+  /// @deprecated Use hostname() instead
+  const char *HostName() { return hostname(); }
+  /// @deprecated Use port() instead
+  const char *Port() { return port(); }
+  /// @deprecated Use options() instead
+  const char *Options() const throw () { return options(); }
+  /// @deprecated Use backendpid() instead
+  int BackendPID() const { return backendpid(); }
+  /// @deprecated Use activate() instead
+  void Activate() { activate(); }
+  /// @deprecated Use deactivate() instead
+  void Deactivate() { deactivate(); }
+  /// @deprecated Use set_client_encoding() instead
+  void SetClientEncoding(const PGSTD::string &E) { set_client_encoding(E); }
+  /// @deprecated Use set_variable() instead
+  void SetVariable(const PGSTD::string &Var, const PGSTD::string &Val)
+  	{ set_variable(Var, Val); }
+#endif
+
 
 protected:
   /// To be used by implementation classes: really connect to database
@@ -344,7 +329,15 @@ private:
   bool ReadCopyLine(PGSTD::string &);
   void BeginCopyWrite(const PGSTD::string &Table);
   void WriteCopyLine(const PGSTD::string &);
-  void EndCopy() throw ();
+  void EndCopyWrite() throw ();
+
+  void EndCopy() throw ()
+#ifdef PQXX_HAVE_PQPUTCOPY
+  {}
+#else
+  ;
+#endif
+
   void RawSetVar(const PGSTD::string &Var, const PGSTD::string &Value);
   void AddVariables(const PGSTD::map<PGSTD::string, PGSTD::string> &);
 

@@ -49,12 +49,13 @@ public:
 	      const PGSTD::string &Null=PGSTD::string());		//[t6]
   virtual ~tablestream() =0;						//[t6]
 
+  PGSTD::string name() const { return m_Name; }				//[t10]
+
+
 #ifdef PQXX_DEPRECATED_HEADERS
   /// @deprecated Use name() instead
   PGSTD::string Name() const { return name(); }
 #endif
-
-  PGSTD::string name() const { return m_Name; }				//[t10]
 
 protected:
   transaction_base &Trans() const throw () { return m_Trans; }

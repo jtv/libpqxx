@@ -56,7 +56,7 @@ modename="$progname"
 PROGRAM=ltmain.sh
 PACKAGE=libtool
 VERSION=1.5.0a
-TIMESTAMP=" (1.1220.2.33 2003/09/29 11:43:50) Debian$Rev: 131 $"
+TIMESTAMP=" (1.1220.2.35 2003/11/12 18:51:58) Debian$Rev: 159 $"
 
 default_mode=
 help="Try \`$progname --help' for more information."
@@ -378,6 +378,7 @@ if test -z "$show_help"; then
     suppress_output=
     arg_mode=normal
     libobj=
+    later=
 
     for arg
     do
@@ -406,18 +407,8 @@ if test -z "$show_help"; then
 	  continue
 	  ;;
 
-	-static)
-	  build_old_libs=yes
-	  continue
-	  ;;
-
-	-prefer-pic)
-	  pic_mode=yes
-	  continue
-	  ;;
-
-	-prefer-non-pic)
-	  pic_mode=no
+	-static | -prefer-pic | -prefer-non-pic)
+	  later="$later $arg"
 	  continue
 	  ;;
 
@@ -566,6 +557,25 @@ if test -z "$show_help"; then
 	;;
       esac
     fi
+
+    for arg in $later; do
+      case $arg in
+      -static)
+	build_old_libs=yes
+	continue
+	;;
+
+      -prefer-pic)
+	pic_mode=yes
+	continue
+	;;
+
+      -prefer-non-pic)
+	pic_mode=no
+	continue
+	;;
+      esac
+    done
 
     objname=`$echo "X$obj" | $Xsed -e 's%^.*/%%'`
     xdir=`$echo "X$obj" | $Xsed -e 's%/[^/]*$%%'`
@@ -892,6 +902,47 @@ EOF
     thread_safe=no
     vinfo=
     vinfo_number=no
+
+    # Infer tagged configuration to use if any are available and
+    # if one wasn't chosen via the "--tag" command line option.
+    # Only attempt this if the compiler in the base link
+    # command doesn't match the default compiler.
+    if test -n "$available_tags" && test -z "$tagname"; then
+      case "$base_compile " in
+      # Blanks in the command may have been stripped by the calling shell,
+      # but not from the CC environment variable when configure was run.
+      "$CC "* | " $CC "* | "`$echo $CC` "* | " `$echo $CC` "*) ;;
+      # Blanks at the start of $base_compile will cause this to fail
+      # if we don't check for them as well.
+      *)
+	for z in $available_tags; do
+	  if grep "^# ### BEGIN LIBTOOL TAG CONFIG: $z$" < "$0" > /dev/null; then
+	    # Evaluate the configuration.
+	    eval "`${SED} -n -e '/^# ### BEGIN LIBTOOL TAG CONFIG: '$z'$/,/^# ### END LIBTOOL TAG CONFIG: '$z'$/p' < $0`"
+	    case "$base_compile " in
+	    "$CC "* | " $CC "* | "`$echo $CC` "* | " `$echo $CC` "*)
+	      # The compiler in $compile_command matches
+	      # the one in the tagged configuration.
+	      # Assume this is the tagged configuration we want.
+	      tagname=$z
+	      break
+	      ;;
+	    esac
+	  fi
+	done
+	# If $tagname still isn't set, then no tagged configuration
+	# was found and let the user know that the "--tag" command
+	# line option must be used.
+	if test -z "$tagname"; then
+	  $echo "$modename: unable to infer tagged configuration"
+	  $echo "$modename: specify a tag with \`--tag'" 1>&2
+	  exit 1
+#       else
+#         $echo "$modename: using $tagname tagged configuration"
+	fi
+	;;
+      esac
+    fi
 
     # We need to know -static, to get the right output filenames.
     for arg
@@ -1300,8 +1351,9 @@ EOF
 	continue
 	;;
 
-     -pthread|-pthreads|-kthread|-Kthread|-mthreads|--thread-safe|-mt)
-	# deplibs="$deplibs $arg"
+     -mt|-mthreads|-kthread|-Kthread|-pthread|-pthreads|--thread-safe)
+	deplibs="$deplibs $arg"
+	continue
 	;;
 
       -module)
@@ -1636,47 +1688,6 @@ EOF
       exit 1
     fi
 
-    # Infer tagged configuration to use if any are available and
-    # if one wasn't chosen via the "--tag" command line option.
-    # Only attempt this if the compiler in the base link
-    # command doesn't match the default compiler.
-    if test -n "$available_tags" && test -z "$tagname"; then
-      case $base_compile in
-      # Blanks in the command may have been stripped by the calling shell,
-      # but not from the CC environment variable when configure was run.
-      "$CC "* | " $CC "* | "`$echo $CC` "* | " `$echo $CC` "*) ;;
-      # Blanks at the start of $base_compile will cause this to fail
-      # if we don't check for them as well.
-      *)
-	for z in $available_tags; do
-	  if grep "^# ### BEGIN LIBTOOL TAG CONFIG: $z$" < "$0" > /dev/null; then
-	    # Evaluate the configuration.
-	    eval "`${SED} -n -e '/^# ### BEGIN LIBTOOL TAG CONFIG: '$z'$/,/^# ### END LIBTOOL TAG CONFIG: '$z'$/p' < $0`"
-	    case $base_compile in
-	    "$CC "* | " $CC "* | "`$echo $CC` "* | " `$echo $CC` "*)
-	      # The compiler in $compile_command matches
-	      # the one in the tagged configuration.
-	      # Assume this is the tagged configuration we want.
-	      tagname=$z
-	      break
-	      ;;
-	    esac
-	  fi
-	done
-	# If $tagname still isn't set, then no tagged configuration
-	# was found and let the user know that the "--tag" command
-	# line option must be used.
-	if test -z "$tagname"; then
-	  $echo "$modename: unable to infer tagged configuration"
-	  $echo "$modename: specify a tag with \`--tag'" 1>&2
-	  exit 1
-#       else
-#         $echo "$modename: using $tagname tagged configuration"
-	fi
-	;;
-      esac
-    fi
-
     if test "$export_dynamic" = yes && test -n "$export_dynamic_flag_spec"; then
       eval arg=\"$export_dynamic_flag_spec\"
       compile_command="$compile_command $arg"
@@ -1819,9 +1830,13 @@ EOF
 	lib=
 	found=no
 	case $deplib in
-	-pthread|-pthreads|-kthread|-Kthread|-mthreads|--thread-safe|-mt)
-	  deplibs="$deplib $deplibs"
-	  # test "$linkmode" = lib && newdependency_libs="$deplib $newdependency_libs"
+	-mt|-mthreads|-kthread|-Kthread|-pthread|-pthreads|--thread-safe)
+	  if test "$linkmode,$pass" = "prog,link"; then
+	    compile_deplibs="$deplib $compile_deplibs"
+	    finalize_deplibs="$deplib $finalize_deplibs"
+	  else
+	    deplibs="$deplib $deplibs"
+	  fi
 	  continue
 	  ;;
 	-l*)
