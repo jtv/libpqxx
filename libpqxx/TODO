@@ -1,9 +1,3 @@
-Build
-(*) Somehow get config.h to never clash with other packages
-(*) Look at a-a-t.org for alternative build system
-(*) Get object files into obj/ directory, library binary into lib/
-(*) Finalize license
-
 Check
 (*) Move "check" postgres parameters into configure.ac
 
@@ -23,9 +17,6 @@ Streams
 (*) Provide metadata information in TableStream
 (*) Work streamable (and prefetching!) result sets into Stream hierarchy
 (*) Refactor, adding streams that return 1 tuple at a time
-
-Transactors
-(*) Fix "nested typedefs" situation
 
 Triggers
 (*) Allow access to Connection's triggers list?
