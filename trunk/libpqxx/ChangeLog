@@ -1,3 +1,14 @@
+2002-12-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.h, src/cursor.cxx:
+  - Added absolute cursor positioning
+ src/cursor.cxx:
+  - Rewrote Move()/Fetch() row count logic
+ test/test24.cxx:
+  - Fixed year for Space Oddyssey
+ test/test41.cxx:
+  - Reduced overrun width being tested
+ test/test43.cxx:
+  - New
 2002-12-23  Jeroen T. Vermeulen <jtv@xs4all.nL>
  include/pqxx/cursor.h, src/cursor.cxx, test/test42.cxx:
   - Cursor::Move() now always returns number of rows moved
