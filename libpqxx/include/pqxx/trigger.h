@@ -37,7 +37,7 @@ namespace pqxx
 // be aware that POSTGRESQL DEFERS NOTIFICATIONS OCCURRING INSIDE TRANSACTIONS.
 // So if you're keeping a transaction open, don't expect any of your Triggers
 // on the same connection to be notified.
-class Trigger
+class PQXX_LIBEXPORT Trigger
 {
 public:
   Trigger(Connection &C, PGSTD::string N) : 				//[t4]

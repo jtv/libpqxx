@@ -39,7 +39,7 @@ namespace pqxx
 
 class Transaction;
 
-class TableStream
+class PQXX_LIBEXPORT TableStream
 {
 public:
   TableStream(Transaction &Trans, 

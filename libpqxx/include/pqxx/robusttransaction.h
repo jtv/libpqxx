@@ -47,7 +47,7 @@ namespace pqxx
 {
 
 
-class RobustTransaction : public TransactionItf
+class PQXX_LIBEXPORT RobustTransaction : public TransactionItf
 {
 public:
   explicit RobustTransaction(Connection &, 

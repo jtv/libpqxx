@@ -53,7 +53,7 @@ template<> inline PGSTD::string Classname(const TableStream *)
 // database access must be channeled through one of these classes for safety,
 // although not all implementations of this interface need to provide full
 // transactional integrity.
-class TransactionItf
+class PQXX_LIBEXPORT TransactionItf
 {
 public:
   virtual ~TransactionItf() =0;						//[t1]
@@ -158,7 +158,7 @@ private:
 // the database is left in an indeterminate (but consistent) state, and only
 // manual inspection will tell which is the case.
 // TODO: Get guarantee that libpq will not let this happen, or deal with it
-class in_doubt_error : public PGSTD::runtime_error
+class PQXX_LIBEXPORT in_doubt_error : public PGSTD::runtime_error
 {
 public:
   explicit in_doubt_error(const PGSTD::string &whatarg) : 

@@ -26,7 +26,7 @@ namespace pqxx
 {
 class TableReader;	// See pqxx/tablereader.h
 
-class TableWriter : public TableStream
+class PQXX_LIBEXPORT TableWriter : public TableStream
 {
 public:
   TableWriter(Transaction &Trans, PGSTD::string Name);			//[t5]

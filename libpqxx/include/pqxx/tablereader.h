@@ -37,7 +37,7 @@ namespace pqxx
 // container or container-like object that supports STL back-inserters.  Since
 // the TableReader has no knowledge of the types of data expected, it treats
 // all fields as strings.
-class TableReader : public TableStream
+class PQXX_LIBEXPORT TableReader : public TableStream
 {
 public:
   TableReader(Transaction &Trans, PGSTD::string Name);			//[t6]

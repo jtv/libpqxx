@@ -59,11 +59,29 @@ template<> inline long numeric_limits<long>::min() throw () {return LONG_MIN;}
 #endif // LACK_LIMITS
 
 
+// Used for Windows DLL
+#define PQXX_LIBEXPORT
+
+
+#ifdef _MSC_VER
 // Microsoft Visual C++ likes to complain about long debug symbols, which
 // are a fact of life in modern C++.  Silence the warning.
-#ifdef _MSC_VER
 #pragma warning (disable: 4786)
-#endif
+
+// Compiler doesn't know if it is import or export
+#pragma warning (disable: 4251 4275)
+
+// Link to libpq
+#pragma comment(lib, "libpqdll")
+
+#undef PQXX_LIBEXPORT
+#ifndef LIBPQXXDLL_EXPORTS	// Defined in Makefile
+#define PQXX_LIBEXPORT __declspec(dllimport)
+#else
+#define PQXX_LIBEXPORT __declspec(dllexport)
+#endif	// LIBPQXXDLL_EXPORTS
+
+#endif	// _MSC_VER
 
 
 #endif
