@@ -18,6 +18,7 @@ PQXX_HAVE_LIMITS	public	compiler
 PQXX_HAVE_LOCALE	internal	compiler
 PQXX_HAVE_PQESCAPEBYTEA	internal	libpq
 PQXX_HAVE_PQESCAPESTRING	internal	libpq
+PQXX_HAVE_PQEXECPREPARED	internal	libpq
 PQXX_HAVE_PQFREEMEM	internal	libpq
 PQXX_HAVE_PQFREENOTIFY	internal	libpq
 PQXX_HAVE_PQFTABLE	public	libpq

@@ -474,6 +474,7 @@ pqxx::result pqxx::connection_base::exec_prepared(const char QueryName[],
 	const char *const *Params,
 	int Retries)
 {
+#ifdef PQXX_HAVE_PQEXECPREPARED
   activate();
   result R(PQexecPrepared(m_Conn, QueryName, NumParams, Params, NULL, NULL, 0));
 
@@ -493,6 +494,14 @@ pqxx::result pqxx::connection_base::exec_prepared(const char QueryName[],
   R.CheckStatus(QueryName);
   get_notifs();
   return R;
+#else
+  stringstream Q;
+  Q << "EXECUTE " 
+    << QueryName
+    << ' '
+    << separated_list(",", Params, Params+NumParams);
+  return Exec(Q.str().c_str(), Retries);
+#endif
 }
 
 
