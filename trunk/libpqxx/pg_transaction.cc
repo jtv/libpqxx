@@ -47,28 +47,23 @@ Pg::Transaction::Transaction(Connection &Conn, string TName) :
 
 Pg::Transaction::~Transaction()
 {
-  m_Conn.UnregisterTransaction(this);
+  try
+  {
+    m_Conn.UnregisterTransaction(this);
 
-  if (m_Status == st_committed)
-  {
-    m_Conn.Exec(SQL_COMMIT_WORK, 0);
-  }
-  else
-  {
-    try
-    {
+    if (m_Status == st_aborted)
       Abort();
-    }
-    catch (const exception &e)
-    {
-      m_Conn.ProcessNotice(string(e.what()) + "\n");
-    }
-  }
 
-  if (m_Stream.get())
-    m_Conn.ProcessNotice("Closing transaction '" +
-		         Name() +
-			 "' with stream still open\n");
+    // TODO: Report name of open stream
+    if (m_Stream.get())
+      m_Conn.ProcessNotice("Closing transaction '" +
+		           Name() +
+			   "' with stream still open\n");
+  }
+  catch (const exception &e)
+  {
+    m_Conn.ProcessNotice(string(e.what()) + "\n");
+  }
 }
 
 
@@ -79,27 +74,42 @@ void Pg::Transaction::Commit()
   switch (m_Status)
   {
   case st_nascent:	// Empty transaction.  No skin off our nose.
+    return;
+
   case st_active:	// Just fine.  This is what we expect.
     break;
 
   case st_aborted:
-    throw logic_error("Attempt to commit previously aborted database transaction");
+    throw logic_error("Attempt to commit previously aborted transaction '" +
+		      Name() +
+		      "'");
 
   case st_committed:
     // Transaction has been committed already.  This is not exactly proper 
     // behaviour, but throwing an exception here would only give the impression
     // that an abort is needed--which would only confuse things further at this
     // stage.
-    // Therefore, multiple commits are silently accepted.
+    // Therefore, multiple commits are accepted, though under protest.
     m_Conn.ProcessNotice("Transaction '" + 
 		         Name() + 
 			 "' committed more than once\n");
-    break;
+    return;
 
   default:
     throw logic_error("Internal libpqxx error: Pg::Transaction: invalid status code");
   }
+ 
+  // Tricky one.  If stream is nested in transaction but inside the same scope,
+  // the Commit() will come before the stream is closed.  Which means the
+  // commit is premature.  Punish this swiftly and without fail to discourage
+  // the habit from forming.
+  // TODO: Report name of open stream
+  if (m_Stream.get())
+    throw runtime_error("Attempt to commit transaction '" + 
+		        Name() +
+			"' with stream still open");
 
+  m_Conn.Exec(SQL_COMMIT_WORK, 0);
   m_Status = st_committed;
 }
 
@@ -127,7 +137,9 @@ void Pg::Transaction::Abort()
     return;
 
   case st_committed:
-    throw logic_error("Attempt to abort previously committed transaction");
+    throw logic_error("Attempt to abort previously committed transaction '" +
+		      Name() +
+		      "'");
 
   default:
     throw logic_error("Internal libpqxx error: Pg::Transaction: invalid status code");
@@ -158,10 +170,14 @@ Pg::Result Pg::Transaction::Exec(const char C[])
     break;
 
   case st_committed:
-    throw logic_error("Attempt to execute query in committed transaction");
+    throw logic_error("Attempt to execute query in committed transaction '" +
+		      Name() +
+		      "'");
 
   case st_aborted:
-    throw logic_error("Attempt to execute query in aborted transaction");
+    throw logic_error("Attempt to execute query in aborted transaction '" +
+		      Name() +
+		      "'");
 
   default:
     throw logic_error("Internal libpqxx error: Pg::Transaction: invalid status code");

@@ -72,14 +72,21 @@ int main(int argc, char *argv[])
     for (int i=0; CData[i][0]; ++i) 
       Data.push_back(Datum(&CData[i][0], &CData[i][2]));
 
-    TableWriter W(T, TableName);
+    // IMPORTANT: start a nested block here to ensure that our stream W is
+    // closed before we attempt to commit our transaction T.  Otherwise we
+    // might end up committing T before all data going into W had been written.
+    {
+      TableWriter W(T, TableName);
 
-    cout << "Writing data to " << TableName << endl;
+      cout << "Writing data to " << TableName << endl;
 
-    for (DataHolder::const_iterator i = Data.begin(); i != Data.end(); ++i)
-      W.insert(*i);
- 
-    // Tell the transaction that it has been successful
+      for (DataHolder::const_iterator i = Data.begin(); i != Data.end(); ++i)
+        W.insert(*i);
+
+      // (destruction of W occurs here)
+    }
+
+    // Now that our TableWriter is closed, it's safe to commit T.
     T.Commit();
   }
   catch (const exception &e)

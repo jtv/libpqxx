@@ -1,3 +1,9 @@
+Error handling
+(*) Check for unexpectedly open/closed transactions (appears to be possible)
+
+General
+(*) Unit tests with complete method coverage
+
 Porting
 (*) Port to mySQL etc., then refactor to separate front/back interfaces
 (*) Hide connect string
