@@ -239,6 +239,8 @@ void pqxx::pipeline::consumeresults()
 	              "expected " + ToString(m_sent.size()) + " results "
 		      "from pipeline, got " + ToString(R.size()));
 
+  // TODO: Prevent queries behind errors from being re-issued!
+  // TODO: Separate exception for "query not executed because of earlier error"?
   const vector<result>::size_type R_size = R.size();
   if ((m_sent.size() == 1) || 
       (R_size != 1) || 
