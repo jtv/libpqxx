@@ -357,8 +357,8 @@ AC_CONFIG_COMMANDS([configitems],
 # 1. Name of the configuration item, e.g. PQXX_HAVE_PTRDIFF_T
 # 2. Publication marker: public or internal
 # 3. A single environmental factor determining the item, e.g. libpq or compiler
-PUBLICATIONS=`cut ${srcdir}/configitems -f 2 | sort -u`
-FACTORS=`cut ${srcdir}/configitems -f 3 | sort -u`
+PUBLICATIONS=`cut -f 2 ${srcdir}/configitems | sort -u`
+FACTORS=`cut -f 3 ${srcdir}/configitems | sort -u`
 for publication in $PUBLICATIONS ; do
 	for factor in $FACTORS ; do
 		CONFIGFILE="include/pqxx/config-$publication-$factor.h"
