@@ -618,7 +618,7 @@ Transaction Xaction(Conn, "DemoTransaction");
 try
 {
   // (Queries)
-  // (Query with SQL syntax error)
+  Xaction.Exec("SELECT !?^H^H^H^H");	// Fails: SQL syntax error
 }
 catch (...)
 {

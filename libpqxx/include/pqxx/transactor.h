@@ -49,6 +49,8 @@ namespace pqxx
 {
 class Transaction;
 
+// TODO: Derive from std::unary_function or whatever it was called
+
 class Transactor
 {
 public:
