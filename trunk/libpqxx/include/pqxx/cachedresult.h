@@ -73,15 +73,10 @@ public:
     return GetBlock(BlockFor(i)).at(Offset(i));
   }
 
-  /// Number of rows in result set.  
-  /** Figuring out the size of the result set for the first time may take a lot
-   * of time and network traffic, as the CachedResult's internal cursor scans
-   * back and forth in search of the set's last row.  Some 30 blocks of data
-   * may be fetched in the process.
-   */
+  /// Number of rows in result set.  First call may be slow.
   size_type size() const
   {
-    if (m_Size == -1) DetermineSize();
+    if (m_Size == size_unknown) DetermineSize();
     return m_Size;
   }
 
@@ -110,6 +105,8 @@ public:
 
 private:
 
+  enum { size_unknown = -1 };
+
   class CacheEntry
   {
     int m_RefCount;
@@ -124,8 +121,12 @@ private:
   };
 
 
-  blocknum BlockFor(size_type Row) const { return Row / m_Granularity; }
-  size_type Offset(size_type Row) const { return Row % m_Granularity; }
+  blocknum BlockFor(size_type Row) const throw () 
+  	{ return Row / m_Granularity; }
+  size_type Offset(size_type Row) const throw ()
+  	{ return Row % m_Granularity; }
+  Cursor::size_type FirstRowOf(blocknum Block) const throw ()
+    	{ return Block*m_Granularity; }
 
   void MoveTo(blocknum) const;
 
@@ -142,9 +143,7 @@ private:
   }
 
   /** Figure out how big our result set is.  This may take some scanning back
-   * and forth, since there's no direct way to find out.  We keep track of the
-   * highest block known to exist (in m_Lower) and the lowest block known not 
-   * to exist (in m_Upper) to narrow the search range as much as possible.
+   * and forth, since there's no direct way to find out.
    */
   void DetermineSize() const;
 
@@ -156,18 +155,8 @@ private:
 
   mutable Cursor m_Cursor;
 
-  /// Current cursor position (in blocks), or -1 if unknown.
-  mutable blocknum m_Pos;
-
-  /// Result set size in rows, or -1 if unknown.
+  /// Result set size in rows, or size_unknown if unknown.
   mutable size_type m_Size;
-
-  /** Lower and upper bounds to end-of-data: highest block known to exist, and
-   * lowest block known not to exist, respectively.  Once size is known, the
-   * two will be adjacent, with m_Lower referring to the last, probably non-full
-   * block and m_Upper equal to m_Lower+1.
-   */
-  mutable blocknum m_Lower, m_Upper;
 
   // Not allowed:
   CachedResult();
