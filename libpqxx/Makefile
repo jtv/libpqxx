@@ -81,37 +81,7 @@ $(LIBNAME): $(LIBOBJS)
 	$(AR) -r $(LIBNAME) $(LIBOBJS)
 
 check: $(EXECS)
-	@echo "Cleaning up any garbage from previous failed test runs"
-	psql $(DBNAME) -c "DELETE FROM events WHERE year=1977"
-	@echo
-	@echo "======== STARTING TEST RUN ========"
-	./test1 $(CONNSTR)
-	./test2 $(CONNSTR)
-	./test3 $(CONNSTR) 10
-	./test4 $(CONNSTR)
-	./test5 $(CONNSTR)
-	./test6 $(CONNSTR) orgevents events
-	./test7 $(CONNSTR)
-	./test8 $(CONNSTR)
-	./test9 $(CONNSTR)
-	./test10 $(CONNSTR)
-	./test11 $(CONNSTR)
-	./test12 $(CONNSTR)
-	./test13 $(CONNSTR)
-	./test14 $(CONNSTR)
-	./test15 $(CONNSTR)
-	./test16 $(CONNSTR)
-	./test17 $(CONNSTR)
-	./test18 $(CONNSTR)
-	./test19 $(CONNSTR)
-	./test20 $(CONNSTR)
-	@echo
-	@echo "======== TEST RUN COMPLETED ========"
-	@echo
-	@echo "Checking for remaining transaction records:"
-	psql $(DBNAME) -c "SELECT * FROM PQXXLOG_$(DBUSER)"
-	@echo "Checking for remaining test garbage:"
-	psql $(DBNAME) -c "SELECT * FROM events WHERE year=1977"
+	env DBNAME=$(DBNAME) CONNSTR=$(CONNSTR) DBUSER=$(DBUSER) ./selftest
 
 clean: 
 	$(RM) $(LIBOBJS) $(EXECOBJS) a.out
