@@ -12,11 +12,11 @@ Usage: pqxx-config [OPTION]
 
 Known values for OPTION are:
 
-  --prefix=DIR         change libxml prefix [default $prefix]
-  --libs               print library linking information
-  --cflags             print pre-processor and compiler flags
-  --help               display this help and exit
-  --version            output version information
+  --prefix=DIR		change libxml prefix [default $prefix]
+  --libs		print library linking information
+  --cflags		print pre-processor and compiler flags
+  --help		display this help and exit
+  --version		output version information
 EOF
 
     exit $1
@@ -37,37 +37,36 @@ while test $# -gt 0; do
 
     case "$1" in
     --prefix=*)
-       prefix=$optarg
-       ;;
+	prefix=$optarg
+	;;
 
     --prefix)
-       echo $prefix
-       ;;
+	echo $prefix
+	;;
 
     --version)
-       echo @PQXXVERSION@
-       exit 0
-       ;;
+	echo @PQXXVERSION@
+	exit 0
+	;;
 
     --help)
-       usage 0
-       ;;
+	usage 0
+	;;
 
     --cflags)
-               echo -I@includedir@ @POSTGRES_INCLUDE@
-               ;;
+       	echo -I@includedir@ @POSTGRES_INCLUDE@
+       	;;
 
     --libs)
-               echo @libdir@ -lpqxx @POSTGRES_LIB@ 
-               ;;
+       	echo -L@libdir@ -lpqxx @POSTGRES_LIB@ 
+       	;;
 
     *)
-       usage
-       exit 1
-       ;;
+	usage
+	exit 1
+	;;
     esac
     shift
 done
 
 exit 0
-
