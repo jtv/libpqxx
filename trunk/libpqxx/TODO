@@ -18,11 +18,9 @@ Connections
 (*) Speed up connection state restoration by concatenating queries (pipeline?)
 
 Containers
-(*) Check: size_type must be unsigned, difference_type must be signed
 (*) Check: Ought to have at least const_reference
 (*) Implement ==, !=, swap(); {<,>,<=,>=}
 (*) size_type max_size()
-(*) Check: Iterator copying (copyconstructor or assignment) must not throw
 (*) Check: front() & back()
 
 Cursors
@@ -61,7 +59,6 @@ Tests
 (*) Test tablereader and rows ending in empty fields
 
 Transactions
-(*) German's locking idea for robusttransaction
 (*) [pgsql 8.0] Create log table "WITH OIDS" if appropriate
 (*) [pgsql 8.0] Support two-phase commit with separate transaction class(es)
 (*) [pgsql 8.0] Support nested transactions and savepoints
