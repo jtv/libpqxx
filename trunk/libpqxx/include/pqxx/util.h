@@ -148,7 +148,7 @@ template<> inline PGSTD::string Quote(const PGSTD::string &Obj,
     PQescapeString(Buf, Obj.c_str(), Obj.size());
     Result += Buf;
   }
-  catch (const exception &)
+  catch (const PGSTD::exception &)
   {
     delete [] Buf;
     throw;
