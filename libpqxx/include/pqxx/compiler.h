@@ -43,7 +43,7 @@ template<typename Cat,
 #include <climits>
 namespace PGSTD
 {
-/// Deal with lacking <limits>
+/// Deal with lacking "limits" header
 template<typename T> struct numeric_limits
 {
   static T max() throw ();

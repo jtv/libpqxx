@@ -132,7 +132,8 @@ target_alias = @target_alias@
 with_postgres_include = @with_postgres_include@
 with_postgres_lib = @with_postgres_lib@
 lib_LTLIBRARIES = libpqxx.la
-libpqxx_la_SOURCES = connection.cxx \
+libpqxx_la_SOURCES = cachedresult.cxx \
+	connection.cxx \
 	cursor.cxx \
 	nontransaction.cxx \
 	result.cxx \
@@ -156,16 +157,16 @@ CONFIG_CLEAN_FILES =
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
 libpqxx_la_LIBADD =
-am_libpqxx_la_OBJECTS = connection.lo cursor.lo nontransaction.lo \
-	result.lo robusttransaction.lo tablereader.lo tablestream.lo \
-	tablewriter.lo transaction.lo transactionitf.lo
+am_libpqxx_la_OBJECTS = cachedresult.lo connection.lo cursor.lo \
+	nontransaction.lo result.lo robusttransaction.lo tablereader.lo \
+	tablestream.lo tablewriter.lo transaction.lo transactionitf.lo
 libpqxx_la_OBJECTS = $(am_libpqxx_la_OBJECTS)
 
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/include/pqxx
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/connection.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/cursor.Plo \
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/cachedresult.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/connection.Plo ./$(DEPDIR)/cursor.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/nontransaction.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/result.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/robusttransaction.Plo \
@@ -232,6 +233,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cachedresult.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/connection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cursor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nontransaction.Plo@am__quote@
