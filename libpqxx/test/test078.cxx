@@ -13,8 +13,8 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-// Example program for libpqxx.  Send notification to self, using a quoted
-// trigger name, and without polling.
+// Example program for libpqxx.  Send notification to self, using a trigger
+// name with unusal characters, and without polling.
 //
 // Usage: test078
 
@@ -60,7 +60,7 @@ public:
 
   void operator()(argument_type &T)
   {
-    T.exec("NOTIFY " + m_Trigger);
+    T.exec("NOTIFY \"" + m_Trigger + "\"");
   }
 
   void OnAbort(const char Reason[]) throw ()
@@ -82,8 +82,7 @@ int main()
 {
   try
   {
-    // const string TrigName = "\"my trigger\"";
-    const string TrigName = "mytrigger";
+    const string TrigName = "my trigger";
     connection C;
     cout << "Adding trigger..." << endl;
     TestTrig Trig(C, TrigName);

@@ -1,3 +1,5 @@
+2.2.3
+ - Triggers names no longer need to be proper identifiers
 2.2.2
  - Bugfix in fieldstream w.r.t. reading strings on some systems
  - Renamed config.h to internalconfig.h to avoid confusion

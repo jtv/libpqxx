@@ -325,7 +325,7 @@ void pqxx::connection_base::AddTrigger(pqxx::trigger *T)
   if (m_Conn && (p == m_Triggers.end()))
   {
     // Not listening on this event yet, start doing so.
-    const string LQ("LISTEN " + string(T->name())); 
+    const string LQ("LISTEN \"" + string(T->name()) + "\""); 
     result R( PQexec(m_Conn, LQ.c_str()) );
 
     try
