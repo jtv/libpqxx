@@ -20,7 +20,8 @@ using namespace pqxx;
 // called template1, or "host=foo.bar.net user=smith" to connect to a
 // backend running on host foo.bar.net, logging in as user smith.
 //
-// The table argument is the table being modified.  This defaults to "events".
+// The table argument is the table being modified.  This defaults to 
+// "pqxxevents".
 // It is assumed to consist of an integer key called year, and a string.
 namespace
 {
@@ -34,7 +35,7 @@ int main(int argc, char *argv[])
   {
     lazyconnection C(argv[1]);
 
-    const string Table = ((argc > 2) ? argv[2] : "events");
+    const string Table = ((argc > 2) ? argv[2] : "pqxxevents");
 
     // Begin a transaction acting on our current connection
     NonTransaction T1(C, "T1");

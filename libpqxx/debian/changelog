@@ -1,3 +1,9 @@
+libpqxx (1.9.1-1) unstable; urgency=low
+
+  * Source changes
+
+ -- Jeroen T. Vermeulen <jtv@xs4all.nl>  Sat,  7 Jun 2003 07:45:00 +0200
+
 libpqxx (1.9.0-1) unstable; urgency=low
 
   * Radical source changes

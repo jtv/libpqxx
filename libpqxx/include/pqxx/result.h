@@ -82,11 +82,21 @@ public:
 
     result::size_type Row() const { return m_Index; }			//[t11]
 
-    size_type ColumnNumber(const PGSTD::string &ColName) const 		//[t30]
+    /// @deprecated Use column_number() instead
+    size_type ColumnNumber(const PGSTD::string &ColName) const 
     	{ return m_Home->ColumnNumber(ColName); }
 
-    size_type ColumnNumber(const char ColName[]) const 			//[t30]
+    /// @deprecated Use column_number() instead
+    size_type ColumnNumber(const char ColName[]) const 
     	{ return m_Home->ColumnNumber(ColName); }
+
+    /// Number of given column (throws exception if it doesn't exist)
+    size_type column_number(const PGSTD::string &ColName) const		//[t30]
+    	{ return m_Home->column_number(ColName); }
+
+    /// Number of given column (throws exception if it doesn't exist)
+    size_type column_number(const char ColName[]) const			//[t30]
+      	{ return m_Home->column_number(ColName); }
 
   protected:
     const result *m_Home;
@@ -119,8 +129,8 @@ public:
     /// Read as plain C string
     /** Since the field's data is stored internally in the form of a 
      * zero-terminated C string, this is the fastest way to read it.  Use the
-     * to() functions to convert the string to other types such as int, or to
-     * C++ strings.
+     * to() or as() functions to convert the string to other types such as int,
+     * or to C++ strings.
      */
     const char *c_str() const {return m_Home->GetValue(m_Index,m_Col);}	//[t2]
 
@@ -137,7 +147,7 @@ public:
      * concerned (on POSIX systems, use setlocale(LC_NUMERIC, "C")).
      * This should be fixed at some point in the future.
      */
-    template<typename T> bool to(T &Obj) const				//[t1]
+    template<typename T> bool to(T &Obj) const				//[t3]
     {
       if (is_null())
 	return false;
@@ -178,14 +188,15 @@ public:
       return NotNull;
     }
 
-    /// Return value as object of given built-in type, or Default if null
+    /// Return value as object of given type, or Default if null
     /** Note that unless the function is instantiated with an explicit template
-     * argument, the Default value also determines the result type.
+     * argument, the Default value's type also determines the result type.
      */
-    template<typename T> T as(const T &Default) const			//[t45]
+    template<typename T> T as(const T &Default) const			//[t1]
     {
       T Obj;
-      return to(Obj) ? Obj : Default;
+      to(Obj, Default);
+      return Obj;
     }
 
     bool is_null() const { return m_Home->GetIsNull(m_Index,m_Col); }	//[t12]
@@ -277,14 +288,25 @@ public:
 
   tuple::size_type Columns() const { return PQnfields(m_Result); }	//[t11]
 
-  /// Number of given column, or -1 if it does not exist
-  tuple::size_type ColumnNumber(const char Name[]) const 		//[t11]
+  /// @deprecated Number of given column; use column_number instead
+  tuple::size_type ColumnNumber(const char Name[]) const
   	{return PQfnumber(m_Result,Name);}
-  /// Number of given column, or -1 if it does not exist
-  tuple::size_type ColumnNumber(const std::string &Name) const 		//[t11]
+  /// @deprecated Number of given column; use column_number instead
+  tuple::size_type ColumnNumber(const PGSTD::string &Name) const
   	{return ColumnNumber(Name.c_str());}
-  const char *ColumnName(tuple::size_type Number) const 		//[t11]
+  /// @deprecated Name of given column; use column_name instead
+  const char *ColumnName(tuple::size_type Number) const
   	{return PQfname(m_Result,Number);}
+
+  /// Number of given column (throws exception if it doesn't exist)
+  tuple::size_type column_number(const char ColName[]) const;		//[t11]
+
+  /// Number of given column (throws exception if it doesn't exist)
+  tuple::size_type column_number(const PGSTD::string &Name) const	//[t11]
+  	{return column_number(Name.c_str());}
+
+  /// Name of column with this number (throws exception if it doesn't exist)
+  const char *column_name(tuple::size_type Number) const;		//[t11]
 
   /// If command was INSERT of 1 row, return oid of inserted row
   /** Returns oid_none otherwise. 
@@ -348,7 +370,7 @@ public:
 
     // TODO: More useful error message!  Distinguish bad_alloc from parse error
     if (!c_ptr()) 
-      throw std::runtime_error("Unable to read bytea field");
+      throw PGSTD::runtime_error("Unable to read bytea field");
   }
 
   /// Size of unescaped buffer, including terminating zero
@@ -409,7 +431,7 @@ inline result::tuple::size_type result::tuple::size() const
 
 inline const char *result::field::Name() const 
 { 
-  return m_Home->ColumnName(m_Col); 
+  return m_Home->column_name(m_Col); 
 }
 
 /// Specialization: to(string &)

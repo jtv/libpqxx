@@ -341,11 +341,14 @@ private:
 
 
 
-/// Ensure proper opening/closing of GUEST objects related to a "host" object,
-/// where only a single GUEST may exist for a single host at any given time.
-/// The template assumes that Classname<GUEST>() returns a user-readable name
-/// for the guest type, and that GUEST::Name() returns a user-readable name for
-/// the GUEST object.
+/// Ensure proper opening/closing of GUEST objects related to a "host" object
+/** Only a single GUEST may exist for a single host at any given time.  The 
+ * template assumes that Classname<GUEST>() returns a user-readable name for the
+ * guest type, and that GUEST::Name() returns a user-readable name for the GUEST
+ * object.
+ *
+ * This template used to be called Unique.
+ */
 template<typename GUEST>
 class PQXX_LIBEXPORT unique
 {

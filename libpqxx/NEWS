@@ -1,3 +1,9 @@
+1.9.1
+ - Tables created by regression test now prefixed with "pqxx" for safety
+ - Large objects now considered stable
+ - Added tests 57-59
+ - Fixed compile error in largeobject.h
+ - Updated Windows makefiles
 1.9.0
  - EVERYTHING HAS CHANGED.  Read the list or run into trouble!
  - CURSOR HAS INCOMPATIBLE CHANGES AND MAY BE REPLACED COMPLETELY

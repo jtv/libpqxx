@@ -78,29 +78,8 @@ template<> inline PGSTD::string Classname(const basic_transaction *)
 
 
 /// Standard back-end transaction, templatized on isolation level
-/** Use a transaction object to enclose operations on a database in a single
- * "unit of work."  This ensures that the whole series of operations either
- * succeeds as a whole or fails completely.  In no case will it leave half
- * finished work behind in the database.
- *
- * Queries can currently only be issued through a transaction.
- *
- * Once processing on a transaction has succeeded and any changes should be
- * allowed to become permanent in the database, call Commit().  If something
- * has gone wrong and the changes should be forgotten, call Abort() instead.
- * If you do neither, an implicit Abort() is executed at destruction time.
- *
- * It is an error to abort a transaction that has already been committed, or to 
- * commit a transaction that has already been aborted.  Aborting an already 
- * aborted transaction or committing an already committed one has been allowed 
- * to make errors easier to deal with.  Repeated aborts or commits have no
- * effect after the first one.
- *
- * Database transactions are not suitable for guarding long-running processes.
- * If your transaction code becomes too long or too complex, please consider
- * ways to break it up into smaller ones.  There's no easy, general way to do
- * this since application-specific considerations become important at this 
- * point.
+/** This is the type you'll normally want to use to represent a transaction on
+ * the database.
  */
 template<isolation_level ISOLATIONLEVEL=read_committed>
 class PQXX_LIBEXPORT transaction : public basic_transaction
@@ -111,7 +90,7 @@ public:
   /// Create a transaction.  The optional name, if given, must begin with a
   /// letter and may contain letters and digits only.
   explicit transaction(connection_base &C,
-		       const PGSTD::string &TName=PGSTD::string()) :	//[]
+		       const PGSTD::string &TName=PGSTD::string()) :	//[t1]
     basic_transaction(C, isolation_tag::name(), TName) 
     	{ Begin(); }
 

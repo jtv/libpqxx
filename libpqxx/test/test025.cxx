@@ -27,8 +27,8 @@ using namespace pqxx;
 // exist in the database that connect-string (whether the default or one
 // specified explicitly on the command line) connects to.
 //
-// The default origin table name is "orgevents"; the default destination table
-// is "events".
+// The default origin table name is "pqxxorgevents"; the default destination 
+// table is "pqxxevents".
 
 namespace
 {
@@ -126,8 +126,8 @@ int main(int argc, char *argv[])
     lazyconnection orgC(ConnStr), dstC(ConnStr);
 
     // Select our original and destination table names
-    const string orgTable = ((argc > 2) ? argv[2] : "orgevents");
-    const string dstTable = ((argc > 3) ? argv[3] : "events");
+    const string orgTable = ((argc > 2) ? argv[2] : "pqxxorgevents");
+    const string dstTable = ((argc > 3) ? argv[3] : "pqxxevents");
 
     // Set up a transaction to access the original table from
     Transaction orgTrans(orgC, "test25org");

@@ -62,7 +62,7 @@ int main(int, char *argv[])
     connection C(argv[1]);
     transaction<serializable> T(C, "test41");
 
-    const char Query[] = "SELECT * FROM events ORDER BY year";
+    const char Query[] = "SELECT * FROM pqxxevents ORDER BY year";
 
     result R( T.Exec(Query) );
     string Msg;

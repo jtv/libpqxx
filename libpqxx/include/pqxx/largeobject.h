@@ -131,6 +131,7 @@ private:
 /// @deprecated For compatibility with old LargeObject class
 typedef largeobject LargeObject;
 
+// TODO: New hierarchy with separate read / write / mixed-mode access
 
 /// Accessor for large object's contents.
 class PQXX_LIBEXPORT largeobjectaccess : private largeobject
@@ -143,14 +144,14 @@ public:
   /// Open mode: in, out (can be combined with the "or" operator)
   /** According to the C++ standard, these should be in std::ios_base.  We take
    * them from std::ios instead, which should be safe because it inherits the
-   * same definition, to accomodate gcc 2.95 & 2.96.
+   * same definition, to accommodate gcc 2.95 & 2.96.
    */
   typedef PGSTD::ios::openmode openmode;
 
   /// Seek direction: beg, cur, end
   /** According to the C++ standard, these should be in std::ios_base.  We take
    * them from std::ios instead, which should be safe because it inherits the
-   * same definition, to accomodate gcc 2.95 & 2.96.
+   * same definition, to accommodate gcc 2.95 & 2.96.
    */
   typedef PGSTD::ios::seekdir seekdir;
 
@@ -272,6 +273,9 @@ public:
    * @param Len number of bytes to read
    */
   off_type cread(char Buf[], size_type Len) throw ();			//[t50]
+
+  using largeobject::remove;
+  using largeobject::to_file;
 
   using largeobject::operator==;
   using largeobject::operator!=;
@@ -486,8 +490,8 @@ public:
    */
   basic_ilostream(dbtransaction &T, 
                   largeobject O, 
-		  largeobject::size_type BufSize=512) :			//[]
-    super(m_Buf),
+		  largeobject::size_type BufSize=512) :			//[t57]
+    super(&m_Buf),
     m_Buf(T, O, in, BufSize) 
   { 
   }
@@ -561,7 +565,7 @@ public:
    */
   basic_olostream(dbtransaction &T, 
       		  oid O,
-		  largeobject::size_type BufSize=512) :			//[]
+		  largeobject::size_type BufSize=512) :			//[t57]
     super(&m_Buf),
     m_Buf(T, O, out, BufSize) 
   { 
@@ -620,7 +624,7 @@ public:
    */
   basic_lostream(dbtransaction &T, 
       		 largeobject O,
-		 largeobject::size_type BufSize=512) :			//[]
+		 largeobject::size_type BufSize=512) :			//[t59]
     super(&m_Buf),
     m_Buf(T, O, in | out, BufSize) 
   { 
@@ -633,7 +637,7 @@ public:
    */
   basic_lostream(dbtransaction &T, 
       		 oid O,
-		 largeobject::size_type BufSize=512) :			//[]
+		 largeobject::size_type BufSize=512) :			//[t59]
     super(&m_Buf),
     m_Buf(T, O, in | out, BufSize) 
   { 

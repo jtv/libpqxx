@@ -75,6 +75,7 @@ LIB32_FLAGS=/nologo /out:"$(OUTFILE).lib"
 LINK32_OBJS= $(LINK32_OBJ_EXTRA) \
 	"$(INTDIR)\connection.obj" \
 	"$(INTDIR)\cursor.obj" \
+	"$(INTDIR)\dbtransaction.obj" \
 	"$(INTDIR)\largeobject.obj" \
 	"$(INTDIR)\nontransaction.obj" \
 	"$(INTDIR)\result.obj" \
@@ -159,6 +160,10 @@ SOURCE=..\src\connection.cxx
 
 SOURCE=..\src\cursor.cxx
 "$(INTDIR)\cursor.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\src\dbtransaction.cxx
+"$(INTDIR)\dbtransaction.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
 SOURCE=..\src\largeobject.cxx

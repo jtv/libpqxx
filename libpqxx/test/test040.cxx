@@ -29,7 +29,7 @@ int main(int, char *argv[])
     // Begin a transaction acting on our current connection
     transaction<serializable> T(C, "test40");
 
-    const char Query[] = "SELECT * FROM events";
+    const char Query[] = "SELECT * FROM pqxxevents";
 
     // Perform a query on the database, storing result tuples in R
     result R( T.Exec(Query) );

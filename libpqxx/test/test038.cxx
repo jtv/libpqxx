@@ -50,7 +50,7 @@ int main(int, char *argv[])
 {
   try
   {
-    const string Table = "events";
+    const string Table = "pqxxevents";
 
     lazyconnection C(argv[1]);
     transaction<serializable> T(C, "test38");

@@ -2,7 +2,7 @@
 !IF "$(CFG)" != "Release" && "$(CFG)" != "Debug"
 !MESSAGE You can specify a specific testcase when running NMAKE. For example:
 !MESSAGE     NMAKE /f "test.mak" testcase
-!MESSAGE Possible choices for testcase are TEST1 through TEST20 or ALL
+!MESSAGE Possible choices for testcase are TEST001 through TEST059 or ALL
 !MESSAGE 
 CFG=Release
 !ENDIF 
@@ -37,28 +37,67 @@ LINK32_FLAGS=$(LINK32_FLAG_LIB) kernel32.lib user32.lib gdi32.lib \
 	$(LINK32_FLAG_EXTRA) $(LIBPATH) /libpath:"lib"
 
    
-TEST1 : "$(OUTDIR)\test1.exe"
-TEST2 : "$(OUTDIR)\test2.exe"
-TEST3 : "$(OUTDIR)\test3.exe"
-TEST4 : "$(OUTDIR)\test4.exe"
-TEST5 : "$(OUTDIR)\test5.exe"
-TEST6 : "$(OUTDIR)\test6.exe"
-TEST7 : "$(OUTDIR)\test7.exe"
-TEST8 : "$(OUTDIR)\test8.exe"
-TEST9 : "$(OUTDIR)\test9.exe"
-TEST10: "$(OUTDIR)\test10.exe"
-TEST11: "$(OUTDIR)\test11.exe"
-TEST12: "$(OUTDIR)\test12.exe"
-TEST13: "$(OUTDIR)\test13.exe"
-TEST14: "$(OUTDIR)\test14.exe"
-TEST15: "$(OUTDIR)\test15.exe"
-TEST16: "$(OUTDIR)\test16.exe"
-TEST17: "$(OUTDIR)\test17.exe"
-TEST18: "$(OUTDIR)\test18.exe"
-TEST19: "$(OUTDIR)\test19.exe"
-TEST20: "$(OUTDIR)\test20.exe"
+TEST001: "$(OUTDIR)\test001.exe"
+TEST002: "$(OUTDIR)\test002.exe"
+TEST003: "$(OUTDIR)\test003.exe"
+TEST004: "$(OUTDIR)\test004.exe"
+TEST005: "$(OUTDIR)\test005.exe"
+TEST006: "$(OUTDIR)\test006.exe"
+TEST007: "$(OUTDIR)\test007.exe"
+TEST008: "$(OUTDIR)\test008.exe"
+TEST009: "$(OUTDIR)\test009.exe"
+TEST010: "$(OUTDIR)\test010.exe"
+TEST011: "$(OUTDIR)\test011.exe"
+TEST012: "$(OUTDIR)\test012.exe"
+TEST013: "$(OUTDIR)\test013.exe"
+TEST014: "$(OUTDIR)\test014.exe"
+TEST015: "$(OUTDIR)\test015.exe"
+TEST016: "$(OUTDIR)\test016.exe"
+TEST017: "$(OUTDIR)\test017.exe"
+TEST018: "$(OUTDIR)\test018.exe"
+TEST019: "$(OUTDIR)\test019.exe"
+TEST020: "$(OUTDIR)\test020.exe"
+TEST021: "$(OUTDIR)\test021.exe"
+TEST022: "$(OUTDIR)\test022.exe"
+TEST023: "$(OUTDIR)\test023.exe"
+TEST024: "$(OUTDIR)\test024.exe"
+TEST025: "$(OUTDIR)\test025.exe"
+TEST026: "$(OUTDIR)\test026.exe"
+TEST027: "$(OUTDIR)\test027.exe"
+TEST028: "$(OUTDIR)\test028.exe"
+TEST029: "$(OUTDIR)\test029.exe"
+TEST030: "$(OUTDIR)\test030.exe"
+TEST031: "$(OUTDIR)\test031.exe"
+TEST032: "$(OUTDIR)\test032.exe"
+TEST033: "$(OUTDIR)\test033.exe"
+TEST034: "$(OUTDIR)\test034.exe"
+TEST035: "$(OUTDIR)\test035.exe"
+TEST036: "$(OUTDIR)\test036.exe"
+TEST037: "$(OUTDIR)\test037.exe"
+TEST038: "$(OUTDIR)\test038.exe"
+TEST039: "$(OUTDIR)\test039.exe"
+TEST040: "$(OUTDIR)\test040.exe"
+TEST041: "$(OUTDIR)\test041.exe"
+TEST042: "$(OUTDIR)\test042.exe"
+TEST043: "$(OUTDIR)\test043.exe"
+TEST044: "$(OUTDIR)\test044.exe"
+TEST045: "$(OUTDIR)\test045.exe"
+TEST046: "$(OUTDIR)\test046.exe"
+TEST047: "$(OUTDIR)\test047.exe"
+TEST048: "$(OUTDIR)\test048.exe"
+TEST049: "$(OUTDIR)\test049.exe"
+TEST050: "$(OUTDIR)\test050.exe"
+TEST051: "$(OUTDIR)\test051.exe"
+TEST052: "$(OUTDIR)\test052.exe"
+TEST053: "$(OUTDIR)\test053.exe"
+TEST054: "$(OUTDIR)\test054.exe"
+TEST055: "$(OUTDIR)\test055.exe"
+TEST056: "$(OUTDIR)\test056.exe"
+TEST057: "$(OUTDIR)\test057.exe"
+TEST058: "$(OUTDIR)\test058.exe"
+TEST059: "$(OUTDIR)\test059.exe"
 
-ALL : TEST1 TEST2 TEST3 TEST4 TEST5 TEST6 TEST7 TEST8 TEST9 TEST10 TEST11 TEST12 TEST13 TEST14 TEST15 TEST16 TEST17 TEST18 TEST19 TEST20
+ALL : TEST001 TEST002 TEST003 TEST004 TEST005 TEST006 TEST007 TEST008 TEST009 TEST010 TEST011 TEST012 TEST013 TEST014 TEST015 TEST016 TEST017 TEST018 TEST019 TEST020 TEST021 TEST022 TEST023 TEST024 TEST025 TEST026 TEST027 TEST028 TEST029 TEST030 TEST031 TEST032 TEST033 TEST034 TEST035 TEST036 TEST037 TEST038 TEST039 TEST040 TEST041 TEST042 TEST043 TEST044 TEST045 TEST046 TEST047 TEST048 TEST049 TEST050 TEST051 TEST052 TEST053 TEST054 TEST055 TEST056 TEST057 TEST058 TEST059
 	
 CLEAN :
 	 "$(INTDIR)" /Q
@@ -70,125 +109,361 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-"$(OUTDIR)\test1.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test1.obj"
+"$(OUTDIR)\test001.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test001.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test1.exe" "$(INTDIR)\test1.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test001.exe" "$(INTDIR)\test001.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 
-"$(OUTDIR)\test2.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test2.obj"
+"$(OUTDIR)\test002.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test002.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test2.exe" "$(INTDIR)\test2.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test002.exe" "$(INTDIR)\test002.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 	
-"$(OUTDIR)\test3.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test3.obj"
+"$(OUTDIR)\test003.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test003.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test3.exe" "$(INTDIR)\test3.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test003.exe" "$(INTDIR)\test003.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 
-"$(OUTDIR)\test4.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test4.obj"
+"$(OUTDIR)\test004.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test004.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test4.exe" "$(INTDIR)\test4.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test004.exe" "$(INTDIR)\test004.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 
-"$(OUTDIR)\test5.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test5.obj"
+"$(OUTDIR)\test005.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test005.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test5.exe" "$(INTDIR)\test5.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test005.exe" "$(INTDIR)\test005.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 
-"$(OUTDIR)\test6.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test6.obj"
+"$(OUTDIR)\test006.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test006.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test6.exe" "$(INTDIR)\test6.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test006.exe" "$(INTDIR)\test006.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 
-"$(OUTDIR)\test7.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test7.obj"
+"$(OUTDIR)\test007.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test007.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test7.exe" "$(INTDIR)\test7.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test007.exe" "$(INTDIR)\test007.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 
-"$(OUTDIR)\test8.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test8.obj"
+"$(OUTDIR)\test008.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test008.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test8.exe" "$(INTDIR)\test8.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test008.exe" "$(INTDIR)\test008.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 
-"$(OUTDIR)\test9.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test9.obj"
+"$(OUTDIR)\test009.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test009.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test9.exe" "$(INTDIR)\test9.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test009.exe" "$(INTDIR)\test009.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 
-"$(OUTDIR)\test10.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test10.obj"
+"$(OUTDIR)\test010.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test010.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test10.exe" "$(INTDIR)\test10.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test010.exe" "$(INTDIR)\test010.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 
-"$(OUTDIR)\test11.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test11.obj"
+"$(OUTDIR)\test011.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test011.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test11.exe" "$(INTDIR)\test11.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test011.exe" "$(INTDIR)\test011.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 
-"$(OUTDIR)\test12.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test12.obj"
+"$(OUTDIR)\test012.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test012.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test12.exe" "$(INTDIR)\test12.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test012.exe" "$(INTDIR)\test012.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 
-"$(OUTDIR)\test13.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test13.obj"
+"$(OUTDIR)\test013.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test013.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test13.exe" "$(INTDIR)\test13.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test013.exe" "$(INTDIR)\test013.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 
-"$(OUTDIR)\test14.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test14.obj"
+"$(OUTDIR)\test014.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test014.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test14.exe" "$(INTDIR)\test14.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test014.exe" "$(INTDIR)\test014.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 
-"$(OUTDIR)\test15.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test15.obj"
+"$(OUTDIR)\test015.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test015.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test15.exe" "$(INTDIR)\test15.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test015.exe" "$(INTDIR)\test015.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 
-"$(OUTDIR)\test16.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test16.obj"
+"$(OUTDIR)\test016.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test016.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test16.exe" "$(INTDIR)\test16.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test016.exe" "$(INTDIR)\test016.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 
-"$(OUTDIR)\test17.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test17.obj"
+"$(OUTDIR)\test017.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test017.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test17.exe" "$(INTDIR)\test17.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test017.exe" "$(INTDIR)\test017.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 
-"$(OUTDIR)\test18.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test18.obj"
+"$(OUTDIR)\test018.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test018.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test18.exe" "$(INTDIR)\test18.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test018.exe" "$(INTDIR)\test018.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 
-"$(OUTDIR)\test19.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test19.obj"
+"$(OUTDIR)\test019.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test019.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test19.exe" "$(INTDIR)\test19.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test019.exe" "$(INTDIR)\test019.obj"
 <<
 	-@erase "$(INTDIR)" /Q
 
-"$(OUTDIR)\test20.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test20.obj"
+"$(OUTDIR)\test020.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test020.obj"
     @$(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\test20.exe" "$(INTDIR)\test20.obj"
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test020.exe" "$(INTDIR)\test020.obj"
 <<
 	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test021.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test021.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test021.exe" "$(INTDIR)\test021.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test022.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test022.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test022.exe" "$(INTDIR)\test022.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test023.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test023.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test023.exe" "$(INTDIR)\test023.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test024.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test024.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test024.exe" "$(INTDIR)\test024.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test025.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test025.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test025.exe" "$(INTDIR)\test025.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test026.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test026.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test026.exe" "$(INTDIR)\test026.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test027.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test027.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test027.exe" "$(INTDIR)\test027.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test028.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test028.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test028.exe" "$(INTDIR)\test028.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test029.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test029.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test029.exe" "$(INTDIR)\test029.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test030.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test030.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test030.exe" "$(INTDIR)\test030.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test031.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test031.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test031.exe" "$(INTDIR)\test031.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test032.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test032.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test032.exe" "$(INTDIR)\test032.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test033.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test033.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test033.exe" "$(INTDIR)\test033.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test034.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test034.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test034.exe" "$(INTDIR)\test034.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test035.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test035.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test035.exe" "$(INTDIR)\test035.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test036.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test036.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test036.exe" "$(INTDIR)\test036.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test037.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test037.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test037.exe" "$(INTDIR)\test037.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test038.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test038.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test038.exe" "$(INTDIR)\test038.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test039.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test039.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test039.exe" "$(INTDIR)\test039.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test040.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test040.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test040.exe" "$(INTDIR)\test040.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test041.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test041.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test041.exe" "$(INTDIR)\test041.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test042.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test042.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test042.exe" "$(INTDIR)\test042.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test043.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test043.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test043.exe" "$(INTDIR)\test043.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test044.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test044.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test044.exe" "$(INTDIR)\test044.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test045.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test045.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test045.exe" "$(INTDIR)\test045.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test046.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test046.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test046.exe" "$(INTDIR)\test046.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test047.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test047.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test047.exe" "$(INTDIR)\test047.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test048.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test048.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test048.exe" "$(INTDIR)\test048.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test049.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test049.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test049.exe" "$(INTDIR)\test049.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test050.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test050.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test050.exe" "$(INTDIR)\test050.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test051.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test051.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test051.exe" "$(INTDIR)\test051.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test052.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test052.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test052.exe" "$(INTDIR)\test052.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test053.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test053.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test053.exe" "$(INTDIR)\test053.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test054.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test054.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test054.exe" "$(INTDIR)\test054.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test055.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test055.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test055.exe" "$(INTDIR)\test055.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test056.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test056.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test056.exe" "$(INTDIR)\test056.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test057.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test057.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test057.exe" "$(INTDIR)\test057.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test058.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test058.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test058.exe" "$(INTDIR)\test058.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+"$(OUTDIR)\test059.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\test059.obj"
+    @$(LINK32) @<<
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\test059.exe" "$(INTDIR)\test059.obj"
+<<
+	-@erase "$(INTDIR)" /Q
+
+
 
 
 .c{$(INTDIR)}.obj::
@@ -209,85 +484,242 @@ CLEAN :
 
 !IF "$(CFG)" == "Release" || "$(CFG)" == "Debug"
 
-SOURCE=..\test\test1.cxx
-"$(INTDIR)\test1.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test001.cxx
+"$(INTDIR)\test001.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 	
-SOURCE=..\test\test2.cxx
-"$(INTDIR)\test2.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test002.cxx
+"$(INTDIR)\test002.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
-SOURCE=..\test\test3.cxx
-"$(INTDIR)\test3.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test003.cxx
+"$(INTDIR)\test003.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
-SOURCE=..\test\test4.cxx
-"$(INTDIR)\test4.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test004.cxx
+"$(INTDIR)\test004.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 	
-SOURCE=..\test\test5.cxx
-"$(INTDIR)\test5.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test005.cxx
+"$(INTDIR)\test005.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
-SOURCE=..\test\test6.cxx
-"$(INTDIR)\test6.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test006.cxx
+"$(INTDIR)\test006.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
-SOURCE=..\test\test7.cxx
-"$(INTDIR)\test7.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test007.cxx
+"$(INTDIR)\test007.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
-SOURCE=..\test\test8.cxx
-"$(INTDIR)\test8.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test008.cxx
+"$(INTDIR)\test008.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
-SOURCE=..\test\test9.cxx
-"$(INTDIR)\test9.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test009.cxx
+"$(INTDIR)\test009.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
-SOURCE=..\test\test10.cxx
-"$(INTDIR)\test10.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test010.cxx
+"$(INTDIR)\test010.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
-SOURCE=..\test\test11.cxx
-"$(INTDIR)\test11.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test011.cxx
+"$(INTDIR)\test011.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
-SOURCE=..\test\test12.cxx
-"$(INTDIR)\test12.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test012.cxx
+"$(INTDIR)\test012.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
-SOURCE=..\test\test13.cxx
-"$(INTDIR)\test13.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test013.cxx
+"$(INTDIR)\test013.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
-SOURCE=..\test\test14.cxx
-"$(INTDIR)\test14.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test014.cxx
+"$(INTDIR)\test014.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
-SOURCE=..\test\test15.cxx
-"$(INTDIR)\test15.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test015.cxx
+"$(INTDIR)\test015.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
-SOURCE=..\test\test16.cxx
-"$(INTDIR)\test16.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test016.cxx
+"$(INTDIR)\test016.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
-SOURCE=..\test\test17.cxx
-"$(INTDIR)\test17.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test017.cxx
+"$(INTDIR)\test017.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
-SOURCE=..\test\test18.cxx
-"$(INTDIR)\test18.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test018.cxx
+"$(INTDIR)\test018.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
-SOURCE=..\test\test19.cxx
-"$(INTDIR)\test19.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test019.cxx
+"$(INTDIR)\test019.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
-SOURCE=..\test\test20.cxx
-"$(INTDIR)\test20.obj" : $(SOURCE) "$(INTDIR)"
+SOURCE=..\test\test020.cxx
+"$(INTDIR)\test020.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test021.cxx
+"$(INTDIR)\test021.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test022.cxx
+"$(INTDIR)\test022.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test023.cxx
+"$(INTDIR)\test023.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test024.cxx
+"$(INTDIR)\test024.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test025.cxx
+"$(INTDIR)\test025.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test026.cxx
+"$(INTDIR)\test026.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test027.cxx
+"$(INTDIR)\test027.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test028.cxx
+"$(INTDIR)\test028.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test029.cxx
+"$(INTDIR)\test029.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test030.cxx
+"$(INTDIR)\test030.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test031.cxx
+"$(INTDIR)\test031.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test032.cxx
+"$(INTDIR)\test032.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test033.cxx
+"$(INTDIR)\test033.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test034.cxx
+"$(INTDIR)\test034.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test035.cxx
+"$(INTDIR)\test035.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test036.cxx
+"$(INTDIR)\test036.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test037.cxx
+"$(INTDIR)\test037.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test038.cxx
+"$(INTDIR)\test038.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test039.cxx
+"$(INTDIR)\test039.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test040.cxx
+"$(INTDIR)\test040.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test041.cxx
+"$(INTDIR)\test041.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test042.cxx
+"$(INTDIR)\test042.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test043.cxx
+"$(INTDIR)\test043.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test044.cxx
+"$(INTDIR)\test044.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test045.cxx
+"$(INTDIR)\test045.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test046.cxx
+"$(INTDIR)\test046.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test047.cxx
+"$(INTDIR)\test047.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test048.cxx
+"$(INTDIR)\test048.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test049.cxx
+"$(INTDIR)\test049.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test050.cxx
+"$(INTDIR)\test050.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test051.cxx
+"$(INTDIR)\test051.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test052.cxx
+"$(INTDIR)\test052.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test053.cxx
+"$(INTDIR)\test053.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test054.cxx
+"$(INTDIR)\test054.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test055.cxx
+"$(INTDIR)\test055.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test056.cxx
+"$(INTDIR)\test056.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test057.cxx
+"$(INTDIR)\test057.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test058.cxx
+"$(INTDIR)\test058.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\test\test059.cxx
+"$(INTDIR)\test059.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
 
 !ENDIF 
 

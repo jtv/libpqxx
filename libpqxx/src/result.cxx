@@ -181,7 +181,8 @@ pqxx::result::field pqxx::result::tuple::at(const char f[]) const
 }
 
 
-pqxx::result::field pqxx::result::tuple::at(pqxx::result::tuple::size_type i) const
+pqxx::result::field 
+pqxx::result::tuple::at(pqxx::result::tuple::size_type i) const
 {
   if ((i < 0) || (i >= size()))
     throw out_of_range("Invalid field number");
@@ -189,6 +190,27 @@ pqxx::result::field pqxx::result::tuple::at(pqxx::result::tuple::size_type i) co
   return operator[](i);
 }
 
+
+const char *
+pqxx::result::column_name(pqxx::result::tuple::size_type Number) const
+{
+  const char *const N = PQfname(m_Result, Number);
+  if (!N) 
+    throw out_of_range("Invalid column number: " + ToString(Number));
+
+  return N;
+}
+
+
+pqxx::result::tuple::size_type
+pqxx::result::column_number(const char ColName[]) const
+{
+  const tuple::size_type N = PQfnumber(m_Result, ColName);
+  if (N == -1)
+    throw invalid_argument("Unknown column name: '" + string(ColName) + "'");
+
+  return N;
+}
 
 
 // const_iterator

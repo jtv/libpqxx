@@ -28,12 +28,10 @@ int main()
     // Process each successive result tuple
     for (result::const_iterator c = R.begin(); c != R.end(); ++c)
     {
-      // Read value of column 0 into a string N
-      string N;
-      c[0].to(N);
-
-      // Dump tuple number and column 0 value to cout
-      cout << '\t' << ToString(c.num()) << '\t' << N << endl;
+      // Dump tuple number and column 0 value to cout.  Read the value using
+      // as(), which converts the field to the same type as the default value 
+      // you give it (or returns the default value if the field is null).
+      cout << '\t' << ToString(c.num()) << '\t' << c[0].as(string()) << endl;
     }
 
     // Tell the transaction that it has been successful.  This is not really

@@ -34,12 +34,12 @@ int main(int argc, char *argv[])
     // Print column names
     for (result::tuple::size_type c = 0; c < R.Columns(); ++c)
     {
-      string N= R.ColumnName(c);
+      string N= R.column_name(c);
       cout << c << ":\t" << N << endl;
-      if (R.ColumnNumber(N) != c)
+      if (R.column_number(N) != c)
 	throw logic_error("Expected column '" + N + 
 			  "' to be no. " + ToString(c) + ", "
-			  "but it was no. " + ToString(R.ColumnNumber(N)));
+			  "but it was no. " + ToString(R.column_number(N)));
     }
 
     // If there are rows in R, compare their metadata to R's.
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 
       for (result::tuple::size_type c = 0; c < R[0].size(); ++c)
       {
-	string N = R.ColumnName(c);
+	string N = R.column_name(c);
 
 	if (string(R[0].at(c).c_str()) != R[0].at(N).c_str())
           throw logic_error("Field " + ToString(c) + " contains "

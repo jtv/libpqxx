@@ -22,7 +22,7 @@ using namespace pqxx;
 // backend running on host foo.bar.net, logging in as user smith.
 //
 // The tablename argument determines which table the data will be written to.
-// If none is given, it defaults to "orgevents".
+// If none is given, it defaults to "pqxxorgevents".
 int main(int argc, char *argv[])
 {
   try
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     // Set up a connection to the backend
     connection C(argv[1]);
 
-    string TableName((argc > 2) ? argv[2] : "orgevents");
+    string TableName((argc > 2) ? argv[2] : "pqxxorgevents");
 
     // First create a separate transaction to drop old table, if any.  This may
     // fail if the table didn't previously exist.
