@@ -366,6 +366,10 @@ private:
 
   friend class transaction_base;
   result Exec(const char[], int Retries);
+  result exec_prepared(const char[], 
+      int NumParams,
+      const char *const *Params,
+      int Retries);
   void RegisterTransaction(transaction_base *);
   void UnregisterTransaction(transaction_base *) throw ();
   void MakeEmpty(result &, ExecStatusType=PGRES_EMPTY_QUERY);
