@@ -42,14 +42,15 @@ class Trigger;		// See pqxx/trigger.h
 extern "C" { typedef void (*NoticeProcessor)(void *arg, const char *msg); }
 
 
+/// Human-readable class names for use by Unique template.
 template<> inline PGSTD::string Classname(const TransactionItf *) 
 { 
   return "TransactionItf"; 
 }
 
 
-// Exception class for lost backend connection
-// (May be changed once I find a standard exception class for this)
+/// Exception class for lost backend connection.
+/** (May be changed once I find a standard exception class for this) */
 class broken_connection : public PGSTD::runtime_error
 {
 public:
@@ -59,68 +60,80 @@ public:
 };
 
 
-// Connection class.  This is the first class to look at when you wish to work
-// with a database through libpqxx.  It is automatically opened by its
-// constructor, and automatically closed upon destruction, if it hasn't already
-// been closed manually.
-// To query or manipulate the database once connected, use one of the 
-// Transaction classes (see pqxx/transactionitf.h) or preferably the Transactor 
-// framework (see pqxx/transactor.h).
+/// Connection class.
+/** This is the first class to look at when you wish to work with a database 
+ * through libpqxx.  It is automatically opened by its constructor, and 
+ * automatically closed upon destruction, if it hasn't already been closed 
+ * manually.
+ * To query or manipulate the database once connected, use one of the 
+ * Transaction classes (see pqxx/transactionitf.h) or preferably the Transactor 
+ * framework (see pqxx/transactor.h).
+ */
 class PQXX_LIBEXPORT Connection
 {
 public:
   // TODO: Allow two-stage creation (create first, open later)
+  /// Constructor.  Sets up connection based on PostgreSQL connection string.
   explicit Connection(const PGSTD::string &ConnInfo);			//[t1]
+
+  /// Destructor.  Implicitly closes the connection.
   ~Connection();							//[t1]
 
+  /// Explicitly close connection.
   void Disconnect() throw ();						//[t2]
 
+  /// Is this connection open?
   bool IsOpen() const;							//[t1]
 
+  /// Perform the transaction defined by a Transactor-based object.
   template<typename TRANSACTOR> 
   void Perform(const TRANSACTOR &, int Attempts=3);			//[t4]
 
-  // Set callback method for postgresql status output; return value is previous
-  // handler.  Passing a NULL callback pointer simply returns the existing
-  // callback.  The callback must have C linkage.
+  /// Set callback method for postgresql status output.
+  /** return value is the previous handler.  Passing a NULL callback pointer 
+   * simply returns the existing
+   * callback.  The callback must have C linkage.
+   */
   NoticeProcessor SetNoticeProcessor(NoticeProcessor, void *arg);	//[t1]
 
-  // Invoke notice processor function.  The message should end in newline.
+  /// Invoke notice processor function.  The message should end in newline.
   void ProcessNotice(const char[]) throw ();				//[t1]
+  /// Invoke notice processor function.  The message should end in newline.
   void ProcessNotice(PGSTD::string msg) throw () 			//[t1]
   	{ ProcessNotice(msg.c_str()); }
 
-  // Enable/disable tracing to a given output stream
+  /// Enable tracing to a given output stream.
   void Trace(FILE *);							//[t3]
+  /// Disable tracing.
   void Untrace();							//[t3]
 
 
-  // Check for pending trigger notifications and take appropriate action
+  /// Check for pending trigger notifications and take appropriate action.
   void GetNotifs();							//[t4]
 
   // Miscellaneous query functions (probably not needed very often)
  
-  // Name of database we're connected to
+  /// Name of database we're connected to, if any.
   const char *DbName() const throw ()					//[t1]
   	{ return m_Conn ? PQdb(m_Conn) : ""; }
 
-  // Database user ID we're connected under
+  /// Database user ID we're connected under, if any.
   const char *UserName() const throw ()					//[t1]
   	{ return m_Conn ? PQuser(m_Conn) : ""; }
 
-  // Address of server (NULL for local connections)
+  /// Address of server (NULL for local connections).
   const char *HostName() const throw ()					//[t1]
   	{ return m_Conn ? PQhost(m_Conn) : ""; }
 
-  // Server port number we're connected to
+  /// Server port number we're connected to.
   const char *Port() const throw () 					//[t1]
   	{ return m_Conn ? PQport(m_Conn) : ""; }
 
-  // Full connection string
+  /// Full connection string as used to set up this connection.
   const char *Options() const throw () 					//[t1]
   	{ return m_ConnInfo.c_str(); }
 
-  // Process ID for backend process
+  /// Process ID for backend process.
   int BackendPID() const;						//[t1]
 
 private:
@@ -160,15 +173,16 @@ private:
 
 
 
-// Invoke a Transactor, making at most Attempts attempts to perform the
-// encapsulated code on the database.  If the code throws any exception other
-// than broken_connection, it will be aborted right away.
-// Take care: neither OnAbort() nor OnCommit() will be invoked on the original
-// transactor you pass into the function.  It only serves as a prototype for
-// the transaction to be performed.  In fact, this function may copy-construct
-// any number of Transactors from the one you passed in, calling either 
-// OnCommit() or OnAbort() only on those that actually have their operator()
-// invoked.
+/** Invoke a Transactor, making at most Attempts attempts to perform the
+ * encapsulated code on the database.  If the code throws any exception other
+ * than broken_connection, it will be aborted right away.
+ * Take care: neither OnAbort() nor OnCommit() will be invoked on the original
+ * transactor you pass into the function.  It only serves as a prototype for
+ * the transaction to be performed.  In fact, this function may copy-construct
+ * any number of Transactors from the one you passed in, calling either 
+ * OnCommit() or OnAbort() only on those that actually have their operator()
+ * invoked.
+ */
 template<typename TRANSACTOR> 
 inline void Connection::Perform(const TRANSACTOR &T,
                                 int Attempts)				//[t4]

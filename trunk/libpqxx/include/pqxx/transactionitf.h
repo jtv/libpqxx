@@ -140,10 +140,10 @@ private:
 
   Connection &m_Conn;
 
-  Status m_Status;
   PGSTD::string m_Name;
   int m_UniqueCursorNum;
   Unique<TableStream> m_Stream;
+  Status m_Status;
   bool m_Registered;
 
   // Not allowed:

@@ -29,13 +29,13 @@
 namespace pqxx
 {
 
-// Query or command result set.  This behaves pretty much as a container (as 
-// defined by the C++ standard library) and provides random access const
-// iterators to iterate over its tuples.  A tuple can also be accessed by
-// indexing a Result R by the tuple's zero-based number:
-//
-//	for (Result::size_type i=0; i < R.size(); ++i) Process(R[i]);
-//
+/** Query or command result set.  This behaves pretty much as a container (as 
+ * defined by the C++ standard library) and provides random access const
+ * iterators to iterate over its tuples.  A tuple can also be accessed by
+ * indexing a Result R by the tuple's zero-based number:
+ *
+ *	for (Result::size_type i=0; i < R.size(); ++i) Process(R[i]);
+ */
 class PQXX_LIBEXPORT Result
 {
 public:
@@ -49,12 +49,13 @@ public:
   typedef Result_size_type size_type;
   class Field;
 
-  // A Tuple is really a reference to one entry in a Result.  It also acts as a
-  // container mapping column numbers or names to Field values (see below):
-  //
-  // 	cout << Tuple["date"].c_str() << ": " << Tuple["name"].c_str() << endl;
-  //
-  // The fields in a Tuple can not currently be iterated over.
+  /** A Tuple is really a reference to one entry in a Result.  It also acts as 
+   * a container mapping column numbers or names to Field values (see below):
+   *
+   * 	cout << Tuple["date"].c_str() << ": " << Tuple["name"].c_str() << endl;
+   *
+   * The fields in a Tuple can not currently be iterated over.
+   */
   // TODO: Field iterators
   class Tuple
   {
@@ -63,7 +64,7 @@ public:
     Tuple(const Result *r, size_type i) : m_Home(r), m_Index(i) {}
     ~Tuple() {} // Yes Scott Meyers, you're absolutely right[1]
 
-    inline Field operator[](size_type i) const;				//[t1]
+    inline Field operator[](size_type) const;				//[t1]
     Field operator[](const char[]) const;				//[t11]
     Field operator[](PGSTD::string s) const 				//[t11]
     	{ return operator[](s.c_str()); }
@@ -81,8 +82,8 @@ public:
   };
 
 
-  // A Field is one entry in a Tuple.  It represents an actual value in the
-  // result set, and can be converted to various types.
+  /// A Field is one entry in a Tuple.  It represents an actual value in the
+  /// result set, and can be converted to various types.
   class Field : private Tuple
   {
   public:
@@ -90,13 +91,13 @@ public:
 
     Field(const Tuple &R, Tuple::size_type C) : Tuple(R), m_Col(C) {}	//[t1]
 
-    // Read as plain C string
+    /// Read as plain C string
     const char *c_str() const {return m_Home->GetValue(m_Index,m_Col);}	//[t2]
 
-    // Column name
+    /// Column name
     inline const char *name() const;					//[t11]
 
-    // Read value into Obj; or leave Obj untouched & return false if null
+    /// Read value into Obj; or leave Obj untouched & return false if null
     template<typename T> bool to(T &Obj) const				//[t1]
     {
       if (is_null())
@@ -116,7 +117,7 @@ public:
       return true;
     }
 
-    // Read value into Obj; or use Default & return false if null
+    /// Read value into Obj; or use Default & return false if null
     template<typename T> bool to(T &Obj, const T &Default) const	//[t12]
     {
       const bool NotNull = to(Obj);
@@ -135,8 +136,8 @@ public:
   };
 
 
-  // A Result, once obtained, cannot be modified.  However its const_iterator
-  // type can be used to inspect its Tuples without changing them.
+  /// A Result, once obtained, cannot be modified.  However its const_iterator
+  /// type can be used to inspect its Tuples without changing them.
   class const_iterator : 
     public PGSTD::iterator<PGSTD::random_access_iterator_tag, 
                          const Tuple,
@@ -145,11 +146,12 @@ public:
   {
   public:
 
-    // The iterator "points to" its own Tuple, which is also itself.  This 
-    // allows a Result to be addressed as a two-dimensional container without 
-    // going through the intermediate step of dereferencing the iterator.  I 
-    // hope this works out to be similar to C pointer/array semantics in useful 
-    // cases[2].
+    /** The iterator "points to" its own Tuple, which is also itself.  This 
+     * allows a Result to be addressed as a two-dimensional container without 
+     * going through the intermediate step of dereferencing the iterator.  I 
+     * hope this works out to be similar to C pointer/array semantics in useful 
+     * cases[2].
+     */
     pointer operator->()  const { return this; }			//[t12]
     reference operator*() const { return *operator->(); }		//[t12]
 
@@ -194,7 +196,7 @@ public:
 
   const_iterator begin() const { return const_iterator(this, 0); }	//[t1]
   inline const_iterator end() const;					//[t1]
-  // TODO: Handle reverse iterators
+  // TODO: Reverse iterators
 
   size_type size() const { return m_Result ? PQntuples(m_Result) : 0; }	//[t2]
   bool empty() const { return !m_Result || !PQntuples(m_Result); }	//[t11]
