@@ -24,7 +24,6 @@
 using namespace PGSTD;
 using namespace pqxx::internal::pq;
 
-// TODO: Existing structure doesn't call SetupState()!
 
 pqxx::connection::connection() :
   connection_base(0)
