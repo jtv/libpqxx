@@ -102,6 +102,9 @@
 /* Define if ptrdiff_t exists */
 #undef PQXX_HAVE_PTRDIFF_T
 
+/* Define if reverse_iterator template works as expected */
+#undef PQXX_HAVE_REVERSE_ITERATOR
+
 /* Define if you have the <streambuf> header; if not, <streambuf.h> is used */
 #undef PQXX_HAVE_STREAMBUF
 

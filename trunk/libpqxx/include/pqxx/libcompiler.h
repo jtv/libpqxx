@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      Compiler deficiency workarounds for libpqxx clients
  *
- * Copyright (c) 2002-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -98,6 +98,7 @@ template<> struct char_traits<unsigned char>
 // Workarounds for Visual C++.NET (2003 version does seem to work)
 #if _MSC_VER < 1310
 #define PQXX_WORKAROUND_VC7
+#undef PQXX_HAVE_REVERSE_ITERATOR
 #define PQXX_NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
 #define PQXX_TYPENAME
 #endif	// _MSC_VER < 1310

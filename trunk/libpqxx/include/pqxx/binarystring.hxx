@@ -50,7 +50,7 @@ public:
   typedef const value_type *const_pointer;
   typedef const_pointer const_iterator;
 
-#ifndef PQXX_WORKAROUND_VC7
+#ifdef PQXX_HAVE_REVERSE_ITERATOR
   typedef PGSTD::reverse_iterator<const_iterator> const_reverse_iterator;
 #endif
 
@@ -72,7 +72,7 @@ public:
   const_iterator begin() const throw () { return data(); }		//[t62]
   const_iterator end() const throw () { return data()+m_size; }		//[t62]
 
-#ifndef PQXX_WORKAROUND_VC7
+#ifdef PQXX_HAVE_REVERSE_ITERATOR
   const_reverse_iterator rbegin() const 				//[t62]
   	{ return const_reverse_iterator(end()); }
   const_reverse_iterator rend() const 					//[t62]
