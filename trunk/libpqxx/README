@@ -1,9 +1,25 @@
 Introduction
 
 Welcome to libpqxx, a C++ API to the PostgreSQL database management system.
-Therefore, this package requires PostgreSQL to be installed--including the C
-headers for client development.  The library builds on top of PostgreSQL's
-standard C API, libpq.
+
+There are many similar libraries for PostgreSQL and for other databases, some
+of them database-independent.  Most of these, however, are fairly C-like in
+their programming style, and fail to take advantage of the full power of the C++
+language as it has matured since the acceptance of the Standard in 1996.  What 
+libpqxx brings you is effective use of templates to reduce the inconvenience of
+dealing with type conversions; of standard C++ strings to keep you from having 
+to worry about buffer allocation and overflow attacks; of exceptions to take
+the tedious and error-prone plumbing around error handling out of your hands;
+of constructors and destructors to bring resource management under control; and
+even basic object-orientation to give you some extra reliability features that
+would be hard to get with most other database interfaces.
+
+This package requires PostgreSQL to be installed--including the C headers for 
+client development.  The library builds on top of PostgreSQL's standard C API, 
+libpq.
+
+
+Getting Started
 
 This is still a very early version.  The code appears to be quite stable 
 already, but the configuration and build process is not complete yet.  Expect a

@@ -1,3 +1,8 @@
+2002-05-05 03:45  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/libpqxx/*.h:
+  - Converted many comments to doxygen/javadoc format
+ README:
+  - More useful information
 2002-05-05 01:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  README:
   - Greatly extended build documentation
