@@ -1,13 +1,13 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_transaction.cc
+ *	pg_robusttransaction.cc
  *
  *   DESCRIPTION
- *      implementation of the Pg::Transaction class.
- *   Pg::Transaction represents a database transaction
+ *      implementation of the Pg::RobustTransaction class.
+ *   Pg::RobustTransaction is a slower but safer transaction class
  *
- * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  *-------------------------------------------------------------------------
  */
@@ -15,7 +15,7 @@
 
 #include "pg_connection.h"
 #include "pg_result.h"
-#include "pg_transaction.h"
+#include "pg_robusttransaction.h"
 
 
 using namespace PGSTD;
@@ -32,7 +32,7 @@ using namespace PGSTD;
 #endif // DIALECT_POSTGRESQL 
 
 
-Pg::Transaction::Transaction(Connection &C, string TName) :
+Pg::RobustTransaction::RobustTransaction(Connection &C, string TName) :
   TransactionItf(C, TName)
 {
   Begin();
@@ -40,22 +40,27 @@ Pg::Transaction::Transaction(Connection &C, string TName) :
 
 
 
-Pg::Transaction::~Transaction()
+Pg::RobustTransaction::~RobustTransaction()
 {
   End();
 }
 
 
 
-void Pg::Transaction::DoBegin()
+void Pg::RobustTransaction::DoBegin()
 {
+  // TODO: Create user-specific "transaction log" table, if necessary
+  // TODO: Delete information on previous transaction, if any
+ 
   // Start backend transaction
   DirectExec(SQL_BEGIN_WORK, 2, 0);
+
+  // TODO: Create new transaction record
 }
 
 
 
-Pg::Result Pg::Transaction::DoExec(const char C[])
+Pg::Result Pg::RobustTransaction::DoExec(const char C[])
 {
   Result R;
   try
@@ -79,16 +84,21 @@ Pg::Result Pg::Transaction::DoExec(const char C[])
 
 
 
-void Pg::Transaction::DoCommit()
+void Pg::RobustTransaction::DoCommit()
 {
   try
   {
     DirectExec(SQL_COMMIT_WORK, 0, 0);
+    // TODO: Delete transaction record
   }
   catch (const exception &e)
   {
     if (!Conn().IsOpen())
     {
+      // TODO: Attempt to reconnect & check transaction record; throw if fails
+
+      // TODO: Delete transaction record
+ 
       // We've lost the connection while committing.  There is just no way of
       // telling what happened on the other end.  >8-O
       ProcessNotice(e.what() + string("\n"));
@@ -106,14 +116,17 @@ void Pg::Transaction::DoCommit()
     {
       // Commit failed--probably due to a constraint violation or something
       // similar.
+      // TODO: Delete transaction record
       throw;
     }
   }
 }
 
 
-void Pg::Transaction::DoAbort()
+void Pg::RobustTransaction::DoAbort()
 {
+  // Rollback transaction.  Our transaction record will be dropped as a side
+  // effect, which is what we want since "it never happened."
   DirectExec(SQL_ROLLBACK_WORK, 0, 0);
 }
 
