@@ -1,3 +1,7 @@
+2005-03-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/cursor.cxx:
+  - Work around displacement overflow in backend, thanks Christopher Barkley
+  - Added stridestring() to generate proper SQL string for given offset
 2005-03-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Fixed Oid type check, thanks Manuel Fernandez Montecelo.

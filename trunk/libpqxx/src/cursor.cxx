@@ -26,6 +26,8 @@
 using namespace PGSTD;
 
 
+unsigned char pqxx::cursor_base::s_dummy;
+
 pqxx::cursor_base::cursor_base(transaction_base *context,
     const string &cname,
     bool embellish_name) :
@@ -49,7 +51,20 @@ int pqxx::cursor_base::get_unique_cursor_num()
 }
 
 
-unsigned char pqxx::cursor_base::s_dummy;
+string pqxx::cursor_base::stridestring(pqxx::cursor_base::difference_type n)
+{
+  /* Some special-casing for ALL and BACKWARD ALL here.  We used to use numeric
+   * "infinities" for difference_type for this (the highest and lowest possible
+   * values for "long"), but for PostgreSQL 8.0 at least, the backend appears to
+   * expect a 32-bit number and fails to parse large 64-bit numbers.
+   * We could change the typedef to match this behaviour, but that would break
+   * if/when Postgres is changed to accept 64-bit displacements.
+   */
+  static const string All("ALL"), BackAll("BACKWARD ALL");
+  if (n == all()) return All;
+  else if (n == backward_all()) return BackAll;
+  return to_string(n);
+}
 
 
 pqxx::icursorstream::icursorstream(pqxx::transaction_base &context,
@@ -99,7 +114,8 @@ void pqxx::icursorstream::declare(const string &query)
 
 pqxx::result pqxx::icursorstream::fetch()
 {
-  result r(m_context->exec("FETCH "+to_string(m_stride)+" IN \""+name()+"\""));
+  result r(m_context->exec("FETCH " + stridestring(m_stride) + " "
+	"IN \""+name()+"\""));
   if (r.empty()) m_done = true;
   m_realpos += r.size();
   return r;
@@ -108,8 +124,8 @@ pqxx::result pqxx::icursorstream::fetch()
 
 pqxx::icursorstream &pqxx::icursorstream::ignore(streamsize n)
 {
-  m_context->exec("MOVE " + to_string(n) + " IN \"" + name() + "\"");
-  // TODO: Try to get actual number of moved tuples
+  m_context->exec("MOVE " + stridestring(n) + " IN \"" + name() + "\"");
+  // TODO: Try to get actual number of moved tuples!
   m_realpos += n;
   return *this;
 }

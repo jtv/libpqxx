@@ -76,6 +76,7 @@ protected:
       const PGSTD::string &cname,
       bool embellish_name = true);
 
+  static PGSTD::string stridestring(difference_type);
   transaction_base *m_context;
   bool m_done;
 
