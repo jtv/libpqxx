@@ -204,14 +204,14 @@ void pqxx::connection_base::disconnect() throw ()
 }
 
 
-bool pqxx::connection_base::is_open() const
+bool pqxx::connection_base::is_open() const throw ()
 {
   return m_Conn && (Status() == CONNECTION_OK);
 }
 
 
 PGSTD::auto_ptr<pqxx::noticer> 
-pqxx::connection_base::set_noticer(PGSTD::auto_ptr<noticer> N)
+pqxx::connection_base::set_noticer(PGSTD::auto_ptr<noticer> N) throw ()
 {
   if (m_Conn)
   {
@@ -226,18 +226,86 @@ pqxx::connection_base::set_noticer(PGSTD::auto_ptr<noticer> N)
 }
 
 
-void pqxx::connection_base::process_notice(const char msg[]) throw ()
+void pqxx::connection_base::process_notice_raw(const char msg[]) throw ()
 {
-  if (msg)
+  if (msg && *msg)
   {
-    // TODO: Find cleaner solution for default case!
+    // TODO: Read default noticer on startup!
     if (m_Noticer.get()) (*m_Noticer.get())(msg);
     else fputs(msg, stderr);
   }
 }
 
 
-void pqxx::connection_base::trace(FILE *Out)
+void pqxx::connection_base::process_notice(const char msg[]) throw ()
+{
+  if (!msg) 
+  {
+    process_notice_raw("NULL pointer in client program message!\n");
+  }
+  else
+  {
+    const size_t len = strlen(msg);
+    if (len > 0)
+    {
+      if (msg[len-1] == '\n') 
+      {
+	process_notice_raw(msg);
+      }
+      else try
+      {
+	// Newline is missing.  Try the C++ string version of this function.
+	process_notice(string(msg));
+      }
+      catch (const exception &)
+      {
+	// If we can't even do that, use plain old buffer copying instead
+	// (unavoidably, this will break up overly long messages!)
+	const char separator[] = "[...]\n";
+	char buf[1007];
+	size_t bytes = sizeof(buf)-sizeof(separator)-1;
+	size_t written;
+	strcpy(&buf[bytes], separator);
+	// Write all chunks but last.  Each will fill the buffer exactly.
+	for (written = 0; (written+bytes) < len; written += bytes)
+	{
+	  memcpy(buf, &msg[written], bytes);
+	  process_notice_raw(buf);
+	}
+	// Write any remaining bytes (which won't fill an entire buffer)
+	bytes = len-written;
+	memcpy(buf, &msg[written], bytes);
+	// Add trailing nul byte, plus newline unless there already is one
+	strcpy(&buf[bytes], &"\n"[buf[bytes-1]=='\n']);
+	process_notice_raw(buf);
+      }
+    }
+  }
+}
+
+void pqxx::connection_base::process_notice(const string &msg) throw ()
+{
+  // Ensure that message passed to noticer ends in newline
+  if (msg[msg.size()-1] == '\n')
+  {
+    process_notice_raw(msg.c_str());
+  }
+  else try
+  {
+    const string nl = msg + "\n";
+    process_notice_raw(nl.c_str());
+  }
+  catch (const exception &)
+  {
+    // If nothing else works, try writing the message without the newline
+    process_notice_raw(msg.c_str());
+    // This is ugly.
+    process_notice_raw("\n");
+  }
+}
+
+
+void pqxx::connection_base::trace(FILE *Out) throw ()
 {
   m_Trace = Out;
   if (m_Conn) InternalSetTrace();
@@ -330,12 +398,13 @@ void pqxx::connection_base::get_notifs()
     typedef TriggerList::iterator TI;
 
     pair<TI, TI> Hit = m_Triggers.equal_range(string(N->relname));
-    for (TI i = Hit.first; i != Hit.second; ++i)
+    for (TI i = Hit.first; i != Hit.second; ++i) try
+    {
+      (*i->second)(N->be_pid);
+    }
+    catch (const exception &e)
+    {
       try
-      {
-        (*i->second)(N->be_pid);
-      }
-      catch (const exception &e)
       {
 	process_notice("Exception in trigger handler '" +
 		       i->first + 
@@ -343,6 +412,18 @@ void pqxx::connection_base::get_notifs()
 		       e.what() +
 		       "\n");
       }
+      catch (const bad_alloc &)
+      {
+	// Out of memory.  Try to get the message out in a more robust way.
+	process_notice("Exception in trigger handler, "
+	    "and also ran out of memory\n");
+      }
+      catch (const exception &)
+      {
+	process_notice("Exception in trigger handler "
+	    "(compounded by other error)\n");
+      }
+    }
 
     N.close();
   }
@@ -442,7 +523,7 @@ void pqxx::connection_base::AddVariables(const map<string,string> &Vars)
 }
 
 
-void pqxx::connection_base::InternalSetTrace()
+void pqxx::connection_base::InternalSetTrace() throw ()
 {
   if (m_Trace) PQtrace(m_Conn, m_Trace);
   else PQuntrace(m_Conn);
@@ -465,7 +546,7 @@ void pqxx::connection_base::UnregisterTransaction(transaction_base *T)
   }
   catch (const exception &e)
   {
-    process_notice(string(e.what()) + "\n");
+    process_notice(e.what());
   }
 }
 
