@@ -1,7 +1,8 @@
 1.6.3
  - olostream, lostream now flush themselves before closing
  - fixed compilation problems when using ToString<>() on a plain char *
- - compilation fixes for Sun compiler
+ - compilation fixes for Sun compiler (thanks Jeroen van Erp!)
+ - added .pc file for pkgconfig (thanks Ray Dassen!)
 1.6.2
  - Debian packaging added to distribution archive
  - new ilostream, olostream, lostream classes
