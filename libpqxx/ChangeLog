@@ -1,4 +1,4 @@
-2002-04-28 23:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
+2002-04-28 23:45  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
   - Used automake's --copy option
  config/Makefile.am:
@@ -8,7 +8,9 @@
   - Moved generated config files into directory of their own
   - Bumped version to 0.2
  doc/Makefile.am:
-  - Removed html subdir for now
+  - Got html subdir into package
+ include/Makefile.am:
+  - Moved pqxx from SUBDIRS to EXTRA_DIST
  Makefile.am:
   - Added doc and config subdirs
 2002-04-27 13:20  Jeroen T. Vermeulen <jtv@xs4all.nl>

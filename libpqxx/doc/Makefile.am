@@ -1,2 +1,2 @@
-#SUBDIRS = html
+EXTRA_DIST=html
 
