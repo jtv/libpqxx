@@ -86,6 +86,8 @@ public:
   class Field : private Tuple
   {
   public:
+    using Tuple::size_type;
+
     Field(const Tuple &R, Tuple::size_type C) : Tuple(R), m_Col(C) {}	//[t1]
 
     const char *c_str() const;	// Read as plain C string		//[t2]
