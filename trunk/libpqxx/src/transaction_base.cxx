@@ -382,7 +382,6 @@ void pqxx::transaction_base::BeginCopyWrite(const string &Table,
     const string &Columns)
 {
   exec(MakeCopyString(Table, Columns) + "FROM STDIN");
-  m_Conn.go_async();
 }
 
 
@@ -399,7 +398,8 @@ void pqxx::internal::transactionfocus::unregister_me() throw ()
   m_registered = false;
 }
 
-void pqxx::internal::transactionfocus::reg_pending_error(const string &err) throw ()
+void
+pqxx::internal::transactionfocus::reg_pending_error(const string &err) throw ()
 {
   m_Trans.RegisterPendingError(err);
 }
