@@ -71,9 +71,33 @@ private:
   {
   public:
     FieldConverter(const PGSTD::string &N) : Null(N) {}
-    template<typename T> PGSTD::string operator()(const PGSTD::string &,
-		                                  T) const;
-    PGSTD::string operator()(const PGSTD::string &, const char *) const;
+
+    template<typename T> PGSTD::string operator()(const PGSTD::string &S,
+		                                  T i) const
+    {
+      PGSTD::string Field(ToString(i));
+      return S + ((Field == Null) ? PGNull() : Field);
+    }
+
+#ifdef NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
+    template<> PGSTD::string operator()(const PGSTD::string &S,
+	                                PGSTD::string i) const
+    {
+      if (i == Null) i = PGNull();
+      else Escape(i);
+      return S + i + '\t';
+    }
+#endif
+
+    PGSTD::string operator()(const PGSTD::string &S, const char *i) const
+#ifdef NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
+    {
+      return operator()(S, PGSTD::string(i));
+    }
+#else
+    ;
+#endif
+
   private:
     static PGSTD::string PGNull() { return "\\N"; }
     static void Escape(PGSTD::string &);
@@ -109,11 +133,35 @@ private:
   pqxx::TableWriter &m_Writer;
 };
 
+} // namespace
+
+
+namespace pqxx
+{
+
+#ifndef NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
+template<>
+inline PGSTD::string 
+TableWriter::FieldConverter::operator()(const PGSTD::string &S,
+                                        PGSTD::string i) const
+{
+  if (i == Null) i = PGNull();
+  else Escape(i);
+  return S + i + '\t';
 }
 
 
+inline PGSTD::string
+TableWriter::FieldConverter::operator()(const PGSTD::string &S, 
+                                        const char *i) const
+{
+  return operator()(S, PGSTD::string(i));
+}
 
-void pqxx::TableWriter::FieldConverter::Escape(PGSTD::string &S)
+#endif
+
+
+void TableWriter::FieldConverter::Escape(PGSTD::string &S)
 {
   const char Special[] = "\n\t\\";
 
@@ -125,35 +173,8 @@ void pqxx::TableWriter::FieldConverter::Escape(PGSTD::string &S)
 }
 
 
-template<typename T> inline PGSTD::string
-pqxx::TableWriter::FieldConverter::operator()(const PGSTD::string &S,
-		                              T i) const
-{
-  PGSTD::string Field = ToString(i);
-  return S + ((Field == Null) ? PGNull() : Field);
-}
-
-
-template<> inline PGSTD::string 
-pqxx::TableWriter::FieldConverter::operator()(const PGSTD::string &S,
-		                              PGSTD::string i) const
-{
-  if (i == Null) i = PGNull();
-  else Escape(i);
-  return S + i + '\t';
-}
-
-
-inline PGSTD::string
-pqxx::TableWriter::FieldConverter::operator()(const PGSTD::string &S,
-		                              const char *i) const
-{
-  return operator()(S, PGSTD::string(i));
-}
-
-
 template<typename IT> 
-inline PGSTD::string pqxx::TableWriter::ezinekoT(IT Begin, IT End) const
+inline PGSTD::string TableWriter::ezinekoT(IT Begin, IT End) const
 {
   PGSTD::string Line = PGSTD::accumulate(Begin, 
 		                         End, 
@@ -168,42 +189,43 @@ inline PGSTD::string pqxx::TableWriter::ezinekoT(IT Begin, IT End) const
 
 
 template<typename TUPLE> 
-inline PGSTD::string pqxx::TableWriter::ezinekoT(const TUPLE &T) const
+inline PGSTD::string TableWriter::ezinekoT(const TUPLE &T) const
 {
   return ezinekoT(T.begin(), T.end());
 }
 
 
-template<typename IT> inline void pqxx::TableWriter::insert(IT Begin, IT End)
+template<typename IT> inline void TableWriter::insert(IT Begin, IT End)
 {
   WriteRawLine(ezinekoT(Begin, End));
 }
 
 
-template<typename TUPLE> inline void pqxx::TableWriter::insert(const TUPLE &T)
+template<typename TUPLE> inline void TableWriter::insert(const TUPLE &T)
 {
   insert(T.begin(), T.end());
 }
 
 template<typename IT> 
-inline void pqxx::TableWriter::push_back(IT Begin, IT End)
+inline void TableWriter::push_back(IT Begin, IT End)
 {
   insert(Begin, End);
 }
 
 template<typename TUPLE> 
-inline void pqxx::TableWriter::push_back(const TUPLE &T)
+inline void TableWriter::push_back(const TUPLE &T)
 {
   insert(T.begin(), T.end());
 }
 
 template<typename TUPLE> 
-inline pqxx::TableWriter &pqxx::TableWriter::operator<<(const TUPLE &T)
+inline TableWriter &TableWriter::operator<<(const TUPLE &T)
 {
   insert(T);
   return *this;
 }
 
+}
 
 #endif
 
