@@ -158,7 +158,7 @@ AC_SUBST(with_postgres_lib)
 AC_SUBST(with_postgres_include)
 POSTGRES_LIB="-L${with_postgres_lib} -lpq"
 AC_SUBST(POSTGRES_LIB)
-POSTGRES_INCLUDE="-I${with_postgres_include} -I${with_postgres_include}/server"
+POSTGRES_INCLUDE="-I${with_postgres_include} -I${with_postgres_include}/server -I${with_postgres_include}/internal"
 AC_SUBST(POSTGRES_INCLUDE)
 
 # Checks for libraries.
