@@ -2,11 +2,15 @@ MAINTAINERCLEANFILES=Makefile.in
 	stamp-h.in
 
 includedir=@includedir@/pqxx
+
+nodist_include_HEADERS = \
+	config.h \
+	libconfig.h
+
 include_HEADERS= pqxx all.h \
 	binarystring binarystring.hxx \
 	cachedresult.h \
 	compiler.h \
-	config.h \
 	connection connection.hxx connection.h \
 	connection_base connection_base.hxx connection_base.h connectionitf.h \
 	cursor.h \
@@ -15,7 +19,6 @@ include_HEADERS= pqxx all.h \
 	isolation isolation.hxx isolation.h \
 	largeobject largeobject.hxx largeobject.h \
 	libcompiler.h \
-	libconfig.h \
 	nontransaction nontransaction.hxx nontransaction.h \
 	pipeline pipeline.hxx \
 	result result.hxx result.h \

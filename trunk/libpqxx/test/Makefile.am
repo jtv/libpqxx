@@ -3,13 +3,14 @@
 # added to libpqxx, using the Perl script "maketestam.pl" found in the tools
 # directory.
 
-INCLUDES=-I../include ${POSTGRES_INCLUDE}
+INCLUDES=-I$(top_srcdir)/include -I$(top_builddir)/include ${POSTGRES_INCLUDE}
+CLEANFILES=pqxxlo.txt
 MAINTAINERCLEANFILES=Makefile.in
 
 #TESTS_ENVIRONMENT=PGDATABASE=libpqxx
 # PGDATABASE, PGHOST, PGPORT, PGUSER
 
-TESTS = test001 test002 test003 test004 test005 test006 test007 test008 test009 test010 test011 test012 test013 test014 test015 test016 test017 test018 test019 test020 test021 test022 test023 test024 test025 test026 test027 test028 test029 test030 test031 test032 test033 test034 test035 test036 test037 test038 test039 test040 test041 test042 test043 test044 test045 test046 test047 test048 test049 test050 test051 test052 test053 test054 test055 test056 test057 test058 test059 test060 test061 test062 test063 test064 test065 test066 test067 test068 test069 test070 test071 test072 test073
+TESTS = test001 test002 test003 test004 test005 test006 test007 test008 test009 test010 test011 test012 test013 test014 test015 test016 test017 test018 test019 test020 test021 test022 test023 test024 test025 test026 test027 test028 test029 test030 test031 test032 test033 test034 test035 test036 test037 test038 test039 test040 test041 test042 test043 test044 test045 test046 test047 test048 test049 test050 test051 test052 test053 test054 test055 test056 test057 test058 test059 test060 test061 test062 test063 test064 test065 test066 test067 test068 test069 test070 test071 test072
 check_PROGRAMS = ${TESTS}
 
 test001_SOURCES = test001.cxx
@@ -227,7 +228,4 @@ test071_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
 
 test072_SOURCES = test072.cxx
 test072_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
-
-test073_SOURCES = test073.cxx
-test073_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
 

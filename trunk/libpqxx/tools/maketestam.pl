@@ -20,7 +20,8 @@ print <<EOF;
 # added to libpqxx, using the Perl script "maketestam.pl" found in the tools
 # directory.
 
-INCLUDES=-I../include \${POSTGRES_INCLUDE}
+INCLUDES=-I\$(top_srcdir)/include -I\$(top_builddir)/include \${POSTGRES_INCLUDE}
+CLEANFILES=pqxxlo.txt
 MAINTAINERCLEANFILES=Makefile.in
 
 #TESTS_ENVIRONMENT=PGDATABASE=libpqxx

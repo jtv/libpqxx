@@ -24,7 +24,7 @@ libpqxx_la_LDFLAGS = $(libpqxx_version) \
 	-rpath $(libdir) \
 	${POSTGRES_LIB}
 
-INCLUDES=-I$(srcdir)/../include -I../include ${POSTGRES_INCLUDE}
+INCLUDES=-I$(top_srcdir)/include -I$(top_builddir)/include ${POSTGRES_INCLUDE}
 
 MAINTAINERCLEANFILES=Makefile.in
 
