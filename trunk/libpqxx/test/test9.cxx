@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 {
   try
   {
-    const char *ConnStr = (argv[1] ? argv[1] : "");
+    const char *ConnStr = argv[1];
 
     PrepareContents();
 

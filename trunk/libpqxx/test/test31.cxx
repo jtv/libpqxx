@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   {
     const string Table = ((argc >= 3) ? argv[2] : "pg_tables");
 
-    Connection C(argv[1] ? argv[1] : "", false);
+    Connection C(argv[1], false);
     Transaction T(C, "test31");
 
     Result R( T.Exec(("SELECT * FROM " + Table).c_str()) );

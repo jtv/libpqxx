@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 {
   try
   {
-    const char *ConnStr = (argv[1] ? argv[1] : "");
+    const char *ConnStr = argv[1];
 
     // Set up two connections to the backend: one to read our original table,
     // and another to write our copy

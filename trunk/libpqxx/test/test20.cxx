@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 {
   try
   {
-    Connection C(argv[1] ? argv[1] : "");
+    Connection C(argv[1]);
 
     const string Table = ((argc > 2) ? argv[2] : "events");
 

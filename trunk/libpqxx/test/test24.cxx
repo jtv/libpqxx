@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
   try
   {
     // Set up a deferred connection to the backend
-    Connection C(argv[1] ? argv[1] : "", false);
+    Connection C(argv[1], false);
 
     string TableName((argc > 2) ? argv[2] : "orgevents");
 

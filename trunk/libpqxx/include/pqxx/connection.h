@@ -30,17 +30,26 @@
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */
 
-// TODO: Implement NoticeProcessors with C++ linkage
 
+/// For internal use only
+extern "C" void pqxxNoticeCaller(void *, const char *);
 
 namespace pqxx
 {
 class in_doubt_error;	// See pqxx/transactionitf.h
-class Result;		// See pqxx/result.h
-class TransactionItf;	// See pqxx/transactionitf.h
-class Trigger;		// See pqxx/trigger.h
+class Result;
+class TransactionItf;
+class Trigger;
 
+/// @deprecated Notice processor callback function.  Use Noticer.
 extern "C" { typedef void (*NoticeProcessor)(void *arg, const char *msg); }
+
+/// Base class for user-definable error/warning message processor
+struct Noticer
+{
+  virtual ~Noticer() {}
+  virtual void operator()(const char Msg[]) throw () =0;
+};
 
 
 /// Human-readable class names for use by Unique template.
@@ -83,8 +92,28 @@ public:
    * member functions make it necessary to do so.  This regime is referred to as
    * a "lazy" connection.
    */
-  explicit Connection(const PGSTD::string &ConnInfo, 
+  explicit Connection(const PGSTD::string &ConnInfo,
                       bool Immediate=true);				//[t1]
+
+  /// Constructor.  Sets up connection based on PostgreSQL connection string.
+  /** @param ConnInfo a PostgreSQL connection string specifying any required
+   * parameters, such as server, port, database, and password.  As a special
+   * case, a null pointer is taken as the empty string.
+   * @param Immediate if set, makes the connection immediately.  This is the
+   * default.  If not set, the creation of the underlying database connection is
+   * deferred until necessitated by actual use, and the Connection remains in a
+   * deactivated state.  It will be activated transparently when calls to its
+   * member functions make it necessary to do so.  This regime is referred to as
+   * a "lazy" connection.
+   */
+  explicit Connection(const char ConnInfo[], bool Immediate=true);	//[t2]
+
+  /// Constructor.  Sets up a lazy connection with an empty connect string.
+  /** Note that this version of Connection is deferred by default, making it
+   * easier to create connection pools where not every connection object is
+   * going to be used.
+   */
+  Connection();								//[t43]
 
   /// Destructor.  Implicitly closes the connection.
   ~Connection();							//[t1]
@@ -93,18 +122,26 @@ public:
   void Disconnect() const throw ();					//[t2]
 
   /// Is this connection open?
-  bool IsOpen() const;							//[t1]
+  bool is_open() const;							//[t1]
+
+  /// Is this connection open? @deprecated Use is_open() instead
+  bool IsOpen() const { return is_open(); }
 
   /// Perform the transaction defined by a Transactor-based object.
   template<typename TRANSACTOR> 
   void Perform(const TRANSACTOR &, int Attempts=3);			//[t4]
 
-  /// Set callback method for postgresql status output.
+  /// Set callback method for postgresql status output. @deprecated Use Noticer.
   /** return value is the previous handler.  Passing a NULL callback pointer 
-   * simply returns the existing
-   * callback.  The callback must have C linkage.
+   * simply returns the existing callback.  The callback must have C linkage.
    */
   NoticeProcessor SetNoticeProcessor(NoticeProcessor, void *arg);	//[t1]
+
+  /// Set handler for postgresql errors or warning messages.
+  /** Return value is the previous handler.  Must not be NULL.
+   */
+  std::auto_ptr<Noticer> SetNoticer(std::auto_ptr<Noticer>);
+  Noticer *GetNoticer() const throw () { return m_Noticer.get(); }
 
   /// Invoke notice processor function.  The message should end in newline.
   void ProcessNotice(const char[]) throw ();				//[t1]
@@ -114,7 +151,7 @@ public:
 
   /// Enable tracing to a given output stream, or NULL to disable.
   void Trace(FILE *);							//[t3]
-  /// Disable tracing.  OBSOLETE.  Use Trace(0).
+  /// Disable tracing.  @deprecated Use Trace(0).
   void Untrace() { Trace(0); }
 
 
@@ -193,6 +230,7 @@ private:
   /// Client-set notice processor function
   mutable NoticeProcessor m_NoticeProcessor;
   void *m_NoticeProcessorArg;	// Client-set argument to notice processor func
+  std::auto_ptr<Noticer> m_Noticer;
   FILE *m_Trace;		// File to trace to, if any
 
   typedef PGSTD::multimap<PGSTD::string, pqxx::Trigger *> TriggerList;

@@ -22,7 +22,7 @@ int main(int, char *argv[])
 {
   try
   {
-    Connection C(argv[1] ? argv[1] : "");
+    Connection C(argv[1]);
     Transaction T(C, "test44");
 
     // A query that will not return any data

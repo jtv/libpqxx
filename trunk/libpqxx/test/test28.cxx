@@ -89,13 +89,11 @@ int main(int argc, char *argv[])
 {
   try
   {
-    const char *ConnStr = (argv[1] ? argv[1] : "");
-
     PrepareContents();
 
     // Set up two connections to the backend: one to read our original table,
     // and another to write our copy
-    Connection C(ConnStr, false);
+    Connection C(argv[1], false);
 
     // Select our original and destination table names
     string TableName = "testtable";

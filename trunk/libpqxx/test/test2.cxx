@@ -23,7 +23,7 @@ int main(int, char *argv[])
   try
   {
     // Set up connection to database
-    Connection C(argv[1] ? argv[1] : "");
+    Connection C(argv[1]);
 
     // Start transaction within context of connection
     Transaction T(C, "test2");

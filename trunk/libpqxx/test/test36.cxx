@@ -8,18 +8,6 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-namespace
-{
-extern "C"
-{
-void ReportWarning(void *, const char msg[])
-{
-  cerr << msg;
-}
-}
-}
-
-
 // Simple test program for libpqxx.  Open connection to database, start
 // a dummy transaction to gain nontransactional access, and perform a query.
 //
@@ -60,9 +48,7 @@ int main(int, char *argv[])
 {
   try
   {
-    Connection C(argv[1] ? argv[1] : "", false);
-
-    C.SetNoticeProcessor(ReportWarning, 0);
+    Connection C(argv[1], false);
 
     C.Perform(ReadTables());
   }

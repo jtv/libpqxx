@@ -49,7 +49,7 @@ int main(int, char *argv[])
   {
     const string Table = "events";
 
-    Connection C(argv[1] ? argv[1] : "");
+    Connection C(argv[1]);
     Transaction T(C, "test19");
 
     // Count rows.

@@ -49,13 +49,13 @@ void MoveTo(Cursor &C, Cursor::size_type N, Cursor::size_type NewPos)
 }
 
 
-int main(int, char *argv[])
+int main()
 {
   try
   {
     const string Table = "events";
 
-    Connection C(argv[1] ? argv[1] : "");
+    Connection C;
     Transaction T(C, "test19");
 
     // Count rows.

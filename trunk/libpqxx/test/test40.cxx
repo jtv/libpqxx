@@ -24,7 +24,7 @@ int main(int, char *argv[])
   try
   {
     // Set up a connection to the backend
-    Connection C(argv[1] ? argv[1] : "");
+    Connection C(argv[1]);
 
     // Begin a transaction acting on our current connection
     Transaction T(C, "test40");

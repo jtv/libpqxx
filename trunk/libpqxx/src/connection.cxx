@@ -73,9 +73,35 @@ pqxx::Connection::Connection(const string &ConnInfo, bool Immediate) :
   m_Trans(),
   m_NoticeProcessor(0),
   m_NoticeProcessorArg(0),
+  m_Noticer(),
   m_Trace(0)
 {
   if (Immediate) Connect();
+}
+
+
+pqxx::Connection::Connection(const char ConnInfo[], bool Immediate) :
+  m_ConnInfo(ConnInfo ? ConnInfo : string()),
+  m_Conn(0),
+  m_Trans(),
+  m_NoticeProcessor(0),
+  m_NoticeProcessorArg(0),
+  m_Noticer(),
+  m_Trace(0)
+{
+  if (Immediate) Connect();
+}
+
+
+pqxx::Connection::Connection() :
+  m_ConnInfo(string()),
+  m_Conn(0),
+  m_Trans(),
+  m_NoticeProcessor(0),
+  m_NoticeProcessorArg(0),
+  m_Noticer(),
+  m_Trace(0)
+{
 }
 
 
@@ -118,7 +144,7 @@ void pqxx::Connection::Connect() const
   if (!m_Conn)
     throw broken_connection();
 
-  if (!IsOpen())
+  if (!is_open())
   {
     const string Msg( ErrMsg() );
     Disconnect();
@@ -160,7 +186,9 @@ void pqxx::Connection::SetupState() const
   if (!m_Conn) 
     throw logic_error("libpqxx internal error: SetupState() on no connection");
 
-  if (m_NoticeProcessor) 
+  if (m_Noticer.get())
+    PQsetNoticeProcessor(m_Conn, pqxxNoticeCaller, m_Noticer.get());
+  else if (m_NoticeProcessor) 
     PQsetNoticeProcessor(m_Conn, m_NoticeProcessor, m_NoticeProcessorArg);
   else
     m_NoticeProcessor = PQsetNoticeProcessor(m_Conn, 0,0);
@@ -197,7 +225,7 @@ void pqxx::Connection::Disconnect() const throw ()
 }
 
 
-bool pqxx::Connection::IsOpen() const
+bool pqxx::Connection::is_open() const
 {
   return m_Conn && (Status() != CONNECTION_BAD);
 }
@@ -218,9 +246,29 @@ pqxx::Connection::SetNoticeProcessor(pqxx::NoticeProcessor NewNP,
 }
 
 
+
+auto_ptr<pqxx::Noticer> 
+pqxx::Connection::SetNoticer(auto_ptr<pqxx::Noticer> N)
+{
+  if (N.get()) PQsetNoticeProcessor(m_Conn, pqxxNoticeCaller, N.get());
+  else PQsetNoticeProcessor(m_Conn, m_NoticeProcessor, m_NoticeProcessorArg);
+  
+  auto_ptr<Noticer> Old = m_Noticer;
+  // TODO: Can this line fail?  If yes, we'd be killing Old prematurely...
+  m_Noticer = N;
+
+  return Old;
+}
+
+
+
 void pqxx::Connection::ProcessNotice(const char msg[]) throw ()
 {
-  if (msg && m_NoticeProcessor) (*m_NoticeProcessor)(m_NoticeProcessorArg, msg);
+  if (msg)
+  {
+    if (m_Noticer.get()) (*m_Noticer.get())(msg);
+    else if (m_NoticeProcessor) (*m_NoticeProcessor)(m_NoticeProcessorArg, msg);
+  }
 }
 
 
@@ -254,7 +302,7 @@ void pqxx::Connection::AddTrigger(pqxx::Trigger *T)
     }
     catch (const exception &)
     {
-      if (IsOpen()) throw;
+      if (is_open()) throw;
     }
     m_Triggers.insert(NewVal);
   }
@@ -347,12 +395,12 @@ pqxx::Result pqxx::Connection::Exec(const char Q[],
 
   Result R( PQexec(m_Conn, Q) );
 
-  while ((Retries > 0) && !R && !IsOpen())
+  while ((Retries > 0) && !R && !is_open())
   {
     Retries--;
 
     Reset(OnReconnect);
-    if (IsOpen()) R = PQexec(m_Conn, Q);
+    if (is_open()) R = PQexec(m_Conn, Q);
   }
 
   if (!R) throw broken_connection();
@@ -443,7 +491,6 @@ bool pqxx::Connection::ReadCopyLine(string &Line)
     switch (PQgetline(m_Conn, Buf, sizeof(Buf)))
     {
     case EOF:
-      // TODO: Throw broken_connection?
       throw runtime_error("Unexpected EOF from backend");
 
     case 0:
@@ -494,4 +541,14 @@ void pqxx::Connection::EndCopy()
   if (PQendcopy(m_Conn) != 0) throw runtime_error(ErrMsg());
 }
 
+
+extern "C"
+{
+// Pass C-linkage notice processor call on to C++-linkage Noticer object.  The
+// void * argument points to the Noticer.
+void pqxxNoticeCaller(void *arg, const char *Msg)
+{
+  if (arg && Msg) (*static_cast<pqxx::Noticer *>(arg))(Msg);
+}
+}
 

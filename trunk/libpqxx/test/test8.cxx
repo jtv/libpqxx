@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
   try
   {
     // Set up a connection to the backend
-    Connection C(argv[1] ? argv[1] : "");
+    Connection C(argv[1]);
 
     string Table = "events";
     if (argc > 2) Table = argv[2];
