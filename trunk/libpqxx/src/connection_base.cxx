@@ -32,6 +32,8 @@
 #endif	// PQXX_HAVE_SYS_SELECT_H
 
 #include "pqxx/connection_base"
+#include "pqxx/nontransaction"
+#include "pqxx/pipeline"
 #include "pqxx/result"
 #include "pqxx/transaction"
 #include "pqxx/trigger"
@@ -77,7 +79,7 @@ pqxx::connection_base::connection_base(const char ConnInfo[]) :
 }
 
 
-void pqxx::connection_base::Connect()
+void pqxx::connection_base::activate()
 {
   if (!is_open())
   {
@@ -148,7 +150,7 @@ string pqxx::connection_base::RawGetVar(const string &Var)
  */
 void pqxx::connection_base::SetupState()
 {
-  if (!m_Conn) 
+  if (!m_Conn)
     throw logic_error("libpqxx internal error: SetupState() on no connection");
 
   if (Status() != CONNECTION_OK)
@@ -164,30 +166,44 @@ void pqxx::connection_base::SetupState()
 
   InternalSetTrace();
 
-  // Reinstate all active triggers
-  if (!m_Triggers.empty())
+  if (!m_Triggers.empty() || !m_Vars.empty())
   {
-    const TriggerList::const_iterator End = m_Triggers.end();
-    string Last;
-    for (TriggerList::const_iterator i = m_Triggers.begin(); i != End; ++i)
+    // Pipeline all queries needed to restore triggers and variables.  Use
+    // existing nontransaction if we're in one, or set up a temporary one.
+    // Note that at this stage, the presence of a transaction object doesn't
+    // mean much.  Even if it is a dbtransaction, no BEGIN has been issued yet
+    // in the new connection.
+    auto_ptr<nontransaction> n;
+    if (!m_Trans.get())
+      n=auto_ptr<nontransaction>(new nontransaction(*this, "connection_setup"));
+    pipeline p(*m_Trans.get(), "restore_state");
+    p.retain(m_Triggers.size() + m_Vars.size());
+
+    // Reinstate all active triggers
+    if (!m_Triggers.empty())
     {
-      // m_Triggers can handle multiple Triggers waiting on the same event; 
-      // issue just one LISTEN for each event.
-      if (i->first != Last)
+      const TriggerList::const_iterator End = m_Triggers.end();
+      string Last;
+      for (TriggerList::const_iterator i = m_Triggers.begin(); i != End; ++i)
       {
-	// TODO: Concatenate these
-	const string LQ("LISTEN \"" + i->first + "\"");
-        result R( PQexec(m_Conn, LQ.c_str()) );
-        R.CheckStatus(LQ);
-        Last = i->first;
+        // m_Triggers can handle multiple Triggers waiting on the same event;
+        // issue just one LISTEN for each event.
+        if (i->first != Last)
+        {
+	  p.insert("LISTEN \"" + i->first + "\"");
+          Last = i->first;
+        }
       }
     }
-  }
 
-  for (map<string,string>::const_iterator i=m_Vars.begin(); 
-       i!=m_Vars.end(); 
-       ++i)
-    RawSetVar(i->first, i->second);
+    for (map<string,string>::const_iterator i=m_Vars.begin();
+         i!=m_Vars.end();
+         ++i)
+      p.insert("SET " + i->first + "=" + i->second);
+
+    // Now do the whole batch at once
+    while (!p.empty()) p.retrieve();
+  }
 }
 
 
@@ -207,7 +223,7 @@ bool pqxx::connection_base::is_open() const throw ()
 }
 
 
-auto_ptr<pqxx::noticer> 
+auto_ptr<pqxx::noticer>
 pqxx::connection_base::set_noticer(auto_ptr<noticer> N) throw ()
 {
   if (m_Conn)
@@ -215,7 +231,7 @@ pqxx::connection_base::set_noticer(auto_ptr<noticer> N) throw ()
     if (N.get()) PQsetNoticeProcessor(m_Conn, pqxxNoticeCaller, N.get());
     else PQsetNoticeProcessor(m_Conn, 0, 0);
   }
-  
+
   auto_ptr<noticer> Old = m_Noticer;
   m_Noticer = N;
 
@@ -236,7 +252,7 @@ void pqxx::connection_base::process_notice_raw(const char msg[]) throw ()
 
 void pqxx::connection_base::process_notice(const char msg[]) throw ()
 {
-  if (!msg) 
+  if (!msg)
   {
     process_notice_raw("NULL pointer in client program message!\n");
   }
@@ -245,7 +261,7 @@ void pqxx::connection_base::process_notice(const char msg[]) throw ()
     const size_t len = strlen(msg);
     if (len > 0)
     {
-      if (msg[len-1] == '\n') 
+      if (msg[len-1] == '\n')
       {
 	process_notice_raw(msg);
       }
@@ -320,7 +336,7 @@ void pqxx::connection_base::AddTrigger(pqxx::trigger *T)
   if (m_Conn && (p == m_Triggers.end()))
   {
     // Not listening on this event yet, start doing so.
-    const string LQ("LISTEN \"" + T->name() + "\""); 
+    const string LQ("LISTEN \"" + T->name() + "\"");
     result R( PQexec(m_Conn, LQ.c_str()) );
 
     try
@@ -359,10 +375,10 @@ void pqxx::connection_base::RemoveTrigger(pqxx::trigger *T) throw ()
 
     const TriggerList::iterator i = find(R.first, R.second, E);
 
-    if (i == R.second) 
+    if (i == R.second)
     {
-      process_notice("Attempt to remove unknown trigger '" + 
-		     E.first + 
+      process_notice("Attempt to remove unknown trigger '" +
+		     E.first +
 		     "'");
     }
     else
@@ -382,7 +398,7 @@ void pqxx::connection_base::RemoveTrigger(pqxx::trigger *T) throw ()
 
 int pqxx::connection_base::get_notifs()
 {
-  int notifs = 0; 
+  int notifs = 0;
   if (!is_open()) return notifs;
 
   PQconsumeInput(m_Conn);
@@ -407,8 +423,8 @@ int pqxx::connection_base::get_notifs()
       try
       {
 	process_notice("Exception in trigger handler '" +
-		       i->first + 
-		       "': " + 
+		       i->first +
+		       "': " +
 		       e.what() +
 		       "\n");
       }
@@ -475,7 +491,7 @@ pqxx::result pqxx::connection_base::exec_prepared(const char QueryName[],
   {
     Retries--;
     Reset();
-    if (is_open()) 
+    if (is_open())
       R = PQexecPrepared(m_Conn, QueryName, NumParams, Params, NULL, NULL, 0);
   }
 
@@ -489,7 +505,7 @@ pqxx::result pqxx::connection_base::exec_prepared(const char QueryName[],
   return R;
 #else
   stringstream Q;
-  Q << "EXECUTE " 
+  Q << "EXECUTE "
     << QueryName
     << ' '
     << separated_list(",", Params, Params+NumParams);
@@ -505,17 +521,17 @@ void pqxx::connection_base::Reset()
   // Forget about any previously ongoing connection attempts
   dropconnect();
 
-  if (m_Conn) 
+  if (m_Conn)
   {
     // Reset existing connection
     PQreset(m_Conn);
     SetupState();
     clear_fdmask();
   }
-  else 
+  else
   {
     // No existing connection--start a new one
-    Connect();
+    activate();
   }
 }
 
@@ -528,8 +544,8 @@ void pqxx::connection_base::close() throw ()
   clear_fdmask();
   try
   {
-    if (m_Trans.get()) 
-      process_notice("Closing connection while " + 
+    if (m_Trans.get())
+      process_notice("Closing connection while " +
 	             m_Trans.get()->description() + " still open");
 
     if (!m_Triggers.empty())
@@ -577,7 +593,7 @@ void pqxx::connection_base::RegisterTransaction(transaction_base *T)
 }
 
 
-void pqxx::connection_base::UnregisterTransaction(transaction_base *T) 
+void pqxx::connection_base::UnregisterTransaction(transaction_base *T)
   throw ()
 {
   try
@@ -593,7 +609,7 @@ void pqxx::connection_base::UnregisterTransaction(transaction_base *T)
 
 void pqxx::connection_base::MakeEmpty(pqxx::result &R)
 {
-  if (!m_Conn) 
+  if (!m_Conn)
     throw logic_error("libpqxx internal error: MakeEmpty() on null connection");
 
   R = result(PQmakeEmptyPGresult(m_Conn, PGRES_EMPTY_QUERY));
@@ -670,7 +686,7 @@ bool pqxx::connection_base::ReadCopyLine(string &Line)
 
   Result = (Line != theWriteTerminator);
 
-  if (Result) 
+  if (Result)
   {
     if (!Line.empty() && (Line[Line.size()-1] == '\n'))
       Line.erase(Line.size()-1);
@@ -738,7 +754,7 @@ void pqxx::connection_base::EndCopyWrite()
   // This check is a little odd, but for some reason PostgreSQL 7.4 keeps
   // returning 1 (i.e., failure) but with an empty error message, and without
   // anything seeming wrong.
-  if ((PQendcopy(m_Conn) != 0) && ErrMsg() && *ErrMsg()) 
+  if ((PQendcopy(m_Conn) != 0) && ErrMsg() && *ErrMsg())
     throw runtime_error(ErrMsg());
 #endif
 }
