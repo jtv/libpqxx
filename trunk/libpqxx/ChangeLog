@@ -1,3 +1,23 @@
+2004-11-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/VisualC++.NET-2003/config-internal.compiler.h,
+ config/sample-headers/libpq/7.4/config-internal-libpq.h,
+ config/sample-headers/libpq/7.4/config-public-libpq.h:
+  - Fixed PQXX_SELECT_ACCEPTS_NULL
+  - Disabled PQXX_HAVE_SLEEP
+  - Enabled PQXX_HAVE_PQEXECPREPARED
+  - Thanks Patrick Kimber
+ include/pqx/connection.hxx:
+  - Call PQconnectdb() inside PQXXPQ namespace, thanks Patrick Kimber
+ include/pqxx/result.hxx:
+  - Workarounds for Visual C++.NET 2003, thanks Patrick Kimber
+ win32/common:
+  - Enabled STD definition, thanks Patrick Kimber
+2004-11-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/transactor.hxx:
+  - Renamed OnCommit/OnAbort/OnDoubt to on_commit/on_abort/on_doubt
+  - Anonymized unused (but significant) OnAbort() parameter to silence warning
+ src/transaction_base.cxx:
+  - Check for broken connection before going into commit attempt
 2004-11-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  - doc/Makefile.am:
   - Filter progress messages out of doxygen output
