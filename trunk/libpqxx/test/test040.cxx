@@ -36,7 +36,7 @@ int main(int, char *argv[])
 
     string LastReason;
 
-    for (int BlockSize = 2; BlockSize <= R.size()+1; ++BlockSize)
+    for (result::size_type BlockSize = 2; BlockSize <= R.size()+1; ++BlockSize)
     {
       cachedresult CR(T, Query, "cachedresult", BlockSize);
       const cachedresult::size_type CRS = CR.size();
