@@ -34,9 +34,6 @@ class TransactionItf;
  * The class uses a Cursor internally to fetch results.  Data are not fetched
  * row-by-row, but in chunks of configurable size.  For internal computational
  * reasons, these chunks (called "blocks" here) must be at least 2 rows large.  
- *
- * The maximum size of a query result accessed through a CachedResult is one
- * less than the maximum size of a reqular PostgreSQL query result.
  */
 class PQXX_LIBEXPORT CachedResult
 {
@@ -45,16 +42,18 @@ public:
   typedef size_type blocknum;
   typedef Result::Tuple Tuple;
 
-  /// Granularity must be at least 2.
+  /** Perform query and transparently fetch and cache resulting data.
+   * Granularity determines how large the blocks of data used internally will
+   * be; must be at least 2.
+   */
   explicit CachedResult(pqxx::TransactionItf &,
                         const char Query[],
 			PGSTD::string BaseName="query",
                         size_type Granularity=100);
 
-  // TODO: empty(), capacity()
   // TODO: Iterators, begin(), end()
   // TODO: Metadata
-  // TODO: Block replacement
+  // TODO: Block replacement (limit cache size); then add capacity()
 
   const Tuple operator[](size_type i) const
   {
@@ -66,13 +65,35 @@ public:
     return GetBlock(BlockFor(i)).at(Offset(i));
   }
 
+  /// Number of rows in result set.  
+  /** Figuring out the size of the result set for the first time may take a lot
+   * of time and network traffic, as the CachedResult's internal cursor scans
+   * back and forth in search of the set's last row.  Some 30 blocks of data
+   * may be fetched in the process.
+   */
   size_type size() const
   {
     if (m_Size == -1) DetermineSize();
     return m_Size;
   }
 
+  
+  /// Is the result set empty, i.e. does it contain no rows?  May fetch 1 block.
+  bool empty() const
+  {
+    return (m_Size == 0) || (m_Cache.empty() && GetBlock(0).empty());
+  }
+
+  /// Drop all data in internal cache, freeing up memory.
   void clear();
+
+  class const_iterator
+  {
+    const CachedResult &m_Home;
+    CachedResult::size_type m_Row;
+  public:
+    const_iterator(const CachedResult &Home) : m_Home(Home), m_Row(-1) {}
+  };
 
 private:
 
@@ -109,9 +130,8 @@ private:
 
   /** Figure out how big our result set is.  This may take some scanning back
    * and forth, since there's no direct way to find out.  We keep track of the
-   * highest block known to exist (which is at the top of our cache) and the
-   * lowest block known not to exist (in m_Upper) to narrow the search range as
-   * much as possible.
+   * highest block known to exist (in m_Lower) and the lowest block known not 
+   * to exist (in m_Upper) to narrow the search range as much as possible.
    */
   void DetermineSize() const;
 
@@ -129,8 +149,12 @@ private:
   /// Result set size in rows, or -1 if unknown.
   mutable size_type m_Size;
 
-  /// Upper bound: lowest block known not to exist.
-  mutable blocknum m_Upper;
+  /** Lower and upper bounds to end-of-data: highest block known to exist, and
+   * lowest block known not to exist, respectively.  Once size is known, the
+   * two will be adjacent, with m_Lower referring to the last, probably non-full
+   * block and m_Upper equal to m_Lower+1.
+   */
+  mutable blocknum m_Lower, m_Upper;
 
   // Not allowed:
   CachedResult(const CachedResult &);
