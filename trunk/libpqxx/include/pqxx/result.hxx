@@ -32,7 +32,6 @@
 
 namespace pqxx
 {
-
 /// Query or command result set.
 /** This behaves as a container (as defined by the C++ standard library) and 
  * provides random access const iterators to iterate over its tuples.  A tuple 
@@ -41,34 +40,19 @@ namespace pqxx
  *
  *	for (result::size_type i=0; i < R.size(); ++i) Process(R[i]);
  */
-class PQXX_LIBEXPORT result
+class PQXX_LIBEXPORT result : private internal::PQAlloc<internal::pq::PGresult>
 {
+  typedef internal::PQAlloc<internal::pq::PGresult> super;
 public:
-  result() throw () : m_Result(0), m_l(this), m_r(this) {}		//[t3]
-  result(const result &rhs) throw () :					//[t1]
-	  m_Result(0), m_l(this), m_r(this) { MakeRef(rhs); }
-  ~result() { LoseRef(); }						//[t1]
-  
-  result &operator=(const result &) throw ();				//[t10]
-
-  bool operator==(const result &) const throw ();			//[]
-  bool operator!=(const result &rhs) const throw ()			//[]
-  	{ return !operator==(rhs); }
-  bool operator<(const result &) const throw ();			//[]
-  bool operator>(const result &rhs) const throw ()			//[]
-    	{ return rhs<*this; }
-  bool operator<=(const result &rhs) const throw ()			//[]
-    	{ return !(rhs<*this); }
-  bool operator>=(const result &rhs) const throw ()			//[]
-    	{ return rhs<=*this; }
-
+  class const_iterator;
+  class const_fielditerator;
+  class const_reverse_fielditerator;
   class tuple;
   class field;
-  class const_fielditerator;
   typedef unsigned long size_type;
   typedef signed long difference_type;
-  typedef tuple const_reference;
-
+  typedef tuple reference;
+  typedef const_iterator pointer;
 
   /// Reference to one row in a result.
   /** A tuple represents one row (also called a tuple) in a query result set.  
@@ -78,8 +62,7 @@ public:
    * 	cout << tuple["date"].c_str() << ": " << tuple["name"].c_str() << endl;
    *
    * The tuple itself acts like a (non-modifyable) container, complete with its
-   * own const_iterator and, if your compiler supports them,
-   * const_reverse_iterator.
+   * own const_iterator and const_reverse_iterator.
    */
   class PQXX_LIBEXPORT tuple
   {
@@ -87,90 +70,90 @@ public:
     typedef unsigned int size_type;
     typedef signed int difference_type;
     typedef const_fielditerator const_iterator;
-    typedef field const_reference;
+    typedef field reference;
+    typedef const_fielditerator pointer;
+    typedef const_reverse_fielditerator const_reverse_iterator;
 
     tuple(const result *r, result::size_type i) throw () : 
       m_Home(r), m_Index(i) {}
     ~tuple() throw () {} // Yes Scott Meyers, you're absolutely right[1]
 
-    bool operator==(const tuple &) const throw ();			//[]
-    bool operator!=(const tuple &rhs) const throw ()			//[]
-  	{ return !operator==(rhs); }
-    bool operator<(const tuple &) const throw ();			//[]
-    bool operator>(const tuple &rhs) const throw ()			//[]
-    	{ return rhs<*this; }
-    bool operator<=(const tuple &rhs) const throw ()			//[]
-    	{ return !(rhs<*this); }
-    bool operator>=(const tuple &rhs) const throw ()			//[]
-    	{ return rhs<=*this; }
+    bool operator==(const tuple &) const throw ();			//[t75]
+    bool operator!=(const tuple &rhs) const throw ()			//[t75]
+	{ return !operator==(rhs); }
 
+    const_iterator begin() const throw ()				//[t82]
+	{ return const_iterator(*this, 0); }
+    const_iterator end() const throw ()					//[t82]
+	{ return const_iterator(*this, size()); }
 
-    inline const_iterator begin() const throw ();			//[t82]
-    inline const_iterator end() const throw ();				//[t82]
+    reference front() const throw () { return field(*this, 0); }	//[t74]
+    reference back() const throw () { return field(*this, size()-1); }	//[t75]
 
-    inline const_reference front() const throw ();			//[]
-    inline const_reference back() const throw ();			//[]
+    const_reverse_fielditerator rbegin() const;				//[t82]
+    const_reverse_fielditerator rend() const;				//[t82]
 
-#ifdef PQXX_HAVE_REVERSE_ITERATOR
-    typedef PGSTD::reverse_iterator<const_iterator> const_reverse_iterator;
-    const_reverse_iterator rbegin() const 				//[t82]
-  	{ return const_reverse_iterator(end()); }
-    const_reverse_iterator rend() const					//[t82]
-   	{ return const_reverse_iterator(begin()); }
-#endif
+    reference operator[](size_type i) const throw ()			//[t11]
+	{ return field(*this, i); }
+    reference operator[](int i) const throw ()				//[t2]
+	{ return operator[](size_type(i)); }
+    reference operator[](const char[]) const;				//[t11]
+    reference operator[](const PGSTD::string &s) const			//[t11]
+	{ return operator[](s.c_str()); }
+    reference at(size_type) const throw (PGSTD::out_of_range);		//[t11]
+    reference at(int i) const throw (PGSTD::out_of_range)		//[t11]
+	{ return at(size_type(i)); }
+    reference at(const char[]) const;					//[t11]
+    reference at(const PGSTD::string &s) const				//[t11]
+	{ return at(s.c_str()); }
 
-    inline field operator[](size_type) const throw ();			//[]
-    inline field operator[](int i) const throw ()			//[]
-    	{ return operator[](size_type(i)); }
-    field operator[](const char[]) const;				//[t11]
-    field operator[](const PGSTD::string &s) const 			//[t11]
-    	{ return operator[](s.c_str()); }
-    field at(size_type) const throw (PGSTD::out_of_range);		//[]
-    field at(int i) const throw (PGSTD::out_of_range)			//[]
-    	{ return at(size_type(i)); }
-    field at(const char[]) const;					//[t11]
-    field at(const PGSTD::string &s) const { return at(s.c_str()); }	//[t11]
+    size_type size() const throw () { return m_Home->columns(); }	//[t11]
 
-    inline size_type size() const throw ();				//[t11]
-
-    void swap(tuple &rhs) throw ()					//[]
-    	{ tuple temp(rhs); *this=rhs; rhs=temp; }
+    void swap(tuple &rhs) throw ()					//[t11]
+    {
+      const result *const h(m_Home);
+      const result::size_type i(m_Index);
+      m_Home = rhs.m_Home;
+      m_Index = rhs.m_Index;
+      rhs.m_Home = h;
+      rhs.m_Index = i;
+    }
 
     result::size_type rownumber() const throw () { return m_Index; }	//[t11]
 
     /// Number of given column (throws exception if it doesn't exist)
     size_type column_number(const PGSTD::string &ColName) const		//[t30]
-    	{ return m_Home->column_number(ColName); }
+	{ return m_Home->column_number(ColName); }
 
     /// Number of given column (throws exception if it doesn't exist)
     size_type column_number(const char ColName[]) const			//[t30]
-      	{ return m_Home->column_number(ColName); }
+	{ return m_Home->column_number(ColName); }
 
     /// Type of given column
-    oid column_type(size_type ColNum) const				//[]
+    oid column_type(size_type ColNum) const				//[t7]
 	{ return m_Home->column_type(ColNum); }
 
     /// Type of given column
-    oid column_type(int ColNum) const					//[]
+    oid column_type(int ColNum) const					//[t7]
 	{ return column_type(size_type(ColNum)); }
 
     /// Type of given column
     oid column_type(const PGSTD::string &ColName) const			//[t7]
-      	{ return column_type(column_number(ColName)); }
+	{ return column_type(column_number(ColName)); }
 
     /// Type of given column
     oid column_type(const char ColName[]) const				//[t7]
-      	{ return column_type(column_number(ColName)); }
+	{ return column_type(column_number(ColName)); }
 
     result::size_type num() const { return rownumber(); }		//[t1]
 
 #ifdef PQXX_HAVE_PQFTABLE
-    oid column_table(size_type ColNum) const				//[]
-    	{ return m_Home->column_table(ColNum); }
-    oid column_table(int ColNum) const					//[]
-    	{ return column_table(size_type(ColNum)); }
+    oid column_table(size_type ColNum) const				//[t2]
+	{ return m_Home->column_table(ColNum); }
+    oid column_table(int ColNum) const					//[t2]
+	{ return column_table(size_type(ColNum)); }
     oid column_table(const PGSTD::string &ColName) const		//[t2]
-      	{ return column_table(column_number(ColName)); }
+	{ return column_table(column_number(ColName)); }
 #endif
 
 
@@ -180,13 +163,12 @@ public:
 
     /// @deprecated Use column_number() instead
     size_type ColumnNumber(const PGSTD::string &ColName) const 
-    	{ return m_Home->ColumnNumber(ColName); }
+	{ return column_number(ColName); }
 
     /// @deprecated Use column_number() instead
     size_type ColumnNumber(const char ColName[]) const 
-    	{ return m_Home->ColumnNumber(ColName); }
+	{ return column_number(ColName); }
 #endif
-
 
   protected:
     friend class field;
@@ -212,7 +194,30 @@ public:
      * @param C column number of this field.
      */
     field(const tuple &T, tuple::size_type C) throw () : 		//[t1]
-    	m_tup(T), m_col(C) {}
+	m_tup(T), m_col(C) {}
+
+    /// Byte-by-byte comparison of two fields (all nulls are considered equal)
+    /** @warning null handling is still open to discussion and change!
+     *
+     * Handling of null values differs from that in SQL where a comparison
+     * involving a null value yields null, so nulls are never considered equal
+     * to one another or even to themselves.
+     *
+     * Null handling also probably differs from the closest equivalent in C++,
+     * which is the NaN (Not-a-Number) value, a singularity comparable to
+     * SQL's null.  This is because the builtin == operator demands that a == a.
+     *
+     * The usefulness of this operator is questionable.  No interpretation
+     * whatsoever is imposed on the data; 0 and 0.0 are considered different,
+     * as null and the empty string, or even different (but possibly equivalent
+     * and equally valid) encodings of the same Unicode string etc.
+     */
+    bool operator==(const field &) const;				//[t75]
+
+    /// Byte-by-byte comparison (all nulls are considered equal)
+    /** @warning See operator== for important information about this operator
+     */
+    bool operator!=(const field &rhs) const {return !operator==(rhs);}	//[t82]
 
     /// Read as plain C string
     /** Since the field's data is stored internally in the form of a 
@@ -220,14 +225,13 @@ public:
      * to() or as() functions to convert the string to other types such as int,
      * or to C++ strings.
      */
-    const char *c_str() const {return home()->GetValue(idx(),col());}	//[t2]
+    const char *c_str() const { return home()->GetValue(idx(),col()); }	//[t2]
 
     /// Column name
-    inline const char *name() const;					//[t11]
+    const char *name() const { return home()->column_name(col()); }	//[t11]
 
     /// Column type
-    oid type() const 							//[t7]
-    	{ return home()->column_type(col()); }
+    oid type() const { return home()->column_type(col()); } 		//[t7]
 
 #ifdef PQXX_HAVE_PQFTABLE
     /// Table this field came from, if any
@@ -249,7 +253,7 @@ public:
     template<typename T> bool to(T &Obj) const				//[t3]
     {
       if (is_null())
-	return false;
+        return false;
 
       try
       {
@@ -257,9 +261,8 @@ public:
       }
       catch (const PGSTD::exception &e)
       {
-	throw PGSTD::domain_error("Error reading field " + 
-			          PGSTD::string(name()) +
-				  ": " +
+        throw PGSTD::domain_error("Error reading field " + 
+			          PGSTD::string(name()) + ": " +
 				  e.what());
       }
       return true;
@@ -267,7 +270,7 @@ public:
 
     /// Read value into Obj; or leave Obj untouched and return false if null
     template<typename T> bool operator>>(T &Obj) const			//[t7]
-    	{ return to(Obj); }
+	{ return to(Obj); }
 
 #ifdef PQXX_NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
     /// Specialization: to(string &)
@@ -280,13 +283,11 @@ public:
     template<> bool to<const char *>(const char *&Obj) const;
 #endif
 
-
     /// Read value into Obj; or use Default & return false if null
-    template<typename T> bool to(T &Obj, const T &Default) const	//[t12]
+    template<typename T> bool to(T &Obj, const T &Default) const		//[t12]
     {
       const bool NotNull = to(Obj);
-      if (!NotNull)
-	Obj = Default;
+      if (!NotNull) Obj = Default;
       return NotNull;
     }
 
@@ -310,11 +311,9 @@ public:
       return Obj;
     }
 
-    bool is_null() const { return home()->GetIsNull(idx(),col()); }	//[t12]
-
+    bool is_null() const { return home()->GetIsNull(idx(), col()); }	//[t12]
     size_type size() const throw ()					//[t11]
-    	{ return home()->GetLength(idx(),col()); }
-
+	{ return home()->GetLength(idx(),col()); }
     tuple::size_type num() const { return col(); }			//[t82]
 
 #ifdef PQXX_DEPRECATED_HEADERS
@@ -332,21 +331,26 @@ public:
     tuple::size_type m_col;
   };
 
+  typedef PGSTD::iterator<PGSTD::random_access_iterator_tag, 
+                           const tuple,
+                           result::difference_type,
+    			   const_iterator,
+    			   tuple> const_iterator_base;
+
   /// Iterator for rows (tuples) in a query result set.
   /** A result, once obtained, cannot be modified.  Therefore there is no
    * plain iterator type for result.  However its const_iterator type can be 
    * used to inspect its tuples without changing them.
    */
   class PQXX_LIBEXPORT const_iterator : 
-    public PGSTD::iterator<PGSTD::random_access_iterator_tag, 
-                         const tuple,
-                         result::size_type>, 
+    public const_iterator_base,
     public tuple
   {
   public:
+    typedef const tuple *pointer;
+    typedef tuple reference;
     typedef result::size_type size_type;
     typedef result::difference_type difference_type;
-    typedef result::const_reference const_reference;
 
     const_iterator() throw () : tuple(0,0) {}
     const_iterator(const tuple &t) throw () : tuple(t) {}
@@ -357,66 +361,139 @@ public:
      * hope this works out to be similar to C pointer/array semantics in useful 
      * cases[2].
      */
-    const tuple *operator->() const { return this; }			//[t12]
-    tuple operator*() const { return *this; }				//[t12]
+    pointer operator->() const { return this; }				//[t12]
+    reference operator*() const { return tuple(*this); }		//[t12]
 
     const_iterator operator++(int);					//[t12]
-    const_iterator &operator++() { ++m_Index; return *this; }		//[t1]
+    const_iterator &operator++() { ++m_Index; return *this; }	//[t1]
     const_iterator operator--(int);					//[t12]
-    const_iterator &operator--() { --m_Index; return *this; }		//[t12]
+    const_iterator &operator--() { --m_Index; return *this; }	//[t12]
 
     const_iterator &operator+=(difference_type i) 			//[t12]
-    	{ m_Index+=i; return *this; }
+	{ m_Index+=i; return *this; }
     const_iterator &operator-=(difference_type i) 			//[t12]
-    	{ m_Index-=i; return *this; }
+	{ m_Index-=i; return *this; }
 
     bool operator==(const const_iterator &i) const 			//[t12]
-    	{return m_Index==i.m_Index;}
+	{return m_Index==i.m_Index;}
     bool operator!=(const const_iterator &i) const 			//[t12]
-    	{return m_Index!=i.m_Index;}
+	{return m_Index!=i.m_Index;}
     bool operator<(const const_iterator &i) const   			//[t12]
-   	 {return m_Index<i.m_Index;}
+ 	{return m_Index<i.m_Index;}
     bool operator<=(const const_iterator &i) const 			//[t12]
-    	{return m_Index<=i.m_Index;}
+	{return m_Index<=i.m_Index;}
     bool operator>(const const_iterator &i) const   			//[t12]
-    	{return m_Index>i.m_Index;}
+	{return m_Index>i.m_Index;}
     bool operator>=(const const_iterator &i) const 			//[t12]
-    	{return m_Index>=i.m_Index;}
+	{return m_Index>=i.m_Index;}
 
     inline const_iterator operator+(difference_type) const;		//[t12]
-
-    friend const_iterator operator+(difference_type, const_iterator);	//[t12]
-
+    friend const_iterator
+    operator+(difference_type, const_iterator);			//[t12]
     inline const_iterator operator-(difference_type) const;		//[t12]
-
     inline difference_type operator-(const_iterator) const;		//[t12]
 
   private:
-    friend class result;
-    const_iterator(const result *r, result::size_type i) : tuple(r, i) {}
+    friend class pqxx::result;
+    const_iterator(const pqxx::result *r, result::size_type i) throw () :
+  	tuple(r, i) {}
+  };
+
+  class PQXX_LIBEXPORT const_reverse_iterator : private const_iterator
+  {
+  public:
+    typedef const_iterator iterator_type;
+    using iterator_type::iterator_category;
+    using iterator_type::value_type;
+    using iterator_type::difference_type;
+    using iterator_type::pointer;
+    using iterator_type::reference;
+    using iterator_type::operator=;
+
+    const_reverse_iterator(const const_reverse_iterator &rhs) :		//[t75]
+      const_iterator(rhs), m_tmp(rhs) {}
+    explicit const_reverse_iterator(const const_iterator &rhs) : 	//[t75]
+      const_iterator(rhs), m_tmp() {}
+
+    iterator_type base() const throw () { return *this; }		//[t75]
+
+    pointer operator->() const throw () 				//[t75]
+	{ m_tmp=*this; --m_tmp; return &m_tmp; }
+    reference operator*() const throw () { return *operator->(); }	//[t75]
+    const_reverse_iterator operator++()					//[t75]
+	{ iterator_type::operator--(); return *this; }
+    const_reverse_iterator operator++(int)				//[t75]
+    {
+      const const_reverse_iterator tmp(*this);
+      iterator_type::operator--();
+      return tmp;
+    }
+    const_reverse_iterator &operator--() 				//[t75]
+	{ iterator_type::operator++(); return *this; }
+    const_reverse_iterator operator--(int)				//[t75]
+    {
+      const_reverse_iterator tmp(*this);
+      iterator_type::operator++();
+      return tmp;
+    }
+    const_reverse_iterator operator+(difference_type i) const		//[t75]
+	{ return const_reverse_iterator(iterator_type(*this)-i); }
+    const_reverse_iterator &operator+=(difference_type i)		//[t75]
+	{ iterator_type::operator-=(i); return *this; }
+    const_reverse_iterator operator-(difference_type i)			//[t75]
+	{ return const_reverse_iterator(iterator_type(*this)+i); }
+    const_reverse_iterator &operator-=(difference_type i)		//[t75]
+	{ iterator_type::operator+=(i); return *this; }
+
+    using iterator_type::operator==;
+    using iterator_type::operator!=;
+    bool operator==(const const_reverse_iterator &rhs) const throw ()	//[t75]
+	{ return iterator_type::operator==(rhs); }
+    bool operator!=(const const_reverse_iterator &rhs) const throw ()	//[t75]
+	{ return !operator==(rhs); }
+
+    bool operator<(const const_reverse_iterator &rhs) const 		//[t75]
+	{ return iterator_type::operator>(rhs); }
+    bool operator<=(const const_reverse_iterator &rhs) const 		//[t75]
+	{ return iterator_type::operator>=(rhs); }
+    bool operator>(const const_reverse_iterator &rhs) const 		//[t75]
+	{ return iterator_type::operator<(rhs); }
+    bool operator>=(const const_reverse_iterator &rhs) const 		//[t75]
+	{ return iterator_type::operator<=(rhs); }
+    difference_type operator-(const const_reverse_iterator &rhs) const	//[t75]
+	{ return rhs.base() - base(); }
+
+  private:
+    /// Cached base iterator (workaround for operator-> problems)
+    /** Nasty.  Since operator-> needs to return a pointer to a temporary value,
+     * we need to keep that value somewhere.  We keep it here, which should be
+     * safe because of the language's rules about side effects and sequence
+     * points.  It does take up rarely used space though, which is too bad.
+     */
+    mutable iterator_type m_tmp;
   };
 
   class PQXX_LIBEXPORT const_fielditerator : 
     public PGSTD::iterator<PGSTD::random_access_iterator_tag, 
-                         const field,
-                         tuple::size_type>, 
+                           const field,
+                           tuple::size_type>, 
     public field
   {
     typedef PGSTD::iterator<PGSTD::random_access_iterator_tag,
-    				const field,
-				tuple::size_type> it;
+  				  const field,
+				  tuple::size_type> it;
   public:
+    using it::pointer;
     typedef tuple::size_type size_type;
     typedef tuple::difference_type difference_type;
-    typedef tuple::const_reference const_reference;
-    using it::pointer;
+    typedef field reference;
 
     const_fielditerator(const tuple &T, tuple::size_type C) throw () :	//[t82]
       field(T, C) {}
     const_fielditerator(const field &F) throw () : field(F) {}		//[t82]
 
     pointer operator->() const { return this; }				//[t82]
-    field operator*() const { return *this; }				//[t82]
+    reference operator*() const { return field(*this); }		//[t82]
 
     const_fielditerator operator++(int);				//[t82]
     const_fielditerator &operator++() { ++m_col; return *this; }	//[t82]
@@ -424,66 +501,150 @@ public:
     const_fielditerator &operator--() { --m_col; return *this; }	//[t82]
 
     const_fielditerator &operator+=(difference_type i) 			//[t82]
-    	{ m_col+=i; return *this; }
+	{ m_col+=i; return *this; }
     const_fielditerator &operator-=(difference_type i) 			//[t82]
-    	{ m_col-=i; return *this; }
+	{ m_col-=i; return *this; }
 
     bool operator==(const const_fielditerator &i) const 		//[t82]
-    	{return col()==i.col();}
+	{return col()==i.col();}
     bool operator!=(const const_fielditerator &i) const 		//[t82]
-    	{return col()!=i.col();}
+	{return col()!=i.col();}
     bool operator<(const const_fielditerator &i) const  		//[t82]
-   	 {return col()<i.col();}
+ 	{return col()<i.col();}
     bool operator<=(const const_fielditerator &i) const 		//[t82]
-    	{return col()<=i.col();}
+	{return col()<=i.col();}
     bool operator>(const const_fielditerator &i) const   		//[t82]
-    	{return col()>i.col();}
+	{return col()>i.col();}
     bool operator>=(const const_fielditerator &i) const 		//[t82]
-    	{return col()>=i.col();}
+	{return col()>=i.col();}
 
     inline const_fielditerator operator+(difference_type) const;	//[t82]
 
     friend const_fielditerator operator+(difference_type, 
-		    		    const_fielditerator);		//[t82]
+		    		          const_fielditerator);		//[t82]
 
     inline const_fielditerator operator-(difference_type) const;	//[t82]
-
     inline difference_type operator-(const_fielditerator) const;	//[t82]
   };
 
+  class PQXX_LIBEXPORT const_reverse_fielditerator : private const_fielditerator
+  {
+  public:
+    typedef const_fielditerator iterator_type;
+    using iterator_type::iterator_category;
+    using iterator_type::value_type;
+    using iterator_type::difference_type;
+    using iterator_type::pointer;
+    using iterator_type::reference;
+    using iterator_type::operator=;
 
-#ifdef PQXX_HAVE_REVERSE_ITERATOR
-  typedef PGSTD::reverse_iterator<const_iterator> const_reverse_iterator;
+    iterator_type base() const throw () { return *this; }		//[t82]
+    const_reverse_fielditerator(const const_reverse_fielditerator &rhs)	//[t82]
+      : const_fielditerator(rhs), m_tmp(rhs.m_tmp) {}
+    explicit
+      const_reverse_fielditerator(const const_fielditerator &rhs) :	//[t82]
+      const_fielditerator(rhs), m_tmp(rhs) {}
+
+    pointer operator->() const throw () 				//[t82]
+	{ m_tmp = *this; --m_tmp; return &m_tmp; }
+    reference operator*() const throw () { return *operator->(); }	//[t82]
+    const_reverse_fielditerator operator++()				//[t82]
+	{ iterator_type::operator--(); return *this; }
+    const_reverse_fielditerator operator++(int)				//[t82]
+    {
+      const const_reverse_fielditerator tmp(*this);
+      iterator_type::operator--();
+      return tmp;
+    }
+    const_reverse_fielditerator &operator--() 				//[t82]
+	{ iterator_type::operator++(); return *this; }
+    const_reverse_fielditerator operator--(int)				//[t82]
+    {
+      const_reverse_fielditerator tmp(*this);
+      iterator_type::operator++();
+      return tmp;
+    }
+    const_reverse_fielditerator operator+(difference_type i) const	//[t82]
+	{ return const_reverse_fielditerator(iterator_type(*this)-i); }
+    const_reverse_fielditerator &operator+=(difference_type i)		//[t82]
+	{ iterator_type::operator-=(i); return *this; }
+    const_reverse_fielditerator operator-(difference_type i)		//[t82]
+	{ return const_reverse_fielditerator(iterator_type(*this)+i); }
+    const_reverse_fielditerator &operator-=(difference_type i)		//[t82]
+	{ iterator_type::operator+=(i); return *this; }
+
+    using iterator_type::operator==;
+    using iterator_type::operator!=;
+    bool
+      operator==(const const_reverse_fielditerator &rhs) const throw ()	//[t82]
+	{ return iterator_type::operator==(rhs); }
+    bool
+      operator!=(const const_reverse_fielditerator &rhs) const throw ()	//[t82]
+	{ return !operator==(rhs); }
+
+
+    bool operator<(const const_reverse_fielditerator &rhs) const 	//[t82]
+	{ return iterator_type::operator>(rhs); }
+    bool operator<=(const const_reverse_fielditerator &rhs) const 	//[t82]
+	{ return iterator_type::operator>=(rhs); }
+    bool operator>(const const_reverse_fielditerator &rhs) const 	//[t82]
+	{ return iterator_type::operator<(rhs); }
+    bool operator>=(const const_reverse_fielditerator &rhs) const 	//[t82]
+	{ return iterator_type::operator<=(rhs); }
+    difference_type
+      operator-(const const_reverse_fielditerator &rhs) const		//[t82]
+	{ return rhs.base() - base(); }
+
+  private:
+    /// Cached base iterator (workaround for operator-> problems)
+    /** Nasty.  Since operator-> needs to return a pointer to a temporary value,
+     * we need to keep that value somewhere.  We keep it here, which should be
+     * safe because of the language's rules about side effects and sequence
+     * points.  It does take up rarely used space though, which is too bad.
+     */
+    mutable iterator_type m_tmp;
+  };
+
+
+  result() throw () : super() {}					//[t3]
+  result(const result &rhs) throw () : super(rhs) {}			//[t1]
+  
+  result &operator=(const result &rhs) throw ()				//[t10]
+  	{ super::operator=(rhs); return *this; }
+
+  bool operator==(const result &) const throw ();			//[t70]
+  bool operator!=(const result &rhs) const throw ()			//[t70]
+  	{ return !operator==(rhs); }
+
   const_reverse_iterator rbegin() const 				//[t75]
   	{ return const_reverse_iterator(end()); }
   const_reverse_iterator rend() const					//[t75]
    	{ return const_reverse_iterator(begin()); }
-#endif
 
   const_iterator begin() const throw ()					//[t1]
   	{ return const_iterator(this, 0); }
   inline const_iterator end() const throw ();				//[t1]
 
-  const_reference front() const throw () { return tuple(this,0); }	//[]
-  const_reference back() const throw () {return tuple(this,size()-1);}	//[]
+  reference front() const throw () { return tuple(this,0); }		//[t74]
+  reference back() const throw () {return tuple(this,size()-1);}	//[t75]
 
   size_type size() const throw ()					//[t2]
-  	{ return m_Result ? PQXXPQ::PQntuples(m_Result) : 0; }
+  	{ return c_ptr() ? PQXXPQ::PQntuples(c_ptr()) : 0; }
   bool empty() const							//[t11]
-  	{ return !m_Result || !PQXXPQ::PQntuples(m_Result); }
+  	{ return !c_ptr() || !PQXXPQ::PQntuples(c_ptr()); }
   size_type capacity() const throw () { return size(); }		//[t20]
 
-  void swap(result &other) throw ();					//[t77]
+  void swap(result &) throw ();						//[t77]
 
   const tuple operator[](size_type i) const throw () 			//[t2]
   	{ return tuple(this, i); }
   const tuple at(size_type) const throw (PGSTD::out_of_range);		//[t10]
 
-  void clear() throw () { LoseRef(); }					//[t20]
+  using super::clear;							//[t20]
 
   /// Number of columns in result
   tuple::size_type columns() const throw () 				//[t11]
-  	{ return PQnfields(m_Result); }
+  	{ return PQnfields(c_ptr()); }
 
   /// Number of given column (throws exception if it doesn't exist)
   tuple::size_type column_number(const char ColName[]) const;		//[t11]
@@ -496,9 +657,9 @@ public:
   const char *column_name(tuple::size_type Number) const;		//[t11]
 
   /// Type of given column
-  inline oid column_type(tuple::size_type ColNum) const;		//[]
+  inline oid column_type(tuple::size_type ColNum) const;		//[t7]
   /// Type of given column
-  inline oid column_type(int ColNum) const				//[]
+  inline oid column_type(int ColNum) const				//[t7]
   	{ return column_type(tuple::size_type(ColNum)); }
 
   /// Type of given column
@@ -511,9 +672,9 @@ public:
 
 #ifdef PQXX_HAVE_PQFTABLE
   /// Table that given column was taken from, if any
-  oid column_table(tuple::size_type ColNum) const;			//[]
+  oid column_table(tuple::size_type ColNum) const;			//[t2]
   /// Table that given column was taken from, if any
-  oid column_table(int ColNum) const					//[]
+  oid column_table(int ColNum) const					//[t2]
   	{ return column_table(tuple::size_type(ColNum)); } 
 
   /// Table that given column was taken from, if any
@@ -524,7 +685,7 @@ public:
   /// If command was INSERT of 1 row, return oid of inserted row
   /** Returns oid_none otherwise. 
    */
-  oid inserted_oid() const { return PQoidValue(m_Result); }		//[t13]
+  oid inserted_oid() const { return PQoidValue(c_ptr()); }		//[t13]
 
 
   /// If command was INSERT, UPDATE, or DELETE, return number of affected rows
@@ -545,44 +706,36 @@ public:
   tuple::size_type Columns() const { return columns(); }
   /// @deprecated Use column_number() instead
   tuple::size_type ColumnNumber(const char Name[]) const
-  	{return PQfnumber(m_Result,Name);}
+  	{return PQfnumber(c_ptr(),Name);}
   /// @deprecated Use column_number() instead
   tuple::size_type ColumnNumber(const PGSTD::string &Name) const
   	{return ColumnNumber(Name.c_str());}
   /// @deprecated Use column_name() instead
   const char *ColumnName(tuple::size_type Number) const
-  	{return PQfname(m_Result,Number);}
+  	{return PQfname(c_ptr(),Number);}
 #endif
 
 
 private:
-  internal::pq::PGresult *m_Result;
-  mutable const result *m_l, *m_r;
-
-  friend class result::field;
+  friend class pqxx::result::field;
   const char *GetValue(size_type Row, tuple::size_type Col) const;
   bool GetIsNull(size_type Row, tuple::size_type Col) const;
   field::size_type GetLength(size_type Row, tuple::size_type Col) const;
 
   friend class connection_base;
   friend class pipeline;
-  explicit result(internal::pq::PGresult *rhs) throw () : 
-    m_Result(0), m_l(this), m_r(this) {MakeRef(rhs);}
-  result &operator=(internal::pq::PGresult *) throw ();
-  bool operator!() const throw () { return !m_Result; }
-  operator bool() const throw () { return m_Result != 0; }
+  explicit result(PQXXPQ::PGresult *rhs) throw () : super(rhs) {}
+  result &operator=(PQXXPQ::PGresult *rhs) throw ()
+  	{ super::operator=(rhs); return *this; }
+  bool operator!() const throw () { return !c_ptr(); }
+  operator bool() const throw () { return c_ptr() != 0; }
   void CheckStatus(const PGSTD::string &Query) const;
   void CheckStatus(const char Query[]) const;
   int errorposition() const throw ();
   PGSTD::string StatusError() const;
 
   friend class Cursor;
-  const char *CmdStatus() const throw () { return PQcmdStatus(m_Result); }
-
-
-  void MakeRef(internal::pq::PGresult *) throw ();
-  void MakeRef(const result &) throw ();
-  void LoseRef() throw ();
+  const char *CmdStatus() const throw () { return PQcmdStatus(c_ptr()); }
 };
 
 
@@ -623,30 +776,6 @@ inline PGSTD::string to_string(const result::field &Obj)		//[t74]
 	{ return to_string(Obj.c_str()); }
 
 
-
-inline result::tuple::const_iterator
-result::tuple::begin() const throw ()
-	{ return tuple::const_iterator(*this, 0); }
-
-inline result::tuple::const_iterator
-result::tuple::end() const throw ()
-	{ return tuple::const_iterator(*this, size()); }
-
-inline result::field result::tuple::front() const throw ()
-  	{ return field(*this, 0); }
-inline result::field result::tuple::back() const throw ()
-	{ return field(*this, size()-1); }
-
-inline result::field 
-result::tuple::operator[](result::tuple::size_type i) const  throw ()
-	{ return field(*this, i); }
-
-inline result::tuple::size_type result::tuple::size() const throw ()
-	{ return m_Home->columns(); }
-
-inline const char *result::field::name() const 
-	{ return home()->column_name(col()); }
-
 /// Specialization: to(string &)
 template<> 
 inline bool result::field::to<PGSTD::string>(PGSTD::string &Obj) const
@@ -669,6 +798,11 @@ inline bool result::field::to<const char *>(const char *&Obj) const
 }
 
 
+inline result::tuple::const_reverse_iterator result::tuple::rbegin() const
+	{ return const_reverse_fielditerator(end()); }
+inline result::tuple::const_reverse_iterator result::tuple::rend() const
+	{ return const_reverse_fielditerator(begin()); }
+
 inline result::const_iterator 
 result::const_iterator::operator+(difference_type o) const
 {
@@ -676,8 +810,7 @@ result::const_iterator::operator+(difference_type o) const
 }
 
 inline result::const_iterator 
-operator+(result::const_iterator::difference_type o, 
-	  result::const_iterator i)
+operator+(result::const_iterator::difference_type o, result::const_iterator i)
 {
   return i + o;
 }
@@ -699,17 +832,13 @@ inline result::const_iterator result::end() const throw ()
   return const_iterator(this, size()); 
 }
 
-inline oid result::column_type(tuple::size_type ColNum) const
-{
-  const oid T = PQftype(m_Result, ColNum);
-  if (T == oid_none)
-    throw PGSTD::invalid_argument(
-		"Attempt to retrieve type of nonexistant column " +
-	        to_string(ColNum) + " "
-		"of query result");
-  return T;
-}
 
+inline result::const_reverse_iterator
+operator+(result::const_reverse_iterator::difference_type n,
+	  const result::const_reverse_iterator &i)
+{
+  return result::const_reverse_iterator(i.base() - n);
+}
 
 inline result::const_fielditerator 
 result::const_fielditerator::operator+(difference_type o) const
@@ -737,11 +866,23 @@ result::const_fielditerator::operator-(const_fielditerator i) const
 }
 
 
+inline oid result::column_type(tuple::size_type ColNum) const
+{
+  const oid T = PQftype(c_ptr(), ColNum);
+  if (T == oid_none)
+    throw PGSTD::invalid_argument(
+		"Attempt to retrieve type of nonexistant column " +
+	        to_string(ColNum) + " "
+		"of query result");
+  return T;
+}
+
+
 
 #ifdef PQXX_HAVE_PQFTABLE
 inline oid result::column_table(tuple::size_type ColNum) const
 {
-  const oid T = PQftable(m_Result, ColNum);
+  const oid T = PQftable(c_ptr(), ColNum);
 
   /* If we get oid_none, it may be because the column is computed, or because
    * we got an invalid row number.
