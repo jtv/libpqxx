@@ -18,8 +18,8 @@ Cursors
 (*) Splice out absolute positioning logic (requires serializable transaction!)
 (*) Splice out forward-only functionality
 (*) Provide iterator interface
-(*) Prepare for updateable cursors
-(*) Fix Visual C++ compile (?)
+(*) Investigate WITH HOLD feature (nontransaction cursors)
+(*) From 7.4, MOVE and FETCH will be much improved (PQcmdTuples()!)
 
 Documentation
 (*) Document migration procedures from libpq++
@@ -41,6 +41,7 @@ Results
 Streams
 (*) Provide metadata information in tablestream
 (*) Support column lists for COPY
+(*) Escape carriage returns in COPY
 (*) Allow single-level insertion with endt/endr manipulators
 
 Transactions
