@@ -1,5 +1,8 @@
 #! /bin/sh
 
+# Exit immediately if any command fails
+set -e
+
 echo "Cleaning up any garbage from previous failed test runs"
 psql $DBNAME -c "DELETE FROM events WHERE year=1977"
 echo

@@ -6,6 +6,8 @@
    - Moved NEWS over to ChangeLog
   News:
    - Created for more high-level changes
+  Selftest:
+   - Exits when any command fails
   Test4:
    - sleep() workaround for Windows, thanks Clinton James
 2002-03-27 01:00
