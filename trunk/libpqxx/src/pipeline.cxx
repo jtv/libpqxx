@@ -102,8 +102,8 @@ bool pqxx::pipeline::is_finished(query_id qid) const
 }
 
 
-pair<pqxx::pipeline::query_id, pqxx::result> 
-pqxx::pipeline::deliver(map<query_id, pqxx::result>::iterator i)
+pqxx::pipeline::ResultsMap::value_type
+pqxx::pipeline::deliver(ResultsMap::iterator i)
 {
   if (i == m_completed.end())
   {
@@ -117,7 +117,7 @@ pqxx::pipeline::deliver(map<query_id, pqxx::result>::iterator i)
 
   pair<query_id, result> out = *i;
   m_completed.erase(i);
-  const map<query_id, string>::iterator q = m_queries.find(out.first);
+  const QueryMap::iterator q = m_queries.find(out.first);
   if (q == m_queries.end())
     throw invalid_argument("Unknown query retrieved from pipeline");
 
@@ -151,7 +151,7 @@ pair<pqxx::pipeline::query_id, pqxx::result> pqxx::pipeline::retrieve()
 
 pqxx::result pqxx::pipeline::retrieve(pqxx::pipeline::query_id qid)
 {
-  map<query_id, result>::iterator c = m_completed.find(qid);
+  ResultsMap::iterator c = m_completed.find(qid);
   if (c == m_completed.end())
   {
     if (!m_sent.empty()) consumeresults();
@@ -206,7 +206,7 @@ void pqxx::pipeline::send_waiting()
 
   for (QueryQueue::const_iterator i=m_waiting.begin(); i!=m_waiting.end(); ++i)
   {
-    map<query_id, string>::const_iterator q = m_queries.find(*i);
+    QueryMap::const_iterator q = m_queries.find(*i);
     if (q == m_queries.end())
       throw logic_error("libpqxx internal error: unknown query issued");
     Cum += q->second;

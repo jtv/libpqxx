@@ -126,13 +126,17 @@ private:
   void send_waiting();
   /// Accept any received result sets and keep them until requested
   void consumeresults();
-  /// Check result for errors, remove it from internal state, and return it
-  PGSTD::pair<query_id, result> deliver(PGSTD::map<query_id, result>::iterator);
 
-  PGSTD::map<query_id, PGSTD::string> m_queries;
+  typedef PGSTD::map<query_id, result> ResultsMap;
+  typedef PGSTD::map<query_id, PGSTD::string> QueryMap;
   typedef PGSTD::deque<query_id> QueryQueue;
+
+  /// Check result for errors, remove it from internal state, and return it
+  ResultsMap::value_type deliver(ResultsMap::iterator);
+
+  QueryMap m_queries;
   QueryQueue m_waiting, m_sent;
-  PGSTD::map<query_id, result> m_completed;
+  ResultsMap m_completed;
   query_id m_nextid;
   bool m_retain;
   bool m_error;
