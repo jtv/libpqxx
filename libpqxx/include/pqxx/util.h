@@ -60,6 +60,7 @@ template<typename T> inline PGSTD::string ToString(const T &Obj)
 
 template<> inline PGSTD::string ToString(const PGSTD::string &Obj) {return Obj;}
 template<> inline PGSTD::string ToString(const char *const &Obj) { return Obj; }
+template<> inline PGSTD::string ToString(char *const &Obj) { return Obj; }
 
 template<> inline PGSTD::string ToString(const bool &Obj) 
 { 
