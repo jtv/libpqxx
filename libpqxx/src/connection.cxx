@@ -93,20 +93,6 @@ pqxx::Connection::Connection(const char ConnInfo[], bool Immediate) :
 }
 
 
-/*
-pqxx::Connection::Connection() :
-  m_ConnInfo(string()),
-  m_Conn(0),
-  m_Trans(),
-  m_NoticeProcessor(0),
-  m_NoticeProcessorArg(0),
-  m_Noticer(),
-  m_Trace(0)
-{
-}
-*/
-
-
 pqxx::Connection::~Connection()
 {
   if (m_Trans.get()) 
