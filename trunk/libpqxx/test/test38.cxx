@@ -64,7 +64,7 @@ int main(int, char *argv[])
 		          "for serious testing.  Sorry.");
 
     int GetRows = 3;
-    Cursor Cur(T, "SELECT * FROM pg_tables", "tablecur", GetRows);
+    Cursor Cur(T, ("SELECT * FROM " + Table).c_str(), "tablecur", GetRows);
     Cur >> R;
 
     if (R.size() > GetRows)
