@@ -700,7 +700,7 @@ void pqxx::connection_base::EndCopyWrite()
         break;
       default:
         throw logic_error("libpqxx internal error: "
-	    "unexpected result " + ToString(Res) + " from PQputCopyEnd()");
+	    "unexpected result " + to_string(Res) + " from PQputCopyEnd()");
     }
   } while (!Res);
 #else

@@ -63,8 +63,8 @@ int main(int argc, char *argv[])
       // Another sanity check on Cursor: must never return too many rows,
       // even though returning too few is permitted
       if (R.size() > abs(BlockSize))
-        throw logic_error("Cursor returned " + ToString(R.size()) + " rows, "
-			  "when " + ToString(abs(BlockSize)) + " "
+        throw logic_error("Cursor returned " + to_string(R.size()) + " rows, "
+			  "when " + to_string(abs(BlockSize)) + " "
 			  "was all I asked for!");
 
       // Process each successive result tuple
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
         c[0].to(N);
 
         // Dump tuple number and column 0 value to cout
-        cout << '\t' << ToString(c.num()) << '\t' << N << endl;
+        cout << '\t' << to_string(c.num()) << '\t' << N << endl;
       }
     }
 

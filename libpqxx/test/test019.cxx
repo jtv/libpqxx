@@ -68,8 +68,8 @@ int main(int, char *argv[])
     Cur >> R;
 
     if (R.size() > GetRows)
-      throw logic_error("Expected " + ToString(GetRows) + " rows, "
-		        "got " + ToString(R.size()));
+      throw logic_error("Expected " + to_string(GetRows) + " rows, "
+		        "got " + to_string(R.size()));
 
     if (R.size() < GetRows)
       cerr << "Warning: asked for " << GetRows << " rows, "
@@ -82,14 +82,14 @@ int main(int, char *argv[])
     // Now add one more
     R = Cur.Fetch(1);
     if (R.size() != 1)
-      throw logic_error("Asked for 1 row, got " + ToString(R.size()));
+      throw logic_error("Asked for 1 row, got " + to_string(R.size()));
     AddResult(FirstRows1, R);
 
     // Now see if that Fetch() didn't confuse our cursor's stride
     Cur >> R;
     if (R.size() != GetRows)
-      throw logic_error("Asked for " + ToString(GetRows) + " rows, "
-		        "got " + ToString(R.size()) + ". "
+      throw logic_error("Asked for " + to_string(GetRows) + " rows, "
+		        "got " + to_string(R.size()) + ". "
 			"Looks like Fetch() changed our cursor's stride!");
     AddResult(FirstRows1, R);
 
@@ -112,8 +112,8 @@ int main(int, char *argv[])
     DumpRows(FirstRows2);
 
     if (vector<string>::size_type(R.size()) != FirstRows1.size())
-      throw logic_error("I read " + ToString(FirstRows1.size()) + " rows, "
-		        "but I see " + ToString(R.size()) + " rows "
+      throw logic_error("I read " + to_string(FirstRows1.size()) + " rows, "
+		        "but I see " + to_string(R.size()) + " rows "
 			"when trying to read them backwards!");
 
     sort(FirstRows1.begin(), FirstRows1.end());
@@ -124,7 +124,7 @@ int main(int, char *argv[])
 
     R = Cur.Fetch(Cursor::NEXT());
     if (R.size() != 1) 
-      throw logic_error("NEXT: wanted 1 row, got " + ToString(R.size()));
+      throw logic_error("NEXT: wanted 1 row, got " + to_string(R.size()));
     const string Row = R[0][0].c_str();
 
     Cur += 3;
@@ -132,7 +132,7 @@ int main(int, char *argv[])
 
     R = Cur.Fetch(Cursor::PRIOR());
     if (R.size() != 1)
-      throw logic_error("PRIOR: wanted 1 row, got " + ToString(R.size()));
+      throw logic_error("PRIOR: wanted 1 row, got " + to_string(R.size()));
 
     if (R[0][0].c_str() != Row)
       throw logic_error("First row was '" + Row + "' going forward, "

@@ -38,7 +38,7 @@ pair<int,int> CountEvents(transaction_base &T)
   const string EventsQuery = "SELECT count(*) FROM " + Table;
   const string BoringQuery = EventsQuery + 
 		             " WHERE year=" + 
-			     ToString(BoringYear);
+			     to_string(BoringYear);
   int EventsCount = 0,
       BoringCount = 0;
 
@@ -58,7 +58,7 @@ pair<int,int> CountEvents(transaction_base &T)
 void Test(connection_base &C, bool ExplicitAbort)
 {
   vector<string> BoringTuple;
-  BoringTuple.push_back(ToString(BoringYear));
+  BoringTuple.push_back(to_string(BoringYear));
   BoringTuple.push_back("yawn");
 
   pair<int,int> EventCounts;
@@ -75,7 +75,7 @@ void Test(connection_base &C, bool ExplicitAbort)
 
     if (EventCounts.second)
       throw runtime_error("Can't run, year " +
-			  ToString(BoringYear) + " "
+			  to_string(BoringYear) + " "
 			  "is already in table " +
 			  Table);
 
@@ -88,7 +88,7 @@ void Test(connection_base &C, bool ExplicitAbort)
                 "but now it's '" + W.name() + "'");
 
       const string Literal = W.generate(BoringTuple);
-      const string Expected = ToString(BoringYear) + "\t" + BoringTuple[1];
+      const string Expected = to_string(BoringYear) + "\t" + BoringTuple[1];
       if (Literal != Expected)
 	throw logic_error("tablewriter writes new tuple as '" +
 			  Literal + "', "
@@ -101,17 +101,17 @@ void Test(connection_base &C, bool ExplicitAbort)
     const pair<int,int> Recount = CountEvents(Doomed);
     if (Recount.second != 1)
       throw runtime_error("Expected to find one event for " +
-			  ToString(BoringYear) + ", "
+			  to_string(BoringYear) + ", "
 			  "found " + 
-			  ToString(Recount.second));
+			  to_string(Recount.second));
 
     if (Recount.first != EventCounts.first+1)
       throw runtime_error("Number of events changed from " + 
-			  ToString(EventCounts.first) + " "
+			  to_string(EventCounts.first) + " "
 			  "to " +
-			  ToString(Recount.first) + "; "
+			  to_string(Recount.first) + "; "
 			  "expected " +
-			  ToString(EventCounts.first + 1));
+			  to_string(EventCounts.first + 1));
 
     // Okay, we've added an entry but we don't really want to.  Abort it
     // explicitly if requested, or simply let the Transaction object "expire."
@@ -128,17 +128,17 @@ void Test(connection_base &C, bool ExplicitAbort)
   const pair<int,int> NewEvents = CountEvents(Checkup);
   if (NewEvents.first != EventCounts.first)
     throw runtime_error("Number of events changed from " + 
-		        ToString(EventCounts.first) + " "
+		        to_string(EventCounts.first) + " "
 			"to " +
-			ToString(NewEvents.first) + "; "
+			to_string(NewEvents.first) + "; "
 			"this may be due to a bug in libpqxx, or the table "
 			"was modified by some other process.");
 
   if (NewEvents.second)
     throw runtime_error("Found " +
-		        ToString(NewEvents.second) + " "
+		        to_string(NewEvents.second) + " "
 			"events in " +
-			ToString(BoringYear) + "; "
+			to_string(BoringYear) + "; "
 			"wasn't expecting any.  This may be due to a bug in "
 			"libpqxx, or the table was modified by some other "
 			"process.");

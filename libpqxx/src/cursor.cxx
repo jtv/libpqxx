@@ -32,7 +32,7 @@ void pqxx::Cursor::init(const string &BaseName, const char Query[])
   m_Name += "\"" + 
             BaseName + "_" + 
 	    m_Trans.name() + "_" + 
-	    ToString(m_Trans.GetUniqueCursorNum()) +
+	    to_string(m_Trans.GetUniqueCursorNum()) +
 	    "\"";
 
   m_Trans.Exec("DECLARE " + m_Name + " SCROLL CURSOR FOR " + Query);
@@ -117,8 +117,8 @@ pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
     throw logic_error("libpqxx internal error: Negative rowcount");
   if (Actual > labs(Intended))
     throw logic_error("libpqxx internal error: Moved/fetched too many rows "
-	              "(wanted " + ToString(Intended) + ", "
-		      "got " + ToString(Actual) + ")");
+	              "(wanted " + to_string(Intended) + ", "
+		      "got " + to_string(Actual) + ")");
 
   size_type Offset = Actual;
 
@@ -234,7 +234,7 @@ string pqxx::Cursor::OffsetString(size_type Count)
   if (Count == ALL()) return "ALL";
   else if (Count == BACKWARD_ALL()) return "BACKWARD ALL";
 
-  return ToString(Count);
+  return to_string(Count);
 }
 
 

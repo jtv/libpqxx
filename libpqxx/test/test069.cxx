@@ -23,14 +23,14 @@ void TestPipeline(pipeline &P, int numqueries)
     for (int i=numqueries; i; --i)
     {
       if (P.empty()) 
-	throw logic_error("Got " + ToString(numqueries-i) + " "
-	    "results from pipeline; expected " + ToString(numqueries));
+	throw logic_error("Got " + to_string(numqueries-i) + " "
+	    "results from pipeline; expected " + to_string(numqueries));
 
       pair<pipeline::query_id, result> R = P.retrieve();
 
       cout << "Query #" << R.first << ": " << R.second.at(0).at(0) << endl;
       if (res && (R.second[0][0].as<int>() != res))
-	throw logic_error("Expected " + ToString(res) + " out of pipeline, "
+	throw logic_error("Expected " + to_string(res) + " out of pipeline, "
 	    "got " + R.second[0][0].c_str());
       res = R.second[0][0].as<int>();
     }

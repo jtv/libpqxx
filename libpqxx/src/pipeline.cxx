@@ -164,7 +164,7 @@ pqxx::result pqxx::pipeline::retrieve(pqxx::pipeline::query_id qid)
     {
       if (m_queries.find(qid) == m_queries.end())
         throw logic_error("Attempt to retrieve result for unknown query " +
-		ToString(qid) + " from pipeline");
+		to_string(qid) + " from pipeline");
     }
   }
 
@@ -246,8 +246,8 @@ void pqxx::pipeline::consumeresults()
 
   if (R_size > sentsize+1)
     throw logic_error("libpqxx internal error: "
-	              "expected " + ToString(sentsize) + " results "
-		      "from pipeline, got " + ToString(R_size));
+	              "expected " + to_string(sentsize) + " results "
+		      "from pipeline, got " + to_string(R_size));
 
   if ((R_size == 1) && (sentsize > 1))
   {

@@ -150,7 +150,7 @@ inline PGSTD::string tablewriter::EscapeAny(const char t[]) const
 template<typename T> inline PGSTD::string
 tablewriter::EscapeAny(const T &t) const
 {
-  return EscapeAny(ToString(t));
+  return EscapeAny(to_string(t));
 }
 
 

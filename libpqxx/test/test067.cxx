@@ -63,14 +63,14 @@ int main(int argc, char *argv[])
     {
       if ((*i).rownumber() != i->rownumber())
 	throw logic_error("Inconsistent rows: operator*() says " + 
-			  ToString((*i).rownumber()) + ", "
+			  to_string((*i).rownumber()) + ", "
 			  "operator->() says " +
-			  ToString(i->rownumber()));
+			  to_string(i->rownumber()));
 
       if (i->size() != R.columns())
-	throw logic_error("Row claims to have " + ToString(i->size()) + " "
+	throw logic_error("Row claims to have " + to_string(i->size()) + " "
 			  "fields, but result claims to have " +
-			  ToString(R.columns()) + " columns!");
+			  to_string(R.columns()) + " columns!");
 
       // Look for null fields
       for (result::tuple::size_type f=0; f<i->size(); ++f)
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 	// their interrelationship...
 	if ((i - j) != 1)
 	  throw logic_error("Difference between iterator and successor is " +
-			    ToString(j-i));
+			    to_string(j-i));
 
 	if ((j == i) || !(j != i) || 
 	    (j >= i) || (j > i) ||
@@ -141,12 +141,12 @@ int main(int argc, char *argv[])
     }
 
     // Now report on what we've found
-    cout << "Read " << ToString(R.size()) << " rows." << endl;
+    cout << "Read " << to_string(R.size()) << " rows." << endl;
     cout << "Field \t Field Name\t Nulls\t Sorted" << endl;
 
     for (result::tuple::size_type f = 0; f < R.columns(); ++f)
     {
-      cout << ToString(f) << ":\t"
+      cout << to_string(f) << ":\t"
 	   << R.column_name(f) << '\t'
 	   << NullFields[f] << '\t'
 	   << (SortedUp[f] ? 

@@ -397,14 +397,14 @@ protected:
 			   openmode mode)
   {
     if (mode != SEEK_CUR)
-      throw PGSTD::logic_error("Offset "+ToString(int(mode))+" in seekoff()");
+      throw PGSTD::logic_error("Offset "+to_string(int(mode))+" in seekoff()");
     return AdjustEOF(m_Obj.cseek(offset, dir));
   }
 
   virtual pos_type seekpos(pos_type pos, openmode mode)
   {
     if (mode != SEEK_SET)
-      throw PGSTD::logic_error("Offset "+ToString(int(mode))+" in seekpos()");
+      throw PGSTD::logic_error("Offset "+to_string(int(mode))+" in seekpos()");
     return AdjustEOF(m_Obj.cseek(pos, PGSTD::ios::beg));
   }
 

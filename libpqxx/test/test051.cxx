@@ -37,12 +37,12 @@ public:
     largeobjectaccess::size_type Offset = A.seek(0, ios::beg);
     if (Offset != 0)
       throw logic_error("After seeking to start of large object, "
-	                "seek() returned " + ToString(Offset));
+	                "seek() returned " + to_string(Offset));
 
     largeobjectaccess::size_type Read = A.read(Buf, Size);
     if (Read > Size)
-      throw logic_error("Tried to read " + ToString(Size) + " bytes "
-	                "from large object, got " + ToString(Read));
+      throw logic_error("Tried to read " + to_string(Size) + " bytes "
+	                "from large object, got " + to_string(Read));
 
     Buf[Read] = '\0';
     if (Contents != Buf)
@@ -53,7 +53,7 @@ public:
     Offset = A.seek(-Read, ios::end);
     if (Offset != 0)
       throw logic_error("Tried to seek back to beginning, got " +
-	                ToString(Offset));
+	                to_string(Offset));
 
     A.write(Buf, Read);
     A.seek(0, ios::beg);

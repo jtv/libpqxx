@@ -33,7 +33,7 @@ public:
     Buf[A.read(Buf, sizeof(Buf)-1)] = '\0';
     if (Contents != Buf)
       throw runtime_error("Expected large object #" + 
-	                  ToString(m_Object.id()) + " "
+	                  to_string(m_Object.id()) + " "
 			  "to contain '" + Contents + "', "
 			  "but found '" + Buf + "'");
   }

@@ -32,17 +32,17 @@ int main(int, char *argv[])
     vector<string> contents;
     for (result::const_iterator i=R.begin(); i!=R.end(); ++i)
       contents.push_back(i->at(0).as<string>());
-    cout << ToString(contents.size()) << " years read" << endl;
+    cout << to_string(contents.size()) << " years read" << endl;
 
     if (contents.size() != vector<string>::size_type(R.size()))
-      throw logic_error("Got " + ToString(contents.size()) + " values "
-	  "out of result with size " + ToString(R.size()));
+      throw logic_error("Got " + to_string(contents.size()) + " values "
+	  "out of result with size " + to_string(R.size()));
 
     for (result::size_type i=0; i<R.size(); ++i)
       if (contents[i] != R.at(i).at(0).c_str())
 	throw logic_error("Inconsistent iteration: '" + contents[i] + "' "
 	    "became '" + R[i][0].as<string>());
-    cout << ToString(R.size()) << " years checked" << endl;
+    cout << to_string(R.size()) << " years checked" << endl;
 
 #ifdef PQXX_HAVE_REVERSE_ITERATOR
     // Now verify that reverse iterator also sees the same results...

@@ -41,13 +41,13 @@ int main(int, char *argv[])
       cachedresult CR(T, Query, "cachedresult", BlockSize);
       const cachedresult::size_type CRS = CR.size();
       if (CRS != R.size())
-	throw logic_error("BlockSize " + ToString(BlockSize) + ": "
-	                  "Expected " + ToString(R.size()) + " rows, "
-			  "got " + ToString(CRS));
+	throw logic_error("BlockSize " + to_string(BlockSize) + ": "
+	                  "Expected " + to_string(R.size()) + " rows, "
+			  "got " + to_string(CRS));
       if (CR.size() != CRS)
-	throw logic_error("BlockSize " + ToString(BlockSize) + ": "
-	                  "Inconsistent size (" + ToString(CRS) + " vs. " +
-			  ToString(CR.size()) + ")");
+	throw logic_error("BlockSize " + to_string(BlockSize) + ": "
+	                  "Inconsistent size (" + to_string(CRS) + " vs. " +
+			  to_string(CR.size()) + ")");
 
       // Compare contents for CR with R
       for (result::size_type i = 0; i < R.size(); ++i)
@@ -56,8 +56,8 @@ int main(int, char *argv[])
 	R.at(i).at(0).to(A);
 	CR.at(i).at(0).to(B);
 	if (A != B)
-	  throw logic_error("BlockSize " + ToString(BlockSize) + ", "
-	                    "row " + ToString(i) + ": "
+	  throw logic_error("BlockSize " + to_string(BlockSize) + ", "
+	                    "row " + to_string(i) + ": "
 			    "Expected '" + A + "', "
 			    "got '" + B + "'");
       }
@@ -79,9 +79,10 @@ int main(int, char *argv[])
 	}
       }
       if (CR2.size() != CRS)
-	throw logic_error("BlockSize " + ToString(BlockSize) + ": "
+	throw logic_error("BlockSize " + to_string(BlockSize) + ": "
 	                  "Inconsistent discovered size (" + 
-			  ToString(CR2.size()) + " vs. " + ToString(CRS) + ")");
+			  to_string(CR2.size()) + " vs. " + 
+			  to_string(CRS) + ")");
     }
   }
   catch (const sql_error &e)

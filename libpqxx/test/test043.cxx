@@ -30,8 +30,8 @@ namespace
 void ExpectPos(Cursor &C, Cursor::size_type Pos)
 {
   if (C.Pos() != Pos)
-    throw logic_error("Expected to find cursor at " + ToString(Pos) + ", "
-	              "got " + ToString(C.Pos()));
+    throw logic_error("Expected to find cursor at " + to_string(Pos) + ", "
+	              "got " + to_string(C.Pos()));
 }
 
 
@@ -40,9 +40,9 @@ void MoveTo(Cursor &C, Cursor::size_type N, Cursor::size_type NewPos)
   const result::size_type OldPos = C.Pos();
   const result::size_type Dist = C.Move(N);
   if (OldPos + Dist != NewPos)
-    throw logic_error("Inconsistent move: " + ToString(Dist) + " rows "
-	              "from " + ToString(OldPos) + " "
-		      "got us to " + ToString(NewPos));
+    throw logic_error("Inconsistent move: " + to_string(Dist) + " rows "
+	              "from " + to_string(OldPos) + " "
+		      "got us to " + to_string(NewPos));
   ExpectPos(C, NewPos);
 }
 
@@ -74,8 +74,8 @@ int main(int, char *argv[])
     ExpectPos(Cur, GetRows);
 
     if (R.size() != GetRows)
-      throw logic_error("Expected " + ToString(GetRows) + " rows, "
-		        "got " + ToString(R.size()));
+      throw logic_error("Expected " + to_string(GetRows) + " rows, "
+		        "got " + to_string(R.size()));
 
     // Move cursor 1 step forward to make subsequent backwards fetch include
     // current row
@@ -85,7 +85,7 @@ int main(int, char *argv[])
 
     R = Cur.Fetch(Cursor::NEXT());
     if (R.size() != 1) 
-      throw logic_error("NEXT: wanted 1 row, got " + ToString(R.size()));
+      throw logic_error("NEXT: wanted 1 row, got " + to_string(R.size()));
     ExpectPos(Cur, 1);
 
     MoveTo(Cur, 3, 4);
@@ -93,7 +93,7 @@ int main(int, char *argv[])
 
     R = Cur.Fetch(Cursor::PRIOR());
     if (R.size() != 1)
-      throw logic_error("PRIOR: wanted 1 row, got " + ToString(R.size()));
+      throw logic_error("PRIOR: wanted 1 row, got " + to_string(R.size()));
     ExpectPos(Cur, 1);
 
     MoveTo(Cur, 5, 6);

@@ -72,9 +72,9 @@ public:
     m_Done = true;
     if (be_pid != Backend_PID)
       throw logic_error("Expected notification from backend process " +
-		        ToString(Backend_PID) +
+		        to_string(Backend_PID) +
 			", but got one from " +
-			ToString(be_pid));
+			to_string(be_pid));
 
     cout << "Received notification: " << name() << " pid=" << be_pid << endl;
   }

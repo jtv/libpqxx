@@ -1,3 +1,14 @@
+2004-03-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/largeobject.hxx, include/pqxx/result.hxx,
+ include/pqxx/tablewriter.hxx, src/binarystring.cxx, src/connection_base.cxx,
+ src/cursor.cxx, src/largeobject.cxx, src/pipeline.cxx, src/result.cxx,
+ src/robusttransaction.cxx, test/test*.cxx:
+  - Replaced ToString() calls with to_string() (and same for FromString etc)
+2004-03-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx, src/util.cxx:
+  - Implemented to_string() functions to replace ToString()
+ tools/Makefile.am
+  - rmlo and pqxxbench still built, but not installed; thanks Markus Bertheau
 2004-03-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cachedresult.h, include/pqxx/cursor.h:
   - Added "@deprecated" doxygen tag to classes

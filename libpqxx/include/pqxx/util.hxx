@@ -59,6 +59,19 @@ const oid oid_none = InvalidOid;
 template<typename T> void error_unsupported_type_in_string_conversion(T);
 
 
+/// Dummy name, used to generate meaningful link errors
+/** If you get a link error naming this function, this means that your program
+ * includes a string conversion involving a signed or unsigned char type.  The
+ * problem with such conversions is that they are ambiguous: do you want to 
+ * treat the char type as a small numeric type, or as a character type like 
+ * plain char?
+ */
+template<typename T> PGSTD::string error_ambiguous_string_conversion(T);
+
+
+
+// TODO: Implement date conversions
+
 /// Attempt to convert postgres-generated string to given built-in type
 /** If the form of the value found in the string does not match the expected 
  * type, e.g. if a decimal point is found when converting to an integer type,
@@ -93,6 +106,45 @@ template<> inline void
 from_string(const PGSTD::string &Str, PGSTD::string &Obj) 		//[]
 	{ Obj = Str; }
 
+template<> inline void
+from_string(const PGSTD::string &, const signed char &Obj)
+	{ error_ambiguous_string_conversion(Obj); }
+template<> inline void
+from_string(const PGSTD::string &, const unsigned char &Obj)
+	{ error_ambiguous_string_conversion(Obj); }
+
+
+/// Convert built-in type to a readable string that PostgreSQL will understand
+/** No special formatting is done, and any locale settings are ignored.  The
+ * resulting string will be human-readable and in a format suitable for use in
+ * SQL queries.
+ */
+template<typename T> PGSTD::string to_string(const T &);		//[]
+
+template<> PGSTD::string to_string(const short &);			//[]
+template<> PGSTD::string to_string(const unsigned short &);		//[]
+template<> PGSTD::string to_string(const int &);			//[]
+template<> PGSTD::string to_string(const unsigned int &);		//[]
+template<> PGSTD::string to_string(const long &);			//[]
+template<> PGSTD::string to_string(const unsigned long &);		//[]
+template<> PGSTD::string to_string(const float &);			//[]
+template<> PGSTD::string to_string(const double &);			//[]
+template<> PGSTD::string to_string(const long double &);		//[]
+template<> PGSTD::string to_string(const bool &);			//[]
+
+inline PGSTD::string to_string(const char Obj[]) 			//[]
+	{ return PGSTD::string(Obj); }
+
+inline PGSTD::string to_string(const PGSTD::string &Obj) {return Obj;}	//[]
+
+template<> PGSTD::string to_string(const char &);			//[]
+
+template<> inline PGSTD::string to_string(const signed char &Obj)
+	{ return error_ambiguous_string_conversion(Obj); }
+template<> inline PGSTD::string to_string(const unsigned char &Obj)
+	{ return error_ambiguous_string_conversion(Obj); }
+
+
 
 /// Private namespace for libpqxx's internal use; do not access
 /** This namespace hides definitions internal to libpqxx.  These are not 
@@ -103,7 +155,8 @@ from_string(const PGSTD::string &Str, PGSTD::string &Obj) 		//[]
 namespace internal
 {
 /// C-style format strings for various built-in types
-/** Only allowed for certain types, for which this function is explicitly 
+/** @deprecated To be removed when ToString and FromString are taken out
+ * Only allowed for certain types, for which this function is explicitly 
  * specialized.  When attempting to use the template for an unsupported type,
  * the generic version will be instantiated.  This will result in a link error
  * for the symbol error_unsupported_type_in_string_conversion(), with a template
@@ -130,12 +183,13 @@ template<> inline const char *FmtString(unsigned char) { return  "%c"; }
 } // namespace internal
 
 /// Convert object of built-in type to string
-/** Caution: the conversion is done using the currently active locale, whereas
+/** @deprecated Use the newer, rewritten to_string instead.
+ * @warning The conversion is done using the currently active locale, whereas
  * PostgreSQL expects values in the "default" (C) locale.  This means that if
  * you intend to use this function from a locale that renders the data types in
  * question (particularly numeric types like float and int) differently from the
  * C default, you'll need to switch back to the C locale before the call.
- * This should be fixed at some point in the future.
+ * This problem does not exist with the newer to_string function template.
  */
 template<typename T> inline PGSTD::string ToString(const T &Obj)
 {
@@ -145,7 +199,6 @@ template<typename T> inline PGSTD::string ToString(const T &Obj)
   return PGSTD::string(Buf);
 }
 
-// TODO: Implement date conversions
 
 template<> inline PGSTD::string ToString(const PGSTD::string &Obj) {return Obj;}
 template<> inline PGSTD::string ToString(const char *const &Obj) { return Obj; }
@@ -173,14 +226,13 @@ template<> inline PGSTD::string ToString(const unsigned short &Obj)
 
 
 /// Convert string to object of built-in type
-/** Caution: the conversion is done using the currently active locale, whereas
+/** @deprecated Use the stricter, safer from_string instead.
+ * @warning The conversion is done using the currently active locale, whereas
  * PostgreSQL delivers values in the "default" (C) locale.  This means that if
  * you intend to use this function from a locale that doesn't understand the 
  * data types in question (particularly numeric types like float and int) in
  * default C format, you'll need to switch back to the C locale before the call.
- * This should be fixed at some point in the future.
- * @deprecated Use from_string instead, which is stricter but does not have the
- * locale problem.
+ * This problem does not exist with the newer from_string function template.
  */
 template<typename T> inline void FromString(const char Str[], T &Obj)
 {
@@ -197,9 +249,13 @@ template<typename T> inline void FromString(const char Str[], T &Obj)
 namespace internal
 {
 /// For libpqxx internal use only: convert C string to C++ string
+/** @deprecated To be removed when FromString is taken out
+ */
 void PQXX_LIBEXPORT FromString_string(const char Str[], PGSTD::string &Obj);
 
 /// For libpqxx internal use only: convert unsigned char * to C++ string
+/** @deprecated To be removed when FromString is taken out
+ */
 void PQXX_LIBEXPORT FromString_ucharptr(const char Str[], 
     	const unsigned char *&Obj);
 
@@ -233,6 +289,7 @@ template<> inline void FromString(const char Str[], bool &Obj)
   from_string(Str, Obj);
 }
 
+// TODO: Replace with sqlesc() and quote()
 
 /// Quote string for use in SQL
 /** Generate SQL-quoted version of string.  If EmptyIsNull is set, an empty
@@ -268,9 +325,10 @@ template<int LEN> inline PGSTD::string Quote(const char (&Obj)[LEN],
 }
 
 
-/// Generic version: generate SQL-quoted version of object.  If EmptyIsNull is
-/// set, an empty string will generate the null value rather than an empty 
-/// string.
+/** Generic version: generate SQL-quoted version of object.  If EmptyIsNull is
+ * set, an empty string will generate the null value rather than an empty 
+ * string.
+ */
 template<typename T> inline PGSTD::string Quote(const T &Obj, bool EmptyIsNull)
 {
   return Quote(ToString(Obj), EmptyIsNull);

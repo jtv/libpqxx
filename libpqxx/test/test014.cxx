@@ -58,9 +58,9 @@ int main(int, char *argv[])
 		     "database=" + C.dbname() + ", "
 		     "username=" + C.username() + ", "
 		     "hostname=" + HostName + ", "
-		     "port=" + ToString(C.port()) + ", "
+		     "port=" + to_string(C.port()) + ", "
 		     "options='" + C.options() + "', "
-		     "backendpid=" + ToString(C.backendpid()) + "\n");
+		     "backendpid=" + to_string(C.backendpid()) + "\n");
 
     // Begin a "non-transaction" acting on our current connection.  This is
     // really all the transactional integrity we need since we're only 
@@ -76,7 +76,7 @@ int main(int, char *argv[])
     result R( T.exec("SELECT * FROM pg_tables") );
 
     // Give some feedback to the test program's user prior to the real work
-    T.process_notice(ToString(R.size()) + " "
+    T.process_notice(to_string(R.size()) + " "
 		    "result tuples in transaction " +
 		    T.name() +
 		    "\n");
@@ -86,7 +86,7 @@ int main(int, char *argv[])
       string N;
       c[0].to(N);
 
-      cout << '\t' << ToString(c.num()) << '\t' << N << endl;
+      cout << '\t' << to_string(c.num()) << '\t' << N << endl;
     }
 
     // "Commit" the non-transaction.  This doesn't really do anything since

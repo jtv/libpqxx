@@ -42,10 +42,10 @@ int main(int argc, char *argv[])
     // Verify our start condition before beginning: there must not be a 1977
     // record already.
     result R( T1.exec("SELECT * FROM " + Table + " "
-	              "WHERE year=" + ToString(BoringYear)) );
+	              "WHERE year=" + to_string(BoringYear)) );
     if (R.size() != 0)
       throw runtime_error("There is already a record for " + 
-	                  ToString(BoringYear) + ". "
+	                  to_string(BoringYear) + ". "
 		          "Can't run test.");
 
     // (Not needed, but verify that clear() works on empty containers)
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     // OK.  Having laid that worry to rest, add a record for 1977.
     T1.exec("INSERT INTO " + Table + " VALUES"
             "(" +
-	    ToString(BoringYear) + ","
+	    to_string(BoringYear) + ","
 	    "'Yawn'"
 	    ")");
 
@@ -68,11 +68,11 @@ int main(int argc, char *argv[])
     // Verify that our record was added, despite the Abort()
     nontransaction T2(C, "T2");
     R = T2.exec("SELECT * FROM " + Table + " "
-		"WHERE year=" + ToString(BoringYear));
+		"WHERE year=" + to_string(BoringYear));
     if (R.size() != 1)
       throw runtime_error("Expected to find 1 record for " + 
-		          ToString(BoringYear) + ", found " +
-			  ToString(R.size()) + ". "
+		          to_string(BoringYear) + ", found " +
+			  to_string(R.size()) + ". "
 			  "This could be a bug in libpqxx, "
 			  "or something else modified the table.");
 
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 
     // Now remove our record again
     T2.exec("DELETE FROM " + Table + " "
-	    "WHERE year=" + ToString(BoringYear));
+	    "WHERE year=" + to_string(BoringYear));
 
     T2.commit();
 
@@ -93,10 +93,10 @@ int main(int argc, char *argv[])
     nontransaction T3(C, "T3");
 
     R = T3.exec("SELECT * FROM " + Table + " "
-	        "WHERE year=" + ToString(BoringYear));
+	        "WHERE year=" + to_string(BoringYear));
     if (R.size() != 0)
-      throw runtime_error("Expected record for " + ToString(BoringYear) + " "
-		          "to be gone but found " + ToString(R.size()) + ". "
+      throw runtime_error("Expected record for " + to_string(BoringYear) + " "
+		          "to be gone but found " + to_string(R.size()) + ". "
 			  "This could be a bug in libpqxx, "
 			  "or something else modified the table.");
   }

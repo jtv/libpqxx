@@ -35,7 +35,7 @@ int main(int, char *argv[])
       string N;
       c[0].to(N);
 
-      cout << '\t' << ToString(c.num()) << '\t' << N << endl;
+      cout << '\t' << to_string(c.num()) << '\t' << N << endl;
     }
 
     // "Commit" the non-transaction.  This doesn't really do anything since
