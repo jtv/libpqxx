@@ -4,7 +4,7 @@
 
 set -e
 
-# Run in most basic of locals to avoid performance overhead (and risk of bugs)
+# Run in most basic of locales to avoid performance overhead (and risk of bugs)
 # involved in localization, encoding issues etc.  We only do ASCII here.
 export LC_ALL=C
 
