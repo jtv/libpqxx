@@ -14,8 +14,7 @@ nodist_noinst_HEADERS = \
 	config-internal-libpq.h
 
 nodist_include_HEADERS = \
-	config-public-compiler.h \
-	config-public-libpq.h
+	config-public-compiler.h
 
 include_HEADERS= pqxx all.h \
 	binarystring binarystring.hxx \

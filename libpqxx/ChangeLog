@@ -1,3 +1,10 @@
+2005-02-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, config/sample-headers/libpq/7.4/config-internal-libpq.h,
+ config/sample-headers/libpq/8.0/config-public-libpq.h,
+ include/pqxx/Makefile.am, include/pqxx/util.hxx, test/test002.cxx:
+  - Made PQXX_HAVE_PQFTABLE an internal config item
+  - Removed config-public-libpq.h
+  - Trying to use unavailable PQftable() now gives link error
 2005-02-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test058.cxx:
   - Work around another Visual C++ bug, thanks Christian Nettesheim

@@ -16,7 +16,6 @@
  *-------------------------------------------------------------------------
  */
 #include "pqxx/libcompiler.h"
-#include "pqxx/config-public-libpq.h"
 
 #include <cstdio>
 #include <cctype>
