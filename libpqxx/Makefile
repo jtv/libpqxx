@@ -66,8 +66,11 @@ LIBOBJS=connection.o cursor.o nontransaction.o result.o robusttransaction.o \
 
 .PHONY: all clean distclean dist check
 
-vpath %.cc src test
+vpath %.cxx src test
 vpath %.o obj
+
+%.o : %.cxx
+	$(CXX) -c $< $(CPPFLAGS) $(CXXFLAGS)
 
 all: $(EXECS)
 
