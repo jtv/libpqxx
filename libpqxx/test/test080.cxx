@@ -32,7 +32,8 @@ int main(int, char *argv[])
     const string Table = "pqxxevents";
     
     items<> Columns("year","event");
-    items<> RevColumns("event","year");
+    items<> RevColumns;
+    RevColumns("event")("year");
 
     connection C(argv[1]);
     nontransaction T(C);

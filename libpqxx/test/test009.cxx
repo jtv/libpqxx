@@ -106,7 +106,9 @@ int main(int argc, char *argv[])
     work T(C, "test9");
 
     // Create table.  If the table already existed, better to fail now.
-    T.exec(("CREATE TABLE " + TableName + "(" + Column + " VARCHAR)").c_str());
+    stringstream ctq;
+    ctq << "CREATE TABLE " << TableName << '(' << Column << " VARCHAR)";
+    T.exec(ctq);
 
     FillTable(T, TableName, Column);
     CheckTable(T, TableName);
