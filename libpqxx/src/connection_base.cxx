@@ -375,7 +375,7 @@ void pqxx::connection_base::RemoveTrigger(pqxx::trigger *T) throw ()
     else
     {
       if (m_Conn && (R.second == ++R.first))
-	result(PQexec(m_Conn,("UNLISTEN \"" + T->name() + "\"").c_str()));
+	Exec(("UNLISTEN \"" + T->name() + "\"").c_str(), 0);
 
       m_Triggers.erase(i);
     }
