@@ -64,12 +64,18 @@ tar xzf $TARBALL
 rm $TARBALL
 cd $DISTNAME
 
-echo "Configuring..."
+echo "Configuring"
 echo "$ ./configure" >>$LOGFILE
-./configure >>$LOGFILE
+nice ./configure >>$LOGFILE
 echo >>$LOGFILE
 
-echo "Building and running regression test..."
+echo "Building"
+echo "$ nice make" >>$LOGFILE
+nice make >>$LOGFILE
+echo
+echo >>$LOGFILE
+
+echo "Running regression test"
 echo "$ nice make check" >>$LOGFILE
 nice make check >>$LOGFILE
 echo

@@ -24,8 +24,8 @@
 00016 <span class="preprocessor"></span>
 00017 <span class="preprocessor">#include &lt;map&gt;</span>
 00018 <span class="preprocessor">#include &lt;memory&gt;</span>
-00019 <span class="preprocessor">#include &lt;stdexcept&gt;</span>
-00020 
+00019 
+00020 <span class="preprocessor">#include "<a class="code" href="except_8h.html">pqxx/except.h</a>"</span>
 00021 <span class="preprocessor">#include "<a class="code" href="transactor_8h.html">pqxx/transactor.h</a>"</span>
 00022 <span class="preprocessor">#include "<a class="code" href="util_8h.html">pqxx/util.h</a>"</span>
 00023 
@@ -41,212 +41,201 @@
 00033 
 00034 <span class="keyword">namespace </span>pqxx
 00035 {
-00036 <span class="keyword">class </span>in_doubt_error;   <span class="comment">// See pqxx/transactionitf.h</span>
-00037 <span class="keyword">class </span>Result;
-00038 <span class="keyword">class </span>TransactionItf;
-00039 <span class="keyword">class </span>Trigger;
-00040 
-00042 
-<a name="l00046"></a><a class="code" href="structpqxx_1_1Noticer.html">00046</a> <span class="keyword">struct </span>PQXX_LIBEXPORT Noticer
-00047 {
-<a name="l00048"></a><a class="code" href="structpqxx_1_1Noticer.html#a0">00048</a>   <span class="keyword">virtual</span> ~Noticer() {}
-00049   <span class="keyword">virtual</span> <span class="keywordtype">void</span> operator()(<span class="keyword">const</span> <span class="keywordtype">char</span> Msg[]) <span class="keywordflow">throw</span> () =0;
-00050 };
+00036 <span class="keyword">class </span>Result;
+00037 <span class="keyword">class </span>TransactionItf;
+00038 <span class="keyword">class </span>Trigger;
+00039 
+00041 
+<a name="l00045"></a><a class="code" href="structpqxx_1_1Noticer.html">00045</a> <span class="keyword">struct </span>PQXX_LIBEXPORT Noticer
+00046 {
+<a name="l00047"></a><a class="code" href="structpqxx_1_1Noticer.html#a0">00047</a>   <span class="keyword">virtual</span> ~Noticer() {}
+00048   <span class="keyword">virtual</span> <span class="keywordtype">void</span> operator()(<span class="keyword">const</span> <span class="keywordtype">char</span> Msg[]) <span class="keywordflow">throw</span> () =0;
+00049 };
+00050 
 00051 
-00052 
-<a name="l00054"></a><a class="code" href="namespacepqxx.html#a5">00054</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a5">Classname</a>(<span class="keyword">const</span> <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> *) 
-00055 { 
-00056   <span class="keywordflow">return</span> <span class="stringliteral">"TransactionItf"</span>; 
-00057 }
+<a name="l00053"></a><a class="code" href="namespacepqxx.html#a5">00053</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a5">Classname</a>(<span class="keyword">const</span> <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> *) 
+00054 { 
+00055   <span class="keywordflow">return</span> <span class="stringliteral">"TransactionItf"</span>; 
+00056 }
+00057 
 00058 
-00059 
-00061 
-<a name="l00062"></a><a class="code" href="classpqxx_1_1broken__connection.html">00062</a> <span class="keyword">class </span>PQXX_LIBEXPORT broken_connection : <span class="keyword">public</span> <a class="code" href="config_8h.html#a23">PGSTD</a>::runtime_error
-00063 {
-00064 <span class="keyword">public</span>:
-<a name="l00065"></a><a class="code" href="classpqxx_1_1broken__connection.html#a0">00065</a>   broken_connection() : <a class="code" href="config_8h.html#a23">PGSTD</a>::runtime_error("<a class="code" href="classpqxx_1_1Connection.html">Connection</a> to back end failed") {}
-<a name="l00066"></a><a class="code" href="classpqxx_1_1broken__connection.html#a1">00066</a>   <span class="keyword">explicit</span> broken_connection(<span class="keyword">const</span> PGSTD::string &amp;whatarg) : 
-00067     <a class="code" href="config_8h.html#a23">PGSTD</a>::runtime_error(whatarg) {}
-00068 };
-00069 
-00070 
-00072 
-<a name="l00081"></a><a class="code" href="classpqxx_1_1ConnectionItf.html">00081</a> <span class="keyword">class </span>PQXX_LIBEXPORT ConnectionItf
-00082 {
-00083 <span class="keyword">public</span>:
-00085 
-00088   <span class="keyword">explicit</span> ConnectionItf(<span class="keyword">const</span> PGSTD::string &amp;ConnInfo);                <span class="comment">//[t2]</span>
-00089 
-00091 
-00095   <span class="keyword">explicit</span> ConnectionItf(<span class="keyword">const</span> <span class="keywordtype">char</span> ConnInfo[]);                        <span class="comment">//[t2]</span>
-00096 
-00098   <span class="keyword">virtual</span> ~ConnectionItf() =0;                                          <span class="comment">//[t1]</span>
-00099 
-00101   <span class="keywordtype">void</span> Disconnect() <span class="keyword">const</span> <span class="keywordflow">throw</span> ();                                     <span class="comment">//[t2]</span>
-00102 
-00104   <span class="keywordtype">bool</span> is_open() <span class="keyword">const</span>;                                                 <span class="comment">//[t1]</span>
+00060 
+<a name="l00069"></a><a class="code" href="classpqxx_1_1ConnectionItf.html">00069</a> <span class="keyword">class </span>PQXX_LIBEXPORT ConnectionItf
+00070 {
+00071 <span class="keyword">public</span>:
+00073 
+00076   <span class="keyword">explicit</span> ConnectionItf(<span class="keyword">const</span> PGSTD::string &amp;ConnInfo);                <span class="comment">//[t2]</span>
+00077 
+00079 
+00083   <span class="keyword">explicit</span> ConnectionItf(<span class="keyword">const</span> <span class="keywordtype">char</span> ConnInfo[]);                        <span class="comment">//[t2]</span>
+00084 
+00086   <span class="keyword">virtual</span> ~ConnectionItf() =0;                                          <span class="comment">//[t1]</span>
+00087 
+00089   <span class="keywordtype">void</span> Disconnect() <span class="keyword">const</span> <span class="keywordflow">throw</span> ();                                     <span class="comment">//[t2]</span>
+00090 
+00092   <span class="keywordtype">bool</span> is_open() <span class="keyword">const</span>;                                                 <span class="comment">//[t1]</span>
+00093 
+00095 
+00103   <span class="keyword">template</span>&lt;<span class="keyword">typename</span> TRANSACTOR&gt; 
+00104   <span class="keywordtype">void</span> Perform(<span class="keyword">const</span> TRANSACTOR &amp;T, <span class="keywordtype">int</span> Attempts=3);                    <span class="comment">//[t4]</span>
 00105 
-00107 
-00115   <span class="keyword">template</span>&lt;<span class="keyword">typename</span> TRANSACTOR&gt; 
-00116   <span class="keywordtype">void</span> Perform(<span class="keyword">const</span> TRANSACTOR &amp;T, <span class="keywordtype">int</span> Attempts=3);                    <span class="comment">//[t4]</span>
-00117 
-00118   <span class="comment">// TODO: Define a default Noticer (mainly to help out Windows users)</span>
-00120 <span class="comment">  /** Return value is the previous handler.  Ownership of any previously set </span>
-00121    * Noticer is also passed to the caller, so unless it is stored in another 
-00122    * auto_ptr, it will be deleted from the caller's context.  
-00123    * This may be important when running under Windows, where a DLL cannot free 
-00124    * memory allocated by the main program.
-00125    * If a Noticer is set when the ConnectionItf is destructed, it will also be
-00126    * deleted.
-00127    * @param N the <span class="keyword">new</span> message handler; must not be null or equal to the old one
-00128    */
-00129   PGSTD::auto_ptr&lt;Noticer&gt; SetNoticer(PGSTD::auto_ptr&lt;Noticer&gt; N);      <span class="comment">//[t14]</span>
-<a name="l00130"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a7">00130</a>   Noticer *GetNoticer() <span class="keyword">const</span> <span class="keywordflow">throw</span> () { <span class="keywordflow">return</span> m_Noticer.get(); }      <span class="comment">//[]</span>
+00106   <span class="comment">// TODO: Define a default Noticer (mainly to help out Windows users)</span>
+00108 <span class="comment">  /** Return value is the previous handler.  Ownership of any previously set </span>
+00109    * Noticer is also passed to the caller, so unless it is stored in another 
+00110    * auto_ptr, it will be deleted from the caller's context.  
+00111    * This may be important when running under Windows, where a DLL cannot free 
+00112    * memory allocated by the main program.
+00113    * If a Noticer is set when the ConnectionItf is destructed, it will also be
+00114    * deleted.
+00115    * @param N the <span class="keyword">new</span> message handler; must not be null or equal to the old one
+00116    */
+00117   PGSTD::auto_ptr&lt;Noticer&gt; SetNoticer(PGSTD::auto_ptr&lt;Noticer&gt; N);      <span class="comment">//[t14]</span>
+<a name="l00118"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a7">00118</a>   Noticer *GetNoticer() <span class="keyword">const</span> <span class="keywordflow">throw</span> () { <span class="keywordflow">return</span> m_Noticer.get(); }      <span class="comment">//[]</span>
+00119 
+00121   <span class="keywordtype">void</span> ProcessNotice(<span class="keyword">const</span> <span class="keywordtype">char</span>[]) <span class="keywordflow">throw</span> ();                            <span class="comment">//[t14]</span>
+<a name="l00123"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a9">00123</a> <span class="comment">  void ProcessNotice(const PGSTD::string &amp;msg) throw ()                 //[t14]</span>
+00124         { ProcessNotice(msg.c_str()); }
+00125 
+00127   <span class="keywordtype">void</span> Trace(FILE *);                                                   <span class="comment">//[t3]</span>
+00128 
+00130   <span class="keywordtype">void</span> GetNotifs();                                                     <span class="comment">//[t4]</span>
 00131 
-00133   <span class="keywordtype">void</span> ProcessNotice(<span class="keyword">const</span> <span class="keywordtype">char</span>[]) <span class="keywordflow">throw</span> ();                            <span class="comment">//[t14]</span>
-<a name="l00135"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a9">00135</a> <span class="comment">  void ProcessNotice(const PGSTD::string &amp;msg) throw ()                 //[t14]</span>
-00136         { ProcessNotice(msg.c_str()); }
+00132   <span class="comment">// Miscellaneous query functions (probably not needed very often)</span>
+00133  
+<a name="l00135"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a12">00135</a>   <span class="keyword">const</span> <span class="keywordtype">char</span> *DbName() <span class="keyword">const</span> <span class="keywordflow">throw</span> ()                                   <span class="comment">//[t1]</span>
+00136         { Activate(); <span class="keywordflow">return</span> PQdb(m_Conn); }
 00137 
-00139   <span class="keywordtype">void</span> Trace(FILE *);                                                   <span class="comment">//[t3]</span>
-00140 
-00142   <span class="keywordtype">void</span> GetNotifs();                                                     <span class="comment">//[t4]</span>
-00143 
-00144   <span class="comment">// Miscellaneous query functions (probably not needed very often)</span>
-00145  
-<a name="l00147"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a12">00147</a>   <span class="keyword">const</span> <span class="keywordtype">char</span> *DbName() <span class="keyword">const</span> <span class="keywordflow">throw</span> ()                                   <span class="comment">//[t1]</span>
-00148         { Activate(); <span class="keywordflow">return</span> PQdb(m_Conn); }
+<a name="l00139"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a13">00139</a>   <span class="keyword">const</span> <span class="keywordtype">char</span> *UserName() <span class="keyword">const</span> <span class="keywordflow">throw</span> ()                                 <span class="comment">//[t1]</span>
+00140         { Activate(); <span class="keywordflow">return</span>  PQuser(m_Conn); }
+00141 
+<a name="l00143"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a14">00143</a>   <span class="keyword">const</span> <span class="keywordtype">char</span> *HostName() <span class="keyword">const</span> <span class="keywordflow">throw</span> ()                                 <span class="comment">//[t1]</span>
+00144         { Activate(); <span class="keywordflow">return</span> PQhost(m_Conn); }
+00145 
+<a name="l00147"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a15">00147</a>   <span class="keyword">const</span> <span class="keywordtype">char</span> *Port() <span class="keyword">const</span> <span class="keywordflow">throw</span> ()                                     <span class="comment">//[t1]</span>
+00148         { Activate(); <span class="keywordflow">return</span> PQport(m_Conn); }
 00149 
-<a name="l00151"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a13">00151</a>   <span class="keyword">const</span> <span class="keywordtype">char</span> *UserName() <span class="keyword">const</span> <span class="keywordflow">throw</span> ()                                 <span class="comment">//[t1]</span>
-00152         { Activate(); <span class="keywordflow">return</span>  PQuser(m_Conn); }
+<a name="l00151"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a16">00151</a>   <span class="keyword">const</span> <span class="keywordtype">char</span> *Options() <span class="keyword">const</span> <span class="keywordflow">throw</span> ()                                  <span class="comment">//[t1]</span>
+00152         { <span class="keywordflow">return</span> m_ConnInfo.c_str(); }
 00153 
-<a name="l00155"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a14">00155</a>   <span class="keyword">const</span> <span class="keywordtype">char</span> *HostName() <span class="keyword">const</span> <span class="keywordflow">throw</span> ()                                 <span class="comment">//[t1]</span>
-00156         { Activate(); <span class="keywordflow">return</span> PQhost(m_Conn); }
-00157 
-<a name="l00159"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a15">00159</a>   <span class="keyword">const</span> <span class="keywordtype">char</span> *Port() <span class="keyword">const</span> <span class="keywordflow">throw</span> ()                                     <span class="comment">//[t1]</span>
-00160         { Activate(); <span class="keywordflow">return</span> PQport(m_Conn); }
-00161 
-<a name="l00163"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a16">00163</a>   <span class="keyword">const</span> <span class="keywordtype">char</span> *Options() <span class="keyword">const</span> <span class="keywordflow">throw</span> ()                                  <span class="comment">//[t1]</span>
-00164         { <span class="keywordflow">return</span> m_ConnInfo.c_str(); }
-00165 
-00167 
-<a name="l00174"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a17">00174</a>   <span class="keywordtype">int</span> BackendPID() <span class="keyword">const</span>                                                <span class="comment">//[t1]</span>
-00175         { <span class="keywordflow">return</span> m_Conn ? PQbackendPID(m_Conn) : 0; }
-00176 
-00178 
-<a name="l00188"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a18">00188</a>   <span class="keywordtype">void</span> Activate()<span class="keyword"> const </span>{ <span class="keywordflow">if</span> (!m_Conn) Connect(); }                     <span class="comment">//[]</span>
-00189 
-00191 
-00199   <span class="keywordtype">void</span> Deactivate() <span class="keyword">const</span>;                                              <span class="comment">//[]</span>
-00200 
-00202 
-00208   <span class="keywordtype">void</span> SetClientEncoding(<span class="keyword">const</span> <span class="keywordtype">char</span> Encoding[]);                        <span class="comment">//[]</span>
+00155 
+<a name="l00162"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a17">00162</a>   <span class="keywordtype">int</span> BackendPID() <span class="keyword">const</span>                                                <span class="comment">//[t1]</span>
+00163         { <span class="keywordflow">return</span> m_Conn ? PQbackendPID(m_Conn) : 0; }
+00164 
+00166 
+<a name="l00176"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a18">00176</a>   <span class="keywordtype">void</span> Activate()<span class="keyword"> const </span>{ <span class="keywordflow">if</span> (!m_Conn) Connect(); }                     <span class="comment">//[]</span>
+00177 
+00179 
+00187   <span class="keywordtype">void</span> Deactivate() <span class="keyword">const</span>;                                              <span class="comment">//[]</span>
+00188 
+00190 
+00196   <span class="keywordtype">void</span> SetClientEncoding(<span class="keyword">const</span> <span class="keywordtype">char</span> Encoding[]);                        <span class="comment">//[]</span>
+00197 
+00198 <span class="keyword">protected</span>:
+00200   <span class="keywordtype">void</span> Connect() <span class="keyword">const</span>;
+00201 
+00202 <span class="keyword">private</span>:
+00203   <span class="keywordtype">void</span> SetupState() <span class="keyword">const</span>;
+00204   <span class="keywordtype">void</span> InternalSetTrace() <span class="keyword">const</span>;
+00205   <span class="keywordtype">int</span> Status()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> PQstatus(m_Conn); }
+00206   <span class="keyword">const</span> <span class="keywordtype">char</span> *ErrMsg() <span class="keyword">const</span>;
+00207   <span class="keywordtype">void</span> Reset(<span class="keyword">const</span> <span class="keywordtype">char</span> OnReconnect[]=0);
+00208   <span class="keywordtype">void</span> close() <span class="keywordflow">throw</span> ();
 00209 
-00210 <span class="keyword">protected</span>:
-00212   <span class="keywordtype">void</span> Connect() <span class="keyword">const</span>;
+00210   PGSTD::string m_ConnInfo;     
+00211   <span class="keyword">mutable</span> PGconn *m_Conn;       
+00212   Unique&lt;TransactionItf&gt; m_Trans;
 00213 
-00214 <span class="keyword">private</span>:
-00215   <span class="keywordtype">void</span> SetupState() <span class="keyword">const</span>;
-00216   <span class="keywordtype">void</span> InternalSetTrace() <span class="keyword">const</span>;
-00217   <span class="keywordtype">int</span> Status()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> PQstatus(m_Conn); }
-00218   <span class="keyword">const</span> <span class="keywordtype">char</span> *ErrMsg() <span class="keyword">const</span>;
-00219   <span class="keywordtype">void</span> Reset(<span class="keyword">const</span> <span class="keywordtype">char</span> OnReconnect[]=0);
-00220   <span class="keywordtype">void</span> close() <span class="keywordflow">throw</span> ();
-00221 
-00222   PGSTD::string m_ConnInfo;     
-00223   <span class="keyword">mutable</span> PGconn *m_Conn;       
-00224   Unique&lt;TransactionItf&gt; m_Trans;
-00225 
-00226   PGSTD::auto_ptr&lt;Noticer&gt; m_Noticer;   
-00227   FILE *m_Trace;                
-00228 
-00229   <span class="keyword">typedef</span> PGSTD::multimap&lt;PGSTD::string, pqxx::Trigger *&gt; TriggerList;
-00230   TriggerList m_Triggers;       
-00231 
-<a name="l00232"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#l0">00232</a>   <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a>;
-00233   <a class="code" href="classpqxx_1_1Result.html">Result</a> Exec(<span class="keyword">const</span> <span class="keywordtype">char</span>[], <span class="keywordtype">int</span> Retries=3, <span class="keyword">const</span> <span class="keywordtype">char</span> OnReconnect[]=0);
-00234   <span class="keywordtype">void</span> RegisterTransaction(<span class="keyword">const</span> <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> *);
-00235   <span class="keywordtype">void</span> UnregisterTransaction(<span class="keyword">const</span> <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> *) <span class="keywordflow">throw</span> ();
-00236   <span class="keywordtype">void</span> MakeEmpty(<a class="code" href="classpqxx_1_1Result.html">Result</a> &amp;, ExecStatusType=PGRES_EMPTY_QUERY);
-00237   <span class="keywordtype">void</span> BeginCopyRead(<span class="keyword">const</span> PGSTD::string &amp;Table);
-00238   <span class="keywordtype">bool</span> ReadCopyLine(PGSTD::string &amp;);
-00239   <span class="keywordtype">void</span> BeginCopyWrite(<span class="keyword">const</span> PGSTD::string &amp;Table);
-00240   <span class="keywordtype">void</span> WriteCopyLine(<span class="keyword">const</span> PGSTD::string &amp;);
-00241   <span class="keywordtype">void</span> EndCopy();
+00214   PGSTD::auto_ptr&lt;Noticer&gt; m_Noticer;   
+00215   FILE *m_Trace;                
+00216 
+00217   <span class="keyword">typedef</span> PGSTD::multimap&lt;PGSTD::string, pqxx::Trigger *&gt; TriggerList;
+00218   TriggerList m_Triggers;       
+00219 
+<a name="l00220"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#l0">00220</a>   <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a>;
+00221   <a class="code" href="classpqxx_1_1Result.html">Result</a> Exec(<span class="keyword">const</span> <span class="keywordtype">char</span>[], <span class="keywordtype">int</span> Retries=3, <span class="keyword">const</span> <span class="keywordtype">char</span> OnReconnect[]=0);
+00222   <span class="keywordtype">void</span> RegisterTransaction(<span class="keyword">const</span> <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> *);
+00223   <span class="keywordtype">void</span> UnregisterTransaction(<span class="keyword">const</span> <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> *) <span class="keywordflow">throw</span> ();
+00224   <span class="keywordtype">void</span> MakeEmpty(<a class="code" href="classpqxx_1_1Result.html">Result</a> &amp;, ExecStatusType=PGRES_EMPTY_QUERY);
+00225   <span class="keywordtype">void</span> BeginCopyRead(<span class="keyword">const</span> PGSTD::string &amp;Table);
+00226   <span class="keywordtype">bool</span> ReadCopyLine(PGSTD::string &amp;);
+00227   <span class="keywordtype">void</span> BeginCopyWrite(<span class="keyword">const</span> PGSTD::string &amp;Table);
+00228   <span class="keywordtype">void</span> WriteCopyLine(<span class="keyword">const</span> PGSTD::string &amp;);
+00229   <span class="keywordtype">void</span> EndCopy();
+00230 
+<a name="l00231"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#l1">00231</a>   <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classpqxx_1_1LargeObject.html">LargeObject</a>;
+00232   PGconn *RawConnection()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Conn; }
+00233 
+<a name="l00234"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#l2">00234</a>   <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classpqxx_1_1Trigger.html">Trigger</a>;
+00235   <span class="keywordtype">void</span> AddTrigger(<a class="code" href="classpqxx_1_1Trigger.html">Trigger</a> *);
+00236   <span class="keywordtype">void</span> RemoveTrigger(<a class="code" href="classpqxx_1_1Trigger.html">Trigger</a> *) <span class="keywordflow">throw</span> ();
+00237 
+00238   <span class="comment">// Not allowed:</span>
+00239   ConnectionItf(<span class="keyword">const</span> ConnectionItf &amp;);
+00240   ConnectionItf &amp;operator=(<span class="keyword">const</span> ConnectionItf &amp;);
+00241 };
 00242 
-<a name="l00243"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#l1">00243</a>   <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classpqxx_1_1LargeObject.html">LargeObject</a>;
-00244   PGconn *RawConnection()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Conn; }
+00243 
+00244 }
 00245 
-<a name="l00246"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#l2">00246</a>   <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classpqxx_1_1Trigger.html">Trigger</a>;
-00247   <span class="keywordtype">void</span> AddTrigger(<a class="code" href="classpqxx_1_1Trigger.html">Trigger</a> *);
-00248   <span class="keywordtype">void</span> RemoveTrigger(<a class="code" href="classpqxx_1_1Trigger.html">Trigger</a> *) <span class="keywordflow">throw</span> ();
-00249 
-00250   <span class="comment">// Not allowed:</span>
-00251   ConnectionItf(<span class="keyword">const</span> ConnectionItf &amp;);
-00252   ConnectionItf &amp;operator=(<span class="keyword">const</span> ConnectionItf &amp;);
-00253 };
-00254 
-00255 
-00256 }
-00257 
-00258 
-00269 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> TRANSACTOR&gt; 
-<a name="l00270"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a5">00270</a> <span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="classpqxx_1_1ConnectionItf.html#a5">pqxx::ConnectionItf::Perform</a>(<span class="keyword">const</span> TRANSACTOR &amp;T,
-00271                                          <span class="keywordtype">int</span> Attempts)
-00272 {
-00273   <span class="keywordflow">if</span> (Attempts &lt;= 0) <span class="keywordflow">return</span>;
-00274 
-00275   <span class="keywordtype">bool</span> Done = <span class="keyword">false</span>;
-00276 
-00277   <span class="comment">// Make attempts to perform T</span>
-00278   <span class="comment">// TODO: Differentiate between db-related exceptions and other exceptions?</span>
-00279   <span class="keywordflow">do</span>
-00280   {
-00281     --Attempts;
-00282 
-00283     <span class="comment">// Work on a copy of T2 so we can restore the starting situation if need be</span>
-00284     TRANSACTOR T2(T);
-00285     <span class="keywordflow">try</span>
-00286     {
-00287       <span class="keyword">typename</span> TRANSACTOR::argument_type X(*<span class="keyword">this</span>, T2.Name());
-00288       T2(X);
-00289       X.Commit();
-00290       Done = <span class="keyword">true</span>;
-00291     }
-00292     <span class="keywordflow">catch</span> (<span class="keyword">const</span> <a class="code" href="classpqxx_1_1in__doubt__error.html">in_doubt_error</a> &amp;)
-00293     {
-00294       <span class="comment">// Not sure whether transaction went through or not.  The last thing in</span>
-00295       <span class="comment">// the world that we should do now is retry.</span>
-00296       T2.OnDoubt();
-00297       <span class="keywordflow">throw</span>;
-00298     }
-00299     <span class="keywordflow">catch</span> (<span class="keyword">const</span> PGSTD::exception &amp;e)
-00300     {
-00301       <span class="comment">// Could be any kind of error.  </span>
-00302       T2.OnAbort(e.what());
-00303       <span class="keywordflow">if</span> (Attempts &lt;= 0) <span class="keywordflow">throw</span>;
-00304       <span class="keywordflow">continue</span>;
-00305     }
-00306     <span class="keywordflow">catch</span> (...)
-00307     {
-00308       <span class="comment">// Don't try to forge ahead if we don't even know what happened</span>
-00309       T2.OnAbort(<span class="stringliteral">"Unknown exception"</span>);
-00310       <span class="keywordflow">throw</span>;
-00311     }
-00312 
-00313     T2.OnCommit();
-00314   } <span class="keywordflow">while</span> (!Done);
-00315 }
-00316 
-00317 
-00318 <span class="comment">// Put this here so on Windows, any Noticer will be deleted in caller's context</span>
-<a name="l00319"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a2">00319</a> <span class="keyword">inline</span> <a class="code" href="classpqxx_1_1ConnectionItf.html#a2">pqxx::ConnectionItf::~ConnectionItf</a>()
-00320 {
-00321   close();
-00322 }
-00323 
-00324 <span class="preprocessor">#endif</span>
-00325 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Sat Mar 29 18:02:50 2003 for libpqxx by
+00246 
+00257 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> TRANSACTOR&gt; 
+<a name="l00258"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a5">00258</a> <span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="classpqxx_1_1ConnectionItf.html#a5">pqxx::ConnectionItf::Perform</a>(<span class="keyword">const</span> TRANSACTOR &amp;T,
+00259                                          <span class="keywordtype">int</span> Attempts)
+00260 {
+00261   <span class="keywordflow">if</span> (Attempts &lt;= 0) <span class="keywordflow">return</span>;
+00262 
+00263   <span class="keywordtype">bool</span> Done = <span class="keyword">false</span>;
+00264 
+00265   <span class="comment">// Make attempts to perform T</span>
+00266   <span class="comment">// TODO: Differentiate between db-related exceptions and other exceptions?</span>
+00267   <span class="keywordflow">do</span>
+00268   {
+00269     --Attempts;
+00270 
+00271     <span class="comment">// Work on a copy of T2 so we can restore the starting situation if need be</span>
+00272     TRANSACTOR T2(T);
+00273     <span class="keywordflow">try</span>
+00274     {
+00275       <span class="keyword">typename</span> TRANSACTOR::argument_type X(*<span class="keyword">this</span>, T2.Name());
+00276       T2(X);
+00277       X.Commit();
+00278       Done = <span class="keyword">true</span>;
+00279     }
+00280     <span class="keywordflow">catch</span> (<span class="keyword">const</span> <a class="code" href="classin__doubt__error.html">in_doubt_error</a> &amp;)
+00281     {
+00282       <span class="comment">// Not sure whether transaction went through or not.  The last thing in</span>
+00283       <span class="comment">// the world that we should do now is retry.</span>
+00284       T2.OnDoubt();
+00285       <span class="keywordflow">throw</span>;
+00286     }
+00287     <span class="keywordflow">catch</span> (<span class="keyword">const</span> PGSTD::exception &amp;e)
+00288     {
+00289       <span class="comment">// Could be any kind of error.  </span>
+00290       T2.OnAbort(e.what());
+00291       <span class="keywordflow">if</span> (Attempts &lt;= 0) <span class="keywordflow">throw</span>;
+00292       <span class="keywordflow">continue</span>;
+00293     }
+00294     <span class="keywordflow">catch</span> (...)
+00295     {
+00296       <span class="comment">// Don't try to forge ahead if we don't even know what happened</span>
+00297       T2.OnAbort(<span class="stringliteral">"Unknown exception"</span>);
+00298       <span class="keywordflow">throw</span>;
+00299     }
+00300 
+00301     T2.OnCommit();
+00302   } <span class="keywordflow">while</span> (!Done);
+00303 }
+00304 
+00305 
+00306 <span class="comment">// Put this here so on Windows, any Noticer will be deleted in caller's context</span>
+<a name="l00307"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a2">00307</a> <span class="keyword">inline</span> <a class="code" href="classpqxx_1_1ConnectionItf.html#a2">pqxx::ConnectionItf::~ConnectionItf</a>()
+00308 {
+00309   close();
+00310 }
+00311 
+00312 <span class="preprocessor">#endif</span>
+00313 <span class="preprocessor"></span>
+</pre></div><hr><address style="align: right;"><small>Generated on Sun Mar 30 00:06:56 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

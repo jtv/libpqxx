@@ -23,7 +23,9 @@
 <tr><td colspan=2><br><h2>Public Member Functions</h2></td></tr>
 <tr><td nowrap align=right valign=top>virtual&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1TransactionItf.html#a0">~TransactionItf</a> ()=0</td></tr>
 <tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1TransactionItf.html#a1">Commit</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Commit the transaction.</em> <a href="#a1"></a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1TransactionItf.html#a2">Abort</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Abort the transaction.</em> <a href="#a2"></a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top><a class="el" href="classpqxx_1_1Result.html">Result</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1TransactionItf.html#a3">Exec</a> (const char Query[], const PGSTD::string &amp;Desc=PGSTD::string())</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Execute query.</em> <a href="#a3"></a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top><a class="el" href="classpqxx_1_1Result.html">Result</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1TransactionItf.html#a4">Exec</a> (const PGSTD::string &amp;Query, const PGSTD::string &amp;Desc=PGSTD::string())</td></tr>
@@ -56,7 +58,8 @@
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 Interface definition (and common code) for "transaction" classes.
 <p>
-All database access must be channeled through one of these classes for safety, although not all implementations of this interface need to provide full transactional integrity. 
+All database access must be channeled through one of these classes for safety, although not all implementations of this interface need to provide full transactional integrity.<p>
+Several implementations of this interface are shipped with libpqxx, including the plain <a class="el" href="classpqxx_1_1Transaction.html">Transaction</a> class, the entirely unprotected <a class="el" href="classpqxx_1_1NonTransaction.html">NonTransaction</a>, and the more cautions <a class="el" href="classpqxx_1_1RobustTransaction.html">RobustTransaction</a>. 
 <p>
 <hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a name="a0" doxytag="pqxx::TransactionItf::~TransactionItf"></a><p>
@@ -151,7 +154,9 @@ Create a transaction. The optional name, if given, must begin with a letter and 
     <td>
 
 <p>
-    </td>
+Abort the transaction.
+<p>
+No special effort is required to call this function; it will be called implicitly when the transaction is destructed.     </td>
   </tr>
 </table>
 <a name="b1" doxytag="pqxx::TransactionItf::Begin"></a><p>
@@ -207,7 +212,10 @@ Begin transaction. To be called by implementing class, typically from constructo
     <td>
 
 <p>
-    </td>
+Commit the transaction.
+<p>
+Unless this function is called explicitly, the transaction will not be committed (actually the <a class="el" href="classpqxx_1_1NonTransaction.html">NonTransaction</a> implementation breaks this rule, hence the name).<p>
+Once this function returns, the whole transaction will typically be irrevocably completed in the database. There is also, however, a minute risk that the connection to the database may be lost at just the wrong moment. In that case, libpqxx may be unable to determine whether the transaction was completed or aborted and an <a class="el" href="classin__doubt__error.html">in_doubt_error</a> will be thrown to make this fact known to the caller. The <a class="el" href="classpqxx_1_1RobustTransaction.html">RobustTransaction</a> implementation takes some special precautions to reduce this risk.     </td>
   </tr>
 </table>
 <a name="a8" doxytag="pqxx::TransactionItf::Conn"></a><p>
@@ -704,7 +712,7 @@ Have connection process warning message.
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="transactionitf_8h-source.html">transactionitf.h</a><li><a class="el" href="transactionitf_8cxx.html">transactionitf.cxx</a></ul>
-<hr><address style="align: right;"><small>Generated on Sat Mar 29 18:02:51 2003 for libpqxx by
+<hr><address style="align: right;"><small>Generated on Sun Mar 30 00:06:59 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

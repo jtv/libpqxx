@@ -1,3 +1,8 @@
+1.7.4
+ - new exception class, sql_error, remembers query text
+ - moved exception classes to new file include/pqxx/except.h
+ - test cases report texts of any failed queries
+ - added tools/rmlo.cxx
 1.7.3
  - default constructors for connection classes
  - revamped seeking operations on large objects

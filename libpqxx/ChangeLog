@@ -1,4 +1,7 @@
 2003-03-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test014.cxx:
+  - Increased test coverage
+2003-03-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/except.h:
   - New
   - New exception class: sql_error

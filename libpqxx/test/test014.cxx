@@ -40,7 +40,10 @@ int main(int, char *argv[])
     // Tell C to report its warnings through std::cerr instead of the default
     // (which is to print to stderr).  This is done just to show that the way
     // messages are processed can be changed by the client program.
-    C.SetNoticer(auto_ptr<Noticer>(new ReportWarning));
+    Noticer *MyNoticer = new ReportWarning;
+    // This is not a memory leak: C stores MyNoticer in an auto_ptr that will
+    // delete the object on destruction.
+    C.SetNoticer(auto_ptr<Noticer>(MyNoticer));
 
     // Now use our Noticer to output a diagnostic message.  Note that the
     // message must end in a newline.

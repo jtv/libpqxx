@@ -38,6 +38,9 @@ extern "C"
 namespace
 {
 
+int Backend_PID = 0;
+
+
 // Reasonably portable way to sleep for a given number of seconds
 void Sleep(int seconds)
 {
@@ -50,7 +53,6 @@ void Sleep(int seconds)
     throw runtime_error(strerror(errno));
 }
 
-
 // Sample implementation of trigger handler
 class TestTrig : public Trigger
 {
@@ -62,9 +64,9 @@ public:
   virtual void operator()(int be_pid)
   {
     m_Done = true;
-    if (be_pid != Conn().BackendPID())
+    if (be_pid != Backend_PID)
       throw logic_error("Expected notification from backend process " +
-		        ToString(Conn().BackendPID()) + 
+		        ToString(Backend_PID) +
 			", but got one from " +
 			ToString(be_pid));
 
@@ -87,6 +89,7 @@ public:
   void operator()(argument_type &T)
   {
     T.Exec("NOTIFY " + m_Trigger);
+    Backend_PID = T.Conn().BackendPID();
   }
 
   void OnAbort(const char Reason[]) throw ()
