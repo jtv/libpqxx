@@ -226,7 +226,7 @@ void pqxx::largeobjectaccess::open(openmode mode)
 }
 
 
-void pqxx::largeobjectaccess::close()
+void pqxx::largeobjectaccess::close() throw ()
 {
   if (m_fd >= 0) lo_close(RawConnection(), m_fd);
 }

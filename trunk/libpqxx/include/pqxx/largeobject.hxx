@@ -299,7 +299,7 @@ private:
   PGconn *RawConnection() { return largeobject::RawConnection(m_Trans); }
 
   void open(openmode mode);
-  void close();
+  void close() throw ();
 
   dbtransaction &m_Trans;
   int m_fd;
@@ -580,6 +580,7 @@ public:
 
   ~basic_olostream() 
   { 
+    // TODO: Catch & report exceptions
 #ifdef PQXX_HAVE_STREAMBUF
     m_Buf.pubsync(); m_Buf.pubsync(); 
 #else
@@ -651,7 +652,8 @@ public:
   }
 
   ~basic_lostream() 
-  { 
+  {
+    // TODO: Catch & report exceptions
 #ifdef PQXX_HAVE_STREAMBUF
     m_Buf.pubsync(); m_Buf.pubsync(); 
 #else

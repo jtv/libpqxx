@@ -6,6 +6,7 @@ libpqxx_la_SOURCES = binarystring.cxx \
 	cursor.cxx \
 	largeobject.cxx \
 	nontransaction.cxx \
+	pipeline.cxx \
 	result.cxx \
 	robusttransaction.cxx \
 	tablereader.cxx \

@@ -246,6 +246,10 @@ private:
   	{ return m_Conn.WriteCopyLine(L, async); }
   void EndCopyWrite() throw () { m_Conn.EndCopyWrite(); }
 
+  friend class pipeline;
+  void start_exec(const PGSTD::string &Q) { m_Conn.start_exec(Q); }
+  PGresult *get_result() { return m_Conn.get_result(); }
+
   connection_base &m_Conn;
 
   PGSTD::string m_Name;
