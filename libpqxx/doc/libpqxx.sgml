@@ -35,7 +35,7 @@
 
     <para>
      I think it is.  The C++ Standard, and its standard library in particular,
-     have stabilized during the latter half of the 1990s; compilers and 
+     have stabilized over the latter half of the 1990s; compilers and 
      standard library implementations are still following suit at the time of 
      writing.  As a result, most older third-party libraries suffer from 
      symptoms such as: 
@@ -244,13 +244,11 @@
    <itemizedlist>
     <listitem>
      <para>
-      <literal>broken_connection</literal> is an exception class that may be 
+      <literal>broken_connection</literal> is an exception class that is
       thrown if <filename>libpqxx</filename> loses its connection to the 
       back-end.  It is derived from the standard C++ exception
       <literal>std::runtime_error</literal>, and can generally be treated as
-      such.  It is not currently guaranteed that a broken connection will
-      result in a <literal>broken_connection</literal> being thrown; a normal
-      <literal>std::runtime_error</literal> may be thrown instead.
+      such.  
      </para>
     </listitem>
 
@@ -461,8 +459,8 @@
     <para>
      <function>Quote</function> is the canonical way to use strings in your SQL.
      This function not only adds SQL-style quotes around your string; it also 
-     escapes quotes, backslashes, and other characters that would otherwise 
-     cause syntax errors in your queries when included directly.
+     escapes any quotes, backslashes, and other characters in your string that 
+     would otherwise cause syntax errors in your queries when included directly.
     </para>
     <para>
      <emphasis>Use this function</emphasis> whenever you want to have a variable
@@ -496,7 +494,7 @@
 
    <lististem>
     <para>
-     <function>FmtString</function> is used by some specializations of the
+     <function>FmtString</function> is used by some instantiations of the
      <function>ToString</function> and <function>FromString</function> functions
      to statically determine the appropriate C stdio-style format strings for
      the various builtin types like <literal>int</literal>, 
@@ -529,8 +527,8 @@
      <para>
       Furthermore, if you're ever in doubt about how to use the basic features 
       of <filename>libpqxx</filename>, take a look at the example programs 
-      provided; they're called <filename>test1</filename>, 
-      <filename>test2</filename> etc.  Those should help give you an idea of 
+      provided; they're called <filename>test001</filename>, 
+      <filename>test002</filename> etc.  Those should help give you an idea of 
       how simple the library can be in practice.  Don't let that keep you from 
       submitting a request for improved documentation though; your questions 
       define what this tutorial needs to say!
@@ -579,6 +577,12 @@ using namespace pqxx;
 	<literal>pqxx::Result::const_iterator</literal> instead of
 	<literal>Result::const_iterator</literal>, and so on.
        </para>
+
+       <para>
+        This is the mode of address you will typically want to use in header
+	files, to avoid polluting the namespaces of the actual source files with
+	the definitions of the extra namespace.
+       </para>
       </listitem>
      </itemizedlist>
 
@@ -615,7 +619,10 @@ Connection Conn("dbname=test");
      etc.  Refer to <xref linkend="libpq-connect">the libpq 
      <function>connect</function> call</xref> for a complete definition 
      of what may go into the connect string.  In this case we're connecting to 
-     a database <literal>test</literal> residing on the local machine.
+     a database <literal>test</literal> residing on the local machine.  By
+     default (if the connect string is null or empty, and no environment
+     variables are set to override this) the client will try to connect to a 
+     server running on the local machine.
     </para>
 
     <para>
@@ -749,11 +756,12 @@ Xaction.Commit();
        out.
       </para>
       <para>
-       As a consequence, any streams nested within the transaction (to be
-       discussed later) must have been closed before the 
+       As a consequence, any streams or cursors nested within the transaction 
+       (to be discussed later) must have been closed before the 
        <literal>Commit()</literal>.  To do otherwise could possibly allow a
        transaction to be committed before all related actions had completed.
-       The library will throw an exception if this happens.
+       The library will throw an exception if any streams are still open when
+       the transaction is ended.
       </para>
      </listitem>
 
@@ -881,16 +889,9 @@ Xaction.Commit(); // ERROR: Xaction has already aborted!
     <programlisting>
 void DeleteEntry(Transaction &amp;T, string Table, long ID)
 {
-  T.Exec(("DELETE FROM " + Table + " WHERE ID=" + ID).c_str());
+  T.Exec("DELETE FROM " + Table + " WHERE ID=" + ID);
 }
     </programlisting>
-    <para>
-     It seems inconvenient that <function>Exec</function> does not
-     accept C++ <literal>string</>s directly.  This choice was made to prevent
-     the interface from inviting you to write inefficient code that makes
-     multiple unnecessary conversions between C strings and C++ 
-     <literal>string</>s.
-    </para>
    </sect2>
 
    <sect2>

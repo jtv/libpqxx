@@ -1,11 +1,11 @@
 Connections
 (*) Separate failed_connection exception type
 (*) Connection pooling support
+(*) Break out various creation synchronicity options
 
 Results
 (*) Conceive metadata model
 (*) Allow direct mapping onto structs, using member ptr template args (?)
-(*) Optimize null check in "not null" fields?
 
 RobustTransaction
 (*) User schema support for log table
