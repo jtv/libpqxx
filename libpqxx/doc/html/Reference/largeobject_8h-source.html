@@ -179,142 +179,233 @@
 00247 };
 00248 
 00249 
-00250 <span class="comment">// TODO: Create i, o wrappers (easier construction, no template brackets)</span>
-00252 <span class="comment">/** @warning Still experimental.  May change profoundly.</span>
-00253  *
-00254  * The standard streambuf classes provide uniform access to data storage such
-00255  * as files or string buffers, so they can be accessed <span class="keyword">using</span> standard input or
-00256  * output streams.  This streambuf implementation provides similar access to
-00257  * large objects, so they can be read and written <span class="keyword">using</span> the same stream classes.
-00258  */
-00259 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> CHAR=<span class="keywordtype">char</span>, <span class="keyword">typename</span> TRAITS=PGSTD::<span class="keywordtype">char</span>_traits&lt;CHAR&gt; &gt;
-<a name="l00260"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html">00260</a> <span class="keyword">class </span><a class="code" href="classpqxx_1_1largeobject__streambuf.html">largeobject_streambuf</a> : <span class="keyword">public</span> <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_streambuf&lt;CHAR, TRAITS&gt;
-00261 {
-00262 <span class="keyword">public</span>:
-<a name="l00263"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#s0">00263</a>   <span class="keyword">typedef</span> CHAR   <a class="code" href="classpqxx_1_1largeobject__streambuf.html#s0">char_type</a>;
-<a name="l00264"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#s1">00264</a>   <span class="keyword">typedef</span> TRAITS <a class="code" href="classpqxx_1_1largeobject__streambuf.html#s1">traits_type</a>;
-<a name="l00265"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#s2">00265</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::int_type <a class="code" href="classpqxx_1_1largeobject__streambuf.html#s2">int_type</a>;
-<a name="l00266"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#s3">00266</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::pos_type <a class="code" href="classpqxx_1_1largeobject__streambuf.html#s3">pos_type</a>;
-<a name="l00267"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#s4">00267</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::off_type <a class="code" href="classpqxx_1_1largeobject__streambuf.html#s4">off_type</a>;
-00268 
-<a name="l00269"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#a0">00269</a>   <a class="code" href="classpqxx_1_1largeobject__streambuf.html#a0">largeobject_streambuf</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T,
-00270                         <a class="code" href="classpqxx_1_1LargeObject.html">LargeObject</a> O,
-00271                         PGSTD::ios_base::openmode mode = 
-00272                                 PGSTD::ios::in | PGSTD::ios::out) :     <span class="comment">//[t48]</span>
-00273     m_BufSize(512),
-00274     m_Obj(T, O),
-00275     m_G(0),
-00276     m_P(0)
-00277   {
-00278     initialize(mode);
-00279   }
-00280 
-<a name="l00281"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#a1">00281</a>   <a class="code" href="classpqxx_1_1largeobject__streambuf.html#a0">largeobject_streambuf</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T,
-00282                         Oid O,
-00283                         PGSTD::ios_base::openmode mode = 
-00284                                 PGSTD::ios::in | PGSTD::ios::out) :     <span class="comment">//[t48]</span>
-00285     m_BufSize(512),
-00286     m_Obj(T, O),
-00287     m_G(0),
-00288     m_P(0)
-00289   {
-00290     initialize(mode);
-00291   }
-00292 
-<a name="l00293"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#a2">00293</a>   <span class="keyword">virtual</span> <a class="code" href="classpqxx_1_1largeobject__streambuf.html#a2">~largeobject_streambuf</a>()
-00294   {
-00295     <span class="keyword">delete</span> [] m_P;
-00296     <span class="keyword">delete</span> [] m_G;
-00297   }
-00298 
+00250 <span class="comment">// TODO: Create i, o stream classes</span>
+00251 <span class="comment">// TODO: Allow the creator to select a buffer size</span>
+00253 <span class="comment">/** @warning Still experimental.  May change profoundly.</span>
+00254  *
+00255  * The standard streambuf classes provide uniform access to data storage such
+00256  * as files or string buffers, so they can be accessed <span class="keyword">using</span> standard input or
+00257  * output streams.  This streambuf implementation provides similar access to
+00258  * large objects, so they can be read and written <span class="keyword">using</span> the same stream classes.
+00259  */
+00260 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> CHAR=<span class="keywordtype">char</span>, <span class="keyword">typename</span> TRAITS=PGSTD::<span class="keywordtype">char</span>_traits&lt;CHAR&gt; &gt;
+<a name="l00261"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html">00261</a> <span class="keyword">class </span><a class="code" href="classpqxx_1_1largeobject__streambuf.html">largeobject_streambuf</a> : <span class="keyword">public</span> <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_streambuf&lt;CHAR, TRAITS&gt;
+00262 {
+00263 <span class="keyword">public</span>:
+<a name="l00264"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#s0">00264</a>   <span class="keyword">typedef</span> CHAR   <a class="code" href="classpqxx_1_1largeobject__streambuf.html#s0">char_type</a>;
+<a name="l00265"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#s1">00265</a>   <span class="keyword">typedef</span> TRAITS <a class="code" href="classpqxx_1_1largeobject__streambuf.html#s1">traits_type</a>;
+<a name="l00266"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#s2">00266</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::int_type <a class="code" href="classpqxx_1_1largeobject__streambuf.html#s2">int_type</a>;
+<a name="l00267"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#s3">00267</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::pos_type <a class="code" href="classpqxx_1_1largeobject__streambuf.html#s3">pos_type</a>;
+<a name="l00268"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#s4">00268</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::off_type <a class="code" href="classpqxx_1_1largeobject__streambuf.html#s4">off_type</a>;
+00269 
+<a name="l00270"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#a0">00270</a>   <a class="code" href="classpqxx_1_1largeobject__streambuf.html#a0">largeobject_streambuf</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T,
+00271                         <a class="code" href="classpqxx_1_1LargeObject.html">LargeObject</a> O,
+00272                         PGSTD::ios_base::openmode mode = 
+00273                                 PGSTD::ios::in | PGSTD::ios::out) :     <span class="comment">//[t48]</span>
+00274     m_BufSize(512),
+00275     m_Obj(T, O),
+00276     m_G(0),
+00277     m_P(0)
+00278   {
+00279     initialize(mode);
+00280   }
+00281 
+<a name="l00282"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#a1">00282</a>   <a class="code" href="classpqxx_1_1largeobject__streambuf.html#a0">largeobject_streambuf</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T,
+00283                         Oid O,
+00284                         PGSTD::ios_base::openmode mode = 
+00285                                 PGSTD::ios::in | PGSTD::ios::out) :     <span class="comment">//[t48]</span>
+00286     m_BufSize(512),
+00287     m_Obj(T, O),
+00288     m_G(0),
+00289     m_P(0)
+00290   {
+00291     initialize(mode);
+00292   }
+00293 
+<a name="l00294"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#a2">00294</a>   <span class="keyword">virtual</span> <a class="code" href="classpqxx_1_1largeobject__streambuf.html#a2">~largeobject_streambuf</a>()
+00295   {
+00296     <span class="keyword">delete</span> [] m_P;
+00297     <span class="keyword">delete</span> [] m_G;
+00298   }
 00299 
-00300 <span class="keyword">protected</span>:
-<a name="l00301"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#b0">00301</a>   <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classpqxx_1_1largeobject__streambuf.html#b0">sync</a>()
-00302   {
-00303     <span class="comment">// setg() sets eback, gptr, egptr</span>
-00304     setg(eback(), eback(), egptr());
-00305     <span class="keywordflow">return</span> <a class="code" href="classpqxx_1_1largeobject__streambuf.html#b3">overflow</a>(EoF());
-00306   }
-00307 
-<a name="l00308"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#b1">00308</a>   <span class="keyword">virtual</span> pos_type <a class="code" href="classpqxx_1_1largeobject__streambuf.html#b1">seekoff</a>(off_type offset, 
-00309                            PGSTD::ios_base::seekdir dir,
-00310                            PGSTD::ios_base::openmode mode =
-00311                                 PGSTD::ios_base::in|PGSTD::ios_base::out)
-00312   {
-00313     <span class="keywordflow">if</span> (!mode) {}       <span class="comment">// Quench "unused parameter" warning</span>
-00314     <span class="keywordflow">return</span> AdjustEOF(m_Obj.<a class="code" href="classpqxx_1_1LargeObjectAccess.html#a7">cseek</a>(offset, dir));
-00315   }
-00316 
-<a name="l00317"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#b2">00317</a>   <span class="keyword">virtual</span> pos_type <a class="code" href="classpqxx_1_1largeobject__streambuf.html#b2">seekpos</a>(pos_type pos, 
-00318                            PGSTD::ios_base::openmode mode =
-00319                                 PGSTD::ios_base::in|PGSTD::ios_base::out)
-00320   {
-00321     <span class="keywordflow">if</span> (!mode) {}       <span class="comment">// Quench "unused parameter" warning</span>
-00322     <span class="keywordflow">return</span> AdjustEOF(m_Obj.<a class="code" href="classpqxx_1_1LargeObjectAccess.html#a7">cseek</a>(pos, PGSTD::ios_base::beg));
-00323   }
-00324 
-<a name="l00325"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#b3">00325</a>   <span class="keyword">virtual</span> int_type <a class="code" href="classpqxx_1_1largeobject__streambuf.html#b3">overflow</a>(int_type ch = EoF())
-00326   {
-00327     <span class="keywordtype">char</span> *<span class="keyword">const</span> pp = pptr();
-00328     <span class="keywordflow">if</span> (!pp) <span class="keywordflow">return</span> EoF();
-00329     <span class="keywordtype">char</span> *<span class="keyword">const</span> pb = pbase();
-00330     int_type result = 0;
-00331 
-00332     <span class="keywordflow">if</span> (pp &gt; pb) result = AdjustEOF(m_Obj.<a class="code" href="classpqxx_1_1LargeObjectAccess.html#a8">cwrite</a>(pb, pp-pb));
-00333     setp(m_P, m_P + m_BufSize);
-00334 
-00335     <span class="comment">// Write that one more character, if it's there.</span>
-00336     <span class="keywordflow">if</span> (ch != EoF())
-00337     {
-00338       *pptr() = char(ch);
-00339       pbump(1);
-00340     }
-00341     <span class="keywordflow">return</span> result;
-00342   }
-00343 
-<a name="l00344"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#b4">00344</a>   <span class="keyword">virtual</span> int_type <a class="code" href="classpqxx_1_1largeobject__streambuf.html#b4">underflow</a>()
-00345   {
-00346     <span class="keywordflow">if</span> (!gptr()) <span class="keywordflow">return</span> EoF();
-00347     <span class="keywordtype">char</span> *<span class="keyword">const</span> eb = eback();
-00348     <span class="keyword">const</span> <span class="keywordtype">int</span> result = AdjustEOF(m_Obj.<a class="code" href="classpqxx_1_1LargeObjectAccess.html#a9">cread</a>(eback(), m_BufSize));
-00349     setg(eb, eb, eb + ((result==EoF()) ? 0 : result));
-00350     <span class="keywordflow">return</span> (!result || (result == EoF())) ? EoF() : *eb;
-00351   }
-00352 
-00353 <span class="keyword">private</span>:
-00355   <span class="keyword">static</span> int_type EoF() { <span class="keywordflow">return</span> traits_type::eof(); }
-00356 
-00358   <span class="keyword">static</span> PGSTD::streampos AdjustEOF(<span class="keywordtype">int</span> pos)
-00359   {
-00360     <span class="keywordflow">return</span> (pos == -1) ? EoF() : pos;
-00361   }
-00362 
-00363   <span class="keywordtype">void</span> initialize(PGSTD::ios_base::openmode mode)
-00364   {
-00365     <span class="keywordflow">if</span> (mode &amp; PGSTD::ios::in) 
-00366     {
-00367       m_G = <span class="keyword">new</span> char_type[m_BufSize];
-00368       setg(m_G, m_G, m_G);
-00369     }
-00370     <span class="keywordflow">if</span> (mode &amp; PGSTD::ios::out)
-00371     {
-00372       m_P = <span class="keyword">new</span> char_type[m_BufSize];
-00373       setp(m_P, m_P + m_BufSize);
-00374     }
-00375   }
-00376 
-00377   <span class="keyword">const</span> size_t m_BufSize;
-00378   LargeObjectAccess m_Obj;
-00379 
-00380   <span class="comment">// Get &amp; put buffers</span>
-00381   char_type *m_G, *m_P;
-00382 };
-00383 
-00384 }
+00300 
+00301 <span class="keyword">protected</span>:
+<a name="l00302"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#b0">00302</a>   <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classpqxx_1_1largeobject__streambuf.html#b0">sync</a>()
+00303   {
+00304     <span class="comment">// setg() sets eback, gptr, egptr</span>
+00305     setg(eback(), eback(), egptr());
+00306     <span class="keywordflow">return</span> <a class="code" href="classpqxx_1_1largeobject__streambuf.html#b3">overflow</a>(EoF());
+00307   }
+00308 
+<a name="l00309"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#b1">00309</a>   <span class="keyword">virtual</span> pos_type <a class="code" href="classpqxx_1_1largeobject__streambuf.html#b1">seekoff</a>(off_type offset, 
+00310                            PGSTD::ios_base::seekdir dir,
+00311                            PGSTD::ios_base::openmode mode =
+00312                                 PGSTD::ios_base::in|PGSTD::ios_base::out)
+00313   {
+00314     <span class="keywordflow">if</span> (!mode) {}       <span class="comment">// Quench "unused parameter" warning</span>
+00315     <span class="keywordflow">return</span> AdjustEOF(m_Obj.<a class="code" href="classpqxx_1_1LargeObjectAccess.html#a7">cseek</a>(offset, dir));
+00316   }
+00317 
+<a name="l00318"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#b2">00318</a>   <span class="keyword">virtual</span> pos_type <a class="code" href="classpqxx_1_1largeobject__streambuf.html#b2">seekpos</a>(pos_type pos, 
+00319                            PGSTD::ios_base::openmode mode =
+00320                                 PGSTD::ios_base::in|PGSTD::ios_base::out)
+00321   {
+00322     <span class="keywordflow">if</span> (!mode) {}       <span class="comment">// Quench "unused parameter" warning</span>
+00323     <span class="keywordflow">return</span> AdjustEOF(m_Obj.<a class="code" href="classpqxx_1_1LargeObjectAccess.html#a7">cseek</a>(pos, PGSTD::ios_base::beg));
+00324   }
+00325 
+<a name="l00326"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#b3">00326</a>   <span class="keyword">virtual</span> int_type <a class="code" href="classpqxx_1_1largeobject__streambuf.html#b3">overflow</a>(int_type ch = EoF())
+00327   {
+00328     <span class="keywordtype">char</span> *<span class="keyword">const</span> pp = pptr();
+00329     <span class="keywordflow">if</span> (!pp) <span class="keywordflow">return</span> EoF();
+00330     <span class="keywordtype">char</span> *<span class="keyword">const</span> pb = pbase();
+00331     int_type result = 0;
+00332 
+00333     <span class="keywordflow">if</span> (pp &gt; pb) result = AdjustEOF(m_Obj.<a class="code" href="classpqxx_1_1LargeObjectAccess.html#a8">cwrite</a>(pb, pp-pb));
+00334     setp(m_P, m_P + m_BufSize);
+00335 
+00336     <span class="comment">// Write that one more character, if it's there.</span>
+00337     <span class="keywordflow">if</span> (ch != EoF())
+00338     {
+00339       *pptr() = char(ch);
+00340       pbump(1);
+00341     }
+00342     <span class="keywordflow">return</span> result;
+00343   }
+00344 
+<a name="l00345"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#b4">00345</a>   <span class="keyword">virtual</span> int_type <a class="code" href="classpqxx_1_1largeobject__streambuf.html#b4">underflow</a>()
+00346   {
+00347     <span class="keywordflow">if</span> (!gptr()) <span class="keywordflow">return</span> EoF();
+00348     <span class="keywordtype">char</span> *<span class="keyword">const</span> eb = eback();
+00349     <span class="keyword">const</span> <span class="keywordtype">int</span> result = AdjustEOF(m_Obj.<a class="code" href="classpqxx_1_1LargeObjectAccess.html#a9">cread</a>(eback(), m_BufSize));
+00350     setg(eb, eb, eb + ((result==EoF()) ? 0 : result));
+00351     <span class="keywordflow">return</span> (!result || (result == EoF())) ? EoF() : *eb;
+00352   }
+00353 
+00354 <span class="keyword">private</span>:
+00356   <span class="keyword">static</span> int_type EoF() { <span class="keywordflow">return</span> traits_type::eof(); }
+00357 
+00359   <span class="keyword">static</span> PGSTD::streampos AdjustEOF(<span class="keywordtype">int</span> pos)
+00360   {
+00361     <span class="keywordflow">return</span> (pos == -1) ? EoF() : pos;
+00362   }
+00363 
+00364   <span class="keywordtype">void</span> initialize(PGSTD::ios_base::openmode mode)
+00365   {
+00366     <span class="keywordflow">if</span> (mode &amp; PGSTD::ios_base::in) 
+00367     {
+00368       m_G = <span class="keyword">new</span> char_type[m_BufSize];
+00369       setg(m_G, m_G, m_G);
+00370     }
+00371     <span class="keywordflow">if</span> (mode &amp; PGSTD::ios_base::out)
+00372     {
+00373       m_P = <span class="keyword">new</span> char_type[m_BufSize];
+00374       setp(m_P, m_P + m_BufSize);
+00375     }
+00376   }
+00377 
+00378   <span class="keyword">const</span> size_t m_BufSize;
+00379   LargeObjectAccess m_Obj;
+00380 
+00381   <span class="comment">// Get &amp; put buffers</span>
+00382   char_type *m_G, *m_P;
+00383 };
+00384 
 00385 
-00386 <span class="preprocessor">#endif</span>
-00387 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Fri Mar 7 21:10:06 2003 for libpqxx by
+00386 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> CHAR=<span class="keywordtype">char</span>, <span class="keyword">typename</span> TRAITS=PGSTD::<span class="keywordtype">char</span>_traits&lt;CHAR&gt; &gt; 
+<a name="l00387"></a><a class="code" href="classpqxx_1_1basic__ilostream.html">00387</a> <span class="keyword">class </span><a class="code" href="classpqxx_1_1basic__ilostream.html">basic_ilostream</a> : <span class="keyword">public</span> <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_istream&lt;CHAR, TRAITS&gt;
+00388 {
+00389 <span class="keyword">public</span>:
+<a name="l00390"></a><a class="code" href="classpqxx_1_1basic__ilostream.html#s0">00390</a>   <span class="keyword">typedef</span> CHAR char_type;
+<a name="l00391"></a><a class="code" href="classpqxx_1_1basic__ilostream.html#s1">00391</a>   <span class="keyword">typedef</span> TRAITS traits_type;
+<a name="l00392"></a><a class="code" href="classpqxx_1_1basic__ilostream.html#s2">00392</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::int_type int_type;
+<a name="l00393"></a><a class="code" href="classpqxx_1_1basic__ilostream.html#s3">00393</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::pos_type pos_type;
+<a name="l00394"></a><a class="code" href="classpqxx_1_1basic__ilostream.html#s4">00394</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::off_type off_type;
+00395 
+<a name="l00396"></a><a class="code" href="classpqxx_1_1basic__ilostream.html#a0">00396</a>   <a class="code" href="classpqxx_1_1basic__ilostream.html#a0">basic_ilostream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, <a class="code" href="classpqxx_1_1LargeObject.html">LargeObject</a> O) :
+00397     <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_istream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
+00398     m_Buf(T, O, <a class="code" href="config_8h.html#a22">PGSTD</a>::ios_base::in) 
+00399   { 
+00400   }
+00401 
+<a name="l00402"></a><a class="code" href="classpqxx_1_1basic__ilostream.html#a1">00402</a>   <a class="code" href="classpqxx_1_1basic__ilostream.html#a0">basic_ilostream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, Oid O) :
+00403     <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_istream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
+00404     m_Buf(T, O, <a class="code" href="config_8h.html#a22">PGSTD</a>::ios_base::in) 
+00405   { 
+00406   }
+00407 
+00408 <span class="keyword">private</span>:
+00409   largeobject_streambuf&lt;CHAR,TRAITS&gt; m_Buf;
+00410 };
+00411 
+<a name="l00412"></a><a class="code" href="namespacepqxx.html#a1">00412</a> <span class="keyword">typedef</span> <a class="code" href="classpqxx_1_1basic__ilostream.html">basic_ilostream&lt;char&gt;</a> <a class="code" href="namespacepqxx.html#a1">ilostream</a>;
+00413 
+00414 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> CHAR=<span class="keywordtype">char</span>, <span class="keyword">typename</span> TRAITS=PGSTD::<span class="keywordtype">char</span>_traits&lt;CHAR&gt; &gt; 
+<a name="l00415"></a><a class="code" href="classpqxx_1_1basic__olostream.html">00415</a> <span class="keyword">class </span><a class="code" href="classpqxx_1_1basic__olostream.html">basic_olostream</a> : <span class="keyword">public</span> <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_ostream&lt;CHAR, TRAITS&gt;
+00416 {
+00417 <span class="keyword">public</span>:
+<a name="l00418"></a><a class="code" href="classpqxx_1_1basic__olostream.html#s0">00418</a>   <span class="keyword">typedef</span> CHAR char_type;
+<a name="l00419"></a><a class="code" href="classpqxx_1_1basic__olostream.html#s1">00419</a>   <span class="keyword">typedef</span> TRAITS traits_type;
+<a name="l00420"></a><a class="code" href="classpqxx_1_1basic__olostream.html#s2">00420</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::int_type int_type;
+<a name="l00421"></a><a class="code" href="classpqxx_1_1basic__olostream.html#s3">00421</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::pos_type pos_type;
+<a name="l00422"></a><a class="code" href="classpqxx_1_1basic__olostream.html#s4">00422</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::off_type off_type;
+00423 
+<a name="l00424"></a><a class="code" href="classpqxx_1_1basic__olostream.html#a0">00424</a>   <a class="code" href="classpqxx_1_1basic__olostream.html#a0">basic_olostream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, <a class="code" href="classpqxx_1_1LargeObject.html">LargeObject</a> O) :
+00425     <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_ostream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
+00426     m_Buf(T, O, <a class="code" href="config_8h.html#a22">PGSTD</a>::ios_base::out) 
+00427   { 
+00428   }
+00429 
+<a name="l00430"></a><a class="code" href="classpqxx_1_1basic__olostream.html#a1">00430</a>   <a class="code" href="classpqxx_1_1basic__olostream.html#a0">basic_olostream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, Oid O) :
+00431     <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_ostream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
+00432     m_Buf(T, O, <a class="code" href="config_8h.html#a22">PGSTD</a>::ios_base::out) 
+00433   { 
+00434   }
+00435 
+<a name="l00436"></a><a class="code" href="classpqxx_1_1basic__olostream.html#a2">00436</a>   <a class="code" href="classpqxx_1_1basic__olostream.html#a2">~basic_olostream</a>() { m_Buf.pubsync(); m_Buf.pubsync(); }
+00437 
+00438 <span class="keyword">private</span>:
+00439   largeobject_streambuf&lt;CHAR,TRAITS&gt; m_Buf;
+00440 };
+00441 
+<a name="l00442"></a><a class="code" href="namespacepqxx.html#a2">00442</a> <span class="keyword">typedef</span> <a class="code" href="classpqxx_1_1basic__olostream.html">basic_olostream&lt;char&gt;</a> <a class="code" href="namespacepqxx.html#a2">olostream</a>;
+00443 
+00444 
+00445 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> CHAR=<span class="keywordtype">char</span>, <span class="keyword">typename</span> TRAITS=PGSTD::<span class="keywordtype">char</span>_traits&lt;CHAR&gt; &gt; 
+<a name="l00446"></a><a class="code" href="classpqxx_1_1basic__lostream.html">00446</a> <span class="keyword">class </span><a class="code" href="classpqxx_1_1basic__lostream.html">basic_lostream</a> : <span class="keyword">public</span> <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_iostream&lt;CHAR, TRAITS&gt;
+00447 {
+00448 <span class="keyword">public</span>:
+<a name="l00449"></a><a class="code" href="classpqxx_1_1basic__lostream.html#s0">00449</a>   <span class="keyword">typedef</span> CHAR char_type;
+<a name="l00450"></a><a class="code" href="classpqxx_1_1basic__lostream.html#s1">00450</a>   <span class="keyword">typedef</span> TRAITS traits_type;
+<a name="l00451"></a><a class="code" href="classpqxx_1_1basic__lostream.html#s2">00451</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::int_type int_type;
+<a name="l00452"></a><a class="code" href="classpqxx_1_1basic__lostream.html#s3">00452</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::pos_type pos_type;
+<a name="l00453"></a><a class="code" href="classpqxx_1_1basic__lostream.html#s4">00453</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::off_type off_type;
+00454 
+<a name="l00455"></a><a class="code" href="classpqxx_1_1basic__lostream.html#a0">00455</a>   <a class="code" href="classpqxx_1_1basic__lostream.html#a0">basic_lostream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, <a class="code" href="classpqxx_1_1LargeObject.html">LargeObject</a> O) :
+00456     <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_iostream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
+00457     m_Buf(T, O) 
+00458   { 
+00459   }
+00460 
+<a name="l00461"></a><a class="code" href="classpqxx_1_1basic__lostream.html#a1">00461</a>   <a class="code" href="classpqxx_1_1basic__lostream.html#a0">basic_lostream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, Oid O) :
+00462     <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_iostream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
+00463     m_Buf(T, O) 
+00464   { 
+00465   }
+00466 
+<a name="l00467"></a><a class="code" href="classpqxx_1_1basic__lostream.html#a2">00467</a>   <a class="code" href="classpqxx_1_1basic__lostream.html#a2">~basic_lostream</a>() { m_Buf.pubsync(); m_Buf.pubsync(); }
+00468 
+00469 <span class="keyword">private</span>:
+00470   largeobject_streambuf&lt;CHAR,TRAITS&gt; m_Buf;
+00471 };
+00472 
+<a name="l00473"></a><a class="code" href="namespacepqxx.html#a3">00473</a> <span class="keyword">typedef</span> <a class="code" href="classpqxx_1_1basic__lostream.html">basic_lostream&lt;char&gt;</a> <a class="code" href="namespacepqxx.html#a3">lostream</a>;
+00474 
+00475 }
+00476 
+00477 <span class="preprocessor">#endif</span>
+00478 <span class="preprocessor"></span>
+</pre></div><hr><address style="align: right;"><small>Generated on Tue Mar 11 12:42:48 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>
