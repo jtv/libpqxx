@@ -1,3 +1,6 @@
+2002-03-20 02:00
+ All:
+  - Renamed namespace Pg to pqxx for consistency
 2002-03-20 01:30
  All:
   - Renamed library source files to match new header file names
