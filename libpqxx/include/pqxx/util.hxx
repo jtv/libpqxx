@@ -134,6 +134,7 @@ template<typename T> PGSTD::string error_ambiguous_string_conversion(T);
  * type, e.g. if a decimal point is found when converting to an integer type,
  * the conversion fails.  Overflows (e.g. converting "9999999999" to a 16-bit
  * C++ type) are also treated as errors.
+ *
  * Only the simplest possible conversions are supported.  No fancy features
  * such as hexadecimal or octal, spurious signs, or exponent notation will work.
  * No whitespace is stripped away.  Only the kinds of strings that come out of 

@@ -15,11 +15,11 @@
  *
  *-------------------------------------------------------------------------
  */
-#define PQXXYES_I_KNOW_DEPRECATED_HEADER
 #include "pqxx/compiler.h"
 
 #include <stdexcept>
 
+#define PQXXYES_I_KNOW_DEPRECATED_HEADER
 #include "pqxx/cachedresult.h"
 
 using namespace PGSTD;

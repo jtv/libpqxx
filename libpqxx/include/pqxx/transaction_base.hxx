@@ -34,6 +34,7 @@
 /* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
 
+// TODO: Any way the BEGIN and the first query can be concatenated/pipelined?
 
 namespace pqxx
 {
