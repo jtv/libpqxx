@@ -394,7 +394,6 @@ public:
     using iterator_type::iterator_category;
     using iterator_type::difference_type;
     using iterator_type::pointer;
-    using iterator_type::operator=;
 #ifndef _MSC_VER
     using iterator_type::value_type;
     using iterator_type::reference;
@@ -411,6 +410,8 @@ public:
 
     iterator_type base() const throw () { return *this; }		//[t75]
 
+    const_reverse_iterator &operator=(const const_reverse_iterator &r)	//[]
+	{ iterator_type::operator=(r); return *this; }
     pointer operator->() const throw () 				//[t75]
 	{ m_tmp=*this; --m_tmp; return &m_tmp; }
     reference operator*() const throw () { return *operator->(); }	//[t75]
@@ -429,8 +430,6 @@ public:
     const_reverse_iterator &operator-=(difference_type i)		//[t75]
 	{ iterator_type::operator+=(i); return *this; }
 
-    using iterator_type::operator==;
-    using iterator_type::operator!=;
     bool operator==(const const_reverse_iterator &rhs) const throw ()	//[t75]
 	{ return iterator_type::operator==(rhs); }
     bool operator!=(const const_reverse_iterator &rhs) const throw ()	//[t75]
@@ -518,7 +517,6 @@ public:
     using iterator_type::iterator_category;
     using iterator_type::difference_type;
     using iterator_type::pointer;
-    using iterator_type::operator=;
 #ifndef _MSC_VER
     using iterator_type::value_type;
     using iterator_type::reference;
@@ -535,6 +533,9 @@ public:
       const_reverse_fielditerator(const const_fielditerator &rhs) :	//[t82]
       const_fielditerator(rhs), m_tmp(rhs) {}
 
+    const_reverse_fielditerator &
+      operator=(const const_reverse_fielditerator &r)			//[]
+	{ iterator_type::operator=(r); return *this; }
     pointer operator->() const throw () 				//[t82]
 	{ m_tmp = *this; --m_tmp; return &m_tmp; }
     reference operator*() const throw () { return *operator->(); }	//[t82]
@@ -553,8 +554,6 @@ public:
     const_reverse_fielditerator &operator-=(difference_type i)		//[t82]
 	{ iterator_type::operator+=(i); return *this; }
 
-    using iterator_type::operator==;
-    using iterator_type::operator!=;
     bool
       operator==(const const_reverse_fielditerator &rhs) const throw ()	//[t82]
 	{ return iterator_type::operator==(rhs); }
