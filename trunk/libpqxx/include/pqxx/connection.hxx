@@ -82,7 +82,8 @@ private:
   virtual void startconnect() { do_startconnect(); }
   virtual void completeconnect() {}
 
-  void do_startconnect() { if (!get_conn()) set_conn(PQconnectdb(options())); }
+  void do_startconnect() 
+	{ if (!get_conn()) set_conn(PQXXPQ::PQconnectdb(options())); }
 };
 
 
@@ -131,7 +132,7 @@ public:
 private:
   virtual void startconnect() {}
   virtual void completeconnect() 
-  	{ if (!get_conn()) set_conn(PQconnectdb(options())); }
+  	{ if (!get_conn()) set_conn(PQXXPQ::PQconnectdb(options())); }
 };
 
 
