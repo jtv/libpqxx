@@ -16,6 +16,7 @@
  */
 #include "pqxx/compiler.h"
 
+#include <new>
 #include <stdexcept>
 
 #include "pqxx/binarystring"

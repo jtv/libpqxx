@@ -16,6 +16,8 @@
  */
 #include "pqxx/compiler.h"
 
+#include <new>
+
 #include "pqxx/util"
 
 using namespace PGSTD;
