@@ -1,3 +1,9 @@
+2002-01-27 21:15
+ CVS:
+  - Imported into CVS
+ Makefile:
+  - Fixed "std namespace compiler workaround" breako
+  - Added "dist" target
 2002-01-26 00:30
  All:
   - New #define PGSTD to replace std if needed
