@@ -72,7 +72,7 @@ const pqxx::result &pqxx::cachedresult::Fetch() const
 
   if (!R.empty()) 
   {
-    pair<long, result> tmp_pair(BlockFor(Pos), R);
+    pair<blocknum, result> tmp_pair(BlockFor(Pos), R);
     /* Note: can't simply return R because it'll get destroyed if it was already
      * present in our map.  Return the inserted version instead--which will be
      * the result already present in the map, if any.
