@@ -18,7 +18,8 @@
 #include "pqxx/compiler.h"
 
 #include <algorithm>
-#include <cassert> // DEBUG CODE
+#include <cassert>
+#include<iostream>// DEBUG CODE
 
 #include "pqxx/dbtransaction"
 #include "pqxx/pipeline"
@@ -26,16 +27,26 @@
 using namespace PGSTD;
 using namespace pqxx;
 
+
+namespace
+{
+const string theSeparator("; ");
+const string theDummyValue("1");
+const string theDummyQuery("SELECT " + theDummyValue + theSeparator);
+}
+
+
 pqxx::pipeline::pipeline(transaction_base &t, const string &PName) :
   internal::transactionfocus(t, PName, "pipeline"),
   m_queries(),
-  m_issuedrange(0,0),
+  m_issuedrange(),
   m_retain(0),
   m_num_waiting(0),
   m_q_id(0),
   m_dummy_pending(false),
   m_error(qid_limit())
 {
+  m_issuedrange = make_pair(m_queries.end(), m_queries.end());
   invariant();
   register_me();
 }
@@ -44,7 +55,7 @@ pqxx::pipeline::pipeline(transaction_base &t, const string &PName) :
 pqxx::pipeline::~pipeline() throw ()
 {
   try { flush(); } catch (const exception &) {}
-  unregister_me();
+  if (registered()) unregister_me();
 }
 
 
@@ -54,14 +65,20 @@ pipeline::query_id pqxx::pipeline::insert(const string &q)
 
   const query_id qid = generate_id();
   assert(qid > 0);
-  assert(m_queries.find(qid)==m_queries.end());
-  m_queries.insert(make_pair(qid,Query(q)));
-  if (m_queries.lower_bound(m_issuedrange.first)->first == qid)
+  assert(m_queries.lower_bound(qid)==m_queries.end());
+  const QueryMap::iterator i = m_queries.insert(make_pair(qid,Query(q))).first;
+
+  if (m_issuedrange.second == m_queries.end())
   {
-    assert(!have_pending());
-    m_issuedrange.first = m_issuedrange.second = qid;
+    m_issuedrange.second = i;
+    if (m_issuedrange.first == m_queries.end()) m_issuedrange.first = i;
   }
   m_num_waiting++;
+
+  assert(m_issuedrange.first != m_queries.end());
+  assert(m_issuedrange.second != m_queries.end());
+  invariant();
+
   if (m_num_waiting > m_retain)
   {
     if (have_pending()) receive_if_available();
@@ -78,14 +95,14 @@ void pqxx::pipeline::complete()
 {
   invariant();
 
-  if (have_pending()) receive(end_of_issued());
+  if (have_pending()) receive(m_issuedrange.second);
   if (m_num_waiting && (m_error == qid_limit()))
   {
     assert(!have_pending());
-    issue(m_queries.end());
+    issue();
     assert(!m_num_waiting);
     assert(have_pending());
-    assert(end_of_issued() == m_queries.end());
+    assert(m_issuedrange.second == m_queries.end());
     receive(m_queries.end());
     assert((m_error!=qid_limit()) || !have_pending());
   }
@@ -100,13 +117,22 @@ void pqxx::pipeline::flush()
   invariant();
 
   if (m_queries.empty()) return;
-  if (have_pending()) receive(end_of_issued());
-  m_issuedrange.first = m_issuedrange.second = m_q_id + 1;
+  if (have_pending()) receive(m_issuedrange.second);
+  m_issuedrange.first = m_issuedrange.second = m_queries.end();
   m_num_waiting = 0;
   m_dummy_pending = false;
   m_queries.clear();
 
   invariant();
+}
+
+
+bool pqxx::pipeline::is_finished(pipeline::query_id q) const
+{
+  if (m_queries.find(q) == m_queries.end())
+    throw logic_error("Requested status for unknown query " + to_string(q));
+  return (m_issuedrange.first==m_queries.end()) ||
+         (q < m_issuedrange.first->first && q < m_error);
 }
 
 
@@ -152,7 +178,7 @@ void pqxx::pipeline::resume()
 }
 
 
-void pqxx::pipeline::invariant() const // DEBUG CODE
+void pqxx::pipeline::invariant() const
 {
   assert(m_q_id >= 0);
   assert(m_q_id <= qid_limit());
@@ -160,43 +186,38 @@ void pqxx::pipeline::invariant() const // DEBUG CODE
   assert(m_retain >= 0);
   assert(m_num_waiting >= 0);
 
-  assert(m_issuedrange.first <= m_issuedrange.second);
-  assert(m_issuedrange.first >= 0);
-  assert(m_issuedrange.second <= qid_limit());
+  const QueryMap::const_iterator 
+    start_of_issued = m_issuedrange.first,
+    end_of_issued = m_issuedrange.second;
 
-  assert(have_pending() == (m_issuedrange.first < m_issuedrange.second));
+  if (m_queries.empty()) assert(start_of_issued==m_queries.end());
+  assert(distance(m_queries.begin(), start_of_issued) >= 0);
+  assert(distance(m_issuedrange.first, m_issuedrange.second) >= 0);
+  assert(distance(end_of_issued, m_queries.end()) >= 0);
 
   if (!m_queries.empty())
   {
-    const query_id oldest = m_queries.begin()->first,
-	           newest = m_queries.rbegin()->first;
+    assert(m_queries.begin()->first > 0);
+    assert(m_queries.rbegin()->first < (m_q_id+1));
 
-    assert(oldest > 0);
-    assert(oldest <= newest);
-    assert(newest <= m_q_id);
-    assert(m_issuedrange.first >= oldest);
-
-    assert(size_t(m_queries.size()) <= 1+size_t(newest-oldest));
     assert(m_num_waiting >= 0);
     assert(size_t(m_num_waiting) <= size_t(m_queries.size()));
+
     if (have_pending())
     {
-      const QueryMap::const_iterator pending_lower = oldest_issued(),
-	                             pending_upper = end_of_issued();
-
-      assert(pending_lower != m_queries.end());
-      assert(pending_lower->first <= newest);
-      assert(distance(pending_lower, pending_upper) > 0);
-
-      assert(m_num_waiting == distance(pending_upper, m_queries.end()));
+      assert(m_issuedrange.first != m_queries.end());
+      if (m_error == qid_limit())
+        assert(m_num_waiting == distance(end_of_issued, m_queries.end()));
     }
   }
   else
   {
+    assert(m_issuedrange.first == m_queries.end());
+    assert(m_issuedrange.second == m_queries.end());
     assert(!have_pending());
     assert(!m_num_waiting);
+    assert(!m_dummy_pending);
   }
-  if (m_dummy_pending) assert(have_pending());
 
   assert(m_error != 0);
 }
@@ -211,40 +232,7 @@ pipeline::query_id pqxx::pipeline::generate_id()
 }
 
 
-pipeline::QueryMap::const_iterator pqxx::pipeline::oldest_issued() const
-{
-  const QueryMap::const_iterator o = m_queries.find(m_issuedrange.first);
-  assert(o != m_queries.end());
-  return o;
-}
-
-
-pipeline::QueryMap::iterator pqxx::pipeline::oldest_issued()
-{
-  const QueryMap::iterator o = m_queries.find(m_issuedrange.first);
-  if (o == m_queries.end())
-    internal_error("libpqxx internal error: cannot find oldest pending query");
-  return o;
-}
-
-
-pipeline::QueryMap::const_iterator pqxx::pipeline::end_of_issued() const
-{
-  QueryMap::const_iterator e = m_queries.lower_bound(m_issuedrange.second);
-  assert((e == m_queries.end()) || (e->first >= m_issuedrange.second));
-  return e;
-}
-
-
-pipeline::QueryMap::iterator pqxx::pipeline::end_of_issued()
-{
-  QueryMap::iterator e = m_queries.lower_bound(m_issuedrange.second);
-  assert((e == m_queries.end()) || (e->first >= m_issuedrange.second));
-  return e;
-}
-
-
-void pqxx::pipeline::issue(pipeline::QueryMap::const_iterator stop)
+void pqxx::pipeline::issue()
 {
   assert(m_num_waiting);
   assert(!have_pending());
@@ -252,37 +240,36 @@ void pqxx::pipeline::issue(pipeline::QueryMap::const_iterator stop)
   assert(m_num_waiting);
   invariant();
 
-  check_end_results();
+  // Retrieve that NULL result for the last query, if needed
+  obtain_result();
+
+  // Don't issue anything if we've encountered an error
+  if (m_error < qid_limit()) return;
 
   // Start with oldest query (lowest id) not in previous issue range
-  const QueryMap::const_iterator oldest = end_of_issued();
-
-  if ((oldest != m_queries.end()) && (m_error <= oldest->first)) return;
-
+  const QueryMap::iterator oldest = m_issuedrange.second;
   assert(oldest != m_queries.end());
-  assert(distance(oldest, stop) >= 0);
 
-
+  // Construct cumulative query string for entire batch
   string cum;
-  QueryMap::const_iterator i;
-  for (i = oldest; (i != stop) && (i->first < m_error); ++i)
+  int num_issued = 0;
+  for (QueryMap::const_iterator i = oldest;
+       i != m_queries.end();
+       ++i, ++num_issued)
   {
     cum += i->second.get_query();
-    cum += separator();
+    cum += theSeparator;
   }
-  const int num_issued = distance(oldest, i);
+  cum.resize(cum.size() - theSeparator.size());
   const bool prepend_dummy = (num_issued > 1);
-  if (prepend_dummy) cum = string("SELECT ") + dummyvalue() + separator() + cum;
+  if (prepend_dummy) cum = theDummyQuery + cum;
 
   m_Trans.start_exec(cum);
 
   // Since we managed to send out these queries, update state to reflect this
   m_dummy_pending = prepend_dummy;
-  m_issuedrange.first = oldest->first;
-  if (stop == m_queries.end())
-    m_issuedrange.second = m_queries.rbegin()->first + 1;
-  else
-    m_issuedrange.second = stop->first;
+  m_issuedrange.first = oldest;
+  m_issuedrange.second = m_queries.end();
   m_num_waiting -= num_issued;
 
   invariant();
@@ -296,32 +283,40 @@ void pqxx::pipeline::internal_error(const string &err) throw (logic_error)
 }
 
 
-bool pqxx::pipeline::obtain_result(bool really_expect)
+bool pqxx::pipeline::obtain_result(bool expect_none)
 {
   assert(!m_dummy_pending);
-  assert(have_pending() || !really_expect);
+  assert(!m_queries.empty());
   invariant();
 
+clog<<"OBTAINING RESULT "<<((m_issuedrange.first==m_queries.end())?"(end)":to_string(m_issuedrange.first->first))<<" have_pending()=="<<have_pending()<<" expect_none="<<expect_none<<endl;// DEBUG CODE
   PGresult *r = m_Trans.get_result();
   if (!r)
   {
-    if (really_expect) set_error_at(m_issuedrange.first);
+    if (have_pending() && !expect_none)
+    {
+clog<<"NOT GETTING RESULT FOR "<<m_issuedrange.first->first<<endl;// DEBUG CODE
+      set_error_at(m_issuedrange.first->first);
+      m_issuedrange.second = m_issuedrange.first;
+    }
     return false;
   }
 
+  assert(r);
+  const result res(r);
+
+  if (!have_pending())
+  {
+    set_error_at(m_queries.begin()->first);
+    throw logic_error("Got more results from pipeline than there were queries");
+  }
+
   // Must be the result for the oldest pending query
-  const QueryMap::iterator q = oldest_issued();
-  if (!q->second.get_result().empty())
+  if (!m_issuedrange.first->second.get_result().empty())
     internal_error("libpqxx internal error: multiple results for one query");
 
-  // Move starting point of m_issuedrange ahead to next-oldest pending query
-  // (if there is one; if not, set to end of range)
-  QueryMap::const_iterator suc = q;
-  ++suc;
-  if (suc != m_queries.end()) m_issuedrange.first = suc->first;
-  else m_issuedrange.first = m_issuedrange.second;
-
-  q->second.set_result(result(r));
+  m_issuedrange.first->second.set_result(res);
+  ++m_issuedrange.first;
 
   invariant();
 
@@ -355,7 +350,7 @@ void pqxx::pipeline::obtain_dummy()
       internal_error("libpqxx internal error: "
 	  "unexpected result for dummy query in pipeline");
 
-    if (string(R.at(0).at(0).c_str()) != dummyvalue())
+    if (string(R.at(0).at(0).c_str()) != theDummyValue)
       internal_error("libpqxx internal error: "
 	    "dummy query in pipeline returned unexpected value");
     return;
@@ -366,23 +361,23 @@ void pqxx::pipeline::obtain_dummy()
    * caused the error.  This gives us not only a more specific error message
    * to report, but also tells us which query to report it for.
    */
-  QueryMap::iterator q = oldest_issued();
-  const QueryMap::iterator stop = end_of_issued();
-
-  assert(q->first == m_issuedrange.first);
-
   // First, give the whole batch the same syntax error message, in case all else
   // is going to fail.
-  for (QueryMap::iterator i = q; i != stop; ++i) i->second.set_result(R);
+  for (QueryMap::iterator i = m_issuedrange.first;
+       i != m_issuedrange.second;
+       ++i) i->second.set_result(R);
 
-  check_end_results();
+  // Remember where the end of this batch was
+  const QueryMap::iterator stop = m_issuedrange.second;
+
+  // Retrieve that NULL result for the last query, if needed
+  obtain_result(true);
+
 
   // Reset internal state to forget botched batch attempt
-  m_num_waiting += distance(q, stop);
+  m_num_waiting += distance(m_issuedrange.first, stop);
   m_issuedrange.second = m_issuedrange.first;
 
-  assert(q->first == m_issuedrange.first);
-  assert(end_of_issued() == oldest_issued());
   assert(!m_dummy_pending);
   assert(!have_pending());
   assert(m_num_waiting > 0);
@@ -394,27 +389,30 @@ void pqxx::pipeline::obtain_dummy()
     do 
     {
       m_num_waiting--;
-      q->second.set_result(m_Trans.exec(q->second.get_query()));
-      q->second.get_result().CheckStatus(q->second.get_query());
-      q++;
+      const string &query = m_issuedrange.first->second.get_query();
+      const result res(m_Trans.exec(query));
+      m_issuedrange.first->second.set_result(res);
+      res.CheckStatus(query);
+      ++m_issuedrange.first;
     }
-    while (q != m_queries.end());
+    while (m_issuedrange.first != stop);
   }
   catch (const exception &e)
   {
-    assert(q != m_queries.end());
+    assert(m_issuedrange.first != m_queries.end());
 
-    query_id thud = q->first + 1;
-    const QueryMap::const_iterator allstop = m_queries.lower_bound(thud);
-    if (allstop != m_queries.end()) thud = allstop->first;
-    set_error_at(thud);
-    m_issuedrange.first = m_issuedrange.second = thud;
+    const query_id thud = m_issuedrange.first->first;
+    ++m_issuedrange.first;
+    m_issuedrange.second = m_issuedrange.first;
+    QueryMap::const_iterator q = m_issuedrange.first;
+    set_error_at( (q == m_queries.end()) ?  thud + 1 : q->first);
 
-  //  assert(m_num_waiting == distance(q, m_queries.end()));
+    assert(m_num_waiting == distance(m_issuedrange.second, m_queries.end()));
   }
-  register_me();
-  assert(q != m_queries.end());
-  assert(m_error < qid_limit());
+
+  assert(m_issuedrange.first != m_queries.end());
+  assert(m_error <= m_q_id);
+  invariant();
 }
 
 
@@ -426,23 +424,45 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
   if (q == m_queries.end())
     throw logic_error("Attempt to retrieve result for unknown query");
 
-  // TODO: Wish we could make this error a bit clearer!
+clog<<"RETRIEVING "<<q->first<<" error="<<m_error<<" issuedrange=["<<((m_issuedrange.first==m_queries.end())?"end":to_string(m_issuedrange.first->first))<<","<<((m_issuedrange.second==m_queries.end())?"end":to_string(m_issuedrange.second->first))<<") queries=["<<m_queries.begin()->first<<","<<m_queries.rbegin()->first<<"]"<<endl;// DEBUG CODE
   if (q->first >= m_error)
     throw runtime_error("Could not complete query in pipeline "
 	"due to error in earlier query");
 
-  QueryMap::const_iterator suc = q;
-  ++suc;
-
-  if (q->first >= m_issuedrange.second) 
+  // If query hasn't issued yet, do it now
+  if (m_issuedrange.second != m_queries.end() && 
+      (q->first >= m_issuedrange.second->first))
   {
-    // Desired query hasn't issued yet
-    if (have_pending()) receive(end_of_issued());
-    issue();
+    assert(distance(m_issuedrange.second, q) >= 0);
+
+    if (have_pending()) receive(m_issuedrange.second);
+    if (m_error == qid_limit()) issue();
   }
-  if (q->first >= m_issuedrange.first) receive(suc);
-  else if (have_pending()) receive_if_available();
-  if (m_num_waiting && !have_pending()) issue();
+
+  // If result not in yet, get it; else get at least whatever's convenient
+  if (have_pending())
+  {
+    if (q->first >= m_issuedrange.first->first)
+    {
+      QueryMap::const_iterator suc = q;
+      ++suc;
+      receive(suc);
+    }
+    else
+    {
+      receive_if_available();
+    }
+  }
+
+if(q==m_issuedrange.first)clog<<"id="<<q->first<<" begin="<<m_queries.begin()->first<<" end="<<m_queries.rbegin()->first<<" size="<<m_queries.size()<<" first="<<m_issuedrange.first->first<<" second="<<((m_issuedrange.second==m_queries.end())?"[end]":to_string(m_issuedrange.second->first))<<" num_waiting="<<m_num_waiting<<" error="<<m_error<<endl;// DEBUG CODE
+  assert((m_error <= q->first) || (q != m_issuedrange.first));
+
+  if (q->first >= m_error)
+    throw runtime_error("Could not complete query in pipeline "
+	"due to error in earlier query");
+
+  // Don't leave the backend idle if there are queries waiting to be issued
+  if (m_num_waiting && !have_pending() && (m_error==qid_limit())) issue();
 
   const string query(q->second.get_query());
   const result R = q->second.get_result();
@@ -460,8 +480,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 void pqxx::pipeline::get_further_available_results()
 {
   assert(!m_dummy_pending);
-  while (have_pending() && !m_Trans.is_busy() && obtain_result(true));
-  if (!have_pending()) check_end_results();
+  while (!m_Trans.is_busy() && obtain_result()) m_Trans.consume_input();
 }
 
 
@@ -486,23 +505,10 @@ void pqxx::pipeline::receive(pipeline::QueryMap::const_iterator stop)
 
   if (m_dummy_pending) obtain_dummy();
 
-  QueryMap::const_iterator q = oldest_issued();
-  while (have_pending() && (q != stop) && obtain_result(true)) ++q;
+  while (obtain_result() && (m_issuedrange.first != stop));
 
   // Also haul in any remaining "targets of opportunity"
-  if (have_pending()) get_further_available_results();
-
-  // Get that terminating NULL result
-  if (!have_pending()) check_end_results();
+  if (m_issuedrange.first == stop) get_further_available_results();
 }
 
-
-void pqxx::pipeline::check_end_results()
-{
-  if (obtain_result(false))
-  {
-    set_error_at(m_queries.begin()->first);
-    throw logic_error("Got more results from pipeline than there were queries");
-  }
-}
 

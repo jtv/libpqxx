@@ -1,3 +1,7 @@
+2004-06-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/pipeline.hxx, src/pipeline.cxx:
+  - Made m_issuedrange a pair of iterators
+  - Many related changes
 2004-06-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/pipeline.cxx:
   - Removed disaster-handling code for exceptions in result constructor
