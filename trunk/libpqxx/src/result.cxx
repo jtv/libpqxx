@@ -177,32 +177,6 @@ pqxx::Result::Field pqxx::Result::Tuple::at(pqxx::Result::Tuple::size_type i) co
 
 
 
-// Field
-
-const char *pqxx::Result::Field::c_str() const
-{
-  return m_Home->GetValue(m_Index, m_Col);
-}
-
-
-const char *pqxx::Result::Field::name() const
-{
-  return m_Home->ColumnName(m_Col);
-}
-
-
-int pqxx::Result::Field::size() const
-{
-  return m_Home->GetLength(m_Index, m_Col);
-}
-
-
-bool pqxx::Result::Field::is_null() const
-{
-  return m_Home->GetIsNull(m_Index, m_Col);
-}
-
-
 // const_iterator
 
 pqxx::Result::const_iterator pqxx::Result::const_iterator::operator++(int)
