@@ -49,10 +49,10 @@ template<> inline PGSTD::string Classname(const TableStream *)
 
 
 
-// Interface definition (and common code) for "transaction" classes.  All 
-// database access must be channeled through one of these classes for safety,
-// although not all implementations of this interface need to provide full
-// transactional integrity.
+/// Interface definition (and common code) for "transaction" classes.  All 
+/// database access must be channeled through one of these classes for safety,
+/// although not all implementations of this interface need to provide full
+/// transactional integrity.
 class PQXX_LIBEXPORT TransactionItf
 {
 public:
@@ -70,19 +70,19 @@ public:
   PGSTD::string Name() const { return m_Name; }				//[t1]
 
 protected:
-  // Create a transaction.  The optional name, if given, must begin with a
-  // letter and may contain letters and digits only.
+  /// Create a transaction.  The optional name, if given, must begin with a
+  /// letter and may contain letters and digits only.
   explicit TransactionItf(Connection &, 
 		          PGSTD::string Name=PGSTD::string());
 
-  // Begin transaction.  To be called by implementing class, typically from 
-  // constructor.
+  /// Begin transaction.  To be called by implementing class, typically from 
+  /// constructor.
   void Begin();
 
-  // End transaction.  To be called by implementing class' destructor 
+  /// End transaction.  To be called by implementing class' destructor 
   void End() throw ();
 
-  // To be implemented by implementing class.
+  /// To be implemented by derived implementation class.
   virtual void DoBegin() =0;
   virtual Result DoExec(const char C[]) =0;
   virtual void DoCommit() =0;
@@ -90,7 +90,7 @@ protected:
 
   // For use by implementing class:
 
-  // Execute query on connection directly
+  /// Execute query on connection directly
   Result DirectExec(const char C[], int Retries, const char OnReconnect[]);
   Connection &Conn() const { return m_Conn; }
 
@@ -153,11 +153,11 @@ private:
 };
 
 
-// An exception that might be thrown in rare cases where the connection to the
-// database is lost while finishing a database transaction, and there's no way
-// of telling whether it was actually executed by the backend.  In this case
-// the database is left in an indeterminate (but consistent) state, and only
-// manual inspection will tell which is the case.
+/// An exception that might be thrown in rare cases where the connection to the
+/// database is lost while finishing a database transaction, and there's no way
+/// of telling whether it was actually executed by the backend.  In this case
+/// the database is left in an indeterminate (but consistent) state, and only
+/// manual inspection will tell which is the case.
 class PQXX_LIBEXPORT in_doubt_error : public PGSTD::runtime_error
 {
 public:

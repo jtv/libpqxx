@@ -32,8 +32,8 @@ namespace pqxx
 typedef long Result_size_type;
 typedef int Tuple_size_type;
 
-// C-style format strings for various built-in types.  Only allowed for
-// certain types, for which this function is explicitly specialized below.
+/// C-style format strings for various built-in types.  Only allowed for
+/// certain types, for which this function is explicitly specialized below.
 template<typename T> inline const char *FmtString(const T &);
 
 // Not implemented to prevent accidents with irregular meaning of argument:
@@ -48,7 +48,7 @@ template<> inline const char *FmtString(const double &)        { return "%lf"; }
 template<> inline const char *FmtString(const char &)          { return  "%c"; }
 
 
-// Convert object of built-in type to string
+/// Convert object of built-in type to string
 template<typename T> inline PGSTD::string ToString(const T &Obj)
 {
   // TODO: Find a decent way to determine max string length at compile time!
@@ -89,12 +89,12 @@ template<> inline void FromString(const char Str[], const char *&Obj)
 }
 
 
-// Generate SQL-quoted version of string.  If EmptyIsNull is set, an empty
-// string will generate the null value rather than an empty string.
+/// Generate SQL-quoted version of string.  If EmptyIsNull is set, an empty
+/// string will generate the null value rather than an empty string.
 template<typename T> PGSTD::string Quote(const T &Obj, bool EmptyIsNull=false);
 
 
-// std::string version, on which the other versions are built
+/// std::string version, on which the other versions are built
 template<> inline PGSTD::string Quote(const PGSTD::string &Obj, 
 		                      bool EmptyIsNull)
 {
@@ -112,8 +112,8 @@ template<> inline PGSTD::string Quote(const PGSTD::string &Obj,
 }
 
 
-// In the special case of const char *, the null pointer is represented as
-// the null value.
+/// In the special case of const char *, the null pointer is represented as
+/// the null value.
 template<> inline PGSTD::string Quote(const char *const & Obj, bool EmptyIsNull)
 {
   if (!Obj) return "null";
@@ -121,7 +121,9 @@ template<> inline PGSTD::string Quote(const char *const & Obj, bool EmptyIsNull)
 }
 
 
-// Generic version
+/// Generic version: generate SQL-quoted version of object.  If EmptyIsNull is
+/// set, an empty string will generate the null value rather than an empty 
+/// string.
 template<typename T> inline PGSTD::string Quote(const T &Obj, bool EmptyIsNull)
 {
   return Quote(ToString(Obj), EmptyIsNull);
@@ -129,15 +131,15 @@ template<typename T> inline PGSTD::string Quote(const T &Obj, bool EmptyIsNull)
 
 
 
-// Return user-readable name for a class.  Specialize this whereever used.
+/// Return user-readable name for a class.  Specialize this whereever used.
 template<typename T> PGSTD::string Classname(const T *);
 
 
-// Ensure proper opening/closing of GUEST objects related to a "host" object,
-// where only a single GUEST may exist for a single host at any given time.
-// The template assumes that Classname<GUEST>() returns a user-readable name
-// for the guest type, and that GUEST::Name() returns a user-readable name for
-// the GUEST object.
+/// Ensure proper opening/closing of GUEST objects related to a "host" object,
+/// where only a single GUEST may exist for a single host at any given time.
+/// The template assumes that Classname<GUEST>() returns a user-readable name
+/// for the guest type, and that GUEST::Name() returns a user-readable name for
+/// the GUEST object.
 template<typename GUEST>
 class Unique
 {

@@ -28,6 +28,15 @@ namespace pqxx
 {
 class TableReader;	// See pqxx/tablereader.h
 
+/** A TableWriter provides a Spartan but efficient way of writing data tuples
+ * into a table.  It provides a plethora of STL-like insertion methods: it has
+ * insert() methods, push_back(), an overloaded insertion operator (<<), and it
+ * supports inserters created by std::back_inserter().  All of these are
+ * templatized so you can use any container type or iterator range to feed 
+ * tuples into the table.
+ * Note that in each case, a container or range represents the fields of a 
+ * single tuple--not a collection of tuples.
+ */
 class PQXX_LIBEXPORT TableWriter : public TableStream
 {
 public:
@@ -48,6 +57,8 @@ public:
   // Copy table from one database to another
   TableWriter &operator<<(TableReader &);				//[t6]
 
+  /// "Untokenize" a tuple of data to a string in DBMS-specific format.  This
+  /// is not portable between databases.
   template<typename IT> PGSTD::string ezinekoT(IT Begin, IT End) const;	//[t10]
   template<typename TUPLE> PGSTD::string ezinekoT(const TUPLE &) const;	//[t10]
 
