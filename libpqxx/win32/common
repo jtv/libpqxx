@@ -5,7 +5,7 @@ NULL=nul
 !ENDIF 
 
 #-STL options
-# STD=/D "PGSTD=std"
+STD=/D "PGSTD=std"
 # If you are using a 3rd party STL like STLport, remember to check your path
 # and be sure the STLport is included before the MSVC includes. VCVARS32.BAT
 # doesn't know anything about the directories as defined in the IDE. I use
