@@ -1,3 +1,6 @@
+1.9.5
+ - Header file contents moved to .hxx files for editor filetype recognition
+ - Fixes wrong timestamp for include/pqxx/result in 1.9.4 distribution
 1.9.4
  - Fixes Visual C++ build problem when compiling as library
 1.9.3

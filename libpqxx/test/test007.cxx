@@ -62,6 +62,23 @@ public:
     // SELECT affects no rows.
     assert(!R.affected_rows());
 
+    // See if we get reasonable type identifier for this column
+    const oid rctype = R.column_type(0);
+    const string rct = ToString(rctype);
+    if (rctype <= 0)
+      throw logic_error("Got strange type ID for column: " + rct);
+    const string rcol = R.column_name(0);
+    if (rcol.empty())
+      throw logic_error("Didn't get a name for column!");
+    const oid rcctype = R.column_type(rcol);
+    if (rcctype != rctype)
+      throw logic_error("Column has type " + rct + ", "
+	  		"but by name, it's " + ToString(rcctype));
+    const oid rawrcctype = R.column_type(rcol.c_str());
+    if (rawrcctype != rctype)
+      throw logic_error("Column has type " + rct + ", "
+	                "but by C-style name it's " + ToString(rawrcctype));
+
     // Note all different years currently occurring in the table, writing them
     // and their correct mappings to m_Conversions
     for (result::const_iterator r = R.begin(); r != R.end(); ++r)
@@ -69,8 +86,26 @@ public:
       int Y;
 
       // Read year, and if it is non-null, note its converted value
-      if (r[0].to(Y)) 
-	m_Conversions[Y] = To4Digits(Y);
+      if (r[0].to(Y)) m_Conversions[Y] = To4Digits(Y);
+
+      // See if type identifiers are consistent
+      const oid tctype = r->column_type(0);
+      if (tctype != rctype)
+	throw logic_error("Column has type " + rct + ", "
+	                  "but tuple says it's " + ToString(tctype));
+      const oid ctctype = r->column_type(rcol);
+      if (ctctype != rctype)
+	throw logic_error("Column has type " + rct + ", "
+	    		  "but by name, tuple says it's " + ToString(ctctype));
+      const oid rawctctype = r->column_type(rcol.c_str());
+      if (rawctctype != rctype)
+	throw logic_error("Column has type " + rct + ", "
+	    		  "but by C-style name, tuple says it's " + 
+			  ToString(rawctctype));
+      const oid fctype = r[0].type();
+      if (fctype != rctype)
+	throw logic_error("Column has type " + rct + ", "
+	    		  "but field says it's " + ToString(fctype));
     }
 
     result::size_type AffectedRows = 0;
