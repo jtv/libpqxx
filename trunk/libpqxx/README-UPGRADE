@@ -1,3 +1,17 @@
+NOTICES FOR USERS UPGRADING FROM 2.0 AND 2.1 VERSIONS TO 2.2.0 OR LATER
+
+The default installation location has changed from /usr/local/pqxx to /usr/local
+which should make it easier to run programs linked to libpqxx.  If you upgrade,
+be sure to remove your old /usr/local/pqxx is removed, or at least remove it
+from your header and library paths when compiling your libpqxx programs.
+
+The configure script no longer requires the --with-postgres options, nor does it
+recognize them.  Instead, it finds the PostgreSQL headers and libraries by
+running Postgres' pg_config script.  This should have been installed in the
+binaries directory of your PostgreSQL installation; make sure it's in your
+command path before running the libpqxx configure script.
+
+
 IMPORTANT NOTICE FOR USERS UPGRADING TO 1.9.0 OR LATER FROM OLDER VERSIONS
 
 Version 1.9.0 marks a radical change in the library, preparatory to the 2.0.0
