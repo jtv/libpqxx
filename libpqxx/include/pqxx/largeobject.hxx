@@ -387,7 +387,7 @@ protected:
   virtual int sync()
   {
     // setg() sets eback, gptr, egptr
-    setg(eback(), eback(), egptr());
+    setg(this->eback(), this->eback(), this->egptr());
     return overflow(EoF());
   }
 
@@ -410,9 +410,9 @@ protected:
 
   virtual int_type overflow(int_type ch = EoF())
   {
-    char *const pp = pptr();
+    char *const pp = this->pptr();
     if (!pp) return EoF();
-    char *const pb = pbase();
+    char *const pb = this->pbase();
     int_type res = 0;
 
     if (pp > pb) res = AdjustEOF(m_Obj.cwrite(pb, pp-pb));
@@ -421,17 +421,17 @@ protected:
     // Write that one more character, if it's there.
     if (ch != EoF())
     {
-      *pptr() = char(ch);
-      pbump(1);
+      *this->pptr() = char(ch);
+      this->pbump(1);
     }
     return res;
   }
 
   virtual int_type underflow()
   {
-    if (!gptr()) return EoF();
-    char *const eb = eback();
-    const int res = AdjustEOF(m_Obj.cread(eback(), m_BufSize));
+    if (!this->gptr()) return EoF();
+    char *const eb = this->eback();
+    const int res = AdjustEOF(m_Obj.cread(this->eback(), m_BufSize));
     setg(eb, eb, eb + ((res==EoF()) ? 0 : res));
     return (!res || (res == EoF())) ? EoF() : *eb;
   }
