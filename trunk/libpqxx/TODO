@@ -11,6 +11,7 @@ Porting
 (*) Make TableStream hierarchy respect DIALECT
 
 Results
+(*) Allow querying of field types
 (*) Allow direct mapping onto structs, using member ref template args (?)
 
 Streams

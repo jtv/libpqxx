@@ -112,7 +112,7 @@ public:
     }
 
     // Read value into Obj; or use Default & return false if null
-    template<typename T> bool to(T &Obj, const T &Default) const	//[]
+    template<typename T> bool to(T &Obj, const T &Default) const	//[t12]
     {
       const bool NotNull = to(Obj);
       if (!NotNull)
@@ -120,7 +120,7 @@ public:
       return NotNull;
     }
 
-    bool is_null() const;						//[]
+    bool is_null() const;						//[t12]
 
     int size() const;							//[t11]
 
@@ -153,9 +153,9 @@ public:
     const_iterator operator--(int);					//[t12]
     const_iterator &operator--() { --m_Index; return *this; }		//[t12]
 
-    const_iterator &operator+=(difference_type i) 			//[]
+    const_iterator &operator+=(difference_type i) 			//[t12]
     	{ m_Index+=i; return *this; }
-    const_iterator &operator-=(difference_type i) 			//[]
+    const_iterator &operator-=(difference_type i) 			//[t12]
     	{ m_Index-=i; return *this; }
 
     bool operator==(const const_iterator &i) const 			//[t12]

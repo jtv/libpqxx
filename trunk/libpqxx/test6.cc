@@ -46,6 +46,11 @@ public:
   {
     T.Exec(("DELETE FROM " + m_Table).c_str());
   }
+
+  void OnCommit()
+  {
+    cout << "Table successfully cleared." << endl;
+  }
 };
 
 
@@ -76,6 +81,11 @@ public:
     // really in the same database, we'd do this differently in real life; a
     // simple SQL query would suffice.
     Dst << Org;
+  }
+
+  void OnCommit()
+  {
+    cout << "Table successfully copied." << endl;
   }
 };
 

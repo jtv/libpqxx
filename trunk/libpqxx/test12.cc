@@ -66,7 +66,17 @@ int main(int argc, char *argv[])
 
       // Look for null fields
       for (Result::Tuple::size_type f=0; f<i->size(); ++f)
+      {
 	NullFields[f] += i.at(f).is_null();
+
+        string A, B;
+        if (i[f].to(A) != i[f].to(B, string("")))
+          throw logic_error("Variants of to() disagree on nullness!");
+
+        if (A != B)
+          throw logic_error("Field is '" + A + "' according to one to(), "
+			    "but '" + B + "' to the other!");
+      }
 
       // Compare fields to those of preceding row
       if (i != R.begin())
