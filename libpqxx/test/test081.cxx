@@ -10,25 +10,83 @@
 using namespace PGSTD;
 using namespace pqxx;
 
-
-// Test program for libpqxx.  Read table pqxxevents through a cursor.  Default
-// blocksize is 1; use 0 to read all rows at once.
+// Test program for libpqxx.  Read table pqxxevents through a cursor.
 //
-// Usage: test081 [connect-string] [blocksize]
+// Usage: test081 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
 // called template1, of "host=foo.bar.net user=smith" to connect to a
 // backend running on host foo.bar.net, logging in as user smith.
-int main(int argc, char *argv[])
+
+namespace
+{
+// Compare contents of "part" with those of "org," starting at offset "here"
+void cmp_results(const result &org, result::size_type &here, const result &part)
+{
+  if (here + part.size() > org.size())
+    throw logic_error("Cursor returned more than expected " + 
+	to_string(org.size()) + " rows");
+  if (part[0].size() != org[0].size())
+    throw logic_error("Expected " + to_string(org[0].size()) + " columns, "
+	"got " + to_string(part[0].size()));
+
+  for (result::size_type row = 0; row < part.size(); ++row, ++here)
+  {
+    for (result::tuple::size_type field = 0; field < part[row].size(); ++field)
+      if (string(part[row][field].c_str()) != string(org[here][field].c_str()))
+        throw logic_error("Row " + to_string(here) + ", "
+		"field " + to_string(field) + ": "
+		"expected '" + org[here][field].c_str() + "', "
+		"got '" + part[row][field].c_str() + "'");
+  }
+}
+
+bool get(icursorstream &C, result &R, result::size_type expectedrows)
+{
+  if (!(C >> R))
+  {
+    if (!R.empty()) throw logic_error("Finished cursor returned " +
+	to_string(R.size()) + " rows");
+    return false;
+  }
+
+  if (R.empty()) throw logic_error("Unfinished cursor returned empty result");
+  if (R.size() > expectedrows)
+    throw logic_error("Expected at most " + to_string(expectedrows) + " "
+	"rows, got " + to_string(R.size()));
+
+  return true;
+}
+
+
+void start(icursorstream &C, result::size_type &here)
+{
+  here = 0;
+  cout << "Testing cursor " << C.name() << endl;
+}
+
+void finish(icursorstream &C,
+    result::size_type expectedrows,
+    result::size_type here)
+{
+  result R;
+  get(C, R, 0);
+  if (C) throw logic_error("Cursor in inconsistent EOF state");
+  if (!!C) throw logic_error("Broken operator ! on cursor");
+  if (here < expectedrows)
+    throw logic_error("Expected " + to_string(expectedrows) + " rows, "
+	"got " + to_string(here));
+}
+
+} // namespace
+
+
+int main(int, char *argv[])
 {
   try
   {
     const string Table = "pqxxevents";
-
-    int BlockSize = 1;
-    if (argc > 2) from_string(argv[2], BlockSize);
-    if (BlockSize == 0) BlockSize = cursor_base::ALL();
 
     connection C(argv[1]);
 
@@ -41,39 +99,44 @@ int main(int argc, char *argv[])
       throw runtime_error("Table " + Table + " appears to be empty.  "
 	  "Cannot test with an empty table, sorry.");
 
-    icursorstream Cur(T, Query, "tablecur", BlockSize);
 
     result R;
-    result::size_type here = 0;
-    while ((Cur >> R))
+    result::size_type here;
+
+    // Simple test: read back results 1 row at a time
+    icursorstream Cur1(T, Query, "singlestep", cursor_base::next());
+    start(Cur1, here);
+    while (get(Cur1, R, 1)) cmp_results(Ref, here, R);
+    finish(Cur1, Ref.size(), here);
+
+    // Read whole table at once
+    icursorstream Cur2(T, Query, "bigstep");
+    Cur2.set_stride(cursor_base::all());
+    start(Cur2, here);
+    if (!get(Cur2, R, Ref.size())) throw logic_error("No data!");
+    cmp_results(Ref, here, R);
+    finish(Cur2, Ref.size(), here);
+
+    // Read with varying strides
+    icursorstream Cur3(T, Query, "irregular", 1);
+    start(Cur3, here);
+    for (result::size_type stride=1; get(Cur3, R, stride); ++stride)
     {
-      if (!Cur) throw logic_error("Inconsistent cursor state!");
-
-      if (R.size() > BlockSize)
-        throw logic_error("Cursor returned " + to_string(R.size()) + " rows, "
-			  "when " + to_string(BlockSize) + " "
-			  "was all I asked for!");
-
-      // Compare cursor's results with Ref
-      for (result::size_type row = 0; row < R.size(); ++row, ++here)
-      {
-	if (here >= Ref.size())
-	  throw logic_error("Cursor returned more than expected " +
-	      to_string(Ref.size()) + " rows");
-
-        for (result::tuple::size_type field = 0; field < R[row].size(); ++field)
-	  if (string(R[row][field].c_str()) != string(Ref[here][field].c_str()))
-	    throw logic_error("Row " + to_string(row) + ", "
-		"field " + to_string(field) + ": "
-		"expected '" + Ref[row][field].c_str() + "', "
-		"got '" + R[row][field].c_str() + "'");
-      }
+      cmp_results(Ref, here, R);
+      Cur3.set_stride(stride+1);
     }
+    finish(Cur3, Ref.size(), here);
 
-    if (!!Cur) throw logic_error("Inconsistent cursor state!");
-    if (here < Ref.size())
-      throw logic_error("Cursor returned " + to_string(here) + " rows; "
-	  "expected " + to_string(Ref.size()));
+    // Try skipping a few lines
+    icursorstream Cur4(T, Query, "skippy", 2);
+    start(Cur4, here);
+    while (get(Cur4, R, 2))
+    {
+      cmp_results(Ref, here, R);
+      Cur4.ignore(3);
+      here += 3;
+    }
+    finish(Cur4, Ref.size(), here);
   }
   catch (const sql_error &e)
   {
