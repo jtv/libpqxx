@@ -115,7 +115,7 @@ namespace PGSTD
 // Specialized back_insert_iterator for tablewriter, doesn't require a 
 // value_type to be defined.  Accepts any container type instead.
 template<> 
-  class PQXX_LIBEXPORT back_insert_iterator<pqxx::tablewriter> :	//[t9]
+  class back_insert_iterator<pqxx::tablewriter> :			//[t9]
 	public iterator<output_iterator_tag, void,void,void,void>
 {
 public:

@@ -321,7 +321,7 @@ private:
  * fully support Standard-compliant streambufs, such as g++ 2.95 or older.
  */
 template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
-  class PQXX_LIBEXPORT largeobject_streambuf :
+  class largeobject_streambuf :
 #ifdef HAVE_STREAMBUF
     public PGSTD::basic_streambuf<CHAR, TRAITS>
 #else
@@ -470,7 +470,7 @@ private:
  * Currently only works for <char, std::char_traits<char> >.
  */
 template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> > 
-  class PQXX_LIBEXPORT basic_ilostream :
+  class basic_ilostream :
 #ifdef HAVE_STREAMBUF
     public PGSTD::basic_istream<CHAR, TRAITS>
 #else
@@ -533,7 +533,7 @@ typedef basic_ilostream<char> ilostream;
  * Currently only works for <char, std::char_traits<char> >.
  */
 template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> > 
-  class PQXX_LIBEXPORT basic_olostream : 
+  class basic_olostream : 
 #ifdef HAVE_STREAMBUF
     public PGSTD::basic_ostream<CHAR, TRAITS>
 #else
@@ -604,7 +604,7 @@ typedef basic_olostream<char> olostream;
  * Currently only works for <char, std::char_traits<char> >.
  */
 template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> > 
-  class PQXX_LIBEXPORT basic_lostream :
+  class basic_lostream :
 #ifdef HAVE_STREAMBUF
     public PGSTD::basic_iostream<CHAR, TRAITS>
 #else

@@ -275,7 +275,7 @@ template<typename T> PGSTD::string Classname(const T *);
  * instead.  This matters on Windows, where memory allocated by a DLL must be 
  * freed by the same DLL.
  */
-template<typename T> class PQXX_LIBEXPORT PQAlloc
+template<typename T> class PQAlloc
 {
   T *m_Obj;
 public:
@@ -365,7 +365,7 @@ template<> inline void PQAlloc<PGnotify>::freemem() throw ()
  * This template used to be called Unique.
  */
 template<typename GUEST>
-class PQXX_LIBEXPORT unique
+class unique
 {
 public:
   unique() : m_Guest(0) {}

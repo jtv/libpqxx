@@ -141,7 +141,7 @@ template<> inline PGSTD::string Classname(const basic_robusttransaction *)
  * attempt to recreate the table at its next time of use.
  */
 template<isolation_level ISOLATIONLEVEL=read_committed>
-class PQXX_LIBEXPORT robusttransaction : public basic_robusttransaction
+class robusttransaction : public basic_robusttransaction
 {
 public:
   typedef isolation_traits<ISOLATIONLEVEL> isolation_tag;

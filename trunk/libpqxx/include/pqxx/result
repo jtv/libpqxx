@@ -584,6 +584,7 @@ inline oid result::column_table(tuple::size_type ColNum) const
     throw PGSTD::invalid_argument("Attempt to retrieve table ID for column " +
 				  ToString(ColNum) + " "
 				  "out of " + ToString(Columns()));
+  return T;
 }
 #endif
 
