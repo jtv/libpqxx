@@ -119,20 +119,27 @@ your PostgreSQL setup, let me know about it and I'll try to fix it.
 4. Make Install
 
 This is supposed to install the libpqxx library and header files to your
-system.  Supposed to, because at the time of this text's writing it doesn't
-install the header files yet.  The library is installed to a new directory
-/usr/local/pqxx/lib by default (which will probably change in the near future),
-but for now you'll have to copy over the header files by default.
+system.  It took me some time to get this to actually work, so please take care
+to check that it really does work and that especially the headers are really
+installed to your system.
 
-The best thing to do about this in the current version is to first first run
-"make install", then manually copy the include/ directory to /usr/local/pqxx so
-that /usr/local/pqxx will contain two directories, include and lib.  Eventually
-these files will hopefully be moved in with the PostgreSQL files somewhere.
+The library and headers are installed to a new directory /usr/local/pqxx/ by 
+default, in their respective subdirectories include/ and lib/.  This will 
+probably change in the near future.
 
 Assuming this succeeds, you should now be able to build your own programs by
 adding /usr/local/pqxx/include to your include path, and /usr/local/pqxx/lib to
 your library search path.  See the documentation and the test programs for more
 information on using libpqxx.
+
+One other thing here that may not work is that, if you link with the dynamic
+version of the library, your program may fail to run because the run-time 
+loader cannot find the library.  You can get around this by (i) linking to the
+static version of the library, or (ii) adding a link in /usr/local/lib to the
+dynamic libpqxx library, or (iii) adding libpqxx's lib/ directory to your
+loader's search path.  This is in decreasing order of preference, so try (i)
+first, and only resort to (iii) if both (i) and (ii) fail.
+
 
 Enjoy!
 

@@ -1,12 +1,11 @@
 Build
-(*) Get "make install" to actually install headers
+(*) Somehow get config.h to never clash with other packages
 (*) Look at a-a-t.org for alternative build system
 (*) Get object files into obj/ directory, library binary into lib/
 (*) Finalize license
 
 Check
 (*) Move "check" postgres parameters into configure.ac
-(*) Test 8 appears to mistranslate tabs on console output
 
 Error handling
 (*) Check whether transaction still open if possible (consistency with backend)
@@ -32,5 +31,6 @@ Triggers
 (*) Allow access to Connection's triggers list?
 
 Nonblocking operation
+(*) Separate query issuing from receipt of results
 (*) Support select()
 
