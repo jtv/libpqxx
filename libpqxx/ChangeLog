@@ -1,7 +1,15 @@
 2003-06-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/libpqxx.sgml:
+  - Replaced by libpqxx.xml
+ doc/libpqxx.xml:
+  - New.  Thanks Wichert Akkerman!
+ DoxyFile:
+  - Added new header files
  include/pqxx/connection_base, include/pqxx/transaction_base,
  src/tablestream.cxx:
   - Fix crash closing tablestream on nonexistant table (thx Sean [Rogers?])
+ include/pqxx/except:
+  - Moved exception classes back into pqxx namespace where they belong
 2003-06-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/*.h:
   - Deprecated; new headers have names not ending in ".h"

@@ -16,7 +16,7 @@ libtoolize --force --automake --copy
 automake${ver} --verbose --add-missing --copy
 autoconf
 
-conf_flags="--enable-maintainer-mode"
+conf_flags="--enable-maintainer-mode --with-postgres=/home/jtv/postgresql-7.4"
 if test x$NOCONFIGURE = x; then
 	echo Running $srcdir/configure $conf_flags "$@" ...
 	./configure $conf_flags "$@" \

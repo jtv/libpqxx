@@ -3,6 +3,7 @@
  - Renamed all header files to remove ".h" suffix
  - Tables created by regression test now prefixed with "pqxx" for safety
  - Large objects now considered stable
+ - Migrated tutorial from SGML to DocBook XML (thanks Wichert Akkerman)
  - Added tests 57-59
  - Fixed compile error in largeobject
  - Updated Windows makefiles

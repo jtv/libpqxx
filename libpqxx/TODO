@@ -1,6 +1,8 @@
 Build system
 (*) Check for <sstream> presence (and what if it ain't there?)
 (*) Completely support building outside the source directory
+(*) Make Makefile translate tutorial to HTML
+(*) Separate config.h's for building the library and building clients
 
 Connections
 (*) Check for PQfreeNotify() function instead of just PQfreemem()
@@ -16,11 +18,9 @@ Cursors
 (*) Splice out forward-only functionality
 (*) Provide iterator interface
 (*) Prepare for updateable cursors
-(*) Make cachedresult 
+(*) Fix Visual C++ compile (?)
 
 Documentation
-(*) Find a better documentation format for the tutorial
-(*) Re-translate the tutorial to HTML (preferably as part of build procedure)
 (*) Document migration procedures from libpq++
 
 Large Objects
@@ -42,6 +42,7 @@ Streams
 (*) Allow single-level insertion with endt/endr manipulators
 
 Transactions
+(*) What if robusttransaction reconnects while "in-doubt" attempt still ongoing?
 (*) User schema support for robusttransaction log table
 (*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
 

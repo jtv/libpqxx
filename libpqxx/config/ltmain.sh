@@ -1211,6 +1211,11 @@ compiler."
 	continue
 	;;
 
+      -Kthread | -mthreads | -mt | -pthread | -pthreads | -threads | -qthreaded | -kthread )
+        compiler_flags="$compiler_flags $arg"
+	continue
+	;;
+
       # Some other compiler flag.
       -* | +*)
 	# Unknown arguments in both finalize_command and compile_command need
