@@ -6,7 +6,8 @@ Check
 Results
 (*) Conceive metadata model
 (*) Allow direct mapping onto structs, using member ptr template args (?)
-(*) Caching "lazy fetch" result sets
+(*) Caching, "lazy-fetch" result sets
+(*) Optimize null check in "not null" fields?
 
 RobustTransaction
 (*) User schema support for log table
@@ -23,5 +24,6 @@ Nonblocking operation
 (*) Separate query issuing from receipt of results
 (*) Support select()
 
-Build system
-(*) Completely support building outside the source directory
+Debian packaging
+(*) Write and use doc-base entry for documentation
+
