@@ -57,9 +57,8 @@ CPP_PROJ=/nologo \$(CPP_EXTRA) /W3 /GX /FD /c \\
 	/YX /Fo\"\$(INTDIR)\\\\\" /Fd\"\$(INTDIR)\\\\\"
 
 LINK32=link.exe
-LINK32_FLAGS=\$(LINK32_FLAG_LIB) kernel32.lib user32.lib gdi32.lib \\
-        winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib \\
-        oleaut32.lib uuid.lib odbc32.lib odbccp32.lib \\
+LINK32_FLAGS=\$(LINK32_FLAG_LIB) kernel32.lib user32.lib \\
+        winspool.lib shell32.lib uuid.lib \\
         /nologo /subsystem:console /machine:I386 \\
         \$(LINK32_FLAG_EXTRA) \$(LIBPATH) /libpath:\"lib\"
 

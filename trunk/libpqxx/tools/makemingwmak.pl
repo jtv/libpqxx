@@ -19,8 +19,6 @@ my @objs = split / /, $files;
 my $pqxxversion = `grep PQXXVERSION VERSION | cut -f 2`;
 $pqxxversion =~ s/\n//;
 
-# TODO: Better configuration system for system-dependent variables
-
 print <<EOF;
 # AUTOMATICALLY GENERATED--DO NOT EDIT
 # Makefile for libpqxx-$pqxxversion with MinGW
