@@ -3,7 +3,7 @@ Priority: optional
 Maintainer: J.H.M. Dassen <jdassen@debian.org>
 Build-Depends: debhelper (>> 3.0.0), postgresql-dev, doxygen
 Section: libs
-Standards-Version: 3.5.7
+Standards-Version: 3.5.8
 
 Package: libpqxx-dev
 Section: devel

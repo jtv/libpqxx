@@ -6166,7 +6166,7 @@ else
 	allow_undefined_flag='${wl}-berok'
 	# This is a bit strange, but is similar to how AIX traditionally builds
 	# it's shared libraries.
-	archive_expsym_cmds="\$CC $shared_flag"' -o $output_objdir/$soname $libobjs $deplibs $compiler_flags ${allow_undefined_flag} '"\${wl}$no_entry_flag \${wl}$exp_sym_flag:\$export_symbols"' ~$AR -crlo $objdir/$libname$release.a $objdir/$soname'
+	archive_expsym_cmds="\$CC $shared_flag"' -o $output_objdir/$soname $libobjs $deplibs $compiler_flags ${allow_undefined_flag} '"\${wl}$no_entry_flag \${wl}$exp_sym_flag:\$export_symbols"' ~$AR -crlo $output_objdir/$libname$release.a $output_objdir/$soname'
       fi
     fi
     ;;
@@ -10008,7 +10008,7 @@ echo "${ECHO_T}no" >&6
 fi
 
 
-                                                                      ac_config_files="$ac_config_files Makefile config/Makefile doc/Makefile src/Makefile test/Makefile include/Makefile include/pqxx/Makefile"
+                                                                                ac_config_files="$ac_config_files Makefile config/Makefile doc/Makefile src/Makefile test/Makefile include/Makefile include/pqxx/Makefile libpqxx.pc"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -10579,6 +10579,7 @@ do
   "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
   "include/Makefile" ) CONFIG_FILES="$CONFIG_FILES include/Makefile" ;;
   "include/pqxx/Makefile" ) CONFIG_FILES="$CONFIG_FILES include/pqxx/Makefile" ;;
+  "libpqxx.pc" ) CONFIG_FILES="$CONFIG_FILES libpqxx.pc" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "include/pqxx/config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS include/pqxx/config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5

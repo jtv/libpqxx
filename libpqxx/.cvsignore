@@ -7,7 +7,8 @@ config.log
 config.status
 configure
 configure-stamp
-libtool
 install-sh
+libpqxx.pc
+libtool
 missing
 mkinstalldirs
