@@ -65,7 +65,7 @@ int main(int, char *argv[])
     if (c != B.end())
       throw logic_error("end() of binary string not reached");
 
-#ifndef PQXX_HAVE_REVERSE_ITERATOR
+#ifdef PQXX_HAVE_REVERSE_ITERATOR
     binarystring::const_reverse_iterator r;
     for (i=B.length(), r=B.rbegin(); i>0; --i, ++r)
     {
