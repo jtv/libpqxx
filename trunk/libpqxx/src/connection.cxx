@@ -7,7 +7,7 @@
  *      implementation of the pqxx::Connection class.
  *   pqxx::Connection encapsulates a frontend to backend connection
  *
- * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  *-------------------------------------------------------------------------
  */

@@ -7,7 +7,7 @@
  *      definition of the pqxx::NonTransaction class.
  *   pqxx::NonTransaction provides nontransactional database access
  *
- * Copyright (c) 2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  *-------------------------------------------------------------------------
  */
