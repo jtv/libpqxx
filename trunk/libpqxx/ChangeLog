@@ -1,3 +1,7 @@
+2004-03-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result.hxx:
+  - Replaced field_streambuf::underflow()
+  - May fix problems with various compilers when reading strings from fields
 2004-03-21  Roger Leigh <rleigh@debian.org>
  test/Makefile.am, tools/maketestam.pl
   - Correct includes and libs search paths.
