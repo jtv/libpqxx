@@ -31,7 +31,7 @@ All of this applies only to operating systems that are either part of, or
 closely resemble, or support the standard interfaces of, the Unix family.  This 
 includes MacOS X (starting with 10.2, a.k.a. Jaguar) as well as GNU/Linux, the
 various BSD systems, etc.  Windows users should skip to the Building on Windows
-section.
+section, unless they have a Unix-like environment like Cygwin installed.
 
 
 To get started quickly on a Unix-like system, do:
@@ -87,7 +87,7 @@ sure openssl is installed and try again.
 
 Otherwise, if the "make" part of the build procedure fails, you're probably
 using a different compiler or compiler version than I am.  If your C++ compiler
-is more than a few years old (say, gcc prior to 2.95 or Visual C++ up to 6.0),
+is more than a few years old (say, gcc prior to 3.0 or Visual C++ up to 6.0),
 just forget it.  It won't work until you get an up-to-date compiler.
 
 If, on the other hand, you're using a shiny new compiler and you're getting
