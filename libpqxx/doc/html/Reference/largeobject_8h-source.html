@@ -189,7 +189,7 @@
 00258  * large objects, so they can be read and written <span class="keyword">using</span> the same stream classes.
 00259  */
 00260 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> CHAR=<span class="keywordtype">char</span>, <span class="keyword">typename</span> TRAITS=PGSTD::<span class="keywordtype">char</span>_traits&lt;CHAR&gt; &gt;
-<a name="l00261"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html">00261</a> <span class="keyword">class </span><a class="code" href="classpqxx_1_1largeobject__streambuf.html">largeobject_streambuf</a> : <span class="keyword">public</span> <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_streambuf&lt;CHAR, TRAITS&gt;
+<a name="l00261"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html">00261</a> <span class="keyword">class </span><a class="code" href="classpqxx_1_1largeobject__streambuf.html">largeobject_streambuf</a> : <span class="keyword">public</span> <a class="code" href="config_8h.html#a23">PGSTD</a>::basic_streambuf&lt;CHAR, TRAITS&gt;
 00262 {
 00263 <span class="keyword">public</span>:
 <a name="l00264"></a><a class="code" href="classpqxx_1_1largeobject__streambuf.html#s0">00264</a>   <span class="keyword">typedef</span> CHAR   <a class="code" href="classpqxx_1_1largeobject__streambuf.html#s0">char_type</a>;
@@ -313,7 +313,7 @@
 00384 
 00385 
 00386 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> CHAR=<span class="keywordtype">char</span>, <span class="keyword">typename</span> TRAITS=PGSTD::<span class="keywordtype">char</span>_traits&lt;CHAR&gt; &gt; 
-<a name="l00387"></a><a class="code" href="classpqxx_1_1basic__ilostream.html">00387</a> <span class="keyword">class </span><a class="code" href="classpqxx_1_1basic__ilostream.html">basic_ilostream</a> : <span class="keyword">public</span> <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_istream&lt;CHAR, TRAITS&gt;
+<a name="l00387"></a><a class="code" href="classpqxx_1_1basic__ilostream.html">00387</a> <span class="keyword">class </span><a class="code" href="classpqxx_1_1basic__ilostream.html">basic_ilostream</a> : <span class="keyword">public</span> <a class="code" href="config_8h.html#a23">PGSTD</a>::basic_istream&lt;CHAR, TRAITS&gt;
 00388 {
 00389 <span class="keyword">public</span>:
 <a name="l00390"></a><a class="code" href="classpqxx_1_1basic__ilostream.html#s0">00390</a>   <span class="keyword">typedef</span> CHAR char_type;
@@ -323,14 +323,14 @@
 <a name="l00394"></a><a class="code" href="classpqxx_1_1basic__ilostream.html#s4">00394</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::off_type off_type;
 00395 
 <a name="l00396"></a><a class="code" href="classpqxx_1_1basic__ilostream.html#a0">00396</a>   <a class="code" href="classpqxx_1_1basic__ilostream.html#a0">basic_ilostream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, <a class="code" href="classpqxx_1_1LargeObject.html">LargeObject</a> O) :
-00397     <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_istream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
-00398     m_Buf(T, O, <a class="code" href="config_8h.html#a22">PGSTD</a>::ios_base::in) 
+00397     <a class="code" href="config_8h.html#a23">PGSTD</a>::basic_istream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
+00398     m_Buf(T, O, <a class="code" href="config_8h.html#a23">PGSTD</a>::ios_base::in) 
 00399   { 
 00400   }
 00401 
 <a name="l00402"></a><a class="code" href="classpqxx_1_1basic__ilostream.html#a1">00402</a>   <a class="code" href="classpqxx_1_1basic__ilostream.html#a0">basic_ilostream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, Oid O) :
-00403     <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_istream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
-00404     m_Buf(T, O, <a class="code" href="config_8h.html#a22">PGSTD</a>::ios_base::in) 
+00403     <a class="code" href="config_8h.html#a23">PGSTD</a>::basic_istream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
+00404     m_Buf(T, O, <a class="code" href="config_8h.html#a23">PGSTD</a>::ios_base::in) 
 00405   { 
 00406   }
 00407 
@@ -341,7 +341,7 @@
 <a name="l00412"></a><a class="code" href="namespacepqxx.html#a1">00412</a> <span class="keyword">typedef</span> <a class="code" href="classpqxx_1_1basic__ilostream.html">basic_ilostream&lt;char&gt;</a> <a class="code" href="namespacepqxx.html#a1">ilostream</a>;
 00413 
 00414 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> CHAR=<span class="keywordtype">char</span>, <span class="keyword">typename</span> TRAITS=PGSTD::<span class="keywordtype">char</span>_traits&lt;CHAR&gt; &gt; 
-<a name="l00415"></a><a class="code" href="classpqxx_1_1basic__olostream.html">00415</a> <span class="keyword">class </span><a class="code" href="classpqxx_1_1basic__olostream.html">basic_olostream</a> : <span class="keyword">public</span> <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_ostream&lt;CHAR, TRAITS&gt;
+<a name="l00415"></a><a class="code" href="classpqxx_1_1basic__olostream.html">00415</a> <span class="keyword">class </span><a class="code" href="classpqxx_1_1basic__olostream.html">basic_olostream</a> : <span class="keyword">public</span> <a class="code" href="config_8h.html#a23">PGSTD</a>::basic_ostream&lt;CHAR, TRAITS&gt;
 00416 {
 00417 <span class="keyword">public</span>:
 <a name="l00418"></a><a class="code" href="classpqxx_1_1basic__olostream.html#s0">00418</a>   <span class="keyword">typedef</span> CHAR char_type;
@@ -351,14 +351,14 @@
 <a name="l00422"></a><a class="code" href="classpqxx_1_1basic__olostream.html#s4">00422</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::off_type off_type;
 00423 
 <a name="l00424"></a><a class="code" href="classpqxx_1_1basic__olostream.html#a0">00424</a>   <a class="code" href="classpqxx_1_1basic__olostream.html#a0">basic_olostream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, <a class="code" href="classpqxx_1_1LargeObject.html">LargeObject</a> O) :
-00425     <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_ostream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
-00426     m_Buf(T, O, <a class="code" href="config_8h.html#a22">PGSTD</a>::ios_base::out) 
+00425     <a class="code" href="config_8h.html#a23">PGSTD</a>::basic_ostream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
+00426     m_Buf(T, O, <a class="code" href="config_8h.html#a23">PGSTD</a>::ios_base::out) 
 00427   { 
 00428   }
 00429 
 <a name="l00430"></a><a class="code" href="classpqxx_1_1basic__olostream.html#a1">00430</a>   <a class="code" href="classpqxx_1_1basic__olostream.html#a0">basic_olostream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, Oid O) :
-00431     <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_ostream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
-00432     m_Buf(T, O, <a class="code" href="config_8h.html#a22">PGSTD</a>::ios_base::out) 
+00431     <a class="code" href="config_8h.html#a23">PGSTD</a>::basic_ostream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
+00432     m_Buf(T, O, <a class="code" href="config_8h.html#a23">PGSTD</a>::ios_base::out) 
 00433   { 
 00434   }
 00435 
@@ -372,7 +372,7 @@
 00443 
 00444 
 00445 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> CHAR=<span class="keywordtype">char</span>, <span class="keyword">typename</span> TRAITS=PGSTD::<span class="keywordtype">char</span>_traits&lt;CHAR&gt; &gt; 
-<a name="l00446"></a><a class="code" href="classpqxx_1_1basic__lostream.html">00446</a> <span class="keyword">class </span><a class="code" href="classpqxx_1_1basic__lostream.html">basic_lostream</a> : <span class="keyword">public</span> <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_iostream&lt;CHAR, TRAITS&gt;
+<a name="l00446"></a><a class="code" href="classpqxx_1_1basic__lostream.html">00446</a> <span class="keyword">class </span><a class="code" href="classpqxx_1_1basic__lostream.html">basic_lostream</a> : <span class="keyword">public</span> <a class="code" href="config_8h.html#a23">PGSTD</a>::basic_iostream&lt;CHAR, TRAITS&gt;
 00447 {
 00448 <span class="keyword">public</span>:
 <a name="l00449"></a><a class="code" href="classpqxx_1_1basic__lostream.html#s0">00449</a>   <span class="keyword">typedef</span> CHAR char_type;
@@ -382,13 +382,13 @@
 <a name="l00453"></a><a class="code" href="classpqxx_1_1basic__lostream.html#s4">00453</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::off_type off_type;
 00454 
 <a name="l00455"></a><a class="code" href="classpqxx_1_1basic__lostream.html#a0">00455</a>   <a class="code" href="classpqxx_1_1basic__lostream.html#a0">basic_lostream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, <a class="code" href="classpqxx_1_1LargeObject.html">LargeObject</a> O) :
-00456     <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_iostream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
+00456     <a class="code" href="config_8h.html#a23">PGSTD</a>::basic_iostream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
 00457     m_Buf(T, O) 
 00458   { 
 00459   }
 00460 
 <a name="l00461"></a><a class="code" href="classpqxx_1_1basic__lostream.html#a1">00461</a>   <a class="code" href="classpqxx_1_1basic__lostream.html#a0">basic_lostream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, Oid O) :
-00462     <a class="code" href="config_8h.html#a22">PGSTD</a>::basic_iostream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
+00462     <a class="code" href="config_8h.html#a23">PGSTD</a>::basic_iostream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
 00463     m_Buf(T, O) 
 00464   { 
 00465   }
@@ -405,7 +405,7 @@
 00476 
 00477 <span class="preprocessor">#endif</span>
 00478 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Tue Mar 11 12:42:48 2003 for libpqxx by
+</pre></div><hr><address style="align: right;"><small>Generated on Fri Mar 14 15:17:15 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

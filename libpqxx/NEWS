@@ -1,3 +1,5 @@
+1.6.4
+ - configure script now respects different std namespace
 1.6.3
  - olostream, lostream now flush themselves before closing
  - fixed compilation problems when using ToString<>() on a plain char *
