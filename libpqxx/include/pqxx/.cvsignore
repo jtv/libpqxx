@@ -1,7 +1,7 @@
 Makefile
 Makefile.in
-config.h
-config.h.in
+internalconfig.h
+internalconfig.h.in
 libconfig.h
 stamp-h
 stamp-h.in

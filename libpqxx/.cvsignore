@@ -6,6 +6,7 @@ build-stamp
 config.log
 config.status
 configure
+configure.ac
 configure.lineno
 configure-stamp
 install-sh
@@ -13,3 +14,6 @@ libpqxx.pc
 libtool
 missing
 mkinstalldirs
+pqxx-config
+stamp-h2.in
+*.swp
