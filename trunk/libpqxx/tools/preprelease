@@ -16,7 +16,7 @@
 # If successful, the script leaves a distribution tarball in /tmp.
 #
 # Set CONFIG_ARGS to any argument list you wish to pass to configure.  Defaults
-# to "--enable-maintainer-mode --enable-shared".  Don't set the compiler here;
+# to "--enable-shared".  Don't set the compiler here;
 # use COMPILERS instead (see below).
 #
 # The distribution is tested for several compilers by default; override the list
@@ -133,7 +133,7 @@ DISTNAME=libpqxx-$PQXXVERSION
 TARBALL=$DISTNAME.tar.gz
 
 log "Generating autoconf/automake files"
-command ./autogen.sh nice
+command "env NOCONFIGURE=1 ./autogen.sh" nice
 
 log "Creating $TARBALL"
 command "make dist" nice
