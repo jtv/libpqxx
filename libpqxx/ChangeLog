@@ -1,4 +1,6 @@
 2003-02-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection.h, include/pqxx/result.h, include/pqxx/tablereader.h:
+  - Added/fixed some test coverage tags
  include/pqxx/cursor.h:
   - Test coverage for new "adopt existing SQL cursor" constructor
  src/cursor.cxx:
