@@ -119,6 +119,28 @@ pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
 
   size_type Offset = Actual;
 
+  if (m_Pos == pos_unknown)
+  {
+    if (Actual < abs(Intended))
+    {
+      if (Intended < 0)
+      {
+	// Must have gone back to starting position
+	m_Pos = pos_start;
+      }
+      else if (m_Size == pos_unknown)
+      {
+	// Oops.  We'd want to set result set size at this point, but we can't
+	// because we don't know our position.
+	// TODO: Deal with this more elegantly.
+	throw runtime_error("Can't determine result set size: "
+	                    "Cursor position unknown at end of set");
+      }
+    }
+    // Nothing more we can do to update our position
+    return (Intended > 0) ? Actual : -Actual;
+  }
+
   if (Actual < abs(Intended))
   {
     // There is a nonexistant row before the first one in the result set, and 
@@ -143,6 +165,8 @@ pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
     {
       // We either just walked off the right edge (moving at least one row in 
       // the process), or had done so already (in which case we haven't moved).
+      // In the case at hand, we already know where the right-hand edge of the
+      // result set is, so we use that to compute our offset.
       Offset = (m_Size + pos_start + 1) - m_Pos;
     }
     else
@@ -154,7 +178,10 @@ pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
     }
 
     if ((Offset > abs(Intended)) && (m_Pos != pos_unknown))
+    {
+      m_Pos = pos_unknown;
       throw logic_error("libpqxx internal error: Confused cursor position");
+    }
   }
 
   if (Intended < 0) Offset = -Offset;
