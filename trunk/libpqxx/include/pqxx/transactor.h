@@ -32,7 +32,7 @@
 namespace pqxx
 {
 
-/// Wrapper for transactions that automatically restarts them on failure.
+/// Wrapper for transactions that automatically restarts them on failure
 /** Some transactions may be replayed if their connection fails, until they do 
  * succeed.  These can be encapsulated in a transactor-derived classes.  The 
  * transactor framework will take care of setting up a backend transaction 
@@ -66,7 +66,7 @@ public:
   explicit transactor(const PGSTD::string &TName="transactor") :	//[t4]
     m_Name(TName) { }
 
-  /// Overridable transaction definition.
+  /// Overridable transaction definition; insert your database code here
   /** Will be retried if connection goes bad, but not if an exception is thrown 
    * while the connection remains open.
    * @param T a dedicated transaction context created to perform this 
@@ -81,23 +81,21 @@ public:
   // state.  Use these to patch up runtime state to match events, if needed, or
   // to report failure conditions.
 
-  /// Overridable function to be called if transaction is aborted.
+  /// Optional overridable function to be called if transaction is aborted
   /** This need not imply complete failure; the transactor will automatically
    * retry the operation a number of times before giving up.  OnAbort() will be
    * called for each of the failed attempts.
-   * The Reason argument is an error string describing why the transaction 
-   * failed. 
+   * The argument is an error string describing why the transaction failed. 
    */
-  void OnAbort(const char /*Reason*/[]) throw () {}			//[t13]
+  void OnAbort(const char[]) throw () {}				//[t13]
 
-  /// Overridable function to be called when committing the transaction. 
+  /// Optional overridable function to be called when committing the transaction
   /** If your OnCommit() throws an exception, the actual back-end transaction
    * will remain committed, so any changes in the database remain.
    */
   void OnCommit() {}							//[t6]
 
-  /// Overridable function to be called when going into limbo between committing
-  /// and aborting.
+  /// Overridable function to be called when "in doubt" about success
   /** This may happen if the connection to the backend is lost while attempting
    * to commit.  In that case, the backend may have committed the transaction
    * but is unable to confirm this to the frontend; or the backend may have

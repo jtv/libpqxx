@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 {
   try
   {
-    const string Table = "events";
+    const string Table = "pqxxevents";
 
     int BlockSize = 1;
     if ((argc > 2) && argv[2] && (sscanf(argv[2],"%d",&BlockSize) != 1))

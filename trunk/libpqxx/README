@@ -39,7 +39,7 @@ To get started quickly on a Unix-like system, do:
 ./configure	# (plus suitable arguments, to set up the build environment)
 make		# (to build the library)
 
-# (set environment for regression test--IMPORTANT, see under "make check" below)
+# (set environment for regression test, see under "make check" below)
 # (this example assumes a dedicated libpqxx test database called pqxx)
 export PGDATABASE=pqxx
 
@@ -104,10 +104,10 @@ all public methods in the library.  Obviously something or other will have to go
 wrong at this point, right?
 
 Indeed.  The "make check" procedure needs a database to play with.  In this
-database, it will create two tables "events" and "orgevents," as well as some
-tables for its own use whose names are prefixed with pqxx.  CAUTION: if this
-database already contains tables with any of these names, either the check will
-fail, or worse, the original data will be erased.
+database, it will create two tables "pqxxevents" and "pqxxorgevents," as well as
+some tables for its own use.  All have names prefixed with pqxx.  CAUTION: if 
+this database already contains tables with any of these names, either the check
+will fail, or worse, the original data will be erased.
 
 So choose your test database with caution.  Obviously the safest thing to do is
 to set up a separate database for this.
@@ -186,7 +186,8 @@ The best information on programming with libpqxx can be found in the header
 files themselves, in the include/pqxx/ directory.  Comments and declarations
 from these headers are automatically extracted, using a program called Doxygen,
 to form the HTML reference documentation that can be found in the 
-doc/html/Reference/ directory.  
+doc/html/Reference/ directory.  You'll want to start off by reading about the
+connection class and the transaction<> template, as well as its base classes.
 
 If you should ever find the generated reference documentation out of date or 
 incomplete, try installing doxygen on your system and running it from the main 
@@ -202,6 +203,12 @@ does cover the basics accurately.
 For some quick examples, take a look at the test programs in the test/ 
 directory.  Particularly test001.cxx should give you a pretty good idea of what
 a minimal libpqxx program can look like.
+
+When reading the test programs, please keep in mind that these do a lot of
+checking and verifying to see that the library works correctly.  This is done
+precisely so that you won't need to do that in your own code.  So don't try to
+imitate all those safety checks when you base your programs on the examples;
+libpqxx encourages a relatively care-free programming style.
 
 
 Programming with libpqxx

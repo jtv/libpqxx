@@ -1,3 +1,24 @@
+2003-06-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/largeobject.h:
+  - Fixed compile error in a basic_ilostream() constructor
+  - Complete test coverage
+ include/pqxx/result.h:
+  - Updated test coverage; only binarystring remains to be done
+ test/test057.cxx, test/test058.cxx, test/test059.cxx:
+  - New
+ win32/libpqxx.mak:
+  - Added dbtransaction
+ win32/test.mak:
+  - Added tests 21 through 59
+  - Added leading zeroes to all test names
+2003-06-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result.h:
+  - Deprecated ColumnNumber() and ColumnName()
+  - New column_number() and column_name() throw on error
+  - Replaced some std:: with PGSTD::
+2003-06-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test*.cxx:
+  - Prefixed test table names (events and orgevents) with "pqxx"
 2003-06-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  README:
   - Started list of projects using libpqxx

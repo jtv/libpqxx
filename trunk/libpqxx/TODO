@@ -1,4 +1,5 @@
 Build system
+(*) Check for <sstream> presence (and what if it ain't there?)
 (*) Completely support building outside the source directory
 
 Connections
@@ -6,7 +7,7 @@ Connections
 (*) Separate failed_connection exception type
 (*) Connection pooling support
 (*) AsyncConnection
-(*) Support my "Appendix" pattern (allow client code to add state)
+(*) Support my "Appendix" pattern (allow client code to add state)?
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
 (*) Support constraints definition
 
@@ -45,9 +46,8 @@ Transactions
 (*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
 
 Tests
-(*) Full test coverage
+(*) Full test coverage (binarystring, SetVariable)
 (*) Floating-point tests
-(*) Mixed-mode, seeking lostream tests
 
 Triggers
 (*) Allow access to connection_base's triggers list?

@@ -36,10 +36,10 @@ class tablereader;	// See pqxx/tablereader.h
 /// Efficiently write data directly to a database table.
 /** A tablewriter provides a Spartan but efficient way of writing data tuples
  * into a table.  It provides a plethora of STL-like insertion methods: it has
- * insert() methods, push_back(), an overloaded insertion operator (<<), and it
- * supports inserters created by std::back_inserter().  All of these are
- * templatized so you can use any container type or iterator range to feed 
- * tuples into the table.
+ * insert() methods, push_back(), as well as an overloaded insertion operator 
+ * (<<), and it supports inserters created by std::back_inserter().  All of 
+ * these are templatized so you can use any container type or iterator range to
+ * feed tuples into the table.
  * Note that in each case, a container or range represents the fields of a 
  * single tuple--not a collection of tuples.
  */

@@ -22,14 +22,14 @@ using namespace pqxx;
 // called template1, or "host=foo.bar.net user=smith" to connect to a
 // backend running on host foo.bar.net, logging in as user smith.
 //
-// The program will attempt to add an entry to a table called "events",
+// The program will attempt to add an entry to a table called "pqxxevents",
 // with a key column called "year"--and then abort the change.
 
 
 namespace
 {
 
-// Let's take a boring year that is not going to be in the "events" table
+// Let's take a boring year that is not going to be in the "pqxxevents" table
 const int BoringYear = 1977;
 
 
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
   {
     lazyconnection C(argv[1]);
 
-    const string Table = ((argc > 2) ? argv[2] : "events");
+    const string Table = ((argc > 2) ? argv[2] : "pqxxevents");
 
     pair<int,int> Before;
     C.Perform(CountEvents(Table, Before));

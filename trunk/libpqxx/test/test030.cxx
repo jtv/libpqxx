@@ -38,19 +38,19 @@ int main(int argc, char *argv[])
     // Print column names
     for (result::tuple::size_type c = 0; c < R.Columns(); ++c)
     {
-      string N= R.ColumnName(c);
+      string N= R.column_name(c);
       cout << c << ":\t" << N << endl;
 
-      if (R[0].ColumnNumber(N) != R.ColumnNumber(N))
-	throw logic_error("tuple::ColumnNumber(" + N + ") is " + 
-	                  ToString(R[0].ColumnNumber(N)) + ", "
-			  "but result::ColumnNumber(" + N + ") is " +
-			  ToString(R.ColumnNumber(N)));
+      if (R[0].column_number(N) != R.column_number(N))
+	throw logic_error("tuple::column_number(" + N + ") is " + 
+	                  ToString(R[0].column_number(N)) + ", "
+			  "but result::column_number(" + N + ") is " +
+			  ToString(R.column_number(N)));
 
-      if (R[0].ColumnNumber(N.c_str()) != c)
+      if (R[0].column_number(N.c_str()) != c)
 	throw logic_error("Expected column '" + N + 
 			  "' to be no. " + ToString(c) + ", "
-			  "but it was no. " + ToString(R.ColumnNumber(N)));
+			  "but it was no. " + ToString(R.column_number(N)));
     }
 
     // If there are rows in R, compare their metadata to R's.
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 
       for (result::tuple::size_type c = 0; c < R[0].size(); ++c)
       {
-	string N = R.ColumnName(c);
+	string N = R.column_name(c);
 
 	if (string(R[0].at(c).c_str()) != R[0].at(N).c_str())
           throw logic_error("Field " + ToString(c) + " contains "

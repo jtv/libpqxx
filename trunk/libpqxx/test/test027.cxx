@@ -20,7 +20,7 @@ using namespace pqxx;
 // called template1, or "host=foo.bar.net user=smith" to connect to a backend 
 // running on host foo.bar.net, logging in as user smith.
 //
-// The default table name is "events" as used by other test programs.
+// The default table name is "pqxxevents" as used by other test programs.
 // PostgreSQL currently implements pg_tables as a view, which cannot be read by
 // using the COPY command.  Otherwise, pg_tables would have made a better 
 // default value here.
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     // Set up a connection to the backend
     LazyConnection C(argv[1]);
 
-    string Table = "events";
+    string Table = "pqxxevents";
     if (argc > 2) Table = argv[2];
 
     // Begin a transaction acting on our current connection

@@ -21,10 +21,10 @@ using namespace pqxx;
 // called template1, or "host=foo.bar.net user=smith" to connect to a
 // backend running on host foo.bar.net, logging in as user smith.
 //
-// This assumes the existence of a database table "events" containing a 2-digit
-// "year" field, which is extended to a 4-digit format by assuming all year
-// numbers of 70 or higher are in the 20th century, and all others in the 21st,
-// and that no years before 1970 are possible.
+// This assumes the existence of a database table "pqxxevents" containing a 
+// 2-digit "year" field, which is extended to a 4-digit format by assuming all 
+// year numbers of 70 or higher are in the 20th century, and all others in the 
+// 21st, and that no years before 1970 are possible.
 
 namespace
 {
@@ -57,7 +57,7 @@ public:
   void operator()(argument_type &T)
   {
     // First select all different years occurring in the table.
-    result R( T.Exec("SELECT year FROM events") );
+    result R( T.Exec("SELECT year FROM pqxxevents") );
 
     // SELECT affects no rows.
     assert(!R.AffectedRows());
@@ -82,7 +82,7 @@ public:
 	 c != m_Conversions.end();
 	 ++c)
     {
-      R = T.Exec(("UPDATE events "
+      R = T.Exec(("UPDATE pqxxevents "
 	          "SET year=" + ToString(c->second) + " "
 	          "WHERE year=" + ToString(c->first)).c_str());
       AffectedRows += R.AffectedRows();

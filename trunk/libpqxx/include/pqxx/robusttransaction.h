@@ -72,17 +72,17 @@ template<> inline PGSTD::string Classname(const basic_robusttransaction *)
 
 
 
-/// Slower, better fortified version of transaction.
+/// Slightly slower, better-fortified version of transaction
 /** robusttransaction is similar to transaction, but spends more effort (and
  * performance!) to deal with the hopefully rare case that the connection to
  * the backend is lost just as the current transaction is being committed.  In
  * this case, there is no way to determine whether the backend managed to
  * commit the transaction before noticing the loss of connection.
  * 
- * In such cases, transaction class tries to reconnect to the database and
- * figure out what happened.  It will need to store and manage some information
- * (pretty much a user-level transaction log) in the back-end for each and
- * every transaction just on the off chance that this problem might occur.
+ * In such cases, this class tries to reconnect to the database and figure out 
+ * what happened.  It will need to store and manage some information (pretty 
+ * much a user-level transaction log) in the back-end for each and every 
+ * transaction just on the off chance that this problem might occur.
  * This service level was made optional since you may not want to pay this
  * overhead where it is not necessary.  Certainly the use of this class makes
  * no sense for local connections, or for transactions that read the database

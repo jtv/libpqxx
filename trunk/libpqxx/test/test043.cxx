@@ -53,7 +53,7 @@ int main(int, char *argv[])
 {
   try
   {
-    const string Table = "events";
+    const string Table = "pqxxevents";
 
     connection C(argv[1]);
     transaction<serializable> T(C, "test19");

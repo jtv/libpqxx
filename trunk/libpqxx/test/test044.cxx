@@ -26,7 +26,7 @@ int main(int, char *argv[])
     transaction<serializable> T(C, "test44");
 
     // A query that will not return any data
-    const char Query[] = "SELECT * FROM events WHERE year <> year";
+    const char Query[] = "SELECT * FROM pqxxevents WHERE year <> year";
 
     Cursor Cur(T, Query, "test44");
     if ((Cur.size() != Cursor::pos_unknown) && 
