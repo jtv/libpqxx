@@ -1,3 +1,8 @@
+2002-03-31 01:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ All:
+  - Integrated John Anderson's autoconf/automake files and Ray Dassen's fixes
+ Result:
+  - Moved some inline functions to silence compiler warnings
 2002-03-30  J.H.M. Dassen (Ray) <jdassen@debian.org>
  configure.in:
   - Renamed from configure.ac
