@@ -474,8 +474,8 @@ pqxx::result pqxx::connection_base::exec_prepared(const char QueryName[],
 	const char *const *Params,
 	int Retries)
 {
-#ifdef PQXX_HAVE_PQEXECPREPARED
   activate();
+#ifdef PQXX_HAVE_PQEXECPREPARED
   result R(PQexecPrepared(m_Conn, QueryName, NumParams, Params, NULL, NULL, 0));
 
   while ((Retries > 0) && !R && !is_open())
