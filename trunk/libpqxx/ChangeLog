@@ -1,8 +1,20 @@
+2004-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/util.cxx:
+  - Set stringstream in to_string fallback code to C locale
 2004-10-31  Roger Leigh <rleigh@debian.org>
  debian/control.in:
   - postgresql-dev depends on pkg-config
  debian/rules:
   - Remove all examples that include internal headers
+2004-10-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.hxx, src/cursor.cxx:
+  - Warning: icursor_iterator constructors may now throw execptions
+  - Made icursorstream keep track of its iterators
+  - icursor_iterators no longer read data unless really needed
+  - Made icursorstream/icursor_iterator "lazy," skipping over unread data
+  - Fixed icursor_iterator equality comparison
+  - Allow for generic icursor_iterator comparison, not just for end-of-stream
+  - icursor_iterators should no longer get confused when mixing operations
 2004-10-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection.hxx:
   - Nothrow specs on destructors (Windows only).  Thanks reina_ga@hotmail 
