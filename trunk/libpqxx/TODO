@@ -5,6 +5,7 @@ Error handling
 (*) Check for unexpectedly open/closed transactions (appears to be possible)
 
 General
+(*) Turn regression test into a script
 (*) README & build instructions
 (*) Get object files into obj/ directory
 

@@ -1,3 +1,10 @@
+2002-03-26 21:45
+ Makefile:
+  - Put regression test into separate script
+ Result:
+  - Inlined Result::Field methods
+ Selftest:
+  - Created
 2002-03-26 00:30
  Doc:
   - Added HTML docs, fixed bugs in SGML; thanks Bruce Momjian.

@@ -1,0 +1,55 @@
+#! /bin/sh
+
+echo "Cleaning up any garbage from previous failed test runs"
+psql $DBNAME -c "DELETE FROM events WHERE year=1977"
+echo
+echo "======== STARTING TEST RUN ========"
+echo
+echo "-------- test 1 --------"
+./test1 $CONNSTR
+echo "-------- test 2 --------"
+./test2 $CONNSTR
+echo "-------- test 3 --------"
+./test3 $CONNSTR 10
+echo "-------- test 4 --------"
+./test4 $CONNSTR
+echo "-------- test 5 --------"
+./test5 $CONNSTR
+echo "-------- test 6 --------"
+./test6 $CONNSTR orgevents events
+echo "-------- test 7 --------"
+./test7 $CONNSTR
+echo "-------- test 8 --------"
+./test8 $CONNSTR
+echo "-------- test 9 --------"
+./test9 $CONNSTR
+echo "-------- test 10 --------"
+./test10 $CONNSTR
+echo "-------- test 11 --------"
+./test11 $CONNSTR
+echo "-------- test 12 --------"
+./test12 $CONNSTR
+echo "-------- test 13 --------"
+./test13 $CONNSTR
+echo "-------- test 14 --------"
+./test14 $CONNSTR
+echo "-------- test 15 --------"
+./test15 $CONNSTR
+echo "-------- test 16 --------"
+./test16 $CONNSTR
+echo "-------- test 17 --------"
+./test17 $CONNSTR
+echo "-------- test 18 --------"
+./test18 $CONNSTR
+echo "-------- test 19 --------"
+./test19 $CONNSTR
+echo "-------- test 20 --------"
+./test20 $CONNSTR
+echo
+echo "======== TEST RUN COMPLETED ========"
+echo
+echo "Checking for remaining transaction records:"
+psql $DBNAME -c "SELECT * FROM PQXXLOG_$DBUSER"
+echo "Checking for remaining test garbage:"
+psql $DBNAME -c "SELECT * FROM events WHERE year=1977"
+
