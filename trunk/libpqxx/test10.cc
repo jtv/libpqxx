@@ -93,7 +93,11 @@ void Test(Connection &C, bool ExplicitAbort)
 
     // Now let's try to introduce a tuple for our Boring Year
     {
-      TableWriter W(Doomed, "InsertEvent");
+      TableWriter W(Doomed, Table);
+
+      if (W.Name() != Table)
+        throw logic_error("Set TableWriter name to '" + Table + "', "
+                "but now it's '" + W.Name() + "'");
 
       const string Literal = W.ezinekoT(BoringTuple);
       const string Expected = ToString(BoringYear) + "\t" + BoringTuple[1];
