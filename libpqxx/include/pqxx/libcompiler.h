@@ -97,9 +97,17 @@ template<> struct char_traits<unsigned char>
 
 #endif	// __SUNPRO_CC
 
+
+// Workarounds for Compaq C++ for Alpha
+#if defined(__DECCXX_VER)
+#define __USE_STD_IOSTREAM
+#endif	// __DECCXX_VER
+
+
 // Workarounds for Windows
 #ifdef _WIN32
 
+// Workarounds for Microsoft Visual C++
 #ifdef _MSC_VER
 #if _MSC_VER < 1300
 #error If you're using Visual C++, you'll need at least version 7 (VC.NET)
