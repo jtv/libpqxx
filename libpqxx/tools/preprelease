@@ -43,6 +43,12 @@ TARBALL=$DISTNAME.tar.gz
 echo
 echo >>$LOGFILE
 
+echo "Generating autoconf/automake files"
+echo "Generating autoconf/automake files" >>$LOGFILE
+./autogen.sh >>$LOGFILE
+echo
+echo >>$LOGFILE
+
 echo "Generating documentation"
 echo "$ doxygen" >>$LOGFILE
 doxygen >>$LOGFILE

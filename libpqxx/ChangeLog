@@ -1,3 +1,8 @@
+2003-05-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test056.cxx:
+  - New
+ win32/libpqxx.mak:
+  - Fixed apparent whitespace problem, thanks key88sf
 2003-05-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac, include/pqxx/largeobject.h, test/test051.cxx, test/test052.cxx,
  test/test053.cxx, test/test055.cxx:
