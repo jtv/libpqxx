@@ -5,18 +5,14 @@
 set -e
 
 ver=""
-if test -x /usr/bin/automake-1.6 ; then
-	ver="-1.6"
-fi
-if test -x /usr/bin/automake-1.7 ; then
-	ver="-1.7"
-fi
-#if test -x /usr/bin/automake-1.8 ; then
-#	ver="-1.8"
-#fi
+for amv in "1.6" "1.7" "1.8" "1.9" ; do
+	if text -x /usr/bin/automakte-$amv ; then
+		ver="-$amv"
+	fi
+done
 
 # The VERSION file defines our versioning
-PQXXVERSION=`grep '\<PQXXVERSION\>' VERSION | sed -e 's/^[[:space:]A-Z_]*//' | sed -e 's/[[:space:]]*#.*$//'`
+PQXXVERSION=`grep '\<PQXXVERSION\>' VERSION | sed -e 's/^[[:space:]A-Z_]*//' -e 's/[[:space:]]*#.*$//'`
 echo "libpqxx version $PQXXVERSION" 
 
 # Generate configure.ac based on current version numbers
