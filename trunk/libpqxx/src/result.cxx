@@ -134,7 +134,7 @@ void pqxx::result::LoseRef() throw ()
 
 
 
-pqxx::result::size_type pqxx::result::AffectedRows() const
+pqxx::result::size_type pqxx::result::affected_rows() const
 {
   const char *const RowsStr = PQcmdTuples(m_Result);
   return RowsStr[0] ? atoi(RowsStr) : 0;

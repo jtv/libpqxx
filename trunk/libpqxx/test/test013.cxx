@@ -76,8 +76,8 @@ public:
 	             ToString(BoringYear) + ", "
 	             "'yawn')") );
 
-    assert(R.AffectedRows() == 1);
-    cout << "Inserted row with oid " << R.InsertedOid() << endl;
+    assert(R.affected_rows() == 1);
+    cout << "Inserted row with oid " << R.inserted_oid() << endl;
 
     throw runtime_error("Transaction deliberately aborted");
   }

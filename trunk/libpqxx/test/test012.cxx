@@ -55,22 +55,22 @@ int main(int argc, char *argv[])
 
     result R( T.exec("SELECT * FROM " + Table) );
 
-    InitVector(NullFields, R.Columns(), 0);
-    InitVector(SortedUp, R.Columns(), true);
-    InitVector(SortedDown, R.Columns(), true);
+    InitVector(NullFields, R.columns(), 0);
+    InitVector(SortedUp, R.columns(), true);
+    InitVector(SortedDown, R.columns(), true);
 
     for (result::const_iterator i = R.begin(); i != R.end(); i++)
     {
-      if ((*i).Row() != i->Row())
+      if ((*i).rownumber() != i->rownumber())
 	throw logic_error("Inconsistent rows: operator*() says " + 
-			  ToString((*i).Row()) + ", "
+			  ToString((*i).rownumber()) + ", "
 			  "operator->() says " +
-			  ToString(i->Row()));
+			  ToString(i->rownumber()));
 
-      if (i->size() != R.Columns())
+      if (i->size() != R.columns())
 	throw logic_error("Row claims to have " + ToString(i->size()) + " "
 			  "fields, but result claims to have " +
-			  ToString(R.Columns()) + " columns!");
+			  ToString(R.columns()) + " columns!");
 
       // Look for null fields
       for (result::tuple::size_type f=0; f<i->size(); ++f)
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 	// fields may be sorted.  Don't do anything fancy like trying to
 	// detect numbers and comparing them as such, just compare them as
 	// simple strings.
-	for (result::tuple::size_type f = 0; f < R.Columns(); ++f)
+	for (result::tuple::size_type f = 0; f < R.columns(); ++f)
 	{
 	  if (!j[f].is_null())
 	  {
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
     cout << "Read " << ToString(R.size()) << " rows." << endl;
     cout << "Field \t Field Name\t Nulls\t Sorted" << endl;
 
-    for (result::tuple::size_type f = 0; f < R.Columns(); ++f)
+    for (result::tuple::size_type f = 0; f < R.columns(); ++f)
     {
       cout << ToString(f) << ":\t"
 	   << R.column_name(f) << '\t'

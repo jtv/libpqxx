@@ -60,7 +60,7 @@ public:
     result R( T.exec("SELECT year FROM pqxxevents") );
 
     // SELECT affects no rows.
-    assert(!R.AffectedRows());
+    assert(!R.affected_rows());
 
     // Note all different years currently occurring in the table, writing them
     // and their correct mappings to m_Conversions
@@ -85,7 +85,7 @@ public:
       R = T.exec(("UPDATE pqxxevents "
 	          "SET year=" + ToString(c->second) + " "
 	          "WHERE year=" + ToString(c->first)).c_str());
-      AffectedRows += R.AffectedRows();
+      AffectedRows += R.affected_rows();
     }
     cout << AffectedRows << " rows updated." << endl;
   }
