@@ -65,7 +65,7 @@ public:
   virtual void operator()(int be_pid) =0;				//[t4]
 
 protected:
-  ConnectionItf &Conn() const throw () { return m_Conn; }		//[t4]
+  ConnectionItf &Conn() const throw () { return m_Conn; }		//[t23]
 
 private:
   ConnectionItf &m_Conn;

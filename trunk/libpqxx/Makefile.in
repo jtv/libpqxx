@@ -134,7 +134,7 @@ target_alias = @target_alias@
 with_postgres_include = @with_postgres_include@
 with_postgres_lib = @with_postgres_lib@
 SUBDIRS = config doc include src test
-EXTRA_DIST = win32/* debian/* Doxyfile
+EXTRA_DIST = win32/* debian/* tools/* Doxyfile
 
 MAINTAINERCLEANFILES = Makefile.in aclocal.m4 config.h.in config.log configure \
 	stamp-h.in
@@ -344,7 +344,7 @@ distcleancheck_listfiles = find . -type f -print
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkinstalldirs) $(distdir)/. $(distdir)/debian $(distdir)/win32
+	$(mkinstalldirs) $(distdir)/. $(distdir)/debian $(distdir)/tools $(distdir)/win32
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -557,7 +557,7 @@ uninstall-info: uninstall-info-recursive
 
 
 dist-hook:
-	rm -rf $(distdir)/win32/CVS $(distdir)/debian/CVS
+	rm -rf $(distdir)/win32/CVS $(distdir)/debian/CVS $(distdir)/tools/CVS
 	chmod u+x $(distdir)/debian/rules
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

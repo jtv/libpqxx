@@ -110,7 +110,7 @@ public:
   PGSTD::string Name() const { return m_Name; }				//[t1]
 
   /// Connection this transaction is running in
-  ConnectionItf &Conn() const { return m_Conn; }			//[]
+  ConnectionItf &Conn() const { return m_Conn; }			//[t4]
 
 protected:
   /// Create a transaction.  The optional name, if given, must begin with a

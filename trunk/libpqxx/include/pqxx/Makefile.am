@@ -9,6 +9,7 @@ include_HEADERS=all.h \
 	connection.h \
 	connectionitf.h \
 	cursor.h \
+	except.h \
 	largeobject.h \
 	nontransaction.h \
 	result.h \
