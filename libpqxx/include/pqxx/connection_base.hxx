@@ -300,7 +300,7 @@ protected:
   virtual void completeconnect() =0;
 
   /// Overridable: drop any specialized state related to connection attempt
-  virtual void dropconnect() {}
+  virtual void dropconnect() throw () {}
 
   /// For implementation classes: do we have a connection structure?
   PGconn *get_conn() const throw () { return m_Conn; }
