@@ -1,3 +1,6 @@
+2002-10-21 01:30, v1.1.2:
+ - updated build procedure
+ - Debian packaging improvements
 2002-09-25 03:00, v1.1.1:
  - supports activating/deactivating of connections
  - various Connection getters now activate deferred connection first
