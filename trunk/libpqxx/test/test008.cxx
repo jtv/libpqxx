@@ -40,25 +40,23 @@ int main(int argc, char *argv[])
 
     vector<string> R, First;
 
-    // (Set up a block here to ensure our tablereader goes out of scope
-    //  before our Transaction does, see below)
+    // Set up a tablereader stream to read data from table pg_tables
+    tablereader Stream(T, Table);
+
+    // Read results into string vectors and print them
+    for (int n=0; (Stream >> R); ++n)
     {
-      // Set up a tablereader stream to read data from table pg_tables
-      tablereader Stream(T, Table);
+      // Keep the first row for later consistency check
+      if (n == 0) First = R;
 
-      // Read results into string vectors and print them
-      for (int n=0; (Stream >> R); ++n)
-      {
-        // Keep the first row for later consistency check
-        if (n == 0) First = R;
-
-        cout << n << ":\t";
-        for (vector<string>::const_iterator i = R.begin(); i != R.end(); ++i)
-          cout << *i << '\t';
-        cout << endl;
-        R.clear();
-      }
+      cout << n << ":\t";
+      for (vector<string>::const_iterator i = R.begin(); i != R.end(); ++i)
+        cout << *i << '\t';
+      cout << endl;
+      R.clear();
     }
+
+    Stream.complete();
 
     // Verify the contents we got for the first row
     if (!First.empty())

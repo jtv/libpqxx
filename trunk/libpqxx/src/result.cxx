@@ -79,7 +79,7 @@ void pqxx::result::CheckStatus(const string &Query) const
   case PGRES_BAD_RESPONSE: // The server's response was not understood
   case PGRES_NONFATAL_ERROR:
   case PGRES_FATAL_ERROR:
-    throw sql_error(PQresultErrorMessage(m_Result), Query);
+    throw sql_error(string(PQresultErrorMessage(m_Result)), Query);
 
   default:
     throw logic_error("libpqxx internal error: "

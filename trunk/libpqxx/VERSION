@@ -1,5 +1,5 @@
 PQXXVERSION	2.1.3	# libpqxx release
-ABI_CURRENT	2	# libtool abi_current
+ABI_CURRENT	3	# libtool abi_current
 ABI_REVISION	0	# libtool abi_revision
-ABI_AGE		1	# libtool abi_age
+ABI_AGE		0	# libtool abi_age
 

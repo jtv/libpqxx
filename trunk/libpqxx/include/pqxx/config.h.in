@@ -96,6 +96,9 @@
 /* Define if PostgreSQL has PQftable() */
 #undef PQXX_HAVE_PQFTABLE
 
+/* Define if PostgreSQL has PQputCopyData() and related functions */
+#undef PQXX_HAVE_PQPUTCOPY
+
 /* Define if PostgreSQL has PQunescapeBytea() */
 #undef PQXX_HAVE_PQUNESCAPEBYTEA
 
@@ -123,6 +126,9 @@
 
 /* Do we have a PQftable function? */
 #undef PQftable
+
+/* Do we have PQputCopyData() and related functions? */
+#undef PQputCopyData
 
 /* Do we have a PQunescapeBytea function? */
 #undef PQunescapeBytea

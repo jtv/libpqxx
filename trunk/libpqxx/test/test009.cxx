@@ -4,7 +4,6 @@
 #include <vector>
 
 #include <pqxx/connection>
-#include <pqxx/tablereader>
 #include <pqxx/tablewriter>
 #include <pqxx/transaction>
 

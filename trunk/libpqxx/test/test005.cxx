@@ -53,51 +53,46 @@ int main(int argc, char *argv[])
 	    TableName + 
 	    "(year INTEGER, event VARCHAR)").c_str());
 
-    // NOTE: start a nested block here to ensure that our stream W is closed 
-    // before we attempt to commit our transaction T.  Otherwise we might end 
-    // up committing T before all data going into W had been written.
+    tablewriter W(T, TableName);
+
+    const char *const CData[][2] =
     {
-      tablewriter W(T, TableName);
+      {   "71", "jtv" },
+      {   "38", "time_t overflow" },
+      {    "1", "'911' WTC attack" },
+      {   "81", "C:\\>" },
+      { "1978", "bloody\t\tcold" },
+      {   "99", "" },
+      { "2002", "libpqxx" },
+      { "1989", "Ode an die Freiheit" },
+      { "2001", "New millennium" },
+      {   "97", "Asian crisis" },
+      { "2001", "A Space Odyssey" },
+      {0,0}
+    };
 
-      const char *const CData[][2] =
-      {
-        {   "71", "jtv" },
-        {   "38", "time_t overflow" },
-        {    "1", "'911' WTC attack" },
-        {   "81", "C:\\>" },
-        { "1978", "bloody\t\tcold" },
-	{   "99", "" },
-	{ "2002", "libpqxx" },
-	{ "1989", "Ode an die Freiheit" },
-	{ "2001", "New millennium" },
-	{   "97", "Asian crisis" },
-	{ "2001", "A Space Odyssey" },
-        {0,0}
-      };
+    cout << "Writing data to " << TableName << endl;
 
-      cout << "Writing data to " << TableName << endl;
+    // Insert tuple of data using "begin" and "end" abstraction
+    for (int i=0; CData[i][0]; ++i) 
+      W.insert(&CData[i][0], &CData[i][2]);
 
-      // Insert tuple of data using "begin" and "end" abstraction
-      for (int i=0; CData[i][0]; ++i) 
-	W.insert(&CData[i][0], &CData[i][2]);
+    // Insert tuple of data held in container
+    vector<string> MoreData;
+    MoreData.push_back("10");
+    MoreData.push_back("Odyssey Two");
+    W.insert(MoreData);
 
-      // Insert tuple of data held in container
-      vector<string> MoreData;
-      MoreData.push_back("10");
-      MoreData.push_back("Odyssey Two");
-      W.insert(MoreData);
+    // Now that MoreData has been inserted, we can get rid of the original
+    // and use it for something else.  And this time, we use the insertion
+    // operator.
+    MoreData[0] = "3001";
+    MoreData[1] = "Final Odyssey";
+    W << MoreData;
 
-      // Now that MoreData has been inserted, we can get rid of the original
-      // and use it for something else.  And this time, we use the insertion
-      // operator.
-      MoreData[0] = "3001";
-      MoreData[1] = "Final Odyssey";
-      W << MoreData;
+    W.complete();
 
-      // (destruction of W occurs here)
-    }
-
-    // Now that our tablewriter is closed, it's safe to commit T.
+    // Now that our tablewriter is done, it's safe to commit T.
     T.commit();
   }
   catch (const sql_error &e)

@@ -100,7 +100,7 @@ public:
     CheckState(Org);
 
     // Copy table Org into table Dst.  This transfers all the data to the 
-    // frontend and back to the backend.  Since in this example Ord and Dst are
+    // frontend and back to the backend.  Since in this example Org and Dst are
     // really in the same database, we'd do this differently in real life; a
     // simple SQL query would suffice.
     Dst << Org;

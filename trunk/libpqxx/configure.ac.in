@@ -312,13 +312,13 @@ AC_CHECK_DECL(PQftable,
 	[pqftable=no],
 	[#include <${with_postgres_include}/libpq-fe.h>])
 
-#AC_MSG_CHECKING([for new COPY functions])
-#AH_TEMPLATE(PQputCopyData,[Do we have PQputCopyData() and related functions?])
-#pqputcopy=yes
-#AC_CHECK_DECL(PQputCopyData,
-#	[AC_DEFINE(PQXX_HAVE_PQPUTCOPY, 1, [Define if PostgreSQL has PQputCopyData() and related functions])],
-#	[pqputcopy=no],
-#	[#include <${with_postgres_include}/libpq-fe.h>])
+AC_MSG_CHECKING([for new COPY functions])
+AH_TEMPLATE(PQputCopyData,[Do we have PQputCopyData() and related functions?])
+pqputcopy=yes
+AC_CHECK_DECL(PQputCopyData,
+	[AC_DEFINE(PQXX_HAVE_PQPUTCOPY, 1, [Define if PostgreSQL has PQputCopyData() and related functions])],
+	[pqputcopy=no],
+	[#include <${with_postgres_include}/libpq-fe.h>])
 
 AC_LANG_PUSH(C++)
 AC_CHECK_HEADERS([limits iterator])

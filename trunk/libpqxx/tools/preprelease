@@ -40,9 +40,30 @@ function command() {
 
 rm -f $LOGFILE $ERRLOG
 
-log "Preparing libpqxx release.  Log file is $LOGFILE, errors go to $ERRLOG"
+PQXXVERSION=`grep '\<PQXXVERSION\>' VERSION | sed -e 's/^[[:space:]A-Z_]*//' | sed -e 's/[[:space:]]*#.*$//'`
+
+# See if debian/changelog needs updating
+log "Seeing if debian/changelog is up to date..."
+if ! head -n 1 debian/changelog | grep "($PQXXVERSION-" >/dev/null
+then
+	echo "Please update debian/changelog to mention version $PQXXVERSION!"
+	exit 1
+fi
+
+# See if NEWS describes the new release
+log "Seeing if NEWS is up to date..."
+if ! head -n 1 NEWS | grep "^$PQXXVERSION[[:space:]]*$"
+then
+	echo "Please update NEWS to describe $PQXXVERSION release!"
+	exit 1
+fi
+
+
+log "Preparing libpqxx release $PQXXVERSION."
+log "Log file is $LOGFILE, errors go to $ERRLOG"
 
 tail -f --pid=$$ $ERRLOG &
+
 
 log "Ensuring PostgreSQL is running..."
 command startpostgres nice
@@ -58,9 +79,7 @@ command "cd $SOURCEDIR"
 
 log "Building in \"$SOURCEDIR\" (`pwd`)"
 
-VERSION=`grep AC_INIT configure.ac | cut -d ' ' -f 2 | cut -d ',' -f 1`
-log "Preparing release of version $VERSION"
-DISTNAME=libpqxx-$VERSION
+DISTNAME=libpqxx-$PQXXVERSION
 TARBALL=$DISTNAME.tar.gz
 
 log "Generating autoconf/automake files"
@@ -101,6 +120,9 @@ command "make check" nice
 grep '^PASS:' $LOGFILE
 grep '^FAIL:' $LOGFILE 2>>$ERRLOG || true
 grep '^All [0-9]* tests passed' $LOGFILE
+
+log "Generating symbol table"
+command "nm -C -D src/.libs/libpqxx.so | cut -d' ' -f 3  | grep -v '^_' | grep -v '^$' | sort -u -o lib/SYMBOLS.$PQXXVERSION"
 
 log "Creating release version of $TARBALL"
 command "make dist" nice

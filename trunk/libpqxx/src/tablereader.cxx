@@ -23,8 +23,10 @@
 using namespace PGSTD;
 
 
-pqxx::tablereader::tablereader(transaction_base &T, const string &RName) :
-  tablestream(T, RName),
+pqxx::tablereader::tablereader(transaction_base &T, 
+    const string &RName,
+    const string &Null) :
+  tablestream(T, RName, Null),
   m_Done(true)
 {
   T.BeginCopyRead(RName);
@@ -34,23 +36,79 @@ pqxx::tablereader::tablereader(transaction_base &T, const string &RName) :
 
 pqxx::tablereader::~tablereader()
 {
-  // If any lines remain to be read, consume them to not confuse PQendcopy()
-  string Dummy;
   try
   {
-    if (!m_Done) while (Trans().ReadCopyLine(Dummy));
+    reader_close();
   }
   catch (const exception &e)
   {
-    Trans().process_notice(e.what());
+    Trans().RegisterPendingError(e.what());
   }
 }
 
 
 bool pqxx::tablereader::get_raw_line(string &Line)
 {
-  m_Done = !Trans().ReadCopyLine(Line);
+  if (!m_Done) try
+  {
+    m_Done = !Trans().ReadCopyLine(Line);
+  }
+  catch (const exception &)
+  {
+    m_Done = true;
+    throw;
+  }
   return !m_Done;
 }
+
+
+void pqxx::tablereader::complete()
+{
+  reader_close();
+}
+
+
+void pqxx::tablereader::reader_close()
+{
+  if (!is_finished())
+  {
+    // If any lines remain to be read, consume them to not confuse PQendcopy()
+    if (!m_Done)
+    {
+      try
+      {
+        string Dummy;
+        while (get_raw_line(Dummy));
+      }
+      catch (const broken_connection &)
+      {
+	try { base_close(); } catch (const exception &) {}
+	throw;
+      }
+      catch (const exception &e)
+      {
+        RegisterPendingError(e.what());
+      }
+    }
+    base_close();
+  }
+}
+
+
+char pqxx::tablereader::unescapechar(char i) throw ()
+{
+  char r = i;
+  switch (i)
+  {
+    case 'b':	r=8;	break;	// backspace
+    case 'v':	r=11;	break;	// vertical tab
+    case 'f':	r=12;	break;	// form feed
+    case 'n':	r='\n';	break;	// newline
+    case 't':	r='\t';	break;	// tab
+    case 'r':	r='\r';	break;	// carriage return;
+  }
+  return r;
+}
+
 
 

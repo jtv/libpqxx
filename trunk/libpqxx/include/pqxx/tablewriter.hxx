@@ -18,12 +18,9 @@
  */
 #include "pqxx/libcompiler.h"
 
-#include <numeric>
 #include <string>
 
 #include "pqxx/tablestream"
-
-// TODO: New variant class with async write (and explicit commit)
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */
@@ -47,7 +44,9 @@ class PQXX_LIBEXPORT tablewriter : public tablestream
 public:
   typedef unsigned size_type;
 
-  tablewriter(transaction_base &Trans, const PGSTD::string &WName);	//[t5]
+  tablewriter(transaction_base &Trans, 
+      const PGSTD::string &WName,
+      const PGSTD::string &Null=PGSTD::string());			//[t5]
   ~tablewriter();							//[t5]
 
   template<typename IT> void insert(IT Begin, IT End);			//[t5]
@@ -59,14 +58,24 @@ public:
 
   template<typename TUPLE> tablewriter &operator<<(const TUPLE &);	//[t5]
 
-  // Copy table from one database to another
+  /// Copy table from one database to another
   tablewriter &operator<<(tablereader &);				//[t6]
 
-  /// Translate tuple of data to a string in DBMS-specific format.  This
-  /// is not portable between databases.
+  /// Translate tuple of data to a string in DBMS-specific format.  
+  /** This is not portable between databases.
+   */
   template<typename IT> PGSTD::string generate(IT Begin, IT End) const;	//[t10]
   template<typename TUPLE> PGSTD::string generate(const TUPLE &) const;	//[t10]
 
+  /// Finish stream action, check for errors, and detach from transaction
+  /** It is recommended that you call this function before the tablestream's
+   * destructor is run.  This function will check any final errors which may not
+   * become apparent until the transaction is committed otherwise.
+   *
+   * As an added benefit, this will free up the transaction while the 
+   * tablestream object itself still exists.
+   */
+  virtual void complete();						//[t5]
 
 #ifdef PQXX_DEPRECATED_HEADERS
   /// @deprecated Use generate() instead
@@ -79,34 +88,16 @@ public:
 
 private:
   void WriteRawLine(const PGSTD::string &);
+  void writer_close();
+  PGSTD::string EscapeAny(const char *) const;
+  PGSTD::string EscapeAny(const PGSTD::string &) const;
+  template<typename T> PGSTD::string EscapeAny(const T &) const;
 
-  class PQXX_LIBEXPORT fieldconverter
-  {
-  public:
-    fieldconverter(const PGSTD::string &N) : Null(N) {}
-
-    template<typename T> PGSTD::string operator()(const PGSTD::string &S,
-		                                  T i) const
-    {
-      PGSTD::string Field(ToString(i));
-      return S + ((Field == Null) ? PGNull() : Field);
-    }
-
-#ifdef PQXX_NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
-    template<> PGSTD::string operator()(const PGSTD::string &S,
-	                                PGSTD::string i) const;
-#endif
-
-    PGSTD::string operator()(const PGSTD::string &S, const char *i) const;
-
-  private:
-    static PGSTD::string PGNull() { return "\\N"; }
-    static void Escape(PGSTD::string &);
-    PGSTD::string Null;
-  };
+  static PGSTD::string Escape(const PGSTD::string &);
 };
 
-}
+} // namespace pqxx
+
 
 
 namespace PGSTD
@@ -137,49 +128,38 @@ private:
   pqxx::tablewriter &m_Writer;
 };
 
-} // namespace
+} // namespace PGSTD
 
 
 namespace pqxx
 {
 
-template<>
-inline PGSTD::string 
-tablewriter::fieldconverter::operator()(const PGSTD::string &S,
-                                        PGSTD::string i) const
+inline PGSTD::string tablewriter::EscapeAny(const PGSTD::string &t) const
 {
-  if (i == Null) i = PGNull();
-  else Escape(i);
-  return S + i + '\t';
+  return (t == NullStr()) ? "\\N" : Escape(t);
 }
 
-
-inline PGSTD::string
-tablewriter::fieldconverter::operator()(const PGSTD::string &S, 
-                                        const char *i) const
+inline PGSTD::string tablewriter::EscapeAny(const char t[]) const
 {
-  return operator()(S, PGSTD::string(i));
+  return t ? EscapeAny(PGSTD::string(t)) : "\\N";
 }
 
-
-inline void tablewriter::fieldconverter::Escape(PGSTD::string &S)
+template<typename T> inline PGSTD::string
+tablewriter::EscapeAny(const T &t) const
 {
-  const char Special[] = "\n\t\\";
-
-  for (PGSTD::string::size_type j = S.find_first_of(Special);
-       j != PGSTD::string::npos;
-       j = S.find_first_of(Special, j+2))
-    S.insert(j, 1, '\\');
+  return EscapeAny(ToString(t));
 }
 
 
 template<typename IT> 
 inline PGSTD::string tablewriter::generate(IT Begin, IT End) const
 {
-  PGSTD::string Line = PGSTD::accumulate(Begin, 
-		                         End, 
-					 PGSTD::string(), 
-					 fieldconverter(NullStr()));
+  PGSTD::string Line;
+  for (; Begin != End; ++Begin)
+  {
+    Line += EscapeAny(*Begin);
+    Line += "\t";
+  }
 
   // Above algorithm generates one separating tab too many.  Take it back.
   if (!Line.empty()) Line.erase(Line.size()-1);

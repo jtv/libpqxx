@@ -49,8 +49,17 @@ public:
 	      const PGSTD::string &Null=PGSTD::string());		//[t6]
   virtual ~tablestream() =0;						//[t6]
 
-  PGSTD::string name() const { return m_Name; }				//[t10]
+  const PGSTD::string &name() const { return m_Name; }			//[t10]
 
+  /// Finish stream action, check for errors, and detach from transaction
+  /** It is recommended that you call this function before the tablestream's
+   * destructor is run.  This function will check any final errors which may not
+   * become apparent until the transaction is committed otherwise.
+   *
+   * As an added benefit, this will free up the transaction while the 
+   * tablestream object itself still exists.
+   */
+  virtual void complete() =0;						//[]
 
 #ifdef PQXX_DEPRECATED_HEADERS
   /// @deprecated Use name() instead
@@ -59,12 +68,16 @@ public:
 
 protected:
   transaction_base &Trans() const throw () { return m_Trans; }
-  PGSTD::string NullStr() const { return m_Null; }
+  const PGSTD::string &NullStr() const { return m_Null; }
+  void RegisterPendingError(const PGSTD::string &) throw ();
+  bool is_finished() const throw () { return m_Finished; }
+  void base_close();
 
 private:
   transaction_base &m_Trans;
   PGSTD::string m_Name;
   PGSTD::string m_Null;
+  bool m_Finished;
 
   // Not allowed:
   tablestream();

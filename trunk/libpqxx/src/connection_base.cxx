@@ -474,6 +474,7 @@ bool pqxx::connection_base::ReadCopyLine(string &Line)
     throw logic_error("libpqxx internal error: "
 	              "ReadCopyLine() without connection");
 
+  Line.erase();
   bool Result;
 
 #ifdef PQXX_HAVE_PQPUTCOPY
@@ -484,10 +485,8 @@ bool pqxx::connection_base::ReadCopyLine(string &Line)
       throw runtime_error("Reading of table data failed: " + string(ErrMsg()));
 
     case -1:
-      {
-	result R(PQgetResult(m_Conn));
+      for (result R(PQgetResult(m_Conn)); R; R=PQgetResult(m_Conn))
 	R.CheckStatus("[END COPY]");
-      }
       Result = false;
       break;
 
@@ -496,15 +495,16 @@ bool pqxx::connection_base::ReadCopyLine(string &Line)
 	  "table read inexplicably went asynchronous");
 
     default:
-      PQAlloc<char> PQA(Buf);
-      Line = Buf;
+      if (Buf)
+      {
+        PQAlloc<char> PQA(Buf);
+        Line = Buf;
+      }
       Result = true;
   }
 #else
   char Buf[10000];
   bool LineComplete = false;
-
-  Line.erase();
 
   while (!LineComplete)
   {
@@ -551,49 +551,41 @@ void pqxx::connection_base::WriteCopyLine(const string &Line)
     throw logic_error("libpqxx internal error: "
 	              "WriteCopyLine() without connection");
 
-  // TODO: Check for errors!!!
+  bool OK;
+  const PGSTD::string L = Line + '\n';
+
 #ifdef PQXX_HAVE_PQPUTCOPY
-  PQputCopyData(m_Conn, (Line + "\n").c_str(), Line.size()+1);
+  OK = (PQputCopyData(m_Conn, L.c_str(), L.size()) != -1);
 #else
-  PQputline(m_Conn, (Line + "\n").c_str());
+  OK = (PQputline(m_Conn, L.c_str()) != EOF);
 #endif
+  if (!OK)
+    throw runtime_error("Error writing to table: " + string(ErrMsg()));
 }
 
 
-void pqxx::connection_base::EndCopyWrite() throw ()
+void pqxx::connection_base::EndCopyWrite()
 {
 #ifdef PQXX_HAVE_PQPUTCOPY
-  switch (PQputCopyEnd(m_Conn, NULL))
+  const int Res = PQputCopyEnd(m_Conn, NULL);
+  switch (Res)
   {
     case -1:
-      process_notice("Write to table failed: " + string(ErrMsg()) + "\n");
-      break;
+      throw runtime_error("Write to table failed: " + string(ErrMsg()));
     case 0:
-      process_notice("libpqxx internal error: table write went asynchronous\n");
-      break;
+      throw logic_error("libpqxx internal error: "
+	  "table write went asynchronous");
     case 1:
-      try
-      {
-        result R(PQgetResult(m_Conn));
-	R.CheckStatus("[END COPY]");
-      }
-      catch (const exception &e)
-      {
-	process_notice(string(e.what()) + "\n");
-      }
+      for (result R(PQgetResult(m_Conn)); R; R=PQgetResult(m_Conn))
+	  R.CheckStatus("[END COPY]");
+      break;
+    default:
+      throw logic_error("libpqxx internal error: "
+	  "unexpected result " + ToString(Res) + " from PQputCopyEnd()");
   }
-
 #else
-  try
-  {
-    static const string terminator("\\.");
-    WriteCopyLine(terminator);
-  }
-  catch (const exception &e)
-  {
-    // TODO: Set some flag so transaction commit will be sure to fail?
-    process_notice(e.what());
-  }
+  static const string terminator("\\.");
+  WriteCopyLine(terminator);
 #endif
 }
 
@@ -601,12 +593,11 @@ void pqxx::connection_base::EndCopyWrite() throw ()
 // End COPY operation.  Careful: this assumes that no more lines remain to be
 // read, or (respectively) that the write operation has been terminated with a
 // closing line.
-void pqxx::connection_base::EndCopy() throw ()
+void pqxx::connection_base::EndCopy()
 {
   // Not needed for the new interface.
-  // Don't throw exception on failure--this code is only called from TableStream
-  // destructors.
-  PQendcopy(m_Conn);
+  if (PQendcopy(m_Conn))
+    throw runtime_error(ErrMsg());
 }
 #endif
 

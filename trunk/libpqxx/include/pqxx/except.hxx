@@ -44,10 +44,10 @@ class PQXX_LIBEXPORT sql_error : public PGSTD::runtime_error
 
 public:
   sql_error() : PGSTD::runtime_error("Failed query"), m_Q() {}
-  sql_error(const PGSTD::string &whatarg) : 
+  explicit sql_error(const PGSTD::string &whatarg) : 
 	PGSTD::runtime_error(whatarg), m_Q() {}
   sql_error(const PGSTD::string &whatarg, const PGSTD::string &Q) :
-	PGSTD::runtime_error(whatarg), m_Q(Q) { }
+	PGSTD::runtime_error(whatarg), m_Q(Q) {}
   virtual ~sql_error() throw () {}
 
   /// The query whose execution triggered the exception

@@ -211,6 +211,8 @@ private:
   };
 
 
+  void CheckPendingError();
+
   friend class Cursor;
   int GetUniqueCursorNum() { return m_UniqueCursorNum++; }
   void MakeEmpty(result &R) const { m_Conn.MakeEmpty(R); }
@@ -219,6 +221,7 @@ private:
   void RegisterStream(tablestream *);
   void UnregisterStream(tablestream *) throw ();
   void EndCopy() throw () { m_Conn.EndCopy(); }
+  void RegisterPendingError(const PGSTD::string &) throw ();
   friend class tablereader;
   void BeginCopyRead(const PGSTD::string &Table) 
   	{ m_Conn.BeginCopyRead(Table); }
@@ -237,6 +240,7 @@ private:
   Status m_Status;
   bool m_Registered;
   mutable PGSTD::map<PGSTD::string, PGSTD::string> m_Vars;
+  PGSTD::string m_PendingError;
 
   // Not allowed:
   transaction_base();
