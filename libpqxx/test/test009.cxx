@@ -14,7 +14,7 @@ using namespace pqxx;
 // Test program for libpqxx.  Create a table and write data to it, using
 // tablewriter's back_insert_iterator.
 //
-// Usage: test009 [connect-string] [table]
+// Usage: test009 [connect-string] [table] [column]
 //
 // Where the connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -54,9 +54,9 @@ void PrepareContents()
 }
 
 
-void FillTable(transaction_base &T, string TableName)
+void FillTable(transaction_base &T, string TableName, string Column)
 {
-  tablewriter W(T, TableName);
+  tablewriter W(T, TableName, &Column, &Column+1);
   W.reserve(Contents.size());
 
   copy(Contents.begin(), Contents.end(), back_inserter(W));
@@ -97,15 +97,18 @@ int main(int argc, char *argv[])
     connection C(ConnStr);
 
     // Select our original and destination table names
-    string TableName = "testtable";
+    string TableName = "pqxxtesttable";
     if (argc > 2) TableName = argv[2];
+
+    string Column = "content";
+    if (argc > 3) Column = argv[3];
 
     work T(C, "test9");
 
     // Create table.  If the table already existed, better to fail now.
-    T.exec(("CREATE TABLE " + TableName + "(content VARCHAR)").c_str());
+    T.exec(("CREATE TABLE " + TableName + "(" + Column + " VARCHAR)").c_str());
 
-    FillTable(T, TableName);
+    FillTable(T, TableName, Column);
     CheckTable(T, TableName);
 
     T.exec(("DROP TABLE " + TableName).c_str());
