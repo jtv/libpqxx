@@ -10,6 +10,8 @@
   - [clean] Clean out generated HTML files.
   - [configure] Actually use confflags variable; simplified testing with a 
     different C++ compiler.
+ src/Makefile.am:
+  - Support building outside the source directory.
 
 2002-10-15  J.H.M. Dassen (Ray) <jdassen@debian.org>
  debian/libpqxx-dev.files: 
