@@ -181,7 +181,12 @@ void pqxx::connection_base::SetupState()
     // in the new connection.
     auto_ptr<nontransaction> n;
     if (!m_Trans.get())
-      n=auto_ptr<nontransaction>(new nontransaction(*this, "connection_setup"));
+    {
+      // Jump through a few hoops to satisfy dear old g++ 2.95
+      auto_ptr<nontransaction>
+	nap(new nontransaction(*this, "connection_setup"));
+      n = nap;
+    }
     pipeline p(*m_Trans.get(), "restore_state");
     p.retain(m_Triggers.size() + m_Vars.size());
 
