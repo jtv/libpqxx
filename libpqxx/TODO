@@ -1,10 +1,11 @@
+Documentation
+(*) Convert to HTML
+
 Error handling
 (*) Check for unexpectedly open/closed transactions (appears to be possible)
-(*) Deal with in-doubt transactions (manual transaction tracking :-( )
 
 General
-(*) README
-(*) Decent build instructions
+(*) README & build instructions
 (*) Get object files into obj/ directory
 
 Porting
