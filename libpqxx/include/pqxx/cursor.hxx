@@ -130,7 +130,7 @@ public:
    * stride, inclusive.  An empty result will only be returned if there are no
    * more rows to retrieve.
    */
-  icursorstream &get(result &res) { res = fetch(); return *this; }	//[]
+  icursorstream &get(result &res) { res = fetch(); return *this; }	//[t81]
   /// Read new value into given result object; same as get(result &)
   /** The result set may continue any number of rows from zero to the chosen
    * stride, inclusive.  An empty result will only be returned if there are no
@@ -138,7 +138,7 @@ public:
    */
   icursorstream &operator>>(result &res) { return get(res); }		//[t81]
   /// Move given number of rows forward (ignoring stride) without reading data
-  icursorstream &ignore(PGSTD::streamsize n=1);				//[]
+  icursorstream &ignore(PGSTD::streamsize n=1);				//[t81]
 
   /// Change stride, i.e. the number of rows to fetch per read operation
   /**

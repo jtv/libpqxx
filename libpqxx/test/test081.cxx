@@ -105,8 +105,8 @@ int main(int, char *argv[])
 
     // Simple test: read back results 1 row at a time
     icursorstream Cur1(T, Query, "singlestep", cursor_base::next());
-    start(Cur1, here);
-    while (get(Cur1, R, 1)) cmp_results(Ref, here, R);
+    int rows=0;
+    for (start(Cur1, here); get(Cur1, R, 1); ++rows) cmp_results(Ref, here, R);
     finish(Cur1, Ref.size(), here);
 
     // Read whole table at once
@@ -137,6 +137,18 @@ int main(int, char *argv[])
       here += 3;
     }
     finish(Cur4, Ref.size(), here);
+
+    // Check if we get the expected number of rows again
+    icursorstream Cur5(T, Query, "count");
+    if (!Cur5.ignore(rows-1))
+      throw runtime_error("Could not skip " + to_string(rows-1) + " rows");
+    if (!Cur5.get(R))
+      throw runtime_error("Expected " + to_string(rows) + " rows, got " +
+	  	to_string(rows-1));
+    if (R.empty())
+      throw runtime_error("Unexpected empty result at last row");
+    if (Cur5.get(R))
+      throw runtime_error("Ending row is nonempty");
   }
   catch (const sql_error &e)
   {

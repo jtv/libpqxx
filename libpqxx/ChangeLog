@@ -7,6 +7,8 @@
   - completeconnect() doesn't need to check for success
   - connection_base::halfconnect() didn't always SetupState()
   - Moved dropconnect() out of close() because it's called from destructor
+ include/pqxx/cursor.hxx, test/test081.cxx:
+  - Increased test coverage
 2004-08-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  README:
   - Minor updates to appendices
