@@ -33,6 +33,8 @@ int main(int, char *argv[])
     T.exec("INSERT INTO pqxxbin VALUES ('" + Esc + "')");
 
     result R = T.exec("SELECT * from pqxxbin");
+    T.exec("DELETE FROM pqxxbin");
+
     binarystring B( R.at(0).at(0) );
 
     if (B.empty())
@@ -62,8 +64,13 @@ int main(int, char *argv[])
 	    "operator[] says '" + to_string(char(B.at(i))) + "', "
 	    "data() says '" + to_string(char(B.data()[i])) + "'");
     }
+    if (B.at(0) != B.front())
+      throw logic_error("Something wrong with binarystring::front()");
     if (c != B.end())
       throw logic_error("end() of binary string not reached");
+    --c;
+    if (*c != B.back())
+      throw logic_error("Something wrong with binarystring::back()");
 
 #ifdef PQXX_HAVE_REVERSE_ITERATOR
     binarystring::const_reverse_iterator r;
@@ -81,6 +88,31 @@ int main(int, char *argv[])
 
     if (B.str() != TestStr)
       throw logic_error("Binary string got mangled: '" + B.str() + "'");
+
+    const string TestStr2("(More conventional text)");
+    T.exec("INSERT INTO pqxxbin VALUES ('" + TestStr2 + "')");
+    R = T.exec("SELECT * FROM pqxxbin");
+    binarystring B2(R.front().front());
+
+    if (B2 == B)
+      throw logic_error("Two different binarystrings say they're equal!");
+    if (!(B2 != B))
+      throw logic_error("Problem with binarystring::operator!=");
+
+    binarystring B1c(B), B2c(B2);
+    if (B1c != B)
+      throw logic_error("Copied binarystring differs from original");
+    if (!(B2c == B2))
+      throw logic_error("Copied binarystring not equal to original");
+
+    B1c.swap(B2c);
+
+    if (B2c == B1c)
+      throw logic_error("Swapped binarystrings say they're identical!");
+    if (B2c != B)
+      throw logic_error("Problem with binarystring::swap()");
+    if (!(B1c == B2))
+      throw logic_error("Problem with one of two swapped binarystrings");
   }
   catch (const sql_error &e)
   {
