@@ -351,6 +351,8 @@ private:
   bool ReadCopyLine(PGSTD::string &);
   bool WriteCopyLine(const PGSTD::string &, bool async=false);
   void EndCopyWrite();
+  void start_exec(const PGSTD::string &);
+  PGresult *get_result();
 
   void RawSetVar(const PGSTD::string &Var, const PGSTD::string &Value);
   void AddVariables(const PGSTD::map<PGSTD::string, PGSTD::string> &);

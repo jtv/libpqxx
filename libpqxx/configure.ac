@@ -1,10 +1,10 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 2.1.3, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 2.1.4, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 2.1.3)
+AM_INIT_AUTOMAKE(libpqxx, 2.1.4)
 
-PQXXVERSION=2.1.3
+PQXXVERSION=2.1.4
 AC_SUBST(PQXXVERSION)
 
 AC_CONFIG_SRCDIR([src/connection.cxx])

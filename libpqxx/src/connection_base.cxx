@@ -632,6 +632,20 @@ void pqxx::connection_base::EndCopyWrite()
 }
 
 
+void pqxx::connection_base::start_exec(const string &Q)
+{
+  if (!PQsendQuery(m_Conn, Q.c_str())) throw runtime_error(ErrMsg());
+}
+
+
+PGresult *pqxx::connection_base::get_result()
+{
+  if (!m_Conn) throw broken_connection();
+  return PQgetResult(m_Conn);
+}
+
+
+
 namespace
 {
 #ifdef PQXX_SELECT_ACCEPTS_NULL

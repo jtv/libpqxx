@@ -152,6 +152,7 @@ libpqxx_la_SOURCES = binarystring.cxx \
 	cursor.cxx \
 	largeobject.cxx \
 	nontransaction.cxx \
+	pipeline.cxx \
 	result.cxx \
 	robusttransaction.cxx \
 	tablereader.cxx \
@@ -185,8 +186,8 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libpqxx_la_LIBADD =
 am_libpqxx_la_OBJECTS = binarystring.lo cachedresult.lo \
 	connection_base.lo connection.lo cursor.lo largeobject.lo \
-	nontransaction.lo result.lo robusttransaction.lo tablereader.lo \
-	tablestream.lo tablewriter.lo transaction.lo \
+	nontransaction.lo pipeline.lo result.lo robusttransaction.lo \
+	tablereader.lo tablestream.lo tablewriter.lo transaction.lo \
 	transaction_base.lo util.lo
 libpqxx_la_OBJECTS = $(am_libpqxx_la_OBJECTS)
 
@@ -199,7 +200,7 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/connection_base.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/cursor.Plo ./$(DEPDIR)/largeobject.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/nontransaction.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/result.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/pipeline.Plo ./$(DEPDIR)/result.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/robusttransaction.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/tablereader.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/tablestream.Plo \
@@ -272,6 +273,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cursor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/largeobject.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nontransaction.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pipeline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/result.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/robusttransaction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tablereader.Plo@am__quote@

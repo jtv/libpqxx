@@ -51,7 +51,7 @@ public:
   virtual ~sql_error() throw () {}
 
   /// The query whose execution triggered the exception
-  const PGSTD::string &query() const { return m_Q; }			//[t56]
+  const PGSTD::string &query() const throw () { return m_Q; }		//[t56]
 };
 
 

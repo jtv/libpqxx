@@ -1,3 +1,12 @@
+2003-12-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/except.hxx:
+  - Empty throw specification for sql_error::query() 
+ include/pqxx/largeobject.hxx, src/largeobject.cxx:
+  - Empty throw specification for largeobjectaccess::close()
+ include/pqxx/pipeline, include/pqxx/pipeline.hxx, src/pipeline.cxx:
+  - New
+ include/pqxx/result.hxx, include/pqxx/transaction_base.hxx:
+  - Prototyped facilities for pipeline
 2003-12-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
   - No longer runs autoheader, which would overwrite config.h.in

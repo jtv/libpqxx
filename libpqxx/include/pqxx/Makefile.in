@@ -161,6 +161,7 @@ include_HEADERS = pqxx all.h \
 	libcompiler.h \
 	libconfig.h \
 	nontransaction nontransaction.hxx nontransaction.h \
+	pipeline pipeline.hxx \
 	result result.hxx result.h \
 	robusttransaction robusttransaction.hxx robusttransaction.h \
 	tablereader tablereader.hxx tablereader.h \
