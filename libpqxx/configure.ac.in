@@ -1,4 +1,10 @@
-# Process this file with autoconf to produce a configure script.
+#
+# CAUTION: THE configure.ac FILE IS AUTOMATICALLY GENERATED!  DO NOT EDIT IT.
+#
+# If you want to make changes to configure.ac, edit configure.ac.in instead.
+#
+# Process configure.ac.in with autoconf to produce a configure script.
+
 AC_PREREQ(2.53)
 AC_INIT(libpqxx, @PQXXVERSION@, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
@@ -128,79 +134,15 @@ AC_MSG_RESULT($cpp_pragma_message)
 
 AC_LANG_POP(C++)
 
-# Where are the postgres includes...
-postgres_include_default=
-for usual_suspect in \
-	/usr/local/include/postgresql \
-	/usr/local/include/pgsql \
-	/usr/local/pgsql/include \
-	/usr/local/include \
-	/usr/include/postgresql \
-	/usr/include/pgsql \
-	/usr/include \
-	/opt/postgresql/include \
-	/opt/pgsql/include \
-; do
-AC_CHECK_FILE([$usual_suspect/libpq-fe.h],
-	[postgres_include_default=$usual_suspect],
-)
-	if test -n "$postgres_include_default" ; then
-		break
-	fi
-done
-
-AC_ARG_WITH(postgres-include,
-	AC_HELP_STRING(
-		[--with-postgres-include],
-		[PostgreSQL headers directory]
-	)
-	,	test "$withval" = no || with_postgres_include=$withval
-	, with_postgres_include=$postgres_include_default
-)
-
-# ..and libraries?
-postgres_lib_default=
-for usual_suspect in \
-	/usr/local/lib/postgresql \
-	/usr/local/lib/pgsql \
-	/usr/local/pgsql/lib \
-	/usr/local/lib \
-	/usr/lib/postgresql \
-	/usr/lib/pgsql \
-	/usr/lib \
-	/opt/postgresql/lib \
-	/opt/pgsql/lib \
-; do
-	for library_extension in so a sa ; do
-AC_CHECK_FILE([$usual_suspect/libpq.$library_extension],
-	[postgres_lib_default=$usual_suspect],
-)
-	done
-	if test -n "$postgres_lib_default" ; then
-		break
-	fi
-done
-
-AC_ARG_WITH(postgres-lib,
-	AC_HELP_STRING(
-		[--with-postgres-lib],
-		[PostgreSQL library directory containing libpq]
-	)
-	,	test "$withval" = no || with_postgres_lib=$withval
-	, with_postgres_lib=$postgres_lib_default
-)
-
-# provide one way to specify both include and lib
-AC_ARG_WITH(postgres,
-	AC_HELP_STRING(
-		[--with-postgres],
-		[PostgreSQL common directory. Use this to specify libs & includes rooted at one place]
-	)
-	,	test "$withval" = no || with_postgres=$withval
-		with_postgres_lib=${with_postgres}/lib
-		with_postgres_include=${with_postgres}/include
-	, with_postgres=no
-)
+# Find PostgreSQL includes and libraries
+AC_PATH_PROGS(PG_CONFIG, pg_config)
+if test -z "$PG_CONFIG" || test ! -r "$PG_CONFIG"; then
+	AC_MSG_ERROR([PostgreSQL configuration script was not found])
+fi
+with_postgres_include=`$PG_CONFIG --includedir`
+AC_MSG_NOTICE([using PostgreSQL headers at $with_postgres_include])
+with_postgres_lib=`$PG_CONFIG --libdir`
+AC_MSG_NOTICE([using PostgreSQL libraries at $with_postgres_lib])
 
 AC_SUBST(with_postgres_lib)
 AC_SUBST(with_postgres_include)
@@ -213,15 +155,12 @@ AC_SUBST(POSTGRES_INCLUDE)
 AC_CHECK_LIB([pq], [PQexec], [], [AC_MSG_ERROR([Failed to find a suitable libpq.
 
 PostgreSQL's libpq needs to be installed.
-Perhaps you need to specify --with-postgres-lib?
 ])], -L${with_postgres_lib})
 
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADER([${with_postgres_include}/libpq-fe.h],,AC_MSG_ERROR(
-[Can't find libpq-fe.h in ${with_postgres_include}.
-Please specify the location of the PostgreSQL include files with
---with-postgres-include=... or --with-postgres=...]
+[Can't find libpq-fe.h in ${with_postgres_include}.]
 ))
 
 AC_CHECK_HEADER([${with_postgres_include}/libpq/libpq-fs.h],,AC_MSG_ERROR(

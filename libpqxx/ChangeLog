@@ -1,3 +1,9 @@
+2004-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Added warning about auto-generation of configure.ac
+  - Peter Eistentraut's patch for finding postgres headers & libraries
+ TODO:
+  - Bart Samwel found great solution for pipeline's one major weakness
 2004-01-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/pipeline.hxx:
   - Warning about syntax errors
