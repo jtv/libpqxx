@@ -310,9 +310,6 @@ public:
 
 
 protected:
-  /// To be used by implementation classes: really connect to database
-  void Connect();
-
   /// Overridable: initiate a connection
   virtual void startconnect() =0;
 
@@ -333,12 +330,15 @@ protected:
   void wait_write() const;
 
 private:
+  /// Really connect to database
+  void Connect();
+  void close() throw ();
   void SetupState();
+
   void InternalSetTrace() throw ();
   int Status() const throw () { return PQXXPQ::PQstatus(m_Conn); }
   const char *ErrMsg() const throw ();
   void Reset();
-  void close() throw ();
   void RestoreVars();
   void halfconnect();
   int set_fdmask() const;

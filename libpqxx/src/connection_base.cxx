@@ -104,6 +104,7 @@ void pqxx::connection_base::deactivate()
       throw logic_error("Attempt to deactivate connection while " +
 	  		m_Trans.get()->description() + " still open");
   }
+  dropconnect();
   disconnect();
 }
 
@@ -111,8 +112,11 @@ void pqxx::connection_base::deactivate()
 /// Initiate a connection, to at least the point where we have a PQconn
 void pqxx::connection_base::halfconnect()
 {
-  startconnect();
-  if (!m_Conn) completeconnect();
+  if (!m_Conn)
+  {
+    startconnect();
+    if (!m_Conn) Connect();
+  }
 }
 
 
@@ -161,6 +165,7 @@ void pqxx::connection_base::SetupState()
   if (Status() != CONNECTION_OK)
   {
     const string Msg( ErrMsg() );
+    dropconnect();
     disconnect();
     throw runtime_error(Msg);
   }
@@ -199,7 +204,6 @@ void pqxx::connection_base::SetupState()
 
 void pqxx::connection_base::disconnect() throw ()
 {
-  dropconnect();
   if (m_Conn)
   {
     PQfinish(m_Conn);
