@@ -23,7 +23,7 @@ void setup_contents(const string file)
   while (input >> line) contents.push_back(line);
 }
 
-void setup_table(connection_base &C, const string &file)
+void setup_table(connection_base &C)
 {
   setup_contents("pqxxbench.in");
 
@@ -61,6 +61,16 @@ void setup_table(connection_base &C, const string &file)
   T.commit();
 }
 
+
+void process_q1(result R)
+{
+  long totalyear = 0;
+  for (result::const_iterator i=R.begin(); i!=R.end(); ++i)
+    totalyear += i["year"].as<long>();
+  cout << "Average year: " << (totalyear / R.size()) << endl;
+}
+
+
 void manipulate(connection_base &C)
 {
   work W(C, "manipulate");
@@ -83,12 +93,12 @@ void manipulate(connection_base &C)
 
 } // namespace
 
-int main(int argc, char *argv[])
+int main(int /*argc*/, char *argv[])
 {
   try
   {
     asyncconnection C(argv[1]);
-    setup_table(C, "pqxxbench.in");
+    setup_table(C);
   }
   catch (const broken_connection &e)
   {

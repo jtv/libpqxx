@@ -25,8 +25,8 @@ int main(int, char *argv[])
     work W(C, "test74");
     result R = W.exec("SELECT * FROM pg_tables");
     const string sval = R.at(0).at(1).c_str();
-    fieldstream fs1(R[0][1]);
     string sval2;
+    fieldstream fs1(R[0][1]);
     fs1 >> sval2;
     if (sval2 != sval)
       throw logic_error("Got '" + sval + "' from field, "
