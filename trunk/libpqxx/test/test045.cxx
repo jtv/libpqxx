@@ -111,7 +111,7 @@ int main(int, char *argv[])
     // a result field for this purpose.  This isn't easy because it's not 
     // supposed to be easy; normally we'd only construct Cursors around existing
     // SQL cursors if they were being returned by functions.
-    Cursor Cur(T, T.Exec("SELECT " + Quote(CurName))[0][0], GetRows);
+    Cursor Cur(T, T.Exec("SELECT '" + sqlesc(CurName) + "'")[0][0], GetRows);
 
     // Reset Cur to the beginning of our result set so that it may know its
     // position.
