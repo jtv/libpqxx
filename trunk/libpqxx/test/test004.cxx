@@ -21,7 +21,7 @@ using namespace pqxx;
 // called template1, or "host=foo.bar.net user=smith" to connect to a
 // backend running on host foo.bar.net, logging in as user smith.
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #else
 extern "C"
@@ -34,7 +34,7 @@ extern "C"
 #include <unistd.h>
 #endif
 }
-#endif
+#endif	// _WIN32
 
 namespace
 {

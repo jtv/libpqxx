@@ -1,3 +1,15 @@
+2004-01-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in, include/pqxx/util.h:
+  - Re-included std::string.clear() check which had been lost
+  - Replaced #pragma warning with #pragma message, thanks key88sf@hotmail.com
+ README:
+  - Documented manual editing of configuration headers
+ include/connection_base.hxx, src/connection_base.cxx:
+  - Changed Windows workarounds for select(), thanks key88sf@hotmail.com
+ src/cursor.cxx:
+  - Workaround for min()/max() problem in Windows, thanks key88sf@hotmail.com
+ test/test004.cxx, test/test023.cxx:
+  - Updated Windows vs. select() workarounds
 2003-12-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/pipeline.cxx:
   - Compiles

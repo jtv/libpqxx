@@ -7,7 +7,7 @@
  *      implementation of the pqxx::connection_base abstract base class.
  *   pqxx::connection_base encapsulates a frontend to backend connection
  *
- * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -19,12 +19,12 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <ctime>
 #include <stdexcept>
 
 #ifdef PQXX_HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #else
-#include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
 #endif	// PQXX_HAVE_SYS_SELECT_H

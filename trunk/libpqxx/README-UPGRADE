@@ -1,8 +1,9 @@
 IMPORTANT NOTICE FOR USERS UPGRADING TO 1.9.0 OR LATER FROM OLDER VERSIONS
 
 Version 1.9.0 marks a radical change in the library, preparatory to the 2.0.0
-release scheduled for July 2003.  These may require changes in your code; see
-the NEWS file for quick overview of the changes.
+release2003.  These may require changes in your code; see the NEWS file for 
+quick overview of the changes.  Most of these are also relevant for users
+upgrading from 1.x to 2.x versions of the library.
 
 Not all the changes will be of immediate importance to you; where possible,
 typedefs have been provided to maintain backwards compatibility.  In some cases
@@ -16,10 +17,10 @@ Practically all classes have been renamed to fully lower-case names.  This was
 requested by several users, and should help stylistic integration with the C++
 Standard Library.
 
-Typedefs have been provided where necessary, so no immediate changes are needed
-on that score (although eventually of course the typedefs will be phased out); 
-however, don't be surprised if class names are spelled differently in the
-documentation or in compiler messages than you're used to.
+Typedefs have been provided where necessary, so no immediate changes in your 
+code are needed on that score (although eventually of course the typedefs will 
+be phased out); however, don't be surprised if class names are spelled 
+differently in the documentation or in compiler messages than you're used to.
 
 
 2. The Transformed Transaction Taxonomy (TTT)

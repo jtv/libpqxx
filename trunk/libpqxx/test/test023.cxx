@@ -31,7 +31,7 @@ extern "C"
 #include <unistd.h>
 #endif
 }
-#endif
+#endif	// _WIN32
 
 
 namespace
