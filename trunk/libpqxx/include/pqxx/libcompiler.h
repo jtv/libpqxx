@@ -121,6 +121,7 @@ template<> struct char_traits<unsigned char>
 #define PQXX_TYPENAME
 #endif	// _MSC_VER < 1310
 #pragma warning (disable: 4290)
+#pragma warning (disable: 4355)
 #pragma warning (disable: 4786)
 #pragma warning (disable: 4251 4275 4273)
 #pragma comment(lib, "libpqdll")
