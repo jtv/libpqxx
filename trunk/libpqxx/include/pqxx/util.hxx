@@ -655,6 +655,9 @@ private:
   unique &operator=(const unique &);
 };
 
+/// Sleep for the given number of seconds
+void sleep_seconds(int);
+
 } // namespace internal
 } // namespace pqxx
 
