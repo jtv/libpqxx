@@ -1,7 +1,7 @@
 2002-09-23 01:00 Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection.h, src/connection.cxx:
   - Now caches NoticePreprocessor & trace file set by user
-  - Implemented lazy connections
+  - Implemented lazy connections (requested by Greg Copeland)
  include/pqxx/result.h:
   - Added InsertedOid()
  include/pqxx/trigger.h:
@@ -9,6 +9,7 @@
  src/robusttransaction.cxx:
   - Use log record's oid instead of explicit id field
   - Only attempt to create log table if creation of log field fails
+  - Thanks to Greg Copeland for ideas, criticism & validation
  test/test17.cxx:
   - Fixed comment (used to call itself test15)
  test/test21.cxx, test/test22.cxx, test/test23.cxx, test/test24.cxx,
