@@ -1,3 +1,6 @@
+2002-09-27 02:45 Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection.cxx:
+  - Made GetNotifs() a little more aggressive in freeing PGnotify structs
 2002-09-25 03:00 Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac:
   - Removed several unwanted gcc options, making compile output readable again

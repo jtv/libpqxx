@@ -303,8 +303,6 @@ void pqxx::Connection::GetNotifs()
 {
   if (!m_Conn) return;
 
-  typedef TriggerList::iterator TI;
-
   PQconsumeInput(m_Conn);
 
   // Even if somehow we receive notifications during our transaction, don't
@@ -313,6 +311,8 @@ void pqxx::Connection::GetNotifs()
 
   for (CAlloc<PGnotify> N( PQnotifies(m_Conn) ); N; N = PQnotifies(m_Conn))
   {
+    typedef TriggerList::iterator TI;
+
     pair<TI, TI> Hit = m_Triggers.equal_range(string(N->relname));
     for (TI i = Hit.first; i != Hit.second; ++i)
       try
@@ -327,6 +327,8 @@ void pqxx::Connection::GetNotifs()
 		      e.what() +
 		      "\n");
       }
+
+    N.close();
   }
 }
 
