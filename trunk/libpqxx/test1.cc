@@ -63,10 +63,16 @@ int main(int argc, char *argv[])
     // Begin a transaction acting on our current connection
     Transaction T(C, "test1");
 
+    // Transaction has a ProcessNotice() as well, which calls Connection's
+    T.ProcessNotice("Transaction started.\n");
+
     // Perform a query on the database, storing result tuples in R
     Result R( T.Exec("SELECT * FROM pg_tables") );
 
-    C.ProcessNotice(ToString(R.size()) + " result tuples.\n");
+    T.ProcessNotice(ToString(R.size()) + " "
+		    "result tuples in transaction " +
+		    T.Name() +
+		    "\n");
 
     // Process each successive result tuple
     for (Result::const_iterator c = R.begin(); c != R.end(); ++c)

@@ -40,6 +40,10 @@
 
 #include "pg_connection.h"
 
+/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+ */
+
+
 // TODO: Any user-friendliness we can add to invoking stored procedures?
 
 namespace Pg
@@ -82,18 +86,19 @@ class Transaction
 public:
   // Create a transaction.  The optional name, if given, must begin with a
   // letter and may contain letters and digits only.
-  explicit Transaction(Connection &, PGSTD::string Name=PGSTD::string());
-  ~Transaction();
+  explicit Transaction(Connection &, 
+		       PGSTD::string Name=PGSTD::string());		//[t1]
+  ~Transaction();							//[t1]
 
-  void Commit();
-  void Abort();
+  void Commit();							//[t1]
+  void Abort();								//[t10]
 
   // Execute query directly
-  Result Exec(const char[]);
-  void ProcessNotice(const char Msg[]) { m_Conn.ProcessNotice(Msg); }
-  void ProcessNotice(PGSTD::string Msg) { m_Conn.ProcessNotice(Msg); }
+  Result Exec(const char[]);						//[t1]
+  void ProcessNotice(const char Msg[]) { m_Conn.ProcessNotice(Msg); }	//[t1]
+  void ProcessNotice(PGSTD::string Msg) { m_Conn.ProcessNotice(Msg); }	//[t1]
 
-  PGSTD::string Name() const { return m_Name; }
+  PGSTD::string Name() const { return m_Name; }				//[t1]
 
 private:
   /* A Transaction goes through the following stages in its lifecycle:

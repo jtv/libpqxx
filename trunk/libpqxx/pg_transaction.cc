@@ -51,7 +51,7 @@ Pg::Transaction::~Transaction()
   {
     m_Conn.UnregisterTransaction(this);
 
-    if (m_Status == st_aborted)
+    if ((m_Status == st_aborted) || (m_Status == st_active))
       Abort();
 
     // TODO: Report name of open stream

@@ -19,6 +19,10 @@
 #include "pg_result.h"
 #include "pg_tablestream.h"
 
+/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+ */
+
+
 namespace Pg
 {
 
@@ -36,18 +40,20 @@ namespace Pg
 class TableReader : public TableStream
 {
 public:
-  TableReader(Transaction &Trans, PGSTD::string Name);
-  ~TableReader();
+  TableReader(Transaction &Trans, PGSTD::string Name);			//[t6]
+  ~TableReader();							//[t6]
 
   TableReader &operator>>(Result &);
   TableReader &operator>>(PGSTD::string &);
-  template<typename TUPLE> TableReader &operator>>(TUPLE &);
+  template<typename TUPLE> TableReader &operator>>(TUPLE &);		//[t8]
 
-  operator bool() const { return !m_Done; }
-  bool operator!() const { return m_Done; }
+  operator bool() const { return !m_Done; }				//[t8]
+  bool operator!() const { return m_Done; }				//[]
 
-  bool GetRawLine(PGSTD::string &Line);
-  template<typename TUPLE> void Tokenize(PGSTD::string, TUPLE &) const;
+  bool GetRawLine(PGSTD::string &Line);					//[]
+
+  template<typename TUPLE> 
+  void Tokenize(PGSTD::string, TUPLE &) const;				//[]
 
 private:
   bool m_Done;

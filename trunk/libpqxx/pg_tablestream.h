@@ -18,6 +18,9 @@
 
 #include "pg_compiler.h"
 
+/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+ */
+
 
 namespace Pg
 {
@@ -41,14 +44,14 @@ class TableStream
 public:
   TableStream(Transaction &Trans, 
 	      PGSTD::string Name, 
-	      PGSTD::string Null=PGSTD::string());
-  virtual ~TableStream() =0;
+	      PGSTD::string Null=PGSTD::string());			//[t6]
+  virtual ~TableStream() =0;						//[t6]
 
-  PGSTD::string Name() const { return m_Name; }
+  PGSTD::string Name() const { return m_Name; }				//[]
 
 protected:
-  Transaction &Trans() const { return m_Trans; }
-  PGSTD::string NullStr() const { return m_Null; }
+  Transaction &Trans() const { return m_Trans; }			//[]
+  PGSTD::string NullStr() const { return m_Null; }			//[]
 
 private:
   Transaction &m_Trans;
