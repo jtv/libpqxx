@@ -1,9 +1,7 @@
 #include <cassert>
 #include <iostream>
 
-#include <pqxx/connection.h>
-#include <pqxx/transaction.h>
-#include <pqxx/result.h>
+#include <pqxx/all.h>
 
 using namespace PGSTD;
 using namespace pqxx;
