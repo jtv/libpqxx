@@ -10,3 +10,4 @@ includedir=$(prefix)/include/pqxx
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpqxx.pc
 bin_SCRIPTS=pqxx-config
+
