@@ -1,3 +1,4 @@
+
  <chapter id="libpqxx">
   <title>libpqxx - C++ Binding Library</title>
 
@@ -6,9 +7,9 @@
    <para>
     <filename>libpqxx</filename> is a C++ <acronym>API</acronym> to 
     <productname>PostgreSQL</productname>.  It replaces the earlier
-    <filename>libpq++</filename> with a more <acronym>STL</acronym>-conformant 
-    interface and makes more extensive use of C++ language features such as 
-    exceptions, templates, and strings.
+    <filename>libpq++</filename> with a more Standard Template Library
+    (<acronym>STL</acronym>)-conformant interface and makes more extensive use 
+    of C++ language features such as exceptions, templates, and strings.
    </para>
 
    <para>
@@ -166,124 +167,136 @@
   </sect1>
 
   <sect1>
-   <title>Class overview</title1>
+   <title>Class overview</title>
 
    <para>
     To work with <filename>libpqxx</filename>, you need to be aware of at least
     the following classes.  These are all introduced in a dedicated namespace,
     <literal>pqxx</literal>:
-    <itemizedlist>
-     <listitem>
-      <para>
-       <literal>Connection</literal> represents a connection from your program
-       to a <productname>PostgreSQL</productname> back-end server.
-      </para>
-     </listitem>
- 
-     <listitem>
-      <para>
-       <literal>Transaction</literal> represents a transaction being executed 
-       in the context of a <literal>Connection</literal>, and is a unit of work 
-       that must be either completed as a whole.  If execution fails, 
-       everything done within that <literal>Transaction</literal> is undone by 
-       the backend as if it had never happened.
-      </para>
-     </listitem>
-
-     <listitem>
-      <para>
-       <literal>Result</literal> is a container holding the resulting data
-       coming out of a query or command executed in a 
-       <literal>Transaction</literal>.
-      </para>
-     </listitem>
-
-    </itemizedlist>
    </para>
+
+   <itemizedlist>
+    <listitem>
+     <para>
+      <literal>Connection</literal> represents a connection from your program
+      to a <productname>PostgreSQL</productname> back-end server.
+     </para>
+    </listitem>
+ 
+    <listitem>
+     <para>
+      <literal>Transaction</literal> represents a transaction being executed 
+      in the context of a <literal>Connection</literal>, and is a unit of work 
+      that must be completed as a whole by the database backend.  If execution 
+      fails, everything done within that <literal>Transaction</literal> is 
+      undone by the backend as if it had never happened.
+     </para>
+     <para>
+      Actually <filename>libpqxx</filename> provides three classes doing this
+      at various levels of reliability, called 
+      <literal>NonTransaction</literal>, <literal>Transaction</literal>, and
+      <literal>RobustTransaction</literal> for little, standard, and best
+      reliability respectively.  These are all derived from a single abstract
+      base class called <literal>TransactionItf</literal>, which defines the
+      library's public transaction programming interface.
+     </para>
+    </listitem>
+
+    <listitem>
+     <para>
+      <literal>Result</literal> is a container holding the resulting data
+      coming out of a query or command executed in a 
+      <literal>Transaction</literal>.  It behaves just like a standard C++
+      container as found in the STL.
+     </para>
+    </listitem>
+
+   </itemizedlist>
 
    <para>
     There are other classes; these are either not essential to writing a simple
     program using <filename>libpqxx</filename>, or are used in such a way that
     knowledge of them is not immediately necessary.
-    <itemizedlist>
-     <listitem>
-      <para>
-       <literal>broken_connection</literal> is a connection class that is
-       sometimes (but currently not necessarily) thrown when 
-       <filename>libpqxx</filename> loses its connection to the back-end.  It 
-       is derived from the standard C++ exception 
-       <literal>std::runtime_error</literal>, and can generally be treated as
-       such.
-      </para>
-     </listitem>
+    </para>
+   <itemizedlist>
+    <listitem>
+     <para>
+      <literal>broken_connection</literal> is a connection class that is
+      sometimes (but currently not necessarily) thrown when 
+      <filename>libpqxx</filename> loses its connection to the back-end.  It 
+      is derived from the standard C++ exception 
+      <literal>std::runtime_error</literal>, and can generally be treated as
+      such.
+     </para>
+    </listitem>
 
-     <listitem>
-      <para>
-       <literal>Cursor</literal> is a way of iterating over a query result 
-       using an SQL cursor.  This can be useful for selectively retrieving 
-       parts of a query, or for retrieving and processing results in chunks so 
-       your program can do useful work on one chunk while the next is still 
-       coming in over a network connection.  Or you may want to use this to 
-       give progress reports to the user between chunk transfers.
-      </para>
-     </listitem>
+    <listitem>
+     <para>
+      <literal>Cursor</literal> is a way of iterating over a query result 
+      using an SQL cursor.  This can be useful for selectively retrieving 
+      parts of a query, or for retrieving and processing results in chunks so 
+      your program can do useful work on one chunk while the next is still 
+      coming in over a network connection.  Or you may want to use this to 
+      give progress reports to the user between chunk transfers.
+     </para>
+    </listitem>
 
-     <listitem>
-      <para>
-       <literal>TableStream</literal> provides simple, relatively direct access
-       to a table for either reading (<literal>TableReader</literal>) or
-       writing (<literal>TableWriter</literal>) using 
-       <productname>PostgreSQL</productname>'s <literal>COPY</literal> command.
-      </para>
-     </listitem>
+    <listitem>
+     <para>
+      <literal>TableStream</literal> provides simple, relatively direct access
+      to a table for either reading (<literal>TableReader</literal>) or
+      writing (<literal>TableWriter</literal>) using 
+      <productname>PostgreSQL</productname>'s <literal>COPY</literal> command.
+     </para>
+    </listitem>
  
-     <listitem>
-      <para>
-       <literal>Transactor</literal> is a framework that makes it easier for 
-       you to write correct, robust transaction code to be executed in a
-       <literal>Transaction</literal>.  You should generally try to write your
-       code as a class derived from <literal>Transactor</literal>, but this is
-       not required.
-      </para>
-     </listitem>
+    <listitem>
+     <para>
+      <literal>Transactor</literal> is a framework that makes it easier for 
+      you to write correct, robust transaction code to be executed in a
+      <literal>Transaction</literal>.  You should generally try to write your
+      code as a class derived from <literal>Transactor</literal>, but this is
+      not required.
+     </para>
+    </listitem>
 
-     <listitem>
-      <para>
-       <literal>Trigger</literal> is an instance of the Observer design 
-       pattern.  Any code connected to a backend may flag an event using the 
-       <productname>PostgreSQL</productname> <literal>NOTIFY</literal> command. 
-       Frontends connected to that same backend database may be listening for 
-       an event of that name to occur.  A frontend using 
-       <filename>libpqxx</filename> does this by registering an observer object 
-       derived from <literal>Trigger</literal>, which will be invoked by 
-       <filename>libpqxx</filename> to handle the event when it occurs.
-      </para>
-     </listitem>
+    <listitem>
+     <para>
+      <literal>Trigger</literal> is an instance of the Observer design 
+      pattern.  Any code connected to a backend may flag an event using the 
+      <productname>PostgreSQL</productname> <literal>NOTIFY</literal> command. 
+      Frontends connected to that same backend database may be listening for 
+      an event of that name to occur.  A frontend using 
+      <filename>libpqxx</filename> does this by registering an observer object 
+      derived from <literal>Trigger</literal>, which will be invoked by 
+      <filename>libpqxx</filename> to handle the event when it occurs.
+     </para>
+    </listitem>
 
-     <listitem>
-      <para>
-       <literal>Result::Tuple</literal> is a nested class defined within
-       <literal>Result</literal>.  It refers to a tuple of data within a
-       <literal>Result</literal> object.
-      </para>
-     </listitem>
+    <listitem>
+     <para>
+      <literal>Result::Tuple</literal> is a nested class defined within
+      <literal>Result</literal>.  It refers to a tuple of data within a
+      <literal>Result</literal> object.
+     </para>
+    </listitem>
 
-     <listitem>
-      <para>
-       <literal>Result::Field</literal>, also nested within 
-       <literal>Result</literal>, refers to one field within a 
-       <literal>Tuple</literal>.  A <literal>Field</literal> contains one 
-       retrieved value such as a number or a string.
-      </para>
-     </listitem>
+    <listitem>
+     <para>
+      <literal>Result::Field</literal>, also nested within 
+      <literal>Result</literal>, refers to one field within a 
+      <literal>Tuple</literal>.  A <literal>Field</literal> contains one 
+      retrieved value such as a number or a string.
+     </para>
+    </listitem>
 
-     <listitem>
-      <para>
-       <literal>Result::const_iterator</literal> allows you to enumerate the
-       <literal>Tuple</>s in a <literal>Result</literal> in a similar way to
-       the iterators defined by any standard C++ container.
-      </para>
-     </listitem>
+    <listitem>
+     <para>
+      <literal>Result::const_iterator</literal> allows you to enumerate the
+      <literal>Tuple</>s in a <literal>Result</literal> in a similar way to
+      the iterators defined by any standard C++ container.
+     </para>
+    </listitem>
    </itemizedlist>
 
   </sect1>
@@ -294,11 +307,12 @@
    <sect2>
     <title>Before we begin</title>
 
-    <sect3>This document</sect3>
+    <sect3>
+     <title>This document</title>
 
      <para>
       This frontend library is built on top of the <filename>libpq</filename>
-      frontend library, which defines <productname>PostgreSQL<productname>'s C 
+      frontend library, which defines <productname>PostgreSQL</productname>'s C 
       <acronym>API</acronym>.  Therefore this manual will sometimes refer to 
       the <filename>libpq</filename> documentation rather than repeat what is 
       said there.  This was not done to annoy you, but to ensure that the 
@@ -325,7 +339,7 @@
       All definitions made by <filename>libpqxx</filename> reside in a 
       namespace <literal>pqxx</literal>.  If you're not familiar with C++
       namespaces, you have two options:
-     <para>
+     </para>
 
      <itemizedlist>
       <listitem> 
@@ -389,9 +403,10 @@ Connection Conn("dbname=test");
      <italics>connect string</>.  This string may be used to specify which host
      on the network runs the database backend we wish to connect to, which
      database we're interested in, which user name we'll be using to log in,
-     etc.  Refer to <xref linkend="libpq-connect"> for a complete definition of
-     what may go into the connect string.  In this case we're connecting to a
-     database <literal>test</literal> residing on the local machine.
+     etc.  Refer to <xref linkend="libpq-connect">the libpq 
+     <functionname>connect</functionname> call</xref> for a complete definition 
+     of what may go into the connect string.  In this case we're connecting to 
+     a database <literal>test</literal> residing on the local machine.
     </para>
 
     <para>
@@ -447,7 +462,7 @@ Connection Conn("dbname=test");
       through a <literal>Transaction</literal> object, so familiarity with this
       class is essential.
      </para>
-    <sect3>
+    </sect3>
 
     <sect3>
      <title>Creating a Transaction object</title>
@@ -482,8 +497,8 @@ Transaction Xaction(Conn, "DemoTransaction");
 
      <para>
       The <literal>Transaction</literal> class is built on the principle of
-      <italics>explicit commit</>, ie. the commit operation must always be
-      explicit in the code.  If the Transaction is destroyed before a commit
+      <italics>explicit commit</italics>, ie. the commit operation must always 
+      be explicit in the code.  If the Transaction is destroyed before a commit
       was given, the transaction is implicitly aborted (rolled back).  If your
       transaction makes no changes to the database, however, there is nothing
       to commit or roll back and the commit may safely be omitted.
@@ -732,7 +747,7 @@ for (Result::const_iterator i = R.begin(); i != R.end(); ++i)
      may be added to or subtracted from to jump through the result tuples;
      their positions may be compared (provided they point into the same
      <literal>Result</>, and they may be dereferenced through the <literal>*</>
-     or <literal>-&gt;</literal> operators.
+     or <literal>-></literal> operators.
     </para>
     <para>
      Finally, the iterated tuples' fields may be addressed using the array 
@@ -757,7 +772,7 @@ for (Result::const_iterator i = R.begin(); i != R.end(); ++i)
      C string:
     </para>
     <programlisting>
-cout &lt;&lt; "Name: " &lt;&lt; F.c_str() &lt;&lt; endl;
+cout << "Name: " << F.c_str() << endl;
     </programlisting>
     <para>
      This will return the empty string (<literal>""</>) if field F has the
@@ -765,7 +780,7 @@ cout &lt;&lt; "Name: " &lt;&lt; F.c_str() &lt;&lt; endl;
     </para>
     <programlisting>
 if (!F.is_null())
-  cout &lt;&lt; "Name: " &lt;&lt; F.c_str() &lt;&lt; endl;
+  cout << "Name: " << F.c_str() << endl;
     </programlisting>
     <para>
      In practice of course, not all data is going to consist of strings.  Many
@@ -803,9 +818,9 @@ void PaySalary(Result::const_iterator empl)
     </programlisting>
     <para>
      If conversion fails, eg. when trying to convert a floating-point value to
-     an integer variable, <functionname>to</> will throw a 
-     <literal>runtime_error</> reporting the problem in its 
-     <functionname>what</> message.
+     an integer variable, <functionname>to</functionname> will throw a 
+     <literal>runtime_error</literal> reporting the problem in its 
+     <functionname>what</functionname> message.
     </para>
    </sect2>
 
