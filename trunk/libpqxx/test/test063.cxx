@@ -25,7 +25,7 @@ int main()
       throw logic_error("No tables found!");
 
     for (result::const_iterator c = R.begin(); c != R.end(); ++c)
-      cout << '\t' << ToString(c.num()) << '\t' << c[0].as(string()) << endl;
+      cout << '\t' << to_string(c.num()) << '\t' << c[0].as(string()) << endl;
 
     T.commit();
   }

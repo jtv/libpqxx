@@ -55,32 +55,32 @@ int main(int, char *argv[])
     const oid crtable = R.column_table(rcol);
     if (crtable != rtable)
       throw logic_error("Field " + rcol + " comes from "
-                        "'" + ToString(rtable) + "', "
+                        "'" + to_string(rtable) + "', "
 	  		"but by name, result says it's from "
-                        "'" + ToString(crtable) + "'");
+                        "'" + to_string(crtable) + "'");
 #endif
 
     // Now we've got all that settled, let's process our results.
     for (result::size_type i = 0; i < R.size(); ++i)
     {
-      cout << '\t' << ToString(i) << '\t' << R[i][0].c_str() << endl;
+      cout << '\t' << to_string(i) << '\t' << R[i][0].c_str() << endl;
 
 #ifdef PQXX_HAVE_PQFTABLE
       const oid ftable = R[i][0].table();
       if (ftable != rtable)
 	throw logic_error("Field says it comes from "
-                          "'" + ToString(ftable) + "'; "
-			  "expected '" + ToString(rtable) + "'");
+                          "'" + to_string(ftable) + "'; "
+			  "expected '" + to_string(rtable) + "'");
       const oid ttable = R[i].column_table(0);
       if (ttable != rtable)
 	throw logic_error("Tuple says field comes from "
-                          "'" + ToString(ttable) + "'; "
-	    		  "expected '" + ToString(rtable) + "'");
+                          "'" + to_string(ttable) + "'; "
+	    		  "expected '" + to_string(rtable) + "'");
       const oid cttable = R[i].column_table(rcol);
       if (cttable != rtable)
-	throw logic_error("Field comes from '" + ToString(rtable) + "', "
+	throw logic_error("Field comes from '" + to_string(rtable) + "', "
 	                  "but by name, tuple says it's from '" + 
-			  ToString(cttable) + "'");
+			  to_string(cttable) + "'");
 #endif
     }
   }

@@ -538,7 +538,7 @@ inline oid result::column_type(tuple::size_type ColNum) const
   if (T == oid_none)
     throw PGSTD::invalid_argument(
 		"Attempt to retrieve type of nonexistant column " +
-	        ToString(ColNum) + " "
+	        to_string(ColNum) + " "
 		"of query result");
   return T;
 }
@@ -556,8 +556,8 @@ inline oid result::column_table(tuple::size_type ColNum) const
   if ((T == InvalidOid) &&
       ((ColNum < 0) || (ColNum >= columns())))
     throw PGSTD::invalid_argument("Attempt to retrieve table ID for column " +
-				  ToString(ColNum) + " "
-				  "out of " + ToString(columns()));
+				  to_string(ColNum) + " "
+				  "out of " + to_string(columns()));
   return T;
 }
 #endif

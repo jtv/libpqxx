@@ -31,24 +31,24 @@ int main(int, char *argv[])
     Cursor Cur(T, Query, "test44");
     if ((Cur.size() != Cursor::pos_unknown) && 
 	(Cur.size() != Cursor::pos_start))
-      throw logic_error("Cursor reported size " + ToString(Cur.size()) + ", "
-	                "expected " + ToString(int(Cursor::pos_start)) + " "
+      throw logic_error("Cursor reported size " + to_string(Cur.size()) + ", "
+	                "expected " + to_string(int(Cursor::pos_start)) + " "
 			"or unknown");
 
     Cursor::size_type Dist = Cur.Move(2);
     if ((Dist != 0) && (Dist != 1))
-      throw logic_error("Move in empty Cursor returned " + ToString(Dist));
+      throw logic_error("Move in empty Cursor returned " + to_string(Dist));
 
     Cur.MoveTo(0);
     Cur.MoveTo(1);
     Cur.MoveTo(2);
 
     if ((Cur.Pos() != 0) && (Cur.Pos() != 1))
-      throw logic_error("Cursor at row " + ToString(Cur.Pos()) + " "
+      throw logic_error("Cursor at row " + to_string(Cur.Pos()) + " "
 	                "in empty result set");
 
     if (Cur.size() != 0)
-      throw logic_error("Cursor reported size " + ToString(Cur.size()) + ", "
+      throw logic_error("Cursor reported size " + to_string(Cur.size()) + ", "
 	                "expected 0");
   }
   catch (const sql_error &e)

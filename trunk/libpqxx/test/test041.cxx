@@ -39,7 +39,7 @@ void CheckOverrun(const cachedresult &CR,
 
   if (!OK) 
     throw logic_error("Failed to detect overrun "
-	              "(row " + ToString(Base + Overrun) + "); "
+	              "(row " + to_string(Base + Overrun) + "); "
 		      "found '" + Entry + "'");
 }
 
@@ -83,15 +83,15 @@ int main(int, char *argv[])
 	CR.at(i).at(0).to(B);
 
 	if (A != B)
-	  throw logic_error("BlockSize " + ToString(BlockSize) + ", "
-	                    "row " + ToString(i) + ": "
+	  throw logic_error("BlockSize " + to_string(BlockSize) + ", "
+	                    "row " + to_string(i) + ": "
 			    "Expected '" + A + "', "
 			    "got '" + B + "'");
 
 	CR[i][0].to(B);
 	if (A != B)
-	  throw logic_error("BlockSize " + ToString(BlockSize) + ", "
-	                    "row " + ToString(i) + ": "
+	  throw logic_error("BlockSize " + to_string(BlockSize) + ", "
+	                    "row " + to_string(i) + ": "
 			    "at() gives '" + A + "', "
 			    "[] gives '" + B + "'");
       }

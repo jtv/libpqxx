@@ -101,7 +101,7 @@ string pqxx::result::StatusError() const
   default:
     throw logic_error("libpqxx internal error: "
 		      "pqxx::result: Unrecognized response code " +
-		      ToString(int(PQresultStatus(m_Result))));
+		      to_string(int(PQresultStatus(m_Result))));
   }
   return Err;
 }
@@ -213,7 +213,7 @@ pqxx::result::column_name(pqxx::result::tuple::size_type Number) const
 {
   const char *const N = PQfname(m_Result, Number);
   if (!N) 
-    throw out_of_range("Invalid column number: " + ToString(Number));
+    throw out_of_range("Invalid column number: " + to_string(Number));
 
   return N;
 }

@@ -77,10 +77,10 @@ struct CountGreaterSmaller : unary_function<result::tuple, void>
 	 << endl;
 
     if (Greater + Smaller >= R.size())
-      throw logic_error("Of " + ToString(R.size()) + " keys, " + 
-	                ToString(Greater) + " were greater than '" + 
+      throw logic_error("Of " + to_string(R.size()) + " keys, " + 
+	                to_string(Greater) + " were greater than '" + 
 			string(T[Key].c_str()) + "' and " +
-			ToString(Smaller) + " were smaller--that's too many!");
+			to_string(Smaller) + " were smaller--that's too many!");
   }
 };
 

@@ -31,45 +31,45 @@ public:
     const size_t Size = sizeof(Buf) - 1;
     largeobjectaccess::size_type Bytes = A.read(Buf, Size);
     if (Bytes)
-      throw logic_error("Could read " + ToString(Bytes) + " bytes "
+      throw logic_error("Could read " + to_string(Bytes) + " bytes "
 	                "from large object after writing");
 
     // Overwrite terminating zero
     largeobjectaccess::size_type Here = A.seek(-1, ios::cur);
     if (Here != largeobjectaccess::size_type(Contents.size()-1))
       throw logic_error("Expected to move back 1 byte to " + 
-	                ToString(Contents.size()-1) + ", "
-			"ended up at " + ToString(Here));
+	                to_string(Contents.size()-1) + ", "
+			"ended up at " + to_string(Here));
     A.write("!", 1);
     
     // Now check that we really did
     A.seek(-1, ios::cur);
     if (Here != largeobjectaccess::size_type(Contents.size()-1))
-      throw logic_error("Inconsistent seek: ended up at " + ToString(Here));
+      throw logic_error("Inconsistent seek: ended up at " + to_string(Here));
 
     char Check;
     Here = A.read(&Check, 1);
     if (Here != 1)
-      throw logic_error("Wanted to read back 1 byte, got " + ToString(Here));
+      throw logic_error("Wanted to read back 1 byte, got " + to_string(Here));
 
     if (Check != '!')
-      throw logic_error("Read back '" + ToString(Check) + "', "
+      throw logic_error("Read back '" + to_string(Check) + "', "
 	                "expected '!'");
 
     Here = A.seek(0, ios::beg);
     if (Here != 0)
       throw logic_error("Tried to seek back to beginning of large object, "
-	                "ended up at " + ToString(Here));
+	                "ended up at " + to_string(Here));
 
     Here = A.read(&Check, 1);
     if (Here != 1)
       throw logic_error("Tried to read back 1st byte, got " + 
-	                ToString(Here) + " bytes");
+	                to_string(Here) + " bytes");
 
     if (Check != Contents[0])
       throw logic_error("Expected large object to begin with '" +
-	                ToString(Contents[0]) + "', "
-			"found '" + ToString(Check) + "'");
+	                to_string(Contents[0]) + "', "
+			"found '" + to_string(Check) + "'");
 
     // Clean up after ourselves
     A.remove(T);

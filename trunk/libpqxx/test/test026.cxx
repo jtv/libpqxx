@@ -37,10 +37,10 @@ int To4Digits(int Y)
 {
   int Result = Y;
 
-  if (Y < 0)          throw runtime_error("Negative year: " + ToString(Y));
+  if (Y < 0)          throw runtime_error("Negative year: " + to_string(Y));
   else if (Y  < 70)   Result += 2000;
   else if (Y  < 100)  Result += 1900;
-  else if (Y  < 1970) throw runtime_error("Unexpected year: " + ToString(Y));
+  else if (Y  < 1970) throw runtime_error("Unexpected year: " + to_string(Y));
 
   return Result;
 }
@@ -76,8 +76,8 @@ public:
 	 c != m_Conversions.end();
 	 ++c)
       T.exec("UPDATE pqxxevents "
-	     "SET year=" + ToString(c->second) + " "
-	     "WHERE year=" + ToString(c->first));
+	     "SET year=" + to_string(c->second) + " "
+	     "WHERE year=" + to_string(c->first));
   }
 
   // Postprocessing code for successful execution

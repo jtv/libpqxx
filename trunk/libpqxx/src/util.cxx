@@ -224,9 +224,119 @@ template<> void from_string(const char Str[], bool &Obj)
   Obj = result;
 }
 
+} // namespace pqxx
 
+
+#include<cassert>// DEBUG CODE
+namespace
+{
+template<typename T> inline string to_string_unsigned(T Obj)
+{
+  if (!Obj) return "0";
+
+  char buf[4*sizeof(T)+1];
+  char *p = &buf[sizeof(buf)];
+  *--p = '\0';
+  for (T next; Obj > 0; Obj = next)
+  {
+    next = Obj / 10;
+assert(next < Obj);	// DEBUG CODE
+    char c = ('0' + Obj - (next*10));
+assert(isdigit(c));	// DEBUG CODE
+    *--p = c;
+assert(p > buf);	// DEBUG CODE
+  }
+  return p;
+}
+
+template<typename T> inline string to_string_fallback(T Obj)
+{
+  stringstream S;
+  S << Obj;
+  string R;
+  S >> R;
+  return R;
+}
+
+template<typename T> inline string to_string_signed(T Obj)
+{
+  if (Obj < 0)
+  {
+    // Remember--the smallest negative number for a given two's-complement type
+    // cannot be negated.
+    if (-Obj > 0)
+      return '-' + to_string_unsigned(-Obj);
+    else
+      return to_string_fallback(Obj);
+  }
+
+  return to_string_unsigned(Obj);
+}
+
+} // namespace
+
+
+namespace pqxx
+{
+template<> string to_string(const short &Obj) 
+{ 
+  return to_string_signed(Obj); 
+}
+
+template<> string to_string(const unsigned short &Obj) 
+{ 
+  return to_string_unsigned(Obj); 
+}
+
+template<> string to_string(const int &Obj) 
+{ 
+  return to_string_signed(Obj); 
+}
+
+template<> string to_string(const unsigned int &Obj) 
+{ 
+  return to_string_unsigned(Obj); 
+}
+
+template<> string to_string(const long &Obj) 
+{ 
+  return to_string_signed(Obj); 
+}
+
+template<> string to_string(const unsigned long &Obj) 
+{ 
+  return to_string_unsigned(Obj); 
+}
+
+template<> string to_string(const float &Obj)
+{
+  return to_string_fallback(Obj);
+}
+
+template<> string to_string(const double &Obj)
+{
+  return to_string_fallback(Obj);
+}
+
+template<> string to_string(const long double &Obj)
+{
+  return to_string_fallback(Obj);
+}
+
+template<> string to_string(const bool &Obj)
+{
+  return Obj ? "true" : "false";
+}
+
+template<> string to_string(const char &Obj)
+{
+  string s;
+  s += Obj;
+  return s;
+}
 
 } // namespace pqxx
+
 
 void pqxx::internal::FromString_string(const char Str[], string &Obj)
 {

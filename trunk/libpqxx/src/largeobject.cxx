@@ -97,7 +97,7 @@ pqxx::largeobject::largeobject(const largeobjectaccess &O) throw () :
 void pqxx::largeobject::to_file(dbtransaction &T, const string &File) const
 {
   if (lo_export(RawConnection(T), id(), File.c_str()) == -1)
-    throw runtime_error("Could not export large object " + ToString(m_ID) + " "
+    throw runtime_error("Could not export large object " + to_string(m_ID) + " "
 	                "to file '" + File + "': " +
 			Reason());
 }
@@ -107,7 +107,7 @@ void pqxx::largeobject::remove(dbtransaction &T) const
 {
   if (lo_unlink(RawConnection(T), id()) == -1)
     throw runtime_error("Could not delete large object " + 
-	                ToString(m_ID) + ": " +
+	                to_string(m_ID) + ": " +
 			Reason());
 }
 
@@ -196,15 +196,15 @@ void pqxx::largeobjectaccess::write(const char Buf[], size_type Len)
   {
     if (Bytes < 0)
       throw runtime_error("Error writing to large object "
-                          "#" + ToString(id()) + ": " +
+                          "#" + to_string(id()) + ": " +
 	                  Reason());
     if (Bytes == 0)
       throw runtime_error("Could not write to large object #" + 
-	                  ToString(id()) + ": " + Reason());
+	                  to_string(id()) + ": " + Reason());
 
-    throw runtime_error("Wanted to write " + ToString(Len) + " bytes "
-	                "to large object #" + ToString(id()) + "; "
-			"could only write " + ToString(Bytes));
+    throw runtime_error("Wanted to write " + to_string(Len) + " bytes "
+	                "to large object #" + to_string(id()) + "; "
+			"could only write " + to_string(Bytes));
   }
 }
 
@@ -214,7 +214,7 @@ pqxx::largeobjectaccess::read(char Buf[], size_type Len)
 {
   const long Bytes = cread(Buf, Len);
   if (Bytes < 0)
-    throw runtime_error("Error reading from large object #" + ToString(id()) +
+    throw runtime_error("Error reading from large object #" + to_string(id()) +
 	                ": " + Reason());
   return Bytes;
 }
@@ -224,8 +224,8 @@ void pqxx::largeobjectaccess::open(openmode mode)
 {
   m_fd = lo_open(RawConnection(), id(), StdModeToPQMode(mode));
   if (m_fd < 0)
-    throw runtime_error("Could not open large object " + ToString(id()) + ": " +
-	                Reason());
+    throw runtime_error("Could not open large object " + to_string(id()) + ":"
+			" " + Reason());
 }
 
 

@@ -77,7 +77,7 @@ void CheckTable(transaction_base &T, string TableName)
     throw runtime_error("Found " + 
 		        string(Count[0][0].c_str()) + 
 			" rows in table--after writing " +
-			ToString(Contents.size()) +
+			to_string(Contents.size()) +
 			"!");
 
   // TODO: Compare table contents to Contents

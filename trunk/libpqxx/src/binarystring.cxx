@@ -81,7 +81,7 @@ pqxx::binarystring::const_reference pqxx::binarystring::at(size_type n) const
     if (!m_size)
       throw out_of_range("Accessing empty binarystring");
     throw out_of_range("binarystring index out of range: " +
-	ToString(n) + " (should be below " + ToString(m_size) + ")");
+	to_string(n) + " (should be below " + to_string(m_size) + ")");
   }
   return data()[n];
 }

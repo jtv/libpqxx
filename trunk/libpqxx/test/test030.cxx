@@ -43,14 +43,14 @@ int main(int argc, char *argv[])
 
       if (R[0].column_number(N) != R.column_number(N))
 	throw logic_error("tuple::column_number(" + N + ") is " + 
-	                  ToString(R[0].column_number(N)) + ", "
+	                  to_string(R[0].column_number(N)) + ", "
 			  "but result::column_number(" + N + ") is " +
-			  ToString(R.column_number(N)));
+			  to_string(R.column_number(N)));
 
       if (R[0].column_number(N.c_str()) != c)
 	throw logic_error("Expected column '" + N + 
-			  "' to be no. " + ToString(c) + ", "
-			  "but it was no. " + ToString(R.column_number(N)));
+			  "' to be no. " + to_string(c) + ", "
+			  "but it was no. " + to_string(R.column_number(N)));
     }
 
     // If there are rows in R, compare their metadata to R's.
@@ -69,25 +69,25 @@ int main(int argc, char *argv[])
 	string N = R.column_name(c);
 
 	if (string(R[0].at(c).c_str()) != R[0].at(N).c_str())
-          throw logic_error("Field " + ToString(c) + " contains "
+          throw logic_error("Field " + to_string(c) + " contains "
 			    "'" + R[0].at(c).c_str() + "'; "
 			    "field '" + N + "' "
 			    "contains '" + R[0].at(N).c_str() + "'");
 	if (string(R[0][c].c_str()) != R[0][N].c_str())
-          throw logic_error("Field " + ToString(c) + " ('" + N + "'): "
+          throw logic_error("Field " + to_string(c) + " ('" + N + "'): "
 			    "at() inconsistent with operator[]!");
 
 	if (R[0][c].name() != N)
-	  throw logic_error("Field " + ToString(c) + " "
+	  throw logic_error("Field " + to_string(c) + " "
 			    "called '" + N + "' by result, "
 			    "but '" + R[0][c].name() + "' by Field object");
 
 	if (size_t(R[0][c].size()) != strlen(R[0][c].c_str()))
 	  throw logic_error("Field '" + N + "' "
-			    "says its length is " + ToString(R[0][c].size()) + 
+			    "says its length is " + to_string(R[0][c].size()) + 
 			    ", "
 			    "but its value is '" + R[0][c].c_str() + "' "
-			    "(" + ToString(strlen(R[0][c].c_str())) + " "
+			    "(" + to_string(strlen(R[0][c].c_str())) + " "
 			    "chars)");
       }
     }

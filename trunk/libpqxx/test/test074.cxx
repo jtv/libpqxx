@@ -37,21 +37,21 @@ int main(int, char *argv[])
     fieldstream fs2(R.at(0).at(0));
     fs2 >> ival;
     if (ival != R[0][0].as<int>())
-      throw logic_error("Got int " + ToString(ival) + " from fieldstream, "
-	  "but " + ToString(R[0][0].as<int>()) + " from field");
+      throw logic_error("Got int " + to_string(ival) + " from fieldstream, "
+	  "but " + to_string(R[0][0].as<int>()) + " from field");
 
     double dval;
     (fieldstream(R.at(0).at(0))) >> dval;
     if (fabs(dval - R[0][0].as<double>()) > 0.1)
-      throw logic_error("Got double " + ToString(dval) + " from fieldstream, "
-	  "but " + ToString(R[0][0].as<double>()) + " from field");
+      throw logic_error("Got double " + to_string(dval) + " from fieldstream, "
+	  "but " + to_string(R[0][0].as<double>()) + " from field");
 
     const float roughpi = 3.1415926435;
-    R = W.exec("SELECT " + ToString(roughpi));
+    R = W.exec("SELECT " + to_string(roughpi));
     float pival;
     (fieldstream(R.at(0).at(0))) >> pival;
     if (fabs(pival - roughpi) > 0.001)
-      throw logic_error("Pi approximation came back as " + ToString(roughpi));
+      throw logic_error("Pi approximation came back as " + to_string(roughpi));
   }
   catch (const sql_error &e)
   {

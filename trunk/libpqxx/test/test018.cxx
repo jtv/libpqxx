@@ -54,7 +54,7 @@ public:
     R = T.exec(CountQuery);
     R.at(0).at(0).to(m_Results.first);
 
-    R = T.exec(CountQuery + " WHERE year=" + ToString(BoringYear));
+    R = T.exec(CountQuery + " WHERE year=" + to_string(BoringYear));
     R.at(0).at(0).to(m_Results.second);
   }
 };
@@ -75,7 +75,7 @@ public:
   void operator()(argument_type &T)
   {
     T.exec("INSERT INTO " + m_Table + " VALUES (" +
-	   ToString(BoringYear) + ", " + Quote("yawn") + ")");
+	   to_string(BoringYear) + ", " + Quote("yawn") + ")");
 
     throw runtime_error("Transaction deliberately aborted");
   }
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
     C.perform(CountEvents(Table, Before));
     if (Before.second) 
       throw runtime_error("Table already has an event for " + 
-		          ToString(BoringYear) + ", "
+		          to_string(BoringYear) + ", "
 			  "cannot run.");
 
     const FailedInsert DoomedTransaction(Table);
@@ -137,11 +137,11 @@ int main(int argc, char *argv[])
 
     if (After != Before)
       throw logic_error("Event counts changed from "
-			"{" + ToString(Before.first) + "," + 
-			ToString(Before.second) + "} "
+			"{" + to_string(Before.first) + "," + 
+			to_string(Before.second) + "} "
 			"to "
-			"{" + ToString(After.first) + "," +
-			ToString(After.second) + "} "
+			"{" + to_string(After.first) + "," +
+			to_string(After.second) + "} "
 		        "despite abort.  This could be a bug in libpqxx, "
 			"or something else modified the table.");
   }

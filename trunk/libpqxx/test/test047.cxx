@@ -27,7 +27,7 @@ int main(int, char *argv[])
     // Ask for size() first, then check empty()
     cachedresult CR1(T, Full, "CR1");
     if (CR1.size() != 1) 
-      throw logic_error("cachedresult had size " + ToString(CR1.size()) + ", "
+      throw logic_error("cachedresult had size " + to_string(CR1.size()) + ", "
 	                "expected 1");
     if (CR1.empty()) throw logic_error("cachedresult was empty!");
 
@@ -41,7 +41,7 @@ int main(int, char *argv[])
 
     cachedresult CR4(T, Empty, "CR4");
     if (CR4.size()) 
-      throw logic_error("cachedresult had size " + ToString(CR4.size()) + ", "
+      throw logic_error("cachedresult had size " + to_string(CR4.size()) + ", "
 	                "expected 0");
     if (!CR4.empty()) throw logic_error("cachedresult was not empty!");
   }

@@ -39,6 +39,9 @@ Streams
 (*) Allow single-level insertion with endt/endr manipulators
 (*) Streambuffer class?
 
+Tests
+(*) Test NaN support!
+
 Transactions
 (*) German's locking idea for robusttransaction
 (*) [pgsql 7.5] Try to use two-phase commit if appropriate

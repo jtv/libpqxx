@@ -19,8 +19,8 @@ void checkresult(pipeline &P, MAPIT c)
   const result r = P.retrieve(c->first);
   const int val = r.at(0).at(0).as(int(0));
   if (val != c->second)
-    throw logic_error("Query #" + ToString(c->first) + ": "
-	"expected result " + ToString(c->second) + ", "
+    throw logic_error("Query #" + to_string(c->first) + ": "
+	"expected result " + to_string(c->second) + ", "
 	"got " + r[0][0].c_str());
 }
 
@@ -45,7 +45,7 @@ int main(int, char *argv[])
     Exp values;
 
     // Insert queries returning various numbers
-    for (int i=1; i<10; ++i) values[P.insert("SELECT " + ToString(i))] = i;
+    for (int i=1; i<10; ++i) values[P.insert("SELECT " + to_string(i))] = i;
 
     // Retrieve results in query_id order, and compare to expected values
     for (Exp::const_iterator c=values.begin(); c!=values.end(); ++c)
@@ -58,13 +58,13 @@ int main(int, char *argv[])
 
     // Insert more queries returning various numbers
     P.retain();
-    for (int i=100; i>90; --i) values[P.insert("SELECT " + ToString(i))] = i;
+    for (int i=100; i>90; --i) values[P.insert("SELECT " + to_string(i))] = i;
 
     // See that all queries are issued on resume()
     P.resume();
     for (Exp::const_iterator c=values.begin(); c!=values.end(); ++c)
       if (!P.is_running(c->first))
-	throw logic_error("Query #" + ToString(c->first) + " "
+	throw logic_error("Query #" + to_string(c->first) + " "
 	    "not running after resume()");
 
 #ifdef PQXX_HAVE_REVERSE_ITERATOR
@@ -75,7 +75,7 @@ int main(int, char *argv[])
 
     values.clear();
     P.retain();
-    for (int i=1010; i>1000; --i) values[P.insert("SELECT " + ToString(i))] = i;
+    for (int i=1010; i>1000; --i) values[P.insert("SELECT "+to_string(i))] = i;
     for (Exp::const_iterator c=values.begin(); c!=values.end(); ++c)
     {
       if (P.is_running(c->first))
@@ -88,7 +88,7 @@ int main(int, char *argv[])
     P.complete();
     for (Exp::const_iterator c=values.begin(); c!=values.end(); ++c)
       if (!P.is_running(c->first))
-	throw logic_error("Query #" + ToString(c->first) + " "
+	throw logic_error("Query #" + to_string(c->first) + " "
 	    "not finished after complete()");
   }
   catch (const sql_error &e)

@@ -38,10 +38,10 @@ int To4Digits(int Y)
 {
   int Result = Y;
 
-  if (Y < 0)          throw runtime_error("Negative year: " + ToString(Y));
+  if (Y < 0)          throw runtime_error("Negative year: " + to_string(Y));
   else if (Y  < 70)   Result += 2000;
   else if (Y  < 100)  Result += 1900;
-  else if (Y  < 1970) throw runtime_error("Unexpected year: " + ToString(Y));
+  else if (Y  < 1970) throw runtime_error("Unexpected year: " + to_string(Y));
 
   return Result;
 }
@@ -64,7 +64,7 @@ public:
 
     // See if we get reasonable type identifier for this column
     const oid rctype = R.column_type(0);
-    const string rct = ToString(rctype);
+    const string rct = to_string(rctype);
     if (rctype <= 0)
       throw logic_error("Got strange type ID for column: " + rct);
     const string rcol = R.column_name(0);
@@ -73,11 +73,11 @@ public:
     const oid rcctype = R.column_type(rcol);
     if (rcctype != rctype)
       throw logic_error("Column has type " + rct + ", "
-	  		"but by name, it's " + ToString(rcctype));
+	  		"but by name, it's " + to_string(rcctype));
     const oid rawrcctype = R.column_type(rcol.c_str());
     if (rawrcctype != rctype)
       throw logic_error("Column has type " + rct + ", "
-	                "but by C-style name it's " + ToString(rawrcctype));
+	                "but by C-style name it's " + to_string(rawrcctype));
 
     // Note all different years currently occurring in the table, writing them
     // and their correct mappings to m_Conversions
@@ -92,20 +92,20 @@ public:
       const oid tctype = r->column_type(0);
       if (tctype != rctype)
 	throw logic_error("Column has type " + rct + ", "
-	                  "but tuple says it's " + ToString(tctype));
+	                  "but tuple says it's " + to_string(tctype));
       const oid ctctype = r->column_type(rcol);
       if (ctctype != rctype)
 	throw logic_error("Column has type " + rct + ", "
-	    		  "but by name, tuple says it's " + ToString(ctctype));
+	    		  "but by name, tuple says it's " + to_string(ctctype));
       const oid rawctctype = r->column_type(rcol.c_str());
       if (rawctctype != rctype)
 	throw logic_error("Column has type " + rct + ", "
 	    		  "but by C-style name, tuple says it's " + 
-			  ToString(rawctctype));
+			  to_string(rawctctype));
       const oid fctype = r[0].type();
       if (fctype != rctype)
 	throw logic_error("Column has type " + rct + ", "
-	    		  "but field says it's " + ToString(fctype));
+	    		  "but field says it's " + to_string(fctype));
     }
 
     result::size_type AffectedRows = 0;
@@ -118,8 +118,8 @@ public:
 	 ++c)
     {
       R = T.exec(("UPDATE pqxxevents "
-	          "SET year=" + ToString(c->second) + " "
-	          "WHERE year=" + ToString(c->first)).c_str());
+	          "SET year=" + to_string(c->second) + " "
+	          "WHERE year=" + to_string(c->first)).c_str());
       AffectedRows += R.affected_rows();
     }
     cout << AffectedRows << " rows updated." << endl;

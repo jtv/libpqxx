@@ -127,7 +127,7 @@ void pqxx::basic_robusttransaction::do_commit()
 
         const string Msg = "WARNING: "
 		    "Connection lost while committing transaction "
-		    "'" + name() + "' (oid " + ToString(ID) + "). "
+		    "'" + name() + "' (oid " + to_string(ID) + "). "
 		    "Please check for this record in the "
 		    "'" + m_LogTable + "' table.  "
 		    "If the record exists, the transaction was executed. "
@@ -210,7 +210,7 @@ void pqxx::basic_robusttransaction::DeleteTransactionRecord(IDType ID) throw ()
     // Try very, very hard to delete record.  Specify an absurd retry count to 
     // ensure that the server gets a chance to restart before we give up.
     const string Del = "DELETE FROM " + m_LogTable + " "
-	               "WHERE oid=" + ToString(ID);
+	               "WHERE oid=" + to_string(ID);
 
     DirectExec(Del.c_str(), 20);
 
@@ -225,7 +225,7 @@ void pqxx::basic_robusttransaction::DeleteTransactionRecord(IDType ID) throw ()
   {
     process_notice("WARNING: "
 	           "Failed to delete obsolete transaction record with oid " + 
-		   ToString(ID) + " ('" + name() + "'). "
+		   to_string(ID) + " ('" + name() + "'). "
 		   "Please delete it manually.  Thank you.\n");
   }
   catch (const exception &)
@@ -238,7 +238,7 @@ void pqxx::basic_robusttransaction::DeleteTransactionRecord(IDType ID) throw ()
 bool pqxx::basic_robusttransaction::CheckTransactionRecord(IDType ID)
 {
   const string Find = "SELECT oid FROM " + m_LogTable + " "
-	              "WHERE oid=" + ToString(ID);
+	              "WHERE oid=" + to_string(ID);
 
   return !DirectExec(Find.c_str(), 20).empty();
 }

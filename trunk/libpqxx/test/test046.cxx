@@ -47,7 +47,7 @@ int main(int, char *argv[])
     cout << "As a float, it's " << F << endl;
     R[0][0].to(F2);
     if (fabs(F2-F) > 0.01)
-      throw logic_error("Inconsistent floating-point result: " + ToString(F2));
+      throw logic_error("Inconsistent floating-point result: " + to_string(F2));
 
     R = T.exec("SELECT 1=1");
     if (!R.at(0).at(0).as<bool>())

@@ -31,8 +31,8 @@ void ExpectMove(Cursor &C, Cursor::size_type N, Cursor::size_type Expect)
 {
   const Cursor::size_type Dist = C.Move(N);
   if (Dist != Expect)
-    throw logic_error("Expected to move " + ToString(Expect) + " rows, "
-	              "found " + ToString(Dist));
+    throw logic_error("Expected to move " + to_string(Expect) + " rows, "
+	              "found " + to_string(Dist));
 }
 
 void ExpectMove(Cursor &C, Cursor::size_type N)
@@ -66,8 +66,8 @@ int main(int, char *argv[])
     Cur >> R;
 
     if (R.size() != GetRows)
-      throw logic_error("Expected " + ToString(GetRows) + " rows, "
-		        "got " + ToString(R.size()));
+      throw logic_error("Expected " + to_string(GetRows) + " rows, "
+		        "got " + to_string(R.size()));
 
     // Move cursor 1 step forward to make subsequent backwards fetch include
     // current row
@@ -77,14 +77,14 @@ int main(int, char *argv[])
 
     R = Cur.Fetch(Cursor::NEXT());
     if (R.size() != 1) 
-      throw logic_error("NEXT: wanted 1 row, got " + ToString(R.size()));
+      throw logic_error("NEXT: wanted 1 row, got " + to_string(R.size()));
 
     ExpectMove(Cur, 3);
     ExpectMove(Cur, -2);
 
     R = Cur.Fetch(Cursor::PRIOR());
     if (R.size() != 1)
-      throw logic_error("PRIOR: wanted 1 row, got " + ToString(R.size()));
+      throw logic_error("PRIOR: wanted 1 row, got " + to_string(R.size()));
 
     ExpectMove(Cur, 5);
     ExpectMove(Cur, -5);

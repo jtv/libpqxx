@@ -52,11 +52,11 @@ public:
   {
     largeobjectaccess A(T, m_Object);
     A.process_notice("Writing to large object #" + 
-	ToString(largeobject(A).id()) + "\n");
+	to_string(largeobject(A).id()) + "\n");
     long Bytes = A.cwrite(Contents.c_str(), Contents.size());
     if (Bytes != long(Contents.size()))
-      throw logic_error("Tried to write " + ToString(Contents.size()) + " "
-	                "bytes to large object, but wrote " + ToString(Bytes));
+      throw logic_error("Tried to write " + to_string(Contents.size()) + " "
+	                "bytes to large object, but wrote " + to_string(Bytes));
 
     char Buf[200];
     const size_t Size = sizeof(Buf) - 1;
@@ -66,30 +66,30 @@ public:
       if (Bytes < 0)
 	throw runtime_error("Read error at end of large object: " +
 	                    string(strerror(errno)));
-      throw logic_error("Could read " + ToString(Bytes) + " bytes "
+      throw logic_error("Could read " + to_string(Bytes) + " bytes "
 	                "from large object after writing");
     }
 
     string::size_type Offset = A.cseek(0, ios::cur);
     if (Offset != Contents.size())
       throw logic_error("Expected to be at position " + 
-	                 ToString(Contents.size()) + " in large object, "
-			 "but cseek(0, cur) returned " + ToString(Offset));
+	                 to_string(Contents.size()) + " in large object, "
+			 "but cseek(0, cur) returned " + to_string(Offset));
     
     Offset = A.cseek(1, ios::beg);
     if (Offset != 1)
       throw logic_error("After seeking to position 1 in large object, cseek() "
-	                "returned " + ToString(Offset));
+	                "returned " + to_string(Offset));
 
     Offset = A.cseek(-1, ios::cur);
     if (Offset != 0)
       throw logic_error("After seeking -1 from position 1 in large object, "
-	                "cseek() returned " + ToString(Offset));
+	                "cseek() returned " + to_string(Offset));
 
     const size_t Read = A.read(Buf, Size);
     if (Read > Size)
-      throw logic_error("Tried to read " + ToString(Size) + " bytes "
-	                "from large object, got " + ToString(Read));
+      throw logic_error("Tried to read " + to_string(Size) + " bytes "
+	                "from large object, got " + to_string(Read));
 
     Buf[Read] = '\0';
     if (Contents != Buf)

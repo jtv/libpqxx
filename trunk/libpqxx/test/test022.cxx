@@ -52,8 +52,8 @@ int main(int argc, char *argv[])
       if (!Cur) throw logic_error("Inconsistent cursor state!");
 
       if (R.size() > abs(BlockSize))
-        throw logic_error("Cursor returned " + ToString(R.size()) + " rows, "
-			  "when " + ToString(abs(BlockSize)) + " "
+        throw logic_error("Cursor returned " + to_string(R.size()) + " rows, "
+			  "when " + to_string(abs(BlockSize)) + " "
 			  "was all I asked for!");
 
       for (result::const_iterator c = R.begin(); c != R.end(); ++c)
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
         string N;
         c[0].to(N);
 
-        cout << '\t' << ToString(c.num()) << '\t' << N << endl;
+        cout << '\t' << to_string(c.num()) << '\t' << N << endl;
       }
     }
 

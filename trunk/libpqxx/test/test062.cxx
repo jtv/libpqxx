@@ -40,7 +40,7 @@ int main(int, char *argv[])
 
     if (B.size() != TestStr.size())
       throw logic_error("Binary string got changed from " + 
-	  ToString(TestStr.size()) + " to " + ToString(B.size()) + " bytes");
+	  to_string(TestStr.size()) + " to " + to_string(B.size()) + " bytes");
 
     if (strncmp(TestStr.c_str(), B.c_ptr(), B.size()) != 0)
       throw logic_error("Binary string was changed before first zero byte: "
@@ -51,16 +51,16 @@ int main(int, char *argv[])
     for (i=0, c=B.begin(); i<B.size(); ++i, ++c)
     {
       if (c == B.end())
-	throw logic_error("Premature end to binary string at " + ToString(i));
+	throw logic_error("Premature end to binary string at " + to_string(i));
 
       if (B.data()[i] != TestStr.at(i))
-	throw logic_error("Binary string byte " + ToString(i) + " "
-	    "got changed from '" + ToString(TestStr[i]) + "' "
-	    "to '" + ToString(B.data()[i]) + "'");
+	throw logic_error("Binary string byte " + to_string(i) + " "
+	    "got changed from '" + to_string(char(TestStr[i])) + "' "
+	    "to '" + to_string(char(B.data()[i])) + "'");
       if (B.at(i) != B.data()[i])
-	throw logic_error("Inconsistent byte at offset " + ToString(i) + ": "
-	    "operator[] says '" + ToString(B.at(i)) + "', "
-	    "data() says '" + ToString(B.data()[i]) + "'");
+	throw logic_error("Inconsistent byte at offset " + to_string(i) + ": "
+	    "operator[] says '" + to_string(char(B.at(i))) + "', "
+	    "data() says '" + to_string(char(B.data()[i])) + "'");
     }
     if (c != B.end())
       throw logic_error("end() of binary string not reached");
@@ -70,10 +70,10 @@ int main(int, char *argv[])
     for (i=B.length(), r=B.rbegin(); i>0; --i, ++r)
     {
       if (r == B.rend())
-	throw logic_error("Premature rend to binary string at " + ToString(i));
+	throw logic_error("Premature rend to binary string at " + to_string(i));
 
       if (B[i-1] != TestStr.at(i-1))
-	throw logic_error("Reverse iterator differs at " + ToString(i));
+	throw logic_error("Reverse iterator differs at " + to_string(i));
     }
     if (r != B.rend())
       throw logic_error("rend() of binary string not reached");
