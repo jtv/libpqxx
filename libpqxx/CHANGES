@@ -1,3 +1,10 @@
+2002-03-20 00:30
+ All:
+  - Moved library header files into include directory
+  - Moved library source files into src directory
+  - Moved test source files into test directory
+ Makefile:
+  - Reduced use of repetitive explicit rules
 2002-03-17 01:30
  All:
   - Full test coverage!
