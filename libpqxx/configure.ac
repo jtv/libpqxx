@@ -8,9 +8,6 @@ AM_CONFIG_HEADER(config.h)
 # default prefix for installs
 AC_PREFIX_DEFAULT(/usr/local/pqxx)
 
-# want static libs by default
-#AC_DISABLE_STATIC 
-
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
@@ -30,11 +27,22 @@ AC_TRY_COMPILE(
 	, AC_DEFINE(PGSTD,[std],[Does the standard namespace exist?])
 	, AC_MSG_ERROR([Can't find std namespace])
 )
-AC_MSG_RESULT(std)
+AC_MSG_RESULT($std)
+
+# see if we want verbose compiler warnings
+AC_MSG_CHECKING([maintainer mode])
+AC_ARG_ENABLE(maintainer-mode,
+	AC_HELP_STRING(
+		[--enable-maintainer-mode],
+		[Use this for verbose and pedantic compiler warnings. Not for normal builds. (default is no)]
+	)
+)
+AC_MSG_RESULT(${enable_maintainer_mode})
+
 # Let's try to get the compiler to be helpful
 # (Omit the -Waggregate-return and -Weffc++ options because they currently
 # yield too many warnings in gcc's standard headers)
-if test "$GCC" = "yes"; then
+if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 	for option in \
 		-pedantic \
 		-Wall \
@@ -89,20 +97,27 @@ fi
 AC_LANG_POP(C++)
 
 # does the user want to use postgres-style SQL?
-AH_TEMPLATE(SQL_DIALECT,[Use postgres SQL?])
+AC_MSG_CHECKING(using PostgreSQL specific SQL)
+AH_TEMPLATE(DIALECT_POSTGRESQL,[Use postgres SQL?])
 AC_ARG_ENABLE(postgres-dialect,
 AC_HELP_STRING(
 	[--enable-postgres-dialect]
-	, [Use postgres-specific SQL statements (default: yes)])
+	, [Use postgres-specific SQL statements (default is yes)])
 	,
-		test "$enableval" = no || SQL_DIALECT=
-		AC_DEFINE(SQL_DIALECT,[])
+		if test "$enableval" = yes; then
+			AC_DEFINE(DIALECT_POSTGRESQL)
+			enable_postgres_dialect=yes
+		else
+			enable_postgres_dialect=no
+		fi
 	,
-		enable_postgres_dialect=no
-		AC_DEFINE(SQL_DIALECT,DIALECT_POSTGRESQL)
+		enable_postgres_dialect=yes
+		AC_DEFINE(DIALECT_POSTGRESQL)
 )
+AC_MSG_RESULT($enable_postgres_dialect)
 
 # Where are the postgres includes...
+postgres_include_default=/usr/include
 AC_ARG_WITH(postgres-include,
 	AC_HELP_STRING(
 		[--with-postgres-include],
@@ -111,8 +126,6 @@ AC_ARG_WITH(postgres-include,
 	,	test "$withval" = no || with_postgres_include=$withval
 	, with_postgres_include=$postgres_include_default
 )
-POSTGRES_INCLUDE="-I${with_postgres_include}"
-AC_SUBST(POSTGRES_INCLUDE)
 
 # ..and libraries?
 postgres_lib_default=/usr/lib
@@ -124,32 +137,58 @@ AC_ARG_WITH(postgres-lib,
 	,	test "$withval" = no || with_postgres_lib=$withval
 	, with_postgres_lib=$postgres_lib_default
 )
+
+# provide one way to specify both include and lib
+AC_ARG_WITH(postgres,
+	AC_HELP_STRING(
+		[--with-postgres],
+		[PostgreSQL common directory. Use this to specify libs & includes rooted at one place]
+	)
+	,	test "$withval" = no || with_postgres_include=$withval
+		POSTGRES_LIB="-L${with_postgres}/lib -lpq"
+		POSTGRES_INCLUDE="-I${with_postgres}/include"
+		with_postgres_lib=${with_postgres}/lib
+		with_postgres_include=${with_postgres}/include
+	, with_postgres=no
+)
+
 AC_SUBST(with_postgres_lib)
+AC_SUBST(with_postgres_include)
 POSTGRES_LIB="-L${with_postgres_lib} -lpq"
 AC_SUBST(POSTGRES_LIB)
+POSTGRES_INCLUDE="-I${with_postgres_include} -I${with_postgres_include}/server"
+AC_SUBST(POSTGRES_INCLUDE)
 
 # Checks for libraries.
 AC_CHECK_LIB([pq], [PQexec], [], [AC_MSG_ERROR([Failed to find a suitable libpq.
 
 PostgreSQL's libpq needs to be installed.
 Perhaps you need to specify --with-postgres-lib?
-])])
+])], -L${with_postgres_lib})
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([errno.h limits])
+AC_CHECK_HEADERS([errno.h])
 AC_CHECK_HEADER([${with_postgres_include}/libpq-fe.h],,AC_MSG_ERROR(
 [Can't find libpq-fe.h in ${with_postgres_include}.
 Please specify the location of the PostgreSQL include files with
---with-postgres-include=...]
+--with-postgres-include=... or --with-postgres=...]
 ))
+
+AC_LANG_PUSH(C++)
+AC_CHECK_HEADERS([limits iterator])
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_MSG_CHECKING(whether <iterator> defines an iterator template)
-AC_TRY_COMPILE([#include <iterator>], [struct I:std::iterator<std::random_access_iterator_tag,int>{};],
-      [AC_DEFINE(BROKEN_ITERATOR, 1, [Define if <iterator> lacks an iterator template definition])
-      it='no'],
-     [it='yes'])
+AC_TRY_COMPILE([#include <iterator>], 
+	[struct I:std::iterator<std::random_access_iterator_tag,int>{};],
+	[it='yes'],
+	[AC_DEFINE(BROKEN_ITERATOR, 
+			1, 
+			[Define if <iterator> lacks an iterator template definition])
+      	 it='no'])
 AC_MSG_RESULT($it)
+AC_LANG_POP(C++)
 
 AC_C_CONST
 AC_C_INLINE
