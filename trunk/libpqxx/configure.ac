@@ -178,7 +178,9 @@ Please specify the location of the PostgreSQL include files with
 --with-postgres-include=... or --with-postgres=...]
 ))
 
-AC_CHECK_HEADER([sys/select.h],[AC_DEFINE(HAVE_SYS_SELECT_H,1,)],)
+AC_CHECK_HEADER([sys/select.h],[AC_DEFINE(HAVE_SYS_SELECT_H,1,
+[Define if the sys/select.h header (defining the fd_set type and related macros)
+is available])])
 
 AC_LANG_PUSH(C++)
 AC_CHECK_HEADERS([limits iterator])
