@@ -1,3 +1,67 @@
+2004-10-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/Makefile.am:
+  - Don't install compiler.h--thanks Roger Leigh
+2004-10-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in, include/pqxx/binarystring.hxx,
+ include/pqxx/libcompiler.h:
+  - Removed ptrdiff_t check and workaround
+  - Replaced use of ptrdiff_t with long
+  - Fixes problem with autoconf ptrdiff_t check
+  - Compile with -Werror in maintainer mode
+ doc/libpqxx.xml:
+  - Replaced "transaction<>" introduction with "work"
+  - Hinted at field iteration
+  - unique is internal now
+  - Test programs are numbered from zero now
+  - Fixed split infinitives
+  - Re-justified some text to 80 columns
+ include/pqxx/cachedresult.h, include/pqxx/cursor.h, include/pqxx/cursor.hxx,
+ include/pqxx/result.hxx, src/cachedresult.cxx, src/cursor.cxx,
+ include/pqxx/tablewriter.hxx:
+  - Empty throw specifications for iterator constructors and assignments
+ include/pqxx/pqxx:
+  - Added "pqxx/cursor"
+  - Fixed filename description (still called itself "pqxx/all")
+ include/pqxx/result.hxx, include/cachedresult.hxx, include/cursor.h,
+ include/cursor.hxx, src/oldcursor.cxx, src/result.cxx:
+  - Turned size_type into unsigned types
+  - Introduced difference_type where necessary
+  - Added int versions of at() and operator[] etc. to avoid ambiguity for 0
+  - Empty throw specifications for iterator constructors and assignments
+ include/pqxx/util.h:
+  - Only warn once about deprecated headers
+ src/cachedresult.cxx, src/oldcursor.cxx, test/test003.cxx:
+  - Silence warning about deprecated headers
+ src/result.cxx:
+  - Fixed broken check for PQresultErrorField()
+ src/util.cxx:
+  - Included <cerrno>
+ test/test019.cxx, test022.cxx, test/test038.cxx, test/test040.cxx,
+ test/test041.cxx, test/test042.cxx, test/test043.cxx, test/test045.cxx,
+ test/test049.cxx:
+  - Fixed signed/unsigned comparisons etc. caused by new unsigned size_type
+  - Changed size_type to difference_type where needed
+  - Some casts around formerly mismatched comparisons now unnecessary
+2004-10-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result.hxx, test/test082.cxx:
+  - Full test coverage for field iterators
+  - Lifted iterator classes' num() functions into tuple / field
+ include/pqxx/tablewriter.hxx:
+  - Full test coverage for tablewriter back_insert_iterator
+ include/pqxx/util.hxx, test/test000.cxx:
+  - Full test coverage for items<>
+ test/test083.cxx:
+  - New
+  - Tests tablewriter back_insert_iterator
+2004-10-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxxx/result.hxx:
+  - Replaced private inheritance of field from tuple by membership
+  - Yet Another Field Conversion Function: result::field::operator>>
+ test/test007.cxx:
+  - Test result::field::operator>>
+ test/test082.cxx:
+  - New
+  - Test field iterators
 2004-09-28  Roger Leigh  <rleigh@debian.org>
  include/pqxx/Makefile.am:
   - Don't install generated private config-*.h headers.
