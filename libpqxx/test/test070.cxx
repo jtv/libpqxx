@@ -13,6 +13,9 @@ namespace
 void TestPipeline(pipeline &P, int numqueries)
 {
     const string Q("SELECT count(*) FROM pg_tables");
+    const result Empty;
+    if (!Empty.empty())
+      throw logic_error("Default-constructed result is not empty");
 
     P.retain();
     for (int i=numqueries; i; --i) P.insert(Q);
@@ -22,6 +25,10 @@ void TestPipeline(pipeline &P, int numqueries)
       throw logic_error("Pipeline is inexplicably empty");
 
     int res = 0;
+    result Prev;
+    if (Prev != Empty)
+      throw logic_error("Default-constructed results not equal");
+
     for (int i=numqueries; i; --i)
     {
       if (P.empty()) 
@@ -29,11 +36,18 @@ void TestPipeline(pipeline &P, int numqueries)
 	    "results from pipeline; expected " + to_string(numqueries));
 
       pair<pipeline::query_id, result> R = P.retrieve();
+      if (R.second == Empty)
+	throw logic_error("Got empty result");
+      if ((Prev != Empty) && !(R.second == Prev))
+	throw logic_error("Results to same query claim to be different");
+      Prev = R.second;
+      if (Prev != R.second)
+	throw logic_error("Result equality does not hold after assignment");
 
-      if (res && (R.second[0][0].as<int>() != res))
+      if (res && (Prev[0][0].as<int>() != res))
 	throw logic_error("Expected " + to_string(res) + " out of pipeline, "
-	    "got " + R.second[0][0].c_str());
-      res = R.second[0][0].as<int>();
+	    "got " + Prev[0][0].c_str());
+      res = Prev[0][0].as<int>();
     }
 
     if (!P.empty()) throw logic_error("Pipeline not empty after retrieval!");
