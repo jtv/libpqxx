@@ -15,6 +15,8 @@
  *
  *-------------------------------------------------------------------------
  */
+#include "pqxx/config.h"
+
 #include <algorithm>
 #include <cstdio>
 #include <stdexcept>

@@ -325,7 +325,8 @@ test059_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
 subdir = test
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
-CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h
+CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h \
+	$(top_builddir)/include/pqxx/libconfig.h
 CONFIG_CLEAN_FILES =
 check_PROGRAMS = test001$(EXEEXT) test002$(EXEEXT) test003$(EXEEXT) \
 	test004$(EXEEXT) test005$(EXEEXT) test006$(EXEEXT) \
@@ -584,7 +585,7 @@ test059_OBJECTS = $(am_test059_OBJECTS)
 test059_DEPENDENCIES = ../src/libpqxx.la
 test059_LDFLAGS =
 
-DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/include/pqxx
+DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/include/pqxx -I$(top_builddir)/include/pqxx
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/test001.Po ./$(DEPDIR)/test002.Po \

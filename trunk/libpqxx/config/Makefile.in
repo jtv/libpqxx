@@ -143,7 +143,8 @@ MAINTAINERCLEANFILES = Makefile.in config.guess config.sub install-sh \
 subdir = config
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
-CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h
+CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h \
+	$(top_builddir)/include/pqxx/libconfig.h
 CONFIG_CLEAN_FILES =
 DIST_SOURCES =
 DIST_COMMON = $(srcdir)/Makefile.in Makefile.am config.guess config.sub \

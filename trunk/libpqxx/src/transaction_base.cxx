@@ -16,6 +16,8 @@
  *
  *-------------------------------------------------------------------------
  */
+#include "pqxx/config.h"
+
 #include <stdexcept>
 
 #include "pqxx/connection_base"

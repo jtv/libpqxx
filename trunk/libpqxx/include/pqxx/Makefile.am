@@ -13,6 +13,8 @@ include_HEADERS= pqxx all.h \
 	except except.hxx except.h \
 	isolation isolation.hxx isolation.h \
 	largeobject largeobject.hxx largeobject.h \
+	libcompiler.h \
+	libconfig.h \
 	nontransaction nontransaction.hxx nontransaction.h \
 	result result.hxx result.h \
 	robusttransaction robusttransaction.hxx robusttransaction.h \
