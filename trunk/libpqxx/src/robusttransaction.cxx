@@ -73,12 +73,12 @@ void pqxx::RobustTransaction::DoBegin()
 
 
 
-pqxx::Result pqxx::RobustTransaction::DoExec(const char C[])
+pqxx::Result pqxx::RobustTransaction::DoExec(const char Query[])
 {
   Result R;
   try
   {
-    R = DirectExec(C, 0, SQL_BEGIN_WORK);
+    R = DirectExec(Query, 0, SQL_BEGIN_WORK);
   }
   catch (const exception &)
   {

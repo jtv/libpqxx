@@ -1,5 +1,6 @@
 1.7.2
  - more workarounds for Sun CC 5.1, thanks Jeroen van Erp!
+ - preliminary support for "named" queries
 1.7.1
  - regenerated documentation
 1.7.0
