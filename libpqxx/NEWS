@@ -1,3 +1,7 @@
+2002-05-18 00:00, v0.3.1:
+ - removed broken postgres_fe.h dependency (hopefully permanent fix)
+2002-05-12 22:45, v0.3.0:
+ - also looks for postgres_fe.h in postgres' internal/ directory (tmp fix)
 2002-05-05 01:30, v0.2.3: 
  - extensive build instructions in README
  - make check now controlled through PG environment variables

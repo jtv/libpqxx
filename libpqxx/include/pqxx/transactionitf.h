@@ -61,7 +61,7 @@ public:
   void Commit();							//[t1]
   void Abort();								//[t10]
 
-  // Execute query directly
+  /// Execute query directly
   Result Exec(const char[]);						//[t1]
 
   void ProcessNotice(const char Msg[]) { m_Conn.ProcessNotice(Msg); }	//[t1]

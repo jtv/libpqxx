@@ -191,16 +191,18 @@
       in the context of a <literal>Connection</literal>, and is a unit of work 
       that must be completed as a whole by the database backend.  If execution 
       fails, everything done within that <literal>Transaction</literal> is 
-      undone by the backend as if it had never happened.
+      undone by the backend as if it had never happened<footnote>
+       Actually <filename>libpqxx</filename> provides three classes doing this
+       at various levels of reliability, called 
+       <literal>NonTransaction</literal>, <literal>Transaction</literal>, and
+       <literal>RobustTransaction</literal> for little, standard, and best
+        reliability respectively.  
+      </footnote>.
      </para>
      <para>
-      Actually <filename>libpqxx</filename> provides three classes doing this
-      at various levels of reliability, called 
-      <literal>NonTransaction</literal>, <literal>Transaction</literal>, and
-      <literal>RobustTransaction</literal> for little, standard, and best
-      reliability respectively.  These are all derived from a single abstract
-      base class called <literal>TransactionItf</literal>, which defines the
-      library's public transaction programming interface.
+      I recommend that you do not set up your own <literal>Transaction</>s
+      however, but have them managed for you by a 
+      <emphasis><literal>Transactor</literal></emphasis> instead (see below).
      </para>
     </listitem>
 
@@ -209,26 +211,40 @@
       <literal>Result</literal> is a container holding the resulting data
       coming out of a query or command executed in a 
       <literal>Transaction</literal>.  It behaves just like a standard C++
-      container as found in the STL.
+      container as found in the STL, although its contents are not modifiable.
      </para>
     </listitem>
 
    </itemizedlist>
 
    <para>
+    I would also like to use this opportunity to plug the invaluable
+    <literal>Quote()</literal> function, which you should use whenever you want
+    to include a variable as a string in your SQL (eg. insert it into a CHAR
+    field in a table).  See below.
+   </para>
+
+   <para>
     There are other classes; these are either not essential to writing a simple
     program using <filename>libpqxx</filename>, or are used in such a way that
-    knowledge of them is not immediately necessary.
-    </para>
+    knowledge of them is not immediately necessary.  You will probably want to
+    look them up at some point when it becomes necessary to understand 
+    complex compiler warnings.  Unfortunately C++ compilers are not yet very
+    good at unravelling template-related errors and making them readable.
+   </para>
+   <para>
+     Some of the classes you may become interested in fairly quickly are:
+   </para>
    <itemizedlist>
     <listitem>
      <para>
-      <literal>broken_connection</literal> is a connection class that is
-      sometimes (but currently not necessarily) thrown when 
-      <filename>libpqxx</filename> loses its connection to the back-end.  It 
-      is derived from the standard C++ exception 
+      <literal>broken_connection</literal> is an exception class that is
+      may be thrown when <filename>libpqxx</filename> loses its connection to 
+      the back-end.  It is derived from the standard C++ exception
       <literal>std::runtime_error</literal>, and can generally be treated as
-      such.
+      such.  It is not currently guaranteed that a broken connection will
+      result in a <literal>broken_connection</literal> being thrown; a normal
+      <literal>std::runtime_error</literal> may be thrown instead.
      </para>
     </listitem>
 
@@ -245,6 +261,96 @@
 
     <listitem>
      <para>
+      <literal>in_doubt_error</literal> is an exception class to indicate a
+      rare and difficult error condition.  Explaining this is a bit painful,
+      since it invalidates some of what was said above (and is commonly said in
+      the database world).
+     </para>
+     <para>
+      In theory, a "transaction" is an integral, atomic unit of work that 
+      either fails or succeeds.  This is a beautiful idea, but in practice
+      there is nothing that cannot be broken.  In practice there is a tiny
+      risk that, like Schroedinger's Cat, the transaction ends up in a third,
+      indeterminate state.  This happens when the connection to the backend
+      is lost just when you were waiting for confirmation after completing
+      your transaction.  Your transaction may have succeeded (in fact it
+      probably has), but if the connection is lost during just this small time
+      window, it has no way to confirm this to your application.
+     </para>
+      When this happens, an <literal>in_doubt_error</literal> is thrown which
+      you may want to <literal>catch</literal> as a special case.  If you do,
+      make sure all alarm bells go off!
+     </para>
+     <para>
+      See also the description for <literal>RobustTransaction</literal>, which
+      sacrifices some performance to deal with this risk.
+     </para>
+    </listitem>
+
+    <listitem>
+     <para>
+      <literal>NonTransaction</literal> is just like a regular 
+      <literal>Transaction</literal> as far your code is concerned.  The big
+      difference is that where the latter opens a back-end transaction to keep
+      your view and modifications of the database atomic, the former does
+      <emphasis>nothing</emphasis> to maintain integrity.  It just passes your
+      queries directly to the database, with no enclosing transaction. 
+     </para>
+     <para>
+      This gives you the best performance, but may have unforseen implications
+      if you expect certain levels of consistency in the database--especially
+      if other programs (perhaps even other instances of your own) may be
+      modifying the database at the same time.  You'll probably only want to
+      use this in the following cases:
+     </para>
+      <itemizedlist>
+       <listitem>
+        <para>
+	 If you only want to read from the database, not modify it, and you
+	 know that the data is not going to be updated while your program is
+	 running.
+        </para>
+       </listitem>
+
+       <listitem>
+        <para>
+	 If you are interested in always getting the very latest information
+	 out of your database, even if that means that you may not get a
+	 temporally consistent view of the database.
+        </para>
+       </listitem>
+
+       <listitem>
+        <para>
+	 If full integrity is less important than performance, as might be the
+	 case with e.g. updating or displaying a webcounter.  Losing one or two
+	 hits may be less of a problem to you than keeping visitors waiting.
+        </para>
+       </listitem>
+
+      </itemizedlist>
+    </listitem>
+
+    <listitem>
+     <para>
+      <literal>RobustTransaction</literal> is essentially the same as a
+      <literal>Transaction</literal>, ie. an atomic unit of work, except that
+      it works harder to prevent <literal>in_doubt_error</>s from happening.
+      This comes at the cost of some performance, which is one reason why this 
+      behaviour isn't the default.  It also creates some extra tables in your 
+      database to keep track of what's happening.
+     </para>
+     <para>
+      Use this class instead of plain old <literal>Transaction</literal> if you
+      get <literal>in_doubt_error</>s in your application--but only
+      <emphasis>after</> thoroughly inspecting your code for bugs that might be
+      causing the problem, or you'll only be hiding glitches that should be
+      fixed instead.
+     </para>
+    </listitem>
+
+    <listitem>
+     <para>
       <literal>TableStream</literal> provides simple, relatively direct access
       to a table for either reading (<literal>TableReader</literal>) or
       writing (<literal>TableWriter</literal>) using 
@@ -254,11 +360,27 @@
  
     <listitem>
      <para>
+      <literal>TransactionItf</literal> defines the common public interface for
+      the <literal>Transaction</>-like classes: <literal>NonTransaction</>,
+      <literal>RobustTransaction</>, and <literal>Transaction</> itself.  To
+      look up methods available in these classes, see the definition (or
+      documentation) for <literal>TransactionItf</literal> instead.
+     </para>
+    </listitem>
+
+    <listitem>
+     <para>
       <literal>Transactor</literal> is a framework that makes it easier for 
       you to write correct, robust transaction code to be executed in a
-      <literal>Transaction</literal>.  You should generally try to write your
-      code as a class derived from <literal>Transactor</literal>, but this is
-      not required.
+      <literal>Transaction</literal> (or any of its sibling classes).  You 
+      should generally try to write your code as a class derived from 
+      <literal>Transactor</literal>, but this is not required.
+     </para>
+     <para>
+      A <literal>Transactor</>-derived class may select its own "quality of
+      service" in transactional integrity by overriding the nested
+      <literal>TRANSACTIONTYPE</literal> typedef defined within its base class,
+      <literal>Transactor</>.
      </para>
     </listitem>
 
@@ -272,6 +394,19 @@
       <filename>libpqxx</filename> does this by registering an observer object 
       derived from <literal>Trigger</literal>, which will be invoked by 
       <filename>libpqxx</filename> to handle the event when it occurs.
+     </para>
+    </listitem>
+
+    <listitem>
+     <para>
+      <literal>Unique</literal> is really only intended for use by the library
+      itself, although you may find it useful for your own code.  It allows a
+      "host" class to enforce a one-to-one association with a "guest" class,
+      such that at most 1 "guest" object may be associated with any one "host"
+      object at any given time.  This is used to ensure that no more than one
+      <literal>Transaction</literal> at a time is active on a single 
+      <literal>Connection</literal>, and that no more than one 
+      <literal>Cursor</literal> is active on a single <literal>Transaction</>.
      </para>
     </listitem>
 
@@ -301,7 +436,53 @@
     </listitem>
    </itemizedlist>
 
+  <para>
+   Finally, there are also some functions that you may want to know about, that
+   live alone in the <literal>pqxx</literal> namespace without being part of
+   any class:
+  </para>
+
+  <itemizedlist>
+   <listitem>
+    <para>
+     <literal>Quote</literal> is the canonical way to use strings in your SQL.
+     This function not only adds quotes around your string; it also escapes
+     quotes, backslashes, and other characters that would otherwise cause syntax
+     errors in your queries when included directly.
+    </para>
+    <para>
+     <emphasis>Use this function</emphasis> whenever you want to have a variable
+     string in your SQL queries.  If you don't, you'll be left with annoying
+     bugs or possibly even security holes in your program.  Use this function,
+     use this function, use this function.  Please.  Make me proud.
+    </para>
+   <listitem>
+
+   <listitem>
+    <para>
+     <literal>ToString</literal> knows how to render many types of values as
+     strings.  This is used internally by <literal>libpqxx</literal>, and it
+     may be replaced in the future<footnote>
+      Apparently the BOOST library's <literal>numeric_cast</literal> provides
+      similar functionality.  This may be used to replace the custom code at
+      some point.
+     </footnote>.
+    </para>
+   <listitem>
+
+   <listitem>
+    <para>
+     <literal>FromString</literal> is the inverse of 
+     <literal>ToString</literal>.  Like <literal>ToString</literal> it may
+     someday be replaced.  For now it is used by eg. 
+     <literal>Result::Field::to()</literal> to convert the incoming field data 
+     (which is in text format) to the desired C++ type.
+    </para>
+   <listitem>
+
+  </itemizedlist>
   </sect1>
+
 
   <sect1>
    <title>Tutorial</title>

@@ -1,10 +1,10 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 0.3.0, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 0.3.2, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 0.3.0)
+AM_INIT_AUTOMAKE(libpqxx, 0.3.2)
 AC_CONFIG_SRCDIR([src/connection.cxx])
-AM_CONFIG_HEADER(config.h)
+AM_CONFIG_HEADER(include/pqxx/config.h)
 
 # default prefix for installs
 AC_PREFIX_DEFAULT(/usr/local/pqxx)
@@ -45,6 +45,7 @@ AC_MSG_RESULT(${enable_maintainer_mode})
 # Let's try to get the compiler to be helpful
 # (Omit the -Waggregate-return and -Weffc++ options because they currently
 # yield too many warnings in gcc's standard headers)
+# (Omit -Wdisabled-optimization)
 if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 	for option in \
 		-ffor-scope \
@@ -69,7 +70,6 @@ if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 		-Wredundant-decls \
 		-Wunreachable-code \
 		-Winline \
-		-Wdisabled-optimization \
 		-Wctor-dtor-privacy \
 		-Wnon-virtual-dtor \
 		-Wreorder \
@@ -158,7 +158,7 @@ AC_SUBST(with_postgres_lib)
 AC_SUBST(with_postgres_include)
 POSTGRES_LIB="-L${with_postgres_lib} -lpq"
 AC_SUBST(POSTGRES_LIB)
-POSTGRES_INCLUDE="-I${with_postgres_include} -I${with_postgres_include}/server -I${with_postgres_include}/internal"
+POSTGRES_INCLUDE="-I${with_postgres_include}"
 AC_SUBST(POSTGRES_INCLUDE)
 
 # Checks for libraries.
@@ -195,12 +195,14 @@ AC_LANG_POP(C++)
 AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
-AC_STRUCT_TM
+# AC_STRUCT_TM
 AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
-AC_FUNC_MALLOC
-AC_CHECK_FUNCS([memset])
+# AC_FUNC_MALLOC
+# AC_CHECK_FUNCS([memset])
+
+AC_PROG_MAKE_SET
 
 AC_CONFIG_FILES([Makefile config/Makefile doc/Makefile src/Makefile test/Makefile include/Makefile])
 AC_OUTPUT

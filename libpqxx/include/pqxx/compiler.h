@@ -13,7 +13,7 @@
 #ifndef PQXX_COMPILER_H
 #define PQXX_COMPILER_H
 
-#include "config.h"
+#include "pqxx/config.h"
 
 #ifdef BROKEN_ITERATOR
 namespace PGSTD
