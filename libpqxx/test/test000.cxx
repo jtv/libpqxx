@@ -127,6 +127,7 @@ int main()
     strconv("long", long_min, to_string(long_min));
     strconv("long", long_max, to_string(long_max));
     strconv("double", 0.0, "0");
+    strconv("double", numeric_limits<double>::quiet_NaN(), "nan");
     strconv("string", string(), "");
     strconv("string", weirdstr, weirdstr);
 

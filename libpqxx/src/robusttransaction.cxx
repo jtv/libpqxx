@@ -267,7 +267,14 @@ bool pqxx::basic_robusttransaction::CheckTransactionRecord(IDType ID)
    * that the backend dies.
    */
   // TODO: Tom says we need stats_start_collector, not stats_command_string!?
-  // TODO: This should work: "SELECT * FROM pg_locks WHERE pid=" + m_backendpid
+  /* Starting with PostgreSQL 7.4, we can use pg_locks.  The entry for the
+   * zombied transaction will have a "relation" field of null, a "transaction"
+   * field with the transaction ID (which we don't have--m_ID is the ID of our
+   * own transaction record!), and "pid" set to our backendpid.  If the relation
+   * exists but no such record is found, then the transaction is no longer
+   * running.
+   */
+  // TODO: Support multiple means of detection for zombied transaction?
   bool hold = true;
   for (int c=20; hold && c; internal::sleep_seconds(5), --c)
   {
