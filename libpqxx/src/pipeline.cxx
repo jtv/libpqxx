@@ -79,8 +79,8 @@ void pqxx::pipeline::complete()
 void pqxx::pipeline::flush()
 {
   m_waiting.clear();
-  m_sent.clear();
   consumeresults();
+  m_sent.clear();
   m_completed.clear();
   m_queries.clear();
 }
