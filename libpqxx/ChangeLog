@@ -1,3 +1,7 @@
+2004-02-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/pipeline.hxx, src/pipeline.cxx:
+  - Typedef-wrapped container types to reduce std::pair<> trouble
+  - Should fix SUN Workshop problems (thanks Jon Meinecke)
 2004-02-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in, include/pqxx/binarystring.hxx, include/pqxx/libcompiler.h,
  include/pqxx/libconfig.h.in, include/pqxx/result.hxx, test/test062.cxx:
