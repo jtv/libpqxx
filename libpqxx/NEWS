@@ -1,3 +1,5 @@
+2002-06-12 17:30, v0.5.1:
+ - no longer have to destroy one transaction before creating the next
 2002-06-07 17:15, v0.5.0:
  - "make install" now finally installs headers!
  - distribution now includes SGML (DocBook) version of tutorial

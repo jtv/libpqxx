@@ -1,3 +1,6 @@
+2002-06-12 17:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/transactionitf.cxx, test/test20.cxx:
+  - Transaction is now detached from Connection on Commit or Abort
 2002-06-12 16:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/libpqxx.sgml:
   - Lots of documentation for Transactor
