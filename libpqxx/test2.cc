@@ -22,15 +22,29 @@ int main(int argc, char *argv[])
 {
   try
   {
+    // Set up connection to database
     Connection C(argv[1] ? argv[1] : "");
+
+    // Start transaction within context of connection
     Transaction T(C, "test2");
 
+    // Perform query within transaction
     Result R( T.Exec("SELECT * FROM pg_tables") );
 
+    // Let's keep the database waiting as briefly as possible: commit now,
+    // before we start processing results.  We could do this later, or since
+    // we're not making any changes in the database that need to be committed,
+    // we could in this case even omit it altogether.
+    T.Commit();
+
+    // Since we don't need the database anymore, we can be even more 
+    // considerate and close the connection now.  This is optional.
+    C.Disconnect();
+
+    // Now we've got all that settled, let's process our results.
     for (Result::size_type i = 0; i < R.size(); ++i)
       cout << '\t' << ToString(i) << '\t' << R[i][0].c_str() << endl;
 
-    T.Commit();
   }
   catch (const exception &e)
   {

@@ -20,6 +20,14 @@
 #include "pg_transactor.h"
 #include "pg_util.h"
 
+/* Use of the libpqxx library starts here.
+ *
+ * Everything that can be done with a database through libpqxx must go through
+ * a Connection object.
+ */
+
+/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+ */
 
 // TODO: Teach Transactor to handle multiple connections--quasi "2-phase commit"
 
@@ -59,39 +67,59 @@ public:
 class Connection
 {
 public:
-  explicit Connection(const PGSTD::string &ConnInfo);
-  ~Connection();
+  // TODO: Allow two-stage creation (create first, open later)
+  explicit Connection(const PGSTD::string &ConnInfo);			//[t1]
+  ~Connection();							//[t1]
 
-  void Disconnect() throw ();
+  void Disconnect() throw ();						//[t2]
 
-  bool IsOpen() const;
+  bool IsOpen() const;							//[t1]
 
-  template<typename TRANSACTOR> void Perform(const TRANSACTOR &, int Attempts=3);
+  template<typename TRANSACTOR> 
+  void Perform(const TRANSACTOR &, int Attempts=3);			//[t4]
 
   // Set callback method for postgresql status output; return value is previous
   // handler.  Passing a NULL callback pointer simply returns the existing
   // callback.  The callback must have C linkage.
-  NoticeProcessor SetNoticeProcessor(NoticeProcessor, void *arg);
+  NoticeProcessor SetNoticeProcessor(NoticeProcessor, void *arg);	//[t1]
 
   // Invoke notice processor function.  The message should end in newline.
-  void ProcessNotice(const char[]) throw ();
-  void ProcessNotice(PGSTD::string msg) throw () { ProcessNotice(msg.c_str()); }
+  void ProcessNotice(const char[]) throw ();				//[t1]
+  void ProcessNotice(PGSTD::string msg) throw () 			//[t1]
+  	{ ProcessNotice(msg.c_str()); }
 
   // Enable/disable tracing to a given output stream
-  void Trace(FILE *);
-  void Untrace();
+  void Trace(FILE *);							//[t3]
+  void Untrace();							//[t3]
 
 
   // Check for pending trigger notifications and take appropriate action
-  void GetNotifs();
+  void GetNotifs();							//[t4]
 
   // Miscellaneous query functions (probably not needed very often)
-  const char *DbName() const throw () { return m_Conn ? PQdb(m_Conn) : ""; }
-  const char *UserName() const throw () { return m_Conn ? PQuser(m_Conn):""; }
-  const char *HostName() const throw () { return m_Conn ? PQhost(m_Conn):""; }
-  const char *Port() const throw () { return m_Conn ? PQport(m_Conn) : ""; }
-  const char *Options() const throw () { return m_ConnInfo.c_str(); }
-  int BackendPID() const;
+ 
+  // Name of database we're connected to
+  const char *DbName() const throw ()					//[t1]
+  	{ return m_Conn ? PQdb(m_Conn) : ""; }
+
+  // Database user ID we're connected under
+  const char *UserName() const throw ()					//[t1]
+  	{ return m_Conn ? PQuser(m_Conn) : ""; }
+
+  // Address of server (NULL for local connections)
+  const char *HostName() const throw ()					//[t1]
+  	{ return m_Conn ? PQhost(m_Conn) : ""; }
+
+  // Server port number we're connected to
+  const char *Port() const throw () 					//[t1]
+  	{ return m_Conn ? PQport(m_Conn) : ""; }
+
+  // Full connection string
+  const char *Options() const throw () 					//[t1]
+  	{ return m_ConnInfo.c_str(); }
+
+  // Process ID for backend process
+  int BackendPID() const;						//[t1]
 
 private:
   void Connect();
@@ -141,7 +169,7 @@ private:
 // invoked.
 template<typename TRANSACTOR> 
 inline void Connection::Perform(const TRANSACTOR &T,
-                                int Attempts)
+                                int Attempts)				//[t4]
 {
   if (Attempts <= 0) return;
 
