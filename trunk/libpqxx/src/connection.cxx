@@ -317,11 +317,11 @@ void pqxx::Connection::Reset(const char OnReconnect[])
     {
       const TriggerList::const_iterator End = m_Triggers.end();
       string Last;
+      // TODO: Use equal_range()
       for (TriggerList::const_iterator i = m_Triggers.begin(); i != End; ++i)
       {
         // m_Triggers is supposed to be able to handle multiple Triggers waiting
         // on the same event; issue just one LISTEN for each event.
-        // TODO: Change TriggerList to be a multimap once compiler supports it
         if (i->first != Last)
         {
           Result R( PQexec(m_Conn, ("LISTEN " + i->first).c_str()) );

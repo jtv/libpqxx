@@ -14,16 +14,12 @@
 #ifndef PQXX_CONNECTION_H
 #define PQXX_CONNECTION_H
 
+#include <map>
 #include <stdexcept>
 
 #include "pqxx/transactor.h"
 #include "pqxx/util.h"
 
-#ifdef HAVE_MULTIMAP
-#include <multimap>
-#else
-#include <map>
-#endif
 
 /* Use of the libpqxx library starts here.
  *
@@ -145,18 +141,14 @@ private:
   void Connect();
   int Status() const { return PQstatus(m_Conn); }
   const char *ErrMsg() const;
-  void Reset(const char *OnReconnect=0);
+  void Reset(const char OnReconnect[]=0);
 
   PGSTD::string m_ConnInfo;	// Connection string
   PGconn *m_Conn;		// Connection handle
   Unique<TransactionItf> m_Trans;// Active transaction on connection, if any
   void *m_NoticeProcessorArg;	// Client-set argument to notice processor func
 
-#ifdef HAVE_MULTIMAP
   typedef PGSTD::multimap<PGSTD::string, pqxx::Trigger *> TriggerList;
-#else
-  typedef PGSTD::map<PGSTD::string, pqxx::Trigger *> TriggerList;
-#endif
   TriggerList m_Triggers;
 
   friend class TransactionItf;
@@ -230,15 +222,10 @@ inline void Connection::Perform(const TRANSACTOR &T,
     }
     catch (...)
     {
-      // This shouldn't happen!  If it does, don't try to forge ahead
+      // Don't try to forge ahead if we don't even know what happened
       T2.OnAbort("Unknown exception");
       throw;
     }
-
-    // Commit has to happen inside loop where T2 is still in scope.
-    if (!Done) 
-      throw PGSTD::logic_error("Internal libpqxx error: pqxx::Connection: "
-		             "broken Perform() loop");
 
     T2.OnCommit();
   } while (!Done);
