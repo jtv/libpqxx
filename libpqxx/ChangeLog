@@ -1,3 +1,15 @@
+2003-03-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/largeobject.h, src/largeobject.cxx:
+  - Silence warning about C-style cast in InvalidOid macro
+2003-03-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ README:
+  - Documented connection strings
+2003-03-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ README, include/pqxx/result.h, include/pqxx/tablewriter.h:
+  - Killed NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION. Thanks key88sf@hotmail.com!
+2003-03-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Tests now respect different definitions of PGSTD
 2003-03-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac, include/pqxx/compiler.h:
   - Check & workaround for "ambiguous abs(long)" error on Sun compiler

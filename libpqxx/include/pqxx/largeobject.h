@@ -37,7 +37,7 @@ class LargeObject
 {
 public:
   /// Refer to a nonexistent large object (similar to what a null pointer does)
-  LargeObject() : m_ID(InvalidOid) {}					//[t48]
+  LargeObject();							//[t48]
 
   /// Create new large object
   /** @param T backend transaction in which the object is to be created

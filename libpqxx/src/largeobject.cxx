@@ -50,14 +50,22 @@ inline int StdDirToPQDir(ios_base::seekdir dir)
   return pqdir;
 }
 
+const Oid pqxxInvalidOid(InvalidOid);
+
 } // namespace
+
+
+pqxx::LargeObject::LargeObject() :
+  m_ID(pqxxInvalidOid)
+{
+}
 
 
 pqxx::LargeObject::LargeObject(TransactionItf &T) :
   m_ID()
 {
   m_ID = lo_creat(RawConnection(T), INV_READ|INV_WRITE);
-  if (m_ID == InvalidOid)
+  if (m_ID == pqxxInvalidOid)
     throw runtime_error("Could not create large object: " +
 	                string(strerror(errno)));
 }
@@ -67,7 +75,7 @@ pqxx::LargeObject::LargeObject(TransactionItf &T, const string &File) :
   m_ID()
 {
   m_ID = lo_import(RawConnection(T), File.c_str());
-  if (m_ID == InvalidOid)
+  if (m_ID == pqxxInvalidOid)
     throw runtime_error("Could not import file '" + File + "' "
 	                "to large object: " + strerror(errno));
 }
