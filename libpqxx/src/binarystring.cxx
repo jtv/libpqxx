@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      implementation of bytea (binary string) conversions
  *
- * Copyright (c) 2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -22,6 +22,7 @@
 #include "pqxx/binarystring"
 
 using namespace PGSTD;
+using namespace pqxx::internal;
 
 namespace
 {

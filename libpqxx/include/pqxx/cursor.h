@@ -22,7 +22,7 @@
 #include "pqxx/transaction_base.h"
 #include "pqxx/util.h"
 
-/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+/* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
 
 namespace pqxx

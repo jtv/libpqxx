@@ -1,3 +1,8 @@
+2004-01-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/*.hxx:
+  - Introduced "internal" namespace
+  - Changed "test1" in comment to "test001"
+  - Made all destructors throw () (and inspected them to verify this)
 2004-01-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/pipeline.hxx, src/pipeline.cxx, test/test072.cxx:
   - Pipeline refuses to (re-)issue queries behind a failure

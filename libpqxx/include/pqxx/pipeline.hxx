@@ -18,6 +18,7 @@
  */
 #include "pqxx/compiler.h"
 
+#include <deque>
 #include <map>
 #include <string>
 #include <vector>
@@ -25,7 +26,7 @@
 #include "pqxx/transaction_base"
 
 
-/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+/* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
 
 namespace pqxx
@@ -63,7 +64,7 @@ public:
   typedef unsigned query_id;
 
   explicit pipeline(transaction_base &t);				//[t69]
-  ~pipeline();
+  ~pipeline() throw ();
 
   /// Add query to the pipeline.
   /** Queries are accumulated in the pipeline and sent to the backend in a
@@ -134,7 +135,8 @@ private:
 
   transaction_base &m_home;
   PGSTD::map<query_id, PGSTD::string> m_queries;
-  PGSTD::vector<query_id> m_waiting, m_sent;
+  typedef PGSTD::deque<query_id> QueryQueue;
+  QueryQueue m_waiting, m_sent;
   PGSTD::map<query_id, result> m_completed;
   query_id m_nextid;
   bool m_retain;

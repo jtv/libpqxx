@@ -37,7 +37,7 @@ pqxx::pipeline::pipeline(transaction_base &t) :
 }
 
 
-pqxx::pipeline::~pipeline()
+pqxx::pipeline::~pipeline() throw ()
 {
   try
   {
@@ -53,8 +53,6 @@ pqxx::pipeline::query_id pqxx::pipeline::insert(const string &Query)
 {
   const query_id id = generate_id();
 
-  // Reduce the risk of exceptions occurring between our updates
-  m_waiting.reserve(m_waiting.size()+1);
   try
   {
     m_queries.insert(make_pair(id, Query));
@@ -218,9 +216,7 @@ void pqxx::pipeline::send_waiting()
    */
   if (m_waiting.size() > 1) Cum = "SELECT 0" + Separator;
 
-  for (vector<query_id>::const_iterator i = m_waiting.begin(); 
-       i != m_waiting.end(); 
-       ++i)
+  for (QueryQueue::const_iterator i=m_waiting.begin(); i!=m_waiting.end(); ++i)
   {
     map<query_id, string>::const_iterator q = m_queries.find(*i);
     if (q == m_queries.end())
@@ -245,7 +241,6 @@ void pqxx::pipeline::consumeresults()
 
   // Reduce risk of exceptions at awkward moments
   R.reserve(m_sent.size() + 1);
-  m_waiting.reserve(m_waiting.size() + m_sent.size());
 
   // TODO: Improve exception-safety!
   for (PGresult *r=m_home.get_result(); r; r=m_home.get_result())
@@ -275,7 +270,7 @@ void pqxx::pipeline::consumeresults()
     /* As a first approximation, just register the same error for all queries in
      * the batch, so at least the user gets the message about what went wrong.
      */
-    for (vector<query_id>::size_type i=0; i<sentsize; ++i)
+    for (QueryQueue::size_type i=0; i<sentsize; ++i)
       m_completed.insert(make_pair(m_sent[i], R[0]));
 
     if (!dynamic_cast<dbtransaction *>(&m_home))
@@ -284,8 +279,7 @@ void pqxx::pipeline::consumeresults()
        * transactions.  Execute the queries in the batch one by one to try and
        * pinpoint which was the one containing the error.
        */
-      // TODO: Attempt replay!
-      vector<query_id>::size_type i;
+      QueryQueue::size_type i;
       try
       {
         for (i=0; i<sentsize; ++i)

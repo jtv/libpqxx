@@ -8,7 +8,7 @@
  *   pqxx::trigger describes a database trigger to wait on, and what it does
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/trigger instead.
  *
- * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -18,7 +18,7 @@
  */
 #include <string>
 
-/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+/* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
 
 namespace pqxx
@@ -54,7 +54,7 @@ public:
   trigger(connection_base &C, const PGSTD::string &N) : 		//[t4]
     m_Conn(C), m_Name(N) { m_Conn.AddTrigger(this); }
 
-  virtual ~trigger() { m_Conn.RemoveTrigger(this); }			//[t4]
+  virtual ~trigger() throw () { m_Conn.RemoveTrigger(this); }		//[t4]
 
   PGSTD::string name() const { return m_Name; }				//[t4]
 

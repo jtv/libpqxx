@@ -22,7 +22,7 @@
 
 using namespace PGSTD;
 
-pqxx::nontransaction::~nontransaction()
+pqxx::nontransaction::~nontransaction() 
 {
   End();
 }

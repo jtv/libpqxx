@@ -8,7 +8,7 @@
  *   pqxx::tablewriter enables optimized batch updates to a database table
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablewriter.hxx instead.
  *
- * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -22,7 +22,7 @@
 
 #include "pqxx/tablestream"
 
-/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+/* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
 
 namespace pqxx
@@ -47,7 +47,7 @@ public:
   tablewriter(transaction_base &Trans, 
       const PGSTD::string &WName,
       const PGSTD::string &Null=PGSTD::string());			//[t5]
-  ~tablewriter();							//[t5]
+  ~tablewriter() throw ();						//[t5]
 
   template<typename IT> void insert(IT Begin, IT End);			//[t5]
   template<typename TUPLE> void insert(const TUPLE &);			//[t5]

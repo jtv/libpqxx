@@ -62,6 +62,9 @@ int main(int, char *argv[])
       throw runtime_error("Not enough rows in '" + Table + "' "
 		          "for serious testing.  Sorry.");
 
+    if (R[0][0].as<int>() != int(R[0][0].as<unsigned int>()))
+      throw runtime_error("Are there really that many rows in " + Table + "?");
+
     // Create an SQL cursor and, for good measure, muddle up its state a bit.
     const string CurName = "MYCUR";
     T.Exec("DECLARE " + CurName + " CURSOR FOR SELECT * FROM " + Table);

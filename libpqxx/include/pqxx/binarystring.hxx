@@ -7,7 +7,7 @@
  *      declarations for bytea (binary string) conversions
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/binarystring instead.
  *
- * Copyright (c) 2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -38,7 +38,7 @@ namespace pqxx
  * The binarystring retains its value even if the result it was obtained from is
  * destroyed, but it cannot be copied or assigned.
  */
-class PQXX_LIBEXPORT binarystring : PQAlloc<unsigned char>
+class PQXX_LIBEXPORT binarystring : internal::PQAlloc<unsigned char>
 {
   // TODO: Templatize on character type?
 public:
@@ -55,7 +55,7 @@ public:
 #endif
 
 private:
-  typedef PQAlloc<value_type> super;
+  typedef internal::PQAlloc<value_type> super;
 
 public:
   /// Read and unescape bytea field

@@ -36,6 +36,7 @@
 
 
 using namespace PGSTD;
+using namespace pqxx::internal;
 
 
 extern "C"

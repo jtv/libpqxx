@@ -8,7 +8,7 @@
  *   pqxx::transaction represents a standard database transaction
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction instead.
  *
- * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -66,11 +66,14 @@ private:
 };
 
 
+namespace internal
+{
 /// Human-readable class name for use by unique
 template<> inline PGSTD::string Classname(const basic_transaction *) 
 { 
   return "basic_transaction"; 
 }
+} // namespace internal
 
 
 /// Standard back-end transaction, templatized on isolation level
@@ -90,7 +93,7 @@ public:
     basic_transaction(C, isolation_tag::name(), TName) 
     	{ Begin(); }
 
-  virtual ~transaction() { End(); }
+  virtual ~transaction() throw () { End(); }
 };
 
 

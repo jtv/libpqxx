@@ -8,7 +8,7 @@
  *   pqxx::tablereader enables optimized batch reads from a database table
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablereader instead.
  *
- * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -21,7 +21,7 @@
 #include "pqxx/result"
 #include "pqxx/tablestream"
 
-/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+/* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
 
 namespace pqxx
@@ -46,7 +46,7 @@ public:
   tablereader(transaction_base &, 
       const PGSTD::string &RName,
       const PGSTD::string &Null=PGSTD::string());			//[t6]
-  ~tablereader();							//[t6]
+  ~tablereader() throw ();						//[t6]
 
   template<typename TUPLE> tablereader &operator>>(TUPLE &);		//[t8]
 

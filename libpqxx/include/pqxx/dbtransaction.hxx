@@ -8,7 +8,7 @@
  *   pqxx::dbransaction defines a real transaction on the database
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/dbtransaction instead.
  *
- * Copyright (c) 2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -94,11 +94,15 @@ private:
   PGSTD::string m_StartCmd;
 };
 
+
+namespace internal
+{
 /// Human-readable class name for use by unique
 template<> inline PGSTD::string Classname(const dbtransaction *) 
 { 
   return "dbtransaction"; 
 }
+} // namespace internal
 
 
 inline result dbtransaction::do_exec(const char Query[])

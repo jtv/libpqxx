@@ -8,7 +8,7 @@
  *   pqxx::transaction_base defines the interface for any abstract class that
  *   represents a database transaction
  *
- * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -27,6 +27,7 @@
 
 
 using namespace PGSTD;
+using namespace pqxx::internal;
 
 
 pqxx::transaction_base::transaction_base(connection_base &C, 
@@ -60,7 +61,14 @@ pqxx::transaction_base::~transaction_base()
   }
   catch (const exception &e)
   {
-    process_notice(string(e.what()) + "\n");
+    try
+    {
+      process_notice(string(e.what()) + "\n");
+    }
+    catch (const exception &)
+    {
+      process_notice(e.what());
+    }
   }
 }
 
@@ -288,7 +296,14 @@ void pqxx::transaction_base::End() throw ()
   }
   catch (const exception &e)
   {
-    m_Conn.process_notice(string(e.what()) + "\n");
+    try
+    {
+      m_Conn.process_notice(string(e.what()) + "\n");
+    }
+    catch (const exception &)
+    {
+      m_Conn.process_notice(e.what());
+    }
   }
 }
 
