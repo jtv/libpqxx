@@ -8,7 +8,7 @@
  include/pqxx/util.h:
   - Added ToString<>() specialization for char *const &
  src/cachedresult.cxx:
-  - Made Result being inserted const
+  - Compile fixes for Sun compiler (thanks Jeroen van Erp)
 2003-03-10  J.H.M. Dassen (Ray) <jdassen@debian.org>
  Generate pkgconfig metadata file; updated debianisation.
 2003-03-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
