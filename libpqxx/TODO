@@ -24,6 +24,7 @@ RobustTransaction
 Streams
 (*) Provide metadata information in TableStream
 (*) Support column lists for COPY
+(*) Allow single-level insertion with endt/endr manipulators
 
 Tests
 (*) Complete test coverage

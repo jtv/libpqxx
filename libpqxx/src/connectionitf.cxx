@@ -99,36 +99,6 @@ pqxx::ConnectionItf::ConnectionItf(const char ConnInfo[]) :
 }
 
 
-pqxx::ConnectionItf::~ConnectionItf()
-{
-  if (m_Trans.get()) 
-    ProcessNotice("Closing connection while transaction '" +
-		  m_Trans.get()->Name() +
-		  "' still open\n");
-
-  if (!m_Triggers.empty())
-  {
-    try
-    {
-      string T;
-      for (TriggerList::const_iterator i = m_Triggers.begin(); 
-	   i != m_Triggers.end();
-	   ++i)
-	T += " " + i->first;
-
-      ProcessNotice("Closing connection with outstanding triggers:" + T + "\n");
-    }
-    catch (...)
-    {
-    }
-
-    m_Triggers.clear();
-  }
-
-  Disconnect();
-}
-
-
 void pqxx::ConnectionItf::Connect() const
 {
   if (m_Conn) throw logic_error("libqxx internal error: spurious Connect()");
@@ -407,6 +377,39 @@ void pqxx::ConnectionItf::Reset(const char OnReconnect[])
     }
   }
 }
+
+
+void pqxx::ConnectionItf::close() throw ()
+{
+  try
+  {
+    if (m_Trans.get()) 
+      ProcessNotice("Closing connection while transaction '" +
+		    m_Trans.get()->Name() +
+		    "' still open\n");
+
+    if (!m_Triggers.empty())
+    {
+      string T;
+      for (TriggerList::const_iterator i = m_Triggers.begin(); 
+	   i != m_Triggers.end();
+	   ++i)
+	T += " " + i->first;
+
+        ProcessNotice("Closing connection with outstanding triggers:" + 
+	              T + 
+		      "\n");
+      m_Triggers.clear();
+    }
+
+    Disconnect();
+  }
+  catch (...)
+  {
+  }
+}
+
+
 
 
 void pqxx::ConnectionItf::InternalSetTrace() const
