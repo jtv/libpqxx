@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 	{ "1989", "Ode an die Freiheit" },
 	{ "2001", "New millennium" },
 	{   "97", "Asian crisis" },
-	{   "01", "A Space Oddyssey" },
+	{   "01", "A Space Odyssey" },
         {0,0}
       };
 
@@ -79,14 +79,14 @@ int main(int argc, char *argv[])
       // Insert tuple of data held in container
       vector<string> MoreData;
       MoreData.push_back("10");
-      MoreData.push_back("Oddyssey Two");
+      MoreData.push_back("Odyssey Two");
       W.insert(MoreData);
 
       // Now that MoreData has been inserted, we can get rid of the original
       // and use it for something else.  And this time, we use the insertion
       // operator.
       MoreData[0] = "3001";
-      MoreData[1] = "Final Oddyssey";
+      MoreData[1] = "Final Odyssey";
       W << MoreData;
 
       // (destruction of W occurs here)
