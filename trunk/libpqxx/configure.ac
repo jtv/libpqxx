@@ -4,13 +4,8 @@ AC_INIT(libpqxx, 2.1.3, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE(libpqxx, 2.1.3)
 
-# Library version numbering - see "info libtool versioning 'libtool
-# versioning'" for details.
-abi_current=3
-abi_revision=0
-abi_age=0
-sonumber=${abi_current}:${abi_revision}:${abi_age}
-AC_SUBST(sonumber)
+PQXXVERSION=2.1.3
+AC_SUBST(PQXXVERSION)
 
 AC_CONFIG_SRCDIR([src/connection.cxx])
 AM_CONFIG_HEADER([include/pqxx/config.h include/pqxx/libconfig.h])

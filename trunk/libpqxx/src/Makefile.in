@@ -89,6 +89,7 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 POSTGRES_INCLUDE = @POSTGRES_INCLUDE@
 POSTGRES_LIB = @POSTGRES_LIB@
+PQXXVERSION = @PQXXVERSION@
 RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -132,7 +133,6 @@ prefix = @prefix@
 program_transform_name = @program_transform_name@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
-sonumber = @sonumber@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 with_postgres_include = @with_postgres_include@
@@ -155,7 +155,14 @@ libpqxx_la_SOURCES = binarystring.cxx \
 	util.cxx
 
 
-libpqxx_la_LDFLAGS = -version-info @sonumber@ ${POSTGRES_LIB}
+# Uncomment to build an unversioned library (version in soname)
+libpqxx_version = -release $(PQXXVERSION)
+# Uncomment to build a versioned library
+#libpqxx_version = -version-info $(ABI_CURRENT):$(ABI_REVISION):$(ABI_AGE)
+libpqxx_la_LDFLAGS = $(libpqxx_version) \
+	-rpath $(libdir) \
+	${POSTGRES_LIB}
+
 
 INCLUDES = -I$(srcdir)/../include -I../include ${POSTGRES_INCLUDE}
 

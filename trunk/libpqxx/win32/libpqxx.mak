@@ -1,6 +1,5 @@
 # Clinton James clinton.james@jidn.com March 2002
-!IF "$(CFG)" != "dll" && "$(CFG)" != "dll debug" && "$(CFG)" != "static" && 
-"$(CFG)" != "static debug"
+!IF "$(CFG)" != "dll" && "$(CFG)" != "dll debug" && "$(CFG)" != "static" && "$(CFG)" != "static debug"
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE
@@ -60,8 +59,7 @@ CPP_PROJ=/nologo /W3 /GX /FD /c $(CPP_EXTRAS) \
 	/Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" \
 
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib 
-advapi32.lib \
+LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib \
 	shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib \
 	/nologo /dll /machine:I386 /out:"$(OUTFILE).dll" /implib:"$(OUTFILE).lib" \
 	$(LINK32_FLAG_EXTRA) $(LIBPATH)
@@ -84,7 +82,7 @@ LINK32_OBJS= $(LINK32_OBJ_EXTRA) \
 	"$(INTDIR)\tablewriter.obj" \
 	"$(INTDIR)\transaction_base.obj" \
 	"$(INTDIR)\transaction.obj" \
-	"$(INTDIR)\util.obj"
+	"$(INTDIR)\util.obj" \
 
 RSC=rc.exe
 RSC_PROJ=/l 0x409 /fo"$(INTDIR)\libpqxx.res"
@@ -223,7 +221,3 @@ SOURCE=..\src\util.cxx
    $(CPP) @<<
    $(CPP_PROJ) $<
 <<
-
-
-
-
