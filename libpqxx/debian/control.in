@@ -8,7 +8,7 @@ Standards-Version: 3.6.1
 Package: libpqxx-dev
 Section: libdevel
 Architecture: any
-Depends: libpqxx0 (= ${Source-Version})
+Depends: libpqxx#LIBRARY_VERSION# (= ${Source-Version})
 Description: C++ library to connect to PostgreSQL (development files)
  Header files for linking against libpqxx. This package obsoletes
  the libpqpp-dev package.

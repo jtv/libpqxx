@@ -30,14 +30,14 @@ DOCS = $(REFERENCE_DOCS) $(TUTORIAL_DOCS)
 docs: $(DOCS)
 
 reference: reference-stamp
-reference-stamp: Doxyfile $(REFERENCE_STAMP_DEPENDENCIES)
+reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
 	if test -d html; then \
 	  :; \
 	else \
 	  $(RM) html; \
 	  $(MKDIR) html; \
 	fi
-	$(DOXYGEN) $<
+	$(DOXYGEN) Doxyfile
 	touch $@
 
 ../src/libpqxx.la:
@@ -57,7 +57,7 @@ tutorial-stamp: libpqxx.xml
 
 DISTHOOKDIRS = html/Reference html/Tutorial
 
-dist-hook: tutorial
+dist-hook: reference tutorial
 	mkdir $(distdir)/html
 #	Do a shallow copy of each directory
 	for dir in $(DISTHOOKDIRS); do \
@@ -68,7 +68,7 @@ dist-hook: tutorial
 		cp -p $$dirfile $(distdir)/$$dir; \
 	      fi ; \
 	      if test -d $$dirfile ; then \
-	        if test "$$dirfile" == "CVS"; then \
+	        if test "`basename "$$dirfile"`" = "CVS"; then \
 	          :; \
 	        else \
 		  cp -pR $$dirfile $(distdir)/$$dir; \
