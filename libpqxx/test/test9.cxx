@@ -58,6 +58,7 @@ void PrepareContents()
 void FillTable(Transaction &T, string TableName)
 {
   TableWriter W(T, TableName);
+  W.reserve(Contents.size());
 
   copy(Contents.begin(), Contents.end(), back_inserter(W));
 

@@ -52,7 +52,7 @@ public:
   template<typename IT> void push_back(IT Begin, IT End);		//[t10]
   template<typename TUPLE> void push_back(const TUPLE &);		//[t10]
 
-  void reserve(size_type) {}						//[]
+  void reserve(size_type) {}						//[t9]
 
   template<typename TUPLE> TableWriter &operator<<(const TUPLE &);	//[t5]
 

@@ -1,3 +1,25 @@
+2002-08-11 22:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ Makefile.am:
+  - added win32 directory to distribution
+ include/pqxx/result.h, include/pqxx/tablewriter.h, test/test9.cxx, 
+ test/test20.cxx:
+  - tests cover all methods again, including remaining 3 (near-)trivial ones
+2002-08-10 23:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/*:
+  - Build procedure for Visual C++ 7 by Clinton James
+ include/pqxx/compiler.h:
+  - Visual C++ workarounds moved to win32 directory (Clinton James)
+ include/pqxx/result.h, include/pqxx/tablewriter.h:
+  - Patches by Clinton James to help Visual C++ 7 port, with modifications for
+    gcc's sake
+2002-08-11 22:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ debian/*:
+  - Debianized by Ray Dassen
+ */.cvsignore:
+  - Added by Ray Dassen
+ */Makefile.am, configure.ac:
+  - Various cleanups by Ray Dassen
+  - Added HTML reference documentation to distribution
 2002-06-12 17:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/transactionitf.cxx, test/test20.cxx:
   - Transaction is now detached from Connection on Commit or Abort
