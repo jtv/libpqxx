@@ -47,11 +47,11 @@ public:
 	      PGSTD::string Null=PGSTD::string());			//[t6]
   virtual ~TableStream() =0;						//[t6]
 
-  PGSTD::string Name() const { return m_Name; }				//[]
+  PGSTD::string Name() const { return m_Name; }				//[t10]
 
 protected:
-  Transaction &Trans() const { return m_Trans; }			//[]
-  PGSTD::string NullStr() const { return m_Null; }			//[]
+  Transaction &Trans() const { return m_Trans; }
+  PGSTD::string NullStr() const { return m_Null; }
 
 private:
   Transaction &m_Trans;
