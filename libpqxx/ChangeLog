@@ -1,3 +1,8 @@
+2004-01-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh:
+  - Check for automake 1.8
+ README, win32/README:
+  - Minor updates wrt Windows-specific material
 2004-01-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in, include/pqxx/util.h:
   - Re-included std::string.clear() check which had been lost

@@ -158,9 +158,10 @@ Enjoy!
 
 Building on Windows
 
-Project files for Visual C++ are provided.  These are not actively maintained,
-however, so they may need some tweaking.  You'll need at least version 7 of that
-compiler (also called VC.NET), earlier versions being too severely flawed to 
+Project files for Visual C++ are provided in the win32 directory, along with
+some other Windows-specific material.  These files are not actively maintained,
+however, so they may need some tweaking.  You'll need at least version 7 of the
+VC compiler (also called VC.NET), earlier versions being too severely flawed to 
 build serious post-1996 C++ code.  The library is also known to build with 
 Intel's compiler running as a Visual C++ plugin, but the details are beyond me
 since I don't use this platform myself.
