@@ -1,3 +1,5 @@
+2002-12-14 23:30, v1.2.7:
+ - test suite now distinguishes expected errors from unexpected ones
 2002-12-09 20:00, v1.2.6:
  - fixed some Cursor test cases for change in postgres 7.3
  - added important warning to Cursor

@@ -45,6 +45,8 @@ class TransactionItf;
 class PQXX_LIBEXPORT Cursor
 {
 public:
+  typedef Result_size_type size_type;
+
   /// Constructor.  Creates a cursor.
   /** 
    * @param T is the transaction that this cursor lives in.
@@ -57,31 +59,31 @@ public:
   Cursor(TransactionItf &T,
          const char Query[], 
 	 PGSTD::string BaseName="cur",
-	 Result_size_type Count=NEXT());				//[t3]
+	 size_type Count=NEXT());					//[t3]
 
   /// Set new stride, ie. the number of rows to fetch at a time.
-  Result_size_type SetCount(Result_size_type);				//[t19]
+  size_type SetCount(size_type);					//[t19]
 
   /// Fetch Count rows of data.
   /** The number of rows fetched will not exceed Count, but it may be lower.
    */
-  Result Fetch(Result_size_type Count);					//[t19]
+  Result Fetch(size_type Count);					//[t19]
 
   /// Move forward by Count rows (negative for backwards) through the data set.
-  void Move(Result_size_type Count);					//[t3]
+  void Move(size_type Count);						//[t3]
 
   /// Constant: "next fetch/move should span as many rows as possible."
   /** If the number of rows ahead exceeds the largest number your machine can
    * comfortably conceive, this may not actually be all remaining rows in the 
    * result set.
    */
-  static Result_size_type ALL() { return Result_size_type_max; }	//[t3]
+  static size_type ALL() { return Result_size_type_max; }		//[t3]
 
   /// Constant: "next fetch/move should cover just the next row."
-  static Result_size_type NEXT() { return 1; }				//[t19]
+  static size_type NEXT() { return 1; }					//[t19]
 
   /// Constant: "next fetch/move should go back one row."
-  static Result_size_type PRIOR() { return -1; }			//[t19]
+  static size_type PRIOR() { return -1; }				//[t19]
 
   /// Constant: "next fetch/move goes backwards, spanning as many rows as 
   /// possible.
@@ -89,8 +91,7 @@ public:
    * machine can comfortably conceive, this may not bring you all the way back
    * to the beginning.
    */
-  static Result_size_type BACKWARD_ALL() 				//[t19]
-  	{ return Result_size_type_min + 1; }
+  static size_type BACKWARD_ALL() { return Result_size_type_min + 1; }	//[t19]
 
   /// Fetch rows.
   /** The number of rows retrieved will be no larger than (but may be lower
@@ -108,17 +109,17 @@ public:
   bool operator!() const { return m_Done; }				//[t3]
 
   /// Move N rows forward.
-  Cursor &operator+=(Result_size_type N) { Move(N); return *this;}	//[t19]
+  Cursor &operator+=(size_type N) { Move(N); return *this;}		//[t19]
   /// Move N rows backward.
-  Cursor &operator-=(Result_size_type N) { Move(-N); return *this;}	//[t19]
+  Cursor &operator-=(size_type N) { Move(-N); return *this;}		//[t19]
 
 private:
-  static PGSTD::string OffsetString(Result_size_type);
-  PGSTD::string MakeFetchCmd(Result_size_type) const;
+  static PGSTD::string OffsetString(size_type);
+  PGSTD::string MakeFetchCmd(size_type) const;
 
   TransactionItf &m_Trans;
   PGSTD::string m_Name;
-  Result_size_type m_Count;
+  size_type m_Count;
   bool m_Done;
 
   // Not allowed:

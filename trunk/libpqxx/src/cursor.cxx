@@ -19,9 +19,9 @@ using namespace PGSTD;
 
 
 pqxx::Cursor::Cursor(pqxx::TransactionItf &T, 
-		   const char Query[],
-		   string BaseName,
-		   pqxx::Result_size_type Count) :
+		     const char Query[],
+		     string BaseName,
+		     size_type Count) :
   m_Trans(T),
   m_Name(BaseName),
   m_Count(Count),
@@ -34,9 +34,9 @@ pqxx::Cursor::Cursor(pqxx::TransactionItf &T,
 }
 
 
-pqxx::Result_size_type pqxx::Cursor::SetCount(pqxx::Result_size_type Count)
+pqxx::Cursor::size_type pqxx::Cursor::SetCount(size_type Count)
 {
-  Result_size_type Old = m_Count;
+  size_type Old = m_Count;
   m_Done = false;
   m_Count = Count;
   return Old;
@@ -51,7 +51,7 @@ pqxx::Cursor &pqxx::Cursor::operator>>(pqxx::Result &R)
 }
 
 
-pqxx::Result pqxx::Cursor::Fetch(pqxx::Result_size_type Count)
+pqxx::Result pqxx::Cursor::Fetch(size_type Count)
 {
   pqxx::Result R;
 
@@ -67,7 +67,7 @@ pqxx::Result pqxx::Cursor::Fetch(pqxx::Result_size_type Count)
 }
 
 
-void pqxx::Cursor::Move(pqxx::Result_size_type Count)
+void pqxx::Cursor::Move(size_type Count)
 {
   if (Count == 0) return;
 
@@ -77,7 +77,7 @@ void pqxx::Cursor::Move(pqxx::Result_size_type Count)
 }
 
 
-string pqxx::Cursor::OffsetString(Result_size_type Count)
+string pqxx::Cursor::OffsetString(size_type Count)
 {
   if (Count == ALL()) return "ALL";
   else if (Count == BACKWARD_ALL()) return "BACKWARD ALL";
@@ -86,7 +86,7 @@ string pqxx::Cursor::OffsetString(Result_size_type Count)
 }
 
 
-string pqxx::Cursor::MakeFetchCmd(pqxx::Result_size_type Count) const
+string pqxx::Cursor::MakeFetchCmd(size_type Count) const
 {
   if (!Count) throw logic_error("Internal libpqxx error: Cursor: zero count");
   return "FETCH " + OffsetString(Count) + " IN " + m_Name;
