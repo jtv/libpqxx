@@ -149,9 +149,9 @@ system.  It took me and many others some time to get this to actually work, so
 please take care to check that it really does work and that especially the 
 headers are really installed to your system.
 
-The library and headers are installed to a new directory /usr/local/pqxx/ by 
-default, in their respective subdirectories include/ and lib/.  This will 
-probably change in the near future.
+The library and headers are installed to /usr/local/ by default, in their 
+respective subdirectories include/ and lib/.  The default installation location
+has changed in release 2.2.0; it was /usr/local/pqxx before.
 
 Assuming this succeeds, you should now be able to build your own programs by
 adding /usr/local/pqxx/include to your include path, and /usr/local/pqxx/lib to

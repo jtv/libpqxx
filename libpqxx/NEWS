@@ -1,4 +1,5 @@
 2.2.0
+ - Installs to /usr/local by default, NOT to /usr/local/pqxx like before!
  - Uses Postgres-provided script to find Postgres (thanks Peter Eisentraut)
  - Which means no more configure arguments required on Irix (thanks Arjen Baart)
  - New pipeline class for throughput optimization
