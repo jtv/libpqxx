@@ -94,6 +94,7 @@ template<> struct char_traits<unsigned char>
 #endif	// __SUNPRO_CC_COMPAT <= 5
 
 #define PQXX_NO_INLINE_ISOLATION_ERROR
+#define PQXX_BROKEN_MEMBER_TEMPLATE_DEFAULT_ARG
 
 #endif	// __SUNPRO_CC
 

@@ -14,6 +14,9 @@
 /* Define to 1 if you have the <iterator> header file. */
 #undef PQXX_HAVE_ITERATOR
 
+/* Define to 1 if you have a non-void count_if() taking 3 arguments */
+#undef PQXX_HAVE_COUNT_IF
+
 /* Define to 1 if you have the <limits> header file. */
 #undef PQXX_HAVE_LIMITS
 

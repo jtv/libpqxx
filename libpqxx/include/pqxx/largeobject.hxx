@@ -349,7 +349,7 @@ public:
 
   largeobject_streambuf(dbtransaction &T,
 			largeobject O,
-			openmode mode = in | out,
+			openmode mode = PGSTD::ios::in | PGSTD::ios::out,
 			size_type BufSize=512) : 			//[t48]
     m_BufSize(BufSize),
     m_Obj(T, O),
@@ -361,7 +361,7 @@ public:
 
   largeobject_streambuf(dbtransaction &T,
 			oid O,
-			openmode mode = in | out,
+			openmode mode = PGSTD::ios::in | PGSTD::ios::out,
 			size_type BufSize=512) : 			//[t48]
     m_BufSize(BufSize),
     m_Obj(T, O),
@@ -507,7 +507,7 @@ public:
                   largeobject O, 
 		  largeobject::size_type BufSize=512) :			//[t57]
     super(&m_Buf),
-    m_Buf(T, O, in, BufSize) 
+    m_Buf(T, O, PGSTD::ios::in, BufSize) 
   { 
   }
 
@@ -520,7 +520,7 @@ public:
                   oid O, 
 		  largeobject::size_type BufSize=512) :			//[t48]
     super(&m_Buf),
-    m_Buf(T, O, in, BufSize) 
+    m_Buf(T, O, PGSTD::ios::in, BufSize) 
   { 
   }
 
@@ -569,7 +569,7 @@ public:
                   largeobject O,
 		  largeobject::size_type BufSize=512) :			//[t48]
     super(&m_Buf),
-    m_Buf(T, O, out, BufSize) 
+    m_Buf(T, O, PGSTD::ios::out, BufSize) 
   { 
   }
 
@@ -582,7 +582,7 @@ public:
       		  oid O,
 		  largeobject::size_type BufSize=512) :			//[t57]
     super(&m_Buf),
-    m_Buf(T, O, out, BufSize) 
+    m_Buf(T, O, PGSTD::ios::out, BufSize) 
   { 
   }
 
@@ -648,7 +648,7 @@ public:
       		 largeobject O,
 		 largeobject::size_type BufSize=512) :			//[t59]
     super(&m_Buf),
-    m_Buf(T, O, in | out, BufSize) 
+    m_Buf(T, O, PGSTD::ios::in | PGSTD::ios::out, BufSize) 
   { 
   }
 
@@ -661,7 +661,7 @@ public:
       		 oid O,
 		 largeobject::size_type BufSize=512) :			//[t59]
     super(&m_Buf),
-    m_Buf(T, O, in | out, BufSize) 
+    m_Buf(T, O, PGSTD::ios::in | PGSTD::ios::out, BufSize) 
   { 
   }
 

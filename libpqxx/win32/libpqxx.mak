@@ -183,6 +183,10 @@ SOURCE=..\src\nontransaction.cxx
 "$(INTDIR)\nontransaction.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
+SOURCE=..\src\pipeline.cxx
+"$(INTDIR)\pipeline.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
 SOURCE=..\src\result.cxx
 "$(INTDIR)\result.obj" : $(SOURCE) "$(INTDIR)"
 	@$(CPP) $(CPP_PROJ) $(SOURCE)

@@ -6,11 +6,12 @@
  - New field stream class: read result field as C++ stream
  - Separate namespace pqxx::internal for definitions not relevant to the user
  - More Windows compilation fixes
- - SUN Workshop 6 compile fixes (thanks Jon Meinecke)
+ - SUN Workshop 6 compile fixes and workarounds (thanks Jon Meinecke)
  - Implemented reverse_iterator for result class
  - Checks for functional std::reverse_iterator template
  - Preliminary Makefile for MinGW compiler (thanks Pasquale Fersini)
  - Changed the way unique<> works
+ - Checks for functional std::count_if()
  - Bugs fixed & test programs added
 2.1.3
  - Makefile fixes for Visual C++, thanks Paresh Patel

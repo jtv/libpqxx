@@ -66,6 +66,9 @@
 /* Define if std defines the char_traits template and <char> specialization */
 #undef PQXX_HAVE_CHAR_TRAITS
 
+/* Define if count_if() works according to the standard */
+#undef PQXX_HAVE_COUNT_IF
+
 /* Define if preprocessor supports pragma "message" */
 #undef PQXX_HAVE_CPP_PRAGMA_MESSAGE
 
