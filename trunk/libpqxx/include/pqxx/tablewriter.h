@@ -11,8 +11,8 @@
  *
  *-------------------------------------------------------------------------
  */
-#ifndef PG_TABLEWRITER_H
-#define PG_TABLEWRITER_H
+#ifndef PQXX_TABLEWRITER_H
+#define PQXX_TABLEWRITER_H
 
 #include "config.h"
 
@@ -31,16 +31,24 @@ class TableReader;	// See pqxx/tablereader.h
 class PQXX_LIBEXPORT TableWriter : public TableStream
 {
 public:
+  typedef unsigned size_type;
+
   TableWriter(Transaction &Trans, PGSTD::string Name);			//[t5]
   ~TableWriter();							//[t5]
 
-  template<typename TUPLE> TableWriter &operator<<(const TUPLE &);
+  template<typename IT> void insert(IT Begin, IT End);			//[t5]
   template<typename TUPLE> void insert(const TUPLE &);			//[t5]
-  template<typename TUPLE> void push_back(const TUPLE &T) {insert(T);}	//[t10]
+  template<typename IT> void push_back(IT Begin, IT End);		//[t10]
+  template<typename TUPLE> void push_back(const TUPLE &);		//[t10]
+
+  void reserve(size_type) {}						//[]
+
+  template<typename TUPLE> TableWriter &operator<<(const TUPLE &);	//[t5]
 
   // Copy table from one database to another
   TableWriter &operator<<(TableReader &);				//[t6]
 
+  template<typename IT> PGSTD::string ezinekoT(IT Begin, IT End) const;	//[t10]
   template<typename TUPLE> PGSTD::string ezinekoT(const TUPLE &) const;	//[t10]
 
 private:
@@ -79,14 +87,14 @@ private:
 
 
 
-template<typename TUPLE> 
-inline PGSTD::string pqxx::TableWriter::ezinekoT(const TUPLE &T) const
+template<typename IT> 
+inline PGSTD::string pqxx::TableWriter::ezinekoT(IT Begin, IT End) const
 {
   PGSTD::string Line;
 
-  for (typename TUPLE::const_iterator i=T.begin(); i!=T.end(); ++i)
+  for (; Begin != End; ++Begin)
   {
-    PGSTD::string Field = ToString(*i);
+    PGSTD::string Field = ToString(*Begin);
 
     if (Field == NullStr())
     {
@@ -120,11 +128,35 @@ inline PGSTD::string pqxx::TableWriter::ezinekoT(const TUPLE &T) const
 }
 
 
-template<typename TUPLE> inline void pqxx::TableWriter::insert(const TUPLE &T)
+template<typename TUPLE> 
+inline PGSTD::string pqxx::TableWriter::ezinekoT(const TUPLE &T) const
 {
-  WriteRawLine(ezinekoT(T));
+  return ezinekoT(T.begin(), T.end());
 }
 
+
+template<typename IT> inline void pqxx::TableWriter::insert(IT Begin, IT End)
+{
+  WriteRawLine(ezinekoT(Begin, End));
+}
+
+
+template<typename TUPLE> inline void pqxx::TableWriter::insert(const TUPLE &T)
+{
+  insert(T.begin(), T.end());
+}
+
+template<typename IT> 
+inline void pqxx::TableWriter::push_back(IT Begin, IT End)
+{
+  insert(Begin, End);
+}
+
+template<typename TUPLE> 
+inline void pqxx::TableWriter::push_back(const TUPLE &T)
+{
+  insert(T.begin(), T.end());
+}
 
 template<typename TUPLE> 
 inline pqxx::TableWriter &pqxx::TableWriter::operator<<(const TUPLE &T)

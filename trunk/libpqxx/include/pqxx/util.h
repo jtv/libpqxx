@@ -10,8 +10,8 @@
  *
  *-------------------------------------------------------------------------
  */
-#ifndef PG_UTIL_H
-#define PG_UTIL_H
+#ifndef PQXX_UTIL_H
+#define PQXX_UTIL_H
 
 #include "pqxx/compiler.h"
 

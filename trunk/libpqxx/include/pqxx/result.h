@@ -11,8 +11,8 @@
  *
  *-------------------------------------------------------------------------
  */
-#ifndef PG_RESULT_H
-#define PG_RESULT_H
+#ifndef PQXX_RESULT_H
+#define PQXX_RESULT_H
 
 #include <iterator>
 #include <stdexcept>
@@ -198,9 +198,12 @@ public:
 
   size_type size() const { return m_Result ? PQntuples(m_Result) : 0; }	//[t2]
   bool empty() const { return !m_Result || !PQntuples(m_Result); }	//[t11]
+  size_type capacity() const { return size(); }				//[]
 
   const Tuple operator[](size_type i) const { return Tuple(this, i); }	//[t2]
   const Tuple at(size_type i) const;					//[t10]
+
+  void clear() { LoseRef(); }						//[]
 
   Tuple::size_type Columns() const { return PQnfields(m_Result); }	//[t11]
   // TODO: Check for nonexistant columns!!!

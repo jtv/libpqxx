@@ -11,8 +11,8 @@
  *
  *-------------------------------------------------------------------------
  */
-#ifndef PG_CURSOR_H
-#define PG_CURSOR_H
+#ifndef PQXX_CURSOR_H
+#define PQXX_CURSOR_H
 
 #include "pqxx/util.h"
 

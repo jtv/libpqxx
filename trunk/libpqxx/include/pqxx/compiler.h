@@ -10,8 +10,8 @@
  *
  *-------------------------------------------------------------------------
  */
-#ifndef PG_COMPILER_H
-#define PG_COMPILER_H
+#ifndef PQXX_COMPILER_H
+#define PQXX_COMPILER_H
 
 #include "config.h"
 

@@ -11,8 +11,8 @@
  *
  *-------------------------------------------------------------------------
  */
-#ifndef PG_NONTRANSACTION_H
-#define PG_NONTRANSACTION_H
+#ifndef PQXX_NONTRANSACTION_H
+#define PQXX_NONTRANSACTION_H
 
 #include "pqxx/connection.h"
 #include "pqxx/result.h"

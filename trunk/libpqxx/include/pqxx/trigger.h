@@ -11,8 +11,8 @@
  *
  *-------------------------------------------------------------------------
  */
-#ifndef PG_TRIGGER_H
-#define PG_TRIGGER_H
+#ifndef PQXX_TRIGGER_H
+#define PQXX_TRIGGER_H
 
 #include <string>
 

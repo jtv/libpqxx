@@ -12,8 +12,8 @@
  *
  *-------------------------------------------------------------------------
  */
-#ifndef PG_TRANSACTIONITF_H
-#define PG_TRANSACTIONITF_H
+#ifndef PQXX_TRANSACTIONITF_H
+#define PQXX_TRANSACTIONITF_H
 
 
 /* End-user programs need not include this file, unless they define their own
@@ -158,7 +158,6 @@ private:
 // of telling whether it was actually executed by the backend.  In this case
 // the database is left in an indeterminate (but consistent) state, and only
 // manual inspection will tell which is the case.
-// TODO: Get guarantee that libpq will not let this happen, or deal with it
 class PQXX_LIBEXPORT in_doubt_error : public PGSTD::runtime_error
 {
 public:
