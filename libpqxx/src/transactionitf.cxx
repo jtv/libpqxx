@@ -25,10 +25,10 @@ using namespace PGSTD;
 
 pqxx::TransactionItf::TransactionItf(Connection &C, string TName) :
   m_Conn(C),
-  m_Status(st_nascent),
   m_Name(TName),
   m_UniqueCursorNum(1),
   m_Stream(),
+  m_Status(st_nascent),
   m_Registered(false)
 {
   m_Conn.RegisterTransaction(this);
