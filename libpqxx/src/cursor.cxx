@@ -155,7 +155,7 @@ void pqxx::icursorstream::service_iterators(size_type topos)
   todolist todo;
   for (icursor_iterator *i = m_iterators; i; i = i->m_next)
     if (i->m_pos >= m_realpos && i->m_pos <= topos)
-      todo.insert(make_pair(i->m_pos, i));
+      todo.insert(todolist::value_type(i->m_pos, i));
   for (todolist::const_iterator i = todo.begin(); i != todo.end(); )
   {
     const size_type readpos = i->first;

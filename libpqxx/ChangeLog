@@ -1,6 +1,6 @@
 2005-01-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
- src/cachedresult.cxx:
-  - Fix for SunC++, thanks mark@markround.com
+ src/cachedresult.cxx, src/cursor.cxx:
+  - Fixes for SunC++, thanks mark@markround.com
 2005-01-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/compiler.h:
   - Finally defined NOMINMAX, thanks Trevor Morgan!
