@@ -19,7 +19,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include<iostream>// DEBUG CODE
 
 #include "pqxx/dbtransaction"
 #include "pqxx/pipeline"
@@ -289,13 +288,11 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   assert(!m_queries.empty());
   invariant();
 
-clog<<"OBTAINING RESULT "<<((m_issuedrange.first==m_queries.end())?"(end)":to_string(m_issuedrange.first->first))<<" have_pending()=="<<have_pending()<<" expect_none="<<expect_none<<endl;// DEBUG CODE
   PGresult *r = m_Trans.get_result();
   if (!r)
   {
     if (have_pending() && !expect_none)
     {
-clog<<"NOT GETTING RESULT FOR "<<m_issuedrange.first->first<<endl;// DEBUG CODE
       set_error_at(m_issuedrange.first->first);
       m_issuedrange.second = m_issuedrange.first;
     }
@@ -424,7 +421,6 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
   if (q == m_queries.end())
     throw logic_error("Attempt to retrieve result for unknown query");
 
-clog<<"RETRIEVING "<<q->first<<" error="<<m_error<<" issuedrange=["<<((m_issuedrange.first==m_queries.end())?"end":to_string(m_issuedrange.first->first))<<","<<((m_issuedrange.second==m_queries.end())?"end":to_string(m_issuedrange.second->first))<<") queries=["<<m_queries.begin()->first<<","<<m_queries.rbegin()->first<<"]"<<endl;// DEBUG CODE
   if (q->first >= m_error)
     throw runtime_error("Could not complete query in pipeline "
 	"due to error in earlier query");
@@ -454,7 +450,6 @@ clog<<"RETRIEVING "<<q->first<<" error="<<m_error<<" issuedrange=["<<((m_issuedr
     }
   }
 
-if(q==m_issuedrange.first)clog<<"id="<<q->first<<" begin="<<m_queries.begin()->first<<" end="<<m_queries.rbegin()->first<<" size="<<m_queries.size()<<" first="<<m_issuedrange.first->first<<" second="<<((m_issuedrange.second==m_queries.end())?"[end]":to_string(m_issuedrange.second->first))<<" num_waiting="<<m_num_waiting<<" error="<<m_error<<endl;// DEBUG CODE
   assert((m_error <= q->first) || (q != m_issuedrange.first));
 
   if (q->first >= m_error)

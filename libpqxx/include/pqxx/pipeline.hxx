@@ -105,10 +105,8 @@ public:
   void resume();							//[t70]
 
 private:
-
-#ifndef NDEBUG
+  /// For validation only, should eventually disappear
   void invariant() const;
-#endif
 
   class Query
   {
