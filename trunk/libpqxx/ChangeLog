@@ -1,4 +1,11 @@
 2004-02-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result.hxx:
+  - Back to full test coverage
+ test/test071.cxx:
+  - Made reverse_iterator part conditional on PQXX_HAVE_REVERSE_ITERATOR
+ test/test075.cxx:
+  - New
+  - Tests reverse result iteration (including rbegin() and rend())
  win32/libpqxx.mak:
   - Added winsock32 library to link options (thanks Fred Moyer)
 2004-02-12  Jeroen T. Vermeulen <jtv@xs4all.nl>

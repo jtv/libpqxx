@@ -320,10 +320,10 @@ public:
 
 #ifdef PQXX_HAVE_REVERSE_ITERATOR
   typedef PGSTD::reverse_iterator<const_iterator> const_reverse_iterator;
-  const_reverse_iterator rbegin() const 				//[]
-  	{ return const_reverse_iterator(begin()); }
-  const_reverse_iterator rend() const					//[]
-   	{ return const_reverse_iterator(end()); }
+  const_reverse_iterator rbegin() const 				//[t75]
+  	{ return const_reverse_iterator(end()); }
+  const_reverse_iterator rend() const					//[t75]
+   	{ return const_reverse_iterator(begin()); }
 #endif
 
   const_iterator begin() const { return const_iterator(this, 0); }	//[t1]
