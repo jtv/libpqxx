@@ -1,3 +1,12 @@
+2002-12-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Bumped revision to 1.2.0.
+ include/pqxx/CachedResult.h, src/CachedResult.cxx:
+  - New
+ include/pqxx/compiler.h, include/pqxx/robusttransaction.h:
+  - Removed constructs that looked like HTML tags but weren't.
+ test/test40.cxx:
+  - New
 2002-11-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac:
   - Workaround for missing InvalidOid definition

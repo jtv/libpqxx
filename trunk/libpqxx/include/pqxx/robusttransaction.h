@@ -50,7 +50,7 @@ namespace pqxx
  * When a user first uses a RobustTransaction in a database, the class will
  * attempt to create a log table there to keep vital transaction-related state
  * information in.  This table, located in that same database, will be called
- * PQXXLOG_<user>, where <user> is the PostgreSQL username for that user.  If
+ * PQXXLOG_*user*, where *user* is the PostgreSQL username for that user.  If
  * the log table can not be created, the transaction fails immediately.
  *
  * If the user does not have permission to create the log table, the database

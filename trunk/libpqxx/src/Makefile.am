@@ -1,5 +1,6 @@
 lib_LTLIBRARIES = libpqxx.la
-libpqxx_la_SOURCES = connection.cxx \
+libpqxx_la_SOURCES = cachedresult.cxx \
+	connection.cxx \
 	cursor.cxx \
 	nontransaction.cxx \
 	result.cxx \
