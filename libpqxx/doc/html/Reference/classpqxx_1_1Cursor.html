@@ -56,7 +56,7 @@ SQL cursor class.
 <p>
 <a class="el" href="classpqxx_1_1Cursor.html">Cursor</a> behaves as an output stream generating <a class="el" href="classpqxx_1_1Result.html">Result</a> objects. They may be used to fetch rows individually or in blocks, in which case each <a class="el" href="classpqxx_1_1Result.html">Result</a> coming out of the stream may contain more than one Tuple. A cursor may be positioned on any row of data, or on an "imaginary" row before the first actual row, or on a similar imaginary row beyond the last one. This differs from standard C++ practice, where a container only has an imaginary element (called end()) beyond its last actual element.
 <p>
-When data is fetched, the cursor is moved before data is collected, so that afterwards the cursor will be positioned on the last row it returned. A freshly created cursor is positioned on the imaginary row before its first actual one. Thus, a simple Fetch(1) will then return the first actual row.
+When data is fetched, the cursor is moved before data is collected, so that afterwards the cursor will be positioned on the last row it returned. A freshly created cursor is positioned on the imaginary row before its first actual one (which is numbered 0). Thus, a simple Fetch(1) will then return the first actual row, i.e. row 1.
 <p>
 Postgres does not currently support modification of data through a cursor. Also, not all queries support cursors that go backwards. Unfortunately there is no documentation on which queries do and which queries don't so you may have to experiment before using cursors for anything but plain forward-only result set iteration. 
 <p>
@@ -639,7 +639,7 @@ If an exception occurs while moving or fetching, the cursor's position may be le
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="cursor_8h-source.html">cursor.h</a><li><a class="el" href="cursor_8cxx.html">cursor.cxx</a></ul>
-<hr><address style="align: right;"><small>Generated on Thu Jan 2 20:15:22 2003 for libpqxx by
+<hr><address style="align: right;"><small>Generated on Fri Jan 24 16:36:07 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc2 </small></address>
