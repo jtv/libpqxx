@@ -28,7 +28,7 @@
 namespace pqxx
 {
 class Result;
-class Transaction;
+class TransactionItf;
 
 /// SQL cursor class.
 /** Cursor behaves as an output stream generating Result objects.  They may
@@ -50,7 +50,7 @@ public:
    * @param Count the stride of the cursor, ie. the number of rows fetched at a
    * time.  This defaults to 1.
    */
-  Cursor(Transaction &T,
+  Cursor(TransactionItf &T,
          const char Query[], 
 	 PGSTD::string BaseName="cur",
 	 Result_size_type Count=NEXT());				//[t3]
@@ -111,7 +111,7 @@ public:
 private:
   PGSTD::string MakeFetchCmd(Result_size_type) const;
 
-  Transaction &m_Trans;
+  TransactionItf &m_Trans;
   PGSTD::string m_Name;
   Result_size_type m_Count;
   bool m_Done;

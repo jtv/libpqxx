@@ -42,7 +42,7 @@ namespace pqxx
 class PQXX_LIBEXPORT TableReader : public TableStream
 {
 public:
-  TableReader(Transaction &Trans, PGSTD::string Name);			//[t6]
+  TableReader(TransactionItf &Trans, PGSTD::string Name);		//[t6]
   ~TableReader();							//[t6]
 
   TableReader &operator>>(Result &);

@@ -18,7 +18,7 @@
 using namespace PGSTD;
 
 
-pqxx::Cursor::Cursor(pqxx::Transaction &T, 
+pqxx::Cursor::Cursor(pqxx::TransactionItf &T, 
 		   const char Query[],
 		   string BaseName,
 		   pqxx::Result_size_type Count) :

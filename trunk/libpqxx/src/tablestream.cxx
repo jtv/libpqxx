@@ -17,7 +17,9 @@
 using namespace PGSTD;
 
 
-pqxx::TableStream::TableStream(Transaction &STrans, string SName, string Null) :
+pqxx::TableStream::TableStream(TransactionItf &STrans, 
+                               string SName, 
+			       string Null) :
   m_Trans(STrans),
   m_Name(SName),
   m_Null(Null)
