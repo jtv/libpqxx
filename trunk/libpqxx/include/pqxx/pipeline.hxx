@@ -32,19 +32,18 @@
 namespace pqxx
 {
 
-// TODO: Warning for unretrieved results
-
-
 /// Processes several queries in FIFO manner, optimized for high throughput
 /** @warning This is a prototype, and it may still change radically before 
- * becoming a stable part of the library.
+ * becoming a stable part of the library.  Also, the class may be very 
+ * sensitive to exceptions; in certain cases, exceptions occurring in the
+ * class may leave a pipeline in a poorly defined state.
  *
  * Use a pipeline if you want to execute several queries in succession, in
  * situations where some of the queries do not depend on the outcome of the
  * preceding one.  Result retrieval is decoupled from execution request; queries
  * "go in at the front" and results "come out the back." In fact, results may be
- * retrieved in any order--but this will typically be slower than sticking to
- * the order in which they were entered.
+ * retrieved in any order--though this will be slower than sticking to the order
+ * in which they were entered.
  *
  * Feel free to pump as many queries into the pipeline as possible, even if they
  * were generated after looking at a result from the same pipeline.  To get the
