@@ -208,6 +208,19 @@ void pqxx::Cursor::MoveTo(size_type Dest)
 }
 
 
+pqxx::Cursor::size_type pqxx::Cursor::ALL() throw ()
+{
+  return numeric_limits<result::size_type>::max();
+}
+
+
+pqxx::Cursor::size_type pqxx::Cursor::BACKWARD_ALL() throw ()
+{
+  return numeric_limits<result::size_type>::min() + 1;
+}
+
+
+
 string pqxx::Cursor::OffsetString(size_type Count)
 {
   if (Count == ALL()) return "ALL";

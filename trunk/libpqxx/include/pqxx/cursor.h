@@ -189,8 +189,7 @@ public:
    * comfortably conceive, this may not actually be all remaining rows in the 
    * result set.
    */
-  static size_type ALL() throw ()					//[t3]
-  	{ return PGSTD::numeric_limits<result::size_type>::max(); }
+  static size_type ALL() throw ();					//[t3]
 
   /// Constant: "next fetch/move should cover just the next row."
   static size_type NEXT() throw () { return 1; }			//[t19]
@@ -204,8 +203,7 @@ public:
    * machine can comfortably conceive, this may not bring you all the way back
    * to the beginning.
    */
-  static size_type BACKWARD_ALL() throw ()				//[t19]
-  	{ return PGSTD::numeric_limits<result::size_type>::min() + 1; }
+  static size_type BACKWARD_ALL() throw ();				//[t19]
 
   /// Fetch rows.
   /** The number of rows retrieved will be no larger than (but may be lower
