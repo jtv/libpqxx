@@ -6,7 +6,7 @@ set -e
 
 ver=""
 for amv in "1.6" "1.7" "1.8" "1.9" ; do
-	if test -x "/usr/bin/automakte-$amv" ; then
+	if which "automake-$amv" >/dev/null 2>&1; then
 		ver="-$amv"
 	fi
 done
