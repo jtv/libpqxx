@@ -8,7 +8,7 @@
  *   Policies and traits describing SQL transaction isolation levels
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/isolation instead.
  *
- * Copyright (c) 2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -43,13 +43,8 @@ template<isolation_level LEVEL> struct isolation_traits
 {
   static isolation_level level() throw () { return LEVEL; }
   static const char *name() throw ();
-
-  /// Only defined for implemented levels; nonexistant levels yield link errors
-  static void implemented() throw ();
 };
 
-template<> inline void isolation_traits<read_committed>::implemented() throw(){}
-template<> inline void isolation_traits<serializable>::implemented() throw(){}
 
 template<> inline const char *isolation_traits<read_committed>::name() throw ()
 	{ return "READ COMMITTED"; }
