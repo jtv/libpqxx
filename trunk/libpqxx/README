@@ -24,6 +24,15 @@ system can be found at either of:
 	http://pqxx.tk/
 	http://gborg.postgresql.org/project/libpqxx/
 
+There are also ready-made libpqxx packages available for some systems: Debian
+packages are available on any Debian download mirror, and Arjen Baart has made
+RPM packages (source and i386 binaries) available on
+
+	http://www.andromeda.nl/UNIX/packages/
+
+You may want to check these before going to the trouble of building libpqxx
+yourself!
+
 
 Getting Started
 
@@ -175,8 +184,7 @@ Enjoy!
 Building on Windows
 
 Project files for Visual C++ are provided in the win32 directory, along with
-some other Windows-specific material.  These files are not actively maintained,
-however, so they may need some tweaking.  You'll need at least version 7 of the
+some other Windows-specific material.  You'll need at least version 7 of the
 VC compiler (also called VC.NET), earlier versions being too severely flawed to 
 build serious post-1996 C++ code.  The library is also known to build with 
 Intel's compiler running as a Visual C++ plugin, but the details are beyond me
@@ -185,66 +193,32 @@ since I don't use this platform myself.
 Instead of going this route, you may want to try if the Unix build procedure
 works for you instead, e.g. using the Cygwin tools.  If you don't, or it 
 doesn't, you'll need to manually edit the compile-time configuration files 
-include/pqxx/config.h and include/pqxx/libconfig.h to define the features your 
-system, compiler, and PostgreSQL versions support.  Normally the configure 
-script would do this for you; in theory it should be possible to run the 
-configure script with e.g. Visual C++ as your compiler.
+include/pqxx/config-*-*.h manually to define the features your system, compiler,
+and PostgreSQL versions support.  Normally the configure script would do this
+for you; in theory it should be possible to run the configure script with e.g.
+Visual C++ as your compiler.
 
 Before trying to compile with Visual C++, you'll at least need to edit the file
 win32/common to reflect the proper paths to your PostgreSQL headers and the 
-libpq library.
+libpq library.  See the win32 subdirectory for more documentation.
 
 
-Manual Configuration: config.h & libconfig.h
+Manual Configuration: config-*-*.h
 
-Normally, on any vaguely Unix-like system, the two configuration headers
-(config.h for the library's internal use, libconfig.h for both the library and 
-client programs) are generated from config.h.in and libconfig.h.in,
-respectively.  All these files are situated in the include/pqxx/ directory.
-Hence, if you want to create initial config.h and libconfig.h headers manually,
-just copy the respective .in files.  The initial headers will show you all 
-configuration items required.
+Normally, on any vaguely Unix-like system, the five configuration headers
+(the config-internal-*.h for the library's internal use, config-public-*.h for
+both the library and client programs) are generated from config.h.in.  All these
+files are situated in the include/pqxx/ directory.
 
-If you find yourself unable to run the configure script, you'll need to
-customize the config.h and libconfig.h files by hand to describe relevant
-properties of your C++ compiler and your version of the libpq library, the
-native C API to PostgreSQL that underlies libpqxx.  Some configuration items may
-occur in both configuration headers, in which case you'll need to make sure that
-their settings are consistent.  This redundancy is to be removed in future 
-versions.
+The configitems file lists all configuration items and where they go; but see
+win32/INSTALL.txt for a detailed description of how these files work.
 
-Now, on to manual editing.  Configuration items are represented by preprocessor
-macros that are set in the configuration headers, and only there.  Most of them
-are simple yes/no items; by convention, they are set to "yes" by #define'ing the
-corresponding preprocessor macro to 1, or set to "no" by #undef'ing it.  
-
-CAUTION: DO NOT try to unset yes/no configuration items by defining their macros
-to zero.  A value of zero is counted as "yes."  If it's defined, it means "yes"
-regardless of what actual value you set.
-
-In the case where your compiler and PostgreSQL installations are completely 
-up-to-date with the libpqxx version you're trying to build, you should be able 
-to get away with setting all "HAVE_..." configuration items, and unsetting any
-"BROKEN_" options.
-
-If you get link errors about missing libpq functions (whose names start with PQ)
-such as PQfreemem() or PQftable(), then it's likely that you have an older 
-version of the PostgreSQL development files installed.  If there are too many of
-these to deal with individually, you may be better off unsetting all HAVE_...
-items related to such functions.  You may also have to #define InvalidOid to 0;
-this is not a yes/no option.
-
-Configuration items related to C++ language and standard library support in your
-compiler are trickier.  It's possible, for instance, that you have some header
-file required by libpqxx, but its definitions are broken in some unforeseen way.
-Unsetting the HAVE_... option for that header file may fix the problem.
-
-More generally, getting the compiler-related configuration right can take
-several stages of trying to build, looking at error messages, looking for
-configuration items that may be related, changing them, and building again.  If
-nothing seems to help, try the libpqxx mailing list or register a bug report or
-support request on the website.  Be sure to read the FAQ though, because there
-are some known problems with various compilers.
+Getting the compiler-related configuration right can take several stages of
+trying to build, looking at error messages, looking for configuration items that
+may be related, changing them, and building again.  If nothing seems to help,
+try the libpqxx mailing list or register a bug report or support request on the
+website.  Be sure to read the FAQ though, because there are some known problems
+with various compilers.
 
 
 Windows-Specific Build Problems

@@ -1,8 +1,12 @@
 Makefile
 Makefile.in
-internalconfig.h
-internalconfig.h.in
-libconfig.h
+config.h
+config.h.in
+config-internal-autotools.h
+config-internal-compiler.h
+config-internal-libpq.h
+config-public-compiler.h
+config-public-libpq.h
 stamp-h
 stamp-h.in
 stamp-h1
