@@ -57,9 +57,7 @@ pair<int,int> CountEvents(transaction_base &T)
 // performed correctly.
 void Test(connection_base &C, bool ExplicitAbort)
 {
-  vector<string> BoringTuple;
-  BoringTuple.push_back(to_string(BoringYear));
-  BoringTuple.push_back("yawn");
+  items<> BoringTuple(to_string(BoringYear), "yawn");
 
   pair<int,int> EventCounts;
 
@@ -88,7 +86,7 @@ void Test(connection_base &C, bool ExplicitAbort)
                 "but now it's '" + W.name() + "'");
 
       const string Literal = W.generate(BoringTuple);
-      const string Expected = to_string(BoringYear) + "\t" + BoringTuple[1];
+      const string Expected = separated_list("\t", BoringTuple);
       if (Literal != Expected)
 	throw logic_error("tablewriter writes new tuple as '" +
 			  Literal + "', "

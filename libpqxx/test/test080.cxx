@@ -30,22 +30,16 @@ int main(int, char *argv[])
   try
   {
     const string Table = "pqxxevents";
-    enum { NumColumns = 2 };
-    const char *const Columns[NumColumns+1] = { "year", "event", 0 };
-    const char *const RevColumns[NumColumns+1] = 
-    { 
-      Columns[1],
-      Columns[0],
-      0
-    };
-
+    
+    items<> Columns("year","event");
+    items<> RevColumns("event","year");
 
     connection C(argv[1]);
     nontransaction T(C);
 
     vector<string> R, First;
 
-    tablereader Stream(T, Table, Columns, Columns+NumColumns);
+    tablereader Stream(T, Table, Columns.begin(), Columns.end());
 
     // Read results into string vectors and print them
     for (int n=0; (Stream >> R); ++n)
@@ -64,7 +58,7 @@ int main(int, char *argv[])
     // Verify the contents we got for the first row
     if (!First.empty())
     {
-      tablereader Verify(T, Table, RevColumns, RevColumns+NumColumns);
+      tablereader Verify(T, Table, RevColumns.begin(), RevColumns.end());
       string Line;
 
       if (!Verify.get_raw_line(Line))
