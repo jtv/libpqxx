@@ -32,7 +32,7 @@
 <tr><td>&nbsp;</td><td><font size=-1><em>Is this connection open?</em> <a href="#a4"></a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top>template&lt;typename TRANSACTOR&gt; void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1ConnectionItf.html#a5">Perform</a> (const TRANSACTOR &amp;T, int Attempts=3)</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Perform the transaction defined by a Transactor-based object.</em> <a href="#a5"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>std::auto_ptr&lt; <a class="el" href="structpqxx_1_1Noticer.html">Noticer</a> &gt;&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1ConnectionItf.html#a6">SetNoticer</a> (std::auto_ptr&lt; <a class="el" href="structpqxx_1_1Noticer.html">Noticer</a> &gt; N)</td></tr>
+<tr><td nowrap align=right valign=top>PGSTD::auto_ptr&lt; <a class="el" href="structpqxx_1_1Noticer.html">Noticer</a> &gt;&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1ConnectionItf.html#a6">SetNoticer</a> (PGSTD::auto_ptr&lt; <a class="el" href="structpqxx_1_1Noticer.html">Noticer</a> &gt; N)</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Set handler for postgresql errors or warning messages.</em> <a href="#a6"></a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top><a class="el" href="structpqxx_1_1Noticer.html">Noticer</a> *&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1ConnectionItf.html#a7">GetNoticer</a> () const  throw ()</td></tr>
 <tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1ConnectionItf.html#a8">ProcessNotice</a> (const char[])  throw ()</td></tr>
@@ -59,6 +59,8 @@
 <tr><td>&nbsp;</td><td><font size=-1><em>Explicitly activate deferred or deactivated connection.</em> <a href="#a18"></a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1ConnectionItf.html#a19">Deactivate</a> () const</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Explicitly deactivate connection.</em> <a href="#a19"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1ConnectionItf.html#a20">SetClientEncoding</a> (const char Encoding[])</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Set client-side character encoding.</em> <a href="#a20"></a><em></em></font><br><br></td></tr>
 <tr><td colspan=2><br><h2>Protected Member Functions</h2></td></tr>
 <tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1ConnectionItf.html#b0">Connect</a> () const</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>To be used by implementation classes: reall connecto to database.</em> <a href="#b0"></a><em></em></font><br><br></td></tr>
@@ -647,15 +649,46 @@ Invoke notice processor function. The message should end in newline.
     </td>
   </tr>
 </table>
+<a name="a20" doxytag="pqxx::ConnectionItf::SetClientEncoding"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void pqxx::ConnectionItf::SetClientEncoding </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const char&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>Encoding</em>[]          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Set client-side character encoding.
+<p>
+Search the PostgreSQL documentation for "multibyte" or "character set encodings" to find out more about the available encodings, how to extend them, and how to use them. Not all server-side encodings are compatible with all client-side encodings or vice versa.  Encoding name of the character set encoding to use     </td>
+  </tr>
+</table>
 <a name="a6" doxytag="pqxx::ConnectionItf::SetNoticer"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> std::auto_ptr&lt;<a class="el" href="structpqxx_1_1Noticer.html">Noticer</a>&gt; pqxx::ConnectionItf::SetNoticer </td>
+          <td class="md" nowrap valign="top"> PGSTD::auto_ptr&lt;<a class="el" href="structpqxx_1_1Noticer.html">Noticer</a>&gt; pqxx::ConnectionItf::SetNoticer </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">std::auto_ptr&lt; <a class="el" href="structpqxx_1_1Noticer.html">Noticer</a> &gt;&nbsp;</td>
+          <td class="md" nowrap valign="top">PGSTD::auto_ptr&lt; <a class="el" href="structpqxx_1_1Noticer.html">Noticer</a> &gt;&nbsp;</td>
           <td class="mdname1" valign="top" nowrap>&nbsp; <em>N</em>          </td>
           <td class="md" valign="top">)&nbsp;</td>
           <td class="md" nowrap></td>
@@ -675,9 +708,9 @@ Invoke notice processor function. The message should end in newline.
 <p>
 Set handler for postgresql errors or warning messages.
 <p>
-Return value is the previous handler. Must not be NULL. <dl compact><dt><b>Parameters:</b></dt><dd>
+Return value is the previous handler. Ownership of any previously set <a class="el" href="structpqxx_1_1Noticer.html">Noticer</a> is also passed to the caller, so unless it is stored in another auto_ptr, it will be deleted from the caller's context. This may be important when running under Windows, where a DLL cannot free memory allocated by the main program. If a <a class="el" href="structpqxx_1_1Noticer.html">Noticer</a> is set when the <a class="el" href="classpqxx_1_1ConnectionItf.html">ConnectionItf</a> is destructed, it will also be deleted. <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign=top><em>N</em>&nbsp;</td><td>the new message handler. </td></tr>
+    <tr><td valign=top><em>N</em>&nbsp;</td><td>the new message handler; must not be null or equal to the old one </td></tr>
   </table>
 </dl>
     </td>
@@ -815,7 +848,7 @@ Triggers client is listening on.
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="connectionitf_8h-source.html">connectionitf.h</a><li><a class="el" href="connectionitf_8cxx.html">connectionitf.cxx</a></ul>
-<hr><address style="align: right;"><small>Generated on Fri Mar 21 00:21:20 2003 for libpqxx by
+<hr><address style="align: right;"><small>Generated on Thu Mar 27 19:34:40 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

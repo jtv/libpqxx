@@ -84,7 +84,7 @@
 00119 <span class="keyword">protected</span>:
 <a name="l00120"></a><a class="code" href="classpqxx_1_1LargeObject.html#e0">00120</a>   <span class="keyword">static</span> PGconn *<a class="code" href="classpqxx_1_1LargeObject.html#e0">RawConnection</a>(<span class="keyword">const</span> <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T)
 00121   {
-00122     <span class="keywordflow">return</span> T.<a class="code" href="classpqxx_1_1TransactionItf.html#a8">Conn</a>().<a class="code" href="classpqxx_1_1ConnectionItf.html#c14">RawConnection</a>();
+00122     <span class="keywordflow">return</span> T.<a class="code" href="classpqxx_1_1TransactionItf.html#a8">Conn</a>().<a class="code" href="classpqxx_1_1ConnectionItf.html#c15">RawConnection</a>();
 00123   }
 00124 
 00125 <span class="keyword">private</span>:
@@ -373,59 +373,65 @@
 00497   }
 00498 
 00500 
-<a name="l00504"></a><a class="code" href="classpqxx_1_1basic__olostream.html#a1">00504</a>   <a class="code" href="classpqxx_1_1basic__olostream.html#a0">basic_olostream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, Oid O) :
-00505     <a class="code" href="config_8h.html#a23">PGSTD</a>::basic_ostream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
-00506     m_Buf(T, O, out, BufSize) 
-00507   { 
-00508   }
-00509 
-<a name="l00510"></a><a class="code" href="classpqxx_1_1basic__olostream.html#a2">00510</a>   <a class="code" href="classpqxx_1_1basic__olostream.html#a2">~basic_olostream</a>() { m_Buf.pubsync(); m_Buf.pubsync(); }
+<a name="l00504"></a><a class="code" href="classpqxx_1_1basic__olostream.html#a1">00504</a>   <a class="code" href="classpqxx_1_1basic__olostream.html#a0">basic_olostream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, 
+00505                   Oid O,
+00506                   LargeObject::size_type BufSize=512) :
+00507     <a class="code" href="config_8h.html#a23">PGSTD</a>::basic_ostream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
+00508     m_Buf(T, O, out, BufSize) 
+00509   { 
+00510   }
 00511 
-00512 <span class="keyword">private</span>:
-00513   largeobject_streambuf&lt;CHAR,TRAITS&gt; m_Buf;
-00514 };
-00515 
-<a name="l00516"></a><a class="code" href="namespacepqxx.html#a1">00516</a> <span class="keyword">typedef</span> <a class="code" href="classpqxx_1_1basic__olostream.html">basic_olostream&lt;char&gt;</a> <a class="code" href="namespacepqxx.html#a1">olostream</a>;
+<a name="l00512"></a><a class="code" href="classpqxx_1_1basic__olostream.html#a2">00512</a>   <a class="code" href="classpqxx_1_1basic__olostream.html#a2">~basic_olostream</a>() { m_Buf.pubsync(); m_Buf.pubsync(); }
+00513 
+00514 <span class="keyword">private</span>:
+00515   largeobject_streambuf&lt;CHAR,TRAITS&gt; m_Buf;
+00516 };
 00517 
-00518 
+<a name="l00518"></a><a class="code" href="namespacepqxx.html#a1">00518</a> <span class="keyword">typedef</span> <a class="code" href="classpqxx_1_1basic__olostream.html">basic_olostream&lt;char&gt;</a> <a class="code" href="namespacepqxx.html#a1">olostream</a>;
+00519 
 00520 
-00527 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> CHAR=<span class="keywordtype">char</span>, <span class="keyword">typename</span> TRAITS=PGSTD::<span class="keywordtype">char</span>_traits&lt;CHAR&gt; &gt; 
-<a name="l00528"></a><a class="code" href="classpqxx_1_1basic__lostream.html">00528</a> <span class="keyword">class </span><a class="code" href="classpqxx_1_1basic__lostream.html">basic_lostream</a> : <span class="keyword">public</span> <a class="code" href="config_8h.html#a23">PGSTD</a>::basic_iostream&lt;CHAR, TRAITS&gt;
-00529 {
-00530 <span class="keyword">public</span>:
-<a name="l00531"></a><a class="code" href="classpqxx_1_1basic__lostream.html#s0">00531</a>   <span class="keyword">typedef</span> CHAR char_type;
-<a name="l00532"></a><a class="code" href="classpqxx_1_1basic__lostream.html#s1">00532</a>   <span class="keyword">typedef</span> TRAITS traits_type;
-<a name="l00533"></a><a class="code" href="classpqxx_1_1basic__lostream.html#s2">00533</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::int_type int_type;
-<a name="l00534"></a><a class="code" href="classpqxx_1_1basic__lostream.html#s3">00534</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::pos_type pos_type;
-<a name="l00535"></a><a class="code" href="classpqxx_1_1basic__lostream.html#s4">00535</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::off_type off_type;
-00536 
+00522 
+00529 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> CHAR=<span class="keywordtype">char</span>, <span class="keyword">typename</span> TRAITS=PGSTD::<span class="keywordtype">char</span>_traits&lt;CHAR&gt; &gt; 
+<a name="l00530"></a><a class="code" href="classpqxx_1_1basic__lostream.html">00530</a> <span class="keyword">class </span><a class="code" href="classpqxx_1_1basic__lostream.html">basic_lostream</a> : <span class="keyword">public</span> <a class="code" href="config_8h.html#a23">PGSTD</a>::basic_iostream&lt;CHAR, TRAITS&gt;
+00531 {
+00532 <span class="keyword">public</span>:
+<a name="l00533"></a><a class="code" href="classpqxx_1_1basic__lostream.html#s0">00533</a>   <span class="keyword">typedef</span> CHAR char_type;
+<a name="l00534"></a><a class="code" href="classpqxx_1_1basic__lostream.html#s1">00534</a>   <span class="keyword">typedef</span> TRAITS traits_type;
+<a name="l00535"></a><a class="code" href="classpqxx_1_1basic__lostream.html#s2">00535</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::int_type int_type;
+<a name="l00536"></a><a class="code" href="classpqxx_1_1basic__lostream.html#s3">00536</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::pos_type pos_type;
+<a name="l00537"></a><a class="code" href="classpqxx_1_1basic__lostream.html#s4">00537</a>   <span class="keyword">typedef</span> <span class="keyword">typename</span> traits_type::off_type off_type;
 00538 
-<a name="l00542"></a><a class="code" href="classpqxx_1_1basic__lostream.html#a0">00542</a>   <a class="code" href="classpqxx_1_1basic__lostream.html#a0">basic_lostream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, <a class="code" href="classpqxx_1_1LargeObject.html">LargeObject</a> O) :
-00543     <a class="code" href="config_8h.html#a23">PGSTD</a>::basic_iostream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
-00544     m_Buf(T, O, in | out, BufSize) 
-00545   { 
-00546   }
-00547 
-00549 
-<a name="l00553"></a><a class="code" href="classpqxx_1_1basic__lostream.html#a1">00553</a>   <a class="code" href="classpqxx_1_1basic__lostream.html#a0">basic_lostream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, Oid O) :
-00554     <a class="code" href="config_8h.html#a23">PGSTD</a>::basic_iostream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
-00555     m_Buf(T, O, in | out, BufSize) 
-00556   { 
-00557   }
-00558 
-<a name="l00559"></a><a class="code" href="classpqxx_1_1basic__lostream.html#a2">00559</a>   <a class="code" href="classpqxx_1_1basic__lostream.html#a2">~basic_lostream</a>() { m_Buf.pubsync(); m_Buf.pubsync(); }
-00560 
-00561 <span class="keyword">private</span>:
-00562   largeobject_streambuf&lt;CHAR,TRAITS&gt; m_Buf;
-00563 };
+00540 
+<a name="l00544"></a><a class="code" href="classpqxx_1_1basic__lostream.html#a0">00544</a>   <a class="code" href="classpqxx_1_1basic__lostream.html#a0">basic_lostream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, 
+00545                  <a class="code" href="classpqxx_1_1LargeObject.html">LargeObject</a> O,
+00546                  LargeObject::size_type BufSize=512) :
+00547     <a class="code" href="config_8h.html#a23">PGSTD</a>::basic_iostream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
+00548     m_Buf(T, O, in | out, BufSize) 
+00549   { 
+00550   }
+00551 
+00553 
+<a name="l00557"></a><a class="code" href="classpqxx_1_1basic__lostream.html#a1">00557</a>   <a class="code" href="classpqxx_1_1basic__lostream.html#a0">basic_lostream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, 
+00558                  Oid O,
+00559                  LargeObject::size_type BufSize=512) :
+00560     <a class="code" href="config_8h.html#a23">PGSTD</a>::basic_iostream&lt;CHAR,TRAITS&gt;(&amp;m_Buf),
+00561     m_Buf(T, O, in | out, BufSize) 
+00562   { 
+00563   }
 00564 
-<a name="l00565"></a><a class="code" href="namespacepqxx.html#a2">00565</a> <span class="keyword">typedef</span> <a class="code" href="classpqxx_1_1basic__lostream.html">basic_lostream&lt;char&gt;</a> <a class="code" href="namespacepqxx.html#a2">lostream</a>;
+<a name="l00565"></a><a class="code" href="classpqxx_1_1basic__lostream.html#a2">00565</a>   <a class="code" href="classpqxx_1_1basic__lostream.html#a2">~basic_lostream</a>() { m_Buf.pubsync(); m_Buf.pubsync(); }
 00566 
-00567 }
-00568 
-00569 <span class="preprocessor">#endif</span>
-00570 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Fri Mar 21 00:21:19 2003 for libpqxx by
+00567 <span class="keyword">private</span>:
+00568   largeobject_streambuf&lt;CHAR,TRAITS&gt; m_Buf;
+00569 };
+00570 
+<a name="l00571"></a><a class="code" href="namespacepqxx.html#a2">00571</a> <span class="keyword">typedef</span> <a class="code" href="classpqxx_1_1basic__lostream.html">basic_lostream&lt;char&gt;</a> <a class="code" href="namespacepqxx.html#a2">lostream</a>;
+00572 
+00573 }
+00574 
+00575 <span class="preprocessor">#endif</span>
+00576 <span class="preprocessor"></span>
+</pre></div><hr><address style="align: right;"><small>Generated on Thu Mar 27 19:34:39 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

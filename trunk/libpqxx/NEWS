@@ -3,6 +3,8 @@
  - preliminary support for "named" queries
  - can now Quote() string constants
  - included Doxyfile in distribution archive
+ - helps avoid Windows memory allocation problem in DLLs
+ - allows setting of client character set encoding
 1.7.1
  - regenerated documentation
 1.7.0
