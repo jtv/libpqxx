@@ -236,16 +236,11 @@ namespace internal
 {
 // TODO: Does standard library provide a ready-made version of this?
 /// Functor: dereference iterator
-template<typename ITER> struct dereference :
-  PGSTD::unary_function<ITER, typename ITER::value_type>
+template<typename ITER> struct dereference
 {
   typename ITER::value_type operator()(ITER i) const { return *i; }
 };
-template<typename T> struct deref_ptr :
-  PGSTD::unary_function<T, T *>
-{
-  T operator()(T *i) const { return *i; }
-};
+template<typename T> struct deref_ptr { T operator()(T *i) const {return *i;} };
 }
 
 

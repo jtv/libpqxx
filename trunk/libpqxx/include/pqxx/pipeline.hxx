@@ -139,6 +139,12 @@ private:
 
   typedef PGSTD::map<query_id,Query> QueryMap;
 
+  struct getquery:PGSTD::unary_function<QueryMap::const_iterator,PGSTD::string>
+  {
+    PGSTD::string operator()(QueryMap::const_iterator i) const
+	{ return i->second.get_query(); }
+  };
+
   /// Upper bound to query id's
   static query_id qid_limit() throw ()
   {

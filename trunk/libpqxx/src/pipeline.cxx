@@ -31,13 +31,6 @@ namespace
 const string theSeparator("; ");
 const string theDummyValue("1");
 const string theDummyQuery("SELECT " + theDummyValue + theSeparator);
-
-struct getquery : unary_function<pipeline::QueryMap::const_iterator,string>
-{
-  string operator()(pipeline::QueryMap::const_iterator i) const
-	{ return i->second.get_query(); }
-};
-
 }
 
 
