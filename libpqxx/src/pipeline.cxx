@@ -441,11 +441,13 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
     issue();
   }
   if (q->first >= m_issuedrange.first) receive(suc);
+  else if (have_pending()) receive_if_available();
   if (m_num_waiting && !have_pending()) issue();
 
   const string query(q->second.get_query());
   const result R = q->second.get_result();
   pair<query_id,result> P(make_pair(q->first, R));
+
   m_queries.erase(q);
 
   invariant();

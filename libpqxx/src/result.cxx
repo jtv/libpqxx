@@ -29,16 +29,23 @@ using namespace PGSTD;
 
 pqxx::result &pqxx::result::operator=(const pqxx::result &Other) throw ()
 {
-  if (Other.m_Result != m_Result)
+  assert(!m_Result || ((Other.m_Result==m_Result) == (&Other==this)));
+
+  if (&Other != this)
   {
     LoseRef();
     MakeRef(Other);
   }
+
+  assert(m_l->m_r == this);
+  assert(m_r->m_l == this);
+  assert((m_l!=m_r) || ((m_l->m_l==this) && (m_r->m_r==this)));
+
   return *this;
 }
 
 
-pqxx::result &pqxx::result::operator=(PGresult *Other)
+pqxx::result &pqxx::result::operator=(PGresult *Other) throw ()
 {
   if (Other != m_Result)
   {
@@ -124,21 +131,39 @@ void pqxx::result::MakeRef(PGresult *Other) throw ()
 {
   assert(m_l == this);
   assert(m_r == this);
+  assert(!m_Result);
+
   m_Result = Other;
 }
 
 
 void pqxx::result::MakeRef(const pqxx::result &Other) throw ()
 {
+  assert(m_l == this);
+  assert(m_r == this);
+  assert(!m_Result);
+
   m_l = &Other;
   m_r = Other.m_r;
+
+  assert(m_r->m_l == m_l);
+  assert(m_l->m_r == m_r);
+
   m_l->m_r = m_r->m_l = this;
   m_Result = Other.m_Result;
+
+  assert(m_l->m_r == this);
+  assert(m_r->m_l == this);
+  assert((m_l!=m_r) || ((m_l->m_l==this) && (m_r->m_r==this)));
 }
 
 
 void pqxx::result::LoseRef() throw ()
 {
+  assert(m_l->m_r == this);
+  assert(m_r->m_l == this);
+  assert((m_l!=m_r) || ((m_l->m_l==this) && (m_r->m_r==this)));
+
   if (m_l == this)
   {
     assert(m_r == this);
@@ -148,6 +173,10 @@ void pqxx::result::LoseRef() throw ()
   m_l->m_r = m_r;
   m_r->m_l = m_l;
   m_l = m_r = this;
+
+  assert(m_l->m_r == this);
+  assert(m_r->m_l == this);
+  assert((m_l!=m_r) || ((m_l->m_l==this) && (m_r->m_r==this)));
 }
 
 

@@ -424,8 +424,8 @@ private:
   friend class connection_base;
   friend class pipeline;
   explicit result(PGresult *rhs) throw () : 
-    m_Result(rhs), m_l(this), m_r(this) {MakeRef(rhs);}
-  result &operator=(PGresult *);
+    m_Result(0), m_l(this), m_r(this) {MakeRef(rhs);}
+  result &operator=(PGresult *) throw ();
   bool operator!() const throw () { return !m_Result; }
   operator bool() const throw () { return m_Result != 0; }
   void CheckStatus(const PGSTD::string &Query) const;
