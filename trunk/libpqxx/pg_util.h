@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      Various utility definitions for libpqxx
  *
- * Copyright (c) 2001, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  *-------------------------------------------------------------------------
  */

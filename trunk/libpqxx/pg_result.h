@@ -39,7 +39,7 @@ namespace Pg
 class Result
 {
 public:
-  Result() : m_Result(0), m_Refcount(0) {}				//[?]
+  Result() : m_Result(0), m_Refcount(0) {}				//[t3]
   Result(const Result &rhs) : 						//[t1]
 	  m_Result(0), m_Refcount(0) { MakeRef(rhs); }
   ~Result() { LoseRef(); }						//[t1]
@@ -63,16 +63,17 @@ public:
     Tuple(const Result *r, size_type i) : m_Home(r), m_Index(i) {}
     ~Tuple() {} // Yes Scott Meyers, you're absolutely right[1]
 
-    Field operator[](size_type i) const { return Field(*this, i); }
-    Field operator[](const char[]) const;
-    Field operator[](PGSTD::string s) const {return operator[](s.c_str());}
+    Field operator[](size_type i) const { return Field(*this, i); }	//[t1]
+    Field operator[](const char[]) const;				//[t11]
+    Field operator[](PGSTD::string s) const 				//[t11]
+    	{ return operator[](s.c_str()); }
     Field at(size_type) const;						//[t10]
-    Field at(const char[]) const;
-    Field at(PGSTD::string s) const { return at(s.c_str()); }
+    Field at(const char[]) const;					//[t11]
+    Field at(PGSTD::string s) const { return at(s.c_str()); }		//[t11]
 
-    size_type size() const { return m_Home->Columns(); }
+    size_type size() const { return m_Home->Columns(); }		//[t11]
 
-    Result::size_type Row() const { return m_Index; }
+    Result::size_type Row() const { return m_Index; }			//[t11]
 
   protected:
     const Result *m_Home;
@@ -85,13 +86,13 @@ public:
   class Field : private Tuple
   {
   public:
-    Field(const Tuple &R, Tuple::size_type C) : Tuple(R), m_Col(C) {}
+    Field(const Tuple &R, Tuple::size_type C) : Tuple(R), m_Col(C) {}	//[t1]
 
-    const char *c_str() const;	// Read as plain C string
-    const char *name() const;	// Column name
+    const char *c_str() const;	// Read as plain C string		//[t2]
+    const char *name() const;	// Column name				//[t11]
 
     // Read value into Obj; or leave Obj untouched & return false if null
-    template<typename T> bool to(T &Obj) const
+    template<typename T> bool to(T &Obj) const				//[t1]
     {
       if (is_null())
 	return false;
@@ -111,7 +112,7 @@ public:
     }
 
     // Read value into Obj; or use Default & return false if null
-    template<typename T> bool to(T &Obj, const T &Default) const
+    template<typename T> bool to(T &Obj, const T &Default) const	//[]
     {
       const bool NotNull = to(Obj);
       if (!NotNull)
@@ -119,9 +120,9 @@ public:
       return NotNull;
     }
 
-    bool is_null() const;
+    bool is_null() const;						//[]
 
-    int size() const;
+    int size() const;							//[t11]
 
   private:
 
@@ -144,41 +145,51 @@ public:
     // going through the intermediate step of dereferencing the iterator.  I 
     // hope this works out to be similar to C pointer/array semantics in useful 
     // cases[2].
-    pointer operator->()  const { return this; }
-    reference operator*() const { return *operator->(); }
+    pointer operator->()  const { return this; }			//[]
+    reference operator*() const { return *operator->(); }		//[]
 
     const_iterator operator++(int);
-    const_iterator &operator++() { ++m_Index; return *this; }
-    const_iterator operator--(int);
-    const_iterator &operator--() { --m_Index; return *this; }
+    const_iterator &operator++() { ++m_Index; return *this; }		//[t1]
+    const_iterator operator--(int);					//[]
+    const_iterator &operator--() { --m_Index; return *this; }		//[]
 
-    const_iterator &operator+=(difference_type i) { m_Index+=i; return *this; }
-    const_iterator &operator-=(difference_type i) { m_Index-=i; return *this; }
+    const_iterator &operator+=(difference_type i) 			//[]
+    	{ m_Index+=i; return *this; }
+    const_iterator &operator-=(difference_type i) 			//[]
+    	{ m_Index-=i; return *this; }
 
-    bool operator==(const const_iterator &i) const {return m_Index==i.m_Index;}
-    bool operator!=(const const_iterator &i) const {return m_Index!=i.m_Index;}
-    bool operator<(const const_iterator &i) const   {return m_Index<i.m_Index;}
-    bool operator<=(const const_iterator &i) const {return m_Index<=i.m_Index;}
-    bool operator>(const const_iterator &i) const   {return m_Index>i.m_Index;}
-    bool operator>=(const const_iterator &i) const {return m_Index>=i.m_Index;}
+    bool operator==(const const_iterator &i) const 			//[]
+    	{return m_Index==i.m_Index;}
+    bool operator!=(const const_iterator &i) const 			//[]
+    	{return m_Index!=i.m_Index;}
+    bool operator<(const const_iterator &i) const   			//[]
+   	 {return m_Index<i.m_Index;}
+    bool operator<=(const const_iterator &i) const 			//[]
+    	{return m_Index<=i.m_Index;}
+    bool operator>(const const_iterator &i) const   			//[]
+    	{return m_Index>i.m_Index;}
+    bool operator>=(const const_iterator &i) const 			//[]
+    	{return m_Index>=i.m_Index;}
 
-    const_iterator operator+(difference_type o) const
+    const_iterator operator+(difference_type o) const			//[]
     {
       return const_iterator(m_Home, m_Index + o);
     }
-    friend const_iterator operator+(difference_type o, const_iterator i)
+    friend const_iterator operator+(difference_type o, 
+		    		    const_iterator i)			//[]
     {
       return i + o;
     }
 
-    const_iterator operator-(difference_type o) const
+    const_iterator operator-(difference_type o) const			//[]
     {
       return const_iterator(m_Home, m_Index - o);
     }
 
-    difference_type operator-(const_iterator i) const { return num()-i.num(); }
+    difference_type operator-(const_iterator i) const 			//[]
+    	{ return num()-i.num(); }
 
-     Result::size_type num() const { return Row(); }
+    Result::size_type num() const { return Row(); }			//[t1]
 
   private:
     friend class Result;
@@ -190,16 +201,19 @@ public:
   // TODO: Handle reverse iterators
 
   size_type size() const { return m_Result ? PQntuples(m_Result) : 0; }	//[t2]
-  bool empty() const { return !m_Result || !PQntuples(m_Result); }
+  bool empty() const { return !m_Result || !PQntuples(m_Result); }	//[t11]
 
   const Tuple operator[](size_type i) const { return Tuple(this, i); }	//[t2]
   const Tuple at(size_type i) const;					//[t10]
 
-  Tuple::size_type Columns() const { return PQnfields(m_Result); }
+  Tuple::size_type Columns() const { return PQnfields(m_Result); }	//[t11]
   // TODO: Check for nonexistant columns!!!
-  Tuple::size_type ColumnNumber(const char Name[]) const {return PQfnumber(m_Result,Name);}
-  Tuple::size_type ColumnNumber(std::string Name) const {return ColumnNumber(Name.c_str());}
-  const char *ColumnName(Tuple::size_type Number) const {return PQfname(m_Result,Number);}
+  Tuple::size_type ColumnNumber(const char Name[]) const 		//[t11]
+  	{return PQfnumber(m_Result,Name);}
+  Tuple::size_type ColumnNumber(std::string Name) const 		//[t11]
+  	{return ColumnNumber(Name.c_str());}
+  const char *ColumnName(Tuple::size_type Number) const 		//[t11]
+  	{return PQfname(m_Result,Number);}
 
 private:
   PGresult *m_Result;

@@ -9,8 +9,8 @@ using namespace PGSTD;
 using namespace Pg;
 
 
-// Simple test program for libpqxx.  Open connection to database, start
-// a transaction, abort it, and verify that it "never happened."
+// Test program for libpqxx.  Open connection to database, start a transaction, 
+// abort it, and verify that it "never happened."
 //
 // Usage: test10 [connect-string]
 //
@@ -145,7 +145,6 @@ int main(int argc, char *argv[])
   {
     Connection C(argv[1] ? argv[1] : "");
     C.SetNoticeProcessor(ReportWarning, 0);
-    C.Trace(stdout);
 
     // Test abort semantics, both with explicit and implicit abort
     Test(C, true);

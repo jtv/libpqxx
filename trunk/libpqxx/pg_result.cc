@@ -7,7 +7,7 @@
  *      implementation of the Pg::Result class and support classes.
  *   Pg::Result represents the set of result tuples from a database query
  *
- * Copyright (c) 2001, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  *-------------------------------------------------------------------------
  */
