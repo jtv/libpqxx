@@ -693,7 +693,7 @@
 	the "connect string".  This string may be used to specify which host
 	on the network runs the database backend we wish to connect to, which
 	database we're interested in, which user name we'll be using to log
-	in, etc.  Refer to the libpq <function>conect</function> call for a
+	in, etc.  Refer to the libpq <function>connect</function> call for a
 	complete definition of what may go into the connect string.  In this
 	case we're connecting to a database <literal>test</literal> residing
 	on the local machine.  By default (if the connect string is null or
@@ -1036,7 +1036,7 @@
       </para>
 
       <para>
-	Thus, <literal>R[0]</literal> will return the first ("zeroeth") tuple
+	Thus, <literal>R[0]</literal> will return the first ("zeroth") tuple
 	in R.  You won't normally want to bother with
 	<literal>tuple</literal>s though; they don't contain the actual data,
 	but rather serve as placeholders to later tell

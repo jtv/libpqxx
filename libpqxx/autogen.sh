@@ -32,7 +32,7 @@ sed -e "s/@PQXXVERSION@/$PQXXVERSION/g" configure.ac.in >configure.ac
 # autoheader
 
 libtoolize --force --automake --copy
-aclocal${ver} -I .
+aclocal${ver} -I config/m4
 automake${ver} --verbose --add-missing --copy
 autoconf
 

@@ -1,3 +1,10 @@
+2004-02-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ .cvsignore:
+  - Added configure.lineno (Patrick Welche)
+ autogen.sh:
+  - Made aclocal work with config/m4 instead of . (Patrick Welche)
+ doc/libpqxx.xml:
+  - Typos fixed (Patrick Welche)
 2004-02-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/largeobject.cxx: 
   - Fixed risk of incorrect errno 
