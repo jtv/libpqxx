@@ -5,7 +5,7 @@
  *
  *   DESCRIPTION
  *      common code and definitions for the transaction classes
- *   Pg::TransactionItf defines the interface for any abstract class that
+ *   pqxx::TransactionItf defines the interface for any abstract class that
  *   represents a database transaction
  *
  * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
@@ -23,7 +23,7 @@
 using namespace PGSTD;
 
 
-Pg::TransactionItf::TransactionItf(Connection &C, string TName) :
+pqxx::TransactionItf::TransactionItf(Connection &C, string TName) :
   m_Conn(C),
   m_Status(st_nascent),
   m_Name(TName),
@@ -34,12 +34,12 @@ Pg::TransactionItf::TransactionItf(Connection &C, string TName) :
 }
 
 
-Pg::TransactionItf::~TransactionItf()
+pqxx::TransactionItf::~TransactionItf()
 {
 }
 
 
-void Pg::TransactionItf::Commit()
+void pqxx::TransactionItf::Commit()
 {
   // Check previous status code.  Caller should only call this function if
   // we're in "implicit" state, but multiple commits are silently accepted.
@@ -74,7 +74,7 @@ void Pg::TransactionItf::Commit()
 		      "committed again while in an undetermined state\n");
 
   default:
-    throw logic_error("Internal libpqxx error: Pg::Transaction: invalid status code");
+    throw logic_error("Internal libpqxx error: pqxx::Transaction: invalid status code");
   }
  
   // Tricky one.  If stream is nested in transaction but inside the same scope,
@@ -106,7 +106,7 @@ void Pg::TransactionItf::Commit()
 }
 
 
-void Pg::TransactionItf::Abort()
+void pqxx::TransactionItf::Abort()
 {
   // Check previous status code.  Quietly accept multiple aborts to 
   // simplify emergency bailout code.
@@ -142,14 +142,14 @@ void Pg::TransactionItf::Abort()
     return;
 
   default:
-    throw logic_error("Internal libpqxx error: Pg::Transaction: invalid status code");
+    throw logic_error("Internal libpqxx error: pqxx::Transaction: invalid status code");
   }
 
   m_Status = st_aborted;
 }
 
 
-Pg::Result Pg::TransactionItf::Exec(const char C[])
+pqxx::Result pqxx::TransactionItf::Exec(const char C[])
 {
   if (m_Stream.get())
     throw logic_error("Attempt to execute query on transaction '" + 
@@ -181,7 +181,7 @@ Pg::Result Pg::TransactionItf::Exec(const char C[])
 		      Name() + 
 		      "', which is in indeterminate state");
   default:
-    throw logic_error("Internal libpqxx error: Pg::Transaction: "
+    throw logic_error("Internal libpqxx error: pqxx::Transaction: "
 		      "invalid status code");
   }
 
@@ -190,10 +190,10 @@ Pg::Result Pg::TransactionItf::Exec(const char C[])
 
 
 
-void Pg::TransactionItf::Begin()
+void pqxx::TransactionItf::Begin()
 {
   if (m_Status != st_nascent)
-    throw logic_error("Internal libpqxx error: Pg::Transaction: "
+    throw logic_error("Internal libpqxx error: pqxx::Transaction: "
 		      "Begin() called while not in nascent state");
 
   // Better handle any pending notifications before we begin
@@ -205,7 +205,7 @@ void Pg::TransactionItf::Begin()
 
 
 
-void Pg::TransactionItf::End()
+void pqxx::TransactionItf::End()
 {
   try
   {
@@ -228,13 +228,13 @@ void Pg::TransactionItf::End()
 
 
 
-void Pg::TransactionItf::RegisterStream(const TableStream *S)
+void pqxx::TransactionItf::RegisterStream(const TableStream *S)
 {
   m_Stream.Register(S);
 }
 
 
-void Pg::TransactionItf::UnregisterStream(const TableStream *S) throw ()
+void pqxx::TransactionItf::UnregisterStream(const TableStream *S) throw ()
 {
   try
   {
@@ -247,7 +247,7 @@ void Pg::TransactionItf::UnregisterStream(const TableStream *S) throw ()
 }
 
 
-Pg::Result Pg::TransactionItf::DirectExec(const char C[], 
+pqxx::Result pqxx::TransactionItf::DirectExec(const char C[], 
 		                      int Retries,
 				      const char OnReconnect[])
 {

@@ -6,7 +6,7 @@
 #include "pqxx/result.h"
 
 using namespace PGSTD;
-using namespace Pg;
+using namespace pqxx;
 
 
 // Test program for libpqxx.  Query a table and report its metadata.

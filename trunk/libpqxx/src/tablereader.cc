@@ -4,8 +4,8 @@
  *	tablereader.cc
  *
  *   DESCRIPTION
- *      implementation of the Pg::TableReader class.
- *   Pg::TableReader enables optimized batch reads from a database table
+ *      implementation of the pqxx::TableReader class.
+ *   pqxx::TableReader enables optimized batch reads from a database table
  *
  * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -17,7 +17,7 @@
 using namespace PGSTD;
 
 
-Pg::TableReader::TableReader(Transaction &T, string RName) :
+pqxx::TableReader::TableReader(Transaction &T, string RName) :
   TableStream(T, RName),
   m_Done(true)
 {
@@ -26,7 +26,7 @@ Pg::TableReader::TableReader(Transaction &T, string RName) :
 }
 
 
-Pg::TableReader::~TableReader()
+pqxx::TableReader::~TableReader()
 {
   // If any lines remain to be read, consume them to not confuse PQendcopy()
   string Dummy;
@@ -41,7 +41,7 @@ Pg::TableReader::~TableReader()
 }
 
 
-bool Pg::TableReader::GetRawLine(string &Line)
+bool pqxx::TableReader::GetRawLine(string &Line)
 {
   m_Done = !Trans().ReadCopyLine(Line);
   return !m_Done;

@@ -7,7 +7,7 @@
 #include "pqxx/transaction.h"
 
 using namespace PGSTD;
-using namespace Pg;
+using namespace pqxx;
 
 
 // Simple test program for libpqxx.  Read a table using a TableReader, which 

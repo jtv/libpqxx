@@ -9,7 +9,7 @@
 #include "pqxx/transaction.h"
 
 using namespace PGSTD;
-using namespace Pg;
+using namespace pqxx;
 
 
 // Test program for libpqxx.  Create a table and write data to it, using

@@ -4,8 +4,8 @@
  *	pqxx/nontransaction.h
  *
  *   DESCRIPTION
- *      definition of the Pg::NonTransaction class.
- *   Pg::NonTransaction provides nontransactional database access
+ *      definition of the pqxx::NonTransaction class.
+ *   pqxx::NonTransaction provides nontransactional database access
  *
  * Copyright (c) 2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -22,7 +22,7 @@
  */
 
 
-namespace Pg
+namespace pqxx
 {
 
 class NonTransaction : public TransactionItf

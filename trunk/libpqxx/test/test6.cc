@@ -8,7 +8,7 @@
 #include "pqxx/transaction.h"
 
 using namespace PGSTD;
-using namespace Pg;
+using namespace pqxx;
 
 
 // Test program for libpqxx.  Copy a table from one database connection to 

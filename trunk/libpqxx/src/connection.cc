@@ -4,8 +4,8 @@
  *	connection.cc
  *
  *   DESCRIPTION
- *      implementation of the Pg::Connection class.
- *   Pg::Connection encapsulates a frontend to backend connection
+ *      implementation of the pqxx::Connection class.
+ *   pqxx::Connection encapsulates a frontend to backend connection
  *
  * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -66,7 +66,7 @@ private:
 }
 
 
-Pg::Connection::Connection(const string &ConnInfo) :
+pqxx::Connection::Connection(const string &ConnInfo) :
   m_ConnInfo(ConnInfo),
   m_Conn(0),
   m_Trans()
@@ -75,7 +75,7 @@ Pg::Connection::Connection(const string &ConnInfo) :
 }
 
 
-Pg::Connection::~Connection()
+pqxx::Connection::~Connection()
 {
   if (m_Trans.get()) 
     ProcessNotice("Closing connection while transaction '" +
@@ -105,7 +105,7 @@ Pg::Connection::~Connection()
 }
 
 
-int Pg::Connection::BackendPID() const
+int pqxx::Connection::BackendPID() const
 {
   if (!m_Conn) throw runtime_error("No connection");
 
@@ -113,7 +113,7 @@ int Pg::Connection::BackendPID() const
 }
 
 
-void Pg::Connection::Connect()
+void pqxx::Connection::Connect()
 {
   Disconnect();
   m_Conn = PQconnectdb(m_ConnInfo.c_str());
@@ -137,7 +137,7 @@ void Pg::Connection::Connect()
 }
 
 
-void Pg::Connection::Disconnect() throw ()
+void pqxx::Connection::Disconnect() throw ()
 {
   if (m_Conn)
   {
@@ -147,14 +147,14 @@ void Pg::Connection::Disconnect() throw ()
 }
 
 
-bool Pg::Connection::IsOpen() const
+bool pqxx::Connection::IsOpen() const
 {
   return m_Conn && (Status() != CONNECTION_BAD);
 }
 
 
-Pg::NoticeProcessor 
-Pg::Connection::SetNoticeProcessor(Pg::NoticeProcessor NewNP,
+pqxx::NoticeProcessor 
+pqxx::Connection::SetNoticeProcessor(pqxx::NoticeProcessor NewNP,
 		                   void *arg)
 {
   m_NoticeProcessorArg = arg;
@@ -162,25 +162,25 @@ Pg::Connection::SetNoticeProcessor(Pg::NoticeProcessor NewNP,
 }
 
 
-void Pg::Connection::ProcessNotice(const char msg[]) throw ()
+void pqxx::Connection::ProcessNotice(const char msg[]) throw ()
 {
   if (msg) (*(SetNoticeProcessor(0,0)))(m_NoticeProcessorArg, msg);
 }
 
 
-void Pg::Connection::Trace(FILE *Out)
+void pqxx::Connection::Trace(FILE *Out)
 {
   PQtrace(m_Conn, Out);
 }
 
 
-void Pg::Connection::Untrace()
+void pqxx::Connection::Untrace()
 {
   PQuntrace(m_Conn);
 }
 
 
-void Pg::Connection::AddTrigger(Pg::Trigger *T)
+void pqxx::Connection::AddTrigger(pqxx::Trigger *T)
 {
   if (!T) throw invalid_argument("Null trigger registered");
 
@@ -204,7 +204,7 @@ void Pg::Connection::AddTrigger(Pg::Trigger *T)
 }
 
 
-void Pg::Connection::RemoveTrigger(const Pg::Trigger *T) throw ()
+void pqxx::Connection::RemoveTrigger(const pqxx::Trigger *T) throw ()
 {
   if (!T) return;
 
@@ -231,7 +231,7 @@ void Pg::Connection::RemoveTrigger(const Pg::Trigger *T) throw ()
 }
 
 
-void Pg::Connection::GetNotifs()
+void pqxx::Connection::GetNotifs()
 {
   typedef TriggerList::iterator TI;
 
@@ -259,13 +259,13 @@ void Pg::Connection::GetNotifs()
 }
 
 
-const char *Pg::Connection::ErrMsg() const
+const char *pqxx::Connection::ErrMsg() const
 {
   return m_Conn ? PQerrorMessage(m_Conn) : "No connection to database";
 }
 
 
-Pg::Result Pg::Connection::Exec(const char Q[], 
+pqxx::Result pqxx::Connection::Exec(const char Q[], 
                                 int Retries, 
 				const char OnReconnect[])
 {
@@ -291,7 +291,7 @@ Pg::Result Pg::Connection::Exec(const char Q[],
 }
 
 
-void Pg::Connection::Reset(const char OnReconnect[])
+void pqxx::Connection::Reset(const char OnReconnect[])
 {
   // Attempt to restore connection
   PQreset(m_Conn);
@@ -329,13 +329,13 @@ void Pg::Connection::Reset(const char OnReconnect[])
 }
 
 
-void Pg::Connection::RegisterTransaction(const TransactionItf *T)
+void pqxx::Connection::RegisterTransaction(const TransactionItf *T)
 {
   m_Trans.Register(T);
 }
 
 
-void Pg::Connection::UnregisterTransaction(const TransactionItf *T) throw ()
+void pqxx::Connection::UnregisterTransaction(const TransactionItf *T) throw ()
 {
   try
   {
@@ -348,20 +348,20 @@ void Pg::Connection::UnregisterTransaction(const TransactionItf *T) throw ()
 }
 
 
-void Pg::Connection::MakeEmpty(Pg::Result &R, ExecStatusType Stat)
+void pqxx::Connection::MakeEmpty(pqxx::Result &R, ExecStatusType Stat)
 {
   R = Result(PQmakeEmptyPGresult(m_Conn, Stat));
 }
 
 
-void Pg::Connection::BeginCopyRead(string Table)
+void pqxx::Connection::BeginCopyRead(string Table)
 {
   Result R( Exec(("COPY " + Table + " TO STDOUT").c_str()) );
   R.CheckStatus();
 }
 
 
-bool Pg::Connection::ReadCopyLine(string &Line)
+bool pqxx::Connection::ReadCopyLine(string &Line)
 {
   char Buf[256];
   bool LineComplete = false;
@@ -397,7 +397,7 @@ bool Pg::Connection::ReadCopyLine(string &Line)
 }
 
 
-void Pg::Connection::BeginCopyWrite(string Table)
+void pqxx::Connection::BeginCopyWrite(string Table)
 {
   Result R( Exec(("COPY " + Table + " FROM STDIN").c_str()) );
   R.CheckStatus();
@@ -405,7 +405,7 @@ void Pg::Connection::BeginCopyWrite(string Table)
 
 
 
-void Pg::Connection::WriteCopyLine(string Line)
+void pqxx::Connection::WriteCopyLine(string Line)
 {
   PQputline(m_Conn, (Line + "\n").c_str());
 }
@@ -414,7 +414,7 @@ void Pg::Connection::WriteCopyLine(string Line)
 // End COPY operation.  Careful: this assumes that no more lines remain to be
 // read or written, and the COPY operation has been properly terminated with a
 // line containing only the two characters "\."
-void Pg::Connection::EndCopy()
+void pqxx::Connection::EndCopy()
 {
   if (PQendcopy(m_Conn) != 0) throw runtime_error(ErrMsg());
 }

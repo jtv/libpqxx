@@ -4,8 +4,8 @@
  *	pqxx/robusttransaction.h
  *
  *   DESCRIPTION
- *      definition of the Pg::RobustTransaction class.
- *   Pg::RobustTransaction is a slower but safer transaction class
+ *      definition of the pqxx::RobustTransaction class.
+ *   pqxx::RobustTransaction is a slower but safer transaction class
  *
  * Copyright (c) 2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -43,7 +43,7 @@
  */
 
 
-namespace Pg
+namespace pqxx
 {
 
 

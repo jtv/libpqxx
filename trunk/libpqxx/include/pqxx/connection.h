@@ -4,8 +4,8 @@
  *	pqxx/connection.h
  *
  *   DESCRIPTION
- *      definition of the Pg::Connection class.
- *   Pg::Connection encapsulates a frontend to backend connection
+ *      definition of the pqxx::Connection class.
+ *   pqxx::Connection encapsulates a frontend to backend connection
  *
  * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -32,7 +32,7 @@
 // TODO: Teach Transactor to handle multiple connections--quasi "2-phase commit"
 
 
-namespace Pg
+namespace pqxx
 {
 class in_doubt_error;	// See pqxx/transactionitf.h
 class Result;		// See pqxx/result.h
@@ -135,7 +135,7 @@ private:
   void *m_NoticeProcessorArg;	// Client-set argument to notice processor func
 
   // TODO: Use multimap when gcc supports them!
-  typedef PGSTD::map<PGSTD::string, Pg::Trigger *> TriggerList;
+  typedef PGSTD::map<PGSTD::string, pqxx::Trigger *> TriggerList;
   TriggerList m_Triggers;
 
   friend class TransactionItf;
@@ -215,7 +215,7 @@ inline void Connection::Perform(const TRANSACTOR &T,
 
     // Commit has to happen inside loop where T2 is still in scope.
     if (!Done) 
-      throw PGSTD::logic_error("Internal libpqxx error: Pg::Connection: "
+      throw PGSTD::logic_error("Internal libpqxx error: pqxx::Connection: "
 		             "broken Perform() loop");
 
     T2.OnCommit();

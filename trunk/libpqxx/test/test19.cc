@@ -11,7 +11,7 @@
 #include "pqxx/result.h"
 
 using namespace PGSTD;
-using namespace Pg;
+using namespace pqxx;
 
 
 // Cursor test program for libpqxx.  Read list of tables through a cursor,

@@ -4,8 +4,8 @@
  *	pqxx/tablestream.h
  *
  *   DESCRIPTION
- *      definition of the Pg::TableStream class.
- *   Pg::TableStream provides optimized batch access to a database table
+ *      definition of the pqxx::TableStream class.
+ *   pqxx::TableStream provides optimized batch access to a database table
  *
  * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -22,7 +22,7 @@
  */
 
 
-namespace Pg
+namespace pqxx
 {
 
 // A Tablestream enables optimized batch read or write access to a database 
