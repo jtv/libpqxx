@@ -3,14 +3,16 @@ Welcome to libpqxx, a C++ API to the PostgreSQL database management system.
 
 To get started quickly on a Windows system with MSVC7 use the command line.
 1) Run VCVARS32.BAT to set the environment.
-2) Copy the config.h file in the win32 directory into include/pqxx.
+2) Edit include/pqxx/config.h and include/pqxx/libconfig.h to fit your
+   compilation environment, or if you have Cygwin (or another Unix-like set of
+   tools), just run the "configure" script found in the main directory.
 3) Modify the libpqxx.mak if necessary.  See "Changing the makefile" below.
 4) Now "nmake /f libpqxx.mak ALL" will compile all dynamic, static, debug and 
    release libraries. You will find them in the win32\lib directory.
    
 To create the test files
 5) "nmake /f test.mak ALL" will compile and link all the test files. It is
-   currently set to use the dll version of libpqxx and 
+   currently set to use the dll version of libpqxx.
    
  
 --- Changing the makefile
@@ -28,4 +30,5 @@ LIBPATH
 This is where the release version of libpq is located.  Refer to the postgres
 documentation on building this file.  This is directly related to the 
 "#pragma comment" statement in the win32\config.h file.  I use the pragma so
-the linker will add the file.  
+the linker will add the file.
+

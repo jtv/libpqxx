@@ -8,10 +8,8 @@
 !MESSAGE
 !MESSAGE Possible choices for configuration are:
 !MESSAGE
-!MESSAGE "RELEASE"      (release Win32 (x86) Dynamic-Link Library and Static 
-Library)
-!MESSAGE "DEBUG"        (debug   Win32 (x86) Dynamic-Link Library and Static 
-Library)
+!MESSAGE "RELEASE"      (release Win32 (x86) Dynamic-Link Library and Static Library)
+!MESSAGE "DEBUG"        (debug   Win32 (x86) Dynamic-Link Library and Static Library)
 !MESSAGE "DLL"          (release & debug Win32 (x86) Dynamic-Link Library)
 !MESSAGE "STATIC"       (release & debug Win32 (x86) Static Library")
 !MESSAGE "ALL"          Both the DLL and STATIC builds.
@@ -56,8 +54,7 @@ IAM=$(MAKEDIR)\libpqxx.mak /NOLOGO
 # different builds.
 CPP=cl.exe
 CPP_PROJ=/nologo /W3 /GX /FD /c $(CPP_EXTRAS) \
-	/I "../include" /I "$(PGSQLSRC)/include" /I "$(PGSQLSRC)/interfaces/libpq" 
-\
+	/I "../include" /I "$(PGSQLSRC)/include" /I "$(PGSQLSRC)/interfaces/libpq" \
 	$(STD) /D "HAVE_VSNPRINTF_DECL" /D "HAVE_STRDUP" \
 	/D "WIN32" /D "_MBCS" /D "LIBPQXXDLL_EXPORTS" \
 	/Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" \
@@ -87,7 +84,7 @@ LINK32_OBJS= $(LINK32_OBJ_EXTRA) \
 	"$(INTDIR)\tablewriter.obj" \
 	"$(INTDIR)\transaction_base.obj" \
 	"$(INTDIR)\transaction.obj" \
-	"$(INTDIR)\util.obj" \
+	"$(INTDIR)\util.obj"
 
 RSC=rc.exe
 RSC_PROJ=/l 0x409 /fo"$(INTDIR)\libpqxx.res"
@@ -119,8 +116,7 @@ CLEAN :
 	-@erase "$(INTDIR)" /Q
 	-@erase "$(OUTDIR)" /Q
 
-!IF "$(CFG)" == "dll" || "$(CFG)" == "dll debug" || "$(CFG)" == "static" || 
-"$(CFG)" == "static debug"
+!IF "$(CFG)" == "dll" || "$(CFG)" == "dll debug" || "$(CFG)" == "static" || "$(CFG)" == "static debug"
 !MESSAGE
 !MESSAGE Building $(CFG)
 
