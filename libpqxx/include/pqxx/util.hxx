@@ -19,6 +19,7 @@
 
 #include <cstdio>
 #include <cctype>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <typeinfo>
@@ -99,9 +100,17 @@ template<> void from_string(const char Str[], bool &);			//[t76]
 template<> inline void from_string(const char Str[],PGSTD::string &Obj)	//[t46]
 	{ Obj = Str; }
 
+template<> 
+  inline void from_string(const char Str[], PGSTD::stringstream &Obj)	//[t0]
+  	{ Obj.clear(); Obj << Str; }
+
 template<typename T> 
   inline void from_string(const PGSTD::string &Str, T &Obj) 		//[t45]
 	{ from_string(Str.c_str(), Obj); }
+
+template<typename T>
+  inline void from_string(const PGSTD::stringstream &Str, T &Obj)	//[t0]
+  	{ from_string(Str.str(), Obj); }
 
 template<> inline void 
 from_string(const PGSTD::string &Str, PGSTD::string &Obj) 		//[t46]
@@ -136,9 +145,13 @@ template<> PGSTD::string to_string(const bool &);			//[t76]
 inline PGSTD::string to_string(const char Obj[]) 			//[t14]
 	{ return PGSTD::string(Obj); }
 
+inline PGSTD::string to_string(const PGSTD::stringstream &Obj)		//[t0]
+	{ return Obj.str(); }
+
 inline PGSTD::string to_string(const PGSTD::string &Obj) {return Obj;}	//[t21]
 
 template<> PGSTD::string to_string(const char &);			//[t21]
+
 
 template<> inline PGSTD::string to_string(const signed char &Obj)
 	{ return error_ambiguous_string_conversion(Obj); }
@@ -169,7 +182,7 @@ public:
   items() : CONT() {}							//[]
   /// Create items list with one element
   explicit items(const T &t) : CONT() { push_back(t); }			//[]
-  items(const T &t1, const T &t2) : CONT() 				//[]
+  items(const T &t1, const T &t2) : CONT() 				//[t80]
   	{ push_back(t1); push_back(t2); }
   items(const T &t1, const T &t2, const T &t3) : CONT() 		//[]
   	{ push_back(t1); push_back(t2); push_back(t3); }
@@ -189,11 +202,12 @@ public:
 };
 
 
+// TODO: Generalize--add transformation functor
 /// Render items list as a string, using given separator between items
 template<typename ITER> inline
 PGSTD::string separated_list(const PGSTD::string &sep,
     ITER begin,
-    ITER end)								//[]
+    ITER end)								//[t8]
 {
   PGSTD::string result;
   if (begin != end)
@@ -211,7 +225,7 @@ PGSTD::string separated_list(const PGSTD::string &sep,
 /// Render items in a container as a string, using given separator
 template<typename CONTAINER> inline
 PGSTD::string separated_list(const PGSTD::string &sep,
-    const CONTAINER &c)							//[]
+    const CONTAINER &c)							//[t10]
 {
   return separated_list(sep, c.begin(), c.end());
 }
