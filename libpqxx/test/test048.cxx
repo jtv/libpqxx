@@ -37,9 +37,8 @@ public:
     m_Object = LargeObject(T);
     cout << "Created large object #" << m_Object.id() << endl;
 
-    largeobject_streambuf<> O(T, m_Object, ios::out);
-    ostream OS(&O);
-    OS << m_Contents << endl;
+    olostream S(T, m_Object);
+    S << m_Contents;
   }
 
   void OnCommit()
@@ -67,8 +66,7 @@ public:
 
   void operator()(argument_type &T)
   {
-    largeobject_streambuf<> I(T, m_Object.id(), ios::in);
-    istream S(&I);
+    ilostream S(T, m_Object.id());
     m_Contents = UnStream(S);
   }
 
