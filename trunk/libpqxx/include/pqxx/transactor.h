@@ -11,6 +11,8 @@
  *
  *-------------------------------------------------------------------------
  */
+#include <string>
+
 #include "pqxx/compiler.h"
 
 /* Some transactions may be replayed if their connection fails, until they do 

@@ -1,3 +1,6 @@
+2002-03-23 05:30
+ Result, TransactionItf, Transactor:
+  - Several compile fixes (especially under MS Visual C++)--Clinton James
 2002-03-22 02:45
  All:
   - Renamed *.cc to *.cxx for MS Visual C++, thanks Clinton James

@@ -138,7 +138,7 @@ const char *pqxx::Result::GetValue(pqxx::Result::size_type Row,
 bool pqxx::Result::GetIsNull(pqxx::Result::size_type Row,
 		           pqxx::Result::Tuple::size_type Col) const
 {
-  return PQgetisnull(m_Result, Row, Col);
+  return PQgetisnull(m_Result, Row, Col) != 0;
 }
 
 pqxx::Result::Field::size_type pqxx::Result::GetLength(pqxx::Result::size_type Row,
