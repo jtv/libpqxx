@@ -436,7 +436,7 @@ int pqxx::connection_base::get_notifs()
       }
     }
 
-    N.close();
+    N.clear();
   }
   return notifs;
 }
