@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 1.6.1, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 1.6.3, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 1.6.1)
+AM_INIT_AUTOMAKE(libpqxx, 1.6.3)
 
 # Library version numbering - see "info libtool versioning 'libtool
 # versioning'" for details.
@@ -77,8 +77,6 @@ if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 		-Wctor-dtor-privacy \
 		-Wnon-virtual-dtor \
 		-Wreorder \
-		-Wno-deprecated \
-		-Wno-non-template-friend \
 		-Wold-style-cast \
 		-Woverloaded-virtual \
 		-Wsign-promo \
