@@ -6,10 +6,12 @@ EXTRA_DIST = \
 	rmlo.cxx
 
 INCLUDES=-I$(top_srcdir)/include ${POSTGRES_INCLUDE}
+
 noinst_PROGRAMS = pqxxbench rmlo
+
 pqxxbench_SOURCES = pqxxbench.cxx
-pqxxbench_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+pqxxbench_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 
 rmlo_SOURCES = rmlo.cxx
-rmlo_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+rmlo_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 

@@ -20,7 +20,7 @@ print <<EOF;
 # added to libpqxx, using the Perl script "maketestam.pl" found in the tools
 # directory.
 
-INCLUDES=-I\$(top_srcdir)/include \${POSTGRES_INCLUDE}
+INCLUDES=-I\$(top_builddir)/include -I\$(top_srcdir)/include \${POSTGRES_INCLUDE}
 CLEANFILES=pqxxlo.txt
 MAINTAINERCLEANFILES=Makefile.in
 
@@ -35,7 +35,7 @@ print "check_PROGRAMS = \${TESTS}\n";
 
 foreach my $t (@tests) {
   print "\n$t"."_SOURCES = $t.cxx\n";
-  print "$t"."_LDADD = ../src/libpqxx.la \${POSTGRES_LIB}\n"
+  print "$t"."_LDADD = \$(top_builddir)/src/libpqxx.la \${POSTGRES_LIB}\n"
 }
 
 print "\n";
