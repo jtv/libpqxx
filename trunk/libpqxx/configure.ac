@@ -238,6 +238,17 @@ AC_TRY_COMPILE([#include <iterator>],
       	 it='no'])
 AC_MSG_RESULT($it)
 
+# See if abs() works on a long int
+AC_MSG_CHECKING([for abs(long int)])
+AC_TRY_COMPILE([#include <cstdlib>],
+	[using namespace std;long a=-2000000000; long b=abs(a);],
+	[AC_DEFINE(HAVE_ABS_LONG,
+		1,
+		[Define if abs() works on long ints])
+	 abslong='yes'],
+	[abslong='no'])
+AC_MSG_RESULT($abslong)
+
 AC_LANG_POP(C++)
 
 AC_C_CONST
