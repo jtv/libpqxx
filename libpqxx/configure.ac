@@ -44,6 +44,7 @@ AC_MSG_RESULT(${enable_maintainer_mode})
 # yield too many warnings in gcc's standard headers)
 if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 	for option in \
+		-ffor-scope \
 		-pedantic \
 		-Wall \
 		-Wsystem-headers \
@@ -77,7 +78,7 @@ if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 		-Wsign-promo \
 		-Wsynth \
 		-Wanal \
-		-fascist \
+		-ffascist \
 	; do
 		SAVE_CXXFLAGS="$CXXFLAGS"
 		CXXFLAGS="$CXXFLAGS $option"
@@ -144,9 +145,7 @@ AC_ARG_WITH(postgres,
 		[--with-postgres],
 		[PostgreSQL common directory. Use this to specify libs & includes rooted at one place]
 	)
-	,	test "$withval" = no || with_postgres_include=$withval
-		POSTGRES_LIB="-L${with_postgres}/lib -lpq"
-		POSTGRES_INCLUDE="-I${with_postgres}/include"
+	,	test "$withval" = no || with_postgres=$withval
 		with_postgres_lib=${with_postgres}/lib
 		with_postgres_include=${with_postgres}/include
 	, with_postgres=no

@@ -1,3 +1,13 @@
+2002-04-05 21:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ Configure:
+  - Finally found out what was missing: VERSION was undefined
+  - Added -ffor-scope to compiler command line
+  - Changed -fascist to -ffascist
+  - Cleaned up --with-postgres code, fixed typo
+ test/Makefile.am:
+  - Replaced John Anderson's test environment parameters with my own
+ Test6:
+  - Creates destination table if it didn't already exist
 2002-04-02 01:45  Jeroen T. Vermeulen <jtv@xs4all.nl>
  TableWriter:
   - Wrapped back_insert_iterator specialization in namespace PGSTD { ... }
