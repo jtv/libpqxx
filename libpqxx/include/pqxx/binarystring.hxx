@@ -49,7 +49,10 @@ public:
   typedef const value_type &const_reference;
   typedef const value_type *const_pointer;
   typedef const_pointer const_iterator;
+
+#ifndef PQXX_WORKAROUND_VC7
   typedef PGSTD::reverse_iterator<const_iterator> const_reverse_iterator;
+#endif
 
 private:
   typedef PQAlloc<value_type> super;
@@ -69,10 +72,12 @@ public:
   const_iterator begin() const throw () { return data(); }		//[t62]
   const_iterator end() const throw () { return data()+m_size; }		//[t62]
 
+#ifndef PQXX_WORKAROUND_VC7
   const_reverse_iterator rbegin() const 				//[t62]
   	{ return const_reverse_iterator(end()); }
   const_reverse_iterator rend() const 					//[t62]
   	{ return const_reverse_iterator(begin()); }
+#endif
 
   /// Unescaped field contents 
   const value_type *data() const throw () {return super::c_ptr();}	//[t62]
@@ -100,15 +105,15 @@ private:
 
 
 /// Escape binary string for inclusion in SQL
-PGSTD::string escape_binary(const PGSTD::string &bin);
+PGSTD::string PQXX_LIBEXPORT escape_binary(const PGSTD::string &bin);
 /// Escape binary string for inclusion in SQL
-PGSTD::string escape_binary(const char bin[]);
+PGSTD::string PQXX_LIBEXPORT escape_binary(const char bin[]);
 /// Escape binary string for inclusion in SQL
-PGSTD::string escape_binary(const char bin[], size_t len);
+PGSTD::string PQXX_LIBEXPORT escape_binary(const char bin[], size_t len);
 /// Escape binary string for inclusion in SQL
-PGSTD::string escape_binary(const unsigned char bin[]);
+PGSTD::string PQXX_LIBEXPORT escape_binary(const unsigned char bin[]);
 /// Escape binary string for inclusion in SQL
-PGSTD::string escape_binary(const unsigned char bin[], size_t len);
+PGSTD::string PQXX_LIBEXPORT escape_binary(const unsigned char bin[], size_t len);
 
 
 }

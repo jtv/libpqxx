@@ -107,7 +107,7 @@ public:
       m_Size(pos_unknown)
   {
     // Trigger build error if T has insufficient isolation level
-    error_permitted_isolation_level(typename TRANSACTION::isolation_tag());
+    error_permitted_isolation_level(PQXX_TYPENAME TRANSACTION::isolation_tag());
     init(BaseName, Query);
   }
 
@@ -154,7 +154,7 @@ public:
       m_Size(pos_unknown)
   {
     // Trigger build error if T has insufficient isolation level
-    error_permitted_isolation_level(typename TRANSACTION::isolation_tag());
+    error_permitted_isolation_level(PQXX_TYPENAME TRANSACTION::isolation_tag());
   }
 
   /// Set new stride, ie. the number of rows to fetch at a time.
@@ -258,6 +258,7 @@ private:
   PGSTD::string MakeFetchCmd(size_type) const;
   size_type NormalizedMove(size_type Intended, size_type Actual);
 
+#ifndef PQXX_WORKAROUND_VC7
   /// Only defined for permitted isolation levels (in this case, serializable)
   /** If you get a link or compile error saying this function is not defined,
    * that means a Cursor is being created on a transaction that doesn't have a
@@ -265,6 +266,11 @@ private:
    */
   template<typename ISOLATIONTAG> 
     static inline void error_permitted_isolation_level(ISOLATIONTAG) throw();
+#else
+  // Incorrect, but needed to compile with Visual C++ 7
+  template<> static inline void 
+    error_permitted_isolation_level(isolation_traits<serializable>) throw ();
+#endif
 
   transaction_base &m_Trans;
   PGSTD::string m_Name;

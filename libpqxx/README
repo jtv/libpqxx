@@ -59,10 +59,10 @@ important options are:
 --with-postgres=<path>
 to indicate the base PostgreSQL library and include path.  The build procedure 
 expects to find subdirectories include/ and lib/ there.  If, for instance, you
-have the PostgreSQL headers and libraries in /usr/local/pgsql/include/ and
-/usr/local/pgsql/libs/ respectively, all you need to specify this to the
-configure script is "--with-postgres=/usr/local/pgsql".  If your PostgreSQL
-directories aren't laid out in this way, read on.
+have the PostgreSQL headers and libraries in /opt/pgsql/include/ and
+/opt/pgsql/libs/ respectively, all you need to specify this to the configure 
+script is "--with-postgres=/opt/pgsql".  If your PostgreSQL directories aren't
+laid out in this way, read on.
 
 --with-postgres-include=<path>
 to indicate just the PostgreSQL include path.  This is not needed if you use 
@@ -72,11 +72,11 @@ you need to specify is "--with-postgres=/usr/local/include/postgresql".
 
 --with-postgres-lib=<path>
 to indicate the path to PostgreSQL's libpq library.  If, for instance, this
-library is in /usr/local/postgresql/lib, then you need to specify the configure
-option "--with-postgres-lib=/usr/local/postgresql/lib/".
+library is in /usr/local/lib/postgresql, then you need to specify the configure
+option "--with-postgres-lib=/usr/local/lib/postgresql".
 
-Sensible defaults have been provided for Debian and RedHat systems, among 
-others.  If your system requires different settings, please let me know.
+Sensible defaults have been provided for Debian, RedHat, and BSD-like systems,
+among others.  If your system requires different settings, please let me know.
 
 
 2. Make
@@ -96,8 +96,9 @@ errors or warnings, please let me know about them so I can fix them.
 
 3. Make Check
 
-This part is optional.  It is recommended that you do this, but there is one
-Very Important Caveat that could affect your existing data.  See below.
+This part is optional.  It is recommended that you do this just to make sure
+that you've got a working library, but there is one Very Important Caveat that 
+could affect your existing data.  See below.
 
 This is where you compile and run the regression test that typically exercises 
 all public methods in the library.  Obviously something or other will have to go
@@ -113,7 +114,8 @@ So choose your test database with caution.  Obviously the safest thing to do is
 to set up a separate database for this.
 
 To direct the regression test to the right database, set the following
-environment variables as needed before running "make check":
+environment variables as needed before running "make check" (see description
+above):
 
 	PGDATABASE	(name of database; defaults to your user name)
 	PGHOST		(database server; defaults to local machine)
@@ -128,9 +130,9 @@ your PostgreSQL setup, let me know about it and I'll try to fix it.
 4. Make Install
 
 This is supposed to install the libpqxx library and header files to your
-system.  It took me some time to get this to actually work, so please take care
-to check that it really does work and that especially the headers are really
-installed to your system.
+system.  It took me and many others some time to get this to actually work, so 
+please take care to check that it really does work and that especially the 
+headers are really installed to your system.
 
 The library and headers are installed to a new directory /usr/local/pqxx/ by 
 default, in their respective subdirectories include/ and lib/.  This will 
@@ -146,8 +148,10 @@ version of the library, your program may fail to run because the run-time
 loader cannot find the library.  You can get around this by (i) linking to the
 static version of the library, or (ii) adding a link in /usr/local/lib to the
 dynamic libpqxx library, or (iii) adding libpqxx's lib/ directory to your
-loader's search path.  This is in decreasing order of preference, so try (i)
-first, and only resort to (iii) if both (i) and (ii) fail.
+loader's search path before running your program.  This is in decreasing order 
+of preference, so try (i) first, and only resort to (iii) if both (i) and (ii) 
+fail.  On Linux systems, the loader's search path can be extended by setting
+the LD_LIBRARY_PATH variable.
 
 Enjoy!
 
@@ -155,27 +159,33 @@ Enjoy!
 Building on Windows
 
 Project files for Visual C++ are provided.  These are not actively maintained,
-however, so they may need some tweaking.  Also, you'll probably need at least
-version 7 of that compiler, earlier versions being too severely flawed to build
-serious post-1996 C++ code.  The library is also known to build with Intel's 
-compiler running as a Visual C++ plugin, but the details are beyond me.
+however, so they may need some tweaking.  You'll need at least version 7 of that
+compiler (also called VC.NET), earlier versions being too severely flawed to 
+build serious post-1996 C++ code.  The library is also known to build with 
+Intel's compiler running as a Visual C++ plugin, but the details are beyond me
+since I don't use this platform myself.
 
 Instead of going this route, you may want to try if the Unix build procedure
-works for you instead, e.g. using the Cygwin tools.  If it doesn't, you'll need
-to manually edit the compile-time configuration file include/pqxx/config.h to 
-define the features your system, compiler, and PostgreSQL versions support.  
-Normally the configure script would do this for you.
+works for you instead, e.g. using the Cygwin tools.  If you don't, or it 
+doesn't, you'll need to manually edit the compile-time configuration files 
+include/pqxx/config.h and include/pqxx/libconfig.h to define the features your 
+system, compiler, and PostgreSQL versions support.  Normally the configure 
+script would do this for you; in theory it should be possible to run the 
+configure script with e.g. Visual C++ as your compiler.
 
-If you're using Microsoft's compiler, you'll probably need to define the
-preprocessor macro PQXX_NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION in the config.h
-file to work around what appears to be a compiler bug in Visual C++.
+If you're using Microsoft's compiler, you may find that some features of the
+library (such as reverse iterators) don't work.  This is because Visual C++ is
+not able to compile all of the library's code, and so the preprocessor was used
+to disable such code if use of this compiler is detected.  Several other 
+workarounds for compiler bugs are automatically switched on for Visual C++, 
+regardless of whether you use the configure script.
 
-Also, Windows doesn't let you free memory in a DLL that was allocated in the
-main program or in another DLL, or vice versa.  This can cause trouble when
-setting Noticers to process error or warning output; this is one reason why
-recommended practice is to build libpqxx as a static library, not a DLL.  When
-using Windows you must also take care to set all Noticers from the same context
-where the Connection is created.
+Another problem specific to Windows is that it doesn't let you free memory in a
+DLL that was allocated in the main program or in another DLL, or vice versa.  
+This can cause trouble when setting Noticers to process error or warning output;
+which is one reason why recommended practice is to build libpqxx as a static 
+library, not a DLL.  When using Windows you must also take care to set all 
+Noticers from the same context where the Connection is created.
 
 Good luck!
 
@@ -199,8 +209,9 @@ doxygen program should be required.
 
 To get a good start in programming libpqxx, however, you may prefer to have some
 introductory explanation and code examples.  The former can be found in the
-tutorial, doc/libpqxx.sgml which currently is not being actively maintained but
-does cover the basics accurately.
+tutorial, doc/html/Tutorial which currently is not being actively maintained but
+does cover the basics accurately.  The tutorial is generated from the input
+file doc/libpqxx.sgml at release time.
 
 For some quick examples, take a look at the test programs in the test/ 
 directory.  Particularly test001.cxx should give you a pretty good idea of what
@@ -215,12 +226,15 @@ libpqxx encourages a relatively care-free programming style.
 
 Programming with libpqxx
 
-Your first program will involve the libpqxx classes Connection (connection.h),
-Transaction (conforming to the interface defined in transactionitf.h), and 
-probably Result (result.h).  In short, you create a Connection based on a
-Postgres connection string (see below), create a Transaction in the context of
-that Connection, and run one or more queries on the Transaction which return
-Result objects.
+Your first program will involve the libpqxx classes connection (see headers
+"pqxx/connection_base" and "pqxx/connection"), work (a typedef for transaction<>
+which conforms to the interface defined in "pqxx/transaction_base"), and 
+probably also result ("pqxx/result").  In a nutshell, you create a "connection"
+based on a Postgres connection string (see below), create a "work" in the 
+context of that connection, and run one or more queries on the work which return
+"result" objects.  The results are containers of rows of data, each of which you
+can treat as an array of strings: one for each field in the row.  It's that 
+simple.
 
 Postgres connection strings state which database server you wish to connect to,
 under which username, using which password, and so on.  Their format defined in
@@ -264,10 +278,22 @@ requiressl
 	connection can be created).
 
 Settings in the connection strings override the environment variables, which in
-turn override the default.
+turn override the default, on a variable-by-variable basis.  You only need to
+define those variables that require non-default values.
 
 
-APPENDIX A - Projects Using libpqxx
+APPENDIX A - Links
+
+libpqxx			http://pqxx.tk/
+			http://gborg.postgresql.org/project/libpqxx/
+OpenBSD			http://www.openbsd.org/
+PostgreSQL		http://www.postgresql.org/
+
+APPENDIX B - Projects Using libpqxx
+
+This list is very recent, and not a lot of work has been put into it.  It is
+known that there are many other projects using libpqxx that are not included
+here.
 
 As found on Google:
 
@@ -278,3 +304,5 @@ Vocal / Mascarpone	http://www.vovida.org/
 Confirmed by authors:
 
 OKE 			http://www.liacs.nl/home/bsamwel/oke/prerelease-0.10/
+
+

@@ -4,6 +4,9 @@
 /* Define if std defines the char_traits template and <char> specialization */
 #define HAVE_CHAR_TRAITS 1
 
+/* Define if preprocessor supports nonstandard "warning" directive */
+#define PQXX_HAVE_CPP_WARNING 1
+
 /* Define to 1 if you have the <iterator> header file. */
 #define HAVE_ITERATOR 1
 
@@ -16,7 +19,7 @@
 /* Do we have InvalidOid definition? */
 /* #undef InvalidOid */
 
-/* Does the standard namespace exist? */
+/* Name of standard namespace */
 #define PGSTD std
 
 /* Define if <iterator> lacks an iterator template definition */

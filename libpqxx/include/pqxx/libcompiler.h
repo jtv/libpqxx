@@ -58,10 +58,36 @@ template<> struct char_traits<char>
 }
 #endif
 
+// Workarounds for Windows
+#ifdef _WIN32
+
+#ifdef _MSC_VER
+#if _MSC_VER < 1300
+#error If you're using Visual C++, you'll need at least version 7 (VC.NET)
+#endif	// _MSC_VER < 1300
+
+// Workarounds for Visual C++.NET
+#define PQXX_WORKAROUND_VC7
+#define PQXX_NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
+#define PQXX_TYPENAME
+#pragma warning (disable: 4290)
+#pragma warning (disable: 4786)
+#pragma warning (disable: 4251 4275 4273)
+#pragma comment(lib, "libpqdll")
+#if !defined(PQXX_LIBEXPORT) && !defined(_LIB)
+#define PQXX_LIBEXPORT __declspec(dllimport)
+#endif	// PQXX_LIBEXPORT _LIB
+#endif	// _MSC_VER
+#endif	// _WIN32
 
 // Used for Windows DLL
 #ifndef PQXX_LIBEXPORT
 #define PQXX_LIBEXPORT
+#endif
+
+// Some compilers (well, VC) stumble over some required cases of "typename"
+#ifndef PQXX_TYPENAME
+#define PQXX_TYPENAME typename
 #endif
 
 #endif

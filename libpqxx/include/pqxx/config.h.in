@@ -78,6 +78,9 @@
 /* Define if function overloading using "using" breaks */
 #undef PQXX_BROKEN_USING_DECL
 
+/* Define if preprocessor supports nonstandard "warning" directive */
+#undef PQXX_HAVE_CPP_WARNING
+
 /* Define if PostgreSQL has PQescapeString() */
 #undef PQXX_HAVE_PQESCAPESTRING
 

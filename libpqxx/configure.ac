@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 1.9.9, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 2.0.0, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 1.9.9)
+AM_INIT_AUTOMAKE(libpqxx, 2.0.0)
 
 # Library version numbering - see "info libtool versioning 'libtool
 # versioning'" for details.
@@ -112,6 +112,12 @@ AC_TRY_COMPILE([#include <string>], [PGSTD::char_traits<char>::eof()], AC_DEFINE
 char_traits=no)
 AC_MSG_RESULT($char_traits)
 
+AC_MSG_CHECKING(["warning" preprocessor directive])
+cpp_warning=yes
+AC_TRY_COMPILE([#warning cpp supports warning directive], [], AC_DEFINE(PQXX_HAVE_CPP_WARNING, 1,
+[Define if preprocessor supports nonstandard "warning" directive]),
+cpp_warning=no)
+AC_MSG_RESULT($cpp_warning)
 
 AC_LANG_POP(C++)
 

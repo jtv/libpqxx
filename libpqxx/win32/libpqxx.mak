@@ -73,8 +73,10 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTFILE).lib"
 
 LINK32_OBJS= $(LINK32_OBJ_EXTRA) \
-	"$(INTDIR)\connection.obj" \
+	"$(INTDIR)\binarystring.obj" \
+	"$(INTDIR)\cachedresult.obj" \
 	"$(INTDIR)\connection_base.obj" \
+	"$(INTDIR)\connection.obj" \
 	"$(INTDIR)\cursor.obj" \
 	"$(INTDIR)\largeobject.obj" \
 	"$(INTDIR)\nontransaction.obj" \
@@ -83,8 +85,8 @@ LINK32_OBJS= $(LINK32_OBJ_EXTRA) \
 	"$(INTDIR)\tablereader.obj" \
 	"$(INTDIR)\tablestream.obj" \
 	"$(INTDIR)\tablewriter.obj" \
-	"$(INTDIR)\transaction.obj" \
-	"$(INTDIR)\transaction_base.obj"
+	"$(INTDIR)\transaction_base.obj" \
+	"$(INTDIR)\transaction.obj"
 
 RSC=rc.exe
 RSC_PROJ=/l 0x409 /fo"$(INTDIR)\libpqxx.res"
@@ -153,6 +155,14 @@ LIBPQXXSTATIC : "$(OUTFILE).lib"
 # Do we want a resource to go with the dll's?  If so what?
 #"$(INTDIR)\libpqxx.res" : "$(INTDIR)" libpqxx.rc
 #    $(RSC) $(RSC_PROJ) libpqxx.rc
+
+SOURCE=..\src\binarystring.cxx
+"$(INTDIR)\binarystring.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
+
+SOURCE=..\src\cachedresult.cxx
+"$(INTDIR)\cachedresult.obj" : $(SOURCE) "$(INTDIR)"
+	@$(CPP) $(CPP_PROJ) $(SOURCE)
 
 SOURCE=..\src\connection.cxx
 "$(INTDIR)\connection.obj" : $(SOURCE) "$(INTDIR)"

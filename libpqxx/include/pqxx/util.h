@@ -17,10 +17,12 @@
 #ifndef PQXX_UTIL_H
 #define PQXX_UTIL_H
 
+#ifdef PQXX_HAVE_CPP_WARNING
 #warning "Deprecated libpqxx header included.  Use the headers without '.h'"
+#endif
 
 #define PQXX_DEPRECATED_HEADERS
-#include "pqxx/util.h"
+#include "pqxx/util"
 
 #endif
 

@@ -14,6 +14,8 @@
  *
  *-------------------------------------------------------------------------
  */
+#include "pqxx/compiler.h"
+
 #include <stdexcept>
 
 #include "pqxx/binarystring"

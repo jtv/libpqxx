@@ -65,6 +65,7 @@ int main(int, char *argv[])
     if (c != B.end())
       throw logic_error("end() of binary string not reached");
 
+#ifndef PQXX_WORKAROUND_VC7
     binarystring::const_reverse_iterator r;
     for (i=B.length(), r=B.rbegin(); i>0; --i, ++r)
     {
@@ -76,6 +77,7 @@ int main(int, char *argv[])
     }
     if (r != B.rend())
       throw logic_error("rend() of binary string not reached");
+#endif
 
     if (B.str() != TestStr)
       throw logic_error("Binary string got mangled: '" + B.str() + "'");
