@@ -8,7 +8,6 @@ Connections
 (*) Connection pooling support
 
 Documentation
-(*) Make the part about connection strings & variables more clear
 (*) Find a better format for the tutorial
 (*) Re-translate the tutorial to HTML (preferably as part of build procedure)
 
@@ -31,7 +30,6 @@ Tests
 (*) More large object tests
 (*) Move optional stuff out of test001 to make it a more concise example
 (*) Add some tests using standard library's algorithms
- - for_each
  - find_if
  - count_if
  - transform

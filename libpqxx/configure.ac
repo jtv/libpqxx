@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 1.6.3, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 1.6.5, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 1.6.3)
+AM_INIT_AUTOMAKE(libpqxx, 1.6.5)
 
 # Library version numbering - see "info libtool versioning 'libtool
 # versioning'" for details.
@@ -25,6 +25,7 @@ AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
+
 
 # check that std namespace is actually called std
 # not sure how to check for other namespaces...
@@ -194,7 +195,6 @@ Please specify the location of the PostgreSQL include files with
 --with-postgres-include=... or --with-postgres=...]
 ))
 
-AC_LANG_PUSH(C++)
 AC_MSG_CHECKING([for working <sys/select.h>])
 select_h=yes
 AC_TRY_COMPILE(
@@ -225,12 +225,13 @@ AC_CHECK_DECL(PQescapeString,
 	[pqescapestring=no],
 	[#include <${with_postgres_include}/libpq-fe.h]>)
 
+AC_LANG_PUSH(C++)
 AC_CHECK_HEADERS([limits iterator])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_MSG_CHECKING([whether <iterator> defines a usable iterator template])
 AC_TRY_COMPILE([#include <iterator>], 
-	[struct I:std::iterator<std::random_access_iterator_tag,int>{}],
+	[struct I:PGSTD::iterator<PGSTD::random_access_iterator_tag,int>{}],
 	[it='yes'],
 	[AC_DEFINE(BROKEN_ITERATOR, 
 			1, 
@@ -241,7 +242,7 @@ AC_MSG_RESULT($it)
 # See if abs() works on a long int
 AC_MSG_CHECKING([for abs(long int)])
 AC_TRY_COMPILE([#include <cstdlib>],
-	[using namespace std;long a=-2000000000; long b=abs(a);],
+	[using namespace PGSTD;long a=-2000000000; long b=abs(a);],
 	[AC_DEFINE(HAVE_ABS_LONG,
 		1,
 		[Define if abs() works on long ints])
