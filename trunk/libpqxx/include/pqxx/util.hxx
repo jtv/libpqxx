@@ -18,6 +18,7 @@
 #include "pqxx/libcompiler.h"
 #include "pqxx/config-public-libpq.h"
 
+#include <cassert>// DEBUG CODE
 #include <cstdio>
 #include <cctype>
 #include <sstream>
@@ -83,7 +84,6 @@ typedef PQXXPQ::Oid oid;
 
 /// The "null" oid
 const oid oid_none = 0;
-
 
 /// Dummy name, used by libpqxx in deliberate link errors
 /** If you get an error involving this function while building your program, 
@@ -290,6 +290,9 @@ PGSTD::string separated_list(const PGSTD::string &sep,
  */
 namespace internal
 {
+typedef unsigned long result_size_type;
+typedef long result_difference_type;
+
 /// C-style format strings for various built-in types
 /** @deprecated To be removed when ToString and FromString are taken out
  *
@@ -522,7 +525,7 @@ namespace internal
 void freepqmem(void *);
 void freenotif(PQXXPQ::PGnotify *);
 
-/// Keep track of a libpq-allocated pointer to be free()d automatically.
+/// Reference-counted smart pointer to libpq-allocated object
 /** Ownership policy is simple: object dies when PQAlloc object's value does.
  * If the available PostgreSQL development files supply PQfreemem() or 
  * PQfreeNotify(), this is used to free the memory.  If not, free() is used 
@@ -532,28 +535,32 @@ void freenotif(PQXXPQ::PGnotify *);
 template<typename T> class PQAlloc
 {
   T *m_Obj;
+  mutable const PQAlloc *m_l, *m_r;
 public:
   typedef T content_type;
 
-  PQAlloc() : m_Obj(0) {}
+  PQAlloc() throw () : m_Obj(0), m_l(this), m_r(this) {}
+  PQAlloc(const PQAlloc &rhs) throw () :
+    m_Obj(0), m_l(this), m_r(this) { makeref(rhs); }
+  ~PQAlloc() throw () { loseref(); }
+
+  PQAlloc &operator=(const PQAlloc &rhs) throw () 
+  	{ if (&rhs != this) { loseref(); makeref(rhs); } return *this; }
 
   /// Assume ownership of a pointer
-  explicit PQAlloc(T *obj) : m_Obj(obj) {}
-
-  ~PQAlloc() throw () { close(); }
-
-  /// Assume ownership of a pointer, freeing the previous one (if any)
-  /** If the new and the old pointer are identical, no action is performed.
+  /** @warning Don't to this more than once for a given object!
    */
-  PQAlloc &operator=(T *obj) throw ()
-  { 
-    if (obj != m_Obj)
-    {
-      close();
-      m_Obj = obj;
-    }
-    return *this;
+  explicit PQAlloc(T *obj) throw () : m_Obj(obj), m_l(this), m_r(this) {}
+
+  void swap(PQAlloc &rhs) throw ()
+  {
+    PQAlloc tmp(*this);
+    *this = rhs;
+    rhs = tmp;
   }
+
+  PQAlloc &operator=(T *obj) throw ()
+  	{ assert(!obj || obj != m_Obj); loseref(); makeref(obj); return *this; }
 
   /// Is this pointer non-null?
   operator bool() const throw () { return m_Obj != 0; }
@@ -580,18 +587,50 @@ public:
    */
   T *c_ptr() const throw () { return m_Obj; }
 
-  /// Free and reset current pointer (if any)
-  void close() throw () { if (m_Obj) freemem(); m_Obj = 0; }
+  void clear() throw () { loseref(); }
 
 private:
+  void makeref(T *p) throw ()
+  {
+    assert(m_l == this);
+    assert(m_r == this);
+    m_Obj = p;
+  }
+
+  void makeref(const PQAlloc &rhs) throw ()
+  {
+    m_l = &rhs;
+    m_r = rhs.m_r;
+    m_l->m_r = m_r->m_l = this;
+    m_Obj = rhs.m_Obj;
+  }
+
+  /// Free and reset current pointer (if any)
+  void loseref() throw ()
+  {
+    assert(m_r->m_l == this);
+    assert(m_l->m_r == this);
+    assert((m_l==this) == (m_r==this));
+
+    if (m_l == this && m_Obj) freemem();
+    m_Obj = 0;
+    m_l->m_r = m_r;
+    m_r->m_l = m_l;
+    m_l = m_r = this;
+  }
+
   void freemem() throw ()
   {
     freepqmem(m_Obj);
   }
-
-  PQAlloc(const PQAlloc &);		// Not allowed
-  PQAlloc &operator=(const PQAlloc &);	// Not allowed
 };
+
+
+/// Special version for result arrays, using PQclear()
+template<> inline void PQAlloc<PQXXPQ::PGresult>::freemem() throw ()
+{
+  PQclear(m_Obj);
+}
 
 
 /// Special version for notify structures, using PQfreeNotify() if available
