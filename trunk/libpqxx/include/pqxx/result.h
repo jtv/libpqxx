@@ -90,8 +90,11 @@ public:
 
     Field(const Tuple &R, Tuple::size_type C) : Tuple(R), m_Col(C) {}	//[t1]
 
-    const char *c_str() const;	// Read as plain C string		//[t2]
-    const char *name() const;	// Column name				//[t11]
+    // Read as plain C string
+    const char *c_str() const {return m_Home->GetValue(m_Index,m_Col);}	//[t2]
+
+    // Column name
+    const char *name() const { return m_Home->ColumnName(m_Col); }	//[t11]
 
     // Read value into Obj; or leave Obj untouched & return false if null
     template<typename T> bool to(T &Obj) const				//[t1]
@@ -122,9 +125,9 @@ public:
       return NotNull;
     }
 
-    bool is_null() const;						//[t12]
+    bool is_null() const { return m_Home->GetIsNull(m_Index,m_Col); }	//[t12]
 
-    int size() const;							//[t11]
+    int size() const { return m_Home->GetLength(m_Index,m_Col); }	//[t11]
 
   private:
 
