@@ -106,7 +106,8 @@ void pqxx::transaction_base::commit()
 		      "committed again while in an undetermined state\n");
 
   default:
-    throw logic_error("libpqxx internal error: pqxx::transaction: invalid status code");
+    throw logic_error("libpqxx internal error: "
+	"pqxx::transaction: invalid status code");
   }
  
   // Tricky one.  If stream is nested in transaction but inside the same scope,
@@ -117,6 +118,14 @@ void pqxx::transaction_base::commit()
     throw runtime_error("Attempt to commit " + description() + " "
 			"with " + m_Focus.get()->description() + " "
 			"still open");
+
+  // Check that we're still connected (as far as we know--this is not an
+  // absolute thing!) before trying to commit.  If the connection was broken
+  // already, the commit would fail anyway but this way at least we don't remain
+  // in-doubt as to whether the backend got the commit order at all.
+  if (!m_Conn.is_open())
+    throw broken_connection("Broken connection to backend; "
+	"cannot complete transaction");
 
   try
   {
