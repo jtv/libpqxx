@@ -1,3 +1,8 @@
+2003-02-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection.h:
+  - #include <memory>
+ include/pqxx/transactionitf.h, test/test*.cxx:
+  - Added Exec() version taking query argument in std::string form
 2003-02-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/transaction.h:
   - Fixed little mistake in inline docs.  Thanks Dave Gomboc.

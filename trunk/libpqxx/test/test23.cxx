@@ -89,7 +89,7 @@ public:
 
   void operator()(argument_type &T)
   {
-    T.Exec(("NOTIFY " + m_Trigger).c_str());
+    T.Exec("NOTIFY " + m_Trigger);
   }
 
   void OnAbort(const char Reason[]) throw ()

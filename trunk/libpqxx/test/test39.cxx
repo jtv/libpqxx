@@ -41,8 +41,8 @@ int main(int argc, char *argv[])
 
     // Verify our start condition before beginning: there must not be a 1977
     // record already.
-    Result R( T1.Exec(("SELECT * FROM " + Table + " "
-	               "WHERE year=" + ToString(BoringYear)).c_str()) );
+    Result R( T1.Exec("SELECT * FROM " + Table + " "
+	              "WHERE year=" + ToString(BoringYear)) );
     if (R.size() != 0)
       throw runtime_error("There is already a record for " + 
 	                  ToString(BoringYear) + ". "
@@ -54,11 +54,11 @@ int main(int argc, char *argv[])
       throw logic_error("Result non-empty after clear()!");
 
     // OK.  Having laid that worry to rest, add a record for 1977.
-    T1.Exec(("INSERT INTO " + Table + " VALUES"
-             "(" +
-	     ToString(BoringYear) + ","
-	     "'Yawn'"
-	     ")").c_str());
+    T1.Exec("INSERT INTO " + Table + " VALUES"
+            "(" +
+	    ToString(BoringYear) + ","
+	    "'Yawn'"
+	    ")");
 
     // Abort T1.  Since T1 is a NonTransaction, which provides only the
     // transaction class interface without providing any form of transactional
@@ -67,8 +67,8 @@ int main(int argc, char *argv[])
 
     // Verify that our record was added, despite the Abort()
     NonTransaction T2(C, "T2");
-    R = T2.Exec(("SELECT * FROM " + Table + " "
-		 "WHERE year=" + ToString(BoringYear)).c_str());
+    R = T2.Exec("SELECT * FROM " + Table + " "
+		"WHERE year=" + ToString(BoringYear));
     if (R.size() != 1)
       throw runtime_error("Expected to find 1 record for " + 
 		          ToString(BoringYear) + ", found " +
@@ -84,16 +84,16 @@ int main(int argc, char *argv[])
       throw logic_error("Result::clear() doesn't work!");
 
     // Now remove our record again
-    T2.Exec(("DELETE FROM " + Table + " "
-	     "WHERE year=" + ToString(BoringYear)).c_str());
+    T2.Exec("DELETE FROM " + Table + " "
+	    "WHERE year=" + ToString(BoringYear));
 
     T2.Commit();
 
     // And again, verify results
     NonTransaction T3(C, "T3");
 
-    R = T3.Exec(("SELECT * FROM " + Table + " "
-	         "WHERE year=" + ToString(BoringYear)).c_str());
+    R = T3.Exec("SELECT * FROM " + Table + " "
+	        "WHERE year=" + ToString(BoringYear));
     if (R.size() != 0)
       throw runtime_error("Expected record for " + ToString(BoringYear) + " "
 		          "to be gone but found " + ToString(R.size()) + ". "

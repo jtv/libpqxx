@@ -74,9 +74,9 @@ public:
     for (map<int,int>::const_iterator c = m_Conversions.begin();
 	 c != m_Conversions.end();
 	 ++c)
-      T.Exec(("UPDATE events "
-	      "SET year=" + ToString(c->second) + " "
-	      "WHERE year=" + ToString(c->first)).c_str());
+      T.Exec("UPDATE events "
+	     "SET year=" + ToString(c->second) + " "
+	     "WHERE year=" + ToString(c->first));
   }
 
   // Postprocessing code for successful execution

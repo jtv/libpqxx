@@ -68,7 +68,7 @@ void FillTable(Transaction &T, string TableName)
 
 void CheckTable(Transaction &T, string TableName)
 {
-  Result Count = T.Exec(("SELECT COUNT(*) FROM " + TableName).c_str());
+  Result Count = T.Exec("SELECT COUNT(*) FROM " + TableName);
   size_t Rows = 0;
 
   if (!Count[0][0].to(Rows)) throw runtime_error("NULL row count!");
@@ -102,12 +102,12 @@ int main(int argc, char *argv[])
     Transaction T(C, "test28");
 
     // Create table.  If the table already existed, better to fail now.
-    T.Exec(("CREATE TABLE " + TableName + "(content VARCHAR)").c_str());
+    T.Exec("CREATE TABLE " + TableName + "(content VARCHAR)");
 
     FillTable(T, TableName);
     CheckTable(T, TableName);
 
-    T.Exec(("DROP TABLE " + TableName).c_str());
+    T.Exec("DROP TABLE " + TableName);
     T.Commit();
   }
   catch (const exception &e)

@@ -32,7 +32,7 @@ pqxx::Cursor::Cursor(pqxx::TransactionItf &T,
   // Give ourselves a locally unique name based on connection name
   m_Name += "_" + T.Name() + "_" + ToString(T.GetUniqueCursorNum());
 
-  m_Trans.Exec(("DECLARE \"" + m_Name + "\" CURSOR FOR " + Query).c_str());
+  m_Trans.Exec("DECLARE \"" + m_Name + "\" CURSOR FOR " + Query);
 }
 
 

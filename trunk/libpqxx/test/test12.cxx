@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     Connection C(argv[1]);
     Transaction T(C, "test12");
 
-    Result R( T.Exec(("SELECT * FROM " + Table).c_str()) );
+    Result R( T.Exec("SELECT * FROM " + Table) );
 
     vector<int> NullFields;		// Maps column to no. of null fields
     vector<bool> SortedUp, SortedDown;	// Does column appear to be sorted?

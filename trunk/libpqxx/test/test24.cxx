@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     try
     {
       Transaction Drop(C, "drop_" + TableName);
-      Drop.Exec(("DROP TABLE " + TableName).c_str());
+      Drop.Exec("DROP TABLE " + TableName);
       Drop.Commit();
     }
     catch (const exception &e)
@@ -46,9 +46,7 @@ int main(int argc, char *argv[])
 
     Transaction T(C, "test5");
 
-    T.Exec(("CREATE TABLE " + 
-	    TableName + 
-	    "(year INTEGER, event VARCHAR)").c_str());
+    T.Exec("CREATE TABLE " + TableName + "(year INTEGER, event VARCHAR)");
 
     // NOTE: start a nested block here to ensure that our stream W is closed 
     // before we attempt to commit our transaction T.  Otherwise we might end 

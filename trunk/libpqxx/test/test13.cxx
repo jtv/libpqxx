@@ -49,10 +49,10 @@ public:
     const string CountQuery = "SELECT count(*) FROM " + m_Table;
     Result R;
 
-    R = T.Exec(CountQuery.c_str());
+    R = T.Exec(CountQuery);
     R.at(0).at(0).to(m_Results.first);
 
-    R = T.Exec((CountQuery + " WHERE year=" + ToString(BoringYear)).c_str());
+    R = T.Exec(CountQuery + " WHERE year=" + ToString(BoringYear));
     R.at(0).at(0).to(m_Results.second);
   }
 };
@@ -71,9 +71,9 @@ public:
 
   void operator()(argument_type &T)
   {
-    Result R( T.Exec(("INSERT INTO " + m_Table + " VALUES (" +
-	              ToString(BoringYear) + ", "
-	              "'yawn')").c_str()) );
+    Result R( T.Exec("INSERT INTO " + m_Table + " VALUES (" +
+	             ToString(BoringYear) + ", "
+	             "'yawn')") );
 
     assert(R.AffectedRows() == 1);
     cout << "Inserted row with oid " << R.InsertedOid() << endl;
