@@ -17,7 +17,7 @@
  */
 #include "pqxx/compiler.h"
 
-#include <new>
+#include <cassert>	// DEBUG CODE
 #include <stdexcept>
 
 #include "pqxx/except"
@@ -51,12 +51,15 @@ pqxx::result &pqxx::result::operator=(PGresult *Other)
 
 void pqxx::result::swap(pqxx::result &other) throw ()
 {
-  int *const refcount = m_Refcount;
-  PGresult *const res = m_Result;
-  m_Refcount = other.m_Refcount;
+  const result *const l=m_l, *const r=m_r;
+  PGresult *p(m_Result);
+
+  m_l = other.m_l;
+  m_r = other.m_r;
   m_Result = other.m_Result;
-  other.m_Refcount = refcount;
-  other.m_Result = res;
+  other.m_l = l;
+  other.m_r = r;
+  other.m_Result = p;
 }
 
 
@@ -117,46 +120,34 @@ string pqxx::result::StatusError() const
 }
 
 
-void pqxx::result::MakeRef(PGresult *Other)
+void pqxx::result::MakeRef(PGresult *Other) throw ()
 {
-  if (Other)
-  {
-    try
-    {
-      m_Refcount = new int(1);
-    }
-    catch (const bad_alloc &)
-    {
-      PQclear(Other);
-      throw;
-    }
-  }
+  assert(m_l == this);
+  assert(m_r == this);
   m_Result = Other;
 }
 
 
 void pqxx::result::MakeRef(const pqxx::result &Other) throw ()
 {
+  m_l = &Other;
+  m_r = Other.m_r;
+  m_l->m_r = m_r->m_l = this;
   m_Result = Other.m_Result;
-  m_Refcount = Other.m_Refcount;
-  if (Other.m_Refcount)
-    ++*m_Refcount;
 }
 
 
 void pqxx::result::LoseRef() throw ()
 {
-  if (m_Refcount)
+  if (m_l == this)
   {
-    --*m_Refcount;
-    if (*m_Refcount <= 0)
-    {
-      delete m_Refcount;
-      PQclear(m_Result);
-    }
-    m_Refcount = 0;
-    m_Result = 0;
+    assert(m_r == this);
+    if (m_Result) PQclear(m_Result);
   }
+  m_Result = 0;
+  m_l->m_r = m_r;
+  m_r->m_l = m_l;
+  m_l = m_r = this;
 }
 
 
