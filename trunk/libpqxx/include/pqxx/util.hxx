@@ -260,6 +260,8 @@ template<typename T> class PQAlloc
 {
   T *m_Obj;
 public:
+  typedef T content_type;
+
   PQAlloc() : m_Obj(0) {}
 
   /// Assume ownership of a pointer

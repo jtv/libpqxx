@@ -20,7 +20,15 @@
 // Workarounds & definitions that need to be included even in library's headers
 #include "pqxx/libconfig.h"
 
+
+#ifndef HAVE_PTRDIFF_T
+typedef long ptrdiff_t;
+#endif
+
+
 #ifdef PQXX_BROKEN_ITERATOR
+#include <cstddef>
+#include <cstdlib>
 namespace PGSTD
 {
 /// Work around lacking iterator template definition in <iterator>
@@ -42,6 +50,7 @@ template<typename Cat,
 #endif // PQXX_BROKEN_ITERATOR
 
 #ifndef HAVE_CHAR_TRAITS
+#include <cstddef>
 namespace PGSTD
 {
 /// Work around missing std::char_traits
@@ -52,6 +61,17 @@ template<> struct char_traits<char>
   typedef int int_type;
   typedef size_t pos_type;
   typedef ptrdiff_t off_type;
+  typedef char char_type;
+
+  static int_type eof() { return -1; }
+};
+/// Work around missing std::char_traits<unsigned char>
+template<> struct char_traits<unsigned char>
+{
+  typedef int int_type;
+  typedef size_t pos_type;
+  typedef ptrdiff_t off_type;
+  typedef unsigned char char_type;
 
   static int_type eof() { return -1; }
 };

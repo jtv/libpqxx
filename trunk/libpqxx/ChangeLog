@@ -1,7 +1,21 @@
+2003-11-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/binarystring.hxx:
+  - Use PQAlloc's content_type
+ include/pqxx/libcompiler.h:
+  - "Broken iterator" workaround includes cstdlib for size_t
+  - "Broken iterator" workaround includes cstddef for ptrdiff_t
+  - char_traits workaround also typedefs char_type
+  - Added char_traits workaround for unsigned char
+  - Added workaround for missing ptrdiff_t
+  - Thanks Adam Pigg for making me persist in resolving this!
+ include/pqxx/util.hxx:
+  - PQAlloc typedefs content_type
 2003-11-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
   - Invokes maketestam.pl before running automake
   - Invokes maketestvcmak.pl
+ README:
+  - Kexi project confirmed by Adam Pigg
  tools/maketestam.pl
   - New
   - Generates test/Makefile.am
