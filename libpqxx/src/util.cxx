@@ -179,10 +179,12 @@ template<> void from_string(const char Str[], double &Obj)
   from_string_float(Str, Obj);
 }
 
+#if defined(PQXX_HAVE_LONG_DOUBLE)
 template<> void from_string(const char Str[], long double &Obj)
 {
   from_string_float(Str, Obj);
 }
+#endif
 
 
 template<> void from_string(const char Str[], bool &Obj)
@@ -329,10 +331,12 @@ template<> string to_string(const double &Obj)
   return to_string_fallback(Obj);
 }
 
+#if defined(PQXX_HAVE_LONG_DOUBLE)
 template<> string to_string(const long double &Obj)
 {
   return to_string_fallback(Obj);
 }
+#endif
 
 template<> string to_string(const bool &Obj)
 {
