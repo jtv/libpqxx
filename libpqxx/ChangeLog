@@ -1,3 +1,6 @@
+2004-08-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/result.cxx:
+  - Workaround for missing PQresultErrorField(), thanks webmaster@tsukaeru.net
 2004-08-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems:
   - Added PQXX_PQ_IN_NAMESPACE (under "compiler" for now)

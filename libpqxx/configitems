@@ -23,6 +23,7 @@ PQXX_HAVE_PQFREEMEM	internal	libpq
 PQXX_HAVE_PQFREENOTIFY	internal	libpq
 PQXX_HAVE_PQFTABLE	public	libpq
 PQXX_HAVE_PQPUTCOPY	internal	libpq
+PQXX_HAVE_PQRESULTERRORFIELD	internal	libpq
 PQXX_HAVE_PQUNESCAPEBYTEA	internal	libpq
 PQXX_HAVE_PTRDIFF_T	public	compiler
 PQXX_HAVE_REVERSE_ITERATOR	public	compiler

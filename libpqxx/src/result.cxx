@@ -179,11 +179,13 @@ pqxx::result::GetLength(pqxx::result::size_type Row,
 int pqxx::result::errorposition() const throw ()
 {
   int pos = -1;
+#if PQXX_HAVE_PQRESULTERRORFIELD
   if (m_Result)
   {
     const char *p = PQresultErrorField(m_Result, PG_DIAG_STATEMENT_POSITION);
     if (p) from_string(p, pos);
   }
+#endif // PQXX_HAVE_PQRESULTERRORFIELD
   return pos;
 }
 
