@@ -2,6 +2,7 @@
  - Generates MinGW Makefile automatically
  - Documents MinGW build
  - Workaround for missing PQexecPrepared()
+ - Removed virtual function call from connection_base destructor
 2.2.9
  - Bugfix in removing trigger
  - Added "failed connection" to regression test
