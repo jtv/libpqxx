@@ -1,3 +1,6 @@
+2004-02-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/largeobject.cxx: 
+  - Fixed risk of incorrect errno 
 2004-02-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test075.cxx:
   - g++ 2.95 compile fix
