@@ -1,4 +1,19 @@
-2002-03-29 01:30
+2002-03-30  J.H.M. Dassen (Ray) <jdassen@debian.org>
+ configure.in:
+  - Renamed from configure.ac
+  - Added bug report address to AC_INIT
+  - Check for and enable several compiler warnings etc.
+  - Detect whether <limits> is available
+  - Detect whether <iterator> defines 
+ Util:
+  - Look for postgres_fe.h in a "server" subdirectory
+ Compiler:
+  - Use configure-determined HAVE_LIMITS
+ doc/Makefile:
+  - Created
+ Docs:
+  - Added DOCTYPE, made proper DocBook, use <ulink> for libpq reference.
+2002-03-29 01:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
   All:
    - DLL export directives for Windows, thanks Clinton James
   ChangeLog:
@@ -10,47 +25,47 @@
    - Exits when any command fails
   Test4:
    - sleep() workaround for Windows, thanks Clinton James
-2002-03-27 01:00
+2002-03-27 01:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
  AUTHORS:
   - Created
  CHANGES:
   - Renamed to NEWS
-2002-03-26 22:30
+2002-03-26 22:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Makefile:
   - Put regression test into separate script
  Result:
   - Inlined Result::Field methods
  Selftest:
   - Created
-2002-03-26 00:30
+2002-03-26 00:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Doc:
   - Added HTML docs, fixed bugs in SGML; thanks Bruce Momjian.
-2002-03-23 05:30
+2002-03-23 05:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Result, TransactionItf, Transactor:
   - Several compile fixes (especially under MS Visual C++)--Clinton James
-2002-03-22 02:45
+2002-03-22 02:45  Jeroen T. Vermeulen <jtv@xs4all.nl>
  All:
   - Renamed *.cc to *.cxx for MS Visual C++, thanks Clinton James
-2002-03-20 14:15
+2002-03-20 14:15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Result:
   - Fixed to compile errors on gcc 2.96.x, thanks Vyacheslav Ignatyuk
-2002-03-20 02:00
+2002-03-20 02:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
  All:
   - Renamed namespace Pg to pqxx for consistency
-2002-03-20 01:30
+2002-03-20 01:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  All:
   - Renamed library source files to match new header file names
-2002-03-20 01:00
+2002-03-20 01:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
  All:
   - Great Renaming of header files (pg_*.h to pqxx/*.h)
-2002-03-20 00:30
+2002-03-20 00:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  All:
   - Moved library header files into include directory
   - Moved library source files into src directory
   - Moved test source files into test directory
  Makefile:
   - Reduced use of repetitive explicit rules
-2002-03-17 01:30
+2002-03-17 01:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  All:
   - Full test coverage!
  Cursor:
@@ -68,14 +83,14 @@
   - Improved Cursor test coverage
  TransactionItf:
   - Updated header comments
-2002-03-05 17:45
+2002-03-05 17:45  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Makefile:
   - Now queries log table at end of regression test; should be empty
  Test4, Test6, Test7, Test13, Test15, Test17:
   - Recommended practice is now to use TRANSACTIONTYPE in Transactors
  Test18:
   - Created
-2002-03-05 00:30
+2002-03-05 00:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  RobustTransaction:
   - Initial implementation
  Test14:
@@ -84,10 +99,10 @@
   - Created
  Test17:
   - Created
-2002-03-04 22:00
+2002-03-04 22:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
  RobustTransaction:
   - Created as outline based on Transaction
-2002-03-04 00:30
+2002-03-04 00:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  NonTransaction:
   - Created
  Test14:
@@ -100,11 +115,11 @@
   - Created
  Transactor:
   - Made choice of transaction class parameterizable
-2002-03-03 17:00
+2002-03-03 17:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Transactor:
   - Made Transaction class selectable, so can add more transaction types later
   - Added OnDoubt()
-2002-03-03 16:15
+2002-03-03 16:15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Connection:
   - In-doubt transactions are no longer retried
  Makefile:
@@ -113,46 +128,46 @@
  Transaction:
   - Introduced checking for in-doubt transactions
   - Minor improvements in error handling
-2002-03-02 14:15
+2002-03-02 14:15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  TableReader:
   - Full test coverage
  Test6:
   - Added consistency check for TableReader's operator!()/operator bool()
  Test8:
   - Added consistency check for TableReader's GetRawLine()/Tokenize()
-2002-03-01 00:45
+2002-03-01 00:45  Jeroen T. Vermeulen <jtv@xs4all.nl>
  TableStream:
   - Full test coverage
-2002-03-01 00:15
+2002-03-01 00:15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  TableWriter:
   - Full test coverage
  Test10:
   - Used TableWriter to insert tuple
-2002-02-28 23:30
+2002-02-28 23:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Test13:
   - Created
  Transactor:
   - Full test coverage
-2002-02-27 00:00
+2002-02-27 00:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Result:
   - Full test coverage
  Test12:
   - Created
-2002-02-26 23:00
+2002-02-26 23:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Result:
   - Extended test coverage to metadata queries
  Test11:
   - Created
-2002-02-24 22:00
+2002-02-24 22:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Result:
   - Documented method coverage
  Test10:
   - Disabled trace output
-2002-02-24 05:00
+2002-02-24 05:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Transaction:
   - Full method coverage by self-test
   - Found recently introduced bug in implicit abort!
-2002-02-24 04:00
+2002-02-24 04:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
  TableStream:
   - Documented method coverage
  TableReader:
@@ -166,7 +181,7 @@
   - Improved test coverage
  Transactor:
   - Documented method coverage
-2002-02-24 01:30
+2002-02-24 01:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  CONCEPT:
   - Removed unneeded old file
  Connection:
@@ -175,51 +190,51 @@
   - Documented method coverage
  Trigger:
   - Full method coverage by self-test
-2002-02-15 01:30
+2002-02-15 01:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Docs:
   - More explanation on transaction bracketing
  Transaction:
   - Deferring commits to destruction time was wrong
-2002-02-03 20:15
+2002-02-03 20:15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Result:
   - Added metadata query methods
   - Removed unnecessary friendship with Tuple
-2002-02-03 06:00
+2002-02-03 06:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Docs:
   - More examples
  Makefile:
   - No longer removes old library.  Same difference.
   - Abstracted away source tarball, source directory name
-2002-02-02 18:45
+2002-02-02 18:45  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Docs:
   - More on exceptions, more on executing queries.
  Makefile:
   - Now builds an actual (but static) library
-2002-01-26 21:15
+2002-01-26 21:15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  CVS:
   - Imported into CVS
  Makefile:
   - Fixed "std namespace compiler workaround" breako
   - Added "dist" target
-2002-01-26 00:30
+2002-01-26 00:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  All:
   - New #define PGSTD to replace std if needed
  Compiler:
   - New header pg_compiler.h
   - Genericized workaround for missing numeric_limits
   - Disable braindead Microsoft Visual C++ warnings
-2002-01-20 14:50
+2002-01-20 14:50  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Result:
   - Fixed Result::Field::name() -- thanks to Gilberto Ribeiro de Queiroz
-2002-01-08 21:50
+2002-01-08 21:50  Jeroen T. Vermeulen <jtv@xs4all.nl>
  TableWriter:
   - operator= forgot to return *this
  Test9:
   - Created to test TableWriter's back_insert_iterator
-2002-01-07 00:15
+2002-01-07 00:15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  TableWriter:
   - Implemented back_insert_iterator<TableWriter>
-2002-01-01 23:45
+2002-01-01 23:45  Jeroen T. Vermeulen <jtv@xs4all.nl>
  TableWriter:
   - Forgot to separate fields in output
  Tests:
