@@ -513,9 +513,11 @@ void pqxx::connection_base::WriteCopyLine(const string &Line)
 // End COPY operation.  Careful: this assumes that no more lines remain to be
 // read or written, and the COPY operation has been properly terminated with a
 // line containing only the two characters "\."
-void pqxx::connection_base::EndCopy()
+void pqxx::connection_base::EndCopy() throw ()
 {
-  if (PQendcopy(m_Conn) != 0) throw runtime_error(ErrMsg());
+  // Don't throw exception on failure--this code is only called from TableStream
+  // destructors.
+  PQendcopy(m_Conn);
 }
 
 

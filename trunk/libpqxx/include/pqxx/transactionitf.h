@@ -4,7 +4,7 @@
  *	pqxx/transactionitf.h
  *
  *   DESCRIPTION
- *      Backward compatibility for when transaction_base was TransactionItf
+ *      This header is deprecated.  Use "transaction_base" instead
  *
  * Copyright (c) 2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -17,7 +17,7 @@
 #ifndef PQXX_TRANSACTIONITF_H
 #define PQXX_TRANSACTIONITF_H
 
-#include "pqxx/transaction_base.h"
+#include "pqxx/transaction_base"
 
 namespace pqxx
 {

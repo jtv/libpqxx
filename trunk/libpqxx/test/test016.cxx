@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include <pqxx/connection.h>
-#include <pqxx/robusttransaction.h>
-#include <pqxx/result.h>
+#include <pqxx/connection>
+#include <pqxx/robusttransaction>
+#include <pqxx/result>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -26,7 +26,7 @@ int main(int, char *argv[])
     // Begin a "non-transaction" acting on our current connection.  This is
     // really all the transactional integrity we need since we're only 
     // performing one query which does not modify the database.
-    RobustTransaction T(C, "test16");
+    robusttransaction<> T(C, "test16");
 
     result R( T.Exec("SELECT * FROM pg_tables") );
 

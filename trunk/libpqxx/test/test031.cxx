@@ -2,9 +2,9 @@
 #include <iostream>
 #include <vector>
 
-#include <pqxx/connection.h>
-#include <pqxx/transaction.h>
-#include <pqxx/result.h>
+#include <pqxx/connection>
+#include <pqxx/transaction>
+#include <pqxx/result>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     // Reactivate C (not really needed, but it sounds more polite)
     C.Activate();
 
-    Transaction T(C, "test31");
+    transaction<> T(C, "test31");
 
     result R( T.Exec("SELECT * FROM " + Table) );
 
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
     for (result::tuple::size_type f = 0; f < R.Columns(); ++f)
     {
       cout << ToString(f) << ":\t"
-	   << R.ColumnName(f) << '\t'
+	   << R.column_name(f) << '\t'
 	   << NullFields[f] << '\t'
 	   << (SortedUp[f] ? 
 		(SortedDown[f] ? "equal" : "up" ) : 

@@ -1,6 +1,7 @@
 #include <iostream>
 
-#include <pqxx/all.h>
+#include <pqxx/all>
+#include <pqxx/cachedresult.h>
 
 using namespace PGSTD;
 using namespace pqxx;

@@ -1,9 +1,9 @@
 #include <cassert>
 #include <iostream>
 
-#include <pqxx/connection.h>
-#include <pqxx/nontransaction.h>
-#include <pqxx/result.h>
+#include <pqxx/connection>
+#include <pqxx/nontransaction>
+#include <pqxx/result>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     const string Table = ((argc > 2) ? argv[2] : "pqxxevents");
 
     // Begin a transaction acting on our current connection
-    NonTransaction T1(C, "T1");
+    nontransaction T1(C, "T1");
 
     // Verify our start condition before beginning: there must not be a 1977
     // record already.
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     T1.Abort();
 
     // Verify that our record was added, despite the Abort()
-    NonTransaction T2(C, "T2");
+    nontransaction T2(C, "T2");
     R = T2.Exec(("SELECT * FROM " + Table + " "
 		 "WHERE year=" + ToString(BoringYear)).c_str());
     if (R.size() != 1)
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     T2.Commit();
 
     // And again, verify results
-    NonTransaction T3(C, "T3");
+    nontransaction T3(C, "T3");
 
     R = T3.Exec(("SELECT * FROM " + Table + " "
 	         "WHERE year=" + ToString(BoringYear)).c_str());

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <pqxx/all.h>
+#include <pqxx/all>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -14,7 +14,7 @@ int main()
   try
   {
     connection C;
-    Transaction T(C, "test56");
+    transaction<> T(C, "test56");
 
     try
     {

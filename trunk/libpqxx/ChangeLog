@@ -1,3 +1,11 @@
+2003-06-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base, include/pqxx/transaction_base,
+ src/tablestream.cxx:
+  - Fix crash closing tablestream on nonexistant table (thx Sean [Rogers?])
+2003-06-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/*.h:
+  - Deprecated; new headers have names not ending in ".h"
+  - All backwards compatibility support restricted to old headers
 2003-06-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/largeobject.h:
   - Fixed compile error in a basic_ilostream() constructor

@@ -3,10 +3,10 @@
 #include <stdexcept>
 #include <vector>
 
-#include <pqxx/connection.h>
-#include <pqxx/tablereader.h>
-#include <pqxx/tablewriter.h>
-#include <pqxx/transaction.h>
+#include <pqxx/connection>
+#include <pqxx/tablereader>
+#include <pqxx/tablewriter>
+#include <pqxx/transaction>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -55,7 +55,7 @@ void PrepareContents()
 }
 
 
-void FillTable(Transaction &T, string TableName)
+void FillTable(transaction_base &T, string TableName)
 {
   tablewriter W(T, TableName);
   W.reserve(Contents.size());
@@ -66,7 +66,7 @@ void FillTable(Transaction &T, string TableName)
 }
 
 
-void CheckTable(Transaction &T, string TableName)
+void CheckTable(transaction_base &T, string TableName)
 {
   result Count = T.Exec(("SELECT COUNT(*) FROM " + TableName).c_str());
   size_t Rows = 0;
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     string TableName = "testtable";
     if (argc > 2) TableName = argv[2];
 
-    Transaction T(C, "test9");
+    transaction<> T(C, "test9");
 
     // Create table.  If the table already existed, better to fail now.
     T.Exec(("CREATE TABLE " + TableName + "(content VARCHAR)").c_str());

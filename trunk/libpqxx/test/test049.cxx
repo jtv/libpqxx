@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <iostream>
 
-#include <pqxx/all.h>
+#include <pqxx/all>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
     }
 
     connection C(argv[1]);
-    Transaction T(C, "test49");
+    transaction<> T(C, "test49");
 
     result R( T.Exec("SELECT * FROM " + Table + " ORDER BY " + Key) );
     cout << "Read " << R.size() << " tuples." << endl;

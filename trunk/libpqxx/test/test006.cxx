@@ -2,11 +2,11 @@
 #include <stdexcept>
 #include <vector>
 
-#include <pqxx/connection.h>
-#include <pqxx/tablereader.h>
-#include <pqxx/tablewriter.h>
-#include <pqxx/transaction.h>
-#include <pqxx/transactor.h>
+#include <pqxx/connection>
+#include <pqxx/tablereader>
+#include <pqxx/tablewriter>
+#include <pqxx/transaction>
+#include <pqxx/transactor>
 
 
 using namespace PGSTD;
@@ -77,13 +77,13 @@ void CheckState(tablereader &R)
 
 class CopyTable : public transactor<>
 {
-  Transaction &m_orgTrans;  // Transaction giving us access to original table
-  string m_orgTable;	    // Original table's name
-  string m_dstTable;	    // Destination table's name
+  transaction<> &m_orgTrans; // Transaction giving us access to original table
+  string m_orgTable;	     // Original table's name
+  string m_dstTable;	     // Destination table's name
 
 public:
   // Constructor--pass parameters for operation here
-  CopyTable(Transaction &OrgTrans, string OrgTable, string DstTable) :
+  CopyTable(transaction<> &OrgTrans, string OrgTable, string DstTable) :
     transactor<>("CopyTable"),
     m_orgTrans(OrgTrans),
     m_orgTable(OrgTable),
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
     const string dstTable = ((argc > 3) ? argv[3] : "pqxxevents");
 
     // Set up a transaction to access the original table from
-    Transaction orgTrans(orgC, "test6org");
+    transaction<> orgTrans(orgC, "test6org");
  
     // Attempt to create table.  Ignore errors, as they're probably one of:
     // (1) Table already exists--fine with us
