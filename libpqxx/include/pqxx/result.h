@@ -251,7 +251,11 @@ public:
 
   /// If command was INSERT of 1 row, return oid of inserted row
   /** Returns InvalidOid otherwise. */
-  Oid InsertedOid() const { return PQoidValue(m_Result); }		//[]
+  Oid InsertedOid() const { return PQoidValue(m_Result); }		//[13]
+
+  /// If command was INSERT, UPDATE, or DELETE, return number of affected rows
+  /*** Returns zero for all other commands. */
+  size_type AffectedRows() const;					//[t7]
 
 private:
   PGresult *m_Result;

@@ -1,3 +1,10 @@
+2002-10-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result.h, src/result.cxx:
+  - Added AffectedRows() function requested by Peter Novodvorsky
+ test/test13.cxx:
+  - Tests Result::InsertedOid() and Result::AffectedRows()
+ test/test7.cxx:
+  - Tests Result::AffectedRows()
 2002-10-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/result.h:
   - Changed Tuple constructor arg from Tuple::size_type to Result::size_type
