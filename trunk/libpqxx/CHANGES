@@ -1,3 +1,8 @@
+2002-02-03 06:00
+ Docs:
+  - More examples
+ Makefile:
+  - No longer removes old library.  Same difference.
 2002-02-02 18:45
  Docs:
   - More on exceptions, more on executing queries.
