@@ -59,10 +59,45 @@ const oid oid_none = InvalidOid;
 template<typename T> void error_unsupported_type_in_string_conversion(T);
 
 
+/// Attempt to convert postgres-generated string to given built-in type
+/** If the form of the value found in the string does not match the expected 
+ * type, e.g. if a decimal point is found when converting to an integer type,
+ * the conversion fails.  Overflows (e.g. converting "9999999999" to a 16-bit
+ * C++ type) are also treated as errors.
+ * Only the simplest possible conversions are supported.  No fancy features
+ * such as hexadecimal or octal, spurious signs, or exponent notation will work.
+ * No whitespace is stripped away.  Only the kinds of strings that come out of 
+ * PostgreSQL and out of to_string() can be converted.
+ */
+template<typename T> void from_string(const char Str[], T &Obj);
+
+template<> void from_string(const char Str[], long &);			//[]
+template<> void from_string(const char Str[], unsigned long &);		//[]
+template<> void from_string(const char Str[], int &);			//[]
+template<> void from_string(const char Str[], unsigned int &);		//[]
+template<> void from_string(const char Str[], short &);			//[]
+template<> void from_string(const char Str[], unsigned short &);	//[]
+template<> void from_string(const char Str[], float &);			//[]
+template<> void from_string(const char Str[], double &);		//[]
+template<> void from_string(const char Str[], long double &);		//[]
+template<> void from_string(const char Str[], bool &);			//[]
+
+template<> inline void from_string(const char Str[],PGSTD::string &Obj)	//[]
+	{ Obj = Str; }
+
+template<typename T> 
+  inline void from_string(const PGSTD::string &Str, T &Obj) 		//[]
+	{ from_string(Str.c_str(), Obj); }
+
+template<> inline void 
+from_string(const PGSTD::string &Str, PGSTD::string &Obj) 		//[]
+	{ Obj = Str; }
+
+
 /// Private namespace for libpqxx's internal use; do not access
 /** This namespace hides definitions internal to libpqxx.  These are not 
- * supposed to be used by client programs, and may change at any time without 
- * notice.  
+ * supposed to be used by client programs, and they may change at any time 
+ * without notice.  
  * @warning Here be dragons!
  */
 namespace internal
@@ -79,9 +114,6 @@ template<typename T> inline const char *FmtString(T t)
   error_unsupported_type_in_string_conversion(t);
   return 0;
 }
-
-// Not implemented to prevent accidents with irregular meaning of argument:
-// template<> inline const char *FmtString(const char *&) { return "%s"; }
 
 template<> inline const char *FmtString(short)         { return "%hd"; }
 template<> inline const char *FmtString(unsigned short){ return "%hu"; }
@@ -147,6 +179,8 @@ template<> inline PGSTD::string ToString(const unsigned short &Obj)
  * data types in question (particularly numeric types like float and int) in
  * default C format, you'll need to switch back to the C locale before the call.
  * This should be fixed at some point in the future.
+ * @deprecated Use from_string instead, which is stricter but does not have the
+ * locale problem.
  */
 template<typename T> inline void FromString(const char Str[], T &Obj)
 {
@@ -168,9 +202,6 @@ void PQXX_LIBEXPORT FromString_string(const char Str[], PGSTD::string &Obj);
 /// For libpqxx internal use only: convert unsigned char * to C++ string
 void PQXX_LIBEXPORT FromString_ucharptr(const char Str[], 
     	const unsigned char *&Obj);
-
-/// For libpqxx internal use only: convert string to bool
-void PQXX_LIBEXPORT FromString_bool(const char Str[], bool &Obj);
 
 /// For libpqxx internal use only: quote std::string
 PGSTD::string PQXX_LIBEXPORT Quote_string(const PGSTD::string &Obj, 
@@ -199,7 +230,7 @@ template<> inline void FromString(const char Str[], const unsigned char *&Obj)
 
 template<> inline void FromString(const char Str[], bool &Obj)
 {
-  internal::FromString_bool(Str, Obj);
+  from_string(Str, Obj);
 }
 
 

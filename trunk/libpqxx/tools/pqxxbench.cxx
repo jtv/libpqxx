@@ -99,6 +99,7 @@ int main(int /*argc*/, char *argv[])
   {
     asyncconnection C(argv[1]);
     setup_table(C);
+    manipulate(C);
   }
   catch (const broken_connection &e)
   {

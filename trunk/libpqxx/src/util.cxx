@@ -17,11 +17,216 @@
 #include "pqxx/compiler.h"
 
 #include <new>
+#include <sstream>
 
 #include "pqxx/util"
 
 using namespace PGSTD;
 
+
+namespace pqxx
+{
+
+template<> void from_string(const char Str[], long &Obj)
+{
+  const char *p = Str;
+  bool neg = false;
+  if (!isdigit(*p))
+  {
+    if (*p == '-')
+    {
+      neg = true;
+      p++;
+    }
+    else
+    {
+      throw runtime_error("Could not convert string to integer: '" +
+      	string(Str) + "'");
+    }
+  }
+
+  long result;
+  for (result=0; isdigit(*p); ++p)
+  {
+    const long newresult = 10*result + (*p-'0');
+    if (newresult < result)
+      throw runtime_error("Integer too large to read: " + string(Str));
+
+    result = newresult;
+  }
+
+  if (*p)
+    throw runtime_error("Unexpected text after integer: '" + string(Str) + "'");
+
+  Obj = (neg ? -result : result);
+}
+
+template<> void from_string(const char Str[], unsigned long &Obj)
+{
+  if (!Str) throw runtime_error("Attempt to convert NULL string to integer");
+  
+  const char *p = Str;
+  if (!isdigit(*p))
+  {
+    throw runtime_error("Could not convert string to unsigned integer: '" +
+    	string(Str) + "'");
+  }
+
+  unsigned long result;
+  for (result=0; isdigit(*p); ++p)
+  {
+    const unsigned long newresult = 10*result + (*p-'0');
+    if (newresult < result)
+      throw runtime_error("Unsigned integer too large to read: " + string(Str));
+
+    result = newresult;
+  }
+
+  if (*p)
+    throw runtime_error("Unexpected text after integer: '" + string(Str) + "'");
+
+  Obj = result;
+}
+
+} // namespace pqxx
+
+
+namespace
+{
+template<typename T> inline void from_string_signed(const char Str[], T &Obj)
+{
+  long L;
+  pqxx::from_string(Str, L);
+  const T result = T(L);
+  if (result != L) throw runtime_error("Overflow in integer conversion");
+  Obj = result;
+}
+
+template<typename T> inline void from_string_unsigned(const char Str[], T &Obj)
+{
+  unsigned long L;
+  pqxx::from_string(Str, L);
+  const T result = T(L);
+  if (result != L) 
+    throw runtime_error("Overflow in unsigned integer conversion");
+  Obj = result;
+}
+
+// These are hard.  Sacrifice performance and lean on standard library.
+template<typename T> inline void from_string_float(const char Str[], T &Obj)
+{
+  locale Cloc("C");
+  stringstream S(Str);
+  S.imbue(Cloc);
+  T result;
+  if (!(S >> result))
+    throw runtime_error("Could not convert string to numeric value: '" +
+	string(Str) + "'");
+  Obj = result;
+}
+
+} // namespace
+
+
+namespace pqxx
+{
+
+template<> void from_string(const char Str[], int &Obj)
+{
+  from_string_signed(Str, Obj);
+}
+
+template<> void from_string(const char Str[], unsigned int &Obj)
+{
+  from_string_unsigned(Str, Obj);
+}
+
+
+template<> void from_string(const char Str[], short &Obj)
+{
+  from_string_signed(Str, Obj);
+}
+
+template<> void from_string(const char Str[], unsigned short &Obj)
+{
+  from_string_unsigned(Str, Obj);
+}
+
+template<> void from_string(const char Str[], float &Obj)
+{
+  float result;
+  from_string_float(Str, result);
+  Obj = result;
+}
+
+template<> void from_string(const char Str[], double &Obj)
+{
+  from_string_float(Str, Obj);
+}
+
+template<> void from_string(const char Str[], long double &Obj)
+{
+  from_string_float(Str, Obj);
+}
+
+
+template<> void from_string(const char Str[], bool &Obj)
+{
+  if (!Str)
+    throw runtime_error("Attempt to read NULL string");
+
+  bool OK, result=false;
+
+  switch (Str[0])
+  {
+  case 0:
+    result = false;
+    OK = true;
+    break;
+
+  case 'f':
+  case 'F':
+    result = false;
+    OK = !(Str[1] && 
+	   (strcmp(Str+1, "alse") != 0) && 
+	   (strcmp(Str+1, "ALSE") != 0));
+    break;
+
+  case '0':
+    {
+      int I;
+      from_string(Str, I);
+      result = (I != 0);
+      OK = ((I == 0) || (I == 1));
+    }
+    break;
+
+  case '1':
+    result = true;
+    OK = !Str[1];
+    break;
+
+  case 't':
+  case 'T':
+    result = true;
+    OK = !(Str[1] &&
+	   (strcmp(Str+1, "rue") != 0) &&
+	   (strcmp(Str+1, "RUE") != 0));
+    break;
+
+  default:
+    OK = false;
+  }
+
+  if (!OK) 
+    throw invalid_argument("Failed conversion to bool: '" + string(Str) + "'");
+
+  Obj = result;
+}
+
+
+
+} // namespace pqxx
 
 void pqxx::internal::FromString_string(const char Str[], string &Obj)
 {
@@ -37,59 +242,6 @@ void pqxx::internal::FromString_ucharptr(const char Str[],
   const char *C;
   FromString(Str, C);
   Obj = reinterpret_cast<const unsigned char *>(C);
-}
-
-
-void pqxx::internal::FromString_bool(const char Str[], bool &Obj)
-{
-  if (!Str)
-    throw runtime_error("Attempt to read NULL string");
-
-  bool OK;
-
-  switch (Str[0])
-  {
-  case 0:
-    Obj = false;
-    OK = true;
-    break;
-
-  case 'f':
-  case 'F':
-    Obj = false;
-    OK = !(Str[1] && 
-	   (strcmp(Str+1, "alse") != 0) && 
-	   (strcmp(Str+1, "ALSE") != 0));
-    break;
-
-  case '0':
-    {
-      int I;
-      FromString(Str, I);
-      Obj = (I != 0);
-      OK = ((I == 0) || (I == 1));
-    }
-    break;
-
-  case '1':
-    Obj = true;
-    OK = !Str[1];
-    break;
-
-  case 't':
-  case 'T':
-    Obj = true;
-    OK = !(Str[1] &&
-	   (strcmp(Str+1, "rue") != 0) &&
-	   (strcmp(Str+1, "RUE") != 0));
-    break;
-
-  default:
-    OK = false;
-  }
-
-  if (!OK) 
-    throw invalid_argument("Failed conversion to bool: '" + string(Str) + "'");
 }
 
 
