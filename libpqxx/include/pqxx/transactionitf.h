@@ -33,8 +33,6 @@
  */
 
 
-// TODO: Any user-friendliness we can add to invoking stored procedures?
-
 namespace pqxx
 {
 class Connection; 	// See pqxx/connection.h

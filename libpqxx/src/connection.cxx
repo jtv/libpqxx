@@ -186,9 +186,10 @@ void pqxx::Connection::AddTrigger(pqxx::Trigger *T)
   if (!T) throw invalid_argument("Null trigger registered");
 
   // Add to triggers list and attempt to start listening.
-  // TODO: Optimize by reusing find() result as insertion hint
+  const TriggerList::iterator p = m_Triggers.find(T->Name());
+  const TriggerList::value_type NewVal(T->Name(), T);
 
-  if (m_Triggers.find(T->Name()) == m_Triggers.end())
+  if (p == m_Triggers.end())
   {
     // Not listening on this event yet, start doing so.
     Result R( PQexec(m_Conn, ("LISTEN " + string(T->Name())).c_str()) );
@@ -204,9 +205,13 @@ void pqxx::Connection::AddTrigger(pqxx::Trigger *T)
     {
       if (IsOpen()) throw;
     }
+    m_Triggers.insert(NewVal);
+  }
+  else
+  {
+    m_Triggers.insert(p, NewVal);
   }
 
-  m_Triggers.insert(make_pair(T->Name(), T));
 }
 
 
@@ -317,7 +322,6 @@ void pqxx::Connection::Reset(const char OnReconnect[])
     {
       const TriggerList::const_iterator End = m_Triggers.end();
       string Last;
-      // TODO: Use equal_range()
       for (TriggerList::const_iterator i = m_Triggers.begin(); i != End; ++i)
       {
         // m_Triggers is supposed to be able to handle multiple Triggers waiting

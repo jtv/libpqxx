@@ -165,7 +165,6 @@ void TableWriter::FieldConverter::Escape(PGSTD::string &S)
 {
   const char Special[] = "\n\t\\";
 
-  // TODO: Is this legal if that j+2 happens to point just past the end of S?
   for (PGSTD::string::size_type j = S.find_first_of(Special);
        j != PGSTD::string::npos;
        j = S.find_first_of(Special, j+2))

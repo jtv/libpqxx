@@ -23,7 +23,6 @@
 
 
 // TODO: Support postgres arrays
-// TODO: Cursor-based bidirectional iterators for hidden incremental retrieval
 
 namespace pqxx
 {
