@@ -193,17 +193,6 @@ AC_TRY_COMPILE([#include <iterator>],
       	 it='no'])
 AC_MSG_RESULT($it)
 
-# Checks whether standard C++ library provides multimap container template
-AC_MSG_CHECKING(whether STL has multimap)
-AC_TRY_COMPILE([#include <multimap>],
-	[std::multimap<int,int> M],
-	[AC_DEFINE(HAVE_MULTIMAP,
-			1,
-			[Define if std::multimap is available])
-		multimap='yes'],
-	[multimap='no'])
-AC_MSG_RESULT($multimap)
-
 AC_LANG_POP(C++)
 
 AC_C_CONST
