@@ -18,6 +18,15 @@
 #ifndef PQXX_COMPILER_H
 #define PQXX_COMPILER_H
 
+
+#ifdef _WIN32
+#ifdef LIBPQXXDLL_EXPORTS
+#undef  PQXX_LIBEXPORT
+#define PQXX_LIBEXPORT __declspec(dllexport)
+#endif	// LIBPQXXDLL_EXPORTS
+#endif	// _WIN32
+
+
 // Workarounds & definitions needed to compile libpqxx into a library
 #include "pqxx/config-internal-compiler.h"
 #include "pqxx/libcompiler.h"
@@ -47,14 +56,6 @@ template<> inline long numeric_limits<long>::max() throw () {return LONG_MAX;}
 template<> inline long numeric_limits<long>::min() throw () {return LONG_MIN;}
 }
 #endif // PQXX_HAVE_LIMITS
-
-
-#ifdef _WIN32
-#ifdef LIBPQXXDLL_EXPORTS
-#undef  PQXX_LIBEXPORT
-#define PQXX_LIBEXPORT __declspec(dllexport)
-#endif	// LIBPQXXDLL_EXPORTS
-#endif	// _WIN32
 
 #endif
 
