@@ -51,7 +51,7 @@ class Transaction;
 
 // TODO: Derive from std::unary_function or whatever it was called
 
-class Transactor
+class PQXX_LIBEXPORT Transactor
 {
 public:
   explicit Transactor(PGSTD::string TName="AnonymousTransactor") :	//[t4]

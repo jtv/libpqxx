@@ -66,7 +66,7 @@ public:
 // To query or manipulate the database once connected, use one of the 
 // Transaction classes (see pqxx/transactionitf.h) or preferably the Transactor 
 // framework (see pqxx/transactor.h).
-class Connection
+class PQXX_LIBEXPORT Connection
 {
 public:
   // TODO: Allow two-stage creation (create first, open later)

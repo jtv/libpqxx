@@ -39,7 +39,7 @@ namespace pqxx
 class Result;
 class Transaction;
 
-class Cursor
+class PQXX_LIBEXPORT Cursor
 {
 public:
   // Create a Cursor.  The optional name must begin with a letter and contain

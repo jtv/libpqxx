@@ -36,7 +36,7 @@ namespace pqxx
 //
 //	for (Result::size_type i=0; i < R.size(); ++i) Process(R[i]);
 //
-class Result
+class PQXX_LIBEXPORT Result
 {
 public:
   Result() : m_Result(0), m_Refcount(0) {}				//[t3]

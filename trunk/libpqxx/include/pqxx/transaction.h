@@ -74,7 +74,7 @@ namespace pqxx
 // ways to break it up into smaller ones.  There's no easy, general way to do
 // this since application-specific considerations become important at this 
 // point.
-class Transaction : public TransactionItf
+class PQXX_LIBEXPORT Transaction : public TransactionItf
 {
 public:
   // Create a transaction.  The optional name, if given, must begin with a

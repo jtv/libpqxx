@@ -25,7 +25,7 @@
 namespace pqxx
 {
 
-class NonTransaction : public TransactionItf
+class PQXX_LIBEXPORT NonTransaction : public TransactionItf
 {
 public:
   // Create a transaction.  The optional name, if given, must begin with a
