@@ -31,7 +31,7 @@ class transaction_base;
 /// Common definitions for cursor types
 /** @warning This code is experimental.  It is not fully covered by libpqxx'
  * regression tests, and may see considerable change before becoming part of a
- * stable release.  Use with care.
+ * stable release.  Do not use except to test it.
  */
 class PQXX_LIBEXPORT cursor_base
 {
@@ -103,7 +103,7 @@ inline cursor_base::size_type cursor_base::backward_all() throw ()
  *
  * @warning This code is experimental.  It is not fully covered by libpqxx'
  * regression tests, and may see considerable change before becoming part of a
- * stable release.  Use with care.
+ * stable release.  Do not use except to test it.
  */
 class PQXX_LIBEXPORT icursorstream : public cursor_base
 {
@@ -169,7 +169,7 @@ private:
  *
  * @warning This code is experimental.  It is not fully covered by libpqxx'
  * regression tests, and may see considerable change before becoming part of a
- * stable release.  Use with care.
+ * stable release.  Do not use except to test it.
  */
 class PQXX_LIBEXPORT icursor_iterator : 
   public PGSTD::iterator<PGSTD::input_iterator_tag, 
