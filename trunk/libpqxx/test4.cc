@@ -53,7 +53,7 @@ public:
   explicit Notify(string TrigName) : 
     Transactor("Notifier"), m_Trigger(TrigName) { }
 
-  void operator()(Transaction &T)
+  void operator()(TRANSACTIONTYPE &T)
   {
     T.Exec(("NOTIFY " + m_Trigger).c_str());
   }

@@ -40,7 +40,7 @@ public:
 
   ReadTables() : Transactor("ReadTables") {}
 
-  void operator()(NonTransaction &T)
+  void operator()(TRANSACTIONTYPE &T)
   {
     m_Result = T.Exec("SELECT * FROM pg_tables");
   }

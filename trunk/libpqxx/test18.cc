@@ -3,16 +3,18 @@
 #include <stdexcept>
 
 #include "pg_connection.h"
-#include "pg_transaction.h"
+#include "pg_nontransaction.h"
 #include "pg_result.h"
+#include "pg_robusttransaction.h"
+#include "pg_transaction.h"
 
 using namespace PGSTD;
 using namespace Pg;
 
 
-// Test program for libpqxx.  Verify abort behaviour of Transactor.
+// Test program for libpqxx.  Verify abort behaviour of RobustTransaction.
 //
-// Usage: test13 [connect-string] [table]
+// Usage: test18 [connect-string] [table]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -21,9 +23,6 @@ using namespace Pg;
 //
 // The program will attempt to add an entry to a table called "events",
 // with a key column called "year"--and then abort the change.
-//
-// Note for the superstitious: the numbering for this test program is pure
-// coincidence.
 
 
 // Function to print database's warnings  to cerr
@@ -50,6 +49,8 @@ class CountEvents : public Transactor
   string m_Table;
   pair<int, int> &m_Results;
 public:
+  typedef NonTransaction TRANSACTIONTYPE;
+
   CountEvents(string Table, pair<int,int> &Results) : 
     Transactor("CountEvents"), m_Table(Table), m_Results(Results) {}
 
@@ -72,6 +73,8 @@ class FailedInsert : public Transactor
 {
   string m_Table;
 public:
+  typedef RobustTransaction TRANSACTIONTYPE;
+
   FailedInsert(string Table) : 
     Transactor("FailedInsert"), 
     m_Table(Table)
