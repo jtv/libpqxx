@@ -75,7 +75,7 @@ public:
   void operator()(argument_type &T)
   {
     T.exec("INSERT INTO " + m_Table + " VALUES (" +
-	   to_string(BoringYear) + ", " + Quote("yawn") + ")");
+	   to_string(BoringYear) + ", '" + sqlesc("yawn") + "')");
 
     throw runtime_error("Transaction deliberately aborted");
   }
