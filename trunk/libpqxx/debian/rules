@@ -13,6 +13,11 @@ export DH_COMPAT=3
 DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
+# The C++ compiler to be used - this has only been made a variable to make
+# it easier to test the code with a different C++ compiler; when building
+# Debian packages, always use plain 'g++'.
+CXX=g++
+
 CFLAGS += -g
 CXXFLAGS += -g
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
@@ -53,7 +58,7 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	
-	./configure $(confflags)
+	env CXX=$(CXX) ./configure $(confflags)
 
 	touch configure-stamp
 

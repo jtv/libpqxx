@@ -7,7 +7,8 @@
     an error.
  debian/rules:
   - [clean] Clean out generated HTML files.
-  - [configure-stamp] Actually use confflags variable.
+  - [configure] Actually use confflags variable; simplified testing with a 
+    different C++ compiler.
 
 2002-10-15  J.H.M. Dassen (Ray) <jdassen@debian.org>
  debian/libpqxx-dev.files: 
