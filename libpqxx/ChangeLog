@@ -1,5 +1,23 @@
+2003-03-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/html/Reference/*lostream*.html:
+  - New
+ include/pqxx/largeobject.h:
+  - in & out are not from std::ios originally, but from std::ios_base
+  - Fix: olostream now syncs itself before closing
+  - lostream and olostream sync themselves twice before closing
+ include/pqxx/util.h:
+  - Added ToString<>() specialization for char *const &
+ src/cachedresult.cxx:
+  - Made Result being inserted const
 2003-03-10  J.H.M. Dassen (Ray) <jdassen@debian.org>
  Generate pkgconfig metadata file; updated debianisation.
+2003-03-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ Makefile.am:
+  - Added debian packaging directory to distribution
+ include/pqxx/largeobject.h:
+  - Added ilostream, olostream, lostream
+ test/test048.cxx:
+  - Uses ilostream, olostream
 2003-03-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/largeobject.h, src/largeobject.h, test/test048.cxx:
   - Replaced low-level LargeObject::cunlink() with LargeObject::remove()

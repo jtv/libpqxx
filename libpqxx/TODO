@@ -1,10 +1,16 @@
 Build system
+(*) .pc file (http://www.freedesktop.org/software/pkgconfig/)
 (*) Completely support building outside the source directory
 
 Connections
 (*) Separate failed_connection exception type
 (*) Break out various creation synchronicity options
 (*) Connection pooling support
+
+Documentation
+(*) Make the part about connection strings & variables more clear
+(*) Find a better format for the tutorial
+(*) Re-translate the tutorial to HTML (preferably as part of build procedure)
 
 Nonblocking operation
 (*) Separate query issuing from receipt of results
@@ -23,7 +29,16 @@ Streams
 Tests
 (*) Complete test coverage
 (*) More large object tests
+(*) Move optional stuff out of test001 to make it a more concise example
 (*) Add some tests using standard library's algorithms
+ - for_each
+ - find_if
+ - count_if
+ - transform
+ - replace_copy_if
+ - partial_sort_copy
+ - lower_bound
+ - binary_search
 
 Triggers
 (*) Allow access to Connection's triggers list?

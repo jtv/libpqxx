@@ -1,5 +1,12 @@
+1.6.2
+ - Debian packaging added to distribution archive
+ - new ilostream, olostream, lostream classes
+1.6.1
+ - large object's cunlink() replaced by remove()
+ - default constructor for LargeObject
 1.6.0
  - new large objects interface
+ - added test048
 1.5.0
  - allow result fields to be written to streams
  - removed confusing CachedResult::clear()
