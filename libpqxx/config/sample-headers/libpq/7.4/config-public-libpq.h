@@ -1,0 +1,1 @@
+#define PQXX_HAVE_PQFTABLE 1
