@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 0.4.4, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 0.5.0, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 0.4.4)
+AM_INIT_AUTOMAKE(libpqxx, 0.5.0)
 AC_CONFIG_SRCDIR([src/connection.cxx])
 AM_CONFIG_HEADER(include/pqxx/config.h)
 
@@ -172,7 +172,6 @@ Perhaps you need to specify --with-postgres-lib?
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([errno.h])
 AC_CHECK_HEADER([${with_postgres_include}/libpq-fe.h],,AC_MSG_ERROR(
 [Can't find libpq-fe.h in ${with_postgres_include}.
 Please specify the location of the PostgreSQL include files with

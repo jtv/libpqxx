@@ -17,7 +17,7 @@
     <filename>libpq</filename>, you will need a working 
     <filename>libpq</filename> library on your system prior to getting started
     with <filename>libpqxx</filename>.  This is similar to the situation with
-    <filename>libpq++</filename>.
+    the older <filename>libpq++</filename> interface.
    </para>
 
    <sect2>
@@ -51,17 +51,19 @@
 
       <listitem>
        <para>
-        Ad-hoc exception classes.  Programs using such libraries need to deal 
-	with various incompatible exception hierarchies, and error handling
-	becomes a total nightmare.
+        Ad-hoc exception classes.  Programs using C++ libraries need to deal 
+	with various incompatible exception class hierarchies, and error 
+	handling becomes a total nightmare with multiple essentially identical
+	<literal>catch</literal> clauses for every <literal>try</literal> block.
        </para>
       </listitem>
 
       <listitem>
        <para>
         Ad-hoc string classes.  As one member of the C++ standards committee
-	put it, "if C++ doesn't have a standard string, there will be blood in
-	the streets."  Luckily, the committee saw the wisdom in this.
+	put it, if the C++ wasn't going to have a standard string class, "there 
+	will be blood in the streets."  Luckily, the committee saw the wisdom 
+	in this, and civilization was spared.
        </para>
       </listitem>
 
@@ -75,10 +77,10 @@
 
       <listitem>
        <para>
-        Ad-hoc containers and algorithms.  Inventing your own container APIs is
-	not just wasted development effort unless you happen to be designing a
-	new and different container library.  Having to learn how they work is
-	wasted user effort as well.
+        Ad-hoc containers and algorithms.  Inventing your own container APIs,
+	interesting as it may be, in most cases is wasted development effort.
+	Besides that, there's also the redundant effort of having to learn how 
+	they work.
        </para>
       </listitem>
      </itemizedlist>
@@ -101,7 +103,7 @@
      from shooting himself
      <footnote>Yes, <emphasis>him</>self.  A "writer" is grammatically 
       <para>
-       masculine, regardless of actual gender.
+       masculine, unless actual gender is known and definite.
       </para>
      </footnote> 
      in the foot are years of experience and an extensive idiom of good
@@ -181,7 +183,9 @@
     <listitem>
      <para>
       <literal>Connection</literal> represents a connection from your program
-      to a <productname>PostgreSQL</productname> back-end server.
+      to a <productname>PostgreSQL</productname> back-end server.  Naturally
+      your program may open multiple connections, simultaneous or not, to any
+      number of databases.
      </para>
     </listitem>
  
@@ -219,18 +223,20 @@
 
    <para>
     I would also like to use this opportunity to plug the invaluable
-    <literal>Quote()</literal> function, which you should use whenever you want
+    <function>Quote</function> function, which you should use whenever you want
     to include a variable as a string in your SQL (eg. insert it into a CHAR
     field in a table).  See below.
    </para>
 
    <para>
-    There are other classes; these are either not essential to writing a simple
-    program using <filename>libpqxx</filename>, or are used in such a way that
-    knowledge of them is not immediately necessary.  You will probably want to
-    look them up at some point when it becomes necessary to understand 
-    complex compiler warnings.  Unfortunately C++ compilers are not yet very
-    good at unravelling template-related errors and making them readable.
+    There are other classes that may be of interest to you; these are either 
+    not essential to writing a simple program using 
+    <filename>libpqxx</filename>, or are used in such a way that knowledge of 
+    them is not immediately necessary.  You will probably want to look them up 
+    at some point when it becomes necessary to understand complex compiler 
+    warnings.  Unfortunately C++ compilers are not yet very good at unravelling 
+    template-related errors and making them readable, so you may find some long
+    and strange names when they happen.
    </para>
    <para>
      Some of the classes you may become interested in fairly quickly are:
@@ -238,9 +244,9 @@
    <itemizedlist>
     <listitem>
      <para>
-      <literal>broken_connection</literal> is an exception class that is
-      may be thrown when <filename>libpqxx</filename> loses its connection to 
-      the back-end.  It is derived from the standard C++ exception
+      <literal>broken_connection</literal> is an exception class that may be 
+      thrown if <filename>libpqxx</filename> loses its connection to the 
+      back-end.  It is derived from the standard C++ exception
       <literal>std::runtime_error</literal>, and can generally be treated as
       such.  It is not currently guaranteed that a broken connection will
       result in a <literal>broken_connection</literal> being thrown; a normal
@@ -277,9 +283,9 @@
       probably has), but if the connection is lost during just this small time
       window, it has no way to confirm this to your application.
      </para>
-      When this happens, an <literal>in_doubt_error</literal> is thrown which
-      you may want to <literal>catch</literal> as a special case.  If you do,
-      make sure all alarm bells go off!
+      When this happens, libpqxx throws an <literal>in_doubt_error</literal> on
+      the client side, which you may want to <literal>catch</literal> as a 
+      special case.  If you do, make sure all alarm bells go off!
      </para>
      <para>
       See also the description for <literal>RobustTransaction</literal>, which
@@ -395,6 +401,14 @@
       derived from <literal>Trigger</literal>, which will be invoked by 
       <filename>libpqxx</filename> to handle the event when it occurs.
      </para>
+     <para>
+      What every programmer using triggers in PostgreSQL should know, by the
+      way, is that trigger notifications are not delivered to your program 
+      while it is inside a back-end transaction.  This makes sense from a
+      correctness point of view (otherwise your processing of the event might
+      get rolled back just because the transaction you're in happens to fail),
+      but may be a little confusing to the unaware programmer.
+     </para>
     </listitem>
 
     <listitem>
@@ -445,10 +459,10 @@
   <itemizedlist>
    <listitem>
     <para>
-     <literal>Quote</literal> is the canonical way to use strings in your SQL.
-     This function not only adds quotes around your string; it also escapes
-     quotes, backslashes, and other characters that would otherwise cause syntax
-     errors in your queries when included directly.
+     <function>Quote</function> is the canonical way to use strings in your SQL.
+     This function not only adds SQL-style quotes around your string; it also 
+     escapes quotes, backslashes, and other characters that would otherwise 
+     cause syntax errors in your queries when included directly.
     </para>
     <para>
      <emphasis>Use this function</emphasis> whenever you want to have a variable
@@ -460,7 +474,7 @@
 
    <listitem>
     <para>
-     <literal>ToString</literal> knows how to render many types of values as
+     <function>ToString</function> knows how to render many types of values as
      strings.  This is used internally by <literal>libpqxx</literal>, and it
      may be replaced in the future<footnote>
       Apparently the BOOST library's <literal>numeric_cast</literal> provides
@@ -472,14 +486,23 @@
 
    <listitem>
     <para>
-     <literal>FromString</literal> is the inverse of 
-     <literal>ToString</literal>.  Like <literal>ToString</literal> it may
+     <function>FromString</function> is the inverse of 
+     <function>ToString</function>.  Like <function>ToString</function> it may
      someday be replaced.  For now it is used by eg. 
-     <literal>Result::Field::to()</literal> to convert the incoming field data 
-     (which is in text format) to the desired C++ type.
+     <function>Result::Field::to()</function> to convert the incoming field 
+     data (which is in text format) to the desired C++ type.
     </para>
    <listitem>
 
+   <lististem>
+    <para>
+     <function>FmtString</function> is used by some specializations of the
+     <function>ToString</function> and <function>FromString</function> functions
+     to statically determine the appropriate C stdio-style format strings for
+     the various builtin types like <literal>int</literal>, 
+     <literal>char</literal>, and so on.
+    </para>
+   </listitem>
   </itemizedlist>
   </sect1>
 
@@ -504,11 +527,11 @@
      </para>
 
      <para>
-      If you're ever in doubt about how to use the basic features of 
-      <filename>libpqxx</filename>, take a look at the example programs 
+      Furthermore, if you're ever in doubt about how to use the basic features 
+      of <filename>libpqxx</filename>, take a look at the example programs 
       provided; they're called <filename>test1</filename>, 
-      <filename>test2</filename> etc.  That should help give you an idea of how 
-      simple the library can be in practice.  Don't let that keep you from 
+      <filename>test2</filename> etc.  Those should help give you an idea of 
+      how simple the library can be in practice.  Don't let that keep you from 
       submitting a request for improved documentation though; your questions 
       define what this tutorial needs to say!
      </para>
@@ -536,7 +559,7 @@
 	<programlisting>
 using namespace pqxx;
         </programlisting>
-        near the top of each source file using <filename>libpqxx</filename>.
+        near the top of each source file that uses <filename>libpqxx</filename>.
        </para>
       </listitem>
 
@@ -604,14 +627,14 @@ Connection Conn("dbname=test");
     </para>
 
     <para>
-     The <literal>Connection</literal> can now act as a counter window for our 
-     database; your client will use it to perform one or more transactions
+     The <literal>Connection</literal> can now act as a "service counter" for 
+     our database; your client will use it to perform one or more transactions
      related to the database.
     </para>
 
     <para>
-     Connections cannot be copied or assigned; any attempt to do so will be met 
-     with a compiler error.
+     Connections cannot be copied or assigned.  Any attempt to do so will be 
+     met with a compiler error.
     </para>
 
     <sect3>
@@ -635,17 +658,17 @@ Connection Conn("dbname=test");
     <sect3>
      <title>What's a Transaction?</title>
      <para>
-      A transaction demarcates a "unit of work" operating on the 
-      database, ie. a series of operations that must either complete 
-      successfully, or if it is aborted at any stage, must not affect the data 
-      in the database at all.  Hence the process of completing a transaction is 
-      called the "commit" operation, and the process of aborting it and undoing 
-      any changes it may have made is called "rollback."
+      A transaction demarcates a "unit of work" operating on the database, ie. 
+      a series of operations that must either complete successfully, or if it 
+      is aborted at any stage, must not affect the data in the database at all.
+      Hence the process of completing a transaction is called the "commit" 
+      operation, and the process of aborting it and undoing any changes it may 
+      have made is called "rollback."
      </para>
      <para>
       All access to the database in <filename>libpqxx</filename> must go 
-      through a <literal>Transaction</literal> object, so familiarity with this
-      class is essential.
+      through a transaction object, so familiarity with this class (or its 
+      siblings) is essential.
      </para>
     </sect3>
 
@@ -691,9 +714,10 @@ Transaction Xaction(Conn, "DemoTransaction");
 
      <para>
       Destroying the Connection object while the Transaction still exists is an
-      error that may result in a program crash.  Transactions cannot be copied, 
-      nor assigned, nor constructed without a Connection (default-constructed);
-      attempts to do any of these will result in compile errors.
+      error that may result in a program crash, although the library will try
+      to log an error message.  Transactions cannot be copied, nor assigned, 
+      nor constructed without a Connection (default-constructed); attempts to 
+      do any of these will result in compile errors.
      </para>
     </sect3>
    </sect2>
@@ -787,7 +811,7 @@ catch (...)
         <para>
          Throwing an exception from a destructor to report the error would have
 	 serious effects on program correctness.  <emphasis>Never throw 
-	 exceptions from a destructor.</>
+	 exceptions from a destructor.</emphasis>
 	</para>
        </footnote> and the transaction will die of natural causes (either it
        has been closed by the backend already, or it soon will be if the 
@@ -1014,15 +1038,6 @@ void PaySalary(Result::const_iterator empl)
      <function>what</function> message.
     </para>
    </sect2>
-
-  </sect1>
-
-  <sect1>
-   <title>Reference</title>
-
-   <para>
-    Yet to be written!
-   </para>
 
   </sect1>
 

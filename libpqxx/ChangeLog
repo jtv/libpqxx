@@ -1,3 +1,18 @@
+2002-06-08 23:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/libpqxx.sgml:
+  - Various minor updates
+2002-06-07 17:15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Removed unneeded check for <errno.h>
+  - Bumped version to 0.5.0
+ Makefile.am:
+  - Now also installs headers!
+2002-06-04 20:00  Jeroen T. Vermeulen <jtv@xsall.nl>
+ doc/Makefile.am:
+  - Included libpqxx.sgml into list of files to go into distribution
+2002-06-04 15:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/libpqxx.sgml:
+  - Removed part about unwritten reference (use doxygen now!)
 2002-06-04 01:45  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac:
   - Removed check for std::multimap

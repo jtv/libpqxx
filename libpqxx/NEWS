@@ -1,3 +1,8 @@
+2002-06-07 17:15, v0.5.0:
+ - "make install" now finally installs headers!
+ - distribution now includes SGML (DocBook) version of tutorial
+2002-06-04 15:00, v0.4.4:
+ - may now have multiple triggers with same name on single connection
 2002-06-02 23:00, v0.4.3:
  - fixed TableReader problem with \t and \n
 2002-06-01 21:00, v0.4.2:
