@@ -16,7 +16,10 @@
  *
  *-------------------------------------------------------------------------
  */
+#ifdef PQXX_HAVE_IOS
 #include <ios>
+#endif
+
 #include <stdexcept>
 
 #include "pqxx/util"

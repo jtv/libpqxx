@@ -75,11 +75,17 @@
 /* Define if preprocessor supports nonstandard "warning" directive */
 #undef PQXX_HAVE_CPP_WARNING
 
+/* Define if you have the <ios> header */
+#undef PQXX_HAVE_IOS
+
 /* Define if <iterator> exists */
 #undef PQXX_HAVE_ITERATOR
 
 /* Define if <limits> exists */
 #undef PQXX_HAVE_LIMITS
+
+/* Define if you have the <locale> header */
+#undef PQXX_HAVE_LOCALE
 
 /* Define if PostgreSQL has PQescapeBytea() */
 #undef PQXX_HAVE_PQESCAPEBYTEA
