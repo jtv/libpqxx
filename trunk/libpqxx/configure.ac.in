@@ -308,33 +308,27 @@ AC_MSG_RESULT(yes)
 
 
 # Check presence and version of strerror_r()
-AC_LANG_PUSH(C)
-
 if test "$enable_thread_safety" = "yes" ; then
 AC_MSG_CHECKING([for strerror_r])
-AC_TRY_COMPILE([#include <string.h>],[strerror_r(0,0,0)],[],
+AC_TRY_COMPILE([#include <string.h>],[strerror_r(0,0,0)],
+	[AC_DEFINE(PQXX_HAVE_STRERROR_R,1,[Define if strerror_r exists])],
 	[AC_MSG_ERROR([
 No definition of strerror_r, the thread-safe version of strerror(), was found in
 your <cstring> header.  Consider building a non-threadsafe version of libpqxx
 using the configure script's --disable-thread-safety option.
 ])])
 AC_MSG_RESULT(yes)
-AC_DEFINE(PQXX_HAVE_STRERROR_R,1,[Define if strerror_r exists])
 
 AC_MSG_CHECKING([for SUSv3-style strerror_r returning int])
 AC_TRY_COMPILE(
-	[#include <string.h>
-	extern int strerror_r(int errnum, char *buf, size_t n);],
-	[],
+	[#include <cstring>],[int(*f)(int,char*,size_t)=strerror_r;f(0,0,0)],
 	strerror_r_int=yes,
 	strerror_r_int=no)
 AC_MSG_RESULT($strerror_r_int)
 
 AC_MSG_CHECKING([for strerror_r returning char *])
 AC_TRY_COMPILE(
-	[#include <string.h>
-	extern char *strerror_r(int errnum, char *buf, size_t n);],
-	[],
+	[#include <cstring>],[char*(*f)(int,char*,size_t n)=strerror_r;f(0,0,0)],
 	strerror_r_charp=yes,
 	strerror_r_charp=no)
 AC_MSG_RESULT($strerror_r_charp)
@@ -342,9 +336,7 @@ AC_MSG_RESULT($strerror_r_charp)
 if ! test "$strerror_r_int" = "yes" && ! test "$strerror_r_charp" = "yes"; then
 AC_MSG_CHECKING([for AIX-style strerror_r (which also correctly returns int)])
 AC_TRY_COMPILE(
-	[#include <string.h>
-	extern int strerror_r(int errnum, char *buf, int n);],
-	[],
+	[#include <cstring>],[int(*f)(int errnum, char *buf, int n)=strerror_r;f(0,0,0)],
 	strerror_r_int=yes,
 	[])
 AC_MSG_RESULT($strerror_r_int)
@@ -374,16 +366,13 @@ else
 	if ! test "$strerror_r_charp" = "yes" ; then
 			AC_MSG_ERROR([
 Your compiler's definition of strerror_r() fits none of the known signatures for
-this function.  Consider building a non-threadsafe version of libpqxx using the
+that function.  Consider building a non-threadsafe version of libpqxx using the
 configure script's --disable-thread-safety option.
 ])
 	fi
 fi
 
 fi
-
-AC_LANG_POP(C)
-
 
 
 AC_MSG_CHECKING([for long double])
