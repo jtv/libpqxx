@@ -172,3 +172,29 @@ to work around what appears to be a compiler bug in Visual C++.
 
 Good luck!
 
+
+Documentation
+
+The best information on programming with libpqxx can be found in the header 
+files themselves, in the include/pqxx/ directory.  Comments and declarations
+from these headers are automatically extracted, using a program called Doxygen,
+to form the HTML reference documentation that can be found in the 
+doc/html/Reference/ directory.  
+
+If you should ever find the generated reference documentation out of date or 
+incomplete, try installing doxygen on your system and running it from the main 
+libpqxx source directory.  All required configuration items are defined in the 
+Doxyfile configuration file in the main directory; nothing more than running the
+doxygen program should be required.
+
+To get a good start in programming libpqxx, however, you may prefer to have some
+introductory explanation and code examples.  The former can be found in the
+tutorial, doc/libpqxx.sgml which currently is not being actively maintained but
+does cover the basics accurately.
+
+For some quick examples, take a look at the test 
+programs in the test/ directory.  Even though it shows some things you may not
+need, test001.cxx should give you a pretty good idea of what a libpqxx program
+can look like.
+
+
