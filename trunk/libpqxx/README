@@ -155,10 +155,14 @@ serious post-1996 C++ code.  The library is also known to build with Intel's
 compiler running as a Visual C++ plugin, but the details are beyond me.
 
 Instead of going this route, you may want to try if the Unix build procedure
-works for you instead.  If it doesn't, you'll need to manually edit the 
-compile-time configuration file include/pqxx/config.h to define the features
-your system and PostgreSQL versions support.  Normally the configure script 
-would do this for you.
+works for you instead, e.g. using the Cygwin tools.  If it doesn't, you'll need
+to manually edit the compile-time configuration file include/pqxx/config.h to 
+define the features your system, compiler, and PostgreSQL versions support.  
+Normally the configure script would do this for you.
+
+If you're using Microsoft's compiler, you'll probably need to define the
+preprocessor macro NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION in the config.h file
+to work around what appears to be a compiler bug in Visual C++.NET.
 
 Good luck!
 

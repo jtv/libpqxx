@@ -1,3 +1,6 @@
+2003-01-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/cursor.cxx:
+  - Add double-quotes around cursor name in SQL to circumvent case conversion
 2003-01-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
  README:
   - Documented Windows build essentials

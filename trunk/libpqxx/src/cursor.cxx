@@ -32,7 +32,7 @@ pqxx::Cursor::Cursor(pqxx::TransactionItf &T,
   // Give ourselves a locally unique name based on connection name
   m_Name += "_" + T.Name() + "_" + ToString(T.GetUniqueCursorNum());
 
-  m_Trans.Exec(("DECLARE " + m_Name + " CURSOR FOR " + Query).c_str());
+  m_Trans.Exec(("DECLARE \"" + m_Name + "\" CURSOR FOR " + Query).c_str());
 }
 
 
@@ -87,7 +87,7 @@ pqxx::Result::size_type pqxx::Cursor::Move(size_type Count)
   if ((Count < 0) && (m_Pos == pos_start)) return 0;
 
   m_Done = false;
-  const string Cmd( "MOVE " + OffsetString(Count) + " IN " + m_Name );
+  const string Cmd( "MOVE " + OffsetString(Count) + " IN \"" + m_Name + "\"");
   long int A = 0;
 
   try
@@ -189,7 +189,7 @@ string pqxx::Cursor::OffsetString(size_type Count)
 
 string pqxx::Cursor::MakeFetchCmd(size_type Count) const
 {
-  return "FETCH " + OffsetString(Count) + " IN " + m_Name;
+  return "FETCH " + OffsetString(Count) + " IN \"" + m_Name + "\"";
 }
 
 
