@@ -28,6 +28,9 @@ sed -e "s/@PQXXVERSION@/$PQXXVERSION/g" configure.ac.in >configure.ac
 # Generate win32/test.mak (adding carriage returns to make it MS-DOS format)
 ./tools/maketestvcmak.pl test | sed -e 's/$/\r/' >win32/test.mak
 
+# Generate win32/libpqxx.mak
+./tools/makevcmake.pl src | sed -e 's/$/\r/' >win32/libpqxx.mak
+
 # Don't run autoheader to avoid overwriting customized config.h.in!
 # autoheader
 
