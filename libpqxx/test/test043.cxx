@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#define PQXXYES_I_KNOW_DEPRECATED_HEADER
+
 #include <pqxx/connection>
 #include <pqxx/cursor.h>
 #include <pqxx/transaction>
@@ -35,10 +37,10 @@ void ExpectPos(Cursor &C, Cursor::size_type Pos)
 }
 
 
-void MoveTo(Cursor &C, Cursor::size_type N, Cursor::size_type NewPos)
+void MoveTo(Cursor &C, Cursor::difference_type N, Cursor::size_type NewPos)
 {
   const result::size_type OldPos = C.Pos();
-  const result::size_type Dist = C.Move(N);
+  const result::difference_type Dist = C.Move(N);
   if (OldPos + Dist != NewPos)
     throw logic_error("Inconsistent move: " + to_string(Dist) + " rows "
 	              "from " + to_string(OldPos) + " "
@@ -73,7 +75,7 @@ int main(int, char *argv[])
     Cur >> R;
     ExpectPos(Cur, GetRows);
 
-    if (R.size() != GetRows)
+    if (R.size() != result::size_type(GetRows))
       throw logic_error("Expected " + to_string(GetRows) + " rows, "
 		        "got " + to_string(R.size()));
 

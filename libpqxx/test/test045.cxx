@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#define PQXXYES_I_KNOW_DEPRECATED_HEADER
+
 #include <pqxx/connection>
 #include <pqxx/cursor.h>
 #include <pqxx/transaction>
@@ -120,11 +122,11 @@ int main(int, char *argv[])
     // Now start testing our new Cursor.
     Cur >> R;
 
-    if (R.size() > GetRows)
+    if (R.size() > result::size_type(GetRows))
       throw logic_error("Expected " + to_string(GetRows) + " rows, "
 		        "got " + to_string(R.size()));
 
-    if (R.size() < GetRows)
+    if (R.size() < result::size_type(GetRows))
       cerr << "Warning: asked for " << GetRows << " rows, "
 	      "got only " << R.size() << endl;
 
@@ -140,7 +142,7 @@ int main(int, char *argv[])
 
     // Now see if that Fetch() didn't confuse our cursor's stride
     Cur >> R;
-    if (R.size() != GetRows)
+    if (R.size() != result::size_type(GetRows))
       throw logic_error("Asked for " + to_string(GetRows) + " rows, "
 		        "got " + to_string(R.size()) + ". "
 			"Looks like Fetch() changed our cursor's stride!");
@@ -164,7 +166,7 @@ int main(int, char *argv[])
     cout << "First rows read backwards are:" << endl;
     DumpRows(FirstRows2);
 
-    if (vector<string>::size_type(R.size()) != FirstRows1.size())
+    if (R.size() != FirstRows1.size())
       throw logic_error("I read " + to_string(FirstRows1.size()) + " rows, "
 		        "but I see " + to_string(R.size()) + " rows "
 			"when trying to read them backwards!");
