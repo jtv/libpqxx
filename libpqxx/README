@@ -5,7 +5,7 @@ Welcome to libpqxx, a C++ API to the PostgreSQL database management system.
 There are many similar libraries for PostgreSQL and for other databases, some
 of them database-independent.  Most of these, however, are fairly C-like in
 their programming style, and fail to take advantage of the full power of the C++
-language as it has matured since the acceptance of the Standard in 1996.  What 
+language as it has matured since the acceptance of the Standard in 1998.  What 
 libpqxx brings you is effective use of templates to reduce the inconvenience of
 dealing with type conversions; of standard C++ strings to keep you from having 
 to worry about buffer allocation and overflow attacks; of exceptions to take
