@@ -87,9 +87,6 @@ template<> struct char_traits<unsigned char>
 #if __SUNPRO_CC_COMPAT < 5
 #error "This compiler version is not capable of building libpqxx."
 #endif	// __SUNPRO_CC_COMPAT < 5
-
-#define PQXX_BROKEN_MEMBER_TEMPLATE_DEFAULT_ARG
-
 #endif	// __SUNPRO_CC
 
 
