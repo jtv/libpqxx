@@ -180,7 +180,7 @@ void pqxx::connection_base::SetupState()
       // issue just one LISTEN for each event.
       if (i->first != Last)
       {
-	const string LQ("LISTEN " + i->first);
+	const string LQ("LISTEN \"" + i->first + "\"");
         result R( PQexec(m_Conn, LQ.c_str()) );
         R.CheckStatus(LQ);
         Last = i->first;
@@ -212,8 +212,8 @@ bool pqxx::connection_base::is_open() const throw ()
 }
 
 
-PGSTD::auto_ptr<pqxx::noticer> 
-pqxx::connection_base::set_noticer(PGSTD::auto_ptr<noticer> N) throw ()
+auto_ptr<pqxx::noticer> 
+pqxx::connection_base::set_noticer(auto_ptr<noticer> N) throw ()
 {
   if (m_Conn)
   {
@@ -325,7 +325,7 @@ void pqxx::connection_base::AddTrigger(pqxx::trigger *T)
   if (m_Conn && (p == m_Triggers.end()))
   {
     // Not listening on this event yet, start doing so.
-    const string LQ("LISTEN \"" + string(T->name()) + "\""); 
+    const string LQ("LISTEN \"" + T->name() + "\""); 
     result R( PQexec(m_Conn, LQ.c_str()) );
 
     try
@@ -373,7 +373,7 @@ void pqxx::connection_base::RemoveTrigger(pqxx::trigger *T) throw ()
     else
     {
       if (m_Conn && (R.second == ++R.first))
-	PQexec(m_Conn, ("UNLISTEN " + string(T->name())).c_str());
+	PQexec(m_Conn, ("UNLISTEN \"" + T->name() + "\"").c_str());
 
       m_Triggers.erase(i);
     }
