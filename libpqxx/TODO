@@ -1,6 +1,5 @@
 Build system
-(*) Make static linking the default for libpqxx
-(*) Include libpq path in dynamic link path
+(*) Include libpq path in dynamic link path: -Wl,/usr/local/pgsql/lib for gcc
 (*) Completely support building outside the source directory
 
 Connections
@@ -29,8 +28,7 @@ Streams
 (*) Allow single-level insertion with endt/endr manipulators
 
 Tests
-(*) Complete test coverage
-(*) More large object tests
+(*) Mixed-mode, seeking lostream tests
 
 Triggers
 (*) Allow access to Connection's triggers list?

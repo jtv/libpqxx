@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 1.7.5, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 1.7.7, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 1.7.5)
+AM_INIT_AUTOMAKE(libpqxx, 1.7.7)
 
 # Library version numbering - see "info libtool versioning 'libtool
 # versioning'" for details.
@@ -104,6 +104,7 @@ postgres_include_default=
 for usual_suspect in \
 	/usr/local/include/postgresql \
 	/usr/local/include/pgsql \
+	/usr/local/pgsql/include \
 	/usr/local/include \
 	/usr/include/postgresql \
 	/usr/include/pgsql \
@@ -133,6 +134,7 @@ postgres_lib_default=
 for usual_suspect in \
 	/usr/local/lib/postgresql \
 	/usr/local/lib/pgsql \
+	/usr/local/pgsql/lib \
 	/usr/local/lib \
 	/usr/lib/postgresql \
 	/usr/lib/pgsql \
@@ -173,7 +175,7 @@ AC_ARG_WITH(postgres,
 
 AC_SUBST(with_postgres_lib)
 AC_SUBST(with_postgres_include)
-POSTGRES_LIB="-L${with_postgres_lib} -lpq"
+POSTGRES_LIB="-L${with_postgres_lib} -R${with_postgres_lib} -lpq"
 AC_SUBST(POSTGRES_LIB)
 POSTGRES_INCLUDE="-I${with_postgres_include}"
 AC_SUBST(POSTGRES_INCLUDE)

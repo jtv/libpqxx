@@ -1,3 +1,8 @@
+1.7.7
+ - ./configure also looks for postgres in /usr/local/pgsql
+ - test007 now uses SQL_ASCII as its test encoding
+1.7.6
+ - added postgres library (libpq) to dynamic link path
 1.7.5
  - added test052 - test055
  - added Result::Tuple::ColumnNumber()

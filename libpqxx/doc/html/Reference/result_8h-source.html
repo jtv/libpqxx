@@ -71,280 +71,286 @@
 00078 
 <a name="l00079"></a><a class="code" href="classpqxx_1_1Result_1_1Tuple.html#a9">00079</a>     Result::size_type Row()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Index; }                   <span class="comment">//[t11]</span>
 00080 
-00081   <span class="keyword">protected</span>:
-<a name="l00082"></a><a class="code" href="classpqxx_1_1Result_1_1Tuple.html#n0">00082</a>     <span class="keyword">const</span> Result *m_Home;
-<a name="l00083"></a><a class="code" href="classpqxx_1_1Result_1_1Tuple.html#n1">00083</a>     Result::size_type m_Index;
-00084 
-00085     <span class="comment">// Not allowed:</span>
-00086     Tuple();
-00087   };
-00088 
-00089 
-00091 
-<a name="l00094"></a><a class="code" href="classpqxx_1_1Result_1_1Field.html">00094</a>   <span class="keyword">class </span>PQXX_LIBEXPORT Field : <span class="keyword">private</span> Tuple
-00095   {
-00096   <span class="keyword">public</span>:
-<a name="l00097"></a><a class="code" href="classpqxx_1_1Result_1_1Field.html#s0">00097</a>     <span class="keyword">typedef</span> size_t size_type;
-00098 
-00100 
-<a name="l00104"></a><a class="code" href="classpqxx_1_1Result_1_1Field.html#a0">00104</a>     Field(<span class="keyword">const</span> Tuple &amp;R, Tuple::size_type C) : Tuple(R), m_Col(C) {}   <span class="comment">//[t1]</span>
-00105 
-00107 
-<a name="l00112"></a><a class="code" href="classpqxx_1_1Result_1_1Field.html#a1">00112</a>     <span class="keyword">const</span> <span class="keywordtype">char</span> *c_str()<span class="keyword"> const </span>{<span class="keywordflow">return</span> m_Home-&gt;GetValue(m_Index,m_Col);} <span class="comment">//[t2]</span>
+<a name="l00081"></a><a class="code" href="classpqxx_1_1Result_1_1Tuple.html#a10">00081</a>     size_type ColumnNumber(<span class="keyword">const</span> PGSTD::string &amp;ColName) <span class="keyword">const</span>          <span class="comment">//[t30]</span>
+00082         { <span class="keywordflow">return</span> m_Home-&gt;<a class="code" href="classpqxx_1_1Result_1_1Tuple.html#a10">ColumnNumber</a>(ColName); }
+00083 
+<a name="l00084"></a><a class="code" href="classpqxx_1_1Result_1_1Tuple.html#a11">00084</a>     size_type ColumnNumber(<span class="keyword">const</span> <span class="keywordtype">char</span> ColName[]) <span class="keyword">const</span>                  <span class="comment">//[t30]</span>
+00085         { <span class="keywordflow">return</span> m_Home-&gt;ColumnNumber(ColName); }
+00086 
+00087   <span class="keyword">protected</span>:
+<a name="l00088"></a><a class="code" href="classpqxx_1_1Result_1_1Tuple.html#n0">00088</a>     <span class="keyword">const</span> Result *m_Home;
+<a name="l00089"></a><a class="code" href="classpqxx_1_1Result_1_1Tuple.html#n1">00089</a>     Result::size_type m_Index;
+00090 
+00091     <span class="comment">// Not allowed:</span>
+00092     Tuple();
+00093   };
+00094 
+00095 
+00097 
+<a name="l00100"></a><a class="code" href="classpqxx_1_1Result_1_1Field.html">00100</a>   <span class="keyword">class </span>PQXX_LIBEXPORT Field : <span class="keyword">private</span> Tuple
+00101   {
+00102   <span class="keyword">public</span>:
+<a name="l00103"></a><a class="code" href="classpqxx_1_1Result_1_1Field.html#s0">00103</a>     <span class="keyword">typedef</span> size_t size_type;
+00104 
+00106 
+<a name="l00110"></a><a class="code" href="classpqxx_1_1Result_1_1Field.html#a0">00110</a>     Field(<span class="keyword">const</span> Tuple &amp;R, Tuple::size_type C) : Tuple(R), m_Col(C) {}   <span class="comment">//[t1]</span>
+00111 
 00113 
-00115     <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *Name() <span class="keyword">const</span>;                                    <span class="comment">//[t11]</span>
-00116 
-<a name="l00118"></a><a class="code" href="classpqxx_1_1Result_1_1Field.html#a3">00118</a>     <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keywordtype">bool</span> to(T &amp;Obj) <span class="keyword">const</span>                          <span class="comment">//[t1]</span>
-00119     {
-00120       <span class="keywordflow">if</span> (is_null())
-00121         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+<a name="l00118"></a><a class="code" href="classpqxx_1_1Result_1_1Field.html#a1">00118</a>     <span class="keyword">const</span> <span class="keywordtype">char</span> *c_str()<span class="keyword"> const </span>{<span class="keywordflow">return</span> m_Home-&gt;GetValue(m_Index,m_Col);} <span class="comment">//[t2]</span>
+00119 
+00121     <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *Name() <span class="keyword">const</span>;                                    <span class="comment">//[t11]</span>
 00122 
-00123       <span class="keywordflow">try</span>
-00124       {
-00125         <a class="code" href="namespacepqxx.html#a23">FromString</a>(c_str(), Obj);
-00126       }
-00127       <span class="keywordflow">catch</span> (<span class="keyword">const</span> PGSTD::exception &amp;e)
-00128       {
-00129         <span class="keywordflow">throw</span> PGSTD::runtime_error(<span class="stringliteral">"Error reading field "</span> + 
-00130                                    PGSTD::string(Name()) +
-00131                                    <span class="stringliteral">": "</span> +
-00132                                    e.what());
-00133       }
-00134       <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00135     }
-00136 
-00137 
-00138 <span class="preprocessor">#ifdef NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION</span>
-00139 <span class="preprocessor"></span>
-00140     <span class="keyword">template</span>&lt;&gt; <span class="keywordtype">bool</span> to&lt;PGSTD::string&gt;(PGSTD::string &amp;Obj) <span class="keyword">const</span>;
-00141 
+<a name="l00124"></a><a class="code" href="classpqxx_1_1Result_1_1Field.html#a3">00124</a>     <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keywordtype">bool</span> to(T &amp;Obj) <span class="keyword">const</span>                          <span class="comment">//[t1]</span>
+00125     {
+00126       <span class="keywordflow">if</span> (is_null())
+00127         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00128 
+00129       <span class="keywordflow">try</span>
+00130       {
+00131         <a class="code" href="namespacepqxx.html#a23">FromString</a>(c_str(), Obj);
+00132       }
+00133       <span class="keywordflow">catch</span> (<span class="keyword">const</span> PGSTD::exception &amp;e)
+00134       {
+00135         <span class="keywordflow">throw</span> PGSTD::runtime_error(<span class="stringliteral">"Error reading field "</span> + 
+00136                                    PGSTD::string(Name()) +
+00137                                    <span class="stringliteral">": "</span> +
+00138                                    e.what());
+00139       }
+00140       <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00141     }
+00142 
 00143 
-00146     <span class="keyword">template</span>&lt;&gt; <span class="keywordtype">bool</span> to&lt;const char *&gt;(<span class="keyword">const</span> <span class="keywordtype">char</span> *&amp;Obj) <span class="keyword">const</span>;
-00147 <span class="preprocessor">#endif</span>
-00148 <span class="preprocessor"></span>
+00144 <span class="preprocessor">#ifdef NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION</span>
+00145 <span class="preprocessor"></span>
+00146     <span class="keyword">template</span>&lt;&gt; <span class="keywordtype">bool</span> to&lt;PGSTD::string&gt;(PGSTD::string &amp;Obj) <span class="keyword">const</span>;
+00147 
 00149 
-<a name="l00151"></a><a class="code" href="classpqxx_1_1Result_1_1Field.html#a4">00151</a>     <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keywordtype">bool</span> to(T &amp;Obj, <span class="keyword">const</span> T &amp;Default) <span class="keyword">const</span>        <span class="comment">//[t12]</span>
-00152     {
-00153       <span class="keyword">const</span> <span class="keywordtype">bool</span> NotNull = to(Obj);
-00154       <span class="keywordflow">if</span> (!NotNull)
-00155         Obj = Default;
-00156       <span class="keywordflow">return</span> NotNull;
-00157     }
-00158 
-<a name="l00159"></a><a class="code" href="classpqxx_1_1Result_1_1Field.html#a5">00159</a>     <span class="keywordtype">bool</span> is_null()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Home-&gt;GetIsNull(m_Index,m_Col); }   <span class="comment">//[t12]</span>
-00160 
-<a name="l00161"></a><a class="code" href="classpqxx_1_1Result_1_1Field.html#a6">00161</a>     <span class="keywordtype">int</span> size()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Home-&gt;GetLength(m_Index,m_Col); }       <span class="comment">//[t11]</span>
-00162 
-00163   <span class="keyword">private</span>:
+00152     <span class="keyword">template</span>&lt;&gt; <span class="keywordtype">bool</span> to&lt;const char *&gt;(<span class="keyword">const</span> <span class="keywordtype">char</span> *&amp;Obj) <span class="keyword">const</span>;
+00153 <span class="preprocessor">#endif</span>
+00154 <span class="preprocessor"></span>
+00155 
+<a name="l00157"></a><a class="code" href="classpqxx_1_1Result_1_1Field.html#a4">00157</a>     <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keywordtype">bool</span> to(T &amp;Obj, <span class="keyword">const</span> T &amp;Default) <span class="keyword">const</span>        <span class="comment">//[t12]</span>
+00158     {
+00159       <span class="keyword">const</span> <span class="keywordtype">bool</span> NotNull = to(Obj);
+00160       <span class="keywordflow">if</span> (!NotNull)
+00161         Obj = Default;
+00162       <span class="keywordflow">return</span> NotNull;
+00163     }
 00164 
-00165     Tuple::size_type m_Col;
-00166   };
-00167 
+<a name="l00165"></a><a class="code" href="classpqxx_1_1Result_1_1Field.html#a5">00165</a>     <span class="keywordtype">bool</span> is_null()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Home-&gt;GetIsNull(m_Index,m_Col); }   <span class="comment">//[t12]</span>
+00166 
+<a name="l00167"></a><a class="code" href="classpqxx_1_1Result_1_1Field.html#a6">00167</a>     <span class="keywordtype">int</span> size()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Home-&gt;GetLength(m_Index,m_Col); }       <span class="comment">//[t11]</span>
 00168 
+00169   <span class="keyword">private</span>:
 00170 
-<a name="l00174"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html">00174</a>   <span class="keyword">class </span>PQXX_LIBEXPORT const_iterator : 
-00175     <span class="keyword">public</span> <a class="code" href="config_8h.html#a23">PGSTD</a>::iterator&lt;PGSTD::random_access_iterator_tag, 
-00176                          const Tuple,
-00177                          Result::size_type&gt;, 
-00178     <span class="keyword">public</span> Tuple
-00179   {
-00180   <span class="keyword">public</span>:
-<a name="l00181"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a0">00181</a>     const_iterator() : Tuple(0,0) {}
-00182 
-<a name="l00189"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a1">00189</a>     pointer operator-&gt;()  <span class="keyword">const</span> { <span class="keywordflow">return</span> <span class="keyword">this</span>; }                        <span class="comment">//[t12]</span>
-<a name="l00190"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a2">00190</a>     reference operator*()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> *operator-&gt;(); }               <span class="comment">//[t12]</span>
-00191 
-00192     const_iterator operator++(<span class="keywordtype">int</span>);                                     <span class="comment">//[t12]</span>
-<a name="l00193"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a4">00193</a>     const_iterator &amp;operator++() { ++m_Index; <span class="keywordflow">return</span> *<span class="keyword">this</span>; }           <span class="comment">//[t1]</span>
-00194     const_iterator operator--(<span class="keywordtype">int</span>);                                     <span class="comment">//[t12]</span>
-<a name="l00195"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a6">00195</a>     const_iterator &amp;operator--() { --m_Index; <span class="keywordflow">return</span> *<span class="keyword">this</span>; }           <span class="comment">//[t12]</span>
-00196 
-<a name="l00197"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a7">00197</a>     const_iterator &amp;operator+=(difference_type i)                       <span class="comment">//[t12]</span>
-00198         { m_Index+=i; <span class="keywordflow">return</span> *<span class="keyword">this</span>; }
-<a name="l00199"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a8">00199</a>     const_iterator &amp;operator-=(difference_type i)                       <span class="comment">//[t12]</span>
-00200         { m_Index-=i; <span class="keywordflow">return</span> *<span class="keyword">this</span>; }
-00201 
-<a name="l00202"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a9">00202</a>     <span class="keywordtype">bool</span> operator==(<span class="keyword">const</span> const_iterator &amp;i) <span class="keyword">const</span>                      <span class="comment">//[t12]</span>
-00203         {<span class="keywordflow">return</span> m_Index==i.m_Index;}
-<a name="l00204"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a10">00204</a>     <span class="keywordtype">bool</span> operator!=(<span class="keyword">const</span> const_iterator &amp;i) <span class="keyword">const</span>                      <span class="comment">//[t12]</span>
-00205         {<span class="keywordflow">return</span> m_Index!=i.m_Index;}
-<a name="l00206"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a11">00206</a>     <span class="keywordtype">bool</span> operator&lt;(<span class="keyword">const</span> const_iterator &amp;i) <span class="keyword">const</span>                       <span class="comment">//[t12]</span>
-00207          {<span class="keywordflow">return</span> m_Index&lt;i.m_Index;}
-<a name="l00208"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a12">00208</a>     <span class="keywordtype">bool</span> operator&lt;=(<span class="keyword">const</span> const_iterator &amp;i) <span class="keyword">const</span>                      <span class="comment">//[t12]</span>
-00209         {<span class="keywordflow">return</span> m_Index&lt;=i.m_Index;}
-<a name="l00210"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a13">00210</a>     <span class="keywordtype">bool</span> operator&gt;(<span class="keyword">const</span> const_iterator &amp;i) <span class="keyword">const</span>                       <span class="comment">//[t12]</span>
-00211         {<span class="keywordflow">return</span> m_Index&gt;i.m_Index;}
-<a name="l00212"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a14">00212</a>     <span class="keywordtype">bool</span> operator&gt;=(<span class="keyword">const</span> const_iterator &amp;i) <span class="keyword">const</span>                      <span class="comment">//[t12]</span>
-00213         {<span class="keywordflow">return</span> m_Index&gt;=i.m_Index;}
-00214 
-00215     <span class="keyword">inline</span> const_iterator <a class="code" href="namespacepqxx.html#a6">operator+</a>(difference_type o) <span class="keyword">const</span>;           <span class="comment">//[t12]</span>
-00216 
-00217     <span class="keyword">friend</span> const_iterator <a class="code" href="namespacepqxx.html#a6">operator+</a>(difference_type o, 
-00218                                     const_iterator i);                  <span class="comment">//[t12]</span>
-00219 
-00220     <span class="keyword">inline</span> const_iterator operator-(difference_type o) <span class="keyword">const</span>;           <span class="comment">//[t12]</span>
-00221 
-00222     <span class="keyword">inline</span> difference_type operator-(const_iterator i) <span class="keyword">const</span>;           <span class="comment">//[t12]</span>
-00223 
-<a name="l00224"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a18">00224</a>     Result::size_type num()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> Row(); }                     <span class="comment">//[t1]</span>
+00171     Tuple::size_type m_Col;
+00172   };
+00173 
+00174 
+00176 
+<a name="l00180"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html">00180</a>   <span class="keyword">class </span>PQXX_LIBEXPORT const_iterator : 
+00181     <span class="keyword">public</span> <a class="code" href="config_8h.html#a23">PGSTD</a>::iterator&lt;PGSTD::random_access_iterator_tag, 
+00182                          const Tuple,
+00183                          Result::size_type&gt;, 
+00184     <span class="keyword">public</span> Tuple
+00185   {
+00186   <span class="keyword">public</span>:
+<a name="l00187"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a0">00187</a>     const_iterator() : Tuple(0,0) {}
+00188 
+<a name="l00195"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a1">00195</a>     pointer operator-&gt;()  <span class="keyword">const</span> { <span class="keywordflow">return</span> <span class="keyword">this</span>; }                        <span class="comment">//[t12]</span>
+<a name="l00196"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a2">00196</a>     reference operator*()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> *operator-&gt;(); }               <span class="comment">//[t12]</span>
+00197 
+00198     const_iterator operator++(<span class="keywordtype">int</span>);                                     <span class="comment">//[t12]</span>
+<a name="l00199"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a4">00199</a>     const_iterator &amp;operator++() { ++m_Index; <span class="keywordflow">return</span> *<span class="keyword">this</span>; }           <span class="comment">//[t1]</span>
+00200     const_iterator operator--(<span class="keywordtype">int</span>);                                     <span class="comment">//[t12]</span>
+<a name="l00201"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a6">00201</a>     const_iterator &amp;operator--() { --m_Index; <span class="keywordflow">return</span> *<span class="keyword">this</span>; }           <span class="comment">//[t12]</span>
+00202 
+<a name="l00203"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a7">00203</a>     const_iterator &amp;operator+=(difference_type i)                       <span class="comment">//[t12]</span>
+00204         { m_Index+=i; <span class="keywordflow">return</span> *<span class="keyword">this</span>; }
+<a name="l00205"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a8">00205</a>     const_iterator &amp;operator-=(difference_type i)                       <span class="comment">//[t12]</span>
+00206         { m_Index-=i; <span class="keywordflow">return</span> *<span class="keyword">this</span>; }
+00207 
+<a name="l00208"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a9">00208</a>     <span class="keywordtype">bool</span> operator==(<span class="keyword">const</span> const_iterator &amp;i) <span class="keyword">const</span>                      <span class="comment">//[t12]</span>
+00209         {<span class="keywordflow">return</span> m_Index==i.m_Index;}
+<a name="l00210"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a10">00210</a>     <span class="keywordtype">bool</span> operator!=(<span class="keyword">const</span> const_iterator &amp;i) <span class="keyword">const</span>                      <span class="comment">//[t12]</span>
+00211         {<span class="keywordflow">return</span> m_Index!=i.m_Index;}
+<a name="l00212"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a11">00212</a>     <span class="keywordtype">bool</span> operator&lt;(<span class="keyword">const</span> const_iterator &amp;i) <span class="keyword">const</span>                       <span class="comment">//[t12]</span>
+00213          {<span class="keywordflow">return</span> m_Index&lt;i.m_Index;}
+<a name="l00214"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a12">00214</a>     <span class="keywordtype">bool</span> operator&lt;=(<span class="keyword">const</span> const_iterator &amp;i) <span class="keyword">const</span>                      <span class="comment">//[t12]</span>
+00215         {<span class="keywordflow">return</span> m_Index&lt;=i.m_Index;}
+<a name="l00216"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a13">00216</a>     <span class="keywordtype">bool</span> operator&gt;(<span class="keyword">const</span> const_iterator &amp;i) <span class="keyword">const</span>                       <span class="comment">//[t12]</span>
+00217         {<span class="keywordflow">return</span> m_Index&gt;i.m_Index;}
+<a name="l00218"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a14">00218</a>     <span class="keywordtype">bool</span> operator&gt;=(<span class="keyword">const</span> const_iterator &amp;i) <span class="keyword">const</span>                      <span class="comment">//[t12]</span>
+00219         {<span class="keywordflow">return</span> m_Index&gt;=i.m_Index;}
+00220 
+00221     <span class="keyword">inline</span> const_iterator <a class="code" href="namespacepqxx.html#a6">operator+</a>(difference_type o) <span class="keyword">const</span>;           <span class="comment">//[t12]</span>
+00222 
+00223     <span class="keyword">friend</span> const_iterator <a class="code" href="namespacepqxx.html#a6">operator+</a>(difference_type o, 
+00224                                     const_iterator i);                  <span class="comment">//[t12]</span>
 00225 
-00226   <span class="keyword">private</span>:
-<a name="l00227"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#l0">00227</a>     <span class="keyword">friend</span> <span class="keyword">class </span>Result;
-00228     const_iterator(<span class="keyword">const</span> Result *r, Result::size_type i) : Tuple(r, i) {}
-00229   };
-00230 
-<a name="l00231"></a><a class="code" href="classpqxx_1_1Result.html#a4">00231</a>   const_iterator begin()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> const_iterator(<span class="keyword">this</span>, 0); }      <span class="comment">//[t1]</span>
-00232   <span class="keyword">inline</span> const_iterator end() <span class="keyword">const</span>;                                    <span class="comment">//[t1]</span>
-00233   <span class="comment">// TODO: Reverse iterators</span>
-00234 
-<a name="l00235"></a><a class="code" href="classpqxx_1_1Result.html#a6">00235</a>   size_type size()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Result ? PQntuples(m_Result) : 0; } <span class="comment">//[t2]</span>
-<a name="l00236"></a><a class="code" href="classpqxx_1_1Result.html#a7">00236</a>   <span class="keywordtype">bool</span> empty()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> !m_Result || !PQntuples(m_Result); }      <span class="comment">//[t11]</span>
-<a name="l00237"></a><a class="code" href="classpqxx_1_1Result.html#a8">00237</a>   size_type capacity()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> size(); }                         <span class="comment">//[t20]</span>
-00238 
-<a name="l00239"></a><a class="code" href="classpqxx_1_1Result.html#a9">00239</a>   <span class="keyword">const</span> Tuple operator[](size_type i)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> Tuple(<span class="keyword">this</span>, i); }  <span class="comment">//[t2]</span>
-00240   <span class="keyword">const</span> Tuple at(size_type) <span class="keyword">const</span>;                                      <span class="comment">//[t10]</span>
-00241 
-<a name="l00242"></a><a class="code" href="classpqxx_1_1Result.html#a11">00242</a>   <span class="keywordtype">void</span> clear() { LoseRef(); }                                           <span class="comment">//[t20]</span>
-00243 
-<a name="l00244"></a><a class="code" href="classpqxx_1_1Result.html#a12">00244</a>   Tuple::size_type Columns()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> PQnfields(m_Result); }      <span class="comment">//[t11]</span>
-00245 
-<a name="l00247"></a><a class="code" href="classpqxx_1_1Result.html#a13">00247</a>   Tuple::size_type ColumnNumber(<span class="keyword">const</span> <span class="keywordtype">char</span> Name[]) <span class="keyword">const</span>                <span class="comment">//[t11]</span>
-00248         {<span class="keywordflow">return</span> PQfnumber(m_Result,Name);}
-<a name="l00250"></a><a class="code" href="classpqxx_1_1Result.html#a14">00250</a>   Tuple::size_type ColumnNumber(<span class="keyword">const</span> std::string &amp;Name) <span class="keyword">const</span>          <span class="comment">//[t11]</span>
-00251         {<span class="keywordflow">return</span> ColumnNumber(Name.c_str());}
-<a name="l00252"></a><a class="code" href="classpqxx_1_1Result.html#a15">00252</a>   <span class="keyword">const</span> <span class="keywordtype">char</span> *ColumnName(Tuple::size_type Number) <span class="keyword">const</span>                 <span class="comment">//[t11]</span>
-00253         {<span class="keywordflow">return</span> PQfname(m_Result,Number);}
-00254 
-00256 
-<a name="l00257"></a><a class="code" href="classpqxx_1_1Result.html#a16">00257</a>   Oid InsertedOid()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> PQoidValue(m_Result); }              <span class="comment">//[t13]</span>
-00258 
-00260   <span class="comment">/*** Returns zero for all other commands. */</span>
-00261   size_type AffectedRows() <span class="keyword">const</span>;                                       <span class="comment">//[t7]</span>
+00226     <span class="keyword">inline</span> const_iterator operator-(difference_type o) <span class="keyword">const</span>;           <span class="comment">//[t12]</span>
+00227 
+00228     <span class="keyword">inline</span> difference_type operator-(const_iterator i) <span class="keyword">const</span>;           <span class="comment">//[t12]</span>
+00229 
+<a name="l00230"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a18">00230</a>     Result::size_type num()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> Row(); }                     <span class="comment">//[t1]</span>
+00231 
+00232   <span class="keyword">private</span>:
+<a name="l00233"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#l0">00233</a>     <span class="keyword">friend</span> <span class="keyword">class </span>Result;
+00234     const_iterator(<span class="keyword">const</span> Result *r, Result::size_type i) : Tuple(r, i) {}
+00235   };
+00236 
+<a name="l00237"></a><a class="code" href="classpqxx_1_1Result.html#a4">00237</a>   const_iterator begin()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> const_iterator(<span class="keyword">this</span>, 0); }      <span class="comment">//[t1]</span>
+00238   <span class="keyword">inline</span> const_iterator end() <span class="keyword">const</span>;                                    <span class="comment">//[t1]</span>
+00239   <span class="comment">// TODO: Reverse iterators</span>
+00240 
+<a name="l00241"></a><a class="code" href="classpqxx_1_1Result.html#a6">00241</a>   size_type size()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Result ? PQntuples(m_Result) : 0; } <span class="comment">//[t2]</span>
+<a name="l00242"></a><a class="code" href="classpqxx_1_1Result.html#a7">00242</a>   <span class="keywordtype">bool</span> empty()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> !m_Result || !PQntuples(m_Result); }      <span class="comment">//[t11]</span>
+<a name="l00243"></a><a class="code" href="classpqxx_1_1Result.html#a8">00243</a>   size_type capacity()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> size(); }                         <span class="comment">//[t20]</span>
+00244 
+<a name="l00245"></a><a class="code" href="classpqxx_1_1Result.html#a9">00245</a>   <span class="keyword">const</span> Tuple operator[](size_type i)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> Tuple(<span class="keyword">this</span>, i); }  <span class="comment">//[t2]</span>
+00246   <span class="keyword">const</span> Tuple at(size_type) <span class="keyword">const</span>;                                      <span class="comment">//[t10]</span>
+00247 
+<a name="l00248"></a><a class="code" href="classpqxx_1_1Result.html#a11">00248</a>   <span class="keywordtype">void</span> clear() { LoseRef(); }                                           <span class="comment">//[t20]</span>
+00249 
+<a name="l00250"></a><a class="code" href="classpqxx_1_1Result.html#a12">00250</a>   Tuple::size_type Columns()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> PQnfields(m_Result); }      <span class="comment">//[t11]</span>
+00251 
+<a name="l00253"></a><a class="code" href="classpqxx_1_1Result.html#a13">00253</a>   Tuple::size_type ColumnNumber(<span class="keyword">const</span> <span class="keywordtype">char</span> Name[]) <span class="keyword">const</span>                <span class="comment">//[t11]</span>
+00254         {<span class="keywordflow">return</span> PQfnumber(m_Result,Name);}
+<a name="l00256"></a><a class="code" href="classpqxx_1_1Result.html#a14">00256</a>   Tuple::size_type ColumnNumber(<span class="keyword">const</span> std::string &amp;Name) <span class="keyword">const</span>          <span class="comment">//[t11]</span>
+00257         {<span class="keywordflow">return</span> ColumnNumber(Name.c_str());}
+<a name="l00258"></a><a class="code" href="classpqxx_1_1Result.html#a15">00258</a>   <span class="keyword">const</span> <span class="keywordtype">char</span> *ColumnName(Tuple::size_type Number) <span class="keyword">const</span>                 <span class="comment">//[t11]</span>
+00259         {<span class="keywordflow">return</span> PQfname(m_Result,Number);}
+00260 
 00262 
-00263 <span class="keyword">private</span>:
-00264   PGresult *m_Result;
-00265   <span class="keyword">mutable</span> <span class="keywordtype">int</span> *m_Refcount;
-00266 
-<a name="l00267"></a><a class="code" href="classpqxx_1_1Result.html#l0">00267</a>   <span class="keyword">friend</span> <span class="keyword">class </span>Result::Field;
-00268   const char *GetValue(size_type Row, Tuple::size_type Col) const;
-00269   bool GetIsNull(size_type Row, Tuple::size_type Col) const;
-00270   Field::size_type GetLength(size_type Row, Tuple::size_type Col) const;
-00271 
-<a name="l00272"></a><a class="code" href="classpqxx_1_1Result.html#l1">00272</a>   friend class <a class="code" href="classpqxx_1_1ConnectionItf.html">ConnectionItf</a>;
-00273   explicit Result(PGresult *rhs) : m_Result(rhs), m_Refcount(0) {MakeRef(rhs);}
-00274   Result &amp;operator=(PGresult *);
-00275   <span class="keywordtype">bool</span> operator!() <span class="keyword">const</span> <span class="keywordflow">throw</span> () { <span class="keywordflow">return</span> !m_Result; }
-00276   operator bool() <span class="keyword">const</span> <span class="keywordflow">throw</span> () { <span class="keywordflow">return</span> m_Result != 0; }
-00277   <span class="keywordtype">void</span> CheckStatus(<span class="keyword">const</span> PGSTD::string &amp;Query) <span class="keyword">const</span>;
-00278 
-<a name="l00279"></a><a class="code" href="classpqxx_1_1Result.html#l2">00279</a>   <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classpqxx_1_1Cursor.html">Cursor</a>;
-00280   <span class="keyword">const</span> <span class="keywordtype">char</span> *CmdStatus() <span class="keyword">const</span> <span class="keywordflow">throw</span> () { <span class="keywordflow">return</span> PQcmdStatus(m_Result); }
-00281 
-00282 
-00283   <span class="keywordtype">void</span> MakeRef(PGresult *);
-00284   <span class="keywordtype">void</span> MakeRef(<span class="keyword">const</span> Result &amp;);
-00285   <span class="keywordtype">void</span> LoseRef() <span class="keywordflow">throw</span> ();
-00286 };
+<a name="l00263"></a><a class="code" href="classpqxx_1_1Result.html#a16">00263</a>   Oid InsertedOid()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> PQoidValue(m_Result); }              <span class="comment">//[t13]</span>
+00264 
+00266   <span class="comment">/*** Returns zero for all other commands. */</span>
+00267   size_type AffectedRows() <span class="keyword">const</span>;                                       <span class="comment">//[t7]</span>
+00268 
+00269 <span class="keyword">private</span>:
+00270   PGresult *m_Result;
+00271   <span class="keyword">mutable</span> <span class="keywordtype">int</span> *m_Refcount;
+00272 
+<a name="l00273"></a><a class="code" href="classpqxx_1_1Result.html#l0">00273</a>   <span class="keyword">friend</span> <span class="keyword">class </span>Result::Field;
+00274   const char *GetValue(size_type Row, Tuple::size_type Col) const;
+00275   bool GetIsNull(size_type Row, Tuple::size_type Col) const;
+00276   Field::size_type GetLength(size_type Row, Tuple::size_type Col) const;
+00277 
+<a name="l00278"></a><a class="code" href="classpqxx_1_1Result.html#l1">00278</a>   friend class <a class="code" href="classpqxx_1_1ConnectionItf.html">ConnectionItf</a>;
+00279   explicit Result(PGresult *rhs) : m_Result(rhs), m_Refcount(0) {MakeRef(rhs);}
+00280   Result &amp;operator=(PGresult *);
+00281   <span class="keywordtype">bool</span> operator!() <span class="keyword">const</span> <span class="keywordflow">throw</span> () { <span class="keywordflow">return</span> !m_Result; }
+00282   operator bool() <span class="keyword">const</span> <span class="keywordflow">throw</span> () { <span class="keywordflow">return</span> m_Result != 0; }
+00283   <span class="keywordtype">void</span> CheckStatus(<span class="keyword">const</span> PGSTD::string &amp;Query) <span class="keyword">const</span>;
+00284 
+<a name="l00285"></a><a class="code" href="classpqxx_1_1Result.html#l2">00285</a>   <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classpqxx_1_1Cursor.html">Cursor</a>;
+00286   <span class="keyword">const</span> <span class="keywordtype">char</span> *CmdStatus() <span class="keyword">const</span> <span class="keywordflow">throw</span> () { <span class="keywordflow">return</span> PQcmdStatus(m_Result); }
 00287 
 00288 
-00289 <span class="keyword">inline</span> Result::Field 
-<a name="l00290"></a><a class="code" href="classpqxx_1_1Result_1_1Tuple.html#a2">00290</a> Result::Tuple::operator[](Result::Tuple::size_type i)<span class="keyword"> const </span>
-00291 <span class="keyword"></span>{ 
-00292   <span class="keywordflow">return</span> <a class="code" href="classpqxx_1_1Result_1_1Field.html">Field</a>(*<span class="keyword">this</span>, i); 
-00293 }
+00289   <span class="keywordtype">void</span> MakeRef(PGresult *);
+00290   <span class="keywordtype">void</span> MakeRef(<span class="keyword">const</span> Result &amp;);
+00291   <span class="keywordtype">void</span> LoseRef() <span class="keywordflow">throw</span> ();
+00292 };
+00293 
 00294 
-<a name="l00295"></a><a class="code" href="classpqxx_1_1Result_1_1Tuple.html#a8">00295</a> <span class="keyword">inline</span> Result::Tuple::size_type Result::Tuple::size()<span class="keyword"> const </span>
-00296 <span class="keyword"></span>{ 
-00297   <span class="keywordflow">return</span> <a class="code" href="classpqxx_1_1Result_1_1Tuple.html#n0">m_Home</a>-&gt;<a class="code" href="classpqxx_1_1Result.html#a12">Columns</a>(); 
-00298 }
-00299 
-<a name="l00300"></a><a class="code" href="classpqxx_1_1Result_1_1Field.html#a2">00300</a> <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *Result::Field::Name()<span class="keyword"> const </span>
-00301 <span class="keyword"></span>{ 
-00302   <span class="keywordflow">return</span> <a class="code" href="classpqxx_1_1Result_1_1Tuple.html#n0">m_Home</a>-&gt;<a class="code" href="classpqxx_1_1Result.html#a15">ColumnName</a>(m_Col); 
-00303 }
-00304 
-00306 <span class="keyword">template</span>&lt;&gt; 
-00307 <span class="keyword">inline</span> <span class="keywordtype">bool</span> Result::Field::to&lt;PGSTD::string&gt;(PGSTD::string &amp;Obj) <span class="keyword">const</span>
-00308 {
-00309   <span class="keywordflow">if</span> (is_null()) <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00310   Obj = c_str();
-00311   <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00312 }
-00313 
-00315 
-00318 <span class="keyword">template</span>&lt;&gt; 
-00319 <span class="keyword">inline</span> <span class="keywordtype">bool</span> Result::Field::to&lt;const char *&gt;(<span class="keyword">const</span> <span class="keywordtype">char</span> *&amp;Obj) <span class="keyword">const</span>
-00320 {
-00321   <span class="keywordflow">if</span> (is_null()) <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00322   Obj = c_str();
-00323   <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00324 }
-00325 
-00326 
-00327 <span class="keyword">inline</span> Result::const_iterator 
-<a name="l00328"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a15">00328</a> Result::const_iterator::operator+(difference_type o)<span class="keyword"> const</span>
-00329 <span class="keyword"></span>{
-00330   <span class="keywordflow">return</span> <a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a0">const_iterator</a>(m_Home, m_Index + o);
-00331 }
+00295 <span class="keyword">inline</span> Result::Field 
+<a name="l00296"></a><a class="code" href="classpqxx_1_1Result_1_1Tuple.html#a2">00296</a> Result::Tuple::operator[](Result::Tuple::size_type i)<span class="keyword"> const </span>
+00297 <span class="keyword"></span>{ 
+00298   <span class="keywordflow">return</span> <a class="code" href="classpqxx_1_1Result_1_1Field.html">Field</a>(*<span class="keyword">this</span>, i); 
+00299 }
+00300 
+<a name="l00301"></a><a class="code" href="classpqxx_1_1Result_1_1Tuple.html#a8">00301</a> <span class="keyword">inline</span> Result::Tuple::size_type Result::Tuple::size()<span class="keyword"> const </span>
+00302 <span class="keyword"></span>{ 
+00303   <span class="keywordflow">return</span> <a class="code" href="classpqxx_1_1Result_1_1Tuple.html#n0">m_Home</a>-&gt;<a class="code" href="classpqxx_1_1Result.html#a12">Columns</a>(); 
+00304 }
+00305 
+<a name="l00306"></a><a class="code" href="classpqxx_1_1Result_1_1Field.html#a2">00306</a> <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *Result::Field::Name()<span class="keyword"> const </span>
+00307 <span class="keyword"></span>{ 
+00308   <span class="keywordflow">return</span> <a class="code" href="classpqxx_1_1Result_1_1Tuple.html#n0">m_Home</a>-&gt;<a class="code" href="classpqxx_1_1Result.html#a15">ColumnName</a>(m_Col); 
+00309 }
+00310 
+00312 <span class="keyword">template</span>&lt;&gt; 
+00313 <span class="keyword">inline</span> <span class="keywordtype">bool</span> Result::Field::to&lt;PGSTD::string&gt;(PGSTD::string &amp;Obj) <span class="keyword">const</span>
+00314 {
+00315   <span class="keywordflow">if</span> (is_null()) <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00316   Obj = c_str();
+00317   <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00318 }
+00319 
+00321 
+00324 <span class="keyword">template</span>&lt;&gt; 
+00325 <span class="keyword">inline</span> <span class="keywordtype">bool</span> Result::Field::to&lt;const char *&gt;(<span class="keyword">const</span> <span class="keywordtype">char</span> *&amp;Obj) <span class="keyword">const</span>
+00326 {
+00327   <span class="keywordflow">if</span> (is_null()) <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00328   Obj = c_str();
+00329   <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00330 }
+00331 
 00332 
 00333 <span class="keyword">inline</span> Result::const_iterator 
-<a name="l00334"></a><a class="code" href="namespacepqxx.html#a6">00334</a> <a class="code" href="namespacepqxx.html#a6">operator+</a>(Result::const_iterator::difference_type o, 
-00335           <a class="code" href="classpqxx_1_1Result_1_1const__iterator.html">Result::const_iterator</a> i)
-00336 {
-00337   <span class="keywordflow">return</span> i + o;
-00338 }
-00339 
-00340 <span class="keyword">inline</span> Result::const_iterator 
-<a name="l00341"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a16">00341</a> Result::const_iterator::operator-(difference_type o)<span class="keyword"> const</span>
-00342 <span class="keyword"></span>{
-00343   <span class="keywordflow">return</span> <a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a0">const_iterator</a>(m_Home, m_Index - o);
+<a name="l00334"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a15">00334</a> Result::const_iterator::operator+(difference_type o)<span class="keyword"> const</span>
+00335 <span class="keyword"></span>{
+00336   <span class="keywordflow">return</span> <a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a0">const_iterator</a>(m_Home, m_Index + o);
+00337 }
+00338 
+00339 <span class="keyword">inline</span> Result::const_iterator 
+<a name="l00340"></a><a class="code" href="namespacepqxx.html#a6">00340</a> <a class="code" href="namespacepqxx.html#a6">operator+</a>(Result::const_iterator::difference_type o, 
+00341           <a class="code" href="classpqxx_1_1Result_1_1const__iterator.html">Result::const_iterator</a> i)
+00342 {
+00343   <span class="keywordflow">return</span> i + o;
 00344 }
 00345 
-00346 <span class="keyword">inline</span> Result::const_iterator::difference_type 
-<a name="l00347"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a17">00347</a> Result::const_iterator::operator-(<a class="code" href="classpqxx_1_1Result_1_1const__iterator.html">const_iterator</a> i)<span class="keyword"> const</span>
-00348 <span class="keyword"></span>{ 
-00349   <span class="keywordflow">return</span> <a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a18">num</a>()-i.<a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a18">num</a>(); 
+00346 <span class="keyword">inline</span> Result::const_iterator 
+<a name="l00347"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a16">00347</a> Result::const_iterator::operator-(difference_type o)<span class="keyword"> const</span>
+00348 <span class="keyword"></span>{
+00349   <span class="keywordflow">return</span> <a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a0">const_iterator</a>(m_Home, m_Index - o);
 00350 }
 00351 
-<a name="l00352"></a><a class="code" href="classpqxx_1_1Result.html#a5">00352</a> <span class="keyword">inline</span> <a class="code" href="classpqxx_1_1Result_1_1const__iterator.html">Result::const_iterator</a> Result::end()<span class="keyword"> const </span>
-00353 <span class="keyword"></span>{ 
-00354   <span class="keywordflow">return</span> <a class="code" href="classpqxx_1_1Result_1_1const__iterator.html">const_iterator</a>(<span class="keyword">this</span>, <a class="code" href="classpqxx_1_1Result.html#a6">size</a>()); 
-00355 }
-00356 
-00357 } <span class="comment">// namespace pqxx</span>
-00358 
-00359 
-00361 
-00378 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> STREAM&gt;
-<a name="l00379"></a><a class="code" href="result_8h.html#a0">00379</a> <span class="keyword">inline</span> STREAM &amp;<a class="code" href="result_8h.html#a0">operator&lt;&lt;</a>(STREAM &amp;S, <span class="keyword">const</span> <a class="code" href="classpqxx_1_1Result_1_1Field.html">pqxx::Result::Field</a> &amp;F)      <span class="comment">//[t46]</span>
-00380 {
-00381   S &lt;&lt; F.<a class="code" href="classpqxx_1_1Result_1_1Field.html#a1">c_str</a>();
-00382   <span class="keywordflow">return</span> S;
-00383 }
-00384 
-00385 
-00386 
-00387 <span class="comment">/* </span>
-00388 <span class="comment">[1] Scott Meyers, in one of his essential books, "Effective C++" and "More </span>
-00389 <span class="comment">Effective C++", points out that it is good style to have any class containing </span>
-00390 <span class="comment">a member of pointer type define its own destructor--just to show that it knows</span>
-00391 <span class="comment">what it is doing.  This helps prevent nasty memory leak / double deletion bugs</span>
-00392 <span class="comment">typically resulting from programmers' omission to deal with such issues in</span>
-00393 <span class="comment">their destructors.</span>
-00394 <span class="comment"></span>
-00395 <span class="comment">The -Weffc++ option in gcc generates warnings for noncompliance with Scott's</span>
-00396 <span class="comment">style guidelines, and hence necessitates the definition of this destructor,\</span>
-00397 <span class="comment">trivial as it may be.</span>
-00398 <span class="comment"></span>
-00399 <span class="comment">[2] IIRC Alex Stepanov, the inventor of the STL, once remarked that having</span>
-00400 <span class="comment">this as standard behaviour for pointers would be useful in some algorithms.</span>
-00401 <span class="comment">So even if this makes me look foolish, I would seem to be in distinguished </span>
-00402 <span class="comment">company.</span>
-00403 <span class="comment">*/</span>
-00404 
-00405 <span class="preprocessor">#endif</span>
-00406 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Sun Mar 30 20:02:12 2003 for libpqxx by
+00352 <span class="keyword">inline</span> Result::const_iterator::difference_type 
+<a name="l00353"></a><a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a17">00353</a> Result::const_iterator::operator-(<a class="code" href="classpqxx_1_1Result_1_1const__iterator.html">const_iterator</a> i)<span class="keyword"> const</span>
+00354 <span class="keyword"></span>{ 
+00355   <span class="keywordflow">return</span> <a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a18">num</a>()-i.<a class="code" href="classpqxx_1_1Result_1_1const__iterator.html#a18">num</a>(); 
+00356 }
+00357 
+<a name="l00358"></a><a class="code" href="classpqxx_1_1Result.html#a5">00358</a> <span class="keyword">inline</span> <a class="code" href="classpqxx_1_1Result_1_1const__iterator.html">Result::const_iterator</a> Result::end()<span class="keyword"> const </span>
+00359 <span class="keyword"></span>{ 
+00360   <span class="keywordflow">return</span> <a class="code" href="classpqxx_1_1Result_1_1const__iterator.html">const_iterator</a>(<span class="keyword">this</span>, <a class="code" href="classpqxx_1_1Result.html#a6">size</a>()); 
+00361 }
+00362 
+00363 } <span class="comment">// namespace pqxx</span>
+00364 
+00365 
+00367 
+00384 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> STREAM&gt;
+<a name="l00385"></a><a class="code" href="result_8h.html#a0">00385</a> <span class="keyword">inline</span> STREAM &amp;<a class="code" href="result_8h.html#a0">operator&lt;&lt;</a>(STREAM &amp;S, <span class="keyword">const</span> <a class="code" href="classpqxx_1_1Result_1_1Field.html">pqxx::Result::Field</a> &amp;F)      <span class="comment">//[t46]</span>
+00386 {
+00387   S &lt;&lt; F.<a class="code" href="classpqxx_1_1Result_1_1Field.html#a1">c_str</a>();
+00388   <span class="keywordflow">return</span> S;
+00389 }
+00390 
+00391 
+00392 
+00393 <span class="comment">/* </span>
+00394 <span class="comment">[1] Scott Meyers, in one of his essential books, "Effective C++" and "More </span>
+00395 <span class="comment">Effective C++", points out that it is good style to have any class containing </span>
+00396 <span class="comment">a member of pointer type define its own destructor--just to show that it knows</span>
+00397 <span class="comment">what it is doing.  This helps prevent nasty memory leak / double deletion bugs</span>
+00398 <span class="comment">typically resulting from programmers' omission to deal with such issues in</span>
+00399 <span class="comment">their destructors.</span>
+00400 <span class="comment"></span>
+00401 <span class="comment">The -Weffc++ option in gcc generates warnings for noncompliance with Scott's</span>
+00402 <span class="comment">style guidelines, and hence necessitates the definition of this destructor,\</span>
+00403 <span class="comment">trivial as it may be.</span>
+00404 <span class="comment"></span>
+00405 <span class="comment">[2] IIRC Alex Stepanov, the inventor of the STL, once remarked that having</span>
+00406 <span class="comment">this as standard behaviour for pointers would be useful in some algorithms.</span>
+00407 <span class="comment">So even if this makes me look foolish, I would seem to be in distinguished </span>
+00408 <span class="comment">company.</span>
+00409 <span class="comment">*/</span>
+00410 
+00411 <span class="preprocessor">#endif</span>
+00412 <span class="preprocessor"></span>
+</pre></div><hr><address style="align: right;"><small>Generated on Mon Mar 31 17:57:33 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

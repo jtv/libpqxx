@@ -78,7 +78,10 @@ public:
 
     Result::size_type Row() const { return m_Index; }			//[t11]
 
-    size_type ColumnNumber(const char ColName[]) const 			//[]
+    size_type ColumnNumber(const PGSTD::string &ColName) const 		//[t30]
+    	{ return m_Home->ColumnNumber(ColName); }
+
+    size_type ColumnNumber(const char ColName[]) const 			//[t30]
     	{ return m_Home->ColumnNumber(ColName); }
 
   protected:
