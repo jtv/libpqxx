@@ -156,6 +156,7 @@ namespace internal
 {
 /// C-style format strings for various built-in types
 /** @deprecated To be removed when ToString and FromString are taken out
+ *
  * Only allowed for certain types, for which this function is explicitly 
  * specialized.  When attempting to use the template for an unsupported type,
  * the generic version will be instantiated.  This will result in a link error
