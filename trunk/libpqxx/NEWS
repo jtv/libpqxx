@@ -1,5 +1,6 @@
 2.3.1
  - Fixes incompatibility with some implementations of Unix "cut" program
+ - More conservative robusttransaction--thanks Tom Lane
 2.3.0
  - Generates MinGW Makefile automatically
  - Documents MinGW build
