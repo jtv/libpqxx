@@ -18,19 +18,6 @@
 #ifndef PQXX_COMPILER_H
 #define PQXX_COMPILER_H
 
-/* Work around a particularly pernicious and deliberate bug in Visual C++:
- * min() and max() are defined as macros, which can have some very nasty
- * consequences.
- */
-#ifdef _MSC_VER
-#if defined(min) || defined(max)
-#error "Broken compiler defines min() and max() as preprocessor macros.\
-  Define NOMINMAX macro before including any system headers!"
-#endif
-#define NOMINMAX
-#endif
-
-
 // Workarounds & definitions needed to compile libpqxx into a library
 #include "pqxx/config-internal-compiler.h"
 #include "pqxx/libcompiler.h"

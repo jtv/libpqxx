@@ -264,26 +264,13 @@ private:
   difference_type NormalizedMove(difference_type Intended,
       difference_type Actual);
 
-#ifndef PQXX_WORKAROUND_VC7
   /// Only defined for permitted isolation levels (in this case, serializable)
   /** If you get a link or compile error saying this function is not defined,
    * that means a Cursor is being created on a transaction that doesn't have a
    * sufficient isolation level to support the Cursor's reliable operation.
    */
-  template<typename ISOLATIONTAG> 
-    static inline void error_permitted_isolation_level(ISOLATIONTAG) throw ();
-
-#if defined(__SUNPRO_CC)
-  // TODO: Breaks on "Sun C++ 5.5 Patch 113817-10 2004/10/05"
-  // Incorrect, but needed to compile with Sun CC
-  template<> static void 
+  static void
     error_permitted_isolation_level(isolation_traits<serializable>) throw () {}
-#endif	// __SUNPRO_CC
-#else
-  // Incorrect, but needed to compile with Visual C++ 7
-  template<> static inline void 
-    error_permitted_isolation_level(isolation_traits<serializable>) throw ();
-#endif
 
   transaction_base &m_Trans;
   PGSTD::string m_Name;
@@ -297,9 +284,6 @@ private:
   Cursor &operator=(const Cursor &);
 };
 
-template<> inline void 
-Cursor::error_permitted_isolation_level(isolation_traits<serializable>) throw ()
-	{}
 
 } // namespace pqxx
 

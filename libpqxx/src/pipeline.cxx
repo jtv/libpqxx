@@ -7,7 +7,7 @@
  *      implementation of the pqxx::pipeline class
  *   Throughput-optimized query manager
  *
- * Copyright (c) 2003-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -302,6 +302,7 @@ void pqxx::pipeline::obtain_dummy()
 
 
   // Reset internal state to forget botched batch attempt
+  // TODO: Why in blazes won't this compile on SunC++!?
   m_num_waiting += distance(m_issuedrange.first, stop);
   m_issuedrange.second = m_issuedrange.first;
 
