@@ -16,8 +16,6 @@
  *
  *-------------------------------------------------------------------------
  */
-#include <string>
-
 #include "pqxx/transaction_base"
 
 namespace pqxx
@@ -54,62 +52,28 @@ namespace pqxx
 class PQXX_LIBEXPORT dbtransaction : public transaction_base
 {
 protected:
-  explicit dbtransaction(connection_base &C,
+  explicit dbtransaction(connection_base &,
 			 const PGSTD::string &IsolationString,
       			 const PGSTD::string &NName,
-			 const PGSTD::string &CName) :
-    transaction_base(C, NName, CName),
-    m_StartCmd()
-  {
-    if (IsolationString != isolation_traits<read_committed>::name())
-      m_StartCmd = "SET TRANSACTION ISOLATION LEVEL " + IsolationString;
-  }
+			 const PGSTD::string &CName);
 
   /// Start a transaction on the backend and set desired isolation level
-  void start_backend_transaction()
-  {
-    DirectExec("BEGIN", 2);
-    if (!startcommand().empty()) DirectExec(startcommand().c_str());
-  }
-
-  /// @deprecated This function has changed meanings.  Don't use it.
-  const PGSTD::string &startcommand() const { return m_StartCmd; }
-
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated This function has changed meanings.  Don't use it.
-  const PGSTD::string &StartCmd() const { return startcommand(); }
-#endif
+  void start_backend_transaction();
 
 private:
-
   /// To be implemented by derived class: start backend transaction
   virtual void do_begin() =0;
   /// Sensible default implemented here: perform query
-  virtual result do_exec(const char Query[]);				//[t1]
+  virtual result do_exec(const char Query[]);
   /// To be implemented by derived class: commit backend transaction
   virtual void do_commit() =0;
   /// To be implemented by derived class: abort backend transaction
   virtual void do_abort() =0;
 
-  /// Precomputed SQL command to start this transaction
+  /// Precomputed SQL command to run at start of this transaction
   PGSTD::string m_StartCmd;
 };
 
-
-inline result dbtransaction::do_exec(const char Query[])
-{
-  result R;
-  try
-  {
-    R = DirectExec(Query);
-  }
-  catch (const PGSTD::exception &)
-  {
-    try { abort(); } catch (const PGSTD::exception &) {}
-    throw;
-  }
-  return R;
-}
 
 } // namespace pqxx
 
