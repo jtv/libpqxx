@@ -37,7 +37,7 @@ reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
 	  $(RM) html; \
 	  $(MKDIR) html; \
 	fi
-	$(DOXYGEN) Doxyfile
+	$(DOXYGEN) Doxyfile | grep -v '\.\.\.$$' 
 	touch $@
 
 ../src/libpqxx.la:
