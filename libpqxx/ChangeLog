@@ -1,3 +1,22 @@
+2005-03-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/libcompiler.h:
+  - Moved NOMINMAX even further towards the top
+2005-03-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems:
+  - Added PQXX_HAVE_STRERROR_R
+  - Added PQXX_STRERROR_R_INT
+ configure.ac.in:
+  - New option: --enable-thread-safety (enabled by default)
+  - Check for strerror_r and its signature
+ include/pqxx/largeobject.hxx:
+  - Reason() functions take errno (as it was at time of failure) as argument
+ src/largeobject.cxx:
+  - Replaced calls to strerror() with strerror_r() where possible
+  - Fixed possible polluted errno in error strings
+  - Throw bad_alloc instead of runtime_error where appropriate
+ src/util.cxx:
+  - sleep_seconds() no longer uses non-threadsafe strerror()
+  - sleep_seconds() for sleep()-less systems no longer fails on EINTR
 2005-03-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Try multiple alternatives for "std"
