@@ -171,7 +171,7 @@
    <para>
     To work with <filename>libpqxx</filename>, you need to be aware of at least
     the following classes.  These are all introduced in a dedicated namespace,
-    <literal>Pg</literal>:
+    <literal>pqxx</literal>:
     <itemizedlist>
      <listitem>
       <para>
@@ -323,21 +323,21 @@
 
      <para>
       All definitions made by <filename>libpqxx</filename> reside in a 
-      namespace <literal>Pg</literal>.  If you're not familiar with C++
+      namespace <literal>pqxx</literal>.  If you're not familiar with C++
       namespaces, you have two options:
      <para>
 
      <itemizedlist>
       <listitem> 
-       <para> Always import the whole of the <literal>Pg</literal> namespace 
+       <para> Always import the whole of the <literal>pqxx</literal> namespace 
 	in your programs.
        </para>
        <para> This tells the compiler to always look in the 
-	<literal>Pg</literal> namespace when trying to resolve a name that 
+	<literal>pqxx</literal> namespace when trying to resolve a name that 
 	doesn't occur in the global (ie. the "normal") namespace).  To do 
 	this, include the directive 
 	<programlisting>
-using namespace Pg;
+using namespace pqxx;
         </programlisting>
         near the top of each source file using <filename>libpqxx</filename>.
        </para>
@@ -345,18 +345,18 @@ using namespace Pg;
 
       <listitem>
        <para> Explicitly qualify each <filename>libpqxx</filename> name with
-	the <literal>Pg</literal> namespace.
+	the <literal>pqxx</literal> namespace.
        </para>
 
        <para>
 	This will tell the compiler exactly which names are supposed to be in
-	the <literal>Pg</literal> namespace, avoiding any confusion over
+	the <literal>pqxx</literal> namespace, avoiding any confusion over
 	multiple classes or functions used in your program possibly having the 
 	same name.  As long as they're in different namespaces, the compiler
 	will be able to tell them apart without trouble.  To do this, write
-	<literal>Pg::Connection</literal> instead of 
+	<literal>pqxx::Connection</literal> instead of 
 	<literal>Connection</literal>, 
-	<literal>Pg::Result::const_iterator</literal> instead of
+	<literal>pqxx::Result::const_iterator</literal> instead of
 	<literal>Result::const_iterator</literal>, and so on.
        </para>
       </listitem>
