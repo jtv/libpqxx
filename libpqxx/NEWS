@@ -1,3 +1,6 @@
+2002-12-04 12:00, v1.2.3:
+ - workaround for broken <sys/select.h> on some systems
+ - fixed Quote() bug
 2002-12-03 01:30, v1.2.2:
  - fixed serious CachedResult bug
  - added test41

@@ -1,4 +1,4 @@
-2002-12-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+2002-12-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac:
   - Test for presence of PQescapeString()
  include/pqxx/util.h:
