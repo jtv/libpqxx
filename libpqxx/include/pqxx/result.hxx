@@ -24,7 +24,9 @@
  */
 
 
-// TODO: Support postgres arrays
+// TODO: Support SQL arrays
+// TODO: value_type, reference, const_reference, difference_type
+// TODO: container comparisons
 
 namespace pqxx
 {
