@@ -1,5 +1,7 @@
 
 Welcome to libpqxx, a C++ API to the PostgreSQL database management system.
+Please see the regular README for general instructions on building, installing,
+and using the library.
 
 To get started quickly on a Windows system with MSVC7 use the command line.
 1) Run VCVARS32.BAT to set the environment.
@@ -28,7 +30,5 @@ where the src directory of postgres is located.  It can handle it from there.
 
 LIBPATH
 This is where the release version of libpq is located.  Refer to the postgres
-documentation on building this file.  This is directly related to the 
-"#pragma comment" statement in the win32\config.h file.  I use the pragma so
-the linker will add the file.
+documentation on building this file.
 
