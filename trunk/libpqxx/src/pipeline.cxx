@@ -118,7 +118,7 @@ bool pqxx::pipeline::is_finished(pipeline::query_id q) const
 {
   if (m_queries.find(q) == m_queries.end())
     throw logic_error("Requested status for unknown query " + to_string(q));
-  return (m_issuedrange.first==m_queries.end()) ||
+  return (QueryMap::const_iterator(m_issuedrange.first)==m_queries.end()) ||
          (q < m_issuedrange.first->first && q < m_error);
 }
 
@@ -301,6 +301,7 @@ void pqxx::pipeline::obtain_dummy()
 
 
   // Reset internal state to forget botched batch attempt
+  // TODO: SunC++ rejects this usage of distance()
   m_num_waiting += distance(m_issuedrange.first, stop);
   m_issuedrange.second = m_issuedrange.first;
 
@@ -419,10 +420,12 @@ void pqxx::pipeline::receive(pipeline::QueryMap::const_iterator stop)
 
   if (m_dummy_pending) obtain_dummy();
 
-  while (obtain_result() && (m_issuedrange.first != stop));
+  while (obtain_result() &&
+         QueryMap::const_iterator(m_issuedrange.first) != stop);
 
   // Also haul in any remaining "targets of opportunity"
-  if (m_issuedrange.first == stop) get_further_available_results();
+  if (QueryMap::const_iterator(m_issuedrange.first) == stop)
+    get_further_available_results();
 }
 
 
