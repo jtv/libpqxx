@@ -1,8 +1,12 @@
+Immediate
+(*) Replace /MT, /MTd with /MD, /MDd in Visual C++ Makefiles
+(*) Disable trace/warning output during destructors on Visual C++
+(*) Add -lwsock32 to tools/Makefile.am if needed (MingW!)
+
 All Over
 (*) Ensure table/column/cursor/... names are always quoted
 
 Build system
-(*) Add -lwsock32 to tools/Makefile.am if needed (MingW!)
 (*) Config header templates for various compilers, libpq versions
 (*) Completely support building outside the source directory
 (*) Ensure there is a way to build without -rpath and use that for the
