@@ -80,9 +80,12 @@ public:
 
   void operator()(argument_type &T)
   {
-    T.Exec(("INSERT INTO " + m_Table + " VALUES (" +
-	    ToString(BoringYear) + ", "
-	    "'yawn')").c_str());
+    Result R( T.Exec(("INSERT INTO " + m_Table + " VALUES (" +
+	              ToString(BoringYear) + ", "
+	              "'yawn')").c_str()) );
+
+    assert(R.AffectedRows() == 1);
+    cout << "Inserted row with oid " << R.InsertedOid() << endl;
 
     throw runtime_error("Transaction deliberately aborted");
   }

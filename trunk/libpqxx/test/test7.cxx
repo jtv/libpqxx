@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 #include <map>
 
@@ -57,6 +58,9 @@ public:
     // First select all different years occurring in the table.
     Result R( T.Exec("SELECT year FROM events") );
 
+    // SELECT affects no rows.
+    assert(!R.AffectedRows());
+
     // Note all different years currently occurring in the table, writing them
     // and their correct mappings to m_Conversions
     for (Result::const_iterator r = R.begin(); r != R.end(); ++r)
@@ -68,15 +72,21 @@ public:
 	m_Conversions[Y] = To4Digits(Y);
     }
 
+    Result::size_type AffectedRows = 0;
+
     // For each occurring year, write converted date back to whereever it may
     // occur in the table.  Since we're in a transaction, any changes made by
     // others at the same time will not affect us.
     for (map<int,int>::const_iterator c = m_Conversions.begin();
 	 c != m_Conversions.end();
 	 ++c)
-      T.Exec(("UPDATE events "
-	      "SET year=" + ToString(c->second) + " "
-	      "WHERE year=" + ToString(c->first)).c_str());
+    {
+      R = T.Exec(("UPDATE events "
+	          "SET year=" + ToString(c->second) + " "
+	          "WHERE year=" + ToString(c->first)).c_str());
+      AffectedRows += R.AffectedRows();
+    }
+    cout << AffectedRows << " rows updated." << endl;
   }
 
   // Postprocessing code for successful execution
