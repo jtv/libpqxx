@@ -11,9 +11,9 @@ fi
 if test -x /usr/bin/automake-1.7 ; then
 	ver="-1.7"
 fi
-if test -x /usr/bin/automake-1.8 ; then
-	ver="-1.8"
-fi
+#if test -x /usr/bin/automake-1.8 ; then
+#	ver="-1.8"
+#fi
 
 # The VERSION file defines our versioning
 PQXXVERSION=`grep '\<PQXXVERSION\>' VERSION | sed -e 's/^[[:space:]A-Z_]*//' | sed -e 's/[[:space:]]*#.*$//'`
