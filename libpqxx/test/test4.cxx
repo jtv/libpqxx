@@ -1,14 +1,28 @@
 #include <iostream>
 
-extern "C"
-{
-#include <unistd.h>
-}
-
 #include "pqxx/connection.h"
 #include "pqxx/transaction.h"
 #include "pqxx/trigger.h"
 #include "pqxx/result.h"
+
+
+// Make sure we have the Unix sleep() function, which Windows provides in a
+// slightly different form
+#ifdef _MSC_VER
+#define WIN32_LEAN_AND_MEAN
+#include "windows.h"
+inline void sleep(unsigned seconds)
+{
+  Sleep(seconds * 1000);
+}
+#else
+extern "C"
+{
+#include <unistd.h>
+}
+#endif
+
+
 
 using namespace PGSTD;
 using namespace pqxx;
