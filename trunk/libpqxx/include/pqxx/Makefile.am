@@ -5,6 +5,7 @@ includedir=@includedir@/pqxx
 
 
 nodist_noinst_HEADERS = \
+	compiler.h \
 	config.h \
 	config-internal-autotools.h \
 	config-internal-compiler.h \
@@ -17,7 +18,6 @@ nodist_include_HEADERS = \
 include_HEADERS= pqxx all.h \
 	binarystring binarystring.hxx \
 	cachedresult.h \
-	compiler.h \
 	connection connection.hxx connection.h \
 	connection_base connection_base.hxx connection_base.h connectionitf.h \
 	cursor cursor.hxx cursor.h \
