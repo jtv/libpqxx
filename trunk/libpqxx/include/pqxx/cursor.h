@@ -73,6 +73,7 @@ public:
     }
   };
 
+  // TODO: Allow usage of SCROLL ("DECLARE foo SCROLL CURSOR FOR ...")
   /// Constructor.  Creates a cursor.
   /** 
    * @param T is the transaction that this cursor lives in.
