@@ -13,7 +13,7 @@
  */
 #include <stdexcept>
 
-#include "pg_result.h"
+#include "pqxx/result.h"
 
 
 using namespace PGSTD;

@@ -5,10 +5,10 @@
 #include <string>
 #include <vector>
 
-#include "pg_connection.h"
-#include "pg_cursor.h"
-#include "pg_transaction.h"
-#include "pg_result.h"
+#include "pqxx/connection.h"
+#include "pqxx/cursor.h"
+#include "pqxx/transaction.h"
+#include "pqxx/result.h"
 
 using namespace PGSTD;
 using namespace Pg;

@@ -2,9 +2,9 @@
 #include <stdexcept>
 #include <vector>
 
-#include "pg_connection.h"
-#include "pg_tablereader.h"
-#include "pg_transaction.h"
+#include "pqxx/connection.h"
+#include "pqxx/tablereader.h"
+#include "pqxx/transaction.h"
 
 using namespace PGSTD;
 using namespace Pg;

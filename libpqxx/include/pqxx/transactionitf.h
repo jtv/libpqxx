@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_transactionitf.h
+ *	pqxx/transactionitf.h
  *
  *   DESCRIPTION
  *      common code and definitions for the transaction classes.
@@ -26,8 +26,8 @@
  */
 
 
-#include "pg_connection.h"
-#include "pg_util.h"
+#include "pqxx/connection.h"
+#include "pqxx/util.h"
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */
@@ -37,9 +37,9 @@
 
 namespace Pg
 {
-class Connection; 	// See pg_connection.h
-class Result; 		// See pg_result.h
-class TableStream;	// See pg_tablestream.h
+class Connection; 	// See pqxx/connection.h
+class Result; 		// See pqxx/result.h
+class TableStream;	// See pqxx/tablestream.h
 
 
 template<> inline PGSTD::string Classname(const TableStream *) 

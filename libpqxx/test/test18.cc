@@ -2,11 +2,11 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "pg_connection.h"
-#include "pg_nontransaction.h"
-#include "pg_result.h"
-#include "pg_robusttransaction.h"
-#include "pg_transaction.h"
+#include "pqxx/connection.h"
+#include "pqxx/nontransaction.h"
+#include "pqxx/result.h"
+#include "pqxx/robusttransaction.h"
+#include "pqxx/transaction.h"
 
 using namespace PGSTD;
 using namespace Pg;

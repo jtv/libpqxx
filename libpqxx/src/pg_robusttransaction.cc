@@ -13,9 +13,9 @@
  */
 #include <stdexcept>
 
-#include "pg_connection.h"
-#include "pg_result.h"
-#include "pg_robusttransaction.h"
+#include "pqxx/connection.h"
+#include "pqxx/result.h"
+#include "pqxx/robusttransaction.h"
 
 
 using namespace PGSTD;

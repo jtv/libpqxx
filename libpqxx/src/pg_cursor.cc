@@ -11,9 +11,9 @@
  *
  *-------------------------------------------------------------------------
  */
-#include "pg_cursor.h"
-#include "pg_result.h"
-#include "pg_transaction.h"
+#include "pqxx/cursor.h"
+#include "pqxx/result.h"
+#include "pqxx/transaction.h"
 
 using namespace PGSTD;
 

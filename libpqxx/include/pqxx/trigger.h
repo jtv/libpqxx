@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_trigger.h
+ *	pqxx/trigger.h
  *
  *   DESCRIPTION
  *      definition of the Pg::Trigger functor interface.

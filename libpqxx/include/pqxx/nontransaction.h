@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_nontransaction.h
+ *	pqxx/nontransaction.h
  *
  *   DESCRIPTION
  *      definition of the Pg::NonTransaction class.
@@ -14,9 +14,9 @@
 #ifndef PG_NONTRANSACTION_H
 #define PG_NONTRANSACTION_H
 
-#include "pg_connection.h"
-#include "pg_result.h"
-#include "pg_transactionitf.h"
+#include "pqxx/connection.h"
+#include "pqxx/result.h"
+#include "pqxx/transactionitf.h"
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */

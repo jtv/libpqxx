@@ -11,8 +11,8 @@
  *
  *-------------------------------------------------------------------------
  */
-#include "pg_tablereader.h"
-#include "pg_transaction.h"
+#include "pqxx/tablereader.h"
+#include "pqxx/transaction.h"
 
 using namespace PGSTD;
 

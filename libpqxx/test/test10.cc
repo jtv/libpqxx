@@ -2,10 +2,10 @@
 #include <iostream>
 #include <vector>
 
-#include "pg_connection.h"
-#include "pg_tablewriter.h"
-#include "pg_transaction.h"
-#include "pg_result.h"
+#include "pqxx/connection.h"
+#include "pqxx/tablewriter.h"
+#include "pqxx/transaction.h"
+#include "pqxx/result.h"
 
 using namespace PGSTD;
 using namespace Pg;

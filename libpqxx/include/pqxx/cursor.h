@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_cursor.h
+ *	pqxx/cursor.h
  *
  *   DESCRIPTION
  *      definition of the Pg::Cursor class.
@@ -14,7 +14,7 @@
 #ifndef PG_CURSOR_H
 #define PG_CURSOR_H
 
-#include "pg_util.h"
+#include "pqxx/util.h"
 
 /* Cursor behaves as an output stream generating Result objects.  They may
  * be used to fetch rows individually or in blocks, in which case each Result

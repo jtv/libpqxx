@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_util.h
+ *	pqxx/util.h
  *
  *   DESCRIPTION
  *      Various utility definitions for libpqxx
@@ -24,7 +24,7 @@ extern "C"
 #include "libpq-fe.h"
 }
 
-#include "pg_compiler.h"
+#include "pqxx/compiler.h"
 
 
 namespace Pg

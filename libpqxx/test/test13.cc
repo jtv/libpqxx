@@ -2,9 +2,9 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "pg_connection.h"
-#include "pg_transaction.h"
-#include "pg_result.h"
+#include "pqxx/connection.h"
+#include "pqxx/transaction.h"
+#include "pqxx/result.h"
 
 using namespace PGSTD;
 using namespace Pg;

@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_tablereader.h
+ *	pqxx/tablereader.h
  *
  *   DESCRIPTION
  *      definition of the Pg::TableReader class.
@@ -16,8 +16,8 @@
 
 #include <string>
 
-#include "pg_result.h"
-#include "pg_tablestream.h"
+#include "pqxx/result.h"
+#include "pqxx/tablestream.h"
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */

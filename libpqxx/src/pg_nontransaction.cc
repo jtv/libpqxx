@@ -12,7 +12,7 @@
  *-------------------------------------------------------------------------
  */
 
-#include "pg_nontransaction.h"
+#include "pqxx/nontransaction.h"
 
 
 using namespace PGSTD;
