@@ -16,7 +16,7 @@
  *
  *-------------------------------------------------------------------------
  */
-#include "pqxx/compiler.h"
+#include "pqxx/libcompiler.h"
 
 #include <deque>
 #include <map>
