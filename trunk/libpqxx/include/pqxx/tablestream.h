@@ -25,20 +25,21 @@
 namespace pqxx
 {
 
-// A Tablestream enables optimized batch read or write access to a database 
-// table using PostgreSQL's COPY TO STDOUT and COPY FROM STDIN commands,
-// respectively.  These capabilities are implemented by its subclasses 
-// TableReader and TableWriter.
-// A Tablestream exists in the context of a Transaction, and no other streams
-// or queries may be applied to that Transaction as long as the stream remains
-// open.
-
 // TODO: Async access to help hide network latencies
 // TODO: Binary COPY
 // TODO: Range versions of TUPLE templates
 
 class Transaction;
 
+
+/** A Tablestream enables optimized batch read or write access to a database 
+ * table using PostgreSQL's COPY TO STDOUT and COPY FROM STDIN commands,
+ * respectively.  These capabilities are implemented by its subclasses 
+ * TableReader and TableWriter.
+ * A Tablestream exists in the context of a Transaction, and no other streams
+ * or queries may be applied to that Transaction as long as the stream remains
+ * open.
+ */
 class PQXX_LIBEXPORT TableStream
 {
 public:

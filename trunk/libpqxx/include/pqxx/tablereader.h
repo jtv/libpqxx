@@ -26,17 +26,18 @@
 namespace pqxx
 {
 
-// A TableReader provides efficient read access to a database table.  This is
-// not as flexible as a normal query using the Result class however:
-//  - Can only dump tables, not views or arbitrary queries
-//  - Has no knowledge of metadata
-//  - Is unable to reorder, rename, omit or enrich fields
-//  - Does not support filtering of records
-//
-// On the other hand, it can read rows of data and transform them into any
-// container or container-like object that supports STL back-inserters.  Since
-// the TableReader has no knowledge of the types of data expected, it treats
-// all fields as strings.
+/** A TableReader provides efficient read access to a database table.  This is
+ * not as flexible as a normal query using the Result class however:
+ *  - Can only dump tables, not views or arbitrary queries
+ *  - Has no knowledge of metadata
+ *  - Is unable to reorder, rename, omit or enrich fields
+ *  - Does not support filtering of records
+ *
+ * On the other hand, it can read rows of data and transform them into any
+ * container or container-like object that supports STL back-inserters.  Since
+ * the TableReader has no knowledge of the types of data expected, it treats
+ * all fields as strings.
+ */
 class PQXX_LIBEXPORT TableReader : public TableStream
 {
 public:

@@ -15,10 +15,10 @@
 
 #include "config.h"
 
-// Deal with lacking iterator template definition in <iterator>
 #ifdef BROKEN_ITERATOR
 namespace PGSTD
 {
+/// Deal with lacking iterator template definition in <iterator>
 template<typename Cat, 
          typename T, 
 	 typename Dist, 
@@ -35,13 +35,13 @@ template<typename Cat,
 #endif // BROKEN_ITERATOR
 
 
-// Deal with lacking <limits>
 #ifdef HAVE_LIMITS
 #include <limits>
 #else // HAVE_LIMITS
 #include <climits>
 namespace PGSTD
 {
+/// Deal with lacking <limits>
 template<typename T> struct numeric_limits
 {
   static T max() throw ();

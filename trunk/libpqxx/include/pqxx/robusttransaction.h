@@ -15,7 +15,19 @@
 #define PQXX_ROBUSTTRANSACTION_H
 
 
-/* RobustTransaction is similar to Transaction, but spends more effort (and
+#include "pqxx/connection.h"
+#include "pqxx/transactionitf.h"
+
+
+/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+ */
+
+
+namespace pqxx
+{
+
+
+/** RobustTransaction is similar to Transaction, but spends more effort (and
  * performance!) to deal with the hopefully rare case that the connection to
  * the backend is lost just as the current transaction is being committed.  In
  * this case, there is no way to determine whether the backend managed to
@@ -35,18 +47,6 @@
  * added work and complexity.  What RobustTransaction tries to achieve is to
  * be more deterministic, not more successful per se.
  */
-#include "pqxx/connection.h"
-#include "pqxx/transactionitf.h"
-
-
-/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
- */
-
-
-namespace pqxx
-{
-
-
 class PQXX_LIBEXPORT RobustTransaction : public TransactionItf
 {
 public:

@@ -33,7 +33,7 @@ class Transaction;
 /// SQL cursor class.
 /** Cursor behaves as an output stream generating Result objects.  They may
  * be used to fetch rows individually or in blocks, in which case each Result
- * coming out of the stream will contain more than one Tuple.
+ * coming out of the stream may contain more than one Tuple.
  *
  * Postgres does not currently support modification of data through a cursor.
  */
@@ -59,24 +59,43 @@ public:
   Result_size_type SetCount(Result_size_type);				//[t19]
 
   /// Fetch Count rows of data.
+  /** The number of rows fetched will not exceed Count, but it may be lower.
+   */
   Result Fetch(Result_size_type Count);					//[t19]
 
   /// Move forward by Count rows (negative for backwards) through the data set.
   void Move(Result_size_type Count);					//[t3]
 
-  // Take care: ALL() and BACKWARD_ALL() may not do what they say if your
-  // result set is larger than can be addressed.  In that case, moving or
-  // fetching by ALL() or BACKWARD_ALL() will actually work in chunks of the
-  // largest size that can be expressed in Result's size type (currently long).
-
-  // TODO: BACKWARD_ALL() is kludgy.
+  /// Constant: "next fetch/move should span as many rows as possible."
+  /** If the number of rows ahead exceeds the largest number your machine can
+   * comfortably conceive, this may not actually be all remaining rows in the 
+   * result set.
+   */
   static Result_size_type ALL() { return Result_size_type_max; }	//[t3]
+
+  /// Constant: "next fetch/move should cover just the next row."
   static Result_size_type NEXT() { return 1; }				//[t19]
+
+  /// Constant: "next fetch/move should go back one row."
   static Result_size_type PRIOR() { return -1; }			//[t19]
+
+  /// Constant: "next fetch/move goes backwards, spanning as many rows as 
+  /// possible.
+  /** If the number of rows behind the cursor exceeds the largest number your
+   * machine can comfortably conceive, this may not bring you all the way back
+   * to the beginning.
+   */
   static Result_size_type BACKWARD_ALL() 				//[t19]
   	{ return Result_size_type_min + 1; }
 
   /// Fetch rows.
+  /** The number of rows retrieved will be no larger than (but may be lower
+   * than) the rowcount set using the SetCount() function, or passed to the
+   * constructor as the Count argument.  The default is 1.
+   * This operator lends itself to "while (Cur >> R) { ... }"-style use; the
+   * Cursor's conversion to bool tests whether it has arrived at the end of its
+   * data set.
+   */
   Cursor &operator>>(Result &);						//[t3]
 
   /// May there be more rows coming?
