@@ -27,16 +27,16 @@ namespace
 {
 
 // Keep track of a pointer to be free()d automatically.
-// Ownership policy is simple: object dies when CAlloc object's value does.
-template<typename T> class CAlloc
+// Ownership policy is simple: object dies when PQAlloc object's value does.
+template<typename T> class PQAlloc
 {
   T *m_Obj;
 public:
-  CAlloc() : m_Obj(0) {}
-  explicit CAlloc(T *obj) : m_Obj(obj) {}
-  ~CAlloc() { close(); }
+  PQAlloc() : m_Obj(0) {}
+  explicit PQAlloc(T *obj) : m_Obj(obj) {}
+  ~PQAlloc() { close(); }
 
-  CAlloc &operator=(T *obj) throw ()
+  PQAlloc &operator=(T *obj) throw ()
   { 
     if (obj != m_Obj)
     {
@@ -59,11 +59,20 @@ public:
 
   T *c_ptr() const throw () { return m_Obj; }
 
-  void close() throw () { if (m_Obj) free(m_Obj); m_Obj = 0; }
+  void close() throw () { if (m_Obj) freemem(); m_Obj = 0; }
+
+  void freemem() throw ()
+  {
+#ifdef HAVE_PQFREEMEM
+    PQfreemem(m_Obj);
+#else
+    free(m_Obj);
+#endif
+  }
 
 private:
-  CAlloc(const CAlloc &);		// Not allowed
-  CAlloc &operator=(const CAlloc &);	// Not allowed
+  PQAlloc(const PQAlloc &);		// Not allowed
+  PQAlloc &operator=(const PQAlloc &);	// Not allowed
 };
 }
 
@@ -138,6 +147,14 @@ void pqxx::ConnectionItf::Deactivate() const
 
     Disconnect();
   }
+}
+
+
+void pqxx::ConnectionItf::SetClientEncoding(const char Encoding[])
+{
+  if (PQsetClientEncoding(m_Conn, Encoding) != 0)
+    throw runtime_error("Could not set client encoding to " +
+	                string(Encoding));
 }
 
 
@@ -304,7 +321,7 @@ void pqxx::ConnectionItf::GetNotifs()
   // deliver them.
   if (m_Trans.get()) return;
 
-  for (CAlloc<PGnotify> N( PQnotifies(m_Conn) ); N; N = PQnotifies(m_Conn))
+  for (PQAlloc<PGnotify> N( PQnotifies(m_Conn) ); N; N = PQnotifies(m_Conn))
   {
     typedef TriggerList::iterator TI;
 

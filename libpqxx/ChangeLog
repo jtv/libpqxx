@@ -1,11 +1,16 @@
 2003-03-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Check for PQfreemem()
  include/pqxx/connectionitf.h:
   - Better documentation for SetNoticer
   - Made destructor inline to reduce pain for Windows users
+  - Added SetClientEncoding()
  include/pqxx/largeobject.h:
   - Fixed missing BufSize arguments in basic_[o]lostream constructors
  include/pqxx/result.h:
   - Default constructor for const_iterator
+ src/connectionitf.cxx:
+  - Use PQfreemem() for notifications, if available
  test/test050.cxx:
   - New
 2003-03-25  Jeroen T. Vermeulen <jtv@xs4all.nl>

@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 1.7.2, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 1.7.3, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 1.7.2)
+AM_INIT_AUTOMAKE(libpqxx, 1.7.3)
 
 # Library version numbering - see "info libtool versioning 'libtool
 # versioning'" for details.
@@ -228,6 +228,14 @@ pqescapestring=yes
 AC_CHECK_DECL(PQescapeString, 
 	[AC_DEFINE(HAVE_PQESCAPESTRING, 1, [Define if PostgreSQL has PQescapeString()])],
 	[pqescapestring=no],
+	[#include <${with_postgres_include}/libpq-fe.h]>)
+
+AC_MSG_CHECKING([PQfreemem()])
+AH_TEMPLATE(PQfreemem,[Do we have a PQfreemem function?])
+pqfreemem=yes
+AC_CHECK_DECL(PQfreemem,
+	[AC_DEFINE(HAVE_PQFREEMEM, 1, [Define if PostgreSQL has PQfreemem()])],
+	[pqfreemem=no],
 	[#include <${with_postgres_include}/libpq-fe.h]>)
 
 AC_LANG_PUSH(C++)

@@ -27,6 +27,9 @@
 /* Define if PostgreSQL has PQescapeString() */
 #undef HAVE_PQESCAPESTRING
 
+/* Define if PostgreSQL has PQfreemem() */
+#undef HAVE_PQFREEMEM
+
 /* Define to 1 if the system has the type `ptrdiff_t'. */
 #undef HAVE_PTRDIFF_T
 
@@ -81,6 +84,9 @@
 
 /* Do we have a PQescapeString function? */
 #undef PQescapeString
+
+/* Do we have a PQfreemem function? */
+#undef PQfreemem
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS

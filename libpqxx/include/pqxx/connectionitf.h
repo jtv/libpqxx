@@ -198,6 +198,15 @@ public:
    */
   void Deactivate() const;						//[]
 
+  /// Set client-side character encoding
+  /** Search the PostgreSQL documentation for "multibyte" or "character set
+   * encodings" to find out more about the available encodings, how to extend
+   * them, and how to use them.  Not all server-side encodings are compatible 
+   * with all client-side encodings or vice versa.
+   * @parm Encoding name of the character set encoding to use
+   */
+  void SetClientEncoding(const char Encoding[]);			//[]
+
 protected:
   /// To be used by implementation classes: reall connecto to database
   void Connect() const;
