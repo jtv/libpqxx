@@ -645,7 +645,7 @@ void pqxx::internal::freepqmem(void *p)
 }
 
 
-void pqxx::internal::freenotif(PGnotify *p)
+void pqxx::internal::freenotif(pq::PGnotify *p)
 {
 #ifdef PQXX_HAVE_PQFREENOTIFY
   PQfreeNotify(p);
