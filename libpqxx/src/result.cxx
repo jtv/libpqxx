@@ -189,6 +189,17 @@ pqxx::result::GetLength(pqxx::result::size_type Row,
 }
 
 
+int pqxx::result::errorposition() const throw ()
+{
+  int pos = -1;
+  if (m_Result)
+  {
+    const char *p = PQresultErrorField(m_Result, PG_DIAG_STATEMENT_POSITION);
+    if (p) from_string(p, pos);
+  }
+  return pos;
+}
+
 
 // tuple
 
