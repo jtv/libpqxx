@@ -140,6 +140,7 @@ with_postgres_include = @with_postgres_include@
 with_postgres_lib = @with_postgres_lib@
 MAINTAINERCLEANFILES = Makefile.in
 include_HEADERS = pqxx all.h \
+	binarystring binarystring.hxx \
 	cachedresult.h \
 	compiler.h \
 	config.h \

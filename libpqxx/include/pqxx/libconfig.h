@@ -29,13 +29,13 @@
 #define PQXX_HAVE_PQESCAPESTRING 1
 
 /* Define if PostgreSQL has PQfreemem() */
-/* #undef PQXX_HAVE_PQFREEMEM */
+#define PQXX_HAVE_PQFREEMEM 1
 
 /* Define if PostgreSQL has PQfreeNotify() */
 #define PQXX_HAVE_PQFREENOTIFY 1
 
 /* Define if PostgreSQL has PQftable() */
-/* #undef PQXX_HAVE_PQFTABLE */
+#define PQXX_HAVE_PQFTABLE 1
 
 /* Define if you have the <streambuf> header; if not, <streambuf.h> is used */
 #define PQXX_HAVE_STREAMBUF 1

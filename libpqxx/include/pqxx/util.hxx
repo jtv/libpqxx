@@ -41,9 +41,35 @@ typedef Oid oid;
 const oid oid_none = InvalidOid;
 
 
-/// C-style format strings for various built-in types.  Only allowed for
-/// certain types, for which this function is explicitly specialized below.
-template<typename T> inline const char *FmtString(T);
+/// Dummy name, used by libpqxx in deliberate link errors
+/** If you get an error involving this function while building your program, 
+ * this means that the program contains an unsupported string conversion.
+ *
+ * In other words, the program tries to convert an object to a string, or a
+ * string to an object, of a type for which libpqxx does not implement this
+ * conversion.  A notable example is "long long," which is supported by many
+ * compilers but does not exist in Standard C++.  
+ *
+ * In the case of "long long" and similar types, if your implementation of the
+ * standard C++ library supports it, you may use a stringstream to perform the
+ * conversion.  For other types, you may have to write the conversion routine
+ * yourself.
+ */
+template<typename T> void error_unsupported_type_in_string_conversion(T);
+
+
+/// C-style format strings for various built-in types
+/** Only allowed for certain types, for which this function is explicitly 
+ * specialized.  When attempting to use the template for an unsupported type,
+ * the generic version will be instantiated.  This will result in a link error
+ * for the symbol error_unsupported_type_in_string_conversion(), with a template
+ * argument describing the unsupported input type.
+ */
+template<typename T> inline const char *FmtString(T t)
+{
+  error_unsupported_type_in_string_conversion(t);
+  return 0;
+}
 
 // Not implemented to prevent accidents with irregular meaning of argument:
 // template<> inline const char *FmtString(const char *&) { return "%s"; }
@@ -82,6 +108,11 @@ template<typename T> inline PGSTD::string ToString(const T &Obj)
 template<> inline PGSTD::string ToString(const PGSTD::string &Obj) {return Obj;}
 template<> inline PGSTD::string ToString(const char *const &Obj) { return Obj; }
 template<> inline PGSTD::string ToString(char *const &Obj) { return Obj; }
+
+template<> inline PGSTD::string ToString(const unsigned char *const &Obj)
+{
+  return reinterpret_cast<const char *>(Obj);
+}
 
 template<> inline PGSTD::string ToString(const bool &Obj) 
 { 
@@ -133,6 +164,13 @@ template<> inline void FromString(const char Str[], const char *&Obj)
   if (!Str)
     throw PGSTD::runtime_error("Attempt to read NULL string");
   Obj = Str;
+}
+
+template<> inline void FromString(const char Str[], const unsigned char *&Obj)
+{
+  const char *C;
+  FromString(Str, C);
+  Obj = reinterpret_cast<const unsigned char *>(C);
 }
 
 template<> inline void FromString(const char Str[], bool &Obj)

@@ -284,7 +284,7 @@ public:
    * @param Value value to set, which may be an identifier, a quote string, etc.
    */
   void set_variable(const PGSTD::string &Var, 
-      		    const PGSTD::string &Value);			//[]
+      		    const PGSTD::string &Value);			//[t60]
 
 protected:
   /// To be used by implementation classes: really connect to database

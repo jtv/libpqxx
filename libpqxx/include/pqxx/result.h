@@ -19,6 +19,7 @@
 
 #include "pqxx/util.h"
 #include "pqxx/result"
+#include "pqxx/binarystring"
 
 namespace pqxx
 {

@@ -1,5 +1,6 @@
 lib_LTLIBRARIES = libpqxx.la
-libpqxx_la_SOURCES = cachedresult.cxx \
+libpqxx_la_SOURCES = binarystring.cxx \
+	cachedresult.cxx \
 	connection_base.cxx \
 	connection.cxx \
 	cursor.cxx \

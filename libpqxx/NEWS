@@ -1,3 +1,11 @@
+1.9.7
+ - binarystring rewritten and moved to its own file
+ - binarystring::size() does not include terminating null byte!
+ - Implemented escaping of binary strings
+ - Fix in workaround for missing numeric_limits on some compilers
+ - String conversion supported for unsigned char *
+ - More helpful link errors for unsupported string conversions
+ - Complete test coverage
 1.9.6
  - Fixes in "field table" support
  - Improved coexistence with client program's config.h, if any
