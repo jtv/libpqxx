@@ -51,10 +51,15 @@ public:
   typedef Result::Tuple Tuple;
 
   /** Perform query and transparently fetch and cache resulting data.
-   * Granularity determines how large the blocks of data used internally will
-   * be; must be at least 2.
+   * @param T is the transaction context in which the CachedResult lives.  This
+   * 	will be used whenever data is fetched.
+   * @param Query is the SQL query that yields the desired result set.
+   * @param BaseName gives the initial part of the name for this CachedResult
+   * 	and the Cursor it uses to obtain its results.
+   * @param Granularity determines how large the blocks of data used internally
+   * will be; must be at least 2.
    */
-  explicit CachedResult(pqxx::TransactionItf &,
+  explicit CachedResult(pqxx::TransactionItf &T,
                         const char Query[],
 			const PGSTD::string &BaseName="query",
                         size_type Granularity=100);			//[t40]

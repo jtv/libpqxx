@@ -96,6 +96,11 @@ public:
   public:
     typedef size_t size_type;
 
+    /// Constructor.
+    /** Create Field as reference to a field in a result set.
+     * @param R Tuple that this Field is part of.
+     * @param C column number of this field.
+     */
     Field(const Tuple &R, Tuple::size_type C) : Tuple(R), m_Col(C) {}	//[t1]
 
     /// Read as plain C string
