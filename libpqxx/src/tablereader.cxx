@@ -109,6 +109,15 @@ inline bool is_octalchar(char o) throw ()
 {
   return (o>='0') && (o<='7');
 }
+
+/// Find first tab character at or after start position in string
+/** If not found, returns Line.size() rather than string::npos.
+ */
+string::size_type findtab(const string &Line, string::size_type start)
+{
+  const string::size_type here = Line.find('\t', start);
+  return (here == string::npos) ? Line.size() : here;
+}
 } // namespace
 
 
@@ -117,15 +126,16 @@ string pqxx::tablereader::extract_field(const string &Line,
 {
   // TODO: Pick better exception types
   string R;
-  bool isnull=false, terminator=false;
-  for (; !terminator && (i < Line.size()); ++i)
+  bool isnull=false;
+  string::size_type stop = findtab(Line, i);
+  for (; i < stop; ++i)
   {
     const char c = Line[i];
     switch (c)
     {
-    case '\t':			// End of field
     case '\n':			// End of row
-      terminator = true;
+      // Shouldn't happen, but we may get old-style, newline-terminated lines
+      i = stop;
       break;
 
     case '\\':			// Escape sequence
@@ -183,6 +193,14 @@ string pqxx::tablereader::extract_field(const string &Line,
 
 	default:	// Self-escaped character
 	  R += n;
+	  // This may be a self-escaped tab that we thought was a terminator...
+	  if (i == stop)
+	  {
+	    if ((i+1) >= Line.size())
+	      throw logic_error("libpqxx internal error: "
+		"COPY line ends in backslash");
+	    stop = findtab(Line, i+1);
+	  }
 	  break;
 	}
       }
@@ -193,6 +211,7 @@ string pqxx::tablereader::extract_field(const string &Line,
       break;
     }
   }
+  ++i;
 
   if (isnull && (R.size() != NullStr().size()))
     throw runtime_error("Field contains data behind null sequence");
