@@ -1,4 +1,13 @@
 2003-09-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac, include/pqxx/*, test/test*.cxx:
+  - Renamed configure macros used in header files
+  - New libcompiler.h/libconfig.h for inclusion in headers
+  - compiler.h/config.h only needed when compiling library
+ include/pqxx/libcompiler.h, include/pqxx/libconfig.h:
+  - New
+ README:
+  - Renamed NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
+2003-09-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/result.hxx:
   - Some PGSTD::string & parameters should have been const
  test/test002.cxx

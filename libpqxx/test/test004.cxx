@@ -1,3 +1,5 @@
+#include <pqxx/compiler.h>
+
 #include <cerrno>
 #include <cstring>
 #include <iostream>

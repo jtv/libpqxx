@@ -15,6 +15,8 @@
  *
  *-------------------------------------------------------------------------
  */
+#include "pqxx/config.h"
+
 #include "pqxx/tablestream"
 #include "pqxx/transaction"
 

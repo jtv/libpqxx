@@ -18,7 +18,7 @@
  */
 #include <string>
 
-#include "pqxx/compiler.h"
+#include "pqxx/libcompiler.h"
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */

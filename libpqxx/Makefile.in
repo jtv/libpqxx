@@ -150,7 +150,8 @@ pkgconfig_DATA = libpqxx.pc
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
-CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h
+CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h \
+	$(top_builddir)/include/pqxx/libconfig.h
 CONFIG_CLEAN_FILES = libpqxx.pc
 DIST_SOURCES =
 DATA = $(pkgconfig_DATA)

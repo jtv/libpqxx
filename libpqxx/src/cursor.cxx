@@ -15,6 +15,8 @@
  *
  *-------------------------------------------------------------------------
  */
+#include "pqxx/config.h"
+
 #include <cstdlib>
 
 #include "pqxx/cursor.h"

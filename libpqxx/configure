@@ -1899,7 +1899,7 @@ sonumber=${abi_current}:${abi_revision}:${abi_age}
 
 
 
-          ac_config_headers="$ac_config_headers include/pqxx/config.h"
+                    ac_config_headers="$ac_config_headers include/pqxx/config.h include/pqxx/libconfig.h"
 
 
 # default prefix for installs
@@ -21222,6 +21222,7 @@ do
   "libpqxx.pc" ) CONFIG_FILES="$CONFIG_FILES libpqxx.pc" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "include/pqxx/config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS include/pqxx/config.h" ;;
+  "include/pqxx/libconfig.h" ) CONFIG_HEADERS="$CONFIG_HEADERS include/pqxx/libconfig.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
    { (exit 1); exit 1; }; };;

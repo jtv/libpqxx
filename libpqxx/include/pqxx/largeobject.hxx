@@ -16,7 +16,7 @@
  *
  *-------------------------------------------------------------------------
  */
-#include "pqxx/compiler.h"
+#include "pqxx/libcompiler.h"
 
 #ifdef PQXX_HAVE_STREAMBUF
 #include <streambuf>

@@ -161,7 +161,8 @@ MAINTAINERCLEANFILES = Makefile.in
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
-CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h
+CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h \
+	$(top_builddir)/include/pqxx/libconfig.h
 CONFIG_CLEAN_FILES =
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
@@ -172,7 +173,7 @@ am_libpqxx_la_OBJECTS = cachedresult.lo connection_base.lo connection.lo \
 	tablewriter.lo transaction.lo transaction_base.lo
 libpqxx_la_OBJECTS = $(am_libpqxx_la_OBJECTS)
 
-DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/include/pqxx
+DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/include/pqxx -I$(top_builddir)/include/pqxx
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/cachedresult.Plo \

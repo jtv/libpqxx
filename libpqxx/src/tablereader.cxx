@@ -15,6 +15,8 @@
  *
  *-------------------------------------------------------------------------
  */
+#include "pqxx/config.h"
+
 #include "pqxx/tablereader"
 #include "pqxx/transaction"
 

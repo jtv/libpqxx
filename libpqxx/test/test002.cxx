@@ -1,3 +1,5 @@
+#include <pqxx/compiler.h>
+
 #include <iostream>
 
 #include <pqxx/connection>

@@ -13,7 +13,7 @@ sonumber=${abi_current}:${abi_revision}:${abi_age}
 AC_SUBST(sonumber)
 
 AC_CONFIG_SRCDIR([src/connection.cxx])
-AM_CONFIG_HEADER(include/pqxx/config.h)
+AM_CONFIG_HEADER([include/pqxx/config.h include/pqxx/libconfig.h])
 
 # default prefix for installs
 AC_PREFIX_DEFAULT(/usr/local/pqxx)
