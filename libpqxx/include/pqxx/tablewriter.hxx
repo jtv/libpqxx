@@ -30,12 +30,12 @@ class tablereader;	// See pqxx/tablereader.h
 /// Efficiently write data directly to a database table.
 /** A tablewriter provides a Spartan but efficient way of writing data tuples
  * into a table.  It provides a plethora of STL-like insertion methods: it has
- * insert() methods, push_back(), as well as an overloaded insertion operator 
- * (<<), and it supports inserters created by std::back_inserter().  All of 
+ * insert() methods, push_back(), as well as an overloaded insertion operator
+ * (<<), and it supports inserters created by std::back_inserter().  All of
  * these are templatized so you can use any container type or iterator range to
  * feed tuples into the table.
  *
- * Note that in each case, a container or range represents the fields of a 
+ * Note that in each case, a container or range represents the fields of a
  * single tuple--not a collection of tuples.
  */
 class PQXX_LIBEXPORT tablewriter : public tablestream
@@ -43,7 +43,7 @@ class PQXX_LIBEXPORT tablewriter : public tablestream
 public:
   typedef unsigned size_type;
 
-  tablewriter(transaction_base &, 
+  tablewriter(transaction_base &,
       const PGSTD::string &WName,
       const PGSTD::string &Null=PGSTD::string());			//[t5]
 
@@ -51,7 +51,7 @@ public:
   /** @since PostgreSQL backend 7.3.
    */
   template<typename ITER>
-  tablewriter(transaction_base &, 
+  tablewriter(transaction_base &,
       const PGSTD::string &WName,
       ITER begincolumns,
       ITER endcolumns,
@@ -71,7 +71,7 @@ public:
   /// Copy table from one database to another
   tablewriter &operator<<(tablereader &);				//[t6]
 
-  /// Translate tuple of data to a string in DBMS-specific format.  
+  /// Translate tuple of data to a string in DBMS-specific format.
   /** @warning This is definitely not portable between databases.
    */
   template<typename IT> PGSTD::string generate(IT Begin, IT End) const;	//[t10]
@@ -82,7 +82,7 @@ public:
    * destructor is run.  This function will check any final errors which may not
    * become apparent until the transaction is committed otherwise.
    *
-   * As an added benefit, this will free up the transaction while the 
+   * As an added benefit, this will free up the transaction while the
    * tablestream object itself still exists.
    */
   virtual void complete();						//[t5]
@@ -97,7 +97,7 @@ public:
 #endif
 
 private:
-  void setup(transaction_base &, 
+  void setup(transaction_base &,
       const PGSTD::string &WName,
       const PGSTD::string &Columns = PGSTD::string());
   void WriteRawLine(const PGSTD::string &);
@@ -116,10 +116,10 @@ private:
 namespace PGSTD
 {
 /// Specialized back_insert_iterator for tablewriter
-/** Doesn't require a value_type to be defined.  Accepts any container type 
+/** Doesn't require a value_type to be defined.  Accepts any container type
  * instead.
  */
-template<> 
+template<>
   class back_insert_iterator<pqxx::tablewriter> :			//[t9]
 	public iterator<output_iterator_tag, void,void,void,void>
 {
@@ -134,7 +134,7 @@ public:
     return *this;
   }
 
-  template<typename TUPLE> 
+  template<typename TUPLE>
   back_insert_iterator &operator=(const TUPLE &T)			//[t83]
   {
     m_Writer->insert(T);
@@ -184,7 +184,7 @@ tablewriter::EscapeAny(const T &t) const
 }
 
 
-template<typename IT> 
+template<typename IT>
 inline PGSTD::string tablewriter::generate(IT Begin, IT End) const
 {
   PGSTD::string Line;
@@ -201,7 +201,7 @@ inline PGSTD::string tablewriter::generate(IT Begin, IT End) const
 }
 
 
-template<typename TUPLE> 
+template<typename TUPLE>
 inline PGSTD::string tablewriter::generate(const TUPLE &T) const
 {
   return generate(T.begin(), T.end());
@@ -219,19 +219,19 @@ template<typename TUPLE> inline void tablewriter::insert(const TUPLE &T)
   insert(T.begin(), T.end());
 }
 
-template<typename IT> 
+template<typename IT>
 inline void tablewriter::push_back(IT Begin, IT End)
 {
   insert(Begin, End);
 }
 
-template<typename TUPLE> 
+template<typename TUPLE>
 inline void tablewriter::push_back(const TUPLE &T)
 {
   insert(T.begin(), T.end());
 }
 
-template<typename TUPLE> 
+template<typename TUPLE>
 inline tablewriter &tablewriter::operator<<(const TUPLE &T)
 {
   insert(T);

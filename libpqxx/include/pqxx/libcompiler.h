@@ -26,7 +26,7 @@
 #include <cstdlib>
 /// Alias for the std namespace to accomodate nonstandard C++ implementations
 /** The PGSTD name will almost always be defined to mean std.  The exception are
- * third-party C++ standard library implementations that use a different 
+ * third-party C++ standard library implementations that use a different
  * namespace to avoid conflicts with the standard library that came with the
  * compiler.
  *
@@ -36,9 +36,9 @@
 namespace PGSTD
 {
 /// Work around lacking iterator template definition in <iterator>
-template<typename Cat, 
-         typename T, 
-	 typename Dist, 
+template<typename Cat,
+         typename T,
+	 typename Dist,
 	 typename Ptr=T*,
 	 typename Ref=T&> struct iterator
 {

@@ -7,7 +7,7 @@
  *      implementation of the pqxx::Cursor class.
  *   pqxx::Cursor represents a database cursor.
  *
- * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -32,9 +32,9 @@ using namespace PGSTD;
 void pqxx::Cursor::init(const string &BaseName, const char Query[])
 {
   // Give ourselves a locally unique name based on connection name
-  m_Name += "\"" + 
-            BaseName + "_" + 
-	    m_Trans.name() + "_" + 
+  m_Name += "\"" +
+            BaseName + "_" +
+	    m_Trans.name() + "_" +
 	    to_string(m_Trans.GetUniqueCursorNum()) +
 	    "\"";
 
@@ -117,7 +117,7 @@ pqxx::Cursor::difference_type
 pqxx::Cursor::NormalizedMove(difference_type Intended,
                              difference_type Actual)
 {
-  if (Actual < 0) 
+  if (Actual < 0)
     throw logic_error("libpqxx internal error: Negative rowcount");
   if (Actual > labs(Intended))
     throw logic_error("libpqxx internal error: Moved/fetched too many rows "
@@ -149,19 +149,19 @@ pqxx::Cursor::NormalizedMove(difference_type Intended,
 
   if (Actual < labs(Intended))
   {
-    // There is a nonexistant row before the first one in the result set, and 
-    // one after the last row, where we may be positioned.  Unfortunately 
+    // There is a nonexistant row before the first one in the result set, and
+    // one after the last row, where we may be positioned.  Unfortunately
     // PostgreSQL only reports "real" rows, making it really hard to figure out
     // how many rows we've really moved.
     if (Actual)
     {
-      // We've moved off either edge of our result set; add the one, 
+      // We've moved off either edge of our result set; add the one,
       // nonexistant row that wasn't counted in the status string we got.
       Offset++;
     }
     else if (Intended < 0)
     {
-      // We've either moved off the "left" edge of our result set from the 
+      // We've either moved off the "left" edge of our result set from the
       // first actual row, or we were on the nonexistant row before the first
       // actual row and so didn't move at all.  Just set up Actual so that we
       // end up at our starting position, which is where we must be.
@@ -169,7 +169,7 @@ pqxx::Cursor::NormalizedMove(difference_type Intended,
     }
     else if (m_Size != pos_unknown)
     {
-      // We either just walked off the right edge (moving at least one row in 
+      // We either just walked off the right edge (moving at least one row in
       // the process), or had done so already (in which case we haven't moved).
       // In the case at hand, we already know where the right-hand edge of the
       // result set is, so we use that to compute our offset.
@@ -178,7 +178,7 @@ pqxx::Cursor::NormalizedMove(difference_type Intended,
     else
     {
       // This is the hard one.  Assume that we haven't seen the "right edge"
-      // before, because m_Size hasn't been set yet.  Therefore, we must have 
+      // before, because m_Size hasn't been set yet.  Therefore, we must have
       // just stepped off the edge (and m_Size will be set now).
       Offset++;
     }

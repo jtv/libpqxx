@@ -32,19 +32,19 @@ namespace pqxx
 {
 
 /// Wrapper for transactions that automatically restarts them on failure
-/** Some transactions may be replayed if their connection fails, until they do 
- * succeed.  These can be encapsulated in a transactor-derived classes.  The 
- * transactor framework will take care of setting up a backend transaction 
- * context for the operation, and of aborting and retrying if its connection 
+/** Some transactions may be replayed if their connection fails, until they do
+ * succeed.  These can be encapsulated in a transactor-derived classes.  The
+ * transactor framework will take care of setting up a backend transaction
+ * context for the operation, and of aborting and retrying if its connection
  * goes bad.
  *
  * The transactor framework also makes it easier for you to do this safely,
  * avoiding typical pitfalls and encouraging programmers to separate their
- * transaction definitions (essentially, business rules implementations) from 
- * their higher-level code (application using those business rules).  The 
+ * transaction definitions (essentially, business rules implementations) from
+ * their higher-level code (application using those business rules).  The
  * former go into the transactor-based class.
  *
- * Pass an object of your transactor-based class to connection_base::perform() 
+ * Pass an object of your transactor-based class to connection_base::perform()
  * to execute the transaction code embedded in it (see the definitions in
  * pqxx/connection_base.hxx).
  *
@@ -54,12 +54,12 @@ namespace pqxx
  * not allowed.  Hence the absence of virtual methods in transactor.  The
  * exact methods to be called at runtime *must* be resolved at compile time.
  *
- * Your transactor-derived class must define a copy constructor.  This will be 
- * used to create a "clean" copy of your transactor for every attempt that 
+ * Your transactor-derived class must define a copy constructor.  This will be
+ * used to create a "clean" copy of your transactor for every attempt that
  * Perform() makes to run it.
  */
-template<typename TRANSACTION=transaction<read_committed> > 
-  class transactor : 
+template<typename TRANSACTION=transaction<read_committed> >
+  class transactor :
     public PGSTD::unary_function<TRANSACTION, void>
 {
 public:
@@ -81,8 +81,8 @@ public:
   void operator()(TRANSACTION &T);					//[t4]
 
   // Overridable member functions, called by connection_base::perform() if an
-  // attempt to run transaction fails/succeeds, respectively, or if the 
-  // connection is lost at just the wrong moment, goes into an indeterminate 
+  // attempt to run transaction fails/succeeds, respectively, or if the
+  // connection is lost at just the wrong moment, goes into an indeterminate
   // state.  Use these to patch up runtime state to match events, if needed, or
   // to report failure conditions.
 

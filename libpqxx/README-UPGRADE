@@ -15,7 +15,7 @@ command path before running the libpqxx configure script.
 IMPORTANT NOTICE FOR USERS UPGRADING TO 1.9.0 OR LATER FROM OLDER VERSIONS
 
 Version 1.9.0 marks a radical change in the library, preparatory to the 2.0.0
-release2003.  These may require changes in your code; see the NEWS file for 
+release2003.  These may require changes in your code; see the NEWS file for
 quick overview of the changes.  Most of these are also relevant for users
 upgrading from 1.x to 2.x versions of the library.
 
@@ -31,9 +31,9 @@ Practically all classes have been renamed to fully lower-case names.  This was
 requested by several users, and should help stylistic integration with the C++
 Standard Library.
 
-Typedefs have been provided where necessary, so no immediate changes in your 
-code are needed on that score (although eventually of course the typedefs will 
-be phased out); however, don't be surprised if class names are spelled 
+Typedefs have been provided where necessary, so no immediate changes in your
+code are needed on that score (although eventually of course the typedefs will
+be phased out); however, don't be surprised if class names are spelled
 differently in the documentation or in compiler messages than you're used to.
 
 
@@ -42,7 +42,7 @@ differently in the documentation or in compiler messages than you're used to.
 The old Transaction hierarchy has been transformed to accomodate transaction
 isolation levels as compile-time type properties.  Also, there is now a separate
 dbtransaction base class to indicate that a subclass opens a real transaction on
-the backend.  As you may have guessed, nontransaction is the only type of 
+the backend.  As you may have guessed, nontransaction is the only type of
 transaction implementation that isn't derived from dbtransaction.  The new root
 of the inheritance tree is transaction_base.
 
@@ -56,7 +56,7 @@ transaction and robusttransaction) are not derived directly from dbtransaction.
 Instead, their implementations are mostly contained in basic_transaction and
 basic_robusttransaction respectively.  The template classes inherit their
 implementations from these classes and only add the minimal changes required to
-set their isolation levels.  To express that a function requires a 
+set their isolation levels.  To express that a function requires a
 robusttransaction of any isolation level, for instance, make its parameter
 refer to a basic_robusttransaction.
 
@@ -65,13 +65,13 @@ transaction will read newly changed values as they become available from other
 transactions as they commit.  PostgreSQL also implements "serializable," which
 completely isolates each transaction from seeing changes made by other
 transactions while it is active.  The drawback of the serializable level is that
-the database may occasionally need to abort the transaction because its 
-"snapshot" view of the database has become impossible to maintain.  Using 
+the database may occasionally need to abort the transaction because its
+"snapshot" view of the database has become impossible to maintain.  Using
 libpqxx transactors will isolate you from this concern.
 
 The old Transaction name is now typedef'ed to mean transaction<read_committed>;
 to get a serializable one, declare a transaction<serializable>.  The same goes
-for robusttransaction.  
+for robusttransaction.
 
 To use the default isolation level, just write transaction<> (or, naturally,
 robusttransaction<>).  This will use the default template parameter, which is
@@ -106,9 +106,9 @@ cursor and cachedresult to demand that they be passed a transaction with
 isolation level "serializable."  Failure to do so will yield a compile-time or
 link-time error for the symbol error_permitted_isolation_level().
 
-If you want to continue using cursors and cachedresults the way you were used 
+If you want to continue using cursors and cachedresults the way you were used
 to, you'll need to replace the relevant transactions with ones declared as
-serializable: transaction<serializable> or robusttransaction<serializable>.  
+serializable: transaction<serializable> or robusttransaction<serializable>.
 This may require some restructuring or templatization of your program in some
 cases, because the constructors for cursor and cachedresult must be able to see
 the correct transaction isolation level at compile time, but I hope you'll agree

@@ -5,7 +5,7 @@
  *
  *   DESCRIPTION
  *      definition of the pqxx::connection and pqxx::lazyconnection classes.
- *   Different ways of setting up a backend connection.  
+ *   Different ways of setting up a backend connection.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection instead.
  *
  * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
@@ -28,16 +28,16 @@ namespace pqxx
 {
 
 /// Connection class; represents an immediate connection to a database.
-/** This is the class you typically need when you first work with a database 
+/** This is the class you typically need when you first work with a database
  * through libpqxx.  Its constructor immediately opens a connection.  Another
  * option is to defer setting up the underlying connection to the database until
- * it's actually needed; the lazyconnection class implements such "lazy" 
- * behaviour.  Most of the documentation that you'll need to use this class is 
+ * it's actually needed; the lazyconnection class implements such "lazy"
+ * behaviour.  Most of the documentation that you'll need to use this class is
  * in its base class, connection_base.
  *
  * The advantage of having an "immediate" connection (represented by this class)
- * is that errors in setting up the connection will probably occur during 
- * construction of the connection object, rather than at some later point 
+ * is that errors in setting up the connection will probably occur during
+ * construction of the connection object, rather than at some later point
  * further down your program.
  *
  * This class is a near-trivial implementation of the connection_base
@@ -55,10 +55,10 @@ public:
   connection();								//[t1]
 
   /// Constructor.  Sets up connection based on PostgreSQL connection string.
-  /** 
+  /**
    * @param ConnInfo A PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.  These values
-   * override any environment variables that may have been set for the same 
+   * override any environment variables that may have been set for the same
    * parameters.
    *
    * The README file for libpqxx gives a quick overview of how connection
@@ -84,18 +84,18 @@ private:
   virtual void startconnect() { do_startconnect(); }
   virtual void completeconnect() {}
 
-  void do_startconnect() 
+  void do_startconnect()
 	{ if (!get_conn()) set_conn(PQXXPQ::PQconnectdb(options())); }
 };
 
 
 /// Lazy connection class; represents a deferred connection to a database.
-/** This is connection's lazy younger brother.  Its constructor does not 
- * actually open a connection; the connection is only created when it is 
+/** This is connection's lazy younger brother.  Its constructor does not
+ * actually open a connection; the connection is only created when it is
  * actually used.
  *
- * This class is a trivial implementation of the connection_base interface 
- * defined in connection_base.hxx.  All features of any interest to client 
+ * This class is a trivial implementation of the connection_base interface
+ * defined in connection_base.hxx.  All features of any interest to client
  * programmers are defined there.
  */
 class PQXX_LIBEXPORT lazyconnection : public connection_base
@@ -117,7 +117,7 @@ public:
   	connection_base(ConnInfo) {}
 
   /// Constructor.  Sets up lazy connection.
-  /** 
+  /**
    * @param ConnInfo A PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.  As a special
    * case, a null pointer is taken as the empty string.
@@ -133,7 +133,7 @@ public:
 
 private:
   virtual void startconnect() {}
-  virtual void completeconnect() 
+  virtual void completeconnect()
   	{ if (!get_conn()) set_conn(PQXXPQ::PQconnectdb(options())); }
 };
 
@@ -163,7 +163,7 @@ public:
   explicit asyncconnection(const PGSTD::string &ConnInfo);		//[t65]
 
   /// Constructor.  Initiates asynchronous connection setup.
-  /** 
+  /**
    * @param ConnInfo A PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.  As a special
    * case, a null pointer is taken as the empty string.

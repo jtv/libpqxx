@@ -8,7 +8,7 @@
  *   Throughput-optimized query manager
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/pipeline instead.
  *
- * Copyright (c) 2003-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -31,8 +31,8 @@ namespace pqxx
 {
 
 /// Processes several queries in FIFO manner, optimized for high throughput
-/** @warning This is a prototype, and it may still change radically before 
- * becoming a stable part of the library.  Also, the class may be very 
+/** @warning This is a prototype, and it may still change radically before
+ * becoming a stable part of the library.  Also, the class may be very
  * sensitive to exceptions; in certain cases, exceptions occurring in the
  * class may leave a pipeline in a poorly defined state.
  *
@@ -151,8 +151,8 @@ private:
 
   /// Create new query_id
   query_id generate_id();
-    
-  bool have_pending() const throw () 
+
+  bool have_pending() const throw ()
   	{ return m_issuedrange.second != m_issuedrange.first; }
 
   void issue();

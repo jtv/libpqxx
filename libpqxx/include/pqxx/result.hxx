@@ -34,9 +34,9 @@
 namespace pqxx
 {
 /// Query or command result set.
-/** This behaves as a container (as defined by the C++ standard library) and 
- * provides random access const iterators to iterate over its tuples.  A tuple 
- * can also be accessed by indexing a result R by the tuple's zero-based 
+/** This behaves as a container (as defined by the C++ standard library) and
+ * provides random access const iterators to iterate over its tuples.  A tuple
+ * can also be accessed by indexing a result R by the tuple's zero-based
  * number:
  *
  *	for (result::size_type i=0; i < R.size(); ++i) Process(R[i]);
@@ -56,8 +56,8 @@ public:
   typedef const_iterator pointer;
 
   /// Reference to one row in a result.
-  /** A tuple represents one row (also called a tuple) in a query result set.  
-   * It also acts as a container mapping column numbers or names to field 
+  /** A tuple represents one row (also called a tuple) in a query result set.
+   * It also acts as a container mapping column numbers or names to field
    * values (see below):
    *
    * @code
@@ -77,7 +77,7 @@ public:
     typedef const_fielditerator pointer;
     typedef const_reverse_fielditerator const_reverse_iterator;
 
-    tuple(const result *r, result::size_type i) throw () : 
+    tuple(const result *r, result::size_type i) throw () :
       m_Home(r), m_Index(i) {}
     ~tuple() throw () {} // Yes Scott Meyers, you're absolutely right[1]
 
@@ -179,11 +179,11 @@ public:
     result::size_type Row() const { return rownumber(); }
 
     /// @deprecated Use column_number() instead
-    size_type ColumnNumber(const PGSTD::string &ColName) const 
+    size_type ColumnNumber(const PGSTD::string &ColName) const
 	{ return column_number(ColName); }
 
     /// @deprecated Use column_number() instead
-    size_type ColumnNumber(const char ColName[]) const 
+    size_type ColumnNumber(const char ColName[]) const
 	{ return column_number(ColName); }
 #endif
 
@@ -197,7 +197,7 @@ public:
   };
 
   /// Reference to a field in a result set.
-  /** A field represents one entry in a tuple.  It represents an actual value 
+  /** A field represents one entry in a tuple.  It represents an actual value
    * in the result set, and can be converted to various types.
    */
   class PQXX_LIBEXPORT field
@@ -238,7 +238,7 @@ public:
     bool operator!=(const field &rhs) const {return !operator==(rhs);}	//[t82]
 
     /// Read as plain C string
-    /** Since the field's data is stored internally in the form of a 
+    /** Since the field's data is stored internally in the form of a
      * zero-terminated C string, this is the fastest way to read it.  Use the
      * to() or as() functions to convert the string to other types such as int,
      * or to C++ strings.
@@ -271,7 +271,7 @@ public:
       }
       catch (const PGSTD::exception &e)
       {
-        throw PGSTD::domain_error("Error reading field " + 
+        throw PGSTD::domain_error("Error reading field " +
 			          PGSTD::string(name()) + ": " +
 				  e.what());
       }
@@ -286,7 +286,7 @@ public:
     /// Specialization: to(string &)
     template<> bool to<PGSTD::string>(PGSTD::string &Obj) const;
 
-    /// Specialization: to(const char *&).  
+    /// Specialization: to(const char *&).
     /** The buffer has the same lifetime as the result, so take care not to
      * use it after the result is destroyed.
      */
@@ -341,7 +341,7 @@ public:
     tuple::size_type m_col;
   };
 
-  typedef PGSTD::iterator<PGSTD::random_access_iterator_tag, 
+  typedef PGSTD::iterator<PGSTD::random_access_iterator_tag,
                            const tuple,
                            result::difference_type,
     			   const_iterator,
@@ -349,10 +349,10 @@ public:
 
   /// Iterator for rows (tuples) in a query result set.
   /** A result, once obtained, cannot be modified.  Therefore there is no
-   * plain iterator type for result.  However its const_iterator type can be 
+   * plain iterator type for result.  However its const_iterator type can be
    * used to inspect its tuples without changing them.
    */
-  class PQXX_LIBEXPORT const_iterator : 
+  class PQXX_LIBEXPORT const_iterator :
     public const_iterator_base,
     public tuple
   {
@@ -365,10 +365,10 @@ public:
     const_iterator() throw () : tuple(0,0) {}
     const_iterator(const tuple &t) throw () : tuple(t) {}
 
-    /** The iterator "points to" its own tuple, which is also itself.  This 
-     * allows a result to be addressed as a two-dimensional container without 
-     * going through the intermediate step of dereferencing the iterator.  I 
-     * hope this works out to be similar to C pointer/array semantics in useful 
+    /** The iterator "points to" its own tuple, which is also itself.  This
+     * allows a result to be addressed as a two-dimensional container without
+     * going through the intermediate step of dereferencing the iterator.  I
+     * hope this works out to be similar to C pointer/array semantics in useful
      * cases.
      *
      * IIRC Alex Stepanov, the inventor of the STL, once remarked that having
@@ -483,10 +483,10 @@ public:
     mutable iterator_type m_tmp;
   };
 
-  class PQXX_LIBEXPORT const_fielditerator : 
-    public PGSTD::iterator<PGSTD::random_access_iterator_tag, 
+  class PQXX_LIBEXPORT const_fielditerator :
+    public PGSTD::iterator<PGSTD::random_access_iterator_tag,
                            const field,
-                           tuple::size_type>, 
+                           tuple::size_type>,
     public field
   {
     typedef PGSTD::iterator<PGSTD::random_access_iterator_tag,
@@ -530,7 +530,7 @@ public:
 
     inline const_fielditerator operator+(difference_type) const;	//[t82]
 
-    friend const_fielditerator operator+(difference_type, 
+    friend const_fielditerator operator+(difference_type,
 		    		          const_fielditerator);		//[t82]
 
     inline const_fielditerator operator-(difference_type) const;	//[t82]
@@ -614,7 +614,7 @@ public:
 
   result() throw () : super() {}					//[t3]
   result(const result &rhs) throw () : super(rhs) {}			//[t1]
-  
+
   result &operator=(const result &rhs) throw ()				//[t10]
   	{ super::operator=(rhs); return *this; }
 
@@ -695,7 +695,7 @@ public:
    * PQftable function first became available in PostgreSQL 7.4.
    */
   oid column_table(int ColNum) const					//[t2]
-  	{ return column_table(tuple::size_type(ColNum)); } 
+  	{ return column_table(tuple::size_type(ColNum)); }
 
   /// What table did this column come from?  Requires PostgreSQL 7.4 C API.
   /** Only defined if the libpqxx library was compiled against a libpq
@@ -710,7 +710,7 @@ public:
 
   /// If command was INSERT of 1 row, return oid of inserted row
   /** @return Identifier of inserted row if exactly one row was inserted, or
-   * oid_none otherwise. 
+   * oid_none otherwise.
    */
   oid inserted_oid() const { return PQoidValue(c_ptr()); }		//[t13]
 
@@ -772,7 +772,7 @@ private:
 /** This can be convenient when writing a field to an output stream.  More
  * importantly, it lets you write a field to e.g. a stringstream which you can
  * then use to read, format and convert the field in ways that to() does not
- * support.  
+ * support.
  *
  * Example: parse a field into a variable of the nonstandard "long long" type.
  *
@@ -808,7 +808,7 @@ inline PGSTD::string to_string(const result::field &Obj)		//[t74]
 
 
 /// Specialization: to(string &)
-template<> 
+template<>
 inline bool result::field::to<PGSTD::string>(PGSTD::string &Obj) const
 {
   if (is_null()) return false;
@@ -816,13 +816,13 @@ inline bool result::field::to<PGSTD::string>(PGSTD::string &Obj) const
   return true;
 }
 
-/// Specialization: to(const char *&).  
+/// Specialization: to(const char *&).
 /** The buffer has the same lifetime as the data in this result (i.e. of this
  * result object, or the last remaining one copied from it etc.), so take care
  * not to use it after the last result object referring to this query result is
  * destroyed.
  */
-template<> 
+template<>
 inline bool result::field::to<const char *>(const char *&Obj) const
 {
   if (is_null()) return false;
@@ -836,19 +836,19 @@ inline result::tuple::const_reverse_iterator result::tuple::rbegin() const
 inline result::tuple::const_reverse_iterator result::tuple::rend() const
 	{ return const_reverse_fielditerator(begin()); }
 
-inline result::const_iterator 
+inline result::const_iterator
 result::const_iterator::operator+(difference_type o) const
 	{ return const_iterator(m_Home, m_Index + o); }
 
-inline result::const_iterator 
+inline result::const_iterator
 operator+(result::const_iterator::difference_type o, result::const_iterator i)
 	{ return i + o; }
 
-inline result::const_iterator 
+inline result::const_iterator
 result::const_iterator::operator-(difference_type o) const
 	{ return const_iterator(m_Home, m_Index - o); }
 
-inline result::const_iterator::difference_type 
+inline result::const_iterator::difference_type
 result::const_iterator::operator-(const_iterator i) const
 	{ return num()-i.num(); }
 
@@ -861,20 +861,20 @@ operator+(result::const_reverse_iterator::difference_type n,
 	  const result::const_reverse_iterator &i)
 	{ return result::const_reverse_iterator(i.base() - n); }
 
-inline result::const_fielditerator 
+inline result::const_fielditerator
 result::const_fielditerator::operator+(difference_type o) const
 	{ return const_fielditerator(m_tup, col() + o); }
 
-inline result::const_fielditerator 
+inline result::const_fielditerator
 operator+(result::const_fielditerator::difference_type o,
 	  result::const_fielditerator i)
 	{ return i + o; }
 
-inline result::const_fielditerator 
+inline result::const_fielditerator
 result::const_fielditerator::operator-(difference_type o) const
 	{ return const_fielditerator(m_tup, col() - o); }
 
-inline result::const_fielditerator::difference_type 
+inline result::const_fielditerator::difference_type
 result::const_fielditerator::operator-(const_fielditerator i) const
 	{ return num()-i.num(); }
 
@@ -914,7 +914,7 @@ protected:
 
 protected:
   virtual pos_type seekoff(off_type, seekdir, openmode)
-	{ return traits_type::eof(); } 
+	{ return traits_type::eof(); }
   virtual pos_type seekpos(pos_type, openmode) {return traits_type::eof();}
   virtual int_type overflow(int_type) { return traits_type::eof(); }
   virtual int_type underflow() { return traits_type::eof(); }
@@ -924,7 +924,7 @@ private:
 
   int_type initialize()
   {
-    char_type *G = 
+    char_type *G =
       reinterpret_cast<char_type *>(const_cast<char *>(m_Field.c_str()));
     setg(G, G, G + m_Field.size());
     return m_Field.size();
@@ -934,7 +934,7 @@ private:
 
 /// Input stream that gets its data from a result field
 /** Use this class exactly as you would any other istream to read data from a
- * field.  All formatting and streaming operations of std::istream are 
+ * field.  All formatting and streaming operations of std::istream are
  * supported.  What you'll typically want to use, however, is the fieldstream
  * typedef (which defines a basic_fieldstream for char).  This is similar to how
  * e.g. std::ifstream relates to std::basic_ifstream.
@@ -974,9 +974,9 @@ typedef basic_fieldstream<char> fieldstream;
 
 
 
-/* 
-[1] Scott Meyers, in one of his essential books, "Effective C++" and "More 
-Effective C++", points out that it is good style to have any class containing 
+/*
+[1] Scott Meyers, in one of his essential books, "Effective C++" and "More
+Effective C++", points out that it is good style to have any class containing
 a member of pointer type define a destructor--just to show that it knows what it
 is doing with the pointer.  This helps prevent nasty memory leak / double
 deletion bugs typically resulting from programmers' omission to deal with such

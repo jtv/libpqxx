@@ -23,7 +23,7 @@
 using namespace PGSTD;
 
 
-pqxx::tablereader::tablereader(transaction_base &T, 
+pqxx::tablereader::tablereader(transaction_base &T,
     const string &RName,
     const string &Null) :
   tablestream(T, RName, Null, "tablereader"),
@@ -155,7 +155,7 @@ string pqxx::tablereader::extract_field(const string &Line,
 	  R = NullStr();
 	  isnull = true;
 	  break;
-        
+
 	case '0':	// Octal sequence (3 digits)
 	case '1':
 	case '2':

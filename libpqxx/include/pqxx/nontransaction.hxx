@@ -33,7 +33,7 @@ namespace pqxx
 /**
  * nontransaction, like transaction or any other transaction_base-derived class,
  * provides access to a database through a connection.  Unlike its siblings,
- * however, nontransaction does not maintain any kind of transactional 
+ * however, nontransaction does not maintain any kind of transactional
  * integrity.  This may be useful eg. for read-only access to the database that
  * does not require a consistent, atomic view on its data; or for operations
  * that are not allowed within a backend transaction, such as creating tables.
@@ -60,7 +60,7 @@ public:
    * @param NName Optional name for the transaction, beginning with a letter
    * and containing only letters and digits.
    */
-  explicit nontransaction(connection_base &C, 
+  explicit nontransaction(connection_base &C,
 		          const PGSTD::string &NName=PGSTD::string()) :	//[t14]
     transaction_base(C, NName, "nontransaction") { Begin(); }
 

@@ -58,7 +58,7 @@ while test $# -gt 0; do
        	;;
 
     --libs)
-       	echo -L@libdir@ -lpqxx @POSTGRES_LIB@ 
+       	echo -L@libdir@ -lpqxx @POSTGRES_LIB@
        	;;
 
     *)

@@ -61,9 +61,9 @@
 
     <para>
       I think it is.  The C++ Standard, and its standard library in particular,
-      have stabilized over the mid-1990s; compilers and standard library 
-      implementations are still following suit at the time of writing.  As a 
-      result, most older third-party libraries suffer from symptoms such as: 
+      have stabilized over the mid-1990s; compilers and standard library
+      implementations are still following suit at the time of writing.  As a
+      result, most older third-party libraries suffer from symptoms such as:
     </para>
 
     <itemizedlist>
@@ -78,8 +78,8 @@
 
       <listitem>
 	<para>
-	  Ad-hoc exception classes.  Programs using C++ libraries need to deal 
-	  with various incompatible exception class hierarchies, and error 
+	  Ad-hoc exception classes.  Programs using C++ libraries need to deal
+	  with various incompatible exception class hierarchies, and error
 	  handling becomes a total nightmare with multiple essentially identical
 	  <literal>catch</literal> clauses for every <literal>try</literal> block.
 	</para>
@@ -88,8 +88,8 @@
       <listitem>
 	<para>
 	  Ad-hoc string classes.  As one member of the C++ standards committee
-	  put it, if the C++ wasn't going to have a standard string class, "there 
-	  will be blood in the streets."  Luckily, the committee saw the wisdom 
+	  put it, if the C++ wasn't going to have a standard string class, "there
+	  will be blood in the streets."  Luckily, the committee saw the wisdom
 	  in this, and civilization was spared.
 	</para>
       </listitem>
@@ -114,17 +114,17 @@
 
     <para>
       For these reasons, third-party libraries have tended to grow into
-      intrusive frameworks.  Third-party code, and class libraries in 
-      particular, need to be rewritten to replace such ad-hockery with the rich 
-      and standardized functionality now provided by C++.  This is what 
-      <productname>libpqxx</productname> intends to do for 
-      <productname>PostgreSQL</productname>.  The library was designed to be a 
-      forward-looking one, which means that ports to vendor X's compiler Y may 
+      intrusive frameworks.  Third-party code, and class libraries in
+      particular, need to be rewritten to replace such ad-hockery with the rich
+      and standardized functionality now provided by C++.  This is what
+      <productname>libpqxx</productname> intends to do for
+      <productname>PostgreSQL</productname>.  The library was designed to be a
+      forward-looking one, which means that ports to vendor X's compiler Y may
       have to wait until X improves its support of the Standard.
     </para>
 
     <para>
-      But there were other reasons to design a new SQL frontend from scratch.  
+      But there were other reasons to design a new SQL frontend from scratch.
       C++ is a complex language, and the only things stopping a library writer
       from shooting himself
       <footnote>
@@ -132,7 +132,7 @@
 	  Yes, <emphasis>him</emphasis>self. A "writer" is grammatically
 	  masculine, unless actual gender is known and definite.
 	</para>
-      </footnote> 
+      </footnote>
       in the foot are years of experience and an extensive idiom of good
       practices.  To name a few typical symptoms of foot-shooting:
     </para>
@@ -151,7 +151,7 @@
 	  Overdoing overloading.  It's also easy to go overboard with operator
 	  or function overloading, and many classes do.  Some programmers use
 	  identical function names to mean very different things, or define
-	  operators whose semantics are not clearly derived from their 
+	  operators whose semantics are not clearly derived from their
 	  conventional meanings.
 	</para>
       </listitem>
@@ -240,7 +240,7 @@
 	      doing this at various levels of reliability, called
 	      <literal>nontransaction</literal>, <literal>transaction</literal>,
 	      and <literal>robusttransaction</literal> for no, standard, and
-	      best reliability respectively.  
+	      best reliability respectively.
 	    </para>
 	  </footnote>
 	</para>
@@ -293,14 +293,14 @@
 	  thrown if <productname>libpqxx</productname> loses its connection to
 	  the back-end.  It is derived from the standard C++ exception
 	  <literal>std::runtime_error</literal>, and can generally be treated as
-	  such.  
+	  such.
 	</para>
       </listitem>
 
       <listitem>
 	<para>
 	  <literal>sql_error</literal> is an exception class that is thrown if
-	  a query to the back-end fails.  Like 
+	  a query to the back-end fails.  Like
 	  <literal>broken_connection</literal> it
 	  is derived from <literal>std::runtime_error</literal>, but it also
 	  carries information about the failed query.  This may be useful for
@@ -443,7 +443,7 @@
 	  <literal>transaction_base</literal> instead.
 	</para>
 	<para>
-	  You'll usually want to refer to the default 
+	  You'll usually want to refer to the default
 	  <literal>transaction</literal> type as <literal>work</literal>, a
 	  typedef that means "<literal>transaction</literal> with default
 	  (read-committed) isolation level."
@@ -507,9 +507,9 @@
 
       <listitem>
 	<para>
-	  <literal>result::field</literal>, also nested within 
-	  <literal>result</literal>, refers to one field within a 
-	  <literal>tuple</literal>.  A <literal>field</literal> contains one 
+	  <literal>result::field</literal>, also nested within
+	  <literal>result</literal>, refers to one field within a
+	  <literal>tuple</literal>.  A <literal>field</literal> contains one
 	  retrieved value such as a number or a string, and can be read into
 	  variables of various types such as <literal>int</literal>s or
 	  <literal>string</literal>s.
@@ -619,7 +619,7 @@
 	</para>
 
 	<itemizedlist>
-	  <listitem> 
+	  <listitem>
 	    <para>
 	      Always import the whole of the <literal>pqxx</literal>
 	      namespace in your programs.
@@ -629,7 +629,7 @@
 	      This tells the compiler to always look in the
 	      <literal>pqxx</literal> namespace when trying to resolve a name
 	      that doesn't occur in the global (ie. the "default") namespace).
-	      To do this, include the directive 
+	      To do this, include the directive
 	      <programlisting>
 		using namespace pqxx;
 	      </programlisting>
@@ -777,7 +777,7 @@
 	    transaction&lt;&gt; Xaction(Conn, "DemoTransaction");
 	  </programlisting>
 
-	  Or, alternatively (once you get fed up with typing 
+	  Or, alternatively (once you get fed up with typing
 	  <literal>transaction&lt;&gt;</literal>):
 
 	  <programlisting>
@@ -1060,7 +1060,7 @@
       </para>
 
       <para>
-	Array indexing of tuples also works with the fields' names instead of 
+	Array indexing of tuples also works with the fields' names instead of
 	their numbers, eg.:
       </para>
 
@@ -1180,7 +1180,7 @@
       <para>
 	If conversion fails, e.g. when trying to convert a floating-point
 	value to an integer variable, <function>to</function> will throw a
-	<literal>runtime_error</literal> reporting the problem in its 
+	<literal>runtime_error</literal> reporting the problem in its
 	<function>what</function> message.
       </para>
     </section>
@@ -1197,7 +1197,7 @@
       </para>
 
       <itemizedlist>
-	<listitem> 
+	<listitem>
 	  <para>
 	    Attempt to perform the transaction.
 	  </para>
@@ -1225,7 +1225,7 @@
       <para>
 	This is bad for the heart, and clutters up your code besides.  The
 	<literal>transactor</literal> framework will take this work out of
-	your hands if you let it.  
+	your hands if you let it.
       </para>
 
       <section id="functors">
@@ -1274,7 +1274,7 @@
 	  But the invoking code may also be foreign code knowing nothing
 	  about the type of your functor.  The foreign code is usually a
 	  template, so it automatically becomes "specialized" to your type of
-	  functor when the one meets the other: 
+	  functor when the one meets the other:
 	</para>
 
 	<programlisting>
@@ -1305,8 +1305,8 @@
 	  operator to indicate which stream to print to:
 	</para>
 	<programlisting>
-	  void operator()(ostream &amp;Stream) 
-	  { 
+	  void operator()(ostream &amp;Stream)
+	  {
 	  Stream &lt;&lt; "Hello World" &lt;&lt; endl;
 	  }
 	</programlisting>
@@ -1314,7 +1314,7 @@
 	<para>
 	  Unfortunately, <function>DoFunctor</function> doesn't know about
 	  this new parameter, let alone what argument to pass!  So instead,
-	  let's make this 
+	  let's make this
 	  <literal>Stream</literal> a class member:
 	</para>
 	<programlisting>
@@ -1388,7 +1388,7 @@
 	      that are made can be passed to <function>perform</function> as
 	      an optional second argument.
 	    </para>
-	  </footnote>.  
+	  </footnote>.
 	  If the connection is lost, the transaction will fail but
 	  <function>perform</function> will restore it transparently and
 	  simply try again.

@@ -8,7 +8,7 @@
  *   Allows access to large objects directly, or through I/O streams
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/largeobject instead.
  *
- * Copyright (c) 2003-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -114,7 +114,7 @@ public:
   void to_file(dbtransaction &T, const PGSTD::string &File) const; 	//[t52]
 
   /// Delete large object from database
-  /** Unlike its low-level equivalent cunlink, this will throw an exception if 
+  /** Unlike its low-level equivalent cunlink, this will throw an exception if
    * deletion fails.
    * @param T Transaction in which the object is to be deleted
    */
@@ -158,13 +158,13 @@ public:
   typedef PGSTD::ios::seekdir seekdir;
 
   /// Create new large object and open it
-  /** 
+  /**
    * @param T Backend transaction in which the object is to be created
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
-  explicit largeobjectaccess(dbtransaction &T, 
-			     openmode mode = 
-				PGSTD::ios::in | 
+  explicit largeobjectaccess(dbtransaction &T,
+			     openmode mode =
+				PGSTD::ios::in |
 				PGSTD::ios::out);			//[t51]
 
   /// Open large object with given oid
@@ -174,10 +174,10 @@ public:
    * @param O Object identifier for the given object
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
-  largeobjectaccess(dbtransaction &T, 
+  largeobjectaccess(dbtransaction &T,
 		    oid O,
-		    openmode mode = 
-			PGSTD::ios::in | 
+		    openmode mode =
+			PGSTD::ios::in |
 			PGSTD::ios::out);				//[t52]
 
   /// Open given large object
@@ -186,7 +186,7 @@ public:
    * @param O Identity for the large object to be accessed
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
-  largeobjectaccess(dbtransaction &T, 
+  largeobjectaccess(dbtransaction &T,
 		    largeobject O,
 		    openmode mode = PGSTD::ios::in | PGSTD::ios::out);	//[t50]
 
@@ -196,9 +196,9 @@ public:
    * @param File A filename on the client program's filesystem
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
-  largeobjectaccess(dbtransaction &T, 
+  largeobjectaccess(dbtransaction &T,
 		    const PGSTD::string &File,
-		    openmode mode = 
+		    openmode mode =
 			PGSTD::ios::in | PGSTD::ios::out);		//[t55]
 
   ~largeobjectaccess() throw () { close(); }
@@ -262,13 +262,13 @@ public:
   /** Does not throw exception in case of error; inspect return value and errno
    * instead.
    * @param dest Offset to go to
-   * @param dir Origin to which dest is relative: ios_base::beg (from beginning 
+   * @param dir Origin to which dest is relative: ios_base::beg (from beginning
    *        of the object), ios_base::cur (from current access position), or
    *        ios_base;:end (from end of object)
    * @return New position in large object, or -1 if an error occurred.
    */
   pos_type cseek(off_type dest, seekdir dir) throw ();			//[t50]
-    
+
   /// Write to large object's data stream
   /** Does not throw exception in case of error; inspect return value and errno
    * instead.
@@ -323,7 +323,7 @@ private:
  * as files or string buffers, so they can be accessed using standard input or
  * output streams.  This streambuf implementation provides similar access to
  * large objects, so they can be read and written using the same stream classes.
- * 
+ *
  * @warning This class may not work properly in compiler environments that don't
  * fully support Standard-compliant streambufs, such as g++ 2.95 or older.
  */
@@ -387,7 +387,7 @@ protected:
   }
 
 protected:
-  virtual pos_type seekoff(off_type offset, 
+  virtual pos_type seekoff(off_type offset,
 			   seekdir dir,
 			   openmode mode)
   {
@@ -443,7 +443,7 @@ private:
 
   void initialize(openmode mode)
   {
-    if (mode & PGSTD::ios::in) 
+    if (mode & PGSTD::ios::in)
     {
       m_G = new char_type[m_BufSize];
       setg(m_G, m_G, m_G);
@@ -465,14 +465,14 @@ private:
 
 /// Input stream that gets its data from a large object
 /** Use this class exactly as you would any other istream to read data from a
- * large object.  All formatting and streaming operations of std::istream are 
+ * large object.  All formatting and streaming operations of std::istream are
  * supported.  What you'll typically want to use, however, is the ilostream
  * typedef (which defines a basic_ilostream for char).  This is similar to how
  * e.g. std::ifstream relates to std::basic_ifstream.
  *
  * Currently only works for <char, std::char_traits<char> >.
  */
-template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> > 
+template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
   class basic_ilostream :
 #ifdef PQXX_HAVE_STREAMBUF
     public PGSTD::basic_istream<CHAR, TRAITS>
@@ -499,11 +499,11 @@ public:
    * @param O Large object to access
    * @param BufSize Size of buffer to use internally (optional)
    */
-  basic_ilostream(dbtransaction &T, 
-                  largeobject O, 
+  basic_ilostream(dbtransaction &T,
+                  largeobject O,
 		  largeobject::size_type BufSize=512) :			//[t57]
     super(&m_Buf),
-    m_Buf(T, O, PGSTD::ios::in, BufSize) 
+    m_Buf(T, O, PGSTD::ios::in, BufSize)
   	{ }
 
   /// Create a basic_ilostream
@@ -512,11 +512,11 @@ public:
    * @param O Identifier of a large object to access
    * @param BufSize Size of buffer to use internally (optional)
    */
-  basic_ilostream(dbtransaction &T, 
-                  oid O, 
+  basic_ilostream(dbtransaction &T,
+                  oid O,
 		  largeobject::size_type BufSize=512) :			//[t48]
     super(&m_Buf),
-    m_Buf(T, O, PGSTD::ios::in, BufSize) 
+    m_Buf(T, O, PGSTD::ios::in, BufSize)
   	{ }
 
 private:
@@ -528,15 +528,15 @@ typedef basic_ilostream<char> ilostream;
 
 /// Output stream that writes data back to a large object
 /** Use this class exactly as you would any other ostream to write data to a
- * large object.  All formatting and streaming operations of std::ostream are 
+ * large object.  All formatting and streaming operations of std::ostream are
  * supported.  What you'll typically want to use, however, is the olostream
- * typedef (which defines a basic_olostream for char).  This is similar to how 
+ * typedef (which defines a basic_olostream for char).  This is similar to how
  * e.g. std::ofstream is related to std::basic_ofstream.
  *
  * Currently only works for <char, std::char_traits<char> >.
  */
-template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> > 
-  class basic_olostream : 
+template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
+  class basic_olostream :
 #ifdef PQXX_HAVE_STREAMBUF
     public PGSTD::basic_ostream<CHAR, TRAITS>
 #else
@@ -561,11 +561,11 @@ public:
    * @param O a large object to access
    * @param BufSize size of buffer to use internally (optional)
    */
-  basic_olostream(dbtransaction &T, 
+  basic_olostream(dbtransaction &T,
                   largeobject O,
 		  largeobject::size_type BufSize=512) :			//[t48]
     super(&m_Buf),
-    m_Buf(T, O, PGSTD::ios::out, BufSize) 
+    m_Buf(T, O, PGSTD::ios::out, BufSize)
   	{ }
 
   /// Create a basic_olostream
@@ -574,19 +574,19 @@ public:
    * @param O a large object to access
    * @param BufSize size of buffer to use internally (optional)
    */
-  basic_olostream(dbtransaction &T, 
+  basic_olostream(dbtransaction &T,
       		  oid O,
 		  largeobject::size_type BufSize=512) :			//[t57]
     super(&m_Buf),
-    m_Buf(T, O, PGSTD::ios::out, BufSize) 
+    m_Buf(T, O, PGSTD::ios::out, BufSize)
   	{ }
 
-  ~basic_olostream() 
-  { 
+  ~basic_olostream()
+  {
     try
     {
 #ifdef PQXX_HAVE_STREAMBUF
-      m_Buf.pubsync(); m_Buf.pubsync(); 
+      m_Buf.pubsync(); m_Buf.pubsync();
 #else
       m_Buf.sync(); m_Buf.sync();
 #endif
@@ -606,14 +606,14 @@ typedef basic_olostream<char> olostream;
 
 /// Stream that reads and writes a large object
 /** Use this class exactly as you would a std::iostream to read data from, or
- * write data to a large object.  All formatting and streaming operations of 
+ * write data to a large object.  All formatting and streaming operations of
  * std::iostream are supported.  What you'll typically want to use, however, is
- * the lostream typedef (which defines a basic_lostream for char).  This is 
+ * the lostream typedef (which defines a basic_lostream for char).  This is
  * similar to how e.g. std::fstream is related to std::basic_fstream.
  *
  * Currently only works for <char, std::char_traits<char> >.
  */
-template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> > 
+template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
   class basic_lostream :
 #ifdef PQXX_HAVE_STREAMBUF
     public PGSTD::basic_iostream<CHAR, TRAITS>
@@ -640,11 +640,11 @@ public:
    * @param O Large object to access
    * @param BufSize Size of buffer to use internally (optional)
    */
-  basic_lostream(dbtransaction &T, 
+  basic_lostream(dbtransaction &T,
       		 largeobject O,
 		 largeobject::size_type BufSize=512) :			//[t59]
     super(&m_Buf),
-    m_Buf(T, O, PGSTD::ios::in | PGSTD::ios::out, BufSize) 
+    m_Buf(T, O, PGSTD::ios::in | PGSTD::ios::out, BufSize)
   	{ }
 
   /// Create a basic_lostream
@@ -653,19 +653,19 @@ public:
    * @param O Large object to access
    * @param BufSize Size of buffer to use internally (optional)
    */
-  basic_lostream(dbtransaction &T, 
+  basic_lostream(dbtransaction &T,
       		 oid O,
 		 largeobject::size_type BufSize=512) :			//[t59]
     super(&m_Buf),
-    m_Buf(T, O, PGSTD::ios::in | PGSTD::ios::out, BufSize) 
+    m_Buf(T, O, PGSTD::ios::in | PGSTD::ios::out, BufSize)
   	{ }
 
-  ~basic_lostream() 
+  ~basic_lostream()
   {
     try
     {
 #ifdef PQXX_HAVE_STREAMBUF
-      m_Buf.pubsync(); m_Buf.pubsync(); 
+      m_Buf.pubsync(); m_Buf.pubsync();
 #else
       m_Buf.sync(); m_Buf.sync();
 #endif

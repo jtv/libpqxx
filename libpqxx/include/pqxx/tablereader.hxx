@@ -45,7 +45,7 @@ namespace pqxx
 class PQXX_LIBEXPORT tablereader : public tablestream
 {
 public:
-  tablereader(transaction_base &, 
+  tablereader(transaction_base &,
       const PGSTD::string &RName,
       const PGSTD::string &Null=PGSTD::string());			//[t6]
 
@@ -53,7 +53,7 @@ public:
   /** @since PostgreSQL backend 7.3
    */
   template<typename ITER>
-  tablereader(transaction_base &, 
+  tablereader(transaction_base &,
       const PGSTD::string &RName,
       ITER begincolumns,
       ITER endcolumns,
@@ -67,13 +67,13 @@ public:
   bool operator!() const throw () { return m_Done; }			//[t6]
 
   /// Read a line of raw, unparsed table data
-  /** 
+  /**
    * @param Line Variable to hold the raw data line read from the table.
    * @return Whether a line could be read
    */
   bool get_raw_line(PGSTD::string &Line);				//[t8]
 
-  template<typename TUPLE> 
+  template<typename TUPLE>
   void tokenize(PGSTD::string, TUPLE &) const;				//[t8]
 
   /// Finish stream action, check for errors, and detach from transaction
@@ -81,7 +81,7 @@ public:
    * destructor is run.  This function will check any final errors which may not
    * become apparent until the transaction is committed otherwise.
    *
-   * As an added benefit, this will free up the transaction while the 
+   * As an added benefit, this will free up the transaction while the
    * tablestream object itself still exists.
    */
   virtual void complete();						//[t8]
@@ -99,7 +99,7 @@ private:
       const PGSTD::string &RName,
       const PGSTD::string &Columns=PGSTD::string());
   void reader_close();
-  PGSTD::string extract_field(const PGSTD::string &, 
+  PGSTD::string extract_field(const PGSTD::string &,
       PGSTD::string::size_type &) const;
 
   bool m_Done;
@@ -110,7 +110,7 @@ private:
 
 
 template<typename ITER> inline
-tablereader::tablereader(transaction_base &T, 
+tablereader::tablereader(transaction_base &T,
     const PGSTD::string &RName,
     ITER begincolumns,
     ITER endcolumns,
@@ -122,7 +122,7 @@ tablereader::tablereader(transaction_base &T,
 }
 
 
-template<typename TUPLE> 
+template<typename TUPLE>
 inline void tablereader::tokenize(PGSTD::string Line, TUPLE &T) const
 {
   PGSTD::back_insert_iterator<TUPLE> ins = PGSTD::back_inserter(T);
@@ -133,7 +133,7 @@ inline void tablereader::tokenize(PGSTD::string Line, TUPLE &T) const
 }
 
 
-template<typename TUPLE> 
+template<typename TUPLE>
 inline tablereader &pqxx::tablereader::operator>>(TUPLE &T)
 {
   PGSTD::string Line;

@@ -7,7 +7,7 @@
  *      implementation of the pqxx::result class and support classes.
  *   pqxx::result represents the set of result tuples from a database query
  *
- * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -142,7 +142,7 @@ pqxx::result::size_type pqxx::result::affected_rows() const
 }
 
 
-const char *pqxx::result::GetValue(pqxx::result::size_type Row, 
+const char *pqxx::result::GetValue(pqxx::result::size_type Row,
 		                 pqxx::result::tuple::size_type Col) const
 {
   return PQgetvalue(c_ptr(), Row, Col);
@@ -155,7 +155,7 @@ bool pqxx::result::GetIsNull(pqxx::result::size_type Row,
   return PQgetisnull(c_ptr(), Row, Col) != 0;
 }
 
-pqxx::result::field::size_type 
+pqxx::result::field::size_type
 pqxx::result::GetLength(pqxx::result::size_type Row,
                         pqxx::result::tuple::size_type Col) const
 {
@@ -223,7 +223,7 @@ pqxx::result::field pqxx::result::tuple::at(const char f[]) const
 }
 
 
-pqxx::result::field 
+pqxx::result::field
 pqxx::result::tuple::at(pqxx::result::tuple::size_type i) const throw (out_of_range)
 {
   if (i >= size())
@@ -237,7 +237,7 @@ const char *
 pqxx::result::column_name(pqxx::result::tuple::size_type Number) const
 {
   const char *const N = PQfname(c_ptr(), Number);
-  if (!N) 
+  if (!N)
     throw out_of_range("Invalid column number: " + to_string(Number));
 
   return N;
