@@ -2,10 +2,10 @@
 #include <stdexcept>
 #include <vector>
 
-#include "pqxx/connection.h"
-#include "pqxx/tablereader.h"
-#include "pqxx/tablewriter.h"
-#include "pqxx/transaction.h"
+#include <pqxx/connection.h>
+#include <pqxx/tablereader.h>
+#include <pqxx/tablewriter.h>
+#include <pqxx/transaction.h>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -26,11 +26,8 @@ using namespace pqxx;
 // exist in the database that connect-string (whether the default or one
 // specified explicitly on the command line) connects to.
 //
-// The default origin table name is "events" as used by other test programs.
-// PostgreSQL currently implements pg_tables as a view, which cannot be read by
-// using the COPY command.  Otherwise, pg_tables would have made a better 
-// default value here.  The default destination table is the origin table name
-// with "copy" appended.
+// The default origin table name is "orgevents"; the default destination table
+// is "events".
 
 namespace
 {
@@ -129,11 +126,8 @@ int main(int argc, char *argv[])
     Connection orgC(ConnStr), dstC(ConnStr);
 
     // Select our original and destination table names
-    string orgTable = "events";
-    if (argc > 2) orgTable = argv[2];
-
-    string dstTable = orgTable + "copy";
-    if (argc > 3) dstTable = argv[3];
+    const string orgTable = ((argc > 2) ? argv[2] : "orgevents");
+    const string dstTable = ((argc > 3) ? argv[3] : "events");
 
     // Set up a transaction to access the original table from
     Transaction orgTrans(orgC, "test6org");

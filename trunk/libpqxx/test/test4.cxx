@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include "pqxx/connection.h"
-#include "pqxx/transaction.h"
-#include "pqxx/trigger.h"
-#include "pqxx/result.h"
+#include <pqxx/connection.h>
+#include <pqxx/transaction.h>
+#include <pqxx/trigger.h>
+#include <pqxx/result.h>
 
 
 // Make sure we have the Unix sleep() function, which Windows provides in a
