@@ -22,13 +22,15 @@ SQL_DIALECT=-DDIALECT_POSTGRESQL
 # Set different namespace for standard library (defaults to std)
 #STD=-DPGSTD=_STL
 
+# Location where PostgreSQL headers are found
+PGSQLINC=/usr/include/postgresql
 
 # Commands and command line options used by GNU Make's default rules
 CXX=colorgcc
 CXXFLAGS=-Wall -pedantic -ffor-scope -Wshadow -Wcast-align -Wpointer-arith \
 	-Wwrite-strings -Woverloaded-virtual -Wtraditional -O $(EXTRACXX)
 
-CPPFLAGS=-I/usr/include/postgresql -DLACK_ITERATOR -DLACK_LIMITS \
+CPPFLAGS=-I$(PGSQLINC) -I$(PGSQLINC)/internal -DLACK_ITERATOR -DLACK_LIMITS \
 	$(SQL_DIALECT) $(STD)
 LD=g++
 AR=ar

@@ -58,6 +58,7 @@ template<> inline PGSTD::string Classname(const TableStream *)
 }
 
 
+
 // Use a Transaction object to enclose operations on a database in a single
 // "unit of work."  This ensures that the whole series of operations either
 // succeeds as a whole or fails completely.  In no case will it leave half
@@ -112,8 +113,17 @@ private:
    *    commands.
    *  - committed: the transaction has completed successfully, meaning that a 
    *    commit has been issued.  No further commands are accepted.
+   *  - in_doubt: the connection was lost at the exact wrong time, and there is
+   *    no way of telling whether the transaction was committed or aborted.
    */
-  enum Status { st_nascent, st_active, st_aborted, st_committed };
+  enum Status 
+  { 
+    st_nascent, 
+    st_active, 
+    st_aborted, 
+    st_committed,
+    st_in_doubt
+  };
 
   void Begin();
 
@@ -143,6 +153,20 @@ private:
   Transaction();
   Transaction(const Transaction &);
   Transaction &operator=(const Transaction &);
+};
+
+
+// An exception that might be thrown in rare cases where the connection to the
+// database is lost while finishing a database transaction, and there's no way
+// of telling whether it was actually executed by the backend.  In this case
+// the database is left in an indeterminate (but consistent) state, and only
+// manual inspection will tell which is the case.
+// TODO: Get guarantee that libpq will not let this happen, or deal with it
+class in_doubt_error : public PGSTD::runtime_error
+{
+public:
+  explicit in_doubt_error(const PGSTD::string &whatarg) : 
+    PGSTD::runtime_error(whatarg) {}
 };
 
 }

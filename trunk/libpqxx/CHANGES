@@ -1,3 +1,12 @@
+2002-03-03 16:15
+ Connection:
+  - In-doubt transactions are no longer retried
+ Makefile:
+  - Added /usr/include/postgresql/internal to include path
+  - Works for PostgreSQL 7.1 and 7.2 now
+ Transaction:
+  - Introduced checking for in-doubt transactions
+  - Minor improvements in error handling
 2002-03-02 14:15
  TableReader:
   - Full test coverage

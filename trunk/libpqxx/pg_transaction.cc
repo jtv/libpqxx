@@ -51,14 +51,14 @@ Pg::Transaction::~Transaction()
   {
     m_Conn.UnregisterTransaction(this);
 
-    if ((m_Status == st_aborted) || (m_Status == st_active))
-      Abort();
+    if (m_Status == st_active) Abort();
 
-    // TODO: Report name of open stream
     if (m_Stream.get())
       m_Conn.ProcessNotice("Closing transaction '" +
 		           Name() +
-			   "' with stream still open\n");
+			   "' with stream '" +
+			   m_Stream.get()->Name() + 
+			   "' still open\n");
   }
   catch (const exception &e)
   {
@@ -95,6 +95,12 @@ void Pg::Transaction::Commit()
 			 "' committed more than once\n");
     return;
 
+  case st_in_doubt:
+    // Transaction may or may not have been committed.  Report the problem but
+    // don't compound our troubles by throwing.
+    throw logic_error("Transaction '" + Name() + "' "
+		      "committed again while in an undetermined state\n");
+
   default:
     throw logic_error("Internal libpqxx error: Pg::Transaction: invalid status code");
   }
@@ -103,14 +109,47 @@ void Pg::Transaction::Commit()
   // the Commit() will come before the stream is closed.  Which means the
   // commit is premature.  Punish this swiftly and without fail to discourage
   // the habit from forming.
-  // TODO: Report name of open stream
   if (m_Stream.get())
     throw runtime_error("Attempt to commit transaction '" + 
 		        Name() +
-			"' with stream still open");
+			"' with stream '" +
+			m_Stream.get()->Name() + 
+			"' still open");
 
-  m_Conn.Exec(SQL_COMMIT_WORK, 0);
-  m_Status = st_committed;
+  // We're "in doubt" until we're sure the commit succeeds, or it fails without
+  // losing the connection.
+  m_Status = st_in_doubt;
+
+  try
+  {
+    m_Conn.Exec(SQL_COMMIT_WORK, 0);
+    m_Status = st_committed;
+  }
+  catch (const exception &e)
+  {
+    if (!m_Conn.IsOpen())
+    {
+      // We've lost the connection while committing.  There is just no way of
+      // telling what happened on the other end.  >8-O
+      ProcessNotice(e.what() + string("\n"));
+
+      const string Msg = "WARNING: "
+		  "Connection lost while committing transaction "
+		  "'" + Name() + "'. "
+		  "There is no way to tell whether the transaction succeeded "
+		  "or was aborted except to check manually.";
+
+      ProcessNotice(Msg + "\n");
+      throw in_doubt_error(Msg);
+    }
+    else
+    {
+      // Commit failed--probably due to a constraint violation or something
+      // similar.
+      m_Status = st_aborted;
+      throw;
+    }
+  }
 }
 
 
@@ -140,6 +179,14 @@ void Pg::Transaction::Abort()
     throw logic_error("Attempt to abort previously committed transaction '" +
 		      Name() +
 		      "'");
+
+  case st_in_doubt:
+    // Aborting an in-doubt transaction is probably a reasonably sane response
+    // to an insane situation.  Log it, but do not complain.
+    m_Conn.ProcessNotice("Warning: Transaction '" + Name() + "' "
+		         "aborted after going into indeterminate state; "
+			 "it may have been executed anyway.\n");
+    return;
 
   default:
     throw logic_error("Internal libpqxx error: Pg::Transaction: invalid status code");
@@ -179,8 +226,13 @@ Pg::Result Pg::Transaction::Exec(const char C[])
 		      Name() +
 		      "'");
 
+  case st_in_doubt:
+    throw logic_error("Attempt to execute query in transaction '" + 
+		      Name() + 
+		      "', which is in indeterminate state");
   default:
-    throw logic_error("Internal libpqxx error: Pg::Transaction: invalid status code");
+    throw logic_error("Internal libpqxx error: Pg::Transaction: "
+		      "invalid status code");
   }
 
   Result R;
@@ -201,6 +253,10 @@ Pg::Result Pg::Transaction::Exec(const char C[])
 
 void Pg::Transaction::Begin()
 {
+  if (m_Status != st_nascent)
+    throw logic_error("Internal libpqxx error: Pg::Transaction: "
+		      "Begin() called while not in nascent state");
+
   // Better handle any pending notifications before we begin
   m_Conn.GetNotifs();
 
