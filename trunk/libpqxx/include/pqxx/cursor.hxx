@@ -155,12 +155,13 @@ private:
 
 
 /// Approximate istream_iterator for icursorstream
-/** A rough equivalent of the C++ Standard Library's istream_iterator or
- * input_iterator, this class supports only two basic operations: reading the
+/** Intended as an implementation of an input_iterator (as defined by the C++
+ * Standard Library), this class supports only two basic operations: reading the
  * current element, and moving forward.  In addition to the minimal guarantees
  * for istream_iterators, this class supports multiple successive reads of the
  * same position (the current result set is cached in the iterator) even after
- * copying and even after new data have been read from the stream.
+ * copying and even after new data have been read from the stream.  This appears
+ * to be a requirement for input_iterators.
  *
  * The iterator has no concept of its own position, however.  Moving an iterator
  * forward moves the underlying stream forward and reads the data from the new
@@ -182,11 +183,15 @@ public:
   typedef icursorstream istream_type;
   typedef istream_type::size_type size_type;
 
-  icursor_iterator() : m_stream(0), m_here(), m_fresh(true) {}		//[]
+  icursor_iterator() : m_stream(0), m_here(), m_fresh(true), m_pos(0){}	//[]
   icursor_iterator(istream_type &s) :					//[]
-    m_stream(&s), m_here(), m_fresh(false) {}
+    m_stream(&s), m_here(), m_fresh(false), m_pos(0) {}
   icursor_iterator(const icursor_iterator &rhs) : 			//[]
-    m_stream(rhs.m_stream), m_here(rhs.m_here), m_fresh(rhs.m_fresh) {}
+    m_stream(rhs.m_stream),
+    m_here(rhs.m_here),
+    m_fresh(rhs.m_fresh),
+    m_pos(rhs.m_pos)
+  {}
 
   const result &operator*() const { refresh(); return m_here; }		//[]
   const result *operator->() const { refresh(); return &m_here; }	//[]
@@ -200,6 +205,7 @@ public:
   {
     m_stream->ignore(n);
     m_fresh = false;
+    m_pos += n;
     return *this;
   }
 
@@ -208,11 +214,15 @@ public:
     m_here = rhs.m_here;	// (Already protected against self-assignment)
     m_stream = rhs.m_stream;	// (Does not throw, so we're exception-safe)
     m_fresh = rhs.m_fresh;
+    m_pos = rhs.m_pos;
     return *this;
   }
 
   bool operator==(const icursor_iterator &rhs) const throw ()		//[]
-  	{ return m_here.empty() && rhs.m_here.empty(); }
+  {
+    return (m_stream==rhs.m_stream && m_pos==rhs.m_pos) ||
+      (m_here.empty() && rhs.m_here.empty());
+  }
   bool operator!=(const icursor_iterator &rhs) const throw ()		//[]
   	{ return !operator==(rhs); }
 
@@ -221,11 +231,13 @@ private:
   {
     m_stream->get(m_here);
     m_fresh = true;
+    ++m_pos;
   }
   void refresh() const { if (!m_fresh) read(); }
   icursorstream *m_stream;
   mutable result m_here;
   mutable bool m_fresh;
+  mutable result::size_type m_pos;
 };
 
 
