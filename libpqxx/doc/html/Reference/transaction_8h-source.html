@@ -12,73 +12,108 @@
 00004 <span class="comment"> *      pqxx/transaction.h</span>
 00005 <span class="comment"> *</span>
 00006 <span class="comment"> *   DESCRIPTION</span>
-00007 <span class="comment"> *      definition of the pqxx::Transaction class.</span>
-00008 <span class="comment"> *   pqxx::Transaction represents a database transaction</span>
+00007 <span class="comment"> *      definition of the pqxx::transaction class.</span>
+00008 <span class="comment"> *   pqxx::transaction represents a database transaction</span>
 00009 <span class="comment"> *</span>
 00010 <span class="comment"> * Copyright (c) 2001-2003, Jeroen T. Vermeulen &lt;jtv@xs4all.nl&gt;</span>
 00011 <span class="comment"> *</span>
-00012 <span class="comment"> *-------------------------------------------------------------------------</span>
-00013 <span class="comment"> */</span>
-00014 <span class="preprocessor">#ifndef PQXX_TRANSACTION_H</span>
-00015 <span class="preprocessor"></span><span class="preprocessor">#define PQXX_TRANSACTION_H</span>
-00016 <span class="preprocessor"></span>
-00017 <span class="comment">/* While you may choose to create your own Transaction object to interface to </span>
-00018 <span class="comment"> * the database backend, it is recommended that you wrap your transaction code </span>
-00019 <span class="comment"> * into a Transactor code instead and let the Transaction be created for you.</span>
-00020 <span class="comment"> * See pqxx/transactor.h for more about Transactor.</span>
-00021 <span class="comment"> *</span>
-00022 <span class="comment"> * If you should find that using a Transactor makes your code less portable or </span>
-00023 <span class="comment"> * too complex, go ahead, create your own Transaction anyway.</span>
-00024 <span class="comment"> */</span>
-00025 
-00026 <span class="comment">// Usage example: double all wages</span>
-00027 <span class="comment">//</span>
-00028 <span class="comment">// extern Connection C;</span>
-00029 <span class="comment">// Transaction T(C);</span>
-00030 <span class="comment">// try</span>
-00031 <span class="comment">// {</span>
-00032 <span class="comment">//   T.Exec("UPDATE employees SET wage=wage*2");</span>
-00033 <span class="comment">//   T.Commit();        // NOTE: do this inside try block</span>
-00034 <span class="comment">// } </span>
-00035 <span class="comment">// catch (const exception &amp;e)</span>
-00036 <span class="comment">// {</span>
-00037 <span class="comment">//   cerr &lt;&lt; e.what() &lt;&lt; endl;</span>
-00038 <span class="comment">//   T.Abort();         // Usually not needed; same happens when T's life ends.</span>
-00039 <span class="comment">// }</span>
-00040 
-00041 <span class="preprocessor">#include "<a class="code" href="connection__base_8h.html">pqxx/connection_base.h</a>"</span>
-00042 <span class="preprocessor">#include "<a class="code" href="transaction__base_8h.html">pqxx/transaction_base.h</a>"</span>
-00043 
-00044 <span class="comment">/* Methods tested in eg. self-test program test1 are marked with "//[t1]"</span>
-00045 <span class="comment"> */</span>
+00012 <span class="comment"> * See COPYING for copyright license.  If you did not receive a file called</span>
+00013 <span class="comment"> * COPYING with this source code, please notify the distributor of this mistake,</span>
+00014 <span class="comment"> * or contact the author.</span>
+00015 <span class="comment"> *</span>
+00016 <span class="comment"> *-------------------------------------------------------------------------</span>
+00017 <span class="comment"> */</span>
+00018 <span class="preprocessor">#ifndef PQXX_TRANSACTION_H</span>
+00019 <span class="preprocessor"></span><span class="preprocessor">#define PQXX_TRANSACTION_H</span>
+00020 <span class="preprocessor"></span>
+00021 <span class="comment">/* While you may choose to create your own transaction object to interface to </span>
+00022 <span class="comment"> * the database backend, it is recommended that you wrap your transaction code </span>
+00023 <span class="comment"> * into a transactor code instead and let the transaction be created for you.</span>
+00024 <span class="comment"> * See pqxx/transactor.h for more about transactor.</span>
+00025 <span class="comment"> *</span>
+00026 <span class="comment"> * If you should find that using a transactor makes your code less portable or </span>
+00027 <span class="comment"> * too complex, go ahead, create your own transaction anyway.</span>
+00028 <span class="comment"> */</span>
+00029 
+00030 <span class="comment">// Usage example: double all wages</span>
+00031 <span class="comment">//</span>
+00032 <span class="comment">// extern connection C;</span>
+00033 <span class="comment">// transaction&lt;&gt; T(C);</span>
+00034 <span class="comment">// try</span>
+00035 <span class="comment">// {</span>
+00036 <span class="comment">//   T.Exec("UPDATE employees SET wage=wage*2");</span>
+00037 <span class="comment">//   T.Commit();        // NOTE: do this inside try block</span>
+00038 <span class="comment">// } </span>
+00039 <span class="comment">// catch (const exception &amp;e)</span>
+00040 <span class="comment">// {</span>
+00041 <span class="comment">//   cerr &lt;&lt; e.what() &lt;&lt; endl;</span>
+00042 <span class="comment">//   T.Abort();         // Usually not needed; same happens when T's life ends.</span>
+00043 <span class="comment">// }</span>
+00044 
+00045 <span class="preprocessor">#include "<a class="code" href="dbtransaction_8h.html">pqxx/dbtransaction.h</a>"</span>
 00046 
-00047 
-00048 <span class="comment">// TODO: Any user-friendliness we can add to invoking stored procedures?</span>
+00047 <span class="comment">/* Methods tested in eg. self-test program test1 are marked with "//[t1]"</span>
+00048 <span class="comment"> */</span>
 00049 
-00050 <span class="keyword">namespace </span>pqxx
-00051 {
+00050 
+00051 <span class="comment">// TODO: Any user-friendliness we can add to invoking stored procedures?</span>
 00052 
-00054 
-<a name="l00078"></a><a class="code" href="classpqxx_1_1Transaction.html">00078</a> <span class="keyword">class </span>PQXX_LIBEXPORT Transaction : <span class="keyword">public</span> <a class="code" href="classpqxx_1_1Transaction__base.html">Transaction_base</a>
-00079 {
-00080 <span class="keyword">public</span>:
-00083   <span class="keyword">explicit</span> Transaction(<a class="code" href="classpqxx_1_1Connection__base.html">Connection_base</a> &amp;, 
-00084                        <span class="keyword">const</span> PGSTD::string &amp;Name=PGSTD::string());      <span class="comment">//[t1]</span>
-00085 
-00086   <span class="keyword">virtual</span> ~Transaction();                                               <span class="comment">//[t1]</span>
-00087 
-00088 <span class="keyword">private</span>:
-00089   <span class="keyword">virtual</span> <span class="keywordtype">void</span> DoBegin();                                               <span class="comment">//[t1]</span>
-00090   <span class="keyword">virtual</span> <a class="code" href="classpqxx_1_1Result.html">Result</a> DoExec(<span class="keyword">const</span> <span class="keywordtype">char</span>[]);                                  <span class="comment">//[t1]</span>
-00091   <span class="keyword">virtual</span> <span class="keywordtype">void</span> DoCommit();                                              <span class="comment">//[t1]</span>
-00092   <span class="keyword">virtual</span> <span class="keywordtype">void</span> DoAbort();                                               <span class="comment">//[t13]</span>
-00093 };
-00094 
-00095 }
-00096 
-00097 <span class="preprocessor">#endif</span>
-00098 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Sat May 10 18:53:39 2003 for libpqxx by
+00053 <span class="keyword">namespace </span>pqxx
+00054 {
+00055 
+<a name="l00056"></a><a class="code" href="classpqxx_1_1basic__transaction.html">00056</a> <span class="keyword">class </span>PQXX_LIBEXPORT basic_transaction : <span class="keyword">public</span> <a class="code" href="classpqxx_1_1dbtransaction.html">dbtransaction</a>
+00057 {
+00058 <span class="keyword">protected</span>:
+<a name="l00059"></a><a class="code" href="classpqxx_1_1basic__transaction.html#b0">00059</a>   <span class="keyword">explicit</span> basic_transaction(<a class="code" href="classpqxx_1_1connection__base.html">connection_base</a> &amp;C, 
+00060                              <span class="keyword">const</span> PGSTD::string &amp;IsolationLevel,
+00061                              <span class="keyword">const</span> PGSTD::string &amp;TName) :              <span class="comment">//[t1]</span>
+00062     <a class="code" href="classpqxx_1_1dbtransaction.html">dbtransaction</a>(C, IsolationLevel, TName) {}
+00063 
+00064 <span class="keyword">private</span>:
+00065   <span class="keyword">virtual</span> <span class="keywordtype">void</span> DoBegin();                                               <span class="comment">//[t1]</span>
+00066   <span class="keyword">virtual</span> result DoExec(<span class="keyword">const</span> <span class="keywordtype">char</span>[]);                                  <span class="comment">//[t1]</span>
+00067   <span class="keyword">virtual</span> <span class="keywordtype">void</span> DoCommit();                                              <span class="comment">//[t1]</span>
+00068   <span class="keyword">virtual</span> <span class="keywordtype">void</span> DoAbort();                                               <span class="comment">//[t13]</span>
+00069 
+00070 };
+00071 
+00072 
+<a name="l00074"></a><a class="code" href="namespacepqxx.html#a33">00074</a> <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a26">Classname</a>(<span class="keyword">const</span> basic_transaction *) 
+00075 { 
+00076   <span class="keywordflow">return</span> <span class="stringliteral">"basic_transaction"</span>; 
+00077 }
+00078 
+00079 
+00081 
+00105 <span class="keyword">template</span>&lt;isolation_level ISOLATIONLEVEL=read_committed&gt;
+<a name="l00106"></a><a class="code" href="classpqxx_1_1transaction.html">00106</a> <span class="keyword">class </span>PQXX_LIBEXPORT transaction : <span class="keyword">public</span> basic_transaction
+00107 {
+00108 <span class="keyword">public</span>:
+<a name="l00109"></a><a class="code" href="classpqxx_1_1transaction.html#s0">00109</a>   <span class="keyword">typedef</span> <a class="code" href="structpqxx_1_1isolation__traits.html">isolation_traits&lt;ISOLATIONLEVEL&gt;</a> isolation_tag;
+00110 
+<a name="l00113"></a><a class="code" href="classpqxx_1_1transaction.html#a0">00113</a>   <span class="keyword">explicit</span> transaction(<a class="code" href="classpqxx_1_1connection__base.html">connection_base</a> &amp;C,
+00114                        <span class="keyword">const</span> PGSTD::string &amp;TName=PGSTD::string()) :    <span class="comment">//[]</span>
+00115     basic_transaction(C, isolation_tag::name(), TName) 
+00116         { Begin(); }
+00117 
+<a name="l00118"></a><a class="code" href="classpqxx_1_1transaction.html#a1">00118</a>   <span class="keyword">virtual</span> ~transaction() { End(); }
+00119 };
+00120 
+00121 
+00123 <span class="keyword">template</span>&lt;isolation_level ISOLATIONLEVEL&gt; 
+<a name="l00124"></a><a class="code" href="namespacepqxx.html#a34">00124</a> <span class="keyword">inline</span> PGSTD::string <a class="code" href="namespacepqxx.html#a26">Classname</a>(<span class="keyword">const</span> <a class="code" href="classpqxx_1_1transaction.html">transaction&lt;ISOLATIONLEVEL&gt;</a> *) 
+00125 { 
+00126   <span class="keywordflow">return</span> <span class="stringliteral">"transaction&lt;"</span> + <a class="code" href="structpqxx_1_1isolation__traits.html">isolation_traits&lt;ISOLATIONLEVEL&gt;::name</a>() + <span class="stringliteral">"&gt;"</span>;
+00127 }
+00128 
+00129 
+<a name="l00131"></a><a class="code" href="namespacepqxx.html#a18">00131</a> <span class="keyword">typedef</span> <a class="code" href="classpqxx_1_1transaction.html">transaction&lt;read_committed&gt;</a> <a class="code" href="namespacepqxx.html#a18">Transaction</a>;
+00132 
+00133 }
+00134 
+00135 <span class="preprocessor">#endif</span>
+00136 <span class="preprocessor"></span>
+</pre></div><hr><address style="align: right;"><small>Generated on Sat Jun 7 02:58:05 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

@@ -10,7 +10,9 @@ include_HEADERS=all.h \
 	connection_base.h \
 	connectionitf.h \
 	cursor.h \
+	dbtransaction.h \
 	except.h \
+	isolation.h \
 	largeobject.h \
 	nontransaction.h \
 	result.h \

@@ -4,10 +4,14 @@
  *	robusttransaction.cxx
  *
  *   DESCRIPTION
- *      implementation of the pqxx::RobustTransaction class.
- *   pqxx::RobustTransaction is a slower but safer transaction class
+ *      implementation of the pqxx::robusttransaction class.
+ *   pqxx::robusttransaction is a slower but safer transaction class
  *
  * Copyright (c) 2002-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
  *
  *-------------------------------------------------------------------------
  */
@@ -25,33 +29,23 @@ using namespace PGSTD;
 #define SQL_COMMIT_WORK 	"COMMIT"
 #define SQL_ROLLBACK_WORK 	"ROLLBACK"
 
-// Workaround: define alias for InvalidOid to reduce g++ warnings about
-// C-style cast used in InvalidOid's definition
-namespace
-{
-const Oid pqxxInvalidOid(InvalidOid);
-} // namespace
-
-pqxx::RobustTransaction::RobustTransaction(Connection_base &C, 
-                                           const string &TName) :
-  Transaction_base(C, TName),
-  m_ID(pqxxInvalidOid),
+pqxx::basic_robusttransaction::basic_robusttransaction(connection_base &C, 
+	const PGSTD::string &IsolationLevel,
+	const string &TName) :
+  dbtransaction(C, IsolationLevel, TName),
+  m_ID(oid_none),
   m_LogTable()
 {
   m_LogTable = string("PQXXLOG_") + Conn().UserName();
-  Begin();
 }
 
 
-
-pqxx::RobustTransaction::~RobustTransaction()
+pqxx::basic_robusttransaction::~basic_robusttransaction()
 {
-  End();
 }
 
 
-
-void pqxx::RobustTransaction::DoBegin()
+void pqxx::basic_robusttransaction::DoBegin()
 {
   // Start backend transaction
   DirectExec(SQL_BEGIN_WORK, 2, 0);
@@ -73,12 +67,12 @@ void pqxx::RobustTransaction::DoBegin()
 
 
 
-pqxx::Result pqxx::RobustTransaction::DoExec(const char Query[])
+pqxx::result pqxx::basic_robusttransaction::DoExec(const char Query[])
 {
-  Result R;
+  result R;
   try
   {
-    R = DirectExec(Query, 0, SQL_BEGIN_WORK);
+    R = DirectExec(Query, 0, 0);
   }
   catch (const exception &)
   {
@@ -91,22 +85,41 @@ pqxx::Result pqxx::RobustTransaction::DoExec(const char Query[])
 
 
 
-void pqxx::RobustTransaction::DoCommit()
+void pqxx::basic_robusttransaction::DoCommit()
 {
   const IDType ID = m_ID;
 
-  if (ID == pqxxInvalidOid) 
+  if (ID == oid_none) 
     throw logic_error("Internal libpqxx error: transaction " 
 		      "'" + Name() + "' " 
 		     "has no ID");
 
+  // Check constraints before sending the COMMIT to the database to reduce the
+  // work being done inside our in-doubt window.
+  //
+  // This may not an entirely clear-cut 100% obvious unambiguous Good Thing.  If
+  // we lose our connection during the in-doubt window, it may be better if the
+  // transaction didn't actually go though, and having constraints checked first
+  // theoretically makes it more likely that it will once we get to that stage.
+  // However, it seems reasonable to assume that most transactions will satisfy
+  // their constraints.  Besides, the goal of robusttransaction is to weed out
+  // indeterminacy, rather than to improve the odds of desirable behaviour when
+  // all bets are off anyway.
+  DirectExec("SET CONSTRAINTS ALL IMMEDIATE", 0, 0);
+
+  // Here comes the critical part.  If we lose our connection here, we'll be 
+  // left clueless as to whether the backend got the message and is trying to
+  // commit the transaction (let alone whether it will succeed if so).  This
+  // case requires some special handling that makes robusttransaction what it 
+  // is.
   try
   {
     DirectExec(SQL_COMMIT_WORK, 0, 0);
   }
   catch (const exception &e)
   {
-    m_ID = pqxxInvalidOid;
+    // TODO: Can we limit this handler to broken_connection exceptions?
+    m_ID = oid_none;
     if (!Conn().is_open())
     {
       // We've lost the connection while committing.  We'll have to go back to
@@ -156,14 +169,14 @@ void pqxx::RobustTransaction::DoCommit()
     }
   }
 
-  m_ID = pqxxInvalidOid;
+  m_ID = oid_none;
   DeleteTransactionRecord(ID);
 }
 
 
-void pqxx::RobustTransaction::DoAbort()
+void pqxx::basic_robusttransaction::DoAbort()
 {
-  m_ID = pqxxInvalidOid;
+  m_ID = oid_none;
 
   // Rollback transaction.  Our transaction record will be dropped as a side
   // effect, which is what we want since "it never happened."
@@ -172,7 +185,7 @@ void pqxx::RobustTransaction::DoAbort()
 
 
 // Create transaction log table if it didn't already exist
-void pqxx::RobustTransaction::CreateLogTable()
+void pqxx::basic_robusttransaction::CreateLogTable()
 {
   // Create log table in case it doesn't already exist.  This code must only be 
   // executed before the backend transaction has properly started.
@@ -186,7 +199,7 @@ void pqxx::RobustTransaction::CreateLogTable()
 }
 
 
-void pqxx::RobustTransaction::CreateTransactionRecord()
+void pqxx::basic_robusttransaction::CreateTransactionRecord()
 {
   const string Insert = "INSERT INTO " + m_LogTable + " "
 	                "(name, date) "
@@ -198,14 +211,14 @@ void pqxx::RobustTransaction::CreateTransactionRecord()
 
   m_ID = DirectExec(Insert.c_str(), 0, 0).InsertedOid();
 
-  if (m_ID == pqxxInvalidOid) 
+  if (m_ID == oid_none) 
     throw runtime_error("Could not create transaction log record");
 }
 
 
-void pqxx::RobustTransaction::DeleteTransactionRecord(IDType ID) throw ()
+void pqxx::basic_robusttransaction::DeleteTransactionRecord(IDType ID) throw ()
 {
-  if (ID == pqxxInvalidOid) return;
+  if (ID == oid_none) return;
 
   try
   {
@@ -217,13 +230,13 @@ void pqxx::RobustTransaction::DeleteTransactionRecord(IDType ID) throw ()
     DirectExec(Del.c_str(), 20, 0);
 
     // Now that we've arrived here, we're almost sure that record is quite dead.
-    ID = pqxxInvalidOid;
+    ID = oid_none;
   }
   catch (const exception &e)
   {
   }
 
-  if (ID != pqxxInvalidOid) try
+  if (ID != oid_none) try
   {
     ProcessNotice("WARNING: "
 	          "Failed to delete obsolete transaction record with oid " + 
@@ -237,7 +250,7 @@ void pqxx::RobustTransaction::DeleteTransactionRecord(IDType ID) throw ()
 
 
 // Attempt to establish whether transaction record with given ID still exists
-bool pqxx::RobustTransaction::CheckTransactionRecord(IDType ID)
+bool pqxx::basic_robusttransaction::CheckTransactionRecord(IDType ID)
 {
   const string Find = "SELECT oid FROM " + m_LogTable + " "
 	              "WHERE oid=" + ToString(ID);

@@ -4,6 +4,7 @@
 
 #include <pqxx/connection.h>
 #include <pqxx/transaction.h>
+#include <pqxx/transactor.h>
 #include <pqxx/trigger.h>
 #include <pqxx/result.h>
 
@@ -15,7 +16,7 @@ using namespace pqxx;
 // Example program for libpqxx.  Send notification to self, using defered
 // connection.
 //
-// Usage: test23
+// Usage: test023
 
 #ifdef WIN32
 #include <windows.h>
@@ -50,12 +51,12 @@ void Sleep(int seconds)
 
 
 // Sample implementation of trigger handler
-class TestTrig : public Trigger
+class TestTrig : public trigger
 {
   bool m_Done;
 
 public:
-  explicit TestTrig(Connection_base &C) : Trigger(C, "trig"), m_Done(false) {}
+  explicit TestTrig(connection_base &C) : trigger(C, "trig"), m_Done(false) {}
 
   virtual void operator()(int be_pid)
   {
@@ -73,14 +74,14 @@ public:
 };
 
 
-// A Transactor to trigger our trigger handler
-class Notify : public Transactor
+// A transactor to trigger our trigger handler
+class Notify : public transactor<>
 {
   string m_Trigger;
 
 public:
   explicit Notify(string TrigName) : 
-    Transactor("Notifier"), m_Trigger(TrigName) { }
+    transactor<>("Notifier"), m_Trigger(TrigName) { }
 
   void operator()(argument_type &T)
   {
@@ -106,7 +107,7 @@ int main()
 {
   try
   {
-    LazyConnection C;
+    lazyconnection C;
     cout << "Adding trigger..." << endl;
     TestTrig Trig(C);
 

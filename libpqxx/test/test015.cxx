@@ -2,6 +2,7 @@
 
 #include <pqxx/connection.h>
 #include <pqxx/nontransaction.h>
+#include <pqxx/transactor.h>
 #include <pqxx/result.h>
 
 using namespace PGSTD;
@@ -11,20 +12,18 @@ using namespace pqxx;
 // Simple test program for libpqxx.  Open connection to database, start
 // a dummy transaction to gain nontransactional access, and perform a query.
 //
-// Usage: test15 [connect-string]
+// Usage: test015 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
 // called template1, or "host=foo.bar.net user=smith" to connect to a
 // backend running on host foo.bar.net, logging in as user smith.
 
-class ReadTables : public Transactor
+class ReadTables : public transactor<nontransaction>
 {
-  Result m_Result;
+  result m_Result;
 public:
-  typedef NonTransaction argument_type;
-
-  ReadTables() : Transactor("ReadTables") {}
+  ReadTables() : transactor<nontransaction>("ReadTables") {}
 
   void operator()(argument_type &T)
   {
@@ -33,7 +32,7 @@ public:
 
   void OnCommit()
   {
-    for (Result::const_iterator c = m_Result.begin(); c != m_Result.end(); ++c)
+    for (result::const_iterator c = m_Result.begin(); c != m_Result.end(); ++c)
     {
       string N;
       c[0].to(N);
@@ -48,7 +47,7 @@ int main(int, char *argv[])
 {
   try
   {
-    Connection C(argv[1]);
+    connection C(argv[1]);
 
     // See if Deactivate() behaves...
     C.Deactivate();

@@ -5,10 +5,14 @@
  *
  *   DESCRIPTION
  *      common code and definitions for the transaction classes.
- *   pqxx::Transaction_base defines the interface for any abstract class that
+ *   pqxx::transaction_base defines the interface for any abstract class that
  *   represents a database transaction
  *
  * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
  *
  *-------------------------------------------------------------------------
  */
@@ -21,12 +25,12 @@
  * to do.
  *
  * However, reading this file is worthwhile because it defines the public
- * interface for the available transaction classes such as Transaction and 
- * NonTransaction.
+ * interface for the available transaction classes such as transaction and 
+ * nontransaction.
  */
 
-
 #include "pqxx/connection_base.h"
+#include "pqxx/isolation.h"
 #include "pqxx/result.h"
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
@@ -35,14 +39,15 @@
 
 namespace pqxx
 {
-class Connection_base; 	// See pqxx/connection_base.h
-class Result; 		// See pqxx/result.h
-class TableStream;	// See pqxx/tablestream.h
+class connection_base; 	// See pqxx/connection_base.h
+class result; 		// See pqxx/result.h
+class tablestream;	// See pqxx/tablestream.h
 
 
-template<> inline PGSTD::string Classname(const TableStream *) 
+/// User-readable class name for use by unique
+template<> inline PGSTD::string Classname(const tablestream *) 
 { 
-  return "TableStream"; 
+  return "tablestream"; 
 }
 
 
@@ -52,17 +57,23 @@ template<> inline PGSTD::string Classname(const TableStream *)
  * full transactional integrity.
  *
  * Several implementations of this interface are shipped with libpqxx, including
- * the plain Transaction class, the entirely unprotected NonTransaction, and the
- * more cautions RobustTransaction.
+ * the plain transaction class, the entirely unprotected nontransaction, and the
+ * more cautions robusttransaction.
  */
-class PQXX_LIBEXPORT Transaction_base
+class PQXX_LIBEXPORT transaction_base
 {
+  // TODO: Move commit policy (robust, default, normal) out of inheritance tree
+  // TODO: Support read-only transactions (no retry, not for nontransaction)
+  // TODO: Retry non-serializable transaction w/update only on broken_connection
 public:
-  virtual ~Transaction_base() =0;						//[t1]
+  /// If nothing else is known, our isolation level is at least read_committed
+  typedef isolation_traits<read_committed> isolation_tag;
+
+  virtual ~transaction_base() =0;					//[t1]
 
   /// Commit the transaction
   /** Unless this function is called explicitly, the transaction will not be
-   * committed (actually the NonTransaction implementation breaks this rule,
+   * committed (actually the nontransaction implementation breaks this rule,
    * hence the name).
    *
    * Once this function returns, the whole transaction will typically be
@@ -70,7 +81,7 @@ public:
    * risk that the connection to the database may be lost at just the wrong
    * moment.  In that case, libpqxx may be unable to determine whether the
    * transaction was completed or aborted and an in_doubt_error will be thrown
-   * to make this fact known to the caller.  The RobustTransaction 
+   * to make this fact known to the caller.  The robusttransaction 
    * implementation takes some special precautions to reduce this risk.
    */
   void Commit();							//[t1]
@@ -86,7 +97,7 @@ public:
    * @param Query the query or command to execute
    * @param Desc optional identifier for query, to help pinpoint SQL errors
    */
-  Result Exec(const char Query[], 
+  result Exec(const char Query[], 
       	      const PGSTD::string &Desc=PGSTD::string());		//[t1]
 
   /// Execute query
@@ -97,7 +108,7 @@ public:
    * @param Query the query or command to execute
    * @param Desc optional identifier for query, to help pinpoint SQL errors
    */
-  Result Exec(const PGSTD::string &Query,
+  result Exec(const PGSTD::string &Query,
               const PGSTD::string &Desc=PGSTD::string()) 		//[t2]
   	{ return Exec(Query.c_str(), Desc); }
 
@@ -111,12 +122,12 @@ public:
   PGSTD::string Name() const { return m_Name; }				//[t1]
 
   /// Connection this transaction is running in
-  Connection_base &Conn() const { return m_Conn; }			//[t4]
+  connection_base &Conn() const { return m_Conn; }			//[t4]
 
   /// Set session variable in this connection
   /** The new value is typically forgotten if the transaction aborts.  
-   * Known exceptions to this rule are NonTransaction, and PostgreSQL versions
-   * prior to 7.3.  In the case of NonTransaction, the set value will be kept
+   * Known exceptions to this rule are nontransaction, and PostgreSQL versions
+   * prior to 7.3.  In the case of nontransaction, the set value will be kept
    * regardless, but if the connection ever needs to be recovered, the set value
    * will not be restored.
    * @param Var the variable to set
@@ -128,7 +139,7 @@ public:
 protected:
   /// Create a transaction.  The optional name, if given, must begin with a
   /// letter and may contain letters and digits only.
-  explicit Transaction_base(Connection_base &, 
+  explicit transaction_base(connection_base &, 
 		          const PGSTD::string &TName=PGSTD::string());
 
   /// Begin transaction.  To be called by implementing class, typically from 
@@ -138,21 +149,24 @@ protected:
   /// End transaction.  To be called by implementing class' destructor 
   void End() throw ();
 
-  /// To be implemented by derived implementation class.
+  /// To be implemented by derived implementation class: start transaction
   virtual void DoBegin() =0;
-  virtual Result DoExec(const char Query[]) =0;
+  /// To be implemented by derived implementation class: perform query
+  virtual result DoExec(const char Query[]) =0;
+  /// To be implemented by derived implementation class: commit transaction
   virtual void DoCommit() =0;
+  /// To be implemented by derived implementation class: abort transaction
   virtual void DoAbort() =0;
 
   // For use by implementing class:
 
   /// Execute query on connection directly
-  Result DirectExec(const char C[], int Retries, const char OnReconnect[]);
+  result DirectExec(const char C[], int Retries, const char OnReconnect[]);
  
 private:
-  /* A Transaction goes through the following stages in its lifecycle:
+  /* A transaction goes through the following stages in its lifecycle:
    *  - nascent: the transaction hasn't actually begun yet.  If our connection 
-   *    fails at this stage, it may recover and the Transaction can attempt to
+   *    fails at this stage, it may recover and the transaction can attempt to
    *    establish itself again.
    *  - active: the transaction has begun.  Since no commit command has been 
    *    issued, abortion is implicit if the connection fails now.
@@ -179,34 +193,34 @@ private:
 
   friend class Cursor;
   int GetUniqueCursorNum() { return m_UniqueCursorNum++; }
-  void MakeEmpty(Result &R) const { m_Conn.MakeEmpty(R); }
+  void MakeEmpty(result &R) const { m_Conn.MakeEmpty(R); }
 
-  friend class TableStream;
-  void RegisterStream(TableStream *);
-  void UnregisterStream(TableStream *) throw ();
+  friend class tablestream;
+  void RegisterStream(tablestream *);
+  void UnregisterStream(tablestream *) throw ();
   void EndCopy() { m_Conn.EndCopy(); }
-  friend class TableReader;
+  friend class tablereader;
   void BeginCopyRead(const PGSTD::string &Table) 
   	{ m_Conn.BeginCopyRead(Table); }
   bool ReadCopyLine(PGSTD::string &L) { return m_Conn.ReadCopyLine(L); }
-  friend class TableWriter;
+  friend class tablewriter;
   void BeginCopyWrite(const PGSTD::string &Table) 
   	{ m_Conn.BeginCopyWrite(Table); }
   void WriteCopyLine(const PGSTD::string &L) { m_Conn.WriteCopyLine(L); }
 
-  Connection_base &m_Conn;
+  connection_base &m_Conn;
 
   PGSTD::string m_Name;
   int m_UniqueCursorNum;
-  Unique<TableStream> m_Stream;
+  unique<tablestream> m_Stream;
   Status m_Status;
   bool m_Registered;
   mutable PGSTD::map<PGSTD::string, PGSTD::string> m_Vars;
 
   // Not allowed:
-  Transaction_base();
-  Transaction_base(const Transaction_base &);
-  Transaction_base &operator=(const Transaction_base &);
+  transaction_base();
+  transaction_base(const transaction_base &);
+  transaction_base &operator=(const transaction_base &);
 };
 
 

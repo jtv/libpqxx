@@ -4,10 +4,14 @@
  *	pqxx/connection.h
  *
  *   DESCRIPTION
- *      definition of the pqxx::Connection and pqxx::LazyConnection classes.
+ *      definition of the pqxx::connection and pqxx::lazyconnection classes.
  *   Different ways of setting up a backend connection.
  *
  * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
  *
  *-------------------------------------------------------------------------
  */
@@ -26,75 +30,87 @@ namespace pqxx
 /// Connection class; represents an immediate connection to a database.
 /** This is the class you typically need when you first work with a database 
  * through libpqxx.  Its constructor immediately opens a connection.  Another
- * option is to defer actual connection to the database until it's actually
- * needed; the LazyConnection class implements such "lazy" behaviour.  Most of
- * the documentation that you'll need to use this class is in its base class,
- * Connection_base.
+ * option is to defer setting up the underlying connection to the database until
+ * it's actually needed; the lazyconnection class implements such "lazy" 
+ * behaviour.  Most of the documentation that you'll need to use this class is 
+ * in its base class, connection_base.
  *
  * The advantage of having an "immediate" connection (represented by this class)
- * is that errors in setting up the connection will occur during construction of
- * the connection object, rather than at some later point further down your 
- * program.
+ * is that errors in setting up the connection will probably occur during 
+ * construction of the connection object, rather than at some later point 
+ * further down your program.
  *
- * This class is a near-trivial implementation of the Connection_base
+ * This class is a near-trivial implementation of the connection_base
  * interface defined in connection_base.h.  All features of any interest to
  * client programmers are defined there.
  */
-class PQXX_LIBEXPORT Connection : public Connection_base
+class PQXX_LIBEXPORT connection : public connection_base
 {
 public:
   /// Constructor.  Sets up connection without connection string.
-  Connection();								//[t1]
+  /** Only default values will be used, or if any of the environment variables
+   * recognized by libpq (PGHOST etc.) are defined, those will override the
+   * defaults.
+   */
+  connection();								//[t1]
 
   /// Constructor.  Sets up connection based on PostgreSQL connection string.
   /** @param ConnInfo a PostgreSQL connection string specifying any required
-   * parameters, such as server, port, database, and password.
+   * parameters, such as server, port, database, and password.  These values
+   * override any environment variables that may have been set for the same 
+   * parameters.
    */
-  explicit Connection(const PGSTD::string &ConnInfo);			//[t2]
+  explicit connection(const PGSTD::string &ConnInfo);			//[t2]
 
   /// Constructor.  Sets up connection based on PostgreSQL connection string.
   /** @param ConnInfo a PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.  As a special
    * case, a null pointer is taken as the empty string.
    */
-  explicit Connection(const char ConnInfo[]);				//[t3]
+  explicit connection(const char ConnInfo[]);				//[t3]
 
-  virtual ~Connection();
+  virtual ~connection();
 };
+
+/// @deprecated For compatibility with old Connection class
+typedef connection Connection;
 
 
 /// Lazy connection class; represents a deferred connection to a database.
-/** This is Connection's lazy younger brother.  Its constructor does not 
+/** This is connection's lazy younger brother.  Its constructor does not 
  * actually open a connection; the connection is only created when it is 
  * actually used.
  *
- * This class is a trivial implementation of the Connection_base interface 
+ * This class is a trivial implementation of the connection_base interface 
  * defined in connection_base.h.  All features of any interest to client 
  * programmers are defined there.
  */
-class PQXX_LIBEXPORT LazyConnection : public Connection_base
+class PQXX_LIBEXPORT lazyconnection : public connection_base
 {
 public:
   /// Constructor.  Sets up lazy connection.
-  LazyConnection() : Connection_base(0) {}				//[t23]
+  lazyconnection() : connection_base(0) {}				//[t23]
 
   /// Constructor.  Sets up lazy connection.
   /** @param ConnInfo a PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.
    */
-  explicit LazyConnection(const PGSTD::string &ConnInfo) :		//[t21]
-    Connection_base(ConnInfo) {}
+  explicit lazyconnection(const PGSTD::string &ConnInfo) :		//[t21]
+    connection_base(ConnInfo) {}
 
   /// Constructor.  Sets up lazy connection.
   /** @param ConnInfo a PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.  As a special
    * case, a null pointer is taken as the empty string.
    */
-  explicit LazyConnection(const char ConnInfo[]) :			//[t22]
-    Connection_base(ConnInfo) {}
+  explicit lazyconnection(const char ConnInfo[]) :			//[t22]
+    connection_base(ConnInfo) {}
 
-  virtual ~LazyConnection();
+  virtual ~lazyconnection();
 };
+
+/// @deprecated For compatibility with old LazyConnection class
+typedef lazyconnection LazyConnection;
 
 }
 

@@ -11,7 +11,7 @@ using namespace pqxx;
 // Simple test program for libpqxx.  Open connection to database, start
 // a dummy transaction to gain nontransactional access, and perform a query.
 //
-// Usage: test16 [connect-string]
+// Usage: test016 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -21,16 +21,16 @@ int main(int, char *argv[])
 {
   try
   {
-    Connection C(argv[1]);
+    connection C(argv[1]);
 
     // Begin a "non-transaction" acting on our current connection.  This is
     // really all the transactional integrity we need since we're only 
     // performing one query which does not modify the database.
     RobustTransaction T(C, "test16");
 
-    Result R( T.Exec("SELECT * FROM pg_tables") );
+    result R( T.Exec("SELECT * FROM pg_tables") );
 
-    for (Result::const_iterator c = R.begin(); c != R.end(); ++c)
+    for (result::const_iterator c = R.begin(); c != R.end(); ++c)
     {
       string N;
       c[0].to(N);

@@ -1,3 +1,89 @@
+2003-06-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ COPYING:
+  - Finally written out
+ include/pqxx/largeobject.h, include/pqxx/result.h, 
+ include/pqxx/tablewriter.h:
+  - Added some forgotten PQXX_LIBEXPORTs
+ include/pqxx/tablereader.h:
+  - Renamed TableReader to tablereader
+ include/pqxx/tablestream.h:
+  - Renamed TableStream to tablestream
+ include/pqxx/tablewriter.h:
+  - Renamed TableWriter to tablewriter
+ include/*.h, src/*.cxx:
+  - Added reference to COPYING
+2003-06-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cachedresult.h:
+  - Renamed CachedResult to cachedresult
+  - Renamed Tuple to tuple
+ include/pqxx/result.h:
+  - Renamed Result to result
+  - Renamed Tuple to tuple
+  - Renamed Field to field
+ include/pqxx/trigger.h:
+  - Renamed Trigger to trigger
+2003-06-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cachedresult.h:
+  - Independently checks for correct isolation level
+  - Made constructor private
+  - Improved documentation
+ include/pqxx/connection_base.h:
+  - Renamed Noticer to noticer
+  - Derived noticer from std::unary_function
+ include/pqxx/connection.h:
+  - Renamed Connection to connection
+  - Renamed LazyConnection to connection
+  - Improved documentation
+ include/pqxx/dbtransaction.h:
+  - Made constructor private
+ include/pqxx/largeobject.h:
+  - Renamed LargeObject to largeobject
+  - Renamed LargeObjectAccess to largeobjectaccess
+  - Gave largeobjectaccess an off_type and pos_type
+  - Improved documentation
+ include/pqxx/result.h:
+  - Renamed BinaryString to binarystring
+ include/pqxx/transaction_base.h:
+  - Made constructor private
+ include/pqxx/util.h:
+  - Added oid and oid_none
+ include/pqxx/*.h:
+  - Fixed some includes
+2003-05-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cachedresult.h, src/cachedresult.cxx:
+  - Templatized, inlined constructor to provide Cursor's with isolation level
+ include/pqxx/cursor.h, src/cursor.cxx:
+  - Requires serializable isolation level at link time
+  - Shuffled constructor around to implement isolation level requirement
+ include/pqxx/dbtransaction.h:
+  - New
+ include/pqxx/isolation.h:
+  - New
+ include/pqxx/largeobject.h, src/largeobject.cxx:
+  - Requires dbtransaction, not merely a transaction_base
+ include/pqxx/robusttransaction.h:
+  - Removed unnecessary and wrong "BEGIN WORK" retry string (harmless though)
+  - Just reports serializable as its isolation level for now
+  - Is now derived from dbtransaction
+ include/pqxx/transaction_base.h:
+  - Reports committed_read as its isolation level
+ include/pqxx/transaction.h:
+  - Reports serializable as its isolation level
+  - Is now derived from dbtransaction
+ include/pqxx/transactor.h:
+  - Templatized on transaction class
+  - Now derived from std::unary_function
+ include/*, src/*:
+  - Renamed Connection_base to connection_base
+  - Renamed Transaction_base to transaction_base 
+ tools/preprelease:
+  - Rewrote output generation
+2003-05-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result.h
+  - Added Field::as() by popular request
+  - Documented annoying locale sensitivity of Field::to()
+ include/pqxx/util.h
+  - Documented annoying locale sensitivity of ToString()/FromString()
 2003-05-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.h:
   - Fixed wrong argument type for PQfreemem() on systems that have it

@@ -11,10 +11,10 @@ using namespace pqxx;
 
 
 // Simple test program for libpqxx.  Write a predetermined data set to a table
-// using a TableWriter.  This data will be used by subsequent tests.  Any data
+// using a tablewriter.  This data will be used by subsequent tests.  Any data
 // previously in the table will be deleted.
 //
-// Usage: test5 [connect-string] [tablename]
+// Usage: test005 [connect-string] [tablename]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
   try
   {
     // Set up a connection to the backend
-    Connection C(argv[1]);
+    connection C(argv[1]);
 
     string TableName((argc > 2) ? argv[2] : "orgevents");
 
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     // before we attempt to commit our transaction T.  Otherwise we might end 
     // up committing T before all data going into W had been written.
     {
-      TableWriter W(T, TableName);
+      tablewriter W(T, TableName);
 
       const char *const CData[][2] =
       {
@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
       // (destruction of W occurs here)
     }
 
-    // Now that our TableWriter is closed, it's safe to commit T.
+    // Now that our tablewriter is closed, it's safe to commit T.
     T.Commit();
   }
   catch (const sql_error &e)

@@ -9,6 +9,10 @@
  *
  * Copyright (c) 2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
+ *
  *-------------------------------------------------------------------------
  */
 #include <cerrno>
@@ -50,44 +54,42 @@ inline int StdDirToPQDir(ios::seekdir dir)
   return pqdir;
 }
 
-const Oid pqxxInvalidOid(InvalidOid);
-
 } // namespace
 
 
-pqxx::LargeObject::LargeObject() :
-  m_ID(pqxxInvalidOid)
+pqxx::largeobject::largeobject() :
+  m_ID(oid_none)
 {
 }
 
 
-pqxx::LargeObject::LargeObject(Transaction_base &T) :
+pqxx::largeobject::largeobject(dbtransaction &T) :
   m_ID()
 {
   m_ID = lo_creat(RawConnection(T), INV_READ|INV_WRITE);
-  if (m_ID == pqxxInvalidOid)
+  if (m_ID == oid_none)
     throw runtime_error("Could not create large object: " +
 	                string(strerror(errno)));
 }
 
 
-pqxx::LargeObject::LargeObject(Transaction_base &T, const string &File) :
+pqxx::largeobject::largeobject(dbtransaction &T, const string &File) :
   m_ID()
 {
   m_ID = lo_import(RawConnection(T), File.c_str());
-  if (m_ID == pqxxInvalidOid)
+  if (m_ID == oid_none)
     throw runtime_error("Could not import file '" + File + "' "
 	                "to large object: " + strerror(errno));
 }
 
 
-pqxx::LargeObject::LargeObject(const LargeObjectAccess &O) :
+pqxx::largeobject::largeobject(const largeobjectaccess &O) :
   m_ID(O.id())
 {
 }
 
 
-void pqxx::LargeObject::to_file(Transaction_base &T, const string &File) const
+void pqxx::largeobject::to_file(dbtransaction &T, const string &File) const
 {
   if (lo_export(RawConnection(T), id(), File.c_str()) == -1)
     throw runtime_error("Could not export large object " + ToString(m_ID) + " "
@@ -96,7 +98,7 @@ void pqxx::LargeObject::to_file(Transaction_base &T, const string &File) const
 }
 
 
-void pqxx::LargeObject::remove(Transaction_base &T) const
+void pqxx::largeobject::remove(dbtransaction &T) const
 {
   if (lo_unlink(RawConnection(T), id()) == -1)
     throw runtime_error("Could not delete large object " + 
@@ -105,15 +107,14 @@ void pqxx::LargeObject::remove(Transaction_base &T) const
 }
 
 
-string pqxx::LargeObject::Reason() const
+string pqxx::largeobject::Reason() const
 {
-  return (id() == pqxxInvalidOid) ? "No object selected" : strerror(errno);
+  return (id() == oid_none) ? "No object selected" : strerror(errno);
 }
 
 
-pqxx::LargeObjectAccess::LargeObjectAccess(Transaction_base &T,
-                                           openmode mode) :
-  LargeObject(T),
+pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T, openmode mode) :
+  largeobject(T),
   m_Trans(T),
   m_fd(-1)
 {
@@ -121,10 +122,10 @@ pqxx::LargeObjectAccess::LargeObjectAccess(Transaction_base &T,
 }
 
 
-pqxx::LargeObjectAccess::LargeObjectAccess(Transaction_base &T,
-    					   Oid O,
+pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
+    					   oid O,
 					   openmode mode) :
-  LargeObject(O),
+  largeobject(O),
   m_Trans(T),
   m_fd(-1)
 {
@@ -132,10 +133,10 @@ pqxx::LargeObjectAccess::LargeObjectAccess(Transaction_base &T,
 }
 
 
-pqxx::LargeObjectAccess::LargeObjectAccess(Transaction_base &T,
-    					   LargeObject O,
+pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
+    					   largeobject O,
 					   openmode mode) :
-  LargeObject(O),
+  largeobject(O),
   m_Trans(T),
   m_fd(-1)
 {
@@ -143,10 +144,10 @@ pqxx::LargeObjectAccess::LargeObjectAccess(Transaction_base &T,
 }
 
 
-pqxx::LargeObjectAccess::LargeObjectAccess(Transaction_base &T,
+pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
 					   const string &File,
 					   openmode mode) :
-  LargeObject(T, File),
+  largeobject(T, File),
   m_Trans(T),
   m_fd(-1)
 {
@@ -154,8 +155,8 @@ pqxx::LargeObjectAccess::LargeObjectAccess(Transaction_base &T,
 }
 
 
-pqxx::LargeObjectAccess::size_type 
-pqxx::LargeObjectAccess::seek(size_type dest, seekdir dir)
+pqxx::largeobjectaccess::size_type 
+pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
 {
   const size_type Result = cseek(dest, dir);
   if (Result == -1)
@@ -165,25 +166,25 @@ pqxx::LargeObjectAccess::seek(size_type dest, seekdir dir)
 }
 
 
-long pqxx::LargeObjectAccess::cseek(long dest, seekdir dir) throw ()
+long pqxx::largeobjectaccess::cseek(long dest, seekdir dir) throw ()
 {
   return lo_lseek(RawConnection(), m_fd, dest, StdDirToPQDir(dir));
 }
 
 
-long pqxx::LargeObjectAccess::cwrite(const char Buf[], size_type Len) throw ()
+long pqxx::largeobjectaccess::cwrite(const char Buf[], size_type Len) throw ()
 {
   return max(lo_write(RawConnection(), m_fd, const_cast<char *>(Buf), Len), -1);
 }
 
 
-long pqxx::LargeObjectAccess::cread(char Buf[], size_type Bytes) throw ()
+long pqxx::largeobjectaccess::cread(char Buf[], size_type Bytes) throw ()
 {
   return max(lo_read(RawConnection(), m_fd, Buf, Bytes), -1);
 }
 
 
-void pqxx::LargeObjectAccess::write(const char Buf[], size_type Len)
+void pqxx::largeobjectaccess::write(const char Buf[], size_type Len)
 {
   const long Bytes = cwrite(Buf, Len);
   if (Bytes < Len)
@@ -203,8 +204,8 @@ void pqxx::LargeObjectAccess::write(const char Buf[], size_type Len)
 }
 
 
-pqxx::LargeObjectAccess::size_type 
-pqxx::LargeObjectAccess::read(char Buf[], size_type Len)
+pqxx::largeobjectaccess::size_type 
+pqxx::largeobjectaccess::read(char Buf[], size_type Len)
 {
   const long Bytes = cread(Buf, Len);
   if (Bytes < 0)
@@ -214,7 +215,7 @@ pqxx::LargeObjectAccess::read(char Buf[], size_type Len)
 }
 
 
-void pqxx::LargeObjectAccess::open(openmode mode)
+void pqxx::largeobjectaccess::open(openmode mode)
 {
   m_fd = lo_open(RawConnection(), id(), StdModeToPQMode(mode));
   if (m_fd < 0)
@@ -223,14 +224,14 @@ void pqxx::LargeObjectAccess::open(openmode mode)
 }
 
 
-void pqxx::LargeObjectAccess::close()
+void pqxx::largeobjectaccess::close()
 {
   if (m_fd >= 0) lo_close(RawConnection(), m_fd);
 }
 
 
-string pqxx::LargeObjectAccess::Reason() const
+string pqxx::largeobjectaccess::Reason() const
 {
-  return (m_fd == -1) ? "No object opened" : LargeObject::Reason();
+  return (m_fd == -1) ? "No object opened" : largeobject::Reason();
 }
 

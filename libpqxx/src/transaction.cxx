@@ -4,10 +4,14 @@
  *	transaction.cxx
  *
  *   DESCRIPTION
- *      implementation of the pqxx::Transaction class.
- *   pqxx::Transaction represents a database transaction
+ *      implementation of the pqxx::transaction class.
+ *   pqxx::transaction represents a regular database transaction
  *
  * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
  *
  *-------------------------------------------------------------------------
  */
@@ -21,40 +25,24 @@
 using namespace PGSTD;
 
 
-#define SQL_BEGIN_WORK 		"BEGIN"
 #define SQL_COMMIT_WORK 	"COMMIT"
 #define SQL_ROLLBACK_WORK 	"ROLLBACK"
 
 
-pqxx::Transaction::Transaction(Connection_base &C, const string &TName) :
-  Transaction_base(C, TName)
-{
-  Begin();
-}
-
-
-
-pqxx::Transaction::~Transaction()
-{
-  End();
-}
-
-
-
-void pqxx::Transaction::DoBegin()
+void pqxx::basic_transaction::DoBegin()
 {
   // Start backend transaction
-  DirectExec(SQL_BEGIN_WORK, 2, 0);
+  DirectExec(StartCmd().c_str(), 2, 0);
 }
 
 
 
-pqxx::Result pqxx::Transaction::DoExec(const char Query[])
+pqxx::result pqxx::basic_transaction::DoExec(const char Query[])
 {
-  Result R;
+  result R;
   try
   {
-    R = DirectExec(Query, 0, SQL_BEGIN_WORK);
+    R = DirectExec(Query, 0, StartCmd().c_str());
   }
   catch (const exception &)
   {
@@ -67,7 +55,7 @@ pqxx::Result pqxx::Transaction::DoExec(const char Query[])
 
 
 
-void pqxx::Transaction::DoCommit()
+void pqxx::basic_transaction::DoCommit()
 {
   try
   {
@@ -100,7 +88,7 @@ void pqxx::Transaction::DoCommit()
 }
 
 
-void pqxx::Transaction::DoAbort()
+void pqxx::basic_transaction::DoAbort()
 {
   DirectExec(SQL_ROLLBACK_WORK, 0, 0);
 }

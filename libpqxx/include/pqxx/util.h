@@ -8,6 +8,10 @@
  *
  * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
+ *
  *-------------------------------------------------------------------------
  */
 #ifndef PQXX_UTIL_H
@@ -28,8 +32,15 @@ extern "C"
 
 namespace pqxx
 {
-typedef long Result_size_type;
-typedef int Tuple_size_type;
+typedef long result_size_type;
+typedef int tuple_size_type;
+
+/// PostgreSQL row identifier type
+typedef Oid oid;
+
+/// The "null" oid
+const oid oid_none = InvalidOid;
+
 
 /// C-style format strings for various built-in types.  Only allowed for
 /// certain types, for which this function is explicitly specialized below.
@@ -52,6 +63,13 @@ template<> inline const char *FmtString(unsigned char) { return  "%c"; }
 
 
 /// Convert object of built-in type to string
+/** Caution: the conversion is done using the currently active locale, whereas
+ * PostgreSQL expects values in the "default" (C) locale.  This means that if
+ * you intend to use this function from a locale that renders the data types in
+ * question (particularly numeric types like float and int) differently from the
+ * C default, you'll need to switch back to the C locale before the call.
+ * This should be fixed at some point in the future.
+ */
 template<typename T> inline PGSTD::string ToString(const T &Obj)
 {
   // TODO: Find a decent way to determine max string length at compile time!
@@ -59,6 +77,8 @@ template<typename T> inline PGSTD::string ToString(const T &Obj)
   sprintf(Buf, FmtString(Obj), Obj);
   return PGSTD::string(Buf);
 }
+
+// TODO: Implement date conversions
 
 template<> inline PGSTD::string ToString(const PGSTD::string &Obj) {return Obj;}
 template<> inline PGSTD::string ToString(const char *const &Obj) { return Obj; }
@@ -80,6 +100,14 @@ template<> inline PGSTD::string ToString(const unsigned short &Obj)
 }
 
 
+/// Convert string to object of built-in type
+/** Caution: the conversion is done using the currently active locale, whereas
+ * PostgreSQL delivers values in the "default" (C) locale.  This means that if
+ * you intend to use this function from a locale that doesn't understand the 
+ * data types in question (particularly numeric types like float and int) in
+ * default C format, you'll need to switch back to the C locale before the call.
+ * This should be fixed at some point in the future.
+ */
 template<typename T> inline void FromString(const char Str[], T &Obj)
 {
   if (!Str) throw PGSTD::runtime_error("Attempt to convert NULL string to " +
@@ -319,10 +347,10 @@ private:
 /// for the guest type, and that GUEST::Name() returns a user-readable name for
 /// the GUEST object.
 template<typename GUEST>
-class PQXX_LIBEXPORT Unique
+class PQXX_LIBEXPORT unique
 {
 public:
-  Unique() : m_Guest(0) {}
+  unique() : m_Guest(0) {}
 
   GUEST *get() const throw () { return m_Guest; }
 
@@ -380,8 +408,8 @@ private:
   GUEST *m_Guest;
 
   // Not allowed:
-  Unique(const Unique &);
-  Unique &operator=(const Unique &);
+  unique(const unique &);
+  unique &operator=(const unique &);
 };
 
 }

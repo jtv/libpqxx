@@ -12,11 +12,11 @@ namespace
 
 const string Contents = "Large object test contents";
 
-class CreateLargeObject : public Transactor
+class CreateLargeObject : public transactor<>
 {
 public:
-  explicit CreateLargeObject(LargeObject &O) :
-    Transactor("CreateLargeObject"),
+  explicit CreateLargeObject(largeobject &O) :
+    transactor<>("CreateLargeObject"),
     m_Object(),
     m_ObjectOutput(O)
   {
@@ -24,7 +24,7 @@ public:
 
   void operator()(argument_type &T)
   {
-    m_Object = LargeObject(T);
+    m_Object = largeobject(T);
     cout << "Created large object #" << m_Object.id() << endl;
   }
 
@@ -34,35 +34,35 @@ public:
   }
 
 private:
-  LargeObject m_Object;
-  LargeObject &m_ObjectOutput;
+  largeobject m_Object;
+  largeobject &m_ObjectOutput;
 };
 
-class WriteLargeObject : public Transactor
+class WriteLargeObject : public transactor<>
 {
 public:
-  explicit WriteLargeObject(LargeObject &O) : 
-    Transactor("WriteLargeObject"),
+  explicit WriteLargeObject(largeobject &O) : 
+    transactor<>("WriteLargeObject"),
     m_Object(O)
   {
   }
 
   void operator()(argument_type &T)
   {
-    LargeObjectAccess A(T, m_Object.id(), ios::out);
-    cout << "Writing to large object #" << LargeObject(A).id() << endl;
+    largeobjectaccess A(T, m_Object.id(), ios::out);
+    cout << "Writing to large object #" << largeobject(A).id() << endl;
     A.write(Contents);
   }
 
 private:
-  LargeObject m_Object;
+  largeobject m_Object;
 };
 
 
-class CopyLargeObject : public Transactor
+class CopyLargeObject : public transactor<>
 {
 public:
-  explicit CopyLargeObject(LargeObject O) : m_Object(O) {}
+  explicit CopyLargeObject(largeobject O) : m_Object(O) {}
 
   void operator()(argument_type &T)
   {
@@ -70,14 +70,14 @@ public:
   }
 
 private:
-  LargeObject m_Object;
+  largeobject m_Object;
 };
 
 
-class DeleteLargeObject : public Transactor
+class DeleteLargeObject : public transactor<>
 {
 public:
-  explicit DeleteLargeObject(LargeObject O) : m_Object(O) {}
+  explicit DeleteLargeObject(largeobject O) : m_Object(O) {}
 
   void operator()(argument_type &T)
   {
@@ -85,7 +85,7 @@ public:
   }
 
 private:
-  LargeObject m_Object;
+  largeobject m_Object;
 };
 
 }
@@ -93,7 +93,7 @@ private:
 
 // Test program for libpqxx: write large object to test files.
 //
-// Usage: test52 [connect-string]
+// Usage: test052 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -103,9 +103,9 @@ int main(int, char *argv[])
 {
   try
   {
-    Connection C(argv[1]);
+    connection C(argv[1]);
 
-    LargeObject Obj;
+    largeobject Obj;
 
     C.Perform(CreateLargeObject(Obj));
     C.Perform(WriteLargeObject(Obj));

@@ -9,31 +9,34 @@
  *
  * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
+ *
  *-------------------------------------------------------------------------
  */
 #ifndef PQXX_CURSOR_H
 #define PQXX_CURSOR_H
 
 #include "pqxx/result.h"
+#include "pqxx/transaction_base.h"
 #include "pqxx/util.h"
-
-/* (A quick note on binary cursors:
- * These will require a lot of work.  First off, conversion to C++ datatypes
- * becomes more complex.  Second, some tradeoffs will need to be made between
- * dynamic (flexible) type handling and static (fast) type handling.)
- */
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */
 
 namespace pqxx
 {
-class Result;
-class Transaction_base;
+class result;
+
+
+// Work around bug in CodeWarrior 8.3
+#pragma defer_defarg_parsing on
+
 
 /// SQL cursor class.
-/** Cursor behaves as an output stream generating Result objects.  It may
- * be used to fetch rows individually or in blocks, in which case each Result
+/** Cursor behaves as an output stream generating result objects.  It may
+ * be used to fetch rows individually or in blocks, in which case each result
  * coming out of the stream may contain more than one Tuple.  A cursor may be
  * positioned on any row of data, or on an "imaginary" row before the first
  * actual row, or on a similar imaginary row beyond the last one.  This differs
@@ -52,19 +55,24 @@ class Transaction_base;
  * have to experiment before using cursors for anything but plain forward-only
  * result set iteration.
  *
- * A Cursor is only valid within the transaction in which it was created.
+ * A Cursor is only valid within the transaction in which it was created.  The
+ * result set must not change during its existence, or the cursor's positioning
+ * logic will get horribly confused.  For this reason, Cursor should only be
+ * used inside serializable transactions.
  */
 
 class PQXX_LIBEXPORT Cursor
 {
 public:
-  // TODO: This apparently being migrated from int to long in Postgres.
-  typedef Result::size_type size_type;
+  // TODO: Split Cursor into different levels of intelligence
+  // TODO: Forward-only cursors
+  // TODO: Iterator interface (random-access==absolute)
+  typedef result::size_type size_type;
 
   enum pos { pos_unknown = -1, pos_start = 0 };
 
   /// Exception thrown when cursor position is requested, but is unknown
-  struct unknown_position : PGSTD::runtime_error
+  struct PQXX_LIBEXPORT unknown_position : PGSTD::runtime_error
   {
     unknown_position(const PGSTD::string &cursorname) :
       PGSTD::runtime_error("Position for cursor '" + cursorname + "' "
@@ -83,10 +91,22 @@ public:
    * @param Count the stride of the cursor, ie. the number of rows fetched at a
    * time.  This defaults to 1.
    */
-  Cursor(Transaction_base &T,
-         const char Query[], 
-	 const PGSTD::string &BaseName="cur",
-	 size_type Count=NEXT());					//[t3]
+  template<typename TRANSACTION> 
+    Cursor(TRANSACTION &T,
+           const char Query[], 
+	   const PGSTD::string &BaseName="cur",
+	   size_type Count=NEXT()) :					//[t3]
+      m_Trans(T),
+      m_Name(),
+      m_Count(Count),
+      m_Done(false),
+      m_Pos(pos_start),
+      m_Size(pos_unknown)
+  {
+    // Trigger build error if T has insufficient isolation level
+    error_permitted_isolation_level(typename TRANSACTION::isolation_tag());
+    init(BaseName, Query);
+  }
 
   /// Special-purpose constructor.  Adopts existing SQL cursor.  Use with care.
   /**
@@ -119,9 +139,20 @@ public:
    * @param Count the stride of the cursor, ie. the number of rows fetched at a
    * time.  This defaults to 1.
    */
-  Cursor(Transaction_base &T,
-         const Result::Field &Name,
-	 size_type Count=NEXT());					//[t45]
+  template<typename TRANSACTION>
+    Cursor(TRANSACTION &T,
+           const result::field &Name,
+	   size_type Count=NEXT()) :					//[t45]
+      m_Trans(T),
+      m_Name(Name.c_str()),
+      m_Count(Count),
+      m_Done(false),
+      m_Pos(pos_unknown),
+      m_Size(pos_unknown)
+  {
+    // Trigger build error if T has insufficient isolation level
+    error_permitted_isolation_level(typename TRANSACTION::isolation_tag());
+  }
 
   /// Set new stride, ie. the number of rows to fetch at a time.
   size_type SetCount(size_type);					//[t19]
@@ -136,7 +167,7 @@ public:
    *
    * The number of rows fetched will not exceed Count, but it may be lower.
    */
-  Result Fetch(size_type Count);					//[t19]
+  result Fetch(size_type Count);					//[t19]
 
   /// Move forward by Count rows (negative for backwards) through the data set.
   /** Returns the number of rows skipped.  This need not be the same number
@@ -157,7 +188,7 @@ public:
    * result set.
    */
   static size_type ALL() throw ()					//[t3]
-  	{ return PGSTD::numeric_limits<Result::size_type>::max(); }
+  	{ return PGSTD::numeric_limits<result::size_type>::max(); }
 
   /// Constant: "next fetch/move should cover just the next row."
   static size_type NEXT() throw () { return 1; }			//[t19]
@@ -172,7 +203,7 @@ public:
    * to the beginning.
    */
   static size_type BACKWARD_ALL() throw ()				//[t19]
-  	{ return PGSTD::numeric_limits<Result::size_type>::min() + 1; }
+  	{ return PGSTD::numeric_limits<result::size_type>::min() + 1; }
 
   /// Fetch rows.
   /** The number of rows retrieved will be no larger than (but may be lower
@@ -182,7 +213,7 @@ public:
    * Cursor's conversion to bool tests whether it has arrived at the end of its
    * data set.
    */
-  Cursor &operator>>(Result &);						//[t3]
+  Cursor &operator>>(result &);						//[t3]
 
   /// May there be more rows coming?
   operator bool() const throw () { return !m_Done; }			//[t3]
@@ -222,10 +253,19 @@ public:
 
 private:
   static PGSTD::string OffsetString(size_type);
+  void init(const PGSTD::string &BaseName, const char Query[]);
   PGSTD::string MakeFetchCmd(size_type) const;
   size_type NormalizedMove(size_type Intended, size_type Actual);
 
-  Transaction_base &m_Trans;
+  /// Only defined for permitted isolation levels (in this case, serializable)
+  /** If you get a link or compile error saying this function is not defined,
+   * that means a Cursor is being created on a transaction that doesn't have a
+   * sufficient isolation level to support the Cursor's reliable operation.
+   */
+  template<typename ISOLATIONTAG> 
+    static inline void error_permitted_isolation_level(ISOLATIONTAG) throw();
+
+  transaction_base &m_Trans;
   PGSTD::string m_Name;
   size_type m_Count;
   bool m_Done;
@@ -236,6 +276,10 @@ private:
   Cursor(const Cursor &);
   Cursor &operator=(const Cursor &);
 };
+
+template<> inline void 
+Cursor::error_permitted_isolation_level(isolation_traits<serializable>) throw ()
+	{}
 
 }
 

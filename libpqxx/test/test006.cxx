@@ -6,16 +6,18 @@
 #include <pqxx/tablereader.h>
 #include <pqxx/tablewriter.h>
 #include <pqxx/transaction.h>
+#include <pqxx/transactor.h>
+
 
 using namespace PGSTD;
 using namespace pqxx;
 
 
 // Test program for libpqxx.  Copy a table from one database connection to 
-// another using a TableReader and a TableWriter.  Any data already in the
+// another using a tablereader and a tablewriter.  Any data already in the
 // destination table is overwritten.
 //
-// Usage: test6 [connect-string] [orgtable] [dsttable]
+// Usage: test006 [connect-string] [orgtable] [dsttable]
 //
 // Where the connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -32,12 +34,12 @@ using namespace pqxx;
 namespace
 {
 
-class CreateTable : public Transactor
+class CreateTable : public transactor<>
 {
   string m_Table;
 
 public:
-  CreateTable(string Table) : Transactor("CreateTable"), m_Table(Table) {}
+  CreateTable(string Table) : transactor<>("CreateTable"), m_Table(Table) {}
 
   void operator()(argument_type &T)
   {
@@ -47,12 +49,12 @@ public:
   }
 };
 
-class ClearTable : public Transactor
+class ClearTable : public transactor<>
 {
   string m_Table;
 
 public:
-  ClearTable(string Table) : Transactor("ClearTable"), m_Table(Table) {}
+  ClearTable(string Table) : transactor<>("ClearTable"), m_Table(Table) {}
 
   void operator()(argument_type &T)
   {
@@ -66,14 +68,14 @@ public:
 };
 
 
-void CheckState(TableReader &R)
+void CheckState(tablereader &R)
 {
   if (!R != !bool(R))
-    throw logic_error("TableReader " + R.Name() + " in inconsistent state!");
+    throw logic_error("tablereader " + R.Name() + " in inconsistent state!");
 }
 
 
-class CopyTable : public Transactor
+class CopyTable : public transactor<>
 {
   Transaction &m_orgTrans;  // Transaction giving us access to original table
   string m_orgTable;	    // Original table's name
@@ -82,7 +84,7 @@ class CopyTable : public Transactor
 public:
   // Constructor--pass parameters for operation here
   CopyTable(Transaction &OrgTrans, string OrgTable, string DstTable) :
-    Transactor("CopyTable"),
+    transactor<>("CopyTable"),
     m_orgTrans(OrgTrans),
     m_orgTable(OrgTable),
     m_dstTable(DstTable)
@@ -92,8 +94,8 @@ public:
   // Transaction definition
   void operator()(argument_type &T)
   {
-    TableReader Org(m_orgTrans, m_orgTable);
-    TableWriter Dst(T, m_dstTable);
+    tablereader Org(m_orgTrans, m_orgTable);
+    tablewriter Dst(T, m_dstTable);
 
     CheckState(Org);
 
@@ -123,7 +125,7 @@ int main(int argc, char *argv[])
 
     // Set up two connections to the backend: one to read our original table,
     // and another to write our copy
-    Connection orgC(ConnStr), dstC(ConnStr);
+    connection orgC(ConnStr), dstC(ConnStr);
 
     // Select our original and destination table names
     const string orgTable = ((argc > 2) ? argv[2] : "orgevents");

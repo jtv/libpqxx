@@ -4,10 +4,14 @@
  *	connection_base.cxx
  *
  *   DESCRIPTION
- *      implementation of the pqxx::Connection_base abstract base class.
- *   pqxx::Connection_base encapsulates a frontend to backend connection
+ *      implementation of the pqxx::connection_base abstract base class.
+ *   pqxx::connection_base encapsulates a frontend to backend connection
  *
  * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
  *
  *-------------------------------------------------------------------------
  */
@@ -26,16 +30,16 @@ using namespace PGSTD;
 
 extern "C"
 {
-// Pass C-linkage notice processor call on to C++-linkage Noticer object.  The
-// void * argument points to the Noticer.
+// Pass C-linkage notice processor call on to C++-linkage noticer object.  The
+// void * argument points to the noticer.
 void pqxxNoticeCaller(void *arg, const char *Msg)
 {
-  if (arg && Msg) (*static_cast<pqxx::Noticer *>(arg))(Msg);
+  if (arg && Msg) (*static_cast<pqxx::noticer *>(arg))(Msg);
 }
 }
 
 
-pqxx::Connection_base::Connection_base(const string &ConnInfo) :
+pqxx::connection_base::connection_base(const string &ConnInfo) :
   m_ConnInfo(ConnInfo),
   m_Conn(0),
   m_Trans(),
@@ -45,7 +49,7 @@ pqxx::Connection_base::Connection_base(const string &ConnInfo) :
 }
 
 
-pqxx::Connection_base::Connection_base(const char ConnInfo[]) :
+pqxx::connection_base::connection_base(const char ConnInfo[]) :
   m_ConnInfo(ConnInfo ? ConnInfo : ""),
   m_Conn(0),
   m_Trans(),
@@ -55,7 +59,7 @@ pqxx::Connection_base::Connection_base(const char ConnInfo[]) :
 }
 
 
-void pqxx::Connection_base::Connect()
+void pqxx::connection_base::Connect()
 {
   if (m_Conn) throw logic_error("libqxx internal error: spurious Connect()");
 
@@ -83,7 +87,7 @@ void pqxx::Connection_base::Connect()
 
 
 
-void pqxx::Connection_base::Deactivate()
+void pqxx::connection_base::Deactivate()
 {
   if (m_Conn)
   {
@@ -97,7 +101,7 @@ void pqxx::Connection_base::Deactivate()
 }
 
 
-void pqxx::Connection_base::SetVariable(const PGSTD::string &Var,
+void pqxx::connection_base::SetVariable(const PGSTD::string &Var,
                                       const PGSTD::string &Value)
 {
   if (m_Trans.get())
@@ -116,7 +120,7 @@ void pqxx::Connection_base::SetVariable(const PGSTD::string &Var,
  * recovered because the physical connection to the database was lost and is
  * being reset, or that may not have been initialized yet.
  */
-void pqxx::Connection_base::SetupState()
+void pqxx::connection_base::SetupState()
 {
   if (!m_Conn) 
     throw logic_error("libpqxx internal error: SetupState() on no connection");
@@ -138,7 +142,7 @@ void pqxx::Connection_base::SetupState()
       if (i->first != Last)
       {
 	const string LQ("LISTEN " + i->first);
-        Result R( PQexec(m_Conn, LQ.c_str()) );
+        result R( PQexec(m_Conn, LQ.c_str()) );
         R.CheckStatus(LQ);
         Last = i->first;
       }
@@ -152,7 +156,7 @@ void pqxx::Connection_base::SetupState()
 }
 
 
-void pqxx::Connection_base::Disconnect() throw ()
+void pqxx::connection_base::Disconnect() throw ()
 {
   if (m_Conn)
   {
@@ -162,19 +166,19 @@ void pqxx::Connection_base::Disconnect() throw ()
 }
 
 
-bool pqxx::Connection_base::is_open() const
+bool pqxx::connection_base::is_open() const
 {
   return m_Conn && (Status() != CONNECTION_BAD);
 }
 
 
-PGSTD::auto_ptr<pqxx::Noticer> 
-pqxx::Connection_base::SetNoticer(PGSTD::auto_ptr<Noticer> N)
+PGSTD::auto_ptr<pqxx::noticer> 
+pqxx::connection_base::SetNoticer(PGSTD::auto_ptr<noticer> N)
 {
   if (N.get()) PQsetNoticeProcessor(m_Conn, pqxxNoticeCaller, N.get());
   else PQsetNoticeProcessor(m_Conn, 0, 0);
   
-  auto_ptr<Noticer> Old = m_Noticer;
+  auto_ptr<noticer> Old = m_Noticer;
   // TODO: Can this line fail?  If yes, we'd be killing Old prematurely...
   m_Noticer = N;
 
@@ -182,7 +186,7 @@ pqxx::Connection_base::SetNoticer(PGSTD::auto_ptr<Noticer> N)
 }
 
 
-void pqxx::Connection_base::ProcessNotice(const char msg[]) throw ()
+void pqxx::connection_base::ProcessNotice(const char msg[]) throw ()
 {
   if (msg)
   {
@@ -193,14 +197,14 @@ void pqxx::Connection_base::ProcessNotice(const char msg[]) throw ()
 }
 
 
-void pqxx::Connection_base::Trace(FILE *Out)
+void pqxx::connection_base::Trace(FILE *Out)
 {
   m_Trace = Out;
   if (m_Conn) InternalSetTrace();
 }
 
 
-void pqxx::Connection_base::AddTrigger(pqxx::Trigger *T)
+void pqxx::connection_base::AddTrigger(pqxx::trigger *T)
 {
   if (!T) throw invalid_argument("Null trigger registered");
 
@@ -212,7 +216,7 @@ void pqxx::Connection_base::AddTrigger(pqxx::Trigger *T)
   {
     // Not listening on this event yet, start doing so.
     const string LQ("LISTEN " + string(T->Name())); 
-    Result R( PQexec(m_Conn, LQ.c_str()) );
+    result R( PQexec(m_Conn, LQ.c_str()) );
 
     try
     {
@@ -235,14 +239,14 @@ void pqxx::Connection_base::AddTrigger(pqxx::Trigger *T)
 }
 
 
-void pqxx::Connection_base::RemoveTrigger(pqxx::Trigger *T) throw ()
+void pqxx::connection_base::RemoveTrigger(pqxx::trigger *T) throw ()
 {
   if (!T) return;
 
   try
   {
     // Keep Sun compiler happy...  Hope it doesn't annoy other compilers
-    pair<const string, Trigger *> tmp_pair(T->Name(), T);
+    pair<const string, trigger *> tmp_pair(T->Name(), T);
     TriggerList::value_type E = tmp_pair;
 
     typedef pair<TriggerList::iterator, TriggerList::iterator> Range;
@@ -271,7 +275,7 @@ void pqxx::Connection_base::RemoveTrigger(pqxx::Trigger *T) throw ()
 }
 
 
-void pqxx::Connection_base::GetNotifs()
+void pqxx::connection_base::GetNotifs()
 {
   if (!m_Conn) return;
 
@@ -305,19 +309,19 @@ void pqxx::Connection_base::GetNotifs()
 }
 
 
-const char *pqxx::Connection_base::ErrMsg() const
+const char *pqxx::connection_base::ErrMsg() const
 {
   return m_Conn ? PQerrorMessage(m_Conn) : "No connection to database";
 }
 
 
-pqxx::Result pqxx::Connection_base::Exec(const char Query[], 
+pqxx::result pqxx::connection_base::Exec(const char Query[], 
                                        int Retries, 
 				       const char OnReconnect[])
 {
   Activate();
 
-  Result R( PQexec(m_Conn, Query) );
+  result R( PQexec(m_Conn, Query) );
 
   while ((Retries > 0) && !R && !is_open())
   {
@@ -327,6 +331,7 @@ pqxx::Result pqxx::Connection_base::Exec(const char Query[],
     if (is_open()) R = PQexec(m_Conn, Query);
   }
 
+  // TODO: Is this really right?  What if there's just no memory?
   if (!R) throw broken_connection();
   R.CheckStatus(Query);
 
@@ -336,7 +341,7 @@ pqxx::Result pqxx::Connection_base::Exec(const char Query[],
 }
 
 
-void pqxx::Connection_base::Reset(const char OnReconnect[])
+void pqxx::connection_base::Reset(const char OnReconnect[])
 {
   // Attempt to set up or restore connection
   if (!m_Conn) Connect();
@@ -349,14 +354,14 @@ void pqxx::Connection_base::Reset(const char OnReconnect[])
     // typically set up a transaction.
     if (OnReconnect)
     {
-      Result Temp( PQexec(m_Conn, OnReconnect) );
+      result Temp( PQexec(m_Conn, OnReconnect) );
       Temp.CheckStatus(OnReconnect);
     }
   }
 }
 
 
-void pqxx::Connection_base::close() throw ()
+void pqxx::connection_base::close() throw ()
 {
   try
   {
@@ -387,21 +392,21 @@ void pqxx::Connection_base::close() throw ()
 }
 
 
-void pqxx::Connection_base::RawSetVar(const string &Var, const string &Value)
+void pqxx::connection_base::RawSetVar(const string &Var, const string &Value)
 {
     Activate();
     Exec(("SET " + Var + "=" + Value).c_str(), 0);
 }
 
 
-void pqxx::Connection_base::AddVariables(const map<string,string> &Vars)
+void pqxx::connection_base::AddVariables(const map<string,string> &Vars)
 {
   for (map<string,string>::const_iterator i=Vars.begin(); i!=Vars.end(); ++i)
     m_Vars[i->first] = i->second;
 }
 
 
-void pqxx::Connection_base::InternalSetTrace()
+void pqxx::connection_base::InternalSetTrace()
 {
   if (m_Trace) PQtrace(m_Conn, m_Trace);
   else PQuntrace(m_Conn);
@@ -409,13 +414,13 @@ void pqxx::Connection_base::InternalSetTrace()
 
 
 
-void pqxx::Connection_base::RegisterTransaction(Transaction_base *T)
+void pqxx::connection_base::RegisterTransaction(transaction_base *T)
 {
   m_Trans.Register(T);
 }
 
 
-void pqxx::Connection_base::UnregisterTransaction(Transaction_base *T) 
+void pqxx::connection_base::UnregisterTransaction(transaction_base *T) 
   throw ()
 {
   try
@@ -429,24 +434,24 @@ void pqxx::Connection_base::UnregisterTransaction(Transaction_base *T)
 }
 
 
-void pqxx::Connection_base::MakeEmpty(pqxx::Result &R, ExecStatusType Stat)
+void pqxx::connection_base::MakeEmpty(pqxx::result &R, ExecStatusType Stat)
 {
   if (!m_Conn) 
     throw logic_error("Internal libpqxx error: MakeEmpty() on null connection");
 
-  R = Result(PQmakeEmptyPGresult(m_Conn, Stat));
+  R = result(PQmakeEmptyPGresult(m_Conn, Stat));
 }
 
 
-void pqxx::Connection_base::BeginCopyRead(const string &Table)
+void pqxx::connection_base::BeginCopyRead(const string &Table)
 {
   const string CQ("COPY " + Table + " TO STDOUT");
-  Result R( Exec(CQ.c_str()) );
+  result R( Exec(CQ.c_str()) );
   R.CheckStatus(CQ);
 }
 
 
-bool pqxx::Connection_base::ReadCopyLine(string &Line)
+bool pqxx::connection_base::ReadCopyLine(string &Line)
 {
   if (!m_Conn)
     throw logic_error("Internal libpqxx error: "
@@ -486,16 +491,16 @@ bool pqxx::Connection_base::ReadCopyLine(string &Line)
 }
 
 
-void pqxx::Connection_base::BeginCopyWrite(const string &Table)
+void pqxx::connection_base::BeginCopyWrite(const string &Table)
 {
   const string CQ("COPY " + Table + " FROM STDIN");
-  Result R( Exec(CQ.c_str()) );
+  result R( Exec(CQ.c_str()) );
   R.CheckStatus(CQ);
 }
 
 
 
-void pqxx::Connection_base::WriteCopyLine(const string &Line)
+void pqxx::connection_base::WriteCopyLine(const string &Line)
 {
   if (!m_Conn)
     throw logic_error("Internal libpqxx error: "
@@ -508,7 +513,7 @@ void pqxx::Connection_base::WriteCopyLine(const string &Line)
 // End COPY operation.  Careful: this assumes that no more lines remain to be
 // read or written, and the COPY operation has been properly terminated with a
 // line containing only the two characters "\."
-void pqxx::Connection_base::EndCopy()
+void pqxx::connection_base::EndCopy()
 {
   if (PQendcopy(m_Conn) != 0) throw runtime_error(ErrMsg());
 }

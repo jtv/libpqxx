@@ -10,10 +10,10 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-// Test program for libpqxx.  Read a table using a TableReader, which may be 
+// Test program for libpqxx.  Read a table using a tablereader, which may be 
 // faster than a conventional query, on a lazy connection.
 //
-// Usage: test27 [connect-string] [table]
+// Usage: test027 [connect-string] [table]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -40,8 +40,8 @@ int main(int argc, char *argv[])
     vector<string> R, First;
 
     {
-      // Set up a TableReader stream to read data from table pg_tables
-      TableReader Stream(T, Table);
+      // Set up a tablereader stream to read data from table pg_tables
+      tablereader Stream(T, Table);
 
       // Read results into string vectors and print them
       for (int n=0; (Stream >> R); ++n)
@@ -60,11 +60,11 @@ int main(int argc, char *argv[])
     // Verify the contents we got for the first row
     if (!First.empty())
     {
-      TableReader Verify(T, Table);
+      tablereader Verify(T, Table);
       string Line;
 
       if (!Verify.GetRawLine(Line))
-	throw logic_error("TableReader got rows the first time around, "
+	throw logic_error("tablereader got rows the first time around, "
 	                  "but none the second time!");
 
       cout << "First tuple was: " << endl << Line << endl;

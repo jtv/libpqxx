@@ -12,12 +12,12 @@ using namespace pqxx;
 namespace
 {
 
-// Verify that CachedResult::at() catches an index overrun
-void CheckOverrun(const CachedResult &CR, 
-                  CachedResult::size_type Overrun,
+// Verify that cachedresult::at() catches an index overrun
+void CheckOverrun(const cachedresult &CR, 
+                  cachedresult::size_type Overrun,
 		  string &LastReason)
 {
-  const CachedResult::size_type Base = ((Overrun >= 0) ? CR.size() : 0);
+  const cachedresult::size_type Base = ((Overrun >= 0) ? CR.size() : 0);
 
   bool OK = false;
   string Entry;
@@ -46,10 +46,10 @@ void CheckOverrun(const CachedResult &CR,
 }
 
 
-// Test program for libpqxx.  Compare behaviour of a CachedResult to a regular
-// Result.
+// Test program for libpqxx.  Compare behaviour of a cachedresult to a regular
+// result.
 //
-// Usage: test41 [connect-string]
+// Usage: test041 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -59,24 +59,24 @@ int main(int, char *argv[])
 {
   try
   {
-    Connection C(argv[1]);
-    Transaction T(C, "test41");
+    connection C(argv[1]);
+    transaction<serializable> T(C, "test41");
 
     const char Query[] = "SELECT * FROM events ORDER BY year";
 
-    Result R( T.Exec(Query) );
+    result R( T.Exec(Query) );
     string Msg;
 
     for (int BlockSize = 2; BlockSize <= R.size()+1; ++BlockSize)
     {
-      CachedResult CR(T, Query, "cachedresult", BlockSize);
+      cachedresult CR(T, Query, "cachedresult", BlockSize);
  
       // Verify that we get an exception if we exceed CR's range, and are able
       // to recover afterwards
-      for (CachedResult::size_type n = -2; n < 2; ++n) CheckOverrun(CR, n, Msg);
+      for (cachedresult::size_type n = -2; n < 2; ++n) CheckOverrun(CR, n, Msg);
 
       // Compare contents for CR with R
-      for (Result::size_type i = R.size() - 1; i >= 0 ; --i)
+      for (result::size_type i = R.size() - 1; i >= 0 ; --i)
       {
 	string A, B;
 	R.at(i).at(0).to(A);

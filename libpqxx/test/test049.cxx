@@ -10,7 +10,7 @@ using namespace pqxx;
 namespace
 {
 
-// Adds first element of each Tuple it receives to a container
+// Adds first element of each tuple it receives to a container
 template<typename CONTAINER> struct Add
 {
   CONTAINER &Container;
@@ -18,7 +18,7 @@ template<typename CONTAINER> struct Add
 
   Add(string K, CONTAINER &C) : Container(C), Key(K) {}
 
-  void operator()(const Result::Tuple &T) 
+  void operator()(const result::tuple &T) 
   { 
     Container.push_back(T[Key].c_str()); 
   }
@@ -32,26 +32,26 @@ Add<CONTAINER> AdderFor(string K, CONTAINER &C)
 }
 
 
-struct Cmp : binary_function<Result::Tuple, Result::Tuple, bool>
+struct Cmp : binary_function<result::tuple, result::tuple, bool>
 {
   string Key;
 
   explicit Cmp(string K) : Key(K) {}
 
-  bool operator()(const Result::Tuple &L, const Result::Tuple &R) const
+  bool operator()(const result::tuple &L, const result::tuple &R) const
   {
     return string(L[Key].c_str()) < string(R[Key].c_str());
   }
 };
 
-struct CountGreaterSmaller : unary_function<Result::Tuple, void>
+struct CountGreaterSmaller : unary_function<result::tuple, void>
 {
   string Key;
-  const Result &R;
+  const result &R;
 
-  CountGreaterSmaller(string K, const Result &X) : Key(K), R(X) {}
+  CountGreaterSmaller(string K, const result &X) : Key(K), R(X) {}
 
-  void operator()(const Result::Tuple &T) const
+  void operator()(const result::tuple &T) const
   {
     // Count number of entries with key greater/smaller than first row's key
     // using std::count_if<>()
@@ -110,10 +110,10 @@ int main(int argc, char *argv[])
       throw invalid_argument("Usage: test049 [connectstring] [tablename key]");
     }
 
-    Connection C(argv[1]);
+    connection C(argv[1]);
     Transaction T(C, "test49");
 
-    Result R( T.Exec("SELECT * FROM " + Table + " ORDER BY " + Key) );
+    result R( T.Exec("SELECT * FROM " + Table + " ORDER BY " + Key) );
     cout << "Read " << R.size() << " tuples." << endl;
     if (R.empty()) throw runtime_error("No entries in table '" + Table + "'!");
 

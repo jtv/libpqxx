@@ -4,10 +4,14 @@
  *	pqxx/tablereader.h
  *
  *   DESCRIPTION
- *      definition of the pqxx::TableReader class.
- *   pqxx::TableReader enables optimized batch reads from a database table
+ *      definition of the pqxx::tablereader class.
+ *   pqxx::tablereader enables optimized batch reads from a database table
  *
  * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
  *
  *-------------------------------------------------------------------------
  */
@@ -27,8 +31,8 @@ namespace pqxx
 {
 
 /// Efficiently pull data directly out of a table.
-/** A TableReader provides efficient read access to a database table.  This is
- * not as flexible as a normal query using the Result class however:
+/** A tablereader provides efficient read access to a database table.  This is
+ * not as flexible as a normal query using the result class however:
  *  - Can only dump tables, not views or arbitrary queries
  *  - Has no knowledge of metadata
  *  - Is unable to reorder, rename, omit or enrich fields
@@ -36,16 +40,16 @@ namespace pqxx
  *
  * On the other hand, it can read rows of data and transform them into any
  * container or container-like object that supports STL back-inserters.  Since
- * the TableReader has no knowledge of the types of data expected, it treats
+ * the tablereader has no knowledge of the types of data expected, it treats
  * all fields as strings.
  */
-class PQXX_LIBEXPORT TableReader : public TableStream
+class PQXX_LIBEXPORT tablereader : public tablestream
 {
 public:
-  TableReader(Transaction_base &, const PGSTD::string &RName);		//[t6]
-  ~TableReader();							//[t6]
+  tablereader(transaction_base &, const PGSTD::string &RName);		//[t6]
+  ~tablereader();							//[t6]
 
-  template<typename TUPLE> TableReader &operator>>(TUPLE &);		//[t8]
+  template<typename TUPLE> tablereader &operator>>(TUPLE &);		//[t8]
 
   operator bool() const throw () { return !m_Done; }			//[t6]
   bool operator!() const throw () { return m_Done; }			//[t6]
@@ -63,13 +67,16 @@ private:
   bool m_Done;
 };
 
+/// @deprecated For compatibility with the old TableReader class
+typedef tablereader TableReader;
+
 }
 
 // TODO: Find meaningful definition of input iterator
 
 
 template<typename TUPLE> 
-inline void pqxx::TableReader::Tokenize(PGSTD::string Line, 
+inline void pqxx::tablereader::Tokenize(PGSTD::string Line, 
                                         TUPLE &T) const
 {
   PGSTD::back_insert_iterator<TUPLE> ins = PGSTD::back_inserter(T);
@@ -118,7 +125,7 @@ inline void pqxx::TableReader::Tokenize(PGSTD::string Line,
 
 
 template<typename TUPLE> 
-inline pqxx::TableReader &pqxx::TableReader::operator>>(TUPLE &T)
+inline pqxx::tablereader &pqxx::tablereader::operator>>(TUPLE &T)
 {
   PGSTD::string Line;
   if (GetRawLine(Line)) Tokenize(Line, T);

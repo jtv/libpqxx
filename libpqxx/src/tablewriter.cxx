@@ -4,10 +4,14 @@
  *	tablewriter.cxx
  *
  *   DESCRIPTION
- *      implementation of the pqxx::TableWriter class.
- *   pqxx::TableWriter enables optimized batch updates to a database table
+ *      implementation of the pqxx::tablewriter class.
+ *   pqxx::tablewriter enables optimized batch updates to a database table
  *
  * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
  *
  *-------------------------------------------------------------------------
  */
@@ -18,14 +22,14 @@
 using namespace PGSTD;
 
 
-pqxx::TableWriter::TableWriter(Transaction_base &T, const string &WName) :
-  TableStream(T, WName)
+pqxx::tablewriter::tablewriter(transaction_base &T, const string &WName) :
+  tablestream(T, WName)
 {
   T.BeginCopyWrite(WName);
 }
 
 
-pqxx::TableWriter::~TableWriter()
+pqxx::tablewriter::~tablewriter()
 {
   try
   {
@@ -38,7 +42,7 @@ pqxx::TableWriter::~TableWriter()
 }
 
 
-pqxx::TableWriter &pqxx::TableWriter::operator<<(pqxx::TableReader &R)
+pqxx::tablewriter &pqxx::tablewriter::operator<<(pqxx::tablereader &R)
 {
   string Line;
   while (R.GetRawLine(Line))
@@ -48,7 +52,7 @@ pqxx::TableWriter &pqxx::TableWriter::operator<<(pqxx::TableReader &R)
 }
 
 
-void pqxx::TableWriter::WriteRawLine(const string &Line)
+void pqxx::tablewriter::WriteRawLine(const string &Line)
 {
   Trans().WriteCopyLine(Line);
 }

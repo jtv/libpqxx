@@ -4,17 +4,21 @@
  *	pqxx/tablewriter.h
  *
  *   DESCRIPTION
- *      definition of the pqxx::TableWriter class.
- *   pqxx::TableWriter enables optimized batch updates to a database table
+ *      definition of the pqxx::tablewriter class.
+ *   pqxx::tablewriter enables optimized batch updates to a database table
  *
  * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
  *
  *-------------------------------------------------------------------------
  */
 #ifndef PQXX_TABLEWRITER_H
 #define PQXX_TABLEWRITER_H
 
-#include "config.h"
+#include "pqxx/config.h"
 
 #include <numeric>
 #include <string>
@@ -27,10 +31,10 @@
 
 namespace pqxx
 {
-class TableReader;	// See pqxx/tablereader.h
+class tablereader;	// See pqxx/tablereader.h
 
 /// Efficiently write data directly to a database table.
-/** A TableWriter provides a Spartan but efficient way of writing data tuples
+/** A tablewriter provides a Spartan but efficient way of writing data tuples
  * into a table.  It provides a plethora of STL-like insertion methods: it has
  * insert() methods, push_back(), an overloaded insertion operator (<<), and it
  * supports inserters created by std::back_inserter().  All of these are
@@ -39,13 +43,13 @@ class TableReader;	// See pqxx/tablereader.h
  * Note that in each case, a container or range represents the fields of a 
  * single tuple--not a collection of tuples.
  */
-class PQXX_LIBEXPORT TableWriter : public TableStream
+class PQXX_LIBEXPORT tablewriter : public tablestream
 {
 public:
   typedef unsigned size_type;
 
-  TableWriter(Transaction_base &Trans, const PGSTD::string &WName);	//[t5]
-  ~TableWriter();							//[t5]
+  tablewriter(transaction_base &Trans, const PGSTD::string &WName);	//[t5]
+  ~tablewriter();							//[t5]
 
   template<typename IT> void insert(IT Begin, IT End);			//[t5]
   template<typename TUPLE> void insert(const TUPLE &);			//[t5]
@@ -54,10 +58,10 @@ public:
 
   void reserve(size_type) {}						//[t9]
 
-  template<typename TUPLE> TableWriter &operator<<(const TUPLE &);	//[t5]
+  template<typename TUPLE> tablewriter &operator<<(const TUPLE &);	//[t5]
 
   // Copy table from one database to another
-  TableWriter &operator<<(TableReader &);				//[t6]
+  tablewriter &operator<<(tablereader &);				//[t6]
 
   /// "Untokenize" a tuple of data to a string in DBMS-specific format.  This
   /// is not portable between databases.
@@ -67,10 +71,10 @@ public:
 private:
   void WriteRawLine(const PGSTD::string &);
 
-  class FieldConverter
+  class PQXX_LIBEXPORT fieldconverter
   {
   public:
-    FieldConverter(const PGSTD::string &N) : Null(N) {}
+    fieldconverter(const PGSTD::string &N) : Null(N) {}
 
     template<typename T> PGSTD::string operator()(const PGSTD::string &S,
 		                                  T i) const
@@ -93,18 +97,22 @@ private:
   };
 };
 
+/// @deprecated For compatibility with the old TableWriter class
+typedef tablewriter TableWriter;
+
 }
 
 
 namespace PGSTD
 {
-// Specialized back_insert_iterator for TableWriter, doesn't require a 
+// Specialized back_insert_iterator for tablewriter, doesn't require a 
 // value_type to be defined.  Accepts any container type instead.
-template<> class back_insert_iterator<pqxx::TableWriter> : 		//[t9]
+template<> 
+  class PQXX_LIBEXPORT back_insert_iterator<pqxx::tablewriter> :	//[t9]
 	public iterator<output_iterator_tag, void,void,void,void>
 {
 public:
-  explicit back_insert_iterator(pqxx::TableWriter &W) : m_Writer(W) {}
+  explicit back_insert_iterator(pqxx::tablewriter &W) : m_Writer(W) {}
 
   template<typename TUPLE> 
   back_insert_iterator &operator=(const TUPLE &T)
@@ -118,7 +126,7 @@ public:
   back_insert_iterator &operator*() { return *this; }
 
 private:
-  pqxx::TableWriter &m_Writer;
+  pqxx::tablewriter &m_Writer;
 };
 
 } // namespace
@@ -129,7 +137,7 @@ namespace pqxx
 
 template<>
 inline PGSTD::string 
-TableWriter::FieldConverter::operator()(const PGSTD::string &S,
+tablewriter::fieldconverter::operator()(const PGSTD::string &S,
                                         PGSTD::string i) const
 {
   if (i == Null) i = PGNull();
@@ -139,14 +147,14 @@ TableWriter::FieldConverter::operator()(const PGSTD::string &S,
 
 
 inline PGSTD::string
-TableWriter::FieldConverter::operator()(const PGSTD::string &S, 
+tablewriter::fieldconverter::operator()(const PGSTD::string &S, 
                                         const char *i) const
 {
   return operator()(S, PGSTD::string(i));
 }
 
 
-inline void TableWriter::FieldConverter::Escape(PGSTD::string &S)
+inline void tablewriter::fieldconverter::Escape(PGSTD::string &S)
 {
   const char Special[] = "\n\t\\";
 
@@ -158,12 +166,12 @@ inline void TableWriter::FieldConverter::Escape(PGSTD::string &S)
 
 
 template<typename IT> 
-inline PGSTD::string TableWriter::ezinekoT(IT Begin, IT End) const
+inline PGSTD::string tablewriter::ezinekoT(IT Begin, IT End) const
 {
   PGSTD::string Line = PGSTD::accumulate(Begin, 
 		                         End, 
 					 PGSTD::string(), 
-					 FieldConverter(NullStr()));
+					 fieldconverter(NullStr()));
 
   // Above algorithm generates one separating tab too many.  Take it back.
   if (!Line.empty()) Line.erase(Line.size()-1);
@@ -173,37 +181,37 @@ inline PGSTD::string TableWriter::ezinekoT(IT Begin, IT End) const
 
 
 template<typename TUPLE> 
-inline PGSTD::string TableWriter::ezinekoT(const TUPLE &T) const
+inline PGSTD::string tablewriter::ezinekoT(const TUPLE &T) const
 {
   return ezinekoT(T.begin(), T.end());
 }
 
 
-template<typename IT> inline void TableWriter::insert(IT Begin, IT End)
+template<typename IT> inline void tablewriter::insert(IT Begin, IT End)
 {
   WriteRawLine(ezinekoT(Begin, End));
 }
 
 
-template<typename TUPLE> inline void TableWriter::insert(const TUPLE &T)
+template<typename TUPLE> inline void tablewriter::insert(const TUPLE &T)
 {
   insert(T.begin(), T.end());
 }
 
 template<typename IT> 
-inline void TableWriter::push_back(IT Begin, IT End)
+inline void tablewriter::push_back(IT Begin, IT End)
 {
   insert(Begin, End);
 }
 
 template<typename TUPLE> 
-inline void TableWriter::push_back(const TUPLE &T)
+inline void tablewriter::push_back(const TUPLE &T)
 {
   insert(T.begin(), T.end());
 }
 
 template<typename TUPLE> 
-inline TableWriter &TableWriter::operator<<(const TUPLE &T)
+inline tablewriter &tablewriter::operator<<(const TUPLE &T)
 {
   insert(T);
   return *this;

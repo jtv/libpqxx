@@ -3,6 +3,7 @@
 
 #include <pqxx/connection.h>
 #include <pqxx/transaction.h>
+#include <pqxx/transactor.h>
 #include <pqxx/result.h>
 
 using namespace PGSTD;
@@ -10,9 +11,9 @@ using namespace pqxx;
 
 
 // Example program for libpqxx.  Modify the database, retaining transactional
-// integrity using the Transactor framework, and using lazy connections.
+// integrity using the transactor framework, and using lazy connections.
 //
-// Usage: test26 [connect-string]
+// Usage: test026 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -46,20 +47,20 @@ int To4Digits(int Y)
 
 
 // Transaction definition for year-field update
-class UpdateYears : public Transactor
+class UpdateYears : public transactor<>
 {
 public:
-  UpdateYears() : Transactor("YearUpdate") {}
+  UpdateYears() : transactor<>("YearUpdate") {}
 
   // Transaction definition
   void operator()(argument_type &T)
   {
     // First select all different years occurring in the table.
-    Result R( T.Exec("SELECT year FROM events") );
+    result R( T.Exec("SELECT year FROM events") );
 
     // Note all different years currently occurring in the table, writing them
     // and their correct mappings to m_Conversions
-    for (Result::const_iterator r = R.begin(); r != R.end(); ++r)
+    for (result::const_iterator r = R.begin(); r != R.end(); ++r)
     {
       int Y;
 
@@ -119,7 +120,7 @@ int main(int, char *argv[])
 {
   try
   {
-    LazyConnection C(argv[1]);
+    lazyconnection C(argv[1]);
 
     // Perform (an instantiation of) the UpdateYears transactor we've defined
     // in the code above.  This is where the work gets done.
@@ -128,7 +129,7 @@ int main(int, char *argv[])
     // Just for fun, report the exact conversions performed.  Note that this
     // list will be accurate even if other people were modifying the database
     // at the same time; this property was established through use of the
-    // Transactor framework.
+    // transactor framework.
     for (map<int,int>::const_iterator i = theConversions.begin();
 	 i != theConversions.end();
 	 ++i)

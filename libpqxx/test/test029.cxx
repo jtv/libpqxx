@@ -14,7 +14,7 @@ using namespace pqxx;
 // Test program for libpqxx.  Open connection to database, start a transaction, 
 // abort it, and verify that it "never happened."  Use lazy connection.
 //
-// Usage: test29 [connect-string]
+// Usage: test029 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -43,7 +43,7 @@ pair<int,int> CountEvents(Transaction &T)
   int EventsCount = 0,
       BoringCount = 0;
 
-  Result R( T.Exec(EventsQuery) );
+  result R( T.Exec(EventsQuery) );
   R.at(0).at(0).to(EventsCount);
 
   R = T.Exec(BoringQuery);
@@ -56,7 +56,7 @@ pair<int,int> CountEvents(Transaction &T)
 
 // Try adding a record, then aborting it, and check whether the abort was
 // performed correctly.
-void Test(Connection_base &C, bool ExplicitAbort)
+void Test(connection_base &C, bool ExplicitAbort)
 {
   vector<string> BoringTuple;
   BoringTuple.push_back(ToString(BoringYear));
@@ -82,16 +82,16 @@ void Test(Connection_base &C, bool ExplicitAbort)
 
     // Now let's try to introduce a tuple for our Boring Year
     {
-      TableWriter W(Doomed, Table);
+      tablewriter W(Doomed, Table);
 
       if (W.Name() != Table)
-        throw logic_error("Set TableWriter name to '" + Table + "', "
+        throw logic_error("Set tablewriter name to '" + Table + "', "
                 "but now it's '" + W.Name() + "'");
 
       const string Literal = W.ezinekoT(BoringTuple);
       const string Expected = ToString(BoringYear) + "\t" + BoringTuple[1];
       if (Literal != Expected)
-	throw logic_error("TableWriter writes new tuple as '" +
+	throw logic_error("tablewriter writes new tuple as '" +
 			  Literal + "', "
 			  "ought to be '" +
 			  Expected + "'");
@@ -152,7 +152,7 @@ int main(int, char *argv[])
 {
   try
   {
-    LazyConnection C(argv[1]);
+    lazyconnection C(argv[1]);
 
     // Test abort semantics, both with explicit and implicit abort
     Test(C, true);

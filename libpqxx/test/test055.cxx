@@ -12,11 +12,11 @@ namespace
 
 const string Contents = "Large object test contents";
 
-class ImportLargeObject : public Transactor
+class ImportLargeObject : public transactor<>
 {
 public:
-  explicit ImportLargeObject(LargeObject &O, const string &File) :
-    Transactor("ImportLargeObject"),
+  explicit ImportLargeObject(largeobject &O, const string &File) :
+    transactor<>("ImportLargeObject"),
     m_Object(O),
     m_File(File)
   {
@@ -25,8 +25,8 @@ public:
   void operator()(argument_type &T)
   {
 
-    LargeObjectAccess A(T, "pqxxlo.txt", ios::in);
-    m_Object = LargeObject(A);
+    largeobjectaccess A(T, "pqxxlo.txt", ios::in);
+    m_Object = largeobject(A);
     cout << "Imported '" << m_File << "' "
             "to large object #" << m_Object.id() << endl;
 
@@ -40,15 +40,15 @@ public:
   }
 
 private:
-  LargeObject &m_Object;
+  largeobject &m_Object;
   string m_File;
 };
 
 
-class DeleteLargeObject : public Transactor
+class DeleteLargeObject : public transactor<>
 {
 public:
-  explicit DeleteLargeObject(LargeObject O) : m_Object(O) {}
+  explicit DeleteLargeObject(largeobject O) : m_Object(O) {}
 
   void operator()(argument_type &T)
   {
@@ -56,7 +56,7 @@ public:
   }
 
 private:
-  LargeObject m_Object;
+  largeobject m_Object;
 };
 
 }
@@ -64,7 +64,7 @@ private:
 
 // Test program for libpqxx: import file to large object
 //
-// Usage: test55 [connect-string]
+// Usage: test055 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -74,9 +74,9 @@ int main(int, char *argv[])
 {
   try
   {
-    Connection C(argv[1]);
+    connection C(argv[1]);
 
-    LargeObject Obj;
+    largeobject Obj;
 
     C.Perform(ImportLargeObject(Obj, "pqxxlo.txt"));
     C.Perform(DeleteLargeObject(Obj));

@@ -17,7 +17,7 @@ using namespace pqxx;
 // Cursor test program for libpqxx.  Read table through a cursor, scanning back 
 // and forth and checking for consistent results.
 //
-// Usage: test19 [connect-string]
+// Usage: test019 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -27,10 +27,10 @@ using namespace pqxx;
 namespace
 {
 
-void AddResult(vector<string> &V, const Result &R)
+void AddResult(vector<string> &V, const result &R)
 {
   V.reserve(V.size() + R.size());
-  for (Result::const_iterator i = R.begin(); i != R.end(); ++i)
+  for (result::const_iterator i = R.begin(); i != R.end(); ++i)
     V.push_back(i.at(0).c_str());
 }
 
@@ -51,11 +51,11 @@ int main(int, char *argv[])
   {
     const string Table = "events";
 
-    Connection C(argv[1]);
-    Transaction T(C, "test19");
+    connection C(argv[1]);
+    transaction<serializable> T(C, "test19");
 
     // Count rows.
-    Result R( T.Exec("SELECT count(*) FROM " + Table) );
+    result R( T.Exec("SELECT count(*) FROM " + Table) );
     int Rows;
     R.at(0).at(0).to(Rows);
 

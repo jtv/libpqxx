@@ -1,3 +1,34 @@
+1.9.0
+ - EVERYTHING HAS CHANGED.  Read the list or run into trouble!
+ - CURSOR HAS INCOMPATIBLE CHANGES AND MAY BE REPLACED COMPLETELY
+ - CACHEDRESULT HAS INCOMPATIBLE CHANGES (won't compile without changes)
+ - REVISE YOUR TRANSACTORS; now templatized on transaction type
+ - Finally got license file in order
+ - Incompatible change in setting transactor quality of service
+ - Cursors require serializable isolation level (checked at link time)
+ - Renamed Connection_base to connection_base, Connection to connection,
+   LazyConnection to lazyconnection
+ - Renamed LargeObject to largeobject, LargeObjectAccess to largeobjectaccess
+ - Renamed Noticer to noticer
+ - Renamed Trigger to trigger
+ - Renamed Result to result, Tuple to tuple, Field to field
+ - Renamed Unique<> to unique<>
+ - Renamed CachedResult to cachedresult
+ - Transformed Transaction Taxonomy (TTT):
+ - Renamed Transaction_base to transaction_base
+ - Renamed Transaction to transaction
+ - Renamed Transactor to transactor<> (now a template)
+ - Implemented transaction isolation levels as compile-time static properties
+ - transaction and robusttransaction now templatized on their isolation levels
+ - cachedresult requires serializable isolation level (checked at link time)
+ - Now need to include pqxx/transactor.h yourself if you need transactors
+ - Large objects require real backend transaction at compile time
+ - New type oid and constant oid_none for row identifiers resp. null oid
+ - Added some forgotten PQXX_LIBEXPORTs
+ - Tweaked documentation in many places
+1.8.1
+ - By popular request: more convenient way to read field values
+ - Documented locale sensitivity of ToString(), FromString(), Field::to()
 1.8.0
  - Compiles on gcc 2.95 again (heavy streambuf workarounds in largeobject.h)
  - ConnectionItf renamed to Connection_base, TransactionItf to Transaction_base

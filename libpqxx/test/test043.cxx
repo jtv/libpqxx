@@ -17,7 +17,7 @@ using namespace pqxx;
 // Cursor test program for libpqxx.  Scan through a table using a cursor, and 
 // verify that correct cursor positions are being reported.
 //
-// Usage: test43 [connect-string]
+// Usage: test043 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -37,8 +37,8 @@ void ExpectPos(Cursor &C, Cursor::size_type Pos)
 
 void MoveTo(Cursor &C, Cursor::size_type N, Cursor::size_type NewPos)
 {
-  const Result::size_type OldPos = C.Pos();
-  const Result::size_type Dist = C.Move(N);
+  const result::size_type OldPos = C.Pos();
+  const result::size_type Dist = C.Move(N);
   if (OldPos + Dist != NewPos)
     throw logic_error("Inconsistent move: " + ToString(Dist) + " rows "
 	              "from " + ToString(OldPos) + " "
@@ -55,11 +55,11 @@ int main(int, char *argv[])
   {
     const string Table = "events";
 
-    Connection C(argv[1]);
-    Transaction T(C, "test19");
+    connection C(argv[1]);
+    transaction<serializable> T(C, "test19");
 
     // Count rows.
-    Result R( T.Exec("SELECT count(*) FROM " + Table) );
+    result R( T.Exec("SELECT count(*) FROM " + Table) );
     int Rows;
     R.at(0).at(0).to(Rows);
 

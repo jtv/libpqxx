@@ -15,7 +15,7 @@ using namespace pqxx;
 // fetching <blocksize> rows at a time.  Default blocksize is 1; use 0 to
 // read all rows at once.  Negative blocksizes read backwards.
 //
-// Usage: test3 [connect-string] [blocksize]
+// Usage: test003 [connect-string] [blocksize]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -31,13 +31,13 @@ int main(int argc, char *argv[])
     if (BlockSize == 0) BlockSize = Cursor::ALL();
 
     // Set up a connection to the backend
-    Connection C(argv[1] ? argv[1] : "");
+    connection C(argv[1] ? argv[1] : "");
 
     // Enable all sorts of debug output
     C.Trace(stdout);
 
     // Begin a transaction acting on our current connection
-    Transaction T(C, "test3");
+    transaction<serializable> T(C, "test3");
 
     // Declare a cursor for the list of database tables
     Cursor Cur(T, "SELECT * FROM pg_tables", "tablecur", BlockSize);
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     C.Trace(0);
 
 
-    Result R;
+    result R;
     while ((Cur >> R))
     {
       // Out of sheer curiosity, see if Cursor is consistent in the stream
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 			  "was all I asked for!");
 
       // Process each successive result tuple
-      for (Result::const_iterator c = R.begin(); c != R.end(); ++c)
+      for (result::const_iterator c = R.begin(); c != R.end(); ++c)
       {
         // Read value of column 0 into a string N
         string N;

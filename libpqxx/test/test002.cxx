@@ -11,7 +11,7 @@ using namespace pqxx;
 // Example program for libpqxx.  Perform a query and enumerate its output
 // using array indexing.
 //
-// Usage: test2 [connect-string]
+// Usage: test002 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -24,13 +24,13 @@ int main(int, char *argv[])
   {
     // Set up connection to database
     string ConnectString = (argv[1] ? argv[1] : "");
-    Connection C(ConnectString);
+    connection C(ConnectString);
 
     // Start transaction within context of connection
-    Transaction T(C, "test2");
+    transaction<> T(C, "test2");
 
     // Perform query within transaction
-    Result R( T.Exec("SELECT * FROM pg_tables") );
+    result R( T.Exec("SELECT * FROM pg_tables") );
 
     // Let's keep the database waiting as briefly as possible: commit now,
     // before we start processing results.  We could do this later, or since
@@ -43,7 +43,7 @@ int main(int, char *argv[])
     C.Disconnect();
 
     // Now we've got all that settled, let's process our results.
-    for (Result::size_type i = 0; i < R.size(); ++i)
+    for (result::size_type i = 0; i < R.size(); ++i)
       cout << '\t' << ToString(i) << '\t' << R[i][0].c_str() << endl;
 
   }

@@ -12,11 +12,11 @@ namespace
 
 const string Contents = "Large object test contents";
 
-class ImportLargeObject : public Transactor
+class ImportLargeObject : public transactor<>
 {
 public:
-  explicit ImportLargeObject(LargeObject &O, const string &File) :
-    Transactor("ImportLargeObject"),
+  explicit ImportLargeObject(largeobject &O, const string &File) :
+    transactor<>("ImportLargeObject"),
     m_Object(O),
     m_File(File)
   {
@@ -24,21 +24,21 @@ public:
 
   void operator()(argument_type &T)
   {
-    m_Object = LargeObject(T, m_File);
+    m_Object = largeobject(T, m_File);
     cout << "Imported '" << m_File << "' "
             "to large object #" << m_Object.id() << endl;
   }
 
 private:
-  LargeObject &m_Object;
+  largeobject &m_Object;
   string m_File;
 };
 
-class ReadLargeObject : public Transactor
+class ReadLargeObject : public transactor<>
 {
 public:
-  explicit ReadLargeObject(LargeObject &O) : 
-    Transactor("ReadLargeObject"),
+  explicit ReadLargeObject(largeobject &O) : 
+    transactor<>("ReadLargeObject"),
     m_Object(O)
   {
   }
@@ -46,7 +46,7 @@ public:
   void operator()(argument_type &T)
   {
     char Buf[200];
-    LargeObjectAccess O(T, m_Object, ios::in);
+    largeobjectaccess O(T, m_Object, ios::in);
     Buf[O.read(Buf, sizeof(Buf)-1)] = '\0';
     if (Contents != Buf)
       throw runtime_error("Expected large object #" + 
@@ -56,14 +56,14 @@ public:
   }
 
 private:
-  LargeObject m_Object;
+  largeobject m_Object;
 };
 
 
-class DeleteLargeObject : public Transactor
+class DeleteLargeObject : public transactor<>
 {
 public:
-  explicit DeleteLargeObject(LargeObject O) : m_Object(O) {}
+  explicit DeleteLargeObject(largeobject O) : m_Object(O) {}
 
   void operator()(argument_type &T)
   {
@@ -71,7 +71,7 @@ public:
   }
 
 private:
-  LargeObject m_Object;
+  largeobject m_Object;
 };
 
 }
@@ -79,7 +79,7 @@ private:
 
 // Test program for libpqxx: import file to large object
 //
-// Usage: test53 [connect-string]
+// Usage: test053 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -89,9 +89,9 @@ int main(int, char *argv[])
 {
   try
   {
-    Connection C(argv[1]);
+    connection C(argv[1]);
 
-    LargeObject Obj;
+    largeobject Obj;
 
     C.Perform(ImportLargeObject(Obj, "pqxxlo.txt"));
     C.Perform(ReadLargeObject(Obj));

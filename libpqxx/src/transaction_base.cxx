@@ -5,10 +5,14 @@
  *
  *   DESCRIPTION
  *      common code and definitions for the transaction classes
- *   pqxx::Transaction_base defines the interface for any abstract class that
+ *   pqxx::transaction_base defines the interface for any abstract class that
  *   represents a database transaction
  *
  * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
  *
  *-------------------------------------------------------------------------
  */
@@ -23,7 +27,7 @@
 using namespace PGSTD;
 
 
-pqxx::Transaction_base::Transaction_base(Connection_base &C, 
+pqxx::transaction_base::transaction_base(connection_base &C, 
     					 const string &TName) :
   m_Conn(C),
   m_Name(TName),
@@ -37,7 +41,7 @@ pqxx::Transaction_base::Transaction_base(Connection_base &C,
 }
 
 
-pqxx::Transaction_base::~Transaction_base()
+pqxx::transaction_base::~transaction_base()
 {
   if (m_Registered)
   {
@@ -48,7 +52,7 @@ pqxx::Transaction_base::~Transaction_base()
 }
 
 
-void pqxx::Transaction_base::Commit()
+void pqxx::transaction_base::Commit()
 {
   // Check previous status code.  Caller should only call this function if
   // we're in "implicit" state, but multiple commits are silently accepted.
@@ -83,7 +87,7 @@ void pqxx::Transaction_base::Commit()
 		      "committed again while in an undetermined state\n");
 
   default:
-    throw logic_error("Internal libpqxx error: pqxx::Transaction: invalid status code");
+    throw logic_error("Internal libpqxx error: pqxx::transaction: invalid status code");
   }
  
   // Tricky one.  If stream is nested in transaction but inside the same scope,
@@ -119,7 +123,7 @@ void pqxx::Transaction_base::Commit()
 }
 
 
-void pqxx::Transaction_base::Abort()
+void pqxx::transaction_base::Abort()
 {
   // Check previous status code.  Quietly accept multiple aborts to 
   // simplify emergency bailout code.
@@ -149,7 +153,7 @@ void pqxx::Transaction_base::Abort()
     return;
 
   default:
-    throw logic_error("Internal libpqxx error: pqxx::Transaction: invalid status code");
+    throw logic_error("Internal libpqxx error: pqxx::transaction: invalid status code");
   }
 
   m_Status = st_aborted;
@@ -157,7 +161,7 @@ void pqxx::Transaction_base::Abort()
 }
 
 
-pqxx::Result pqxx::Transaction_base::Exec(const char Query[],
+pqxx::result pqxx::transaction_base::Exec(const char Query[],
     					const string &Desc)
 {
   const string N = (Desc.empty() ? "" : "'" + Desc + "'");
@@ -196,7 +200,7 @@ pqxx::Result pqxx::Transaction_base::Exec(const char Query[],
 		      Name() + 
 		      "', which is in indeterminate state");
   default:
-    throw logic_error("Internal libpqxx error: pqxx::Transaction: "
+    throw logic_error("Internal libpqxx error: pqxx::transaction: "
 		      "invalid status code");
   }
 
@@ -205,7 +209,7 @@ pqxx::Result pqxx::Transaction_base::Exec(const char Query[],
 }
 
 
-void pqxx::Transaction_base::SetVariable(const PGSTD::string &Var,
+void pqxx::transaction_base::SetVariable(const PGSTD::string &Var,
                                        const PGSTD::string &Value)
 {
   m_Conn.RawSetVar(Var, Value);
@@ -213,10 +217,10 @@ void pqxx::Transaction_base::SetVariable(const PGSTD::string &Var,
 }
 
 
-void pqxx::Transaction_base::Begin()
+void pqxx::transaction_base::Begin()
 {
   if (m_Status != st_nascent)
-    throw logic_error("Internal libpqxx error: pqxx::Transaction: "
+    throw logic_error("Internal libpqxx error: pqxx::transaction: "
 		      "Begin() called while not in nascent state");
 
   try
@@ -236,7 +240,7 @@ void pqxx::Transaction_base::Begin()
 
 
 
-void pqxx::Transaction_base::End() throw ()
+void pqxx::transaction_base::End() throw ()
 {
   if (!m_Registered) return;
 
@@ -262,13 +266,13 @@ void pqxx::Transaction_base::End() throw ()
 
 
 
-void pqxx::Transaction_base::RegisterStream(TableStream *S)
+void pqxx::transaction_base::RegisterStream(tablestream *S)
 {
   m_Stream.Register(S);
 }
 
 
-void pqxx::Transaction_base::UnregisterStream(TableStream *S) throw ()
+void pqxx::transaction_base::UnregisterStream(tablestream *S) throw ()
 {
   try
   {
@@ -281,7 +285,7 @@ void pqxx::Transaction_base::UnregisterStream(TableStream *S) throw ()
 }
 
 
-pqxx::Result pqxx::Transaction_base::DirectExec(const char C[], 
+pqxx::result pqxx::transaction_base::DirectExec(const char C[], 
 		                      int Retries,
 				      const char OnReconnect[])
 {

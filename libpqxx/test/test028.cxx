@@ -13,9 +13,9 @@ using namespace pqxx;
 
 
 // Test program for libpqxx.  Create a table and write data to it, using
-// TableWriter's back_insert_iterator, and on a lazy connection.
+// tablewriter's back_insert_iterator, and on a lazy connection.
 //
-// Usage: test28 [connect-string] [table]
+// Usage: test028 [connect-string] [table]
 //
 // Where the connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -57,7 +57,7 @@ void PrepareContents()
 
 void FillTable(Transaction &T, string TableName)
 {
-  TableWriter W(T, TableName);
+  tablewriter W(T, TableName);
   W.reserve(Contents.size());
 
   copy(Contents.begin(), Contents.end(), back_inserter(W));
@@ -68,7 +68,7 @@ void FillTable(Transaction &T, string TableName)
 
 void CheckTable(Transaction &T, string TableName)
 {
-  Result Count = T.Exec("SELECT COUNT(*) FROM " + TableName);
+  result Count = T.Exec("SELECT COUNT(*) FROM " + TableName);
   size_t Rows = 0;
 
   if (!Count[0][0].to(Rows)) throw runtime_error("NULL row count!");
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 
     // Set up two connections to the backend: one to read our original table,
     // and another to write our copy
-    LazyConnection C(argv[1]);
+    lazyconnection C(argv[1]);
 
     // Select our original and destination table names
     string TableName = "testtable";

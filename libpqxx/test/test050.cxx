@@ -14,11 +14,11 @@ namespace
 
 const string Contents = "Large object test contents";
 
-class CreateLargeObject : public Transactor
+class CreateLargeObject : public transactor<>
 {
 public:
-  explicit CreateLargeObject(LargeObject &O) :
-    Transactor("CreateLargeObject"),
+  explicit CreateLargeObject(largeobject &O) :
+    transactor<>("CreateLargeObject"),
     m_Object(),
     m_ObjectOutput(O)
   {
@@ -26,7 +26,7 @@ public:
 
   void operator()(argument_type &T)
   {
-    m_Object = LargeObject(T);
+    m_Object = largeobject(T);
     cout << "Created large object #" << m_Object.id() << endl;
   }
 
@@ -36,23 +36,23 @@ public:
   }
 
 private:
-  LargeObject m_Object;
-  LargeObject &m_ObjectOutput;
+  largeobject m_Object;
+  largeobject &m_ObjectOutput;
 };
 
-class WriteLargeObject : public Transactor
+class WriteLargeObject : public transactor<>
 {
 public:
-  explicit WriteLargeObject(LargeObject &O) : 
-    Transactor("WriteLargeObject"),
+  explicit WriteLargeObject(largeobject &O) : 
+    transactor<>("WriteLargeObject"),
     m_Object(O)
   {
   }
 
   void operator()(argument_type &T)
   {
-    LargeObjectAccess A(T, m_Object);
-    cout << "Writing to large object #" << LargeObject(A).id() << endl;
+    largeobjectaccess A(T, m_Object);
+    cout << "Writing to large object #" << largeobject(A).id() << endl;
     long Bytes = A.cwrite(Contents.c_str(), Contents.size());
     if (Bytes != long(Contents.size()))
       throw logic_error("Tried to write " + ToString(Contents.size()) + " "
@@ -98,14 +98,14 @@ public:
   }
 
 private:
-  LargeObject m_Object;
+  largeobject m_Object;
 };
 
 
-class DeleteLargeObject : public Transactor
+class DeleteLargeObject : public transactor<>
 {
 public:
-  explicit DeleteLargeObject(LargeObject O) : m_Object(O) {}
+  explicit DeleteLargeObject(largeobject O) : m_Object(O) {}
 
   void operator()(argument_type &T)
   {
@@ -113,7 +113,7 @@ public:
   }
 
 private:
-  LargeObject m_Object;
+  largeobject m_Object;
 };
 
 
@@ -122,7 +122,7 @@ private:
 
 // Simple test program for libpqxx's Large Objects interface.
 //
-// Usage: test50 [connect-string]
+// Usage: test050 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -132,9 +132,9 @@ int main(int, char *argv[])
 {
   try
   {
-    Connection C(argv[1]);
+    connection C(argv[1]);
 
-    LargeObject Obj;
+    largeobject Obj;
 
     C.Perform(CreateLargeObject(Obj));
     C.Perform(WriteLargeObject(Obj));
