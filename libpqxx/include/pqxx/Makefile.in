@@ -133,7 +133,8 @@ target_alias = @target_alias@
 with_postgres_include = @with_postgres_include@
 with_postgres_lib = @with_postgres_lib@
 MAINTAINERCLEANFILES = Makefile.in
-include_HEADERS = compiler.h \
+include_HEADERS = cachedresult.h \
+	compiler.h \
 	config.h \
 	connection.h \
 	cursor.h \

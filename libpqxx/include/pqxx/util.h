@@ -136,17 +136,50 @@ template<typename T> PGSTD::string Quote(const T &Obj, bool EmptyIsNull=false);
 template<> inline PGSTD::string Quote(const PGSTD::string &Obj, 
 		                      bool EmptyIsNull)
 {
-    if (EmptyIsNull && Obj.empty())
-        return "null";
+  if (EmptyIsNull && Obj.empty()) return "null";
 
-    PGSTD::string Result = "'" + Obj;
-    const char Special[] = "'\\";
-    for (PGSTD::string::size_type i = Result.find_last_of(Special);
-	 i > 0;
-	 i = Result.find_last_of(Special, i))
-      Result.insert(i, 1, Result[i]);
+  PGSTD::string Result = "'";
 
-    return Result + "'";
+#ifdef HAVE_PQESCAPESTRING
+
+  char *const Buf = new char[2*Obj.size() + 1];
+  try
+  {
+    PQescapeString(Buf, Obj.c_str(), Obj.size());
+    Result += Buf;
+  }
+  catch (const exception &)
+  {
+    delete [] Buf;
+    throw;
+  }
+  delete [] Buf;
+
+#else
+
+  for (PGSTD::string::size_type i=0; i < Obj.size(); ++i)
+  {
+    if (isgraph(Obj[i]))
+    {
+      switch (Obj[i])
+      {
+      case '\'':
+      case '\\':
+	Result += '\\';
+      }
+      Result += Obj[i];
+    }
+    else
+    {
+        char s[5];
+        snprintf(s, 5, "\\%03hho", Obj[i]);
+        Result.append(s, 4);
+    }
+  }
+
+#endif
+
+  return Result + '\'';
 }
 
 
