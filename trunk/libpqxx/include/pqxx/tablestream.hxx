@@ -88,16 +88,7 @@ private:
 template<typename ITER> inline
 PGSTD::string tablestream::columnlist(ITER colbegin, ITER colend)
 {
-  PGSTD::string columns;
-  if (colbegin != colend)
-  {
-    for (columns=*colbegin++; colbegin != colend; ++colbegin)
-    {
-      columns += ',';
-      columns += to_string(*colbegin);
-    }
-  }
-  return columns;
+  return separated_list(",", colbegin, colend);
 }
 } // namespace pqxx
 
