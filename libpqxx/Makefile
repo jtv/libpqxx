@@ -5,7 +5,7 @@ CONNSTR="dbname=$(DBNAME)"
 
 # Set SQL dialect to use
 # Comment out to use standard SQL; uncomment to use PostgreSQL dialect.
-# Using PostgreSQL dialect will keep some SQL a bit shorter.
+# Using PostgreSQL dialect will make some features faster.
 SQL_DIALECT=-DDIALECT_POSTGRESQL
 
 # Set different namespace for standard library (defaults to std)
