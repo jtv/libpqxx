@@ -45,24 +45,17 @@ should accomplish the same:
    are not harmful.  All tests should complete successfully.
  
 
-Getting Started with MinGW 
-(contributed by Michael J. Pedersen, 2004-08-17)
+Getting Started with MinGW and MSYS
+(based on contribution by Michael J. Pedersen, 2004-08-17)
 
-Well, here's the very brief overview of using it:
-
-First, the downloads:
+Packages to download if you don't have them already:
 1) MinGW (http://www.mingw.org/), plus any updates. It is recommended to get all
    of them.
 2) MSYS (http://www.mingw.org/), again with any updates. Same recommendation.
-3) PostgreSQL (http://www.postgresql.org). Recommended version is 8.0.0beta,
-   since it builds the easiest on Windows.
-4) libpqxx (http://pqxx.tk). Recommended version is no less than 2.2.9.
-   2.2.7, while it can be made to work, does not compile as cleanly under
-   MinGW/MSYS as does 2.2.9 (specifically, pqxxbench produces failures that were
-   not found when following these steps under 2.2.9)
-5) zlib (http://www.zlib.org/). Recommended to get latest version.
+3) PostgreSQL (http://www.postgresql.org/).
+4) zlib (http://www.zlib.org/). Recommended to get latest version.
 
-Next, the steps to compile/install
+Compiling and installing PostgreSQL before you get to libpqxx:
 1) Install MinGW (install to c:\mingw)
 2) Install MSyS into MinGW structure (c:\mingw)
 3) Run MSYS (Start->Programs->MinGW->MSYS->msys)
@@ -75,13 +68,30 @@ Next, the steps to compile/install
         make && make install
 6) Copy psql.exe and libpq.dll to somewhere on your path
 7) ln -s /mingw/bin/mingw32-make.exe /mingw/bin/make.exe
-8) extract and compile libpqxx
+
+Building libpqxx:
+
         export LDFLAGS=-lws2_32
         ./configure --prefix=c:/mingw/local --disable-shared --enable-static
-        make && make install
+        make
+	make install
 
-Finally, when compiling your own programs, use the following steps
-(examples only here)
+If you don't have and don't want to install MSYS, you won't be able to perform
+the "./configure" step.  You can build libpqxx without it, but it takes a bit
+more work and doesn't build the self-test.  Use the special makefile MinGW.mak
+in the win32 directory instead of the regular Makefile, and follow the procedure
+described below to use the prefabricated configuration headers enclosed in the
+source archive.
+
+Building libpqxx without MSYS:
+
+	# (set up configuration headers, see below)
+	export LDFLAGS=-lws2_32
+	make -f win32/MinGW.mak
+	# (install library, headers and pqxx-config manually on your system)
+
+Having installed libpqxx, when compiling your own programs, use the following
+steps (examples only here):
 
 g++ -o myfile.o myfile.cpp `pqxx-config --cflags`
 g++ -o myexec myfile.o `pqxx-config --libs` -lws2_32
@@ -186,6 +196,6 @@ author or to the libpqxx-general mailing list so that headers corresponding to
 your environment can be included in later libpqxx releases.
 
 CAUTION: DO NOT try to unset yes/no configuration items by defining their macros
-to zero.  A value of zero is counted as "yes."  If it's defined, it means "yes"
-regardless of what actual value you set.
+to zero.  A value of zero is counted as "yes."  If a macro is defined at all,
+that means "yes" regardless of what actual value you set.
 
