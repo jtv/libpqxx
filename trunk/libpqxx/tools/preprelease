@@ -42,7 +42,7 @@ if test -z "$COMPILERS" ; then
 fi
 
 if test -z "$CONFIG_ARGS" ; then
-	CONFIG_ARGS="--enable-maintainer-mode --enable-shared"
+	CONFIG_ARGS="--enable-shared"
 fi
 
 
@@ -68,7 +68,7 @@ function command() {
 # is used.
 function run_test() {
 	if ! test -z "$1" ; then
-		COMPILEROPT="CC=$1 CXX=$1"
+		COMPILEROPT="CXX=$1"
 	fi
 	log "********* Testing with $1 *********"
 	log "Configuring"
@@ -84,6 +84,8 @@ function run_test() {
 	grep '^All [0-9]* tests passed' $LOGFILE
 }
 
+
+LC_ALL=C
 
 rm -f $LOGFILE $ERRLOG
 
