@@ -93,8 +93,9 @@ install: build
 	dh_install
 
 	# Remove examples which include internal headers
-	rm -f `grep -l internalconfig.h debian/libpqxx-dev/usr/share/doc/libpqxx-dev/examples/*.cxx`
-	rm -f `grep -l compiler.h debian/libpqxx-dev/usr/share/doc/libpqxx-dev/examples/*.cxx`
+	rm -f `grep -l config\\.h debian/libpqxx-dev/usr/share/doc/libpqxx-dev/examples/*.cxx`
+	rm -f `grep -l config-internal debian/libpqxx-dev/usr/share/doc/libpqxx-dev/examples/*.cxx`
+	rm -f `grep -l compiler\\.h debian/libpqxx-dev/usr/share/doc/libpqxx-dev/examples/*.cxx`
 
 # Build architecture-independent files here.
 binary-indep: install
