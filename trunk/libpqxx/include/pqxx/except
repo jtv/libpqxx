@@ -24,6 +24,9 @@
 #include "pqxx/util"
 
 
+namespace pqxx
+{
+
 /// Exception class for lost backend connection.
 /** (May be changed once I find a standard exception class for this) */
 class PQXX_LIBEXPORT broken_connection : public PGSTD::runtime_error
@@ -68,6 +71,7 @@ public:
 	PGSTD::runtime_error(whatarg) {}
 };
 
+}
 
 #endif
 

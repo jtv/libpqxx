@@ -64,8 +64,11 @@ TARBALL=$DISTNAME.tar.gz
 log "Generating autoconf/automake files"
 command ./autogen.sh nice
 
-log "Generating documentation"
+log "Generating reference documentation"
 command doxygen nice
+
+log "Generating tutorial"
+command "xmlto -o doc/html/Tutorial xhtml doc/libpqxx.xml"
 
 log "Creating $TARBALL"
 command "make dist" nice
