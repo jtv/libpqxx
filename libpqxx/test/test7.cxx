@@ -52,7 +52,7 @@ public:
   UpdateYears() : Transactor("YearUpdate") {}
 
   // Transaction definition
-  void operator()(TRANSACTIONTYPE &T)
+  void operator()(argument_type &T)
   {
     // First select all different years occurring in the table.
     Result R( T.Exec("SELECT year FROM events") );

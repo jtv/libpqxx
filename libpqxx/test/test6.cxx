@@ -39,7 +39,7 @@ class CreateTable : public Transactor
 public:
   CreateTable(string Table) : Transactor("CreateTable"), m_Table(Table) {}
 
-  void operator()(TRANSACTIONTYPE &T)
+  void operator()(argument_type &T)
   {
     T.Exec(("CREATE TABLE " + m_Table + 
 	    "(year INTEGER, event TEXT)").c_str());
@@ -54,7 +54,7 @@ class ClearTable : public Transactor
 public:
   ClearTable(string Table) : Transactor("ClearTable"), m_Table(Table) {}
 
-  void operator()(TRANSACTIONTYPE &T)
+  void operator()(argument_type &T)
   {
     T.Exec(("DELETE FROM " + m_Table).c_str());
   }
@@ -90,7 +90,7 @@ public:
   }
 
   // Transaction definition
-  void operator()(TRANSACTIONTYPE &T)
+  void operator()(argument_type &T)
   {
     TableReader Org(m_orgTrans, m_orgTable);
     TableWriter Dst(T, m_dstTable);

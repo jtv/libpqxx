@@ -49,12 +49,12 @@ class CountEvents : public Transactor
   string m_Table;
   pair<int, int> &m_Results;
 public:
-  typedef NonTransaction TRANSACTIONTYPE;
+  typedef NonTransaction argument_type;
 
   CountEvents(string Table, pair<int,int> &Results) : 
     Transactor("CountEvents"), m_Table(Table), m_Results(Results) {}
 
-  void operator()(TRANSACTIONTYPE &T)
+  void operator()(argument_type &T)
   {
     const string CountQuery = "SELECT count(*) FROM " + m_Table;
     Result R;
@@ -73,7 +73,7 @@ class FailedInsert : public Transactor
 {
   string m_Table;
 public:
-  typedef RobustTransaction TRANSACTIONTYPE;
+  typedef RobustTransaction argument_type;
 
   FailedInsert(string Table) : 
     Transactor("FailedInsert"), 
@@ -81,7 +81,7 @@ public:
   {
   }
 
-  void operator()(TRANSACTIONTYPE &T)
+  void operator()(argument_type &T)
   {
     T.Exec(("INSERT INTO " + m_Table + " VALUES (" +
 	    ToString(BoringYear) + ", "

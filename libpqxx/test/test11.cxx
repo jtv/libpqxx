@@ -66,10 +66,10 @@ int main(int argc, char *argv[])
           throw logic_error("Field " + ToString(c) + " ('" + N + "'): "
 			    "at() inconsistent with operator[]!");
 
-	if (R[0][c].name() != N)
+	if (R[0][c].Name() != N)
 	  throw logic_error("Field " + ToString(c) + " "
 			    "called '" + N + "' by Result, "
-			    "but '" + R[0][c].name() + "' by Field object");
+			    "but '" + R[0][c].Name() + "' by Field object");
 
 	if (size_t(R[0][c].size()) != strlen(R[0][c].c_str()))
 	  throw logic_error("Field '" + N + "' "
