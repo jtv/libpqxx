@@ -1,3 +1,7 @@
+2005-01-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/compiler.h:
+  - Finally defined NOMINMAX, thanks Trevor Morgan!
+  - Should solve large object test failures on Windows
 2005-01-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Workaround for BSD grep which doesn't support "-f -"
