@@ -131,9 +131,8 @@ template<typename T> inline void from_string_unsigned(const char Str[], T &Obj)
 // These are hard.  Sacrifice performance and lean on standard library.
 template<typename T> inline void from_string_float(const char Str[], T &Obj)
 {
-  locale Cloc("C");
   stringstream S(Str);
-  S.imbue(Cloc);
+  S.imbue(locale("C"));
   T result;
   if (!(S >> result))
     throw runtime_error("Could not convert string to numeric value: '" +
@@ -255,8 +254,7 @@ template<typename T> inline string to_string_unsigned(T Obj)
   for (T next; Obj > 0; Obj = next)
   {
     next = Obj / 10;
-    char c = ('0' + Obj - (next*10));
-    *--p = c;
+    *--p = char('0'+Obj-next*10);
   }
   return p;
 }
@@ -264,6 +262,7 @@ template<typename T> inline string to_string_unsigned(T Obj)
 template<typename T> inline string to_string_fallback(T Obj)
 {
   stringstream S;
+  S.imbue(locale("C"));
   S << Obj;
   string R;
   S >> R;
