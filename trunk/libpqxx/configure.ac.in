@@ -385,7 +385,7 @@ for publication in $PUBLICATIONS ; do
 	for factor in $FACTORS ; do
 		CONFIGFILE="include/pqxx/config-$publication-$factor.h"
 		echo -n "Generating $CONFIGFILE: "
-		if ! grep -w -h -F "`grep "\<$publication\>" ${srcdir}/configitems | grep "\<$factor\>" | cut -f 1`" ${srcdir}/include/pqxx/config.h >"$CONFIGFILE" ; then
+		if ! grep -w -h -F "`grep "\<$publication\>" "${srcdir}/configitems" | grep "\<$factor\>" | cut -f 1`" include/pqxx/config.h >"$CONFIGFILE" ; then
 			rm -f -- "$CONFIGFILE"
 			echo "no items--deleting"
 		else
