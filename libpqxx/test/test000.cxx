@@ -1,3 +1,5 @@
+#include "pqxx/compiler.h"
+
 #include <iostream>
 
 #include <pqxx/pqxx>
@@ -84,6 +86,12 @@ int main()
     strconv("int", 0, "0");
     strconv("int", 100, "100");
     strconv("int", -1, "-1");
+
+    const long long_min = PGSTD::numeric_limits<long>::min(),
+	       long_max = PGSTD::numeric_limits<long>::max();
+
+    strconv("long", long_min, to_string(long_min));
+    strconv("long", long_max, to_string(long_max));
     strconv("double", 0.0, "0");
     strconv("string", string(), "");
     strconv("string", weirdstr, weirdstr);
