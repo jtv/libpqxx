@@ -56,14 +56,12 @@ RM=rm -f
 
 EXECS=test1 test2 test3 test4 test5 test6 test7 test8 test9 test10 test11 \
 	test12 test13 test14 test15 test16 test17 test18 test19 test20
-EXECOBJS=test1.o test2.o test3.o test4.o test5.o \
-	test6.o test7.o test8.o test9.o test10.o \
-	test11.o test12.o test13.o test14.o test15.o \
+EXECOBJS=test1.o test2.o test3.o test4.o test5.o test6.o test7.o test8.o \
+	test9.o test10.o test11.o test12.o test13.o test14.o test15.o \
 	test16.o test17.o test18.o test19.o test20.o
-LIBOBJS=pg_connection.o pg_cursor.o pg_nontransaction.o \
-	pg_result.o pg_robusttransaction.o pg_tablereader.o \
-	pg_tablestream.o pg_tablewriter.o pg_transaction.o \
-	pg_transactionitf.o
+LIBOBJS=connection.o cursor.o nontransaction.o result.o robusttransaction.o \
+	tablereader.o tablestream.o tablewriter.o transaction.o \
+	transactionitf.o
 
 
 .PHONY: all clean distclean dist check

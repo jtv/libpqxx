@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_tablereader.cc
+ *	tablereader.cc
  *
  *   DESCRIPTION
  *      implementation of the Pg::TableReader class.

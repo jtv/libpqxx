@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_transactionitf.cc
+ *	transactionitf.cc
  *
  *   DESCRIPTION
  *      common code and definitions for the transaction classes

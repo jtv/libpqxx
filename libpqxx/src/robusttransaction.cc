@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_robusttransaction.cc
+ *	robusttransaction.cc
  *
  *   DESCRIPTION
  *      implementation of the Pg::RobustTransaction class.

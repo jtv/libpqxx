@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_connection.cc
+ *	connection.cc
  *
  *   DESCRIPTION
  *      implementation of the Pg::Connection class.

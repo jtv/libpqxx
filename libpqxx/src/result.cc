@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_result.cc
+ *	result.cc
  *
  *   DESCRIPTION
  *      implementation of the Pg::Result class and support classes.

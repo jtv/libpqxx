@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_tablewriter.cc
+ *	tablewriter.cc
  *
  *   DESCRIPTION
  *      implementation of the Pg::TableWriter class.
