@@ -1,3 +1,6 @@
+2003-02-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/transaction.h:
+  - Fixed little mistake in inline docs.  Thanks Dave Gomboc.
 2003-02-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection.h, src/connection.cxx, test/test*.cxx:
   - Connection constructor now accepts null connection string
