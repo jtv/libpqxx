@@ -1,4 +1,6 @@
 2.2.8
+ - Moved libpq into pqxx::internal::pq namespace
+ - Auto-generates Visual C++ Makefile, should always remain up-to-date now 
 2.2.7
  - Bugfix: from_string() didn't handle LONG_MIN--thanks Yannick Boivin
 2.2.6

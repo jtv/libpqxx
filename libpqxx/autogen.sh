@@ -31,8 +31,7 @@ sed -e "s/@PQXXVERSION@/$PQXXVERSION/g" configure.ac.in >configure.ac
 # Generate win32/libpqxx.mak
 ./tools/makevcmake.pl src | sed -e 's/$/\r/' >win32/libpqxx.mak
 
-# Don't run autoheader to avoid overwriting customized config.h.in!
-# autoheader
+autoheader
 
 libtoolize --force --automake --copy
 aclocal${ver} -I . -I config/m4
@@ -47,6 +46,4 @@ if test x$NOCONFIGURE = x; then
 else
 	echo Skipping configure process.
 fi
-
-	
 

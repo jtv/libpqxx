@@ -26,6 +26,7 @@
 #include "pqxx/util"
 
 using namespace PGSTD;
+using namespace pqxx::internal::pq;
 
 
 namespace pqxx

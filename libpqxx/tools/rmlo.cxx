@@ -10,9 +10,9 @@ namespace
 {
   class RemoveLO : public transactor<>
   {
-    Oid m_O;
+    oid m_O;
   public:
-    explicit RemoveLO(Oid O) : m_O(O) {}
+    explicit RemoveLO(oid O) : m_O(O) {}
 
     void operator()(argument_type &T)
     {
@@ -31,7 +31,7 @@ int main(int, char *argv[])
   {
     for (int i=1; argv[i]; ++i)
     {
-      Oid O;
+      oid O;
       FromString(argv[i], O);
       try
       {

@@ -25,6 +25,7 @@
 
 using namespace PGSTD;
 using namespace pqxx;
+using namespace pqxx::internal::pq;
 
 
 namespace

@@ -117,7 +117,7 @@ public:
   void remove(dbtransaction &T) const;					//[t48]
 
 protected:
-  static PGconn *RawConnection(const dbtransaction &T)
+  static internal::pq::PGconn *RawConnection(const dbtransaction &T)
   {
     return T.conn().RawConnection();
   }
@@ -300,7 +300,8 @@ public:
 
 private:
   PGSTD::string Reason() const;
-  PGconn *RawConnection() { return largeobject::RawConnection(m_Trans); }
+  internal::pq::PGconn *RawConnection()
+  	{ return largeobject::RawConnection(m_Trans); }
 
   void open(openmode mode);
   void close() throw ();
