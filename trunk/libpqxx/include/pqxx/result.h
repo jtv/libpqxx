@@ -232,12 +232,12 @@ public:
 
   size_type size() const { return m_Result ? PQntuples(m_Result) : 0; }	//[t2]
   bool empty() const { return !m_Result || !PQntuples(m_Result); }	//[t11]
-  size_type capacity() const { return size(); }				//[]
+  size_type capacity() const { return size(); }				//[t20]
 
   const Tuple operator[](size_type i) const { return Tuple(this, i); }	//[t2]
   const Tuple at(size_type i) const;					//[t10]
 
-  void clear() { LoseRef(); }						//[]
+  void clear() { LoseRef(); }						//[t20]
 
   Tuple::size_type Columns() const { return PQnfields(m_Result); }	//[t11]
 

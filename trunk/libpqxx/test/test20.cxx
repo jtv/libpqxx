@@ -48,6 +48,11 @@ int main(int argc, char *argv[])
 	                  ToString(BoringYear) + ". "
 		          "Can't run test.");
 
+    // (Not needed, but verify that clear() works on empty containers)
+    R.clear();
+    if (!R.empty())
+      throw logic_error("Result non-empty after clear()!");
+
     // OK.  Having laid that worry to rest, add a record for 1977.
     T1.Exec(("INSERT INTO " + Table + " VALUES"
              "(" +
@@ -71,6 +76,13 @@ int main(int argc, char *argv[])
 			  "This could be a bug in libpqxx, "
 			  "or something else modified the table.");
 
+    if (R.capacity() < R.size())
+      throw logic_error("Result's capacity is too small!");
+
+    R.clear();
+    if (!R.empty())
+      throw logic_error("Result::clear() doesn't work!");
+
     // Now remove our record again
     T2.Exec(("DELETE FROM " + Table + " "
 	     "WHERE year=" + ToString(BoringYear)).c_str());
@@ -79,6 +91,7 @@ int main(int argc, char *argv[])
 
     // And again, verify results
     NonTransaction T3(C, "T3");
+
     R = T3.Exec(("SELECT * FROM " + Table + " "
 	         "WHERE year=" + ToString(BoringYear)).c_str());
     if (R.size() != 0)
