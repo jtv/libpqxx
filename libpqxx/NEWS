@@ -1,3 +1,9 @@
+1.5.0
+ - allow result fields to be written to streams
+ - removed confusing CachedResult::clear()
+ - minor documentation updates
+ - added test046, test047
+ - added <pqxx/all.h> convenience header
 1.4.5
  - fixed crash CachedResult that was less shallow than I thought
  - fixed quoting problem with adopted SQL cursors

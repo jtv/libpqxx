@@ -1,3 +1,19 @@
+2003-02-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cachedresult.h, src/cachedresult.cxx:
+  - Removed confusing "clear()" method
+ include/pqxx/result.h:
+  - Can now write Field to any type of stream
+ test/test046.cxx, test/test047.cxx:
+  - New
+2003-02-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ README:
+  - Added Documentation section
+ doc/libpqxx.sgml, include/pqxx/cursor.h:
+  - Various minor updates
+ include/pqxx/all.h:
+  - New
+ test/test001.cxx:
+  - Uses new <pqxx/all.h>
 2003-02-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection.h, include/pqxx/result.h, include/pqxx/tablereader.h:
   - Added/fixed some test coverage tags
