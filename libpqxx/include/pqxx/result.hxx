@@ -618,8 +618,7 @@ protected:
 
   virtual int_type overflow(int_type) { return traits_type::eof(); }
 
-  // TODO: This isn't good enough with g++ 2.95--it crashes somewhere near here!
-  virtual int_type underflow() { return initialize(); }
+  virtual int_type underflow() { return traits_type::eof(); }
 
 private:
   const result::field &m_Field;
