@@ -44,6 +44,7 @@ template<> inline const char *FmtString(unsigned)      { return  "%u"; }
 template<> inline const char *FmtString(unsigned long) { return "%lu"; }
 template<> inline const char *FmtString(float)         { return  "%f"; }
 template<> inline const char *FmtString(double)        { return "%lf"; }
+template<> inline const char *FmtString(long double)   { return "%Lf"; }
 template<> inline const char *FmtString(char)          { return  "%c"; }
 template<> inline const char *FmtString(unsigned char) { return  "%c"; }
 
@@ -139,7 +140,9 @@ template<> inline PGSTD::string Quote(const PGSTD::string &Obj,
 {
   if (EmptyIsNull && Obj.empty()) return "null";
 
-  PGSTD::string Result = "'";
+  PGSTD::string Result;
+  Result.reserve(Obj.size() + 2);
+  Result += "'";
 
 #ifdef HAVE_PQESCAPESTRING
 
@@ -172,8 +175,10 @@ template<> inline PGSTD::string Quote(const PGSTD::string &Obj,
     }
     else
     {
-        char s[5];
-        snprintf(s, 5, "\\%03hho", Obj[i]);
+        char s[10];
+        sprintf(s, 
+	        "\\%03o", 
+		static_cast<unsigned int>(static_cast<unsigned char>(Obj[i])));
         Result.append(s, 4);
     }
   }
