@@ -6,7 +6,8 @@
   - Provide a description for HAVE_SYS_SELECT_H so autoheader doesn't exit with
     an error.
  debian/rules:
-  - Clean out generated HTML files as part of 'clean'.
+  - [clean] Clean out generated HTML files.
+  - [configure-stamp] Actually use confflags variable.
 
 2002-10-15  J.H.M. Dassen (Ray) <jdassen@debian.org>
  debian/libpqxx-dev.files: 
