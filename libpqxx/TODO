@@ -1,14 +1,17 @@
 Porting
-(*) Adopt Clinton James' patches for MSVC++ 6.0
 (*) Improve portability to other databases (?)
 (*) Make TableStream hierarchy respect DIALECT
+
+Results
+(*) Allow direct mapping onto structs, using member ref template args (?)
 
 Streams
 (*) Provide metadata information in TableStream
 (*) Work streamable (and prefetching!) result sets into Stream hierarchy
+(*) Refactor, adding streams that return 1 tuple at a time
 
 Triggers
-(*) Allow all sorts of const access to Connection's triggers list?
+(*) Allow access to Connection's triggers list?
 
 Nonblocking operation
 (*) Support select()
