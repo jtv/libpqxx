@@ -53,10 +53,10 @@
 00054 
 <a name="l00055"></a><a class="code" href="classpqxx_1_1TableWriter.html#a6">00055</a>   <span class="keywordtype">void</span> reserve(size_type) {}                                            <span class="comment">//[t9]</span>
 00056 
-00057   <span class="keyword">template</span>&lt;<span class="keyword">typename</span> TUPLE&gt; TableWriter &amp;operator&lt;&lt;(<span class="keyword">const</span> TUPLE &amp;);      <span class="comment">//[t5]</span>
+00057   <span class="keyword">template</span>&lt;<span class="keyword">typename</span> TUPLE&gt; TableWriter &amp;<a class="code" href="result_8h.html#a0">operator&lt;&lt;</a>(<span class="keyword">const</span> TUPLE &amp;);      <span class="comment">//[t5]</span>
 00058 
 00059   <span class="comment">// Copy table from one database to another</span>
-00060   TableWriter &amp;operator&lt;&lt;(TableReader &amp;);                               <span class="comment">//[t6]</span>
+00060   TableWriter &amp;<a class="code" href="result_8h.html#a0">operator&lt;&lt;</a>(TableReader &amp;);                               <span class="comment">//[t6]</span>
 00061 
 00064   <span class="keyword">template</span>&lt;<span class="keyword">typename</span> IT&gt; PGSTD::string ezinekoT(IT Begin, IT End) <span class="keyword">const</span>; <span class="comment">//[t10]</span>
 00065   <span class="keyword">template</span>&lt;<span class="keyword">typename</span> TUPLE&gt; PGSTD::string ezinekoT(<span class="keyword">const</span> TUPLE &amp;) <span class="keyword">const</span>; <span class="comment">//[t10]</span>
@@ -215,7 +215,7 @@
 00218 }
 00219 
 00220 <span class="keyword">template</span>&lt;<span class="keyword">typename</span> TUPLE&gt; 
-<a name="l00221"></a><a class="code" href="classpqxx_1_1TableWriter.html#a7">00221</a> <span class="keyword">inline</span> TableWriter &amp;TableWriter::operator&lt;&lt;(<span class="keyword">const</span> TUPLE &amp;T)
+<a name="l00221"></a><a class="code" href="classpqxx_1_1TableWriter.html#a7">00221</a> <span class="keyword">inline</span> TableWriter &amp;<a class="code" href="result_8h.html#a0">TableWriter::operator&lt;&lt;</a>(<span class="keyword">const</span> TUPLE &amp;T)
 00222 {
 00223   <a class="code" href="classpqxx_1_1TableWriter.html#a2">insert</a>(T);
 00224   <span class="keywordflow">return</span> *<span class="keyword">this</span>;
@@ -225,7 +225,7 @@
 00228 
 00229 <span class="preprocessor">#endif</span>
 00230 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Tue Feb 25 20:09:35 2003 for libpqxx by
+</pre></div><hr><address style="align: right;"><small>Generated on Fri Feb 28 19:23:32 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>
