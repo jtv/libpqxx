@@ -166,7 +166,7 @@ public:
    * @param Var the variable to set
    * @param Val the value to store in the variable
    */
-  void set_variable(const PGSTD::string &Var, const PGSTD::string &Val);//[]
+  void set_variable(const PGSTD::string &Var, const PGSTD::string &Val);//[t61]
 
 
 protected:

@@ -3,6 +3,7 @@ MAINTAINERCLEANFILES=Makefile.in
 
 includedir=$(prefix)/include/pqxx
 include_HEADERS= pqxx all.h \
+	binarystring binarystring.hxx \
 	cachedresult.h \
 	compiler.h \
 	config.h \

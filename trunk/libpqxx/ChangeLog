@@ -1,3 +1,25 @@
+2003-10-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/binarystring.hxx, src/binarystring.cxx:
+  - New
+  - Reworked binarystring, now more std::string-like
+ include/pqxx/result.hxx:
+  - Moved binarystring into its own set of files
+2003-10-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx:
+  - Test coverage for set_variable()
+ include/pqxx/result.hxx, src/result.cxx:
+  - binarystring::size() doesn't include terminating zero!
+  - Test coverage for binarystring
+  - Added escape_binary() functions
+ include/pqxx/transaction_base.hxx:
+  - Test coverage for set_variable()
+ include/pqxx/util.hxx:
+  - String conversions with unsigned char * now supported
+ test/test060.cxx, test/test061.cxx, test/test062.cxx:
+  - New
+2003-10-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx:
+  - More helpful link error for unsupported string conversions
 2003-09-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cursor.h, src/cursor.cxx:
   - Moved ALL() and BACKWARD_ALL() to cursor.cxx so they can use config.h.

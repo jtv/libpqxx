@@ -419,48 +419,6 @@ private:
 };
 
 
-/// Reveals "unescaped" version of PostgreSQL bytea string
-/** This class represents a postgres-internal buffer containing the original,
- * binary string represented by a field of type bytea.  The raw value returned
- * by such a field contains escape sequences for certain characters, which are
- * filtered out by binarystring.
- * The binarystring retains its value even if the result it was obtained from is
- * destroyed, but it cannot be copied or assigned.
- */
-class PQXX_LIBEXPORT binarystring : private PQAlloc<unsigned char>
-{
-  typedef PQAlloc<unsigned char> super;
-public:
-  typedef size_t size_type;
-
-  /// Read and unescape bytea field
-  /** The field will be zero-terminated, even if the original bytea field isn't.
-   * @param F the field to read; must be a bytea field
-   */
-  explicit binarystring(const result::field &F) : 			//[]
-    super(),
-    m_size(0)
-  {
-    super::operator=(PQunescapeBytea(reinterpret_cast<unsigned char *>(
-	    const_cast<char *>(F.c_str())), &m_size));
-
-    // TODO: More useful error message!  Distinguish bad_alloc from parse error
-    if (!c_ptr()) 
-      throw PGSTD::runtime_error("Unable to read bytea field");
-  }
-
-  /// Size of unescaped buffer, including terminating zero
-  size_type size() const throw () { return m_size; }			//[]
-
-  /// Unescaped field contents 
-  const unsigned char *bytes() const throw () { return c_ptr(); }	//[]
-
-private:
-  size_type m_size;
-};
-
-
-
 /// Write a result field to any type of stream
 /** This can be convenient when writing a field to an output stream.  More
  * importantly, it lets you write a field to e.g. a stringstream which you can
