@@ -28,14 +28,22 @@ pqxx::TransactionItf::TransactionItf(Connection &C, string TName) :
   m_Status(st_nascent),
   m_Name(TName),
   m_UniqueCursorNum(1),
-  m_Stream()
+  m_Stream(),
+  m_Registered(false)
 {
   m_Conn.RegisterTransaction(this);
+  m_Registered = true;
 }
 
 
 pqxx::TransactionItf::~TransactionItf()
 {
+  if (m_Registered)
+  {
+    m_Conn.ProcessNotice("Transaction '" + m_Name + "' "
+		         "was never closed properly!");
+    m_Conn.UnregisterTransaction(this);
+  }
 }
 
 
@@ -196,22 +204,31 @@ void pqxx::TransactionItf::Begin()
     throw logic_error("Internal libpqxx error: pqxx::Transaction: "
 		      "Begin() called while not in nascent state");
 
-  // Better handle any pending notifications before we begin
-  m_Conn.GetNotifs();
+  try
+  {
+    // Better handle any pending notifications before we begin
+    m_Conn.GetNotifs();
 
-  DoBegin();
-  m_Status = st_active;
+    DoBegin();
+    m_Status = st_active;
+  }
+  catch (const exception &)
+  {
+    End();
+    throw;
+  }
 }
 
 
 
-void pqxx::TransactionItf::End()
+void pqxx::TransactionItf::End() throw ()
 {
+  if (!m_Registered) return;
+
   try
   {
     m_Conn.UnregisterTransaction(this);
-
-    if (m_Status == st_active) Abort();
+    m_Registered = false;
 
     if (m_Stream.get())
       m_Conn.ProcessNotice("Closing transaction '" +
@@ -219,6 +236,8 @@ void pqxx::TransactionItf::End()
 			   "' with stream '" +
 			   m_Stream.get()->Name() + 
 			   "' still open\n");
+
+    if (m_Status == st_active) Abort();
   }
   catch (const exception &e)
   {

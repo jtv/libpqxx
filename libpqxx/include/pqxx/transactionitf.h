@@ -80,7 +80,7 @@ protected:
   void Begin();
 
   // End transaction.  To be called by implementing class' destructor 
-  void End();
+  void End() throw ();
 
   // To be implemented by implementing class.
   virtual void DoBegin() =0;
@@ -144,6 +144,7 @@ private:
   PGSTD::string m_Name;
   int m_UniqueCursorNum;
   Unique<TableStream> m_Stream;
+  bool m_Registered;
 
   // Not allowed:
   TransactionItf();

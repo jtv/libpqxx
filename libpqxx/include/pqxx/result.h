@@ -240,7 +240,7 @@ template<> inline bool Result::Field::to(PGSTD::string &Obj) const
 {
   if (is_null())
     return false;
-  Obj = PGSTD::string(c_str());
+  Obj = c_str();
   return true;
 }
 

@@ -11,6 +11,6 @@ libpqxx_la_SOURCES = \
 	transaction.cxx \
 	transactionitf.cxx
 
-libpqxx_la_LDFLAGS = -release ${VERSION}
+libpqxx_la_LDFLAGS = -release ${VERSION} # ${POSTGRES_LIB}
 
 INCLUDES=-I../include ${POSTGRES_INCLUDE}

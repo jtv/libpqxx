@@ -13,19 +13,15 @@
 #ifndef PG_COMPILER_H
 #define PG_COMPILER_H
 
-// Allow for different std namespace (eg. 3rd party STL implementations)
-#ifndef PGSTD
-#define PGSTD std
-#endif
-
+#include "config.h"
 
 // Deal with lacking iterator template definition in <iterator>
-#ifndef HAVE_ITERATOR
+#ifdef BROKEN_ITERATOR
 namespace PGSTD
 {
 template<typename Cat, 
          typename T, 
-	 typename Dist=ptrdiff_t, 
+	 typename Dist, 
 	 typename Ptr=T*,
 	 typename Ref=T&> struct iterator
 {
@@ -36,8 +32,7 @@ template<typename Cat,
   typedef Ref reference;
 };
 }
-#endif // HAVE_ITERATOR
-
+#endif // BROKEN_ITERATOR
 
 
 // Deal with lacking <limits>
