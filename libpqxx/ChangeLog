@@ -1,3 +1,27 @@
+2002-05-12 23:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Included ${with_postgres_include}/internal in include path to help users
+    of RedHat-like systems find postgres_fe.h. 
+ Doxyfile:
+  - Created
+ include/pqxx/compiler.h:
+  - Doxygenized some comments
+ include/pqxx/cursor.h:
+  - More comments
+ include/pqxx/robusttransaction.h:
+  - Doxygenized some comments
+ include/pqxx/tablereader.h:
+  - Doxygenized some comments
+ include/pqxx/tablestream.h:
+  - Doxygenized some comments
+ include/pqxx/tablewriter.h:
+  - Doxygenized some comments
+ include/pqxx/transaction.h:
+  - Doxygenized some comments
+ include/pqxx/transactionitf.h:
+  - Doxygenized some comments
+ include/pqxx/util.h:
+  - Doxygenized some comments
 2002-05-05 03:45  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/libpqxx/*.h:
   - Converted many comments to doxygen/javadoc format
