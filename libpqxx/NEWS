@@ -1,9 +1,12 @@
 2.5.0
  - Fix race condition in removing triggers
- - Improved documentation
- - Clearer and more specific explanations for configuration failures
  - No longer includes any libpq headers while compiling client code
+ - Clearer and more specific explanations for configuration failures
+ - Improved documentation
+ - Looks for standard library in global namespace as well as std
+ - Accepts standard C library in std namespace
  - Release script automatically tests with a range of compilers, not just one
+ - Compatible with g++ 2.95 again; this time it's tested automatically
 2.4.4
  - Fix problems building shared library in Visual C++
  - Fix autobuild in Debian, which was broken by mistake in BSD grep workaround

@@ -1,3 +1,24 @@
+2005-03-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Try multiple alternatives for "std"
+  - Cope with C library in std namespace
+  - Added -Wno-div-by-zero to avoid warnings about compile-time NaNs
+ include/pqxx/util.hxx:
+  - Generalize dereference operator in pqxx::internal::separated_list<>()
+ src/pipeline.cxx:
+  - At last!  Use spruced-up separated_list to concatenate queries
+ tools/preprelease:
+  - Set only CXX to current compiler; leave CC as it is
+  - Re-enabled maintainer mode; there is a trick to do NaNs quietly after all
+2005-03-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in, include/pqxx/compiler.h,
+ src/connection_base.cxx, src/util.cxx:
+  - Workarounds for g++ 2.95
+  - New config items PQXX_HAVE_NAN and PQXX_HAVE_QUIET_NAN
+ test/test000.cxx:
+  - Workaround for missing std::numeric_limits<>::quiet_NaN in g++ 2.95
+ tools/preprelease
+  - Disable maintainer mode again. Can't do NaNs in g++ 2.95 without warnings.
 2005-03-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Expanded explanations of the most critical, error-prone checks
