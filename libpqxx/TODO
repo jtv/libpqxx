@@ -1,11 +1,11 @@
 Build
-(*) Get install, dist and maintainer-clean targets working
-(*) Move "check" postgres parameters into configure script
-(*) Get object files into obj/ directory
+(*) Move "check" postgres parameters into configure.ac
+(*) Get object files into obj/ directory, library binary into lib/
+(*) Get make install to actually install headers
 (*) Finalize license
 
 Check
-(*) Test 8 appears to mistranslate tabs on output
+(*) Test 8 appears to mistranslate tabs on console output
 
 Error handling
 (*) Check whether transaction still open if possible (consistency with backend)

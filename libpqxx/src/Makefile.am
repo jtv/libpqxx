@@ -14,3 +14,5 @@ libpqxx_la_LDFLAGS = -release ${VERSION} ${POSTGRES_LIB}
 
 INCLUDES=-I../include ${POSTGRES_INCLUDE}
 
+MAINTAINERCLEANFILES=Makefile.in
+
