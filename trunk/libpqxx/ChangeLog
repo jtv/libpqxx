@@ -1,3 +1,6 @@
+2003-12-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/pipeline.cxx:
+  - Compiles
 2003-12-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/except.hxx:
   - Empty throw specification for sql_error::query() 
