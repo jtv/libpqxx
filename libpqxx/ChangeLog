@@ -2,6 +2,9 @@
 
  autogen.sh:
   - Don't silently continue after errors.
+ configure.ac:
+  - Provide a description for HAVE_SYS_SELECT_H so autoheader doesn't exit with
+    an error.
 
 2002-10-15  J.H.M. Dassen (Ray) <jdassen@debian.org>
  debian/libpqxx-dev.files: 
