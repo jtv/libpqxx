@@ -1,0 +1,6 @@
+debian/tmp/usr/include
+debian/tmp/usr/lib/libpqxx.a
+debian/tmp/usr/lib/libpqxx.la
+debian/tmp/usr/lib/libpqxx*.so
+doc/html                        usr/share/doc/libpqxx-dev
+test/*.cxx                      usr/share/doc/libpqxx-dev/examples
