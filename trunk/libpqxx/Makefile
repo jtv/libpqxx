@@ -51,11 +51,12 @@ LIBOPT=-lpqxx
 
 
 EXECS=test1 test2 test3 test4 test5 test6 test7 test8 test9 test10 test11 \
-	test12 test13
+	test12 test13 test14 test15
 EXECOBJS=test1.o test2.o test3.o test4.o test5.o test6.o test7.o test8.o \
-	test9.o test10.o test11.o test12.o test13.o
-LIBOBJS=pg_connection.o pg_cursor.o pg_result.o pg_tablereader.o \
-	pg_tablestream.o pg_tablewriter.o pg_transaction.o 
+	test9.o test10.o test11.o test12.o test13.o test14.o test15.o
+LIBOBJS=pg_connection.o pg_cursor.o pg_nontransaction.o pg_result.o \
+	pg_tablereader.o pg_tablestream.o pg_tablewriter.o pg_transaction.o \
+	pg_transactionitf.o
 
 
 .PHONY: all clean distclean dist
@@ -101,6 +102,12 @@ test12: test12.o $(LIBNAME)
 test13: test13.o $(LIBNAME)
 	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
 
+test14: test14.o $(LIBNAME)
+	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
+
+test15: test15.o $(LIBNAME)
+	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
+
 
 $(LIBNAME): $(LIBOBJS)
 	$(AR) -r $(LIBNAME) $(LIBOBJS)
@@ -119,6 +126,8 @@ check: $(EXECS)
 	./test11 $(CONNSTR)
 	./test12 $(CONNSTR)
 	./test13 $(CONNSTR)
+	./test14 $(CONNSTR)
+	./test15 $(CONNSTR)
 
 clean: 
 	$(RM) $(LIBOBJS) $(EXECOBJS) a.out

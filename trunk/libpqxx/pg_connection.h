@@ -34,16 +34,17 @@
 
 namespace Pg
 {
+class in_doubt_error;	// See pg_transactionitf.h
 class Result;		// See pg_result.h
+class TransactionItf;	// See pg_transactionitf.h
 class Trigger;		// See pg_trigger.h
-class in_doubt_error;	// See pg_transaction.h
 
 extern "C" { typedef void (*NoticeProcessor)(void *arg, const char *msg); }
 
 
-template<> inline PGSTD::string Classname(const Transaction *) 
+template<> inline PGSTD::string Classname(const TransactionItf *) 
 { 
-  return "Transaction"; 
+  return "TransactionItf"; 
 }
 
 
@@ -130,17 +131,17 @@ private:
 
   PGSTD::string m_ConnInfo;	// Connection string
   PGconn *m_Conn;		// Connection handle
-  Unique<Transaction> m_Trans;	// Active transaction on connection, if any
+  Unique<TransactionItf> m_Trans;// Active transaction on connection, if any
   void *m_NoticeProcessorArg;	// Client-set argument to notice processor func
 
   // TODO: Use multimap when gcc supports them!
   typedef PGSTD::map<PGSTD::string, Pg::Trigger *> TriggerList;
   TriggerList m_Triggers;
 
-  friend class Transaction;
+  friend class TransactionItf;
   Result Exec(const char[], int Retries=3, const char OnReconnect[]=0);
-  void RegisterTransaction(const Transaction *);
-  void UnregisterTransaction(const Transaction *) throw ();
+  void RegisterTransaction(const TransactionItf *);
+  void UnregisterTransaction(const TransactionItf *) throw ();
   void MakeEmpty(Result &, ExecStatusType=PGRES_EMPTY_QUERY);
   void BeginCopyRead(PGSTD::string Table);
   bool ReadCopyLine(PGSTD::string &);
@@ -186,7 +187,7 @@ inline void Connection::Perform(const TRANSACTOR &T,
     TRANSACTOR T2(T);
     try
     {
-      Transaction X(*this, T2.Name());
+      typename TRANSACTOR::TRANSACTIONTYPE X(*this, T2.Name());
       T2(X);
       X.Commit();
       Done = true;
@@ -195,6 +196,7 @@ inline void Connection::Perform(const TRANSACTOR &T,
     {
       // Not sure whether transaction went through or not.  The last thing in
       // the world that we should do now is retry.
+      T2.OnDoubt();
       throw;
     }
     catch (const PGSTD::exception &e)

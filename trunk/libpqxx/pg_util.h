@@ -149,23 +149,23 @@ public:
   void Register(const GUEST *G)
   {
     if (!G) throw PGSTD::logic_error("Internal libpqxx error: NULL " + 
-		                   Classname(G));
+		                     Classname(G));
     
     if (m_Guest)
     {
       if (G == m_Guest)
         throw PGSTD::logic_error(Classname(G) +
-			       " '" +
-			       G->Name() +
-			       "' started more than once without closing");
+			         " '" +
+			         G->Name() +
+			         "' started more than once without closing");
 
       throw PGSTD::logic_error("Started " + 
-		             Classname(G) +
-			     " '" + 
-			     G->Name() + 
-			     "' while '" +
-			     m_Guest->Name() +
-			     "' was still active");
+		               Classname(G) +
+			       " '" + 
+			       G->Name() + 
+			       "' while '" +
+			       m_Guest->Name() +
+			       "' was still active");
     }
     
     m_Guest = G;
@@ -179,18 +179,18 @@ public:
 	throw PGSTD::logic_error("Closing NULL " + Classname(G));
       else if (!m_Guest)
 	throw PGSTD::logic_error("Closing " + 
-			       Classname(G) +
-			       " '" +
-			       G->Name() +
-			       "' which wasn't open");
+			         Classname(G) +
+			         " '" +
+			         G->Name() +
+			         "' which wasn't open");
       else
 	throw PGSTD::logic_error("Closing wrong " + 
-			       Classname(G) +
-			       "; expected '" +
-			       m_Guest->Name() +
-			       "' but got '" +
-			       G->Name() +
-			       "'");
+			         Classname(G) +
+			         "; expected '" +
+			         m_Guest->Name() +
+			         "' but got '" +
+			         G->Name() +
+			         "'");
     }
 
     m_Guest = 0;

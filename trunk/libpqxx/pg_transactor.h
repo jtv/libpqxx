@@ -53,21 +53,30 @@ public:
   explicit Transactor(PGSTD::string TName="AnonymousTransactor") :	//[t4]
     m_Name(TName) {}
 
+  // Define transaction class to use as a wrapper for this code.  Currently
+  // only supports the basic Transaction class, but various alternatives with
+  // different levels of safety may be introduced later.
+  typedef Transaction TRANSACTIONTYPE;
+
   // Overridable transaction definition.  Will be retried if connection goes
   // bad, but not if an exception is thrown while the connection remains open.
   // The parameter is a dedicated transaction context created to perform this
   // operation.  It is generally recommended that a Transactor modify only
   // itself and this Transaction object from here.
-  void operator()(Transaction &);					//[t4]
+  void operator()(TRANSACTIONTYPE &);					//[t4]
 
   // Overridable member functions, called by Connection::Perform() if attempt 
-  // to run transaction fails/succeeds, respectively.  Use these to patch up
-  // runtime state to match events, if needed, or to report failure conditions.
+  // to run transaction fails/succeeds, respectively, or if the connection is
+  // lost at just the wrong moment, goes into an indeterminate state.  Use 
+  // these to patch up runtime state to match events, if needed, or to report 
+  // failure conditions.
   // If your OnCommit() function should throw an exception, the actual back-end 
   // transaction will still be committed so the effects on the database remain.
-  // The OnAbort() function is not allowed to throw exceptions at all.
+  // The OnAbort() and OnDoubt() functions are not allowed to throw exceptions 
+  // at all.
   void OnAbort(const char Reason[]) throw () {}				//[t13]
   void OnCommit() {}							//[t6]
+  void OnDoubt() throw () {}						//[t13]
 
   PGSTD::string Name() const { return m_Name; }				//[t13]
 
