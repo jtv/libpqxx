@@ -1,3 +1,11 @@
+2004-06-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.hxx, src/cursor.cxx:
+  - Rewrote forward-only cursor as a stream
+  - Iterator interface for forward-only cursor through an "istream_iterator"
+ README:
+  - LD_LIBRARY_PATH should be valid on all Unix-like systems
+ test/test081.cxx:
+  - New
 2004-06-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pxx/cursor, include/pqxx/cursor.hxx:
   - New
