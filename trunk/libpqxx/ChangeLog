@@ -1,3 +1,12 @@
+2005-03-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/binarystring.cxx:
+  - Fixed wrong bitshift for octal digit: 6, not 9--thanks thomasae@online.no
+  - Use octal notation for all chars < 0x20
+ test/test062.cxx:
+  - Don't just compare unsigned char to char--signedness may differ
+2005-03-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test062.cxx:
+  - Added non-ASCII bytes to test case, thanks thomasae@online.no
 2005-03-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/libcompiler.h:
   - Moved NOMINMAX even further towards the top

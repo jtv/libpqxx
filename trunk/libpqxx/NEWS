@@ -1,5 +1,6 @@
 2.5.0
  - Fix race condition in removing triggers
+ - Fix binary string conversion with older libpq
  - Fix some error strings that may previously have come out wrong
  - No longer includes any libpq headers while compiling client code
  - Improved thread safety: avoid strerror() where possible
