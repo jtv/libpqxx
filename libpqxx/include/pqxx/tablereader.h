@@ -45,8 +45,8 @@ public:
   TableReader(TransactionItf &, const PGSTD::string &RName);		//[t6]
   ~TableReader();							//[t6]
 
-  TableReader &operator>>(Result &);
-  TableReader &operator>>(PGSTD::string &);
+  TableReader &operator>>(Result &);					//[]
+  TableReader &operator>>(PGSTD::string &);				//[]
 
   template<typename TUPLE> TableReader &operator>>(TUPLE &);		//[t8]
 
@@ -60,7 +60,7 @@ public:
   bool GetRawLine(PGSTD::string &Line);					//[t8]
 
   template<typename TUPLE> 
-  void Tokenize(PGSTD::string, TUPLE &) const;			//[t8]
+  void Tokenize(PGSTD::string, TUPLE &) const;				//[t8]
 
 private:
   bool m_Done;

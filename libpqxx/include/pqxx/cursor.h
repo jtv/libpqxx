@@ -120,7 +120,7 @@ public:
    */
   Cursor(TransactionItf &T,
          const Result::Field &Name,
-	 size_type Count=NEXT());					//[]
+	 size_type Count=NEXT());					//[t45]
 
   /// Set new stride, ie. the number of rows to fetch at a time.
   size_type SetCount(size_type);					//[t19]
