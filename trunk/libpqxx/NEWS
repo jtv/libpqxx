@@ -1,4 +1,6 @@
+2.2.8
 2.2.7
+ - Bugfix: from_string() didn't handle LONG_MIN--thanks Yannick Boivin
 2.2.6
  - Complete "pipeline" rewrite, for better exception safety
  - New garbage collection scheme for "result;" constructors now exception-free

@@ -62,9 +62,11 @@ struct PQXX_LIBEXPORT noticer : PGSTD::unary_function<const char[], void>
  * connection can be automatically opened when it is constructed, or when it is
  * first used.  The connection is automatically closed upon destruction, if it 
  * hasn't already been closed manually.
+ *
  * To query or manipulate the database once connected, use one of the 
  * transaction classes (see pqxx/transaction_base.hxx) or preferably the 
  * transactor framework (see pqxx/transactor.hxx).
+ *
  * A word of caution: if a network connection to the database server fails, the
  * connection will be restored automatically (although any transaction going on
  * at the time will have to be aborted).  This also means that any information
@@ -79,10 +81,15 @@ class PQXX_LIBEXPORT connection_base
 {
 public:
   /// Set up connection based on PostgreSQL connection string
-  /** @param ConnInfo a PostgreSQL connection string specifying any required
+  /** 
+   * @param ConnInfo a PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.  These values
    * override any of the environment variables recognized by libpq that may have
    * been defined for the same parameters.
+   *
+   * The README file for libpqxx gives a quick overview of how connection
+   * strings work; see the PostgreSQL documentation (particularly for libpq, the
+   * C-level interface) for a complete list.
    */
   explicit connection_base(const PGSTD::string &ConnInfo);		//[t2]
 

@@ -57,6 +57,10 @@ public:
    * parameters, such as server, port, database, and password.  These values
    * override any environment variables that may have been set for the same 
    * parameters.
+   *
+   * The README file for libpqxx gives a quick overview of how connection
+   * strings work; see the PostgreSQL documentation (particularly for libpq, the
+   * C-level interface) for a complete list.
    */
   explicit connection(const PGSTD::string &ConnInfo);			//[t2]
 
