@@ -34,6 +34,9 @@ namespace pqxx
  * As a side effect, you can keep a NonTransaction open for as long as you like.
  * Actual back-end transactions are limited in lifespan, and will sometimes fail
  * just because they took to long to execute.
+ *
+ * Some database features that require a backend transaction, such as cursors or
+ * large objects, will not work in a NonTransaction.
  */
 class PQXX_LIBEXPORT NonTransaction : public TransactionItf
 {

@@ -1,4 +1,7 @@
 2003-01-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ README:
+  - Documented Windows build essentials
+2003-01-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/cursor.cxx:
   - Clarified internal error message
  test/test5.cxx:
