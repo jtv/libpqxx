@@ -23,9 +23,9 @@ using namespace std;
 
 
 pqxx::dbtransaction::dbtransaction(connection_base &C,
-    const string &IsolationString,
-    const string &NName,
-    const string &CName) :
+    const PGSTD::string &IsolationString,
+    const PGSTD::string &NName,
+    const PGSTD::string &CName) :
   transaction_base(C, NName, CName),
   m_StartCmd()
 {

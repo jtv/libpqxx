@@ -102,7 +102,7 @@ private:
       const PGSTD::string &Columns = PGSTD::string());
   void WriteRawLine(const PGSTD::string &);
   void writer_close();
-  PGSTD::string EscapeAny(const char *) const;
+  PGSTD::string EscapeAny(const char t[]) const;
   PGSTD::string EscapeAny(const PGSTD::string &) const;
   template<typename T> PGSTD::string EscapeAny(const T &) const;
 
