@@ -1,12 +1,11 @@
 Build system
-(*) Make new-style headers include "real" headers (with names ending in .hpp)
 (*) Check for <sstream> presence (and what if it ain't there?)
 (*) Completely support building outside the source directory
 (*) Make Makefile translate tutorial to HTML
 (*) Separate config.h's for building the library and building clients
 
 Connections
-(*) Separate failed_connection exception type
+(*) Separate failed_connection exception type if connection never succeeds?
 (*) Connection pooling support
 (*) AsyncConnection
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
@@ -35,7 +34,7 @@ Results
 (*) Allow direct mapping onto structs, using member ptr template args
 (*) Convert to/from date/time values
 (*) Real encoding support (PQmblen(), PQenv2encoding())
-(*) Support PQftable(), PQftablecol()
+(*) Support PQftablecol()
 
 Streams
 (*) Provide metadata information in tablestream
@@ -47,6 +46,7 @@ Transactions
 (*) What if robusttransaction reconnects while "in-doubt" attempt still ongoing?
 (*) User schema support for robusttransaction log table
 (*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
+(*) Support querying of variables (local map is "cache" for session state)
 
 Tests
 (*) Full test coverage (binarystring, SetVariable)

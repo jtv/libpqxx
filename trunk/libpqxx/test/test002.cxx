@@ -29,6 +29,8 @@ int main(int, char *argv[])
     // Start transaction within context of connection
     transaction<> T(C, "test2");
 
+    const string Table = "pg_tables";
+
     // Perform query within transaction
     result R( T.exec("SELECT * FROM pg_tables") );
 
@@ -42,10 +44,42 @@ int main(int, char *argv[])
     // considerate and close the connection now.  This is optional.
     C.disconnect();
 
+#ifdef HAVE_PQFTABLE
+    // Ah, this version of postgres will tell you which table a column in a
+    // result came from.  Let's just test that functionality...
+    const string rtable = R.column_table(0);
+    const string rcol = R.column_name(0);
+
+    if (rtable != Table)
+      throw logic_error("Field " + rcol + " comes from '" + rtable + "'; "
+	    		"expected '" + Table + "'");
+    const string crtable = R.column_table(rcol);
+    if (crtable != rtable)
+      throw logic_error("Field " + rcol + " comes from '" + rtable + "', "
+	  		"but by name, result says it's from '" + crtable + "'");
+#endif
+
     // Now we've got all that settled, let's process our results.
     for (result::size_type i = 0; i < R.size(); ++i)
+    {
       cout << '\t' << ToString(i) << '\t' << R[i][0].c_str() << endl;
 
+#ifdef HAVE_PQFTABLE
+      const string ftable = R[i][0].table();
+      if (ftable != rtable)
+	throw logic_error("Field says it comes from '" + ftable + "'; "
+			  "expected '" + rtable + "'");
+      const string ttable = R[i].column_table(0);
+      if (ttable != rtable)
+	throw logic_error("Tuple says field comes from '" + ttable + "'; "
+	    		  "expected '" + rtable + "'");
+      const string cttable = R[i].column_table(rcol);
+      if (cttable != rtable)
+	throw logic_error("Field comes from '" + rtable + "', "
+	                  "but by name, tuple says it's from '" + 
+			  cttable + "'");
+#endif
+    }
   }
   catch (const sql_error &e)
   {

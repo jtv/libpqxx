@@ -4,7 +4,6 @@
 #include <pqxx/connection>
 #include <pqxx/tablewriter>
 #include <pqxx/transaction>
-#include <pqxx/result>
 
 using namespace PGSTD;
 using namespace pqxx;

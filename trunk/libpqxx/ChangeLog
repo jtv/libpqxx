@@ -1,3 +1,10 @@
+2003-09-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/*:
+  - Moved header contents to .hxx files for filetype recognition
+2003-09-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result:
+  - Replaced two obsolete calls to Column() by column()
+  - Test coverage for column type / column name functions
 2003-09-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac:
   - Added check for PQfreeNotify()
