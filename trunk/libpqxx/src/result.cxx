@@ -24,6 +24,7 @@
 
 
 using namespace PGSTD;
+using namespace pqxx::internal::pq;
 
 
 pqxx::result &pqxx::result::operator=(const pqxx::result &Other) throw ()

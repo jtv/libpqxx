@@ -22,6 +22,7 @@
 #include "pqxx/connection"
 
 using namespace PGSTD;
+using namespace pqxx::internal::pq;
 
 pqxx::connection::connection() :
   connection_base(0)

@@ -323,10 +323,10 @@ protected:
   virtual void dropconnect() throw () {}
 
   /// For implementation classes: do we have a connection structure?
-  PGconn *get_conn() const throw () { return m_Conn; }
+  internal::pq::PGconn *get_conn() const throw () { return m_Conn; }
 
   /// For implementation classes: set connection structure pointer
-  void set_conn(PGconn *C) throw () { m_Conn = C; }
+  void set_conn(internal::pq::PGconn *C) throw () { m_Conn = C; }
 
   void wait_read() const;
   void wait_read(long seconds, long microseconds) const;
@@ -335,7 +335,7 @@ protected:
 private:
   void SetupState();
   void InternalSetTrace() throw ();
-  int Status() const { return PQstatus(m_Conn); }
+  int Status() const { return internal::pq::PQstatus(m_Conn); }
   const char *ErrMsg() const;
   void Reset();
   void close() throw ();
@@ -351,7 +351,7 @@ private:
   PGSTD::string m_ConnInfo;
 
   /// Connection handle
-  PGconn *m_Conn;
+  internal::pq::PGconn *m_Conn;
   /// Active transaction on connection, if any
   internal::unique<transaction_base> m_Trans;
 
@@ -377,18 +377,18 @@ private:
       int Retries);
   void RegisterTransaction(transaction_base *);
   void UnregisterTransaction(transaction_base *) throw ();
-  void MakeEmpty(result &, ExecStatusType=PGRES_EMPTY_QUERY);
+  void MakeEmpty(result &);
   bool ReadCopyLine(PGSTD::string &);
   void WriteCopyLine(const PGSTD::string &);
   void EndCopyWrite();
   void start_exec(const PGSTD::string &);
-  PGresult *get_result();
+  internal::pq::PGresult *get_result();
 
   void RawSetVar(const PGSTD::string &Var, const PGSTD::string &Value);
   void AddVariables(const PGSTD::map<PGSTD::string, PGSTD::string> &);
 
   friend class largeobject;
-  PGconn *RawConnection() const { return m_Conn; }
+  internal::pq::PGconn *RawConnection() const { return m_Conn; }
 
   friend class trigger;
   void AddTrigger(trigger *);

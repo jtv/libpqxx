@@ -18,7 +18,7 @@
 #define PQXX_LIBCOMPILER_H
 
 // Workarounds & definitions that need to be included even in library's headers
-#include "pqxx/libconfig.h"
+#include "pqxx/config-public-compiler.h"
 
 
 #ifndef PQXX_HAVE_PTRDIFF_T

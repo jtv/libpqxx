@@ -39,6 +39,7 @@
 
 using namespace PGSTD;
 using namespace pqxx::internal;
+using namespace pqxx::internal::pq;
 
 
 extern "C"
@@ -589,12 +590,12 @@ void pqxx::connection_base::UnregisterTransaction(transaction_base *T)
 }
 
 
-void pqxx::connection_base::MakeEmpty(pqxx::result &R, ExecStatusType Stat)
+void pqxx::connection_base::MakeEmpty(pqxx::result &R)
 {
   if (!m_Conn) 
     throw logic_error("libpqxx internal error: MakeEmpty() on null connection");
 
-  R = result(PQmakeEmptyPGresult(m_Conn, Stat));
+  R = result(PQmakeEmptyPGresult(m_Conn, PGRES_EMPTY_QUERY));
 }
 
 

@@ -16,6 +16,7 @@
  *-------------------------------------------------------------------------
  */
 #include "pqxx/libcompiler.h"
+#include "pqxx/config-public-libpq.h"
 
 #include <cstdio>
 #include <cctype>
@@ -25,23 +26,29 @@
 #include <typeinfo>
 #include <vector>
 
-extern "C"
-{
-#include "libpq-fe.h"
-}
-
 
 /// The home of all libpqxx classes, functions, templates, etc.
 namespace pqxx
 {
+namespace internal
+{
+namespace pq
+{
+extern "C"
+{
+#include "libpq-fe.h"
+}
+} // namespace pq
+} // namespace internal
+
 typedef long result_size_type;
 typedef int tuple_size_type;
 
 /// PostgreSQL row identifier type
-typedef Oid oid;
+typedef internal::pq::Oid oid;
 
 /// The "null" oid
-const oid oid_none = InvalidOid;
+const oid oid_none = 0;
 
 
 /// Dummy name, used by libpqxx in deliberate link errors
@@ -476,7 +483,7 @@ template<typename T> inline PGSTD::string Quote(T Obj)
 namespace internal
 {
 void freepqmem(void *);
-void freenotif(PGnotify *);
+void freenotif(internal::pq::PGnotify *);
 
 /// Keep track of a libpq-allocated pointer to be free()d automatically.
 /** Ownership policy is simple: object dies when PQAlloc object's value does.
@@ -551,7 +558,7 @@ private:
 
 
 /// Special version for notify structures, using PQfreeNotify() if available
-template<> inline void PQAlloc<PGnotify>::freemem() throw ()
+template<> inline void PQAlloc<internal::pq::PGnotify>::freemem() throw ()
 {
   freenotif(m_Obj);
 }

@@ -4,8 +4,12 @@ MAINTAINERCLEANFILES=Makefile.in
 includedir=@includedir@/pqxx
 
 nodist_include_HEADERS = \
-	internalconfig.h \
-	libconfig.h
+	config.h \
+	config-internal-autotools.h \
+	config-internal-compiler.h \
+	config-internal-libpq.h \
+	config-public-compiler.h \
+	config-public-libpq.h
 
 include_HEADERS= pqxx all.h \
 	binarystring binarystring.hxx \

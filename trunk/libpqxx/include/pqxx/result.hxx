@@ -332,8 +332,10 @@ public:
   const_iterator begin() const { return const_iterator(this, 0); }	//[t1]
   inline const_iterator end() const;					//[t1]
 
-  size_type size() const { return m_Result ? PQntuples(m_Result) : 0; }	//[t2]
-  bool empty() const { return !m_Result || !PQntuples(m_Result); }	//[t11]
+  size_type size() const						//[t2]
+  	{ return m_Result ? internal::pq::PQntuples(m_Result) : 0; }
+  bool empty() const							//[t11]
+  	{ return !m_Result || !internal::pq::PQntuples(m_Result); }
   size_type capacity() const { return size(); }				//[t20]
 
   void swap(result &other) throw ();					//[t77]
@@ -413,7 +415,7 @@ public:
 
 
 private:
-  PGresult *m_Result;
+  internal::pq::PGresult *m_Result;
   mutable const result *m_l, *m_r;
 
   friend class result::field;
@@ -423,9 +425,9 @@ private:
 
   friend class connection_base;
   friend class pipeline;
-  explicit result(PGresult *rhs) throw () : 
+  explicit result(internal::pq::PGresult *rhs) throw () : 
     m_Result(0), m_l(this), m_r(this) {MakeRef(rhs);}
-  result &operator=(PGresult *) throw ();
+  result &operator=(internal::pq::PGresult *) throw ();
   bool operator!() const throw () { return !m_Result; }
   operator bool() const throw () { return m_Result != 0; }
   void CheckStatus(const PGSTD::string &Query) const;
@@ -437,7 +439,7 @@ private:
   const char *CmdStatus() const throw () { return PQcmdStatus(m_Result); }
 
 
-  void MakeRef(PGresult *) throw ();
+  void MakeRef(internal::pq::PGresult *) throw ();
   void MakeRef(const result &) throw ();
   void LoseRef() throw ();
 };
@@ -564,11 +566,11 @@ inline oid result::column_table(tuple::size_type ColNum) const
 {
   const oid T = PQftable(m_Result, ColNum);
 
-  /* If we get InvalidOid, it may be because the column is computed, or because
+  /* If we get oid_none, it may be because the column is computed, or because
    * we got an invalid row number.
    */
   // TODO: Skip this if we first computed the column name ourselves
-  if ((T == InvalidOid) &&
+  if ((T == oid_none) &&
       ((ColNum < 0) || (ColNum >= columns())))
     throw PGSTD::invalid_argument("Attempt to retrieve table ID for column " +
 				  to_string(ColNum) + " "
