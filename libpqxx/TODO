@@ -2,7 +2,6 @@ Immediate
 (*) Replace /MT, /MTd with /MD, /MDd in Visual C++ Makefiles
 (*) Disable trace/warning output during destructors on Visual C++
 (*) Add -lwsock32 to tools/Makefile.am if needed (MingW!)
-(*) Disable SunC++ workarounds in cursor/cachedresult if appropriate
 
 All Over
 (*) Ensure table/column/cursor/... names are always quoted

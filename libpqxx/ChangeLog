@@ -1,6 +1,12 @@
 2005-02-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/SunStudio-8/config-internal-compiler.h,
+ config/sample-headers/compiler/SunStudio-8/config-public-compiler.h:
+  - Added, thanks Mark Round
  include/pqxx/transactor.hxx:
   - Fixed incorrect comment, thanks Joshua Moore-Oliva
+ src/pipeline.cxx:
+  - Worked around last SunC++ problem, thanks Mark Round
+  - Removed unneeded header
 2005-02-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
   - Fixed typo in automake check
@@ -16,7 +22,7 @@
   - Fixed painful typo in help output, thanks Tommi Maekitalo
 2005-02-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx:
-  - Fixed broken workaround for SunC++ problem, thanks again mark@markround.com
+  - Fixed broken workaround for SunC++ problem, thanks again Mark Round
  src/pipeline.cxx:
   - Added missing include
   - Should fix that last remaining SunC++ error
@@ -28,7 +34,7 @@
   - One error with SunC++ remains (std::distance() won't work)
 2005-01-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/cachedresult.cxx, src/cursor.cxx:
-  - Fixes for SunC++, thanks mark@markround.com
+  - Fixes for SunC++, thanks Mark Round
 2005-01-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/compiler.h:
   - Finally defined NOMINMAX, thanks Trevor Morgan!
@@ -38,7 +44,7 @@
   - Workaround for BSD grep which doesn't support "-f -"
 2005-01-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cursor.h:
-  - Fixed typo in Sun compiler workaround, thanks mark@markround.com
+  - Fixed typo in Sun compiler workaround, thanks Mark Round
 2004-12-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.hxx:
   - Apply PQXX_LIBEXPORT to sleep_seconds(), thanks Chris Piker
