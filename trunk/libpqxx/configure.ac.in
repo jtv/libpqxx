@@ -52,6 +52,7 @@ if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 	for option in \
 		-Werror \
 		-Wno-long-double \
+		-Wno-div-by-zero \
 		-ffor-scope \
 		-fstrict-aliasing \
 		-funit-at-a-time \
@@ -78,8 +79,6 @@ if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 		-Wold-style-cast \
 		-Woverloaded-virtual \
 		-Wsign-promo \
-		-Wanal \
-		-ffascist \
 	; do
 		SAVE_CXXFLAGS="$CXXFLAGS"
 		CXXFLAGS="$CXXFLAGS $option"
@@ -97,18 +96,18 @@ if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 	unset option
 fi
 
-# check that std namespace is actually called std
-# TODO: Check for alternatives as well?
+
 # TODO: New --with-std= option
-AH_TEMPLATE(PGSTD, [name of standard namespace])
-AC_MSG_CHECKING([name of standard namespace])
-AC_TRY_COMPILE(
-	[#include <string>]
-	, [std::string a;]
-	, AC_DEFINE(PGSTD,[std],[Does the standard namespace exist?])
-	, AC_MSG_ERROR([Can't find std namespace])
-)
-AC_MSG_RESULT($std)
+AH_TEMPLATE(PGSTD, [name of standard library namespace])
+AC_MSG_CHECKING([name of standard library namespace])
+for ns in "" std ; do
+	AC_TRY_COMPILE([#include <string>],[${ns}::string a;],[std=${ns}], [])
+done
+AC_DEFINE_UNQUOTED(PGSTD,[$std],[Name of standard namespace (normally std)])
+AC_MSG_RESULT([${std}])
+if ! test -z "${std}" ; then
+	usestd="using namespace ${std};"
+fi
 
 
 ioshdr=yes
@@ -128,8 +127,11 @@ localehdr=no)
 
 AC_MSG_CHECKING([char_traits template])
 char_traits=yes
-AC_TRY_COMPILE([#include <string>], [PGSTD::char_traits<char>::eof()], AC_DEFINE(PQXX_HAVE_CHAR_TRAITS, 1,
-[Define if std defines the char_traits template and <char> specialization]),
+AC_TRY_COMPILE([#include <string>
+	${usestd}], 
+	[char_traits<char>::eof()],
+	AC_DEFINE(PQXX_HAVE_CHAR_TRAITS, 1,
+[Define if std provides the char_traits template and <char> specialization]),
 char_traits=no)
 AC_MSG_RESULT($char_traits)
 
@@ -172,8 +174,11 @@ AC_SUBST(POSTGRES_INCLUDE)
 AC_HEADER_STDC
 
 AC_MSG_CHECKING([ability to compile programs using the standard C library])
-AC_TRY_COMPILE([#include <string.h>],[unsigned long ul;ul=strlen("")],[],
-[AC_MSG_ERROR([
+AC_TRY_COMPILE([#include <string.h>
+	${usestd}
+	extern void f(size_t);],
+	[f(strlen(""))],[],
+	[AC_MSG_ERROR([
 Could not build even a tiny test program using the standard C library.
 
 Something very basic has gone wrong; try reading config.log to find out what.
@@ -202,7 +207,7 @@ In that case, make sure you have the latter installed as well.
 
 
 AC_MSG_CHECKING([for ability to compile source files using libpq])
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h],[PQexec(NULL,"")],
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h],[PQexec(0,"")],
 [AC_MSG_ERROR([
 Could not compile a call to a basic libpq function.  There must be something
 seriously wrong with the headers that "pg_config --includedir" pointed to; the
@@ -310,7 +315,8 @@ AC_MSG_CHECKING([for working <sys/select.h>])
 select_h=yes
 AC_TRY_COMPILE(
 	[#include <cstring>
-#include <sys/select.h>]
+#include <sys/select.h>
+${usestd}]
 	, [select(0,0,0,0,0)]
 	, AC_DEFINE(PQXX_HAVE_SYS_SELECT_H,1,
 [Define if the sys/select.h header defines a working select() and friends, as per POSIX 1003.1-2001])
@@ -328,7 +334,8 @@ AC_TRY_COMPILE(
 [#include <cstring>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <unistd.h>],
+#include <unistd.h>
+${usestd}],
 	[fd_set s;FD_ZERO(&s);FD_SET(1,&s)],
 	[],
 	[AC_MSG_ERROR([
@@ -341,7 +348,8 @@ AC_TRY_COMPILE(
 [#include <cstring>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <unistd.h>],
+#include <unistd.h>
+${usestd}],
 	[fd_set s;FD_ZERO(&s);FD_SET(1,&s)],
 	[],
 	[AC_MSG_ERROR([
@@ -364,7 +372,8 @@ AC_TRY_COMPILE(
 [#include <cstring>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <unistd.h>],
+#include <unistd.h>
+${usestd}],
 	[fd_set s;FD_ZERO(&s);FD_SET(1,&s);return select(2,NULL,&s,&s,NULL)<=0],
 	AC_DEFINE(PQXX_SELECT_ACCEPTS_NULL,1,
 [Define if select() accepts NULL fd_set arguments]),
@@ -375,7 +384,8 @@ AC_MSG_RESULT($select_accepts_null)
 
 AC_MSG_CHECKING([sleep()])
 sleep=yes
-AC_TRY_COMPILE([#include <unistd.h>],[sleep(0x01)],
+AC_TRY_COMPILE([#include <unistd.h>
+	${usestd}],[sleep(0x01)],
 	AC_DEFINE(PQXX_HAVE_SLEEP, 1, [Define if POSIX sleep() exists]),
 	[sleep=no]
 )
@@ -385,7 +395,8 @@ AC_MSG_CHECKING([PQescapeString()])
 pqescapestring=yes
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 	[char c[1];PQescapeString(c,"",0x01)],
-	AC_DEFINE(PQXX_HAVE_PQESCAPESTRING,1,[Define if libpq has PQescapeString()]),
+	AC_DEFINE(PQXX_HAVE_PQESCAPESTRING, 1,
+		[Define if libpq has PQescapeString()]),
 	[pqescapestring=no]
 )
 AC_MSG_RESULT($pqescapestring)
@@ -393,7 +404,8 @@ AC_MSG_RESULT($pqescapestring)
 AC_MSG_CHECKING([PQescapeBytea()])
 pqescapebytea=yes
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>
-#include<cstddef>],
+#include<cstddef>
+${usestd}],
 	[size_t l=0;const unsigned char c[]="";PQescapeBytea(c,1,&l)],
 	AC_DEFINE(PQXX_HAVE_PQESCAPEBYTEA,1,[Define if libpq has PQescapeBytea()]),
 	[pqescapebytea=no]
@@ -402,7 +414,8 @@ AC_MSG_RESULT($pqescapebytea)
 
 AC_MSG_CHECKING([PQunescapeBytea()])
 pqunescapebytea=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>
+	${usestd}],
 	[size_t l=0;const unsigned char c[]="";PQunescapeBytea(c,&l)],
 	AC_DEFINE(PQXX_HAVE_PQUNESCAPEBYTEA,1,[Define if libpq has PQunescapeBytea()]),
 	[pqunescapebytea=no]
@@ -466,22 +479,46 @@ AC_MSG_RESULT($pqresulterrorfield)
 AC_CHECK_HEADER(limits,
 	[AC_DEFINE(PQXX_HAVE_LIMITS, 1, [Define if <limits> exists])])
 
+AC_MSG_CHECKING([for std::numeric_limits<>::quiet_NaN()])
+quiet_nan=yes
+AC_TRY_COMPILE([#include <limits>
+	extern void f(double);
+	${usestd}],
+	[f(numeric_limits<double>::quiet_NaN())],
+	[AC_DEFINE(PQXX_HAVE_QUIET_NAN,1,
+		[Define if std::numeric_limits has quiet_NaN()])],
+	[quiet_nan=no])
+AC_MSG_RESULT($quiet_nan)
+
+AC_MSG_CHECKING([for C99 nan() family])
+nan=yes
+AC_TRY_COMPILE([#include <cmath>
+	${usestd}
+	extern void f(double);],
+	[f(nan(""))],
+	[AC_DEFINE(PQXX_HAVE_NAN,1,
+		[Define if C99 fnan()/nan()/lnan() are available])],
+	[nan=no])
+AC_MSG_RESULT($nan)
+
 AC_MSG_CHECKING([whether std::string has a clear() function])
-string_clear='yes'
-AC_TRY_COMPILE([#include <string>],
-	[PGSTD::string i;i.clear()],
+string_clear=yes
+AC_TRY_COMPILE([#include <string>
+	${usestd}],
+	[string i;i.clear()],
 	[AC_DEFINE(PQXX_HAVE_STRING_CLEAR,
 			1,
 			[Define if string class has the clear() function])],
-	[string_clear='no'])
+	[string_clear=no])
 AC_MSG_RESULT($string_clear)
 
 AC_MSG_CHECKING([if count_if() works as expected])
 count_if='yes'
 AC_TRY_COMPILE([#include <algorithm>
 #include <functional>
+${usestd}
 struct P{bool operator()(const int&)const{return false;}}p;],
-	[int v;return int(PGSTD::count_if(&v,&v,p))],
+	[int v;return int(count_if(&v,&v,p))],
 	[AC_DEFINE(PQXX_HAVE_COUNT_IF,
 			1,
 			[Define if count_if() works according to the standard])],
@@ -489,8 +526,9 @@ struct P{bool operator()(const int&)const{return false;}}p;],
 AC_MSG_RESULT($count_if)
 
 AC_MSG_CHECKING([whether <iterator> defines a usable iterator template])
-AC_TRY_COMPILE([#include <iterator>],
-	[struct I:PGSTD::iterator<PGSTD::random_access_iterator_tag,int>{}],
+AC_TRY_COMPILE([#include <iterator>
+	${usestd}],
+	[struct I:iterator<random_access_iterator_tag,int>{}],
 	[it='yes'],
 	[AC_DEFINE(PQXX_BROKEN_ITERATOR,
 			1,
@@ -501,7 +539,7 @@ AC_MSG_RESULT($it)
 AC_MSG_CHECKING([for reverse_iterator template])
 reverseit='yes'
 AC_TRY_COMPILE([#include <iterator>
-	using namespace PGSTD;struct I:iterator<random_access_iterator_tag,int>{};],
+	${usestd} struct I:iterator<random_access_iterator_tag,int>{};],
 	[reverse_iterator<I> rit],
 	[AC_DEFINE(PQXX_HAVE_REVERSE_ITERATOR,
 		1,
@@ -511,8 +549,8 @@ AC_MSG_RESULT($reverseit)
 
 
 AC_MSG_CHECKING([whether overloaded using-declarations work])
-AC_TRY_COMPILE([struct A{void foo(int){}};struct B:A{using A::foo;void foo(int,bool){}};],
-	[B b;b.foo(1,true);],
+AC_TRY_COMPILE([struct A{void f(int){}};struct B:A{using A::f;void f(int,bool){}};],
+	[B b;b.f(1,true);],
 	[usingdecl='yes'],
 	[AC_DEFINE(PQXX_BROKEN_USING_DECL,
 		1,
@@ -549,3 +587,4 @@ done
 ])
 
 AC_OUTPUT
+
