@@ -65,14 +65,14 @@ struct PQXX_LIBEXPORT nonnoticer : noticer
 
 
 /// connection_base abstract base class; represents a connection to a database.
-/** This is the first class to look at when you wish to work with a database 
+/** This is the first class to look at when you wish to work with a database
  * through libpqxx.  Depending on the implementing concrete child class, a
  * connection can be automatically opened when it is constructed, or when it is
- * first used.  The connection is automatically closed upon destruction, if it 
+ * first used.  The connection is automatically closed upon destruction, if it
  * hasn't already been closed manually.
  *
- * To query or manipulate the database once connected, use one of the 
- * transaction classes (see pqxx/transaction_base.hxx) or preferably the 
+ * To query or manipulate the database once connected, use one of the
+ * transaction classes (see pqxx/transaction_base.hxx) or preferably the
  * transactor framework (see pqxx/transactor.hxx).
  *
  * A word of caution: if a network connection to the database server fails, the
@@ -89,7 +89,7 @@ class PQXX_LIBEXPORT connection_base
 {
 public:
   /// Set up connection based on PostgreSQL connection string
-  /** 
+  /**
    * @param ConnInfo a PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.  These values
    * override any of the environment variables recognized by libpq that may have
@@ -130,7 +130,7 @@ public:
    * @param T The transactor to be executed.
    * @param Attempts Maximum number of attempts to be made to execute T.
    */
-  template<typename TRANSACTOR> 
+  template<typename TRANSACTOR>
   void perform(const TRANSACTOR &T, int Attempts);			//[t4]
 
   /// Perform the transaction defined by a transactor-based object.
@@ -148,7 +148,7 @@ public:
   /// Set handler for postgresql errors or warning messages.
   /** The use of auto_ptr implies ownership, so unless the returned value is
    * copied to another auto_ptr, it will be deleted directly after the call.
-   * This may be important when running under Windows, where a DLL cannot free 
+   * This may be important when running under Windows, where a DLL cannot free
    * memory allocated by the main program.  The auto_ptr will delete the object
    * from your code context, rather than from inside the library.
    *
@@ -158,7 +158,7 @@ public:
    * @param N New message handler; must not be null or equal to the old one
    * @return Previous handler
    */
-  PGSTD::auto_ptr<noticer> set_noticer(PGSTD::auto_ptr<noticer> N) 
+  PGSTD::auto_ptr<noticer> set_noticer(PGSTD::auto_ptr<noticer> N)
     throw ();								//[t14]
   noticer *get_noticer() const throw () { return m_Noticer.get(); }	//[t14]
 
@@ -173,12 +173,12 @@ public:
   /// Check for pending trigger notifications and take appropriate action.
   /** Exceptions thrown by client-registered trigger handlers are reported, but
    * not passed on outside this function.
-   * @return Number of pending notifications 
+   * @return Number of pending notifications
    */
   int get_notifs();							//[t4]
 
   // Miscellaneous query functions (probably not needed very often)
- 
+
   /// Name of database we're connected to, if any.
   const char *dbname()							//[t1]
   	{ activate(); return PQdb(m_Conn); }
@@ -207,7 +207,7 @@ public:
    * reliable within the span of a successful backend transaction.  If the
    * transaction fails, which may be due to a lost connection, then this number
    * will have become invalid at some point within the transaction.
-   * 
+   *
    * @return Process identifier, or 0 if not currently connected.
    */
   int backendpid() const throw ()					//[t1]
@@ -224,10 +224,10 @@ public:
    * deactivate().  A good time to call activate() might be just before you
    * first open a transaction on a lazy connection.
    */
-  void activate() { Connect(); }					//[t12]
+  void activate();							//[t12]
 
   /// Explicitly deactivate connection.
-  /** Like its counterpart activate(), this method is entirely optional.  
+  /** Like its counterpart activate(), this method is entirely optional.
    * Calling this function really only makes sense if you won't be using this
    * connection for a while and want to reduce the number of open connections on
    * the database server.
@@ -240,7 +240,7 @@ public:
   /// Set client-side character encoding
   /** Search the PostgreSQL documentation for "multibyte" or "character set
    * encodings" to find out more about the available encodings, how to extend
-   * them, and how to use them.  Not all server-side encodings are compatible 
+   * them, and how to use them.  Not all server-side encodings are compatible
    * with all client-side encodings or vice versa.
    * @param Encoding Name of the character set encoding to use
    */
@@ -256,7 +256,7 @@ public:
    * normally discard the newly set value.  Known exceptions are nontransaction
    * (which doesn't start a real backend transaction) and PostgreSQL versions
    * prior to 7.3.
-   * @warning Do not mix the set_variable interface with manual setting of 
+   * @warning Do not mix the set_variable interface with manual setting of
    * variables by executing the corresponding SQL commands, and do not get or
    * set variables while a tablestream or pipeline is active on the same
    * connection.
@@ -264,13 +264,13 @@ public:
    * @param Value Value vor Var to assume: an identifier, a quoted string, or a
    * number.
    */
-  void set_variable(const PGSTD::string &Var, 
+  void set_variable(const PGSTD::string &Var,
       		    const PGSTD::string &Value);			//[t60]
 
   /// Read session variable
   /** Will try to read the value locally, from the list of variables set with
    * the set_variable function.  If that fails, the database is queried.
-   * @warning Do not mix the set_variable interface with manual setting of 
+   * @warning Do not mix the set_variable interface with manual setting of
    * variables by executing the corresponding SQL commands, and do not get or
    * set variables while a tablestream or pipeline is active on the same
    * connection.
@@ -300,12 +300,12 @@ public:
   PGSTD::auto_ptr<noticer> SetNoticer(PGSTD::auto_ptr<noticer> N)
   	{ return set_noticer(N); }
   /// @deprecated Use get_noticer() instead
-  noticer *GetNoticer() const throw () 
+  noticer *GetNoticer() const throw ()
   	{ return get_noticer(); }
   /// @deprecated Use process_notice() instead
   void ProcessNotice(const char msg[]) throw () { return process_notice(msg); }
   /// @deprecated Use process_notice() instead
-  void ProcessNotice(const PGSTD::string &msg) throw () 
+  void ProcessNotice(const PGSTD::string &msg) throw ()
   	{ return process_notice(msg); }
   /// @deprecated Use trace() instead
   void Trace(FILE *F) { trace(F); }
@@ -360,8 +360,6 @@ protected:
   void wait_write() const;
 
 private:
-  /// Really connect to database
-  void Connect();
   void SetupState();
 
   void InternalSetTrace() throw ();
@@ -399,7 +397,7 @@ private:
 
   friend class transaction_base;
   result Exec(const char[], int Retries);
-  result exec_prepared(const char[], 
+  result exec_prepared(const char[],
       int NumParams,
       const char *const *Params,
       int Retries);

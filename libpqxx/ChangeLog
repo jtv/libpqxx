@@ -1,3 +1,14 @@
+2005-02-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, src/connection_base.cxx:
+  - Use pipeline for setting up or restoring triggers and variables
+  - Renamed Connect() to activate(); they were really the same thing
+ src/pipeline.cxx:
+  - Added description to dummy string for error reporting, just in case
+2005-02-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ *:
+  - Removed trailing whitespace
+ include/pqxx/connection_base.hxx:
+  - Made Sun compiler workaround for perform() the general case
 2005-02-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Added some braces to variable expansions, just to be sure
