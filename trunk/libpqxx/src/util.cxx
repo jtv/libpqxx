@@ -132,17 +132,33 @@ template<typename T> inline void from_string_unsigned(const char Str[], T &Obj)
   Obj = result;
 }
 
-// These are hard.  Sacrifice performance and lean on standard library.
+/* These are hard.  Sacrifice performance of specialized, nonflexible,
+ * non-localized code and lean on standard library.  Some special-case code
+ * handles NaNs.
+ */
 template<typename T> inline void from_string_float(const char Str[], T &Obj)
 {
-  stringstream S(Str);
+  bool ok = false;
+  T result = numeric_limits<T>::quiet_NaN();
+
+  if (tolower(Str[0])=='n')
+  {
+    // Accept "NaN," "nan," etc.
+    ok = (tolower(Str[1])=='a' && tolower(Str[2])=='n' && !Str[3]);
+  }
+  else
+  {
+    stringstream S(Str);
 #ifdef PQXX_HAVE_LOCALE
-  S.imbue(locale("C"));
+    S.imbue(locale("C"));
 #endif
-  T result;
-  if (!(S >> result))
+    ok = (S >> result);
+  }
+
+  if (!ok)
     throw runtime_error("Could not convert string to numeric value: '" +
 	string(Str) + "'");
+
   Obj = result;
 }
 

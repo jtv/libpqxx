@@ -1,3 +1,8 @@
+2005-02-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/util.cxx:
+  - Convert NaN string to float type, thanks edmund@greenius.ltd.uk
+ test/test000.cxx:
+  - Test NaN conversion
 2005-02-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, src/connection_base.cxx:
   - Use pipeline for setting up or restoring triggers and variables
