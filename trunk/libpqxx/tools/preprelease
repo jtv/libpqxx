@@ -123,7 +123,7 @@ log "Building"
 command "make -j $CONCURRENCY_LEVEL" nice
 
 log "Running regression test"
-command "make check" nice
+command "make -j $CONCURRENCY_LEVEL check" nice
 grep '^PASS:' $LOGFILE
 grep '^FAIL:' $LOGFILE 2>>$ERRLOG || true
 grep '^All [0-9]* tests passed' $LOGFILE
