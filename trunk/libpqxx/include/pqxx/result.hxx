@@ -28,7 +28,7 @@
  */
 
 // TODO: Support SQL arrays
-// TODO: value_type, reference, const_reference, difference_type
+// TODO: value_type, reference, const_reference
 // TODO: container comparisons
 
 namespace pqxx
@@ -52,11 +52,11 @@ public:
   
   result &operator=(const result &) throw ();				//[t10]
 
-  typedef result_size_type size_type;
+  typedef unsigned long size_type;
+  typedef signed long difference_type;
   class field;
+  class const_fielditerator;
 
-  // TODO: Field iterators
- 
   /// Reference to one row in a result.
   /** A tuple represents one row (also called a tuple) in a query result set.  
    * It also acts as a container mapping column numbers or names to field 
@@ -64,21 +64,41 @@ public:
    *
    * 	cout << tuple["date"].c_str() << ": " << tuple["name"].c_str() << endl;
    *
-   * The fields in a tuple can not currently be iterated over.
+   * The tuple itself acts like a (non-modifyable) container, complete with its
+   * own const_iterator and, if your compiler supports them,
+   * const_reverse_iterator.
    */
   class PQXX_LIBEXPORT tuple
   {
   public:
-    typedef tuple_size_type size_type;
+    typedef unsigned int size_type;
+    typedef signed int difference_type;
+    typedef const_fielditerator const_iterator;
+
     tuple(const result *r, result::size_type i) throw () : 
       m_Home(r), m_Index(i) {}
     ~tuple() throw () {} // Yes Scott Meyers, you're absolutely right[1]
 
-    inline field operator[](size_type) const throw ();			//[t1]
+    inline const_iterator begin() const throw ();			//[t82]
+    inline const_iterator end() const throw ();				//[t82]
+
+#ifdef PQXX_HAVE_REVERSE_ITERATOR
+    typedef PGSTD::reverse_iterator<const_iterator> const_reverse_iterator;
+    const_reverse_iterator rbegin() const 				//[t82]
+  	{ return const_reverse_iterator(end()); }
+    const_reverse_iterator rend() const					//[t82]
+   	{ return const_reverse_iterator(begin()); }
+#endif
+
+    inline field operator[](size_type) const throw ();			//[]
+    inline field operator[](int i) const throw ()			//[]
+    	{ return operator[](size_type(i)); }
     field operator[](const char[]) const;				//[t11]
     field operator[](const PGSTD::string &s) const 			//[t11]
     	{ return operator[](s.c_str()); }
-    field at(size_type) const throw (PGSTD::out_of_range);		//[t10]
+    field at(size_type) const throw (PGSTD::out_of_range);		//[]
+    field at(int i) const throw (PGSTD::out_of_range)			//[]
+    	{ return at(size_type(i)); }
     field at(const char[]) const;					//[t11]
     field at(const PGSTD::string &s) const { return at(s.c_str()); }	//[t11]
 
@@ -95,8 +115,12 @@ public:
       	{ return m_Home->column_number(ColName); }
 
     /// Type of given column
-    oid column_type(size_type ColNum) const				//[t7]
+    oid column_type(size_type ColNum) const				//[]
 	{ return m_Home->column_type(ColNum); }
+
+    /// Type of given column
+    oid column_type(int ColNum) const					//[]
+	{ return column_type(size_type(ColNum)); }
 
     /// Type of given column
     oid column_type(const PGSTD::string &ColName) const			//[t7]
@@ -106,9 +130,13 @@ public:
     oid column_type(const char ColName[]) const				//[t7]
       	{ return column_type(column_number(ColName)); }
 
+    result::size_type num() const { return rownumber(); }		//[t1]
+
 #ifdef PQXX_HAVE_PQFTABLE
-    oid column_table(size_type ColNum) const				//[t2]
+    oid column_table(size_type ColNum) const				//[]
     	{ return m_Home->column_table(ColNum); }
+    oid column_table(int ColNum) const					//[]
+    	{ return column_table(size_type(ColNum)); }
     oid column_table(const PGSTD::string &ColName) const		//[t2]
       	{ return column_table(column_number(ColName)); }
 #endif
@@ -129,6 +157,7 @@ public:
 
 
   protected:
+    friend class field;
     const result *m_Home;
     result::size_type m_Index;
 
@@ -140,18 +169,18 @@ public:
   /** A field represents one entry in a tuple.  It represents an actual value 
    * in the result set, and can be converted to various types.
    */
-  class PQXX_LIBEXPORT field : private tuple
+  class PQXX_LIBEXPORT field
   {
   public:
     typedef size_t size_type;
 
     /// Constructor.
     /** Create field as reference to a field in a result set.
-     * @param R tuple that this field is part of.
+     * @param T tuple that this field is part of.
      * @param C column number of this field.
      */
-    field(const tuple &R, tuple::size_type C) throw () : 		//[t1]
-    	tuple(R), m_Col(C) {}
+    field(const tuple &T, tuple::size_type C) throw () : 		//[t1]
+    	m_tup(T), m_col(C) {}
 
     /// Read as plain C string
     /** Since the field's data is stored internally in the form of a 
@@ -159,23 +188,23 @@ public:
      * to() or as() functions to convert the string to other types such as int,
      * or to C++ strings.
      */
-    const char *c_str() const {return m_Home->GetValue(m_Index,m_Col);}	//[t2]
+    const char *c_str() const {return home()->GetValue(idx(),col());}	//[t2]
 
     /// Column name
     inline const char *name() const;					//[t11]
 
     /// Column type
     oid type() const 							//[t7]
-    	{ return m_Home->column_type(m_Col); }
+    	{ return home()->column_type(col()); }
 
 #ifdef PQXX_HAVE_PQFTABLE
     /// Table this field came from, if any
     /** Requires PostgreSQL 7.4 or greater
      */
-    oid table() const { return m_Home->column_table(m_Col); }		//[t2]
+    oid table() const { return home()->column_table(col()); }		//[t2]
 #endif
 
-    /// Read value into Obj; or leave Obj untouched & return false if null
+    /// Read value into Obj; or leave Obj untouched and return false if null
     /** @warning The conversion is done using the currently active locale, 
      * whereas PostgreSQL delivers values in the "default" (C) locale.  This 
      * means that if you intend to use this function from a locale that doesn't
@@ -204,6 +233,9 @@ public:
       return true;
     }
 
+    /// Read value into Obj; or leave Obj untouched and return false if null
+    template<typename T> bool operator>>(T &Obj) const			//[t7]
+    	{ return to(Obj); }
 
 #ifdef PQXX_NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
     /// Specialization: to(string &)
@@ -246,9 +278,11 @@ public:
       return Obj;
     }
 
-    bool is_null() const { return m_Home->GetIsNull(m_Index,m_Col); }	//[t12]
+    bool is_null() const { return home()->GetIsNull(idx(),col()); }	//[t12]
 
-    size_type size() const { return m_Home->GetLength(m_Index,m_Col); }	//[t11]
+    size_type size() const { return home()->GetLength(idx(),col()); }	//[t11]
+
+    tuple::size_type num() const { return col(); }			//[t82]
 
 #ifdef PQXX_DEPRECATED_HEADERS
     /// @deprecated Use name() instead
@@ -256,7 +290,13 @@ public:
 #endif
 
   private:
-    tuple::size_type m_Col;
+    const result *home() const throw () { return m_tup.m_Home; }
+    result::size_type idx() const throw () { return m_tup.m_Index; }
+
+  protected:
+    const tuple::size_type col() const throw () { return m_col; }
+    tuple m_tup;
+    tuple::size_type m_col;
   };
 
   /// Iterator for rows (tuples) in a query result set.
@@ -271,7 +311,11 @@ public:
     public tuple
   {
   public:
-    const_iterator() : tuple(0,0) {}
+    typedef result::size_type size_type;
+    typedef result::difference_type difference_type;
+
+    const_iterator() throw () : tuple(0,0) {}
+    const_iterator(const tuple &t) throw () : tuple(t) {}
 
     /** The iterator "points to" its own tuple, which is also itself.  This 
      * allows a result to be addressed as a two-dimensional container without 
@@ -305,21 +349,74 @@ public:
     bool operator>=(const const_iterator &i) const 			//[t12]
     	{return m_Index>=i.m_Index;}
 
-    inline const_iterator operator+(difference_type o) const;		//[t12]
+    inline const_iterator operator+(difference_type) const;		//[t12]
 
-    friend const_iterator operator+(difference_type o, 
-		    		    const_iterator i);			//[t12]
+    friend const_iterator operator+(difference_type, const_iterator);	//[t12]
 
-    inline const_iterator operator-(difference_type o) const;		//[t12]
+    inline const_iterator operator-(difference_type) const;		//[t12]
 
-    inline difference_type operator-(const_iterator i) const;		//[t12]
-
-    result::size_type num() const { return rownumber(); }		//[t1]
+    inline difference_type operator-(const_iterator) const;		//[t12]
 
   private:
     friend class result;
     const_iterator(const result *r, result::size_type i) : tuple(r, i) {}
   };
+
+  class PQXX_LIBEXPORT const_fielditerator : 
+    public PGSTD::iterator<PGSTD::random_access_iterator_tag, 
+                         const field,
+                         tuple::size_type>, 
+    public field
+  {
+    typedef PGSTD::iterator<PGSTD::random_access_iterator_tag,
+    				const field,
+				tuple::size_type> it;
+  public:
+    typedef tuple::size_type size_type;
+    typedef tuple::difference_type difference_type;
+    using it::pointer;
+    using it::reference;
+
+    const_fielditerator(const tuple &T, tuple::size_type C) throw () :	//[t82]
+      field(T, C) {}
+    const_fielditerator(const field &F) throw () : field(F) {}		//[t82]
+
+    pointer operator->() const { return this; }				//[t82]
+    reference operator*() const { return *operator->(); }		//[t82]
+
+    const_fielditerator operator++(int);				//[t82]
+    const_fielditerator &operator++() { ++m_col; return *this; }	//[t82]
+    const_fielditerator operator--(int);				//[t82]
+    const_fielditerator &operator--() { --m_col; return *this; }	//[t82]
+
+    const_fielditerator &operator+=(difference_type i) 			//[t82]
+    	{ m_col+=i; return *this; }
+    const_fielditerator &operator-=(difference_type i) 			//[t82]
+    	{ m_col-=i; return *this; }
+
+    bool operator==(const const_fielditerator &i) const 		//[t82]
+    	{return col()==i.col();}
+    bool operator!=(const const_fielditerator &i) const 		//[t82]
+    	{return col()!=i.col();}
+    bool operator<(const const_fielditerator &i) const  		//[t82]
+   	 {return col()<i.col();}
+    bool operator<=(const const_fielditerator &i) const 		//[t82]
+    	{return col()<=i.col();}
+    bool operator>(const const_fielditerator &i) const   		//[t82]
+    	{return col()>i.col();}
+    bool operator>=(const const_fielditerator &i) const 		//[t82]
+    	{return col()>=i.col();}
+
+    inline const_fielditerator operator+(difference_type) const;	//[t82]
+
+    friend const_fielditerator operator+(difference_type, 
+		    		    const_fielditerator);		//[t82]
+
+    inline const_fielditerator operator-(difference_type) const;	//[t82]
+
+    inline difference_type operator-(const_fielditerator) const;	//[t82]
+  };
+
 
 #ifdef PQXX_HAVE_REVERSE_ITERATOR
   typedef PGSTD::reverse_iterator<const_iterator> const_reverse_iterator;
@@ -361,7 +458,10 @@ public:
   const char *column_name(tuple::size_type Number) const;		//[t11]
 
   /// Type of given column
-  inline oid column_type(tuple::size_type ColNum) const;		//[t7]
+  inline oid column_type(tuple::size_type ColNum) const;		//[]
+  /// Type of given column
+  inline oid column_type(int ColNum) const				//[]
+  	{ return column_type(tuple::size_type(ColNum)); }
 
   /// Type of given column
   oid column_type(const PGSTD::string &ColName) const			//[t7]
@@ -373,7 +473,10 @@ public:
 
 #ifdef PQXX_HAVE_PQFTABLE
   /// Table that given column was taken from, if any
-  oid column_table(tuple::size_type ColNum) const;			//[t2]
+  oid column_table(tuple::size_type ColNum) const;			//[]
+  /// Table that given column was taken from, if any
+  oid column_table(int ColNum) const					//[]
+  	{ return column_table(tuple::size_type(ColNum)); } 
 
   /// Table that given column was taken from, if any
   oid column_table(const PGSTD::string &ColName) const			//[t2]
@@ -481,21 +584,25 @@ template<>
 inline PGSTD::string to_string(const result::field &Obj)		//[t74]
 	{ return to_string(Obj.c_str()); }
 
+
+
+inline result::tuple::const_iterator
+result::tuple::begin() const throw ()
+	{ return tuple::const_iterator(*this, 0); }
+
+inline result::tuple::const_iterator
+result::tuple::end() const throw ()
+	{ return tuple::const_iterator(*this, size()); }
+
 inline result::field 
 result::tuple::operator[](result::tuple::size_type i) const  throw ()
-{ 
-  return field(*this, i); 
-}
+	{ return field(*this, i); }
 
 inline result::tuple::size_type result::tuple::size() const throw ()
-{ 
-  return m_Home->columns(); 
-}
+	{ return m_Home->columns(); }
 
 inline const char *result::field::name() const 
-{ 
-  return m_Home->column_name(m_Col); 
-}
+	{ return home()->column_name(col()); }
 
 /// Specialization: to(string &)
 template<> 
@@ -561,6 +668,33 @@ inline oid result::column_type(tuple::size_type ColNum) const
 }
 
 
+inline result::const_fielditerator 
+result::const_fielditerator::operator+(difference_type o) const
+{
+  return const_fielditerator(m_tup, col() + o);
+}
+
+inline result::const_fielditerator 
+operator+(result::const_fielditerator::difference_type o,
+	  result::const_fielditerator i)
+{
+  return i + o;
+}
+
+inline result::const_fielditerator 
+result::const_fielditerator::operator-(difference_type o) const
+{
+  return const_fielditerator(m_tup, col() - o);
+}
+
+inline result::const_fielditerator::difference_type 
+result::const_fielditerator::operator-(const_fielditerator i) const
+{ 
+  return num()-i.num(); 
+}
+
+
+
 #ifdef PQXX_HAVE_PQFTABLE
 inline oid result::column_table(tuple::size_type ColNum) const
 {
@@ -571,7 +705,7 @@ inline oid result::column_table(tuple::size_type ColNum) const
    */
   // TODO: Skip this if we first computed the column name ourselves
   if ((T == oid_none) &&
-      ((ColNum < 0) || (ColNum >= columns())))
+      (ColNum >= columns()))
     throw PGSTD::invalid_argument("Attempt to retrieve table ID for column " +
 				  to_string(ColNum) + " "
 				  "out of " + to_string(columns()));
@@ -588,7 +722,6 @@ template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
   public PGSTD::streambuf
 #endif
 {
-  typedef long size_type;
 public:
   typedef CHAR char_type;
   typedef TRAITS traits_type;

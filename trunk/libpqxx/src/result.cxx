@@ -67,7 +67,7 @@ void pqxx::result::swap(pqxx::result &other) throw ()
 const pqxx::result::tuple pqxx::result::at(pqxx::result::size_type i) const
   throw (out_of_range)
 {
-  if ((i < 0) || (i >= size()))
+  if (i >= size())
     throw out_of_range("Tuple number out of range");
 
   return operator[](i);
@@ -179,7 +179,7 @@ pqxx::result::GetLength(pqxx::result::size_type Row,
 int pqxx::result::errorposition() const throw ()
 {
   int pos = -1;
-#if PQXX_HAVE_PQRESULTERRORFIELD
+#if defined(PQXX_HAVE_PQRESULTERRORFIELD)
   if (m_Result)
   {
     const char *p = PQresultErrorField(m_Result, PG_DIAG_STATEMENT_POSITION);
@@ -211,7 +211,7 @@ pqxx::result::field pqxx::result::tuple::at(const char f[]) const
 pqxx::result::field 
 pqxx::result::tuple::at(pqxx::result::tuple::size_type i) const throw (out_of_range)
 {
-  if ((i < 0) || (i >= size()))
+  if (i >= size())
     throw out_of_range("Invalid field number");
 
   return operator[](i);
@@ -232,11 +232,11 @@ pqxx::result::column_name(pqxx::result::tuple::size_type Number) const
 pqxx::result::tuple::size_type
 pqxx::result::column_number(const char ColName[]) const
 {
-  const tuple::size_type N = PQfnumber(m_Result, ColName);
+  const int N = PQfnumber(m_Result, ColName);
   if (N == -1)
     throw invalid_argument("Unknown column name: '" + string(ColName) + "'");
 
-  return N;
+  return tuple::size_type(N);
 }
 
 
@@ -244,18 +244,37 @@ pqxx::result::column_number(const char ColName[]) const
 
 pqxx::result::const_iterator pqxx::result::const_iterator::operator++(int)
 {
-  const_iterator Old(*this);
+  const_iterator old(*this);
   m_Index++;
-  return Old;
+  return old;
 }
 
 
 pqxx::result::const_iterator pqxx::result::const_iterator::operator--(int)
 {
-  const_iterator Old(*this);
+  const_iterator old(*this);
   m_Index--;
-  return Old;
+  return old;
 }
 
 
+
+// const_fielditerator
+
+pqxx::result::const_fielditerator
+pqxx::result::const_fielditerator::operator++(int)
+{
+  const_fielditerator old(*this);
+  m_col++;
+  return old;
+}
+
+
+pqxx::result::const_fielditerator
+pqxx::result::const_fielditerator::operator--(int)
+{
+  const_fielditerator old(*this);
+  m_col--;
+  return old;
+}
 
