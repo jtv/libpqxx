@@ -333,9 +333,9 @@ public:
   inline const_iterator end() const;					//[t1]
 
   size_type size() const						//[t2]
-  	{ return m_Result ? internal::pq::PQntuples(m_Result) : 0; }
+  	{ return m_Result ? PQXXPQ::PQntuples(m_Result) : 0; }
   bool empty() const							//[t11]
-  	{ return !m_Result || !internal::pq::PQntuples(m_Result); }
+  	{ return !m_Result || !PQXXPQ::PQntuples(m_Result); }
   size_type capacity() const { return size(); }				//[t20]
 
   void swap(result &other) throw ();					//[t77]

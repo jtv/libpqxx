@@ -1,3 +1,8 @@
+2.2.9
+ - Bugfix in removing trigger
+ - Added "failed connection" to regression test
+ - Some changes to throw specifications
+ - Putting libpq in its own namespace is optional
 2.2.8
  - Moved libpq into pqxx::internal::pq namespace
  - New config system separates compiler-related items from libpq-related ones

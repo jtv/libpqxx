@@ -39,7 +39,7 @@ pqxx::result &pqxx::result::operator=(const pqxx::result &Other) throw ()
 }
 
 
-pqxx::result &pqxx::result::operator=(PGresult *Other) throw ()
+pqxx::result &pqxx::result::operator=(internal::pq::PGresult *Other) throw ()
 {
   if (Other != m_Result)
   {
@@ -53,7 +53,7 @@ pqxx::result &pqxx::result::operator=(PGresult *Other) throw ()
 void pqxx::result::swap(pqxx::result &other) throw ()
 {
   const result *const l=m_l, *const r=m_r;
-  PGresult *p(m_Result);
+  internal::pq::PGresult *p(m_Result);
 
   m_l = other.m_l;
   m_r = other.m_r;
@@ -121,7 +121,7 @@ string pqxx::result::StatusError() const
 }
 
 
-void pqxx::result::MakeRef(PGresult *Other) throw ()
+void pqxx::result::MakeRef(internal::pq::PGresult *Other) throw ()
 {
   m_Result = Other;
 }

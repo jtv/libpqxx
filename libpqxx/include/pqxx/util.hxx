@@ -30,22 +30,59 @@
 /// The home of all libpqxx classes, functions, templates, etc.
 namespace pqxx
 {
+}
+
+
+#ifdef PQXX_PQ_IN_NAMESPACE
+// We want libpq in the pqxx::internal::pq namespace
+
+namespace pqxx
+{
 namespace internal
 {
 namespace pq
 {
+#define PQXXPQ pqxx::internal::pq
 extern "C"
 {
 #include "libpq-fe.h"
 }
 } // namespace pq
 } // namespace internal
+} // namespace pqxx
 
+#else	// PQXX_PQ_IN_NAMESPACE
+// We want libpq in the global namespace, with duplicates in pqxx::internal::pq
+
+extern "C"
+{
+#include "libpq-fe.h"
+}
+
+namespace pqxx
+{
+namespace internal
+{
+namespace pq
+{
+#define PQXXPQ
+typedef PQXXPQ::PGconn PGconn;
+typedef PQXXPQ::PGresult PGresult;
+
+} // namespace pq
+} // namespace internal
+} // namespace pqxx
+
+#endif	// PQXX_PQ_IN_NAMESPACE
+
+
+namespace pqxx
+{
 typedef long result_size_type;
 typedef int tuple_size_type;
 
 /// PostgreSQL row identifier type
-typedef internal::pq::Oid oid;
+typedef PQXXPQ::Oid oid;
 
 /// The "null" oid
 const oid oid_none = 0;
@@ -479,7 +516,7 @@ template<typename T> inline PGSTD::string Quote(T Obj)
 namespace internal
 {
 void freepqmem(void *);
-void freenotif(internal::pq::PGnotify *);
+void freenotif(PQXXPQ::PGnotify *);
 
 /// Keep track of a libpq-allocated pointer to be free()d automatically.
 /** Ownership policy is simple: object dies when PQAlloc object's value does.
@@ -554,7 +591,7 @@ private:
 
 
 /// Special version for notify structures, using PQfreeNotify() if available
-template<> inline void PQAlloc<internal::pq::PGnotify>::freemem() throw ()
+template<> inline void PQAlloc<PQXXPQ::PGnotify>::freemem() throw ()
 {
   freenotif(m_Obj);
 }
