@@ -415,6 +415,8 @@ private:
   bool operator!() const throw () { return !m_Result; }
   operator bool() const throw () { return m_Result != 0; }
   void CheckStatus(const PGSTD::string &Query) const;
+  void CheckStatus(const char Query[]) const;
+  PGSTD::string StatusError() const;
 
   friend class Cursor;
   const char *CmdStatus() const throw () { return PQcmdStatus(m_Result); }

@@ -27,9 +27,11 @@ using namespace PGSTD;
 pqxx::tablewriter::tablewriter(transaction_base &T, 
     const string &WName,
     const string &Null) :
-  tablestream(T, WName, Null)
+  tablestream(T, WName, Null),
+  m_PendingLine()
 {
   T.BeginCopyWrite(WName);
+  register_me();
 }
 
 
@@ -62,7 +64,30 @@ pqxx::tablewriter &pqxx::tablewriter::operator<<(pqxx::tablereader &R)
 
 void pqxx::tablewriter::WriteRawLine(const string &Line)
 {
-  Trans().WriteCopyLine(Line);
+  /* We use an nonblocking write protocol.  If there is currently no space to
+   * write a line to our socket, the tablewriter stores the line being written
+   * in a single-line buffer of its own.  This allows the client program to run
+   * a little ahead of the socket's transfer capability, hopefully overlapping 
+   * some client-side processing with some server-side or networking time.  In
+   * principle the tablewriter's buffer could be extended to allow for multiple
+   * lines of discrepancy.
+   * This does mean that, before writing a new line, we must check for a pending
+   * line and send that through first.
+   */
+  flush_pending();
+  if (!Trans().WriteCopyLine(Line, true)) m_PendingLine = Line;
+}
+
+
+void pqxx::tablewriter::flush_pending()
+{
+  if (!m_PendingLine.empty())
+  {
+    if (!Trans().WriteCopyLine(m_PendingLine))
+      throw logic_error("libpqxx internal error: "
+	  "writing pending line in async mode");
+    m_PendingLine.clear();
+  }
 }
 
 
@@ -74,8 +99,10 @@ void pqxx::tablewriter::complete()
 
 void pqxx::tablewriter::writer_close()
 {
+  flush_pending();
   if (!is_finished())
   {
+    base_close();
     try 
     { 
       Trans().EndCopyWrite(); 
@@ -85,7 +112,6 @@ void pqxx::tablewriter::writer_close()
       try { base_close(); } catch (const exception &) {}
       throw;
     }
-    base_close();
   }
 }
 

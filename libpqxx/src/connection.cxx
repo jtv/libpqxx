@@ -19,14 +19,6 @@
 
 #include <stdexcept>
 
-#ifdef PQXX_HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#else
-#include <sys/time.h>
-#include <sys/types.h>
-#include <unistd.h>
-#endif	// PQXX_HAVE_SYS_SELECT_H
-
 #include "pqxx/connection"
 
 using namespace PGSTD;
@@ -152,19 +144,7 @@ void pqxx::asyncconnection::completeconnect()
 
   if (!get_conn()) throw broken_connection();
 
-  const int fd = PQsocket(get_conn());
-  if (fd < 0) throw broken_connection();
-
   PostgresPollingStatusType pollstatus;
-  fd_set fds;
-  FD_ZERO(&fds);
-#ifdef PQXX_SELECT_ACCEPTS_NULL
-  fd_set *const none = 0;
-#else
-  fd_set fdnone;
-  FD_ZERO(&fdnone);
-  fd_set *const none = &fdnone;
-#endif
 
   do
   {
@@ -175,13 +155,11 @@ void pqxx::asyncconnection::completeconnect()
       throw broken_connection();
 
     case PGRES_POLLING_READING:
-      FD_SET(fd, &fds);
-      select(fd+1, &fds, none, &fds, 0);
+      wait_read();
       break;
 
     case PGRES_POLLING_WRITING:
-      FD_SET(fd, &fds);
-      select(fd+1, none, &fds, &fds, 0);
+      wait_write();
       break;
 
     case PGRES_POLLING_ACTIVE:

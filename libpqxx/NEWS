@@ -8,6 +8,8 @@
  - Freely definable "null" strings in tablestreams, as originally intended
  - tablestreams use libpq's new-style COPY functions, if available
  - Extended automation of build/release procedure
+ - tablewriter writes in nonblocking mode to help hide communication latency
+ - Can get backend variables as well as set them
 2.1.2
  - Compile fix for gcc libstdc++ 2.9, thanks Jaroslaw Staniek
  - Moved deprecated functions below current ones
