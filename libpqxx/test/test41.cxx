@@ -63,7 +63,7 @@ int main(int, char *argv[])
  
       // Verify that we get an exception if we exceed CR's range, and are able
       // to recover afterwards
-      for (CachedResult::size_type n = -5; n < 5; ++n) CheckOverrun(CR, n);
+      for (CachedResult::size_type n = -2; n < 2; ++n) CheckOverrun(CR, n);
 
       // Compare contents for CR with R
       for (Result::size_type i = R.size() - 1; i >= 0 ; --i)

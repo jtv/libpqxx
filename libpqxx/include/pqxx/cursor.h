@@ -46,7 +46,18 @@ class TransactionItf;
 class PQXX_LIBEXPORT Cursor
 {
 public:
+  // TODO: This apparently being migrated from int to long in Postgres.
   typedef Result::size_type size_type;
+
+  /// Exception thrown when cursor position is requested, but is unknown
+  struct unknown_position : PGSTD::runtime_error
+  {
+    unknown_position(const PGSTD::string &cursorname) :
+      PGSTD::runtime_error("Position for cursor '" + cursorname + "' "
+	                   "is unknown") 
+    {
+    }
+  };
 
   /// Constructor.  Creates a cursor.
   /** 
@@ -71,11 +82,13 @@ public:
   Result Fetch(size_type Count);					//[t19]
 
   /// Move forward by Count rows (negative for backwards) through the data set.
-  /** Returns the number of rows skipped, as reported by PostgreSQL.  Be warned 
-   * that this number may be misleading in some border cases; please do your 
-   * own testing and report what you find to me!
+  /** Returns the number of rows skipped.  This need not be the same number
+   * reported by PostgreSQL, which has a different but deceptively similar
+   * meaning.  Also, note that cursors may reside on nonexistant rows.
    */
   size_type Move(size_type Count);					//[]
+
+  void MoveTo(size_type);
 
   /// Constant: "next fetch/move should span as many rows as possible."
   /** If the number of rows ahead exceeds the largest number your machine can
@@ -89,7 +102,7 @@ public:
   static size_type NEXT() throw () { return 1; }			//[t19]
 
   /// Constant: "next fetch/move should go back one row."
-  static size_type PRIOR() throw () { return -1; }		//[t19]
+  static size_type PRIOR() throw () { return -1; }			//[t19]
 
   /// Constant: "next fetch/move goes backwards, spanning as many rows as 
   /// possible.
@@ -120,7 +133,11 @@ public:
   /// Move N rows backward.
   Cursor &operator-=(size_type N) { Move(-N); return *this;}		//[t19]
 
+  size_type Pos() const throw (unknown_position)			//[t43]
+  { if (m_Pos==pos_unknown) throw unknown_position(m_Name); return m_Pos; }
+
 private:
+  enum { pos_unknown = -1, pos_start = 0 };
   static PGSTD::string OffsetString(size_type);
   PGSTD::string MakeFetchCmd(size_type) const;
 
@@ -128,6 +145,7 @@ private:
   PGSTD::string m_Name;
   size_type m_Count;
   bool m_Done;
+  size_type m_Pos;
 
   // Not allowed:
   Cursor(const Cursor &);
