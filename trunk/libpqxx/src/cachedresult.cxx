@@ -55,11 +55,6 @@ bool pqxx::CachedResult::empty() const
 	  GetBlock(0).empty());
 }
 
-void pqxx::CachedResult::clear()
-{
-  m_Cache.clear();
-}
-
 
 void pqxx::CachedResult::MoveTo(blocknum Block) const
 {

@@ -101,10 +101,7 @@ public:
   size_type size() const;						//[t40]
   
   /// Is the result set empty, i.e. does it contain no rows?  May fetch 1 block.
-  bool empty() const;							//[]
-
-  /// Drop all data in internal cache, freeing up memory.
-  void clear();								//[]
+  bool empty() const;							//[t47]
 
   /// NOT IMPLEMENTED YET
   class const_iterator
