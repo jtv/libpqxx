@@ -278,8 +278,7 @@ private:
   friend class tablewriter;
   void BeginCopyWrite(const PGSTD::string &Table, 
       	const PGSTD::string &Columns = PGSTD::string());
-  bool WriteCopyLine(const PGSTD::string &L, bool async=false) 
-  	{ return m_Conn.WriteCopyLine(L, async); }
+  void WriteCopyLine(const PGSTD::string &L) { m_Conn.WriteCopyLine(L); }
   void EndCopyWrite() { m_Conn.EndCopyWrite(); }
 
   friend class pipeline;
