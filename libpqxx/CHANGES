@@ -1,3 +1,16 @@
+2002-03-04 00:30
+ NonTransaction:
+  - Created
+ Test14:
+  - Created
+ Test15:
+  - Created
+ Transaction:
+  - Made subclass of new abstract base class TransactionItf
+ TransactionItf:
+  - Created
+ Transactor:
+  - Made choice of transaction class parameterizable
 2002-03-03 17:00
  Transactor:
   - Made Transaction class selectable, so can add more transaction types later
