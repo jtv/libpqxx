@@ -1,5 +1,6 @@
 Porting
-(*) Improve portability to other databases (?)
+(*) Port to mySQL etc., then refactor to separate front/back interfaces
+(*) Hide connect string
 (*) Make TableStream hierarchy respect DIALECT
 
 Results
