@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#define PQXXYES_I_KNOW_DEPRECATED_HEADER
+
 #include <pqxx/connection>
 #include <pqxx/cursor.h>
 #include <pqxx/transaction>
@@ -27,15 +29,17 @@ using namespace pqxx;
 namespace
 {
 
-void ExpectMove(Cursor &C, Cursor::size_type N, Cursor::size_type Expect)
+void ExpectMove(Cursor &C,
+    Cursor::difference_type N,
+    Cursor::difference_type Expect)
 {
-  const Cursor::size_type Dist = C.Move(N);
+  const Cursor::difference_type Dist = C.Move(N);
   if (Dist != Expect)
     throw logic_error("Expected to move " + to_string(Expect) + " rows, "
 	              "found " + to_string(Dist));
 }
 
-void ExpectMove(Cursor &C, Cursor::size_type N)
+void ExpectMove(Cursor &C, Cursor::difference_type N)
 {
   ExpectMove(C, N, N);
 }
@@ -65,7 +69,7 @@ int main(int, char *argv[])
     Cursor Cur(T, ("SELECT * FROM " + Table).c_str(), "tablecur", GetRows);
     Cur >> R;
 
-    if (R.size() != GetRows)
+    if (R.size() != result::size_type(GetRows))
       throw logic_error("Expected " + to_string(GetRows) + " rows, "
 		        "got " + to_string(R.size()));
 
