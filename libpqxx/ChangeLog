@@ -1,3 +1,10 @@
+2003-02-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Fix spurious "yes" (or "no") in configure output
+  - No longer go back from C++ to C for just a few checks
+2003-02-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/cursor.cxx:
+  - Detect problematic consequence of unknown cursor position
 2003-01-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac:
   - Fixed detection of PQescapeString() presence, thanks David Wright
