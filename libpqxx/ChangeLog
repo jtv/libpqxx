@@ -1,8 +1,13 @@
 2004-08-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh:
+  - Generates MinGW Makefile
  src/connection_base.cxx:
   - activate() also when don't have PQexecPrepared()
  tools/Makefile.am:
   - Removed pqxxbench
+ tools/makemingwmak.pl:
+  - New
+  - Generates win32/MinGW.mak
  tools/pqxxbench.cxx, tools/pqxxbench.in:
   - Deleted
 2004-08-13  Jeroen T. Vermeulen <jtv@xs4all.nl>

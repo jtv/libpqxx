@@ -1,3 +1,6 @@
+2.3.0
+ - Generates MinGW Makefile automatically
+ - Workaround for missing PQexecPrepared()
 2.2.9
  - Bugfix in removing trigger
  - Added "failed connection" to regression test
