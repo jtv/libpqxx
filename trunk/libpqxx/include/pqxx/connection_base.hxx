@@ -194,23 +194,23 @@ public:
   /// Explicitly activate deferred or deactivated connection.
   /** Use of this method is entirely optional.  Whenever a connection is used
    * while in a deferred or deactivated state, it will transparently try to
-   * bring itself into an actiaveted state.  This function is best viewed as an
+   * bring itself into an activated state.  This function is best viewed as an
    * explicit hint to the connection that "if you're not in an active state, now
    * would be a good time to get into one."  Whether a connection is currently
    * in an active state or not makes no real difference to its functionality.
-   * There is also no particular need to match calls to Activate() with calls to
-   * Deactivate().  A good time to call Activate() might be just before you
+   * There is also no particular need to match calls to activate() with calls to
+   * deactivate().  A good time to call activate() might be just before you
    * first open a transaction on a lazy connection.
    */
   void activate() { Connect(); }					//[t12]
 
   /// Explicitly deactivate connection.
-  /** Like its counterpart Activate(), this method is entirely optional.  
+  /** Like its counterpart activate(), this method is entirely optional.  
    * Calling this function really only makes sense if you won't be using this
    * connection for a while and want to reduce the number of open connections on
    * the database server.
-   * There is no particular need to match or pair calls to Deactivate() with
-   * calls to Activate(), but calling Deactivate() during a transaction is an
+   * There is no particular need to match or pair calls to deactivate() with
+   * calls to activate(), but calling deactivate() during a transaction is an
    * error.
    */
   void deactivate();							//[t12]
@@ -335,8 +335,8 @@ protected:
 private:
   void SetupState();
   void InternalSetTrace() throw ();
-  int Status() const { return internal::pq::PQstatus(m_Conn); }
-  const char *ErrMsg() const;
+  int Status() const throw () { return internal::pq::PQstatus(m_Conn); }
+  const char *ErrMsg() const throw ();
   void Reset();
   void close() throw ();
   void RestoreVars();
