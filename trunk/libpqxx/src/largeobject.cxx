@@ -80,8 +80,11 @@ pqxx::largeobject::largeobject(dbtransaction &T, const string &File) :
 {
   m_ID = lo_import(RawConnection(T), File.c_str());
   if (m_ID == oid_none)
+  {
+    const int err = errno;
     throw runtime_error("Could not import file '" + File + "' "
-	                "to large object: " + strerror(errno));
+	                "to large object: " + strerror(err));
+  }
 }
 
 
