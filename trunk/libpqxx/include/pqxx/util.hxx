@@ -7,7 +7,7 @@
  *      Various utility definitions for libpqxx
  *      DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/util instead.
  *
- * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -142,17 +142,21 @@ template<typename T> PGSTD::string error_ambiguous_string_conversion(T);
  */
 template<typename T> void from_string(const char Str[], T &Obj);
 
-template<> void from_string(const char Str[], long &);			//[t45]
-template<> void from_string(const char Str[], unsigned long &);		//[t45]
-template<> void from_string(const char Str[], int &);			//[t45]
-template<> void from_string(const char Str[], unsigned int &);		//[t45]
-template<> void from_string(const char Str[], short &);			//[t45]
-template<> void from_string(const char Str[], unsigned short &);	//[t45]
-template<> void from_string(const char Str[], float &);			//[t46]
-template<> void from_string(const char Str[], double &);		//[t46]
-template<> void from_string(const char Str[], bool &);			//[t76]
+template<> void PQXX_LIBEXPORT from_string(const char Str[], long &);	//[t45]
+template<>
+  void PQXX_LIBEXPORT from_string(const char Str[], unsigned long &);	//[t45]
+template<> void PQXX_LIBEXPORT from_string(const char Str[], int &);	//[t45]
+template<>
+  void PQXX_LIBEXPORT from_string(const char Str[], unsigned int &);	//[t45]
+template<> void PQXX_LIBEXPORT from_string(const char Str[], short &);	//[t45]
+template<>
+  void PQXX_LIBEXPORT from_string(const char Str[], unsigned short &);	//[t45]
+template<> void PQXX_LIBEXPORT from_string(const char Str[], float &);	//[t46]
+template<> void PQXX_LIBEXPORT from_string(const char Str[], double &);	//[t46]
+template<> void PQXX_LIBEXPORT from_string(const char Str[], bool &);	//[t76]
 #if defined(PQXX_HAVE_LONG_DOUBLE)
-template<> void from_string(const char Str[], long double &);		//[t46]
+template<>
+  void PQXX_LIBEXPORT from_string(const char Str[], long double &);	//[t46]
 #endif
 
 
@@ -193,17 +197,20 @@ from_string(const PGSTD::string &, const unsigned char &Obj)
  */
 template<typename T> PGSTD::string to_string(const T &);
 
-template<> PGSTD::string to_string(const short &);			//[t76]
-template<> PGSTD::string to_string(const unsigned short &);		//[t76]
-template<> PGSTD::string to_string(const int &);			//[t10]
-template<> PGSTD::string to_string(const unsigned int &);		//[t13]
-template<> PGSTD::string to_string(const long &);			//[t18]
-template<> PGSTD::string to_string(const unsigned long &);		//[t20]
-template<> PGSTD::string to_string(const float &);			//[t74]
-template<> PGSTD::string to_string(const double &);			//[t74]
-template<> PGSTD::string to_string(const bool &);			//[t76]
+template<> PGSTD::string PQXX_LIBEXPORT to_string(const short &);	//[t76]
+template<>
+  PGSTD::string PQXX_LIBEXPORT to_string(const unsigned short &);	//[t76]
+template<> PGSTD::string PQXX_LIBEXPORT to_string(const int &);		//[t10]
+template<>
+  PGSTD::string PQXX_LIBEXPORT to_string(const unsigned int &);		//[t13]
+template<> PGSTD::string PQXX_LIBEXPORT to_string(const long &);	//[t18]
+template<>
+  PGSTD::string PQXX_LIBEXPORT to_string(const unsigned long &);	//[t20]
+template<> PGSTD::string PQXX_LIBEXPORT to_string(const float &);	//[t74]
+template<> PGSTD::string PQXX_LIBEXPORT to_string(const double &);	//[t74]
+template<> PGSTD::string PQXX_LIBEXPORT to_string(const bool &);	//[t76]
 #if defined(PQXX_HAVE_LONG_DOUBLE)
-template<> PGSTD::string to_string(const long double &);		//[t74]
+template<> PGSTD::string PQXX_LIBEXPORT to_string(const long double &);	//[t74]
 #endif
 
 inline PGSTD::string to_string(const char Obj[]) 			//[t14]
@@ -214,7 +221,7 @@ inline PGSTD::string to_string(const PGSTD::stringstream &Obj)		//[t0]
 
 inline PGSTD::string to_string(const PGSTD::string &Obj) {return Obj;}	//[t21]
 
-template<> PGSTD::string to_string(const char &);			//[t21]
+template<> PGSTD::string PQXX_LIBEXPORT to_string(const char &);	//[t21]
 
 
 template<> inline PGSTD::string to_string(const signed char &Obj)
@@ -462,7 +469,7 @@ template<> inline void FromString(const char Str[], bool &Obj)
  * Unlike its predecessor Quote(), this function does not add SQL-style single
  * quotes around the result string; nor does it recognize and generate nulls.
  */
-PGSTD::string sqlesc(const char str[]);					//[t0]
+PGSTD::string PQXX_LIBEXPORT sqlesc(const char str[]);			//[t0]
 
 /// Escape string for inclusion in SQL strings
 /** Reads and escapes input string.  The string is terminated by either a nul
@@ -475,7 +482,7 @@ PGSTD::string sqlesc(const char str[]);					//[t0]
  * Unlike its predecessor Quote(), this function does not add SQL-style single
  * quotes around the result string; nor does it recognize and generate nulls.
  */
-PGSTD::string sqlesc(const char str[], size_t maxlen);			//[t0]
+PGSTD::string PQXX_LIBEXPORT sqlesc(const char str[], size_t maxlen);	//[t0]
 
 /// Escape string for inclusion in SQL strings
 /** This function differs from similar ones based on libpq in that it handles
@@ -484,7 +491,7 @@ PGSTD::string sqlesc(const char str[], size_t maxlen);			//[t0]
  * Unlike its predecessor Quote(), this function does not add SQL-style single
  * quotes around the result string; nor does it recognize and generate nulls.
  */
-PGSTD::string sqlesc(const PGSTD::string &);				//[t0]
+PGSTD::string PQXX_LIBEXPORT sqlesc(const PGSTD::string &);		//[t0]
 
 
 /// Quote string for use in SQL
