@@ -1,3 +1,6 @@
+2004-04-05  Roger Leigh <rleigh@debian.org>
+ tools/Makefile.am:
+  - Add $(top_builddir)/include to INCLUDES.
 2004-03-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/util.cxx:
   - Added missing include <locale>, thanks darx@darxi.purk.ee
