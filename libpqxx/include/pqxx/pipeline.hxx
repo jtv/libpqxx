@@ -145,10 +145,10 @@ private:
   /// Upper bound to query id's
   static query_id qid_limit() throw ()
   {
-#ifdef _MSC_VER
-    return LONG_MAX;
-#else
+#if defined(PQXX_HAVE_LIMITS) && !defined(_MSC_VER)
     return PGSTD::numeric_limits<query_id>::max();
+#else
+    return LONG_MAX;
 #endif
   }
 

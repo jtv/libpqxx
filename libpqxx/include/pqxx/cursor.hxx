@@ -18,7 +18,9 @@
  */
 #include "pqxx/libcompiler.h"
 
+#ifdef PQXX_HAVE_LIMITS
 #include <limits>
+#endif
 
 #include "pqxx/result"
 
@@ -96,21 +98,21 @@ private:
 
 inline cursor_base::difference_type cursor_base::all() throw ()
 {
-#ifdef _MSC_VER
-  // Microsoft's compiler defines max() and min() macros!  Others may as well
-  return INT_MAX;
-#else
+  // Microsoft Visual C++ sabotages numeric limits by defining min() and max()
+  // as preprocessor macros; some other compilers just don't have numeric_limits
+#if defined(PQXX_HAVE_LIMITS) && !defined(_MSC_VER)
   return PGSTD::numeric_limits<difference_type>::max();
+#else
+  return INT_MAX;
 #endif
 }
 
 inline cursor_base::difference_type cursor_base::backward_all() throw ()
 {
-#ifdef _MSC_VER
-  // Microsoft's compiler defines max() and min() macros!  Others may as well
-  return INT_MIN + 1;
-#else
+#if defined(PQXX_HAVE_LIMITS) && !defined(_MSC_VER)
   return PGSTD::numeric_limits<difference_type>::min() + 1;
+#else
+  return INT_MIN + 1;
 #endif
 }
 
