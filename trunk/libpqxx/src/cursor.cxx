@@ -40,7 +40,7 @@ unsigned char pqxx::cursor_base::s_dummy;
 pqxx::icursorstream::icursorstream(pqxx::transaction_base &context,
     const string &query,
     const string &basename,
-    size_type stride) :
+    difference_type stride) :
   cursor_base(&context, basename),
   m_stride(stride)
 {
@@ -48,7 +48,7 @@ pqxx::icursorstream::icursorstream(pqxx::transaction_base &context,
   declare(query);
 }
 
-void pqxx::icursorstream::set_stride(size_type n)
+void pqxx::icursorstream::set_stride(difference_type n)
 {
   if (n < 1)
     throw invalid_argument("Attempt to set cursor stride to " + to_string(n));

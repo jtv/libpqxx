@@ -15,6 +15,7 @@
  *
  *-------------------------------------------------------------------------
  */
+#define PQXXYES_I_KNOW_DEPRECATED_HEADER
 #include "pqxx/compiler.h"
 
 #include <cstdlib>
@@ -41,9 +42,9 @@ void pqxx::Cursor::init(const string &BaseName, const char Query[])
 }
 
 
-pqxx::Cursor::size_type pqxx::Cursor::SetCount(size_type Count)
+pqxx::Cursor::difference_type pqxx::Cursor::SetCount(difference_type Count)
 {
-  size_type Old = m_Count;
+  difference_type Old = m_Count;
   m_Done = false;
   m_Count = Count;
   return Old;
@@ -58,7 +59,7 @@ pqxx::Cursor &pqxx::Cursor::operator>>(pqxx::result &R)
 }
 
 
-pqxx::result pqxx::Cursor::Fetch(size_type Count)
+pqxx::result pqxx::Cursor::Fetch(difference_type Count)
 {
   result R;
 
@@ -86,7 +87,7 @@ pqxx::result pqxx::Cursor::Fetch(size_type Count)
 }
 
 
-pqxx::result::size_type pqxx::Cursor::Move(size_type Count)
+pqxx::result::difference_type pqxx::Cursor::Move(difference_type Count)
 {
   if (!Count) return 0;
   if ((Count < 0) && (m_Pos == pos_start)) return 0;
@@ -112,8 +113,9 @@ pqxx::result::size_type pqxx::Cursor::Move(size_type Count)
 }
 
 
-pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
-                                                     size_type Actual)
+pqxx::Cursor::difference_type
+pqxx::Cursor::NormalizedMove(difference_type Intended,
+                             difference_type Actual)
 {
   if (Actual < 0) 
     throw logic_error("libpqxx internal error: Negative rowcount");
@@ -122,9 +124,9 @@ pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
 	              "(wanted " + to_string(Intended) + ", "
 		      "got " + to_string(Actual) + ")");
 
-  size_type Offset = Actual;
+  difference_type Offset = Actual;
 
-  if (m_Pos == pos_unknown)
+  if (m_Pos == size_type(pos_unknown))
   {
     if (Actual < labs(Intended))
     {
@@ -181,7 +183,7 @@ pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
       Offset++;
     }
 
-    if ((Offset > labs(Intended)) && (m_Pos != pos_unknown))
+    if ((Offset > labs(Intended)) && (m_Pos != size_type(pos_unknown)))
     {
       m_Pos = pos_unknown;
       throw logic_error("libpqxx internal error: Confused cursor position");
@@ -203,34 +205,34 @@ pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
 void pqxx::Cursor::MoveTo(size_type Dest)
 {
   // If we don't know where we are, go back to the beginning first.
-  if (m_Pos == pos_unknown) Move(BACKWARD_ALL());
+  if (m_Pos == size_type(pos_unknown)) Move(BACKWARD_ALL());
 
   Move(Dest - Pos());
 }
 
 
-pqxx::Cursor::size_type pqxx::Cursor::ALL() throw ()
+pqxx::Cursor::difference_type pqxx::Cursor::ALL() throw ()
 {
 #ifdef _WIN32
   return INT_MAX;
 #else	// _WIN32
-  return numeric_limits<result::size_type>::max();
+  return numeric_limits<result::difference_type>::max();
 #endif	// _WIN32
 }
 
 
-pqxx::Cursor::size_type pqxx::Cursor::BACKWARD_ALL() throw ()
+pqxx::Cursor::difference_type pqxx::Cursor::BACKWARD_ALL() throw ()
 {
 #ifdef _WIN32
   return INT_MIN + 1;
 #else	// _WIN32
-  return numeric_limits<result::size_type>::min() + 1;
+  return numeric_limits<result::difference_type>::min() + 1;
 #endif	// _WIN32
 }
 
 
 
-string pqxx::Cursor::OffsetString(size_type Count)
+string pqxx::Cursor::OffsetString(difference_type Count)
 {
   if (Count == ALL()) return "ALL";
   else if (Count == BACKWARD_ALL()) return "BACKWARD ALL";
@@ -239,7 +241,7 @@ string pqxx::Cursor::OffsetString(size_type Count)
 }
 
 
-string pqxx::Cursor::MakeFetchCmd(size_type Count) const
+string pqxx::Cursor::MakeFetchCmd(difference_type Count) const
 {
   return "FETCH " + OffsetString(Count) + " IN " + m_Name;
 }
