@@ -74,7 +74,7 @@ public:
   void operator()(argument_type &T)
   {
     T.Exec("INSERT INTO " + m_Table + " VALUES (" +
-	   ToString(BoringYear) + ", 'yawn')");
+	   ToString(BoringYear) + ", " + Quote("yawn") + ")");
 
     throw runtime_error("Transaction deliberately aborted");
   }

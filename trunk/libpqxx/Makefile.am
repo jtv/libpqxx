@@ -8,3 +8,8 @@ includedir=$(prefix)/include/pqxx
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpqxx.pc
+
+dist-hook:
+	rm -rf $(distdir)/win32/CVS $(distdir)/debian/CVS
+	chmod u+x $(distdir)/debian/rules
+

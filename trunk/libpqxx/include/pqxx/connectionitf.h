@@ -116,10 +116,10 @@ public:
   void Perform(const TRANSACTOR &T, int Attempts=3);			//[t4]
 
   /// Set handler for postgresql errors or warning messages.
-  /** Return value is the previous handler.  Must not be NULL.
-   * @param N the new message handler.
+  /** Return value is the previous handler.
+   * @param N the new message handler; must not be null or equal to the old one
    */
-  std::auto_ptr<Noticer> SetNoticer(std::auto_ptr<Noticer> N);		//[t14]
+  PGSTD::auto_ptr<Noticer> SetNoticer(PGSTD::auto_ptr<Noticer> N);	//[t14]
   Noticer *GetNoticer() const throw () { return m_Noticer.get(); }	//[]
 
   /// Invoke notice processor function.  The message should end in newline.
@@ -206,7 +206,7 @@ private:
   mutable PGconn *m_Conn;	/// Connection handle
   Unique<TransactionItf> m_Trans;/// Active transaction on connection, if any
 
-  std::auto_ptr<Noticer> m_Noticer;	/// User-defined notice processor
+  PGSTD::auto_ptr<Noticer> m_Noticer;	/// User-defined notice processor
   FILE *m_Trace;		/// File to trace to, if any
 
   typedef PGSTD::multimap<PGSTD::string, pqxx::Trigger *> TriggerList;

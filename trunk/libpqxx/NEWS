@@ -1,6 +1,8 @@
 1.7.2
  - more workarounds for Sun CC 5.1, thanks Jeroen van Erp!
  - preliminary support for "named" queries
+ - can now Quote() string constants
+ - included Doxyfile in distribution archive
 1.7.1
  - regenerated documentation
 1.7.0
