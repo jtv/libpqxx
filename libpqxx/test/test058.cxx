@@ -36,7 +36,10 @@ public:
 
     // Overwrite terminating zero
     largeobjectaccess::size_type Here = A.seek(-1, ios::cur);
-    if (Here != largeobjectaccess::size_type(Contents.size()-1))
+
+    // Redundant typedef to work around bug in Visual C++.NET
+    typedef largeobjectaccess::size_type loa_size;
+    if (Here != loa_size(Contents.size()-1))
       throw logic_error("Expected to move back 1 byte to " + 
 	                to_string(Contents.size()-1) + ", "
 			"ended up at " + to_string(Here));
@@ -44,7 +47,7 @@ public:
     
     // Now check that we really did
     A.seek(-1, ios::cur);
-    if (Here != largeobjectaccess::size_type(Contents.size()-1))
+    if (Here != loa_size(Contents.size()-1))
       throw logic_error("Inconsistent seek: ended up at " + to_string(Here));
 
     char Check;
