@@ -31,6 +31,7 @@ AC_PROG_LIBTOOL
 AC_PROG_MAKE_SET
 AC_PATH_PROG([MKDIR], [mkdir])
 AC_PATH_PROG([DOXYGEN], [doxygen])
+# TODO: Look for "dot" and tell doxygen if we have it
 AM_CONDITIONAL([BUILD_REFERENCE], [test -n "$DOXYGEN"])
 AC_PATH_PROG([XMLTO], [xmlto])
 AM_CONDITIONAL([BUILD_TUTORIAL], [test -n "$XMLTO"])
@@ -69,6 +70,7 @@ AC_MSG_RESULT(${enable_maintainer_mode})
 if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 	for option in \
 		-Werror \
+		-Wno-long-double \
 		-ffor-scope \
 		-fstrict-aliasing \
 		-funit-at-a-time \
@@ -183,6 +185,14 @@ AC_CHECK_HEADER([${with_postgres_include}/libpq/libpq-fs.h],,AC_MSG_ERROR(
 [Can't find libpq-fs.h in ${with_postgres_include}/libpq.
 Please locate it and report your findings so this script can be corrected.]
 ))
+
+AC_MSG_CHECKING([for long double])
+long_double=yes
+AC_TRY_COMPILE(,[long double x=0;return int(x)],
+	AC_DEFINE(PQXX_HAVE_LONG_DOUBLE,1,
+	[Define if the compiler supports the standard "long double" type]),
+	long_double=no)
+AC_MSG_RESULT($long_double)
 
 AC_MSG_CHECKING([for working <sys/select.h>])
 select_h=yes

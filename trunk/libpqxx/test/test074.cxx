@@ -59,10 +59,12 @@ int main(int, char *argv[])
 
     if (to_string(roughpi) != to_string(double(roughpi)))
       throw logic_error("to_string(float) inconsistent with to_string(double)");
+#if defined(PQXX_HAVE_LONG_DOUBLE)
     const long double ld = roughpi;
     if (to_string(roughpi) != to_string(ld))
       throw logic_error("to_string(float) "
 	  "inconsistent with to_string(long double)");
+#endif
   }
   catch (const sql_error &e)
   {
