@@ -1,5 +1,5 @@
 Documentation
-(*) Convert to HTML
+(*) Compile to HTML
 
 Error handling
 (*) Check for unexpectedly open/closed transactions (appears to be possible)
@@ -9,9 +9,9 @@ General
 (*) Get object files into obj/ directory
 
 Porting
-(*) Port to mySQL etc., then refactor to separate front/back interfaces
-(*) Hide DBMS-specific connect string
 (*) Make TableStream classes respect DIALECT
+(*) Hide DBMS-specific connect string
+(*) Port to mySQL etc., then refactor to separate front/back interfaces
 
 Results
 (*) Allow querying of field types
