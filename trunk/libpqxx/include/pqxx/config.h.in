@@ -81,6 +81,9 @@
 /* Define if preprocessor supports nonstandard "warning" directive */
 #undef PQXX_HAVE_CPP_WARNING
 
+/* Define if PostgreSQL has PQescapeBytea() */
+#undef PQXX_HAVE_PQESCAPEBYTEA
+
 /* Define if PostgreSQL has PQescapeString() */
 #undef PQXX_HAVE_PQESCAPESTRING
 
@@ -93,12 +96,18 @@
 /* Define if PostgreSQL has PQftable() */
 #undef PQXX_HAVE_PQFTABLE
 
+/* Define if PostgreSQL has PQunescapeBytea() */
+#undef PQXX_HAVE_PQUNESCAPEBYTEA
+
 /* Define if you have the <streambuf> header; if not, <streambuf.h> is used */
 #undef PQXX_HAVE_STREAMBUF
 
 /* Define if the sys/select.h header defines a working select() and friends,
    as per POSIX 1003.1-2001 */
 #undef PQXX_HAVE_SYS_SELECT_H
+
+/* Do we have a PQescapeBytea function? */
+#undef PQescapeBytea
 
 /* Do we have a PQescapeString function? */
 #undef PQescapeString
@@ -111,6 +120,9 @@
 
 /* Do we have a PQftable function? */
 #undef PQftable
+
+/* Do we have a PQunescapeBytea function? */
+#undef PQunescapeBytea
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS

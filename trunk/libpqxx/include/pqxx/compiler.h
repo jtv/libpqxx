@@ -51,6 +51,7 @@ long abs(long n) { return (n >= 0) ? n : -n; }
 
 #ifdef _WIN32
 #ifdef LIBPQXXDLL_EXPORTS
+#undef  PQXX_LIBEXPORT
 #define PQXX_LIBEXPORT __declspec(dllexport)
 #endif	// LIBPQXXDLL_EXPORTS
 #endif	// _WIN32

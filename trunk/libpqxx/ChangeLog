@@ -1,3 +1,16 @@
+2003-10-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac, include/pqxx/config.h.in:
+  - Check for PQescapeBytea() and PQunescapeBytea() (thanks Costin)
+ Doxyfile:
+  - Removed obsolete doxygen parameters
+ src/binarystring.cxx:
+  - Workarounds for missing PQescapeBytea() / PQunescapeBytea()
+  - Removed reference to namespace std (should be PGSTD)
+ test/test004.cxx, test/test023.cxx:
+  - Made Sleep() revert to WIN32 version on Windows (thanks Costin)
+ README:
+  - Added related links
+  - Added more libpqxx-using projects
 2003-10-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac:
   - Checks for preprocessor #warning support

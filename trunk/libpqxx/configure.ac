@@ -252,6 +252,22 @@ AC_CHECK_DECL(PQescapeString,
 	[pqescapestring=no],
 	[#include <${with_postgres_include}/libpq-fe.h]>)
 
+AC_MSG_CHECKING([PQescapeBytea()])
+AH_TEMPLATE(PQescapeBytea,[Do we have a PQescapeBytea function?])
+pqescapebytea=yes
+AC_CHECK_DECL(PQescapeBytea,
+	[AC_DEFINE(PQXX_HAVE_PQESCAPEBYTEA, 1, [Define if PostgreSQL has PQescapeBytea()])],
+	[pqescapebytea=no],
+	[#include <${with_postgres_include}/libpq-fe.h]>)
+
+AC_MSG_CHECKING([PQunescapeBytea()])
+AH_TEMPLATE(PQunescapeBytea,[Do we have a PQunescapeBytea function?])
+pqunescapebytea=yes
+AC_CHECK_DECL(PQunescapeBytea,
+	[AC_DEFINE(PQXX_HAVE_PQUNESCAPEBYTEA, 1, [Define if PostgreSQL has PQunescapeBytea()])],
+	[pqunescapebytea=no],
+	[#include <${with_postgres_include}/libpq-fe.h]>)
+
 AC_MSG_CHECKING([PQfreemem()])
 AH_TEMPLATE(PQfreemem,[Do we have a PQfreemem function?])
 pqfreemem=yes
