@@ -285,6 +285,65 @@ public:
    */
   int await_notification(long seconds, long microseconds);		//[t79]
 
+  /// Define prepared statement
+  void prepare(const PGSTD::string &name, const PGSTD::string &def)	//[]
+	{ pq_prepare(name, def, ""); }
+
+  template<typename ITER>
+    void prepare(const PGSTD::string &name,
+	const PGSTD::string &def,
+	ITER beginparms,
+	ITER endparms)							//[]
+  {
+    pq_prepare(name, def, 
+	(beginparms==endparms) ? 
+		"" : ("("+separated_list(",",beginparms,endparms)+")"));
+  }
+
+  template<typename CNTNR>
+    void prepare(const PGSTD::string &name,
+	const PGSTD::string &def,
+	const CNTNR &params)						//[]
+	{ prepare(name, def, params.begin(), params.end()); }
+
+  /// Drop prepared statement
+  void unprepare(const PGSTD::string &name);				//[]
+
+  result exec_prepared(const PGSTD::string &name);			//[]
+
+  result exec_prepared(const char name[]);				//[]
+
+  template<typename STRING, typename ITER>
+    result exec_prepared(STRING name, ITER beginargs, ITER endargs)	//[]
+  {
+    typedef PGSTD::vector<PGSTD::string> pvec;
+    pvec p;
+    for (; beginargs!=endargs; ++beginargs) p.push_back(to_string(*beginargs));
+    result r;
+    const char **pindex = new char *[p.size()];
+    try
+    {
+      const pvec::size_type stop = p.size();
+      for (pvec::size_type i; i < stop; ++i) pindex[i] = p[i].c_str();
+      r = pq_exec_prepared(name, p.size(), pindex);
+    }
+    catch (const PGSTD::exception &)
+    {
+      delete [] pindex;
+      throw;
+    }
+    delete [] pindex;
+    return r;
+  }
+
+  template<typename CNTNR> result exec_prepared(const char name[],	//[]
+      const CNTNR &args)
+  	{ return exec_prepared(name, args.begin(), args.end()); }
+
+  template<typename CNTNR>
+    result exec_prepared(const PGSTD::string &name, CNTNR args)		//[]
+  	{ return exec_prepared(name, args.begin(), args.end()); }
+
 #ifdef PQXX_DEPRECATED_HEADERS
   /// @deprecated Use disconnect() instead
   void Disconnect() throw () { disconnect(); }
@@ -388,14 +447,34 @@ private:
   /// Variables set in this session
   PGSTD::map<PGSTD::string, PGSTD::string> m_Vars;
 
+  /// Internal state: definition of a prepared statement
+  struct prepared_def
+  {
+    /// Text of prepared query
+    PGSTD::string definition;
+    /// Parameter type list
+    PGSTD::string parameters;
+    /// Has this prepared statement been prepared in the current session?
+    bool registered;
+
+    prepared_def() : definition(), parameters(), registered(false) {}
+    prepared_def(const PGSTD::string &def, const PGSTD::string &params) :
+      definition(def), parameters(params), registered(false) {}
+  };
+
+  typedef PGSTD::map<PGSTD::string, prepared_def> PSMap;
+
+  /// Prepared statements existing in this section
+  PSMap m_prepared;
+
   mutable fd_set m_fdmask;
 
   friend class transaction_base;
   result Exec(const char[], int Retries);
-  result exec_prepared(const char[],
-      int NumParams,
-      const char *const *Params,
-      int Retries);
+  void pq_prepare(const PGSTD::string &name,
+      const PGSTD::string &def,
+      const PGSTD::string &params);
+  result pq_exec_prepared(const PGSTD::string &, int, const char *const *);
   void RegisterTransaction(transaction_base *);
   void UnregisterTransaction(transaction_base *) throw ();
   void MakeEmpty(result &);
