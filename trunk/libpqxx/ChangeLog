@@ -1,3 +1,22 @@
+2002-05-05 01:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ README:
+  - Greatly extended build documentation
+2002-05-04 20:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result.h:
+  - Added clear(), capacity()
+ include/pqxx/tablewriter.h:
+  - Added "range" versions of insert() etc.
+  - Added dummy reserve()
+ include/pqxx/transactor.h:
+  - Protected against multiple inclusion
+ include/pqxx/*.h:
+  - Changed PG_[...] macros to PQXX_[...]
+ test/test5.cxx:
+  - Simplified using range versions of TableWriter methods
+ test/test6.cxx:
+  - Table arguments now default to "orgevents" and "events"
+ test/test*.cxx:
+  - Included libpqxx headers with <>, rather than ""
 2002-04-28 23:45  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
   - Used automake's --copy option
