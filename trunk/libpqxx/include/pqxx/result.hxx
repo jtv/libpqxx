@@ -27,7 +27,7 @@
 /* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
 
-
+// TODO: Replace refcounting with circular-list: exception-free construction!
 // TODO: Support SQL arrays
 // TODO: value_type, reference, const_reference, difference_type
 // TODO: container comparisons
@@ -423,11 +423,11 @@ private:
   field::size_type GetLength(size_type Row, tuple::size_type Col) const;
 
   friend class connection_base;
+  friend class pipeline;
   explicit result(PGresult *rhs) : m_Result(rhs), m_Refcount(0) {MakeRef(rhs);}
   result &operator=(PGresult *);
   bool operator!() const throw () { return !m_Result; }
   operator bool() const throw () { return m_Result != 0; }
-  friend class pipeline;
   void CheckStatus(const PGSTD::string &Query) const;
   void CheckStatus(const char Query[]) const;
   int errorposition() const throw ();

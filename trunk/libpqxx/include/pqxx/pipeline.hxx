@@ -18,10 +18,8 @@
  */
 #include "pqxx/libcompiler.h"
 
-#include <deque>
 #include <map>
 #include <string>
-#include <vector>
 
 #include "pqxx/transaction_base"
 
@@ -59,10 +57,9 @@ namespace pqxx
 class PQXX_LIBEXPORT pipeline : public internal::transactionfocus
 {
 public:
-  typedef unsigned query_id;
+  typedef long query_id;
 
-  explicit pipeline(transaction_base &t, 
-      const PGSTD::string &PName="");					//[t69]
+  explicit pipeline(transaction_base &, const PGSTD::string &PName="");	//[t69]
 
   ~pipeline() throw ();
 
@@ -77,73 +74,115 @@ public:
   /// Wait for all ongoing or pending operations to complete
   void complete();							//[t71]
 
-  /// Forget all pending operations and retrieved results
+  /// Forget all ongoing or pending operations and retrieved results
+  /** Queries already sent to the backend may still be completed, depending
+   * on implementation and timing.
+   * Any error state (unless caused by an internal error) will also be cleared.
+   * This is mostly useful in a nontransaction, since a backend transaction is
+   * aborted automatically when an error occurs.
+   */
   void flush();								//[t70]
 
-  /// Has given query started yet?
-  bool is_running(query_id) const;					//[t71]
-
   /// Is result for given query available?
-  bool is_finished(query_id) const;					//[t71]
+  bool is_finished(query_id q) const					//[t71]
+  	{ return (q < m_issuedrange.first) && (q < m_error); }
 
   /// Retrieve result for given query
   /** If the query failed for whatever reason, this will throw an exception.
    * The function will block if the query has not finished yet.
    */
-  result retrieve(query_id);						//[t71]
+  result retrieve(query_id qid)						//[t71]
+  	{ return retrieve(m_queries.find(qid)).second; }
 
   /// Retrieve oldest unretrieved result (possibly wait for one)
   PGSTD::pair<query_id, result> retrieve();				//[t69]
 
-  bool empty() const throw ();						//[t69]
+  bool empty() const throw () { return m_queries.empty(); }		//[t69]
 
-  /// Optimization control: don't start issuing yet, more queries are coming
-  /** The pipeline will normally issue the first query inserted into it to the
-   * backend, and accumulate any new queries inserted while it is executing; 
-   * those will once again be issued at the earliest opportunity.  This may not
-   * be optimal, since most of the pipeline's speed advantage comes from its 
-   * ability to bundle queries together and issue them at once.  The normal
-   * procedure will be too "eager" to provide the full benefit for that first
-   * query.
-   * Call retain() to tell the pipeline to hold off on issuing queries when you
-   * know that more queries are about to be inserted.  Use resume() afterwards,
-   * or the queries may not be issued for some time.  Query emission will be 
-   * resumed implicitly, however, if results are requested for queries that have
-   * not yet been issued to the backend.
-   * For best performance, call retain() before inserting a batch of queries 
-   * into a pipeline, and resume() directly afterwards to make sure the queries
-   * are sent to the backend.
-   */
-  void retain() 				{ m_retain = true; }	//[t70]
-  // TODO: Make retain() set a max. number of queries to retain
+  int retain(int retain_max=2); 					//[t70]
+
 
   /// Resume retained query emission (harmless when not needed)
   void resume();							//[t70]
 
 private:
+
+#ifndef NDEBUG
+  void invariant() const;
+#endif
+
+  class Query
+  {
+  public:
+    explicit Query(const PGSTD::string &q) : m_query(q), m_res() {}
+
+    const result &get_result() const throw () { return m_res; }
+    void set_result(const result &r) throw () { m_res = r; }
+    const PGSTD::string &get_query() const throw () { return m_query; }
+
+  private:
+    PGSTD::string m_query;
+    result m_res;
+  };
+
+  typedef PGSTD::map<query_id,Query> QueryMap;
+
+  /// Upper bound to query id's
+  static query_id qid_limit() throw ()
+  {
+#ifdef _MSC_VER
+    return LONG_MAX;
+#else
+    return PGSTD::numeric_limits<query_id>::max();
+#endif
+  }
+
   /// Create new query_id
   query_id generate_id();
-  /// Gather up waiting queries & send them
-  void send_waiting();
-  /// Accept any received result sets and keep them until requested
-  void consumeresults();
+    
+  bool have_pending() const throw () 
+  	{ return m_issuedrange.second > m_issuedrange.first; }
 
-  typedef PGSTD::map<query_id, result> ResultsMap;
-  typedef PGSTD::map<query_id, PGSTD::string> QueryMap;
-  typedef PGSTD::deque<query_id> QueryQueue;
+  QueryMap::const_iterator oldest_issued() const;
+  QueryMap::iterator oldest_issued();
+  QueryMap::const_iterator end_of_issued() const;
+  QueryMap::iterator end_of_issued();
 
-  /// Check result for errors, remove it from internal state, and return it
-  ResultsMap::value_type deliver(ResultsMap::iterator);
+  static const char *separator() throw () { return "; "; }
+  static const char *dummyvalue() throw () { return "1"; }
+
+  void issue(QueryMap::const_iterator stop);
+  void issue() { issue(m_queries.end()); }
+
+  /// The given query failed; never issue anything beyond that
+  void set_error_at(query_id qid) throw () { if (qid < m_error) m_error = qid; }
+
+  void internal_error(const PGSTD::string &err) throw (PGSTD::logic_error);
+
+  bool obtain_result(bool really_expect);
+
+  void obtain_dummy();
+  void get_further_available_results();
+  void check_end_results();
+
+  /// Receive any results that happen to be available; it's not urgent
+  void receive_if_available();
+
+  /// Receive results, up to stop if possible
+  void receive(QueryMap::const_iterator stop);
+  PGSTD::pair<query_id, result> retrieve(QueryMap::iterator);
 
   QueryMap m_queries;
-  QueryQueue m_waiting, m_sent;
-  ResultsMap m_completed;
-  query_id m_nextid;
-  bool m_retain;
-  bool m_error;
+  PGSTD::pair<query_id,query_id> m_issuedrange;
+  int m_retain;
+  int m_num_waiting;
+  query_id m_q_id;
 
-  /// Expect extra result for "Bart Samwel's Genius Trick(tm)" empty query?
-  bool m_bsgt;
+  /// Is there an empty "dummy query" pending?
+  bool m_dummy_pending;
+
+  /// Point at which an error occurred; no results beyond it will be available
+  query_id m_error;
 
   /// Not allowed
   pipeline(const pipeline &);

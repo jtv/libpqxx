@@ -1,3 +1,20 @@
+2004-06-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx:
+  - Wrap PQconsumeInput() and PQisBusy()
+ include/pqxx/cursor.hxx:
+  - Replaced _WIN32 conditionals with more appropriate _MSC_VER
+ include/pqxx/pipeline.hxx, src/pipeline.cxx:
+  - Excruciating 26-hour complete rewrite!
+  - Much better exception safety
+  - New pipeline stays registered throughout its lifetime, for now
+  - No longer supports is_running()
+  - retain() sets maximum number of queries to retain before trying to issue
+ test/test071.cxx:
+  - New retain() calls
+  - No longer looks at is_running()
+2004-06-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx:
+  - Declared from_string() for char an ambiguous conversion (thanks Lee Sam)
 2004-06-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Added -funit-at-a-time for g++ 3.4
