@@ -24,7 +24,7 @@ int main(int, char *argv[])
   {
     const string ConnectString = (argv[1] ? argv[1] : "");
     // Request a connection to the backend, but defer actual creation
-    Connection C(ConnectString, false);
+    LazyConnection C(ConnectString);
 
     C.ProcessNotice("Printing details on deferred connection\n");
     const string HostName = (C.HostName() ? C.HostName() : "<local>");

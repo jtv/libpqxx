@@ -119,7 +119,7 @@ int main(int, char *argv[])
 {
   try
   {
-    Connection C(argv[1], false);
+    LazyConnection C(argv[1]);
 
     // Perform (an instantiation of) the UpdateYears transactor we've defined
     // in the code above.  This is where the work gets done.

@@ -192,10 +192,9 @@ introductory explanation and code examples.  The former can be found in the
 tutorial, doc/libpqxx.sgml which currently is not being actively maintained but
 does cover the basics accurately.
 
-For some quick examples, take a look at the test 
-programs in the test/ directory.  Even though it shows some things you may not
-need, test001.cxx should give you a pretty good idea of what a libpqxx program
-can look like.
+For some quick examples, take a look at the test programs in the test/ 
+directory.  Particularly test001.cxx should give you a pretty good idea of what
+a minimal libpqxx program can look like.
 
 
 Programming with libpqxx

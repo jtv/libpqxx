@@ -13,7 +13,7 @@
  */
 #include <stdexcept>
 
-#include "pqxx/connection.h"
+#include "pqxx/connectionitf.h"
 #include "pqxx/result.h"
 #include "pqxx/robusttransaction.h"
 
@@ -32,7 +32,8 @@ namespace
 const Oid pqxxInvalidOid(InvalidOid);
 } // namespace
 
-pqxx::RobustTransaction::RobustTransaction(Connection &C, const string &TName) :
+pqxx::RobustTransaction::RobustTransaction(ConnectionItf &C, 
+                                           const string &TName) :
   TransactionItf(C, TName),
   m_ID(pqxxInvalidOid),
   m_LogTable()
@@ -106,7 +107,7 @@ void pqxx::RobustTransaction::DoCommit()
   catch (const exception &e)
   {
     m_ID = pqxxInvalidOid;
-    if (!Conn().IsOpen())
+    if (!Conn().is_open())
     {
       // We've lost the connection while committing.  We'll have to go back to
       // the backend and check our transaction log to see what happened.

@@ -137,25 +137,13 @@ public:
 
 #ifdef NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
     /// Specialization: to(string &)
-    template<> bool to(PGSTD::string &Obj) const
-    {
-      if (is_null())
-        return false;
-      Obj = c_str();
-      return true;
-    }
+    template<> bool to<PGSTD::string>(PGSTD::string &Obj) const;
 
     /// Specialization: to(const char *&).  
     /** The buffer has the same lifetime as the Result, so take care not to
      * use it after the Result is destroyed.
      */
-    template<> bool to(const char *&Obj) const
-    {
-      if (is_null()) 
-        return false;
-      Obj = c_str();
-      return true;
-    }
+    template<> bool to<const char *>(const char *&Obj) const;
 #endif
 
 
@@ -280,7 +268,7 @@ private:
   bool GetIsNull(size_type Row, Tuple::size_type Col) const;
   Field::size_type GetLength(size_type Row, Tuple::size_type Col) const;
 
-  friend class Connection;
+  friend class ConnectionItf;
   explicit Result(PGresult *rhs) : m_Result(rhs), m_Refcount(0) {MakeRef(rhs);}
   Result &operator=(PGresult *);
   bool operator!() const throw () { return !m_Result; }
@@ -313,13 +301,11 @@ inline const char *Result::Field::Name() const
   return m_Home->ColumnName(m_Col); 
 }
 
-
-#ifndef NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
 /// Specialization: to(string &)
-template<> inline bool Result::Field::to(PGSTD::string &Obj) const
+template<> 
+inline bool Result::Field::to<PGSTD::string>(PGSTD::string &Obj) const
 {
-  if (is_null())
-    return false;
+  if (is_null()) return false;
   Obj = c_str();
   return true;
 }
@@ -328,15 +314,13 @@ template<> inline bool Result::Field::to(PGSTD::string &Obj) const
 /** The buffer has the same lifetime as the Result, so take care not to
  * use it after the Result is destroyed.
  */
-template<> inline bool Result::Field::to(const char *&Obj) const
+template<> 
+inline bool Result::Field::to<const char *>(const char *&Obj) const
 {
-  if (is_null()) 
-    return false;
+  if (is_null()) return false;
   Obj = c_str();
   return true;
 }
-#endif
-
 
 
 inline Result::const_iterator 

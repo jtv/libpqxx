@@ -7,6 +7,7 @@ include_HEADERS=all.h \
 	compiler.h \
 	config.h \
 	connection.h \
+	connectionitf.h \
 	cursor.h \
 	largeobject.h \
 	nontransaction.h \

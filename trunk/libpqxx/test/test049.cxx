@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <cstdio>
 #include <iostream>
-#include <vector>
 
 #include <pqxx/all.h>
 
@@ -15,18 +14,63 @@ namespace
 template<typename CONTAINER> struct Add
 {
   CONTAINER &Container;
-  explicit Add(CONTAINER &C) : Container(C) {}
+  string Key;
+
+  Add(string K, CONTAINER &C) : Container(C), Key(K) {}
+
   void operator()(const Result::Tuple &T) 
   { 
-    Container.push_back(T[0].c_str()); 
+    Container.push_back(T[Key].c_str()); 
   }
 };
 
 
-template<typename CONTAINER> Add<CONTAINER> AdderFor(CONTAINER &C)
+template<typename CONTAINER> 
+Add<CONTAINER> AdderFor(string K, CONTAINER &C)
 {
-  return Add<CONTAINER>(C);
+  return Add<CONTAINER>(K, C);
 }
+
+
+struct Cmp : binary_function<Result::Tuple, Result::Tuple, bool>
+{
+  string Key;
+
+  explicit Cmp(string K) : Key(K) {}
+
+  bool operator()(const Result::Tuple &L, const Result::Tuple &R) const
+  {
+    return string(L[Key].c_str()) < string(R[Key].c_str());
+  }
+};
+
+struct CountGreaterSmaller : unary_function<Result::Tuple, void>
+{
+  string Key;
+  const Result &R;
+
+  CountGreaterSmaller(string K, const Result &X) : Key(K), R(X) {}
+
+  void operator()(const Result::Tuple &T) const
+  {
+    // Count number of entries with key greater/smaller than first row's key
+    // using std::count_if<>()
+    const int Greater = count_if(R.begin(), R.end(), bind2nd(Cmp(Key),T)),
+              Smaller = count_if(R.begin(), R.end(), bind1st(Cmp(Key),T));
+
+    cout << "'" << T[Key] << "': " 
+         << Greater << " greater, "
+         << Smaller << " smaller "
+	 << "(" << (Greater + Smaller) << " total)"
+	 << endl;
+
+    if (Greater + Smaller >= R.size())
+      throw logic_error("Of " + ToString(R.size()) + " keys, " + 
+	                ToString(Greater) + " were greater than '" + 
+			string(T[Key].c_str()) + "' and " +
+			ToString(Smaller) + " were smaller--that's too many!");
+  }
+};
 
 } // namespace
 
@@ -34,29 +78,48 @@ template<typename CONTAINER> Add<CONTAINER> AdderFor(CONTAINER &C)
 // Test program for libpqxx.  Run a query and try various standard C++
 // algorithms on it.
 //
-// Usage: test049 [connect-string] [table]
-//
-// Where table is the table to be queried; if none is given, pg_tables is
-// queried by default.
+// Usage: test049 [connect-string] [tablename key]
 //
 // The connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
 // called template1, or "host=foo.bar.net user=smith" to connect to a
 // backend running on host foo.bar.net, logging in as user smith.
+//
+// The tablename / key combination defines which table to query, and a 
+// field (which must be a text field in this case) to sort by.
 
 int main(int argc, char *argv[])
 {
   try
   {
-    const string Table = ((argc >= 3) ? argv[2] : "pg_tables");
+    string Table="pg_tables", Key="tablename";
+
+    switch (argc)
+    {
+    case 0: throw logic_error("argc is zero!");
+    case 1: break; // OK, no arguments
+    case 2: break; // OK, just a connection string
+
+    case 4:
+      Table = argv[2];
+      Key = argv[3];
+      break;
+
+    case 3: 
+    default:
+      throw invalid_argument("Usage: test049 [connectstring] [tablename key]");
+    }
 
     Connection C(argv[1]);
     Transaction T(C, "test49");
 
-    Result R( T.Exec("SELECT * FROM " + Table) );
+    Result R( T.Exec("SELECT * FROM " + Table + " ORDER BY " + Key) );
+    cout << "Read " << R.size() << " tuples." << endl;
+    if (R.empty()) throw runtime_error("No entries in table '" + Table + "'!");
 
-    vector<string> V;
-    for_each(R.begin(), R.end(), AdderFor(V));
+    // Verify that for each key in R, the number of greater and smaller keys
+    // are sensible; use std::for_each<>() to iterate over rows in R
+    for_each(R.begin(), R.end(), CountGreaterSmaller(Key, R));
   }
   catch (const exception &e)
   {

@@ -1,3 +1,9 @@
+1.7.0
+ - removed all deprecated features
+ - connection string documentation in README
+ - separate Connection, LazyConnection classes
+ - made test001 more concise
+ - added test049
 1.6.4
  - configure script now respects different std namespace
 1.6.3

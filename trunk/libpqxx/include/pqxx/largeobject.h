@@ -27,8 +27,8 @@ class LargeObjectAccess;
 
 /// Identity of a large object. @warning Experimental--can and will change soon
 /** This class encapsulates the identity of a large object.  To access the
- * contents of the object, use the open() member function or create a
- * largeobject_streambuf around the LargeObject.
+ * contents of the object, create a LargeObjectAccess, a largeobject_streambuf,
+ * or an ilostream, an olostream or a lostream around the LargeObject.
  *
  * A LargeObject must be accessed only from within a backend transaction, but
  * the object's identity remains valid.
@@ -36,6 +36,8 @@ class LargeObjectAccess;
 class LargeObject
 {
 public:
+  typedef long size_type;
+
   /// Refer to a nonexistent large object (similar to what a null pointer does)
   LargeObject();							//[t48]
 
@@ -73,22 +75,22 @@ public:
 
   /// Comparison is only valid between large objects in the same database.
   bool operator==(const LargeObject &other) const 			//[]
-  	{ return m_ID == other.m_ID; }
+	  { return m_ID == other.m_ID; }
   /// Comparison is only valid between large objects in the same database.
   bool operator!=(const LargeObject &other) const 			//[]
-  	{ return m_ID != other.m_ID; }
+	  { return m_ID != other.m_ID; }
   /// Comparison is only valid between large objects in the same database.
   bool operator<=(const LargeObject &other) const 			//[]
-  	{ return m_ID <= other.m_ID; }
+	  { return m_ID <= other.m_ID; }
   /// Comparison is only valid between large objects in the same database.
   bool operator>=(const LargeObject &other) const 			//[]
-  	{ return m_ID >= other.m_ID; }
+	  { return m_ID >= other.m_ID; }
   /// Comparison is only valid between large objects in the same database.
   bool operator<(const LargeObject &other) const 			//[]
-  	{ return m_ID < other.m_ID; }
+	  { return m_ID < other.m_ID; }
   /// Comparison is only valid between large objects in the same database.
   bool operator>(const LargeObject &other) const 			//[]
-  	{ return m_ID > other.m_ID; }
+	  { return m_ID > other.m_ID; }
 
   /// Export large object's contents to a local file
   /** Writes the data stored in the large object to the given file.
@@ -125,20 +127,21 @@ private:
 };
 
 
-// TODO: Consider iLargeObjectAccess, oLargeObjectAccess!?
 /// Accessor for large object's contents. @warning Still experimental!
 class LargeObjectAccess : private LargeObject
 {
 public:
+  using LargeObject::size_type;
+
   /// Create new large object and open it
   /** 
    * @param T backend transaction in which the object is to be created
    * @param mode access mode, defaults to ios_base::in | ios_base::out
    */
   explicit LargeObjectAccess(TransactionItf &T, 
-                             PGSTD::ios_base::openmode mode = 
-			     	PGSTD::ios_base::in | 
-			        PGSTD::ios_base::out);			//[]
+			     PGSTD::ios_base::openmode mode = 
+				PGSTD::ios_base::in | 
+				PGSTD::ios_base::out);			//[]
 
   /// Open large object with given Oid
   /** Convert combination of a transaction and object identifier into a
@@ -148,10 +151,10 @@ public:
    * @param mode access mode, defaults to ios_base::in | ios_base::out
    */
   explicit LargeObjectAccess(TransactionItf &T, 
-                             Oid O,
+			     Oid O,
 			     PGSTD::ios_base::openmode mode = 
-			     	PGSTD::ios_base::in | 
-			        PGSTD::ios_base::out);			//[]
+				PGSTD::ios_base::in | 
+				PGSTD::ios_base::out);			//[]
 
   /// Open given large object
   /** Open a large object with the given identity for reading and/or writing
@@ -160,10 +163,10 @@ public:
    * @param mode access mode, defaults to ios_base::in | ios_base::out
    */
   explicit LargeObjectAccess(TransactionItf &T, 
-                             LargeObject O,
+			     LargeObject O,
 			     PGSTD::ios_base::openmode mode = 
-			     	PGSTD::ios_base::in | 
-			        PGSTD::ios_base::out);			//[]
+				PGSTD::ios_base::in | 
+				PGSTD::ios_base::out);			//[]
 
   /// Import large object from a local file and open it
   /** Creates a large object containing the data found in the given file.
@@ -172,9 +175,9 @@ public:
    * @param mode access mode, defaults to ios_base::in | ios_base::out
    */
   LargeObjectAccess(TransactionItf &T, 
-                    const PGSTD::string &File,
+		    const PGSTD::string &File,
 		    PGSTD::ios_base::openmode mode = 
-		    	PGSTD::ios_base::in | PGSTD::ios_base::out);	//[]
+			PGSTD::ios_base::in | PGSTD::ios_base::out);	//[]
 
   ~LargeObjectAccess() { close(); }
 
@@ -202,6 +205,29 @@ public:
     LargeObject::to_file(m_Trans, File); 
   }
 
+  /// Write data to large object
+  /** If not all bytes could be written, an exception is thrown.
+   * @param Buf the data to write
+   * @param Len the number of bytes from Buf to write
+   */
+  void write(const char Buf[], size_type Len);
+
+  /// Write string to large object
+  /** If not all bytes could be written, an exception is thrown.
+   * @param Buf the data to write; no terminating zero is written
+   */
+  void write(const PGSTD::string &Buf) 
+  	{ write(Buf.c_str(), Buf.size()); }
+
+  /// Read data from large object
+  /** Returns the number of bytes read, which may be less than the number of
+   * bytes requested if the end of the large object is reached.  Throws an
+   * exception if an error occurs while reading.
+   * @param Buf the location to store the read data in
+   * @param Len the number of bytes to try and read
+   */
+  size_type read(char Buf[], size_type Len);
+
   // TODO: Document return value
   /// Seek in large object's data stream
   /** Does not throw exception in case of error; inspect return value instead.
@@ -211,25 +237,29 @@ public:
    *        ios_base;:end (from end of object)
    */
   long cseek(long dest, PGSTD::ios_base::seekdir dir) throw ();
-  
-  // TODO: Document return value
+    
   /// Write to large object's data stream
   /** Does not throw exception in case of error; inspect return value instead.
+   * Returns number of bytes actually written, or -1 if an error occurred.
    * @param Buf bytes to write
    * @param Len number of bytes to write
    */
-  long cwrite(const char Buf[], size_t Len) throw ();
+  long cwrite(const char Buf[], size_type Len) throw ();
 
-  // TODO: Document return value
   /// Read from large object's data stream
   /** Does not throw exception in case of error; inspect return value instead.
+   * Returns number of bytes actually read, or -1 if an error occurred.
    * @param Buf area where bytes should be stored
    * @param Len number of bytes to read
    */
-  long cread(char Buf[], size_t Len) throw ();
+  long cread(char Buf[], size_type Len) throw ();
 
-  // TODO: Comparison operators
-  // TODO: C++-style access functions
+  using LargeObject::operator==;
+  using LargeObject::operator!=;
+  using LargeObject::operator<;
+  using LargeObject::operator<=;
+  using LargeObject::operator>;
+  using LargeObject::operator>=;
 
 private:
   PGconn *RawConnection() { return LargeObject::RawConnection(m_Trans); }
@@ -247,8 +277,6 @@ private:
 };
 
 
-// TODO: Create i, o stream classes
-// TODO: Allow the creator to select a buffer size
 /// Streambuf to use large objects in standard I/O streams @warning Experimental
 /** @warning Still experimental.  May change profoundly.
  *
@@ -260,6 +288,7 @@ private:
 template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
 class largeobject_streambuf : public PGSTD::basic_streambuf<CHAR, TRAITS>
 {
+  typedef long size_type;
 public:
   typedef CHAR   char_type;
   typedef TRAITS traits_type;
@@ -268,10 +297,11 @@ public:
   typedef typename traits_type::off_type off_type;
 
   largeobject_streambuf(TransactionItf &T,
-      			LargeObject O,
-      			PGSTD::ios_base::openmode mode = 
-				PGSTD::ios::in | PGSTD::ios::out) : 	//[t48]
-    m_BufSize(512),
+			LargeObject O,
+			PGSTD::ios_base::openmode mode = 
+				PGSTD::ios::in | PGSTD::ios::out,
+			size_type BufSize=512) : 			//[t48]
+    m_BufSize(BufSize),
     m_Obj(T, O),
     m_G(0),
     m_P(0)
@@ -280,10 +310,11 @@ public:
   }
 
   largeobject_streambuf(TransactionItf &T,
-      			Oid O,
-      			PGSTD::ios_base::openmode mode = 
-				PGSTD::ios::in | PGSTD::ios::out) : 	//[t48]
-    m_BufSize(512),
+			Oid O,
+			PGSTD::ios_base::openmode mode = 
+				PGSTD::ios::in | PGSTD::ios::out,
+			size_type BufSize=512) : 			//[t48]
+    m_BufSize(BufSize),
     m_Obj(T, O),
     m_G(0),
     m_P(0)
@@ -307,9 +338,9 @@ protected:
   }
 
   virtual pos_type seekoff(off_type offset, 
-      			   PGSTD::ios_base::seekdir dir,
+			   PGSTD::ios_base::seekdir dir,
 			   PGSTD::ios_base::openmode mode =
-			   	PGSTD::ios_base::in|PGSTD::ios_base::out)
+				PGSTD::ios_base::in|PGSTD::ios_base::out)
   {
     if (!mode) {}	// Quench "unused parameter" warning
     return AdjustEOF(m_Obj.cseek(offset, dir));
@@ -317,7 +348,7 @@ protected:
 
   virtual pos_type seekpos(pos_type pos, 
 			   PGSTD::ios_base::openmode mode =
-			   	PGSTD::ios_base::in|PGSTD::ios_base::out)
+				PGSTD::ios_base::in|PGSTD::ios_base::out)
   {
     if (!mode) {}	// Quench "unused parameter" warning
     return AdjustEOF(m_Obj.cseek(pos, PGSTD::ios_base::beg));
@@ -375,7 +406,7 @@ private:
     }
   }
 
-  const size_t m_BufSize;
+  const size_type m_BufSize;
   LargeObjectAccess m_Obj;
 
   // Get & put buffers
@@ -383,6 +414,14 @@ private:
 };
 
 
+/// Input stream that gets its data from a large object
+/** Use this class exactly as you would any other istream to read data from a
+ * large object.  All formatting and streaming operations of std::istream are 
+ * supported.  What you'll typically want to use, however, is the ilostream
+ * typedef defined below.  This is similar to e.g. std::ifstream.
+ *
+ * Currently only works for <char, std::char_traits<char> >.
+ */
 template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> > 
 class basic_ilostream : public PGSTD::basic_istream<CHAR, TRAITS>
 {
@@ -393,15 +432,29 @@ public:
   typedef typename traits_type::pos_type pos_type;
   typedef typename traits_type::off_type off_type;
 
-  basic_ilostream(TransactionItf &T, LargeObject O) :
+  /// Create a basic_ilostream
+  /** @param T transaction in which this stream is to exist
+   * @param O a large object to access
+   * @param BufSize size of buffer to use internally (optional)
+   */
+  basic_ilostream(TransactionItf &T, 
+                  LargeObject O, 
+		  LargeObject::size_type BufSize=512) :
     PGSTD::basic_istream<CHAR,TRAITS>(&m_Buf),
-    m_Buf(T, O, PGSTD::ios_base::in) 
+    m_Buf(T, O, in, BufSize) 
   { 
   }
 
-  basic_ilostream(TransactionItf &T, Oid O) :
+  /// Create a basic_ilostream
+  /** @param T transaction in which this stream is to exist
+   * @param O identifier of a large object to access
+   * @param BufSize size of buffer to use internally (optional)
+   */
+  basic_ilostream(TransactionItf &T, 
+                  Oid O, 
+		  LargeObject::size_type BufSize=512) :
     PGSTD::basic_istream<CHAR,TRAITS>(&m_Buf),
-    m_Buf(T, O, PGSTD::ios_base::in) 
+    m_Buf(T, O, in, BufSize) 
   { 
   }
 
@@ -411,6 +464,15 @@ private:
 
 typedef basic_ilostream<char> ilostream;
 
+
+/// Output stream that writes data back to a large object
+/** Use this class exactly as you would any other ostream to write data to a
+ * large object.  All formatting and streaming operations of std::ostream are 
+ * supported.  What you'll typically want to use, however, is the olostream
+ * typedef defined below.  This is similar to e.g. std::ofstream.
+ *
+ * Currently only works for <char, std::char_traits<char> >.
+ */
 template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> > 
 class basic_olostream : public PGSTD::basic_ostream<CHAR, TRAITS>
 {
@@ -421,15 +483,27 @@ public:
   typedef typename traits_type::pos_type pos_type;
   typedef typename traits_type::off_type off_type;
 
-  basic_olostream(TransactionItf &T, LargeObject O) :
+  /// Create a basic_olostream
+  /** @param T transaction in which this stream is to exist
+   * @param O a large object to access
+   * @param BufSize size of buffer to use internally (optional)
+   */
+  basic_olostream(TransactionItf &T, 
+                  LargeObject O,
+		  LargeObject::size_type BufSize=512) :
     PGSTD::basic_ostream<CHAR,TRAITS>(&m_Buf),
-    m_Buf(T, O, PGSTD::ios_base::out) 
+    m_Buf(T, O, out, BufSize) 
   { 
   }
 
+  /// Create a basic_olostream
+  /** @param T transaction in which this stream is to exist
+   * @param O a large object to access
+   * @param BufSize size of buffer to use internally (optional)
+   */
   basic_olostream(TransactionItf &T, Oid O) :
     PGSTD::basic_ostream<CHAR,TRAITS>(&m_Buf),
-    m_Buf(T, O, PGSTD::ios_base::out) 
+    m_Buf(T, O, out, BufSize) 
   { 
   }
 
@@ -442,6 +516,14 @@ private:
 typedef basic_olostream<char> olostream;
 
 
+/// Stream that reads and writes a large object
+/** Use this class exactly as you would a std::iostream to read data from, or
+ * write data to a large object.  All formatting and streaming operations of 
+ * std::iostream are supported.  What you'll typically want to use, however, is
+ * the lostream typedef defined below.  This is similar to e.g. std::fstream.
+ *
+ * Currently only works for <char, std::char_traits<char> >.
+ */
 template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> > 
 class basic_lostream : public PGSTD::basic_iostream<CHAR, TRAITS>
 {
@@ -452,15 +534,25 @@ public:
   typedef typename traits_type::pos_type pos_type;
   typedef typename traits_type::off_type off_type;
 
+  /// Create a basic_lostream
+  /** @param T transaction in which this stream is to exist
+   * @param O a large object to access
+   * @param BufSize size of buffer to use internally (optional)
+   */
   basic_lostream(TransactionItf &T, LargeObject O) :
     PGSTD::basic_iostream<CHAR,TRAITS>(&m_Buf),
-    m_Buf(T, O) 
+    m_Buf(T, O, in | out, BufSize) 
   { 
   }
 
+  /// Create a basic_lostream
+  /** @param T transaction in which this stream is to exist
+   * @param O a large object to access
+   * @param BufSize size of buffer to use internally (optional)
+   */
   basic_lostream(TransactionItf &T, Oid O) :
     PGSTD::basic_iostream<CHAR,TRAITS>(&m_Buf),
-    m_Buf(T, O) 
+    m_Buf(T, O, in | out, BufSize) 
   { 
   }
 

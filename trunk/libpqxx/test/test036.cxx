@@ -48,7 +48,7 @@ int main(int, char *argv[])
 {
   try
   {
-    Connection C(argv[1], false);
+    LazyConnection C(argv[1]);
 
     C.Perform(ReadTables());
   }

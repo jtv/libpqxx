@@ -81,22 +81,10 @@ private:
 
 #ifdef NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
     template<> PGSTD::string operator()(const PGSTD::string &S,
-	                                PGSTD::string i) const
-    {
-      if (i == Null) i = PGNull();
-      else Escape(i);
-      return S + i + '\t';
-    }
+	                                PGSTD::string i) const;
 #endif
 
-    PGSTD::string operator()(const PGSTD::string &S, const char *i) const
-#ifdef NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
-    {
-      return operator()(S, PGSTD::string(i));
-    }
-#else
-    ;
-#endif
+    PGSTD::string operator()(const PGSTD::string &S, const char *i) const;
 
   private:
     static PGSTD::string PGNull() { return "\\N"; }
@@ -139,7 +127,6 @@ private:
 namespace pqxx
 {
 
-#ifndef NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
 template<>
 inline PGSTD::string 
 TableWriter::FieldConverter::operator()(const PGSTD::string &S,
@@ -157,8 +144,6 @@ TableWriter::FieldConverter::operator()(const PGSTD::string &S,
 {
   return operator()(S, PGSTD::string(i));
 }
-
-#endif
 
 
 inline void TableWriter::FieldConverter::Escape(PGSTD::string &S)

@@ -55,7 +55,7 @@ pair<int,int> CountEvents(Transaction &T)
 
 // Try adding a record, then aborting it, and check whether the abort was
 // performed correctly.
-void Test(Connection &C, bool ExplicitAbort)
+void Test(ConnectionItf &C, bool ExplicitAbort)
 {
   vector<string> BoringTuple;
   BoringTuple.push_back(ToString(BoringYear));

@@ -51,7 +51,7 @@ int main(int, char *argv[])
   {
     const string Table = "events";
 
-    Connection C(argv[1], false);
+    LazyConnection C(argv[1]);
     Transaction T(C, "test38");
 
     // Count rows.
