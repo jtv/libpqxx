@@ -26,6 +26,12 @@
 using namespace PGSTD;
 
 
+namespace
+{
+// String used to separate collated queries.  The whitespace is optional.
+const string theSeparator("; ");
+} // namespace
+
 pqxx::pipeline::pipeline(transaction_base &t, const string &PName) :
   pqxx::internal::transactionfocus(t, PName, "pipeline"),
   m_queries(),
@@ -33,7 +39,8 @@ pqxx::pipeline::pipeline(transaction_base &t, const string &PName) :
   m_completed(),
   m_nextid(1),
   m_retain(false),
-  m_error(false)
+  m_error(false),
+  m_bsgt(false)
 {
 }
 
@@ -181,7 +188,9 @@ bool pqxx::pipeline::empty() const throw ()
 pqxx::pipeline::query_id pqxx::pipeline::generate_id()
 {
   query_id qid;
-  for (qid=m_nextid++; m_queries.find(qid)!=m_queries.end(); qid=m_nextid++);
+  for (qid = m_nextid++; 
+       !qid || (m_queries.find(qid) != m_queries.end()); 
+       qid = m_nextid++);
   return qid;
 }
 
@@ -190,7 +199,6 @@ void pqxx::pipeline::send_waiting()
 {
   if (m_waiting.empty() || !m_sent.empty() || m_retain || m_error) return;
 
-  static const string Separator = "; ";
   string Cum;
   
   /* Bart Samwel's Genius Trick(tm)
@@ -204,7 +212,11 @@ void pqxx::pipeline::send_waiting()
    * prepend one that cannot generate an error.  Now if we get only a single
    * result, we know there's a syntax error.
    */
-  if (m_waiting.size() > 1) Cum = "SELECT 0" + Separator;
+  if (m_waiting.size() > 1)
+  {
+    Cum = "SELECT 0" + theSeparator;
+    m_bsgt = true;
+  }
 
   for (QueryQueue::const_iterator i=m_waiting.begin(); i!=m_waiting.end(); ++i)
   {
@@ -212,9 +224,9 @@ void pqxx::pipeline::send_waiting()
     if (q == m_queries.end())
       throw logic_error("libpqxx internal error: unknown query issued");
     Cum += q->second;
-    Cum += Separator;
+    Cum += theSeparator;
   }
-  Cum.resize(Cum.size()-Separator.size());
+  Cum.resize(Cum.size()-theSeparator.size());
 
   m_Trans.start_exec(Cum);
   m_sent.swap(m_waiting);
@@ -232,9 +244,14 @@ void pqxx::pipeline::consumeresults()
   // Reduce risk of exceptions at awkward moments
   R.reserve(m_sent.size() + 1);
 
+  const bool bsgt = m_bsgt;
+
   // TODO: Improve exception-safety!
   for (PGresult *r=m_Trans.get_result(); r; r=m_Trans.get_result())
+  {
+    m_bsgt = false;
     R.push_back(result(r));
+  }
 
   unregister_me();
 
@@ -249,35 +266,60 @@ void pqxx::pipeline::consumeresults()
 	              "expected " + to_string(sentsize) + " results "
 		      "from pipeline, got " + to_string(R_size));
 
-  if ((R_size == 1) && (sentsize > 1))
+  if (bsgt && (R_size == 1))
   {
-    /* Syntax error that comes from one of the queries in the batch, and we
-     * don't know which (if there was only one in the first place, we'd treat
-     * this as a regular result).  Register the same error result for all 
-     * results in the batch.
-     */
-    // TODO: Improve error reporting
     m_error = true;
+
+    QueryQueue::const_iterator errorbefore = m_sent.end();
+    const int pos = R[0].errorposition();
+    if (pos >= 0)
+    {
+      // Yay!  We can find the error's character position in our batch query
+      QueryQueue::const_iterator e = m_sent.begin();
+      for (int startsat=0; 
+	   (e != m_sent.end()) && (startsat < pos);
+	   (startsat += m_queries[*e].size() + theSeparator.size()), ++e)
+      {
+      }
+
+      // Yay again.  Anything after e was not the cause of the error.
+      if (e != m_sent.end())
+	errorbefore = ++e;
+    }
+
     /* As a first approximation, just register the same error for all queries in
      * the batch, so at least the user gets the message about what went wrong.
      */
-    for (QueryQueue::size_type i=0; i<sentsize; ++i)
-      m_completed.insert(make_pair(m_sent[i], R[0]));
+    for (QueryQueue::const_iterator i=m_sent.begin(); i != m_sent.end(); ++i)
+      m_completed.insert(make_pair(*i, R[0]));
 
-    if (!dynamic_cast<dbtransaction *>(&m_Trans))
+    if (dynamic_cast<dbtransaction *>(&m_Trans))
+    {
+      /* We can't replay queries in a backend transaction (at least, not unless
+       * the backend supports nested transactions), so we report an error for
+       * the entire batch up to the last possible cause of the error.
+       */
+      string Cum;
+      for (QueryQueue::const_iterator i=m_sent.begin(); i != errorbefore; ++i)
+      {
+	Cum += m_queries[*i];
+	Cum += theSeparator;
+      }
+      throw sql_error(R[0].StatusError(), Cum);
+    }
+    else
     {
       /* We're not in a backend transaction, so we can continue to issue
-       * transactions.  Execute the queries in the batch one by one to try and
+       * commands.  Execute the queries in the batch one by one to try and
        * pinpoint which was the one containing the error.
        */
-      QueryQueue::size_type i;
       try
       {
-        for (i=0; i<sentsize; ++i)
+        for (QueryQueue::const_iterator i=m_sent.begin(); i != errorbefore; ++i)
 	{
 	  try
 	  {
-	    m_completed[m_sent[i]] = m_Trans.exec(m_queries[m_sent[i]]);
+	    m_completed[*i] = m_Trans.exec(m_queries[*i]);
 	  }
 	  catch (const sql_error &)
 	  {
@@ -310,7 +352,7 @@ void pqxx::pipeline::consumeresults()
   else
   {
     // Normal situation: the first R_size queries were parsed and performed
-    if (sentsize > 1)
+    if (bsgt)
     {
       // Strip that safe query we prepended to identify syntax errors
       R.erase(R.begin());
