@@ -7,7 +7,7 @@
  *      implementation of the pqxx::result class and support classes.
  *   pqxx::result represents the set of result tuples from a database query
  *
- * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -142,13 +142,9 @@ void pqxx::result::LoseRef() throw ()
     if (*m_Refcount <= 0)
     {
       delete m_Refcount;
-      m_Refcount = 0;
+      PQclear(m_Result);
     }
-  }
-
-  if (!m_Refcount && m_Result)
-  {
-    PQclear(m_Result);
+    m_Refcount = 0;
     m_Result = 0;
   }
 }
