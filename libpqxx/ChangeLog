@@ -1,3 +1,8 @@
+2002-09-20 15:15 Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/connection.h:
+  - Added admonishing comment for BackendPID()
+ src/connection.cxx:
+  - Noted some exceptions that may change to broken_connection
 2002-08-13 15:00 J.H.M. Dassen (Ray) <jdassen@debian.org>
  autogen.sh:
   - Use automake 1.6 if available

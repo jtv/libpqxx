@@ -56,6 +56,8 @@ pqxx::RobustTransaction::~RobustTransaction()
 
 void pqxx::RobustTransaction::DoBegin()
 {
+  // TODO: Can we reverse log record logic?  I.e. attempt to add log record..
+  // TODO: ..first (create log table & retry if fails), then start transaction?
   CreateLogTable();
 
   // Start backend transaction

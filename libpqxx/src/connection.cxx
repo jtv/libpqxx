@@ -108,6 +108,7 @@ pqxx::Connection::~Connection()
 
 int pqxx::Connection::BackendPID() const
 {
+  // TODO: Throw broken_connection here?
   if (!m_Conn) throw runtime_error("No connection");
 
   return PQbackendPID(m_Conn);
@@ -133,6 +134,7 @@ void pqxx::Connection::Connect()
   {
     const string Msg( ErrMsg() );
     Disconnect();
+    // TODO: Throw broken_connection here?
     throw runtime_error(Msg);
   }
 }
@@ -288,6 +290,7 @@ pqxx::Result pqxx::Connection::Exec(const char Q[],
                                 int Retries, 
 				const char OnReconnect[])
 {
+  // TODO: Throw broken_connection?
   if (!m_Conn)
     throw runtime_error("No connection to database");
 
@@ -394,6 +397,7 @@ bool pqxx::Connection::ReadCopyLine(string &Line)
     switch (PQgetline(m_Conn, Buf, sizeof(Buf)))
     {
     case EOF:
+      // TODO: Throw broken_connection?
       throw runtime_error("Unexpected EOF from backend");
 
     case 0:
@@ -437,6 +441,7 @@ void pqxx::Connection::WriteCopyLine(string Line)
 // line containing only the two characters "\."
 void pqxx::Connection::EndCopy()
 {
+  // TODO: Throw broken_connection if applicable
   if (PQendcopy(m_Conn) != 0) throw runtime_error(ErrMsg());
 }
 

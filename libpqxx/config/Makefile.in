@@ -93,7 +93,7 @@ mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h
 CONFIG_CLEAN_FILES =
 DIST_SOURCES =
-DIST_COMMON = Makefile.am Makefile.in config.guess config.sub \
+DIST_COMMON = Makefile.am Makefile.in config.guess config.sub depcomp \
 	install-sh ltmain.sh missing mkinstalldirs
 all: all-am
 
