@@ -131,9 +131,8 @@ command "mv $TARBALL .."
 command "cd .."
 command "rm -r $DISTNAME"
 
-if ! nice vacuumdb >/dev/null 2>&1 & ; then
-	# ignore failure
-fi
+set +e
+nice vacuumdb >/dev/null 2>&1 &
 
 log "Finished.  Release tarball is /tmp/$TARBALL"
 
