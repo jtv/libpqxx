@@ -84,8 +84,7 @@ public:
   void flush();								//[t70]
 
   /// Is result for given query available?
-  bool is_finished(query_id q) const					//[t71]
-  	{ return (q < m_issuedrange.first) && (q < m_error); }
+  bool is_finished(query_id) const;					//[t71]
 
   /// Retrieve result for given query
   /** If the query failed for whatever reason, this will throw an exception.
@@ -141,25 +140,16 @@ private:
   query_id generate_id();
     
   bool have_pending() const throw () 
-  	{ return m_issuedrange.second > m_issuedrange.first; }
+  	{ return m_issuedrange.second != m_issuedrange.first; }
 
-  QueryMap::const_iterator oldest_issued() const;
-  QueryMap::iterator oldest_issued();
-  QueryMap::const_iterator end_of_issued() const;
-  QueryMap::iterator end_of_issued();
-
-  static const char *separator() throw () { return "; "; }
-  static const char *dummyvalue() throw () { return "1"; }
-
-  void issue(QueryMap::const_iterator stop);
-  void issue() { issue(m_queries.end()); }
+  void issue();
 
   /// The given query failed; never issue anything beyond that
   void set_error_at(query_id qid) throw () { if (qid < m_error) m_error = qid; }
 
   void internal_error(const PGSTD::string &err) throw (PGSTD::logic_error);
 
-  bool obtain_result(bool really_expect);
+  bool obtain_result(bool expect_none=false);
 
   void obtain_dummy();
   void get_further_available_results();
@@ -173,12 +163,12 @@ private:
   PGSTD::pair<query_id, result> retrieve(QueryMap::iterator);
 
   QueryMap m_queries;
-  PGSTD::pair<query_id,query_id> m_issuedrange;
+  PGSTD::pair<QueryMap::iterator,QueryMap::iterator> m_issuedrange;
   int m_retain;
   int m_num_waiting;
   query_id m_q_id;
 
-  /// Is there an empty "dummy query" pending?
+  /// Is there a "dummy query" pending?
   bool m_dummy_pending;
 
   /// Point at which an error occurred; no results beyond it will be available
