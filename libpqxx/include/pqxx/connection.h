@@ -30,6 +30,7 @@
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */
 
+// TODO: Implement NoticeProcessors with C++ linkage
 // TODO: Teach Transactor to handle multiple connections--quasi "2-phase commit"
 
 
@@ -61,7 +62,7 @@ public:
 };
 
 
-/// Connection class.
+/// Connection class; represents a connection to a database.
 /** This is the first class to look at when you wish to work with a database 
  * through libpqxx.  It is automatically opened by its constructor, and 
  * automatically closed upon destruction, if it hasn't already been closed 

@@ -26,7 +26,7 @@
 namespace pqxx
 {
 
-
+/// Slower, better fortified version of Transaction.
 /** RobustTransaction is similar to Transaction, but spends more effort (and
  * performance!) to deal with the hopefully rare case that the connection to
  * the backend is lost just as the current transaction is being committed.  In

@@ -22,6 +22,7 @@
 namespace pqxx
 {
 
+/// "Observer" base class for trigger notifications.
 /** To listen on a database trigger, derive your own class from Trigger and
  * define its function call operator to perform whatever action you wish to
  * take when the given trigger arrives.  Then create an object of that class

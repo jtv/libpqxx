@@ -26,6 +26,7 @@
 namespace pqxx
 {
 
+/// Efficiently pull data directly out of a table.
 /** A TableReader provides efficient read access to a database table.  This is
  * not as flexible as a normal query using the Result class however:
  *  - Can only dump tables, not views or arbitrary queries

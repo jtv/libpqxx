@@ -48,10 +48,11 @@ template<> inline PGSTD::string Classname(const TableStream *)
 }
 
 
-/// Interface definition (and common code) for "transaction" classes.  All 
-/// database access must be channeled through one of these classes for safety,
-/// although not all implementations of this interface need to provide full
-/// transactional integrity.
+/// Interface definition (and common code) for "transaction" classes.  
+/** All database access must be channeled through one of these classes for 
+ * safety, although not all implementations of this interface need to provide 
+ * full transactional integrity.
+ */
 class PQXX_LIBEXPORT TransactionItf
 {
 public:
@@ -152,11 +153,13 @@ private:
 };
 
 
-/// An exception that might be thrown in rare cases where the connection to the
-/// database is lost while finishing a database transaction, and there's no way
-/// of telling whether it was actually executed by the backend.  In this case
-/// the database is left in an indeterminate (but consistent) state, and only
-/// manual inspection will tell which is the case.
+/// "Help, I don't know whether transaction was committed successfully!"
+/** Exception that might be thrown in rare cases where the connection to the
+ * database is lost while finishing a database transaction, and there's no way
+ * of telling whether it was actually executed by the backend.  In this case
+ * the database is left in an indeterminate (but consistent) state, and only
+ * manual inspection will tell which is the case.
+ */
 class PQXX_LIBEXPORT in_doubt_error : public PGSTD::runtime_error
 {
 public:

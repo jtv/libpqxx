@@ -29,6 +29,7 @@ namespace pqxx
 {
 class TableReader;	// See pqxx/tablereader.h
 
+/// Efficiently write data directly to a database table.
 /** A TableWriter provides a Spartan but efficient way of writing data tuples
  * into a table.  It provides a plethora of STL-like insertion methods: it has
  * insert() methods, push_back(), an overloaded insertion operator (<<), and it

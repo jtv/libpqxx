@@ -50,7 +50,7 @@
 namespace pqxx
 {
 
-
+/// Back-end transaction.
 /** Use a Transaction object to enclose operations on a database in a single
  * "unit of work."  This ensures that the whole series of operations either
  * succeeds as a whole or fails completely.  In no case will it leave half
