@@ -21,7 +21,7 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
-/* Define if PostgreSQL version being compiled against has PQescapeString() */
+/* Define if PostgreSQL has PQescapeString() */
 #undef HAVE_PQESCAPESTRING
 
 /* Define to 1 if the system has the type `ptrdiff_t'. */
