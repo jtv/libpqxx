@@ -385,19 +385,22 @@ void pqxx::connection_base::RemoveTrigger(pqxx::trigger *T) throw ()
 }
 
 
-void pqxx::connection_base::get_notifs()
+int pqxx::connection_base::get_notifs()
 {
-  if (!is_open()) return;
+  int notifs = 0; 
+  if (!is_open()) return notifs;
 
   PQconsumeInput(m_Conn);
 
   // Even if somehow we receive notifications during our transaction, don't
   // deliver them.
-  if (m_Trans.get()) return;
+  if (m_Trans.get()) return notifs;
 
   for (PQAlloc<PGnotify> N( PQnotifies(m_Conn) ); N; N = PQnotifies(m_Conn))
   {
     typedef TriggerList::iterator TI;
+
+    notifs++;
 
     pair<TI, TI> Hit = m_Triggers.equal_range(string(N->relname));
     for (TI i = Hit.first; i != Hit.second; ++i) try
@@ -429,6 +432,7 @@ void pqxx::connection_base::get_notifs()
 
     N.close();
   }
+  return notifs;
 }
 
 
@@ -761,10 +765,44 @@ void pqxx::connection_base::wait_read() const
   select(fd+1, &m_fdmask, fdset_none, &m_fdmask, 0);
 }
 
+
+void pqxx::connection_base::wait_read(long seconds, long microseconds) const
+{
+  timeval tv = { seconds, microseconds };
+  const int fd = set_fdmask();
+  select(fd+1, &m_fdmask, fdset_none, &m_fdmask, &tv);
+}
+
+
 void pqxx::connection_base::wait_write() const
 {
   const int fd = set_fdmask();
   select(fd+1, fdset_none, &m_fdmask, &m_fdmask, 0);
+}
+
+int pqxx::connection_base::await_notification()
+{
+  activate();
+  int notifs = get_notifs();
+  if (!notifs)
+  {
+    wait_read();
+    notifs = get_notifs();
+  }
+  return notifs;
+}
+
+
+int pqxx::connection_base::await_notification(long seconds, long microseconds)
+{
+  activate();
+  int notifs = get_notifs();
+  if (!notifs)
+  {
+    wait_read(seconds, microseconds);
+    notifs = get_notifs();
+  }
+  return notifs;
 }
 
 

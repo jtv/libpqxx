@@ -1,3 +1,18 @@
+2004-04-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, src/connection_base.cxx:
+  - Notification-related functions return number of notifications received
+  - New await_notification() functions sleep until notification arrives
+ test/test004.cxx, test/test023.cxx:
+  - Check get_notifs() return value
+ test/test078.cxx:
+  - New
+  - Tests await_notification()
+ test/test079.cxx:
+  - New
+  - Tests await_notification(long,long)
+2004-04-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test004.cxx:
+  - Added #include <ctime>, just in case
 2004-04-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/trigger.hxx:
   - Added missing include, thanks slava@perlx.com

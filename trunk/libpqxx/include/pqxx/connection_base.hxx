@@ -145,9 +145,10 @@ public:
 
   /// Check for pending trigger notifications and take appropriate action.
   /** Exceptions thrown by client-registered trigger handlers are reported, but
-   * not passed on outside this function.
+   * not passed on outside this function.  The number of notifications received
+   * is returned.
    */
-  void get_notifs();							//[t4]
+  int get_notifs();							//[t4]
 
   // Miscellaneous query functions (probably not needed very often)
  
@@ -244,6 +245,18 @@ public:
    */
   PGSTD::string get_variable(const PGSTD::string &);			//[t60]
 
+  /// Wait for a trigger notification notification to come in
+  /** The wait may also be terminated by other events, such as the connection
+   * to the backend failing.  The number of notifications received is returned.
+   */
+  int await_notification();						//[t78]
+
+  /// Wait for a trigger notification to come in, or for given timeout to pass
+  /** The wait may also be terminated by other events, such as the connection
+   * to the backend failing.  The number of notifications received is returned.
+   */
+  int await_notification(long seconds, long microseconds);		//[t79]
+
 #ifdef PQXX_DEPRECATED_HEADERS
   /// @deprecated Use disconnect() instead
   void Disconnect() throw () { disconnect(); }
@@ -309,6 +322,7 @@ protected:
   void set_conn(PGconn *C) throw () { m_Conn = C; }
 
   void wait_read() const;
+  void wait_read(long seconds, long microseconds) const;
   void wait_write() const;
 
 private:
