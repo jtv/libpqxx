@@ -1,5 +1,6 @@
 2.1.0
  - Asynchronous connections
+ - Fixed configure --includedir option (thanks Ray Dassen!)
  - Compile fixes for SUN Workshop 6, and one for gcc on FreeBSD 4.8
 2.0.0
  - New stable release!
