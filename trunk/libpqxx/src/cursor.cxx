@@ -113,7 +113,9 @@ pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
   if (Actual < 0) 
     throw logic_error("libpqxx internal error: Negative rowcount");
   if (Actual > abs(Intended))
-    throw logic_error("libpqxx internal error: Moved/fetched too many rows");
+    throw logic_error("libpqxx internal error: Moved/fetched too many rows "
+	              "(wanted " + ToString(Intended) + ", "
+		      "got " + ToString(Actual) + ")");
 
   size_type Offset = Actual;
 

@@ -1,4 +1,9 @@
-2003-01-07 02:30, v1.3.2;
+2003-01-19 16:00, v1.3.4:
+ - support long double type
+ - clarified some error messages
+2003-01-08 18:45, v1.3.3:
+ - fix missing include in test13
+2003-01-07 02:30, v1.3.2:
  - configure looks for postgres includes/library in more places, thanks Ray!
 2003-01-02 23:00, v1.3.1:
  - bugfix in Cursor positioning

@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     }
     catch (const exception &e)
     {
-      cerr << "Couldn't drop table: " << e.what() << endl;
+      cerr << "(Expected) Couldn't drop table: " << e.what() << endl;
     }
 
     // Now begin new transaction to create new table & write data
