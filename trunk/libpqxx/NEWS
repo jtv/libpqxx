@@ -1,7 +1,8 @@
 2.2.3
- - Triggers names no longer need to be proper identifiers
+ - Trigger names no longer need to be proper identifiers
  - Compile fixes for g++ 3.4.0 and other modern compilers
  - Tablestreams may specify column lists
+ - Deprecated Quote() in favour of sqlesc(); improved quoting
  - Fixed generation of libpqxx.spec
 2.2.2
  - Bugfix in fieldstream w.r.t. reading strings on some systems

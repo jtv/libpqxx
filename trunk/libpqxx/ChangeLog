@@ -1,3 +1,26 @@
+2004-05-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/tablewriter.hxx:
+  - Complete test coverage
+ include/pqxx/util.hxx, src/robusttransaction.cxx, src/util.cxx, test/test018.cxx,
+ test/test045.cxx:
+  - Added sqlesc() functions
+  - Deprecated Quote() functions
+ src/connection_base.cxx:
+  - Removed unnecessary PGSTD:: scope qualifiers
+  - Added some missing quotes in LISTEN/UNLISTEN statements
+ src/connection.cxx, src/largeobject.cxx:
+  - Removed unnecessary PGSTD:: scope qualifiers
+ src/util.cxx:
+  - When escaping, check for isprint rather than isgraph
+  - Escape single quote to double single quote, as per SQL
+ test/test000.cxx:
+  - New
+  - Should succeed even if there is no database to connect to
+ test/test009.cxx:
+  - Renamed test table to have standard "pqxx" prefix
+  - Test tablewriter's column specifiers
+ test/test004.cxx, test/test078.cxx:
+  - Properly quoted trigger names
 2004-05-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Should generate libpqxx.spec now, thanks Arjen Baart
