@@ -1,3 +1,7 @@
+2003-01-07 02:30, v1.3.2;
+ - configure looks for postgres includes/library in more places, thanks Ray!
+2003-01-02 23:00, v1.3.1:
+ - bugfix in Cursor positioning
 2003-01-02 20:30, v1.3.0:
  - absolute positioning for Cursor
  - better documentation on cursors
