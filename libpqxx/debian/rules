@@ -91,6 +91,8 @@ clean:
 		fi; \
 	done
 
+	-find doc/html/Reference -type f -name '*.html' | xargs rm -f
+
 	dh_clean
 
 maintainer-clean:
