@@ -460,10 +460,6 @@ template<int LEN> inline PGSTD::string Quote(const char (&Obj)[LEN],
 }
 
 
-/** Generic version: generate SQL-quoted version of object.  If EmptyIsNull is
- * set, an empty string will generate the null value rather than an empty 
- * string.
- */
 template<typename T> inline PGSTD::string Quote(const T &Obj, bool EmptyIsNull)
 {
   return Quote(ToString(Obj), EmptyIsNull);
