@@ -329,13 +329,13 @@ void Pg::Connection::Reset(const char OnReconnect[])
 }
 
 
-void Pg::Connection::RegisterTransaction(const Transaction *T)
+void Pg::Connection::RegisterTransaction(const TransactionItf *T)
 {
   m_Trans.Register(T);
 }
 
 
-void Pg::Connection::UnregisterTransaction(const Transaction *T) throw ()
+void Pg::Connection::UnregisterTransaction(const TransactionItf *T) throw ()
 {
   try
   {

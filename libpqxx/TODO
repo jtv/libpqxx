@@ -1,6 +1,6 @@
 Error handling
 (*) Check for unexpectedly open/closed transactions (appears to be possible)
-(*) Deal with in-doubt transactions
+(*) Deal with in-doubt transactions (manual transaction tracking :-( )
 
 General
 (*) Decent build instructions

@@ -1,3 +1,7 @@
+2002-03-03 17:00
+ Transactor:
+  - Made Transaction class selectable, so can add more transaction types later
+  - Added OnDoubt()
 2002-03-03 16:15
  Connection:
   - In-doubt transactions are no longer retried

@@ -93,6 +93,11 @@ public:
   {
     cerr << "Transactor " << Name() << " succeeded." << endl;
   }
+
+  void OnDoubt() throw ()
+  {
+    cerr << "Transactor " << Name() << " in indeterminate state!" << endl;
+  }
 };
 
 

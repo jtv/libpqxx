@@ -39,6 +39,7 @@
 // }
 
 #include "pg_connection.h"
+#include "pg_transactionitf.h"
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */
@@ -48,15 +49,6 @@
 
 namespace Pg
 {
-class Connection; 	// See pg_connection.h
-class Result; 		// See pg_result.h
-class TableStream;	// See pg_tablestream.h
-
-template<> inline PGSTD::string Classname(const TableStream *)
-{
-  return "Stream";
-}
-
 
 
 // Use a Transaction object to enclose operations on a database in a single
@@ -82,91 +74,21 @@ template<> inline PGSTD::string Classname(const TableStream *)
 // ways to break it up into smaller ones.  There's no easy, general way to do
 // this since application-specific considerations become important at this 
 // point.
-class Transaction
+class Transaction : public TransactionItf
 {
 public:
   // Create a transaction.  The optional name, if given, must begin with a
   // letter and may contain letters and digits only.
   explicit Transaction(Connection &, 
 		       PGSTD::string Name=PGSTD::string());		//[t1]
-  ~Transaction();							//[t1]
 
-  void Commit();							//[t1]
-  void Abort();								//[t10]
-
-  // Execute query directly
-  Result Exec(const char[]);						//[t1]
-  void ProcessNotice(const char Msg[]) { m_Conn.ProcessNotice(Msg); }	//[t1]
-  void ProcessNotice(PGSTD::string Msg) { m_Conn.ProcessNotice(Msg); }	//[t1]
-
-  PGSTD::string Name() const { return m_Name; }				//[t1]
+  virtual ~Transaction();
 
 private:
-  /* A Transaction goes through the following stages in its lifecycle:
-   *  - nascent: the transaction hasn't actually begun yet.  If our connection 
-   *    fails at this stage, the Connection may recover and the Transaction can 
-   *    attempt to establish itself again.
-   *  - active: the transaction has begun.  Since no commit command has been 
-   *    issued, abortion is implicit if the connection fails now.
-   *  - aborted: an abort has been issued; the transaction is terminated and 
-   *    its changes to the database rolled back.  It will accept no further 
-   *    commands.
-   *  - committed: the transaction has completed successfully, meaning that a 
-   *    commit has been issued.  No further commands are accepted.
-   *  - in_doubt: the connection was lost at the exact wrong time, and there is
-   *    no way of telling whether the transaction was committed or aborted.
-   */
-  enum Status 
-  { 
-    st_nascent, 
-    st_active, 
-    st_aborted, 
-    st_committed,
-    st_in_doubt
-  };
-
-  void Begin();
-
-  friend class Cursor;
-  int GetUniqueCursorNum() { return m_UniqueCursorNum++; }
-  void MakeEmpty(Result &R) const { m_Conn.MakeEmpty(R); }
-
-  friend class TableStream;
-  void RegisterStream(const TableStream *);
-  void UnregisterStream(const TableStream *) throw ();
-  void EndCopy() { m_Conn.EndCopy(); }
-  friend class TableReader;
-  void BeginCopyRead(PGSTD::string Table) { m_Conn.BeginCopyRead(Table); }
-  bool ReadCopyLine(PGSTD::string &L) { return m_Conn.ReadCopyLine(L); }
-  friend class TableWriter;
-  void BeginCopyWrite(PGSTD::string Table) {return m_Conn.BeginCopyWrite(Table);}
-  void WriteCopyLine(PGSTD::string L) { m_Conn.WriteCopyLine(L); }
-
-  Connection &m_Conn;
-
-  Status m_Status;
-  PGSTD::string m_Name;
-  int m_UniqueCursorNum;
-  Unique<TableStream> m_Stream;
-
-  // Not allowed:
-  Transaction();
-  Transaction(const Transaction &);
-  Transaction &operator=(const Transaction &);
-};
-
-
-// An exception that might be thrown in rare cases where the connection to the
-// database is lost while finishing a database transaction, and there's no way
-// of telling whether it was actually executed by the backend.  In this case
-// the database is left in an indeterminate (but consistent) state, and only
-// manual inspection will tell which is the case.
-// TODO: Get guarantee that libpq will not let this happen, or deal with it
-class in_doubt_error : public PGSTD::runtime_error
-{
-public:
-  explicit in_doubt_error(const PGSTD::string &whatarg) : 
-    PGSTD::runtime_error(whatarg) {}
+  virtual void DoBegin();
+  virtual Result DoExec(const char[]);
+  virtual void DoCommit();
+  virtual void DoAbort();
 };
 
 }
