@@ -49,6 +49,8 @@ public:
   virtual ~RobustTransaction();
 
 private:
+  unsigned long m_ID;
+
   virtual void DoBegin();
   virtual Result DoExec(const char[]);
   virtual void DoCommit();
