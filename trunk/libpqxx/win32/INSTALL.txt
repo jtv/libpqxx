@@ -1,25 +1,43 @@
 
 Welcome to libpqxx, a C++ API to the PostgreSQL database management system.
 Please see the regular README for general instructions on building, installing,
-and using the library.
+and using the library.  If you are using Cygwin or another Unix-like environment
+please try the Unix configuration & build procedure instead of the one described
+here.  Things are a bit more complicated for Windows systems.
 
-To get started quickly on a Windows system with MSVC7 use the command line.
-1) Run VCVARS32.BAT to set the environment.
+To get started quickly on a Windows system, use the command line.
+1) If you're using Visual C++, run VCVARS32.BAT to prepare the environment.
 2) Edit win32/common to reflect the correct paths to your PostgreSQL includes
    and library files.
-3) Edit include/pqxx/config.h and include/pqxx/libconfig.h to fit your
-   compilation environment, or if you have Cygwin (or another Unix-like set of
-   tools), just run the "configure" script found in the main directory.
-4) Modify the libpqxx.mak if necessary.  See "Changing the makefile" below.
-5) Now "nmake /f libpqxx.mak ALL" will compile all dynamic, static, debug and 
+3) Create the configuration headers by copying include/pqxx/internalconfig.h.in
+   to include/pqxx/internalconfig.h.  The same goes for libconfig.h.in found in
+   the same directory.  This is not necessary if you have Cygwin or some other
+   Unix-like environment, in which case running the configure script should
+   suffice.  Be sure to tell the script which compiler you're using though, by
+   setting the environment variables CC and CXX to the name of the command line
+   compiler executable (it's "cl.exe" for Visual C++).  VCVARS32.BAT should
+   probably do this for you.
+4) Edit include/pqxx/internalconfig.h and include/pqxx/libconfig.h to fit your
+   compilation environment.  This may take several rounds of guessing and
+   retrying.  Again, consider using the configure script if at all possible.
+5) Modify the libpqxx.mak if necessary.  See "Changing the makefile" below.
+6) Now "nmake /f libpqxx.mak ALL" will compile all dynamic, static, debug and 
    release libraries. You will find them in the win32\lib directory.
    
-To create the test files
-5) "nmake /f test.mak ALL" will compile and link all the test files. It is
+After that, it is recommended that you compile and run the self-test programs
+included in the package:
+7) "nmake /f test.mak ALL" will compile and link all the test files. It is
    currently set to use the dll version of libpqxx.
-   
+8) Make sure a PostgreSQL database is running and accessible; set up the
+   environment as described in README so that the test programs can access the
+   database without passing a connection string.
+9) Run each of the test programs in order.  Some of them will generate lots of
+   output, some won't produce any.  Error messages that are expected in the
+   course of a normal test run are prefixed with "(Expected)" to show that they
+   are not harmful.  All tests should complete successfully.
  
---- Changing the makefile
+Changing the makefile
+
 There are 2 items in the makefile that may need to be changed, all have at
 least a little bit of documentation.  All these changes take place in the
 file "common" so you shouldn't get any oddities when compiling the test
@@ -32,5 +50,30 @@ where the src directory of postgres is located.  It can handle it from there.
 
 LIBPATH
 This is where the release version of libpq is located.  Refer to the postgres
-documentation on building this file.
+documentation on building this file if you don't have one.
+
+
+Troubleshooting
+
+Windows/VC++ users typically run into two kinds of problems: first, the need to
+edit the configuration headers manually; and second, the fact that the Windows
+specific files are not being maintained as actively as the rest of the libpqxx
+package.  The former usually results in compile errors (e.g. for missing header
+files) whereas the latter mostly yields link errors--typically because some new
+object file is not being compiled and linked into the library.
+
+Thus, if you get a compile error, the first places to look are the
+internalconfig.h and libconfig.h files.  If, for instance, the error states that
+the header file <sys/select.h> is missing, you will find a configuration
+variable called PQXX_HAVE_SYS_SELECT_H, which should not be set if your system
+doesn't have sys/select.h.  Remove the #define directives naming this variable
+from both configuration headers and the error should disappear.
+
+The configuration procedure is required to make certain changes to suit your
+compilation environment, including both your compiler and the version of the
+PostgreSQL client API library (libpq) you have installed.  These changes will
+affect not only the library build process, but also to some extent the
+compilation of programs using libpqxx.  Configuration items that affect client
+programs are kept in libconfig.h; internalconfig.h contains settings that affect
+the library but not client programs.
 
