@@ -21,6 +21,13 @@ libpq.
 
 Getting Started
 
+All of this applies only to operating systems that are either part of, or
+closely resemble, or support the standard interfaces of the Unix family.  This 
+includes MacOS X (starting with 10.2, a.k.a. Jaguar) as well as Linux, the
+various BSD systems, etc.  Windows users should skip to the Building on Windows
+section.
+
+
 To get started quickly on a Unix-like system, do:
 
 ./configure	# (plus suitable arguments, to set up the build environment)
@@ -136,6 +143,22 @@ dynamic libpqxx library, or (iii) adding libpqxx's lib/ directory to your
 loader's search path.  This is in decreasing order of preference, so try (i)
 first, and only resort to (iii) if both (i) and (ii) fail.
 
-
 Enjoy!
+
+
+Building on Windows
+
+Project files for Visual C++ are provided.  These are not actively maintained,
+however, so they may need some tweaking.  Also, you'll probably need at least
+version 7 of that compiler, earlier versions being too severely flawed to build
+serious post-1996 C++ code.  The library is also known to build with Intel's 
+compiler running as a Visual C++ plugin, but the details are beyond me.
+
+Instead of going this route, you may want to try if the Unix build procedure
+works for you instead.  If it doesn't, you'll need to manually edit the 
+compile-time configuration file include/pqxx/config.h to define the features
+your system and PostgreSQL versions support.  Normally the configure script 
+would do this for you.
+
+Good luck!
 
