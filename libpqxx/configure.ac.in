@@ -68,6 +68,7 @@ AC_MSG_RESULT(${enable_maintainer_mode})
 if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 	for option in \
 		-ffor-scope \
+		-funit-at-a-time \
 		-pedantic \
 		-Wall \
 		-Wmultichar \
