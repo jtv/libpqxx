@@ -7,7 +7,7 @@
  *      definition of the pqxx::RobustTransaction class.
  *   pqxx::RobustTransaction is a slower but safer transaction class
  *
- * Copyright (c) 2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  *-------------------------------------------------------------------------
  */

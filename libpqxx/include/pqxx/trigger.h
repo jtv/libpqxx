@@ -7,7 +7,7 @@
  *      definition of the pqxx::Trigger functor interface.
  *   pqxx::Trigger describes a database trigger to wait on, and what it does
  *
- * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  *-------------------------------------------------------------------------
  */

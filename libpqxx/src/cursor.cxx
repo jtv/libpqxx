@@ -7,7 +7,7 @@
  *      implementation of the pqxx::Cursor class.
  *   pqxx::Cursor represents a database cursor.
  *
- * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  *-------------------------------------------------------------------------
  */

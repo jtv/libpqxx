@@ -1,5 +1,10 @@
+2003-01-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cachedresult.h, src/cachedresult.cxx:
+  - Make use of Cursor's absolute positioning.  NOT FUNCTIONAL YET.
+ *:
+  - Updated copyright notices
 2002-12-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
- test/test18.cxx, test/test32.cxx, test/test37.cxx, test/test41.cxx
+ test/test18.cxx, test/test32.cxx, test/test37.cxx, test/test41.cxx:
   - Reduced (expected, but still confusing) error output
 2002-12-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cursor.h, src/cursor.cxx:

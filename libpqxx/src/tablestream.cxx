@@ -7,7 +7,7 @@
  *      implementation of the pqxx::TableStream class.
  *   pqxx::TableStream provides optimized batch access to a database table
  *
- * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  *-------------------------------------------------------------------------
  */
