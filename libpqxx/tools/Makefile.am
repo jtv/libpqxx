@@ -5,7 +5,7 @@ EXTRA_DIST = \
 	preprelease \
 	rmlo.cxx
 
-INCLUDES=-I$(top_srcdir)/include ${POSTGRES_INCLUDE}
+INCLUDES=-I$(top_builddir)/include -I$(top_srcdir)/include ${POSTGRES_INCLUDE}
 
 noinst_PROGRAMS = pqxxbench rmlo
 
