@@ -1,3 +1,10 @@
+2004-10-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Fixed "cut" problem.  Again
+ include/pqxx/binarystring.hxx, include/pqxx/result.hxx:
+  - Gave begin(), end(), size() and capacity() empty throw specifications
+  - Defined const_reference
+  - Implemented front(), back(), and swap()
 2004-10-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/Makefile.am:
   - Don't install compiler.h--thanks Roger Leigh
