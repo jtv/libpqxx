@@ -53,7 +53,7 @@ public:
   CountEvents(string Table, pair<int,int> &Results) : 
     Transactor("CountEvents"), m_Table(Table), m_Results(Results) {}
 
-  void operator()(TRANSACTIONTYPE &T)
+  void operator()(argument_type &T)
   {
     const string CountQuery = "SELECT count(*) FROM " + m_Table;
     Result R;
@@ -78,7 +78,7 @@ public:
   {
   }
 
-  void operator()(TRANSACTIONTYPE &T)
+  void operator()(argument_type &T)
   {
     T.Exec(("INSERT INTO " + m_Table + " VALUES (" +
 	    ToString(BoringYear) + ", "

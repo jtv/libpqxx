@@ -66,6 +66,7 @@ int main(int argc, char *argv[])
         {    "1", "'911' WTC attack" },
         {   "81", "C:\\>" },
         { "1978", "bloody\tcold" },
+	{   "99", "" },
         {0,0}
       };
 

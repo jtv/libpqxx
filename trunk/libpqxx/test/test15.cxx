@@ -36,11 +36,11 @@ class ReadTables : public Transactor
 {
   Result m_Result;
 public:
-  typedef NonTransaction TRANSACTIONTYPE;
+  typedef NonTransaction argument_type;
 
   ReadTables() : Transactor("ReadTables") {}
 
-  void operator()(TRANSACTIONTYPE &T)
+  void operator()(argument_type &T)
   {
     m_Result = T.Exec("SELECT * FROM pg_tables");
   }
