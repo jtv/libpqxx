@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 0.4.2, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 0.4.4, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 0.4.2)
+AM_INIT_AUTOMAKE(libpqxx, 0.4.4)
 AC_CONFIG_SRCDIR([src/connection.cxx])
 AM_CONFIG_HEADER(include/pqxx/config.h)
 
@@ -183,15 +183,27 @@ AC_LANG_PUSH(C++)
 AC_CHECK_HEADERS([limits iterator])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_MSG_CHECKING(whether <iterator> defines an iterator template)
+AC_MSG_CHECKING(whether <iterator> defines a usable iterator template)
 AC_TRY_COMPILE([#include <iterator>], 
-	[struct I:std::iterator<std::random_access_iterator_tag,int>{};],
+	[struct I:std::iterator<std::random_access_iterator_tag,int>{}],
 	[it='yes'],
 	[AC_DEFINE(BROKEN_ITERATOR, 
 			1, 
 			[Define if <iterator> lacks an iterator template definition])
       	 it='no'])
 AC_MSG_RESULT($it)
+
+# Checks whether standard C++ library provides multimap container template
+AC_MSG_CHECKING(whether STL has multimap)
+AC_TRY_COMPILE([#include <multimap>],
+	[std::multimap<int,int> M],
+	[AC_DEFINE(HAVE_MULTIMAP,
+			1,
+			[Define if std::multimap is available])
+		multimap='yes'],
+	[multimap='no'])
+AC_MSG_RESULT($multimap)
+
 AC_LANG_POP(C++)
 
 AC_C_CONST

@@ -1,3 +1,13 @@
+2002-06-03 00:45  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Added check for std::multimap
+ include/pqxx/connection.h:
+  - Use std::multimap for triggers, if available
+2002-06-02 23:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result.h:
+  - Made design decision on ColumnNumber() (not checked, return -1 on failure)
+ include/pqxx/tablereader.h:
+  - Now also handles \t and \n coming from backend
 2002-06-01 20:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac:
   - Now checks for PostgreSQL libpq header in /usr/include/postgresql/

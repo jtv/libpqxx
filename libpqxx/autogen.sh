@@ -6,3 +6,6 @@ autoheader
 libtoolize --automake
 automake --add-missing --copy
 autoconf
+
+./configure --enable-maintainer-mode
+
