@@ -1,3 +1,20 @@
+2005-03-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Fixed Oid type check, thanks Manuel Fernandez Montecelo.
+2005-03-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
+ src/connection_base.cxx:
+  - Moved prepared statements execution from connection to transaction
+ include/pqxx/result.hxx:
+  - Documented some const_reverse_iterator assignments as tested
+  - Full test coverage on result.hxx
+ include/pqxx/util.hxx, test/test000.cxx:
+  - Test most flexible version of separated_list<>()
+  - Full test coverage on util.hxx
+ test/test085.cxx:
+  - New
+  - Tests prepared statements
+  - Full test coverage on prepared statements
 2005-03-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/binarystring.cxx:
   - Fixed wrong bitshift for octal digit: 6, not 9--thanks thomasae@online.no

@@ -1,24 +1,23 @@
 All Over
 (*) Ensure table/column/cursor/... names are always quoted
-(*) See if libpq headers can be removed from libpqxx headers
 
 Build & Configuration
 (*) Add -lwsock32 to tools/Makefile.am if needed (MingW!)
 (*) Rename libcompiler.h/compiler.h to reduce confusion
 (*) Remove ../include/pqxx from libtool include path somehow
+(*) Why are the test programs linked with "-lpq -lpq -lpq"!?
 
 Connections
 (*) Use PQserverVersion(), if available, to determine backend version
+(*) Probe, and cache, backend feature set if needed
+(*) Work around pre-7.3 handling of transaction variables?
 (*) Make PQprotocolVersion() and/or PQserverVersion() available to public?
-(*) Clean up connection state model
-(*) Factor out connection policy classes
+(*) Clean up connection state model; factor out connection policy classes
 (*) Use PQtransactionStatus to detect auto-aborted transactions?
 (*) More helpful broken_connection exception hierarchy
 (*) Connection pooling support
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
 (*) libpqxx-level trace output
-(*) Probe, and cache, backend feature set if needed
-(*) Speed up connection state restoration by concatenating queries (pipeline?)
 
 Cursors
 (*) Older backends don't have NO SCROLL etc.!
@@ -55,16 +54,18 @@ Streams
 (*) Streambuffer class?
 
 Tests
-(*) Test NaN support!
+(*) Test with multiple backend versions
 (*) Test tablereader and rows ending in empty fields
 
 Transactions
 (*) [pgsql 8.0] Create log table "WITH OIDS" if appropriate
 (*) [pgsql 8.0] Support two-phase commit with separate transaction class(es)
 (*) [pgsql 8.0] Support nested transactions and savepoints
+(*) Undefine nontransaction "transaction" variables?
 (*) User schema support for robusttransaction log table
 (*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
 (*) Support constraints definition
 
 Util
-(*) Only report closing of non-open sessionfocus during explicit close, not dtor
+(*) Report closing of non-open sessionfocus only during explicit close, not dtor
+
