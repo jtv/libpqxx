@@ -1,3 +1,8 @@
+2002-02-02 18:45
+ Docs:
+  - More on exceptions, more on executing queries.
+ Makefile:
+  - Now builds an actual (but static) library
 2002-01-26 21:15
  CVS:
   - Imported into CVS
