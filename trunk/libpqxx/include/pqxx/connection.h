@@ -164,7 +164,7 @@ private:
 
   friend class Trigger;
   void AddTrigger(Trigger *);
-  void RemoveTrigger(const Trigger *) throw ();
+  void RemoveTrigger(Trigger *) throw ();
 
   // Not allowed:
   Connection(const Connection &);
@@ -201,7 +201,7 @@ inline void Connection::Perform(const TRANSACTOR &T,
     TRANSACTOR T2(T);
     try
     {
-      typename TRANSACTOR::TRANSACTIONTYPE X(*this, T2.Name());
+      typename TRANSACTOR::argument_type X(*this, T2.Name());
       T2(X);
       X.Commit();
       Done = true;

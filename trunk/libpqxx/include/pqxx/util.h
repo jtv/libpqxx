@@ -100,14 +100,14 @@ template<> inline PGSTD::string Quote(const PGSTD::string &Obj,
     if (EmptyIsNull && Obj.empty())
         return "null";
 
-    PGSTD::string Result = "'" + Obj + "'";
+    PGSTD::string Result = "'" + Obj;
+    const char Special[] = "'\\";
+    for (PGSTD::string::size_type i = Result.find_last_of(Special);
+	 i > 0;
+	 i = Result.find_last_of(Special, i))
+      Result.insert(i, 1, Result[i]);
 
-    for (PGSTD::string::size_type i = Result.size()-2; i > 0; --i)
-        if ((Result[i] == '\'') ||
-	    (Result[i] == '\\'))
-	    Result.insert(i, 1, Result[i]);
-
-    return Result;
+    return Result + "'";
 }
 
 

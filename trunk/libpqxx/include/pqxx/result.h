@@ -50,6 +50,8 @@ public:
   typedef Result_size_type size_type;
   class Field;
 
+  // TODO: Field iterators
+ 
   /** A Tuple is really a reference to one entry in a Result.  It also acts as 
    * a container mapping column numbers or names to Field values (see below):
    *
@@ -57,7 +59,6 @@ public:
    *
    * The fields in a Tuple can not currently be iterated over.
    */
-  // TODO: Field iterators
   class Tuple
   {
   public:
@@ -96,7 +97,7 @@ public:
     const char *c_str() const {return m_Home->GetValue(m_Index,m_Col);}	//[t2]
 
     /// Column name
-    inline const char *name() const;					//[t11]
+    inline const char *Name() const;					//[t11]
 
     /// Read value into Obj; or leave Obj untouched & return false if null
     template<typename T> bool to(T &Obj) const				//[t1]
@@ -111,7 +112,7 @@ public:
       catch (const PGSTD::exception &e)
       {
 	throw PGSTD::runtime_error("Error reading field " + 
-			         PGSTD::string(name()) +
+			         PGSTD::string(Name()) +
 				 ": " +
 				 e.what());
       }
@@ -270,7 +271,7 @@ inline Result::Tuple::size_type Result::Tuple::size() const
   return m_Home->Columns(); 
 }
 
-inline const char *Result::Field::name() const 
+inline const char *Result::Field::Name() const 
 { 
   return m_Home->ColumnName(m_Col); 
 }
