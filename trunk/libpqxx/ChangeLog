@@ -1,6 +1,8 @@
 2002-05-27 22:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Makefile.am:
   - Removed autom4te.cache from MAINTAINERCLEANFILES (won't work for dirs)
+ doc/libpqxx.sgml, include/pqxx/result.h, test/test11.cxx:
+  - Renamed Result::Field::name() to Name()
  include/pqxx/connection.h:
   - Renamed Transactor::TRANSACTIONTYPE to argument_type
   - Made RemoveTrigger take non-const argument
