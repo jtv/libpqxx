@@ -70,6 +70,10 @@ protected:
   bool is_finished() const throw () { return m_Finished; }
   void base_close();
 
+  /// Construct a comma-separated column list from given sequence
+  template<typename ITER>
+  static PGSTD::string columnlist(ITER colbegin, ITER colend);
+
 private:
   PGSTD::string m_Null;
   bool m_Finished;
@@ -80,5 +84,20 @@ private:
   tablestream &operator=(const tablestream &);
 };
 
+
+template<typename ITER> inline
+PGSTD::string tablestream::columnlist(ITER colbegin, ITER colend)
+{
+  PGSTD::string columns;
+  if (colbegin != colend)
+  {
+    for (columns=*colbegin++; colbegin != colend; ++colbegin)
+    {
+      columns += ',';
+      columns += to_string(*colbegin);
+    }
+  }
+  return columns;
+}
 } // namespace pqxx
 

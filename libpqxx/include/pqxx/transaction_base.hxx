@@ -50,7 +50,8 @@ public:
       const PGSTD::string &Name,
       const PGSTD::string &Classname) :
     namedclass(Name, Classname),
-    m_Trans(t)
+    m_Trans(t),
+    m_registered(false)
   {
   }
 
@@ -58,10 +59,13 @@ protected:
   void register_me();
   void unregister_me() throw ();
   void reg_pending_error(const PGSTD::string &) throw ();
+  bool registered() const throw () { return m_registered; }
 
   transaction_base &m_Trans;
 
 private:
+  bool m_registered;
+
   /// Not allowed
   transactionfocus();
   /// Not allowed
@@ -264,10 +268,11 @@ private:
   void UnregisterFocus(internal::transactionfocus *) throw ();
   void RegisterPendingError(const PGSTD::string &) throw ();
   friend class tablereader;
-  void BeginCopyRead(const PGSTD::string &Table);
+  void BeginCopyRead(const PGSTD::string &Table, const PGSTD::string &Columns);
   bool ReadCopyLine(PGSTD::string &L) { return m_Conn.ReadCopyLine(L); }
   friend class tablewriter;
-  void BeginCopyWrite(const PGSTD::string &Table);
+  void BeginCopyWrite(const PGSTD::string &Table, 
+      	const PGSTD::string &Columns = PGSTD::string());
   bool WriteCopyLine(const PGSTD::string &L, bool async=false) 
   	{ return m_Conn.WriteCopyLine(L, async); }
   void EndCopyWrite() throw () { m_Conn.EndCopyWrite(); }

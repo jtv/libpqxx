@@ -29,11 +29,17 @@ pqxx::tablereader::tablereader(transaction_base &T,
   tablestream(T, RName, Null, "tablereader"),
   m_Done(true)
 {
-  T.BeginCopyRead(RName);
+  setup(T, RName);
+}
+
+void pqxx::tablereader::setup(transaction_base &T,
+    const string &RName,
+    const string &Columns)
+{
+  T.BeginCopyRead(RName, Columns);
   register_me();
   m_Done = false;
 }
-
 
 pqxx::tablereader::~tablereader() throw ()
 {
