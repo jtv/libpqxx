@@ -1,3 +1,5 @@
+2.2.2
+ - Bugfix in fieldstream w.r.t. reading strings on some systems
 2.2.1
  - New, 2.x-style string conversions without locale problem
  - Documentation improvements
