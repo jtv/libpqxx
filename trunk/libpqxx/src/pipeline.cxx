@@ -258,7 +258,7 @@ void pqxx::pipeline::obtain_dummy()
   internal::pq::PGresult *const r = m_Trans.get_result();
   m_dummy_pending = false;
 
-  if (!r) 
+  if (!r)
     internal_error("libpqxx internal error: "
 	  "pipeline got no result from backend when it expected one");
 
@@ -266,7 +266,7 @@ void pqxx::pipeline::obtain_dummy()
   bool OK = false;
   try
   {
-    R.CheckStatus("");
+    R.CheckStatus("[DUMMY PIPELINE QUERY]");
     OK = true;
   }
   catch (const sql_error &)
@@ -316,7 +316,7 @@ void pqxx::pipeline::obtain_dummy()
   unregister_me();
   try
   {
-    do 
+    do
     {
       m_num_waiting--;
       const string &query = m_issuedrange.first->second.get_query();
@@ -356,7 +356,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 	"due to error in earlier query");
 
   // If query hasn't issued yet, do it now
-  if (m_issuedrange.second != m_queries.end() && 
+  if (m_issuedrange.second != m_queries.end() &&
       (q->first >= m_issuedrange.second->first))
   {
     pqxxassert(distance(m_issuedrange.second, q) >= 0);
