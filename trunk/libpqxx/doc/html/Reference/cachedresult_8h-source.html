@@ -15,7 +15,7 @@
 00007 <span class="comment"> *      definitions for the pqxx::CachedResult class and support classes.</span>
 00008 <span class="comment"> *   pqxx::CachedResult is a lazy-fetching, transparently-cached result set</span>
 00009 <span class="comment"> *</span>
-00010 <span class="comment"> * Copyright (c) 2001-2002, Jeroen T. Vermeulen &lt;jtv@xs4all.nl&gt;</span>
+00010 <span class="comment"> * Copyright (c) 2001-2003, Jeroen T. Vermeulen &lt;jtv@xs4all.nl&gt;</span>
 00011 <span class="comment"> *</span>
 00012 <span class="comment"> *-------------------------------------------------------------------------</span>
 00013 <span class="comment"> */</span>
@@ -60,92 +60,81 @@
 00073     <span class="keywordflow">return</span> GetBlock(BlockFor(i)).<a class="code" href="classpqxx_1_1Result_1_1Tuple.html#a5">at</a>(Offset(i));
 00074   }
 00075 
-00077 
-<a name="l00082"></a><a class="code" href="classpqxx_1_1CachedResult.html#a3">00082</a>   size_type size()<span class="keyword"> const</span>
-00083 <span class="keyword">  </span>{
-00084     <span class="keywordflow">if</span> (m_Size == -1) DetermineSize();
-00085     <span class="keywordflow">return</span> m_Size;
-00086   }
-00087 
-00088   
-<a name="l00090"></a><a class="code" href="classpqxx_1_1CachedResult.html#a4">00090</a>   <span class="keywordtype">bool</span> empty()<span class="keyword"> const</span>
-00091 <span class="keyword">  </span>{
-00092     <span class="keywordflow">return</span> (m_Size == 0) || (m_Cache.empty() &amp;&amp; GetBlock(0).empty());
-00093   }
-00094 
-00096   <span class="keywordtype">void</span> clear();
+00077   size_type size() <span class="keyword">const</span>;
+00078   
+00080   <span class="keywordtype">bool</span> empty() <span class="keyword">const</span>;
+00081 
+00083   <span class="keywordtype">void</span> clear();
+00084 
+<a name="l00086"></a><a class="code" href="classpqxx_1_1CachedResult_1_1const__iterator.html">00086</a>   <span class="keyword">class </span><a class="code" href="classpqxx_1_1CachedResult_1_1const__iterator.html">const_iterator</a>
+00087   {
+00088     <span class="keyword">const</span> CachedResult &amp;m_Home;
+00089     CachedResult::size_type m_Row;
+00090   <span class="keyword">public</span>:
+<a name="l00091"></a><a class="code" href="classpqxx_1_1CachedResult_1_1const__iterator.html#a0">00091</a>     <span class="keyword">explicit</span> <a class="code" href="classpqxx_1_1CachedResult_1_1const__iterator.html">const_iterator</a>(<span class="keyword">const</span> CachedResult &amp;Home) : m_Home(Home), m_Row(0){}
+00092 
+00093   <span class="keyword">private</span>:
+00094     <span class="comment">// Not allowed:</span>
+00095     const_iterator();
+00096   };
 00097 
-<a name="l00099"></a><a class="code" href="classpqxx_1_1CachedResult_1_1const__iterator.html">00099</a>   <span class="keyword">class </span><a class="code" href="classpqxx_1_1CachedResult_1_1const__iterator.html">const_iterator</a>
-00100   {
-00101     <span class="keyword">const</span> CachedResult &amp;m_Home;
-00102     CachedResult::size_type m_Row;
-00103   <span class="keyword">public</span>:
-<a name="l00104"></a><a class="code" href="classpqxx_1_1CachedResult_1_1const__iterator.html#a0">00104</a>     <span class="keyword">explicit</span> <a class="code" href="classpqxx_1_1CachedResult_1_1const__iterator.html">const_iterator</a>(<span class="keyword">const</span> CachedResult &amp;Home) : m_Home(Home), m_Row(0){}
-00105 
-00106   <span class="keyword">private</span>:
-00107     <span class="comment">// Not allowed:</span>
-00108     const_iterator();
-00109   };
+00098 <span class="keyword">private</span>:
+00099 
+00100   <span class="keyword">typedef</span> Cursor::pos pos;
+00101 
+00102   <span class="keyword">class </span>CacheEntry
+00103   {
+00104     <span class="keywordtype">int</span> m_RefCount;
+00105     Result m_Data;
+00106 
+00107   <span class="keyword">public</span>:
+00108     CacheEntry() : m_RefCount(0), m_Data() {}
+00109     <span class="keyword">explicit</span> CacheEntry(<span class="keyword">const</span> Result &amp;R) : m_RefCount(0), m_Data(R) {}
 00110 
-00111 <span class="keyword">private</span>:
-00112 
-00113   <span class="keyword">class </span>CacheEntry
-00114   {
-00115     <span class="keywordtype">int</span> m_RefCount;
-00116     Result m_Data;
-00117 
-00118   <span class="keyword">public</span>:
-00119     CacheEntry() : m_RefCount(0), m_Data() {}
-00120     <span class="keyword">explicit</span> CacheEntry(<span class="keyword">const</span> Result &amp;R) : m_RefCount(0), m_Data(R) {}
-00121 
-00122     <span class="keyword">const</span> Result &amp;Data()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Data; }
-00123     <span class="keywordtype">int</span> RefCount()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_RefCount; }
-00124   };
-00125 
-00126 
-00127   blocknum BlockFor(size_type Row)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> Row / m_Granularity; }
-00128   size_type Offset(size_type Row)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> Row % m_Granularity; }
-00129 
-00130   <span class="keywordtype">void</span> MoveTo(blocknum) <span class="keyword">const</span>;
-00131 
-00133   Result Fetch() <span class="keyword">const</span>;
-00134 
-00135   Result GetBlock(blocknum b)<span class="keyword"> const</span>
-00136 <span class="keyword">  </span>{
-00137     CacheMap::const_iterator i = m_Cache.find(b);
-00138     <span class="keywordflow">if</span> (i != m_Cache.end()) <span class="keywordflow">return</span> i-&gt;second.Data();
+00111     <span class="keyword">const</span> Result &amp;Data()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Data; }
+00112     <span class="keywordtype">int</span> RefCount()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_RefCount; }
+00113   };
+00114 
+00115 
+00116   blocknum BlockFor(size_type Row) <span class="keyword">const</span> <span class="keywordflow">throw</span> () 
+00117         { <span class="keywordflow">return</span> Row / m_Granularity; }
+00118   size_type Offset(size_type Row) <span class="keyword">const</span> <span class="keywordflow">throw</span> ()
+00119         { <span class="keywordflow">return</span> Row % m_Granularity; }
+00120   Cursor::size_type FirstRowOf(blocknum Block) <span class="keyword">const</span> <span class="keywordflow">throw</span> ()
+00121         { <span class="keywordflow">return</span> Block*m_Granularity; }
+00122 
+00123   <span class="keywordtype">void</span> MoveTo(blocknum) <span class="keyword">const</span>;
+00124 
+00126   Result Fetch() <span class="keyword">const</span>;
+00127 
+00128   Result GetBlock(blocknum b)<span class="keyword"> const</span>
+00129 <span class="keyword">  </span>{
+00130     CacheMap::const_iterator i = m_Cache.find(b);
+00131     <span class="keywordflow">if</span> (i != m_Cache.end()) <span class="keywordflow">return</span> i-&gt;second.Data();
+00132 
+00133     MoveTo(b);
+00134     <span class="keywordflow">return</span> Fetch();
+00135   }
+00136 
+00138   size_type m_Granularity;
 00139 
-00140     MoveTo(b);
-00141     <span class="keywordflow">return</span> Fetch();
-00142   }
-00143 
-00149   <span class="keywordtype">void</span> DetermineSize() <span class="keyword">const</span>;
+00140   <span class="keyword">typedef</span> PGSTD::map&lt;blocknum, CacheEntry&gt; CacheMap;
+00141   <span class="keyword">mutable</span> CacheMap m_Cache;
+00142 
+00143   <span class="keyword">mutable</span> Cursor m_Cursor;
+00144 
+00145   <span class="comment">// Not allowed:</span>
+00146   CachedResult();
+00147   CachedResult(<span class="keyword">const</span> CachedResult &amp;);
+00148   CachedResult &amp;operator=(<span class="keyword">const</span> CachedResult &amp;);
+00149 };
 00150 
-00152   size_type m_Granularity;
+00151 
+00152 } <span class="comment">// namespace pqxx</span>
 00153 
-00154   <span class="keyword">typedef</span> PGSTD::map&lt;blocknum, CacheEntry&gt; CacheMap;
-00155   <span class="keyword">mutable</span> CacheMap m_Cache;
-00156 
-00157   <span class="keyword">mutable</span> Cursor m_Cursor;
-00158 
-00160   <span class="keyword">mutable</span> blocknum m_Pos;
-00161 
-00163   <span class="keyword">mutable</span> size_type m_Size;
-00164 
-00170   <span class="keyword">mutable</span> blocknum m_Lower, m_Upper;
-00171 
-00172   <span class="comment">// Not allowed:</span>
-00173   CachedResult();
-00174   CachedResult(<span class="keyword">const</span> CachedResult &amp;);
-00175   CachedResult &amp;operator=(<span class="keyword">const</span> CachedResult &amp;);
-00176 };
-00177 
-00178 
-00179 } <span class="comment">// namespace pqxx</span>
-00180 
-00181 <span class="preprocessor">#endif</span>
-00182 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Sun Dec 29 19:38:56 2002 for libpqxx by
+00154 <span class="preprocessor">#endif</span>
+00155 <span class="preprocessor"></span>
+</pre></div><hr><address style="align: right;"><small>Generated on Thu Jan 2 20:15:21 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc2 </small></address>

@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         // Keep the first row for later consistency check
         if (n == 0) First = R;
 
-        cout << n << ": ";
+        cout << n << ":\t";
         for (vector<string>::const_iterator i = R.begin(); i != R.end(); ++i)
           cout << *i << '\t';
         cout << endl;

@@ -24,8 +24,7 @@ pqxx::CachedResult::CachedResult(pqxx::TransactionItf &Trans,
 				 size_type Granularity) :
   m_Granularity(Granularity),
   m_Cache(),
-  m_Cursor(Trans, Query, BaseName, Granularity),
-  m_Size(size_unknown)
+  m_Cursor(Trans, Query, BaseName, Granularity)
 {
   // We can't accept granularity of 1 here, because some block number 
   // arithmetic might overflow.
@@ -33,6 +32,25 @@ pqxx::CachedResult::CachedResult(pqxx::TransactionItf &Trans,
     throw out_of_range("Invalid CachedResult granularity");
 }
 
+
+pqxx::CachedResult::size_type pqxx::CachedResult::size() const
+{
+  if (m_Cursor.size() == Cursor::pos_unknown)
+  {
+    m_Cursor.Move(Cursor::BACKWARD_ALL());
+    m_Cursor.Move(Cursor::ALL());
+  }
+  return m_Cursor.size();
+}
+
+
+bool pqxx::CachedResult::empty() const
+{
+  return (m_Cursor.size() == 0) ||
+         ((m_Cursor.size() == Cursor::pos_unknown) &&
+	  m_Cache.empty() &&
+	  GetBlock(0).empty());
+}
 
 void pqxx::CachedResult::clear()
 {
@@ -45,7 +63,10 @@ void pqxx::CachedResult::MoveTo(blocknum Block) const
   if (Block < 0)
     throw out_of_range("Negative result set index");
 
-  m_Cursor.MoveTo(FirstRowOf(Block));
+  const Cursor::size_type BlockStart = FirstRowOf(Block);
+  m_Cursor.MoveTo(BlockStart);
+  if (m_Cursor.Pos() != BlockStart)
+    throw out_of_range("Tuple number out of range");
 }
 
 
@@ -56,19 +77,7 @@ pqxx::Result pqxx::CachedResult::Fetch() const
 
   if (m_Cursor >> R) m_Cache.insert(make_pair(BlockFor(Pos), CacheEntry(R)));
 
-  if ((m_Size == size_unknown) && (R.size() < m_Granularity))
-  {
-    // This is the last block.  While we're here, record result set size.
-    m_Size = m_Cursor.Pos();
-  }
-
   return R;
 }
 
-
-void pqxx::CachedResult::DetermineSize() const
-{
-  m_Cursor.Move(Cursor::ALL());
-  m_Size = -m_Cursor.Move(Cursor::BACKWARD_ALL()) - 1;
-}
 
