@@ -26,7 +26,8 @@ Cursors
 (*) In PostgreSQL 7.4, MOVE and FETCH are much improved (PQcmdTuples()!)
 
 Documentation
-(*) Separate out troubleshooting sections (parallel to build steps?)
+(*) Separate out README troubleshooting sections (parallel to build steps?)
+(*) Reduce duplication in reference docs using Doxygen member grouping
 
 Exceptions
 (*) Strip newlines from PostgreSQL error messages in exceptions?
