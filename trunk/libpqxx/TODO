@@ -15,27 +15,33 @@ Cursors
 (*) Investigate WITH HOLD feature (nontransaction cursors)
 (*) From 7.4, MOVE and FETCH are much improved (PQcmdTuples()!)
 
+Exceptions
+(*) Strip newlines from PostgreSQL error messages in exceptions?
+(*) Document exception guarantees (weak / strong / poorly defined / pure)
+(*) Harden pipeline
+
 Large Objects
 (*) Support lo_tell()
+(*) Check for handling of nul characters
 
 Results
-(*) Conceive metadata model
-(*) Allow direct mapping onto structs, using member ptr template args
+(*) Rewrite field conversions to be locale-independent
 (*) Convert to/from date/time values
 (*) Real encoding support (PQmblen(), PQenv2encoding())
+(*) Check for handling of nul characters
 (*) Support PQftablecol()
+(*) Conceive metadata model
+(*) Allow direct mapping onto structs, using member ptr template args
 
 Streams
 (*) Provide metadata information in tablestream
 (*) Support column lists for COPY (create "inserter" class for list)
 (*) Allow single-level insertion with endt/endr manipulators
+(*) Streambuffer class?
 
 Transactions
 (*) German's locking idea for robusttransaction
 (*) User schema support for robusttransaction log table
 (*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
 (*) Support constraints definition
-
-Tests
-(*) Set locale to C
 

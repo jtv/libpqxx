@@ -1,3 +1,28 @@
+2004-02-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/libcompiler.h:
+  - Documented PGSTD
+ include/pqxx/result.hxx:
+  - Added reverse_iterator
+ include/util.hxx:
+  - Documented pqxx::internal so that Doxygen picks it up
+ README-UPGRADE:
+  - Documented 2.2.0 changes
+ src/cachedresult.cxx:
+  - SUN Workshop compiler fix, thanks Jon Meinecke
+2004-01-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, src/connection_base.cxx:
+  - Documented exception guarantees
+  - Added throw () here or there
+  - Made process_notice() throw ()
+  - More work on process_notice() robustness
+2004-01-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, src/connection_base.cxx:
+  - process_notice() can handle messages without the trailing newline
+2004-01-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Added lost patch from Arjen to generate pqxx-config
+ include/pqxx/result.hxx:
+  - Added reverse_iterator support
 2004-01-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Changed default installation prefix to /usr/local, thanks Arjen Baart!

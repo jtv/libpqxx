@@ -284,7 +284,7 @@ template<> inline void
 Cursor::error_permitted_isolation_level(isolation_traits<serializable>) throw ()
 	{}
 
-}
+} // namespace pqxx
 
 #endif
 
