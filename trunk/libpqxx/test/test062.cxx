@@ -23,7 +23,9 @@ int main(int, char *argv[])
 {
   try
   {
-    const string TestStr = "Nasty\n\030Test\n\t String\r\0 With Trailer\\\\\0";
+    const string TestStr =
+      "Nasty\n\030Test\n\t String with \200\277 weird bytes "
+      "\r\0 and Trailer\\\\\0";
 
     connection C(argv[1]);
     work T(C, "test62");
