@@ -1,3 +1,16 @@
+2004-07-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, include/pqxx/connection.hxx:
+  - References to README for connection string documentation
+ README:
+  - Minor changes to connection string documentation
+2004-07-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/pipeline.hxx, src/pipeline.cxx:
+  - Removed debug code inserted while debugging new version
+ src/util.cxx:
+  - from_string() didn't accept LONG_MIN, thanks Yannick Boivin!
+  - Removed assertions
+ test/test000.cxx:
+  - Added test cases for largest and smallest long values
 2004-06-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/nontransaction.cxx, src/robusttransaction.cxx:
   - Removed unsafe query retries

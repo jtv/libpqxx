@@ -360,9 +360,9 @@ under which username, using which password, and so on.  Their format is defined
 in the documentation for libpq, the C client interface for PostgreSQL.
 Alternatively, these values may be defined by setting certain environment 
 variables as documented in e.g. the manual for psql, the command line interface
-to the database.  Again the definitions are the same for libpqxx-based programs.
+to PostgreSQL.  Again the definitions are the same for libpqxx-based programs.
 
-The connection strings and variables are not fully and accurately documented 
+The connection strings and variables are not fully and definitively documented 
 here; this document will tell you just enough to get going.  Check the 
 PostgreSQL documentation for authoritative information.   
 
