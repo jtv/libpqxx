@@ -20,7 +20,7 @@
 
 extern "C"
 {
-#include "postgres_fe.h"
+#include "server/postgres_fe.h"
 #include "libpq-fe.h"
 }
 

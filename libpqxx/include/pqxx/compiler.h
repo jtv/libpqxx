@@ -20,12 +20,12 @@
 
 
 // Deal with lacking iterator template definition in <iterator>
-#ifdef LACK_ITERATOR
+#ifndef HAVE_ITERATOR
 namespace PGSTD
 {
 template<typename Cat, 
          typename T, 
-	 typename Dist, 
+	 typename Dist=ptrdiff_t, 
 	 typename Ptr=T*,
 	 typename Ref=T&> struct iterator
 {
@@ -36,12 +36,14 @@ template<typename Cat,
   typedef Ref reference;
 };
 }
-#endif // LACK_ITERATOR
+#endif // HAVE_ITERATOR
 
 
 
 // Deal with lacking <limits>
-#ifdef LACK_LIMITS
+#ifdef HAVE_LIMITS
+#include <limits>
+#else // HAVE_LIMITS
 #include <climits>
 namespace PGSTD
 {
@@ -54,9 +56,7 @@ template<typename T> struct numeric_limits
 template<> inline long numeric_limits<long>::max() throw () {return LONG_MAX;}
 template<> inline long numeric_limits<long>::min() throw () {return LONG_MIN;}
 }
-#else // LACK_LIMITS
-#include <limits>
-#endif // LACK_LIMITS
+#endif // HAVE_LIMITS
 
 
 // Used for Windows DLL
