@@ -45,7 +45,7 @@ public:
    * and containing only letters and digits.
    */
   explicit NonTransaction(Connection &C, 
-		          PGSTD::string NName=PGSTD::string()) :	//[t14]
+		          const PGSTD::string &NName=PGSTD::string()) :	//[t14]
     TransactionItf(C, NName) { Begin(); }
 
   virtual ~NonTransaction();						//[t14]

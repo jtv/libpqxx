@@ -1,3 +1,6 @@
+2002-12-23 17:30, v1.2.8:
+ - Cursor::Move() returns number of rows skipped
+ - new typedef Cursor::size_type
 2002-12-14 23:30, v1.2.7:
  - test suite now distinguishes expected errors from unexpected ones
 2002-12-09 20:00, v1.2.6:

@@ -23,7 +23,7 @@
 using namespace PGSTD;
 
 
-pqxx::TransactionItf::TransactionItf(Connection &C, string TName) :
+pqxx::TransactionItf::TransactionItf(Connection &C, const string &TName) :
   m_Conn(C),
   m_Name(TName),
   m_UniqueCursorNum(1),

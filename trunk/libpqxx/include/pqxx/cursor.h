@@ -14,6 +14,7 @@
 #ifndef PQXX_CURSOR_H
 #define PQXX_CURSOR_H
 
+#include "pqxx/result.h"
 #include "pqxx/util.h"
 
 /* (A quick note on binary cursors:
@@ -45,7 +46,7 @@ class TransactionItf;
 class PQXX_LIBEXPORT Cursor
 {
 public:
-  typedef Result_size_type size_type;
+  typedef Result::size_type size_type;
 
   /// Constructor.  Creates a cursor.
   /** 
@@ -58,7 +59,7 @@ public:
    */
   Cursor(TransactionItf &T,
          const char Query[], 
-	 PGSTD::string BaseName="cur",
+	 const PGSTD::string &BaseName="cur",
 	 size_type Count=NEXT());					//[t3]
 
   /// Set new stride, ie. the number of rows to fetch at a time.
@@ -70,20 +71,25 @@ public:
   Result Fetch(size_type Count);					//[t19]
 
   /// Move forward by Count rows (negative for backwards) through the data set.
-  void Move(size_type Count);						//[t3]
+  /** Returns the number of rows skipped, as reported by PostgreSQL.  Be warned 
+   * that this number may be misleading in some border cases; please do your 
+   * own testing and report what you find to me!
+   */
+  size_type Move(size_type Count);					//[]
 
   /// Constant: "next fetch/move should span as many rows as possible."
   /** If the number of rows ahead exceeds the largest number your machine can
    * comfortably conceive, this may not actually be all remaining rows in the 
    * result set.
    */
-  static size_type ALL() { return Result_size_type_max; }		//[t3]
+  static size_type ALL() throw ()					//[t3]
+  	{ return PGSTD::numeric_limits<Result::size_type>::max(); }
 
   /// Constant: "next fetch/move should cover just the next row."
-  static size_type NEXT() { return 1; }					//[t19]
+  static size_type NEXT() throw () { return 1; }			//[t19]
 
   /// Constant: "next fetch/move should go back one row."
-  static size_type PRIOR() { return -1; }				//[t19]
+  static size_type PRIOR() throw () { return -1; }		//[t19]
 
   /// Constant: "next fetch/move goes backwards, spanning as many rows as 
   /// possible.
@@ -91,7 +97,8 @@ public:
    * machine can comfortably conceive, this may not bring you all the way back
    * to the beginning.
    */
-  static size_type BACKWARD_ALL() { return Result_size_type_min + 1; }	//[t19]
+  static size_type BACKWARD_ALL() throw ()				//[t19]
+  	{ return PGSTD::numeric_limits<Result::size_type>::min() + 1; }
 
   /// Fetch rows.
   /** The number of rows retrieved will be no larger than (but may be lower
@@ -104,9 +111,9 @@ public:
   Cursor &operator>>(Result &);						//[t3]
 
   /// May there be more rows coming?
-  operator bool() const { return !m_Done; }				//[t3]
+  operator bool() const throw () { return !m_Done; }			//[t3]
   /// Are we done?
-  bool operator!() const { return m_Done; }				//[t3]
+  bool operator!() const throw () { return m_Done; }			//[t3]
 
   /// Move N rows forward.
   Cursor &operator+=(size_type N) { Move(N); return *this;}		//[t19]

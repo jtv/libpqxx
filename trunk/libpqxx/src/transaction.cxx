@@ -26,7 +26,7 @@ using namespace PGSTD;
 #define SQL_ROLLBACK_WORK 	"ROLLBACK"
 
 
-pqxx::Transaction::Transaction(Connection &C, string TName) :
+pqxx::Transaction::Transaction(Connection &C, const string &TName) :
   TransactionItf(C, TName)
 {
   Begin();

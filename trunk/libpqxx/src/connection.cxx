@@ -420,7 +420,7 @@ void pqxx::Connection::MakeEmpty(pqxx::Result &R, ExecStatusType Stat)
 }
 
 
-void pqxx::Connection::BeginCopyRead(string Table)
+void pqxx::Connection::BeginCopyRead(const string &Table)
 {
   Result R( Exec(("COPY " + Table + " TO STDOUT").c_str()) );
   R.CheckStatus();
@@ -468,7 +468,7 @@ bool pqxx::Connection::ReadCopyLine(string &Line)
 }
 
 
-void pqxx::Connection::BeginCopyWrite(string Table)
+void pqxx::Connection::BeginCopyWrite(const string &Table)
 {
   Result R( Exec(("COPY " + Table + " FROM STDIN").c_str()) );
   R.CheckStatus();
@@ -476,7 +476,7 @@ void pqxx::Connection::BeginCopyWrite(string Table)
 
 
 
-void pqxx::Connection::WriteCopyLine(string Line)
+void pqxx::Connection::WriteCopyLine(const string &Line)
 {
   if (!m_Conn)
     throw logic_error("Internal libpqxx error: "

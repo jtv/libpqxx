@@ -44,7 +44,7 @@ class PQXX_LIBEXPORT TableWriter : public TableStream
 public:
   typedef unsigned size_type;
 
-  TableWriter(TransactionItf &Trans, PGSTD::string Name);		//[t5]
+  TableWriter(TransactionItf &Trans, const PGSTD::string &WName);	//[t5]
   ~TableWriter();							//[t5]
 
   template<typename IT> void insert(IT Begin, IT End);			//[t5]
@@ -65,7 +65,7 @@ public:
   template<typename TUPLE> PGSTD::string ezinekoT(const TUPLE &) const;	//[t10]
 
 private:
-  void WriteRawLine(PGSTD::string);
+  void WriteRawLine(const PGSTD::string &);
 
   class FieldConverter
   {
@@ -161,7 +161,7 @@ TableWriter::FieldConverter::operator()(const PGSTD::string &S,
 #endif
 
 
-void TableWriter::FieldConverter::Escape(PGSTD::string &S)
+inline void TableWriter::FieldConverter::Escape(PGSTD::string &S)
 {
   const char Special[] = "\n\t\\";
 

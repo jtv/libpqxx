@@ -56,7 +56,7 @@ public:
    */
   explicit CachedResult(pqxx::TransactionItf &,
                         const char Query[],
-			PGSTD::string BaseName="query",
+			const PGSTD::string &BaseName="query",
                         size_type Granularity=100);
 
   // TODO: Iterators, begin(), end()
