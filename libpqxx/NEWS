@@ -1,7 +1,7 @@
 2.4.3
  - Yet more workarounds for bugs in Visual C++ .NET 2003
- - Fix for SunC++ 5.5
- - Fixes large object support with Visual C++ (bug was in the compiler) 
+ - Fixes for SunC++ 5.5
+ - On Visual C++, now defines NOMINMAX, fixing large object support
  - Workaround for BSD grep
 2.4.2
  - Fix minor problems with Apple's version of g++ 3.3

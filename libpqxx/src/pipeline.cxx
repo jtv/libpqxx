@@ -18,6 +18,7 @@
 #include "pqxx/compiler.h"
 
 #include <algorithm>
+#include <iterator>
 
 #include "pqxx/dbtransaction"
 #include "pqxx/pipeline"
@@ -301,7 +302,6 @@ void pqxx::pipeline::obtain_dummy()
 
 
   // Reset internal state to forget botched batch attempt
-  // TODO: SunC++ rejects this usage of distance().  Why?  Because stop's const?
   m_num_waiting += distance(m_issuedrange.first, stop);
   m_issuedrange.second = m_issuedrange.first;
 

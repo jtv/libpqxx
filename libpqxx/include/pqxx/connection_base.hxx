@@ -113,19 +113,18 @@ public:
    */
   bool is_open() const throw ();					//[t1]
 
+#ifndef PQXX_BROKEN_MEMBER_TEMPLATE_DEFAULT_ARG
   /// Perform the transaction defined by a transactor-based object.
   /** The function may create and execute several copies of the transactor
    * before it succeeds.  If there is any doubt over whether it succeeded
    * (this can happen if the connection is lost just before the backend can
-   * confirm success), it is no longer retried and an error message is
-   * generated.
+   * confirm success), it is no longer retried and an in_doubt_error is thrown.
    * @param T The transactor to be executed.
    * @param Attempts Maximum number of attempts to be made to execute T.
    */
   template<typename TRANSACTOR> 
   void perform(const TRANSACTOR &T, int Attempts=3);			//[t4]
-
-#ifdef PQXX_BROKEN_MEMBER_TEMPLATE_DEFAULT_ARG
+#else
   template<typename TRANSACTOR> void perform(TRANSACTOR &T, int Attempts);
   template<typename TRANSACTOR>
   void perform(const TRANSACTOR &T) { perform(T, 3); }
