@@ -1,3 +1,15 @@
+2004-05-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/tablestream.hxx:
+  - Made columnlist() use new separated_list()
+ include/pqxx/util.hxx:
+  - New class template items<> to make container initialization easy
+  - separated_list() generates comma/semicolon/...-separated lists
+ src/transaction_base.cxx:
+  - No longer go async in BeginCopyWrite()
+ test/test008.cxx, test/test010.cxx:
+  - Use separated_list() instead of output loop
+ test/test010.cxx, test/test080.cxx:
+  - Use items<> instead of hand-filling containers
 2004-05-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/result.hxx, src/result.cxx:
   - Added errorposition()

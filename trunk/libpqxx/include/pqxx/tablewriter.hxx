@@ -57,6 +57,7 @@ public:
       ITER begincolumns,
       ITER endcolumns,
       const PGSTD::string &Null=PGSTD::string());			//[t9]
+
   ~tablewriter() throw ();						//[t5]
 
   template<typename IT> void insert(IT Begin, IT End);			//[t5]

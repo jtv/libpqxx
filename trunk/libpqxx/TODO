@@ -5,6 +5,8 @@ Build system
     Debian packaging.
 
 Connections
+(*) Encapsulate definition of prepared statements
+(*) Restore prepared statements when restoring a connection
 (*) Separate failed_connection exception type if connection never succeeds?
 (*) Connection pooling support
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
@@ -33,7 +35,6 @@ Large Objects
 (*) Check for handling of nul characters
 
 Results
-(*) Rewrite field conversions to be locale-independent
 (*) Convert to/from date/time values
 (*) Splice out an interface definition
 (*) Real encoding support (PQmblen(), PQenv2encoding())
@@ -56,7 +57,6 @@ Tests
 
 Transactions
 (*) German's locking idea for robusttransaction
-(*) [pgsql 7.5] Try to use two-phase commit if appropriate
 (*) [pgsql 7.5] Create log table "WITH OIDS" if appropriate
 (*) [pgsql 7.5] Support two-phase commit with separate transaction class(es)
 (*) [pgsql 7.5] Support nested transactions
