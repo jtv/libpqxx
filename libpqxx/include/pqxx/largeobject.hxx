@@ -8,7 +8,7 @@
  *   Allows access to large objects directly, or through I/O streams
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/largeobject instead.
  *
- * Copyright (c) 2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -287,7 +287,7 @@ public:
 
 
   /// Issue message to transaction's notice processor
-  void process_notice(const PGSTD::string &);				//[]
+  void process_notice(const PGSTD::string &);				//[t50]
 
   using largeobject::remove;
 
@@ -394,16 +394,17 @@ protected:
 protected:
   virtual pos_type seekoff(off_type offset, 
 			   seekdir dir,
-			   openmode mode = in|out)
+			   openmode mode)
   {
-    if (!mode) {}	// Quench "unused parameter" warning
+    if (mode != SEEK_CUR)
+      throw PGSTD::logic_error("Offset "+ToString(int(mode))+" in seekoff()");
     return AdjustEOF(m_Obj.cseek(offset, dir));
   }
 
-  virtual pos_type seekpos(pos_type pos, 
-			   openmode mode = in|out)
+  virtual pos_type seekpos(pos_type pos, openmode mode)
   {
-    if (!mode) {}	// Quench "unused parameter" warning
+    if (mode != SEEK_SET)
+      throw PGSTD::logic_error("Offset "+ToString(int(mode))+" in seekpos()");
     return AdjustEOF(m_Obj.cseek(pos, PGSTD::ios::beg));
   }
 

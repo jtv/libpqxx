@@ -156,19 +156,21 @@ template<typename T> inline void FromString(const char Str[], T &Obj)
 namespace internal
 {
 /// For libpqxx internal use only: convert C string to C++ string
-void FromString_string(const char Str[], PGSTD::string &Obj);
+void PQXX_LIBEXPORT FromString_string(const char Str[], PGSTD::string &Obj);
 
 /// For libpqxx internal use only: convert unsigned char * to C++ string
-void FromString_ucharptr(const char Str[], const unsigned char *&Obj);
+void PQXX_LIBEXPORT FromString_ucharptr(const char Str[], 
+    	const unsigned char *&Obj);
 
 /// For libpqxx internal use only: convert string to bool
-void FromString_bool(const char Str[], bool &Obj);
+void PQXX_LIBEXPORT FromString_bool(const char Str[], bool &Obj);
 
 /// For libpqxx internal use only: quote std::string
-PGSTD::string Quote_string(const PGSTD::string &Obj, bool EmptyIsNull);
+PGSTD::string PQXX_LIBEXPORT Quote_string(const PGSTD::string &Obj, 
+    	bool EmptyIsNull);
 
 /// For libpqxx internal use only: quote const char *
-PGSTD::string Quote_charptr(const char Obj[], bool EmptyIsNull);
+PGSTD::string PQXX_LIBEXPORT Quote_charptr(const char Obj[], bool EmptyIsNull);
 } // namespace internal
 
 
@@ -248,9 +250,6 @@ template<typename T> inline PGSTD::string Quote(T Obj)
 
 namespace internal
 {
-/// Return user-readable name for a class.  Specialize this whereever used.
-template<typename T> PGSTD::string Classname(const T *);
-
 /// Keep track of a libpq-allocated pointer to be free()d automatically.
 /** Ownership policy is simple: object dies when PQAlloc object's value does.
  * If the available PostgreSQL development files supply PQfreemem() or 
@@ -340,28 +339,31 @@ template<> inline void PQAlloc<PGnotify>::freemem() throw ()
 }
 
 
-/// For libpqxx internal use only: compose error message
-PGSTD::string UniqueRegisterError(const void *New,
-    				  const void *Old,
-    				  const PGSTD::string &ClassName,
-    			 	  const PGSTD::string &NewName);
+class PQXX_LIBEXPORT namedclass
+{
+public:
+  namedclass(const PGSTD::string &Name, const PGSTD::string &Classname) :
+    m_Name(Name),
+    m_Classname(Classname)
+  {
+  }
 
-/// For libpqxx internal use only: compose error message 
-PGSTD::string UniqueUnregisterError(const void *New,
-    				    const void *Old,
-				    const PGSTD::string &ClassName,
-				    const PGSTD::string &NewName,
-				    const PGSTD::string &OldName);
-} // namespace internal
+  const PGSTD::string &name() const throw () { return m_Name; }		//[t1]
+  const PGSTD::string &classname() const throw () {return m_Classname;}	//[t73]
+  PGSTD::string description() const throw ();				//[t73]
+
+private:
+  PGSTD::string m_Name, m_Classname;
+};
+
+
+void CheckUniqueRegistration(const namedclass *New, const namedclass *Old);
+void CheckUniqueUnregistration(const namedclass *New, const namedclass *Old);
 
 
 /// Ensure proper opening/closing of GUEST objects related to a "host" object
-/** Only a single GUEST may exist for a single host at any given time.  The 
- * template assumes that Classname<GUEST>() returns a user-readable name for the
- * guest type, and that GUEST::name() returns a user-readable name for the GUEST
- * object.
- *
- * This template used to be called Unique.
+/** Only a single GUEST may exist for a single host at any given time.  GUEST
+ * must be derived from namedclass.
  */
 template<typename GUEST>
 class unique
@@ -373,36 +375,27 @@ public:
 
   void Register(GUEST *G)
   {
-    if (!G || m_Guest)
-      throw PGSTD::logic_error(UniqueRegisterError(G,
-	    m_Guest,
-	    internal::Classname(G),
-	    (G ? G->name() : "")));
-
+    CheckUniqueRegistration(G, m_Guest);
     m_Guest = G;
   }
 
   void Unregister(GUEST *G)
   {
-    if (G != m_Guest)
-      throw PGSTD::logic_error(UniqueUnregisterError(G, 
-	  m_Guest,
-	  internal::Classname(G),
-	  (G ? G->name() : ""),
-	  (m_Guest ? m_Guest->name() : "")));
-
+    CheckUniqueUnregistration(G, m_Guest);
     m_Guest = 0;
   }
 
 private:
   GUEST *m_Guest;
 
-  // Not allowed:
+  /// Not allowed
   unique(const unique &);
+  /// Not allowed
   unique &operator=(const unique &);
 };
 
-}
+} // namespace internal
+} // namespace pqxx
 
 /** \defgroup pqxx::internal
  * This namespace hides definitions internal to libpqxx.  These are not supposed

@@ -7,7 +7,7 @@
  *      implementation of the pqxx::tablereader class.
  *   pqxx::tablereader enables optimized batch reads from a database table
  *
- * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -26,7 +26,7 @@ using namespace PGSTD;
 pqxx::tablereader::tablereader(transaction_base &T, 
     const string &RName,
     const string &Null) :
-  tablestream(T, RName, Null),
+  tablestream(T, RName, Null, "tablereader"),
   m_Done(true)
 {
   T.BeginCopyRead(RName);
@@ -43,7 +43,7 @@ pqxx::tablereader::~tablereader() throw ()
   }
   catch (const exception &e)
   {
-    Trans().RegisterPendingError(e.what());
+    reg_pending_error(e.what());
   }
 }
 
@@ -52,7 +52,7 @@ bool pqxx::tablereader::get_raw_line(string &Line)
 {
   if (!m_Done) try
   {
-    m_Done = !Trans().ReadCopyLine(Line);
+    m_Done = !m_Trans.ReadCopyLine(Line);
   }
   catch (const exception &)
   {
@@ -90,7 +90,7 @@ void pqxx::tablereader::reader_close()
       }
       catch (const exception &e)
       {
-        RegisterPendingError(e.what());
+        reg_pending_error(e.what());
       }
     }
   }

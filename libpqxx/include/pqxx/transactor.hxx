@@ -44,8 +44,9 @@ namespace pqxx
  * their higher-level code (application using those business rules).  The 
  * former go into the transactor-based class.
  *
- * Pass an object of your transactor-based class to connection_base::Perform() 
- * to execute the transaction code embedded in it (see pqxx/connection_base.h).
+ * Pass an object of your transactor-based class to connection_base::perform() 
+ * to execute the transaction code embedded in it (see the definitions in
+ * pqxx/connection_base.hxx).
  *
  * connection_base::Perform() is actually a template, specializing itself to any
  * transactor type you pass to it.  This means you will have to pass it a

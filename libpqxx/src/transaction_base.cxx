@@ -31,11 +31,12 @@ using namespace pqxx::internal;
 
 
 pqxx::transaction_base::transaction_base(connection_base &C, 
-    					 const string &TName) :
+    					 const string &TName,
+					 const string &CName) :
+  namedclass(TName, CName),
   m_Conn(C),
-  m_Name(TName),
   m_UniqueCursorNum(1),
-  m_Stream(),
+  m_Focus(),
   m_Status(st_nascent),
   m_Registered(false),
   m_PendingError()
@@ -54,8 +55,7 @@ pqxx::transaction_base::~transaction_base()
 
     if (m_Registered)
     {
-      m_Conn.process_notice("Transaction '" + m_Name + "' "
-		            "was never closed properly!\n");
+      m_Conn.process_notice(description() + " was never closed properly!\n");
       m_Conn.UnregisterTransaction(this);
     }
   }
@@ -88,9 +88,7 @@ void pqxx::transaction_base::commit()
     break;
 
   case st_aborted:
-    throw logic_error("Attempt to commit previously aborted transaction '" +
-		      name() +
-		      "'");
+    throw logic_error("Attempt to commit previously aborted " + description());
 
   case st_committed:
     // Transaction has been committed already.  This is not exactly proper 
@@ -98,15 +96,13 @@ void pqxx::transaction_base::commit()
     // that an abort is needed--which would only confuse things further at this
     // stage.
     // Therefore, multiple commits are accepted, though under protest.
-    m_Conn.process_notice("Transaction '" + 
-		          name() + 
-			  "' committed more than once\n");
+    m_Conn.process_notice(description() + " committed more than once\n");
     return;
 
   case st_in_doubt:
     // Transaction may or may not have been committed.  Report the problem but
     // don't compound our troubles by throwing.
-    throw logic_error("Transaction '" + name() + "' "
+    throw logic_error(description() +
 		      "committed again while in an undetermined state\n");
 
   default:
@@ -117,12 +113,10 @@ void pqxx::transaction_base::commit()
   // the Commit() will come before the stream is closed.  Which means the
   // commit is premature.  Punish this swiftly and without fail to discourage
   // the habit from forming.
-  if (m_Stream.get())
-    throw runtime_error("Attempt to commit transaction '" + 
-		        name() +
-			"' with stream '" +
-			m_Stream.get()->name() + 
-			"' still open");
+  if (m_Focus.get())
+    throw runtime_error("Attempt to commit " + description() + " "
+			"with " + m_Focus.get()->description() + " "
+			"still open");
 
   try
   {
@@ -163,20 +157,18 @@ void pqxx::transaction_base::abort()
     return;
 
   case st_committed:
-    throw logic_error("Attempt to abort previously committed transaction '" +
-		      name() +
-		      "'");
+    throw logic_error("Attempt to abort previously committed " + description());
 
   case st_in_doubt:
     // Aborting an in-doubt transaction is probably a reasonably sane response
     // to an insane situation.  Log it, but do not complain.
-    m_Conn.process_notice("Warning: Transaction '" + name() + "' "
+    m_Conn.process_notice("Warning: " + description() + " "
 		          "aborted after going into indeterminate state; "
 			  "it may have been executed anyway.\n");
     return;
 
   default:
-    throw logic_error("libpqxx internal error: pqxx::transaction: invalid status code");
+    throw logic_error("libpqxx internal error: invalid transaction status");
   }
 
   m_Status = st_aborted;
@@ -191,12 +183,11 @@ pqxx::result pqxx::transaction_base::exec(const char Query[],
 
   const string N = (Desc.empty() ? "" : "'" + Desc + "' ");
 
-  if (m_Stream.get())
-    throw logic_error("Attempt to execute query " + N + "on transaction '" + 
-		      name() + 
-		      "' while stream '" +
-		      m_Stream.get()->name() +
-		      "' is still open");
+  if (m_Focus.get())
+    throw logic_error("Attempt to execute query " + N + 
+		      "on " + description() + " "
+		      "with " + m_Focus.get()->description() + " "
+		      "still open");
 
   switch (m_Status)
   {
@@ -210,20 +201,16 @@ pqxx::result pqxx::transaction_base::exec(const char Query[],
 
   case st_committed:
     throw logic_error("Attempt to execute query " + N +
-	              "in committed transaction '" +
-		      name() +
-		      "'");
+	              "in committed " + description());
 
   case st_aborted:
     throw logic_error("Attempt to execute query " + N +
-	              "in aborted transaction '" +
-		      name() +
-		      "'");
+	              "in aborted " + description());
 
   case st_in_doubt:
-    throw logic_error("Attempt to execute query " + N + "in transaction '" + 
-		      name() + 
-		      "', which is in indeterminate state");
+    throw logic_error("Attempt to execute query " + N + "in " +
+		      description() + ", "
+		      "which is in indeterminate state");
   default:
     throw logic_error("libpqxx internal error: pqxx::transaction: "
 		      "invalid status code");
@@ -285,12 +272,10 @@ void pqxx::transaction_base::End() throw ()
 
     CheckPendingError();
 
-    if (m_Stream.get())
-      m_Conn.process_notice("Closing transaction '" +
-		            name() +
-			    "' with stream '" +
-			    m_Stream.get()->name() + 
-			    "' still open\n");
+    if (m_Focus.get())
+      m_Conn.process_notice("Closing " + description() + " "
+			    " with " + m_Focus.get()->description() + " "
+			    "still open\n");
 
     if (m_Status == st_active) abort();
   }
@@ -309,17 +294,17 @@ void pqxx::transaction_base::End() throw ()
 
 
 
-void pqxx::transaction_base::RegisterStream(tablestream *S)
+void pqxx::transaction_base::RegisterFocus(transactionfocus *S)
 {
-  m_Stream.Register(S);
+  m_Focus.Register(S);
 }
 
 
-void pqxx::transaction_base::UnregisterStream(tablestream *S) throw ()
+void pqxx::transaction_base::UnregisterFocus(transactionfocus *S) throw ()
 {
   try
   {
-    m_Stream.Unregister(S);
+    m_Focus.Unregister(S);
   }
   catch (const exception &e)
   {
@@ -385,6 +370,23 @@ void pqxx::transaction_base::BeginCopyWrite(const string &Table)
 {
   exec("COPY " + Table + " FROM STDIN");
   m_Conn.go_async();
+}
+
+
+void pqxx::internal::transactionfocus::register_me()
+{
+  m_Trans.RegisterFocus(this);
+}
+
+
+void pqxx::internal::transactionfocus::unregister_me() throw ()
+{
+  m_Trans.UnregisterFocus(this);
+}
+
+void pqxx::internal::transactionfocus::reg_pending_error(const string &err) throw ()
+{
+  m_Trans.RegisterPendingError(err);
 }
 
 

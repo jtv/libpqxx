@@ -22,7 +22,7 @@
 /* While you may choose to create your own transaction object to interface to 
  * the database backend, it is recommended that you wrap your transaction code 
  * into a transactor code instead and let the transaction be created for you.
- * See pqxx/transactor.h for more about transactor.
+ * See pqxx/transactor.hxx for more about transactor.
  *
  * If you should find that using a transactor makes your code less portable or 
  * too complex, go ahead, create your own transaction anyway.
@@ -55,25 +55,13 @@ class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 protected:
   explicit basic_transaction(connection_base &C, 
 			     const PGSTD::string &IsolationLevel,
-			     const PGSTD::string &TName) :		//[t1]
-    dbtransaction(C, IsolationLevel, TName) {}
+			     const PGSTD::string &TName);		//[t1]
 
 private:
   virtual void do_begin();						//[t1]
   virtual void do_commit();						//[t1]
   virtual void do_abort();						//[t13]
-
 };
-
-
-namespace internal
-{
-/// Human-readable class name for use by unique
-template<> inline PGSTD::string Classname(const basic_transaction *) 
-{ 
-  return "basic_transaction"; 
-}
-} // namespace internal
 
 
 /// Standard back-end transaction, templatized on isolation level
@@ -94,19 +82,14 @@ public:
     	{ Begin(); }
 
   virtual ~transaction() throw () { End(); }
+
+protected:
+  virtual const char *classname() const throw () { return "transaction"; }
 };
 
 
 /// Bog-standard, default transaction type
 typedef transaction<> work;
-
-
-/// Human-readable class names for use by unique template.
-template<isolation_level ISOLATIONLEVEL> 
-inline PGSTD::string Classname(const transaction<ISOLATIONLEVEL> *) 
-{ 
-  return "transaction<" + isolation_traits<ISOLATIONLEVEL>::name() + ">";
-}
 
 }
 

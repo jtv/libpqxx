@@ -98,9 +98,8 @@ void pqxx::connection_base::deactivate()
   if (m_Conn)
   {
     if (m_Trans.get())
-      throw logic_error("Attempt to deactivate connection while transaction "
-	                "'" + m_Trans.get()->name() + "' "
-			"still open");
+      throw logic_error("Attempt to deactivate connection while " +
+	  		m_Trans.get()->description() + " still open");
   }
   disconnect();
 }
@@ -404,9 +403,8 @@ void pqxx::connection_base::close() throw ()
   try
   {
     if (m_Trans.get()) 
-      process_notice("Closing connection while transaction '" +
-		     m_Trans.get()->name() +
-		     "' still open\n");
+      process_notice("Closing connection while " + 
+	             m_Trans.get()->description() + " still open");
 
     if (!m_Triggers.empty())
     {

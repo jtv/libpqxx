@@ -20,15 +20,14 @@
 
 #include "pqxx/libcompiler.h"
 
+#include "pqxx/transaction_base"
+
 /* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
 
 
 namespace pqxx
 {
-
-// TODO: Non-blocking access to help hide network latencies
-
 class transaction_base;
 
 
@@ -41,15 +40,15 @@ class transaction_base;
  * or queries may be applied to that transaction as long as the stream remains
  * open.
  */
-class PQXX_LIBEXPORT tablestream
+class PQXX_LIBEXPORT tablestream : public internal::transactionfocus
 {
 public:
   tablestream(transaction_base &Trans, 
 	      const PGSTD::string &Name, 
-	      const PGSTD::string &Null=PGSTD::string());		//[t6]
-  virtual ~tablestream() throw () =0;					//[t6]
+	      const PGSTD::string &Null=PGSTD::string(),
+	      const char Classname[]="tablestream");			//[t6]
 
-  const PGSTD::string &name() const { return m_Name; }			//[t10]
+  virtual ~tablestream() throw () =0;					//[t6]
 
   /// Finish stream action, check for errors, and detach from transaction
   /** It is recommended that you call this function before the tablestream's
@@ -67,16 +66,11 @@ public:
 #endif
 
 protected:
-  void register_me();
-  transaction_base &Trans() const throw () { return m_Trans; }
   const PGSTD::string &NullStr() const { return m_Null; }
-  void RegisterPendingError(const PGSTD::string &) throw ();
   bool is_finished() const throw () { return m_Finished; }
   void base_close();
 
 private:
-  transaction_base &m_Trans;
-  PGSTD::string m_Name;
   PGSTD::string m_Null;
   bool m_Finished;
 
@@ -86,6 +80,5 @@ private:
   tablestream &operator=(const tablestream &);
 };
 
-}
-
+} // namespace pqxx
 

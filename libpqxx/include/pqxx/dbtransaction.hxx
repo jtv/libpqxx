@@ -56,8 +56,9 @@ class PQXX_LIBEXPORT dbtransaction : public transaction_base
 protected:
   explicit dbtransaction(connection_base &C,
 			 const PGSTD::string &IsolationString,
-      			 const PGSTD::string &NName) :
-    transaction_base(C, NName),
+      			 const PGSTD::string &NName,
+			 const PGSTD::string &CName) :
+    transaction_base(C, NName, CName),
     m_StartCmd()
   {
     if (IsolationString != isolation_traits<read_committed>::name())
@@ -95,16 +96,6 @@ private:
 };
 
 
-namespace internal
-{
-/// Human-readable class name for use by unique
-template<> inline PGSTD::string Classname(const dbtransaction *) 
-{ 
-  return "dbtransaction"; 
-}
-} // namespace internal
-
-
 inline result dbtransaction::do_exec(const char Query[])
 {
   result R;
@@ -120,5 +111,5 @@ inline result dbtransaction::do_exec(const char Query[])
   return R;
 }
 
-}
+} // namespace pqxx
 

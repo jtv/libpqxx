@@ -1,9 +1,13 @@
 2.2.0
  - Uses Postgres-provided script to find Postgres (thanks Peter Eisentraut)
  - Which means no more configure arguments required on Irix (thanks Arjen Baart)
- - Makefile for MinGW compiler (thanks Pasquale Fersini)
  - New pipeline class for throughput optimization
+ - New field stream class: read result field as C++ stream
+ - Separate namespace pqxx::internal for definitions not relevant to the user
  - More Windows compilation fixes
+ - Makefile for MinGW compiler (thanks Pasquale Fersini)
+ - Changed the way unique<> works
+ - Bugs fixed & test programs added
 2.1.3
  - Makefile fixes for Visual C++, thanks Paresh Patel
  - Library ABI versioning implemented, thanks Roger Leigh

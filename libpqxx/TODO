@@ -31,11 +31,11 @@ Streams
 (*) Allow single-level insertion with endt/endr manipulators
 
 Transactions
-(*) German's locking idea for robusttransaction!
+(*) German's locking idea for robusttransaction
 (*) User schema support for robusttransaction log table
 (*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
 (*) Support constraints definition
 
 Tests
-(*) Floating-point tests
+(*) Set locale to C
 

@@ -37,20 +37,40 @@
 
 namespace pqxx
 {
-class connection_base; 	// See pqxx/connection_base.h
-class result; 		// See pqxx/result.h
-class tablestream;	// See pqxx/tablestream.h
+class connection_base;
+class transaction_base;
 
 
 namespace internal
 {
-// TODO: Replace by sessionfocus setup
-/// User-readable class name for use by unique
-template<> inline PGSTD::string Classname(const tablestream *) 
-{ 
-  return "tablestream"; 
-}
+class PQXX_LIBEXPORT transactionfocus : public namedclass
+{
+public:
+  transactionfocus(transaction_base &t, 
+      const PGSTD::string &Name,
+      const PGSTD::string &Classname) :
+    namedclass(Name, Classname),
+    m_Trans(t)
+  {
+  }
+
+protected:
+  void register_me();
+  void unregister_me() throw ();
+  void reg_pending_error(const PGSTD::string &) throw ();
+
+  transaction_base &m_Trans;
+
+private:
+  /// Not allowed
+  transactionfocus();
+  /// Not allowed
+  transactionfocus(const transactionfocus &);
+  /// Not allowed
+  transactionfocus &operator=(const transactionfocus &);
+};
 } // namespace internal
+
 
 
 /// Interface definition (and common code) for "transaction" classes.  
@@ -62,7 +82,7 @@ template<> inline PGSTD::string Classname(const tablestream *)
  * the plain transaction class, the entirely unprotected nontransaction, and the
  * more cautions robusttransaction.
  */
-class PQXX_LIBEXPORT transaction_base
+class PQXX_LIBEXPORT transaction_base : public internal::namedclass
 {
   // TODO: Retry non-serializable transaction w/update only on broken_connection
 public:
@@ -119,8 +139,6 @@ public:
   void process_notice(const PGSTD::string &Msg) const			//[t14]
   	{ m_Conn.process_notice(Msg); }
 
-  PGSTD::string name() const { return m_Name; }				//[t1]
-
   /// Connection this transaction is running in
   connection_base &conn() const { return m_Conn; }			//[t4]
 
@@ -140,7 +158,7 @@ public:
    * transaction and in the connection) using the set_variable functions.  If it
    * is not found there, the database is queried.  
    * @warning Do not mix the set_variable with raw "SET" queries, and do not
-   * try to set or get variables while a table stream is active.
+   * try to set or get variables while a pipeline or table stream is active.
    */
   PGSTD::string get_variable(const PGSTD::string &) const;		//[t61]
 
@@ -169,13 +187,17 @@ public:
 #endif
 
 protected:
-  /// Create a transaction.  The optional name, if given, must begin with a
-  /// letter and may contain letters and digits only.
+  /// Create a transaction (to be called by implementation classes only)
+  /** The optional name, if nonempty, must begin with a letter and may contain 
+   * letters and digits only.
+   */
   explicit transaction_base(connection_base &, 
-		          const PGSTD::string &TName=PGSTD::string());
+		          const PGSTD::string &TName,
+			  const PGSTD::string &CName);
 
-  /// Begin transaction.  To be called by implementing class, typically from 
-  /// constructor.
+  /// Begin transaction (to be called by implementing class)
+  /** Will typically be called from implementing class' constructor.
+   */
   void Begin();
 
   /// End transaction.  To be called by implementing class' destructor 
@@ -237,9 +259,9 @@ private:
   int GetUniqueCursorNum() { return m_UniqueCursorNum++; }
   void MakeEmpty(result &R) const { m_Conn.MakeEmpty(R); }
 
-  friend class tablestream;
-  void RegisterStream(tablestream *);
-  void UnregisterStream(tablestream *) throw ();
+  friend class internal::transactionfocus;
+  void RegisterFocus(internal::transactionfocus *);
+  void UnregisterFocus(internal::transactionfocus *) throw ();
   void RegisterPendingError(const PGSTD::string &) throw ();
   friend class tablereader;
   void BeginCopyRead(const PGSTD::string &Table);
@@ -256,21 +278,21 @@ private:
 
   connection_base &m_Conn;
 
-  PGSTD::string m_Name;
   int m_UniqueCursorNum;
-  unique<tablestream> m_Stream;
+  internal::unique<internal::transactionfocus> m_Focus;
   Status m_Status;
   bool m_Registered;
   mutable PGSTD::map<PGSTD::string, PGSTD::string> m_Vars;
   PGSTD::string m_PendingError;
 
-  // Not allowed:
+  /// Not allowed
   transaction_base();
+  /// Not allowed
   transaction_base(const transaction_base &);
+  /// Not allowed
   transaction_base &operator=(const transaction_base &);
 };
 
-
-}
+} // namespace pqxx
 
 

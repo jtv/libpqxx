@@ -31,14 +31,29 @@ int main(int, char *argv[])
     I << R[0][0];
 
     // Now convert the stringstream into a numeric type
-    long L;
+    long L, L2;
     I >> L;
     cout << "As a long, it's " << L << endl;
 
-    long L2;
     R[0][0].to(L2);
     if (L != L2)
       throw logic_error("Different conversion methods gave different results!");
+
+    float F, F2;
+    stringstream I2;
+    I2 << R[0][0];
+    I2 >> F;
+    cout << "As a float, it's " << F << endl;
+    R[0][0].to(F2);
+    if (fabs(F2-F) > 0.01)
+      throw logic_error("Inconsistent floating-point result: " + ToString(F2));
+
+    R = T.exec("SELECT 1=1");
+    if (!R.at(0).at(0).as<bool>())
+      throw logic_error("1=1 doesn't yield 'true'");
+    R = T.exec("SELECT 2+2=5");
+    if (R.at(0).at(0).as<bool>())
+      throw logic_error("2+2=5 yields 'true'");
   }
   catch (const sql_error &e)
   {

@@ -554,6 +554,110 @@ inline oid result::column_table(tuple::size_type ColNum) const
 }
 #endif
 
+
+template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
+  class field_streambuf :
+#ifdef PQXX_HAVE_STREAMBUF
+  public PGSTD::basic_streambuf<CHAR, TRAITS>
+#else
+  public PGSTD::streambuf
+#endif
+{
+  typedef long size_type;
+public:
+  typedef CHAR char_type;
+  typedef TRAITS traits_type;
+  typedef typename traits_type::int_type int_type;
+#ifdef PQXX_HAVE_STREAMBUF
+  typedef typename traits_type::pos_type pos_type;
+  typedef typename traits_type::off_type off_type;
+#else
+  typedef streamoff off_type;
+  typedef streampos pos_type;
+#endif
+  typedef PGSTD::ios::openmode openmode;
+  typedef PGSTD::ios::seekdir seekdir;
+
+  explicit field_streambuf(const result::field &F) : 			//[t74]
+    m_Field(F)
+  {
+    initialize();
+  }
+
+#ifdef PQXX_HAVE_STREAMBUF
+protected:
+#endif
+  virtual int sync() { return traits_type::eof(); }
+
+protected:
+  virtual pos_type seekoff(off_type offset, seekdir dir, openmode)
+  {
+    return traits_type::eof();
+  }
+
+  virtual pos_type seekpos(pos_type pos, openmode) {return traits_type::eof();}
+
+  virtual int_type overflow(int_type) { return traits_type::eof(); }
+
+  virtual int_type underflow() { return initialize(); }
+
+private:
+  const result::field &m_Field;
+
+  int_type initialize() throw ()
+  {
+    char_type *G = 
+      reinterpret_cast<char_type *>(const_cast<char *>(m_Field.c_str()));
+    setg(G, G, G + m_Field.size());
+    return m_Field.size();
+  }
+};
+
+
+/// Input stream that gets its data from a result field
+/** Use this class exactly as you would any other istream to read data from a
+ * field.  All formatting and streaming operations of std::istream are 
+ * supported.  What you'll typically want to use, however, is the fieldstream
+ * typedef (which defines a basic_fieldstream for char).  This is similar to how
+ * e.g. std::ifstream relates to std::basic_ifstream.
+ *
+ * When reading bools, ints, floats etc. from a field, bear in mind that bools
+ * are represented as 'f' or 't' (for false or true, respectively), and that all
+ * other non-string types are rendered in the default C locale.  If there is any
+ * chance of your program running in a different locale, you'll need to set the
+ * locale to "C" explicitly while parsing fields.
+ *
+ * This class has only been tested for the char type (and its default traits).
+ */
+template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
+  class basic_fieldstream :
+#ifdef PQXX_HAVE_STREAMBUF
+    public PGSTD::basic_istream<CHAR, TRAITS>
+#else
+    public PGSTD::istream
+#endif
+{
+#ifdef PQXX_HAVE_STREAMBUF
+  typedef PGSTD::basic_istream<CHAR, TRAITS> super;
+#else
+  typedef PGSTD::istream super;
+#endif
+
+public:
+  typedef CHAR char_type;
+  typedef TRAITS traits_type;
+  typedef typename traits_type::int_type int_type;
+  typedef typename traits_type::pos_type pos_type;
+  typedef typename traits_type::off_type off_type;
+
+  basic_fieldstream(const result::field &F) : super(&m_Buf), m_Buf(F) { }
+
+private:
+  field_streambuf<CHAR, TRAITS> m_Buf;
+};
+
+typedef basic_fieldstream<char> fieldstream;
+
 } // namespace pqxx
 
 
