@@ -102,6 +102,39 @@ int main()
     strconv("stringstream", ss, ss.str());
 
     // TODO: Test binarystring reversibility
+
+    // Test error handling for failed connections
+    try
+    {
+      nullconnection nc;
+      work w(nc);
+      throw logic_error("nullconnection failed to fail!");
+    }
+    catch (broken_connection &c)
+    {
+      cout << "(Expected) " << c.what() << endl;
+    }
+    try
+    {
+      nullconnection nc("");
+      work w(nc);
+      throw logic_error("nullconnection(const char[]) failed to fail!");
+    }
+    catch (broken_connection &c)
+    {
+      cout << "(Expected) " << c.what() << endl;
+    }
+    try
+    {
+      string n;
+      nullconnection nc(n);
+      work w(nc);
+      throw logic_error("nullconnection(const std::string &) failed to fail!");
+    }
+    catch (broken_connection &c)
+    {
+      cout << "(Expected) " << c.what() << endl;
+    }
   }
   catch (const bad_alloc &)
   {
