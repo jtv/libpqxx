@@ -18,7 +18,6 @@
 #include "pqxx/libcompiler.h"
 #include "pqxx/config-public-libpq.h"
 
-#include <cassert>// DEBUG CODE
 #include <cstdio>
 #include <cctype>
 #include <sstream>
@@ -27,12 +26,27 @@
 #include <typeinfo>
 #include <vector>
 
+/** @mainpage
+ * @author Jeroen T. Vermeulen <jtv@xs4all.nl>
+ *
+ * Welcome to libpqxx, the C++ API to the PostgreSQL database management system.
+ *
+ * This package requires PostgreSQL to be installed--including the C headers for
+ * client development.  The library builds on top of PostgreSQL's standard C
+ * API, libpq.
+ *
+ * For a quick introduction to installing and using libpqxx, see the README
+ * file; a more extensive tutorial is available in doc/html/Tutorial/index.html.
+ *
+ * The latest information, as well as updates, a mailing list, and a bug
+ * reporting system can be found at the project's home page.
+ *
+ * @see http://pqxx.tk/, http://gborg.postgresql.org/project/libpqxx/
+ */
+
 
 /// The home of all libpqxx classes, functions, templates, etc.
-namespace pqxx
-{
-}
-
+namespace pqxx {}
 
 #ifdef PQXX_PQ_IN_NAMESPACE
 // We want libpq in the pqxx::internal::pq namespace
@@ -135,8 +149,11 @@ template<> void from_string(const char Str[], short &);			//[t45]
 template<> void from_string(const char Str[], unsigned short &);	//[t45]
 template<> void from_string(const char Str[], float &);			//[t46]
 template<> void from_string(const char Str[], double &);		//[t46]
-template<> void from_string(const char Str[], long double &);		//[t46]
 template<> void from_string(const char Str[], bool &);			//[t76]
+#if defined(PQXX_HAVE_LONG_DOUBLE)
+template<> void from_string(const char Str[], long double &);		//[t46]
+#endif
+
 
 template<> inline void from_string(const char Str[],PGSTD::string &Obj)	//[t46]
 	{ Obj = Str; }
@@ -183,8 +200,10 @@ template<> PGSTD::string to_string(const long &);			//[t18]
 template<> PGSTD::string to_string(const unsigned long &);		//[t20]
 template<> PGSTD::string to_string(const float &);			//[t74]
 template<> PGSTD::string to_string(const double &);			//[t74]
-template<> PGSTD::string to_string(const long double &);		//[t74]
 template<> PGSTD::string to_string(const bool &);			//[t76]
+#if defined(PQXX_HAVE_LONG_DOUBLE)
+template<> PGSTD::string to_string(const long double &);		//[t74]
+#endif
 
 inline PGSTD::string to_string(const char Obj[]) 			//[t14]
 	{ return PGSTD::string(Obj); }
@@ -316,9 +335,11 @@ template<> inline const char *FmtString(unsigned)      { return  "%u"; }
 template<> inline const char *FmtString(unsigned long) { return "%lu"; }
 template<> inline const char *FmtString(float)         { return  "%f"; }
 template<> inline const char *FmtString(double)        { return "%lf"; }
-template<> inline const char *FmtString(long double)   { return "%Lf"; }
 template<> inline const char *FmtString(char)          { return  "%c"; }
 template<> inline const char *FmtString(unsigned char) { return  "%c"; }
+#if defined(PQXX_HAVE_LONG_DOUBLE)
+template<> inline const char *FmtString(long double)   { return "%Lf"; }
+#endif
 
 } // namespace internal
 
@@ -559,8 +580,7 @@ public:
     rhs = tmp;
   }
 
-  PQAlloc &operator=(T *obj) throw ()
-  	{ assert(!obj || obj != m_Obj); loseref(); makeref(obj); return *this; }
+  PQAlloc &operator=(T *obj) throw () { loseref(); makeref(obj); return *this; }
 
   /// Is this pointer non-null?
   operator bool() const throw () { return m_Obj != 0; }
@@ -590,20 +610,10 @@ public:
   void clear() throw () { loseref(); }
 
 private:
-  void makeref(T *p) throw ()
-  {
-    assert(m_l == this);
-    assert(m_r == this);
-    assert(!m_Obj);
-    m_Obj = p;
-  }
+  void makeref(T *p) throw () { m_Obj = p; }
 
   void makeref(const PQAlloc &rhs) throw ()
   {
-    assert(m_l == this);
-    assert(m_r == this);
-    assert(&rhs != this);
-    assert(!m_Obj);
     m_l = &rhs;
     m_r = rhs.m_r;
     m_l->m_r = m_r->m_l = this;
@@ -613,10 +623,6 @@ private:
   /// Free and reset current pointer (if any)
   void loseref() throw ()
   {
-    assert(m_r->m_l == this);
-    assert(m_l->m_r == this);
-    assert((m_l==this) == (m_r==this));
-
     if (m_l == this && m_Obj) freemem();
     m_Obj = 0;
     m_l->m_r = m_r;
@@ -624,25 +630,16 @@ private:
     m_l = m_r = this;
   }
 
-  void freemem() throw ()
-  {
-    freepqmem(m_Obj);
-  }
+  void freemem() throw () { freepqmem(m_Obj); }
 };
 
 
-/// Special version for result arrays, using PQclear()
+/// Specialized version for result arrays, using PQclear()
 template<> inline void PQAlloc<PQXXPQ::PGresult>::freemem() throw ()
-{
-  PQclear(m_Obj);
-}
-
-
-/// Special version for notify structures, using PQfreeNotify() if available
+	{ PQclear(m_Obj); }
+/// Specialized version for notify structures, using PQfreeNotify() if available
 template<> inline void PQAlloc<PQXXPQ::PGnotify>::freemem() throw ()
-{
-  freenotif(m_Obj);
-}
+	{ freenotif(m_Obj); }
 
 
 class PQXX_LIBEXPORT namedclass
