@@ -1,3 +1,17 @@
+2003-03-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/all.h:
+  - Includes largeobject.h
+  - Was missing in archive in 1.5.0
+ include/pqxx/connection.h:
+  - Made LargeObject a friend, with access to raw connection
+ include/pqxx/largeobject.h, src/pqxx/largeobject.cxx:
+  - New
+ include/pqxx/transactionitf.h:
+  - Made Conn() public
+ test/test001.cxx:
+  - Fixed outdated comment about notice processors & C linkage
+ test/test048.cxx:
+  - New
 2003-02-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cachedresult.h, src/cachedresult.cxx:
   - Removed confusing "clear()" method

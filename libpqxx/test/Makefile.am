@@ -1,7 +1,7 @@
 INCLUDES=-I../include ${POSTGRES_INCLUDE}
 MAINTAINERCLEANFILES=Makefile.in
 
-TESTS = test001 test002 test003 test004 test005 test006 test007 test008 test009 test010 test011 test012 test013 test014 test015 test016 test017 test018 test019 test020 test021 test022 test023 test024 test025 test026 test027 test028 test029 test030 test031 test032 test033 test034 test035 test036 test037 test038 test039 test040 test041 test042 test043 test044 test045 test046 test047
+TESTS = test001 test002 test003 test004 test005 test006 test007 test008 test009 test010 test011 test012 test013 test014 test015 test016 test017 test018 test019 test020 test021 test022 test023 test024 test025 test026 test027 test028 test029 test030 test031 test032 test033 test034 test035 test036 test037 test038 test039 test040 test041 test042 test043 test044 test045 test046 test047 test048
 check_PROGRAMS = ${TESTS}
 
 #TESTS_ENVIRONMENT=PGDATABASE=libpqxx
@@ -147,4 +147,7 @@ test046_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
 
 test047_SOURCES = test047.cxx
 test047_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test048_SOURCES = test048.cxx
+test048_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
 

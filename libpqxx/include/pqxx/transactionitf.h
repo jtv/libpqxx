@@ -65,11 +65,16 @@ public:
   /// Execute query directly.
   Result Exec(const PGSTD::string &Q) { return Exec(Q.c_str()); }	//[t2]
 
+  /// Have Connection process warning message
   void ProcessNotice(const char Msg[]) { m_Conn.ProcessNotice(Msg); }	//[t1]
+  /// Have Connection process warning message
   void ProcessNotice(const PGSTD::string &Msg) 				//[t1]
   	{ m_Conn.ProcessNotice(Msg); }
 
   PGSTD::string Name() const { return m_Name; }				//[t1]
+
+  /// Connection this transaction is running in
+  Connection &Conn() const { return m_Conn; }				//[]
 
 protected:
   /// Create a transaction.  The optional name, if given, must begin with a
@@ -94,8 +99,6 @@ protected:
 
   /// Execute query on connection directly
   Result DirectExec(const char C[], int Retries, const char OnReconnect[]);
-  Connection &Conn() const { return m_Conn; }
-
  
 private:
   /* A Transaction goes through the following stages in its lifecycle:

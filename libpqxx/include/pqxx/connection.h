@@ -254,6 +254,9 @@ private:
   void WriteCopyLine(const PGSTD::string &);
   void EndCopy();
 
+  friend class LargeObject;
+  PGconn *RawConnection() const { return m_Conn; }
+
   friend class Trigger;
   void AddTrigger(Trigger *);
   void RemoveTrigger(Trigger *) throw ();
