@@ -1,4 +1,6 @@
 Build system
+(*) Make static linking the default for libpqxx
+(*) Include libpq path in dynamic link path
 (*) Completely support building outside the source directory
 
 Connections

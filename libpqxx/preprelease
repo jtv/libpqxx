@@ -70,13 +70,13 @@ echo "$ ./configure" >>$LOGFILE
 echo >>$LOGFILE
 
 echo "Building and running regression test..."
-echo "$ make check" >>$LOGFILE
-make check >>$LOGFILE
+echo "$ nice make check" >>$LOGFILE
+nice make check >>$LOGFILE
 echo
 echo >>$LOGFILE
 
 echo "Creating release version of $TARBALL"
-echo "$ make check" >>$LOGFILE
+echo "$ make dist" >>$LOGFILE
 make dist >>$LOGFILE
 mv $TARBALL ..
 cd ..

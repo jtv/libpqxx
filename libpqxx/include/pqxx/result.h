@@ -274,7 +274,7 @@ private:
   Result &operator=(PGresult *);
   bool operator!() const throw () { return !m_Result; }
   operator bool() const throw () { return m_Result != 0; }
-  void CheckStatus() const;
+  void CheckStatus(const PGSTD::string &Query) const;
 
   friend class Cursor;
   const char *CmdStatus() const throw () { return PQcmdStatus(m_Result); }

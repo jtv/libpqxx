@@ -1,4 +1,10 @@
 2003-03-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/except.h:
+  - New
+  - New exception class: sql_error
+ include/pqxx/result.h, src/connectionitf.cxx, src/result.cxx: 
+  - Failed queries now throw sql_error, including query text
+2003-03-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection.h, src/connection.cxx, test/test001.cxx, 
  test/test023.cxx:
   - Default constructors for Connection and LazyConnection

@@ -183,8 +183,9 @@ void pqxx::ConnectionItf::SetupState() const
       // issue just one LISTEN for each event.
       if (i->first != Last)
       {
-        Result R( PQexec(m_Conn, ("LISTEN " + i->first).c_str()) );
-        R.CheckStatus();
+	const string LQ("LISTEN " + i->first);
+        Result R( PQexec(m_Conn, LQ.c_str()) );
+        R.CheckStatus(LQ);
         Last = i->first;
       }
     }
@@ -208,8 +209,8 @@ bool pqxx::ConnectionItf::is_open() const
 }
 
 
-auto_ptr<Noticer> 
-pqxx::ConnectionItf::SetNoticer(auto_ptr<Noticer> N)
+PGSTD::auto_ptr<pqxx::Noticer> 
+pqxx::ConnectionItf::SetNoticer(PGSTD::auto_ptr<Noticer> N)
 {
   if (N.get()) PQsetNoticeProcessor(m_Conn, pqxxNoticeCaller, N.get());
   else PQsetNoticeProcessor(m_Conn, 0, 0);
@@ -251,12 +252,12 @@ void pqxx::ConnectionItf::AddTrigger(pqxx::Trigger *T)
   if (m_Conn && (p == m_Triggers.end()))
   {
     // Not listening on this event yet, start doing so.
-    //
-    Result R( PQexec(m_Conn, ("LISTEN " + string(T->Name())).c_str()) );
+    const string LQ("LISTEN " + string(T->Name())); 
+    Result R( PQexec(m_Conn, LQ.c_str()) );
 
     try
     {
-      R.CheckStatus();
+      R.CheckStatus(LQ);
     }
     catch (const broken_connection &)
     {
@@ -368,7 +369,7 @@ pqxx::Result pqxx::ConnectionItf::Exec(const char Query[],
   }
 
   if (!R) throw broken_connection();
-  R.CheckStatus();
+  R.CheckStatus(Query);
 
   GetNotifs();
 
@@ -390,7 +391,7 @@ void pqxx::ConnectionItf::Reset(const char OnReconnect[])
     if (OnReconnect)
     {
       Result Temp( PQexec(m_Conn, OnReconnect) );
-      Temp.CheckStatus();
+      Temp.CheckStatus(OnReconnect);
     }
   }
 }
@@ -467,8 +468,9 @@ void pqxx::ConnectionItf::MakeEmpty(pqxx::Result &R, ExecStatusType Stat)
 
 void pqxx::ConnectionItf::BeginCopyRead(const string &Table)
 {
-  Result R( Exec(("COPY " + Table + " TO STDOUT").c_str()) );
-  R.CheckStatus();
+  const string CQ("COPY " + Table + " TO STDOUT");
+  Result R( Exec(CQ.c_str()) );
+  R.CheckStatus(CQ);
 }
 
 
@@ -514,8 +516,9 @@ bool pqxx::ConnectionItf::ReadCopyLine(string &Line)
 
 void pqxx::ConnectionItf::BeginCopyWrite(const string &Table)
 {
-  Result R( Exec(("COPY " + Table + " FROM STDIN").c_str()) );
-  R.CheckStatus();
+  const string CQ("COPY " + Table + " FROM STDIN");
+  Result R( Exec(CQ.c_str()) );
+  R.CheckStatus(CQ);
 }
 
 

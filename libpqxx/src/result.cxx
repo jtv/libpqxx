@@ -14,6 +14,7 @@
 #include <new>
 #include <stdexcept>
 
+#include "pqxx/except.h"
 #include "pqxx/result.h"
 
 
@@ -52,7 +53,7 @@ const pqxx::Result::Tuple pqxx::Result::at(pqxx::Result::size_type i) const
 }
 
 
-void pqxx::Result::CheckStatus() const
+void pqxx::Result::CheckStatus(const string &Query) const
 {
   if (!m_Result)
     throw runtime_error("No result");
@@ -71,7 +72,7 @@ void pqxx::Result::CheckStatus() const
   case PGRES_BAD_RESPONSE: // The server's response was not understood
   case PGRES_NONFATAL_ERROR: // TODO: Is this one really an error?
   case PGRES_FATAL_ERROR:
-    throw runtime_error(PQresultErrorMessage(m_Result));
+    throw sql_error(PQresultErrorMessage(m_Result), Query);
 
   default:
     throw logic_error("Internal libpqxx error: "

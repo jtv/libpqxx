@@ -16,8 +16,8 @@
 
 #include <map>
 #include <memory>
-#include <stdexcept>
 
+#include "pqxx/except.h"
 #include "pqxx/transactor.h"
 #include "pqxx/util.h"
 
@@ -33,7 +33,6 @@
 
 namespace pqxx
 {
-class in_doubt_error;	// See pqxx/transactionitf.h
 class Result;
 class TransactionItf;
 class Trigger;
@@ -55,17 +54,6 @@ template<> inline PGSTD::string Classname(const TransactionItf *)
 { 
   return "TransactionItf"; 
 }
-
-
-/// Exception class for lost backend connection.
-/** (May be changed once I find a standard exception class for this) */
-class PQXX_LIBEXPORT broken_connection : public PGSTD::runtime_error
-{
-public:
-  broken_connection() : PGSTD::runtime_error("Connection to back end failed") {}
-  explicit broken_connection(const PGSTD::string &whatarg) : 
-    PGSTD::runtime_error(whatarg) {}
-};
 
 
 /// ConnectionItf abstract base class; represents a connection to a database.

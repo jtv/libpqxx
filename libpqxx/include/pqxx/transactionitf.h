@@ -50,13 +50,35 @@ template<> inline PGSTD::string Classname(const TableStream *)
 /** All database access must be channeled through one of these classes for 
  * safety, although not all implementations of this interface need to provide 
  * full transactional integrity.
+ *
+ * Several implementations of this interface are shipped with libpqxx, including
+ * the plain Transaction class, the entirely unprotected NonTransaction, and the
+ * more cautions RobustTransaction.
  */
 class PQXX_LIBEXPORT TransactionItf
 {
 public:
   virtual ~TransactionItf() =0;						//[t1]
 
+  /// Commit the transaction
+  /** Unless this function is called explicitly, the transaction will not be
+   * committed (actually the NonTransaction implementation breaks this rule,
+   * hence the name).
+   *
+   * Once this function returns, the whole transaction will typically be
+   * irrevocably completed in the database.  There is also, however, a minute
+   * risk that the connection to the database may be lost at just the wrong
+   * moment.  In that case, libpqxx may be unable to determine whether the
+   * transaction was completed or aborted and an in_doubt_error will be thrown
+   * to make this fact known to the caller.  The RobustTransaction 
+   * implementation takes some special precautions to reduce this risk.
+   */
   void Commit();							//[t1]
+
+  /// Abort the transaction
+  /** No special effort is required to call this function; it will be called
+   * implicitly when the transaction is destructed.
+   */
   void Abort();								//[t10]
 
   /// Execute query
@@ -173,20 +195,6 @@ private:
   TransactionItf &operator=(const TransactionItf &);
 };
 
-
-/// "Help, I don't know whether transaction was committed successfully!"
-/** Exception that might be thrown in rare cases where the connection to the
- * database is lost while finishing a database transaction, and there's no way
- * of telling whether it was actually executed by the backend.  In this case
- * the database is left in an indeterminate (but consistent) state, and only
- * manual inspection will tell which is the case.
- */
-class PQXX_LIBEXPORT in_doubt_error : public PGSTD::runtime_error
-{
-public:
-  explicit in_doubt_error(const PGSTD::string &whatarg) : 
-    PGSTD::runtime_error(whatarg) {}
-};
 
 }
 

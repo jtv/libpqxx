@@ -35,6 +35,9 @@ namespace pqxx
  * Actual back-end transactions are limited in lifespan, and will sometimes fail
  * just because they took to long to execute.
  *
+ * Any query executed in a NonTransaction is committed immediately, and neither
+ * Commit() nor Abort() has any effect.
+ *
  * Some database features that require a backend transaction, such as cursors or
  * large objects, will not work in a NonTransaction.
  */
