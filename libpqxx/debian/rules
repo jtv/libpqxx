@@ -31,7 +31,7 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	
-	./configure -v --prefix=/usr
+	./configure -v --prefix=/usr --enable-maintainer-mode
 
 	touch configure-stamp
 
@@ -40,8 +40,8 @@ build: build-stamp
 build-stamp: configure-stamp 
 	dh_testdir
 
-	# Add here commands to compile the package.
 	$(MAKE)
+	doxygen
 
 	touch build-stamp
 
@@ -69,9 +69,10 @@ maintainer-clean:
 
 	rm -f aclocal.m4 \
 		configure libtool \
-		config/config.guess config/config.sub config/install-sh \
-		config/ltmain.sh config/missing config/mkinstalldirs \
-		include/pqxx/config.h.in 
+		config/depcomp config/config.guess config/config.sub \
+		config/install-sh config/ltmain.sh config/missing \
+		config/mkinstalldirs \
+		include/pqxx/config.h.in include/pqxx/stamp.h.in 
 
 	-find -type f -name 'Makefile.am' | sed -e 's/\.am$$/.in/' | xargs rm -f
 	-find -type f -name 'Makefile.am' | sed -e 's/\.am$$//' | xargs rm -f
@@ -84,9 +85,7 @@ install: build
 	dh_clean -k
 	dh_installdirs
 
-	# Add here commands to install the package into debian/tmp
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
-
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -100,6 +99,10 @@ binary-arch: build install
 
 #	dh_installdebconf	
 	dh_installdocs
+
+	install -p doc/html/Reference/*html \
+		$(CURDIR)/debian/libpqxx-dev/usr/share/doc/libpqxx-dev/html/
+
 	dh_installexamples
 	dh_installmenu
 #	dh_installlogrotate

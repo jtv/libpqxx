@@ -1,5 +1,9 @@
 Makefile
 Makefile.in
+depcomp
 install-sh
 missing
 mkinstalldirs
+config.guess                                        
+config.sub
+ltmain.sh
