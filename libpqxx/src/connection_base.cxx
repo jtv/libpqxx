@@ -634,6 +634,7 @@ void pqxx::connection_base::EndCopyWrite()
 
 void pqxx::connection_base::start_exec(const string &Q)
 {
+  activate();
   if (!PQsendQuery(m_Conn, Q.c_str())) throw runtime_error(ErrMsg());
 }
 

@@ -8,7 +8,7 @@
  *   Throughput-optimized query manager
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/pipeline instead.
  *
- * Copyright (c) 2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -33,7 +33,6 @@ namespace pqxx
 
 // TODO: Warning for unretrieved results
 // TODO: "sessionfocus" class (common base with tablestream) to block xaction
-// TODO: Attach & detach to/from transaction dynamically
 
 
 /// Processes several queries in FIFO manner, optimized for high throughput
@@ -59,34 +58,56 @@ class PQXX_LIBEXPORT pipeline
 public:
   typedef unsigned query_id;
 
-  explicit pipeline(transaction_base &t);				//[]
+  explicit pipeline(transaction_base &t);				//[t69]
   ~pipeline();
 
   /// Add query to the pipeline.
-  query_id insert(const PGSTD::string &);				//[]
+  query_id insert(const PGSTD::string &);				//[t69]
 
   /// Wait for all ongoing or pending operations to complete
-  void complete();							//[]
+  void complete();							//[t71]
 
   /// Forget all pending operations and retrieved results
-  void flush();								//[]
+  void flush();								//[t70]
 
   /// Has given query started yet?
-  bool is_running(query_id) const;					//[]
+  bool is_running(query_id) const;					//[t71]
 
   /// Is result for given query available?
-  bool is_finished(query_id) const;					//[]
+  bool is_finished(query_id) const;					//[t71]
 
   /// Retrieve result for given query
   /** If the query failed for whatever reason, this will throw an exception.
    * The function will block if the query has not finished yet.
    */
-  result retrieve(query_id);						//[]
+  result retrieve(query_id);						//[t71]
 
   /// Retrieve oldest unretrieved result (possibly wait for one)
-  PGSTD::pair<query_id, result> retrieve();				//[]
+  PGSTD::pair<query_id, result> retrieve();				//[t69]
 
-  bool empty() const throw ();						//[]
+  bool empty() const throw ();						//[t69]
+
+  /// Optimization control: don't start issuing yet, more queries are coming
+  /** The pipeline will normally issue the first query inserted into it to the
+   * backend, and accumulate any new queries inserted while it is executing; 
+   * those will once again be issued at the earliest opportunity.  This may not
+   * be optimal, since most of the pipeline's speed advantage comes from its 
+   * ability to bundle queries together and issue them at once.  The normal
+   * procedure will be too "eager" to provide the full benefit for that first
+   * query.
+   * Call retain() to tell the pipeline to hold off on issuing queries when you
+   * know that more queries are about to be inserted.  Use resume() afterwards,
+   * or the queries may not be issued for some time.  Query emission will be 
+   * resumed implicitly, however, if results are requested for queries that have
+   * not yet been issued to the backend.
+   * For best performance, call retain() before inserting a batch of queries 
+   * into a pipeline, and resume() directly afterwards to make sure the queries
+   * are sent to the backend.
+   */
+  void retain() 				{ m_retain = true; }	//[t70]
+
+  /// Resume retained query emission (harmless when not needed)
+  void resume();							//[t70]
 
 private:
   /// Create new query_id
@@ -107,6 +128,7 @@ private:
   PGSTD::vector<query_id> m_waiting, m_sent;
   PGSTD::map<query_id, result> m_completed;
   query_id m_nextid;
+  bool m_retain;
 
   /// Not allowed
   pipeline(const pipeline &);

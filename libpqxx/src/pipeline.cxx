@@ -7,7 +7,7 @@
  *      implementation of the pqxx::pipeline class
  *   Throughput-optimized query manager
  *
- * Copyright (c) 2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -29,7 +29,8 @@ pqxx::pipeline::pipeline(transaction_base &t) :
   m_queries(),
   m_waiting(),
   m_completed(),
-  m_nextid(1)
+  m_nextid(1),
+  m_retain(false)
 {
 }
 
@@ -72,6 +73,7 @@ pqxx::pipeline::query_id pqxx::pipeline::insert(const string &Query)
 
 void pqxx::pipeline::complete()
 {
+  resume();
   while (!m_waiting.empty() && !m_sent.empty()) consumeresults();
 }
 
@@ -83,6 +85,7 @@ void pqxx::pipeline::flush()
   m_sent.clear();
   m_completed.clear();
   m_queries.clear();
+  resume();
 }
 
 
@@ -130,6 +133,7 @@ pair<pqxx::pipeline::query_id, pqxx::result> pqxx::pipeline::retrieve()
   {
     if (m_sent.empty() && m_waiting.empty())
       throw logic_error("Attempt to retrieve result from empty query pipeline");
+    resume();
     consumeresults();
 
     if (m_completed.empty())
@@ -142,11 +146,17 @@ pair<pqxx::pipeline::query_id, pqxx::result> pqxx::pipeline::retrieve()
 
 pqxx::result pqxx::pipeline::retrieve(pqxx::pipeline::query_id qid)
 {
-  map<query_id, result>::iterator c;
-  for (c = m_completed.find(qid); 
-       (c==m_completed.end()) && !(m_waiting.empty() && m_sent.empty()); 
-       c = m_completed.find(qid))
-    consumeresults();
+  map<query_id, result>::iterator c = m_completed.find(qid);
+  if (c == m_completed.end())
+  {
+    if (!m_sent.empty()) consumeresults();
+    c = m_completed.find(qid);
+    if (c == m_completed.end()) resume();
+    c = m_completed.find(qid);
+    if (c == m_completed.end())
+      throw logic_error("Attempt to retrieve result for unknown query " +
+	  ToString(qid) + " from pipeline");
+  }
 
   return deliver(c).second;
 }
@@ -180,7 +190,7 @@ void pqxx::pipeline::detach()
 
 void pqxx::pipeline::send_waiting()
 {
-  if (m_waiting.empty() || !m_sent.empty()) return;
+  if (m_waiting.empty() || !m_sent.empty() || m_retain) return;
 
   static const string Separator = "; ";
   string Cum;
@@ -215,7 +225,8 @@ void pqxx::pipeline::consumeresults()
 
   detach();
 
-  if (R.size() != m_sent.size())
+  // TODO: If one part of the query fails, the whole thing seems to fail!
+  if (R.size() > m_sent.size())
     throw logic_error("libpqxx internal error: "
 	              "expected " + ToString(m_sent.size()) + " results "
 		      "from pipeline, got " + ToString(R.size()));
@@ -228,4 +239,10 @@ void pqxx::pipeline::consumeresults()
   send_waiting();
 }
 
+
+void pqxx::pipeline::resume()
+{
+  m_retain = false;
+  send_waiting();
+}
 
