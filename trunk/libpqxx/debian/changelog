@@ -1,3 +1,15 @@
+libpqxx (2.3.0-2) unstable; urgency=low
+
+  * debian/control.in:
+    - Add chrpath to build dependencies to strip rpath from binaries
+    - Depend on at least version 7.4.2-1 of postgresql for binary
+      compatibility reasons (libpq dependency).
+  * debian/rules:
+    - Don't package tests which make use of internal headers as
+      examples.
+
+ -- Roger Leigh <rleigh@debian.org>  Thu, 02 Sep 2004 00:09:51 +0100
+
 libpqxx (2.3.0-1) unstable; urgency=medium
 
   * New upstream release.

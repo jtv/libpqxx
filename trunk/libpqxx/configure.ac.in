@@ -343,22 +343,21 @@ AC_PROG_MAKE_SET
 
 AC_CONFIG_FILES([Makefile config/Makefile debian/Makefile doc/Makefile doc/Doxyfile src/Makefile
 test/Makefile tools/Makefile win32/Makefile include/Makefile include/pqxx/Makefile libpqxx.pc pqxx-config libpqxx.spec])
-AC_OUTPUT
 
-
-# Extract configuration items into various configuration headers
+AC_CONFIG_COMMANDS([configitems],
+[# Extract configuration items into various configuration headers
 # This uses the configitems file, a database consisting of text lines with the
 # following single-tab-separated fields:
 # 1. Name of the configuration item, e.g. PQXX_HAVE_PTRDIFF_T
 # 2. Publication marker: public or internal
 # 3. A single environmental factor determining the item, e.g. libpq or compiler
-PUBLICATIONS=`cut -f 2 configitems | sort -u`
-FACTORS=`cut -f 3 configitems | sort -u`
+PUBLICATIONS=`cut ${srcdir}/configitems -f 2 | sort -u`
+FACTORS=`cut ${srcdir}/configitems -f 3 | sort -u`
 for publication in $PUBLICATIONS ; do
 	for factor in $FACTORS ; do
 		CONFIGFILE="include/pqxx/config-$publication-$factor.h"
 		echo -n "Generating $CONFIGFILE: "
-		if ! grep "\<$publication\>" configitems | grep "\<$factor\>" | cut -f 1 | grep -w -h -f - include/pqxx/config.h >"$CONFIGFILE" ; then
+		if ! grep "\<$publication\>" ${srcdir}/configitems | grep "\<$factor\>" | cut -f 1 | grep -w -h -f - include/pqxx/config.h >"$CONFIGFILE" ; then
 			rm -f -- "$CONFIGFILE"
 			echo "no items--deleting"
 		else
@@ -366,6 +365,6 @@ for publication in $PUBLICATIONS ; do
 		fi
 	done
 done
+])
 
-echo "Done."
-
+AC_OUTPUT

@@ -1,6 +1,8 @@
 EXTRA_DIST = \
+	makemingwmak.pl \
 	maketestam.pl \
 	maketestvcmak.pl \
+	makevcmake.pl \
 	preprelease \
 	rmlo.cxx
 
