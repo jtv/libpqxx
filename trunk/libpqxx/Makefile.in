@@ -134,7 +134,7 @@ target_alias = @target_alias@
 with_postgres_include = @with_postgres_include@
 with_postgres_lib = @with_postgres_lib@
 SUBDIRS = config doc include src test
-EXTRA_DIST = win32/*
+EXTRA_DIST = win32/* debian/*
 
 MAINTAINERCLEANFILES = Makefile.in aclocal.m4 config.h.in config.log configure \
 	stamp-h.in
@@ -344,7 +344,7 @@ distcleancheck_listfiles = find . -type f -print
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkinstalldirs) $(distdir)/. $(distdir)/win32
+	$(mkinstalldirs) $(distdir)/. $(distdir)/debian $(distdir)/win32
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
