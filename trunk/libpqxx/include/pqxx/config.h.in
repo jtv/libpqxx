@@ -1,11 +1,5 @@
 /* include/pqxx/config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Define if <iterator> lacks an iterator template definition */
-#undef BROKEN_ITERATOR
-
-/* Define if function overloading using "using" breaks */
-#undef BROKEN_USING_DECL
-
 /* Define if abs() works on long ints */
 #undef HAVE_ABS_LONG
 
@@ -30,18 +24,6 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
-/* Define if PostgreSQL has PQescapeString() */
-#undef HAVE_PQESCAPESTRING
-
-/* Define if PostgreSQL has PQfreemem() */
-#undef HAVE_PQFREEMEM
-
-/* Define if PostgreSQL has PQfreeNotify() */
-#undef HAVE_PQFREENOTIFY
-
-/* Define if PostgreSQL has PQftable() */
-#undef HAVE_PQFTABLE
-
 /* Define to 1 if the system has the type `ptrdiff_t'. */
 #undef HAVE_PTRDIFF_T
 
@@ -51,18 +33,11 @@
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
 
-/* Define if you have the <streambuf> header; if not, <streambuf.h> is used */
-#undef HAVE_STREAMBUF
-
 /* Define to 1 if you have the <strings.h> header file. */
 #undef HAVE_STRINGS_H
 
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
-
-/* Define if the sys/select.h header defines a working select() and friends,
-   as per POSIX 1003.1-2001 */
-#undef HAVE_SYS_SELECT_H
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H
@@ -96,6 +71,31 @@
 
 /* Does the standard namespace exist? */
 #undef PGSTD
+
+/* Define if <iterator> lacks an iterator template definition */
+#undef PQXX_BROKEN_ITERATOR
+
+/* Define if function overloading using "using" breaks */
+#undef PQXX_BROKEN_USING_DECL
+
+/* Define if PostgreSQL has PQescapeString() */
+#undef PQXX_HAVE_PQESCAPESTRING
+
+/* Define if PostgreSQL has PQfreemem() */
+#undef PQXX_HAVE_PQFREEMEM
+
+/* Define if PostgreSQL has PQfreeNotify() */
+#undef PQXX_HAVE_PQFREENOTIFY
+
+/* Define if PostgreSQL has PQftable() */
+#undef PQXX_HAVE_PQFTABLE
+
+/* Define if you have the <streambuf> header; if not, <streambuf.h> is used */
+#undef PQXX_HAVE_STREAMBUF
+
+/* Define if the sys/select.h header defines a working select() and friends,
+   as per POSIX 1003.1-2001 */
+#undef PQXX_HAVE_SYS_SELECT_H
 
 /* Do we have a PQescapeString function? */
 #undef PQescapeString

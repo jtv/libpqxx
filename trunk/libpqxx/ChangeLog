@@ -1,3 +1,8 @@
+2003-09-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result.hxx:
+  - Some PGSTD::string & parameters should have been const
+ test/test002.cxx
+  - Fixed some mistakes in testing PQftable support
 2003-09-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/*:
   - Moved header contents to .hxx files for filetype recognition

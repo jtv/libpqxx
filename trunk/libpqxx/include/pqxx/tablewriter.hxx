@@ -16,7 +16,7 @@
  *
  *-------------------------------------------------------------------------
  */
-#include "pqxx/config.h"
+#include "pqxx/compiler.h"
 
 #include <numeric>
 #include <string>
@@ -91,7 +91,7 @@ private:
       return S + ((Field == Null) ? PGNull() : Field);
     }
 
-#ifdef NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
+#ifdef PQXX_NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
     template<> PGSTD::string operator()(const PGSTD::string &S,
 	                                PGSTD::string i) const;
 #endif

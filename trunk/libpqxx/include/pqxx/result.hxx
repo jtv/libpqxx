@@ -113,10 +113,10 @@ public:
     oid column_type(const char ColName[]) const				//[t7]
       	{ return column_type(column_number(ColName)); }
 
-#ifdef HAVE_PQFTABLE
+#ifdef PQXX_HAVE_PQFTABLE
     oid column_table(size_type ColNum) const				//[t2]
     	{ return m_Home->column_table(ColNum); }
-    oid column_table(PGSTD::string &ColName) const			//[t2]
+    oid column_table(const PGSTD::string &ColName) const		//[t2]
       	{ return column_table(column_number(ColName)); }
 #endif
 
@@ -170,7 +170,7 @@ public:
     oid type() const 							//[t7]
     	{ return m_Home->column_type(m_Col); }
 
-#ifdef HAVE_PQFTABLE
+#ifdef PQXX_HAVE_PQFTABLE
     /// Table this field came from, if any
     /** Requires PostgreSQL 7.4 or greater
      */
@@ -207,7 +207,7 @@ public:
     }
 
 
-#ifdef NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
+#ifdef PQXX_NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
     /// Specialization: to(string &)
     template<> bool to<PGSTD::string>(PGSTD::string &Obj) const;
 
@@ -367,12 +367,12 @@ public:
   oid column_type(const char ColName[]) const				//[t7]
     	{ return column_type(column_number(ColName)); }
 
-#ifdef HAVE_PQFTABLE
+#ifdef PQXX_HAVE_PQFTABLE
   /// Table that given column was taken from, if any
   oid column_table(tuple::size_type ColNum) const;			//[t2]
 
   /// Table that given column was taken from, if any
-  oid column_table(PGSTD::string &ColName) const			//[t2]
+  oid column_table(const PGSTD::string &ColName) const			//[t2]
     	{ return column_table(column_number(ColName)); }
 #endif
 
@@ -568,7 +568,7 @@ inline oid result::column_type(tuple::size_type ColNum) const
 }
 
 
-#ifdef HAVE_PQFTABLE
+#ifdef PQXX_HAVE_PQFTABLE
 inline oid result::column_table(tuple::size_type ColNum) const
 {
   const oid T = PQftable(m_Result, ColNum);
