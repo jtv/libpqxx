@@ -35,7 +35,9 @@ void esc(string str, string expected=string())
   }
 }
 
-template<typename T> inline void strconv(string type, T Obj, string expected)
+template<typename T> inline void strconv(string type,
+    const T &Obj,
+    string expected)
 {
   const string Objstr(to_string(Obj));
 
@@ -46,7 +48,7 @@ template<typename T> inline void strconv(string type, T Obj, string expected)
 }
 
 // There's no from_string<const char *>()...
-template<> inline void strconv(string type, const char *Obj, string expected)
+inline void strconv(string type, const char Obj[], string expected)
 {
   const string Objstr(to_string(Obj));
   check(expected, Objstr, type);
@@ -85,6 +87,11 @@ int main()
     strconv("double", 0.0, "0");
     strconv("string", string(), "");
     strconv("string", weirdstr, weirdstr);
+
+    stringstream ss;
+    strconv("empty stringstream", ss, "");
+    ss << -3.1415;
+    strconv("stringstream", ss, ss.str());
 
     // TODO: Test binarystring reversibility
   }
