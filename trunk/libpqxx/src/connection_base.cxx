@@ -26,7 +26,9 @@
 #include <sys/select.h>
 #else
 #include <sys/types.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif	// HAVE_UNISTD_H
 #endif	// PQXX_HAVE_SYS_SELECT_H
 
 #include "pqxx/connection_base"
