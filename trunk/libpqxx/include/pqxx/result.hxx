@@ -634,10 +634,8 @@ public:
   reference front() const throw () { return tuple(this,0); }		//[t74]
   reference back() const throw () {return tuple(this,size()-1);}	//[t75]
 
-  size_type size() const throw ()					//[t2]
-  	{ return c_ptr() ? PQXXPQ::PQntuples(c_ptr()) : 0; }
-  bool empty() const							//[t11]
-  	{ return !c_ptr() || !PQXXPQ::PQntuples(c_ptr()); }
+  size_type size() const throw ();					//[t2]
+  bool empty() const throw ();						//[t11]
   size_type capacity() const throw () { return size(); }		//[t20]
 
   void swap(result &) throw ();						//[t77]
@@ -649,8 +647,7 @@ public:
   using super::clear;							//[t20]
 
   /// Number of columns in result
-  tuple::size_type columns() const throw () 				//[t11]
-  	{ return PQnfields(c_ptr()); }
+  tuple::size_type columns() const throw (); 				//[t11]
 
   /// Number of given column (throws exception if it doesn't exist)
   tuple::size_type column_number(const char ColName[]) const;		//[t11]
@@ -712,7 +709,7 @@ public:
   /** @return Identifier of inserted row if exactly one row was inserted, or
    * oid_none otherwise.
    */
-  oid inserted_oid() const { return PQoidValue(c_ptr()); }		//[t13]
+  oid inserted_oid() const;						//[t13]
 
 
   /// If command was INSERT, UPDATE, or DELETE, return number of affected rows
@@ -735,13 +732,13 @@ public:
   tuple::size_type Columns() const { return columns(); }
   /// @deprecated Use column_number() instead
   tuple::size_type ColumnNumber(const char Name[]) const
-  	{return PQfnumber(c_ptr(),Name);}
+  	{return column_number(Name);}
   /// @deprecated Use column_number() instead
   tuple::size_type ColumnNumber(const PGSTD::string &Name) const
-  	{return ColumnNumber(Name.c_str());}
+  	{return column_number(Name);}
   /// @deprecated Use column_name() instead
   const char *ColumnName(tuple::size_type Number) const
-  	{return PQfname(c_ptr(),Number);}
+  	{return column_name(Number);}
 #endif
 
 
@@ -753,8 +750,8 @@ private:
 
   friend class connection_base;
   friend class pipeline;
-  explicit result(PQXXPQ::PGresult *rhs) throw () : super(rhs) {}
-  result &operator=(PQXXPQ::PGresult *rhs) throw ()
+  explicit result(internal::pq::PGresult *rhs) throw () : super(rhs) {}
+  result &operator=(internal::pq::PGresult *rhs) throw ()
   	{ super::operator=(rhs); return *this; }
   bool operator!() const throw () { return !c_ptr(); }
   operator bool() const throw () { return c_ptr() != 0; }
@@ -764,7 +761,7 @@ private:
   PGSTD::string StatusError() const;
 
   friend class Cursor;
-  const char *CmdStatus() const throw () { return PQcmdStatus(c_ptr()); }
+  const char *CmdStatus() const throw ();
 };
 
 

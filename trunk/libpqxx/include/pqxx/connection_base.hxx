@@ -180,20 +180,16 @@ public:
   // Miscellaneous query functions (probably not needed very often)
 
   /// Name of database we're connected to, if any.
-  const char *dbname()							//[t1]
-  	{ activate(); return PQdb(m_Conn); }
+  const char *dbname();							//[t1]
 
   /// Database user ID we're connected under, if any.
-  const char *username()						//[t1]
-  	{ activate(); return  PQuser(m_Conn); }
+  const char *username();						//[t1]
 
   /// Address of server (NULL for local connections).
-  const char *hostname()						//[t1]
-  	{ activate(); return PQhost(m_Conn); }
+  const char *hostname();						//[t1]
 
   /// Server port number we're connected to.
-  const char *port()		 					//[t1]
-  	{ activate(); return PQport(m_Conn); }
+  const char *port();		 					//[t1]
 
   /// Full connection string as used to set up this connection.
   const char *options() const throw () 					//[t1]
@@ -210,8 +206,7 @@ public:
    *
    * @return Process identifier, or 0 if not currently connected.
    */
-  int backendpid() const throw ()					//[t1]
-    	{ return m_Conn ? PQbackendPID(m_Conn) : 0; }
+  int backendpid() const throw ();					//[t1]
 
   /// Explicitly activate deferred or deactivated connection.
   /** Use of this method is entirely optional.  Whenever a connection is used
@@ -363,7 +358,7 @@ private:
   void SetupState();
 
   void InternalSetTrace() throw ();
-  int Status() const throw () { return PQXXPQ::PQstatus(m_Conn); }
+  int Status() const throw ();
   const char *ErrMsg() const throw ();
   void Reset();
   void RestoreVars();
@@ -421,8 +416,8 @@ private:
   void RemoveTrigger(trigger *) throw ();
 
   friend class pipeline;
-  void consume_input() throw () { PQconsumeInput(m_Conn); }
-  bool is_busy() const throw () { return PQisBusy(m_Conn); }
+  void consume_input() throw ();
+  bool is_busy() const throw ();
 
   // Not allowed:
   connection_base(const connection_base &);

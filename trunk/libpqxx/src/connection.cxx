@@ -4,7 +4,7 @@
  *	connection.cxx
  *
  *   DESCRIPTION
- *      implementation of the pqxx::connection and pqxx::lazyconnection classes.
+ *      implementation of the pqxx::connection and sibling classes.
  *   Different ways of setting up a backend connection.
  *
  * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
@@ -19,10 +19,11 @@
 
 #include <stdexcept>
 
+#include "libpq-fe.h"
+
 #include "pqxx/connection"
 
 using namespace PGSTD;
-using namespace pqxx::internal::pq;
 
 
 pqxx::connection::connection() :
@@ -43,12 +44,17 @@ pqxx::connection::connection(const char ConnInfo[]) :
   do_startconnect();
 }
 
-// Conflicting workarounds for Windows and SUN CC 5.1; see header
-#ifndef _WIN32
-pqxx::connection::~connection() throw () { close(); }
-pqxx::lazyconnection::~lazyconnection() throw () { close(); }
-pqxx::asyncconnection::~asyncconnection() throw () {do_dropconnect(); close();}
-#endif	// _WIN32
+
+void pqxx::connection::do_startconnect()
+{
+  if (!get_conn()) set_conn(PQconnectdb(options()));
+}
+
+
+void pqxx::lazyconnection::completeconnect()
+{
+  if (!get_conn()) set_conn(PQconnectdb(options()));
+}
 
 
 pqxx::asyncconnection::asyncconnection() :
@@ -125,4 +131,13 @@ void pqxx::asyncconnection::completeconnect()
 pqxx::nullconnection::~nullconnection() throw ()
 {
 }
+
+// Conflicting workarounds for Windows and SUN CC 5.1; see header
+#ifndef _WIN32
+pqxx::connection::~connection() throw () { close(); }
+pqxx::lazyconnection::~lazyconnection() throw () { close(); }
+pqxx::asyncconnection::~asyncconnection() throw () {do_dropconnect(); close();}
+#endif	// _WIN32
+
+
 

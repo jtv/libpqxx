@@ -1,3 +1,37 @@
+2005-03-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Expanded explanations of the most critical, error-prone checks
+  - Added some intermediate steps to libpq checks to help pinpoint any problems
+  - Removed redundant help string for --enable-maintainer-mode
+  - Check for expected Oid type
+  - Check for g++/glibc problem with FD_SET, -Werror, and -Wold-style-cast
+ include/pqxx/connection_base.hxx, include/pqxx/connection.hxx,
+ include/pqxx/result.hxx, include/pqxx/util.hxx,
+ src/connection_base.cxx, src/connection.cxx, src/largeobject.cxx,
+ src/pipeline.cxx, src/result.cxx, src/util.cxx:
+  - No longer include libpq headers in libpqxx headers
+  - Include libpq headers only from a few source files, as needed
+  - No longer need pqxx::internal::pq in most source files
+ include/pqxx/libpq-forward.hxx:
+  - New
+  - Forward declarations of all libpq types needed in libpqxx headers
+ include/pqxx/result.hxx, src/result.cxx:
+  - Made result::empty() nothrow
+  - result::affected_rows() checks for null pointer
+ README:
+  - Removed wordy brag section from introduction
+  - Made things a bit more lively
+  - Updated error message for missing pg_config
+  - More help on things that may go wrong
+  - Expanded example
+  - Removed shell-specific syntax from "make check" explanation
+ src/connection_base.cxx:
+  - Erase trigger before doing UNLISTENing it.  Thanks Dragan Milenkovic!
+  - Getter functions only activate connection if there's no PGconn yet
+ tools/preprelease:
+  - Test with multiple compilers (by default: g++-2.95, g++, g++-3.4)
+  - Test in maintainer mode by default
+  - Test building of shared library by default
 2005-02-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/preprelease:
   - Respect CONCURRENCY_LEVEL in compiling regression test

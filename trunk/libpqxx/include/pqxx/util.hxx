@@ -47,54 +47,11 @@
 /// The home of all libpqxx classes, functions, templates, etc.
 namespace pqxx {}
 
-#ifdef PQXX_PQ_IN_NAMESPACE
-// We want libpq in the pqxx::internal::pq namespace
-
-namespace pqxx
-{
-namespace internal
-{
-namespace pq
-{
-#define PQXXPQ pqxx::internal::pq
-extern "C"
-{
-#include "libpq-fe.h"
-}
-} // namespace pq
-} // namespace internal
-} // namespace pqxx
-
-#else	// PQXX_PQ_IN_NAMESPACE
-// We want libpq in the global namespace, with duplicates in pqxx::internal::pq
-
-extern "C"
-{
-#include "libpq-fe.h"
-}
-
-namespace pqxx
-{
-namespace internal
-{
-namespace pq
-{
-#define PQXXPQ
-typedef PQXXPQ::PGconn PGconn;
-typedef PQXXPQ::PGresult PGresult;
-
-} // namespace pq
-} // namespace internal
-} // namespace pqxx
-
-#endif	// PQXX_PQ_IN_NAMESPACE
+#include <pqxx/libpq-forward.hxx>
 
 
 namespace pqxx
 {
-/// PostgreSQL row identifier type
-typedef PQXXPQ::Oid oid;
-
 /// The "null" oid
 const oid oid_none = 0;
 
@@ -551,7 +508,7 @@ template<typename T> inline PGSTD::string Quote(T Obj)
 namespace internal
 {
 void freepqmem(void *);
-void freenotif(PQXXPQ::PGnotify *);
+void freenotif(pq::PGnotify *);
 
 /// Reference-counted smart pointer to libpq-allocated object
 /** Ownership policy is simple: object dies when PQAlloc object's value does.
@@ -560,7 +517,7 @@ void freenotif(PQXXPQ::PGnotify *);
  * instead.  This matters on Windows, where memory allocated by a DLL must be
  * freed by the same DLL.
  */
-template<typename T> class PQAlloc
+template<typename T> class PQXX_LIBEXPORT PQAlloc
 {
   T *m_Obj;
   mutable const PQAlloc *m_l, *m_r;
@@ -639,14 +596,6 @@ private:
 
   void freemem() throw () { freepqmem(m_Obj); }
 };
-
-
-/// Specialized version for result arrays, using PQclear()
-template<> inline void PQAlloc<PQXXPQ::PGresult>::freemem() throw ()
-	{ PQclear(m_Obj); }
-/// Specialized version for notify structures, using PQfreeNotify() if available
-template<> inline void PQAlloc<PQXXPQ::PGnotify>::freemem() throw ()
-	{ freenotif(m_Obj); }
 
 
 class PQXX_LIBEXPORT namedclass

@@ -20,13 +20,13 @@
 #include <cerrno>
 #include <stdexcept>
 
+#include "libpq-fe.h"
 #include "libpq/libpq-fs.h"
 
 #include "pqxx/largeobject"
 
 using namespace PGSTD;
 using namespace pqxx::internal;
-using namespace pqxx::internal::pq;
 
 namespace
 {
