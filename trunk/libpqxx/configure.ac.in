@@ -19,6 +19,8 @@ AM_CONFIG_HEADER([include/pqxx/config.h include/pqxx/libconfig.h])
 # default prefix for installs
 AC_PREFIX_DEFAULT(/usr/local)
 
+AC_LANG(C++)
+
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
@@ -37,7 +39,6 @@ AM_CONDITIONAL([BUILD_TUTORIAL], [test -n "$XMLTO"])
 # check that std namespace is actually called std
 # not sure how to check for other namespaces...
 AH_TEMPLATE(PGSTD, [name of standard namespace])
-AC_LANG_PUSH(C++)
 AC_MSG_CHECKING([name of standard namespace])
 AC_TRY_COMPILE(
 	[#include <string>]
@@ -131,8 +132,6 @@ AC_TRY_COMPILE([#pragma message("cpp supports message pragma")], [], AC_DEFINE(P
 [Define if preprocessor supports pragma "message"]),
 cpp_pragma_message=no)
 AC_MSG_RESULT($cpp_pragma_message)
-
-AC_LANG_POP(C++)
 
 # Find PostgreSQL includes and libraries
 AC_PATH_PROGS(PG_CONFIG, pg_config)
@@ -259,23 +258,33 @@ AC_CHECK_DECL(PQputCopyData,
 	[pqputcopy=no],
 	[#include <${with_postgres_include}/libpq-fe.h>])
 
-AC_LANG_PUSH(C++)
 AC_CHECK_HEADER(limits, 
 	[AC_DEFINE(PQXX_HAVE_LIMITS, 1, [Define if <limits> exists])])
 AC_CHECK_HEADER(iterator,
 	[AC_DEFINE(PQXX_HAVE_ITERATOR, 1, [Define if <iterator> exists])])
 
 AC_MSG_CHECKING([whether std::string has a clear() function])
+string_clear='yes'
 AC_TRY_COMPILE([#include <string>],
 	[PGSTD::string i;i.clear()],
-	[string_clear='yes'],
 	[AC_DEFINE(PQXX_HAVE_STRING_CLEAR,
 			1,
-			[Define if string class has the clear() function])
-		string_clear='no'])
+			[Define if string class has the clear() function])],
+	[string_clear='no'])
 AC_MSG_RESULT($string_clear)
 
-# Checks for typedefs, structures, and compiler characteristics.
+AC_MSG_CHECKING([if count_if() works as expected])
+count_if='yes'
+AC_TRY_COMPILE([#include <algorithm>
+#include <functional>
+struct P{bool operator()(const int&)const{return false;}}p;],
+	[int v;return int(PGSTD::count_if(&v,&v,p))],
+	[AC_DEFINE(PQXX_HAVE_COUNT_IF,
+			1,
+			[Define if count_if() works according to the standard])],
+	[count_if='no'])
+AC_MSG_RESULT($count_if)
+
 AC_MSG_CHECKING([whether <iterator> defines a usable iterator template])
 AC_TRY_COMPILE([#include <iterator>], 
 	[struct I:PGSTD::iterator<PGSTD::random_access_iterator_tag,int>{}],
@@ -287,19 +296,19 @@ AC_TRY_COMPILE([#include <iterator>],
 AC_MSG_RESULT($it)
 
 AC_MSG_CHECKING([for reverse_iterator template])
+reverseit='yes'
 AC_TRY_COMPILE([#include <iterator> 
 	using namespace PGSTD;struct I:iterator<random_access_iterator_tag,int>{};],
 	[reverse_iterator<I> rit],
-	[reverseit='yes'],
 	[AC_DEFINE(PQXX_HAVE_REVERSE_ITERATOR,
 		1,
-		[Define if reverse_iterator template works as expected])
-	reverseit='no'])
+		[Define if reverse_iterator template works as expected])],
+	[reverseit='no'])
 AC_MSG_RESULT($reverseit)
 
 
 AC_MSG_CHECKING([whether overloaded using-declarations work])
-AC_TRY_COMPILE([struct A{foo(int){}};struct B{using A::foo;foo(int,bool){}};],
+AC_TRY_COMPILE([struct A{void foo(int){}};struct B:A{using A::foo;void foo(int,bool){}};],
 	[B b;b.foo(1,true);],
 	[usingdecl='yes'],
 	[AC_DEFINE(PQXX_BROKEN_USING_DECL,
@@ -307,8 +316,6 @@ AC_TRY_COMPILE([struct A{foo(int){}};struct B{using A::foo;foo(int,bool){}};],
 		[Define if function overloading using "using" breaks])
 	 usingdecl='no'])
 AC_MSG_RESULT($usingdecl)
-
-AC_LANG_POP(C++)
 
 AC_CHECK_TYPE([ptrdiff_t],
 	[AC_DEFINE(PQXX_HAVE_PTRDIFF_T, 1, [Define if ptrdiff_t exists])])

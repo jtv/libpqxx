@@ -10,6 +10,17 @@ using namespace pqxx;
 namespace
 {
 
+#ifndef PQXX_HAVE_COUNT_IF
+template<typename IN, typename P> inline
+typename iterator_traits<IN>::difference_type count_if(IN first, IN last, P p)
+{
+  typename iterator_traits<IN>::difference_type cnt;
+  for (cnt=0; first!=last; ++first) cnt += p(*first);
+  return cnt;
+}
+#endif
+
+
 // Adds first element of each tuple it receives to a container
 template<typename CONTAINER> struct Add
 {

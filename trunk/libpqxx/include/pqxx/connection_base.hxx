@@ -114,6 +114,12 @@ public:
   template<typename TRANSACTOR> 
   void perform(const TRANSACTOR &T, int Attempts=3);			//[t4]
 
+#ifdef PQXX_BROKEN_MEMBER_TEMPLATE_DEFAULT_ARG
+  template<typename TRANSACTOR> void perform(TRANSACTOR &T, int Attempts);
+  template<typename TRANSACTOR>
+  void perform(const TRANSACTOR &T) { perform(T, 3); }
+#endif
+
   // TODO: Define a default noticer (mainly to help out Windows users)
   /// Set handler for postgresql errors or warning messages.
   /** Return value is the previous handler.  Ownership of any previously set 

@@ -1,3 +1,20 @@
+2004-02-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Check for functional count_if() (Jon Meinecke)
+  - Several AC_TRY_COMPILE checks fixed
+  - Stay in C++ mode, less Fortran stuff etc. in configure
+ include/pqxx/connection_base.hxx, include/pqxx/libcompiler.h:
+  - Workaround for Sun CC default argument problem (thanks Jon Meinecke)
+ include/pqxx/largeobject.hxx:
+  - Workaround for Sun CC namespace lookup problem (Jon Meinecke)
+ include/pqxx/result.hxx:
+  - Fixed long-standing bug in LoseRef() - thanks Jon Meinecke!
+ pqxx-config.in:
+  - Added missing -L in --libs option (Arjen Baart)
+ test/test049.cxx:
+  - count_if() workaround (thanks Jon Meinecke)
+ win32/libpqxx.mak:
+  - Added pipeline
 2004-02-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/libcompiler.h:
   - Set up for SUN Workshop workaround
