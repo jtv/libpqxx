@@ -36,6 +36,7 @@ AC_PATH_PROG([XMLTO], [xmlto])
 AM_CONDITIONAL([BUILD_TUTORIAL], [test -n "$XMLTO"])
 
 # TODO: Rename PGSTD to PQXXSTD
+# TODO: Allow PQXX_PQ_IN_NAMESPACE to be defined by command line option
 
 # check that std namespace is actually called std
 # not sure how to check for other namespaces...

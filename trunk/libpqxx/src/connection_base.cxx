@@ -754,7 +754,7 @@ void pqxx::connection_base::start_exec(const string &Q)
 }
 
 
-PGresult *pqxx::connection_base::get_result()
+pqxx::internal::pq::PGresult *pqxx::connection_base::get_result()
 {
   if (!m_Conn) throw broken_connection();
   return PQgetResult(m_Conn);

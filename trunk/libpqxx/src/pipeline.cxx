@@ -289,7 +289,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   assert(!m_queries.empty());
   invariant();
 
-  PGresult *r = m_Trans.get_result();
+  internal::pq::PGresult *r = m_Trans.get_result();
   if (!r)
   {
     if (have_pending() && !expect_none)
@@ -325,7 +325,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 void pqxx::pipeline::obtain_dummy()
 {
   assert(m_dummy_pending);
-  PGresult *const r = m_Trans.get_result();
+  internal::pq::PGresult *const r = m_Trans.get_result();
   m_dummy_pending = false;
 
   if (!r) 

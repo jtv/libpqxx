@@ -335,7 +335,7 @@ protected:
 private:
   void SetupState();
   void InternalSetTrace() throw ();
-  int Status() const throw () { return internal::pq::PQstatus(m_Conn); }
+  int Status() const throw () { return PQXXPQ::PQstatus(m_Conn); }
   const char *ErrMsg() const throw ();
   void Reset();
   void close() throw ();
