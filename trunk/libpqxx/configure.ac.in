@@ -271,6 +271,14 @@ AC_CHECK_DECL(PQexecPrepared,
 	[pqexecprepared=no],
 	[#include <${with_postgres_include}/libpq-fe.h>])
 
+AC_MSG_CHECKING([PQresultErrorField()])
+AH_TEMPLATE(PQresultErrorField,[Do we have a PQresultErrorField function?])
+pqresulterrorfield=yes
+AC_CHECK_DECL(PQresultErrorField,
+	[AC_DEFINE(PQXX_HAVE_PQRESULTERRORFIELD, 1, [Define if PostgreSQL has PQresultErrorField()])],
+	[pqresulterrorfield=no],
+	[#include <${with_postgres_include}/libpq-fe.h>])
+
 AC_CHECK_HEADER(limits, 
 	[AC_DEFINE(PQXX_HAVE_LIMITS, 1, [Define if <limits> exists])])
 
