@@ -14,7 +14,7 @@ namespace
 
 string GetDatestyle(transaction_base &T)
 {
-  return T.exec("SHOW DATESTYLE").at(0).at(0).c_str();
+  return T.get_variable("DATESTYLE");
 }
 
 string SetDatestyle(transaction_base &T, string style)

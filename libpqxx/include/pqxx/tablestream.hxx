@@ -59,7 +59,7 @@ public:
    * As an added benefit, this will free up the transaction while the 
    * tablestream object itself still exists.
    */
-  virtual void complete() =0;						//[]
+  virtual void complete() =0;
 
 #ifdef PQXX_DEPRECATED_HEADERS
   /// @deprecated Use name() instead

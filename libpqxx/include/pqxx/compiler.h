@@ -23,9 +23,9 @@
 #include "pqxx/libcompiler.h"
 
 
-#ifdef HAVE_LIMITS
+#ifdef PQXX_HAVE_LIMITS
 #include <limits>
-#else // HAVE_LIMITS
+#else // PQXX_HAVE_LIMITS
 #include <climits>
 namespace PGSTD
 {
@@ -41,7 +41,7 @@ template<> inline long numeric_limits<long>::max() throw () {return LONG_MAX;}
 /// Work around lacking std::min()
 template<> inline long numeric_limits<long>::min() throw () {return LONG_MIN;}
 }
-#endif // HAVE_LIMITS
+#endif // PQXX_HAVE_LIMITS
 
 
 #ifdef _WIN32

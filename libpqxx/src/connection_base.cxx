@@ -480,6 +480,13 @@ void pqxx::connection_base::MakeEmpty(pqxx::result &R, ExecStatusType Stat)
 }
 
 
+#ifndef PQXX_HAVE_PQPUTCOPY
+namespace
+{
+const string theWriteTerminator = "\\.";
+}
+#endif
+
 
 bool pqxx::connection_base::ReadCopyLine(string &Line)
 {
@@ -541,7 +548,7 @@ bool pqxx::connection_base::ReadCopyLine(string &Line)
     Line += Buf;
   }
 
-  Result = (Line != "\\.");
+  Result = (Line != theWriteTerminator);
 
   if (!Result) 
   {
@@ -554,7 +561,7 @@ bool pqxx::connection_base::ReadCopyLine(string &Line)
 }
 
 
-
+#include<iostream>// DEBUG CODE
 bool pqxx::connection_base::WriteCopyLine(const string &Line, bool async)
 {
   if (!is_open())
@@ -563,20 +570,29 @@ bool pqxx::connection_base::WriteCopyLine(const string &Line, bool async)
 
   bool OK, Result;
   int PutRes;
-  const PGSTD::string L = Line + '\n';
+  const string L = Line + '\n';
+  const char *const LC = L.c_str();
+  const string::size_type Len = L.size();
 
 #ifdef PQXX_HAVE_PQPUTCOPY
   if (async) go_async();
-  PutRes = PQputCopyData(m_Conn, L.c_str(), L.size());
+  PutRes = PQputCopyData(m_Conn, LC, Len);
   if (async) go_sync();
   OK = (PutRes != -1);
   Result = (PutRes != 0);
 #else
+  PutRes = PQputnbytes(m_Conn, LC, Len);
   OK = (PutRes != EOF);
   Result = true;
 #endif
   if (!OK)
-    throw runtime_error("Error writing to table: " + string(ErrMsg()));
+  {
+    const string Msg = string("Error writing to table: ") + ErrMsg();
+#ifdef PQXX_HAVE_PQPUTCOPY
+    PQendcopy(m_Conn);
+#endif
+    throw runtime_error(Msg);
+  }
   return Result;
 }
 
@@ -606,9 +622,12 @@ void pqxx::connection_base::EndCopyWrite()
     }
   } while (!Res);
 #else
-  static const string terminator("\\.");
-  WriteCopyLine(terminator);
-  if (PQendcopy(m_Conn)) throw runtime_error(ErrMsg());
+  WriteCopyLine(theWriteTerminator);
+  // This check is a little odd, but for some reason PostgreSQL 7.4 keeps
+  // returning 1 (i.e., failure) but with an empty error message, and without
+  // anything seeming wrong.
+  if ((PQendcopy(m_Conn) != 0) && ErrMsg() && *ErrMsg()) 
+    throw runtime_error(ErrMsg());
 #endif
 }
 

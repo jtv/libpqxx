@@ -1,7 +1,9 @@
-/* include/pqxx/config.h.in.  Generated from configure.ac by autoheader.  */
+/* This file was originally generated from configure.ac by autoheader, and then
+ * customized.
+ */
 
 /* Define if std defines the char_traits template and <char> specialization */
-#undef HAVE_CHAR_TRAITS
+#undef PQXX_HAVE_CHAR_TRAITS
 
 /* Define if preprocessor supports nonstandard "warning" directive */
 #undef PQXX_HAVE_CPP_WARNING
@@ -10,13 +12,16 @@
 #undef PQXX_HAVE_CPP_PRAGMA_WARNING
 
 /* Define to 1 if you have the <iterator> header file. */
-#undef HAVE_ITERATOR
+#undef PQXX_HAVE_ITERATOR
 
 /* Define to 1 if you have the <limits> header file. */
-#undef HAVE_LIMITS
+#undef PQXX_HAVE_LIMITS
 
 /* Define to 1 if the system has the type `ptrdiff_t'. */
-#undef HAVE_PTRDIFF_T
+#undef PQXX_HAVE_PTRDIFF_T
+
+/* Define to 1 if standard string has clear() function. */
+#undef PQXX_HAVE_STRING_CLEAR
 
 /* Define if the sys/select.h header defines a working select() and friends,
    as per POSIX 1003.1-2001 */
@@ -48,19 +53,4 @@
 
 /* Define if you have the <streambuf> header; if not, <streambuf.h> is used */
 #undef PQXX_HAVE_STREAMBUF
-
-/* Do we have a PQescapeString function? */
-#undef PQescapeString
-
-/* Do we have a PQfreeNotify function? */
-#undef PQfreeNotify
-
-/* Do we have a PQfreemem function? */
-#undef PQfreemem
-
-/* Do we have a PQftable function? */
-#undef PQftable
-
-/* Define to `unsigned' if <sys/types.h> does not define. */
-#undef size_t
 

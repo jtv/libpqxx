@@ -235,7 +235,7 @@ public:
    * variables by executing the corresponding SQL commands, and do not get or
    * set variables while a tablestream is active on the same connection.
    */
-  PGSTD::string get_variable(const PGSTD::string &);		//[]
+  PGSTD::string get_variable(const PGSTD::string &);			//[t60]
 
 #ifdef PQXX_DEPRECATED_HEADERS
   /// @deprecated Use disconnect() instead
@@ -349,7 +349,7 @@ private:
   void UnregisterTransaction(transaction_base *) throw ();
   void MakeEmpty(result &, ExecStatusType=PGRES_EMPTY_QUERY);
   bool ReadCopyLine(PGSTD::string &);
-  bool WriteCopyLine(const PGSTD::string &, bool async);
+  bool WriteCopyLine(const PGSTD::string &, bool async=false);
   void EndCopyWrite();
 
   void RawSetVar(const PGSTD::string &Var, const PGSTD::string &Value);

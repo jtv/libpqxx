@@ -201,19 +201,19 @@ pqxx::result pqxx::transaction_base::exec(const char Query[],
     break;
 
   case st_committed:
-    throw logic_error("Attempt to execute query " + N + " "
+    throw logic_error("Attempt to execute query " + N +
 	              "in committed transaction '" +
 		      name() +
 		      "'");
 
   case st_aborted:
-    throw logic_error("Attempt to execute query " + N + " "
+    throw logic_error("Attempt to execute query " + N +
 	              "in aborted transaction '" +
 		      name() +
 		      "'");
 
   case st_in_doubt:
-    throw logic_error("Attempt to execute query " + N + " in transaction '" + 
+    throw logic_error("Attempt to execute query " + N + "in transaction '" + 
 		      name() + 
 		      "', which is in indeterminate state");
   default:
@@ -350,7 +350,11 @@ void pqxx::transaction_base::CheckPendingError()
   if (!m_PendingError.empty())
   {
     const string Err(m_PendingError);
+#ifdef PQXX_HAVE_STRING_CLEAR
     m_PendingError.clear();
+#else
+    m_PendingError.resize(0);
+#endif
     throw runtime_error(m_PendingError);
   }
 }

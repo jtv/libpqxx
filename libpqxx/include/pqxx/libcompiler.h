@@ -21,7 +21,7 @@
 #include "pqxx/libconfig.h"
 
 
-#ifndef HAVE_PTRDIFF_T
+#ifndef PQXX_HAVE_PTRDIFF_T
 typedef long ptrdiff_t;
 #endif
 
@@ -49,7 +49,7 @@ template<typename Cat,
 #include <iterator>
 #endif // PQXX_BROKEN_ITERATOR
 
-#ifndef HAVE_CHAR_TRAITS
+#ifndef PQXX_HAVE_CHAR_TRAITS
 #include <cstddef>
 namespace PGSTD
 {
