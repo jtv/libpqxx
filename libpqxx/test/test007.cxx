@@ -64,6 +64,8 @@ public:
 
     // See if we get reasonable type identifier for this column
     const oid rctype = R.column_type(0);
+    if (rctype != R.column_type(result::tuple::size_type(0)))
+      throw logic_error("Inconsistent result::column_type()");
     const string rct = to_string(rctype);
     if (rctype <= 0)
       throw logic_error("Got strange type ID for column: " + rct);
@@ -90,6 +92,8 @@ public:
 
       // See if type identifiers are consistent
       const oid tctype = r->column_type(0);
+      if (tctype != r->column_type(result::tuple::size_type(0)))
+	throw logic_error("Inconsistent result::tuple::column_type()");
       if (tctype != rctype)
 	throw logic_error("Column has type " + rct + ", "
 	                  "but tuple says it's " + to_string(tctype));
