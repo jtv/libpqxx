@@ -15,14 +15,36 @@
 #
 # If successful, the script leaves a distribution tarball in /tmp.
 #
-# Set CONFIG_ARGS to any argument list you wish to pass to configure; set
-# CONCURRENCY_LEVEL to the number of parallel jobs you want "make" to run.  This
-# can be useful on SMP or SMT systems, or in conjunction with distcc.
+# Set CONFIG_ARGS to any argument list you wish to pass to configure.  Defaults
+# to "--enable-maintainer-mode --enable-shared".  Don't set the compiler here;
+# use COMPILERS instead (see below).
+#
+# The distribution is tested for several compilers by default; override the list
+# by setting COMPILERS to a space-separated list of compilers.
+#
+# Set CONCURRENCY_LEVEL to the number of parallel jobs you want "make" to run.
+# This can be useful on SMP or SMT systems, or in conjunction with distcc.
 
 LOGFILE=/tmp/libpqxx-preprelease.log
 ERRLOG=/tmp/libpqxx-preprelease.err
 
 SOURCEDIR=$1
+
+DEFAULTCOMPILERS="g++-2.95 g++ g++-3.4"
+
+
+if test -z "$CONCURRENCY_LEVEL" ; then
+	CONCURRENCY_LEVEL=1
+fi
+
+if test -z "$COMPILERS" ; then
+	COMPILERS="$DEFAULTCOMPILERS"
+fi
+
+if test -z "$CONFIG_ARGS" ; then
+	CONFIG_ARGS="--enable-maintainer-mode --enable-shared"
+fi
+
 
 function print() {
 	echo "$1" >>$LOGFILE
@@ -40,9 +62,28 @@ function command() {
 	$2 $1 >>$LOGFILE 2>>$ERRLOG
 }
 
-if test -z "$CONCURRENCY_LEVEL" ; then
-	CONCURRENCY_LEVEL=1
-fi
+
+# In current directory, configure, build, and run regression test using the
+# compiler given as an argument.  If no argument is given, the default compiler
+# is used.
+function run_test() {
+	if ! test -z "$1" ; then
+		COMPILEROPT="CC=$1 CXX=$1"
+	fi
+	log "********* Testing with $1 *********"
+	log "Configuring"
+	command "./configure $CONFIG_ARGS $COMPILEROPT" nice
+
+	log "Building"
+	command "make -j $CONCURRENCY_LEVEL" nice
+
+	log "Running regression test"
+	command "make -j $CONCURRENCY_LEVEL check" nice
+	grep '^PASS:' $LOGFILE
+	grep '^FAIL:' $LOGFILE 2>>$ERRLOG || true
+	grep '^All [0-9]* tests passed' $LOGFILE
+}
+
 
 rm -f $LOGFILE $ERRLOG
 
@@ -84,23 +125,13 @@ if test -z "$SOURCEDIR"; then SOURCEDIR="."; fi
 command "cd $SOURCEDIR"
 SOURCEDIR=`pwd`
 
-log "Building in \"$SOURCEDIR\" (`pwd`)"
+log "Building from \"$SOURCEDIR\" (`pwd`)"
 
 DISTNAME=libpqxx-$PQXXVERSION
 TARBALL=$DISTNAME.tar.gz
 
 log "Generating autoconf/automake files"
 command ./autogen.sh nice
-
-#log "Generating reference documentation"
-#mkdir -p doc/html/Reference
-#rm -rf doc/html/Reference/*
-#command doxygen nice
-#
-#log "Generating tutorial"
-#mkdir -p doc/html/Tutorial
-#rm -rf doc/html/Tutorial/*
-#command "xmlto -o doc/html/Tutorial xhtml doc/libpqxx.xml"
 
 log "Creating $TARBALL"
 command "make dist" nice
@@ -116,17 +147,10 @@ command "tar xzf $TARBALL"
 command "rm $TARBALL"
 command "cd $DISTNAME"
 
-log "Configuring"
-command "./configure $CONFIG_ARGS" nice
+for compiler in $COMPILERS ; do
+	run_test "$compiler"
+done
 
-log "Building"
-command "make -j $CONCURRENCY_LEVEL" nice
-
-log "Running regression test"
-command "make -j $CONCURRENCY_LEVEL check" nice
-grep '^PASS:' $LOGFILE
-grep '^FAIL:' $LOGFILE 2>>$ERRLOG || true
-grep '^All [0-9]* tests passed' $LOGFILE
 
 log "Generating symbol table"
 nm --demangle src/.libs/libpqxx.a | cut -d' ' -f 3-  | grep -v '^_' | grep -v '^$' | grep -i '^pqxx' | sort -u -o $SOURCEDIR/lib/SYMBOLS.$PQXXVERSION
