@@ -30,6 +30,7 @@ AC_TRY_COMPILE(
 AC_MSG_RESULT($std)
 
 # see if we want verbose compiler warnings
+# TODO: Don't we invoke AM_MAINTAINER_MODE?
 AC_MSG_CHECKING([maintainer mode])
 AC_ARG_ENABLE(maintainer-mode,
 	AC_HELP_STRING(
