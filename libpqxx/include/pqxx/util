@@ -21,6 +21,7 @@
 #include "pqxx/compiler.h"
 
 #include <cstdio>
+#include <cctype>
 #include <stdexcept>
 #include <string>
 #include <typeinfo>
