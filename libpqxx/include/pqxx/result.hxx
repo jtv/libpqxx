@@ -28,8 +28,7 @@
  */
 
 // TODO: Support SQL arrays
-// TODO: value_type, reference, const_reference
-// TODO: container comparisons
+// TODO: value_type
 
 namespace pqxx
 {
@@ -52,10 +51,24 @@ public:
   
   result &operator=(const result &) throw ();				//[t10]
 
-  typedef unsigned long size_type;
-  typedef signed long difference_type;
+  bool operator==(const result &) const throw ();			//[]
+  bool operator!=(const result &rhs) const throw ()			//[]
+  	{ return !operator==(rhs); }
+  bool operator<(const result &) const throw ();			//[]
+  bool operator>(const result &rhs) const throw ()			//[]
+    	{ return rhs<*this; }
+  bool operator<=(const result &rhs) const throw ()			//[]
+    	{ return !(rhs<*this); }
+  bool operator>=(const result &rhs) const throw ()			//[]
+    	{ return rhs<=*this; }
+
+  class tuple;
   class field;
   class const_fielditerator;
+  typedef unsigned long size_type;
+  typedef signed long difference_type;
+  typedef tuple const_reference;
+
 
   /// Reference to one row in a result.
   /** A tuple represents one row (also called a tuple) in a query result set.  
@@ -74,13 +87,29 @@ public:
     typedef unsigned int size_type;
     typedef signed int difference_type;
     typedef const_fielditerator const_iterator;
+    typedef field const_reference;
 
     tuple(const result *r, result::size_type i) throw () : 
       m_Home(r), m_Index(i) {}
     ~tuple() throw () {} // Yes Scott Meyers, you're absolutely right[1]
 
+    bool operator==(const tuple &) const throw ();			//[]
+    bool operator!=(const tuple &rhs) const throw ()			//[]
+  	{ return !operator==(rhs); }
+    bool operator<(const tuple &) const throw ();			//[]
+    bool operator>(const tuple &rhs) const throw ()			//[]
+    	{ return rhs<*this; }
+    bool operator<=(const tuple &rhs) const throw ()			//[]
+    	{ return !(rhs<*this); }
+    bool operator>=(const tuple &rhs) const throw ()			//[]
+    	{ return rhs<=*this; }
+
+
     inline const_iterator begin() const throw ();			//[t82]
     inline const_iterator end() const throw ();				//[t82]
+
+    inline const_reference front() const throw ();			//[]
+    inline const_reference back() const throw ();			//[]
 
 #ifdef PQXX_HAVE_REVERSE_ITERATOR
     typedef PGSTD::reverse_iterator<const_iterator> const_reverse_iterator;
@@ -103,6 +132,9 @@ public:
     field at(const PGSTD::string &s) const { return at(s.c_str()); }	//[t11]
 
     inline size_type size() const throw ();				//[t11]
+
+    void swap(tuple &rhs) throw ()					//[]
+    	{ tuple temp(rhs); *this=rhs; rhs=temp; }
 
     result::size_type rownumber() const throw () { return m_Index; }	//[t11]
 
@@ -280,7 +312,8 @@ public:
 
     bool is_null() const { return home()->GetIsNull(idx(),col()); }	//[t12]
 
-    size_type size() const { return home()->GetLength(idx(),col()); }	//[t11]
+    size_type size() const throw ()					//[t11]
+    	{ return home()->GetLength(idx(),col()); }
 
     tuple::size_type num() const { return col(); }			//[t82]
 
@@ -313,6 +346,7 @@ public:
   public:
     typedef result::size_type size_type;
     typedef result::difference_type difference_type;
+    typedef result::const_reference const_reference;
 
     const_iterator() throw () : tuple(0,0) {}
     const_iterator(const tuple &t) throw () : tuple(t) {}
@@ -323,8 +357,8 @@ public:
      * hope this works out to be similar to C pointer/array semantics in useful 
      * cases[2].
      */
-    pointer operator->()  const { return this; }			//[t12]
-    reference operator*() const { return *operator->(); }		//[t12]
+    const tuple *operator->() const { return this; }			//[t12]
+    tuple operator*() const { return *this; }				//[t12]
 
     const_iterator operator++(int);					//[t12]
     const_iterator &operator++() { ++m_Index; return *this; }		//[t1]
@@ -374,15 +408,15 @@ public:
   public:
     typedef tuple::size_type size_type;
     typedef tuple::difference_type difference_type;
+    typedef tuple::const_reference const_reference;
     using it::pointer;
-    using it::reference;
 
     const_fielditerator(const tuple &T, tuple::size_type C) throw () :	//[t82]
       field(T, C) {}
     const_fielditerator(const field &F) throw () : field(F) {}		//[t82]
 
     pointer operator->() const { return this; }				//[t82]
-    reference operator*() const { return *operator->(); }		//[t82]
+    field operator*() const { return *this; }				//[t82]
 
     const_fielditerator operator++(int);				//[t82]
     const_fielditerator &operator++() { ++m_col; return *this; }	//[t82]
@@ -426,14 +460,18 @@ public:
    	{ return const_reverse_iterator(begin()); }
 #endif
 
-  const_iterator begin() const { return const_iterator(this, 0); }	//[t1]
-  inline const_iterator end() const;					//[t1]
+  const_iterator begin() const throw ()					//[t1]
+  	{ return const_iterator(this, 0); }
+  inline const_iterator end() const throw ();				//[t1]
 
-  size_type size() const						//[t2]
+  const_reference front() const throw () { return tuple(this,0); }	//[]
+  const_reference back() const throw () {return tuple(this,size()-1);}	//[]
+
+  size_type size() const throw ()					//[t2]
   	{ return m_Result ? PQXXPQ::PQntuples(m_Result) : 0; }
   bool empty() const							//[t11]
   	{ return !m_Result || !PQXXPQ::PQntuples(m_Result); }
-  size_type capacity() const { return size(); }				//[t20]
+  size_type capacity() const throw () { return size(); }		//[t20]
 
   void swap(result &other) throw ();					//[t77]
 
@@ -594,6 +632,11 @@ inline result::tuple::const_iterator
 result::tuple::end() const throw ()
 	{ return tuple::const_iterator(*this, size()); }
 
+inline result::field result::tuple::front() const throw ()
+  	{ return field(*this, 0); }
+inline result::field result::tuple::back() const throw ()
+	{ return field(*this, size()-1); }
+
 inline result::field 
 result::tuple::operator[](result::tuple::size_type i) const  throw ()
 	{ return field(*this, i); }
@@ -651,7 +694,7 @@ result::const_iterator::operator-(const_iterator i) const
   return num()-i.num(); 
 }
 
-inline result::const_iterator result::end() const 
+inline result::const_iterator result::end() const throw ()
 { 
   return const_iterator(this, size()); 
 }
