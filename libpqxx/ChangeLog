@@ -1,6 +1,9 @@
 2004-02-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/maketestam.pl:
   - Removed redundant -I option
+ tools/Makefile.am:
+  - Added pqxxbench
+  - Added rmlo
  tools/pqxxbench.cxx, tools/pqxxbench.in:
   - New
 2004-02-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
