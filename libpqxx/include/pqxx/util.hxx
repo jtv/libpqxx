@@ -307,6 +307,7 @@ PGSTD::string sqlesc(const char str[]);					//[t0]
 /** Reads and escapes input string.  The string is terminated by either a nul
  * character or the given byte length, whichever comes first.
  *
+ * @param str optionally zero-terminated character string
  * @param maxlen largest possible length of input string, not including optional
  * terminating nul character.
  *
