@@ -1,3 +1,6 @@
+2002-10-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh:
+  - Fixed apparent typo (confflags defined, $conf_flags used)
 2002-10-20  J.H.M. Dassen (Ray) <jdassen@debian.org> 
  autogen.sh:
   - Don't silently continue after errors.
