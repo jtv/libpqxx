@@ -158,7 +158,8 @@ done
 
 
 log "Generating symbol table"
-nm --demangle src/.libs/libpqxx.a | cut -d' ' -f 3-  | grep -v '^_' | grep -v '^$' | grep -i '^pqxx' | sort -u -o $SOURCEDIR/lib/SYMBOLS.$PQXXVERSION
+mkdir -p "$SOURCEDIR/lib"
+nm --demangle src/.libs/libpqxx.a | cut -d' ' -f 3-  | grep -v '^_' | grep -v '^$' | grep -i '^pqxx' | sort -u -o "$SOURCEDIR/lib/SYMBOLS.$PQXXVERSION"
 
 log "Creating release version of $TARBALL"
 command "make dist" nice

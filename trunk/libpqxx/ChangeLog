@@ -4,6 +4,8 @@
   - Use octal notation for all chars < 0x20
  test/test062.cxx:
   - Don't just compare unsigned char to char--signedness may differ
+ tools/preprelease:
+  - Create lib directory if it doesn't exist yet
 2005-03-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test062.cxx:
   - Added non-ASCII bytes to test case, thanks thomasae@online.no
