@@ -21,8 +21,8 @@
 <tr><td nowrap align=right valign=top>typedef traits_type::pos_type&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#s3">pos_type</a></td></tr>
 <tr><td nowrap align=right valign=top>typedef traits_type::off_type&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#s4">off_type</a></td></tr>
 <tr><td colspan=2><br><h2>Public Member Functions</h2></td></tr>
-<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#a0">largeobject_streambuf</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, <a class="el" href="classpqxx_1_1LargeObject.html">LargeObject</a> O, PGSTD::ios_base::openmode mode=PGSTD::ios::in|PGSTD::ios::out)</td></tr>
-<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#a1">largeobject_streambuf</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, Oid O, PGSTD::ios_base::openmode mode=PGSTD::ios::in|PGSTD::ios::out)</td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#a0">largeobject_streambuf</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, <a class="el" href="classpqxx_1_1LargeObject.html">LargeObject</a> O, PGSTD::ios_base::openmode mode=PGSTD::ios::in|PGSTD::ios::out, size_type BufSize=512)</td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#a1">largeobject_streambuf</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, Oid O, PGSTD::ios_base::openmode mode=PGSTD::ios::in|PGSTD::ios::out, size_type BufSize=512)</td></tr>
 <tr><td nowrap align=right valign=top>virtual&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#a2">~largeobject_streambuf</a> ()</td></tr>
 <tr><td colspan=2><br><h2>Protected Member Functions</h2></td></tr>
 <tr><td nowrap align=right valign=top>virtual int&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#b0">sync</a> ()</td></tr>
@@ -198,7 +198,13 @@ template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&g
           <td></td>
           <td></td>
           <td class="md" nowrap>PGSTD::ios_base::openmode&nbsp;</td>
-          <td class="mdname" nowrap>&nbsp; <em>mode</em> = PGSTD::ios::in | PGSTD::ios::out</td>
+          <td class="mdname" nowrap>&nbsp; <em>mode</em> = PGSTD::ios::in | PGSTD::ios::out, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>size_type&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>BufSize</em> = 512</td>
         </tr>
         <tr>
           <td></td>
@@ -246,7 +252,13 @@ template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&g
           <td></td>
           <td></td>
           <td class="md" nowrap>PGSTD::ios_base::openmode&nbsp;</td>
-          <td class="mdname" nowrap>&nbsp; <em>mode</em> = PGSTD::ios::in | PGSTD::ios::out</td>
+          <td class="mdname" nowrap>&nbsp; <em>mode</em> = PGSTD::ios::in | PGSTD::ios::out, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>size_type&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>BufSize</em> = 512</td>
         </tr>
         <tr>
           <td></td>
@@ -491,7 +503,7 @@ template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&g
 </table>
 <hr>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="largeobject_8h-source.html">largeobject.h</a></ul>
-<hr><address style="align: right;"><small>Generated on Sat Mar 15 20:47:41 2003 for libpqxx by
+<hr><address style="align: right;"><small>Generated on Mon Mar 17 22:59:05 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>
