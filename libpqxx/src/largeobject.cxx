@@ -180,13 +180,14 @@ long pqxx::largeobjectaccess::cseek(off_type dest, seekdir dir) throw ()
 
 long pqxx::largeobjectaccess::cwrite(const char Buf[], size_type Len) throw ()
 {
-  return max(lo_write(RawConnection(), m_fd, const_cast<char *>(Buf), Len), -1);
+  return
+    PGSTD::max(lo_write(RawConnection(),m_fd,const_cast<char *>(Buf), Len), -1);
 }
 
 
 long pqxx::largeobjectaccess::cread(char Buf[], size_type Bytes) throw ()
 {
-  return max(lo_read(RawConnection(), m_fd, Buf, Bytes), -1);
+  return PGSTD::max(lo_read(RawConnection(), m_fd, Buf, Bytes), -1);
 }
 
 
