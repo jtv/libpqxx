@@ -54,7 +54,7 @@ EXECS=test1 test2 test3 test4 test5 test6 test7 test8 test9 test10 test11 \
 	test12 test13 test14 test15
 EXECOBJS=test1.o test2.o test3.o test4.o test5.o test6.o test7.o test8.o \
 	test9.o test10.o test11.o test12.o test13.o test14.o test15.o
-LIBOBJS=pg_connection.o pg_cursor.o pg_nontransaction.o pg_result.o \
+LIBOBJS=pg_connection.o pg_cursor.o pg_nontransaction.o pg_result.o pg_robusttransaction.o \
 	pg_tablereader.o pg_tablestream.o pg_tablewriter.o pg_transaction.o \
 	pg_transactionitf.o
 
