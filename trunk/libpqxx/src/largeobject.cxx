@@ -25,6 +25,7 @@
 #include "pqxx/largeobject"
 
 using namespace PGSTD;
+using namespace pqxx::internal;
 using namespace pqxx::internal::pq;
 
 namespace
@@ -233,6 +234,9 @@ void pqxx::largeobjectaccess::open(openmode mode)
 
 void pqxx::largeobjectaccess::close() throw ()
 {
+#ifdef PQXX_QUIET_DESTRUCTORS
+  disable_noticer Quiet(m_Trans.conn());
+#endif
   if (m_fd >= 0) lo_close(RawConnection(), m_fd);
 }
 

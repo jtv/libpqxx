@@ -8,7 +8,7 @@
  *   pqxx::robusttransaction is a slower but safer transaction class
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/robusttransaction instead.
  *
- * Copyright (c) 2002-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -16,6 +16,8 @@
  *
  *-------------------------------------------------------------------------
  */
+#include "pqxx/libcompiler.h"
+
 #include "pqxx/dbtransaction"
 
 
@@ -144,7 +146,13 @@ public:
     basic_robusttransaction(C, isolation_tag::name(), PGSTD::string())
     	{ Begin(); }
 
-  virtual ~robusttransaction() throw () { End(); }
+  virtual ~robusttransaction() throw () 
+  {
+#ifdef PQXX_QUIET_DESTRUCTORS
+    internal::disable_noticer Quiet(conn());
+#endif
+    End(); 
+  }
 };
 
 } // namespace pqxx
