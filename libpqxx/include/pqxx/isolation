@@ -42,7 +42,7 @@ enum PQXX_LIBEXPORT isolation_level
 };
 
 /// Traits class to describe an isolation level; primarly for libpqxx's own use
-template<isolation_level LEVEL> struct PQXX_LIBEXPORT isolation_traits
+template<isolation_level LEVEL> struct isolation_traits
 {
   static isolation_level level() throw () { return LEVEL; }
   static const char *name() throw ();

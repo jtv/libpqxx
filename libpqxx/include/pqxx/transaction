@@ -82,7 +82,7 @@ template<> inline PGSTD::string Classname(const basic_transaction *)
  * the database.
  */
 template<isolation_level ISOLATIONLEVEL=read_committed>
-class PQXX_LIBEXPORT transaction : public basic_transaction
+class transaction : public basic_transaction
 {
 public:
   typedef isolation_traits<ISOLATIONLEVEL> isolation_tag;

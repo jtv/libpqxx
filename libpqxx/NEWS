@@ -1,3 +1,7 @@
+1.9.4
+ - Fixes Visual C++ build problem when compiling as library
+1.9.3
+ - Quick release for various minor changes
 1.9.2
  - Renamed most public member functions to all-lower-case names
  - <pqxx/all> (previously <pqxx/all.h> is now called <pqxx/pqxx> 

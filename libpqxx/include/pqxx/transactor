@@ -59,7 +59,7 @@ namespace pqxx
  * Perform() makes to run it.
  */
 template<typename TRANSACTION=transaction<read_committed> > 
-  class PQXX_LIBEXPORT transactor : 
+  class transactor : 
     public PGSTD::unary_function<TRANSACTION, void>
 {
 public:
