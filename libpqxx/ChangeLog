@@ -1,3 +1,7 @@
+2004-11-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Check for PG_DIAG_STATEMENT_POSITION as well as PQresultErrorField()
+  - Add <cstring> include for select() check; needed for OS X w/gcc-3.3
 2004-11-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers:
   - New

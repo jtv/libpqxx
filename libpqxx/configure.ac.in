@@ -187,7 +187,8 @@ Please locate it and report your findings so this script can be corrected.]
 AC_MSG_CHECKING([for working <sys/select.h>])
 select_h=yes
 AC_TRY_COMPILE(
-	[#include <sys/select.h>]
+	[#include <cstring>
+#include <sys/select.h>]
 	, [select(0,0,0,0,0)]
 	, AC_DEFINE(PQXX_HAVE_SYS_SELECT_H,1,
 [Define if the sys/select.h header defines a working select() and friends, as per POSIX 1003.1-2001])
@@ -198,7 +199,8 @@ AC_MSG_RESULT($select_h)
 AC_MSG_CHECKING([if select() accepts NULL fdsets])
 select_accepts_null=yes
 AC_TRY_COMPILE(
-	[#include <sys/time.h>
+	[#include <cstring>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>],
 	[fd_set s;FD_ZERO(&s);FD_SET(1,&s);return select(2,NULL,&s,&s,NULL)<=0],
@@ -292,8 +294,8 @@ AC_MSG_RESULT($pqexecprepared)
 AC_MSG_CHECKING([PQresultErrorField()])
 pqresulterrorfield=yes
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[PGresult*r=0;PQresultErrorField(r,0)],
-	AC_DEFINE(PQXX_HAVE_PQRESULTERRORFIELD,1,[Define if libpq has PQresultErrorField()]),
+	[PGresult*r=0;PQresultErrorField(r,PG_DIAG_STATEMENT_POSITION)],
+	AC_DEFINE(PQXX_HAVE_PQRESULTERRORFIELD,1,[Define if libpq has PQresultErrorField() and PG_DIAG_STATEMENT_POSITION]),
 	[pqresulterrorfield=no]
 )
 AC_MSG_RESULT($pqresulterrorfield)
