@@ -44,17 +44,22 @@ namespace
 int Backend_PID = 0;
 
 
-// Reasonably portable way to sleep for a given number of seconds
-void Sleep(int seconds)
+#ifndef _WIN32
+// Reasonably portable way to sleep for a given number of milliseconds
+/* This definition is not needed on Windows, which provides its own Sleep()
+ * function with the same semantics.
+ */
+void Sleep(int ms)
 {
   fd_set F;
   FD_ZERO(&F);
   struct timeval timeout;
-  timeout.tv_sec = seconds;
-  timeout.tv_usec = 0;
+  timeout.tv_sec = ms / 1000;
+  timeout.tv_usec = (ms % 1000) * 1000;
   if (select(0, &F, &F, &F, &timeout) == -1)
     throw runtime_error(strerror(errno));
 }
+#endif	// _WIN32
 
 // Sample implementation of trigger handler
 class TestTrig : public trigger
@@ -124,7 +129,7 @@ int main(int, char *argv[])
 
     for (int i=0; (i < 20) && !Trig.Done(); ++i)
     {
-      Sleep(1);
+      Sleep(500);
       C.get_notifs();
       cout << ".";
     }

@@ -284,20 +284,38 @@ define those variables that require non-default values.
 
 APPENDIX A - Links
 
-libpqxx			http://pqxx.tk/
-			http://gborg.postgresql.org/project/libpqxx/
-OpenBSD			http://www.openbsd.org/
-PostgreSQL		http://www.postgresql.org/
+Apple MacOS X	http://www.apple.com/macosx/
+BSD		http://www.bsd.org/
+C++		http://www.cs.rpi.edu/~musser/stl-book/
+Doxygen		http://www.stack.nl/~dimitri/doxygen/
+gcc		http://gcc.gnu.org/
+Google		http://www.google.com/
+libpq		http://candle.pha.pa.us/main/writings/pgsql/sgml/libpq.html
+libpqxx		http://pqxx.tk/
+		http://gborg.postgresql.org/project/libpqxx/
+Linux		http://www.linux.org/
+OpenSSL		http://www.openssl.org/
+PostgreSQL	http://www.postgresql.org/
 
 APPENDIX B - Projects Using libpqxx
 
 This list is very recent, and not a lot of work has been put into it.  It is
 known that there are many other projects using libpqxx that are not included
-here.
+here.  
+
+Since I haven't communicated with the authors in the "Google" list, their 
+inclusion does not imply endorsement.  For all I know, they may be unhappy with
+libpqxx--or perhaps they may have stopped using it by the time you read this!
+But obviously I'll do my best to ensure that this does not happen.  On to the
+list:
 
 As found on Google:
 
 Genea 			http://savannah.nongnu.org/projects/genea/
+Gnucomo			http://www.gnucomo.org/
+KOffice / Kexi		http://www.kexi-project.org/
+MapServer		http://mapserver.gis.umn.edu/
+QHacc			http://qhacc.sourceforge.net/
 Vocal / Mascarpone	http://www.vovida.org/
 
 

@@ -87,7 +87,10 @@ public:
 
   const_reference at(size_type n) const;				//[t62]
 
-  /// Character buffer @warning No terminating zero is added!
+  /// Raw character buffer (no terminating zero is added)
+  /** @warning No terminating zero is added!  If the binary data did not end in
+   * a null character, you will not find one here.
+   */
   const char *c_ptr() const throw () 					//[t62]
   {
     return reinterpret_cast<char *>(super::c_ptr());

@@ -1,6 +1,3 @@
-2.0 Release
-(*) README links: MacOS X, C++ Standard, BSD, libpq, openssl, gcc, doxygen, libpqxx
-
 Build system
 (*) Check for <sstream> presence (and what if it ain't there?)
 (*) Completely support building outside the source directory
