@@ -31,6 +31,8 @@
 #endif	// HAVE_UNISTD_H
 #endif	// PQXX_HAVE_SYS_SELECT_H
 
+#include "libpq-fe.h"
+
 #include "pqxx/connection_base"
 #include "pqxx/nontransaction"
 #include "pqxx/pipeline"
@@ -38,10 +40,8 @@
 #include "pqxx/transaction"
 #include "pqxx/trigger"
 
-
 using namespace PGSTD;
 using namespace pqxx::internal;
-using namespace pqxx::internal::pq;
 
 
 extern "C"
@@ -76,6 +76,12 @@ pqxx::connection_base::connection_base(const char ConnInfo[]) :
   m_fdmask()
 {
   clear_fdmask();
+}
+
+
+int pqxx::connection_base::backendpid() const throw ()
+{
+  return m_Conn ? PQbackendPID(m_Conn) : 0;
 }
 
 
@@ -383,16 +389,30 @@ void pqxx::connection_base::RemoveTrigger(pqxx::trigger *T) throw ()
     }
     else
     {
+      // Erase first; otherwise a notification for the same trigger may yet come
+      // in and wreak havoc.  Thanks Dragan Milenkovic. 
+      m_Triggers.erase(i);
+
       if (m_Conn && (R.second == ++R.first))
 	Exec(("UNLISTEN \"" + T->name() + "\"").c_str(), 0);
-
-      m_Triggers.erase(i);
     }
   }
   catch (const exception &e)
   {
     process_notice(e.what());
   }
+}
+
+
+void pqxx::connection_base::consume_input() throw ()
+{
+  PQconsumeInput(m_Conn);
+}
+
+
+bool pqxx::connection_base::is_busy() const throw ()
+{
+  return PQisBusy(m_Conn);
 }
 
 
@@ -444,6 +464,34 @@ int pqxx::connection_base::get_notifs()
     N.clear();
   }
   return notifs;
+}
+
+
+const char *pqxx::connection_base::dbname()
+{
+  if (!m_Conn) activate();
+  return PQdb(m_Conn);
+}
+
+
+const char *pqxx::connection_base::username()
+{
+  if (!m_Conn) activate();
+  return PQuser(m_Conn);
+}
+
+
+const char *pqxx::connection_base::hostname()
+{
+  if (!m_Conn) activate();
+  return PQhost(m_Conn);
+}
+
+
+const char *pqxx::connection_base::port()
+{
+  if (!m_Conn) activate();
+  return PQport(m_Conn);
 }
 
 
@@ -585,6 +633,11 @@ void pqxx::connection_base::InternalSetTrace() throw ()
   }
 }
 
+
+int pqxx::connection_base::Status() const throw ()
+{
+  return PQstatus(m_Conn);
+}
 
 
 void pqxx::connection_base::RegisterTransaction(transaction_base *T)
