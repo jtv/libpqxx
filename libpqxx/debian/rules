@@ -24,26 +24,33 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
 endif
 
-# shared library versions, option 1
-version=0.0.1
-major=0
-# option 2, assuming the library is created as src/.libs/libfoo.so.2.0.5 or so
-#version=`ls src/.libs/lib*.so.* | \
-# awk '{if (match($$0,/[0-9]+\.[0-9]+\.[0-9]+$$/)) print substr($$0,RSTART)}'`
-#major=`ls src/.libs/lib*.so.* | \
-# awk '{if (match($$0,/\.so\.[0-9]+$$/)) print substr($$0,RSTART+4)}'`
+# Get upstream version, and define libpqxx suffix
+UPSTREAM_VERSION = $(shell dpkg-parsechangelog | grep ^Version | sed "s/.* //" | sed "s/-[^-]*$$//")
+LIBRARY_VERSION =  -$(UPSTREAM_VERSION)
+#LIBRARY_VERSION = 1
 
-config.status: configure
+autoconfigure: autoconfigure-stamp
+autoconfigure-stamp: debian/control
 	dh_testdir
-	# Add here commands to configure the package.
-	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info
 
+	# Create versioned symlinks
+	cd debian; \
+	for file in libpqxx.*; do \
+	  ln -sf $$file `echo $$file | sed -e 's/libpqxx/libpqxx$(LIBRARY_VERSION)/'`; \
+	done
+	-rm debian/libpqxx$(LIBRARY_VERSION)*.in
+
+	mkdir debian/build; \
+	cd debian/build; \
+	../../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-static --enable-shared
+
+	touch autoconfigure-stamp
 
 build: build-stamp
-build-stamp:  config.status
+build-stamp: autoconfigure-stamp
 	dh_testdir
 
-	# Add here commands to compile the package.
+	cd debian/build; \
 	$(MAKE)
 
 	touch build-stamp
@@ -51,9 +58,8 @@ build-stamp:  config.status
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp
+	rm -f build-stamp autoconfigure-stamp
 
-	# Add here commands to clean up after the build process.
 	-$(MAKE) distclean
 ifneq "$(wildcard /usr/share/misc/config.sub)" ""
 	cp -f /usr/share/misc/config.sub config/config.sub
@@ -61,9 +67,13 @@ endif
 ifneq "$(wildcard /usr/share/misc/config.guess)" ""
 	cp -f /usr/share/misc/config.guess config/config.guess
 endif
+
 	# Remove CVS dirs present in upstream tarball, so they don't
 	# get packaged by accident.
 	find . -name CVS -print0 | xargs -0 rm -rf
+
+	rm -rf debian/build debian/install
+	rm -rf debian/libpqxx$(LIBRARY_VERSION)*
 
 	dh_clean
 
@@ -74,10 +84,11 @@ install: build
 	dh_installdirs
 
 #	Install into virtual root
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
+	cd debian/build; \
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/install
 
 	# We don't want an RPATH in a Debian package
-	chrpath --delete debian/tmp/usr/lib/lib*.so
+	chrpath --delete debian/install/usr/lib/lib*.so
 
 	dh_install
 
@@ -109,4 +120,12 @@ binary-arch: install
 	dh_builddeb
 
 binary: binary-indep binary-arch
+
+
+SEDPATTERN = -e "s/\#UPSTREAM_VERSION\#/$(UPSTREAM_VERSION)/g" -e "s/\#LIBRARY_VERSION\#/$(LIBRARY_VERSION)/g"
+
+# Make sure debian/control is up-to-date.
+debian/control: debian/changelog debian/control.in
+	sed $(SEDPATTERN) <debian/control.in >debian/control
+
 .PHONY: build clean binary-indep binary-arch binary install
