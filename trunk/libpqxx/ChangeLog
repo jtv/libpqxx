@@ -1,7 +1,11 @@
-2004-06-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
+2004-06-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/pipeline.cxx:
+  - Removed disaster-handling code for exceptions in result constructor
+2004-06-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/result.hxx, src/result.cxx:
   - Changed garbage collection mechanism to double circular linked lists
   - Wrapping a PGresult * in a result object is now exception-free!
+  - No more heap allocations when constructing
 2004-06-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx:
   - Wrap PQconsumeInput() and PQisBusy()
