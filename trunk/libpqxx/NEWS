@@ -3,6 +3,7 @@
  - Fixes for SunC++ 5.5
  - On Visual C++, now defines NOMINMAX, fixing large object support
  - Workaround for BSD grep
+ - Improvements for builds from CVS
 2.4.2
  - Fix minor problems with Apple's version of g++ 3.3
  - Fix problem with MingW on Windows

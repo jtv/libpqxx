@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      Compiler deficiency workarounds for libpqxx clients
  *
- * Copyright (c) 2002-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -110,7 +110,6 @@ template<> struct char_traits<unsigned char>
 
 // Workarounds for Visual C++.NET (2003 version does seem to work)
 #if _MSC_VER < 1310
-#define PQXX_WORKAROUND_VC7
 #undef PQXX_HAVE_REVERSE_ITERATOR
 #define PQXX_NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
 #define PQXX_TYPENAME
@@ -123,6 +122,26 @@ template<> struct char_traits<unsigned char>
 #if !defined(PQXX_LIBEXPORT) && !defined(_LIB)
 #define PQXX_LIBEXPORT __declspec(dllimport)
 #endif	// PQXX_LIBEXPORT _LIB
+
+/* Work around a particularly pernicious and deliberate bug in Visual C++:
+ * min() and max() are defined as macros, which can have some very nasty
+ * consequences.  This compiler bug can be switched off by defining NOMINMAX.
+ *
+ * We don't like making choices for the user and defining environmental macros
+ * of our own accord, but in this case it's the only way to compile without
+ * incurring a significant risk of bugs--and there doesn't appear to be any
+ * downside.  One wonders why this compiler wart is being maintained at all,
+ * since the introduction of inline functions back in the 20th century.
+ */
+#ifdef _MSC_VER
+#if defined(min) || defined(max)
+#error "Oops: min() and/or max() are defined as preprocessor macros.\
+  Define NOMINMAX macro before including any system headers!"
+#endif
+#define NOMINMAX
+#endif
+
+
 #endif	// _MSC_VER
 #endif	// _WIN32
 

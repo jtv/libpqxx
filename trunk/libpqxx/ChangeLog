@@ -2,6 +2,12 @@
  autogen.sh:
   - Fixed typo in automake check
   - Used "which" so $PATH is respected (thanks Pawel Niewiadomski)
+ include/pqxx/cachedresult.h, include/pqxx/cursor.h:
+  - error_permitted_isolation_level() is no longer a template
+  - no longer needs incorrect workarounds for Visual C++ and old Sun compilers
+ include/pqxx/compiler.h, include/pqxx/libcompiler.h:
+  - Moved Visual C++ NOMINMAX fix to libcompiler.h
+  - Retired workarounds for problematic error_permitted_isolation_level()
 2005-02-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  pqxx-config.in:
   - Fixed painful typo in help output, thanks Tommi Maekitalo

@@ -7,7 +7,7 @@
  *      definitions for the pqxx::cachedresult class and support classes.
  *   pqxx::cachedresult is a lazy-fetching, transparently-cached result set
  *
- * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -65,7 +65,7 @@ public:
   /** Perform query and transparently fetch and cache resulting data.
    * @param T is the transaction context in which the cachedresult lives.  This
    * 	will be used whenever data is fetched.  Must have isolation level
-   * 	"serializable," otherwise a link error will be generated for the symbol
+   * 	"serializable," otherwise a build error will be generated for the symbol
    * 	error_permitted_isolation_level.
    * @param Query is the SQL query that yields the desired result set.
    * @param BaseName gives the initial part of the name for this cachedresult
@@ -126,26 +126,14 @@ public:
 private:
   typedef Cursor::pos pos;
 
-#ifndef PQXX_WORKAROUND_VC7
   /// Only defined for permitted isolation levels (in this case, serializable)
   /** If you get a link or compile error saying this function is not defined,
    * that means a cachedresult is being created on a transaction that doesn't
    * have a sufficient isolation level to support the cachedresult's reliable
    * operation.
    */
-  template<typename ISOLATIONTAG>
-    static inline void error_permitted_isolation_level(ISOLATIONTAG) throw ();
-
-#if defined(__SUNPRO_CC)
-  // Incorrect, but needed to compile with Sun CC
-  template<> static void 
-    error_permitted_level(isolation_traits<serializable>) throw() {}
-#endif	// __SUNPRO_CC
-#else
-  // Incorrect, but needed to compile with Visual C++ 7
-  template<> static inline void
+  static void
     error_permitted_isolation_level(isolation_traits<serializable>) throw ();
-#endif
 
   void init();
 
@@ -188,10 +176,6 @@ private:
 
 /// @deprecated For compatibility with the old CachedResult class
 typedef cachedresult CachedResult;
-
-template<> inline void
-cachedresult::error_permitted_isolation_level(isolation_traits<serializable>)
-  throw () {}
 
 } // namespace pqxx
 
