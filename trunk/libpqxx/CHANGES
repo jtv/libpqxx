@@ -1,0 +1,127 @@
+2002-01-26 00:30
+ All:
+  - New #define PGSTD to replace std if needed
+ Compiler:
+  - New header pg_compiler.h
+  - Genericized workaround for missing numeric_limits
+  - Disable braindead Microsoft Visual C++ warnings
+2002-01-20 14:50
+ Result:
+  - Fixed Result::Field::name() -- thanks to Gilberto Ribeiro de Queiroz
+2002-01-08 21:50
+ TableWriter:
+  - operator= forgot to return *this
+ Test9:
+  - Created to test TableWriter's back_insert_iterator
+2002-01-07 00:15
+ TableWriter:
+  - Implemented back_insert_iterator<TableWriter>
+2002-01-01 23:45
+ TableWriter:
+  - Forgot to separate fields in output
+ Tests:
+  - Rearranged to set up their own database environment
+  - New test writes orgevents table
+ Transaction:
+  - Merged "clean" state into "active" state
+  - Moved back-end COMMIT into Transaction's destructor
+2001-12-30 18:00
+ Docs:
+  - Added why-a-new-library section
+  - Explained transactions
+ Transaction:
+  - Abort no longer does a redundant ABORT WORK if already aborted
+2001-12-23 22:30
+ Docs:
+  - Mentions Trigger and TableStream now
+2001-12-23 14:40
+ Connection:
+  - Support removal of triggers
+  - Reserved AddTrigger() and RemoveTrigger() for use by Trigger
+ Test3:
+  - Updated for revised Transactor interface
+ Test4:
+  - Changed "Got [] rows" in output to "Got [] row(s)"
+ Test5:
+  - Updated for revised Trigger interface
+ Test7:
+  - Updated for revised Transactor interface
+ Transactor:
+  - Built name into Transactor as data member
+  - Added name as constructor argument
+  - Name() returns std::string
+ Trigger:
+  - Built registering/unregistering into Trigger; constructor change!
+  - Name() returns std::string
+
+2001-12-16 00:45
+ Connection:
+  - Added COPY support
+ Makefile:
+  - Now sets my personal connect string as CONNSTR for regression test
+  - Uses test7 to restore events table clobbered in test3
+  - Now requires new table "orgevents"
+ TableReader:
+  - Basic functionality implemented
+ TableWriter:
+  - Basic functionality implemented
+ Test4:
+  - Updated comments to reflect new cursor "count" convention
+ Test6:
+  - Created
+ Test7:
+  - Created
+ Transaction:
+  - Added COPY support
+ Util:
+  - Added FromString() analogous (but opposite) to ToString()
+
+2001-12-12 22:20
+ Connection:
+  - Uses new Unique<> template for m_Trans
+ TableReader:
+  - Created
+ TableStream:
+  - Created
+ TableWriter:
+  - Created
+ Transaction:
+  - Now checks for active stream
+  - Destructor catches Abort() exceptions
+ Util:
+  - Introduced Unique<> class template
+
+2001-12-02 20:30
+ All:
+  - Inlined more functions
+ Connection:
+  - Misc. query functions added
+
+2001-12-02 17:30
+ Connection:
+  - ProcessNotice() to call (possibly client-defined) notice processor
+ Transaction:
+  - Now calls notice processor when it can't throw exceptions
+  - Checks for pending triggers before it begins
+ Trigger:
+  - Guarantees that no notifications are delivered inside transactions
+
+2001-12-02 16:00
+ Makefile:
+  - check target now depends on executables
+  - Passes more interesting "count" argument to test4
+ Connection:
+  - MakeEmpty() to create empty result set
+  - Stricter error checking on opening/closing transactions
+ Cursor: 
+  - Irregular meaning of 0 for fetch/move no longer used
+  - Added Fetch() and Move()
+  - Fixed "done" accounting in SetCount()
+  - Separated creation of FETCH command into MakeFetchCmd() method
+ Transaction:
+  - Added MakeEmpty()
+ Util:
+  - Added Result_size_type_max
+ test4:
+  - Seeks to end of query first if backwards retrieval requested
+

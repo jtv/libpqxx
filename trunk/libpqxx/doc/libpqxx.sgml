@@ -1,0 +1,601 @@
+ <chapter id="libpqxx">
+  <title>libpqxx - C++ Binding Library</title>
+
+  <sect1>
+   <title>About <filename>libpqxx</filename></title>
+   <para>
+    <filename>libpqxx</filename> is a C++ <acronym>API</acronym> to 
+    <productname>PostgreSQL</productname>.  It replaces the earlier
+    <filename>libpq++</filename> with a more <acronym>STL</acronym>-conformant 
+    interface and makes more extensive use of C++ language features such as 
+    exceptions, templates, and strings.
+   </para>
+
+   <sect2>
+    <title>Why another C++ SQL library?</title>
+    <para>
+     Several open-source C++ wrapper libraries are available for various
+     databases, as well as some database-independent ones; there's
+     <filename>libpql++</filename>, <filename>libpq++</filename>,
+     <filename>libsqlxx</filename> and so on.
+    </para>
+
+    <para>
+     So was <filename>libpqxx</filename> really necessary?
+    </para>
+
+    <para>
+     I think it is.  The C++ Standard, and its standard library in particular,
+     have stabilized during the latter half of the 1990s; compilers and 
+     standard library implementations are still following suit at the time of 
+     writing.  As a result, most older third-party libraries suffer from 
+     symptoms such as: 
+     <itemizedlist>
+      <listitem>
+       <para>
+        Ad-hoc exception classes.  Programs using such libraries need to deal 
+	with various incompatible exception hierarchies, and error handling
+	becomes a total nightmare.
+       </para>
+      </listitem>
+
+      <listitem>
+       <para>
+        Ad-hoc string classes.  As one member of the C++ standards committee
+	put it, "if C++ doesn't have a standard string, there will be blood in
+	the streets."  Luckily, the committee saw the wisdom in this.
+       </para>
+      </listitem>
+
+      <listitem>
+       <para>
+        "A Better C."  Using only the oldest features of C++ as extensions to
+	the C language really only complicates things, but there was a time
+	when this was the only way to write portable C++.
+       </para>
+      </listitem>
+
+      <listitem>
+       <para>
+        Ad-hoc containers and algorithms.  Inventing your own container APIs is
+	not just wasted development effort unless you happen to be designing a
+	new and different container library.  Having to learn how they work is
+	wasted user effort as well.
+       </para>
+      </listitem>
+     </itemizedlist>
+    </para>
+     
+    <para>
+     For these reasons, third-party libraries have tended to grow into
+     intrusive frameworks.  Third-party code, and class libraries in 
+     particular, need to be rewritten to replace such ad-hockery with the rich 
+     and standardized functionality now provided by C++.  This is what 
+     <filename>libpqxx</filename> intends to do for 
+     <productname>PostgreSQL</productname>.  The library was designed to be a 
+     forward-looking one, which means that ports to vendor X's compiler Y may 
+     have to wait until X improves its support of the Standard.
+    </para>
+
+    <para>
+     But there were other reasons to design a new SQL frontend from scratch.  
+     C++ is a complex language, and the only things stopping a library writer
+     from shooting himself
+     <footnote>Yes, <strong>him</>self.  A "writer" is grammatically masculine,
+      regardless of actual gender.
+     </footnote> 
+     in the foot are years of experience and an extensive idiom of good
+     practices.  To name a few typical symptoms of foot-shooting:
+    </para>
+
+    <itemizedlist>
+     <listitem>
+      <para>
+       Poor language integration.  Users need to learn myriads of function
+       names when standard C++ operators can be overloaded instead to make code
+       fit in more naturally with the core language.
+      </para>
+     </listitem>
+
+     <listitem>
+      <para>
+       Overdoing overloading.  It's also easy to go overboard with operator
+       or function overloading, and many classes do.  Some programmers use
+       identical function names to mean very different things, or define
+       operators whose semantics are not clearly derived from their 
+       conventional meanings.
+      </para>
+     </listitem>
+
+     <listitem>
+      <para>
+       Resource management.  In the complex world of C++, what the user really
+       needs from a library is a little help in ensuring that objects are
+       deleted at the proper time, pointers don't go off into never-never land,
+       and so on.  Perhaps the most compelling usage of C++ is the "resource
+       acquisition is initialization" paradigm, but too few libraries apply it 
+       as yet.
+      </para>
+     </listitem>
+
+     <listitem>
+      <para>
+       Convoluted family trees.  Class derivation is a beautiful thing, but it
+       can be overused.  Some libraries construe far-fetched relations between
+       classes, or needlessly expose "convenience" relations using public
+       inheritance.
+      </para>
+     </listitem>
+
+     <listitem>
+      <para>
+       Overweight classes.  Some classes lump together different pieces of
+       functionality with different lifetimes.  For instance, some C++ SQL
+       libraries integrate transaction bracketing into a Connection class.
+       Yet it is not unreasonable for an application to perform multiple
+       consecutive transactions using the same connection.
+      </para>
+     </listitem>
+
+    </itemizedlist>
+
+    <para>
+     Again, <filename>libpqxx</filename> is an attempt to do better.  Hopefully
+     this has resulted in a library that is easier to use than most 
+     alternatives while giving you more flexibility, that helps you avoid 
+     common pitfalls and reduces the need for debugging.
+    </para>
+   </sect2>
+  </sect1>
+
+  <sect1>
+   <title>Class overview</title1>
+
+   <para>
+    To work with <filename>libpqxx</filename>, you need to be aware of at least
+    the following classes.  These are all introduced in a dedicated namespace,
+    <literal>Pg</literal>:
+    <itemizedlist>
+     <listitem>
+      <para>
+       <literal>Connection</literal> represents a connection from your program
+       to a <productname>PostgreSQL</productname> back-end server.
+      </para>
+     </listitem>
+ 
+     <listitem>
+      <para>
+       <literal>Transaction</literal> represents a transaction being executed 
+       in the context of a <literal>Connection</literal>, and is a unit of work 
+       that must be either completed as a whole.  If execution fails, 
+       everything done within that <literal>Transaction</literal> is undone by 
+       the backend as if it had never happened.
+      </para>
+     </listitem>
+
+     <listitem>
+      <para>
+       <literal>Result</literal> is a container holding the resulting data
+       coming out of a query or command executed in a 
+       <literal>Transaction</literal>.
+      </para>
+     </listitem>
+
+    </itemizedlist>
+   </para>
+
+   <para>
+    There are other classes; these are either not essential to writing a simple
+    program using <filename>libpqxx</filename>, or are used in such a way that
+    knowledge of them is not immediately necessary.
+    <itemizedlist>
+     <listitem>
+      <para>
+       <literal>broken_connection</literal> is a connection class that is
+       sometimes (but currently not necessarily) thrown when 
+       <filename>libpqxx</filename> loses its connection to the back-end.  It 
+       is derived from the standard C++ exception 
+       <literal>std::runtime_error</literal>, and can generally be treated as
+       such.
+      </para>
+     </listitem>
+
+     <listitem>
+      <para>
+       <literal>Cursor</literal> is a way of iterating over a query result 
+       using an SQL cursor.  This can be useful for selectively retrieving 
+       parts of a query, or for retrieving and processing results in chunks so 
+       your program can do useful work on one chunk while the next is still 
+       coming in over a network connection.  Or you may want to use this to 
+       give progress reports to the user between chunk transfers.
+      </para>
+     </listitem>
+
+     <listitem>
+      <para>
+       <literal>TableStream</literal> provides simple, relatively direct access
+       to a table for either reading (<literal>TableReader</literal>) or
+       writing (<literal>TableWriter</literal>) using 
+       <productname>PostgreSQL</productname>'s <literal>COPY</literal> command.
+      </para>
+     </listitem>
+ 
+     <listitem>
+      <para>
+       <literal>Transactor</literal> is a framework that makes it easier for 
+       you to write correct, robust transaction code to be executed in a
+       <literal>Transaction</literal>.  You should generally try to write your
+       code as a class derived from <literal>Transactor</literal>, but this is
+       not required.
+      </para>
+     </listitem>
+
+     <listitem>
+      <para>
+       <literal>Trigger</literal> is an instance of the Observer design 
+       pattern.  Any code connected to a backend may flag an event using the 
+       <productname>PostgreSQL</productname> <literal>NOTIFY</literal> command. 
+       Frontends connected to that same backend database may be listening for 
+       an event of that name to occur.  A frontend using 
+       <filename>libpqxx</filename> does this by registering an observer object 
+       derived from <literal>Trigger</literal>, which will be invoked by 
+       <filename>libpqxx</filename> to handle the event when it occurs.
+      </para>
+     </listitem>
+
+     <listitem>
+      <para>
+       <literal>Result::Tuple</literal> is a nested class defined within
+       <literal>Result</literal>.  It refers to a tuple of data within a
+       <literal>Result</literal> object.
+      </para>
+     </listitem>
+
+     <listitem>
+      <para>
+       <literal>Result::Field</literal>, also nested within 
+       <literal>Result</literal>, refers to one field within a 
+       <literal>Tuple</literal>.  A <literal>Field</literal> contains one 
+       retrieved value such as a number or a string.
+      </para>
+     </listitem>
+
+     <listitem>
+      <para>
+       <literal>Result::const_iterator</literal> allows you to enumerate the
+       <literal>Tuple</>s in a <literal>Result</literal> in a similar way to
+       the iterators defined by any standard C++ container.
+      </para>
+     </listitem>
+   </itemizedlist>
+
+  </sect1>
+
+  <sect1>
+   <title>Tutorial</title>
+
+   <sect2>
+    <title>Before we begin</title>
+
+    <sect3>This document</sect3>
+
+     <para>
+      This frontend library is built on top of the <filename>libpq</filename>
+      frontend library, which defines <productname>PostgreSQL<productname>'s C 
+      <acronym>API</acronym>.  Therefore this manual will sometimes refer to 
+      the <filename>libpq</filename> documentation rather than repeat what is 
+      said there.  This was not done to annoy you, but to ensure that the 
+      <filename>libpqxx</filename> documentation remains up-to-date with any 
+      changes in the C frontend.  Please bear with us.
+     </para>
+
+     <para>
+      If you're ever in doubt about how to use the basic features of 
+      <filename>libpqxx</filename>, take a look at the example programs 
+      provided; they're called <filename>test1</filename>, 
+      <filename>test2</filename> etc.  That should help give you an idea of how 
+      simple the library can be in practice.  Don't let that keep you from 
+      submitting a request for improved documentation though; your questions 
+      define what this tutorial needs to say!
+     </para>
+
+    </sect3>
+
+    <sect3>
+     <title>C++ conventions</title>
+
+     <para>
+      All definitions made by <filename>libpqxx</filename> reside in a 
+      namespace <literal>Pg</literal>.  If you're not familiar with C++
+      namespaces, you have two options:
+     <para>
+
+     <itemizedlist>
+      <listitem> 
+       <para> Always import the whole of the <literal>Pg</literal> namespace 
+	in your programs.
+       </para>
+       <para> This tells the compiler to always look in the 
+	<literal>Pg</literal> namespace when trying to resolve a name that 
+	doesn't occur in the global (ie. the "normal") namespace).  To do 
+	this, include the directive 
+	<programlisting>
+using namespace Pg;
+        </programlisting>
+        near the top of each source file using <filename>libpqxx</filename>.
+       </para>
+      </listitem>
+
+      <listitem>
+       <para> Explicitly qualify each <filename>libpqxx</filename> name with
+	the <literal>Pg</literal> namespace.
+       </para>
+
+       <para>
+	This will tell the compiler exactly which names are supposed to be in
+	the <literal>Pg</literal> namespace, avoiding any confusion over
+	multiple classes or functions used in your program possibly having the 
+	same name.  As long as they're in different namespaces, the compiler
+	will be able to tell them apart without trouble.  To do this, write
+	<literal>Pg::Connection</literal> instead of 
+	<literal>Connection</literal>, 
+	<literal>Pg::Result::const_iterator</literal> instead of
+	<literal>Result::const_iterator</literal>, and so on.
+       </para>
+      </listitem>
+     </itemizedlist>
+
+    </sect3>
+
+    <para>
+     Now let's get programming...
+    </para>
+
+   </sect2>
+
+   <sect2>
+    <title>Setting up a connection</title>
+
+     <para>
+      The very first thing to do before we can begin working with a database, 
+      is to actually connect to one.  We do this by creating a 
+      <literal>Connection</literal> object that will serve as our "handle" on
+      the connection:
+
+     <programlisting>
+Connection Conn("dbname=test");
+     </programlisting>
+    </para>
+
+    <para>
+     The <literal>Connection</literal> constructor is passed one argument, the
+     <italics>connect string</>.  This string may be used to specify which host
+     on the network runs the database backend we wish to connect to, which
+     database we're interested in, which user name we'll be using to log in,
+     etc.  Refer to <xref linkend="libpq-connect"> for a complete definition of
+     what may go into the connect string.  In this case we're connecting to a
+     database <literal>test</literal> residing on the local machine.
+    </para>
+
+    <para>
+     If no connection could be established, the <literal>Connection</literal>
+     constructor may throw an exception immediately; or it may decide to retry
+     the connection later in case the problem is only temporary.  In the latter
+     case, an exception may occur at some later point if the problem turns out
+     not to be so temporary after all.
+    </para>
+
+    <para>
+     The <literal>Connection</literal> can now act as a counter window for our 
+     database; your client will use it to perform one or more transactions
+     related to the database.
+    </para>
+
+    <para>
+     Connections cannot be copied or assigned; any attempt to do so will be met 
+     with a compiler error.
+    </para>
+
+    <sect3>
+     <title>Important note</title>
+     <para>
+      As a matter of design, <filename>libpqxx</filename> will not allow you
+      to perform queries on the <literal>Connection</literal> directly.  You
+      will need to have a <literal>Transaction</literal> object instead.
+     </para>
+
+     <para>
+      See the section on transactions below.
+     </para>
+    </sect3>
+
+   </sect2>
+
+   <sect2>
+    <title>Performing a transaction</title>
+
+    <sect3>
+     <title>What's a Transaction?</title>
+     <para>
+      A transaction demarcates a <italics>unit of work</> operating on the 
+      database, ie. a series of operations that must either complete 
+      successfully, or if it is aborted at any stage, must not affect the data 
+      in the database at all.  Hence the process of completing a transaction is 
+      called the <italics>commit</italics> operation, and the process of 
+      aborting it and undoing any changes it may have made is called 
+      <italics>rollback</>.
+     </para>
+     <para>
+      All access to the database in <filename>libpqxx</filename> must go 
+      through a <literal>Transaction</literal> object, so familiarity with this
+      class is essential.
+     </para>
+    <sect3>
+
+    <sect3>
+     <title>Creating a Transaction object</title>
+     <para>
+      Creating a Transaction object is not normally something you will have to
+      do.  The <literal>Transactor</literal> class, discussed below, will take
+      care of that and some other red tape besides.  Still, there are cases
+      where creating the object is unavoidable (when acting on multiple
+      database connections simultaneously) or just plain easier to do.  Please
+      consider using a <literal>Transactor</literal> whereever possible.
+     </para>
+
+     <para>
+      When creating a <literal>Transaction</literal>, pass it the 
+      <literal>Connection</literal> object it is to act on, and optionally an
+      identifying name for your transaction.  The name, which need not be
+      unique but should begin with a letter and may contain only letters, 
+      digits and underscores, can be used by <filename>libpqxx</filename> to 
+      make some error messages more specific.
+
+      <programlisting>
+Transaction Xaction(Conn, "DemoTransaction");
+      </programlisting>
+     </para>
+
+     <para>
+      The lifetime of the <literal>Transaction</literal> object demarcates the
+      unit of work.  Its construction marks the beginning of the transaction,
+      and its destruction means that the transaction is ended--whether through
+      commit or rollback.
+     </para>
+
+     <para>
+      The <literal>Transaction</literal> class is built on the principle of
+      <italics>explicit commit</>, ie. the commit operation must always be
+      explicit in the code.  If the Transaction is destroyed before a commit
+      was given, the transaction is implicitly aborted (rolled back).  If your
+      transaction makes no changes to the database, however, there is nothing
+      to commit or roll back and the commit may safely be omitted.
+     </para>
+
+     <para>
+      Destroying the Connection object while the Transaction still exists is an
+      error that may result in a program crash.  Transactions cannot be copied, 
+      nor assigned, nor constructed without a Connection (default-constructed);
+      attempts to do any of these will result in compile errors.
+     </para>
+    </sect3>
+   </sect2>
+
+   <sect2>
+    <title>Ending a transaction</title>
+    <para>
+     A transaction ends either successfully through an explicit commit command,
+     or unsuccessfully in any of a number of ways.  The following are the ways
+     to end a transaction:
+    </para>
+    <itemizedlist>
+     <listitem>
+      <para>
+       The transaction may be committed through its <literal>Commit</literal>
+       member function:
+      </para>
+      <programlisting>
+Xaction.Commit();
+      </programlisting>
+     </listitem>
+
+     <listitem>
+      <para>
+       A Transaction is aborted if it is destroyed without having been
+       explicitly committed:
+      </para>
+      <itemizedlist>
+       <listitem>
+        <programlisting>
+{
+  Transaction Xaction(Conn, "DemoTransaction");
+
+  // (Queries)
+
+} // Xaction destroyed here
+	</programlisting>
+       </listitem>
+
+       <listitem>
+        <programlisting>
+Transaction *XactionP = new Transaction(Conn, "DemoTransaction");
+
+// (Queries)
+
+delete XactionP; // Xaction destroyed here
+	</programlisting>
+       </listitem>
+
+       <listitem>
+        <programlisting>
+try
+{
+  Transaction Xaction(Conn, "DemoTransaction");
+
+  // (Queries)
+
+  Xaction.Commit();
+  // If we get here, Xaction is committed
+}
+catch (...)
+{
+  // If we get here, Xaction has been rolled back
+}
+	</programlisting>
+       </listitem>
+
+      </itemizedlist>
+     </listitem>
+
+     <listitem>
+      <para>
+       If a database error occurs during the transaction, such as an SQL syntax 
+       error or lost connection to the backend, the Transaction is aborted.
+      </para>
+      <programlisting>
+Transaction Xaction(Conn, "DemoTransaction");
+try
+{
+  // (Queries)
+  // (Query with SQL syntax error)
+}
+catch (...)
+{
+}
+Xaction.Commit(); // ERROR: Xaction has already aborted!
+      </programlisting>
+     </listitem>
+
+    </itemizedlist>
+    <para>
+     No more queries may be issued to the Transaction regardless of how it
+     ended; an exception will be thrown if the application attempts to continue
+     the transaction after that time.
+     Ending a transaction more than once is an error, except that aborting it
+     multiple times is tolerated to facilitate error handling.
+    </para>
+   </sect2>
+
+   <sect2>
+    <title>Executing queries</title>
+    TODO: Write!
+   </sect2>
+
+   <sect2>
+    <title>Getting query results</title>
+    TODO: Write!
+   </sect2>
+
+  </sect1>
+
+  <sect1>
+   <title>Reference</title>
+
+   <para>
+    Yet to be written!
+   </para>
+
+  </sect1>
+
+ </chapter>
+
