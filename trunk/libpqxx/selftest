@@ -19,7 +19,7 @@ echo "-------- test 4 --------"
 echo "-------- test 5 --------"
 ./test5 $CONNSTR
 echo "-------- test 6 --------"
-./test6 $CONNSTR orgevents events
+./test6 $CONNSTR
 echo "-------- test 7 --------"
 ./test7 $CONNSTR
 echo "-------- test 8 --------"
@@ -48,6 +48,52 @@ echo "-------- test 19 --------"
 ./test19 $CONNSTR
 echo "-------- test 20 --------"
 ./test20 $CONNSTR
+echo "-------- test 21 --------"
+./test21 $CONNSTR
+echo "-------- test 22 --------"
+./test22 $CONNSTR
+echo "-------- test 23 --------"
+./test23 $CONNSTR
+echo "-------- test 24 --------"
+./test24 $CONNSTR
+echo "-------- test 25 --------"
+./test25 $CONNSTR
+echo "-------- test 26 --------"
+./test26 $CONNSTR
+echo "-------- test 27 --------"
+./test27 $CONNSTR
+echo "-------- test 28 --------"
+./test28 $CONNSTR
+echo "-------- test 29 --------"
+./test29 $CONNSTR
+echo "-------- test 30 --------"
+./test30 $CONNSTR
+echo "-------- test 31 --------"
+./test31 $CONNSTR
+echo "-------- test 32 --------"
+./test32 $CONNSTR
+echo "-------- test 33 --------"
+./test33 $CONNSTR
+echo "-------- test 34 --------"
+./test34 $CONNSTR
+echo "-------- test 35 --------"
+./test35 $CONNSTR
+echo "-------- test 36 --------"
+./test36 $CONNSTR
+echo "-------- test 37 --------"
+./test37 $CONNSTR
+echo "-------- test 38 --------"
+./test38 $CONNSTR
+echo "-------- test 39 --------"
+./test39 $CONNSTR
+echo "-------- test 40 --------"
+./test40 $CONNSTR
+echo "-------- test 41 --------"
+./test41 $CONNSTR
+echo "-------- test 42 --------"
+./test42 $CONNSTR
+echo "-------- test 43 --------"
+./test43 $CONNSTR
 echo
 echo "======== TEST RUN COMPLETED ========"
 echo

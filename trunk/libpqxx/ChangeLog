@@ -1,3 +1,6 @@
+2003-01-08  Jeroen T. Vermeulen <jtv@xs4all.nlL
+ test/test13.cxx:
+  - Added missing <cassert> - thanks postgres@vsservices.com
 2003-01-06  J.H.M. Dassen (Ray) <jdassen@debian.org>
  configure.ac:
   - More extensive searching for PostgreSQL headers and libraries.
