@@ -1,6 +1,11 @@
-2002-03-29 00:45
+2002-03-29 01:30
   All:
    - DLL export directives for Windows, thanks Clinton James
+  ChangeLog:
+   - Created
+   - Moved NEWS over to ChangeLog
+  News:
+   - Created for more high-level changes
   Test4:
    - sleep() workaround for Windows, thanks Clinton James
 2002-03-27 01:00
