@@ -52,6 +52,17 @@ int main(int, char *argv[])
     (fieldstream(R.at(0).at(0))) >> pival;
     if (fabs(pival - roughpi) > 0.001)
       throw logic_error("Pi approximation came back as " + to_string(roughpi));
+
+    if (to_string(R[0][0]) != R[0][0].c_str())
+      throw logic_error("to_string(result::field) "
+	  "inconsistent with to_string(const char[])");
+
+    if (to_string(roughpi) != to_string(double(roughpi)))
+      throw logic_error("to_string(float) inconsistent with to_string(double)");
+    const long double ld = roughpi;
+    if (to_string(roughpi) != to_string(ld))
+      throw logic_error("to_string(float) "
+	  "inconsistent with to_string(long double)");
   }
   catch (const sql_error &e)
   {

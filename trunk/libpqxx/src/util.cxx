@@ -463,3 +463,23 @@ void pqxx::internal::CheckUniqueUnregistration(const namedclass *New,
   }
 }
 
+
+void pqxx::internal::freepqmem(void *p)
+{
+#ifdef PQXX_HAVE_PQFREEMEM
+  PQfreemem(p);
+#else
+  free(p);
+#endif
+}
+
+
+void pqxx::internal::freenotif(PGnotify *p)
+{
+#ifdef PQXX_HAVE_PQFREENOTIFY
+  PQfreeNotify(p);
+#else
+  freepqmem(p);
+#endif
+}
+

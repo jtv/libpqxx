@@ -45,12 +45,6 @@
 /* Define if function overloading using "using" breaks */
 #undef PQXX_BROKEN_USING_DECL
 
-/* Define if PostgreSQL has PQfreemem() */
-#undef PQXX_HAVE_PQFREEMEM
-
-/* Define if PostgreSQL has PQfreeNotify() */
-#undef PQXX_HAVE_PQFREENOTIFY
-
 /* Define if PostgreSQL has PQftable() */
 #undef PQXX_HAVE_PQFTABLE
 

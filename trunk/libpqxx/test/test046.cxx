@@ -49,6 +49,34 @@ int main(int, char *argv[])
     if (fabs(F2-F) > 0.01)
       throw logic_error("Inconsistent floating-point result: " + to_string(F2));
 
+    float F3;
+    from_string(R[0][0].c_str(), F3);
+    if (fabs(F3-F) > 0.01)
+      throw logic_error("Inconsistent float result from from_string");
+
+    double D;
+    from_string(R[0][0].c_str(), D);
+    if (fabs(D-F) > 0.01)
+      throw logic_error("Inconsistent double result from from_string");
+
+    long double LD;
+    from_string(R[0][0].c_str(), LD);
+    if (fabs(LD-F) > 0.01)
+      throw logic_error("Inconsistent long double result from from_string");
+
+    string S, S2, S3;
+    from_string(R[0][0].c_str(), S);
+    from_string(string(R[0][0].c_str()), S2);
+    from_string(R[0][0], S3);
+    if (S != S2)
+      throw runtime_error("from_string(const char[],std::string &) "
+	  "is inconsistent with "
+	  "from_string(const std::string &,std::string &)");
+    if (S3 != S2)
+      throw runtime_error("from_string(const result::field &,std::string &) "
+	  "is inconsistent with "
+	  "from_string(const std::string &,std::string &)");
+
     R = T.exec("SELECT 1=1");
     if (!R.at(0).at(0).as<bool>())
       throw logic_error("1=1 doesn't yield 'true'");

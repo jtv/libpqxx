@@ -48,6 +48,14 @@ int main(int, char *argv[])
 		     "options='" + C.options() + "', "
 		     "backendpid=" + to_string(C.backendpid()) + "\n");
 
+    string P;
+    from_string(C.port(), P);
+    if (P != to_string(C.port()))
+      throw runtime_error("from_string(const char[],std::string &) "
+		"inconsistent with to_string(const char[])");
+    if (to_string(P) != P)
+      throw runtime_error("to_string(std::string) turns '" + P + "' "
+	  "into '" + to_string(P) + "'");
 
     result R( T.exec("SELECT * FROM pg_tables") );
 

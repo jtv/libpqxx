@@ -1,3 +1,19 @@
+2004-03-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/libconfig.h.in, include/pqxx/util.hxx, src/util.cxx:
+  - Moved PQfreemem() and PQfreeNotify() calls out of header
+  - Moved PQXX_HAVE_PQFREEMEM and PQXX_HAVE_PQFREENOTIFY out of header
+  - Moved PQXX_HAVE_PQFREE* out of libconfig.h
+ include/pqxx/result.hxx:
+  - to_string() and from_string() templates for result::field
+ include/pqxx/util.hxx, test/test*.cxx:
+  - Test coverage for from_string() functions
+  - Test coverage for to_string() functions
+ test/test076.cxx:
+  - New
+  - Completes test coverage for from_string() and to_string()
+ test/test077.cxx:
+  - New
+  - Tests result::swap()
 2004-03-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/pipeline.hxx:
   - Included compiler.h instead of libcompiler.h, thanks Markus Bertheau

@@ -32,7 +32,7 @@ namespace
 {
 
 // Let's take a boring year that is not going to be in the "pqxxevents" table
-const int BoringYear = 1977;
+const unsigned int BoringYear = 1977;
 
 
 // Count events and specifically events occurring in Boring Year, leaving the
