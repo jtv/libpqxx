@@ -85,7 +85,8 @@ public:
   const_reference operator[](size_type i) const throw () 		//[t62]
   	{ return data()[i]; }
 
-  const_reference at(size_type n) const;				//[t62]
+  /// Index string, but check for valid index first
+  const_reference at(size_type) const;					//[t62]
 
   /// Raw character buffer (no terminating zero is added)
   /** @warning No terminating zero is added!  If the binary data did not end in

@@ -27,7 +27,7 @@
 using namespace PGSTD;
 
 
-pqxx::result &pqxx::result::operator=(const pqxx::result &Other)
+pqxx::result &pqxx::result::operator=(const pqxx::result &Other) throw ()
 {
   if (Other.m_Result != m_Result)
   {
@@ -125,7 +125,7 @@ void pqxx::result::MakeRef(PGresult *Other)
 }
 
 
-void pqxx::result::MakeRef(const pqxx::result &Other)
+void pqxx::result::MakeRef(const pqxx::result &Other) throw ()
 {
   m_Result = Other.m_Result;
   m_Refcount = Other.m_Refcount;

@@ -2,6 +2,7 @@
  - Installs to /usr/local by default, NOT to /usr/local/pqxx like before!
  - Uses Postgres-provided script to find Postgres (thanks Peter Eisentraut)
  - Which means no more configure arguments required on Irix (thanks Arjen Baart)
+ - Fixes long-standing bug in result class!
  - New pipeline class for throughput optimization
  - New field stream class: read result field as C++ stream
  - Separate namespace pqxx::internal for definitions not relevant to the user

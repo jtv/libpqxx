@@ -36,7 +36,7 @@ inline int StdModeToPQMode(ios::openmode mode)
 }
 
 
-inline int StdDirToPQDir(ios::seekdir dir)
+inline int StdDirToPQDir(ios::seekdir dir) throw ()
 {
   int pqdir;
   switch (dir)
@@ -59,7 +59,7 @@ inline int StdDirToPQDir(ios::seekdir dir)
 } // namespace
 
 
-pqxx::largeobject::largeobject() :
+pqxx::largeobject::largeobject() throw () :
   m_ID(oid_none)
 {
 }
@@ -85,7 +85,7 @@ pqxx::largeobject::largeobject(dbtransaction &T, const string &File) :
 }
 
 
-pqxx::largeobject::largeobject(const largeobjectaccess &O) :
+pqxx::largeobject::largeobject(const largeobjectaccess &O) throw () :
   m_ID(O.id())
 {
 }
@@ -238,7 +238,7 @@ string pqxx::largeobjectaccess::Reason() const
 }
 
 
-void pqxx::largeobjectaccess::process_notice(const string &s)
+void pqxx::largeobjectaccess::process_notice(const string &s) throw ()
 {
   m_Trans.process_notice(s);
 }

@@ -5,8 +5,11 @@
   - Stay in C++ mode, less Fortran stuff etc. in configure
  include/pqxx/connection_base.hxx, include/pqxx/libcompiler.h:
   - Workaround for Sun CC default argument problem (thanks Jon Meinecke)
- include/pqxx/largeobject.hxx:
+ include/pqxx/largeobject.hxx
   - Workaround for Sun CC namespace lookup problem (Jon Meinecke)
+ include/pqxx/largeobject.hxx, include/pqxx/result.hxx, src/largeobject.cxx,
+ src/result.cxx:
+  - Added some throw () where appropriate
  include/pqxx/result.hxx:
   - Fixed long-standing bug in LoseRef() - thanks Jon Meinecke!
  pqxx-config.in:

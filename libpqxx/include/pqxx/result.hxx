@@ -42,12 +42,12 @@ namespace pqxx
 class PQXX_LIBEXPORT result
 {
 public:
-  result() : m_Result(0), m_Refcount(0) {}				//[t3]
-  result(const result &rhs) : 						//[t1]
+  result() throw () : m_Result(0), m_Refcount(0) {}			//[t3]
+  result(const result &rhs) throw () :					//[t1]
 	  m_Result(0), m_Refcount(0) { MakeRef(rhs); }
   ~result() { LoseRef(); }						//[t1]
   
-  result &operator=(const result &);					//[t10]
+  result &operator=(const result &) throw ();				//[t10]
 
   typedef result_size_type size_type;
   class field;
@@ -67,7 +67,7 @@ public:
   {
   public:
     typedef tuple_size_type size_type;
-    tuple(const result *r, result::size_type i) throw() : 
+    tuple(const result *r, result::size_type i) throw () : 
       m_Home(r), m_Index(i) {}
     ~tuple() throw () {} // Yes Scott Meyers, you're absolutely right[1]
 
@@ -79,9 +79,9 @@ public:
     field at(const char[]) const;					//[t11]
     field at(const PGSTD::string &s) const { return at(s.c_str()); }	//[t11]
 
-    inline size_type size() const;					//[t11]
+    inline size_type size() const throw ();				//[t11]
 
-    result::size_type rownumber() const { return m_Index; }		//[t11]
+    result::size_type rownumber() const throw () { return m_Index; }	//[t11]
 
     /// Number of given column (throws exception if it doesn't exist)
     size_type column_number(const PGSTD::string &ColName) const		//[t30]
@@ -337,10 +337,11 @@ public:
   	{ return tuple(this, i); }
   const tuple at(size_type) const throw (PGSTD::out_of_range);		//[t10]
 
-  void clear() { LoseRef(); }						//[t20]
+  void clear() throw () { LoseRef(); }					//[t20]
 
   /// Number of columns in result
-  tuple::size_type columns() const { return PQnfields(m_Result); }	//[t11]
+  tuple::size_type columns() const throw () 				//[t11]
+  	{ return PQnfields(m_Result); }
 
   /// Number of given column (throws exception if it doesn't exist)
   tuple::size_type column_number(const char ColName[]) const;		//[t11]
@@ -431,7 +432,7 @@ private:
 
 
   void MakeRef(PGresult *);
-  void MakeRef(const result &);
+  void MakeRef(const result &) throw ();
   void LoseRef() throw ();
 };
 
@@ -469,7 +470,7 @@ result::tuple::operator[](result::tuple::size_type i) const  throw ()
   return field(*this, i); 
 }
 
-inline result::tuple::size_type result::tuple::size() const 
+inline result::tuple::size_type result::tuple::size() const throw ()
 { 
   return m_Home->columns(); 
 }
