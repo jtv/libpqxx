@@ -9,14 +9,14 @@ CONNSTR="dbname=$(DBNAME)"
 SQL_DIALECT=-DDIALECT_POSTGRESQL
 
 # Set different namespace for standard library (defaults to std)
-#PGSTD=-DPGSTD=_STL
+#STD=-DPGSTD=_STL
 
 CXX=colorgcc
 CXXFLAGS=-Wall -pedantic -ffor-scope -Wshadow -Wcast-align -Wpointer-arith \
 	-Wwrite-strings -Woverloaded-virtual -Wtraditional -O $(EXTRACXX)
 
 CPPFLAGS=-I/usr/include/postgresql -DLACK_ITERATOR -DLACK_LIMITS \
-	$(SQL_DIALECT) $(
+	$(SQL_DIALECT) $(STD)
 LD=g++
 LDFLAGS=-L/usr/lib/postgresql
 LOADLIBES=-lpq
