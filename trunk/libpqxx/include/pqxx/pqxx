@@ -19,6 +19,7 @@
 #include "pqxx/transaction"
 #include "pqxx/nontransaction"
 #include "pqxx/pipeline"
+#include "pqxx/result"
 #include "pqxx/robusttransaction"
 #include "pqxx/transactor"
 #include "pqxx/tablereader"
