@@ -78,6 +78,9 @@ int main()
       throw logic_error("InvalidOid is not zero as it used to be."
 	  "This may conceivably cause problems in libpqxx." );
 
+    if (cursor_base::prior() >= 0 || cursor_base::backward_all() >= 0)
+      throw logic_error("cursor_base::difference_type appears to be unsigned");
+
     cout << "Testing items template..." << endl;
     items<int> I0;
     testitems(I0, 0);
