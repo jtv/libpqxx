@@ -49,20 +49,26 @@ template<> void from_string(const char Str[], long &Obj)
     }
   }
 
-  long result;
-  for (result=0; isdigit(*p); ++p)
+  long result = 0;
+  if (neg) for (; isdigit(*p); ++p)
+  {
+    const long newresult = 10*result - (*p-'0');
+    if (newresult > result)
+      throw runtime_error("Integer too small to read: " + string(Str));
+    result = newresult;
+  }
+  else for (; isdigit(*p); ++p)
   {
     const long newresult = 10*result + (*p-'0');
     if (newresult < result)
       throw runtime_error("Integer too large to read: " + string(Str));
-
     result = newresult;
   }
 
   if (*p)
     throw runtime_error("Unexpected text after integer: '" + string(Str) + "'");
 
-  Obj = (neg ? -result : result);
+  Obj = result;
 }
 
 template<> void from_string(const char Str[], unsigned long &Obj)
@@ -231,7 +237,6 @@ template<> void from_string(const char Str[], bool &Obj)
 } // namespace pqxx
 
 
-#include<cassert>// DEBUG CODE
 namespace
 {
 template<typename T> inline string to_string_unsigned(T Obj)
@@ -244,11 +249,8 @@ template<typename T> inline string to_string_unsigned(T Obj)
   for (T next; Obj > 0; Obj = next)
   {
     next = Obj / 10;
-assert(next < Obj);	// DEBUG CODE
     char c = ('0' + Obj - (next*10));
-assert(isdigit(c));	// DEBUG CODE
     *--p = c;
-assert(p > buf);	// DEBUG CODE
   }
   return p;
 }
