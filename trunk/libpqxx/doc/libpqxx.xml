@@ -20,12 +20,13 @@
     <copyright>
       <year>2002</year>
       <year>2003</year>
+      <year>2004</year>
       <holder>Jeroen Vermeulen</holder>
     </copyright>
   </bookinfo>
 
   <preface id="preface">
-    <title>About <productname>libpqxx</productname></title>
+    <title>About libpqxx</title>
 
     <para>
       <productname>libpqxx</productname> is a C++ <acronym>API</acronym> to
@@ -105,7 +106,7 @@
 	<para>
 	  Ad-hoc containers and algorithms.  Inventing your own container APIs,
 	  interesting as it may be, in most cases is wasted development effort.
-	  Besides that, there's also the redundant effort of having to learn how 
+	  Besides that, there's also the redundant effort of having to learn how
 	  they work.
 	</para>
       </listitem>
@@ -168,10 +169,10 @@
 
       <listitem>
 	<para>
-	  Convoluted family trees.  Class derivation is a beautiful thing, but it
-	  can be overused.  Some libraries construe far-fetched relations between
-	  classes, or needlessly expose "convenience" relations using public
-	  inheritance.
+	  Convoluted family trees.  Class derivation is a beautiful thing, but
+	  it can be overused.  Some libraries construe far-fetched relations
+	  between classes, or needlessly expose "convenience" relations using
+	  public inheritance.
 	</para>
       </listitem>
 
@@ -185,6 +186,15 @@
 	</para>
       </listitem>
 
+      <listitem>
+	<para>
+	 Exposure of low-level interfaces.  Some C++ wrappers for C-level SQL
+	 interface libraries (including <productname>libpq++</productname>)
+	 don't hide the ugly details of the underlying API.  Worse, some only
+	 provide "utility" classes that the user can mix in freely with C-level
+	 function calls.
+	</para>
+      </listitem>
     </itemizedlist>
 
     <para>
@@ -216,20 +226,20 @@
 
       <listitem>
 	<para>
-	  <literal>transaction&lt;&gt;</literal>, actually a class template with
-	  a default value for its parameter, represents a transaction being
-	  executed in the context of a <literal>connection</literal>. This is a
-	  unit of work that must be completed as a whole by the database
-	  backend.  If execution fails, everything done within that
-	  <literal>transaction</literal> is undone by the backend as if it had
-	  never happened.
+	  <literal>work</literal>, actually a typedef for the
+	  <literal>transaction</literal> class template, represents a
+	  transaction being executed in the context of a
+	  <literal>connection</literal>. This is a unit of work that must be
+	  completed as a whole by the database backend.  If execution fails,
+	  everything done within that <literal>transaction</literal> is undone
+	  by the backend as if it had never happened.
 
 	  <footnote>
 	    <para>
 	      Actually <productname>libpqxx</productname> provides three classes
 	      doing this at various levels of reliability, called
 	      <literal>nontransaction</literal>, <literal>transaction</literal>,
-	      and <literal>robusttransaction</literal> for little, standard, and
+	      and <literal>robusttransaction</literal> for no, standard, and
 	      best reliability respectively.  
 	    </para>
 	  </footnote>
@@ -238,18 +248,18 @@
 	<para>
 	  I recommend that you do not set up your own
 	  <literal>transaction</literal>s however, but have them managed for you
-	  by a <emphasis><literal>transactor</literal></emphasis> instead (see
-	  below).
+	  by a <literal>transactor</literal> instead (see below).
 	</para>
       </listitem>
 
       <listitem>
 	<para>
-	  <literal>result</literal> is a container holding the resulting data
+	  A <literal>result</literal> is a container holding the resulting data
 	  coming out of a query or command executed in a
 	  <literal>transaction</literal>.  It behaves just like a standard C++
 	  container as found in the STL, although its contents are not
-	  modifiable.
+	  modifiable.  The tuples held in the result in turn behave much like
+	  (non-modifiable) containers themselves.
 	</para>
       </listitem>
 
@@ -413,8 +423,9 @@
       <listitem>
 	<para>
 	  <literal>tablestream</literal> provides simple, relatively direct
-	  access to a table for either reading (<literal>tablereader</literal>)
-	  or writing (<literal>tablewriter</literal>) using
+	  access to a table for either reading (through its child class
+	  <literal>tablereader</literal>) or writing (through child class
+	  <literal>tablewriter</literal>) using
 	  <productname>PostgreSQL</productname>'s <literal>COPY</literal>
 	  command.  This is typically much faster than issuing
 	  <literal>SELECT</literal> or <literal>UPDATE</literal> queries.
@@ -433,20 +444,19 @@
 	</para>
 	<para>
 	  You'll usually want to refer to the default 
-	  <literal>transaction</literal>
-	  type as <literal>work</literal>, a typedef that means 
-	  "<literal>transaction</literal> with default (read-committed) 
-	  isolation level."
+	  <literal>transaction</literal> type as <literal>work</literal>, a
+	  typedef that means "<literal>transaction</literal> with default
+	  (read-committed) isolation level."
 	</para>
       </listitem>
 
       <listitem>
 	<para>
-	  <literal>transactor&lt;&gt;</literal> is a framework that makes it
-	  easier for you to write correct, robust transaction code to be
-	  executed in a <literal>transaction</literal> (or any of its sibling
-	  classes).  You should generally try to write your code as a class
-	  derived from <literal>transactor</literal>, but this is not required.
+	  <literal>transactor&lt;&gt;</literal> provides a framework that makes
+	  it easier for you to write correct, robust transaction code to be
+	  executed in a transaction.  You should generally try to write your
+	  code as a class derived from <literal>transactor&lt;&gt;</literal>,
+	  but this is not required.
 	</para>
 
 	<para>
@@ -455,8 +465,8 @@
 	  transaction type as its template argument, e.g.
 	  <literal>transactor&lt;robusttransaction&lt;&gt; &gt;</literal>.  The
 	  default <literal>transactor&lt;&gt;</literal> is equivalent to
-	  <literal>transactor&lt;transaction&lt;&gt; &gt;</literal>.  Within
-	  your class you can refer to the transaction type used as
+	  <literal>transactor&lt;work&gt;</literal>.  Within your class you can
+	  refer to the transaction type used as
 	  <literal>argument_type</literal>.
 	</para>
       </listitem>
@@ -477,25 +487,13 @@
 	<para>
 	  What every programmer using triggers in PostgreSQL should know, by
 	  the way, is that trigger notifications are not delivered to your
-	  program while it is inside a back-end transaction.  This makes sense
-	  from a correctness point of view (otherwise your processing of the
+	  program while it is inside a back-end transaction.  Nor are they sent
+	  until the notifying process has committed the transaction, if any,
+	  that the notification was done from.  This makes sense from a
+	  correctness point of view (otherwise your processing of the
 	  event might get rolled back just because the transaction you're in
 	  happens to fail), but may be a little confusing to the unaware
 	  programmer.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  <literal>unique</literal> is really only intended for use by the
-	  library itself, although you may find it useful for your own code.
-	  It allows a "host" class to enforce a one-to-one association with a
-	  "guest" class, such that at most 1 "guest" object may be associated
-	  with any one "host" object at any given time.  This is used to ensure
-	  that no more than one <literal>transaction</literal> at a time is
-	  active on a single <literal>connection</literal>, and that no more
-	  than one <literal>Cursor</literal> is active on a single
-	  <literal>transaction</literal>.
 	</para>
       </listitem>
 
@@ -512,7 +510,9 @@
 	  <literal>result::field</literal>, also nested within 
 	  <literal>result</literal>, refers to one field within a 
 	  <literal>tuple</literal>.  A <literal>field</literal> contains one 
-	  retrieved value such as a number or a string.
+	  retrieved value such as a number or a string, and can be read into
+	  variables of various types such as <literal>int</literal>s or
+	  <literal>string</literal>s.
 	</para>
       </listitem>
 
@@ -521,6 +521,13 @@
 	  <literal>result::const_iterator</literal> allows you to enumerate the
 	  <literal>tuple</literal>s in a <literal>result</literal> in a similar
 	  way to the iterators defined by any standard C++ container.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <literal>result::tuple::const_iterator</literal> similarly iterates
+	  over the <literal>field</literal>s in a <literal>tuple</literal>.
 	</para>
       </listitem>
     </itemizedlist>
@@ -574,7 +581,7 @@
     <title>Tutorial</title>
 
     <section id="before">
-      <title>Before we begin</title>
+      <title>Before we begin programming</title>
 
       <section id="abouttutorial">
 	<title>This document</title>
@@ -594,7 +601,7 @@
 	  Furthermore, if you're ever in doubt about how to use the basic
 	  features of <productname>libpqxx</productname>, take a look at the
 	  example programs provided; they're called
-	  <filename>test001</filename>, <filename>test002</filename> etc.
+	  <filename>test000</filename>, <filename>test001</filename> etc.
 	  Those should help give you an idea of how simple the library can be
 	  in practice.  Don't let that keep you from submitting a request for
 	  improved documentation though; your questions define what this
@@ -628,8 +635,9 @@
 	      </programlisting>
 	      near the top of each source file that uses
 	      <productname>libpqxx</productname>.  This is typically best for
-	      your source files, though it is not considered good practice in
-	      header files.
+	      your source files (you're probably doing it already for the
+	      <literal>std</literal> namespace), though it is not considered
+	      good practice in header files.
 	    </para>
 	  </listitem>
 
@@ -667,7 +675,7 @@
 
       <para>
 	The very first thing to do before we can begin working with a
-	database, is to actually connect to one.  We do this by creating a
+	database, is actually connect to one.  We do this by creating a
 	<literal>connection</literal> object that will serve as our "handle"
 	on the connection:
       </para>
@@ -678,7 +686,7 @@
 
       <para>
 	The <literal>connection</literal> constructor is passed one argument,
-	the "connect string".  This string may be used to specify which host
+	the "connect string."  This string may be used to specify which host
 	on the network runs the database backend we wish to connect to, which
 	database we're interested in, which user name we'll be using to log
 	in, etc.  Refer to the libpq <function>connect</function> call for a
@@ -691,12 +699,11 @@
       </para>
 
       <para>
-	If no connection could be established, the
-	<literal>connection</literal> constructor may throw an exception
-	immediately; or it may decide to retry the connection later in case
-	the problem is only temporary.  In the latter case, an exception may
-	occur at some later point if the problem turns out not to be so
-	temporary after all.
+	If no connection could be established, the <literal>connection</literal>
+	constructor may throw an exception immediately; or it may decide to
+	retry the connection later in case the problem is only temporary.  In
+	the latter case, an exception may occur at some later point if the
+	problem turns out not to be so temporary after all.
       </para>
 
       <para>
@@ -730,19 +737,18 @@
 	<title>What's a Transaction?</title>
 
 	<para>
-	  A transaction demarcates a "unit of work" operating on the
-	  database, ie.  a series of operations that must either complete
-	  successfully, or if it is aborted at any stage, must not affect the
-	  data in the database at all.  Hence the process of completing a
-	  transaction is called the "commit" operation, and the process of
-	  aborting it and undoing any changes it may have made is called
-	  "rollback."
+	  A transaction demarcates a "unit of work" operating on the database,
+	  ie.  a series of operations that must either complete successfully, or
+	  if it is aborted at any stage, must not affect the data in the
+	  database at all.  Hence the process of completing a transaction is
+	  called the "commit" operation, and the process of aborting it and
+	  undoing any changes it may have made is called "rollback."
 	</para>
 
 	<para>
 	  All access to the database in <productname>libpqxx</productname>
 	  must go through a transaction object, so familiarity with this
-	  class (or its siblings) is essential.
+	  class family's interface is essential.
 	</para>
       </section>
 
@@ -760,13 +766,12 @@
 	</para>
 
 	<para>
-	  When creating a <literal>transaction</literal>, pass it the
-	  <literal>connection</literal> object it is to act on, and
-	  optionally an identifying name for your transaction.  The name,
-	  which need not be unique but should begin with a letter and may
-	  contain only letters, digits and underscores, can be used by
-	  <productname>libpqxx</productname> to make some error messages more
-	  specific.
+	  When creating a transaction, pass it the <literal>connection</literal>
+	  object it is to act on, and optionally an identifying name for your
+	  transaction.  The name, which need not be unique but should begin with
+	  a letter and may contain only letters, digits and underscores, can be
+	  used by <productname>libpqxx</productname> to make some error messages
+	  more specific.
 
 	  <programlisting>
 	    transaction&lt;&gt; Xaction(Conn, "DemoTransaction");
@@ -781,20 +786,19 @@
 	</para>
 
 	<para>
-	  The lifetime of the <literal>transaction</literal> object
-	  demarcates the unit of work.  Its construction marks the beginning
-	  of the transaction, and its destruction means that the transaction
-	  is ended--whether through commit or rollback.
+	  The lifetime of the transaction object demarcates the unit of work.
+	  Its construction marks the beginning of the transaction, and its
+	  destruction means that the transaction is ended--whether through
+	  commit or rollback.
 	</para>
 
 	<para>
-	  The <literal>transaction</literal> class is built on the principle
-	  of "explicit commit," ie. the commit operation must always be
-	  explicit in the code.  If the transaction is destroyed before a
-	  commit was given, the transaction is implicitly aborted (rolled
-	  back).  If your transaction makes no changes to the database,
-	  however, there is nothing to commit or roll back and the commit may
-	  safely be omitted.
+	  The transaction class hierarchy is built on the principle of "explicit
+	  commit," ie. the commit operation must always be explicit in the code.
+	  If the transaction is destroyed before a commit was given, the
+	  transaction is implicitly aborted (rolled back).  If your transaction
+	  makes no changes to the database, however, there is nothing to commit
+	  or roll back and the commit may safely be omitted.
 	</para>
 
 	<para>
@@ -802,8 +806,8 @@
 	  is an error that may result in a program crash, although the
 	  library will try to log an error message.  Transactions cannot be
 	  copied, nor assigned, nor constructed without a connection
-	  (default-constructed); attempts to 
-	  do any of these will result in compile errors.
+	  (default-constructed); attempts to do any of these will result in
+	  compile errors.
 	</para>
       </section>
     </section>
@@ -905,9 +909,9 @@
 		<emphasis>Never throw exceptions from a destructor.</emphasis>
 	      </para>
 	    </footnote>
-	    and the transaction will die of natural causes (either it has
-	    been closed by the backend already, or it soon will be if the
-	    connection is lost).
+	    and the transaction will die of natural causes (either it has been
+	    closed by the backend already, or it soon will be if the connection
+	    is lost).
 	  </para>
 	</listitem>
 
@@ -932,7 +936,7 @@
 	  </programlisting>
 
 	  <para>
-	    For this reason, it is recommended to always include the "commit"
+	    For this reason, it is recommended always to include the "commit"
 	    operation inside the <literal>try</literal> block (if any)
 	    surrounding the transaction code, <emphasis>not</emphasis> after
 	    the <literal>catch</literal> block.
@@ -965,15 +969,15 @@
       </para>
 
       <para>
-	A query is executed within a <literal>transaction</literal> by
-	passing the query string to its <function>exec</function> method.  If
-	the query fails to execute properly, this method will throw the
-	appropriate exception.
+	A query is executed within a transaction by passing the query string to
+	the transaction object's <function>exec</function> method.  If the query
+	fails to complete successfully, this method will throw the appropriate
+	exception.
       </para>
 
       <para>
-	The query itself is a standard C string, ie. a <literal>const char
-	  *</literal> but you'll frequently want to use a C++
+	The query itself is a standard C string in this case, ie. a
+	<literal>const char *</literal> but you'll frequently want to use a C++
 	<literal>string</literal> to make it easy to include variables:
       </para>
 
@@ -983,6 +987,13 @@
 	T.exec("DELETE FROM " + Table + " WHERE ID=" + ID);
 	}
       </programlisting>
+
+      <para>
+        In some places, even <literal>stringstream</literal>s will work, so
+	you can use the full stream formatting capabilities, locales etc. in
+	the standard C++ library to compose your SQL queries.
+      </para>
+
     </section>
 
     <section id="queryresults">
@@ -1007,17 +1018,17 @@
 	member function, and second, through random-access iterators.  Either
 	will give you a <literal>result::tuple</literal> object that in turn
 	can be addressed with the array index operator (or the
-	<function>at</function> member function) to get at its individual
-	fields
+	<function>at</function> member function) or using iterators to get at
+	its individual fields
 
 	<footnote>
 	  <para>
 	    The difference between <literal>[]</literal> and
-	    <function>at</function> is that the latter does bounds-checking,
-	    throwing an exception if you pass it an illegal index value.
-	    With the array index operator you get slightly better
-	    performance, but attempting to address a nonexistant row or field
-	    will result in undefined behaviour such as program crashes or
+	    <function>at</function> is that the latter is guaranteed to perform
+	    bounds-checking, throwing an exception if you pass it an illegal
+	    index value.  With the array index operator you may get slightly
+	    better performance, but attempting to address a nonexistant row or
+	    field will result in undefined behaviour such as program crashes or
 	    inexplicably strange results.
 	  </para>
 	</footnote>.
@@ -1034,17 +1045,17 @@
 	<footnote>
 	  <para>
 	    This is an instance of the <wordasword>Proxy</wordasword>
-	    implementation pattern, needed to allow a
-	    <literal>result</literal> to be indexed as if it were a
-	    two-dimensional array.  C++'s array index operator doesn't allow
-	    this usage directly, but the operator can be applied to the
-	    result of a previous use of the same operator.  The "result in
-	    the middle" needs to have a type of its own, though.
+	    implementation pattern, needed to allow a <literal>result</literal>
+	    to be indexed as if it were a two-dimensional array.  C++'s array
+	    index operator doesn't allow this usage directly, but the operator
+	    can be applied to the result of a previous use of the same operator.
+	    The "result in the middle" needs to have a type of its own, though,
+	    and that's what <literal>tuple</literal> is for.
 	  </para>
 	</footnote>.
 
 	What you'll usually do is index the row directly to get at the field
-	you want, eg. <literal>R[0][0]</literal> to get the first field of
+	you want, e.g. <literal>R[0][0]</literal> to get the first field of
 	the first row.
       </para>
 
@@ -1092,7 +1103,8 @@
 	    Or <literal>(*R.begin())[0]</literal>.  It may seem quirky to
 	    have <literal>R.begin()</literal> and
 	    <literal>*R.begin()</literal> mean the same thing, but it makes
-	    practical use of iterators a lot easier.
+	    practical use of iterators a lot easier.  In fact it matches how
+	    arrays and pointers work in C and C++.
 	  </para>
 	</footnote>.
       </para>
@@ -1166,7 +1178,7 @@
       </programlisting>
 
       <para>
-	If conversion fails, eg. when trying to convert a floating-point
+	If conversion fails, e.g. when trying to convert a floating-point
 	value to an integer variable, <function>to</function> will throw a
 	<literal>runtime_error</literal> reporting the problem in its 
 	<function>what</function> message.
