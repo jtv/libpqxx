@@ -24,6 +24,10 @@
 #include <new>
 #include <sstream>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include "pqxx/util"
 
 using namespace PGSTD;
