@@ -392,11 +392,17 @@ public:
   public:
     typedef const_iterator iterator_type;
     using iterator_type::iterator_category;
-    using iterator_type::value_type;
     using iterator_type::difference_type;
     using iterator_type::pointer;
-    using iterator_type::reference;
     using iterator_type::operator=;
+#ifndef _MSC_VER
+    using iterator_type::value_type;
+    using iterator_type::reference;
+#else
+    // Workaround for Visual C++.NET 2003, which has access problems
+    typedef const tuple &reference;
+    typedef tuple value_type;
+#endif
 
     const_reverse_iterator(const const_reverse_iterator &rhs) :		//[t75]
       const_iterator(rhs), m_tmp(rhs) {}
@@ -510,11 +516,17 @@ public:
   public:
     typedef const_fielditerator iterator_type;
     using iterator_type::iterator_category;
-    using iterator_type::value_type;
     using iterator_type::difference_type;
     using iterator_type::pointer;
-    using iterator_type::reference;
     using iterator_type::operator=;
+#ifndef _MSC_VER
+    using iterator_type::value_type;
+    using iterator_type::reference;
+#else
+    // Workaround for Visual C++.NET 2003, which has access problems
+    typedef field value_type;
+    typedef const field &reference;
+#endif
 
     iterator_type base() const throw () { return *this; }		//[t82]
     const_reverse_fielditerator(const const_reverse_fielditerator &rhs)	//[t82]
