@@ -11,8 +11,8 @@
  *
  *-------------------------------------------------------------------------
  */
-#ifndef PG_TABLESTREAM_H
-#define PG_TABLESTREAM_H
+#ifndef PQXX_TABLESTREAM_H
+#define PQXX_TABLESTREAM_H
 
 #include <string>
 

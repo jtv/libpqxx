@@ -11,8 +11,8 @@
  *
  *-------------------------------------------------------------------------
  */
-#ifndef PG_ROBUSTTRANSACTION_H
-#define PG_ROBUSTTRANSACTION_H
+#ifndef PQXX_ROBUSTTRANSACTION_H
+#define PQXX_ROBUSTTRANSACTION_H
 
 
 /* RobustTransaction is similar to Transaction, but spends more effort (and

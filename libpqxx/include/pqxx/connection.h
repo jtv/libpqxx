@@ -11,8 +11,8 @@
  *
  *-------------------------------------------------------------------------
  */
-#ifndef PG_CONNECTION_H
-#define PG_CONNECTION_H
+#ifndef PQXX_CONNECTION_H
+#define PQXX_CONNECTION_H
 
 #include <map>
 #include <stdexcept>

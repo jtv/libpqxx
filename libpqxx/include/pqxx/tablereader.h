@@ -11,8 +11,8 @@
  *
  *-------------------------------------------------------------------------
  */
-#ifndef PG_TABLEREADER_H
-#define PG_TABLEREADER_H
+#ifndef PQXX_TABLEREADER_H
+#define PQXX_TABLEREADER_H
 
 #include <string>
 

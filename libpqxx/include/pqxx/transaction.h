@@ -11,8 +11,8 @@
  *
  *-------------------------------------------------------------------------
  */
-#ifndef PG_TRANSACTION_H
-#define PG_TRANSACTION_H
+#ifndef PQXX_TRANSACTION_H
+#define PQXX_TRANSACTION_H
 
 /* While you may choose to create your own Transaction object to interface to 
  * the database backend, it is recommended that you wrap your transaction code 

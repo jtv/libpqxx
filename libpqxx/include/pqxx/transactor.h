@@ -11,6 +11,9 @@
  *
  *-------------------------------------------------------------------------
  */
+#ifndef PQXX_TRANSACTOR_H
+#define PQXX_TRANSACTOR_H
+
 #include <string>
 
 #include "pqxx/compiler.h"
@@ -89,4 +92,6 @@ private:
 };
 
 }
+
+#endif
 
