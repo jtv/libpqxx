@@ -8,7 +8,7 @@
  *   pqxx::connection_base encapsulates a frontend to backend connection
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
  *
- * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -16,6 +16,7 @@
  *
  *-------------------------------------------------------------------------
  */
+#include "pqxx/libcompiler.h"
 
 #include <map>
 #include <memory>
@@ -53,6 +54,13 @@ struct PQXX_LIBEXPORT noticer : PGSTD::unary_function<const char[], void>
 {
   virtual ~noticer() throw () {}  
   virtual void operator()(const char Msg[]) throw () =0;
+};
+
+
+/// No-op message noticer; produces no output
+struct PQXX_LIBEXPORT nonnoticer : noticer
+{
+  virtual void operator()(const char []) throw () {}
 };
 
 
@@ -167,19 +175,19 @@ public:
  
   /// Name of database we're connected to, if any.
   const char *dbname()							//[t1]
-  	{ halfconnect(); return PQdb(m_Conn); }
+  	{ activate(); return PQdb(m_Conn); }
 
   /// Database user ID we're connected under, if any.
   const char *username()						//[t1]
-  	{ halfconnect(); return  PQuser(m_Conn); }
+  	{ activate(); return  PQuser(m_Conn); }
 
   /// Address of server (NULL for local connections).
   const char *hostname()						//[t1]
-  	{ halfconnect(); return PQhost(m_Conn); }
+  	{ activate(); return PQhost(m_Conn); }
 
   /// Server port number we're connected to.
   const char *port()		 					//[t1]
-  	{ halfconnect(); return PQport(m_Conn); }
+  	{ activate(); return PQport(m_Conn); }
 
   /// Full connection string as used to set up this connection.
   const char *options() const throw () 					//[t1]
@@ -355,7 +363,6 @@ private:
   const char *ErrMsg() const throw ();
   void Reset();
   void RestoreVars();
-  void halfconnect();
   int set_fdmask() const;
   void clear_fdmask() throw ();
   PGSTD::string RawGetVar(const PGSTD::string &);
@@ -419,12 +426,61 @@ private:
 };
 
 
-}
-
-
-// Put this here so on Windows, any noticer will be deleted in caller's context
-inline pqxx::connection_base::~connection_base()
+// Put this here so on Windows, any noticers can be deleted in caller's context
+inline connection_base::~connection_base()
 {
+  // Visual C++ seems to have a problem with output during destructors!
+#ifdef PQXX_QUIET_DESTRUCTORS
+  set_noticer(PGSTD::auto_ptr<noticer>(new nonnoticer()));
+#endif
 }
 
+
+namespace internal
+{
+
+/// Temporarily set different noticer for connection
+/** Set different noticer in given connection for the duration of the
+ * scoped_noticer's lifetime.  After that, the original noticer is restored.
+ *
+ * No effort is made to respect any new noticer that may have been set in the
+ * meantime, so don't do that.
+ */
+class PQXX_LIBEXPORT scoped_noticer
+{
+public:
+  /// Start period of different noticer
+  /**
+   * @param c connection object whose noticer should be temporarily changed
+   * @param t temporary noticer object to use; will be destroyed on completion
+   */
+  scoped_noticer(connection_base &c, PGSTD::auto_ptr<noticer> t) throw () :
+    m_c(c), m_org(c.set_noticer(t)) { }
+
+  ~scoped_noticer() { m_c.set_noticer(m_org); }
+
+private:
+  connection_base &m_c;
+  PGSTD::auto_ptr<noticer> m_org;
+
+  /// Not allowed
+  scoped_noticer();
+  scoped_noticer(const scoped_noticer &);
+  scoped_noticer operator=(const scoped_noticer &);
+};
+
+
+/// Temporarily disable the notice processor
+class PQXX_LIBEXPORT disable_noticer : scoped_noticer
+{
+public:
+  explicit disable_noticer(connection_base &c) :
+    scoped_noticer(c, PGSTD::auto_ptr<noticer>(new nonnoticer)) {}
+};
+
+
+} // namespace pqxx::internal
+
+
+} // namespace pqxx
 

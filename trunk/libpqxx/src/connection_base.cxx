@@ -7,7 +7,7 @@
  *      implementation of the pqxx::connection_base abstract base class.
  *   pqxx::connection_base encapsulates a frontend to backend connection
  *
- * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -106,17 +106,6 @@ void pqxx::connection_base::deactivate()
   }
   dropconnect();
   disconnect();
-}
-
-
-/// Initiate a connection, to at least the point where we have a PQconn
-void pqxx::connection_base::halfconnect()
-{
-  if (!m_Conn)
-  {
-    startconnect();
-    if (!m_Conn) Connect();
-  }
 }
 
 
@@ -516,22 +505,26 @@ void pqxx::connection_base::Reset()
   // Forget about any previously ongoing connection attempts
   dropconnect();
 
-  // Attempt to set up or restore connection
-  if (!m_Conn) 
+  if (m_Conn) 
   {
-    Connect();
-  }
-  else 
-  {
+    // Reset existing connection
     PQreset(m_Conn);
     SetupState();
     clear_fdmask();
+  }
+  else 
+  {
+    // No existing connection--start a new one
+    Connect();
   }
 }
 
 
 void pqxx::connection_base::close() throw ()
 {
+#ifdef PQXX_QUIET_DESTRUCTORS
+  set_noticer(PGSTD::auto_ptr<noticer>(new nonnoticer()));
+#endif
   clear_fdmask();
   try
   {
