@@ -298,7 +298,7 @@ or your installation of the PostgreSQL client library is incomplete.
 # TODO: Adapt automatically somehow...
 AC_MSG_CHECKING([that type of libpq's Oid is as expected])
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>
-	#include<pqxx/libpq-forward.hxx>],
+	#include<${srcdir}/include/pqxx/libpq-forward.hxx>],
 	[typedef pqxx::oid Oid],
 	[AC_MSG_ERROR([
 The Oid typedef in libpq has changed.  Please notify the libpqxx authors of the
