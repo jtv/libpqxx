@@ -31,7 +31,6 @@ pqxx::tablestream::tablestream(transaction_base &STrans,
   m_Null(Null),
   m_Finished(false)
 {
-  STrans.RegisterStream(this);
 }
 
 
@@ -40,11 +39,16 @@ pqxx::tablestream::~tablestream()
 }
 
 
+void pqxx::tablestream::register_me()
+{
+  m_Trans.RegisterStream(this);
+}
+
+
 void pqxx::tablestream::base_close()
 {
   m_Finished = true;
   m_Trans.UnregisterStream(this);
-  Trans().EndCopy();
 }
 
 

@@ -67,6 +67,7 @@ public:
 #endif
 
 protected:
+  void register_me();
   transaction_base &Trans() const throw () { return m_Trans; }
   const PGSTD::string &NullStr() const { return m_Null; }
   void RegisterPendingError(const PGSTD::string &) throw ();

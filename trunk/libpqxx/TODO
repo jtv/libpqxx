@@ -14,17 +14,13 @@ Connections
 Cursors
 (*) Provide iterator interface
 (*) Investigate WITH HOLD feature (nontransaction cursors)
-(*) From 7.4, MOVE and FETCH will be much improved (PQcmdTuples()!)
-
-Documentation
-(*) Document migration procedures from libpq++
+(*) From 7.4, MOVE and FETCH are much improved (PQcmdTuples()!)
 
 Large Objects
 (*) Support lo_tell()
 
 Nonblocking operation
 (*) Separate query issuing from receipt of results
-(*) Support select()
 (*) Split up commits to narrow down in-doubt window
 
 Results
@@ -37,7 +33,6 @@ Results
 Streams
 (*) Provide metadata information in tablestream
 (*) Support column lists for COPY (create "inserter" class for list)
-(*) Escape carriage returns in COPY
 (*) Allow single-level insertion with endt/endr manipulators
 
 Transactions

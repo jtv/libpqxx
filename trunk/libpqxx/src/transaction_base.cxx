@@ -177,14 +177,14 @@ void pqxx::transaction_base::abort()
 
 
 pqxx::result pqxx::transaction_base::exec(const char Query[],
-    					const string &Desc)
+    					  const string &Desc)
 {
   CheckPendingError();
 
-  const string N = (Desc.empty() ? "" : "'" + Desc + "'");
+  const string N = (Desc.empty() ? "" : "'" + Desc + "' ");
 
   if (m_Stream.get())
-    throw logic_error("Attempt to execute query '" + N + " on transaction '" + 
+    throw logic_error("Attempt to execute query " + N + "on transaction '" + 
 		      name() + 
 		      "' while stream '" +
 		      m_Stream.get()->name() +
@@ -221,16 +221,25 @@ pqxx::result pqxx::transaction_base::exec(const char Query[],
 		      "invalid status code");
   }
 
-  // TODO: Pass Name to DoExec(), and from there on down
+  // TODO: Pass Desc to do_exec(), and from there on down
   return do_exec(Query);
 }
 
 
-void pqxx::transaction_base::set_variable(const PGSTD::string &Var,
-                                          const PGSTD::string &Value)
+void pqxx::transaction_base::set_variable(const string &Var,
+                                          const string &Value)
 {
+  // Before committing to this new value, see what the backend thinks about it
   m_Conn.RawSetVar(Var, Value);
   m_Vars[Var] = Value;
+}
+
+
+string pqxx::transaction_base::get_variable(const string &Var) const
+{
+  const map<string,string>::const_iterator i = m_Vars.find(Var);
+  if (i != m_Vars.end()) return i->second;
+  return m_Conn.RawGetVar(Var);
 }
 
 
@@ -344,6 +353,19 @@ void pqxx::transaction_base::CheckPendingError()
     m_PendingError.clear();
     throw runtime_error(m_PendingError);
   }
+}
+
+
+void pqxx::transaction_base::BeginCopyRead(const string &Table)
+{
+  exec("COPY " + Table + " TO STDOUT");
+}
+
+
+void pqxx::transaction_base::BeginCopyWrite(const string &Table)
+{
+  exec("COPY " + Table + " FROM STDIN");
+  m_Conn.go_async();
 }
 
 

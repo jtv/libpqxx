@@ -219,12 +219,23 @@ public:
    * normally discard the newly set value.  Known exceptions are nontransaction
    * (which doesn't start a real backend transaction) and PostgreSQL versions
    * prior to 7.3.
+   * @warning Do not mix the set_variable interface with manual setting of 
+   * variables by executing the corresponding SQL commands, and do not get or
+   * set variables while a tablestream is active on the same connection.
    * @param Var variable to set
    * @param Value value to set, which may be an identifier, a quote string, etc.
    */
   void set_variable(const PGSTD::string &Var, 
       		    const PGSTD::string &Value);			//[t60]
 
+  /// Read session variable
+  /** Will try to read the value locally, from the list of variables set with
+   * the set_variable function.  If that fails, the database is queried.
+   * @warning Do not mix the set_variable interface with manual setting of 
+   * variables by executing the corresponding SQL commands, and do not get or
+   * set variables while a tablestream is active on the same connection.
+   */
+  PGSTD::string get_variable(const PGSTD::string &);		//[]
 
 #ifdef PQXX_DEPRECATED_HEADERS
   /// @deprecated Use disconnect() instead
@@ -290,15 +301,25 @@ protected:
   /// For implementation classes: set connection structure pointer
   void set_conn(PGconn *C) throw () { m_Conn = C; }
 
+protected:
+  void wait_read() const;
+  void wait_write() const;
+
 private:
   void SetupState();
   void InternalSetTrace();
   int Status() const { return PQstatus(m_Conn); }
   const char *ErrMsg() const;
-  void Reset(const char OnReconnect[]=0);
+  void Reset();
   void close() throw ();
   void RestoreVars();
   void halfconnect();
+  int set_fdmask() const;
+  void clear_fdmask() throw ();
+  void go_sync();
+  void go_async();
+  PGSTD::string RawGetVar(const PGSTD::string &);
+
 
   /// Connection string
   PGSTD::string m_ConnInfo;
@@ -320,23 +341,16 @@ private:
   /// Variables set in this session
   PGSTD::map<PGSTD::string, PGSTD::string> m_Vars;
 
+  mutable fd_set m_fdmask;
+
   friend class transaction_base;
-  result Exec(const char[], int Retries=3, const char OnReconnect[]=0);
+  result Exec(const char[], int Retries);
   void RegisterTransaction(transaction_base *);
   void UnregisterTransaction(transaction_base *) throw ();
   void MakeEmpty(result &, ExecStatusType=PGRES_EMPTY_QUERY);
-  void BeginCopyRead(const PGSTD::string &Table);
   bool ReadCopyLine(PGSTD::string &);
-  void BeginCopyWrite(const PGSTD::string &Table);
-  void WriteCopyLine(const PGSTD::string &);
+  bool WriteCopyLine(const PGSTD::string &, bool async);
   void EndCopyWrite();
-
-  void EndCopy()
-#ifdef PQXX_HAVE_PQPUTCOPY
-  {}
-#else
-  ;
-#endif
 
   void RawSetVar(const PGSTD::string &Var, const PGSTD::string &Value);
   void AddVariables(const PGSTD::map<PGSTD::string, PGSTD::string> &);

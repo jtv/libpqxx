@@ -124,13 +124,21 @@ public:
   /** The new value is typically forgotten if the transaction aborts.  
    * Known exceptions to this rule are nontransaction, and PostgreSQL versions
    * prior to 7.3.  In the case of nontransaction, the set value will be kept
-   * regardless, but if the connection ever needs to be recovered, the set value
-   * will not be restored.
+   * regardless; but in that case, if the connection ever needs to be recovered,
+   * the set value will not be restored.
    * @param Var the variable to set
    * @param Val the value to store in the variable
    */
   void set_variable(const PGSTD::string &Var, const PGSTD::string &Val);//[t61]
 
+  /// Get currently applicable value of variable 
+  /** This function will try to consult the cache of variables set (both in the
+   * transaction and in the connection) using the set_variable functions.  If it
+   * is not found there, the database is queried.  
+   * @warning Do not mix the set_variable with raw "SET" queries, and do not
+   * try to set or get variables while a table stream is active.
+   */
+  PGSTD::string get_variable(const PGSTD::string &) const;		//[]
 
 #ifdef PQXX_DEPRECATED_HEADERS
   /// @deprecated Use commit() instead
@@ -228,16 +236,14 @@ private:
   friend class tablestream;
   void RegisterStream(tablestream *);
   void UnregisterStream(tablestream *) throw ();
-  void EndCopy() throw () { m_Conn.EndCopy(); }
   void RegisterPendingError(const PGSTD::string &) throw ();
   friend class tablereader;
-  void BeginCopyRead(const PGSTD::string &Table) 
-  	{ m_Conn.BeginCopyRead(Table); }
+  void BeginCopyRead(const PGSTD::string &Table);
   bool ReadCopyLine(PGSTD::string &L) { return m_Conn.ReadCopyLine(L); }
   friend class tablewriter;
-  void BeginCopyWrite(const PGSTD::string &Table) 
-  	{ m_Conn.BeginCopyWrite(Table); }
-  void WriteCopyLine(const PGSTD::string &L) { m_Conn.WriteCopyLine(L); }
+  void BeginCopyWrite(const PGSTD::string &Table);
+  bool WriteCopyLine(const PGSTD::string &L, bool async=false) 
+  	{ return m_Conn.WriteCopyLine(L, async); }
   void EndCopyWrite() throw () { m_Conn.EndCopyWrite(); }
 
   connection_base &m_Conn;

@@ -1,3 +1,26 @@
+2003-11-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, src/connection_base.cxx:
+  - Removed "OnReconnect" parameter from Exec()
+  - Moved EndCopy() into old versions of line-read & end-write functions
+  - Support for async (nonblocking) mode
+  - Factored out & optimized select() code
+ include/pqxx/result.hxx, src/result.cxx:
+  - Split StatusError() out of CheckStatus()
+  - Added CheckStatus() version taking const char[]
+ include/pqxx/tablereader.hxx, src/tablereader.cxx:
+  - Moved field parsing out of the header, into new function extract_field()
+  - Rewrote field parsing
+ include/pqxx/tablewriter.hxx, src/tablewriter.cxx:
+  - Do writes in async mode
+  - Buffer up to 1 pending line (could support more in the future)
+ include/pqxx/transaction_base.hxx:
+  - COPY queries no longer delegated to connection_base
+  - COPY now treated as regular query; follows transaction's retry policy
+  - EndCopy() no longer needed
+ win32/INSTALL.txt
+  - Replaced part about copying config.h by part about editing it
+ win32/libpqxx.mak
+  - Fixed some apparently wrapped lines!
 2003-11-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/dbtransaction.hxx:
   - Use old-style isolation level syntax, thanks koun@sina.com!

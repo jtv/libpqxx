@@ -24,7 +24,6 @@
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */
 
-
 namespace pqxx
 {
 
@@ -83,8 +82,9 @@ public:
 
 private:
   void reader_close();
-  static char unescapechar(char) throw ();
-  static bool is_octalchar(char o) throw () { return (o>='0') && (o<='7'); }
+  PGSTD::string extract_field(const PGSTD::string &, 
+      PGSTD::string::size_type &) const;
+
   bool m_Done;
 };
 
@@ -95,59 +95,13 @@ private:
 
 
 template<typename TUPLE> 
-inline void pqxx::tablereader::tokenize(PGSTD::string Line, 
-                                        TUPLE &T) const
+inline void pqxx::tablereader::tokenize(PGSTD::string Line, TUPLE &T) const
 {
-  if (Line.empty()) return;
   PGSTD::back_insert_iterator<TUPLE> ins = PGSTD::back_inserter(T);
 
-  // Make sure the line is zero-terminated
-  if (Line[Line.size()-1] != '\n') Line.push_back('\n');
-
   // Filter and tokenize line, inserting tokens at end of T
-  PGSTD::string::size_type token = 0;
-  for (PGSTD::string::size_type i=0; i < Line.size(); ++i)
-  {
-    switch (Line[i])
-    {
-    case '\t': // End of token
-    case '\n': // End of row
-      *ins++ = PGSTD::string(Line, token, i-token);
-      token = i+1;
-      break;
-
-    case '\\':
-      // Remove the backslash and unescape whatever comes after it 
-      if ((i+1) >= Line.size()) 
-      {
-	throw PGSTD::runtime_error("Row ends in backslash");
-      }
-      else
-      {
-	const char n = Line[i+1];
-	if (n == 'N')			// NULL value
-	{
-	  Line.replace(i, 2, NullStr());
-	  i += NullStr().size()-1;
-	}
-	else if (is_octalchar(n))	// Octal character
-	{
-	  if ((i+3) >= Line.size())
-	    throw PGSTD::runtime_error("Row ends in middle of octal value");
-	  const char n1 = Line[i+2], n2 = Line[i+3];
-	  if (!is_octalchar(n1) || !is_octalchar(n2))
-	    throw PGSTD::runtime_error("Invalid octal value");
-	  const char c = (((n-'0')<<6) | ((n1-'0')<<3) | (n2-'0'));
-	  Line.replace(i, 4, 1, c);
-	}
-	else				// Simple escaped character
-	{
-	  Line.replace(i, 2, 1, unescapechar(i));
-	}
-      }
-      break;
-    }
-  }
+  PGSTD::string::size_type here=0;
+  while (here < Line.size()) *ins++ = extract_field(Line, here);
 }
 
 

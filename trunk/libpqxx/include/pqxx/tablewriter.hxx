@@ -88,12 +88,15 @@ public:
 
 private:
   void WriteRawLine(const PGSTD::string &);
+  void flush_pending();
   void writer_close();
   PGSTD::string EscapeAny(const char *) const;
   PGSTD::string EscapeAny(const PGSTD::string &) const;
   template<typename T> PGSTD::string EscapeAny(const T &) const;
 
   static PGSTD::string Escape(const PGSTD::string &);
+
+  PGSTD::string m_PendingLine;
 };
 
 } // namespace pqxx

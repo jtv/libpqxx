@@ -21,6 +21,14 @@
 #include <cstdio>
 #include <stdexcept>
 
+#ifdef PQXX_HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#else
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif	// PQXX_HAVE_SYS_SELECT_H
+
 #include "pqxx/connection_base"
 #include "pqxx/result"
 #include "pqxx/transaction"
@@ -46,8 +54,10 @@ pqxx::connection_base::connection_base(const string &ConnInfo) :
   m_Conn(0),
   m_Trans(),
   m_Noticer(),
-  m_Trace(0)
+  m_Trace(0),
+  m_fdmask()
 {
+  clear_fdmask();
 }
 
 
@@ -56,8 +66,10 @@ pqxx::connection_base::connection_base(const char ConnInfo[]) :
   m_Conn(0),
   m_Trans(),
   m_Noticer(),
-  m_Trace(0)
+  m_Trace(0),
+  m_fdmask()
 {
+  clear_fdmask();
 }
 
 
@@ -101,8 +113,7 @@ void pqxx::connection_base::halfconnect()
 }
 
 
-void pqxx::connection_base::set_variable(const PGSTD::string &Var,
-					 const PGSTD::string &Value)
+void pqxx::connection_base::set_variable(const string &Var, const string &Value)
 {
   if (m_Trans.get())
   {
@@ -115,6 +126,23 @@ void pqxx::connection_base::set_variable(const PGSTD::string &Var,
     if (is_open()) RawSetVar(Var, Value);
     m_Vars[Var] = Value;
   }
+}
+
+
+string pqxx::connection_base::get_variable(const string &Var)
+{
+  return m_Trans.get() ? m_Trans.get()->get_variable(Var) : RawGetVar(Var);
+}
+
+
+string pqxx::connection_base::RawGetVar(const string &Var)
+{
+  // Is this variable in our local map of set variables?
+  // TODO: Is it safe to read-allocate variables in the "cache?"
+  map<string,string>::const_iterator i=m_Vars.find(Var);
+  if (i != m_Vars.end()) return i->second;
+
+  return Exec(("SHOW " + Var).c_str(), 0).at(0).at(0).as(string());
 }
 
 
@@ -327,9 +355,7 @@ const char *pqxx::connection_base::ErrMsg() const
 }
 
 
-pqxx::result pqxx::connection_base::Exec(const char Query[], 
-                                       int Retries, 
-				       const char OnReconnect[])
+pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 {
   activate();
 
@@ -338,8 +364,7 @@ pqxx::result pqxx::connection_base::Exec(const char Query[],
   while ((Retries > 0) && !R && !is_open())
   {
     Retries--;
-
-    Reset(OnReconnect);
+    Reset();
     if (is_open()) R = PQexec(m_Conn, Query);
   }
 
@@ -351,8 +376,10 @@ pqxx::result pqxx::connection_base::Exec(const char Query[],
 }
 
 
-void pqxx::connection_base::Reset(const char OnReconnect[])
+void pqxx::connection_base::Reset()
 {
+  clear_fdmask();
+
   // Forget about any previously ongoing connection attempts
   dropconnect();
 
@@ -365,20 +392,14 @@ void pqxx::connection_base::Reset(const char OnReconnect[])
   {
     PQreset(m_Conn);
     SetupState();
-
-    // Perform any extra patchup work involved in restoring the connection,
-    // typically set up a transaction.
-    if (OnReconnect)
-    {
-      result Temp( PQexec(m_Conn, OnReconnect) );
-      Temp.CheckStatus(OnReconnect);
-    }
+    clear_fdmask();
   }
 }
 
 
 void pqxx::connection_base::close() throw ()
 {
+  clear_fdmask();
   try
   {
     if (m_Trans.get()) 
@@ -405,6 +426,7 @@ void pqxx::connection_base::close() throw ()
   catch (...)
   {
   }
+  clear_fdmask();
 }
 
 
@@ -458,13 +480,6 @@ void pqxx::connection_base::MakeEmpty(pqxx::result &R, ExecStatusType Stat)
 }
 
 
-void pqxx::connection_base::BeginCopyRead(const string &Table)
-{
-  const string CQ("COPY " + Table + " TO STDOUT");
-  result R( Exec(CQ.c_str()) );
-  R.CheckStatus(CQ);
-}
-
 
 bool pqxx::connection_base::ReadCopyLine(string &Line)
 {
@@ -509,6 +524,7 @@ bool pqxx::connection_base::ReadCopyLine(string &Line)
     switch (PQgetline(m_Conn, Buf, sizeof(Buf)))
     {
     case EOF:
+      PQendcopy(m_Conn);
       throw runtime_error("Unexpected EOF from backend");
 
     case 0:
@@ -527,77 +543,125 @@ bool pqxx::connection_base::ReadCopyLine(string &Line)
 
   Result = (Line != "\\.");
 
-  if (!Result) Line.erase();
+  if (!Result) 
+  {
+    Line.erase();
+    if (PQendcopy(m_Conn)) throw runtime_error(ErrMsg());
+  }
 #endif
 
   return Result;
 }
 
 
-void pqxx::connection_base::BeginCopyWrite(const string &Table)
-{
-  const string CQ("COPY " + Table + " FROM STDIN");
-  result R( Exec(CQ.c_str()) );
-  R.CheckStatus(CQ);
-}
 
-
-
-void pqxx::connection_base::WriteCopyLine(const string &Line)
+bool pqxx::connection_base::WriteCopyLine(const string &Line, bool async)
 {
   if (!is_open())
     throw logic_error("libpqxx internal error: "
 	              "WriteCopyLine() without connection");
 
-  bool OK;
+  bool OK, Result;
+  int PutRes;
   const PGSTD::string L = Line + '\n';
 
 #ifdef PQXX_HAVE_PQPUTCOPY
-  OK = (PQputCopyData(m_Conn, L.c_str(), L.size()) != -1);
+  if (async) go_async();
+  PutRes = PQputCopyData(m_Conn, L.c_str(), L.size());
+  if (async) go_sync();
+  OK = (PutRes != -1);
+  Result = (PutRes != 0);
 #else
-  OK = (PQputline(m_Conn, L.c_str()) != EOF);
+  OK = (PutRes != EOF);
+  Result = true;
 #endif
   if (!OK)
     throw runtime_error("Error writing to table: " + string(ErrMsg()));
+  return Result;
 }
 
 
 void pqxx::connection_base::EndCopyWrite()
 {
 #ifdef PQXX_HAVE_PQPUTCOPY
-  const int Res = PQputCopyEnd(m_Conn, NULL);
-  switch (Res)
+  go_sync();
+  int Res;
+  do
   {
-    case -1:
-      throw runtime_error("Write to table failed: " + string(ErrMsg()));
-    case 0:
-      throw logic_error("libpqxx internal error: "
-	  "table write went asynchronous");
-    case 1:
-      for (result R(PQgetResult(m_Conn)); R; R=PQgetResult(m_Conn))
-	  R.CheckStatus("[END COPY]");
-      break;
-    default:
-      throw logic_error("libpqxx internal error: "
-	  "unexpected result " + ToString(Res) + " from PQputCopyEnd()");
-  }
+    Res = PQputCopyEnd(m_Conn, NULL);
+    switch (Res)
+    {
+      case -1:
+        throw runtime_error("Write to table failed: " + string(ErrMsg()));
+      case 0:
+        throw logic_error("libpqxx internal error: "
+	    "table write is inexplicably asynchronous");
+      case 1:
+        for (result R(PQgetResult(m_Conn)); R; R=PQgetResult(m_Conn))
+	    R.CheckStatus("[END COPY]");
+        break;
+      default:
+        throw logic_error("libpqxx internal error: "
+	    "unexpected result " + ToString(Res) + " from PQputCopyEnd()");
+    }
+  } while (!Res);
 #else
   static const string terminator("\\.");
   WriteCopyLine(terminator);
+  if (PQendcopy(m_Conn)) throw runtime_error(ErrMsg());
 #endif
 }
 
-#ifndef PQXX_HAVE_PQPUTCOPY
-// End COPY operation.  Careful: this assumes that no more lines remain to be
-// read, or (respectively) that the write operation has been terminated with a
-// closing line.
-void pqxx::connection_base::EndCopy()
+
+namespace
 {
-  // Not needed for the new interface.
-  if (PQendcopy(m_Conn))
-    throw runtime_error(ErrMsg());
-}
-#endif
+#ifdef PQXX_SELECT_ACCEPTS_NULL
+  // The always-empty fd_set
+  fd_set *const fdset_none = 0;
+#else	// PQXX_SELECT_ACCEPTS_NULL
+  fd_set emptyfd;	// Relies on zero-initialization
+  fd_set *const fdset_none = &emptyfd;
+#endif	// PQXX_SELECT_ACCEPTS_NULL
+} // namespace
 
+
+int pqxx::connection_base::set_fdmask() const
+{
+  const int fd = PQsocket(m_Conn);
+  if (fd < 0) throw broken_connection();
+  FD_SET(fd, &m_fdmask);
+  return fd;
+}
+
+
+void pqxx::connection_base::clear_fdmask() throw ()
+{
+  FD_ZERO(&m_fdmask);
+}
+
+void pqxx::connection_base::wait_read() const
+{
+  const int fd = set_fdmask();
+  select(fd+1, &m_fdmask, fdset_none, &m_fdmask, 0);
+}
+
+void pqxx::connection_base::wait_write() const
+{
+  const int fd = set_fdmask();
+  select(fd+1, fdset_none, &m_fdmask, &m_fdmask, 0);
+}
+
+
+void pqxx::connection_base::go_sync()
+{
+  if (PQsetnonblocking(m_Conn, false)==-1)
+    throw runtime_error("Return to blocking mode failed: "+string(ErrMsg()));
+}
+
+void pqxx::connection_base::go_async()
+{
+  if (PQsetnonblocking(m_Conn, true)==-1)
+    throw runtime_error("Could not go to nonblocking mode: "+string(ErrMsg()));
+}
 
 

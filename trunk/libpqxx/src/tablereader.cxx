@@ -30,6 +30,7 @@ pqxx::tablereader::tablereader(transaction_base &T,
   m_Done(true)
 {
   T.BeginCopyRead(RName);
+  register_me();
   m_Done = false;
 }
 
@@ -72,6 +73,8 @@ void pqxx::tablereader::reader_close()
 {
   if (!is_finished())
   {
+    base_close();
+
     // If any lines remain to be read, consume them to not confuse PQendcopy()
     if (!m_Done)
     {
@@ -90,25 +93,104 @@ void pqxx::tablereader::reader_close()
         RegisterPendingError(e.what());
       }
     }
-    base_close();
   }
 }
 
 
-char pqxx::tablereader::unescapechar(char i) throw ()
+namespace
 {
-  char r = i;
-  switch (i)
-  {
-    case 'b':	r=8;	break;	// backspace
-    case 'v':	r=11;	break;	// vertical tab
-    case 'f':	r=12;	break;	// form feed
-    case 'n':	r='\n';	break;	// newline
-    case 't':	r='\t';	break;	// tab
-    case 'r':	r='\r';	break;	// carriage return;
-  }
-  return r;
+inline bool is_octalchar(char o) throw ()
+{
+  return (o>='0') && (o<='7');
 }
+} // namespace
 
 
+string pqxx::tablereader::extract_field(const string &Line,
+    string::size_type &i) const
+{
+  // TODO: Pick better exception types
+  string R;
+  bool isnull=false, terminator=false;
+  for (; !terminator && (i < Line.size()); ++i)
+  {
+    const char c = Line[i];
+    switch (c)
+    {
+    case '\t':			// End of field
+    case '\n':			// End of row
+      terminator = true;
+      break;
+
+    case '\\':			// Escape sequence
+      {
+        const char n = Line[++i];
+        if (i >= Line.size())
+          throw runtime_error("Row ends in backslash");
+
+	switch (n)
+	{
+	case 'N':	// Null value
+	  if (!R.empty())
+	    throw runtime_error("Null sequence found in nonempty field");
+	  R = NullStr();
+	  isnull = true;
+	  break;
+        
+	case '0':	// Octal sequence (3 digits)
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+          {
+	    if ((i+2) >= Line.size())
+	      throw runtime_error("Row ends in middle of octal value");
+	    const char n1 = Line[++i];
+	    const char n2 = Line[++i];
+	    if (!is_octalchar(n1) || !is_octalchar(n2))
+	      throw runtime_error("Invalid octal in encoded table stream");
+	    R += char(((n-'0')<<6) | ((n1-'0')<<3) | (n2-'0'));
+          }
+	  break;
+
+    	case 'b':
+	  R += char(8);
+	  break;	// Backspace
+    	case 'v':
+	  R += char(11);
+	  break;	// Vertical tab
+    	case 'f':
+	  R += char(12);
+	  break;	// Form feed
+    	case 'n':
+	  R += '\n';
+	  break;	// Newline
+    	case 't':
+	  R += '\t';
+	  break;	// Tab
+    	case 'r':
+	  R += '\r';
+	  break;	// Carriage return;
+
+	default:	// Self-escaped character
+	  R += n;
+	  break;
+	}
+      }
+      break;
+
+    default:
+      R += c;
+      break;
+    }
+  }
+
+  if (isnull && (R.size() != NullStr().size()))
+    throw runtime_error("Field contains data behind null sequence");
+
+  return R;
+}
 

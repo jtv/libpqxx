@@ -62,8 +62,24 @@ const pqxx::result::tuple pqxx::result::at(pqxx::result::size_type i) const
 
 void pqxx::result::CheckStatus(const string &Query) const
 {
+  const string Err = StatusError();
+  if (!Err.empty()) throw sql_error(Err, Query);
+}
+
+
+void pqxx::result::CheckStatus(const char Query[]) const
+{
+  const string Err = StatusError();
+  if (!Err.empty()) throw sql_error(Err, Query);
+}
+
+
+string pqxx::result::StatusError() const
+{
   if (!m_Result)
     throw runtime_error("No result");
+
+  string Err;
 
   switch (PQresultStatus(m_Result))
   {
@@ -79,13 +95,15 @@ void pqxx::result::CheckStatus(const string &Query) const
   case PGRES_BAD_RESPONSE: // The server's response was not understood
   case PGRES_NONFATAL_ERROR:
   case PGRES_FATAL_ERROR:
-    throw sql_error(string(PQresultErrorMessage(m_Result)), Query);
+    Err = PQresultErrorMessage(m_Result);
+    break;
 
   default:
     throw logic_error("libpqxx internal error: "
 		      "pqxx::result: Unrecognized response code " +
 		      ToString(int(PQresultStatus(m_Result))));
   }
+  return Err;
 }
 
 
