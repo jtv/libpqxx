@@ -1,4 +1,7 @@
 2003-03-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Include Doxyfile in distribution archive
+2003-03-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/transactionitf.h, src/transactionitf.cxx:
   - Preliminary support for "named" statements
 2003-03-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
