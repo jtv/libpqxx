@@ -1,5 +1,7 @@
 #include <iostream>
 
+#define PQXXYES_I_KNOW_DEPRECATED_HEADER
+
 #include <pqxx/pqxx>
 #include <pqxx/cachedresult.h>
 
