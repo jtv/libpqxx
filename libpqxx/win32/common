@@ -1,0 +1,28 @@
+!IF "$(OS)" == "Windows_NT"
+NULL=
+!ELSE 
+NULL=nul
+!ENDIF 
+
+#-STL options
+# STD=/D "PGSTD=std"
+# If you are using a 3rd party STL like STLport, remember to check your path
+# and be sure the STLport is included before the MSVC includes. VCVARS32.BAT
+# doesn't know anything about the directories as defined in the IDE. I use
+# set INCLUDE=\Utility\Code\STLport-4.5\stlport;%INCLUDE%
+# STD=/D "PGSTD=_STL" 
+
+# Depending on your STL library min/max need to be defined.  Using STLport
+# there is no need for libpqxx to redefine these for me.
+
+# The next line gives us the src directory to add additional include directories
+# We need certain header files from the Postgres code.  Specifically 
+#     src/include/c.h
+#     src/include/config.h
+#     src/include/postgres_ext.h
+#     src/include/postgres_fe.h
+#     src/interfaces/libpq/libpq-fe.h
+PGSQLSRC=/Project/postgresql-7.1.2/src
+# If the LIBPQ libaray is not in the LIB environment or search path specified it here
+LIBPATH=/libpath:"/Project/postgresql-7.1.2/src/interfaces/libpq/Release"
+

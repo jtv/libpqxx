@@ -60,7 +60,7 @@ public:
    *
    * The fields in a Tuple can not currently be iterated over.
    */
-  class Tuple
+  class PQXX_LIBEXPORT Tuple
   {
   public:
     typedef Tuple_size_type size_type;
@@ -89,7 +89,7 @@ public:
   /** A Field represents one entry in a Tuple.  It represents an actual value 
    * in the result set, and can be converted to various types.
    */
-  class Field : private Tuple
+  class PQXX_LIBEXPORT Field : private Tuple
   {
   public:
     using Tuple::size_type;
@@ -115,12 +115,36 @@ public:
       catch (const PGSTD::exception &e)
       {
 	throw PGSTD::runtime_error("Error reading field " + 
-			         PGSTD::string(Name()) +
-				 ": " +
-				 e.what());
+			           PGSTD::string(Name()) +
+				   ": " +
+				   e.what());
       }
       return true;
     }
+
+#ifdef NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
+    /// Specialization: to(string &)
+    template<> bool to(PGSTD::string &Obj) const
+    {
+      if (is_null())
+        return false;
+      Obj = c_str();
+      return true;
+    }
+
+    /// Specialization: to(const char *&).  
+    /** The buffer has the same lifetime as the Result, so take care not to
+     * use it after the Result is destroyed.
+     */
+    template<> bool to(const char *&Obj) const
+    {
+      if (is_null()) 
+        return false;
+      Obj = c_str();
+      return true;
+    }
+#endif
+
 
     /// Read value into Obj; or use Default & return false if null
     template<typename T> bool to(T &Obj, const T &Default) const	//[t12]
@@ -146,7 +170,7 @@ public:
    * plain iterator type for Result.  However its const_iterator type can be 
    * used to inspect its Tuples without changing them.
    */
-  class const_iterator : 
+  class PQXX_LIBEXPORT const_iterator : 
     public PGSTD::iterator<PGSTD::random_access_iterator_tag, 
                          const Tuple,
                          Result::size_type>, 
@@ -249,25 +273,6 @@ private:
 };
 
 
-
-
-template<> inline bool Result::Field::to(PGSTD::string &Obj) const
-{
-  if (is_null())
-    return false;
-  Obj = c_str();
-  return true;
-}
-
-template<> inline bool Result::Field::to(const char *&Obj) const
-{
-  if (is_null()) 
-    return false;
-  Obj = c_str();
-  return true;
-}
-
-
 inline Result::Field 
 Result::Tuple::operator[](Result::Tuple::size_type i) const 
 { 
@@ -283,6 +288,32 @@ inline const char *Result::Field::Name() const
 { 
   return m_Home->ColumnName(m_Col); 
 }
+
+
+#ifndef NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
+/// Specialization: to(string &)
+template<> inline bool Result::Field::to(PGSTD::string &Obj) const
+{
+  if (is_null())
+    return false;
+  Obj = c_str();
+  return true;
+}
+
+/// Specialization: to(const char *&).  
+/** The buffer has the same lifetime as the Result, so take care not to
+ * use it after the Result is destroyed.
+ */
+template<> inline bool Result::Field::to(const char *&Obj) const
+{
+  if (is_null()) 
+    return false;
+  Obj = c_str();
+  return true;
+}
+#endif
+
+
 
 inline Result::const_iterator 
 Result::const_iterator::operator+(difference_type o) const
