@@ -13,7 +13,7 @@ Description: C++ library to connect to PostgreSQL (development files)
  Header files for linking against libpqxx. This package obsoletes
  the libpqpp-dev package.
 
-Package: libpqxx0
+Package: libpqxx#LIBRARY_VERSION#
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}

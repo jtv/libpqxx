@@ -1,6 +1,6 @@
-debian/tmp/usr/include
-debian/tmp/usr/lib/libpqxx.a
-debian/tmp/usr/lib/libpqxx.la
-debian/tmp/usr/lib/libpqxx*.so
-doc/html                        usr/share/doc/libpqxx-dev
-test/*.cxx                      usr/share/doc/libpqxx-dev/examples
+debian/install/usr/include          usr
+debian/install/usr/lib/libpqxx.a    usr/lib
+debian/install/usr/lib/libpqxx.la   usr/lib
+debian/install/usr/lib/libpqxx.so   usr/lib
+doc/html                            usr/share/doc/libpqxx-dev
+test/*.cxx                          usr/share/doc/libpqxx-dev/examples
