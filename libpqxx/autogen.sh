@@ -4,6 +4,10 @@
 
 set -e
 
+# Run in most basic of locals to avoid performance overhead (and risk of bugs)
+# involved in localization, encoding issues etc.  We only do ASCII here.
+export LC_ALL=C
+
 ver=""
 for amv in "1.6" "1.7" "1.8" "1.9" ; do
 	if which "automake-$amv" >/dev/null 2>&1; then
