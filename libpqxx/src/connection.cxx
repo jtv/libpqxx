@@ -14,6 +14,12 @@
 
 #include "pqxx/connection.h"
 
+pqxx::Connection::Connection() :
+  ConnectionItf(0)
+{
+  Connect();
+}
+
 pqxx::Connection::Connection(const PGSTD::string &ConnInfo) :
   ConnectionItf(ConnInfo)
 {

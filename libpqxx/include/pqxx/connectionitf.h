@@ -203,7 +203,7 @@ public:
    * encodings" to find out more about the available encodings, how to extend
    * them, and how to use them.  Not all server-side encodings are compatible 
    * with all client-side encodings or vice versa.
-   * @parm Encoding name of the character set encoding to use
+   * @param Encoding name of the character set encoding to use
    */
   void SetClientEncoding(const char Encoding[]);			//[]
 

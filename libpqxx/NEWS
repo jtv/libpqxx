@@ -1,3 +1,8 @@
+1.7.3
+ - default constructors for connection classes
+ - revamped seeking operations on large objects
+ - better error messages in large objects
+ - added test050, test051
 1.7.2
  - more workarounds for Sun CC 5.1, thanks Jeroen van Erp!
  - preliminary support for "named" queries

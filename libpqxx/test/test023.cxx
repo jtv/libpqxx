@@ -15,12 +15,7 @@ using namespace pqxx;
 // Example program for libpqxx.  Send notification to self, using defered
 // connection.
 //
-// Usage: test23 [connect-string]
-//
-// Where connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
+// Usage: test23
 
 #ifdef WIN32
 #include <windows.h>
@@ -107,11 +102,11 @@ public:
 
 } // namespace
 
-int main(int, char *argv[])
+int main()
 {
   try
   {
-    LazyConnection C(argv[1]);
+    LazyConnection C;
     cout << "Adding trigger..." << endl;
     TestTrig Trig(C);
 
