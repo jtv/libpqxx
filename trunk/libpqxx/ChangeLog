@@ -1,3 +1,11 @@
+2005-03-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Perform strerror_r() tests in C++, thanks Christopher Barkley
+ include/pqxx/result.hxx:
+  - Added warning about thread safety of results
+  - Added note about lightweight copying of results
+ include/pqxx/tablewriter.hxx, src/dbtransaction.cxx, src/util.cxx:
+  - Made it a little easier for Doxygen to resolve certain functions
 2005-03-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/cursor.cxx:
   - Work around displacement overflow in backend, thanks Christopher Barkley
