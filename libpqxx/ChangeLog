@@ -1,3 +1,16 @@
+2004-06-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pxx/cursor, include/pqxx/cursor.hxx:
+  - New
+  - Early work on new iterator/container-style cursor interface
+ include/pqxx/cursor.h:
+  - Renamed guard macro to PQXX_OLD_CURSOR_H
+ include/pqxx/Makefile.am:
+  - Added new cursor, cursor.hxx
+ src/cursor.cxx:
+  - Now contains new-style cursor code
+ src/oldcursor.cxx:
+  - New
+  - Holds obsolete Cursor code
 2004-06-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.hxx, test/test000.cxx:
   - string conversions for std::stringstream

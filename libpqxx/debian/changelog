@@ -1,3 +1,9 @@
+libpqxx (2.2.4-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Jeroen T. Vermeulen <jtv@xs4all.nl>  Sun,  6 Jun 2004 20:45:00 +0200
+
 libpqxx (2.2.3-1) stable; urgency=low
 
   * New upstream release.

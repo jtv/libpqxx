@@ -13,7 +13,7 @@ include_HEADERS= pqxx all.h \
 	compiler.h \
 	connection connection.hxx connection.h \
 	connection_base connection_base.hxx connection_base.h connectionitf.h \
-	cursor.h \
+	cursor cursor.hxx cursor.h \
 	dbtransaction dbtransaction.hxx dbtransaction.h \
 	except except.hxx except.h \
 	isolation isolation.hxx isolation.h \

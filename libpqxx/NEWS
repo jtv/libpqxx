@@ -1,3 +1,5 @@
+2.2.5
+ - Early work on new cursors interface
 2.2.4
  - New utility class template, items<> for easy container initialization
  - New utility function template, separated_list()
