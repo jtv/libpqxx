@@ -118,7 +118,7 @@ void pqxx::result::CheckStatus(const char Query[]) const
 string pqxx::result::StatusError() const
 {
   if (!c_ptr())
-    throw runtime_error("No result");
+    throw runtime_error("No result set given");
 
   string Err;
 
@@ -244,6 +244,7 @@ pqxx::result::field pqxx::result::tuple::operator[](const char f[]) const
 pqxx::result::field pqxx::result::tuple::at(const char f[]) const
 {
   const int fnum = m_Home->column_number(f);
+  // TODO: Should this be an out_of_range?
   if (fnum == -1)
     throw invalid_argument(string("Unknown field '") + f + "'");
 
@@ -282,6 +283,7 @@ pqxx::result::tuple::size_type
 pqxx::result::column_number(const char ColName[]) const
 {
   const int N = PQfnumber(c_ptr(), ColName);
+  // TODO: Should this be an out_of_range?
   if (N == -1)
     throw invalid_argument("Unknown column name: '" + string(ColName) + "'");
 
