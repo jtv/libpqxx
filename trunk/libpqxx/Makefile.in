@@ -164,7 +164,8 @@ RECURSIVE_TARGETS = info-recursive dvi-recursive pdf-recursive \
 	check-recursive installcheck-recursive
 DIST_COMMON = README $(srcdir)/Makefile.in $(srcdir)/configure AUTHORS \
 	COPYING ChangeLog INSTALL Makefile.am NEWS TODO aclocal.m4 \
-	configure configure.ac libpqxx.pc.in
+	configure configure.ac install-sh libpqxx.pc.in missing \
+	mkinstalldirs
 DIST_SUBDIRS = $(SUBDIRS)
 all: all-recursive
 
