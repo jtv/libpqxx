@@ -49,7 +49,7 @@ pqxx::binarystring::binarystring(const result::field &F) :
 
 #else
 
-  m_str.reserve(F.size());
+  m_str.reserve(F.size()+1);
   for (result::field::size_type i=0; i<F.size(); ++i)
   {
     unsigned char c = p[i];
