@@ -15,7 +15,7 @@
  *
  *-------------------------------------------------------------------------
  */
-#include "pqxx/config.h"
+#include "pqxx/compiler.h"
 
 #include <stdexcept>
 
@@ -234,7 +234,7 @@ void pqxx::basic_robusttransaction::DeleteTransactionRecord(IDType ID) throw ()
     // Now that we've arrived here, we're almost sure that record is quite dead.
     ID = oid_none;
   }
-  catch (const exception &e)
+  catch (const exception &)
   {
   }
 

@@ -49,5 +49,11 @@ template<> inline long numeric_limits<long>::min() throw () {return LONG_MIN;}
 long abs(long n) { return (n >= 0) ? n : -n; }
 #endif // HAVE_ABS_LONG
 
+#ifdef _WIN32
+#ifdef LIBPQXXDLL_EXPORTS
+#define PQXX_LIBEXPORT __declspec(dllexport)
+#endif	// LIBPQXXDLL_EXPORTS
+#endif	// _WIN32
+
 #endif
 

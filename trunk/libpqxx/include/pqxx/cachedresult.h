@@ -65,7 +65,7 @@ public:
    * @param T is the transaction context in which the cachedresult lives.  This
    * 	will be used whenever data is fetched.  Must have isolation level
    * 	"serializable," otherwise a link error will be generated for the symbol
-   * 	error_permissible_isolation_level.
+   * 	error_permitted_isolation_level.
    * @param Query is the SQL query that yields the desired result set.
    * @param BaseName gives the initial part of the name for this cachedresult
    * 	and the Cursor it uses to obtain its results.
@@ -84,14 +84,10 @@ public:
       m_HaveEmpty(false)
   {
     // Trigger build error if T has insufficient isolation level
-    error_permitted_isolation_level(typename TRANSACTION::isolation_tag());
+    error_permitted_isolation_level(PQXX_TYPENAME TRANSACTION::isolation_tag());
     init();
   }
 
-
-  // TODO: Iterators, begin(), end()
-  // TODO: Metadata
-  // TODO: Block replacement (limit cache size); then add capacity()
 
   /// Access a tuple.  Invalid index yields undefined behaviour.
   /**
@@ -129,6 +125,7 @@ public:
 private:
   typedef Cursor::pos pos;
 
+#ifndef PQXX_WORKAROUND_VC7
   /// Only defined for permitted isolation levels (in this case, serializable)
   /** If you get a link or compile error saying this function is not defined,
    * that means a cachedresult is being created on a transaction that doesn't
@@ -137,6 +134,11 @@ private:
    */
   template<typename ISOLATIONTAG>
     static inline void error_permitted_isolation_level(ISOLATIONTAG) throw();
+#else
+  // Incorrect, but needed to compile with Visual C++ 7
+  template<> static inline void
+    error_permitted_isolation_level(isolation_traits<serializable>) throw ();
+#endif
 
   void init();
 

@@ -1,3 +1,6 @@
+2.0 Release
+(*) README links: MacOS X, C++ Standard, BSD, libpq, openssl, gcc, doxygen, libpqxx
+
 Build system
 (*) Check for <sstream> presence (and what if it ain't there?)
 (*) Completely support building outside the source directory
@@ -42,7 +45,6 @@ Streams
 
 Transactions
 (*) German's locking idea for robusttransaction!
-(*) Think about isolation level for robusttransaction's reconnect-check
 (*) User schema support for robusttransaction log table
 (*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
 (*) Support querying of variables (local map is "cache" for session state)

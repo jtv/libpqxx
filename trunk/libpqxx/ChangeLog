@@ -1,8 +1,36 @@
+2003-10-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Checks for preprocessor #warning support
+ include/pqxx/binarystring.hxx:
+  - Exclude reverse iterator definitions on Visual C++, thanks Costin!
+ include/pqxx/compiler.h:
+  - Defines PQXX_LIBEXPORT if compiling library as Windows DLL
+ include/pqxx/cursor.hxx:
+  - Exclude some required typename keywords on Visual C++ (Costin)
+  - error_permitted_isolation_level() workaround for Visual C++ (Costin)
+ include/pqxx/libcompiler.h:
+  - Included Windows workaround definitions here
+ include/pqxx/libconfig.h.in:
+  - Added PQXX_HAVE_CPP_WARNING, set better default for PGSTD
+ include/pqxx/util.h:
+  - Fixed flaw in inclusion of new-style util header
+ include/pqxx/util.hxx:
+  - Includes libcompiler.h
+ README:
+  - Revamped Windows section
+  - PQXX_NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION no longer needed!
+  - Updated programming introduction
+ src/*.cxx:
+  - All now include pqxx/compiler.h at the top (Costin)
+ src/robusttransaction.cxx:
+  - Made unused catch argument anonymous to silence warning (Costin)
+ win32/config.h:
+  - Removed
 2003-10-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/result.hxx:
   - to() now throws domain_error if conversion fails (thanks Rune Jortveit)
-  - new as() without argument; throws if null
-  - throw specifications for at() and operator[] where appropriate
+  - New as() without argument; throws if null
+  - Throw specifications for at() and operator[] where appropriate
  include/pqxx/transaction.hxx
   - Introduced "work" typedef for default transaction type
  test/test045.cxx:
