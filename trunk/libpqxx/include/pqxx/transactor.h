@@ -78,7 +78,7 @@ public:
   // transaction will still be committed so the effects on the database remain.
   // The OnAbort() and OnDoubt() functions are not allowed to throw exceptions 
   // at all.
-  void OnAbort(const char Reason[]) throw () {}				//[t13]
+  void OnAbort(const char /*Reason*/[]) throw () {}			//[t13]
   void OnCommit() {}							//[t6]
   void OnDoubt() throw () {}						//[t13]
 
