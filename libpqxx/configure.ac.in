@@ -68,8 +68,10 @@ AC_MSG_RESULT(${enable_maintainer_mode})
 if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 	for option in \
 		-ffor-scope \
+		-fstrict-aliasing \
 		-funit-at-a-time \
 		-pedantic \
+		-fno-nonansi-builtins \
 		-Wall \
 		-Wmultichar \
 		-W \
@@ -80,11 +82,12 @@ if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 		-Wpointer-arith  \
 		-Wcast-qual  \
 		-Wcast-align  \
-		-Wwrite-strings  \
 		-Wconversion \
-		-Wsign-compare \
-		-Wredundant-decls \
 		-Wctor-dtor-privacy \
+		-Wendif-labels \
+		-Wredundant-decls \
+		-Wsign-compare \
+		-Wwrite-strings  \
 		-Wnon-virtual-dtor \
 		-Wreorder \
 		-Wold-style-cast \
