@@ -15,6 +15,17 @@ using namespace pqxx;
 
 namespace
 {
+template<typename T> void testitems(const T &I, typename T::size_type s)
+{
+  if (I.size() != s)
+    throw logic_error("Error in items class: expected " + to_string(s) + " "
+	"items, got " + to_string(I.size()));
+  for ( ; s; --s)
+    if (typename T::size_type(I[s-1]) != s)
+      throw logic_error("Found value " + to_string(I[s-1]) + " in items "
+	  "where " + to_string(s) + " was expected");
+}
+
 void check(string ref, string val, string vdesc)
 {
   if (ref != val)
@@ -66,6 +77,22 @@ int main()
     if (oid_none)
       throw logic_error("InvalidOid is not zero as it used to be."
 	  "This may conceivably cause problems in libpqxx." );
+
+    cout << "Testing items template..." << endl;
+    items<int> I0;
+    testitems(I0, 0);
+    items<int> I1(1);
+    testitems(I1, 1);
+    items<int> I2(1,2);
+    testitems(I2,2);
+    items<int> I3(1,2,3);
+    testitems(I3,3);
+    items<int> I4(1,2,3,4);
+    testitems(I4,4);
+    items<int> I5(1,2,3,4,5);
+    testitems(I5,5);
+    vector<int> V2(I2);
+    testitems(items<int>(V2),2);
 
     const char weird[] = "foo\t\0bar";
     const string weirdstr(weird, sizeof(weird)-1);
