@@ -21,15 +21,9 @@
 using namespace PGSTD;
 
 
-#ifdef DIALECT_POSTGRESQL
 #define SQL_BEGIN_WORK 		"BEGIN"
 #define SQL_COMMIT_WORK 	"COMMIT"
 #define SQL_ROLLBACK_WORK 	"ROLLBACK"
-#else
-#define SQL_BEGIN_WORK 		"BEGIN WORK"
-#define SQL_COMMIT_WORK 	"COMMIT WORK"
-#define SQL_ROLLBACK_WORK 	"ROLLBACK WORK"
-#endif // DIALECT_POSTGRESQL 
 
 
 pqxx::Transaction::Transaction(Connection &C, string TName) :
