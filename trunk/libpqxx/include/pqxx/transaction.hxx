@@ -33,7 +33,7 @@ namespace pqxx
 class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 {
 protected:
-  explicit basic_transaction(connection_base &C, 
+  explicit basic_transaction(connection_base &C,
 			     const PGSTD::string &IsolationLevel,
 			     const PGSTD::string &TName);		//[t1]
 
@@ -48,12 +48,12 @@ private:
 /** This is the type you'll normally want to use to represent a transaction on
  * the database.
  *
- * While you may choose to create your own transaction object to interface to 
- * the database backend, it is recommended that you wrap your transaction code 
+ * While you may choose to create your own transaction object to interface to
+ * the database backend, it is recommended that you wrap your transaction code
  * into a transactor code instead and let the transaction be created for you.
  * @see pqxx/transactor.hxx
  *
- * If you should find that using a transactor makes your code less portable or 
+ * If you should find that using a transactor makes your code less portable or
  * too complex, go ahead, create your own transaction anyway.
  *
  * Usage example: double all wages
@@ -65,7 +65,7 @@ private:
  * {
  *   T.exec("UPDATE employees SET wage=wage*2");
  *   T.commit();	// NOTE: do this inside try block
- * } 
+ * }
  * catch (const exception &e)
  * {
  *   cerr << e.what() << endl;
@@ -86,19 +86,19 @@ public:
    * may contain letters and digits only
    */
   explicit transaction(connection_base &C, const PGSTD::string &TName):	//[t1]
-    basic_transaction(C, isolation_tag::name(), TName) 
+    basic_transaction(C, isolation_tag::name(), TName)
     	{ Begin(); }
 
   explicit transaction(connection_base &C) :				//[t1]
-    basic_transaction(C, isolation_tag::name(), PGSTD::string()) 
+    basic_transaction(C, isolation_tag::name(), PGSTD::string())
     	{ Begin(); }
 
-  virtual ~transaction() throw () 
+  virtual ~transaction() throw ()
   {
 #ifdef PQXX_QUIET_DESTRUCTORS
     internal::disable_noticer Quiet(conn());
 #endif
-    End(); 
+    End();
   }
 
 protected:

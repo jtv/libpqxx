@@ -61,7 +61,7 @@
 2.2.8
  - Moved libpq into pqxx::internal::pq namespace
  - New config system separates compiler-related items from libpq-related ones
- - Auto-generates Visual C++ Makefile, should always remain up-to-date now 
+ - Auto-generates Visual C++ Makefile, should always remain up-to-date now
 2.2.7
  - Bugfix: from_string() didn't handle LONG_MIN--thanks Yannick Boivin
 2.2.6
@@ -174,7 +174,7 @@
  - Quick release for various minor changes
 1.9.2
  - Renamed most public member functions to all-lower-case names
- - <pqxx/all> (previously <pqxx/all.h> is now called <pqxx/pqxx> 
+ - <pqxx/all> (previously <pqxx/all.h> is now called <pqxx/pqxx>
 1.9.1
  - tablestream destructor crashed if table didn't exist (thanks Sean [Rogers?])
  - Renamed all header files to remove ".h" suffix
@@ -356,7 +356,7 @@ v1.3.5:
  - various Connection getters now activate deferred connection first
 2002-09-23 01:00, v1.1.0:
  - supports lazy connections (added 19 test cases just for these)
- - greatly reduced performance overhead for RobustTransaction 
+ - greatly reduced performance overhead for RobustTransaction
  - removed id field from RobustTransaction's transaction log tables
 2002-09-14 20:00, v1.0.1:
  - now lives on GBorg
@@ -384,10 +384,10 @@ v1.3.5:
  - removed broken postgres_fe.h dependency (hopefully permanent fix)
 2002-05-12 22:45, v0.3.0:
  - also looks for postgres_fe.h in postgres' internal/ directory (tmp fix)
-2002-05-05 01:30, v0.2.3: 
+2002-05-05 01:30, v0.2.3:
  - extensive build instructions in README
  - make check now controlled through PG environment variables
-2002-05-04 19:30, v0.2.2: 
+2002-05-04 19:30, v0.2.2:
  - more STL conformance
  - fixed regression test
  - test6 now copies "orgevents" to "events" by default

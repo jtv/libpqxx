@@ -13,7 +13,7 @@ done
 
 # The VERSION file defines our versioning
 PQXXVERSION=`grep '\<PQXXVERSION\>' VERSION | sed -e 's/^[[:space:]A-Z_]*//' -e 's/[[:space:]]*#.*$//'`
-echo "libpqxx version $PQXXVERSION" 
+echo "libpqxx version $PQXXVERSION"
 
 # Generate configure.ac based on current version numbers
 sed -e "s/@PQXXVERSION@/$PQXXVERSION/g" configure.ac.in >configure.ac

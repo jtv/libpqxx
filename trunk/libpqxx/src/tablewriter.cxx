@@ -24,7 +24,7 @@
 using namespace PGSTD;
 
 
-pqxx::tablewriter::tablewriter(transaction_base &T, 
+pqxx::tablewriter::tablewriter(transaction_base &T,
     const string &WName,
     const string &Null) :
   tablestream(T, WName, Null, "tablewriter")
@@ -89,11 +89,11 @@ void pqxx::tablewriter::writer_close()
   if (!is_finished())
   {
     base_close();
-    try 
-    { 
-      m_Trans.EndCopyWrite(); 
-    } 
-    catch (const exception &) 
+    try
+    {
+      m_Trans.EndCopyWrite();
+    }
+    catch (const exception &)
     {
       try { base_close(); } catch (const exception &) {}
       throw;

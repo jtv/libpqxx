@@ -28,19 +28,19 @@
 namespace pqxx
 {
 
-/** Cached result set.  Chunks of result data are transparently fetched 
- * on-demand and stored in an internal cache for reuse.  Functionality is 
- * similar to that of result, with certain restrictions and different 
+/** Cached result set.  Chunks of result data are transparently fetched
+ * on-demand and stored in an internal cache for reuse.  Functionality is
+ * similar to that of result, with certain restrictions and different
  * performance characteristics.  A cachedresult must live in the context of a
  * backend transaction, so that it can fetch further rows as they are needed.
  * @warning
- * The transaction must have serializable isolation level to ensure that the 
+ * The transaction must have serializable isolation level to ensure that the
  * result set of the query remains unchanged while parts of it are cached.  This
  * class is to be replaced by a C++-style iterator interface.
  *
  * The class uses a Cursor internally to fetch results.  Data are not fetched
  * row-by-row, but in chunks of configurable size.  For internal computational
- * reasons, these chunks (called "blocks" here) must be at least 2 rows large.  
+ * reasons, these chunks (called "blocks" here) must be at least 2 rows large.
  *
  * @warning PostgreSQL currently doesn't always let you move cursors backwards,
  * which is a feature this class relies upon.  As a result, cachedresult will
@@ -121,7 +121,7 @@ public:
 
   /// Number of rows in result set.  First call may be slow.
   size_type size() const;						//[t40]
-  
+
   /// Is the result set empty, i.e. does it contain no rows?  May fetch 1 block.
   bool empty() const;							//[t47]
 
@@ -139,7 +139,7 @@ private:
 
   void init();
 
-  blocknum BlockFor(size_type Row) const throw () 
+  blocknum BlockFor(size_type Row) const throw ()
   	{ return Row / m_Granularity; }
   size_type Offset(size_type Row) const throw ()
   	{ return Row % m_Granularity; }

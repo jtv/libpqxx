@@ -61,7 +61,7 @@ public:
 #ifdef PQXX_QUIET_DESTRUCTORS
     internal::disable_noticer Quiet(Conn());
 #endif
-    m_Conn.RemoveTrigger(this); 
+    m_Conn.RemoveTrigger(this);
   }
 
   const PGSTD::string &name() const { return m_Name; }			//[t4]

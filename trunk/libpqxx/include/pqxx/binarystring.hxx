@@ -7,7 +7,7 @@
  *      declarations for bytea (binary string) conversions
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/binarystring instead.
  *
- * Copyright (c) 2003-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -29,7 +29,7 @@ namespace pqxx
 /** This class represents a postgres-internal buffer containing the original,
  * binary string represented by a field of type bytea.  The raw value returned
  * by such a field contains escape sequences for certain characters, which are
- * filtered out by binarystring.  
+ * filtered out by binarystring.
  *
  * The resulting string is zero-terminated, but may also contain zero bytes (or
  * indeed any other byte value) so don't assume that it can be treated as a
@@ -83,7 +83,7 @@ public:
   	{ return const_reverse_iterator(begin()); }
 #endif
 
-  /// Unescaped field contents 
+  /// Unescaped field contents
   const value_type *data() const throw () {return super::c_ptr();}	//[t62]
 
   const_reference operator[](size_type i) const throw () 		//[t62]

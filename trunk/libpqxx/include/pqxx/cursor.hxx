@@ -8,7 +8,7 @@
  *   C++-style wrappers for SQL cursors
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/pipeline instead.
  *
- * Copyright (c) 2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -244,8 +244,8 @@ private:
  * position, or change its stride, between the time the first icursor_iterator
  * on it is created and the time its last icursor_iterator is destroyed.
  */
-class PQXX_LIBEXPORT icursor_iterator : 
-  public PGSTD::iterator<PGSTD::input_iterator_tag, 
+class PQXX_LIBEXPORT icursor_iterator :
+  public PGSTD::iterator<PGSTD::input_iterator_tag,
   	result,
 	cursor_base::size_type,
 	const result *,

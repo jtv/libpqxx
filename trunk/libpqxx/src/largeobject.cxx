@@ -108,7 +108,7 @@ void pqxx::largeobject::to_file(dbtransaction &T, const string &File) const
 void pqxx::largeobject::remove(dbtransaction &T) const
 {
   if (lo_unlink(RawConnection(T), id()) == -1)
-    throw runtime_error("Could not delete large object " + 
+    throw runtime_error("Could not delete large object " +
 	                to_string(m_ID) + ": " +
 			Reason());
 }
@@ -162,12 +162,12 @@ pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
 }
 
 
-pqxx::largeobjectaccess::size_type 
+pqxx::largeobjectaccess::size_type
 pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
 {
   const size_type Result = cseek(dest, dir);
   if (Result == -1)
-    throw runtime_error("Error seeking in large object: " + Reason()); 
+    throw runtime_error("Error seeking in large object: " + Reason());
 
   return Result;
 }
@@ -202,7 +202,7 @@ void pqxx::largeobjectaccess::write(const char Buf[], size_type Len)
                           "#" + to_string(id()) + ": " +
 	                  Reason());
     if (Bytes == 0)
-      throw runtime_error("Could not write to large object #" + 
+      throw runtime_error("Could not write to large object #" +
 	                  to_string(id()) + ": " + Reason());
 
     throw runtime_error("Wanted to write " + to_string(Len) + " bytes "
@@ -212,7 +212,7 @@ void pqxx::largeobjectaccess::write(const char Buf[], size_type Len)
 }
 
 
-pqxx::largeobjectaccess::size_type 
+pqxx::largeobjectaccess::size_type
 pqxx::largeobjectaccess::read(char Buf[], size_type Len)
 {
   const long Bytes = cread(Buf, Len);

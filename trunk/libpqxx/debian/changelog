@@ -156,7 +156,7 @@ libpqxx (1.5.1-1.1) unstable; urgency=low
 
 libpqxx (1.5.1-1) unstable; urgency=low
 
-  * Initial Release. (closes: #170932) 
+  * Initial Release. (closes: #170932)
 
  -- Greg Hookey <debian@deadly.ca>  Sat, 22 Mar 2003 16:00:10 -0800
 

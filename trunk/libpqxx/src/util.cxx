@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      Various utility functions for libpqxx
  *
- * Copyright (c) 2003-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -84,7 +84,7 @@ template<> void from_string(const char Str[], long &Obj)
 template<> void from_string(const char Str[], unsigned long &Obj)
 {
   if (!Str) throw runtime_error("Attempt to convert NULL string to integer");
-  
+
   const char *p = Str;
   if (!isdigit(*p))
   {
@@ -127,7 +127,7 @@ template<typename T> inline void from_string_unsigned(const char Str[], T &Obj)
   unsigned long L;
   pqxx::from_string(Str, L);
   const T result = T(L);
-  if (result != L) 
+  if (result != L)
     throw runtime_error("Overflow in unsigned integer conversion");
   Obj = result;
 }
@@ -210,8 +210,8 @@ template<> void from_string(const char Str[], bool &Obj)
   case 'f':
   case 'F':
     result = false;
-    OK = !(Str[1] && 
-	   (strcmp(Str+1, "alse") != 0) && 
+    OK = !(Str[1] &&
+	   (strcmp(Str+1, "alse") != 0) &&
 	   (strcmp(Str+1, "ALSE") != 0));
     break;
 
@@ -241,7 +241,7 @@ template<> void from_string(const char Str[], bool &Obj)
     OK = false;
   }
 
-  if (!OK) 
+  if (!OK)
     throw invalid_argument("Failed conversion to bool: '" + string(Str) + "'");
 
   Obj = result;
@@ -299,34 +299,34 @@ template<typename T> inline string to_string_signed(T Obj)
 
 namespace pqxx
 {
-template<> string to_string(const short &Obj) 
-{ 
-  return to_string_signed(Obj); 
+template<> string to_string(const short &Obj)
+{
+  return to_string_signed(Obj);
 }
 
-template<> string to_string(const unsigned short &Obj) 
-{ 
-  return to_string_unsigned(Obj); 
+template<> string to_string(const unsigned short &Obj)
+{
+  return to_string_unsigned(Obj);
 }
 
-template<> string to_string(const int &Obj) 
-{ 
-  return to_string_signed(Obj); 
+template<> string to_string(const int &Obj)
+{
+  return to_string_signed(Obj);
 }
 
-template<> string to_string(const unsigned int &Obj) 
-{ 
-  return to_string_unsigned(Obj); 
+template<> string to_string(const unsigned int &Obj)
+{
+  return to_string_unsigned(Obj);
 }
 
-template<> string to_string(const long &Obj) 
-{ 
-  return to_string_signed(Obj); 
+template<> string to_string(const long &Obj)
+{
+  return to_string_signed(Obj);
 }
 
-template<> string to_string(const unsigned long &Obj) 
-{ 
-  return to_string_unsigned(Obj); 
+template<> string to_string(const unsigned long &Obj)
+{
+  return to_string_unsigned(Obj);
 }
 
 template<> string to_string(const float &Obj)
@@ -369,7 +369,7 @@ void pqxx::internal::FromString_string(const char Str[], string &Obj)
 }
 
 
-void pqxx::internal::FromString_ucharptr(const char Str[], 
+void pqxx::internal::FromString_ucharptr(const char Str[],
     const unsigned char *&Obj)
 {
   const char *C;
@@ -385,7 +385,7 @@ string libpq_escape(const char str[], size_t len)
 {
   char *buf = 0;
   string result;
-  
+
   try
   {
     /* Going by the letter of the PQescapeString() documentation we only need
@@ -441,8 +441,8 @@ string pqxx::sqlesc(const char str[])
     else
     {
         char s[8];
-        sprintf(s, 
-	        "\\%03o", 
+        sprintf(s,
+	        "\\%03o",
 		static_cast<unsigned int>(static_cast<unsigned char>(str[i])));
         result.append(s, 4);
     }
@@ -472,8 +472,8 @@ string pqxx::sqlesc(const char str[], size_t len)
     else
     {
         char s[8];
-        sprintf(s, 
-	        "\\%03o", 
+        sprintf(s,
+	        "\\%03o",
 		static_cast<unsigned int>(static_cast<unsigned char>(str[i])));
         result.append(s, 4);
     }
@@ -502,8 +502,8 @@ string pqxx::sqlesc(const string &str)
     else
     {
         char s[8];
-        sprintf(s, 
-	        "\\%03o", 
+        sprintf(s,
+	        "\\%03o",
 		static_cast<unsigned int>(static_cast<unsigned char>(*i)));
         result.append(s, 4);
     }
@@ -524,7 +524,7 @@ string pqxx::internal::Quote_charptr(const char Obj[], bool EmptyIsNull)
 }
 
 
-string pqxx::internal::namedclass::description() const 
+string pqxx::internal::namedclass::description() const
 {
   try
   {
@@ -544,7 +544,7 @@ string pqxx::internal::namedclass::description() const
 void pqxx::internal::CheckUniqueRegistration(const namedclass *New,
     const namedclass *Old)
 {
-  if (!New) 
+  if (!New)
     throw logic_error("libpqxx internal error: NULL pointer registered");
   if (Old)
   {

@@ -30,7 +30,7 @@ using namespace PGSTD;
 using namespace pqxx::internal;
 
 
-pqxx::transaction_base::transaction_base(connection_base &C, 
+pqxx::transaction_base::transaction_base(connection_base &C,
     					 const string &TName,
 					 const string &CName) :
   namedclass(TName, CName),
@@ -94,7 +94,7 @@ void pqxx::transaction_base::commit()
     throw logic_error("Attempt to commit previously aborted " + description());
 
   case st_committed:
-    // Transaction has been committed already.  This is not exactly proper 
+    // Transaction has been committed already.  This is not exactly proper
     // behaviour, but throwing an exception here would only give the impression
     // that an abort is needed--which would only confuse things further at this
     // stage.
@@ -112,7 +112,7 @@ void pqxx::transaction_base::commit()
     throw logic_error("libpqxx internal error: "
 	"pqxx::transaction: invalid status code");
   }
- 
+
   // Tricky one.  If stream is nested in transaction but inside the same scope,
   // the Commit() will come before the stream is closed.  Which means the
   // commit is premature.  Punish this swiftly and without fail to discourage
@@ -154,7 +154,7 @@ void pqxx::transaction_base::commit()
 
 void pqxx::transaction_base::abort()
 {
-  // Check previous status code.  Quietly accept multiple aborts to 
+  // Check previous status code.  Quietly accept multiple aborts to
   // simplify emergency bailout code.
   switch (m_Status)
   {
@@ -196,7 +196,7 @@ pqxx::result pqxx::transaction_base::exec(const char Query[],
   const string N = (Desc.empty() ? "" : "'" + Desc + "' ");
 
   if (m_Focus.get())
-    throw logic_error("Attempt to execute query " + N + 
+    throw logic_error("Attempt to execute query " + N +
 		      "on " + description() + " "
 		      "with " + m_Focus.get()->description() + " "
 		      "still open");
@@ -384,7 +384,7 @@ string MakeCopyString(const string &Table, const string &Columns)
 } // namespace
 
 
-void pqxx::transaction_base::BeginCopyRead(const string &Table, 
+void pqxx::transaction_base::BeginCopyRead(const string &Table,
     const string &Columns)
 {
   exec(MakeCopyString(Table, Columns) + "TO STDOUT");

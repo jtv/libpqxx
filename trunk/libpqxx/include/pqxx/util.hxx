@@ -99,13 +99,13 @@ typedef PQXXPQ::Oid oid;
 const oid oid_none = 0;
 
 /// Dummy name, used by libpqxx in deliberate link errors
-/** If you get an error involving this function while building your program, 
+/** If you get an error involving this function while building your program,
  * this means that the program contains an unsupported string conversion.
  *
  * In other words, the program tries to convert an object to a string, or a
  * string to an object, of a type for which libpqxx does not implement this
  * conversion.  A notable example is "long long," which is supported by many
- * compilers but does not exist in Standard C++.  
+ * compilers but does not exist in Standard C++.
  *
  * In the case of "long long" and similar types, if your implementation of the
  * standard C++ library supports it, you may use a stringstream to perform the
@@ -118,8 +118,8 @@ template<typename T> void error_unsupported_type_in_string_conversion(T);
 /// Dummy name, used to generate meaningful link errors
 /** If you get a link error naming this function, this means that your program
  * includes a string conversion involving a signed or unsigned char type.  The
- * problem with such conversions is that they are ambiguous: do you want to 
- * treat the char type as a small numeric type, or as a character type like 
+ * problem with such conversions is that they are ambiguous: do you want to
+ * treat the char type as a small numeric type, or as a character type like
  * plain char?
  */
 template<typename T> PGSTD::string error_ambiguous_string_conversion(T);
@@ -129,14 +129,14 @@ template<typename T> PGSTD::string error_ambiguous_string_conversion(T);
 // TODO: Implement date conversions
 
 /// Attempt to convert postgres-generated string to given built-in type
-/** If the form of the value found in the string does not match the expected 
+/** If the form of the value found in the string does not match the expected
  * type, e.g. if a decimal point is found when converting to an integer type,
  * the conversion fails.  Overflows (e.g. converting "9999999999" to a 16-bit
  * C++ type) are also treated as errors.
  *
  * Only the simplest possible conversions are supported.  No fancy features
  * such as hexadecimal or octal, spurious signs, or exponent notation will work.
- * No whitespace is stripped away.  Only the kinds of strings that come out of 
+ * No whitespace is stripped away.  Only the kinds of strings that come out of
  * PostgreSQL and out of to_string() can be converted.
  */
 template<typename T> void from_string(const char Str[], T &Obj);
@@ -162,11 +162,11 @@ template<>
 template<> inline void from_string(const char Str[],PGSTD::string &Obj)	//[t46]
 	{ Obj = Str; }
 
-template<> 
+template<>
   inline void from_string(const char Str[], PGSTD::stringstream &Obj)	//[t0]
   	{ Obj.clear(); Obj << Str; }
 
-template<typename T> 
+template<typename T>
   inline void from_string(const PGSTD::string &Str, T &Obj) 		//[t45]
 	{ from_string(Str.c_str(), Obj); }
 
@@ -174,7 +174,7 @@ template<typename T>
   inline void from_string(const PGSTD::stringstream &Str, T &Obj)	//[t0]
   	{ from_string(Str.str(), Obj); }
 
-template<> inline void 
+template<> inline void
 from_string(const PGSTD::string &Str, PGSTD::string &Obj) 		//[t46]
 	{ Obj = Str; }
 
@@ -239,7 +239,7 @@ template<> inline PGSTD::string to_string(const unsigned char &Obj)
  * "items<int> numbers(1,2,3,4);"
  *
  * One thing that cannot be done with this simple class is create const objects
- * with nontrivial contents.  This is because the function invocation operator 
+ * with nontrivial contents.  This is because the function invocation operator
  * (which is being used to add items) modifies the container rather than
  * creating a new one.  This was done to keep performance within reasonable
  * bounds.
@@ -305,8 +305,8 @@ PGSTD::string separated_list(const PGSTD::string &sep,
 
 
 /// Private namespace for libpqxx's internal use; do not access
-/** This namespace hides definitions internal to libpqxx.  These are not 
- * supposed to be used by client programs, and they may change at any time 
+/** This namespace hides definitions internal to libpqxx.  These are not
+ * supposed to be used by client programs, and they may change at any time
  * without notice.
  *
  * Conversely, if you find something in this namespace tremendously useful, by
@@ -322,7 +322,7 @@ typedef long result_difference_type;
 /// C-style format strings for various built-in types
 /** @deprecated To be removed when ToString and FromString are taken out
  *
- * Only allowed for certain types, for which this function is explicitly 
+ * Only allowed for certain types, for which this function is explicitly
  * specialized.  When attempting to use the template for an unsupported type,
  * the generic version will be instantiated.  This will result in a link error
  * for the symbol error_unsupported_type_in_string_conversion(), with a template
@@ -377,8 +377,8 @@ template<> inline PGSTD::string ToString(const unsigned char *const &Obj)
   return reinterpret_cast<const char *>(Obj);
 }
 
-template<> inline PGSTD::string ToString(const bool &Obj) 
-{ 
+template<> inline PGSTD::string ToString(const bool &Obj)
+{
   return ToString(unsigned(Obj));
 }
 
@@ -397,7 +397,7 @@ template<> inline PGSTD::string ToString(const unsigned short &Obj)
 /** @deprecated Use the stricter, safer from_string instead.
  * @warning The conversion is done using the currently active locale, whereas
  * PostgreSQL delivers values in the "default" (C) locale.  This means that if
- * you intend to use this function from a locale that doesn't understand the 
+ * you intend to use this function from a locale that doesn't understand the
  * data types in question (particularly numeric types like float and int) in
  * default C format, you'll need to switch back to the C locale before the call.
  * This problem does not exist with the newer from_string function template.
@@ -408,8 +408,8 @@ template<typename T> inline void FromString(const char Str[], T &Obj)
 		                     PGSTD::string(typeid(T).name()));
 
   if (sscanf(Str, internal::FmtString(Obj), &Obj) != 1)
-    throw PGSTD::runtime_error("Cannot convert value '" + 
-		             PGSTD::string(Str) + 
+    throw PGSTD::runtime_error("Cannot convert value '" +
+		             PGSTD::string(Str) +
 			     "' to " + typeid(T).name());
 }
 
@@ -424,11 +424,11 @@ void PQXX_LIBEXPORT FromString_string(const char Str[], PGSTD::string &Obj);
 /// For libpqxx internal use only: convert unsigned char * to C++ string
 /** @deprecated To be removed when FromString is taken out
  */
-void PQXX_LIBEXPORT FromString_ucharptr(const char Str[], 
+void PQXX_LIBEXPORT FromString_ucharptr(const char Str[],
     	const unsigned char *&Obj);
 
 /// For libpqxx internal use only: quote std::string
-PGSTD::string PQXX_LIBEXPORT Quote_string(const PGSTD::string &Obj, 
+PGSTD::string PQXX_LIBEXPORT Quote_string(const PGSTD::string &Obj,
     	bool EmptyIsNull);
 
 /// For libpqxx internal use only: quote const char *
@@ -504,7 +504,7 @@ template<typename T> PGSTD::string Quote(const T &Obj, bool EmptyIsNull);
 /// std::string version, on which the other versions are built
 /** @deprecated Use sqlesc instead.
  */
-template<> 
+template<>
 inline PGSTD::string Quote(const PGSTD::string &Obj, bool EmptyIsNull)
 {
   return internal::Quote_string(Obj, EmptyIsNull);
@@ -555,9 +555,9 @@ void freenotif(PQXXPQ::PGnotify *);
 
 /// Reference-counted smart pointer to libpq-allocated object
 /** Ownership policy is simple: object dies when PQAlloc object's value does.
- * If the available PostgreSQL development files supply PQfreemem() or 
- * PQfreeNotify(), this is used to free the memory.  If not, free() is used 
- * instead.  This matters on Windows, where memory allocated by a DLL must be 
+ * If the available PostgreSQL development files supply PQfreemem() or
+ * PQfreeNotify(), this is used to free the memory.  If not, free() is used
+ * instead.  This matters on Windows, where memory allocated by a DLL must be
  * freed by the same DLL.
  */
 template<typename T> class PQAlloc
@@ -572,7 +572,7 @@ public:
     m_Obj(0), m_l(this), m_r(this) { makeref(rhs); }
   ~PQAlloc() throw () { loseref(); }
 
-  PQAlloc &operator=(const PQAlloc &rhs) throw () 
+  PQAlloc &operator=(const PQAlloc &rhs) throw ()
   	{ if (&rhs != this) { loseref(); makeref(rhs); } return *this; }
 
   /// Assume ownership of a pointer

@@ -8,7 +8,7 @@
  *   pqxx::tablestream provides optimized batch access to a database table
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablestream instead.
  *
- * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -30,9 +30,9 @@ class transaction_base;
 
 
 /// Base class for streaming data to/from database tables.
-/** A Tablestream enables optimized batch read or write access to a database 
+/** A Tablestream enables optimized batch read or write access to a database
  * table using PostgreSQL's COPY TO STDOUT and COPY FROM STDIN commands,
- * respectively.  These capabilities are implemented by its subclasses 
+ * respectively.  These capabilities are implemented by its subclasses
  * tablereader and tablewriter.
  *
  * A Tablestream exists in the context of a transaction, and no other streams
@@ -42,8 +42,8 @@ class transaction_base;
 class PQXX_LIBEXPORT tablestream : public internal::transactionfocus
 {
 public:
-  tablestream(transaction_base &Trans, 
-	      const PGSTD::string &Name, 
+  tablestream(transaction_base &Trans,
+	      const PGSTD::string &Name,
 	      const PGSTD::string &Null=PGSTD::string(),
 	      const char Classname[]="tablestream");			//[t6]
 
@@ -54,7 +54,7 @@ public:
    * destructor is run.  This function will check any final errors which may not
    * become apparent until the transaction is committed otherwise.
    *
-   * As an added benefit, this will free up the transaction while the 
+   * As an added benefit, this will free up the transaction while the
    * tablestream object itself still exists.
    */
   virtual void complete() =0;

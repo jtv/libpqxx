@@ -34,20 +34,20 @@ namespace pqxx
  * has gone wrong and the changes should be forgotten, call Abort() instead.
  * If you do neither, an implicit Abort() is executed at destruction time.
  *
- * It is an error to abort a transaction that has already been committed, or to 
- * commit a transaction that has already been aborted.  Aborting an already 
- * aborted transaction or committing an already committed one has been allowed 
+ * It is an error to abort a transaction that has already been committed, or to
+ * commit a transaction that has already been aborted.  Aborting an already
+ * aborted transaction or committing an already committed one has been allowed
  * to make errors easier to deal with.  Repeated aborts or commits have no
  * effect after the first one.
  *
  * Database transactions are not suitable for guarding long-running processes.
  * If your transaction code becomes too long or too complex, please consider
  * ways to break it up into smaller ones.  There's no easy, general way to do
- * this since application-specific considerations become important at this 
+ * this since application-specific considerations become important at this
  * point.
  *
  * The actual operations for beginning and committing/aborting the backend
- * transaction are implemented by a derived class.  The implementing concrete 
+ * transaction are implemented by a derived class.  The implementing concrete
  * class must also call Begin() and End() from its constructors and destructors,
  * respectively, and implement DoExec().
  */

@@ -27,14 +27,14 @@ namespace pqxx
 /** The only levels implemented in postgres are read_committed and serializable;
  * SQL also defines read_uncommitted and repeatable_read.  Unless you're bent on
  * using nasty tricks to communicate between ongoing transactions and such, you
- * won't really need isolation levels for anything except performance 
+ * won't really need isolation levels for anything except performance
  * optimization.  In that case, you can safely emulate read_uncommitted by using
- * read_committed and repeatable_read by using serializable.  In general, 
+ * read_committed and repeatable_read by using serializable.  In general,
  * serializable is the safest choice.
  */
-enum PQXX_LIBEXPORT isolation_level 
-{ 
-  // read_uncommitted, 
+enum PQXX_LIBEXPORT isolation_level
+{
+  // read_uncommitted,
   read_committed,
   // repeatable_read,
   serializable

@@ -28,7 +28,7 @@ using namespace PGSTD;
 
 void pqxx::cachedresult::init()
 {
-  // We can't accept granularity of 1 here, because some block number 
+  // We can't accept granularity of 1 here, because some block number
   // arithmetic might overflow.
   if (m_Granularity <= 1)
     throw out_of_range("Invalid cachedresult granularity");
@@ -70,7 +70,7 @@ const pqxx::result &pqxx::cachedresult::Fetch() const
 
   const result R( m_Cursor.Fetch(m_Granularity) );
 
-  if (!R.empty()) 
+  if (!R.empty())
   {
     pair<blocknum, result> tmp_pair(BlockFor(Pos), R);
     /* Note: can't simply return R because it'll get destroyed if it was already

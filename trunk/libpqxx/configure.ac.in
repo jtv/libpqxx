@@ -64,8 +64,8 @@ AC_ARG_ENABLE(maintainer-mode,
 AC_MSG_RESULT(${enable_maintainer_mode})
 
 # Let's try to get the compiler to be helpful
-# (Omit options -Weffc++ and -Wabi because they currently yield too many 
-# warnings in gcc's standard headers; omit -Wunreachable-code because it isn't 
+# (Omit options -Weffc++ and -Wabi because they currently yield too many
+# warnings in gcc's standard headers; omit -Wunreachable-code because it isn't
 # always right)
 if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 	for option in \
@@ -310,7 +310,7 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 )
 AC_MSG_RESULT($pqresulterrorfield)
 
-AC_CHECK_HEADER(limits, 
+AC_CHECK_HEADER(limits,
 	[AC_DEFINE(PQXX_HAVE_LIMITS, 1, [Define if <limits> exists])])
 
 AC_MSG_CHECKING([whether std::string has a clear() function])
@@ -336,18 +336,18 @@ struct P{bool operator()(const int&)const{return false;}}p;],
 AC_MSG_RESULT($count_if)
 
 AC_MSG_CHECKING([whether <iterator> defines a usable iterator template])
-AC_TRY_COMPILE([#include <iterator>], 
+AC_TRY_COMPILE([#include <iterator>],
 	[struct I:PGSTD::iterator<PGSTD::random_access_iterator_tag,int>{}],
 	[it='yes'],
-	[AC_DEFINE(PQXX_BROKEN_ITERATOR, 
-			1, 
+	[AC_DEFINE(PQXX_BROKEN_ITERATOR,
+			1,
 			[Define if <iterator> lacks an iterator template definition])
       	 it='no'])
 AC_MSG_RESULT($it)
 
 AC_MSG_CHECKING([for reverse_iterator template])
 reverseit='yes'
-AC_TRY_COMPILE([#include <iterator> 
+AC_TRY_COMPILE([#include <iterator>
 	using namespace PGSTD;struct I:iterator<random_access_iterator_tag,int>{};],
 	[reverse_iterator<I> rit],
 	[AC_DEFINE(PQXX_HAVE_REVERSE_ITERATOR,

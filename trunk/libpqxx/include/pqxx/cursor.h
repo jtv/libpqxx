@@ -48,7 +48,7 @@ class result;
  * When data is fetched, the cursor is moved before data is collected, so that
  * afterwards the cursor will be positioned on the last row it returned.  A
  * freshly created cursor is positioned on the imaginary row (numbered 0) before
- * its first * actual one (which is numbered 1).  Thus, a simple Fetch(1) will 
+ * its first * actual one (which is numbered 1).  Thus, a simple Fetch(1) will
  * then return the first actual row, i.e. row 1.
  *
  * Postgres does not currently support modification of data through a cursor.
@@ -57,9 +57,9 @@ class result;
  * have to experiment before using cursors for anything but plain forward-only
  * result set iteration.
  *
- * @warning A Cursor is only valid within the transaction in which it was 
- * created.  The result set must not change during its existence, or the 
- * cursor's positioning logic will get horribly confused.  For this reason, 
+ * @warning A Cursor is only valid within the transaction in which it was
+ * created.  The result set must not change during its existence, or the
+ * cursor's positioning logic will get horribly confused.  For this reason,
  * Cursor should only be used inside serializable transactions.  This class is
  * to be replaced by a C++-style iterator interface.
  *
@@ -82,23 +82,23 @@ public:
   {
     unknown_position(const PGSTD::string &cursorname) :
       PGSTD::runtime_error("Position for cursor '" + cursorname + "' "
-	                   "is unknown") 
+	                   "is unknown")
     {
     }
   };
 
   /// Constructor.  Creates a cursor.
-  /** 
+  /**
    * @param T is the transaction that this cursor lives in.
    * @param Query defines a data set that the cursor should traverse.
-   * @param BaseName optional name for the cursor, must begin with a letter 
-   * and contain letters and digits only.  
+   * @param BaseName optional name for the cursor, must begin with a letter
+   * and contain letters and digits only.
    * @param Count the stride of the cursor, ie. the number of rows fetched at a
    * time.  This defaults to 1.
    */
-  template<typename TRANSACTION> 
+  template<typename TRANSACTION>
     Cursor(TRANSACTION &T,
-           const char Query[], 
+           const char Query[],
 	   const PGSTD::string &BaseName="cur",
 	   difference_type Count=dist_next) :				//[t3]
       m_Trans(T),
@@ -120,12 +120,12 @@ public:
    * if it had been created by the Cursor object.  The cursor can only be used
    * inside the transaction that created it.
    *
-   * Use this creation method only with great care.  Read on for important 
+   * Use this creation method only with great care.  Read on for important
    * caveats.
    *
-   * The Cursor object does not know the current position of the SQL cursor. 
+   * The Cursor object does not know the current position of the SQL cursor.
    * For complicated technical reasons, this will cause trouble when the cursor
-   * reaches the end of the result set.  Therefore, before you ever move the 
+   * reaches the end of the result set.  Therefore, before you ever move the
    * resulting Cursor forward, you should always move it backwards with a
    * Move(Cursor::BACKWARD_ALL()).  This will reset the internal position
    * counter to the beginning of the result set.
@@ -180,7 +180,7 @@ public:
    * meaning.
    *
    * Also, note that cursors may reside on nonexistant rows, and that any
-   * exception during the operation will leave the cursor in an unknown 
+   * exception during the operation will leave the cursor in an unknown
    * position.
    */
   difference_type Move(difference_type Count);				//[t42]
@@ -189,7 +189,7 @@ public:
 
   /// Constant: "next fetch/move should span as many rows as possible."
   /** If the number of rows ahead exceeds the largest number your machine can
-   * comfortably conceive, this may not actually be all remaining rows in the 
+   * comfortably conceive, this may not actually be all remaining rows in the
    * result set.
    */
   static difference_type ALL() throw ();				//[t3]
@@ -200,7 +200,7 @@ public:
   /// Constant: "next fetch/move should go back one row."
   static difference_type PRIOR() throw () { return -1; }		//[t19]
 
-  /// Constant: "next fetch/move goes backwards, spanning as many rows as 
+  /// Constant: "next fetch/move goes backwards, spanning as many rows as
   /// possible.
   /** If the number of rows behind the cursor exceeds the largest number your
    * machine can comfortably conceive, this may not bring you all the way back
@@ -229,7 +229,7 @@ public:
   Cursor &operator-=(difference_type N) { Move(-N); return *this;}	//[t19]
 
   /// Number of actual tuples, or pos_unknown if not currently known.
-  /** Size will become known when the cursor passes the end of the result set, 
+  /** Size will become known when the cursor passes the end of the result set,
    * either by moving past it or by attempting to fetch more rows than are
    * available.  The count only includes actual tuples of data, but not the
    * two "imaginary" rows before the first actual row and after the last actual

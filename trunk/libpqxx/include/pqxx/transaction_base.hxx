@@ -24,7 +24,7 @@
  * to do.
  *
  * However, reading this file is worthwhile because it defines the public
- * interface for the available transaction classes such as transaction and 
+ * interface for the available transaction classes such as transaction and
  * nontransaction.
  */
 
@@ -48,7 +48,7 @@ namespace internal
 class PQXX_LIBEXPORT transactionfocus : public namedclass
 {
 public:
-  transactionfocus(transaction_base &t, 
+  transactionfocus(transaction_base &t,
       const PGSTD::string &Name,
       const PGSTD::string &Classname) :
     namedclass(Name, Classname),
@@ -79,9 +79,9 @@ private:
 
 
 
-/// Interface definition (and common code) for "transaction" classes.  
-/** All database access must be channeled through one of these classes for 
- * safety, although not all implementations of this interface need to provide 
+/// Interface definition (and common code) for "transaction" classes.
+/** All database access must be channeled through one of these classes for
+ * safety, although not all implementations of this interface need to provide
  * full transactional integrity.
  *
  * Several implementations of this interface are shipped with libpqxx, including
@@ -107,7 +107,7 @@ public:
    * risk that the connection to the database may be lost at just the wrong
    * moment.  In that case, libpqxx may be unable to determine whether the
    * transaction was completed or aborted and an in_doubt_error will be thrown
-   * to make this fact known to the caller.  The robusttransaction 
+   * to make this fact known to the caller.  The robusttransaction
    * implementation takes some special precautions to reduce this risk.
    */
   void commit();							//[t1]
@@ -124,7 +124,7 @@ public:
    * @param Desc Optional identifier for query, to help pinpoint SQL errors
    * @return A result set describing the query's or command's result
    */
-  result exec(const char Query[], 
+  result exec(const char Query[],
       	      const PGSTD::string &Desc=PGSTD::string());		//[t1]
 
   /// Execute query
@@ -155,7 +155,7 @@ public:
   connection_base &conn() const { return m_Conn; }			//[t4]
 
   /// Set session variable in this connection
-  /** The new value is typically forgotten if the transaction aborts.  
+  /** The new value is typically forgotten if the transaction aborts.
    * Known exceptions to this rule are nontransaction, and PostgreSQL versions
    * prior to 7.3.  In the case of nontransaction, the set value will be kept
    * regardless; but in that case, if the connection ever needs to be recovered,
@@ -165,10 +165,10 @@ public:
    */
   void set_variable(const PGSTD::string &Var, const PGSTD::string &Val);//[t61]
 
-  /// Get currently applicable value of variable 
+  /// Get currently applicable value of variable
   /** This function will try to consult the cache of variables set (both in the
    * transaction and in the connection) using the set_variable functions.  If it
-   * is not found there, the database is queried.  
+   * is not found there, the database is queried.
    * @warning Do not mix the set_variable with raw "SET" queries, and do not
    * try to set or get variables while a pipeline or table stream is active.
    */
@@ -200,10 +200,10 @@ public:
 
 protected:
   /// Create a transaction (to be called by implementation classes only)
-  /** The optional name, if nonempty, must begin with a letter and may contain 
+  /** The optional name, if nonempty, must begin with a letter and may contain
    * letters and digits only.
    */
-  explicit transaction_base(connection_base &, 
+  explicit transaction_base(connection_base &,
 		          const PGSTD::string &TName,
 			  const PGSTD::string &CName);
 
@@ -212,7 +212,7 @@ protected:
    */
   void Begin();
 
-  /// End transaction.  To be called by implementing class' destructor 
+  /// End transaction.  To be called by implementing class' destructor
   void End() throw ();
 
   /// To be implemented by derived implementation class: start transaction
@@ -227,7 +227,7 @@ protected:
   // For use by implementing class:
 
   /// Execute query on connection directly
-  /** 
+  /**
    * @param C Query or command to execute
    * @param Retries Number of times to retry the query if it fails.  Be
    * extremely careful with this option; if you retry in the middle of a
@@ -236,32 +236,32 @@ protected:
    * being active (and with the former part aborted).
    */
   result DirectExec(const char C[], int Retries=0);
- 
+
 private:
   /* A transaction goes through the following stages in its lifecycle:
    * <ul>
    * <li> nascent: the transaction hasn't actually begun yet.  If our connection
    *    fails at this stage, it may recover and the transaction can attempt to
    *    establish itself again.
-   * <li> active: the transaction has begun.  Since no commit command has been 
+   * <li> active: the transaction has begun.  Since no commit command has been
    *    issued, abortion is implicit if the connection fails now.
-   * <li> aborted: an abort has been issued; the transaction is terminated and 
-   *    its changes to the database rolled back.  It will accept no further 
+   * <li> aborted: an abort has been issued; the transaction is terminated and
+   *    its changes to the database rolled back.  It will accept no further
    *    commands.
-   * <li> committed: the transaction has completed successfully, meaning that a 
+   * <li> committed: the transaction has completed successfully, meaning that a
    *    commit has been issued.  No further commands are accepted.
    * <li> in_doubt: the connection was lost at the exact wrong time, and there
    *    is no way of telling whether the transaction was committed or aborted.
    * </ul>
    *
-   * Checking and maintaining state machine logic is the responsibility of the 
+   * Checking and maintaining state machine logic is the responsibility of the
    * base class (ie., this one).
    */
-  enum Status 
-  { 
-    st_nascent, 
-    st_active, 
-    st_aborted, 
+  enum Status
+  {
+    st_nascent,
+    st_active,
+    st_aborted,
     st_committed,
     st_in_doubt
   };
@@ -282,7 +282,7 @@ private:
   void BeginCopyRead(const PGSTD::string &Table, const PGSTD::string &Columns);
   bool ReadCopyLine(PGSTD::string &L) { return m_Conn.ReadCopyLine(L); }
   friend class tablewriter;
-  void BeginCopyWrite(const PGSTD::string &Table, 
+  void BeginCopyWrite(const PGSTD::string &Table,
       	const PGSTD::string &Columns = PGSTD::string());
   void WriteCopyLine(const PGSTD::string &L) { m_Conn.WriteCopyLine(L); }
   void EndCopyWrite() { m_Conn.EndCopyWrite(); }
