@@ -206,8 +206,8 @@ template<> inline PGSTD::string Quote(const char *const & Obj,
  * the size of the array is part of the type, for which reason we need it in our
  * template here.
  */
-template<size_t LEN> inline PGSTD::string Quote(const char (&Obj)[LEN],
-    						bool EmptyIsNull)	//[t18]
+template<int LEN> inline PGSTD::string Quote(const char (&Obj)[LEN],
+    					     bool EmptyIsNull=false)	//[t18]
 {
   return Quote(PGSTD::string(Obj), EmptyIsNull);
 }
