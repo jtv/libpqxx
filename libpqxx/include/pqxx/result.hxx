@@ -318,7 +318,7 @@ public:
     const_iterator(const result *r, result::size_type i) : tuple(r, i) {}
   };
 
-#ifndef PQXX_WORKAROUND_VC7
+#ifdef PQXX_HAVE_REVERSE_ITERATOR
   typedef PGSTD::reverse_iterator<const_iterator> const_reverse_iterator;
   const_reverse_iterator rbegin() const 				//[]
   	{ return const_reverse_iterator(begin()); }
@@ -328,7 +328,6 @@ public:
 
   const_iterator begin() const { return const_iterator(this, 0); }	//[t1]
   inline const_iterator end() const;					//[t1]
-  // TODO: Reverse iterators
 
   size_type size() const { return m_Result ? PQntuples(m_Result) : 0; }	//[t2]
   bool empty() const { return !m_Result || !PQntuples(m_Result); }	//[t11]

@@ -6,6 +6,8 @@
  - New field stream class: read result field as C++ stream
  - Separate namespace pqxx::internal for definitions not relevant to the user
  - More Windows compilation fixes
+ - Implemented reverse_iterator for result class
+ - Checks for functional std::reverse_iterator template
  - Makefile for MinGW compiler (thanks Pasquale Fersini)
  - Changed the way unique<> works
  - Bugs fixed & test programs added

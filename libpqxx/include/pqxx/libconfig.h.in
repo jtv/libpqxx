@@ -36,6 +36,9 @@
 /* Define if <iterator> lacks an iterator template definition */
 #undef PQXX_BROKEN_ITERATOR
 
+/* Define if reverse_iterator template works as expected */
+#undef PQXX_HAVE_REVERSE_ITERATOR
+
 /* Define if function overloading using "using" breaks */
 #undef PQXX_BROKEN_USING_DECL
 

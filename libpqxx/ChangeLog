@@ -1,3 +1,9 @@
+2004-02-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in, include/pqxx/binarystring.hxx, include/pqxx/libcompiler.h,
+ include/pqxx/libconfig.h.in, include/pqxx/result.hxx, test/test062.cxx:
+  - Added check for functional reverse_iterator template
+  - Skip reverse_iterator typedefs & functions if template not available
+  - VC7 workaround implies no functional reverse_iterator template
 2004-02-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/libcompiler.h:
   - Documented PGSTD
