@@ -1,3 +1,5 @@
+1.9.8
+ - Workaround for compile problem with postgres 7.3
 1.9.7
  - binarystring rewritten and moved to its own file
  - binarystring::size() does not include terminating null byte!
