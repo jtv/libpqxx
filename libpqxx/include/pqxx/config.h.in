@@ -39,6 +39,10 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
+/* Define if the sys/select.h header (defining the fd_set type and related
+   macros) is available */
+#undef HAVE_SYS_SELECT_H
+
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H
 
@@ -84,4 +88,3 @@
 
 /* Define to `unsigned' if <sys/types.h> does not define. */
 #undef size_t
-
