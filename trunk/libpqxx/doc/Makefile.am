@@ -30,7 +30,7 @@ DOCS = $(REFERENCE_DOCS) $(TUTORIAL_DOCS)
 docs: $(DOCS)
 
 reference: reference-stamp
-reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
+reference-stamp: Doxyfile $(REFERENCE_STAMP_DEPENDENCIES)
 	if test -d html; then \
 	  :; \
 	else \
