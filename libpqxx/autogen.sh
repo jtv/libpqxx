@@ -1,5 +1,7 @@
-#!/bin/sh
+#! /bin/sh
 # Run this to generate all the initial makefiles, etc.
+
+set -e
 
 ver=""
 if test -x /usr/bin/automake-1.6 ; then
