@@ -133,7 +133,7 @@ private:
    * operation.
    */
   static void
-    error_permitted_isolation_level(isolation_traits<serializable>) throw ();
+    error_permitted_isolation_level(isolation_traits<serializable>) throw () {}
 
   void init();
 
