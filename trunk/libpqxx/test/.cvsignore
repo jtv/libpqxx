@@ -5,5 +5,4 @@ Makefile.am
 Makefile.in
 pqxxlo.txt
 test[0-9][0-9][0-9]
-test.mak
 *.swp
