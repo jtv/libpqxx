@@ -36,6 +36,10 @@ class TransactionItf;
  * coming out of the stream may contain more than one Tuple.
  *
  * Postgres does not currently support modification of data through a cursor.
+ * Also, not all queries support cursors that go backwards.  Unfortunately there
+ * is no documentation on which queries do and which queries don't so you may
+ * have to experiment before using cursors for anything but plain forward-only
+ * result set iteration.
  */
 
 class PQXX_LIBEXPORT Cursor

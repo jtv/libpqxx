@@ -65,8 +65,13 @@ int main(int argc, char *argv[])
         {   "38", "time_t overflow" },
         {    "1", "'911' WTC attack" },
         {   "81", "C:\\>" },
-        { "1978", "bloody\tcold" },
+        { "1978", "bloody\t\tcold" },
 	{   "99", "" },
+	{ "2002", "libpqxx" },
+	{ "1989", "Ode an die Freiheit" },
+	{ "2001", "New millennium" },
+	{   "97", "Asian crisis" },
+	{ "2001", "A Space Oddyssey" },
         {0,0}
       };
 

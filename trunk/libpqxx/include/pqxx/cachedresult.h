@@ -24,6 +24,7 @@ namespace pqxx
 
 class TransactionItf;
 
+// TODO: Forward-only mode of operation?  Or write separate stream class?
 
 /** Cached result set.  Chunks of result data are transparently fetched 
  * on-demand and stored in an internal cache for reuse.  Functionality is 

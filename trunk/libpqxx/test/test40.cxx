@@ -29,7 +29,7 @@ int main(int, char *argv[])
     // Begin a transaction acting on our current connection
     Transaction T(C, "test40");
 
-    const char Query[] = "SELECT * FROM pg_tables";
+    const char Query[] = "SELECT * FROM events";
 
     // Perform a query on the database, storing result tuples in R
     Result R( T.Exec(Query) );

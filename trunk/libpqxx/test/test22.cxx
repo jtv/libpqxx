@@ -25,6 +25,8 @@ int main(int argc, char *argv[])
 {
   try
   {
+    const string Table = "events";
+
     int BlockSize = 1;
     if ((argc > 2) && argv[2] && (sscanf(argv[2],"%d",&BlockSize) != 1))
       throw invalid_argument("Expected number for second argument");
@@ -38,7 +40,7 @@ int main(int argc, char *argv[])
 
     Transaction T(C, "test22");
 
-    Cursor Cur(T, "SELECT * FROM pg_tables", "tablecur", BlockSize);
+    Cursor Cur(T, ("SELECT * FROM " + Table).c_str(), "tablecur", BlockSize);
     if (BlockSize < 0) Cur.Move(Cursor::ALL());
 
     C.Trace(0);

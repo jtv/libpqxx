@@ -1,4 +1,13 @@
 2002-12-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.h:
+  - Add warning about not all queries allowing cursors to go backwards
+ test/test19.cxx, test/test22.cxx, test/test38.cxx, test/test40.cxx,
+ test/test41.cxx:
+  - Use events table for cursor test to circumvent trouble with pg_tables in
+    postgres 7.3 (has become a view, so cursors don't go backwards)
+ test/test5.cxx, test/test24.cxx:
+  - Insert some extra rows in events so cursor tests will work
+2002-12-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cachedresult.h:
   - Added cautionary comment about limitations in PostgreSQL
 2002-12-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
