@@ -21,10 +21,6 @@ libpq.
 
 Getting Started
 
-This is still a very early version.  The code appears to be quite stable 
-already, but the configuration and build process is not complete yet.  Expect a
-few problems getting this to work!
-
 To get started quickly on a Unix-like system, do:
 
 ./configure	# (plus suitable arguments, to set up the build environment)
