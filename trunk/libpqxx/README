@@ -302,18 +302,29 @@ libpqxx encourages a relatively care-free programming style.
 Programming with libpqxx
 
 Your first program will involve the libpqxx classes connection (see headers
-"pqxx/connection_base" and "pqxx/connection"), work (a typedef for transaction<>
-which conforms to the interface defined in "pqxx/transaction_base"), and 
-probably also result ("pqxx/result").  In a nutshell, you create a "connection"
-based on a Postgres connection string (see below), create a "work" in the 
-context of that connection, and run one or more queries on the work which return
-"result" objects.  The results are containers of rows of data, each of which you
-can treat as an array of strings: one for each field in the row.  It's that 
-simple.
+"pqxx/connection_base.hxx" and "pqxx/connection.hxx"),  and work (a convenience
+typedef for transaction<> which conforms to the interface defined in 
+"pqxx/transaction_base.hxx").
+
+These "*.hxx" headers are not the ones you include in your program.  Instead,
+include the versions without filename suffix (i.e. "pqxx/connection_base" etc.)
+and they will include the .hxx files for you.  This was done so that includes
+are in standard C++ style (as in <iostream> etc.), but when you need to read or
+edit the header files containing the actual code, an editor or other program
+will still recognize them for what they are.
+
+Continuing the list of classes, you will probably also need the result class
+("pqxx/result.hxx").  In a nutshell, you create a "connection" based on a
+Postgres connection string (see below), create a "work" in the context of that
+connection, and run one or more queries on the work which return "result"
+objects.  The results are containers of rows of data, each of which you can
+treat as an array of strings: one for each field in the row.  It's that simple.
+
+Connection strings
 
 Postgres connection strings state which database server you wish to connect to,
-under which username, using which password, and so on.  Their format defined in
-the documentation for libpq, the C client interface for PostgreSQL.
+under which username, using which password, and so on.  Their format is defined
+in the documentation for libpq, the C client interface for PostgreSQL.
 Alternatively, these values may be defined by setting certain environment 
 variables as documented in e.g. the manual for psql, the command line interface
 to the database.  Again the definitions are the same for libpqxx-based programs.
@@ -355,6 +366,18 @@ requiressl
 Settings in the connection strings override the environment variables, which in
 turn override the default, on a variable-by-variable basis.  You only need to
 define those variables that require non-default values.
+
+Linking with libpqxx
+
+To link your final program, make sure you link to both the C-level libpq library
+and the actual C++ library, libpqxx.  On most Unix-style compilers, this can be
+done using the options
+
+	-lpq -lpqxx
+
+while linking.  Note that both libraries must be in your link path, so the 
+linker knows where to find them; any dynamic libraries you use must also be in
+a place where the loader can find them when loading your program at runtime.
 
 
 APPENDIX A - Links
