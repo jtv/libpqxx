@@ -2,7 +2,7 @@ All Over
 (*) Ensure table/column/cursor/... names are always quoted
 
 Build system
-(*) Isolate compiler-dependent and libpq-dependent config items; templates
+(*) Config header templates for various compilers, libpq versions
 (*) Completely support building outside the source directory
 (*) Ensure there is a way to build without -rpath and use that for the
     Debian packaging.
@@ -10,7 +10,7 @@ Build system
 Connections
 (*) Encapsulate definition of prepared statements
 (*) Restore prepared statements when restoring a connection
-(*) Separate failed_connection exception type if connection never succeeds?
+(*) More helpful broken_connection exception hierarchy
 (*) Connection pooling support
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
 (*) libpqxx-level trace output
@@ -18,12 +18,12 @@ Connections
 (*) Speed up connection state restoration by concatenating queries (pipeline?)
 
 Containers
-(*) size_type must be unsigned, difference_type must be signed
-(*) Ought to have at least const_reference
+(*) Check: size_type must be unsigned, difference_type must be signed
+(*) Check: Ought to have at least const_reference
 (*) Implement ==, !=, swap(); {<,>,<=,>=}
 (*) size_type max_size()
-(*) Iterator copying (copyconstructor or assignment) must not throw
-(*) front() & back()
+(*) Check: Iterator copying (copyconstructor or assignment) must not throw
+(*) Check: front() & back()
 
 Cursors
 (*) Older backends don't have NO SCROLL etc.!
