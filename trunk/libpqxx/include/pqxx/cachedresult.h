@@ -166,7 +166,7 @@ private:
   /// Block size.
   size_type m_Granularity;
 
-  typedef PGSTD::map<blocknum, const result> CacheMap;
+  typedef PGSTD::map<blocknum, result> CacheMap;
   mutable CacheMap m_Cache;
 
   mutable Cursor m_Cursor;

@@ -151,7 +151,8 @@ libpqxx_la_SOURCES = binarystring.cxx \
 	tablestream.cxx \
 	tablewriter.cxx \
 	transaction.cxx \
-	transaction_base.cxx
+	transaction_base.cxx \
+	util.cxx
 
 
 libpqxx_la_LDFLAGS = -version-info @sonumber@ ${POSTGRES_LIB}
@@ -172,7 +173,7 @@ am_libpqxx_la_OBJECTS = binarystring.lo cachedresult.lo \
 	connection_base.lo connection.lo cursor.lo largeobject.lo \
 	nontransaction.lo result.lo robusttransaction.lo tablereader.lo \
 	tablestream.lo tablewriter.lo transaction.lo \
-	transaction_base.lo
+	transaction_base.lo util.lo
 libpqxx_la_OBJECTS = $(am_libpqxx_la_OBJECTS)
 
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/include/pqxx -I$(top_builddir)/include/pqxx
@@ -190,7 +191,8 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/tablestream.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/tablewriter.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/transaction.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/transaction_base.Plo
+@AMDEP_TRUE@	./$(DEPDIR)/transaction_base.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/util.Plo
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -263,6 +265,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tablewriter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transaction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transaction_base.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Plo@am__quote@
 
 .cxx.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" \

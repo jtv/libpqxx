@@ -1,5 +1,6 @@
-2.0.1
+2.1.0
  - Asynchronous connections
+ - Compile fixes for SUN Workshop 6, and one for gcc on FreeBSD 4.8
 2.0.0
  - New stable release!
  - Includes all changes since 1.5 release.

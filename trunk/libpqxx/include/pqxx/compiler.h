@@ -44,11 +44,6 @@ template<> inline long numeric_limits<long>::min() throw () {return LONG_MIN;}
 #endif // HAVE_LIMITS
 
 
-#ifndef HAVE_ABS_LONG
-// For compilers that feel abs(long) is ambiguous
-long abs(long n) { return (n >= 0) ? n : -n; }
-#endif // HAVE_ABS_LONG
-
 #ifdef _WIN32
 #ifdef LIBPQXXDLL_EXPORTS
 #undef  PQXX_LIBEXPORT
