@@ -21,11 +21,6 @@
 #include "pqxx/config-public-compiler.h"
 
 
-#ifndef PQXX_HAVE_PTRDIFF_T
-typedef long ptrdiff_t;
-#endif
-
-
 #ifdef PQXX_BROKEN_ITERATOR
 #include <cstddef>
 #include <cstdlib>
@@ -69,7 +64,7 @@ template<> struct char_traits<char>
 {
   typedef int int_type;
   typedef size_t pos_type;
-  typedef ptrdiff_t off_type;
+  typedef long off_type;
   typedef char char_type;
 
   static int_type eof() { return -1; }
@@ -79,7 +74,7 @@ template<> struct char_traits<unsigned char>
 {
   typedef int int_type;
   typedef size_t pos_type;
-  typedef ptrdiff_t off_type;
+  typedef long off_type;
   typedef unsigned char char_type;
 
   static int_type eof() { return -1; }
