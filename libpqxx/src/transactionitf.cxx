@@ -41,7 +41,7 @@ pqxx::TransactionItf::~TransactionItf()
   if (m_Registered)
   {
     m_Conn.ProcessNotice("Transaction '" + m_Name + "' "
-		         "was never closed properly!");
+		         "was never closed properly!\n");
     m_Conn.UnregisterTransaction(this);
   }
 }
@@ -111,6 +111,8 @@ void pqxx::TransactionItf::Commit()
     m_Status = st_aborted;
     throw;
   }
+
+  End();
 }
 
 
@@ -154,6 +156,7 @@ void pqxx::TransactionItf::Abort()
   }
 
   m_Status = st_aborted;
+  End();
 }
 
 
