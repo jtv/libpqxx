@@ -222,9 +222,9 @@ private:
   mutable int *m_Refcount;
 
   friend class Result::Field;
-  const char *GetValue(size_type Row, Field::size_type Col) const;
-  bool GetIsNull(size_type Row, Field::size_type Col) const;
-  Field::size_type GetLength(size_type Row, Field::size_type Col) const;
+  const char *GetValue(size_type Row, Tuple::size_type Col) const;
+  bool GetIsNull(size_type Row, Tuple::size_type Col) const;
+  Field::size_type GetLength(size_type Row, Tuple::size_type Col) const;
 
   friend class Connection;
   explicit Result(PGresult *rhs) : m_Result(rhs), m_Refcount(0) {MakeRef(rhs);}

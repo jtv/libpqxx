@@ -1,3 +1,27 @@
+2002-05-20 05:45  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Moved config.h.in into include/pqxx
+  - Removed -Wdisabled-optimization in maintainer mode
+  - Removed unnecessary checks AC_STRUCT_TM, AC_FUNC_MALLOC, 
+    AC_CHECK_FUNCS(memset).
+ doc/libpqxx.sgml:
+  - More about transactions, in_doubt_error
+  - Documented Quote(), ToString(), FromString()
+ Doxyfile:
+  - Removed LaTeX output
+  - Moved HTML output to doc/html/Reference
+  - Tweaked output some more
+  - Removed version number
+ include/pqxx/compiler.h:
+  - Moved config.h into include/pqxx
+ include/pqxx/result.h:
+  - Fixed some type typos in function parameters
+2002-05-17 23:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Removed ${with_postgres_include}/(internal|server) from include path
+  - Bumped version to 0.3.1
+ include/pqxx/util.h:
+  - Removed troublesome postgres_fe.h include!
 2002-05-12 23:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac:
   - Included ${with_postgres_include}/internal in include path to help users

@@ -22,7 +22,6 @@
 
 extern "C"
 {
-#include "postgres_fe.h"
 #include "libpq-fe.h"
 }
 
@@ -114,7 +113,8 @@ template<> inline PGSTD::string Quote(const PGSTD::string &Obj,
 
 /// In the special case of const char *, the null pointer is represented as
 /// the null value.
-template<> inline PGSTD::string Quote(const char *const & Obj, bool EmptyIsNull)
+template<> inline PGSTD::string Quote(const char *const & Obj, 
+		                      bool EmptyIsNull)
 {
   if (!Obj) return "null";
   return Quote(PGSTD::string(Obj), EmptyIsNull);
