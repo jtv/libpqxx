@@ -1,3 +1,26 @@
+2004-11-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ - doc/Makefile.am:
+  - Filter progress messages out of doxygen output
+ - include/pqxx/*.hxx:
+  - Retouched Doxygen documentation
+  - Removed unneeded includes
+ - include/pqxx/dbtransaction.hxx:
+  - Removed startcommand() and StartCmd()
+  - Un-inlined code
+ - include/pqxx/util.hxx, src/pipeline.cxx, src/cursor.cxx:
+  - Removed assert code
+ - src/dbtransaction.cxx:
+  - New
+ - src/Makefile.am:
+  - Added dbtransaction.cxx
+2004-11-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/*/*, configitems:
+  - Add PQXX_HAVE_LONG_DOUBLE
+ configure.ac.in:
+  - Check for "long double" support (it's a standard type, but...)
+  - Add -Wno-long-double in maintainer mode, if available
+ include/pqxx/util.hxx, src/util.cxx, test/test046.cxx, test/test074.cxx:
+  - Made references to "long double" conditional on compiler support
 2004-11-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/VisualC++.NET-2003/config-internal-compiler.h,
  config/sample-headers/VisualC++.NET-2003/config-internal-compiler.h:
