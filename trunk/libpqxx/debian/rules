@@ -58,7 +58,8 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	
-	env CXX=$(CXX) ./configure $(confflags)
+	mkdir builddir && cd builddir && \
+		env CXX=$(CXX) ../configure $(confflags) --srcdir=$(CURDIR)
 
 	touch configure-stamp
 
@@ -67,7 +68,7 @@ build: build-stamp
 build-stamp: configure-stamp 
 	dh_testdir
 
-	$(MAKE)
+	$(MAKE) -C builddir
 	doxygen
 
 	touch build-stamp
@@ -78,11 +79,7 @@ clean:
 	rm -f build-stamp configure-stamp config.log config.status config.h \
 		stamp-h
 
-	# Add here commands to clean up after the build process.
-	-$(MAKE) clean
-
-	rm -rf src/.libs src/*.la src/*.o src/*.lo \
-		include/pqxx/config.h include/pqxx/stamp-h
+	rm -rf builddir
 
 	# Update config.{sub,guess} from autotools-dev, if possible.
 	-for f in config/config.sub config/config.guess ; do \
@@ -126,7 +123,7 @@ install: build
 	dh_clean -k
 	dh_installdirs
 
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
+	$(MAKE) -C builddir install DESTDIR=$(CURDIR)/debian/tmp
 
 # Build architecture-independent files here.
 binary-indep: build install

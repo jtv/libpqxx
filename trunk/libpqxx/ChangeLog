@@ -1,3 +1,5 @@
+2003-03-10  J.H.M. Dassen (Ray) <jdassen@debian.org>
+ Generate pkgconfig metadata file; updated debianisation.
 2003-03-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/largeobject.h, src/largeobject.h, test/test048.cxx:
   - Replaced low-level LargeObject::cunlink() with LargeObject::remove()

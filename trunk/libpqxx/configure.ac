@@ -249,6 +249,7 @@ AC_CHECK_TYPES([ptrdiff_t])
 
 AC_PROG_MAKE_SET
 
-AC_CONFIG_FILES([Makefile config/Makefile doc/Makefile src/Makefile test/Makefile include/Makefile include/pqxx/Makefile])
+AC_CONFIG_FILES([Makefile config/Makefile doc/Makefile src/Makefile
+test/Makefile include/Makefile include/pqxx/Makefile libpqxx.pc])
 AC_OUTPUT
 
