@@ -19,11 +19,13 @@
 #include <new>
 #include <stdexcept>
 
+#include "libpq-fe.h"
+
 #include "pqxx/binarystring"
+
 
 using namespace PGSTD;
 using namespace pqxx::internal;
-using namespace pqxx::internal::pq;
 
 namespace
 {

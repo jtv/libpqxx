@@ -23,7 +23,6 @@
 using namespace PGSTD;
 using namespace pqxx;
 using namespace pqxx::internal;
-using namespace pqxx::internal::pq;
 
 #define pqxxassert(ARG) /* ignore */
 

@@ -32,10 +32,11 @@
 #include <windows.h>
 #endif
 
+#include "libpq-fe.h"
+
 #include "pqxx/util"
 
 using namespace PGSTD;
-using namespace pqxx::internal::pq;
 
 
 namespace pqxx
@@ -537,6 +538,20 @@ string pqxx::internal::Quote_string(const string &Obj, bool EmptyIsNull)
 string pqxx::internal::Quote_charptr(const char Obj[], bool EmptyIsNull)
 {
   return Obj ? Quote(string(Obj), EmptyIsNull) : "null";
+}
+
+
+template<>
+void pqxx::internal::PQAlloc<pqxx::internal::pq::PGresult>::freemem() throw ()
+{
+  PQclear(m_Obj);
+}
+
+
+template<>
+void pqxx::internal::PQAlloc<pqxx::internal::pq::PGnotify>::freemem() throw ()
+{
+  freenotif(m_Obj);
 }
 
 

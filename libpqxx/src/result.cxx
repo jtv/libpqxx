@@ -19,12 +19,13 @@
 
 #include <stdexcept>
 
+#include "libpq-fe.h"
+
 #include "pqxx/except"
 #include "pqxx/result"
 
 
 using namespace PGSTD;
-using namespace pqxx::internal::pq;
 
 
 bool pqxx::result::operator==(const result &rhs) const throw ()
@@ -69,6 +70,18 @@ bool pqxx::result::field::operator==(const field &rhs) const
   const char *const l(c_str()), *const r(rhs.c_str());
   for (size_type i = 0; i < s; ++i) if (l[i] != r[i]) return false;
   return true;
+}
+
+
+pqxx::result::size_type pqxx::result::size() const throw ()
+{
+  return c_ptr() ? PQntuples(c_ptr()) : 0;
+}
+
+
+bool pqxx::result::empty() const throw ()
+{
+  return !c_ptr() || !PQntuples(c_ptr());
 }
 
 
@@ -132,6 +145,21 @@ string pqxx::result::StatusError() const
 		      to_string(int(PQresultStatus(c_ptr()))));
   }
   return Err;
+}
+
+
+const char *pqxx::result::CmdStatus() const throw ()
+{
+  return PQcmdStatus(c_ptr());
+}
+
+
+pqxx::oid pqxx::result::inserted_oid() const
+{
+  if (!c_ptr())
+    throw logic_error("Attempt to read oid of inserted row without an INSERT "
+	"result");
+  return PQoidValue(c_ptr());
 }
 
 
@@ -241,6 +269,12 @@ pqxx::result::column_name(pqxx::result::tuple::size_type Number) const
     throw out_of_range("Invalid column number: " + to_string(Number));
 
   return N;
+}
+
+
+pqxx::result::tuple::size_type pqxx::result::columns() const throw ()
+{
+  return c_ptr() ? PQnfields(c_ptr()) : 0;
 }
 
 

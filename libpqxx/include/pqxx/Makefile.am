@@ -27,6 +27,7 @@ include_HEADERS= pqxx all.h \
 	isolation isolation.hxx isolation.h \
 	largeobject largeobject.hxx largeobject.h \
 	libcompiler.h \
+	libpq-forward.hxx \
 	nontransaction nontransaction.hxx nontransaction.h \
 	pipeline pipeline.hxx \
 	result result.hxx result.h \

@@ -1,3 +1,9 @@
+2.5.0
+ - Fix race condition in removing triggers
+ - Improved documentation
+ - Clearer and more specific explanations for configuration failures
+ - No longer includes any libpq headers while compiling client code
+ - Release script automatically tests with a range of compilers, not just one
 2.4.4
  - Fix problems building shared library in Visual C++
  - Fix autobuild in Debian, which was broken by mistake in BSD grep workaround
