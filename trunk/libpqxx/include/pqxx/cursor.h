@@ -7,7 +7,7 @@
  *      definition of the pqxx::Cursor class.
  *   pqxx::Cursor represents a database cursor.
  *
- * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -271,12 +271,12 @@ private:
    * sufficient isolation level to support the Cursor's reliable operation.
    */
   template<typename ISOLATIONTAG> 
-    static inline void error_permitted_isolation_level(ISOLATIONTAG) throw();
+    static inline void error_permitted_isolation_level(ISOLATIONTAG) throw ();
 
 #if defined(__SUNPRO_CC)
   // Incorrect, but needed to compile with Sun CC
   template<> static void 
-    error_permitted_level(isolation_traits<serializable>) throw() {}
+    error_permitted_isolation_level(isolation_traits<serializable>) throw () {}
 #endif	// __SUNPRO_CC
 #else
   // Incorrect, but needed to compile with Visual C++ 7
