@@ -1,3 +1,8 @@
+2003-12-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ debian/*:
+  - Applied Debian patches by Roger Leigh
+ include/pqxx/result.hxx:
+  - More general implementation of operator<<(), thanks Hubert-Jan Schaminee!
 2003-11-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
   - Removed obsolete ABI versioning

@@ -3,7 +3,6 @@ Build system
 (*) Completely support building outside the source directory
 (*) Ensure there is a way to build without -rpath and use that for the
     Debian packaging.
-(*) Switch from dh_movefiles to dh_install for Debian packaging.
 (*) Generate win32/test.mak from tools/maketestam.pl
 
 Connections
