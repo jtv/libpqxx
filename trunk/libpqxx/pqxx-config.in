@@ -12,7 +12,7 @@ Usage: pqxx-config [OPTION]
 
 Known values for OPTION are:
 
-  --prefix=DIR		change libxml prefix [default $prefix]
+  --prefix=DIR		change libpqxx prefix [default $prefix]
   --libs		print library linking information
   --cflags		print pre-processor and compiler flags
   --help		display this help and exit
