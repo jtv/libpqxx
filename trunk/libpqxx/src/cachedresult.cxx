@@ -130,6 +130,7 @@ void pqxx::CachedResult::DetermineSize() const
 
   if (m_Upper == -1)
   {
+    // TODO: Find safer expression than Cursor::ALL()
     const blocknum TopBlock = BlockFor(Cursor::ALL());
     Result T = GetBlock(TopBlock);
     if (!T.empty())

@@ -109,6 +109,7 @@ public:
   Cursor &operator-=(Result_size_type N) { Move(-N); return *this;}	//[t19]
 
 private:
+  static PGSTD::string OffsetString(Result_size_type);
   PGSTD::string MakeFetchCmd(Result_size_type) const;
 
   TransactionItf &m_Trans;

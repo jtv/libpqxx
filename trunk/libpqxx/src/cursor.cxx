@@ -74,7 +74,7 @@ void pqxx::Cursor::Move(pqxx::Result_size_type Count)
   m_Done = false;
 
 #ifdef DIALECT_POSTGRESQL
-  m_Trans.Exec(("MOVE " + ToString(Count) + " IN " + m_Name).c_str());
+  m_Trans.Exec(("MOVE " + OffsetString(Count) + " IN " + m_Name).c_str());
 #else
   // Standard SQL doesn't have a MOVE command.  Use a FETCH instead, and ignore
   // its results.
@@ -83,9 +83,18 @@ void pqxx::Cursor::Move(pqxx::Result_size_type Count)
 }
 
 
+string pqxx::Cursor::OffsetString(Result_size_type Count)
+{
+  if (Count == ALL()) return "ALL";
+  else if (Count == BACKWARD_ALL()) return "BACKWARD ALL";
+
+  return ToString(Count);
+}
+
+
 string pqxx::Cursor::MakeFetchCmd(pqxx::Result_size_type Count) const
 {
   if (!Count) throw logic_error("Internal libpqxx error: Cursor: zero count");
-  return "FETCH " + ToString(Count) + " IN " + m_Name;
+  return "FETCH " + OffsetString(Count) + " IN " + m_Name;
 }
 
