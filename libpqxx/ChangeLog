@@ -1,3 +1,8 @@
+2004-10-31  Roger Leigh <rleigh@debian.org>
+ debian/control.in:
+  - postgresql-dev depends on pkg-config
+ debian/rules:
+  - Remove all examples that include internal headers
 2004-10-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection.hxx:
   - Nothrow specs on destructors (Windows only).  Thanks reina_ga@hotmail 
