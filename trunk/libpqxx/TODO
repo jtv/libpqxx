@@ -1,11 +1,11 @@
 All Over
 (*) Ensure table/column/cursor/... names are always quoted
+(*) See if libpq headers can be removed from libpqxx headers
 
 Build & Configuration
 (*) Add -lwsock32 to tools/Makefile.am if needed (MingW!)
 (*) Rename libcompiler.h/compiler.h to reduce confusion
-(*) Remove ../include/pqxx from libtool include path
-(*) Separate out generic build problems from "missing libpq" configure error
+(*) Remove ../include/pqxx from libtool include path somehow
 
 Connections
 (*) Clean up connection state model
@@ -24,6 +24,9 @@ Cursors
 (*) Think about positioning and nested transactions
 (*) Investigate WITH HOLD feature (nontransaction cursors)
 (*) In PostgreSQL 7.4, MOVE and FETCH are much improved (PQcmdTuples()!)
+
+Documentation
+(*) Separate out troubleshooting sections (parallel to build steps?)
 
 Exceptions
 (*) Strip newlines from PostgreSQL error messages in exceptions?
