@@ -74,18 +74,10 @@ public:
   }
 
   /// Number of rows in result set.  First call may be slow.
-  size_type size() const
-  {
-    if (m_Size == size_unknown) DetermineSize();
-    return m_Size;
-  }
-
+  size_type size() const;
   
   /// Is the result set empty, i.e. does it contain no rows?  May fetch 1 block.
-  bool empty() const
-  {
-    return (m_Size == 0) || (m_Cache.empty() && GetBlock(0).empty());
-  }
+  bool empty() const;
 
   /// Drop all data in internal cache, freeing up memory.
   void clear();
@@ -105,7 +97,7 @@ public:
 
 private:
 
-  enum { size_unknown = -1 };
+  typedef Cursor::pos pos;
 
   class CacheEntry
   {
@@ -142,11 +134,6 @@ private:
     return Fetch();
   }
 
-  /** Figure out how big our result set is.  This may take some scanning back
-   * and forth, since there's no direct way to find out.
-   */
-  void DetermineSize() const;
-
   /// Block size.
   size_type m_Granularity;
 
@@ -154,9 +141,6 @@ private:
   mutable CacheMap m_Cache;
 
   mutable Cursor m_Cursor;
-
-  /// Result set size in rows, or size_unknown if unknown.
-  mutable size_type m_Size;
 
   // Not allowed:
   CachedResult();

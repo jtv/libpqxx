@@ -26,7 +26,8 @@ pqxx::Cursor::Cursor(pqxx::TransactionItf &T,
   m_Name(BaseName),
   m_Count(Count),
   m_Done(false),
-  m_Pos(pos_start)
+  m_Pos(pos_start),
+  m_Size(pos_unknown)
 {
   // Give ourselves a locally unique name based on connection name
   m_Name += "_" + T.Name() + "_" + ToString(T.GetUniqueCursorNum());
@@ -74,11 +75,7 @@ pqxx::Result pqxx::Cursor::Fetch(size_type Count)
     throw;
   }
 
-  const size_type Dist = ((Count > 0) ? R.size() : -R.size());
-  m_Done = (R.size() < Count);
-
-  if (-R.size() > Count)           m_Pos = pos_start;
-  else if (m_Pos != pos_unknown)   m_Pos += Dist;
+  NormalizedMove(Count, R.size());
 
   return R;
 }
@@ -106,32 +103,65 @@ pqxx::Result::size_type pqxx::Cursor::Move(size_type Count)
     throw;
   }
 
-  // Assumes reported number is never negative.
-  if (Count < 0) A = -A;
+  return NormalizedMove(Count, A);
+}
 
-  // Assumes actual number of rows reported is never greater than requested 
-  // number (in absolute values), hence Count < A also implies Count < 0.
-  if (Count < A)
+
+pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
+                                                     size_type Actual)
+{
+  if (Actual < 0) 
+    throw logic_error("libpqxx internal error: Negative rowcount");
+  if (Actual > abs(Intended))
+    throw logic_error("libpqxx internal error: Moved/fetched too many rows");
+
+  if (Actual < abs(Intended))
   {
-    // This is a weird bit of behaviour in Postgres.  MOVE returns the number
-    // of rows it would have returned if it were a FETCH, and operations on a
-    // cursor increment/decrement their position if necessary before acting on
-    // a row.  The upshot of this is that from position n, a MOVE -n will
-    // yield the same status string as MOVE -(n-1), i.e. "MOVE [n-1]"...  But
-    // the two will not leave the cursor in the same position!  One puts you
-    // on the first row, so a FETCH after that will fetch the second row; the
-    // other leaves you on the nonexistant row before the first one, so the
-    // next FETCH will fetch the first row.
-    m_Pos = pos_start;
-    A--;	// Compensate for one row not being reported in status string
-  }
-  else if (m_Pos != pos_unknown) 
-  {
-    // The regular case
-    m_Pos += A;
+    // There is a nonexistant row before the first one in the result set, and 
+    // one after the last row, where we may be positioned.  Unfortunately 
+    // PostgreSQL only reports "real" rows, making it really hard to figure out
+    // how many rows we've really moved.
+    if (Actual)
+    {
+      // We've moved off either edge of our result set; add the one, 
+      // nonexistant row that wasn't counted in the status string we got.
+      Actual++;
+    }
+    else if (Intended < 0)
+    {
+      // We've either moved off the "left" edge of our result set from the 
+      // first actual row, or we were on the nonexistant row before the first
+      // actual row and so didn't move at all.  Just set up Actual so that we
+      // end up at our starting position, which is where we must be.
+      Actual = m_Pos - pos_start;
+    }
+    else if (m_Size != pos_unknown)
+    {
+      // We either just walked off the right edge (moving at least one row in 
+      // the process), or had done so already (in which case we haven't moved).
+      Actual = m_Pos - (m_Size + pos_start + 1);
+    }
+    else
+    {
+      // This is the hard one.  Assume that we haven't seen the "right edge"
+      // before, because m_Size hasn't been set yet.  Therefore, we must have 
+      // just stepped off the edge (and m_Size will be set now).
+      Actual++;
+    }
+
+    if ((Actual > abs(Intended)) && (m_Pos != pos_unknown))
+      throw logic_error("libpqxx internal error: Confused cursor position");
   }
 
-  return A;
+  if (Intended < 0) Actual = -Actual;
+  m_Pos += Actual;
+
+  if ((Actual < Intended) && (m_Size == pos_unknown))
+    m_Size = m_Pos - pos_start - 1;
+
+  m_Done = !Actual;
+
+  return Actual;
 }
 
 

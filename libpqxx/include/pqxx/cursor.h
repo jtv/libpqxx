@@ -34,7 +34,16 @@ class TransactionItf;
 /// SQL cursor class.
 /** Cursor behaves as an output stream generating Result objects.  They may
  * be used to fetch rows individually or in blocks, in which case each Result
- * coming out of the stream may contain more than one Tuple.
+ * coming out of the stream may contain more than one Tuple.  A cursor may be
+ * positioned on any row of data, or on an "imaginary" row before the first
+ * actual row, or on a similar imaginary row beyond the last one.  This differs
+ * from standard C++ practice, where a container only has an imaginary element
+ * (called end()) beyond its last actual element.
+ *
+ * When data is fetched, the cursor is moved before data is collected, so that
+ * afterwards the cursor will be positioned on the last row it returned.  A
+ * freshly created cursor is positioned on the imaginary row before its first
+ * actual one.  Thus, a simple Fetch(1) will then return the first actual row.
  *
  * Postgres does not currently support modification of data through a cursor.
  * Also, not all queries support cursors that go backwards.  Unfortunately there
@@ -48,6 +57,8 @@ class PQXX_LIBEXPORT Cursor
 public:
   // TODO: This apparently being migrated from int to long in Postgres.
   typedef Result::size_type size_type;
+
+  enum pos { pos_unknown = -1, pos_start = 0 };
 
   /// Exception thrown when cursor position is requested, but is unknown
   struct unknown_position : PGSTD::runtime_error
@@ -77,14 +88,25 @@ public:
   size_type SetCount(size_type);					//[t19]
 
   /// Fetch Count rows of data.
-  /** The number of rows fetched will not exceed Count, but it may be lower.
+  /** The first row returned, if any, will be the one directly before (if Count
+   * is negative) or after (if Count is positive) the cursor's current position.
+   * If an exception occurs during the operation, the cursor will be left in an
+   * unknown position.  Fetching from a cursor in an unknown position may still
+   * work, but libpqxx cannot determine its current position until the cursor is
+   * moved off either edge of the result set.
+   *
+   * The number of rows fetched will not exceed Count, but it may be lower.
    */
   Result Fetch(size_type Count);					//[t19]
 
   /// Move forward by Count rows (negative for backwards) through the data set.
   /** Returns the number of rows skipped.  This need not be the same number
    * reported by PostgreSQL, which has a different but deceptively similar
-   * meaning.  Also, note that cursors may reside on nonexistant rows.
+   * meaning.
+   *
+   * Also, note that cursors may reside on nonexistant rows, and that any
+   * exception during the operation will leave the cursor in an unknown 
+   * position.
    */
   size_type Move(size_type Count);					//[]
 
@@ -133,19 +155,43 @@ public:
   /// Move N rows backward.
   Cursor &operator-=(size_type N) { Move(-N); return *this;}		//[t19]
 
+  /// Number of actual tuples, or pos_unknown if not currently known.
+  /** Size will become known when the cursor passes the end of the result set, 
+   * either by moving past it or by attempting to fetch more rows than are
+   * available.  The count only includes actual tuples of data, but not the
+   * two "imaginary" rows before the first actual row and after the last actual
+   * row, respectively.
+   *
+   * If an exception occurs while moving or fetching, the cursor's position may
+   * be left in unknown state, and in this condition the cursor will not be able
+   * to compute its size until it has been moved to one of the two imaginary
+   * rows on either side of the actual result set.
+   */
+  size_type size() const throw () { return m_Size; }
+
+  /// Current cursor position.
+  /** If an exception occurs while moving or fetching, the cursor's position may
+   * be left in an unknown state.  Moving the cursor off either edge of its
+   * result set will bring it back to a known position.
+   *
+   * Requesting a cursor's position while it is in an unknown state will cause
+   * an unknown_position exception to be thrown.
+   */
   size_type Pos() const throw (unknown_position)			//[t43]
   { if (m_Pos==pos_unknown) throw unknown_position(m_Name); return m_Pos; }
 
+
 private:
-  enum { pos_unknown = -1, pos_start = 0 };
   static PGSTD::string OffsetString(size_type);
   PGSTD::string MakeFetchCmd(size_type) const;
+  size_type NormalizedMove(size_type Intended, size_type Actual);
 
   TransactionItf &m_Trans;
   PGSTD::string m_Name;
   size_type m_Count;
   bool m_Done;
   size_type m_Pos;
+  size_type m_Size;
 
   // Not allowed:
   Cursor(const Cursor &);

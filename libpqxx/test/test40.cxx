@@ -34,6 +34,8 @@ int main(int, char *argv[])
     // Perform a query on the database, storing result tuples in R
     Result R( T.Exec(Query) );
 
+    string LastReason;
+
     for (int BlockSize = 2; BlockSize <= R.size()+1; ++BlockSize)
     {
       CachedResult CR(T, Query, "cachedresult", BlockSize);
@@ -60,7 +62,26 @@ int main(int, char *argv[])
 			    "got '" + B + "'");
       }
 
-      // TODO: Wilder navigation (reverse?), random access
+      // CR was asked to compute its size explicitly.  With CR2, we let the
+      // object find out its size by reading rows until they run out.
+      CachedResult CR2(T, Query, "cachedresult2", BlockSize);
+      CR2.at(CRS - 1);
+      try 
+      { 
+	CR2.at(CRS); 
+      }
+      catch (const exception &e) 
+      {
+	if (e.what() != LastReason)
+	{
+	  cerr << "(Expected) " << e.what() << endl;
+	  LastReason = e.what();
+	}
+      }
+      if (CR2.size() != CRS)
+	throw logic_error("BlockSize " + ToString(BlockSize) + ": "
+	                  "Inconsistent discovered size (" + 
+			  ToString(CR2.size()) + " vs. " + ToString(CRS) + ")");
     }
   }
   catch (const exception &e)

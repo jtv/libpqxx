@@ -1,3 +1,11 @@
+2003-01-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.h, src/cursor.cxx:
+  - Rewrote positioning code.  SEEMS TO WORK NOW!
+  - Added size()
+ test/test27.cxx, test/test8.cxx:
+  - Aligned test output
+ test/test40.cxx:
+  - Added test case where Cursor discovers its size spontaneously
 2003-01-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cachedresult.h, src/cachedresult.cxx:
   - Make use of Cursor's absolute positioning.  NOT FUNCTIONAL YET.
