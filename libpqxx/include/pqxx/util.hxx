@@ -232,33 +232,59 @@ public:
 };
 
 
-// TODO: Generalize--add transformation functor
-/// Render items list as a string, using given separator between items
-template<typename ITER> inline
-PGSTD::string separated_list(const PGSTD::string &sep,
+namespace internal
+{
+// TODO: Does standard library provide a ready-made version of this?
+/// Functor: dereference iterator
+template<typename ITER> struct dereference :
+  PGSTD::unary_function<ITER, typename ITER::value_type>
+{
+  typename ITER::value_type operator()(ITER i) const { return *i; }
+};
+template<typename T> struct deref_ptr :
+  PGSTD::unary_function<T, T *>
+{
+  T operator()(T *i) const { return *i; }
+};
+}
+
+
+/// Access iterators using ACCESS functor, returning separator-separated list 
+template<typename ITER, typename ACCESS> inline
+PGSTD::string separated_list(const PGSTD::string &sep,			//[]
     ITER begin,
-    ITER end)								//[t8]
+    ITER end,
+    ACCESS access)
 {
   PGSTD::string result;
   if (begin != end)
   {
-    result = to_string(*begin);
+    result = to_string(access(begin));
     for (++begin; begin != end; ++begin)
     {
       result += sep;
-      result += to_string(*begin);
+      result += to_string(access(begin));
     }
   }
   return result;
 }
 
+/// Render sequence as a string, using given separator between items
+template<typename ITER> inline PGSTD::string
+separated_list(const PGSTD::string &sep, ITER begin, ITER end)		//[t8]
+	{ return separated_list(sep,begin,end,internal::dereference<ITER>()); }
+
+
+/// Render array as a string, using given separator between items
+template<typename OBJ> inline PGSTD::string
+separated_list(const PGSTD::string &sep, OBJ *begin, OBJ *end)		//[t9]
+	{ return separated_list(sep,begin,end,internal::deref_ptr<OBJ>()); }
+
+
 /// Render items in a container as a string, using given separator
-template<typename CONTAINER> inline
-PGSTD::string separated_list(const PGSTD::string &sep,
-    const CONTAINER &c)							//[t10]
-{
-  return separated_list(sep, c.begin(), c.end());
-}
+template<typename CONTAINER> inline PGSTD::string
+separated_list(const PGSTD::string &sep, const CONTAINER &c)		//[t10]
+	{ return separated_list(sep, c.begin(), c.end()); }
 
 
 /// Private namespace for libpqxx's internal use; do not access
