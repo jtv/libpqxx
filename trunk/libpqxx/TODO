@@ -1,9 +1,10 @@
 All Over
-(*) Ensure table/column/... names are always quoted
+(*) Ensure table/column/cursor/... names are always quoted
 
 Build system
+(*) Isolate compiler-dependent and libpq-dependent config items; templates
+(*) Auto-generate win32/MinGW.mak
 (*) Completely support building outside the source directory
-(*) Auto-generate up-to-date versions of MinGW makefile
 (*) Ensure there is a way to build without -rpath and use that for the
     Debian packaging.
 
@@ -14,6 +15,8 @@ Connections
 (*) Connection pooling support
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
 (*) libpqxx-level trace output
+(*) Ask for, and cache, backend version if needed
+(*) Speed up connection state restoration by concatenating queries
 
 Containers
 (*) size_type must be unsigned, difference_type must be signed
@@ -24,14 +27,13 @@ Containers
 (*) front() & back()
 
 Cursors
-(*) Provide iterator interface
+(*) Think about positioning and nested transactions
 (*) Investigate WITH HOLD feature (nontransaction cursors)
 (*) In PostgreSQL 7.4, MOVE and FETCH are much improved (PQcmdTuples()!)
 
 Exceptions
 (*) Strip newlines from PostgreSQL error messages in exceptions?
 (*) Document exception guarantees (weak / strong / poorly defined / pure)
-(*) Harden pipeline
 
 Large Objects
 (*) Support lo_tell()
