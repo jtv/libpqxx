@@ -17,7 +17,6 @@
  */
 #include "pqxx/compiler.h"
 
-#include <cassert>
 #include <cstdlib>
 
 #include "pqxx/cursor"
@@ -125,13 +124,6 @@ pqxx::icursorstream::size_type pqxx::icursorstream::forward(size_type n)
 
 void pqxx::icursorstream::insert_iterator(icursor_iterator *i) throw ()
 {
-  assert(i);
-  assert(i->m_stream==this);
-  assert(!i->m_next);
-  assert(!i->m_prev);
-#ifndef NDEBUG
-  for (icursor_iterator *s=m_iterators;s;s=s->m_next)assert(s!=i);
-#endif
   i->m_next = m_iterators;
   if (m_iterators) m_iterators->m_prev = i;
   m_iterators = i;
@@ -140,23 +132,13 @@ void pqxx::icursorstream::insert_iterator(icursor_iterator *i) throw ()
 
 void pqxx::icursorstream::remove_iterator(icursor_iterator *i) const throw ()
 {
-  assert(i);
-  assert(i->m_stream == this);
-  assert(m_iterators);
   if (i == m_iterators)
   {
-    assert(!i->m_prev);
     m_iterators = i->m_next;
-    if (m_iterators)
-    {
-      assert(m_iterators->m_prev == i);
-      m_iterators->m_prev = 0;
-    }
+    if (m_iterators) m_iterators->m_prev = 0;
   }
   else
   {
-    assert(i->m_prev);
-    assert(i->m_prev->m_next == i);
     i->m_prev->m_next = i->m_next;
     if (i->m_next) i->m_next->m_prev = i->m_prev;
   }
@@ -167,7 +149,6 @@ void pqxx::icursorstream::remove_iterator(icursor_iterator *i) const throw ()
 
 void pqxx::icursorstream::service_iterators(size_type topos)
 {
-  assert(topos <= m_reqpos);
   if (topos < m_realpos) return;
 
   typedef multimap<size_type,icursor_iterator*> todolist;
@@ -179,7 +160,6 @@ void pqxx::icursorstream::service_iterators(size_type topos)
   {
     const size_type readpos = i->first;
     if (readpos > m_realpos) ignore(readpos - m_realpos);
-    assert(m_realpos == i->first);
     const result r = fetch();
     for ( ; i != todo.end() && i->first == readpos; ++i)
       i->second->fill(r);
