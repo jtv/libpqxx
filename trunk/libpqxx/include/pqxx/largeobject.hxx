@@ -18,6 +18,8 @@
  */
 #include "pqxx/libcompiler.h"
 
+#include <new>
+
 #ifdef PQXX_HAVE_STREAMBUF
 #include <streambuf>
 #else

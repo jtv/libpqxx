@@ -1,4 +1,7 @@
 2003-11-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/largeobject.hxx, src/binarystring.cxx, src/util.cxx:
+  - Included <new>.  Thanks Jaroslaw Staniek!
+2003-11-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/binarystring.hxx:
   - Use PQAlloc's content_type
  include/pqxx/libcompiler.h:
