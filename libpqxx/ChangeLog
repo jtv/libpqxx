@@ -1,3 +1,15 @@
+2002-04-28 23:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh:
+  - Used automake's --copy option
+ config/Makefile.am:
+  - Created so config stuff can get packaged
+ configure.ac:
+  - Added AM_MAINTAINER_MODE
+  - Moved generated config files into directory of their own
+ doc/Makefile.am:
+  - Removed html subdir for now
+ Makefile.am:
+  - Added doc and config subdirs
 2002-04-27 13:20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
   - Added --copy option to automake invocation
