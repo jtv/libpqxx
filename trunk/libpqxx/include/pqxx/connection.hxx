@@ -53,7 +53,8 @@ public:
   connection();								//[t1]
 
   /// Constructor.  Sets up connection based on PostgreSQL connection string.
-  /** @param ConnInfo a PostgreSQL connection string specifying any required
+  /** 
+   * @param ConnInfo a PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.  These values
    * override any environment variables that may have been set for the same 
    * parameters.
@@ -68,6 +69,10 @@ public:
   /** @param ConnInfo a PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.  As a special
    * case, a null pointer is taken as the empty string.
+   *
+   * The README file for libpqxx gives a quick overview of how connection
+   * strings work; see the PostgreSQL documentation (particularly for libpq, the
+   * C-level interface) for a complete list.
    */
   explicit connection(const char ConnInfo[]);				//[t3]
 
@@ -95,15 +100,25 @@ public:
   lazyconnection();							//[t23]
 
   /// Constructor.  Sets up lazy connection.
-  /** @param ConnInfo a PostgreSQL connection string specifying any required
+  /**
+   * @param ConnInfo a PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.
+   *
+   * The README file for libpqxx gives a quick overview of how connection
+   * strings work; see the PostgreSQL documentation (particularly for libpq, the
+   * C-level interface) for a complete list.
    */
   explicit lazyconnection(const PGSTD::string &ConnInfo);		//[t21]
 
   /// Constructor.  Sets up lazy connection.
-  /** @param ConnInfo a PostgreSQL connection string specifying any required
+  /** 
+   * @param ConnInfo a PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.  As a special
    * case, a null pointer is taken as the empty string.
+   *
+   * The README file for libpqxx gives a quick overview of how connection
+   * strings work; see the PostgreSQL documentation (particularly for libpq, the
+   * C-level interface) for a complete list.
    */
   explicit lazyconnection(const char ConnInfo[]);			//[t22]
 
@@ -119,9 +134,32 @@ private:
 class PQXX_LIBEXPORT asyncconnection : public connection_base
 {
 public:
+  /// Constructor.  Initiates asynchronous connection setup.
   asyncconnection(); 							//[t63]
+
+  /// Constructor.  Initiates asynchronous connection setup.
+  /**
+   * @param ConnInfo a PostgreSQL connection string specifying any required
+   * parameters, such as server, port, database, and password.
+   *
+   * The README file for libpqxx gives a quick overview of how connection
+   * strings work; see the PostgreSQL documentation (particularly for libpq, the
+   * C-level interface) for a complete list.
+   */
   explicit asyncconnection(const PGSTD::string &ConnInfo);		//[t65]
+
+  /// Constructor.  Initiates asynchronous connection setup.
+  /** 
+   * @param ConnInfo a PostgreSQL connection string specifying any required
+   * parameters, such as server, port, database, and password.  As a special
+   * case, a null pointer is taken as the empty string.
+   *
+   * The README file for libpqxx gives a quick overview of how connection
+   * strings work; see the PostgreSQL documentation (particularly for libpq, the
+   * C-level interface) for a complete list.
+   */
   explicit asyncconnection(const char ConnInfo[]);			//[t64]
+
   virtual ~asyncconnection() throw ();
 
 private:
