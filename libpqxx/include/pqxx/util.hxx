@@ -29,6 +29,7 @@ extern "C"
 }
 
 
+/// The home of all libpqxx classes, functions, templates, etc.
 namespace pqxx
 {
 typedef long result_size_type;
@@ -58,6 +59,12 @@ const oid oid_none = InvalidOid;
 template<typename T> void error_unsupported_type_in_string_conversion(T);
 
 
+/// Private namespace for libpqxx's internal use; do not access
+/** This namespace hides definitions internal to libpqxx.  These are not 
+ * supposed to be used by client programs, and may change at any time without 
+ * notice.  
+ * @warning Here be dragons!
+ */
 namespace internal
 {
 /// C-style format strings for various built-in types
@@ -396,10 +403,4 @@ private:
 
 } // namespace internal
 } // namespace pqxx
-
-/** \defgroup pqxx::internal
- * This namespace hides definitions internal to libpqxx.  These are not supposed
- * to be used by client programs, and may change at any time without notice.
- * Here be dragons!
- */
 
