@@ -17,9 +17,9 @@
  */
 #include <stdexcept>
 
-#include "pqxx/connection_base.h"
-#include "pqxx/result.h"
-#include "pqxx/transaction.h"
+#include "pqxx/connection_base"
+#include "pqxx/result"
+#include "pqxx/transaction"
 
 
 using namespace PGSTD;
@@ -29,24 +29,24 @@ using namespace PGSTD;
 #define SQL_ROLLBACK_WORK 	"ROLLBACK"
 
 
-void pqxx::basic_transaction::DoBegin()
+void pqxx::basic_transaction::do_begin()
 {
   // Start backend transaction
-  DirectExec(StartCmd().c_str(), 2, 0);
+  DirectExec(startcommand().c_str(), 2, 0);
 }
 
 
 
-pqxx::result pqxx::basic_transaction::DoExec(const char Query[])
+pqxx::result pqxx::basic_transaction::do_exec(const char Query[])
 {
   result R;
   try
   {
-    R = DirectExec(Query, 0, StartCmd().c_str());
+    R = DirectExec(Query, 0, startcommand().c_str());
   }
   catch (const exception &)
   {
-    try { Abort(); } catch (const exception &) { }
+    try { abort(); } catch (const exception &) { }
     throw;
   }
 
@@ -55,7 +55,7 @@ pqxx::result pqxx::basic_transaction::DoExec(const char Query[])
 
 
 
-void pqxx::basic_transaction::DoCommit()
+void pqxx::basic_transaction::do_commit()
 {
   try
   {
@@ -63,19 +63,19 @@ void pqxx::basic_transaction::DoCommit()
   }
   catch (const exception &e)
   {
-    if (!Conn().is_open())
+    if (!conn().is_open())
     {
       // We've lost the connection while committing.  There is just no way of
       // telling what happened on the other end.  >8-O
-      ProcessNotice(e.what() + string("\n"));
+      process_notice(e.what() + string("\n"));
 
       const string Msg = "WARNING: "
 		  "Connection lost while committing transaction "
-		  "'" + Name() + "'. "
+		  "'" + name() + "'. "
 		  "There is no way to tell whether the transaction succeeded "
 		  "or was aborted except to check manually.";
 
-      ProcessNotice(Msg + "\n");
+      process_notice(Msg + "\n");
       throw in_doubt_error(Msg);
     }
     else
@@ -88,7 +88,7 @@ void pqxx::basic_transaction::DoCommit()
 }
 
 
-void pqxx::basic_transaction::DoAbort()
+void pqxx::basic_transaction::do_abort()
 {
   DirectExec(SQL_ROLLBACK_WORK, 0, 0);
 }

@@ -1,3 +1,6 @@
+1.9.2
+ - Renamed most public member functions to all-lower-case names
+ - <pqxx/all> (previously <pqxx/all.h> is now called <pqxx/pqxx> 
 1.9.1
  - tablestream destructor crashed if table didn't exist (thanks Sean [Rogers?])
  - Renamed all header files to remove ".h" suffix

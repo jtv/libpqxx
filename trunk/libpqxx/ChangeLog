@@ -1,3 +1,9 @@
+2003-07-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/all:
+  - Replaced with include/pqxx/pqxx to fix automake problem
+ include/pqxx/*, src/*.cxx, test/test*.cxx:
+  - Deprecated lots of functions with upper-case letters in names
+  - Made old functions available if old-style headers are included
 2003-06-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/libpqxx.sgml:
   - Replaced by libpqxx.xml

@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     connection C(argv[1]);
     transaction<> T(C, "test11");
 
-    result R( T.Exec("SELECT * FROM " + Table) );
+    result R( T.exec("SELECT * FROM " + Table) );
 
     // Print column names
     for (result::tuple::size_type c = 0; c < R.Columns(); ++c)
@@ -66,10 +66,10 @@ int main(int argc, char *argv[])
           throw logic_error("Field " + ToString(c) + " ('" + N + "'): "
 			    "at() inconsistent with operator[]!");
 
-	if (R[0][c].Name() != N)
+	if (R[0][c].name() != N)
 	  throw logic_error("Field " + ToString(c) + " "
 			    "called '" + N + "' by result, "
-			    "but '" + R[0][c].Name() + "' by Field object");
+			    "but '" + R[0][c].name() + "' by Field object");
 
 	if (size_t(R[0][c].size()) != strlen(R[0][c].c_str()))
 	  throw logic_error("Field '" + N + "' "

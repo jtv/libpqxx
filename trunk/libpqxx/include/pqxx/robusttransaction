@@ -53,10 +53,10 @@ private:
   IDType m_ID;
   PGSTD::string m_LogTable;
 
-  virtual void DoBegin();						//[t18]
-  virtual result DoExec(const char[]);					//[t18]
-  virtual void DoCommit();						//[t16]
-  virtual void DoAbort();						//[t18]
+  virtual void do_begin();						//[t18]
+  virtual result do_exec(const char[]);					//[t18]
+  virtual void do_commit();						//[t16]
+  virtual void do_abort();						//[t18]
 
   void CreateLogTable();
   void CreateTransactionRecord();

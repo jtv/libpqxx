@@ -61,13 +61,13 @@ public:
   virtual void operator()(int be_pid)
   {
     m_Done = true;
-    if (be_pid != Conn().BackendPID())
+    if (be_pid != Conn().backendpid())
       throw logic_error("Expected notification from backend process " +
-		        ToString(Conn().BackendPID()) + 
+		        ToString(Conn().backendpid()) + 
 			", but got one from " +
 			ToString(be_pid));
 
-    cout << "Received notification: " << Name() << " pid=" << be_pid << endl;
+    cout << "Received notification: " << name() << " pid=" << be_pid << endl;
   }
 
   bool Done() const { return m_Done; }
@@ -85,7 +85,7 @@ public:
 
   void operator()(argument_type &T)
   {
-    T.Exec("NOTIFY " + m_Trigger);
+    T.exec("NOTIFY " + m_Trigger);
   }
 
   void OnAbort(const char Reason[]) throw ()
@@ -112,12 +112,12 @@ int main()
     TestTrig Trig(C);
 
     cout << "Sending notification..." << endl;
-    C.Perform(Notify(Trig.Name()));
+    C.perform(Notify(Trig.name()));
 
     for (int i=0; (i < 20) && !Trig.Done(); ++i)
     {
       Sleep(1);
-      C.GetNotifs();
+      C.get_notifs();
       cout << ".";
     }
     cout << endl;

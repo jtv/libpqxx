@@ -42,10 +42,10 @@ pair<int,int> CountEvents(transaction_base &T)
   int EventsCount = 0,
       BoringCount = 0;
 
-  result R( T.Exec(EventsQuery) );
+  result R( T.exec(EventsQuery) );
   R.at(0).at(0).to(EventsCount);
 
-  R = T.Exec(BoringQuery);
+  R = T.exec(BoringQuery);
   R.at(0).at(0).to(BoringCount);
 
   return make_pair(EventsCount, BoringCount);
@@ -83,11 +83,11 @@ void Test(connection_base &C, bool ExplicitAbort)
     {
       tablewriter W(Doomed, Table);
 
-      if (W.Name() != Table)
+      if (W.name() != Table)
         throw logic_error("Set tablewriter name to '" + Table + "', "
-                "but now it's '" + W.Name() + "'");
+                "but now it's '" + W.name() + "'");
 
-      const string Literal = W.ezinekoT(BoringTuple);
+      const string Literal = W.generate(BoringTuple);
       const string Expected = ToString(BoringYear) + "\t" + BoringTuple[1];
       if (Literal != Expected)
 	throw logic_error("tablewriter writes new tuple as '" +
@@ -115,7 +115,7 @@ void Test(connection_base &C, bool ExplicitAbort)
 
     // Okay, we've added an entry but we don't really want to.  Abort it
     // explicitly if requested, or simply let the Transaction object "expire."
-    if (ExplicitAbort) Doomed.Abort();
+    if (ExplicitAbort) Doomed.abort();
 
     // If now explicit abort requested, Doomed Transaction still ends here
   }

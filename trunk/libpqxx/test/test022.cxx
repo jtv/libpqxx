@@ -36,14 +36,14 @@ int main(int argc, char *argv[])
 
     // Enable all sorts of debug output.  C will remember this setting until it
     // gets to the point where it actually needs to connect to the database.
-    C.Trace(stdout);
+    C.trace(stdout);
 
     transaction<serializable> T(C, "test22");
 
     Cursor Cur(T, ("SELECT * FROM " + Table).c_str(), "tablecur", BlockSize);
     if (BlockSize < 0) Cur.Move(Cursor::ALL());
 
-    C.Trace(0);
+    C.trace(0);
 
 
     result R;
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 
     if (!!Cur) throw logic_error("Inconsistent cursor state!");
 
-    T.Commit();
+    T.commit();
   }
   catch (const sql_error &e)
   {

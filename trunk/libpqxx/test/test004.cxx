@@ -71,7 +71,7 @@ public:
 			", but got one from " +
 			ToString(be_pid));
 
-    cout << "Received notification: " << Name() << " pid=" << be_pid << endl;
+    cout << "Received notification: " << name() << " pid=" << be_pid << endl;
   }
 
   bool Done() const { return m_Done; }
@@ -89,8 +89,8 @@ public:
 
   void operator()(argument_type &T)
   {
-    T.Exec("NOTIFY " + m_Trigger);
-    Backend_PID = T.Conn().BackendPID();
+    T.exec("NOTIFY " + m_Trigger);
+    Backend_PID = T.conn().backendpid();
   }
 
   void OnAbort(const char Reason[]) throw ()
@@ -118,12 +118,12 @@ int main(int, char *argv[])
     TestTrig Trig(C);
 
     cout << "Sending notification..." << endl;
-    C.Perform(Notify(Trig.Name()));
+    C.perform(Notify(Trig.name()));
 
     for (int i=0; (i < 20) && !Trig.Done(); ++i)
     {
       Sleep(1);
-      C.GetNotifs();
+      C.get_notifs();
       cout << ".";
     }
     cout << endl;

@@ -27,7 +27,7 @@ public:
 
   void operator()(argument_type &T)
   {
-    m_Result = T.Exec("SELECT * FROM pg_tables");
+    m_Result = T.exec("SELECT * FROM pg_tables");
   }
 
   void OnCommit()
@@ -49,7 +49,7 @@ int main(int, char *argv[])
   {
     lazyconnection C(argv[1]);
 
-    C.Perform(ReadTables());
+    C.perform(ReadTables());
   }
   catch (const sql_error &e)
   {

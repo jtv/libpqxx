@@ -42,17 +42,17 @@ int main(int argc, char *argv[])
     lazyconnection C(argv[1]);
 
     // Tell C we won't be needing it for a while (not true, but let's pretend)
-    C.Deactivate();
+    C.deactivate();
 
     vector<int> NullFields;		// Maps column to no. of null fields
     vector<bool> SortedUp, SortedDown;	// Does column appear to be sorted?
 
     // Reactivate C (not really needed, but it sounds more polite)
-    C.Activate();
+    C.activate();
 
     transaction<> T(C, "test31");
 
-    result R( T.Exec("SELECT * FROM " + Table) );
+    result R( T.exec("SELECT * FROM " + Table) );
 
     InitVector(NullFields, R.Columns(), 0);
     InitVector(SortedUp, R.Columns(), true);

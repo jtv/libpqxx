@@ -18,10 +18,10 @@
  */
 #include <stdexcept>
 
-#include "pqxx/connection_base.h"
-#include "pqxx/result.h"
-#include "pqxx/tablestream.h"
-#include "pqxx/transaction_base.h"
+#include "pqxx/connection_base"
+#include "pqxx/result"
+#include "pqxx/tablestream"
+#include "pqxx/transaction_base"
 
 
 using namespace PGSTD;
@@ -45,14 +45,14 @@ pqxx::transaction_base::~transaction_base()
 {
   if (m_Registered)
   {
-    m_Conn.ProcessNotice("Transaction '" + m_Name + "' "
-		         "was never closed properly!\n");
+    m_Conn.process_notice("Transaction '" + m_Name + "' "
+		          "was never closed properly!\n");
     m_Conn.UnregisterTransaction(this);
   }
 }
 
 
-void pqxx::transaction_base::Commit()
+void pqxx::transaction_base::commit()
 {
   // Check previous status code.  Caller should only call this function if
   // we're in "implicit" state, but multiple commits are silently accepted.
@@ -66,7 +66,7 @@ void pqxx::transaction_base::Commit()
 
   case st_aborted:
     throw logic_error("Attempt to commit previously aborted transaction '" +
-		      Name() +
+		      name() +
 		      "'");
 
   case st_committed:
@@ -75,15 +75,15 @@ void pqxx::transaction_base::Commit()
     // that an abort is needed--which would only confuse things further at this
     // stage.
     // Therefore, multiple commits are accepted, though under protest.
-    m_Conn.ProcessNotice("Transaction '" + 
-		         Name() + 
-			 "' committed more than once\n");
+    m_Conn.process_notice("Transaction '" + 
+		          name() + 
+			  "' committed more than once\n");
     return;
 
   case st_in_doubt:
     // Transaction may or may not have been committed.  Report the problem but
     // don't compound our troubles by throwing.
-    throw logic_error("Transaction '" + Name() + "' "
+    throw logic_error("Transaction '" + name() + "' "
 		      "committed again while in an undetermined state\n");
 
   default:
@@ -96,14 +96,14 @@ void pqxx::transaction_base::Commit()
   // the habit from forming.
   if (m_Stream.get())
     throw runtime_error("Attempt to commit transaction '" + 
-		        Name() +
+		        name() +
 			"' with stream '" +
-			m_Stream.get()->Name() + 
+			m_Stream.get()->name() + 
 			"' still open");
 
   try
   {
-    DoCommit();
+    do_commit();
     m_Status = st_committed;
   }
   catch (const in_doubt_error &)
@@ -123,7 +123,7 @@ void pqxx::transaction_base::Commit()
 }
 
 
-void pqxx::transaction_base::Abort()
+void pqxx::transaction_base::abort()
 {
   // Check previous status code.  Quietly accept multiple aborts to 
   // simplify emergency bailout code.
@@ -133,7 +133,7 @@ void pqxx::transaction_base::Abort()
     break;
 
   case st_active:
-    try { DoAbort(); } catch (const exception &) { }
+    try { do_abort(); } catch (const exception &) { }
     break;
 
   case st_aborted:
@@ -141,15 +141,15 @@ void pqxx::transaction_base::Abort()
 
   case st_committed:
     throw logic_error("Attempt to abort previously committed transaction '" +
-		      Name() +
+		      name() +
 		      "'");
 
   case st_in_doubt:
     // Aborting an in-doubt transaction is probably a reasonably sane response
     // to an insane situation.  Log it, but do not complain.
-    m_Conn.ProcessNotice("Warning: Transaction '" + Name() + "' "
-		         "aborted after going into indeterminate state; "
-			 "it may have been executed anyway.\n");
+    m_Conn.process_notice("Warning: Transaction '" + name() + "' "
+		          "aborted after going into indeterminate state; "
+			  "it may have been executed anyway.\n");
     return;
 
   default:
@@ -161,16 +161,16 @@ void pqxx::transaction_base::Abort()
 }
 
 
-pqxx::result pqxx::transaction_base::Exec(const char Query[],
+pqxx::result pqxx::transaction_base::exec(const char Query[],
     					const string &Desc)
 {
   const string N = (Desc.empty() ? "" : "'" + Desc + "'");
 
   if (m_Stream.get())
     throw logic_error("Attempt to execute query '" + N + " on transaction '" + 
-		      Name() + 
+		      name() + 
 		      "' while stream '" +
-		      m_Stream.get()->Name() +
+		      m_Stream.get()->name() +
 		      "' is still open");
 
   switch (m_Status)
@@ -186,18 +186,18 @@ pqxx::result pqxx::transaction_base::Exec(const char Query[],
   case st_committed:
     throw logic_error("Attempt to execute query " + N + " "
 	              "in committed transaction '" +
-		      Name() +
+		      name() +
 		      "'");
 
   case st_aborted:
     throw logic_error("Attempt to execute query " + N + " "
 	              "in aborted transaction '" +
-		      Name() +
+		      name() +
 		      "'");
 
   case st_in_doubt:
     throw logic_error("Attempt to execute query " + N + " in transaction '" + 
-		      Name() + 
+		      name() + 
 		      "', which is in indeterminate state");
   default:
     throw logic_error("Internal libpqxx error: pqxx::transaction: "
@@ -205,12 +205,12 @@ pqxx::result pqxx::transaction_base::Exec(const char Query[],
   }
 
   // TODO: Pass Name to DoExec(), and from there on down
-  return DoExec(Query);
+  return do_exec(Query);
 }
 
 
-void pqxx::transaction_base::SetVariable(const PGSTD::string &Var,
-                                       const PGSTD::string &Value)
+void pqxx::transaction_base::set_variable(const PGSTD::string &Var,
+                                          const PGSTD::string &Value)
 {
   m_Conn.RawSetVar(Var, Value);
   m_Vars[Var] = Value;
@@ -226,9 +226,9 @@ void pqxx::transaction_base::Begin()
   try
   {
     // Better handle any pending notifications before we begin
-    m_Conn.GetNotifs();
+    m_Conn.get_notifs();
 
-    DoBegin();
+    do_begin();
     m_Status = st_active;
   }
   catch (const exception &)
@@ -250,17 +250,17 @@ void pqxx::transaction_base::End() throw ()
     m_Registered = false;
 
     if (m_Stream.get())
-      m_Conn.ProcessNotice("Closing transaction '" +
-		           Name() +
-			   "' with stream '" +
-			   m_Stream.get()->Name() + 
-			   "' still open\n");
+      m_Conn.process_notice("Closing transaction '" +
+		            name() +
+			    "' with stream '" +
+			    m_Stream.get()->name() + 
+			    "' still open\n");
 
-    if (m_Status == st_active) Abort();
+    if (m_Status == st_active) abort();
   }
   catch (const exception &e)
   {
-    m_Conn.ProcessNotice(string(e.what()) + "\n");
+    m_Conn.process_notice(string(e.what()) + "\n");
   }
 }
 
@@ -280,7 +280,7 @@ void pqxx::transaction_base::UnregisterStream(tablestream *S) throw ()
   }
   catch (const exception &e)
   {
-    m_Conn.ProcessNotice(string(e.what()) + "\n");
+    m_Conn.process_notice(string(e.what()) + "\n");
   }
 }
 

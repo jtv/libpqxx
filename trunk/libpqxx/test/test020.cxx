@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 
     // Verify our start condition before beginning: there must not be a 1977
     // record already.
-    result R( T1.Exec(("SELECT * FROM " + Table + " "
+    result R( T1.exec(("SELECT * FROM " + Table + " "
 	               "WHERE year=" + ToString(BoringYear)).c_str()) );
     if (R.size() != 0)
       throw runtime_error("There is already a record for " + 
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
       throw logic_error("Result non-empty after clear()!");
 
     // OK.  Having laid that worry to rest, add a record for 1977.
-    T1.Exec(("INSERT INTO " + Table + " VALUES"
+    T1.exec(("INSERT INTO " + Table + " VALUES"
              "(" +
 	     ToString(BoringYear) + ","
 	     "'Yawn'"
@@ -64,11 +64,11 @@ int main(int argc, char *argv[])
     // Abort T1.  Since T1 is a NonTransaction, which provides only the
     // transaction class interface without providing any form of transactional
     // integrity, this is not going to undo our work.
-    T1.Abort();
+    T1.abort();
 
     // Verify that our record was added, despite the Abort()
     nontransaction T2(C, "T2");
-    R = T2.Exec(("SELECT * FROM " + Table + " "
+    R = T2.exec(("SELECT * FROM " + Table + " "
 		 "WHERE year=" + ToString(BoringYear)).c_str());
     if (R.size() != 1)
       throw runtime_error("Expected to find 1 record for " + 
@@ -85,15 +85,15 @@ int main(int argc, char *argv[])
       throw logic_error("result::clear() doesn't work!");
 
     // Now remove our record again
-    T2.Exec(("DELETE FROM " + Table + " "
+    T2.exec(("DELETE FROM " + Table + " "
 	     "WHERE year=" + ToString(BoringYear)).c_str());
 
-    T2.Commit();
+    T2.commit();
 
     // And again, verify results
     nontransaction T3(C, "T3");
 
-    R = T3.Exec(("SELECT * FROM " + Table + " "
+    R = T3.exec(("SELECT * FROM " + Table + " "
 	         "WHERE year=" + ToString(BoringYear)).c_str());
     if (R.size() != 0)
       throw runtime_error("Expected record for " + ToString(BoringYear) + " "

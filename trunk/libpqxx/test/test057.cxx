@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 
-#include <pqxx/all>
+#include <pqxx/pqxx>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -116,12 +116,12 @@ int main(int, char *argv[])
     largeobject Obj(oid_none);
     const string Contents = "Testing, testing, 1-2-3";
 
-    C.Perform(WriteLargeObject(Contents, Obj));
+    C.perform(WriteLargeObject(Contents, Obj));
 
     string Readback;		// Contents as read back from large object
-    C.Perform(ReadLargeObject(Readback, Obj));
+    C.perform(ReadLargeObject(Readback, Obj));
 
-    C.Perform(DeleteLargeObject(Obj));
+    C.perform(DeleteLargeObject(Obj));
 
     /* Reconstruct what will happen to our contents string if we put it into a
      * stream and then read it back.  We can compare this with what comes back

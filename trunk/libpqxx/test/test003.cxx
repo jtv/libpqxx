@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     connection C(argv[1] ? argv[1] : "");
 
     // Enable all sorts of debug output
-    C.Trace(stdout);
+    C.trace(stdout);
 
     // Begin a transaction acting on our current connection
     transaction<serializable> T(C, "test3");
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     if (BlockSize < 0) Cur.Move(Cursor::ALL());
 
     // Stop generating debug output
-    C.Trace(0);
+    C.trace(0);
 
 
     result R;
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
     if (!!Cur) throw logic_error("Inconsistent cursor state!");
 
     // Tell the transaction that it has been successful
-    T.Commit();
+    T.commit();
   }
   catch (const sql_error &e)
   {

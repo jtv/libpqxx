@@ -63,10 +63,20 @@ public:
   // Copy table from one database to another
   tablewriter &operator<<(tablereader &);				//[t6]
 
-  /// "Untokenize" a tuple of data to a string in DBMS-specific format.  This
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use generate() instead
+  template<typename IT> PGSTD::string ezinekoT(IT Begin, IT End) const
+    	{ return generate(Begin, End); }
+  /// @deprecated Use generate() instead
+  template<typename TUPLE> PGSTD::string ezinekoT(const TUPLE &T) const
+    	{ return generate(T); }
+#endif
+
+  /// Translate tuple of data to a string in DBMS-specific format.  This
   /// is not portable between databases.
-  template<typename IT> PGSTD::string ezinekoT(IT Begin, IT End) const;	//[t10]
-  template<typename TUPLE> PGSTD::string ezinekoT(const TUPLE &) const;	//[t10]
+  template<typename IT> PGSTD::string generate(IT Begin, IT End) const;	//[t10]
+  template<typename TUPLE> PGSTD::string generate(const TUPLE &) const;	//[t10]
+
 
 private:
   void WriteRawLine(const PGSTD::string &);
@@ -163,7 +173,7 @@ inline void tablewriter::fieldconverter::Escape(PGSTD::string &S)
 
 
 template<typename IT> 
-inline PGSTD::string tablewriter::ezinekoT(IT Begin, IT End) const
+inline PGSTD::string tablewriter::generate(IT Begin, IT End) const
 {
   PGSTD::string Line = PGSTD::accumulate(Begin, 
 		                         End, 
@@ -178,15 +188,15 @@ inline PGSTD::string tablewriter::ezinekoT(IT Begin, IT End) const
 
 
 template<typename TUPLE> 
-inline PGSTD::string tablewriter::ezinekoT(const TUPLE &T) const
+inline PGSTD::string tablewriter::generate(const TUPLE &T) const
 {
-  return ezinekoT(T.begin(), T.end());
+  return generate(T.begin(), T.end());
 }
 
 
 template<typename IT> inline void tablewriter::insert(IT Begin, IT End)
 {
-  WriteRawLine(ezinekoT(Begin, End));
+  WriteRawLine(generate(Begin, End));
 }
 
 

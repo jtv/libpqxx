@@ -16,7 +16,7 @@
  *-------------------------------------------------------------------------
  */
 
-#include "pqxx/connection.h"
+#include "pqxx/connection"
 
 pqxx::connection::connection() :
   connection_base(0)

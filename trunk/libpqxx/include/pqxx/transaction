@@ -33,13 +33,13 @@
 // transaction<> T(C);
 // try
 // {
-//   T.Exec("UPDATE employees SET wage=wage*2");
-//   T.Commit();	// NOTE: do this inside try block
+//   T.exec("UPDATE employees SET wage=wage*2");
+//   T.commit();	// NOTE: do this inside try block
 // } 
 // catch (const exception &e)
 // {
 //   cerr << e.what() << endl;
-//   T.Abort();		// Usually not needed; same happens when T's life ends.
+//   T.abort();		// Usually not needed; same happens when T's life ends.
 // }
 
 #include "pqxx/dbtransaction"
@@ -62,10 +62,10 @@ protected:
     dbtransaction(C, IsolationLevel, TName) {}
 
 private:
-  virtual void DoBegin();						//[t1]
-  virtual result DoExec(const char[]);					//[t1]
-  virtual void DoCommit();						//[t1]
-  virtual void DoAbort();						//[t13]
+  virtual void do_begin();						//[t1]
+  virtual result do_exec(const char[]);					//[t1]
+  virtual void do_commit();						//[t1]
+  virtual void do_abort();						//[t13]
 
 };
 

@@ -44,23 +44,23 @@ int main(int, char *argv[])
     noticer *MyNoticer = new ReportWarning;
     // This is not a memory leak: C stores MyNoticer in an auto_ptr that will
     // delete the object on destruction.
-    C.SetNoticer(auto_ptr<noticer>(MyNoticer));
+    C.set_noticer(auto_ptr<noticer>(MyNoticer));
 
-    assert(C.GetNoticer() == MyNoticer);
+    assert(C.get_noticer() == MyNoticer);
 
     // Now use our noticer to output a diagnostic message.  Note that the
     // message must end in a newline.
-    C.ProcessNotice("Opened connection\n");
+    C.process_notice("Opened connection\n");
 
     // ProcessNotice() can take either a C++ string or a C-style const char *.
-    const string HostName = (C.HostName() ? C.HostName() : "<local>");
-    C.ProcessNotice(string() +
-		    "database=" + C.DbName() + ", "
-		    "username=" + C.UserName() + ", "
-		    "hostname=" + HostName + ", "
-		    "port=" + ToString(C.Port()) + ", "
-		    "options='" + C.Options() + "', "
-		    "backendpid=" + ToString(C.BackendPID()) + "\n");
+    const string HostName = (C.hostname() ? C.hostname() : "<local>");
+    C.process_notice(string() +
+		     "database=" + C.dbname() + ", "
+		     "username=" + C.username() + ", "
+		     "hostname=" + HostName + ", "
+		     "port=" + ToString(C.port()) + ", "
+		     "options='" + C.options() + "', "
+		     "backendpid=" + ToString(C.backendpid()) + "\n");
 
     // Begin a "non-transaction" acting on our current connection.  This is
     // really all the transactional integrity we need since we're only 
@@ -71,14 +71,14 @@ int main(int, char *argv[])
     // These simply pass the notice through to their connection, but this may
     // be more convenient in some cases.  All ProcessNotice() functions accept
     // C++ strings as well as C strings.
-    T.ProcessNotice(string("Started nontransaction\n"));
+    T.process_notice(string("Started nontransaction\n"));
 
-    result R( T.Exec("SELECT * FROM pg_tables") );
+    result R( T.exec("SELECT * FROM pg_tables") );
 
     // Give some feedback to the test program's user prior to the real work
-    T.ProcessNotice(ToString(R.size()) + " "
+    T.process_notice(ToString(R.size()) + " "
 		    "result tuples in transaction " +
-		    T.Name() +
+		    T.name() +
 		    "\n");
 
     for (result::const_iterator c = R.begin(); c != R.end(); ++c)
@@ -91,7 +91,7 @@ int main(int, char *argv[])
 
     // "Commit" the non-transaction.  This doesn't really do anything since
     // NonTransaction doesn't start a backend transaction.
-    T.Commit();
+    T.commit();
   }
   catch (const sql_error &e)
   {

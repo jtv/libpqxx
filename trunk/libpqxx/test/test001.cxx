@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
 
-#include <pqxx/all>
+#include <pqxx/pqxx>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -23,7 +23,7 @@ int main()
     transaction<> T(C, "test1");
 
     // Perform a query on the database, storing result tuples in R.
-    result R( T.Exec("SELECT * FROM pg_tables") );
+    result R( T.exec("SELECT * FROM pg_tables") );
 
     // Process each successive result tuple
     for (result::const_iterator c = R.begin(); c != R.end(); ++c)
@@ -37,7 +37,7 @@ int main()
     // Tell the transaction that it has been successful.  This is not really
     // necessary here, since we didn't make any modifications to the database
     // so there are no changes to commit.
-    T.Commit();
+    T.commit();
   }
   catch (const exception &e)
   {

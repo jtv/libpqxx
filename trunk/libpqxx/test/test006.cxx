@@ -43,7 +43,7 @@ public:
 
   void operator()(argument_type &T)
   {
-    T.Exec(("CREATE TABLE " + m_Table + 
+    T.exec(("CREATE TABLE " + m_Table + 
 	    "(year INTEGER, event TEXT)").c_str());
     cout << "Table " << m_Table << " created." << endl;
   }
@@ -58,7 +58,7 @@ public:
 
   void operator()(argument_type &T)
   {
-    T.Exec(("DELETE FROM " + m_Table).c_str());
+    T.exec(("DELETE FROM " + m_Table).c_str());
   }
 
   void OnCommit()
@@ -71,7 +71,7 @@ public:
 void CheckState(tablereader &R)
 {
   if (!R != !bool(R))
-    throw logic_error("tablereader " + R.Name() + " in inconsistent state!");
+    throw logic_error("tablereader " + R.name() + " in inconsistent state!");
 }
 
 
@@ -139,14 +139,14 @@ int main(int argc, char *argv[])
     // (2) Something else is wrong--we'll just fail later on anyway
     try
     {
-      dstC.Perform(CreateTable(dstTable));
+      dstC.perform(CreateTable(dstTable));
     } 
     catch (const exception &)
     {
     }
 
-    dstC.Perform(ClearTable(dstTable));
-    dstC.Perform(CopyTable(orgTrans, orgTable, dstTable));
+    dstC.perform(ClearTable(dstTable));
+    dstC.perform(CopyTable(orgTrans, orgTable, dstTable));
   }
   catch (const sql_error &e)
   {
