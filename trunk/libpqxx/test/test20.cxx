@@ -36,61 +36,56 @@ int main(int argc, char *argv[])
 
     const string Table = ((argc > 2) ? argv[2] : "events");
 
-    {
-      // Begin a transaction acting on our current connection
-      NonTransaction T1(C, "T1");
+    // Begin a transaction acting on our current connection
+    NonTransaction T1(C, "T1");
 
-      // Verify our start condition before beginning: there must not be a 1977
-      // record already.
-      Result R( T1.Exec(("SELECT * FROM " + Table + " "
-	                "WHERE year=" + ToString(BoringYear)).c_str()) );
-      if (R.size() != 0)
-        throw runtime_error("There is already a record for 1977. "
-		            "Can't run test.");
+    // Verify our start condition before beginning: there must not be a 1977
+    // record already.
+    Result R( T1.Exec(("SELECT * FROM " + Table + " "
+	               "WHERE year=" + ToString(BoringYear)).c_str()) );
+    if (R.size() != 0)
+      throw runtime_error("There is already a record for " + 
+	                  ToString(BoringYear) + ". "
+		          "Can't run test.");
 
-      // OK.  Having laid that worry to rest, add a record for 1977.
-      T1.Exec(("INSERT INTO " + Table + " VALUES"
-               "(" +
-	       ToString(BoringYear) + ","
-	       "'Yawn'"
-	       ")").c_str());
+    // OK.  Having laid that worry to rest, add a record for 1977.
+    T1.Exec(("INSERT INTO " + Table + " VALUES"
+             "(" +
+	     ToString(BoringYear) + ","
+	     "'Yawn'"
+	     ")").c_str());
 
-      // Abort T1.  Since T1 is a NonTransaction, which provides only the
-      // transaction class interface without providing any form of transactional
-      // integrity, this is not going to undo our work.
-      T1.Abort();
-    }
+    // Abort T1.  Since T1 is a NonTransaction, which provides only the
+    // transaction class interface without providing any form of transactional
+    // integrity, this is not going to undo our work.
+    T1.Abort();
 
-    {
-      // Verify that our record was added, despite the Abort()
-      NonTransaction T2(C, "T2");
-      Result R( T2.Exec(("SELECT * FROM " + Table + " "
-		         "WHERE year=" + ToString(BoringYear)).c_str()) );
-      if (R.size() != 1)
-        throw runtime_error("Expected to find 1 record for " + 
-		            ToString(BoringYear) + ", found " +
-			    ToString(R.size()) + ". "
-			    "This could be a bug in libpqxx, "
-			    "or something else modified the table.");
+    // Verify that our record was added, despite the Abort()
+    NonTransaction T2(C, "T2");
+    R = T2.Exec(("SELECT * FROM " + Table + " "
+		 "WHERE year=" + ToString(BoringYear)).c_str());
+    if (R.size() != 1)
+      throw runtime_error("Expected to find 1 record for " + 
+		          ToString(BoringYear) + ", found " +
+			  ToString(R.size()) + ". "
+			  "This could be a bug in libpqxx, "
+			  "or something else modified the table.");
 
-      // Now remove our record again
-      T2.Exec(("DELETE FROM " + Table + " "
-	       "WHERE year=" + ToString(BoringYear)).c_str());
+    // Now remove our record again
+    T2.Exec(("DELETE FROM " + Table + " "
+	     "WHERE year=" + ToString(BoringYear)).c_str());
 
-      T2.Commit();
-    }
+    T2.Commit();
 
-    {
-      // And again, verify results
-      NonTransaction T3(C, "T3");
-      Result R( T3.Exec(("SELECT * FROM " + Table + " "
-	                 "WHERE year=" + ToString(BoringYear)).c_str()) );
-      if (R.size() != 0)
-        throw runtime_error("Expected record for " + ToString(BoringYear) + " "
-		            "to be gone but found " + ToString(R.size()) + ". "
-			    "This could be a bug in libpqxx, "
-			    "or something else modified the table.");
-    }
+    // And again, verify results
+    NonTransaction T3(C, "T3");
+    R = T3.Exec(("SELECT * FROM " + Table + " "
+	         "WHERE year=" + ToString(BoringYear)).c_str());
+    if (R.size() != 0)
+      throw runtime_error("Expected record for " + ToString(BoringYear) + " "
+		          "to be gone but found " + ToString(R.size()) + ". "
+			  "This could be a bug in libpqxx, "
+			  "or something else modified the table.");
   }
   catch (const exception &e)
   {
