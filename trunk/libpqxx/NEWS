@@ -1,3 +1,5 @@
+2002-06-02 23:00, v0.4.3:
+ - fixed TableReader problem with \t and \n
 2002-06-01 21:00, v0.4.2:
  - hopefully fixes compile problem with broken std::iterator
  - configure no longer requires --with-postgres-include=/usr/include/postgresql
