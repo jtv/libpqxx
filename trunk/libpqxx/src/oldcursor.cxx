@@ -137,7 +137,6 @@ pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
       {
 	// Oops.  We'd want to set result set size at this point, but we can't
 	// because we don't know our position.
-	// TODO: Deal with this more elegantly.
 	throw runtime_error("Can't determine result set size: "
 	                    "Cursor position unknown at end of set");
       }

@@ -26,6 +26,7 @@
 
 using namespace PGSTD;
 
+// TODO: Use two-phase transaction if backend supports it
 
 #define SQL_COMMIT_WORK 	"COMMIT"
 #define SQL_ROLLBACK_WORK 	"ROLLBACK"
@@ -114,6 +115,7 @@ void pqxx::basic_robusttransaction::do_commit()
       // See if transaction record ID exists; if yes, our transaction was 
       // committed before the connection went down.  If not, the transaction 
       // was aborted.
+      // TODO: What if transaction is still executing when we reconnect!?
       bool Exists;
       try
       {
