@@ -1,4 +1,4 @@
-
+<!doctype chapter PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
  <chapter id="libpqxx">
   <title>libpqxx - C++ Binding Library</title>
 
@@ -43,8 +43,8 @@
       <listitem>
        <para>
         Not using exceptions.  Many libraries return a status code and expect
-	the caller to check for errors "if it's interested."  <strong>Of 
-	course</strong> he's interested.  But checking each and every call is
+	the caller to check for errors "if he's interested."  <emphasis>Of 
+	course</emphasis> he's interested.  But checking each and every call is
 	tedious and error prone.
        </para>
       </listitem>
@@ -99,8 +99,10 @@
      But there were other reasons to design a new SQL frontend from scratch.  
      C++ is a complex language, and the only things stopping a library writer
      from shooting himself
-     <footnote>Yes, <strong>him</>self.  A "writer" is grammatically masculine,
-      regardless of actual gender.
+     <footnote>Yes, <emphasis>him</>self.  A "writer" is grammatically 
+      <para>
+       masculine, regardless of actual gender.
+      </para>
      </footnote> 
      in the foot are years of experience and an extensive idiom of good
      practices.  To name a few typical symptoms of foot-shooting:
@@ -378,9 +380,12 @@ using namespace pqxx;
 
     </sect3>
 
-    <para>
-     Now let's get programming...
-    </para>
+    <sect3>
+     <title></title>
+     <para>
+      Now let's get programming...
+     </para>
+    </sect3>
 
    </sect2>
 
@@ -400,11 +405,11 @@ Connection Conn("dbname=test");
 
     <para>
      The <literal>Connection</literal> constructor is passed one argument, the
-     <italics>connect string</>.  This string may be used to specify which host
+     "connect string".  This string may be used to specify which host
      on the network runs the database backend we wish to connect to, which
      database we're interested in, which user name we'll be using to log in,
      etc.  Refer to <xref linkend="libpq-connect">the libpq 
-     <functionname>connect</functionname> call</xref> for a complete definition 
+     <function>connect</function> call</xref> for a complete definition 
      of what may go into the connect string.  In this case we're connecting to 
      a database <literal>test</literal> residing on the local machine.
     </para>
@@ -449,13 +454,12 @@ Connection Conn("dbname=test");
     <sect3>
      <title>What's a Transaction?</title>
      <para>
-      A transaction demarcates a <italics>unit of work</> operating on the 
+      A transaction demarcates a "unit of work" operating on the 
       database, ie. a series of operations that must either complete 
       successfully, or if it is aborted at any stage, must not affect the data 
       in the database at all.  Hence the process of completing a transaction is 
-      called the <italics>commit</italics> operation, and the process of 
-      aborting it and undoing any changes it may have made is called 
-      <italics>rollback</>.
+      called the "commit" operation, and the process of aborting it and undoing 
+      any changes it may have made is called "rollback."
      </para>
      <para>
       All access to the database in <filename>libpqxx</filename> must go 
@@ -497,11 +501,11 @@ Transaction Xaction(Conn, "DemoTransaction");
 
      <para>
       The <literal>Transaction</literal> class is built on the principle of
-      <italics>explicit commit</italics>, ie. the commit operation must always 
-      be explicit in the code.  If the Transaction is destroyed before a commit
-      was given, the transaction is implicitly aborted (rolled back).  If your
-      transaction makes no changes to the database, however, there is nothing
-      to commit or roll back and the commit may safely be omitted.
+      "explicit commit," ie. the commit operation must always be explicit in 
+      the code.  If the Transaction is destroyed before a commit was given, the 
+      transaction is implicitly aborted (rolled back).  If your transaction 
+      makes no changes to the database, however, there is nothing to commit or 
+      roll back and the commit may safely be omitted.
      </para>
 
      <para>
@@ -599,9 +603,11 @@ catch (...)
        operation is sent to the backend when the transaction's destructor is
        called.  If the abort fails, eg. because the network connection has
        been lost, no error is reported<footnote>
-        Throwing an exception from a destructor to report the error would have
-	serious effects on program correctness.  <italics>Never throw 
-	exceptions from a destructor.</italics>
+        <para>
+         Throwing an exception from a destructor to report the error would have
+	 serious effects on program correctness.  <emphasis>Never throw 
+	 exceptions from a destructor.</>
+	</para>
        </footnote> and the transaction will die of natural causes (either it
        has been closed by the backend already, or it soon will be if the 
        connection is lost).
@@ -628,7 +634,7 @@ Xaction.Commit(); // ERROR: Xaction has already aborted!
       <para>
        For this reason, it is recommended to always include the "commit"
        operation inside the <literal>try</literal> block (if any) surrounding
-       the transaction code, <strong>not</strong> after the 
+       the transaction code, <emphasis>not</> after the 
        <literal>catch</literal> block.
       </para>
       <para>
@@ -657,7 +663,7 @@ Xaction.Commit(); // ERROR: Xaction has already aborted!
     </para>
     <para>
      A query is executed within a <literal>Transaction</literal> by passing
-     the query string to its <functionname>Exec</functionname> method.  If the
+     the query string to its <function>Exec</function> method.  If the
      query fails to execute properly, this method will throw the appropriate
      exception.
     </para>
@@ -668,13 +674,13 @@ Xaction.Commit(); // ERROR: Xaction has already aborted!
      <literal>string</literal> to make it easy to include variables:
     </para>
     <programlisting>
-void DeleteEntry(Transaction &T, string Table, long ID)
+void DeleteEntry(Transaction &amp;T, string Table, long ID)
 {
   T.Exec(("DELETE FROM " + Table + " WHERE ID=" + ID).c_str());
 }
     </programlisting>
     <para>
-     It seems inconvenient that <functionname>Exec</functionname> does not
+     It seems inconvenient that <function>Exec</function> does not
      accept C++ <literal>string</>s directly.  This choice was made to prevent
      the interface from inviting you to write inefficient code that makes
      multiple unnecessary conversions between C strings and C++ 
@@ -702,18 +708,20 @@ Result R = T.Exec("SELECT firstname FROM employee WHERE lastname='Ng'");
      fields.
     </para>
     <para>
-     Thus, <literal>R[0]</literal> will return the first (<italics>zeroeth</>)
-     tuple in R.  You won't normally want to bother with <literal>Tuple</>s
-     though; they don't contain the actual data, but rather serve as 
-     placeholders to later tell <literal>Result</literal> which fields to fetch
-     when field values from the tuple are requested.  The class exists mostly 
-     for technical reasons related to the array index operators<footnote>
-       This is an instance of the <italics>Proxy</italics> design pattern,
-       needed to allow a <literal>Result</literal> to be indexed as if it were
-       a two-dimensional array.  C++'s array index operator doesn't allow this
+     Thus, <literal>R[0]</literal> will return the first ("zeroeth") tuple in 
+     R.  You won't normally want to bother with <literal>Tuple</>s though; they
+     don't contain the actual data, but rather serve as placeholders to later 
+     tell <literal>Result</literal> which fields to fetch when field values 
+     from the tuple are requested.  The class exists mostly for technical 
+     reasons related to the array index operators<footnote>
+      <para>
+       This is an instance of the <wordasword>Proxy</> design pattern, needed 
+       to allow a <literal>Result</literal> to be indexed as if it were a 
+       two-dimensional array.  C++'s array index operator doesn't allow this
        usage directly, but the operator can be applied to the result of a
        previous use of the same operator.  The "result in the middle" needs to
        have a type of its own, though.
+      </para>
      </footnote>.
      What you'll usually do is index the row directly to get at the field you
      want, eg. <literal>R[0][0]</literal> to get the first field of the first
@@ -754,9 +762,11 @@ for (Result::const_iterator i = R.begin(); i != R.end(); ++i)
      index operator on the iterator directly, eg. <literal>R.begin()[0]</>
      gets you the first field of <literal>R</>'s first row, just like
      <literal>R[0][0]</> would<footnote>
-      Or <literal>(*R.begin())[0]</literal>.  It may seem quirky to have
-      <literal>R.begin()</> and <literal>*R.begin()</> mean the same thing, but
-      it makes practical use of iterators a lot easier.
+      <para>
+       Or <literal>(*R.begin())[0]</literal>.  It may seem quirky to have
+       <literal>R.begin()</> and <literal>*R.begin()</> mean the same thing, 
+       but it makes practical use of iterators a lot easier.
+      </para>
      </footnote>.
     </para>
     <para>
@@ -768,27 +778,27 @@ for (Result::const_iterator i = R.begin(); i != R.end(); ++i)
     </para>
     <para>
      Again, there is more than one way to read the field's value.  Let's start
-     out with the easy one, <functionname>c_str</>, which reads the value as a 
+     out with the easy one, <function>c_str</>, which reads the value as a 
      C string:
     </para>
     <programlisting>
-cout << "Name: " << F.c_str() << endl;
+cout &lt;&lt; "Name: " &lt;&lt; F.c_str() &lt;&lt; endl;
     </programlisting>
     <para>
      This will return the empty string (<literal>""</>) if field F has the
-     null value.  Use <functionname>is_null</> to see if this is the case:
+     null value.  Use <function>is_null</> to see if this is the case:
     </para>
     <programlisting>
 if (!F.is_null())
-  cout << "Name: " << F.c_str() << endl;
+  cout &lt;&lt; "Name: " &lt;&lt; F.c_str() &lt;&lt; endl;
     </programlisting>
     <para>
      In practice of course, not all data is going to consist of strings.  Many
      fields will be integer values, or decimals, or Booleans.  To convert the
-     field's value to one of these, use its <functionname>to</> method.  This
+     field's value to one of these, use its <function>to</> method.  This
      adapts itself to the type of variable you pass it, expecting the field
      value to be of an appropriate form for that type.  For convenience,
-     <functionname>to</> returns <literal>false</> if the field had the null
+     <function>to</> returns <literal>false</> if the field had the null
      value, and <literal>true</> otherwise.  In the former case, the variable
      will retain the value it had before the call.
     </para>
@@ -818,9 +828,9 @@ void PaySalary(Result::const_iterator empl)
     </programlisting>
     <para>
      If conversion fails, eg. when trying to convert a floating-point value to
-     an integer variable, <functionname>to</functionname> will throw a 
+     an integer variable, <function>to</function> will throw a 
      <literal>runtime_error</literal> reporting the problem in its 
-     <functionname>what</functionname> message.
+     <function>what</function> message.
     </para>
    </sect2>
 
