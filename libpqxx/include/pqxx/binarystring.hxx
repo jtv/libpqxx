@@ -72,8 +72,8 @@ public:
   const_iterator begin() const throw () { return data(); }		//[t62]
   const_iterator end() const throw () { return data()+m_size; }		//[t62]
 
-  const_reference front() const throw () { return *begin(); }		//[]
-  const_reference back() const throw () { return *(data()+m_size-1); }	//[]	
+  const_reference front() const throw () { return *begin(); }		//[t62]
+  const_reference back() const throw () { return *(data()+m_size-1); }	//[t62]
 
 #ifdef PQXX_HAVE_REVERSE_ITERATOR
   const_reverse_iterator rbegin() const 				//[t62]
@@ -88,10 +88,14 @@ public:
   const_reference operator[](size_type i) const throw () 		//[t62]
   	{ return data()[i]; }
 
-  /// Index string, but check for valid index first
+  bool operator==(const binarystring &) const throw ();			//[t62]
+  bool operator!=(const binarystring &rhs) const throw ()		//[t62]
+  	{ return !operator==(rhs); }
+
+  /// Index string, checking for valid index
   const_reference at(size_type) const;					//[t62]
 
-  void swap(binarystring &);						//[]
+  void swap(binarystring &);						//[t62]
 
   /// Raw character buffer (no terminating zero is added)
   /** @warning No terminating zero is added!  If the binary data did not end in
