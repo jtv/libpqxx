@@ -19,6 +19,8 @@
 </map>
 <a href="classpqxx_1_1LargeObject-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
 <tr><td></td></tr>
+<tr><td colspan=2><br><h2>Public Types</h2></td></tr>
+<tr><td nowrap align=right valign=top>typedef long&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#s0">size_type</a></td></tr>
 <tr><td colspan=2><br><h2>Public Member Functions</h2></td></tr>
 <tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a0">LargeObject</a> ()</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Refer to a nonexistent large object (similar to what a null pointer does).</em> <a href="#a0"></a><em></em></font><br><br></td></tr>
@@ -57,9 +59,32 @@
 Identity of a large object. <dl compact><dt><b>Warning:</b></dt><dd>Experimental--can and will change soon.</dd></dl>
 
 <p>
-This class encapsulates the identity of a large object. To access the contents of the object, use the open() member function or create a <a class="el" href="classpqxx_1_1largeobject__streambuf.html">largeobject_streambuf</a> around the <a class="el" href="classpqxx_1_1LargeObject.html">LargeObject</a>.<p>
+This class encapsulates the identity of a large object. To access the contents of the object, create a <a class="el" href="classpqxx_1_1LargeObjectAccess.html">LargeObjectAccess</a>, a <a class="el" href="classpqxx_1_1largeobject__streambuf.html">largeobject_streambuf</a>, or an ilostream, an olostream or a lostream around the <a class="el" href="classpqxx_1_1LargeObject.html">LargeObject</a>.<p>
 A <a class="el" href="classpqxx_1_1LargeObject.html">LargeObject</a> must be accessed only from within a backend transaction, but the object's identity remains valid. 
 <p>
+<hr><h2>Member Typedef Documentation</h2>
+<a name="s0" doxytag="pqxx::LargeObject::size_type"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> typedef long pqxx::LargeObject::size_type
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
 <hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a name="a0" doxytag="pqxx::LargeObject::LargeObject"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
@@ -621,7 +646,7 @@ Writes the data stored in the large object to the given file. <dl compact><dt><b
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="largeobject_8h-source.html">largeobject.h</a><li><a class="el" href="largeobject_8cxx.html">largeobject.cxx</a></ul>
-<hr><address style="align: right;"><small>Generated on Sat Mar 15 20:47:41 2003 for libpqxx by
+<hr><address style="align: right;"><small>Generated on Mon Mar 17 22:59:05 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>
