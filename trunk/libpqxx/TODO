@@ -17,10 +17,6 @@ Connections
 (*) Probe, and cache, backend feature set if needed
 (*) Speed up connection state restoration by concatenating queries (pipeline?)
 
-Containers
-(*) Check: Ought to have at least const_reference
-(*) Implement ==, !=, {<,>,<=,>=}
-
 Cursors
 (*) Older backends don't have NO SCROLL etc.!
 (*) Think about positioning and nested transactions

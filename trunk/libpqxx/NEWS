@@ -1,7 +1,16 @@
 2.4.1
- - Tightened throw specifications on begin(), end(), size(), capacity()
- - Containers define const_reference
- - Implemented swap() in all container types
+ - Tightens throw specifications on begin(), end(), size(), capacity()
+ - Containers define reference and pointer types
+ - Implements swap() in all container types
+ - Implements == and != in all container types
+ - Stabilizes new (but still partial) cursor interface
+ - icursor_iterator thinks only in stride granularity
+ - Several bugs in icursor_iterator fixed
+ - Allows "adopted SQL cursors" in new cursor interface
+ - Reference-counting in binarystrings, so they can be copied
+ - Fixes reference-to-temporary problem with std::reverse_iterator in results
+ - Result/tuple reverse_iterators no longer require std::reverse_iterator
+ - Fixes incompatibility with some implementations of Unix "cut" program again
 2.4.0
  - Fixes incompatibility with some implementations of Unix "cut" program
  - Fixes "ptrdiff_t redefinition" problem in some environments

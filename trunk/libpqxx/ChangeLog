@@ -1,3 +1,51 @@
+2004-10-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection.hxx:
+  - Nothrow specs on destructors (Windows only).  Thanks reina_ga@hotmail 
+ include/pqxx/result.hxx, test/test075.cxx, test/test082.cxx:
+  - Full test coverage
+ include/pqxx/cursor.hxx:
+  - icursor_iterator::operator+= now thinks in strides, like operator++ etc.
+  - Fixed icursor_iterator comparison operators
+  - Fixed icursor_iterator freshness bookkeeping
+  - Removed m_pos from icursor_iterator
+  - Made icursor_iterator constructor taking istream_type explicit
+  - Added adopted-cursor feature
+  - Documented use with nontransactions and WITH HOLD
+  - No longer marked experimental
+  - Full test coverage
+ src/util.cxx:
+  - Missing <windows.h> include, thanks Stephan Schuetz
+ test/test000.cxx:
+  - Test signedness of cursor_base's prior() and backward_all()
+ test/test084.cxx:
+  - New
+  - Test adopted cursor
+  - Test icursor_iterator
+ tools/makevcmak.pl:
+  - Fixed typo, thanks Stephan Schuetz
+2004-10-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/binarystring.cxx:
+  - Fixed swap(): forgot to call superclass swap()
+2004-10-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result.hxx:
+  - Use home-grown reverse_iterators
+  - Fixes "returning reference-to-temporary" problem in operator*()
+ src/result.cxx:
+  - Working on field comparison.  Nulls are not trivial!
+ test/test082.cxx
+  - No longer requires PQXX_HAVE_REVERSE_ITERATOR
+  - Verifies reverse_iterator traversal with regular traversal
+2004-10-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/binarystring.hxx, src/binarystring.cxx, test/test062.cxx:
+  - Full test coverage
+  - Comparison operators ==, !=
+ include/pqxx/result.hxx, src/result.cxx, test/test002.cxx, test/test007.cxx:
+  - Removed tentative <, <=, >, >= operators
+  - Full test coverage
+  - Use new reference counting from internal::PQAlloc
+ include/pqxx/util.hxx:
+  - PQAlloc now reference-counted (doubly-linked smart pointers, actually)
+  - Specialized free function for PGresult
 2004-10-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Fixed "cut" problem.  Again
