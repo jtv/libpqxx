@@ -10,9 +10,18 @@ if test -x /usr/bin/automake-1.7 ; then
 fi
 aclocal${ver}
 autoheader
-libtoolize --automake --copy
+libtoolize --force --automake --copy
 automake${ver} --verbose --add-missing --copy
 autoconf
 
-./configure --enable-maintainer-mode
+confflags="--enable-maintainer-mode"
+if test x$NOCONFIGURE = x; then
+	echo Running $srcdir/configure $conf_flags "$@" ...
+	./configure $conf_flags "$@" \
+	&& echo Now type \`make\' to compile $PKG_NAME || exit 1
+else
+	echo Skipping configure process.
+fi
+
+	
 
