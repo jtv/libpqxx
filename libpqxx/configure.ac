@@ -1,8 +1,17 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 0.5.1, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 1.0.0, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 0.5.1)
+AM_INIT_AUTOMAKE(libpqxx, 1.0.0)
+
+# Library version numbering - see "info libtool versioning 'libtool
+# versioning'" for details.
+abi_current=0
+abi_revision=1
+abi_age=0
+sonumber=${abi_current}:${abi_revision}:${abi_age}
+AC_SUBST(sonumber)
+
 AC_CONFIG_SRCDIR([src/connection.cxx])
 AM_CONFIG_HEADER(include/pqxx/config.h)
 
@@ -200,6 +209,6 @@ AC_CHECK_TYPES([ptrdiff_t])
 
 AC_PROG_MAKE_SET
 
-AC_CONFIG_FILES([Makefile config/Makefile doc/Makefile src/Makefile test/Makefile include/Makefile])
+AC_CONFIG_FILES([Makefile config/Makefile doc/Makefile src/Makefile test/Makefile include/Makefile include/pqxx/Makefile])
 AC_OUTPUT
 

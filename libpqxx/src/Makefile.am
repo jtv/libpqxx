@@ -10,7 +10,7 @@ libpqxx_la_SOURCES = connection.cxx \
 	transaction.cxx \
 	transactionitf.cxx
 
-libpqxx_la_LDFLAGS = -release ${VERSION} ${POSTGRES_LIB}
+libpqxx_la_LDFLAGS = -version-info @sonumber@ ${POSTGRES_LIB}
 
 INCLUDES=-I../include ${POSTGRES_INCLUDE}
 
