@@ -34,12 +34,12 @@ public:
 
   template<typename TUPLE> TableWriter &operator<<(const TUPLE &);
   template<typename TUPLE> void insert(const TUPLE &);			//[t5]
-  template<typename TUPLE> void push_back(const TUPLE &T) {insert(T);}	//[]
+  template<typename TUPLE> void push_back(const TUPLE &T) {insert(T);}	//[t10]
 
   // Copy table from one database to another
   TableWriter &operator<<(TableReader &);				//[t6]
 
-  template<typename TUPLE> PGSTD::string ezinekoT(const TUPLE &) const;	//[]
+  template<typename TUPLE> PGSTD::string ezinekoT(const TUPLE &) const;	//[t10]
 
 private:
   void WriteRawLine(PGSTD::string);
