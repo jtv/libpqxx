@@ -136,9 +136,12 @@ class robusttransaction : public basic_robusttransaction
 public:
   typedef isolation_traits<ISOLATIONLEVEL> isolation_tag;
 
-  explicit robusttransaction(connection_base &C,
-      			     const PGSTD::string &TName=PGSTD::string()) :
+  explicit robusttransaction(connection_base &C, const PGSTD::string &TName) :
     basic_robusttransaction(C, isolation_tag::name(), TName)
+    	{ Begin(); }
+
+  explicit robusttransaction(connection_base &C) :
+    basic_robusttransaction(C, isolation_tag::name(), PGSTD::string())
     	{ Begin(); }
 
   virtual ~robusttransaction() throw () { End(); }
