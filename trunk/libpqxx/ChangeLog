@@ -1,4 +1,6 @@
 2004-02-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/config.h.in:
+  - Removed redundant definitions
  src/connection_base.cxx:
   - Made unistd.h include conditional (thanks Fred Moyer)
 2004-02-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
