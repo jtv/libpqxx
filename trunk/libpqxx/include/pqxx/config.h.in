@@ -52,6 +52,9 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* Do we have InvalidOid definition? */
+#undef InvalidOid
+
 /* Name of package */
 #undef PACKAGE
 

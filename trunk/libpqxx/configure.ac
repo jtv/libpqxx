@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 1.1.3, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 1.1.4, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 1.1.3)
+AM_INIT_AUTOMAKE(libpqxx, 1.1.4)
 
 # Library version numbering - see "info libtool versioning 'libtool
 # versioning'" for details.
@@ -184,6 +184,17 @@ Please specify the location of the PostgreSQL include files with
 AC_CHECK_HEADER([sys/select.h],[AC_DEFINE(HAVE_SYS_SELECT_H,1,
 [Define if the sys/select.h header (defining the fd_set type and related macros)
 is available])])
+
+AC_MSG_CHECKING([InvalidOid])
+AH_TEMPLATE(InvalidOid,[Do we have InvalidOid definition?])
+invalidoid=no
+AC_TRY_COMPILE(
+	[#include <${with_postgres_include}/libpq-fe.h>]
+	, [return InvalidOid]
+	, [invalidoid=yes]
+	, [AC_DEFINE(InvalidOid,0)]
+)
+AC_MSG_RESULT($invalidoid)
 
 AC_LANG_PUSH(C++)
 AC_CHECK_HEADERS([limits iterator])

@@ -55,8 +55,8 @@ modename="$progname"
 # Constants.
 PROGRAM=ltmain.sh
 PACKAGE=libtool
-VERSION=1.4.2a
-TIMESTAMP=" (1.922.2.100 2002/06/26 07:25:14)"
+VERSION=1.4.3
+TIMESTAMP=" (1.922.2.111 2002/10/23 02:54:36)"
 
 default_mode=
 help="Try \`$progname --help' for more information."
@@ -226,7 +226,7 @@ if test -z "$show_help"; then
   # Infer the operation mode.
   if test -z "$mode"; then
     case $nonopt in
-    *cc | *++ | gcc* | *-gcc*)
+    *cc | *++ | gcc* | *-gcc* | g++* | xlc*)
       mode=link
       for arg
       do
@@ -2350,7 +2350,7 @@ compiler."
 	  ;;
 
 	osf)
-	  major=`expr $current - $age`
+	  major=.`expr $current - $age`
 	  versuffix=".$current.$age.$revision"
 	  verstring="$current.$age.$revision"
 
@@ -3199,6 +3199,13 @@ EOF
 	# On Rhapsody replace the C library is the System framework
 	compile_deplibs=`$echo "X $compile_deplibs" | $Xsed -e 's/ -lc / -framework System /'`
 	finalize_deplibs=`$echo "X $finalize_deplibs" | $Xsed -e 's/ -lc / -framework System /'`
+	case $host in
+	*darwin*)
+	  # Don't allow lazy linking, it breaks C++ global constructors
+	  compile_command="$compile_command ${wl}-bind_at_load"
+	  finalize_command="$finalize_command ${wl}-bind_at_load"
+	  ;;
+	esac
 	;;
       esac
 
@@ -4267,7 +4274,7 @@ relink_command=\"$relink_command\""
             relink_command=`$echo "$relink_command" | sed "s%@inst_prefix_dir@%%"`
           fi
 
- 	  $echo "$modename: warning: relinking \`$file'" 1>&2
+	  $echo "$modename: warning: relinking \`$file'" 1>&2
 	  $show "$relink_command"
 	  if $run eval "$relink_command"; then :
 	  else
