@@ -1,3 +1,8 @@
+2004-08-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ README:
+  - Minor updates to appendices
+ win32/INSTALL.txt:
+  - MinGW documentation.  Thanks Michael J. Pedersen!
 2004-08-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
   - Generates MinGW Makefile
