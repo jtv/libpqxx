@@ -27,6 +27,7 @@ namespace pqxx
 {
 class Transaction;
 
+/// Wrapper for transactions that automatically restarts them on failure.
 /** Some transactions may be replayed if their connection fails, until they do 
  * succeed.  These can be encapsulated in a Transactor-derived classes.  The 
  * Transactor framework will take care of setting up a backend transaction 

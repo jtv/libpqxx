@@ -24,6 +24,7 @@
 
 namespace pqxx
 {
+/// Simple "Transaction" class offering no transactional integrity.
 /**
  * NonTransaction, like Transaction or any other TransactionItf-derived class,
  * provides access to a database through a Connection.  Unlike its siblings,
@@ -34,8 +35,8 @@ namespace pqxx
 class PQXX_LIBEXPORT NonTransaction : public TransactionItf
 {
 public:
-  /** Constructor.  
-   * Create a dummy transaction.  
+  /// Constructor.
+  /** Create a "dummy" transaction.
    * @param C the Connection that this "transaction" will operate on.
    * @param NName an optional name for the transaction, beginning with a letter
    * and containing only letters and digits.

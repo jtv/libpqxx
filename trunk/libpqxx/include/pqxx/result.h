@@ -51,8 +51,10 @@ public:
 
   // TODO: Field iterators
  
-  /** A Tuple is really a reference to one entry in a Result.  It also acts as 
-   * a container mapping column numbers or names to Field values (see below):
+  /// Reference to one row in a Result.
+  /** A Tuple represents one row (also called a tuple) in a query result set.  
+   * It also acts as a container mapping column numbers or names to Field 
+   * values (see below):
    *
    * 	cout << Tuple["date"].c_str() << ": " << Tuple["name"].c_str() << endl;
    *
@@ -83,8 +85,10 @@ public:
   };
 
 
-  /// A Field is one entry in a Tuple.  It represents an actual value in the
-  /// result set, and can be converted to various types.
+  /// Reference to a field in a result set.
+  /** A Field represents one entry in a Tuple.  It represents an actual value 
+   * in the result set, and can be converted to various types.
+   */
   class Field : private Tuple
   {
   public:
@@ -137,8 +141,11 @@ public:
   };
 
 
-  /// A Result, once obtained, cannot be modified.  However its const_iterator
-  /// type can be used to inspect its Tuples without changing them.
+  /// Iterator for rows (tuples) in a query result set.
+  /** A Result, once obtained, cannot be modified.  Therefore there is no
+   * plain iterator type for Result.  However its const_iterator type can be 
+   * used to inspect its Tuples without changing them.
+   */
   class const_iterator : 
     public PGSTD::iterator<PGSTD::random_access_iterator_tag, 
                          const Tuple,
