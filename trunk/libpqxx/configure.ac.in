@@ -20,8 +20,6 @@ AM_CONFIG_HEADER([include/pqxx/config.h])
 # default prefix for installs
 AC_PREFIX_DEFAULT(/usr/local)
 
-AC_LANG(C++)
-
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
@@ -43,6 +41,8 @@ AM_MAINTAINER_MODE
 AC_MSG_CHECKING([maintainer mode])
 AC_ARG_ENABLE(maintainer-mode)
 AC_MSG_RESULT(${enable_maintainer_mode})
+
+AC_LANG(C++)
 
 # Let's try to get the compiler to be helpful
 # (Omit options -Weffc++ and -Wabi because they currently yield too many
@@ -95,6 +95,11 @@ if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 	done
 	unset option
 fi
+
+AC_MSG_CHECKING([thread safety])
+AC_ARG_ENABLE(thread-safety, [Avoid using non-threadsafe functions],
+	[enable_thread_safety=no],[enable_thread_safety=yes])
+AC_MSG_RESULT(${enable_thread_safety})
 
 
 # TODO: New --with-std= option
@@ -292,15 +297,93 @@ or your installation of the PostgreSQL client library is incomplete.
 
 # TODO: Adapt automatically somehow...
 AC_MSG_CHECKING([that type of libpq's Oid is as expected])
-AC_TRY_COMPILE([
-#include<${with_postgres_include}/libpq-fe.h
-#include<pqxx/libpq-forward.hxx>],
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>
+	#include<pqxx/libpq-forward.hxx>],
 	[typedef pqxx::oid Oid],
 	[AC_MSG_ERROR([
 The Oid typedef in libpq has changed.  Please notify the libpqxx authors of the
 change!
 ])])
 AC_MSG_RESULT(yes)
+
+
+# Check presence and version of strerror_r()
+AC_LANG_PUSH(C)
+
+if test "$enable_thread_safety" = "yes" ; then
+AC_MSG_CHECKING([for strerror_r])
+AC_TRY_COMPILE([#include <string.h>],[strerror_r(0,0,0)],[],
+	[AC_MSG_ERROR([
+No definition of strerror_r, the thread-safe version of strerror(), was found in
+your <cstring> header.  Consider building a non-threadsafe version of libpqxx
+using the configure script's --disable-thread-safety option.
+])])
+AC_MSG_RESULT(yes)
+AC_DEFINE(PQXX_HAVE_STRERROR_R,1,[Define if strerror_r exists])
+
+AC_MSG_CHECKING([for SUSv3-style strerror_r returning int])
+AC_TRY_COMPILE(
+	[#include <string.h>
+	extern int strerror_r(int errnum, char *buf, size_t n);],
+	[],
+	strerror_r_int=yes,
+	strerror_r_int=no)
+AC_MSG_RESULT($strerror_r_int)
+
+AC_MSG_CHECKING([for strerror_r returning char *])
+AC_TRY_COMPILE(
+	[#include <string.h>
+	extern char *strerror_r(int errnum, char *buf, size_t n);],
+	[],
+	strerror_r_charp=yes,
+	strerror_r_charp=no)
+AC_MSG_RESULT($strerror_r_charp)
+
+if ! test "$strerror_r_int" = "yes" && ! test "$strerror_r_charp" = "yes"; then
+AC_MSG_CHECKING([for AIX-style strerror_r (which also correctly returns int)])
+AC_TRY_COMPILE(
+	[#include <string.h>
+	extern int strerror_r(int errnum, char *buf, int n);],
+	[],
+	strerror_r_int=yes,
+	[])
+AC_MSG_RESULT($strerror_r_int)
+fi
+
+if test "$strerror_r_int" = "yes" ; then
+	AC_DEFINE(PQXX_STRERROR_R_INT,1,[Define for standard SUSv3 strerror_r])
+	if test "$strerror_r_charp" = "yes" ; then
+		AC_MSG_ERROR([
+Your compiler offers a strerror_r() function, but test programs redeclaring it
+as returning int and char *, respectively, both compile successfully.  The
+former is what the Single Unix Specification SUSv3 dictates, and the latter is
+an older GNU libc function.  At least one of these tests should have failed,
+since there can't be two versions of this function taking the same arguments but
+returning different types.
+
+As a result of this ambiguity, the configure script was unable to determine
+which version of the function is correct.  You may need to use less permissive
+compiler options so that at least one of the alternatives will fail to compile.
+
+See the config.log for more details; search for strerror_r to find the relevant
+snippets.  If all else fails, consider compiling a non-threadsafe version of
+libpqxx using the configure script's --disable-thread-safety option.
+])
+	fi
+else
+	if ! test "$strerror_r_charp" = "yes" ; then
+			AC_MSG_ERROR([
+Your compiler's definition of strerror_r() fits none of the known signatures for
+this function.  Consider building a non-threadsafe version of libpqxx using the
+configure script's --disable-thread-safety option.
+])
+	fi
+fi
+
+fi
+
+AC_LANG_POP(C)
+
 
 
 AC_MSG_CHECKING([for long double])
