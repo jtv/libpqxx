@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	tablewriter.cc
+ *	tablewriter.cxx
  *
  *   DESCRIPTION
  *      implementation of the pqxx::TableWriter class.

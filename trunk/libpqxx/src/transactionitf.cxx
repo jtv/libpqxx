@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	transactionitf.cc
+ *	transactionitf.cxx
  *
  *   DESCRIPTION
  *      common code and definitions for the transaction classes

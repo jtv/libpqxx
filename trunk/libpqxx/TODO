@@ -3,7 +3,7 @@ Error handling
 (*) Deal with in-doubt transactions (manual transaction tracking :-( )
 
 General
-(*) Rename *.cc to *.cxx to tell MS Visual C++ that they're C++
+(*) README
 (*) Decent build instructions
 (*) Get object files into obj/ directory
 

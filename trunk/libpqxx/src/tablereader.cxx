@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	tablereader.cc
+ *	tablereader.cxx
  *
  *   DESCRIPTION
  *      implementation of the pqxx::TableReader class.
