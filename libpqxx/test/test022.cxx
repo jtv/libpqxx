@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     {
       if (!Cur) throw logic_error("Inconsistent cursor state!");
 
-      if (R.size() > abs(BlockSize))
+      if (R.size() > unsigned(abs(BlockSize)))
         throw logic_error("Cursor returned " + to_string(R.size()) + " rows, "
 			  "when " + to_string(abs(BlockSize)) + " "
 			  "was all I asked for!");
