@@ -59,10 +59,12 @@ int main(int, char *argv[])
     if (fabs(D-F) > 0.01)
       throw logic_error("Inconsistent double result from from_string");
 
+#if defined(PQXX_HAVE_LONG_DOUBLE)
     long double LD;
     from_string(R[0][0].c_str(), LD);
     if (fabs(LD-F) > 0.01)
       throw logic_error("Inconsistent long double result from from_string");
+#endif
 
     string S, S2, S3;
     from_string(R[0][0].c_str(), S);
