@@ -92,7 +92,7 @@ public:
 
   void OnAbort(const char Reason[]) throw ()
   {
-    cerr << "Transactor " << Name() << " failed: " << Reason << endl;
+    cerr << "(Expected) Transactor " << Name() << " failed: " << Reason << endl;
   }
 
   void OnCommit()
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
     }
     catch (const exception &e)
     {
-      cerr << "Doomed transaction failed: " << e.what() << endl;
+      cerr << "(Expected) Doomed transaction failed: " << e.what() << endl;
     }
 
     pair<int,int> After;
