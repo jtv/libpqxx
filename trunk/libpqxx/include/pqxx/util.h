@@ -13,6 +13,8 @@
 #ifndef PG_UTIL_H
 #define PG_UTIL_H
 
+#include "pqxx/compiler.h"
+
 #include <cstdio>
 #include <stdexcept>
 #include <string>
@@ -20,11 +22,9 @@
 
 extern "C"
 {
-#include "server/postgres_fe.h"
+#include "postgres_fe.h"
 #include "libpq-fe.h"
 }
-
-#include "pqxx/compiler.h"
 
 
 namespace pqxx

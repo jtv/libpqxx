@@ -14,6 +14,8 @@
 #ifndef PG_TABLEWRITER_H
 #define PG_TABLEWRITER_H
 
+#include "config.h"
+
 #include <string>
 
 #include "pqxx/tablestream.h"
@@ -48,10 +50,12 @@ private:
 }
 
 
+namespace PGSTD
+{
 // Specialized back_insert_iterator for TableWriter, doesn't require a 
 // value_type to be defined.  Accepts any container type instead.
-template<> class PGSTD::back_insert_iterator<pqxx::TableWriter> : 	//[t9]
-	public PGSTD::iterator<PGSTD::output_iterator_tag, void,void,void,void>
+template<> class back_insert_iterator<pqxx::TableWriter> : 		//[t9]
+	public iterator<output_iterator_tag, void,void,void,void>
 {
 public:
   explicit back_insert_iterator(pqxx::TableWriter &W) : m_Writer(W) {}
@@ -71,6 +75,7 @@ private:
   pqxx::TableWriter &m_Writer;
 };
 
+}
 
 
 
