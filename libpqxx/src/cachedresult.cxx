@@ -7,7 +7,7 @@
  *      implementation of the pqxx::cachedresult class.
  *   pqxx::cachedresult transparently fetches and caches query results on demand
  *
- * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -74,7 +74,7 @@ const pqxx::result &pqxx::cachedresult::Fetch() const
 
   if (!R.empty()) 
   {
-    pair<const long, const result> tmp_pair(BlockFor(Pos), R);
+    pair<long, result> tmp_pair(BlockFor(Pos), R);
     /* Note: can't simply return R because it'll get destroyed if it was already
      * present in our map.  Return the inserted version instead--which will be
      * the result already present in the map, if any.
