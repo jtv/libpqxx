@@ -26,3 +26,15 @@ pqxx::Connection::Connection(const char ConnInfo[]) :
   Connect();
 }
 
+// Work around problem with Sun CC 5.1
+pqxx::Connection::~Connection()
+{
+}
+
+
+// Work around problem with Sun CC 5.1
+pqxx::LazyConnection::~LazyConnection()
+{
+}
+
+
