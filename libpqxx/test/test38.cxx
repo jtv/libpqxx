@@ -49,7 +49,7 @@ int main(int, char *argv[])
 {
   try
   {
-    const string Table = "pg_tables";
+    const string Table = "events";
 
     Connection C(argv[1] ? argv[1] : "", false);
     Transaction T(C, "test38");

@@ -53,7 +53,7 @@ int main(int, char *argv[])
     Connection C(argv[1] ? argv[1] : "");
     Transaction T(C, "test41");
 
-    const char Query[] = "SELECT * FROM pg_tables";
+    const char Query[] = "SELECT * FROM events";
 
     Result R( T.Exec(Query) );
 

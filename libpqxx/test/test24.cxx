@@ -64,6 +64,11 @@ int main(int argc, char *argv[])
         {   "81", "C:\\>" },
         { "1978", "bloody\tcold" },
 	{   "99", "" },
+	{ "2002", "libpqxx" },
+	{ "1989", "Ode an die Freiheit" },
+	{ "2001", "New millennium" },
+	{   "97", "Asian crisis" },
+	{   "10", "A Space Oddyssey" },
         {0,0}
       };
 
