@@ -1,3 +1,7 @@
+2004-08-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh:
+  - Made automake version checks a loop
+  - Check for automake-1.9
 2004-08-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
  README:
   - Documented Debian package and Arjen Baart's RPM packages
