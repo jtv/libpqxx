@@ -23,6 +23,7 @@ RobustTransaction
 
 Streams
 (*) Provide metadata information in TableStream
+(*) Support column lists for COPY
 
 Tests
 (*) Complete test coverage

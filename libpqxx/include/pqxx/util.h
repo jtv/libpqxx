@@ -200,6 +200,19 @@ template<> inline PGSTD::string Quote(const char *const & Obj,
 }
 
 
+/// Specialization for string constants
+/** This specialization is a little complicated, because string constants are
+ * of the type char[], not of type const char * as one might expect.  Note that
+ * the size of the array is part of the type, for which reason we need it in our
+ * template here.
+ */
+template<size_t LEN> inline PGSTD::string Quote(const char (&Obj)[LEN],
+    						bool EmptyIsNull)	//[t18]
+{
+  return Quote(PGSTD::string(Obj), EmptyIsNull);
+}
+
+
 /// Generic version: generate SQL-quoted version of object.  If EmptyIsNull is
 /// set, an empty string will generate the null value rather than an empty 
 /// string.

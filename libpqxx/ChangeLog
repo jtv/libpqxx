@@ -1,3 +1,10 @@
+2003-03-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Also checks for <libpq/libpq-fs.h> header
+ include/pqxx/util.h:
+  - New Quote<>() template for string constants
+ test/test018.cxx:
+  - Tests new version of Quote<>()
 2003-03-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac:
   - Include Doxyfile in distribution archive

@@ -195,6 +195,11 @@ Please specify the location of the PostgreSQL include files with
 --with-postgres-include=... or --with-postgres=...]
 ))
 
+AC_CHECK_HEADER([${with_postgres_include}/libpq/libpq-fs.h],,AC_MSG_ERROR(
+[Can't find libpq-fs.h in ${with_postgres_include}/libpq.
+Please locate it and report your findings so this script can be corrected.]
+))
+
 AC_MSG_CHECKING([for working <sys/select.h>])
 select_h=yes
 AC_TRY_COMPILE(
