@@ -1,3 +1,12 @@
+2005-02-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Fixed Debian autobuild, thanks Roger Leigh
+ include/pqxx/compiler.h:
+  - Moved PQXX_LIBEXPORT definition up a little, just to be sure
+ include/pqxx/util.hxx:
+  - Added PQXX_LIBEXPORT to non-inline symbols, thanks Christian Nettesheim!
+ src/dbtransaction.cxx:
+  - Included missing pqxx/compiler.h
 2005-02-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/compiler/SunStudio-8/config-internal-compiler.h,
  config/sample-headers/compiler/SunStudio-8/config-public-compiler.h:
