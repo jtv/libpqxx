@@ -629,7 +629,7 @@ protected:
 private:
   const result::field &m_Field;
 
-  int_type initialize() throw ()
+  int_type initialize()
   {
     char_type *G = 
       reinterpret_cast<char_type *>(const_cast<char *>(m_Field.c_str()));
