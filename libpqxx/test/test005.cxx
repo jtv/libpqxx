@@ -55,6 +55,7 @@ int main(int argc, char *argv[])
 
     tablewriter W(T, TableName);
 
+    // TODO: Move this stuff to a file!
     const char *const CData[][2] =
     {
       {   "71", "jtv" },
