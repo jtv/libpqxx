@@ -117,8 +117,12 @@ int main()
     strconv("int", 100, "100");
     strconv("int", -1, "-1");
 
+#if defined(PQXX_HAVE_LIMITS) && !defined(_MSC_VER)
     const long long_min = PGSTD::numeric_limits<long>::min(),
 	       long_max = PGSTD::numeric_limits<long>::max();
+#else
+    const long long_min = LONG_MIN, long_max = LONG_MAX;
+#endif
 
     strconv("long", long_min, to_string(long_min));
     strconv("long", long_max, to_string(long_max));
