@@ -1,5 +1,6 @@
 v1.3.5:
  - documented Windows build procedure
+ - fixed problem with upper-case letters in cursor names.  Thanks key88!
 2003-01-19 16:00, v1.3.4:
  - support long double type
  - clarified some error messages
