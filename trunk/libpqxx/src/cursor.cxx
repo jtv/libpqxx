@@ -57,9 +57,11 @@ void pqxx::icursorstream::set_stride(size_type n)
 
 void pqxx::icursorstream::declare(const string &query)
 {
-  m_context->exec("DECLARE \"" + name() + "\" "
-      		"NO SCROLL CURSOR FOR " + query + " FOR READ ONLY",
-	"[DECLARE "+name()+"]");
+  // TODO: Add NO SCROLL if backend supports it (7.4 or better)
+  stringstream cq, qn;
+  cq << "DECLARE \"" << name() << "\" CURSOR FOR " << query << " FOR READ ONLY";
+  qn << "[DECLARE " << name() << ']';
+  m_context->exec(cq, qn.str());
 }
 
 
