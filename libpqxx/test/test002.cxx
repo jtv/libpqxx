@@ -48,8 +48,10 @@ int main(int, char *argv[])
     // Ah, this version of postgres will tell you which table a column in a
     // result came from.  Let's just test that functionality...
     const oid rtable = R.column_table(0);
-    const string rcol = R.column_name(0);
+    if (rtable != R.column_table(result::tuple::size_type(0)))
+      throw logic_error("Inconsistent result::column_table()");
 
+    const string rcol = R.column_name(0);
     const oid crtable = R.column_table(rcol);
     if (crtable != rtable)
       throw logic_error("Field " + rcol + " comes from "
@@ -70,6 +72,8 @@ int main(int, char *argv[])
                           "'" + to_string(ftable) + "'; "
 			  "expected '" + to_string(rtable) + "'");
       const oid ttable = R[i].column_table(0);
+      if (ttable != R[i].column_table(result::tuple::size_type(0)))
+	throw logic_error("Inconsistent result::tuple::column_table()");
       if (ttable != rtable)
 	throw logic_error("Tuple says field comes from "
                           "'" + to_string(ttable) + "'; "
