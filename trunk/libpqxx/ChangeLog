@@ -9,6 +9,8 @@
   - Added note about lightweight copying of results
  include/pqxx/tablewriter.hxx, src/dbtransaction.cxx, src/util.cxx:
   - Made it a little easier for Doxygen to resolve certain functions
+ include/pqxx/transactor.hxx:
+  - Always call the new abort/doubt/commit handlers!
 2005-03-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/cursor.cxx:
   - Work around displacement overflow in backend, thanks Christopher Barkley
