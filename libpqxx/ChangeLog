@@ -1,3 +1,8 @@
+2003-01-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/cursor.cxx:
+  - Clarified internal error message
+ test/test5.cxx:
+  - Clarified non-harmful error message
 2003-01-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.h:
   - Support long double type

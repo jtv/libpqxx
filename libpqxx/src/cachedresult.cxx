@@ -15,7 +15,6 @@
 
 #include "pqxx/cachedresult.h"
 
-
 using namespace PGSTD;
 
 pqxx::CachedResult::CachedResult(pqxx::TransactionItf &Trans,
