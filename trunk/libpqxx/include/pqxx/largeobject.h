@@ -501,7 +501,9 @@ public:
    * @param O a large object to access
    * @param BufSize size of buffer to use internally (optional)
    */
-  basic_olostream(TransactionItf &T, Oid O) :
+  basic_olostream(TransactionItf &T, 
+      		  Oid O,
+		  LargeObject::size_type BufSize=512) :
     PGSTD::basic_ostream<CHAR,TRAITS>(&m_Buf),
     m_Buf(T, O, out, BufSize) 
   { 
@@ -539,7 +541,9 @@ public:
    * @param O a large object to access
    * @param BufSize size of buffer to use internally (optional)
    */
-  basic_lostream(TransactionItf &T, LargeObject O) :
+  basic_lostream(TransactionItf &T, 
+      		 LargeObject O,
+		 LargeObject::size_type BufSize=512) :
     PGSTD::basic_iostream<CHAR,TRAITS>(&m_Buf),
     m_Buf(T, O, in | out, BufSize) 
   { 
@@ -550,7 +554,9 @@ public:
    * @param O a large object to access
    * @param BufSize size of buffer to use internally (optional)
    */
-  basic_lostream(TransactionItf &T, Oid O) :
+  basic_lostream(TransactionItf &T, 
+      		 Oid O,
+		 LargeObject::size_type BufSize=512) :
     PGSTD::basic_iostream<CHAR,TRAITS>(&m_Buf),
     m_Buf(T, O, in | out, BufSize) 
   { 

@@ -1,3 +1,16 @@
+2003-03-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connectionitf.h:
+  - Better documentation for SetNoticer
+  - Made destructor inline to reduce pain for Windows users
+ include/pqxx/largeobject.h:
+  - Fixed missing BufSize arguments in basic_[o]lostream constructors
+ include/pqxx/result.h:
+  - Default constructor for const_iterator
+ test/test050.cxx:
+  - New
+2003-03-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.h:
+  - Support string conversion of signed/unsigned shorts
 2003-03-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac:
   - Also checks for <libpq/libpq-fs.h> header

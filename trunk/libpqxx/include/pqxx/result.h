@@ -178,6 +178,7 @@ public:
     public Tuple
   {
   public:
+    const_iterator() : Tuple(0,0) {}
 
     /** The iterator "points to" its own Tuple, which is also itself.  This 
      * allows a Result to be addressed as a two-dimensional container without 

@@ -38,6 +38,8 @@ template<typename T> inline const char *FmtString(T);
 // Not implemented to prevent accidents with irregular meaning of argument:
 // template<> inline const char *FmtString(const char *&) { return "%s"; }
 
+template<> inline const char *FmtString(short)         { return "%hd"; }
+template<> inline const char *FmtString(unsigned short){ return "%hu"; }
 template<> inline const char *FmtString(int)           { return  "%i"; }
 template<> inline const char *FmtString(long)          { return "%li"; }
 template<> inline const char *FmtString(unsigned)      { return  "%u"; }

@@ -115,8 +115,15 @@ public:
   template<typename TRANSACTOR> 
   void Perform(const TRANSACTOR &T, int Attempts=3);			//[t4]
 
+  // TODO: Define a default Noticer (mainly to help out Windows users)
   /// Set handler for postgresql errors or warning messages.
-  /** Return value is the previous handler.
+  /** Return value is the previous handler.  Ownership of any previously set 
+   * Noticer is also passed to the caller, so unless it is stored in another 
+   * auto_ptr, it will be deleted from the caller's context.  
+   * This may be important when running under Windows, where a DLL cannot free 
+   * memory allocated by the main program.
+   * If a Noticer is set when the ConnectionItf is destructed, it will also be
+   * deleted.
    * @param N the new message handler; must not be null or equal to the old one
    */
   PGSTD::auto_ptr<Noticer> SetNoticer(PGSTD::auto_ptr<Noticer> N);	//[t14]
@@ -201,6 +208,7 @@ private:
   int Status() const { return PQstatus(m_Conn); }
   const char *ErrMsg() const;
   void Reset(const char OnReconnect[]=0);
+  void close() throw ();
 
   PGSTD::string m_ConnInfo;	/// Connection string
   mutable PGconn *m_Conn;	/// Connection handle
@@ -297,6 +305,12 @@ inline void pqxx::ConnectionItf::Perform(const TRANSACTOR &T,
   } while (!Done);
 }
 
+
+// Put this here so on Windows, any Noticer will be deleted in caller's context
+inline pqxx::ConnectionItf::~ConnectionItf()
+{
+  close();
+}
 
 #endif
 
