@@ -21,7 +21,7 @@ Containers
 Cursors
 (*) Provide iterator interface
 (*) Investigate WITH HOLD feature (nontransaction cursors)
-(*) From 7.4, MOVE and FETCH are much improved (PQcmdTuples()!)
+(*) In PostgreSQL 7.4, MOVE and FETCH are much improved (PQcmdTuples()!)
 
 Exceptions
 (*) Strip newlines from PostgreSQL error messages in exceptions?
@@ -35,6 +35,7 @@ Large Objects
 Results
 (*) Rewrite field conversions to be locale-independent
 (*) Convert to/from date/time values
+(*) Splice out an interface definition
 (*) Real encoding support (PQmblen(), PQenv2encoding())
 (*) Check for handling of nul characters
 (*) Support PQftablecol()
@@ -42,8 +43,11 @@ Results
 (*) Allow direct mapping onto structs, using member ptr template args
 
 Streams
+(*) Test tablewriter column lists
+(*) Permit column list test failures on pre-7.3 postgres backends
 (*) Provide metadata information in tablestream
-(*) Support column lists for COPY (create "inserter" class for list)
+(*) Can we have a tablestream that looks more like a result?
+(*) Create "inserter" class for column lists
 (*) Allow single-level insertion with endt/endr manipulators
 (*) Streambuffer class?
 
@@ -61,3 +65,5 @@ Transactions
 (*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
 (*) Support constraints definition
 
+Util
+(*) Only report closing of non-open sessionfocus during explicit close, not dtor
