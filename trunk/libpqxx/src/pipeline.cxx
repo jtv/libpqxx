@@ -17,9 +17,6 @@
  */
 #include "pqxx/compiler.h"
 
-#include <algorithm>
-#include <iterator>
-
 #include "pqxx/dbtransaction"
 #include "pqxx/pipeline"
 
@@ -302,8 +299,9 @@ void pqxx::pipeline::obtain_dummy()
 
 
   // Reset internal state to forget botched batch attempt
-  // TODO: Why in blazes won't this compile on SunC++!?
-  m_num_waiting += distance(m_issuedrange.first, stop);
+  // (Not using std::distance() because of problem with SunC++)
+  for (QueryMap::iterator i = m_issuedrange.first; i != stop; ++i)
+    ++m_num_waiting;
   m_issuedrange.second = m_issuedrange.first;
 
   pqxxassert(!m_dummy_pending);
