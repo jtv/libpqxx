@@ -207,4 +207,16 @@ private:
 
 }
 
+/* On Windows, any user-allocated notice processors, triggers etc. must be
+ * deallocated in the user context.  Therefore we want these destructors to be
+ * inlined.
+ * On SUN's CC 5.1 compiler, on the other hand, there will be problems if we
+ * don't have out-of-line virtual destructors in the leaf classes, so we must
+ * not inline them.
+ */
+#ifdef _WIN32
+pqxx::connection::~connection() { close(); }
+pqxx::lazyconnection::~lazyconnection() { close(); }
+pqxx::asyncconnection::~asyncconnection() { do_dropconnect(); close(); }
+#endif
 

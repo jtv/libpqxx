@@ -325,6 +325,7 @@ protected:
   /// For implementation classes: set connection structure pointer
   void set_conn(internal::pq::PGconn *C) throw () { m_Conn = C; }
 
+  void close() throw ();
   void wait_read() const;
   void wait_read(long seconds, long microseconds) const;
   void wait_write() const;
@@ -332,7 +333,6 @@ protected:
 private:
   /// Really connect to database
   void Connect();
-  void close() throw ();
   void SetupState();
 
   void InternalSetTrace() throw ();
@@ -410,7 +410,6 @@ private:
 // Put this here so on Windows, any noticer will be deleted in caller's context
 inline pqxx::connection_base::~connection_base()
 {
-  close();
 }
 
 
