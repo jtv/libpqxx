@@ -57,30 +57,30 @@ public:
   explicit CachedResult(pqxx::TransactionItf &,
                         const char Query[],
 			const PGSTD::string &BaseName="query",
-                        size_type Granularity=100);
+                        size_type Granularity=100);			//[t40]
 
   // TODO: Iterators, begin(), end()
   // TODO: Metadata
   // TODO: Block replacement (limit cache size); then add capacity()
 
-  const Tuple operator[](size_type i) const
+  const Tuple operator[](size_type i) const				//[t41]
   {
     return GetBlock(BlockFor(i))[Offset(i)];
   }
 
-  const Tuple at(size_type i) const
+  const Tuple at(size_type i) const					//[t40]
   {
     return GetBlock(BlockFor(i)).at(Offset(i));
   }
 
   /// Number of rows in result set.  First call may be slow.
-  size_type size() const;
+  size_type size() const;						//[t40]
   
   /// Is the result set empty, i.e. does it contain no rows?  May fetch 1 block.
-  bool empty() const;
+  bool empty() const;							//[]
 
   /// Drop all data in internal cache, freeing up memory.
-  void clear();
+  void clear();								//[]
 
   /// NOT IMPLEMENTED YET
   class const_iterator

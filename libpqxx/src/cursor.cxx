@@ -139,7 +139,7 @@ pqxx::Cursor::size_type pqxx::Cursor::NormalizedMove(size_type Intended,
     {
       // We either just walked off the right edge (moving at least one row in 
       // the process), or had done so already (in which case we haven't moved).
-      Actual = m_Pos - (m_Size + pos_start + 1);
+      Actual = (m_Size + pos_start + 1) - m_Pos;
     }
     else
     {

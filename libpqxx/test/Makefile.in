@@ -134,7 +134,7 @@ with_postgres_lib = @with_postgres_lib@
 INCLUDES = -I../include ${POSTGRES_INCLUDE}
 MAINTAINERCLEANFILES = Makefile.in
 
-TESTS = test1 test2 test3 test4 test5 test6 test7 test8 test9 test10 test11 test12 test13 test14 test15 test16 test17 test18 test19 test20 test21 test22 test23 test24 test25 test26 test27 test28 test29 test30 test31 test32 test33 test34 test35 test36 test37 test38 test39 test40 test41 test42 test43
+TESTS = test1 test2 test3 test4 test5 test6 test7 test8 test9 test10 test11 test12 test13 test14 test15 test16 test17 test18 test19 test20 test21 test22 test23 test24 test25 test26 test27 test28 test29 test30 test31 test32 test33 test34 test35 test36 test37 test38 test39 test40 test41 test42 test43 test44
 check_PROGRAMS = ${TESTS}
 
 
@@ -268,6 +268,9 @@ test42_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
 
 test43_SOURCES = test43.cxx
 test43_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test44_SOURCES = test44.cxx
+test44_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
 subdir = test
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h
@@ -282,7 +285,8 @@ check_PROGRAMS = test1$(EXEEXT) test2$(EXEEXT) test3$(EXEEXT) \
 	test28$(EXEEXT) test29$(EXEEXT) test30$(EXEEXT) test31$(EXEEXT) \
 	test32$(EXEEXT) test33$(EXEEXT) test34$(EXEEXT) test35$(EXEEXT) \
 	test36$(EXEEXT) test37$(EXEEXT) test38$(EXEEXT) test39$(EXEEXT) \
-	test40$(EXEEXT) test41$(EXEEXT) test42$(EXEEXT) test43$(EXEEXT)
+	test40$(EXEEXT) test41$(EXEEXT) test42$(EXEEXT) test43$(EXEEXT) \
+	test44$(EXEEXT)
 am_test1_OBJECTS = test1.$(OBJEXT)
 test1_OBJECTS = $(am_test1_OBJECTS)
 test1_DEPENDENCIES = ../src/libpqxx.la
@@ -435,6 +439,10 @@ am_test43_OBJECTS = test43.$(OBJEXT)
 test43_OBJECTS = $(am_test43_OBJECTS)
 test43_DEPENDENCIES = ../src/libpqxx.la
 test43_LDFLAGS =
+am_test44_OBJECTS = test44.$(OBJEXT)
+test44_OBJECTS = $(am_test44_OBJECTS)
+test44_DEPENDENCIES = ../src/libpqxx.la
+test44_LDFLAGS =
 am_test5_OBJECTS = test5.$(OBJEXT)
 test5_OBJECTS = $(am_test5_OBJECTS)
 test5_DEPENDENCIES = ../src/libpqxx.la
@@ -478,9 +486,9 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/test39.Po ./$(DEPDIR)/test4.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/test40.Po ./$(DEPDIR)/test41.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/test42.Po ./$(DEPDIR)/test43.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/test5.Po ./$(DEPDIR)/test6.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/test7.Po ./$(DEPDIR)/test8.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/test9.Po
+@AMDEP_TRUE@	./$(DEPDIR)/test44.Po ./$(DEPDIR)/test5.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/test6.Po ./$(DEPDIR)/test7.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/test8.Po ./$(DEPDIR)/test9.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -501,11 +509,11 @@ DIST_SOURCES = $(test1_SOURCES) $(test10_SOURCES) $(test11_SOURCES) \
 	$(test34_SOURCES) $(test35_SOURCES) $(test36_SOURCES) \
 	$(test37_SOURCES) $(test38_SOURCES) $(test39_SOURCES) \
 	$(test4_SOURCES) $(test40_SOURCES) $(test41_SOURCES) \
-	$(test42_SOURCES) $(test43_SOURCES) $(test5_SOURCES) \
-	$(test6_SOURCES) $(test7_SOURCES) $(test8_SOURCES) \
-	$(test9_SOURCES)
+	$(test42_SOURCES) $(test43_SOURCES) $(test44_SOURCES) \
+	$(test5_SOURCES) $(test6_SOURCES) $(test7_SOURCES) \
+	$(test8_SOURCES) $(test9_SOURCES)
 DIST_COMMON = Makefile.am Makefile.in
-SOURCES = $(test1_SOURCES) $(test10_SOURCES) $(test11_SOURCES) $(test12_SOURCES) $(test13_SOURCES) $(test14_SOURCES) $(test15_SOURCES) $(test16_SOURCES) $(test17_SOURCES) $(test18_SOURCES) $(test19_SOURCES) $(test2_SOURCES) $(test20_SOURCES) $(test21_SOURCES) $(test22_SOURCES) $(test23_SOURCES) $(test24_SOURCES) $(test25_SOURCES) $(test26_SOURCES) $(test27_SOURCES) $(test28_SOURCES) $(test29_SOURCES) $(test3_SOURCES) $(test30_SOURCES) $(test31_SOURCES) $(test32_SOURCES) $(test33_SOURCES) $(test34_SOURCES) $(test35_SOURCES) $(test36_SOURCES) $(test37_SOURCES) $(test38_SOURCES) $(test39_SOURCES) $(test4_SOURCES) $(test40_SOURCES) $(test41_SOURCES) $(test42_SOURCES) $(test43_SOURCES) $(test5_SOURCES) $(test6_SOURCES) $(test7_SOURCES) $(test8_SOURCES) $(test9_SOURCES)
+SOURCES = $(test1_SOURCES) $(test10_SOURCES) $(test11_SOURCES) $(test12_SOURCES) $(test13_SOURCES) $(test14_SOURCES) $(test15_SOURCES) $(test16_SOURCES) $(test17_SOURCES) $(test18_SOURCES) $(test19_SOURCES) $(test2_SOURCES) $(test20_SOURCES) $(test21_SOURCES) $(test22_SOURCES) $(test23_SOURCES) $(test24_SOURCES) $(test25_SOURCES) $(test26_SOURCES) $(test27_SOURCES) $(test28_SOURCES) $(test29_SOURCES) $(test3_SOURCES) $(test30_SOURCES) $(test31_SOURCES) $(test32_SOURCES) $(test33_SOURCES) $(test34_SOURCES) $(test35_SOURCES) $(test36_SOURCES) $(test37_SOURCES) $(test38_SOURCES) $(test39_SOURCES) $(test4_SOURCES) $(test40_SOURCES) $(test41_SOURCES) $(test42_SOURCES) $(test43_SOURCES) $(test44_SOURCES) $(test5_SOURCES) $(test6_SOURCES) $(test7_SOURCES) $(test8_SOURCES) $(test9_SOURCES)
 
 all: all-am
 
@@ -637,6 +645,9 @@ test42$(EXEEXT): $(test42_OBJECTS) $(test42_DEPENDENCIES)
 test43$(EXEEXT): $(test43_OBJECTS) $(test43_DEPENDENCIES) 
 	@rm -f test43$(EXEEXT)
 	$(CXXLINK) $(test43_LDFLAGS) $(test43_OBJECTS) $(test43_LDADD) $(LIBS)
+test44$(EXEEXT): $(test44_OBJECTS) $(test44_DEPENDENCIES) 
+	@rm -f test44$(EXEEXT)
+	$(CXXLINK) $(test44_LDFLAGS) $(test44_OBJECTS) $(test44_LDADD) $(LIBS)
 test5$(EXEEXT): $(test5_OBJECTS) $(test5_DEPENDENCIES) 
 	@rm -f test5$(EXEEXT)
 	$(CXXLINK) $(test5_LDFLAGS) $(test5_OBJECTS) $(test5_LDADD) $(LIBS)
@@ -697,6 +708,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test41.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test42.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test43.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test44.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test5.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test6.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test7.Po@am__quote@
