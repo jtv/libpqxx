@@ -107,7 +107,7 @@ streambuf=no)
 
 AC_MSG_CHECKING([char_traits template])
 char_traits=yes
-AC_TRY_COMPILE([#include <string>], [PGSTD::char_traits<char>::eof()], AC_DEFINE(HAVE_CHAR_TRAITS, 1,
+AC_TRY_COMPILE([#include <string>], [PGSTD::char_traits<char>::eof()], AC_DEFINE(PQXX_HAVE_CHAR_TRAITS, 1,
 [Define if std defines the char_traits template and <char> specialization]),
 char_traits=no)
 AC_MSG_RESULT($char_traits)
@@ -321,7 +321,10 @@ AC_CHECK_DECL(PQputCopyData,
 	[#include <${with_postgres_include}/libpq-fe.h>])
 
 AC_LANG_PUSH(C++)
-AC_CHECK_HEADERS([limits iterator])
+AC_CHECK_HEADER(limits, 
+	[AC_DEFINE(PQXX_HAVE_LIMITS, 1, [Define if <limits> exists])])
+AC_CHECK_HEADER(iterator,
+	[AC_DEFINE(PQXX_HAVE_ITERATOR, 1, [Define if <iterator> exists])])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_MSG_CHECKING([whether <iterator> defines a usable iterator template])
@@ -346,10 +349,8 @@ AC_MSG_RESULT($usingdecl)
 
 AC_LANG_POP(C++)
 
-AC_C_CONST
-AC_C_INLINE
-AC_TYPE_SIZE_T
-AC_CHECK_TYPES([ptrdiff_t])
+AC_CHECK_TYPE([ptrdiff_t],
+	[AC_DEFINE(PQXX_HAVE_PTRDIFF_T, 1, [Define if ptrdiff_t exists])])
 
 AC_PROG_MAKE_SET
 

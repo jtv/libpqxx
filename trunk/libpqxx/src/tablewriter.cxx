@@ -86,7 +86,11 @@ void pqxx::tablewriter::flush_pending()
     if (!Trans().WriteCopyLine(m_PendingLine))
       throw logic_error("libpqxx internal error: "
 	  "writing pending line in async mode");
+#ifdef PQXX_HAVE_STRING_CLEAR
     m_PendingLine.clear();
+#else
+    m_PendingLine.resize(0);
+#endif
   }
 }
 

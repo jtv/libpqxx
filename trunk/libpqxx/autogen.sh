@@ -26,7 +26,10 @@ sed -e "s/@PQXXVERSION@/$PQXXVERSION/g" configure.ac.in >configure.ac
 ./tools/maketestvcmak.pl test | sed -e 's/$/\r/' >win32/test.mak
 
 aclocal${ver}
-autoheader
+
+# Don't run autoheader to avoid overwriting customized config.h.in!
+# autoheader
+
 libtoolize --force --automake --copy
 automake${ver} --verbose --add-missing --copy
 autoconf

@@ -14,7 +14,7 @@ namespace
 
 string GetDatestyle(connection &C)
 {
-  return nontransaction(C, "getdatestyle").exec("SHOW DATESTYLE")[0][0].c_str();
+  return nontransaction(C, "getdatestyle").get_variable("DATESTYLE");
 }
 
 string SetDatestyle(connection &C, string style)

@@ -138,7 +138,7 @@ public:
    * @warning Do not mix the set_variable with raw "SET" queries, and do not
    * try to set or get variables while a table stream is active.
    */
-  PGSTD::string get_variable(const PGSTD::string &) const;		//[]
+  PGSTD::string get_variable(const PGSTD::string &) const;		//[t61]
 
 #ifdef PQXX_DEPRECATED_HEADERS
   /// @deprecated Use commit() instead

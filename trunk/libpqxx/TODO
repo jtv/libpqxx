@@ -1,9 +1,7 @@
 Build system
-(*) Check for <sstream> presence (and what if it ain't there?)
 (*) Completely support building outside the source directory
 (*) Ensure there is a way to build without -rpath and use that for the
     Debian packaging.
-(*) Generate win32/test.mak from tools/maketestam.pl
 
 Connections
 (*) Separate failed_connection exception type if connection never succeeds?
@@ -17,10 +15,6 @@ Cursors
 
 Large Objects
 (*) Support lo_tell()
-
-Nonblocking operation
-(*) Separate query issuing from receipt of results
-(*) Split up commits to narrow down in-doubt window
 
 Results
 (*) Conceive metadata model
@@ -38,7 +32,6 @@ Transactions
 (*) German's locking idea for robusttransaction!
 (*) User schema support for robusttransaction log table
 (*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
-(*) Support querying of variables (local map is "cache" for session state)
 (*) Support constraints definition
 
 Tests

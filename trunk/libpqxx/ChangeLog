@@ -1,3 +1,17 @@
+2003-12-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh:
+  - No longer runs autoheader, which would overwrite config.h.in
+ configure.ac, include/pqxx/config.h.in, include/pqxx/libconfig.h.in:
+  - Renamed some more HAVE_... macros to PQXX_HAVE
+  - Removed some unnecessary macros
+  - Workaround for missing clear() in standard string
+ src/connection_base.cxx:
+  - Fixed broken tablewriter for pre-7.4 postgres--thanks Roger Leigh!
+2003-12-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx:
+  - Made async argument to WriteCopyLine() default to false
+ src/transaction_base.cxx:
+  - Fixed some double spaces in error strings
 2003-12-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  debian/*:
   - Applied Debian patches by Roger Leigh
