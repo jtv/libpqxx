@@ -5,6 +5,7 @@
  configure.ac:
   - Provide a description for HAVE_SYS_SELECT_H so autoheader doesn't exit with
     an error.
+  - Added a few more warnings: -Wmultichar, -Wabi, -Wctor-dtor-privacy.
  debian/rules:
   - [clean] Clean out generated HTML files.
   - [configure] Actually use confflags variable; simplified testing with a 
