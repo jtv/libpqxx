@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 1.4.0, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 1.4.1, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 1.4.0)
+AM_INIT_AUTOMAKE(libpqxx, 1.4.1)
 
 # Library version numbering - see "info libtool versioning 'libtool
 # versioning'" for details.
