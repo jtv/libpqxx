@@ -1,5 +1,5 @@
 Build
-(*) Get dist and maintainer-clean targets working
+(*) Get install, dist and maintainer-clean targets working
 (*) Move "check" postgres parameters into configure script
 (*) Get object files into obj/ directory
 
