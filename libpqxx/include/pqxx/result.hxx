@@ -40,6 +40,17 @@ namespace pqxx
  * number:
  *
  *	for (result::size_type i=0; i < R.size(); ++i) Process(R[i]);
+ *
+ * Result sets in libpqxx are lightweight, reference-counted wrapper objects
+ * (following the Proxy design pattern) that are small and cheap to copy.  Think
+ * of a result object as a "smart pointer" to an underlying result set.
+ *
+ * @warning The result set that a result object points to is not thread-safe.
+ * If you copy a result object, it still refers to the same underlying result
+ * set.  So never copy, destroy, query, or otherwise access a result while
+ * another thread may be copying, destroying, querying, or otherwise accessing
+ * the same result set--even if it is doing so through a different result
+ * object!
  */
 class PQXX_LIBEXPORT result : private internal::PQAlloc<internal::pq::PGresult>
 {
