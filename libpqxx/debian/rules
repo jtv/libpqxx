@@ -75,6 +75,9 @@ install: build
 	# Add here commands to install the package into debian/tmp
 	$(MAKE) install prefix=$(CURDIR)/debian/tmp/usr
 
+	# We don't want an RPATH in a Debian package
+	chrpath --delete debian/tmp/usr/lib/lib*.so
+
 
 # Build architecture-independent files here.
 binary-indep: build install
