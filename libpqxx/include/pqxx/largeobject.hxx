@@ -126,7 +126,7 @@ protected:
     return T.conn().RawConnection();
   }
 
-  PGSTD::string Reason() const;
+  PGSTD::string Reason(int err) const;
 
 private:
   oid m_ID;
@@ -301,7 +301,7 @@ public:
   using largeobject::operator>=;
 
 private:
-  PGSTD::string Reason() const;
+  PGSTD::string Reason(int err) const;
   internal::pq::PGconn *RawConnection()
   	{ return largeobject::RawConnection(m_Trans); }
 
