@@ -104,16 +104,16 @@ template<> struct char_traits<unsigned char>
 
 // Workarounds for Microsoft Visual C++
 #ifdef _MSC_VER
+
 #if _MSC_VER < 1300
 #error If you're using Visual C++, you'll need at least version 7 (VC.NET)
-#endif	// _MSC_VER < 1300
-
-// Workarounds for Visual C++.NET (2003 version does seem to work)
-#if _MSC_VER < 1310
+#elif _MSC_VER < 1310
+// Workarounds for pre-2003 Visual C++.NET
 #undef PQXX_HAVE_REVERSE_ITERATOR
 #define PQXX_NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
 #define PQXX_TYPENAME
 #endif	// _MSC_VER < 1310
+
 #pragma warning (disable: 4290)
 #pragma warning (disable: 4355)
 #pragma warning (disable: 4786)
@@ -123,6 +123,7 @@ template<> struct char_traits<unsigned char>
 #define PQXX_LIBEXPORT __declspec(dllimport)
 #endif	// PQXX_LIBEXPORT _LIB
 
+// TODO: Restrict this to compiler versions known to be affected
 /* Work around a particularly pernicious and deliberate bug in Visual C++:
  * min() and max() are defined as macros, which can have some very nasty
  * consequences.  This compiler bug can be switched off by defining NOMINMAX.
@@ -133,14 +134,26 @@ template<> struct char_traits<unsigned char>
  * downside.  One wonders why this compiler wart is being maintained at all,
  * since the introduction of inline functions back in the 20th century.
  */
-#ifdef _MSC_VER
 #if defined(min) || defined(max)
 #error "Oops: min() and/or max() are defined as preprocessor macros.\
   Define NOMINMAX macro before including any system headers!"
 #endif
 #define NOMINMAX
-#endif
 
+/// Apparently Visual C++.NET 2003 breaks on stdout/stderr output in destructors
+/** Defining this macro will disable all error or warning messages whenever a
+ * destructor of a libpqxx-defined class is being executed.  This may cause
+ * important messages to be lost, but I'm told the code will crash without it.
+ * Of course it's only a partial solution; the client code may still do bad
+ * things from destructors and run into the same problem.
+ *
+ * If this workaround does solve the crashes, we may have to work out some
+ * system of deferred messages that will remember the messages and re-issue them
+ * after all known active destructors has finished.  But that could be
+ * error-prone: what if memory ran out while trying to queue a message, for
+ * instance?  The only solution may be for the vendor to fix the compiler.
+ */
+#define PQXX_QUIET_DESTRUCTORS
 
 #endif	// _MSC_VER
 #endif	// _WIN32
