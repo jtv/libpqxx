@@ -1,3 +1,6 @@
+2004-03-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/util.cxx:
+  - Added missing include <locale>, thanks darx@darxi.purk.ee
 2004-03-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/result.hxx:
   - Replaced field_streambuf::underflow()

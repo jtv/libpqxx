@@ -16,6 +16,7 @@
  */
 #include "pqxx/compiler.h"
 
+#include <locale>
 #include <new>
 #include <sstream>
 
