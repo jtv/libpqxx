@@ -38,9 +38,7 @@ namespace pqxx
  * So if you're keeping a transaction open, don't expect any of your Triggers
  * on the same connection to be notified.
  *
- * Multiple triggers on the same connection may have the same name, provided
- * that your STL implementation provides the <multimap> header containing a
- * working std::multimap class template.
+ * Multiple triggers on the same connection may have the same name.
  */
 class PQXX_LIBEXPORT Trigger
 {
