@@ -1,4 +1,6 @@
 2.2.0
+ - Uses Postgres-provided script to find Postgres (thanks Peter Eisentraut)
+ - Makefile for MinGW compiler (thanks Pasquale Fersini)
  - New pipeline class for throughput optimization
  - More Windows compilation fixes
 2.1.3

@@ -2,6 +2,8 @@
  configure.ac.in:
   - Added warning about auto-generation of configure.ac
   - Peter Eistentraut's patch for finding postgres headers & libraries
+ README:
+  - No longer need --with-postgres etc. (thanks Peter!)
  TODO:
   - Bart Samwel found great solution for pipeline's one major weakness
 2004-01-13  Jeroen T. Vermeulen <jtv@xs4all.nl>

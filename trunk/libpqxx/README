@@ -36,7 +36,7 @@ section, unless they have a Unix-like environment like Cygwin installed.
 
 To get started quickly on a Unix-like system, do:
 
-./configure	# (plus suitable arguments, to set up the build environment)
+./configure	# (plus suitable preparation, to set up the build environment)
 make		# (to build the library)
 
 # (set environment for regression test, see under "make check" below)
@@ -52,38 +52,37 @@ libpqxx.
 
 1. Configure
 
-But first, a word on those "suitable arguments."  These may or may not be
-needed on your particular system, so do try omitting them at first.  The most 
-important options are:
+A word on that "suitable preparation."  In older versions of libpqxx, you would
+need to specify the location of the PostgreSQL header and library files in some
+cases; when left alone, the script had a builtin list of usual locations to 
+check.  This is no longer necessary; the configure script will use another
+script provided by Postgres to find them automatically.
 
---with-postgres=<path>
-to indicate the base PostgreSQL library and include path.  The build procedure 
-expects to find subdirectories include/ and lib/ there.  If, for instance, you
-have the PostgreSQL headers and libraries in /opt/pgsql/include/ and
-/opt/pgsql/libs/ respectively, all you need to specify this to the configure 
-script is "--with-postgres=/opt/pgsql".  If your PostgreSQL directories aren't
-laid out in this way, read on.
+In the new setup, however, the configure script must be able to find and run 
+this new script.  It's called pg_config, and it should be in the bin/ 
+subdirectory of wherever Postgres is installed on your system.  Make sure this
+directory is represented to your executable path before you run the configure
+script, or it will fail with a message like:
 
---with-postgres-include=<path>
-to indicate just the PostgreSQL include path.  This is not needed if you use 
-the --with-postgres option.  If, for instance, the PostgreSQL headers are not 
-in your standard include path but in /usr/local/include/postgresql/, then what 
-you need to specify is "--with-postgres=/usr/local/include/postgresql".
+configure: error: PostgreSQL configuration script was not found
 
---with-postgres-lib=<path>
-to indicate the path to PostgreSQL's libpq library.  If, for instance, this
-library is in /usr/local/lib/postgresql, then you need to specify the configure
-option "--with-postgres-lib=/usr/local/lib/postgresql".
+Finally, if you wish to install the libpqxx you're going to build in a custom
+location, such as your home directory /home/me, you can specify this to the
+configure script by calling it with the --prefix option, e.g.: --prefix=/home/me
+(which can be handy if you don't have administrator rights on the machine you're
+working on).
 
-Sensible defaults have been provided for Debian, RedHat, and BSD-like systems,
-among others.  If your system requires different settings, please let me know.
+The configure scripts supports many other options to tweak how and where libpqxx
+is to be built and installed; try the --help option to get an overview if you're
+interested.
 
 
 2. Make
 
 One problem some people run into at this stage is that the header files for
 PostgreSQL need the OpenSSL header files to work.  If this happens to you, make
-sure openssl is installed and try again.
+sure openssl is installed and try again.  Also, the C-level PostgreSQL API
+library libpq must be installed on your system.
 
 Otherwise, if the "make" part of the build procedure fails, you're probably
 using a different compiler or compiler version than I am.  If your C++ compiler
@@ -100,31 +99,35 @@ This part is optional.  It is recommended that you do this just to make sure
 that you've got a working library, but there is one Very Important Caveat that 
 could affect your existing data.  See below.
 
-This is where you compile and run the regression test that typically exercises 
-all public methods in the library.  Obviously something or other will have to go
-wrong at this point, right?
+"Make check" is where you compile and run the regression test that typically 
+exercises all public methods in the library.  Obviously something or other will
+have to go wrong at this point, right?
 
 Indeed.  The "make check" procedure needs a database to play with.  In this
 database, it will create two tables "pqxxevents" and "pqxxorgevents," as well as
 some tables for its own use.  All have names prefixed with pqxx.  CAUTION: if 
 this database already contains tables with any of these names, either the check
-will fail, or worse, the original data will be erased.
+will fail, or worse, your original data will be erased.
 
 So choose your test database with caution.  Obviously the safest thing to do is
 to set up a separate database for this.
 
-To direct the regression test to the right database, set the following
-environment variables as needed before running "make check" (see description
-above):
+To direct the regression test to the right database, set some or all of the 
+following environment variables as needed before running "make check" (see 
+description above):
 
 	PGDATABASE	(name of database; defaults to your user name)
 	PGHOST		(database server; defaults to local machine)
 	PGPORT		(PostgreSQL port to connect to; default is 5432)
 	PGUSER		(your PostgreSQL user ID; defaults to your login name)
 
-This should get you through the regression test to ensure that everything's
-working properly.  If it isn't, and it's not something you can fix by tweaking
-your PostgreSQL setup, let me know about it and I'll try to fix it.
+Further environment variables that may be of use to you are documented in the
+libpq documentation and in the manpage for Postgres' command-line client, psql.
+
+If you've taken care of all this, it should get you through the regression test
+to ensure that everything's working properly.  If it isn't, and it's not
+something you can fix by tweaking your PostgreSQL setup, let me know about it
+and I'll try to fix it.
 
 
 4. Make Install

@@ -3,4 +3,6 @@ EXTRA_DIST = \
 	INSTALL.txt \
 	libpqxx.cxx \
 	libpqxx.mak \
-	test.mak
+	test.mak \
+	MinGW.mak
+
