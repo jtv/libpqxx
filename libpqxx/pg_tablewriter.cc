@@ -7,7 +7,7 @@
  *      implementation of the Pg::TableWriter class.
  *   Pg::TableWriter enables optimized batch updates to a database table
  *
- * Copyright (c) 2001, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  *-------------------------------------------------------------------------
  */

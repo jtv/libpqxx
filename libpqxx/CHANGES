@@ -1,3 +1,13 @@
+2002-02-26 23:00
+ Result:
+  - Extended test coverage to metadata queries
+ Test11:
+  - Created
+2002-02-24 22:00
+ Result:
+  - Documented method coverage
+ Test10:
+  - Disabled trace output
 2002-02-24 05:00
  Transaction:
   - Full method coverage by self-test
