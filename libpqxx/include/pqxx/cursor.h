@@ -274,6 +274,7 @@ private:
     static inline void error_permitted_isolation_level(ISOLATIONTAG) throw ();
 
 #if defined(__SUNPRO_CC)
+  // TODO: Breaks on "Sun C++ 5.5 Patch 113817-10 2004/10/05"
   // Incorrect, but needed to compile with Sun CC
   template<> static void 
     error_permitted_isolation_level(isolation_traits<serializable>) throw () {}
