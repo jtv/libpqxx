@@ -8,10 +8,11 @@ Build & Configuration
 (*) Remove ../include/pqxx from libtool include path somehow
 
 Connections
+(*) Use PQserverVersion(), if available, to determine backend version
+(*) Make PQprotocolVersion() and/or PQserverVersion() available to public?
 (*) Clean up connection state model
 (*) Factor out connection policy classes
-(*) Encapsulate definition of prepared statements
-(*) Restore prepared statements when restoring a connection
+(*) Use PQtransactionStatus to detect auto-aborted transactions?
 (*) More helpful broken_connection exception hierarchy
 (*) Connection pooling support
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
