@@ -285,64 +285,85 @@ public:
    */
   int await_notification(long seconds, long microseconds);		//[t79]
 
-  /// Define prepared statement
-  void prepare(const PGSTD::string &name, const PGSTD::string &def)	//[]
+  /// Define prepared statement that takes no parameters
+  /** Use the transaction classes' exec_prepared() functions to execute these.
+   *
+   * Prepared statements live in connections, not transactions.  Regardless of
+   * the context they were defined in, they continue to exist in the ongoing
+   * session until explicitly dropped through the unprepare() function.
+   *
+   * @warning Prepared statements are not necessarily defined on the backend
+   * right away; they may be cached by libpqxx.  This means that statements may
+   * be prepared before the connection is fully established, and that it's
+   * relatively cheap to pre-prepare lots of statements that may or may not be
+   * used during the session.  It also means, however, that errors in the
+   * prepared statement may not show up until it is first used.  Such failure
+   * may cause the transaction
+   *
+   * @warning Never try to prepare, execute, or unprepare a prepared statement
+   * manually using direct SQL queries.  Always use the functions provided by
+   * libpqxx.
+   */
+  void prepare(const PGSTD::string &name, const PGSTD::string &def)	//[t85]
 	{ pq_prepare(name, def, ""); }
 
+  /// Define prepared statement with given parameter list
+  /** Use the transaction classes' exec_prepared() functions to execute these.
+   *
+   * Prepared statements live in connections, not transactions.  Regardless of
+   * the context they were defined in, they continue to exist in the ongoing
+   * session until explicitly dropped through the unprepare() function.
+   *
+   * @warning Prepared statements are not necessarily defined on the backend
+   * right away; they may be cached by libpqxx.  This means that statements may
+   * be prepared before the connection is fully established, and that it's
+   * relatively cheap to pre-prepare lots of statements that may or may not be
+   * used during the session.  It also means, however, that errors in the
+   * prepared statement may not show up until it is first used.  Such failure
+   * may cause the transaction
+   *
+   * @warning Never try to prepare, execute, or unprepare a prepared statement
+   * manually using direct SQL queries.  Always use the functions provided by
+   * libpqxx.
+   */
   template<typename ITER>
     void prepare(const PGSTD::string &name,
 	const PGSTD::string &def,
 	ITER beginparms,
-	ITER endparms)							//[]
+	ITER endparms)							//[t85]
   {
     pq_prepare(name, def, 
 	(beginparms==endparms) ? 
 		"" : ("("+separated_list(",",beginparms,endparms)+")"));
   }
 
+  /// Define prepared statement with given parameter list
+  /** Use the transaction classes' exec_prepared() functions to execute these.
+   *
+   * Prepared statements live in connections, not transactions.  Regardless of
+   * the context they were defined in, they continue to exist in the ongoing
+   * session until explicitly dropped through the unprepare() function.
+   *
+   * @warning Prepared statements are not necessarily defined on the backend
+   * right away; they may be cached by libpqxx.  This means that statements may
+   * be prepared before the connection is fully established, and that it's
+   * relatively cheap to pre-prepare lots of statements that may or may not be
+   * used during the session.  It also means, however, that errors in the
+   * prepared statement may not show up until it is first used.  Such failure
+   * may cause the transaction
+   *
+   * @warning Never try to prepare, execute, or unprepare a prepared statement
+   * manually using direct SQL queries.  Always use the functions provided by
+   * libpqxx.
+   */
   template<typename CNTNR>
     void prepare(const PGSTD::string &name,
 	const PGSTD::string &def,
-	const CNTNR &params)						//[]
+	const CNTNR &params)						//[t85]
 	{ prepare(name, def, params.begin(), params.end()); }
 
   /// Drop prepared statement
-  void unprepare(const PGSTD::string &name);				//[]
-
-  result exec_prepared(const PGSTD::string &name);			//[]
-
-  result exec_prepared(const char name[]);				//[]
-
-  template<typename STRING, typename ITER>
-    result exec_prepared(STRING name, ITER beginargs, ITER endargs)	//[]
-  {
-    typedef PGSTD::vector<PGSTD::string> pvec;
-    pvec p;
-    for (; beginargs!=endargs; ++beginargs) p.push_back(to_string(*beginargs));
-    result r;
-    const char **pindex = new char *[p.size()];
-    try
-    {
-      const pvec::size_type stop = p.size();
-      for (pvec::size_type i; i < stop; ++i) pindex[i] = p[i].c_str();
-      r = pq_exec_prepared(name, p.size(), pindex);
-    }
-    catch (const PGSTD::exception &)
-    {
-      delete [] pindex;
-      throw;
-    }
-    delete [] pindex;
-    return r;
-  }
-
-  template<typename CNTNR> result exec_prepared(const char name[],	//[]
-      const CNTNR &args)
-  	{ return exec_prepared(name, args.begin(), args.end()); }
-
-  template<typename CNTNR>
-    result exec_prepared(const PGSTD::string &name, CNTNR args)		//[]
-  	{ return exec_prepared(name, args.begin(), args.end()); }
+  void unprepare(const PGSTD::string &name);				//[t85]
 
 #ifdef PQXX_DEPRECATED_HEADERS
   /// @deprecated Use disconnect() instead

@@ -144,6 +144,126 @@ public:
       	      const PGSTD::string &Desc=PGSTD::string())		//[t9]
     	{ return exec(Query.str(), Desc); }
 
+  /// Execute parameterless prepared statement
+  /** Prepared statements are defined using the connection classes' prepare()
+   * functions, and continue to live on in the ongoing session regardless of
+   * the context they were defined in (unless explicitly dropped using the
+   * connection's unprepare() function).  Their execution however, like other
+   * forms of query execution, requires a transaction object.
+   *
+   * @warning Do not try to execute a prepared statement manually through direct
+   * SQL statements.  This is likely not to work, and even if it does, is likely
+   * to be slower than using the proper libpqxx functions.
+   *
+   * @warning Actual definition of the prepared statement on the backend may be
+   * deferred until its first use, which means that any errors in the prepared
+   * statement may not show up until it is executed--and perhaps abort the
+   * ongoing transaction in the process.
+   */
+  result exec_prepared(const PGSTD::string &qname)			//[t85]
+	{ return m_Conn.pq_exec_prepared(qname.c_str(), 0, 0); }
+
+  /// Execute parameterless prepared statement
+  /** Prepared statements are defined using the connection classes' prepare()
+   * functions, and continue to live on in the ongoing session regardless of
+   * the context they were defined in (unless explicitly dropped using the
+   * connection's unprepare() function).  Their execution however, like other
+   * forms of query execution, requires a transaction object.
+   *
+   * @warning Do not try to execute a prepared statement manually through direct
+   * SQL statements.  This is likely not to work, and even if it does, is likely
+   * to be slower than using the proper libpqxx functions.
+   *
+   * @warning Actual definition of the prepared statement on the backend may be
+   * deferred until its first use, which means that any errors in the prepared
+   * statement may not show up until it is executed--and perhaps abort the
+   * ongoing transaction in the process.
+   */
+  result exec_prepared(const char qname[])				//[t85]
+	{ return m_Conn.pq_exec_prepared(qname, 0, 0); }
+
+  /// Execute prepared statement with given sequence of arguments
+  /** Prepared statements are defined using the connection classes' prepare()
+   * functions, and continue to live on in the ongoing session regardless of
+   * the context they were defined in (unless explicitly dropped using the
+   * connection's unprepare() function).  Their execution however, like other
+   * forms of query execution, requires a transaction object.
+   *
+   * @warning Do not try to execute a prepared statement manually through direct
+   * SQL statements.  This is likely not to work, and even if it does, is likely
+   * to be slower than using the proper libpqxx functions.
+   *
+   * @warning Actual definition of the prepared statement on the backend may be
+   * deferred until its first use, which means that any errors in the prepared
+   * statement may not show up until it is executed--and perhaps abort the
+   * ongoing transaction in the process.
+   */
+  template<typename STRING, typename ITER>
+    result exec_prepared(STRING qname, ITER beginargs, ITER endargs)	//[t85]
+  {
+    if (beginargs == endargs) return exec_prepared(qname);
+
+    typedef PGSTD::vector<PGSTD::string> pvec;
+    pvec p;
+    for (; beginargs!=endargs; ++beginargs) p.push_back(to_string(*beginargs));
+    const char **const pindex = new const char *[p.size()+1];
+    result r;
+    try
+    {
+      const pvec::size_type stop = p.size();
+      for (pvec::size_type i=0; i < stop; ++i) pindex[i] = p[i].c_str();
+      pindex[stop] = 0;
+      r = m_Conn.pq_exec_prepared(qname, p.size(), pindex);
+    }
+    catch (const PGSTD::exception &)
+    {
+      delete [] pindex;
+      throw;
+    }
+    delete [] pindex;
+    return r;
+  }
+
+  /// Execute prepared statement, taking arguments from given container
+  /** Prepared statements are defined using the connection classes' prepare()
+   * functions, and continue to live on in the ongoing session regardless of
+   * the context they were defined in (unless explicitly dropped using the
+   * connection's unprepare() function).  Their execution however, like other
+   * forms of query execution, requires a transaction object.
+   *
+   * @warning Do not try to execute a prepared statement manually through direct
+   * SQL statements.  This is likely not to work, and even if it does, is likely
+   * to be slower than using the proper libpqxx functions.
+   *
+   * @warning Actual definition of the prepared statement on the backend may be
+   * deferred until its first use, which means that any errors in the prepared
+   * statement may not show up until it is executed--and perhaps abort the
+   * ongoing transaction in the process.
+   */
+  template<typename CNTNR> result exec_prepared(const char qname[],	//[t85]
+      const CNTNR &args)
+  	{ return exec_prepared(qname, args.begin(), args.end()); }
+
+  /// Execute prepared statement, taking arguments from given container
+  /** Prepared statements are defined using the connection classes' prepare()
+   * functions, and continue to live on in the ongoing session regardless of
+   * the context they were defined in (unless explicitly dropped using the
+   * connection's unprepare() function).  Their execution however, like other
+   * forms of query execution, requires a transaction object.
+   *
+   * @warning Do not try to execute a prepared statement manually through direct
+   * SQL statements.  This is likely not to work, and even if it does, is likely
+   * to be slower than using the proper libpqxx functions.
+   *
+   * @warning Actual definition of the prepared statement on the backend may be
+   * deferred until its first use, which means that any errors in the prepared
+   * statement may not show up until it is executed--and perhaps abort the
+   * ongoing transaction in the process.
+   */
+  template<typename CNTNR>
+    result exec_prepared(const PGSTD::string &qname, CNTNR args)	//[t85]
+  	{ return exec_prepared(qname, args.begin(), args.end()); }
+
   /// Have connection process warning message
   void process_notice(const char Msg[]) const 				//[t14]
   	{ m_Conn.process_notice(Msg); }
