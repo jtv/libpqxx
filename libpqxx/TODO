@@ -1,4 +1,5 @@
 Build system
+(*) Make new-style headers include "real" headers (with names ending in .hpp)
 (*) Check for <sstream> presence (and what if it ain't there?)
 (*) Completely support building outside the source directory
 (*) Make Makefile translate tutorial to HTML
