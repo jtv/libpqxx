@@ -11,6 +11,7 @@ configure.lineno
 configure-stamp
 install-sh
 libpqxx.pc
+libpqxx-sourcenav.proj
 libpqxx.spec
 libtool
 missing
@@ -18,3 +19,4 @@ mkinstalldirs
 pqxx-config
 stamp-h2.in
 *.swp
+.snprj
