@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 1.3.6, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 1.3.7, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 1.3.6)
+AM_INIT_AUTOMAKE(libpqxx, 1.3.7)
 
 # Library version numbering - see "info libtool versioning 'libtool
 # versioning'" for details.
@@ -207,7 +207,6 @@ AC_TRY_COMPILE(
 	,select_h=no
 )
 AC_MSG_RESULT($select_h)
-AC_LANG_POP(C++)
 
 AC_MSG_CHECKING([InvalidOid])
 AH_TEMPLATE(InvalidOid,[Do we have InvalidOid definition?])
@@ -227,13 +226,11 @@ AC_CHECK_DECL(PQescapeString,
 	[AC_DEFINE(HAVE_PQESCAPESTRING, 1, [Define if PostgreSQL has PQescapeString()])],
 	[pqescapestring=no],
 	[#include <${with_postgres_include}/libpq-fe.h]>)
-AC_MSG_RESULT($pqescapestring)
 
-AC_LANG_PUSH(C++)
 AC_CHECK_HEADERS([limits iterator])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_MSG_CHECKING(whether <iterator> defines a usable iterator template)
+AC_MSG_CHECKING([whether <iterator> defines a usable iterator template])
 AC_TRY_COMPILE([#include <iterator>], 
 	[struct I:std::iterator<std::random_access_iterator_tag,int>{}],
 	[it='yes'],
