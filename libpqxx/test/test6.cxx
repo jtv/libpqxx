@@ -35,6 +35,30 @@ using namespace pqxx;
 namespace
 {
 
+class CreateTable : public Transactor
+{
+  string m_Table;
+
+public:
+  CreateTable(string Table) : m_Table(Table) {}
+
+  void operator()(TRANSACTIONTYPE &T)
+  {
+    // Attempt to create table.  Ignore errors, as they're probably one of:
+    // (1) Table already exists--fine with us
+    // (2) Something else is wrong--we'll just fail later on anyway
+    try
+    {
+      T.Exec(("CREATE TABLE " + m_Table + 
+	      "(year INTEGER, event TEXT)").c_str());
+      cout << "Table " << m_Table << " created." << endl;
+    }
+    catch (const exception &e)
+    {
+    }
+  }
+};
+
 class ClearTable : public Transactor
 {
   string m_Table;
@@ -123,6 +147,7 @@ int main(int argc, char *argv[])
     // Set up a transaction to access the original table from
     Transaction orgTrans(orgC, "test6org");
 
+    dstC.Perform(CreateTable(dstTable));
     dstC.Perform(ClearTable(dstTable));
     dstC.Perform(CopyTable(orgTrans, orgTable, dstTable));
   }
