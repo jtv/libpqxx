@@ -34,7 +34,8 @@ various BSD systems, etc.  Windows users should skip to the Building on Windows
 section, unless they have a Unix-like environment like Cygwin installed.
 
 
-To get started quickly on a Unix-like system, do:
+Unless you already have the library in binary form, libpqxx will need to be
+compiled first.  To get started quickly on a Unix-like system, do:
 
 ./configure	# (plus suitable preparation, to set up the build environment)
 make		# (to build the library)
@@ -319,6 +320,38 @@ Postgres connection string (see below), create a "work" in the context of that
 connection, and run one or more queries on the work which return "result"
 objects.  The results are containers of rows of data, each of which you can
 treat as an array of strings: one for each field in the row.  It's that simple.
+
+Here is a simple example program to get you going, with full error handling:
+
+	#include <iostream>
+	#include <pqxx/pqxx>
+
+	using namespace std;
+	using namespace pqxx;
+
+	int main()
+	{
+		try
+		{
+			connection C("");
+			work W(C);
+			result R = W.exec("SELECT name FROM employee");
+
+			for (result::const_iterator r = R.begin();
+			     r != R.end();
+			     ++r)
+			{
+				cout << r[0].c_str() << endl;
+			}
+		}
+		catch (const exception &e)
+		{
+			cerr << e.what() << endl;
+			return 1;
+		}
+		return 0;
+	}
+
 
 Connection strings
 
