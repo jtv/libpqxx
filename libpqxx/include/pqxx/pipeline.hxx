@@ -66,6 +66,11 @@ public:
   ~pipeline();
 
   /// Add query to the pipeline.
+  /** Queries are accumulated in the pipeline and sent to the backend in a
+   * concatenated format, separated by semicolons.  The queries you insert must
+   * not use this construct themselves, or the pipeline will get hopelessly
+   * confused!
+   */
   query_id insert(const PGSTD::string &);				//[t69]
 
   /// Wait for all ongoing or pending operations to complete
@@ -133,6 +138,7 @@ private:
   PGSTD::map<query_id, result> m_completed;
   query_id m_nextid;
   bool m_retain;
+  bool m_error;
 
   /// Not allowed
   pipeline(const pipeline &);

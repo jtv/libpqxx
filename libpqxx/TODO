@@ -8,6 +8,7 @@ Connections
 (*) Separate failed_connection exception type if connection never succeeds?
 (*) Connection pooling support
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
+(*) libpqxx-level trace output
 
 Cursors
 (*) Provide iterator interface
@@ -16,9 +17,6 @@ Cursors
 
 Large Objects
 (*) Support lo_tell()
-
-Pipeline
-(*) Implement Bart's brilliant fix for recognizing syntax errors
 
 Results
 (*) Conceive metadata model
