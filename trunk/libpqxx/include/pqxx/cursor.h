@@ -31,7 +31,9 @@ class result;
 
 
 // Work around bug in CodeWarrior 8.3
+#ifdef __MWERKS__
 #pragma defer_defarg_parsing on
+#endif
 
 
 /// SQL cursor class.
