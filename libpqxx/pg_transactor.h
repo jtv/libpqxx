@@ -66,10 +66,10 @@ public:
   // If your OnCommit() function should throw an exception, the actual back-end 
   // transaction will still be committed so the effects on the database remain.
   // The OnAbort() function is not allowed to throw exceptions at all.
-  void OnAbort(const char Reason[]) throw () {}				//[]
-  void OnCommit() {}							//[]
+  void OnAbort(const char Reason[]) throw () {}				//[t13]
+  void OnCommit() {}							//[t6]
 
-  PGSTD::string Name() const { return m_Name; }				//[]
+  PGSTD::string Name() const { return m_Name; }				//[t13]
 
 private:
   PGSTD::string m_Name;
