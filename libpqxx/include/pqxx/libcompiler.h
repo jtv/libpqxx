@@ -29,6 +29,15 @@ typedef long ptrdiff_t;
 #ifdef PQXX_BROKEN_ITERATOR
 #include <cstddef>
 #include <cstdlib>
+/// Alias for the std namespace to accomodate nonstandard C++ implementations
+/** The PGSTD name will almost always be defined to mean std.  The exception are
+ * third-party C++ standard library implementations that use a different 
+ * namespace to avoid conflicts with the standard library that came with the
+ * compiler.
+ *
+ * Some definitions that appear missing in the standard library of the host
+ * system may be added to get libpqxx working.
+ */
 namespace PGSTD
 {
 /// Work around lacking iterator template definition in <iterator>
