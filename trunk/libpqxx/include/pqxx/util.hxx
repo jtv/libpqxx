@@ -675,6 +675,9 @@ private:
 };
 
 /// Sleep for the given number of seconds
+/** May return early, e.g. when interrupted by a signal.  Completes instantly if
+ * a zero or negative sleep time is requested.
+ */
 void PQXX_LIBEXPORT sleep_seconds(int);
 
 } // namespace internal
