@@ -87,6 +87,13 @@ int main(int, char *argv[])
 	                    "row " + ToString(i) + ": "
 			    "Expected '" + A + "', "
 			    "got '" + B + "'");
+
+	CR[i][0].to(B);
+	if (A != B)
+	  throw logic_error("BlockSize " + ToString(BlockSize) + ", "
+	                    "row " + ToString(i) + ": "
+			    "at() gives '" + A + "', "
+			    "[] gives '" + B + "'");
       }
     }
   }

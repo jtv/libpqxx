@@ -63,7 +63,7 @@ public:
   /// Exception thrown when cursor position is requested, but is unknown
   struct unknown_position : PGSTD::runtime_error
   {
-    unknown_position(const PGSTD::string &cursorname) :
+    unknown_position(const PGSTD::string &cursorname) :			//[]
       PGSTD::runtime_error("Position for cursor '" + cursorname + "' "
 	                   "is unknown") 
     {
@@ -108,9 +108,9 @@ public:
    * exception during the operation will leave the cursor in an unknown 
    * position.
    */
-  size_type Move(size_type Count);					//[]
+  size_type Move(size_type Count);					//[t42]
 
-  void MoveTo(size_type);
+  void MoveTo(size_type);						//[t44]
 
   /// Constant: "next fetch/move should span as many rows as possible."
   /** If the number of rows ahead exceeds the largest number your machine can
@@ -167,7 +167,7 @@ public:
    * to compute its size until it has been moved to one of the two imaginary
    * rows on either side of the actual result set.
    */
-  size_type size() const throw () { return m_Size; }
+  size_type size() const throw () { return m_Size; }			//[t44]
 
   /// Current cursor position.
   /** If an exception occurs while moving or fetching, the cursor's position may

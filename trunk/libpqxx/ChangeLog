@@ -1,4 +1,9 @@
 2003-01-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/cursor.cxx:
+  - Fixed positioning bug when walking off right edge of result set
+ test/test44.cxx:
+  - New
+2003-01-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cursor.h, src/cursor.cxx:
   - Rewrote positioning code.  SEEMS TO WORK NOW!
   - Added size()
