@@ -35,7 +35,7 @@ pqxx::tablewriter::tablewriter(transaction_base &T,
 }
 
 
-pqxx::tablewriter::~tablewriter()
+pqxx::tablewriter::~tablewriter() throw ()
 {
   try
   {

@@ -197,7 +197,7 @@ public:
 		    openmode mode = 
 			PGSTD::ios::in | PGSTD::ios::out);		//[t55]
 
-  ~largeobjectaccess() { close(); }
+  ~largeobjectaccess() throw () { close(); }
 
   /// Object identifier
   /** The number returned by this function identifies the large object in the
@@ -285,6 +285,10 @@ public:
    */
   off_type cread(char Buf[], size_type Len) throw ();			//[t50]
 
+
+  /// Issue message to transaction's notice processor
+  void process_notice(const PGSTD::string &);				//[]
+
   using largeobject::remove;
 
   using largeobject::operator==;
@@ -367,12 +371,15 @@ public:
     initialize(mode);
   }
 
-  virtual ~largeobject_streambuf()
+  virtual ~largeobject_streambuf() throw ()
   {
     delete [] m_P;
     delete [] m_G;
   }
 
+
+  /// For use by large object stream classes
+  void process_notice(const PGSTD::string &s) { m_Obj.process_notice(s); }
 
 #ifdef PQXX_HAVE_STREAMBUF
 protected:
@@ -580,12 +587,18 @@ public:
 
   ~basic_olostream() 
   { 
-    // TODO: Catch & report exceptions
+    try
+    {
 #ifdef PQXX_HAVE_STREAMBUF
-    m_Buf.pubsync(); m_Buf.pubsync(); 
+      m_Buf.pubsync(); m_Buf.pubsync(); 
 #else
-    m_Buf.sync(); m_Buf.sync();
+      m_Buf.sync(); m_Buf.sync();
 #endif
+    }
+    catch (const PGSTD::exception &e)
+    {
+      m_Buf.process_notice(e.what());
+    }
   }
 
 private:
@@ -653,12 +666,18 @@ public:
 
   ~basic_lostream() 
   {
-    // TODO: Catch & report exceptions
+    try
+    {
 #ifdef PQXX_HAVE_STREAMBUF
-    m_Buf.pubsync(); m_Buf.pubsync(); 
+      m_Buf.pubsync(); m_Buf.pubsync(); 
 #else
-    m_Buf.sync(); m_Buf.sync();
+      m_Buf.sync(); m_Buf.sync();
 #endif
+    }
+    catch (const PGSTD::exception &e)
+    {
+      m_Buf.process_notice(e.what());
+    }
   }
 
 private:

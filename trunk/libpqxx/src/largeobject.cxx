@@ -237,3 +237,9 @@ string pqxx::largeobjectaccess::Reason() const
   return (m_fd == -1) ? "No object opened" : largeobject::Reason();
 }
 
+
+void pqxx::largeobjectaccess::process_notice(const string &s)
+{
+  m_Trans.process_notice(s);
+}
+

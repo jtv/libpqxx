@@ -35,7 +35,7 @@ pqxx::tablereader::tablereader(transaction_base &T,
 }
 
 
-pqxx::tablereader::~tablereader()
+pqxx::tablereader::~tablereader() throw ()
 {
   try
   {

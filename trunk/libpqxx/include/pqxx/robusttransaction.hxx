@@ -8,7 +8,7 @@
  *   pqxx::robusttransaction is a slower but safer transaction class
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/robusttransaction instead.
  *
- * Copyright (c) 2002-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -19,7 +19,7 @@
 #include "pqxx/dbtransaction"
 
 
-/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+/* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
 
 
@@ -60,11 +60,14 @@ private:
   bool CheckTransactionRecord(IDType ID);
 };
 
+namespace internal
+{
 /// Human-readable class names for use by unique template.
 template<> inline PGSTD::string Classname(const basic_robusttransaction *) 
 { 
   return "basic_robusttransaction"; 
 }
+} // namespace internal
 
 
 
@@ -147,7 +150,7 @@ public:
     basic_robusttransaction(C, isolation_tag::name(), TName)
     	{ Begin(); }
 
-  virtual ~robusttransaction() { End(); }
+  virtual ~robusttransaction() throw () { End(); }
 };
 
 

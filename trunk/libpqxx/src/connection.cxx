@@ -42,7 +42,7 @@ pqxx::connection::connection(const char ConnInfo[]) :
 }
 
 // Work around problem with Sun CC 5.1
-pqxx::connection::~connection()
+pqxx::connection::~connection() throw ()
 {
 }
 
@@ -81,13 +81,13 @@ pqxx::lazyconnection::lazyconnection(const char ConnInfo[]) :
 
 
 // Work around problem with Sun CC 5.1
-pqxx::lazyconnection::~lazyconnection()
+pqxx::lazyconnection::~lazyconnection() throw ()
 {
 }
 
 
 // Work around problem with Sun CC 5.1
-pqxx::asyncconnection::~asyncconnection()
+pqxx::asyncconnection::~asyncconnection() throw ()
 {
 }
 

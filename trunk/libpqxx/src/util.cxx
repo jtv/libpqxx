@@ -23,7 +23,7 @@
 using namespace PGSTD;
 
 
-void pqxx::FromString_string(const char Str[], string &Obj)
+void pqxx::internal::FromString_string(const char Str[], string &Obj)
 {
   if (!Str)
     throw runtime_error("Attempt to convert NULL C string to C++ string");
@@ -31,7 +31,8 @@ void pqxx::FromString_string(const char Str[], string &Obj)
 }
 
 
-void pqxx::FromString_ucharptr(const char Str[], const unsigned char *&Obj)
+void pqxx::internal::FromString_ucharptr(const char Str[], 
+    const unsigned char *&Obj)
 {
   const char *C;
   FromString(Str, C);
@@ -39,7 +40,7 @@ void pqxx::FromString_ucharptr(const char Str[], const unsigned char *&Obj)
 }
 
 
-void pqxx::FromString_bool(const char Str[], bool &Obj)
+void pqxx::internal::FromString_bool(const char Str[], bool &Obj)
 {
   if (!Str)
     throw runtime_error("Attempt to read NULL string");
@@ -92,7 +93,7 @@ void pqxx::FromString_bool(const char Str[], bool &Obj)
 }
 
 
-string pqxx::Quote_string(const string &Obj, bool EmptyIsNull)
+string pqxx::internal::Quote_string(const string &Obj, bool EmptyIsNull)
 {
   if (EmptyIsNull && Obj.empty()) return "null";
 
@@ -145,17 +146,17 @@ string pqxx::Quote_string(const string &Obj, bool EmptyIsNull)
 }
 
 
-string pqxx::Quote_charptr(const char Obj[], bool EmptyIsNull)
+string pqxx::internal::Quote_charptr(const char Obj[], bool EmptyIsNull)
 {
   if (!Obj) return "null";
   return Quote(string(Obj), EmptyIsNull);
 }
 
 
-string pqxx::UniqueRegisterError(const void *New,
-    				 const void *Old,
-				 const string &ClassName,
-				 const string &NewName)
+string pqxx::internal::UniqueRegisterError(const void *New,
+	const void *Old,
+	const string &ClassName,
+	const string &NewName)
 {
   string Result;
   if (!New) 
@@ -174,11 +175,11 @@ string pqxx::UniqueRegisterError(const void *New,
 }
 
 
-string pqxx::UniqueUnregisterError(const void *New,
-    				   const void *Old,
-				   const string &ClassName,
-				   const string &NewName,
-				   const string &OldName)
+string pqxx::internal::UniqueUnregisterError(const void *New,
+	const void *Old,
+	const string &ClassName,
+	const string &NewName,
+	const string &OldName)
 {
   string Result;
   if (!New) 

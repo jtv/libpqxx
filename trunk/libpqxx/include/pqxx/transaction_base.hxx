@@ -9,7 +9,7 @@
  *   represents a database transaction
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction_base instead.
  *
- * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -31,7 +31,7 @@
 #include "pqxx/isolation"
 #include "pqxx/result"
 
-/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+/* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
 
 
@@ -42,11 +42,15 @@ class result; 		// See pqxx/result.h
 class tablestream;	// See pqxx/tablestream.h
 
 
+namespace internal
+{
+// TODO: Replace by sessionfocus setup
 /// User-readable class name for use by unique
 template<> inline PGSTD::string Classname(const tablestream *) 
 { 
   return "tablestream"; 
 }
+} // namespace internal
 
 
 /// Interface definition (and common code) for "transaction" classes.  

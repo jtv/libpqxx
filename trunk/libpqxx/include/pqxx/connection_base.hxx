@@ -50,16 +50,19 @@ class trigger;
  */
 struct PQXX_LIBEXPORT noticer : PGSTD::unary_function<const char[], void>
 {
-  virtual ~noticer() {}  
+  virtual ~noticer() throw () {}  
   virtual void operator()(const char Msg[]) throw () =0;
 };
 
 
+namespace internal
+{
 /// Human-readable class names for use by unique template.
 template<> inline PGSTD::string Classname(const transaction_base *) 
 { 
   return "transaction_base"; 
 }
+} // namespace internal
 
 
 /// connection_base abstract base class; represents a connection to a database.

@@ -8,7 +8,7 @@
  *   pqxx::tablestream provides optimized batch access to a database table
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablestream instead.
  *
- * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -20,7 +20,7 @@
 
 #include "pqxx/libcompiler.h"
 
-/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+/* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
 
 
@@ -47,7 +47,7 @@ public:
   tablestream(transaction_base &Trans, 
 	      const PGSTD::string &Name, 
 	      const PGSTD::string &Null=PGSTD::string());		//[t6]
-  virtual ~tablestream() =0;						//[t6]
+  virtual ~tablestream() throw () =0;					//[t6]
 
   const PGSTD::string &name() const { return m_Name; }			//[t10]
 

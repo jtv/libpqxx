@@ -7,7 +7,7 @@
  *      Various utility definitions for libpqxx
  *      DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/util instead.
  *
- * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -58,6 +58,8 @@ const oid oid_none = InvalidOid;
 template<typename T> void error_unsupported_type_in_string_conversion(T);
 
 
+namespace internal
+{
 /// C-style format strings for various built-in types
 /** Only allowed for certain types, for which this function is explicitly 
  * specialized.  When attempting to use the template for an unsupported type,
@@ -86,6 +88,7 @@ template<> inline const char *FmtString(long double)   { return "%Lf"; }
 template<> inline const char *FmtString(char)          { return  "%c"; }
 template<> inline const char *FmtString(unsigned char) { return  "%c"; }
 
+} // namespace internal
 
 /// Convert object of built-in type to string
 /** Caution: the conversion is done using the currently active locale, whereas
@@ -99,7 +102,7 @@ template<typename T> inline PGSTD::string ToString(const T &Obj)
 {
   // TODO: Find a decent way to determine max string length at compile time!
   char Buf[500];
-  sprintf(Buf, FmtString(Obj), Obj);
+  sprintf(Buf, internal::FmtString(Obj), Obj);
   return PGSTD::string(Buf);
 }
 
@@ -143,45 +146,51 @@ template<typename T> inline void FromString(const char Str[], T &Obj)
   if (!Str) throw PGSTD::runtime_error("Attempt to convert NULL string to " +
 		                     PGSTD::string(typeid(T).name()));
 
-  if (sscanf(Str, FmtString(Obj), &Obj) != 1)
+  if (sscanf(Str, internal::FmtString(Obj), &Obj) != 1)
     throw PGSTD::runtime_error("Cannot convert value '" + 
 		             PGSTD::string(Str) + 
 			     "' to " + typeid(T).name());
 }
 
 
+namespace internal
+{
 /// For libpqxx internal use only: convert C string to C++ string
 void FromString_string(const char Str[], PGSTD::string &Obj);
 
-
-template<> inline void FromString(const char Str[], PGSTD::string &Obj)
-{
-  FromString_string(Str, Obj);
-}
-
-
-template<> inline void FromString(const char Str[], const char *&Obj)
-{
-  if (!Str)
-    throw PGSTD::runtime_error("Attempt to read NULL string");
-  Obj = Str;
-}
-
-
+/// For libpqxx internal use only: convert unsigned char * to C++ string
 void FromString_ucharptr(const char Str[], const unsigned char *&Obj);
-
-template<> inline void FromString(const char Str[], const unsigned char *&Obj)
-{
-  FromString_ucharptr(Str, Obj);
-}
-
 
 /// For libpqxx internal use only: convert string to bool
 void FromString_bool(const char Str[], bool &Obj);
 
+/// For libpqxx internal use only: quote std::string
+PGSTD::string Quote_string(const PGSTD::string &Obj, bool EmptyIsNull);
+
+/// For libpqxx internal use only: quote const char *
+PGSTD::string Quote_charptr(const char Obj[], bool EmptyIsNull);
+} // namespace internal
+
+
+template<> inline void FromString(const char Str[], PGSTD::string &Obj)
+{
+  internal::FromString_string(Str, Obj);
+}
+
+template<> inline void FromString(const char Str[], const char *&Obj)
+{
+  if (!Str) throw PGSTD::runtime_error("Attempt to read NULL string");
+  Obj = Str;
+}
+
+template<> inline void FromString(const char Str[], const unsigned char *&Obj)
+{
+  internal::FromString_ucharptr(Str, Obj);
+}
+
 template<> inline void FromString(const char Str[], bool &Obj)
 {
-  FromString_bool(Str, Obj);
+  internal::FromString_bool(Str, Obj);
 }
 
 
@@ -192,25 +201,17 @@ template<> inline void FromString(const char Str[], bool &Obj)
 template<typename T> PGSTD::string Quote(const T &Obj, bool EmptyIsNull);
 
 
-/// For libpqxx internal use only: quote std::string
-PGSTD::string Quote_string(const PGSTD::string &Obj, bool EmptyIsNull);
-
-
 /// std::string version, on which the other versions are built
 template<> 
 inline PGSTD::string Quote(const PGSTD::string &Obj, bool EmptyIsNull)
 {
-  return Quote_string(Obj, EmptyIsNull);
+  return internal::Quote_string(Obj, EmptyIsNull);
 }
-
-/// For libpqxx internal use only: quote const char *
-PGSTD::string Quote_charptr(const char Obj[], bool EmptyIsNull);
-
 
 /// Special case for const char *, accepting null pointer as null value
 template<> inline PGSTD::string Quote(const char *const & Obj, bool EmptyIsNull)
 {
-  return Quote_charptr(Obj, EmptyIsNull);
+  return internal::Quote_charptr(Obj, EmptyIsNull);
 }
 
 
@@ -223,7 +224,7 @@ template<> inline PGSTD::string Quote(const char *const & Obj, bool EmptyIsNull)
 template<int LEN> inline PGSTD::string Quote(const char (&Obj)[LEN],
     					     bool EmptyIsNull)		//[t18]
 {
-  return Quote_charptr(Obj, EmptyIsNull);
+  return internal::Quote_charptr(Obj, EmptyIsNull);
 }
 
 
@@ -245,9 +246,10 @@ template<typename T> inline PGSTD::string Quote(T Obj)
 }
 
 
+namespace internal
+{
 /// Return user-readable name for a class.  Specialize this whereever used.
 template<typename T> PGSTD::string Classname(const T *);
-
 
 /// Keep track of a libpq-allocated pointer to be free()d automatically.
 /** Ownership policy is simple: object dies when PQAlloc object's value does.
@@ -267,7 +269,7 @@ public:
   /// Assume ownership of a pointer
   explicit PQAlloc(T *obj) : m_Obj(obj) {}
 
-  ~PQAlloc() { close(); }
+  ~PQAlloc() throw () { close(); }
 
   /// Assume ownership of a pointer, freeing the previous one (if any)
   /** If the new and the old pointer are identical, no action is performed.
@@ -350,6 +352,7 @@ PGSTD::string UniqueUnregisterError(const void *New,
 				    const PGSTD::string &ClassName,
 				    const PGSTD::string &NewName,
 				    const PGSTD::string &OldName);
+} // namespace internal
 
 
 /// Ensure proper opening/closing of GUEST objects related to a "host" object
@@ -373,7 +376,7 @@ public:
     if (!G || m_Guest)
       throw PGSTD::logic_error(UniqueRegisterError(G,
 	    m_Guest,
-	    Classname(G),
+	    internal::Classname(G),
 	    (G ? G->name() : "")));
 
     m_Guest = G;
@@ -384,7 +387,7 @@ public:
     if (G != m_Guest)
       throw PGSTD::logic_error(UniqueUnregisterError(G, 
 	  m_Guest,
-	  Classname(G),
+	  internal::Classname(G),
 	  (G ? G->name() : ""),
 	  (m_Guest ? m_Guest->name() : "")));
 
@@ -401,4 +404,9 @@ private:
 
 }
 
+/** \defgroup pqxx::internal
+ * This namespace hides definitions internal to libpqxx.  These are not supposed
+ * to be used by client programs, and may change at any time without notice.
+ * Here be dragons!
+ */
 

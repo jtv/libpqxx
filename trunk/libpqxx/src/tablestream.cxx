@@ -34,7 +34,7 @@ pqxx::tablestream::tablestream(transaction_base &STrans,
 }
 
 
-pqxx::tablestream::~tablestream()
+pqxx::tablestream::~tablestream() throw ()
 {
 }
 
