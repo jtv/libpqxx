@@ -28,7 +28,8 @@ pqxx::tablestream::tablestream(transaction_base &STrans,
 			       const string &Null) :
   m_Trans(STrans),
   m_Name(SName),
-  m_Null(Null)
+  m_Null(Null),
+  m_Finished(false)
 {
   STrans.RegisterStream(this);
 }
@@ -36,7 +37,20 @@ pqxx::tablestream::tablestream(transaction_base &STrans,
 
 pqxx::tablestream::~tablestream()
 {
-  m_Trans.UnregisterStream(this);
-  m_Trans.EndCopy();
 }
+
+
+void pqxx::tablestream::base_close()
+{
+  m_Finished = true;
+  m_Trans.UnregisterStream(this);
+  Trans().EndCopy();
+}
+
+
+void pqxx::tablestream::RegisterPendingError(const string &Err) throw ()
+{
+  m_Trans.RegisterPendingError(Err);
+}
+
 

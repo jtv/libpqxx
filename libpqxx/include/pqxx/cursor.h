@@ -67,9 +67,6 @@ class result;
 class PQXX_LIBEXPORT Cursor
 {
 public:
-  // TODO: Split Cursor into different levels of intelligence
-  // TODO: Forward-only cursors
-  // TODO: Iterator interface (random-access==absolute)
   typedef result::size_type size_type;
 
   enum pos { pos_unknown = -1, pos_start = 0 };
@@ -84,7 +81,6 @@ public:
     }
   };
 
-  // TODO: Allow usage of SCROLL ("DECLARE foo SCROLL CURSOR FOR ...")
   /// Constructor.  Creates a cursor.
   /** 
    * @param T is the transaction that this cursor lives in.

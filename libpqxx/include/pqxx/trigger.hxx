@@ -45,7 +45,6 @@ namespace pqxx
  */
 class PQXX_LIBEXPORT trigger : public PGSTD::unary_function<int, void>
 {
-  // TODO: Rename to trigger
 public:
   /// Constructor.  Registers the trigger with connection C.
   /**

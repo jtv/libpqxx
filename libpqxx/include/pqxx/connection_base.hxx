@@ -329,9 +329,9 @@ private:
   bool ReadCopyLine(PGSTD::string &);
   void BeginCopyWrite(const PGSTD::string &Table);
   void WriteCopyLine(const PGSTD::string &);
-  void EndCopyWrite() throw ();
+  void EndCopyWrite();
 
-  void EndCopy() throw ()
+  void EndCopy()
 #ifdef PQXX_HAVE_PQPUTCOPY
   {}
 #else

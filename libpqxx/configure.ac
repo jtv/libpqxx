@@ -1,14 +1,14 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 2.1.2, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 2.1.3, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 2.1.2)
+AM_INIT_AUTOMAKE(libpqxx, 2.1.3)
 
 # Library version numbering - see "info libtool versioning 'libtool
 # versioning'" for details.
-abi_current=2
+abi_current=3
 abi_revision=0
-abi_age=1
+abi_age=0
 sonumber=${abi_current}:${abi_revision}:${abi_age}
 AC_SUBST(sonumber)
 
@@ -312,13 +312,13 @@ AC_CHECK_DECL(PQftable,
 	[pqftable=no],
 	[#include <${with_postgres_include}/libpq-fe.h>])
 
-#AC_MSG_CHECKING([for new COPY functions])
-#AH_TEMPLATE(PQputCopyData,[Do we have PQputCopyData() and related functions?])
-#pqputcopy=yes
-#AC_CHECK_DECL(PQputCopyData,
-#	[AC_DEFINE(PQXX_HAVE_PQPUTCOPY, 1, [Define if PostgreSQL has PQputCopyData() and related functions])],
-#	[pqputcopy=no],
-#	[#include <${with_postgres_include}/libpq-fe.h>])
+AC_MSG_CHECKING([for new COPY functions])
+AH_TEMPLATE(PQputCopyData,[Do we have PQputCopyData() and related functions?])
+pqputcopy=yes
+AC_CHECK_DECL(PQputCopyData,
+	[AC_DEFINE(PQXX_HAVE_PQPUTCOPY, 1, [Define if PostgreSQL has PQputCopyData() and related functions])],
+	[pqputcopy=no],
+	[#include <${with_postgres_include}/libpq-fe.h>])
 
 AC_LANG_PUSH(C++)
 AC_CHECK_HEADERS([limits iterator])

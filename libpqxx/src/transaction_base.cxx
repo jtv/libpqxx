@@ -36,7 +36,8 @@ pqxx::transaction_base::transaction_base(connection_base &C,
   m_UniqueCursorNum(1),
   m_Stream(),
   m_Status(st_nascent),
-  m_Registered(false)
+  m_Registered(false),
+  m_PendingError()
 {
   m_Conn.RegisterTransaction(this);
   m_Registered = true;
@@ -45,17 +46,29 @@ pqxx::transaction_base::transaction_base(connection_base &C,
 
 pqxx::transaction_base::~transaction_base()
 {
-  if (m_Registered)
+  try
   {
-    m_Conn.process_notice("Transaction '" + m_Name + "' "
-		          "was never closed properly!\n");
-    m_Conn.UnregisterTransaction(this);
+    if (!m_PendingError.empty())
+      process_notice("UNPROCESSED ERROR: " + m_PendingError + "\n");
+
+    if (m_Registered)
+    {
+      m_Conn.process_notice("Transaction '" + m_Name + "' "
+		            "was never closed properly!\n");
+      m_Conn.UnregisterTransaction(this);
+    }
+  }
+  catch (const exception &e)
+  {
+    process_notice(string(e.what()) + "\n");
   }
 }
 
 
 void pqxx::transaction_base::commit()
 {
+  CheckPendingError();
+
   // Check previous status code.  Caller should only call this function if
   // we're in "implicit" state, but multiple commits are silently accepted.
   switch (m_Status)
@@ -166,6 +179,8 @@ void pqxx::transaction_base::abort()
 pqxx::result pqxx::transaction_base::exec(const char Query[],
     					const string &Desc)
 {
+  CheckPendingError();
+
   const string N = (Desc.empty() ? "" : "'" + Desc + "'");
 
   if (m_Stream.get())
@@ -251,6 +266,8 @@ void pqxx::transaction_base::End() throw ()
     m_Conn.UnregisterTransaction(this);
     m_Registered = false;
 
+    CheckPendingError();
+
     if (m_Stream.get())
       m_Conn.process_notice("Closing transaction '" +
 		            name() +
@@ -291,6 +308,44 @@ pqxx::result pqxx::transaction_base::DirectExec(const char C[],
 		                      int Retries,
 				      const char OnReconnect[])
 {
+  CheckPendingError();
   return m_Conn.Exec(C, Retries, OnReconnect);
 }
+
+
+void pqxx::transaction_base::RegisterPendingError(const string &Err) throw ()
+{
+  if (m_PendingError.empty() && !Err.empty())
+  {
+    try
+    {
+      m_PendingError = Err;
+    }
+    catch (const exception &e)
+    {
+      try
+      {
+        process_notice("UNABLE TO PROCESS ERROR\n");
+        process_notice(e.what());
+        process_notice("ERROR WAS:");
+        process_notice(Err);
+      }
+      catch (...)
+      {
+      }
+    }
+  }
+}
+
+
+void pqxx::transaction_base::CheckPendingError()
+{
+  if (!m_PendingError.empty())
+  {
+    const string Err(m_PendingError);
+    m_PendingError.clear();
+    throw runtime_error(m_PendingError);
+  }
+}
+
 

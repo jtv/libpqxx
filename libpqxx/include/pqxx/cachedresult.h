@@ -26,8 +26,6 @@
 namespace pqxx
 {
 
-// TODO: Forward-only mode of operation?  Or write separate stream class?
-
 /** Cached result set.  Chunks of result data are transparently fetched 
  * on-demand and stored in an internal cache for reuse.  Functionality is 
  * similar to that of result, with certain restrictions and different 

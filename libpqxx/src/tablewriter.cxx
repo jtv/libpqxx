@@ -24,8 +24,10 @@
 using namespace PGSTD;
 
 
-pqxx::tablewriter::tablewriter(transaction_base &T, const string &WName) :
-  tablestream(T, WName)
+pqxx::tablewriter::tablewriter(transaction_base &T, 
+    const string &WName,
+    const string &Null) :
+  tablestream(T, WName, Null)
 {
   T.BeginCopyWrite(WName);
 }
@@ -33,7 +35,14 @@ pqxx::tablewriter::tablewriter(transaction_base &T, const string &WName) :
 
 pqxx::tablewriter::~tablewriter()
 {
-  Trans().EndCopyWrite();
+  try
+  {
+    writer_close();
+  }
+  catch (const exception &e)
+  {
+    RegisterPendingError(e.what());
+  }
 }
 
 
@@ -42,7 +51,10 @@ pqxx::tablewriter &pqxx::tablewriter::operator<<(pqxx::tablereader &R)
   string Line;
   // TODO: Can we do this in binary mode? (Might require protocol version check)
   while (R.get_raw_line(Line))
+  {
+    if (!Line.empty() && (Line[Line.size()-1]=='\n')) Line.erase(Line.size()-1);
     WriteRawLine(Line);
+  }
 
   return *this;
 }
@@ -51,6 +63,91 @@ pqxx::tablewriter &pqxx::tablewriter::operator<<(pqxx::tablereader &R)
 void pqxx::tablewriter::WriteRawLine(const string &Line)
 {
   Trans().WriteCopyLine(Line);
+}
+
+
+void pqxx::tablewriter::complete()
+{
+  writer_close();
+}
+
+
+void pqxx::tablewriter::writer_close()
+{
+  if (!is_finished())
+  {
+    try 
+    { 
+      Trans().EndCopyWrite(); 
+    } 
+    catch (const exception &) 
+    {
+      try { base_close(); } catch (const exception &) {}
+      throw;
+    }
+    base_close();
+  }
+}
+
+
+namespace
+{
+inline char escapechar(char i)
+{
+  char r = '\0';
+  switch (i)
+  {
+    case 8:	r='b';	break;	// backspace
+    case 11:	r='v';	break;	// vertical tab
+    case 12:	r='f';	break;	// form feed
+    case '\n':	r='n';	break;	// newline
+    case '\t':	r='t';	break;	// tab
+    case '\r':	r='r';	break;	// carriage return
+    case '\\':	r='\\';	break;	// backslash
+  }
+  return r;
+}
+
+inline bool ishigh(char i)
+{
+  return (i & 0x80) != 0;
+}
+
+inline char tooctdigit(unsigned int i, int n)
+{
+  return '0' + ((i>>(3*n)) & 0x07);
+}
+} // namespace
+
+
+string pqxx::tablewriter::Escape(const string &S)
+{
+  if (S.empty()) return S;
+
+  string R;
+  R.reserve(S.size()+1);
+
+  for (string::const_iterator j = S.begin(); j != S.end(); ++j)
+  {
+    const char c = *j;
+    const char e = escapechar(c);
+    if (e)
+    {
+      R += '\\';
+      R += e;
+    }
+    else if (ishigh(c))
+    {
+      R += '\\';
+      unsigned char u=c;
+      for (int n=2; n>=0; --n) R += tooctdigit(u,n);
+    }
+    else
+    {
+      R += c;
+    }
+  }
+  return R;
 }
 
 
