@@ -39,12 +39,12 @@ OUTDIR=./lib
 INTDIR=./obj
 
 !IF  \"\$(CFG)\" == \"Release\"
-CPP_EXTRA=/MT /D \"NDEBUG\"
+CPP_EXTRA=/MD /D \"NDEBUG\"
 LINK32_FLAG_LIB=libpqxx.lib
 LINK32_FLAG_EXTRA=/incremental:no
 
 !ELSEIF  \"\$(CFG)\" == \"Debug\"
-CPP_EXTRA=/MTd /Gm /GZ /Zi /Od /D \"_DEBUG\"
+CPP_EXTRA=/MDd /Gm /GZ /Zi /Od /D \"_DEBUG\"
 LINK32_FLAG_LIB=libpqxxD.lib
 LINK32_FLAG_EXTRA=/incremental:yes /debug /pdbtype:sept
 

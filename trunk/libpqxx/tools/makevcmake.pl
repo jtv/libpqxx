@@ -47,26 +47,26 @@ LINK32_OBJ_EXTRA=
 !IF  "\$(CFG)" == "dll"
 BUILDTYPE=DLL
 OUTFILE=\$(OUTDIR)\\libpqxx
-CPP_EXTRAS=/MT /D "_WINDOWS" /D "_USRDLL" /D "NDEBUG"
+CPP_EXTRAS=/MD /D "_WINDOWS" /D "_USRDLL" /D "NDEBUG"
 LINK32_FLAG_EXTRA=/incremental:no
 LINK32_OBJ_EXTRA="\$(INTDIR)\\libpqxx.obj"
 
 !ELSEIF  "\$(CFG)" == "dll debug"
 BUILDTYPE=DLL
 OUTFILE=\$(OUTDIR)\\libpqxxD
-CPP_EXTRAS=/MTd /Gm /ZI /Od /D "_WINDOWS" /D "_USRDLL" /D "_DEBUG" /GZ
+CPP_EXTRAS=/MDd /Gm /ZI /Od /D "_WINDOWS" /D "_USRDLL" /D "_DEBUG" /GZ
 LINK32_FLAG_EXTRA=/incremental:yes /debug
 LINK32_OBJ_EXTRA="\$(INTDIR)\\libpqxx.obj"
 
 !ELSEIF "\$(CFG)" == "static"
 BUILDTYPE=STATIC
 OUTFILE=\$(OUTDIR)\\libpqxx_static
-CPP_EXTRAS=/MT /D "_LIB" /D "NDEBUG"
+CPP_EXTRAS=/MD /D "_LIB" /D "NDEBUG"
 
 !ELSEIF "\$(CFG)" == "static debug"
 BUILDTYPE=STATIC
 OUTFILE=\$(OUTDIR)\\libpqxx_staticD
-CPP_EXTRAS=/MTd /Gm /ZI /Od /D "_LIB" /D "_DEBUG" /GZ
+CPP_EXTRAS=/MDd /Gm /ZI /Od /D "_LIB" /D "_DEBUG" /GZ
 
 !ENDIF
 
