@@ -68,7 +68,7 @@ void FillTable(transaction_base &T, string TableName)
 
 void CheckTable(transaction_base &T, string TableName)
 {
-  result Count = T.Exec("SELECT COUNT(*) FROM " + TableName);
+  result Count = T.exec("SELECT COUNT(*) FROM " + TableName);
   size_t Rows = 0;
 
   if (!Count[0][0].to(Rows)) throw runtime_error("NULL row count!");
@@ -102,13 +102,13 @@ int main(int argc, char *argv[])
     transaction<> T(C, "test28");
 
     // Create table.  If the table already existed, better to fail now.
-    T.Exec("CREATE TABLE " + TableName + "(content VARCHAR)");
+    T.exec("CREATE TABLE " + TableName + "(content VARCHAR)");
 
     FillTable(T, TableName);
     CheckTable(T, TableName);
 
-    T.Exec("DROP TABLE " + TableName);
-    T.Commit();
+    T.exec("DROP TABLE " + TableName);
+    T.commit();
   }
   catch (const sql_error &e)
   {

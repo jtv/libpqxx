@@ -18,8 +18,8 @@
 #include <new>
 #include <stdexcept>
 
-#include "pqxx/except.h"
-#include "pqxx/result.h"
+#include "pqxx/except"
+#include "pqxx/result"
 
 
 using namespace PGSTD;
@@ -167,13 +167,13 @@ pqxx::result::GetLength(pqxx::result::size_type Row,
 
 pqxx::result::field pqxx::result::tuple::operator[](const char f[]) const
 {
-  return field(*this, m_Home->ColumnNumber(f));
+  return field(*this, m_Home->column_number(f));
 }
 
 
 pqxx::result::field pqxx::result::tuple::at(const char f[]) const
 {
-  const int fnum = m_Home->ColumnNumber(f);
+  const int fnum = m_Home->column_number(f);
   if (fnum == -1)
     throw invalid_argument(string("Unknown field '") + f + "'");
 

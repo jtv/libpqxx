@@ -63,13 +63,13 @@ int main(int argc, char *argv[])
       tablereader Verify(T, Table);
       string Line;
 
-      if (!Verify.GetRawLine(Line))
+      if (!Verify.get_raw_line(Line))
 	throw logic_error("tablereader got rows the first time around, "
 	                  "but none the second time!");
 
       cout << "First tuple was: " << endl << Line << endl;
 
-      Verify.Tokenize(Line, R);
+      Verify.tokenize(Line, R);
       if (R != First)
         throw logic_error("Got different results re-parsing first tuple!");
     }

@@ -26,35 +26,35 @@ int main(int, char *argv[])
     // Request a connection to the backend, but defer actual creation
     lazyconnection C(ConnectString);
 
-    C.ProcessNotice("Printing details on deferred connection\n");
-    const string HostName = (C.HostName() ? C.HostName() : "<local>");
-    C.ProcessNotice(string() +
-		    "database=" + C.DbName() + ", "
-		    "username=" + C.UserName() + ", "
-		    "hostname=" + HostName + ", "
-		    "port=" + ToString(C.Port()) + ", "
-		    "options='" + C.Options() + "', "
-		    "backendpid=" + ToString(C.BackendPID()) + "\n");
+    C.process_notice("Printing details on deferred connection\n");
+    const string HostName = (C.hostname() ? C.hostname() : "<local>");
+    C.process_notice(string() +
+		     "database=" + C.dbname() + ", "
+		     "username=" + C.username() + ", "
+		     "hostname=" + HostName + ", "
+		     "port=" + ToString(C.port()) + ", "
+		     "options='" + C.options() + "', "
+		     "backendpid=" + ToString(C.backendpid()) + "\n");
 
     transaction<> T(C, "test21");
 
     // By now our connection should really have been created
-    C.ProcessNotice("Printing details on actual connection\n");
-    C.ProcessNotice(string() +
-		    "database=" + C.DbName() + ", "
-		    "username=" + C.UserName() + ", "
-		    "hostname=" + HostName + ", "
-		    "port=" + ToString(C.Port()) + ", "
-		    "options='" + C.Options() + "', "
-		    "backendpid=" + ToString(C.BackendPID()) + "\n");
+    C.process_notice("Printing details on actual connection\n");
+    C.process_notice(string() +
+		     "database=" + C.dbname() + ", "
+		     "username=" + C.username() + ", "
+		     "hostname=" + HostName + ", "
+		     "port=" + ToString(C.port()) + ", "
+		     "options='" + C.options() + "', "
+		     "backendpid=" + ToString(C.backendpid()) + "\n");
 
 
-    result R( T.Exec("SELECT * FROM pg_tables") );
+    result R( T.exec("SELECT * FROM pg_tables") );
 
-    T.ProcessNotice(ToString(R.size()) + " "
-		    "result tuples in transaction " +
-		    T.Name() +
-		    "\n");
+    T.process_notice(ToString(R.size()) + " "
+		     "result tuples in transaction " +
+		     T.name() +
+		     "\n");
 
     // Process each successive result tuple
     for (result::const_iterator c = R.begin(); c != R.end(); ++c)
@@ -65,7 +65,7 @@ int main(int, char *argv[])
       cout << '\t' << ToString(c.num()) << '\t' << N << endl;
     }
 
-    T.Commit();
+    T.commit();
   }
   catch (const sql_error &e)
   {

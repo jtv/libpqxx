@@ -124,7 +124,7 @@ public:
    */
   result exec(const PGSTD::string &Query,
               const PGSTD::string &Desc=PGSTD::string()) 		//[t2]
-  	{ return Exec(Query.c_str(), Desc); }
+  	{ return exec(Query.c_str(), Desc); }
 
 #ifdef PQXX_DEPRECATED_HEADERS
   /// @deprecated Use process_notice() instead
@@ -135,10 +135,10 @@ public:
 
   /// Have connection process warning message
   void process_notice(const char Msg[]) const 				//[t14]
-  	{ m_Conn.ProcessNotice(Msg); }
+  	{ m_Conn.process_notice(Msg); }
   /// Have connection process warning message
   void process_notice(const PGSTD::string &Msg) const			//[t14]
-  	{ m_Conn.ProcessNotice(Msg); }
+  	{ m_Conn.process_notice(Msg); }
 
 #ifdef PQXX_DEPRECATED_HEADERS
   /// @deprecated Use name() instead
@@ -185,13 +185,13 @@ protected:
   void End() throw ();
 
   /// To be implemented by derived implementation class: start transaction
-  virtual void DoBegin() =0;
+  virtual void do_begin() =0;
   /// To be implemented by derived implementation class: perform query
-  virtual result DoExec(const char Query[]) =0;
+  virtual result do_exec(const char Query[]) =0;
   /// To be implemented by derived implementation class: commit transaction
-  virtual void DoCommit() =0;
+  virtual void do_commit() =0;
   /// To be implemented by derived implementation class: abort transaction
-  virtual void DoAbort() =0;
+  virtual void do_abort() =0;
 
   // For use by implementing class:
 

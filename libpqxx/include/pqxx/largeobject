@@ -119,7 +119,7 @@ public:
 protected:
   static PGconn *RawConnection(const dbtransaction &T)
   {
-    return T.Conn().RawConnection();
+    return T.conn().RawConnection();
   }
 
   PGSTD::string Reason() const;

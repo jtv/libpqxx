@@ -344,7 +344,7 @@ private:
 /// Ensure proper opening/closing of GUEST objects related to a "host" object
 /** Only a single GUEST may exist for a single host at any given time.  The 
  * template assumes that Classname<GUEST>() returns a user-readable name for the
- * guest type, and that GUEST::Name() returns a user-readable name for the GUEST
+ * guest type, and that GUEST::name() returns a user-readable name for the GUEST
  * object.
  *
  * This template used to be called Unique.
@@ -367,15 +367,15 @@ public:
       if (G == m_Guest)
         throw PGSTD::logic_error(Classname(G) +
 			         " '" +
-			         G->Name() +
+			         G->name() +
 			         "' started more than once without closing");
 
       throw PGSTD::logic_error("Started " + 
 		               Classname(G) +
 			       " '" + 
-			       G->Name() + 
+			       G->name() + 
 			       "' while '" +
-			       m_Guest->Name() +
+			       m_Guest->name() +
 			       "' was still active");
     }
     
@@ -392,15 +392,15 @@ public:
 	throw PGSTD::logic_error("Closing " + 
 			         Classname(G) +
 			         " '" +
-			         G->Name() +
+			         G->name() +
 			         "' which wasn't open");
       else
 	throw PGSTD::logic_error("Closing wrong " + 
 			         Classname(G) +
 			         "; expected '" +
-			         m_Guest->Name() +
+			         m_Guest->name() +
 			         "' but got '" +
-			         G->Name() +
+			         G->name() +
 			         "'");
     }
 

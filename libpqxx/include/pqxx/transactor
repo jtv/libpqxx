@@ -81,6 +81,7 @@ public:
   // state.  Use these to patch up runtime state to match events, if needed, or
   // to report failure conditions.
 
+  // TODO: Replace OnAbort()--is there a compatible way?
   /// Optional overridable function to be called if transaction is aborted
   /** This need not imply complete failure; the transactor will automatically
    * retry the operation a number of times before giving up.  OnAbort() will be
@@ -89,12 +90,14 @@ public:
    */
   void OnAbort(const char[]) throw () {}				//[t13]
 
+  // TODO: Replace OnCommit()--is there a compatible way?
   /// Optional overridable function to be called when committing the transaction
   /** If your OnCommit() throws an exception, the actual back-end transaction
    * will remain committed, so any changes in the database remain.
    */
   void OnCommit() {}							//[t6]
 
+  // TODO: Replace OnCommit()--is there a compatible way?
   /// Overridable function to be called when "in doubt" about success
   /** This may happen if the connection to the backend is lost while attempting
    * to commit.  In that case, the backend may have committed the transaction
@@ -107,6 +110,7 @@ public:
    */
   void OnDoubt() throw () {}						//[t13]
 
+  // TODO: Replace Name()--is there a compatible way?
   /// The transactor's name.
   PGSTD::string Name() const { return m_Name; }				//[t13]
 
@@ -129,7 +133,7 @@ private:
  * invoked.
  */
 template<typename TRANSACTOR> 
-inline void pqxx::connection_base::Perform(const TRANSACTOR &T,
+inline void pqxx::connection_base::perform(const TRANSACTOR &T,
                                            int Attempts)
 {
   if (Attempts <= 0) return;
@@ -148,7 +152,7 @@ inline void pqxx::connection_base::Perform(const TRANSACTOR &T,
     {
       typename TRANSACTOR::argument_type X(*this, T2.Name());
       T2(X);
-      X.Commit();
+      X.commit();
       Done = true;
     }
     catch (const in_doubt_error &)

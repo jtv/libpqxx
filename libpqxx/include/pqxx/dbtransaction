@@ -63,18 +63,24 @@ protected:
     m_StartCmd("START TRANSACTION ISOLATION LEVEL " + IsolationString)
   {}
 
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use startcommand() instead
+  const PGSTD::string &StartCmd() const { return startcommand(); }
+#endif
+
   /// The SQL command needed to start this type of transaction
-  const PGSTD::string &StartCmd() const { return m_StartCmd; }
+  const PGSTD::string &startcommand() const { return m_StartCmd; }
 
 private:
+
   /// To be implemented by derived class: start backend transaction
-  virtual void DoBegin() =0;
+  virtual void do_begin() =0;
   /// To be implemented by derived implementation class: perform query
-  virtual result DoExec(const char Query[]) =0;
+  virtual result do_exec(const char Query[]) =0;
   /// To be implemented by derived class: commit backend transaction
-  virtual void DoCommit() =0;
+  virtual void do_commit() =0;
   /// To be implemented by derived class: abort backend transaction
-  virtual void DoAbort() =0;
+  virtual void do_abort() =0;
 
   /// Precomputed SQL command to start this transaction
   PGSTD::string m_StartCmd;

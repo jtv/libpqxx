@@ -76,10 +76,10 @@ public:
   virtual ~nontransaction();						//[t14]
 
 private:
-  virtual void DoBegin() {}						//[t14]
-  virtual result DoExec(const char C[]);				//[t14]
-  virtual void DoCommit() {}						//[t14]
-  virtual void DoAbort() {}						//[t14]
+  virtual void do_begin() {}						//[t14]
+  virtual result do_exec(const char C[]);				//[t14]
+  virtual void do_commit() {}						//[t14]
+  virtual void do_abort() {}						//[t14]
 };
 
 

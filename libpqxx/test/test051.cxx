@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 
-#include <pqxx/all>
+#include <pqxx/pqxx>
 
 
 using namespace PGSTD;
@@ -128,8 +128,8 @@ int main(int, char *argv[])
 
     largeobject Obj;
 
-    C.Perform(WriteLargeObject(Obj));
-    C.Perform(DeleteLargeObject(Obj));
+    C.perform(WriteLargeObject(Obj));
+    C.perform(DeleteLargeObject(Obj));
   }
   catch (const sql_error &e)
   {

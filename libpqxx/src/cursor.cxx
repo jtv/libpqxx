@@ -18,8 +18,8 @@
 #include <cstdlib>
 
 #include "pqxx/cursor.h"
-#include "pqxx/result.h"
-#include "pqxx/transaction.h"
+#include "pqxx/result"
+#include "pqxx/transaction"
 
 using namespace PGSTD;
 
@@ -29,7 +29,7 @@ void pqxx::Cursor::init(const string &BaseName, const char Query[])
   // Give ourselves a locally unique name based on connection name
   m_Name += "\"" + 
             BaseName + "_" + 
-	    m_Trans.Name() + "_" + 
+	    m_Trans.name() + "_" + 
 	    ToString(m_Trans.GetUniqueCursorNum()) +
 	    "\"";
 

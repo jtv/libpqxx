@@ -38,8 +38,8 @@ int main(int argc, char *argv[])
     try
     {
       transaction<> Drop(C, "drop_" + TableName);
-      Drop.Exec(("DROP TABLE " + TableName).c_str());
-      Drop.Commit();
+      Drop.exec(("DROP TABLE " + TableName).c_str());
+      Drop.commit();
     }
     catch (const sql_error &e)
     {
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     // Now begin new transaction to create new table & write data
     transaction<> T(C, "test5");
 
-    T.Exec(("CREATE TABLE " + 
+    T.exec(("CREATE TABLE " + 
 	    TableName + 
 	    "(year INTEGER, event VARCHAR)").c_str());
 
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     }
 
     // Now that our tablewriter is closed, it's safe to commit T.
-    T.Commit();
+    T.commit();
   }
   catch (const sql_error &e)
   {

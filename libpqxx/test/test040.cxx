@@ -32,7 +32,7 @@ int main(int, char *argv[])
     const char Query[] = "SELECT * FROM pqxxevents";
 
     // Perform a query on the database, storing result tuples in R
-    result R( T.Exec(Query) );
+    result R( T.exec(Query) );
 
     string LastReason;
 

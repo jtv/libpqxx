@@ -36,8 +36,8 @@ int main(int argc, char *argv[])
     try
     {
       transaction<> Drop(C, "drop_" + TableName);
-      Drop.Exec("DROP TABLE " + TableName);
-      Drop.Commit();
+      Drop.exec("DROP TABLE " + TableName);
+      Drop.commit();
     }
     catch (const exception &e)
     {
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 
     transaction<> T(C, "test5");
 
-    T.Exec("CREATE TABLE " + TableName + "(year INTEGER, event VARCHAR)");
+    T.exec("CREATE TABLE " + TableName + "(year INTEGER, event VARCHAR)");
 
     // NOTE: start a nested block here to ensure that our stream W is closed 
     // before we attempt to commit our transaction T.  Otherwise we might end 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
       // (destruction of W occurs here)
     }
 
-    T.Commit();
+    T.commit();
   }
   catch (const sql_error &e)
   {

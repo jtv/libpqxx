@@ -50,10 +50,10 @@ public:
     const string CountQuery = "SELECT count(*) FROM " + m_Table;
     result R;
 
-    R = T.Exec(CountQuery);
+    R = T.exec(CountQuery);
     R.at(0).at(0).to(m_Results.first);
 
-    R = T.Exec(CountQuery + " WHERE year=" + ToString(BoringYear));
+    R = T.exec(CountQuery + " WHERE year=" + ToString(BoringYear));
     R.at(0).at(0).to(m_Results.second);
   }
 };
@@ -72,7 +72,7 @@ public:
 
   void operator()(argument_type &T)
   {
-    result R( T.Exec("INSERT INTO " + m_Table + " VALUES (" +
+    result R( T.exec("INSERT INTO " + m_Table + " VALUES (" +
 	             ToString(BoringYear) + ", "
 	             "'yawn')") );
 
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
     const string Table = ((argc > 2) ? argv[2] : "pqxxevents");
 
     pair<int,int> Before;
-    C.Perform(CountEvents(Table, Before));
+    C.perform(CountEvents(Table, Before));
     if (Before.second) 
       throw runtime_error("Table already has an event for " + 
 		          ToString(BoringYear) + ", "
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 
     try
     {
-      C.Perform(DoomedTransaction);
+      C.perform(DoomedTransaction);
     }
     catch (const exception &e)
     {
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
     }
 
     pair<int,int> After;
-    C.Perform(CountEvents(Table, After));
+    C.perform(CountEvents(Table, After));
 
     if (After != Before)
       throw logic_error("Event counts changed from "

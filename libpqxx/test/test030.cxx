@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     lazyconnection C(argv[1]);
     transaction<> T(C, "test30");
 
-    result R( T.Exec(("SELECT * FROM " + Table).c_str()) );
+    result R( T.exec(("SELECT * FROM " + Table).c_str()) );
     if (R.empty())
       throw runtime_error("Table " + Table + " was empty.  "
 	                  "Sorry, that's not enough to run this test");
@@ -77,10 +77,10 @@ int main(int argc, char *argv[])
           throw logic_error("Field " + ToString(c) + " ('" + N + "'): "
 			    "at() inconsistent with operator[]!");
 
-	if (R[0][c].Name() != N)
+	if (R[0][c].name() != N)
 	  throw logic_error("Field " + ToString(c) + " "
 			    "called '" + N + "' by result, "
-			    "but '" + R[0][c].Name() + "' by Field object");
+			    "but '" + R[0][c].name() + "' by Field object");
 
 	if (size_t(R[0][c].size()) != strlen(R[0][c].c_str()))
 	  throw logic_error("Field '" + N + "' "

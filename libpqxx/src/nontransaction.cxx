@@ -16,7 +16,7 @@
  *-------------------------------------------------------------------------
  */
 
-#include "pqxx/nontransaction.h"
+#include "pqxx/nontransaction"
 
 
 using namespace PGSTD;
@@ -27,7 +27,7 @@ pqxx::nontransaction::~nontransaction()
 }
 
 
-pqxx::result pqxx::nontransaction::DoExec(const char Query[])
+pqxx::result pqxx::nontransaction::do_exec(const char Query[])
 {
   return DirectExec(Query, 2, 0);
 }

@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <iostream>
 
-#include <pqxx/all>
+#include <pqxx/pqxx>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
     connection C(argv[1]);
     transaction<> T(C, "test49");
 
-    result R( T.Exec("SELECT * FROM " + Table + " ORDER BY " + Key) );
+    result R( T.exec("SELECT * FROM " + Table + " ORDER BY " + Key) );
     cout << "Read " << R.size() << " tuples." << endl;
     if (R.empty()) throw runtime_error("No entries in table '" + Table + "'!");
 

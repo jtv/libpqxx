@@ -20,7 +20,7 @@
 
 #include "libpq/libpq-fs.h"
 
-#include "pqxx/largeobject.h"
+#include "pqxx/largeobject"
 
 using namespace PGSTD;
 

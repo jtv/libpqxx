@@ -57,7 +57,7 @@ public:
   void operator()(argument_type &T)
   {
     // First select all different years occurring in the table.
-    result R( T.Exec("SELECT year FROM pqxxevents") );
+    result R( T.exec("SELECT year FROM pqxxevents") );
 
     // SELECT affects no rows.
     assert(!R.AffectedRows());
@@ -82,7 +82,7 @@ public:
 	 c != m_Conversions.end();
 	 ++c)
     {
-      R = T.Exec(("UPDATE pqxxevents "
+      R = T.exec(("UPDATE pqxxevents "
 	          "SET year=" + ToString(c->second) + " "
 	          "WHERE year=" + ToString(c->first)).c_str());
       AffectedRows += R.AffectedRows();
@@ -131,11 +131,11 @@ int main(int, char *argv[])
   try
   {
     connection C(argv[1]);
-    C.SetClientEncoding("SQL_ASCII");
+    C.set_client_encoding("SQL_ASCII");
 
     // Perform (an instantiation of) the UpdateYears transactor we've defined
     // in the code above.  This is where the work gets done.
-    C.Perform(UpdateYears());
+    C.perform(UpdateYears());
 
     // Just for fun, report the exact conversions performed.  Note that this
     // list will be accurate even if other people were modifying the database

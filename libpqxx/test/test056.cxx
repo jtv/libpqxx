@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <pqxx/all>
+#include <pqxx/pqxx>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -19,7 +19,7 @@ int main()
     try
     {
       // This should fail:
-      T.Exec("DELIBERATELY INVALID TEST QUERY...", "invalid_query");
+      T.exec("DELIBERATELY INVALID TEST QUERY...", "invalid_query");
 
       throw logic_error("Invalid query did not throw execption!");
     }

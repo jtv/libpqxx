@@ -30,17 +30,17 @@ int main(int, char *argv[])
     transaction<> T(C, "test2");
 
     // Perform query within transaction
-    result R( T.Exec("SELECT * FROM pg_tables") );
+    result R( T.exec("SELECT * FROM pg_tables") );
 
     // Let's keep the database waiting as briefly as possible: commit now,
     // before we start processing results.  We could do this later, or since
     // we're not making any changes in the database that need to be committed,
     // we could in this case even omit it altogether.
-    T.Commit();
+    T.commit();
 
     // Since we don't need the database anymore, we can be even more 
     // considerate and close the connection now.  This is optional.
-    C.Disconnect();
+    C.disconnect();
 
     // Now we've got all that settled, let's process our results.
     for (result::size_type i = 0; i < R.size(); ++i)

@@ -152,11 +152,11 @@ public:
 
 #ifdef PQXX_DEPRECATED_HEADERS
     /// @deprecated Use name() instead
-    const char *Name() const {return name();}				//[t11]
+    const char *Name() const {return name();}
 #endif
 
     /// Column name
-    inline const char *name();
+    inline const char *name() const;					//[t11]
 
     /// Column type
     oid type() const 							//[]
@@ -184,7 +184,7 @@ public:
       catch (const PGSTD::exception &e)
       {
 	throw PGSTD::runtime_error("Error reading field " + 
-			           PGSTD::string(Name()) +
+			           PGSTD::string(name()) +
 				   ": " +
 				   e.what());
       }
@@ -464,7 +464,7 @@ inline result::tuple::size_type result::tuple::size() const
   return m_Home->Columns(); 
 }
 
-inline const char *result::field::Name() const 
+inline const char *result::field::name() const 
 { 
   return m_Home->column_name(m_Col); 
 }
@@ -525,9 +525,10 @@ inline oid result::column_type(tuple::size_type ColNum) const
 {
   const oid T = PQftype(m_Result, ColNum);
   if (T == oid_none)
-    throw invalid_argument("Attempt to retrieve type of nonexistant column " +
-	                   ToString(ColNum) + " "
-			   "of query result");
+    throw PGSTD::invalid_argument(
+		"Attempt to retrieve type of nonexistant column " +
+	        ToString(ColNum) + " "
+		"of query result");
   return T;
 }
 

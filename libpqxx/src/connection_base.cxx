@@ -19,10 +19,10 @@
 #include <cstdio>
 #include <stdexcept>
 
-#include "pqxx/connection_base.h"
-#include "pqxx/result.h"
-#include "pqxx/transaction.h"
-#include "pqxx/trigger.h"
+#include "pqxx/connection_base"
+#include "pqxx/result"
+#include "pqxx/transaction"
+#include "pqxx/trigger"
 
 
 using namespace PGSTD;
@@ -71,14 +71,14 @@ void pqxx::connection_base::Connect()
   if (!is_open())
   {
     const string Msg( ErrMsg() );
-    Disconnect();
+    disconnect();
     throw broken_connection(Msg);
   }
 
   if (Status() != CONNECTION_OK)
   {
     const string Msg( ErrMsg() );
-    Disconnect();
+    disconnect();
     throw runtime_error(Msg);
   }
 
@@ -87,26 +87,26 @@ void pqxx::connection_base::Connect()
 
 
 
-void pqxx::connection_base::Deactivate()
+void pqxx::connection_base::deactivate()
 {
   if (m_Conn)
   {
     if (m_Trans.get())
       throw logic_error("Attempt to deactivate connection while transaction "
-	                "'" + m_Trans.get()->Name() + "' "
+	                "'" + m_Trans.get()->name() + "' "
 			"still open");
 
-    Disconnect();
+    disconnect();
   }
 }
 
 
-void pqxx::connection_base::SetVariable(const PGSTD::string &Var,
-                                      const PGSTD::string &Value)
+void pqxx::connection_base::set_variable(const PGSTD::string &Var,
+					 const PGSTD::string &Value)
 {
   if (m_Trans.get())
   {
-    m_Trans.get()->SetVariable(Var, Value);
+    m_Trans.get()->set_variable(Var, Value);
   }
   else
   {
@@ -156,7 +156,7 @@ void pqxx::connection_base::SetupState()
 }
 
 
-void pqxx::connection_base::Disconnect() throw ()
+void pqxx::connection_base::disconnect() throw ()
 {
   if (m_Conn)
   {
@@ -173,7 +173,7 @@ bool pqxx::connection_base::is_open() const
 
 
 PGSTD::auto_ptr<pqxx::noticer> 
-pqxx::connection_base::SetNoticer(PGSTD::auto_ptr<noticer> N)
+pqxx::connection_base::set_noticer(PGSTD::auto_ptr<noticer> N)
 {
   if (N.get()) PQsetNoticeProcessor(m_Conn, pqxxNoticeCaller, N.get());
   else PQsetNoticeProcessor(m_Conn, 0, 0);
@@ -186,7 +186,7 @@ pqxx::connection_base::SetNoticer(PGSTD::auto_ptr<noticer> N)
 }
 
 
-void pqxx::connection_base::ProcessNotice(const char msg[]) throw ()
+void pqxx::connection_base::process_notice(const char msg[]) throw ()
 {
   if (msg)
   {
@@ -197,7 +197,7 @@ void pqxx::connection_base::ProcessNotice(const char msg[]) throw ()
 }
 
 
-void pqxx::connection_base::Trace(FILE *Out)
+void pqxx::connection_base::trace(FILE *Out)
 {
   m_Trace = Out;
   if (m_Conn) InternalSetTrace();
@@ -209,13 +209,13 @@ void pqxx::connection_base::AddTrigger(pqxx::trigger *T)
   if (!T) throw invalid_argument("Null trigger registered");
 
   // Add to triggers list and attempt to start listening.
-  const TriggerList::iterator p = m_Triggers.find(T->Name());
-  const TriggerList::value_type NewVal(T->Name(), T);
+  const TriggerList::iterator p = m_Triggers.find(T->name());
+  const TriggerList::value_type NewVal(T->name(), T);
 
   if (m_Conn && (p == m_Triggers.end()))
   {
     // Not listening on this event yet, start doing so.
-    const string LQ("LISTEN " + string(T->Name())); 
+    const string LQ("LISTEN " + string(T->name())); 
     result R( PQexec(m_Conn, LQ.c_str()) );
 
     try
@@ -246,7 +246,7 @@ void pqxx::connection_base::RemoveTrigger(pqxx::trigger *T) throw ()
   try
   {
     // Keep Sun compiler happy...  Hope it doesn't annoy other compilers
-    pair<const string, trigger *> tmp_pair(T->Name(), T);
+    pair<const string, trigger *> tmp_pair(T->name(), T);
     TriggerList::value_type E = tmp_pair;
 
     typedef pair<TriggerList::iterator, TriggerList::iterator> Range;
@@ -256,26 +256,26 @@ void pqxx::connection_base::RemoveTrigger(pqxx::trigger *T) throw ()
 
     if (i == R.second) 
     {
-      ProcessNotice("Attempt to remove unknown trigger '" + 
-		    E.first + 
-		    "'");
+      process_notice("Attempt to remove unknown trigger '" + 
+		     E.first + 
+		     "'");
     }
     else
     {
       if (m_Conn && (R.second == ++R.first))
-	PQexec(m_Conn, ("UNLISTEN " + string(T->Name())).c_str());
+	PQexec(m_Conn, ("UNLISTEN " + string(T->name())).c_str());
 
       m_Triggers.erase(i);
     }
   }
   catch (const exception &e)
   {
-    ProcessNotice(e.what());
+    process_notice(e.what());
   }
 }
 
 
-void pqxx::connection_base::GetNotifs()
+void pqxx::connection_base::get_notifs()
 {
   if (!m_Conn) return;
 
@@ -297,11 +297,11 @@ void pqxx::connection_base::GetNotifs()
       }
       catch (const exception &e)
       {
-	ProcessNotice("Exception in trigger handler '" +
-		      i->first + 
-		      "': " + 
-		      e.what() +
-		      "\n");
+	process_notice("Exception in trigger handler '" +
+		       i->first + 
+		       "': " + 
+		       e.what() +
+		       "\n");
       }
 
     N.close();
@@ -319,7 +319,7 @@ pqxx::result pqxx::connection_base::Exec(const char Query[],
                                        int Retries, 
 				       const char OnReconnect[])
 {
-  Activate();
+  activate();
 
   result R( PQexec(m_Conn, Query) );
 
@@ -335,7 +335,7 @@ pqxx::result pqxx::connection_base::Exec(const char Query[],
   if (!R) throw broken_connection();
   R.CheckStatus(Query);
 
-  GetNotifs();
+  get_notifs();
 
   return R;
 }
@@ -366,9 +366,9 @@ void pqxx::connection_base::close() throw ()
   try
   {
     if (m_Trans.get()) 
-      ProcessNotice("Closing connection while transaction '" +
-		    m_Trans.get()->Name() +
-		    "' still open\n");
+      process_notice("Closing connection while transaction '" +
+		     m_Trans.get()->name() +
+		     "' still open\n");
 
     if (!m_Triggers.empty())
     {
@@ -378,13 +378,13 @@ void pqxx::connection_base::close() throw ()
 	   ++i)
 	T += " " + i->first;
 
-        ProcessNotice("Closing connection with outstanding triggers:" + 
-	              T + 
-		      "\n");
+        process_notice("Closing connection with outstanding triggers:" + 
+	               T + 
+		       "\n");
       m_Triggers.clear();
     }
 
-    Disconnect();
+    disconnect();
   }
   catch (...)
   {
@@ -394,7 +394,7 @@ void pqxx::connection_base::close() throw ()
 
 void pqxx::connection_base::RawSetVar(const string &Var, const string &Value)
 {
-    Activate();
+    activate();
     Exec(("SET " + Var + "=" + Value).c_str(), 0);
 }
 
@@ -429,7 +429,7 @@ void pqxx::connection_base::UnregisterTransaction(transaction_base *T)
   }
   catch (const exception &e)
   {
-    ProcessNotice(string(e.what()) + "\n");
+    process_notice(string(e.what()) + "\n");
   }
 }
 

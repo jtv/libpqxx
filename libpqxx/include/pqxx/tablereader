@@ -54,14 +54,22 @@ public:
   operator bool() const throw () { return !m_Done; }			//[t6]
   bool operator!() const throw () { return m_Done; }			//[t6]
 
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use get_raw_line() instead
+  bool GetRawLine(PGSTD::string &L) { return get_raw_line(L); }
+  /// @deprecated Use tokenize<>() instead
+  template<typename TUPLE> void Tokenize(PGSTD::string L, TUPLE &T) const
+  	{ tokenize(L, T); }
+#endif
+
   /// Read a line of raw, unparsed table data
   /** Returns whether a line could be read.
    * @param Line is set to the raw data line read from the table.
    */
-  bool GetRawLine(PGSTD::string &Line);					//[t8]
+  bool get_raw_line(PGSTD::string &Line);				//[t8]
 
   template<typename TUPLE> 
-  void Tokenize(PGSTD::string, TUPLE &) const;				//[t8]
+  void tokenize(PGSTD::string, TUPLE &) const;				//[t8]
 
 private:
   bool m_Done;
@@ -74,7 +82,7 @@ private:
 
 
 template<typename TUPLE> 
-inline void pqxx::tablereader::Tokenize(PGSTD::string Line, 
+inline void pqxx::tablereader::tokenize(PGSTD::string Line, 
                                         TUPLE &T) const
 {
   PGSTD::back_insert_iterator<TUPLE> ins = PGSTD::back_inserter(T);
@@ -126,7 +134,7 @@ template<typename TUPLE>
 inline pqxx::tablereader &pqxx::tablereader::operator>>(TUPLE &T)
 {
   PGSTD::string Line;
-  if (GetRawLine(Line)) Tokenize(Line, T);
+  if (get_raw_line(Line)) tokenize(Line, T);
   return *this;
 }
 

@@ -2,7 +2,7 @@
 #include <cstring>
 #include <iostream>
 
-#include <pqxx/all>
+#include <pqxx/pqxx>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -98,7 +98,7 @@ int main(int, char *argv[])
 
     largeobject Obj;
 
-    C.Perform(WriteLargeObject());
+    C.perform(WriteLargeObject());
   }
   catch (const sql_error &e)
   {

@@ -17,9 +17,9 @@
  */
 #include <stdexcept>
 
-#include "pqxx/connection_base.h"
-#include "pqxx/result.h"
-#include "pqxx/robusttransaction.h"
+#include "pqxx/connection_base"
+#include "pqxx/result"
+#include "pqxx/robusttransaction"
 
 
 using namespace PGSTD;
@@ -36,7 +36,7 @@ pqxx::basic_robusttransaction::basic_robusttransaction(connection_base &C,
   m_ID(oid_none),
   m_LogTable()
 {
-  m_LogTable = string("PQXXLOG_") + Conn().UserName();
+  m_LogTable = string("PQXXLOG_") + conn().username();
 }
 
 
@@ -45,7 +45,7 @@ pqxx::basic_robusttransaction::~basic_robusttransaction()
 }
 
 
-void pqxx::basic_robusttransaction::DoBegin()
+void pqxx::basic_robusttransaction::do_begin()
 {
   // Start backend transaction
   DirectExec(SQL_BEGIN_WORK, 2, 0);
@@ -67,7 +67,7 @@ void pqxx::basic_robusttransaction::DoBegin()
 
 
 
-pqxx::result pqxx::basic_robusttransaction::DoExec(const char Query[])
+pqxx::result pqxx::basic_robusttransaction::do_exec(const char Query[])
 {
   result R;
   try
@@ -76,7 +76,7 @@ pqxx::result pqxx::basic_robusttransaction::DoExec(const char Query[])
   }
   catch (const exception &)
   {
-    try { Abort(); } catch (const exception &) { }
+    try { abort(); } catch (const exception &) { }
     throw;
   }
 
@@ -85,13 +85,13 @@ pqxx::result pqxx::basic_robusttransaction::DoExec(const char Query[])
 
 
 
-void pqxx::basic_robusttransaction::DoCommit()
+void pqxx::basic_robusttransaction::do_commit()
 {
   const IDType ID = m_ID;
 
   if (ID == oid_none) 
     throw logic_error("Internal libpqxx error: transaction " 
-		      "'" + Name() + "' " 
+		      "'" + name() + "' " 
 		     "has no ID");
 
   // Check constraints before sending the COMMIT to the database to reduce the
@@ -120,11 +120,11 @@ void pqxx::basic_robusttransaction::DoCommit()
   {
     // TODO: Can we limit this handler to broken_connection exceptions?
     m_ID = oid_none;
-    if (!Conn().is_open())
+    if (!conn().is_open())
     {
       // We've lost the connection while committing.  We'll have to go back to
       // the backend and check our transaction log to see what happened.
-      ProcessNotice(e.what() + string("\n"));
+      process_notice(e.what() + string("\n"));
 
       // See if transaction record ID exists; if yes, our transaction was 
       // committed before the connection went down.  If not, the transaction 
@@ -138,17 +138,17 @@ void pqxx::basic_robusttransaction::DoCommit()
       {
 	// Couldn't reconnect to check for transaction record.  We're still in 
 	// doubt as to whether the transaction was performed.
-	ProcessNotice(string(f.what()) + "\n");
+	process_notice(string(f.what()) + "\n");
 
         const string Msg = "WARNING: "
 		    "Connection lost while committing transaction "
-		    "'" + Name() + "' (oid " + ToString(ID) + "). "
+		    "'" + name() + "' (oid " + ToString(ID) + "). "
 		    "Please check for this record in the "
 		    "'" + m_LogTable + "' table.  "
 		    "If the record exists, the transaction was executed. "
 		    "If not, then it hasn't.";
 
-        ProcessNotice(Msg + "\n");
+        process_notice(Msg + "\n");
         throw in_doubt_error(Msg);
       }
  
@@ -174,7 +174,7 @@ void pqxx::basic_robusttransaction::DoCommit()
 }
 
 
-void pqxx::basic_robusttransaction::DoAbort()
+void pqxx::basic_robusttransaction::do_abort()
 {
   m_ID = oid_none;
 
@@ -205,7 +205,7 @@ void pqxx::basic_robusttransaction::CreateTransactionRecord()
 	                "(name, date) "
 			"VALUES "
 	                "(" +
-	                Quote(Name(), true) + ", "
+	                Quote(name(), true) + ", "
 	                "CURRENT_TIMESTAMP"
 	                ")";
 
@@ -238,10 +238,10 @@ void pqxx::basic_robusttransaction::DeleteTransactionRecord(IDType ID) throw ()
 
   if (ID != oid_none) try
   {
-    ProcessNotice("WARNING: "
-	          "Failed to delete obsolete transaction record with oid " + 
-		  ToString(ID) + " ('" + Name() + "'). "
-		  "Please delete it manually.  Thank you.\n");
+    process_notice("WARNING: "
+	           "Failed to delete obsolete transaction record with oid " + 
+		   ToString(ID) + " ('" + name() + "'). "
+		   "Please delete it manually.  Thank you.\n");
   }
   catch (const exception &)
   {

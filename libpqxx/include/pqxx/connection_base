@@ -126,7 +126,21 @@ public:
    * @param Attempts the maximum number of attempts to be made to execute T.
    */
   template<typename TRANSACTOR> 
-  void Perform(const TRANSACTOR &T, int Attempts=3);			//[t4]
+  void perform(const TRANSACTOR &T, int Attempts=3);			//[t4]
+
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use set_noticer() instead
+  PGSTD::auto_ptr<noticer> SetNoticer(PGSTD::auto_ptr<noticer> N)
+  	{ return set_noticer(N); }
+  /// @deprecated Use get_noticer() instead
+  noticer *GetNoticer() const throw () 
+  	{ return get_noticer(); }
+  /// @deprecated Use process_notice() instead
+  void ProcessNotice(const char msg[]) throw () { return process_notice(msg); }
+  /// @deprecated Use process_notice() instead
+  void ProcessNotice(const PGSTD::string &msg) throw () 
+  	{ return process_notice(msg); }
+#endif
 
   // TODO: Define a default noticer (mainly to help out Windows users)
   /// Set handler for postgresql errors or warning messages.
@@ -139,42 +153,66 @@ public:
    * deleted.
    * @param N the new message handler; must not be null or equal to the old one
    */
-  PGSTD::auto_ptr<noticer> SetNoticer(PGSTD::auto_ptr<noticer> N);	//[t14]
-  noticer *GetNoticer() const throw () { return m_Noticer.get(); }	//[t14]
+  PGSTD::auto_ptr<noticer> set_noticer(PGSTD::auto_ptr<noticer> N);	//[t14]
+  noticer *get_noticer() const throw () { return m_Noticer.get(); }	//[t14]
 
   /// Invoke notice processor function.  The message should end in newline.
-  void ProcessNotice(const char[]) throw ();				//[t14]
+  void process_notice(const char[]) throw ();				//[t14]
   /// Invoke notice processor function.  The message should end in newline.
-  void ProcessNotice(const PGSTD::string &msg) throw () 		//[t14]
-  	{ ProcessNotice(msg.c_str()); }
+  void process_notice(const PGSTD::string &msg) throw () 		//[t14]
+  	{ process_notice(msg.c_str()); }
+
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use trace() instead
+  void Trace(FILE *F) { trace(F); }
+
+  /// @deprecated Use get_notifs() instead
+  void GetNotifs() { get_notifs(); }
+#endif
 
   /// Enable tracing to a given output stream, or NULL to disable.
-  void Trace(FILE *);							//[t3]
+  void trace(FILE *);							//[t3]
 
   /// Check for pending trigger notifications and take appropriate action.
-  void GetNotifs();							//[t4]
+  void get_notifs();							//[t4]
 
   // Miscellaneous query functions (probably not needed very often)
  
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use dbname() instead
+  const char *DbName() { return dbname(); }
+  /// @deprecated Use username() instead
+  const char *UserName() { return username(); }
+  /// @deprecated Use hostname() instead
+  const char *HostName() { return hostname(); }
+  /// @deprecated Use port() instead
+  const char *Port() { return port(); }
+  /// @deprecated Use options() instead
+  const char *Options() const throw () { return options(); }
+  /// @deprecated Use backendpid() instead
+  int BackendPID() const { return backendpid(); }
+#endif
+
   /// Name of database we're connected to, if any.
-  const char *DbName()							//[t1]
-  	{ Activate(); return PQdb(m_Conn); }
+  const char *dbname()							//[t1]
+  	{ activate(); return PQdb(m_Conn); }
 
   /// Database user ID we're connected under, if any.
-  const char *UserName()						//[t1]
-  	{ Activate(); return  PQuser(m_Conn); }
+  const char *username()						//[t1]
+  	{ activate(); return  PQuser(m_Conn); }
 
   /// Address of server (NULL for local connections).
-  const char *HostName()						//[t1]
-  	{ Activate(); return PQhost(m_Conn); }
+  const char *hostname()						//[t1]
+  	{ activate(); return PQhost(m_Conn); }
 
   /// Server port number we're connected to.
-  const char *Port()		 					//[t1]
-  	{ Activate(); return PQport(m_Conn); }
+  const char *port()		 					//[t1]
+  	{ activate(); return PQport(m_Conn); }
 
   /// Full connection string as used to set up this connection.
-  const char *Options() const throw () 					//[t1]
+  const char *options() const throw () 					//[t1]
   	{ return m_ConnInfo.c_str(); }
+
 
   /// Process ID for backend process.
   /** Use with care: connections may be lost and automatically re-established
@@ -184,8 +222,21 @@ public:
    * transaction fails, which may be due to a lost connection, then this number
    * will have become invalid at some point within the transaction.
    */
-  int BackendPID() const						//[t1]
+  int backendpid() const						//[t1]
     	{ return m_Conn ? PQbackendPID(m_Conn) : 0; }
+
+
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use activate() instead
+  void Activate() { activate(); }
+  /// @deprecated Use deactivate() instead
+  void Deactivate() { deactivate(); }
+  /// @deprecated Use set_client_encoding() instead
+  void SetClientEncoding(const PGSTD::string &E) { set_client_encoding(E); }
+  /// @deprecated Use set_variable() instead
+  void SetVariable(const PGSTD::string &Var, const PGSTD::string &Val)
+  	{ set_variable(Var, Val); }
+#endif
 
   /// Explicitly activate deferred or deactivated connection.
   /** Use of this method is entirely optional.  Whenever a connection is used
@@ -198,7 +249,7 @@ public:
    * Deactivate().  A good time to call Activate() might be just before you
    * first open a transaction on a lazy connection.
    */
-  void Activate() { if (!m_Conn) Connect(); }				//[t12]
+  void activate() { if (!m_Conn) Connect(); }				//[t12]
 
   /// Explicitly deactivate connection.
   /** Like its counterpart Activate(), this method is entirely optional.  
@@ -209,7 +260,7 @@ public:
    * calls to Activate(), but calling Deactivate() during a transaction is an
    * error.
    */
-  void Deactivate();							//[t12]
+  void deactivate();							//[t12]
 
   /// Set client-side character encoding
   /** Search the PostgreSQL documentation for "multibyte" or "character set
@@ -218,8 +269,8 @@ public:
    * with all client-side encodings or vice versa.
    * @param Encoding name of the character set encoding to use
    */
-  void SetClientEncoding(const PGSTD::string &Encoding)			//[t7]
-  	{ SetVariable("CLIENT_ENCODING", Encoding); }
+  void set_client_encoding(const PGSTD::string &Encoding)		//[t7]
+  	{ set_variable("CLIENT_ENCODING", Encoding); }
 
   /// Set session variable
   /** Set a session variable for this connection, using the SET command.  If the
@@ -233,7 +284,8 @@ public:
    * @param Var variable to set
    * @param Value value to set, which may be an identifier, a quote string, etc.
    */
-  void SetVariable(const PGSTD::string &Var, const PGSTD::string &Value);//[]
+  void set_variable(const PGSTD::string &Var, 
+      		    const PGSTD::string &Value);			//[]
 
 protected:
   /// To be used by implementation classes: really connect to database

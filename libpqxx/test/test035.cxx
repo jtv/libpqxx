@@ -29,7 +29,7 @@ int main(int, char *argv[])
     // performing one query which does not modify the database.
     robusttransaction<> T(C, "test35");
 
-    result R( T.Exec("SELECT * FROM pg_tables") );
+    result R( T.exec("SELECT * FROM pg_tables") );
 
     for (result::const_iterator c = R.begin(); c != R.end(); ++c)
     {
@@ -41,7 +41,7 @@ int main(int, char *argv[])
 
     // "Commit" the non-transaction.  This doesn't really do anything since
     // NonTransaction doesn't start a backend transaction.
-    T.Commit();
+    T.commit();
   }
   catch (const sql_error &e)
   {
