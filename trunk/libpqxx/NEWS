@@ -1,5 +1,6 @@
 2.4.3
  - Yet more workarounds for bugs in Visual C++ .NET 2003
+ - Fix for SunC++ 5.5
  - Fixes large object support with Visual C++ (bug was in the compiler) 
  - Workaround for BSD grep
 2.4.2
