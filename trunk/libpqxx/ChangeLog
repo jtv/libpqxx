@@ -1,4 +1,9 @@
+2004-02-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/libcompiler.h:
+  - Set up for SUN Workshop workaround
 2004-02-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.h:
+  - Workaround for SUN Workshop 6 (thanks Jon Meinecke)
  include/pqxx/pipeline.hxx, src/pipeline.cxx:
   - Typedef-wrapped container types to reduce std::pair<> trouble
   - Should fix SUN Workshop problems (thanks Jon Meinecke)

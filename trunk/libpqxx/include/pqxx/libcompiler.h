@@ -87,6 +87,16 @@ template<> struct char_traits<unsigned char>
 }
 #endif
 
+// Workarounds for SUN Workshop 6
+#if defined(__SUNPRO_CC)
+#if __SUNPRO_CC_COMPAT <= 5
+#error "This compiler version is not capable of building libpqxx."
+#endif	// __SUNPRO_CC_COMPAT <= 5
+
+#define PQXX_NO_INLINE_ISOLATION_ERROR
+
+#endif	// __SUNPRO_CC
+
 // Workarounds for Windows
 #ifdef _WIN32
 
