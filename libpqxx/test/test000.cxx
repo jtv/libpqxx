@@ -133,7 +133,7 @@ int main()
 
     // TODO: Test binarystring reversibility
 
-    // Test error handling for failed connections
+    cout << "Testing error handling for failed connections..." << endl;
     try
     {
       nullconnection nc;

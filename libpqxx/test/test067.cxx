@@ -128,13 +128,11 @@ int main(int argc, char *argv[])
 	// simple strings.
 	for (result::tuple::size_type f = 0; f < R.columns(); ++f)
 	{
-	  if (!j[f].is_null())
+	  if (!j[f].is_null() && !i[f].is_null())
 	  {
-	    const bool U = SortedUp[f],
-	               D = SortedDown[f];
-
-	    SortedUp[f] = U & (string(j[f].c_str()) <= string(i[f].c_str()));
-	    SortedDown[f] = D & (string(j[f].c_str()) >= string(i[f].c_str()));
+	    const bool U = SortedUp[f], D = SortedDown[f];
+	    SortedUp[f] = (U && (j[f].as<string>() <= i[f].as<string>()));
+	    SortedDown[f] = (D && (j[f].as<string>() >= i[f].as<string>()));
 	  }
 	}
       }
