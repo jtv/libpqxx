@@ -220,13 +220,16 @@ template<> inline PGSTD::string to_string(const unsigned char &Obj)
  * (which is being used to add items) modifies the container rather than
  * creating a new one.  This was done to keep performance within reasonable
  * bounds.
+ *
+ * @warning This class may see substantial change in its interface before it
+ * stabilizes.  Do not count on it remaining the way it is.
  */
 template<typename T=PGSTD::string, typename CONT=PGSTD::vector<T> >
 class items : public CONT
 {
 public:
   /// Create empty items list
-  items() : CONT() {}							//[]
+  items() : CONT() {}							//[t80]
   /// Create items list with one element
   explicit items(const T &t) : CONT() { push_back(t); }			//[]
   items(const T &t1, const T &t2) : CONT() 				//[t80]
@@ -241,7 +244,7 @@ public:
   items(const CONT &c) : CONT(c) {}					//[]
 
   /// Add element to items list
-  items &operator()(const T &t)						//[]
+  items &operator()(const T &t)						//[t80]
   {
     push_back(t);
     return *this;

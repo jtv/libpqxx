@@ -9,6 +9,11 @@
   - Moved dropconnect() out of close() because it's called from destructor
  include/pqxx/cursor.hxx, test/test081.cxx:
   - Increased test coverage
+ include/pqxx/transaction_base.hxx, test/test009.cxx:
+  - Test coverage for stringstream version of exec()
+ include/pqxx/util.hxx, test/test080.cxx:
+  - Warning for items<> interface not being stable yet
+  - Increased test coverage for items<>
 2004-08-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  README:
   - Minor updates to appendices

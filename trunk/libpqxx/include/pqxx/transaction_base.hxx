@@ -137,7 +137,7 @@ public:
   	{ return exec(Query.c_str(), Desc); }
 
   result exec(const PGSTD::stringstream &Query,
-      	      const PGSTD::string &Desc=PGSTD::string())		//[]
+      	      const PGSTD::string &Desc=PGSTD::string())		//[t9]
     	{ return exec(Query.str(), Desc); }
 
   /// Have connection process warning message
