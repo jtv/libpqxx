@@ -1,3 +1,6 @@
+2003-01-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Fixed detection of PQescapeString() presence, thanks David Wright
 2003-01-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/cursor.cxx:
   - Add double-quotes around cursor name in SQL to circumvent case conversion

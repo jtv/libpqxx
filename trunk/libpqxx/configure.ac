@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 1.3.5, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 1.3.6, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 1.3.5)
+AM_INIT_AUTOMAKE(libpqxx, 1.3.6)
 
 # Library version numbering - see "info libtool versioning 'libtool
 # versioning'" for details.
@@ -223,13 +223,10 @@ AC_MSG_RESULT($invalidoid)
 AC_MSG_CHECKING([PQescapeString()])
 AH_TEMPLATE(PQescapeString,[Do we have a PQescapeString function?])
 pqescapestring=yes
-AC_TRY_COMPILE(
-	[#include <${with_postgres_include}/libpq-fe.h>]
-	, [char C[9]; return PQescapeString(C,C,9)]
-	, AC_DEFINE(HAVE_PQESCAPESTRING,1,
-[Define if PostgreSQL version being compiled against has PQescapeString()])
-	,pqescapestring=no
-)
+AC_CHECK_DECL(PQescapeString, 
+	[AC_DEFINE(HAVE_PQESCAPESTRING, 1, [Define if PostgreSQL has PQescapeString()])],
+	[pqescapestring=no],
+	[#include <${with_postgres_include}/libpq-fe.h]>)
 AC_MSG_RESULT($pqescapestring)
 
 AC_LANG_PUSH(C++)
