@@ -67,104 +67,104 @@
 00064 
 <a name="l00066"></a><a class="code" href="classpqxx_1_1TransactionItf.html#a4">00066</a>   <a class="code" href="classpqxx_1_1Result.html">Result</a> Exec(<span class="keyword">const</span> PGSTD::string &amp;Q) { <span class="keywordflow">return</span> Exec(Q.c_str()); }       <span class="comment">//[t2]</span>
 00067 
-<a name="l00068"></a><a class="code" href="classpqxx_1_1TransactionItf.html#a5">00068</a>   <span class="keywordtype">void</span> ProcessNotice(<span class="keyword">const</span> <span class="keywordtype">char</span> Msg[]) { m_Conn.ProcessNotice(Msg); }   <span class="comment">//[t1]</span>
-<a name="l00069"></a><a class="code" href="classpqxx_1_1TransactionItf.html#a6">00069</a>   <span class="keywordtype">void</span> ProcessNotice(<span class="keyword">const</span> PGSTD::string &amp;Msg)                          <span class="comment">//[t1]</span>
-00070         { m_Conn.ProcessNotice(Msg); }
-00071 
-<a name="l00072"></a><a class="code" href="classpqxx_1_1TransactionItf.html#a7">00072</a>   PGSTD::string Name()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Name; }                         <span class="comment">//[t1]</span>
+<a name="l00069"></a><a class="code" href="classpqxx_1_1TransactionItf.html#a5">00069</a>   <span class="keywordtype">void</span> ProcessNotice(<span class="keyword">const</span> <span class="keywordtype">char</span> Msg[]) { m_Conn.ProcessNotice(Msg); }   <span class="comment">//[t1]</span>
+<a name="l00071"></a><a class="code" href="classpqxx_1_1TransactionItf.html#a6">00071</a> <span class="comment">  void ProcessNotice(const PGSTD::string &amp;Msg)                          //[t1]</span>
+00072         { m_Conn.ProcessNotice(Msg); }
 00073 
-00074 <span class="keyword">protected</span>:
-00077   <span class="keyword">explicit</span> TransactionItf(Connection &amp;, 
-00078                           <span class="keyword">const</span> PGSTD::string &amp;TName=PGSTD::string());
-00079 
-00082   <span class="keywordtype">void</span> Begin();
-00083 
-00085   <span class="keywordtype">void</span> End() <span class="keywordflow">throw</span> ();
-00086 
-00088   <span class="keyword">virtual</span> <span class="keywordtype">void</span> DoBegin() =0;
-00089   <span class="keyword">virtual</span> Result DoExec(<span class="keyword">const</span> <span class="keywordtype">char</span> C[]) =0;
-00090   <span class="keyword">virtual</span> <span class="keywordtype">void</span> DoCommit() =0;
-00091   <span class="keyword">virtual</span> <span class="keywordtype">void</span> DoAbort() =0;
-00092 
-00093   <span class="comment">// For use by implementing class:</span>
-00094 
-00096   Result DirectExec(<span class="keyword">const</span> <span class="keywordtype">char</span> C[], <span class="keywordtype">int</span> Retries, <span class="keyword">const</span> <span class="keywordtype">char</span> OnReconnect[]);
-<a name="l00097"></a><a class="code" href="classpqxx_1_1TransactionItf.html#b8">00097</a>   <a class="code" href="classpqxx_1_1Connection.html">Connection</a> &amp;Conn()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Conn; }
-00098 
-00099  
-00100 <span class="keyword">private</span>:
-00101   <span class="comment">/* A Transaction goes through the following stages in its lifecycle:</span>
-00102 <span class="comment">   *  - nascent: the transaction hasn't actually begun yet.  If our connection </span>
-00103 <span class="comment">   *    fails at this stage, the Connection may recover and the Transaction can </span>
-00104 <span class="comment">   *    attempt to establish itself again.</span>
-00105 <span class="comment">   *  - active: the transaction has begun.  Since no commit command has been </span>
-00106 <span class="comment">   *    issued, abortion is implicit if the connection fails now.</span>
-00107 <span class="comment">   *  - aborted: an abort has been issued; the transaction is terminated and </span>
-00108 <span class="comment">   *    its changes to the database rolled back.  It will accept no further </span>
-00109 <span class="comment">   *    commands.</span>
-00110 <span class="comment">   *  - committed: the transaction has completed successfully, meaning that a </span>
-00111 <span class="comment">   *    commit has been issued.  No further commands are accepted.</span>
-00112 <span class="comment">   *  - in_doubt: the connection was lost at the exact wrong time, and there is</span>
-00113 <span class="comment">   *    no way of telling whether the transaction was committed or aborted.</span>
-00114 <span class="comment">   *</span>
-00115 <span class="comment">   * Checking and maintaining state machine logic is the responsibility of the </span>
-00116 <span class="comment">   * base class (ie., this one).</span>
-00117 <span class="comment">   */</span>
-00118   <span class="keyword">enum</span> Status 
-00119   { 
-00120     st_nascent, 
-00121     st_active, 
-00122     st_aborted, 
-00123     st_committed,
-00124     st_in_doubt
-00125   };
-00126 
-00127 
-<a name="l00128"></a><a class="code" href="classpqxx_1_1TransactionItf.html#l0">00128</a>   <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classpqxx_1_1Cursor.html">Cursor</a>;
-00129   <span class="keywordtype">int</span> GetUniqueCursorNum() { <span class="keywordflow">return</span> m_UniqueCursorNum++; }
-00130   <span class="keywordtype">void</span> MakeEmpty(Result &amp;R)<span class="keyword"> const </span>{ m_Conn.MakeEmpty(R); }
-00131 
-<a name="l00132"></a><a class="code" href="classpqxx_1_1TransactionItf.html#l1">00132</a>   <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classpqxx_1_1TableStream.html">TableStream</a>;
-00133   <span class="keywordtype">void</span> RegisterStream(<span class="keyword">const</span> <a class="code" href="classpqxx_1_1TableStream.html">TableStream</a> *);
-00134   <span class="keywordtype">void</span> UnregisterStream(<span class="keyword">const</span> <a class="code" href="classpqxx_1_1TableStream.html">TableStream</a> *) <span class="keywordflow">throw</span> ();
-00135   <span class="keywordtype">void</span> EndCopy() { m_Conn.EndCopy(); }
-<a name="l00136"></a><a class="code" href="classpqxx_1_1TransactionItf.html#l2">00136</a>   <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classpqxx_1_1TableReader.html">TableReader</a>;
-00137   <span class="keywordtype">void</span> BeginCopyRead(<span class="keyword">const</span> PGSTD::string &amp;Table) 
-00138         { m_Conn.BeginCopyRead(Table); }
-00139   <span class="keywordtype">bool</span> ReadCopyLine(PGSTD::string &amp;L) { <span class="keywordflow">return</span> m_Conn.ReadCopyLine(L); }
-<a name="l00140"></a><a class="code" href="classpqxx_1_1TransactionItf.html#l3">00140</a>   <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classpqxx_1_1TableWriter.html">TableWriter</a>;
-00141   <span class="keywordtype">void</span> BeginCopyWrite(<span class="keyword">const</span> PGSTD::string &amp;Table) 
-00142         { m_Conn.BeginCopyWrite(Table); }
-00143   <span class="keywordtype">void</span> WriteCopyLine(<span class="keyword">const</span> PGSTD::string &amp;L) { m_Conn.WriteCopyLine(L); }
-00144 
-00145   Connection &amp;m_Conn;
-00146 
-00147   PGSTD::string m_Name;
-00148   <span class="keywordtype">int</span> m_UniqueCursorNum;
-00149   Unique&lt;TableStream&gt; m_Stream;
-00150   Status m_Status;
-00151   <span class="keywordtype">bool</span> m_Registered;
-00152 
-00153   <span class="comment">// Not allowed:</span>
-00154   TransactionItf();
-00155   TransactionItf(<span class="keyword">const</span> TransactionItf &amp;);
-00156   TransactionItf &amp;operator=(<span class="keyword">const</span> TransactionItf &amp;);
-00157 };
-00158 
-00159 
+<a name="l00074"></a><a class="code" href="classpqxx_1_1TransactionItf.html#a7">00074</a>   PGSTD::string Name()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Name; }                         <span class="comment">//[t1]</span>
+00075 
+<a name="l00077"></a><a class="code" href="classpqxx_1_1TransactionItf.html#a8">00077</a>   <a class="code" href="classpqxx_1_1Connection.html">Connection</a> &amp;Conn()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Conn; }                           <span class="comment">//[]</span>
+00078 
+00079 <span class="keyword">protected</span>:
+00082   <span class="keyword">explicit</span> TransactionItf(Connection &amp;, 
+00083                           <span class="keyword">const</span> PGSTD::string &amp;TName=PGSTD::string());
+00084 
+00087   <span class="keywordtype">void</span> Begin();
+00088 
+00090   <span class="keywordtype">void</span> End() <span class="keywordflow">throw</span> ();
+00091 
+00093   <span class="keyword">virtual</span> <span class="keywordtype">void</span> DoBegin() =0;
+00094   <span class="keyword">virtual</span> Result DoExec(<span class="keyword">const</span> <span class="keywordtype">char</span> C[]) =0;
+00095   <span class="keyword">virtual</span> <span class="keywordtype">void</span> DoCommit() =0;
+00096   <span class="keyword">virtual</span> <span class="keywordtype">void</span> DoAbort() =0;
+00097 
+00098   <span class="comment">// For use by implementing class:</span>
+00099 
+00101   Result DirectExec(<span class="keyword">const</span> <span class="keywordtype">char</span> C[], <span class="keywordtype">int</span> Retries, <span class="keyword">const</span> <span class="keywordtype">char</span> OnReconnect[]);
+00102  
+00103 <span class="keyword">private</span>:
+00104   <span class="comment">/* A Transaction goes through the following stages in its lifecycle:</span>
+00105 <span class="comment">   *  - nascent: the transaction hasn't actually begun yet.  If our connection </span>
+00106 <span class="comment">   *    fails at this stage, the Connection may recover and the Transaction can </span>
+00107 <span class="comment">   *    attempt to establish itself again.</span>
+00108 <span class="comment">   *  - active: the transaction has begun.  Since no commit command has been </span>
+00109 <span class="comment">   *    issued, abortion is implicit if the connection fails now.</span>
+00110 <span class="comment">   *  - aborted: an abort has been issued; the transaction is terminated and </span>
+00111 <span class="comment">   *    its changes to the database rolled back.  It will accept no further </span>
+00112 <span class="comment">   *    commands.</span>
+00113 <span class="comment">   *  - committed: the transaction has completed successfully, meaning that a </span>
+00114 <span class="comment">   *    commit has been issued.  No further commands are accepted.</span>
+00115 <span class="comment">   *  - in_doubt: the connection was lost at the exact wrong time, and there is</span>
+00116 <span class="comment">   *    no way of telling whether the transaction was committed or aborted.</span>
+00117 <span class="comment">   *</span>
+00118 <span class="comment">   * Checking and maintaining state machine logic is the responsibility of the </span>
+00119 <span class="comment">   * base class (ie., this one).</span>
+00120 <span class="comment">   */</span>
+00121   <span class="keyword">enum</span> Status 
+00122   { 
+00123     st_nascent, 
+00124     st_active, 
+00125     st_aborted, 
+00126     st_committed,
+00127     st_in_doubt
+00128   };
+00129 
+00130 
+<a name="l00131"></a><a class="code" href="classpqxx_1_1TransactionItf.html#l0">00131</a>   <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classpqxx_1_1Cursor.html">Cursor</a>;
+00132   <span class="keywordtype">int</span> GetUniqueCursorNum() { <span class="keywordflow">return</span> m_UniqueCursorNum++; }
+00133   <span class="keywordtype">void</span> MakeEmpty(Result &amp;R)<span class="keyword"> const </span>{ m_Conn.MakeEmpty(R); }
+00134 
+<a name="l00135"></a><a class="code" href="classpqxx_1_1TransactionItf.html#l1">00135</a>   <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classpqxx_1_1TableStream.html">TableStream</a>;
+00136   <span class="keywordtype">void</span> RegisterStream(<span class="keyword">const</span> <a class="code" href="classpqxx_1_1TableStream.html">TableStream</a> *);
+00137   <span class="keywordtype">void</span> UnregisterStream(<span class="keyword">const</span> <a class="code" href="classpqxx_1_1TableStream.html">TableStream</a> *) <span class="keywordflow">throw</span> ();
+00138   <span class="keywordtype">void</span> EndCopy() { m_Conn.EndCopy(); }
+<a name="l00139"></a><a class="code" href="classpqxx_1_1TransactionItf.html#l2">00139</a>   <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classpqxx_1_1TableReader.html">TableReader</a>;
+00140   <span class="keywordtype">void</span> BeginCopyRead(<span class="keyword">const</span> PGSTD::string &amp;Table) 
+00141         { m_Conn.BeginCopyRead(Table); }
+00142   <span class="keywordtype">bool</span> ReadCopyLine(PGSTD::string &amp;L) { <span class="keywordflow">return</span> m_Conn.ReadCopyLine(L); }
+<a name="l00143"></a><a class="code" href="classpqxx_1_1TransactionItf.html#l3">00143</a>   <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classpqxx_1_1TableWriter.html">TableWriter</a>;
+00144   <span class="keywordtype">void</span> BeginCopyWrite(<span class="keyword">const</span> PGSTD::string &amp;Table) 
+00145         { m_Conn.BeginCopyWrite(Table); }
+00146   <span class="keywordtype">void</span> WriteCopyLine(<span class="keyword">const</span> PGSTD::string &amp;L) { m_Conn.WriteCopyLine(L); }
+00147 
+00148   Connection &amp;m_Conn;
+00149 
+00150   PGSTD::string m_Name;
+00151   <span class="keywordtype">int</span> m_UniqueCursorNum;
+00152   Unique&lt;TableStream&gt; m_Stream;
+00153   Status m_Status;
+00154   <span class="keywordtype">bool</span> m_Registered;
+00155 
+00156   <span class="comment">// Not allowed:</span>
+00157   TransactionItf();
+00158   TransactionItf(<span class="keyword">const</span> TransactionItf &amp;);
+00159   TransactionItf &amp;operator=(<span class="keyword">const</span> TransactionItf &amp;);
+00160 };
 00161 
-<a name="l00167"></a><a class="code" href="classpqxx_1_1in__doubt__error.html">00167</a> <span class="keyword">class </span>PQXX_LIBEXPORT in_doubt_error : <span class="keyword">public</span> <a class="code" href="config_8h.html#a22">PGSTD</a>::runtime_error
-00168 {
-00169 <span class="keyword">public</span>:
-<a name="l00170"></a><a class="code" href="classpqxx_1_1in__doubt__error.html#a0">00170</a>   <span class="keyword">explicit</span> in_doubt_error(<span class="keyword">const</span> PGSTD::string &amp;whatarg) : 
-00171     <a class="code" href="config_8h.html#a22">PGSTD</a>::runtime_error(whatarg) {}
-00172 };
-00173 
-00174 }
-00175 
-00176 <span class="preprocessor">#endif</span>
-00177 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Fri Feb 28 19:23:32 2003 for libpqxx by
+00162 
+00164 
+<a name="l00170"></a><a class="code" href="classpqxx_1_1in__doubt__error.html">00170</a> <span class="keyword">class </span>PQXX_LIBEXPORT in_doubt_error : <span class="keyword">public</span> <a class="code" href="config_8h.html#a22">PGSTD</a>::runtime_error
+00171 {
+00172 <span class="keyword">public</span>:
+<a name="l00173"></a><a class="code" href="classpqxx_1_1in__doubt__error.html#a0">00173</a>   <span class="keyword">explicit</span> in_doubt_error(<span class="keyword">const</span> PGSTD::string &amp;whatarg) : 
+00174     <a class="code" href="config_8h.html#a22">PGSTD</a>::runtime_error(whatarg) {}
+00175 };
+00176 
+00177 }
+00178 
+00179 <span class="preprocessor">#endif</span>
+00180 <span class="preprocessor"></span>
+</pre></div><hr><address style="align: right;"><small>Generated on Thu Mar 6 23:30:05 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

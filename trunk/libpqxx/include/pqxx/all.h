@@ -13,6 +13,7 @@
 #include <pqxx/cachedresult.h>
 #include <pqxx/connection.h>
 #include <pqxx/cursor.h>
+#include <pqxx/largeobject.h>
 #include <pqxx/transaction.h>
 #include <pqxx/nontransaction.h>
 #include <pqxx/robusttransaction.h>

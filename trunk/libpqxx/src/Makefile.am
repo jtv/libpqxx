@@ -2,6 +2,7 @@ lib_LTLIBRARIES = libpqxx.la
 libpqxx_la_SOURCES = cachedresult.cxx \
 	connection.cxx \
 	cursor.cxx \
+	largeobject.cxx \
 	nontransaction.cxx \
 	result.cxx \
 	robusttransaction.cxx \
