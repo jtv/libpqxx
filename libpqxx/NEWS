@@ -1,3 +1,5 @@
+2002-12-08 14:14, v1.2.4:
+ - fixed compile error on some systems in include/pqxx/util.h
 2002-12-04 12:00, v1.2.3:
  - workaround for broken <sys/select.h> on some systems
  - fixed Quote() bug
