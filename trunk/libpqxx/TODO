@@ -35,6 +35,7 @@ Results
 (*) Allow direct mapping onto structs, using member ptr template args
 (*) Convert to/from date/time values
 (*) Real encoding support (PQmblen(), PQenv2encoding())
+(*) Support PQftable(), PQftablecol()
 
 Streams
 (*) Provide metadata information in tablestream
