@@ -16,6 +16,9 @@
 
 #include <string>
 
+/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+ */
+
 namespace Pg
 {
 
@@ -37,20 +40,20 @@ namespace Pg
 class Trigger
 {
 public:
-  Trigger(Connection &C, PGSTD::string N) : 
+  Trigger(Connection &C, PGSTD::string N) : 				//[t4]
     m_Conn(C), m_Name(N) 
   { 
     m_Conn.AddTrigger(this); 
   }
 
-  virtual ~Trigger() { m_Conn.RemoveTrigger(this); }
+  virtual ~Trigger() { m_Conn.RemoveTrigger(this); }			//[t4]
 
-  PGSTD::string Name() const { return m_Name; }
+  PGSTD::string Name() const { return m_Name; }				//[t4]
 
-  virtual void operator()(int be_pid) =0;
+  virtual void operator()(int be_pid) =0;				//[t4]
 
 protected:
-  Connection &Conn() const { return m_Conn; }
+  Connection &Conn() const { return m_Conn; }				//[t4]
 
 private:
   Connection &m_Conn;

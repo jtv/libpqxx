@@ -31,6 +31,12 @@ public:
   virtual void operator()(int be_pid)
   {
     m_Done = true;
+    if (be_pid != Conn().BackendPID())
+      throw logic_error("Expected notification from backend process " +
+		        ToString(Conn().BackendPID()) + 
+			", but got one from " +
+			ToString(be_pid));
+
     cout << "Received notification: " << Name() << " pid=" << be_pid << endl;
   }
 

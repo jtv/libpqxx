@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <iostream>
 #include <stdexcept>
 
@@ -32,6 +33,9 @@ int main(int argc, char *argv[])
     // Set up a connection to the backend
     Connection C(argv[1] ? argv[1] : "");
 
+    // Enable all sorts of debug output
+    C.Trace(stdout);
+
     // Begin a transaction acting on our current connection
     Transaction T(C, "test3");
 
@@ -59,6 +63,9 @@ int main(int argc, char *argv[])
         cout << '\t' << ToString(c.num()) << '\t' << N << endl;
       }
     }
+
+    // Stop generating debug output
+    C.Untrace();
 
     // Tell the transaction that it has been successful
     T.Commit();
