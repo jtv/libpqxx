@@ -13,25 +13,34 @@ namespace
 {
 
 // Verify that CachedResult::at() catches an index overrun
-void CheckOverrun(const CachedResult &CR, CachedResult::size_type Overrun)
+void CheckOverrun(const CachedResult &CR, 
+                  CachedResult::size_type Overrun,
+		  string &LastReason)
 {
-  if (Overrun >= 0) Overrun += CR.size();
+  const CachedResult::size_type Base = ((Overrun >= 0) ? CR.size() : 0);
 
   bool OK = false;
+  string Entry;
   try
   {
-    CR.at(Overrun).at(0);
+    CR.at(Base + Overrun).at(0).to(Entry);
   }
   catch (const exception &e)
   {
     // OK, this is what we expected to happen
     OK = true;
-    cerr << "(Expected) " << e.what() << endl;
+    if (LastReason != e.what())
+    {
+      cerr << "(Expected) " << e.what() << endl;
+      LastReason = e.what();
+
+    }
   }
 
   if (!OK) 
     throw logic_error("Failed to detect overrun "
-	              "(" + ToString(Overrun) + " rows)");
+	              "(row " + ToString(Base + Overrun) + "); "
+		      "found '" + Entry + "'");
 }
 
 }
@@ -53,9 +62,10 @@ int main(int, char *argv[])
     Connection C(argv[1] ? argv[1] : "");
     Transaction T(C, "test41");
 
-    const char Query[] = "SELECT * FROM events";
+    const char Query[] = "SELECT * FROM events ORDER BY year";
 
     Result R( T.Exec(Query) );
+    string Msg;
 
     for (int BlockSize = 2; BlockSize <= R.size()+1; ++BlockSize)
     {
@@ -63,7 +73,7 @@ int main(int, char *argv[])
  
       // Verify that we get an exception if we exceed CR's range, and are able
       // to recover afterwards
-      for (CachedResult::size_type n = -2; n < 2; ++n) CheckOverrun(CR, n);
+      for (CachedResult::size_type n = -2; n < 2; ++n) CheckOverrun(CR, n, Msg);
 
       // Compare contents for CR with R
       for (Result::size_type i = R.size() - 1; i >= 0 ; --i)
@@ -71,6 +81,7 @@ int main(int, char *argv[])
 	string A, B;
 	R.at(i).at(0).to(A);
 	CR.at(i).at(0).to(B);
+
 	if (A != B)
 	  throw logic_error("BlockSize " + ToString(BlockSize) + ", "
 	                    "row " + ToString(i) + ": "
