@@ -1,4 +1,5 @@
 1.4.1
+ - documents new homepage: http://pqxx.tk/
  - Connection constructor accepts null connect string
  - default Connection constructor creates lazy connection
 1.4.0
