@@ -31,7 +31,7 @@ void CheckOverrun(const cachedresult &CR,
     OK = true;
     if (LastReason != e.what())
     {
-      cerr << "(Expected) " << e.what() << endl;
+      cout << "(Expected) " << e.what() << endl;
       LastReason = e.what();
 
     }

@@ -94,7 +94,7 @@ int main(int, char *argv[])
     catch (const exception &e)
     {
       failed = true;
-      cerr << "(Expected) " << e.what() << endl;
+      cout << "(Expected) " << e.what() << endl;
     }
     if (!failed) 
       throw logic_error("retrieve() from empty pipeline failed to complain");

@@ -55,7 +55,7 @@ int main(int, char *argv[])
     }
     catch (const exception &e)
     {
-      cerr << "(Expected) " << e.what() << endl;
+      cout << "(Expected) " << e.what() << endl;
     }
     if (!failed) throw logic_error("Pipeline wrongly resumed after SQL error");
 
@@ -68,7 +68,7 @@ int main(int, char *argv[])
     }
     catch (const exception &e)
     {
-      cerr << "(Expected) " << e.what() << endl;
+      cout << "(Expected) " << e.what() << endl;
       failed = true;
     }
     if (!failed) throw logic_error("Pipeline failed to register SQL error");

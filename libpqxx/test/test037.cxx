@@ -86,7 +86,7 @@ public:
   {
     if (Reason != LastReason)
     {
-      cerr << "(Expected) Transactor " << Name() << " failed: " 
+      cout << "(Expected) Transactor " << Name() << " failed: " 
 	   << Reason << endl;
       LastReason = Reason;
     }
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
     }
     catch (const exception &e)
     {
-      cerr << "(Expected) Doomed transaction failed: " << e.what() << endl;
+      cout << "(Expected) Doomed transaction failed: " << e.what() << endl;
     }
 
     pair<int,int> After;

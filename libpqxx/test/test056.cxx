@@ -25,7 +25,7 @@ int main()
     }
     catch (const sql_error &e)
     {
-      cerr << "(Expected) Query failed: " << e.query() << endl
+      cout << "(Expected) Query failed: " << e.query() << endl
 	   << "(Expected) Error was: " << e.what() << endl;
     }
   }
