@@ -215,8 +215,8 @@ private:
  * not inline them.
  */
 #ifdef _WIN32
-pqxx::connection::~connection() throw () { close(); }
-pqxx::lazyconnection::~lazyconnection() throw () { close(); }
-pqxx::asyncconnection::~asyncconnection() throw () {do_dropconnect();close();}
+inline pqxx::connection::~connection() throw () { close(); }
+inline pqxx::lazyconnection::~lazyconnection() throw () { close(); }
+inline pqxx::asyncconnection::~asyncconnection() throw () {do_dropconnect();close();}
 #endif
 

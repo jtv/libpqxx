@@ -1,5 +1,6 @@
 2.4.2
  - Fix problems with Apple's version of g++ 3.3
+ - Fix problem with MingW on Windows
  - More sample configuration headers
 2.4.1
  - Several bugs in icursor_iterator fixed; incompatible interface changes
