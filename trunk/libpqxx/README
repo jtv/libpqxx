@@ -189,6 +189,10 @@ system, compiler, and PostgreSQL versions support.  Normally the configure
 script would do this for you; in theory it should be possible to run the 
 configure script with e.g. Visual C++ as your compiler.
 
+Before trying to compile with Visual C++, you'll at least need to edit the file
+win32/common to reflect the proper paths to your PostgreSQL headers and the 
+libpq library.
+
 
 Manual Configuration: config.h & libconfig.h
 

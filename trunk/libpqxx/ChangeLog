@@ -1,3 +1,11 @@
+2004-02-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ README, win32/INSTALL.txt:
+  - Documented the need to edit win32/common
+ tools/rmlo.cxx:
+  - Ported to 2.x API (thanks GB Clark)
+2004-02-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh, configure.ac.in:
+  - Fixes for using config/m4 directory (Patrick Welche)
 2004-02-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
  .cvsignore:
   - Added configure.lineno (Patrick Welche)
