@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     }
     catch (const sql_error &e)
     {
-      cerr << "(Expected) Couldn't drop table: " << e.what() << endl
+      cout << "(Expected) Couldn't drop table: " << e.what() << endl
 	   << "Query was: " << e.query() << endl;
     }
 

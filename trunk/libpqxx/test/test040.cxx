@@ -74,7 +74,7 @@ int main(int, char *argv[])
       {
 	if (e.what() != LastReason)
 	{
-	  cerr << "(Expected) " << e.what() << endl;
+	  cout << "(Expected) " << e.what() << endl;
 	  LastReason = e.what();
 	}
       }
