@@ -30,7 +30,7 @@
 // try
 // {
 //   T.Exec("UPDATE employees SET wage=wage*2");
-//   T.Commit();	// NOTE: do this inside catch block
+//   T.Commit();	// NOTE: do this inside try block
 // } 
 // catch (const exception &e)
 // {
