@@ -1,3 +1,6 @@
+2004-06-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/nontransaction.cxx, src/robusttransaction.cxx:
+  - Removed unsafe query retries
 2004-06-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/pipeline.hxx, src/pipeline.cxx:
   - Made m_issuedrange a pair of iterators

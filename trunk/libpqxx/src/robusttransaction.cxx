@@ -61,7 +61,7 @@ void pqxx::basic_robusttransaction::do_begin()
   {
     // The problem here *may* be that the log table doesn't exist yet.  Create
     // one, start a new transaction, and try again.
-    try { DirectExec(SQL_ROLLBACK_WORK, 2); } catch (const exception &e) {}
+    try { DirectExec(SQL_ROLLBACK_WORK); } catch (const exception &e) {}
     CreateLogTable();
     start_backend_transaction();
     CreateTransactionRecord();
@@ -180,7 +180,7 @@ void pqxx::basic_robusttransaction::CreateLogTable()
 	               "date TIMESTAMP"
 	               ")";
 
-  try { DirectExec(CrTab.c_str()); } catch (const exception &) { }
+  try { DirectExec(CrTab.c_str(), 1); } catch (const exception &) { }
 }
 
 
