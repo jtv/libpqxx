@@ -63,7 +63,7 @@ public:
   {
   public:
     typedef Tuple_size_type size_type;
-    Tuple(const Result *r, size_type i) : m_Home(r), m_Index(i) {}
+    Tuple(const Result *r, Result::size_type i) : m_Home(r), m_Index(i) {}
     ~Tuple() {} // Yes Scott Meyers, you're absolutely right[1]
 
     inline Field operator[](size_type) const;				//[t1]
