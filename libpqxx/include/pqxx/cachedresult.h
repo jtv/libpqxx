@@ -48,6 +48,8 @@ class PQXX_LIBEXPORT CachedResult
 public:
   typedef Result::size_type size_type;
   typedef size_type blocknum;
+
+  /// Tuple type.  Currently borrowed from Result, but may change in the future.
   typedef Result::Tuple Tuple;
 
   /** Perform query and transparently fetch and cache resulting data.
@@ -68,10 +70,31 @@ public:
   // TODO: Metadata
   // TODO: Block replacement (limit cache size); then add capacity()
 
+  /// Access a tuple.  Invalid index yields undefined behaviour.
+  /**
+   * Caveat: the Tuple contains a reference to a Result that may be destroyed
+   * by any other operation on the CachedResult, even if its constness is
+   * preserved.  Therefore only use the returned Tuple as a temporary, and do
+   * not try to copy-construct it, or keep references or pointers to it.
+   *
+   * @param i the number of the tuple to be accessed.
+   */
   const Tuple operator[](size_type i) const				//[t41]
   	{ return GetBlock(BlockFor(i))[Offset(i)]; }
 
-  const Tuple at(size_type i) const					//[t40]
+  /// Access a tuple.  Throws exception if index is out of range.
+  /**
+   * If the given index is not the index of an existing row, an out_of_range
+   * error will be thrown.
+   *
+   * Caveat: the Tuple contains a reference to a Result that may be destroyed
+   * by any other operation on the CachedResult, even if its constness is
+   * preserved.  Therefore only use the returned Tuple as a temporary, and do
+   * not try to copy-construct it, or keep references or pointers to it.
+   *
+   * @param i the number of the tuple to be accessed.
+   */
+   const Tuple at(size_type i) const					//[t40]
   	{ return GetBlock(BlockFor(i)).at(Offset(i)); }
 
   /// Number of rows in result set.  First call may be slow.
@@ -100,20 +123,6 @@ private:
 
   typedef Cursor::pos pos;
 
-  class CacheEntry
-  {
-    int m_RefCount;
-    Result m_Data;
-
-  public:
-    CacheEntry() : m_RefCount(0), m_Data() {}
-    explicit CacheEntry(const Result &R) : m_RefCount(0), m_Data(R) {}
-
-    const Result &Data() const { return m_Data; }
-    int RefCount() const { return m_RefCount; }
-  };
-
-
   blocknum BlockFor(size_type Row) const throw () 
   	{ return Row / m_Granularity; }
   size_type Offset(size_type Row) const throw ()
@@ -124,12 +133,12 @@ private:
   void MoveTo(blocknum) const;
 
   /// Get block we're currently at.  Assumes it wasn't in cache already.
-  Result Fetch() const;
+  const Result &Fetch() const;
 
-  Result GetBlock(blocknum b) const
+  const Result &GetBlock(blocknum b) const
   {
     CacheMap::const_iterator i = m_Cache.find(b);
-    if (i != m_Cache.end()) return i->second.Data();
+    if (i != m_Cache.end()) return i->second;
 
     MoveTo(b);
     return Fetch();
@@ -138,10 +147,12 @@ private:
   /// Block size.
   size_type m_Granularity;
 
-  typedef PGSTD::map<blocknum, CacheEntry> CacheMap;
+  typedef PGSTD::map<blocknum, const Result> CacheMap;
   mutable CacheMap m_Cache;
 
   mutable Cursor m_Cursor;
+  mutable Result m_EmptyResult;
+  mutable bool   m_HaveEmpty;
 
   // Not allowed:
   CachedResult();

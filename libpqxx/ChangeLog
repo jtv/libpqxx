@@ -1,3 +1,18 @@
+2003-02-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cachedresult.h, src/cachedresult.cxx:
+  - Fixed silly lifetime bug (now returns reference)
+  - Removed CacheEntry class for now (uses less memory this way)
+ src/cursor.cxx:
+  - Oops, forgot to save changes earlier.
+2003-02-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.h, src/cursor.cxx:
+  - Cursor may adopt existing SQL cursor returned from function
+2003-02-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/*:
+  - Great Renaming of all test programs to 0-padded 3-digit test numbers
+2003-02-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cachedresult.h, src/cachedresult.cxx:
+  - Store a single empty result to return when needed (fixes lifetime bug)
 2003-02-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cachedresult.h, include/pqxx/connection.h,
  include/pqxx/result.h, include/pqxx/robusttransaction.h,
