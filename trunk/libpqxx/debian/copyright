@@ -1,15 +1,13 @@
-This package was debianized by J.H.M. Dassen <jdassen@debian.org> on
-Tue, 30 Jul 2002 16:22:57 +0200.
+This package was debianized by Greg Hookey <debian@deadly.ca> on
+Thu, 12 Dec 2002 00:27:01 -0800.
 
-It was downloaded from the CVS repository 
-:pserver:anoncvs@anoncvs.postgresql.org:/projects/cvsroot
-module interfaces/libpqxx .
+It was downloaded from <http://pqxx.tk>
 
-Primary upstream author(s): Jeroen T. Vermeulen <jtv@xs4all.nl>.
-See AUTHORS and ChangeLog for full credits.
+Upstream Authors: Jeroen T. Vermeulen <jtv@xs4all.nl> John Anderson <panic@semiosix.com> Clinton James <cjames@callone.net> Ray Dassen <jdassen@debian.org>
 
 Copyright:
 
-This is a preliminary version of libpqxx.  Distribution and use are allowed
-under the same conditions as the main PostgreSQL project.
+This project is released under the Berkeley/BSD license.
 
+On Debian systems, the complete text of the BSD License can
+be found in the file `/usr/share/common-licenses/BSD'.

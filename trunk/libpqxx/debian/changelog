@@ -1,11 +1,19 @@
-libpqxx (1.7.2-1) unstable; urgency=low
+libpqxx (1.7.7-1) unstable; urgency=low
 
-  * Updated Debian packaging.
+  * Integrated Greg's packaging, replacing Ray's initial setup
 
- -- J.H.M. Dassen <jdassen@debian.org>  Tue,  6 Aug 2002 13:23:28 +0200
+ -- Jeroen T. Vermeulen <jtv@xs4all.nl>  Mon, 28 Apr 2003 16:08:01 +0200
 
-libpqxx (1.1.2-1) unstable; urgency=low
+libpqxx (1.7.6-1) unstable; urgency=low
 
-  * Initial Release.
+  * Example packaging to be used with libpqxx development version
+    1.7.6. 
 
- -- J.H.M. Dassen <jdassen@debian.org>  Tue,  6 Aug 2002 13:23:28 +0200
+ -- Greg Hookey <g@deadly.ca>  Sun, 27 Apr 2003 16:08:01 -0700
+
+libpqxx (1.5.1-1) unstable; urgency=low
+
+  * Initial Release. (closes: #170932) 
+
+ -- Greg Hookey <debian@deadly.ca>  Sat, 22 Mar 2003 16:00:10 -0800
+

@@ -1,6 +1,7 @@
 1.7.7
  - ./configure also looks for postgres in /usr/local/pgsql
  - test007 now uses SQL_ASCII as its test encoding
+ - integrated Greg Hookey's Debian packaging
 1.7.6
  - added postgres library (libpq) to dynamic link path
 1.7.5

@@ -1,0 +1,1 @@
+shlibs:Depends=libc6 (>= 2.3.1-1), libpq3 (>= 7.3.1)

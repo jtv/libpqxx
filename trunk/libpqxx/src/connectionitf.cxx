@@ -74,7 +74,7 @@ private:
   PQAlloc(const PQAlloc &);		// Not allowed
   PQAlloc &operator=(const PQAlloc &);	// Not allowed
 };
-}
+} // namespace
 
 
 extern "C"
@@ -150,6 +150,7 @@ void pqxx::ConnectionItf::Deactivate() const
 }
 
 
+// TODO: Restore encoding when restoring connection!
 void pqxx::ConnectionItf::SetClientEncoding(const char Encoding[])
 {
   if (PQsetClientEncoding(m_Conn, Encoding) != 0)

@@ -28,8 +28,8 @@ system can be found at either of:
 Getting Started
 
 All of this applies only to operating systems that are either part of, or
-closely resemble, or support the standard interfaces of the Unix family.  This 
-includes MacOS X (starting with 10.2, a.k.a. Jaguar) as well as Linux, the
+closely resemble, or support the standard interfaces of, the Unix family.  This 
+includes MacOS X (starting with 10.2, a.k.a. Jaguar) as well as GNU/Linux, the
 various BSD systems, etc.  Windows users should skip to the Building on Windows
 section.
 
