@@ -8,7 +8,7 @@
  *   pqxx::transaction represents a standard database transaction
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction instead.
  *
- * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -16,6 +16,9 @@
  *
  *-------------------------------------------------------------------------
  */
+#include "pqxx/libcompiler.h"
+
+
 #include "pqxx/dbtransaction"
 
 
@@ -90,7 +93,13 @@ public:
     basic_transaction(C, isolation_tag::name(), PGSTD::string()) 
     	{ Begin(); }
 
-  virtual ~transaction() throw () { End(); }
+  virtual ~transaction() throw () 
+  {
+#ifdef PQXX_QUIET_DESTRUCTORS
+    internal::disable_noticer Quiet(conn());
+#endif
+    End(); 
+  }
 
 protected:
   virtual const char *classname() const throw () { return "transaction"; }

@@ -22,6 +22,7 @@
 
 using namespace PGSTD;
 using namespace pqxx;
+using namespace pqxx::internal;
 using namespace pqxx::internal::pq;
 
 #define pqxxassert(ARG) /* ignore */
@@ -51,6 +52,9 @@ pqxx::pipeline::pipeline(transaction_base &t, const string &PName) :
 
 pqxx::pipeline::~pipeline() throw ()
 {
+#ifdef PQXX_QUIET_DESTRUCTORS
+  disable_noticer Quiet(m_Trans.conn());
+#endif
   try { flush(); } catch (const exception &) {}
   if (registered()) unregister_me();
 }

@@ -7,7 +7,7 @@
  *      implementation of the pqxx::tablereader class.
  *   pqxx::tablereader enables optimized batch reads from a database table
  *
- * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -43,6 +43,9 @@ void pqxx::tablereader::setup(transaction_base &T,
 
 pqxx::tablereader::~tablereader() throw ()
 {
+#ifdef PQXX_QUIET_DESTRUCTORS
+  internal::disable_noticer Quiet(m_Trans.conn());
+#endif
   try
   {
     reader_close();

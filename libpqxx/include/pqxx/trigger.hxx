@@ -8,7 +8,7 @@
  *   pqxx::trigger describes a database trigger to wait on, and what it does
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/trigger instead.
  *
- * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -16,6 +16,8 @@
  *
  *-------------------------------------------------------------------------
  */
+#include "pqxx/libcompiler.h"
+
 #include "pqxx/connection_base"
 
 
@@ -54,7 +56,13 @@ public:
   trigger(connection_base &C, const PGSTD::string &N) : 		//[t4]
     m_Conn(C), m_Name(N) { m_Conn.AddTrigger(this); }
 
-  virtual ~trigger() throw () { m_Conn.RemoveTrigger(this); }		//[t4]
+  virtual ~trigger() throw () 						//[t4]
+  {
+#ifdef PQXX_QUIET_DESTRUCTORS
+    internal::disable_noticer Quiet(Conn());
+#endif
+    m_Conn.RemoveTrigger(this); 
+  }
 
   const PGSTD::string &name() const { return m_Name; }			//[t4]
 
