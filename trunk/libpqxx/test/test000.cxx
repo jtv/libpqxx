@@ -76,6 +76,12 @@ const double not_a_number =
   0.0/0.0;
 #endif
 
+struct intderef
+{
+  template<typename ITER>
+    int operator()(ITER i) const throw () { return int(*i); }
+};
+
 } // namespace
 
 int main()
@@ -102,6 +108,8 @@ int main()
     testitems(I4,4);
     items<int> I5(1,2,3,4,5);
     testitems(I5,5);
+    const string l = separated_list(",",I5.begin(),I5.end(),intderef());
+    if (l != "1,2,3,4,5") throw logic_error("Separated list was '" + l + "'");
     vector<int> V2(I2);
     testitems(items<int>(V2),2);
 
