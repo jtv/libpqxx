@@ -294,13 +294,14 @@ void pqxx::transaction_base::End() throw ()
 
 
 
-void pqxx::transaction_base::RegisterFocus(transactionfocus *S)
+void pqxx::transaction_base::RegisterFocus(internal::transactionfocus *S)
 {
   m_Focus.Register(S);
 }
 
 
-void pqxx::transaction_base::UnregisterFocus(transactionfocus *S) throw ()
+void pqxx::transaction_base::UnregisterFocus(internal::transactionfocus *S)
+	throw ()
 {
   try
   {
