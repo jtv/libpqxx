@@ -33,12 +33,12 @@ using namespace pqxx::internal;
 #define SQL_COMMIT_WORK 	"COMMIT"
 #define SQL_ROLLBACK_WORK 	"ROLLBACK"
 
-pqxx::basic_robusttransaction::basic_robusttransaction(connection_base &C, 
+pqxx::basic_robusttransaction::basic_robusttransaction(connection_base &C,
 	const string &IsolationLevel,
 	const string &TName) :
-  dbtransaction(C, 
-      IsolationLevel, 
-      TName, 
+  dbtransaction(C,
+      IsolationLevel,
+      TName,
       "robusttransaction<"+IsolationLevel+">"),
   m_ID(oid_none),
   m_LogTable(),
@@ -79,9 +79,9 @@ void pqxx::basic_robusttransaction::do_commit()
 {
   const IDType ID = m_ID;
 
-  if (ID == oid_none) 
-    throw logic_error("libpqxx internal error: transaction " 
-		      "'" + name() + "' " 
+  if (ID == oid_none)
+    throw logic_error("libpqxx internal error: transaction "
+		      "'" + name() + "' "
 		     "has no ID");
 
   // Check constraints before sending the COMMIT to the database to reduce the
@@ -89,20 +89,22 @@ void pqxx::basic_robusttransaction::do_commit()
   // one last check that our connection is really working before sending the
   // commit command.
   //
-  // This may not an entirely clear-cut 100% obvious unambiguous Good Thing.  If
-  // we lose our connection during the in-doubt window, it may be better if the
-  // transaction didn't actually go though, and having constraints checked first
-  // theoretically makes it more likely that it will once we get to that stage.
+  // This may not be an entirely clear-cut 100% obvious unambiguous Good Thing.
+  // If we lose our connection during the in-doubt window, it may be better if
+  // the transaction didn't actually go though, and having constraints checked
+  // first theoretically makes it more likely that it will once we get to that
+  // stage.
+  //
   // However, it seems reasonable to assume that most transactions will satisfy
   // their constraints.  Besides, the goal of robusttransaction is to weed out
   // indeterminacy, rather than to improve the odds of desirable behaviour when
   // all bets are off anyway.
   DirectExec("SET CONSTRAINTS ALL IMMEDIATE");
 
-  // Here comes the critical part.  If we lose our connection here, we'll be 
+  // Here comes the critical part.  If we lose our connection here, we'll be
   // left clueless as to whether the backend got the message and is trying to
   // commit the transaction (let alone whether it will succeed if so).  This
-  // case requires some special handling that makes robusttransaction what it 
+  // case requires some special handling that makes robusttransaction what it
   // is.
   try
   {
@@ -118,8 +120,8 @@ void pqxx::basic_robusttransaction::do_commit()
       // the backend and check our transaction log to see what happened.
       process_notice(e.what() + string("\n"));
 
-      // See if transaction record ID exists; if yes, our transaction was 
-      // committed before the connection went down.  If not, the transaction 
+      // See if transaction record ID exists; if yes, our transaction was
+      // committed before the connection went down.  If not, the transaction
       // was aborted.
       bool Exists;
       try
@@ -145,18 +147,18 @@ void pqxx::basic_robusttransaction::do_commit()
 
         throw in_doubt_error(Msg);
       }
- 
-      // Transaction record is gone, so all we have is a "normal" transaction 
+
+      // Transaction record is gone, so all we have is a "normal" transaction
       // failure.
       if (!Exists) throw;
     }
     else
     {
-      // Commit failed--probably due to a constraint violation or something 
+      // Commit failed--probably due to a constraint violation or something
       // similar.  But we're still connected, so no worries from a consistency
       // point of view.
- 
-      // Try to delete transaction record ID, if it still exists (although it 
+
+      // Try to delete transaction record ID, if it still exists (although it
       // really shouldn't)
       DeleteTransactionRecord(ID);
       throw;
@@ -181,7 +183,7 @@ void pqxx::basic_robusttransaction::do_abort()
 // Create transaction log table if it didn't already exist
 void pqxx::basic_robusttransaction::CreateLogTable()
 {
-  // Create log table in case it doesn't already exist.  This code must only be 
+  // Create log table in case it doesn't already exist.  This code must only be
   // executed before the backend transaction has properly started.
   const string CrTab = "CREATE TABLE " + m_LogTable +
 	               "("
@@ -195,6 +197,7 @@ void pqxx::basic_robusttransaction::CreateLogTable()
 
 void pqxx::basic_robusttransaction::CreateTransactionRecord()
 {
+  // TODO: Might as well include real transaction ID and backend PID
   const string Insert = "INSERT INTO " + m_LogTable + " "
 	                "(name, date) "
 			"VALUES "
@@ -206,7 +209,7 @@ void pqxx::basic_robusttransaction::CreateTransactionRecord()
 
   m_ID = DirectExec(Insert.c_str()).inserted_oid();
 
-  if (m_ID == oid_none) 
+  if (m_ID == oid_none)
     throw runtime_error("Could not create transaction log record");
 }
 
@@ -217,7 +220,7 @@ void pqxx::basic_robusttransaction::DeleteTransactionRecord(IDType ID) throw ()
 
   try
   {
-    // Try very, very hard to delete record.  Specify an absurd retry count to 
+    // Try very, very hard to delete record.  Specify an absurd retry count to
     // ensure that the server gets a chance to restart before we give up.
     const string Del = "DELETE FROM " + m_LogTable + " "
 	               "WHERE oid=" + to_string(ID);
@@ -234,7 +237,7 @@ void pqxx::basic_robusttransaction::DeleteTransactionRecord(IDType ID) throw ()
   if (ID != oid_none) try
   {
     process_notice("WARNING: "
-	           "Failed to delete obsolete transaction record with oid " + 
+	           "Failed to delete obsolete transaction record with oid " +
 		   to_string(ID) + " ('" + name() + "'). "
 		   "Please delete it manually.  Thank you.\n");
   }
@@ -264,18 +267,19 @@ bool pqxx::basic_robusttransaction::CheckTransactionRecord(IDType ID)
    * that the backend dies.
    */
   // TODO: Tom says we need stats_start_collector, not stats_command_string!?
+  // TODO: This should work: "SELECT * FROM pg_locks WHERE pid=" + m_backendpid
   bool hold = true;
   for (int c=20; hold && c; internal::sleep_seconds(5), --c)
   {
     const result R(DirectExec(("SELECT current_query "
 	  "FROM pq_stat_activity "
 	  "WHERE procpid=" + to_string(m_backendpid)).c_str()));
-    hold = (!R.empty() && 
+    hold = (!R.empty() &&
       !R[0][0].as(string()).empty() &&
       (R[0][0].as(string()) != "<IDLE>"));
   }
 
-  if (hold) 
+  if (hold)
     throw runtime_error("Old backend process stays alive too long to wait for");
 
   // Now look for our transaction record
