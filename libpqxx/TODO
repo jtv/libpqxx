@@ -1,5 +1,6 @@
 Error handling
 (*) Check for unexpectedly open/closed transactions (appears to be possible)
+(*) Deal with in-doubt transactions
 
 General
 (*) Decent build instructions
@@ -7,8 +8,8 @@ General
 
 Porting
 (*) Port to mySQL etc., then refactor to separate front/back interfaces
-(*) Hide connect string
-(*) Make TableStream hierarchy respect DIALECT
+(*) Hide DBMS-specific connect string
+(*) Make TableStream classes respect DIALECT
 
 Results
 (*) Allow querying of field types

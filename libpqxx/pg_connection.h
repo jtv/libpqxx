@@ -34,8 +34,9 @@
 
 namespace Pg
 {
-class Result;	// See pg_result.h
-class Trigger;	// See pg_trigger.h
+class Result;		// See pg_result.h
+class Trigger;		// See pg_trigger.h
+class in_doubt_error;	// See pg_transaction.h
 
 extern "C" { typedef void (*NoticeProcessor)(void *arg, const char *msg); }
 
@@ -189,6 +190,12 @@ inline void Connection::Perform(const TRANSACTOR &T,
       T2(X);
       X.Commit();
       Done = true;
+    }
+    catch (const in_doubt_error &)
+    {
+      // Not sure whether transaction went through or not.  The last thing in
+      // the world that we should do now is retry.
+      throw;
     }
     catch (const PGSTD::exception &e)
     {
