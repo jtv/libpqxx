@@ -71,10 +71,10 @@ void pqxx::CachedResult::MoveTo(blocknum Block) const
 
 pqxx::Result pqxx::CachedResult::Fetch() const
 {
-  Result R;
   size_type Pos = m_Cursor.Pos();
 
-  if (m_Cursor >> R) m_Cache.insert(make_pair(BlockFor(Pos), CacheEntry(R)));
+  Result R( m_Cursor.Fetch(m_Granularity) );
+  if (!R.empty()) m_Cache.insert(make_pair(BlockFor(Pos), CacheEntry(R)));
 
   return R;
 }
