@@ -375,7 +375,7 @@ void pqxx::connection_base::RemoveTrigger(pqxx::trigger *T) throw ()
     else
     {
       if (m_Conn && (R.second == ++R.first))
-	PQexec(m_Conn, ("UNLISTEN \"" + T->name() + "\"").c_str());
+	result(PQexec(m_Conn,("UNLISTEN \"" + T->name() + "\"").c_str()));
 
       m_Triggers.erase(i);
     }
@@ -438,7 +438,7 @@ int pqxx::connection_base::get_notifs()
 }
 
 
-const char *pqxx::connection_base::ErrMsg() const
+const char *pqxx::connection_base::ErrMsg() const throw ()
 {
   return m_Conn ? PQerrorMessage(m_Conn) : "No connection to database";
 }
@@ -537,15 +537,7 @@ void pqxx::connection_base::close() throw ()
 
     if (!m_Triggers.empty())
     {
-      string T;
-      for (TriggerList::const_iterator i = m_Triggers.begin(); 
-	   i != m_Triggers.end();
-	   ++i)
-	T += " " + i->first;
-
-        process_notice("Closing connection with outstanding triggers:" + 
-	               T + 
-		       "\n");
+      process_notice("Closing connection with outstanding triggers");
       m_Triggers.clear();
     }
 
@@ -573,8 +565,11 @@ void pqxx::connection_base::AddVariables(const map<string,string> &Vars)
 
 void pqxx::connection_base::InternalSetTrace() throw ()
 {
-  if (m_Trace) PQtrace(m_Conn, m_Trace);
-  else PQuntrace(m_Conn);
+  if (m_Conn)
+  {
+    if (m_Trace) PQtrace(m_Conn, m_Trace);
+    else PQuntrace(m_Conn);
+  }
 }
 
 
@@ -781,6 +776,7 @@ namespace
 
 int pqxx::connection_base::set_fdmask() const
 {
+  if (!m_Conn) throw broken_connection();
   const int fd = PQsocket(m_Conn);
   if (fd < 0) throw broken_connection();
   FD_SET(fd, &m_fdmask);
