@@ -16,18 +16,19 @@
 <tr><td nowrap align=right valign=top>typedef Result::Tuple&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1CachedResult.html#s2">Tuple</a></td></tr>
 <tr><td colspan=2><br><h2>Public Methods</h2></td></tr>
 <tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1CachedResult.html#a0">CachedResult</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">pqxx::TransactionItf</a> &amp;, const char Query[], PGSTD::string BaseName="query", <a class="el" href="classpqxx_1_1CachedResult.html#s0">size_type</a> Granularity=100)</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Granularity must be at least 2.</em> <a href="#a0"></a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top>const <a class="el" href="classpqxx_1_1CachedResult.html#s2">Tuple</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1CachedResult.html#a1">operator[]</a> (<a class="el" href="classpqxx_1_1CachedResult.html#s0">size_type</a> i) const</td></tr>
 <tr><td nowrap align=right valign=top>const <a class="el" href="classpqxx_1_1CachedResult.html#s2">Tuple</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1CachedResult.html#a2">at</a> (<a class="el" href="classpqxx_1_1CachedResult.html#s0">size_type</a> i) const</td></tr>
 <tr><td nowrap align=right valign=top><a class="el" href="classpqxx_1_1CachedResult.html#s0">size_type</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1CachedResult.html#a3">size</a> () const</td></tr>
-<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1CachedResult.html#a4">clear</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Number of rows in result set.</em> <a href="#a3"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1CachedResult.html#a4">empty</a> () const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Is the result set empty, i.e. does it contain no rows? May fetch 1 block.</em> <a href="#a4"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1CachedResult.html#a5">clear</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Drop all data in internal cache, freeing up memory.</em> <a href="#a5"></a><em></em></font><br><br></td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 Cached result set. Chunks of result data are transparently fetched on-demand and stored in an internal cache for reuse. Functionality is similar to that of <a class="el" href="classpqxx_1_1Result.html">Result</a>, with certain restrictions and different performance characteristics. A <a class="el" href="classpqxx_1_1CachedResult.html">CachedResult</a> must live in the context of a transaction, so that it can fetch further rows as they are needed.
 <p>
-The class uses a <a class="el" href="classpqxx_1_1Cursor.html">Cursor</a> internally to fetch results. Data are not fetched row-by-row, but in chunks of configurable size. For internal computational reasons, these chunks (called "blocks" here) must be at least 2 rows large.
-<p>
-The maximum size of a query result accessed through a <a class="el" href="classpqxx_1_1CachedResult.html">CachedResult</a> is one less than the maximum size of a reqular PostgreSQL query result. 
+The class uses a <a class="el" href="classpqxx_1_1Cursor.html">Cursor</a> internally to fetch results. Data are not fetched row-by-row, but in chunks of configurable size. For internal computational reasons, these chunks (called "blocks" here) must be at least 2 rows large. 
 <p>
 <hr><h2>Member Typedef Documentation</h2>
 <a name="s1" doxytag="pqxx::CachedResult::blocknum"></a><p>
@@ -144,9 +145,7 @@ The maximum size of a query result accessed through a <a class="el" href="classp
     <td>
 
 <p>
-Granularity must be at least 2.
-<p>
-    </td>
+Perform query and transparently fetch and cache resulting data. Granularity determines how large the blocks of data used internally will be; must be at least 2.     </td>
   </tr>
 </table>
 <hr><h2>Member Function Documentation</h2>
@@ -179,7 +178,7 @@ Granularity must be at least 2.
     </td>
   </tr>
 </table>
-<a name="a4" doxytag="pqxx::CachedResult::clear"></a><p>
+<a name="a5" doxytag="pqxx::CachedResult::clear"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -203,6 +202,38 @@ Granularity must be at least 2.
     </td>
     <td>
 
+<p>
+Drop all data in internal cache, freeing up memory.
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a4" doxytag="pqxx::CachedResult::empty"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool pqxx::CachedResult::empty </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const</td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Is the result set empty, i.e. does it contain no rows? May fetch 1 block.
 <p>
     </td>
   </tr>
@@ -261,12 +292,14 @@ Granularity must be at least 2.
     <td>
 
 <p>
-    </td>
+Number of rows in result set.
+<p>
+Figuring out the size of the result set for the first time may take a lot of time and network traffic, as the CachedResult's internal cursor scans back and forth in search of the set's last row. Some 30 blocks of data may be fetched in the process.     </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="cachedresult_8h-source.html">cachedresult.h</a><li><a class="el" href="cachedresult_8cxx.html">cachedresult.cxx</a></ul>
-<hr><address style="align: right;"><small>Generated on Sun Dec 1 20:39:57 2002 for libpqxx by
+<hr><address style="align: right;"><small>Generated on Tue Dec 3 01:37:35 2002 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc1 </small></address>

@@ -1,3 +1,8 @@
+2002-12-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/cachedresult.cxx:
+  - Fixed cursor position bug when size was even multiple of granularity
+ test/test41.cxx:
+  - New
 2002-12-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cachedresult.h:
   - Implemented empty()

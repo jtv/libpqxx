@@ -76,23 +76,24 @@
 <a name="l00109"></a><a class="code" href="classpqxx_1_1Cursor.html#a8">00109</a> <span class="comment">  Cursor &amp;operator-=(Result_size_type N) { Move(-N); return *this;}     //[t19]</span>
 00110 
 00111 <span class="keyword">private</span>:
-00112   PGSTD::string MakeFetchCmd(<a class="code" href="namespacepqxx.html#a1">Result_size_type</a>) <span class="keyword">const</span>;
-00113 
-00114   <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;m_Trans;
-00115   PGSTD::string m_Name;
-00116   <a class="code" href="namespacepqxx.html#a1">Result_size_type</a> m_Count;
-00117   <span class="keywordtype">bool</span> m_Done;
-00118 
-00119   <span class="comment">// Not allowed:</span>
-00120   <a class="code" href="classpqxx_1_1Cursor.html">Cursor</a>(<span class="keyword">const</span> <a class="code" href="classpqxx_1_1Cursor.html">Cursor</a> &amp;);
-00121   <a class="code" href="classpqxx_1_1Cursor.html">Cursor</a> &amp;operator=(<span class="keyword">const</span> <a class="code" href="classpqxx_1_1Cursor.html">Cursor</a> &amp;);
-00122 };
-00123 
-00124 }
-00125 
-00126 <span class="preprocessor">#endif</span>
-00127 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Sun Dec 1 20:39:56 2002 for libpqxx by
+00112   <span class="keyword">static</span> PGSTD::string OffsetString(<a class="code" href="namespacepqxx.html#a1">Result_size_type</a>);
+00113   PGSTD::string MakeFetchCmd(<a class="code" href="namespacepqxx.html#a1">Result_size_type</a>) <span class="keyword">const</span>;
+00114 
+00115   <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;m_Trans;
+00116   PGSTD::string m_Name;
+00117   <a class="code" href="namespacepqxx.html#a1">Result_size_type</a> m_Count;
+00118   <span class="keywordtype">bool</span> m_Done;
+00119 
+00120   <span class="comment">// Not allowed:</span>
+00121   <a class="code" href="classpqxx_1_1Cursor.html">Cursor</a>(<span class="keyword">const</span> <a class="code" href="classpqxx_1_1Cursor.html">Cursor</a> &amp;);
+00122   <a class="code" href="classpqxx_1_1Cursor.html">Cursor</a> &amp;operator=(<span class="keyword">const</span> <a class="code" href="classpqxx_1_1Cursor.html">Cursor</a> &amp;);
+00123 };
+00124 
+00125 }
+00126 
+00127 <span class="preprocessor">#endif</span>
+00128 <span class="preprocessor"></span>
+</pre></div><hr><address style="align: right;"><small>Generated on Tue Dec 3 01:37:34 2002 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc1 </small></address>
