@@ -54,6 +54,7 @@ Streams
 
 Tests
 (*) Test NaN support!
+(*) Test tablereader and rows ending in empty fields
 
 Transactions
 (*) German's locking idea for robusttransaction
