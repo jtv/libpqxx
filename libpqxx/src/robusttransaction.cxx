@@ -83,7 +83,9 @@ void pqxx::basic_robusttransaction::do_commit()
 		     "has no ID");
 
   // Check constraints before sending the COMMIT to the database to reduce the
-  // work being done inside our in-doubt window.
+  // work being done inside our in-doubt window.  It also implicitly provides
+  // one last check that our connection is really working before sending the
+  // commit command.
   //
   // This may not an entirely clear-cut 100% obvious unambiguous Good Thing.  If
   // we lose our connection during the in-doubt window, it may be better if the
@@ -132,7 +134,7 @@ void pqxx::basic_robusttransaction::do_commit()
 		    "Please check for this record in the "
 		    "'" + m_LogTable + "' table.  "
 		    "If the record exists, the transaction was executed. "
-		    "If not, then it hasn't.\n";
+		    "If not, then it wasn't.\n";
 
         process_notice(Msg);
 	process_notice("Could not verify existence of transaction record "
