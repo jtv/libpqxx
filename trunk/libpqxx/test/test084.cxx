@@ -55,7 +55,7 @@ int main(int, char *argv[])
 {
   try
   {
-    const string Table = "pqxxevents", Key = "year";
+    const string Table = "pg_tables", Key = "tablename";
 
     connection c(argv[1]);
     transaction<serializable> T(c, "test84");
@@ -63,7 +63,7 @@ int main(int, char *argv[])
     // Count rows.
     result R( T.exec("SELECT count(*) FROM " + Table) );
 
-    if (R.at(0).at(0).as<long>() <= 10) 
+    if (R.at(0).at(0).as<long>() <= 20) 
       throw runtime_error("Not enough rows in '" + Table + "' "
 		          "for serious testing.  Sorry.");
 
@@ -90,15 +90,16 @@ int main(int, char *argv[])
     icursor_iterator i3(i2);
     i3 += InitialSkip;
 
-    icursor_iterator iend;
+    icursor_iterator iend, i4;
     if (i3 == iend)
       throw logic_error("Early end to icursor_iterator iteration!");
-    i3 = iend;
-    if (i3 != iend)
+    i4 = iend;
+    if (i4 != iend)
       throw logic_error("Assigning empty icursor_iterator fails");
 
     // Now start testing our new Cursor.
     C >> R;
+    i2 = i3;
     result R2( *i2++ );
 
     if (R.size() > result::size_type(GetRows))
@@ -111,13 +112,8 @@ int main(int, char *argv[])
 
     compare_results(R, R2, "[1]");
 
-    C.set_stride(1);
-    C2.set_stride(1);
-
     C.get(R);
     R2 = *i2;
-    if (R.size() != 1)
-      throw logic_error("Asked for 1 row, got " + to_string(R.size()));
     compare_results(R, R2, "[2]");
 
     C.ignore(2);
@@ -125,9 +121,7 @@ int main(int, char *argv[])
     ++i2;
 
     C.get(R);
-    C2.get(R2);
-    if (R.size() != 1)
-      throw logic_error("Asked for 1 row, got " + to_string(R.size()));
+    R2 = *i2;
     compare_results(R, R2, "[3]");
 
     for (int i=1; C && i2 != iend; C.get(R), R2 = *i2++, ++i)

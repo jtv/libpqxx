@@ -4,10 +4,10 @@
  *	cursor.cxx
  *
  *   DESCRIPTION
- *      implementation of the pqxx::Cursor class.
- *   pqxx::Cursor represents a database cursor.
+ *      implementation of libpqxx STL-style cursor classes.
+ *   These classes wrap SQL cursors in STL-like interfaces
  *
- * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -17,6 +17,7 @@
  */
 #include "pqxx/compiler.h"
 
+#include <cassert>
 #include <cstdlib>
 
 #include "pqxx/cursor"
@@ -42,11 +43,28 @@ pqxx::icursorstream::icursorstream(pqxx::transaction_base &context,
     const string &basename,
     difference_type Stride) :
   cursor_base(&context, basename),
-  m_stride(Stride)
+  m_stride(Stride),
+  m_realpos(0),
+  m_maxpos(0),
+  m_iterators(0)
 {
   set_stride(Stride);
   declare(query);
 }
+
+
+pqxx::icursorstream::icursorstream(transaction_base &Context,
+    const result::field &Name,
+    difference_type Stride) :
+  cursor_base(&Context, Name.c_str(), false),
+  m_stride(Stride),
+  m_realpos(0),
+  m_maxpos(0),
+  m_iterators(0)
+{
+  set_stride(Stride);
+}
+
 
 void pqxx::icursorstream::set_stride(difference_type n)
 {
@@ -69,6 +87,8 @@ pqxx::result pqxx::icursorstream::fetch()
 {
   result r(m_context->exec("FETCH "+to_string(m_stride)+" IN \""+name()+"\""));
   if (r.empty()) m_done = true;
+  m_realpos += r.size();
+  if (m_realpos > m_maxpos) m_maxpos = m_realpos;
   return r;
 }
 
@@ -76,59 +96,136 @@ pqxx::result pqxx::icursorstream::fetch()
 pqxx::icursorstream &pqxx::icursorstream::ignore(streamsize n)
 {
   m_context->exec("MOVE " + to_string(n) + " IN \"" + name() + "\"");
+  // TODO: Try to get actual number of moved tuples
+  m_realpos += n;
+  if (m_realpos > m_maxpos) m_maxpos = m_realpos;
   return *this;
+}
+
+
+void pqxx::icursorstream::insert_iterator(icursor_iterator *i) throw ()
+{
+  assert(i);
+  assert(i->m_stream==this);
+  assert(!i->m_next);
+  assert(!i->m_prev);
+#ifndef NDEBUG
+  for (icursor_iterator *s=m_iterators;s;s=s->m_next)assert(s!=i);
+#endif
+  i->m_next = m_iterators;
+  if (m_iterators) m_iterators->m_prev = i;
+  m_iterators = i;
+}
+
+
+void pqxx::icursorstream::remove_iterator(icursor_iterator *i) const throw ()
+{
+  assert(i);
+  assert(i->m_stream == this);
+  assert(m_iterators);
+  if (i == m_iterators)
+  {
+    assert(!i->m_prev);
+    m_iterators = i->m_next;
+    if (m_iterators)
+    {
+      assert(m_iterators->m_prev == i);
+      m_iterators->m_prev = 0;
+    }
+  }
+  else
+  {
+    assert(i->m_prev);
+    assert(i->m_prev->m_next == i);
+    i->m_prev->m_next = i->m_next;
+    if (i->m_next) i->m_next->m_prev = i->m_prev;
+  }
+  i->m_prev = 0;
+  i->m_next = 0;
+}
+
+
+void pqxx::icursorstream::service_iterators(size_type topos)
+{
+  assert(topos <= m_maxpos);
+  if (topos < m_realpos) return;
+
+  typedef multimap<size_type,icursor_iterator*> todolist;
+  todolist todo;
+  for (icursor_iterator *i = m_iterators; i; i = i->m_next)
+    if (i->m_pos >= m_realpos && i->m_pos <= topos)
+      todo.insert(make_pair(i->m_pos, i));
+  for (todolist::const_iterator i = todo.begin(); i != todo.end(); )
+  {
+    const size_type readpos = i->first;
+    if (readpos > m_realpos) ignore(readpos - m_realpos);
+    assert(readpos == i->first);
+    const result r = fetch();
+    for ( ; i != todo.end() && i->first == readpos; ++i)
+      i->second->fill(r);
+  }
 }
 
 
 pqxx::icursor_iterator::icursor_iterator() throw () :
   m_stream(0),
   m_here(),
-  m_fresh(true)
+  m_pos(0),
+  m_prev(0),
+  m_next(0)
 {
 }
 
 pqxx::icursor_iterator::icursor_iterator(istream_type &s) throw () :
   m_stream(&s),
   m_here(),
-  m_fresh(false)
+  m_pos(s.forward(0)),
+  m_prev(0),
+  m_next(0)
 {
+  s.insert_iterator(this);
 }
 
 pqxx::icursor_iterator::icursor_iterator(const icursor_iterator &rhs) throw () :
   m_stream(rhs.m_stream),
   m_here(rhs.m_here),
-  m_fresh(rhs.m_fresh)
+  m_pos(rhs.m_pos),
+  m_prev(0),
+  m_next(0)
 {
+  if (m_stream) m_stream->insert_iterator(this);
+}
+
+
+pqxx::icursor_iterator::~icursor_iterator() throw ()
+{
+  if (m_stream) m_stream->remove_iterator(this);
 }
 
 
 pqxx::icursor_iterator pqxx::icursor_iterator::operator++(int)
 {
-  refresh();
   icursor_iterator old(*this);
-  m_fresh = false;
+  m_pos = m_stream->forward();
   return old;
 }
 
 
 pqxx::icursor_iterator &pqxx::icursor_iterator::operator++()
 {
-  if (!m_fresh) m_stream->ignore(m_stream->stride());
-  m_fresh = false;
+  m_pos = m_stream->forward();
   return *this;
 }
 
 
 pqxx::icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
 {
-  if (n <= 1)
+  if (n <= 0)
   {
-    if (n > 0) return ++*this;
     if (!n) return *this;
     throw invalid_argument("Advancing icursor_iterator by negative offset");
   }
-  m_stream->ignore((n-m_fresh)*m_stream->stride());
-  m_fresh = false;
+  m_pos = m_stream->forward(n);
   return *this;
 }
 
@@ -136,25 +233,51 @@ pqxx::icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
 pqxx::icursor_iterator &
 pqxx::icursor_iterator::operator=(const icursor_iterator &rhs) throw ()
 {
-  rhs.refresh();
-  m_here = rhs.m_here;
-  m_stream = rhs.m_stream;
-  m_fresh = rhs.m_fresh;
+  if (rhs.m_stream == m_stream)
+  {
+    m_here = rhs.m_here;
+    m_pos = rhs.m_pos;
+  }
+  else
+  {
+    if (m_stream) m_stream->remove_iterator(this);
+    m_here = rhs.m_here;
+    m_pos = rhs.m_pos;
+    m_stream = rhs.m_stream;
+    if (m_stream) m_stream->insert_iterator(this);
+  }
   return *this;
 }
 
 
 bool pqxx::icursor_iterator::operator==(const icursor_iterator &rhs) const
 {
+  if (m_stream == rhs.m_stream) return pos() == rhs.pos();
+  if (m_stream && rhs.m_stream) return false;
   refresh();
   rhs.refresh();
   return m_here.empty() && rhs.m_here.empty();
 }
 
 
-void pqxx::icursor_iterator::read() const
+bool pqxx::icursor_iterator::operator<(const icursor_iterator &rhs) const
 {
-  m_stream->get(m_here);
-  m_fresh = true;
+  if (m_stream == rhs.m_stream) return pos() < rhs.pos();
+  refresh();
+  rhs.refresh();
+  return !m_here.empty();
 }
+
+
+void pqxx::icursor_iterator::refresh() const
+{
+  if (m_stream) m_stream->service_iterators(pos());
+}
+
+
+void pqxx::icursor_iterator::fill(const result &r) const
+{
+  m_here = r;
+}
+
 

@@ -98,6 +98,8 @@ inline cursor_base::difference_type cursor_base::backward_all() throw ()
 #endif
 }
 
+class icursor_iterator;
+
 /// Simple read-only cursor represented as a stream of results
 /** Data is fetched from the cursor as a sequence of result objects.  Each of
  * these will contain the number of rows defined as the stream's stride, except
@@ -151,10 +153,7 @@ public:
    */
   icursorstream(transaction_base &Context,
       const result::field &Name,
-      difference_type Stride=1) : 					//[t84]
-    cursor_base(&Context, Name.c_str(), false),
-    m_stride(Stride)
-	{ set_stride(Stride); }
+      difference_type Stride=1); 					//[t84]
 
   /// Read new value into given result object; same as operator >>
   /** The result set may continue any number of rows from zero to the chosen
@@ -176,14 +175,23 @@ public:
    * @param stride must be a positive number
    */
   void set_stride(difference_type stride);				//[t81]
-
   difference_type stride() const throw () { return m_stride; }		//[]
 
 private:
   void declare(const PGSTD::string &query);
   result fetch();
 
+  friend class icursor_iterator;
+  size_type forward(size_type n=1) { m_maxpos += n*m_stride; return m_maxpos; }
+  void insert_iterator(icursor_iterator *) throw ();
+  void remove_iterator(icursor_iterator *) const throw ();
+
+  void service_iterators(size_type);
+
   difference_type m_stride;
+  size_type m_realpos, m_maxpos;
+
+  mutable icursor_iterator *m_iterators;
 };
 
 
@@ -194,16 +202,21 @@ private:
  * for istream_iterators, this class supports multiple successive reads of the
  * same position (the current result set is cached in the iterator) even after
  * copying and even after new data have been read from the stream.  This appears
- * to be a requirement for input_iterators.
+ * to be a requirement for input_iterators.  Comparisons are also supported in
+ * the general case.
  *
- * The iterator has no concept of its own position, however.  Moving an iterator
- * forward moves the underlying stream forward and reads the data from the new
- * position, regardless of "where the iterator was" in the stream.  Comparison
- * of iterators is only supported for detecting the end of a stream.
+ * The iterator does not care about its own position, however.  Moving an
+ * iterator forward moves the underlying stream forward and reads the data from
+ * the new stream position, regardless of the iterator's old position in the
+ * stream.
  *
  * The stream's stride defines the granularity for all iterator movement or
  * access operations, i.e. "ici += 1" advances the stream by one stride's worth
  * of tuples, and "*ici++" reads one stride's worth of tuples from the stream.
+ *
+ * @warning Do not read from the underlying stream or its cursor, move its read
+ * position, or change its stride, between the time the first icursor_iterator
+ * on it is created and the time its last icursor_iterator is destroyed.
  */
 class PQXX_LIBEXPORT icursor_iterator : 
   public PGSTD::iterator<PGSTD::input_iterator_tag, 
@@ -219,7 +232,8 @@ public:
 
   icursor_iterator() throw ();						//[t84]
   explicit icursor_iterator(istream_type &) throw ();			//[t84]
-  icursor_iterator(const icursor_iterator &) throw (); 			//[t84]
+  icursor_iterator(const icursor_iterator &) throw ();			//[t84]
+  ~icursor_iterator() throw ();
 
   const result &operator*() const { refresh(); return m_here; }		//[t84]
   const result *operator->() const { refresh(); return &m_here; }	//[t84]
@@ -231,13 +245,25 @@ public:
   bool operator==(const icursor_iterator &rhs) const;			//[t84]
   bool operator!=(const icursor_iterator &rhs) const throw ()		//[t84]
   	{ return !operator==(rhs); }
+  bool operator<(const icursor_iterator &rhs) const;			//[]
+  bool operator>(const icursor_iterator &rhs) const			//[]
+	{ return rhs < *this; }
+  bool operator<=(const icursor_iterator &rhs) const			//[]
+	{ return !(*this > rhs); }
+  bool operator>=(const icursor_iterator &rhs) const			//[]
+	{ return !(*this < rhs); }
 
 private:
-  void read() const;
-  void refresh() const { if (!m_fresh) read(); }
+  void refresh() const;
+
+  friend class icursorstream;
+  size_type pos() const throw () { return m_pos; }
+  void fill(const result &) const;
+
   icursorstream *m_stream;
   mutable result m_here;
-  mutable bool m_fresh;
+  size_type m_pos;
+  icursor_iterator *m_prev, *m_next;
 };
 
 

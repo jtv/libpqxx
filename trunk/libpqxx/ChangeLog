@@ -1,3 +1,8 @@
+2004-11-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx, src/util.cxx:
+  - Lots more work on icursor_iterator but still not quite right
+ test/test084.cxx:
+  - Removed some illegal tricks
 2004-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/util.cxx:
   - Set stringstream in to_string fallback code to C locale
