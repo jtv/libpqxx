@@ -59,6 +59,7 @@ if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 		-ffor-scope \
 		-pedantic \
 		-Wall \
+		-Wmultichar \
 		-W \
 		-Wfloat-equal \
 		-Wundef \
@@ -72,6 +73,8 @@ if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 		-Wmissing-noreturn \
 		-Wmissing-format-attribute  \
 		-Wredundant-decls \
+		-Wabi \
+		-Wctor-dtor-privacy \
 		-Wnon-virtual-dtor \
 		-Wreorder \
 		-Wno-deprecated \
