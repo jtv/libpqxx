@@ -148,7 +148,7 @@ public:
    * @param N the new message handler.
    */
   std::auto_ptr<Noticer> SetNoticer(std::auto_ptr<Noticer> N);
-  Noticer *GetNoticer() const throw () { return m_Noticer.get(); }
+  Noticer *GetNoticer() const throw () { return m_Noticer.get(); }	//[]
 
   /// Invoke notice processor function.  The message should end in newline.
   void ProcessNotice(const char[]) throw ();				//[t1]

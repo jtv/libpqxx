@@ -1,3 +1,10 @@
+2003-02-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.h:
+  - Test coverage for new "adopt existing SQL cursor" constructor
+ src/cursor.cxx:
+  - m_Name now includes quotes (to fix trouble with adopted SQL cursors)
+ test/test045.cxx:
+  - New
 2003-02-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cachedresult.h, src/cachedresult.cxx:
   - Fixed silly lifetime bug (now returns reference)
