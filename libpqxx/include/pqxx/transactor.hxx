@@ -16,6 +16,8 @@
  *
  *-------------------------------------------------------------------------
  */
+#include "pqxx/libcompiler.h"
+
 #include "pqxx/connection_base"
 #include "pqxx/transaction"
 

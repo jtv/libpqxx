@@ -18,6 +18,8 @@
 #ifndef PQXX_CACHEDRESULT_H
 #define PQXX_CACHEDRESULT_H
 
+#include "pqxx/libcompiler.h"
+
 #include <map>
 
 #include "pqxx/cursor.h"
