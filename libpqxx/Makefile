@@ -80,7 +80,6 @@ test9: test9.o $(LIBNAME)
 	$(LD) $(LDFLAGS) -o $@ $< $(LIBOPT) $(LOADLIBES)
 
 $(LIBNAME): $(LIBOBJS)
-	$(RM) $(LIBNAME)
 	$(AR) -r $(LIBNAME) $(LIBOBJS)
 
 check: $(EXECS)
