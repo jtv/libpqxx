@@ -16,8 +16,6 @@
  *
  *-------------------------------------------------------------------------
  */
-#include <string>
-
 #include "pqxx/libcompiler.h"
 
 #include "pqxx/transaction_base"
@@ -36,6 +34,7 @@ class transaction_base;
  * table using PostgreSQL's COPY TO STDOUT and COPY FROM STDIN commands,
  * respectively.  These capabilities are implemented by its subclasses 
  * tablereader and tablewriter.
+ *
  * A Tablestream exists in the context of a transaction, and no other streams
  * or queries may be applied to that transaction as long as the stream remains
  * open.

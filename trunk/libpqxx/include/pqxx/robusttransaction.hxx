@@ -37,9 +37,9 @@ public:
 protected:
   /// Constructor.
   /** Creates robusttransaction.
-   * @param C connection that this robusttransaction should live inside.
+   * @param C Connection that this robusttransaction should live inside.
    * @param IsolationLevel SQL isolation level name (e.g. READ_COMMITTED)
-   * @param Name optional human-readable name for this transaction.
+   * @param Name Optional human-readable name for this transaction.
    */
   explicit basic_robusttransaction(connection_base &C,
       				   const PGSTD::string &IsolationLevel,
@@ -103,12 +103,12 @@ private:
  * transactions, i.e. ones that have been started but not, as far as the client
  * knows, committed or aborted.  This can mean any of the following:
  *
- * 1. The transaction is in progress.  Since backend transactions can't run for
- * extended periods of time, this can only be the case if the log record's
+ * <ol>
+ * <li> The transaction is in progress.  Since backend transactions can't run
+ * for extended periods of time, this can only be the case if the log record's
  * timestamp (compared to the server's clock) is not very old, provided of 
  * course that the server's system clock hasn't just made a radical jump.
- *
- * 2. The client's connection to the server was lost, just when the client was
+ * <li> The client's connection to the server was lost, just when the client was
  * committing the transaction, and the client so far has not been able to
  * re-establish the connection to verify whether the transaction was actually
  * completed or rolled back by the server.  This is a serious (and luckily a
@@ -116,16 +116,15 @@ private:
  * what happened.  The robusttransaction will emit clear and specific warnings 
  * to this effect, and will identify the log record describing the transaction 
  * in question.
- *
- * 3. The transaction was completed (either by commit or by rollback), but the
+ * <li> The transaction was completed (either by commit or by rollback), but the
  * client's connection was durably lost just as it tried to clean up the log
  * record.  Again, robusttransaction will emit a clear and specific warning to
  * tell you about this and request that the record be deleted as soon as 
  * possible.
- *
- * 4. The client has gone offline at any time while in one of the preceding 
+ * <li> The client has gone offline at any time while in one of the preceding 
  * states.  This also requires manual intervention, but the client obviously is
  * not able to issue a warning.
+ * </ol>
  *
  * It is safe to drop a log table when it is not in use (ie., it is empty or all
  * records in it represent states 2-4 above).  Each robusttransaction will 

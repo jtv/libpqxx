@@ -54,7 +54,7 @@ public:
 
   /// Constructor.  Sets up connection based on PostgreSQL connection string.
   /** 
-   * @param ConnInfo a PostgreSQL connection string specifying any required
+   * @param ConnInfo A PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.  These values
    * override any environment variables that may have been set for the same 
    * parameters.
@@ -66,7 +66,7 @@ public:
   explicit connection(const PGSTD::string &ConnInfo);			//[t2]
 
   /// Constructor.  Sets up connection based on PostgreSQL connection string.
-  /** @param ConnInfo a PostgreSQL connection string specifying any required
+  /** @param ConnInfo A PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.  As a special
    * case, a null pointer is taken as the empty string.
    *
@@ -103,7 +103,7 @@ public:
 
   /// Constructor.  Sets up lazy connection.
   /**
-   * @param ConnInfo a PostgreSQL connection string specifying any required
+   * @param ConnInfo A PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.
    *
    * The README file for libpqxx gives a quick overview of how connection
@@ -115,7 +115,7 @@ public:
 
   /// Constructor.  Sets up lazy connection.
   /** 
-   * @param ConnInfo a PostgreSQL connection string specifying any required
+   * @param ConnInfo A PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.  As a special
    * case, a null pointer is taken as the empty string.
    *
@@ -136,6 +136,12 @@ private:
 
 
 /// Asynchronous connection class; connects "in the background"
+/** Connection is initiated when the object is created, but completion is
+ * deferred until the connection is actually needed.
+ *
+ * This may help performance by allowing the client to do useful work while
+ * waiting for an answer from the server.
+ */
 class PQXX_LIBEXPORT asyncconnection : public connection_base
 {
 public:
@@ -144,7 +150,7 @@ public:
 
   /// Constructor.  Initiates asynchronous connection setup.
   /**
-   * @param ConnInfo a PostgreSQL connection string specifying any required
+   * @param ConnInfo A PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.
    *
    * The README file for libpqxx gives a quick overview of how connection
@@ -155,7 +161,7 @@ public:
 
   /// Constructor.  Initiates asynchronous connection setup.
   /** 
-   * @param ConnInfo a PostgreSQL connection string specifying any required
+   * @param ConnInfo A PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.  As a special
    * case, a null pointer is taken as the empty string.
    *

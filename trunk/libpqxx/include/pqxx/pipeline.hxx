@@ -68,6 +68,7 @@ public:
    * concatenated format, separated by semicolons.  The queries you insert must
    * not use this construct themselves, or the pipeline will get hopelessly
    * confused!
+   * @return Identifier for this query, unique only within this pipeline
    */
   query_id insert(const PGSTD::string &);				//[t69]
 
@@ -77,6 +78,7 @@ public:
   /// Forget all ongoing or pending operations and retrieved results
   /** Queries already sent to the backend may still be completed, depending
    * on implementation and timing.
+   *
    * Any error state (unless caused by an internal error) will also be cleared.
    * This is mostly useful in a nontransaction, since a backend transaction is
    * aborted automatically when an error occurs.
@@ -89,15 +91,31 @@ public:
   /// Retrieve result for given query
   /** If the query failed for whatever reason, this will throw an exception.
    * The function will block if the query has not finished yet.
+   * @warning If results are retrieved out-of-order, i.e. in a different order
+   * than the one in which their queries were inserted, errors may "propagate"
+   * to subsequent queries.
    */
   result retrieve(query_id qid)						//[t71]
   	{ return retrieve(m_queries.find(qid)).second; }
 
   /// Retrieve oldest unretrieved result (possibly wait for one)
+  /** @return The query's identifier and its result set */
   PGSTD::pair<query_id, result> retrieve();				//[t69]
 
   bool empty() const throw () { return m_queries.empty(); }		//[t69]
 
+  /// Set maximum number of queries to retain before issuing them to the backend
+  /** The pipeline will perform better if multiple queries are issued at once,
+   * but retaining queries until the results are needed (as opposed to issuing
+   * them to the backend immediately) may negate any performance benefits the
+   * pipeline can offer.
+   *
+   * Recommended practice is to set this value no higher than the number of
+   * queries you intend to insert at a time.
+   * @param retain_max A nonnegative "retention capacity;" passing zero will
+   * cause queries to be issued immediately
+   * @return Old retention capacity
+   */
   int retain(int retain_max=2); 					//[t70]
 
 

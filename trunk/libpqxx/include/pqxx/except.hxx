@@ -8,7 +8,7 @@
  *   pqxx::sql_error, pqxx::broken_connection, pqxx::in_doubt_error, ...
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/except instead.
  *
- * Copyright (c) 2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -16,7 +16,6 @@
  *
  *-------------------------------------------------------------------------
  */
-#include <string>
 #include <stdexcept>
 
 #include "pqxx/util"
@@ -26,7 +25,6 @@ namespace pqxx
 {
 
 /// Exception class for lost backend connection.
-/** (May be changed once I find a standard exception class for this) */
 class PQXX_LIBEXPORT broken_connection : public PGSTD::runtime_error
 {
 public:

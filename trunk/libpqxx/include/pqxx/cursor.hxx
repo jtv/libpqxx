@@ -19,7 +19,6 @@
 #include "pqxx/libcompiler.h"
 
 #include <limits>
-#include <string>
 
 #include "pqxx/result"
 
@@ -35,14 +34,39 @@ public:
   typedef result::size_type size_type;
   typedef result::difference_type difference_type;
 
+  /// Does it make sense to try reading from this cursor again?
+  /** @return Null pointer if finished, non-null if not */
   operator void *() const { return m_done ? 0 : &s_dummy; }		//[t81]
+  /// Is this cursor finished?
+  /** The logical negation of the converstion-to-pointer operator.
+   * @return Whether the last attempt to read failed
+   */
   bool operator!() const { return m_done; }				//[t81]
 
+  /// Special value: read until end
+  /** @return Maximum value for result::difference_type, so the cursor will
+   * attempt to read the largest possible result set.
+   */
   static difference_type all() throw ();				//[t81]
+  /// Special value: read one row only
+  /** @return Unsurprisingly, 1
+   */
   static difference_type next() throw () { return 1; }			//[t81]
+  /// Special value: read backwards, one row only
+  /** @return Unsurprisingly, -1
+   */
   static difference_type prior() throw () { return -1; }		//[t0]
+  /// Special value: read backwards from current position back to origin
+  /** @return Minimum value for result::difference_type
+   */
   static difference_type backward_all() throw ();			//[t0]
 
+  /// Name of underlying SQL cursor
+  /**
+   * @returns Name of SQL cursor, which may differ from the given name.
+   * @warning Don't use this to access the SQL cursor directly without going
+   * through the provided wrapper classes!
+   */
   const PGSTD::string &name() const throw () { return m_name; }		//[t81]
 
 protected:
@@ -108,11 +132,11 @@ public:
    * supports only two operations: reading a block of rows while moving forward,
    * and moving forward without reading any data.
    *
-   * @param Context transaction context that this cursor will be active in
+   * @param Context Transaction context that this cursor will be active in
    * @param Query SQL query whose results this cursor shall iterate
-   * @param Basename suggested name for the SQL cursor; a unique code will be
+   * @param Basename Suggested name for the SQL cursor; a unique code will be
    * appended by the library to ensure its uniqueness
-   * @param Stride the number of rows to fetch per read operation; must be a
+   * @param Stride Number of rows to fetch per read operation; must be a
    * positive number
    */
   icursorstream(transaction_base &Context,
@@ -138,9 +162,9 @@ public:
    * defer doing so until after entering the transaction context that will
    * eventually destroy it.
    *
-   * @param Context transaction context that this cursor will be active in
-   * @param Name result field containing the name of the SQL cursor to adopt
-   * @param Stride the number of rows to fetch per read operation; must be a
+   * @param Context Transaction context that this cursor will be active in
+   * @param Name Result field containing the name of the SQL cursor to adopt
+   * @param Stride Number of rows to fetch per read operation; must be a
    * positive number
    */
   icursorstream(transaction_base &Context,
@@ -151,20 +175,28 @@ public:
   /** The result set may continue any number of rows from zero to the chosen
    * stride, inclusive.  An empty result will only be returned if there are no
    * more rows to retrieve.
+   * @return Reference to this very stream, to facilitate "chained" invocations
+   * (@code C.get(r1).get(r2); @endcode)
    */
   icursorstream &get(result &res) { res = fetch(); return *this; }	//[t81]
   /// Read new value into given result object; same as get(result &)
   /** The result set may continue any number of rows from zero to the chosen
    * stride, inclusive.  An empty result will only be returned if there are no
    * more rows to retrieve.
+   * @return Reference to this very stream, to facilitate "chained" invocations
+   * (@code C >> r1 >> r2; @endcode)
    */
   icursorstream &operator>>(result &res) { return get(res); }		//[t81]
   /// Move given number of rows forward (ignoring stride) without reading data
+  /**
+   * @return Reference to this very stream, to facilitate "chained" invocations
+   * (@code C.ignore(2).get(r).ignore(4); @endcode)
+   */
   icursorstream &ignore(PGSTD::streamsize n=1);				//[t81]
 
   /// Change stride, i.e. the number of rows to fetch per read operation
   /**
-   * @param stride must be a positive number
+   * @param stride Must be a positive number
    */
   void set_stride(difference_type stride);				//[t81]
   difference_type stride() const throw () { return m_stride; }		//[t81]

@@ -66,6 +66,7 @@ public:
 
   /// Size of converted string in bytes
   size_type size() const throw () { return m_size; }			//[t62]
+  /// Size of converted string in bytes
   size_type length() const throw () { return size(); }			//[t62]
   bool empty() const throw () { return size()==0; }			//[t62]
 
@@ -92,9 +93,10 @@ public:
   bool operator!=(const binarystring &rhs) const throw ()		//[t62]
   	{ return !operator==(rhs); }
 
-  /// Index string, checking for valid index
+  /// Index contained string, checking for valid index
   const_reference at(size_type) const;					//[t62]
 
+  /// Swap contents with other binarystring
   void swap(binarystring &);						//[t62]
 
   /// Raw character buffer (no terminating zero is added)

@@ -19,29 +19,6 @@
 #include "pqxx/dbtransaction"
 
 
-/* While you may choose to create your own transaction object to interface to 
- * the database backend, it is recommended that you wrap your transaction code 
- * into a transactor code instead and let the transaction be created for you.
- * See pqxx/transactor.hxx for more about transactor.
- *
- * If you should find that using a transactor makes your code less portable or 
- * too complex, go ahead, create your own transaction anyway.
- */
-
-// Usage example: double all wages
-//
-// extern connection C;
-// work T(C);
-// try
-// {
-//   T.exec("UPDATE employees SET wage=wage*2");
-//   T.commit();	// NOTE: do this inside try block
-// } 
-// catch (const exception &e)
-// {
-//   cerr << e.what() << endl;
-//   T.abort();		// Usually not needed; same happens when T's life ends.
-// }
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */
@@ -67,6 +44,31 @@ private:
 /// Standard back-end transaction, templatized on isolation level
 /** This is the type you'll normally want to use to represent a transaction on
  * the database.
+ *
+ * While you may choose to create your own transaction object to interface to 
+ * the database backend, it is recommended that you wrap your transaction code 
+ * into a transactor code instead and let the transaction be created for you.
+ * @see pqxx/transactor.hxx
+ *
+ * If you should find that using a transactor makes your code less portable or 
+ * too complex, go ahead, create your own transaction anyway.
+ *
+ * Usage example: double all wages
+ *
+ * @code
+ * extern connection C;
+ * work T(C);
+ * try
+ * {
+ *   T.exec("UPDATE employees SET wage=wage*2");
+ *   T.commit();	// NOTE: do this inside try block
+ * } 
+ * catch (const exception &e)
+ * {
+ *   cerr << e.what() << endl;
+ *   T.abort();		// Usually not needed; same happens when T's life ends.
+ * }
+ * @endcode
  */
 template<isolation_level ISOLATIONLEVEL=read_committed>
 class transaction : public basic_transaction
@@ -74,8 +76,12 @@ class transaction : public basic_transaction
 public:
   typedef isolation_traits<ISOLATIONLEVEL> isolation_tag;
 
-  /// Create a transaction.  The optional name, if given, must begin with a
-  /// letter and may contain letters and digits only.
+  /// Create a transaction
+  /**
+   * @param C Connection for this transaction to operate on
+   * @param TName Optional name for transaction; must begin with a letter and
+   * may contain letters and digits only
+   */
   explicit transaction(connection_base &C, const PGSTD::string &TName):	//[t1]
     basic_transaction(C, isolation_tag::name(), TName) 
     	{ Begin(); }
