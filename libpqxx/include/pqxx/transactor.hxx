@@ -179,7 +179,10 @@ inline void pqxx::connection_base::perform(const TRANSACTOR &T,
     {
       // Not sure whether transaction went through or not.  The last thing in
       // the world that we should do now is retry.
+#ifdef PQXX_DEPRECATED_TRANSACTION_CALLBACKS
       T2.OnDoubt();
+#endif
+      T2.on_doubt();
       throw;
     }
     catch (const PGSTD::exception &e)
@@ -195,7 +198,10 @@ inline void pqxx::connection_base::perform(const TRANSACTOR &T,
     catch (...)
     {
       // Don't try to forge ahead if we don't even know what happened
+#ifdef PQXX_DEPRECATED_TRANSACTION_CALLBACKS
       T2.OnAbort("Unknown exception");
+#endif
+      T2.on_abort("Unknown exception");
       throw;
     }
 
