@@ -4,6 +4,7 @@ Build system
 (*) Ensure there is a way to build without -rpath and use that for the
     Debian packaging.
 (*) Switch from dh_movefiles to dh_install for Debian packaging.
+(*) Generate win32/test.mak from tools/maketestam.pl
 
 Connections
 (*) Separate failed_connection exception type if connection never succeeds?

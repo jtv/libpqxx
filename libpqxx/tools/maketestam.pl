@@ -1,4 +1,8 @@
 #! /usr/bin/perl -w
+#
+# Generates the highly repetitive automake input file test/Makefile.am for 
+# libpqxx when new tests have been added.
+#
 
 my $dir = shift;
 if ($dir eq '') {
@@ -11,6 +15,11 @@ $files =~ s/[^ \/]*\///g;
 my @tests = split / /, $files;
 
 print <<EOF;
+# AUTOMATICALLY GENERATED--DO NOT EDIT
+# This file is generated automatically for automake whenever test programs are
+# added to libpqxx, using the Perl script "maketestam.pl" found in the tools
+# directory.
+
 INCLUDES=-I../include \${POSTGRES_INCLUDE}
 MAINTAINERCLEANFILES=Makefile.in
 

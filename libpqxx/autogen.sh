@@ -15,6 +15,9 @@ fi
 # Generate test/Makefile.am
 ./tools/maketestam.pl test >test/Makefile.am
 
+# Generate win32/test.mak (adding carriage returns to make it MS-DOS format)
+./tools/maketestvcmak.pl test | sed -e 's/$/\r/' >win32/test.mak
+
 aclocal${ver}
 autoheader
 libtoolize --force --automake --copy

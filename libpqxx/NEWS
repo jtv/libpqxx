@@ -1,3 +1,5 @@
+2.1.1
+ - Automated tools keep test makefiles up to date
 2.1.0
  - Asynchronous connections
  - Fixed configure --includedir option (thanks Ray Dassen!)
