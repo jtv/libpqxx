@@ -56,7 +56,7 @@ class Transaction;
 class PQXX_LIBEXPORT Transactor
 {
 public:
-  explicit Transactor(PGSTD::string TName="AnonymousTransactor") :	//[t4]
+  explicit Transactor(const PGSTD::string &TName="AnonymousTransactor") ://[t4]
     m_Name(TName) {}
 
   /// Define transaction class to use as a wrapper for this code.  

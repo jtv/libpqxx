@@ -20,7 +20,7 @@ using namespace PGSTD;
 
 pqxx::Cursor::Cursor(pqxx::TransactionItf &T, 
 		     const char Query[],
-		     string BaseName,
+		     const string &BaseName,
 		     size_type Count) :
   m_Trans(T),
   m_Name(BaseName),
@@ -67,13 +67,21 @@ pqxx::Result pqxx::Cursor::Fetch(size_type Count)
 }
 
 
-void pqxx::Cursor::Move(size_type Count)
+pqxx::Cursor::size_type pqxx::Cursor::Move(size_type Count)
 {
-  if (Count == 0) return;
+  if (!Count) return 0;
 
   m_Done = false;
 
-  m_Trans.Exec(("MOVE " + OffsetString(Count) + " IN " + m_Name).c_str());
+  Result R( m_Trans.Exec(("MOVE "+OffsetString(Count)+" IN "+m_Name).c_str()) );
+
+  long int A = 0;
+  if (!sscanf(R.CmdStatus(), "MOVE %ld", &A))
+    throw runtime_error("Didn't understand database's reply to MOVE: "
+	                  "'" + string(R.CmdStatus()) + "'");
+
+  // Sign (direction) isn't included in server's reply, so add it back in.
+  return (Count > 0) ? A : -A;
 }
 
 
@@ -91,4 +99,5 @@ string pqxx::Cursor::MakeFetchCmd(size_type Count) const
   if (!Count) throw logic_error("Internal libpqxx error: Cursor: zero count");
   return "FETCH " + OffsetString(Count) + " IN " + m_Name;
 }
+
 

@@ -44,14 +44,14 @@ class PQXX_LIBEXPORT TableStream
 {
 public:
   TableStream(TransactionItf &Trans, 
-	      PGSTD::string Name, 
-	      PGSTD::string Null=PGSTD::string());			//[t6]
+	      const PGSTD::string &Name, 
+	      const PGSTD::string &Null=PGSTD::string());			//[t6]
   virtual ~TableStream() =0;						//[t6]
 
   PGSTD::string Name() const { return m_Name; }				//[t10]
 
 protected:
-  TransactionItf &Trans() const { return m_Trans; }
+  TransactionItf &Trans() const throw () { return m_Trans; }
   PGSTD::string NullStr() const { return m_Null; }
 
 private:

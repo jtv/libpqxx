@@ -63,7 +63,8 @@ public:
   Result Exec(const char[]);						//[t1]
 
   void ProcessNotice(const char Msg[]) { m_Conn.ProcessNotice(Msg); }	//[t1]
-  void ProcessNotice(PGSTD::string Msg) { m_Conn.ProcessNotice(Msg); }	//[t1]
+  void ProcessNotice(const PGSTD::string &Msg) 				//[t1]
+  	{ m_Conn.ProcessNotice(Msg); }
 
   PGSTD::string Name() const { return m_Name; }				//[t1]
 
@@ -71,7 +72,7 @@ protected:
   /// Create a transaction.  The optional name, if given, must begin with a
   /// letter and may contain letters and digits only.
   explicit TransactionItf(Connection &, 
-		          PGSTD::string Name=PGSTD::string());
+		          const PGSTD::string &TName=PGSTD::string());
 
   /// Begin transaction.  To be called by implementing class, typically from 
   /// constructor.
@@ -130,11 +131,13 @@ private:
   void UnregisterStream(const TableStream *) throw ();
   void EndCopy() { m_Conn.EndCopy(); }
   friend class TableReader;
-  void BeginCopyRead(PGSTD::string Table) { m_Conn.BeginCopyRead(Table); }
+  void BeginCopyRead(const PGSTD::string &Table) 
+  	{ m_Conn.BeginCopyRead(Table); }
   bool ReadCopyLine(PGSTD::string &L) { return m_Conn.ReadCopyLine(L); }
   friend class TableWriter;
-  void BeginCopyWrite(PGSTD::string Table) {m_Conn.BeginCopyWrite(Table);}
-  void WriteCopyLine(PGSTD::string L) { m_Conn.WriteCopyLine(L); }
+  void BeginCopyWrite(const PGSTD::string &Table) 
+  	{ m_Conn.BeginCopyWrite(Table); }
+  void WriteCopyLine(const PGSTD::string &L) { m_Conn.WriteCopyLine(L); }
 
   Connection &m_Conn;
 

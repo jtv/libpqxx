@@ -109,7 +109,7 @@ public:
   /// Invoke notice processor function.  The message should end in newline.
   void ProcessNotice(const char[]) throw ();				//[t1]
   /// Invoke notice processor function.  The message should end in newline.
-  void ProcessNotice(PGSTD::string msg) throw () 			//[t1]
+  void ProcessNotice(const PGSTD::string &msg) throw () 		//[t1]
   	{ ProcessNotice(msg.c_str()); }
 
   /// Enable tracing to a given output stream, or NULL to disable.
@@ -203,10 +203,10 @@ private:
   void RegisterTransaction(const TransactionItf *);
   void UnregisterTransaction(const TransactionItf *) throw ();
   void MakeEmpty(Result &, ExecStatusType=PGRES_EMPTY_QUERY);
-  void BeginCopyRead(PGSTD::string Table);
+  void BeginCopyRead(const PGSTD::string &Table);
   bool ReadCopyLine(PGSTD::string &);
-  void BeginCopyWrite(PGSTD::string Table);
-  void WriteCopyLine(PGSTD::string);
+  void BeginCopyWrite(const PGSTD::string &Table);
+  void WriteCopyLine(const PGSTD::string &);
   void EndCopy();
 
   friend class Trigger;

@@ -98,7 +98,7 @@ class PQXX_LIBEXPORT RobustTransaction : public TransactionItf
 {
 public:
   explicit RobustTransaction(Connection &, 
-		             PGSTD::string Name=PGSTD::string());	//[t16]
+		             const PGSTD::string &Name=PGSTD::string());//[t16]
 
   virtual ~RobustTransaction();						//[t16]
 

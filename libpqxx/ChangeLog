@@ -1,3 +1,23 @@
+2002-12-23  Jeroen T. Vermeulen <jtv@xs4all.nL>
+ include/pqxx/cursor.h, src/cursor.cxx, test/test42.cxx:
+  - Cursor::Move() now always returns number of rows moved
+ include/pqxx/*.h, src/*.cxx:
+  - replaced some string arguments with const string &
+2002-12-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.h:
+  - new version of Move() reports number of rows skipped
+ include/pqxx/tablewriter.h:
+  - inline TableWriter::FieldConverter::Escape()
+  - fix Visual C++ version of operator()
+ src/cursor.cxx:
+  - report negative move distances for backward moves
+ test/test42.cxx:
+  - New
+2002-12-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.h:
+  - replaced Result_size_type with Result::size_type (now visible in this file)
+ include/pqxx/util.h:
+  - eliminated Result_size_type_min and Result_size_type_max
 2002-12-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cursor.h, src/cursor.cxx:
   - Introduced size_type typedef

@@ -18,7 +18,7 @@
 using namespace PGSTD;
 
 
-pqxx::TableWriter::TableWriter(TransactionItf &T, string WName) :
+pqxx::TableWriter::TableWriter(TransactionItf &T, const string &WName) :
   TableStream(T, WName)
 {
   T.BeginCopyWrite(WName);
@@ -48,7 +48,7 @@ pqxx::TableWriter &pqxx::TableWriter::operator<<(pqxx::TableReader &R)
 }
 
 
-void pqxx::TableWriter::WriteRawLine(string Line)
+void pqxx::TableWriter::WriteRawLine(const string &Line)
 {
   Trans().WriteCopyLine(Line);
 }

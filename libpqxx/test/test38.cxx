@@ -14,8 +14,8 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-// Cursor test program for libpqxx.  Read list of tables through a cursor,
-// scanning back and forth and checking for consistent results.
+// Cursor test program for libpqxx.  Read table through a cursor, scanning back
+// and forth and checking for consistent results.
 //
 // Usage: test38 [connect-string]
 //

@@ -42,7 +42,7 @@ namespace pqxx
 class PQXX_LIBEXPORT TableReader : public TableStream
 {
 public:
-  TableReader(TransactionItf &Trans, PGSTD::string Name);		//[t6]
+  TableReader(TransactionItf &, const PGSTD::string &RName);		//[t6]
   ~TableReader();							//[t6]
 
   TableReader &operator>>(Result &);
@@ -50,13 +50,13 @@ public:
 
   template<typename TUPLE> TableReader &operator>>(TUPLE &);		//[t8]
 
-  operator bool() const { return !m_Done; }				//[t6]
-  bool operator!() const { return m_Done; }				//[t6]
+  operator bool() const throw () { return !m_Done; }			//[t6]
+  bool operator!() const throw () { return m_Done; }			//[t6]
 
   bool GetRawLine(PGSTD::string &Line);					//[t8]
 
   template<typename TUPLE> 
-  void Tokenize(PGSTD::string, TUPLE &) const;				//[t8]
+  void Tokenize(PGSTD::string, TUPLE &) const;			//[t8]
 
 private:
   bool m_Done;
@@ -68,7 +68,8 @@ private:
 
 
 template<typename TUPLE> 
-inline void pqxx::TableReader::Tokenize(PGSTD::string Line, TUPLE &T) const
+inline void pqxx::TableReader::Tokenize(PGSTD::string Line, 
+                                        TUPLE &T) const
 {
   PGSTD::back_insert_iterator<TUPLE> ins = PGSTD::back_inserter(T);
 

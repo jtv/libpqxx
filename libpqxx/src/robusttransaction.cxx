@@ -32,7 +32,7 @@ namespace
 const Oid pqxxInvalidOid(InvalidOid);
 } // namespace
 
-pqxx::RobustTransaction::RobustTransaction(Connection &C, string TName) :
+pqxx::RobustTransaction::RobustTransaction(Connection &C, const string &TName) :
   TransactionItf(C, TName),
   m_ID(pqxxInvalidOid),
   m_LogTable()

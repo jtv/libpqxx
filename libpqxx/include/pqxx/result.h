@@ -68,11 +68,11 @@ public:
 
     inline Field operator[](size_type) const;				//[t1]
     Field operator[](const char[]) const;				//[t11]
-    Field operator[](PGSTD::string s) const 				//[t11]
+    Field operator[](const PGSTD::string &s) const 			//[t11]
     	{ return operator[](s.c_str()); }
     Field at(size_type) const;						//[t10]
     Field at(const char[]) const;					//[t11]
-    Field at(PGSTD::string s) const { return at(s.c_str()); }		//[t11]
+    Field at(const PGSTD::string &s) const { return at(s.c_str()); }	//[t11]
 
     inline size_type size() const;					//[t11]
 
@@ -247,7 +247,7 @@ public:
   Tuple::size_type ColumnNumber(const char Name[]) const 		//[t11]
   	{return PQfnumber(m_Result,Name);}
   /// Number of given column, or -1 if it does not exist
-  Tuple::size_type ColumnNumber(std::string Name) const 		//[t11]
+  Tuple::size_type ColumnNumber(const std::string &Name) const 		//[t11]
   	{return ColumnNumber(Name.c_str());}
   const char *ColumnName(Tuple::size_type Number) const 		//[t11]
   	{return PQfname(m_Result,Number);}
@@ -272,9 +272,12 @@ private:
   friend class Connection;
   explicit Result(PGresult *rhs) : m_Result(rhs), m_Refcount(0) {MakeRef(rhs);}
   Result &operator=(PGresult *);
-  bool operator!() const { return !m_Result; }
-  operator bool() const { return m_Result != 0; }
+  bool operator!() const throw () { return !m_Result; }
+  operator bool() const throw () { return m_Result != 0; }
   void CheckStatus() const;
+
+  friend class Cursor;
+  const char *CmdStatus() const throw () { return PQcmdStatus(m_Result); }
 
 
   void MakeRef(PGresult *);

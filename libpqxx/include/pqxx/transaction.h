@@ -81,7 +81,7 @@ public:
   /// Create a transaction.  The optional name, if given, must begin with a
   /// letter and may contain letters and digits only.
   explicit Transaction(Connection &, 
-		       PGSTD::string Name=PGSTD::string());		//[t1]
+		       const PGSTD::string &Name=PGSTD::string());	//[t1]
 
   virtual ~Transaction();						//[t1]
 

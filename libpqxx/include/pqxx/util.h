@@ -91,7 +91,8 @@ template<typename T> inline void FromString(const char Str[], T &Obj)
 template<> inline void FromString(const char Str[], PGSTD::string &Obj)
 {
   if (!Str) 
-    throw PGSTD::runtime_error("Attempt to convert NULL C string to C++ string");
+    throw PGSTD::runtime_error("Attempt to convert NULL C string to C++ "
+	                       "string");
   Obj = Str;
 }
 
@@ -277,12 +278,6 @@ private:
   Unique(const Unique &);
   Unique &operator=(const Unique &);
 };
-
-
-const Result_size_type Result_size_type_min =
-  PGSTD::numeric_limits<Result_size_type>::min();
-const Result_size_type Result_size_type_max =
-  PGSTD::numeric_limits<Result_size_type>::max();
 
 }
 

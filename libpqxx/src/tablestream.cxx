@@ -18,8 +18,8 @@ using namespace PGSTD;
 
 
 pqxx::TableStream::TableStream(TransactionItf &STrans, 
-                               string SName, 
-			       string Null) :
+                               const string &SName, 
+			       const string &Null) :
   m_Trans(STrans),
   m_Name(SName),
   m_Null(Null)

@@ -20,7 +20,7 @@ using namespace PGSTD;
 
 pqxx::CachedResult::CachedResult(pqxx::TransactionItf &Trans,
                                  const char Query[],
-				 PGSTD::string BaseName,
+				 const PGSTD::string &BaseName,
 				 size_type Granularity) :
   m_Granularity(Granularity),
   m_Cache(),
