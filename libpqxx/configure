@@ -8589,29 +8589,43 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 # Where are the postgres includes...
-echo "$as_me:$LINENO: checking for /usr/include/postgresql/libpq-fe.h" >&5
-echo $ECHO_N "checking for /usr/include/postgresql/libpq-fe.h... $ECHO_C" >&6
-if test "${ac_cv_file__usr_include_postgresql_libpq_fe_h+set}" = set; then
+postgres_include_default=
+for usual_suspect in \
+	/usr/local/include/postgresql \
+	/usr/local/include/pgsql \
+	/usr/local/include \
+	/usr/include/postgresql \
+	/usr/include/pgsql \
+	/usr/include \
+	/opt/postgresql/include \
+	/opt/pgsql/include \
+; do
+as_ac_File=`echo "ac_cv_file_$usual_suspect/libpq-fe.h" | $as_tr_sh`
+echo "$as_me:$LINENO: checking for $usual_suspect/libpq-fe.h" >&5
+echo $ECHO_N "checking for $usual_suspect/libpq-fe.h... $ECHO_C" >&6
+if eval "test \"\${$as_ac_File+set}\" = set"; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   test "$cross_compiling" = yes &&
   { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
 echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
    { (exit 1); exit 1; }; }
-if test -r "/usr/include/postgresql/libpq-fe.h"; then
-  ac_cv_file__usr_include_postgresql_libpq_fe_h=yes
+if test -r "$usual_suspect/libpq-fe.h"; then
+  eval "$as_ac_File=yes"
 else
-  ac_cv_file__usr_include_postgresql_libpq_fe_h=no
+  eval "$as_ac_File=no"
 fi
 fi
-echo "$as_me:$LINENO: result: $ac_cv_file__usr_include_postgresql_libpq_fe_h" >&5
-echo "${ECHO_T}$ac_cv_file__usr_include_postgresql_libpq_fe_h" >&6
-if test $ac_cv_file__usr_include_postgresql_libpq_fe_h = yes; then
-  postgres_include_default=/usr/include/postgresql
-else
-  postgres_include_default=/usr/include
+echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_File'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_File'}'`" >&6
+if test `eval echo '${'$as_ac_File'}'` = yes; then
+  postgres_include_default=$usual_suspect
 fi
 
+	if test -n "$postgres_include_default" ; then
+		break
+	fi
+done
 
 
 # Check whether --with-postgres-include or --without-postgres-include was given.
@@ -8625,7 +8639,46 @@ else
 fi;
 
 # ..and libraries?
-postgres_lib_default=/usr/lib
+postgres_lib_default=
+for usual_suspect in \
+	/usr/local/lib/postgresql \
+	/usr/local/lib/pgsql \
+	/usr/local/lib \
+	/usr/lib/postgresql \
+	/usr/lib/pgsql \
+	/usr/lib \
+	/opt/postgresql/lib \
+	/opt/pgsql/lib \
+; do
+	for library_extension in so a sa ; do
+as_ac_File=`echo "ac_cv_file_$usual_suspect/libpq.$library_extension" | $as_tr_sh`
+echo "$as_me:$LINENO: checking for $usual_suspect/libpq.$library_extension" >&5
+echo $ECHO_N "checking for $usual_suspect/libpq.$library_extension... $ECHO_C" >&6
+if eval "test \"\${$as_ac_File+set}\" = set"; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  test "$cross_compiling" = yes &&
+  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
+echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
+   { (exit 1); exit 1; }; }
+if test -r "$usual_suspect/libpq.$library_extension"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_File'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_File'}'`" >&6
+if test `eval echo '${'$as_ac_File'}'` = yes; then
+  postgres_lib_default=$usual_suspect
+fi
+
+	done
+	if test -n "$postgres_lib_default" ; then
+		break
+	fi
+done
+
 
 # Check whether --with-postgres-lib or --without-postgres-lib was given.
 if test "${with_postgres_lib+set}" = set; then
