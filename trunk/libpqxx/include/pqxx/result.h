@@ -209,9 +209,11 @@ public:
   void clear() { LoseRef(); }						//[]
 
   Tuple::size_type Columns() const { return PQnfields(m_Result); }	//[t11]
-  // TODO: Check for nonexistant columns!!!
+
+  /// Number of given column, or -1 if it does not exist
   Tuple::size_type ColumnNumber(const char Name[]) const 		//[t11]
   	{return PQfnumber(m_Result,Name);}
+  /// Number of given column, or -1 if it does not exist
   Tuple::size_type ColumnNumber(std::string Name) const 		//[t11]
   	{return ColumnNumber(Name.c_str());}
   const char *ColumnName(Tuple::size_type Number) const 		//[t11]

@@ -161,7 +161,6 @@ pqxx::Result::Field pqxx::Result::Tuple::operator[](const char f[]) const
 pqxx::Result::Field pqxx::Result::Tuple::at(const char f[]) const
 {
   const int fnum = m_Home->ColumnNumber(f);
-  // TODO: Build check into ColumnNumber()
   if (fnum == -1)
     throw invalid_argument(string("Unknown field '") + f + "'");
 
