@@ -40,11 +40,11 @@ unsigned char pqxx::cursor_base::s_dummy;
 pqxx::icursorstream::icursorstream(pqxx::transaction_base &context,
     const string &query,
     const string &basename,
-    difference_type stride) :
+    difference_type Stride) :
   cursor_base(&context, basename),
-  m_stride(stride)
+  m_stride(Stride)
 {
-  set_stride(stride);
+  set_stride(Stride);
   declare(query);
 }
 
@@ -79,4 +79,82 @@ pqxx::icursorstream &pqxx::icursorstream::ignore(streamsize n)
   return *this;
 }
 
+
+pqxx::icursor_iterator::icursor_iterator() throw () :
+  m_stream(0),
+  m_here(),
+  m_fresh(true)
+{
+}
+
+pqxx::icursor_iterator::icursor_iterator(istream_type &s) throw () :
+  m_stream(&s),
+  m_here(),
+  m_fresh(false)
+{
+}
+
+pqxx::icursor_iterator::icursor_iterator(const icursor_iterator &rhs) throw () :
+  m_stream(rhs.m_stream),
+  m_here(rhs.m_here),
+  m_fresh(rhs.m_fresh)
+{
+}
+
+
+pqxx::icursor_iterator pqxx::icursor_iterator::operator++(int)
+{
+  refresh();
+  icursor_iterator old(*this);
+  m_fresh = false;
+  return old;
+}
+
+
+pqxx::icursor_iterator &pqxx::icursor_iterator::operator++()
+{
+  if (!m_fresh) m_stream->ignore(m_stream->stride());
+  m_fresh = false;
+  return *this;
+}
+
+
+pqxx::icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
+{
+  if (n <= 1)
+  {
+    if (n > 0) return ++*this;
+    if (!n) return *this;
+    throw invalid_argument("Advancing icursor_iterator by negative offset");
+  }
+  m_stream->ignore((n-m_fresh)*m_stream->stride());
+  m_fresh = false;
+  return *this;
+}
+
+
+pqxx::icursor_iterator &
+pqxx::icursor_iterator::operator=(const icursor_iterator &rhs) throw ()
+{
+  rhs.refresh();
+  m_here = rhs.m_here;
+  m_stream = rhs.m_stream;
+  m_fresh = rhs.m_fresh;
+  return *this;
+}
+
+
+bool pqxx::icursor_iterator::operator==(const icursor_iterator &rhs) const
+{
+  refresh();
+  rhs.refresh();
+  return m_here.empty() && rhs.m_here.empty();
+}
+
+
+void pqxx::icursor_iterator::read() const
+{
+  m_stream->get(m_here);
+  m_fresh = true;
+}
 

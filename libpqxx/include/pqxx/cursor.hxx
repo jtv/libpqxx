@@ -29,10 +29,6 @@ namespace pqxx
 class transaction_base;
 
 /// Common definitions for cursor types
-/** @warning This code is experimental.  It is not fully covered by libpqxx'
- * regression tests, and may see considerable change before becoming part of a
- * stable release.  Do not use except to test it.
- */
 class PQXX_LIBEXPORT cursor_base
 {
 public:
@@ -44,17 +40,22 @@ public:
 
   static difference_type all() throw ();				//[t81]
   static difference_type next() throw () { return 1; }			//[t81]
-  static difference_type prior() throw () { return -1; }		//[]
-  static difference_type backward_all() throw ();			//[]
+  static difference_type prior() throw () { return -1; }		//[t0]
+  static difference_type backward_all() throw ();			//[t0]
 
   const PGSTD::string &name() const throw () { return m_name; }		//[t81]
 
 protected:
-  cursor_base(transaction_base *context, const PGSTD::string &cname) :
+  cursor_base(transaction_base *context,
+      const PGSTD::string &cname,
+      bool embellish_name = true) :
   	m_context(context), m_done(false), m_name(cname)
   {
-    m_name += "_";
-    m_name += to_string(get_unique_cursor_num());
+    if (embellish_name)
+    {
+      m_name += "_";
+      m_name += to_string(get_unique_cursor_num());
+    }
   }
 
   transaction_base *m_context;
@@ -102,9 +103,8 @@ inline cursor_base::difference_type cursor_base::backward_all() throw ()
  * these will contain the number of rows defined as the stream's stride, except
  * of course the last block of data which may contain fewer rows.
  *
- * @warning This code is experimental.  It is not fully covered by libpqxx'
- * regression tests, and may see considerable change before becoming part of a
- * stable release.  Do not use except to test it.
+ * This class can create or adopt cursors that live in nontransactions, i.e.
+ * outside any backend transaction, which your backend version may not support.
  */
 class PQXX_LIBEXPORT icursorstream : public cursor_base
 {
@@ -114,17 +114,47 @@ public:
    * supports only two operations: reading a block of rows while moving forward,
    * and moving forward without reading any data.
    *
-   * @param context transaction context that this cursor will be active in
-   * @param query SQL query whose results this cursor shall iterate
-   * @param basename suggested name for the SQL cursor; a unique code will be
+   * @param Context transaction context that this cursor will be active in
+   * @param Query SQL query whose results this cursor shall iterate
+   * @param Basename suggested name for the SQL cursor; a unique code will be
    * appended by the library to ensure its uniqueness
-   * @param stride the number of rows to fetch per read operation; must be a
+   * @param Stride the number of rows to fetch per read operation; must be a
    * positive number
    */
-  icursorstream(transaction_base &context,
-      const PGSTD::string &query,
-      const PGSTD::string &basename,
-      difference_type stride=1);					//[t81]
+  icursorstream(transaction_base &Context,
+      const PGSTD::string &Query,
+      const PGSTD::string &Basename,
+      difference_type Stride=1);					//[t81]
+
+  /// Adopt existing SQL cursor.  Use with care.
+  /** Forms a cursor stream around an existing SQL cursor, as returned by e.g. a
+   * server-side function.  The SQL cursor will be cleaned up by the stream's
+   * destructor as if it had been created by the stream; cleaning it up by hand
+   * or adopting the same cursor twice is an error.
+   *
+   * Passing the name of the cursor as a string is not allowed, both to avoid
+   * confusion with the other constructor and to discourage unnecessary use of
+   * adopted cursors.
+   *
+   * @warning It is technically possible to adopt a "WITH HOLD" cursor, i.e. a
+   * cursor that stays alive outside its creating transaction.  However, any
+   * cursor stream (including the underlying SQL cursor, naturally) must be
+   * destroyed before its transaction context object is destroyed.  Therefore
+   * the only way to use SQL's WITH HOLD feature is to adopt the cursor, but
+   * defer doing so until after entering the transaction context that will
+   * eventually destroy it.
+   *
+   * @param Context transaction context that this cursor will be active in
+   * @param Name result field containing the name of the SQL cursor to adopt
+   * @param Stride the number of rows to fetch per read operation; must be a
+   * positive number
+   */
+  icursorstream(transaction_base &Context,
+      const result::field &Name,
+      difference_type Stride=1) : 					//[t84]
+    cursor_base(&Context, Name.c_str(), false),
+    m_stride(Stride)
+	{ set_stride(Stride); }
 
   /// Read new value into given result object; same as operator >>
   /** The result set may continue any number of rows from zero to the chosen
@@ -146,6 +176,8 @@ public:
    * @param stride must be a positive number
    */
   void set_stride(difference_type stride);				//[t81]
+
+  difference_type stride() const throw () { return m_stride; }		//[]
 
 private:
   void declare(const PGSTD::string &query);
@@ -169,9 +201,9 @@ private:
  * position, regardless of "where the iterator was" in the stream.  Comparison
  * of iterators is only supported for detecting the end of a stream.
  *
- * @warning This code is experimental.  It is not fully covered by libpqxx'
- * regression tests, and may see considerable change before becoming part of a
- * stable release.  Do not use except to test it.
+ * The stream's stride defines the granularity for all iterator movement or
+ * access operations, i.e. "ici += 1" advances the stream by one stride's worth
+ * of tuples, and "*ici++" reads one stride's worth of tuples from the stream.
  */
 class PQXX_LIBEXPORT icursor_iterator : 
   public PGSTD::iterator<PGSTD::input_iterator_tag, 
@@ -185,62 +217,27 @@ public:
   typedef istream_type::size_type size_type;
   typedef istream_type::difference_type difference_type;
 
-  icursor_iterator() throw () :						//[]
-    m_stream(0), m_here(), m_fresh(true), m_pos(0) {}
-  icursor_iterator(istream_type &s) throw () :				//[]
-    m_stream(&s), m_here(), m_fresh(false), m_pos(0) {}
-  icursor_iterator(const icursor_iterator &rhs) throw () : 		//[]
-    m_stream(rhs.m_stream),
-    m_here(rhs.m_here),
-    m_fresh(rhs.m_fresh),
-    m_pos(rhs.m_pos)
-  {}
+  icursor_iterator() throw ();						//[t84]
+  explicit icursor_iterator(istream_type &) throw ();			//[t84]
+  icursor_iterator(const icursor_iterator &) throw (); 			//[t84]
 
-  const result &operator*() const { refresh(); return m_here; }		//[]
-  const result *operator->() const { refresh(); return &m_here; }	//[]
+  const result &operator*() const { refresh(); return m_here; }		//[t84]
+  const result *operator->() const { refresh(); return &m_here; }	//[t84]
+  icursor_iterator &operator++();					//[t84]
+  icursor_iterator operator++(int);					//[t84]
+  icursor_iterator &operator+=(difference_type);			//[t84]
+  icursor_iterator &operator=(const icursor_iterator &) throw ();	//[t84]
 
-  icursor_iterator &operator++() { read(); return *this; }		//[]
-
-  icursor_iterator operator++(int)					//[]
-  	{ icursor_iterator old(*this); read(); return old; }
-
-  icursor_iterator &operator+=(difference_type n)			//[]
-  {
-    m_stream->ignore(n);
-    m_fresh = false;
-    m_pos += n;
-    return *this;
-  }
-
-  icursor_iterator &operator=(const icursor_iterator &rhs) throw ()	//[]
-  {
-    m_here = rhs.m_here;	// (Already protected against self-assignment)
-    m_stream = rhs.m_stream;	// (Does not throw, so we're exception-safe)
-    m_fresh = rhs.m_fresh;
-    m_pos = rhs.m_pos;
-    return *this;
-  }
-
-  bool operator==(const icursor_iterator &rhs) const throw ()		//[]
-  {
-    return (m_stream==rhs.m_stream && m_pos==rhs.m_pos) ||
-      (m_here.empty() && rhs.m_here.empty());
-  }
-  bool operator!=(const icursor_iterator &rhs) const throw ()		//[]
+  bool operator==(const icursor_iterator &rhs) const;			//[t84]
+  bool operator!=(const icursor_iterator &rhs) const throw ()		//[t84]
   	{ return !operator==(rhs); }
 
 private:
-  void read() const
-  {
-    m_stream->get(m_here);
-    m_fresh = true;
-    ++m_pos;
-  }
+  void read() const;
   void refresh() const { if (!m_fresh) read(); }
   icursorstream *m_stream;
   mutable result m_here;
   mutable bool m_fresh;
-  mutable result::size_type m_pos;
 };
 
 
