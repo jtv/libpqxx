@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 #
 # Prepare a release of libpqxx.  This is tailored to my machine and my current
 # postgres installation.  It's not supposed to work on anything else.
@@ -130,6 +130,10 @@ command "make dist" nice
 command "mv $TARBALL .."
 command "cd .."
 command "rm -r $DISTNAME"
+
+if ! nice vacuumdb >/dev/null 2>&1 & ; then
+	# ignore failure
+fi
 
 log "Finished.  Release tarball is /tmp/$TARBALL"
 
