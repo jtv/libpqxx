@@ -257,7 +257,7 @@
 
     <para>
       I would also like to use this opportunity to plug the invaluable
-      <function>Quote</function> function, which you should use whenever you
+      <function>sqlesc</function> function, which you should use whenever you
       want to include a variable as a string in your SQL (eg. insert it into a
       CHAR field in a table).  See below.
     </para>
@@ -289,12 +289,22 @@
 
       <listitem>
 	<para>
-	  <literal>Cursor</literal> is a way of iterating over a query result
-	  using an SQL cursor.  This can be useful for selectively retrieving
-	  parts of a query, or for retrieving and processing results in chunks
-	  so your program can do useful work on one chunk while the next is
-	  still coming in over a network connection.  Or you may want to use
-	  this to give progress reports to the user between chunk transfers.
+	  <literal>sql_error</literal> is an exception class that is thrown if
+	  a query to the back-end fails.  Like <literal>broken_connection</> it
+	  is derived from <literal>std::runtime_error</literal>, but it also
+	  carries information about the failed query.  This may be useful for
+	  debugging.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  <literal>icursorstream</literal> is a way of iterating over a query
+	  result using an SQL cursor.  This can be useful for selectively
+	  retrieving parts of a query, or for retrieving and processing results
+	  in chunks so your program can do useful work on one chunk while the
+	  next is still coming in over a network connection.  Or you may want to
+	  use this to give progress reports to the user between chunk transfers.
 	</para>
       </listitem>
 
@@ -318,10 +328,9 @@
 	</para>
 
 	<para>
-	  When this happens, libpqxx throws an
-	  <literal>in_doubt_error</literal> on the client side, which you may
-	  want to <literal>catch</literal> as a special case.  If you do, make
-	  sure all alarm bells go off!
+	  When this happens, libpqxx throws an <literal>in_doubt_error</> on the
+	  client side, which you may want to <literal>catch</> as a special
+	  case.  If you do, make sure all alarm bells go off!
 	</para>
 
 	<para>
@@ -524,11 +533,11 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  <function>Quote</function> is the canonical way to use strings in
-	  your SQL.  This function not only adds SQL-style quotes around your
-	  string; it also escapes any quotes, backslashes, and other characters
-	  in your string that would otherwise cause syntax errors in your
-	  queries when included directly.
+	  <function>sqlesc</function> is the canonical way to use strings in
+	  your SQL.  This function escapes any quotes, backslashes, and other
+	  characters in your input string that would otherwise cause syntax
+	  errors (or worse, security holes) in your queries when included
+	  directly.
 	</para>
 
 	<para>
@@ -542,43 +551,19 @@
 
       <listitem>
 	<para>
-	  <function>ToString</function> knows how to render many types of
+	  <function>to_string</function> knows how to render many types of
 	  values as strings.  This is used internally by
-	  <literal>libpqxx</literal>, and it may be replaced in the
-	  future.
-
-	  <footnote>
-	    <para>
-	      Apparently the BOOST library's <literal>numeric_cast</literal>
-	      provides similar functionality.  This may be used to replace the
-	      custom code at some point.
-	    </para>
-	  </footnote>.
+	  <literal>libpqxx</literal> to convert values coming out of or going
+	  into the backend, and doesn't respect locale settings.
 	</para>
       </listitem>
 
       <listitem>
 	<para>
-	  <function>FromString</function> is the inverse of
-	  <function>ToString</function>.  Like <function>ToString</function>
-	  it may someday be replaced.  For now it is used by eg.
+	  <function>from_string</function> is the inverse of
+	  <function>to_string</function>.  It is used by eg.
 	  <function>result::field::to()</function> to convert the incoming
 	  field data (which is in text format) to the desired C++ type.
-	  Unfortunately it is currently locale-sensitive, which means you
-	  need to have the default C locale active whenever you convert
-	  strings to other types (e.g. when reading a field from a result
-	  set).  This should be fixed at some time in the future.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  <function>FmtString</function> is used by some instantiations of
-	  the <function>ToString</function> and
-	  <function>FromString</function> functions to statically determine
-	  the appropriate C stdio-style format strings for the various
-	  builtin types like <literal>int</literal>, <literal>char</literal>,
-	  and so on.
 	</para>
       </listitem>
     </itemizedlist>
@@ -635,13 +620,15 @@
 	    <para>
 	      This tells the compiler to always look in the
 	      <literal>pqxx</literal> namespace when trying to resolve a name
-	      that doesn't occur in the global (ie. the "normal") namespace).
+	      that doesn't occur in the global (ie. the "default") namespace).
 	      To do this, include the directive 
 	      <programlisting>
 		using namespace pqxx;
 	      </programlisting>
 	      near the top of each source file that uses
-	      <productname>libpqxx</productname>.
+	      <productname>libpqxx</productname>.  This is typically best for
+	      your source files, though it is not considered good practice in
+	      header files.
 	    </para>
 	  </listitem>
 
@@ -832,15 +819,15 @@
 	<listitem>
 	  <para>
 	    The transaction may be committed through its
-	    <literal>Commit</literal> member function:
+	    <literal>commit</literal> member function:
 	  </para>
 	  <programlisting>
-	    Xaction.Commit();
+	    Xaction.commit();
 	  </programlisting>
 
 	  <para>
 	    The commit operation is sent to the backend at the point where
-	    the <literal>Commit()</literal> call occurs.  Any exceptions
+	    the <function>commit</> call occurs.  Any exceptions
 	    generated by the database transaction will be thrown from here at
 	    the latest.  The only exceptions that may be generated by
 	    <literal>Xaction</literal> beyond this point are related to
@@ -852,7 +839,7 @@
 	  <para>
 	    As a consequence, any streams or cursors nested within the
 	    transaction (to be discussed later) must have been closed before
-	    the <literal>Commit()</literal>.  To do otherwise could possibly
+	    the <literal>commit()</literal>.  To do otherwise could possibly
 	    allow a transaction to be committed before all related actions
 	    had completed.  The library will throw an exception if any
 	    streams are still open when the transaction is ended.
@@ -894,7 +881,7 @@
 
 		// (Queries)
 
-		Xaction.Commit();
+		Xaction.commit();
 		// If we get here, Xaction is committed
 		}
 		catch (...)
@@ -935,12 +922,12 @@
 	    try
 	    {
 	    // (Queries)
-	    Xaction.Exec("SELECT !?^H^H^H^H");	// Fails: SQL syntax error
+	    Xaction.exec("SELECT !?^H^H^H^H");	// Fails: SQL syntax error
 	    }
 	    catch (...)
 	    {
 	    }
-	    Xaction.Commit(); // ERROR: Xaction has already aborted!
+	    Xaction.commit(); // ERROR: Xaction has already aborted!
 	  </programlisting>
 
 	  <para>
@@ -972,13 +959,13 @@
       <title>Executing queries</title>
       <para>
 	So let's execute an actual query.  There is no "query class" in
-	<productname>libpqxx</productname>; we're trying to keep your life
+	<productname>libpqxx</productname>; we really do try to keep your life
 	simple.
       </para>
 
       <para>
 	A query is executed within a <literal>transaction</literal> by
-	passing the query string to its <function>Exec</function> method.  If
+	passing the query string to its <function>exec</function> method.  If
 	the query fails to execute properly, this method will throw the
 	appropriate exception.
       </para>
@@ -992,7 +979,7 @@
       <programlisting>
 	void DeleteEntry(work &amp;T, string Table, long ID)
 	{
-	T.Exec("DELETE FROM " + Table + " WHERE ID=" + ID);
+	T.exec("DELETE FROM " + Table + " WHERE ID=" + ID);
 	}
       </programlisting>
     </section>
@@ -1009,7 +996,7 @@
       </para>
 
       <programlisting>
-	result R = T.Exec("SELECT firstname FROM employee WHERE lastname='Ng'");
+	result R = T.exec("SELECT firstname FROM employee WHERE lastname='Ng'");
       </programlisting>
 
       <para>
@@ -1366,31 +1353,31 @@
 	  the rest of your code, you encapsulate it in your functor's
 	  <literal>()</literal> operator.  When the time comes to execute
 	  your transaction, you create an object of your functor type and
-	  pass it to the <function>Perform</function> method of your
+	  pass it to the <function>perform</function> method of your
 	  <literal>connection</literal> to the database.
 	</para>
 
 	<para>
-	  <function>Perform</function> will make a copy of your transactor
+	  <function>perform</function> will make a copy of your transactor
 	  (which means it needs to be copy-constructible, by the way).  It
 	  will also create a transaction object and invoke your transactor's
 	  <literal>()</literal> operator, passing the transaction object to
 	  it.  All your transactor needs to do is perform its queries on this
-	  object and return, after which <function>Perform</function> will
+	  object and return, after which <function>perform</function> will
 	  commit the transaction.  If your <literal>()</literal> operator
-	  throws an exception instead, <function>Perform</function> will
+	  throws an exception instead, <function>perform</function> will
 	  discard the copy of your original transactor, and try again with a
 	  new copy until it either succeeds or eventually gives up
 	  <footnote>
 	    <para>
-	      <function>Perform</function> gives up if the transaction fails
+	      <function>perform</function> gives up if the transaction fails
 	      too many times in succession.  The maximum number of attempts
-	      that are made can be passed to <function>Perform</function> as
+	      that are made can be passed to <function>perform</function> as
 	      an optional second argument.
 	    </para>
 	  </footnote>.  
 	  If the connection is lost, the transaction will fail but
-	  <function>Perform</function> will restore it transparently and
+	  <function>perform</function> will restore it transparently and
 	  simply try again.
 	</para>
 
@@ -1400,7 +1387,7 @@
 	  your program's state.  Any intermediate results, data to be
 	  processed, and so on, must stay within your transactor, and be
 	  destroyed when the transactor is.  That is the magic trick that
-	  allows <function>Perform</function> to create copies of your
+	  allows <function>perform</function> to create copies of your
 	  transactor and use them to rerun the transaction as
 	  many times as needed, without your program noticing.
 	</para>
