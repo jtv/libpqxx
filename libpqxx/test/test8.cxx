@@ -40,6 +40,8 @@ int main(int argc, char *argv[])
 
     vector<string> R, First;
 
+    // (Set up a block here to ensure our TableReader goes out of scope
+    //  before our Transaction does, see below)
     {
       // Set up a TableReader stream to read data from table pg_tables
       TableReader Stream(T, Table);
