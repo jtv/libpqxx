@@ -677,7 +677,6 @@ bool pqxx::connection_base::ReadCopyLine(string &Line)
 }
 
 
-#include<iostream>// DEBUG CODE
 bool pqxx::connection_base::WriteCopyLine(const string &Line, bool async)
 {
   if (!is_open())
@@ -717,26 +716,26 @@ void pqxx::connection_base::EndCopyWrite()
 {
 #ifdef PQXX_HAVE_PQPUTCOPY
   go_sync();
-  int Res;
-  do
+  int Res = PQputCopyEnd(m_Conn, NULL);
+  switch (Res)
   {
-    Res = PQputCopyEnd(m_Conn, NULL);
-    switch (Res)
-    {
-      case -1:
-        throw runtime_error("Write to table failed: " + string(ErrMsg()));
-      case 0:
-        throw logic_error("libpqxx internal error: "
+  case -1:
+    throw runtime_error("Write to table failed: " + string(ErrMsg()));
+  case 0:
+    throw logic_error("libpqxx internal error: "
 	    "table write is inexplicably asynchronous");
-      case 1:
-        for (result R(PQgetResult(m_Conn)); R; R=PQgetResult(m_Conn))
-	    R.CheckStatus("[END COPY]");
-        break;
-      default:
-        throw logic_error("libpqxx internal error: "
+  case 1:
+    // Normal termination.  Retrieve result object.
+    break;
+
+  default:
+    throw logic_error("libpqxx internal error: "
 	    "unexpected result " + to_string(Res) + " from PQputCopyEnd()");
-    }
-  } while (!Res);
+  }
+
+  const result R(PQgetResult(m_Conn));
+  R.CheckStatus("[END COPY]");
+
 #else
   WriteCopyLine(theWriteTerminator);
   // This check is a little odd, but for some reason PostgreSQL 7.4 keeps

@@ -80,7 +80,7 @@ void pqxx::result::CheckStatus(const string &Query) const
 void pqxx::result::CheckStatus(const char Query[]) const
 {
   const string Err = StatusError();
-  if (!Err.empty()) throw sql_error(Err, Query);
+  if (!Err.empty()) throw sql_error(Err, string(Query ? Query : ""));
 }
 
 

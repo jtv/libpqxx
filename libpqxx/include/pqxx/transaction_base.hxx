@@ -136,6 +136,10 @@ public:
               const PGSTD::string &Desc=PGSTD::string()) 		//[t2]
   	{ return exec(Query.c_str(), Desc); }
 
+  result exec(const PGSTD::stringstream &Query,
+      	      const PGSTD::string &Desc=PGSTD::string())		//[]
+    	{ return exec(Query.str(), Desc); }
+
   /// Have connection process warning message
   void process_notice(const char Msg[]) const 				//[t14]
   	{ m_Conn.process_notice(Msg); }
@@ -275,7 +279,7 @@ private:
       	const PGSTD::string &Columns = PGSTD::string());
   bool WriteCopyLine(const PGSTD::string &L, bool async=false) 
   	{ return m_Conn.WriteCopyLine(L, async); }
-  void EndCopyWrite() throw () { m_Conn.EndCopyWrite(); }
+  void EndCopyWrite() { m_Conn.EndCopyWrite(); }
 
   friend class pipeline;
   void start_exec(const PGSTD::string &Q) { m_Conn.start_exec(Q); }
