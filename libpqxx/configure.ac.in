@@ -8,7 +8,7 @@
 AC_PREREQ(2.59)
 AC_INIT(libpqxx, @PQXXVERSION@, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-#AC_CONFIG_MACRO_DIR([config/m4])
+AC_CONFIG_MACRO_DIR([config/m4])
 AM_INIT_AUTOMAKE(libpqxx, @PQXXVERSION@)
 
 PQXXVERSION=@PQXXVERSION@
