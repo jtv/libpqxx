@@ -1,4 +1,6 @@
 2004-02-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test075.cxx:
+  - g++ 2.95 compile fix
  tools/maketestam.pl:
   - Removed redundant -I option
  tools/Makefile.am:

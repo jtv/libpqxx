@@ -39,7 +39,7 @@ int main(int, char *argv[])
 	  "out of result with size " + ToString(R.size()));
 
     for (result::size_type i=0; i<R.size(); ++i)
-      if (contents.at(i) != R.at(i).at(0).c_str())
+      if (contents[i] != R.at(i).at(0).c_str())
 	throw logic_error("Inconsistent iteration: '" + contents[i] + "' "
 	    "became '" + R[i][0].as<string>());
     cout << ToString(R.size()) << " years checked" << endl;

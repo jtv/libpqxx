@@ -598,15 +598,16 @@ protected:
   virtual int sync() { return traits_type::eof(); }
 
 protected:
-  virtual pos_type seekoff(off_type offset, seekdir dir, openmode)
+  virtual pos_type seekoff(off_type, seekdir, openmode)
   {
     return traits_type::eof();
   }
 
-  virtual pos_type seekpos(pos_type pos, openmode) {return traits_type::eof();}
+  virtual pos_type seekpos(pos_type, openmode) {return traits_type::eof();}
 
   virtual int_type overflow(int_type) { return traits_type::eof(); }
 
+  // TODO: This isn't good enough with g++ 2.95--it crashes somewhere near here!
   virtual int_type underflow() { return initialize(); }
 
 private:
