@@ -33,9 +33,6 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
-/* Do we have InvalidOid definition? */
-#undef InvalidOid
-
 /* Name of package */
 #undef PACKAGE
 
@@ -54,93 +51,17 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Does the standard namespace exist? */
-#undef PGSTD
-
-/* Define if <iterator> lacks an iterator template definition */
-#undef PQXX_BROKEN_ITERATOR
-
-/* Define if function overloading using "using" breaks */
-#undef PQXX_BROKEN_USING_DECL
-
-/* Define if std defines the char_traits template and <char> specialization */
-#undef PQXX_HAVE_CHAR_TRAITS
-
-/* Define if count_if() works according to the standard */
-#undef PQXX_HAVE_COUNT_IF
-
-/* Define if preprocessor supports pragma "message" */
-#undef PQXX_HAVE_CPP_PRAGMA_MESSAGE
-
-/* Define if preprocessor supports nonstandard "warning" directive */
-#undef PQXX_HAVE_CPP_WARNING
-
-/* Define if <iterator> exists */
-#undef PQXX_HAVE_ITERATOR
-
-/* Define if <limits> exists */
-#undef PQXX_HAVE_LIMITS
-
 /* Define if PostgreSQL has PQescapeBytea() */
 #undef PQXX_HAVE_PQESCAPEBYTEA
 
 /* Define if PostgreSQL has PQescapeString() */
 #undef PQXX_HAVE_PQESCAPESTRING
 
-/* Define if PostgreSQL has PQfreemem() */
-#undef PQXX_HAVE_PQFREEMEM
-
-/* Define if PostgreSQL has PQfreeNotify() */
-#undef PQXX_HAVE_PQFREENOTIFY
-
-/* Define if PostgreSQL has PQftable() */
-#undef PQXX_HAVE_PQFTABLE
-
-/* Define if PostgreSQL has PQputCopyData() and related functions */
-#undef PQXX_HAVE_PQPUTCOPY
-
 /* Define if PostgreSQL has PQunescapeBytea() */
 #undef PQXX_HAVE_PQUNESCAPEBYTEA
 
-/* Define if ptrdiff_t exists */
-#undef PQXX_HAVE_PTRDIFF_T
-
-/* Define if reverse_iterator template works as expected */
-#undef PQXX_HAVE_REVERSE_ITERATOR
-
-/* Define if you have the <streambuf> header; if not, <streambuf.h> is used */
-#undef PQXX_HAVE_STREAMBUF
-
-/* Define if string class has the clear() function */
-#undef PQXX_HAVE_STRING_CLEAR
-
-/* Define if the sys/select.h header defines a working select() and friends,
-   as per POSIX 1003.1-2001 */
-#undef PQXX_HAVE_SYS_SELECT_H
-
 /* Define if select() accepts NULL fd_set arguments */
 #undef PQXX_SELECT_ACCEPTS_NULL
-
-/* Do we have a PQescapeBytea function? */
-#undef PQescapeBytea
-
-/* Do we have a PQescapeString function? */
-#undef PQescapeString
-
-/* Do we have a PQfreeNotify function? */
-#undef PQfreeNotify
-
-/* Do we have a PQfreemem function? */
-#undef PQfreemem
-
-/* Do we have a PQftable function? */
-#undef PQftable
-
-/* Do we have PQputCopyData() and related functions? */
-#undef PQputCopyData
-
-/* Do we have a PQunescapeBytea function? */
-#undef PQunescapeBytea
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
