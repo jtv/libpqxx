@@ -88,7 +88,7 @@ with_postgres_lib = @with_postgres_lib@
 INCLUDES = -I../include ${POSTGRES_INCLUDE}
 MAINTAINERCLEANFILES = Makefile.in
 
-TESTS = test1 test2 test3 test4 test5 test6 test7 test8 test9 test10 test11 test12 test13 test14 test15 test16 test17 test18 test19 test20 
+TESTS = test1 test2 test3 test4 test5 test6 test7 test8 test9 test10 test11 test12 test13 test14 test15 test16 test17 test18 test19 test20 test21 test22 test23 test24 test25 test26 test27 test28 test29 test30 test31 test32 test33 test34 test35 test36 test37 test38 test39
 check_PROGRAMS = ${TESTS}
 
 
@@ -153,6 +153,63 @@ test19_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
 
 test20_SOURCES = test20.cxx
 test20_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test21_SOURCES = test21.cxx
+test21_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test22_SOURCES = test22.cxx
+test22_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test23_SOURCES = test23.cxx
+test23_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test24_SOURCES = test24.cxx
+test24_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test25_SOURCES = test25.cxx
+test25_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test26_SOURCES = test26.cxx
+test26_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test27_SOURCES = test27.cxx
+test27_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test28_SOURCES = test28.cxx
+test28_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test29_SOURCES = test29.cxx
+test29_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test30_SOURCES = test30.cxx
+test30_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test31_SOURCES = test31.cxx
+test31_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test32_SOURCES = test32.cxx
+test32_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test33_SOURCES = test33.cxx
+test33_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test34_SOURCES = test34.cxx
+test34_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test35_SOURCES = test35.cxx
+test35_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test36_SOURCES = test36.cxx
+test36_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test37_SOURCES = test37.cxx
+test37_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test38_SOURCES = test38.cxx
+test38_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test39_SOURCES = test39.cxx
+test39_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
 subdir = test
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h
@@ -162,7 +219,11 @@ check_PROGRAMS = test1$(EXEEXT) test2$(EXEEXT) test3$(EXEEXT) \
 	test8$(EXEEXT) test9$(EXEEXT) test10$(EXEEXT) test11$(EXEEXT) \
 	test12$(EXEEXT) test13$(EXEEXT) test14$(EXEEXT) test15$(EXEEXT) \
 	test16$(EXEEXT) test17$(EXEEXT) test18$(EXEEXT) test19$(EXEEXT) \
-	test20$(EXEEXT)
+	test20$(EXEEXT) test21$(EXEEXT) test22$(EXEEXT) test23$(EXEEXT) \
+	test24$(EXEEXT) test25$(EXEEXT) test26$(EXEEXT) test27$(EXEEXT) \
+	test28$(EXEEXT) test29$(EXEEXT) test30$(EXEEXT) test31$(EXEEXT) \
+	test32$(EXEEXT) test33$(EXEEXT) test34$(EXEEXT) test35$(EXEEXT) \
+	test36$(EXEEXT) test37$(EXEEXT) test38$(EXEEXT) test39$(EXEEXT)
 am_test1_OBJECTS = test1.$(OBJEXT)
 test1_OBJECTS = $(am_test1_OBJECTS)
 test1_DEPENDENCIES = ../src/libpqxx.la
@@ -215,10 +276,86 @@ am_test20_OBJECTS = test20.$(OBJEXT)
 test20_OBJECTS = $(am_test20_OBJECTS)
 test20_DEPENDENCIES = ../src/libpqxx.la
 test20_LDFLAGS =
+am_test21_OBJECTS = test21.$(OBJEXT)
+test21_OBJECTS = $(am_test21_OBJECTS)
+test21_DEPENDENCIES = ../src/libpqxx.la
+test21_LDFLAGS =
+am_test22_OBJECTS = test22.$(OBJEXT)
+test22_OBJECTS = $(am_test22_OBJECTS)
+test22_DEPENDENCIES = ../src/libpqxx.la
+test22_LDFLAGS =
+am_test23_OBJECTS = test23.$(OBJEXT)
+test23_OBJECTS = $(am_test23_OBJECTS)
+test23_DEPENDENCIES = ../src/libpqxx.la
+test23_LDFLAGS =
+am_test24_OBJECTS = test24.$(OBJEXT)
+test24_OBJECTS = $(am_test24_OBJECTS)
+test24_DEPENDENCIES = ../src/libpqxx.la
+test24_LDFLAGS =
+am_test25_OBJECTS = test25.$(OBJEXT)
+test25_OBJECTS = $(am_test25_OBJECTS)
+test25_DEPENDENCIES = ../src/libpqxx.la
+test25_LDFLAGS =
+am_test26_OBJECTS = test26.$(OBJEXT)
+test26_OBJECTS = $(am_test26_OBJECTS)
+test26_DEPENDENCIES = ../src/libpqxx.la
+test26_LDFLAGS =
+am_test27_OBJECTS = test27.$(OBJEXT)
+test27_OBJECTS = $(am_test27_OBJECTS)
+test27_DEPENDENCIES = ../src/libpqxx.la
+test27_LDFLAGS =
+am_test28_OBJECTS = test28.$(OBJEXT)
+test28_OBJECTS = $(am_test28_OBJECTS)
+test28_DEPENDENCIES = ../src/libpqxx.la
+test28_LDFLAGS =
+am_test29_OBJECTS = test29.$(OBJEXT)
+test29_OBJECTS = $(am_test29_OBJECTS)
+test29_DEPENDENCIES = ../src/libpqxx.la
+test29_LDFLAGS =
 am_test3_OBJECTS = test3.$(OBJEXT)
 test3_OBJECTS = $(am_test3_OBJECTS)
 test3_DEPENDENCIES = ../src/libpqxx.la
 test3_LDFLAGS =
+am_test30_OBJECTS = test30.$(OBJEXT)
+test30_OBJECTS = $(am_test30_OBJECTS)
+test30_DEPENDENCIES = ../src/libpqxx.la
+test30_LDFLAGS =
+am_test31_OBJECTS = test31.$(OBJEXT)
+test31_OBJECTS = $(am_test31_OBJECTS)
+test31_DEPENDENCIES = ../src/libpqxx.la
+test31_LDFLAGS =
+am_test32_OBJECTS = test32.$(OBJEXT)
+test32_OBJECTS = $(am_test32_OBJECTS)
+test32_DEPENDENCIES = ../src/libpqxx.la
+test32_LDFLAGS =
+am_test33_OBJECTS = test33.$(OBJEXT)
+test33_OBJECTS = $(am_test33_OBJECTS)
+test33_DEPENDENCIES = ../src/libpqxx.la
+test33_LDFLAGS =
+am_test34_OBJECTS = test34.$(OBJEXT)
+test34_OBJECTS = $(am_test34_OBJECTS)
+test34_DEPENDENCIES = ../src/libpqxx.la
+test34_LDFLAGS =
+am_test35_OBJECTS = test35.$(OBJEXT)
+test35_OBJECTS = $(am_test35_OBJECTS)
+test35_DEPENDENCIES = ../src/libpqxx.la
+test35_LDFLAGS =
+am_test36_OBJECTS = test36.$(OBJEXT)
+test36_OBJECTS = $(am_test36_OBJECTS)
+test36_DEPENDENCIES = ../src/libpqxx.la
+test36_LDFLAGS =
+am_test37_OBJECTS = test37.$(OBJEXT)
+test37_OBJECTS = $(am_test37_OBJECTS)
+test37_DEPENDENCIES = ../src/libpqxx.la
+test37_LDFLAGS =
+am_test38_OBJECTS = test38.$(OBJEXT)
+test38_OBJECTS = $(am_test38_OBJECTS)
+test38_DEPENDENCIES = ../src/libpqxx.la
+test38_LDFLAGS =
+am_test39_OBJECTS = test39.$(OBJEXT)
+test39_OBJECTS = $(am_test39_OBJECTS)
+test39_DEPENDENCIES = ../src/libpqxx.la
+test39_LDFLAGS =
 am_test4_OBJECTS = test4.$(OBJEXT)
 test4_OBJECTS = $(am_test4_OBJECTS)
 test4_DEPENDENCIES = ../src/libpqxx.la
@@ -256,10 +393,20 @@ depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 @AMDEP_TRUE@	$(DEPDIR)/test15.Po $(DEPDIR)/test16.Po \
 @AMDEP_TRUE@	$(DEPDIR)/test17.Po $(DEPDIR)/test18.Po \
 @AMDEP_TRUE@	$(DEPDIR)/test19.Po $(DEPDIR)/test2.Po \
-@AMDEP_TRUE@	$(DEPDIR)/test20.Po $(DEPDIR)/test3.Po \
-@AMDEP_TRUE@	$(DEPDIR)/test4.Po $(DEPDIR)/test5.Po \
-@AMDEP_TRUE@	$(DEPDIR)/test6.Po $(DEPDIR)/test7.Po \
-@AMDEP_TRUE@	$(DEPDIR)/test8.Po $(DEPDIR)/test9.Po
+@AMDEP_TRUE@	$(DEPDIR)/test20.Po $(DEPDIR)/test21.Po \
+@AMDEP_TRUE@	$(DEPDIR)/test22.Po $(DEPDIR)/test23.Po \
+@AMDEP_TRUE@	$(DEPDIR)/test24.Po $(DEPDIR)/test25.Po \
+@AMDEP_TRUE@	$(DEPDIR)/test26.Po $(DEPDIR)/test27.Po \
+@AMDEP_TRUE@	$(DEPDIR)/test28.Po $(DEPDIR)/test29.Po \
+@AMDEP_TRUE@	$(DEPDIR)/test3.Po $(DEPDIR)/test30.Po \
+@AMDEP_TRUE@	$(DEPDIR)/test31.Po $(DEPDIR)/test32.Po \
+@AMDEP_TRUE@	$(DEPDIR)/test33.Po $(DEPDIR)/test34.Po \
+@AMDEP_TRUE@	$(DEPDIR)/test35.Po $(DEPDIR)/test36.Po \
+@AMDEP_TRUE@	$(DEPDIR)/test37.Po $(DEPDIR)/test38.Po \
+@AMDEP_TRUE@	$(DEPDIR)/test39.Po $(DEPDIR)/test4.Po \
+@AMDEP_TRUE@	$(DEPDIR)/test5.Po $(DEPDIR)/test6.Po \
+@AMDEP_TRUE@	$(DEPDIR)/test7.Po $(DEPDIR)/test8.Po \
+@AMDEP_TRUE@	$(DEPDIR)/test9.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -273,11 +420,17 @@ DIST_SOURCES = $(test1_SOURCES) $(test10_SOURCES) $(test11_SOURCES) \
 	$(test12_SOURCES) $(test13_SOURCES) $(test14_SOURCES) \
 	$(test15_SOURCES) $(test16_SOURCES) $(test17_SOURCES) \
 	$(test18_SOURCES) $(test19_SOURCES) $(test2_SOURCES) \
-	$(test20_SOURCES) $(test3_SOURCES) $(test4_SOURCES) \
-	$(test5_SOURCES) $(test6_SOURCES) $(test7_SOURCES) \
-	$(test8_SOURCES) $(test9_SOURCES)
+	$(test20_SOURCES) $(test21_SOURCES) $(test22_SOURCES) \
+	$(test23_SOURCES) $(test24_SOURCES) $(test25_SOURCES) \
+	$(test26_SOURCES) $(test27_SOURCES) $(test28_SOURCES) \
+	$(test29_SOURCES) $(test3_SOURCES) $(test30_SOURCES) \
+	$(test31_SOURCES) $(test32_SOURCES) $(test33_SOURCES) \
+	$(test34_SOURCES) $(test35_SOURCES) $(test36_SOURCES) \
+	$(test37_SOURCES) $(test38_SOURCES) $(test39_SOURCES) \
+	$(test4_SOURCES) $(test5_SOURCES) $(test6_SOURCES) \
+	$(test7_SOURCES) $(test8_SOURCES) $(test9_SOURCES)
 DIST_COMMON = Makefile.am Makefile.in
-SOURCES = $(test1_SOURCES) $(test10_SOURCES) $(test11_SOURCES) $(test12_SOURCES) $(test13_SOURCES) $(test14_SOURCES) $(test15_SOURCES) $(test16_SOURCES) $(test17_SOURCES) $(test18_SOURCES) $(test19_SOURCES) $(test2_SOURCES) $(test20_SOURCES) $(test3_SOURCES) $(test4_SOURCES) $(test5_SOURCES) $(test6_SOURCES) $(test7_SOURCES) $(test8_SOURCES) $(test9_SOURCES)
+SOURCES = $(test1_SOURCES) $(test10_SOURCES) $(test11_SOURCES) $(test12_SOURCES) $(test13_SOURCES) $(test14_SOURCES) $(test15_SOURCES) $(test16_SOURCES) $(test17_SOURCES) $(test18_SOURCES) $(test19_SOURCES) $(test2_SOURCES) $(test20_SOURCES) $(test21_SOURCES) $(test22_SOURCES) $(test23_SOURCES) $(test24_SOURCES) $(test25_SOURCES) $(test26_SOURCES) $(test27_SOURCES) $(test28_SOURCES) $(test29_SOURCES) $(test3_SOURCES) $(test30_SOURCES) $(test31_SOURCES) $(test32_SOURCES) $(test33_SOURCES) $(test34_SOURCES) $(test35_SOURCES) $(test36_SOURCES) $(test37_SOURCES) $(test38_SOURCES) $(test39_SOURCES) $(test4_SOURCES) $(test5_SOURCES) $(test6_SOURCES) $(test7_SOURCES) $(test8_SOURCES) $(test9_SOURCES)
 
 all: all-am
 
@@ -341,9 +494,66 @@ test2$(EXEEXT): $(test2_OBJECTS) $(test2_DEPENDENCIES)
 test20$(EXEEXT): $(test20_OBJECTS) $(test20_DEPENDENCIES) 
 	@rm -f test20$(EXEEXT)
 	$(CXXLINK) $(test20_LDFLAGS) $(test20_OBJECTS) $(test20_LDADD) $(LIBS)
+test21$(EXEEXT): $(test21_OBJECTS) $(test21_DEPENDENCIES) 
+	@rm -f test21$(EXEEXT)
+	$(CXXLINK) $(test21_LDFLAGS) $(test21_OBJECTS) $(test21_LDADD) $(LIBS)
+test22$(EXEEXT): $(test22_OBJECTS) $(test22_DEPENDENCIES) 
+	@rm -f test22$(EXEEXT)
+	$(CXXLINK) $(test22_LDFLAGS) $(test22_OBJECTS) $(test22_LDADD) $(LIBS)
+test23$(EXEEXT): $(test23_OBJECTS) $(test23_DEPENDENCIES) 
+	@rm -f test23$(EXEEXT)
+	$(CXXLINK) $(test23_LDFLAGS) $(test23_OBJECTS) $(test23_LDADD) $(LIBS)
+test24$(EXEEXT): $(test24_OBJECTS) $(test24_DEPENDENCIES) 
+	@rm -f test24$(EXEEXT)
+	$(CXXLINK) $(test24_LDFLAGS) $(test24_OBJECTS) $(test24_LDADD) $(LIBS)
+test25$(EXEEXT): $(test25_OBJECTS) $(test25_DEPENDENCIES) 
+	@rm -f test25$(EXEEXT)
+	$(CXXLINK) $(test25_LDFLAGS) $(test25_OBJECTS) $(test25_LDADD) $(LIBS)
+test26$(EXEEXT): $(test26_OBJECTS) $(test26_DEPENDENCIES) 
+	@rm -f test26$(EXEEXT)
+	$(CXXLINK) $(test26_LDFLAGS) $(test26_OBJECTS) $(test26_LDADD) $(LIBS)
+test27$(EXEEXT): $(test27_OBJECTS) $(test27_DEPENDENCIES) 
+	@rm -f test27$(EXEEXT)
+	$(CXXLINK) $(test27_LDFLAGS) $(test27_OBJECTS) $(test27_LDADD) $(LIBS)
+test28$(EXEEXT): $(test28_OBJECTS) $(test28_DEPENDENCIES) 
+	@rm -f test28$(EXEEXT)
+	$(CXXLINK) $(test28_LDFLAGS) $(test28_OBJECTS) $(test28_LDADD) $(LIBS)
+test29$(EXEEXT): $(test29_OBJECTS) $(test29_DEPENDENCIES) 
+	@rm -f test29$(EXEEXT)
+	$(CXXLINK) $(test29_LDFLAGS) $(test29_OBJECTS) $(test29_LDADD) $(LIBS)
 test3$(EXEEXT): $(test3_OBJECTS) $(test3_DEPENDENCIES) 
 	@rm -f test3$(EXEEXT)
 	$(CXXLINK) $(test3_LDFLAGS) $(test3_OBJECTS) $(test3_LDADD) $(LIBS)
+test30$(EXEEXT): $(test30_OBJECTS) $(test30_DEPENDENCIES) 
+	@rm -f test30$(EXEEXT)
+	$(CXXLINK) $(test30_LDFLAGS) $(test30_OBJECTS) $(test30_LDADD) $(LIBS)
+test31$(EXEEXT): $(test31_OBJECTS) $(test31_DEPENDENCIES) 
+	@rm -f test31$(EXEEXT)
+	$(CXXLINK) $(test31_LDFLAGS) $(test31_OBJECTS) $(test31_LDADD) $(LIBS)
+test32$(EXEEXT): $(test32_OBJECTS) $(test32_DEPENDENCIES) 
+	@rm -f test32$(EXEEXT)
+	$(CXXLINK) $(test32_LDFLAGS) $(test32_OBJECTS) $(test32_LDADD) $(LIBS)
+test33$(EXEEXT): $(test33_OBJECTS) $(test33_DEPENDENCIES) 
+	@rm -f test33$(EXEEXT)
+	$(CXXLINK) $(test33_LDFLAGS) $(test33_OBJECTS) $(test33_LDADD) $(LIBS)
+test34$(EXEEXT): $(test34_OBJECTS) $(test34_DEPENDENCIES) 
+	@rm -f test34$(EXEEXT)
+	$(CXXLINK) $(test34_LDFLAGS) $(test34_OBJECTS) $(test34_LDADD) $(LIBS)
+test35$(EXEEXT): $(test35_OBJECTS) $(test35_DEPENDENCIES) 
+	@rm -f test35$(EXEEXT)
+	$(CXXLINK) $(test35_LDFLAGS) $(test35_OBJECTS) $(test35_LDADD) $(LIBS)
+test36$(EXEEXT): $(test36_OBJECTS) $(test36_DEPENDENCIES) 
+	@rm -f test36$(EXEEXT)
+	$(CXXLINK) $(test36_LDFLAGS) $(test36_OBJECTS) $(test36_LDADD) $(LIBS)
+test37$(EXEEXT): $(test37_OBJECTS) $(test37_DEPENDENCIES) 
+	@rm -f test37$(EXEEXT)
+	$(CXXLINK) $(test37_LDFLAGS) $(test37_OBJECTS) $(test37_LDADD) $(LIBS)
+test38$(EXEEXT): $(test38_OBJECTS) $(test38_DEPENDENCIES) 
+	@rm -f test38$(EXEEXT)
+	$(CXXLINK) $(test38_LDFLAGS) $(test38_OBJECTS) $(test38_LDADD) $(LIBS)
+test39$(EXEEXT): $(test39_OBJECTS) $(test39_DEPENDENCIES) 
+	@rm -f test39$(EXEEXT)
+	$(CXXLINK) $(test39_LDFLAGS) $(test39_OBJECTS) $(test39_LDADD) $(LIBS)
 test4$(EXEEXT): $(test4_OBJECTS) $(test4_DEPENDENCIES) 
 	@rm -f test4$(EXEEXT)
 	$(CXXLINK) $(test4_LDFLAGS) $(test4_OBJECTS) $(test4_LDADD) $(LIBS)
@@ -382,7 +592,26 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test19.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test20.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test21.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test22.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test23.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test24.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test25.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test26.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test27.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test28.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test29.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test30.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test31.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test32.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test33.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test34.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test35.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test36.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test37.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test38.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test39.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test4.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test5.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/test6.Po@am__quote@

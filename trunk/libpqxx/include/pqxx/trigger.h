@@ -58,8 +58,9 @@ public:
 
   /// Overridable: action to invoke when trigger is notified.
   /**
-   * @param be_pid the process ID of the database backend process serving our 
-   * connection.
+   * @param be_pid the process ID of the database backend process that served
+   * our connection when the trigger was notified.  The actual process ID behind
+   * the connection may have changed by the time this method is called.
    */
   virtual void operator()(int be_pid) =0;				//[t4]
 

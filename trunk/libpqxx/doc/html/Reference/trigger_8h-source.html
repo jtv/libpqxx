@@ -31,7 +31,7 @@
 00023 {
 00024 
 00026 
-<a name="l00044"></a><a class="code" href="classpqxx_1_1Trigger.html">00044</a> <font class="keyword">class </font><a class="code" href="compiler_8h.html#a0">PQXX_LIBEXPORT</a> <a class="code" href="classpqxx_1_1Trigger.html">Trigger</a>
+<a name="l00044"></a><a class="code" href="classpqxx_1_1Trigger.html">00044</a> <font class="keyword">class </font>PQXX_LIBEXPORT <a class="code" href="classpqxx_1_1Trigger.html">Trigger</a>
 00045 {
 00046 <font class="keyword">public</font>:
 00048 
@@ -43,22 +43,22 @@
 <a name="l00057"></a><a class="code" href="classpqxx_1_1Trigger.html#a2">00057</a>   PGSTD::string Name()<font class="keyword"> const </font>{ <font class="keywordflow">return</font> m_Name; }                         <font class="comment">//[t4]</font>
 00058 
 00060 
-00064   <font class="keyword">virtual</font> <font class="keywordtype">void</font> operator()(<font class="keywordtype">int</font> be_pid) =0;                               <font class="comment">//[t4]</font>
-00065 
-00066 <font class="keyword">protected</font>:
-<a name="l00067"></a><a class="code" href="classpqxx_1_1Trigger.html#b0">00067</a>   <a class="code" href="classpqxx_1_1Connection.html">Connection</a> &amp;Conn()<font class="keyword"> const </font>{ <font class="keywordflow">return</font> m_Conn; }                           <font class="comment">//[t4]</font>
-00068 
-00069 <font class="keyword">private</font>:
-00070   Connection &amp;m_Conn;
-00071   PGSTD::string m_Name;
-00072 };
-00073 
-00074 }
-00075 
+00065   <font class="keyword">virtual</font> <font class="keywordtype">void</font> operator()(<font class="keywordtype">int</font> be_pid) =0;                               <font class="comment">//[t4]</font>
+00066 
+00067 <font class="keyword">protected</font>:
+<a name="l00068"></a><a class="code" href="classpqxx_1_1Trigger.html#b0">00068</a>   <a class="code" href="classpqxx_1_1Connection.html">Connection</a> &amp;Conn()<font class="keyword"> const </font>{ <font class="keywordflow">return</font> m_Conn; }                           <font class="comment">//[t4]</font>
+00069 
+00070 <font class="keyword">private</font>:
+00071   Connection &amp;m_Conn;
+00072   PGSTD::string m_Name;
+00073 };
+00074 
+00075 }
 00076 
-00077 <font class="preprocessor">#endif</font>
-00078 <font class="preprocessor"></font>
-</pre></div><hr><address align="right"><small>Generated on Sat Aug 10 21:52:38 2002 for libpqxx by
+00077 
+00078 <font class="preprocessor">#endif</font>
+00079 <font class="preprocessor"></font>
+</pre></div><hr><address align="right"><small>Generated on Mon Sep 23 01:20:26 2002 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.16 </small></address>

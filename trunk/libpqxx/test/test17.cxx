@@ -25,7 +25,7 @@ void ReportWarning(void *, const char msg[])
 // Simple test program for libpqxx.  Open connection to database, start
 // a dummy transaction to gain nontransactional access, and perform a query.
 //
-// Usage: test15 [connect-string]
+// Usage: test17 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database

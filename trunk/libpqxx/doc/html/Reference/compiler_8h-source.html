@@ -63,33 +63,13 @@
 00057 <font class="preprocessor"></font>
 00058 
 00059 <font class="comment">// Used for Windows DLL</font>
-<a name="l00060"></a><a class="code" href="compiler_8h.html#a0">00060</a> <font class="preprocessor">#define PQXX_LIBEXPORT</font>
-00061 <font class="preprocessor"></font>
-00062 
-00063 <font class="preprocessor">#ifdef _MSC_VER</font>
-00064 <font class="preprocessor"></font><font class="comment">// Microsoft Visual C++ likes to complain about long debug symbols, which</font>
-00065 <font class="comment">// are a fact of life in modern C++.  Silence the warning.</font>
-00066 <font class="preprocessor">#pragma warning (disable: 4786)</font>
-00067 <font class="preprocessor"></font>
-00068 <font class="comment">// Compiler doesn't know if it is import or export</font>
-00069 <font class="preprocessor">#pragma warning (disable: 4251 4275)</font>
-00070 <font class="preprocessor"></font>
-00071 <font class="comment">// Link to libpq</font>
-00072 <font class="preprocessor">#pragma comment(lib, "libpqdll")</font>
-00073 <font class="preprocessor"></font>
-00074 <font class="preprocessor">#undef PQXX_LIBEXPORT</font>
-00075 <font class="preprocessor"></font><font class="preprocessor">#ifndef LIBPQXXDLL_EXPORTS      // Defined in Makefile</font>
-00076 <font class="preprocessor"></font><font class="preprocessor">#define PQXX_LIBEXPORT __declspec(dllimport)</font>
-00077 <font class="preprocessor"></font><font class="preprocessor">#else</font>
-00078 <font class="preprocessor"></font><font class="preprocessor">#define PQXX_LIBEXPORT __declspec(dllexport)</font>
-00079 <font class="preprocessor"></font><font class="preprocessor">#endif  // LIBPQXXDLL_EXPORTS</font>
-00080 <font class="preprocessor"></font>
-00081 <font class="preprocessor">#endif  // _MSC_VER</font>
-00082 <font class="preprocessor"></font>
-00083 
-00084 <font class="preprocessor">#endif</font>
-00085 <font class="preprocessor"></font>
-</pre></div><hr><address align="right"><small>Generated on Sat Aug 10 21:52:37 2002 for libpqxx by
+00060 <font class="preprocessor">#ifndef PQXX_LIBEXPORT</font>
+00061 <font class="preprocessor"></font><font class="preprocessor">#define PQXX_LIBEXPORT</font>
+00062 <font class="preprocessor"></font><font class="preprocessor">#endif</font>
+00063 <font class="preprocessor"></font>
+00064 <font class="preprocessor">#endif</font>
+00065 <font class="preprocessor"></font>
+</pre></div><hr><address align="right"><small>Generated on Mon Sep 23 01:20:25 2002 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.16 </small></address>

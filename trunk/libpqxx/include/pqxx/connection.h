@@ -73,9 +73,16 @@ public:
 class PQXX_LIBEXPORT Connection
 {
 public:
-  // TODO: Allow two-stage creation (create first, open later)
   /// Constructor.  Sets up connection based on PostgreSQL connection string.
-  explicit Connection(const PGSTD::string &ConnInfo);			//[t1]
+  /** @param ConnInfo a PostgreSQL connection string specifying any required
+   * parameters, such as server, port, database, and password.
+   * @param Immediate if set, makes the connection immediately.  This is the
+   * default.  If not set, the creation of the underlying database connection is
+   * deferred until necessitated by actual use, and then performed 
+   * transparently.
+   */
+  explicit Connection(const PGSTD::string &ConnInfo, 
+                      bool Immediate=true);				//[t1]
 
   /// Destructor.  Implicitly closes the connection.
   ~Connection();							//[t1]
@@ -103,10 +110,10 @@ public:
   void ProcessNotice(PGSTD::string msg) throw () 			//[t1]
   	{ ProcessNotice(msg.c_str()); }
 
-  /// Enable tracing to a given output stream.
+  /// Enable tracing to a given output stream, or NULL to disable.
   void Trace(FILE *);							//[t3]
-  /// Disable tracing.
-  void Untrace();							//[t3]
+  /// Disable tracing.  OBSOLETE.  Use Trace(0).
+  void Untrace() { Trace(0); }
 
 
   /// Check for pending trigger notifications and take appropriate action.
@@ -146,6 +153,7 @@ public:
 
 private:
   void Connect();
+  void SetupState();
   int Status() const { return PQstatus(m_Conn); }
   const char *ErrMsg() const;
   void Reset(const char OnReconnect[]=0);
@@ -153,7 +161,10 @@ private:
   PGSTD::string m_ConnInfo;	// Connection string
   PGconn *m_Conn;		// Connection handle
   Unique<TransactionItf> m_Trans;// Active transaction on connection, if any
+
+  NoticeProcessor m_NoticeProcessor;// Client-set notice processor function
   void *m_NoticeProcessorArg;	// Client-set argument to notice processor func
+  FILE *m_Trace;		// File to trace to, if any
 
   typedef PGSTD::multimap<PGSTD::string, pqxx::Trigger *> TriggerList;
   TriggerList m_Triggers;

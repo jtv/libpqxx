@@ -67,12 +67,15 @@ private:
 }
 
 
-pqxx::Connection::Connection(const string &ConnInfo) :
+pqxx::Connection::Connection(const string &ConnInfo, bool Immediate) :
   m_ConnInfo(ConnInfo),
   m_Conn(0),
-  m_Trans()
+  m_Trans(),
+  m_NoticeProcessor(0),
+  m_NoticeProcessorArg(0),
+  m_Trace(0)
 {
-  Connect();
+  if (Immediate) Connect();
 }
 
 
@@ -108,16 +111,14 @@ pqxx::Connection::~Connection()
 
 int pqxx::Connection::BackendPID() const
 {
-  // TODO: Throw broken_connection here?
-  if (!m_Conn) throw runtime_error("No connection");
-
-  return PQbackendPID(m_Conn);
+  return m_Conn ? PQbackendPID(m_Conn) : 0;
 }
 
 
 void pqxx::Connection::Connect()
 {
-  Disconnect();
+  if (m_Conn) return;
+
   m_Conn = PQconnectdb(m_ConnInfo.c_str());
 
   if (!m_Conn)
@@ -134,8 +135,38 @@ void pqxx::Connection::Connect()
   {
     const string Msg( ErrMsg() );
     Disconnect();
-    // TODO: Throw broken_connection here?
     throw runtime_error(Msg);
+  }
+
+  SetupState();
+}
+
+
+void pqxx::Connection::SetupState()
+{
+  if (m_NoticeProcessor) 
+    PQsetNoticeProcessor(m_Conn, m_NoticeProcessor, m_NoticeProcessorArg);
+  else
+    m_NoticeProcessor = PQsetNoticeProcessor(m_Conn, 0,0);
+
+  Trace(m_Trace);
+
+  // Reinstate all active triggers
+  if (!m_Triggers.empty())
+  {
+    const TriggerList::const_iterator End = m_Triggers.end();
+    string Last;
+    for (TriggerList::const_iterator i = m_Triggers.begin(); i != End; ++i)
+    {
+      // m_Triggers can handle multiple Triggers waiting on the same event; 
+      // issue just one LISTEN for each event.
+      if (i->first != Last)
+      {
+        Result R( PQexec(m_Conn, ("LISTEN " + i->first).c_str()) );
+        R.CheckStatus();
+        Last = i->first;
+      }
+    }
   }
 }
 
@@ -160,26 +191,27 @@ pqxx::NoticeProcessor
 pqxx::Connection::SetNoticeProcessor(pqxx::NoticeProcessor NewNP,
 		                   void *arg)
 {
+  const NoticeProcessor OldNP = m_NoticeProcessor;
+  m_NoticeProcessor = NewNP;
   m_NoticeProcessorArg = arg;
-  return PQsetNoticeProcessor(m_Conn, NewNP, arg);
+  return OldNP;
 }
 
 
 void pqxx::Connection::ProcessNotice(const char msg[]) throw ()
 {
-  if (msg) (*(SetNoticeProcessor(0,0)))(m_NoticeProcessorArg, msg);
+  if (msg && m_NoticeProcessor) (*m_NoticeProcessor)(m_NoticeProcessorArg, msg);
 }
 
 
 void pqxx::Connection::Trace(FILE *Out)
 {
-  PQtrace(m_Conn, Out);
-}
-
-
-void pqxx::Connection::Untrace()
-{
-  PQuntrace(m_Conn);
+  m_Trace = Out;
+  if (m_Conn) 
+  {
+    if (Out) PQtrace(m_Conn, Out);
+    else PQuntrace(m_Conn);
+  }
 }
 
 
@@ -191,9 +223,10 @@ void pqxx::Connection::AddTrigger(pqxx::Trigger *T)
   const TriggerList::iterator p = m_Triggers.find(T->Name());
   const TriggerList::value_type NewVal(T->Name(), T);
 
-  if (p == m_Triggers.end())
+  if (m_Conn && (p == m_Triggers.end()))
   {
     // Not listening on this event yet, start doing so.
+    //
     Result R( PQexec(m_Conn, ("LISTEN " + string(T->Name())).c_str()) );
 
     try
@@ -237,7 +270,7 @@ void pqxx::Connection::RemoveTrigger(pqxx::Trigger *T) throw ()
     }
     else
     {
-      if (R.second == ++R.first) 
+      if (m_Conn && (R.second == ++R.first))
 	PQexec(m_Conn, ("UNLISTEN " + string(T->Name())).c_str());
 
       m_Triggers.erase(i);
@@ -252,6 +285,8 @@ void pqxx::Connection::RemoveTrigger(pqxx::Trigger *T) throw ()
 
 void pqxx::Connection::GetNotifs()
 {
+  if (!m_Conn) return;
+
   typedef TriggerList::iterator TI;
 
   PQconsumeInput(m_Conn);
@@ -290,9 +325,7 @@ pqxx::Result pqxx::Connection::Exec(const char Q[],
                                 int Retries, 
 				const char OnReconnect[])
 {
-  // TODO: Throw broken_connection?
-  if (!m_Conn)
-    throw runtime_error("No connection to database");
+  if (!m_Conn) Connect();
 
   Result R( PQexec(m_Conn, Q) );
 
@@ -315,39 +348,19 @@ pqxx::Result pqxx::Connection::Exec(const char Q[],
 
 void pqxx::Connection::Reset(const char OnReconnect[])
 {
-  // Attempt to restore connection
-  PQreset(m_Conn);
-
-  if (!m_Triggers.empty())
+  // Attempt to set up or restore connection
+  if (!m_Conn) Connect();
+  else 
   {
-    // Reinstate all active triggers
-    try
-    {
-      const TriggerList::const_iterator End = m_Triggers.end();
-      string Last;
-      for (TriggerList::const_iterator i = m_Triggers.begin(); i != End; ++i)
-      {
-        // m_Triggers is supposed to be able to handle multiple Triggers waiting
-        // on the same event; issue just one LISTEN for each event.
-        if (i->first != Last)
-        {
-          Result R( PQexec(m_Conn, ("LISTEN " + i->first).c_str()) );
-          R.CheckStatus();
-	  Last = i->first;
-        }
-      }
+    PQreset(m_Conn);
+    SetupState();
 
-      // Perform any extra patchup work involved in restoring the connection,
-      // typically set up a transaction.
-      if (OnReconnect)
-      {
-        Result Temp( PQexec(m_Conn, OnReconnect) );
-        Temp.CheckStatus();
-      }
-    }
-    catch (...)
+    // Perform any extra patchup work involved in restoring the connection,
+    // typically set up a transaction.
+    if (OnReconnect)
     {
-      if (IsOpen()) throw;
+      Result Temp( PQexec(m_Conn, OnReconnect) );
+      Temp.CheckStatus();
     }
   }
 }
@@ -374,6 +387,9 @@ void pqxx::Connection::UnregisterTransaction(const TransactionItf *T) throw ()
 
 void pqxx::Connection::MakeEmpty(pqxx::Result &R, ExecStatusType Stat)
 {
+  if (!m_Conn) 
+    throw logic_error("Internal libpqxx error: MakeEmpty() on null connection");
+
   R = Result(PQmakeEmptyPGresult(m_Conn, Stat));
 }
 
@@ -387,6 +403,10 @@ void pqxx::Connection::BeginCopyRead(string Table)
 
 bool pqxx::Connection::ReadCopyLine(string &Line)
 {
+  if (!m_Conn)
+    throw logic_error("Internal libpqxx error: "
+	              "ReadCopyLine() on null connection");
+
   char Buf[256];
   bool LineComplete = false;
 
@@ -432,6 +452,10 @@ void pqxx::Connection::BeginCopyWrite(string Table)
 
 void pqxx::Connection::WriteCopyLine(string Line)
 {
+  if (!m_Conn)
+    throw logic_error("Internal libpqxx error: "
+	              "WriteCopyLine() on null connection");
+
   PQputline(m_Conn, (Line + "\n").c_str());
 }
 
@@ -441,7 +465,6 @@ void pqxx::Connection::WriteCopyLine(string Line)
 // line containing only the two characters "\."
 void pqxx::Connection::EndCopy()
 {
-  // TODO: Throw broken_connection if applicable
   if (PQendcopy(m_Conn) != 0) throw runtime_error(ErrMsg());
 }
 

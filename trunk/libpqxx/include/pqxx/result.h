@@ -249,6 +249,10 @@ public:
   const char *ColumnName(Tuple::size_type Number) const 		//[t11]
   	{return PQfname(m_Result,Number);}
 
+  /// If command was INSERT of 1 row, return oid of inserted row
+  /** Returns InvalidOid otherwise. */
+  Oid InsertedOid() const { return PQoidValue(m_Result); }		//[]
+
 private:
   PGresult *m_Result;
   mutable int *m_Refcount;

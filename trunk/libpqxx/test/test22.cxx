@@ -1,0 +1,85 @@
+#include <cstdio>
+#include <iostream>
+#include <stdexcept>
+
+#include <pqxx/connection.h>
+#include <pqxx/cursor.h>
+#include <pqxx/transaction.h>
+#include <pqxx/result.h>
+
+using namespace PGSTD;
+using namespace pqxx;
+
+
+// Test program for libpqxx.  Read list of tables through a cursor, starting
+// with a deferred connection.  Default blocksize is 1; use 0 to read all rows 
+// at once.  Negative blocksizes read backwards.
+//
+// Usage: test22 [connect-string] [blocksize]
+//
+// Where connect-string is a set of connection options in Postgresql's
+// PQconnectdb() format, eg. "dbname=template1" to select from a database
+// called template1, of "host=foo.bar.net user=smith" to connect to a
+// backend running on host foo.bar.net, logging in as user smith.
+int main(int argc, char *argv[])
+{
+  try
+  {
+    int BlockSize = 1;
+    if ((argc > 2) && argv[2] && (sscanf(argv[2],"%d",&BlockSize) != 1))
+      throw invalid_argument("Expected number for second argument");
+    if (BlockSize == 0) BlockSize = Cursor::ALL();
+
+    Connection C(argv[1] ? argv[1] : "", false);
+
+    // Enable all sorts of debug output.  C will remember this setting until it
+    // gets to the point where it actually needs to connect to the database.
+    C.Trace(stdout);
+
+    Transaction T(C, "test22");
+
+    Cursor Cur(T, "SELECT * FROM pg_tables", "tablecur", BlockSize);
+    if (BlockSize < 0) Cur.Move(Cursor::ALL());
+
+    C.Trace(0);
+
+
+    Result R;
+    while ((Cur >> R))
+    {
+      if (!Cur) throw logic_error("Inconsistent cursor state!");
+
+      cout << "* Got " << R.size() << " row(s) *" << endl;
+
+      if (R.size() > abs(BlockSize))
+        throw logic_error("Cursor returned " + ToString(R.size()) + " rows, "
+			  "when " + ToString(abs(BlockSize)) + " "
+			  "was all I asked for!");
+
+      for (Result::const_iterator c = R.begin(); c != R.end(); ++c)
+      {
+        string N;
+        c[0].to(N);
+
+        cout << '\t' << ToString(c.num()) << '\t' << N << endl;
+      }
+    }
+
+    if (!!Cur) throw logic_error("Inconsistent cursor state!");
+
+    T.Commit();
+  }
+  catch (const exception &e)
+  {
+    cerr << "Exception: " << e.what() << endl;
+    return 2;
+  }
+  catch (...)
+  {
+    cerr << "Unhandled exception" << endl;
+    return 100;
+  }
+
+  return 0;
+}
+

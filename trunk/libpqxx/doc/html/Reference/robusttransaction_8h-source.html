@@ -35,7 +35,7 @@
 00027 {
 00028 
 00030 
-<a name="l00050"></a><a class="code" href="classpqxx_1_1RobustTransaction.html">00050</a> <font class="keyword">class </font><a class="code" href="compiler_8h.html#a0">PQXX_LIBEXPORT</a> <a class="code" href="classpqxx_1_1RobustTransaction.html">RobustTransaction</a> : <font class="keyword">public</font> <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a>
+<a name="l00050"></a><a class="code" href="classpqxx_1_1RobustTransaction.html">00050</a> <font class="keyword">class </font>PQXX_LIBEXPORT <a class="code" href="classpqxx_1_1RobustTransaction.html">RobustTransaction</a> : <font class="keyword">public</font> <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a>
 00051 {
 00052 <font class="keyword">public</font>:
 00053   <font class="keyword">explicit</font> <a class="code" href="classpqxx_1_1RobustTransaction.html">RobustTransaction</a>(<a class="code" href="classpqxx_1_1Connection.html">Connection</a> &amp;, 
@@ -57,18 +57,15 @@
 00069   <font class="keywordtype">void</font> CreateTransactionRecord();
 00070   <font class="keywordtype">void</font> DeleteTransactionRecord(IDType ID) <font class="keywordflow">throw</font> ();
 00071   <font class="keywordtype">bool</font> CheckTransactionRecord(IDType ID);
-00072 
-00073   <font class="keyword">static</font> PGSTD::string s_SeqPostfix;
-00074   <font class="keyword">static</font> PGSTD::string s_IdxPostfix;
-00075 };
+00072 };
+00073 
+00074 
+00075 }
 00076 
 00077 
-00078 }
-00079 
-00080 
-00081 <font class="preprocessor">#endif</font>
-00082 <font class="preprocessor"></font>
-</pre></div><hr><address align="right"><small>Generated on Sat Aug 10 21:52:38 2002 for libpqxx by
+00078 <font class="preprocessor">#endif</font>
+00079 <font class="preprocessor"></font>
+</pre></div><hr><address align="right"><small>Generated on Mon Sep 23 01:20:26 2002 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.16 </small></address>

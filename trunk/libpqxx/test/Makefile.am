@@ -1,7 +1,7 @@
 INCLUDES=-I../include ${POSTGRES_INCLUDE}
 MAINTAINERCLEANFILES=Makefile.in
 
-TESTS = test1 test2 test3 test4 test5 test6 test7 test8 test9 test10 test11 test12 test13 test14 test15 test16 test17 test18 test19 test20 
+TESTS = test1 test2 test3 test4 test5 test6 test7 test8 test9 test10 test11 test12 test13 test14 test15 test16 test17 test18 test19 test20 test21 test22 test23 test24 test25 test26 test27 test28 test29 test30 test31 test32 test33 test34 test35 test36 test37 test38 test39
 check_PROGRAMS = ${TESTS}
 
 #TESTS_ENVIRONMENT=PGDATABASE=libpqxx
@@ -66,3 +66,61 @@ test19_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
 
 test20_SOURCES = test20.cxx
 test20_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test21_SOURCES = test21.cxx
+test21_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test22_SOURCES = test22.cxx
+test22_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test23_SOURCES = test23.cxx
+test23_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test24_SOURCES = test24.cxx
+test24_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test25_SOURCES = test25.cxx
+test25_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test26_SOURCES = test26.cxx
+test26_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test27_SOURCES = test27.cxx
+test27_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test28_SOURCES = test28.cxx
+test28_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test29_SOURCES = test29.cxx
+test29_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test30_SOURCES = test30.cxx
+test30_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test31_SOURCES = test31.cxx
+test31_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test32_SOURCES = test32.cxx
+test32_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test33_SOURCES = test33.cxx
+test33_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test34_SOURCES = test34.cxx
+test34_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test35_SOURCES = test35.cxx
+test35_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test36_SOURCES = test36.cxx
+test36_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test37_SOURCES = test37.cxx
+test37_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test38_SOURCES = test38.cxx
+test38_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test39_SOURCES = test39.cxx
+test39_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+

@@ -45,6 +45,10 @@ int main(int argc, char *argv[])
     // If we want to read backwards, move to the last tuple first
     if (BlockSize < 0) Cur.Move(Cursor::ALL());
 
+    // Stop generating debug output
+    C.Trace(0);
+
+
     Result R;
     while ((Cur >> R))
     {
@@ -78,10 +82,6 @@ int main(int argc, char *argv[])
     // Out of sheer curiosity, see if Cursor is consistent in the stream
     // status it reports with operator bool() and operator !() (2)
     if (!!Cur) throw logic_error("Inconsistent cursor state!");
-
-
-    // Stop generating debug output
-    C.Untrace();
 
     // Tell the transaction that it has been successful
     T.Commit();

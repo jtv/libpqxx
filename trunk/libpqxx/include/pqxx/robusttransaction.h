@@ -69,9 +69,6 @@ private:
   void CreateTransactionRecord();
   void DeleteTransactionRecord(IDType ID) throw ();
   bool CheckTransactionRecord(IDType ID);
-
-  static PGSTD::string s_SeqPostfix;
-  static PGSTD::string s_IdxPostfix;
 };
 
 

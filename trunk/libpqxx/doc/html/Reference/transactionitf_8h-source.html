@@ -41,127 +41,125 @@
 00033 <font class="comment"> */</font>
 00034 
 00035 
-00036 <font class="comment">// TODO: Any user-friendliness we can add to invoking stored procedures?</font>
-00037 
-00038 <font class="keyword">namespace </font>pqxx
-00039 {
-00040 <font class="keyword">class </font>Connection;       <font class="comment">// See pqxx/connection.h</font>
-00041 <font class="keyword">class </font>Result;           <font class="comment">// See pqxx/result.h</font>
-00042 <font class="keyword">class </font>TableStream;      <font class="comment">// See pqxx/tablestream.h</font>
-00043 
-00044 
-<a name="l00045"></a><a class="code" href="namespacepqxx.html#a7">00045</a> <font class="keyword">template</font>&lt;&gt; <font class="keyword">inline</font> PGSTD::string <a class="code" href="namespacepqxx.html#a5">Classname</a>(<font class="keyword">const</font> <a class="code" href="classpqxx_1_1TableStream.html">TableStream</a> *) 
-00046 { 
-00047   <font class="keywordflow">return</font> <font class="stringliteral">"TableStream"</font>; 
-00048 }
-00049 
+00036 <font class="keyword">namespace </font>pqxx
+00037 {
+00038 <font class="keyword">class </font>Connection;       <font class="comment">// See pqxx/connection.h</font>
+00039 <font class="keyword">class </font>Result;           <font class="comment">// See pqxx/result.h</font>
+00040 <font class="keyword">class </font>TableStream;      <font class="comment">// See pqxx/tablestream.h</font>
+00041 
+00042 
+<a name="l00043"></a><a class="code" href="namespacepqxx.html#a7">00043</a> <font class="keyword">template</font>&lt;&gt; <font class="keyword">inline</font> PGSTD::string <a class="code" href="namespacepqxx.html#a5">Classname</a>(<font class="keyword">const</font> <a class="code" href="classpqxx_1_1TableStream.html">TableStream</a> *) 
+00044 { 
+00045   <font class="keywordflow">return</font> <font class="stringliteral">"TableStream"</font>; 
+00046 }
+00047 
+00048 
 00050 
-00052 
-<a name="l00056"></a><a class="code" href="classpqxx_1_1TransactionItf.html">00056</a> <font class="keyword">class </font><a class="code" href="compiler_8h.html#a0">PQXX_LIBEXPORT</a> <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a>
-00057 {
-00058 <font class="keyword">public</font>:
-00059   <font class="keyword">virtual</font> ~<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a>() =0;                                         <font class="comment">//[t1]</font>
-00060 
-00061   <font class="keywordtype">void</font> Commit();                                                        <font class="comment">//[t1]</font>
-00062   <font class="keywordtype">void</font> Abort();                                                         <font class="comment">//[t10]</font>
-00063 
-00065   <a class="code" href="classpqxx_1_1Result.html">Result</a> Exec(<font class="keyword">const</font> <font class="keywordtype">char</font>[]);                                            <font class="comment">//[t1]</font>
-00066 
-<a name="l00067"></a><a class="code" href="classpqxx_1_1TransactionItf.html#a4">00067</a>   <font class="keywordtype">void</font> ProcessNotice(<font class="keyword">const</font> <font class="keywordtype">char</font> Msg[]) { m_Conn.ProcessNotice(Msg); }   <font class="comment">//[t1]</font>
-<a name="l00068"></a><a class="code" href="classpqxx_1_1TransactionItf.html#a5">00068</a>   <font class="keywordtype">void</font> ProcessNotice(PGSTD::string Msg) { m_Conn.ProcessNotice(Msg); }  <font class="comment">//[t1]</font>
+<a name="l00054"></a><a class="code" href="classpqxx_1_1TransactionItf.html">00054</a> <font class="keyword">class </font>PQXX_LIBEXPORT <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a>
+00055 {
+00056 <font class="keyword">public</font>:
+00057   <font class="keyword">virtual</font> ~<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a>() =0;                                         <font class="comment">//[t1]</font>
+00058 
+00059   <font class="keywordtype">void</font> Commit();                                                        <font class="comment">//[t1]</font>
+00060   <font class="keywordtype">void</font> Abort();                                                         <font class="comment">//[t10]</font>
+00061 
+00063   <a class="code" href="classpqxx_1_1Result.html">Result</a> Exec(<font class="keyword">const</font> <font class="keywordtype">char</font>[]);                                            <font class="comment">//[t1]</font>
+00064 
+<a name="l00065"></a><a class="code" href="classpqxx_1_1TransactionItf.html#a4">00065</a>   <font class="keywordtype">void</font> ProcessNotice(<font class="keyword">const</font> <font class="keywordtype">char</font> Msg[]) { m_Conn.ProcessNotice(Msg); }   <font class="comment">//[t1]</font>
+<a name="l00066"></a><a class="code" href="classpqxx_1_1TransactionItf.html#a5">00066</a>   <font class="keywordtype">void</font> ProcessNotice(PGSTD::string Msg) { m_Conn.ProcessNotice(Msg); }  <font class="comment">//[t1]</font>
+00067 
+<a name="l00068"></a><a class="code" href="classpqxx_1_1TransactionItf.html#a6">00068</a>   PGSTD::string Name()<font class="keyword"> const </font>{ <font class="keywordflow">return</font> m_Name; }                         <font class="comment">//[t1]</font>
 00069 
-<a name="l00070"></a><a class="code" href="classpqxx_1_1TransactionItf.html#a6">00070</a>   PGSTD::string Name()<font class="keyword"> const </font>{ <font class="keywordflow">return</font> m_Name; }                         <font class="comment">//[t1]</font>
-00071 
-00072 <font class="keyword">protected</font>:
-00075   <font class="keyword">explicit</font> TransactionItf(Connection &amp;, 
-00076                           PGSTD::string Name=PGSTD::string());
-00077 
-00080   <font class="keywordtype">void</font> Begin();
-00081 
-00083   <font class="keywordtype">void</font> End() <font class="keywordflow">throw</font> ();
-00084 
-00086   <font class="keyword">virtual</font> <font class="keywordtype">void</font> DoBegin() =0;
-00087   <font class="keyword">virtual</font> Result DoExec(<font class="keyword">const</font> <font class="keywordtype">char</font> C[]) =0;
-00088   <font class="keyword">virtual</font> <font class="keywordtype">void</font> DoCommit() =0;
-00089   <font class="keyword">virtual</font> <font class="keywordtype">void</font> DoAbort() =0;
+00070 <font class="keyword">protected</font>:
+00073   <font class="keyword">explicit</font> TransactionItf(Connection &amp;, 
+00074                           PGSTD::string Name=PGSTD::string());
+00075 
+00078   <font class="keywordtype">void</font> Begin();
+00079 
+00081   <font class="keywordtype">void</font> End() <font class="keywordflow">throw</font> ();
+00082 
+00084   <font class="keyword">virtual</font> <font class="keywordtype">void</font> DoBegin() =0;
+00085   <font class="keyword">virtual</font> Result DoExec(<font class="keyword">const</font> <font class="keywordtype">char</font> C[]) =0;
+00086   <font class="keyword">virtual</font> <font class="keywordtype">void</font> DoCommit() =0;
+00087   <font class="keyword">virtual</font> <font class="keywordtype">void</font> DoAbort() =0;
+00088 
+00089   <font class="comment">// For use by implementing class:</font>
 00090 
-00091   <font class="comment">// For use by implementing class:</font>
-00092 
-00094   Result DirectExec(<font class="keyword">const</font> <font class="keywordtype">char</font> C[], <font class="keywordtype">int</font> Retries, <font class="keyword">const</font> <font class="keywordtype">char</font> OnReconnect[]);
-<a name="l00095"></a><a class="code" href="classpqxx_1_1TransactionItf.html#b8">00095</a>   <a class="code" href="classpqxx_1_1Connection.html">Connection</a> &amp;Conn()<font class="keyword"> const </font>{ <font class="keywordflow">return</font> m_Conn; }
-00096 
-00097  
-00098 <font class="keyword">private</font>:
-00099   <font class="comment">/* A Transaction goes through the following stages in its lifecycle:</font>
-00100 <font class="comment">   *  - nascent: the transaction hasn't actually begun yet.  If our connection </font>
-00101 <font class="comment">   *    fails at this stage, the Connection may recover and the Transaction can </font>
-00102 <font class="comment">   *    attempt to establish itself again.</font>
-00103 <font class="comment">   *  - active: the transaction has begun.  Since no commit command has been </font>
-00104 <font class="comment">   *    issued, abortion is implicit if the connection fails now.</font>
-00105 <font class="comment">   *  - aborted: an abort has been issued; the transaction is terminated and </font>
-00106 <font class="comment">   *    its changes to the database rolled back.  It will accept no further </font>
-00107 <font class="comment">   *    commands.</font>
-00108 <font class="comment">   *  - committed: the transaction has completed successfully, meaning that a </font>
-00109 <font class="comment">   *    commit has been issued.  No further commands are accepted.</font>
-00110 <font class="comment">   *  - in_doubt: the connection was lost at the exact wrong time, and there is</font>
-00111 <font class="comment">   *    no way of telling whether the transaction was committed or aborted.</font>
-00112 <font class="comment">   *</font>
-00113 <font class="comment">   * Checking and maintaining state machine logic is the responsibility of the </font>
-00114 <font class="comment">   * base class (ie., this one).</font>
-00115 <font class="comment">   */</font>
-00116   <font class="keyword">enum</font> Status 
-00117   { 
-00118     st_nascent, 
-00119     st_active, 
-00120     st_aborted, 
-00121     st_committed,
-00122     st_in_doubt
-00123   };
-00124 
-00125 
-<a name="l00126"></a><a class="code" href="classpqxx_1_1TransactionItf.html#l0">00126</a>   <font class="keyword">friend</font> <font class="keyword">class </font><a class="code" href="classpqxx_1_1Cursor.html">Cursor</a>;
-00127   <font class="keywordtype">int</font> GetUniqueCursorNum() { <font class="keywordflow">return</font> m_UniqueCursorNum++; }
-00128   <font class="keywordtype">void</font> MakeEmpty(Result &amp;R)<font class="keyword"> const </font>{ m_Conn.MakeEmpty(R); }
-00129 
-<a name="l00130"></a><a class="code" href="classpqxx_1_1TransactionItf.html#l1">00130</a>   <font class="keyword">friend</font> <font class="keyword">class </font><a class="code" href="classpqxx_1_1TableStream.html">TableStream</a>;
-00131   <font class="keywordtype">void</font> RegisterStream(<font class="keyword">const</font> <a class="code" href="classpqxx_1_1TableStream.html">TableStream</a> *);
-00132   <font class="keywordtype">void</font> UnregisterStream(<font class="keyword">const</font> <a class="code" href="classpqxx_1_1TableStream.html">TableStream</a> *) <font class="keywordflow">throw</font> ();
-00133   <font class="keywordtype">void</font> EndCopy() { m_Conn.EndCopy(); }
-<a name="l00134"></a><a class="code" href="classpqxx_1_1TransactionItf.html#l2">00134</a>   <font class="keyword">friend</font> <font class="keyword">class </font><a class="code" href="classpqxx_1_1TableReader.html">TableReader</a>;
-00135   <font class="keywordtype">void</font> BeginCopyRead(PGSTD::string Table) { m_Conn.BeginCopyRead(Table); }
-00136   <font class="keywordtype">bool</font> ReadCopyLine(PGSTD::string &amp;L) { <font class="keywordflow">return</font> m_Conn.ReadCopyLine(L); }
-<a name="l00137"></a><a class="code" href="classpqxx_1_1TransactionItf.html#l3">00137</a>   <font class="keyword">friend</font> <font class="keyword">class </font><a class="code" href="classpqxx_1_1TableWriter.html">TableWriter</a>;
-00138   <font class="keywordtype">void</font> BeginCopyWrite(PGSTD::string Table) {m_Conn.BeginCopyWrite(Table);}
-00139   <font class="keywordtype">void</font> WriteCopyLine(PGSTD::string L) { m_Conn.WriteCopyLine(L); }
+00092   Result DirectExec(<font class="keyword">const</font> <font class="keywordtype">char</font> C[], <font class="keywordtype">int</font> Retries, <font class="keyword">const</font> <font class="keywordtype">char</font> OnReconnect[]);
+<a name="l00093"></a><a class="code" href="classpqxx_1_1TransactionItf.html#b8">00093</a>   <a class="code" href="classpqxx_1_1Connection.html">Connection</a> &amp;Conn()<font class="keyword"> const </font>{ <font class="keywordflow">return</font> m_Conn; }
+00094 
+00095  
+00096 <font class="keyword">private</font>:
+00097   <font class="comment">/* A Transaction goes through the following stages in its lifecycle:</font>
+00098 <font class="comment">   *  - nascent: the transaction hasn't actually begun yet.  If our connection </font>
+00099 <font class="comment">   *    fails at this stage, the Connection may recover and the Transaction can </font>
+00100 <font class="comment">   *    attempt to establish itself again.</font>
+00101 <font class="comment">   *  - active: the transaction has begun.  Since no commit command has been </font>
+00102 <font class="comment">   *    issued, abortion is implicit if the connection fails now.</font>
+00103 <font class="comment">   *  - aborted: an abort has been issued; the transaction is terminated and </font>
+00104 <font class="comment">   *    its changes to the database rolled back.  It will accept no further </font>
+00105 <font class="comment">   *    commands.</font>
+00106 <font class="comment">   *  - committed: the transaction has completed successfully, meaning that a </font>
+00107 <font class="comment">   *    commit has been issued.  No further commands are accepted.</font>
+00108 <font class="comment">   *  - in_doubt: the connection was lost at the exact wrong time, and there is</font>
+00109 <font class="comment">   *    no way of telling whether the transaction was committed or aborted.</font>
+00110 <font class="comment">   *</font>
+00111 <font class="comment">   * Checking and maintaining state machine logic is the responsibility of the </font>
+00112 <font class="comment">   * base class (ie., this one).</font>
+00113 <font class="comment">   */</font>
+00114   <font class="keyword">enum</font> Status 
+00115   { 
+00116     st_nascent, 
+00117     st_active, 
+00118     st_aborted, 
+00119     st_committed,
+00120     st_in_doubt
+00121   };
+00122 
+00123 
+<a name="l00124"></a><a class="code" href="classpqxx_1_1TransactionItf.html#l0">00124</a>   <font class="keyword">friend</font> <font class="keyword">class </font><a class="code" href="classpqxx_1_1Cursor.html">Cursor</a>;
+00125   <font class="keywordtype">int</font> GetUniqueCursorNum() { <font class="keywordflow">return</font> m_UniqueCursorNum++; }
+00126   <font class="keywordtype">void</font> MakeEmpty(Result &amp;R)<font class="keyword"> const </font>{ m_Conn.MakeEmpty(R); }
+00127 
+<a name="l00128"></a><a class="code" href="classpqxx_1_1TransactionItf.html#l1">00128</a>   <font class="keyword">friend</font> <font class="keyword">class </font><a class="code" href="classpqxx_1_1TableStream.html">TableStream</a>;
+00129   <font class="keywordtype">void</font> RegisterStream(<font class="keyword">const</font> <a class="code" href="classpqxx_1_1TableStream.html">TableStream</a> *);
+00130   <font class="keywordtype">void</font> UnregisterStream(<font class="keyword">const</font> <a class="code" href="classpqxx_1_1TableStream.html">TableStream</a> *) <font class="keywordflow">throw</font> ();
+00131   <font class="keywordtype">void</font> EndCopy() { m_Conn.EndCopy(); }
+<a name="l00132"></a><a class="code" href="classpqxx_1_1TransactionItf.html#l2">00132</a>   <font class="keyword">friend</font> <font class="keyword">class </font><a class="code" href="classpqxx_1_1TableReader.html">TableReader</a>;
+00133   <font class="keywordtype">void</font> BeginCopyRead(PGSTD::string Table) { m_Conn.BeginCopyRead(Table); }
+00134   <font class="keywordtype">bool</font> ReadCopyLine(PGSTD::string &amp;L) { <font class="keywordflow">return</font> m_Conn.ReadCopyLine(L); }
+<a name="l00135"></a><a class="code" href="classpqxx_1_1TransactionItf.html#l3">00135</a>   <font class="keyword">friend</font> <font class="keyword">class </font><a class="code" href="classpqxx_1_1TableWriter.html">TableWriter</a>;
+00136   <font class="keywordtype">void</font> BeginCopyWrite(PGSTD::string Table) {m_Conn.BeginCopyWrite(Table);}
+00137   <font class="keywordtype">void</font> WriteCopyLine(PGSTD::string L) { m_Conn.WriteCopyLine(L); }
+00138 
+00139   Connection &amp;m_Conn;
 00140 
-00141   Connection &amp;m_Conn;
-00142 
-00143   PGSTD::string m_Name;
-00144   <font class="keywordtype">int</font> m_UniqueCursorNum;
-00145   Unique&lt;TableStream&gt; m_Stream;
-00146   Status m_Status;
-00147   <font class="keywordtype">bool</font> m_Registered;
-00148 
-00149   <font class="comment">// Not allowed:</font>
-00150   TransactionItf();
-00151   TransactionItf(<font class="keyword">const</font> TransactionItf &amp;);
-00152   TransactionItf &amp;operator=(<font class="keyword">const</font> TransactionItf &amp;);
-00153 };
-00154 
+00141   PGSTD::string m_Name;
+00142   <font class="keywordtype">int</font> m_UniqueCursorNum;
+00143   Unique&lt;TableStream&gt; m_Stream;
+00144   Status m_Status;
+00145   <font class="keywordtype">bool</font> m_Registered;
+00146 
+00147   <font class="comment">// Not allowed:</font>
+00148   TransactionItf();
+00149   TransactionItf(<font class="keyword">const</font> TransactionItf &amp;);
+00150   TransactionItf &amp;operator=(<font class="keyword">const</font> TransactionItf &amp;);
+00151 };
+00152 
+00153 
 00155 
-00157 
-<a name="l00163"></a><a class="code" href="classpqxx_1_1in__doubt__error.html">00163</a> <font class="keyword">class </font><a class="code" href="compiler_8h.html#a0">PQXX_LIBEXPORT</a> in_doubt_error : <font class="keyword">public</font> <a class="code" href="config_8h.html#a21">PGSTD</a>::runtime_error
-00164 {
-00165 <font class="keyword">public</font>:
-<a name="l00166"></a><a class="code" href="classpqxx_1_1in__doubt__error.html#a0">00166</a>   <font class="keyword">explicit</font> in_doubt_error(<font class="keyword">const</font> PGSTD::string &amp;whatarg) : 
-00167     <a class="code" href="config_8h.html#a21">PGSTD</a>::runtime_error(whatarg) {}
-00168 };
+<a name="l00161"></a><a class="code" href="classpqxx_1_1in__doubt__error.html">00161</a> <font class="keyword">class </font>PQXX_LIBEXPORT in_doubt_error : <font class="keyword">public</font> <a class="code" href="config_8h.html#a21">PGSTD</a>::runtime_error
+00162 {
+00163 <font class="keyword">public</font>:
+<a name="l00164"></a><a class="code" href="classpqxx_1_1in__doubt__error.html#a0">00164</a>   <font class="keyword">explicit</font> in_doubt_error(<font class="keyword">const</font> PGSTD::string &amp;whatarg) : 
+00165     <a class="code" href="config_8h.html#a21">PGSTD</a>::runtime_error(whatarg) {}
+00166 };
+00167 
+00168 }
 00169 
-00170 }
-00171 
-00172 <font class="preprocessor">#endif</font>
-00173 <font class="preprocessor"></font>
-</pre></div><hr><address align="right"><small>Generated on Sat Aug 10 21:52:38 2002 for libpqxx by
+00170 <font class="preprocessor">#endif</font>
+00171 <font class="preprocessor"></font>
+</pre></div><hr><address align="right"><small>Generated on Mon Sep 23 01:20:26 2002 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.16 </small></address>
