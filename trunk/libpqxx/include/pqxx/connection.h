@@ -135,6 +135,13 @@ public:
   	{ return m_ConnInfo.c_str(); }
 
   /// Process ID for backend process.
+  /** Use with care: connections may be lost and automatically re-established
+   * without your knowledge, in which case this process ID may no longer be
+   * correct.  You may, however, assume that this number remains constant and
+   * reliable within the span of a successful backend transaction.  If the
+   * transaction fails, which may be due to a lost connection, then this number
+   * will have become invalid at some point within the transaction.
+   */
   int BackendPID() const;						//[t1]
 
 private:
