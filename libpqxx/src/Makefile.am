@@ -12,7 +12,7 @@ libpqxx_la_SOURCES = connection.cxx \
 
 libpqxx_la_LDFLAGS = -version-info @sonumber@ ${POSTGRES_LIB}
 
-INCLUDES=-I../include ${POSTGRES_INCLUDE}
+INCLUDES=-I$(srcdir)/../include -I../include ${POSTGRES_INCLUDE}
 
 MAINTAINERCLEANFILES=Makefile.in
 
