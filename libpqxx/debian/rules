@@ -53,7 +53,7 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	
-	./configure -v --prefix=/usr --enable-maintainer-mode
+	./configure $(confflags)
 
 	touch configure-stamp
 
