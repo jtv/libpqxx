@@ -87,12 +87,17 @@ public:
   /// Drop all data in internal cache, freeing up memory.
   void clear();
 
+  /// NOT IMPLEMENTED YET
   class const_iterator
   {
     const CachedResult &m_Home;
     CachedResult::size_type m_Row;
   public:
-    const_iterator(const CachedResult &Home) : m_Home(Home), m_Row(-1) {}
+    explicit const_iterator(const CachedResult &Home) : m_Home(Home), m_Row(0){}
+
+  private:
+    // Not allowed:
+    const_iterator();
   };
 
 private:
@@ -157,6 +162,7 @@ private:
   mutable blocknum m_Lower, m_Upper;
 
   // Not allowed:
+  CachedResult();
   CachedResult(const CachedResult &);
   CachedResult &operator=(const CachedResult &);
 };

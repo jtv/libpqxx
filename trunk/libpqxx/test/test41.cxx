@@ -9,11 +9,38 @@
 using namespace PGSTD;
 using namespace pqxx;
 
+namespace
+{
+
+// Verify that CachedResult::at() catches an index overrun
+void CheckOverrun(const CachedResult &CR, CachedResult::size_type Overrun)
+{
+  if (Overrun >= 0) Overrun += CR.size();
+
+  bool OK = false;
+  try
+  {
+    CR.at(Overrun).at(0);
+  }
+  catch (const exception &e)
+  {
+    // OK, this is what we expected to happen
+    OK = true;
+    cerr << "(Expected) " << e.what() << endl;
+  }
+
+  if (!OK) 
+    throw logic_error("Failed to detect overrun "
+	              "(" + ToString(Overrun) + " rows)");
+}
+
+}
+
 
 // Test program for libpqxx.  Compare behaviour of a CachedResult to a regular
 // Result.
 //
-// Usage: test40 [connect-string]
+// Usage: test41 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -23,32 +50,23 @@ int main(int, char *argv[])
 {
   try
   {
-    // Set up a connection to the backend
     Connection C(argv[1] ? argv[1] : "");
-
-    // Begin a transaction acting on our current connection
-    Transaction T(C, "test40");
+    Transaction T(C, "test41");
 
     const char Query[] = "SELECT * FROM pg_tables";
 
-    // Perform a query on the database, storing result tuples in R
     Result R( T.Exec(Query) );
 
     for (int BlockSize = 2; BlockSize <= R.size()+1; ++BlockSize)
     {
       CachedResult CR(T, Query, "cachedresult", BlockSize);
-      const CachedResult::size_type CRS = CR.size();
-      if (CRS != R.size())
-	throw logic_error("BlockSize " + ToString(BlockSize) + ": "
-	                  "Expected " + ToString(R.size()) + " rows, "
-			  "got " + ToString(CRS));
-      if (CR.size() != CRS)
-	throw logic_error("BlockSize " + ToString(BlockSize) + ": "
-	                  "Inconsistent size (" + ToString(CRS) + " vs. " +
-			  ToString(CR.size()) + ")");
+ 
+      // Verify that we get an exception if we exceed CR's range, and are able
+      // to recover afterwards
+      for (CachedResult::size_type n = -5; n < 5; ++n) CheckOverrun(CR, n);
 
       // Compare contents for CR with R
-      for (Result::size_type i = 0; i < R.size(); ++i)
+      for (Result::size_type i = R.size() - 1; i >= 0 ; --i)
       {
 	string A, B;
 	R.at(i).at(0).to(A);
@@ -59,8 +77,6 @@ int main(int, char *argv[])
 			    "Expected '" + A + "', "
 			    "got '" + B + "'");
       }
-
-      // TODO: Wilder navigation (reverse?), random access
     }
   }
   catch (const exception &e)

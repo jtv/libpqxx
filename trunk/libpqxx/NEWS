@@ -1,9 +1,12 @@
+2002-12-03 01:30, v1.2.2:
+ - fixed serious CachedResult bug
+ - added test41
 2002-12-02 17:00, v1.2.1:
  - hopefully fixed cursor bug with PostgreSQL 7.3
 2002-12-01 22:00, v1.2.0:
  - new CachedResult class
 2002-11-07 13:15, v1.1.4:
- - Workaround for missing InvalidOid definition
+ - workaround for missing InvalidOid definition
 2002-10-23 16:00, v1.1.3:
  - Cursor & TableStream hierarchy now work on any transaction type
  - get no. of affected rows & oid of inserted row from Result

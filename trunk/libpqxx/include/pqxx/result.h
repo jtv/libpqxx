@@ -81,6 +81,9 @@ public:
   protected:
     const Result *m_Home;
     Result::size_type m_Index;
+
+    // Not allowed:
+    Tuple();
   };
 
 

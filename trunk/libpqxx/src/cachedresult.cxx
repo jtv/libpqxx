@@ -51,7 +51,10 @@ void pqxx::CachedResult::clear()
 
 void pqxx::CachedResult::MoveTo(blocknum Block) const
 {
-  if (m_Pos == Block) return;
+  if (Block < 0)
+    throw out_of_range("Invalid result set index");
+
+  if (Block == m_Pos) return;
   try
   {
     if (m_Pos == -1)
@@ -59,12 +62,10 @@ void pqxx::CachedResult::MoveTo(blocknum Block) const
       // We don't know where we are.  Go back to our origin first.
       // Hope this does indeed get us back to our starting point...
       m_Cursor.Move(Cursor::BACKWARD_ALL());
-      if (Block) m_Cursor.Move(Block * m_Granularity);
+      m_Pos = 0;
     }
-    else
-    {
-      m_Cursor.Move((Block - m_Pos) * m_Granularity);
-    }
+    if (Block != m_Pos) m_Cursor.Move((Block - m_Pos) * m_Granularity);
+    m_Pos = Block;
   }
   catch (const exception &)
   {
@@ -72,7 +73,6 @@ void pqxx::CachedResult::MoveTo(blocknum Block) const
     m_Pos = -1;
     throw;
   }
-  m_Pos = Block;
 }
 
 
@@ -83,16 +83,19 @@ pqxx::Result pqxx::CachedResult::Fetch() const
     throw logic_error("Internal libpqxx error: "
 	              "CachedResult fetches data from unknown cursor position");
 
-  if (m_Pos >= m_Upper) return R;
+  if (m_Pos >= m_Upper) 
+  {
+    m_Pos = -1;
+    return R;
+  }
 
   try
   {
-    if (!(m_Cursor >> R)) 
+    if (!(m_Cursor >> R))
     {
       m_Upper = m_Pos;
-      if ((m_Size == -1) && (m_Pos == (m_Cache.rend()->first + 1))) 
+      if ((m_Size == -1) && (m_Pos == (m_Lower + 1))) 
       {
-        m_Lower = m_Pos - 1;
         m_Size = m_Pos * m_Granularity;
       }
 
