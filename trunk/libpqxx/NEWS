@@ -1,3 +1,7 @@
+2.4.1
+ - Tightened throw specifications on begin(), end(), size(), capacity()
+ - Containers define const_reference
+ - Implemented swap() in all container types
 2.4.0
  - Fixes incompatibility with some implementations of Unix "cut" program
  - Fixes "ptrdiff_t redefinition" problem in some environments

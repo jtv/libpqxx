@@ -87,6 +87,15 @@ pqxx::binarystring::const_reference pqxx::binarystring::at(size_type n) const
 }
 
 
+void pqxx::binarystring::swap(binarystring &rhs)
+{
+  const size_type s(m_size);
+  m_str.swap(rhs.m_str);
+  m_size = rhs.m_size;
+  rhs.m_size = s;
+}
+
+
 const string &pqxx::binarystring::str() const
 {
   if (m_str.empty() && m_size) m_str = string(c_ptr(), m_size);

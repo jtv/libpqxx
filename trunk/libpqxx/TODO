@@ -19,9 +19,7 @@ Connections
 
 Containers
 (*) Check: Ought to have at least const_reference
-(*) Implement ==, !=, swap(); {<,>,<=,>=}
-(*) size_type max_size()
-(*) Check: front() & back()
+(*) Implement ==, !=, {<,>,<=,>=}
 
 Cursors
 (*) Older backends don't have NO SCROLL etc.!

@@ -50,6 +50,56 @@ pqxx::result &pqxx::result::operator=(internal::pq::PGresult *Other) throw ()
 }
 
 
+bool pqxx::result::operator==(const result &rhs) const throw ()
+{
+  if (&rhs == this) return true;
+  const size_type s(size());
+  if (rhs.size() != s) return false;
+  for (size_type i=0; i<s; ++i)
+    if ((*this)[i] != rhs[i]) return false;
+  return true;
+}
+
+
+bool pqxx::result::operator<(const result &rhs) const throw ()
+{
+  if (&rhs == this) return false;
+  const size_type s = size();
+  // TODO: Is this correct?
+  if (s > rhs.size()) return false;
+  for (size_type i=0; i<s; ++i) if (!((*this)[i] < rhs[i])) return false;
+  return true;
+}
+
+
+bool pqxx::result::tuple::operator==(const tuple &rhs) const throw ()
+{
+  if (&rhs == this) return true;
+  const size_type s(size());
+  if (rhs.size() != s) return false;
+  for (size_type i=0; i<s; ++i)
+  {
+    const field l((*this)[i]), r(rhs[i]);
+    if (l.size() != r.size() || l.is_null() != r.is_null()) return false;
+    if (!l.is_null() && (l.as<string>() != r.as<string>())) return false;
+  }
+  return true;
+}
+
+
+bool pqxx::result::tuple::operator<(const tuple &rhs) const throw ()
+{
+  if (&rhs == this) return false;
+  const size_type s = size();
+  // TODO: Is this correct?
+  if (s > rhs.size()) return false;
+  // TODO: How to handle nulls!?
+  for (size_type i=0; i<s; ++i)
+    if (!((*this)[i].as<string>() < rhs[i].as<string>())) return false;
+  return true;
+}
+
+
 void pqxx::result::swap(pqxx::result &other) throw ()
 {
   const result *const l=m_l, *const r=m_r;

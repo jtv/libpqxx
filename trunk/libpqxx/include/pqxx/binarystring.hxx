@@ -72,6 +72,9 @@ public:
   const_iterator begin() const throw () { return data(); }		//[t62]
   const_iterator end() const throw () { return data()+m_size; }		//[t62]
 
+  const_reference front() const throw () { return *begin(); }		//[]
+  const_reference back() const throw () { return *(data()+m_size-1); }	//[]	
+
 #ifdef PQXX_HAVE_REVERSE_ITERATOR
   const_reverse_iterator rbegin() const 				//[t62]
   	{ return const_reverse_iterator(end()); }
@@ -87,6 +90,8 @@ public:
 
   /// Index string, but check for valid index first
   const_reference at(size_type) const;					//[t62]
+
+  void swap(binarystring &);						//[]
 
   /// Raw character buffer (no terminating zero is added)
   /** @warning No terminating zero is added!  If the binary data did not end in
