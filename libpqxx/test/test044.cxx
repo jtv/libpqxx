@@ -29,13 +29,13 @@ int main(int, char *argv[])
     const char Query[] = "SELECT * FROM pqxxevents WHERE year <> year";
 
     Cursor Cur(T, Query, "test44");
-    if ((Cur.size() != Cursor::pos_unknown) && 
+    if ((Cur.size() != Cursor::size_type(Cursor::pos_unknown)) && 
 	(Cur.size() != Cursor::pos_start))
       throw logic_error("Cursor reported size " + to_string(Cur.size()) + ", "
 	                "expected " + to_string(int(Cursor::pos_start)) + " "
 			"or unknown");
 
-    Cursor::size_type Dist = Cur.Move(2);
+    Cursor::difference_type Dist = Cur.Move(2);
     if ((Dist != 0) && (Dist != 1))
       throw logic_error("Move in empty Cursor returned " + to_string(Dist));
 

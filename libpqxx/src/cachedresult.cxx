@@ -15,6 +15,7 @@
  *
  *-------------------------------------------------------------------------
  */
+#define PQXXYES_I_KNOW_DEPRECATED_HEADER
 #include "pqxx/compiler.h"
 
 #include <stdexcept>
@@ -36,7 +37,7 @@ void pqxx::cachedresult::init()
 
 pqxx::cachedresult::size_type pqxx::cachedresult::size() const
 {
-  if (m_Cursor.size() == Cursor::pos_unknown)
+  if (m_Cursor.size() == size_type(Cursor::pos_unknown))
   {
     m_Cursor.Move(Cursor::BACKWARD_ALL());
     m_Cursor.Move(Cursor::ALL());
@@ -48,7 +49,7 @@ pqxx::cachedresult::size_type pqxx::cachedresult::size() const
 bool pqxx::cachedresult::empty() const
 {
   return (m_Cursor.size() == 0) ||
-         ((m_Cursor.size() == Cursor::pos_unknown) &&
+         ((m_Cursor.size() == size_type(Cursor::pos_unknown)) &&
 	  m_Cache.empty() &&
 	  GetBlock(0).empty());
 }
@@ -56,9 +57,6 @@ bool pqxx::cachedresult::empty() const
 
 void pqxx::cachedresult::MoveTo(blocknum Block) const
 {
-  if (Block < 0)
-    throw out_of_range("Negative result set index");
-
   const Cursor::size_type BlockStart = FirstRowOf(Block);
   m_Cursor.MoveTo(BlockStart);
   if (m_Cursor.Pos() != BlockStart)

@@ -14,7 +14,7 @@ namespace
 
 // Verify that cachedresult::at() catches an index overrun
 void CheckOverrun(const cachedresult &CR, 
-                  cachedresult::size_type Overrun,
+                  result::difference_type Overrun,
 		  string &LastReason)
 {
   const cachedresult::size_type Base = ((Overrun >= 0) ? CR.size() : 0);
@@ -67,16 +67,17 @@ int main(int, char *argv[])
     result R( T.Exec(Query) );
     string Msg;
 
-    for (int BlockSize = 2; BlockSize <= R.size()+1; ++BlockSize)
+    for (result::size_type BlockSize = 2; BlockSize <= R.size()+1; ++BlockSize)
     {
       cachedresult CR(T, Query, "cachedresult", BlockSize);
  
       // Verify that we get an exception if we exceed CR's range, and are able
       // to recover afterwards
-      for (cachedresult::size_type n = -2; n < 2; ++n) CheckOverrun(CR, n, Msg);
+      for (result::difference_type n = -2; n < 2; ++n)
+	CheckOverrun(CR, n, Msg);
 
       // Compare contents for CR with R
-      for (result::size_type i = R.size() - 1; i >= 0 ; --i)
+      for (result::difference_type i = R.size() - 1; i >= 0 ; --i)
       {
 	string A, B;
 	R.at(i).at(0).to(A);
