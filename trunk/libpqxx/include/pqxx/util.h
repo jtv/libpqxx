@@ -17,10 +17,13 @@
 #ifndef PQXX_UTIL_H
 #define PQXX_UTIL_H
 
+#if !defined(PQXXYES_I_KNOW_DEPRECATED_HEADER)
+#define PQXXYES_I_KNOW_DEPRECATED_HEADER
 #if defined(PQXX_HAVE_CPP_WARNING)
 #warning "Deprecated libpqxx header included.  Use headers without '.h'"
 #elif defined(PQXX_HAVE_CPP_PRAGMA_MESSAGE)
 #pragma message("Deprecated libpqxx header included.  Use headers without '.h'")
+#endif
 #endif
 
 #define PQXX_DEPRECATED_HEADERS
