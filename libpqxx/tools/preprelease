@@ -14,6 +14,8 @@
 # released version.
 #
 # If successful, the script leaves a distribution tarball in /tmp.
+#
+# Set CONFIG_ARGS to any argument list you wish to pass to configure
 
 LOGFILE=/tmp/libpqxx-preprelease.log
 ERRLOG=/tmp/libpqxx-preprelease.err
@@ -85,15 +87,16 @@ command "rm $TARBALL"
 command "cd $DISTNAME"
 
 log "Configuring"
-command "./configure" nice
+command "./configure $CONFIG_ARGS" nice
 
 log "Building"
 command "make" nice
 
 log "Running regression test"
 command "make check" nice
-grep '^FAIL: test' $LOGFILE 2>>$ERRLOG
-grep '^All [0-9]* tests passed' $LOGFILE 2>>$ERRLOG
+grep '^PASS:' $LOGFILE
+grep '^FAIL:' $LOGFILE 2>>$ERRLOG || true
+grep '^All [0-9]* tests passed' $LOGFILE
 
 log "Creating release version of $TARBALL"
 command "make dist" nice

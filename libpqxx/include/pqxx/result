@@ -80,9 +80,10 @@ public:
 
     inline size_type size() const;					//[t11]
 
-    result::size_type Row() const { return m_Index; }			//[t11]
-
 #ifdef PQXX_DEPRECATED_HEADERS
+    /// @deprecated Use rownumber() instead
+    result::size_type Row() const { return rownumber(); }
+
     /// @deprecated Use column_number() instead
     size_type ColumnNumber(const PGSTD::string &ColName) const 
     	{ return m_Home->ColumnNumber(ColName); }
@@ -91,6 +92,8 @@ public:
     size_type ColumnNumber(const char ColName[]) const 
     	{ return m_Home->ColumnNumber(ColName); }
 #endif
+
+    result::size_type rownumber() const { return m_Index; }		//[t11]
 
     /// Number of given column (throws exception if it doesn't exist)
     size_type column_number(const PGSTD::string &ColName) const		//[t30]
@@ -111,6 +114,13 @@ public:
     /// Type of given column
     oid column_type(const char ColName[]) const				//[]
       	{ return column_type(column_number(ColName)); }
+
+#ifdef HAVE_PQFTABLE
+    oid column_table(size_type ColNum) const				//[]
+    	{ return m_Home->column_table(ColNum); }
+    oid column_table(PGSTD::string &ColName) const			//[]
+      	{ return column_table(column_number(ColName)); }
+#endif
 
   protected:
     const result *m_Home;
@@ -161,6 +171,13 @@ public:
     /// Column type
     oid type() const 							//[]
     	{ return m_Home->column_type(m_Col); }
+
+#ifdef HAVE_PQFTABLE
+    /// Table this field came from, if any
+    /** Requires PostgreSQL 7.4 or greater
+     */
+    oid table() const { return m_Home->column_table(m_Col); }		//[]
+#endif
 
     /// Read value into Obj; or leave Obj untouched & return false if null
     /** @warning The conversion is done using the currently active locale, 
@@ -293,7 +310,7 @@ public:
 
     inline difference_type operator-(const_iterator i) const;		//[t12]
 
-    result::size_type num() const { return Row(); }			//[t1]
+    result::size_type num() const { return rownumber(); }		//[t1]
 
   private:
     friend class result;
@@ -313,19 +330,23 @@ public:
 
   void clear() { LoseRef(); }						//[t20]
 
-  tuple::size_type Columns() const { return PQnfields(m_Result); }	//[t11]
-
 #ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Number of given column; use column_number instead
+  /// @deprecated Use columns() instead
+  tuple::size_type Columns() const { return columns(); }
+
+  /// @deprecated Use column_number() instead
   tuple::size_type ColumnNumber(const char Name[]) const
   	{return PQfnumber(m_Result,Name);}
-  /// @deprecated Number of given column; use column_number instead
+  /// @deprecated Use column_number() instead
   tuple::size_type ColumnNumber(const PGSTD::string &Name) const
   	{return ColumnNumber(Name.c_str());}
-  /// @deprecated Name of given column; use column_name instead
+  /// @deprecated Use column_name() instead
   const char *ColumnName(tuple::size_type Number) const
   	{return PQfname(m_Result,Number);}
 #endif
+
+  /// Number of columns in result
+  tuple::size_type columns() const { return PQnfields(m_Result); }	//[t11]
 
   /// Number of given column (throws exception if it doesn't exist)
   tuple::size_type column_number(const char ColName[]) const;		//[t11]
@@ -348,15 +369,31 @@ public:
   oid column_type(const char ColName[]) const				//[]
     	{ return column_type(column_number(ColName)); }
 
+#ifdef HAVE_PQFTABLE
+  /// Table that given column was taken from, if any
+  oid column_table(tuple::size_type ColNum) const;			//[]
+
+  /// Table that given column was taken from, if any
+  oid column_table(PGSTD::string &ColName) const			//[]
+    	{ return column_table(column_number(ColName)); }
+#endif
+
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use inserted_oid() instead
+  oid InsertedOid() const { return inserted_oid(); }
+  /// @deprecated Use affected_rows() instead
+  size_type AffectedRows() const { return affected_rows(); }
+#endif
 
   /// If command was INSERT of 1 row, return oid of inserted row
   /** Returns oid_none otherwise. 
    */
-  oid InsertedOid() const { return PQoidValue(m_Result); }		//[t13]
+  oid inserted_oid() const { return PQoidValue(m_Result); }		//[t13]
+
 
   /// If command was INSERT, UPDATE, or DELETE, return number of affected rows
   /*** Returns zero for all other commands. */
-  size_type AffectedRows() const;					//[t7]
+  size_type affected_rows() const;					//[t7]
 
 private:
   PGresult *m_Result;
@@ -461,7 +498,7 @@ result::tuple::operator[](result::tuple::size_type i) const
 
 inline result::tuple::size_type result::tuple::size() const 
 { 
-  return m_Home->Columns(); 
+  return m_Home->columns(); 
 }
 
 inline const char *result::field::name() const 
@@ -531,6 +568,24 @@ inline oid result::column_type(tuple::size_type ColNum) const
 		"of query result");
   return T;
 }
+
+
+#ifdef HAVE_PQFTABLE
+inline oid result::column_table(tuple::size_type ColNum) const
+{
+  const oid T = PQftable(m_Result, ColNum);
+
+  /* If we get InvalidOid, it may be because the column is computed, or because
+   * we got an invalid row number.
+   */
+  // TODO: Skip this if we first computed the column name ourselves
+  if ((T == InvalidOid) &&
+      ((ColNum < 0) || (ColNum >= Columns())))
+    throw PGSTD::invalid_argument("Attempt to retrieve table ID for column " +
+				  ToString(ColNum) + " "
+				  "out of " + ToString(Columns()));
+}
+#endif
 
 } // namespace pqxx
 

@@ -1,5 +1,6 @@
 #! /bin/sh
 # Run this to generate all the initial makefiles, etc.
+# Set CONFIG_ARGS to the argument list you wish to pass to configure
 
 set -e
 
@@ -16,7 +17,7 @@ libtoolize --force --automake --copy
 automake${ver} --verbose --add-missing --copy
 autoconf
 
-conf_flags="--enable-maintainer-mode --with-postgres=/home/jtv/postgresql-7.4"
+conf_flags="--enable-maintainer-mode $CONFIG_ARGS"
 if test x$NOCONFIGURE = x; then
 	echo Running $srcdir/configure $conf_flags "$@" ...
 	./configure $conf_flags "$@" \

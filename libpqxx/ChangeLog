@@ -1,3 +1,7 @@
+2003-07-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result:
+  - Added support for PQftable().  Thanks Adam Pigg!
+  - Deprecated tuple::Row() in favour of row_number()
 2003-07-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/all:
   - Replaced with include/pqxx/pqxx to fix automake problem

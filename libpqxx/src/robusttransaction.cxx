@@ -209,7 +209,7 @@ void pqxx::basic_robusttransaction::CreateTransactionRecord()
 	                "CURRENT_TIMESTAMP"
 	                ")";
 
-  m_ID = DirectExec(Insert.c_str(), 0, 0).InsertedOid();
+  m_ID = DirectExec(Insert.c_str(), 0, 0).inserted_oid();
 
   if (m_ID == oid_none) 
     throw runtime_error("Could not create transaction log record");

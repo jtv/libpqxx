@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     result R( T.exec("SELECT * FROM " + Table) );
 
     // Print column names
-    for (result::tuple::size_type c = 0; c < R.Columns(); ++c)
+    for (result::tuple::size_type c = 0; c < R.columns(); ++c)
     {
       string N= R.column_name(c);
       cout << c << ":\t" << N << endl;
@@ -45,13 +45,13 @@ int main(int argc, char *argv[])
     // If there are rows in R, compare their metadata to R's.
     if (!R.empty())
     {
-      if (R[0].Row() != 0) 
-	throw logic_error("Row 0 said it was row " + R[0].Row());
+      if (R[0].rownumber() != 0) 
+	throw logic_error("Row 0 said it was row " + R[0].rownumber());
 
       if (R.size() < 2)
 	cout << "(Only one row in table.)" << endl;
-      else if (R[1].Row() != 1)
-        throw logic_error("Row 1 said it was row " + R[1].Row());
+      else if (R[1].rownumber() != 1)
+        throw logic_error("Row 1 said it was row " + R[1].rownumber());
 
       for (result::tuple::size_type c = 0; c < R[0].size(); ++c)
       {
