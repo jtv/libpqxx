@@ -10,12 +10,15 @@ Connections
 Documentation
 (*) Find a better documentation format for the tutorial
 (*) Re-translate the tutorial to HTML (preferably as part of build procedure)
+(*) Document "please don't start transactions yourself"
+(*) Document migration procedures from libpq++
 
 Nonblocking operation
 (*) Separate query issuing from receipt of results
 (*) Support select()
 
 Results
+(*) Implement get<int>() and so on
 (*) Conceive metadata model
 (*) Allow direct mapping onto structs, using member ptr template args
 

@@ -164,7 +164,7 @@ public:
 
     bool is_null() const { return m_Home->GetIsNull(m_Index,m_Col); }	//[t12]
 
-    int size() const { return m_Home->GetLength(m_Index,m_Col); }	//[t11]
+    size_type size() const { return m_Home->GetLength(m_Index,m_Col); }	//[t11]
 
   private:
 

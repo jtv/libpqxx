@@ -1,0 +1,22 @@
+Document: libpqxx
+Title: Debian libpqxx Manual
+Author: Greg Hookey
+Abstract: This manual describes what libpqxx is
+ and how it can be used to
+ manage online manuals on Debian systems.
+Section: unknown
+
+Format: debiandoc-sgml
+Files: /usr/share/doc/libpqxx/libpqxx.sgml.gz
+
+Format: postscript
+Files: /usr/share/doc/libpqxx/libpqxx.ps.gz
+
+Format: text
+Files: /usr/share/doc/libpqxx/libpqxx.text.gz
+
+Format: HTML
+Index: /usr/share/doc/libpqxx/html/index.html
+Files: /usr/share/doc/libpqxx/html/*.html
+
+  
