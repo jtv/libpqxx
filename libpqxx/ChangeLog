@@ -1,3 +1,24 @@
+2004-05-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Added gcc 3.4's -Wextra, which replaces -W
+2004-05-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/transaction_base.cxx:
+  - Fixed syntax error in COPY column specifications
+ test/test080: 
+  - Can't compare a const_reverse_iterator to rend() if container non-const :( 
+  - Works now!
+2004-05-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/largeobject.hxx:
+  - g++-3.4.0 fixes (for any compiler, really).  Thanks Michael Krelin!
+ include/pqxx/tablereader.hxx, include/pqxx/tablestream.hxx,
+ include/pqxx/tablewriter.hxx, include/pqxx/transaction_base.hxx,
+ src/transaction_base.cxx:
+  - Column list specification support for tablestreams
+ test/test068.cxx:
+  - Corrected typo in comment
+ test/test080.cxx:
+  - New
+  - Tests column list specifications for tablereader
 2004-04-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
   - Accept double-quoted trigger names, thanks slava@perlx.com
