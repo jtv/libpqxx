@@ -32,13 +32,9 @@ using namespace PGSTD;
 #endif // DIALECT_POSTGRESQL 
 
 
-// Postfix strings for constructing sequence/index names for table
-string pqxx::RobustTransaction::s_SeqPostfix("_ID");
-string pqxx::RobustTransaction::s_IdxPostfix("_IDX");
-
 pqxx::RobustTransaction::RobustTransaction(Connection &C, string TName) :
   TransactionItf(C, TName),
-  m_ID(0),
+  m_ID(InvalidOid),
   m_LogTable()
 {
   m_LogTable = string("PQXXLOG_") + Conn().UserName();
@@ -56,14 +52,22 @@ pqxx::RobustTransaction::~RobustTransaction()
 
 void pqxx::RobustTransaction::DoBegin()
 {
-  // TODO: Can we reverse log record logic?  I.e. attempt to add log record..
-  // TODO: ..first (create log table & retry if fails), then start transaction?
-  CreateLogTable();
-
   // Start backend transaction
   DirectExec(SQL_BEGIN_WORK, 2, 0);
 
-  CreateTransactionRecord();
+  try
+  {
+    CreateTransactionRecord();
+  }
+  catch (const exception &)
+  {
+    // The problem here *may* be that the log table doesn't exist yet.  Create
+    // one, start a new transaction, and try again.
+    DirectExec(SQL_ROLLBACK_WORK, 2, 0);
+    CreateLogTable();
+    DirectExec(SQL_BEGIN_WORK, 2, 0);
+    CreateTransactionRecord();
+  }
 }
 
 
@@ -77,13 +81,7 @@ pqxx::Result pqxx::RobustTransaction::DoExec(const char C[])
   }
   catch (const exception &)
   {
-    try
-    {
-      Abort();
-    }
-    catch (const exception &)
-    {
-    }
+    try { Abort(); } catch (const exception &) { }
     throw;
   }
 
@@ -96,9 +94,10 @@ void pqxx::RobustTransaction::DoCommit()
 {
   const IDType ID = m_ID;
 
-  if (!ID) throw logic_error("Internal libpqxx error: transaction " 
-		             "'" + Name() + "' " 
-			     "has no ID");
+  if (ID == InvalidOid) 
+    throw logic_error("Internal libpqxx error: transaction " 
+		      "'" + Name() + "' " 
+		     "has no ID");
 
   try
   {
@@ -106,7 +105,7 @@ void pqxx::RobustTransaction::DoCommit()
   }
   catch (const exception &e)
   {
-    m_ID = 0;
+    m_ID = InvalidOid;
     if (!Conn().IsOpen())
     {
       // We've lost the connection while committing.  We'll have to go back to
@@ -129,7 +128,7 @@ void pqxx::RobustTransaction::DoCommit()
 
         const string Msg = "WARNING: "
 		    "Connection lost while committing transaction "
-		    "'" + Name() + "' (ID " + ToString(ID) + "). "
+		    "'" + Name() + "' (oid " + ToString(ID) + "). "
 		    "Please check for this record in the "
 		    "'" + m_LogTable + "' table.  "
 		    "If the record exists, the transaction was executed. "
@@ -156,14 +155,14 @@ void pqxx::RobustTransaction::DoCommit()
     }
   }
 
-  m_ID = 0;
+  m_ID = InvalidOid;
   DeleteTransactionRecord(ID);
 }
 
 
 void pqxx::RobustTransaction::DoAbort()
 {
-  m_ID = 0;
+  m_ID = InvalidOid;
 
   // Rollback transaction.  Our transaction record will be dropped as a side
   // effect, which is what we want since "it never happened."
@@ -176,70 +175,57 @@ void pqxx::RobustTransaction::CreateLogTable()
 {
   // Create log table in case it doesn't already exist.  This code must only be 
   // executed before the backend transaction has properly started.
-  const string SeqName = m_LogTable + s_SeqPostfix,
-               IdxName = m_LogTable + s_IdxPostfix,
-               CrSeq = "CREATE SEQUENCE " + SeqName,
-               CrTab = "CREATE TABLE " + m_LogTable +
+  const string CrTab = "CREATE TABLE " + m_LogTable +
 	               "("
-	               "id INTEGER DEFAULT nextval('" + SeqName + "'), "
 	               "name VARCHAR(256), "
 	               "date TIMESTAMP"
 	               ")";
 
-  try { DirectExec(CrSeq.c_str(), 0, 0); } catch (const exception &) { }
   try { DirectExec(CrTab.c_str(), 0, 0); } catch (const exception &) { }
 }
 
 
 void pqxx::RobustTransaction::CreateTransactionRecord()
 {
-  const string MakeID = "SELECT nextval('" + m_LogTable + s_SeqPostfix + "')";
-  
-  // Get ID for new record
-  // TODO: There's a window for leaving garbage here.  Close/document it.
-  Result IDR( DirectExec(MakeID.c_str(), 0, 0) );
-  IDR.at(0).at(0).to(m_ID);
-
   const string Insert = "INSERT INTO " + m_LogTable + " "
-	                "(id, name, date) "
+	                "(name, date) "
 			"VALUES "
 	                "(" +
-	                IDR[0][0].c_str() + ", " +
 	                Quote(Name(), true) + ", "
 	                "CURRENT_TIMESTAMP"
 	                ")";
 
-  DirectExec(Insert.c_str(), 0, 0);
+  m_ID = DirectExec(Insert.c_str(), 0, 0).InsertedOid();
 
-  // Zero has a special meaning to us, so don't use the record if its ID is 0.  
-  // In that case just leave the zero record in place as a filler.
-  if (!m_ID) CreateTransactionRecord();
+  if (m_ID == InvalidOid) 
+    throw runtime_error("Could not create transaction log record");
 }
 
 
 void pqxx::RobustTransaction::DeleteTransactionRecord(IDType ID) throw ()
 {
-  if (!ID) return;
+  if (ID == InvalidOid) return;
 
   try
   {
     // Try very, very hard to delete record.  Specify an absurd retry count to 
     // ensure that the server gets a chance to restart before we give up.
     const string Del = "DELETE FROM " + m_LogTable + " "
-	               "WHERE id=" + ToString(ID);
+	               "WHERE oid=" + ToString(ID);
 
     DirectExec(Del.c_str(), 20, 0);
 
     // Now that we've arrived here, we're sure that record is quite dead.
-    ID = 0;
+    ID = InvalidOid;
   }
   catch (const exception &e)
   {
   }
 
-  if (ID) try
+  if (ID != InvalidOid) try
   {
-    ProcessNotice("WARNING: Failed to delete obsolete transaction record " + 
+    ProcessNotice("WARNING: "
+	          "Failed to delete obsolete transaction record with oid " + 
 		  ToString(ID) + " ('" + Name() + "'). "
 		  "Please delete it manually.  Thank you.\n");
 
@@ -254,8 +240,8 @@ void pqxx::RobustTransaction::DeleteTransactionRecord(IDType ID) throw ()
 // Attempt to establish whether transaction record with given ID still exists
 bool pqxx::RobustTransaction::CheckTransactionRecord(IDType ID)
 {
-  const string Find = "SELECT id FROM " + m_LogTable + " "
-	              "WHERE id=" + ToString(ID);
+  const string Find = "SELECT oid FROM " + m_LogTable + " "
+	              "WHERE oid=" + ToString(ID);
 
   return !DirectExec(Find.c_str(), 20, 0).empty();
 }

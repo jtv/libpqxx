@@ -1,22 +1,8 @@
 Connection
-(*) Guarantee that broken_connection is thrown if connection broken
-(*) Add active/deactive methods (ignore/defer when in transaction?)
-(*) Optional lazy connection (first use instead of constructor)
-(*) Remove "backend PID" from interface?
-
-RobustTransaction
-(*) Reverse log record logic?
- - Correct behaviour?
- - Is garbage useful for post-mortem?
- - Minimize garbage
- - Optimize log table creation (insert record, create table & retry on failure)
-(*) User schema support for log table
+(*) Add activate/deactivate methods (throw when in transaction)
 
 Check
 (*) Move "check" postgres parameters into configure.ac
-
-Error handling
-(*) Check whether transaction still open if possible (consistency with backend)
 
 Porting
 (*) Make TableStream classes respect DIALECT
@@ -27,6 +13,9 @@ Results
 (*) Allow querying of field types
 (*) Allow direct mapping onto structs, using member ptr template args (?)
 
+RobustTransaction
+(*) User schema support for log table
+
 Streams
 (*) Provide metadata information in TableStream
 (*) Work streamable (and prefetching!) result sets into Stream hierarchy
@@ -34,7 +23,6 @@ Streams
 
 Triggers
 (*) Allow access to Connection's triggers list?
-(*) Remove "backend PID" from interface?
 
 Nonblocking operation
 (*) Separate query issuing from receipt of results
@@ -44,6 +32,5 @@ Debian packaging
 (*) Write and use doc-base entry for documentation
 
 Build system
-
 (*) Work on the clean, maintainer-clean, dist-clean targets; see
     debian/rules for stuff that isn't cleaned out properly yet.

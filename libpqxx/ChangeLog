@@ -1,5 +1,24 @@
+2002-09-23 01:00 Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection.h, src/connection.cxx:
+  - Now caches NoticePreprocessor & trace file set by user
+  - Implemented lazy connections
+ include/pqxx/result.h:
+  - Added InsertedOid()
+ include/pqxx/trigger.h:
+  - Added admonishing comment about backend process ID
+ src/robusttransaction.cxx:
+  - Use log record's oid instead of explicit id field
+  - Only attempt to create log table if creation of log field fails
+ test/test17.cxx:
+  - Fixed comment (used to call itself test15)
+ test/test21.cxx, test/test22.cxx, test/test23.cxx, test/test24.cxx,
+ test/test25.cxx, test/test26.cxx, test/test27.cxx, test/test28.cxx,
+ test/test29.cxx, test/test30.cxx, test/test31.cxx, test/test32.cxx,
+ test/test33.cxx, test/test34.cxx, test/test35.cxx, test/test36.cxx,
+ test/test37.cxx, test/test38.cxx, test/test39.cxx
+  - New
 2002-09-20 15:15 Jeroen T. Vermeulen <jtv@xs4all.nl>
- include/connection.h:
+ include/pqxx/connection.h:
   - Added admonishing comment for BackendPID()
  src/connection.cxx:
   - Noted some exceptions that may change to broken_connection

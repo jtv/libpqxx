@@ -1,3 +1,7 @@
+2002-09-23 01:00, v1.1.0:
+ - supports lazy connections (added 19 test cases just for these)
+ - greatly reduced performance overhead for RobustTransaction 
+ - removed id field from RobustTransaction's transaction log tables
 2002-09-14 20:00, v1.0.1:
  - now lives on GBorg
  - various packaging updates

@@ -39,173 +39,178 @@
 00031 <font class="comment"> */</font>
 00032 
 00033 <font class="comment">// TODO: Implement NoticeProcessors with C++ linkage</font>
-00034 <font class="comment">// TODO: Teach Transactor to handle multiple connections--quasi "2-phase commit"</font>
+00034 
 00035 
-00036 
-<a name="l00037"></a><a class="code" href="namespacepqxx.html">00037</a> <font class="keyword">namespace </font>pqxx
-00038 {
-00039 <font class="keyword">class </font><a class="code" href="classpqxx_1_1in__doubt__error.html">in_doubt_error</a>;   <font class="comment">// See pqxx/transactionitf.h</font>
-00040 <font class="keyword">class </font><a class="code" href="classpqxx_1_1Result.html">Result</a>;           <font class="comment">// See pqxx/result.h</font>
-00041 <font class="keyword">class </font><a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a>;   <font class="comment">// See pqxx/transactionitf.h</font>
-00042 <font class="keyword">class </font><a class="code" href="classpqxx_1_1Trigger.html">Trigger</a>;          <font class="comment">// See pqxx/trigger.h</font>
-00043 
-<a name="l00044"></a><a class="code" href="namespacepqxx.html#a0">00044</a> <font class="keyword">extern</font> <font class="stringliteral">"C"</font> { <font class="keyword">typedef</font> void (*<a class="code" href="namespacepqxx.html#a0">NoticeProcessor</a>)(<font class="keywordtype">void</font> *arg, <font class="keyword">const</font> <font class="keywordtype">char</font> *msg); }
+<a name="l00036"></a><a class="code" href="namespacepqxx.html">00036</a> <font class="keyword">namespace </font>pqxx
+00037 {
+00038 <font class="keyword">class </font><a class="code" href="classpqxx_1_1in__doubt__error.html">in_doubt_error</a>;   <font class="comment">// See pqxx/transactionitf.h</font>
+00039 <font class="keyword">class </font><a class="code" href="classpqxx_1_1Result.html">Result</a>;           <font class="comment">// See pqxx/result.h</font>
+00040 <font class="keyword">class </font><a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a>;   <font class="comment">// See pqxx/transactionitf.h</font>
+00041 <font class="keyword">class </font><a class="code" href="classpqxx_1_1Trigger.html">Trigger</a>;          <font class="comment">// See pqxx/trigger.h</font>
+00042 
+<a name="l00043"></a><a class="code" href="namespacepqxx.html#a0">00043</a> <font class="keyword">extern</font> <font class="stringliteral">"C"</font> { <font class="keyword">typedef</font> void (*<a class="code" href="namespacepqxx.html#a0">NoticeProcessor</a>)(<font class="keywordtype">void</font> *arg, <font class="keyword">const</font> <font class="keywordtype">char</font> *msg); }
+00044 
 00045 
-00046 
-<a name="l00048"></a><a class="code" href="namespacepqxx.html#a5">00048</a> <font class="keyword">template</font>&lt;&gt; <font class="keyword">inline</font> PGSTD::string <a class="code" href="namespacepqxx.html#a5">Classname</a>(<font class="keyword">const</font> <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> *) 
-00049 { 
-00050   <font class="keywordflow">return</font> <font class="stringliteral">"TransactionItf"</font>; 
-00051 }
+<a name="l00047"></a><a class="code" href="namespacepqxx.html#a5">00047</a> <font class="keyword">template</font>&lt;&gt; <font class="keyword">inline</font> PGSTD::string <a class="code" href="namespacepqxx.html#a5">Classname</a>(<font class="keyword">const</font> <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> *) 
+00048 { 
+00049   <font class="keywordflow">return</font> <font class="stringliteral">"TransactionItf"</font>; 
+00050 }
+00051 
 00052 
-00053 
-00055 
-<a name="l00056"></a><a class="code" href="classpqxx_1_1broken__connection.html">00056</a> <font class="keyword">class </font><a class="code" href="classpqxx_1_1broken__connection.html">broken_connection</a> : <font class="keyword">public</font> <a class="code" href="config_8h.html#a21">PGSTD</a>::runtime_error
-00057 {
-00058 <font class="keyword">public</font>:
-<a name="l00059"></a><a class="code" href="classpqxx_1_1broken__connection.html#a0">00059</a>   <a class="code" href="classpqxx_1_1broken__connection.html#a0">broken_connection</a>() : <a class="code" href="config_8h.html#a21">PGSTD</a>::runtime_error("<a class="code" href="classpqxx_1_1Connection.html">Connection</a> to back end failed") {}
-<a name="l00060"></a><a class="code" href="classpqxx_1_1broken__connection.html#a1">00060</a>   <font class="keyword">explicit</font> <a class="code" href="classpqxx_1_1broken__connection.html#a0">broken_connection</a>(<font class="keyword">const</font> PGSTD::string &amp;whatarg) : 
-00061     <a class="code" href="config_8h.html#a21">PGSTD</a>::runtime_error(whatarg) {}
-00062 };
+00054 
+<a name="l00055"></a><a class="code" href="classpqxx_1_1broken__connection.html">00055</a> <font class="keyword">class </font><a class="code" href="classpqxx_1_1broken__connection.html">broken_connection</a> : <font class="keyword">public</font> <a class="code" href="config_8h.html#a21">PGSTD</a>::runtime_error
+00056 {
+00057 <font class="keyword">public</font>:
+<a name="l00058"></a><a class="code" href="classpqxx_1_1broken__connection.html#a0">00058</a>   <a class="code" href="classpqxx_1_1broken__connection.html#a0">broken_connection</a>() : <a class="code" href="config_8h.html#a21">PGSTD</a>::runtime_error("<a class="code" href="classpqxx_1_1Connection.html">Connection</a> to back end failed") {}
+<a name="l00059"></a><a class="code" href="classpqxx_1_1broken__connection.html#a1">00059</a>   <font class="keyword">explicit</font> <a class="code" href="classpqxx_1_1broken__connection.html#a0">broken_connection</a>(<font class="keyword">const</font> PGSTD::string &amp;whatarg) : 
+00060     <a class="code" href="config_8h.html#a21">PGSTD</a>::runtime_error(whatarg) {}
+00061 };
+00062 
 00063 
-00064 
-00066 
-<a name="l00074"></a><a class="code" href="classpqxx_1_1Connection.html">00074</a> <font class="keyword">class </font><a class="code" href="compiler_8h.html#a0">PQXX_LIBEXPORT</a> <a class="code" href="classpqxx_1_1Connection.html">Connection</a>
-00075 {
-00076 <font class="keyword">public</font>:
-00077   <font class="comment">// TODO: Allow two-stage creation (create first, open later)</font>
-00079 <font class="comment">  explicit Connection(const PGSTD::string &amp;ConnInfo);                   //[t1]</font>
-00080 
-00082   ~<a class="code" href="classpqxx_1_1Connection.html">Connection</a>();                                                        <font class="comment">//[t1]</font>
-00083 
-00085   <font class="keywordtype">void</font> Disconnect() <font class="keywordflow">throw</font> ();                                           <font class="comment">//[t2]</font>
+00065 
+<a name="l00073"></a><a class="code" href="classpqxx_1_1Connection.html">00073</a> <font class="keyword">class </font>PQXX_LIBEXPORT <a class="code" href="classpqxx_1_1Connection.html">Connection</a>
+00074 {
+00075 <font class="keyword">public</font>:
+00077 
+00084   <font class="keyword">explicit</font> <a class="code" href="classpqxx_1_1Connection.html">Connection</a>(<font class="keyword">const</font> PGSTD::string &amp;ConnInfo, 
+00085                       <font class="keywordtype">bool</font> Immediate=<font class="keyword">true</font>);                             <font class="comment">//[t1]</font>
 00086 
-00088   <font class="keywordtype">bool</font> IsOpen() <font class="keyword">const</font>;                                                  <font class="comment">//[t1]</font>
+00088   ~<a class="code" href="classpqxx_1_1Connection.html">Connection</a>();                                                        <font class="comment">//[t1]</font>
 00089 
-00091   <font class="keyword">template</font>&lt;<font class="keyword">typename</font> TRANSACTOR&gt; 
-00092   <font class="keywordtype">void</font> Perform(<font class="keyword">const</font> TRANSACTOR &amp;, <font class="keywordtype">int</font> Attempts=3);                     <font class="comment">//[t4]</font>
-00093 
+00091   <font class="keywordtype">void</font> Disconnect() <font class="keywordflow">throw</font> ();                                           <font class="comment">//[t2]</font>
+00092 
+00094   <font class="keywordtype">bool</font> IsOpen() <font class="keyword">const</font>;                                                  <font class="comment">//[t1]</font>
 00095 
-00099   <a class="code" href="namespacepqxx.html#a0">NoticeProcessor</a> SetNoticeProcessor(<a class="code" href="namespacepqxx.html#a0">NoticeProcessor</a>, <font class="keywordtype">void</font> *arg);       <font class="comment">//[t1]</font>
-00100 
-00102   <font class="keywordtype">void</font> ProcessNotice(<font class="keyword">const</font> <font class="keywordtype">char</font>[]) <font class="keywordflow">throw</font> ();                            <font class="comment">//[t1]</font>
-<a name="l00104"></a><a class="code" href="classpqxx_1_1Connection.html#a7">00104</a> <font class="comment">  void ProcessNotice(PGSTD::string msg) throw ()                        //[t1]</font>
-00105         { ProcessNotice(msg.c_str()); }
+00097   <font class="keyword">template</font>&lt;<font class="keyword">typename</font> TRANSACTOR&gt; 
+00098   <font class="keywordtype">void</font> Perform(<font class="keyword">const</font> TRANSACTOR &amp;, <font class="keywordtype">int</font> Attempts=3);                     <font class="comment">//[t4]</font>
+00099 
+00101 
+00105   <a class="code" href="namespacepqxx.html#a0">NoticeProcessor</a> SetNoticeProcessor(<a class="code" href="namespacepqxx.html#a0">NoticeProcessor</a>, <font class="keywordtype">void</font> *arg);       <font class="comment">//[t1]</font>
 00106 
-00108   <font class="keywordtype">void</font> Trace(FILE *);                                                   <font class="comment">//[t3]</font>
-00110 <font class="comment">  void Untrace();                                                       //[t3]</font>
-00111 
+00108   <font class="keywordtype">void</font> ProcessNotice(<font class="keyword">const</font> <font class="keywordtype">char</font>[]) <font class="keywordflow">throw</font> ();                            <font class="comment">//[t1]</font>
+<a name="l00110"></a><a class="code" href="classpqxx_1_1Connection.html#a7">00110</a> <font class="comment">  void ProcessNotice(PGSTD::string msg) throw ()                        //[t1]</font>
+00111         { ProcessNotice(msg.c_str()); }
 00112 
-00114   <font class="keywordtype">void</font> GetNotifs();                                                     <font class="comment">//[t4]</font>
-00115 
-00116   <font class="comment">// Miscellaneous query functions (probably not needed very often)</font>
-00117  
-<a name="l00119"></a><a class="code" href="classpqxx_1_1Connection.html#a11">00119</a>   <font class="keyword">const</font> <font class="keywordtype">char</font> *DbName() <font class="keyword">const</font> <font class="keywordflow">throw</font> ()                                   <font class="comment">//[t1]</font>
-00120         { <font class="keywordflow">return</font> m_Conn ? PQdb(m_Conn) : <font class="stringliteral">""</font>; }
+00114   <font class="keywordtype">void</font> Trace(FILE *);                                                   <font class="comment">//[t3]</font>
+<a name="l00116"></a><a class="code" href="classpqxx_1_1Connection.html#a9">00116</a> <font class="comment">  void Untrace() { Trace(0); }</font>
+00117 
+00118 
+00120   <font class="keywordtype">void</font> GetNotifs();                                                     <font class="comment">//[t4]</font>
 00121 
-<a name="l00123"></a><a class="code" href="classpqxx_1_1Connection.html#a12">00123</a>   <font class="keyword">const</font> <font class="keywordtype">char</font> *UserName() <font class="keyword">const</font> <font class="keywordflow">throw</font> ()                                 <font class="comment">//[t1]</font>
-00124         { <font class="keywordflow">return</font> m_Conn ? PQuser(m_Conn) : <font class="stringliteral">""</font>; }
-00125 
-<a name="l00127"></a><a class="code" href="classpqxx_1_1Connection.html#a13">00127</a>   <font class="keyword">const</font> <font class="keywordtype">char</font> *HostName() <font class="keyword">const</font> <font class="keywordflow">throw</font> ()                                 <font class="comment">//[t1]</font>
-00128         { <font class="keywordflow">return</font> m_Conn ? PQhost(m_Conn) : <font class="stringliteral">""</font>; }
-00129 
-<a name="l00131"></a><a class="code" href="classpqxx_1_1Connection.html#a14">00131</a>   <font class="keyword">const</font> <font class="keywordtype">char</font> *Port() <font class="keyword">const</font> <font class="keywordflow">throw</font> ()                                     <font class="comment">//[t1]</font>
-00132         { <font class="keywordflow">return</font> m_Conn ? PQport(m_Conn) : <font class="stringliteral">""</font>; }
-00133 
-<a name="l00135"></a><a class="code" href="classpqxx_1_1Connection.html#a15">00135</a>   <font class="keyword">const</font> <font class="keywordtype">char</font> *Options() <font class="keyword">const</font> <font class="keywordflow">throw</font> ()                                  <font class="comment">//[t1]</font>
-00136         { <font class="keywordflow">return</font> m_ConnInfo.c_str(); }
-00137 
-00139   <font class="keywordtype">int</font> BackendPID() <font class="keyword">const</font>;                                               <font class="comment">//[t1]</font>
-00140 
-00141 <font class="keyword">private</font>:
-00142   <font class="keywordtype">void</font> Connect();
-00143   <font class="keywordtype">int</font> Status()<font class="keyword"> const </font>{ <font class="keywordflow">return</font> PQstatus(m_Conn); }
-00144   <font class="keyword">const</font> <font class="keywordtype">char</font> *ErrMsg() <font class="keyword">const</font>;
-00145   <font class="keywordtype">void</font> Reset(<font class="keyword">const</font> <font class="keywordtype">char</font> OnReconnect[]=0);
-00146 
-00147   PGSTD::string m_ConnInfo;     <font class="comment">// Connection string</font>
-00148   PGconn *m_Conn;               <font class="comment">// Connection handle</font>
-00149   Unique&lt;TransactionItf&gt; m_Trans;<font class="comment">// Active transaction on connection, if any</font>
-00150   <font class="keywordtype">void</font> *m_NoticeProcessorArg;   <font class="comment">// Client-set argument to notice processor func</font>
-00151 
-00152   <font class="keyword">typedef</font> PGSTD::multimap&lt;PGSTD::string, pqxx::Trigger *&gt; TriggerList;
-00153   TriggerList m_Triggers;
-00154 
-<a name="l00155"></a><a class="code" href="classpqxx_1_1Connection.html#l0">00155</a>   <font class="keyword">friend</font> <font class="keyword">class </font><a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a>;
-00156   <a class="code" href="classpqxx_1_1Result.html">Result</a> Exec(<font class="keyword">const</font> <font class="keywordtype">char</font>[], <font class="keywordtype">int</font> Retries=3, <font class="keyword">const</font> <font class="keywordtype">char</font> OnReconnect[]=0);
-00157   <font class="keywordtype">void</font> RegisterTransaction(<font class="keyword">const</font> <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> *);
-00158   <font class="keywordtype">void</font> UnregisterTransaction(<font class="keyword">const</font> <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> *) <font class="keywordflow">throw</font> ();
-00159   <font class="keywordtype">void</font> MakeEmpty(<a class="code" href="classpqxx_1_1Result.html">Result</a> &amp;, ExecStatusType=PGRES_EMPTY_QUERY);
-00160   <font class="keywordtype">void</font> BeginCopyRead(PGSTD::string Table);
-00161   <font class="keywordtype">bool</font> ReadCopyLine(PGSTD::string &amp;);
-00162   <font class="keywordtype">void</font> BeginCopyWrite(PGSTD::string Table);
-00163   <font class="keywordtype">void</font> WriteCopyLine(PGSTD::string);
-00164   <font class="keywordtype">void</font> EndCopy();
-00165 
-<a name="l00166"></a><a class="code" href="classpqxx_1_1Connection.html#l1">00166</a>   <font class="keyword">friend</font> <font class="keyword">class </font><a class="code" href="classpqxx_1_1Trigger.html">Trigger</a>;
-00167   <font class="keywordtype">void</font> AddTrigger(<a class="code" href="classpqxx_1_1Trigger.html">Trigger</a> *);
-00168   <font class="keywordtype">void</font> RemoveTrigger(<a class="code" href="classpqxx_1_1Trigger.html">Trigger</a> *) <font class="keywordflow">throw</font> ();
-00169 
-00170   <font class="comment">// Not allowed:</font>
-00171   <a class="code" href="classpqxx_1_1Connection.html">Connection</a>(<font class="keyword">const</font> <a class="code" href="classpqxx_1_1Connection.html">Connection</a> &amp;);
-00172   <a class="code" href="classpqxx_1_1Connection.html">Connection</a> &amp;operator=(<font class="keyword">const</font> <a class="code" href="classpqxx_1_1Connection.html">Connection</a> &amp;);
-00173 };
-00174 
-00175 
-00176 
-00187 <font class="keyword">template</font>&lt;<font class="keyword">typename</font> TRANSACTOR&gt; 
-<a name="l00188"></a><a class="code" href="classpqxx_1_1Connection.html#a4">00188</a> <font class="keyword">inline</font> <font class="keywordtype">void</font> Connection::Perform(<font class="keyword">const</font> TRANSACTOR &amp;T,
-00189                                 <font class="keywordtype">int</font> Attempts)                           <font class="comment">//[t4]</font>
-00190 {
-00191   <font class="keywordflow">if</font> (Attempts &lt;= 0) <font class="keywordflow">return</font>;
+00122   <font class="comment">// Miscellaneous query functions (probably not needed very often)</font>
+00123  
+<a name="l00125"></a><a class="code" href="classpqxx_1_1Connection.html#a11">00125</a>   <font class="keyword">const</font> <font class="keywordtype">char</font> *DbName() <font class="keyword">const</font> <font class="keywordflow">throw</font> ()                                   <font class="comment">//[t1]</font>
+00126         { <font class="keywordflow">return</font> m_Conn ? PQdb(m_Conn) : <font class="stringliteral">""</font>; }
+00127 
+<a name="l00129"></a><a class="code" href="classpqxx_1_1Connection.html#a12">00129</a>   <font class="keyword">const</font> <font class="keywordtype">char</font> *UserName() <font class="keyword">const</font> <font class="keywordflow">throw</font> ()                                 <font class="comment">//[t1]</font>
+00130         { <font class="keywordflow">return</font> m_Conn ? PQuser(m_Conn) : <font class="stringliteral">""</font>; }
+00131 
+<a name="l00133"></a><a class="code" href="classpqxx_1_1Connection.html#a13">00133</a>   <font class="keyword">const</font> <font class="keywordtype">char</font> *HostName() <font class="keyword">const</font> <font class="keywordflow">throw</font> ()                                 <font class="comment">//[t1]</font>
+00134         { <font class="keywordflow">return</font> m_Conn ? PQhost(m_Conn) : <font class="stringliteral">""</font>; }
+00135 
+<a name="l00137"></a><a class="code" href="classpqxx_1_1Connection.html#a14">00137</a>   <font class="keyword">const</font> <font class="keywordtype">char</font> *Port() <font class="keyword">const</font> <font class="keywordflow">throw</font> ()                                     <font class="comment">//[t1]</font>
+00138         { <font class="keywordflow">return</font> m_Conn ? PQport(m_Conn) : <font class="stringliteral">""</font>; }
+00139 
+<a name="l00141"></a><a class="code" href="classpqxx_1_1Connection.html#a15">00141</a>   <font class="keyword">const</font> <font class="keywordtype">char</font> *Options() <font class="keyword">const</font> <font class="keywordflow">throw</font> ()                                  <font class="comment">//[t1]</font>
+00142         { <font class="keywordflow">return</font> m_ConnInfo.c_str(); }
+00143 
+00145 
+00152   <font class="keywordtype">int</font> BackendPID() <font class="keyword">const</font>;                                               <font class="comment">//[t1]</font>
+00153 
+00154 <font class="keyword">private</font>:
+00155   <font class="keywordtype">void</font> Connect();
+00156   <font class="keywordtype">void</font> SetupState();
+00157   <font class="keywordtype">int</font> Status()<font class="keyword"> const </font>{ <font class="keywordflow">return</font> PQstatus(m_Conn); }
+00158   <font class="keyword">const</font> <font class="keywordtype">char</font> *ErrMsg() <font class="keyword">const</font>;
+00159   <font class="keywordtype">void</font> Reset(<font class="keyword">const</font> <font class="keywordtype">char</font> OnReconnect[]=0);
+00160 
+00161   PGSTD::string m_ConnInfo;     <font class="comment">// Connection string</font>
+00162   PGconn *m_Conn;               <font class="comment">// Connection handle</font>
+00163   Unique&lt;TransactionItf&gt; m_Trans;<font class="comment">// Active transaction on connection, if any</font>
+00164 
+00165   <a class="code" href="namespacepqxx.html#a0">NoticeProcessor</a> m_NoticeProcessor;<font class="comment">// Client-set notice processor function</font>
+00166   <font class="keywordtype">void</font> *m_NoticeProcessorArg;   <font class="comment">// Client-set argument to notice processor func</font>
+00167   FILE *m_Trace;                <font class="comment">// File to trace to, if any</font>
+00168 
+00169   <font class="keyword">typedef</font> PGSTD::multimap&lt;PGSTD::string, pqxx::Trigger *&gt; TriggerList;
+00170   TriggerList m_Triggers;
+00171 
+<a name="l00172"></a><a class="code" href="classpqxx_1_1Connection.html#l0">00172</a>   <font class="keyword">friend</font> <font class="keyword">class </font><a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a>;
+00173   <a class="code" href="classpqxx_1_1Result.html">Result</a> Exec(<font class="keyword">const</font> <font class="keywordtype">char</font>[], <font class="keywordtype">int</font> Retries=3, <font class="keyword">const</font> <font class="keywordtype">char</font> OnReconnect[]=0);
+00174   <font class="keywordtype">void</font> RegisterTransaction(<font class="keyword">const</font> <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> *);
+00175   <font class="keywordtype">void</font> UnregisterTransaction(<font class="keyword">const</font> <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> *) <font class="keywordflow">throw</font> ();
+00176   <font class="keywordtype">void</font> MakeEmpty(<a class="code" href="classpqxx_1_1Result.html">Result</a> &amp;, ExecStatusType=PGRES_EMPTY_QUERY);
+00177   <font class="keywordtype">void</font> BeginCopyRead(PGSTD::string Table);
+00178   <font class="keywordtype">bool</font> ReadCopyLine(PGSTD::string &amp;);
+00179   <font class="keywordtype">void</font> BeginCopyWrite(PGSTD::string Table);
+00180   <font class="keywordtype">void</font> WriteCopyLine(PGSTD::string);
+00181   <font class="keywordtype">void</font> EndCopy();
+00182 
+<a name="l00183"></a><a class="code" href="classpqxx_1_1Connection.html#l1">00183</a>   <font class="keyword">friend</font> <font class="keyword">class </font><a class="code" href="classpqxx_1_1Trigger.html">Trigger</a>;
+00184   <font class="keywordtype">void</font> AddTrigger(<a class="code" href="classpqxx_1_1Trigger.html">Trigger</a> *);
+00185   <font class="keywordtype">void</font> RemoveTrigger(<a class="code" href="classpqxx_1_1Trigger.html">Trigger</a> *) <font class="keywordflow">throw</font> ();
+00186 
+00187   <font class="comment">// Not allowed:</font>
+00188   <a class="code" href="classpqxx_1_1Connection.html">Connection</a>(<font class="keyword">const</font> <a class="code" href="classpqxx_1_1Connection.html">Connection</a> &amp;);
+00189   <a class="code" href="classpqxx_1_1Connection.html">Connection</a> &amp;operator=(<font class="keyword">const</font> <a class="code" href="classpqxx_1_1Connection.html">Connection</a> &amp;);
+00190 };
+00191 
 00192 
-00193   <font class="keywordtype">bool</font> Done = <font class="keyword">false</font>;
-00194 
-00195   <font class="comment">// Make attempts to perform T</font>
-00196   <font class="comment">// TODO: Differentiate between db-related exceptions and other exceptions?</font>
-00197   <font class="keywordflow">do</font>
-00198   {
-00199     --Attempts;
-00200 
-00201     <font class="comment">// Work on a copy of T2 so we can restore the starting situation if need be</font>
-00202     TRANSACTOR T2(T);
-00203     <font class="keywordflow">try</font>
-00204     {
-00205       <font class="keyword">typename</font> TRANSACTOR::argument_type X(*<font class="keyword">this</font>, T2.Name());
-00206       T2(X);
-00207       X.Commit();
-00208       Done = <font class="keyword">true</font>;
-00209     }
-00210     <font class="keywordflow">catch</font> (<font class="keyword">const</font> <a class="code" href="classpqxx_1_1in__doubt__error.html">in_doubt_error</a> &amp;)
-00211     {
-00212       <font class="comment">// Not sure whether transaction went through or not.  The last thing in</font>
-00213       <font class="comment">// the world that we should do now is retry.</font>
-00214       T2.OnDoubt();
-00215       <font class="keywordflow">throw</font>;
-00216     }
-00217     <font class="keywordflow">catch</font> (<font class="keyword">const</font> PGSTD::exception &amp;e)
-00218     {
-00219       <font class="comment">// Could be any kind of error.  </font>
-00220       T2.OnAbort(e.what());
-00221       <font class="keywordflow">if</font> (Attempts &lt;= 0) <font class="keywordflow">throw</font>;
-00222       <font class="keywordflow">continue</font>;
-00223     }
-00224     <font class="keywordflow">catch</font> (...)
-00225     {
-00226       <font class="comment">// Don't try to forge ahead if we don't even know what happened</font>
-00227       T2.OnAbort(<font class="stringliteral">"Unknown exception"</font>);
-00228       <font class="keywordflow">throw</font>;
-00229     }
-00230 
-00231     T2.OnCommit();
-00232   } <font class="keywordflow">while</font> (!Done);
-00233 }
-00234 
-00235 
-00236 }
-00237 
-00238 <font class="preprocessor">#endif</font>
-00239 <font class="preprocessor"></font>
-</pre></div><hr><address align="right"><small>Generated on Sat Aug 10 21:52:38 2002 for libpqxx by
+00193 
+00204 <font class="keyword">template</font>&lt;<font class="keyword">typename</font> TRANSACTOR&gt; 
+<a name="l00205"></a><a class="code" href="classpqxx_1_1Connection.html#a4">00205</a> <font class="keyword">inline</font> <font class="keywordtype">void</font> Connection::Perform(<font class="keyword">const</font> TRANSACTOR &amp;T,
+00206                                 <font class="keywordtype">int</font> Attempts)                           <font class="comment">//[t4]</font>
+00207 {
+00208   <font class="keywordflow">if</font> (Attempts &lt;= 0) <font class="keywordflow">return</font>;
+00209 
+00210   <font class="keywordtype">bool</font> Done = <font class="keyword">false</font>;
+00211 
+00212   <font class="comment">// Make attempts to perform T</font>
+00213   <font class="comment">// TODO: Differentiate between db-related exceptions and other exceptions?</font>
+00214   <font class="keywordflow">do</font>
+00215   {
+00216     --Attempts;
+00217 
+00218     <font class="comment">// Work on a copy of T2 so we can restore the starting situation if need be</font>
+00219     TRANSACTOR T2(T);
+00220     <font class="keywordflow">try</font>
+00221     {
+00222       <font class="keyword">typename</font> TRANSACTOR::argument_type X(*<font class="keyword">this</font>, T2.Name());
+00223       T2(X);
+00224       X.Commit();
+00225       Done = <font class="keyword">true</font>;
+00226     }
+00227     <font class="keywordflow">catch</font> (<font class="keyword">const</font> <a class="code" href="classpqxx_1_1in__doubt__error.html">in_doubt_error</a> &amp;)
+00228     {
+00229       <font class="comment">// Not sure whether transaction went through or not.  The last thing in</font>
+00230       <font class="comment">// the world that we should do now is retry.</font>
+00231       T2.OnDoubt();
+00232       <font class="keywordflow">throw</font>;
+00233     }
+00234     <font class="keywordflow">catch</font> (<font class="keyword">const</font> PGSTD::exception &amp;e)
+00235     {
+00236       <font class="comment">// Could be any kind of error.  </font>
+00237       T2.OnAbort(e.what());
+00238       <font class="keywordflow">if</font> (Attempts &lt;= 0) <font class="keywordflow">throw</font>;
+00239       <font class="keywordflow">continue</font>;
+00240     }
+00241     <font class="keywordflow">catch</font> (...)
+00242     {
+00243       <font class="comment">// Don't try to forge ahead if we don't even know what happened</font>
+00244       T2.OnAbort(<font class="stringliteral">"Unknown exception"</font>);
+00245       <font class="keywordflow">throw</font>;
+00246     }
+00247 
+00248     T2.OnCommit();
+00249   } <font class="keywordflow">while</font> (!Done);
+00250 }
+00251 
+00252 
+00253 }
+00254 
+00255 <font class="preprocessor">#endif</font>
+00256 <font class="preprocessor"></font>
+</pre></div><hr><address align="right"><small>Generated on Mon Sep 23 01:20:25 2002 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.16 </small></address>
