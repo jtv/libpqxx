@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
 AC_INIT([libpqxx],[0.1],[Jeroen T. Vermeulen <jtv@xs4all.nl>])
-AM_INIT_AUTOMAKE(dist-bzip2 dist-zip)
+AM_INIT_AUTOMAKE(libpqxx, 0.1)
 AC_CONFIG_SRCDIR([src/connection.cxx])
 AM_CONFIG_HEADER(config.h)
 
@@ -199,5 +199,5 @@ AC_CHECK_TYPES([ptrdiff_t])
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset])
 
-AC_CONFIG_FILES([Makefile src/Makefile test/Makefile include/Makefile])
+AC_CONFIG_FILES([Makefile doc/Makefile src/Makefile test/Makefile include/Makefile])
 AC_OUTPUT

@@ -1,3 +1,10 @@
+2002-04-07 02:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ Configure.ac:
+  - Fixed AM_INIT_AUTOMAKE line
+ Readme:
+  - Described build & install procedure
+ Test6:
+  - Fixed handling of (expected) CreateTable failure
 2002-04-05 21:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Configure:
   - Finally found out what was missing: VERSION was undefined

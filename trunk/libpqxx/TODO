@@ -1,6 +1,6 @@
 Build
+(*) Get dist and maintainer-clean targets working
 (*) Move "check" postgres parameters into configure script
-(*) README & build instructions
 (*) Get object files into obj/ directory
 
 Error handling
