@@ -356,63 +356,149 @@ void pqxx::internal::FromString_ucharptr(const char Str[],
 }
 
 
-string pqxx::internal::Quote_string(const string &Obj, bool EmptyIsNull)
-{
-  if (EmptyIsNull && Obj.empty()) return "null";
-
-  string Result;
-  Result.reserve(Obj.size() + 2);
-  Result += "'";
-
 #ifdef PQXX_HAVE_PQESCAPESTRING
-
-  char *const Buf = new char[2*Obj.size() + 1];
+namespace
+{
+string libpq_escape(const char str[], size_t len)
+{
+  char *buf = 0;
+  string result;
+  
   try
   {
-    PQescapeString(Buf, Obj.c_str(), Obj.size());
-    Result += Buf;
+    /* Going by the letter of the PQescapeString() documentation we only need
+     * 2*len+1 bytes.  But what happens to nonprintable characters?  They might
+     * be escaped to octal notation, whether in current or future versions of
+     * libpq--in which case we would need this more conservative size.
+     */
+    buf = new char[5*len + 1];
   }
-  catch (const PGSTD::exception &)
+  catch (const bad_alloc &)
   {
-    delete [] Buf;
+    /* Okay, maybe we're just dealing with an extremely large string.  Try a
+     * more aggressive size limit, which is likely to be just fine.
+     */
+    buf = new char[2*len+1];
+  }
+
+  try
+  {
+    const size_t bytes = PQescapeString(buf, str, len);
+    result.assign(buf, bytes);
+  }
+  catch (const exception &)
+  {
+    delete [] buf;
     throw;
   }
-  delete [] Buf;
+  delete [] buf;
 
+  return result;
+}
+} // namespace
+#endif
+
+string pqxx::sqlesc(const char str[])
+{
+  string result;
+#ifdef PQXX_HAVE_PQESCAPESTRING
+  result = libpq_escape(str, strlen(str));
 #else
-
-  for (PGSTD::string::size_type i=0; i < Obj.size(); ++i)
+  for (size_t i=0; str[i]; ++i)
   {
-    if (isgraph(Obj[i]))
+    if (isprint(str[i]))
     {
-      switch (Obj[i])
+      switch (str[i])
       {
       case '\'':
       case '\\':
-	Result += '\\';
+	result += str[i];
       }
-      Result += Obj[i];
+      result += str[i];
     }
     else
     {
-        char s[10];
+        char s[8];
         sprintf(s, 
 	        "\\%03o", 
-		static_cast<unsigned int>(static_cast<unsigned char>(Obj[i])));
-        Result.append(s, 4);
+		static_cast<unsigned int>(static_cast<unsigned char>(str[i])));
+        result.append(s, 4);
     }
   }
+#endif
+  return result;
+}
 
+string pqxx::sqlesc(const char str[], size_t len)
+{
+  string result;
+#ifdef PQXX_HAVE_PQESCAPESTRING
+  result = libpq_escape(str, len);
+#else
+  for (size_t i=0; (i < len) && str[i]; ++i)
+  {
+    if (isprint(str[i]))
+    {
+      switch (str[i])
+      {
+      case '\'':
+      case '\\':
+	result += str[i];
+      }
+      result += str[i];
+    }
+    else
+    {
+        char s[8];
+        sprintf(s, 
+	        "\\%03o", 
+		static_cast<unsigned int>(static_cast<unsigned char>(str[i])));
+        result.append(s, 4);
+    }
+  }
 #endif
 
-  return Result + '\'';
+  return result;
+}
+
+
+string pqxx::sqlesc(const string &str)
+{
+  string result;
+  for (string::const_iterator i = str.begin(); i != str.end(); ++i)
+  {
+    if (isprint(*i) || isspace(*i))
+    {
+      switch (*i)
+      {
+      case '\'':
+      case '\\':
+	result += *i;
+      }
+      result += *i;
+    }
+    else
+    {
+        char s[8];
+        sprintf(s, 
+	        "\\%03o", 
+		static_cast<unsigned int>(static_cast<unsigned char>(*i)));
+        result.append(s, 4);
+    }
+  }
+  return result;
+}
+
+
+string pqxx::internal::Quote_string(const string &Obj, bool EmptyIsNull)
+{
+  return (EmptyIsNull && Obj.empty()) ? "null" : ("'" + sqlesc(Obj) + "'");
 }
 
 
 string pqxx::internal::Quote_charptr(const char Obj[], bool EmptyIsNull)
 {
-  if (!Obj) return "null";
-  return Quote(string(Obj), EmptyIsNull);
+  return Obj ? Quote(string(Obj), EmptyIsNull) : "null";
 }
 
 

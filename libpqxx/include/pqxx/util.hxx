@@ -290,16 +290,52 @@ template<> inline void FromString(const char Str[], bool &Obj)
   from_string(Str, Obj);
 }
 
-// TODO: Replace with sqlesc() and quote()
+
+/// Escape nul-terminated string for inclusion in SQL strings
+/** Use this to sanitize strings that may contain characters like backslashes
+ * or quotes.  You'll want to do this for all data received from outside your
+ * application that gets used in SQL--otherwise an attacker might crack your
+ * code by feeding it some string containing e.g. a closing quote followed by
+ * SQL commands you did not intend to execute.
+ *
+ * Unlike its predecessor Quote(), this function does not add SQL-style single
+ * quotes around the result string; nor does it recognize and generate nulls.
+ */
+PGSTD::string sqlesc(const char str[]);					//[t0]
+
+/// Escape string for inclusion in SQL strings
+/** Reads and escapes input string.  The string is terminated by either a nul
+ * character or the given byte length, whichever comes first.
+ *
+ * @param maxlen largest possible length of input string, not including optional
+ * terminating nul character.
+ *
+ * Unlike its predecessor Quote(), this function does not add SQL-style single
+ * quotes around the result string; nor does it recognize and generate nulls.
+ */
+PGSTD::string sqlesc(const char str[], size_t maxlen);			//[t0]
+
+/// Escape string for inclusion in SQL strings
+/** This function differs from similar ones based on libpq in that it handles
+ * embedded nul bytes correctly.
+ *
+ * Unlike its predecessor Quote(), this function does not add SQL-style single
+ * quotes around the result string; nor does it recognize and generate nulls.
+ */
+PGSTD::string sqlesc(const PGSTD::string &);				//[t0]
+
 
 /// Quote string for use in SQL
 /** Generate SQL-quoted version of string.  If EmptyIsNull is set, an empty
  * string will generate the null value rather than an empty string.
+ * @deprecated Use sqlesc instead.
  */
 template<typename T> PGSTD::string Quote(const T &Obj, bool EmptyIsNull);
 
 
 /// std::string version, on which the other versions are built
+/** @deprecated Use sqlesc instead.
+ */
 template<> 
 inline PGSTD::string Quote(const PGSTD::string &Obj, bool EmptyIsNull)
 {
@@ -307,6 +343,8 @@ inline PGSTD::string Quote(const PGSTD::string &Obj, bool EmptyIsNull)
 }
 
 /// Special case for const char *, accepting null pointer as null value
+/** @deprecated Use sqlesc instead.
+ */
 template<> inline PGSTD::string Quote(const char *const & Obj, bool EmptyIsNull)
 {
   return internal::Quote_charptr(Obj, EmptyIsNull);
@@ -320,7 +358,7 @@ template<> inline PGSTD::string Quote(const char *const & Obj, bool EmptyIsNull)
  * template here.
  */
 template<int LEN> inline PGSTD::string Quote(const char (&Obj)[LEN],
-    					     bool EmptyIsNull)		//[t18]
+    					     bool EmptyIsNull)
 {
   return internal::Quote_charptr(Obj, EmptyIsNull);
 }
@@ -338,6 +376,7 @@ template<typename T> inline PGSTD::string Quote(const T &Obj, bool EmptyIsNull)
 
 /// Quote string for use in SQL
 /** This version of the function never generates null values.
+ * @deprecated Use sqlesc instead.
  */
 template<typename T> inline PGSTD::string Quote(T Obj)
 {
