@@ -1,6 +1,24 @@
+2004-04-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in, include/pqxx/Makefile.am:
+  - Renamed config.h.in to internalconfig.h.in
+ include/pqxx/compiler.h:
+  - Renamed config.h to internalconfig.h to avoid confusion
+ include/pqxx/config.h.in:
+  - Deleted
+ include/pqxx/internalconfig.h.in:
+  - New
+ include/pqxx/libconfig.h.in:
+  - Removed some macros not used in library headers
+ test/test045.cxx:
+  - Quelled compiler warning
+ test/test049.cxx:
+  - Include internalconfig.h instead of libconfig.h
 2004-04-05  Roger Leigh <rleigh@debian.org>
  tools/Makefile.am:
   - Add $(top_builddir)/include to INCLUDES.
+2004-04-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection.hxx, include/pqxx/connection_base.hxx:
+  - Made dropconnect() throw ()
 2004-03-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/util.cxx:
   - Added missing include <locale>, thanks darx@darxi.purk.ee

@@ -4,7 +4,7 @@ MAINTAINERCLEANFILES=Makefile.in
 includedir=@includedir@/pqxx
 
 nodist_include_HEADERS = \
-	config.h \
+	internalconfig.h \
 	libconfig.h
 
 include_HEADERS= pqxx all.h \

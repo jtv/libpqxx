@@ -87,7 +87,7 @@ int main(int, char *argv[])
 
     unsigned long ul;
     from_string(R[0][0].c_str(), ul);
-    if (ui != l)
+    if (long(ui) != l)
       throw runtime_error("from_string() yields different unsigned long");
 
     short s;

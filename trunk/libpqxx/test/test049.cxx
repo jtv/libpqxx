@@ -6,6 +6,9 @@
 
 #include <pqxx/pqxx>
 
+// For count_if workaround
+#include <pqxx/internalconfig.h>
+
 using namespace PGSTD;
 using namespace pqxx;
 
