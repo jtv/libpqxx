@@ -40,12 +40,20 @@ int main(int argc, char *argv[])
     const string Table = ((argc >= 3) ? argv[2] : "pg_tables");
 
     Connection C(argv[1]);
+
+    // Tell C we won't be needing it for a while (not true, but let's pretend)
+    C.Deactivate();
+
+    // Now set up some data structures
+    vector<int> NullFields;		// Maps column to no. of null fields
+    vector<bool> SortedUp, SortedDown;	// Does column appear to be sorted?
+
+    // ...And reactivate C (not really needed, but it sounds more polite)
+    C.Activate();
+
     Transaction T(C, "test12");
 
     Result R( T.Exec("SELECT * FROM " + Table) );
-
-    vector<int> NullFields;		// Maps column to no. of null fields
-    vector<bool> SortedUp, SortedDown;	// Does column appear to be sorted?
 
     InitVector(NullFields, R.Columns(), 0);
     InitVector(SortedUp, R.Columns(), true);

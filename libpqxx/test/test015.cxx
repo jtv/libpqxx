@@ -50,6 +50,9 @@ int main(int, char *argv[])
   {
     Connection C(argv[1]);
 
+    // See if Deactivate() behaves...
+    C.Deactivate();
+
     C.Perform(ReadTables());
   }
   catch (const sql_error &e)

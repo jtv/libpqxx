@@ -1,3 +1,8 @@
+1.7.5
+ - added test052 - test055
+ - added Result::Tuple::ColumnNumber()
+ - also test setting of client encodings
+ - removed superfluous versions of to_file() from large object classes
 1.7.4
  - new exception class, sql_error, remembers query text
  - moved exception classes to new file include/pqxx/except.h

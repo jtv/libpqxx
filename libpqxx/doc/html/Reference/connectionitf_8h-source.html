@@ -90,7 +90,7 @@
 00115    * @param N the <span class="keyword">new</span> message handler; must not be null or equal to the old one
 00116    */
 00117   PGSTD::auto_ptr&lt;Noticer&gt; SetNoticer(PGSTD::auto_ptr&lt;Noticer&gt; N);      <span class="comment">//[t14]</span>
-<a name="l00118"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a7">00118</a>   Noticer *GetNoticer() <span class="keyword">const</span> <span class="keywordflow">throw</span> () { <span class="keywordflow">return</span> m_Noticer.get(); }      <span class="comment">//[]</span>
+<a name="l00118"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a7">00118</a>   Noticer *GetNoticer() <span class="keyword">const</span> <span class="keywordflow">throw</span> () { <span class="keywordflow">return</span> m_Noticer.get(); }      <span class="comment">//[t14]</span>
 00119 
 00121   <span class="keywordtype">void</span> ProcessNotice(<span class="keyword">const</span> <span class="keywordtype">char</span>[]) <span class="keywordflow">throw</span> ();                            <span class="comment">//[t14]</span>
 <a name="l00123"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a9">00123</a> <span class="comment">  void ProcessNotice(const PGSTD::string &amp;msg) throw ()                 //[t14]</span>
@@ -122,13 +122,13 @@
 00163         { <span class="keywordflow">return</span> m_Conn ? PQbackendPID(m_Conn) : 0; }
 00164 
 00166 
-<a name="l00176"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a18">00176</a>   <span class="keywordtype">void</span> Activate()<span class="keyword"> const </span>{ <span class="keywordflow">if</span> (!m_Conn) Connect(); }                     <span class="comment">//[]</span>
+<a name="l00176"></a><a class="code" href="classpqxx_1_1ConnectionItf.html#a18">00176</a>   <span class="keywordtype">void</span> Activate()<span class="keyword"> const </span>{ <span class="keywordflow">if</span> (!m_Conn) Connect(); }                     <span class="comment">//[t12]</span>
 00177 
 00179 
-00187   <span class="keywordtype">void</span> Deactivate() <span class="keyword">const</span>;                                              <span class="comment">//[]</span>
+00187   <span class="keywordtype">void</span> Deactivate() <span class="keyword">const</span>;                                              <span class="comment">//[t12]</span>
 00188 
 00190 
-00196   <span class="keywordtype">void</span> SetClientEncoding(<span class="keyword">const</span> <span class="keywordtype">char</span> Encoding[]);                        <span class="comment">//[]</span>
+00196   <span class="keywordtype">void</span> SetClientEncoding(<span class="keyword">const</span> <span class="keywordtype">char</span> Encoding[]);                        <span class="comment">//[t7]</span>
 00197 
 00198 <span class="keyword">protected</span>:
 00200   <span class="keywordtype">void</span> Connect() <span class="keyword">const</span>;
@@ -235,7 +235,7 @@
 00311 
 00312 <span class="preprocessor">#endif</span>
 00313 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Sun Mar 30 00:06:56 2003 for libpqxx by
+</pre></div><hr><address style="align: right;"><small>Generated on Sun Mar 30 20:02:12 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

@@ -115,7 +115,7 @@ public:
    * @param N the new message handler; must not be null or equal to the old one
    */
   PGSTD::auto_ptr<Noticer> SetNoticer(PGSTD::auto_ptr<Noticer> N);	//[t14]
-  Noticer *GetNoticer() const throw () { return m_Noticer.get(); }	//[]
+  Noticer *GetNoticer() const throw () { return m_Noticer.get(); }	//[t14]
 
   /// Invoke notice processor function.  The message should end in newline.
   void ProcessNotice(const char[]) throw ();				//[t14]
@@ -173,7 +173,7 @@ public:
    * Deactivate().  A good time to call Activate() might be just before you
    * first open a transaction on a lazy connection.
    */
-  void Activate() const { if (!m_Conn) Connect(); }			//[]
+  void Activate() const { if (!m_Conn) Connect(); }			//[t12]
 
   /// Explicitly deactivate connection.
   /** Like its counterpart Activate(), this method is entirely optional.  
@@ -184,7 +184,7 @@ public:
    * calls to Activate(), but calling Deactivate() during a transaction is an
    * error.
    */
-  void Deactivate() const;						//[]
+  void Deactivate() const;						//[t12]
 
   /// Set client-side character encoding
   /** Search the PostgreSQL documentation for "multibyte" or "character set
@@ -193,7 +193,7 @@ public:
    * with all client-side encodings or vice versa.
    * @param Encoding name of the character set encoding to use
    */
-  void SetClientEncoding(const char Encoding[]);			//[]
+  void SetClientEncoding(const char Encoding[]);			//[t7]
 
 protected:
   /// To be used by implementation classes: reall connecto to database

@@ -135,7 +135,7 @@ with_postgres_lib = @with_postgres_lib@
 INCLUDES = -I../include ${POSTGRES_INCLUDE}
 MAINTAINERCLEANFILES = Makefile.in
 
-TESTS = test001 test002 test003 test004 test005 test006 test007 test008 test009 test010 test011 test012 test013 test014 test015 test016 test017 test018 test019 test020 test021 test022 test023 test024 test025 test026 test027 test028 test029 test030 test031 test032 test033 test034 test035 test036 test037 test038 test039 test040 test041 test042 test043 test044 test045 test046 test047 test048 test049 test050 test051
+TESTS = test001 test002 test003 test004 test005 test006 test007 test008 test009 test010 test011 test012 test013 test014 test015 test016 test017 test018 test019 test020 test021 test022 test023 test024 test025 test026 test027 test028 test029 test030 test031 test032 test033 test034 test035 test036 test037 test038 test039 test040 test041 test042 test043 test044 test045 test046 test047 test048 test049 test050 test051 test052 test053 test054 test055
 check_PROGRAMS = ${TESTS}
 
 
@@ -293,6 +293,18 @@ test050_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
 
 test051_SOURCES = test051.cxx
 test051_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test052_SOURCES = test052.cxx
+test052_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test053_SOURCES = test053.cxx
+test053_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test054_SOURCES = test054.cxx
+test054_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
+
+test055_SOURCES = test055.cxx
+test055_LDADD = ../src/libpqxx.la ${POSTGRES_LIB}
 subdir = test
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h
@@ -313,7 +325,9 @@ check_PROGRAMS = test001$(EXEEXT) test002$(EXEEXT) test003$(EXEEXT) \
 	test040$(EXEEXT) test041$(EXEEXT) test042$(EXEEXT) \
 	test043$(EXEEXT) test044$(EXEEXT) test045$(EXEEXT) \
 	test046$(EXEEXT) test047$(EXEEXT) test048$(EXEEXT) \
-	test049$(EXEEXT) test050$(EXEEXT) test051$(EXEEXT)
+	test049$(EXEEXT) test050$(EXEEXT) test051$(EXEEXT) \
+	test052$(EXEEXT) test053$(EXEEXT) test054$(EXEEXT) \
+	test055$(EXEEXT)
 am_test001_OBJECTS = test001.$(OBJEXT)
 test001_OBJECTS = $(am_test001_OBJECTS)
 test001_DEPENDENCIES = ../src/libpqxx.la
@@ -518,6 +532,22 @@ am_test051_OBJECTS = test051.$(OBJEXT)
 test051_OBJECTS = $(am_test051_OBJECTS)
 test051_DEPENDENCIES = ../src/libpqxx.la
 test051_LDFLAGS =
+am_test052_OBJECTS = test052.$(OBJEXT)
+test052_OBJECTS = $(am_test052_OBJECTS)
+test052_DEPENDENCIES = ../src/libpqxx.la
+test052_LDFLAGS =
+am_test053_OBJECTS = test053.$(OBJEXT)
+test053_OBJECTS = $(am_test053_OBJECTS)
+test053_DEPENDENCIES = ../src/libpqxx.la
+test053_LDFLAGS =
+am_test054_OBJECTS = test054.$(OBJEXT)
+test054_OBJECTS = $(am_test054_OBJECTS)
+test054_DEPENDENCIES = ../src/libpqxx.la
+test054_LDFLAGS =
+am_test055_OBJECTS = test055.$(OBJEXT)
+test055_OBJECTS = $(am_test055_OBJECTS)
+test055_DEPENDENCIES = ../src/libpqxx.la
+test055_LDFLAGS =
 
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/include/pqxx
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
@@ -547,7 +577,9 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/test045.Po ./$(DEPDIR)/test046.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/test047.Po ./$(DEPDIR)/test048.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/test049.Po ./$(DEPDIR)/test050.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/test051.Po
+@AMDEP_TRUE@	./$(DEPDIR)/test051.Po ./$(DEPDIR)/test052.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/test053.Po ./$(DEPDIR)/test054.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/test055.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -572,9 +604,11 @@ DIST_SOURCES = $(test001_SOURCES) $(test002_SOURCES) $(test003_SOURCES) \
 	$(test040_SOURCES) $(test041_SOURCES) $(test042_SOURCES) \
 	$(test043_SOURCES) $(test044_SOURCES) $(test045_SOURCES) \
 	$(test046_SOURCES) $(test047_SOURCES) $(test048_SOURCES) \
-	$(test049_SOURCES) $(test050_SOURCES) $(test051_SOURCES)
+	$(test049_SOURCES) $(test050_SOURCES) $(test051_SOURCES) \
+	$(test052_SOURCES) $(test053_SOURCES) $(test054_SOURCES) \
+	$(test055_SOURCES)
 DIST_COMMON = Makefile.am Makefile.in
-SOURCES = $(test001_SOURCES) $(test002_SOURCES) $(test003_SOURCES) $(test004_SOURCES) $(test005_SOURCES) $(test006_SOURCES) $(test007_SOURCES) $(test008_SOURCES) $(test009_SOURCES) $(test010_SOURCES) $(test011_SOURCES) $(test012_SOURCES) $(test013_SOURCES) $(test014_SOURCES) $(test015_SOURCES) $(test016_SOURCES) $(test017_SOURCES) $(test018_SOURCES) $(test019_SOURCES) $(test020_SOURCES) $(test021_SOURCES) $(test022_SOURCES) $(test023_SOURCES) $(test024_SOURCES) $(test025_SOURCES) $(test026_SOURCES) $(test027_SOURCES) $(test028_SOURCES) $(test029_SOURCES) $(test030_SOURCES) $(test031_SOURCES) $(test032_SOURCES) $(test033_SOURCES) $(test034_SOURCES) $(test035_SOURCES) $(test036_SOURCES) $(test037_SOURCES) $(test038_SOURCES) $(test039_SOURCES) $(test040_SOURCES) $(test041_SOURCES) $(test042_SOURCES) $(test043_SOURCES) $(test044_SOURCES) $(test045_SOURCES) $(test046_SOURCES) $(test047_SOURCES) $(test048_SOURCES) $(test049_SOURCES) $(test050_SOURCES) $(test051_SOURCES)
+SOURCES = $(test001_SOURCES) $(test002_SOURCES) $(test003_SOURCES) $(test004_SOURCES) $(test005_SOURCES) $(test006_SOURCES) $(test007_SOURCES) $(test008_SOURCES) $(test009_SOURCES) $(test010_SOURCES) $(test011_SOURCES) $(test012_SOURCES) $(test013_SOURCES) $(test014_SOURCES) $(test015_SOURCES) $(test016_SOURCES) $(test017_SOURCES) $(test018_SOURCES) $(test019_SOURCES) $(test020_SOURCES) $(test021_SOURCES) $(test022_SOURCES) $(test023_SOURCES) $(test024_SOURCES) $(test025_SOURCES) $(test026_SOURCES) $(test027_SOURCES) $(test028_SOURCES) $(test029_SOURCES) $(test030_SOURCES) $(test031_SOURCES) $(test032_SOURCES) $(test033_SOURCES) $(test034_SOURCES) $(test035_SOURCES) $(test036_SOURCES) $(test037_SOURCES) $(test038_SOURCES) $(test039_SOURCES) $(test040_SOURCES) $(test041_SOURCES) $(test042_SOURCES) $(test043_SOURCES) $(test044_SOURCES) $(test045_SOURCES) $(test046_SOURCES) $(test047_SOURCES) $(test048_SOURCES) $(test049_SOURCES) $(test050_SOURCES) $(test051_SOURCES) $(test052_SOURCES) $(test053_SOURCES) $(test054_SOURCES) $(test055_SOURCES)
 
 all: all-am
 
@@ -745,6 +779,18 @@ test050$(EXEEXT): $(test050_OBJECTS) $(test050_DEPENDENCIES)
 test051$(EXEEXT): $(test051_OBJECTS) $(test051_DEPENDENCIES) 
 	@rm -f test051$(EXEEXT)
 	$(CXXLINK) $(test051_LDFLAGS) $(test051_OBJECTS) $(test051_LDADD) $(LIBS)
+test052$(EXEEXT): $(test052_OBJECTS) $(test052_DEPENDENCIES) 
+	@rm -f test052$(EXEEXT)
+	$(CXXLINK) $(test052_LDFLAGS) $(test052_OBJECTS) $(test052_LDADD) $(LIBS)
+test053$(EXEEXT): $(test053_OBJECTS) $(test053_DEPENDENCIES) 
+	@rm -f test053$(EXEEXT)
+	$(CXXLINK) $(test053_LDFLAGS) $(test053_OBJECTS) $(test053_LDADD) $(LIBS)
+test054$(EXEEXT): $(test054_OBJECTS) $(test054_DEPENDENCIES) 
+	@rm -f test054$(EXEEXT)
+	$(CXXLINK) $(test054_LDFLAGS) $(test054_OBJECTS) $(test054_LDADD) $(LIBS)
+test055$(EXEEXT): $(test055_OBJECTS) $(test055_DEPENDENCIES) 
+	@rm -f test055$(EXEEXT)
+	$(CXXLINK) $(test055_LDFLAGS) $(test055_OBJECTS) $(test055_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT) core *.core
@@ -803,6 +849,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test049.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test050.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test051.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test052.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test053.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test054.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test055.Po@am__quote@
 
 distclean-depend:
 	-rm -rf ./$(DEPDIR)

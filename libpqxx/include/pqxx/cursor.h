@@ -66,7 +66,7 @@ public:
   /// Exception thrown when cursor position is requested, but is unknown
   struct unknown_position : PGSTD::runtime_error
   {
-    unknown_position(const PGSTD::string &cursorname) :			//[]
+    unknown_position(const PGSTD::string &cursorname) :
       PGSTD::runtime_error("Position for cursor '" + cursorname + "' "
 	                   "is unknown") 
     {
