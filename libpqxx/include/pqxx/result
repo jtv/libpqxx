@@ -100,6 +100,18 @@ public:
     size_type column_number(const char ColName[]) const			//[t30]
       	{ return m_Home->column_number(ColName); }
 
+    /// Type of given column
+    oid column_type(size_type ColNum) const				//[]
+	{ return m_Home->column_type(ColNum); }
+
+    /// Type of given column
+    oid column_type(const PGSTD::string &ColName) const			//[]
+      	{ return column_type(column_number(ColName)); }
+
+    /// Type of given column
+    oid column_type(const char ColName[]) const				//[]
+      	{ return column_type(column_number(ColName)); }
+
   protected:
     const result *m_Home;
     result::size_type m_Index;
@@ -109,7 +121,7 @@ public:
   };
 
 #ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated For compabilitiy with old Tuple class
+  /// @deprecated For compatibility with old Tuple class
   typedef tuple Tuple;
 #endif
 
@@ -138,8 +150,17 @@ public:
      */
     const char *c_str() const {return m_Home->GetValue(m_Index,m_Col);}	//[t2]
 
+#ifdef PQXX_DEPRECATED_HEADERS
+    /// @deprecated Use name() instead
+    const char *Name() const {return name();}				//[t11]
+#endif
+
     /// Column name
-    inline const char *Name() const;					//[t11]
+    inline const char *name();
+
+    /// Column type
+    oid type() const 							//[]
+    	{ return m_Home->column_type(m_Col); }
 
     /// Read value into Obj; or leave Obj untouched & return false if null
     /** @warning The conversion is done using the currently active locale, 
@@ -316,6 +337,18 @@ public:
   /// Name of column with this number (throws exception if it doesn't exist)
   const char *column_name(tuple::size_type Number) const;		//[t11]
 
+  /// Type of given column
+  inline oid column_type(tuple::size_type ColNum) const;		//[]
+
+  /// Type of given column
+  oid column_type(const PGSTD::string &ColName) const			//[]
+    	{ return column_type(column_number(ColName)); }
+
+  /// Type of given column
+  oid column_type(const char ColName[]) const				//[]
+    	{ return column_type(column_number(ColName)); }
+
+
   /// If command was INSERT of 1 row, return oid of inserted row
   /** Returns oid_none otherwise. 
    */
@@ -486,6 +519,16 @@ result::const_iterator::operator-(const_iterator i) const
 inline result::const_iterator result::end() const 
 { 
   return const_iterator(this, size()); 
+}
+
+inline oid result::column_type(tuple::size_type ColNum) const
+{
+  const oid T = PQftype(m_Result, ColNum);
+  if (T == oid_none)
+    throw invalid_argument("Attempt to retrieve type of nonexistant column " +
+	                   ToString(ColNum) + " "
+			   "of query result");
+  return T;
 }
 
 } // namespace pqxx

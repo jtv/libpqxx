@@ -97,13 +97,24 @@ public:
   explicit connection_base(const char ConnInfo[]);			//[t2]
 
   /// Destructor.  Implicitly closes the connection.
-  virtual ~connection_base() =0;						//[t1]
+  virtual ~connection_base() =0;					//[t1]
+
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use disconnect() instead
+  void Disconnect() throw () { disconnect(); }
+#endif
 
   /// Explicitly close connection.
-  void Disconnect() throw ();					//[t2]
+  void disconnect() throw ();						//[t2]
 
   /// Is this connection open?
   bool is_open() const;							//[t1]
+
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use perform() instead
+  template<typename TRANSACTOR> void Perform(const TRANSACTOR &T, int A=3)
+	{ return perform(T,A); }
+#endif
 
   /// Perform the transaction defined by a transactor-based object.
   /** The function may create and execute several copies of the transactor

@@ -62,14 +62,19 @@ template<> inline PGSTD::string Classname(const tablestream *)
  */
 class PQXX_LIBEXPORT transaction_base
 {
-  // TODO: Move commit policy (robust, default, normal) out of inheritance tree
-  // TODO: Support read-only transactions (no retry, not for nontransaction)
   // TODO: Retry non-serializable transaction w/update only on broken_connection
 public:
   /// If nothing else is known, our isolation level is at least read_committed
   typedef isolation_traits<read_committed> isolation_tag;
 
   virtual ~transaction_base() =0;					//[t1]
+
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use commit() instead
+  void Commit() { commit(); }
+  /// @deprecated Use abort() instead
+  void Abort() { abort(); }
+#endif
 
   /// Commit the transaction
   /** Unless this function is called explicitly, the transaction will not be
@@ -84,20 +89,29 @@ public:
    * to make this fact known to the caller.  The robusttransaction 
    * implementation takes some special precautions to reduce this risk.
    */
-  void Commit();							//[t1]
+  void commit();							//[t1]
 
   /// Abort the transaction
   /** No special effort is required to call this function; it will be called
    * implicitly when the transaction is destructed.
    */
-  void Abort();								//[t10]
+  void abort();								//[t10]
+
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use exec() instead
+  result Exec(const char Q[], const PGSTD::string &D=PGSTD::string())
+	{ return exec(Q,D); }
+  /// @deprecated Use exec() instead
+  result Exec(const PGSTD::string &Q, const PGSTD::string &D=PGSTD::string())
+    	{ return exec(Q,D); }
+#endif
 
   /// Execute query
   /** Perform a query in this transaction.
    * @param Query the query or command to execute
    * @param Desc optional identifier for query, to help pinpoint SQL errors
    */
-  result Exec(const char Query[], 
+  result exec(const char Query[], 
       	      const PGSTD::string &Desc=PGSTD::string());		//[t1]
 
   /// Execute query
@@ -108,21 +122,42 @@ public:
    * @param Query the query or command to execute
    * @param Desc optional identifier for query, to help pinpoint SQL errors
    */
-  result Exec(const PGSTD::string &Query,
+  result exec(const PGSTD::string &Query,
               const PGSTD::string &Desc=PGSTD::string()) 		//[t2]
   	{ return Exec(Query.c_str(), Desc); }
 
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use process_notice() instead
+  void ProcessNotice(const char M[]) const { return process_notice(M); }
+  /// @deprecated Use process_notice() instead
+  void ProcessNotice(const PGSTD::string &M) const { return process_notice(M); }
+#endif
+
   /// Have connection process warning message
-  void ProcessNotice(const char Msg[]) const 				//[t14]
+  void process_notice(const char Msg[]) const 				//[t14]
   	{ m_Conn.ProcessNotice(Msg); }
   /// Have connection process warning message
-  void ProcessNotice(const PGSTD::string &Msg) const			//[t14]
+  void process_notice(const PGSTD::string &Msg) const			//[t14]
   	{ m_Conn.ProcessNotice(Msg); }
 
-  PGSTD::string Name() const { return m_Name; }				//[t1]
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use name() instead
+  PGSTD::string Name() const { return name(); }
+
+  /// @deprecated Use conn() instead
+  connection_base &Conn() const { return conn(); }
+#endif
+
+  PGSTD::string name() const { return m_Name; }				//[t1]
 
   /// Connection this transaction is running in
-  connection_base &Conn() const { return m_Conn; }			//[t4]
+  connection_base &conn() const { return m_Conn; }			//[t4]
+
+#ifdef PQXX_DEPRECATED_HEADERS
+  /// @deprecated Use set_variable() instead
+  void SetVariable(const PGSTD::string &Var, const PGSTD::string &Val)
+    	{ set_variable(Var,Val); }
+#endif
 
   /// Set session variable in this connection
   /** The new value is typically forgotten if the transaction aborts.  
@@ -131,9 +166,9 @@ public:
    * regardless, but if the connection ever needs to be recovered, the set value
    * will not be restored.
    * @param Var the variable to set
-   * @param Value the value to store in the variable
+   * @param Val the value to store in the variable
    */
-  void SetVariable(const PGSTD::string &Var, const PGSTD::string &Value);//[]
+  void set_variable(const PGSTD::string &Var, const PGSTD::string &Val);//[]
 
 
 protected:
