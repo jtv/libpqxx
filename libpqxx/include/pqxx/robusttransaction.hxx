@@ -49,6 +49,7 @@ private:
   typedef unsigned long IDType;
   IDType m_ID;
   PGSTD::string m_LogTable;
+  int m_backendpid;
 
   virtual void do_begin();						//[t18]
   virtual void do_commit();						//[t16]

@@ -39,7 +39,8 @@ pqxx::basic_robusttransaction::basic_robusttransaction(connection_base &C,
       TName, 
       "robusttransaction<"+IsolationLevel+">"),
   m_ID(oid_none),
-  m_LogTable()
+  m_LogTable(),
+  m_backendpid(-1)
 {
   m_LogTable = string("PQXXLOG_") + conn().username();
 }
@@ -65,6 +66,7 @@ void pqxx::basic_robusttransaction::do_begin()
     try { DirectExec(SQL_ROLLBACK_WORK); } catch (const exception &e) {}
     CreateLogTable();
     start_backend_transaction();
+    m_backendpid = conn().backendpid();
     CreateTransactionRecord();
   }
 }
@@ -115,7 +117,6 @@ void pqxx::basic_robusttransaction::do_commit()
       // See if transaction record ID exists; if yes, our transaction was 
       // committed before the connection went down.  If not, the transaction 
       // was aborted.
-      // TODO: What if transaction is still executing when we reconnect!?
       bool Exists;
       try
       {
@@ -123,19 +124,21 @@ void pqxx::basic_robusttransaction::do_commit()
       }
       catch (const exception &f)
       {
-	// Couldn't reconnect to check for transaction record.  We're still in 
-	// doubt as to whether the transaction was performed.
-	process_notice(string(f.what()) + "\n");
-
+	// Couldn't check for transaction record.  We're still in doubt as to
+	// whether the transaction was performed.
         const string Msg = "WARNING: "
 		    "Connection lost while committing transaction "
 		    "'" + name() + "' (oid " + to_string(ID) + "). "
 		    "Please check for this record in the "
 		    "'" + m_LogTable + "' table.  "
 		    "If the record exists, the transaction was executed. "
-		    "If not, then it hasn't.";
+		    "If not, then it hasn't.\n";
 
-        process_notice(Msg + "\n");
+        process_notice(Msg);
+	process_notice("Could not verify existence of transaction record "
+	    "because of the following error:\n");
+	process_notice(string(f.what()) + "\n");
+
         throw in_doubt_error(Msg);
       }
  
@@ -240,6 +243,38 @@ void pqxx::basic_robusttransaction::DeleteTransactionRecord(IDType ID) throw ()
 // Attempt to establish whether transaction record with given ID still exists
 bool pqxx::basic_robusttransaction::CheckTransactionRecord(IDType ID)
 {
+  /* First, wait for the old backend (with the lost connection) to die.
+   *
+   * On 2004-09-18, Tom Lane wrote:
+   *
+   * I don't see any reason for guesswork.  Remember the PID of the backend
+   * you were connected to.  On reconnect, look in pg_stat_activity to see
+   * if that backend is still alive; if so, sleep till it's not.  Then check
+   * to see if your transaction committed or not.  No need for anything so
+   * dangerous as a timeout.
+   */
+  /* Actually, looking if the query has finished is only possible if the
+   * stats_command_string has been set in postgresql.conf and we're running
+   * as the postgres superuser.  If we get a string saying this option has not
+   * been enabled, we must wait as if the query were still executing--and hope
+   * that the backend dies.
+   */
+  // TODO: Tom says we need stats_start_collector, not stats_command_string!?
+  bool hold = true;
+  for (int c=20; hold && c; internal::sleep_seconds(5), --c)
+  {
+    const result R(DirectExec(("SELECT current_query "
+	  "FROM pq_stat_activity "
+	  "WHERE procpid=" + to_string(m_backendpid)).c_str()));
+    hold = (!R.empty() && 
+      !R[0][0].as(string()).empty() &&
+      (R[0][0].as(string()) != "<IDLE>"));
+  }
+
+  if (hold) 
+    throw runtime_error("Old backend process stays alive too long to wait for");
+
+  // Now look for our transaction record
   const string Find = "SELECT oid FROM " + m_LogTable + " "
 	              "WHERE oid=" + to_string(ID);
 
