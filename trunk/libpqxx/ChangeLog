@@ -1,3 +1,7 @@
+2003-05-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.h:
+  - Fixed wrong argument type for PQfreemem() on systems that have it
+  - Fixed missing export directive on Unique
 2003-05-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test056.cxx:
   - New

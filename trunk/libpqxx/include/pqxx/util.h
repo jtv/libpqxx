@@ -245,7 +245,7 @@ template<typename T> PGSTD::string Classname(const T *);
  * used to free the memory.  If not, free() is used instead.  This matters on
  * Windows, where memory allocated by a DLL must be freed by the same DLL.
  */
-template<typename T> class PQAlloc
+template<typename T> class PQXX_LIBEXPORT PQAlloc
 {
   T *m_Obj;
 public:
@@ -301,7 +301,7 @@ private:
   void freemem() throw ()
   {
 #ifdef HAVE_PQFREEMEM
-    PQfreemem(m_Obj);
+    PQfreemem(reinterpret_cast<unsigned char *>(m_Obj));
 #else
     free(m_Obj);
 #endif
@@ -319,7 +319,7 @@ private:
 /// for the guest type, and that GUEST::Name() returns a user-readable name for
 /// the GUEST object.
 template<typename GUEST>
-class Unique
+class PQXX_LIBEXPORT Unique
 {
 public:
   Unique() : m_Guest(0) {}
