@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_robusttransaction.h
+ *	pqxx/robusttransaction.h
  *
  *   DESCRIPTION
  *      definition of the Pg::RobustTransaction class.
@@ -35,8 +35,8 @@
  * added work and complexity.  What RobustTransaction tries to achieve is to
  * be more deterministic, not more successful per se.
  */
-#include "pg_connection.h"
-#include "pg_transactionitf.h"
+#include "pqxx/connection.h"
+#include "pqxx/transactionitf.h"
 
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"

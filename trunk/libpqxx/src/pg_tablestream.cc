@@ -11,8 +11,8 @@
  *
  *-------------------------------------------------------------------------
  */
-#include "pg_tablestream.h"
-#include "pg_transaction.h"
+#include "pqxx/tablestream.h"
+#include "pqxx/transaction.h"
 
 using namespace PGSTD;
 

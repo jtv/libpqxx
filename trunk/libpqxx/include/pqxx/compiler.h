@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_compiler.h
+ *	pqxx/compiler.h
  *
  *   DESCRIPTION
  *      Compiler deficiency workarounds

@@ -14,10 +14,10 @@
  */
 #include <stdexcept>
 
-#include "pg_connection.h"
-#include "pg_result.h"
-#include "pg_tablestream.h"
-#include "pg_transactionitf.h"
+#include "pqxx/connection.h"
+#include "pqxx/result.h"
+#include "pqxx/tablestream.h"
+#include "pqxx/transactionitf.h"
 
 
 using namespace PGSTD;

@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_connection.h
+ *	pqxx/connection.h
  *
  *   DESCRIPTION
  *      definition of the Pg::Connection class.
@@ -17,8 +17,8 @@
 #include <map>
 #include <stdexcept>
 
-#include "pg_transactor.h"
-#include "pg_util.h"
+#include "pqxx/transactor.h"
+#include "pqxx/util.h"
 
 /* Use of the libpqxx library starts here.
  *
@@ -34,10 +34,10 @@
 
 namespace Pg
 {
-class in_doubt_error;	// See pg_transactionitf.h
-class Result;		// See pg_result.h
-class TransactionItf;	// See pg_transactionitf.h
-class Trigger;		// See pg_trigger.h
+class in_doubt_error;	// See pqxx/transactionitf.h
+class Result;		// See pqxx/result.h
+class TransactionItf;	// See pqxx/transactionitf.h
+class Trigger;		// See pqxx/trigger.h
 
 extern "C" { typedef void (*NoticeProcessor)(void *arg, const char *msg); }
 
@@ -63,9 +63,9 @@ public:
 // with a database through libpqxx.  It is automatically opened by its
 // constructor, and automatically closed upon destruction, if it hasn't already
 // been closed manually.
-// To query or manipulate the database once connected, use the Transaction
-// class (see pg_transaction.h) or preferably the Transactor framework (see 
-// pg_transactor.h).
+// To query or manipulate the database once connected, use one of the 
+// Transaction classes (see pqxx/transactionitf.h) or preferably the Transactor 
+// framework (see pqxx/transactor.h).
 class Connection
 {
 public:

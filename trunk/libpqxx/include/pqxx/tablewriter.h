@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_tablewriter.h
+ *	pqxx/tablewriter.h
  *
  *   DESCRIPTION
  *      definition of the Pg::TableWriter class.
@@ -16,7 +16,7 @@
 
 #include <string>
 
-#include "pg_tablestream.h"
+#include "pqxx/tablestream.h"
 
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
@@ -24,7 +24,7 @@
 
 namespace Pg
 {
-class TableReader;	// See pg_tablereader.h
+class TableReader;	// See pqxx/tablereader.h
 
 class TableWriter : public TableStream
 {

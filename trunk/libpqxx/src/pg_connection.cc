@@ -13,10 +13,10 @@
  */
 #include <stdexcept>
 
-#include "pg_connection.h"
-#include "pg_result.h"
-#include "pg_transaction.h"
-#include "pg_trigger.h"
+#include "pqxx/connection.h"
+#include "pqxx/result.h"
+#include "pqxx/transaction.h"
+#include "pqxx/trigger.h"
 
 
 using namespace PGSTD;

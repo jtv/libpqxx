@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_transactor.h
+ *	pqxx/transactor.h
  *
  *   DESCRIPTION
  *      definition of the Pg::Transactor class.
@@ -11,7 +11,7 @@
  *
  *-------------------------------------------------------------------------
  */
-#include "pg_compiler.h"
+#include "pqxx/compiler.h"
 
 /* Some transactions may be replayed if their connection fails, until they do 
  * succeed.  These can be encapsulated in a Transactor-derived classes.  The 
@@ -26,7 +26,7 @@
  * former go into the Transactor-based class.
  *
  * Pass an object of your Transactor-based class to Connection::Perform() to
- * execute the transaction code embedded in it (see pg_connection.h).
+ * execute the transaction code embedded in it (see pqxx/connection.h).
  *
  * Connection::Perform() is actually a template, specializing itself to any
  * Transactor type you pass to it.  This means you will have to pass it a

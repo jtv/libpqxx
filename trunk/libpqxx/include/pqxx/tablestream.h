@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_tablestream.h
+ *	pqxx/tablestream.h
  *
  *   DESCRIPTION
  *      definition of the Pg::TableStream class.
@@ -16,7 +16,7 @@
 
 #include <string>
 
-#include "pg_compiler.h"
+#include "pqxx/compiler.h"
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */

@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "pg_connection.h"
-#include "pg_nontransaction.h"
-#include "pg_result.h"
+#include "pqxx/connection.h"
+#include "pqxx/nontransaction.h"
+#include "pqxx/result.h"
 
 using namespace PGSTD;
 using namespace Pg;

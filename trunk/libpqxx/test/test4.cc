@@ -1,11 +1,14 @@
 #include <iostream>
 
+extern "C"
+{
 #include <unistd.h>
+}
 
-#include "pg_connection.h"
-#include "pg_transaction.h"
-#include "pg_trigger.h"
-#include "pg_result.h"
+#include "pqxx/connection.h"
+#include "pqxx/transaction.h"
+#include "pqxx/trigger.h"
+#include "pqxx/result.h"
 
 using namespace PGSTD;
 using namespace Pg;

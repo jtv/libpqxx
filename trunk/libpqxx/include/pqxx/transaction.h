@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pg_transaction.h
+ *	pqxx/transaction.h
  *
  *   DESCRIPTION
  *      definition of the Pg::Transaction class.
@@ -17,7 +17,7 @@
 /* While you may choose to create your own Transaction object to interface to 
  * the database backend, it is recommended that you wrap your transaction code 
  * into a Transactor code instead and let the Transaction be created for you.
- * See pg_transactor.h for more about Transactor.
+ * See pqxx/transactor.h for more about Transactor.
  *
  * If you should find that using a Transactor makes your code less portable or 
  * too complex, go ahead, create your own Transaction anyway.
@@ -38,8 +38,8 @@
 //   T.Abort();		// Usually not needed; same happens when T's life ends.
 // }
 
-#include "pg_connection.h"
-#include "pg_transactionitf.h"
+#include "pqxx/connection.h"
+#include "pqxx/transactionitf.h"
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */
