@@ -27,7 +27,6 @@
 using namespace PGSTD;
 
 
-#define SQL_BEGIN_WORK 		"BEGIN"
 #define SQL_COMMIT_WORK 	"COMMIT"
 #define SQL_ROLLBACK_WORK 	"ROLLBACK"
 
@@ -49,8 +48,7 @@ pqxx::basic_robusttransaction::~basic_robusttransaction()
 
 void pqxx::basic_robusttransaction::do_begin()
 {
-  // Start backend transaction
-  DirectExec(SQL_BEGIN_WORK, 2, 0);
+  start_backend_transaction();
 
   try
   {
@@ -60,29 +58,11 @@ void pqxx::basic_robusttransaction::do_begin()
   {
     // The problem here *may* be that the log table doesn't exist yet.  Create
     // one, start a new transaction, and try again.
-    DirectExec(SQL_ROLLBACK_WORK, 2, 0);
+    try { DirectExec(SQL_ROLLBACK_WORK, 2); } catch (const exception &e) {}
     CreateLogTable();
-    DirectExec(SQL_BEGIN_WORK, 2, 0);
+    start_backend_transaction();
     CreateTransactionRecord();
   }
-}
-
-
-
-pqxx::result pqxx::basic_robusttransaction::do_exec(const char Query[])
-{
-  result R;
-  try
-  {
-    R = DirectExec(Query, 0, 0);
-  }
-  catch (const exception &)
-  {
-    try { abort(); } catch (const exception &) { }
-    throw;
-  }
-
-  return R;
 }
 
 
@@ -107,7 +87,7 @@ void pqxx::basic_robusttransaction::do_commit()
   // their constraints.  Besides, the goal of robusttransaction is to weed out
   // indeterminacy, rather than to improve the odds of desirable behaviour when
   // all bets are off anyway.
-  DirectExec("SET CONSTRAINTS ALL IMMEDIATE", 0, 0);
+  DirectExec("SET CONSTRAINTS ALL IMMEDIATE");
 
   // Here comes the critical part.  If we lose our connection here, we'll be 
   // left clueless as to whether the backend got the message and is trying to
@@ -116,7 +96,7 @@ void pqxx::basic_robusttransaction::do_commit()
   // is.
   try
   {
-    DirectExec(SQL_COMMIT_WORK, 0, 0);
+    DirectExec(SQL_COMMIT_WORK);
   }
   catch (const exception &e)
   {
@@ -182,7 +162,7 @@ void pqxx::basic_robusttransaction::do_abort()
 
   // Rollback transaction.  Our transaction record will be dropped as a side
   // effect, which is what we want since "it never happened."
-  DirectExec(SQL_ROLLBACK_WORK, 0, 0);
+  DirectExec(SQL_ROLLBACK_WORK);
 }
 
 
@@ -197,7 +177,7 @@ void pqxx::basic_robusttransaction::CreateLogTable()
 	               "date TIMESTAMP"
 	               ")";
 
-  try { DirectExec(CrTab.c_str(), 0, 0); } catch (const exception &) { }
+  try { DirectExec(CrTab.c_str()); } catch (const exception &) { }
 }
 
 
@@ -211,7 +191,7 @@ void pqxx::basic_robusttransaction::CreateTransactionRecord()
 	                "CURRENT_TIMESTAMP"
 	                ")";
 
-  m_ID = DirectExec(Insert.c_str(), 0, 0).inserted_oid();
+  m_ID = DirectExec(Insert.c_str()).inserted_oid();
 
   if (m_ID == oid_none) 
     throw runtime_error("Could not create transaction log record");
@@ -229,7 +209,7 @@ void pqxx::basic_robusttransaction::DeleteTransactionRecord(IDType ID) throw ()
     const string Del = "DELETE FROM " + m_LogTable + " "
 	               "WHERE oid=" + ToString(ID);
 
-    DirectExec(Del.c_str(), 20, 0);
+    DirectExec(Del.c_str(), 20);
 
     // Now that we've arrived here, we're almost sure that record is quite dead.
     ID = oid_none;
@@ -257,6 +237,6 @@ bool pqxx::basic_robusttransaction::CheckTransactionRecord(IDType ID)
   const string Find = "SELECT oid FROM " + m_LogTable + " "
 	              "WHERE oid=" + ToString(ID);
 
-  return !DirectExec(Find.c_str(), 20, 0).empty();
+  return !DirectExec(Find.c_str(), 20).empty();
 }
 

@@ -346,9 +346,7 @@ pqxx::result pqxx::connection_base::Exec(const char Query[],
   // TODO: Is this really right?  What if there's just no memory?
   if (!R) throw broken_connection();
   R.CheckStatus(Query);
-
   get_notifs();
-
   return R;
 }
 

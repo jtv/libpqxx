@@ -51,7 +51,6 @@ private:
   PGSTD::string m_LogTable;
 
   virtual void do_begin();						//[t18]
-  virtual result do_exec(const char[]);					//[t18]
   virtual void do_commit();						//[t16]
   virtual void do_abort();						//[t18]
 

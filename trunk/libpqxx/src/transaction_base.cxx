@@ -304,12 +304,10 @@ void pqxx::transaction_base::UnregisterStream(tablestream *S) throw ()
 }
 
 
-pqxx::result pqxx::transaction_base::DirectExec(const char C[], 
-		                      int Retries,
-				      const char OnReconnect[])
+pqxx::result pqxx::transaction_base::DirectExec(const char C[], int Retries)
 {
   CheckPendingError();
-  return m_Conn.Exec(C, Retries, OnReconnect);
+  return m_Conn.Exec(C, Retries);
 }
 
 
