@@ -109,7 +109,7 @@ int main(int, char *argv[])
 {
   try
   {
-    Connection C(argv[1] ? argv[1] : "");
+    Connection C(argv[1]);
     cout << "Adding trigger..." << endl;
     TestTrig Trig(C);
 

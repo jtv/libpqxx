@@ -1,3 +1,21 @@
+2003-02-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection.h, src/connection.cxx, test/test*.cxx:
+  - Connection constructor now accepts null connection string
+  - Default constructor for Connection creates lazy connection
+2003-02-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Bumped revision to 1.4.0
+ include/pqxx/connection.h, src/connection.cxx, test/test1.cxx:
+  - Rename Connection::IsOpen() to is_open() to conform to Standard Library
+ include/pqxx/connection.h, src/connection.cxx, test/test1.cxx,
+ test/test10.cxx, test/test14.cxx:
+  - Introduced Noticer to replace NoticeProcessor (which had C linkage)
+  - Deprecated NoticeProcessor
+ test/test13.cxx, test/test15.cxx, test/test16.cxx, test/test17.cxx,
+ test/test18.cxx, test/test21.cxx, test/test29.cxx, test/test32.cxx, 
+ test/test33.cxx, test/test34.cxx, test/test35.cxx, test/test36.cxx,
+ test/test37.cxx:
+  - Removed unnecessary custom NoticeProcessors
 2003-02-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac:
   - Fix spurious "yes" (or "no") in configure output

@@ -1,3 +1,6 @@
+Connections
+(*) Connection pooling support
+
 Results
 (*) Conceive metadata model
 (*) Allow direct mapping onto structs, using member ptr template args (?)
@@ -8,7 +11,7 @@ RobustTransaction
 
 Streams
 (*) Provide metadata information in TableStream
-(*) Work streamable (and prefetching!) result sets into Stream hierarchy
+(*) Work large objects into standard streams hierarchy
 
 Triggers
 (*) Allow access to Connection's triggers list?
@@ -19,3 +22,4 @@ Nonblocking operation
 
 Build system
 (*) Completely support building outside the source directory
+

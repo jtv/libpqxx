@@ -27,18 +27,8 @@ using namespace pqxx;
 // coincidence.
 
 
-// Function to print database's warnings  to cerr
 namespace
 {
-
-extern "C"
-{
-void ReportWarning(void *, const char msg[])
-{
-  cerr << msg;
-}
-}
-
 
 // Let's take a boring year that is not going to be in the "events" table
 const int BoringYear = 1977;
@@ -115,8 +105,7 @@ int main(int argc, char *argv[])
 {
   try
   {
-    Connection C(argv[1] ? argv[1] : "");
-    C.SetNoticeProcessor(ReportWarning, 0);
+    Connection C(argv[1]);
 
     const string Table = ((argc > 2) ? argv[2] : "events");
 

@@ -1,3 +1,11 @@
+1.4.1
+ - Connection constructor accepts null connect string
+ - default Connection constructor creates lazy connection
+1.4.0
+ - Connection::IsOpen() renamed to is_open()
+ - NoticeProcessor replaced by Noticer (with C++ linkage)
+1.3.7:
+ - detects nasty rare problem case with Cursors in unknown positions
 1.3.6:
  - fixed detection of missing PQescapeString().  Thanks David Wright!
 v1.3.5:

@@ -228,8 +228,6 @@ void pqxx::RobustTransaction::DeleteTransactionRecord(IDType ID) throw ()
 	          "Failed to delete obsolete transaction record with oid " + 
 		  ToString(ID) + " ('" + Name() + "'). "
 		  "Please delete it manually.  Thank you.\n");
-
-    // TODO: Maintain log of known garbage transaction IDs (failed deletions)?
   }
   catch (const exception &)
   {
