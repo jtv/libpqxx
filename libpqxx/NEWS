@@ -1,11 +1,13 @@
 2.1.3
- - Extended automation of build/release procedure
+ - Bugfix in robusttransaction: forgot to set isolation level
+ - Uses older isolation level syntax for compatibility, thanks koun@sina.com!
  - tablestreams can explicitly complete() before destructor
  - Fixed off-by-ones in tablewriter escape code
  - tablestreams now use \n-style escape sequences
  - tablestreams support octal numbers
  - Freely definable "null" strings in tablestreams, as originally intended
  - tablestreams use libpq's new-style COPY functions, if available
+ - Extended automation of build/release procedure
 2.1.2
  - Compile fix for gcc libstdc++ 2.9, thanks Jaroslaw Staniek
  - Moved deprecated functions below current ones

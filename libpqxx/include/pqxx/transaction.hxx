@@ -60,7 +60,6 @@ protected:
 
 private:
   virtual void do_begin();						//[t1]
-  virtual result do_exec(const char[]);					//[t1]
   virtual void do_commit();						//[t1]
   virtual void do_abort();						//[t13]
 

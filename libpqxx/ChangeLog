@@ -1,3 +1,20 @@
+2003-11-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/dbtransaction.hxx:
+  - Use old-style isolation level syntax, thanks koun@sina.com!
+  - "Start command" no longer starts transaction; only sets isolation level
+  - Isolation level only set if not the default
+  - New function start_backend_transaction()
+ include/pqxx/dbtransaction.hxx, include/pqxx/robusttransaction.hxx,
+ include/pqxx/transaction.hxx, src/robusttransaction.cxx, src/transaction.cxx:
+  - Factored out identical implementations of do_exec()
+ include/pqxx/transaction_base.hxx, src/transaction_base.cxx:
+  - Removed OnRetry parameter from DirectExec()
+  - Made Retries parameter for DirectExec() default to the safe choice of 0
+ src/robusttransaction.cxx:
+  - Forgot to set isolation level!
+  - Use start_backend_transaction()
+ src/transaction.cxx:
+  - Use start_backend_transaction()
 2003-11-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in, include/pqxx/tablereader.hxx, include/pqxx/tablewriter.hxx,
  src/tablereader.cxx, src/tablewriter.cxx:

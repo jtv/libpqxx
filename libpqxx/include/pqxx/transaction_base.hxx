@@ -181,7 +181,15 @@ protected:
   // For use by implementing class:
 
   /// Execute query on connection directly
-  result DirectExec(const char C[], int Retries, const char OnReconnect[]);
+  /** 
+   * @param C the query or command to execute
+   * @param Retries the number of times to retry the query if it fails.  Be
+   * extremely careful with this option; if you retry in the middle of a
+   * transaction, you may be setting up a new connection transparently and
+   * executing the latter part of the transaction without a backend transaction
+   * being active (and with the former part aborted).
+   */
+  result DirectExec(const char C[], int Retries=0);
  
 private:
   /* A transaction goes through the following stages in its lifecycle:

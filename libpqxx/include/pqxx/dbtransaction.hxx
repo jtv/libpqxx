@@ -58,15 +58,24 @@ protected:
 			 const PGSTD::string &IsolationString,
       			 const PGSTD::string &NName) :
     transaction_base(C, NName),
-    m_StartCmd("START TRANSACTION ISOLATION LEVEL " + IsolationString)
-  {}
+    m_StartCmd()
+  {
+    if (IsolationString != isolation_traits<read_committed>::name())
+      m_StartCmd = "SET TRANSACTION ISOLATION LEVEL " + IsolationString;
+  }
 
-  /// The SQL command needed to start this type of transaction
+  /// Start a transaction on the backend and set desired isolation level
+  void start_backend_transaction()
+  {
+    DirectExec("BEGIN", 2);
+    if (!startcommand().empty()) DirectExec(startcommand().c_str());
+  }
+
+  /// @deprecated This function has changed meanings.  Don't use it.
   const PGSTD::string &startcommand() const { return m_StartCmd; }
 
-
 #ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use startcommand() instead
+  /// @deprecated This function has changed meanings.  Don't use it.
   const PGSTD::string &StartCmd() const { return startcommand(); }
 #endif
 
@@ -74,8 +83,8 @@ private:
 
   /// To be implemented by derived class: start backend transaction
   virtual void do_begin() =0;
-  /// To be implemented by derived implementation class: perform query
-  virtual result do_exec(const char Query[]) =0;
+  /// Sensible default implemented here: perform query
+  virtual result do_exec(const char Query[]);				//[t1]
   /// To be implemented by derived class: commit backend transaction
   virtual void do_commit() =0;
   /// To be implemented by derived class: abort backend transaction
@@ -89,6 +98,22 @@ private:
 template<> inline PGSTD::string Classname(const dbtransaction *) 
 { 
   return "dbtransaction"; 
+}
+
+
+inline result dbtransaction::do_exec(const char Query[])
+{
+  result R;
+  try
+  {
+    R = DirectExec(Query);
+  }
+  catch (const PGSTD::exception &)
+  {
+    try { abort(); } catch (const PGSTD::exception &) {}
+    throw;
+  }
+  return R;
 }
 
 }

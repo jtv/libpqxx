@@ -33,35 +33,15 @@ using namespace PGSTD;
 
 void pqxx::basic_transaction::do_begin()
 {
-  // Start backend transaction
-  DirectExec(startcommand().c_str(), 2, 0);
+  start_backend_transaction();
 }
-
-
-
-pqxx::result pqxx::basic_transaction::do_exec(const char Query[])
-{
-  result R;
-  try
-  {
-    R = DirectExec(Query, 0, startcommand().c_str());
-  }
-  catch (const exception &)
-  {
-    try { abort(); } catch (const exception &) { }
-    throw;
-  }
-
-  return R;
-}
-
 
 
 void pqxx::basic_transaction::do_commit()
 {
   try
   {
-    DirectExec(SQL_COMMIT_WORK, 0, 0);
+    DirectExec(SQL_COMMIT_WORK);
   }
   catch (const exception &e)
   {
@@ -92,7 +72,7 @@ void pqxx::basic_transaction::do_commit()
 
 void pqxx::basic_transaction::do_abort()
 {
-  DirectExec(SQL_ROLLBACK_WORK, 0, 0);
+  DirectExec(SQL_ROLLBACK_WORK);
 }
 
 
