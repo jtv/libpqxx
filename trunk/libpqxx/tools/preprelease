@@ -135,6 +135,9 @@ TARBALL=$DISTNAME.tar.gz
 log "Generating autoconf/automake files"
 command "env NOCONFIGURE=1 ./autogen.sh" nice
 
+log "Configuring for make dist"
+command ./configure nice
+
 log "Creating $TARBALL"
 command "make dist" nice
 
