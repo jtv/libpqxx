@@ -103,7 +103,7 @@
 00145 
 00147 
 00150   std::auto_ptr&lt;Noticer&gt; SetNoticer(std::auto_ptr&lt;Noticer&gt; N);
-<a name="l00151"></a><a class="code" href="classpqxx_1_1Connection.html#a9">00151</a>   <a class="code" href="structpqxx_1_1Noticer.html">Noticer</a> *GetNoticer() <span class="keyword">const</span> <span class="keywordflow">throw</span> () { <span class="keywordflow">return</span> m_Noticer.get(); }
+<a name="l00151"></a><a class="code" href="classpqxx_1_1Connection.html#a9">00151</a>   <a class="code" href="structpqxx_1_1Noticer.html">Noticer</a> *GetNoticer() <span class="keyword">const</span> <span class="keywordflow">throw</span> () { <span class="keywordflow">return</span> m_Noticer.get(); }      <span class="comment">//[]</span>
 00152 
 00154   <span class="keywordtype">void</span> ProcessNotice(<span class="keyword">const</span> <span class="keywordtype">char</span>[]) <span class="keywordflow">throw</span> ();                            <span class="comment">//[t1]</span>
 <a name="l00156"></a><a class="code" href="classpqxx_1_1Connection.html#a11">00156</a> <span class="comment">  void ProcessNotice(const PGSTD::string &amp;msg) throw ()                 //[t1]</span>
@@ -237,7 +237,7 @@
 00328 
 00329 <span class="preprocessor">#endif</span>
 00330 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Tue Feb 25 20:09:35 2003 for libpqxx by
+</pre></div><hr><address style="align: right;"><small>Generated on Fri Feb 28 19:23:32 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

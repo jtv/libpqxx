@@ -41,8 +41,8 @@
 00045   TableReader(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;, <span class="keyword">const</span> PGSTD::string &amp;RName);            <span class="comment">//[t6]</span>
 00046   ~TableReader();                                                       <span class="comment">//[t6]</span>
 00047 
-00048   TableReader &amp;operator&gt;&gt;(<a class="code" href="classpqxx_1_1Result.html">Result</a> &amp;);
-00049   TableReader &amp;operator&gt;&gt;(PGSTD::string &amp;);
+00048   TableReader &amp;operator&gt;&gt;(<a class="code" href="classpqxx_1_1Result.html">Result</a> &amp;);                                    <span class="comment">//[]</span>
+00049   TableReader &amp;operator&gt;&gt;(PGSTD::string &amp;);                             <span class="comment">//[]</span>
 00050 
 00051   <span class="keyword">template</span>&lt;<span class="keyword">typename</span> TUPLE&gt; TableReader &amp;operator&gt;&gt;(TUPLE &amp;);            <span class="comment">//[t8]</span>
 00052 
@@ -53,7 +53,7 @@
 00060   <span class="keywordtype">bool</span> GetRawLine(PGSTD::string &amp;Line);                                 <span class="comment">//[t8]</span>
 00061 
 00062   <span class="keyword">template</span>&lt;<span class="keyword">typename</span> TUPLE&gt; 
-00063   <span class="keywordtype">void</span> Tokenize(PGSTD::string, TUPLE &amp;) <span class="keyword">const</span>;                  <span class="comment">//[t8]</span>
+00063   <span class="keywordtype">void</span> Tokenize(PGSTD::string, TUPLE &amp;) <span class="keyword">const</span>;                          <span class="comment">//[t8]</span>
 00064 
 00065 <span class="keyword">private</span>:
 00066   <span class="keywordtype">bool</span> m_Done;
@@ -125,7 +125,7 @@
 00132 
 00133 <span class="preprocessor">#endif</span>
 00134 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Tue Feb 25 20:09:35 2003 for libpqxx by
+</pre></div><hr><address style="align: right;"><small>Generated on Fri Feb 28 19:23:32 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>
