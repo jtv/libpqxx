@@ -1,3 +1,13 @@
+2002-06-01 20:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Now checks for PostgreSQL libpq header in /usr/include/postgresql/
+  - No longer uses -Wpadded compiler option
+ include/pqxx/compiler.h, include/pqxx/result.h:
+  - Hopefully fixed "multiple definition of std::iterator" problem
+2002-05-29 22:00  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.h:
+  - Added ToString()/FromString()/FmtString() specializations for short, bool,
+    unsigned char.  Thanks Jonathan C. Bodner.
 2002-05-27 22:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Makefile.am:
   - Removed autom4te.cache from MAINTAINERCLEANFILES (won't work for dirs)

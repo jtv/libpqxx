@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 0.4.0, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 0.4.1, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 0.4.0)
+AM_INIT_AUTOMAKE(libpqxx, 0.4.1)
 AC_CONFIG_SRCDIR([src/connection.cxx])
 AM_CONFIG_HEADER(include/pqxx/config.h)
 
@@ -66,7 +66,6 @@ if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 		-Wmissing-noreturn \
 		-Wmissing-format-attribute  \
 		-Wpacked  \
-		-Wpadded \
 		-Wredundant-decls \
 		-Wunreachable-code \
 		-Winline \
@@ -121,7 +120,10 @@ AC_HELP_STRING(
 AC_MSG_RESULT($enable_postgres_dialect)
 
 # Where are the postgres includes...
-postgres_include_default=/usr/include
+AC_CHECK_FILE([/usr/include/postgresql/libpq-fe.h],
+	[postgres_include_default=/usr/include/postgresql],
+	[postgres_include_default=/usr/include])
+
 AC_ARG_WITH(postgres-include,
 	AC_HELP_STRING(
 		[--with-postgres-include],
