@@ -6,6 +6,7 @@ build-stamp
 config.log
 config.status
 configure
+configure.lineno
 configure-stamp
 install-sh
 libpqxx.pc
