@@ -53,6 +53,19 @@ int main(int argc, char *argv[])
       else if (R[1].rownumber() != 1)
         throw logic_error("Row 1 said it was row " + R[1].rownumber());
 
+      // Test tuple::swap()
+      const result::tuple T1(R[0]), T2(R[1]);
+      if (T2 == T1)
+	throw runtime_error("Values are identical, can't test swap()!");
+      result::tuple T1s(T1), T2s(T2);
+      if (T1s != T1 || !(T2s == T2))
+	throw logic_error("Tuple copy-construction incorrect");
+      T1s.swap(T2s);
+      if (T1s == T1 || !(T2s != T2))
+	throw logic_error("Tuple swap doesn't work");
+      if (T2s != T1 || !(T1s == T2))
+	throw logic_error("Tuple swap is asymmetric");
+
       for (result::tuple::size_type c = 0; c < R[0].size(); ++c)
       {
 	string N = R.column_name(c);
