@@ -43,7 +43,8 @@ class TransactionItf;
  * When data is fetched, the cursor is moved before data is collected, so that
  * afterwards the cursor will be positioned on the last row it returned.  A
  * freshly created cursor is positioned on the imaginary row before its first
- * actual one.  Thus, a simple Fetch(1) will then return the first actual row.
+ * actual one (which is numbered 0).  Thus, a simple Fetch(1) will then return 
+ * the first actual row, i.e. row 1.
  *
  * Postgres does not currently support modification of data through a cursor.
  * Also, not all queries support cursors that go backwards.  Unfortunately there

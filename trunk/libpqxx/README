@@ -62,8 +62,8 @@ to indicate the path to PostgreSQL's libpq library.  If, for instance, this
 library is in /usr/local/postgresql/lib, then you need to specify the configure
 option "--with-postgres-lib=/usr/local/postgresql/lib/".
 
-Sensible defaults have been provided for Debian and RedHat systems.  If your 
-system requires different settings, please let me know.
+Sensible defaults have been provided for Debian and RedHat systems, among 
+others.  If your system requires different settings, please let me know.
 
 
 2. Make
