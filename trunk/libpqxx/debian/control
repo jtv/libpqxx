@@ -1,7 +1,8 @@
 Source: libpqxx
 Priority: optional
 Maintainer: J.H.M. Dassen <jdassen@debian.org>
-Build-Depends: debhelper (>> 3.0.0), postgresql-dev
+Build-Depends: debhelper (>> 3.0.0), postgresql-dev, doxygen
+Section: misc
 Standards-Version: 3.5.6
 
 Package: libpqxx-dev
@@ -31,4 +32,3 @@ Depends: ${shlibs:Depends}
 Description: C++ API to the PostgreSQL DBMS (runtime files)
  libpqxx is a C++ library that allows easy and reliable access to the 
  PostgreSQL object-relational database management system.
-
