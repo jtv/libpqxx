@@ -59,7 +59,7 @@ int main()
     Transaction T(C, "test19");
 
     // Count rows.
-    Result R( T.Exec(("SELECT count(*) FROM " + Table).c_str()) );
+    Result R( T.Exec("SELECT count(*) FROM " + Table) );
     int Rows;
     R.at(0).at(0).to(Rows);
 

@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     Connection C(argv[1]);
     Transaction T(C, "test11");
 
-    Result R( T.Exec(("SELECT * FROM " + Table).c_str()) );
+    Result R( T.Exec("SELECT * FROM " + Table) );
 
     // Print column names
     for (Result::Tuple::size_type c = 0; c < R.Columns(); ++c)

@@ -27,6 +27,7 @@
 
 
 #include "pqxx/connection.h"
+#include "pqxx/result.h"
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */
@@ -60,6 +61,9 @@ public:
 
   /// Execute query directly
   Result Exec(const char[]);						//[t1]
+
+  /// Execute query directly.
+  Result Exec(const PGSTD::string &Q) { return Exec(Q.c_str()); }	//[t2]
 
   void ProcessNotice(const char Msg[]) { m_Conn.ProcessNotice(Msg); }	//[t1]
   void ProcessNotice(const PGSTD::string &Msg) 				//[t1]

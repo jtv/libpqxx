@@ -1,4 +1,5 @@
 Connections
+(*) Separate failed_connection exception type
 (*) Connection pooling support
 
 Results

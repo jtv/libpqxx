@@ -49,10 +49,10 @@ public:
     const string CountQuery = "SELECT count(*) FROM " + m_Table;
     Result R;
 
-    R = T.Exec(CountQuery.c_str());
+    R = T.Exec(CountQuery);
     R.at(0).at(0).to(m_Results.first);
 
-    R = T.Exec((CountQuery + " WHERE year=" + ToString(BoringYear)).c_str());
+    R = T.Exec(CountQuery + " WHERE year=" + ToString(BoringYear));
     R.at(0).at(0).to(m_Results.second);
   }
 };
@@ -72,9 +72,9 @@ public:
 
   void operator()(argument_type &T)
   {
-    T.Exec(("INSERT INTO " + m_Table + " VALUES (" +
+    T.Exec("INSERT INTO " + m_Table + " VALUES (" +
 	    ToString(BoringYear) + ", "
-	    "'yawn')").c_str());
+	    "'yawn')");
 
     throw runtime_error("Transaction deliberately aborted");
   }

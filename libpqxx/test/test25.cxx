@@ -41,8 +41,7 @@ public:
 
   void operator()(argument_type &T)
   {
-    T.Exec(("CREATE TABLE " + m_Table + 
-	    "(year INTEGER, event TEXT)").c_str());
+    T.Exec("CREATE TABLE " + m_Table + "(year INTEGER, event TEXT)");
     cout << "Table " << m_Table << " created." << endl;
   }
 };
@@ -56,7 +55,7 @@ public:
 
   void operator()(argument_type &T)
   {
-    T.Exec(("DELETE FROM " + m_Table).c_str());
+    T.Exec("DELETE FROM " + m_Table);
   }
 
   void OnCommit()

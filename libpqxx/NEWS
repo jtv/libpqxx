@@ -2,6 +2,7 @@
  - documents new homepage: http://pqxx.tk/
  - Connection constructor accepts null connect string
  - default Connection constructor creates lazy connection
+ - Exec() now also takes queries as C++ strings
 1.4.0
  - Connection::IsOpen() renamed to is_open()
  - NoticeProcessor replaced by Noticer (with C++ linkage)
