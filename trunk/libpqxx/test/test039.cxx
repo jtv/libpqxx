@@ -100,6 +100,12 @@ int main(int argc, char *argv[])
 			  "This could be a bug in libpqxx, "
 			  "or something else modified the table.");
   }
+  catch (const sql_error &e)
+  {
+    cerr << "SQL error: " << e.what() << endl
+         << "Query was: '" << e.query() << "'" << endl;
+    return 1;
+  }
   catch (const exception &e)
   {
     // All exceptions thrown by libpqxx are derived from std::exception

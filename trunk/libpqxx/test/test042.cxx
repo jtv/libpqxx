@@ -92,6 +92,12 @@ int main(int, char *argv[])
     // We're at pos 1 now.  Now see that "lower edge" is respected.
     ExpectMove(Cur, -2, -1);
   }
+  catch (const sql_error &e)
+  {
+    cerr << "SQL error: " << e.what() << endl
+         << "Query was: '" << e.query() << "'" << endl;
+    return 1;
+  }
   catch (const exception &e)
   {
     // All exceptions thrown by libpqxx are derived from std::exception

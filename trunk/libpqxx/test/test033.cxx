@@ -42,6 +42,12 @@ int main(int, char *argv[])
     // NonTransaction doesn't start a backend transaction.
     T.Commit();
   }
+  catch (const sql_error &e)
+  {
+    cerr << "SQL error: " << e.what() << endl
+         << "Query was: '" << e.query() << "'" << endl;
+    return 1;
+  }
   catch (const exception &e)
   {
     // All exceptions thrown by libpqxx are derived from std::exception

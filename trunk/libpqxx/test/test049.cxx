@@ -121,6 +121,12 @@ int main(int argc, char *argv[])
     // are sensible; use std::for_each<>() to iterate over rows in R
     for_each(R.begin(), R.end(), CountGreaterSmaller(Key, R));
   }
+  catch (const sql_error &e)
+  {
+    cerr << "SQL error: " << e.what() << endl
+         << "Query was: '" << e.query() << "'" << endl;
+    return 1;
+  }
   catch (const exception &e)
   {
     // All exceptions thrown by libpqxx are derived from std::exception
