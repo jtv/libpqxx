@@ -1,3 +1,8 @@
+# AUTOMATICALLY GENERATED--DO NOT EDIT
+# This file is generated automatically for automake whenever test programs are
+# added to libpqxx, using the Perl script "maketestam.pl" found in the tools
+# directory.
+
 INCLUDES=-I../include ${POSTGRES_INCLUDE}
 MAINTAINERCLEANFILES=Makefile.in
 
