@@ -16,10 +16,6 @@
  *
  *-------------------------------------------------------------------------
  */
-#include "pqxx/libcompiler.h"
-
-#include <string>
-
 #include "pqxx/connection_base"
 
 
@@ -41,9 +37,9 @@ namespace pqxx
  * invocation operator.
  *
  * Notifications for your trigger may arrive anywhere within libpqxx code, but
- * be aware that POSTGRESQL DEFERS NOTIFICATIONS OCCURRING INSIDE TRANSACTIONS.
- * So if you're keeping a transaction open, don't expect any of your triggers
- * on the same connection to be notified.
+ * be aware that @b PostgreSQL @b defers @b notifications @b occurring @b inside
+ * @b transactions.  So if you're keeping a transaction open, don't expect any
+ * of your triggers on the same connection to be notified.
  *
  * Multiple triggers on the same connection may have the same name.
  */
@@ -52,8 +48,8 @@ class PQXX_LIBEXPORT trigger : public PGSTD::unary_function<int, void>
 public:
   /// Constructor.  Registers the trigger with connection C.
   /**
-   * @param C the connection this trigger resides in.
-   * @param N a name for the trigger.
+   * @param C Connection this trigger resides in.
+   * @param N A name for the trigger.
    */
   trigger(connection_base &C, const PGSTD::string &N) : 		//[t4]
     m_Conn(C), m_Name(N) { m_Conn.AddTrigger(this); }
@@ -64,9 +60,9 @@ public:
 
   /// Overridable: action to invoke when trigger is notified.
   /**
-   * @param be_pid the process ID of the database backend process that served
-   * our connection when the trigger was notified.  The actual process ID behind
-   * the connection may have changed by the time this method is called.
+   * @param be_pid Process ID of the database backend process that served our
+   * connection when the trigger was notified.  The actual process ID behind the
+   * connection may have changed by the time this method is called.
    */
   virtual void operator()(int be_pid) =0;				//[t4]
 

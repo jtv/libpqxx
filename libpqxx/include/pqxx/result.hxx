@@ -28,7 +28,6 @@
  */
 
 // TODO: Support SQL arrays
-// TODO: value_type
 
 namespace pqxx
 {
@@ -59,7 +58,9 @@ public:
    * It also acts as a container mapping column numbers or names to field 
    * values (see below):
    *
+   * @code
    * 	cout << tuple["date"].c_str() << ": " << tuple["name"].c_str() << endl;
+   * @endcode
    *
    * The tuple itself acts like a (non-modifyable) container, complete with its
    * own const_iterator and const_reverse_iterator.
@@ -182,8 +183,8 @@ public:
 
     /// Constructor.
     /** Create field as reference to a field in a result set.
-     * @param T tuple that this field is part of.
-     * @param C column number of this field.
+     * @param T Tuple that this field is part of.
+     * @param C Column number of this field.
      */
     field(const tuple &T, tuple::size_type C) throw () : 		//[t1]
 	m_tup(T), m_col(C) {}
@@ -201,8 +202,9 @@ public:
      *
      * The usefulness of this operator is questionable.  No interpretation
      * whatsoever is imposed on the data; 0 and 0.0 are considered different,
-     * as null and the empty string, or even different (but possibly equivalent
-     * and equally valid) encodings of the same Unicode string etc.
+     * as are null vs. the empty string, or even different (but possibly
+     * equivalent and equally valid) encodings of the same Unicode character
+     * etc.
      */
     bool operator==(const field &) const;				//[t75]
 
@@ -227,21 +229,12 @@ public:
 
 #ifdef PQXX_HAVE_PQFTABLE
     /// Table this field came from, if any
-    /** Requires PostgreSQL 7.4 or greater
+    /** @since PostgreSQL/libpq 7.4
      */
     oid table() const { return home()->column_table(col()); }		//[t2]
 #endif
 
     /// Read value into Obj; or leave Obj untouched and return false if null
-    /** @warning The conversion is done using the currently active locale, 
-     * whereas PostgreSQL delivers values in the "default" (C) locale.  This 
-     * means that if you intend to use this function from a locale that doesn't
-     * understand the data types in question (particularly numeric types like 
-     * float and int) in default C format, you'll need to switch back to the C 
-     * locale before the call--at least insofar as numeric formatting is
-     * concerned (on POSIX systems, use setlocale(LC_NUMERIC, "C")).
-     * This should be fixed at some point in the future.
-     */
     template<typename T> bool to(T &Obj) const				//[t3]
     {
       if (is_null()) return false;
@@ -349,15 +342,20 @@ public:
      * allows a result to be addressed as a two-dimensional container without 
      * going through the intermediate step of dereferencing the iterator.  I 
      * hope this works out to be similar to C pointer/array semantics in useful 
-     * cases[2].
+     * cases.
+     *
+     * IIRC Alex Stepanov, the inventor of the STL, once remarked that having
+     * this as standard behaviour for pointers would be useful in some
+     * algorithms.  So even if this makes me look foolish, I would seem to be in
+     * distinguished company.
      */
     pointer operator->() const { return this; }				//[t12]
     reference operator*() const { return tuple(*this); }		//[t12]
 
     const_iterator operator++(int);					//[t12]
-    const_iterator &operator++() { ++m_Index; return *this; }	//[t1]
+    const_iterator &operator++() { ++m_Index; return *this; }		//[t1]
     const_iterator operator--(int);					//[t12]
-    const_iterator &operator--() { --m_Index; return *this; }	//[t12]
+    const_iterator &operator--() { --m_Index; return *this; }		//[t12]
 
     const_iterator &operator+=(difference_type i) 			//[t12]
 	{ m_Index+=i; return *this; }
@@ -653,13 +651,16 @@ public:
 #endif
 
   /// If command was INSERT of 1 row, return oid of inserted row
-  /** Returns oid_none otherwise. 
+  /** @return Identifier of inserted row if exactly one row was inserted, or
+   * oid_none otherwise. 
    */
   oid inserted_oid() const { return PQoidValue(c_ptr()); }		//[t13]
 
 
   /// If command was INSERT, UPDATE, or DELETE, return number of affected rows
-  /*** Returns zero for all other commands. */
+  /** @return Number of affected rows if last command was INSERT, UPDATE, or
+   * DELETE; zero for all other commands.
+   */
   size_type affected_rows() const;					//[t7]
 
 
@@ -717,6 +718,7 @@ private:
  *
  * Example: parse a field into a variable of the nonstandard "long long" type.
  *
+ * @code
  * extern result R;
  * long long L;
  * stringstream S;
@@ -726,6 +728,7 @@ private:
  *
  * // Parse contents of S into L
  * S >> L;
+ * @endcode
  */
 template<typename STREAM>
 inline STREAM &operator<<(STREAM &S, const pqxx::result::field &F)	//[t46]
@@ -756,8 +759,10 @@ inline bool result::field::to<PGSTD::string>(PGSTD::string &Obj) const
 }
 
 /// Specialization: to(const char *&).  
-/** The buffer has the same lifetime as the result, so take care not to
- * use it after the result is destroyed.
+/** The buffer has the same lifetime as the data in this result (i.e. of this
+ * result object, or the last remaining one copied from it etc.), so take care
+ * not to use it after the last result object referring to this query result is
+ * destroyed.
  */
 template<> 
 inline bool result::field::to<const char *>(const char *&Obj) const
@@ -876,12 +881,6 @@ private:
  * typedef (which defines a basic_fieldstream for char).  This is similar to how
  * e.g. std::ifstream relates to std::basic_ifstream.
  *
- * When reading bools, ints, floats etc. from a field, bear in mind that bools
- * are represented as 'f' or 't' (for false or true, respectively), and that all
- * other non-string types are rendered in the default C locale.  If there is any
- * chance of your program running in a different locale, you'll need to set the
- * locale to "C" explicitly while parsing fields.
- *
  * This class has only been tested for the char type (and its default traits).
  */
 template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
@@ -928,11 +927,6 @@ issues in their destructors.
 The -Weffc++ option in gcc generates warnings for noncompliance with Scott's
 style guidelines, and hence necessitates the definition of this destructor,
 trivial as it may be.
-
-[2] IIRC Alex Stepanov, the inventor of the STL, once remarked that having
-this as standard behaviour for pointers would be useful in some algorithms.
-So even if this makes me look foolish, I would seem to be in distinguished 
-company.
 */
 
 

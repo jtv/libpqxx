@@ -118,8 +118,9 @@ public:
 
   /// Execute query
   /** Perform a query in this transaction.
-   * @param Query the query or command to execute
-   * @param Desc optional identifier for query, to help pinpoint SQL errors
+   * @param Query Query or command to execute
+   * @param Desc Optional identifier for query, to help pinpoint SQL errors
+   * @return A result set describing the query's or command's result
    */
   result exec(const char Query[], 
       	      const PGSTD::string &Desc=PGSTD::string());		//[t1]
@@ -129,8 +130,9 @@ public:
    * slower than the version taking a const char[], although the difference is
    * not likely to be very noticeable compared to the time required to execute
    * even a simple query.
-   * @param Query the query or command to execute
-   * @param Desc optional identifier for query, to help pinpoint SQL errors
+   * @param Query Query or command to execute
+   * @param Desc Optional identifier for query, to help pinpoint SQL errors
+   * @return A result set describing the query's or command's result
    */
   result exec(const PGSTD::string &Query,
               const PGSTD::string &Desc=PGSTD::string()) 		//[t2]
@@ -156,8 +158,8 @@ public:
    * prior to 7.3.  In the case of nontransaction, the set value will be kept
    * regardless; but in that case, if the connection ever needs to be recovered,
    * the set value will not be restored.
-   * @param Var the variable to set
-   * @param Val the value to store in the variable
+   * @param Var The variable to set
+   * @param Val The new value to store in the variable
    */
   void set_variable(const PGSTD::string &Var, const PGSTD::string &Val);//[t61]
 
@@ -224,8 +226,8 @@ protected:
 
   /// Execute query on connection directly
   /** 
-   * @param C the query or command to execute
-   * @param Retries the number of times to retry the query if it fails.  Be
+   * @param C Query or command to execute
+   * @param Retries Number of times to retry the query if it fails.  Be
    * extremely careful with this option; if you retry in the middle of a
    * transaction, you may be setting up a new connection transparently and
    * executing the latter part of the transaction without a backend transaction
@@ -235,18 +237,20 @@ protected:
  
 private:
   /* A transaction goes through the following stages in its lifecycle:
-   *  - nascent: the transaction hasn't actually begun yet.  If our connection 
+   * <ul>
+   * <li> nascent: the transaction hasn't actually begun yet.  If our connection
    *    fails at this stage, it may recover and the transaction can attempt to
    *    establish itself again.
-   *  - active: the transaction has begun.  Since no commit command has been 
+   * <li> active: the transaction has begun.  Since no commit command has been 
    *    issued, abortion is implicit if the connection fails now.
-   *  - aborted: an abort has been issued; the transaction is terminated and 
+   * <li> aborted: an abort has been issued; the transaction is terminated and 
    *    its changes to the database rolled back.  It will accept no further 
    *    commands.
-   *  - committed: the transaction has completed successfully, meaning that a 
+   * <li> committed: the transaction has completed successfully, meaning that a 
    *    commit has been issued.  No further commands are accepted.
-   *  - in_doubt: the connection was lost at the exact wrong time, and there is
-   *    no way of telling whether the transaction was committed or aborted.
+   * <li> in_doubt: the connection was lost at the exact wrong time, and there
+   *    is no way of telling whether the transaction was committed or aborted.
+   * </ul>
    *
    * Checking and maintaining state machine logic is the responsibility of the 
    * base class (ie., this one).

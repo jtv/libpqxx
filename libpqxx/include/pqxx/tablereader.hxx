@@ -16,8 +16,6 @@
  *
  *-------------------------------------------------------------------------
  */
-#include <string>
-
 #include "pqxx/result"
 #include "pqxx/tablestream"
 
@@ -30,10 +28,12 @@ namespace pqxx
 /// Efficiently pull data directly out of a table.
 /** A tablereader provides efficient read access to a database table.  This is
  * not as flexible as a normal query using the result class however:
- *  - Can only dump tables, not views or arbitrary queries
- *  - Has no knowledge of metadata
- *  - Is unable to reorder, rename, omit or enrich fields
- *  - Does not support filtering of records
+ * <ul>
+ * <li> Can only dump tables, not views or arbitrary queries
+ * <li> Has no knowledge of metadata
+ * <li> Is unable to reorder, rename, omit or enrich fields
+ * <li> Does not support filtering of records
+ * </ul>
  *
  * On the other hand, it can read rows of data and transform them into any
  * container or container-like object that supports STL back-inserters.  Since
@@ -48,7 +48,7 @@ public:
       const PGSTD::string &Null=PGSTD::string());			//[t6]
 
   /// Read only the given sequence of columns
-  /** The backend supports this starting at PostgreSQL version 7.3.
+  /** @since PostgreSQL backend 7.3
    */
   template<typename ITER>
   tablereader(transaction_base &, 
@@ -65,8 +65,9 @@ public:
   bool operator!() const throw () { return m_Done; }			//[t6]
 
   /// Read a line of raw, unparsed table data
-  /** Returns whether a line could be read.
-   * @param Line is set to the raw data line read from the table.
+  /** 
+   * @param Line Variable to hold the raw data line read from the table.
+   * @return Whether a line could be read
    */
   bool get_raw_line(PGSTD::string &Line);				//[t8]
 

@@ -73,9 +73,9 @@ struct PQXX_LIBEXPORT noticer : PGSTD::unary_function<const char[], void>
  * set in previous transactions that is not stored in the database, such as
  * connection-local variables defined with PostgreSQL's SET command, will be
  * lost.  Whenever you need to create such state, either do it within each
- * transaction that may need it, or use specialized functions made available by
- * libpqxx.  Always avoid raw queries if libpqxx offers a dedicated function for
- * the same purpose.
+ * transaction that may need it, or if at all possible, use specialized
+ * functions made available by libpqxx.  Always avoid raw queries if libpqxx
+ * offers a dedicated function for the same purpose.
  */
 class PQXX_LIBEXPORT connection_base
 {
@@ -106,7 +106,11 @@ public:
   /// Explicitly close connection.
   void disconnect() throw ();						//[t2]
 
-  /// Is this connection open?
+  /// Is this connection open at the moment?
+  /** @warning This function is @b not needed in most code.  Resist the
+   * temptation to check it after opening a connection; rely on the exception
+   * that will be thrown on connection failure instead.
+   */
   bool is_open() const throw ();					//[t1]
 
   /// Perform the transaction defined by a transactor-based object.
@@ -115,8 +119,8 @@ public:
    * (this can happen if the connection is lost just before the backend can
    * confirm success), it is no longer retried and an error message is
    * generated.
-   * @param T the transactor to be executed.
-   * @param Attempts the maximum number of attempts to be made to execute T.
+   * @param T The transactor to be executed.
+   * @param Attempts Maximum number of attempts to be made to execute T.
    */
   template<typename TRANSACTOR> 
   void perform(const TRANSACTOR &T, int Attempts=3);			//[t4]
@@ -129,14 +133,17 @@ public:
 
   // TODO: Define a default noticer (mainly to help out Windows users)
   /// Set handler for postgresql errors or warning messages.
-  /** Return value is the previous handler.  Ownership of any previously set 
-   * noticer is also passed to the caller, so unless it is stored in another 
-   * auto_ptr, it will be deleted from the caller's context.  
+  /** The use of auto_ptr implies ownership, so unless the returned value is
+   * copied to another auto_ptr, it will be deleted directly after the call.
    * This may be important when running under Windows, where a DLL cannot free 
-   * memory allocated by the main program.
+   * memory allocated by the main program.  The auto_ptr will delete the object
+   * from your code context, rather than from inside the library.
+   *
    * If a noticer exists when the connection_base is destructed, it will also be
    * deleted.
-   * @param N the new message handler; must not be null or equal to the old one
+   *
+   * @param N New message handler; must not be null or equal to the old one
+   * @return Previous handler
    */
   PGSTD::auto_ptr<noticer> set_noticer(PGSTD::auto_ptr<noticer> N) 
     throw ();								//[t14]
@@ -145,15 +152,15 @@ public:
   /// Invoke notice processor function.  The message should end in newline.
   void process_notice(const char[]) throw ();				//[t14]
   /// Invoke notice processor function.  Newline at end is recommended.
-  void process_notice(const PGSTD::string &msg) throw ();		//[t14]
+  void process_notice(const PGSTD::string &) throw ();			//[t14]
 
   /// Enable tracing to a given output stream, or NULL to disable.
   void trace(FILE *) throw ();						//[t3]
 
   /// Check for pending trigger notifications and take appropriate action.
   /** Exceptions thrown by client-registered trigger handlers are reported, but
-   * not passed on outside this function.  The number of notifications received
-   * is returned.
+   * not passed on outside this function.
+   * @return Number of pending notifications 
    */
   int get_notifs();							//[t4]
 
@@ -187,6 +194,8 @@ public:
    * reliable within the span of a successful backend transaction.  If the
    * transaction fails, which may be due to a lost connection, then this number
    * will have become invalid at some point within the transaction.
+   * 
+   * @return Process identifier, or 0 if not currently connected.
    */
   int backendpid() const throw ()					//[t1]
     	{ return m_Conn ? PQbackendPID(m_Conn) : 0; }
@@ -220,7 +229,7 @@ public:
    * encodings" to find out more about the available encodings, how to extend
    * them, and how to use them.  Not all server-side encodings are compatible 
    * with all client-side encodings or vice versa.
-   * @param Encoding name of the character set encoding to use
+   * @param Encoding Name of the character set encoding to use
    */
   void set_client_encoding(const PGSTD::string &Encoding)		//[t7]
   	{ set_variable("CLIENT_ENCODING", Encoding); }
@@ -236,9 +245,11 @@ public:
    * prior to 7.3.
    * @warning Do not mix the set_variable interface with manual setting of 
    * variables by executing the corresponding SQL commands, and do not get or
-   * set variables while a tablestream is active on the same connection.
-   * @param Var variable to set
-   * @param Value value to set, which may be an identifier, a quote string, etc.
+   * set variables while a tablestream or pipeline is active on the same
+   * connection.
+   * @param Var Variable to set
+   * @param Value Value vor Var to assume: an identifier, a quoted string, or a
+   * number.
    */
   void set_variable(const PGSTD::string &Var, 
       		    const PGSTD::string &Value);			//[t60]
@@ -248,7 +259,8 @@ public:
    * the set_variable function.  If that fails, the database is queried.
    * @warning Do not mix the set_variable interface with manual setting of 
    * variables by executing the corresponding SQL commands, and do not get or
-   * set variables while a tablestream is active on the same connection.
+   * set variables while a tablestream or pipeline is active on the same
+   * connection.
    */
   PGSTD::string get_variable(const PGSTD::string &);			//[t60]
 
@@ -260,7 +272,8 @@ public:
 
   /// Wait for a trigger notification to come in, or for given timeout to pass
   /** The wait may also be terminated by other events, such as the connection
-   * to the backend failing.  The number of notifications received is returned.
+   * to the backend failing.
+   * @return The number of pending notifications upon return
    */
   int await_notification(long seconds, long microseconds);		//[t79]
 
@@ -311,12 +324,15 @@ public:
 
 protected:
   /// Overridable: initiate a connection
+  /** @callgraph */
   virtual void startconnect() =0;
 
   /// Overridable: complete an initiated connection
+  /** @callgraph */
   virtual void completeconnect() =0;
 
   /// Overridable: drop any specialized state related to connection attempt
+  /** @callgraph */
   virtual void dropconnect() throw () {}
 
   /// For implementation classes: do we have a connection structure?

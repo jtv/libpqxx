@@ -54,8 +54,8 @@ class PQXX_LIBEXPORT nontransaction : public transaction_base
 public:
   /// Constructor.
   /** Create a "dummy" transaction.
-   * @param C the connection that this "transaction" will operate on.
-   * @param NName an optional name for the transaction, beginning with a letter
+   * @param C Connection that this "transaction" will operate on.
+   * @param NName Optional name for the transaction, beginning with a letter
    * and containing only letters and digits.
    */
   explicit nontransaction(connection_base &C, 

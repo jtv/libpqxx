@@ -16,10 +16,6 @@
  *
  *-------------------------------------------------------------------------
  */
-#include "pqxx/libcompiler.h"
-
-#include <string>
-
 #include "pqxx/connection_base"
 #include "pqxx/transaction"
 
@@ -67,11 +63,14 @@ public:
     m_Name(TName) { }
 
   /// Overridable transaction definition; insert your database code here
-  /** Will be retried if connection goes bad, but not if an exception is thrown 
-   * while the connection remains open.
-   * @param T a dedicated transaction context created to perform this 
-   * operation.  It is generally recommended that a transactor modify only 
-   * itself and T from inside this operator.
+  /** The operation will be retried if connection is lost, but not if an
+   * exception is thrown while the connection remains open.
+   *
+   * Recommended practice is to allow this operator to modify only the
+   * transactor itself, and the dedicated transaction object it is passed as an
+   * argument.  This is what makes side effects, retrying etc. controllable in
+   * the transactor framework.
+   * @param T Dedicated transaction context created to perform this operation.
    */
   void operator()(TRANSACTION &T);					//[t4]
 
@@ -81,23 +80,24 @@ public:
   // state.  Use these to patch up runtime state to match events, if needed, or
   // to report failure conditions.
 
-  // TODO: Replace OnAbort()--is there a compatible way?
+  // TODO: Rename OnAbort()--is there a compatible way?
   /// Optional overridable function to be called if transaction is aborted
   /** This need not imply complete failure; the transactor will automatically
    * retry the operation a number of times before giving up.  OnAbort() will be
    * called for each of the failed attempts.
-   * The argument is an error string describing why the transaction failed. 
+   *
+   * @param msg Error string describing why the transaction failed
    */
-  void OnAbort(const char[]) throw () {}				//[t13]
+  void OnAbort(const char msg[]) throw () {}				//[t13]
 
-  // TODO: Replace OnCommit()--is there a compatible way?
+  // TODO: Rename OnCommit()--is there a compatible way?
   /// Optional overridable function to be called when committing the transaction
   /** If your OnCommit() throws an exception, the actual back-end transaction
    * will remain committed, so any changes in the database remain.
    */
   void OnCommit() {}							//[t6]
 
-  // TODO: Replace OnCommit()--is there a compatible way?
+  // TODO: Rename OnCommit()--is there a compatible way?
   /// Overridable function to be called when "in doubt" about success
   /** This may happen if the connection to the backend is lost while attempting
    * to commit.  In that case, the backend may have committed the transaction
@@ -105,12 +105,13 @@ public:
    * failed completely, causing the transaction to be aborted.  The best way to
    * deal with this situation is to wave red flags in the user's face and ask
    * him to investigate.
+   *
    * Also, the robusttransaction class is intended to reduce the chances of this
    * error occurring.
    */
   void OnDoubt() throw () {}						//[t13]
 
-  // TODO: Replace Name()--is there a compatible way?
+  // TODO: Rename Name()--is there a compatible way?
   /// The transactor's name.
   PGSTD::string Name() const { return m_Name; }				//[t13]
 
@@ -125,12 +126,12 @@ private:
 /** Invoke a transactor, making at most Attempts attempts to perform the
  * encapsulated code on the database.  If the code throws any exception other
  * than broken_connection, it will be aborted right away.
- * Take care: neither OnAbort() nor OnCommit() will be invoked on the original
- * transactor you pass into the function.  It only serves as a prototype for
- * the transaction to be performed.  In fact, this function may copy-construct
- * any number of transactors from the one you passed in, calling either 
- * OnCommit() or OnAbort() only on those that actually have their operator()
- * invoked.
+ *
+ * Take care: no member functions will be invoked on the original transactor you
+ * pass into the function.  It only serves as a prototype for the transaction to
+ * be performed.  The perform() function will copy-construct transactors from
+ * the original you passed in, executing the copies only and retaining a "clean"
+ * original.
  */
 template<typename TRANSACTOR> 
 inline void pqxx::connection_base::perform(const TRANSACTOR &T,

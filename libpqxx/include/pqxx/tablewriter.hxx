@@ -16,10 +16,6 @@
  *
  *-------------------------------------------------------------------------
  */
-#include "pqxx/libcompiler.h"
-
-#include <string>
-
 #include "pqxx/tablestream"
 
 /* Methods tested in eg. self-test program test001 are marked with "//[t1]"
@@ -36,6 +32,7 @@ class tablereader;	// See pqxx/tablereader.h
  * (<<), and it supports inserters created by std::back_inserter().  All of 
  * these are templatized so you can use any container type or iterator range to
  * feed tuples into the table.
+ *
  * Note that in each case, a container or range represents the fields of a 
  * single tuple--not a collection of tuples.
  */
@@ -49,7 +46,7 @@ public:
       const PGSTD::string &Null=PGSTD::string());			//[t5]
 
   /// Write only the given sequence of columns
-  /** The backend supports this starting at PostgreSQL version 7.3.
+  /** @since PostgreSQL backend 7.3.
    */
   template<typename ITER>
   tablewriter(transaction_base &, 
@@ -73,7 +70,7 @@ public:
   tablewriter &operator<<(tablereader &);				//[t6]
 
   /// Translate tuple of data to a string in DBMS-specific format.  
-  /** This is not portable between databases.
+  /** @warning This is definitely not portable between databases.
    */
   template<typename IT> PGSTD::string generate(IT Begin, IT End) const;	//[t10]
   template<typename TUPLE> PGSTD::string generate(const TUPLE &) const;	//[t10]
