@@ -1,6 +1,9 @@
 2.5.0
  - Fix race condition in removing triggers
+ - Fix some error strings that may previously have come out wrong
  - No longer includes any libpq headers while compiling client code
+ - Improved thread safety: avoid strerror() where possible
+ - Translate more error conditions to std::bad_alloc exception
  - Clearer and more specific explanations for configuration failures
  - Improved documentation
  - Looks for standard library in global namespace as well as std
