@@ -22,6 +22,7 @@
 #include "pqxx/dbtransaction"
 #include "pqxx/pipeline"
 
+// TODO: Limit number of retained queries so we don't wait forever (tunable?)
 using namespace PGSTD;
 
 

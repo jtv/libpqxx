@@ -264,6 +264,12 @@ private:
    */
   template<typename ISOLATIONTAG> 
     static inline void error_permitted_isolation_level(ISOLATIONTAG) throw();
+
+#if defined(__SUNPRO_CC)
+  // Incorrect, but needed to compile with Sun CC
+  template<> static void 
+    error_permitted_level(isolation_traits<serializable>) throw() {}
+#endif	// __SUNPRO_CC
 #else
   // Incorrect, but needed to compile with Visual C++ 7
   template<> static inline void 

@@ -5,9 +5,10 @@
 #
 # Process configure.ac.in with autoconf to produce a configure script.
 
-AC_PREREQ(2.53)
+AC_PREREQ(2.59)
 AC_INIT(libpqxx, @PQXXVERSION@, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
+AC_CONFIG_MACRO_DIR([config/m4])
 AM_INIT_AUTOMAKE(libpqxx, @PQXXVERSION@)
 
 PQXXVERSION=@PQXXVERSION@
@@ -28,7 +29,6 @@ AC_PROG_INSTALL
 AC_DISABLE_SHARED
 AC_PROG_LIBTOOL
 AC_PROG_MAKE_SET
-AC_PROG_RANLIB
 AC_PATH_PROG([MKDIR], [mkdir])
 AC_PATH_PROG([DOXYGEN], [doxygen])
 AM_CONDITIONAL([BUILD_REFERENCE], [test -n "$DOXYGEN"])

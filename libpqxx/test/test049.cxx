@@ -13,10 +13,9 @@ namespace
 {
 
 #ifndef PQXX_HAVE_COUNT_IF
-template<typename IN, typename P> inline
-typename iterator_traits<IN>::difference_type count_if(IN first, IN last, P p)
+template<typename IN, typename P> inline long count_if(IN first, IN last, P p)
 {
-  typename iterator_traits<IN>::difference_type cnt;
+  long cnt;
   for (cnt=0; first!=last; ++first) cnt += p(*first);
   return cnt;
 }
@@ -68,8 +67,8 @@ struct CountGreaterSmaller : unary_function<result::tuple, void>
   {
     // Count number of entries with key greater/smaller than first row's key
     // using std::count_if<>()
-    const int Greater = count_if(R.begin(), R.end(), bind2nd(Cmp(Key),T)),
-              Smaller = count_if(R.begin(), R.end(), bind1st(Cmp(Key),T));
+    const long Greater = count_if(R.begin(), R.end(), bind2nd(Cmp(Key),T)),
+               Smaller = count_if(R.begin(), R.end(), bind1st(Cmp(Key),T));
 
     cout << "'" << T[Key] << "': " 
          << Greater << " greater, "

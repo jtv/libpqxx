@@ -1,3 +1,21 @@
+2004-02-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/maketestam.pl:
+  - Removed redundant -I option
+ tools/pqxxbench.cxx, tools/pqxxbench.in:
+  - New
+2004-02-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test049.cxx:
+  - Make count_if() compile on Sun CC (thanks Jon Meinecke)
+2004-02-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh, configure.ac.in:
+  - Patrick Welche patch: make libtoolize "copy over the necessary .m4 files
+  into ., then aclocal looks in . and adds them to aclocal.m4, and everything
+  is happy."
+  - Patrick Welche cont'd: "Didn't need to remove RANLIB, but as you require a
+  reasonably new autoconf, int won't hurt..)"
+  - Moved m4 stuff into config/m4, thanks Patrick Welche
+ include/pqxx/cachedresult.h, include/pqxx/cursor.h:
+  - Workaround for Sun CC compile problem (thanks Jon Meinecke)
 2004-02-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/result.hxx:
   - Back to full test coverage

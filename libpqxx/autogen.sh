@@ -28,12 +28,11 @@ sed -e "s/@PQXXVERSION@/$PQXXVERSION/g" configure.ac.in >configure.ac
 # Generate win32/test.mak (adding carriage returns to make it MS-DOS format)
 ./tools/maketestvcmak.pl test | sed -e 's/$/\r/' >win32/test.mak
 
-aclocal${ver}
-
 # Don't run autoheader to avoid overwriting customized config.h.in!
 # autoheader
 
 libtoolize --force --automake --copy
+aclocal${ver} -I .
 automake${ver} --verbose --add-missing --copy
 autoconf
 
