@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdexcept>
 
+#define PQXXYES_I_KNOW_DEPRECATED_HEADER
 #include <pqxx/connection>
 #include <pqxx/cursor.h>
 #include <pqxx/transaction>
