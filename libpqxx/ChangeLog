@@ -1,4 +1,6 @@
 2004-03-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cachedresult.h, include/pqxx/cursor.h:
+  - Added "@deprecated" doxygen tag to classes
  include/pqxx/result.hxx, include/pqxx/util.hxx, src/util.cxx:
   - New template from_string<>() (stricter, faster, no locale problem)
   - Deprecated FromString<>()
