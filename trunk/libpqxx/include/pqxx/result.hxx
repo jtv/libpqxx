@@ -376,7 +376,6 @@ public:
     	{ return column_table(column_number(ColName)); }
 #endif
 
-
   /// If command was INSERT of 1 row, return oid of inserted row
   /** Returns oid_none otherwise. 
    */
@@ -428,6 +427,7 @@ private:
   friend class pipeline;
   void CheckStatus(const PGSTD::string &Query) const;
   void CheckStatus(const char Query[]) const;
+  int errorposition() const throw ();
   PGSTD::string StatusError() const;
 
   friend class Cursor;
