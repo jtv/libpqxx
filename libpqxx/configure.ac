@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 1.1.0, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 1.1.1, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 1.1.0)
+AM_INIT_AUTOMAKE(libpqxx, 1.1.1)
 
 # Library version numbering - see "info libtool versioning 'libtool
 # versioning'" for details.
@@ -52,14 +52,13 @@ AC_ARG_ENABLE(maintainer-mode,
 AC_MSG_RESULT(${enable_maintainer_mode})
 
 # Let's try to get the compiler to be helpful
-# (Omit the -Waggregate-return and -Weffc++ options because they currently
-# yield too many warnings in gcc's standard headers)
+# (Omit options like -Weffc++ because they currently yield too many warnings in
+# gcc's standard headers; omit -Wunreachable-code because it isn't always right)
 if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 	for option in \
 		-ffor-scope \
 		-pedantic \
 		-Wall \
-		-Wsystem-headers \
 		-W \
 		-Wfloat-equal \
 		-Wundef \
@@ -70,23 +69,16 @@ if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 		-Wwrite-strings  \
 		-Wconversion \
 		-Wsign-compare \
-		-Wmissing-declarations  \
 		-Wmissing-noreturn \
 		-Wmissing-format-attribute  \
-		-Wpacked  \
 		-Wredundant-decls \
-		-Wunreachable-code \
-		-Winline \
-		-Wctor-dtor-privacy \
 		-Wnon-virtual-dtor \
 		-Wreorder \
 		-Wno-deprecated \
 		-Wno-non-template-friend \
 		-Wold-style-cast \
 		-Woverloaded-virtual \
-		-Wno-pmf-conversions \
 		-Wsign-promo \
-		-Wsynth \
 		-Wanal \
 		-ffascist \
 	; do

@@ -109,15 +109,9 @@ pqxx::Connection::~Connection()
 }
 
 
-int pqxx::Connection::BackendPID() const
+void pqxx::Connection::Connect() const
 {
-  return m_Conn ? PQbackendPID(m_Conn) : 0;
-}
-
-
-void pqxx::Connection::Connect()
-{
-  if (m_Conn) return;
+  if (m_Conn) throw logic_error("libqxx internal error: spurious Connect()");
 
   m_Conn = PQconnectdb(m_ConnInfo.c_str());
 
@@ -142,14 +136,36 @@ void pqxx::Connection::Connect()
 }
 
 
-void pqxx::Connection::SetupState()
+
+void pqxx::Connection::Deactivate() const
 {
+  if (m_Conn)
+  {
+    if (m_Trans.get())
+      throw logic_error("Attempt to deactivate connection while transaction "
+	                "'" + m_Trans.get()->Name() + "' "
+			"still open");
+
+    Disconnect();
+  }
+}
+
+
+/** Set up various parts of logical connection state that may need to be
+ * recovered because the physical connection to the database was lost and is
+ * being reset, or that may not have been initialized yet.
+ */
+void pqxx::Connection::SetupState() const
+{
+  if (!m_Conn) 
+    throw logic_error("libpqxx internal error: SetupState() on no connection");
+
   if (m_NoticeProcessor) 
     PQsetNoticeProcessor(m_Conn, m_NoticeProcessor, m_NoticeProcessorArg);
   else
     m_NoticeProcessor = PQsetNoticeProcessor(m_Conn, 0,0);
 
-  Trace(m_Trace);
+  InternalSetTrace();
 
   // Reinstate all active triggers
   if (!m_Triggers.empty())
@@ -171,7 +187,7 @@ void pqxx::Connection::SetupState()
 }
 
 
-void pqxx::Connection::Disconnect() throw ()
+void pqxx::Connection::Disconnect() const throw ()
 {
   if (m_Conn)
   {
@@ -194,6 +210,10 @@ pqxx::Connection::SetNoticeProcessor(pqxx::NoticeProcessor NewNP,
   const NoticeProcessor OldNP = m_NoticeProcessor;
   m_NoticeProcessor = NewNP;
   m_NoticeProcessorArg = arg;
+
+  if (m_Conn) 
+    PQsetNoticeProcessor(m_Conn, m_NoticeProcessor, m_NoticeProcessorArg);
+
   return OldNP;
 }
 
@@ -207,11 +227,7 @@ void pqxx::Connection::ProcessNotice(const char msg[]) throw ()
 void pqxx::Connection::Trace(FILE *Out)
 {
   m_Trace = Out;
-  if (m_Conn) 
-  {
-    if (Out) PQtrace(m_Conn, Out);
-    else PQuntrace(m_Conn);
-  }
+  if (m_Conn) InternalSetTrace();
 }
 
 
@@ -325,7 +341,7 @@ pqxx::Result pqxx::Connection::Exec(const char Q[],
                                 int Retries, 
 				const char OnReconnect[])
 {
-  if (!m_Conn) Connect();
+  Activate();
 
   Result R( PQexec(m_Conn, Q) );
 
@@ -364,6 +380,14 @@ void pqxx::Connection::Reset(const char OnReconnect[])
     }
   }
 }
+
+
+void pqxx::Connection::InternalSetTrace() const
+{
+  if (m_Trace) PQtrace(m_Conn, m_Trace);
+  else PQuntrace(m_Conn);
+}
+
 
 
 void pqxx::Connection::RegisterTransaction(const TransactionItf *T)

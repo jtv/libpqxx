@@ -49,8 +49,6 @@ int main(int argc, char *argv[])
     {
       if (!Cur) throw logic_error("Inconsistent cursor state!");
 
-      cout << "* Got " << R.size() << " row(s) *" << endl;
-
       if (R.size() > abs(BlockSize))
         throw logic_error("Cursor returned " + ToString(R.size()) + " rows, "
 			  "when " + ToString(abs(BlockSize)) + " "

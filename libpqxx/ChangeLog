@@ -1,3 +1,21 @@
+2002-09-25 03:00 Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Removed several unwanted gcc options, making compile output readable again
+  - Bumped revision to 1.1.1
+ include/pqxx/connection.h:
+  - Made m_Conn, m_NoticeProcessor mutable
+  - Made Connect(), Disconnect(), SetupState() const
+  - Un-inlined BackendPID()
+  - Added Activate(), Deactivate()
+ include/pqxx/nontransaction.h:
+  - comment added
+ src/connection.cxx:
+  - Connect() now assumes connection is not already active
+  - Fixed bug: Connect() didn't tell libpq about pending notice processor
+ src/robusttransaction.cxx:
+  - Created local alias for InvalidOid to reduce compiler warnings
+ test/test22.cxx:
+  - a little less output
 2002-09-23 01:00 Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection.h, src/connection.cxx:
   - Now caches NoticePreprocessor & trace file set by user

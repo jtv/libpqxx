@@ -31,6 +31,9 @@ namespace pqxx
  * however, NonTransaction does not maintain any kind of transactional 
  * integrity.  This may be useful eg. for read-only access to the database that
  * does not require a consistent, atomic view on its data.
+ * As a side effect, you can keep a NonTransaction open for as long as you like.
+ * Actual back-end transactions are limited in lifespan, and will sometimes fail
+ * just because they took to long to execute.
  */
 class PQXX_LIBEXPORT NonTransaction : public TransactionItf
 {
