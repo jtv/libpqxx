@@ -594,11 +594,16 @@ private:
   {
     assert(m_l == this);
     assert(m_r == this);
+    assert(!m_Obj);
     m_Obj = p;
   }
 
   void makeref(const PQAlloc &rhs) throw ()
   {
+    assert(m_l == this);
+    assert(m_r == this);
+    assert(&rhs != this);
+    assert(!m_Obj);
     m_l = &rhs;
     m_r = rhs.m_r;
     m_l->m_r = m_r->m_l = this;

@@ -209,84 +209,94 @@ AC_TRY_COMPILE(
 AC_MSG_RESULT($select_accepts_null)
 
 AC_MSG_CHECKING([sleep()])
-AH_TEMPLATE(sleep,[Do we have a sleep function?])
 sleep=yes
-AC_CHECK_DECL(sleep,
-	[AC_DEFINE(PQXX_HAVE_SLEEP, 1, [Define if POSIX sleep() exists])],
-	[sleep=yes],
-	[#include <unistd.h>])
+AC_TRY_COMPILE([#include <unistd.h>],[sleep(0x01)],
+	AC_DEFINE(PQXX_HAVE_SLEEP, 1, [Define if POSIX sleep() exists]),
+	[sleep=no]
+)
+AC_MSG_RESULT($sleep)
 
 AC_MSG_CHECKING([PQescapeString()])
-AH_TEMPLATE(PQescapeString,[Do we have a PQescapeString function?])
 pqescapestring=yes
-AC_CHECK_DECL(PQescapeString, 
-	[AC_DEFINE(PQXX_HAVE_PQESCAPESTRING, 1, [Define if PostgreSQL has PQescapeString()])],
-	[pqescapestring=no],
-	[#include <${with_postgres_include}/libpq-fe.h>])
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[char c[1];PQescapeString(c,"",0x01)],
+	AC_DEFINE(PQXX_HAVE_PQESCAPESTRING,1,[Define if libpq has PQescapeString()]),
+	[pqescapestring=no]
+)
+AC_MSG_RESULT($pqescapestring)
 
 AC_MSG_CHECKING([PQescapeBytea()])
-AH_TEMPLATE(PQescapeBytea,[Do we have a PQescapeBytea function?])
 pqescapebytea=yes
-AC_CHECK_DECL(PQescapeBytea,
-	[AC_DEFINE(PQXX_HAVE_PQESCAPEBYTEA, 1, [Define if PostgreSQL has PQescapeBytea()])],
-	[pqescapebytea=no],
-	[#include <${with_postgres_include}/libpq-fe.h>])
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>
+#include<cstddef>],
+	[size_t l=0;const unsigned char c[]="";PQescapeBytea(c,1,&l)],
+	AC_DEFINE(PQXX_HAVE_PQESCAPEBYTEA,1,[Define if libpq has PQescapeBytea()]),
+	[pqescapebytea=no]
+)
+AC_MSG_RESULT($pqescapebytea)
 
 AC_MSG_CHECKING([PQunescapeBytea()])
-AH_TEMPLATE(PQunescapeBytea,[Do we have a PQunescapeBytea function?])
 pqunescapebytea=yes
-AC_CHECK_DECL(PQunescapeBytea,
-	[AC_DEFINE(PQXX_HAVE_PQUNESCAPEBYTEA, 1, [Define if PostgreSQL has PQunescapeBytea()])],
-	[pqunescapebytea=no],
-	[#include <${with_postgres_include}/libpq-fe.h>])
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[size_t l=0;const unsigned char c[]="";PQunescapeBytea(c,&l)],
+	AC_DEFINE(PQXX_HAVE_PQUNESCAPEBYTEA,1,[Define if libpq has PQunescapeBytea()]),
+	[pqunescapebytea=no]
+)
+AC_MSG_RESULT($pqunescapebytea)
 
 AC_MSG_CHECKING([PQfreemem()])
-AH_TEMPLATE(PQfreemem,[Do we have a PQfreemem function?])
 pqfreemem=yes
-AC_CHECK_DECL(PQfreemem,
-	[AC_DEFINE(PQXX_HAVE_PQFREEMEM, 1, [Define if PostgreSQL has PQfreemem()])],
-	[pqfreemem=no],
-	[#include <${with_postgres_include}/libpq-fe.h>])
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[char c='x';PQfreemem(&c)],
+	AC_DEFINE(PQXX_HAVE_PQFREEMEM,1,[Define if libpq has PQfreemem()]),
+	[pqfreemem=no]
+)
+AC_MSG_RESULT($pqfreemem)
 
 AC_MSG_CHECKING([PQfreeNotify()])
-AH_TEMPLATE(PQfreeNotify,[Do we have a PQfreeNotify function?])
 pqfreenotify=yes
-AC_CHECK_DECL(PQfreeNotify,
-	[AC_DEFINE(PQXX_HAVE_PQFREENOTIFY, 1, [Define if PostgreSQL has PQfreeNotify()])],
-	[pqfreenotify=no],
-	[#include <${with_postgres_include}/libpq-fe.h>])
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[char c='x';PQfreeNotify(&c)],
+	AC_DEFINE(PQXX_HAVE_PQFREENOTIFY,1,[Define if libpq has PQfreeNotify()]),
+	[pqfreenotify=no]
+)
+AC_MSG_RESULT($pqfreenotify)
 
 AC_MSG_CHECKING([PQftable()])
-AH_TEMPLATE(PQftable,[Do we have a PQftable function?])
 pqftable=yes
-AC_CHECK_DECL(PQftable,
-	[AC_DEFINE(PQXX_HAVE_PQFTABLE, 1, [Define if PostgreSQL has PQftable()])],
-	[pqftable=no],
-	[#include <${with_postgres_include}/libpq-fe.h>])
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[PGresult*r=0;PQftable(r,0)],
+	AC_DEFINE(PQXX_HAVE_PQFTABLE,1,[Define if libpq has PQftable()]),
+	[pqftable=no]
+)
+AC_MSG_RESULT($pqftable)
 
 AC_MSG_CHECKING([for new COPY functions])
-AH_TEMPLATE(PQputCopyData,[Do we have PQputCopyData() and related functions?])
 pqputcopy=yes
-AC_CHECK_DECL(PQputCopyData,
-	[AC_DEFINE(PQXX_HAVE_PQPUTCOPY, 1, [Define if PostgreSQL has PQputCopyData() and related functions])],
-	[pqputcopy=no],
-	[#include <${with_postgres_include}/libpq-fe.h>])
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[PGconn*c=0;PQputCopyData(c,"",0)],
+	AC_DEFINE(PQXX_HAVE_PQPUTCOPY,1,[Define if libpq has PQputCopyData() and related functions]),
+	[pqputcopy=no]
+)
+AC_MSG_RESULT($pqputcopy)
 
 AC_MSG_CHECKING([PQexecPrepared()])
-AH_TEMPLATE(PQexecPrepared,[Do we have a PQexecPrepared function?])
 pqexecprepared=yes
-AC_CHECK_DECL(PQexecPrepared,
-	[AC_DEFINE(PQXX_HAVE_PQEXECPREPARED, 1, [Define if PostgreSQL has PQexecPrepared()])],
-	[pqexecprepared=no],
-	[#include <${with_postgres_include}/libpq-fe.h>])
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[PGconn*c=0;const char*p[1]={0};const int i=0;PQexecPrepared(c,"",i,p,&i,&i,i)],
+	AC_DEFINE(PQXX_HAVE_PQEXECPREPARED,1,[Define if libpq has PQexecPrepared()]),
+	[pqexecprepared=no]
+)
+AC_MSG_RESULT($pqexecprepared)
 
 AC_MSG_CHECKING([PQresultErrorField()])
-AH_TEMPLATE(PQresultErrorField,[Do we have a PQresultErrorField function?])
 pqresulterrorfield=yes
-AC_CHECK_DECL(PQresultErrorField,
-	[AC_DEFINE(PQXX_HAVE_PQRESULTERRORFIELD, 1, [Define if PostgreSQL has PQresultErrorField()])],
-	[pqresulterrorfield=no],
-	[#include <${with_postgres_include}/libpq-fe.h>])
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[PGresult*r=0;PQresultErrorField(r,0)],
+	AC_DEFINE(PQXX_HAVE_PQRESULTERRORFIELD,1,[Define if libpq has PQresultErrorField()]),
+	[pqresulterrorfield=no]
+)
+AC_MSG_RESULT($pqresulterrorfield)
 
 AC_CHECK_HEADER(limits, 
 	[AC_DEFINE(PQXX_HAVE_LIMITS, 1, [Define if <limits> exists])])

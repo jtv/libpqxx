@@ -49,6 +49,17 @@ bool pqxx::result::tuple::operator==(const tuple &rhs) const throw ()
 }
 
 
+void pqxx::result::tuple::swap(tuple &rhs) throw ()
+{
+  const result *const h(m_Home);
+  const result::size_type i(m_Index);
+  m_Home = rhs.m_Home;
+  m_Index = rhs.m_Index;
+  rhs.m_Home = h;
+  rhs.m_Index = i;
+}
+
+
 bool pqxx::result::field::operator==(const field &rhs) const
 {
   if (is_null() != rhs.is_null()) return false;
@@ -150,6 +161,34 @@ pqxx::result::GetLength(pqxx::result::size_type Row,
 {
   return PQgetlength(c_ptr(), Row, Col);
 }
+
+
+pqxx::oid pqxx::result::column_type(tuple::size_type ColNum) const
+{
+  const oid T = PQftype(c_ptr(), ColNum);
+  if (T == oid_none)
+    throw PGSTD::invalid_argument(
+	"Attempt to retrieve type of nonexistant column " +
+	to_string(ColNum) + " of query result");
+  return T;
+}
+
+
+#ifdef PQXX_HAVE_PQFTABLE
+pqxx::oid pqxx::result::column_table(tuple::size_type ColNum) const
+{
+  const oid T = PQftable(c_ptr(), ColNum);
+
+  /* If we get oid_none, it may be because the column is computed, or because we
+   * got an invalid row number.
+   */
+  if (T == oid_none && ColNum >= columns())
+    throw PGSTD::invalid_argument("Attempt to retrieve table ID for column " +
+	to_string(ColNum) + " out of " + to_string(columns()));
+
+  return T;
+}
+#endif
 
 
 int pqxx::result::errorposition() const throw ()
@@ -255,4 +294,40 @@ pqxx::result::const_fielditerator::operator--(int)
   m_col--;
   return old;
 }
+
+
+pqxx::result::const_reverse_iterator
+pqxx::result::const_reverse_iterator::operator++(int)
+{
+  const_reverse_iterator tmp(*this);
+  iterator_type::operator--();
+  return tmp;
+}
+
+
+pqxx::result::const_reverse_iterator
+pqxx::result::const_reverse_iterator::operator--(int)
+{
+  const_reverse_iterator tmp(*this);
+  iterator_type::operator++();
+  return tmp;
+}
+
+pqxx::result::const_reverse_fielditerator
+pqxx::result::const_reverse_fielditerator::operator++(int)
+{
+  const_reverse_fielditerator tmp(*this);
+  iterator_type::operator--();
+  return tmp;
+}
+
+
+pqxx::result::const_reverse_fielditerator
+pqxx::result::const_reverse_fielditerator::operator--(int)
+{
+  const_reverse_fielditerator tmp(*this);
+  iterator_type::operator++();
+  return tmp;
+}
+
 

@@ -27,6 +27,21 @@
 using namespace PGSTD;
 
 
+pqxx::cursor_base::cursor_base(transaction_base *context,
+    const string &cname,
+    bool embellish_name) :
+  m_context(context),
+  m_done(false),
+  m_name(cname)
+{
+  if (embellish_name)
+  {
+    m_name += '_';
+    m_name += to_string(get_unique_cursor_num());
+  }
+}
+
+
 int pqxx::cursor_base::get_unique_cursor_num()
 {
   if (!m_context) throw logic_error("libpqxx internal error: "
@@ -45,7 +60,7 @@ pqxx::icursorstream::icursorstream(pqxx::transaction_base &context,
   cursor_base(&context, basename),
   m_stride(Stride),
   m_realpos(0),
-  m_maxpos(0),
+  m_reqpos(0),
   m_iterators(0)
 {
   set_stride(Stride);
@@ -59,7 +74,7 @@ pqxx::icursorstream::icursorstream(transaction_base &Context,
   cursor_base(&Context, Name.c_str(), false),
   m_stride(Stride),
   m_realpos(0),
-  m_maxpos(0),
+  m_reqpos(0),
   m_iterators(0)
 {
   set_stride(Stride);
@@ -88,7 +103,6 @@ pqxx::result pqxx::icursorstream::fetch()
   result r(m_context->exec("FETCH "+to_string(m_stride)+" IN \""+name()+"\""));
   if (r.empty()) m_done = true;
   m_realpos += r.size();
-  if (m_realpos > m_maxpos) m_maxpos = m_realpos;
   return r;
 }
 
@@ -98,8 +112,14 @@ pqxx::icursorstream &pqxx::icursorstream::ignore(streamsize n)
   m_context->exec("MOVE " + to_string(n) + " IN \"" + name() + "\"");
   // TODO: Try to get actual number of moved tuples
   m_realpos += n;
-  if (m_realpos > m_maxpos) m_maxpos = m_realpos;
   return *this;
+}
+
+
+pqxx::icursorstream::size_type pqxx::icursorstream::forward(size_type n)
+{
+  m_reqpos += n*m_stride;
+  return m_reqpos;
 }
 
 
@@ -147,7 +167,7 @@ void pqxx::icursorstream::remove_iterator(icursor_iterator *i) const throw ()
 
 void pqxx::icursorstream::service_iterators(size_type topos)
 {
-  assert(topos <= m_maxpos);
+  assert(topos <= m_reqpos);
   if (topos < m_realpos) return;
 
   typedef multimap<size_type,icursor_iterator*> todolist;
@@ -159,7 +179,7 @@ void pqxx::icursorstream::service_iterators(size_type topos)
   {
     const size_type readpos = i->first;
     if (readpos > m_realpos) ignore(readpos - m_realpos);
-    assert(readpos == i->first);
+    assert(m_realpos == i->first);
     const result r = fetch();
     for ( ; i != todo.end() && i->first == readpos; ++i)
       i->second->fill(r);
@@ -207,6 +227,7 @@ pqxx::icursor_iterator pqxx::icursor_iterator::operator++(int)
 {
   icursor_iterator old(*this);
   m_pos = m_stream->forward();
+  m_here.clear();
   return old;
 }
 
@@ -214,6 +235,7 @@ pqxx::icursor_iterator pqxx::icursor_iterator::operator++(int)
 pqxx::icursor_iterator &pqxx::icursor_iterator::operator++()
 {
   m_pos = m_stream->forward();
+  m_here.clear();
   return *this;
 }
 
@@ -226,6 +248,7 @@ pqxx::icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
     throw invalid_argument("Advancing icursor_iterator by negative offset");
   }
   m_pos = m_stream->forward(n);
+  m_here.clear();
   return *this;
 }
 

@@ -105,6 +105,12 @@ int main(int, char *argv[])
 
     // Simple test: read back results 1 row at a time
     icursorstream Cur1(T, Query, "singlestep", cursor_base::next());
+
+    if (Cur1.stride() != cursor_base::next())
+      throw logic_error("Expected stride to be " + 
+	  to_string(cursor_base::next()) + ", found " +
+	  to_string(Cur1.stride()));
+
     int rows=0;
     for (start(Cur1, here); get(Cur1, R, 1); ++rows) cmp_results(Ref, here, R);
     finish(Cur1, Ref.size(), here);
@@ -112,6 +118,12 @@ int main(int, char *argv[])
     // Read whole table at once
     icursorstream Cur2(T, Query, "bigstep");
     Cur2.set_stride(cursor_base::all());
+
+    if (Cur2.stride() != cursor_base::all())
+      throw logic_error("Expected stride to be " + 
+	  to_string(cursor_base::all()) + ", found " +
+	  to_string(Cur2.stride()));
+
     start(Cur2, here);
     if (!get(Cur2, R, Ref.size())) throw logic_error("No data!");
     cmp_results(Ref, here, R);

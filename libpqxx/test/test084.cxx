@@ -88,7 +88,16 @@ int main(int, char *argv[])
 
     // Remember, our adopted cursor is at position (InitialSkip*GetRows)
     icursor_iterator i3(i2);
+
+    if ((i3 != i2) || !(i3 == i2))
+      throw logic_error("Broken equality on copy-constructed icursor_iterator");
+    if (i3 > i2 || i3 < i2 || !(i3 <= i2) || !(i3 >= i2))
+      throw logic_error("Broken comparison on identical icursor_iterators");
+
     i3 += InitialSkip;
+
+    if (i3 <= i2)
+      throw logic_error("Broken icursor_iterator::operator <=");
 
     icursor_iterator iend, i4;
     if (i3 == iend)
@@ -115,20 +124,21 @@ int main(int, char *argv[])
     C.get(R);
     R2 = *i2;
     compare_results(R, R2, "[2]");
+    i2 += 1;
 
-    C.ignore(2);
-    ++i2;
-    ++i2;
-
+    C.ignore(GetRows);
     C.get(R);
-    R2 = *i2;
+    R2 = *++i2;
+
     compare_results(R, R2, "[3]");
 
-    for (int i=1; C && i2 != iend; C.get(R), R2 = *i2++, ++i)
+    ++i2;
+    R2 = *i2++;
+    for (int i=1; C.get(R) && i2 != iend; R2 = *i2++, ++i)
       compare_results(R, R2, "iteration " + to_string(i));
 
     if (i2 != iend) throw logic_error("Adopted cursor terminated early");
-    if (C) throw logic_error("icursor_iterator terminated early");
+    if (C >> R) throw logic_error("icursor_iterator terminated early");
   }
   catch (const sql_error &e)
   {
