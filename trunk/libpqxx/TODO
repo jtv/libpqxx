@@ -2,6 +2,10 @@ Build
 (*) Get install, dist and maintainer-clean targets working
 (*) Move "check" postgres parameters into configure script
 (*) Get object files into obj/ directory
+(*) Finalize license
+
+Check
+(*) Test 8 appears to mistranslate tabs on output
 
 Error handling
 (*) Check whether transaction still open if possible (consistency with backend)

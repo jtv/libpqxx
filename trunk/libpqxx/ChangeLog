@@ -1,3 +1,6 @@
+2002-04-27 13:20  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh:
+  - Added --copy option to automake invocation
 2002-04-07 02:30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  Configure.ac:
   - Fixed AM_INIT_AUTOMAKE line
