@@ -26,7 +26,7 @@ int main(int, char *argv[])
     result R = W.exec("SELECT * FROM pg_tables");
     const string sval = R.at(0).at(1).c_str();
     string sval2;
-    fieldstream fs1(R[0][1]);
+    fieldstream fs1(R.front()[1]);
     fs1 >> sval2;
     if (sval2 != sval)
       throw logic_error("Got '" + sval + "' from field, "
@@ -36,9 +36,9 @@ int main(int, char *argv[])
     int ival;
     fieldstream fs2(R.at(0).at(0));
     fs2 >> ival;
-    if (ival != R[0][0].as<int>())
+    if (ival != R.front().front().as<int>())
       throw logic_error("Got int " + to_string(ival) + " from fieldstream, "
-	  "but " + to_string(R[0][0].as<int>()) + " from field");
+	  "but " + to_string(R.front().front().as<int>()) + " from field");
 
     double dval;
     (fieldstream(R.at(0).at(0))) >> dval;
