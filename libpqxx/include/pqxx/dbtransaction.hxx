@@ -57,6 +57,8 @@ protected:
       			 const PGSTD::string &NName,
 			 const PGSTD::string &CName);
 
+  virtual ~dbtransaction();
+
   /// Start a transaction on the backend and set desired isolation level
   void start_backend_transaction();
 

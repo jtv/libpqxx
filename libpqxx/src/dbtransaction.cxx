@@ -33,6 +33,11 @@ pqxx::dbtransaction::dbtransaction(connection_base &C,
 }
 
 
+pqxx::dbtransaction::~dbtransaction()
+{
+}
+
+
 void pqxx::dbtransaction::start_backend_transaction()
 {
   DirectExec("BEGIN", 2);
