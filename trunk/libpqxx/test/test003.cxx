@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 
       // Another sanity check on Cursor: must never return too many rows,
       // even though returning too few is permitted
-      if (R.size() > abs(BlockSize))
+      if (R.size() > unsigned(abs(BlockSize)))
         throw logic_error("Cursor returned " + to_string(R.size()) + " rows, "
 			  "when " + to_string(abs(BlockSize)) + " "
 			  "was all I asked for!");
