@@ -57,7 +57,7 @@ template<> inline void set_to_NaN(double &t) { t = nan(""); }
 template<> inline void set_to_NaN(long double &t) { t = lnan(""); }
 #endif
 #else
-const float nan_f(0f/0f);
+const float nan_f(0.0/0.0);
 template<> inline void set_to_NaN(float &t) { t = nan_f; }
 const double nan_d(0.0/0.0);
 template<> inline void set_to_NaN(double &t) { t = nan_d; }
