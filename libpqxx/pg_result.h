@@ -65,12 +65,11 @@ public:
     Field at(const char[]) const;
     Field at(PGSTD::string s) const { return at(s.c_str()); }
 
-    size_type size() const { return PQnfields(Result_c_ptr()); }
+    size_type size() const { return m_Home->Columns(); }
 
     Result::size_type Row() const { return m_Index; }
 
   protected:
-    const PGresult *Result_c_ptr() const { return m_Home->c_ptr(); }
     const Result *m_Home;
     Result::size_type m_Index;
   };
@@ -191,16 +190,26 @@ public:
   const Tuple operator[](size_type i) const { return Tuple(this, i); }
   const Tuple at(size_type i) const;
 
-private:
-  friend class Result::Tuple;
-  const PGresult *c_ptr() const { return m_Result; }
+  Tuple::size_type Columns() const { return PQnfields(m_Result); }
+  // TODO: Check for nonexistant columns!!!
+  Tuple::size_type ColumnNumber(const char Name[]) const {return PQfnumber(m_Result,Name);}
+  Tuple::size_type ColumnNumber(std::string Name) const {return ColumnNumber(Name.c_str());}
+  const char *ColumnName(Tuple::size_type Number) const {return PQfname(m_Result,Number);}
 
+private:
   PGresult *m_Result;
   mutable int *m_Refcount;
+
+  friend class Result::Field;
+  const char *GetValue(size_type Row, Field::size_type Col) const;
+  bool GetIsNull(size_type Row, Field::size_type Col) const;
+  Field::size_type GetLength(size_type Row, Field::size_type Col) const;
 
   friend class Connection;
   explicit Result(PGresult *rhs) : m_Result(rhs), m_Refcount(0) {MakeRef(rhs);}
   Result &operator=(PGresult *);
+  bool operator!() const { return !m_Result; }
+  operator bool() const { return m_Result; }
   void CheckStatus() const;
 
 

@@ -735,7 +735,10 @@ if (!F.is_null())
      fields will be integer values, or decimals, or Booleans.  To convert the
      field's value to one of these, use its <functionname>to</> method.  This
      adapts itself to the type of variable you pass it, expecting the field
-     value to be of an appropriate form for that type:
+     value to be of an appropriate form for that type.  For convenience,
+     <functionname>to</> returns <literal>false</> if the field had the null
+     value, and <literal>true</> otherwise.  In the former case, the variable
+     will retain the value it had before the call.
     </para>
     <programlisting>
 // Pay an employee his salary.  Add bonus for managers.
@@ -761,6 +764,12 @@ void PaySalary(Result::const_iterator empl)
   TransferMoney(id, salary);
 }
     </programlisting>
+    <para>
+     If conversion fails, eg. when trying to convert a floating-point value to
+     an integer variable, <functionname>to</> will throw a 
+     <literal>runtime_error</> reporting the problem in its 
+     <functionname>what</> message.
+    </para>
    </sect2>
 
   </sect1>
