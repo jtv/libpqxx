@@ -77,7 +77,7 @@ pqxx::result pqxx::Cursor::Fetch(difference_type Count)
   }
   catch (const exception &)
   {
-    m_Pos = pos_unknown;
+    m_Pos = size_type(pos_unknown);
     throw;
   }
 
@@ -105,7 +105,7 @@ pqxx::result::difference_type pqxx::Cursor::Move(difference_type Count)
   }
   catch (const exception &)
   {
-    m_Pos = pos_unknown;
+    m_Pos = size_type(pos_unknown);
     throw;
   }
 
@@ -185,7 +185,7 @@ pqxx::Cursor::NormalizedMove(difference_type Intended,
 
     if ((Offset > labs(Intended)) && (m_Pos != size_type(pos_unknown)))
     {
-      m_Pos = pos_unknown;
+      m_Pos = size_type(pos_unknown);
       throw logic_error("libpqxx internal error: Confused cursor position");
     }
   }
