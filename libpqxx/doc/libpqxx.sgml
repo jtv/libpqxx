@@ -379,7 +379,7 @@
      <para>
       A <literal>Transactor</>-derived class may select its own "quality of
       service" in transactional integrity by overriding the nested
-      <literal>TRANSACTIONTYPE</literal> typedef defined within its base class,
+      <literal>argument_type</literal> typedef defined within its base class,
       <literal>Transactor</>.
      </para>
     </listitem>
@@ -955,7 +955,7 @@ for (Result::const_iterator i = R.begin(); i != R.end(); ++i)
      <literal>Result::Field</>--which is another placeholder, but this time
      encapsulates an actual field value in our query result.  A 
      <literal>Field</> <literal>F</> also knows its column name, which can be 
-     obtained as <literal>F.name()</>.
+     obtained as <literal>F.Name()</>.
     </para>
     <para>
      Again, there is more than one way to read the field's value.  Let's start

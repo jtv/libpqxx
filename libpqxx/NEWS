@@ -1,3 +1,8 @@
+2002-05-27 22:30, v0.4.0:
+ - RENAMED Transactor::TRANSACTIONTYPE to argument_type for STL conformance
+ - RENAMED Result::Field::name() to Name()
+ - documentation improvements
+ - minor optimizations
 2002-05-18 00:00, v0.3.1:
  - removed broken postgres_fe.h dependency (hopefully permanent fix)
 2002-05-12 22:45, v0.3.0:
