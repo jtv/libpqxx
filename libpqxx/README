@@ -400,20 +400,22 @@ libpq		http://candle.pha.pa.us/main/writings/pgsql/sgml/libpq.html
 libpqxx		http://pqxx.tk/
 		http://gborg.postgresql.org/project/libpqxx/
 Linux		http://www.linux.org/
+MinGW		http://www.mingw.org/
 OpenSSL		http://www.openssl.org/
 PostgreSQL	http://www.postgresql.org/
+zlib		http://www.zlib.org/
+
 
 APPENDIX B - Projects Using libpqxx
 
 This list is very recent, and not a lot of work has been put into it.  It is
 known that there are many other projects using libpqxx that are not included
-here.  
+here.  Some of them may be proprietary, or even have no names.
 
-Since I haven't communicated with the authors in the "Google" list, their 
-inclusion does not imply endorsement.  For all I know, they may be unhappy with
-libpqxx--or perhaps they may have stopped using it by the time you read this!
-But obviously I'll do my best to ensure that this does not happen.  On to the
-list:
+Inclusion does not imply endorsement.  For all I know, the people running the
+Google projects may be unhappy with libpqxx--or perhaps they may have stopped
+using it by the time you read this!  But obviously I'll do my best to ensure
+that this does not happen.  On to the list:
 
 As found on Google:
 
