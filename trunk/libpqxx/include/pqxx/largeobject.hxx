@@ -48,7 +48,7 @@ public:
   typedef long size_type;
 
   /// Refer to a nonexistent large object (similar to what a null pointer does)
-  largeobject();							//[t48]
+  largeobject() throw ();						//[t48]
 
   /// Create new large object
   /** @param T backend transaction in which the object is to be created
@@ -60,7 +60,7 @@ public:
    * large object identity.  Does not affect the database.
    * @param O object identifier for the given object
    */
-  explicit largeobject(oid O) : m_ID(O) {}				//[t48]
+  explicit largeobject(oid O) throw () : m_ID(O) {}			//[t48]
 
   /// Import large object from a local file
   /** Creates a large object containing the data found in the given file.
@@ -74,7 +74,7 @@ public:
    * as an implicit conversion.
    * @param O already opened large object to copy identity from
    */
-  largeobject(const largeobjectaccess &O);				//[t50]
+  largeobject(const largeobjectaccess &O) throw ();			//[t50]
 
   /// Object identifier
   /** The number returned by this function identifies the large object in the
@@ -287,7 +287,7 @@ public:
 
 
   /// Issue message to transaction's notice processor
-  void process_notice(const PGSTD::string &);				//[t50]
+  void process_notice(const PGSTD::string &) throw ();			//[t50]
 
   using largeobject::remove;
 
