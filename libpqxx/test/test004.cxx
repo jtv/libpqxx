@@ -26,7 +26,7 @@ using namespace pqxx;
 #else
 extern "C"
 {
-#ifdef HAVE_SYS_SELECT_H
+#ifdef PQXX_HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #else
 #include <sys/time.h>

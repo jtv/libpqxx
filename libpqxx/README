@@ -167,8 +167,8 @@ define the features your system, compiler, and PostgreSQL versions support.
 Normally the configure script would do this for you.
 
 If you're using Microsoft's compiler, you'll probably need to define the
-preprocessor macro NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION in the config.h file
-to work around what appears to be a compiler bug in Visual C++.
+preprocessor macro PQXX_NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION in the config.h
+file to work around what appears to be a compiler bug in Visual C++.
 
 Also, Windows doesn't let you free memory in a DLL that was allocated in the
 main program or in another DLL, or vice versa.  This can cause trouble when

@@ -15,7 +15,6 @@
  *
  *-------------------------------------------------------------------------
  */
-#include "pqxx/config.h"
 #include "pqxx/compiler.h"
 
 #include <cstdio>
@@ -176,7 +175,7 @@ template<> inline PGSTD::string Quote(const PGSTD::string &Obj,
   Result.reserve(Obj.size() + 2);
   Result += "'";
 
-#ifdef HAVE_PQESCAPESTRING
+#ifdef PQXX_HAVE_PQESCAPESTRING
 
   char *const Buf = new char[2*Obj.size() + 1];
   try
@@ -328,7 +327,7 @@ public:
 private:
   void freemem() throw ()
   {
-#if defined(HAVE_PQFREEMEM)
+#if defined(PQXX_HAVE_PQFREEMEM)
     PQfreemem(reinterpret_cast<unsigned char *>(m_Obj));
 #else
     free(m_Obj);
@@ -343,9 +342,9 @@ private:
 /// Special version for notify structures, using PQfreeNotify() if available
 template<> inline void PQAlloc<PGnotify>::freemem() throw ()
 {
-#if defined(HAVE_PQFREEMEM)
+#if defined(PQXX_HAVE_PQFREEMEM)
     PQfreemem(reinterpret_cast<unsigned char *>(m_Obj));
-#elif defined(HAVE_PQFREENOTIFY)
+#elif defined(PQXX_HAVE_PQFREENOTIFY)
     PQfreeNotify(m_Obj);
 #else
     free(m_Obj);

@@ -19,7 +19,7 @@
 
 #include "pqxx/config.h"
 
-#ifdef BROKEN_ITERATOR
+#ifdef PQXX_BROKEN_ITERATOR
 namespace PGSTD
 {
 /// Work around lacking iterator template definition in <iterator>
@@ -38,7 +38,7 @@ template<typename Cat,
 }
 #else
 #include <iterator>
-#endif // BROKEN_ITERATOR
+#endif // PQXX_BROKEN_ITERATOR
 
 #ifndef HAVE_CHAR_TRAITS
 namespace PGSTD

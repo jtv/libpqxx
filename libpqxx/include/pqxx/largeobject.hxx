@@ -16,9 +16,9 @@
  *
  *-------------------------------------------------------------------------
  */
-#include "pqxx/config.h"
+#include "pqxx/compiler.h"
 
-#ifdef HAVE_STREAMBUF
+#ifdef PQXX_HAVE_STREAMBUF
 #include <streambuf>
 #else
 #include <streambuf.h>
@@ -212,7 +212,7 @@ public:
     largeobject::to_file(m_Trans, File); 
   }
 
-#ifdef BROKEN_USING_DECL
+#ifdef PQXX_BROKEN_USING_DECL
   /// Export large object's contents to a local file
   /** Writes the data stored in the large object to the given file.
    * @param T the transaction in which the object is to be accessed
@@ -320,7 +320,7 @@ private:
  */
 template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
   class largeobject_streambuf :
-#ifdef HAVE_STREAMBUF
+#ifdef PQXX_HAVE_STREAMBUF
     public PGSTD::basic_streambuf<CHAR, TRAITS>
 #else
     public PGSTD::streambuf
@@ -331,7 +331,7 @@ public:
   typedef CHAR   char_type;
   typedef TRAITS traits_type;
   typedef typename traits_type::int_type int_type;
-#ifdef HAVE_STREAMBUF
+#ifdef PQXX_HAVE_STREAMBUF
   typedef typename traits_type::pos_type pos_type;
   typedef typename traits_type::off_type off_type;
 #else
@@ -372,7 +372,7 @@ public:
   }
 
 
-#ifdef HAVE_STREAMBUF
+#ifdef PQXX_HAVE_STREAMBUF
 protected:
 #endif
   virtual int sync()
@@ -469,13 +469,13 @@ private:
  */
 template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> > 
   class basic_ilostream :
-#ifdef HAVE_STREAMBUF
+#ifdef PQXX_HAVE_STREAMBUF
     public PGSTD::basic_istream<CHAR, TRAITS>
 #else
     public PGSTD::istream
 #endif
 {
-#ifdef HAVE_STREAMBUF
+#ifdef PQXX_HAVE_STREAMBUF
   typedef PGSTD::basic_istream<CHAR, TRAITS> super;
 #else
   typedef PGSTD::istream super;
@@ -532,13 +532,13 @@ typedef basic_ilostream<char> ilostream;
  */
 template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> > 
   class basic_olostream : 
-#ifdef HAVE_STREAMBUF
+#ifdef PQXX_HAVE_STREAMBUF
     public PGSTD::basic_ostream<CHAR, TRAITS>
 #else
     public PGSTD::ostream
 #endif
 {
-#ifdef HAVE_STREAMBUF
+#ifdef PQXX_HAVE_STREAMBUF
   typedef PGSTD::basic_ostream<CHAR, TRAITS> super;
 #else
   typedef PGSTD::ostream super;
@@ -578,7 +578,7 @@ public:
 
   ~basic_olostream() 
   { 
-#ifdef HAVE_STREAMBUF
+#ifdef PQXX_HAVE_STREAMBUF
     m_Buf.pubsync(); m_Buf.pubsync(); 
 #else
     m_Buf.sync(); m_Buf.sync();
@@ -603,13 +603,13 @@ typedef basic_olostream<char> olostream;
  */
 template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> > 
   class basic_lostream :
-#ifdef HAVE_STREAMBUF
+#ifdef PQXX_HAVE_STREAMBUF
     public PGSTD::basic_iostream<CHAR, TRAITS>
 #else
     public PGSTD::iostream
 #endif
 {
-#ifdef HAVE_STREAMBUF
+#ifdef PQXX_HAVE_STREAMBUF
   typedef PGSTD::basic_iostream<CHAR, TRAITS> super;
 #else
   typedef PGSTD::iostream super;
@@ -650,7 +650,7 @@ public:
 
   ~basic_lostream() 
   { 
-#ifdef HAVE_STREAMBUF
+#ifdef PQXX_HAVE_STREAMBUF
     m_Buf.pubsync(); m_Buf.pubsync(); 
 #else
     m_Buf.sync(); m_Buf.sync();

@@ -26,6 +26,7 @@ AC_PROG_LIBTOOL
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 
+# TODO: Rename PGSTD to PQXXSTD
 
 # check that std namespace is actually called std
 # not sure how to check for other namespaces...
@@ -99,7 +100,7 @@ if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 fi
 
 streambuf=yes
-AC_CHECK_HEADER(streambuf,AC_DEFINE(HAVE_STREAMBUF,1,
+AC_CHECK_HEADER(streambuf,AC_DEFINE(PQXX_HAVE_STREAMBUF,1,
 [Define if you have the <streambuf> header; if not, <streambuf.h> is used]),
 streambuf=no)
 # AC_MSG_RESULT($streambuf)
@@ -220,7 +221,7 @@ select_h=yes
 AC_TRY_COMPILE(
 	[#include <sys/select.h>]
 	, [select(0,0,0,0,0)]
-	, AC_DEFINE(HAVE_SYS_SELECT_H,1,
+	, AC_DEFINE(PQXX_HAVE_SYS_SELECT_H,1,
 [Define if the sys/select.h header defines a working select() and friends, as per POSIX 1003.1-2001])
 	,select_h=no
 )
@@ -241,7 +242,7 @@ AC_MSG_CHECKING([PQescapeString()])
 AH_TEMPLATE(PQescapeString,[Do we have a PQescapeString function?])
 pqescapestring=yes
 AC_CHECK_DECL(PQescapeString, 
-	[AC_DEFINE(HAVE_PQESCAPESTRING, 1, [Define if PostgreSQL has PQescapeString()])],
+	[AC_DEFINE(PQXX_HAVE_PQESCAPESTRING, 1, [Define if PostgreSQL has PQescapeString()])],
 	[pqescapestring=no],
 	[#include <${with_postgres_include}/libpq-fe.h]>)
 
@@ -249,7 +250,7 @@ AC_MSG_CHECKING([PQfreemem()])
 AH_TEMPLATE(PQfreemem,[Do we have a PQfreemem function?])
 pqfreemem=yes
 AC_CHECK_DECL(PQfreemem,
-	[AC_DEFINE(HAVE_PQFREEMEM, 1, [Define if PostgreSQL has PQfreemem()])],
+	[AC_DEFINE(PQXX_HAVE_PQFREEMEM, 1, [Define if PostgreSQL has PQfreemem()])],
 	[pqfreemem=no],
 	[#include <${with_postgres_include}/libpq-fe.h]>)
 
@@ -257,7 +258,7 @@ AC_MSG_CHECKING([PQfreeNotify()])
 AH_TEMPLATE(PQfreeNotify,[Do we have a PQfreeNotify function?])
 pqfreenotify=yes
 AC_CHECK_DECL(PQfreeNotify,
-	[AC_DEFINE(HAVE_PQFREENOTIFY, 1, [Define if PostgreSQL has PQfreeNotify()])],
+	[AC_DEFINE(PQXX_HAVE_PQFREENOTIFY, 1, [Define if PostgreSQL has PQfreeNotify()])],
 	[pqfreenotify=no],
 	[#include <${with_postgres_include}/libpq-fe.h]>)
 
@@ -265,7 +266,7 @@ AC_MSG_CHECKING([PQftable()])
 AH_TEMPLATE(PQftable,[Do we have a PQftable function?])
 pqftable=yes
 AC_CHECK_DECL(PQftable,
-	[AC_DEFINE(HAVE_PQFTABLE, 1, [Define if PostgreSQL has PQftable()])],
+	[AC_DEFINE(PQXX_HAVE_PQFTABLE, 1, [Define if PostgreSQL has PQftable()])],
 	[pqftable=no],
 	[#include <${with_postgres_include}/libpq-fe.h]>)
 
@@ -277,7 +278,7 @@ AC_MSG_CHECKING([whether <iterator> defines a usable iterator template])
 AC_TRY_COMPILE([#include <iterator>], 
 	[struct I:PGSTD::iterator<PGSTD::random_access_iterator_tag,int>{}],
 	[it='yes'],
-	[AC_DEFINE(BROKEN_ITERATOR, 
+	[AC_DEFINE(PQXX_BROKEN_ITERATOR, 
 			1, 
 			[Define if <iterator> lacks an iterator template definition])
       	 it='no'])
@@ -299,7 +300,7 @@ AC_MSG_CHECKING([whether overloaded using-declarations work])
 AC_TRY_COMPILE([struct A{foo(int){}};struct B{using A::foo;foo(int,bool){}};],
 	[B b;b.foo(1,true);],
 	[usingdecl='yes'],
-	[AC_DEFINE(BROKEN_USING_DECL,
+	[AC_DEFINE(PQXX_BROKEN_USING_DECL,
 		1,
 		[Define if function overloading using "using" breaks])
 	 usingdecl='no'])

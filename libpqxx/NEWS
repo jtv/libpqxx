@@ -1,3 +1,5 @@
+1.9.6
+ - Fixes in "field table" support
 1.9.5
  - Header file contents moved to .hxx files for editor filetype recognition
  - Fixes wrong timestamp for include/pqxx/result in 1.9.4 distribution

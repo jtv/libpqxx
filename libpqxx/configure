@@ -18661,6 +18661,7 @@ else
 fi
 
 
+# TODO: Rename PGSTD to PQXXSTD
 
 # check that std namespace is actually called std
 # not sure how to check for other namespaces...
@@ -18974,7 +18975,7 @@ fi
 if test $ac_cv_header_streambuf = yes; then
 
 cat >>confdefs.h <<\_ACEOF
-#define HAVE_STREAMBUF 1
+#define PQXX_HAVE_STREAMBUF 1
 _ACEOF
 
 else
@@ -19727,7 +19728,7 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (exit $ac_status); }; }; then
 
 cat >>confdefs.h <<\_ACEOF
-#define HAVE_SYS_SELECT_H 1
+#define PQXX_HAVE_SYS_SELECT_H 1
 _ACEOF
 
 
@@ -19849,7 +19850,7 @@ echo "${ECHO_T}$ac_cv_have_decl_PQescapeString" >&6
 if test $ac_cv_have_decl_PQescapeString = yes; then
 
 cat >>confdefs.h <<\_ACEOF
-#define HAVE_PQESCAPESTRING 1
+#define PQXX_HAVE_PQESCAPESTRING 1
 _ACEOF
 
 else
@@ -19913,7 +19914,7 @@ echo "${ECHO_T}$ac_cv_have_decl_PQfreemem" >&6
 if test $ac_cv_have_decl_PQfreemem = yes; then
 
 cat >>confdefs.h <<\_ACEOF
-#define HAVE_PQFREEMEM 1
+#define PQXX_HAVE_PQFREEMEM 1
 _ACEOF
 
 else
@@ -19977,7 +19978,7 @@ echo "${ECHO_T}$ac_cv_have_decl_PQfreeNotify" >&6
 if test $ac_cv_have_decl_PQfreeNotify = yes; then
 
 cat >>confdefs.h <<\_ACEOF
-#define HAVE_PQFREENOTIFY 1
+#define PQXX_HAVE_PQFREENOTIFY 1
 _ACEOF
 
 else
@@ -20041,7 +20042,7 @@ echo "${ECHO_T}$ac_cv_have_decl_PQftable" >&6
 if test $ac_cv_have_decl_PQftable = yes; then
 
 cat >>confdefs.h <<\_ACEOF
-#define HAVE_PQFTABLE 1
+#define PQXX_HAVE_PQFTABLE 1
 _ACEOF
 
 else
@@ -20237,7 +20238,7 @@ sed 's/^/| /' conftest.$ac_ext >&5
 
 
 cat >>confdefs.h <<\_ACEOF
-#define BROKEN_ITERATOR 1
+#define PQXX_BROKEN_ITERATOR 1
 _ACEOF
 
       	 it='no'
@@ -20331,7 +20332,7 @@ sed 's/^/| /' conftest.$ac_ext >&5
 
 
 cat >>confdefs.h <<\_ACEOF
-#define BROKEN_USING_DECL 1
+#define PQXX_BROKEN_USING_DECL 1
 _ACEOF
 
 	 usingdecl='no'
