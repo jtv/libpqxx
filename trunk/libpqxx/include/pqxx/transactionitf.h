@@ -27,7 +27,6 @@
 
 
 #include "pqxx/connection.h"
-#include "pqxx/util.h"
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */
