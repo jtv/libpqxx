@@ -1,14 +1,14 @@
 // Remove large objects given on the command line from the default database
 #include <iostream>
 
-#include "pqxx/all.h"
+#include "pqxx/pqxx"
 
 using namespace std;
 using namespace pqxx;
 
 namespace
 {
-  class RemoveLO : public Transactor
+  class RemoveLO : public transactor<>
   {
     Oid m_O;
   public:
@@ -16,15 +16,15 @@ namespace
 
     void operator()(argument_type &T)
     {
-      LargeObject L(m_O);
+      largeobject L(m_O);
       L.remove(T);
     }
   };
 }
 
-int main(int argc, char *argv[])
+int main(int, char *argv[])
 {
-  Connection C;
+  lazyconnection C;
   bool Failures = false;
 
   try
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
       FromString(argv[i], O);
       try
       {
-        C.Perform(RemoveLO(O));
+        C.perform(RemoveLO(O));
       }
       catch (const exception &e)
       {
