@@ -508,7 +508,7 @@ string pqxx::internal::Quote_charptr(const char Obj[], bool EmptyIsNull)
 }
 
 
-string pqxx::internal::namedclass::description() const throw ()
+string pqxx::internal::namedclass::description() const 
 {
   try
   {
