@@ -23,6 +23,8 @@
 /* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
 
+/// Support deprecated OnCommit(), OnAbort(), OnDoubt() for the time being
+#define PQXX_DEPRECATED_TRANSACTION_CALLBACKS
 
 namespace pqxx
 {
@@ -74,42 +76,55 @@ public:
    */
   void operator()(TRANSACTION &T);					//[t4]
 
-  // Overridable member functions, called by connection_base::Perform() if an
+  // Overridable member functions, called by connection_base::perform() if an
   // attempt to run transaction fails/succeeds, respectively, or if the 
   // connection is lost at just the wrong moment, goes into an indeterminate 
   // state.  Use these to patch up runtime state to match events, if needed, or
   // to report failure conditions.
 
-  // TODO: Rename OnAbort()--is there a compatible way?
   /// Optional overridable function to be called if transaction is aborted
   /** This need not imply complete failure; the transactor will automatically
-   * retry the operation a number of times before giving up.  OnAbort() will be
+   * retry the operation a number of times before giving up.  on_abort() will be
    * called for each of the failed attempts.
    *
-   * @param msg Error string describing why the transaction failed
+   * One parameter is passed in by the framework: an error string describing why
+   * the transaction failed.  This will also be logged to the connection's
+   * notice processor.
    */
-  void OnAbort(const char msg[]) throw () {}				//[t13]
+  void on_abort(const char[]) throw () {}				//[t13]
 
-  // TODO: Rename OnCommit()--is there a compatible way?
-  /// Optional overridable function to be called when committing the transaction
-  /** If your OnCommit() throws an exception, the actual back-end transaction
-   * will remain committed, so any changes in the database remain.
+  /// Optional overridable function to be called after successful commit
+  /** If your on_commit() throws an exception, the actual back-end transaction
+   * will remain committed, so any changes in the database remain regardless of
+   * how this function terminates.
    */
-  void OnCommit() {}							//[t6]
+  void on_commit() {}							//[t6]
 
-  // TODO: Rename OnCommit()--is there a compatible way?
-  /// Overridable function to be called when "in doubt" about success
+  /// Overridable function to be called when "in doubt" about outcome
   /** This may happen if the connection to the backend is lost while attempting
    * to commit.  In that case, the backend may have committed the transaction
-   * but is unable to confirm this to the frontend; or the backend may have
-   * failed completely, causing the transaction to be aborted.  The best way to
-   * deal with this situation is to wave red flags in the user's face and ask
-   * him to investigate.
+   * but is unable to confirm this to the frontend; or the transaction may have
+   * failed, causing it to be rolled back, but again without acknowledgement to
+   * the client program.  The best way to deal with this situation is typically
+   * to wave red flags in the user's face and ask him to investigate.
    *
-   * Also, the robusttransaction class is intended to reduce the chances of this
-   * error occurring.
+   * The robusttransaction class is intended to reduce the chances of this
+   * error occurring, at a certain cost in performance.
+   * @see robusttransaction
    */
-  void OnDoubt() throw () {}						//[t13]
+  void on_doubt() throw () {}						//[t13]
+
+#ifdef PQXX_DEPRECATED_TRANSACTION_CALLBACKS
+  /// @deprecated Define on_commit instead.
+  /** @see on_commit */
+  void OnCommit() {}
+  /// @deprecated Define on_abort instead.
+  /** @see on_abort */
+  void OnAbort(const char[]) throw () {}
+  /// @deprecated Define on_doubt instead.
+  /** @see on_doubt */
+  void OnDoubt() throw () {}
+#endif
 
   // TODO: Rename Name()--is there a compatible way?
   /// The transactor's name.
@@ -166,7 +181,10 @@ inline void pqxx::connection_base::perform(const TRANSACTOR &T,
     catch (const PGSTD::exception &e)
     {
       // Could be any kind of error.  
+#ifdef PQXX_DEPRECATED_TRANSACTION_CALLBACKS
       T2.OnAbort(e.what());
+#endif
+      T2.on_abort(e.what());
       if (Attempts <= 0) throw;
       continue;
     }
@@ -177,7 +195,10 @@ inline void pqxx::connection_base::perform(const TRANSACTOR &T,
       throw;
     }
 
+#ifdef PQXX_DEPRECATED_TRANSACTION_CALLBACKS
     T2.OnCommit();
+#endif
+    T2.on_commit();
   } while (!Done);
 }
 
