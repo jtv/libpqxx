@@ -4,6 +4,7 @@
 
 #include <pqxx/connection.h>
 #include <pqxx/transaction.h>
+#include <pqxx/transactor.h>
 #include <pqxx/trigger.h>
 #include <pqxx/result.h>
 
@@ -13,7 +14,7 @@ using namespace pqxx;
 
 // Example program for libpqxx.  Send notification to self.
 //
-// Usage: test4 [connect-string]
+// Usage: test004 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -54,12 +55,12 @@ void Sleep(int seconds)
 }
 
 // Sample implementation of trigger handler
-class TestTrig : public Trigger
+class TestTrig : public trigger
 {
   bool m_Done;
 
 public:
-  explicit TestTrig(Connection_base &C) : Trigger(C, "trig"), m_Done(false) {}
+  explicit TestTrig(connection_base &C) : trigger(C, "trig"), m_Done(false) {}
 
   virtual void operator()(int be_pid)
   {
@@ -77,14 +78,14 @@ public:
 };
 
 
-// A Transactor to trigger our trigger handler
-class Notify : public Transactor
+// A transactor to trigger our trigger handler
+class Notify : public transactor<>
 {
   string m_Trigger;
 
 public:
   explicit Notify(string TrigName) : 
-    Transactor("Notifier"), m_Trigger(TrigName) { }
+    transactor<>("Notifier"), m_Trigger(TrigName) { }
 
   void operator()(argument_type &T)
   {
@@ -112,7 +113,7 @@ int main(int, char *argv[])
 {
   try
   {
-    Connection C(argv[1]);
+    connection C(argv[1]);
     cout << "Adding trigger..." << endl;
     TestTrig Trig(C);
 

@@ -15,7 +15,7 @@ using namespace pqxx;
 // with a deferred connection.  Default blocksize is 1; use 0 to read all rows 
 // at once.  Negative blocksizes read backwards.
 //
-// Usage: test22 [connect-string] [blocksize]
+// Usage: test022 [connect-string] [blocksize]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -32,13 +32,13 @@ int main(int argc, char *argv[])
       throw invalid_argument("Expected number for second argument");
     if (BlockSize == 0) BlockSize = Cursor::ALL();
 
-    LazyConnection C(argv[1]);
+    lazyconnection C(argv[1]);
 
     // Enable all sorts of debug output.  C will remember this setting until it
     // gets to the point where it actually needs to connect to the database.
     C.Trace(stdout);
 
-    Transaction T(C, "test22");
+    transaction<serializable> T(C, "test22");
 
     Cursor Cur(T, ("SELECT * FROM " + Table).c_str(), "tablecur", BlockSize);
     if (BlockSize < 0) Cur.Move(Cursor::ALL());
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     C.Trace(0);
 
 
-    Result R;
+    result R;
     while ((Cur >> R))
     {
       if (!Cur) throw logic_error("Inconsistent cursor state!");
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 			  "when " + ToString(abs(BlockSize)) + " "
 			  "was all I asked for!");
 
-      for (Result::const_iterator c = R.begin(); c != R.end(); ++c)
+      for (result::const_iterator c = R.begin(); c != R.end(); ++c)
       {
         string N;
         c[0].to(N);

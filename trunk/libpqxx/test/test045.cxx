@@ -18,7 +18,7 @@ using namespace pqxx;
 // a Cursor object.  Then scroll it back and forth and check for consistent 
 // results.
 //
-// Usage: test45 [connect-string]
+// Usage: test045 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -28,10 +28,10 @@ using namespace pqxx;
 namespace
 {
 
-void AddResult(vector<string> &V, const Result &R)
+void AddResult(vector<string> &V, const result &R)
 {
   V.reserve(V.size() + R.size());
-  for (Result::const_iterator i = R.begin(); i != R.end(); ++i)
+  for (result::const_iterator i = R.begin(); i != R.end(); ++i)
     V.push_back(i.at(0).c_str());
 }
 
@@ -52,15 +52,13 @@ int main(int, char *argv[])
   {
     const string Table = "events";
 
-    Connection C(argv[1]);
-    Transaction T(C, "test45");
+    connection C(argv[1]);
+    transaction<serializable> T(C, "test45");
 
     // Count rows.
-    Result R( T.Exec("SELECT count(*) FROM " + Table) );
-    int Rows;
-    R.at(0).at(0).to(Rows);
+    result R( T.Exec("SELECT count(*) FROM " + Table) );
 
-    if (Rows <= 10) 
+    if (R.at(0).at(0).as(0) <= 10) 
       throw runtime_error("Not enough rows in '" + Table + "' "
 		          "for serious testing.  Sorry.");
 

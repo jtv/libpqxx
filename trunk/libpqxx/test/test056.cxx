@@ -8,12 +8,12 @@ using namespace pqxx;
 
 // Simple test program for libpqxx.  Issue invalid query and handle error.
 //
-// Usage: test56
+// Usage: test056
 int main()
 {
   try
   {
-    Connection C;
+    connection C;
     Transaction T(C, "test56");
 
     try

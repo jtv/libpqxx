@@ -11,10 +11,10 @@ using namespace pqxx;
 
 
 // Test program for libpqxx.  Write a predetermined data set to a table using a 
-// TableWriter on a deferred connection.  This data will be used by subsequent 
+// tablewriter on a deferred connection.  This data will be used by subsequent 
 // tests.  Any data previously in the table will be deleted.
 //
-// Usage: test24 [connect-string] [tablename]
+// Usage: test024 [connect-string] [tablename]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
   try
   {
     // Set up a deferred connection to the backend
-    LazyConnection C(argv[1]);
+    lazyconnection C(argv[1]);
 
     string TableName((argc > 2) ? argv[2] : "orgevents");
 
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     // before we attempt to commit our transaction T.  Otherwise we might end 
     // up committing T before all data going into W had been written.
     {
-      TableWriter W(T, TableName);
+      tablewriter W(T, TableName);
 
       const char *const CData[][2] =
       {

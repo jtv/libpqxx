@@ -17,18 +17,18 @@
 <tr><td nowrap align=right valign=top>typedef CHAR&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#s0">char_type</a></td></tr>
 <tr><td nowrap align=right valign=top>typedef TRAITS&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#s1">traits_type</a></td></tr>
 <tr><td nowrap align=right valign=top>typedef traits_type::int_type&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#s2">int_type</a></td></tr>
-<tr><td nowrap align=right valign=top>typedef traits_type::pos_type&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#s3">pos_type</a></td></tr>
-<tr><td nowrap align=right valign=top>typedef traits_type::off_type&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#s4">off_type</a></td></tr>
-<tr><td nowrap align=right valign=top>typedef LargeObjectAccess::openmode&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#s5">openmode</a></td></tr>
-<tr><td nowrap align=right valign=top>typedef LargeObjectAccess::seekdir&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#s6">seekdir</a></td></tr>
+<tr><td nowrap align=right valign=top>typedef streamoff&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#s3">off_type</a></td></tr>
+<tr><td nowrap align=right valign=top>typedef streampos&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#s4">pos_type</a></td></tr>
+<tr><td nowrap align=right valign=top>typedef largeobjectaccess::openmode&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#s5">openmode</a></td></tr>
+<tr><td nowrap align=right valign=top>typedef largeobjectaccess::seekdir&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#s6">seekdir</a></td></tr>
 <tr><td colspan=2><br><h2>Public Member Functions</h2></td></tr>
-<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#a0">largeobject_streambuf</a> (<a class="el" href="classpqxx_1_1Transaction__base.html">Transaction_base</a> &amp;T, <a class="el" href="classpqxx_1_1LargeObject.html">LargeObject</a> O, <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s5">openmode</a> mode=in|out, size_type BufSize=512)</td></tr>
-<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#a1">largeobject_streambuf</a> (<a class="el" href="classpqxx_1_1Transaction__base.html">Transaction_base</a> &amp;T, Oid O, <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s5">openmode</a> mode=in|out, size_type BufSize=512)</td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#a0">largeobject_streambuf</a> (<a class="el" href="classpqxx_1_1dbtransaction.html">dbtransaction</a> &amp;T, <a class="el" href="classpqxx_1_1largeobject.html">largeobject</a> O, <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s5">openmode</a> mode=in|out, size_type BufSize=512)</td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#a1">largeobject_streambuf</a> (<a class="el" href="classpqxx_1_1dbtransaction.html">dbtransaction</a> &amp;T, <a class="el" href="namespacepqxx.html#a24">oid</a> O, <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s5">openmode</a> mode=in|out, size_type BufSize=512)</td></tr>
 <tr><td nowrap align=right valign=top>virtual&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#a2">~largeobject_streambuf</a> ()</td></tr>
 <tr><td nowrap align=right valign=top>virtual int&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#a3">sync</a> ()</td></tr>
 <tr><td colspan=2><br><h2>Protected Member Functions</h2></td></tr>
-<tr><td nowrap align=right valign=top>virtual <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s3">pos_type</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#b0">seekoff</a> (<a class="el" href="classpqxx_1_1largeobject__streambuf.html#s4">off_type</a> offset, <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s6">seekdir</a> dir, <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s5">openmode</a> mode=in|out)</td></tr>
-<tr><td nowrap align=right valign=top>virtual <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s3">pos_type</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#b1">seekpos</a> (<a class="el" href="classpqxx_1_1largeobject__streambuf.html#s3">pos_type</a> pos, <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s5">openmode</a> mode=in|out)</td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s4">pos_type</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#b0">seekoff</a> (<a class="el" href="classpqxx_1_1largeobject__streambuf.html#s3">off_type</a> offset, <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s6">seekdir</a> dir, <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s5">openmode</a> mode=in|out)</td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s4">pos_type</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#b1">seekpos</a> (<a class="el" href="classpqxx_1_1largeobject__streambuf.html#s4">pos_type</a> pos, <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s5">openmode</a> mode=in|out)</td></tr>
 <tr><td nowrap align=right valign=top>virtual <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s2">int_type</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#b2">overflow</a> (<a class="el" href="classpqxx_1_1largeobject__streambuf.html#s2">int_type</a> ch=EoF())</td></tr>
 <tr><td nowrap align=right valign=top>virtual <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s2">int_type</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1largeobject__streambuf.html#b3">underflow</a> ()</td></tr>
 </table>
@@ -38,7 +38,9 @@
 
 Streambuf to use large objects in standard I/O streams.
 <p>
-The standard streambuf classes provide uniform access to data storage such as files or string buffers, so they can be accessed using standard input or output streams. This streambuf implementation provides similar access to large objects, so they can be read and written using the same stream classes. 
+The standard streambuf classes provide uniform access to data storage such as files or string buffers, so they can be accessed using standard input or output streams. This streambuf implementation provides similar access to large objects, so they can be read and written using the same stream classes.<p>
+<dl compact><dt><b>Warning:</b></dt><dd>This class may not work properly in compiler environments that don't fully support Standard-compliant streambufs, such as g++ 2.95 or older. </dd></dl>
+
 <p>
 <hr><h2>Member Typedef Documentation</h2>
 <a name="s0" doxytag="pqxx::largeobject_streambuf::char_type"></a><p>
@@ -93,7 +95,7 @@ template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&g
     </td>
   </tr>
 </table>
-<a name="s4" doxytag="pqxx::largeobject_streambuf::off_type"></a><p>
+<a name="s3" doxytag="pqxx::largeobject_streambuf::off_type"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -103,7 +105,7 @@ template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&g
 template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&gt;&gt; </td>
         </tr>
         <tr>
-          <td class="md" nowrap valign="top"> typedef traits_type::off_type pqxx::largeobject_streambuf&lt; CHAR, TRAITS &gt;::off_type
+          <td class="md" nowrap valign="top"> typedef streamoff pqxx::largeobject_streambuf&lt; CHAR, TRAITS &gt;::off_type
       </table>
     </td>
   </tr>
@@ -129,7 +131,7 @@ template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&g
 template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&gt;&gt; </td>
         </tr>
         <tr>
-          <td class="md" nowrap valign="top"> typedef LargeObjectAccess::openmode pqxx::largeobject_streambuf&lt; CHAR, TRAITS &gt;::openmode
+          <td class="md" nowrap valign="top"> typedef largeobjectaccess::openmode pqxx::largeobject_streambuf&lt; CHAR, TRAITS &gt;::openmode
       </table>
     </td>
   </tr>
@@ -145,7 +147,7 @@ template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&g
     </td>
   </tr>
 </table>
-<a name="s3" doxytag="pqxx::largeobject_streambuf::pos_type"></a><p>
+<a name="s4" doxytag="pqxx::largeobject_streambuf::pos_type"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -155,7 +157,7 @@ template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&g
 template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&gt;&gt; </td>
         </tr>
         <tr>
-          <td class="md" nowrap valign="top"> typedef traits_type::pos_type pqxx::largeobject_streambuf&lt; CHAR, TRAITS &gt;::pos_type
+          <td class="md" nowrap valign="top"> typedef streampos pqxx::largeobject_streambuf&lt; CHAR, TRAITS &gt;::pos_type
       </table>
     </td>
   </tr>
@@ -181,7 +183,7 @@ template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&g
 template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&gt;&gt; </td>
         </tr>
         <tr>
-          <td class="md" nowrap valign="top"> typedef LargeObjectAccess::seekdir pqxx::largeobject_streambuf&lt; CHAR, TRAITS &gt;::seekdir
+          <td class="md" nowrap valign="top"> typedef largeobjectaccess::seekdir pqxx::largeobject_streambuf&lt; CHAR, TRAITS &gt;::seekdir
       </table>
     </td>
   </tr>
@@ -236,13 +238,13 @@ template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&g
         <tr>
           <td class="md" nowrap valign="top"> pqxx::largeobject_streambuf&lt; CHAR, TRAITS &gt;::largeobject_streambuf </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top"><a class="el" href="classpqxx_1_1Transaction__base.html">Transaction_base</a> &amp;&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classpqxx_1_1dbtransaction.html">dbtransaction</a> &amp;&nbsp;</td>
           <td class="mdname" nowrap>&nbsp; <em>T</em>, </td>
         </tr>
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap><a class="el" href="classpqxx_1_1LargeObject.html">LargeObject</a>&nbsp;</td>
+          <td class="md" nowrap><a class="el" href="classpqxx_1_1largeobject.html">largeobject</a>&nbsp;</td>
           <td class="mdname" nowrap>&nbsp; <em>O</em>, </td>
         </tr>
         <tr>
@@ -290,13 +292,13 @@ template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&g
         <tr>
           <td class="md" nowrap valign="top"> pqxx::largeobject_streambuf&lt; CHAR, TRAITS &gt;::largeobject_streambuf </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top"><a class="el" href="classpqxx_1_1Transaction__base.html">Transaction_base</a> &amp;&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classpqxx_1_1dbtransaction.html">dbtransaction</a> &amp;&nbsp;</td>
           <td class="mdname" nowrap>&nbsp; <em>T</em>, </td>
         </tr>
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap>Oid&nbsp;</td>
+          <td class="md" nowrap><a class="el" href="namespacepqxx.html#a24">oid</a>&nbsp;</td>
           <td class="mdname" nowrap>&nbsp; <em>O</em>, </td>
         </tr>
         <tr>
@@ -408,9 +410,9 @@ template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&g
 template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&gt;&gt; </td>
         </tr>
         <tr>
-          <td class="md" nowrap valign="top"> virtual <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s3">pos_type</a> pqxx::largeobject_streambuf&lt; CHAR, TRAITS &gt;::seekoff </td>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s4">pos_type</a> pqxx::largeobject_streambuf&lt; CHAR, TRAITS &gt;::seekoff </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top"><a class="el" href="classpqxx_1_1largeobject__streambuf.html#s4">off_type</a>&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classpqxx_1_1largeobject__streambuf.html#s3">off_type</a>&nbsp;</td>
           <td class="mdname" nowrap>&nbsp; <em>offset</em>, </td>
         </tr>
         <tr>
@@ -456,9 +458,9 @@ template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&g
 template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&gt;&gt; </td>
         </tr>
         <tr>
-          <td class="md" nowrap valign="top"> virtual <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s3">pos_type</a> pqxx::largeobject_streambuf&lt; CHAR, TRAITS &gt;::seekpos </td>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classpqxx_1_1largeobject__streambuf.html#s4">pos_type</a> pqxx::largeobject_streambuf&lt; CHAR, TRAITS &gt;::seekpos </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top"><a class="el" href="classpqxx_1_1largeobject__streambuf.html#s3">pos_type</a>&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classpqxx_1_1largeobject__streambuf.html#s4">pos_type</a>&nbsp;</td>
           <td class="mdname" nowrap>&nbsp; <em>pos</em>, </td>
         </tr>
         <tr>
@@ -554,7 +556,7 @@ template&lt;typename CHAR = char, typename TRAITS = PGSTD::char_traits&lt;CHAR&g
 </table>
 <hr>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="largeobject_8h-source.html">largeobject.h</a></ul>
-<hr><address style="align: right;"><small>Generated on Sat May 10 18:53:40 2003 for libpqxx by
+<hr><address style="align: right;"><small>Generated on Sat Jun 7 02:58:06 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

@@ -4,6 +4,7 @@
 
 #include <pqxx/connection.h>
 #include <pqxx/transaction.h>
+#include <pqxx/transactor.h>
 #include <pqxx/result.h>
 
 using namespace PGSTD;
@@ -11,9 +12,9 @@ using namespace pqxx;
 
 
 // Example program for libpqxx.  Modify the database, retaining transactional
-// integrity using the Transactor framework.
+// integrity using the transactor framework.
 //
-// Usage: test7 [connect-string]
+// Usage: test007 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -47,23 +48,23 @@ int To4Digits(int Y)
 
 
 // Transaction definition for year-field update
-class UpdateYears : public Transactor
+class UpdateYears : public transactor<>
 {
 public:
-  UpdateYears() : Transactor("YearUpdate") {}
+  UpdateYears() : transactor<>("YearUpdate") {}
 
   // Transaction definition
   void operator()(argument_type &T)
   {
     // First select all different years occurring in the table.
-    Result R( T.Exec("SELECT year FROM events") );
+    result R( T.Exec("SELECT year FROM events") );
 
     // SELECT affects no rows.
     assert(!R.AffectedRows());
 
     // Note all different years currently occurring in the table, writing them
     // and their correct mappings to m_Conversions
-    for (Result::const_iterator r = R.begin(); r != R.end(); ++r)
+    for (result::const_iterator r = R.begin(); r != R.end(); ++r)
     {
       int Y;
 
@@ -72,7 +73,7 @@ public:
 	m_Conversions[Y] = To4Digits(Y);
     }
 
-    Result::size_type AffectedRows = 0;
+    result::size_type AffectedRows = 0;
 
     // For each occurring year, write converted date back to whereever it may
     // occur in the table.  Since we're in a transaction, any changes made by
@@ -129,7 +130,7 @@ int main(int, char *argv[])
 {
   try
   {
-    Connection C(argv[1]);
+    connection C(argv[1]);
     C.SetClientEncoding("SQL_ASCII");
 
     // Perform (an instantiation of) the UpdateYears transactor we've defined
@@ -139,7 +140,7 @@ int main(int, char *argv[])
     // Just for fun, report the exact conversions performed.  Note that this
     // list will be accurate even if other people were modifying the database
     // at the same time; this property was established through use of the
-    // Transactor framework.
+    // transactor framework.
     for (map<int,int>::const_iterator i = theConversions.begin();
 	 i != theConversions.end();
 	 ++i)

@@ -7,6 +7,7 @@
 #include <pqxx/result.h>
 #include <pqxx/robusttransaction.h>
 #include <pqxx/transaction.h>
+#include <pqxx/transactor.h>
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -14,7 +15,7 @@ using namespace pqxx;
 
 // Test program for libpqxx.  Verify abort behaviour of RobustTransaction.
 //
-// Usage: test18 [connect-string] [table]
+// Usage: test018 [connect-string] [table]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -33,20 +34,22 @@ const int BoringYear = 1977;
 
 // Count events and specifically events occurring in Boring Year, leaving the
 // former count in the result pair's first member, and the latter in second.
-class CountEvents : public Transactor
+class CountEvents : public transactor<nontransaction>
 {
   string m_Table;
   pair<int, int> &m_Results;
 public:
-  typedef NonTransaction argument_type;
-
   CountEvents(string Table, pair<int,int> &Results) : 
-    Transactor("CountEvents"), m_Table(Table), m_Results(Results) {}
+    transactor<nontransaction>("CountEvents"), 
+    m_Table(Table), 
+    m_Results(Results) 
+  {
+  }
 
   void operator()(argument_type &T)
   {
     const string CountQuery = "SELECT count(*) FROM " + m_Table;
-    Result R;
+    result R;
 
     R = T.Exec(CountQuery);
     R.at(0).at(0).to(m_Results.first);
@@ -58,15 +61,13 @@ public:
 
 
 
-class FailedInsert : public Transactor
+class FailedInsert : public transactor<robusttransaction<serializable> >
 {
   string m_Table;
   static string LastReason;
 public:
-  typedef RobustTransaction argument_type;
-
   FailedInsert(string Table) : 
-    Transactor("FailedInsert"), 
+    transactor<argument_type>("FailedInsert"), 
     m_Table(Table)
   {
   }
@@ -109,7 +110,7 @@ int main(int argc, char *argv[])
 {
   try
   {
-    Connection C(argv[1]);
+    connection C(argv[1]);
 
     const string Table = ((argc > 2) ? argv[2] : "events");
 

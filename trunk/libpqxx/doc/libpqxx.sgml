@@ -35,10 +35,9 @@
 
     <para>
      I think it is.  The C++ Standard, and its standard library in particular,
-     have stabilized over the latter half of the 1990s; compilers and 
-     standard library implementations are still following suit at the time of 
-     writing.  As a result, most older third-party libraries suffer from 
-     symptoms such as: 
+     have stabilized over the mid-1990s; compilers and standard library 
+     implementations are still following suit at the time of writing.  As a 
+     result, most older third-party libraries suffer from symptoms such as: 
      <itemizedlist>
       <listitem>
        <para>
@@ -153,7 +152,7 @@
       <para>
        Overweight classes.  Some classes lump together different pieces of
        functionality with different lifetimes.  For instance, some C++ SQL
-       libraries integrate transaction bracketing into a Connection class.
+       libraries integrate transaction bracketing into a connection class.
        Yet it is not unreasonable for an application to perform multiple
        consecutive transactions using the same connection.
       </para>
@@ -182,7 +181,7 @@
    <itemizedlist>
     <listitem>
      <para>
-      <literal>Connection</literal> represents a connection from your program
+      <literal>connection</literal> represents a connection from your program
       to a <productname>PostgreSQL</productname> back-end server.  Naturally
       your program may open multiple connections, simultaneous or not, to any
       number of databases.
@@ -191,30 +190,31 @@
  
     <listitem>
      <para>
-      <literal>Transaction</literal> represents a transaction being executed 
-      in the context of a <literal>Connection</literal>, and is a unit of work 
+      <literal>transaction&lt;&gt;</literal>, actually a class template with a
+      default value for its parameter, represents a transaction being executed 
+      in the context of a <literal>connection</literal>. This is a unit of work 
       that must be completed as a whole by the database backend.  If execution 
-      fails, everything done within that <literal>Transaction</literal> is 
+      fails, everything done within that <literal>transaction</literal> is 
       undone by the backend as if it had never happened<footnote>
        Actually <filename>libpqxx</filename> provides three classes doing this
        at various levels of reliability, called 
-       <literal>NonTransaction</literal>, <literal>Transaction</literal>, and
-       <literal>RobustTransaction</literal> for little, standard, and best
+       <literal>nontransaction</literal>, <literal>transaction</literal>, and
+       <literal>robusttransaction</literal> for little, standard, and best
         reliability respectively.  
       </footnote>.
      </para>
      <para>
-      I recommend that you do not set up your own <literal>Transaction</>s
+      I recommend that you do not set up your own <literal>transaction</>s
       however, but have them managed for you by a 
-      <emphasis><literal>Transactor</literal></emphasis> instead (see below).
+      <emphasis><literal>transactor</literal></emphasis> instead (see below).
      </para>
     </listitem>
 
     <listitem>
      <para>
-      <literal>Result</literal> is a container holding the resulting data
+      <literal>result</literal> is a container holding the resulting data
       coming out of a query or command executed in a 
-      <literal>Transaction</literal>.  It behaves just like a standard C++
+      <literal>transaction</literal>.  It behaves just like a standard C++
       container as found in the STL, although its contents are not modifiable.
      </para>
     </listitem>
@@ -286,22 +286,26 @@
       special case.  If you do, make sure all alarm bells go off!
      </para>
      <para>
-      See also the description for <literal>RobustTransaction</literal>, which
-      sacrifices some performance to deal with this risk.
+      See also the description for <literal>robusttransaction</literal>, which
+      sacrifices some performance to minimize this risk.
      </para>
     </listitem>
 
     <listitem>
      <para>
-      <literal>NonTransaction</literal> is just like a regular 
-      <literal>Transaction</literal> as far your code is concerned.  The big
-      difference is that where the latter opens a back-end transaction to keep
-      your view and modifications of the database atomic, the former does
-      <emphasis>nothing</emphasis> to maintain integrity.  It just passes your
-      queries directly to the database, with no enclosing transaction. 
+      <literal>nontransaction</literal> is just like a regular 
+      <literal>transaction</literal> as far your code is concerned (except that
+      it's not a template).  The big difference is that where the latter opens 
+      a back-end transaction to keep your view and modifications of the database
+      atomic, the former does <emphasis>nothing</emphasis> to maintain 
+      integrity.  It just passes your queries directly to the database, with no
+      enclosing transaction.  This difference is expressed by the fact that the
+      other transaction classes are derived from <literal>dbtransaction</>,
+      an abstract class that expresses the presence of a real backend
+      transaction, whereas <literal>nontransaction</> is not.
      </para>
      <para>
-      This gives you the best performance, but may have unforseen implications
+      This gives you the best performance, but may have unforeseen implications
       if you expect certain levels of consistency in the database--especially
       if other programs (perhaps even other instances of your own) may be
       modifying the database at the same time.  You'll probably only want to
@@ -337,15 +341,16 @@
 
     <listitem>
      <para>
-      <literal>RobustTransaction</literal> is essentially the same as a
-      <literal>Transaction</literal>, ie. an atomic unit of work, except that
+      <literal>robusttransaction</literal> (a template just like 
+      <literal>transaction</>) is essentially the same as a
+      <literal>transaction</literal>, ie. an atomic unit of work, except that
       it works harder to prevent <literal>in_doubt_error</>s from happening.
       This comes at the cost of some performance, which is one reason why this 
       behaviour isn't the default.  It also creates some extra tables in your 
       database to keep track of what's happening.
      </para>
      <para>
-      Use this class instead of plain old <literal>Transaction</literal> if you
+      Use this class instead of plain old <literal>transaction</literal> if you
       get <literal>in_doubt_error</>s in your application--but only
       <emphasis>after</> thoroughly inspecting your code for bugs that might be
       causing the problem, or you'll only be hiding glitches that should be
@@ -355,48 +360,54 @@
 
     <listitem>
      <para>
-      <literal>TableStream</literal> provides simple, relatively direct access
-      to a table for either reading (<literal>TableReader</literal>) or
-      writing (<literal>TableWriter</literal>) using 
+      <literal>tablestream</literal> provides simple, relatively direct access
+      to a table for either reading (<literal>tablereader</literal>) or
+      writing (<literal>tablewriter</literal>) using 
       <productname>PostgreSQL</productname>'s <literal>COPY</literal> command.
+      This is typically much faster than issuing <literal>SELECT</> or 
+      <literal>UPDATE</> queries.
      </para>
     </listitem>
  
     <listitem>
      <para>
-      <literal>Transaction_base</literal> defines the common public interface 
-      for the <literal>Transaction</>-like classes: <literal>NonTransaction</>,
-      <literal>RobustTransaction</>, and <literal>Transaction</> itself.  To
+      <literal>transaction_base</literal> defines the common public interface 
+      for the <literal>transaction</>-like classes: <literal>nontransaction</>,
+      <literal>robusttransaction</>, and <literal>transaction</> itself.  To
       look up methods available in these classes, see the definition (or
-      documentation) for <literal>Transaction_base</literal> instead.
+      documentation) for <literal>transaction_base</literal> instead.
      </para>
     </listitem>
 
     <listitem>
      <para>
-      <literal>Transactor</literal> is a framework that makes it easier for 
+      <literal>transactor&lt;&gt;</> is a framework that makes it easier for 
       you to write correct, robust transaction code to be executed in a
-      <literal>Transaction</literal> (or any of its sibling classes).  You 
+      <literal>transaction</literal> (or any of its sibling classes).  You 
       should generally try to write your code as a class derived from 
-      <literal>Transactor</literal>, but this is not required.
+      <literal>transactor</literal>, but this is not required.
      </para>
      <para>
-      A <literal>Transactor</>-derived class may select its own "quality of
-      service" in transactional integrity by overriding the nested
-      <literal>argument_type</literal> typedef defined within its base class,
-      <literal>Transactor</>.
+      A <literal>transactor</>-derived class may select its own "quality of
+      service" in transactional integrity by choosing a transaction type as its
+      template argument, e.g. 
+      <literal>transactor&lt;robusttransaction&lt;&gt; &gt;</>.  The default 
+      <literal>transactor&lt;&gt;</> is equivalent to
+      <literal>transactor&lt;transaction&lt;&gt; &gt;</>.
+      Within your class you can refer to the transaction type used as
+      <literal>argument_type</literal>.
      </para>
     </listitem>
 
     <listitem>
      <para>
-      <literal>Trigger</literal> is an instance of the Observer design 
+      <literal>trigger</literal> is an instance of the Observer design 
       pattern.  Any code connected to a backend may flag an event using the 
       <productname>PostgreSQL</productname> <literal>NOTIFY</literal> command. 
       Frontends connected to that same backend database may be listening for 
       an event of that name to occur.  A frontend using 
       <filename>libpqxx</filename> does this by registering an observer object 
-      derived from <literal>Trigger</literal>, which will be invoked by 
+      derived from <literal>trigger</literal>, which will be invoked by 
       <filename>libpqxx</filename> to handle the event when it occurs.
      </para>
      <para>
@@ -411,38 +422,38 @@
 
     <listitem>
      <para>
-      <literal>Unique</literal> is really only intended for use by the library
+      <literal>unique</literal> is really only intended for use by the library
       itself, although you may find it useful for your own code.  It allows a
       "host" class to enforce a one-to-one association with a "guest" class,
       such that at most 1 "guest" object may be associated with any one "host"
       object at any given time.  This is used to ensure that no more than one
-      <literal>Transaction</literal> at a time is active on a single 
-      <literal>Connection</literal>, and that no more than one 
-      <literal>Cursor</literal> is active on a single <literal>Transaction</>.
+      <literal>transaction</literal> at a time is active on a single 
+      <literal>connection</literal>, and that no more than one 
+      <literal>Cursor</literal> is active on a single <literal>transaction</>.
      </para>
     </listitem>
 
     <listitem>
      <para>
-      <literal>Result::Tuple</literal> is a nested class defined within
-      <literal>Result</literal>.  It refers to a tuple of data within a
-      <literal>Result</literal> object.
+      <literal>result::tuple</literal> is a nested class defined within
+      <literal>result</literal>.  It refers to a tuple of data within a
+      <literal>result</literal> object.
      </para>
     </listitem>
 
     <listitem>
      <para>
-      <literal>Result::Field</literal>, also nested within 
-      <literal>Result</literal>, refers to one field within a 
-      <literal>Tuple</literal>.  A <literal>Field</literal> contains one 
+      <literal>result::field</literal>, also nested within 
+      <literal>result</literal>, refers to one field within a 
+      <literal>tuple</literal>.  A <literal>field</literal> contains one 
       retrieved value such as a number or a string.
      </para>
     </listitem>
 
     <listitem>
      <para>
-      <literal>Result::const_iterator</literal> allows you to enumerate the
-      <literal>Tuple</>s in a <literal>Result</literal> in a similar way to
+      <literal>result::const_iterator</literal> allows you to enumerate the
+      <literal>tuple</>s in a <literal>result</literal> in a similar way to
       the iterators defined by any standard C++ container.
      </para>
     </listitem>
@@ -487,8 +498,12 @@
      <function>FromString</function> is the inverse of 
      <function>ToString</function>.  Like <function>ToString</function> it may
      someday be replaced.  For now it is used by eg. 
-     <function>Result::Field::to()</function> to convert the incoming field 
-     data (which is in text format) to the desired C++ type.
+     <function>result::field::to()</function> to convert the incoming field 
+     data (which is in text format) to the desired C++ type.  Unfortunately it
+     is currently locale-sensitive, which means you need to have the default C
+     locale active whenever you convert strings to other types (e.g. when
+     reading a field from a result set).  This should be fixed at some time in
+     the future.
     </para>
    <listitem>
 
@@ -572,10 +587,10 @@ using namespace pqxx;
 	multiple classes or functions used in your program possibly having the 
 	same name.  As long as they're in different namespaces, the compiler
 	will be able to tell them apart without trouble.  To do this, write
-	<literal>pqxx::Connection</literal> instead of 
-	<literal>Connection</literal>, 
-	<literal>pqxx::Result::const_iterator</literal> instead of
-	<literal>Result::const_iterator</literal>, and so on.
+	<literal>pqxx::connection</literal> instead of 
+	<literal>connection</literal>, 
+	<literal>pqxx::result::const_iterator</literal> instead of
+	<literal>result::const_iterator</literal>, and so on.
        </para>
 
        <para>
@@ -603,16 +618,16 @@ using namespace pqxx;
      <para>
       The very first thing to do before we can begin working with a database, 
       is to actually connect to one.  We do this by creating a 
-      <literal>Connection</literal> object that will serve as our "handle" on
+      <literal>connection</literal> object that will serve as our "handle" on
       the connection:
 
      <programlisting>
-Connection Conn("dbname=test");
+connection Conn("dbname=test");
      </programlisting>
     </para>
 
     <para>
-     The <literal>Connection</literal> constructor is passed one argument, the
+     The <literal>connection</literal> constructor is passed one argument, the
      "connect string".  This string may be used to specify which host
      on the network runs the database backend we wish to connect to, which
      database we're interested in, which user name we'll be using to log in,
@@ -620,13 +635,13 @@ Connection Conn("dbname=test");
      <function>connect</function> call</xref> for a complete definition 
      of what may go into the connect string.  In this case we're connecting to 
      a database <literal>test</literal> residing on the local machine.  By
-     default (if the connect string is null or empty, and no environment
-     variables are set to override this) the client will try to connect to a 
-     server running on the local machine.
+     default (if the connect string is null or empty, or left out, and no 
+     environment variables are set to override this) the client will try to 
+     connect to a server running on the local machine.
     </para>
 
     <para>
-     If no connection could be established, the <literal>Connection</literal>
+     If no connection could be established, the <literal>connection</literal>
      constructor may throw an exception immediately; or it may decide to retry
      the connection later in case the problem is only temporary.  In the latter
      case, an exception may occur at some later point if the problem turns out
@@ -634,7 +649,7 @@ Connection Conn("dbname=test");
     </para>
 
     <para>
-     The <literal>Connection</literal> can now act as a "service counter" for 
+     The <literal>connection</literal> can now act as a "service counter" for 
      our database; your client will use it to perform one or more transactions
      related to the database.
     </para>
@@ -648,8 +663,8 @@ Connection Conn("dbname=test");
      <title>Important note</title>
      <para>
       As a matter of design, <filename>libpqxx</filename> will not allow you
-      to perform queries on the <literal>Connection</literal> directly.  You
-      will need to have a <literal>Transaction</literal> object instead.
+      to perform queries on the <literal>connection</literal> directly.  You
+      will need to open a transaction instead.
      </para>
 
      <para>
@@ -680,50 +695,50 @@ Connection Conn("dbname=test");
     </sect3>
 
     <sect3>
-     <title>Creating a Transaction object</title>
+     <title>Creating a transaction object</title>
      <para>
-      Creating a Transaction object is not normally something you will have to
-      do.  The <literal>Transactor</literal> class, discussed below, will take
+      Creating a transaction object is not normally something you will have to
+      do.  The <literal>transactor</literal> class, discussed below, will take
       care of that and some other red tape besides.  Still, there are cases
       where creating the object is unavoidable (when acting on multiple
       database connections simultaneously) or just plain easier to do.  Please
-      consider using a <literal>Transactor</literal> whereever possible.
+      consider using a <literal>transactor</literal> whereever possible.
      </para>
 
      <para>
-      When creating a <literal>Transaction</literal>, pass it the 
-      <literal>Connection</literal> object it is to act on, and optionally an
+      When creating a <literal>transaction</literal>, pass it the 
+      <literal>connection</literal> object it is to act on, and optionally an
       identifying name for your transaction.  The name, which need not be
       unique but should begin with a letter and may contain only letters, 
       digits and underscores, can be used by <filename>libpqxx</filename> to 
       make some error messages more specific.
 
       <programlisting>
-Transaction Xaction(Conn, "DemoTransaction");
+transaction&lt;&gt; Xaction(Conn, "DemoTransaction");
       </programlisting>
      </para>
 
      <para>
-      The lifetime of the <literal>Transaction</literal> object demarcates the
+      The lifetime of the <literal>transaction</literal> object demarcates the
       unit of work.  Its construction marks the beginning of the transaction,
       and its destruction means that the transaction is ended--whether through
       commit or rollback.
      </para>
 
      <para>
-      The <literal>Transaction</literal> class is built on the principle of
+      The <literal>transaction</literal> class is built on the principle of
       "explicit commit," ie. the commit operation must always be explicit in 
-      the code.  If the Transaction is destroyed before a commit was given, the 
+      the code.  If the transaction is destroyed before a commit was given, the 
       transaction is implicitly aborted (rolled back).  If your transaction 
       makes no changes to the database, however, there is nothing to commit or 
       roll back and the commit may safely be omitted.
      </para>
 
      <para>
-      Destroying the Connection object while the Transaction still exists is an
+      Destroying the connection object while the transaction still exists is an
       error that may result in a program crash, although the library will try
       to log an error message.  Transactions cannot be copied, nor assigned, 
-      nor constructed without a Connection (default-constructed); attempts to 
+      nor constructed without a connection (default-constructed); attempts to 
       do any of these will result in compile errors.
      </para>
     </sect3>
@@ -767,14 +782,14 @@ Xaction.Commit();
 
      <listitem>
       <para>
-       A Transaction is aborted if it is destroyed without having been
+       A transaction is aborted if it is destroyed without having been
        explicitly committed:
       </para>
       <itemizedlist>
        <listitem>
         <programlisting>
 {
-  Transaction Xaction(Conn, "DemoTransaction");
+  transaction&lt;&gt; Xaction(Conn, "DemoTransaction");
 
   // (Queries)
 
@@ -784,7 +799,7 @@ Xaction.Commit();
 
        <listitem>
         <programlisting>
-Transaction *XactionP = new Transaction(Conn, "DemoTransaction");
+transaction&lt;&gt; *XactionP = new transaction(Conn, "DemoTransaction");
 
 // (Queries)
 
@@ -796,7 +811,7 @@ delete XactionP; // Xaction destroyed here
         <programlisting>
 try
 {
-  Transaction Xaction(Conn, "DemoTransaction");
+  transaction&lt;&gt; Xaction(Conn, "DemoTransaction");
 
   // (Queries)
 
@@ -830,10 +845,10 @@ catch (...)
      <listitem>
       <para>
        If a database error occurs during the transaction, such as an SQL syntax 
-       error or lost connection to the backend, the Transaction is aborted.
+       error or lost connection to the backend, the transaction is aborted.
       </para>
       <programlisting>
-Transaction Xaction(Conn, "DemoTransaction");
+transaction&lt;&gt; Xaction(Conn, "DemoTransaction");
 try
 {
   // (Queries)
@@ -860,7 +875,7 @@ Xaction.Commit(); // ERROR: Xaction has already aborted!
 
     </itemizedlist>
     <para>
-     No more queries may be issued to the Transaction regardless of how it
+     No more queries may be issued to the transaction regardless of how it
      ended; an exception will be thrown if the application attempts to continue
      the transaction after that time.
      Ending a transaction more than once is an error, except that aborting it
@@ -875,7 +890,7 @@ Xaction.Commit(); // ERROR: Xaction has already aborted!
      <productname>libpqxx</productname>; we're trying to keep your life simple.
     </para>
     <para>
-     A query is executed within a <literal>Transaction</literal> by passing
+     A query is executed within a <literal>transaction</literal> by passing
      the query string to its <function>Exec</function> method.  If the
      query fails to execute properly, this method will throw the appropriate
      exception.
@@ -887,7 +902,7 @@ Xaction.Commit(); // ERROR: Xaction has already aborted!
      <literal>string</literal> to make it easy to include variables:
     </para>
     <programlisting>
-void DeleteEntry(Transaction &amp;T, string Table, long ID)
+void DeleteEntry(transaction&lt;&gt; &amp;T, string Table, long ID)
 {
   T.Exec("DELETE FROM " + Table + " WHERE ID=" + ID);
 }
@@ -899,18 +914,18 @@ void DeleteEntry(Transaction &amp;T, string Table, long ID)
     <para>
      Obviously not all queries are commands--the more common kind actually
      returns useful data.  Result data in <productname>libpqxx</productname>
-     are encapsulated in a <literal>Result</literal> object, which acts as a
+     are encapsulated in a <literal>result</literal> object, which acts as a
      container similar to the STL's <literal>vector</literal> template.
     </para>
     <programlisting>
-Result R = T.Exec("SELECT firstname FROM employee WHERE lastname='Ng'");
+result R = T.Exec("SELECT firstname FROM employee WHERE lastname='Ng'");
     </programlisting>
     <para>
      Two ways are provided to get at individual rows in a 
-     <literal>Result</literal>: first, through indexing with the array index 
+     <literal>result</literal>: first, through indexing with the array index 
      operator <literal>[]</literal> or the <function>at</> member function, and 
      second, through random-access iterators.  Either will give you a 
-     <literal>Result::Tuple</literal> object that in turn can be addressed with 
+     <literal>result::tuple</literal> object that in turn can be addressed with 
      the array index operator (or the <function>at</> member function) to get 
      at its individual fields
       <footnote>
@@ -924,14 +939,14 @@ Result R = T.Exec("SELECT firstname FROM employee WHERE lastname='Ng'");
     </para>
     <para>
      Thus, <literal>R[0]</literal> will return the first ("zeroeth") tuple in 
-     R.  You won't normally want to bother with <literal>Tuple</>s though; they
+     R.  You won't normally want to bother with <literal>tuple</>s though; they
      don't contain the actual data, but rather serve as placeholders to later 
-     tell <literal>Result</literal> which fields to fetch when field values 
+     tell <literal>result</literal> which fields to fetch when field values 
      from the tuple are requested.  The class exists mostly for technical 
      reasons related to the array index operators<footnote>
       <para>
        This is an instance of the <wordasword>Proxy</> implementation pattern, 
-       needed to allow a <literal>Result</literal> to be indexed as if it were 
+       needed to allow a <literal>result</literal> to be indexed as if it were 
        a two-dimensional array.  C++'s array index operator doesn't allow this
        usage directly, but the operator can be applied to the result of a
        previous use of the same operator.  The "result in the middle" needs to
@@ -949,9 +964,9 @@ Result R = T.Exec("SELECT firstname FROM employee WHERE lastname='Ng'");
     <programlisting>
 // Process employees' names one by one.  ProcessNames() doesn't know exactly
 // what columns are going to be in R, but there must be one called "lastname".
-void ProcessNames(Result R)
+void ProcessNames(result R)
 {
-  for (Result::size_type i = 0; i != R.size(); ++i)
+  for (result::size_type i = 0; i != R.size(); ++i)
     Process(R[i]["lastname"]);
 }
     </programlisting>
@@ -962,14 +977,14 @@ void ProcessNames(Result R)
      iterators like with any STL-like container:
     </para>
     <programlisting>
-for (Result::const_iterator i = R.begin(); i != R.end(); ++i)
+for (result::const_iterator i = R.begin(); i != R.end(); ++i)
   Process(*i);
     </programlisting>
     <para>
      Iterators may be incremented or decremented (whether pre- or post-), they
      may be added to or subtracted from to jump through the result tuples;
      their positions may be compared (provided they point into the same
-     <literal>Result</>, and they may be dereferenced through the <literal>*</>
+     <literal>result</>, and they may be dereferenced through the <literal>*</>
      or <literal>-></literal> operators.
     </para>
     <para>
@@ -985,10 +1000,10 @@ for (Result::const_iterator i = R.begin(); i != R.end(); ++i)
      </footnote>.
     </para>
     <para>
-     Either way, once you've indexed the <literal>Result::Tuple</> you get a 
-     <literal>Result::Field</>--which is another placeholder, but this time
+     Either way, once you've indexed the <literal>result::tuple</> you get a 
+     <literal>result::field</>--which is another placeholder, but this time
      encapsulates an actual field value in our query result.  A 
-     <literal>Field</> <literal>F</> also knows its column name, which can be 
+     <literal>field</> <literal>F</> also knows its column name, which can be 
      obtained as <literal>F.Name()</>.
     </para>
     <para>
@@ -1021,7 +1036,7 @@ if (!F.is_null())
     <programlisting>
 // Pay an employee his salary.  Add bonus for managers.
 // The employee tuple must contain the fields
-void PaySalary(Result::const_iterator empl)
+void PaySalary(result::const_iterator empl)
 {
   long id;
   float salary;
@@ -1078,7 +1093,7 @@ void PaySalary(Result::const_iterator empl)
 
     <para>
      This is bad for the heart, and clutters up your code besides.  The
-     <literal>Transactor</literal> framework will take this work out of your
+     <literal>transactor</literal> framework will take this work out of your
      hands if you let it.  
     </para>
      
@@ -1206,13 +1221,13 @@ struct HelloFunctor
     <sect3>
      <title>How Transactors Work</title>
 
-     A transactor is a functor derived from <filename>libpqxx</>'s
-     <literal>Transactor</literal> class.  Instead of writing your database 
-     transaction inline with the rest of your code, you encapsulate it in your
-     functor's <literal>()</literal> operator.  When the time comes to execute
-     your transaction, you create an object of your functor type and pass it to
-     the <function>Perform</function> method of your 
-     <literal>Connection</literal> to the database.
+     A transactor is a functor derived from an instantiation of
+     <filename>libpqxx</>'s <literal>transactor</literal> class template.  
+     Instead of writing your database transaction inline with the rest of your 
+     code, you encapsulate it in your functor's <literal>()</literal> operator.
+     When the time comes to execute your transaction, you create an object of 
+     your functor type and pass it to the <function>Perform</function> method of
+     your <literal>connection</literal> to the database.
 
      <para>
       <function>Perform</function> will make a copy of your transactor (which
@@ -1247,7 +1262,7 @@ struct HelloFunctor
      <para>
       So how does your transactor pass query results back to the outside world
       once it's done?  For this purpose, you may redefine 
-      <literal>Transactor</>'s <function>OnCommit</function> member function to
+      <literal>transactor</>'s <function>OnCommit</function> member function to
       pass any data back to the rest of your program.  This member function will
       be called only if your transaction succeeded.
      </para>

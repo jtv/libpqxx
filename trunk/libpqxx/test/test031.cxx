@@ -13,7 +13,7 @@ using namespace pqxx;
 // Test program for libpqxx.  See which fields in a query are null, and figure
 // out whether any fields are lexicographically sorted.  Use lazy connection.
 //
-// Usage: test31 [connect-string] [table]
+// Usage: test031 [connect-string] [table]
 //
 // Where table is the table to be queried; if none is given, pg_tables is
 // queried by default.
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   {
     const string Table = ((argc >= 3) ? argv[2] : "pg_tables");
 
-    LazyConnection C(argv[1]);
+    lazyconnection C(argv[1]);
 
     // Tell C we won't be needing it for a while (not true, but let's pretend)
     C.Deactivate();
@@ -52,13 +52,13 @@ int main(int argc, char *argv[])
 
     Transaction T(C, "test31");
 
-    Result R( T.Exec("SELECT * FROM " + Table) );
+    result R( T.Exec("SELECT * FROM " + Table) );
 
     InitVector(NullFields, R.Columns(), 0);
     InitVector(SortedUp, R.Columns(), true);
     InitVector(SortedDown, R.Columns(), true);
 
-    for (Result::const_iterator i = R.begin(); i != R.end(); i++)
+    for (result::const_iterator i = R.begin(); i != R.end(); i++)
     {
       if ((*i).Row() != i->Row())
 	throw logic_error("Inconsistent rows: operator*() says " + 
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 			  ToString(R.Columns()) + " columns!");
 
       // Look for null fields
-      for (Result::Tuple::size_type f=0; f<i->size(); ++f)
+      for (result::tuple::size_type f=0; f<i->size(); ++f)
       {
 	NullFields[f] += i.at(f).is_null();
 
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
       // Compare fields to those of preceding row
       if (i != R.begin())
       {
-        const Result::const_iterator j = i - 1;
+        const result::const_iterator j = i - 1;
 
 	// First perform some sanity checks on j vs. i and how libpqxx handles
 	// their interrelationship...
@@ -107,11 +107,11 @@ int main(int argc, char *argv[])
 	  throw logic_error("Adding iterator's predecessor to 1 "
 			    "doesn't bring us back to original iterator!");
 
-	Result::const_iterator k(i);
+	result::const_iterator k(i);
 	if ((k-- != i) || (k != j))
           throw logic_error("Something wrong with increment operator!");
 
-	Result::const_iterator l(i);
+	result::const_iterator l(i);
 	if ((--l != j) || (l != j))
 	  throw logic_error("Something wrong with pre-increment operator!");
 
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 	// fields may be sorted.  Don't do anything fancy like trying to
 	// detect numbers and comparing them as such, just compare them as
 	// simple strings.
-	for (Result::Tuple::size_type f = 0; f < R.Columns(); ++f)
+	for (result::tuple::size_type f = 0; f < R.Columns(); ++f)
 	{
 	  if (!j[f].is_null())
 	  {
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
     cout << "Read " << ToString(R.size()) << " rows." << endl;
     cout << "Field \t Field Name\t Nulls\t Sorted" << endl;
 
-    for (Result::Tuple::size_type f = 0; f < R.Columns(); ++f)
+    for (result::tuple::size_type f = 0; f < R.Columns(); ++f)
     {
       cout << ToString(f) << ":\t"
 	   << R.ColumnName(f) << '\t'

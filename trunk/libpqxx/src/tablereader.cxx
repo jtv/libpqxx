@@ -4,10 +4,14 @@
  *	tablereader.cxx
  *
  *   DESCRIPTION
- *      implementation of the pqxx::TableReader class.
- *   pqxx::TableReader enables optimized batch reads from a database table
+ *      implementation of the pqxx::tablereader class.
+ *   pqxx::tablereader enables optimized batch reads from a database table
  *
  * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
  *
  *-------------------------------------------------------------------------
  */
@@ -17,8 +21,8 @@
 using namespace PGSTD;
 
 
-pqxx::TableReader::TableReader(Transaction_base &T, const string &RName) :
-  TableStream(T, RName),
+pqxx::tablereader::tablereader(transaction_base &T, const string &RName) :
+  tablestream(T, RName),
   m_Done(true)
 {
   T.BeginCopyRead(RName);
@@ -26,7 +30,7 @@ pqxx::TableReader::TableReader(Transaction_base &T, const string &RName) :
 }
 
 
-pqxx::TableReader::~TableReader()
+pqxx::tablereader::~tablereader()
 {
   // If any lines remain to be read, consume them to not confuse PQendcopy()
   string Dummy;
@@ -41,7 +45,7 @@ pqxx::TableReader::~TableReader()
 }
 
 
-bool pqxx::TableReader::GetRawLine(string &Line)
+bool pqxx::tablereader::GetRawLine(string &Line)
 {
   m_Done = !Trans().ReadCopyLine(Line);
   return !m_Done;

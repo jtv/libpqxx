@@ -17,7 +17,7 @@ using namespace pqxx;
 // Cursor test program for libpqxx.  Read table through a cursor, and verify
 // that correct move counts are being reported.
 //
-// Usage: test42 [connect-string]
+// Usage: test042 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -49,11 +49,11 @@ int main(int, char *argv[])
   {
     const string Table = "events";
 
-    Connection C(argv[1]);
-    Transaction T(C, "test19");
+    connection C(argv[1]);
+    transaction<serializable> T(C, "test19");
 
     // Count rows.
-    Result R( T.Exec("SELECT count(*) FROM " + Table) );
+    result R( T.Exec("SELECT count(*) FROM " + Table) );
     int Rows;
     R.at(0).at(0).to(Rows);
 

@@ -9,6 +9,10 @@
  *
  * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
+ *
  *-------------------------------------------------------------------------
  */
 #include <cstdlib>
@@ -20,36 +24,16 @@
 using namespace PGSTD;
 
 
-pqxx::Cursor::Cursor(pqxx::Transaction_base &T, 
-		     const char Query[],
-		     const string &BaseName,
-		     size_type Count) :
-  m_Trans(T),
-  m_Name(),
-  m_Count(Count),
-  m_Done(false),
-  m_Pos(pos_start),
-  m_Size(pos_unknown)
+void pqxx::Cursor::init(const string &BaseName, const char Query[])
 {
   // Give ourselves a locally unique name based on connection name
   m_Name += "\"" + 
-            BaseName + "_" + T.Name() + "_" + ToString(T.GetUniqueCursorNum()) +
+            BaseName + "_" + 
+	    m_Trans.Name() + "_" + 
+	    ToString(m_Trans.GetUniqueCursorNum()) +
 	    "\"";
 
   m_Trans.Exec("DECLARE " + m_Name + " SCROLL CURSOR FOR " + Query);
-}
-
-
-pqxx::Cursor::Cursor(pqxx::Transaction_base &T,
-    	             const Result::Field &Name,
-		     size_type Count) :
-  m_Trans(T),
-  m_Name(Name.c_str()),
-  m_Count(Count),
-  m_Done(false),
-  m_Pos(pos_unknown),
-  m_Size(pos_unknown)
-{
 }
 
 
@@ -62,7 +46,7 @@ pqxx::Cursor::size_type pqxx::Cursor::SetCount(size_type Count)
 }
 
 
-pqxx::Cursor &pqxx::Cursor::operator>>(pqxx::Result &R)
+pqxx::Cursor &pqxx::Cursor::operator>>(pqxx::result &R)
 {
   R = Fetch(m_Count);
   m_Done = R.empty();
@@ -70,9 +54,9 @@ pqxx::Cursor &pqxx::Cursor::operator>>(pqxx::Result &R)
 }
 
 
-pqxx::Result pqxx::Cursor::Fetch(size_type Count)
+pqxx::result pqxx::Cursor::Fetch(size_type Count)
 {
-  Result R;
+  result R;
 
   if (!Count)
   {
@@ -98,7 +82,7 @@ pqxx::Result pqxx::Cursor::Fetch(size_type Count)
 }
 
 
-pqxx::Result::size_type pqxx::Cursor::Move(size_type Count)
+pqxx::result::size_type pqxx::Cursor::Move(size_type Count)
 {
   if (!Count) return 0;
   if ((Count < 0) && (m_Pos == pos_start)) return 0;
@@ -109,7 +93,7 @@ pqxx::Result::size_type pqxx::Cursor::Move(size_type Count)
 
   try
   {
-    Result R( m_Trans.Exec(Cmd.c_str()) );
+    result R( m_Trans.Exec(Cmd.c_str()) );
     if (!sscanf(R.CmdStatus(), "MOVE %ld", &A))
       throw runtime_error("Didn't understand database's reply to MOVE: "
 	                    "'" + string(R.CmdStatus()) + "'");

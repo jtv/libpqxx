@@ -12,114 +12,128 @@
 00004 <span class="comment"> *      pqxx/cachedresult.h</span>
 00005 <span class="comment"> *</span>
 00006 <span class="comment"> *   DESCRIPTION</span>
-00007 <span class="comment"> *      definitions for the pqxx::CachedResult class and support classes.</span>
-00008 <span class="comment"> *   pqxx::CachedResult is a lazy-fetching, transparently-cached result set</span>
+00007 <span class="comment"> *      definitions for the pqxx::cachedresult class and support classes.</span>
+00008 <span class="comment"> *   pqxx::cachedresult is a lazy-fetching, transparently-cached result set</span>
 00009 <span class="comment"> *</span>
 00010 <span class="comment"> * Copyright (c) 2001-2003, Jeroen T. Vermeulen &lt;jtv@xs4all.nl&gt;</span>
 00011 <span class="comment"> *</span>
-00012 <span class="comment"> *-------------------------------------------------------------------------</span>
-00013 <span class="comment"> */</span>
-00014 <span class="preprocessor">#ifndef PQXX_CACHEDRESULT_H</span>
-00015 <span class="preprocessor"></span><span class="preprocessor">#define PQXX_CACHEDRESULT_H</span>
-00016 <span class="preprocessor"></span>
-00017 <span class="preprocessor">#include &lt;map&gt;</span>
-00018 
-00019 <span class="preprocessor">#include "<a class="code" href="cursor_8h.html">pqxx/cursor.h</a>"</span>
-00020 <span class="preprocessor">#include "<a class="code" href="result_8h.html">pqxx/result.h</a>"</span>
-00021 
-<a name="l00022"></a><a class="code" href="namespacepqxx.html">00022</a> <span class="keyword">namespace </span>pqxx
-00023 {
-00024 
-00025 <span class="keyword">class </span><a class="code" href="classpqxx_1_1Transaction__base.html">Transaction_base</a>;
-00026 
-00027 <span class="comment">// TODO: Forward-only mode of operation?  Or write separate stream class?</span>
+00012 <span class="comment"> * See COPYING for copyright license.  If you did not receive a file called</span>
+00013 <span class="comment"> * COPYING with this source code, please notify the distributor of this mistake,</span>
+00014 <span class="comment"> * or contact the author.</span>
+00015 <span class="comment"> *</span>
+00016 <span class="comment"> *-------------------------------------------------------------------------</span>
+00017 <span class="comment"> */</span>
+00018 <span class="preprocessor">#ifndef PQXX_CACHEDRESULT_H</span>
+00019 <span class="preprocessor"></span><span class="preprocessor">#define PQXX_CACHEDRESULT_H</span>
+00020 <span class="preprocessor"></span>
+00021 <span class="preprocessor">#include &lt;map&gt;</span>
+00022 
+00023 <span class="preprocessor">#include "<a class="code" href="cursor_8h.html">pqxx/cursor.h</a>"</span>
+00024 <span class="preprocessor">#include "<a class="code" href="result_8h.html">pqxx/result.h</a>"</span>
+00025 
+<a name="l00026"></a><a class="code" href="namespacepqxx.html">00026</a> <span class="keyword">namespace </span>pqxx
+00027 {
 00028 
-<a name="l00046"></a><a class="code" href="classpqxx_1_1CachedResult.html">00046</a> <span class="keyword">class </span>PQXX_LIBEXPORT CachedResult
-00047 {
-00048 <span class="keyword">public</span>:
-<a name="l00049"></a><a class="code" href="classpqxx_1_1CachedResult.html#s0">00049</a>   <span class="keyword">typedef</span> Result::size_type size_type;
-<a name="l00050"></a><a class="code" href="classpqxx_1_1CachedResult.html#s1">00050</a>   <span class="keyword">typedef</span> size_type blocknum;
-00051 
-<a name="l00053"></a><a class="code" href="classpqxx_1_1CachedResult.html#s2">00053</a>   <span class="keyword">typedef</span> <a class="code" href="classpqxx_1_1Result_1_1Tuple.html">Result::Tuple</a> Tuple;
-00054 
-00064   <span class="keyword">explicit</span> CachedResult(<a class="code" href="classpqxx_1_1Transaction__base.html">pqxx::Transaction_base</a> &amp;T,
-00065                         <span class="keyword">const</span> <span class="keywordtype">char</span> Query[],
-00066                         <span class="keyword">const</span> PGSTD::string &amp;BaseName=<span class="stringliteral">"query"</span>,
-00067                         size_type Granularity=100);                     <span class="comment">//[t40]</span>
-00068 
-00069   <span class="comment">// TODO: Iterators, begin(), end()</span>
-00070   <span class="comment">// TODO: Metadata</span>
-00071   <span class="comment">// TODO: Block replacement (limit cache size); then add capacity()</span>
-00072 
-00074 
-<a name="l00082"></a><a class="code" href="classpqxx_1_1CachedResult.html#a1">00082</a>   <span class="keyword">const</span> Tuple operator[](size_type i) <span class="keyword">const</span>                             <span class="comment">//[t41]</span>
-00083         { <span class="keywordflow">return</span> GetBlock(BlockFor(i))[Offset(i)]; }
-00084 
-00086 
-<a name="l00097"></a><a class="code" href="classpqxx_1_1CachedResult.html#a2">00097</a>    <span class="keyword">const</span> Tuple at(size_type i) <span class="keyword">const</span>                                    <span class="comment">//[t40]</span>
-00098         { <span class="keywordflow">return</span> GetBlock(BlockFor(i)).<a class="code" href="classpqxx_1_1Result_1_1Tuple.html#a5">at</a>(Offset(i)); }
-00099 
-00101   size_type size() <span class="keyword">const</span>;                                               <span class="comment">//[t40]</span>
-00102   
-00104   <span class="keywordtype">bool</span> empty() <span class="keyword">const</span>;                                                   <span class="comment">//[t47]</span>
-00105 
-<a name="l00107"></a><a class="code" href="classpqxx_1_1CachedResult_1_1const__iterator.html">00107</a>   <span class="keyword">class </span><a class="code" href="classpqxx_1_1CachedResult_1_1const__iterator.html">const_iterator</a>
-00108   {
-00109     <span class="keyword">const</span> CachedResult &amp;m_Home;
-00110     CachedResult::size_type m_Row;
-00111   <span class="keyword">public</span>:
-<a name="l00112"></a><a class="code" href="classpqxx_1_1CachedResult_1_1const__iterator.html#a0">00112</a>     <span class="keyword">explicit</span> <a class="code" href="classpqxx_1_1CachedResult_1_1const__iterator.html">const_iterator</a>(<span class="keyword">const</span> CachedResult &amp;Home) : m_Home(Home), m_Row(0){}
-00113 
-00114   <span class="keyword">private</span>:
-00115     <span class="comment">// Not allowed:</span>
-00116     const_iterator();
-00117   };
-00118 
-00119 <span class="keyword">private</span>:
-00120 
-00121   <span class="keyword">typedef</span> Cursor::pos pos;
-00122 
-00123   blocknum BlockFor(size_type Row) <span class="keyword">const</span> <span class="keywordflow">throw</span> () 
-00124         { <span class="keywordflow">return</span> Row / m_Granularity; }
-00125   size_type Offset(size_type Row) <span class="keyword">const</span> <span class="keywordflow">throw</span> ()
-00126         { <span class="keywordflow">return</span> Row % m_Granularity; }
-00127   Cursor::size_type FirstRowOf(blocknum Block) <span class="keyword">const</span> <span class="keywordflow">throw</span> ()
-00128         { <span class="keywordflow">return</span> Block*m_Granularity; }
-00129 
-00130   <span class="keywordtype">void</span> MoveTo(blocknum) <span class="keyword">const</span>;
-00131 
-00133   <span class="keyword">const</span> Result &amp;Fetch() <span class="keyword">const</span>;
-00134 
-00135   <span class="keyword">const</span> Result &amp;GetBlock(blocknum b)<span class="keyword"> const</span>
-00136 <span class="keyword">  </span>{
-00137     CacheMap::const_iterator i = m_Cache.find(b);
-00138     <span class="keywordflow">if</span> (i != m_Cache.end()) <span class="keywordflow">return</span> i-&gt;second;
+00029 <span class="comment">// TODO: Forward-only mode of operation?  Or write separate stream class?</span>
+00030 
+<a name="l00051"></a><a class="code" href="classpqxx_1_1cachedresult.html">00051</a> <span class="keyword">class </span>PQXX_LIBEXPORT cachedresult
+00052 {
+00053 <span class="keyword">public</span>:
+<a name="l00054"></a><a class="code" href="classpqxx_1_1cachedresult.html#s0">00054</a>   <span class="keyword">typedef</span> result::size_type size_type;
+<a name="l00055"></a><a class="code" href="classpqxx_1_1cachedresult.html#s1">00055</a>   <span class="keyword">typedef</span> size_type blocknum;
+00056 
+<a name="l00058"></a><a class="code" href="classpqxx_1_1cachedresult.html#s2">00058</a>   <span class="keyword">typedef</span> <a class="code" href="classpqxx_1_1result_1_1tuple.html">result::tuple</a> tuple;
+00059 
+<a name="l00061"></a><a class="code" href="classpqxx_1_1cachedresult.html#s3">00061</a>   <span class="keyword">typedef</span> tuple Tuple;
+00062 
+00074   <span class="keyword">template</span>&lt;<span class="keyword">typename</span> TRANSACTION&gt; <span class="keyword">explicit</span>
+<a name="l00075"></a><a class="code" href="classpqxx_1_1cachedresult.html#a0">00075</a>     cachedresult(TRANSACTION &amp;T,
+00076                  <span class="keyword">const</span> <span class="keywordtype">char</span> Query[],
+00077                  <span class="keyword">const</span> PGSTD::string &amp;BaseName=<span class="stringliteral">"query"</span>,
+00078                  size_type Granularity=100) :                           <span class="comment">//[t40]</span>
+00079       m_Granularity(Granularity),
+00080       m_Cache(),
+00081       m_Cursor(T, Query, BaseName, Granularity),
+00082       m_EmptyResult(),
+00083       m_HaveEmpty(false)
+00084   {
+00085     <span class="comment">// Trigger build error if T has insufficient isolation level</span>
+00086     error_permitted_isolation_level(<span class="keyword">typename</span> TRANSACTION::isolation_tag());
+00087     init();
+00088   }
+00089 
+00090 
+00091   <span class="comment">// TODO: Iterators, begin(), end()</span>
+00092   <span class="comment">// TODO: Metadata</span>
+00093   <span class="comment">// TODO: Block replacement (limit cache size); then add capacity()</span>
+00094 
+00096 
+<a name="l00104"></a><a class="code" href="classpqxx_1_1cachedresult.html#a1">00104</a>   <span class="keyword">const</span> tuple operator[](size_type i) <span class="keyword">const</span>                             <span class="comment">//[t41]</span>
+00105         { <span class="keywordflow">return</span> GetBlock(BlockFor(i))[Offset(i)]; }
+00106 
+00108 
+<a name="l00119"></a><a class="code" href="classpqxx_1_1cachedresult.html#a2">00119</a>    <span class="keyword">const</span> tuple at(size_type i) <span class="keyword">const</span>                                    <span class="comment">//[t40]</span>
+00120         { <span class="keywordflow">return</span> GetBlock(BlockFor(i)).<a class="code" href="classpqxx_1_1result_1_1tuple.html#a5">at</a>(Offset(i)); }
+00121 
+00123   size_type size() <span class="keyword">const</span>;                                               <span class="comment">//[t40]</span>
+00124   
+00126   <span class="keywordtype">bool</span> empty() <span class="keyword">const</span>;                                                   <span class="comment">//[t47]</span>
+00127 
+00128 <span class="keyword">private</span>:
+00129   <span class="keyword">typedef</span> Cursor::pos pos;
+00130 
+00132 
+00137   <span class="keyword">template</span>&lt;<span class="keyword">typename</span> ISOLATIONTAG&gt;
+00138     <span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">void</span> error_permitted_isolation_level(ISOLATIONTAG) <span class="keywordflow">throw</span>();
 00139 
-00140     MoveTo(b);
-00141     <span class="keywordflow">return</span> Fetch();
-00142   }
-00143 
-00145   size_type m_Granularity;
-00146 
-00147   <span class="keyword">typedef</span> PGSTD::map&lt;blocknum, const Result&gt; CacheMap;
-00148   <span class="keyword">mutable</span> CacheMap m_Cache;
-00149 
-00150   <span class="keyword">mutable</span> Cursor m_Cursor;
-00151   <span class="keyword">mutable</span> Result m_EmptyResult;
-00152   <span class="keyword">mutable</span> <span class="keywordtype">bool</span>   m_HaveEmpty;
+00140   <span class="keywordtype">void</span> init();
+00141 
+00142   blocknum BlockFor(size_type Row) <span class="keyword">const</span> <span class="keywordflow">throw</span> () 
+00143         { <span class="keywordflow">return</span> Row / m_Granularity; }
+00144   size_type Offset(size_type Row) <span class="keyword">const</span> <span class="keywordflow">throw</span> ()
+00145         { <span class="keywordflow">return</span> Row % m_Granularity; }
+00146   Cursor::size_type FirstRowOf(blocknum Block) <span class="keyword">const</span> <span class="keywordflow">throw</span> ()
+00147         { <span class="keywordflow">return</span> Block*m_Granularity; }
+00148 
+00149   <span class="keywordtype">void</span> MoveTo(blocknum) <span class="keyword">const</span>;
+00150 
+00152   <span class="keyword">const</span> result &amp;Fetch() <span class="keyword">const</span>;
 00153 
-00154   <span class="comment">// Not allowed:</span>
-00155   CachedResult();
-00156   CachedResult(<span class="keyword">const</span> CachedResult &amp;);
-00157   CachedResult &amp;operator=(<span class="keyword">const</span> CachedResult &amp;);
-00158 };
-00159 
-00160 
-00161 } <span class="comment">// namespace pqxx</span>
+00154   <span class="keyword">const</span> result &amp;GetBlock(blocknum b)<span class="keyword"> const</span>
+00155 <span class="keyword">  </span>{
+00156     CacheMap::const_iterator i = m_Cache.find(b);
+00157     <span class="keywordflow">if</span> (i != m_Cache.end()) <span class="keywordflow">return</span> i-&gt;second;
+00158 
+00159     MoveTo(b);
+00160     <span class="keywordflow">return</span> Fetch();
+00161   }
 00162 
-00163 <span class="preprocessor">#endif</span>
-00164 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Sat May 10 18:53:38 2003 for libpqxx by
+00164   size_type m_Granularity;
+00165 
+00166   <span class="keyword">typedef</span> PGSTD::map&lt;blocknum, const result&gt; CacheMap;
+00167   <span class="keyword">mutable</span> CacheMap m_Cache;
+00168 
+00169   <span class="keyword">mutable</span> Cursor m_Cursor;
+00170   <span class="keyword">mutable</span> result m_EmptyResult;
+00171   <span class="keyword">mutable</span> <span class="keywordtype">bool</span>   m_HaveEmpty;
+00172 
+00173   <span class="comment">// Not allowed:</span>
+00174   cachedresult();
+00175   cachedresult(<span class="keyword">const</span> cachedresult &amp;);
+00176   cachedresult &amp;operator=(<span class="keyword">const</span> cachedresult &amp;);
+00177 };
+00178 
+<a name="l00180"></a><a class="code" href="namespacepqxx.html#a0">00180</a> <span class="keyword">typedef</span> cachedresult <a class="code" href="classpqxx_1_1cachedresult.html">CachedResult</a>;
+00181 
+00182 <span class="keyword">template</span>&lt;&gt; <span class="keyword">inline</span> <span class="keywordtype">void</span>
+00183 cachedresult::error_permitted_isolation_level(<a class="code" href="structpqxx_1_1isolation__traits.html">isolation_traits&lt;serializable&gt;</a>)
+00184   <span class="keywordflow">throw</span> () {}
+00185 
+00186 } <span class="comment">// namespace pqxx</span>
+00187 
+00188 <span class="preprocessor">#endif</span>
+00189 <span class="preprocessor"></span>
+</pre></div><hr><address style="align: right;"><small>Generated on Sat Jun 7 02:58:04 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

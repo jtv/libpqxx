@@ -11,7 +11,7 @@ using namespace pqxx;
 
 // Test program for libpqxx.  Query a table and report its metadata.
 //
-// Usage: test11 [connect-string] [table]
+// Usage: test011 [connect-string] [table]
 //
 // Where table is the table to be queried; if none is given, pg_tables is
 // queried by default.
@@ -26,13 +26,13 @@ int main(int argc, char *argv[])
   {
     const string Table = ((argc >= 3) ? argv[2] : "pg_tables");
 
-    Connection C(argv[1]);
+    connection C(argv[1]);
     Transaction T(C, "test11");
 
-    Result R( T.Exec("SELECT * FROM " + Table) );
+    result R( T.Exec("SELECT * FROM " + Table) );
 
     // Print column names
-    for (Result::Tuple::size_type c = 0; c < R.Columns(); ++c)
+    for (result::tuple::size_type c = 0; c < R.Columns(); ++c)
     {
       string N= R.ColumnName(c);
       cout << c << ":\t" << N << endl;
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
       else if (R[1].Row() != 1)
         throw logic_error("Row 1 said it was row " + R[1].Row());
 
-      for (Result::Tuple::size_type c = 0; c < R[0].size(); ++c)
+      for (result::tuple::size_type c = 0; c < R[0].size(); ++c)
       {
 	string N = R.ColumnName(c);
 
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 
 	if (R[0][c].Name() != N)
 	  throw logic_error("Field " + ToString(c) + " "
-			    "called '" + N + "' by Result, "
+			    "called '" + N + "' by result, "
 			    "but '" + R[0][c].Name() + "' by Field object");
 
 	if (size_t(R[0][c].size()) != strlen(R[0][c].c_str()))

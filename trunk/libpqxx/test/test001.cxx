@@ -10,23 +10,23 @@ using namespace pqxx;
 // Simple test program for libpqxx.  Open connection to database, start
 // a transaction, and perform a query inside it.
 //
-// Usage: test1
+// Usage: test001
 int main()
 {
   try
   {
     // Set up a connection to the backend.
-    Connection C;
+    connection C;
 
     // Begin a transaction acting on our current connection.  Give it a human-
     // readable name so the library can include it in error messages.
-    Transaction T(C, "test1");
+    transaction<> T(C, "test1");
 
     // Perform a query on the database, storing result tuples in R.
-    Result R( T.Exec("SELECT * FROM pg_tables") );
+    result R( T.Exec("SELECT * FROM pg_tables") );
 
     // Process each successive result tuple
-    for (Result::const_iterator c = R.begin(); c != R.end(); ++c)
+    for (result::const_iterator c = R.begin(); c != R.end(); ++c)
     {
       // Read value of column 0 into a string N
       string N;

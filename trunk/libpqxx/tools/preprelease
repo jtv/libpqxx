@@ -1,6 +1,7 @@
 #! /bin/sh
 #
-# Prepare a release of libpqxx.
+# Prepare a release of libpqxx.  This is tailored to my machine and my current
+# postgres installation.  It's not supposed to work on anything else.
 #
 # Usage: preprelease [sourcedir]
 #
@@ -15,85 +16,90 @@
 # If successful, the script leaves a distribution tarball in /tmp.
 
 LOGFILE=/tmp/libpqxx-preprelease.log
+ERRLOG=/tmp/libpqxx-preprelease.err
 
-rm -f $LOGFILE
-echo "Preparing libpqxx release.  Log file is $LOGFILE"
-echo "preprelease libpqxx" >>$LOGFILE
-date >>$LOGFILE
-echo >>$LOGFILE
+SOURCEDIR=$1
 
-echo "Ensuring PostgreSQL is running..."
-echo "$ startpostgres" >>$LOGFILE
-startpostgres >>$LOGFILE
-echo
+function print() {
+	echo "$1" >>$LOGFILE
+	echo "$1" >>$ERRLOG
+}
+
+function log() {
+	print
+	print "`date`: $1"
+	print
+}
+
+function command() {
+	print "$ $1"
+	$2 $1 >>$LOGFILE 2>>$ERRLOG
+}
+
+rm -f $LOGFILE $ERRLOG
+
+log "Preparing libpqxx release.  Log file is $LOGFILE, errors go to $ERRLOG"
+
+tail -f --pid=$$ $ERRLOG &
+
+log "Ensuring PostgreSQL is running..."
+command startpostgres nice
+
 if test -z "$PGHOST"; then export PGHOST=/tmp; fi
-echo "Accessing PostgreSQL in $PGHOST"
-echo "Accessing PostgreSQL in $PGHOST" >>$LOGFILE
-echo
-echo >>$LOGFILE
+
+log "Accessing PostgreSQL in $PGHOST"
 
 set -e
-if test -n "$1"; then cd $1; fi
+
+if test -z "$SOURCEDIR"; then SOURCEDIR="."; fi
+command "cd $SOURCEDIR"
+
+log "Building in \"$SOURCEDIR\" (`pwd`)"
 
 VERSION=`grep AC_INIT configure.ac | cut -d ' ' -f 2 | cut -d ',' -f 1`
-echo "Preparing release of version $VERSION"
-echo "Preparing release of version $VERSION" >>$LOGFILE
+log "Preparing release of version $VERSION"
 DISTNAME=libpqxx-$VERSION
 TARBALL=$DISTNAME.tar.gz
-echo
-echo >>$LOGFILE
 
-echo "Generating autoconf/automake files"
-echo "Generating autoconf/automake files" >>$LOGFILE
-./autogen.sh >>$LOGFILE
-echo
-echo >>$LOGFILE
+log "Generating autoconf/automake files"
+command ./autogen.sh nice
 
-echo "Generating documentation"
-echo "$ doxygen" >>$LOGFILE
-doxygen >>$LOGFILE
-echo
-echo >>$LOGFILE
+log "Generating documentation"
+command doxygen nice
 
-echo "Creating $TARBALL"
-echo "$ make dist" >>$LOGFILE
-make dist >>$LOGFILE
-echo >>$LOGFILE
+log "Creating $TARBALL"
+command "make dist" nice
 
-rm -f /tmp/$TARBALL
-mv $TARBALL /tmp
+command "rm -f /tmp/$TARBALL"
+command "mv $TARBALL /tmp"
 
-cd /tmp
-rm -rf $DISTNAME
-echo "Extracting $TARBALL in /tmp"
-tar xzf $TARBALL
-rm $TARBALL
-cd $DISTNAME
+command "cd /tmp"
+command "rm -rf $DISTNAME"
 
-echo "Configuring"
-echo "$ ./configure" >>$LOGFILE
-nice ./configure >>$LOGFILE
-echo >>$LOGFILE
+log "Extracting $TARBALL in /tmp"
+command "tar xzf $TARBALL"
+command "rm $TARBALL"
+command "cd $DISTNAME"
 
-echo "Building"
-echo "$ nice make" >>$LOGFILE
-nice make >>$LOGFILE
-echo
-echo >>$LOGFILE
+log "Configuring"
+command "./configure" nice
 
-echo "Running regression test"
-echo "$ nice make check" >>$LOGFILE
-nice make check >>$LOGFILE
-echo
-echo >>$LOGFILE
+log "Building"
+command "make" nice
 
-echo "Creating release version of $TARBALL"
-echo "$ make dist" >>$LOGFILE
-make dist >>$LOGFILE
-mv $TARBALL ..
-cd ..
-rm -r $DISTNAME
-echo "Finished."
-echo "Finished." >>$LOGFILE
-echo "Release tarball is /tmp/$TARBALL"
+log "Running regression test"
+command "make check" nice
+grep '^FAIL: test' $LOGFILE 2>>$ERRLOG
+grep '^All [0-9]* tests passed' $LOGFILE 2>>$ERRLOG
+
+log "Creating release version of $TARBALL"
+command "make dist" nice
+command "mv $TARBALL .."
+command "cd .."
+command "rm -r $DISTNAME"
+
+log "Finished.  Release tarball is /tmp/$TARBALL"
+
+# Give output time to catch up with command prompt
+sleep 2
 

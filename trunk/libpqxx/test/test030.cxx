@@ -12,7 +12,7 @@ using namespace pqxx;
 // Test program for libpqxx.  Query a table and report its metadata.  Use lazy
 // connection.
 //
-// Usage: test30 [connect-string] [table]
+// Usage: test030 [connect-string] [table]
 //
 // Where table is the table to be queried; if none is given, pg_tables is
 // queried by default.
@@ -27,24 +27,24 @@ int main(int argc, char *argv[])
   {
     const string Table = ((argc >= 3) ? argv[2] : "pg_tables");
 
-    LazyConnection C(argv[1]);
+    lazyconnection C(argv[1]);
     Transaction T(C, "test30");
 
-    Result R( T.Exec(("SELECT * FROM " + Table).c_str()) );
+    result R( T.Exec(("SELECT * FROM " + Table).c_str()) );
     if (R.empty())
       throw runtime_error("Table " + Table + " was empty.  "
 	                  "Sorry, that's not enough to run this test");
 
     // Print column names
-    for (Result::Tuple::size_type c = 0; c < R.Columns(); ++c)
+    for (result::tuple::size_type c = 0; c < R.Columns(); ++c)
     {
       string N= R.ColumnName(c);
       cout << c << ":\t" << N << endl;
 
       if (R[0].ColumnNumber(N) != R.ColumnNumber(N))
-	throw logic_error("Tuple::ColumnNumber(" + N + ") is " + 
+	throw logic_error("tuple::ColumnNumber(" + N + ") is " + 
 	                  ToString(R[0].ColumnNumber(N)) + ", "
-			  "but Result::ColumnNumber(" + N + ") is " +
+			  "but result::ColumnNumber(" + N + ") is " +
 			  ToString(R.ColumnNumber(N)));
 
       if (R[0].ColumnNumber(N.c_str()) != c)
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
       else if (R[1].Row() != 1)
         throw logic_error("Row 1 said it was row " + R[1].Row());
 
-      for (Result::Tuple::size_type c = 0; c < R[0].size(); ++c)
+      for (result::tuple::size_type c = 0; c < R[0].size(); ++c)
       {
 	string N = R.ColumnName(c);
 
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 
 	if (R[0][c].Name() != N)
 	  throw logic_error("Field " + ToString(c) + " "
-			    "called '" + N + "' by Result, "
+			    "called '" + N + "' by result, "
 			    "but '" + R[0][c].Name() + "' by Field object");
 
 	if (size_t(R[0][c].size()) != strlen(R[0][c].c_str()))

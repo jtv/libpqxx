@@ -10,7 +10,7 @@ using namespace pqxx;
 // Streams test program for libpqxx.  Insert a result field into various
 // types of streams.
 //
-// Usage: test46 [connect-string]
+// Usage: test046 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -20,9 +20,9 @@ int main(int, char *argv[])
 {
   try
   {
-    Connection C(argv[1]);
+    connection C(argv[1]);
     Transaction T(C, "test46");
-    Result R( T.Exec("SELECT count(*) FROM pg_tables") );
+    result R( T.Exec("SELECT count(*) FROM pg_tables") );
 
     cout << "Count was " << R.at(0).at(0) << endl;
 

@@ -12,7 +12,7 @@ using namespace pqxx;
 // Simple test program for libpqxx.  Open a lazy connection to database, start
 // a transaction, and perform a query inside it.
 //
-// Usage: test21 [connect-string]
+// Usage: test021 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -24,7 +24,7 @@ int main(int, char *argv[])
   {
     const string ConnectString = (argv[1] ? argv[1] : "");
     // Request a connection to the backend, but defer actual creation
-    LazyConnection C(ConnectString);
+    lazyconnection C(ConnectString);
 
     C.ProcessNotice("Printing details on deferred connection\n");
     const string HostName = (C.HostName() ? C.HostName() : "<local>");
@@ -49,7 +49,7 @@ int main(int, char *argv[])
 		    "backendpid=" + ToString(C.BackendPID()) + "\n");
 
 
-    Result R( T.Exec("SELECT * FROM pg_tables") );
+    result R( T.Exec("SELECT * FROM pg_tables") );
 
     T.ProcessNotice(ToString(R.size()) + " "
 		    "result tuples in transaction " +
@@ -57,7 +57,7 @@ int main(int, char *argv[])
 		    "\n");
 
     // Process each successive result tuple
-    for (Result::const_iterator c = R.begin(); c != R.end(); ++c)
+    for (result::const_iterator c = R.begin(); c != R.end(); ++c)
     {
       string N;
       c[0].to(N);

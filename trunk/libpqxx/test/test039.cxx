@@ -13,7 +13,7 @@ using namespace pqxx;
 // verify that the change gets made regardless of whether the NonTransaction is 
 // eventually committed or aborted.  A lazy connection is used.
 //
-// Usage: test39 [connect-string] [table]
+// Usage: test039 [connect-string] [table]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 {
   try
   {
-    LazyConnection C(argv[1]);
+    lazyconnection C(argv[1]);
 
     const string Table = ((argc > 2) ? argv[2] : "events");
 
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
     // Verify our start condition before beginning: there must not be a 1977
     // record already.
-    Result R( T1.Exec("SELECT * FROM " + Table + " "
+    result R( T1.Exec("SELECT * FROM " + Table + " "
 	              "WHERE year=" + ToString(BoringYear)) );
     if (R.size() != 0)
       throw runtime_error("There is already a record for " + 
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 
     R.clear();
     if (!R.empty())
-      throw logic_error("Result::clear() doesn't work!");
+      throw logic_error("result::clear() doesn't work!");
 
     // Now remove our record again
     T2.Exec("DELETE FROM " + Table + " "

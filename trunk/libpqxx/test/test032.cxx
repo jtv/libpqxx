@@ -4,15 +4,16 @@
 
 #include <pqxx/connection.h>
 #include <pqxx/transaction.h>
+#include <pqxx/transactor.h>
 #include <pqxx/result.h>
 
 using namespace PGSTD;
 using namespace pqxx;
 
 
-// Test program for libpqxx.  Verify abort behaviour of Transactor.
+// Test program for libpqxx.  Verify abort behaviour of transactor.
 //
-// Usage: test32 [connect-string] [table]
+// Usage: test032 [connect-string] [table]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -36,18 +37,18 @@ const int BoringYear = 1977;
 
 // Count events and specifically events occurring in Boring Year, leaving the
 // former count in the result pair's first member, and the latter in second.
-class CountEvents : public Transactor
+class CountEvents : public transactor<>
 {
   string m_Table;
   pair<int, int> &m_Results;
 public:
   CountEvents(string Table, pair<int,int> &Results) : 
-    Transactor("CountEvents"), m_Table(Table), m_Results(Results) {}
+    transactor<>("CountEvents"), m_Table(Table), m_Results(Results) {}
 
   void operator()(argument_type &T)
   {
     const string CountQuery = "SELECT count(*) FROM " + m_Table;
-    Result R;
+    result R;
 
     R = T.Exec(CountQuery);
     R.at(0).at(0).to(m_Results.first);
@@ -59,13 +60,13 @@ public:
 
 
 
-class FailedInsert : public Transactor
+class FailedInsert : public transactor<>
 {
   string m_Table;
   static string LastReason;
 public:
   FailedInsert(string Table) : 
-    Transactor("FailedInsert"), 
+    transactor<>("FailedInsert"), 
     m_Table(Table)
   {
   }
@@ -109,7 +110,7 @@ int main(int argc, char *argv[])
 {
   try
   {
-    LazyConnection C(argv[1]);
+    lazyconnection C(argv[1]);
 
     const string Table = ((argc > 2) ? argv[2] : "events");
 

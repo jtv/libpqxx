@@ -1,34 +1,48 @@
 Build system
-(*) Include libpq path in dynamic link path: -Wl,/usr/local/pgsql/lib for gcc
 (*) Completely support building outside the source directory
 
 Connections
+(*) Check for PQfreeNotify() function instead of just PQfreemem()
 (*) Separate failed_connection exception type
 (*) Connection pooling support
 (*) AsyncConnection
+(*) Support my "Appendix" pattern (allow client code to add state)
+(*) Support scoped/unscoped non-superuser identity (outside transaction only)
+(*) Support constraints definition
+
+Cursors
+(*) Splice out absolute positioning logic (requires serializable transaction!)
+(*) Splice out forward-only functionality
+(*) Provide iterator interface
+(*) Prepare for updateable cursors
+(*) Make cachedresult 
 
 Documentation
 (*) Find a better documentation format for the tutorial
 (*) Re-translate the tutorial to HTML (preferably as part of build procedure)
-(*) Document "please don't start transactions yourself"
 (*) Document migration procedures from libpq++
+
+Large Objects
+(*) Support lo_tell()
 
 Nonblocking operation
 (*) Separate query issuing from receipt of results
 (*) Support select()
 
 Results
-(*) Implement get<int>() and so on
 (*) Conceive metadata model
 (*) Allow direct mapping onto structs, using member ptr template args
-
-RobustTransaction
-(*) User schema support for log table
+(*) Convert to/from date/time values
+(*) Real encoding support (PQmblen(), PQenv2encoding())
 
 Streams
-(*) Provide metadata information in TableStream
+(*) Provide metadata information in tablestream
 (*) Support column lists for COPY
 (*) Allow single-level insertion with endt/endr manipulators
+
+Transactions
+(*) User schema support for robusttransaction log table
+(*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
 
 Tests
 (*) Full test coverage
@@ -36,6 +50,6 @@ Tests
 (*) Mixed-mode, seeking lostream tests
 
 Triggers
-(*) Allow access to Connection's triggers list?
+(*) Allow access to connection_base's triggers list?
 
 

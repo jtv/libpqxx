@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.53)
-AC_INIT(libpqxx, 1.8.0, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 1.9.0, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(libpqxx, 1.8.0)
+AM_INIT_AUTOMAKE(libpqxx, 1.9.0)
 
 # Library version numbering - see "info libtool versioning 'libtool
 # versioning'" for details.
@@ -53,8 +53,9 @@ AC_ARG_ENABLE(maintainer-mode,
 AC_MSG_RESULT(${enable_maintainer_mode})
 
 # Let's try to get the compiler to be helpful
-# (Omit options like -Weffc++ because they currently yield too many warnings in
-# gcc's standard headers; omit -Wunreachable-code because it isn't always right)
+# (Omit options -Weffc++ and -Wabi because they currently yield too many 
+# warnings in gcc's standard headers; omit -Wunreachable-code because it isn't 
+# always right)
 if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 	for option in \
 		-ffor-scope \
@@ -72,7 +73,6 @@ if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 		-Wconversion \
 		-Wsign-compare \
 		-Wredundant-decls \
-		-Wabi \
 		-Wctor-dtor-privacy \
 		-Wnon-virtual-dtor \
 		-Wreorder \

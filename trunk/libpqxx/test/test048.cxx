@@ -21,11 +21,11 @@ template<typename T> string UnStream(T &Stream)
   return Result;
 }
 
-class WriteLargeObject : public Transactor
+class WriteLargeObject : public transactor<>
 {
 public:
-  WriteLargeObject(const string &Contents, LargeObject &O) : 
-    Transactor("WriteLargeObject"),
+  WriteLargeObject(const string &Contents, largeobject &O) : 
+    transactor<>("WriteLargeObject"),
     m_Contents(Contents),
     m_Object(),
     m_ObjectOutput(O)
@@ -34,7 +34,7 @@ public:
 
   void operator()(argument_type &T)
   {
-    m_Object = LargeObject(T);
+    m_Object = largeobject(T);
     cout << "Created large object #" << m_Object.id() << endl;
 
     olostream S(T, m_Object);
@@ -48,16 +48,16 @@ public:
 
 private:
   string m_Contents;
-  LargeObject m_Object;
-  LargeObject &m_ObjectOutput;
+  largeobject m_Object;
+  largeobject &m_ObjectOutput;
 };
 
 
-class ReadLargeObject : public Transactor
+class ReadLargeObject : public transactor<>
 {
 public:
-  ReadLargeObject(string &Contents, LargeObject O) :
-    Transactor("ReadLargeObject"),
+  ReadLargeObject(string &Contents, largeobject O) :
+    transactor<>("ReadLargeObject"),
     m_Contents(),
     m_ContentsOutput(Contents),
     m_Object(O)
@@ -78,14 +78,14 @@ public:
 private:
   string m_Contents;
   string &m_ContentsOutput;
-  LargeObject m_Object;
+  largeobject m_Object;
 };
 
 
-class DeleteLargeObject : public Transactor
+class DeleteLargeObject : public transactor<>
 {
 public:
-  DeleteLargeObject(LargeObject O) : m_Object(O) {}
+  DeleteLargeObject(largeobject O) : m_Object(O) {}
 
   void operator()(argument_type &T)
   {
@@ -93,7 +93,7 @@ public:
   }
 
 private:
-  LargeObject m_Object;
+  largeobject m_Object;
 };
 
 
@@ -102,7 +102,7 @@ private:
 
 // Simple test program for libpqxx's Large Objects interface.
 //
-// Usage: test48 [connect-string]
+// Usage: test048 [connect-string]
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
@@ -112,9 +112,9 @@ int main(int, char *argv[])
 {
   try
   {
-    Connection C(argv[1]);
+    connection C(argv[1]);
 
-    LargeObject Obj(InvalidOid);
+    largeobject Obj(oid_none);
     const string Contents = "Testing, testing, 1-2-3";
 
     C.Perform(WriteLargeObject(Contents, Obj));

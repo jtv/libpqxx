@@ -4,10 +4,14 @@
  *	pqxx/result.h
  *
  *   DESCRIPTION
- *      definitions for the pqxx::Result class and support classes.
- *   pqxx::Result represents the set of result tuples from a database query
+ *      definitions for the pqxx::result class and support classes.
+ *   pqxx::result represents the set of result tuples from a database query
  *
  * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
  *
  *-------------------------------------------------------------------------
  */
@@ -30,53 +34,53 @@ namespace pqxx
 /// Query or command result set.
 /** This behaves as a container (as defined by the C++ standard library) and 
  * provides random access const iterators to iterate over its tuples.  A tuple 
- * can also be accessed by indexing a Result R by the tuple's zero-based 
+ * can also be accessed by indexing a result R by the tuple's zero-based 
  * number:
  *
- *	for (Result::size_type i=0; i < R.size(); ++i) Process(R[i]);
+ *	for (result::size_type i=0; i < R.size(); ++i) Process(R[i]);
  */
-class PQXX_LIBEXPORT Result
+class PQXX_LIBEXPORT result
 {
 public:
-  Result() : m_Result(0), m_Refcount(0) {}				//[t3]
-  Result(const Result &rhs) : 						//[t1]
+  result() : m_Result(0), m_Refcount(0) {}				//[t3]
+  result(const result &rhs) : 						//[t1]
 	  m_Result(0), m_Refcount(0) { MakeRef(rhs); }
-  ~Result() { LoseRef(); }						//[t1]
+  ~result() { LoseRef(); }						//[t1]
   
-  Result &operator=(const Result &);					//[t10]
+  result &operator=(const result &);					//[t10]
 
-  typedef Result_size_type size_type;
-  class Field;
+  typedef result_size_type size_type;
+  class field;
 
   // TODO: Field iterators
  
-  /// Reference to one row in a Result.
-  /** A Tuple represents one row (also called a tuple) in a query result set.  
-   * It also acts as a container mapping column numbers or names to Field 
+  /// Reference to one row in a result.
+  /** A tuple represents one row (also called a tuple) in a query result set.  
+   * It also acts as a container mapping column numbers or names to field 
    * values (see below):
    *
-   * 	cout << Tuple["date"].c_str() << ": " << Tuple["name"].c_str() << endl;
+   * 	cout << tuple["date"].c_str() << ": " << tuple["name"].c_str() << endl;
    *
-   * The fields in a Tuple can not currently be iterated over.
+   * The fields in a tuple can not currently be iterated over.
    */
-  class PQXX_LIBEXPORT Tuple
+  class PQXX_LIBEXPORT tuple
   {
   public:
-    typedef Tuple_size_type size_type;
-    Tuple(const Result *r, Result::size_type i) : m_Home(r), m_Index(i) {}
-    ~Tuple() {} // Yes Scott Meyers, you're absolutely right[1]
+    typedef tuple_size_type size_type;
+    tuple(const result *r, result::size_type i) : m_Home(r), m_Index(i) {}
+    ~tuple() {} // Yes Scott Meyers, you're absolutely right[1]
 
-    inline Field operator[](size_type) const;				//[t1]
-    Field operator[](const char[]) const;				//[t11]
-    Field operator[](const PGSTD::string &s) const 			//[t11]
+    inline field operator[](size_type) const;				//[t1]
+    field operator[](const char[]) const;				//[t11]
+    field operator[](const PGSTD::string &s) const 			//[t11]
     	{ return operator[](s.c_str()); }
-    Field at(size_type) const;						//[t10]
-    Field at(const char[]) const;					//[t11]
-    Field at(const PGSTD::string &s) const { return at(s.c_str()); }	//[t11]
+    field at(size_type) const;						//[t10]
+    field at(const char[]) const;					//[t11]
+    field at(const PGSTD::string &s) const { return at(s.c_str()); }	//[t11]
 
     inline size_type size() const;					//[t11]
 
-    Result::size_type Row() const { return m_Index; }			//[t11]
+    result::size_type Row() const { return m_Index; }			//[t11]
 
     size_type ColumnNumber(const PGSTD::string &ColName) const 		//[t30]
     	{ return m_Home->ColumnNumber(ColName); }
@@ -85,29 +89,32 @@ public:
     	{ return m_Home->ColumnNumber(ColName); }
 
   protected:
-    const Result *m_Home;
-    Result::size_type m_Index;
+    const result *m_Home;
+    result::size_type m_Index;
 
     // Not allowed:
-    Tuple();
+    tuple();
   };
+
+  /// @deprecated For compabilitiy with old Tuple class
+  typedef tuple Tuple;
 
 
   /// Reference to a field in a result set.
-  /** A Field represents one entry in a Tuple.  It represents an actual value 
+  /** A field represents one entry in a tuple.  It represents an actual value 
    * in the result set, and can be converted to various types.
    */
-  class PQXX_LIBEXPORT Field : private Tuple
+  class PQXX_LIBEXPORT field : private tuple
   {
   public:
     typedef size_t size_type;
 
     /// Constructor.
-    /** Create Field as reference to a field in a result set.
-     * @param R Tuple that this Field is part of.
+    /** Create field as reference to a field in a result set.
+     * @param R tuple that this field is part of.
      * @param C column number of this field.
      */
-    Field(const Tuple &R, Tuple::size_type C) : Tuple(R), m_Col(C) {}	//[t1]
+    field(const tuple &R, tuple::size_type C) : tuple(R), m_Col(C) {}	//[t1]
 
     /// Read as plain C string
     /** Since the field's data is stored internally in the form of a 
@@ -121,6 +128,15 @@ public:
     inline const char *Name() const;					//[t11]
 
     /// Read value into Obj; or leave Obj untouched & return false if null
+    /** @warning The conversion is done using the currently active locale, 
+     * whereas PostgreSQL delivers values in the "default" (C) locale.  This 
+     * means that if you intend to use this function from a locale that doesn't
+     * understand the data types in question (particularly numeric types like 
+     * float and int) in default C format, you'll need to switch back to the C 
+     * locale before the call--at least insofar as numeric formatting is
+     * concerned (on POSIX systems, use setlocale(LC_NUMERIC, "C")).
+     * This should be fixed at some point in the future.
+     */
     template<typename T> bool to(T &Obj) const				//[t1]
     {
       if (is_null())
@@ -146,8 +162,8 @@ public:
     template<> bool to<PGSTD::string>(PGSTD::string &Obj) const;
 
     /// Specialization: to(const char *&).  
-    /** The buffer has the same lifetime as the Result, so take care not to
-     * use it after the Result is destroyed.
+    /** The buffer has the same lifetime as the result, so take care not to
+     * use it after the result is destroyed.
      */
     template<> bool to<const char *>(const char *&Obj) const;
 #endif
@@ -162,32 +178,44 @@ public:
       return NotNull;
     }
 
+    /// Return value as object of given built-in type, or Default if null
+    /** Note that unless the function is instantiated with an explicit template
+     * argument, the Default value also determines the result type.
+     */
+    template<typename T> T as(const T &Default) const			//[t45]
+    {
+      T Obj;
+      return to(Obj) ? Obj : Default;
+    }
+
     bool is_null() const { return m_Home->GetIsNull(m_Index,m_Col); }	//[t12]
 
     size_type size() const { return m_Home->GetLength(m_Index,m_Col); }	//[t11]
 
   private:
 
-    Tuple::size_type m_Col;
+    tuple::size_type m_Col;
   };
 
+  /// @deprecated For compatibility with old Field class
+  typedef field Field;
 
   /// Iterator for rows (tuples) in a query result set.
-  /** A Result, once obtained, cannot be modified.  Therefore there is no
-   * plain iterator type for Result.  However its const_iterator type can be 
-   * used to inspect its Tuples without changing them.
+  /** A result, once obtained, cannot be modified.  Therefore there is no
+   * plain iterator type for result.  However its const_iterator type can be 
+   * used to inspect its tuples without changing them.
    */
   class PQXX_LIBEXPORT const_iterator : 
     public PGSTD::iterator<PGSTD::random_access_iterator_tag, 
-                         const Tuple,
-                         Result::size_type>, 
-    public Tuple
+                         const tuple,
+                         result::size_type>, 
+    public tuple
   {
   public:
-    const_iterator() : Tuple(0,0) {}
+    const_iterator() : tuple(0,0) {}
 
-    /** The iterator "points to" its own Tuple, which is also itself.  This 
-     * allows a Result to be addressed as a two-dimensional container without 
+    /** The iterator "points to" its own tuple, which is also itself.  This 
+     * allows a result to be addressed as a two-dimensional container without 
      * going through the intermediate step of dereferencing the iterator.  I 
      * hope this works out to be similar to C pointer/array semantics in useful 
      * cases[2].
@@ -227,11 +255,11 @@ public:
 
     inline difference_type operator-(const_iterator i) const;		//[t12]
 
-    Result::size_type num() const { return Row(); }			//[t1]
+    result::size_type num() const { return Row(); }			//[t1]
 
   private:
-    friend class Result;
-    const_iterator(const Result *r, Result::size_type i) : Tuple(r, i) {}
+    friend class result;
+    const_iterator(const result *r, result::size_type i) : tuple(r, i) {}
   };
 
   const_iterator begin() const { return const_iterator(this, 0); }	//[t1]
@@ -242,25 +270,26 @@ public:
   bool empty() const { return !m_Result || !PQntuples(m_Result); }	//[t11]
   size_type capacity() const { return size(); }				//[t20]
 
-  const Tuple operator[](size_type i) const { return Tuple(this, i); }	//[t2]
-  const Tuple at(size_type) const;					//[t10]
+  const tuple operator[](size_type i) const { return tuple(this, i); }	//[t2]
+  const tuple at(size_type) const;					//[t10]
 
   void clear() { LoseRef(); }						//[t20]
 
-  Tuple::size_type Columns() const { return PQnfields(m_Result); }	//[t11]
+  tuple::size_type Columns() const { return PQnfields(m_Result); }	//[t11]
 
   /// Number of given column, or -1 if it does not exist
-  Tuple::size_type ColumnNumber(const char Name[]) const 		//[t11]
+  tuple::size_type ColumnNumber(const char Name[]) const 		//[t11]
   	{return PQfnumber(m_Result,Name);}
   /// Number of given column, or -1 if it does not exist
-  Tuple::size_type ColumnNumber(const std::string &Name) const 		//[t11]
+  tuple::size_type ColumnNumber(const std::string &Name) const 		//[t11]
   	{return ColumnNumber(Name.c_str());}
-  const char *ColumnName(Tuple::size_type Number) const 		//[t11]
+  const char *ColumnName(tuple::size_type Number) const 		//[t11]
   	{return PQfname(m_Result,Number);}
 
   /// If command was INSERT of 1 row, return oid of inserted row
-  /** Returns InvalidOid otherwise. */
-  Oid InsertedOid() const { return PQoidValue(m_Result); }		//[t13]
+  /** Returns oid_none otherwise. 
+   */
+  oid InsertedOid() const { return PQoidValue(m_Result); }		//[t13]
 
   /// If command was INSERT, UPDATE, or DELETE, return number of affected rows
   /*** Returns zero for all other commands. */
@@ -270,14 +299,14 @@ private:
   PGresult *m_Result;
   mutable int *m_Refcount;
 
-  friend class Result::Field;
-  const char *GetValue(size_type Row, Tuple::size_type Col) const;
-  bool GetIsNull(size_type Row, Tuple::size_type Col) const;
-  Field::size_type GetLength(size_type Row, Tuple::size_type Col) const;
+  friend class result::field;
+  const char *GetValue(size_type Row, tuple::size_type Col) const;
+  bool GetIsNull(size_type Row, tuple::size_type Col) const;
+  field::size_type GetLength(size_type Row, tuple::size_type Col) const;
 
-  friend class Connection_base;
-  explicit Result(PGresult *rhs) : m_Result(rhs), m_Refcount(0) {MakeRef(rhs);}
-  Result &operator=(PGresult *);
+  friend class connection_base;
+  explicit result(PGresult *rhs) : m_Result(rhs), m_Refcount(0) {MakeRef(rhs);}
+  result &operator=(PGresult *);
   bool operator!() const throw () { return !m_Result; }
   operator bool() const throw () { return m_Result != 0; }
   void CheckStatus(const PGSTD::string &Query) const;
@@ -287,7 +316,7 @@ private:
 
 
   void MakeRef(PGresult *);
-  void MakeRef(const Result &);
+  void MakeRef(const result &);
   void LoseRef() throw ();
 };
 
@@ -296,11 +325,11 @@ private:
 /** This class represents a postgres-internal buffer containing the original,
  * binary string represented by a field of type bytea.  The raw value returned
  * by such a field contains escape sequences for certain characters, which are
- * filtered out by BinaryString.
- * The BinaryString retains its value even if the Result it was obtained from is
+ * filtered out by binarystring.
+ * The binarystring retains its value even if the result it was obtained from is
  * destroyed, but it cannot be copied or assigned.
  */
-class BinaryString : private PQAlloc<unsigned char>
+class PQXX_LIBEXPORT binarystring : private PQAlloc<unsigned char>
 {
   typedef PQAlloc<unsigned char> super;
 public:
@@ -310,7 +339,7 @@ public:
   /** The field will be zero-terminated, even if the original bytea field isn't.
    * @param F the field to read; must be a bytea field
    */
-  explicit BinaryString(const Result::Field &F) : 			//[]
+  explicit binarystring(const result::field &F) : 			//[]
     super(),
     m_size(0)
   {
@@ -333,15 +362,22 @@ private:
 };
 
 
+/// @deprecated For compatibility with old BinaryString class
+typedef binarystring BinaryString;
+
+/// @deprecated For compatibility with old Result class
+typedef result Result;
+
+
 /// Write a result field to any type of stream
-/** This can be convenient when writing a Field to an output stream.  More
- * importantly, it lets you write a Field to e.g. a stringstream which you can
+/** This can be convenient when writing a field to an output stream.  More
+ * importantly, it lets you write a field to e.g. a stringstream which you can
  * then use to read, format and convert the field in ways that to() does not
  * support.  
  *
- * Example: parse a Field into a variable of the nonstandard "long long" type.
+ * Example: parse a field into a variable of the nonstandard "long long" type.
  *
- * extern Result R;
+ * extern result R;
  * long long L;
  * stringstream S;
  *
@@ -352,7 +388,7 @@ private:
  * S >> L;
  */
 template<typename STREAM>
-inline STREAM &operator<<(STREAM &S, const pqxx::Result::Field &F)	//[t46]
+inline STREAM &operator<<(STREAM &S, const pqxx::result::field &F)	//[t46]
 {
   S << F.c_str();
   return S;
@@ -360,25 +396,25 @@ inline STREAM &operator<<(STREAM &S, const pqxx::Result::Field &F)	//[t46]
 
 
 
-inline Result::Field 
-Result::Tuple::operator[](Result::Tuple::size_type i) const 
+inline result::field 
+result::tuple::operator[](result::tuple::size_type i) const 
 { 
-  return Field(*this, i); 
+  return field(*this, i); 
 }
 
-inline Result::Tuple::size_type Result::Tuple::size() const 
+inline result::tuple::size_type result::tuple::size() const 
 { 
   return m_Home->Columns(); 
 }
 
-inline const char *Result::Field::Name() const 
+inline const char *result::field::Name() const 
 { 
   return m_Home->ColumnName(m_Col); 
 }
 
 /// Specialization: to(string &)
 template<> 
-inline bool Result::Field::to<PGSTD::string>(PGSTD::string &Obj) const
+inline bool result::field::to<PGSTD::string>(PGSTD::string &Obj) const
 {
   if (is_null()) return false;
   Obj = c_str();
@@ -386,11 +422,11 @@ inline bool Result::Field::to<PGSTD::string>(PGSTD::string &Obj) const
 }
 
 /// Specialization: to(const char *&).  
-/** The buffer has the same lifetime as the Result, so take care not to
- * use it after the Result is destroyed.
+/** The buffer has the same lifetime as the result, so take care not to
+ * use it after the result is destroyed.
  */
 template<> 
-inline bool Result::Field::to<const char *>(const char *&Obj) const
+inline bool result::field::to<const char *>(const char *&Obj) const
 {
   if (is_null()) return false;
   Obj = c_str();
@@ -398,32 +434,32 @@ inline bool Result::Field::to<const char *>(const char *&Obj) const
 }
 
 
-inline Result::const_iterator 
-Result::const_iterator::operator+(difference_type o) const
+inline result::const_iterator 
+result::const_iterator::operator+(difference_type o) const
 {
   return const_iterator(m_Home, m_Index + o);
 }
 
-inline Result::const_iterator 
-operator+(Result::const_iterator::difference_type o, 
-	  Result::const_iterator i)
+inline result::const_iterator 
+operator+(result::const_iterator::difference_type o, 
+	  result::const_iterator i)
 {
   return i + o;
 }
 
-inline Result::const_iterator 
-Result::const_iterator::operator-(difference_type o) const
+inline result::const_iterator 
+result::const_iterator::operator-(difference_type o) const
 {
   return const_iterator(m_Home, m_Index - o);
 }
 
-inline Result::const_iterator::difference_type 
-Result::const_iterator::operator-(const_iterator i) const
+inline result::const_iterator::difference_type 
+result::const_iterator::operator-(const_iterator i) const
 { 
   return num()-i.num(); 
 }
 
-inline Result::const_iterator Result::end() const 
+inline result::const_iterator result::end() const 
 { 
   return const_iterator(this, size()); 
 }

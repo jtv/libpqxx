@@ -1,0 +1,135 @@
+IMPORTANT NOTICE FOR USERS UPGRADING TO 1.9.0 OR LATER FROM OLDER VERSIONS
+
+Version 1.9.0 marks a radical change in the library, preparatory to the 2.0.0
+release scheduled for July 2003.  These may require changes in your code; see
+the NEWS file for quick overview of the changes.
+
+Not all the changes will be of immediate importance to you; where possible,
+typedefs have been provided to maintain backwards compatibility.  In some cases
+however, your existing code may fail to compile, or changes may be needed to
+stay compatible with future versions of libpqxx.
+
+
+1. The Great Renaming
+
+Practically all classes have been renamed to fully lower-case names.  This was
+requested by several users, and should help stylistic integration with the C++
+Standard Library.
+
+Typedefs have been provided where necessary, so no immediate changes are needed
+on that score (although eventually of course the typedefs will be phased out); 
+however, don't be surprised if class names are spelled differently in the
+documentation or in compiler messages than you're used to.
+
+
+2. The Transformed Transaction Taxonomy (TTT)
+
+The old Transaction hierarchy has been transformed to accomodate transaction
+isolation levels as compile-time type properties.  Also, there is now a separate
+dbtransaction base class to indicate that a subclass opens a real transaction on
+the backend.  As you may have guessed, nontransaction is the only type of 
+transaction implementation that isn't derived from dbtransaction.  The new root
+of the inheritance tree is transaction_base.
+
+Isolation levels are modeled as template arguments to the transaction types that
+support them, i.e. those classes derived from dbtransaction.  This makes it easy
+to adapt if the set of isolation levels implemented by the underlying database
+should ever change.
+
+To limit the amount of inlined code, these newly templatized classes (i.e.
+transaction and robusttransaction) are not derived directly from dbtransaction.
+Instead, their implementations are mostly contained in basic_transaction and
+basic_robusttransaction respectively.  The template classes inherit their
+implementations from these classes and only add the minimal changes required to
+set their isolation levels.  To express that a function requires a 
+robusttransaction of any isolation level, for instance, make its parameter
+refer to a basic_robusttransaction.
+
+The database's default isolation level is "read committed," which means that a
+transaction will read newly changed values as they become available from other
+transactions as they commit.  PostgreSQL also implements "serializable," which
+completely isolates each transaction from seeing changes made by other
+transactions while it is active.  The drawback of the serializable level is that
+the database may occasionally need to abort the transaction because its 
+"snapshot" view of the database has become impossible to maintain.  Using 
+libpqxx transactors will isolate you from this concern.
+
+The old Transaction name is now typedef'ed to mean transaction<read_committed>;
+to get a serializable one, declare a transaction<serializable>.  The same goes
+for robusttransaction.  
+
+To use the default isolation level, just write transaction<> (or, naturally,
+robusttransaction<>).  This will use the default template parameter, which is
+read_committed.
+
+Isolation levels are defined in the new header file pqxx/isolation.h.
+
+
+3. If you use Cursor or CachedResult...
+
+These classes have contained a serious bug for some time now, which is related
+to the transaction isolation levels described above.  Even if you don't want to
+upgrade right away, please try to avoid the "absolute positioning" feature of
+Cursor, and avoid CachedResult altogether.  Either will be safe if you only
+read your result set once, in a strict forward-only manner, but please consider
+upgrading libpqxx.  Newer version ensure that your code will not build until you
+fix the problem.
+
+The problem is this: due to the database's default transaction isolation level
+of "read committed," it is possible for another transaction to modify the
+contents of your query's result set as you access them.  The Cursor class in
+recent versions of libpqxx knew how to keep track of their absolute position to
+let you scroll directly to a given row, or to determine the size of the result
+set.  If another transaction modifies the rows you're interested in, however,
+that may affect the number of rows in your result set and confuse your cursor
+object's positioning logic.  The CachedResult class was built on top of Cursor's
+absolute positioning functionality, and so has the same problem.
+
+TTT to the rescue.  The new transaction hierarchy allows the constructors for
+cursor and cachedresult to demand that they be passed a transaction with
+isolation level "serializable."  Failure to do so will yield a compile-time or
+link-time error for the symbol error_permitted_isolation_level().
+
+If you want to continue using cursors and cachedresults the way you were used 
+to, you'll need to replace the relevant transactions with ones declared as
+serializable: transaction<serializable> or robusttransaction<serializable>.  
+This may require some restructuring or templatization of your program in some
+cases, because the constructors for cursor and cachedresult must be able to see
+the correct transaction isolation level at compile time, but I hope you'll agree
+it was the only solution that was both safe and efficient.
+
+The offending functionality will be spliced out of the cursor class; in fact,
+the class may disappear altogether and be replaced by a set of iterator-based
+interfaces; random-access iterators will only be available in serializable
+transactions, and some optimizations will be possible for forward-only
+iterators.  The difference between updateable and read-only cursors may be
+reflected as a distinction between regular iterators and const_iterators.
+
+
+4. If you use Transactors
+
+The old way of setting a transaction type as your transactor's "quality of
+service," by overriding the nested typedef for "argument_type," has been
+deprecated.  It will still work as far as I can make out, but may at some point
+in the future development of libpqxx fail to do what you expect.  There will be
+no compile-time warning of this, so please inspect your transactors manually.
+
+The new way to set a transactor's quality of service is to pass the desired
+transaction type as a template argument.  The old Transactor name is defined to
+mean "transactor<>", maintaining the old default of Transaction (which is now
+really a transaction<read_committed>).
+
+To replace this with, say, a nontransaction write:
+
+  class UnsafeTransactor : public transactor<nontransaction>
+
+For a super-robust, highly reliable transactor, write:
+
+  class SafeTransactor : public transactor<robusttransactor<serializable> >
+
+Note the space between the two closing angled-brackets: "> >" instead of merely
+">>".  This is due to an ambiguity in the C++ syntax.  Without the whitespace,
+the two consecutive larger-than signs would be parsed as a >> (shift-right)
+operator.
+
+

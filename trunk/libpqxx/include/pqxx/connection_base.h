@@ -4,10 +4,14 @@
  *	pqxx/connection_base.h
  *
  *   DESCRIPTION
- *      definition of the pqxx::Connection_base abstract base class.
- *   pqxx::Connection_base encapsulates a frontend to backend connection
+ *      definition of the pqxx::connection_base abstract base class.
+ *   pqxx::connection_base encapsulates a frontend to backend connection
  *
  * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
  *
  *-------------------------------------------------------------------------
  */
@@ -18,14 +22,13 @@
 #include <memory>
 
 #include "pqxx/except.h"
-#include "pqxx/transactor.h"
 #include "pqxx/util.h"
 
 
 /* Use of the libpqxx library starts here.
  *
  * Everything that can be done with a database through libpqxx must go through
- * a connection object derived from Connection_base.
+ * a connection object derived from connection_base.
  */
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
@@ -33,38 +36,38 @@
 
 namespace pqxx
 {
-class Result;
-class Transaction_base;
-class Trigger;
+class result;
+class transaction_base;
+class trigger;
 
 /// Base class for user-definable error/warning message processor
 /** To define a custom method of handling notices, derive a new class from
- * Noticer and override the virtual function "operator()(const char[]) throw()"
+ * noticer and override the virtual function "operator()(const char[]) throw()"
  * to process the message passed to it.
  */
-struct PQXX_LIBEXPORT Noticer
+struct PQXX_LIBEXPORT noticer : PGSTD::unary_function<const char[], void>
 {
-  virtual ~Noticer() {}
+  virtual ~noticer() {}  
   virtual void operator()(const char Msg[]) throw () =0;
 };
 
 
-/// Human-readable class names for use by Unique template.
-template<> inline PGSTD::string Classname(const Transaction_base *) 
+/// Human-readable class names for use by unique template.
+template<> inline PGSTD::string Classname(const transaction_base *) 
 { 
-  return "Transaction_base"; 
+  return "transaction_base"; 
 }
 
 
-/// Connection_base abstract base class; represents a connection to a database.
+/// connection_base abstract base class; represents a connection to a database.
 /** This is the first class to look at when you wish to work with a database 
  * through libpqxx.  Depending on the implementing concrete child class, a
  * connection can be automatically opened when it is constructed, or when it is
  * first used.  The connection is automatically closed upon destruction, if it 
  * hasn't already been closed manually.
  * To query or manipulate the database once connected, use one of the 
- * Transaction classes (see pqxx/transaction_base.h) or preferably the 
- * Transactor framework (see pqxx/transactor.h).
+ * transaction classes (see pqxx/transaction_base.h) or preferably the 
+ * transactor framework (see pqxx/transactor.h).
  * A word of caution: if a network connection to the database server fails, the
  * connection will be restored automatically (although any transaction going on
  * at the time will have to be aborted).  This also means that any information
@@ -75,24 +78,26 @@ template<> inline PGSTD::string Classname(const Transaction_base *)
  * libpqxx.  Always avoid raw queries if libpqxx offers a dedicated function for
  * the same purpose.
  */
-class PQXX_LIBEXPORT Connection_base
+class PQXX_LIBEXPORT connection_base
 {
 public:
-  /// Constructor.  Sets up connection PostgreSQL connection string.
+  /// Set up connection based on PostgreSQL connection string
   /** @param ConnInfo a PostgreSQL connection string specifying any required
-   * parameters, such as server, port, database, and password.
+   * parameters, such as server, port, database, and password.  These values
+   * override any of the environment variables recognized by libpq that may have
+   * been defined for the same parameters.
    */
-  explicit Connection_base(const PGSTD::string &ConnInfo);		//[t2]
+  explicit connection_base(const PGSTD::string &ConnInfo);		//[t2]
 
-  /// Constructor.  Sets up connection based on PostgreSQL connection string.
+  /// Set up connection based on PostgreSQL connection string
   /** @param ConnInfo a PostgreSQL connection string specifying any required
    * parameters, such as server, port, database, and password.  As a special
    * case, a null pointer is taken as the empty string.
    */
-  explicit Connection_base(const char ConnInfo[]);			//[t2]
+  explicit connection_base(const char ConnInfo[]);			//[t2]
 
   /// Destructor.  Implicitly closes the connection.
-  virtual ~Connection_base() =0;						//[t1]
+  virtual ~connection_base() =0;						//[t1]
 
   /// Explicitly close connection.
   void Disconnect() throw ();					//[t2]
@@ -100,31 +105,31 @@ public:
   /// Is this connection open?
   bool is_open() const;							//[t1]
 
-  /// Perform the transaction defined by a Transactor-based object.
-  /** The function may create and execute several copies of the Transactor
+  /// Perform the transaction defined by a transactor-based object.
+  /** The function may create and execute several copies of the transactor
    * before it succeeds.  If there is any doubt over whether it succeeded
    * (this can happen if the connection is lost just before the backend can
    * confirm success), it is no longer retried and an error message is
    * generated.
-   * @param T the Transactor to be executed.
+   * @param T the transactor to be executed.
    * @param Attempts the maximum number of attempts to be made to execute T.
    */
   template<typename TRANSACTOR> 
   void Perform(const TRANSACTOR &T, int Attempts=3);			//[t4]
 
-  // TODO: Define a default Noticer (mainly to help out Windows users)
+  // TODO: Define a default noticer (mainly to help out Windows users)
   /// Set handler for postgresql errors or warning messages.
   /** Return value is the previous handler.  Ownership of any previously set 
-   * Noticer is also passed to the caller, so unless it is stored in another 
+   * noticer is also passed to the caller, so unless it is stored in another 
    * auto_ptr, it will be deleted from the caller's context.  
    * This may be important when running under Windows, where a DLL cannot free 
    * memory allocated by the main program.
-   * If a Noticer is set when the Connection_base is destructed, it will also be
+   * If a noticer exists when the connection_base is destructed, it will also be
    * deleted.
    * @param N the new message handler; must not be null or equal to the old one
    */
-  PGSTD::auto_ptr<Noticer> SetNoticer(PGSTD::auto_ptr<Noticer> N);	//[t14]
-  Noticer *GetNoticer() const throw () { return m_Noticer.get(); }	//[t14]
+  PGSTD::auto_ptr<noticer> SetNoticer(PGSTD::auto_ptr<noticer> N);	//[t14]
+  noticer *GetNoticer() const throw () { return m_Noticer.get(); }	//[t14]
 
   /// Invoke notice processor function.  The message should end in newline.
   void ProcessNotice(const char[]) throw ();				//[t14]
@@ -211,7 +216,7 @@ public:
    * be restored automatically.  See the PostgreSQL documentation for a list of
    * variables that can be set and their permissible values.
    * If a transaction is currently in progress, aborting that transaction will
-   * normally discard the newly set value.  Known exceptions are NonTransaction
+   * normally discard the newly set value.  Known exceptions are nontransaction
    * (which doesn't start a real backend transaction) and PostgreSQL versions
    * prior to 7.3.
    * @param Var variable to set
@@ -232,23 +237,30 @@ private:
   void close() throw ();
   void RestoreVars();
 
-  PGSTD::string m_ConnInfo;	/// Connection string
-  PGconn *m_Conn;	/// Connection handle
-  Unique<Transaction_base> m_Trans;/// Active transaction on connection, if any
+  /// Connection string
+  PGSTD::string m_ConnInfo;
+  /// Connection handle
+  PGconn *m_Conn;
+  /// Active transaction on connection, if any
+  unique<transaction_base> m_Trans;
 
-  PGSTD::auto_ptr<Noticer> m_Noticer;	/// User-defined notice processor
-  FILE *m_Trace;		/// File to trace to, if any
+  /// User-defined notice processor, if any
+  PGSTD::auto_ptr<noticer> m_Noticer;
+  /// File to trace to, if any
+  FILE *m_Trace;
 
-  typedef PGSTD::multimap<PGSTD::string, pqxx::Trigger *> TriggerList;
-  TriggerList m_Triggers;	/// Triggers client is listening on
+  typedef PGSTD::multimap<PGSTD::string, pqxx::trigger *> TriggerList;
+  /// Triggers this session is listening on
+  TriggerList m_Triggers;
 
-  PGSTD::map<PGSTD::string, PGSTD::string> m_Vars; /// Variables set in session
+  /// Variables set in this session
+  PGSTD::map<PGSTD::string, PGSTD::string> m_Vars;
 
-  friend class Transaction_base;
-  Result Exec(const char[], int Retries=3, const char OnReconnect[]=0);
-  void RegisterTransaction(Transaction_base *);
-  void UnregisterTransaction(Transaction_base *) throw ();
-  void MakeEmpty(Result &, ExecStatusType=PGRES_EMPTY_QUERY);
+  friend class transaction_base;
+  result Exec(const char[], int Retries=3, const char OnReconnect[]=0);
+  void RegisterTransaction(transaction_base *);
+  void UnregisterTransaction(transaction_base *) throw ();
+  void MakeEmpty(result &, ExecStatusType=PGRES_EMPTY_QUERY);
   void BeginCopyRead(const PGSTD::string &Table);
   bool ReadCopyLine(PGSTD::string &);
   void BeginCopyWrite(const PGSTD::string &Table);
@@ -257,83 +269,24 @@ private:
   void RawSetVar(const PGSTD::string &Var, const PGSTD::string &Value);
   void AddVariables(const PGSTD::map<PGSTD::string, PGSTD::string> &);
 
-  friend class LargeObject;
+  friend class largeobject;
   PGconn *RawConnection() const { return m_Conn; }
 
-  friend class Trigger;
-  void AddTrigger(Trigger *);
-  void RemoveTrigger(Trigger *) throw ();
+  friend class trigger;
+  void AddTrigger(trigger *);
+  void RemoveTrigger(trigger *) throw ();
 
   // Not allowed:
-  Connection_base(const Connection_base &);
-  Connection_base &operator=(const Connection_base &);
+  connection_base(const connection_base &);
+  connection_base &operator=(const connection_base &);
 };
 
 
 }
 
 
-/** Invoke a Transactor, making at most Attempts attempts to perform the
- * encapsulated code on the database.  If the code throws any exception other
- * than broken_connection, it will be aborted right away.
- * Take care: neither OnAbort() nor OnCommit() will be invoked on the original
- * transactor you pass into the function.  It only serves as a prototype for
- * the transaction to be performed.  In fact, this function may copy-construct
- * any number of Transactors from the one you passed in, calling either 
- * OnCommit() or OnAbort() only on those that actually have their operator()
- * invoked.
- */
-template<typename TRANSACTOR> 
-inline void pqxx::Connection_base::Perform(const TRANSACTOR &T,
-                                         int Attempts)
-{
-  if (Attempts <= 0) return;
-
-  bool Done = false;
-
-  // Make attempts to perform T
-  // TODO: Differentiate between db-related exceptions and other exceptions?
-  do
-  {
-    --Attempts;
-
-    // Work on a copy of T2 so we can restore the starting situation if need be
-    TRANSACTOR T2(T);
-    try
-    {
-      typename TRANSACTOR::argument_type X(*this, T2.Name());
-      T2(X);
-      X.Commit();
-      Done = true;
-    }
-    catch (const in_doubt_error &)
-    {
-      // Not sure whether transaction went through or not.  The last thing in
-      // the world that we should do now is retry.
-      T2.OnDoubt();
-      throw;
-    }
-    catch (const PGSTD::exception &e)
-    {
-      // Could be any kind of error.  
-      T2.OnAbort(e.what());
-      if (Attempts <= 0) throw;
-      continue;
-    }
-    catch (...)
-    {
-      // Don't try to forge ahead if we don't even know what happened
-      T2.OnAbort("Unknown exception");
-      throw;
-    }
-
-    T2.OnCommit();
-  } while (!Done);
-}
-
-
-// Put this here so on Windows, any Noticer will be deleted in caller's context
-inline pqxx::Connection_base::~Connection_base()
+// Put this here so on Windows, any noticer will be deleted in caller's context
+inline pqxx::connection_base::~connection_base()
 {
   close();
 }
