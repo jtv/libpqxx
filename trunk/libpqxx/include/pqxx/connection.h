@@ -31,7 +31,6 @@
  */
 
 // TODO: Implement NoticeProcessors with C++ linkage
-// TODO: Teach Transactor to handle multiple connections--quasi "2-phase commit"
 
 
 namespace pqxx
