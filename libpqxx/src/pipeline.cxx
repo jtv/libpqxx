@@ -301,7 +301,7 @@ void pqxx::pipeline::obtain_dummy()
 
 
   // Reset internal state to forget botched batch attempt
-  // TODO: SunC++ rejects this usage of distance()
+  // TODO: SunC++ rejects this usage of distance().  Why?  Because stop's const?
   m_num_waiting += distance(m_issuedrange.first, stop);
   m_issuedrange.second = m_issuedrange.first;
 
@@ -334,7 +334,7 @@ void pqxx::pipeline::obtain_dummy()
     QueryMap::const_iterator q = m_issuedrange.first;
     set_error_at( (q == m_queries.end()) ?  thud + 1 : q->first);
 
-    pqxxassert(m_num_waiting == distance(m_issuedrange.second, m_queries.end()));
+    pqxxassert(m_num_waiting == distance(m_issuedrange.second,m_queries.end()));
   }
 
   pqxxassert(m_issuedrange.first != m_queries.end());
