@@ -1,3 +1,6 @@
+2005-02-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/preprelease:
+  - Respect CONCURRENCY_LEVEL in compiling regression test
 2005-02-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/util.cxx:
   - Convert NaN string to float type, thanks edmund@greenius.ltd.uk
