@@ -64,14 +64,10 @@ public:
   // TODO: Block replacement (limit cache size); then add capacity()
 
   const Tuple operator[](size_type i) const				//[t41]
-  {
-    return GetBlock(BlockFor(i))[Offset(i)];
-  }
+  	{ return GetBlock(BlockFor(i))[Offset(i)]; }
 
   const Tuple at(size_type i) const					//[t40]
-  {
-    return GetBlock(BlockFor(i)).at(Offset(i));
-  }
+  	{ return GetBlock(BlockFor(i)).at(Offset(i)); }
 
   /// Number of rows in result set.  First call may be slow.
   size_type size() const;						//[t40]
