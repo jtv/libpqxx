@@ -8,7 +8,7 @@
  *   pqxx::transactor is a framework-style wrapper for safe transactions
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transactor instead.
  *
- * Copyright (c) 2001-2004, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -65,8 +65,10 @@ public:
     m_Name(TName) { }
 
   /// Overridable transaction definition; insert your database code here
-  /** The operation will be retried if connection is lost, but not if an
-   * exception is thrown while the connection remains open.
+  /** The operation will be retried if the connection to the backend is lost or
+   * the operation fails, but not if the connection is broken in such a way as
+   * to leave the library in doubt as to whether the operation succeeded.  In
+   * that case, an in_doubt_error will be thrown.
    *
    * Recommended practice is to allow this operator to modify only the
    * transactor itself, and the dedicated transaction object it is passed as an
