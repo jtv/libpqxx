@@ -180,6 +180,7 @@ void pqxx::connection_base::SetupState()
       // issue just one LISTEN for each event.
       if (i->first != Last)
       {
+	// TODO: Concatenate these
 	const string LQ("LISTEN \"" + i->first + "\"");
         result R( PQexec(m_Conn, LQ.c_str()) );
         R.CheckStatus(LQ);
