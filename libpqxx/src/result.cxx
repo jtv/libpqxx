@@ -49,6 +49,16 @@ pqxx::result &pqxx::result::operator=(PGresult *Other)
 }
 
 
+void pqxx::result::swap(pqxx::result &other) throw ()
+{
+  int *const refcount = m_Refcount;
+  PGresult *const res = m_Result;
+  m_Refcount = other.m_Refcount;
+  m_Result = other.m_Result;
+  other.m_Refcount = refcount;
+  other.m_Result = res;
+}
+
 
 const pqxx::result::tuple pqxx::result::at(pqxx::result::size_type i) const
   throw (out_of_range)

@@ -333,6 +333,8 @@ public:
   bool empty() const { return !m_Result || !PQntuples(m_Result); }	//[t11]
   size_type capacity() const { return size(); }				//[t20]
 
+  void swap(result &other) throw ();					//[]
+
   const tuple operator[](size_type i) const throw () 			//[t2]
   	{ return tuple(this, i); }
   const tuple at(size_type) const throw (PGSTD::out_of_range);		//[t10]

@@ -10,6 +10,14 @@ Connections
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
 (*) libpqxx-level trace output
 
+Containers
+(*) size_type must be unsigned, difference_type must be signed
+(*) Ought to have at least const_reference
+(*) Implement ==, !=, swap(); {<,>,<=,>=}
+(*) size_type max_size()
+(*) Iterator copying (copyconstructor or assignment) must not throw
+(*) front() & back()
+
 Cursors
 (*) Provide iterator interface
 (*) Investigate WITH HOLD feature (nontransaction cursors)

@@ -1,6 +1,11 @@
+2004-03-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/pipeline.hxx:
+  - Included compiler.h instead of libcompiler.h, thanks Markus Bertheau
 2004-03-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/pqxx:
-  - Forgot to include pqxx/result.  Thanks Michael Satterwhite.
+  - Included pqxx/result (though not really needed)
+ include/pqxx/result.hxx, src/result.cxx:
+  - Added swap()
  README:
   - Documented link command line for Unix-style compilers
   - Documented difference between "foo" and "foo.hxx" headers
