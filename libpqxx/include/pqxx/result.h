@@ -230,7 +230,7 @@ private:
   explicit Result(PGresult *rhs) : m_Result(rhs), m_Refcount(0) {MakeRef(rhs);}
   Result &operator=(PGresult *);
   bool operator!() const { return !m_Result; }
-  operator bool() const { return m_Result; }
+  operator bool() const { return m_Result != 0; }
   void CheckStatus() const;
 
 

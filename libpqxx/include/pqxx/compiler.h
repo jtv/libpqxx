@@ -61,8 +61,7 @@ template<> inline long numeric_limits<long>::min() throw () {return LONG_MIN;}
 
 // Microsoft Visual C++ likes to complain about long debug symbols, which
 // are a fact of life in modern C++.  Silence the warning.
-// TODO: What is the correct #ifdef for MSVC++?
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning (disable: 4786)
 #endif
 

@@ -135,7 +135,7 @@ private:
   void BeginCopyRead(PGSTD::string Table) { m_Conn.BeginCopyRead(Table); }
   bool ReadCopyLine(PGSTD::string &L) { return m_Conn.ReadCopyLine(L); }
   friend class TableWriter;
-  void BeginCopyWrite(PGSTD::string Table) {return m_Conn.BeginCopyWrite(Table);}
+  void BeginCopyWrite(PGSTD::string Table) {m_Conn.BeginCopyWrite(Table);}
   void WriteCopyLine(PGSTD::string L) { m_Conn.WriteCopyLine(L); }
 
   Connection &m_Conn;
