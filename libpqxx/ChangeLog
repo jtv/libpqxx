@@ -1,3 +1,9 @@
+2004-05-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Should generate libpqxx.spec now, thanks Arjen Baart
+2004-05-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/preprelease:
+  - Fixed nm line (tried to list dynamic symbols in static library!)
 2004-05-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Added gcc 3.4's -Wextra, which replaces -W

@@ -325,6 +325,6 @@ AC_CHECK_TYPE([ptrdiff_t],
 AC_PROG_MAKE_SET
 
 AC_CONFIG_FILES([Makefile config/Makefile debian/Makefile doc/Makefile doc/Doxyfile src/Makefile
-test/Makefile tools/Makefile win32/Makefile include/Makefile include/pqxx/Makefile libpqxx.pc pqxx-config])
+test/Makefile tools/Makefile win32/Makefile include/Makefile include/pqxx/Makefile libpqxx.pc pqxx-config libpqxx.spec])
 AC_OUTPUT
 
