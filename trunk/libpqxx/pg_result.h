@@ -145,48 +145,48 @@ public:
     // going through the intermediate step of dereferencing the iterator.  I 
     // hope this works out to be similar to C pointer/array semantics in useful 
     // cases[2].
-    pointer operator->()  const { return this; }			//[]
-    reference operator*() const { return *operator->(); }		//[]
+    pointer operator->()  const { return this; }			//[t12]
+    reference operator*() const { return *operator->(); }		//[t12]
 
-    const_iterator operator++(int);
+    const_iterator operator++(int);					//[t12]
     const_iterator &operator++() { ++m_Index; return *this; }		//[t1]
-    const_iterator operator--(int);					//[]
-    const_iterator &operator--() { --m_Index; return *this; }		//[]
+    const_iterator operator--(int);					//[t12]
+    const_iterator &operator--() { --m_Index; return *this; }		//[t12]
 
     const_iterator &operator+=(difference_type i) 			//[]
     	{ m_Index+=i; return *this; }
     const_iterator &operator-=(difference_type i) 			//[]
     	{ m_Index-=i; return *this; }
 
-    bool operator==(const const_iterator &i) const 			//[]
+    bool operator==(const const_iterator &i) const 			//[t12]
     	{return m_Index==i.m_Index;}
-    bool operator!=(const const_iterator &i) const 			//[]
+    bool operator!=(const const_iterator &i) const 			//[t12]
     	{return m_Index!=i.m_Index;}
-    bool operator<(const const_iterator &i) const   			//[]
+    bool operator<(const const_iterator &i) const   			//[t12]
    	 {return m_Index<i.m_Index;}
-    bool operator<=(const const_iterator &i) const 			//[]
+    bool operator<=(const const_iterator &i) const 			//[t12]
     	{return m_Index<=i.m_Index;}
-    bool operator>(const const_iterator &i) const   			//[]
+    bool operator>(const const_iterator &i) const   			//[t12]
     	{return m_Index>i.m_Index;}
-    bool operator>=(const const_iterator &i) const 			//[]
+    bool operator>=(const const_iterator &i) const 			//[t12]
     	{return m_Index>=i.m_Index;}
 
-    const_iterator operator+(difference_type o) const			//[]
+    const_iterator operator+(difference_type o) const			//[t12]
     {
       return const_iterator(m_Home, m_Index + o);
     }
     friend const_iterator operator+(difference_type o, 
-		    		    const_iterator i)			//[]
+		    		    const_iterator i)			//[t12]
     {
       return i + o;
     }
 
-    const_iterator operator-(difference_type o) const			//[]
+    const_iterator operator-(difference_type o) const			//[t12]
     {
       return const_iterator(m_Home, m_Index - o);
     }
 
-    difference_type operator-(const_iterator i) const 			//[]
+    difference_type operator-(const_iterator i) const 			//[t12]
     	{ return num()-i.num(); }
 
     Result::size_type num() const { return Row(); }			//[t1]
