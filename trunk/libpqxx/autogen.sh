@@ -11,6 +11,10 @@ fi
 if test -x /usr/bin/automake-1.7 ; then
 	ver="-1.7"
 fi
+
+# Generate test/Makefile.am
+./tools/maketestam.pl test >test/Makefile.am
+
 aclocal${ver}
 autoheader
 libtoolize --force --automake --copy
