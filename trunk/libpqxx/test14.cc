@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "pg_connection.h"
-#include "pg_transaction.h"
+#include "pg_nontransaction.h"
 #include "pg_result.h"
 
 using namespace PGSTD;
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     // Begin a "non-transaction" acting on our current connection.  This is
     // really all the transactional integrity we need since we're only 
     // performing one query which does not modify the database.
-    Transaction T(C, "test14");
+    NonTransaction T(C, "test14");
 
     Result R( T.Exec("SELECT * FROM pg_tables") );
 
