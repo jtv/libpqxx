@@ -1,3 +1,11 @@
+2004-08-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ README:
+  - Documented Debian package and Arjen Baart's RPM packages
+  - Rewrote config stuff, referring to win32/INSTALL.txt
+ win32/INSTALL.txt:
+  - Took configuration header details out of the step-by-step list for brevity
+  - Removed documentation about Visual C++ makefile being out of date
+  - Documented new configuration system
 2004-08-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
   - Reinstated autoheader
