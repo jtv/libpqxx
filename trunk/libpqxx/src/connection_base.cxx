@@ -167,6 +167,9 @@ void pqxx::connection_base::SetupState()
     throw runtime_error(Msg);
   }
 
+  for (PSMap::iterator p = m_prepared.begin(); p != m_prepared.end(); ++p)
+    p->second.registered = false;
+
   if (m_Noticer.get())
     PQsetNoticeProcessor(m_Conn, pqxxNoticeCaller, m_Noticer.get());
 
@@ -531,38 +534,80 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 }
 
 
-pqxx::result pqxx::connection_base::exec_prepared(const char QueryName[],
-	int NumParams,
-	const char *const *Params,
-	int Retries)
+void pqxx::connection_base::pq_prepare(const string &name, 
+    const string &def,
+    const string &params)
+{
+  PSMap::iterator i = m_prepared.find(name);
+  if (i != m_prepared.end())
+  {
+    // Quietly accept identical redefinitions
+    if (def == i->second.definition && params == i->second.parameters) return;
+    // Reject non-identical redefinitions
+    throw logic_error("Incompatible redefinition of prepared statement "+name);
+  }
+
+  m_prepared.insert(PSMap::value_type(name, prepared_def(def, params)));
+}
+
+
+void pqxx::connection_base::unprepare(const string &name)
+{
+  PSMap::iterator i = m_prepared.find(name);
+
+  // Quietly ignore duplicated or spurious unprepare()s
+  if (i == m_prepared.end()) return;
+
+  if (i->second.registered) Exec(("DEALLOCATE " + name).c_str(), 0);
+
+  m_prepared.erase(i);
+}
+
+
+pqxx::result pqxx::connection_base::exec_prepared(const string &name)
+	{ return pq_exec_prepared(name.c_str(), 0, 0); }
+
+pqxx::result pqxx::connection_base::exec_prepared(const char name[])
+	{ return pq_exec_prepared(name, 0, 0); }
+
+pqxx::result pqxx::connection_base::pq_exec_prepared(const string &pname,
+	int nparams,
+	const char *const *params)
 {
   activate();
-#ifdef PQXX_HAVE_PQEXECPREPARED
-  result R(PQexecPrepared(m_Conn, QueryName, NumParams, Params, NULL, NULL, 0));
 
-  while ((Retries > 0) && !R && !is_open())
+  PSMap::iterator p = m_prepared.find(pname);
+  if (p == m_prepared.end())
+    throw logic_error("Unknown prepared statement: " + pname);
+
+  // "Register" (i.e., define) prepared statement with backend on demand
+  if (!p->second.registered)
   {
-    Retries--;
-    Reset();
-    if (is_open())
-      R = PQexecPrepared(m_Conn, QueryName, NumParams, Params, NULL, NULL, 0);
+    stringstream P;
+    P << "PREPARE " << pname << ' ' << p->second.parameters 
+      << " AS " << p->second.definition;
+    Exec(P.str().c_str(), 0);
+    p->second.registered = true;
   }
+
+#ifdef PQXX_HAVE_PQEXECPREPARED
+  result R(PQexecPrepared(m_Conn, pname.c_str(), nparams, params, 0, 0, 0));
 
   if (!R)
   {
     if (!is_open()) throw broken_connection();
     throw runtime_error(ErrMsg());
   }
-  R.CheckStatus(QueryName);
+  R.CheckStatus(pname);
   get_notifs();
   return R;
 #else
   stringstream Q;
   Q << "EXECUTE "
-    << QueryName
+    << pname
     << ' '
-    << separated_list(",", Params, Params+NumParams);
-  return Exec(Q.str().c_str(), Retries);
+    << separated_list(",", params, params+nparams);
+  return Exec(Q.str().c_str(), 0);
 #endif
 }
 
