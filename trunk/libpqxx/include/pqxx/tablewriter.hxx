@@ -125,21 +125,27 @@ template<>
 	public iterator<output_iterator_tag, void,void,void,void>
 {
 public:
-  explicit back_insert_iterator(pqxx::tablewriter &W) : m_Writer(W) {}
+  explicit back_insert_iterator(pqxx::tablewriter &W) : m_Writer(&W) {}	//[]
 
-  template<typename TUPLE> 
-  back_insert_iterator &operator=(const TUPLE &T)
+  back_insert_iterator &operator=(const back_insert_iterator &rhs)	//[]
   {
-    m_Writer.insert(T);
+    m_Writer = rhs.m_Writer;
     return *this;
   }
 
-  back_insert_iterator &operator++() { return *this; }
-  back_insert_iterator &operator++(int) { return *this; }
-  back_insert_iterator &operator*() { return *this; }
+  template<typename TUPLE> 
+  back_insert_iterator &operator=(const TUPLE &T)			//[]
+  {
+    m_Writer->insert(T);
+    return *this;
+  }
+
+  back_insert_iterator &operator++() { return *this; }			//[]
+  back_insert_iterator &operator++(int) { return *this; }		//[]
+  back_insert_iterator &operator*() { return *this; }			//[]
 
 private:
-  pqxx::tablewriter &m_Writer;
+  pqxx::tablewriter *m_Writer;
 };
 
 } // namespace PGSTD
