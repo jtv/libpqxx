@@ -6,6 +6,7 @@ Check
 Results
 (*) Conceive metadata model
 (*) Allow direct mapping onto structs, using member ptr template args (?)
+(*) Caching "lazy fetch" result sets
 
 RobustTransaction
 (*) User schema support for log table
