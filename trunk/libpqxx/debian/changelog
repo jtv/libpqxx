@@ -1,4 +1,4 @@
-libpqxx (1.6.0-1) unstable; urgency=low
+libpqxx (1.7.2-1) unstable; urgency=low
 
   * Updated Debian packaging.
 
