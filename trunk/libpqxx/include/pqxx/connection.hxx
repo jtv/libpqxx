@@ -79,8 +79,10 @@ public:
   virtual ~connection() throw ();
 
 private:
-  virtual void startconnect();
-  virtual void completeconnect();
+  virtual void startconnect() { do_startconnect(); }
+  virtual void completeconnect() {}
+
+  void do_startconnect() { if (!get_conn()) set_conn(PQconnectdb(options())); }
 };
 
 
@@ -97,7 +99,7 @@ class PQXX_LIBEXPORT lazyconnection : public connection_base
 {
 public:
   /// Constructor.  Sets up lazy connection.
-  lazyconnection();							//[t23]
+  lazyconnection() : connection_base(0) {}				//[t23]
 
   /// Constructor.  Sets up lazy connection.
   /**
@@ -108,7 +110,8 @@ public:
    * strings work; see the PostgreSQL documentation (particularly for libpq, the
    * C-level interface) for a complete list.
    */
-  explicit lazyconnection(const PGSTD::string &ConnInfo);		//[t21]
+  explicit lazyconnection(const PGSTD::string &ConnInfo) :		//[t21]
+  	connection_base(ConnInfo) {}
 
   /// Constructor.  Sets up lazy connection.
   /** 
@@ -120,13 +123,15 @@ public:
    * strings work; see the PostgreSQL documentation (particularly for libpq, the
    * C-level interface) for a complete list.
    */
-  explicit lazyconnection(const char ConnInfo[]);			//[t22]
+  explicit lazyconnection(const char ConnInfo[]) :			//[t22]
+  	connection_base(ConnInfo) {}
 
   virtual ~lazyconnection() throw ();
 
 private:
   virtual void startconnect() {}
-  virtual void completeconnect();
+  virtual void completeconnect() 
+  	{ if (!get_conn()) set_conn(PQconnectdb(options())); }
 };
 
 
@@ -163,9 +168,12 @@ public:
   virtual ~asyncconnection() throw ();
 
 private:
-  virtual void startconnect();
+  virtual void startconnect() { do_startconnect(); }
   virtual void completeconnect();
-  virtual void dropconnect() throw () { m_connecting = false; }
+  virtual void dropconnect() throw () { do_dropconnect(); }
+
+  void do_startconnect();
+  void do_dropconnect() throw () { m_connecting = false; }
 
   /// Is a connection attempt in progress?
   bool m_connecting;
@@ -195,7 +203,6 @@ public:
 private:
   virtual void startconnect() {}
   virtual void completeconnect() {}
-  virtual void dropconnect() throw () {}
 };
 
 }

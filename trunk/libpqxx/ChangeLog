@@ -1,3 +1,12 @@
+2004-08-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection.hxx, include/pqxx/connection_base.hxx,
+ src/connection.cxx, src/connection_base.cxx:
+  - Delegated overridables to nonvirtuals to avoid calls from ctors/dtors
+  - Inlined lots of trivial or near-trivial functions
+  - Made connection_base::Connection() private
+  - completeconnect() doesn't need to check for success
+  - connection_base::halfconnect() didn't always SetupState()
+  - Moved dropconnect() out of close() because it's called from destructor
 2004-08-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  README:
   - Minor updates to appendices

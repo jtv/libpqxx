@@ -29,57 +29,23 @@ using namespace pqxx::internal::pq;
 pqxx::connection::connection() :
   connection_base(0)
 {
-  startconnect();
+  do_startconnect();
 }
 
 pqxx::connection::connection(const string &ConnInfo) :
   connection_base(ConnInfo)
 {
-  startconnect();
+  do_startconnect();
 }
 
 pqxx::connection::connection(const char ConnInfo[]) :
   connection_base(ConnInfo)
 {
-  startconnect();
+  do_startconnect();
 }
 
-// Work around problem with Sun CC 5.1
 pqxx::connection::~connection() throw ()
 {
-}
-
-
-void pqxx::connection::startconnect()
-{
-  if (!get_conn()) set_conn(PQconnectdb(options()));
-}
-
-
-void pqxx::connection::completeconnect()
-{
-  if (!get_conn()) throw broken_connection();
-}
-
-
-pqxx::lazyconnection::lazyconnection() :
-  connection_base(0)
-{
-  startconnect();
-}
-
-
-pqxx::lazyconnection::lazyconnection(const string &ConnInfo) :
-  connection_base(ConnInfo)
-{
-  startconnect();
-}
-
-
-pqxx::lazyconnection::lazyconnection(const char ConnInfo[]) :
-  connection_base(ConnInfo)
-{
-  startconnect();
 }
 
 
@@ -89,24 +55,11 @@ pqxx::lazyconnection::~lazyconnection() throw ()
 }
 
 
-// Work around problem with Sun CC 5.1
-pqxx::asyncconnection::~asyncconnection() throw ()
-{
-}
-
-
-void pqxx::lazyconnection::completeconnect()
-{
-  if (!get_conn()) set_conn(PQconnectdb(options()));
-  if (!is_open()) throw broken_connection();
-}
-
-
 pqxx::asyncconnection::asyncconnection() :
   connection_base(0),
   m_connecting(false)
 {
-  startconnect();
+  do_startconnect();
 }
 
 
@@ -114,7 +67,7 @@ pqxx::asyncconnection::asyncconnection(const string &ConnInfo) :
   connection_base(ConnInfo),
   m_connecting(false)
 {
-  startconnect();
+  do_startconnect();
 }
 
 
@@ -122,11 +75,18 @@ pqxx::asyncconnection::asyncconnection(const char ConnInfo[]) :
   connection_base(ConnInfo),
   m_connecting(false)
 {
-  startconnect();
+  do_startconnect();
 }
 
 
-void pqxx::asyncconnection::startconnect()
+// Work around problem with Sun CC 5.1
+pqxx::asyncconnection::~asyncconnection() throw ()
+{
+  do_dropconnect();
+}
+
+
+void pqxx::asyncconnection::do_startconnect()
 {
   if (get_conn()) return;	// Already connecting or connected
   m_connecting = false;
