@@ -1,18 +1,14 @@
 Immediate
-(*) Replace /MT, /MTd with /MD, /MDd in Visual C++ Makefiles
 (*) Disable trace/warning output during destructors on Visual C++
 (*) Add -lwsock32 to tools/Makefile.am if needed (MingW!)
+(*) Rename libcompiler.h/compiler.h to reduce confusion
 
 All Over
 (*) Ensure table/column/cursor/... names are always quoted
 
-Build system
-(*) Config header templates for various compilers, libpq versions
-(*) Completely support building outside the source directory
-(*) Ensure there is a way to build without -rpath and use that for the
-    Debian packaging.
-
 Connections
+(*) Clean up connection state model
+(*) Factor out connection policy classes
 (*) Encapsulate definition of prepared statements
 (*) Restore prepared statements when restoring a connection
 (*) More helpful broken_connection exception hierarchy
