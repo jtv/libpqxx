@@ -1,5 +1,6 @@
 #include <cerrno>
 #include <cstring>
+#include <ctime>
 #include <iostream>
 
 #include <pqxx/connection>
@@ -125,10 +126,14 @@ int main(int, char *argv[])
     cout << "Sending notification..." << endl;
     C.perform(Notify(Trig.name()));
 
+    int notifs = 0;
     for (int i=0; (i < 20) && !Trig.Done(); ++i)
     {
+      if (notifs)
+	throw logic_error("Got " + to_string(notifs) + 
+	    " unexpected notification(s)!");
       Sleep(500);
-      C.get_notifs();
+      notifs = C.get_notifs();
       cout << ".";
     }
     cout << endl;
@@ -138,6 +143,8 @@ int main(int, char *argv[])
       cout << "No notification received!" << endl;
       return 1;
     }
+    if (notifs != 1)
+      throw logic_error("Expected 1 notification, got " + to_string(notifs));
   }
   catch (const sql_error &e)
   {

@@ -13,47 +13,12 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-// Example program for libpqxx.  Send notification to self, using defered
-// connection.
+// Example program for libpqxx.  Test waiting for notification with timeout.
 //
-// Usage: test023
-
-#ifdef _WIN32
-#include <windows.h>
-#else
-extern "C"
-{
-#ifdef PQXX_HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#else
-#include <sys/time.h>
-#include <sys/types.h>
-#include <unistd.h>
-#endif
-}
-#endif	// _WIN32
-
+// Usage: test079
 
 namespace
 {
-
-#ifndef _WIN32
-// Reasonably portable way to sleep for a given number of milliseconds
-/* This definition is not needed on Windows, which provides its own Sleep()
- * function with the same semantics.
- */
-void Sleep(int ms)
-{
-  fd_set F;
-  FD_ZERO(&F);
-  struct timeval timeout;
-  timeout.tv_sec = ms / 1000;
-  timeout.tv_usec = (ms % 1000) * 1000;
-  if (select(0, &F, &F, &F, &timeout) == -1)
-    throw runtime_error(strerror(errno));
-}
-#endif	// _WIN32
-
 
 // Sample implementation of trigger handler
 class TestTrig : public trigger
@@ -61,7 +26,10 @@ class TestTrig : public trigger
   bool m_Done;
 
 public:
-  explicit TestTrig(connection_base &C) : trigger(C, "trig"), m_Done(false) {}
+  explicit TestTrig(connection_base &C, string Name) : 
+    trigger(C, Name), m_Done(false) 
+  {
+  }
 
   virtual void operator()(int be_pid)
   {
@@ -112,22 +80,26 @@ int main()
 {
   try
   {
-    lazyconnection C;
+    const string TrigName = "mytrigger";
+    connection C;
     cout << "Adding trigger..." << endl;
-    TestTrig Trig(C);
+    TestTrig Trig(C, TrigName);
+
+    // First see if the timeout really works: we're not expecting any notifs
+    int notifs = C.await_notification(0, 1);
+    if (notifs)
+      throw logic_error("Got unexpected notification!");
 
     cout << "Sending notification..." << endl;
     C.perform(Notify(Trig.name()));
 
-    int notifs = 0;
     for (int i=0; (i < 20) && !Trig.Done(); ++i)
     {
       if (notifs)
-	throw logic_error("Got " + to_string(notifs) + " "
-	    "unexpected notifications!");
-      Sleep(500);
-      notifs = C.get_notifs();
+	throw logic_error("Got " + to_string(notifs) + " notification(s), "
+	    "but no handler called!");
       cout << ".";
+      notifs = C.await_notification(1,0);
     }
     cout << endl;
 
