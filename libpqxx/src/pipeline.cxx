@@ -19,6 +19,7 @@
 
 #include <algorithm>
 
+#include "pqxx/dbtransaction"
 #include "pqxx/pipeline"
 
 using namespace PGSTD;
@@ -154,8 +155,11 @@ pqxx::result pqxx::pipeline::retrieve(pqxx::pipeline::query_id qid)
     if (c == m_completed.end()) resume();
     c = m_completed.find(qid);
     if (c == m_completed.end())
-      throw logic_error("Attempt to retrieve result for unknown query " +
-	  ToString(qid) + " from pipeline");
+    {
+      if (m_queries.find(qid) == m_queries.end())
+        throw logic_error("Attempt to retrieve result for unknown query " +
+		ToString(qid) + " from pipeline");
+    }
   }
 
   return deliver(c).second;
@@ -219,21 +223,49 @@ void pqxx::pipeline::consumeresults()
   send_waiting();
 
   vector<result> R;
+
+  // Reduce risk of exceptions at awkward moments
   R.reserve(m_sent.size());
+  m_waiting.reserve(m_waiting.size() + m_sent.size());
+
+  // TODO: Improve exception-safety!
   for (PGresult *r=m_home.get_result(); r; r=m_home.get_result())
     R.push_back(result(r));
 
   detach();
 
-  // TODO: If one part of the query fails, the whole thing seems to fail!
   if (R.size() > m_sent.size())
     throw logic_error("libpqxx internal error: "
 	              "expected " + ToString(m_sent.size()) + " results "
 		      "from pipeline, got " + ToString(R.size()));
 
-  // TODO: Make this exception-safe if possible
-  for (vector<result>::size_type i=0; i<R.size(); ++i)
-    m_completed.insert(make_pair(m_sent[i], R[i]));
+  const vector<result>::size_type R_size = R.size();
+  if ((m_sent.size() == 1) || 
+      (R_size != 1) || 
+      (dynamic_cast<dbtransaction *>(&m_home)))
+  {
+    // Move queries for which we have results to m_completed, and push the rest
+    // back to the front of m_waiting.  The resulting state should be as if we
+    // were issuing the queries sequentially.
+    // There's one icky case that may get us here: a syntax error in any of the
+    // queries, while we're in a dbtransaction.  In that case, we won't be able
+    // to do much at all, so we might as well report that one error as the 
+    // result for the first query.
+    for (vector<result>::size_type i=0; i<R_size; ++i)
+      m_completed.insert(make_pair(m_sent[i], R[i]));
+    m_waiting.insert(m_waiting.begin(), m_sent.begin()+R_size, m_sent.end());
+  }
+  else
+  {
+    // Oops.  We got one result for multiple queries.  This may mean there's a
+    // syntax error in one of them--and we don't know which.
+    // But since we're not in a backend transaction, which would have been
+    // aborted by now, we may get away with replaying the queries one by one to
+    // pinpoint the problem more accurately.
+    // TODO: Reissue sequentially (is this safe?)
+    m_completed.insert(make_pair(m_sent[0], R[0]));
+    m_waiting.insert(m_waiting.begin(), m_sent.begin()+1, m_sent.end());
+  }
   m_sent.clear();
 
   send_waiting();

@@ -29,7 +29,7 @@ int main(int, char *argv[])
 
     // The middle query should fail; the surrounding two should succeed
     const pipeline::query_id id_1 = P.insert("SELECT 1");
-    const pipeline::query_id id_f = P.insert("DELIBERATE ERROR");
+    const pipeline::query_id id_f = P.insert("SELECT * FROM pg_nonexist");
     const pipeline::query_id id_2 = P.insert("SELECT 2");
 
     // See that we can process the queries without stumbling over the error
