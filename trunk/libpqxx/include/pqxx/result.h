@@ -29,10 +29,11 @@
 namespace pqxx
 {
 
-/** Query or command result set.  This behaves pretty much as a container (as 
- * defined by the C++ standard library) and provides random access const
- * iterators to iterate over its tuples.  A tuple can also be accessed by
- * indexing a Result R by the tuple's zero-based number:
+/// Query or command result set.
+/** This behaves as a container (as defined by the C++ standard library) and 
+ * provides random access const iterators to iterate over its tuples.  A tuple 
+ * can also be accessed by indexing a Result R by the tuple's zero-based 
+ * number:
  *
  *	for (Result::size_type i=0; i < R.size(); ++i) Process(R[i]);
  */
