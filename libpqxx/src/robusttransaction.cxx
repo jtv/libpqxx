@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	robusttransaction.cc
+ *	robusttransaction.cxx
  *
  *   DESCRIPTION
  *      implementation of the pqxx::RobustTransaction class.

@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	transaction.cc
+ *	transaction.cxx
  *
  *   DESCRIPTION
  *      implementation of the pqxx::Transaction class.

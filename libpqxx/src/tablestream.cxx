@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	tablestream.cc
+ *	tablestream.cxx
  *
  *   DESCRIPTION
  *      implementation of the pqxx::TableStream class.

@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	nontransaction.cc
+ *	nontransaction.cxx
  *
  *   DESCRIPTION
  *      implementation of the pqxx::NonTransaction class.

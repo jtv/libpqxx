@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	cursor.cc
+ *	cursor.cxx
  *
  *   DESCRIPTION
  *      implementation of the pqxx::Cursor class.

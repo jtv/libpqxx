@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	connection.cc
+ *	connection.cxx
  *
  *   DESCRIPTION
  *      implementation of the pqxx::Connection class.

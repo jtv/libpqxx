@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	result.cc
+ *	result.cxx
  *
  *   DESCRIPTION
  *      implementation of the pqxx::Result class and support classes.
