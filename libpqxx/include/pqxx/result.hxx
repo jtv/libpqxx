@@ -437,7 +437,7 @@ public:
 
     iterator_type base() const throw () { return *this; }		//[t75]
 
-    const_reverse_iterator &operator=(const const_reverse_iterator &r)	//[]
+    const_reverse_iterator &operator=(const const_reverse_iterator &r)	//[t75]
 	{ iterator_type::operator=(r); return *this; }
     pointer operator->() const throw () 				//[t75]
 	{ m_tmp=*this; --m_tmp; return &m_tmp; }
@@ -561,7 +561,7 @@ public:
       const_fielditerator(rhs), m_tmp(rhs) {}
 
     const_reverse_fielditerator &
-      operator=(const const_reverse_fielditerator &r)			//[]
+      operator=(const const_reverse_fielditerator &r)			//[t82]
 	{ iterator_type::operator=(r); return *this; }
     pointer operator->() const throw () 				//[t82]
 	{ m_tmp = *this; --m_tmp; return &m_tmp; }
