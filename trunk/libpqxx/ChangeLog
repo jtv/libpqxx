@@ -1,3 +1,10 @@
+2004-08-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh: 
+  - Check for PQexecPrepared()
+ configitems:
+  - Added PQXX_HAVE_PQEXECPREPARED
+ src/connection_base.cxx:
+  - Workaround for missing PQexecPrepared()
 2004-08-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
   - Made automake version checks a loop

@@ -241,7 +241,7 @@ pqfreenotify=yes
 AC_CHECK_DECL(PQfreeNotify,
 	[AC_DEFINE(PQXX_HAVE_PQFREENOTIFY, 1, [Define if PostgreSQL has PQfreeNotify()])],
 	[pqfreenotify=no],
-	[#include <${with_postgres_include}/libpq-fe.h]>)
+	[#include <${with_postgres_include}/libpq-fe.h>])
 
 AC_MSG_CHECKING([PQftable()])
 AH_TEMPLATE(PQftable,[Do we have a PQftable function?])
@@ -257,6 +257,14 @@ pqputcopy=yes
 AC_CHECK_DECL(PQputCopyData,
 	[AC_DEFINE(PQXX_HAVE_PQPUTCOPY, 1, [Define if PostgreSQL has PQputCopyData() and related functions])],
 	[pqputcopy=no],
+	[#include <${with_postgres_include}/libpq-fe.h>])
+
+AC_MSG_CHECKING([PQexecPrepared()])
+AH_TEMPLATE(PQexecPrepared,[Do we have a PQexecPrepared function?])
+pqexecprepared=yes
+AC_CHECK_DECL(PQexecPrepared,
+	[AC_DEFINE(PQXX_HAVE_PQEXECPREPARED, 1, [Define if PostgreSQL has PQexecPrepared()])],
+	[pqexecprepared=no],
 	[#include <${with_postgres_include}/libpq-fe.h>])
 
 AC_CHECK_HEADER(limits, 
