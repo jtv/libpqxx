@@ -148,6 +148,7 @@ pqxx::Result::Field::size_type pqxx::Result::GetLength(pqxx::Result::size_type R
 }
 
 
+
 // Tuple
 
 pqxx::Result::Field pqxx::Result::Tuple::operator[](const char f[]) const
