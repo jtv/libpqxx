@@ -2,7 +2,7 @@ Source: libpqxx
 Section: libs
 Priority: optional
 Maintainer: Greg Hookey <debian@deadly.ca>
-Build-Depends: debhelper (>> 3.0.0),postgresql-dev
+Build-Depends: debhelper (>> 3.0.0),postgresql-dev, chrpath
 Standards-Version: 3.5.9
 
 Package: libpqxx-dev

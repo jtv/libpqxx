@@ -1,3 +1,10 @@
+libpqxx (1.9.8-1) unstable; urgency=low
+
+  * [debian/control, debian/rules] Use chrpath to get rid of RPATH in the
+    shared library.
+
+ -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Fri, 17 Oct 2003 16:00:37 +0200
+
 libpqxx (1.9.6-1) unstable; urgency=low
 
   * Source changes
