@@ -63,7 +63,7 @@ public:
     Tuple(const Result *r, size_type i) : m_Home(r), m_Index(i) {}
     ~Tuple() {} // Yes Scott Meyers, you're absolutely right[1]
 
-    Field operator[](size_type i) const { return Field(*this, i); }	//[t1]
+    inline Field operator[](size_type i) const;				//[t1]
     Field operator[](const char[]) const;				//[t11]
     Field operator[](PGSTD::string s) const 				//[t11]
     	{ return operator[](s.c_str()); }
@@ -71,7 +71,7 @@ public:
     Field at(const char[]) const;					//[t11]
     Field at(PGSTD::string s) const { return at(s.c_str()); }		//[t11]
 
-    size_type size() const { return m_Home->Columns(); }		//[t11]
+    inline size_type size() const;					//[t11]
 
     Result::size_type Row() const { return m_Index; }			//[t11]
 
@@ -94,7 +94,7 @@ public:
     const char *c_str() const {return m_Home->GetValue(m_Index,m_Col);}	//[t2]
 
     // Column name
-    const char *name() const { return m_Home->ColumnName(m_Col); }	//[t11]
+    inline const char *name() const;					//[t11]
 
     // Read value into Obj; or leave Obj untouched & return false if null
     template<typename T> bool to(T &Obj) const				//[t1]
@@ -176,23 +176,14 @@ public:
     bool operator>=(const const_iterator &i) const 			//[t12]
     	{return m_Index>=i.m_Index;}
 
-    const_iterator operator+(difference_type o) const			//[t12]
-    {
-      return const_iterator(m_Home, m_Index + o);
-    }
+    inline const_iterator operator+(difference_type o) const;		//[t12]
+
     friend const_iterator operator+(difference_type o, 
-		    		    const_iterator i)			//[t12]
-    {
-      return i + o;
-    }
+		    		    const_iterator i);			//[t12]
 
-    const_iterator operator-(difference_type o) const			//[t12]
-    {
-      return const_iterator(m_Home, m_Index - o);
-    }
+    inline const_iterator operator-(difference_type o) const;		//[t12]
 
-    difference_type operator-(const_iterator i) const 			//[t12]
-    	{ return num()-i.num(); }
+    inline difference_type operator-(const_iterator i) const;		//[t12]
 
     Result::size_type num() const { return Row(); }			//[t1]
 
@@ -202,7 +193,7 @@ public:
   };
 
   const_iterator begin() const { return const_iterator(this, 0); }	//[t1]
-  const_iterator end() const { return const_iterator(this, size()); }	//[t1]
+  inline const_iterator end() const;					//[t1]
   // TODO: Handle reverse iterators
 
   size_type size() const { return m_Result ? PQntuples(m_Result) : 0; }	//[t2]
@@ -261,6 +252,52 @@ template<> inline bool Result::Field::to(const char *&Obj) const
   return true;
 }
 
+
+inline Result::Field 
+Result::Tuple::operator[](Result::Tuple::size_type i) const 
+{ 
+  return Field(*this, i); 
+}
+
+inline Result::Tuple::size_type Result::Tuple::size() const 
+{ 
+  return m_Home->Columns(); 
+}
+
+inline const char *Result::Field::name() const 
+{ 
+  return m_Home->ColumnName(m_Col); 
+}
+
+inline Result::const_iterator 
+Result::const_iterator::operator+(difference_type o) const
+{
+  return const_iterator(m_Home, m_Index + o);
+}
+
+inline Result::const_iterator 
+operator+(Result::const_iterator::difference_type o, 
+	  Result::const_iterator i)
+{
+  return i + o;
+}
+
+inline Result::const_iterator 
+Result::const_iterator::operator-(difference_type o) const
+{
+  return const_iterator(m_Home, m_Index - o);
+}
+
+inline Result::const_iterator::difference_type 
+Result::const_iterator::operator-(const_iterator i) const
+{ 
+  return num()-i.num(); 
+}
+
+inline Result::const_iterator Result::end() const 
+{ 
+  return const_iterator(this, size()); 
+}
 
 } // namespace
 
