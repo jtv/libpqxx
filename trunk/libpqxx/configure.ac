@@ -103,9 +103,24 @@ fi
 AC_LANG_POP(C++)
 
 # Where are the postgres includes...
-AC_CHECK_FILE([/usr/include/postgresql/libpq-fe.h],
-	[postgres_include_default=/usr/include/postgresql],
-	[postgres_include_default=/usr/include])
+postgres_include_default=
+for usual_suspect in \
+	/usr/local/include/postgresql \
+	/usr/local/include/pgsql \
+	/usr/local/include \
+	/usr/include/postgresql \
+	/usr/include/pgsql \
+	/usr/include \
+	/opt/postgresql/include \
+	/opt/pgsql/include \
+; do
+AC_CHECK_FILE([$usual_suspect/libpq-fe.h],
+	[postgres_include_default=$usual_suspect],
+)
+	if test -n "$postgres_include_default" ; then
+		break
+	fi
+done
 
 AC_ARG_WITH(postgres-include,
 	AC_HELP_STRING(
@@ -117,7 +132,27 @@ AC_ARG_WITH(postgres-include,
 )
 
 # ..and libraries?
-postgres_lib_default=/usr/lib
+postgres_lib_default=
+for usual_suspect in \
+	/usr/local/lib/postgresql \
+	/usr/local/lib/pgsql \
+	/usr/local/lib \
+	/usr/lib/postgresql \
+	/usr/lib/pgsql \
+	/usr/lib \
+	/opt/postgresql/lib \
+	/opt/pgsql/lib \
+; do
+	for library_extension in so a sa ; do
+AC_CHECK_FILE([$usual_suspect/libpq.$library_extension],
+	[postgres_lib_default=$usual_suspect],
+)
+	done
+	if test -n "$postgres_lib_default" ; then
+		break
+	fi
+done
+
 AC_ARG_WITH(postgres-lib,
 	AC_HELP_STRING(
 		[--with-postgres-lib],
