@@ -134,6 +134,7 @@ public:
       return true;
     }
 
+
 #ifdef NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
     /// Specialization: to(string &)
     template<> bool to(PGSTD::string &Obj) const
@@ -369,6 +370,33 @@ inline Result::const_iterator Result::end() const
 }
 
 } // namespace pqxx
+
+
+/// Write a result field to any type of stream
+/** This can be convenient when writing a Field to an output stream.  More
+ * importantly, it lets you write a Field to e.g. a stringstream which you can
+ * then use to read, format and convert the field in ways that to() does not
+ * support.  
+ *
+ * Example: parse a Field into a variable of the nonstandard "long long" type.
+ *
+ * extern Result R;
+ * long long L;
+ * stringstream S;
+ *
+ * // Write field's string into S
+ * S << R[0][0];
+ *
+ * // Parse contents of S into L
+ * S >> L;
+ */
+template<typename STREAM>
+inline STREAM &operator<<(STREAM &S, const pqxx::Result::Field &F)	//[t46]
+{
+  S << F.c_str();
+  return S;
+}
+
 
 
 /* 
