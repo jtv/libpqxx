@@ -46,6 +46,7 @@ public:
 
   TableReader &operator>>(Result &);
   TableReader &operator>>(PGSTD::string &);
+
   template<typename TUPLE> TableReader &operator>>(TUPLE &);		//[t8]
 
   operator bool() const { return !m_Done; }				//[t6]
@@ -86,14 +87,23 @@ inline void pqxx::TableReader::Tokenize(PGSTD::string Line, TUPLE &T) const
       if ((i+1) >= Line.size()) 
 	throw PGSTD::runtime_error("Row ends in backslash");
 
-      if (Line[i+1] == 'N')
+      switch (Line[i+1])
       {
+      case 'N':
         // This is a \N, signifying a NULL value.
 	Line.replace(i, 2, NullStr());
 	i += NullStr().size() - 1;
-      }
-      else
-      {
+	break;
+      
+      case 't':
+	Line.replace(i++, 2, "\t");
+	break;
+
+      case 'n':
+	Line.replace(i++, 2, "\n");
+	break;
+
+      default:
         Line.erase(i, 1);
       }
       break;

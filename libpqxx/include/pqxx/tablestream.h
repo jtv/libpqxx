@@ -27,7 +27,6 @@ namespace pqxx
 
 // TODO: Async access to help hide network latencies
 // TODO: Binary COPY
-// TODO: Range versions of TUPLE templates
 
 class Transaction;
 

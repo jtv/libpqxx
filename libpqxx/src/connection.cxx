@@ -93,7 +93,7 @@ pqxx::Connection::~Connection()
 	   ++i)
 	T += " " + i->first;
 
-      ProcessNotice("Closing connection with outstanding triggers:" + T);
+      ProcessNotice("Closing connection with outstanding triggers:" + T + "\n");
     }
     catch (...)
     {
@@ -186,8 +186,11 @@ void pqxx::Connection::AddTrigger(pqxx::Trigger *T)
   if (!T) throw invalid_argument("Null trigger registered");
 
   // Add to triggers list and attempt to start listening.
-  if (m_Triggers.insert(make_pair(T->Name(), T)).second)
+  // TODO: Optimize by reusing find() result as insertion hint
+
+  if (m_Triggers.find(T->Name()) == m_Triggers.end())
   {
+    // Not listening on this event yet, start doing so.
     Result R( PQexec(m_Conn, ("LISTEN " + string(T->Name())).c_str()) );
 
     try
@@ -202,6 +205,8 @@ void pqxx::Connection::AddTrigger(pqxx::Trigger *T)
       if (IsOpen()) throw;
     }
   }
+
+  m_Triggers.insert(make_pair(T->Name(), T));
 }
 
 
@@ -218,11 +223,18 @@ void pqxx::Connection::RemoveTrigger(pqxx::Trigger *T) throw ()
     const TriggerList::iterator i = find(R.first, R.second, E);
 
     if (i == R.second) 
+    {
       ProcessNotice("Attempt to remove unknown trigger '" + 
 		    E.first + 
 		    "'");
+    }
     else
+    {
+      if (R.second == ++R.first) 
+	PQexec(m_Conn, ("UNLISTEN " + string(T->Name())).c_str());
+
       m_Triggers.erase(i);
+    }
   }
   catch (const exception &e)
   {
@@ -241,7 +253,7 @@ void pqxx::Connection::GetNotifs()
   // deliver them.
   if (m_Trans.get()) return;
 
-  for (CAlloc<PGnotify> N( PQnotifies(m_Conn)); N; N = PQnotifies(m_Conn))
+  for (CAlloc<PGnotify> N( PQnotifies(m_Conn) ); N; N = PQnotifies(m_Conn))
   {
     pair<TI, TI> Hit = m_Triggers.equal_range(string(N->relname));
     for (TI i = Hit.first; i != Hit.second; ++i)

@@ -37,6 +37,10 @@ namespace pqxx
  * be aware that POSTGRESQL DEFERS NOTIFICATIONS OCCURRING INSIDE TRANSACTIONS.
  * So if you're keeping a transaction open, don't expect any of your Triggers
  * on the same connection to be notified.
+ *
+ * Multiple triggers on the same connection may have the same name, provided
+ * that your STL implementation provides the <multimap> header containing a
+ * working std::multimap class template.
  */
 class PQXX_LIBEXPORT Trigger
 {

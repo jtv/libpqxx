@@ -14,11 +14,16 @@
 #ifndef PQXX_CONNECTION_H
 #define PQXX_CONNECTION_H
 
-#include <map>
 #include <stdexcept>
 
 #include "pqxx/transactor.h"
 #include "pqxx/util.h"
+
+#ifdef HAVE_MULTIMAP
+#include <multimap>
+#else
+#include <map>
+#endif
 
 /* Use of the libpqxx library starts here.
  *
@@ -147,8 +152,11 @@ private:
   Unique<TransactionItf> m_Trans;// Active transaction on connection, if any
   void *m_NoticeProcessorArg;	// Client-set argument to notice processor func
 
-  // TODO: Use multimap when gcc supports them!
+#ifdef HAVE_MULTIMAP
+  typedef PGSTD::multimap<PGSTD::string, pqxx::Trigger *> TriggerList;
+#else
   typedef PGSTD::map<PGSTD::string, pqxx::Trigger *> TriggerList;
+#endif
   TriggerList m_Triggers;
 
   friend class TransactionItf;
