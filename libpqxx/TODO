@@ -22,3 +22,6 @@ Triggers
 Nonblocking operation
 (*) Separate query issuing from receipt of results
 (*) Support select()
+
+Build system
+(*) Completely support building outside the source directory
