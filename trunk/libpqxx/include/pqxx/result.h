@@ -14,7 +14,6 @@
 #ifndef PQXX_RESULT_H
 #define PQXX_RESULT_H
 
-#include <iterator>
 #include <stdexcept>
 
 #include "pqxx/util.h"

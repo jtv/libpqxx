@@ -32,6 +32,8 @@ template<typename Cat,
   typedef Ref reference;
 };
 }
+#else
+#include <iterator>
 #endif // BROKEN_ITERATOR
 
 
