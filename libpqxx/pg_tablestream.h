@@ -7,7 +7,7 @@
  *      definition of the Pg::TableStream class.
  *   Pg::TableStream provides optimized batch access to a database table
  *
- * Copyright (c) 2001, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  *-------------------------------------------------------------------------
  */

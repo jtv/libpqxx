@@ -7,7 +7,7 @@
  *      definition of the Pg::TableReader class.
  *   Pg::TableReader enables optimized batch reads from a database table
  *
- * Copyright (c) 2001, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  *-------------------------------------------------------------------------
  */

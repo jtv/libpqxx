@@ -26,6 +26,7 @@ using namespace Pg;
 // Function to print database's warnings  to cerr
 namespace
 {
+
 extern "C"
 {
 void ReportWarning(void *, const char msg[])
@@ -41,39 +42,32 @@ const int BoringYear = 1977;
 const string Table = "events";
 
 
-// Count events in table
-int CountEvents(Transaction &T)
+// Count events, and boring events, in table
+pair<int,int> CountEvents(Transaction &T)
 {
   const string EventsQuery = "SELECT count(*) FROM " + Table;
-  int Count = 0;
+  const string BoringQuery = EventsQuery + 
+		             " WHERE year=" + 
+			     ToString(BoringYear);
+  int EventsCount = 0,
+      BoringCount = 0;
 
   Result R( T.Exec(EventsQuery.c_str()) );
-  R[0][0].to(Count);
+  R[0][0].to(EventsCount);
 
-  return Count;
+  R = T.Exec(BoringQuery.c_str());
+  R[0][0].to(BoringCount);
+
+  return make_pair(EventsCount, BoringCount);
 }
 
-
-// Count events that happened in Boring Year
-int CountBoringEvents(Transaction &T)
-{
-  const string BoringQuery = "SELECT count(*) FROM " + Table + " "
-                             "WHERE year=" + ToString(BoringYear);
-  int Count = 0;
-
-  Result R( T.Exec(BoringQuery.c_str()) );
-  R[0][0].to(Count);
-
-  return Count;
-}
-}
 
 
 // Try adding a record, then aborting it, and check whether the abort was
 // performed correctly.
 void Test(Connection &C, bool ExplicitAbort)
 {
-  int Events;	// Count total number of events
+  pair<int,int> EventCounts;
 
   // First run our doomed transaction.  This will refuse to run if an event
   // exists for our Boring Year.
@@ -83,9 +77,9 @@ void Test(Connection &C, bool ExplicitAbort)
     Transaction Doomed(C, "Doomed");
 
     // Verify that our Boring Year was not yet in the events table
-    Events = CountEvents(Doomed);
+    EventCounts = CountEvents(Doomed);
 
-    if (CountBoringEvents(Doomed))
+    if (EventCounts.second)
       throw runtime_error("Can't run, year " +
 			  ToString(BoringYear) + " "
 			  "is already in table " +
@@ -96,21 +90,20 @@ void Test(Connection &C, bool ExplicitAbort)
 		 ToString(BoringYear) + ", "
 		 "'yawn')").c_str());
 
-    const int Count = CountBoringEvents(Doomed);
-    if (Count != 1)
+    const pair<int,int> Recount = CountEvents(Doomed);
+    if (Recount.second != 1)
       throw runtime_error("Expected to find one event for " +
 			  ToString(BoringYear) + ", "
 			  "found " + 
-			  ToString(Count));
+			  ToString(Recount.second));
 
-    const int NewEvents = CountEvents(Doomed);
-    if (NewEvents != Events+1)
+    if (Recount.first != EventCounts.first+1)
       throw runtime_error("Number of events changed from " + 
-			  ToString(Events) + " "
+			  ToString(EventCounts.first) + " "
 			  "to " +
-			  ToString(NewEvents) + "; "
+			  ToString(Recount.first) + "; "
 			  "expected " +
-			  ToString(Events + 1));
+			  ToString(EventCounts.first + 1));
 
     // Okay, we've added an entry but we don't really want to.  Abort it
     // explicitly if requested, or simply let the Transaction object "expire."
@@ -124,25 +117,26 @@ void Test(Connection &C, bool ExplicitAbort)
   // transactions.
   Transaction Checkup(C, "Checkup");
 
-  const int NewEvents = CountEvents(Checkup);
-  if (NewEvents != Events)
+  const pair<int,int> NewEvents = CountEvents(Checkup);
+  if (NewEvents.first != EventCounts.first)
     throw runtime_error("Number of events changed from " + 
-		        ToString(Events) + " "
+		        ToString(EventCounts.first) + " "
 			"to " +
-			ToString(NewEvents) + "; "
+			ToString(NewEvents.first) + "; "
 			"this may be due to a bug in libpqxx, or the table "
 			"was modified by some other process.");
 
-  const int NewBoringEvents = CountBoringEvents(Checkup);
-  if (NewBoringEvents)
+  if (NewEvents.second)
     throw runtime_error("Found " +
-		        ToString(NewBoringEvents) + " "
+		        ToString(NewEvents.second) + " "
 			"events in " +
 			ToString(BoringYear) + "; "
 			"wasn't expecting any.  This may be due to a bug in "
 			"libpqxx, or the table was modified by some other "
 			"process.");
 }
+
+} // namespace
 
 
 int main(int argc, char *argv[])

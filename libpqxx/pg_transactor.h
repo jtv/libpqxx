@@ -7,7 +7,7 @@
  *      definition of the Pg::Transactor class.
  *   Pg::Transactor is a framework-style wrapper for safe transactions
  *
- * Copyright (c) 2001, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2002, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  *-------------------------------------------------------------------------
  */

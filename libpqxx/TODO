@@ -2,6 +2,7 @@ Error handling
 (*) Check for unexpectedly open/closed transactions (appears to be possible)
 
 General
+(*) Decent build instructions
 (*) Unit tests with complete method coverage
 
 Porting
