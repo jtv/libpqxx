@@ -1,3 +1,15 @@
+2003-11-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh:
+  - Removed obsolete ABI versioning
+ configure.ac.in:
+  - Now sets PQXXVERSION
+ src/Makefile.am:
+  - Implemented "-release" ABI versioning.  Thanks Roger Leigh!
+ tools/preprelease:
+  - Fixed nm invocation used to generate library symbols
+ win32/libpqxx.mak:
+  - Fixed some wrapped lines.  Thanks Paresh Patel!
+  - Fixed some carriage return/line feed problems (Paresh Patel)
 2003-11-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, src/connection_base.cxx:
   - Removed "OnReconnect" parameter from Exec()

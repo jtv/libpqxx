@@ -15,7 +15,13 @@ libpqxx_la_SOURCES = binarystring.cxx \
 	transaction_base.cxx \
 	util.cxx
 
-libpqxx_la_LDFLAGS = -version-info @sonumber@ ${POSTGRES_LIB}
+# Uncomment to build an unversioned library (version in soname)
+libpqxx_version = -release $(PQXXVERSION)
+# Uncomment to build a versioned library
+#libpqxx_version = -version-info $(ABI_CURRENT):$(ABI_REVISION):$(ABI_AGE)
+libpqxx_la_LDFLAGS = $(libpqxx_version) \
+	-rpath $(libdir) \
+	${POSTGRES_LIB}
 
 INCLUDES=-I$(srcdir)/../include -I../include ${POSTGRES_INCLUDE}
 
