@@ -1,3 +1,22 @@
+2004-06-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/libpqxx.html:
+  - Replaced Exec() with exec()
+  - Replaced Perform() with perform()
+  - Replaced Commit() with commit()
+  - Replaced Quote() with sqlesc()
+  - Replaced Cursor with icursorstream
+  - Replaced ToString()/FromString() with resp. to_string()/from_string()
+  - Removed FmtString()
+  - Introduced sql_error
+  - Expanded namespace explanation a little
+ include/pqxx/connection_base.hxx, include/pqxx/tablewriter.hxx,
+ include/pqxx/transaction_base.hxx, src/connection_base.cxx,
+ src/tablewriter.cxx, src/transaction_base.cxx:
+  - Removed async buffering code from tablewriter, thanks Rico Schiekel
+ include/pqxx/cursor.hxx:
+  - Documentation
+  - Added test tags to function declarations
+  - Added += operator to iterator
 2004-06-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cursor.hxx, src/cursor.cxx:
   - Rewrote forward-only cursor as a stream
