@@ -37,30 +37,11 @@ AC_PATH_PROG([XMLTO], [xmlto])
 AM_CONDITIONAL([BUILD_TUTORIAL], [test -n "$XMLTO"])
 
 
-# check that std namespace is actually called std
-# not sure how to check for other namespaces...
-AH_TEMPLATE(PGSTD, [name of standard namespace])
-AC_MSG_CHECKING([name of standard namespace])
-AC_TRY_COMPILE(
-	[#include <string>]
-	, [std::string a;]
-	, AC_DEFINE(PGSTD,[std],[Does the standard namespace exist?])
-	, AC_MSG_ERROR([Can't find std namespace])
-)
-AC_MSG_RESULT($std)
-
-# TODO: Allow PQXX_PQ_IN_NAMESPACE to be defined by command line option
-
 AM_MAINTAINER_MODE
 
 # see if we want verbose compiler warnings
 AC_MSG_CHECKING([maintainer mode])
-AC_ARG_ENABLE(maintainer-mode,
-	AC_HELP_STRING(
-		[--enable-maintainer-mode],
-		[Use this for verbose and pedantic compiler warnings. Not for normal builds. (default is no)]
-	)
-)
+AC_ARG_ENABLE(maintainer-mode)
 AC_MSG_RESULT(${enable_maintainer_mode})
 
 # Let's try to get the compiler to be helpful
@@ -116,6 +97,20 @@ if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
 	unset option
 fi
 
+# check that std namespace is actually called std
+# TODO: Check for alternatives as well?
+# TODO: New --with-std= option
+AH_TEMPLATE(PGSTD, [name of standard namespace])
+AC_MSG_CHECKING([name of standard namespace])
+AC_TRY_COMPILE(
+	[#include <string>]
+	, [std::string a;]
+	, AC_DEFINE(PGSTD,[std],[Does the standard namespace exist?])
+	, AC_MSG_ERROR([Can't find std namespace])
+)
+AC_MSG_RESULT($std)
+
+
 ioshdr=yes
 AC_CHECK_HEADER(ios,AC_DEFINE(PQXX_HAVE_IOS,1,
 [Define if you have the <ios> header]),
@@ -155,7 +150,11 @@ AC_MSG_RESULT($cpp_pragma_message)
 # Find PostgreSQL includes and libraries
 AC_PATH_PROGS(PG_CONFIG, pg_config)
 if test -z "$PG_CONFIG" || test ! -r "$PG_CONFIG"; then
-	AC_MSG_ERROR([PostgreSQL configuration script was not found])
+	AC_MSG_ERROR([
+PostgreSQL configuration script pg_config not found.  Make sure this is in your
+command path before configuring.  Without it, the configure script has no way to
+find the right location for the libpq library and its headers.
+])
 fi
 with_postgres_include=`$PG_CONFIG --includedir`
 AC_MSG_NOTICE([using PostgreSQL headers at $with_postgres_include])
@@ -169,22 +168,135 @@ AC_SUBST(POSTGRES_LIB)
 POSTGRES_INCLUDE="-I${with_postgres_include}"
 AC_SUBST(POSTGRES_INCLUDE)
 
-# Checks for libraries.
-AC_CHECK_LIB([pq], [PQexec], [], [AC_MSG_ERROR([Failed to find a suitable libpq.
 
-PostgreSQL's libpq needs to be installed.
+AC_HEADER_STDC
+
+AC_MSG_CHECKING([ability to compile programs using the standard C library])
+AC_TRY_COMPILE([#include <string.h>],[unsigned long ul;ul=strlen("")],[],
+[AC_MSG_ERROR([
+Could not build even a tiny test program using the standard C library.
+
+Something very basic has gone wrong; try reading config.log to find out what.
+You'll probably want to go straight to the end of that file and read backwards
+until you find an error message.  Then identify the problem, try to fix it, and
+run this script again.
+
+The configure script's --help option may provide useful tips on how to influence
+what compiler and command line options are used, what additional libraries are
+linked in, and so on.
+])])
+AC_MSG_RESULT(yes)
+
+
+AC_CHECK_HEADER([${with_postgres_include}/libpq-fe.h],[],[AC_MSG_ERROR([
+Can't find libpq-fe.h in ${with_postgres_include}.  Are you sure the libpq
+headers are installed correctly?  They should be in the directory returned by
+"pg_config --includedir".
+
+If you do have libpq (the C-language client library for PostgreSQL) installed,
+make sure you have the related development materials--mainly its header files--
+as well as the library binary.  Some system distributions keep the two in
+seperate packages with names like "alibrary" and "alibrary-dev", respectively.
+In that case, make sure you have the latter installed as well.
+])])
+
+
+AC_MSG_CHECKING([for ability to compile source files using libpq])
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h],[PQexec(NULL,"")],
+[AC_MSG_ERROR([
+Could not compile a call to a basic libpq function.  There must be something
+seriously wrong with the headers that "pg_config --includedir" pointed to; the
+contents of config.log may give you a clue about the nature of the failure.
+Source including the libpq header libpq-fe.h can be compiled, but a call to the
+most basic libpq function PQexec() failed to compile successfully.  This is the
+litmus test for a working libpq.
+])])
+AC_MSG_RESULT(yes)
+
+# Perform this check in C; autoconf's AC_HAVE_LIBRARY breaks in C++ because it
+# tries to call main()
+AC_LANG_PUSH(C)
+
+AC_MSG_CHECKING([for ability to link with libpq])
+AC_HAVE_LIBRARY(pq, [], [AC_MSG_ERROR([
+Could not link to libpq.  Make sure you have the PostgreSQL client library
+installed, and that the library binary can be found in the location returned by
+"pg_config --libdir".
 ])], -L${with_postgres_lib})
 
-# Checks for header files.
-AC_HEADER_STDC
-AC_CHECK_HEADER([${with_postgres_include}/libpq-fe.h],,AC_MSG_ERROR(
-[Can't find libpq-fe.h in ${with_postgres_include}.]
-))
+AC_MSG_CHECKING([for correct linkage of basic libpq functions])
+AC_CHECK_LIB([pq], [PQexec],[], [AC_MSG_ERROR([
+Did not find the PQexec() function in libpq.  This is the litmus test for a
+working libpq installation.
 
-AC_CHECK_HEADER([${with_postgres_include}/libpq/libpq-fs.h],,AC_MSG_ERROR(
-[Can't find libpq-fs.h in ${with_postgres_include}/libpq.
-Please locate it and report your findings so this script can be corrected.]
-))
+A source file using the PQexec() function did compile without problems, and the
+libpq library is available for linking, but for some reason a call to PQexec()
+failed to link properly to the libpq library.  This may be because the libpq
+library file is damaged, or in some incorrect format. or if your libpq is much
+more recent than libpqxx version @PQXXVERSION@, perhaps libpq has undergone a
+radical ABI change.
+
+The last parts of config.log may give you a clue as to what really went wrong,
+but be warned that this is no easy reading.  Look for the last error message
+occurring in the file.
+])], -L${with_postgres_lib})
+AC_MSG_RESULT(yes)
+
+AC_LANG_POP(C)
+
+AC_MSG_CHECKING([for correct C++ linkage of basic libpq functions])
+if test "$enable_maintainer_mode" = "yes"; then
+AC_CHECK_LIB([pq], [PQexec],[], [AC_MSG_ERROR([
+Linking a call to libpq failed in C++, even though it succeeded in C.  If your
+C and C++ compilers are very different beasts, this may mean that we don't have
+the right options for linking with it after all.  Alternatively, this may be
+caused by a bug in autoconf or automake.
+
+Since you are configuring libpqxx using the --enable-maintainer-mode option, any
+compiler warnings for autoconf's test programs will be treated as errors.  The
+problem may just go away if you run the configure script again but with the
+maintainer mode option omitted.  Please report such cases (including the
+config.log produced by the failed attempt) so future versions can attempt to
+work around the problem.
+
+Should this error occur even while not in maintainer mode, read the config.log
+file for more detailed information.  Look for the last error message, which may
+be several pages up from the end of the file.
+])], -L${with_postgres_lib})
+else
+AC_CHECK_LIB([pq], [PQexec],[], [AC_MSG_ERROR([
+Linking a call to libpq failed in C++, even though it succeeded in C.  If your
+C and C++ compilers are very different beasts, this may mean that we don't have
+the right options for linking with it after all.
+
+Read the config.log file for more detailed information.  Look for the last error
+message, which may be several pages up from the end of the file.
+])], -L${with_postgres_lib})
+fi
+AC_MSG_RESULT(yes)
+
+
+AC_CHECK_HEADER([${with_postgres_include}/libpq/libpq-fs.h],[],[AC_MSG_ERROR([
+Can't find libpq-fs.h in ${with_postgres_include}/libpq.
+Please locate it and report your findings so this script can be corrected.
+
+If the file is not on your system, either your libpq version is much newer than
+your libpqxx version and has changed radically, or it is hopelessly out of date,
+or your installation of the PostgreSQL client library is incomplete.
+])])
+
+# TODO: Adapt automatically somehow...
+AC_MSG_CHECKING([that type of libpq's Oid is as expected])
+AC_TRY_COMPILE([
+#include<${with_postgres_include}/libpq-fe.h
+#include<pqxx/libpq-forward.hxx>],
+	[typedef pqxx::oid Oid],
+	[AC_MSG_ERROR([
+The Oid typedef in libpq has changed.  Please notify the libpqxx authors of the
+change!
+])])
+AC_MSG_RESULT(yes)
+
 
 AC_MSG_CHECKING([for long double])
 long_double=yes
@@ -206,10 +318,50 @@ AC_TRY_COMPILE(
 )
 AC_MSG_RESULT($select_h)
 
+
+# Long-standing annoyance in glibc: the definition for FD_SET includes an
+# unnecessary C-style cast that the compiler may warn for.  If the compiler is
+# configured to treat warnings as errors, that may be a problem for us.
+AC_MSG_CHECKING([for working fd_set])
+if test "$enable_maintainer_mode" = "yes"; then
+AC_TRY_COMPILE(
+[#include <cstring>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>],
+	[fd_set s;FD_ZERO(&s);FD_SET(1,&s)],
+	[],
+	[AC_MSG_ERROR([
+Could not compile code using fd_set.  This may be a known problem with GNU libc
+and the extremely strict compiler options used in libpqxx's maintainer mode; try
+configuring again, this time omitting the --enable-maintainer-mode option.
+])])
+else
+AC_TRY_COMPILE(
+[#include <cstring>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>],
+	[fd_set s;FD_ZERO(&s);FD_SET(1,&s)],
+	[],
+	[AC_MSG_ERROR([
+Could not compile code using fd_set.  There is something seriously wrong, or
+maybe your warning options are too strict.  If you are using GNU libc (as will
+be the case on a GNU/Linux system) and are telling the compiler to treat
+warnings as errors, the cause may be an old-style cast in the definition of
+FD_SET that triggers a compiler warning.
+
+See config.log for more details; look for the last error message in the file.
+])])
+fi
+AC_MSG_RESULT(yes)
+
+
+# TODO: Should actually _run_ this program, not just compile it
 AC_MSG_CHECKING([if select() accepts NULL fdsets])
 select_accepts_null=yes
 AC_TRY_COMPILE(
-	[#include <cstring>
+[#include <cstring>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>],
@@ -219,6 +371,7 @@ AC_TRY_COMPILE(
 	select_accepts_null=no
 )
 AC_MSG_RESULT($select_accepts_null)
+
 
 AC_MSG_CHECKING([sleep()])
 sleep=yes
