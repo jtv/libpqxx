@@ -41,9 +41,9 @@ inline int StdDirToPQDir(ios::seekdir dir) throw ()
   int pqdir;
   switch (dir)
   {
-  case PGSTD::ios::beg: pqdir=SEEK_SET; break;
-  case PGSTD::ios::cur: pqdir=SEEK_CUR; break;
-  case PGSTD::ios::end: pqdir=SEEK_END; break;
+  case ios::beg: pqdir=SEEK_SET; break;
+  case ios::cur: pqdir=SEEK_CUR; break;
+  case ios::end: pqdir=SEEK_END; break;
 
   /* Default clause added for two reasons: one, to silence compiler warning
    * about values not handled in switch (due to tackiness in std headers), and
