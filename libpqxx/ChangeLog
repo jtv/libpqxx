@@ -1,3 +1,6 @@
+2004-11-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/maketestvcmak.pl:
+  - Removed some unneeded (presumably) libraries
 2004-11-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cursor.hxx, include/pqxx.pipeline.hxx:
   - Made inclusion of <limits> conditional on PQXX_HAVE_LIMITS
