@@ -1,2 +1,2 @@
-SUBDIRS = pqxx
+EXTRA_DIST=pqxx
 
