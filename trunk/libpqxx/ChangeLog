@@ -1,3 +1,12 @@
+2003-09-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac:
+  - Added check for PQfreeNotify()
+  - Check for using-declaration overloading problem in gcc 2.95.3
+ include/pqxx/largeobject:
+  - Workaround for using-declaration overloading problem
+ include/pqxx/util:
+  - Use PQfreeNotify() if available and appropriate
+  - Added <cctype> include
 2003-07-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/result:
   - Added support for PQftable().  Thanks Adam Pigg!
