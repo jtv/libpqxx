@@ -16,14 +16,18 @@
  *
  *-------------------------------------------------------------------------
  */
+#include "pqxx/libcompiler.h"
+
 #include <string>
+
+#include "pqxx/connection_base"
+
 
 /* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
 
 namespace pqxx
 {
-
 /// "Observer" base class for trigger notifications.
 /** To listen on a database trigger, derive your own class from trigger and
  * define its function call operator to perform whatever action you wish to

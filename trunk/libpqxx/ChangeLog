@@ -1,3 +1,11 @@
+2004-04-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/trigger.hxx:
+  - Added missing include, thanks slava@perlx.com
+2004-04-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/libcompiler.h:
+  - Enable standard I/O streams library on Compaq C++ compiler
+ include/pqxx/result.hxx:
+  - Include ios.  Thanks Fahad Gilani.
 2004-04-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in, include/pqxx/Makefile.am:
   - Renamed config.h.in to internalconfig.h.in
