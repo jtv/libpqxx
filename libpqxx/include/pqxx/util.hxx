@@ -78,9 +78,6 @@ typedef PQXXPQ::PGresult PGresult;
 
 namespace pqxx
 {
-typedef long result_size_type;
-typedef int tuple_size_type;
-
 /// PostgreSQL row identifier type
 typedef PQXXPQ::Oid oid;
 
@@ -231,17 +228,17 @@ public:
   /// Create empty items list
   items() : CONT() {}							//[t80]
   /// Create items list with one element
-  explicit items(const T &t) : CONT() { push_back(t); }			//[]
+  explicit items(const T &t) : CONT() { push_back(t); }			//[t0]
   items(const T &t1, const T &t2) : CONT() 				//[t80]
   	{ push_back(t1); push_back(t2); }
-  items(const T &t1, const T &t2, const T &t3) : CONT() 		//[]
+  items(const T &t1, const T &t2, const T &t3) : CONT() 		//[t0]
   	{ push_back(t1); push_back(t2); push_back(t3); }
-  items(const T &t1, const T &t2, const T &t3, const T &t4) : CONT() 	//[]
+  items(const T &t1, const T &t2, const T &t3, const T &t4) : CONT() 	//[t0]
   	{ push_back(t1); push_back(t2); push_back(t3); push_back(t4); }
-  items(const T&t1,const T&t2,const T&t3,const T&t4,const T&t5):CONT() 	//[]
+  items(const T&t1,const T&t2,const T&t3,const T&t4,const T&t5):CONT() 	//[t0]
   	{push_back(t1);push_back(t2);push_back(t3);push_back(t4);push_back(t5);}
   /// Copy container
-  items(const CONT &c) : CONT(c) {}					//[]
+  items(const CONT &c) : CONT(c) {}					//[t0]
 
   /// Add element to items list
   items &operator()(const T &t)						//[t80]
@@ -284,7 +281,11 @@ PGSTD::string separated_list(const PGSTD::string &sep,
 /// Private namespace for libpqxx's internal use; do not access
 /** This namespace hides definitions internal to libpqxx.  These are not 
  * supposed to be used by client programs, and they may change at any time 
- * without notice.  
+ * without notice.
+ *
+ * Conversely, if you find something in this namespace tremendously useful, by
+ * all means do lodge a request for its publication.
+ *
  * @warning Here be dragons!
  */
 namespace internal
