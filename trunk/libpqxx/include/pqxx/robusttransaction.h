@@ -97,7 +97,12 @@ namespace pqxx
 class PQXX_LIBEXPORT RobustTransaction : public TransactionItf
 {
 public:
-  explicit RobustTransaction(Connection &, 
+  /// Constructor.
+  /** Creates RobustTransaction.
+   * @param C Connection that this RobustTransaction should live inside.
+   * @param Name optional human-readable name for this RobustTransaction.
+   */
+  explicit RobustTransaction(Connection &C,
 		             const PGSTD::string &Name=PGSTD::string());//[t16]
 
   virtual ~RobustTransaction();						//[t16]

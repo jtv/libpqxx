@@ -53,6 +53,10 @@ public:
   operator bool() const throw () { return !m_Done; }			//[t6]
   bool operator!() const throw () { return m_Done; }			//[t6]
 
+  /// Read a line of raw, unparsed table data
+  /** Returns whether a line could be read.
+   * @param Line is set to the raw data line read from the table.
+   */
   bool GetRawLine(PGSTD::string &Line);					//[t8]
 
   template<typename TUPLE> 

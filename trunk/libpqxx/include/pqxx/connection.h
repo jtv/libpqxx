@@ -46,6 +46,10 @@ class Trigger;
 extern "C" { typedef void (*NoticeProcessor)(void *arg, const char *msg); }
 
 /// Base class for user-definable error/warning message processor
+/** To define a custom method of handling notices, derive a new class from
+ * Noticer and override the virtual function "operator()(const char[]) throw()"
+ * to process the message passed to it.
+ */
 struct Noticer
 {
   virtual ~Noticer() {}
@@ -122,8 +126,16 @@ public:
   bool IsOpen() const { return is_open(); }
 
   /// Perform the transaction defined by a Transactor-based object.
+  /** The function may create and execute several copies of the Transactor
+   * before it succeeds.  If there is any doubt over whether it succeeded
+   * (this can happen if the connection is lost just before the backend can
+   * confirm success), it is no longer retried and an error message is
+   * generated.
+   * @param T the Transactor to be executed.
+   * @param Attempts the maximum number of attempts to be made to execute T.
+   */
   template<typename TRANSACTOR> 
-  void Perform(const TRANSACTOR &, int Attempts=3);			//[t4]
+  void Perform(const TRANSACTOR &T, int Attempts=3);			//[t4]
 
   /// Set callback method for postgresql status output. @deprecated Use Noticer.
   /** return value is the previous handler.  Passing a NULL callback pointer 
@@ -133,8 +145,9 @@ public:
 
   /// Set handler for postgresql errors or warning messages.
   /** Return value is the previous handler.  Must not be NULL.
+   * @param N the new message handler.
    */
-  std::auto_ptr<Noticer> SetNoticer(std::auto_ptr<Noticer>);
+  std::auto_ptr<Noticer> SetNoticer(std::auto_ptr<Noticer> N);
   Noticer *GetNoticer() const throw () { return m_Noticer.get(); }
 
   /// Invoke notice processor function.  The message should end in newline.

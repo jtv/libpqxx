@@ -1,3 +1,8 @@
+2003-02-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cachedresult.h, include/pqxx/connection.h,
+ include/pqxx/result.h, include/pqxx/robusttransaction.h,
+ include/pqxx/tablereader.h:
+  - Documented more parameters
 2003-02-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection.h, src/connection.cxx:
   - Removed default constructor completely
