@@ -1,3 +1,5 @@
+2003-11-13  J.H.M. Dassen (Ray) <jdassen@debian.org>
+ include/pqxx/Makefile.am: follow --includedir value.
 2003-11-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac, include/pqxx/compiler.h, include/pqxx/config.h.in:
   - Removed abs(long) workaround
