@@ -115,7 +115,7 @@ pqxx::pipeline::deliver(ResultsMap::iterator i)
     throw logic_error("libpqxx internal error: delivering from empty pipeline");
   }
 
-  pair<query_id, result> out = *i;
+  const ResultsMap::value_type out(*i);
   m_completed.erase(i);
   const QueryMap::iterator q = m_queries.find(out.first);
   if (q == m_queries.end())
@@ -135,7 +135,7 @@ pqxx::pipeline::deliver(ResultsMap::iterator i)
 }
 
 
-pair<pqxx::pipeline::query_id, pqxx::result> pqxx::pipeline::retrieve()
+pair<pqxx::pipeline::query_id,pqxx::result> pqxx::pipeline::retrieve()
 {
   if (m_completed.empty())
   {
@@ -145,7 +145,8 @@ pair<pqxx::pipeline::query_id, pqxx::result> pqxx::pipeline::retrieve()
     consumeresults();
   }
 
-  return deliver(m_completed.begin());
+  const ResultsMap::value_type out(deliver(m_completed.begin()));
+  return pair<query_id,result>(out.first, out.second);
 }
 
 
