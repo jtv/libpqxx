@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     if (argc > 2) Table = argv[2];
 
     // Begin a transaction acting on our current connection
-    transaction<> T(C, "test8");
+    work T(C, "test8");
 
     vector<string> R, First;
 

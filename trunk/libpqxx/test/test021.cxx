@@ -36,7 +36,7 @@ int main(int, char *argv[])
 		     "options='" + C.options() + "', "
 		     "backendpid=" + ToString(C.backendpid()) + "\n");
 
-    transaction<> T(C, "test21");
+    work T(C, "test21");
 
     // By now our connection should really have been created
     C.process_notice("Printing details on actual connection\n");

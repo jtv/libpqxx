@@ -51,6 +51,7 @@ pqxx::result &pqxx::result::operator=(PGresult *Other)
 
 
 const pqxx::result::tuple pqxx::result::at(pqxx::result::size_type i) const
+  throw (out_of_range)
 {
   if ((i < 0) || (i >= size()))
     throw out_of_range("Tuple number out of range");
@@ -76,7 +77,7 @@ void pqxx::result::CheckStatus(const string &Query) const
     break;
 
   case PGRES_BAD_RESPONSE: // The server's response was not understood
-  case PGRES_NONFATAL_ERROR: // TODO: Is this one really an error?
+  case PGRES_NONFATAL_ERROR:
   case PGRES_FATAL_ERROR:
     throw sql_error(PQresultErrorMessage(m_Result), Query);
 
@@ -184,7 +185,7 @@ pqxx::result::field pqxx::result::tuple::at(const char f[]) const
 
 
 pqxx::result::field 
-pqxx::result::tuple::at(pqxx::result::tuple::size_type i) const
+pqxx::result::tuple::at(pqxx::result::tuple::size_type i) const throw (out_of_range)
 {
   if ((i < 0) || (i >= size()))
     throw out_of_range("Invalid field number");

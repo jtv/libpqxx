@@ -62,7 +62,7 @@ int main(int, char *argv[])
   try
   {
     connection C(argv[1]);
-    transaction<> T(C, "test61");
+    work T(C, "test61");
 
     if (GetDatestyle(T).empty())
       throw logic_error("Initial datestyle not set");

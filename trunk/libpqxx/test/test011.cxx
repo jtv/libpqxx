@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     const string Table = ((argc >= 3) ? argv[2] : "pg_tables");
 
     connection C(argv[1]);
-    transaction<> T(C, "test11");
+    work T(C, "test11");
 
     result R( T.exec("SELECT * FROM " + Table) );
 

@@ -21,7 +21,7 @@ int main(int, char *argv[])
   try
   {
     connection C(argv[1]);
-    transaction<> T(C, "test46");
+    work T(C, "test46");
     result R( T.exec("SELECT count(*) FROM pg_tables") );
 
     cout << "Count was " << R.at(0).at(0) << endl;

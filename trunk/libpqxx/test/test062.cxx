@@ -26,7 +26,7 @@ int main(int, char *argv[])
     const string TestStr = "Nasty\n\030Test\n\t String\r\0 With Trailer";
 
     connection C(argv[1]);
-    transaction<> T(C, "test62");
+    work T(C, "test62");
 
     T.exec("CREATE TEMP TABLE pqxxbin (binfield bytea)");
     const string Esc = escape_binary(TestStr);

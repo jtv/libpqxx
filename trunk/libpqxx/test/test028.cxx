@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     string TableName = "testtable";
     if (argc > 2) TableName = argv[2];
 
-    transaction<> T(C, "test28");
+    work T(C, "test28");
 
     // Create table.  If the table already existed, better to fail now.
     T.exec("CREATE TABLE " + TableName + "(content VARCHAR)");

@@ -20,7 +20,7 @@ int main()
 
     // Begin a transaction acting on our current connection.  Give it a human-
     // readable name so the library can include it in error messages.
-    transaction<> T(C, "test1");
+    work T(C, "test1");
 
     // Perform a query on the database, storing result tuples in R.
     result R( T.exec("SELECT * FROM pg_tables") );

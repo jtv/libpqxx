@@ -60,7 +60,8 @@ for robusttransaction.
 
 To use the default isolation level, just write transaction<> (or, naturally,
 robusttransaction<>).  This will use the default template parameter, which is
-read_committed.
+read_committed.  For transaction<>, which you'll usually want to use, there is
+also a convenience typedef called "work."
 
 Isolation levels are defined in the new header file pqxx/isolation.h.
 

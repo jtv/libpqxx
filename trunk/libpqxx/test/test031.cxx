@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     // Reactivate C (not really needed, but it sounds more polite)
     C.activate();
 
-    transaction<> T(C, "test31");
+    work T(C, "test31");
 
     result R( T.exec("SELECT * FROM " + Table) );
 

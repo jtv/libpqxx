@@ -56,7 +56,7 @@ modename="$progname"
 PROGRAM=ltmain.sh
 PACKAGE=libtool
 VERSION=1.5.0a
-TIMESTAMP=" (1.1220.2.25 2003/08/01 19:08:35) Debian$Rev: 49 $"
+TIMESTAMP=" (1.1220.2.33 2003/09/29 11:43:50) Debian$Rev: 103 $"
 
 default_mode=
 help="Try \`$progname --help' for more information."
@@ -370,6 +370,7 @@ if test -z "$show_help"; then
     # Get the compilation command and the source file.
     base_compile=
     srcfile="$nonopt"  #  always keep a non-empty value in "srcfile"
+    suppress_opt=yes
     suppress_output=
     arg_mode=normal
     libobj=
@@ -413,6 +414,11 @@ if test -z "$show_help"; then
 
 	-prefer-non-pic)
 	  pic_mode=no
+	  continue
+	  ;;
+
+	-no-suppress)
+	  suppress_opt=no
 	  continue
 	  ;;
 
@@ -723,7 +729,9 @@ pic_object='$objdir/$objname'
 EOF
 
       # Allow error messages only from the first compilation.
-      suppress_output=' >/dev/null 2>&1'
+      if test "$suppress_opt" = yes; then
+        suppress_output=' >/dev/null 2>&1'
+      fi
     else
       # No PIC object so indicate it doesn't exist in the libtool
       # object file.
@@ -1288,6 +1296,10 @@ EOF
 	continue
 	;;
 
+     -pthread|-pthreads|-kthread|-Kthread|-mthreads|--thread-safe|-mt)
+	deplibs="$deplibs $arg"
+	;;
+
       -module)
 	module=yes
 	continue
@@ -1803,6 +1815,11 @@ EOF
 	lib=
 	found=no
 	case $deplib in
+	-pthread|-pthreads|-kthread|-Kthread|-mthreads|--thread-safe|-mt)
+	  deplibs="$deplib $deplibs"
+	  test "$linkmode" = lib && newdependency_libs="$deplib $newdependency_libs"
+	  continue
+	  ;;
 	-l*)
 	  if test "$linkmode" != lib && test "$linkmode" != prog; then
 	    $echo "$modename: warning: \`-l' is ignored for archives/objects" 1>&2

@@ -75,9 +75,11 @@ const pqxx::result &pqxx::cachedresult::Fetch() const
   if (!R.empty()) 
   {
     pair<const long, const result> tmp_pair(BlockFor(Pos), R);
-    m_Cache.insert(tmp_pair);
-    // TODO: Use iterator returned by insert().  
-    return m_Cache[BlockFor(Pos)];
+    /* Note: can't simply return R because it'll get destroyed if it was already
+     * present in our map.  Return the inserted version instead--which will be
+     * the result already present in the map, if any.
+     */
+    return m_Cache.insert(tmp_pair).first->second;
   }
 
   if (!m_HaveEmpty)

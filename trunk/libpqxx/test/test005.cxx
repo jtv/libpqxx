@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     cout << "Dropping old " << TableName << endl;
     try
     {
-      transaction<> Drop(C, "drop_" + TableName);
+      work Drop(C, "drop_" + TableName);
       Drop.exec(("DROP TABLE " + TableName).c_str());
       Drop.commit();
     }
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     }
 
     // Now begin new transaction to create new table & write data
-    transaction<> T(C, "test5");
+    work T(C, "test5");
 
     T.exec(("CREATE TABLE " + 
 	    TableName + 
