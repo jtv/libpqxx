@@ -41,12 +41,12 @@
 00033 <span class="comment">// TODO: Implement NoticeProcessors with C++ linkage</span>
 00034 
 00035 
-<a name="l00036"></a><a class="code" href="namespacepqxx.html">00036</a> <span class="keyword">namespace </span>pqxx
+00036 <span class="keyword">namespace </span>pqxx
 00037 {
-00038 <span class="keyword">class </span><a class="code" href="classpqxx_1_1in__doubt__error.html">in_doubt_error</a>;   <span class="comment">// See pqxx/transactionitf.h</span>
-00039 <span class="keyword">class </span><a class="code" href="classpqxx_1_1Result.html">Result</a>;           <span class="comment">// See pqxx/result.h</span>
-00040 <span class="keyword">class </span><a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a>;   <span class="comment">// See pqxx/transactionitf.h</span>
-00041 <span class="keyword">class </span><a class="code" href="classpqxx_1_1Trigger.html">Trigger</a>;          <span class="comment">// See pqxx/trigger.h</span>
+00038 <span class="keyword">class </span>in_doubt_error;   <span class="comment">// See pqxx/transactionitf.h</span>
+00039 <span class="keyword">class </span>Result;           <span class="comment">// See pqxx/result.h</span>
+00040 <span class="keyword">class </span>TransactionItf;   <span class="comment">// See pqxx/transactionitf.h</span>
+00041 <span class="keyword">class </span>Trigger;          <span class="comment">// See pqxx/trigger.h</span>
 00042 
 <a name="l00043"></a><a class="code" href="namespacepqxx.html#a0">00043</a> <span class="keyword">extern</span> <span class="stringliteral">"C"</span> { <span class="keyword">typedef</span> void (*<a class="code" href="namespacepqxx.html#a0">NoticeProcessor</a>)(<span class="keywordtype">void</span> *arg, <span class="keyword">const</span> <span class="keywordtype">char</span> *msg); }
 00044 
@@ -58,12 +58,12 @@
 00051 
 00052 
 00054 
-<a name="l00055"></a><a class="code" href="classpqxx_1_1broken__connection.html">00055</a> <span class="keyword">class </span><a class="code" href="classpqxx_1_1broken__connection.html">broken_connection</a> : <span class="keyword">public</span> <a class="code" href="config_8h.html#a21">PGSTD</a>::runtime_error
+<a name="l00055"></a><a class="code" href="classpqxx_1_1broken__connection.html">00055</a> <span class="keyword">class </span><a class="code" href="classpqxx_1_1broken__connection.html">broken_connection</a> : <span class="keyword">public</span> <a class="code" href="config_8h.html#a22">PGSTD</a>::runtime_error
 00056 {
 00057 <span class="keyword">public</span>:
-<a name="l00058"></a><a class="code" href="classpqxx_1_1broken__connection.html#a0">00058</a>   <a class="code" href="classpqxx_1_1broken__connection.html#a0">broken_connection</a>() : <a class="code" href="config_8h.html#a21">PGSTD</a>::runtime_error("<a class="code" href="classpqxx_1_1Connection.html">Connection</a> to back end failed") {}
+<a name="l00058"></a><a class="code" href="classpqxx_1_1broken__connection.html#a0">00058</a>   <a class="code" href="classpqxx_1_1broken__connection.html#a0">broken_connection</a>() : <a class="code" href="config_8h.html#a22">PGSTD</a>::runtime_error("<a class="code" href="classpqxx_1_1Connection.html">Connection</a> to back end failed") {}
 <a name="l00059"></a><a class="code" href="classpqxx_1_1broken__connection.html#a1">00059</a>   <span class="keyword">explicit</span> <a class="code" href="classpqxx_1_1broken__connection.html#a0">broken_connection</a>(<span class="keyword">const</span> PGSTD::string &amp;whatarg) : 
-00060     <a class="code" href="config_8h.html#a21">PGSTD</a>::runtime_error(whatarg) {}
+00060     <a class="code" href="config_8h.html#a22">PGSTD</a>::runtime_error(whatarg) {}
 00061 };
 00062 
 00063 
@@ -218,7 +218,7 @@
 00283 
 00284 <span class="preprocessor">#endif</span>
 00285 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Sat Oct 5 15:55:44 2002 for libpqxx by
+</pre></div><hr><address style="align: right;"><small>Generated on Wed Oct 23 15:57:05 2002 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.18 </small></address>

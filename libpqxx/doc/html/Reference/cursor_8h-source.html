@@ -36,14 +36,14 @@
 00028 <span class="keyword">namespace </span>pqxx
 00029 {
 00030 <span class="keyword">class </span>Result;
-00031 <span class="keyword">class </span>Transaction;
+00031 <span class="keyword">class </span>TransactionItf;
 00032 
 00034 
 <a name="l00041"></a><a class="code" href="classpqxx_1_1Cursor.html">00041</a> <span class="keyword">class </span>PQXX_LIBEXPORT <a class="code" href="classpqxx_1_1Cursor.html">Cursor</a>
 00042 {
 00043 <span class="keyword">public</span>:
 00045 
-00053   <a class="code" href="classpqxx_1_1Cursor.html">Cursor</a>(<a class="code" href="classpqxx_1_1Transaction.html">Transaction</a> &amp;T,
+00053   <a class="code" href="classpqxx_1_1Cursor.html">Cursor</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T,
 00054          <span class="keyword">const</span> <span class="keywordtype">char</span> Query[], 
 00055          PGSTD::string BaseName=<span class="stringliteral">"cur"</span>,
 00056          <a class="code" href="namespacepqxx.html#a1">Result_size_type</a> Count=NEXT());                                <span class="comment">//[t3]</span>
@@ -78,7 +78,7 @@
 00111 <span class="keyword">private</span>:
 00112   PGSTD::string MakeFetchCmd(<a class="code" href="namespacepqxx.html#a1">Result_size_type</a>) <span class="keyword">const</span>;
 00113 
-00114   <a class="code" href="classpqxx_1_1Transaction.html">Transaction</a> &amp;m_Trans;
+00114   <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;m_Trans;
 00115   PGSTD::string m_Name;
 00116   <a class="code" href="namespacepqxx.html#a1">Result_size_type</a> m_Count;
 00117   <span class="keywordtype">bool</span> m_Done;
@@ -92,7 +92,7 @@
 00125 
 00126 <span class="preprocessor">#endif</span>
 00127 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Sat Oct 5 15:55:44 2002 for libpqxx by
+</pre></div><hr><address style="align: right;"><small>Generated on Wed Oct 23 15:57:05 2002 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.18 </small></address>

@@ -20,17 +20,17 @@
 <a href="classpqxx_1_1TableStream-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
 <tr><td></td></tr>
 <tr><td colspan=2><br><h2>Public Methods</h2></td></tr>
-<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1TableStream.html#a0">TableStream</a> (<a class="el" href="classpqxx_1_1Transaction.html">Transaction</a> &amp;Trans, PGSTD::string Name, PGSTD::string Null=PGSTD::string())</td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1TableStream.html#a0">TableStream</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;Trans, PGSTD::string Name, PGSTD::string Null=PGSTD::string())</td></tr>
 <tr><td nowrap align=right valign=top>virtual&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1TableStream.html#a1">~TableStream</a> ()=0</td></tr>
 <tr><td nowrap align=right valign=top>PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1TableStream.html#a2">Name</a> () const</td></tr>
 <tr><td colspan=2><br><h2>Protected Methods</h2></td></tr>
-<tr><td nowrap align=right valign=top><a class="el" href="classpqxx_1_1Transaction.html">Transaction</a> &amp;&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1TableStream.html#b0">Trans</a> () const</td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1TableStream.html#b0">Trans</a> () const</td></tr>
 <tr><td nowrap align=right valign=top>PGSTD::string&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1TableStream.html#b1">NullStr</a> () const</td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 Base class for streaming data to/from database tables.
 <p>
-A Tablestream enables optimized batch read or write access to a database  table using PostgreSQL's COPY TO STDOUT and COPY FROM STDIN commands, respectively. These capabilities are implemented by its subclasses  <a class="el" href="classpqxx_1_1TableReader.html">TableReader</a> and <a class="el" href="classpqxx_1_1TableWriter.html">TableWriter</a>. A Tablestream exists in the context of a <a class="el" href="classpqxx_1_1Transaction.html">Transaction</a>, and no other streams or queries may be applied to that <a class="el" href="classpqxx_1_1Transaction.html">Transaction</a> as long as the stream remains open. 
+A Tablestream enables optimized batch read or write access to a database  table using PostgreSQL's COPY TO STDOUT and COPY FROM STDIN commands, respectively. These capabilities are implemented by its subclasses  <a class="el" href="classpqxx_1_1TableReader.html">TableReader</a> and <a class="el" href="classpqxx_1_1TableWriter.html">TableWriter</a>. A Tablestream exists in the context of a transaction, and no other streams or queries may be applied to that transaction as long as the stream remains open. 
 <p>
 <hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a name="a0" doxytag="pqxx::TableStream::TableStream"></a><p>
@@ -41,7 +41,7 @@ A Tablestream enables optimized batch read or write access to a database  table 
         <tr>
           <td class="md" nowrap valign="top"> pqxx::TableStream::TableStream </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top"><a class="el" href="classpqxx_1_1Transaction.html">Transaction</a> &amp;&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;&nbsp;</td>
           <td class="mdname" nowrap>&nbsp; <em>Trans</em>, </td>
         </tr>
         <tr>
@@ -168,7 +168,7 @@ A Tablestream enables optimized batch read or write access to a database  table 
     <td class="md">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> <a class="el" href="classpqxx_1_1Transaction.html">Transaction</a>&amp; pqxx::TableStream::Trans </td>
+          <td class="md" nowrap valign="top"> <a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a>&amp; pqxx::TableStream::Trans </td>
           <td class="md" valign="top">(&nbsp;</td>
           <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
           <td class="md" valign="top">)&nbsp;</td>
@@ -192,7 +192,7 @@ A Tablestream enables optimized batch read or write access to a database  table 
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="tablestream_8h-source.html">tablestream.h</a><li><a class="el" href="tablestream_8cxx.html">tablestream.cxx</a></ul>
-<hr><address style="align: right;"><small>Generated on Sat Oct 5 15:55:46 2002 for libpqxx by
+<hr><address style="align: right;"><small>Generated on Wed Oct 23 15:57:06 2002 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.18 </small></address>

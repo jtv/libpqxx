@@ -14,7 +14,7 @@
 <a href="classpqxx_1_1Cursor-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
 <tr><td></td></tr>
 <tr><td colspan=2><br><h2>Public Methods</h2></td></tr>
-<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1Cursor.html#a0">Cursor</a> (<a class="el" href="classpqxx_1_1Transaction.html">Transaction</a> &amp;T, const char Query[], PGSTD::string BaseName="cur", <a class="el" href="namespacepqxx.html#a1">Result_size_type</a> Count=NEXT())</td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1Cursor.html#a0">Cursor</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, const char Query[], PGSTD::string BaseName="cur", <a class="el" href="namespacepqxx.html#a1">Result_size_type</a> Count=NEXT())</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Constructor. Creates a cursor.</em> <a href="#a0"></a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top><a class="el" href="namespacepqxx.html#a1">Result_size_type</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1Cursor.html#a1">SetCount</a> (<a class="el" href="namespacepqxx.html#a1">Result_size_type</a>)</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Set new stride, ie. the number of rows to fetch at a time.</em> <a href="#a1"></a><em></em></font><br><br></td></tr>
@@ -57,7 +57,7 @@ Postgres does not currently support modification of data through a cursor.
         <tr>
           <td class="md" nowrap valign="top"> pqxx::Cursor::Cursor </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top"><a class="el" href="classpqxx_1_1Transaction.html">Transaction</a> &amp;&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;&nbsp;</td>
           <td class="mdname" nowrap>&nbsp; <em>T</em>, </td>
         </tr>
         <tr>
@@ -479,7 +479,7 @@ Set new stride, ie. the number of rows to fetch at a time.
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="cursor_8h-source.html">cursor.h</a><li><a class="el" href="cursor_8cxx.html">cursor.cxx</a></ul>
-<hr><address style="align: right;"><small>Generated on Sat Oct 5 15:55:45 2002 for libpqxx by
+<hr><address style="align: right;"><small>Generated on Wed Oct 23 15:57:06 2002 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.18 </small></address>

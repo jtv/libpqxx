@@ -26,7 +26,7 @@
 <tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1Result.html#a7">empty</a> () const</td></tr>
 <tr><td nowrap align=right valign=top><a class="el" href="classpqxx_1_1Result.html#s0">size_type</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1Result.html#a8">capacity</a> () const</td></tr>
 <tr><td nowrap align=right valign=top>const <a class="el" href="classpqxx_1_1Result_1_1Tuple.html">Tuple</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1Result.html#a9">operator[]</a> (<a class="el" href="classpqxx_1_1Result.html#s0">size_type</a> i) const</td></tr>
-<tr><td nowrap align=right valign=top>const <a class="el" href="classpqxx_1_1Result_1_1Tuple.html">Tuple</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1Result.html#a10">at</a> (<a class="el" href="classpqxx_1_1Result.html#s0">size_type</a> i) const</td></tr>
+<tr><td nowrap align=right valign=top>const <a class="el" href="classpqxx_1_1Result_1_1Tuple.html">Tuple</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1Result.html#a10">at</a> (<a class="el" href="classpqxx_1_1Result.html#s0">size_type</a>) const</td></tr>
 <tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1Result.html#a11">clear</a> ()</td></tr>
 <tr><td nowrap align=right valign=top><a class="el" href="classpqxx_1_1Result_1_1Tuple.html#s0">Tuple::size_type</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1Result.html#a12">Columns</a> () const</td></tr>
 <tr><td nowrap align=right valign=top><a class="el" href="classpqxx_1_1Result_1_1Tuple.html#s0">Tuple::size_type</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1Result.html#a13">ColumnNumber</a> (const char Name[]) const</td></tr>
@@ -36,6 +36,8 @@
 <tr><td nowrap align=right valign=top>const char *&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1Result.html#a15">ColumnName</a> (<a class="el" href="classpqxx_1_1Result_1_1Tuple.html#s0">Tuple::size_type</a> Number) const</td></tr>
 <tr><td nowrap align=right valign=top>Oid&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1Result.html#a16">InsertedOid</a> () const</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>If command was INSERT of 1 row, return oid of inserted row.</em> <a href="#a16"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classpqxx_1_1Result.html#s0">size_type</a>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1Result.html#a17">AffectedRows</a> () const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>If command was INSERT, UPDATE, or DELETE, return number of affected rows.</em> <a href="#a17"></a><em></em></font><br><br></td></tr>
 <tr><td colspan=2><br><h2>Friends</h2></td></tr>
 <tr><td nowrap align=right valign=top>class&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1Result.html#l0">Result::Field</a></td></tr>
 <tr><td nowrap align=right valign=top>class&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1Result.html#l1">Connection</a></td></tr>
@@ -157,6 +159,36 @@ for (<a class="el" href="classpqxx_1_1Result.html#s0">Result::size_type</a> i=0;
   </tr>
 </table>
 <hr><h2>Member Function Documentation</h2>
+<a name="a17" doxytag="pqxx::Result::AffectedRows"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classpqxx_1_1Result.html#s0">pqxx::Result::size_type</a> pqxx::Result::AffectedRows </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+If command was INSERT, UPDATE, or DELETE, return number of affected rows.
+<p>
+    </td>
+  </tr>
+</table>
 <a name="a10" doxytag="pqxx::Result::at"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
@@ -166,7 +198,7 @@ for (<a class="el" href="classpqxx_1_1Result.html#s0">Result::size_type</a> i=0;
           <td class="md" nowrap valign="top"> const <a class="el" href="classpqxx_1_1Result_1_1Tuple.html">pqxx::Result::Tuple</a> pqxx::Result::at </td>
           <td class="md" valign="top">(&nbsp;</td>
           <td class="md" nowrap valign="top"><a class="el" href="classpqxx_1_1Result.html#s0">size_type</a>&nbsp;</td>
-          <td class="mdname1" valign="top" nowrap>&nbsp; <em>i</em>          </td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
           <td class="md" valign="top">)&nbsp;</td>
           <td class="md" nowrap> const</td>
         </tr>
@@ -608,7 +640,7 @@ Returns InvalidOid otherwise.     </td>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="result_8h-source.html">result.h</a><li><a class="el" href="result_8cxx.html">result.cxx</a></ul>
-<hr><address style="align: right;"><small>Generated on Sat Oct 5 15:55:45 2002 for libpqxx by
+<hr><address style="align: right;"><small>Generated on Wed Oct 23 15:57:06 2002 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.18 </small></address>

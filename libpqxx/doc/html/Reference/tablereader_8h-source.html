@@ -38,7 +38,7 @@
 <a name="l00042"></a><a class="code" href="classpqxx_1_1TableReader.html">00042</a> <span class="keyword">class </span>PQXX_LIBEXPORT <a class="code" href="classpqxx_1_1TableReader.html">TableReader</a> : <span class="keyword">public</span> <a class="code" href="classpqxx_1_1TableStream.html">TableStream</a>
 00043 {
 00044 <span class="keyword">public</span>:
-00045   <a class="code" href="classpqxx_1_1TableReader.html">TableReader</a>(<a class="code" href="classpqxx_1_1Transaction.html">Transaction</a> &amp;Trans, PGSTD::string Name);                  <span class="comment">//[t6]</span>
+00045   <a class="code" href="classpqxx_1_1TableReader.html">TableReader</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;Trans, PGSTD::string Name);               <span class="comment">//[t6]</span>
 00046   ~<a class="code" href="classpqxx_1_1TableReader.html">TableReader</a>();                                                       <span class="comment">//[t6]</span>
 00047 
 00048   <a class="code" href="classpqxx_1_1TableReader.html">TableReader</a> &amp;operator&gt;&gt;(<a class="code" href="classpqxx_1_1Result.html">Result</a> &amp;);
@@ -123,7 +123,7 @@
 00127 
 00128 <span class="preprocessor">#endif</span>
 00129 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Sat Oct 5 15:55:45 2002 for libpqxx by
+</pre></div><hr><address style="align: right;"><small>Generated on Wed Oct 23 15:57:05 2002 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.18 </small></address>

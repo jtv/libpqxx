@@ -36,14 +36,14 @@
 00028 <span class="comment">// TODO: Async access to help hide network latencies</span>
 00029 <span class="comment">// TODO: Binary COPY</span>
 00030 
-00031 <span class="keyword">class </span>Transaction;
+00031 <span class="keyword">class </span>TransactionItf;
 00032 
 00033 
 00035 
 <a name="l00043"></a><a class="code" href="classpqxx_1_1TableStream.html">00043</a> <span class="keyword">class </span>PQXX_LIBEXPORT <a class="code" href="classpqxx_1_1TableStream.html">TableStream</a>
 00044 {
 00045 <span class="keyword">public</span>:
-00046   <a class="code" href="classpqxx_1_1TableStream.html">TableStream</a>(<a class="code" href="classpqxx_1_1Transaction.html">Transaction</a> &amp;Trans, 
+00046   <a class="code" href="classpqxx_1_1TableStream.html">TableStream</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;Trans, 
 00047               PGSTD::string Name, 
 00048               PGSTD::string Null=PGSTD::string());                      <span class="comment">//[t6]</span>
 00049   <span class="keyword">virtual</span> ~<a class="code" href="classpqxx_1_1TableStream.html">TableStream</a>() =0;                                            <span class="comment">//[t6]</span>
@@ -51,11 +51,11 @@
 <a name="l00051"></a><a class="code" href="classpqxx_1_1TableStream.html#a2">00051</a>   PGSTD::string Name()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Name; }                         <span class="comment">//[t10]</span>
 00052 
 00053 <span class="keyword">protected</span>:
-<a name="l00054"></a><a class="code" href="classpqxx_1_1TableStream.html#b0">00054</a>   <a class="code" href="classpqxx_1_1Transaction.html">Transaction</a> &amp;Trans()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Trans; }
+<a name="l00054"></a><a class="code" href="classpqxx_1_1TableStream.html#b0">00054</a>   <a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;Trans()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Trans; }
 <a name="l00055"></a><a class="code" href="classpqxx_1_1TableStream.html#b1">00055</a>   PGSTD::string NullStr()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_Null; }
 00056 
 00057 <span class="keyword">private</span>:
-00058   Transaction &amp;m_Trans;
+00058   TransactionItf &amp;m_Trans;
 00059   PGSTD::string m_Name;
 00060   PGSTD::string m_Null;
 00061 
@@ -70,7 +70,7 @@
 00070 
 00071 <span class="preprocessor">#endif</span>
 00072 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Sat Oct 5 15:55:45 2002 for libpqxx by
+</pre></div><hr><address style="align: right;"><small>Generated on Wed Oct 23 15:57:05 2002 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.18 </small></address>

@@ -43,7 +43,7 @@
 00044 <span class="keyword">public</span>:
 <a name="l00045"></a><a class="code" href="classpqxx_1_1TableWriter.html#s0">00045</a>   <span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> size_type;
 00046 
-00047   <a class="code" href="classpqxx_1_1TableWriter.html">TableWriter</a>(<a class="code" href="classpqxx_1_1Transaction.html">Transaction</a> &amp;Trans, PGSTD::string Name);                  <span class="comment">//[t5]</span>
+00047   <a class="code" href="classpqxx_1_1TableWriter.html">TableWriter</a>(<a class="code" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;Trans, PGSTD::string Name);               <span class="comment">//[t5]</span>
 00048   ~<a class="code" href="classpqxx_1_1TableWriter.html">TableWriter</a>();                                                       <span class="comment">//[t5]</span>
 00049 
 00050   <span class="keyword">template</span>&lt;<span class="keyword">typename</span> IT&gt; <span class="keywordtype">void</span> insert(IT Begin, IT End);                  <span class="comment">//[t5]</span>
@@ -105,7 +105,7 @@
 00108 }
 00109 
 00110 
-00111 <span class="keyword">namespace </span><a class="code" href="config_8h.html#a21">PGSTD</a>
+00111 <span class="keyword">namespace </span><a class="code" href="config_8h.html#a22">PGSTD</a>
 00112 {
 00113 <span class="comment">// Specialized back_insert_iterator for TableWriter, doesn't require a </span>
 00114 <span class="comment">// value_type to be defined.  Accepts any container type instead.</span>
@@ -225,7 +225,7 @@
 00228 
 00229 <span class="preprocessor">#endif</span>
 00230 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Sat Oct 5 15:55:45 2002 for libpqxx by
+</pre></div><hr><address style="align: right;"><small>Generated on Wed Oct 23 15:57:05 2002 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.18 </small></address>
