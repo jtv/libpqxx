@@ -1,7 +1,14 @@
+Build system
+(*) Completely support building outside the source directory
+
 Connections
 (*) Separate failed_connection exception type
-(*) Connection pooling support
 (*) Break out various creation synchronicity options
+(*) Connection pooling support
+
+Nonblocking operation
+(*) Separate query issuing from receipt of results
+(*) Support select()
 
 Results
 (*) Conceive metadata model
@@ -12,15 +19,13 @@ RobustTransaction
 
 Streams
 (*) Provide metadata information in TableStream
-(*) Work large objects into standard streams hierarchy
+
+Tests
+(*) Complete test coverage
+(*) More large object tests
+(*) Add some tests using standard library's algorithms
 
 Triggers
 (*) Allow access to Connection's triggers list?
 
-Nonblocking operation
-(*) Separate query issuing from receipt of results
-(*) Support select()
-
-Build system
-(*) Completely support building outside the source directory
 

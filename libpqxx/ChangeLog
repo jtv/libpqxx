@@ -1,3 +1,9 @@
+2003-03-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/largeobject.h, src/largeobject.h, test/test048.cxx:
+  - Replaced low-level LargeObject::cunlink() with LargeObject::remove()
+  - Added default constructor for LargeObject
+ test/test048.cxx:
+  - Now also removes the large object it creates
 2003-03-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/all.h:
   - Includes largeobject.h

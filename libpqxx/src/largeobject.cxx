@@ -81,18 +81,20 @@ pqxx::LargeObject::LargeObject(const LargeObjectAccess &O) :
 
 void pqxx::LargeObject::to_file(TransactionItf &T, const char File[]) const
 {
-  if (lo_export(RawConnection(T), m_ID, File) == -1)
+  if (lo_export(RawConnection(T), id(), File) == -1)
     throw runtime_error("Could not export large object " + ToString(m_ID) + " "
 	                "to file '" + File + "': " +
 			strerror(errno));
 }
 
 
-int pqxx::LargeObject::cunlink(TransactionItf &T) const throw ()
+void pqxx::LargeObject::remove(TransactionItf &T) const
 {
-  return lo_unlink(RawConnection(T), id());
+  if (lo_unlink(RawConnection(T), id()) == -1)
+    throw runtime_error("Could not delete large object " + 
+	                ToString(m_ID) + ": " +
+			strerror(errno));
 }
-
 
 
 pqxx::LargeObjectAccess::LargeObjectAccess(TransactionItf &T,

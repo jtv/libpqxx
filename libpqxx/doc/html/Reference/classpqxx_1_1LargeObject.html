@@ -20,34 +20,36 @@
 <a href="classpqxx_1_1LargeObject-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
 <tr><td></td></tr>
 <tr><td colspan=2><br><h2>Public Member Functions</h2></td></tr>
-<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a0">LargeObject</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T)</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Create new large object.</em> <a href="#a0"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a1">LargeObject</a> (Oid O)</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Wrap object with given Oid.</em> <a href="#a1"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a2">LargeObject</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, const PGSTD::string &amp;File)</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Import large object from a local file.</em> <a href="#a2"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a3">LargeObject</a> (const <a class="el" href="classpqxx_1_1LargeObjectAccess.html">LargeObjectAccess</a> &amp;O)</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Take identity of an opened large object.</em> <a href="#a3"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>Oid&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a4">id</a> () const  throw ()</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Object identifier.</em> <a href="#a4"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a5">operator==</a> (const LargeObject &amp;other) const</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Comparison is only valid between large objects in the same database.</em> <a href="#a5"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a6">operator!=</a> (const LargeObject &amp;other) const</td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a0">LargeObject</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Refer to a nonexistent large object (similar to what a null pointer does).</em> <a href="#a0"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a1">LargeObject</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Create new large object.</em> <a href="#a1"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a2">LargeObject</a> (Oid O)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Wrap object with given Oid.</em> <a href="#a2"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a3">LargeObject</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, const PGSTD::string &amp;File)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Import large object from a local file.</em> <a href="#a3"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a4">LargeObject</a> (const <a class="el" href="classpqxx_1_1LargeObjectAccess.html">LargeObjectAccess</a> &amp;O)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Take identity of an opened large object.</em> <a href="#a4"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>Oid&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a5">id</a> () const  throw ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Object identifier.</em> <a href="#a5"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a6">operator==</a> (const LargeObject &amp;other) const</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Comparison is only valid between large objects in the same database.</em> <a href="#a6"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a7">operator&lt;=</a> (const LargeObject &amp;other) const</td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a7">operator!=</a> (const LargeObject &amp;other) const</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Comparison is only valid between large objects in the same database.</em> <a href="#a7"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a8">operator&gt;=</a> (const LargeObject &amp;other) const</td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a8">operator&lt;=</a> (const LargeObject &amp;other) const</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Comparison is only valid between large objects in the same database.</em> <a href="#a8"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a9">operator&lt;</a> (const LargeObject &amp;other) const</td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a9">operator&gt;=</a> (const LargeObject &amp;other) const</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Comparison is only valid between large objects in the same database.</em> <a href="#a9"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a10">operator&gt;</a> (const LargeObject &amp;other) const</td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a10">operator&lt;</a> (const LargeObject &amp;other) const</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Comparison is only valid between large objects in the same database.</em> <a href="#a10"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a11">to_file</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, const char File[]) const</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Export large object's contents to a local file.</em> <a href="#a11"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a12">to_file</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, const PGSTD::string &amp;File) const</td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a11">operator&gt;</a> (const LargeObject &amp;other) const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Comparison is only valid between large objects in the same database.</em> <a href="#a11"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a12">to_file</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, const char File[]) const</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Export large object's contents to a local file.</em> <a href="#a12"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>int&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a13">cunlink</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T) const  throw ()</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Delete large object from database.</em> <a href="#a13"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a13">to_file</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T, const PGSTD::string &amp;File) const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Export large object's contents to a local file.</em> <a href="#a13"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#a14">remove</a> (<a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T) const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Delete large object from database.</em> <a href="#a14"></a><em></em></font><br><br></td></tr>
 <tr><td colspan=2><br><h2>Static Protected Member Functions</h2></td></tr>
 <tr><td nowrap align=right valign=top>PGconn *&nbsp;</td><td valign=bottom><a class="el" href="classpqxx_1_1LargeObject.html#e0">RawConnection</a> (const <a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;T)</td></tr>
 </table>
@@ -60,6 +62,36 @@ A <a class="el" href="classpqxx_1_1LargeObject.html">LargeObject</a> must be acc
 <p>
 <hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a name="a0" doxytag="pqxx::LargeObject::LargeObject"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> pqxx::LargeObject::LargeObject </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Refer to a nonexistent large object (similar to what a null pointer does).
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a1" doxytag="pqxx::LargeObject::LargeObject"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -95,7 +127,7 @@ Create new large object.
     </td>
   </tr>
 </table>
-<a name="a1" doxytag="pqxx::LargeObject::LargeObject"></a><p>
+<a name="a2" doxytag="pqxx::LargeObject::LargeObject"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -131,7 +163,7 @@ Convert combination of a transaction and object identifier into a large object i
     </td>
   </tr>
 </table>
-<a name="a2" doxytag="pqxx::LargeObject::LargeObject"></a><p>
+<a name="a3" doxytag="pqxx::LargeObject::LargeObject"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -177,7 +209,7 @@ Creates a large object containing the data found in the given file. <dl compact>
     </td>
   </tr>
 </table>
-<a name="a3" doxytag="pqxx::LargeObject::LargeObject"></a><p>
+<a name="a4" doxytag="pqxx::LargeObject::LargeObject"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -214,43 +246,7 @@ Copy identity of already opened large object. Note that this may be done as an i
   </tr>
 </table>
 <hr><h2>Member Function Documentation</h2>
-<a name="a13" doxytag="pqxx::LargeObject::cunlink"></a><p>
-<table width="100%" cellpadding="2" cellspacing="0" border="0">
-  <tr>
-    <td class="md">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"> int pqxx::LargeObject::cunlink </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top"><a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;&nbsp;</td>
-          <td class="mdname1" valign="top" nowrap>&nbsp; <em>T</em>          </td>
-          <td class="md" valign="top">)&nbsp;</td>
-          <td class="md" nowrap> const  throw ()</td>
-        </tr>
-
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing=5 cellpadding=0 border=0>
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-Delete large object from database.
-<p>
-Does not throw exception in case of error; inspect return value instead. <dl compact><dt><b>Parameters:</b></dt><dd>
-  <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign=top><em>T</em>&nbsp;</td><td>the transaction in which the object is to be deleted </td></tr>
-  </table>
-</dl>
-    </td>
-  </tr>
-</table>
-<a name="a4" doxytag="pqxx::LargeObject::id"></a><p>
+<a name="a5" doxytag="pqxx::LargeObject::id"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -280,7 +276,7 @@ Object identifier.
 The number returned by this function identifies the large object in the database we're connected to.     </td>
   </tr>
 </table>
-<a name="a6" doxytag="pqxx::LargeObject::operator!="></a><p>
+<a name="a7" doxytag="pqxx::LargeObject::operator!="></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -311,7 +307,7 @@ Comparison is only valid between large objects in the same database.
     </td>
   </tr>
 </table>
-<a name="a9" doxytag="pqxx::LargeObject::operator<"></a><p>
+<a name="a10" doxytag="pqxx::LargeObject::operator<"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -342,7 +338,7 @@ Comparison is only valid between large objects in the same database.
     </td>
   </tr>
 </table>
-<a name="a7" doxytag="pqxx::LargeObject::operator<="></a><p>
+<a name="a8" doxytag="pqxx::LargeObject::operator<="></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -373,7 +369,7 @@ Comparison is only valid between large objects in the same database.
     </td>
   </tr>
 </table>
-<a name="a5" doxytag="pqxx::LargeObject::operator=="></a><p>
+<a name="a6" doxytag="pqxx::LargeObject::operator=="></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -404,7 +400,7 @@ Comparison is only valid between large objects in the same database.
     </td>
   </tr>
 </table>
-<a name="a10" doxytag="pqxx::LargeObject::operator>"></a><p>
+<a name="a11" doxytag="pqxx::LargeObject::operator>"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -435,7 +431,7 @@ Comparison is only valid between large objects in the same database.
     </td>
   </tr>
 </table>
-<a name="a8" doxytag="pqxx::LargeObject::operator>="></a><p>
+<a name="a9" doxytag="pqxx::LargeObject::operator>="></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -495,7 +491,43 @@ Comparison is only valid between large objects in the same database.
     </td>
   </tr>
 </table>
-<a name="a12" doxytag="pqxx::LargeObject::to_file"></a><p>
+<a name="a14" doxytag="pqxx::LargeObject::remove"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void pqxx::LargeObject::remove </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classpqxx_1_1TransactionItf.html">TransactionItf</a> &amp;&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>T</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const</td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Delete large object from database.
+<p>
+As opposed to its low-level equivalent cunlink, this will throw an exception if deletion fails. <dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign=top><em>T</em>&nbsp;</td><td>the transaction in which the object is to be deleted </td></tr>
+  </table>
+</dl>
+    </td>
+  </tr>
+</table>
+<a name="a13" doxytag="pqxx::LargeObject::to_file"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -541,7 +573,7 @@ Writes the data stored in the large object to the given file. <dl compact><dt><b
     </td>
   </tr>
 </table>
-<a name="a11" doxytag="pqxx::LargeObject::to_file"></a><p>
+<a name="a12" doxytag="pqxx::LargeObject::to_file"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -589,7 +621,7 @@ Writes the data stored in the large object to the given file. <dl compact><dt><b
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="largeobject_8h-source.html">largeobject.h</a><li><a class="el" href="largeobject_8cxx.html">largeobject.cxx</a></ul>
-<hr><address style="align: right;"><small>Generated on Thu Mar 6 23:30:06 2003 for libpqxx by
+<hr><address style="align: right;"><small>Generated on Fri Mar 7 21:10:07 2003 for libpqxx by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

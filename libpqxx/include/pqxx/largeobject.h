@@ -36,6 +36,9 @@ class LargeObjectAccess;
 class LargeObject
 {
 public:
+  /// Refer to a nonexistent large object (similar to what a null pointer does)
+  LargeObject() : m_ID(InvalidOid) {}					//[t48]
+
   /// Create new large object
   /** @param T backend transaction in which the object is to be created
    */
@@ -46,7 +49,7 @@ public:
    * large object identity.  Does not affect the database.
    * @param O object identifier for the given object
    */
-  explicit LargeObject(Oid O) : m_ID(O) {}				//[]
+  explicit LargeObject(Oid O) : m_ID(O) {}				//[t48]
 
   /// Import large object from a local file
   /** Creates a large object containing the data found in the given file.
@@ -104,13 +107,12 @@ public:
     to_file(T, File.c_str()); 
   }
 
-  // TODO: Document return value
-  // TODO: Write C++-style wrapper (which throws on error)
   /// Delete large object from database
-  /** Does not throw exception in case of error; inspect return value instead.
+  /** As opposed to its low-level equivalent cunlink, this will throw an
+   * exception if deletion fails.
    * @param T the transaction in which the object is to be deleted
    */
-  int cunlink(TransactionItf &T) const throw ();			//[]
+  void remove(TransactionItf &T) const;					//[t48]
 
 protected:
   static PGconn *RawConnection(const TransactionItf &T)
