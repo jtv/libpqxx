@@ -1,4 +1,5 @@
 2.1.1
+ - More workarounds for gcc 2.95
  - Automated tools keep test makefiles up to date
 2.1.0
  - Asynchronous connections

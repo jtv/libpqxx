@@ -42,7 +42,7 @@ class PQXX_LIBEXPORT binarystring : PQAlloc<unsigned char>
 {
   // TODO: Templatize on character type?
 public:
-  typedef unsigned char char_type;
+  typedef content_type char_type;
   typedef PGSTD::char_traits<char_type>::char_type value_type;
   typedef size_t size_type;
   typedef ptrdiff_t difference_type;
