@@ -45,7 +45,6 @@ int main(int argc, char *argv[])
       TableReader Stream(T, Table);
 
       // Read results into string vectors and print them
-      // TODO: Tab appears to be converted to plain 't' here!
       for (int n=0; (Stream >> R); ++n)
       {
         // Keep the first row for later consistency check
