@@ -91,7 +91,7 @@ public:
   class PQXX_LIBEXPORT Field : private Tuple
   {
   public:
-    using Tuple::size_type;
+    typedef size_t size_type;
 
     Field(const Tuple &R, Tuple::size_type C) : Tuple(R), m_Col(C) {}	//[t1]
 
@@ -234,7 +234,7 @@ public:
   size_type capacity() const { return size(); }				//[t20]
 
   const Tuple operator[](size_type i) const { return Tuple(this, i); }	//[t2]
-  const Tuple at(size_type i) const;					//[t10]
+  const Tuple at(size_type) const;					//[t10]
 
   void clear() { LoseRef(); }						//[t20]
 
@@ -348,7 +348,7 @@ inline Result::const_iterator Result::end() const
   return const_iterator(this, size()); 
 }
 
-} // namespace
+} // namespace pqxx
 
 
 /* 
