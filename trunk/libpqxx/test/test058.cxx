@@ -95,9 +95,6 @@ int main(int, char *argv[])
   try
   {
     connection C(argv[1]);
-
-    largeobject Obj;
-
     C.perform(WriteLargeObject());
   }
   catch (const sql_error &e)
