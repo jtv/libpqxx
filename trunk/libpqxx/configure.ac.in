@@ -20,6 +20,11 @@ AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
+AC_PATH_PROG([MKDIR], [mkdir])
+AC_PATH_PROG([DOXYGEN], [doxygen])
+AM_CONDITIONAL([BUILD_REFERENCE], [test -n "$DOXYGEN"])
+AC_PATH_PROG([XMLTO], [xmlto])
+AM_CONDITIONAL([BUILD_TUTORIAL], [test -n "$XMLTO"])
 
 # TODO: Rename PGSTD to PQXXSTD
 
@@ -348,7 +353,7 @@ AC_CHECK_TYPES([ptrdiff_t])
 
 AC_PROG_MAKE_SET
 
-AC_CONFIG_FILES([Makefile config/Makefile doc/Makefile src/Makefile
-test/Makefile include/Makefile include/pqxx/Makefile libpqxx.pc])
+AC_CONFIG_FILES([Makefile config/Makefile debian/Makefile doc/Makefile doc/Doxyfile src/Makefile
+test/Makefile tools/Makefile win32/Makefile include/Makefile include/pqxx/Makefile libpqxx.pc])
 AC_OUTPUT
 

@@ -45,6 +45,10 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BUILD_REFERENCE_FALSE = @BUILD_REFERENCE_FALSE@
+BUILD_REFERENCE_TRUE = @BUILD_REFERENCE_TRUE@
+BUILD_TUTORIAL_FALSE = @BUILD_TUTORIAL_FALSE@
+BUILD_TUTORIAL_TRUE = @BUILD_TUTORIAL_TRUE@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -57,6 +61,7 @@ CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DOXYGEN = @DOXYGEN@
 ECHO = @ECHO@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
@@ -79,6 +84,7 @@ MAINT = @MAINT@
 MAINTAINER_MODE_FALSE = @MAINTAINER_MODE_FALSE@
 MAINTAINER_MODE_TRUE = @MAINTAINER_MODE_TRUE@
 MAKEINFO = @MAKEINFO@
+MKDIR = @MKDIR@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
@@ -95,6 +101,7 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
+XMLTO = @XMLTO@
 ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
@@ -138,15 +145,29 @@ target_alias = @target_alias@
 with_postgres_include = @with_postgres_include@
 with_postgres_lib = @with_postgres_lib@
 MAINTAINERCLEANFILES = Makefile.in
-EXTRA_DIST = html libpqxx.xml
+
+EXTRA_DIST = Doxyfile.in libpqxx.xml reference-stamp tutorial-stamp
+@BUILD_REFERENCE_FALSE@REFERENCE_DOCS = 
+
+@BUILD_REFERENCE_TRUE@REFERENCE_DOCS = reference
+@BUILD_TUTORIAL_FALSE@TUTORIAL_DOCS = 
+
+@BUILD_TUTORIAL_TRUE@TUTORIAL_DOCS = tutorial
+@MAINTAINER_MODE_FALSE@REFERENCE_STAMP_DEPENDENCIES = 
+
+@MAINTAINER_MODE_TRUE@REFERENCE_STAMP_DEPENDENCIES = ../src/libpqxx.la
+
+DOCS = $(REFERENCE_DOCS) $(TUTORIAL_DOCS)
+
+DISTHOOKDIRS = html/Reference html/Tutorial
 subdir = doc
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h \
 	$(top_builddir)/include/pqxx/libconfig.h
-CONFIG_CLEAN_FILES =
+CONFIG_CLEAN_FILES = Doxyfile
 DIST_SOURCES =
-DIST_COMMON = $(srcdir)/Makefile.in Makefile.am
+DIST_COMMON = $(srcdir)/Makefile.in Doxyfile.in Makefile.am
 all: all-am
 
 .SUFFIXES:
@@ -155,6 +176,8 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am  $(top_srcdir)/configu
 	  $(AUTOMAKE) --gnu  doc/Makefile
 Makefile: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)
+Doxyfile: $(top_builddir)/config.status Doxyfile.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -203,9 +226,12 @@ distdir: $(DISTFILES)
 	    || exit 1; \
 	  fi; \
 	done
+	$(MAKE) $(AM_MAKEFLAGS) \
+	  top_distdir="$(top_distdir)" distdir="$(distdir)" \
+	  dist-hook
 check-am: all-am
 check: check-am
-all-am: Makefile
+all-am: Makefile all-local
 
 installdirs:
 install: install-am
@@ -261,7 +287,8 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-am
 	-rm -f Makefile
-maintainer-clean-am: distclean-am maintainer-clean-generic
+maintainer-clean-am: distclean-am maintainer-clean-generic \
+	maintainer-clean-local
 
 mostlyclean: mostlyclean-am
 
@@ -277,18 +304,70 @@ ps-am:
 
 uninstall-am: uninstall-info-am
 
-.PHONY: all all-am check check-am clean clean-generic clean-libtool \
-	distclean distclean-generic distclean-libtool distdir dvi \
-	dvi-am info info-am install install-am install-data \
+.PHONY: all all-am all-local check check-am clean clean-generic \
+	clean-libtool distclean distclean-generic distclean-libtool \
+	distdir dvi dvi-am info info-am install install-am install-data \
 	install-data-am install-exec install-exec-am install-info \
 	install-info-am install-man install-strip installcheck \
 	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
-	uninstall-info-am
+	maintainer-clean-generic maintainer-clean-local mostlyclean \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	uninstall uninstall-am uninstall-info-am
 
 
-# Add "xmlto -o html/Tutorial xhtml libpqxx.xml" to build procedure
+maintainer-clean-local:
+	$(RM) -rf html/Reference html/Tutorial
+
+all-local: docs
+
+docs: $(DOCS)
+
+reference: reference-stamp
+reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
+	if test -d html; then \
+	  :; \
+	else \
+	  $(RM) html; \
+	  $(MKDIR) html; \
+	fi
+	$(DOXYGEN) $<
+	touch $@
+
+../src/libpqxx.la:
+	cd ../src; \
+	$(MAKE) libpqxx.la
+
+tutorial: tutorial-stamp
+tutorial-stamp: libpqxx.xml
+	if test -d html; then \
+	  :; \
+	else \
+	  $(RM) -f html; \
+	  $(MKDIR) html; \
+	fi
+	$(XMLTO) -o html/Tutorial xhtml $<
+	touch $@
+
+dist-hook: tutorial
+	mkdir $(distdir)/html
+#	Do a shallow copy of each directory
+	for dir in $(DISTHOOKDIRS); do \
+	  if test -d $(srcdir)/$$dir; then \
+	    mkdir $(distdir)/$$dir; \
+	    for dirfile in $(srcdir)/$$dir/*; do \
+	      if test -f $$dirfile; then \
+		cp -p $$dirfile $(distdir)/$$dir; \
+	      fi ; \
+	      if test -d $$dirfile ; then \
+	        if test "$$dirfile" == "CVS"; then \
+	          :; \
+	        else \
+		  cp -pR $$dirfile $(distdir)/$$dir; \
+	        fi \
+	      fi \
+	    done \
+	  fi \
+	done
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

@@ -449,7 +449,7 @@ private:
 template<typename STREAM>
 inline STREAM &operator<<(STREAM &S, const pqxx::result::field &F)	//[t46]
 {
-  S << F.c_str();
+  S.write(F.c_str(), F.size());
   return S;
 }
 
