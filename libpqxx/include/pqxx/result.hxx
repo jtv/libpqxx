@@ -189,7 +189,7 @@ public:
 
       try
       {
-        FromString(c_str(), Obj);
+        from_string(c_str(), Obj);
       }
       catch (const PGSTD::exception &e)
       {

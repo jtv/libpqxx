@@ -1,4 +1,5 @@
 2.2.1
+ - Converting fields to builtin types is no longer locale-sensitive
 2.2.0
  - Installs to /usr/local by default, NOT to /usr/local/pqxx like before!
  - Uses Postgres-provided script to find Postgres (thanks Peter Eisentraut)
