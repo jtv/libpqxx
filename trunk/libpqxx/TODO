@@ -6,11 +6,9 @@ Build system
 (*) Separate config.h's for building the library and building clients
 
 Connections
-(*) Check for PQfreeNotify() function instead of just PQfreemem()
 (*) Separate failed_connection exception type
 (*) Connection pooling support
 (*) AsyncConnection
-(*) Support my "Appendix" pattern (allow client code to add state)?
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
 (*) Support constraints definition
 
@@ -30,6 +28,7 @@ Large Objects
 Nonblocking operation
 (*) Separate query issuing from receipt of results
 (*) Support select()
+(*) Split up commits to narrow down in-doubt window
 
 Results
 (*) Conceive metadata model
