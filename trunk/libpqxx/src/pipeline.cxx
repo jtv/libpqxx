@@ -31,6 +31,13 @@ namespace
 const string theSeparator("; ");
 const string theDummyValue("1");
 const string theDummyQuery("SELECT " + theDummyValue + theSeparator);
+
+struct getquery : unary_function<pipeline::QueryMap::const_iterator,string>
+{
+  string operator()(pipeline::QueryMap::const_iterator i) const
+	{ return i->second.get_query(); }
+};
+
 }
 
 
@@ -167,6 +174,7 @@ pipeline::query_id pqxx::pipeline::generate_id()
 }
 
 
+
 void pqxx::pipeline::issue()
 {
   pqxxassert(m_num_waiting);
@@ -185,16 +193,8 @@ void pqxx::pipeline::issue()
   pqxxassert(oldest != m_queries.end());
 
   // Construct cumulative query string for entire batch
-  string cum;
-  int num_issued = 0;
-  for (QueryMap::const_iterator i = oldest;
-       i != m_queries.end();
-       ++i, ++num_issued)
-  {
-    cum += i->second.get_query();
-    cum += theSeparator;
-  }
-  cum.resize(cum.size() - theSeparator.size());
+  string cum = separated_list(theSeparator,oldest,m_queries.end(),getquery());
+  const QueryMap::size_type num_issued = distance(oldest,m_queries.end());
   const bool prepend_dummy = (num_issued > 1);
   if (prepend_dummy) cum = theDummyQuery + cum;
 
