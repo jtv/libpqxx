@@ -99,14 +99,14 @@ pqxx::binarystring::const_reference pqxx::binarystring::at(size_type n) const
 
 void pqxx::binarystring::swap(binarystring &rhs)
 {
-  const size_type s(m_size);
-  // This can fail, so do it first
+  // This might fail, so do it first
   m_str.swap(rhs.m_str);
 
   // PQAlloc<>::swap() is nothrow
   super::swap(rhs);
 
   // This part very obviously can't go wrong, so do it last
+  const size_type s(m_size);
   m_size = rhs.m_size;
   rhs.m_size = s;
 }
@@ -129,6 +129,7 @@ string pqxx::escape_binary(const unsigned char bin[], size_t len)
   if (!cstr) throw bad_alloc();
   return string(cstr, escapedlen-1);
 #else
+  // TODO: Fails to escape "high" bytes!?
   string result;
   result.reserve(len);
   for (size_t i=0; i<len; ++i)
