@@ -86,16 +86,89 @@ int main(int, char *argv[])
       if (f4 != r->end())
 	throw logic_error("Looks like field iterator += doesn't work");
 
-#ifdef PQXX_HAVE_REVERSE_ITERATOR
       for (result::tuple::const_reverse_iterator fr = r->rbegin();
 	   fr != r->rend();
 	   ++fr, --f3)
       {
+	if (*fr != *f3)
+	  throw logic_error("Reverse and regular traversal not consistent");
       }
-#endif	// PQXX_HAVE_REVERSE_ITERATOR
 
       cout <<endl;
     }
+
+    // Thorough test for result::const_reverse_fielditerator
+    result::tuple::const_reverse_iterator
+      ri1(R.front().rbegin()), ri2(ri1), ri3(R.front().end());
+    ri2 = R.front().rbegin();
+
+    if (!(ri1 == ri2))
+      throw logic_error("Copy-constructed reverse_iterator "
+	  "not identical to assigned one");
+    if (ri2 != ri3)
+      throw logic_error("result:end() does not generate rbegin()");
+    if (ri2 - ri3)
+      throw logic_error("Distance between identical const_reverse_iterators "
+	  "is nonzero: " + to_string(ri2 - ri3));
+    if (ri2 != ri3 + 0)
+      throw logic_error("reverse_iterator+0 gives strange result");
+    if (ri2 != ri3 - 0)
+      throw logic_error("reverse_iterator-0 gives strange result");
+    if (ri3 < ri2)
+      throw logic_error("Equality with reverse_iterator operator < wrong");
+    if (!(ri2 <= ri3))
+      throw logic_error("Equality with reverse_iterator operator <= wrong");
+
+    if (ri3++ != ri2)
+      throw logic_error("reverse_iterator postfix ++ returns wrong result");
+
+    if (ri3 - ri2 != 1)
+      throw logic_error("Nonzero reverse_iterator distance came out at " +
+	  to_string(ri3 - ri2) + ", "
+	  "expected 1");
+    if (!(ri3 > ri2))
+      throw logic_error("Something wrong with reverse_iterator operator >");
+    if (!(ri3 >= ri2))
+      throw logic_error("Something wrong with reverse_iterator operator >=");
+    if (!(ri2 < ri3))
+      throw logic_error("Something wrong with reverse_iterator operator <");
+    if (!(ri2 <= ri3))
+      throw logic_error("Something wrong with reverse_iterator operator <=");
+    if (ri3 != ri2 + 1)
+      throw logic_error("Adding number to reverse_iterator goes wrong");
+    if (ri2 != ri3 - 1)
+      throw logic_error("Subtracting from reverse_iterator goes wrong");
+
+    if (ri3 != ++ri2)
+      throw logic_error("reverse_iterator prefix ++ returns wrong result");
+    if (!(ri3 >= ri2))
+      throw logic_error("Equality with reverse_iterator operator >= failed");
+    if (!(ri3 >= ri2))
+      throw logic_error("Equality with reverse_iterator operator <= failed");
+    if (ri3.base() != R.front().back())
+      throw logic_error("reverse_iterator does not arrive at back()");
+    if (ri1->c_str()[0] != (*ri1).c_str()[0])
+      throw logic_error("reverse_iterator -> differs from * operator");
+
+    if (ri2-- != ri3)
+      throw logic_error("reverse_iterator postfix -- returns wrong result");
+    if (ri2 != --ri3)
+      throw logic_error("reverse_iterator prefix -- returns wrong result");
+
+    if (ri2 != R.front().rbegin())
+      throw logic_error("Something wrong with reverse_iterator -- operator");
+
+    ri2 += 1;
+    ri3 -= -1;
+
+    if (ri2 == R.front().rbegin())
+      throw logic_error("Adding to reverse_iterator doesn't work");
+    if (ri3 != ri2)
+      throw logic_error("reverse_iterator -= broken for negative numbers?");
+
+    ri2 -= 1;
+    if (ri2 != R.front().rbegin())
+      throw logic_error("reverse_iterator += and -= do not cancel out");
   }
   catch (const sql_error &e)
   {
