@@ -2,6 +2,8 @@
  - New utility class template, items<> for easy container initialization
  - New utility function template, separated_list()
  - Error handling bugfix in tablewriter
+ - Fixed tablereader handling of lines ending in empty fields
+ - tablereader lines no longer end in newline with old libpq versions
 2.2.3
  - Trigger names no longer need to be proper identifiers
  - Compile fixes for g++ 3.4.0 and other modern compilers

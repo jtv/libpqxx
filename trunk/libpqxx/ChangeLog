@@ -1,3 +1,8 @@
+2004-05-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+  - Strip newlines off COPY TO STDOUT lines in old-libpq code
+ src/tablereader.cxx:
+  - Fix parse error when line ends in empty field.  Thanks slava@perlx.com!
 2004-05-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/pipeline.hxx, src/pipeline.cxx:
   - Made prepended "SELECT 0" query explicit to pave way for partial retrieval

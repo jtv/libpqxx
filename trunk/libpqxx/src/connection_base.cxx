@@ -609,7 +609,7 @@ bool pqxx::connection_base::ReadCopyLine(string &Line)
   bool Result;
 
 #ifdef PQXX_HAVE_PQPUTCOPY
-  char *Buf;
+  char *Buf = 0;
   switch (PQgetCopyData(m_Conn, &Buf, false))
   {
     case -2:
@@ -661,7 +661,12 @@ bool pqxx::connection_base::ReadCopyLine(string &Line)
 
   Result = (Line != theWriteTerminator);
 
-  if (!Result) 
+  if (Result) 
+  {
+    if (!Line.empty() && (Line[Line.size()-1] == '\n'))
+      Line.erase(Line.size()-1);
+  }
+  else
   {
     Line.erase();
     if (PQendcopy(m_Conn)) throw runtime_error(ErrMsg());
