@@ -116,7 +116,7 @@ int main()
     // Verify that attempt to execute unprepared statement fails
     bool failsOK = true;
     try { T.exec_prepared(QN_readpgtables); failsOK = false; }
-    catch (const exception &e) { cout << "(Exepected) " << e.what() << endl; }
+    catch (const exception &e) { cout << "(Expected) " << e.what() << endl; }
     if (!failsOK) throw logic_error("Execute unprepared statement didn't fail");
 
     // Re-prepare the same statement and test again

@@ -1,3 +1,6 @@
+2005-04-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test085:
+  - Fixed typo in output.
 2005-03-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/VisualC++.NET-2003/config-internal-compiler.h:
   - Added PQXX_HAVE_QUIET_NAN, thanks Marvin Bellamy!
