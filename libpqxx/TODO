@@ -1,7 +1,7 @@
 ALERT
 (*) Test failure for binary strings with postgres 8.0.2, Fedora!?
 (*) test085 fails with postgres 8.0.2, Fedora!?
-(*) New distribution archives lack tutorial?
+(*) New distribution archives lack tutorial? (Steve Butler)
 
 All Over
 (*) Check for stlport (#ifdef _STLP_STD) to define PGSTD accordingly
