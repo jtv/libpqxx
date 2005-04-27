@@ -49,7 +49,7 @@ tutorial-stamp: libpqxx.xml
 	if test -d html; then \
 	  :; \
 	else \
-	  $(RM) -f html; \
+	  $(RM) html; \
 	  $(MKDIR) html; \
 	fi
 	$(XMLTO) -o html/Tutorial xhtml $<
