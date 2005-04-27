@@ -15,9 +15,14 @@
 #
 # If successful, the script leaves a distribution tarball in /tmp.
 #
-# Set CONFIG_ARGS to any argument list you wish to pass to configure.  Defaults
-# to "--enable-shared".  Don't set the compiler here;
+# Set CONFIG_ARGS to any argument list you wish to pass to configure for
+# compilation.  Defaults to "--enable-shared".  Don't set the compiler here;
 # use COMPILERS instead (see below).
+#
+# Set CONFIGDIST_ARGS to any argument list you wish to pass to configure when
+# preparing to make a distribution archive.  Defaults to
+# "--enable-maintainer-mode" so that the HTML documentation is built and
+# included in the archive.
 #
 # The distribution is tested for several compilers by default; override the list
 # by setting COMPILERS to a space-separated list of compilers.
@@ -43,6 +48,10 @@ fi
 
 if test -z "$CONFIG_ARGS" ; then
 	CONFIG_ARGS="--enable-shared"
+fi
+
+if test -z "$CONFIGDIST_ARGS" ; then
+	CONFIGDIST_ARGS="--enable-maintainer-mode"
 fi
 
 
@@ -136,7 +145,7 @@ log "Generating autoconf/automake files"
 command "env NOCONFIGURE=1 ./autogen.sh" nice
 
 log "Configuring for make dist"
-command ./configure nice
+command "./configure $CONFIGDIST_ARGS" nice
 
 log "Creating $TARBALL"
 command "make dist" nice
