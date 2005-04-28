@@ -21,6 +21,7 @@ AM_CONFIG_HEADER([include/pqxx/config.h])
 AC_PREFIX_DEFAULT(/usr/local)
 
 # Checks for programs.
+# TODO: Look for "dot" and tell doxygen if we have it
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_INSTALL
@@ -29,7 +30,6 @@ AC_PROG_LIBTOOL
 AC_PROG_MAKE_SET
 AC_PATH_PROG([MKDIR], [mkdir])
 AC_PATH_PROG([DOXYGEN], [doxygen])
-# TODO: Look for "dot" and tell doxygen if we have it
 AM_CONDITIONAL([BUILD_REFERENCE], [test -n "$DOXYGEN"])
 AC_PATH_PROG([XMLTO], [xmlto])
 AM_CONDITIONAL([BUILD_TUTORIAL], [test -n "$XMLTO"])
