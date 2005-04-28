@@ -29,14 +29,16 @@ DOCS = $(REFERENCE_DOCS) $(TUTORIAL_DOCS)
 
 docs: $(DOCS)
 
-reference: reference-stamp
-reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
+renew-htmldir:
 	if test -d html; then \
 	  :; \
 	else \
 	  $(RM) html; \
 	  $(MKDIR) html; \
 	fi
+
+reference: renew-htmldir reference-stamp
+reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
 	$(DOXYGEN) Doxyfile | grep -v '\.\.\.$$'
 	touch $@
 
@@ -44,14 +46,8 @@ reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
 	cd ../src; \
 	$(MAKE) libpqxx.la
 
-tutorial: tutorial-stamp
+tutorial: renew-htmldir tutorial-stamp
 tutorial-stamp: libpqxx.xml
-	if test -d html; then \
-	  :; \
-	else \
-	  $(RM) html; \
-	  $(MKDIR) html; \
-	fi
 	$(XMLTO) -o html/Tutorial xhtml $<
 	touch $@
 
