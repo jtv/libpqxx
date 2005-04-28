@@ -1,3 +1,11 @@
+2005-04-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/Makefile.am:
+  - Factored out duplicated conditional re-creation of html directory
+  - Tutorial included in distribution archive again
+2005-04-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/preprelease:
+  - New variable: CONFIGDIST_ARGS (for "./configure" prior to "make dist")
+  - Use maintainer mode for make dist so docs are built, thanks Steve Butler
 2005-04-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Fixed help string for --disable-thread-safety, thanks Patrick Welche
