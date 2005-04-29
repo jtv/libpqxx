@@ -1,4 +1,7 @@
 2005-04-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/MinGW-3.4:
+  - New, thanks Alankar Karol
+  - Like gcc-3.3, but without sleep() and <sys/select.h>
  win32/INSTALL.txt:
   - No longer mentions config-public-libpq.h, thanks Alankar Karol
 2005-04-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
