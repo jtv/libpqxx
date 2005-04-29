@@ -1,4 +1,8 @@
 2005-04-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Made inclusion of sys/select.h in tests conditional on config macro
+  - Made inclusion of unistd.h in tests conditional on config macro
+  - Included <ctime> rather than <time.h> in tests
  config/sample-headers/MinGW-3.4:
   - New, thanks Alankar Karol
   - Like gcc-3.3, but without sleep() and <sys/select.h>

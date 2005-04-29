@@ -406,9 +406,15 @@ AC_MSG_CHECKING([for working fd_set])
 if test "$enable_maintainer_mode" = "yes"; then
 AC_TRY_COMPILE(
 [#include <cstring>
-#include <sys/time.h>
+#include <ctime>
+#ifdef PQXX_HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#else
 #include <sys/types.h>
+#endif
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 ${usestd}],
 	[fd_set s;FD_ZERO(&s);FD_SET(1,&s)],
 	[],
@@ -420,9 +426,11 @@ configuring again, this time omitting the --enable-maintainer-mode option.
 else
 AC_TRY_COMPILE(
 [#include <cstring>
-#include <sys/time.h>
+#include <ctime>
 #include <sys/types.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 ${usestd}],
 	[fd_set s;FD_ZERO(&s);FD_SET(1,&s)],
 	[],
@@ -444,9 +452,11 @@ AC_MSG_CHECKING([if select() accepts NULL fdsets])
 select_accepts_null=yes
 AC_TRY_COMPILE(
 [#include <cstring>
-#include <sys/time.h>
+#include <ctime>
 #include <sys/types.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 ${usestd}],
 	[fd_set s;FD_ZERO(&s);FD_SET(1,&s);return select(2,NULL,&s,&s,NULL)<=0],
 	AC_DEFINE(PQXX_SELECT_ACCEPTS_NULL,1,
@@ -458,7 +468,9 @@ AC_MSG_RESULT($select_accepts_null)
 
 AC_MSG_CHECKING([sleep()])
 sleep=yes
-AC_TRY_COMPILE([#include <unistd.h>
+AC_TRY_COMPILE([#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 	${usestd}],[sleep(0x01)],
 	AC_DEFINE(PQXX_HAVE_SLEEP, 1, [Define if POSIX sleep() exists]),
 	[sleep=no]
