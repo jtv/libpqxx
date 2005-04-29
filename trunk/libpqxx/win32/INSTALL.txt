@@ -121,23 +121,22 @@ convention) or disabled if the macro is left undefined.  Some few items require
 a meaningful value, e.g. PGSTD needs to be defined to the name of the standard
 namespace (typically std).
 
-At the time of writing, there are 4 of these configuration headers that you
+At the time of writing, there are 3 of these configuration headers that you
 need to concern yourself about, all located in the include/pqxx subdirectory:
 
 	config-internal-compiler.h
 	config-internal-libpq.h
 	config-public-compiler.h
-	config-public-libpq.h
 
 
 The names contain two variables:
 
 1. Internal or public.  Configuration items that affect the compilation of
-your client program are located in the config-public-*.h files; ones that affect
-only the compilation of the library itself are kept in the config-internal-*.h
-ones (and are not included at all when compiling client programs).  Public
-configuration items (except PGSTD) are prefixed with PQXX_ to avoid clashes with
-macros defined by other code.
+your client program are located in the config-public-*.h files (currently only
+one file); ones that affect only the compilation of the library itself are kept
+in the config-internal-*.h ones and are not included at all when compiling
+client programs.  Public configuration items (except PGSTD) are prefixed with
+PQXX_ to avoid clashes with macros defined by other code.
 
 2. Autotools-related, compiler-related, or libpq-related.  The autotools items
 are of no real interest, but the compiler and libpq ones are different.  The

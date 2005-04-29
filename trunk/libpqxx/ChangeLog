@@ -1,3 +1,6 @@
+2005-04-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/INSTALL.txt:
+  - No longer mentions config-public-libpq.h, thanks Alankar Karol
 2005-04-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/Makefile.am:
   - Factored out duplicated conditional re-creation of html directory
