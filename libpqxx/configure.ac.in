@@ -406,14 +406,17 @@ AC_MSG_CHECKING([for working fd_set])
 if test "$enable_maintainer_mode" = "yes"; then
 AC_TRY_COMPILE(
 [#include <cstring>
-#include <ctime>
 #ifdef PQXX_HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #else
+#include <ctime>
 #include <sys/types.h>
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef _WIN32
+#include <winsock2.h>
 #endif
 ${usestd}],
 	[fd_set s;FD_ZERO(&s);FD_SET(1,&s)],
@@ -426,10 +429,17 @@ configuring again, this time omitting the --enable-maintainer-mode option.
 else
 AC_TRY_COMPILE(
 [#include <cstring>
+#ifdef PQXX_HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#else
 #include <ctime>
 #include <sys/types.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef _WIN32
+#include <winsock2.h>
 #endif
 ${usestd}],
 	[fd_set s;FD_ZERO(&s);FD_SET(1,&s)],
@@ -452,10 +462,17 @@ AC_MSG_CHECKING([if select() accepts NULL fdsets])
 select_accepts_null=yes
 AC_TRY_COMPILE(
 [#include <cstring>
+#ifdef PQXX_HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#else
 #include <ctime>
 #include <sys/types.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef _WIN32
+#include <winsock2.h>
 #endif
 ${usestd}],
 	[fd_set s;FD_ZERO(&s);FD_SET(1,&s);return select(2,NULL,&s,&s,NULL)<=0],
