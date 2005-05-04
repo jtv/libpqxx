@@ -4,6 +4,8 @@
  - Fix cases where new-style abort/doubt handlers
  - Fix for division-by-zero error in Visual C++ (changed sample headers)
  - Improved checking for strerror_r in configure script
+ - Fix for problem MinGW has with configure script
+ - Fix spurious failure of Oid check in configure script
 2.5.0
  - Fix race condition in removing triggers
  - Fix binary string conversion with older libpq

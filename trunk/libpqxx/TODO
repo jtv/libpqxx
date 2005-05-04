@@ -1,10 +1,9 @@
 ALERT
 (*) Special case for NaN *output* conversion (MinGW, Michael Pedersen)
-(*) Include winsock2.h in configure's fd_set check (MinGW, Michael Pedersen)
 (*) test062 fails on binary strings with postgres 8.0.2 (RedHat, John Carpenter)
 (*) test064 fails with activate() etc. (MinGW; Michael Pedersen)
 (*) test085 fails with postgres 8.0.2 (Fedora, John Carpenter)
-(*) Test against postgres 7.1 (niejam@yahoo.com)
+(*) Breaks against postgres 7.1 (niejam@yahoo.com)
 (*) Ignore column specs in tablestreams on older backends, if possible
 
 All Over
