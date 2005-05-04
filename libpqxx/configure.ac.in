@@ -214,7 +214,8 @@ In that case, make sure you have the latter installed as well.
 
 
 AC_MSG_CHECKING([for ability to compile source files using libpq])
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h],[PQexec(0,"")],
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],[PQexec(0,"")],
+[],
 [AC_MSG_ERROR([
 Could not compile a call to a basic libpq function.  There must be something
 seriously wrong with the headers that "pg_config --includedir" pointed to; the
@@ -297,11 +298,12 @@ your libpqxx version and has changed radically, or it is hopelessly out of date,
 or your installation of the PostgreSQL client library is incomplete.
 ])])
 
-# TODO: Adapt automatically somehow...
 AC_MSG_CHECKING([that type of libpq's Oid is as expected])
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>
-	#include<${srcdir}/include/pqxx/libpq-forward.hxx>],
-	[typedef pqxx::oid Oid],
+	#include"${srcdir}/include/pqxx/libpq-forward.hxx"
+	extern void f(pqxx::oid&);],
+	[Oid o;f(o)],
+	[],
 	[AC_MSG_ERROR([
 The Oid typedef in libpq has changed.  Please notify the libpqxx authors of the
 change!

@@ -1,3 +1,7 @@
+2005-05-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Result for libpq check was inverted; was masked by code typo!
+  - Oid check was also inverted, masked by gcc bug--thanks Kathy
 2005-05-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
  win32/INSTALL.txt:
   - Cleaned up Windows documentation somewhat
