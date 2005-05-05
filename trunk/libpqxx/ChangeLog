@@ -1,3 +1,8 @@
+2005-05-05  J.H.M. Dassen (Ray) <jdassen@debian.org>
+ configure.ac.in:
+  - Check for availability of "dot".
+ doc/Doxyfile.in:
+  - Use HAVE_DOT value determined at configure time.
 2005-05-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Result for libpq check was inverted; was masked by code typo!
