@@ -1,7 +1,7 @@
 2.5.1
  - Fix configure script; broke when very recent libpqxx was already installed
  - Fix cursor breakage when "long" is more than 32 bits
- - Fix cases where new-style abort/doubt handlers
+ - Fix cases where new-style abort/doubt handlers are used
  - Fix for division-by-zero error in Visual C++ (changed sample headers)
  - Improved checking for strerror_r in configure script
  - Fix for problem MinGW has with configure script
