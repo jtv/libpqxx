@@ -1,7 +1,6 @@
 ALERT
-(*) Special case for NaN *output* conversion (MinGW, Michael Pedersen)
 (*) test062 fails on binary strings with postgres 8.0.2 (RedHat, John Carpenter)
-(*) test064 fails with activate() etc. (MinGW; Michael Pedersen)
+(*) test064 fails with activate() etc. (Windows; MinGW; Michael Pedersen)
 (*) test085 fails with postgres 8.0.2 (Fedora, John Carpenter)
 (*) Breaks against postgres 7.1 (niejam@yahoo.com)
 (*) Ignore column specs in tablestreams on older backends, if possible
@@ -79,6 +78,5 @@ Transactions
 
 Util
 (*) Report closing of non-open sessionfocus only during explicit close, not dtor
-(*) Use NAN macro for floating-point conversions, if available
 (*) Support floating-point infinities
 

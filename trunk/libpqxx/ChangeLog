@@ -1,3 +1,25 @@
+2005-05-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems:
+  - New item PQXX_HAVE_C_NAN for C-language NAN macro
+ configure.ac.in:
+  - Added some escaping to configuration header generation code
+  - Add check for NAN macro
+ config/sample-headers/compiler/MinGW-3.4/config-internal-compiler.h,
+ config/sample-headers/compiler/gcc-3.4/config-internal-compiler.h,
+ config/sample-headers/compiler/gcc-3.3-apple/config-internal-compiler.h:
+  - Added PQXX_HAVE_QUIET_NAN
+ include/pqxx/isolation.hxx:
+  - Removed export directive from enum; confused Doxygen, probably not needed
+ include/pqxx/util.hxx:
+  - Fixed PQAlloc::freemem() specializations, thanks Rupert Kittinger!
+  - Should fix memory leak
+  - Documented fact that libpq headers no longer needed to compile clients
+ src/connection_base.cxx:
+  - Made pqxxNoticeCaller static so maybe it won't get external linkage
+ src/util.cxx, test/test000.cxx:
+  - Use NAN macro if available
+  - No longer use tolower() in NaN string recognition--locale-dependent!
+  - Special-case NaN output
 2005-05-05  J.H.M. Dassen (Ray) <jdassen@debian.org>
  configure.ac.in:
   - Check for availability of "dot".

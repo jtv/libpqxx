@@ -41,8 +41,9 @@ using namespace PGSTD;
 namespace
 {
 // It turns out that NaNs are pretty hard to do portably.  If the appropriate
-// C++ traits functions are not available, C99 defines some functions that can
-// do the same work.  But if none of those are available, we need to resort to
+// C++ traits functions are not available, C99 defines a NAN macro (also widely
+// supported in other dialects, I believe) and some functions that can do the
+// same work.  But if none of those are available, we need to resort to
 // compile-time "0/0" expressions.  Most compilers won't crash while compiling
 // those anymore, but there may be unneeded warnings--which are almost as bad.
 template<typename T> void set_to_NaN(T &);
@@ -50,6 +51,8 @@ template<typename T> void set_to_NaN(T &);
 #if defined(PQXX_HAVE_QUIET_NAN)
 template<typename T> inline void set_to_NaN(T &t)
 	{ t = numeric_limits<T>::quiet_NaN(); }
+#elif defined(PQXX_HAVE_C_NAN)
+template<typename T> inline void set_to_NaN(T &t) { t = NAN; }
 #elif defined(PQXX_HAVE_NAN)
 template<> inline void set_to_NaN(float &t) { t = fnan(""); }
 template<> inline void set_to_NaN(double &t) { t = nan(""); }
@@ -172,10 +175,10 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
   bool ok = false;
   T result;
 
-  if (tolower(Str[0])=='n')
+  if (Str[0]=='N' || Str[0]=='n')
   {
     // Accept "NaN," "nan," etc.
-    ok = (tolower(Str[1])=='a' && tolower(Str[2])=='n' && !Str[3]);
+    ok = ((Str[1]=='A'||Str[1]=='a') && (Str[2]=='N'||Str[2]=='n') && !Str[3]);
     set_to_NaN(result);
   }
   else
@@ -327,6 +330,31 @@ template<typename T> inline string to_string_fallback(T Obj)
   return R;
 }
 
+
+template<typename T> inline bool is_NaN(T Obj)
+{
+    // TODO: Is this workaround for missing isnan() reliable?  Infinities?
+  return 
+#if defined(PQXX_HAVE_ISNAN)
+    isnan(Obj);
+#elif defined(PQXX_HAVE_LIMITS)
+    !(Obj <= Obj+numeric_limits<T>::max());
+#else
+    !(Obj <= Obj + 1000);
+#endif
+}
+
+
+template<typename T> inline string to_string_float(T Obj)
+{
+  // TODO: Omit this special case if NaN is output as "nan"/"NAN"/"NaN"
+#ifndef PQXX_HAVE_NAN_OUTPUT
+  if (is_NaN(Obj)) return "nan";
+#endif
+  return to_string_fallback(Obj);
+}
+
+
 template<typename T> inline string to_string_signed(T Obj)
 {
   if (Obj < 0)
@@ -379,18 +407,18 @@ template<> string to_string(const unsigned long &Obj)
 
 template<> string to_string(const float &Obj)
 {
-  return to_string_fallback(Obj);
+  return to_string_float(Obj);
 }
 
 template<> string to_string(const double &Obj)
 {
-  return to_string_fallback(Obj);
+  return to_string_float(Obj);
 }
 
 #if defined(PQXX_HAVE_LONG_DOUBLE)
 template<> string to_string(const long double &Obj)
 {
-  return to_string_fallback(Obj);
+  return to_string_float(Obj);
 }
 #endif
 
@@ -572,17 +600,16 @@ string pqxx::internal::Quote_charptr(const char Obj[], bool EmptyIsNull)
 }
 
 
-template<>
-void pqxx::internal::PQAlloc<pqxx::internal::pq::PGresult>::freemem() throw ()
-{
-  PQclear(m_Obj);
-}
+void pqxx::internal::freemem_result(pqxx::internal::pq::PGresult *p) throw ()
+	{ PQclear(p); }
 
-
-template<>
-void pqxx::internal::PQAlloc<pqxx::internal::pq::PGnotify>::freemem() throw ()
+void pqxx::internal::freemem_notif(pqxx::internal::pq::PGnotify *p) throw ()
 {
-  freenotif(m_Obj);
+#ifdef PQXX_HAVE_PQFREENOTIFY
+  PQfreeNotify(p);
+#else
+  freepqmem(p);
+#endif
 }
 
 
@@ -641,16 +668,6 @@ void pqxx::internal::freepqmem(void *p)
   PQfreemem(p);
 #else
   free(p);
-#endif
-}
-
-
-void pqxx::internal::freenotif(pq::PGnotify *p)
-{
-#ifdef PQXX_HAVE_PQFREENOTIFY
-  PQfreeNotify(p);
-#else
-  freepqmem(p);
 #endif
 }
 
