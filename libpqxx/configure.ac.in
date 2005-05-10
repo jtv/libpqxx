@@ -584,6 +584,17 @@ AC_MSG_RESULT($pqresulterrorfield)
 AC_CHECK_HEADER(limits,
 	[AC_DEFINE(PQXX_HAVE_LIMITS, 1, [Define if <limits> exists])])
 
+AC_MSG_CHECKING([for C99 isnan()])
+c_isnan=yes
+AC_TRY_COMPILE([#include <cmath>
+	extern double f();
+	${usestd}],
+	[if(isnan(f())f()],
+	AC_DEFINE(PQXX_HAVE_C_ISNAN,1,[Define if math.h defines C99 isnan()]),
+	[c_isnan=no]
+)
+AC_MSG_RESULT($c_isnan)
+
 AC_MSG_CHECKING([for std::numeric_limits<>::quiet_NaN()])
 quiet_nan=yes
 AC_TRY_COMPILE([#include <limits>
@@ -594,6 +605,17 @@ AC_TRY_COMPILE([#include <limits>
 		[Define if std::numeric_limits has quiet_NaN()])],
 	[quiet_nan=no])
 AC_MSG_RESULT($quiet_nan)
+
+AC_MSG_RESULT([for C NAN macro])
+c_nan=yes
+AC_TRY_COMPILE([#include <cmath>
+	extern void f(double);
+	${usestd}],
+	[f(NAN)],
+	[AC_DEFINE(PQXX_HAVE_C_NAN,1,
+		[Define if C math header defines NAN])],
+	[c_nan=no])
+AC_MSG_RESULT($c_nan)
 
 AC_MSG_CHECKING([for C99 nan() family])
 nan=yes
@@ -681,7 +703,7 @@ for publication in $PUBLICATIONS ; do
 	for factor in $FACTORS ; do
 		CONFIGFILE="include/pqxx/config-$publication-$factor.h"
 		echo -n "Generating $CONFIGFILE: "
-		if ! grep -w -h -F "`grep "\<${publication}\>" "${srcdir}/configitems" | grep "\<${factor}\>" | cut -f 1`" include/pqxx/config.h >"$CONFIGFILE" ; then
+		if ! grep -w -h -F "`grep \"\<${publication}\>\" \"${srcdir}/configitems\" | grep \"\<${factor}\>\" | grep -v '^$' | cut -f 1`" include/pqxx/config.h >"$CONFIGFILE" ; then
 			rm -f -- "$CONFIGFILE"
 			echo "no items--deleting"
 		else
