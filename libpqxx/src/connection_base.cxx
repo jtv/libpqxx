@@ -48,7 +48,7 @@ extern "C"
 {
 // Pass C-linkage notice processor call on to C++-linkage noticer object.  The
 // void * argument points to the noticer.
-void pqxxNoticeCaller(void *arg, const char *Msg)
+static void pqxxNoticeCaller(void *arg, const char *Msg)
 {
   if (arg && Msg) (*static_cast<pqxx::noticer *>(arg))(Msg);
 }
