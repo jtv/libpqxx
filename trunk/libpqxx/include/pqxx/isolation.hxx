@@ -32,7 +32,7 @@ namespace pqxx
  * read_committed and repeatable_read by using serializable.  In general,
  * serializable is the safest choice.
  */
-enum PQXX_LIBEXPORT isolation_level
+enum isolation_level
 {
   // read_uncommitted,
   read_committed,
