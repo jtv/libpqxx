@@ -30,9 +30,10 @@
  *
  * Welcome to libpqxx, the C++ API to the PostgreSQL database management system.
  *
- * This package requires PostgreSQL to be installed--including the C headers for
- * client development.  The library builds on top of PostgreSQL's standard C
- * API, libpq.
+ * Compiling this package requires PostgreSQL to be installed--including the C
+ * headers for client development.  The library builds on top of PostgreSQL's
+ * standard C API, libpq.  The libpq headers are not needed to compile client
+ * programs, however.
  *
  * For a quick introduction to installing and using libpqxx, see the README
  * file; a more extensive tutorial is available in doc/html/Tutorial/index.html.
@@ -529,7 +530,6 @@ template<typename T> inline PGSTD::string Quote(T Obj)
 namespace internal
 {
 void freepqmem(void *);
-void freenotif(pq::PGnotify *);
 
 /// Reference-counted smart pointer to libpq-allocated object
 /** Ownership policy is simple: object dies when PQAlloc object's value does.
@@ -617,6 +617,15 @@ private:
 
   void freemem() throw () { freepqmem(m_Obj); }
 };
+
+
+void PQXX_LIBEXPORT freemem_result(pq::PGresult *) throw ();
+template<> inline void PQXX_LIBEXPORT PQAlloc<pq::PGresult>::freemem() throw ()
+	{ freemem_result(m_Obj); }
+
+void PQXX_LIBEXPORT freemem_notif(pq::PGnotify *) throw ();
+template<> inline void PQXX_LIBEXPORT PQAlloc<pq::PGnotify>::freemem() throw ()
+	{ freemem_notif(m_Obj); }
 
 
 class PQXX_LIBEXPORT namedclass

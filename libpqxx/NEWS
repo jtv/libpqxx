@@ -1,3 +1,6 @@
+2.5.2
+ - Fix memory leaks
+ - Fix problems with NaN (not-a-number values) on some compilers
 2.5.1
  - Fix configure script; broke when very recent libpqxx was already installed
  - Fix cursor breakage when "long" is more than 32 bits
