@@ -1,3 +1,7 @@
+2.5.3
+ - Greatly improved builds on MinGW with MSYS
+ - All known problems with MinGW fixed
+ - Detects and uses STLport automatically
 2.5.2
  - Fix memory leaks
  - Fix problems with NaN (not-a-number values) on some compilers

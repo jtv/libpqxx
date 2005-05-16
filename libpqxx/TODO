@@ -1,16 +1,13 @@
 ALERT
 (*) test062 fails on binary strings with postgres 8.0.2 (RedHat, John Carpenter)
-(*) test064 fails with activate() etc. (Windows; MinGW; Michael Pedersen)
 (*) test085 fails with postgres 8.0.2 (Fedora, John Carpenter)
 (*) Breaks against postgres 7.1 (niejam@yahoo.com)
 (*) Ignore column specs in tablestreams on older backends, if possible
 
 All Over
-(*) Check for stlport (#ifdef _STLP_STD) to define PGSTD accordingly
 (*) Ensure table/column/cursor/... names are always quoted
 
 Build & Configuration
-(*) Add -lwsock32 to tools/Makefile.am if needed (MingW!)
 (*) Rename libcompiler.h/compiler.h to reduce confusion
 (*) Remove ../include/pqxx from libtool include path somehow
 (*) Why are the test programs linked with "-lpq -lpq -lpq"!?
