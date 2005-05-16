@@ -1,4 +1,6 @@
 2005-05-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Check for stlp_std (stlport) namespace, let it override std
  win32/INSTALL.txt:
   - Greatly simplified MSYS build--thanks Michael J. Pedersen!
 2005-05-09  Jeroen T. Vermeulen <jtv@xs4all.nl>

@@ -106,8 +106,9 @@ AC_MSG_RESULT(${enable_thread_safety})
 
 # TODO: New --with-std= option
 AH_TEMPLATE(PGSTD, [name of standard library namespace])
+# Check for alternative "standard" namespaces in increasing order of preference
 AC_MSG_CHECKING([name of standard library namespace])
-for ns in "" std ; do
+for ns in "" std stlp_std ; do
 	AC_TRY_COMPILE([#include <string>],[${ns}::string a;],[std=${ns}], [])
 done
 AC_DEFINE_UNQUOTED(PGSTD,[$std],[Name of standard namespace (normally std)])
