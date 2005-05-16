@@ -1,3 +1,6 @@
+2005-05-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/INSTALL.txt:
+  - Greatly simplified MSYS build--thanks Michael J. Pedersen!
 2005-05-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems:
   - New item PQXX_HAVE_C_NAN for C-language NAN macro

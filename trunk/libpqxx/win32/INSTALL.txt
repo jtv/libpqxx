@@ -36,7 +36,7 @@ If you're using MinGW (but without a Unix-like environment, see above):
    work is described below; see config/sample-headers for working examples.
 3) Run "make", using win32/MinGW.mak as the makefile (using a -f or /f option
    to indicate the file, depending on whose version of Make you use).
-4) Consider installing a Unix-like environment to automate all this!
+4) Consider installing a Unix-like environment like MSYS to automate all this!
    
 After that, it is recommended that you compile and run the self-test programs
 included in the package.  Unix, Cygwin, or MSYS users simply type "make check"
@@ -62,32 +62,29 @@ building libpqxx should be a lot more like it is under Unix except that the
 locations of libraries and such aren't sufficiently standardized.
 
 Packages to download if you don't have them already:
-1) MinGW (http://www.mingw.org/), plus any updates. It is recommended to get all
-   of them.
-2) MSYS (http://www.mingw.org/), again with any updates. Same recommendation.
-3) PostgreSQL (http://www.postgresql.org/).
-4) zlib (http://www.zlib.org/). Recommended to get latest version.
+1) MinGW (http://www.mingw.org/), plus any updates.
+2) MSYS (http://www.mingw.org/), again with any updates.
+3) w32api (http://www.mingw.org/).
+4) PostgreSQL (http://www.postgresql.org/).
+5) zlib (http://www.zlib.org/).
+
+It is generally recommended to get the latest versions of these packages.
 
 Compiling and installing PostgreSQL before you get to libpqxx:
 1) Install MinGW (install to c:\mingw)
-2) Install MSyS into MinGW structure (c:\mingw)
+2) Install MSYS--but not into MinGW directory tree!
 3) Run MSYS (Start->Programs->MinGW->MSYS->msys)
-4) extract, compile, and install zlib
+4) Extract, compile, and install zlib
+    # From main source directory of zlib:
     ./configure --prefix=c:/mingw/local && make && make install
-5) Extract and compile postgresql
-        ./configure --prefix=c:/mingw/local --with-includes=c:/mingw/local/include --with-libs=c:/mingw/local/lib
-        ln -s src/backend/port/tas/dummy.s src/backend/port/tas.s
-        ln -s src/backend/port/dynloader/win32.c src/backend/port/dynloader.c
-        make && make install
-6) Copy psql.exe and libpq.dll to somewhere on your path
-7) ln -s /mingw/bin/mingw32-make.exe /mingw/bin/make.exe
-
-Building libpqxx:
-
-        export LDFLAGS=-lws2_32
-        ./configure --prefix=c:/mingw/local --disable-shared --enable-static
-        make
-	make install
+5) Extract, compile, and install postgres
+    # From main source directory of PostgreSQL:
+    ./configure --prefix=c:/mingw/local --with-includes=c:/mingw/local/include --with-libs=c:/mingw/local/lib
+    make && make install
+6) Extract, compile, and install libpqxx
+    export LDFLAGS=-lws2_32
+    ./configure --prefix=c:/mingw/local --disable-shared --enable-static --disable-thread-safety
+    make && make install
 
 If you don't have and don't want to install MSYS, you won't be able to perform
 the "./configure" step.  You can build libpqxx without it, but it takes a bit
