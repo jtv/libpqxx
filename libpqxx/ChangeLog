@@ -1,3 +1,7 @@
+2005-05-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/tablewriter.hxx, src/tablewriter.cxx:
+  - Replaced generate() loop with use of separated_list()
+  - Restructured escaping functions
 2005-05-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Check for stlp_std (stlport) namespace, let it override std
