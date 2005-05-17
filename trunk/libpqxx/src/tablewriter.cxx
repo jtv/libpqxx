@@ -132,14 +132,15 @@ inline char tooctdigit(unsigned int i, int n)
 } // namespace
 
 
-string pqxx::tablewriter::Escape(const string &S)
+string pqxx::internal::Escape(const string &s, const string &null)
 {
-  if (S.empty()) return S;
+  if (s == null) return "\\N";
+  if (s.empty()) return s;
 
   string R;
-  R.reserve(S.size()+1);
+  R.reserve(s.size()+1);
 
-  for (string::const_iterator j = S.begin(); j != S.end(); ++j)
+  for (string::const_iterator j = s.begin(); j != s.end(); ++j)
   {
     const char c = *j;
     const char e = escapechar(c);

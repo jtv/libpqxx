@@ -100,13 +100,9 @@ private:
   void setup(transaction_base &,
       const PGSTD::string &WName,
       const PGSTD::string &Columns = PGSTD::string());
+
   void WriteRawLine(const PGSTD::string &);
   void writer_close();
-  PGSTD::string EscapeAny(const char t[]) const;
-  PGSTD::string EscapeAny(const PGSTD::string &) const;
-  template<typename T> PGSTD::string EscapeAny(const T &) const;
-
-  static PGSTD::string Escape(const PGSTD::string &);
 };
 
 } // namespace pqxx
@@ -167,37 +163,32 @@ tablewriter::tablewriter(transaction_base &T,
 }
 
 
-inline PGSTD::string tablewriter::EscapeAny(const PGSTD::string &t) const
+namespace internal
 {
-  return (t == NullStr()) ? "\\N" : Escape(t);
-}
+PGSTD::string PQXX_LIBEXPORT Escape(const PGSTD::string &s,
+    const PGSTD::string &null);
 
-inline PGSTD::string tablewriter::EscapeAny(const char t[]) const
+template<typename STR> inline PGSTD::string EscapeAny(const PGSTD::string &s,
+    const PGSTD::string &null) { return Escape(s,null); }
+template<typename STR> inline PGSTD::string EscapeAny(const char s[],
+    const PGSTD::string &null) {return s ? Escape(PGSTD::string(s),null):"\\N";}
+template<typename T> inline PGSTD::string EscapeAny(const T &t,
+    const PGSTD::string &null) { return Escape(to_string(t), null); }
+
+template<typename IT> class Escaper
 {
-  return t ? EscapeAny(PGSTD::string(t)) : "\\N";
-}
+  const PGSTD::string m_null;
+public:
+  explicit Escaper(const PGSTD::string &null) : m_null(null) {}
+  PGSTD::string operator()(IT i) const { return EscapeAny(*i, m_null); }
+};
 
-template<typename T> inline PGSTD::string
-tablewriter::EscapeAny(const T &t) const
-{
-  return EscapeAny(to_string(t));
 }
-
 
 template<typename IT>
 inline PGSTD::string tablewriter::generate(IT Begin, IT End) const
 {
-  PGSTD::string Line;
-  for (; Begin != End; ++Begin)
-  {
-    Line += EscapeAny(*Begin);
-    Line += "\t";
-  }
-
-  // Above algorithm generates one separating tab too many.  Take it back.
-  if (!Line.empty()) Line.erase(Line.size()-1);
-
-  return Line;
+  return separated_list("\t", Begin, End, internal::Escaper<IT>(NullStr()));
 }
 
 
