@@ -40,6 +40,10 @@ inline int StdModeToPQMode(ios::openmode mode)
 
 inline int StdDirToPQDir(ios::seekdir dir) throw ()
 {
+  // TODO: Figure out whether seekdir values match C counterparts!
+#ifdef PQXX_SEEKDIRS_MATCH_C
+  return dir;
+#else
   int pqdir;
   switch (dir)
   {
@@ -47,15 +51,14 @@ inline int StdDirToPQDir(ios::seekdir dir) throw ()
   case ios::cur: pqdir=SEEK_CUR; break;
   case ios::end: pqdir=SEEK_END; break;
 
-  /* Default clause added for two reasons: one, to silence compiler warning
-   * about values not handled in switch (due to tackiness in std headers), and
-   * two, to help the optimizer recognize implementations where the numerical
-   * values of dir and pqdir are always equal.
+  /* Added mostly to silence compiler warning, but also to help compiler detect
+   * cases where this function can be optimized away completely.  This latter
+   * reason should go away as soon as PQXX_SEEKDIRS_MATCH_C works.
    */
   default: pqdir = dir; break;
   }
-
   return pqdir;
+#endif
 }
 
 

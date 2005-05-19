@@ -35,6 +35,7 @@ PQXX_HAVE_STREAMBUF	public	compiler
 PQXX_HAVE_STRERROR_R	internal	compiler
 PQXX_HAVE_STRING_CLEAR	internal	compiler
 PQXX_HAVE_SYS_SELECT_H	internal	compiler
+PQXX_SEEKDIRS_MATCH_C	internal	compiler
 PQXX_PQ_IN_NAMESPACE	public	compiler
 PQXX_SELECT_ACCEPTS_NULL	internal	compiler
 PQXX_STRERROR_R_INT	internal	compiler

@@ -389,19 +389,11 @@ protected:
 protected:
   virtual pos_type seekoff(off_type offset,
 			   seekdir dir,
-			   openmode mode)
-  {
-    if (mode != SEEK_CUR)
-      throw PGSTD::logic_error("Offset "+to_string(int(mode))+" in seekoff()");
-    return AdjustEOF(m_Obj.cseek(offset, dir));
-  }
+			   openmode)
+	{ return AdjustEOF(m_Obj.cseek(offset, dir)); }
 
-  virtual pos_type seekpos(pos_type pos, openmode mode)
-  {
-    if (mode != SEEK_SET)
-      throw PGSTD::logic_error("Offset "+to_string(int(mode))+" in seekpos()");
-    return AdjustEOF(m_Obj.cseek(pos, PGSTD::ios::beg));
-  }
+  virtual pos_type seekpos(pos_type pos, openmode)
+	{ return AdjustEOF(m_Obj.cseek(pos, PGSTD::ios::beg)); }
 
   virtual int_type overflow(int_type ch = EoF())
   {
@@ -436,10 +428,7 @@ private:
   static int_type EoF() { return traits_type::eof(); }
 
   /// Helper: change error position of -1 to EOF (probably a no-op)
-  static PGSTD::streampos AdjustEOF(int pos)
-  {
-    return (pos == -1) ? EoF() : pos;
-  }
+  static PGSTD::streampos AdjustEOF(int pos) { return (pos==-1) ? EoF() : pos; }
 
   void initialize(openmode mode)
   {
@@ -502,9 +491,9 @@ public:
   basic_ilostream(dbtransaction &T,
                   largeobject O,
 		  largeobject::size_type BufSize=512) :			//[t57]
-    super(&m_Buf),
+    super(0),
     m_Buf(T, O, PGSTD::ios::in, BufSize)
-  	{ }
+  	{ super::init(&m_Buf); }
 
   /// Create a basic_ilostream
   /**
@@ -515,9 +504,9 @@ public:
   basic_ilostream(dbtransaction &T,
                   oid O,
 		  largeobject::size_type BufSize=512) :			//[t48]
-    super(&m_Buf),
+    super(0),
     m_Buf(T, O, PGSTD::ios::in, BufSize)
-  	{ }
+  	{ super::init(&m_Buf); }
 
 private:
   largeobject_streambuf<CHAR,TRAITS> m_Buf;
@@ -564,9 +553,9 @@ public:
   basic_olostream(dbtransaction &T,
                   largeobject O,
 		  largeobject::size_type BufSize=512) :			//[t48]
-    super(&m_Buf),
+    super(0),
     m_Buf(T, O, PGSTD::ios::out, BufSize)
-  	{ }
+  	{ super::init(&m_Buf); }
 
   /// Create a basic_olostream
   /**
@@ -577,9 +566,9 @@ public:
   basic_olostream(dbtransaction &T,
       		  oid O,
 		  largeobject::size_type BufSize=512) :			//[t57]
-    super(&m_Buf),
+    super(0),
     m_Buf(T, O, PGSTD::ios::out, BufSize)
-  	{ }
+  	{ super::init(&m_Buf); }
 
   ~basic_olostream()
   {
@@ -643,9 +632,9 @@ public:
   basic_lostream(dbtransaction &T,
       		 largeobject O,
 		 largeobject::size_type BufSize=512) :			//[t59]
-    super(&m_Buf),
+    super(0),
     m_Buf(T, O, PGSTD::ios::in | PGSTD::ios::out, BufSize)
-  	{ }
+  	{ super::init(&m_Buf); }
 
   /// Create a basic_lostream
   /**
@@ -656,9 +645,9 @@ public:
   basic_lostream(dbtransaction &T,
       		 oid O,
 		 largeobject::size_type BufSize=512) :			//[t59]
-    super(&m_Buf),
+    super(0),
     m_Buf(T, O, PGSTD::ios::in | PGSTD::ios::out, BufSize)
-  	{ }
+  	{ super::init(&m_Buf); }
 
   ~basic_lostream()
   {
