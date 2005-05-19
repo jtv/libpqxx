@@ -970,7 +970,8 @@ public:
   typedef typename traits_type::pos_type pos_type;
   typedef typename traits_type::off_type off_type;
 
-  basic_fieldstream(const result::field &F) : super(&m_Buf), m_Buf(F) { }
+  basic_fieldstream(const result::field &F) : super(0), m_Buf(F)
+	{ super::init(&m_Buf); }
 
 private:
   field_streambuf<CHAR, TRAITS> m_Buf;

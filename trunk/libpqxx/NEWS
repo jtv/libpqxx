@@ -1,6 +1,7 @@
 2.5.3
  - Greatly improved builds on MinGW with MSYS
  - All known problems with MinGW fixed
+ - Fix bugs in stream classes that caused failures and crashes with STLport
  - Detects and uses STLport automatically
 2.5.2
  - Fix memory leaks

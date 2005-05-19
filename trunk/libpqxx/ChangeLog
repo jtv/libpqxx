@@ -1,3 +1,9 @@
+2005-05-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, src/largeobject.cxx:
+  - Prepared for optimization in case seek parameters match C-style values
+ include/pqxx/largeobject.hxx, include/pqxx/result.hxx:
+  - Stream c'tors relied on GNU implementation--thanks German Zhivotnikov!
+  - Removed broken checks in lostreams, thanks again German Zhivotnikov
 2005-05-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/tablewriter.hxx, src/tablewriter.cxx:
   - Replaced generate() loop with use of separated_list()
