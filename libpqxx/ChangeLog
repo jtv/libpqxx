@@ -1,3 +1,6 @@
+2005-05-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/binarystring.cxx:
+  - Bugfix in workaround for missing PQunescapeBytea()
 2005-05-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, src/largeobject.cxx:
   - Prepared for optimization in case seek parameters match C-style values
