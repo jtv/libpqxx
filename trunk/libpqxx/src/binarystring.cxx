@@ -58,7 +58,7 @@ pqxx::binarystring::binarystring(const result::field &F) :
       c = p[++i];
       if (isdigit(c) && isdigit(p[i+1]) && isdigit(p[i+2]))
       {
-	c = (DV(p[c])<<6) | (DV(p[i+1])<<3) | DV(p[i+2]);
+	c = (DV(c)<<6) | (DV(p[i+1])<<3) | DV(p[i+2]);
 	i += 2;
       }
     }
@@ -134,9 +134,10 @@ string pqxx::escape_binary(const unsigned char bin[], size_t len)
   result.reserve(len);
   for (size_t i=0; i<len; ++i)
   {
-    if (bin[i] & 0x80 || bin[i] < 0x20)
+    if (bin[i] >= 0x80 || bin[i] < 0x20)
     {
       char buf[8];
+      // TODO: Hope this is not locale-sensitive...
       sprintf(buf, "\\\\%03o", unsigned(bin[i]));
       result += buf;
     }
