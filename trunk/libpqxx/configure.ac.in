@@ -706,10 +706,7 @@ for publication in $PUBLICATIONS ; do
 		CONFIGFILE="include/pqxx/config-$publication-$factor.h"
 		echo -n "Generating $CONFIGFILE: "
 		SELECT="\<${publication}\>.\<${factor}\>"
-echo  #DEBUG CODE
-echo "SELECT=='$SELECT'" #DEBUG CODE
-echo "RESULT=='`grep "$SELECT" "$FROM"`'" #DEBUG CODE
-		if test -z "`grep "$SELECT" "$FROM"`" ; then
+		if test -z "`grep "$SELECT" "$FROM" >/dev/null`" ; then
 			echo "no items--skipping"
 		else
 			if grep -w -h -F "`grep "$SELECT" "$FROM" | grep -v '^$' | cut -f 1`" include/pqxx/config.h >"$CONFIGFILE" ; then
