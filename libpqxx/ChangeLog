@@ -1,3 +1,10 @@
+2005-06-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - More, much more work on that stupid grep command line; works again
+2005-05-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Skip "outer grep" in generating config files if result is empty
+  - Should fix endless-loop problem in grep with Fedora Core 4
 2005-05-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/binarystring.cxx:
   - Bugfix in workaround for missing PQunescapeBytea()

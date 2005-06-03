@@ -700,15 +700,24 @@ AC_CONFIG_COMMANDS([configitems],
 # 3. A single environmental factor determining the item, e.g. libpq or compiler
 PUBLICATIONS=`cut -f 2 ${srcdir}/configitems | sort -u`
 FACTORS=`cut -f 3 ${srcdir}/configitems | sort -u`
+FROM="${srcdir}/configitems"
 for publication in $PUBLICATIONS ; do
 	for factor in $FACTORS ; do
 		CONFIGFILE="include/pqxx/config-$publication-$factor.h"
 		echo -n "Generating $CONFIGFILE: "
-		if ! grep -w -h -F "`grep \"\<${publication}\>\" \"${srcdir}/configitems\" | grep \"\<${factor}\>\" | grep -v '^$' | cut -f 1`" include/pqxx/config.h >"$CONFIGFILE" ; then
-			rm -f -- "$CONFIGFILE"
-			echo "no items--deleting"
+		SELECT="\<${publication}\>.\<${factor}\>"
+echo  #DEBUG CODE
+echo "SELECT=='$SELECT'" #DEBUG CODE
+echo "RESULT=='`grep "$SELECT" "$FROM"`'" #DEBUG CODE
+		if test -z "`grep "$SELECT" "$FROM"`" ; then
+			echo "no items--skipping"
 		else
-			echo "ok"
+			if grep -w -h -F "`grep "$SELECT" "$FROM" | grep -v '^$' | cut -f 1`" include/pqxx/config.h >"$CONFIGFILE" ; then
+				echo "ok"
+			else
+				rm -f -- "$CONFIGFILE"
+				echo "no items--deleting"
+			fi
 		fi
 	done
 done
