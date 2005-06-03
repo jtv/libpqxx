@@ -1,8 +1,12 @@
 2005-06-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - More, much more work on that stupid grep command line; works again
+ include/pqxx/libcompiler.h:
+  - Replaced "!defined(_LIB)" with "defined(_DLL)", thanks gzh
  include/pqxx/util.hxx:
   - Added warning about thread-safety of PQAlloc usage
+ tools/makevcmake.pl:
+  - Removed _USRDLL definition, thanks gzh
 2005-05-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Skip "outer grep" in generating config files if result is empty
