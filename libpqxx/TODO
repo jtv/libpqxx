@@ -64,6 +64,12 @@ Tests
 (*) Test tablereader and rows ending in empty fields
 (*) Test infinities
 
+Thread-safety
+(*) Any functions besides strerror() that may not be thread-safe?
+(*) Guard against race bugs by marking "last modification" of objects
+(*) Set up documentation section on threading
+(*) Note thread risks of copying etc. in all PQAlloc-derived classes
+
 Transactions
 (*) [pgsql 8.0] Create log table "WITH OIDS" if appropriate
 (*) [pgsql 8.0] Support two-phase commit with separate transaction class(es)

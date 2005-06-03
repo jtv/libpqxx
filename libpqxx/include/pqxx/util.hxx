@@ -537,6 +537,12 @@ void freepqmem(void *);
  * PQfreeNotify(), this is used to free the memory.  If not, free() is used
  * instead.  This matters on Windows, where memory allocated by a DLL must be
  * freed by the same DLL.
+ *
+ * @warning Copying, swapping, and destroying PQAlloc objects that refer to the
+ * same underlying entity is <em>not thread-safe</em>.  If you wish to pass
+ * reference-counted objects around between threads, make sure that each of
+ * these operations is protected against concurrency with these same operations
+ * on the same object or other copies of the same object.
  */
 template<typename T> class PQXX_LIBEXPORT PQAlloc
 {
