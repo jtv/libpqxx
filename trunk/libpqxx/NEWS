@@ -1,5 +1,6 @@
 2.5.4
  - Fix workaround code for older libpq versions without PQunescapeBytea()
+ - Work around endless loop in grep in Fedora Core 4
 2.5.3
  - Greatly improved builds on MinGW with MSYS
  - All known problems with MinGW fixed
