@@ -138,7 +138,13 @@ template<> struct char_traits<unsigned char>
 #pragma warning (disable: 4786)
 #pragma warning (disable: 4251 4275 4273)
 #pragma comment(lib, "libpqdll")
-#if !defined(PQXX_LIBEXPORT) && !defined(_LIB)
+
+/* For now, export DLL symbols if _DLL is defined.  This is done automatically
+ * by the compiler when linking to the dynamic version of the runtime library,
+ * according to "gzh"
+ */
+// TODO: Define custom macro to govern how libpqxx will be linked to client
+#if !defined(PQXX_LIBEXPORT) && defined(_DLL)
 #define PQXX_LIBEXPORT __declspec(dllimport)
 #endif	// PQXX_LIBEXPORT _LIB
 
