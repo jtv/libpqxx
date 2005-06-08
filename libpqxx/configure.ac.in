@@ -607,7 +607,7 @@ AC_TRY_COMPILE([#include <limits>
 	[quiet_nan=no])
 AC_MSG_RESULT($quiet_nan)
 
-AC_MSG_RESULT([for C NAN macro])
+AC_MSG_CHECKING([for C NAN macro])
 c_nan=yes
 AC_TRY_COMPILE([#include <cmath>
 	extern void f(double);

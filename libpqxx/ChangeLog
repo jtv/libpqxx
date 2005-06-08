@@ -1,6 +1,7 @@
 2005-06-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - More, much more work on that stupid grep command line; works again
+  - Fixed progress message for NAN C macro
  include/pqxx/libcompiler.h:
   - Replaced "!defined(_LIB)" with "defined(_DLL)", thanks gzh
  include/pqxx/util.hxx:
