@@ -52,6 +52,7 @@ class trigger;
  */
 struct PQXX_LIBEXPORT noticer : PGSTD::unary_function<const char[], void>
 {
+  noticer(){}		// Silences bogus warning in some gcc versions
   virtual ~noticer() throw () {}
   virtual void operator()(const char Msg[]) throw () =0;
 };
@@ -60,6 +61,7 @@ struct PQXX_LIBEXPORT noticer : PGSTD::unary_function<const char[], void>
 /// No-op message noticer; produces no output
 struct PQXX_LIBEXPORT nonnoticer : noticer
 {
+  nonnoticer(){}	// Silences bogus warning in some gcc versions
   virtual void operator()(const char []) throw () {}
 };
 

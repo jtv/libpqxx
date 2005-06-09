@@ -1,3 +1,7 @@
+2005-06-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in, include/pqxx/connection_base.hxx, include/pqxx/pipeline.hxx,
+ test/test000.cxx, test/test014.cxx:
+  - Work around -Wctor-dtor-privacy bug in Debian's gcc 4.0
 2005-06-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - More, much more work on that stupid grep command line; works again
