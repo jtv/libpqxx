@@ -2,6 +2,8 @@ MAINTAINERCLEANFILES = Makefile.in
 
 maintainer-clean-local:
 	$(RM) -rf html/Reference html/Tutorial
+	$(RM) reference-stamp tutorial-stamp
+	$(MKDIR) html/Reference html/Tutorial
 
 EXTRA_DIST= Doxyfile.in libpqxx.xml reference-stamp tutorial-stamp
 
@@ -29,15 +31,7 @@ DOCS = $(REFERENCE_DOCS) $(TUTORIAL_DOCS)
 
 docs: $(DOCS)
 
-renew-htmldir:
-	if test -d html; then \
-	  :; \
-	else \
-	  $(RM) html; \
-	  $(MKDIR) html; \
-	fi
-
-reference: renew-htmldir reference-stamp
+reference: reference-stamp
 reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
 	$(DOXYGEN) Doxyfile | grep -v '\.\.\.$$'
 	touch $@
@@ -46,7 +40,7 @@ reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
 	cd ../src; \
 	$(MAKE) libpqxx.la
 
-tutorial: renew-htmldir tutorial-stamp
+tutorial: tutorial-stamp
 tutorial-stamp: libpqxx.xml
 	$(XMLTO) -o html/Tutorial xhtml $<
 	touch $@
