@@ -141,6 +141,7 @@ private:
 
   struct getquery:PGSTD::unary_function<QueryMap::const_iterator,PGSTD::string>
   {
+    getquery(){}	// Silences bogus warning in some gcc versions
     PGSTD::string operator()(QueryMap::const_iterator i) const
 	{ return i->second.get_query(); }
   };

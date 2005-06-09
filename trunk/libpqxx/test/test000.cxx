@@ -81,6 +81,7 @@ const double not_a_number =
 
 struct intderef
 {
+  intderef(){}	// Silences bogus warning in some gcc versions
   template<typename ITER>
     int operator()(ITER i) const throw () { return int(*i); }
 };

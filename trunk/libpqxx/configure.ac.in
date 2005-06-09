@@ -645,7 +645,7 @@ count_if='yes'
 AC_TRY_COMPILE([#include <algorithm>
 #include <functional>
 ${usestd}
-struct P{bool operator()(const int&)const{return false;}}p;],
+struct P{P(){}bool operator()(const int&)const{return false;}}p;],
 	[int v;return int(count_if(&v,&v,p))],
 	[AC_DEFINE(PQXX_HAVE_COUNT_IF,
 			1,
@@ -677,7 +677,7 @@ AC_MSG_RESULT($reverseit)
 
 
 AC_MSG_CHECKING([whether overloaded using-declarations work])
-AC_TRY_COMPILE([struct A{void f(int){}};struct B:A{using A::f;void f(int,bool){}};],
+AC_TRY_COMPILE([struct A{A(){}void f(int){}};struct B:A{B(){}using A::f;void f(int,bool){}};],
 	[B b;b.f(1,true);],
 	[usingdecl='yes'],
 	[AC_DEFINE(PQXX_BROKEN_USING_DECL,

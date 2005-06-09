@@ -15,6 +15,8 @@ namespace
 {
 struct ReportWarning : noticer
 {
+  ReportWarning():noticer(){}	// Silences bogus warning in some gcc versions
+
   virtual void operator()(const char Msg[]) throw ()
   {
     cerr << Msg;
