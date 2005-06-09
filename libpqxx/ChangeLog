@@ -1,3 +1,8 @@
+2005-06-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/Makefile.am:
+  - "clean" target didn't erase reference-stamp/tutorial-stamp
+  - Scratch code to remove any pre-existing "html" file (why was that there?)
+  - Create Reference and Tutorial subdirectories if they don't exist
 2005-06-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in, include/pqxx/connection_base.hxx, include/pqxx/pipeline.hxx,
  test/test000.cxx, test/test014.cxx:
