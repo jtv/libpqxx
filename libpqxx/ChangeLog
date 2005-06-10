@@ -1,3 +1,6 @@
+2005-06-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/libcompiler.h:
+  - Use __declspec(dllimport) under any Windows compiler, thanks Ducky Yazy
 2005-06-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/Makefile.am:
   - "clean" target didn't erase reference-stamp/tutorial-stamp
