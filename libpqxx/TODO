@@ -3,16 +3,17 @@ ALERT
 (*) On MinGW, --enable-shared should define _DLL
 (*) test062 fails on binary strings with postgres 8.0.2 (RedHat, John Carpenter)
 (*) test085 fails with postgres 8.0.2 (Fedora, John Carpenter)
-(*) Breaks against postgres 7.1 (niejam@yahoo.com)
+(*) Some functionality breaks against postgres 7.1 (niejam@yahoo.com)
 (*) Ignore column specs in tablestreams on older backends, if possible
 
 All Over
 (*) Ensure table/column/cursor/... names are always quoted
 
 Build & Configuration
-(*) Rename libcompiler.h/compiler.h to reduce confusion
+(*) Rename libcompiler.h and compiler.h to reduce confusion
 (*) Remove ../include/pqxx from libtool include path somehow
 (*) Why are the test programs linked with "-lpq -lpq -lpq"!?
+(*) Move PGHOST guessing logic from tools/preprelease to Makefile.am?
 
 Connections
 (*) Use PQserverVersion(), if available, to determine backend version
@@ -48,8 +49,9 @@ Results
 (*) Convert to/from date/time values
 (*) Splice out a reusable interface definition
 (*) Real encoding support (PQmblen(), PQenv2encoding())
-(*) Check for handling of nul characters
+(*) Check for correct handling of nul characters
 (*) Support PQftablecol()
+(*) Support new PQcancel() and friends
 (*) Conceive metadata model
 (*) Allow direct mapping onto structs, using member ptr template args
 
