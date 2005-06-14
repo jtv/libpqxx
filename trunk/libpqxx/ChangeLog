@@ -1,3 +1,10 @@
+2005-06-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ README:
+  - Updated PGHOST documentation to reflect FHS
+ tools/preprelease:
+  - Add g++-4.0 to list of default test compilers
+  - Skip unavailable compilers
+  - If no PGHOST set, look for postgres socket in standard places before test
 2005-06-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/libcompiler.h:
   - Use __declspec(dllimport) under any Windows compiler, thanks Ducky Yazy
