@@ -155,12 +155,14 @@ Further environment variables that may be of use to you are documented in the
 libpq documentation and in the manpage for Postgres' command-line client, psql.
 
 Should you have trouble finding the socket for a database running locally on a
-Unix socket, try locating the socket in the filesystem.  On most Unix-like
-systems /tmp/.s.PGSQL.5432, /var/run/.s.PGSQL.5432, and similar locations in
-/var are good starting guesses.  Then set PGHOST to the directory where the
-socket resides, as an absolute path--e.g. "/tmp".  Be sure to use the absolute
-path; the leading slash tells libpq that this is not a network address but a
-local Unix socket.
+Unix socket, try locating the socket in the filesystem.  This should appear as a
+"file" called .s.PGSQL.5432 (if you are new to Unix-like systems, be warned that
+files whose name start with a dot are not displayed by default).  Set PGHOST to
+the directory where this "file" resides, as an absolute path--e.g. "/tmp".  On
+most Unix-like systems, it will be located in /tmp, /var/run, or if your system
+adheres to the FHS (the Filesystem Hierarchy Standard for GNU/Linux systems), in
+/var/run/postgresql.  Be sure to use the absolute path; the leading slash tells
+libpq that this is not a network address but a local Unix socket.
 
 If you've taken care of all this, it should get you through the regression test
 to ensure that everything's working properly.  If it isn't, and it's not
