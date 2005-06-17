@@ -139,6 +139,16 @@ from_string(const PGSTD::string &Str, PGSTD::string &Obj) 		//[t46]
 	{ Obj = Str; }
 
 template<> inline void
+from_string(const char [], const char &Obj)
+	{ error_ambiguous_string_conversion(Obj); }
+template<> inline void
+from_string(const char [], const signed char &Obj)
+	{ error_ambiguous_string_conversion(Obj); }
+template<> inline void
+from_string(const char [], const unsigned char &Obj)
+	{ error_ambiguous_string_conversion(Obj); }
+
+template<> inline void
 from_string(const PGSTD::string &, const char &Obj)
 	{ error_ambiguous_string_conversion(Obj); }
 template<> inline void
