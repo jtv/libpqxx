@@ -1,3 +1,6 @@
+2005-06-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx:
+  - Missing from_string() error overloads, thanks l.cobai@applicam.com
 2005-06-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Factored testing for compiler option support into a function
