@@ -167,7 +167,8 @@ void pqxx::connection_base::SetupState()
     throw runtime_error(Msg);
   }
 
-  for (PSMap::iterator p = m_prepared.begin(); p != m_prepared.end(); ++p)
+  const PSMap::const_iterator prepared_end(m_prepared.end());
+  for (PSMap::iterator p = m_prepared.begin(); p != prepared_end; ++p)
     p->second.registered = false;
 
   if (m_Noticer.get())
@@ -210,9 +211,8 @@ void pqxx::connection_base::SetupState()
       }
     }
 
-    for (map<string,string>::const_iterator i=m_Vars.begin();
-         i!=m_Vars.end();
-         ++i)
+    const map<string,string>::const_iterator var_end(m_Vars.end());
+    for (map<string,string>::const_iterator i=m_Vars.begin(); i!=var_end; ++i)
       p.insert("SET " + i->first + "=" + i->second);
 
     // Now do the whole batch at once

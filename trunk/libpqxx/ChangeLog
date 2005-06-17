@@ -1,3 +1,19 @@
+2005-06-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Factored testing for compiler option support into a function
+  - Use g++ 4.0's -fvisibility-inlines-hidden and -fvisibility=hidden
+  - Many more warning options
+ include/pqxx/util.hxx:
+  - Described how to get around overflow checking in string conversion
+  - New functions digit_to_number(), number_to_digit()
+ src/binarystring.cxx, src/tablereader.cxx:
+  - Introduced use of digit_to_number()
+ src/connection_base.cxx, src/cursor.cxx, src/tablewriter.cxx, src/util.cxx:
+  - Moved a few more end()s out of loops (according to gprof it may matter)
+  - Rewrote some frequently executed code
+  - Factored out some decimal-number handling fragments
+ src/tablewriter.cxx:
+  - Introduced use of number_to_digit()
 2005-06-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  README:
   - Updated PGHOST documentation to reflect FHS

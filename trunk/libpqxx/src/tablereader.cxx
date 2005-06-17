@@ -21,6 +21,7 @@
 #include "pqxx/transaction"
 
 using namespace PGSTD;
+using namespace pqxx::internal;
 
 
 pqxx::tablereader::tablereader(transaction_base &T,
@@ -171,7 +172,9 @@ string pqxx::tablereader::extract_field(const string &Line,
 	    const char n2 = Line[++i];
 	    if (!is_octalchar(n1) || !is_octalchar(n2))
 	      throw runtime_error("Invalid octal in encoded table stream");
-	    R += char(((n-'0')<<6) | ((n1-'0')<<3) | (n2-'0'));
+	    R += char((digit_to_number(n)<<6) | 
+		(digit_to_number(n1)<<3) | 
+		digit_to_number(n2));
           }
 	  break;
 

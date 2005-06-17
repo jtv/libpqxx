@@ -37,6 +37,7 @@
 #include "pqxx/util"
 
 using namespace PGSTD;
+using namespace pqxx::internal;
 
 namespace
 {
@@ -70,46 +71,47 @@ template<> inline void set_to_NaN(long double &t) { t = nan_ld; }
 #endif
 
 #endif
+
+/// For use in string parsing: add new numeric digit to intermediate value
+template<typename L, typename R>
+  inline L absorb_digit(L value, R digit) throw ()
+{
+  return 10*value + digit;
 }
+
+} // namespace
+
 
 namespace pqxx
 {
-
 template<> void from_string(const char Str[], long &Obj)
 {
-  const char *p = Str;
-  bool neg = false;
-  if (!isdigit(*p))
+  int i = 0;
+  long result = 0;
+
+  if (!isdigit(Str[i]))
   {
-    if (*p == '-')
-    {
-      neg = true;
-      p++;
-    }
-    else
-    {
+    if (Str[i] != '-')
       throw runtime_error("Could not convert string to integer: '" +
       	string(Str) + "'");
+
+    for (++i; isdigit(Str[i]); ++i)
+    {
+      const long newresult = absorb_digit(result, -digit_to_number(Str[i]));
+      if (newresult > result)
+        throw runtime_error("Integer too small to read: " + string(Str));
+      result = newresult;
     }
   }
-
-  long result = 0;
-  if (neg) for (; isdigit(*p); ++p)
+  else for (; isdigit(Str[i]); ++i)
   {
-    const long newresult = 10*result - (*p-'0');
-    if (newresult > result)
-      throw runtime_error("Integer too small to read: " + string(Str));
-    result = newresult;
-  }
-  else for (; isdigit(*p); ++p)
-  {
-    const long newresult = 10*result + (*p-'0');
+    const long newresult = absorb_digit(result, digit_to_number(Str[i]));
     if (newresult < result)
       throw runtime_error("Integer too large to read: " + string(Str));
     result = newresult;
   }
 
-  if (*p)
+  if (Str[i])
     throw runtime_error("Unexpected text after integer: '" + string(Str) + "'");
 
   Obj = result;
@@ -117,26 +119,25 @@ template<> void from_string(const char Str[], long &Obj)
 
 template<> void from_string(const char Str[], unsigned long &Obj)
 {
+  int i = 0;
+  unsigned long result;
+
   if (!Str) throw runtime_error("Attempt to convert NULL string to integer");
 
-  const char *p = Str;
-  if (!isdigit(*p))
-  {
+  if (!isdigit(Str[i]))
     throw runtime_error("Could not convert string to unsigned integer: '" +
     	string(Str) + "'");
-  }
 
-  unsigned long result;
-  for (result=0; isdigit(*p); ++p)
+  for (result=0; isdigit(Str[i]); ++i)
   {
-    const unsigned long newresult = 10*result + (*p-'0');
-    if (newresult < result)
+    const unsigned long newres = absorb_digit(result, digit_to_number(Str[i]));
+    if (newres < result)
       throw runtime_error("Unsigned integer too large to read: " + string(Str));
 
-    result = newresult;
+    result = newres;
   }
 
-  if (*p)
+  if (Str[i])
     throw runtime_error("Unexpected text after integer: '" + string(Str) + "'");
 
   Obj = result;
@@ -313,7 +314,7 @@ template<typename T> inline string to_string_unsigned(T Obj)
   for (T next; Obj > 0; Obj = next)
   {
     next = Obj / 10;
-    *--p = char('0'+Obj-next*10);
+    *--p = number_to_digit(Obj-next*10);
   }
   return p;
 }
@@ -563,7 +564,8 @@ string pqxx::sqlesc(const char str[], size_t len)
 string pqxx::sqlesc(const string &str)
 {
   string result;
-  for (string::const_iterator i = str.begin(); i != str.end(); ++i)
+  const string::const_iterator str_end(str.end());
+  for (string::const_iterator i = str.begin(); i != str_end; ++i)
   {
     if (isprint(*i) || isspace(*i))
     {
