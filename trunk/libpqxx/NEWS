@@ -4,6 +4,7 @@
  - In Visual C++, assume libpqxx is a DLL when linking to std library as DLL
  - Missing documentation in distribution archive is back again
  - Releases now automatically tested against gcc 4.0
+ - Meaningful link errors for additional ambiguous string conversions
 2.5.3
  - Greatly improved builds on MinGW with MSYS
  - All known problems with MinGW fixed
