@@ -172,12 +172,13 @@ void pqxx::icursorstream::service_iterators(size_type topos)
   for (icursor_iterator *i = m_iterators; i; i = i->m_next)
     if (i->m_pos >= m_realpos && i->m_pos <= topos)
       todo.insert(todolist::value_type(i->m_pos, i));
-  for (todolist::const_iterator i = todo.begin(); i != todo.end(); )
+  const todolist::const_iterator todo_end(todo.end());
+  for (todolist::const_iterator i = todo.begin(); i != todo_end; )
   {
     const size_type readpos = i->first;
     if (readpos > m_realpos) ignore(readpos - m_realpos);
     const result r = fetch();
-    for ( ; i != todo.end() && i->first == readpos; ++i)
+    for ( ; i != todo_end && i->first == readpos; ++i)
       i->second->fill(r);
   }
 }

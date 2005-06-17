@@ -22,6 +22,7 @@
 #include "pqxx/transaction"
 
 using namespace PGSTD;
+using namespace pqxx::internal;
 
 
 pqxx::tablewriter::tablewriter(transaction_base &T,
@@ -127,7 +128,7 @@ inline bool ishigh(char i)
 
 inline char tooctdigit(unsigned int i, int n)
 {
-  return '0' + ((i>>(3*n)) & 0x07);
+  return number_to_digit((i>>(3*n)) & 0x07);
 }
 } // namespace
 
@@ -140,7 +141,8 @@ string pqxx::internal::Escape(const string &s, const string &null)
   string R;
   R.reserve(s.size()+1);
 
-  for (string::const_iterator j = s.begin(); j != s.end(); ++j)
+  const string::const_iterator s_end(s.end());
+  for (string::const_iterator j = s.begin(); j != s_end; ++j)
   {
     const char c = *j;
     const char e = escapechar(c);

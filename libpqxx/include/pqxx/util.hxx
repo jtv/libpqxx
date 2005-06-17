@@ -90,7 +90,9 @@ template<typename T> PGSTD::string error_ambiguous_string_conversion(T);
 /** If the form of the value found in the string does not match the expected
  * type, e.g. if a decimal point is found when converting to an integer type,
  * the conversion fails.  Overflows (e.g. converting "9999999999" to a 16-bit
- * C++ type) are also treated as errors.
+ * C++ type) are also treated as errors.  If in some cases this behaviour should
+ * be inappropriate, convert to something bigger such as "long" first and then
+ * truncate the resulting value.
  *
  * Only the simplest possible conversions are supported.  No fancy features
  * such as hexadecimal or octal, spurious signs, or exponent notation will work.
@@ -145,6 +147,14 @@ from_string(const PGSTD::string &, const signed char &Obj)
 template<> inline void
 from_string(const PGSTD::string &, const unsigned char &Obj)
 	{ error_ambiguous_string_conversion(Obj); }
+
+
+namespace internal
+{
+/// Compute numeric value of given textual digit (assuming that it is a digit)
+inline int digit_to_number(char c) throw () { return c-'0'; }
+inline char number_to_digit(int i) throw () { return i+'0'; }
+}
 
 
 /// Convert built-in type to a readable string that PostgreSQL will understand
