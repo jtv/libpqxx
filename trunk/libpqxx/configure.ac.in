@@ -44,56 +44,69 @@ AC_MSG_RESULT(${enable_maintainer_mode})
 
 AC_LANG(C++)
 
+# Add options to compiler command line, if compiler accepts it
+function add_compiler_opts() {
+	for option in $* ; do
+		SAVE_CXXFLAGS="$CXXFLAGS"
+		CXXFLAGS="$CXXFLAGS $option"
+		AC_MSG_CHECKING([whether $CXX accepts $option])
+		AC_TRY_COMPILE([], [], has_option=yes, has_option=no,)
+		AC_MSG_RESULT($has_option)
+		if test "$has_option" = "no" ; then
+			CXXFLAGS="$SAVE_CXXFLAGS"
+		fi
+	done
+}
+
+
 # Let's try to get the compiler to be helpful
 # (Omit options -Weffc++ and -Wabi because they currently yield too many
 # warnings in gcc's standard headers; omit -Wunreachable-code because it isn't
 # always right)
-if test "$GCC" = "yes" && test "$enable_maintainer_mode" = "yes"; then
-	for option in \
-		-Werror \
-		-Wno-long-double \
-		-Wno-div-by-zero \
-		-ffor-scope \
-		-fstrict-aliasing \
-		-funit-at-a-time \
-		-pedantic \
-		-fno-nonansi-builtins \
-		-Wall \
-		-Wmultichar \
-		-W \
-		-Wextra \
-		-Wfloat-equal \
-		-Wundef \
-		-Wshadow \
-		-Wpointer-arith  \
-		-Wcast-qual  \
-		-Wcast-align  \
-		-Wconversion \
-		-Wctor-dtor-privacy \
-		-Wendif-labels \
-		-Wredundant-decls \
-		-Wsign-compare \
-		-Wwrite-strings  \
-		-Wnon-virtual-dtor \
-		-Wreorder \
-		-Wold-style-cast \
-		-Woverloaded-virtual \
-		-Wsign-promo \
-	; do
-		SAVE_CXXFLAGS="$CXXFLAGS"
-		CXXFLAGS="$CXXFLAGS $option"
-		AC_MSG_CHECKING([whether $CXX understands $option])
-		AC_TRY_COMPILE([], [],
-			has_option=yes,
-			has_option=no,)
-		if test $has_option = no; then
-			CXXFLAGS="$SAVE_CXXFLAGS"
-		fi
-		AC_MSG_RESULT($has_option)
-		unset has_option
-		unset SAVE_CXXFLAGS
-	done
-	unset option
+if test "$GCC" = "yes" ; then
+	# These options vastly reduce binary size in g++ 4.0
+	add_compiler_opts -fvisibility-inlines-hidden -fvisibility=hidden
+
+	# In maintainer mode, enable all the warning options we can
+	if test "$enable_maintainer_mode" = "yes"; then
+		add_compiler_opts \
+			-Werror \
+			-Wno-long-double \
+			-Wno-div-by-zero \
+			-ffor-scope \
+			-fstrict-aliasing \
+			-funit-at-a-time \
+			-pedantic \
+			-fno-nonansi-builtins \
+			-Wall \
+			-Wmultichar \
+			-W \
+			-Wextra \
+			-Wfloat-equal \
+			-Wundef \
+			-Wshadow \
+			-Wpointer-arith  \
+			-Wcast-qual  \
+			-Wcast-align  \
+			-Wconversion \
+			-Wctor-dtor-privacy \
+			-Wendif-labels \
+			-Wredundant-decls \
+			-Wsign-compare \
+			-Wwrite-strings  \
+			-Wnon-virtual-dtor \
+			-Wreorder \
+			-Wold-style-cast \
+			-Woverloaded-virtual \
+			-Wsign-promo \
+			-Wstrict-null-sentinel \
+			-Wformat-security \
+			-Wnonnull \
+			-Winit-self \
+			-Wswitch \
+			-Wmissing-field-initializers \
+			-Wunused
+	fi
 fi
 
 AC_MSG_CHECKING([thread safety])
