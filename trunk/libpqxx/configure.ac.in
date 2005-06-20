@@ -64,9 +64,6 @@ function add_compiler_opts() {
 # warnings in gcc's standard headers; omit -Wunreachable-code because it isn't
 # always right)
 if test "$GCC" = "yes" ; then
-	# These options vastly reduce binary size in g++ 4.0
-	add_compiler_opts -fvisibility-inlines-hidden -fvisibility=hidden
-
 	# In maintainer mode, enable all the warning options we can
 	if test "$enable_maintainer_mode" = "yes"; then
 		add_compiler_opts \
@@ -107,6 +104,30 @@ if test "$GCC" = "yes" ; then
 			-Wmissing-field-initializers \
 			-Wunused
 	fi
+
+AC_MSG_CHECKING([g++ visibility attribute])
+gcc_visibility=yes
+SAVE_CXXFLAGS="$CXXFLAGS"
+CXXFLAGS="$CXXFLAGS -Werror"
+AC_TRY_COMPILE([
+#ifdef __GNUC__
+struct __attribute__ ((visibility("hidden"))) d { d() {} void f() {} };
+#endif
+	],
+	[d D;D.f()],
+	AC_DEFINE([PQXX_HAVE_GCC_VISIBILITY],1,
+		[Define if g++ supports visibility attribute, as in g++ 4.0]),
+	gcc_visibility=no)
+AC_MSG_RESULT($gcc_visibility)
+	if test "$gcc_visibility" = "yes" ; then
+		# Setting default symbol visibility to "hidden" vastly reduces
+		# library size with g++ 4.0, but unfortunately this will require
+		# some more work in the libpqxx setup.  Instead, we make only
+		# inline functions hidden.
+		add_compiler_opts -fvisibility-inlines-hidden 
+		#add_compiler_opts -fvisibility=hidden
+	fi
+CXXFLAGS="$SAVE_CXXFLAGS"
 fi
 
 AC_MSG_CHECKING([thread safety])
@@ -722,7 +743,7 @@ for publication in $PUBLICATIONS ; do
 		if test -z "`grep "$SELECT" "$FROM"`" ; then
 			echo "no items--skipping"
 		else
-			if grep -w -h -F "`grep "$SELECT" "$FROM" | grep -v '^$' | cut -f 1`" include/pqxx/config.h >"$CONFIGFILE" ; then
+			if grep -w -h -F "`grep "$SELECT" "$FROM" | cut -f 1 | grep -v '^$'`" include/pqxx/config.h >"$CONFIGFILE" ; then
 				echo "ok"
 			else
 				rm -f -- "$CONFIGFILE"
