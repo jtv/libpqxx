@@ -743,7 +743,8 @@ for publication in $PUBLICATIONS ; do
 		if test -z "`grep "$SELECT" "$FROM"`" ; then
 			echo "no items--skipping"
 		else
-			if grep -w -h -F "`grep "$SELECT" "$FROM" | cut -f 1 | grep -v '^$'`" include/pqxx/config.h >"$CONFIGFILE" ; then
+			grep -w -h -F "`grep "$SELECT" "$FROM" | cut -f 1 | grep -v '^$'`" include/pqxx/config.h >"$CONFIGFILE"
+			if test -s "$CONFIGFILE" ; then
 				echo "ok"
 			else
 				rm -f -- "$CONFIGFILE"
