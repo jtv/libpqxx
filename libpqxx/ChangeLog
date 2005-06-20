@@ -1,3 +1,11 @@
+2005-06-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems:
+  - Added PQXX_HAVE_GCC_VISIBILITY for g++ 4.0's ELF visibility attribute
+ configure.ac.in:
+  - Hide private symbols in shared library with g++ 4.0
+  - Reordered grep command line in hopes of fixing FC4 problem
+ include/pqxx/compiler.h:
+  - Define PQXX_LIBEXPORT to g++-4.0 "default" visibility attribute
 2005-06-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.hxx:
   - Missing from_string() error overloads, thanks l.cobai@applicam.com

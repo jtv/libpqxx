@@ -1,10 +1,12 @@
 2.5.4
  - Fix workaround code for older libpq versions without PQunescapeBytea()
- - Work around endless loop in grep in Fedora Core 4
+ - Work around hanging configure script in Fedora Core 4
  - In Visual C++, assume libpqxx is a DLL when linking to std library as DLL
  - Missing documentation in distribution archive is back again
+ - Export fewer symbols from library binary with gcc 4.0
  - Releases now automatically tested against gcc 4.0
  - Meaningful link errors for additional ambiguous string conversions
+ - DLL symbol exports now automatically tested before each release
 2.5.3
  - Greatly improved builds on MinGW with MSYS
  - All known problems with MinGW fixed
