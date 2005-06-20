@@ -17,6 +17,7 @@ libtool
 missing
 mkinstalldirs
 pqxx-config
+pqxxlo.txt
 stamp-h2.in
 *.swp
 .snprj
