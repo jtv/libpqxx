@@ -5,6 +5,13 @@
 #
 # Process configure.ac.in with autoconf to produce a configure script.
 
+# All text in libpqxx is pure ASCII, so we can afford the "C" locale which is
+# likely to be faster than any other.  This also works around bugs in some
+# environments, such as the GNU grep that shipped with Fedora Core 4.  A patch
+# in that version called "egf-speedup" breaks our configure script when running
+# in UTF-8 locales.
+LC_ALL=C
+
 AC_PREREQ(2.59)
 AC_INIT(libpqxx, @PQXXVERSION@, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_CONFIG_AUX_DIR(config)
