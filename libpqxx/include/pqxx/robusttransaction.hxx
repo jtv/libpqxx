@@ -57,10 +57,10 @@ private:
   virtual void do_commit();						//[t16]
   virtual void do_abort();						//[t18]
 
-  void CreateLogTable();
-  void CreateTransactionRecord();
-  void DeleteTransactionRecord(IDType ID) throw ();
-  bool CheckTransactionRecord(IDType ID);
+  void PQXX_PRIVATE CreateLogTable();
+  void PQXX_PRIVATE CreateTransactionRecord();
+  void PQXX_PRIVATE DeleteTransactionRecord(IDType ID) throw ();
+  bool PQXX_PRIVATE CheckTransactionRecord(IDType ID);
 };
 
 

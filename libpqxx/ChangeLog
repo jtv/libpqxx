@@ -1,3 +1,13 @@
+2005-06-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Set LC_ALL=C to work around Fedora grep bug, thanks Graham Hudspith!
+ include/pqxx/compiler.h, include/pqxx/connection.hxx,
+ include/pqxx/connection_base.hxx, include/pqxx/cursor.hxx,
+ include/pqxx/largeobject.hxx, include/pqxx/libcompiler.h,
+ include/pqxx/pipeline.hxx, include/pqxx/result.hxx,
+ include/pqxx/robusttransaction.hxx, include/pqxx/tablereader.hxx,
+ include/pqxx/tablewriter.hxx, include/pqxx/transaction_base.hxx:
+  - Give private symbols "hidden" ELF visibility where possible
 2005-06-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems:
   - Added PQXX_HAVE_GCC_VISIBILITY for g++ 4.0's ELF visibility attribute

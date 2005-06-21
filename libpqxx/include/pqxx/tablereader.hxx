@@ -98,7 +98,7 @@ private:
   void setup(transaction_base &T,
       const PGSTD::string &RName,
       const PGSTD::string &Columns=PGSTD::string());
-  void reader_close();
+  void PQXX_PRIVATE reader_close();
   PGSTD::string extract_field(const PGSTD::string &,
       PGSTD::string::size_type &) const;
 

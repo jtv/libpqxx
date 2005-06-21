@@ -32,9 +32,12 @@
 #ifdef LIBPQXXDLL_EXPORTS
 #undef  PQXX_LIBEXPORT
 #define PQXX_LIBEXPORT __declspec(dllexport)
+// TODO: Does Windows have a way to "unexport" a symbol in an exported class?
+#define PQXX_PRIVATE
 #endif	// LIBPQXXDLL_EXPORTS
 #elif defined(__GNUC__) && defined(PQXX_HAVE_GCC_VISIBILITY)	// !_WIN32
 #define PQXX_LIBEXPORT __attribute__ ((visibility("default")))
+#define PQXX_PRIVATE __attribute__ ((visibility("hidden")))
 #endif	// __GNUC__ && PQXX_HAVE_GCC_VISIBILITY
 
 

@@ -387,7 +387,7 @@ private:
   };
 
 
-  void CheckPendingError();
+  void PQXX_PRIVATE CheckPendingError();
 
   friend class Cursor;
   friend class cursor_base;
@@ -395,14 +395,14 @@ private:
   void MakeEmpty(result &R) const { m_Conn.MakeEmpty(R); }
 
   friend class internal::transactionfocus;
-  void RegisterFocus(internal::transactionfocus *);
-  void UnregisterFocus(internal::transactionfocus *) throw ();
-  void RegisterPendingError(const PGSTD::string &) throw ();
+  void PQXX_PRIVATE RegisterFocus(internal::transactionfocus *);
+  void PQXX_PRIVATE UnregisterFocus(internal::transactionfocus *) throw ();
+  void PQXX_PRIVATE RegisterPendingError(const PGSTD::string &) throw ();
   friend class tablereader;
-  void BeginCopyRead(const PGSTD::string &Table, const PGSTD::string &Columns);
+  void PQXX_PRIVATE BeginCopyRead(const PGSTD::string &, const PGSTD::string &);
   bool ReadCopyLine(PGSTD::string &L) { return m_Conn.ReadCopyLine(L); }
   friend class tablewriter;
-  void BeginCopyWrite(const PGSTD::string &Table,
+  void PQXX_PRIVATE BeginCopyWrite(const PGSTD::string &Table,
       	const PGSTD::string &Columns = PGSTD::string());
   void WriteCopyLine(const PGSTD::string &L) { m_Conn.WriteCopyLine(L); }
   void EndCopyWrite() { m_Conn.EndCopyWrite(); }

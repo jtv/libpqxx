@@ -1,6 +1,6 @@
 2.5.4
  - Fix workaround code for older libpq versions without PQunescapeBytea()
- - Resolved serious problem with configure script in Fedora Core 4
+ - Work around grep bug in Fedora Core 4 that broke configure in UTF-8 locales
  - In Visual C++, assume libpqxx is a DLL when linking to std library as DLL
  - Missing documentation in distribution archive is back again
  - Export fewer symbols from library binary with gcc 4.0

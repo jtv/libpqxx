@@ -437,17 +437,17 @@ protected:
   void wait_write() const;
 
 private:
-  void SetupState();
+  void PQXX_PRIVATE SetupState();
 
-  void InternalSetTrace() throw ();
-  int Status() const throw ();
+  void PQXX_PRIVATE InternalSetTrace() throw ();
+  int PQXX_PRIVATE Status() const throw ();
   const char *ErrMsg() const throw ();
-  void Reset();
-  void RestoreVars();
-  int set_fdmask() const;
-  void clear_fdmask() throw ();
-  PGSTD::string RawGetVar(const PGSTD::string &);
-  void process_notice_raw(const char msg[]) throw ();
+  void PQXX_PRIVATE Reset();
+  void PQXX_PRIVATE RestoreVars();
+  int PQXX_PRIVATE set_fdmask() const;
+  void PQXX_PRIVATE clear_fdmask() throw ();
+  PGSTD::string PQXX_PRIVATE RawGetVar(const PGSTD::string &);
+  void PQXX_PRIVATE process_notice_raw(const char msg[]) throw ();
 
 
   /// Connection string
@@ -471,7 +471,7 @@ private:
   PGSTD::map<PGSTD::string, PGSTD::string> m_Vars;
 
   /// Internal state: definition of a prepared statement
-  struct prepared_def
+  struct PQXX_PRIVATE prepared_def
   {
     /// Text of prepared query
     PGSTD::string definition;
@@ -493,22 +493,23 @@ private:
   mutable fd_set m_fdmask;
 
   friend class transaction_base;
-  result Exec(const char[], int Retries);
+  result PQXX_PRIVATE Exec(const char[], int Retries);
   void pq_prepare(const PGSTD::string &name,
       const PGSTD::string &def,
       const PGSTD::string &params);
   result pq_exec_prepared(const PGSTD::string &, int, const char *const *);
-  void RegisterTransaction(transaction_base *);
-  void UnregisterTransaction(transaction_base *) throw ();
-  void MakeEmpty(result &);
-  bool ReadCopyLine(PGSTD::string &);
-  void WriteCopyLine(const PGSTD::string &);
-  void EndCopyWrite();
-  void start_exec(const PGSTD::string &);
+  void PQXX_PRIVATE RegisterTransaction(transaction_base *);
+  void PQXX_PRIVATE UnregisterTransaction(transaction_base *) throw ();
+  void PQXX_PRIVATE MakeEmpty(result &);
+  bool PQXX_PRIVATE ReadCopyLine(PGSTD::string &);
+  void PQXX_PRIVATE WriteCopyLine(const PGSTD::string &);
+  void PQXX_PRIVATE EndCopyWrite();
+  void PQXX_PRIVATE start_exec(const PGSTD::string &);
   internal::pq::PGresult *get_result();
 
-  void RawSetVar(const PGSTD::string &Var, const PGSTD::string &Value);
-  void AddVariables(const PGSTD::map<PGSTD::string, PGSTD::string> &);
+  void PQXX_PRIVATE RawSetVar(const PGSTD::string &, const PGSTD::string &);
+  void PQXX_PRIVATE AddVariables(const PGSTD::map<PGSTD::string,
+      PGSTD::string> &);
 
   friend class largeobject;
   internal::pq::PGconn *RawConnection() const { return m_Conn; }
@@ -518,8 +519,8 @@ private:
   void RemoveTrigger(trigger *) throw ();
 
   friend class pipeline;
-  void consume_input() throw ();
-  bool is_busy() const throw ();
+  void PQXX_PRIVATE consume_input() throw ();
+  bool PQXX_PRIVATE is_busy() const throw ();
 
   // Not allowed:
   connection_base(const connection_base &);

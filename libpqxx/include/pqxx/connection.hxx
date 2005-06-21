@@ -81,10 +81,10 @@ public:
   virtual ~connection() throw ();
 
 private:
-  virtual void startconnect() { do_startconnect(); }
-  virtual void completeconnect() {}
+  virtual void PQXX_PRIVATE startconnect() { do_startconnect(); }
+  virtual void PQXX_PRIVATE completeconnect() {}
 
-  void do_startconnect();
+  void PQXX_PRIVATE do_startconnect();
 };
 
 
@@ -131,8 +131,8 @@ public:
   virtual ~lazyconnection() throw ();
 
 private:
-  virtual void startconnect() {}
-  virtual void completeconnect();
+  virtual void PQXX_PRIVATE startconnect() {}
+  virtual void PQXX_PRIVATE completeconnect();
 };
 
 
@@ -175,12 +175,12 @@ public:
   virtual ~asyncconnection() throw ();
 
 private:
-  virtual void startconnect() { do_startconnect(); }
-  virtual void completeconnect();
-  virtual void dropconnect() throw () { do_dropconnect(); }
+  virtual void PQXX_PRIVATE startconnect() { do_startconnect(); }
+  virtual void PQXX_PRIVATE completeconnect();
+  virtual void PQXX_PRIVATE dropconnect() throw () { do_dropconnect(); }
 
-  void do_startconnect();
-  void do_dropconnect() throw () { m_connecting = false; }
+  void PQXX_PRIVATE do_startconnect();
+  void PQXX_PRIVATE do_dropconnect() throw () { m_connecting = false; }
 
   /// Is a connection attempt in progress?
   bool m_connecting;
@@ -208,8 +208,8 @@ public:
   virtual ~nullconnection() throw ();
 
 private:
-  virtual void startconnect() {}
-  virtual void completeconnect() {}
+  virtual void PQXX_PRIVATE startconnect() {}
+  virtual void PQXX_PRIVATE completeconnect() {}
 };
 
 }

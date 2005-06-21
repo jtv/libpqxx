@@ -81,7 +81,7 @@ protected:
   bool m_done;
 
 private:
-  int get_unique_cursor_num();
+  int PQXX_PRIVATE get_unique_cursor_num();
 
   PGSTD::string m_name;
 

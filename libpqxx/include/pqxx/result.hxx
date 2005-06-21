@@ -757,7 +757,7 @@ private:
   friend class pqxx::result::field;
   const char *GetValue(size_type Row, tuple::size_type Col) const;
   bool GetIsNull(size_type Row, tuple::size_type Col) const;
-  field::size_type GetLength(size_type Row, tuple::size_type Col) const;
+  field::size_type GetLength(size_type, tuple::size_type) const;
 
   friend class connection_base;
   friend class pipeline;
@@ -766,10 +766,10 @@ private:
   	{ super::operator=(rhs); return *this; }
   bool operator!() const throw () { return !c_ptr(); }
   operator bool() const throw () { return c_ptr() != 0; }
-  void CheckStatus(const PGSTD::string &Query) const;
-  void CheckStatus(const char Query[]) const;
-  int errorposition() const throw ();
-  PGSTD::string StatusError() const;
+  void PQXX_PRIVATE CheckStatus(const PGSTD::string &Query) const;
+  void PQXX_PRIVATE CheckStatus(const char Query[]) const;
+  int PQXX_PRIVATE errorposition() const throw ();
+  PGSTD::string PQXX_PRIVATE StatusError() const;
 
   friend class Cursor;
   const char *CmdStatus() const throw ();
