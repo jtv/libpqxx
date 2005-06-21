@@ -168,9 +168,12 @@ template<> struct char_traits<unsigned char>
 #endif	// _MSC_VER
 #endif	// _WIN32
 
-// Used for Windows DLL
 #ifndef PQXX_LIBEXPORT
 #define PQXX_LIBEXPORT
+#endif
+
+#ifndef PQXX_PRIVATE
+#define PQXX_PRIVATE
 #endif
 
 // Some compilers (well, VC) stumble over some required cases of "typename"

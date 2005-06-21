@@ -301,7 +301,7 @@ public:
   using largeobject::operator>=;
 
 private:
-  PGSTD::string Reason(int err) const;
+  PGSTD::string PQXX_PRIVATE Reason(int err) const;
   internal::pq::PGconn *RawConnection()
   	{ return largeobject::RawConnection(m_Trans); }
 

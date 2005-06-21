@@ -123,7 +123,7 @@ public:
   void resume();							//[t70]
 
 private:
-  class Query
+  class PQXX_PRIVATE Query
   {
   public:
     explicit Query(const PGSTD::string &q) : m_query(q), m_res() {}
@@ -157,29 +157,30 @@ private:
   }
 
   /// Create new query_id
-  query_id generate_id();
+  query_id PQXX_PRIVATE generate_id();
 
   bool have_pending() const throw ()
   	{ return m_issuedrange.second != m_issuedrange.first; }
 
-  void issue();
+  void PQXX_PRIVATE issue();
 
   /// The given query failed; never issue anything beyond that
   void set_error_at(query_id qid) throw () { if (qid < m_error) m_error = qid; }
 
-  void internal_error(const PGSTD::string &err) throw (PGSTD::logic_error);
+  void PQXX_PRIVATE internal_error(const PGSTD::string &err)
+    throw (PGSTD::logic_error);
 
-  bool obtain_result(bool expect_none=false);
+  bool PQXX_PRIVATE obtain_result(bool expect_none=false);
 
-  void obtain_dummy();
-  void get_further_available_results();
-  void check_end_results();
+  void PQXX_PRIVATE obtain_dummy();
+  void PQXX_PRIVATE get_further_available_results();
+  void PQXX_PRIVATE check_end_results();
 
   /// Receive any results that happen to be available; it's not urgent
-  void receive_if_available();
+  void PQXX_PRIVATE receive_if_available();
 
   /// Receive results, up to stop if possible
-  void receive(QueryMap::const_iterator stop);
+  void PQXX_PRIVATE receive(QueryMap::const_iterator stop);
   PGSTD::pair<query_id, result> retrieve(QueryMap::iterator);
 
   QueryMap m_queries;

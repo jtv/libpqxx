@@ -102,7 +102,7 @@ private:
       const PGSTD::string &Columns = PGSTD::string());
 
   void WriteRawLine(const PGSTD::string &);
-  void writer_close();
+  void PQXX_PRIVATE writer_close();
 };
 
 } // namespace pqxx
