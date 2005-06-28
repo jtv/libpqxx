@@ -353,17 +353,7 @@ void pqxx::connection_base::AddTrigger(pqxx::trigger *T)
     const string LQ("LISTEN \"" + T->name() + "\"");
     result R( PQexec(m_Conn, LQ.c_str()) );
 
-    try
-    {
-      R.CheckStatus(LQ);
-    }
-    catch (const broken_connection &)
-    {
-    }
-    catch (const exception &)
-    {
-      if (is_open()) throw;
-    }
+    if (is_open()) try {R.CheckStatus(LQ);} catch (const broken_connection &) {}
     m_Triggers.insert(NewVal);
   }
   else
@@ -522,12 +512,9 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
     if (is_open()) R = PQexec(m_Conn, Query);
   }
 
-  if (!R)
-  {
-    // A shame we can't detect out-of-memory to turn this into a bad_alloc...
-    if (!is_open()) throw broken_connection();
-    throw runtime_error(ErrMsg());
-  }
+  if (!is_open()) throw broken_connection();
+  // A shame we can't detect out-of-memory to turn this into a bad_alloc...
+  if (!R) throw runtime_error(ErrMsg());
   R.CheckStatus(Query);
   get_notifs();
   return R;
@@ -588,11 +575,8 @@ pqxx::result pqxx::connection_base::pq_exec_prepared(const string &pname,
 #ifdef PQXX_HAVE_PQEXECPREPARED
   result R(PQexecPrepared(m_Conn, pname.c_str(), nparams, params, 0, 0, 0));
 
-  if (!R)
-  {
-    if (!is_open()) throw broken_connection();
-    throw runtime_error(ErrMsg());
-  }
+  if (!is_open()) throw broken_connection();
+  if (!R) throw runtime_error(ErrMsg());
   R.CheckStatus(pname);
   get_notifs();
   return R;
@@ -740,7 +724,10 @@ bool pqxx::connection_base::ReadCopyLine(string &Line)
 
     case -1:
       for (result R(PQgetResult(m_Conn)); R; R=PQgetResult(m_Conn))
+      {
+	if (!is_open()) throw broken_connection();
 	R.CheckStatus("[END COPY]");
+      }
       Result = false;
       break;
 
@@ -845,6 +832,7 @@ void pqxx::connection_base::EndCopyWrite()
   }
 
   const result R(PQgetResult(m_Conn));
+  if (!is_open()) throw broken_connection();
   R.CheckStatus("[END COPY]");
 
 #else
