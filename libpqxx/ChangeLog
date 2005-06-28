@@ -1,6 +1,16 @@
+2005-06-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/transaction_base.hxx:
+  - Use new utility template scoped_array
+ include/util.hxx:
+  - New utility class template scoped_array
+ src/connection_base.cxx:
+  - Check connection state after retrieving result, thanks Szucs Gabor
+ src/util.cxx:
+  - Use new utility template scoped_array
 2005-06-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
-  - Set LC_ALL=C to work around Fedora grep bug, thanks Graham Hudspith!
+  - Set LC_ALL=C
+  - Finally worked around Fedora Core 4 grep bug, thanks Graham Hudspith!
  include/pqxx/compiler.h, include/pqxx/connection.hxx,
  include/pqxx/connection_base.hxx, include/pqxx/cursor.hxx,
  include/pqxx/largeobject.hxx, include/pqxx/libcompiler.h,
