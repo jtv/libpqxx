@@ -460,7 +460,7 @@ namespace
 {
 string libpq_escape(const char str[], size_t len)
 {
-  char *buf = 0;
+  scoped_array<char> buf;
   string result;
 
   try
@@ -480,17 +480,8 @@ string libpq_escape(const char str[], size_t len)
     buf = new char[2*len+1];
   }
 
-  try
-  {
-    const size_t bytes = PQescapeString(buf, str, len);
-    result.assign(buf, bytes);
-  }
-  catch (const exception &)
-  {
-    delete [] buf;
-    throw;
-  }
-  delete [] buf;
+  const size_t bytes = PQescapeString(buf.c_ptr(), str, len);
+  result.assign(buf.c_ptr(), bytes);
 
   return result;
 }

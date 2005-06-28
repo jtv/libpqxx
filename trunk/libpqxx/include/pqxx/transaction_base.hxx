@@ -206,21 +206,12 @@ public:
     typedef PGSTD::vector<PGSTD::string> pvec;
     pvec p;
     for (; beginargs!=endargs; ++beginargs) p.push_back(to_string(*beginargs));
-    const char **const pindex = new const char *[p.size()+1];
     result r;
-    try
-    {
-      const pvec::size_type stop = p.size();
-      for (pvec::size_type i=0; i < stop; ++i) pindex[i] = p[i].c_str();
-      pindex[stop] = 0;
-      r = m_Conn.pq_exec_prepared(qname, p.size(), pindex);
-    }
-    catch (const PGSTD::exception &)
-    {
-      delete [] pindex;
-      throw;
-    }
-    delete [] pindex;
+    const internal::scoped_array<const char *> pindex(p.size()+1);
+    const pvec::size_type stop = p.size();
+    for (pvec::size_type i=0; i < stop; ++i) pindex[i] = p[i].c_str();
+    pindex[stop] = 0;
+    r = m_Conn.pq_exec_prepared(qname, p.size(), pindex.c_ptr());
     return r;
   }
 
