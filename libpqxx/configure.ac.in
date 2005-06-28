@@ -6,10 +6,8 @@
 # Process configure.ac.in with autoconf to produce a configure script.
 
 # All text in libpqxx is pure ASCII, so we can afford the "C" locale which is
-# likely to be faster than any other.  This also works around bugs in some
-# environments, such as the GNU grep that shipped with Fedora Core 4.  A patch
-# in that version called "egf-speedup" breaks our configure script when running
-# in UTF-8 locales.
+# likely to be faster than any other.  This may also work around bugs in some
+# environments, esp. with UTF-8 locales.
 LC_ALL=C
 
 AC_PREREQ(2.59)
@@ -303,12 +301,12 @@ AC_MSG_CHECKING([for correct C++ linkage of basic libpq functions])
 if test "$enable_maintainer_mode" = "yes"; then
 AC_CHECK_LIB([pq], [PQexec],[], [AC_MSG_ERROR([
 Linking a call to libpq failed in C++, even though it succeeded in C.  If your
-C and C++ compilers are very different beasts, this may mean that we don't have
+C and C++ compilers are very different beasts, this may mean that we do not have
 the right options for linking with it after all.  Alternatively, this may be
 caused by a bug in autoconf or automake.
 
 Since you are configuring libpqxx using the --enable-maintainer-mode option, any
-compiler warnings for autoconf's test programs will be treated as errors.  The
+compiler warnings for autoconf test programs will be treated as errors.  The
 problem may just go away if you run the configure script again but with the
 maintainer mode option omitted.  Please report such cases (including the
 config.log produced by the failed attempt) so future versions can attempt to
@@ -321,7 +319,7 @@ be several pages up from the end of the file.
 else
 AC_CHECK_LIB([pq], [PQexec],[], [AC_MSG_ERROR([
 Linking a call to libpq failed in C++, even though it succeeded in C.  If your
-C and C++ compilers are very different beasts, this may mean that we don't have
+C and C++ compilers are very different beasts, this may mean that we do not have
 the right options for linking with it after all.
 
 Read the config.log file for more detailed information.  Look for the last error
@@ -727,6 +725,7 @@ AC_TRY_COMPILE([struct A{A(){}void f(int){}};struct B:A{B(){}using A::f;void f(i
 	 usingdecl='no'])
 AC_MSG_RESULT($usingdecl)
 
+
 AC_PROG_MAKE_SET
 
 AC_CONFIG_FILES([Makefile config/Makefile debian/Makefile doc/Makefile doc/Doxyfile src/Makefile
@@ -739,18 +738,55 @@ AC_CONFIG_COMMANDS([configitems],
 # 1. Name of the configuration item, e.g. PQXX_HAVE_PTRDIFF_T
 # 2. Publication marker: public or internal
 # 3. A single environmental factor determining the item, e.g. libpq or compiler
-PUBLICATIONS=`cut -f 2 ${srcdir}/configitems | sort -u`
-FACTORS=`cut -f 3 ${srcdir}/configitems | sort -u`
-FROM="${srcdir}/configitems"
+
+AC_MSG_CHECKING([usable grep -F or equivalent])
+# Some greps don't accept "-" for standard input as an argument to the -f
+# option, so we need to use -F instead.  OTOH the patched version of GNU grep
+# shipped with Fedora Core 4 breaks when -F is used together with -w.  Therefore
+# we test the available grep and pick our best option.
+SAMPLE=`cut -f 1 "${srcdir}/configitems" | head -n 1`
+# This is the standard, modern, POSIX-compliant way of doing things.
+# Unfortunately it breaks on Fedora Core 4.
+if grep -w -h -F "$SAMPLE" "${srcdir}/configitems" >/dev/null ; then
+	fgrep_equiv=grep-F
+elif echo "$SAMPLE" | grep -w -h -f - "${srcdir}/configitems" >/dev/null ; then
+	fgrep_equiv=grep-f
+elif fgrep "$SAMPLE" "${srcdir}/configitems" >/dev/null ; then
+	fgrep_equiv=fgrep
+else
+	AC_MSG_ERROR([No capable grep found--aborting!])
+fi
+AC_MSG_RESULT($fgrep_equiv)
+
+CFDB="${srcdir}/configitems"
+ORGHDR="include/pqxx/config.h"
+LC_ALL=C
+PUBLICATIONS=`cut -f 2 "$CFDB" | sort -u`
+FACTORS=`cut -f 3 "$CFDB" | sort -u`
+
 for publication in $PUBLICATIONS ; do
 	for factor in $FACTORS ; do
 		CONFIGFILE="include/pqxx/config-$publication-$factor.h"
 		echo -n "Generating $CONFIGFILE: "
-		SELECT="\<${publication}\>.\<${factor}\>"
-		if test -z "`grep "$SELECT" "$FROM"`" ; then
+		ITEMS="`grep "\<${publication}\>.\<${factor}\>" "$CFDB" | cut -f 1 | grep -v '^$'`"
+		if test -z "$ITEMS" ; then
 			echo "no items--skipping"
 		else
-			grep -w -h -F "`grep "$SELECT" "$FROM" | cut -f 1 | grep -v '^$'`" include/pqxx/config.h >"$CONFIGFILE"
+			case "${fgrep_equiv}" in
+				grep-F)
+					grep -w -h -F "$ITEMS" "$ORGHDR" >"$CONFIGFILE"
+					;;
+				grep-f)
+					echo "$ITEMS" | grep -w -h -f - "$ORGHDR" >"$CONFIGFILE"
+					;;
+				fgrep)
+					fgrep -w -h "$ITEMS" "$ORGHDR" >"$CONFIGFILE"
+					;;
+				*)
+					echo "Unknown grep alternative: '${fgrep_equiv}'" 1>&2
+					exit 1
+					;;
+			esac
 			if test -s "$CONFIGFILE" ; then
 				echo "ok"
 			else
