@@ -654,6 +654,40 @@ template<> inline void PQXX_LIBEXPORT PQAlloc<pq::PGnotify>::freemem() throw ()
 	{ freemem_notif(m_Obj); }
 
 
+
+template<typename T> class scoped_array
+{
+  T *m_ptr;
+public:
+  typedef size_t size_type;
+  typedef long difference_type;
+
+  scoped_array() : m_ptr(0) {}
+  explicit scoped_array(size_type n) : m_ptr(new T[n]) {}
+  explicit scoped_array(T *t) : m_ptr(t) {}
+  ~scoped_array() { delete [] m_ptr; }
+
+  T *c_ptr() const throw () { return m_ptr; }
+  T &operator*() const throw () { return *m_ptr; }
+  T &operator[](difference_type i) const throw () { return m_ptr[i]; }
+
+  scoped_array &operator=(T *t) throw ()
+  {
+    if (t != m_ptr)
+    {
+      delete [] m_ptr;
+      m_ptr = t;
+    }
+    return *this;
+  }
+
+private:
+  /// Not allowed
+  scoped_array(const scoped_array &);
+  scoped_array &operator=(const scoped_array &);
+};
+
+
 class PQXX_LIBEXPORT namedclass
 {
 public:
