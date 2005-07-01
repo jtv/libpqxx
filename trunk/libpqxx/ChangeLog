@@ -1,4 +1,8 @@
-2005-06-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+2005-07-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/transaction_base.hxx, src/test085.cxx:
+  - Support null parameters in exec_prepared, thanks Morgan Kita
+  - Accept NULL pointers as null args, thanks Joshua Moore-Oliva
+2005-07-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
  pqxx-config.in:
   - Trust pg_config --libdir for libpq options, thanks crweb@vwords.com
 2005-06-28  Jeroen T. Vermeulen <jtv@xs4all.nl>

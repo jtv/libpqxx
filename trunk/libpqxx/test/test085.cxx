@@ -26,6 +26,11 @@ void cmp_exec(transaction_base &T, string desc, STR1 name, STR2 def)
 }
 
 
+string stringize(const string &arg) { return "'" + arg + "'"; }
+string stringize(const char arg[]) {return arg?stringize(string(arg)):"null";}
+string stringize(char arg[]) {return arg?stringize(string(arg)):"null";}
+template<typename T> string stringize(T i) { return stringize(to_string(i)); }
+
 // Substitute variables in raw query.  This is not likely to be very robust,
 // but it should do for just this test.  The main shortcomings are escaping,
 // and not knowing when to quote the variables.
@@ -36,8 +41,7 @@ template<typename ITER> string subst(string q, ITER patbegin, ITER patend)
   int i = distance(patbegin, patend);
   for (ITER arg = --patend; i > 0; --arg, --i)
   {
-    const string marker = "$" + to_string(i),
-	  var = "'" + to_string(*arg) + "'";
+    const string marker = "$" + to_string(i), var = stringize(*arg);
     const string::size_type msz = marker.size();
     while (q.find(marker) != string::npos) q.replace(q.find(marker),msz,var);
   }
@@ -197,6 +201,12 @@ int main()
 	args.begin(),
 	args.end());
     cmp_exec(T, QN_seetables+"_cntnr", QN_seetables, Q_seetables, args);
+
+    cout << "Testing prepared statement with a null parameter..." << endl;
+    vector<const char *> ptrs;
+    ptrs.push_back(0);
+    ptrs.push_back("pg_index");
+    cmp_exec(T, QN_seetables+"_cntnr", QN_seetables, Q_seetables, ptrs);
 
     cout << "Done." << endl;
   }

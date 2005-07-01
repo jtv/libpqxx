@@ -189,6 +189,9 @@ public:
    * connection's unprepare() function).  Their execution however, like other
    * forms of query execution, requires a transaction object.
    *
+   * To include null parameters, pass a sequence of C-style string pointers.  A
+   * NULL pointer will be used as a null parameter.
+   *
    * @warning Do not try to execute a prepared statement manually through direct
    * SQL statements.  This is likely not to work, and even if it does, is likely
    * to be slower than using the proper libpqxx functions.
@@ -205,11 +208,18 @@ public:
 
     typedef PGSTD::vector<PGSTD::string> pvec;
     pvec p;
-    for (; beginargs!=endargs; ++beginargs) p.push_back(to_string(*beginargs));
+    PGSTD::vector<bool> nulls;
+    for (; beginargs!=endargs; ++beginargs)
+    {
+      const bool isnull = parm_is_null(*beginargs);
+      nulls.push_back(isnull);
+      p.push_back(to_string(isnull ? "" : *beginargs));
+    }
     result r;
     const internal::scoped_array<const char *> pindex(p.size()+1);
     const pvec::size_type stop = p.size();
-    for (pvec::size_type i=0; i < stop; ++i) pindex[i] = p[i].c_str();
+    for (pvec::size_type i=0; i < stop; ++i)
+      pindex[i] = (nulls[i] ? 0 : p[i].c_str());
     pindex[stop] = 0;
     r = m_Conn.pq_exec_prepared(qname, p.size(), pindex.c_ptr());
     return r;
@@ -379,6 +389,9 @@ private:
 
 
   void PQXX_PRIVATE CheckPendingError();
+
+  template<typename T> bool parm_is_null(T *p) const throw () { return !p; }
+  template<typename T> bool parm_is_null(T) const throw () { return false; }
 
   friend class Cursor;
   friend class cursor_base;
