@@ -1,3 +1,5 @@
+2.5.6
+ - Support null parameters to prepared statements (use C-style char pointers)
 2.5.5
  - Diagnoses connection failure during result transfer
  - Fixes invalid -R link option in pqxx-config
