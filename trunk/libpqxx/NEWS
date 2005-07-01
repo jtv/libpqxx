@@ -1,5 +1,6 @@
 2.5.5
  - Diagnoses connection failure during result transfer
+ - Fixes invalid -R link option in pqxx-config
 2.5.4
  - Fix workaround code for older libpq versions without PQunescapeBytea()
  - Work around grep bug in Fedora Core 4 that broke configure in UTF-8 locales
