@@ -354,7 +354,9 @@ AC_MSG_RESULT(yes)
 # Check presence and version of strerror_r()
 if test "$enable_thread_safety" = "yes" ; then
 AC_MSG_CHECKING([for strerror_r])
-AC_TRY_COMPILE([#include <cstring>],[strerror_r(0,0,0)],
+AC_TRY_COMPILE(
+	[#include <cstring>
+	${usestd}],[strerror_r(0,0,0)],
 	[AC_DEFINE(PQXX_HAVE_STRERROR_R,1,[Define if strerror_r exists])],
 	[AC_MSG_ERROR([
 No definition of strerror_r, the thread-safe version of strerror(), was found in
@@ -363,16 +365,22 @@ using the configure script's --disable-thread-safety option.
 ])])
 AC_MSG_RESULT(yes)
 
+# TODO: Shouldn't we make the function pointer extern "C"?
 AC_MSG_CHECKING([for SUSv3-style strerror_r returning int])
 AC_TRY_COMPILE(
-	[#include <cstring>],[int(*f)(int,char*,size_t)=strerror_r;f(0,0,0)],
+	[#include <cstring>
+	${usestd}],
+	[int(*f)(int,char*,size_t)=strerror_r;f(0,0,0)],
 	strerror_r_int=yes,
 	strerror_r_int=no)
 AC_MSG_RESULT($strerror_r_int)
 
-AC_MSG_CHECKING([for strerror_r returning char *])
+# TODO: Shouldn't we make the function pointer extern "C"?
+AC_MSG_CHECKING([for GNU-style strerror_r returning char *])
 AC_TRY_COMPILE(
-	[#include <cstring>],[char*(*f)(int,char*,size_t n)=strerror_r;f(0,0,0)],
+	[#include <cstring>
+	${usestd}],
+	[char*(*f)(int,char*,size_t)=strerror_r;f(0,0,0)],
 	strerror_r_charp=yes,
 	strerror_r_charp=no)
 AC_MSG_RESULT($strerror_r_charp)
@@ -380,7 +388,9 @@ AC_MSG_RESULT($strerror_r_charp)
 if ! test "$strerror_r_int" = "yes" && ! test "$strerror_r_charp" = "yes"; then
 AC_MSG_CHECKING([for AIX-style strerror_r (which also correctly returns int)])
 AC_TRY_COMPILE(
-	[#include <cstring>],[int(*f)(int errnum, char *buf, int n)=strerror_r;f(0,0,0)],
+	[#include <cstring>
+	${usestd}],
+	[int(*f)(int,char*,int)=strerror_r;f(0,0,0)],
 	strerror_r_int=yes,
 	[])
 AC_MSG_RESULT($strerror_r_int)
