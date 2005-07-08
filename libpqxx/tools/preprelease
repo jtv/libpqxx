@@ -55,18 +55,18 @@ if test -z "$CONFIGDIST_ARGS" ; then
 fi
 
 
-function print() {
+print () {
 	echo "$1" >>$LOGFILE
 	echo "$1" >>$ERRLOG
 }
 
-function log() {
+log () {
 	print
 	print "`date`: $1"
 	print
 }
 
-function command() {
+command () {
 	print "$ $1"
 	$2 $1 >>$LOGFILE 2>>$ERRLOG
 }
@@ -75,7 +75,7 @@ function command() {
 # In current directory, configure, build, and run regression test using the
 # compiler given as an argument.  If no argument is given, the default compiler
 # is used.
-function run_test() {
+run_test () {
 	if ! test -z "$1" ; then
 		COMPILEROPT="CXX=$1"
 	fi
@@ -90,7 +90,6 @@ function run_test() {
 
 		log "Running regression test"
 		command "make -j $CONCURRENCY_LEVEL check" nice
-		grep '^PASS:' $LOGFILE
 		grep '^FAIL:' $LOGFILE 2>>$ERRLOG || true
 		grep '^All [0-9]* tests passed' $LOGFILE
 	else
