@@ -20,7 +20,7 @@ PQXXVERSION=@PQXXVERSION@
 AC_SUBST(PQXXVERSION)
 
 AC_CONFIG_SRCDIR([src/connection.cxx])
-AM_CONFIG_HEADER([include/pqxx/config.h])
+AC_CONFIG_HEADER([include/pqxx/config.h])
 
 # default prefix for installs
 AC_PREFIX_DEFAULT(/usr/local)
@@ -50,7 +50,7 @@ AC_MSG_RESULT(${enable_maintainer_mode})
 AC_LANG(C++)
 
 # Add options to compiler command line, if compiler accepts it
-function add_compiler_opts() {
+add_compiler_opts() {
 	for option in $* ; do
 		SAVE_CXXFLAGS="$CXXFLAGS"
 		CXXFLAGS="$CXXFLAGS $option"
