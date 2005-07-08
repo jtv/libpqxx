@@ -2,6 +2,12 @@
  configure.ac.in:
   - Support strerror_r() even in standard namespace
   - Clarified that strerror_r() return char * is GNU-specific
+2005-07-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Replaced AM_CONFIG_HEADER with AC_CONFIG_HEADER, thanks Patrick Welche
+  - Apparently "function" is nonstandard shell syntax (Patrick Welche)
+ tools/preprelease:
+  - Removed more nonstandard "function" syntax
 2005-07-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/transaction_base.hxx, src/test085.cxx:
   - Support null parameters in exec_prepared, thanks Morgan Kita
