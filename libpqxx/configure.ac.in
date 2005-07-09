@@ -293,7 +293,6 @@ The last parts of config.log may give you a clue as to what really went wrong,
 but be warned that this is no easy reading.  Look for the last error message
 occurring in the file.
 ])], -L${with_postgres_lib})
-AC_MSG_RESULT(yes)
 
 AC_LANG_POP(C)
 
@@ -326,7 +325,6 @@ Read the config.log file for more detailed information.  Look for the last error
 message, which may be several pages up from the end of the file.
 ])], -L${with_postgres_lib})
 fi
-AC_MSG_RESULT(yes)
 
 
 AC_CHECK_HEADER([${with_postgres_include}/libpq/libpq-fs.h],[],[AC_MSG_ERROR([
