@@ -81,6 +81,14 @@ public:
    */
   oid id() const throw () { return m_ID; }				//[t48]
 
+  /**
+   * @name Identity comparisons
+   *
+   * These operators compare the object identifiers of large objects.  This has
+   * nothing to do with the objects' actual contents; use them only for keeping
+   * track of containers of references to large objects and such.
+   */
+  //@{
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
   bool operator==(const largeobject &other) const 			//[t51]
@@ -105,6 +113,7 @@ public:
   /** @warning Only valid between large objects in the same database. */
   bool operator>(const largeobject &other) const 			//[t51]
 	  { return m_ID > other.m_ID; }
+  //@}
 
   /// Export large object's contents to a local file
   /** Writes the data stored in the large object to the given file.
@@ -228,7 +237,10 @@ public:
   using largeobject::to_file;
 #endif
 
-
+  /**
+   * @name High-level access to object contents
+   */
+  //@{
   /// Write data to large object
   /** If not all bytes could be written, an exception is thrown.
    * @param Buf Data to write
@@ -257,7 +269,17 @@ public:
    * @return The new position in the large object
    */
   size_type seek(size_type dest, seekdir dir);				//[t51]
+  //@}
 
+  /**
+   * @name Low-level access to object contents
+   *
+   * These functions provide a more "C-like" access interface, returning special
+   * values instead of throwing exceptions on error.  These functions are
+   * generally best avoided in favour of the high-level access functions, which
+   * behave more like C++ functions should.
+   */
+  //@{
   /// Seek in large object's data stream
   /** Does not throw exception in case of error; inspect return value and errno
    * instead.
@@ -286,10 +308,15 @@ public:
    * @return Number of bytes actually read, or -1 if an error occurred.
    */
   off_type cread(char Buf[], size_type Len) throw ();			//[t50]
+  //@}
 
-
+  /**
+   * @name Error/warning output
+   */
+  //@{
   /// Issue message to transaction's notice processor
   void process_notice(const PGSTD::string &) throw ();			//[t50]
+  //@}
 
   using largeobject::remove;
 

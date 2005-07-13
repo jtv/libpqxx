@@ -119,6 +119,10 @@ public:
   void on_doubt() throw () {}						//[t13]
 
 #ifdef PQXX_DEPRECATED_TRANSACTION_CALLBACKS
+  /**
+   * @name 1.x API
+   */
+  //@{
   /// @deprecated Define on_commit instead.
   /** @see on_commit */
   void OnCommit() {}
@@ -128,6 +132,7 @@ public:
   /// @deprecated Define on_doubt instead.
   /** @see on_doubt */
   void OnDoubt() throw () {}
+  //@}
 #endif
 
   // TODO: Rename Name()--is there a compatible way?
