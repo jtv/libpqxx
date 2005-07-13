@@ -119,6 +119,10 @@ private:
 };
 
 
+/**
+ * @addtogroup String escaping
+ */
+//@{
 /// Escape binary string for inclusion in SQL
 PGSTD::string PQXX_LIBEXPORT escape_binary(const PGSTD::string &bin);
 /// Escape binary string for inclusion in SQL
@@ -129,6 +133,7 @@ PGSTD::string PQXX_LIBEXPORT escape_binary(const char bin[], size_t len);
 PGSTD::string PQXX_LIBEXPORT escape_binary(const unsigned char bin[]);
 /// Escape binary string for inclusion in SQL
 PGSTD::string PQXX_LIBEXPORT escape_binary(const unsigned char bin[], size_t len);
+//@}
 
 
 }
