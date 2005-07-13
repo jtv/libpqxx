@@ -8,6 +8,8 @@
   - Try to deal with libpq "CONNECTION_OK after connection error" problem
   - Grouped member documentation into semantic sections
   - Implemented inhibition of connection reactivation
+ include/pqxx/libcompiler.h:
+  - Don't define NOMINMAX if it exists, thanks christian@cnetconsulting.de
  include/pqxx/util.hxx, src/largeobject.cxx, src/util.cxx:
   - Moved strerror_wrapper() from largeobject into util
   - Removed PQXX_LIBEXPORT from some inline function templates

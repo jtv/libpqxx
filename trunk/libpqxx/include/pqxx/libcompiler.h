@@ -34,7 +34,10 @@
 #error "Oops: min() and/or max() are defined as preprocessor macros.\
   Define NOMINMAX macro before including any system headers!"
 #endif
+
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 
 #endif
 
