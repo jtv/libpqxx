@@ -544,6 +544,16 @@ AC_TRY_COMPILE([#ifdef HAVE_UNISTD_H
 )
 AC_MSG_RESULT($sleep)
 
+AC_MSG_CHECKING([PQserverVersion()])
+pqserverversion=yes
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[PQserverVersion(0)],
+	AC_DEFINE(PQXX_HAVE_PQSERVERVERSION, 1,
+		[Define if libpq has PQserverVersion()]),
+	[pqserverversion=no]
+)
+AC_MSG_RESULT($pqserverversion)
+
 AC_MSG_CHECKING([PQescapeString()])
 pqescapestring=yes
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
