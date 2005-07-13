@@ -135,19 +135,8 @@ string pqxx::largeobject::Reason(int err) const
   if (err == ENOMEM) return "Out of memory";
   if (id() == oid_none) return "No object selected";
 
-#ifndef PQXX_HAVE_STRERROR_R
-  return strerror(err);
-#else
   char buf[500];
-#ifdef PQXX_STRERROR_R_INT
-  // Single Unix Specification version: returns result code
-  if (strerror_r(err, buf, sizeof(buf)) == -1) return "Unknown error";
-  else return string(buf);
-#else
-  // GNU libc version: returns string (either in buf or elsewhere)
-  return string(strerror_r(err, buf, sizeof(buf)));
-#endif
-#endif
+  return string(strerror_wrapper(err, buf, sizeof(buf)));
 }
 
 

@@ -56,6 +56,28 @@ namespace pqxx
 /// The "null" oid
 const oid oid_none = 0;
 
+/**
+ * @name String conversion
+ *
+ * For purposes of communication with the server, values need to be converted
+ * from and to a human-readable string format that (unlike the various functions
+ * and templates in the C and C++ standard libraries) is not sensitive to locale
+ * settings and internationalization.  This section contains functionality that
+ * is used extensively by libpqxx itself, but is also available for use by other
+ * programs.
+ *
+ * Some conversions are considered to be ambiguous.  An example is the
+ * conversion between char and string: is the char intended as a character (in
+ * which case there are easier ways to accomplish the conversion), or is it
+ * being used as merely a very small integral type?  And in the latter case,
+ * what range is it expected to have--signed, unsigned, or only the range that
+ * those two share?  An ambiguous conversion attempt will result in a build
+ * error, typically a linker message complaining about a missing function whose
+ * name starts with "error_".  Such errors are always deliberately generated.
+ * Look for the function's declaration and see the explanation there.
+ */
+//@{
+
 /// Dummy name, used by libpqxx in deliberate link errors
 /** If you get an error involving this function while building your program,
  * this means that the program contains an unsupported string conversion.
@@ -205,7 +227,7 @@ template<> inline PGSTD::string to_string(const signed char &Obj)
 	{ return error_ambiguous_string_conversion(Obj); }
 template<> inline PGSTD::string to_string(const unsigned char &Obj)
 	{ return error_ambiguous_string_conversion(Obj); }
-
+//@}
 
 /// Container of items with easy contents initialization and string rendering
 /** Designed as a wrapper around an arbitrary container type, this class lets
@@ -457,6 +479,62 @@ template<> inline void FromString(const char Str[], bool &Obj)
 }
 
 
+/**
+ * @defgroup String escaping
+ *
+ * Use these functions to "groom" user-provided strings before using them in
+ * your SQL statements.  This reduces the chance of unexpected failures when
+ * users type unexpected characters, but more importantly, it helps prevent
+ * so-called SQL injection attacks.
+ *
+ * To understand what SQL injection vulnerabilities are and why they should be
+ * prevented, imagine you use the following SQL statement somewhere in your
+ * program:
+ *
+ * 	TX.exec("SELECT number,amount "
+ * 		"FROM accounts "
+ * 		"WHERE allowed_to_see('" + userid + "','" + password + "')");
+ *
+ * This shows a logged-in user important information on all accounts he is
+ * authorized to view.  The userid and password strings are variables entered by
+ * the user himself.
+ *
+ * Now, if the user is actually an attacker who knows (or can guess) the general
+ * shape of this SQL statement, imagine he enters the following password:
+ *
+ * 	'x') OR ('x' = 'x
+ *
+ * Does that make sense to you?  Probably not.  But if this is inserted into the
+ * SQL string by the C++ code above, the query becomes:
+ *
+ * 	SELECT number,amount
+ * 	FROM accounts
+ * 	WHERE allowed_to_see('user','x') OR ('x' = 'x')
+ *
+ * Is this what you wanted to happen?  Probably not!  The neat allowed_to_see()
+ * clause is completely circumvented by the "OR ('x' = 'x')" clause, which is
+ * always true.  Therefore, the attacker will get to see all accounts in the
+ * database!
+ *
+ * To prevent this from happening, use sqlesc:
+ *
+ * 	TX.exec("SELECT number,amount "
+ * 		"FROM accounts "
+ * 		"WHERE allowed_to_see('" + sqlesc(userid) + "', "
+ * 			"'" + sqlesc(password) + "')");
+ *
+ * Now, the quotes embedded in the attacker's string will be neatly escaped so
+ * they can't "break out" of the quoted SQL string they were meant to go into:
+ *
+ * 	SELECT number,amount
+ * 	FROM accounts
+ * 	WHERE allowed_to_see('user', 'x'') OR (''x'' = ''x')
+ *
+ * If you look carefully, you'll see that thanks to the added escape characters
+ * (a single-quote is escaped in SQL by doubling it) all we get is a very
+ * strange-looking password string--but not a change in the SQL statement.
+ */
+//@{
 /// Escape nul-terminated string for inclusion in SQL strings
 /** Use this to sanitize strings that may contain characters like backslashes
  * or quotes.  You'll want to do this for all data received from outside your
@@ -545,6 +623,7 @@ template<typename T> inline PGSTD::string Quote(T Obj)
 {
   return Quote(Obj, false);
 }
+//@}
 
 
 namespace internal
@@ -646,11 +725,11 @@ private:
 
 
 void PQXX_LIBEXPORT freemem_result(pq::PGresult *) throw ();
-template<> inline void PQXX_LIBEXPORT PQAlloc<pq::PGresult>::freemem() throw ()
+template<> inline void PQAlloc<pq::PGresult>::freemem() throw ()
 	{ freemem_result(m_Obj); }
 
 void PQXX_LIBEXPORT freemem_notif(pq::PGnotify *) throw ();
-template<> inline void PQXX_LIBEXPORT PQAlloc<pq::PGnotify>::freemem() throw ()
+template<> inline void PQAlloc<pq::PGnotify>::freemem() throw ()
 	{ freemem_notif(m_Obj); }
 
 
@@ -748,6 +827,22 @@ private:
  * a zero or negative sleep time is requested.
  */
 void PQXX_LIBEXPORT sleep_seconds(int);
+
+/// Work around problem with library export directives and pointers
+typedef const char *cstring;
+
+/// Human-readable description for error code, possibly using given buffer
+/** Wrapper for strerror() or strerror_r(), as available.  The normal case is to
+ * copy the string to the provided buffer, but this may not always be the case.
+ * The result is guaranteed to remain usable for as long as the given buffer
+ * does.
+ * @param err system error code as copied from errno
+ * @param buf caller-provided buffer for message to be stored in, if needed
+ * @param len usable size (in bytes) of provided buffer
+ * @return human-readable error string, which may or may not reside in buf
+ */
+cstring PQXX_LIBEXPORT strerror_wrapper(int err, char buf[], PGSTD::size_t len)
+  throw ();
 
 } // namespace internal
 } // namespace pqxx
