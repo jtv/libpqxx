@@ -1,3 +1,5 @@
+// We need some libpqxx-internal configuration items.  DON'T INCLUDE THIS HEADER
+// IN NORMAL CLIENT PROGRAMS!
 #include "pqxx/compiler.h"
 
 #include <iostream>
