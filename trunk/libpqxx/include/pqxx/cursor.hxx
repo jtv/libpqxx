@@ -45,6 +45,10 @@ public:
    */
   bool operator!() const { return m_done; }				//[t81]
 
+  /**
+   * @name Special movement distances
+   */
+  //@{
   /// Special value: read until end
   /** @return Maximum value for result::difference_type, so the cursor will
    * attempt to read the largest possible result set.
@@ -62,6 +66,7 @@ public:
   /** @return Minimum value for result::difference_type
    */
   static difference_type backward_all() throw ();			//[t0]
+  //@}
 
   /// Name of underlying SQL cursor
   /**

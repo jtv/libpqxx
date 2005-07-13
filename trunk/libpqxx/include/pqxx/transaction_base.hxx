@@ -144,6 +144,10 @@ public:
       	      const PGSTD::string &Desc=PGSTD::string())		//[t9]
     	{ return exec(Query.str(), Desc); }
 
+  /**
+   * @name Prepared statements
+   */
+  //@{
   /// Execute parameterless prepared statement
   /** Prepared statements are defined using the connection classes' prepare()
    * functions, and continue to live on in the ongoing session regardless of
@@ -264,13 +268,19 @@ public:
   template<typename CNTNR>
     result exec_prepared(const PGSTD::string &qname, CNTNR args)	//[t85]
   	{ return exec_prepared(qname, args.begin(), args.end()); }
+  //@}
 
+  /**
+   * @name Error/warning output
+   */
+  //@{
   /// Have connection process warning message
   void process_notice(const char Msg[]) const 				//[t14]
   	{ m_Conn.process_notice(Msg); }
   /// Have connection process warning message
   void process_notice(const PGSTD::string &Msg) const			//[t14]
   	{ m_Conn.process_notice(Msg); }
+  //@}
 
   /// Connection this transaction is running in
   connection_base &conn() const { return m_Conn; }			//[t4]
@@ -296,6 +306,10 @@ public:
   PGSTD::string get_variable(const PGSTD::string &) const;		//[t61]
 
 #ifdef PQXX_DEPRECATED_HEADERS
+  /**
+   * @name 1.x API
+   */
+  //@{
   /// @deprecated Use commit() instead
   void Commit() { commit(); }
   /// @deprecated Use abort() instead
@@ -317,6 +331,7 @@ public:
   /// @deprecated Use set_variable() instead
   void SetVariable(const PGSTD::string &Var, const PGSTD::string &Val)
     	{ set_variable(Var,Val); }
+  //@}
 #endif
 
 protected:
