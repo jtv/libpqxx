@@ -21,7 +21,7 @@ int main()
       // This should fail:
       T.exec("DELIBERATELY INVALID TEST QUERY...", "invalid_query");
 
-      throw logic_error("Invalid query did not throw execption!");
+      throw logic_error("Invalid query did not throw exception!");
     }
     catch (const sql_error &e)
     {

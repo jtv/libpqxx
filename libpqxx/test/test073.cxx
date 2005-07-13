@@ -46,7 +46,7 @@ int main(int, char *argv[])
     if (res_1 != 1) throw logic_error("Expected 1, got " + to_string(res_1));
 
     // We should *not* get a result for the query behind the error
-    cout << "Restrieving post-error result..." << endl;
+    cout << "Retrieving post-error result..." << endl;
     bool failed = true;
     try
     {
