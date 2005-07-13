@@ -1,3 +1,33 @@
+2005-07-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/binarystring.hxx, include/pqxx/cursor.hxx,
+ include/pqxx/largeobject.hxx, include/pqxx/result.hxx,
+ include/pqxx/transaction_base.hxx, include/pqxx/transactor.hxx:
+  - Grouped documentation into semantic sections
+ include/pqxx/connection_base.hxx, src/connection_base.cxx:
+  - Factored result::CheckStatus()-related code into new check_result()
+  - Try to deal with libpq "CONNECTION_OK after connection error" problem
+  - Grouped member documentation into semantic sections
+  - Implemented inhibition of connection reactivation
+ include/pqxx/util.hxx, src/largeobject.cxx, src/util.cxx:
+  - Moved strerror_wrapper() from largeobject into util
+  - Removed PQXX_LIBEXPORT from some inline function templates
+  - Grouped string conversion documentation
+ test/test056.cxx:
+  - Fixed typo in output
+2005-07-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems:
+  - New item PQXX_HAVE_PQSERVERVERSION
+ configure.ac.in:
+  - Check for PQserverVersion()
+ include/pqxx/connection_base.hxx:
+  - Introduced infrastructure for session capabilities
+  - Defined capability for use of "WITH OIDS" on CREATE TABLE
+ src/robusttransaction.cxx:
+  - Use WITH OIDS for transaction log table, if backend supports it
+  - Add UNIQUE constraint on transaction log oid
+  - Detect special case of "legacy" oid-less transaction log table
+ test/test073.cxx:
+  - Fixed typo in output
 2005-07-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Support strerror_r() even in standard namespace
