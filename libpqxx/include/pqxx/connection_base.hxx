@@ -113,8 +113,75 @@ public:
   /// Destructor.  Implicitly closes the connection.
   virtual ~connection_base() =0;					//[t1]
 
+  /**
+   * @name Connection state
+   */
+  //@{
   /// Explicitly close connection.
   void disconnect() throw ();						//[t2]
+
+  /// Explicitly activate deferred or deactivated connection.
+  /** Use of this method is entirely optional.  Whenever a connection is used
+   * while in a deferred or deactivated state, it will transparently try to
+   * bring itself into an activated state.  This function is best viewed as an
+   * explicit hint to the connection that "if you're not in an active state, now
+   * would be a good time to get into one."  Whether a connection is currently
+   * in an active state or not makes no real difference to its functionality.
+   * There is also no particular need to match calls to activate() with calls to
+   * deactivate().  A good time to call activate() might be just before you
+   * first open a transaction on a lazy connection.
+   */
+  void activate();							//[t12]
+
+  /// Explicitly deactivate connection.
+  /** Like its counterpart activate(), this method is entirely optional.
+   * Calling this function really only makes sense if you won't be using this
+   * connection for a while and want to reduce the number of open connections on
+   * the database server.
+   * There is no particular need to match or pair calls to deactivate() with
+   * calls to activate(), but calling deactivate() during a transaction is an
+   * error.
+   */
+  void deactivate();							//[t12]
+
+  /// Disallow (or permit) connection recovery
+  /** A connection whose underlying socket is not currently connected to the
+   * server will normally (re-)establish communication with the server whenever
+   * it is needed, or when the client program requests it (although for reasons
+   * of integrity, never inside a transaction; but retrying the whole
+   * transaction may implicitly cause the connection to be restored).  In normal
+   * use this is quite a convenient thing to have and presents a simple, safe,
+   * predictable interface.
+   *
+   * There is at least one situation where this feature is not desirable,
+   * however.  Although most session state (prepared statements, session
+   * variables) is automatically restored to its working state upon connection
+   * reactivation, temporary tables are not.
+   *
+   * So if your program uses temporary tables, and any part of this use happens
+   * outside of any database transaction (or spans multiple transactions), some
+   * of the work you have done on these tables may unexpectedly be undone if the
+   * connection is broken or deactivated while any of these tables exists, and
+   * then reactivated or implicitly restored before you are finished with it.
+   *
+   * If this describes any part of your program, guard it against unexpected
+   * reconnections by inhibiting reconnection at the beginning.  And if you want
+   * to continue doing work on the connection afterwards that no longer requires
+   * the temp tables, you can permit it again to get the benefits of connection
+   * reactivation for the remainder of the program.
+   * 
+   * @param inhibit should reactivation be inhibited from here on?
+   *
+   * @warning Some connection types (the lazy and asynchronous types) defer
+   * completion of the socket-level connection until it is actually needed by
+   * the client program.  Inhibiting reactivation before this connection is
+   * really established will prevent these connection types from doing their
+   * work.  For those connection types, if you are sure that reactivation needs
+   * to be inhibited before any query goes across the connection, activate() the
+   * connection first.  This will ensure that definite activation happens before
+   * you inhibit it.
+   */
+  void inhibit_reactivation(bool inhibit);				//[]
 
   /// Is this connection open at the moment?
   /** @warning This function is @b not needed in most code.  Resist the
@@ -122,30 +189,12 @@ public:
    * that will be thrown on connection failure instead.
    */
   bool is_open() const throw ();					//[t1]
+  //@}
 
-  /// Perform the transaction defined by a transactor-based object.
-  /** The function may create and execute several copies of the transactor
-   * before it succeeds.  If there is any doubt over whether it succeeded
-   * (this can happen if the connection is lost just before the backend can
-   * confirm success), it is no longer retried and an in_doubt_error is thrown.
-   *
-   * @param T The transactor to be executed.
-   * @param Attempts Maximum number of attempts to be made to execute T.
+  /**
+   * @name Error/warning output
    */
-  template<typename TRANSACTOR>
-  void perform(const TRANSACTOR &T, int Attempts);			//[t4]
-
-  /// Perform the transaction defined by a transactor-based object.
-  /** The function may create and execute several copies of the transactor
-   * before it succeeds.  If there is any doubt over whether it succeeded
-   * (this can happen if the connection is lost just before the backend can
-   * confirm success), it is no longer retried and an in_doubt_error is thrown.
-   *
-   * @param T The transactor to be executed.
-   */
-  template<typename TRANSACTOR>
-  void perform(const TRANSACTOR &T) { perform(T, 3); }
-
+  //@{
   // TODO: Define a default noticer (mainly to help out Windows users)
   /// Set handler for postgresql errors or warning messages.
   /** The use of auto_ptr implies ownership, so unless the returned value is
@@ -168,19 +217,19 @@ public:
   void process_notice(const char[]) throw ();				//[t14]
   /// Invoke notice processor function.  Newline at end is recommended.
   void process_notice(const PGSTD::string &) throw ();			//[t14]
+  //@}
 
   /// Enable tracing to a given output stream, or NULL to disable.
   void trace(FILE *) throw ();						//[t3]
 
-  /// Check for pending trigger notifications and take appropriate action.
-  /** Exceptions thrown by client-registered trigger handlers are reported, but
-   * not passed on outside this function.
-   * @return Number of pending notifications
+  /**
+   * @name Connection properties
+   *
+   * These are probably not needed very often: since most are derived from
+   * information supplied by the client program itself, but are included for
+   * completeness.
    */
-  int get_notifs();							//[t4]
-
-  // Miscellaneous query functions (probably not needed very often)
-
+  //@{
   /// Name of database we're connected to, if any.
   const char *dbname();							//[t1]
 
@@ -210,29 +259,38 @@ public:
    */
   int backendpid() const throw ();					//[t1]
 
-  /// Explicitly activate deferred or deactivated connection.
-  /** Use of this method is entirely optional.  Whenever a connection is used
-   * while in a deferred or deactivated state, it will transparently try to
-   * bring itself into an activated state.  This function is best viewed as an
-   * explicit hint to the connection that "if you're not in an active state, now
-   * would be a good time to get into one."  Whether a connection is currently
-   * in an active state or not makes no real difference to its functionality.
-   * There is also no particular need to match calls to activate() with calls to
-   * deactivate().  A good time to call activate() might be just before you
-   * first open a transaction on a lazy connection.
+  /// Session capabilities
+  /** Some functionality is only available in certain versions of the backend,
+   * or only when speaking certain versions of the communications protocol that
+   * connects us to the backend.  This includes clauses for SQL statements that
+   * were not accepted in older database versions, but are required in newer
+   * versions to get the same behaviour.
    */
-  void activate();							//[t12]
+  enum capability
+  {
+    /// Can we specify WITH OIDS with CREATE TABLE?  If we can, we should.
+    cap_create_table_with_oids,
 
-  /// Explicitly deactivate connection.
-  /** Like its counterpart activate(), this method is entirely optional.
-   * Calling this function really only makes sense if you won't be using this
-   * connection for a while and want to reduce the number of open connections on
-   * the database server.
-   * There is no particular need to match or pair calls to deactivate() with
-   * calls to activate(), but calling deactivate() during a transaction is an
-   * error.
+    /// Not a capability value; end-of-enumeration marker
+    cap_end
+  };
+
+
+  /// Does this connection seem to support the given capability?
+  /** Don't try to be smart by caching this information anywhere.  Obtaining it
+   * is quite fast (especially after the first time) and what's more, a
+   * capability may "suddenly" appear or disappear if the connection is broken
+   * or deactivated, and then restored.  This may happen silently any time no
+   * backend transaction is active; if it turns out that the server was upgraded
+   * or restored from an older backup, or the new connection goes to a different
+   * backend, then the restored session may have different capabilities than
+   * were available previously.
+   *
+   * Some guesswork is involved in establishing the presence of any capability;
+   * try not to rely on this function being exactly right.  Older versions of
+   * libpq may not detect any capabilities.
    */
-  void deactivate();							//[t12]
+  bool supports(capability) const throw ();
 
   /// Set client-side character encoding
   /** Search the PostgreSQL documentation for "multibyte" or "character set
@@ -273,6 +331,20 @@ public:
    * connection.
    */
   PGSTD::string get_variable(const PGSTD::string &);			//[t60]
+  //@}
+
+
+  /**
+   * @name Event notification
+   */
+  //@{
+  /// Check for pending trigger notifications and take appropriate action.
+  /** Exceptions thrown by client-registered trigger handlers are reported, but
+   * not passed on outside this function.
+   * @return Number of pending notifications
+   */
+  int get_notifs();							//[t4]
+
 
   /// Wait for a trigger notification notification to come in
   /** The wait may also be terminated by other events, such as the connection
@@ -286,13 +358,24 @@ public:
    * @return The number of pending notifications upon return
    */
   int await_notification(long seconds, long microseconds);		//[t79]
+  //@}
 
-  /// Define prepared statement that takes no parameters
-  /** Use the transaction classes' exec_prepared() functions to execute these.
+
+  /**
+   * @name Prepared statements
    *
-   * Prepared statements live in connections, not transactions.  Regardless of
-   * the context they were defined in, they continue to exist in the ongoing
-   * session until explicitly dropped through the unprepare() function.
+   * PostgreSQL supports prepared SQL statements, i.e. statements that can be
+   * registered under a client-provided name, optimized once by the backend, and
+   * executed any number of times under the given name.
+   *
+   * Prepared statements are not held to transaction boundaries; a statement
+   * defined inside a transaction will remain defined outside that transaction,
+   * even if the transaction is subsequently aborted.  Once a statement has been
+   * prepared, only closing the connection or explicitly "unpreparing" it can
+   * make it go away.
+   *
+   * Use the transaction classes' exec_prepared() functions to execute a
+   * prepared statement.
    *
    * @warning Prepared statements are not necessarily defined on the backend
    * right away; they may be cached by libpqxx.  This means that statements may
@@ -300,34 +383,18 @@ public:
    * relatively cheap to pre-prepare lots of statements that may or may not be
    * used during the session.  It also means, however, that errors in the
    * prepared statement may not show up until it is first used.  Such failure
-   * may cause the transaction
+   * may cause the current transaction to roll back.
    *
    * @warning Never try to prepare, execute, or unprepare a prepared statement
    * manually using direct SQL queries.  Always use the functions provided by
    * libpqxx.
    */
+  //@{
+  /// Define prepared statement that takes no parameters
   void prepare(const PGSTD::string &name, const PGSTD::string &def)	//[t85]
 	{ pq_prepare(name, def, ""); }
 
   /// Define prepared statement with given parameter list
-  /** Use the transaction classes' exec_prepared() functions to execute these.
-   *
-   * Prepared statements live in connections, not transactions.  Regardless of
-   * the context they were defined in, they continue to exist in the ongoing
-   * session until explicitly dropped through the unprepare() function.
-   *
-   * @warning Prepared statements are not necessarily defined on the backend
-   * right away; they may be cached by libpqxx.  This means that statements may
-   * be prepared before the connection is fully established, and that it's
-   * relatively cheap to pre-prepare lots of statements that may or may not be
-   * used during the session.  It also means, however, that errors in the
-   * prepared statement may not show up until it is first used.  Such failure
-   * may cause the transaction
-   *
-   * @warning Never try to prepare, execute, or unprepare a prepared statement
-   * manually using direct SQL queries.  Always use the functions provided by
-   * libpqxx.
-   */
   template<typename ITER>
     void prepare(const PGSTD::string &name,
 	const PGSTD::string &def,
@@ -340,24 +407,6 @@ public:
   }
 
   /// Define prepared statement with given parameter list
-  /** Use the transaction classes' exec_prepared() functions to execute these.
-   *
-   * Prepared statements live in connections, not transactions.  Regardless of
-   * the context they were defined in, they continue to exist in the ongoing
-   * session until explicitly dropped through the unprepare() function.
-   *
-   * @warning Prepared statements are not necessarily defined on the backend
-   * right away; they may be cached by libpqxx.  This means that statements may
-   * be prepared before the connection is fully established, and that it's
-   * relatively cheap to pre-prepare lots of statements that may or may not be
-   * used during the session.  It also means, however, that errors in the
-   * prepared statement may not show up until it is first used.  Such failure
-   * may cause the transaction
-   *
-   * @warning Never try to prepare, execute, or unprepare a prepared statement
-   * manually using direct SQL queries.  Always use the functions provided by
-   * libpqxx.
-   */
   template<typename CNTNR>
     void prepare(const PGSTD::string &name,
 	const PGSTD::string &def,
@@ -366,8 +415,49 @@ public:
 
   /// Drop prepared statement
   void unprepare(const PGSTD::string &name);				//[t85]
+  //@}
+
+
+  /**
+   * @name Transactor execution
+   *
+   * See the transactor class template for more about transactors.  To use the
+   * transactor framework, encapsulate your transaction code in a class derived
+   * from an instantiation of the pqxx::transactor template.  Then, to execute
+   * it, create an object of your transactor class and pass it to one of the
+   * perform() functions here.
+   *
+   * The perform() functions may create and execute several copies of the
+   * transactor before succeeding or ultimately giving up.  If there is any
+   * doubt over whether execution succeeded (this can happen if the connection
+   * to the server is lost just before the backend can confirm success), it is
+   * no longer retried and an in_doubt_error is thrown.
+   */
+  //@{
+  /// Perform the transaction defined by a transactor-based object.
+  /** 
+   * @param T The transactor to be executed.
+   * @param Attempts Maximum number of attempts to be made to execute T.
+   */
+  template<typename TRANSACTOR>
+  void perform(const TRANSACTOR &T, int Attempts);			//[t4]
+
+  /// Perform the transaction defined by a transactor-based object.
+  /** 
+   * @param T The transactor to be executed.
+   */
+  template<typename TRANSACTOR>
+  void perform(const TRANSACTOR &T) { perform(T, 3); }
+  //@}
 
 #ifdef PQXX_DEPRECATED_HEADERS
+  /**
+   * @name 1.x API
+   * 
+   * These are all deprecated; they were defined in the libpqxx 1.x API but are
+   * no longer actively supported.
+   */
+  //@{
   /// @deprecated Use disconnect() instead
   void Disconnect() throw () { disconnect(); }
   /// @deprecated Use perform() instead
@@ -409,6 +499,7 @@ public:
   /// @deprecated Use set_variable() instead
   void SetVariable(const PGSTD::string &Var, const PGSTD::string &Val)
   	{ set_variable(Var, Val); }
+  //@}
 #endif
 
 
@@ -438,6 +529,7 @@ protected:
 
 private:
   void PQXX_PRIVATE SetupState();
+  void PQXX_PRIVATE check_result(const result &, const char Query[]);
 
   void PQXX_PRIVATE InternalSetTrace() throw ();
   int PQXX_PRIVATE Status() const throw ();
@@ -449,6 +541,7 @@ private:
   PGSTD::string PQXX_PRIVATE RawGetVar(const PGSTD::string &);
   void PQXX_PRIVATE process_notice_raw(const char msg[]) throw ();
 
+  void read_capabilities() const throw ();
 
   /// Connection string
   PGSTD::string m_ConnInfo;
@@ -492,6 +585,14 @@ private:
 
   mutable fd_set m_fdmask;
 
+  /// Set of session capabilities
+  mutable bool m_caps[cap_end];
+  /// Have capabilities for this connection been determined?
+  mutable bool m_caps_known;
+
+  /// Is reactivation currently inhibited?
+  bool m_inhibit_reactivation;
+
   friend class transaction_base;
   result PQXX_PRIVATE Exec(const char[], int Retries);
   void pq_prepare(const PGSTD::string &name,
@@ -519,7 +620,7 @@ private:
   void RemoveTrigger(trigger *) throw ();
 
   friend class pipeline;
-  void PQXX_PRIVATE consume_input() throw ();
+  bool PQXX_PRIVATE consume_input() throw ();
   bool PQXX_PRIVATE is_busy() const throw ();
 
   // Not allowed:

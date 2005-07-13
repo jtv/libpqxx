@@ -61,7 +61,10 @@ pqxx::connection_base::connection_base(const string &ConnInfo) :
   m_Trans(),
   m_Noticer(),
   m_Trace(0),
-  m_fdmask()
+  m_fdmask(),
+  m_caps(),
+  m_caps_known(false),
+  m_inhibit_reactivation(false)
 {
   clear_fdmask();
 }
@@ -73,7 +76,10 @@ pqxx::connection_base::connection_base(const char ConnInfo[]) :
   m_Trans(),
   m_Noticer(),
   m_Trace(0),
-  m_fdmask()
+  m_fdmask(),
+  m_caps(),
+  m_caps_known(false),
+  m_inhibit_reactivation(false)
 {
   clear_fdmask();
 }
@@ -89,6 +95,10 @@ void pqxx::connection_base::activate()
 {
   if (!is_open())
   {
+    if (m_inhibit_reactivation)
+      throw broken_connection("Could not reactivate connection; "
+	  "reactivation is inhibited");
+
     startconnect();
     completeconnect();
 
@@ -114,6 +124,8 @@ void pqxx::connection_base::deactivate()
   }
   dropconnect();
   disconnect();
+  // When we activate again, the server may be different!
+  m_caps_known = false;
 }
 
 
@@ -159,6 +171,8 @@ void pqxx::connection_base::SetupState()
   if (!m_Conn)
     throw logic_error("libpqxx internal error: SetupState() on no connection");
 
+  m_caps_known = false;
+
   if (Status() != CONNECTION_OK)
   {
     const string Msg( ErrMsg() );
@@ -187,9 +201,8 @@ void pqxx::connection_base::SetupState()
     if (!m_Trans.get())
     {
       // Jump through a few hoops to satisfy dear old g++ 2.95
-      auto_ptr<nontransaction>
-	nap(new nontransaction(*this, "connection_setup"));
-      n = nap;
+      auto_ptr<nontransaction> p(new nontransaction(*this,"connection_setup"));
+      n = p;
     }
     pipeline p(*m_Trans.get(), "restore_state");
     p.retain(m_Triggers.size() + m_Vars.size());
@@ -205,7 +218,7 @@ void pqxx::connection_base::SetupState()
         // issue just one LISTEN for each event.
         if (i->first != Last)
         {
-	  p.insert("LISTEN \"" + i->first + "\"");
+          p.insert("LISTEN \"" + i->first + "\"");
           Last = i->first;
         }
       }
@@ -221,12 +234,75 @@ void pqxx::connection_base::SetupState()
 }
 
 
+void pqxx::connection_base::check_result(const result &R, const char Query[])
+{
+  if (!is_open()) throw broken_connection();
+
+  // A shame we can't detect out-of-memory to turn this into a bad_alloc...
+  if (!R) throw runtime_error(ErrMsg());
+
+  try
+  {
+    R.CheckStatus(Query);
+  }
+  catch (const exception &e)
+  {
+    /* If the connection is broken, we'd expect is_open() to return false, since
+     * PQstatus() is supposed to return CONNECTION_BAD.
+     *
+     * It turns out that, at least for the libpq in PostgreSQL 8.0 and the 8.1
+     * prerelease I'm looking at now (we're writing July 2005), libpq will only
+     * abandon CONNECTION_OK if the errno code for the broken connection is
+     * exactly EPIPE or ECONNRESET.  This is usually fine for local connections,
+     * but ignores the wide range of fatal errors that can occur on TCP/IP
+     * sockets, such as extreme out-of-memory conditions, hardware failures,
+     * severed network connections, and serious software errors.  In these cases
+     * libpq will return an error result that is (as far as I can make out)
+     * indistinguishable from a server-side error, but will retain its state
+     * indication of CONNECTION_OK--thus inviting the possibly false impression
+     * that the query failed to execute (in reality it may have executed
+     * successfully) and the definitely false impression that the connection is
+     * still in a workable state.
+     *
+     * Tom Lane is reluctant to change this behaviour, saying that it lacks
+     * "robustness" to give up on the connection "at the first sign of trouble"
+     * when the socket may conceivably still be usable.  I have suggested that
+     * apart from EINTR, EAGAIN and EWOULDBLOCK, which are already handled as
+     * special cases, an error result from a socket probably indicates that the
+     * operating system has decided the error was not likely to be recoverable,
+     * and second-guessing it is not likely to be productive; and that the
+     * choice to abandon a connection or attempt to revive it is probably best
+     * made before a result for the ongoing query is returned.  Tom has declined
+     * to discuss the matter further, possibly because he's fed up with my
+     * incessant whining.
+     *
+     * A particular worry is connection timeout.  One user observed a 15-minute
+     * period of inactivity when he pulled out a network cable, after which
+     * libpq finally returned a result object containing an error (the error
+     * message for connection failure is subject to translation, by the way, and
+     * is also subject to a bug where random data may currently be embedded in
+     * it in place of the system's explanation of the error, so even attempting
+     * to recognize the string is not a reliable workaround) but said the
+     * connection was still operational.
+     *
+     * To work around this terrible state of affairs, we make an extra call to
+     * consume_input().  This may conceivably incur an additional timeout
+     * period, or even fail to recognize the error, but it is the best we can do
+     * towards correct recognition of connection failures.  :-(
+     */
+    if (!consume_input()) throw broken_connection(e.what());
+    throw;
+  }
+}
+
+
 void pqxx::connection_base::disconnect() throw ()
 {
   if (m_Conn)
   {
     PQfinish(m_Conn);
     m_Conn = 0;
+    m_caps_known = false;
   }
 }
 
@@ -277,34 +353,34 @@ void pqxx::connection_base::process_notice(const char msg[]) throw ()
     {
       if (msg[len-1] == '\n')
       {
-	process_notice_raw(msg);
+        process_notice_raw(msg);
       }
       else try
       {
-	// Newline is missing.  Try the C++ string version of this function.
-	process_notice(string(msg));
+        // Newline is missing.  Try the C++ string version of this function.
+        process_notice(string(msg));
       }
       catch (const exception &)
       {
-	// If we can't even do that, use plain old buffer copying instead
-	// (unavoidably, this will break up overly long messages!)
-	const char separator[] = "[...]\n";
-	char buf[1007];
-	size_t bytes = sizeof(buf)-sizeof(separator)-1;
-	size_t written;
-	strcpy(&buf[bytes], separator);
-	// Write all chunks but last.  Each will fill the buffer exactly.
-	for (written = 0; (written+bytes) < len; written += bytes)
-	{
-	  memcpy(buf, &msg[written], bytes);
-	  process_notice_raw(buf);
-	}
-	// Write any remaining bytes (which won't fill an entire buffer)
-	bytes = len-written;
-	memcpy(buf, &msg[written], bytes);
-	// Add trailing nul byte, plus newline unless there already is one
-	strcpy(&buf[bytes], &"\n"[buf[bytes-1]=='\n']);
-	process_notice_raw(buf);
+        // If we can't even do that, use plain old buffer copying instead
+        // (unavoidably, this will break up overly long messages!)
+        const char separator[] = "[...]\n";
+        char buf[1007];
+        size_t bytes = sizeof(buf)-sizeof(separator)-1;
+        size_t written;
+        strcpy(&buf[bytes], separator);
+        // Write all chunks but last.  Each will fill the buffer exactly.
+        for (written = 0; (written+bytes) < len; written += bytes)
+        {
+          memcpy(buf, &msg[written], bytes);
+          process_notice_raw(buf);
+        }
+        // Write any remaining bytes (which won't fill an entire buffer)
+        bytes = len-written;
+        memcpy(buf, &msg[written], bytes);
+        // Add trailing nul byte, plus newline unless there already is one
+        strcpy(&buf[bytes], &"\n"[buf[bytes-1]=='\n']);
+        process_notice_raw(buf);
       }
     }
   }
@@ -353,7 +429,13 @@ void pqxx::connection_base::AddTrigger(pqxx::trigger *T)
     const string LQ("LISTEN \"" + T->name() + "\"");
     result R( PQexec(m_Conn, LQ.c_str()) );
 
-    if (is_open()) try {R.CheckStatus(LQ);} catch (const broken_connection &) {}
+    if (is_open()) try
+    {
+      check_result(R,LQ.c_str());
+    }
+    catch (const broken_connection &)
+    {
+    }
     m_Triggers.insert(NewVal);
   }
   else
@@ -392,7 +474,7 @@ void pqxx::connection_base::RemoveTrigger(pqxx::trigger *T) throw ()
       m_Triggers.erase(i);
 
       if (m_Conn && (R.second == ++R.first))
-	Exec(("UNLISTEN \"" + T->name() + "\"").c_str(), 0);
+        Exec(("UNLISTEN \"" + T->name() + "\"").c_str(), 0);
     }
   }
   catch (const exception &e)
@@ -402,9 +484,9 @@ void pqxx::connection_base::RemoveTrigger(pqxx::trigger *T) throw ()
 }
 
 
-void pqxx::connection_base::consume_input() throw ()
+bool pqxx::connection_base::consume_input() throw ()
 {
-  PQconsumeInput(m_Conn);
+  return PQconsumeInput(m_Conn) != 0;
 }
 
 
@@ -440,7 +522,7 @@ int pqxx::connection_base::get_notifs()
     {
       try
       {
-	process_notice("Exception in trigger handler '" +
+        process_notice("Exception in trigger handler '" +
 		       i->first +
 		       "': " +
 		       e.what() +
@@ -448,13 +530,13 @@ int pqxx::connection_base::get_notifs()
       }
       catch (const bad_alloc &)
       {
-	// Out of memory.  Try to get the message out in a more robust way.
-	process_notice("Exception in trigger handler, "
+        // Out of memory.  Try to get the message out in a more robust way.
+        process_notice("Exception in trigger handler, "
 	    "and also ran out of memory\n");
       }
       catch (const exception &)
       {
-	process_notice("Exception in trigger handler "
+        process_notice("Exception in trigger handler "
 	    "(compounded by other error)\n");
       }
     }
@@ -512,10 +594,8 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
     if (is_open()) R = PQexec(m_Conn, Query);
   }
 
-  if (!is_open()) throw broken_connection();
-  // A shame we can't detect out-of-memory to turn this into a bad_alloc...
-  if (!R) throw runtime_error(ErrMsg());
-  R.CheckStatus(Query);
+  check_result(R, Query);
+
   get_notifs();
   return R;
 }
@@ -575,9 +655,8 @@ pqxx::result pqxx::connection_base::pq_exec_prepared(const string &pname,
 #ifdef PQXX_HAVE_PQEXECPREPARED
   result R(PQexecPrepared(m_Conn, pname.c_str(), nparams, params, 0, 0, 0));
 
-  if (!is_open()) throw broken_connection();
-  if (!R) throw runtime_error(ErrMsg());
-  R.CheckStatus(pname);
+  check_result(R, pname.c_str());
+
   get_notifs();
   return R;
 #else
@@ -593,6 +672,10 @@ pqxx::result pqxx::connection_base::pq_exec_prepared(const string &pname,
 
 void pqxx::connection_base::Reset()
 {
+  if (m_inhibit_reactivation)
+    throw broken_connection("Could not reset connection: "
+	"reactivation is inhibited");
+
   clear_fdmask();
 
   // Forget about any previously ongoing connection attempts
@@ -724,10 +807,7 @@ bool pqxx::connection_base::ReadCopyLine(string &Line)
 
     case -1:
       for (result R(PQgetResult(m_Conn)); R; R=PQgetResult(m_Conn))
-      {
-	if (!is_open()) throw broken_connection();
-	R.CheckStatus("[END COPY]");
-      }
+	check_result(R, "[END COPY]");
       Result = false;
       break;
 
@@ -832,8 +912,7 @@ void pqxx::connection_base::EndCopyWrite()
   }
 
   const result R(PQgetResult(m_Conn));
-  if (!is_open()) throw broken_connection();
-  R.CheckStatus("[END COPY]");
+  check_result(R, "[END COPY]");
 
 #else
   WriteCopyLine(theWriteTerminator);
@@ -934,4 +1013,23 @@ int pqxx::connection_base::await_notification(long seconds, long microseconds)
   return notifs;
 }
 
+
+void pqxx::connection_base::read_capabilities() const throw ()
+{
+  int v = 0;
+#ifdef PQXX_HAVE_PQSERVERVERSION
+  if (m_Conn) v = PQserverVersion(m_Conn);
+#endif
+
+  m_caps[cap_create_table_with_oids] = (v >= 80000);
+
+  m_caps_known = true;
+}
+
+
+bool pqxx::connection_base::supports(capability c) const throw ()
+{
+  if (!m_caps_known) read_capabilities();
+  return m_caps[c];
+}
 
