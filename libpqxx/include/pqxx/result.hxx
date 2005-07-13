@@ -92,15 +92,24 @@ public:
       m_Home(r), m_Index(i) {}
     ~tuple() throw () {} // Yes Scott Meyers, you're absolutely right[1]
 
+    /**
+     * @name Comparison
+     */
+    //@{
     bool operator==(const tuple &) const throw ();			//[t75]
     bool operator!=(const tuple &rhs) const throw ()			//[t75]
 	{ return !operator==(rhs); }
+    //@}
 
     const_iterator begin() const throw ()				//[t82]
 	{ return const_iterator(*this, 0); }
     const_iterator end() const throw ()					//[t82]
 	{ return const_iterator(*this, size()); }
 
+    /**
+     * @name Field access
+     */
+    //@{
     reference front() const throw () { return field(*this, 0); }	//[t74]
     reference back() const throw () { return field(*this, size()-1); }	//[t75]
 
@@ -120,6 +129,7 @@ public:
     reference at(const char[]) const;					//[t11]
     reference at(const PGSTD::string &s) const				//[t11]
 	{ return at(s.c_str()); }
+    //@}
 
     size_type size() const throw () { return m_Home->columns(); }	//[t11]
 
@@ -127,6 +137,10 @@ public:
 
     result::size_type rownumber() const throw () { return m_Index; }	//[t11]
 
+    /**
+     * @name Column information
+     */
+    //@{
     /// Number of given column (throws exception if it doesn't exist)
     size_type column_number(const PGSTD::string &ColName) const		//[t30]
 	{ return m_Home->column_number(ColName); }
@@ -150,8 +164,6 @@ public:
     /// Type of given column
     oid column_type(const char ColName[]) const				//[t7]
 	{ return column_type(column_number(ColName)); }
-
-    result::size_type num() const { return rownumber(); }		//[t1]
 
     /// What table did this column come from?  Requires PostgreSQL 7.4 C API.
     /** Only defined if the libpqxx library was compiled against a libpq
@@ -183,9 +195,16 @@ public:
      */
     oid column_table(const PGSTD::string &ColName) const		//[t2]
 	{ return column_table(column_number(ColName)); }
+    //@}
+
+    result::size_type num() const { return rownumber(); }		//[t1]
 
 
 #ifdef PQXX_DEPRECATED_HEADERS
+    /**
+     * @name 1.x API
+     */
+    //@{
     /// @deprecated Use rownumber() instead
     result::size_type Row() const { return rownumber(); }
 
@@ -196,6 +215,7 @@ public:
     /// @deprecated Use column_number() instead
     size_type ColumnNumber(const char ColName[]) const
 	{ return column_number(ColName); }
+    //@}
 #endif
 
   protected:
@@ -224,6 +244,10 @@ public:
     field(const tuple &T, tuple::size_type C) throw () : 		//[t1]
 	m_tup(T), m_col(C) {}
 
+    /**
+     * @name Comparison
+     */
+    //@{
     /// Byte-by-byte comparison of two fields (all nulls are considered equal)
     /** @warning null handling is still open to discussion and change!
      *
@@ -247,15 +271,12 @@ public:
     /** @warning See operator== for important information about this operator
      */
     bool operator!=(const field &rhs) const {return !operator==(rhs);}	//[t82]
+    //@}
 
-    /// Read as plain C string
-    /** Since the field's data is stored internally in the form of a
-     * zero-terminated C string, this is the fastest way to read it.  Use the
-     * to() or as() functions to convert the string to other types such as int,
-     * or to C++ strings.
+    /**
+     * @name Column information
      */
-    const char *c_str() const { return home()->GetValue(idx(),col()); }	//[t2]
-
+    //@{
     /// Column name
     const char *name() const { return home()->column_name(col()); }	//[t11]
 
@@ -271,6 +292,21 @@ public:
      * PQftable function first became available in PostgreSQL 7.4.
      */
     oid table() const { return home()->column_table(col()); }		//[t2]
+
+    tuple::size_type num() const { return col(); }			//[t82]
+    //@}
+
+    /**
+     * @name Content access
+     */
+    //@{
+    /// Read as plain C string
+    /** Since the field's data is stored internally in the form of a
+     * zero-terminated C string, this is the fastest way to read it.  Use the
+     * to() or as() functions to convert the string to other types such as int,
+     * or to C++ strings.
+     */
+    const char *c_str() const { return home()->GetValue(idx(),col()); }	//[t2]
 
     /// Read value into Obj; or leave Obj untouched and return false if null
     template<typename T> bool to(T &Obj) const				//[t3]
@@ -335,7 +371,7 @@ public:
     bool is_null() const { return home()->GetIsNull(idx(), col()); }	//[t12]
     size_type size() const throw ()					//[t11]
 	{ return home()->GetLength(idx(),col()); }
-    tuple::size_type num() const { return col(); }			//[t82]
+    //@}
 
 #ifdef PQXX_DEPRECATED_HEADERS
     /// @deprecated Use name() instead
@@ -376,6 +412,10 @@ public:
     const_iterator() throw () : tuple(0,0) {}
     const_iterator(const tuple &t) throw () : tuple(t) {}
 
+    /**
+     * @name Dereferencing operators
+     */
+    //@{
     /** The iterator "points to" its own tuple, which is also itself.  This
      * allows a result to be addressed as a two-dimensional container without
      * going through the intermediate step of dereferencing the iterator.  I
@@ -389,7 +429,12 @@ public:
      */
     pointer operator->() const { return this; }				//[t12]
     reference operator*() const { return tuple(*this); }		//[t12]
+    //@}
 
+    /**
+     * @name Manipulations
+     */
+    //@{
     const_iterator operator++(int);					//[t12]
     const_iterator &operator++() { ++m_Index; return *this; }		//[t1]
     const_iterator operator--(int);					//[t12]
@@ -399,7 +444,12 @@ public:
 	{ m_Index+=i; return *this; }
     const_iterator &operator-=(difference_type i) 			//[t12]
 	{ m_Index-=i; return *this; }
+    //@}
 
+    /**
+     * @name Comparisons
+     */
+    //@{
     bool operator==(const const_iterator &i) const 			//[t12]
 	{return m_Index==i.m_Index;}
     bool operator!=(const const_iterator &i) const 			//[t12]
@@ -412,12 +462,18 @@ public:
 	{return m_Index>i.m_Index;}
     bool operator>=(const const_iterator &i) const 			//[t12]
 	{return m_Index>=i.m_Index;}
+    //@}
 
+    /**
+     * @name Arithmetic operators
+     */
+    //@{
     inline const_iterator operator+(difference_type) const;		//[t12]
     friend const_iterator
     operator+(difference_type, const_iterator);				//[t12]
     inline const_iterator operator-(difference_type) const;		//[t12]
     inline difference_type operator-(const_iterator) const;		//[t12]
+    //@}
 
   private:
     friend class pqxx::result;
@@ -448,26 +504,49 @@ public:
 
     iterator_type base() const throw () { return *this; }		//[t75]
 
-    const_reverse_iterator &operator=(const const_reverse_iterator &r)	//[t75]
-	{ iterator_type::operator=(r); return *this; }
+    /**
+     * @name Dereferencing operators
+     */
+    //@{
     pointer operator->() const throw () 				//[t75]
 	{ m_tmp=*this; --m_tmp; return &m_tmp; }
     reference operator*() const throw () { return *operator->(); }	//[t75]
+    //@}
+ 
+    /**
+     * @name Manipulations
+     */
+    //@{
+    const_reverse_iterator &operator=(const const_reverse_iterator &r)	//[t75]
+	{ iterator_type::operator=(r); return *this; }
     const_reverse_iterator operator++()					//[t75]
 	{ iterator_type::operator--(); return *this; }
     const_reverse_iterator operator++(int);				//[t75]
     const_reverse_iterator &operator--() 				//[t75]
 	{ iterator_type::operator++(); return *this; }
     const_reverse_iterator operator--(int);				//[t75]
-    const_reverse_iterator operator+(difference_type i) const		//[t75]
-	{ return const_reverse_iterator(iterator_type(*this)-i); }
     const_reverse_iterator &operator+=(difference_type i)		//[t75]
 	{ iterator_type::operator-=(i); return *this; }
-    const_reverse_iterator operator-(difference_type i)			//[t75]
-	{ return const_reverse_iterator(iterator_type(*this)+i); }
     const_reverse_iterator &operator-=(difference_type i)		//[t75]
 	{ iterator_type::operator+=(i); return *this; }
+    //@}
 
+    /**
+     * @name Arithmetic operators
+     */
+    //@{
+    const_reverse_iterator operator+(difference_type i) const		//[t75]
+	{ return const_reverse_iterator(iterator_type(*this)-i); }
+    const_reverse_iterator operator-(difference_type i)			//[t75]
+	{ return const_reverse_iterator(iterator_type(*this)+i); }
+    difference_type operator-(const const_reverse_iterator &rhs) const	//[t75]
+	{ return rhs.base() - base(); }
+    //@}
+
+    /**
+     * @name Comparisons
+     */
+    //@{
     bool operator==(const const_reverse_iterator &rhs) const throw ()	//[t75]
 	{ return iterator_type::operator==(rhs); }
     bool operator!=(const const_reverse_iterator &rhs) const throw ()	//[t75]
@@ -481,8 +560,7 @@ public:
 	{ return iterator_type::operator<(rhs); }
     bool operator>=(const const_reverse_iterator &rhs) const 		//[t75]
 	{ return iterator_type::operator<=(rhs); }
-    difference_type operator-(const const_reverse_iterator &rhs) const	//[t75]
-	{ return rhs.base() - base(); }
+    //@}
 
   private:
     /// Cached base iterator (workaround for operator-> problems)
@@ -513,9 +591,18 @@ public:
       field(T, C) {}
     const_fielditerator(const field &F) throw () : field(F) {}		//[t82]
 
+    /**
+     * @name Dereferencing operators
+     */
+    //@{
     pointer operator->() const { return this; }				//[t82]
     reference operator*() const { return field(*this); }		//[t82]
+    //@}
 
+    /**
+     * @name Manipulations
+     */
+    //@{
     const_fielditerator operator++(int);				//[t82]
     const_fielditerator &operator++() { ++m_col; return *this; }	//[t82]
     const_fielditerator operator--(int);				//[t82]
@@ -525,7 +612,12 @@ public:
 	{ m_col+=i; return *this; }
     const_fielditerator &operator-=(difference_type i) 			//[t82]
 	{ m_col-=i; return *this; }
+    //@}
 
+    /**
+     * @name Comparisons
+     */
+    //@{
     bool operator==(const const_fielditerator &i) const 		//[t82]
 	{return col()==i.col();}
     bool operator!=(const const_fielditerator &i) const 		//[t82]
@@ -538,7 +630,12 @@ public:
 	{return col()>i.col();}
     bool operator>=(const const_fielditerator &i) const 		//[t82]
 	{return col()>=i.col();}
+    //@}
 
+    /**
+     * @name Arithmetic operators
+     */
+    //@{
     inline const_fielditerator operator+(difference_type) const;	//[t82]
 
     friend const_fielditerator operator+(difference_type,
@@ -546,6 +643,7 @@ public:
 
     inline const_fielditerator operator-(difference_type) const;	//[t82]
     inline difference_type operator-(const_fielditerator) const;	//[t82]
+    //@}
   };
 
   class PQXX_LIBEXPORT const_reverse_fielditerator : private const_fielditerator
@@ -571,34 +669,57 @@ public:
       const_reverse_fielditerator(const const_fielditerator &rhs) :	//[t82]
       const_fielditerator(rhs), m_tmp(rhs) {}
 
-    const_reverse_fielditerator &
-      operator=(const const_reverse_fielditerator &r)			//[t82]
-	{ iterator_type::operator=(r); return *this; }
+    /**
+     * @name Dereferencing operators
+     */
+    //@{
     pointer operator->() const throw () 				//[t82]
 	{ m_tmp = *this; --m_tmp; return &m_tmp; }
     reference operator*() const throw () { return *operator->(); }	//[t82]
+    //@}
+
+    /**
+     * @name Manipulations
+     */
+    //@{
+    const_reverse_fielditerator &
+      operator=(const const_reverse_fielditerator &r)			//[t82]
+	{ iterator_type::operator=(r); return *this; }
     const_reverse_fielditerator operator++()				//[t82]
 	{ iterator_type::operator--(); return *this; }
     const_reverse_fielditerator operator++(int);			//[t82]
     const_reverse_fielditerator &operator--() 				//[t82]
 	{ iterator_type::operator++(); return *this; }
     const_reverse_fielditerator operator--(int);			//[t82]
-    const_reverse_fielditerator operator+(difference_type i) const	//[t82]
-	{ return const_reverse_fielditerator(iterator_type(*this)-i); }
     const_reverse_fielditerator &operator+=(difference_type i)		//[t82]
 	{ iterator_type::operator-=(i); return *this; }
-    const_reverse_fielditerator operator-(difference_type i)		//[t82]
-	{ return const_reverse_fielditerator(iterator_type(*this)+i); }
     const_reverse_fielditerator &operator-=(difference_type i)		//[t82]
 	{ iterator_type::operator+=(i); return *this; }
+    //@}
 
+    /**
+     * @name Arithmetic operators
+     */
+    //@{
+    const_reverse_fielditerator operator+(difference_type i) const	//[t82]
+	{ return const_reverse_fielditerator(iterator_type(*this)-i); }
+    const_reverse_fielditerator operator-(difference_type i)		//[t82]
+	{ return const_reverse_fielditerator(iterator_type(*this)+i); }
+    difference_type
+      operator-(const const_reverse_fielditerator &rhs) const		//[t82]
+	{ return rhs.base() - base(); }
+    //@}
+
+    /**
+     * @name Comparisons
+     */
+    //@{
     bool
       operator==(const const_reverse_fielditerator &rhs) const throw ()	//[t82]
 	{ return iterator_type::operator==(rhs); }
     bool
       operator!=(const const_reverse_fielditerator &rhs) const throw ()	//[t82]
 	{ return !operator==(rhs); }
-
 
     bool operator<(const const_reverse_fielditerator &rhs) const 	//[t82]
 	{ return iterator_type::operator>(rhs); }
@@ -608,9 +729,7 @@ public:
 	{ return iterator_type::operator<(rhs); }
     bool operator>=(const const_reverse_fielditerator &rhs) const 	//[t82]
 	{ return iterator_type::operator<=(rhs); }
-    difference_type
-      operator-(const const_reverse_fielditerator &rhs) const		//[t82]
-	{ return rhs.base() - base(); }
+    //@}
 
   private:
     /// Cached base iterator (workaround for operator-> problems)
@@ -629,9 +748,14 @@ public:
   result &operator=(const result &rhs) throw ()				//[t10]
   	{ super::operator=(rhs); return *this; }
 
+  /**
+   * @name Comparisons
+   */
+  //@{
   bool operator==(const result &) const throw ();			//[t70]
   bool operator!=(const result &rhs) const throw ()			//[t70]
   	{ return !operator==(rhs); }
+  //@}
 
   const_reverse_iterator rbegin() const 				//[t75]
   	{ return const_reverse_iterator(end()); }
@@ -657,6 +781,10 @@ public:
 
   using super::clear;							//[t20]
 
+  /**
+   * @name Column information
+   */
+  //@{
   /// Number of columns in result
   tuple::size_type columns() const throw (); 				//[t11]
 
@@ -715,6 +843,7 @@ public:
    */
   oid column_table(const PGSTD::string &ColName) const			//[t2]
     	{ return column_table(column_number(ColName)); }
+  //@}
 
   /// If command was INSERT of 1 row, return oid of inserted row
   /** @return Identifier of inserted row if exactly one row was inserted, or
@@ -731,6 +860,10 @@ public:
 
 
 #ifdef PQXX_DEPRECATED_HEADERS
+  /**
+   * @name 1.x API
+   */
+  //@{
   /// @deprecated For compatibility with old Tuple class
   typedef tuple Tuple;
   /// @deprecated For compatibility with old Field class
@@ -750,6 +883,7 @@ public:
   /// @deprecated Use column_name() instead
   const char *ColumnName(tuple::size_type Number) const
   	{return column_name(Number);}
+  //@}
 #endif
 
 
