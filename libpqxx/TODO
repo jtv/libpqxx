@@ -12,18 +12,12 @@ All Over
 Build & Configuration
 (*) Rename libcompiler.h and compiler.h to reduce confusion
 (*) Remove ../include/pqxx from libtool include path somehow
-(*) Why are the test programs linked with "-lpq -lpq -lpq"!?
 (*) Move PGHOST guessing logic from tools/preprelease to Makefile.am?
 
 Connections
-(*) Use PQserverVersion(), if available, to determine backend version
-(*) Probe, and cache, backend feature set if needed
 (*) Work around pre-7.3 handling of transaction variables?
 (*) Make PQprotocolVersion() and/or PQserverVersion() available to public?
-(*) Clean up connection state model; factor out connection policy classes
 (*) Use PQtransactionStatus to detect auto-aborted transactions?
-(*) More helpful broken_connection exception hierarchy
-(*) Connection pooling support
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
 (*) libpqxx-level trace output
 
@@ -32,10 +26,6 @@ Cursors
 (*) Think about positioning and nested transactions
 (*) Investigate WITH HOLD feature (nontransaction cursors)
 (*) In PostgreSQL 7.4, MOVE and FETCH are much improved (PQcmdTuples()!)
-
-Documentation
-(*) Separate out README troubleshooting sections (parallel to build steps?)
-(*) Reduce duplication in reference docs using Doxygen member grouping
 
 Exceptions
 (*) Strip newlines from PostgreSQL error messages in exceptions?
@@ -65,8 +55,8 @@ Streams
 
 Tests
 (*) Test with multiple backend versions
+(*) Test broken connections
 (*) Test tablereader and rows ending in empty fields
-(*) Test infinities
 
 Thread-safety
 (*) Any functions besides strerror() that may not be thread-safe?
@@ -75,7 +65,6 @@ Thread-safety
 (*) Note thread risks of copying etc. in all PQAlloc-derived classes
 
 Transactions
-(*) [pgsql 8.0] Create log table "WITH OIDS" if appropriate
 (*) [pgsql 8.0] Support two-phase commit with separate transaction class(es)
 (*) [pgsql 8.0] Support nested transactions and savepoints
 (*) Undefine nontransaction "transaction" variables?
