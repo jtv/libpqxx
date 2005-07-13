@@ -14,6 +14,8 @@
   - Moved strerror_wrapper() from largeobject into util
   - Removed PQXX_LIBEXPORT from some inline function templates
   - Grouped string conversion documentation
+ test/test000.cxx:
+  - Add warning to compiler.h include, thanks Ron Peterson
  test/test056.cxx:
   - Fixed typo in output
 2005-07-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
