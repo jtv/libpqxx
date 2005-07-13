@@ -44,7 +44,7 @@ pqxx::basic_robusttransaction::basic_robusttransaction(connection_base &C,
   m_LogTable(),
   m_backendpid(-1)
 {
-  m_LogTable = string("PQXXLOG_") + conn().username();
+  m_LogTable = string("pqxxlog_") + conn().username();
 }
 
 
@@ -112,7 +112,6 @@ void pqxx::basic_robusttransaction::do_commit()
   }
   catch (const exception &e)
   {
-    // TODO: Can we limit this handler to broken_connection exceptions?
     m_ID = oid_none;
     if (!conn().is_open())
     {
@@ -185,11 +184,13 @@ void pqxx::basic_robusttransaction::CreateLogTable()
 {
   // Create log table in case it doesn't already exist.  This code must only be
   // executed before the backend transaction has properly started.
-  const string CrTab = "CREATE TABLE " + m_LogTable +
-	               "("
-	               "name VARCHAR(256), "
-	               "date TIMESTAMP"
-	               ")";
+  string CrTab = "CREATE TABLE \"" + m_LogTable + "\" "
+		 "("
+		 "name VARCHAR(256), "
+		 "date TIMESTAMP, "
+		 "CONSTRAINT identity UNIQUE(oid))";
+  if (conn().supports(connection_base::cap_create_table_with_oids))
+    CrTab += " WITH OIDS";
 
   try { DirectExec(CrTab.c_str(), 1); } catch (const exception &) { }
 }
@@ -197,8 +198,10 @@ void pqxx::basic_robusttransaction::CreateLogTable()
 
 void pqxx::basic_robusttransaction::CreateTransactionRecord()
 {
+  static const string Fail = "Could not create transaction log record: ";
+
   // TODO: Might as well include real transaction ID and backend PID
-  const string Insert = "INSERT INTO " + m_LogTable + " "
+  const string Insert = "INSERT INTO \"" + m_LogTable + "\" "
 	                "(name, date) "
 			"VALUES "
 	                "(" +
@@ -207,10 +210,39 @@ void pqxx::basic_robusttransaction::CreateTransactionRecord()
 	                "CURRENT_TIMESTAMP"
 	                ")";
 
-  m_ID = DirectExec(Insert.c_str()).inserted_oid();
+  try
+  {
+    const result R(DirectExec(Insert.c_str()));
+    m_ID = R.inserted_oid();
+  }
+  catch (const sql_error &e) { throw sql_error(Fail+e.what(), Insert); }
+  catch (const broken_connection &) { throw; }
+  catch (const bad_alloc &) { throw; }
+  catch (const out_of_range &e) { throw out_of_range(Fail+e.what()); }
+  catch (const range_error &e) { throw range_error(Fail+e.what()); }
+  catch (const invalid_argument &e) { throw invalid_argument(Fail+e.what()); }
+  catch (const runtime_error &e) { throw runtime_error(Fail+e.what()); }
+  catch (const domain_error &e) { throw domain_error(Fail+e.what()); }
+  catch (const logic_error &e) { throw logic_error(Fail+e.what()); }
+  catch (const exception &e) { throw sql_error(Fail+e.what(), Insert); }
 
   if (m_ID == oid_none)
-    throw runtime_error("Could not create transaction log record");
+  {
+    if (conn().supports(connection_base::cap_create_table_with_oids))
+      throw runtime_error(Fail +
+	  "Transaction log table " + m_LogTable + " exists but does not seem\n"
+	  "to have been created with an implicit oid column.\n"
+	  "This column was automatically present in all tables prior to "
+	  "PostgreSQL 8.1.\n"
+	  "It may be missing here because the table was created by a libpqxx "
+	  "version prior to 2.6.0,\n"
+	  "or the table may have been imported from a PostgreSQL version prior "
+	  "to 8.1 without preserving the oid column.\n"
+	  "It should be safe to drop the table; a new one will then be created "
+	  "with the oid column present.");
+    throw runtime_error(Fail + "For some reason the transaction log record "
+	"was not assigned a valid oid by the backend.");
+  }
 }
 
 
@@ -222,7 +254,7 @@ void pqxx::basic_robusttransaction::DeleteTransactionRecord(IDType ID) throw ()
   {
     // Try very, very hard to delete record.  Specify an absurd retry count to
     // ensure that the server gets a chance to restart before we give up.
-    const string Del = "DELETE FROM " + m_LogTable + " "
+    const string Del = "DELETE FROM \"" + m_LogTable + "\" "
 	               "WHERE oid=" + to_string(ID);
 
     DirectExec(Del.c_str(), 20);
@@ -290,7 +322,7 @@ bool pqxx::basic_robusttransaction::CheckTransactionRecord(IDType ID)
     throw runtime_error("Old backend process stays alive too long to wait for");
 
   // Now look for our transaction record
-  const string Find = "SELECT oid FROM " + m_LogTable + " "
+  const string Find = "SELECT oid FROM \"" + m_LogTable + "\" "
 	              "WHERE oid=" + to_string(ID);
 
   return !DirectExec(Find.c_str(), 20).empty();
