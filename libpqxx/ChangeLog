@@ -1,3 +1,6 @@
+2005-07-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/util.cxx:
+  - Missing parenthesis, thanks hys545@dreamwiz.com
 2005-07-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/binarystring.hxx, include/pqxx/cursor.hxx,
  include/pqxx/largeobject.hxx, include/pqxx/result.hxx,

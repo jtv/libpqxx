@@ -706,7 +706,7 @@ const char *pqxx::internal::strerror_wrapper(int err, char buf[], size_t len)
 
 #if !defined(PQXX_HAVE_STRERROR_R)
   strncpy(buf, strerror(err), len);
-#elif defined(PQXX_HAVE_STRERROR_R_INT
+#elif defined(PQXX_HAVE_STRERROR_R_INT)
   // Single Unix Specification version: returns result code
   const int code = strerror_r(err, buf, len);
   switch (code)
