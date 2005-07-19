@@ -1,4 +1,11 @@
 2005-07-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx:
+  - Marked inhibit_reactivation() as tested
+  - Restored full test coverage
+ test/test086.cxx:
+  - New
+  - Tests inhibition of connection reactivation
+2005-07-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/compiler/VisualC++.NET-2003/config-public-compiler.h:
   - Removed PQXX_HAVE_CPP_WARNING, thanks Christian Nettesheim
  include/pqxx/cursor.hxx, src/cursor.cxx:
