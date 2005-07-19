@@ -182,7 +182,7 @@ public:
    * you inhibit it.
    */
   void inhibit_reactivation(bool inhibit) 				//[t86]
-	{ m_inhibit_reactivation=true; }
+	{ m_inhibit_reactivation=inhibit; }
 
   /// Is this connection open at the moment?
   /** @warning This function is @b not needed in most code.  Resist the
