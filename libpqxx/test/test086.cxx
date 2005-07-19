@@ -1,6 +1,9 @@
 #include <iostream>
 
 #include <pqxx/connection>
+#include <pqxx/nontransaction>
+#include <pqxx/transaction>
+
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -12,7 +15,7 @@ int main()
 {
   try
   {
-    const char Query = "SELECT * from pg_tables";
+    const string Query = "SELECT * from pg_tables";
 
     connection C;
 
@@ -47,9 +50,14 @@ int main()
   {
     cerr << "SQL error: " << e.what() << endl
 	 << "Query was: " << e.query() << endl;
+    return 1;
   }
   catch (const exception &e)
   {
     cerr << "Exception: " << e.what() << endl;
+    return 1;
+  }
+
+  return 0;
 }
 
