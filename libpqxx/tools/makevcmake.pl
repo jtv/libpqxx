@@ -81,9 +81,7 @@ CPP_PROJ=/nologo /W3 /GX /FD /c \$(CPP_EXTRAS) \\
 	/Fo"\$(INTDIR)\\\\" /Fd"\$(INTDIR)\\\\" \\
 
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib wsock32.lib user32.lib gdi32.lib winspool.lib \\
-	comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib \\
-	odbc32.lib odbccp32.lib /nologo /dll /machine:I386 \\
+LINK32_FLAGS=kernel32.lib wsock32.lib advapi32.lib /nologo /dll /machine:I386 \\
 	/out:"\$(OUTFILE).dll" /implib:"\$(OUTFILE).lib" \\
 	\$(LINK32_FLAG_EXTRA) \$(LIBPATH)
 
@@ -141,10 +139,10 @@ LIBPQXXDLL : "\$(OUTFILE).dll"
 <<
 !IF "\$(CFG)" == "dll debug"
    -\@erase "\$(OUTFILE).ilk"
-   -\@erase "\$(OUTFILE).pdb"
+   #-\@erase "\$(OUTFILE).pdb"
 !ENDIF
    -\@erase "\$(OUTFILE).exp"
-   -\@erase "\$(INTDIR)\\*.?db"
+   #-\@erase "\$(INTDIR)\\*.?db"
    -\@erase "\$(INTDIR)\\*.obj"
 
 LIBPQXXSTATIC : "\$(OUTFILE).lib"
@@ -154,7 +152,7 @@ LIBPQXXSTATIC : "\$(OUTFILE).lib"
   \$(LIB32_FLAGS) \$(DEF_FLAGS) \$(LINK32_OBJS)
 <<
 	-\@erase "\$(INTDIR)\\*.obj"
-	-\@erase "\$(INTDIR)\\*.?db"
+	#-\@erase "\$(INTDIR)\\*.?db"
 
 "\$(OUTDIR)" :
     if not exist "\$(OUTDIR)/\$(NULL)" mkdir "\$(OUTDIR)"

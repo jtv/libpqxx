@@ -26,8 +26,6 @@
 using namespace PGSTD;
 
 
-unsigned char pqxx::cursor_base::s_dummy;
-
 pqxx::cursor_base::cursor_base(transaction_base *context,
     const string &cname,
     bool embellish_name) :

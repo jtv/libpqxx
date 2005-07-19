@@ -492,7 +492,7 @@ bool pqxx::connection_base::consume_input() throw ()
 
 bool pqxx::connection_base::is_busy() const throw ()
 {
-  return PQisBusy(m_Conn);
+  return PQisBusy(m_Conn) != 0;
 }
 
 

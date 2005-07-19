@@ -45,8 +45,9 @@ LINK32_FLAG_EXTRA=/incremental:no
 
 !ELSEIF  \"\$(CFG)\" == \"Debug\"
 CPP_EXTRA=/MDd /Gm /GZ /Zi /Od /D \"_DEBUG\"
-LINK32_FLAG_LIB=libpqxxD.lib
-LINK32_FLAG_EXTRA=/incremental:yes /debug /pdbtype:sept
+#LINK32_FLAG_LIB=libpqxxD.lib
+LINK32_FLAG_LIB=libpqxx.lib
+LINK32_FLAG_EXTRA=/incremental:no /debug /pdbtype:sept
 
 !ENDIF
 
@@ -57,8 +58,7 @@ CPP_PROJ=/nologo \$(CPP_EXTRA) /W3 /GX /FD /c \\
 	/YX /Fo\"\$(INTDIR)\\\\\" /Fd\"\$(INTDIR)\\\\\"
 
 LINK32=link.exe
-LINK32_FLAGS=\$(LINK32_FLAG_LIB) kernel32.lib user32.lib \\
-        winspool.lib shell32.lib uuid.lib \\
+LINK32_FLAGS=\$(LINK32_FLAG_LIB) kernel32.lib user32.lib wsock32.lib \\
         /nologo /subsystem:console /machine:I386 \\
         \$(LINK32_FLAG_EXTRA) \$(LIBPATH) /libpath:\"lib\"
 

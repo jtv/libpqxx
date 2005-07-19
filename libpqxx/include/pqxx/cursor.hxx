@@ -37,8 +37,12 @@ public:
   typedef result::difference_type difference_type;
 
   /// Does it make sense to try reading from this cursor again?
-  /** @return Null pointer if finished, non-null if not */
-  operator void *() const { return m_done ? 0 : &s_dummy; }		//[t81]
+  /**
+   * @return Null pointer if finished, or some arbitrary non-null pointer
+   * otherwise.
+   */
+  operator void *() const {return m_done ? 0 : m_context;}		//[t81]
+
   /// Is this cursor finished?
   /** The logical negation of the converstion-to-pointer operator.
    * @return Whether the last attempt to read failed
@@ -89,9 +93,6 @@ private:
   int PQXX_PRIVATE get_unique_cursor_num();
 
   PGSTD::string m_name;
-
-  /// Purely to give us a non-null pointer to return
-  static unsigned char s_dummy;
 
   /// Not allowed
   cursor_base();

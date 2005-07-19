@@ -1,3 +1,16 @@
+2005-07-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/VisualC++.NET-2003/config-public-compiler.h:
+  - Removed PQXX_HAVE_CPP_WARNING, thanks Christian Nettesheim
+ include/pqxx/cursor.hxx, src/cursor.cxx:
+  - Removed s_dummy to fix Visual C++ incompatibility (Christian Nettesheim)
+ src/connection_base.cxx:
+  - Workaround for a Visual C++ warning (Christian Nettesheim)
+ tools/makevcmake.pl, tools/maketestvcmak.pl:
+  - More patches by Christian:
+  - Disable incremental builds on tests
+  - Don't delete debug info
+  - Remove unneeded Windows libraries
+  - Added wsock32.lib for test programs
 2005-07-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/util.cxx:
   - Missing parenthesis, thanks hys545@dreamwiz.com
