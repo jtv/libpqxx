@@ -181,7 +181,7 @@ public:
    * connection first.  This will ensure that definite activation happens before
    * you inhibit it.
    */
-  void inhibit_reactivation(bool inhibit);				//[]
+  void inhibit_reactivation(bool inhibit);				//[t86]
 
   /// Is this connection open at the moment?
   /** @warning This function is @b not needed in most code.  Resist the
