@@ -1,6 +1,7 @@
 ALERT
-(*) Connection restoration will lose any temp tables!
-(*) On MinGW, --enable-shared should define _DLL
+(*) Single PQXX_SHARED to indicate "libpqxx is a shared library"
+(*) --enable-shared should define PQXX_SHARED while building shared library
+(*) On Windows, clean up and rebuild for shared/static versions?
 (*) test062 fails on binary strings with postgres 8.0.2 (RedHat, John Carpenter)
 (*) test085 fails with postgres 8.0.2 (Fedora, John Carpenter)
 (*) Some functionality breaks against postgres 7.1 (niejam@yahoo.com)

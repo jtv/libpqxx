@@ -2,8 +2,8 @@
  - Robusttransaction compatible with PostgreSQL 8.1
  - Infrastructure for querying connection/backend capabilities at runtime
  - Allows connection reactivation to be inhibited explicitly
- - Tries even harder to make sense of conflicting strerror_r() versions
- - Tries harder to detect connection failures that libpq glosses over
+ - Tries even harder to make sense of conflicting strerror_r() definitions
+ - Detects connection failures that libpq glosses over
  - Reference documentation grouped into more coherent sections
  - With Visual C++, doesn't redefine NOMINIMAX if it is defined already
  - Several compatibility improvements for Visual C++
