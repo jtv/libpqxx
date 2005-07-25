@@ -340,9 +340,15 @@ public:
    */
   //@{
   /// Check for pending trigger notifications and take appropriate action.
-  /** Exceptions thrown by client-registered trigger handlers are reported, but
+  /** All notifications found pending at call time are processed by finding
+   * any matching triggers and invoking those.  If no triggers matched the
+   * notification string, none are invoked but the notification is considered
+   * processed.
+   *
+   * Exceptions thrown by client-registered trigger handlers are reported, but
    * not passed on outside this function.
-   * @return Number of pending notifications
+   *
+   * @return Number of notifications processed
    */
   int get_notifs();							//[t4]
 

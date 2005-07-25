@@ -1,4 +1,6 @@
 2005-07-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx:
+  - Documented get_notifs() better, thanks Szucs Gabor
  src/connection_base.cxx:
   - Better workaround for problem with libpq's connection failure detection
 2005-07-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
