@@ -18,6 +18,7 @@
 #include "pqxx/compiler.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <cstdio>
 #include <ctime>
 #include <stdexcept>
@@ -238,52 +239,84 @@ void pqxx::connection_base::check_result(const result &R, const char Query[])
 {
   if (!is_open()) throw broken_connection();
 
-  /* If the connection is broken, we'd expect is_open() to return false, since
-   * PQstatus() is supposed to return CONNECTION_BAD.
-   *
-   * It turns out that, at least for the libpq in PostgreSQL 8.0 and the 8.1
-   * prerelease I'm looking at now (we're writing July 2005), libpq will only
-   * abandon CONNECTION_OK if the errno code for the broken connection is
-   * exactly EPIPE or ECONNRESET.  This is usually fine for local connections,
-   * but ignores the wide range of fatal errors that can occur on TCP/IP
-   * sockets, such as extreme out-of-memory conditions, hardware failures,
-   * severed network connections, and serious software errors.  In these cases
-   * libpq will return an error result that is (as far as I can make out)
-   * indistinguishable from a server-side error, but will retain its state
-   * indication of CONNECTION_OK--thus inviting the possibly false impression
-   * that the query failed to execute (in reality it may have executed
-   * successfully) and the definitely false impression that the connection is
-   * still in a workable state.
-   *
-   * Tom Lane is reluctant to change this behaviour, saying that it lacks
-   * "robustness" to give up on the connection "at the first sign of trouble"
-   * when the socket may conceivably still be usable.  I have suggested that
-   * apart from EINTR, EAGAIN and EWOULDBLOCK, which are already handled as
-   * special cases, an error result from a socket probably indicates that the
-   * operating system has decided the error was not likely to be recoverable,
-   * and second-guessing it is not likely to be productive; and that the
-   * choice to abandon a connection or attempt to revive it is probably best
-   * made before a result for the ongoing query is returned.  Tom has declined
-   * to discuss the matter further.
-   *
-   * A particular worry is connection timeout.  One user observed a 15-minute
-   * period of inactivity when he pulled out a network cable, after which
-   * libpq finally returned a result object containing an error (the error
-   * message for connection failure is subject to translation, by the way, and
-   * is also subject to a bug where random data may currently be embedded in
-   * it in place of the system's explanation of the error, so even attempting
-   * to recognize the string is not a reliable workaround) but said the
-   * connection was still operational.
-   *
-   * To work around this insanity, we check for socket errors ourselves. :-(
-   */
-  const int fd = PQsocket(m_Conn);
-  if (fd < 0 || ferror(fd)) throw broken_connection();
-
   // A shame we can't detect out-of-memory to turn this into a bad_alloc...
   if (!R) throw runtime_error(ErrMsg());
 
-  R.CheckStatus(Query);
+  try
+  {
+    R.CheckStatus(Query);
+  }
+  catch (const exception &e)
+  {
+    /* If the connection is broken, we'd expect is_open() to return false, since
+     * PQstatus() is supposed to return CONNECTION_BAD.
+     *
+     * It turns out that, at least for the libpq in PostgreSQL 8.0 and the 8.1
+     * prerelease I'm looking at now (we're writing July 2005), libpq will only
+     * abandon CONNECTION_OK if the errno code for the broken connection is
+     * exactly EPIPE or ECONNRESET.  This is usually fine for local connections,
+     * but ignores the wide range of fatal errors that can occur on TCP/IP
+     * sockets, such as extreme out-of-memory conditions, hardware failures,
+     * severed network connections, and serious software errors.  In these cases
+     * libpq will return an error result that is (as far as I can make out)
+     * indistinguishable from a server-side error, but will retain its state
+     * indication of CONNECTION_OK--thus inviting the possibly false impression
+     * that the query failed to execute (in reality it may have executed
+     * successfully) and the definitely false impression that the connection is
+     * still in a workable state.
+     *
+     * Tom Lane is reluctant to change this behaviour, saying that it lacks
+     * robustness to give up on the connection "at the first sign of trouble"
+     * when the socket may conceivably still be usable.  I have suggested that
+     * apart from EINTR, EAGAIN and EWOULDBLOCK, which are already handled as
+     * special cases, an error result from a socket probably indicates that the
+     * operating system has decided the error was not likely to be recoverable,
+     * and second-guessing it is not likely to be productive; and that the
+     * choice to abandon a connection or attempt to revive it is probably best
+     * made before a result for the ongoing query is returned.  Tom has declined
+     * to discuss the matter further.
+     *
+     * A particular worry is connection timeout.  One user observed a 15-minute
+     * period of inactivity when he pulled out a network cable, after which
+     * libpq finally returned a result object containing an error (the error
+     * message for connection failure is subject to translation, by the way, and
+     * is also subject to a bug where random data may currently be embedded in
+     * it in place of the system's explanation of the error, so even attempting
+     * to recognize the string is not a reliable workaround) but said the
+     * connection was still operational.
+     */
+    if (!consume_input()) throw broken_connection(e.what());
+    const int fd = PQsocket(m_Conn);
+    if (fd < 0) throw broken_connection(e.what());
+    fd_set errs;
+    FD_ZERO(&errs);
+    int sel;
+    do
+    {
+      timeval nowait = { 0, 0 };
+      FD_SET(fd, &errs);
+      sel = select(fd+1, 0, 0, &errs, &nowait);
+    } while (sel == -1 && errno == EINTR);
+
+    switch (sel)
+    {
+    case -1:
+      switch (errno)
+      {
+      case EBADF:
+      case EINVAL:
+        throw broken_connection(e.what());
+      case ENOMEM:
+        throw bad_alloc();
+      }
+    case 0:
+      break;
+    case 1:
+      throw broken_connection(e.what());
+    }
+
+    throw;
+  }
 }
 
 
