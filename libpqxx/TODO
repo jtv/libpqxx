@@ -6,6 +6,7 @@ ALERT
 (*) test085 fails with postgres 8.0.2 (Fedora, John Carpenter)
 (*) Some functionality breaks against postgres 7.1 (niejam@yahoo.com)
 (*) Ignore column specs in tablestreams on older backends, if possible
+(*) Do all system calls handle EINTR properly?
 
 All Over
 (*) Ensure table/column/cursor/... names are always quoted
