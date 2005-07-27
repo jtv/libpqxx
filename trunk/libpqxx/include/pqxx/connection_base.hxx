@@ -355,14 +355,19 @@ public:
 
   /// Wait for a trigger notification notification to come in
   /** The wait may also be terminated by other events, such as the connection
-   * to the backend failing.  The number of notifications received is returned.
+   * to the backend failing.  Any pending or received notifications are
+   * processed as part of the call.
+   *
+   * @return Number of notifications processed
    */
   int await_notification();						//[t78]
 
   /// Wait for a trigger notification to come in, or for given timeout to pass
   /** The wait may also be terminated by other events, such as the connection
-   * to the backend failing.
-   * @return The number of pending notifications upon return
+   * to the backend failing.  Any pending or received notifications are
+   * processed as part of the call.
+
+   * @return Number of notifications processed
    */
   int await_notification(long seconds, long microseconds);		//[t79]
   //@}
