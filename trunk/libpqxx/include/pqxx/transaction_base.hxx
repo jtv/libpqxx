@@ -80,7 +80,9 @@ private:
 
 
 /// Interface definition (and common code) for "transaction" classes.
-/** All database access must be channeled through one of these classes for
+/** 
+ * @addtogroup transaction Transaction classes
+ * All database access must be channeled through one of these classes for
  * safety, although not all implementations of this interface need to provide
  * full transactional integrity.
  *

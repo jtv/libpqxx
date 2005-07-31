@@ -66,6 +66,10 @@ struct PQXX_LIBEXPORT nonnoticer : noticer
 };
 
 
+/**
+ * @addtogroup connection Connection classes
+ */
+//@{
 /// connection_base abstract base class; represents a connection to a database.
 /** This is the first class to look at when you wish to work with a database
  * through libpqxx.  Depending on the implementing concrete child class, a
@@ -336,11 +340,12 @@ public:
 
 
   /**
-   * @name Event notification
+   * @addtogroup notification Notifications and Triggers
    */
   //@{
   /// Check for pending trigger notifications and take appropriate action.
-  /** All notifications found pending at call time are processed by finding
+  /** 
+   * All notifications found pending at call time are processed by finding
    * any matching triggers and invoking those.  If no triggers matched the
    * notification string, none are invoked but the notification is considered
    * processed.
@@ -431,7 +436,7 @@ public:
 
 
   /**
-   * @name Transactor execution
+   * @addtogroup transactor Transactor framework
    *
    * See the transactor class template for more about transactors.  To use the
    * transactor framework, encapsulate your transaction code in a class derived
@@ -639,6 +644,8 @@ private:
   connection_base(const connection_base &);
   connection_base &operator=(const connection_base &);
 };
+
+//@}
 
 
 // Put this here so on Windows, any noticers can be deleted in caller's context

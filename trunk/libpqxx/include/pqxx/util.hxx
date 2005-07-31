@@ -48,6 +48,14 @@
 /// The home of all libpqxx classes, functions, templates, etc.
 namespace pqxx {}
 
+/// Alias for the standard namespace "std"
+/** This alias is used throughout libpqxx to accomodate the use of other
+ * standard library implementations than the one native to the compiler.  These
+ * alternative implementations may live in separate namespaces to avoid
+ * confusion.
+ */
+namespace PGSTD {}
+
 #include <pqxx/libpq-forward.hxx>
 
 
@@ -480,7 +488,7 @@ template<> inline void FromString(const char Str[], bool &Obj)
 
 
 /**
- * @defgroup String escaping
+ * @addtogroup escaping String escaping
  *
  * Use these functions to "groom" user-provided strings before using them in
  * your SQL statements.  This reduces the chance of unexpected failures when
@@ -491,9 +499,11 @@ template<> inline void FromString(const char Str[], bool &Obj)
  * prevented, imagine you use the following SQL statement somewhere in your
  * program:
  *
+ * @code
  * 	TX.exec("SELECT number,amount "
  * 		"FROM accounts "
  * 		"WHERE allowed_to_see('" + userid + "','" + password + "')");
+ * @endcode
  *
  * This shows a logged-in user important information on all accounts he is
  * authorized to view.  The userid and password strings are variables entered by
@@ -502,14 +512,18 @@ template<> inline void FromString(const char Str[], bool &Obj)
  * Now, if the user is actually an attacker who knows (or can guess) the general
  * shape of this SQL statement, imagine he enters the following password:
  *
+ * @code
  * 	'x') OR ('x' = 'x
+ * @endcode
  *
  * Does that make sense to you?  Probably not.  But if this is inserted into the
  * SQL string by the C++ code above, the query becomes:
  *
+ * @code
  * 	SELECT number,amount
  * 	FROM accounts
  * 	WHERE allowed_to_see('user','x') OR ('x' = 'x')
+ * @endcode
  *
  * Is this what you wanted to happen?  Probably not!  The neat allowed_to_see()
  * clause is completely circumvented by the "OR ('x' = 'x')" clause, which is
@@ -518,17 +532,21 @@ template<> inline void FromString(const char Str[], bool &Obj)
  *
  * To prevent this from happening, use sqlesc:
  *
+ * @code
  * 	TX.exec("SELECT number,amount "
  * 		"FROM accounts "
  * 		"WHERE allowed_to_see('" + sqlesc(userid) + "', "
  * 			"'" + sqlesc(password) + "')");
+ * @endcode
  *
  * Now, the quotes embedded in the attacker's string will be neatly escaped so
  * they can't "break out" of the quoted SQL string they were meant to go into:
  *
+ * @code
  * 	SELECT number,amount
  * 	FROM accounts
  * 	WHERE allowed_to_see('user', 'x'') OR (''x'' = ''x')
+ * @endcode
  *
  * If you look carefully, you'll see that thanks to the added escape characters
  * (a single-quote is escaped in SQL by doubling it) all we get is a very

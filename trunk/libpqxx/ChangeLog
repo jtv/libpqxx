@@ -1,3 +1,17 @@
+2005-07-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/Makefile.am:
+  - Filter out more uninteresting Doxygen output
+ include/pqxx/binarystring.hxx, include/pqxx/connection_base.hxx,
+ include/pqxx/connection.hxx, include/pqxx/dbtransaction.hxx,
+ include/pqxx/except.hxx, include/pqxx/nontransaction.hxx,
+ include/pqxx/robusttransaction.hxx, include/pqxx/transaction_base.hxx,
+ include/pqxx/transaction.hxx, include/pqxx/transactor.hxx,
+ include/pqxx/trigger.hxx, include/pqxx/util.hxx:
+  - More grouping in Doxygen documentation
+  - Used @code/@endcode tags in documentation
+  - Documented PGSTD
+ src/dbtransaction.cxx:
+  - Use PGSTD instead of std
 2005-07-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
   - Rewrote libpq CONNECTION_OK workaround

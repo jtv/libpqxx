@@ -26,6 +26,11 @@
 namespace pqxx
 {
 
+/**
+ * @addtogroup exception Exception classes
+ */
+//@{
+
 /// Exception class for lost backend connection.
 class PQXX_LIBEXPORT broken_connection : public PGSTD::runtime_error
 {
@@ -68,6 +73,8 @@ public:
   explicit in_doubt_error(const PGSTD::string &whatarg) :
 	PGSTD::runtime_error(whatarg) {}
 };
+
+//@}
 
 }
 

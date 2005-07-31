@@ -32,7 +32,10 @@ namespace pqxx
 {
 
 /// Wrapper for transactions that automatically restarts them on failure
-/** Some transactions may be replayed if their connection fails, until they do
+/**
+ * @addtogroup transactor Transactor framework
+ *
+ * Some transactions may be replayed if their connection fails, until they do
  * succeed.  These can be encapsulated in a transactor-derived classes.  The
  * transactor framework will take care of setting up a backend transaction
  * context for the operation, and of aborting and retrying if its connection
