@@ -19,7 +19,7 @@
 
 #include "pqxx/dbtransaction"
 
-using namespace std;
+using namespace PGSTD;
 
 
 pqxx::dbtransaction::dbtransaction(connection_base &C,
