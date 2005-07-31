@@ -27,6 +27,11 @@
 namespace pqxx
 {
 
+/**
+ * @addtogroup connection Connection classes
+ */
+//@{
+
 /// Connection class; represents an immediate connection to a database.
 /** This is the class you typically need when you first work with a database
  * through libpqxx.  Its constructor immediately opens a connection.  Another
@@ -211,6 +216,8 @@ private:
   virtual void PQXX_PRIVATE startconnect() {}
   virtual void PQXX_PRIVATE completeconnect() {}
 };
+
+//@}
 
 }
 

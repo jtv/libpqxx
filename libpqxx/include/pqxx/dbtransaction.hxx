@@ -24,7 +24,10 @@ namespace pqxx
 {
 
 /// Abstract base class responsible for bracketing a backend transaction
-/** Use a dbtransaction-derived object such as "work" (transaction<>) to enclose
+/** 
+ * @addtogroup transaction Transaction classes
+ *
+ * Use a dbtransaction-derived object such as "work" (transaction<>) to enclose
  * operations on a database in a single "unit of work."  This ensures that the
  * whole series of operations either succeeds as a whole or fails completely.
  * In no case will it leave half-finished work behind in the database.

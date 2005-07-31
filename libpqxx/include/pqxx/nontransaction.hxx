@@ -31,6 +31,8 @@ namespace pqxx
 
 /// Simple "transaction" class offering no transactional integrity.
 /**
+ * @addtogroup transaction Transaction classes
+ *
  * nontransaction, like transaction or any other transaction_base-derived class,
  * provides access to a database through a connection.  Unlike its siblings,
  * however, nontransaction does not maintain any kind of transactional

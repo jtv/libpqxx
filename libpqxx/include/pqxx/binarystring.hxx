@@ -26,7 +26,8 @@ namespace pqxx
 {
 
 /// Reveals "unescaped" version of PostgreSQL bytea string
-/** This class represents a postgres-internal buffer containing the original,
+/** @addtogroup escaping String escaping
+ * This class represents a postgres-internal buffer containing the original,
  * binary string represented by a field of type bytea.  The raw value returned
  * by such a field contains escape sequences for certain characters, which are
  * filtered out by binarystring.
@@ -120,7 +121,7 @@ private:
 
 
 /**
- * @addtogroup String escaping
+ * @addtogroup escaping String escaping
  */
 //@{
 /// Escape binary string for inclusion in SQL

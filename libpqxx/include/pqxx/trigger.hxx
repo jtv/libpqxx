@@ -27,7 +27,8 @@
 namespace pqxx
 {
 /// "Observer" base class for trigger notifications.
-/** To listen on a database trigger, derive your own class from trigger and
+/** @addtogroup notification Notifications and Triggers
+ * To listen on a database trigger, derive your own class from trigger and
  * define its function call operator to perform whatever action you wish to
  * take when the given trigger arrives.  Then create an object of that class
  * and pass it to your connection.  DO NOT set triggers directly through SQL,
@@ -40,10 +41,15 @@ namespace pqxx
  *
  * Notifications for your trigger may arrive anywhere within libpqxx code, but
  * be aware that @b PostgreSQL @b defers @b notifications @b occurring @b inside
- * @b transactions.  So if you're keeping a transaction open, don't expect any
- * of your triggers on the same connection to be notified.
+ * @b transactions.  (This was done for excellent reasons; just think about what
+ * happens if the transaction where you happen to handle an incoming
+ * notification is later rolled back for other reasons).  So if you're keeping a
+ * transaction open, don't expect any of your triggers on the same connection
+ * to be notified.
  *
- * Multiple triggers on the same connection may have the same name.
+ * Multiple triggers on the same connection may have the same name.  An incoming
+ * notification is processed by invoking all triggers (zero or more) of the same
+ * name.
  */
 class PQXX_LIBEXPORT trigger : public PGSTD::unary_function<int, void>
 {
