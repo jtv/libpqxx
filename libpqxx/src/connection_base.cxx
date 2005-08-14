@@ -53,6 +53,13 @@ static void pqxxNoticeCaller(void *arg, const char *Msg)
 {
   if (arg && Msg) (*static_cast<pqxx::noticer *>(arg))(Msg);
 }
+
+// Concentrate stupid "old-style cast" warnings for GNU libc in one place, and
+// by using "C" linkage, perhaps silence them altogether.
+static void set_fdbit(int f, fd_set *s)
+{
+  FD_SET(f, s);
+}
 }
 
 
@@ -265,16 +272,15 @@ void pqxx::connection_base::check_result(const result &R, const char Query[])
      * successfully) and the definitely false impression that the connection is
      * still in a workable state.
      *
-     * Tom Lane is reluctant to change this behaviour, saying that it lacks
-     * robustness to give up on the connection "at the first sign of trouble"
+     * Tom Lane was reluctant to change this behaviour, saying that it lacks
+     * robustness to give up on the connection "at the first hint of trouble"
      * when the socket may conceivably still be usable.  I have suggested that
      * apart from EINTR, EAGAIN and EWOULDBLOCK, which are already handled as
      * special cases, an error result from a socket probably indicates that the
      * operating system has decided the error was not likely to be recoverable,
      * and second-guessing it is not likely to be productive; and that the
      * choice to abandon a connection or attempt to revive it is probably best
-     * made before a result for the ongoing query is returned.  Tom has declined
-     * to discuss the matter further.
+     * made before a result for the ongoing query is returned.
      *
      * A particular worry is connection timeout.  One user observed a 15-minute
      * period of inactivity when he pulled out a network cable, after which
@@ -294,7 +300,7 @@ void pqxx::connection_base::check_result(const result &R, const char Query[])
     do
     {
       timeval nowait = { 0, 0 };
-      FD_SET(fd, &errs);
+      set_fdbit(fd, &errs);
       sel = select(fd+1, 0, 0, &errs, &nowait);
     } while (sel == -1 && errno == EINTR);
 
@@ -981,7 +987,7 @@ int pqxx::connection_base::set_fdmask() const
   if (!m_Conn) throw broken_connection();
   const int fd = PQsocket(m_Conn);
   if (fd < 0) throw broken_connection();
-  FD_SET(fd, &m_fdmask);
+  set_fdbit(fd, &m_fdmask);
   return fd;
 }
 
