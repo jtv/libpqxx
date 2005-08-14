@@ -1,3 +1,17 @@
+2005-08-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.hxx, src/cursor.cxx:
+  - Introduced basic_cursor (the cursor class you really want in most cases)
+  - Get accurate row counts when moving cursors
+  - Removed workarounds for Visual C++ attempts to sabotage min()/max()
+ include/pqxx/pipeline.hxx:
+  - Removed workarounds for Visual C++ attempts to sabotage min()/max()
+ include/pqxx/result.hxx:
+  - Made basic_cursor a friend of result
+ src/connection_base.cxx:
+  - Worked around gcc/GNU libc warning for FD_SET
+  - Removed my own comment that was, I recently found, unfair to Tom Lane
+ test/test081.cxx:
+  - Print number of lines in result set being tested
 2005-07-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/Makefile.am:
   - Filter out more uninteresting Doxygen output

@@ -1,6 +1,7 @@
 2.6.0
  - Robusttransaction compatible with PostgreSQL 8.1
  - Infrastructure for querying connection/backend capabilities at runtime
+ - Additional cursor support
  - Allows connection reactivation to be inhibited explicitly
  - Tries even harder to make sense of conflicting strerror_r() definitions
  - Detects connection failures that libpq glosses over

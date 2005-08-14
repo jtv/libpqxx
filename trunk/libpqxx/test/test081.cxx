@@ -115,6 +115,8 @@ int main(int, char *argv[])
     for (start(Cur1, here); get(Cur1, R, 1); ++rows) cmp_results(Ref, here, R);
     finish(Cur1, Ref.size(), here);
 
+    cout << "Testing with " << rows << " rows" << endl;
+
     // Read whole table at once
     icursorstream Cur2(T, Query, "bigstep");
     Cur2.set_stride(cursor_base::all());

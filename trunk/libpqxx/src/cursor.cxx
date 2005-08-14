@@ -65,25 +65,98 @@ string pqxx::cursor_base::stridestring(pqxx::cursor_base::difference_type n)
 }
 
 
+pqxx::basic_cursor::basic_cursor(transaction_base *t,
+    const string &query,
+    const string &cname) :
+  cursor_base(t, cname, true),
+  m_lastfetch(),
+  m_lastmove()
+{
+  // TODO: Add NO SCROLL if backend supports it (7.4 or better)
+  stringstream cq, qn;
+  cq << "DECLARE \"" << name() << "\" CURSOR FOR " << query << " FOR READ ONLY";
+  qn << "[DECLARE " << name() << ']';
+  m_context->exec(cq, qn.str());
+}
+
+
+pqxx::basic_cursor::basic_cursor(transaction_base *t,
+    const string &cname) :
+  cursor_base(t, cname, false),
+  m_lastfetch(),
+  m_lastmove()
+{
+}
+
+
+pqxx::result pqxx::basic_cursor::fetch(difference_type n)
+{
+  // TODO: Use prepared statement for fetches/moves?
+
+  result r;
+  if (n) 
+  {
+    // We cache the last-executed fetch query.  If the current fetch uses the
+    // same distance, we just re-use the cached string instead of composing a
+    // new one.
+    const string fq(
+	(n == m_lastfetch.dist) ?
+         m_lastfetch.query :
+         "FETCH " + stridestring(n) + " IN \"" + name() + "\"");
+
+    // Set m_done on exception (but no need for try/catch)
+    m_done = true;
+    r = m_context->exec(fq);
+    if (!r.empty()) m_done = false;
+  }
+  return r;
+}
+
+
+pqxx::cursor_base::difference_type pqxx::basic_cursor::move(difference_type n)
+{
+  if (!n) return 0;
+
+  const string mq(
+      (n == m_lastmove.dist) ?
+      m_lastmove.query :
+      "MOVE " + stridestring(n) + " IN \"" + name() + "\"");
+
+  // Set m_done on exception (but no need for try/catch)
+  m_done = true;
+  const result r(m_context->exec(mq));
+
+  static const string StdResponse("MOVE ");
+  if (strncmp(r.CmdStatus(), StdResponse.c_str(), StdResponse.size()) != 0)
+    throw logic_error("libpqxx internal error: "
+	"cursor MOVE returned '" + string(r.CmdStatus()) + "' "
+	"(expected '" + StdResponse + "')");
+
+  difference_type d;
+  from_string(r.CmdStatus()+StdResponse.size(), d);
+  m_done = (d != n);
+  return d;
+}
+
+
 pqxx::icursorstream::icursorstream(pqxx::transaction_base &context,
     const string &query,
     const string &basename,
     difference_type Stride) :
-  cursor_base(&context, basename),
+  basic_cursor(&context, query, basename),
   m_stride(Stride),
   m_realpos(0),
   m_reqpos(0),
   m_iterators(0)
 {
   set_stride(Stride);
-  declare(query);
 }
 
 
 pqxx::icursorstream::icursorstream(transaction_base &Context,
     const result::field &Name,
     difference_type Stride) :
-  cursor_base(&Context, Name.c_str(), false),
+  basic_cursor(&Context, Name.c_str()),
   m_stride(Stride),
   m_realpos(0),
   m_reqpos(0),
@@ -100,21 +173,9 @@ void pqxx::icursorstream::set_stride(difference_type n)
   m_stride = n;
 }
 
-void pqxx::icursorstream::declare(const string &query)
-{
-  // TODO: Add NO SCROLL if backend supports it (7.4 or better)
-  stringstream cq, qn;
-  cq << "DECLARE \"" << name() << "\" CURSOR FOR " << query << " FOR READ ONLY";
-  qn << "[DECLARE " << name() << ']';
-  m_context->exec(cq, qn.str());
-}
-
-
 pqxx::result pqxx::icursorstream::fetch()
 {
-  result r(m_context->exec("FETCH " + stridestring(m_stride) + " "
-	"IN \""+name()+"\""));
-  if (r.empty()) m_done = true;
+  const result r(basic_cursor::fetch(m_stride));
   m_realpos += r.size();
   return r;
 }
@@ -122,9 +183,7 @@ pqxx::result pqxx::icursorstream::fetch()
 
 pqxx::icursorstream &pqxx::icursorstream::ignore(streamsize n)
 {
-  m_context->exec("MOVE " + stridestring(n) + " IN \"" + name() + "\"");
-  // TODO: Try to get actual number of moved tuples!
-  m_realpos += n;
+  m_realpos += move(n);
   return *this;
 }
 

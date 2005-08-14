@@ -107,7 +107,7 @@ inline cursor_base::difference_type cursor_base::all() throw ()
 {
   // Microsoft Visual C++ sabotages numeric limits by defining min() and max()
   // as preprocessor macros; some other compilers just don't have numeric_limits
-#if defined(PQXX_HAVE_LIMITS) && !defined(_MSC_VER)
+#if defined(PQXX_HAVE_LIMITS)
   return PGSTD::numeric_limits<difference_type>::max();
 #else
   return INT_MAX;
@@ -116,12 +116,72 @@ inline cursor_base::difference_type cursor_base::all() throw ()
 
 inline cursor_base::difference_type cursor_base::backward_all() throw ()
 {
-#if defined(PQXX_HAVE_LIMITS) && !defined(_MSC_VER)
+#if defined(PQXX_HAVE_LIMITS)
   return PGSTD::numeric_limits<difference_type>::min() + 1;
 #else
   return INT_MIN + 1;
 #endif
 }
+
+
+/// The simplest form of cursor, with no concept of position or stride
+/** SQL cursors can be tricky, especially in C++ since the two languages seem to
+ * have been designed on different planets.  An SQL cursor is positioned
+ * "between rows," as it were, rather than "on" rows like C++ iterators, and so
+ * singular positions akin to end() exist on both sides of the underlying set.
+ *
+ * These cultural differences are hidden from view somewhat by libpqxx, which
+ * tries to make SQL cursors behave more like familiar C++ entities such as
+ * iterators, sequences, streams, and containers.
+ */
+class PQXX_LIBEXPORT basic_cursor : public cursor_base
+{
+public:
+  /// Create cursor based on given query
+  basic_cursor(transaction_base *,
+      const PGSTD::string &query,
+      const PGSTD::string &cname);					//[]
+
+  /// Adopt existing SQL cursor
+  basic_cursor(transaction_base *, const PGSTD::string &cname);		//[]
+
+  /// Fetch number of rows from cursor
+  /** This function can be used to fetch a given number of rows (by passing the
+   * desired number of rows as an argument), or all remaining rows (by passing
+   * cursor_base::all()), or fetch a given number of rows backwards from the
+   * current position (by passing the negative of the desired number), or all
+   * rows remaining behind the current position (by using
+   * cursor_base::backwards_all()).
+   *
+   * This function behaves slightly differently from the SQL FETCH command.
+   * Most notably, fetching zero rows does not move the cursor, and returns an
+   * empty result.
+   *
+   * @warning When zero rows are fetched, the returned result may not contain
+   * any metadata such as the number of columns and their names.
+   * @param n number of rows to fetch
+   * @return a result set containing at most n rows of data
+   */
+  result fetch(difference_type n);					//[]
+
+  /// Move cursor by given number of rows
+  /**
+   * @param n number of rows to move
+   * @return number of rows actually moved (which cannot exceed n)
+   */
+  difference_type move(difference_type n);				//[]
+
+private:
+  struct cachedquery
+  {
+    difference_type dist;
+    PGSTD::string query;
+
+    cachedquery() : dist(0), query() {}
+  };
+  cachedquery m_lastfetch, m_lastmove;
+};
+
 
 class icursor_iterator;
 
@@ -133,7 +193,7 @@ class icursor_iterator;
  * This class can create or adopt cursors that live in nontransactions, i.e.
  * outside any backend transaction, which your backend version may not support.
  */
-class PQXX_LIBEXPORT icursorstream : public cursor_base
+class PQXX_LIBEXPORT icursorstream : public basic_cursor
 {
 public:
   /// Set up a read-only, forward-only cursor
@@ -211,7 +271,6 @@ public:
   difference_type stride() const throw () { return m_stride; }		//[t81]
 
 private:
-  void declare(const PGSTD::string &query);
   result fetch();
 
   friend class icursor_iterator;
