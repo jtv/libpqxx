@@ -99,6 +99,12 @@ int pqxx::connection_base::backendpid() const throw ()
 }
 
 
+int pqxx::connection_base::sock() const throw ()
+{
+  return m_Conn ? PQsocket(m_Conn) : -1;
+}
+
+
 void pqxx::connection_base::activate()
 {
   if (!is_open())
@@ -292,7 +298,7 @@ void pqxx::connection_base::check_result(const result &R, const char Query[])
      * connection was still operational.
      */
     if (!consume_input()) throw broken_connection(e.what());
-    const int fd = PQsocket(m_Conn);
+    const int fd = sock();
     if (fd < 0) throw broken_connection(e.what());
     fd_set errs;
     FD_ZERO(&errs);
@@ -985,7 +991,7 @@ namespace
 int pqxx::connection_base::set_fdmask() const
 {
   if (!m_Conn) throw broken_connection();
-  const int fd = PQsocket(m_Conn);
+  const int fd = sock();
   if (fd < 0) throw broken_connection();
   set_fdbit(fd, &m_fdmask);
   return fd;

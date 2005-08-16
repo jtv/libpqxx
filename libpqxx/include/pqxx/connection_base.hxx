@@ -45,6 +45,10 @@ class transaction_base;
 class trigger;
 
 
+/**
+ * @addtogroup noticer Error/warning output
+ */
+//@{
 /// Base class for user-definable error/warning message processor
 /** To define a custom method of handling notices, derive a new class from
  * noticer and override the virtual function "operator()(const char[]) throw()"
@@ -64,6 +68,7 @@ struct PQXX_LIBEXPORT nonnoticer : noticer
   nonnoticer(){}	// Silences bogus warning in some gcc versions
   virtual void operator()(const char []) throw () {}
 };
+//@}
 
 
 /**
@@ -197,7 +202,7 @@ public:
   //@}
 
   /**
-   * @name Error/warning output
+   * @addtogroup noticer Error/warning output
    */
   //@{
   // TODO: Define a default noticer (mainly to help out Windows users)
@@ -263,6 +268,16 @@ public:
    * @return Process identifier, or 0 if not currently connected.
    */
   int backendpid() const throw ();					//[t1]
+
+  /// Socket currently used for connection, or -1 for none
+  /** Query the current socket number.  This is intended for event loops based
+   * on functions such as select() or poll().
+   *
+   * @warning Don't keep this value anywhere, and always be prepared for the
+   * possibility that there is no socket.  The socket may change or even go away
+   * during any invocation of libpqxx code.
+   */
+  int sock() const throw ();						//[]
 
   /// Session capabilities
   /** Some functionality is only available in certain versions of the backend,
