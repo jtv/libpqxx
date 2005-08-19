@@ -24,6 +24,7 @@
 
 #include "pqxx/result"
 
+// TODO: Can we create WITH HOLD cursors in nontransactions?
 
 namespace pqxx
 {
