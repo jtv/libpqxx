@@ -1,3 +1,12 @@
+2005-08-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - If no strerror_r(), assume strerror() is safe (as in HP-UX, Solaris)
+  - Use strerror_r() if available, even without --enable-threadsafety
+  - Warn for missing strerror_r(), don't fail
+  - Work around problem with HP-UX "grep -F"
+  - Work around problem with "\<" & "\>" in HP-UX grep
+  - Thanks mcpin@emtesistemas.com for HP-UX fixes
+  - Thanks lundgren@byu.net for noting strerror() on Solaris is threadsafe
 2005-08-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cursor.hxx, src/cursor.cxx:
   - Introduced basic_cursor (the cursor class you really want in most cases)

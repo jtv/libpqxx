@@ -8,6 +8,7 @@
  - Reference documentation grouped into more coherent sections
  - With Visual C++, doesn't redefine NOMINIMAX if it is defined already
  - Several compatibility improvements for Visual C++
+ - Fixes and workarounds for HP-UX and HP aCC compiler
 2.5.6
  - Support null parameters to prepared statements (use C-style char pointers)
 2.5.5
