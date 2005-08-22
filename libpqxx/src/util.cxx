@@ -34,6 +34,7 @@
 
 #include "libpq-fe.h"
 
+#include "pqxx/except"
 #include "pqxx/util"
 
 using namespace PGSTD;
@@ -554,30 +555,27 @@ string pqxx::sqlesc(const char str[], size_t len)
 
 string pqxx::sqlesc(const string &str)
 {
-  string result;
+  string res;
   const string::const_iterator str_end(str.end());
   for (string::const_iterator i = str.begin(); i != str_end; ++i)
   {
-    if (isprint(*i) || isspace(*i))
+    // Ensure we don't pass negative integers to isprint()/isspace(), which
+    // Visual C++ chokes on.
+    const unsigned char c(*i);
+    if (isprint(c) || isspace(c))
     {
-      switch (*i)
-      {
-      case '\'':
-      case '\\':
-	result += *i;
-      }
-      result += *i;
+      if (c=='\\' || c=='\'') res += c;
+      res += c;
     }
     else
     {
         char s[8];
-        sprintf(s,
-	        "\\%03o",
-		static_cast<unsigned int>(static_cast<unsigned char>(*i)));
-        result.append(s, 4);
+	// TODO: The number itself may be formatted according to locale!  :-(
+        sprintf(s, "\\%03o", static_cast<unsigned int>(c));
+        res.append(s, 4);
     }
   }
-  return result;
+  return res;
 }
 
 
@@ -627,7 +625,7 @@ void pqxx::internal::CheckUniqueRegistration(const namedclass *New,
     const namedclass *Old)
 {
   if (!New)
-    throw logic_error("libpqxx internal error: NULL pointer registered");
+    throw internal_error("NULL pointer registered");
   if (Old)
   {
     if (Old == New)
@@ -691,7 +689,7 @@ void pqxx::internal::sleep_seconds(int s)
   case ENOMEM:	// Out of memory
 	throw bad_alloc();
   default:
-    throw logic_error("libpqxx internal error in select()");
+    throw internal_error("select() failed for unknown reason");
   }
 #endif
 }
