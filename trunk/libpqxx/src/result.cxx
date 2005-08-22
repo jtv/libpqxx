@@ -140,8 +140,7 @@ string pqxx::result::StatusError() const
     break;
 
   default:
-    throw logic_error("libpqxx internal error: "
-		      "pqxx::result: Unrecognized response code " +
+    throw internal_error("pqxx::result: Unrecognized response code " +
 		      to_string(int(PQresultStatus(c_ptr()))));
   }
   return Err;

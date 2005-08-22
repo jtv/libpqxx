@@ -206,8 +206,7 @@ string pqxx::tablereader::extract_field(const string &Line,
 	  if (i == stop)
 	  {
 	    if ((i+1) >= Line.size())
-	      throw logic_error("libpqxx internal error: "
-		"COPY line ends in backslash");
+	      throw internal_error("COPY line ends in backslash");
 	    stop = findtab(Line, i+1);
 	  }
 	  break;
