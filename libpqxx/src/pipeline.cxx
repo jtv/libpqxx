@@ -204,7 +204,7 @@ void pqxx::pipeline::issue()
 void pqxx::pipeline::internal_error(const string &err) throw (logic_error)
 {
   set_error_at(0);
-  throw logic_error(err);
+  throw pqxx::internal_error(err);
 }
 
 
@@ -235,7 +235,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 
   // Must be the result for the oldest pending query
   if (!m_issuedrange.first->second.get_result().empty())
-    internal_error("libpqxx internal error: multiple results for one query");
+    internal_error("multiple results for one query");
 
   m_issuedrange.first->second.set_result(res);
   ++m_issuedrange.first;
@@ -251,8 +251,7 @@ void pqxx::pipeline::obtain_dummy()
   m_dummy_pending = false;
 
   if (!r)
-    internal_error("libpqxx internal error: "
-	  "pipeline got no result from backend when it expected one");
+    internal_error("pipeline got no result from backend when it expected one");
 
   result R(r);
   bool OK = false;
@@ -267,12 +266,10 @@ void pqxx::pipeline::obtain_dummy()
   if (OK)
   {
     if (R.size() > 1)
-      internal_error("libpqxx internal error: "
-	  "unexpected result for dummy query in pipeline");
+      internal_error("unexpected result for dummy query in pipeline");
 
     if (string(R.at(0).at(0).c_str()) != theDummyValue)
-      internal_error("libpqxx internal error: "
-	    "dummy query in pipeline returned unexpected value");
+      internal_error("dummy query in pipeline returned unexpected value");
     return;
   }
 

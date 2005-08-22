@@ -118,9 +118,9 @@ pqxx::Cursor::NormalizedMove(difference_type Intended,
                              difference_type Actual)
 {
   if (Actual < 0)
-    throw logic_error("libpqxx internal error: Negative rowcount");
+    throw internal_error("Negative rowcount");
   if (Actual > labs(Intended))
-    throw logic_error("libpqxx internal error: Moved/fetched too many rows "
+    throw internal_error("Moved/fetched too many rows "
 	              "(wanted " + to_string(Intended) + ", "
 		      "got " + to_string(Actual) + ")");
 
@@ -186,7 +186,7 @@ pqxx::Cursor::NormalizedMove(difference_type Intended,
     if ((Offset > labs(Intended)) && (m_Pos != size_type(pos_unknown)))
     {
       m_Pos = size_type(pos_unknown);
-      throw logic_error("libpqxx internal error: Confused cursor position");
+      throw internal_error("Confused cursor position");
     }
   }
 
