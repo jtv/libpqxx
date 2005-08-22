@@ -1,9 +1,6 @@
 MAINTAINERCLEANFILES=Makefile.in
 	stamp-h.in
 
-includedir=@includedir@/pqxx
-
-
 noinst_HEADERS = \
 	compiler.h \
 	config-internal-autotools.h
