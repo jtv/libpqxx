@@ -31,13 +31,12 @@ namespace pqxx
  */
 //@{
 
-/// Exception class for lost backend connection.
+/// Exception class for lost or failed backend connection.
 class PQXX_LIBEXPORT broken_connection : public PGSTD::runtime_error
 {
 public:
-  broken_connection() : PGSTD::runtime_error("Connection to back end failed") {}
-  explicit broken_connection(const PGSTD::string &whatarg) :
-    PGSTD::runtime_error(whatarg) {}
+  broken_connection();
+  explicit broken_connection(const PGSTD::string &);
 };
 
 
@@ -48,15 +47,13 @@ class PQXX_LIBEXPORT sql_error : public PGSTD::runtime_error
   PGSTD::string m_Q;
 
 public:
-  sql_error() : PGSTD::runtime_error("Failed query"), m_Q() {}
-  explicit sql_error(const PGSTD::string &whatarg) :
-	PGSTD::runtime_error(whatarg), m_Q() {}
-  sql_error(const PGSTD::string &whatarg, const PGSTD::string &Q) :
-	PGSTD::runtime_error(whatarg), m_Q(Q) {}
-  virtual ~sql_error() throw () {}
+  sql_error();
+  explicit sql_error(const PGSTD::string &);
+  sql_error(const PGSTD::string &, const PGSTD::string &Q);
+  virtual ~sql_error() throw ();
 
   /// The query whose execution triggered the exception
-  const PGSTD::string &query() const throw () { return m_Q; }		//[t56]
+  const PGSTD::string &query() const throw ();				//[t56]
 };
 
 
@@ -70,8 +67,15 @@ public:
 class PQXX_LIBEXPORT in_doubt_error : public PGSTD::runtime_error
 {
 public:
-  explicit in_doubt_error(const PGSTD::string &whatarg) :
-	PGSTD::runtime_error(whatarg) {}
+  explicit in_doubt_error(const PGSTD::string &);
+};
+
+
+/// Internal error in libpqxx library
+class PQXX_LIBEXPORT internal_error : public PGSTD::logic_error
+{
+public:
+  explicit internal_error(const PGSTD::string &);
 };
 
 //@}
