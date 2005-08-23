@@ -156,16 +156,24 @@ public:
   /// Disallow (or permit) connection recovery
   /** A connection whose underlying socket is not currently connected to the
    * server will normally (re-)establish communication with the server whenever
-   * it is needed, or when the client program requests it (although for reasons
-   * of integrity, never inside a transaction; but retrying the whole
-   * transaction may implicitly cause the connection to be restored).  In normal
-   * use this is quite a convenient thing to have and presents a simple, safe,
-   * predictable interface.
+   * needed, or when the client program requests it (although for reasons of
+   * integrity, never inside a transaction; but retrying the whole transaction
+   * may implicitly cause the connection to be restored).  In normal use this is
+   * quite a convenient thing to have and presents a simple, safe, predictable
+   * interface.
    *
    * There is at least one situation where this feature is not desirable,
    * however.  Although most session state (prepared statements, session
    * variables) is automatically restored to its working state upon connection
-   * reactivation, temporary tables are not.
+   * reactivation, temporary tables and so-called WITH HOLD cursors (which can
+   * live outside transactions) are not.
+   *
+   * Cursors that live outside transactions are automatically handled, and the
+   * library will quietly ignore requests to deactivate or reactivate
+   * connections while they exist; it does not want to give you the illusion of
+   * being back in your transaction when in reality you just dropped a cursor.
+   * With temporary tables this is not so easy: there is no easy way for the
+   * library to detect their creation or track their lifetimes.
    *
    * So if your program uses temporary tables, and any part of this use happens
    * outside of any database transaction (or spans multiple transactions), some
@@ -269,15 +277,22 @@ public:
    */
   int backendpid() const throw ();					//[t1]
 
-  /// Socket currently used for connection, or -1 for none
+  /// Socket currently used for connection, or -1 for none.  Use with care!
   /** Query the current socket number.  This is intended for event loops based
-   * on functions such as select() or poll().
+   * on functions such as select() or poll(), where multiple file descriptors
+   * are watched.
    *
-   * @warning Don't keep this value anywhere, and always be prepared for the
+   * Please try to stay away from this function.  It is really only meant for
+   * event loops that need to wait on more than one file descriptor.  If all you
+   * need is to block until a trigger notification arrives, for instance, use
+   * await_notification().  If you want to issue queries and retrieve results in
+   * nonblocking fashion, check out the pipeline class.
+   *
+   * @warning Don't store this value anywhere, and always be prepared for the
    * possibility that there is no socket.  The socket may change or even go away
-   * during any invocation of libpqxx code.
+   * during any invocation of libpqxx code, no matter how trivial.
    */
-  int sock() const throw ();						//[]
+  int sock() const throw ();						//[t87]
 
   /// Session capabilities
   /** Some functionality is only available in certain versions of the backend,
@@ -290,6 +305,13 @@ public:
   {
     /// Can we specify WITH OIDS with CREATE TABLE?  If we can, we should.
     cap_create_table_with_oids,
+
+    /// Can cursors be declared SCROLL?
+    cap_cursor_scroll,
+    /// Can cursors be declared WITH HOLD?
+    cap_cursor_with_hold,
+    /// Can cursors be updateable?
+    cap_cursor_update,
 
     /// Not a capability value; end-of-enumeration marker
     cap_end
@@ -625,6 +647,9 @@ private:
   /// Is reactivation currently inhibited?
   bool m_inhibit_reactivation;
 
+  /// Stacking counter: known objects that can't be auto-reactivated
+  int m_reactivation_avoidance;
+
   friend class transaction_base;
   result PQXX_PRIVATE Exec(const char[], int Retries);
   void pq_prepare(const PGSTD::string &name,
@@ -654,6 +679,10 @@ private:
   friend class pipeline;
   bool PQXX_PRIVATE consume_input() throw ();
   bool PQXX_PRIVATE is_busy() const throw ();
+
+  friend class cursor_base;
+  void reactivation_avoidance_add(int) throw ();
+  void reactivation_avoidance_dec() throw ();
 
   // Not allowed:
   connection_base(const connection_base &);
