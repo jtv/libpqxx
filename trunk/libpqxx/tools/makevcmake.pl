@@ -47,14 +47,14 @@ LINK32_OBJ_EXTRA=
 !IF  "\$(CFG)" == "dll"
 BUILDTYPE=DLL
 OUTFILE=\$(OUTDIR)\\libpqxx
-CPP_EXTRAS=/MD /D "_WINDOWS" /D "NDEBUG"
+CPP_EXTRAS=/MD /D "_WINDOWS" /D "NDEBUG" /D "PQXX_SHARED"
 LINK32_FLAG_EXTRA=/incremental:no
 LINK32_OBJ_EXTRA="\$(INTDIR)\\libpqxx.obj"
 
 !ELSEIF  "\$(CFG)" == "dll debug"
 BUILDTYPE=DLL
 OUTFILE=\$(OUTDIR)\\libpqxxD
-CPP_EXTRAS=/MDd /Gm /ZI /Od /D "_WINDOWS" /D "_DEBUG" /GZ
+CPP_EXTRAS=/MDd /Gm /ZI /Od /D "_WINDOWS" /D "_DEBUG" /D "PQXX_SHARED" /GZ
 LINK32_FLAG_EXTRA=/incremental:yes /debug
 LINK32_OBJ_EXTRA="\$(INTDIR)\\libpqxx.obj"
 
@@ -76,8 +76,7 @@ IAM=\$(MAKEDIR)\\libpqxx.mak /NOLOGO
 CPP=cl.exe
 CPP_PROJ=/nologo /W3 /GX /FD /c \$(CPP_EXTRAS) \\
 	/I "../include" /I "\$(PGSQLSRC)/include" /I "\$(PGSQLSRC)/interfaces/libpq" \\
-	\$(STD) /D "HAVE_VSNPRINTF_DECL" /D "HAVE_STRDUP" \\
-	/D "WIN32" /D "_MBCS" /D "LIBPQXXDLL_EXPORTS" \\
+	\$(STD) /D "WIN32" /D "_MBCS" \\
 	/Fo"\$(INTDIR)\\\\" /Fd"\$(INTDIR)\\\\" \\
 
 LINK32=link.exe

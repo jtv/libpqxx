@@ -19,7 +19,6 @@
 
 #ifdef _MSC_VER
 
-// TODO: Restrict this to compiler versions known to be affected
 /* Work around a particularly pernicious and deliberate bug in Visual C++:
  * min() and max() are defined as macros, which can have some very nasty
  * consequences.  This compiler bug can be switched off by defining NOMINMAX.
@@ -130,9 +129,9 @@ template<> struct char_traits<unsigned char>
  * according to "gzh"
  */
 // TODO: Define custom macro to govern how libpqxx will be linked to client
-#if !defined(PQXX_LIBEXPORT) && defined(_DLL)
+#if !defined(PQXX_LIBEXPORT) && defined(PQXX_SHARED)
 #define PQXX_LIBEXPORT __declspec(dllimport)
-#endif	// PQXX_LIBEXPORT _LIB
+#endif	// !PQXX_LIBEXPORT && PQXX_SHARED
 
 
 // Workarounds for Microsoft Visual C++

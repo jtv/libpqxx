@@ -29,12 +29,12 @@
 #include "pqxx/config-internal-autotools.h"
 
 #ifdef _WIN32
-#ifdef LIBPQXXDLL_EXPORTS
+#ifdef PQXX_SHARED
 #undef  PQXX_LIBEXPORT
 #define PQXX_LIBEXPORT __declspec(dllexport)
 // TODO: Does Windows have a way to "unexport" a symbol in an exported class?
 #define PQXX_PRIVATE
-#endif	// LIBPQXXDLL_EXPORTS
+#endif	// PQXX_SHARED
 #elif defined(__GNUC__) && defined(PQXX_HAVE_GCC_VISIBILITY)	// !_WIN32
 #define PQXX_LIBEXPORT __attribute__ ((visibility("default")))
 #define PQXX_PRIVATE __attribute__ ((visibility("hidden")))
