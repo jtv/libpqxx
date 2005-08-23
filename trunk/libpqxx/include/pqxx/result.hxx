@@ -906,7 +906,7 @@ private:
   PGSTD::string PQXX_PRIVATE StatusError() const;
 
   friend class Cursor;	// deprecated
-  friend class basic_cursor;
+  friend class cursor_base;
   const char *CmdStatus() const throw ();
 };
 

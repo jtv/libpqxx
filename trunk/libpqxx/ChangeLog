@@ -1,3 +1,52 @@
+2005-08-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection.hxx, include/pqxx/cursor.hxx:
+  - Full test coverage
+ src/except.cxx:
+  - New
+  - Here to reduce inline code and library relocations
+  - New exception class internal_error for libpqxx bugs
+ src/connection_base.cxx, src/cursor.cxx, src/oldcursor.cxx, src/pipeline.cxx,
+ src/result.cxx, src/robusttransaction.cxx, src/tablereader.cxx,
+ src/transaction_base.cxx, src/util.cxx:
+  - Replaced logic_error throws with internal_errors
+ test/test038.cxx, test/test042.cxx, test/test045.cxx:
+  - Converted to new cursor interface
+ test/test087.cxx:
+  - New
+  - Tests waiting on bare connection socket
+2005-08-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in, include/pqxx/compiler.h, include/pqxx/libcompiler.h,
+ tools/makemingwak.pl, tools/makevcmake.pl:
+  - New preprocessor macro PQXX_SHARED replaces old DLL guessing logic
+  - Updated fd_set using extern "C" workaround
+ include/pqxx/connection_base.hxx, src/connection_base.cxx:
+  - New capability: cap_cursor_scroll
+  - New capability: cap_cursor_with_hold
+  - New capability: cap_cursor_update
+  - Documentation: WITH HOLD cursors are not self-restoring, like temp tables
+  - Avoid connection {d,r}eactivation while unscoped cursors are active
+  - Clear reactivation inhibition while closing connection
+ include/pqxx/cursor.hxx, src/cursor.cxx:
+  - Templatized cursor_base on access/update policies
+  - Moved basic cursor operations up even further, to cursor_base
+  - Support FOR {UPDATE|READ ONLY} (but no update function yet)
+  - Support [NO] SCROLL
+  - User-definable cursor destruction policy
+  - Implemented cursors in nontransactions using WITH HOLD
+  - Convenience typedef "cursor"
+  - Avoid connection {d,r}eactivation while unscoped cursors are active
+  - Use PQcmdTuples() for MOVE count if possible
+ include/pqxx/Makefile.am:
+  - Removed include/pqxx from include path
+ include/pqxx/result.hxx:
+  - result now has cursor_base, not its child basic_cursor, as its friend
+ include/pqxx/transaction_base.hxx, src/robusttransaction.cxx,
+ src/transaction.cxx:
+  - Keep track of allocated reactivation-inhibiting resources
+ test/test003.cxx, test/test019.cxx:
+  - Converted to new cursor interface
+ tools/maketestvcmak.pl
+  - Removed Clinton James' email address--he probably doesn't want email
 2005-08-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - If no strerror_r(), assume strerror() is safe (as in HP-UX, Solaris)

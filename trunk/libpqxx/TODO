@@ -1,33 +1,22 @@
 ALERT
-(*) Single PQXX_SHARED to indicate "libpqxx is a shared library"
-(*) --enable-shared should define PQXX_SHARED while building shared library
-(*) On Windows, clean up and rebuild for shared/static versions?
 (*) test062 fails on binary strings with postgres 8.0.2 (RedHat, John Carpenter)
 (*) test085 fails with postgres 8.0.2 (Fedora, John Carpenter)
 (*) Some functionality breaks against postgres 7.1 (niejam@yahoo.com)
 (*) Ignore column specs in tablestreams on older backends, if possible
-(*) Do all system calls handle EINTR properly?
 
 All Over
-(*) Ensure table/column/cursor/... names are always quoted
+(*) Wrap most popular external function calls to reduce relocation overhead
+(*) Unify linked-list implementation of icursor_iterator with PQAlloc?
 
 Build & Configuration
-(*) Rename libcompiler.h and compiler.h to reduce confusion
-(*) Remove ../include/pqxx from libtool include path somehow
+(*) Rename libcompiler.h and compiler.h to avoid confusion
 (*) Move PGHOST guessing logic from tools/preprelease to Makefile.am?
 
 Connections
 (*) Work around pre-7.3 handling of transaction variables?
 (*) Make PQprotocolVersion() and/or PQserverVersion() available to public?
-(*) Use PQtransactionStatus to detect auto-aborted transactions?
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
 (*) libpqxx-level trace output
-
-Cursors
-(*) Older backends don't have NO SCROLL etc.!
-(*) Think about positioning and nested transactions
-(*) Investigate WITH HOLD feature (nontransaction cursors)
-(*) In PostgreSQL 7.4, MOVE and FETCH are much improved (PQcmdTuples()!)
 
 Exceptions
 (*) Strip newlines from PostgreSQL error messages in exceptions?

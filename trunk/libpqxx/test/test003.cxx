@@ -2,9 +2,8 @@
 #include <iostream>
 #include <stdexcept>
 
-#define PQXXYES_I_KNOW_DEPRECATED_HEADER
 #include <pqxx/connection>
-#include <pqxx/cursor.h>
+#include <pqxx/cursor>
 #include <pqxx/transaction>
 #include <pqxx/result>
 
@@ -29,7 +28,7 @@ int main(int argc, char *argv[])
     int BlockSize = 1;
     if ((argc > 2) && argv[2] && (sscanf(argv[2],"%d",&BlockSize) != 1))
       throw invalid_argument("Expected number for second argument");
-    if (BlockSize == 0) BlockSize = Cursor::ALL();
+    if (BlockSize == 0) BlockSize = cursor_base::all();
 
     // Set up a connection to the backend
     connection C(argv[1] ? argv[1] : "");
@@ -41,17 +40,17 @@ int main(int argc, char *argv[])
     transaction<serializable> T(C, "test3");
 
     // Declare a cursor for the list of database tables
-    Cursor Cur(T, "SELECT * FROM pg_tables", "tablecur", BlockSize);
+    cursor Cur(&T, "SELECT * FROM pg_tables", "tablecur");
+    cout << "Created cursor " << Cur.name() << endl;
 
     // If we want to read backwards, move to the last tuple first
-    if (BlockSize < 0) Cur.Move(Cursor::ALL());
+    if (BlockSize < 0) Cur.move(cursor_base::all());
 
     // Stop generating debug output
     C.trace(0);
 
 
-    result R;
-    while ((Cur >> R))
+    for (result R(Cur.fetch(BlockSize)); !R.empty(); R=Cur.fetch(BlockSize))
     {
       // Out of sheer curiosity, see if Cursor is consistent in the stream
       // status it reports with operator bool() and operator !() (1)

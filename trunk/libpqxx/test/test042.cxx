@@ -5,10 +5,8 @@
 #include <string>
 #include <vector>
 
-#define PQXXYES_I_KNOW_DEPRECATED_HEADER
-
 #include <pqxx/connection>
-#include <pqxx/cursor.h>
+#include <pqxx/cursor>
 #include <pqxx/transaction>
 #include <pqxx/result>
 
@@ -29,17 +27,19 @@ using namespace pqxx;
 namespace
 {
 
-void ExpectMove(Cursor &C,
-    Cursor::difference_type N,
-    Cursor::difference_type Expect)
+template<typename CURSOR> inline void ExpectMove(CURSOR &C,
+    cursor_base::difference_type N,
+    cursor_base::difference_type Expect)
 {
-  const Cursor::difference_type Dist = C.Move(N);
+  cout << "move " << N << endl;
+  const cursor_base::difference_type Dist = C.move(N);
   if (Dist != Expect)
     throw logic_error("Expected to move " + to_string(Expect) + " rows, "
 	              "found " + to_string(Dist));
 }
 
-void ExpectMove(Cursor &C, Cursor::difference_type N)
+template<typename CURSOR> inline
+  void ExpectMove(CURSOR &C, cursor_base::difference_type N)
 {
   ExpectMove(C, N, N);
 }
@@ -57,7 +57,7 @@ int main(int, char *argv[])
     transaction<serializable> T(C, "test19");
 
     // Count rows.
-    result R( T.Exec("SELECT count(*) FROM " + Table) );
+    result R( T.exec("SELECT count(*) FROM " + Table) );
     int Rows;
     R.at(0).at(0).to(Rows);
 
@@ -66,8 +66,8 @@ int main(int, char *argv[])
 		          "for serious testing.  Sorry.");
 
     int GetRows = 4;
-    Cursor Cur(T, ("SELECT * FROM " + Table).c_str(), "tablecur", GetRows);
-    Cur >> R;
+    cursor Cur(&T, "SELECT * FROM " + Table, "tablecur");
+    R = Cur.fetch(GetRows);
 
     if (R.size() != result::size_type(GetRows))
       throw logic_error("Expected " + to_string(GetRows) + " rows, "
@@ -77,16 +77,16 @@ int main(int, char *argv[])
     // current row
     ExpectMove(Cur, 1);
 
-    ExpectMove(Cur, Cursor::BACKWARD_ALL(), -5);
+    ExpectMove(Cur, cursor_base::backward_all(), -5);
 
-    R = Cur.Fetch(Cursor::NEXT());
+    R = Cur.fetch(cursor_base::next());
     if (R.size() != 1) 
       throw logic_error("NEXT: wanted 1 row, got " + to_string(R.size()));
 
     ExpectMove(Cur, 3);
     ExpectMove(Cur, -2);
 
-    R = Cur.Fetch(Cursor::PRIOR());
+    R = Cur.fetch(cursor_base::prior());
     if (R.size() != 1)
       throw logic_error("PRIOR: wanted 1 row, got " + to_string(R.size()));
 

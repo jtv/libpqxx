@@ -5,10 +5,8 @@
 #include <string>
 #include <vector>
 
-#define PQXXYES_I_KNOW_DEPRECATED_HEADER
-
 #include <pqxx/connection>
-#include <pqxx/cursor.h>
+#include <pqxx/cursor>
 #include <pqxx/transaction>
 #include <pqxx/transactor>
 #include <pqxx/result>
@@ -58,7 +56,7 @@ int main(int, char *argv[])
     transaction<serializable> T(C, "test38");
 
     // Count rows.
-    result R( T.Exec("SELECT count(*) FROM " + Table) );
+    result R( T.exec("SELECT count(*) FROM " + Table) );
     int Rows;
     R.at(0).at(0).to(Rows);
 
@@ -67,8 +65,8 @@ int main(int, char *argv[])
 		          "for serious testing.  Sorry.");
 
     int GetRows = 3;
-    Cursor Cur(T, ("SELECT * FROM " + Table).c_str(), "tablecur", GetRows);
-    Cur >> R;
+    cursor Cur(&T, "SELECT * FROM " + Table, "tablecur");
+    R = Cur.fetch(GetRows);
 
     if (R.size() > result::size_type(GetRows))
       throw logic_error("Expected " + to_string(GetRows) + " rows, "
@@ -83,13 +81,12 @@ int main(int, char *argv[])
     AddResult(FirstRows1, R);
 
     // Now add one more
-    R = Cur.Fetch(1);
+    R = Cur.fetch(1);
     if (R.size() != 1)
       throw logic_error("Asked for 1 row, got " + to_string(R.size()));
     AddResult(FirstRows1, R);
 
-    // Now see if that Fetch() didn't confuse our cursor's stride
-    Cur >> R;
+    R = Cur.fetch(GetRows);
     if (R.size() != result::size_type(GetRows))
       throw logic_error("Asked for " + to_string(GetRows) + " rows, "
 		        "got " + to_string(R.size()) + ". "
@@ -102,11 +99,10 @@ int main(int, char *argv[])
 
     // Move cursor 1 step forward to make subsequent backwards fetch include
     // current row
-    Cur += 1;
+    Cur.move(1);
 
     // Fetch the same rows we just fetched into FirstRows1, but backwards
-    Cur.SetCount(Cursor::BACKWARD_ALL());
-    Cur >> R;
+    R = Cur.fetch(cursor_base::backward_all());
 
     vector<string> FirstRows2;
     AddResult(FirstRows2, R);
@@ -125,15 +121,15 @@ int main(int, char *argv[])
       throw logic_error("First rows are not the same read backwards "
 		        "as they were read forwards!");
 
-    R = Cur.Fetch(Cursor::NEXT());
+    R = Cur.fetch(cursor_base::next());
     if (R.size() != 1) 
       throw logic_error("NEXT: wanted 1 row, got " + to_string(R.size()));
     const string Row = R[0][0].c_str();
 
-    Cur += 3;
-    Cur -= 2;
+    Cur.move(3);
+    Cur.move(-2);
 
-    R = Cur.Fetch(Cursor::PRIOR());
+    R = Cur.fetch(cursor_base::prior());
     if (R.size() != 1)
       throw logic_error("PRIOR: wanted 1 row, got " + to_string(R.size()));
 
