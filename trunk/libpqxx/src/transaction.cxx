@@ -81,6 +81,7 @@ void pqxx::basic_transaction::do_commit()
 void pqxx::basic_transaction::do_abort()
 {
   DirectExec(SQL_ROLLBACK_WORK);
+  reactivation_avoidance_clear();
 }
 
 

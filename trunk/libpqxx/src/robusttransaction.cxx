@@ -80,9 +80,7 @@ void pqxx::basic_robusttransaction::do_commit()
   const IDType ID = m_ID;
 
   if (ID == oid_none)
-    throw logic_error("libpqxx internal error: transaction "
-		      "'" + name() + "' "
-		     "has no ID");
+    throw internal_error("transaction '" + name() + "' has no ID");
 
   // Check constraints before sending the COMMIT to the database to reduce the
   // work being done inside our in-doubt window.  It also implicitly provides
@@ -176,6 +174,8 @@ void pqxx::basic_robusttransaction::do_abort()
   // Rollback transaction.  Our transaction record will be dropped as a side
   // effect, which is what we want since "it never happened."
   DirectExec(SQL_ROLLBACK_WORK);
+
+  reactivation_avoidance_clear();
 }
 
 
