@@ -31,7 +31,11 @@ pqxx::cursor_base::cursor_base(transaction_base *context,
     bool embellish_name) :
   m_context(context),
   m_done(false),
-  m_name(cname)
+  m_name(cname),
+  m_adopted(false),
+  m_ownership(loose),
+  m_lastfetch(),
+  m_lastmove()
 {
   if (embellish_name)
   {
@@ -43,13 +47,13 @@ pqxx::cursor_base::cursor_base(transaction_base *context,
 
 int pqxx::cursor_base::get_unique_cursor_num()
 {
-  if (!m_context) throw logic_error("libpqxx internal error: "
-      "cursor in get_unique_cursor_num() has no transaction");
+  if (!m_context) throw internal_error("cursor in get_unique_cursor_num() "
+      "has no transaction");
   return m_context->GetUniqueCursorNum();
 }
 
 
-string pqxx::cursor_base::stridestring(pqxx::cursor_base::difference_type n)
+string pqxx::cursor_base::stridestring(difference_type n)
 {
   /* Some special-casing for ALL and BACKWARD ALL here.  We used to use numeric
    * "infinities" for difference_type for this (the highest and lowest possible
@@ -65,34 +69,77 @@ string pqxx::cursor_base::stridestring(pqxx::cursor_base::difference_type n)
 }
 
 
-pqxx::basic_cursor::basic_cursor(transaction_base *t,
-    const string &query,
-    const string &cname) :
-  cursor_base(t, cname, true),
-  m_lastfetch(),
-  m_lastmove()
+void pqxx::cursor_base::declare(const string &query,
+    accesspolicy ap,
+    updatepolicy up,
+    ownershippolicy op,
+    bool hold)
 {
-  // TODO: Add NO SCROLL if backend supports it (7.4 or better)
   stringstream cq, qn;
-  cq << "DECLARE \"" << name() << "\" CURSOR FOR " << query << " FOR READ ONLY";
+
+  cq << "DECLARE \"" << name() << "\" ";
+
+  if (m_context->conn().supports(connection_base::cap_cursor_scroll))
+  {
+    if (ap == forward_only) cq << "NO ";
+    cq << "SCROLL ";
+  }
+
+  cq << "CURSOR ";
+
+  if (hold)
+  {
+    if (!m_context->conn().supports(connection_base::cap_cursor_with_hold))
+      throw runtime_error("Cursor " + name() + " "
+	  "created for use outside of its originating transaction, "
+	  "but this backend version does not support that.");
+    cq << "WITH HOLD ";
+  }
+
+  cq << "FOR " << query << ' ';
+
+  if (up != update) cq << "FOR READ ONLY ";
+  else if (!m_context->conn().supports(connection_base::cap_cursor_update))
+    throw runtime_error("Cursor " + name() + " "
+	"created as updatable, "
+	"but this backend version does not support that.");
+  else cq << "FOR UPDATE ";
+
   qn << "[DECLARE " << name() << ']';
   m_context->exec(cq, qn.str());
+
+  // If we're creating a WITH HOLD cursor, noone is going to destroy it until
+  // after this transaction.  That means the connection cannot be deactivated
+  // without losing the cursor.
+  m_ownership = op;
+  if (op==loose) m_context->reactivation_avoidance_inc();
 }
 
 
-pqxx::basic_cursor::basic_cursor(transaction_base *t,
-    const string &cname) :
-  cursor_base(t, cname, false),
-  m_lastfetch(),
-  m_lastmove()
+void pqxx::cursor_base::adopt(ownershippolicy op)
 {
+  // If we take responsibility for destroying the cursor, that's one less reason
+  // not to allow the connection to be deactivated and reactivated.
+  if (op==owned) m_context->reactivation_avoidance_dec();
+  m_adopted = true;
+  m_ownership = op;
 }
 
 
-pqxx::result pqxx::basic_cursor::fetch(difference_type n)
+void pqxx::cursor_base::close() throw ()
 {
-  // TODO: Use prepared statement for fetches/moves?
+  if (m_ownership==owned)
+  {
+    try { m_context->exec("CLOSE " + name()); }
+    catch (const exception &) { }
+    if (m_adopted) m_context->reactivation_avoidance_dec();
+    m_ownership = loose;
+  }
+}
 
+
+pqxx::result pqxx::cursor_base::fetch(difference_type n)
+{
   result r;
   if (n) 
   {
@@ -113,7 +160,17 @@ pqxx::result pqxx::basic_cursor::fetch(difference_type n)
 }
 
 
-pqxx::cursor_base::difference_type pqxx::basic_cursor::move(difference_type n)
+template<> void
+pqxx::cursor_base::check_displacement<pqxx::cursor_base::forward_only>(
+    difference_type d)
+{
+  if (d < 0)
+    throw logic_error("Attempt to move cursor " + name() + " "
+	"backwards (this cursor is only allowed to move forwards)");
+}
+
+
+pqxx::cursor_base::difference_type pqxx::cursor_base::move(difference_type n)
 {
   if (!n) return 0;
 
@@ -126,14 +183,28 @@ pqxx::cursor_base::difference_type pqxx::basic_cursor::move(difference_type n)
   m_done = true;
   const result r(m_context->exec(mq));
 
-  static const string StdResponse("MOVE ");
-  if (strncmp(r.CmdStatus(), StdResponse.c_str(), StdResponse.size()) != 0)
-    throw logic_error("libpqxx internal error: "
-	"cursor MOVE returned '" + string(r.CmdStatus()) + "' "
-	"(expected '" + StdResponse + "')");
+  // Starting with the libpq in PostgreSQL 7.4, PQcmdTuples() (which we call
+  // indirectly here) also returns the number of rows skipped by a MOVE
+  difference_type d = r.affected_rows();
 
-  difference_type d;
-  from_string(r.CmdStatus()+StdResponse.size(), d);
+  // We may not have PQcmdTuples(), or this may be a libpq version that doesn't
+  // implement it for MOVE yet.  We'll also get zero if we decide to use a
+  // prepared statement for the MOVE.
+  if (!d)
+  {
+    static const string StdResponse("MOVE ");
+    if (strncmp(r.CmdStatus(), StdResponse.c_str(), StdResponse.size()) != 0)
+      throw internal_error("cursor MOVE returned "
+	  "'" + string(r.CmdStatus()) + "' "
+	  "(expected '" + StdResponse + "')");
+
+    from_string(r.CmdStatus()+StdResponse.size(), d);
+  }
+  else if (n < 0 && d > 0)
+  {
+    // Apparently PQcmdTuples() doesn't remember the sign of the displacement
+    d = -d;
+  }
   m_done = (d != n);
   return d;
 }
@@ -143,7 +214,7 @@ pqxx::icursorstream::icursorstream(pqxx::transaction_base &context,
     const string &query,
     const string &basename,
     difference_type Stride) :
-  basic_cursor(&context, query, basename),
+  super(&context, query, basename),
   m_stride(Stride),
   m_realpos(0),
   m_reqpos(0),
@@ -156,7 +227,7 @@ pqxx::icursorstream::icursorstream(pqxx::transaction_base &context,
 pqxx::icursorstream::icursorstream(transaction_base &Context,
     const result::field &Name,
     difference_type Stride) :
-  basic_cursor(&Context, Name.c_str()),
+  super(&Context, Name.c_str()),
   m_stride(Stride),
   m_realpos(0),
   m_reqpos(0),
@@ -173,9 +244,9 @@ void pqxx::icursorstream::set_stride(difference_type n)
   m_stride = n;
 }
 
-pqxx::result pqxx::icursorstream::fetch()
+pqxx::result pqxx::icursorstream::fetchblock()
 {
-  const result r(basic_cursor::fetch(m_stride));
+  const result r(fetch(m_stride));
   m_realpos += r.size();
   return r;
 }
@@ -234,7 +305,7 @@ void pqxx::icursorstream::service_iterators(size_type topos)
   {
     const size_type readpos = i->first;
     if (readpos > m_realpos) ignore(readpos - m_realpos);
-    const result r = fetch();
+    const result r = fetchblock();
     for ( ; i != todo_end && i->first == readpos; ++i)
       i->second->fill(r);
   }

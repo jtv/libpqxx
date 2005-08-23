@@ -5,10 +5,8 @@
 #include <string>
 #include <vector>
 
-#define PQXXYES_I_KNOW_DEPRECATED_HEADER
-
 #include <pqxx/connection>
-#include <pqxx/cursor.h>
+#include <pqxx/cursor>
 #include <pqxx/transaction>
 #include <pqxx/result>
 
@@ -16,8 +14,8 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-// "Adopted SQL Cursor" test program for libpqxx.  Create SQL cursor, wrap it in
-// a Cursor object.  Then scroll it back and forth and check for consistent 
+// "Adopted SQL cursor" test program for libpqxx.  Create SQL cursor, wrap it in
+// a cursor object.  Then scroll it back and forth and check for consistent 
 // results.
 //
 // Usage: test045 [connect-string]
@@ -58,7 +56,7 @@ int main(int, char *argv[])
     transaction<serializable> T(C, "test45");
 
     // Count rows.
-    result R( T.Exec("SELECT count(*) FROM " + Table) );
+    result R( T.exec("SELECT count(*) FROM " + Table) );
 
     if (R.at(0).at(0).as<long>() <= 10) 
       throw runtime_error("Not enough rows in '" + Table + "' "
@@ -103,24 +101,21 @@ int main(int, char *argv[])
       throw runtime_error("from_string() yields different unsigned short");
 
     // Create an SQL cursor and, for good measure, muddle up its state a bit.
-    const string CurName = "MYCUR";
-    T.Exec("DECLARE " + CurName + " CURSOR FOR SELECT * FROM " + Table);
-    T.Exec("MOVE ALL IN " + CurName);
+    const string CurName = "mycur";
+    T.exec("DECLARE " + CurName + " CURSOR FOR SELECT * FROM " + Table);
+    T.exec("MOVE ALL IN " + CurName);
 
     int GetRows = 3;
 
-    // Wrap cursor in Cursor object.  Apply some trickery to get its name inside
-    // a result field for this purpose.  This isn't easy because it's not 
-    // supposed to be easy; normally we'd only construct Cursors around existing
-    // SQL cursors if they were being returned by functions.
-    Cursor Cur(T, T.Exec("SELECT '" + sqlesc(CurName) + "'")[0][0], GetRows);
+    // Wrap cursor in cursor object.
+    cursor Cur(&T, CurName);
 
     // Reset Cur to the beginning of our result set so that it may know its
     // position.
-    Cur.Move(Cursor::BACKWARD_ALL());
+    Cur.move(cursor_base::backward_all());
 
-    // Now start testing our new Cursor.
-    Cur >> R;
+    // Now start testing our new cursor.
+    R = Cur.fetch(GetRows);
 
     if (R.size() > result::size_type(GetRows))
       throw logic_error("Expected " + to_string(GetRows) + " rows, "
@@ -135,13 +130,12 @@ int main(int, char *argv[])
     AddResult(FirstRows1, R);
 
     // Now add one more
-    R = Cur.Fetch(1);
+    R = Cur.fetch(1);
     if (R.size() != 1)
       throw logic_error("Asked for 1 row, got " + to_string(R.size()));
     AddResult(FirstRows1, R);
 
-    // Now see if that Fetch() didn't confuse our cursor's stride
-    Cur >> R;
+    R = Cur.fetch(GetRows);
     if (R.size() != result::size_type(GetRows))
       throw logic_error("Asked for " + to_string(GetRows) + " rows, "
 		        "got " + to_string(R.size()) + ". "
@@ -154,11 +148,10 @@ int main(int, char *argv[])
 
     // Move cursor 1 step forward to make subsequent backwards fetch include
     // current row
-    Cur += 1;
+    Cur.move(cursor_base::next());
 
     // Fetch the same rows we just fetched into FirstRows1, but backwards
-    Cur.SetCount(Cursor::BACKWARD_ALL());
-    Cur >> R;
+    R = Cur.fetch(cursor_base::backward_all());
 
     vector<string> FirstRows2;
     AddResult(FirstRows2, R);
@@ -177,15 +170,15 @@ int main(int, char *argv[])
       throw logic_error("First rows are not the same read backwards "
 		        "as they were read forwards!");
 
-    R = Cur.Fetch(Cursor::NEXT());
+    R = Cur.fetch(cursor_base::next());
     if (R.size() != 1) 
       throw logic_error("NEXT: wanted 1 row, got " + to_string(R.size()));
     const string Row = R[0][0].c_str();
 
-    Cur += 3;
-    Cur -= 2;
+    Cur.move(3);
+    Cur.move(-2);
 
-    R = Cur.Fetch(Cursor::PRIOR());
+    R = Cur.fetch(cursor_base::prior());
     if (R.size() != 1)
       throw logic_error("PRIOR: wanted 1 row, got " + to_string(R.size()));
 

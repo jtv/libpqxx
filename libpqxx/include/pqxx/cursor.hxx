@@ -23,12 +23,12 @@
 #endif
 
 #include "pqxx/result"
+#include "pqxx/transaction_base"
 
-// TODO: Can we create WITH HOLD cursors in nontransactions?
 
 namespace pqxx
 {
-class transaction_base;
+class dbtransaction;
 
 /// Common definitions for cursor types
 class PQXX_LIBEXPORT cursor_base
@@ -36,6 +36,57 @@ class PQXX_LIBEXPORT cursor_base
 public:
   typedef result::size_type size_type;
   typedef result::difference_type difference_type;
+
+  /// Cursor access-pattern policy
+  /** Allowing a cursor to move forward only can result in better performance,
+   * so use this access policy whenever possible.
+   */
+  enum accesspolicy
+  {
+    /// Cursor can move forward only
+    forward_only,
+    /// Cursor can move back and forth
+    random_access
+  };
+
+  /// Cursor update policy
+  /**
+   * @warning Not all PostgreSQL versions support updatable cursors.
+   */
+  enum updatepolicy
+  {
+    /// Cursor can be used to read data but not to write
+    read_only,
+    /// Cursor can be used to update data as well as read it
+    update
+  };
+
+  /// Cursor destruction policy
+  /** The normal thing to do is to make a cursor object the owner of the SQL
+   * cursor it represents.  There may be cases, however, where a cursor needs to
+   * persist beyond the end of the current transaction (and thus also beyond the
+   * lifetime of the cursor object that created it!), where it can be "adopted"
+   * into a new cursor object.  See the basic_cursor documentation for an
+   * explanation of cursor adoption.
+   *
+   * If a cursor is created with "loose" ownership policy, the object
+   * representing the underlying SQL cursor will not take the latter with it
+   * when its own lifetime ends, nor will its originating transaction.
+   *
+   * @warning Use this feature with care and moderation.  Only one cursor object
+   * should be responsible for any one underlying SQL cursor at any given time.
+   *
+   * @warning Don't "leak" cursors!  As long as any "loose" cursor exists,
+   * any attempts to deactivate or reactivate the connection, implicitly or
+   * explicitly, are quietly ignored.
+   */
+  enum ownershippolicy
+  {
+    /// Destroy SQL cursor when cursor object is closed at end of transaction
+    owned,
+    /// Leave SQL cursor in existence after close of object and transaction
+    loose
+  };
 
   /// Does it make sense to try reading from this cursor again?
   /**
@@ -86,14 +137,41 @@ protected:
       const PGSTD::string &cname,
       bool embellish_name = true);
 
+  void declare(const PGSTD::string &query,
+      accesspolicy,
+      updatepolicy,
+      ownershippolicy,
+      bool hold);
+  void adopt(ownershippolicy);
+
+  void close() throw ();
+
+  result fetch(difference_type);
+  difference_type move(difference_type);
+
   static PGSTD::string stridestring(difference_type);
   transaction_base *m_context;
   bool m_done;
+
+  template<accesspolicy A> void check_displacement(difference_type) 
+  {
+  }
 
 private:
   int PQXX_PRIVATE get_unique_cursor_num();
 
   PGSTD::string m_name;
+  bool m_adopted;
+  ownershippolicy m_ownership;
+
+  struct cachedquery
+  {
+    difference_type dist;
+    PGSTD::string query;
+
+    cachedquery() : dist(0), query() {}
+  };
+  cachedquery m_lastfetch, m_lastmove;
 
   /// Not allowed
   cursor_base();
@@ -102,6 +180,10 @@ private:
   /// Not allowed
   cursor_base &operator=(const cursor_base &);
 };
+
+
+template<> void
+  cursor_base::check_displacement<cursor_base::forward_only>(difference_type);
 
 
 inline cursor_base::difference_type cursor_base::all() throw ()
@@ -126,27 +208,54 @@ inline cursor_base::difference_type cursor_base::backward_all() throw ()
 
 
 /// The simplest form of cursor, with no concept of position or stride
-/** SQL cursors can be tricky, especially in C++ since the two languages seem to
- * have been designed on different planets.  An SQL cursor is positioned
- * "between rows," as it were, rather than "on" rows like C++ iterators, and so
- * singular positions akin to end() exist on both sides of the underlying set.
- *
- * These cultural differences are hidden from view somewhat by libpqxx, which
- * tries to make SQL cursors behave more like familiar C++ entities such as
- * iterators, sequences, streams, and containers.
- */
+template<cursor_base::accesspolicy ACCESS, cursor_base::updatepolicy UPDATE>
 class PQXX_LIBEXPORT basic_cursor : public cursor_base
 {
 public:
   /// Create cursor based on given query
-  basic_cursor(transaction_base *,
+  /**
+   * @param t transaction this cursor is to live in
+   * @param query SQL query whose results this cursor will iterate
+   * @param cname name for this cursor, which will be changed to make it unique
+   * @param op are we responsible for closing this cursor?
+   *
+   * @warning If the transaction being used is a nontransaction, or if the
+   * ownership policy is "loose," a "WITH HOLD" cursor will be created.  Not all
+   * backends versions support this.
+   */
+  basic_cursor(transaction_base *t,
       const PGSTD::string &query,
-      const PGSTD::string &cname);					//[]
+      const PGSTD::string &cname,
+      ownershippolicy op=owned) :					//[t3]
+    cursor_base(t, cname, true)
+  {
+    declare(query,
+	ACCESS,
+	UPDATE,
+	op,
+	op==loose || !dynamic_cast<dbtransaction *>(t));
+  }
 
   /// Adopt existing SQL cursor
-  basic_cursor(transaction_base *, const PGSTD::string &cname);		//[]
+  /** Create a cursor object based on an existing SQL cursor.  The name must be
+   * the exact name of that cursor (and unlike the name of a newly created
+   * cursor, will not be embellished for uniqueness).
+   *
+   * @param t transaction this cursor is to live in
+   * @param cname exact name of this cursor, as declared in SQL
+   * @param op are we responsible for closing this cursor?
+   */
+  basic_cursor(transaction_base *t,
+      const PGSTD::string &cname,
+      ownershippolicy op=owned) :					//[t45]
+    cursor_base(t, cname, false)
+  {
+    adopt(op);
+  }
 
-  /// Fetch number of rows from cursor
+  virtual ~basic_cursor() throw () { close(); }
+
+  /// Fetch a number of rows from cursor
   /** This function can be used to fetch a given number of rows (by passing the
    * desired number of rows as an argument), or all remaining rows (by passing
    * cursor_base::all()), or fetch a given number of rows backwards from the
@@ -163,39 +272,120 @@ public:
    * @param n number of rows to fetch
    * @return a result set containing at most n rows of data
    */
-  result fetch(difference_type n);					//[]
+  virtual result fetch(difference_type n)				//[t3]
+  {
+    check_displacement<ACCESS>(n);
+    return cursor_base::fetch(n);
+  }
 
   /// Move cursor by given number of rows
   /**
    * @param n number of rows to move
    * @return number of rows actually moved (which cannot exceed n)
    */
-  difference_type move(difference_type n);				//[]
+  virtual difference_type move(difference_type n)			//[t3]
+  {
+    check_displacement<ACCESS>(n);
+    return cursor_base::move(n);
+  }
+
+  using cursor_base::close;
+};
+
+
+// TODO: Querying size only makes sense for random_access cursors!
+/// Cursor that knows its position
+template<cursor_base::accesspolicy ACCESS, cursor_base::updatepolicy UPDATE>
+class PQXX_LIBEXPORT absolute_cursor : public basic_cursor<ACCESS,UPDATE>
+{
+  typedef basic_cursor<ACCESS,UPDATE> super;
+public:
+  /// Create cursor based on given query
+  /**
+   * @param t transaction this cursor is to live in
+   * @param query SQL query whose results this cursor will iterate
+   * @param cname name for this cursor, which will be changed to make it unique
+   *
+   * @warning If the transaction being used is a nontransaction, a "WITH HOLD"
+   * cursor will be created.  Not all backends versions support this.
+   */
+  absolute_cursor(transaction_base *t,
+      const PGSTD::string &query,
+      const PGSTD::string &cname) :					//[]
+    super(t, query, cname, cursor_base::owned),
+    m_pos(0),
+    m_size(0),
+    m_size_known(false)
+  {
+  }
+
+  virtual result fetch(cursor_base::difference_type d)			//[]
+  {
+    const result r(super::fetch(d));
+    digest(d, (d > 0) ? r.size() : -r.size());
+    return r;
+  }
+
+  virtual cursor_base::difference_type
+    move(cursor_base::difference_type d)				//[]
+  {
+    cursor_base::difference_type got(super::move(d));
+    digest(d, got);
+    return got;
+  }
+
+  cursor_base::size_type pos() const throw () { return m_pos; }		//[]
+
+  cursor_base::difference_type move_to(cursor_base::size_type);		//[]
 
 private:
-  struct cachedquery
+  /// Set result size if appropriate, given requested and actual displacement
+  void digest(cursor_base::difference_type req,
+      cursor_base::difference_type got) throw ()
   {
-    difference_type dist;
-    PGSTD::string query;
+    m_pos += got;
 
-    cachedquery() : dist(0), query() {}
-  };
-  cachedquery m_lastfetch, m_lastmove;
+    // This assumes that got < req can only happen if req < 0
+    if (got < req && !m_size_known)
+    {
+      m_size = m_pos;
+      m_size_known = true;
+    }
+  }
+
+  cursor_base::size_type m_pos;
+  cursor_base::size_type m_size;
+  bool m_size_known;
 };
+
+
+/// Convenience typedef: the most common cursor type (read-only, random access)
+typedef basic_cursor<cursor_base::random_access, cursor_base::read_only> cursor;
 
 
 class icursor_iterator;
 
 /// Simple read-only cursor represented as a stream of results
-/** Data is fetched from the cursor as a sequence of result objects.  Each of
+/** SQL cursors can be tricky, especially in C++ since the two languages seem to
+ * have been designed on different planets.  An SQL cursor is positioned
+ * "between rows," as it were, rather than "on" rows like C++ iterators, and so
+ * singular positions akin to end() exist on both sides of the underlying set.
+ *
+ * These cultural differences are hidden from view somewhat by libpqxx, which
+ * tries to make SQL cursors behave more like familiar C++ entities such as
+ * iterators, sequences, streams, and containers.
+ *
+ * Data is fetched from the cursor as a sequence of result objects.  Each of
  * these will contain the number of rows defined as the stream's stride, except
  * of course the last block of data which may contain fewer rows.
  *
- * This class can create or adopt cursors that live in nontransactions, i.e.
- * outside any backend transaction, which your backend version may not support.
+ * This class can create or adopt cursors that live outside any backend
+ * transaction, which your backend version may not support.
  */
-class PQXX_LIBEXPORT icursorstream : public basic_cursor
+class PQXX_LIBEXPORT icursorstream :
+  public basic_cursor<cursor_base::forward_only, cursor_base::read_only>
 {
+  typedef basic_cursor<cursor_base::forward_only, cursor_base::read_only> super;
 public:
   /// Set up a read-only, forward-only cursor
   /** Roughly equivalent to a C++ Standard Library istream, this cursor type
@@ -248,7 +438,7 @@ public:
    * @return Reference to this very stream, to facilitate "chained" invocations
    * (@code C.get(r1).get(r2); @endcode)
    */
-  icursorstream &get(result &res) { res = fetch(); return *this; }	//[t81]
+  icursorstream &get(result &res) { res = fetchblock(); return *this; }	//[t81]
   /// Read new value into given result object; same as get(result &)
   /** The result set may continue any number of rows from zero to the chosen
    * stride, inclusive.  An empty result will only be returned if there are no
@@ -272,7 +462,7 @@ public:
   difference_type stride() const throw () { return m_stride; }		//[t81]
 
 private:
-  result fetch();
+  result fetchblock();
 
   friend class icursor_iterator;
   size_type forward(size_type n=1);
