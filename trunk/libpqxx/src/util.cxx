@@ -497,22 +497,20 @@ string pqxx::sqlesc(const char str[])
 #else
   for (size_t i=0; str[i]; ++i)
   {
-    if (isprint(str[i]))
+    // TODO: Unify these sqlesc() loop bodies!
+    // Ensure we don't pass negative integers to isprint()/isspace(), which
+    // Visual C++ chokes on.
+    const unsigned char c(str[i]);
+    if (isprint(c))
     {
-      switch (str[i])
-      {
-      case '\'':
-      case '\\':
-	result += str[i];
-      }
-      result += str[i];
+      if (c=='\\' || c=='\'') result += c;
+      result += c;
     }
     else
     {
         char s[8];
-        sprintf(s,
-	        "\\%03o",
-		static_cast<unsigned int>(static_cast<unsigned char>(str[i])));
+	// TODO: Number may be formatted according to locale!  :-(
+        sprintf(s, "\\%03o", static_cast<unsigned int>(c));
         result.append(s, 4);
     }
   }
@@ -528,22 +526,20 @@ string pqxx::sqlesc(const char str[], size_t len)
 #else
   for (size_t i=0; (i < len) && str[i]; ++i)
   {
-    if (isprint(str[i]))
+    // TODO: Unify these sqlesc() loop bodies!
+    // Ensure we don't pass negative integers to isprint()/isspace(), which
+    // Visual C++ chokes on.
+    const unsigned char c(str[i]);
+    if (isprint(c))
     {
-      switch (str[i])
-      {
-      case '\'':
-      case '\\':
-	result += str[i];
-      }
-      result += str[i];
+      if (c=='\\' || c=='\'') result += c;
+      result += c;
     }
     else
     {
         char s[8];
-        sprintf(s,
-	        "\\%03o",
-		static_cast<unsigned int>(static_cast<unsigned char>(str[i])));
+	// TODO: Number may be formatted according to locale!  :-(
+        sprintf(s, "\\%03o", static_cast<unsigned int>(c));
         result.append(s, 4);
     }
   }
@@ -559,6 +555,7 @@ string pqxx::sqlesc(const string &str)
   const string::const_iterator str_end(str.end());
   for (string::const_iterator i = str.begin(); i != str_end; ++i)
   {
+    // TODO: Unify these sqlesc() loop bodies!
     // Ensure we don't pass negative integers to isprint()/isspace(), which
     // Visual C++ chokes on.
     const unsigned char c(*i);
