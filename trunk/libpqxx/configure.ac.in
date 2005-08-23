@@ -47,6 +47,11 @@ AC_MSG_CHECKING([maintainer mode])
 AC_ARG_ENABLE(maintainer-mode)
 AC_MSG_RESULT(${enable_maintainer_mode})
 
+AC_ARG_ENABLE(shared)
+if test "${shared}" = "yes" ; then
+	CPPFLAGS="$CPPFLAGS -DPQXX_SHARED"
+fi
+
 AC_LANG(C++)
 
 # Add options to compiler command line, if compiler accepts it
@@ -353,14 +358,19 @@ AC_MSG_RESULT(yes)
 AC_MSG_CHECKING([for strerror_r])
 AC_TRY_COMPILE(
 	[#include <cstring>
-	${usestd}],[strerror_r(0,0,0)],
+	${usestd}
+	bool f(char x[]) { return strerror_r(0,x,10) != 0; }],
+	[],
 	[strerror_r=yes],
 	[strerror_r=no])
 AC_MSG_RESULT($strerror_r)
 if test "$enable_thread_safety" = "yes" -a "$strerror_r" != "yes" ; then
 	AC_MSG_WARN([
 No definition of strerror_r, the thread-safe version of strerror(), was found in
-your <cstring> header.  This may be because your implementation strerror() is threadsafe.
+your <cstring> header.
+
+This may be because your implementation strerror() is threadsafe, in which case
+there is nothing to worry about.
 ])
 fi
 
@@ -495,8 +505,9 @@ AC_TRY_COMPILE(
 #ifdef _WIN32
 #include <winsock2.h>
 #endif
-${usestd}],
-	[fd_set s;FD_ZERO(&s);FD_SET(1,&s)],
+${usestd}
+extern "C" void f() { fd_set s; FD_ZERO(&s); FD_SET(1, &s); }],
+	[],
 	[],
 	[AC_MSG_ERROR([
 Could not compile code using fd_set.  This may be a known problem with GNU libc
@@ -552,7 +563,7 @@ AC_TRY_COMPILE(
 #include <winsock2.h>
 #endif
 ${usestd}],
-	[fd_set s;FD_ZERO(&s);FD_SET(1,&s);return select(2,NULL,&s,&s,NULL)<=0],
+	[return select(2,0,0,0,0)<=0],
 	AC_DEFINE(PQXX_SELECT_ACCEPTS_NULL,1,
 [Define if select() accepts NULL fd_set arguments]),
 	select_accepts_null=no
