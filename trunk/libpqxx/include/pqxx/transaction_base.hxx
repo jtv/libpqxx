@@ -92,7 +92,6 @@ private:
  */
 class PQXX_LIBEXPORT transaction_base : public internal::namedclass
 {
-  // TODO: Retry non-serializable transaction w/update only on broken_connection
 public:
   /// If nothing else is known, our isolation level is at least read_committed
   typedef isolation_traits<read_committed> isolation_tag;
@@ -375,6 +374,9 @@ protected:
    */
   result DirectExec(const char C[], int Retries=0);
 
+  /// Forget about any reactivation-blocking resources we tried to allocate
+  void reactivation_avoidance_clear() throw () { m_reactivation_avoidance = 0; }
+
 private:
   /* A transaction goes through the following stages in its lifecycle:
    * <ul>
@@ -414,6 +416,8 @@ private:
   friend class cursor_base;
   int GetUniqueCursorNum() { return m_UniqueCursorNum++; }
   void MakeEmpty(result &R) const { m_Conn.MakeEmpty(R); }
+  void reactivation_avoidance_inc() throw () { ++m_reactivation_avoidance; }
+  void reactivation_avoidance_dec() throw () { --m_reactivation_avoidance; }
 
   friend class internal::transactionfocus;
   void PQXX_PRIVATE RegisterFocus(internal::transactionfocus *);
@@ -442,6 +446,10 @@ private:
   bool m_Registered;
   mutable PGSTD::map<PGSTD::string, PGSTD::string> m_Vars;
   PGSTD::string m_PendingError;
+  /// Resources allocated in this transaction that make reactivation impossible
+  /** This number may be negative!
+   */
+  int m_reactivation_avoidance;
 
   /// Not allowed
   transaction_base();
