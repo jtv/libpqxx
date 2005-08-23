@@ -70,7 +70,7 @@ BIN = libpqxx.dll
 
 CXXFLAGS = \$(CXXINCS) -w
 
-CFLAGS = \$(INCS) -DBUILDING_DLL -DHAVE_NAMESPACE_STD -DHAVE_CXX_STRING_HEADER -w
+CFLAGS = \$(INCS) -DBUILDING_DLL -w -DPQXX_SHARED
 
 .PHONY: all all-before all-after clean clean-custom
 
