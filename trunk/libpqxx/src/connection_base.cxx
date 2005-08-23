@@ -72,7 +72,8 @@ pqxx::connection_base::connection_base(const string &ConnInfo) :
   m_fdmask(),
   m_caps(),
   m_caps_known(false),
-  m_inhibit_reactivation(false)
+  m_inhibit_reactivation(false),
+  m_reactivation_avoidance(0)
 {
   clear_fdmask();
 }
@@ -87,7 +88,8 @@ pqxx::connection_base::connection_base(const char ConnInfo[]) :
   m_fdmask(),
   m_caps(),
   m_caps_known(false),
-  m_inhibit_reactivation(false)
+  m_inhibit_reactivation(false),
+  m_reactivation_avoidance(0)
 {
   clear_fdmask();
 }
@@ -113,6 +115,10 @@ void pqxx::connection_base::activate()
       throw broken_connection("Could not reactivate connection; "
 	  "reactivation is inhibited");
 
+    // If any objects were open that didn't survive the closing of our
+    // connection, don't try to reactivate
+    if (m_reactivation_avoidance) return;
+
     startconnect();
     completeconnect();
 
@@ -136,6 +142,14 @@ void pqxx::connection_base::deactivate()
       throw logic_error("Attempt to deactivate connection while " +
 	  		m_Trans.get()->description() + " still open");
   }
+
+  if (m_reactivation_avoidance)
+  {
+    process_notice("Attempt to deactivate connection while it is in a state "
+	"that cannot be fully recovered later (ignoring)");
+    return;
+  }
+
   dropconnect();
   disconnect();
   // When we activate again, the server may be different!
@@ -183,7 +197,7 @@ string pqxx::connection_base::RawGetVar(const string &Var)
 void pqxx::connection_base::SetupState()
 {
   if (!m_Conn)
-    throw logic_error("libpqxx internal error: SetupState() on no connection");
+    throw internal_error("SetupState() on no connection");
 
   m_caps_known = false;
 
@@ -711,6 +725,7 @@ void pqxx::connection_base::Reset()
   if (m_inhibit_reactivation)
     throw broken_connection("Could not reset connection: "
 	"reactivation is inhibited");
+  if (m_reactivation_avoidance) return;
 
   clear_fdmask();
 
@@ -737,6 +752,8 @@ void pqxx::connection_base::close() throw ()
 #ifdef PQXX_QUIET_DESTRUCTORS
   set_noticer(PGSTD::auto_ptr<noticer>(new nonnoticer()));
 #endif
+  inhibit_reactivation(false);
+  m_reactivation_avoidance = 0;
   clear_fdmask();
   try
   {
@@ -811,7 +828,7 @@ void pqxx::connection_base::UnregisterTransaction(transaction_base *T)
 void pqxx::connection_base::MakeEmpty(pqxx::result &R)
 {
   if (!m_Conn)
-    throw logic_error("libpqxx internal error: MakeEmpty() on null connection");
+    throw internal_error("MakeEmpty() on null connection");
 
   R = result(PQmakeEmptyPGresult(m_Conn, PGRES_EMPTY_QUERY));
 }
@@ -828,8 +845,7 @@ const string theWriteTerminator = "\\.";
 bool pqxx::connection_base::ReadCopyLine(string &Line)
 {
   if (!is_open())
-    throw logic_error("libpqxx internal error: "
-	              "ReadCopyLine() without connection");
+    throw internal_error("ReadCopyLine() without connection");
 
   Line.erase();
   bool Result;
@@ -848,8 +864,7 @@ bool pqxx::connection_base::ReadCopyLine(string &Line)
       break;
 
     case 0:
-      throw logic_error("libpqxx internal error: "
-	  "table read inexplicably went asynchronous");
+      throw internal_error("table read inexplicably went asynchronous");
 
     default:
       if (Buf)
@@ -906,8 +921,7 @@ bool pqxx::connection_base::ReadCopyLine(string &Line)
 void pqxx::connection_base::WriteCopyLine(const string &Line)
 {
   if (!is_open())
-    throw logic_error("libpqxx internal error: "
-	              "WriteCopyLine() without connection");
+    throw internal_error("WriteCopyLine() without connection");
 
   const string L = Line + '\n';
   const char *const LC = L.c_str();
@@ -936,15 +950,14 @@ void pqxx::connection_base::EndCopyWrite()
   case -1:
     throw runtime_error("Write to table failed: " + string(ErrMsg()));
   case 0:
-    throw logic_error("libpqxx internal error: "
-	    "table write is inexplicably asynchronous");
+    throw internal_error("table write is inexplicably asynchronous");
   case 1:
     // Normal termination.  Retrieve result object.
     break;
 
   default:
-    throw logic_error("libpqxx internal error: "
-	    "unexpected result " + to_string(Res) + " from PQputCopyEnd()");
+    throw internal_error("unexpected result " + to_string(Res) + " "
+	"from PQputCopyEnd()");
   }
 
   const result R(PQgetResult(m_Conn));
@@ -1058,6 +1071,11 @@ void pqxx::connection_base::read_capabilities() const throw ()
 #endif
 
   m_caps[cap_create_table_with_oids] = (v >= 80000);
+  m_caps[cap_cursor_scroll] = (v >= 70400);
+
+  // TODO: Find out which backend versions support these
+  //m_caps[cap_cursor_with_hold] = ();
+  //m_caps[cap_cursor_update] = ();
 
   m_caps_known = true;
 }
@@ -1067,5 +1085,21 @@ bool pqxx::connection_base::supports(capability c) const throw ()
 {
   if (!m_caps_known) read_capabilities();
   return m_caps[c];
+}
+
+
+// TODO: Inline this, once assertions are known to be good
+void pqxx::connection_base::reactivation_avoidance_add(int n) throw ()
+{
+  assert(n >= 0);
+  if (is_open()) m_reactivation_avoidance += n;
+  assert(m_reactivation_avoidance >= 0);
+}
+
+// TODO: Inline this, once assertions are known to be good
+void pqxx::connection_base::reactivation_avoidance_dec() throw ()
+{
+  assert(m_reactivation_avoidance > 0);
+  --m_reactivation_avoidance;
 }
 
