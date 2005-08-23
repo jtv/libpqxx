@@ -24,7 +24,7 @@ print <<EOF;
 # directory.
 #
 # Contents of this file based on the original test.mak by Clinton James:
-# Clinton James clinton.james\@jidn.com (March 2002)
+# Clinton James (March 2002)
 
 !IF \"\$(CFG)\" != \"Release\" && \"\$(CFG)\" != \"Debug\"
 !MESSAGE You can specify a specific testcase when running NMAKE. For example:
