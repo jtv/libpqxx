@@ -39,7 +39,8 @@ pqxx::transaction_base::transaction_base(connection_base &C,
   m_Focus(),
   m_Status(st_nascent),
   m_Registered(false),
-  m_PendingError()
+  m_PendingError(),
+  m_reactivation_avoidance(0)
 {
   m_Conn.RegisterTransaction(this);
   m_Registered = true;
@@ -53,6 +54,7 @@ pqxx::transaction_base::~transaction_base()
 #endif
   try
   {
+    reactivation_avoidance_clear();
     if (!m_PendingError.empty())
       process_notice("UNPROCESSED ERROR: " + m_PendingError + "\n");
 
@@ -109,8 +111,7 @@ void pqxx::transaction_base::commit()
 		      "committed again while in an undetermined state\n");
 
   default:
-    throw logic_error("libpqxx internal error: "
-	"pqxx::transaction: invalid status code");
+    throw internal_error("pqxx::transaction: invalid status code");
   }
 
   // Tricky one.  If stream is nested in transaction but inside the same scope,
@@ -180,7 +181,7 @@ void pqxx::transaction_base::abort()
     return;
 
   default:
-    throw logic_error("libpqxx internal error: invalid transaction status");
+    throw internal_error("invalid transaction status");
   }
 
   m_Status = st_aborted;
@@ -224,8 +225,7 @@ pqxx::result pqxx::transaction_base::exec(const char Query[],
 		      description() + ", "
 		      "which is in indeterminate state");
   default:
-    throw logic_error("libpqxx internal error: pqxx::transaction: "
-		      "invalid status code");
+    throw internal_error("pqxx::transaction: invalid status code");
   }
 
   // TODO: Pass Desc to do_exec(), and from there on down
@@ -255,7 +255,7 @@ string pqxx::transaction_base::get_variable(const string &Var) const
 void pqxx::transaction_base::Begin()
 {
   if (m_Status != st_nascent)
-    throw logic_error("libpqxx internal error: pqxx::transaction: "
+    throw internal_error("pqxx::transaction: "
 		      "Begin() called while not in nascent state");
 
   try
@@ -292,6 +292,12 @@ void pqxx::transaction_base::End() throw ()
 			    "still open\n");
 
     if (m_Status == st_active) abort();
+
+    if (m_reactivation_avoidance)
+    {
+      m_Conn.reactivation_avoidance_add(m_reactivation_avoidance);
+      reactivation_avoidance_clear();
+    }
   }
   catch (const exception &e)
   {
