@@ -21,10 +21,6 @@
 #include <map>
 #include <memory>
 
-#ifdef _WIN32
-#include <winsock2.h>	// for fd_set
-#endif	// _WIN32
-
 #include "pqxx/except"
 #include "pqxx/util"
 
@@ -590,8 +586,6 @@ private:
   const char *ErrMsg() const throw ();
   void PQXX_PRIVATE Reset();
   void PQXX_PRIVATE RestoreVars();
-  int PQXX_PRIVATE set_fdmask() const;
-  void PQXX_PRIVATE clear_fdmask() throw ();
   PGSTD::string PQXX_PRIVATE RawGetVar(const PGSTD::string &);
   void PQXX_PRIVATE process_notice_raw(const char msg[]) throw ();
 
@@ -636,8 +630,6 @@ private:
 
   /// Prepared statements existing in this section
   PSMap m_prepared;
-
-  mutable fd_set m_fdmask;
 
   /// Set of session capabilities
   mutable bool m_caps[cap_end];

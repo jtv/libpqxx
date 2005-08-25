@@ -27,9 +27,11 @@
 #include <sys/select.h>
 #else
 #include <sys/types.h>
-#ifdef HAVE_UNISTD_H
+#if defined(HAVE_UNISTD_H)
 #include <unistd.h>
-#endif	// HAVE_UNISTD_H
+#elif defined(_WIN32)
+#include <winsock2.h>
+#endif
 #endif	// PQXX_HAVE_SYS_SELECT_H
 
 #include "libpq-fe.h"
@@ -54,11 +56,27 @@ static void pqxxNoticeCaller(void *arg, const char *Msg)
   if (arg && Msg) (*static_cast<pqxx::noticer *>(arg))(Msg);
 }
 
+
+#ifdef PQXX_SELECT_ACCEPTS_NULL
+  // The always-empty fd_set
+static fd_set *const fdset_none = 0;
+#else	// PQXX_SELECT_ACCEPTS_NULL
+static fd_set emptyfd;	// Relies on zero-initialization
+static fd_set *const fdset_none = &emptyfd;
+#endif	// PQXX_SELECT_ACCEPTS_NULL
+
+
+
 // Concentrate stupid "old-style cast" warnings for GNU libc in one place, and
 // by using "C" linkage, perhaps silence them altogether.
 static void set_fdbit(int f, fd_set *s)
 {
   FD_SET(f, s);
+}
+
+static void clear_fdmask(fd_set *mask)
+{
+  FD_ZERO(mask);
 }
 }
 
@@ -69,13 +87,11 @@ pqxx::connection_base::connection_base(const string &ConnInfo) :
   m_Trans(),
   m_Noticer(),
   m_Trace(0),
-  m_fdmask(),
   m_caps(),
   m_caps_known(false),
   m_inhibit_reactivation(false),
   m_reactivation_avoidance(0)
 {
-  clear_fdmask();
 }
 
 
@@ -85,13 +101,11 @@ pqxx::connection_base::connection_base(const char ConnInfo[]) :
   m_Trans(),
   m_Noticer(),
   m_Trace(0),
-  m_fdmask(),
   m_caps(),
   m_caps_known(false),
   m_inhibit_reactivation(false),
   m_reactivation_avoidance(0)
 {
-  clear_fdmask();
 }
 
 
@@ -315,7 +329,7 @@ void pqxx::connection_base::check_result(const result &R, const char Query[])
     const int fd = sock();
     if (fd < 0) throw broken_connection(e.what());
     fd_set errs;
-    FD_ZERO(&errs);
+    clear_fdmask(&errs);
     int sel;
     do
     {
@@ -727,8 +741,6 @@ void pqxx::connection_base::Reset()
 	"reactivation is inhibited");
   if (m_reactivation_avoidance) return;
 
-  clear_fdmask();
-
   // Forget about any previously ongoing connection attempts
   dropconnect();
 
@@ -737,7 +749,6 @@ void pqxx::connection_base::Reset()
     // Reset existing connection
     PQreset(m_Conn);
     SetupState();
-    clear_fdmask();
   }
   else
   {
@@ -754,7 +765,6 @@ void pqxx::connection_base::close() throw ()
 #endif
   inhibit_reactivation(false);
   m_reactivation_avoidance = 0;
-  clear_fdmask();
   try
   {
     if (m_Trans.get())
@@ -772,7 +782,6 @@ void pqxx::connection_base::close() throw ()
   catch (...)
   {
   }
-  clear_fdmask();
 }
 
 
@@ -991,50 +1000,33 @@ pqxx::internal::pq::PGresult *pqxx::connection_base::get_result()
 
 namespace
 {
-#ifdef PQXX_SELECT_ACCEPTS_NULL
-  // The always-empty fd_set
-  fd_set *const fdset_none = 0;
-#else	// PQXX_SELECT_ACCEPTS_NULL
-  fd_set emptyfd;	// Relies on zero-initialization
-  fd_set *const fdset_none = &emptyfd;
-#endif	// PQXX_SELECT_ACCEPTS_NULL
+void wait_fd(int fd, bool forwrite=false, timeval *tv=0)
+{
+  if (fd < 0) throw pqxx::broken_connection();
+  fd_set s;
+  clear_fdmask(&s);
+  set_fdbit(fd, &s);
+  select(fd+1, (forwrite?fdset_none:&s), (forwrite?&s:fdset_none), &s, tv);
+}
 } // namespace
 
 
-int pqxx::connection_base::set_fdmask() const
-{
-  if (!m_Conn) throw broken_connection();
-  const int fd = sock();
-  if (fd < 0) throw broken_connection();
-  set_fdbit(fd, &m_fdmask);
-  return fd;
-}
-
-
-void pqxx::connection_base::clear_fdmask() throw ()
-{
-  FD_ZERO(&m_fdmask);
-}
-
 void pqxx::connection_base::wait_read() const
 {
-  const int fd = set_fdmask();
-  select(fd+1, &m_fdmask, fdset_none, &m_fdmask, 0);
+  wait_fd(sock());
 }
 
 
 void pqxx::connection_base::wait_read(long seconds, long microseconds) const
 {
   timeval tv = { seconds, microseconds };
-  const int fd = set_fdmask();
-  select(fd+1, &m_fdmask, fdset_none, &m_fdmask, &tv);
+  wait_fd(sock(), false, &tv);
 }
 
 
 void pqxx::connection_base::wait_write() const
 {
-  const int fd = set_fdmask();
-  select(fd+1, fdset_none, &m_fdmask, &m_fdmask, 0);
+  wait_fd(sock(), true);
 }
 
 int pqxx::connection_base::await_notification()
