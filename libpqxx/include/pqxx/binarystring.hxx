@@ -38,6 +38,13 @@ namespace pqxx
  *
  * The binarystring retains its value even if the result it was obtained from is
  * destroyed, but it cannot be copied or assigned.
+ *
+ * @warning This class is implemented as a reference-counting smart pointer.
+ * Copying, swapping, and destroying binarystring objects that refer to the same
+ * underlying data block is <em>not thread-safe</em>.  If you wish to pass
+ * binarystrings around between threads, make sure that each of these operations
+ * is protected against concurrency with similar operations on the same object,
+ * or other objects pointing to the same data block.
  */
 class PQXX_LIBEXPORT binarystring : internal::PQAlloc<unsigned char>
 {

@@ -500,6 +500,10 @@ private:
  * @warning Do not read from the underlying stream or its cursor, move its read
  * position, or change its stride, between the time the first icursor_iterator
  * on it is created and the time its last icursor_iterator is destroyed.
+ *
+ * @warning Manipulating these iterators within the context of a single cursor
+ * stream is <em>not thread-safe</em>.  Creating a new iterator, copying one, or
+ * destroying one affects the stream as a whole.
  */
 class PQXX_LIBEXPORT icursor_iterator :
   public PGSTD::iterator<PGSTD::input_iterator_tag,

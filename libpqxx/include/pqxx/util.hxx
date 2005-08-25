@@ -44,6 +44,23 @@
  * @see http://pqxx.tk/, http://gborg.postgresql.org/project/libpqxx/
  */
 
+/** @page threading Thread safety
+ * 
+ * This library does not contain any locking code to protect objects against
+ * simultaneous modification in multi-threaded programs.  Therefore it is up to
+ * you, the user of the library, to ensure that your client programs perform no
+ * conflicting operations simultaneously in multiple threads.
+ *
+ * The reason for this is simple: there are many different threading interfaces
+ * and libpqxx does not mean to impose a choice.  Additionally, locking incurs a
+ * performance overhead without benefitting most programs.
+ *
+ * It's not all bad news, however.  The library tries to avoid unsafe operations
+ * and so does the underlying libpq.  Apart from a few exceptions--which should
+ * generally be noted in this documentation--all your program needs to do to
+ * maintain thread safety is to ensure that no two threads perform a non-const
+ * operation on a single object simultaneously.
+ */
 
 /// The home of all libpqxx classes, functions, templates, etc.
 namespace pqxx {}
@@ -65,7 +82,7 @@ namespace pqxx
 const oid oid_none = 0;
 
 /**
- * @name String conversion
+ * @defgroup stringconversion String conversion
  *
  * For purposes of communication with the server, values need to be converted
  * from and to a human-readable string format that (unlike the various functions
@@ -649,17 +666,19 @@ namespace internal
 void freepqmem(void *);
 
 /// Reference-counted smart pointer to libpq-allocated object
-/** Ownership policy is simple: object dies when PQAlloc object's value does.
+/** Keep track of a libpq-allocated object, and free it once all references to
+ * it have died.
+ *
  * If the available PostgreSQL development files supply PQfreemem() or
  * PQfreeNotify(), this is used to free the memory.  If not, free() is used
  * instead.  This matters on Windows, where memory allocated by a DLL must be
  * freed by the same DLL.
  *
  * @warning Copying, swapping, and destroying PQAlloc objects that refer to the
- * same underlying entity is <em>not thread-safe</em>.  If you wish to pass
- * reference-counted objects around between threads, make sure that each of
- * these operations is protected against concurrency with these same operations
- * on the same object or other copies of the same object.
+ * same underlying libpq-allocated block is <em>not thread-safe</em>.  If you
+ * wish to pass reference-counted objects around between threads, make sure that
+ * each of these operations is protected against concurrency with similar
+ * operations on the same object--or other copies of the same object.
  */
 template<typename T> class PQXX_LIBEXPORT PQAlloc
 {
