@@ -5,7 +5,7 @@ EXTRA_DIST = autogen.sh configure.ac.in libpqxx.spec libpqxx.spec.in \
 MAINTAINERCLEANFILES=Makefile.in aclocal.m4 config.h.in config.log configure \
 	stamp-h.in
 
-includedir=$(prefix)/include/pqxx
+#includedir=$(prefix)/include
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpqxx.pc
