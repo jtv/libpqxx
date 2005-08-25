@@ -89,9 +89,12 @@ public:
   }
 };
 
-extern "C" static void set_fdbit(fd_set &s, int b)
+extern "C" 
+{
+static void set_fdbit(fd_set &s, int b)
 {
   FD_SET(b,&s);
+}
 }
 
 } // namespace

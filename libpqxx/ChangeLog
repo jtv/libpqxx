@@ -9,6 +9,8 @@
   - Removed include/pqxx from include path
  src/Makefile.am, tools/maketestam.pl:
   - Removed unnecessary and incorrect include paths
+ test/test087.cxx
+  - Fixed compile problem with older gcc
 2005-08-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection.hxx, include/pqxx/cursor.hxx:
   - Full test coverage
