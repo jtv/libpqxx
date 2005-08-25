@@ -1,3 +1,14 @@
+2005-08-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/binarystring.hxx, include/pqxx/cursor.hxx,
+ include/pqxx/util.hxx:
+  - Documentation on thread safety
+ include/pqxx/connection_base.hxx, src/connection_base.cxx:
+  - Moved all fd_set-related things from class to implementation
+  - Improved thread safety
+ Makefile.am
+  - Removed include/pqxx from include path
+ src/Makefile.am, tools/maketestam.pl:
+  - Removed unnecessary and incorrect include paths
 2005-08-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection.hxx, include/pqxx/cursor.hxx:
   - Full test coverage

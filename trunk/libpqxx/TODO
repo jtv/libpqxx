@@ -1,12 +1,10 @@
 ALERT
+(*) Document all "mutable" operations as non-threadsafe
+(*) Rename trigger
 (*) test062 fails on binary strings with postgres 8.0.2 (RedHat, John Carpenter)
 (*) test085 fails with postgres 8.0.2 (Fedora, John Carpenter)
 (*) Some functionality breaks against postgres 7.1 (niejam@yahoo.com)
 (*) Ignore column specs in tablestreams on older backends, if possible
-
-All Over
-(*) Wrap most popular external function calls to reduce relocation overhead
-(*) Unify linked-list implementation of icursor_iterator with PQAlloc?
 
 Build & Configuration
 (*) Rename libcompiler.h and compiler.h to avoid confusion
@@ -45,15 +43,12 @@ Streams
 (*) Streambuffer class?
 
 Tests
-(*) Test with multiple backend versions
 (*) Test broken connections
 (*) Test tablereader and rows ending in empty fields
 
 Thread-safety
 (*) Any functions besides strerror() that may not be thread-safe?
 (*) Guard against race bugs by marking "last modification" of objects
-(*) Set up documentation section on threading
-(*) Note thread risks of copying etc. in all PQAlloc-derived classes
 
 Transactions
 (*) [pgsql 8.0] Support two-phase commit with separate transaction class(es)
