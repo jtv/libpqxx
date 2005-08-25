@@ -21,6 +21,10 @@ print <<EOF;
 # directory.
 
 INCLUDES=-I\$(top_builddir)/include -I\$(top_srcdir)/include \${POSTGRES_INCLUDE}
+# Override automatically generated list of default includes.  It contains only
+# unnecessary entries, and incorrectly mentions include/pqxx directly.
+DEFAULT_INCLUDES=
+
 CLEANFILES=pqxxlo.txt
 MAINTAINERCLEANFILES=Makefile.in
 
