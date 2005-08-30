@@ -106,10 +106,12 @@ int main(int, char *argv[])
       throw logic_error("Copy-constructed reverse_iterator "
 	  "not identical to assigned one");
     if (ri2 != ri3)
-      throw logic_error("result:end() does not generate rbegin()");
+      throw logic_error("result::end() does not generate rbegin()");
     if (ri2 - ri3)
       throw logic_error("Distance between identical const_reverse_iterators "
 	  "is nonzero: " + to_string(ri2 - ri3));
+    if (result::tuple::const_reverse_iterator(ri1.base()) != ri1)
+      throw logic_error("Back-conversion of reverse_iterator base() fails");
     if (ri2 != ri3 + 0)
       throw logic_error("reverse_iterator+0 gives strange result");
     if (ri2 != ri3 - 0)

@@ -31,11 +31,25 @@ namespace pqxx
 class dbtransaction;
 
 /// Common definitions for cursor types
+/** In C++ terms, fetches are always done in pre-increment or pre-decrement
+ * fashion--i.e. the result does not include the row the cursor is on at the
+ * beginning of the fetch, and the cursor ends up being positioned on the last
+ * row in the result.
+ *
+ * There are singular positions akin to @code end() @endcode at both the
+ * beginning and the end of the cursor's range of movement, although these fit
+ * in so naturally with the semantics that one rarely notices them.  The cursor
+ * begins at the first of these, but any fetch in the forward direction will
+ * move the cursor off this position and onto the first row before returning
+ * anything.
+ */
 class PQXX_LIBEXPORT cursor_base
 {
 public:
   typedef result::size_type size_type;
   typedef result::difference_type difference_type;
+
+  virtual ~cursor_base() throw () { close(); }
 
   /// Cursor access-pattern policy
   /** Allowing a cursor to move forward only can result in better performance,
@@ -126,11 +140,46 @@ public:
 
   /// Name of underlying SQL cursor
   /**
-   * @returns Name of SQL cursor, which may differ from the given name.
+   * @returns Name of SQL cursor, which may differ from original given name.
    * @warning Don't use this to access the SQL cursor directly without going
    * through the provided wrapper classes!
    */
   const PGSTD::string &name() const throw () { return m_name; }		//[t81]
+
+  /// Fetch up to given number of rows of data
+  virtual result fetch(difference_type);				//[]
+
+  /// Fetch result, but also return the number of rows of actual displacement
+  /** The relationship between actual displacement and result size gets tricky
+   * at the edges of the cursor's range of movement.  As an example, consider a
+   * fresh cursor that's been moved forward by 2 rows from its starting
+   * position; we can move it backwards from that position by 1 row and get a
+   * result set of 1 row, ending up on the first actual row of data.  If instead
+   * we move it backwards by 2 or more rows, we end up back at the starting
+   * position--but the result is still only 1 row wide!
+   *
+   * The output parameter compensates for this, returning true displacement
+   * (which also signed, so it includes direction).
+   */
+  virtual result fetch(difference_type, difference_type &);		//[]
+
+  /// Move cursor by given number of rows, returning number of data rows skipped
+  /** The number of data rows skipped is equal to the number of rows of data
+   * that would have been returned if this were a fetch instead of a move
+   * command.
+   *
+   * @return the number of data rows that would have been returned if this had
+   * been a @code fetch @endcode command.
+   */
+  virtual difference_type move(difference_type);			//[]
+
+  /// Move cursor, but also return actual displacement in output parameter
+  /** As with the @code fetch @endcode functions, the actual displacement may
+   * differ from the number of data rows skipped by the move.
+   */
+  virtual difference_type move(difference_type, difference_type &);	//[]
+
+  void close() throw ();						//[]
 
 protected:
   cursor_base(transaction_base *,
@@ -144,18 +193,11 @@ protected:
       bool hold);
   void adopt(ownershippolicy);
 
-  void close() throw ();
-
-  result fetch(difference_type);
-  difference_type move(difference_type);
-
   static PGSTD::string stridestring(difference_type);
   transaction_base *m_context;
   bool m_done;
 
-  template<accesspolicy A> void check_displacement(difference_type) 
-  {
-  }
+  template<accesspolicy A> void check_displacement(difference_type) { }
 
 private:
   int PQXX_PRIVATE get_unique_cursor_num();
@@ -207,6 +249,7 @@ inline cursor_base::difference_type cursor_base::backward_all() throw ()
 }
 
 
+// TODO: How do we work updates into the scheme?
 /// The simplest form of cursor, with no concept of position or stride
 template<cursor_base::accesspolicy ACCESS, cursor_base::updatepolicy UPDATE>
 class PQXX_LIBEXPORT basic_cursor : public cursor_base
@@ -253,8 +296,6 @@ public:
     adopt(op);
   }
 
-  virtual ~basic_cursor() throw () { close(); }
-
   /// Fetch a number of rows from cursor
   /** This function can be used to fetch a given number of rows (by passing the
    * desired number of rows as an argument), or all remaining rows (by passing
@@ -278,6 +319,12 @@ public:
     return cursor_base::fetch(n);
   }
 
+  virtual result fetch(difference_type n, difference_type &d)		//[]
+  {
+    check_displacement<ACCESS>(n);
+    return cursor_base::fetch(n, d);
+  }
+
   /// Move cursor by given number of rows
   /**
    * @param n number of rows to move
@@ -289,17 +336,25 @@ public:
     return cursor_base::move(n);
   }
 
+  virtual difference_type move(difference_type n, difference_type &d)	//[t42]
+  {
+    check_displacement<ACCESS>(n);
+    return cursor_base::move(n, d);
+  }
+
   using cursor_base::close;
 };
 
 
-// TODO: Querying size only makes sense for random_access cursors!
 /// Cursor that knows its position
 template<cursor_base::accesspolicy ACCESS, cursor_base::updatepolicy UPDATE>
 class PQXX_LIBEXPORT absolute_cursor : public basic_cursor<ACCESS,UPDATE>
 {
   typedef basic_cursor<ACCESS,UPDATE> super;
 public:
+  typedef cursor_base::size_type size_type;
+  typedef cursor_base::difference_type difference_type;
+
   /// Create cursor based on given query
   /**
    * @param t transaction this cursor is to live in
@@ -319,24 +374,35 @@ public:
   {
   }
 
-  virtual result fetch(cursor_base::difference_type d)			//[]
+  virtual result fetch(difference_type d)				//[]
   {
-    const result r(super::fetch(d));
-    digest(d, (d > 0) ? r.size() : -r.size());
+    difference_type m;
+    return fetch(d, m);
+  }
+
+  virtual difference_type move(difference_type d)			//[]
+  {
+    difference_type m;
+    return move(d, m);
+  }
+
+  virtual difference_type move(difference_type d, difference_type &m)	//[]
+  {
+    const difference_type r(super::move(d, m));
+    digest(d, m);
     return r;
   }
 
-  virtual cursor_base::difference_type
-    move(cursor_base::difference_type d)				//[]
+  virtual result fetch(difference_type d, difference_type &m)		//[]
   {
-    cursor_base::difference_type got(super::move(d));
-    digest(d, got);
-    return got;
+    const result r(super::fetch(d, m));
+    digest(d, m);
+    return r;
   }
 
-  cursor_base::size_type pos() const throw () { return m_pos; }		//[]
+  size_type pos() const throw () { return m_pos; }			//[]
 
-  cursor_base::difference_type move_to(cursor_base::size_type);		//[]
+  difference_type move_to(cursor_base::size_type);			//[]
 
 private:
   /// Set result size if appropriate, given requested and actual displacement
@@ -367,9 +433,8 @@ class icursor_iterator;
 
 /// Simple read-only cursor represented as a stream of results
 /** SQL cursors can be tricky, especially in C++ since the two languages seem to
- * have been designed on different planets.  An SQL cursor is positioned
- * "between rows," as it were, rather than "on" rows like C++ iterators, and so
- * singular positions akin to end() exist on both sides of the underlying set.
+ * have been designed on different planets.  An SQL cursor has two singular
+ * positions akin to end() on either side of the underlying result set.
  *
  * These cultural differences are hidden from view somewhat by libpqxx, which
  * tries to make SQL cursors behave more like familiar C++ entities such as
