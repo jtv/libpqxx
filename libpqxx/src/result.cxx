@@ -331,6 +331,14 @@ pqxx::result::const_fielditerator::operator--(int)
 }
 
 
+pqxx::result::const_iterator
+pqxx::result::const_reverse_iterator::base() const throw ()
+{
+  iterator_type tmp(*this);
+  return ++tmp;
+}
+
+
 pqxx::result::const_reverse_iterator
 pqxx::result::const_reverse_iterator::operator++(int)
 {
@@ -348,11 +356,20 @@ pqxx::result::const_reverse_iterator::operator--(int)
   return tmp;
 }
 
+
+pqxx::result::const_fielditerator
+pqxx::result::const_reverse_fielditerator::base() const throw ()
+{
+  iterator_type tmp(*this);
+  return ++tmp;
+}
+
+
 pqxx::result::const_reverse_fielditerator
 pqxx::result::const_reverse_fielditerator::operator++(int)
 {
   const_reverse_fielditerator tmp(*this);
-  iterator_type::operator--();
+  operator++();
   return tmp;
 }
 
@@ -361,7 +378,7 @@ pqxx::result::const_reverse_fielditerator
 pqxx::result::const_reverse_fielditerator::operator--(int)
 {
   const_reverse_fielditerator tmp(*this);
-  iterator_type::operator++();
+  operator--();
   return tmp;
 }
 
