@@ -1408,7 +1408,7 @@
 	<para>
 	  So how does your transactor pass query results back to the outside
 	  world once it's done?  For this purpose, you may redefine
-	  <literal>transactor</literal>'s <function>OnCommit</function>
+	  <literal>transactor</literal>'s <function>on_commit</function>
 	  member function to pass any data back to the rest of your program.
 	  This member function will be called only if your transaction
 	  succeeded.
@@ -1417,7 +1417,7 @@
 	<para>
 	  (You may also wish to go the other route, storing data to variables
 	  outside the transactor right away, and override the
-	  <function>OnAbort</function> and <function>OnDoubt</function>
+	  <function>on_abort</function> and <function>on_doubt</function>
 	  functions to remove the data again if the transaction failed, but
 	  this is much more likely to cause subtle bugs.)
 	</para>

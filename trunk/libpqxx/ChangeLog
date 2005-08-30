@@ -1,4 +1,7 @@
 2005-08-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/libpqxx.xml:
+  - Wrong variable name in example.  Thanks Marc Herbert.
+  - Mentioned outdated OnCommit() etc. names--thanks Lolke Dijkstra
  include/pqxx/connection_base.hxx, src/connection_base.cxx:
   - Made capabilities check immediate (was deferred) for thread safety
  include/pqxx/cursor.hxx, src/cursor.cxx:
