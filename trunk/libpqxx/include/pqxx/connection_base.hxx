@@ -328,7 +328,7 @@ public:
    * try not to rely on this function being exactly right.  Older versions of
    * libpq may not detect any capabilities.
    */
-  bool supports(capability) const throw ();
+  bool supports(capability c) const throw () { return m_caps[c]; }	//[]
 
   /// Set client-side character encoding
   /** Search the PostgreSQL documentation for "multibyte" or "character set
@@ -589,7 +589,7 @@ private:
   PGSTD::string PQXX_PRIVATE RawGetVar(const PGSTD::string &);
   void PQXX_PRIVATE process_notice_raw(const char msg[]) throw ();
 
-  void read_capabilities() const throw ();
+  void read_capabilities() throw ();
 
   /// Connection string
   PGSTD::string m_ConnInfo;
@@ -632,9 +632,7 @@ private:
   PSMap m_prepared;
 
   /// Set of session capabilities
-  mutable bool m_caps[cap_end];
-  /// Have capabilities for this connection been determined?
-  mutable bool m_caps_known;
+  bool m_caps[cap_end];
 
   /// Is reactivation currently inhibited?
   bool m_inhibit_reactivation;
