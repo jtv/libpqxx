@@ -88,7 +88,6 @@ pqxx::connection_base::connection_base(const string &ConnInfo) :
   m_Noticer(),
   m_Trace(0),
   m_caps(),
-  m_caps_known(false),
   m_inhibit_reactivation(false),
   m_reactivation_avoidance(0)
 {
@@ -102,7 +101,6 @@ pqxx::connection_base::connection_base(const char ConnInfo[]) :
   m_Noticer(),
   m_Trace(0),
   m_caps(),
-  m_caps_known(false),
   m_inhibit_reactivation(false),
   m_reactivation_avoidance(0)
 {
@@ -166,8 +164,6 @@ void pqxx::connection_base::deactivate()
 
   dropconnect();
   disconnect();
-  // When we activate again, the server may be different!
-  m_caps_known = false;
 }
 
 
@@ -213,8 +209,6 @@ void pqxx::connection_base::SetupState()
   if (!m_Conn)
     throw internal_error("SetupState() on no connection");
 
-  m_caps_known = false;
-
   if (Status() != CONNECTION_OK)
   {
     const string Msg( ErrMsg() );
@@ -222,6 +216,8 @@ void pqxx::connection_base::SetupState()
     disconnect();
     throw runtime_error(Msg);
   }
+
+  read_capabilities();
 
   const PSMap::const_iterator prepared_end(m_prepared.end());
   for (PSMap::iterator p = m_prepared.begin(); p != prepared_end; ++p)
@@ -366,7 +362,8 @@ void pqxx::connection_base::disconnect() throw ()
   {
     PQfinish(m_Conn);
     m_Conn = 0;
-    m_caps_known = false;
+    // When we activate again, the server may be different!
+    for (int i=0; i<cap_end; ++i) m_caps[i] = false;
   }
 }
 
@@ -1055,7 +1052,7 @@ int pqxx::connection_base::await_notification(long seconds, long microseconds)
 }
 
 
-void pqxx::connection_base::read_capabilities() const throw ()
+void pqxx::connection_base::read_capabilities() throw ()
 {
   int v = 0;
 #ifdef PQXX_HAVE_PQSERVERVERSION
@@ -1068,15 +1065,6 @@ void pqxx::connection_base::read_capabilities() const throw ()
   // TODO: Find out which backend versions support these
   //m_caps[cap_cursor_with_hold] = ();
   //m_caps[cap_cursor_update] = ();
-
-  m_caps_known = true;
-}
-
-
-bool pqxx::connection_base::supports(capability c) const throw ()
-{
-  if (!m_caps_known) read_capabilities();
-  return m_caps[c];
 }
 
 
