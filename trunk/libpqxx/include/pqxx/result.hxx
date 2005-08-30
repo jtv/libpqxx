@@ -484,7 +484,8 @@ public:
   class PQXX_LIBEXPORT const_reverse_iterator : private const_iterator
   {
   public:
-    typedef const_iterator iterator_type;
+    typedef pqxx::result::const_iterator super;
+    typedef pqxx::result::const_iterator iterator_type;
     using iterator_type::iterator_category;
     using iterator_type::difference_type;
     using iterator_type::pointer;
@@ -498,19 +499,18 @@ public:
 #endif
 
     const_reverse_iterator(const const_reverse_iterator &rhs) :		//[t75]
-      const_iterator(rhs), m_tmp(rhs) {}
+      const_iterator(rhs) {}
     explicit const_reverse_iterator(const const_iterator &rhs) : 	//[t75]
-      const_iterator(rhs), m_tmp() {}
+      const_iterator(rhs) { super::operator--(); }
 
-    iterator_type base() const throw () { return *this; }		//[t75]
+    iterator_type base() const throw ();				//[t75]
 
     /**
      * @name Dereferencing operators
      */
     //@{
-    pointer operator->() const throw () 				//[t75]
-	{ m_tmp=*this; --m_tmp; return &m_tmp; }
-    reference operator*() const throw () { return *operator->(); }	//[t75]
+    using const_iterator::operator->;	 				//[t75]
+    using const_iterator::operator*;					//[t75]
     //@}
  
     /**
@@ -536,11 +536,11 @@ public:
      */
     //@{
     const_reverse_iterator operator+(difference_type i) const		//[t75]
-	{ return const_reverse_iterator(iterator_type(*this)-i); }
+	{ return const_reverse_iterator(base()-i); }
     const_reverse_iterator operator-(difference_type i)			//[t75]
-	{ return const_reverse_iterator(iterator_type(*this)+i); }
+	{ return const_reverse_iterator(base()+i); }
     difference_type operator-(const const_reverse_iterator &rhs) const	//[t75]
-	{ return rhs.base() - base(); }
+	{ return rhs.const_iterator::operator-(*this); }
     //@}
 
     /**
@@ -561,15 +561,6 @@ public:
     bool operator>=(const const_reverse_iterator &rhs) const 		//[t75]
 	{ return iterator_type::operator<=(rhs); }
     //@}
-
-  private:
-    /// Cached base iterator (workaround for operator-> problems)
-    /** Nasty.  Since operator-> needs to return a pointer to a temporary value,
-     * we need to keep that value somewhere.  We keep it here, which should be
-     * safe because of the language's rules about side effects and sequence
-     * points.  It does take up rarely used space though, which is too bad.
-     */
-    mutable iterator_type m_tmp;
   };
 
   class PQXX_LIBEXPORT const_fielditerator :
@@ -649,6 +640,7 @@ public:
   class PQXX_LIBEXPORT const_reverse_fielditerator : private const_fielditerator
   {
   public:
+    typedef const_fielditerator super;
     typedef const_fielditerator iterator_type;
     using iterator_type::iterator_category;
     using iterator_type::difference_type;
@@ -662,20 +654,20 @@ public:
     typedef const field &reference;
 #endif
 
-    iterator_type base() const throw () { return *this; }		//[t82]
-    const_reverse_fielditerator(const const_reverse_fielditerator &rhs)	//[t82]
-      : const_fielditerator(rhs), m_tmp(rhs.m_tmp) {}
+    const_reverse_fielditerator(const const_reverse_fielditerator &r) :	//[t82]
+      const_fielditerator(r) {}
     explicit
-      const_reverse_fielditerator(const const_fielditerator &rhs) :	//[t82]
-      const_fielditerator(rhs), m_tmp(rhs) {}
+      const_reverse_fielditerator(const super &rhs) throw() :		//[t82]
+	const_fielditerator(rhs) { super::operator--(); }
+
+    iterator_type base() const throw ();				//[t82]
 
     /**
      * @name Dereferencing operators
      */
     //@{
-    pointer operator->() const throw () 				//[t82]
-	{ m_tmp = *this; --m_tmp; return &m_tmp; }
-    reference operator*() const throw () { return *operator->(); }	//[t82]
+    using iterator_type::operator->;					//[t82]
+    using iterator_type::operator*;					//[t82]
     //@}
 
     /**
@@ -702,12 +694,12 @@ public:
      */
     //@{
     const_reverse_fielditerator operator+(difference_type i) const	//[t82]
-	{ return const_reverse_fielditerator(iterator_type(*this)-i); }
+	{ return const_reverse_fielditerator(base()-i); }
     const_reverse_fielditerator operator-(difference_type i)		//[t82]
-	{ return const_reverse_fielditerator(iterator_type(*this)+i); }
+	{ return const_reverse_fielditerator(base()+i); }
     difference_type
       operator-(const const_reverse_fielditerator &rhs) const		//[t82]
-	{ return rhs.base() - base(); }
+	{ return rhs.const_fielditerator::operator-(*this); }
     //@}
 
     /**
@@ -730,15 +722,6 @@ public:
     bool operator>=(const const_reverse_fielditerator &rhs) const 	//[t82]
 	{ return iterator_type::operator<=(rhs); }
     //@}
-
-  private:
-    /// Cached base iterator (workaround for operator-> problems)
-    /** Nasty.  Since operator-> needs to return a pointer to a temporary value,
-     * we need to keep that value somewhere.  We keep it here, which should be
-     * safe because of the language's rules about side effects and sequence
-     * points.  It does take up rarely used space though, which is too bad.
-     */
-    mutable iterator_type m_tmp;
   };
 
 
