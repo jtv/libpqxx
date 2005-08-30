@@ -47,7 +47,7 @@ Tests
 (*) Test tablereader and rows ending in empty fields
 
 Thread-safety
-(*) Any functions besides strerror() that may not be thread-safe?
+(*) Remove thread-safety option; use strerror_r where available
 (*) Guard against race bugs by marking "last modification" of objects
 
 Transactions
@@ -57,6 +57,7 @@ Transactions
 (*) User schema support for robusttransaction log table
 (*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
 (*) Support constraints definition
+(*) Pipelined operation for high-level classes: cursor, tablestream, ...
 
 Util
 (*) Report closing of non-open sessionfocus only during explicit close, not dtor

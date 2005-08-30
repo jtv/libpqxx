@@ -26,6 +26,22 @@
 using namespace PGSTD;
 
 
+namespace
+{
+/// Compute actual displacement based on requested and reported displacements
+pqxx::cursor_base::difference_type adjust(
+    pqxx::cursor_base::difference_type d, 
+    pqxx::cursor_base::difference_type r)
+{
+  const pqxx::cursor_base::difference_type hoped = labs(d);
+  pqxx::cursor_base::difference_type actual = r;
+  if (hoped < 0 || r < hoped) ++actual;
+  return (d < 0) ? -actual : actual;
+}
+}
+
+
+
 pqxx::cursor_base::cursor_base(transaction_base *context,
     const string &cname,
     bool embellish_name) :
@@ -130,8 +146,8 @@ void pqxx::cursor_base::close() throw ()
 {
   if (m_ownership==owned)
   {
-    try { m_context->exec("CLOSE " + name()); }
-    catch (const exception &) { }
+    try { m_context->exec("CLOSE " + name()); } catch (const exception &) { }
+
     if (m_adopted) m_context->reactivation_avoidance_dec();
     m_ownership = loose;
   }
@@ -156,6 +172,14 @@ pqxx::result pqxx::cursor_base::fetch(difference_type n)
     r = m_context->exec(fq);
     if (!r.empty()) m_done = false;
   }
+  return r;
+}
+
+
+pqxx::result pqxx::cursor_base::fetch(difference_type n, difference_type &d)
+{
+  result r(fetch(n));
+  d = adjust(n, r.size());
   return r;
 }
 
@@ -200,13 +224,17 @@ pqxx::cursor_base::difference_type pqxx::cursor_base::move(difference_type n)
 
     from_string(r.CmdStatus()+StdResponse.size(), d);
   }
-  else if (n < 0 && d > 0)
-  {
-    // Apparently PQcmdTuples() doesn't remember the sign of the displacement
-    d = -d;
-  }
   m_done = (d != n);
   return d;
+}
+
+
+pqxx::cursor_base::difference_type
+pqxx::cursor_base::move(difference_type n, difference_type &d)
+{
+  const difference_type got = move(n);
+  d = adjust(n, got);
+  return got;
 }
 
 

@@ -1,3 +1,17 @@
+2005-08-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, src/connection_base.cxx:
+  - Made capabilities check immediate (was deferred) for thread safety
+ include/pqxx/cursor.hxx, src/cursor.cxx:
+  - New move/fetch functions correct for weird row accounting
+ include/pqxx/result.hxx, src/result.cxx:
+  - reverse_iterators now "point at" same element as embedded iterator
+  - reverse_iterators' base() now use temporaries, which is safe
+  - reverse_iterators' mutable m_tmp member no longer needed
+  - reverse_iterators' dereference operators now inherited unchanged
+  - Improved thread safety on reverse_iterators
+  - Simplified difference computation on reverse_iterators
+ test/test042.cxx:
+  - Use displacements returned by new cursor fetch/move functions
 2005-08-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/binarystring.hxx, include/pqxx/cursor.hxx,
  include/pqxx/util.hxx:

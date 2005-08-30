@@ -32,7 +32,8 @@ template<typename CURSOR> inline void ExpectMove(CURSOR &C,
     cursor_base::difference_type Expect)
 {
   cout << "move " << N << endl;
-  const cursor_base::difference_type Dist = C.move(N);
+  cursor_base::difference_type Dist;
+  C.move(N, Dist);
   if (Dist != Expect)
     throw logic_error("Expected to move " + to_string(Expect) + " rows, "
 	              "found " + to_string(Dist));
