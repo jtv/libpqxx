@@ -1,5 +1,6 @@
 ALERT
 (*) Document all "mutable" operations as non-threadsafe
+(*) Document PQXX_SHARED
 (*) Rename trigger
 (*) test062 fails on binary strings with postgres 8.0.2 (RedHat, John Carpenter)
 (*) test085 fails with postgres 8.0.2 (Fedora, John Carpenter)
