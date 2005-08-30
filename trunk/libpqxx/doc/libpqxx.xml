@@ -1162,14 +1162,14 @@
 	bool is_manager=false;
 
 	// Get id.  Must never be null.
-	if (!i[0].to(id)) throw runtime_error("No id!");
+	if (!empl[0].to(id)) throw runtime_error("No id!");
 
 	// Get salary.  If this employee has no salary, skip payment.
-	if (!i[1].to(salary)) return;
+	if (!empl[1].to(salary)) return;
 
 	// Get manager status.  If field is null, variable's original value (false)
 	// will be preserved.
-	i[2].to(is_manager);
+	empl[2].to(is_manager);
 
 	if (is_manager) salary += Bonus;
 
