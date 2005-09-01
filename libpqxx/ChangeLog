@@ -84,7 +84,7 @@
   - Warn for missing strerror_r(), don't fail
   - Work around problem with HP-UX "grep -F"
   - Work around problem with "\<" & "\>" in HP-UX grep
-  - Thanks mcpin@emtesistemas.com for HP-UX fixes
+  - Thanks Maximiliano Pin for HP-UX fixes
   - Thanks lundgren@byu.net for noting strerror() on Solaris is threadsafe
 2005-08-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cursor.hxx, src/cursor.cxx:
