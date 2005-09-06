@@ -18,6 +18,7 @@
 #include "pqxx/compiler.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cerrno>
 #include <cstdio>
 #include <ctime>
