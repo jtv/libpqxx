@@ -759,7 +759,8 @@ void pqxx::connection_base::Reset()
 void pqxx::connection_base::close() throw ()
 {
 #ifdef PQXX_QUIET_DESTRUCTORS
-  set_noticer(PGSTD::auto_ptr<noticer>(new nonnoticer()));
+  auto_ptr<noticer> n(new nonnoticer());
+  set_noticer(n);
 #endif
   inhibit_reactivation(false);
   m_reactivation_avoidance = 0;
@@ -1072,15 +1073,16 @@ void pqxx::connection_base::read_capabilities() throw ()
 // TODO: Inline this, once assertions are known to be good
 void pqxx::connection_base::reactivation_avoidance_add(int n) throw ()
 {
-  assert(n >= 0);
   if (is_open()) m_reactivation_avoidance += n;
-  assert(m_reactivation_avoidance >= 0);
+  if (m_reactivation_avoidance < 0)
+    throw internal_error("Negative reactivation avoidance on connection");
 }
 
 // TODO: Inline this, once assertions are known to be good
 void pqxx::connection_base::reactivation_avoidance_dec() throw ()
 {
-  assert(m_reactivation_avoidance > 0);
+  if (m_reactivation_avoidance <= 0)
+    throw internal_error("Reactivation avoidance falling below zero");
   --m_reactivation_avoidance;
 }
 
