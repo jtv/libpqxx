@@ -1,6 +1,13 @@
+2005-09-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, src/connection_base.cxx:
+  - Removed spurious "return," thanks Maximiliano Pin
+  - RogueWave's auto_ptr doesn't copy-construct from const (Max again)
 2005-09-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
   - Added <cassert>, thanks a.maclean@cas.edu.au
+2005-09-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+  - Replaced some assertions with exceptions
 2005-08-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/libpqxx.xml:
   - Wrong variable name in example.  Thanks Marc Herbert.

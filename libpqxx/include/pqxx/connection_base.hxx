@@ -512,7 +512,7 @@ public:
   void Disconnect() throw () { disconnect(); }
   /// @deprecated Use perform() instead
   template<typename TRANSACTOR> void Perform(const TRANSACTOR &T, int A=3)
-	{ return perform(T,A); }
+	{ perform(T,A); }
   /// @deprecated Use set_noticer() instead
   PGSTD::auto_ptr<noticer> SetNoticer(PGSTD::auto_ptr<noticer> N)
   	{ return set_noticer(N); }
@@ -687,7 +687,8 @@ inline connection_base::~connection_base()
 {
   // Visual C++ seems to have a problem with output during destructors!
 #ifdef PQXX_QUIET_DESTRUCTORS
-  set_noticer(PGSTD::auto_ptr<noticer>(new nonnoticer()));
+  PGSTD::auto_ptr<noticer> n(new nonnoticer());
+  set_noticer(n);
 #endif
 }
 
