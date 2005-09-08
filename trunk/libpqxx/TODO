@@ -7,6 +7,15 @@ ALERT
 (*) Some functionality breaks against postgres 7.1 (niejam@yahoo.com)
 (*) Ignore column specs in tablestreams on older backends, if possible
 
+All over
+(*) Add gcc's deprecated attribute to deprecated functions
+(*) Can gcc's const function attribute be useful anywhere?  It's VERY strict.
+(*) Use gcc's malloc attribute ("pointer not aliased after return")
+(*) Use gcc's nonnull attribute for non-null pointer parameters
+(*) Use gcc's noreturn attribute for non-returning functions
+(*) Use gcc's pure function attribute
+(*) Give private functions "internal" visibility where possible
+
 Build & Configuration
 (*) Rename libcompiler.h and compiler.h to avoid confusion
 (*) Move PGHOST guessing logic from tools/preprelease to Makefile.am?
@@ -16,6 +25,10 @@ Connections
 (*) Make PQprotocolVersion() and/or PQserverVersion() available to public?
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
 (*) libpqxx-level trace output
+
+Documentation
+(*) Use @c to mark code in Doxygen comments
+(*) Move most of README over to some more powerful format (Doxygen?)
 
 Exceptions
 (*) Strip newlines from PostgreSQL error messages in exceptions?
