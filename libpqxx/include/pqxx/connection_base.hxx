@@ -696,7 +696,7 @@ inline connection_base::~connection_base()
 namespace internal
 {
 
-/// Temporarily set different noticer for connection
+/// Temporarily set different noticer for connection, then restore old one
 /** Set different noticer in given connection for the duration of the
  * scoped_noticer's lifetime.  After that, the original noticer is restored.
  *
@@ -706,7 +706,7 @@ namespace internal
 class PQXX_LIBEXPORT scoped_noticer
 {
 public:
-  /// Start period of different noticer
+  /// Start period where different noticer applies to connection
   /**
    * @param c connection object whose noticer should be temporarily changed
    * @param t temporary noticer object to use; will be destroyed on completion
@@ -715,6 +715,15 @@ public:
     m_c(c), m_org(c.set_noticer(t)) { }
 
   ~scoped_noticer() { m_c.set_noticer(m_org); }
+
+protected:
+  /// Take ownership of given noticer, and start using it
+  /** This constructor is not public because its interface does not express the
+   * fact that the scoped_noticer takes ownership of the noticer through an
+   * @c auto_ptr.
+   */
+  scoped_noticer(connection_base &c, noticer *t) throw () :
+    m_c(c), m_org() { PGSTD::auto_ptr<noticer> n(t) ; m_org=c.set_noticer(n); }
 
 private:
   connection_base &m_c;
@@ -732,7 +741,7 @@ class PQXX_LIBEXPORT disable_noticer : scoped_noticer
 {
 public:
   explicit disable_noticer(connection_base &c) :
-    scoped_noticer(c, PGSTD::auto_ptr<noticer>(new nonnoticer)) {}
+    scoped_noticer(c, new nonnoticer) {}
 };
 
 
