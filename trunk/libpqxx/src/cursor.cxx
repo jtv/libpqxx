@@ -451,7 +451,7 @@ void pqxx::icursor_iterator::refresh() const
 }
 
 
-void pqxx::icursor_iterator::fill(const result &r) const
+void pqxx::icursor_iterator::fill(const result &r)
 {
   m_here = r;
 }

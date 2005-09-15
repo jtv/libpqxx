@@ -14,8 +14,8 @@
  - Several compatibility improvements for Visual C++
  - Fixes and workarounds for HP-UX and HP aCC compiler
  - Phased old cursor interface out of test suite; tests ported to new interface
- - Added explanation on thread safety
- - Improved thread safety on connections
+ - Added documentation on thread safety
+ - New thread safety model
  - Minor updates to tutorial (somebody pay me and I'll do more :)
 2.5.6
  - Support null parameters to prepared statements (use C-style char pointers)

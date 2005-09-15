@@ -301,10 +301,13 @@ public:
   /** This function will try to consult the cache of variables set (both in the
    * transaction and in the connection) using the set_variable functions.  If it
    * is not found there, the database is queried.
+   *
    * @warning Do not mix the set_variable with raw "SET" queries, and do not
    * try to set or get variables while a pipeline or table stream is active.
+   *
+   * @warning This function used to be declared as @c const but isn't anymore.
    */
-  PGSTD::string get_variable(const PGSTD::string &) const;		//[t61]
+  PGSTD::string get_variable(const PGSTD::string &);			//[t61]
 
 #ifdef PQXX_DEPRECATED_HEADERS
   /**
@@ -444,7 +447,7 @@ private:
   internal::unique<internal::transactionfocus> m_Focus;
   Status m_Status;
   bool m_Registered;
-  mutable PGSTD::map<PGSTD::string, PGSTD::string> m_Vars;
+  PGSTD::map<PGSTD::string, PGSTD::string> m_Vars;
   PGSTD::string m_PendingError;
   /// Resources allocated in this transaction that make reactivation impossible
   /** This number may be negative!

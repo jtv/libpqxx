@@ -244,7 +244,7 @@ void pqxx::transaction_base::set_variable(const string &Var,
 }
 
 
-string pqxx::transaction_base::get_variable(const string &Var) const
+string pqxx::transaction_base::get_variable(const string &Var)
 {
   const map<string,string>::const_iterator i = m_Vars.find(Var);
   if (i != m_Vars.end()) return i->second;
