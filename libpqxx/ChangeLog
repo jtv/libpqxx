@@ -1,3 +1,11 @@
+2005-09-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/binarystring.hxx:
+  - Documented thread safety constraints
+ include/pqxx/cursor.hxx, include/pqxx/transaction_base.hxx, src/cursor.cxx,
+ src/transaction_base.cxx:
+  - Removed unnecessary "mutable" in icursor_iterator
+  - Made variable cache non-mutable
+  - transaction_base::get_variable() is no longer const
 2005-09-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/connection_base.hxx:
   - Hopefull fixed auto_ptr issue, thanks Maximiliano Pin.

@@ -118,6 +118,11 @@ public:
 
   /// Read as regular C++ string (may include null characters)
   /** Caches string buffer to speed up repeated reads.
+   *
+   * @warning The first invocation of this function on a given @c binarystring
+   * is not threadsafe; the first invocation constructs the @c string object and
+   * stores it in the @c binarystring.  After it has been called once, any
+   * subsequent calls on the same @c binarystring are safe.
    */
   const PGSTD::string &str() const;					//[t62]
 

@@ -610,10 +610,10 @@ private:
 
   friend class icursorstream;
   size_type pos() const throw () { return m_pos; }
-  void fill(const result &) const;
+  void fill(const result &);
 
   icursorstream *m_stream;
-  mutable result m_here;
+  result m_here;
   size_type m_pos;
   icursor_iterator *m_prev, *m_next;
 };
