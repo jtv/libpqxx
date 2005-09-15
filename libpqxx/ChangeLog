@@ -1,3 +1,6 @@
+2005-09-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/INSTALL.txt:
+  - Added missing -c to sample compiler command line, thanks Johnson Zhao
 2005-09-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/binarystring.hxx:
   - Documented thread safety constraints
