@@ -103,7 +103,7 @@ Building libpqxx without MSYS:
 Having installed libpqxx, when compiling your own programs, use the following
 steps (examples only here):
 
-g++ -o myfile.o myfile.cpp `pqxx-config --cflags`
+g++ -c -o myfile.o myfile.cpp `pqxx-config --cflags`
 g++ -o myexec myfile.o `pqxx-config --libs` -lws2_32
 
 Note that the linker step (g++ -o myexec) will give a spurious warning
