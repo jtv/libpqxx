@@ -332,6 +332,7 @@ message, which may be several pages up from the end of the file.
 fi
 
 
+# TODO: Windows users don't always have this header.  Provide our own fallback.
 AC_CHECK_HEADER([${with_postgres_include}/libpq/libpq-fs.h],[],[AC_MSG_ERROR([
 Can't find libpq-fs.h in ${with_postgres_include}/libpq.
 Please locate it and report your findings so this script can be corrected.
@@ -352,6 +353,17 @@ The Oid typedef in libpq has changed.  Please notify the libpqxx authors of the
 change!
 ])])
 AC_MSG_RESULT(yes)
+
+AC_MSG_CHECKING([lo_tell()])
+lotell=yes
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>
+	void f(PGconn *c) { lo_tell(c,2); }],
+	[],
+	AC_DEFINE(PQXX_HAVE_LO_TELL, 1,
+		[Define if libpq has lo_tell()]),
+	[lotell=no]
+)
+AC_MSG_RESULT($lotell)
 
 
 # Check presence and version of strerror_r()
@@ -855,4 +867,3 @@ done
 ])
 
 AC_OUTPUT
-
