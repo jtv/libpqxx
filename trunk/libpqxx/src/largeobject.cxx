@@ -216,6 +216,18 @@ long pqxx::largeobjectaccess::cread(char Buf[], size_type Bytes) throw ()
 }
 
 
+pqxx::largeobjectaccess::pos_type
+pqxx::largeobjectaccess::ctell() const throw ()
+{
+  return
+#if defined(PQXX_HAVE_LO_TELL)
+        lo_tell(RawConnection(), m_fd);
+#else
+        lo_lseek(RawConnection(), m_fd, 0, SEEK_CUR);
+#endif
+}
+
+
 void pqxx::largeobjectaccess::write(const char Buf[], size_type Len)
 {
   const long Bytes = cwrite(Buf, Len);
@@ -275,6 +287,14 @@ void pqxx::largeobjectaccess::close() throw ()
 }
 
 
+pqxx::largeobjectaccess::size_type pqxx::largeobjectaccess::tell() const
+{
+  const size_type res = ctell();
+  if (res == -1) throw runtime_error(Reason(errno));
+  return res;
+}
+
+
 string pqxx::largeobjectaccess::Reason(int err) const
 {
   return (m_fd == -1) ? "No object opened" : largeobject::Reason(err);
@@ -285,4 +305,3 @@ void pqxx::largeobjectaccess::process_notice(const string &s) throw ()
 {
   m_Trans.process_notice(s);
 }
-

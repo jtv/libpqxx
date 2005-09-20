@@ -1,3 +1,7 @@
+2005-09-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in, include/pqxx/largeobject.hxx,
+ src/largeobject.cxx:
+  - Added ctell() and tell() functions
 2005-09-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  win32/INSTALL.txt:
   - Added missing -c to sample compiler command line, thanks Johnson Zhao
@@ -3170,4 +3174,3 @@
   - Added Result_size_type_max
  test4:
   - Seeks to end of query first if backwards retrieval requested
-

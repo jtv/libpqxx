@@ -16,6 +16,7 @@
  - Phased old cursor interface out of test suite; tests ported to new interface
  - Added documentation on thread safety
  - New thread safety model
+ - Large objects have functions to tell current position
  - Minor updates to tutorial (somebody pay me and I'll do more :)
 2.5.6
  - Support null parameters to prepared statements (use C-style char pointers)
@@ -461,4 +462,3 @@ v1.3.5:
 2002-04-27 14:20 Replaced automake symlinks with actual files
 2002-04-07 02:30 Released with configure script
 2002-03-29 01:15 Not yet released.  Still integrating autogen stuff...
-

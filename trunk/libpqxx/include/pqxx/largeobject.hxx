@@ -269,6 +269,12 @@ public:
    * @return The new position in the large object
    */
   size_type seek(size_type dest, seekdir dir);				//[t51]
+	
+  /// Report current position in large object's data stream
+  /** Throws an exception if an error occurs.
+   * @return The current position in the large object
+   */
+  size_type tell() const;						//[]
   //@}
 
   /**
@@ -308,6 +314,13 @@ public:
    * @return Number of bytes actually read, or -1 if an error occurred.
    */
   off_type cread(char Buf[], size_type Len) throw ();			//[t50]
+  
+  /// Report current position in large object's data stream
+  /** Does not throw exception in case of error; inspect return value and errno
+   * instead.
+   * @return Current position in large object, of -1 if an error occurred.
+   */
+  pos_type ctell() const throw ();                                      //[]
   //@}
 
   /**
@@ -329,7 +342,7 @@ public:
 
 private:
   PGSTD::string PQXX_PRIVATE Reason(int err) const;
-  internal::pq::PGconn *RawConnection()
+  internal::pq::PGconn *RawConnection() const
   	{ return largeobject::RawConnection(m_Trans); }
 
   void open(openmode mode);
@@ -699,5 +712,3 @@ private:
 typedef basic_lostream<char> lostream;
 
 }
-
-

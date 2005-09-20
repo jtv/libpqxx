@@ -1,11 +1,8 @@
 ALERT
-(*) Document all "mutable" operations as non-threadsafe
 (*) Document PQXX_SHARED
 (*) Rename trigger
 (*) test062 fails on binary strings with postgres 8.0.2 (RedHat, John Carpenter)
 (*) test085 fails with postgres 8.0.2 (Fedora, John Carpenter)
-(*) Some functionality breaks against postgres 7.1 (niejam@yahoo.com)
-(*) Ignore column specs in tablestreams on older backends, if possible
 
 All over
 (*) Add gcc's deprecated attribute to deprecated functions
@@ -21,8 +18,6 @@ Build & Configuration
 (*) Move PGHOST guessing logic from tools/preprelease to Makefile.am?
 
 Connections
-(*) Work around pre-7.3 handling of transaction variables?
-(*) Make PQprotocolVersion() and/or PQserverVersion() available to public?
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
 (*) libpqxx-level trace output
 
@@ -35,8 +30,8 @@ Exceptions
 (*) Document exception guarantees (weak / strong / poorly defined / pure)
 
 Large Objects
-(*) Support lo_tell()
 (*) Check for handling of nul characters
+(*) Check out new 64-bit API that's being contributed
 
 Results
 (*) Convert to/from date/time values
@@ -46,10 +41,8 @@ Results
 (*) Support PQftablecol()
 (*) Support new PQcancel() and friends
 (*) Conceive metadata model
-(*) Allow direct mapping onto structs, using member ptr template args
 
 Streams
-(*) Permit column list test failures on pre-7.3 postgres backends
 (*) Provide metadata information in tablestream
 (*) Can we have a tablestream that looks more like a result?
 (*) Create "inserter" class for column lists
@@ -63,10 +56,11 @@ Tests
 Thread-safety
 (*) Remove thread-safety option; use strerror_r where available
 (*) Guard against race bugs by marking "last modification" of objects
+(*) User-definable locking primitive set
 
 Transactions
 (*) [pgsql 8.0] Support two-phase commit with separate transaction class(es)
-(*) [pgsql 8.0] Support nested transactions and savepoints
+(*) [pgsql 8.0] Support nested transactions
 (*) Undefine nontransaction "transaction" variables?
 (*) User schema support for robusttransaction log table
 (*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
@@ -76,4 +70,3 @@ Transactions
 Util
 (*) Report closing of non-open sessionfocus only during explicit close, not dtor
 (*) Support floating-point infinities
-
