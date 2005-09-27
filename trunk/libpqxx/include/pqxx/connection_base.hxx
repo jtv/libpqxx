@@ -723,7 +723,13 @@ protected:
    * @c auto_ptr.
    */
   scoped_noticer(connection_base &c, noticer *t) throw () :
-    m_c(c), m_org() { PGSTD::auto_ptr<noticer> n(t) ; m_org=c.set_noticer(n); }
+    m_c(c),
+    m_org()
+  {
+    PGSTD::auto_ptr<noticer> x(t);
+    PGSTD::auto_ptr<noticer> y(c.set_noticer(x));
+    m_org = y;
+  }
 
 private:
   connection_base &m_c;

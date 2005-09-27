@@ -1,4 +1,6 @@
 2005-09-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx:
+  - One more tweak on the auto_ptr problem
  include/pqxx/cursor.hxx:
   - Fixed Doxygen warning
  include/pqxx/largeobject.hxx, test/test050.cxx:
