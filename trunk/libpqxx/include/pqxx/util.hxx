@@ -186,23 +186,23 @@ from_string(const PGSTD::string &Str, PGSTD::string &Obj) 		//[t46]
 	{ Obj = Str; }
 
 template<> inline void
-from_string(const char [], const char &Obj)
+from_string(const char [], char &Obj)
 	{ error_ambiguous_string_conversion(Obj); }
 template<> inline void
-from_string(const char [], const signed char &Obj)
+from_string(const char [], signed char &Obj)
 	{ error_ambiguous_string_conversion(Obj); }
 template<> inline void
-from_string(const char [], const unsigned char &Obj)
+from_string(const char [], unsigned char &Obj)
 	{ error_ambiguous_string_conversion(Obj); }
 
 template<> inline void
-from_string(const PGSTD::string &, const char &Obj)
+from_string(const PGSTD::string &, char &Obj)
 	{ error_ambiguous_string_conversion(Obj); }
 template<> inline void
-from_string(const PGSTD::string &, const signed char &Obj)
+from_string(const PGSTD::string &, signed char &Obj)
 	{ error_ambiguous_string_conversion(Obj); }
 template<> inline void
-from_string(const PGSTD::string &, const unsigned char &Obj)
+from_string(const PGSTD::string &, unsigned char &Obj)
 	{ error_ambiguous_string_conversion(Obj); }
 
 
