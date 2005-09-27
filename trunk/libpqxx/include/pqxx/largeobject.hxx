@@ -274,7 +274,7 @@ public:
   /** Throws an exception if an error occurs.
    * @return The current position in the large object
    */
-  size_type tell() const;						//[]
+  size_type tell() const;						//[t50]
   //@}
 
   /**
@@ -320,7 +320,7 @@ public:
    * instead.
    * @return Current position in large object, of -1 if an error occurred.
    */
-  pos_type ctell() const throw ();                                      //[]
+  pos_type ctell() const throw ();                                      //[t50]
   //@}
 
   /**

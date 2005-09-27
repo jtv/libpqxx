@@ -1,6 +1,8 @@
 2005-09-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cursor.hxx:
   - Fixed Doxygen warning
+ include/pqxx/largeobject.hxx, test/test050.cxx:
+  - Test tell() and ctell()
  include/pqxx/util.hxx:
   - Arg 2 in ambiguous from_string()s was const, thanks Matthias Fischaleck
 2005-09-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
