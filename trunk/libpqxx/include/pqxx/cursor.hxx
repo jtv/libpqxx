@@ -374,16 +374,16 @@ public:
   {
   }
 
-  virtual result fetch(difference_type d)				//[]
+  virtual result fetch(difference_type n)				//[]
   {
     difference_type m;
-    return fetch(d, m);
+    return fetch(n, m);
   }
 
-  virtual difference_type move(difference_type d)			//[]
+  virtual difference_type move(difference_type n)			//[]
   {
     difference_type m;
-    return move(d, m);
+    return move(n, m);
   }
 
   virtual difference_type move(difference_type d, difference_type &m)	//[]
