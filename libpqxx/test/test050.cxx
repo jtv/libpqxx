@@ -51,12 +51,32 @@ public:
   void operator()(argument_type &T)
   {
     largeobjectaccess A(T, m_Object);
+    const cursor::size_type orgpos = A.ctell(), copyorgpos = A.ctell();
+    if (orgpos)
+      throw logic_error("Large object reported initial position " +
+	  to_string(orgpos) + " "
+	  "(expected 0)");
+    if (copyorgpos != orgpos)
+      throw logic_error("ctell() moved large object from position 0 to " +
+	  to_string(copyorgpos));
+    const cursor::size_type cxxorgpos = A.tell();
+    if (cxxorgpos != orgpos)
+      throw logic_error("tell() reported large object position " +
+	  to_string(cxxorgpos) + " "
+	  "(expected 0)");
+
     A.process_notice("Writing to large object #" + 
 	to_string(largeobject(A).id()) + "\n");
     long Bytes = A.cwrite(Contents.c_str(), Contents.size());
     if (Bytes != long(Contents.size()))
       throw logic_error("Tried to write " + to_string(Contents.size()) + " "
 	                "bytes to large object, but wrote " + to_string(Bytes));
+    if (A.tell() != A.ctell())
+      throw logic_error("Inconsistent answers from tell() and ctell()");
+    if (A.tell() != Bytes)
+      throw logic_error("Large object reports position " +
+	  to_string(A.tell()) + " "
+	  "(expected " + to_string(Bytes) + ")");
 
     char Buf[200];
     const size_t Size = sizeof(Buf) - 1;
