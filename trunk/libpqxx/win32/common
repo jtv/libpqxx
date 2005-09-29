@@ -4,8 +4,17 @@ NULL=
 NULL=nul
 !ENDIF 
 
-#-STL options
+# Standard library namespace.  There are only two reasons why you might want to
+# change this: 1. your compiler doesn't define the standard library in the "std"
+# namespace, in which case PGSTD should be the empty string (but a compiler with
+# that problem is not likely to be good enough to compile libpqxx); or 2. you
+# are using a third-party standard library implementation such as STLport, which
+# lives in another namespace to avoid clashes with the implementation that came
+# with the compiler.  In the latter case, PGSTD must be set to the namespace
+# used by your preferred implementation.
+# In all other cases, just leave this set to "std".
 STD=/D "PGSTD=std"
+
 # If you are using a 3rd party STL like STLport, remember to check your path
 # and be sure the STLport is included before the MSVC includes. VCVARS32.BAT
 # doesn't know anything about the directories as defined in the IDE. I use
@@ -17,12 +26,13 @@ STD=/D "PGSTD=std"
 
 # The next line gives us the src directory to add additional include directories
 # We need certain header files from the Postgres code.  Specifically 
-#     src/include/c.h
-#     src/include/config.h
-#     src/include/postgres_ext.h
-#     src/include/postgres_fe.h
-#     src/interfaces/libpq/libpq-fe.h
+#
+#	postgres_ext.h (in src/include in the PostgreSQL source tree)
+#	libpq-fe.h (in src/interfaces/libpq in the PostgreSQL source tree)
+#
 PGSQLSRC=/Project/postgresql-7.1.2/src
-# If the LIBPQ library is not in the LIB environment or search path specified it here
+
+# If the LIBPQ library is not in the LIB environment or search path, specify its
+# location here.
 LIBPATH=/libpath:"/Project/postgresql-7.1.2/src/interfaces/libpq/Release"
 
