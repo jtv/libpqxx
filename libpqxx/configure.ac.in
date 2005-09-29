@@ -140,13 +140,6 @@ AC_MSG_RESULT($gcc_visibility)
 CXXFLAGS="$SAVE_CXXFLAGS"
 fi
 
-AC_MSG_CHECKING([thread safety])
-AC_ARG_ENABLE(thread-safety,
-	[AS_HELP_STRING(--disable-thread-safety,
-		[Allow non-threadsafe functions to be used])],
-	[enable_thread_safety=no],[enable_thread_safety=yes])
-AC_MSG_RESULT(${enable_thread_safety})
-
 
 # TODO: New --with-std= option
 AH_TEMPLATE(PGSTD, [name of standard library namespace])
@@ -332,16 +325,6 @@ message, which may be several pages up from the end of the file.
 fi
 
 
-# TODO: Windows users don't always have this header.  Provide our own fallback.
-AC_CHECK_HEADER([${with_postgres_include}/libpq/libpq-fs.h],[],[AC_MSG_ERROR([
-Can't find libpq-fs.h in ${with_postgres_include}/libpq.
-Please locate it and report your findings so this script can be corrected.
-
-If the file is not on your system, either your libpq version is much newer than
-your libpqxx version and has changed radically, or it is hopelessly out of date,
-or your installation of the PostgreSQL client library is incomplete.
-])])
-
 AC_MSG_CHECKING([that type of libpq's Oid is as expected])
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>
 	#include"${srcdir}/include/pqxx/libpq-forward.hxx"
@@ -376,7 +359,7 @@ AC_TRY_COMPILE(
 	[strerror_r=yes],
 	[strerror_r=no])
 AC_MSG_RESULT($strerror_r)
-if test "$enable_thread_safety" = "yes" -a "$strerror_r" != "yes" ; then
+if test "$strerror_r" != "yes" ; then
 	AC_MSG_WARN([
 No definition of strerror_r, the thread-safe version of strerror(), was found in
 your <cstring> header.
@@ -429,23 +412,9 @@ an older GNU libc function.  At least one of these tests should have failed,
 since there can't be two versions of this function taking the same arguments but
 returning different types.
 
-])
-
-			if test "$enable_thread_safety" = "yes" ; then
-				AC_MSG_ERROR([
-As a result of this ambiguity, the configure script was unable to determine
-which version of the function is correct.  You may need to use less permissive
-compiler options so that at least one of the alternatives will fail to compile.
-
-See the config.log for more details; search for strerror_r to find the relevant
-snippets.  If all else fails, consider compiling a non-threadsafe version of
-libpqxx using the configure script's --disable-thread-safety option.
-])
-			else # !enable_thread_safety
-				AC_MSG_WARN([Using strerror() instead.
+Using plain strerror() instead.  This may not be threadsafe.
 ])
 				strerror_r = no
-			fi # enable_thread_safety
 		fi # strerror_r_int && strerror_r_charp
 	else # ! strerror_r_int
 		if ! test "$strerror_r_charp" = "yes" ; then
@@ -453,16 +422,8 @@ libpqxx using the configure script's --disable-thread-safety option.
 Your compiler's definition of strerror_r() fits none of the known signatures for
 that function.
 
-])
-			if test "$enable_thread_safety" = "yes" ; then
-				AC_MSG_ERROR([
-Consider building a non-threadsafe version of libpqxx using the
-configure script's --disable-thread-safety option.
-])
-			else # !enable_thread_safety
-				AC_MSG_WARN([Using strerror() instead.])
-				strerror_r = no
-			fi # enable_thread_safety
+Using strerror() instead.])
+			strerror_r = no
 		fi # !strerror_r_charp
 	fi # strerror_r_int
 
