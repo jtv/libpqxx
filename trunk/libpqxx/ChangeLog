@@ -1,3 +1,12 @@
+2005-09-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in, src/largeobject.cxx:
+  - Stop using libpq/libpq-fs.h, thanks DGCh-Geschaeftsstelle@t-online.de
+ test/test062.cxx:
+  - More extensive logging of discrepancies
+  - strncmp() was wrong (locale-sensitive), thanks jmc@astro.caltech.edu
+ win32/common:
+  - Clearer explanations
+  - Only need two libpq headers
 2005-09-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx:
   - One more tweak on the auto_ptr problem
@@ -7,6 +16,9 @@
   - Test tell() and ctell()
  include/pqxx/util.hxx:
   - Arg 2 in ambiguous from_string()s was const, thanks Matthias Fischaleck
+2005-09-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Removed thread-safety option.
 2005-09-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in, include/pqxx/largeobject.hxx,
  src/largeobject.cxx:
