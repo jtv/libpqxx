@@ -42,13 +42,12 @@ int main(int, char *argv[])
     if (B.empty())
       throw logic_error("Binary string became empty in conversion");
 
+    cout << "original: " << TestStr << endl
+	 << "returned: " << B.c_ptr() << endl;
+
     if (B.size() != TestStr.size())
       throw logic_error("Binary string got changed from " + 
 	  to_string(TestStr.size()) + " to " + to_string(B.size()) + " bytes");
-
-    if (strncmp(TestStr.c_str(), B.c_ptr(), B.size()) != 0)
-      throw logic_error("Binary string was changed before first zero byte: "
-	  "'" + string(B.c_ptr(), B.size()) + "'");
 
     binarystring::const_iterator c;
     binarystring::size_type i;
@@ -57,13 +56,21 @@ int main(int, char *argv[])
       if (c == B.end())
 	throw logic_error("Premature end to binary string at " + to_string(i));
 
-      if (char(B.data()[i]) != TestStr.at(i))
+      const char x = TestStr.at(i), y = B.at(i);
+
+      if (x != y)
+      {
+        const unsigned char ux = x, uy = y;
+	const unsigned int uix = ux, uiy = uy;
 	throw logic_error("Binary string byte " + to_string(i) + " "
-	    "got changed from '" + to_string(char(TestStr[i])) + "' "
-	    "to '" + to_string(char(B.data()[i])) + "'");
-      if (B.at(i) != B.data()[i])
+	    "got changed from '" + to_string(x) + "' "
+	    "(" + to_string(uix) + ") "
+	    "to '" + to_string(y) + "' "
+	    "(" + to_string(uiy) + ")");
+      }
+      if (y != B.data()[i])
 	throw logic_error("Inconsistent byte at offset " + to_string(i) + ": "
-	    "operator[] says '" + to_string(char(B.at(i))) + "', "
+	    "operator[] says '" + to_string(y) + "', "
 	    "data() says '" + to_string(char(B.data()[i])) + "'");
     }
     if (B.at(0) != B.front())
