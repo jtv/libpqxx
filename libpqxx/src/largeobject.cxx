@@ -21,7 +21,12 @@
 #include <stdexcept>
 
 #include "libpq-fe.h"
-#include "libpq/libpq-fs.h"
+
+//#include "libpq/libpq-fs.h"
+/// Copied from libpq/libpq-fs.h so we don't need that header anymore
+#define INV_WRITE		0x00020000
+/// Copied from libpq/libpq-fs.h so we don't need that header anymore
+#define INV_READ		0x00040000
 
 #include "pqxx/largeobject"
 
