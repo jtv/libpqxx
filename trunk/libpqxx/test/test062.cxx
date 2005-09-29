@@ -56,22 +56,26 @@ int main(int, char *argv[])
       if (c == B.end())
 	throw logic_error("Premature end to binary string at " + to_string(i));
 
-      const char x = TestStr.at(i), y = B.at(i);
+      const char x = TestStr.at(i), y = B.at(i), z = B.data()[i];
+      const unsigned char ux = x, uy = y, uz = z;
+      const unsigned int uix = ux, uiy = uy, uiz = uz;
 
       if (x != y)
       {
-        const unsigned char ux = x, uy = y;
-	const unsigned int uix = ux, uiy = uy;
 	throw logic_error("Binary string byte " + to_string(i) + " "
 	    "got changed from '" + to_string(x) + "' "
 	    "(" + to_string(uix) + ") "
 	    "to '" + to_string(y) + "' "
 	    "(" + to_string(uiy) + ")");
       }
-      if (y != B.data()[i])
+
+      if (y != z)
+      {
 	throw logic_error("Inconsistent byte at offset " + to_string(i) + ": "
-	    "operator[] says '" + to_string(y) + "', "
-	    "data() says '" + to_string(char(B.data()[i])) + "'");
+	    "operator[] says '" + to_string(y) + "' (" + to_string(uiy) + "), "
+	    "data() says '" + to_string(z) + "' "
+	    "(" + to_string(uiz) + ")");
+      }
     }
     if (B.at(0) != B.front())
       throw logic_error("Something wrong with binarystring::front()");
