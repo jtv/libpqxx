@@ -54,14 +54,12 @@ Tests
 (*) Test tablereader and rows ending in empty fields
 
 Thread-safety
-(*) Remove thread-safety option; use strerror_r where available
 (*) Guard against race bugs by marking "last modification" of objects
 (*) User-definable locking primitive set
 
 Transactions
 (*) [pgsql 8.0] Support two-phase commit with separate transaction class(es)
 (*) [pgsql 8.0] Support nested transactions
-(*) Undefine nontransaction "transaction" variables?
 (*) User schema support for robusttransaction log table
 (*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
 (*) Support constraints definition
