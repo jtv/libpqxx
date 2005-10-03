@@ -16,6 +16,8 @@
  */
 #include "pqxx/compiler.h"
 
+#include <cmath>
+
 #ifdef PQXX_HAVE_LOCALE
 #include <locale>
 #endif

@@ -1,3 +1,6 @@
+2005-10-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/util.cxx:
+  - Include <cmath>.  Thanks rdieter.
 2005-09-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in, src/largeobject.cxx:
   - Stop using libpq/libpq-fs.h, thanks DGCh-Geschaeftsstelle@t-online.de
