@@ -694,22 +694,32 @@ void pqxx::internal::sleep_seconds(int s)
 }
 
 
+namespace
+{
+void copymsg(char buf[], const char msg[], size_t buflen) throw ()
+{
+  strncpy(buf, msg, buflen);
+  if (strnlen(msg, buflen) >= buflen) buf[buflen-1] = '\0';
+}
+}
+
+
 const char *pqxx::internal::strerror_wrapper(int err, char buf[], size_t len)
 	throw ()
 {
-  if (!buf) return "No buffer provided for error message!";
+  if (!buf || len <= 0) return "No buffer provided for error message!";
 
   const char *res = buf;
 
 #if !defined(PQXX_HAVE_STRERROR_R)
-  strncpy(buf, strerror(err), len);
+  copymsg(buf, strerror(err), len);
 #elif defined(PQXX_HAVE_STRERROR_R_INT)
   // Single Unix Specification version: returns result code
   const int code = strerror_r(err, buf, len);
   switch (code)
   {
   case 0: break;
-  case -1: strncpy(buf, "Unknown error", len); break;
+  case -1: copymsg(buf, "Unknown error", len); break;
   // Deal with possibility that link-time strerror_r() is not the one that our
   // configure script saw.  There's not much we can do if we really got the GNU
   // version, which returns a char *, since in that case the pointe may have
@@ -717,10 +727,10 @@ const char *pqxx::internal::strerror_wrapper(int err, char buf[], size_t len)
   // TODO: If this really happens, special-case sizeof(char*)==sizeof(int)
   // TODO: Log this somewhere if possible
   default:
-    strncpy(buf,
-	  "Unexpected result from strerror_r()!  Is this really the SUS version?",
+    copymsg(buf,
+	  "Unexpected result from strerror_r()!  Is it really SUS-compliant?",
 	  len);
-	break;
+    break;
   }
 #else
   // GNU version; returns error string (which may be stored in buf)
@@ -738,8 +748,8 @@ const char *pqxx::internal::strerror_wrapper(int err, char buf[], size_t len)
 	// Again, this value looks like it came out of the SUS version.  And it's an
 	// error value too, so forget about the original error and report the
 	// strerror_r() confusion so it can get fixed.
-	strncpy(buf,
-		"Unexpected result from strerror_r()!  Is this really the GNU version?",
+	copymsg(buf,
+		"Unexpected result from strerror_r()!  Is this really GNU?",
 		len);
 	break;
   default:
