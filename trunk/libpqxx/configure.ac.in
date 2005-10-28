@@ -351,12 +351,13 @@ AC_MSG_RESULT($lotell)
 
 # Check presence and version of strerror_r()
 AC_MSG_CHECKING([for strerror_r])
+strerror_r=yes
 AC_TRY_COMPILE(
 	[#include <cstring>
 	${usestd}
 	bool f(char x[]) { return strerror_r(0,x,10) != 0; }],
 	[],
-	[strerror_r=yes],
+	[AC_DEFINE(PQXX_HAVE_STRERROR_R,1,[Define if strerror_r exists])],
 	[strerror_r=no])
 AC_MSG_RESULT($strerror_r)
 if test "$strerror_r" != "yes" ; then
@@ -367,85 +368,6 @@ your <cstring> header.
 This may be because your implementation strerror() is threadsafe, in which case
 there is nothing to worry about.
 ])
-else
-	AC_MSG_CHECKING([for SUSv3-style strerror_r returning int])
-	AC_TRY_COMPILE(
-		[#include <cstring>
-		${usestd}
-		extern "C" int(*f)(int,char*,size_t);],
-		[f=strerror_r;f(0,0,0)],
-		strerror_r_int=yes,
-		strerror_r_int=no)
-	AC_MSG_RESULT($strerror_r_int)
-
-	AC_MSG_CHECKING([for GNU-style strerror_r returning char *])
-	AC_TRY_COMPILE(
-		[#include <cstring>
-		${usestd}
-		extern "C" char *(*f)(int,char*,size_t);],
-		[f=strerror_r;f(0,0,0)],
-		strerror_r_charp=yes,
-		strerror_r_charp=no)
-	AC_MSG_RESULT($strerror_r_charp)
-
-	if ! test "$strerror_r_int" = "yes" -o "$strerror_r_charp" = "yes" ; then
-		AC_MSG_CHECKING([for AIX-style strerror_r (which also correctly returns int)])
-		# TODO: Shouldn't we make the function pointer extern "C"?
-		AC_TRY_COMPILE(
-			[#include <cstring>
-			${usestd}
-			extern "C" int(*f)(int,char*,int);],
-			[f=strerror_r;f(0,0,0)],
-			strerror_r_int=yes,
-			[])
-		AC_MSG_RESULT($strerror_r_int)
-	fi
-
-	case "$strerror_r_int$strerror_r_charp" in
-	  yesyes)
-		AC_MSG_WARN([
-Your compiler offers a strerror_r() function, but test programs redeclaring it
-as returning int and char *, respectively, both compile successfully.  The
-former is what the Single Unix Specification SUSv3 dictates, and the latter is
-an older GNU libc function.  At least one of these tests should have failed,
-since there can't be two versions of this function taking the same arguments but
-returning different types.
-
-Using plain strerror() instead.  This may not be threadsafe.
-])
-		strerror_r = no
-		;;
-	  yesno)
-	  	;;
-	  noyes)
-	  	;;
-	  nono)
-		AC_MSG_WARN([
-Your compiler's definition of strerror_r() fits none of the known signatures for
-that function.
-
-Using strerror() instead.  This may not be threadsafe.
-])
-		strerror_r = no
-		;;
-	  *)
-	  	AC_MSG_ERROR([
-Internal configuration script error: unexpected strerror_r result string
-($strerror_r_int$strerror_r_charp)
-])
-		;;
-	esac
-
-	if test "$strerror_r" = "yes" ; then
-		AC_DEFINE(PQXX_HAVE_STRERROR_R,1,[Define if strerror_r exists])
-		if test "$strerror_r_int" = "yes" ; then
-			AC_DEFINE(PQXX_STRERROR_R_INT,1,[Define for standard SUSv3 strerror_r])
-		fi # strerror_r_int
-	else
-		strerror_r_int = no
-		strerror_r_charp = no
-	fi # strerror_r
-
 fi # strerror_r
 
 

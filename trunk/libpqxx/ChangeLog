@@ -1,3 +1,7 @@
+2005-10-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in, src/util.cxx:
+  - Greatly simplified strerror_r recognition.  Thanks Bart Samwel!
+  - No longer need configuration items for different strerror_r versions
 2005-10-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - More work on strerror_r guessing logic
