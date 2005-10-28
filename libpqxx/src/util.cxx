@@ -701,6 +701,29 @@ void copymsg(char buf[], const char msg[], size_t buflen) throw ()
   strncpy(buf, msg, buflen);
   if (strnlen(msg, buflen) >= buflen) buf[buflen-1] = '\0';
 }
+
+// Single Unix Specification version of strerror_r returns result code
+const char *strerror_r_result(int sus_return, char buf[], size_t len) throw ()
+{
+  switch (sus_return)
+  {
+  case 0: break;
+  case -1: copymsg(buf, "Unknown error", len); break;
+  default:
+    copymsg(buf,
+	  "Unexpected result from strerror_r()!  Is it really SUS-compliant?",
+	  len);
+    break;
+  }
+
+  return buf;
+}
+
+// GNU version of strerror_r returns error string (which may be anywhere)
+const char *strerror_r_result(const char gnu_return[], char[], size_t) throw ()
+{
+  return gnu_return;
+}
 }
 
 
@@ -713,49 +736,10 @@ const char *pqxx::internal::strerror_wrapper(int err, char buf[], size_t len)
 
 #if !defined(PQXX_HAVE_STRERROR_R)
   copymsg(buf, strerror(err), len);
-#elif defined(PQXX_HAVE_STRERROR_R_INT)
-  // Single Unix Specification version: returns result code
-  const int code = strerror_r(err, buf, len);
-  switch (code)
-  {
-  case 0: break;
-  case -1: copymsg(buf, "Unknown error", len); break;
-  // Deal with possibility that link-time strerror_r() is not the one that our
-  // configure script saw.  There's not much we can do if we really got the GNU
-  // version, which returns a char *, since in that case the pointe may have
-  // been truncated in being interpreted as an int.
-  // TODO: If this really happens, special-case sizeof(char*)==sizeof(int)
-  // TODO: Log this somewhere if possible
-  default:
-    copymsg(buf,
-	  "Unexpected result from strerror_r()!  Is it really SUS-compliant?",
-	  len);
-    break;
-  }
 #else
-  // GNU version; returns error string (which may be stored in buf)
-  res = strerror_r(err, buf, len);
-  switch (long(res))
-  {
-  case 0:
-    // Even if the null pointer equals zero on this system, this value can not
-	// have come out of the GNU strerror_r().  Looks like what we really got is
-	// the SUS version!
-	// TODO: Log this somewhere if possible
-	res = buf;
-	break;
-  case -1:
-	// Again, this value looks like it came out of the SUS version.  And it's an
-	// error value too, so forget about the original error and report the
-	// strerror_r() confusion so it can get fixed.
-	copymsg(buf,
-		"Unexpected result from strerror_r()!  Is this really GNU?",
-		len);
-	break;
-  default:
-	// This is the way it should be.
-	break;
-  }
+  // This will pick the appropriate strerror_r() subwrapper using overloading
+  // (an idea first suggested by Bart Samwel.  Thanks a bundle, Bart!)
+  res = strerror_r_result(strerror_r(err,buf,len), buf, len);
 #endif
   return res;
 }

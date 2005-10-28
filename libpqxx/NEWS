@@ -1,5 +1,5 @@
 2.6.1
- - More improvements to strerror_r recognition logic in configuration process
+ - Hugely improved recognition of different strerror_r() versions
 2.6.0
  - New macro PQXX_SHARED defines whether to use/build libpqxx as shared library
  - Robusttransaction compatible with PostgreSQL 8.1
