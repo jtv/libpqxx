@@ -17,6 +17,7 @@
 #include "pqxx/compiler.h"
 
 #include <cmath>
+#include <cstring>
 
 #ifdef PQXX_HAVE_LOCALE
 #include <locale>
@@ -699,7 +700,7 @@ namespace
 void copymsg(char buf[], const char msg[], size_t buflen) throw ()
 {
   strncpy(buf, msg, buflen);
-  if (strnlen(msg, buflen) >= buflen) buf[buflen-1] = '\0';
+  if (strlen(msg) >= buflen) buf[buflen-1] = '\0';
 }
 
 // Single Unix Specification version of strerror_r returns result code
