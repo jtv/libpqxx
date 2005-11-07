@@ -1,5 +1,6 @@
 2.6.1
  - Hugely improved recognition of different strerror_r() versions
+ - Resolved link problems with gcc 4.0 and shared library
 2.6.0
  - New macro PQXX_SHARED defines whether to use/build libpqxx as shared library
  - Robusttransaction compatible with PostgreSQL 8.1

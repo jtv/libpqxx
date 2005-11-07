@@ -86,7 +86,7 @@ public:
   virtual ~connection() throw ();
 
 private:
-  virtual void PQXX_PRIVATE startconnect() { do_startconnect(); }
+  virtual void PQXX_PRIVATE startconnect();
   virtual void PQXX_PRIVATE completeconnect() {}
 
   void PQXX_PRIVATE do_startconnect();
@@ -180,12 +180,12 @@ public:
   virtual ~asyncconnection() throw ();
 
 private:
-  virtual void PQXX_PRIVATE startconnect() { do_startconnect(); }
+  virtual void PQXX_PRIVATE startconnect();
   virtual void PQXX_PRIVATE completeconnect();
-  virtual void PQXX_PRIVATE dropconnect() throw () { do_dropconnect(); }
+  virtual void PQXX_PRIVATE dropconnect() throw ();
 
   void PQXX_PRIVATE do_startconnect();
-  void PQXX_PRIVATE do_dropconnect() throw () { m_connecting = false; }
+  void PQXX_PRIVATE do_dropconnect() throw ();
 
   /// Is a connection attempt in progress?
   bool m_connecting;
@@ -220,17 +220,4 @@ private:
 //@}
 
 }
-
-/* On Windows, any user-allocated notice processors, triggers etc. must be
- * deallocated in the user context.  Therefore we want these destructors to be
- * inlined.
- * On SUN's CC 5.1 compiler, on the other hand, there will be problems if we
- * don't have out-of-line virtual destructors in the leaf classes, so we must
- * not inline them.
- */
-#ifdef _WIN32
-inline pqxx::connection::~connection() throw () { close(); }
-inline pqxx::lazyconnection::~lazyconnection() throw () { close(); }
-inline pqxx::asyncconnection::~asyncconnection() throw () {do_dropconnect();close();}
-#endif
 
