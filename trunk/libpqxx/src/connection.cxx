@@ -44,12 +44,27 @@ pqxx::connection::connection(const char ConnInfo[]) :
   do_startconnect();
 }
 
+pqxx::connection::~connection() throw ()
+{
+  close();
+}
 
 void pqxx::connection::do_startconnect()
 {
   if (!get_conn()) set_conn(PQconnectdb(options()));
 }
 
+
+void pqxx::connection::startconnect()
+{
+  do_startconnect();
+}
+
+
+pqxx::lazyconnection::~lazyconnection() throw ()
+{
+  close();
+}
 
 void pqxx::lazyconnection::completeconnect()
 {
@@ -92,6 +107,13 @@ void pqxx::asyncconnection::do_startconnect()
   m_connecting = true;
 }
 
+
+void pqxx::asyncconnection::startconnect()
+{
+  do_startconnect();
+}
+
+
 void pqxx::asyncconnection::completeconnect()
 {
   if (!get_conn()) startconnect();
@@ -128,16 +150,25 @@ void pqxx::asyncconnection::completeconnect()
 }
 
 
+void pqxx::asyncconnection::do_dropconnect() throw ()
+{
+  m_connecting = false;
+}
+
+
+void pqxx::asyncconnection::dropconnect() throw ()
+{
+  do_dropconnect();
+}
+
+
 pqxx::nullconnection::~nullconnection() throw ()
 {
 }
 
-// Conflicting workarounds for Windows and SUN CC 5.1; see header
-#ifndef _WIN32
-pqxx::connection::~connection() throw () { close(); }
-pqxx::lazyconnection::~lazyconnection() throw () { close(); }
-pqxx::asyncconnection::~asyncconnection() throw () {do_dropconnect(); close();}
-#endif	// _WIN32
-
-
+pqxx::asyncconnection::~asyncconnection() throw ()
+{
+  do_dropconnect();
+  close();
+}
 
