@@ -42,15 +42,8 @@ public:
   virtual ~basic_robusttransaction() =0;				//[t16]
 
 protected:
-  /// Constructor.
-  /** Creates robusttransaction.
-   * @param C Connection that this robusttransaction should live inside.
-   * @param IsolationLevel SQL isolation level name (e.g. READ_COMMITTED)
-   * @param Name Optional human-readable name for this transaction.
-   */
-  explicit basic_robusttransaction(connection_base &C,
-      				   const PGSTD::string &IsolationLevel,
-		    		   const PGSTD::string &Name);		//[t16]
+  basic_robusttransaction(connection_base &C,
+	const PGSTD::string &IsolationLevel);				//[t16]
 
 private:
   typedef unsigned long IDType;
@@ -143,12 +136,15 @@ class robusttransaction : public basic_robusttransaction
 public:
   typedef isolation_traits<ISOLATIONLEVEL> isolation_tag;
 
-  explicit robusttransaction(connection_base &C, const PGSTD::string &TName) :
-    basic_robusttransaction(C, isolation_tag::name(), TName)
-    	{ Begin(); }
-
-  explicit robusttransaction(connection_base &C) :
-    basic_robusttransaction(C, isolation_tag::name(), PGSTD::string())
+  /// Constructor
+  /** Creates robusttransaction of given name
+   * @param C Connection that this robusttransaction should live inside.
+   * @param Name optional human-readable name for this transaction
+   */
+  explicit robusttransaction(connection_base &C,
+      const PGSTD::string &Name=PGSTD::string()) :
+    namedclass(fullname("robusttransaction",isolation_tag::name()), Name),
+    basic_robusttransaction(C, isolation_tag::name())
     	{ Begin(); }
 
   virtual ~robusttransaction() throw ()

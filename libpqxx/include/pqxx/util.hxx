@@ -807,9 +807,9 @@ private:
 class PQXX_LIBEXPORT namedclass
 {
 public:
-  namedclass(const PGSTD::string &Name, const PGSTD::string &Classname) :
-    m_Name(Name),
-    m_Classname(Classname)
+  namedclass(const PGSTD::string &Classname, const PGSTD::string &Name="") :
+    m_Classname(Classname),
+    m_Name(Name)
   {
   }
 
@@ -818,7 +818,7 @@ public:
   PGSTD::string description() const;
 
 private:
-  PGSTD::string m_Name, m_Classname;
+  PGSTD::string m_Classname, m_Name;
 };
 
 
@@ -880,6 +880,10 @@ typedef const char *cstring;
  */
 cstring PQXX_LIBEXPORT strerror_wrapper(int err, char buf[], PGSTD::size_t len)
   throw ();
+
+
+/// Commonly used SQL commands
+extern const char sql_begin_work[], sql_commit_work[], sql_rollback_work[];
 
 } // namespace internal
 } // namespace pqxx

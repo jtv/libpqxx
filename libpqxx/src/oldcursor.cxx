@@ -29,15 +29,8 @@
 using namespace PGSTD;
 
 
-void pqxx::Cursor::init(const string &BaseName, const char Query[])
+void pqxx::Cursor::init(const char Query[])
 {
-  // Give ourselves a locally unique name based on connection name
-  m_Name += "\"" +
-            BaseName + "_" +
-	    m_Trans.name() + "_" +
-	    to_string(m_Trans.GetUniqueCursorNum()) +
-	    "\"";
-
   m_Trans.Exec("DECLARE " + m_Name + " SCROLL CURSOR FOR " + Query);
 }
 

@@ -183,7 +183,7 @@ public:
 
 protected:
   cursor_base(transaction_base *,
-      const PGSTD::string &cname,
+      const PGSTD::string &Name,
       bool embellish_name = true);
 
   void declare(const PGSTD::string &query,
@@ -200,8 +200,6 @@ protected:
   template<accesspolicy A> void check_displacement(difference_type) { }
 
 private:
-  int PQXX_PRIVATE get_unique_cursor_num();
-
   PGSTD::string m_name;
   bool m_adopted;
   ownershippolicy m_ownership;

@@ -40,6 +40,30 @@ class result;
 class transaction_base;
 class trigger;
 
+namespace internal
+{
+class reactivation_avoidance_exemption;
+
+class reactivation_avoidance_counter
+{
+public:
+  reactivation_avoidance_counter() : m_counter(0) {}
+
+  void add(int n) throw () { m_counter += n; }
+  void clear() throw () { m_counter = 0; }
+  int get() const throw () { return m_counter; }
+
+  void give_to(reactivation_avoidance_counter &rhs) throw ()
+  {
+    rhs.add(m_counter);
+    clear();
+  }
+
+private:
+  int m_counter;
+};
+
+}
 
 /**
  * @addtogroup noticer Error/warning output
@@ -95,29 +119,6 @@ struct PQXX_LIBEXPORT nonnoticer : noticer
 class PQXX_LIBEXPORT connection_base
 {
 public:
-  /// Set up connection based on PostgreSQL connection string
-  /**
-   * @param ConnInfo a PostgreSQL connection string specifying any required
-   * parameters, such as server, port, database, and password.  These values
-   * override any of the environment variables recognized by libpq that may have
-   * been defined for the same parameters.
-   *
-   * The README file for libpqxx gives a quick overview of how connection
-   * strings work; see the PostgreSQL documentation (particularly for libpq, the
-   * C-level interface) for a complete list.
-   */
-  explicit connection_base(const PGSTD::string &ConnInfo);		//[t2]
-
-  /// Set up connection based on PostgreSQL connection string
-  /** @param ConnInfo a PostgreSQL connection string specifying any required
-   * parameters, such as server, port, database, and password.  As a special
-   * case, a null pointer is taken as the empty string.
-   */
-  explicit connection_base(const char ConnInfo[]);			//[t2]
-
-  /// Destructor.  Implicitly closes the connection.
-  virtual ~connection_base() =0;					//[t1]
-
   /**
    * @name Connection state
    */
@@ -299,8 +300,14 @@ public:
    */
   enum capability
   {
+    /// Does the backend support prepared statements?
+    cap_prepared_statements,
+
     /// Can we specify WITH OIDS with CREATE TABLE?  If we can, we should.
     cap_create_table_with_oids,
+
+    /// Can transactions be nested in other transactions?
+    cap_nested_transactions,
 
     /// Can cursors be declared SCROLL?
     cap_cursor_scroll,
@@ -500,6 +507,12 @@ public:
   void perform(const TRANSACTOR &T) { perform(T, 3); }
   //@}
 
+  /// Suffix unique number to name to make it unique within session context
+  /** Used internally to generate identifiers for SQL objects (such as cursors
+   * and nested transactions) based on a given human-readable base name.
+   */
+  PGSTD::string adorn_name(const PGSTD::string &);			//[]
+
 #ifdef PQXX_DEPRECATED_HEADERS
   /**
    * @name 1.x API
@@ -554,6 +567,29 @@ public:
 
 
 protected:
+  /// Set up connection based on PostgreSQL connection string
+  /**
+   * @param ConnInfo a PostgreSQL connection string specifying any required
+   * parameters, such as server, port, database, and password.  These values
+   * override any of the environment variables recognized by libpq that may have
+   * been defined for the same parameters.
+   *
+   * The README file for libpqxx gives a quick overview of how connection
+   * strings work; see the PostgreSQL documentation (particularly for libpq, the
+   * C-level interface) for a complete list.
+   */
+  explicit connection_base(const PGSTD::string &ConnInfo);		//[t2]
+
+  /// Set up connection based on PostgreSQL connection string
+  /** @param ConnInfo a PostgreSQL connection string specifying any required
+   * parameters, such as server, port, database, and password.  As a special
+   * case, a null pointer is taken as the empty string.
+   */
+  explicit connection_base(const char ConnInfo[]);			//[t2]
+
+  /// Destructor.  Implicitly closes the connection.
+  virtual ~connection_base() =0;					//[t1]
+
   /// Overridable: initiate a connection
   /** @callgraph */
   virtual void startconnect() =0;
@@ -591,13 +627,17 @@ private:
 
   void read_capabilities() throw ();
 
-  /// Connection string
-  PGSTD::string m_ConnInfo;
-
   /// Connection handle
   internal::pq::PGconn *m_Conn;
+
+  /// Have we successfully established this connection?
+  bool m_Completed;
+
   /// Active transaction on connection, if any
   internal::unique<transaction_base> m_Trans;
+
+  /// Connection string
+  PGSTD::string m_ConnInfo;
 
   /// User-defined notice processor, if any
   PGSTD::auto_ptr<noticer> m_Noticer;
@@ -638,7 +678,10 @@ private:
   bool m_inhibit_reactivation;
 
   /// Stacking counter: known objects that can't be auto-reactivated
-  int m_reactivation_avoidance;
+  internal::reactivation_avoidance_counter m_reactivation_avoidance;
+
+  /// Unique number to use as suffix for identifiers (see adorn_name())
+  int m_unique_id;
 
   friend class transaction_base;
   result PQXX_PRIVATE Exec(const char[], int Retries);
@@ -671,8 +714,8 @@ private:
   bool PQXX_PRIVATE is_busy() const throw ();
 
   friend class cursor_base;
-  void reactivation_avoidance_add(int) throw ();
-  void reactivation_avoidance_dec() throw ();
+  friend class dbtransaction;
+  friend class internal::reactivation_avoidance_exemption;
 
   // Not allowed:
   connection_base(const connection_base &);
@@ -748,6 +791,35 @@ class PQXX_LIBEXPORT disable_noticer : scoped_noticer
 public:
   explicit disable_noticer(connection_base &c) :
     scoped_noticer(c, new nonnoticer) {}
+};
+
+
+/// Scoped exemption to reactivation avoidance
+class PQXX_LIBEXPORT reactivation_avoidance_exemption
+{
+public:
+  explicit reactivation_avoidance_exemption(connection_base &C) :
+    m_home(C),
+    m_count(C.m_reactivation_avoidance.get()),
+    m_open(C.is_open())
+  {
+    C.m_reactivation_avoidance.clear();
+  }
+
+  ~reactivation_avoidance_exemption()
+  {
+    // Don't leave connection open if reactivation avoidance is in effect and
+    // the connection needed to be reactivated temporarily.
+    if (m_count && !m_open) m_home.deactivate();
+    m_home.m_reactivation_avoidance.add(m_count);
+  }
+
+  void close_connection() throw () { m_open = false; }
+
+private:
+  connection_base &m_home;
+  int m_count;
+  bool m_open;
 };
 
 

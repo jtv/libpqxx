@@ -35,8 +35,6 @@
 /* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
 
-// TODO: Any way the BEGIN and the first query can be concatenated/pipelined?
-
 namespace pqxx
 {
 class connection_base;
@@ -45,13 +43,11 @@ class transaction_base;
 
 namespace internal
 {
-class PQXX_LIBEXPORT transactionfocus : public namedclass
+class PQXX_LIBEXPORT transactionfocus : public virtual namedclass
 {
 public:
-  transactionfocus(transaction_base &t,
-      const PGSTD::string &Name,
-      const PGSTD::string &Classname) :
-    namedclass(Name, Classname),
+  explicit transactionfocus(transaction_base &t) :
+    namedclass("transactionfocus"),
     m_Trans(t),
     m_registered(false)
   {
@@ -75,6 +71,7 @@ private:
   /// Not allowed
   transactionfocus &operator=(const transactionfocus &);
 };
+
 } // namespace internal
 
 
@@ -90,7 +87,7 @@ private:
  * the plain transaction class, the entirely unprotected nontransaction, and the
  * more cautions robusttransaction.
  */
-class PQXX_LIBEXPORT transaction_base : public internal::namedclass
+class PQXX_LIBEXPORT transaction_base : public virtual internal::namedclass
 {
 public:
   /// If nothing else is known, our isolation level is at least read_committed
@@ -298,9 +295,9 @@ public:
   void set_variable(const PGSTD::string &Var, const PGSTD::string &Val);//[t61]
 
   /// Get currently applicable value of variable
-  /** This function will try to consult the cache of variables set (both in the
-   * transaction and in the connection) using the set_variable functions.  If it
-   * is not found there, the database is queried.
+  /** First consults an internal cache of variables that have been set (whether
+   * in the ongoing transaction or in the connection) using the set_variable
+   * functions.  If it is not found there, the database is queried.
    *
    * @warning Do not mix the set_variable with raw "SET" queries, and do not
    * try to set or get variables while a pipeline or table stream is active.
@@ -342,10 +339,10 @@ protected:
   /// Create a transaction (to be called by implementation classes only)
   /** The optional name, if nonempty, must begin with a letter and may contain
    * letters and digits only.
+   *
+   * @param direct running directly in connection context (i.e. not nested)?
    */
-  explicit transaction_base(connection_base &,
-		          const PGSTD::string &TName,
-			  const PGSTD::string &CName);
+  explicit transaction_base(connection_base &, bool direct=true);
 
   /// Begin transaction (to be called by implementing class)
   /** Will typically be called from implementing class' constructor.
@@ -378,7 +375,8 @@ protected:
   result DirectExec(const char C[], int Retries=0);
 
   /// Forget about any reactivation-blocking resources we tried to allocate
-  void reactivation_avoidance_clear() throw () { m_reactivation_avoidance = 0; }
+  void reactivation_avoidance_clear() throw ()
+	{m_reactivation_avoidance.clear();}
 
 private:
   /* A transaction goes through the following stages in its lifecycle:
@@ -417,10 +415,7 @@ private:
 
   friend class Cursor;
   friend class cursor_base;
-  int GetUniqueCursorNum() { return m_UniqueCursorNum++; }
   void MakeEmpty(result &R) const { m_Conn.MakeEmpty(R); }
-  void reactivation_avoidance_inc() throw () { ++m_reactivation_avoidance; }
-  void reactivation_avoidance_dec() throw () { --m_reactivation_avoidance; }
 
   friend class internal::transactionfocus;
   void PQXX_PRIVATE RegisterFocus(internal::transactionfocus *);
@@ -443,16 +438,17 @@ private:
 
   connection_base &m_Conn;
 
-  int m_UniqueCursorNum;
   internal::unique<internal::transactionfocus> m_Focus;
   Status m_Status;
   bool m_Registered;
   PGSTD::map<PGSTD::string, PGSTD::string> m_Vars;
   PGSTD::string m_PendingError;
+
+  friend class subtransaction;
   /// Resources allocated in this transaction that make reactivation impossible
   /** This number may be negative!
    */
-  int m_reactivation_avoidance;
+  internal::reactivation_avoidance_counter m_reactivation_avoidance;
 
   /// Not allowed
   transaction_base();

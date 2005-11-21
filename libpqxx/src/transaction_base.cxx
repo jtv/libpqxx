@@ -30,20 +30,20 @@ using namespace PGSTD;
 using namespace pqxx::internal;
 
 
-pqxx::transaction_base::transaction_base(connection_base &C,
-    					 const string &TName,
-					 const string &CName) :
-  namedclass(TName, CName),
+pqxx::transaction_base::transaction_base(connection_base &C, bool direct) :
+  namedclass("transaction_base"),
   m_Conn(C),
-  m_UniqueCursorNum(1),
   m_Focus(),
   m_Status(st_nascent),
   m_Registered(false),
   m_PendingError(),
-  m_reactivation_avoidance(0)
+  m_reactivation_avoidance()
 {
-  m_Conn.RegisterTransaction(this);
-  m_Registered = true;
+  if (direct)
+  {
+    m_Conn.RegisterTransaction(this);
+    m_Registered = true;
+  }
 }
 
 
@@ -108,7 +108,7 @@ void pqxx::transaction_base::commit()
     // Transaction may or may not have been committed.  Report the problem but
     // don't compound our troubles by throwing.
     throw logic_error(description() +
-		      "committed again while in an undetermined state\n");
+		      "committed again while in an indeterminate state");
 
   default:
     throw internal_error("pqxx::transaction: invalid status code");
@@ -213,17 +213,11 @@ pqxx::result pqxx::transaction_base::exec(const char Query[],
     break;
 
   case st_committed:
-    throw logic_error("Attempt to execute query " + N +
-	              "in committed " + description());
-
   case st_aborted:
-    throw logic_error("Attempt to execute query " + N +
-	              "in aborted " + description());
-
   case st_in_doubt:
-    throw logic_error("Attempt to execute query " + N + "in " +
-		      description() + ", "
-		      "which is in indeterminate state");
+    throw logic_error("Attempt to execute query " + N + " "
+	"in " + description() + ", which is already closed");
+
   default:
     throw internal_error("pqxx::transaction: invalid status code");
   }
@@ -277,38 +271,37 @@ void pqxx::transaction_base::Begin()
 
 void pqxx::transaction_base::End() throw ()
 {
-  if (!m_Registered) return;
-
   try
   {
-    m_Conn.UnregisterTransaction(this);
-    m_Registered = false;
+    try { CheckPendingError(); }
+    catch (const exception &e) { m_Conn.process_notice(e.what()); }
 
-    CheckPendingError();
+    if (m_Registered)
+    {
+      m_Registered = false;
+      m_Conn.UnregisterTransaction(this);
+    }
+
+    if (m_Status != st_active) return;
 
     if (m_Focus.get())
       m_Conn.process_notice("Closing " + description() + " "
 			    " with " + m_Focus.get()->description() + " "
 			    "still open\n");
 
-    if (m_Status == st_active) abort();
+    try { abort(); }
+    catch (const exception &e) { m_Conn.process_notice(e.what()); }
 
-    if (m_reactivation_avoidance)
+    const int ra = m_reactivation_avoidance.get();
+    if (ra)
     {
-      m_Conn.reactivation_avoidance_add(m_reactivation_avoidance);
       reactivation_avoidance_clear();
+      conn().m_reactivation_avoidance.add(ra);
     }
   }
   catch (const exception &e)
   {
-    try
-    {
-      m_Conn.process_notice(string(e.what()) + "\n");
-    }
-    catch (const exception &)
-    {
-      m_Conn.process_notice(e.what());
-    }
+    try { m_Conn.process_notice(e.what()); } catch (const exception &) {}
   }
 }
 

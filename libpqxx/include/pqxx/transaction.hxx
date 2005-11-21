@@ -38,14 +38,11 @@ namespace pqxx
 class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 {
 protected:
-  explicit basic_transaction(connection_base &C,
-			     const PGSTD::string &IsolationLevel,
-			     const PGSTD::string &TName);		//[t1]
+  basic_transaction(connection_base &C,
+			     const PGSTD::string &IsolationLevel);	//[t1]
 
 private:
-  virtual void do_begin();						//[t1]
   virtual void do_commit();						//[t1]
-  virtual void do_abort();						//[t13]
 };
 
 
@@ -91,11 +88,13 @@ public:
    * may contain letters and digits only
    */
   explicit transaction(connection_base &C, const PGSTD::string &TName):	//[t1]
-    basic_transaction(C, isolation_tag::name(), TName)
+    namedclass(fullname("transaction",isolation_tag::name()), TName),
+    basic_transaction(C, isolation_tag::name())
     	{ Begin(); }
 
   explicit transaction(connection_base &C) :				//[t1]
-    basic_transaction(C, isolation_tag::name(), PGSTD::string())
+    namedclass(fullname("transaction",isolation_tag::name())),
+    basic_transaction(C, isolation_tag::name())
     	{ Begin(); }
 
   virtual ~transaction() throw ()

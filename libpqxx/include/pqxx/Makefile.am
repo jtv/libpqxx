@@ -29,6 +29,7 @@ include_HEADERS= pqxx all.h \
 	pipeline pipeline.hxx \
 	result result.hxx result.h \
 	robusttransaction robusttransaction.hxx robusttransaction.h \
+	subtransaction subtransaction.hxx \
 	tablereader tablereader.hxx tablereader.h \
 	tablestream tablestream.hxx tablestream.h \
 	tablewriter tablewriter.hxx tablewriter.h \

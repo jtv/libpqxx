@@ -39,16 +39,18 @@ namespace pqxx
  * integrity.  This may be useful eg. for read-only access to the database that
  * does not require a consistent, atomic view on its data; or for operations
  * that are not allowed within a backend transaction, such as creating tables.
+ *
  * For queries that update the database, however, a real transaction is likely
  * to be faster unless the transaction consists of only a single record update.
- * As a side effect, you can keep a nontransaction open for as long as you like.
- * Actual back-end transactions are limited in lifespan, and will sometimes fail
- * just because they took too long to execute.  This will not happen with a
- * nontransaction.  It may need to restore its connection, but it won't abort as
- * a result.
+ *
+ * Also, you can keep a nontransaction open for as long as you like.  Actual
+ * back-end transactions are limited in lifespan, and will sometimes fail just
+ * because they took too long to execute or were left idle for too long.  This
+ * will not happen with a nontransaction (although the connection may still time
+ * out, e.g. when the network is unavailable for a very long time).
  *
  * Any query executed in a nontransaction is committed immediately, and neither
- * Commit() nor Abort() has any effect.
+ * commit() nor abort() has any effect.
  *
  * Database features that require a backend transaction, such as cursors or
  * large objects, will not work in a nontransaction.
@@ -59,12 +61,12 @@ public:
   /// Constructor.
   /** Create a "dummy" transaction.
    * @param C Connection that this "transaction" will operate on.
-   * @param NName Optional name for the transaction, beginning with a letter
+   * @param Name Optional name for the transaction, beginning with a letter
    * and containing only letters and digits.
    */
   explicit nontransaction(connection_base &C,
-		          const PGSTD::string &NName=PGSTD::string()) :	//[t14]
-    transaction_base(C, NName, "nontransaction") { Begin(); }
+		          const PGSTD::string &Name=PGSTD::string()) :	//[t14]
+    namedclass("nontransaction", Name), transaction_base(C) { Begin(); }
 
   virtual ~nontransaction();						//[t14]
 

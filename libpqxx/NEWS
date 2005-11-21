@@ -1,3 +1,8 @@
+2.6.2
+ - Bug fix: connection state was not set up properly in some common cases
+ - namedclass is now used as a virtual base; affects all subclass constructors
+ - Initial implementation of subtransactions
+ - Detect more connection capabilities
 2.6.1
  - Hugely improved recognition of different strerror_r() versions
  - Resolved link problems with gcc 4.0 and shared library

@@ -22,6 +22,7 @@
 #include "pqxx/pipeline"
 #include "pqxx/result"
 #include "pqxx/robusttransaction"
+#include "pqxx/subtransaction"
 #include "pqxx/transactor"
 #include "pqxx/tablereader"
 #include "pqxx/tablewriter"

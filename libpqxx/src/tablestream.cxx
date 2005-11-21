@@ -23,11 +23,9 @@
 using namespace PGSTD;
 
 
-pqxx::tablestream::tablestream(transaction_base &STrans,
-                               const string &SName,
-			       const string &Null,
-			       const char Classname[]) :
-  internal::transactionfocus(STrans, SName, Classname),
+pqxx::tablestream::tablestream(transaction_base &STrans, const string &Null) :
+  internal::namedclass("tablestream"),
+  internal::transactionfocus(STrans),
   m_Null(Null),
   m_Finished(false)
 {

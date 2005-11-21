@@ -43,6 +43,12 @@
 using namespace PGSTD;
 using namespace pqxx::internal;
 
+
+const char pqxx::internal::sql_begin_work[] = "BEGIN",
+      pqxx::internal::sql_commit_work[] = "COMMIT",
+      pqxx::internal::sql_rollback_work[] = "ROLLBACK";
+
+
 namespace
 {
 // It turns out that NaNs are pretty hard to do portably.  If the appropriate
@@ -629,7 +635,7 @@ void pqxx::internal::CheckUniqueRegistration(const namedclass *New,
   if (Old)
   {
     if (Old == New)
-      throw logic_error("Started " + New->description() + " twice");
+      throw logic_error("Started twice: " + New->description());
     throw logic_error("Started " + New->description() + " "
 		      "while " + Old->description() + " still active");
   }
@@ -645,8 +651,7 @@ void pqxx::internal::CheckUniqueUnregistration(const namedclass *New,
       throw logic_error("Expected to close " + Old->description() + ", "
 	  		"but got NULL pointer instead");
     if (!Old)
-      throw logic_error("Closed " + New->description() + ", "
-	 		"which wasn't open");
+      throw logic_error("Closed while not open: " + New->description());
     throw logic_error("Closed " + New->description() + "; "
 		      "expected to close " + Old->description());
   }

@@ -34,8 +34,9 @@ const string theDummyQuery("SELECT " + theDummyValue + theSeparator);
 }
 
 
-pqxx::pipeline::pipeline(transaction_base &t, const string &PName) :
-  internal::transactionfocus(t, PName, "pipeline"),
+pqxx::pipeline::pipeline(transaction_base &t, const string &Name) :
+  namedclass("pipeline", Name),
+  transactionfocus(t),
   m_queries(),
   m_issuedrange(),
   m_retain(0),
@@ -174,6 +175,8 @@ void pqxx::pipeline::issue()
   pqxxassert(!have_pending());
   pqxxassert(!m_dummy_pending);
   pqxxassert(m_num_waiting);
+
+  // TODO: Wrap in nested transaction if available, for extra "replayability"
 
   // Retrieve that NULL result for the last query, if needed
   obtain_result();

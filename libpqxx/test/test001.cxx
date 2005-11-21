@@ -42,6 +42,13 @@ int main()
     // so there are no changes to commit.
     T.commit();
   }
+  catch (const sql_error &e)
+  {
+    // The sql_error exception class gives us some extra information
+    cerr << "SQL error: " << e.what() << endl
+         << "Query was: " << e.query() << endl;
+    return 1;
+  }
   catch (const exception &e)
   {
     // All exceptions thrown by libpqxx are derived from std::exception
