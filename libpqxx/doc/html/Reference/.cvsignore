@@ -1,5 +1,6 @@
-doxygen.css
 graph_legend.dot
+*.css
+*.gif
 *.html
 *.map
 *.md5
