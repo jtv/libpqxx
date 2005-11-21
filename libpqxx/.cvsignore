@@ -13,6 +13,8 @@ install-sh
 libpqxx.pc
 libpqxx-sourcenav.proj
 libpqxx.spec
+libpqxx.prj
+libpqxx.pws
 libtool
 missing
 mkinstalldirs
@@ -21,3 +23,4 @@ pqxxlo.txt
 stamp-h2.in
 *.swp
 .snprj
+.tm_project.cache
