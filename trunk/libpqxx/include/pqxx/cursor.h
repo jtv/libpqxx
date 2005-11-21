@@ -102,7 +102,7 @@ public:
 	   const PGSTD::string &BaseName="cur",
 	   difference_type Count=dist_next) :				//[t3]
       m_Trans(T),
-      m_Name(),
+      m_Name(T.conn().adorn_name(BaseName)),
       m_Count(Count),
       m_Done(false),
       m_Pos(pos_start),
@@ -110,7 +110,7 @@ public:
   {
     // Trigger build error if T has insufficient isolation level
     error_permitted_isolation_level(PQXX_TYPENAME TRANSACTION::isolation_tag());
-    init(BaseName, Query);
+    init(Query);
   }
 
   /// Special-purpose constructor.  Adopts existing SQL cursor.  Use with care.
@@ -259,7 +259,7 @@ public:
 
 private:
   static PGSTD::string OffsetString(difference_type);
-  void init(const PGSTD::string &BaseName, const char Query[]);
+  void init(const char Query[]);
   PGSTD::string MakeFetchCmd(difference_type) const;
   difference_type NormalizedMove(difference_type Intended,
       difference_type Actual);

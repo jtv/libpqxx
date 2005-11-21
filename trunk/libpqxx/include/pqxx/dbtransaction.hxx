@@ -57,26 +57,34 @@ namespace pqxx
 class PQXX_LIBEXPORT dbtransaction : public transaction_base
 {
 protected:
-  explicit dbtransaction(connection_base &,
-			 const PGSTD::string &IsolationString,
-      			 const PGSTD::string &NName,
-			 const PGSTD::string &CName);
+  dbtransaction(connection_base &, const PGSTD::string &IsolationString);
+  explicit dbtransaction(connection_base &, bool direct=true);
 
   virtual ~dbtransaction();
 
   /// Start a transaction on the backend and set desired isolation level
   void start_backend_transaction();
 
-private:
-  /// To be implemented by derived class: start backend transaction
-  virtual void do_begin() =0;
+protected:
+  /// Sensible default implemented here: begin backend transaction
+  virtual void do_begin();						//[t1]
   /// Sensible default implemented here: perform query
   virtual result do_exec(const char Query[]);
   /// To be implemented by derived class: commit backend transaction
   virtual void do_commit() =0;
-  /// To be implemented by derived class: abort backend transaction
-  virtual void do_abort() =0;
+  /// Sensible default implemented here: abort backend transaction
+  /** Default implementation does two things:
+   * <ol>
+   * <li>Clears the "connection reactivation avoidance counter"</li>
+   * <li>Executes a ROLLBACK statement</li>
+   * </ol>
+   */
+  virtual void do_abort();						//[t13]
 
+  static PGSTD::string fullname(const PGSTD::string &ttype,
+      	const PGSTD::string &isolation);
+
+private:
   /// Precomputed SQL command to run at start of this transaction
   PGSTD::string m_StartCmd;
 };

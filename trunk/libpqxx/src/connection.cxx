@@ -30,18 +30,24 @@ pqxx::connection::connection() :
   connection_base(0)
 {
   do_startconnect();
+  // TODO: FIXME: This may cause virtual functions to be called!
+  activate();
 }
 
 pqxx::connection::connection(const string &ConnInfo) :
   connection_base(ConnInfo)
 {
   do_startconnect();
+  // TODO: FIXME: This may cause virtual functions to be called!
+  activate();
 }
 
 pqxx::connection::connection(const char ConnInfo[]) :
   connection_base(ConnInfo)
 {
   do_startconnect();
+  // TODO: FIXME: This may cause virtual functions to be called!
+  activate();
 }
 
 pqxx::connection::~connection() throw ()

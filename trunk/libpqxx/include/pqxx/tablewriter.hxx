@@ -157,7 +157,8 @@ tablewriter::tablewriter(transaction_base &T,
     ITER begincolumns,
     ITER endcolumns,
     const PGSTD::string &Null) :
-  tablestream(T, WName, Null, "tablewriter")
+  namedclass("tablewriter", WName),
+  tablestream(T, Null)
 {
   setup(T, WName, columnlist(begincolumns, endcolumns));
 }

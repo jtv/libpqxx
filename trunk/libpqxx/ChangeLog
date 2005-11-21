@@ -1,6 +1,34 @@
+2005-11-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/*.hxx, src/*.cxx:
+  - Made namedclass a virtual base of transactionfocus & transaction_base
+  - Child classes no longer pass their names to base classes
+  - Switched arguments to namedclass constructor around
+  - Made object name optional
+ include/pqxx/connection_base.hxx, src/connection_base.cxx:
+  - Fixed bug: SetupState() was not always called!
+  - More connection capabilities detected
+  - Option not to register with transaction (used for subtransaction)
+  - New class for connection reactivation avoidance "exemptions"
+  - Function to adorn names with unique numbers
+ include/pqxx/cursor.hxx, include/pqxx/transaction_base.hxx, src/cursor.cxx,
+ src/oldcursor.cxx:
+  - Spliced out unique cursor numbering, moved to connection_base
+ include/pqxx/dbtransaction.hxx, src/dbtransaction.cxx:
+  - Sensible defaults for overridable virtual functions
+ include/pqxx/pqxx:
+  - Added subtransaction.hxx
+ include/pqxx/subtransaction, include/pqxx/subtransaction.hxx,
+ src/subtransaction.cxx, test/test088.cxx, test/test089.cxx:
+  - New
+  - Nested transactions for PostgreSQL 8.x
+ test/test001.cxx:
+  - Catch sql_error
 2005-11-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection.hxx, src/connection.cxx:
   - Fixed gcc 4.0 shared library link problem, thanks Axel Waggershauser
+2005-11-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/cursor.cxx:
+  - Strip trailing semicolons off query, thanks Rupert Kittinger
 2005-10-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in, src/util.cxx:
   - Greatly simplified strerror_r recognition.  Thanks Bart Samwel!

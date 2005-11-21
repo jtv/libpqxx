@@ -42,10 +42,8 @@ class transaction_base;
 class PQXX_LIBEXPORT tablestream : public internal::transactionfocus
 {
 public:
-  tablestream(transaction_base &Trans,
-	      const PGSTD::string &Name,
-	      const PGSTD::string &Null=PGSTD::string(),
-	      const char Classname[]="tablestream");			//[t6]
+  explicit tablestream(transaction_base &Trans,
+	      const PGSTD::string &Null=PGSTD::string());		//[t6]
 
   virtual ~tablestream() throw () =0;					//[t6]
 

@@ -43,29 +43,16 @@ pqxx::cursor_base::difference_type adjust(
 
 
 pqxx::cursor_base::cursor_base(transaction_base *context,
-    const string &cname,
+    const string &Name,
     bool embellish_name) :
   m_context(context),
   m_done(false),
-  m_name(cname),
+  m_name(embellish_name ? context->conn().adorn_name(Name) : Name),
   m_adopted(false),
   m_ownership(loose),
   m_lastfetch(),
   m_lastmove()
 {
-  if (embellish_name)
-  {
-    m_name += '_';
-    m_name += to_string(get_unique_cursor_num());
-  }
-}
-
-
-int pqxx::cursor_base::get_unique_cursor_num()
-{
-  if (!m_context) throw internal_error("cursor in get_unique_cursor_num() "
-      "has no transaction");
-  return m_context->GetUniqueCursorNum();
 }
 
 
@@ -85,6 +72,20 @@ string pqxx::cursor_base::stridestring(difference_type n)
 }
 
 
+namespace
+{
+/// Is this character a "useless trailing character" in a query?
+/** A character is "useless" at the end of a query if it is either whitespace or
+ * a semicolon.
+ */
+inline bool useless_trail(char c)
+{
+  return isspace(c) || c==';';
+}
+
+}
+
+
 void pqxx::cursor_base::declare(const string &query,
     accesspolicy ap,
     updatepolicy up,
@@ -92,6 +93,18 @@ void pqxx::cursor_base::declare(const string &query,
     bool hold)
 {
   stringstream cq, qn;
+
+  /* Strip trailing semicolons (and whitespace, as side effect) off query.  The
+   * whitespace is stripped because it might otherwise mask a semicolon.  After
+   * this, the remaining useful query will be the sequence defined by
+   * query.begin() and last, i.e. last may be equal to query.end() or point to
+   * the first useless trailing character.
+   */
+  string::const_iterator last = query.end();
+  for (--last; last!=query.begin() && useless_trail(*last); --last);
+  if (last==query.begin() && useless_trail(*last))
+    throw invalid_argument("Cursor created on empty query");
+  ++last;
 
   cq << "DECLARE \"" << name() << "\" ";
 
@@ -112,7 +125,7 @@ void pqxx::cursor_base::declare(const string &query,
     cq << "WITH HOLD ";
   }
 
-  cq << "FOR " << query << ' ';
+  cq << "FOR " << string(query.begin(),last) << ' ';
 
   if (up != update) cq << "FOR READ ONLY ";
   else if (!m_context->conn().supports(connection_base::cap_cursor_update))
@@ -128,7 +141,7 @@ void pqxx::cursor_base::declare(const string &query,
   // after this transaction.  That means the connection cannot be deactivated
   // without losing the cursor.
   m_ownership = op;
-  if (op==loose) m_context->reactivation_avoidance_inc();
+  if (op==loose) m_context->m_reactivation_avoidance.add(1);
 }
 
 
@@ -136,7 +149,7 @@ void pqxx::cursor_base::adopt(ownershippolicy op)
 {
   // If we take responsibility for destroying the cursor, that's one less reason
   // not to allow the connection to be deactivated and reactivated.
-  if (op==owned) m_context->reactivation_avoidance_dec();
+  if (op==owned) m_context->m_reactivation_avoidance.add(-1);
   m_adopted = true;
   m_ownership = op;
 }
@@ -148,7 +161,7 @@ void pqxx::cursor_base::close() throw ()
   {
     try { m_context->exec("CLOSE " + name()); } catch (const exception &) { }
 
-    if (m_adopted) m_context->reactivation_avoidance_dec();
+    if (m_adopted) m_context->m_reactivation_avoidance.add(-1);
     m_ownership = loose;
   }
 }

@@ -28,7 +28,8 @@ using namespace pqxx::internal;
 pqxx::tablewriter::tablewriter(transaction_base &T,
     const string &WName,
     const string &Null) :
-  tablestream(T, WName, Null, "tablewriter")
+  namedclass("tablewriter", WName),
+  tablestream(T, Null)
 {
   setup(T, WName);
 }

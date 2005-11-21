@@ -59,7 +59,8 @@ class PQXX_LIBEXPORT pipeline : public internal::transactionfocus
 public:
   typedef long query_id;
 
-  explicit pipeline(transaction_base &, const PGSTD::string &PName="");	//[t69]
+  explicit pipeline(transaction_base &,
+      const PGSTD::string &Name=PGSTD::string());			//[t69]
 
   ~pipeline() throw ();
 

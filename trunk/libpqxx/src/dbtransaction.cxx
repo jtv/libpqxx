@@ -23,14 +23,21 @@ using namespace PGSTD;
 
 
 pqxx::dbtransaction::dbtransaction(connection_base &C,
-    const PGSTD::string &IsolationString,
-    const PGSTD::string &NName,
-    const PGSTD::string &CName) :
-  transaction_base(C, NName, CName),
-  m_StartCmd()
+    const PGSTD::string &IsolationString) :
+  namedclass("dbtransaction"),
+  transaction_base(C),
+  m_StartCmd(internal::sql_begin_work)
 {
   if (IsolationString != isolation_traits<read_committed>::name())
-    m_StartCmd = "SET TRANSACTION ISOLATION LEVEL " + IsolationString;
+    m_StartCmd += ";SET TRANSACTION ISOLATION LEVEL " + IsolationString;
+}
+
+
+pqxx::dbtransaction::dbtransaction(connection_base &C, bool direct) :
+  namedclass("dbtransaction"),
+  transaction_base(C, direct),
+  m_StartCmd(internal::sql_begin_work)
+{
 }
 
 
@@ -39,11 +46,9 @@ pqxx::dbtransaction::~dbtransaction()
 }
 
 
-void pqxx::dbtransaction::start_backend_transaction()
+void pqxx::dbtransaction::do_begin()
 {
-  DirectExec("BEGIN", 2);
-  // TODO: Can't we pipeline this to eliminate roundtrip time?
-  if (!m_StartCmd.empty()) DirectExec(m_StartCmd.c_str());
+  DirectExec(m_StartCmd.c_str(), conn().m_reactivation_avoidance.get() ? 0 : 2);
 }
 
 
@@ -58,5 +63,19 @@ pqxx::result pqxx::dbtransaction::do_exec(const char Query[])
     try { abort(); } catch (const exception &) {}
     throw;
   }
+}
+
+
+void pqxx::dbtransaction::do_abort()
+{
+  reactivation_avoidance_clear();
+  DirectExec(internal::sql_rollback_work);
+}
+
+
+string pqxx::dbtransaction::fullname(const string &ttype,
+	const string &isolation)
+{
+  return ttype + "<" + isolation + ">";
 }
 

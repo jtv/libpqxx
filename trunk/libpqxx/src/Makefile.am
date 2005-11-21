@@ -12,6 +12,7 @@ libpqxx_la_SOURCES = binarystring.cxx \
 	pipeline.cxx \
 	result.cxx \
 	robusttransaction.cxx \
+	subtransaction.cxx \
 	tablereader.cxx \
 	tablestream.cxx \
 	tablewriter.cxx \

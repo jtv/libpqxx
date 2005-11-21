@@ -27,21 +27,11 @@
 using namespace PGSTD;
 
 
-#define SQL_COMMIT_WORK 	"COMMIT"
-#define SQL_ROLLBACK_WORK 	"ROLLBACK"
-
-
 pqxx::basic_transaction::basic_transaction(connection_base &C,
-    const string &IsolationLevel,
-    const string &TName) :
-  dbtransaction(C, IsolationLevel, TName, "transaction<"+IsolationLevel+">")
+    const string &IsolationLevel) :
+  namedclass("transaction"),
+  dbtransaction(C, IsolationLevel)
 {
-}
-
-
-void pqxx::basic_transaction::do_begin()
-{
-  start_backend_transaction();
 }
 
 
@@ -49,7 +39,7 @@ void pqxx::basic_transaction::do_commit()
 {
   try
   {
-    DirectExec(SQL_COMMIT_WORK);
+    DirectExec(internal::sql_commit_work);
   }
   catch (const exception &e)
   {
@@ -76,12 +66,4 @@ void pqxx::basic_transaction::do_commit()
     }
   }
 }
-
-
-void pqxx::basic_transaction::do_abort()
-{
-  DirectExec(SQL_ROLLBACK_WORK);
-  reactivation_avoidance_clear();
-}
-
 

@@ -46,7 +46,7 @@ class PQXX_LIBEXPORT tablereader : public tablestream
 {
 public:
   tablereader(transaction_base &,
-      const PGSTD::string &RName,
+      const PGSTD::string &Name,
       const PGSTD::string &Null=PGSTD::string());			//[t6]
 
   /// Read only the given sequence of columns
@@ -54,7 +54,7 @@ public:
    */
   template<typename ITER>
   tablereader(transaction_base &,
-      const PGSTD::string &RName,
+      const PGSTD::string &Name,
       ITER begincolumns,
       ITER endcolumns,
       const PGSTD::string &Null=PGSTD::string());			//[t80]
@@ -111,14 +111,15 @@ private:
 
 template<typename ITER> inline
 tablereader::tablereader(transaction_base &T,
-    const PGSTD::string &RName,
+    const PGSTD::string &Name,
     ITER begincolumns,
     ITER endcolumns,
     const PGSTD::string &Null) :
-  tablestream(T, RName, Null, "tablereader"),
+  namedclass(Name, "tablereader"),
+  tablestream(T, Null),
   m_Done(true)
 {
-  setup(T, RName, columnlist(begincolumns, endcolumns));
+  setup(T, Name, columnlist(begincolumns, endcolumns));
 }
 
 

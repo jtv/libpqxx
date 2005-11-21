@@ -25,19 +25,20 @@ using namespace pqxx::internal;
 
 
 pqxx::tablereader::tablereader(transaction_base &T,
-    const string &RName,
+    const string &Name,
     const string &Null) :
-  tablestream(T, RName, Null, "tablereader"),
+  namedclass("tablereader", Name),
+  tablestream(T, Null),
   m_Done(true)
 {
-  setup(T, RName);
+  setup(T, Name);
 }
 
 void pqxx::tablereader::setup(transaction_base &T,
-    const string &RName,
+    const string &Name,
     const string &Columns)
 {
-  T.BeginCopyRead(RName, Columns);
+  T.BeginCopyRead(Name, Columns);
   register_me();
   m_Done = false;
 }

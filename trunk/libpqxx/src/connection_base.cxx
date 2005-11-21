@@ -83,27 +83,31 @@ static void clear_fdmask(fd_set *mask)
 
 
 pqxx::connection_base::connection_base(const string &ConnInfo) :
-  m_ConnInfo(ConnInfo),
   m_Conn(0),
+  m_Completed(false),
   m_Trans(),
+  m_ConnInfo(ConnInfo),
   m_Noticer(),
   m_Trace(0),
   m_caps(),
   m_inhibit_reactivation(false),
-  m_reactivation_avoidance(0)
+  m_reactivation_avoidance(),
+  m_unique_id(0)
 {
 }
 
 
 pqxx::connection_base::connection_base(const char ConnInfo[]) :
-  m_ConnInfo(ConnInfo ? ConnInfo : ""),
   m_Conn(0),
+  m_Completed(false),
   m_Trans(),
+  m_ConnInfo(ConnInfo ? ConnInfo : ""),
   m_Noticer(),
   m_Trace(0),
   m_caps(),
   m_inhibit_reactivation(false),
-  m_reactivation_avoidance(0)
+  m_reactivation_avoidance(),
+  m_unique_id(0)
 {
 }
 
@@ -122,7 +126,7 @@ int pqxx::connection_base::sock() const throw ()
 
 void pqxx::connection_base::activate()
 {
-  if (!is_open())
+  if (!is_open()) try
   {
     if (m_inhibit_reactivation)
       throw broken_connection("Could not reactivate connection; "
@@ -130,10 +134,11 @@ void pqxx::connection_base::activate()
 
     // If any objects were open that didn't survive the closing of our
     // connection, don't try to reactivate
-    if (m_reactivation_avoidance) return;
+    if (m_reactivation_avoidance.get()) return;
 
     startconnect();
     completeconnect();
+    m_Completed = true;	// (But retracted if error is thrown below)
 
     if (!is_open())
     {
@@ -143,6 +148,11 @@ void pqxx::connection_base::activate()
     }
 
     SetupState();
+  }
+  catch (const exception &)
+  {
+    m_Completed = false;
+    throw;
   }
 }
 
@@ -156,13 +166,14 @@ void pqxx::connection_base::deactivate()
 	  		m_Trans.get()->description() + " still open");
   }
 
-  if (m_reactivation_avoidance)
+  if (m_reactivation_avoidance.get())
   {
     process_notice("Attempt to deactivate connection while it is in a state "
 	"that cannot be fully recovered later (ignoring)");
     return;
   }
 
+  m_Completed = false;
   dropconnect();
   disconnect();
 }
@@ -231,20 +242,10 @@ void pqxx::connection_base::SetupState()
 
   if (!m_Triggers.empty() || !m_Vars.empty())
   {
-    // Pipeline all queries needed to restore triggers and variables.  Use
-    // existing nontransaction if we're in one, or set up a temporary one.
-    // Note that at this stage, the presence of a transaction object doesn't
-    // mean much.  Even if it is a dbtransaction, no BEGIN has been issued yet
-    // in the new connection.
-    auto_ptr<nontransaction> n;
-    if (!m_Trans.get())
-    {
-      // Jump through a few hoops to satisfy dear old g++ 2.95
-      auto_ptr<nontransaction> p(new nontransaction(*this,"connection_setup"));
-      n = p;
-    }
-    pipeline p(*m_Trans.get(), "restore_state");
-    p.retain(m_Triggers.size() + m_Vars.size());
+    stringstream restore_query;
+
+    // Pipeline all queries needed to restore triggers and variables, so we can
+    // send them over in one go.
 
     // Reinstate all active triggers
     if (!m_Triggers.empty())
@@ -257,7 +258,7 @@ void pqxx::connection_base::SetupState()
         // issue just one LISTEN for each event.
         if (i->first != Last)
         {
-          p.insert("LISTEN \"" + i->first + "\"");
+          restore_query << "LISTEN \"" << i->first << "\"; ";
           Last = i->first;
         }
       }
@@ -265,11 +266,16 @@ void pqxx::connection_base::SetupState()
 
     const map<string,string>::const_iterator var_end(m_Vars.end());
     for (map<string,string>::const_iterator i=m_Vars.begin(); i!=var_end; ++i)
-      p.insert("SET " + i->first + "=" + i->second);
+      restore_query << "SET " << i->first << "=" << i->second << "; ";
 
     // Now do the whole batch at once
-    while (!p.empty()) p.retrieve();
+    PQsendQuery(m_Conn, restore_query.str().c_str());
+    result r;
+    do r = PQgetResult(m_Conn); while (r);
   }
+
+  m_Completed = true;
+  if (!is_open()) throw broken_connection();
 }
 
 
@@ -371,7 +377,7 @@ void pqxx::connection_base::disconnect() throw ()
 
 bool pqxx::connection_base::is_open() const throw ()
 {
-  return m_Conn && (Status() == CONNECTION_OK);
+  return m_Conn && m_Completed && (Status() == CONNECTION_OK);
 }
 
 
@@ -737,10 +743,11 @@ void pqxx::connection_base::Reset()
   if (m_inhibit_reactivation)
     throw broken_connection("Could not reset connection: "
 	"reactivation is inhibited");
-  if (m_reactivation_avoidance) return;
+  if (m_reactivation_avoidance.get()) return;
 
   // Forget about any previously ongoing connection attempts
   dropconnect();
+  m_Completed = false;
 
   if (m_Conn)
   {
@@ -758,12 +765,13 @@ void pqxx::connection_base::Reset()
 
 void pqxx::connection_base::close() throw ()
 {
+  m_Completed = false;
 #ifdef PQXX_QUIET_DESTRUCTORS
   auto_ptr<noticer> n(new nonnoticer());
   set_noticer(n);
 #endif
   inhibit_reactivation(false);
-  m_reactivation_avoidance = 0;
+  m_reactivation_avoidance.clear();
   try
   {
     if (m_Trans.get())
@@ -1061,28 +1069,17 @@ void pqxx::connection_base::read_capabilities() throw ()
   if (m_Conn) v = PQserverVersion(m_Conn);
 #endif
 
-  m_caps[cap_create_table_with_oids] = (v >= 80000);
+  m_caps[cap_prepared_statements] = (v >= 70300);
   m_caps[cap_cursor_scroll] = (v >= 70400);
-
-  // TODO: Find out which backend versions support these
-  //m_caps[cap_cursor_with_hold] = ();
-  //m_caps[cap_cursor_update] = ();
+  m_caps[cap_cursor_with_hold] = (v >= 70400);
+  m_caps[cap_nested_transactions] = (v >= 80000);
+  m_caps[cap_create_table_with_oids] = (v >= 80000);
 }
 
 
-// TODO: Inline this, once assertions are known to be good
-void pqxx::connection_base::reactivation_avoidance_add(int n) throw ()
+string pqxx::connection_base::adorn_name(const string &n)
 {
-  if (is_open()) m_reactivation_avoidance += n;
-  if (m_reactivation_avoidance < 0)
-    throw internal_error("Negative reactivation avoidance on connection");
-}
-
-// TODO: Inline this, once assertions are known to be good
-void pqxx::connection_base::reactivation_avoidance_dec() throw ()
-{
-  if (m_reactivation_avoidance <= 0)
-    throw internal_error("Reactivation avoidance falling below zero");
-  --m_reactivation_avoidance;
+  const string id = to_string(++m_unique_id);
+  return n.empty() ? ("x"+id) : (n+"_"+id);
 }
 

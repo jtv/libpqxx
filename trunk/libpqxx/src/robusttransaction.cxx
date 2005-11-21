@@ -30,16 +30,10 @@ using namespace pqxx::internal;
 
 // TODO: Use two-phase transaction if backend supports it
 
-#define SQL_COMMIT_WORK 	"COMMIT"
-#define SQL_ROLLBACK_WORK 	"ROLLBACK"
-
 pqxx::basic_robusttransaction::basic_robusttransaction(connection_base &C,
-	const string &IsolationLevel,
-	const string &TName) :
-  dbtransaction(C,
-      IsolationLevel,
-      TName,
-      "robusttransaction<"+IsolationLevel+">"),
+	const string &IsolationLevel) :
+  namedclass("robusttransaction"),
+  dbtransaction(C, IsolationLevel),
   m_ID(oid_none),
   m_LogTable(),
   m_backendpid(-1)
@@ -55,7 +49,7 @@ pqxx::basic_robusttransaction::~basic_robusttransaction()
 
 void pqxx::basic_robusttransaction::do_begin()
 {
-  start_backend_transaction();
+  dbtransaction::do_begin();
 
   try
   {
@@ -65,9 +59,9 @@ void pqxx::basic_robusttransaction::do_begin()
   {
     // The problem here *may* be that the log table doesn't exist yet.  Create
     // one, start a new transaction, and try again.
-    try { DirectExec(SQL_ROLLBACK_WORK); } catch (const exception &e) {}
+    try { dbtransaction::do_abort(); } catch (const exception &e) {}
     CreateLogTable();
-    start_backend_transaction();
+    dbtransaction::do_begin();
     m_backendpid = conn().backendpid();
     CreateTransactionRecord();
   }
@@ -106,7 +100,7 @@ void pqxx::basic_robusttransaction::do_commit()
   // is.
   try
   {
-    DirectExec(SQL_COMMIT_WORK);
+    DirectExec(sql_commit_work);
   }
   catch (const exception &e)
   {
@@ -170,12 +164,7 @@ void pqxx::basic_robusttransaction::do_commit()
 void pqxx::basic_robusttransaction::do_abort()
 {
   m_ID = oid_none;
-
-  // Rollback transaction.  Our transaction record will be dropped as a side
-  // effect, which is what we want since "it never happened."
-  DirectExec(SQL_ROLLBACK_WORK);
-
-  reactivation_avoidance_clear();
+  dbtransaction::do_abort();
 }
 
 
@@ -252,14 +241,29 @@ void pqxx::basic_robusttransaction::DeleteTransactionRecord(IDType ID) throw ()
 
   try
   {
-    // Try very, very hard to delete record.  Specify an absurd retry count to
-    // ensure that the server gets a chance to restart before we give up.
+    // Try very, very hard to delete the transaction record.  This MUST go
+    // through in order to reflect the proper state of the transaction.
     const string Del = "DELETE FROM \"" + m_LogTable + "\" "
 	               "WHERE oid=" + to_string(ID);
 
-    DirectExec(Del.c_str(), 20);
+    try
+    {
+      DirectExec(Del.c_str());
+    }
+    catch (const broken_connection &)
+    {
+      // Ignore any reactivation avoidance that may apply; we're on a MISSION!
+      reactivation_avoidance_exemption E(conn());
+      E.close_connection();
 
-    // Now that we've arrived here, we're almost sure that record is quite dead.
+      // Try deleting again, this time attempting to reconnect.  Specify an
+      // absurd retry count so that a potential crashed server gets some time
+      // to restart before we give up.
+      DirectExec(Del.c_str(), 20);
+    }
+
+    // Now that we've arrived here, we're about as sure as we can be that that
+    // record is quite dead.
     ID = oid_none;
   }
   catch (const exception &)
