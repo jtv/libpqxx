@@ -35,7 +35,8 @@ inline char DV(unsigned char d) { return digit_to_number(char(d)); }
 
 pqxx::binarystring::binarystring(const result::field &F) :
   super(),
-  m_size(0)
+  m_size(0),
+  m_str()
 {
   unsigned char *p = const_cast<unsigned char *>(
       reinterpret_cast<const_iterator>(F.c_str()));

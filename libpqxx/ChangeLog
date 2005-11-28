@@ -1,3 +1,10 @@
+2005-11-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Added some gcc 4.x options to maintainer mode
+ src/binarystring.cxx:
+  - Fixed Effective C++ warning
+ src/pipeline.cxx, src/robusttransaction.cxx:
+  - Removed unused-variable warnings in catch clauses
 2005-11-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/*.hxx, src/*.cxx:
   - Made namedclass a virtual base of transactionfocus & transaction_base
