@@ -112,7 +112,12 @@ if test "$GCC" = "yes" ; then
 			-Winit-self \
 			-Wswitch \
 			-Wmissing-field-initializers \
-			-Wunused
+			-Wmissing-include-dirs \
+			-Wunused \
+			-funit-at-a-time \
+			-funsafe-loop-optimizations \
+			-Wunsafe-loop-optimizations \
+			-fmudflap
 	fi
 
 AC_MSG_CHECKING([g++ visibility attribute])

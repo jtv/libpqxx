@@ -319,7 +319,7 @@ void pqxx::pipeline::obtain_dummy()
     }
     while (m_issuedrange.first != stop);
   }
-  catch (const exception &e)
+  catch (const exception &)
   {
     pqxxassert(m_issuedrange.first != m_queries.end());
 

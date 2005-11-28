@@ -59,7 +59,7 @@ void pqxx::basic_robusttransaction::do_begin()
   {
     // The problem here *may* be that the log table doesn't exist yet.  Create
     // one, start a new transaction, and try again.
-    try { dbtransaction::do_abort(); } catch (const exception &e) {}
+    try { dbtransaction::do_abort(); } catch (const exception &) {}
     CreateLogTable();
     dbtransaction::do_begin();
     m_backendpid = conn().backendpid();
