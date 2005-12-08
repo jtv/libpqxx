@@ -146,15 +146,28 @@ CXXFLAGS="$SAVE_CXXFLAGS"
 fi
 
 
-# TODO: New --with-std= option
-AH_TEMPLATE(PGSTD, [name of standard library namespace])
-# Check for alternative "standard" namespaces in increasing order of preference
-AC_MSG_CHECKING([name of standard library namespace])
-for ns in "" std stlp_std ; do
-	AC_TRY_COMPILE([#include <string>],[${ns}::string a;],[std=${ns}], [])
-done
-AC_DEFINE_UNQUOTED(PGSTD,[$std],[Name of standard namespace (normally std)])
-AC_MSG_RESULT([${std}])
+# Determine name of standard namespace; PGSTD will be set to this name.  The
+# --with-std= option takes precedence if given; otherwise, several alternatives
+# are tried.
+AH_TEMPLATE(PGSTD, [name of standard library namespace (normally "std")])
+AC_MSG_CHECKING([name of standard library namespace (normally "std")])
+withstd=yes
+AC_ARG_WITH(std,
+	AC_HELP_STRING([--with-std],[name of standard library namespace (normally "std")]),
+	[std=${withval}],
+	[withstd=no])
+
+if test -z "${std}" && test "${withstd}" = "no" ; then
+	# No explicit std namespace given.  Check for alternative "standard"
+	# namespaces, in increasing order of preference.
+	for ns in "" std stlp_std ; do
+		AC_TRY_COMPILE([#include <string>],
+			[${ns}::string a;],[std=${ns}],
+			[])
+	done
+fi
+AC_DEFINE_UNQUOTED(PGSTD,[$std],[name of standard library namespace (normally "std")])
+AC_MSG_RESULT([::${std}])
 if ! test -z "${std}" ; then
 	usestd="using namespace ${std};"
 fi
