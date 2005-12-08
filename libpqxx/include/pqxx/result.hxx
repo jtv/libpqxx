@@ -341,7 +341,7 @@ public:
 #endif
 
     /// Read value into Obj; or use Default & return false if null
-    template<typename T> bool to(T &Obj, const T &Default) const		//[t12]
+    template<typename T> bool to(T &Obj, const T &Default) const	//[t12]
     {
       const bool NotNull = to(Obj);
       if (!NotNull) Obj = Default;
