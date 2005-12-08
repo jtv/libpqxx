@@ -1,4 +1,6 @@
-ALERT
+HIGH-PRIORITY
+(*) Add "private" include directory
+(*) Thread synchronization
 (*) Rename trigger
 (*) test062 fails on binary strings with postgres 8.0.2 (RedHat, John Carpenter)
 (*) test085 fails with postgres 8.0.2 (Fedora, John Carpenter)
@@ -15,10 +17,12 @@ All over
 Build & Configuration
 (*) Rename libcompiler.h and compiler.h to avoid confusion
 (*) Move PGHOST guessing logic from tools/preprelease to Makefile.am?
+(*) Make test suite install to a temporary directory & build a test program
 
 Connections
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
 (*) libpqxx-level trace output
+(*) Factor out "connection policy" hierarchy
 
 Documentation
 (*) Use @c to mark code in Doxygen comments
