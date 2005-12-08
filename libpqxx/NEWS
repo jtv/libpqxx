@@ -3,6 +3,7 @@
  - namedclass is now used as a virtual base; affects all subclass constructors
  - Initial implementation of subtransactions
  - Detect more connection capabilities
+ - Standard library namespace can be set from configure script's command line
 2.6.1
  - Hugely improved recognition of different strerror_r() versions
  - Resolved link problems with gcc 4.0 and shared library
