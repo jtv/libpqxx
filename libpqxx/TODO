@@ -15,7 +15,7 @@ All over
 (*) Give private functions "internal" visibility where possible
 
 Build & Configuration
-(*) Rename libcompiler.h and compiler.h to avoid confusion
+(*) Rename libcompiler.h and compiler.h to avoid confusion (public/internal)
 (*) Move PGHOST guessing logic from tools/preprelease to Makefile.am?
 (*) Make test suite install to a temporary directory & build a test program
 
@@ -33,7 +33,7 @@ Exceptions
 (*) Document exception guarantees (weak / strong / poorly defined / pure)
 
 Large Objects
-(*) Check for handling of nul characters
+(*) Check for correct handling of nul characters
 (*) Check out new 64-bit API that's being contributed
 
 Results
@@ -61,8 +61,6 @@ Thread-safety
 (*) User-definable locking primitive set
 
 Transactions
-(*) [pgsql 8.0] Support two-phase commit with separate transaction class(es)
-(*) [pgsql 8.0] Support nested transactions
 (*) User schema support for robusttransaction log table
 (*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
 (*) Support constraints definition
@@ -71,3 +69,4 @@ Transactions
 Util
 (*) Report closing of non-open sessionfocus only during explicit close, not dtor
 (*) Support floating-point infinities
+

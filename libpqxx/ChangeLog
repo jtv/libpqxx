@@ -2,7 +2,7 @@
  configure.ac.in:
   - New --with-std= option
  include/Makefile.am, include/pqxx/Makefile.am:
-  - Fixed incorrect header installation directory
+  - Fixed incorrect header installation directory, thanks cbou@mail.ru
 2005-11-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Added some gcc 4.x options to maintainer mode
