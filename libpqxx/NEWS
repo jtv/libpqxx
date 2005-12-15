@@ -1,6 +1,7 @@
 2.6.2
  - Bug fix: connection state was not set up properly in some common cases
  - Bug fix: headers were installed in "include" instead of "include/pqxx"
+ - Bug fix: sqlesc(string) broke with multibyte or multiple encodings
  - namedclass is now used as a virtual base; affects all subclass constructors
  - Initial implementation of subtransactions
  - Detect more connection capabilities

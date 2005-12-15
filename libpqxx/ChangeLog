@@ -1,3 +1,6 @@
+2005-12-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/util.cxx:
+  - Fixed serious sqlesc() encoding bug, thanks tometzky@batory.org.pl!
 2005-12-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - New --with-std= option
