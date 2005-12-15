@@ -309,16 +309,6 @@ void pqxx::connection_base::check_result(const result &R, const char Query[])
      * successfully) and the definitely false impression that the connection is
      * still in a workable state.
      *
-     * Tom Lane was reluctant to change this behaviour, saying that it lacks
-     * robustness to give up on the connection "at the first hint of trouble"
-     * when the socket may conceivably still be usable.  I have suggested that
-     * apart from EINTR, EAGAIN and EWOULDBLOCK, which are already handled as
-     * special cases, an error result from a socket probably indicates that the
-     * operating system has decided the error was not likely to be recoverable,
-     * and second-guessing it is not likely to be productive; and that the
-     * choice to abandon a connection or attempt to revive it is probably best
-     * made before a result for the ongoing query is returned.
-     *
      * A particular worry is connection timeout.  One user observed a 15-minute
      * period of inactivity when he pulled out a network cable, after which
      * libpq finally returned a result object containing an error (the error
@@ -327,7 +317,11 @@ void pqxx::connection_base::check_result(const result &R, const char Query[])
      * it in place of the system's explanation of the error, so even attempting
      * to recognize the string is not a reliable workaround) but said the
      * connection was still operational.
+     *
+     * This bug seems to have been fixed in the libpq that shipped with
+     * PostgreSQL 8.1.
      */
+    // TODO: Only do this extra check when using buggy libpq!
     if (!consume_input()) throw broken_connection(e.what());
     const int fd = sock();
     if (fd < 0) throw broken_connection(e.what());
