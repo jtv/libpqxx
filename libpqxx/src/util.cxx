@@ -465,96 +465,81 @@ void pqxx::internal::FromString_ucharptr(const char Str[],
 }
 
 
-#ifdef PQXX_HAVE_PQESCAPESTRING
 namespace
 {
-string libpq_escape(const char str[], size_t len)
+string libpq_escape(const char str[], size_t maxlen)
 {
-  scoped_array<char> buf;
   string result;
+
+#ifdef PQXX_HAVE_PQESCAPESTRING
+  scoped_array<char> buf;
 
   try
   {
     /* Going by the letter of the PQescapeString() documentation we only need
-     * 2*len+1 bytes.  But what happens to nonprintable characters?  They might
-     * be escaped to octal notation, whether in current or future versions of
-     * libpq--in which case we would need this more conservative size.
+     * 2*maxlen+1 bytes.  But what happens to nonprintable characters?  They
+     * might be escaped to octal notation, whether in current or future versions
+     * of libpq--in which case we would need this more conservative size.
      */
-    buf = new char[5*len + 1];
+    buf = new char[5*maxlen + 1];
   }
   catch (const bad_alloc &)
   {
-    /* Okay, maybe we're just dealing with an extremely large string.  Try a
-     * more aggressive size limit, which is likely to be just fine.
+    /* Okay, maybe we're just dealing with an extremely large string.  Try the
+     * documented size limit, which is likely to be just fine.
      */
-    buf = new char[2*len+1];
+    buf = new char[2*maxlen+1];
   }
 
-  const size_t bytes = PQescapeString(buf.c_ptr(), str, len);
+  const size_t bytes = PQescapeString(buf.c_ptr(), str, maxlen);
   result.assign(buf.c_ptr(), bytes);
+
+#else
+  // This is problematic.  What do we do for multibyte encoding?  What do we do
+  // for encodings different from our own, where conversion may be needed?
+  for (size_t i=0; str[i] && (i < maxlen); ++i)
+  {
+    // Ensure we don't pass negative integers to isprint()/isspace(), which
+    // Visual C++ chokes on.
+    const unsigned char c(str[i]);
+    if (isprint(c))
+    {
+      if (c=='\\' || c=='\'') result += c;
+      result += c;
+    }
+    else
+    {
+        char s[8];
+	// TODO: Number may be formatted according to locale!  :-(
+        sprintf(s, "\\%03o", static_cast<unsigned int>(c));
+        result.append(s, 4);
+    }
+  }
+#endif
 
   return result;
 }
-} // namespace
+
+size_t pqxx_strnlen(const char s[], size_t max)
+{
+#if defined(PQXX_HAVE_STRNLEN)
+  return strnlen(s,max);
+#else
+  size_t len;
+  for (len=0; len<max && s[len]; ++len);
+  return len;
 #endif
+}
+} // namespace
 
 string pqxx::sqlesc(const char str[])
 {
-  string result;
-#ifdef PQXX_HAVE_PQESCAPESTRING
-  result = libpq_escape(str, strlen(str));
-#else
-  for (size_t i=0; str[i]; ++i)
-  {
-    // TODO: Unify these sqlesc() loop bodies!
-    // Ensure we don't pass negative integers to isprint()/isspace(), which
-    // Visual C++ chokes on.
-    const unsigned char c(str[i]);
-    if (isprint(c))
-    {
-      if (c=='\\' || c=='\'') result += c;
-      result += c;
-    }
-    else
-    {
-        char s[8];
-	// TODO: Number may be formatted according to locale!  :-(
-        sprintf(s, "\\%03o", static_cast<unsigned int>(c));
-        result.append(s, 4);
-    }
-  }
-#endif
-  return result;
+  return libpq_escape(str, strlen(str));
 }
 
-string pqxx::sqlesc(const char str[], size_t len)
+string pqxx::sqlesc(const char str[], size_t maxlen)
 {
-  string result;
-#ifdef PQXX_HAVE_PQESCAPESTRING
-  result = libpq_escape(str, len);
-#else
-  for (size_t i=0; (i < len) && str[i]; ++i)
-  {
-    // TODO: Unify these sqlesc() loop bodies!
-    // Ensure we don't pass negative integers to isprint()/isspace(), which
-    // Visual C++ chokes on.
-    const unsigned char c(str[i]);
-    if (isprint(c))
-    {
-      if (c=='\\' || c=='\'') result += c;
-      result += c;
-    }
-    else
-    {
-        char s[8];
-	// TODO: Number may be formatted according to locale!  :-(
-        sprintf(s, "\\%03o", static_cast<unsigned int>(c));
-        result.append(s, 4);
-    }
-  }
-#endif
-
-  return result;
+  return libpq_escape(str, strnlen(str,maxlen));
 }
 
 

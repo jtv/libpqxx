@@ -40,15 +40,9 @@ void esc(string str, string expected=string())
 {
   if (expected.empty()) expected = str;
   check(expected, sqlesc(str), "string");
-
-  if (str.size() < strlen(str.c_str()))
-  {
-    check(expected, sqlesc(str.c_str()), "const char[]");
-    check(expected, sqlesc(str.c_str(), str.size()), "const char[],size_t");
-    check(expected, sqlesc(str.c_str(),
-	  strlen(str.c_str())), "const char[],strlen(...)");
-    check(expected, sqlesc(str.c_str(),10000), "const char[],1000");
-  }
+  check(expected, sqlesc(str.c_str()), "const char[]");
+  check(expected, sqlesc(str.c_str(), str.size()), "const char[],size_t");
+  check(expected, sqlesc(str.c_str(), 1000), "const char[],1000");
 }
 
 template<typename T> inline void strconv(string type,
@@ -119,7 +113,7 @@ int main()
     vector<int> V2(I2);
     testitems(items<int>(V2),2);
 
-    const char weird[] = "foo\t\0bar";
+    const char weird[] = "foo\t\n\0bar";
     const string weirdstr(weird, sizeof(weird)-1);
 
     cout << "Testing SQL string escape functions..." << endl;
@@ -130,7 +124,7 @@ int main()
     esc("'", "''");
     esc("\\", "\\\\");
     esc("\t");
-    esc(weirdstr, "foo\t\\000bar");
+    esc(weirdstr, weird);
 
     cout << "Testing string conversions..." << endl;
     strconv("const char[]", "", "");

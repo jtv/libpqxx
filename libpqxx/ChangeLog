@@ -1,6 +1,13 @@
+2005-12-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx, src/util.cxx, test/test000.cxx:
+  - Nul characters are not allowed inside PostgreSQL strings
 2005-12-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in:
+  - Check for strnlen()
  src/util.cxx:
   - Fixed serious sqlesc() encoding bug, thanks tometzky@batory.org.pl!
+ test/test000.cxx:
+  - Fixed nul character escape tests
 2005-12-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - New --with-std= option

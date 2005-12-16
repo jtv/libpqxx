@@ -596,11 +596,9 @@ PGSTD::string PQXX_LIBEXPORT sqlesc(const char str[]);			//[t0]
 PGSTD::string PQXX_LIBEXPORT sqlesc(const char str[], size_t maxlen);	//[t0]
 
 /// Escape string for inclusion in SQL strings
-/** This function differs from similar ones based on libpq in that it handles
- * embedded nul bytes correctly.
- *
- * Unlike its predecessor Quote(), this function does not add SQL-style single
- * quotes around the result string; nor does it recognize and generate nulls.
+/** This works like the other sqlesc() variants, which means that if the string
+ * contains a nul character, conversion will stop there.  PostgreSQL does not
+ * allow nul characters in strings.
  */
 PGSTD::string PQXX_LIBEXPORT sqlesc(const PGSTD::string &);		//[t0]
 
