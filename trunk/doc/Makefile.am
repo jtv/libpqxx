@@ -58,9 +58,8 @@ dist-hook: reference tutorial
 		cp -p $$dirfile $(distdir)/$$dir; \
 	      fi ; \
 	      if test -d $$dirfile ; then \
-	        if test "`basename "$$dirfile"`" = "CVS"; then \
-	          :; \
-	        else \
+	        subdir="`basename "$$dirfile"`"; \
+	        if test "$$subdir" != "CVS" && "$$subdir" != ".svn" ; then \
 		  cp -pR $$dirfile $(distdir)/$$dir; \
 	        fi \
 	      fi \
