@@ -502,7 +502,13 @@ string libpq_escape(const char str[], size_t maxlen)
     // Ensure we don't pass negative integers to isprint()/isspace(), which
     // Visual C++ chokes on.
     const unsigned char c(str[i]);
-    if (isprint(c))
+    if (c & 0x80)
+    {
+      throw runtime_error("non-ASCII text passed to sqlesc(); "
+	  "the libpq version that libpqxx was built with does not support this "
+	  "yet (minimum is postgres 7.2)");
+    }
+    else if (isprint(c))
     {
       if (c=='\\' || c=='\'') result += c;
       result += c;
