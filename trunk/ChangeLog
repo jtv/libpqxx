@@ -1,3 +1,8 @@
+2005-12-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ *:
+  - Migrated from CVS to Subversion
+ src/util.cxx:
+  - Fixed typo: called strnlen() instead of pqxx_strnlen()
 2005-12-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.hxx, src/util.cxx, test/test000.cxx:
   - Nul characters are not allowed inside PostgreSQL strings

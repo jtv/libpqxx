@@ -539,7 +539,7 @@ string pqxx::sqlesc(const char str[])
 
 string pqxx::sqlesc(const char str[], size_t maxlen)
 {
-  return libpq_escape(str, strnlen(str,maxlen));
+  return libpq_escape(str, pqxx_strnlen(str,maxlen));
 }
 
 
