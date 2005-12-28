@@ -194,7 +194,7 @@ log "Creating release version of $TARBALL"
 command "make dist" nice
 command "mv $TARBALL .."
 command "cd .."
-command "rm -r $DISTNAME"
+command "rm -rf $DISTNAME"
 
 set +e
 nice vacuumdb >/dev/null 2>&1 &
