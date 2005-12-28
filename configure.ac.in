@@ -536,6 +536,15 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 	[pqescapestring=no]
 )
 AC_MSG_RESULT($pqescapestring)
+if test "$pqescapestring" != yes ; then
+	AC_MSG_WARN([
+You appear to be building with a very old libpq version that does not have
+PQescapeString().  This can cause serious problems when non-ASCII data is used
+in SQL strings.
+Please consider upgrading to at least the libpq that came with PostgreSQL 7.2
+before going any further!
+])
+fi
 
 AC_MSG_CHECKING([PQescapeBytea()])
 pqescapebytea=yes
