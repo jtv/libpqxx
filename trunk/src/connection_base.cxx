@@ -722,6 +722,7 @@ pqxx::result pqxx::connection_base::pq_exec_prepared(const string &pname,
   get_notifs();
   return R;
 #else
+  // TODO: Keep track of parameter types so we know what to quote/escape
   stringstream Q;
   Q << "EXECUTE "
     << pname
@@ -729,6 +730,7 @@ pqxx::result pqxx::connection_base::pq_exec_prepared(const string &pname,
     << separated_list(",", params, params+nparams);
   return Exec(Q.str().c_str(), 0);
 #endif
+  // TODO: Work around backends that don't support prepared statements
 }
 
 
