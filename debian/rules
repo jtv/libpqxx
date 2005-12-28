@@ -68,9 +68,10 @@ ifneq "$(wildcard /usr/share/misc/config.guess)" ""
 	cp -f /usr/share/misc/config.guess config/config.guess
 endif
 
-	# Remove CVS dirs present in upstream tarball, so they don't
+	# Remove CVS and .svn dirs present in upstream tarball, so they don't
 	# get packaged by accident.
 	find . -name CVS -print0 | xargs -0 rm -rf
+	find . -name .svn -print0 | xargs -0 rm -rf
 
 	rm -rf debian/build debian/install
 	rm -rf debian/libpqxx$(LIBRARY_VERSION)*
