@@ -41,7 +41,7 @@ namespace pqxx
  * in its base class, connection_base.
  *
  * The advantage of having an "immediate" connection (represented by this class)
- * is that errors in setting up the connection will probably occur during
+ * is that any errors in setting up the connection will occur during
  * construction of the connection object, rather than at some later point
  * further down your program.
  *
