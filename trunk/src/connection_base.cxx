@@ -141,14 +141,16 @@ void pqxx::connection_base::activate()
     m_Conn = m_policy.do_completeconnect(m_Conn);
     m_Completed = true;	// (But retracted if error is thrown below)
 
-    if (!is_open())
-    {
-      const string Msg( ErrMsg() );
-      disconnect();
-      throw broken_connection(Msg);
-    }
+    if (!is_open()) throw broken_connection();
 
     SetupState();
+  }
+  catch (const broken_connection &e)
+  {
+    const string Msg( ErrMsg() );
+    disconnect();
+    m_Completed = false;
+    throw broken_connection(e.what());
   }
   catch (const exception &)
   {
