@@ -421,11 +421,11 @@ public:
    * registered under a client-provided name, optimized once by the backend, and
    * executed any number of times under the given name.
    *
-   * Prepared statements are not held to transaction boundaries; a statement
-   * defined inside a transaction will remain defined outside that transaction,
-   * even if the transaction is subsequently aborted.  Once a statement has been
-   * prepared, only closing the connection or explicitly "unpreparing" it can
-   * make it go away.
+   * Prepared statement definitions are not sensitive to transaction boundaries;
+   * a statement defined inside a transaction will remain defined outside that
+   * transaction, even if the transaction itself is subsequently aborted.  Once
+   * a statement has been prepared, only closing the connection or explicitly
+   * "unpreparing" it can make it go away.
    *
    * Use the transaction classes' exec_prepared() functions to execute a
    * prepared statement.
