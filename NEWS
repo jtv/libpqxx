@@ -9,6 +9,7 @@
  - Completely reworked connection hierarchy, with separate policy objects
  - Clients can now define their own connection policies
  - Paved the way for client-defined thread synchronization
+ - Now lives at http://thaiopensource.org/development/libpqxx/
 2.6.1
  - Hugely improved recognition of different strerror_r() versions
  - Resolved link problems with gcc 4.0 and shared library
