@@ -2,8 +2,6 @@ HIGH-PRIORITY
 (*) Add "private" include directory
 (*) Thread synchronization
 (*) Rename trigger
-(*) test062 fails on binary strings with postgres 8.0.2 (RedHat, John Carpenter)
-(*) test085 fails with postgres 8.0.2 (Fedora, John Carpenter)
 
 All over
 (*) Add gcc's deprecated attribute to deprecated functions
@@ -15,7 +13,6 @@ All over
 (*) Give private functions "internal" visibility where possible
 
 Build & Configuration
-(*) Rename libcompiler.h and compiler.h to avoid confusion (public/internal)
 (*) Move PGHOST guessing logic from tools/preprelease to Makefile.am?
 (*) Make test suite install to a temporary directory & build a test program
 

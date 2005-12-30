@@ -16,7 +16,7 @@
  *-------------------------------------------------------------------------
  */
 #define PQXXYES_I_KNOW_DEPRECATED_HEADER
-#include "pqxx/compiler.h"
+#include "pqxx/compiler-internal.hxx"
 
 #include <cstdlib>
 

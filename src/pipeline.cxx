@@ -15,7 +15,7 @@
  *
  *-------------------------------------------------------------------------
  */
-#include "pqxx/compiler.h"
+#include "pqxx/compiler-internal.hxx"
 
 #include "pqxx/dbtransaction"
 #include "pqxx/pipeline"

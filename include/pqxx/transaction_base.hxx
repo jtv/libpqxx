@@ -17,7 +17,7 @@
  *
  *-------------------------------------------------------------------------
  */
-#include "pqxx/libcompiler.h"
+#include "pqxx/compiler-public.hxx"
 
 /* End-user programs need not include this file, unless they define their own
  * transaction classes.  This is not something the typical program should want

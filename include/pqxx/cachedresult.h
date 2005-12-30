@@ -18,7 +18,7 @@
 #ifndef PQXX_CACHEDRESULT_H
 #define PQXX_CACHEDRESULT_H
 
-#include "pqxx/libcompiler.h"
+#include "pqxx/compiler-public.hxx"
 
 #include <map>
 

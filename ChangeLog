@@ -2,6 +2,8 @@
  include/pqxx/basic_connection, include/pqxx/basic_connection.hxx,
  include/pqxx/connectionpolicy, include/pqxx/connectionpolicy.hxx:
   - New
+ include/pqxx/compiler.h, include/pqxx/libcompiler.h:
+  - Renamed to compiler-internal.hxx and compiler-public.hxx, repsectively
  include/pqxx/connection.hxx, include/pqxx/connection_base.hxx,
  src/connection.cxx, src/connection_base.cxx:
   - Refactored connection hierarchy
