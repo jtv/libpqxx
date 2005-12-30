@@ -1,11 +1,13 @@
 SUBDIRS = pqxx
 
 nobase_include_HEADERS= pqxx/pqxx pqxx/all.h \
+	pqxx/basic_connection pqxx/basic_connection.hxx \
 	pqxx/binarystring pqxx/binarystring.hxx \
 	pqxx/cachedresult.h \
 	pqxx/connection pqxx/connection.hxx pqxx/connection.h \
 	pqxx/connection_base pqxx/connection_base.hxx pqxx/connection_base.h \
 	pqxx/connectionitf.h \
+	pqxx/connectionpolicy pqxx/connectionpolicy.hxx \
 	pqxx/cursor pqxx/cursor.hxx pqxx/cursor.h \
 	pqxx/dbtransaction pqxx/dbtransaction.hxx pqxx/dbtransaction.h \
 	pqxx/except pqxx/except.hxx pqxx/except.h \

@@ -1,3 +1,10 @@
+2005-12-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/basic_connection, include/pqxx/basic_connection.hxx,
+ include/pqxx/connectionpolicy, include/pqxx/connectionpolicy.hxx:
+  - New
+ include/pqxx/connection.hxx, include/pqxx/connection_base.hxx,
+ src/connection.cxx, src/connection_base.cxx:
+  - Refactored connection hierarchy
 2005-12-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  *:
   - Migrated from CVS to Subversion
