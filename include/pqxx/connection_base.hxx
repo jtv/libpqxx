@@ -39,6 +39,7 @@ namespace pqxx
 class result;
 class transaction_base;
 class trigger;
+class connectionpolicy;
 
 namespace internal
 {
@@ -256,11 +257,6 @@ public:
 
   /// Server port number we're connected to.
   const char *port();		 					//[t1]
-
-  /// Full connection string as used to set up this connection.
-  const char *options() const throw () 					//[t1]
-  	{ return m_ConnInfo.c_str(); }
-
 
   /// Process ID for backend process.
   /** Use with care: connections may be lost and automatically re-established
@@ -549,8 +545,6 @@ public:
   const char *HostName() { return hostname(); }
   /// @deprecated Use port() instead
   const char *Port() { return port(); }
-  /// @deprecated Use options() instead
-  const char *Options() const throw () { return options(); }
   /// @deprecated Use backendpid() instead
   int BackendPID() const { return backendpid(); }
   /// @deprecated Use activate() instead
@@ -567,46 +561,12 @@ public:
 
 
 protected:
-  /// Set up connection based on PostgreSQL connection string
-  /**
-   * @param ConnInfo a PostgreSQL connection string specifying any required
-   * parameters, such as server, port, database, and password.  These values
-   * override any of the environment variables recognized by libpq that may have
-   * been defined for the same parameters.
-   *
-   * The README file for libpqxx gives a quick overview of how connection
-   * strings work; see the PostgreSQL documentation (particularly for libpq, the
-   * C-level interface) for a complete list.
-   */
-  explicit connection_base(const PGSTD::string &ConnInfo);		//[t2]
+  explicit connection_base(connectionpolicy &);
+  void init();
 
-  /// Set up connection based on PostgreSQL connection string
-  /** @param ConnInfo a PostgreSQL connection string specifying any required
-   * parameters, such as server, port, database, and password.  As a special
-   * case, a null pointer is taken as the empty string.
-   */
-  explicit connection_base(const char ConnInfo[]);			//[t2]
-
-  /// Destructor.  Implicitly closes the connection.
-  virtual ~connection_base() =0;					//[t1]
-
-  /// Overridable: initiate a connection
-  /** @callgraph */
-  virtual void startconnect() =0;
-
-  /// Overridable: complete an initiated connection
-  /** @callgraph */
-  virtual void completeconnect() =0;
-
-  /// Overridable: drop any specialized state related to connection attempt
-  /** @callgraph */
-  virtual void dropconnect() throw () {}
-
-  /// For implementation classes: do we have a connection structure?
-  internal::pq::PGconn *get_conn() const throw () { return m_Conn; }
-
-  /// For implementation classes: set connection structure pointer
-  void set_conn(internal::pq::PGconn *C) throw () { m_Conn = C; }
+#ifdef PQXX_QUIET_DESTRUCTORS
+  ~connection_base();
+#endif
 
   void close() throw ();
   void wait_read() const;
@@ -630,14 +590,13 @@ private:
   /// Connection handle
   internal::pq::PGconn *m_Conn;
 
+  connectionpolicy &m_policy;
+
   /// Have we successfully established this connection?
   bool m_Completed;
 
   /// Active transaction on connection, if any
   internal::unique<transaction_base> m_Trans;
-
-  /// Connection string
-  PGSTD::string m_ConnInfo;
 
   /// User-defined notice processor, if any
   PGSTD::auto_ptr<noticer> m_Noticer;
@@ -725,15 +684,14 @@ private:
 //@}
 
 
-// Put this here so on Windows, any noticers can be deleted in caller's context
+#ifdef PQXX_QUIET_DESTRUCTORS
 inline connection_base::~connection_base()
 {
   // Visual C++ seems to have a problem with output during destructors!
-#ifdef PQXX_QUIET_DESTRUCTORS
   PGSTD::auto_ptr<noticer> n(new nonnoticer());
   set_noticer(n);
-#endif
 }
+#endif
 
 
 namespace internal
@@ -822,6 +780,10 @@ private:
   bool m_open;
 };
 
+
+void wait_read(const internal::pq::PGconn *);
+void wait_read(const internal::pq::PGconn *, long seconds, long microseconds);
+void wait_write(const internal::pq::PGconn *);
 
 } // namespace pqxx::internal
 

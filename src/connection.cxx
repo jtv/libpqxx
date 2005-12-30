@@ -26,126 +26,114 @@
 using namespace PGSTD;
 
 
-pqxx::connection::connection() :
-  connection_base(0)
+pqxx::connectionpolicy::connectionpolicy(const string &opts) :
+  m_options(opts)
 {
-  do_startconnect();
-  // TODO: FIXME: This may cause virtual functions to be called!
-  activate();
-}
-
-pqxx::connection::connection(const string &ConnInfo) :
-  connection_base(ConnInfo)
-{
-  do_startconnect();
-  // TODO: FIXME: This may cause virtual functions to be called!
-  activate();
-}
-
-pqxx::connection::connection(const char ConnInfo[]) :
-  connection_base(ConnInfo)
-{
-  do_startconnect();
-  // TODO: FIXME: This may cause virtual functions to be called!
-  activate();
-}
-
-pqxx::connection::~connection() throw ()
-{
-  close();
-}
-
-void pqxx::connection::do_startconnect()
-{
-  if (!get_conn()) set_conn(PQconnectdb(options()));
 }
 
 
-void pqxx::connection::startconnect()
+pqxx::connectionpolicy::~connectionpolicy() throw ()
 {
-  do_startconnect();
 }
 
 
-pqxx::lazyconnection::~lazyconnection() throw ()
+pqxx::connectionpolicy::handle
+pqxx::connectionpolicy::normalconnect(handle orig)
 {
-  close();
-}
-
-void pqxx::lazyconnection::completeconnect()
-{
-  if (!get_conn()) set_conn(PQconnectdb(options()));
+  return orig ? orig : PQconnectdb(options().c_str());
 }
 
 
-pqxx::asyncconnection::asyncconnection() :
-  connection_base(0),
+pqxx::connectionpolicy::handle
+pqxx::connectionpolicy::do_startconnect(handle orig)
+{
+  return orig;
+}
+
+pqxx::connectionpolicy::handle
+pqxx::connectionpolicy::do_completeconnect(handle orig)
+{
+  return orig;
+}
+
+pqxx::connectionpolicy::handle
+pqxx::connectionpolicy::do_dropconnect(handle orig) throw ()
+{
+  return orig;
+}
+
+pqxx::connectionpolicy::handle
+pqxx::connectionpolicy::do_disconnect(handle orig) throw ()
+{
+  orig = do_dropconnect(orig);
+  if (orig) PQfinish(orig);
+  return 0;
+}
+
+pqxx::connectionpolicy::handle
+pqxx::connect_direct::do_startconnect(handle orig)
+{
+  return normalconnect(orig);
+}
+
+
+pqxx::connectionpolicy::handle
+pqxx::connect_lazy::do_completeconnect(handle orig)
+{
+  return normalconnect(orig);
+}
+
+
+pqxx::connect_async::connect_async(const string &opts) :
+  connectionpolicy(opts),
   m_connecting(false)
 {
-  do_startconnect();
 }
 
-
-pqxx::asyncconnection::asyncconnection(const string &ConnInfo) :
-  connection_base(ConnInfo),
-  m_connecting(false)
+pqxx::connectionpolicy::handle
+pqxx::connect_async::do_startconnect(handle orig)
 {
-  do_startconnect();
-}
-
-
-pqxx::asyncconnection::asyncconnection(const char ConnInfo[]) :
-  connection_base(ConnInfo),
-  m_connecting(false)
-{
-  do_startconnect();
-}
-
-
-void pqxx::asyncconnection::do_startconnect()
-{
-  if (get_conn()) return;	// Already connecting or connected
+  if (orig) return orig;	// Already connecting or connected
   m_connecting = false;
-  set_conn(PQconnectStart(options()));
-  if (!get_conn()) throw bad_alloc();
-  if (PQconnectPoll(get_conn()) == PGRES_POLLING_FAILED)
+  orig = PQconnectStart(options().c_str());
+  if (!orig) throw bad_alloc();
+  if (PQconnectPoll(orig) == PGRES_POLLING_FAILED)
+  {
+    do_dropconnect(orig);
     throw broken_connection();
+  }
   m_connecting = true;
+  return orig;
 }
 
 
-void pqxx::asyncconnection::startconnect()
+pqxx::connectionpolicy::handle
+pqxx::connect_async::do_completeconnect(handle orig)
 {
-  do_startconnect();
-}
-
-
-void pqxx::asyncconnection::completeconnect()
-{
-  if (!get_conn()) startconnect();
-  if (!m_connecting) return;
+  const bool makenew = !orig;
+  if (makenew) orig = do_startconnect(orig);
+  if (!m_connecting) return orig;
 
   // Our "attempt to connect" state ends here, for better or for worse
   m_connecting = false;
-
-  if (!get_conn()) throw broken_connection();
 
   PostgresPollingStatusType pollstatus;
 
   do
   {
-    pollstatus = PQconnectPoll(get_conn());
+    pollstatus = PQconnectPoll(orig);
     switch (pollstatus)
     {
     case PGRES_POLLING_FAILED:
+      if (makenew) do_disconnect(orig);
       throw broken_connection();
 
     case PGRES_POLLING_READING:
-      wait_read();
+      internal::wait_read(orig);
       break;
 
     case PGRES_POLLING_WRITING:
-      wait_write();
+      internal::wait_write(orig);
       break;
 
     case PGRES_POLLING_ACTIVE:
@@ -153,28 +141,15 @@ void pqxx::asyncconnection::completeconnect()
       break;
     }
   } while (pollstatus != PGRES_POLLING_OK);
+
+  return orig;
 }
 
 
-void pqxx::asyncconnection::do_dropconnect() throw ()
+pqxx::connectionpolicy::handle
+pqxx::connect_async::do_dropconnect(handle orig) throw ()
 {
   m_connecting = false;
-}
-
-
-void pqxx::asyncconnection::dropconnect() throw ()
-{
-  do_dropconnect();
-}
-
-
-pqxx::nullconnection::~nullconnection() throw ()
-{
-}
-
-pqxx::asyncconnection::~asyncconnection() throw ()
-{
-  do_dropconnect();
-  close();
+  return orig;
 }
 

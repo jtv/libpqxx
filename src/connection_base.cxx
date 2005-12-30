@@ -37,6 +37,7 @@
 
 #include "libpq-fe.h"
 
+#include "pqxx/connection"
 #include "pqxx/connection_base"
 #include "pqxx/nontransaction"
 #include "pqxx/pipeline"
@@ -82,11 +83,11 @@ static void clear_fdmask(fd_set *mask)
 }
 
 
-pqxx::connection_base::connection_base(const string &ConnInfo) :
+pqxx::connection_base::connection_base(connectionpolicy &pol) :
   m_Conn(0),
+  m_policy(pol),
   m_Completed(false),
   m_Trans(),
-  m_ConnInfo(ConnInfo),
   m_Noticer(),
   m_Trace(0),
   m_caps(),
@@ -97,18 +98,9 @@ pqxx::connection_base::connection_base(const string &ConnInfo) :
 }
 
 
-pqxx::connection_base::connection_base(const char ConnInfo[]) :
-  m_Conn(0),
-  m_Completed(false),
-  m_Trans(),
-  m_ConnInfo(ConnInfo ? ConnInfo : ""),
-  m_Noticer(),
-  m_Trace(0),
-  m_caps(),
-  m_inhibit_reactivation(false),
-  m_reactivation_avoidance(),
-  m_unique_id(0)
+void pqxx::connection_base::init()
 {
+  m_Conn = m_policy.do_startconnect(m_Conn);
 }
 
 
@@ -118,9 +110,18 @@ int pqxx::connection_base::backendpid() const throw ()
 }
 
 
+namespace
+{
+int socket_of(const ::pqxx::internal::pq::PGconn *c)
+{
+  return c ? PQsocket(c) : -1;
+}
+}
+
+
 int pqxx::connection_base::sock() const throw ()
 {
-  return m_Conn ? PQsocket(m_Conn) : -1;
+  return socket_of(m_Conn);
 }
 
 
@@ -136,8 +137,8 @@ void pqxx::connection_base::activate()
     // connection, don't try to reactivate
     if (m_reactivation_avoidance.get()) return;
 
-    startconnect();
-    completeconnect();
+    m_Conn = m_policy.do_startconnect(m_Conn);
+    m_Conn = m_policy.do_completeconnect(m_Conn);
     m_Completed = true;	// (But retracted if error is thrown below)
 
     if (!is_open())
@@ -159,12 +160,11 @@ void pqxx::connection_base::activate()
 
 void pqxx::connection_base::deactivate()
 {
-  if (m_Conn)
-  {
-    if (m_Trans.get())
-      throw logic_error("Attempt to deactivate connection while " +
-	  		m_Trans.get()->description() + " still open");
-  }
+  if (!m_Conn) return;
+
+  if (m_Trans.get())
+    throw logic_error("Attempt to deactivate connection while " +
+	m_Trans.get()->description() + " still open");
 
   if (m_reactivation_avoidance.get())
   {
@@ -174,8 +174,7 @@ void pqxx::connection_base::deactivate()
   }
 
   m_Completed = false;
-  dropconnect();
-  disconnect();
+  m_Conn = m_policy.do_disconnect(m_Conn);
 }
 
 
@@ -224,8 +223,7 @@ void pqxx::connection_base::SetupState()
   if (Status() != CONNECTION_OK)
   {
     const string Msg( ErrMsg() );
-    dropconnect();
-    disconnect();
+    m_Conn = m_policy.do_disconnect(m_Conn);
     throw runtime_error(Msg);
   }
 
@@ -359,13 +357,10 @@ void pqxx::connection_base::check_result(const result &R, const char Query[])
 
 void pqxx::connection_base::disconnect() throw ()
 {
-  if (m_Conn)
-  {
-    PQfinish(m_Conn);
-    m_Conn = 0;
-    // When we activate again, the server may be different!
-    for (int i=0; i<cap_end; ++i) m_caps[i] = false;
-  }
+  // When we activate again, the server may be different!
+  for (int i=0; i<cap_end; ++i) m_caps[i] = false;
+
+  m_Conn = m_policy.do_disconnect(m_Conn);
 }
 
 
@@ -741,8 +736,9 @@ void pqxx::connection_base::Reset()
 	"reactivation is inhibited");
   if (m_reactivation_avoidance.get()) return;
 
+  // TODO: Probably need to go through a full disconnect/reconnect!
   // Forget about any previously ongoing connection attempts
-  dropconnect();
+  m_Conn = m_policy.do_dropconnect(m_Conn);
   m_Completed = false;
 
   if (m_Conn)
@@ -780,7 +776,7 @@ void pqxx::connection_base::close() throw ()
       m_Triggers.clear();
     }
 
-    disconnect();
+    m_Conn = m_policy.do_disconnect(m_Conn);
   }
   catch (...)
   {
@@ -1013,24 +1009,44 @@ void wait_fd(int fd, bool forwrite=false, timeval *tv=0)
 }
 } // namespace
 
+void pqxx::internal::wait_read(const pq::PGconn *c)
+{
+  wait_fd(socket_of(c));
+}
+
+
+void pqxx::internal::wait_read(const pq::PGconn *c,
+    long seconds,
+    long microseconds)
+{
+  timeval tv = { seconds, microseconds };
+  wait_fd(socket_of(c), false, &tv);
+}
+
+
+void pqxx::internal::wait_write(const pq::PGconn *c)
+{
+  wait_fd(socket_of(c), true);
+}
+
 
 void pqxx::connection_base::wait_read() const
 {
-  wait_fd(sock());
+  internal::wait_read(m_Conn);
 }
 
 
 void pqxx::connection_base::wait_read(long seconds, long microseconds) const
 {
-  timeval tv = { seconds, microseconds };
-  wait_fd(sock(), false, &tv);
+  internal::wait_read(m_Conn, seconds, microseconds);
 }
 
 
 void pqxx::connection_base::wait_write() const
 {
-  wait_fd(sock(), true);
+  internal::wait_write(m_Conn);
 }
+
 
 int pqxx::connection_base::await_notification()
 {
