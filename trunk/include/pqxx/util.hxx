@@ -41,7 +41,7 @@
  * The latest information, as well as updates, a mailing list, and a bug
  * reporting system can be found at the project's home page.
  *
- * @see http://pqxx.tk/, http://gborg.postgresql.org/project/libpqxx/
+ * @see http://thaiopensource.org/development/libpqxx/
  */
 
 /** @page threading Thread safety
