@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pqxx/compiler.h
+ *	pqxx/compiler-internal.hxx
  *
  *   DESCRIPTION
  *      Compiler deficiency workarounds for compiling libpqxx itself.
@@ -41,7 +41,7 @@
 #endif	// __GNUC__ && PQXX_HAVE_GCC_VISIBILITY
 
 
-#include "pqxx/libcompiler.h"
+#include "pqxx/compiler-public.hxx"
 
 #ifdef PQXX_HAVE_LIMITS
 #include <limits>

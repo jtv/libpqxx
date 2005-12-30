@@ -1,4 +1,4 @@
-#include <pqxx/compiler.h>
+#include <pqxx/compiler-internal.hxx>
 
 #include <iostream>
 

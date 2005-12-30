@@ -16,7 +16,7 @@
  *
  *-------------------------------------------------------------------------
  */
-#include "pqxx/libcompiler.h"
+#include "pqxx/compiler-public.hxx"
 
 #ifdef PQXX_HAVE_LIMITS
 #include <limits>

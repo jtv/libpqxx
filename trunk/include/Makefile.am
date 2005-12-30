@@ -4,6 +4,7 @@ nobase_include_HEADERS= pqxx/pqxx pqxx/all.h \
 	pqxx/basic_connection pqxx/basic_connection.hxx \
 	pqxx/binarystring pqxx/binarystring.hxx \
 	pqxx/cachedresult.h \
+	pqxx/compiler-public.hxx \
 	pqxx/connection pqxx/connection.hxx pqxx/connection.h \
 	pqxx/connection_base pqxx/connection_base.hxx pqxx/connection_base.h \
 	pqxx/connectionitf.h \
@@ -13,7 +14,6 @@ nobase_include_HEADERS= pqxx/pqxx pqxx/all.h \
 	pqxx/except pqxx/except.hxx pqxx/except.h \
 	pqxx/isolation pqxx/isolation.hxx pqxx/isolation.h \
 	pqxx/largeobject pqxx/largeobject.hxx pqxx/largeobject.h \
-	pqxx/libcompiler.h \
 	pqxx/libpq-forward.hxx \
 	pqxx/nontransaction pqxx/nontransaction.hxx pqxx/nontransaction.h \
 	pqxx/pipeline pqxx/pipeline.hxx \

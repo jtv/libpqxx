@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pqxx/libcompiler.h
+ *	pqxx/compiler-public.h
  *
  *   DESCRIPTION
  *      Compiler deficiency workarounds for libpqxx clients

@@ -16,7 +16,7 @@
  *
  *-------------------------------------------------------------------------
  */
-#include "pqxx/libcompiler.h"
+#include "pqxx/compiler-public.hxx"
 
 #include "pqxx/connection_base"
 #include "pqxx/result"
