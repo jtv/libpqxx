@@ -26,7 +26,7 @@ void cmp_exec(transaction_base &T, string desc, STR1 name, STR2 def)
 }
 
 
-string stringize(const string &arg) { return "'" + arg + "'"; }
+string stringize(const string &arg) { return "'" + sqlesc(arg) + "'"; }
 string stringize(const char arg[]) {return arg?stringize(string(arg)):"null";}
 string stringize(char arg[]) {return arg?stringize(string(arg)):"null";}
 template<typename T> string stringize(T i) { return stringize(to_string(i)); }
@@ -34,14 +34,15 @@ template<typename T> string stringize(T i) { return stringize(to_string(i)); }
 // Substitute variables in raw query.  This is not likely to be very robust,
 // but it should do for just this test.  The main shortcomings are escaping,
 // and not knowing when to quote the variables.
-// Note we need to do the replacement backwards (meaning forward_only
-// iterators won't do!) to avoid substituting "$12" as "$1" first.
+// Note we do the replacement backwards (meaning forward_only iterators won't
+// do!) to avoid substituting e.g. "$12" as "$1" first.
 template<typename ITER> string subst(string q, ITER patbegin, ITER patend)
 {
   int i = distance(patbegin, patend);
   for (ITER arg = --patend; i > 0; --arg, --i)
   {
-    const string marker = "$" + to_string(i), var = stringize(*arg);
+    const string marker = "$" + to_string(i),
+	  var = stringize(*arg);
     const string::size_type msz = marker.size();
     while (q.find(marker) != string::npos) q.replace(q.find(marker),msz,var);
   }
