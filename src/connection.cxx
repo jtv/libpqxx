@@ -40,7 +40,10 @@ pqxx::connectionpolicy::~connectionpolicy() throw ()
 pqxx::connectionpolicy::handle
 pqxx::connectionpolicy::normalconnect(handle orig)
 {
-  return orig ? orig : PQconnectdb(options().c_str());
+  if (orig) return orig;
+  orig = PQconnectdb(options().c_str());
+  if (!orig) throw bad_alloc();
+  return orig;
 }
 
 
@@ -73,7 +76,15 @@ pqxx::connectionpolicy::do_disconnect(handle orig) throw ()
 pqxx::connectionpolicy::handle
 pqxx::connect_direct::do_startconnect(handle orig)
 {
-  return normalconnect(orig);
+  if (orig) return orig;
+  orig = normalconnect(orig);
+  if (PQstatus(orig) != CONNECTION_OK)
+  {
+    const string msg(PQerrorMessage(orig));
+    do_disconnect(orig);
+    throw broken_connection(msg);
+  }
+  return orig;
 }
 
 
