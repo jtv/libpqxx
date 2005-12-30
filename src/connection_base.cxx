@@ -718,6 +718,7 @@ pqxx::result pqxx::connection_base::pq_exec_prepared(const string &pname,
   return R;
 #else
   // TODO: Keep track of parameter types so we know what to quote/escape
+  // TODO: This can't be right--where are the quotes for string parameters?
   stringstream Q;
   Q << "EXECUTE "
     << pname
