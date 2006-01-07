@@ -98,6 +98,19 @@ run_test () {
 }
 
 
+# Ensure that the given file has been produced before rolling a tarball
+require_product () {
+	PRODUCT="$1"
+	TYPE="$2"
+	if ! test -e "$PRODUCT" ; then
+		if test -z "$TYPE" ; then
+			TYPE="file"
+		fi
+		print "Required $TYPE not generated: $PRODUCT"
+		exit 1
+	fi
+}
+
 LC_ALL=C
 
 rm -f $LOGFILE $ERRLOG
@@ -125,10 +138,6 @@ log "Preparing libpqxx release $PQXXVERSION."
 log "Log file is $LOGFILE, errors go to $ERRLOG"
 
 tail -f --pid=$$ $ERRLOG &
-
-
-log "Ensuring PostgreSQL is running..."
-command startpostgres nice
 
 if test -z "$PGHOST"; then 
 	log "Looking for local PostgreSQL socket..."
@@ -192,6 +201,10 @@ nm --demangle src/.libs/libpqxx.a | cut -d' ' -f 3-  | grep -v '^_' | grep -v '^
 
 log "Creating release version of $TARBALL"
 command "make dist" nice
+
+require_product doc/html/Reference/index.html
+require_product doc/html/Tutorial/index.html
+
 command "mv $TARBALL .."
 command "cd .."
 command "rm -rf $DISTNAME"
