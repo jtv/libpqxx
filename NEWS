@@ -1,3 +1,7 @@
+2.6.3
+ - Radical rework of prepared statements; INCOMPATIBLE INTERFACE CHANGE!
+ - Emulate prepared statements support on old libpq or old backend
+ - Fixed missing tutorial (release script now tests for this)
 2.6.2
  - Bug fix: connection state was not set up properly in some common cases
  - Bug fix: headers were installed in "include" instead of "include/pqxx"

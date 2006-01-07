@@ -8,7 +8,7 @@
  *   pqxx::connection_base encapsulates a frontend to backend connection
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
  *
- * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -22,6 +22,7 @@
 #include <memory>
 
 #include "pqxx/except"
+#include "pqxx/prepared_statement"
 #include "pqxx/util"
 
 
@@ -296,7 +297,7 @@ public:
    */
   enum capability
   {
-    /// Does the backend support prepared statements?
+    /// Does the backend support prepared statements?  (If not, we emulate them)
     cap_prepared_statements,
 
     /// Can we specify WITH OIDS with CREATE TABLE?  If we can, we should.
@@ -443,28 +444,40 @@ public:
    * libpqxx.
    */
   //@{
-  /// Define prepared statement that takes no parameters
-  void prepare(const PGSTD::string &name, const PGSTD::string &def)	//[t85]
-	{ pq_prepare(name, def, ""); }
-
-  /// Define prepared statement with given parameter list
-  template<typename ITER>
-    void prepare(const PGSTD::string &name,
-	const PGSTD::string &def,
-	ITER beginparms,
-	ITER endparms)							//[t85]
-  {
-    pq_prepare(name, def, 
-	(beginparms==endparms) ? 
-		"" : ("("+separated_list(",",beginparms,endparms)+")"));
-  }
-
-  /// Define prepared statement with given parameter list
-  template<typename CNTNR>
-    void prepare(const PGSTD::string &name,
-	const PGSTD::string &def,
-	const CNTNR &params)						//[t85]
-	{ prepare(name, def, params.begin(), params.end()); }
+  /// Define a prepared statement
+  /** To declare parameters to this statement, add them by calling the function
+   * invocation operator (operator()) on the returned object.  See
+   * prepare_param_declaration and prepare::param_treatment for more about how
+   * to do this.
+   *
+   * The statement's definition can refer to a parameter using the parameter's
+   * positional number n in the definition.  For example, the first parameter
+   * can be used as a variable "$1", the second as "$2" and so on.
+   *
+   * One might use a prepared statement as in the following example.  Note the
+   * unusual syntax associated with parameter definitions and parameter passing:
+   * every new parameter is just a parenthesized expression that is simply
+   * tacked onto the end of the statement!
+   *
+   * @code
+   * using namespace pqxx;
+   * void foo(connection_base &C)
+   * {
+   *   C.prepare("findtable", 
+   *             "select * from pg_tables where name=$1")
+   *             ("varchar", treat_string);
+   *   work W(C);
+   *   result R = W.prepared("findtable")("mytable");
+   *   if (R.empty()) throw runtime_error("mytable not found!");
+   * }
+   * @endcode
+   *
+   * @param name unique identifier to associate with new prepared statement
+   * @param definition SQL statement to prepare
+   */
+  prepare::param_declaration 
+    prepare(const PGSTD::string &name,
+	const PGSTD::string &definition);				//[t85]
 
   /// Drop prepared statement
   void unprepare(const PGSTD::string &name);				//[t85]
@@ -587,6 +600,15 @@ private:
 
   void read_capabilities() throw ();
 
+  prepare::internal::prepared_def &find_prepared(const PGSTD::string &);
+
+  friend class prepare::param_declaration;
+  void prepare_param_declare(const PGSTD::string &statement,
+      const PGSTD::string &sqltype,
+      prepare::param_treatment);
+
+  result prepared_exec(const PGSTD::string &, const char *const params[], int);
+
   /// Connection handle
   internal::pq::PGconn *m_Conn;
 
@@ -610,22 +632,7 @@ private:
   /// Variables set in this session
   PGSTD::map<PGSTD::string, PGSTD::string> m_Vars;
 
-  /// Internal state: definition of a prepared statement
-  struct PQXX_PRIVATE prepared_def
-  {
-    /// Text of prepared query
-    PGSTD::string definition;
-    /// Parameter type list
-    PGSTD::string parameters;
-    /// Has this prepared statement been prepared in the current session?
-    bool registered;
-
-    prepared_def() : definition(), parameters(), registered(false) {}
-    prepared_def(const PGSTD::string &def, const PGSTD::string &params) :
-      definition(def), parameters(params), registered(false) {}
-  };
-
-  typedef PGSTD::map<PGSTD::string, prepared_def> PSMap;
+  typedef PGSTD::map<PGSTD::string, prepare::internal::prepared_def> PSMap;
 
   /// Prepared statements existing in this section
   PSMap m_prepared;
@@ -644,9 +651,6 @@ private:
 
   friend class transaction_base;
   result PQXX_PRIVATE Exec(const char[], int Retries);
-  void pq_prepare(const PGSTD::string &name,
-      const PGSTD::string &def,
-      const PGSTD::string &params);
   result pq_exec_prepared(const PGSTD::string &, int, const char *const *);
   void PQXX_PRIVATE RegisterTransaction(transaction_base *);
   void PQXX_PRIVATE UnregisterTransaction(transaction_base *) throw ();

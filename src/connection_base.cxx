@@ -7,7 +7,7 @@
  *      implementation of the pqxx::connection_base abstract base class.
  *   pqxx::connection_base encapsulates a frontend to backend connection
  *
- * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -37,6 +37,7 @@
 
 #include "libpq-fe.h"
 
+#include "pqxx/binarystring"
 #include "pqxx/connection"
 #include "pqxx/connection_base"
 #include "pqxx/nontransaction"
@@ -46,7 +47,9 @@
 #include "pqxx/trigger"
 
 using namespace PGSTD;
+using namespace pqxx;
 using namespace pqxx::internal;
+using namespace pqxx::prepare;
 
 
 extern "C"
@@ -660,20 +663,27 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 }
 
 
-void pqxx::connection_base::pq_prepare(const string &name, 
-    const string &def,
-    const string &params)
+pqxx::prepare::param_declaration 
+pqxx::connection_base::prepare(const string &name,
+    const string &definition)
 {
   PSMap::iterator i = m_prepared.find(name);
   if (i != m_prepared.end())
   {
-    // Quietly accept identical redefinitions
-    if (def == i->second.definition && params == i->second.parameters) return;
-    // Reject non-identical redefinitions
-    throw logic_error("Incompatible redefinition of prepared statement "+name);
-  }
+    if (definition != i->second.definition)
+      throw invalid_argument("Inconsistent redefinition "
+	  "of prepared statement " + name);
 
-  m_prepared.insert(PSMap::value_type(name, prepared_def(def, params)));
+    // Prepare for repeated repetition of parameters
+    i->second.parameters.clear();
+    i->second.complete = false;
+  }
+  else
+  {
+    m_prepared.insert(make_pair(name,
+	  prepare::internal::prepared_def(definition)));
+  }
+  return prepare::param_declaration(*this,name);
 }
 
 
@@ -690,45 +700,151 @@ void pqxx::connection_base::unprepare(const string &name)
 }
 
 
-pqxx::result pqxx::connection_base::pq_exec_prepared(const string &pname,
-	int nparams,
-	const char *const *params)
+namespace
+{
+string escape_param(const char in[], prepare::param_treatment treatment)
+{
+  if (!in) return "null";
+  
+  switch (treatment)
+  {
+  case treat_binary:
+    return "'" + escape_binary(in) + "'";
+
+  case treat_string:
+    return "'" + sqlesc(in) + "'";
+
+  case treat_bool:
+    switch (in[0])
+    {
+    case 't':
+    case 'T':
+    case 'f':
+    case 'F':
+      break;
+    default:
+      {
+        // Looks like a numeric value may have been passed.  Try to convert it
+        // back to a number, then to bool to normalize its representation
+        bool b;
+	from_string(in,b);
+        return to_string(b);
+      }
+    }
+    break;
+
+  case treat_direct:
+    break;
+
+  default:
+    throw logic_error("Unknown treatment for prepared-statement parameter");
+  }
+
+  return in;
+}
+} // namespace
+
+
+pqxx::prepare::internal::prepared_def &
+pqxx::connection_base::find_prepared(const string &statement)
+{
+  PSMap::iterator s = m_prepared.find(statement);
+  if (s == m_prepared.end())
+    throw invalid_argument("Unknown prepared statement '" + statement + "'");
+  return s->second;
+}
+
+void pqxx::connection_base::prepare_param_declare(const string &statement,
+    const string &sqltype,
+    param_treatment treatment)
+{
+  prepare::internal::prepared_def &s = find_prepared(statement);
+  if (s.complete)
+    throw logic_error("Attempt to add parameter to prepared statement " +
+	statement +
+	" after its definition was completed");
+  s.addparam(sqltype,treatment);
+}
+
+
+pqxx::result pqxx::connection_base::prepared_exec(const string &statement,
+	const char *const params[],
+	int nparams)
 {
   activate();
 
-  PSMap::iterator p = m_prepared.find(pname);
-  if (p == m_prepared.end())
-    throw logic_error("Unknown prepared statement: " + pname);
+  prepare::internal::prepared_def &s = find_prepared(statement);
+
+  if (nparams != int(s.parameters.size()))
+    throw logic_error("Wrong number of parameters for prepared statement " +
+	statement + ": "
+	"expected " + to_string(s.parameters.size()) + ", "
+	"received " + to_string(nparams));
+
+  s.complete = true;
 
   // "Register" (i.e., define) prepared statement with backend on demand
-  if (!p->second.registered)
+  if (!s.registered && supports(cap_prepared_statements))
   {
-    // TODO: Wrap in nested transaction if backend supports it!
+#ifdef PQXX_HAVE_PQPREPARE
+    PQprepare(m_Conn, statement.c_str(), s.definition.c_str(), 0, 0);
+#else
     stringstream P;
-    P << "PREPARE " << pname << ' ' << p->second.parameters 
-      << " AS " << p->second.definition;
+    P << "PREPARE " << statement;
+
+    if (!s.parameters.empty())
+      P << '('
+	<< separated_list(",",
+	   	s.parameters.begin(),
+		s.parameters.end(),
+		prepare::internal::get_sqltype())
+	<< ')';
+
+    P << " AS " << s.definition;
     Exec(P.str().c_str(), 0);
-    p->second.registered = true;
+#endif
+    s.registered = true;
   }
 
 #ifdef PQXX_HAVE_PQEXECPREPARED
-  result R(PQexecPrepared(m_Conn, pname.c_str(), nparams, params, 0, 0, 0));
-
-  check_result(R, pname.c_str());
-
-  get_notifs();
-  return R;
+  result r(PQexecPrepared(m_Conn,statement.c_str(),nparams,params,0,0,0));
 #else
-  // TODO: Keep track of parameter types so we know what to quote/escape
-  // TODO: This can't be right--where are the quotes for string parameters?
   stringstream Q;
-  Q << "EXECUTE "
-    << pname
-    << ' '
-    << separated_list(",", params, params+nparams);
-  return Exec(Q.str().c_str(), 0);
+  if (supports(cap_prepared_statements))
+  {
+    Q << "EXECUTE "
+      << pname;
+    if (nparams)
+    {
+      Q << " (";
+      for (a = 0; a < nparams; ++a)
+      {
+	Q << escape_param(params[a],s.parameters[a].treatment);
+	if (a < nparams-1) Q << ',';
+      }
+      Q << ')';
+    }
+  }
+  else
+  {
+    // This backend doesn't support prepared statements.  Do our own variable
+    // substitution.
+    string S = s.definition;
+    for (int n = nparams-1; n >= 0; --n)
+    {
+      const string key = "$" + to_string(n+1),
+	           val = escape_param(params[n],s.parameters[a].treatment);
+      const string::size_type keysz = key.size();
+      for (string::size_type h=S.find(key); h!=string::npos; h=S.find(key))
+	S.replace(h,keysz,val);
+    }
+    Q << S;
+  }
+  result r(Exec(Q.str().c_str(), 0));
 #endif
-  // TODO: Work around backends that don't support prepared statements
+  check_result(r, statement.c_str());
+  get_notifs();
+  return r;
 }
 
 

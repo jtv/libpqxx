@@ -146,126 +146,43 @@ public:
    * @name Prepared statements
    */
   //@{
-  /// Execute parameterless prepared statement
+  /// Execute prepared statement
   /** Prepared statements are defined using the connection classes' prepare()
-   * functions, and continue to live on in the ongoing session regardless of
+   * function, and continue to live on in the ongoing session regardless of
    * the context they were defined in (unless explicitly dropped using the
    * connection's unprepare() function).  Their execution however, like other
    * forms of query execution, requires a transaction object.
    *
+   * Just like param_declaration is a helper class that lets you tag parameter
+   * declarations onto the statement declaration, the param_value class returned
+   * here lets you tag parameter values onto the call:
+   *
+   * @code
+   * result run_mystatement(transaction_base &T)
+   * {
+   *   return T.prepared("mystatement")("param1")(2)()(4).exec();
+   * }
+   * @endcode
+   *
+   * Here, parameter 1 (written as "$1" in the statement's body) is a string
+   * that receives the value "param1"; the second parameter is an integer with
+   * the value 2; the third receives a null, making its type irrelevant; and
+   * number 4 again is an integer.  The ultimate invocation of exec() is
+   * essential; if you forget this, nothing happens.
+   *
    * @warning Do not try to execute a prepared statement manually through direct
    * SQL statements.  This is likely not to work, and even if it does, is likely
-   * to be slower than using the proper libpqxx functions.
+   * to be slower than using the proper libpqxx functions.  Also, libpqxx knows
+   * how to emulate prepared statements if some part of the infrastructure does
+   * not support them.
    *
    * @warning Actual definition of the prepared statement on the backend may be
    * deferred until its first use, which means that any errors in the prepared
    * statement may not show up until it is executed--and perhaps abort the
    * ongoing transaction in the process.
    */
-  result exec_prepared(const PGSTD::string &qname)			//[t85]
-	{ return m_Conn.pq_exec_prepared(qname.c_str(), 0, 0); }
+  prepare::param_value prepared(const PGSTD::string &statement);	//[t85]
 
-  /// Execute parameterless prepared statement
-  /** Prepared statements are defined using the connection classes' prepare()
-   * functions, and continue to live on in the ongoing session regardless of
-   * the context they were defined in (unless explicitly dropped using the
-   * connection's unprepare() function).  Their execution however, like other
-   * forms of query execution, requires a transaction object.
-   *
-   * @warning Do not try to execute a prepared statement manually through direct
-   * SQL statements.  This is likely not to work, and even if it does, is likely
-   * to be slower than using the proper libpqxx functions.
-   *
-   * @warning Actual definition of the prepared statement on the backend may be
-   * deferred until its first use, which means that any errors in the prepared
-   * statement may not show up until it is executed--and perhaps abort the
-   * ongoing transaction in the process.
-   */
-  result exec_prepared(const char qname[])				//[t85]
-	{ return m_Conn.pq_exec_prepared(qname, 0, 0); }
-
-  /// Execute prepared statement with given sequence of arguments
-  /** Prepared statements are defined using the connection classes' prepare()
-   * functions, and continue to live on in the ongoing session regardless of
-   * the context they were defined in (unless explicitly dropped using the
-   * connection's unprepare() function).  Their execution however, like other
-   * forms of query execution, requires a transaction object.
-   *
-   * To include null parameters, pass a sequence of C-style string pointers.  A
-   * NULL pointer will be used as a null parameter.
-   *
-   * @warning Do not try to execute a prepared statement manually through direct
-   * SQL statements.  This is likely not to work, and even if it does, is likely
-   * to be slower than using the proper libpqxx functions.
-   *
-   * @warning Actual definition of the prepared statement on the backend may be
-   * deferred until its first use, which means that any errors in the prepared
-   * statement may not show up until it is executed--and perhaps abort the
-   * ongoing transaction in the process.
-   */
-  template<typename STRING, typename ITER>
-    result exec_prepared(STRING qname, ITER beginargs, ITER endargs)	//[t85]
-  {
-    if (beginargs == endargs) return exec_prepared(qname);
-
-    typedef PGSTD::vector<PGSTD::string> pvec;
-    pvec p;
-    PGSTD::vector<bool> nulls;
-    for (; beginargs!=endargs; ++beginargs)
-    {
-      const bool isnull = parm_is_null(*beginargs);
-      nulls.push_back(isnull);
-      p.push_back(to_string(isnull ? "" : *beginargs));
-    }
-    result r;
-    const internal::scoped_array<const char *> pindex(p.size()+1);
-    const pvec::size_type stop = p.size();
-    for (pvec::size_type i=0; i < stop; ++i)
-      pindex[i] = (nulls[i] ? 0 : p[i].c_str());
-    pindex[stop] = 0;
-    r = m_Conn.pq_exec_prepared(qname, p.size(), pindex.c_ptr());
-    return r;
-  }
-
-  /// Execute prepared statement, taking arguments from given container
-  /** Prepared statements are defined using the connection classes' prepare()
-   * functions, and continue to live on in the ongoing session regardless of
-   * the context they were defined in (unless explicitly dropped using the
-   * connection's unprepare() function).  Their execution however, like other
-   * forms of query execution, requires a transaction object.
-   *
-   * @warning Do not try to execute a prepared statement manually through direct
-   * SQL statements.  This is likely not to work, and even if it does, is likely
-   * to be slower than using the proper libpqxx functions.
-   *
-   * @warning Actual definition of the prepared statement on the backend may be
-   * deferred until its first use, which means that any errors in the prepared
-   * statement may not show up until it is executed--and perhaps abort the
-   * ongoing transaction in the process.
-   */
-  template<typename CNTNR> result exec_prepared(const char qname[],	//[t85]
-      const CNTNR &args)
-  	{ return exec_prepared(qname, args.begin(), args.end()); }
-
-  /// Execute prepared statement, taking arguments from given container
-  /** Prepared statements are defined using the connection classes' prepare()
-   * functions, and continue to live on in the ongoing session regardless of
-   * the context they were defined in (unless explicitly dropped using the
-   * connection's unprepare() function).  Their execution however, like other
-   * forms of query execution, requires a transaction object.
-   *
-   * @warning Do not try to execute a prepared statement manually through direct
-   * SQL statements.  This is likely not to work, and even if it does, is likely
-   * to be slower than using the proper libpqxx functions.
-   *
-   * @warning Actual definition of the prepared statement on the backend may be
-   * deferred until its first use, which means that any errors in the prepared
-   * statement may not show up until it is executed--and perhaps abort the
-   * ongoing transaction in the process.
-   */
-  template<typename CNTNR>
-    result exec_prepared(const PGSTD::string &qname, CNTNR args)	//[t85]
-  	{ return exec_prepared(qname, args.begin(), args.end()); }
   //@}
 
   /**
@@ -435,6 +352,9 @@ private:
   internal::pq::PGresult *get_result() { return m_Conn.get_result(); }
   void consume_input() throw () { m_Conn.consume_input(); }
   bool is_busy() const throw () { return m_Conn.is_busy(); }
+
+  friend class prepare::param_value;
+  result prepared_exec(const PGSTD::string &, const char *const[], int);
 
   connection_base &m_Conn;
 

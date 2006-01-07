@@ -19,12 +19,6 @@ void compare_results(string name, result lhs, result rhs)
     throw logic_error("Results being compared are empty.  Not much point!");
 }
 
-template<typename STR1, typename STR2>
-void cmp_exec(transaction_base &T, string desc, STR1 name, STR2 def)
-{
-  compare_results(desc, T.exec_prepared(name), T.exec(def));
-}
-
 
 string stringize(const string &arg) { return "'" + sqlesc(arg) + "'"; }
 string stringize(const char arg[]) {return arg?stringize(string(arg)):"null";}
@@ -55,32 +49,6 @@ template<typename CNTNR> string subst(string q, const CNTNR &patterns)
   return subst(q, patterns.begin(), patterns.end());
 }
 
-
-template<typename STR1, typename STR2, typename ITER>
-void cmp_exec(transaction_base &T,
-    string desc,
-    STR1 name,
-    STR2 def,
-    ITER argsbegin,
-    ITER argsend)
-{
-  compare_results(desc, 
-      T.exec_prepared(name, argsbegin, argsend), 
-      T.exec(subst(def, argsbegin, argsend)));
-}
-
-
-template<typename STR1, typename STR2, typename CNTNR>
-void cmp_exec(transaction_base &T,
-    string desc,
-    STR1 name,
-    STR2 def,
-    CNTNR args)
-{
-  compare_results(desc, T.exec_prepared(name,args), T.exec(subst(def,args)));
-}
-
-
 } // namespace
 
 
@@ -105,10 +73,14 @@ int main()
 
     // See if a basic prepared statement runs consistently with a regular query
     cout << "Basic correctness check on prepared statement..." << endl;
-    cmp_exec(T,QN_readpgtables,QN_readpgtables,Q_readpgtables);
+    compare_results(QN_readpgtables,
+	T.prepared(QN_readpgtables).exec(),
+	T.exec(Q_readpgtables));
 
     // Pro forma check: same thing but with name passed as C-style string
-    cmp_exec(T,QN_readpgtables+"_char",QN_readpgtables.c_str(),Q_readpgtables);
+    compare_results(QN_readpgtables+"_char",
+	T.prepared(QN_readpgtables.c_str()).exec(),
+	T.exec(Q_readpgtables));
 
     cout << "Dropping prepared statement..." << endl;
     C.unprepare(QN_readpgtables);
@@ -120,17 +92,21 @@ int main()
 
     // Verify that attempt to execute unprepared statement fails
     bool failsOK = true;
-    try { T.exec_prepared(QN_readpgtables); failsOK = false; }
+    try { T.prepared(QN_readpgtables).exec(); failsOK = false; }
     catch (const exception &e) { cout << "(Expected) " << e.what() << endl; }
     if (!failsOK) throw logic_error("Execute unprepared statement didn't fail");
 
     // Re-prepare the same statement and test again
     C.prepare(QN_readpgtables, Q_readpgtables);
-    cmp_exec(T,QN_readpgtables+"_2", QN_readpgtables, Q_readpgtables);
+    compare_results(QN_readpgtables+"_2",
+	T.prepared(QN_readpgtables).exec(),
+	T.exec(Q_readpgtables));
 
     // Double preparation of identical statement should be ignored...
     C.prepare(QN_readpgtables, Q_readpgtables);
-    cmp_exec(T,QN_readpgtables+"_double", QN_readpgtables, Q_readpgtables);
+    compare_results(QN_readpgtables+"_double",
+	T.prepared(QN_readpgtables).exec(),
+	T.exec(Q_readpgtables));
 
     // ...But a modified definition shouldn't
     try
@@ -146,70 +122,79 @@ int main()
     if (!failsOK)
       throw logic_error("Bad redefinition of statement went unnoticed");
 
-
-    cout << "Testing parameterized prepared-statement functions..." << endl;
-    // Try definitions of same statement with empty parameter lists
-    const list<string> dummy;
-    C.unprepare(QN_readpgtables);
-    C.prepare(QN_readpgtables, Q_readpgtables, dummy.begin(), dummy.end());
-    cmp_exec(T,QN_readpgtables+"_seq", QN_readpgtables, Q_readpgtables);
-    C.unprepare(QN_readpgtables);
-    C.prepare(QN_readpgtables, Q_readpgtables, list<string>());
-    cmp_exec(T,QN_readpgtables+"_cntnr", QN_readpgtables, Q_readpgtables);
-
-    // Try executing with empty argument lists
-    cmp_exec(T,
-	QN_readpgtables+" with empty argument sequence",
-	QN_readpgtables,
-	Q_readpgtables,
-	dummy.begin(),
-	dummy.end());
-    cmp_exec(T,
-	QN_readpgtables+" with empty argument container",
-	QN_readpgtables,
-	Q_readpgtables,
-	dummy);
-    cmp_exec(T,
-	QN_readpgtables+" with empty argument container and char name",
-	QN_readpgtables.c_str(),
-	Q_readpgtables,
-	dummy);
-
-
     cout << "Testing prepared statement with parameter..." << endl;
 
-    list<string> parms, args;
-    parms.push_back("varchar");
-    C.prepare(QN_seetable, Q_seetable, parms);
+    C.prepare(QN_seetable, Q_seetable)("varchar", pqxx::prepare::treat_string);
+
+    vector<string> args;
     args.push_back("pg_type");
-    cmp_exec(T,
-	QN_seetable+"_seq",
-	QN_seetable,
-	Q_seetable,
-	args.begin(),
-	args.end());
-    cmp_exec(T, QN_seetable+"_cntnr", QN_seetable, Q_seetable, args);
+    compare_results(QN_seetable+"_seq",
+	T.prepared(QN_seetable)(args[0]).exec(),
+	T.exec(subst(Q_seetable,args)));
 
     cout << "Testing prepared statement with 2 parameters..." << endl;
 
-    parms.push_back("varchar");
-    C.prepare(QN_seetables, Q_seetables, parms.begin(), parms.end());
+    C.prepare(QN_seetables, Q_seetables)
+      ("varchar",pqxx::prepare::treat_string)
+      ("varchar",pqxx::prepare::treat_string);
     args.push_back("pg_index");
-    cmp_exec(T,
-	QN_seetables+"_seq",
-	QN_seetables,
-	Q_seetables,
-	args.begin(),
-	args.end());
-    cmp_exec(T, QN_seetables+"_cntnr", QN_seetables, Q_seetables, args);
+    compare_results(QN_seetables+"_seq",
+      T.prepared(QN_seetables)(args[0])(args[1]).exec(),
+      T.exec(subst(Q_seetables,args)));
 
     cout << "Testing prepared statement with a null parameter..." << endl;
     vector<const char *> ptrs;
     ptrs.push_back(0);
     ptrs.push_back("pg_index");
-    cmp_exec(T, QN_seetables+"_cntnr", QN_seetables, Q_seetables, ptrs);
+    compare_results(QN_seetables+"_null1",
+	T.prepared(QN_seetables)(ptrs[0])(ptrs[1]).exec(),
+	T.exec(subst(Q_seetables,ptrs)));
+    compare_results(QN_seetables+"_null2",
+	T.prepared(QN_seetables)(ptrs[0])(ptrs[1]).exec(),
+	T.prepared(QN_seetables)()(ptrs[1]).exec());
+    compare_results(QN_seetables+"_null3",
+	T.prepared(QN_seetables)(ptrs[0])(ptrs[1]).exec(),
+	T.prepared(QN_seetables)("somestring",false)(ptrs[1]).exec());
+    compare_results(QN_seetables+"_null4",
+	T.prepared(QN_seetables)(ptrs[0])(ptrs[1]).exec(),
+	T.prepared(QN_seetables)(42,false)(ptrs[1]).exec());
+    compare_results(QN_seetables+"_null5",
+	T.prepared(QN_seetables)(ptrs[0])(ptrs[1]).exec(),
+	T.prepared(QN_seetables)(0,false)(ptrs[1]).exec());
+
+    cout << "Testing wrong numbers of parameters..." << endl;
+    try
+    {
+      failsOK = true;
+      T.prepared(QN_seetables)()()("hi mom!").exec();
+      failsOK = false;
+    }
+    catch (const exception &e)
+    {
+      cout << "(Expected) " << e.what() << endl;
+    }
+    if (!failsOK)
+      throw logic_error("No error for too many parameters");
+    try
+    {
+      failsOK = true;
+      T.prepared(QN_seetables)("who, me?").exec();
+      failsOK = false;
+    }
+    catch (const exception &e)
+    {
+      cout << "(Expected) " << e.what() << endl;
+    }
+    if (!failsOK)
+      throw logic_error("No error for too few parameters");
 
     cout << "Done." << endl;
+  }
+  catch (const sql_error &e)
+  {
+    cerr << "SQL error: " << e.what() << endl
+         << "Query was: " << e.query() << endl;
+    return 1;
   }
   catch (const exception &e)
   {
