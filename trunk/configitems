@@ -24,6 +24,7 @@ PQXX_HAVE_GCC_VISIBILITY	internal	compiler
 PQXX_HAVE_QUIET_NAN	internal	compiler
 PQXX_HAVE_PQESCAPEBYTEA	internal	libpq
 PQXX_HAVE_PQESCAPESTRING	internal	libpq
+PQXX_HAVE_PQPREPARE	internal	libpq
 PQXX_HAVE_PQEXECPREPARED	internal	libpq
 PQXX_HAVE_PQFREEMEM	internal	libpq
 PQXX_HAVE_PQFREENOTIFY	internal	libpq

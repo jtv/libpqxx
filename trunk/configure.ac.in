@@ -603,6 +603,15 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 )
 AC_MSG_RESULT($pqputcopy)
 
+AC_MSG_CHECKING([PQprepare()])
+pqprepare=yes
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[PGconn*c=0;PQprepare(c,"","",NULL,0)],
+	AC_DEFINE(PQXX_HAVE_PQPREPARE,1,[Define if libpq has PQprepare()]),
+	[pqprepare=no]
+)
+AC_MSG_RESULT($pqprepare)
+
 AC_MSG_CHECKING([PQexecPrepared()])
 pqexecprepared=yes
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
