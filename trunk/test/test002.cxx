@@ -28,6 +28,22 @@ int main(int, char *argv[])
 {
   try
   {
+    // Before we really connect, test the expected behaviour of the default
+    // connection type, where a failure to connect results in an immediate
+    // exception rather than a silent retry.
+    bool failsOK = true;
+    try
+    {
+      connection C("totally#invalid@connect$string!?");
+      failsOK = false;
+    }
+    catch (const broken_connection &e)
+    {
+      cout << "(Expected) " << e.what() << endl;
+    }
+    if (!failsOK)
+      throw logic_error("Connection failure went unnoticed!");
+
     // Set up connection to database
     string ConnectString = (argv[1] ? argv[1] : "");
     connection C(ConnectString);
