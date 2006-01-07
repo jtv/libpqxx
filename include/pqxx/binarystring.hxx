@@ -7,7 +7,7 @@
  *      declarations for bytea (binary string) conversions
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/binarystring instead.
  *
- * Copyright (c) 2003-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -38,6 +38,12 @@ namespace pqxx
  *
  * The binarystring retains its value even if the result it was obtained from is
  * destroyed, but it cannot be copied or assigned.
+ *
+ * \relatesalso escape_binary
+ *
+ * To convert the other way, i.e. from a raw series of bytes to a string
+ * suitable for inclusion as bytea values in your SQL, use the escape_binary()
+ * functions.
  *
  * @warning This class is implemented as a reference-counting smart pointer.
  * Copying, swapping, and destroying binarystring objects that refer to the same
@@ -137,14 +143,24 @@ private:
  */
 //@{
 /// Escape binary string for inclusion in SQL
+/** \relatesalso binarystring
+ */
 PGSTD::string PQXX_LIBEXPORT escape_binary(const PGSTD::string &bin);
 /// Escape binary string for inclusion in SQL
+/** \relatesalso binarystring
+ */
 PGSTD::string PQXX_LIBEXPORT escape_binary(const char bin[]);
 /// Escape binary string for inclusion in SQL
+/** \relatesalso binarystring
+ */
 PGSTD::string PQXX_LIBEXPORT escape_binary(const char bin[], size_t len);
 /// Escape binary string for inclusion in SQL
+/** \relatesalso binarystring
+ */
 PGSTD::string PQXX_LIBEXPORT escape_binary(const unsigned char bin[]);
 /// Escape binary string for inclusion in SQL
+/** \relatesalso binarystring
+ */
 PGSTD::string PQXX_LIBEXPORT escape_binary(const unsigned char bin[], size_t len);
 //@}
 
