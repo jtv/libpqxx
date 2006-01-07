@@ -1,3 +1,27 @@
+2006-01-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in:
+  - Check for PQprepare()
+ doc/libpqxx.xml:
+  - Added encoding specification
+ include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
+ src/connection_base.cxx, src/transaction_base.cxx, test/test085.cxx:
+  - Redid prepared statements API and implementation
+  - Incompatible change!
+ include/pqxx/prepared_statement, include/pqxx/prepared_statement.hxx,
+ src/prepared_statement.cxx:
+  - New
+  - Part of new prepared-statements system
+ test/test002.cxx:
+  - Verify that default connection class reports errors immediately
+2006-01-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/Doxyfile.in:
+  - Updated to Doxygen 1.4.6
+  - Show directory structure
+  - Predefined PGSTD to std for Doxygen's purposes; enabled STL support
+ include/pqxx/binarystring.hxx:
+  - Explicitly relate binarystring class to escape_binary() functions
+ tools/preprelease:
+  - Check for missing reference documentation or tutorial
 2005-12-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/basic_connection, include/pqxx/basic_connection.hxx,
  include/pqxx/connectionpolicy, include/pqxx/connectionpolicy.hxx:

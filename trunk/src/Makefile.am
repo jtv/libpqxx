@@ -10,6 +10,7 @@ libpqxx_la_SOURCES = binarystring.cxx \
 	nontransaction.cxx \
 	oldcursor.cxx \
 	pipeline.cxx \
+	prepared_statement.cxx \
 	result.cxx \
 	robusttransaction.cxx \
 	subtransaction.cxx \
