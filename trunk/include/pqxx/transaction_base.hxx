@@ -154,7 +154,7 @@ public:
    * forms of query execution, requires a transaction object.
    *
    * Just like param_declaration is a helper class that lets you tag parameter
-   * declarations onto the statement declaration, the param_value class returned
+   * declarations onto the statement declaration, the invocation class returned
    * here lets you tag parameter values onto the call:
    *
    * @code
@@ -181,7 +181,7 @@ public:
    * statement may not show up until it is executed--and perhaps abort the
    * ongoing transaction in the process.
    */
-  prepare::param_value prepared(const PGSTD::string &statement);	//[t85]
+  prepare::invocation prepared(const PGSTD::string &statement);		//[t85]
 
   //@}
 
@@ -353,7 +353,7 @@ private:
   void consume_input() throw () { m_Conn.consume_input(); }
   bool is_busy() const throw () { return m_Conn.is_busy(); }
 
-  friend class prepare::param_value;
+  friend class prepare::invocation;
   result prepared_exec(const PGSTD::string &, const char *const[], int);
 
   connection_base &m_Conn;

@@ -663,8 +663,7 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 }
 
 
-pqxx::prepare::param_declaration 
-pqxx::connection_base::prepare(const string &name,
+pqxx::prepare::declaration pqxx::connection_base::prepare(const string &name,
     const string &definition)
 {
   PSMap::iterator i = m_prepared.find(name);
@@ -683,7 +682,7 @@ pqxx::connection_base::prepare(const string &name,
     m_prepared.insert(make_pair(name,
 	  prepare::internal::prepared_def(definition)));
   }
-  return prepare::param_declaration(*this,name);
+  return prepare::declaration(*this,name);
 }
 
 

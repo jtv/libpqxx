@@ -227,10 +227,10 @@ pqxx::result pqxx::transaction_base::exec(const char Query[],
 }
 
 
-pqxx::prepare::param_value
+pqxx::prepare::invocation
 pqxx::transaction_base::prepared(const string &statement)
 {
-  return prepare::param_value(*this, statement);
+  return prepare::invocation(*this, statement);
 }
 
 
