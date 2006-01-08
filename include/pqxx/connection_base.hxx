@@ -475,8 +475,7 @@ public:
    * @param name unique identifier to associate with new prepared statement
    * @param definition SQL statement to prepare
    */
-  prepare::param_declaration 
-    prepare(const PGSTD::string &name,
+  prepare::declaration prepare(const PGSTD::string &name,
 	const PGSTD::string &definition);				//[t85]
 
   /// Drop prepared statement
@@ -602,7 +601,7 @@ private:
 
   prepare::internal::prepared_def &find_prepared(const PGSTD::string &);
 
-  friend class prepare::param_declaration;
+  friend class prepare::declaration;
   void prepare_param_declare(const PGSTD::string &statement,
       const PGSTD::string &sqltype,
       prepare::param_treatment);

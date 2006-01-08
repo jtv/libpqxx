@@ -26,7 +26,7 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-pqxx::prepare::param_declaration::param_declaration(connection_base &home,
+pqxx::prepare::declaration::declaration(connection_base &home,
     const string &statement) :
   m_home(home),
   m_statement(statement)
@@ -34,8 +34,8 @@ pqxx::prepare::param_declaration::param_declaration(connection_base &home,
 }
 
 
-const pqxx::prepare::param_declaration &
-pqxx::prepare::param_declaration::operator()(const string &sqltype,
+const pqxx::prepare::declaration &
+pqxx::prepare::declaration::operator()(const string &sqltype,
     param_treatment treatment) const
 {
   m_home.prepare_param_declare(m_statement, sqltype, treatment);
@@ -43,7 +43,7 @@ pqxx::prepare::param_declaration::operator()(const string &sqltype,
 }
 
 
-pqxx::prepare::param_value::param_value(transaction_base &home,
+pqxx::prepare::invocation::invocation(transaction_base &home,
     const string &statement) :
   m_home(home),
   m_statement(statement),
@@ -53,21 +53,21 @@ pqxx::prepare::param_value::param_value(transaction_base &home,
 }
 
 
-pqxx::result pqxx::prepare::param_value::exec()
+pqxx::result pqxx::prepare::invocation::exec()
 {
   m_ptrs.push_back(0);
   return m_home.prepared_exec(m_statement, &m_ptrs[0], m_ptrs.size()-1);
 }
 
 
-pqxx::prepare::param_value &pqxx::prepare::param_value::operator()()
+pqxx::prepare::invocation &pqxx::prepare::invocation::operator()()
 {
   return setparam("", false);
 }
 
 
-pqxx::prepare::param_value &
-pqxx::prepare::param_value::setparam(const string &v, bool nonnull)
+pqxx::prepare::invocation &
+pqxx::prepare::invocation::setparam(const string &v, bool nonnull)
 {
   const char *val = 0;
   if (nonnull)

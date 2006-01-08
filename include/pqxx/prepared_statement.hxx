@@ -50,13 +50,13 @@ enum param_treatment
 
 
 /// Helper class for declaring parameters to prepared statements
-class PQXX_LIBEXPORT param_declaration
+class PQXX_LIBEXPORT declaration
 {
 public:
-  param_declaration(connection_base &, const PGSTD::string &statement);
+  declaration(connection_base &, const PGSTD::string &statement);
 
   /// Add a parameter specification to prepared statement declaration
-  const param_declaration &operator()(const PGSTD::string &sqltype,
+  const declaration &operator()(const PGSTD::string &sqltype,
 	param_treatment) const;
 
 private:
@@ -66,15 +66,16 @@ private:
 
 
 /// Helper class for passing parameters to, and executing, prepared statements
-class PQXX_LIBEXPORT param_value
+class PQXX_LIBEXPORT invocation
 {
 public:
-  param_value(transaction_base &, const PGSTD::string &statement);
+  invocation(transaction_base &, const PGSTD::string &statement);
 
+  /// Execute!
   result exec();
 
   /// Pass null parameter
-  param_value &operator()();
+  invocation &operator()();
 
   /// Pass parameter value
   /**
@@ -82,7 +83,7 @@ public:
    * @param nonnull replaces value with null if set to false
    */
   template<typename T>
-    param_value &operator()(const T &v, bool nonnull=true)
+    invocation &operator()(const T &v, bool nonnull=true)
 	{ return setparam(to_string(v), nonnull); }
 
   /// Pass pointer parameter value, or null if pointer is null
@@ -102,8 +103,8 @@ public:
    * @param nonnull replaces value with null if set to false
    */
   template<typename T>
-    param_value &operator()(T *v, bool nonnull=true)
-	{ return setparam((v ? to_string(v) : ""),nonnull); }
+    invocation &operator()(T *v, bool nonnull=true)
+	{ return setparam((v ? to_string(v) : ""), nonnull); }
 
 private:
   transaction_base &m_home;
@@ -111,7 +112,7 @@ private:
   PGSTD::vector<PGSTD::string> m_values;
   PGSTD::vector<const char *> m_ptrs;
 
-  param_value &setparam(const PGSTD::string &, bool nonnull);
+  invocation &setparam(const PGSTD::string &, bool nonnull);
 };
 
 
