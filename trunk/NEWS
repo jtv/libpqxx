@@ -1,5 +1,6 @@
 2.6.3
  - Radical rework of prepared statements; INCOMPATIBLE INTERFACE CHANGE!
+ - Dropped support for g++ 2.95
  - Emulate prepared statements support on old libpq or old backend
  - Fixed missing tutorial (release script now tests for this)
 2.6.2
