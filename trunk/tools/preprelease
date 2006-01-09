@@ -35,7 +35,7 @@ ERRLOG=/tmp/libpqxx-preprelease.err
 
 SOURCEDIR=$1
 
-DEFAULTCOMPILERS="g++-2.95 g++-3.0 g++-3.3 g++-3.4 g++-4.0"
+DEFAULTCOMPILERS="g++-3.0 g++-3.3 g++-3.4 g++-4.0"
 
 
 if test -z "$CONCURRENCY_LEVEL" ; then
