@@ -691,7 +691,7 @@ public:
   ~PQAlloc() throw () { loseref(); }
 
   PQAlloc &operator=(const PQAlloc &rhs) throw ()
-  	{ if (&rhs != this) { loseref(); makeref(rhs); } return *this; }
+  	{ redoref(rhs); return *this; }
 
   /// Assume ownership of a pointer
   /** @warning Don't to this more than once for a given object!
@@ -705,7 +705,7 @@ public:
     rhs = tmp;
   }
 
-  PQAlloc &operator=(T *obj) throw () { loseref(); makeref(obj); return *this; }
+  PQAlloc &operator=(T *obj) throw () { redoref(obj); return *this; }
 
   /// Is this pointer non-null?
   operator bool() const throw () { return m_Obj != 0; }
@@ -739,21 +739,29 @@ private:
 
   void makeref(const PQAlloc &rhs) throw ()
   {
+    // TODO: Make threadsafe
     m_l = &rhs;
     m_r = rhs.m_r;
-    m_l->m_r = m_r->m_l = this;
     m_Obj = rhs.m_Obj;
+    m_l->m_r = m_r->m_l = this;
   }
 
   /// Free and reset current pointer (if any)
   void loseref() throw ()
   {
+    // TODO: Make threadsafe
     if (m_l == this && m_Obj) freemem();
     m_Obj = 0;
     m_l->m_r = m_r;
     m_r->m_l = m_l;
     m_l = m_r = this;
   }
+
+  // TODO: Make threadsafe
+  void redoref(const PQAlloc &rhs) throw ()
+	{ if (rhs.m_Obj != m_Obj) { loseref(); makeref(rhs); } }
+  void redoref(T *obj) throw ()
+	{ if (obj != m_Obj) { loseref(); makeref(obj); } }
 
   void freemem() throw () { freepqmem(m_Obj); }
 };
