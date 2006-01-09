@@ -1,3 +1,8 @@
+2006-01-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/preprelease:
+  - No longer test against g++ 2.95
+ include/pqxx/util.hxx:
+  - Minor change to PQAlloc, in preparation for threading/locking support
 2006-01-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in:
   - Check for PQprepare()
