@@ -2,10 +2,13 @@ Welcome to libpqxx, a C++ API to the PostgreSQL database management system.
 Please see the regular README for general instructions on building, installing,
 and using the library.  If you are using Cygwin, MSYS, or another Unix-like
 environment please try the Unix configuration & build procedure instead of the
-one described here; some help getting started with MSYS is given below.  Things
-are a bit more complicated for Windows systems.
+one described here; just set the environment variable LDFLAGS to "-lwsock32"
+before running the configure script and everything should work as on a regular
+Unix-like system.
 
-The only Windows compilers currently described in this document are:
+Things are a bit more complicated for plain Windows systems, although some help
+for getting started in an MSYS environment is given below.  The only Windows
+compilers currently described here are:
 
 	Visual C++ (7.0 or above)
 	MinGW
