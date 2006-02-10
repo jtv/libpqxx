@@ -1,6 +1,13 @@
+2006-02-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+  - Always include winsock2.h/unistd.h if available, thanks Bert Hinrichs
 2006-01-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/Doxyfile.in:
   - Enable treeview sidebar
+2006-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Check for stlport _STL namespace
+  - Option for enabling/disabling "long long" support
 2006-01-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/preprelease:
   - No longer test against g++ 2.95

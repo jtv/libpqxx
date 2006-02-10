@@ -28,12 +28,13 @@
 #include <sys/select.h>
 #else
 #include <sys/types.h>
-#if defined(HAVE_UNISTD_H)
-#include <unistd.h>
-#elif defined(_WIN32)
+#if defined(_WIN32)
 #include <winsock2.h>
 #endif
-#endif	// PQXX_HAVE_SYS_SELECT_H
+#if defined(HAVE_UNISTD_H)
+#include <unistd.h>
+#endif
+#endif // PQXX_HAVE_SYS_SELECT_H
 
 #include "libpq-fe.h"
 
