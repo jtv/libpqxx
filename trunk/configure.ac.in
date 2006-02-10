@@ -47,6 +47,11 @@ AC_MSG_CHECKING([maintainer mode])
 AC_ARG_ENABLE(maintainer-mode)
 AC_MSG_RESULT(${enable_maintainer_mode})
 
+# TODO: This is still sketchy, g++-only!
+AC_MSG_CHECKING([long long])
+AC_ARG_ENABLE(long-long)
+AC_MSG_RESULT(${enable_long_long})
+
 AC_ARG_ENABLE(shared)
 if test "${shared}" = "yes" ; then
 	CPPFLAGS="$CPPFLAGS -DPQXX_SHARED"
@@ -120,6 +125,10 @@ if test "$GCC" = "yes" ; then
 			-fmudflap
 	fi
 
+	if test "$enable_long_long" = "yes" ; then
+		add_compiler_opts -Wno-long-long
+	fi
+
 AC_MSG_CHECKING([g++ visibility attribute])
 gcc_visibility=yes
 SAVE_CXXFLAGS="$CXXFLAGS"
@@ -149,7 +158,8 @@ fi
 # Determine name of standard namespace; PGSTD will be set to this name.  The
 # --with-std= option takes precedence if given; otherwise, several alternatives
 # are tried.
-AH_TEMPLATE(PGSTD, [name of standard library namespace (normally "std")])
+AH_TEMPLATE(PGSTD,[name of standard library namespace (normally "std")])
+# TODO: This doesn't seem to work yet--we always go through the guessing logic!
 AC_MSG_CHECKING([name of standard library namespace (normally "std")])
 withstd=yes
 AC_ARG_WITH(std,
@@ -160,7 +170,7 @@ AC_ARG_WITH(std,
 if test -z "${std}" && test "${withstd}" = "no" ; then
 	# No explicit std namespace given.  Check for alternative "standard"
 	# namespaces, in increasing order of preference.
-	for ns in "" std stlp_std ; do
+	for ns in "" stlp_std _STL std ; do
 		AC_TRY_COMPILE([#include <string>],
 			[${ns}::string a;],[std=${ns}],
 			[])
