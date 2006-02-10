@@ -313,6 +313,12 @@ template<typename T> struct deref_ptr { T operator()(T *i) const {return *i;} };
 
 
 /// Access iterators using ACCESS functor, returning separator-separated list 
+/**
+ * @param sep separator string (to be placed between items)
+ * @param begin beginning of items sequence
+ * @param end end of items sequence
+ * @param access functor defining how to dereference sequence elements
+ */
 template<typename ITER, typename ACCESS> inline
 PGSTD::string separated_list(const PGSTD::string &sep,			//[t0]
     ITER begin,
@@ -332,6 +338,11 @@ PGSTD::string separated_list(const PGSTD::string &sep,			//[t0]
   return result;
 }
 
+/**
+ * @defgroup utility Utility functions
+ */
+//@{
+
 /// Render sequence as a string, using given separator between items
 template<typename ITER> inline PGSTD::string
 separated_list(const PGSTD::string &sep, ITER begin, ITER end)		//[t8]
@@ -348,7 +359,7 @@ separated_list(const PGSTD::string &sep, OBJ *begin, OBJ *end)		//[t9]
 template<typename CONTAINER> inline PGSTD::string
 separated_list(const PGSTD::string &sep, const CONTAINER &c)		//[t10]
 	{ return separated_list(sep, c.begin(), c.end()); }
-
+//@}
 
 /// Private namespace for libpqxx's internal use; do not access
 /** This namespace hides definitions internal to libpqxx.  These are not
