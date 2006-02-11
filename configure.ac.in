@@ -12,6 +12,7 @@ LC_ALL=C
 
 AC_PREREQ(2.59)
 AC_INIT(libpqxx, @PQXXVERSION@, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_LANG(C++)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([config/m4])
 AM_INIT_AUTOMAKE(libpqxx, @PQXXVERSION@)
@@ -56,8 +57,6 @@ AC_ARG_ENABLE(shared)
 if test "${shared}" = "yes" ; then
 	CPPFLAGS="$CPPFLAGS -DPQXX_SHARED"
 fi
-
-AC_LANG(C++)
 
 # Add options to compiler command line, if compiler accepts it
 add_compiler_opts() {
@@ -155,31 +154,35 @@ CXXFLAGS="$SAVE_CXXFLAGS"
 fi
 
 
-# Determine name of standard namespace; PGSTD will be set to this name.  The
+# Determine name of standard namespace.  PGSTD will be set to this name.  The
 # --with-std= option takes precedence if given; otherwise, several alternatives
 # are tried.
+# As a special case, if the argument to the --with-std option is "yes" (as would
+# be the case if the user specified the option but no argument for it), the
+# guessing logic is enabled as if the option had not been used.
 AH_TEMPLATE(PGSTD,[name of standard library namespace (normally "std")])
-# TODO: This doesn't seem to work yet--we always go through the guessing logic!
 AC_MSG_CHECKING([name of standard library namespace (normally "std")])
-withstd=yes
+guessstd=no
 AC_ARG_WITH(std,
 	AC_HELP_STRING([--with-std],[name of standard library namespace (normally "std")]),
-	[std=${withval}],
-	[withstd=no])
+	[std=${withval};],
+	[guessstd=yes])
 
-if test -z "${std}" && test "${withstd}" = "no" ; then
+if test "${guessstd}" = "yes" -o "${withval}" = "yes"; then
 	# No explicit std namespace given.  Check for alternative "standard"
-	# namespaces, in increasing order of preference.
-	for ns in "" stlp_std _STL std ; do
-		AC_TRY_COMPILE([#include <string>],
-			[${ns}::string a;],[std=${ns}],
-			[])
+	# namespaces, in order of preference.
+	for ns in std _STL stlp_std "" ; do
+		AC_COMPILE_IFELSE([#include <string>
+			${ns}::string a;],
+			[std="${ns}"; break])
 	done
 fi
 AC_DEFINE_UNQUOTED(PGSTD,[$std],[name of standard library namespace (normally "std")])
-AC_MSG_RESULT([::${std}])
 if ! test -z "${std}" ; then
+	AC_MSG_RESULT([::${std}])
 	usestd="using namespace ${std};"
+else
+	AC_MSG_RESULT([::])
 fi
 
 
@@ -296,14 +299,12 @@ AC_MSG_RESULT(yes)
 # tries to call main()
 AC_LANG_PUSH(C)
 
-AC_MSG_CHECKING([for ability to link with libpq])
 AC_HAVE_LIBRARY(pq, [], [AC_MSG_ERROR([
 Could not link to libpq.  Make sure you have the PostgreSQL client library
 installed, and that the library binary can be found in the location returned by
 "pg_config --libdir".
 ])], -L${with_postgres_lib})
 
-AC_MSG_CHECKING([for correct linkage of basic libpq functions])
 AC_CHECK_LIB([pq], [PQexec],[], [AC_MSG_ERROR([
 Did not find the PQexec() function in libpq.  This is the litmus test for a
 working libpq installation.
@@ -322,9 +323,15 @@ occurring in the file.
 
 AC_LANG_POP(C)
 
+LDFLAGS="$LDFLAGS -lpq"
+
 AC_MSG_CHECKING([for correct C++ linkage of basic libpq functions])
 if test "$enable_maintainer_mode" = "yes"; then
-AC_CHECK_LIB([pq], [PQexec],[], [AC_MSG_ERROR([
+AC_LINK_IFELSE([
+#include <${with_postgres_include}/libpq-fe.h>
+int main(){return !PQexec(0,0);}],
+[], 
+[AC_MSG_ERROR([
 Linking a call to libpq failed in C++, even though it succeeded in C.  If your
 C and C++ compilers are very different beasts, this may mean that we do not have
 the right options for linking with it after all.  Alternatively, this may be
@@ -342,7 +349,11 @@ file for more detailed information.  Look for the last error message, which may
 be several pages up from the end of the file.
 ])], -L${with_postgres_lib})
 else
-AC_CHECK_LIB([pq], [PQexec],[], [AC_MSG_ERROR([
+AC_LINK_IFELSE([
+#include <${with_postgres_include}/libpq-fe.h>
+int main(){return !PQexec(0,0);}],
+[], 
+[AC_MSG_ERROR([
 Linking a call to libpq failed in C++, even though it succeeded in C.  If your
 C and C++ compilers are very different beasts, this may mean that we do not have
 the right options for linking with it after all.
@@ -351,6 +362,7 @@ Read the config.log file for more detailed information.  Look for the last error
 message, which may be several pages up from the end of the file.
 ])], -L${with_postgres_lib})
 fi
+AC_MSG_RESULT(yes)
 
 
 AC_MSG_CHECKING([that type of libpq's Oid is as expected])
@@ -490,12 +502,48 @@ fi
 AC_MSG_RESULT(yes)
 
 
-# TODO: Should actually _run_ this program, not just compile it
+# After this check, we should be able to link socket-based programs.
+AC_MSG_CHECKING([for separate socket library])
+socklibopt=""
+socklibok="no"
+LDFLAGS_SAVE="$LDFLAGS"
+for linkopt in "" "-lws32_2" "-lwsock32" "-lsocket" "-lsocket -lnsl" ; do
+	LDFLAGS="$LDFLAGS_SAVE $linkopt"
+	AC_LINK_IFELSE(
+	[#include <cstring>
+	#ifdef PQXX_HAVE_SYS_SELECT_H
+	#include <sys/select.h>
+	#else
+	#include <ctime>
+	#include <sys/types.h>
+	#endif
+	#ifdef HAVE_UNISTD_H
+	#include <unistd.h>
+	#endif
+	#ifdef _WIN32
+	#include <winsock2.h>
+	#endif
+	${usestd}
+	int main(){return select(0,0,0,0,0);}],
+	[socklibopt="$linkopt"; socklibok="yes"; break])
+done
+if test "$socklibok" != "yes" ; then
+	AC_MSG_RESULT([failed])
+	AC_MSG_ERROR([
+Could not figure out how to link a simple sockets-based program.  Please read
+the config.log file for more clues as to why this failed.])
+fi
+if test -z "$socklibopt" ; then
+	AC_MSG_RESULT([none])
+else
+	AC_MSG_RESULT($socklibopt)
+fi
+
+
 AC_MSG_CHECKING([if select() accepts NULL fdsets])
 select_accepts_null=yes
-AC_TRY_COMPILE(
-[#include <cstring>
-#ifdef PQXX_HAVE_SYS_SELECT_H
+AC_RUN_IFELSE(
+[#ifdef PQXX_HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #else
 #include <ctime>
@@ -507,10 +555,12 @@ AC_TRY_COMPILE(
 #ifdef _WIN32
 #include <winsock2.h>
 #endif
-${usestd}],
-	[return select(2,0,0,0,0)<=0],
+${usestd}
+extern "C" int foo(){fd_set f; FD_SET(1,&f); return select(2,0,&f,&f,0)<0;}
+int main() { return foo(); }],
 	AC_DEFINE(PQXX_SELECT_ACCEPTS_NULL,1,
 [Define if select() accepts NULL fd_set arguments]),
+	select_accepts_null=no,
 	select_accepts_null=no
 )
 AC_MSG_RESULT($select_accepts_null)
