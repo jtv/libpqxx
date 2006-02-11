@@ -1,3 +1,12 @@
+2006-02-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Fixed broken std namespace check
+  - Fixed broken --with-std option
+  - Make std namespace check check most-preferred namespaces first
+  - Made output for std namespace check a little clearer
+  - Finally fixed some messy output lines in configure script
+  - Check for extra socket libraries that may need to be linked in
+  - Finally fixed "NULL fdsets in select()" check
 2006-02-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
   - Always include winsock2.h/unistd.h if available, thanks Bert Hinrichs
