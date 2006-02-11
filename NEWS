@@ -5,6 +5,7 @@
  - Bug fix: missing tutorial (release script now tests for this)
  - Automatically links in socket library on Windows or Solaris, if needed
  - Bug fix: check for std namespace didn't work
+ - Fixes for Cygwin/MSYS/MinGW
 2.6.2
  - Bug fix: connection state was not set up properly in some common cases
  - Bug fix: headers were installed in "include" instead of "include/pqxx"

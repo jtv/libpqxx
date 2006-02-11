@@ -6,12 +6,15 @@
 
 #if defined(PQXX_HAVE_SYS_SELECT_H)
 #include <sys/select.h>
-#elif defined(PQXX_HAVE_UNISTD_H)
+#else
 #include <sys/types.h>
+#if defined(PQXX_HAVE_UNISTD_H)
 #include <unistd.h>
-#elif defined(_WIN32)
+#endif
+#if defined(_WIN32)
 #include <winsock2.h>
 #endif
+#endif // PQXX_HAVE_SYS_SELECT_H
 
 #include <pqxx/connection>
 #include <pqxx/nontransaction>

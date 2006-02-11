@@ -7,6 +7,8 @@
   - Finally fixed some messy output lines in configure script
   - Check for extra socket libraries that may need to be linked in
   - Finally fixed "NULL fdsets in select()" check
+ test/test087.cxx:
+  - Fixed includes for Cygwin, thanks Bert Hinrichs
 2006-02-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
   - Always include winsock2.h/unistd.h if available, thanks Bert Hinrichs
