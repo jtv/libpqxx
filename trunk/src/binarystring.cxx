@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      implementation of bytea (binary string) conversions
  *
- * Copyright (c) 2003-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -130,7 +130,11 @@ string pqxx::escape_binary(const unsigned char bin[], size_t len)
   if (!cstr) throw bad_alloc();
   return string(cstr, escapedlen-1);
 #else
-  // TODO: Fails to escape "high" bytes!?
+  /* Very basic workaround for missing PQescapeBytea() in antique versions of
+   * libpq.  Clients that use BYTEA are much better off upgrading their libpq,
+   * but this might just provide usable service in cases where that is not an
+   * option.
+   */
   string result;
   result.reserve(len);
   for (size_t i=0; i<len; ++i)
@@ -138,7 +142,6 @@ string pqxx::escape_binary(const unsigned char bin[], size_t len)
     if (bin[i] >= 0x80 || bin[i] < 0x20)
     {
       char buf[8];
-      // TODO: Hope this is not locale-sensitive...
       sprintf(buf, "\\\\%03o", unsigned(bin[i]));
       result += buf;
     }
