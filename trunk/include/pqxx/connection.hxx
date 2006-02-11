@@ -8,7 +8,7 @@
  *   Different ways of setting up a backend connection.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection instead.
  *
- * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -24,6 +24,12 @@ namespace pqxx
 
 /**
  * @addtogroup connection Connection classes
+ *
+ * Several types of connections are available, including plain connection and 
+ * lazyconnection.  These types are typedefs combining a derivative of the
+ * connection_base class (where essentially all connection-related functionality
+ * is defined) with a policy class which governs how the connection is to be
+ * established.
  */
 //@{
 
@@ -46,7 +52,7 @@ public:
   virtual handle do_startconnect(handle);
 };
 
-
+/// The "standard" connection type: connect to database right now
 typedef basic_connection<connect_direct> connection;
 
 
@@ -63,6 +69,7 @@ public:
 };
 
 
+/// A "lazy" connection type: connect to database only when needed
 typedef basic_connection<connect_lazy> lazyconnection;
 
 
@@ -87,6 +94,7 @@ private:
 };
 
 
+/// "Asynchronous" connection type: start connecting, but don't wait for it
 typedef basic_connection<connect_async> asyncconnection;
 
 
@@ -102,6 +110,8 @@ public:
   explicit connect_null(const PGSTD::string &opts) : connectionpolicy(opts) {}
 };
 
+
+/// A "dummy" connection type: don't connect to any database at all
 typedef basic_connection<connect_null> nullconnection;
 
 
