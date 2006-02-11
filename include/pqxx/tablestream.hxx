@@ -8,7 +8,7 @@
  *   pqxx::tablestream provides optimized batch access to a database table
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablestream instead.
  *
- * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -49,8 +49,8 @@ public:
 
   /// Finish stream action, check for errors, and detach from transaction
   /** It is recommended that you call this function before the tablestream's
-   * destructor is run.  This function will check any final errors which may not
-   * become apparent until the transaction is committed otherwise.
+   * destructor is run.  This function will check for any final errors which may
+   * not become apparent until the transaction is committed otherwise.
    *
    * As an added benefit, this will free up the transaction while the
    * tablestream object itself still exists.
