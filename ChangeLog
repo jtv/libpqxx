@@ -1,6 +1,9 @@
 2006-02-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
   - Always include winsock2.h/unistd.h if available, thanks Bert Hinrichs
+2006-02-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/binarystring.cxx:
+  - Retired some old TODO items
 2006-01-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/Doxyfile.in:
   - Enable treeview sidebar
