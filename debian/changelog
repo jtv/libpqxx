@@ -1,3 +1,19 @@
+libpqxx (2.6.4-1) unstable; urgency=medium
+
+  [ Jeroen T. Vermeulen ]
+  * New upstream release.
+
+  [ Roger Leigh ]
+  * debian/control.in:
+    - Build-Depend upon debhelper v4, and libpq-dev rather than
+      postgresql-dev.
+    - libpqxx-dev: Depend upon libpq-dev rather than postgresql-dev.
+  * debian/libpqxx-dev.docs: Include README-UPGRADE.
+  * debian/rules:
+    - Use debhelper v4 compatibility mode.
+
+ -- Roger Leigh <rleigh@debian.org>  Sat, 11 Feb 2006 14:14:05 +0000
+
 libpqxx (2.6.3-1) unstable; urgency=medium
 
   * New upstream release.
