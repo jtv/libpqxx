@@ -1,8 +1,3 @@
-HIGH-PRIORITY
-(*) Add "private" include directory
-(*) Thread synchronization
-(*) Rename trigger
-
 All over
 (*) Add gcc's deprecated attribute to deprecated functions
 (*) Can gcc's const function attribute be useful anywhere?  It's VERY strict.
@@ -19,27 +14,18 @@ Build & Configuration
 Connections
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
 (*) libpqxx-level trace output
-(*) Factor out "connection policy" hierarchy
 
 Documentation
-(*) Use @c to mark code in Doxygen comments
 (*) Move most of README over to some more powerful format (Doxygen?)
 
 Exceptions
 (*) Strip newlines from PostgreSQL error messages in exceptions?
 (*) Document exception guarantees (weak / strong / poorly defined / pure)
 
-Large Objects
-(*) Check for correct handling of nul characters
-(*) Check out new 64-bit API that's being contributed
-
 Results
-(*) Convert to/from date/time values
 (*) Splice out a reusable interface definition
 (*) Real encoding support (PQmblen(), PQenv2encoding())
-(*) Check for correct handling of nul characters
 (*) Support PQftablecol()
-(*) Support new PQcancel() and friends
 (*) Conceive metadata model
 
 Streams
