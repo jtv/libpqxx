@@ -73,7 +73,8 @@ private:
 //@{
 /// Base class for user-definable error/warning message processor
 /** To define a custom method of handling notices, derive a new class from
- * noticer and override the virtual function "operator()(const char[]) throw()"
+ * noticer and override the virtual function
+ * @code operator()(const char[]) throw()@endcode
  * to process the message passed to it.
  */
 struct PQXX_LIBEXPORT noticer : PGSTD::unary_function<const char[], void>
@@ -446,7 +447,7 @@ public:
   //@{
   /// Define a prepared statement
   /** To declare parameters to this statement, add them by calling the function
-   * invocation operator (operator()) on the returned object.  See
+   * invocation operator (@c operator()) on the returned object.  See
    * prepare_param_declaration and prepare::param_treatment for more about how
    * to do this.
    *

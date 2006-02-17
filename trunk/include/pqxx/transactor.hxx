@@ -8,7 +8,7 @@
  *   pqxx::transactor is a framework-style wrapper for safe transactions
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transactor instead.
  *
- * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -51,7 +51,7 @@ namespace pqxx
  * to execute the transaction code embedded in it (see the definitions in
  * pqxx/connection_base.hxx).
  *
- * connection_base::Perform() is actually a template, specializing itself to any
+ * connection_base::perform() is actually a template, specializing itself to any
  * transactor type you pass to it.  This means you will have to pass it a
  * reference of your object's ultimate static type; runtime polymorphism is
  * not allowed.  Hence the absence of virtual methods in transactor.  The
@@ -59,7 +59,7 @@ namespace pqxx
  *
  * Your transactor-derived class must define a copy constructor.  This will be
  * used to create a "clean" copy of your transactor for every attempt that
- * Perform() makes to run it.
+ * perform() makes to run it.
  */
 template<typename TRANSACTION=transaction<read_committed> >
   class transactor :

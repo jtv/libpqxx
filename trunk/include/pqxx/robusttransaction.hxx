@@ -8,7 +8,7 @@
  *   pqxx::robusttransaction is a slower but safer transaction class
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/robusttransaction instead.
  *
- * Copyright (c) 2002-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -94,10 +94,10 @@ private:
  * administrator may create one for him beforehand, and give ownership (or at
  * least full insert/update rights) to the user.  The table must contain two
  * non-unique fields (which will never be null): "name" (of text type,
- * varchar(256) by default) and "date" (of timestamp type).  Older verions of
- * robusttransaction also added a unique "id" field; this field is now obsolete
- * and the log table's implicit oids are used instead.  The log tables' names
- * may be made configurable in a future version of libpqxx.
+ * @c varchar(256) by default) and "date" (of @c timestamp type).  Older
+ * versions of robusttransaction also added a unique "id" field; this field is
+ * now obsolete and the log table's implicit oids are used instead.  The log
+ * tables' names may be made configurable in a future version of libpqxx.
  *
  * The transaction log table contains records describing unfinished
  * transactions, i.e. ones that have been started but not, as far as the client

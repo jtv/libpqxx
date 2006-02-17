@@ -8,7 +8,7 @@
  *   pqxx::trigger describes a database trigger to wait on, and what it does
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/trigger instead.
  *
- * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -32,11 +32,12 @@ namespace pqxx
  * define its function call operator to perform whatever action you wish to
  * take when the given trigger arrives.  Then create an object of that class
  * and pass it to your connection.  DO NOT set triggers directly through SQL,
- * or they won't be restored when your connection fails--and you'll have no
- * way to notice.
+ * or they won't be restored when a connection fails--and you'll have no way to
+ * notice.
  *
- * Trigger notifications never arrive inside a transaction.  Therefore, you
- * are free to open a transaction of your own inside your trigger's function
+ * Trigger notifications never arrive inside a backend transaction.  Therefore,
+ * unless you may be using a nontransaction when a notification arrives, you are
+ * free to open a transaction of your own inside your trigger's function
  * invocation operator.
  *
  * Notifications for your trigger may arrive anywhere within libpqxx code, but

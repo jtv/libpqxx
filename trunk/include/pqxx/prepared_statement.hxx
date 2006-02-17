@@ -88,16 +88,16 @@ public:
 
   /// Pass pointer parameter value, or null if pointer is null
   /**
-   * @warning Be very careful with the special constant NULL!  Since NULL in
-   * C++ is an int, not a pointer, a value of NULL would cause the wrong
-   * version of this template to be invoked.  To all intents and purposes it
-   * would look like you were trying to pass a regular zero as an integer
+   * @warning Be very careful with the special constant @c NULL!  Since @c NULL
+   * in C++ is an @c int, not a pointer, a value of @c NULL would cause the
+   * wrong version of this template to be invoked.  To all intents and purposes
+   * it would look like you were trying to pass a regular zero as an integer
    * value, instead of a null string.  This is not a problem with pointer
-   * variables that may happen to be NULL, since in that case the value's type
-   * is not subject to any confusion.  If you know at compile time that you
-   * want to pass a null value, use the zero-argument version of this
+   * variables that may happen to be @c NULL, since in that case the value's
+   * type is not subject to any confusion.  So if you know at compile time that
+   * you want to pass a null value, use the zero-argument version of this
    * operator; if you don't want to do that, at least add a second argument of
-   * "false" to make clear that you want a null, not a zero.
+   * @c false to make clear that you want a null, not a zero.
    *
    * @param v parameter value (will be represented as a string internally)
    * @param nonnull replaces value with null if set to false

@@ -9,7 +9,7 @@
  *   represents a database transaction
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction_base instead.
  *
- * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -164,10 +164,10 @@ public:
    * }
    * @endcode
    *
-   * Here, parameter 1 (written as "$1" in the statement's body) is a string
-   * that receives the value "param1"; the second parameter is an integer with
-   * the value 2; the third receives a null, making its type irrelevant; and
-   * number 4 again is an integer.  The ultimate invocation of exec() is
+   * Here, parameter 1 (written as "<tt>$1</tt>" in the statement's body) is a
+   * string that receives the value "param1"; the second parameter is an integer
+   * with the value 2; the third receives a null, making its type irrelevant;
+   * and number 4 again is an integer.  The ultimate invocation of exec() is
    * essential; if you forget this, nothing happens.
    *
    * @warning Do not try to execute a prepared statement manually through direct

@@ -1,3 +1,15 @@
+2006-02-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/basic_connection.hxx, include/pqxx/binarystring.hxx,
+ include/pqxx/connection_base.hxx, include/pqxx/cursor.hxx,
+ include/pqxx/dbtransaction.hxx, include/pqxx/largeobject.hxx,
+ include/pqxx/pipeline.hxx, include/pqxx/prepared_statement.hxx,
+ include/pqxx/result.hxx, include/pqxx/robusttransaction.hxx,
+ include/pqxx/tablestream.hxx, include/pqxx/tablewriter.hxx,
+ include/pqxx/transaction_base.hxx, include/pqxx/transactor.hxx,
+ include/pqxx/trigger.hxx, include/pqxx/util.hxx:
+  - Reviewed documentation comments for code snippets
+  - Updated a few more old 1.x-style identifiers
+  - Other minor fixes
 2006-02-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Fixed broken std namespace check

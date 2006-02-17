@@ -8,7 +8,7 @@
  *   Throughput-optimized query manager
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/pipeline instead.
  *
- * Copyright (c) 2003-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -40,7 +40,7 @@ namespace pqxx
  * situations where some of the queries do not depend on the outcome of the
  * preceding one.  Result retrieval is decoupled from execution request; queries
  * "go in at the front" and results "come out the back." In fact, results may be
- * retrieved in any order--though this will be slower than sticking to the order
+ * retrieved in any order--though this may be slower than sticking to the order
  * in which they were entered.
  *
  * Feel free to pump as many queries into the pipeline as possible, even if they

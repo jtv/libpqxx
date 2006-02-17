@@ -8,7 +8,7 @@
  *   C++-style wrappers for SQL cursors
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/pipeline instead.
  *
- * Copyright (c) 2004-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -36,12 +36,11 @@ class dbtransaction;
  * beginning of the fetch, and the cursor ends up being positioned on the last
  * row in the result.
  *
- * There are singular positions akin to @code end() @endcode at both the
- * beginning and the end of the cursor's range of movement, although these fit
- * in so naturally with the semantics that one rarely notices them.  The cursor
- * begins at the first of these, but any fetch in the forward direction will
- * move the cursor off this position and onto the first row before returning
- * anything.
+ * There are singular positions akin to @c end() at both the beginning and the
+ * end of the cursor's range of movement, although these fit in so naturally
+ * with the semantics that one rarely notices them.  The cursor begins at the
+ * first of these, but any fetch in the forward direction will move the cursor
+ * off this position and onto the first row before returning anything.
  */
 class PQXX_LIBEXPORT cursor_base
 {
@@ -169,13 +168,13 @@ public:
    * command.
    *
    * @return the number of data rows that would have been returned if this had
-   * been a @code fetch @endcode command.
+   * been a fetch() command.
    */
   virtual difference_type move(difference_type);			//[]
 
   /// Move cursor, but also return actual displacement in output parameter
-  /** As with the @code fetch @endcode functions, the actual displacement may
-   * differ from the number of data rows skipped by the move.
+  /** As with the @c fetch functions, the actual displacement may differ from
+   * the number of data rows skipped by the move.
    */
   virtual difference_type move(difference_type, difference_type &);	//[]
 
@@ -432,7 +431,7 @@ class icursor_iterator;
 /// Simple read-only cursor represented as a stream of results
 /** SQL cursors can be tricky, especially in C++ since the two languages seem to
  * have been designed on different planets.  An SQL cursor has two singular
- * positions akin to end() on either side of the underlying result set.
+ * positions akin to @c end() on either side of the underlying result set.
  *
  * These cultural differences are hidden from view somewhat by libpqxx, which
  * tries to make SQL cursors behave more like familiar C++ entities such as
@@ -499,7 +498,7 @@ public:
    * stride, inclusive.  An empty result will only be returned if there are no
    * more rows to retrieve.
    * @return Reference to this very stream, to facilitate "chained" invocations
-   * (@code C.get(r1).get(r2); @endcode)
+   * (<tt>C.get(r1).get(r2);</tt>)
    */
   icursorstream &get(result &res) { res = fetchblock(); return *this; }	//[t81]
   /// Read new value into given result object; same as get(result &)
@@ -507,13 +506,13 @@ public:
    * stride, inclusive.  An empty result will only be returned if there are no
    * more rows to retrieve.
    * @return Reference to this very stream, to facilitate "chained" invocations
-   * (@code C >> r1 >> r2; @endcode)
+   * (<tt>C >> r1 >> r2;</tt>)
    */
   icursorstream &operator>>(result &res) { return get(res); }		//[t81]
   /// Move given number of rows forward (ignoring stride) without reading data
   /**
    * @return Reference to this very stream, to facilitate "chained" invocations
-   * (@code C.ignore(2).get(r).ignore(4); @endcode)
+   * (<tt>C.ignore(2).get(r).ignore(4);</tt>)
    */
   icursorstream &ignore(PGSTD::streamsize n=1);				//[t81]
 
@@ -557,8 +556,9 @@ private:
  * stream.
  *
  * The stream's stride defines the granularity for all iterator movement or
- * access operations, i.e. "ici += 1" advances the stream by one stride's worth
- * of tuples, and "*ici++" reads one stride's worth of tuples from the stream.
+ * access operations, i.e. "<tt>ici += 1</tt>" advances the stream by one
+ * stride's worth of tuples, and "<tt>*ici++</tt>" reads one stride's worth of
+ * tuples from the stream.
  *
  * @warning Do not read from the underlying stream or its cursor, move its read
  * position, or change its stride, between the time the first icursor_iterator
