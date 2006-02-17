@@ -8,7 +8,7 @@
  *   Allows access to large objects directly, or through I/O streams
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/largeobject instead.
  *
- * Copyright (c) 2003-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -152,17 +152,17 @@ public:
   typedef long off_type;
   typedef size_type pos_type;
 
-  /// Open mode: in, out (can be combined with the "or" operator)
-  /** According to the C++ standard, these should be in std::ios_base.  We take
-   * them from std::ios instead, which should be safe because it inherits the
-   * same definition, to accommodate gcc 2.95 & 2.96.
+  /// Open mode: @c in, @c out (can be combined with the "or" operator)
+  /** According to the C++ standard, these should be in @c std::ios_base.  We
+   * take them from @c std::ios instead, which should be safe because it
+   * inherits the same definition, to accommodate gcc 2.95 & 2.96.
    */
   typedef PGSTD::ios::openmode openmode;
 
-  /// Seek direction: beg, cur, end
-  /** According to the C++ standard, these should be in std::ios_base.  We take
-   * them from std::ios instead, which should be safe because it inherits the
-   * same definition, to accommodate gcc 2.95 & 2.96.
+  /// Seek direction: @c beg, @c cur, @c end
+  /** According to the C++ standard, these should be in @c std::ios_base.  We
+   * take them from @c std::ios instead, which should be safe because it
+   * inherits the same definition, to accommodate gcc 2.95 & 2.96.
    */
   typedef PGSTD::ios::seekdir seekdir;
 
@@ -287,8 +287,8 @@ public:
    */
   //@{
   /// Seek in large object's data stream
-  /** Does not throw exception in case of error; inspect return value and errno
-   * instead.
+  /** Does not throw exception in case of error; inspect return value and
+   * @c errno instead.
    * @param dest Offset to go to
    * @param dir Origin to which dest is relative: ios_base::beg (from beginning
    *        of the object), ios_base::cur (from current access position), or
@@ -298,8 +298,8 @@ public:
   pos_type cseek(off_type dest, seekdir dir) throw ();			//[t50]
 
   /// Write to large object's data stream
-  /** Does not throw exception in case of error; inspect return value and errno
-   * instead.
+  /** Does not throw exception in case of error; inspect return value and 
+   * @c errno instead.
    * @param Buf Data to write
    * @param Len Number of bytes to write
    * @return Number of bytes actually written, or -1 if an error occurred.
@@ -307,8 +307,8 @@ public:
   off_type cwrite(const char Buf[], size_type Len) throw ();		//[t50]
 
   /// Read from large object's data stream
-  /** Does not throw exception in case of error; inspect return value and errno
-   * instead.
+  /** Does not throw exception in case of error; inspect return value and 
+   * @c errno instead.
    * @param Buf Area where incoming bytes should be stored
    * @param Len Number of bytes to read
    * @return Number of bytes actually read, or -1 if an error occurred.
@@ -316,8 +316,8 @@ public:
   off_type cread(char Buf[], size_type Len) throw ();			//[t50]
   
   /// Report current position in large object's data stream
-  /** Does not throw exception in case of error; inspect return value and errno
-   * instead.
+  /** Does not throw exception in case of error; inspect return value and
+   * @c errno instead.
    * @return Current position in large object, of -1 if an error occurred.
    */
   pos_type ctell() const throw ();                                      //[t50]
@@ -494,12 +494,12 @@ private:
 
 /// Input stream that gets its data from a large object
 /** Use this class exactly as you would any other istream to read data from a
- * large object.  All formatting and streaming operations of std::istream are
+ * large object.  All formatting and streaming operations of @c std::istream are
  * supported.  What you'll typically want to use, however, is the ilostream
- * typedef (which defines a basic_ilostream for char).  This is similar to how
- * e.g. std::ifstream relates to std::basic_ifstream.
+ * typedef (which defines a basic_ilostream for @c char).  This is similar to
+ * how e.g. @c std::ifstream relates to @c std::basic_ifstream.
  *
- * Currently only works for <char, std::char_traits<char> >.
+ * Currently only works for <tt><char, std::char_traits<char> ></tt>.
  */
 template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
   class basic_ilostream :
@@ -557,12 +557,12 @@ typedef basic_ilostream<char> ilostream;
 
 /// Output stream that writes data back to a large object
 /** Use this class exactly as you would any other ostream to write data to a
- * large object.  All formatting and streaming operations of std::ostream are
+ * large object.  All formatting and streaming operations of @c std::ostream are
  * supported.  What you'll typically want to use, however, is the olostream
- * typedef (which defines a basic_olostream for char).  This is similar to how
- * e.g. std::ofstream is related to std::basic_ofstream.
+ * typedef (which defines a basic_olostream for @c char).  This is similar to
+ * how e.g. @c std::ofstream is related to @c std::basic_ofstream.
  *
- * Currently only works for <char, std::char_traits<char> >.
+ * Currently only works for <tt><char, std::char_traits<char> ></tt>.
  */
 template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
   class basic_olostream :
@@ -636,11 +636,11 @@ typedef basic_olostream<char> olostream;
 /// Stream that reads and writes a large object
 /** Use this class exactly as you would a std::iostream to read data from, or
  * write data to a large object.  All formatting and streaming operations of
- * std::iostream are supported.  What you'll typically want to use, however, is
- * the lostream typedef (which defines a basic_lostream for char).  This is
- * similar to how e.g. std::fstream is related to std::basic_fstream.
+ * @c std::iostream are supported.  What you'll typically want to use, however,
+ * is the lostream typedef (which defines a basic_lostream for @c char).  This
+ * is similar to how e.g. @c std::fstream is related to @c std::basic_fstream.
  *
- * Currently only works for <char, std::char_traits<char> >.
+ * Currently only works for <tt><char, std::char_traits<char> ></tt>.
  */
 template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
   class basic_lostream :

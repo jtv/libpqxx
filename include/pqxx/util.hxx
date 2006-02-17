@@ -7,7 +7,7 @@
  *      Various utility definitions for libpqxx
  *      DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/util instead.
  *
- * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -65,7 +65,7 @@
 /// The home of all libpqxx classes, functions, templates, etc.
 namespace pqxx {}
 
-/// Alias for the standard namespace "std"
+/// Alias for the standard namespace "<tt>std</tt>"
 /** This alias is used throughout libpqxx to accomodate the use of other
  * standard library implementations than the one native to the compiler.  These
  * alternative implementations may live in separate namespaces to avoid
@@ -92,14 +92,15 @@ const oid oid_none = 0;
  * programs.
  *
  * Some conversions are considered to be ambiguous.  An example is the
- * conversion between char and string: is the char intended as a character (in
- * which case there are easier ways to accomplish the conversion), or is it
+ * conversion between @c char and string: is the @c char intended as a character
+ * (in which case there are easier ways to accomplish the conversion), or is it
  * being used as merely a very small integral type?  And in the latter case,
  * what range is it expected to have--signed, unsigned, or only the range that
  * those two share?  An ambiguous conversion attempt will result in a build
  * error, typically a linker message complaining about a missing function whose
- * name starts with "error_".  Such errors are always deliberately generated.
- * Look for the function's declaration and see the explanation there.
+ * name starts with "<tt>error_</tt>".  Such errors are always deliberately
+ * generated.  When you see one, look up the documentation for the function it
+ * names.
  */
 //@{
 
@@ -109,23 +110,23 @@ const oid oid_none = 0;
  *
  * In other words, the program tries to convert an object to a string, or a
  * string to an object, of a type for which libpqxx does not implement this
- * conversion.  A notable example is "long long," which is supported by many
- * compilers but does not exist in Standard C++.
+ * conversion.  A notable example is "<tt>long long</tt>," which is supported by
+ * many compilers but does not exist in Standard C++.
  *
- * In the case of "long long" and similar types, if your implementation of the
- * standard C++ library supports it, you may use a stringstream to perform the
- * conversion.  For other types, you may have to write the conversion routine
- * yourself.
+ * In the case of "<tt>long long</tt>" and similar types, if your implementation
+ * of the standard C++ library supports it, you may use a @c stringstream to
+ * perform the conversion.  For other types, you may have to write the
+ * conversion routine yourself.
  */
 template<typename T> void error_unsupported_type_in_string_conversion(T);
 
 
 /// Dummy name, used to generate meaningful link errors
 /** If you get a link error naming this function, this means that your program
- * includes a string conversion involving a signed or unsigned char type.  The
- * problem with such conversions is that they are ambiguous: do you want to
- * treat the char type as a small numeric type, or as a character type like
- * plain char?
+ * includes a string conversion involving a signed or unsigned @c char type.
+ * The problem with such conversions is that they are ambiguous: do you want to
+ * treat the @c char type as a small numeric type, or as a character type like
+ * plain @c char?
  */
 template<typename T> PGSTD::string error_ambiguous_string_conversion(T);
 
@@ -138,8 +139,8 @@ template<typename T> PGSTD::string error_ambiguous_string_conversion(T);
  * type, e.g. if a decimal point is found when converting to an integer type,
  * the conversion fails.  Overflows (e.g. converting "9999999999" to a 16-bit
  * C++ type) are also treated as errors.  If in some cases this behaviour should
- * be inappropriate, convert to something bigger such as "long" first and then
- * truncate the resulting value.
+ * be inappropriate, convert to something bigger such as @c long @c int first
+ * and then truncate the resulting value.
  *
  * Only the simplest possible conversions are supported.  No fancy features
  * such as hexadecimal or octal, spurious signs, or exponent notation will work.
@@ -258,10 +259,15 @@ template<> inline PGSTD::string to_string(const unsigned char &Obj)
 /** Designed as a wrapper around an arbitrary container type, this class lets
  * you easily create a container object and provide its contents in the same
  * line.  Regular addition methods such as push_back() will also still work, but
- * you can now write things like: "items<int> numbers; numbers(1)(2)(3)(4);"
+ * you can now write things like
+ * @code
+ *  items<int> numbers; numbers(1)(2)(3)(4);
+ * @endcode
  *
  * Up to five elements may be specified directly as constructor arguments, e.g.
- * "items<int> numbers(1,2,3,4);"
+ * @code
+ * items<int> numbers(1,2,3,4);
+ * @endcode
  *
  * One thing that cannot be done with this simple class is create const objects
  * with nontrivial contents.  This is because the function invocation operator
@@ -312,7 +318,7 @@ template<typename T> struct deref_ptr { T operator()(T *i) const {return *i;} };
 }
 
 
-/// Access iterators using ACCESS functor, returning separator-separated list 
+/// Access iterators using ACCESS functor, returning separator-separated list
 /**
  * @param sep separator string (to be placed between items)
  * @param begin beginning of items sequence
@@ -408,7 +414,7 @@ template<> inline const char *FmtString(long double)   { return "%Lf"; }
 } // namespace internal
 
 /// Convert object of built-in type to string
-/** @deprecated Use the newer, rewritten to_string instead.
+/** @deprecated Use the newer, rewritten to_string() instead.
  * @warning The conversion is done using the currently active locale, whereas
  * PostgreSQL expects values in the "default" (C) locale.  This means that if
  * you intend to use this function from a locale that renders the data types in
@@ -554,11 +560,11 @@ template<> inline void FromString(const char Str[], bool &Obj)
  * @endcode
  *
  * Is this what you wanted to happen?  Probably not!  The neat allowed_to_see()
- * clause is completely circumvented by the "OR ('x' = 'x')" clause, which is
- * always true.  Therefore, the attacker will get to see all accounts in the
- * database!
+ * clause is completely circumvented by the "<tt>OR ('x' = 'x')</tt>" clause,
+ * which is always @c true.  Therefore, the attacker will get to see all
+ * accounts in the database!
  *
- * To prevent this from happening, use sqlesc:
+ * To prevent this from happening, use sqlesc():
  *
  * @code
  * 	TX.exec("SELECT number,amount "
@@ -588,8 +594,9 @@ template<> inline void FromString(const char Str[], bool &Obj)
  * code by feeding it some string containing e.g. a closing quote followed by
  * SQL commands you did not intend to execute.
  *
- * Unlike its predecessor Quote(), this function does not add SQL-style single
- * quotes around the result string; nor does it recognize and generate nulls.
+ * Unlike its predecessor Quote(), which is now obsolete, this function does not
+ * add SQL-style single quotes around the result string; nor does it recognize
+ * and generate nulls.
  */
 PGSTD::string PQXX_LIBEXPORT sqlesc(const char str[]);			//[t0]
 
@@ -601,8 +608,9 @@ PGSTD::string PQXX_LIBEXPORT sqlesc(const char str[]);			//[t0]
  * @param maxlen largest possible length of input string, not including optional
  * terminating nul character.
  *
- * Unlike its predecessor Quote(), this function does not add SQL-style single
- * quotes around the result string; nor does it recognize and generate nulls.
+ * Unlike its predecessor Quote(), which is now obsolete, this function does not
+ * add SQL-style single quotes around the result string; nor does it recognize
+ * and generate nulls.
  */
 PGSTD::string PQXX_LIBEXPORT sqlesc(const char str[], size_t maxlen);	//[t0]
 
@@ -642,9 +650,11 @@ template<> inline PGSTD::string Quote(const char *const & Obj, bool EmptyIsNull)
 
 /// Specialization for string constants
 /** This specialization is a little complicated, because string constants are
- * of the type char[], not of type const char * as one might expect.  Note that
- * the size of the array is part of the type, for which reason we need it in our
- * template here.
+ * of the type @c char[], not of type <tt>const char *</tt> as one might expect.
+ * Note that the size of the array is part of the type, for which reason we need
+ * it in our template here.
+ *
+ * @deprecated Use sqlesc() instead.
  */
 template<int LEN> inline PGSTD::string Quote(const char (&Obj)[LEN],
     					     bool EmptyIsNull)
@@ -678,8 +688,8 @@ void freepqmem(void *);
 /** Keep track of a libpq-allocated object, and free it once all references to
  * it have died.
  *
- * If the available PostgreSQL development files supply PQfreemem() or
- * PQfreeNotify(), this is used to free the memory.  If not, free() is used
+ * If the available PostgreSQL development files supply @c PQfreemem() or
+ * @c PQfreeNotify(), this is used to free the memory.  If not, free() is used
  * instead.  This matters on Windows, where memory allocated by a DLL must be
  * freed by the same DLL.
  *
@@ -886,10 +896,10 @@ void PQXX_LIBEXPORT sleep_seconds(int);
 typedef const char *cstring;
 
 /// Human-readable description for error code, possibly using given buffer
-/** Wrapper for strerror() or strerror_r(), as available.  The normal case is to
- * copy the string to the provided buffer, but this may not always be the case.
- * The result is guaranteed to remain usable for as long as the given buffer
- * does.
+/** Wrapper for @c strerror() or @c strerror_r(), as available.  The normal case
+ * is to copy the string to the provided buffer, but this may not always be the
+ * case.  The result is guaranteed to remain usable for as long as the given
+ * buffer does.
  * @param err system error code as copied from errno
  * @param buf caller-provided buffer for message to be stored in, if needed
  * @param len usable size (in bytes) of provided buffer

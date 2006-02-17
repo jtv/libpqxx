@@ -8,7 +8,7 @@
  *   pqxx::dbransaction defines a real transaction on the database
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/dbtransaction instead.
  *
- * Copyright (c) 2004-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -33,9 +33,9 @@ namespace pqxx
  * In no case will it leave half-finished work behind in the database.
  *
  * Once processing on a transaction has succeeded and any changes should be
- * allowed to become permanent in the database, call Commit().  If something
- * has gone wrong and the changes should be forgotten, call Abort() instead.
- * If you do neither, an implicit Abort() is executed at destruction time.
+ * allowed to become permanent in the database, call commit().  If something
+ * has gone wrong and the changes should be forgotten, call abort() instead.
+ * If you do neither, an implicit abort() is executed at destruction time.
  *
  * It is an error to abort a transaction that has already been committed, or to
  * commit a transaction that has already been aborted.  Aborting an already
@@ -52,7 +52,7 @@ namespace pqxx
  * The actual operations for beginning and committing/aborting the backend
  * transaction are implemented by a derived class.  The implementing concrete
  * class must also call Begin() and End() from its constructors and destructors,
- * respectively, and implement DoExec().
+ * respectively, and implement do_exec().
  */
 class PQXX_LIBEXPORT dbtransaction : public transaction_base
 {

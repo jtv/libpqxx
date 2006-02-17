@@ -1,3 +1,5 @@
+2.6.4
+ - Reviewed reference documentation
 2.6.3
  - Radical rework of prepared statements; INCOMPATIBLE INTERFACE CHANGE!
  - Dropped support for g++ 2.95

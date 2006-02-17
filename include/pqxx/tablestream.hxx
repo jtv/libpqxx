@@ -31,8 +31,8 @@ class transaction_base;
 
 /// Base class for streaming data to/from database tables.
 /** A Tablestream enables optimized batch read or write access to a database
- * table using PostgreSQL's COPY TO STDOUT and COPY FROM STDIN commands,
- * respectively.  These capabilities are implemented by its subclasses
+ * table using PostgreSQL's <tt>COPY TO STDOUT</tt> and <tt>COPY FROM STDIN</tt>
+ * commands, respectively.  These capabilities are implemented by its subclasses
  * tablereader and tablewriter.
  *
  * A Tablestream exists in the context of a transaction, and no other streams

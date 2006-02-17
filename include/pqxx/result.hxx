@@ -8,7 +8,7 @@
  *   pqxx::result represents the set of result tuples from a database query
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/result instead.
  *
- * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -39,7 +39,9 @@ namespace pqxx
  * can also be accessed by indexing a result R by the tuple's zero-based
  * number:
  *
+ * @code
  *	for (result::size_type i=0; i < R.size(); ++i) Process(R[i]);
+ * @endcode
  *
  * Result sets in libpqxx are lightweight, reference-counted wrapper objects
  * (following the Proxy design pattern) that are small and cheap to copy.  Think
@@ -167,31 +169,31 @@ public:
 
     /// What table did this column come from?  Requires PostgreSQL 7.4 C API.
     /** Only defined if the libpqxx library was compiled against a libpq
-     * version that supports the PQftable function.
+     * version that supports the @c PQftable function.
      *
      * If you get a link error saying this function is undefined, that must be
      * because libpqxx was compiled against an older version of libpq.  The
-     * PQftable function first became available in PostgreSQL 7.4.
+     * @c PQftable function first became available in PostgreSQL 7.4.
      */
     oid column_table(size_type ColNum) const				//[t2]
 	{ return m_Home->column_table(ColNum); }
     /// What table did this column come from?  Requires PostgreSQL 7.4 C API.
     /** Only defined if the libpqxx library was compiled against a libpq
-     * version that supports the PQftable function.
+     * version that supports the @c PQftable function.
      *
      * If you get a link error saying this function is undefined, that must be
      * because libpqxx was compiled against an older version of libpq.  The
-     * PQftable function first became available in PostgreSQL 7.4.
+     * @c PQftable function first became available in PostgreSQL 7.4.
      */
     oid column_table(int ColNum) const					//[t2]
 	{ return column_table(size_type(ColNum)); }
     /// What table did this column come from?  Requires PostgreSQL 7.4 C API.
     /** Only defined if the libpqxx library was compiled against a libpq
-     * version that supports the PQftable function.
+     * version that supports the @c PQftable function.
      *
      * If you get a link error saying this function is undefined, that must be
      * because libpqxx was compiled against an older version of libpq.  The
-     * PQftable function first became available in PostgreSQL 7.4.
+     * @c PQftable function first became available in PostgreSQL 7.4.
      */
     oid column_table(const PGSTD::string &ColName) const		//[t2]
 	{ return column_table(column_number(ColName)); }
@@ -268,7 +270,7 @@ public:
     bool operator==(const field &) const;				//[t75]
 
     /// Byte-by-byte comparison (all nulls are considered equal)
-    /** @warning See operator== for important information about this operator
+    /** @warning See operator==() for important information about this operator
      */
     bool operator!=(const field &rhs) const {return !operator==(rhs);}	//[t82]
     //@}
@@ -285,11 +287,11 @@ public:
 
     /// What table did this column come from?  Requires PostgreSQL 7.4 C API.
     /** Only defined if the libpqxx library was compiled against a libpq
-     * version that supports the PQftable function.
+     * version that supports the @c PQftable function.
      *
      * If you get a link error saying this function is undefined, that must be
      * because libpqxx was compiled against an older version of libpq.  The
-     * PQftable function first became available in PostgreSQL 7.4.
+     * @c PQftable function first became available in PostgreSQL 7.4.
      */
     oid table() const { return home()->column_table(col()); }		//[t2]
 
@@ -303,12 +305,12 @@ public:
     /// Read as plain C string
     /** Since the field's data is stored internally in the form of a
      * zero-terminated C string, this is the fastest way to read it.  Use the
-     * to() or as() functions to convert the string to other types such as int,
-     * or to C++ strings.
+     * to() or as() functions to convert the string to other types such as 
+     * @c int, or to C++ strings.
      */
     const char *c_str() const { return home()->GetValue(idx(),col()); }	//[t2]
 
-    /// Read value into Obj; or leave Obj untouched and return false if null
+    /// Read value into Obj; or leave Obj untouched and return @c false if null
     template<typename T> bool to(T &Obj) const				//[t3]
     {
       if (is_null()) return false;
@@ -325,7 +327,7 @@ public:
       return true;
     }
 
-    /// Read value into Obj; or leave Obj untouched and return false if null
+    /// Read value into Obj; or leave Obj untouched and return @c false if null
     template<typename T> bool operator>>(T &Obj) const			//[t7]
 	{ return to(Obj); }
 
@@ -333,14 +335,14 @@ public:
     /// Specialization: to(string &)
     template<> bool to<PGSTD::string>(PGSTD::string &Obj) const;
 
-    /// Specialization: to(const char *&).
+    /// Specialization: <tt>to(const char *&)</tt>.
     /** The buffer has the same lifetime as the result, so take care not to
      * use it after the result is destroyed.
      */
     template<> bool to<const char *>(const char *&Obj) const;
 #endif
 
-    /// Read value into Obj; or use Default & return false if null
+    /// Read value into Obj; or use Default & return @c false if null
     template<typename T> bool to(T &Obj, const T &Default) const	//[t12]
     {
       const bool NotNull = to(Obj);
@@ -797,47 +799,47 @@ public:
 
   /// What table did this column come from?  Requires PostgreSQL 7.4 C API.
   /** Only defined if the libpqxx library was compiled against a libpq
-   * version that supports the PQftable function.
+   * version that supports the @c PQftable function.
    *
    * If you get a link error saying this function is undefined, that must be
    * because libpqxx was compiled against an older version of libpq.  The
-   * PQftable function first became available in PostgreSQL 7.4.
+   * @c PQftable function first became available in PostgreSQL 7.4.
    */
   oid column_table(tuple::size_type ColNum) const;			//[t2]
 
   /// What table did this column come from?  Requires PostgreSQL 7.4 C API.
   /** Only defined if the libpqxx library was compiled against a libpq
-   * version that supports the PQftable function.
+   * version that supports the @c PQftable function.
    *
    * If you get a link error saying this function is undefined, that must be
    * because libpqxx was compiled against an older version of libpq.  The
-   * PQftable function first became available in PostgreSQL 7.4.
+   * @c PQftable function first became available in PostgreSQL 7.4.
    */
   oid column_table(int ColNum) const					//[t2]
   	{ return column_table(tuple::size_type(ColNum)); }
 
   /// What table did this column come from?  Requires PostgreSQL 7.4 C API.
   /** Only defined if the libpqxx library was compiled against a libpq
-   * version that supports the PQftable function.
+   * version that supports the @c PQftable function.
    *
    * If you get a link error saying this function is undefined, that must be
    * because libpqxx was compiled against an older version of libpq.  The
-   * PQftable function first became available in PostgreSQL 7.4.
+   * @c PQftable function first became available in PostgreSQL 7.4.
    */
   oid column_table(const PGSTD::string &ColName) const			//[t2]
     	{ return column_table(column_number(ColName)); }
   //@}
 
-  /// If command was INSERT of 1 row, return oid of inserted row
+  /// If command was @c INSERT of 1 row, return oid of inserted row
   /** @return Identifier of inserted row if exactly one row was inserted, or
    * oid_none otherwise.
    */
   oid inserted_oid() const;						//[t13]
 
 
-  /// If command was INSERT, UPDATE, or DELETE, return number of affected rows
-  /** @return Number of affected rows if last command was INSERT, UPDATE, or
-   * DELETE; zero for all other commands.
+  /// If command was @c INSERT, @c UPDATE, or @c DELETE: number of affected rows
+  /** @return Number of affected rows if last command was @c INSERT, @c UPDATE,
+   * or @c DELETE; zero for all other commands.
    */
   size_type affected_rows() const;					//[t7]
 
@@ -896,11 +898,12 @@ private:
 
 /// Write a result field to any type of stream
 /** This can be convenient when writing a field to an output stream.  More
- * importantly, it lets you write a field to e.g. a stringstream which you can
- * then use to read, format and convert the field in ways that to() does not
+ * importantly, it lets you write a field to e.g. a @c stringstream which you
+ * can then use to read, format and convert the field in ways that to() does not
  * support.
  *
- * Example: parse a field into a variable of the nonstandard "long long" type.
+ * Example: parse a field into a variable of the nonstandard
+ * "<tt>long long</tt>" type.
  *
  * @code
  * extern result R;
@@ -933,7 +936,7 @@ inline PGSTD::string to_string(const result::field &Obj)		//[t74]
 	{ return to_string(Obj.c_str()); }
 
 
-/// Specialization: to(string &)
+/// Specialization: <tt>to(string &)</tt>.
 template<>
 inline bool result::field::to<PGSTD::string>(PGSTD::string &Obj) const
 {
@@ -942,7 +945,7 @@ inline bool result::field::to<PGSTD::string>(PGSTD::string &Obj) const
   return true;
 }
 
-/// Specialization: to(const char *&).
+/// Specialization: <tt>to(const char *&)</tt>.
 /** The buffer has the same lifetime as the data in this result (i.e. of this
  * result object, or the last remaining one copied from it etc.), so take care
  * not to use it after the last result object referring to this query result is
@@ -1060,10 +1063,10 @@ private:
 
 /// Input stream that gets its data from a result field
 /** Use this class exactly as you would any other istream to read data from a
- * field.  All formatting and streaming operations of std::istream are
+ * field.  All formatting and streaming operations of @c std::istream are
  * supported.  What you'll typically want to use, however, is the fieldstream
- * typedef (which defines a basic_fieldstream for char).  This is similar to how
- * e.g. std::ifstream relates to std::basic_ifstream.
+ * typedef (which defines a basic_fieldstream for @c char).  This is similar to
+ * how e.g. @c std::ifstream relates to @c std::basic_ifstream.
  *
  * This class has only been tested for the char type (and its default traits).
  */
@@ -1109,7 +1112,7 @@ is doing with the pointer.  This helps prevent nasty memory leak / double
 deletion bugs typically resulting from programmers' omission to deal with such
 issues in their destructors.
 
-The -Weffc++ option in gcc generates warnings for noncompliance with Scott's
+The @c -Weffc++ option in gcc generates warnings for noncompliance with Scott's
 style guidelines, and hence necessitates the definition of this destructor,
 trivial as it may be.
 */

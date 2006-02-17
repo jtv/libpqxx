@@ -8,7 +8,7 @@
  *   pqxx::tablewriter enables optimized batch updates to a database table
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablewriter.hxx instead.
  *
- * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -31,9 +31,9 @@ class tablereader;	// See pqxx/tablereader.h
 /** A tablewriter provides a Spartan but efficient way of writing data tuples
  * into a table.  It provides a plethora of STL-like insertion methods: it has
  * insert() methods, push_back(), as well as an overloaded insertion operator
- * (<<), and it supports inserters created by std::back_inserter().  All of
- * these are templatized so you can use any container type or iterator range to
- * feed tuples into the table.
+ * (<tt><<</tt>), and it supports inserters created by std::back_inserter().
+ * All of these are templatized so you can use any container type or iterator
+ * range to feed tuples into the table.
  *
  * Note that in each case, a container or range represents the fields of a
  * single tuple--not a collection of tuples.
