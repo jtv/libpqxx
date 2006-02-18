@@ -10,6 +10,8 @@
   - Reviewed documentation comments for code snippets
   - Updated a few more old 1.x-style identifiers
   - Other minor fixes
+ include/pqxx/transaction.hxx:
+  - Removed obsolete classname() function
 2006-02-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Fixed broken std namespace check
