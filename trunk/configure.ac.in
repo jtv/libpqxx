@@ -323,7 +323,7 @@ occurring in the file.
 
 AC_LANG_POP(C)
 
-LDFLAGS="$LDFLAGS -lpq"
+LDFLAGS="$LDFLAGS -L${with_postgres_lib} -lpq"
 
 AC_MSG_CHECKING([for correct C++ linkage of basic libpq functions])
 if test "$enable_maintainer_mode" = "yes"; then
@@ -347,7 +347,7 @@ work around the problem.
 Should this error occur even while not in maintainer mode, read the config.log
 file for more detailed information.  Look for the last error message, which may
 be several pages up from the end of the file.
-])], -L${with_postgres_lib})
+])])
 else
 AC_LINK_IFELSE([
 #include <${with_postgres_include}/libpq-fe.h>
@@ -360,7 +360,7 @@ the right options for linking with it after all.
 
 Read the config.log file for more detailed information.  Look for the last error
 message, which may be several pages up from the end of the file.
-])], -L${with_postgres_lib})
+])])
 fi
 AC_MSG_RESULT(yes)
 
