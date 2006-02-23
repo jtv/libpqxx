@@ -507,7 +507,7 @@ AC_MSG_CHECKING([for separate socket library])
 socklibopt=""
 socklibok="no"
 LDFLAGS_SAVE="$LDFLAGS"
-for linkopt in "" "-lws32_2" "-lwsock32" "-lsocket" "-lsocket -lnsl" ; do
+for linkopt in "" "-lws2_32" "-lwsock32" "-lws2_32 -lwsock32" "-lsocket" "-lsocket -lnsl" ; do
 	LDFLAGS="$LDFLAGS_SAVE $linkopt"
 	AC_LINK_IFELSE(
 	[#include <cstring>
