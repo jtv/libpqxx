@@ -1,3 +1,6 @@
+2006-02-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Use -lws2_32 on Windows (not -lws32_2), thanks Allysson Costa
 2006-02-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - LDFLAGS broke in move to AC_LINK_IFELSE, thanks ltramuset@club-internet.fr
