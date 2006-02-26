@@ -1,4 +1,5 @@
 2.6.4
+ - Fixed configuration bug for libpq in nonstandard locations
  - Fixed detection of ws2 socket library on Windows
  - Reviewed reference documentation
 2.6.3
