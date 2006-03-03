@@ -12,6 +12,7 @@
 #include <unistd.h>
 #endif
 #if defined(_WIN32)
+#define NOMINMAX
 #include <winsock2.h>
 #endif
 #endif // PQXX_HAVE_SYS_SELECT_H

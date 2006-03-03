@@ -1,6 +1,7 @@
 2.6.4
  - Fixed configuration bug for libpq in nonstandard locations
  - Fixed detection of ws2 socket library on Windows
+ - Worked around problems with, Visual C++.NET 2003
  - Reviewed reference documentation
 2.6.3
  - Radical rework of prepared statements; INCOMPATIBLE INTERFACE CHANGE!

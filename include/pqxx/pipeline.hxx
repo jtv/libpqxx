@@ -18,6 +18,7 @@
  */
 #include "pqxx/compiler-public.hxx"
 
+#include <limits>
 #include <map>
 #include <string>
 

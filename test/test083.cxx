@@ -28,9 +28,9 @@ int main(int, char *argv[])
     const string Table = "pqxxnumbers";
 
     items<items<int> > contents;
-    for (int i=0; i<10; ++i)
+    for (int x=0; x<10; ++x)
     {
-      items<int> n(i+1);
+      items<int> n(x+1);
       contents.push_back(n);
     }
 

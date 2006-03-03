@@ -56,7 +56,7 @@ bool test_and_catch(connection_base &C, const string &desc)
   {
     throw;
   }
-  catch (const exception &e)
+  catch (const exception &)
   {
     if (C.supports(connection_base::cap_nested_transactions))
       throw;

@@ -1,3 +1,30 @@
+2006-02-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/pipeline.hxx:
+  - Missing include: limits.  Thanks Bart Samwel.
+ include/pqxx/tablereader.hxx, include/pqxx/tablewriter.hxx:
+  - Work around Visual C++.NET 2003 bugs, thanks Bart "Handyman" Samwel!
+ include/pqxx/util.hxx:
+  - Forgot to export pqxx::internal::freepqmem (Bart "you-know-who" Samwel)
+ test/test040.cxx, test/test041.cxx, test/test044.cxx:
+  - Emit warnings about warnings about obsolete headers (still Bart Samwel)
+ test/test060.cxx, test/test064.cxx, test/test089.cxx:
+  - Unused but named exception references (Bart "him again" Samwel)
+ test/test074.cxx:
+  - Silenced silly Visual C++ 2003 warning (Bart "yes yes we know" Samwel)
+ test/test083.cxx:
+  - Worked around Visual C++'s silly warnings about "for scope"
+ test/test087.cxx:
+  - Prevent Visual C++ sabotage of min()/max() (Bart "you done yet?" Samwel)
+ tools/maketestvcmak.pl, tools/makevcmake.pl:
+  - Enable RTTI
+  - Generate correct range of available test programs in comments
+  - Use "del" instead of "erase"
+  - Typo in comments
+  - Suppress less Make output
+  - Use REM for comments, not #
+  - A big thanks to Bart ("apparently not") Samwel!
+ win32/INSTALL.txt:
+  - Cleared up procedure for config headers a bit (yes, Bart Samwel again)
 2006-02-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Use -lws2_32 on Windows (not -lws32_2), thanks Allysson Costa

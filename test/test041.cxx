@@ -6,6 +6,12 @@
 #include <pqxx/transaction>
 #include <pqxx/result>
 
+#if defined(PQXX_HAVE_CPP_WARNING)
+#warning "Deliberately testing obsolete functionality.  Please ignore warning."
+#elif defined(PQXX_HAVE_CPP_PRAGMA_MESSAGE)
+#pragma message("Deliberately testing obsolete functionality.  Please ignore warning.")
+#endif
+
 using namespace PGSTD;
 using namespace pqxx;
 

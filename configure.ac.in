@@ -606,6 +606,16 @@ before going any further!
 ])
 fi
 
+AC_MSG_CHECKING([PQescapeStringWithConn()])
+pqescapestringwithconn=yes
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[char b[1];pgConn *c;PQescapeStringWithConn(c,b,b,sizeof(b))],
+	AC_DEFINE(PQXX_HAVE_PQESCAPESTRINGWITHCONN, 1,
+		[Define if libpq has PQescapeStringWithConn()]),
+	[pqescapestringwithconn=no]
+)
+AC_MSG_RESULT($pqescapestringwithconn)
+
 AC_MSG_CHECKING([PQescapeBytea()])
 pqescapebytea=yes
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>

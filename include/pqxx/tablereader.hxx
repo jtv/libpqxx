@@ -8,7 +8,7 @@
  *   pqxx::tablereader enables optimized batch reads from a database table
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablereader instead.
  *
- * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -56,8 +56,13 @@ public:
   tablereader(transaction_base &,
       const PGSTD::string &Name,
       ITER begincolumns,
+      ITER endcolumns);							//[t80]
+
+  template<typename ITER> tablereader(transaction_base &,
+      const PGSTD::string &Name,
+      ITER begincolumns,
       ITER endcolumns,
-      const PGSTD::string &Null=PGSTD::string());			//[t80]
+      const PGSTD::string &Null);					//[t80]
 
   ~tablereader() throw ();						//[t6]
 
@@ -108,6 +113,18 @@ private:
 
 // TODO: Find meaningful definition of input iterator
 
+
+template<typename ITER> inline
+tablereader::tablereader(transaction_base &T,
+    const PGSTD::string &Name,
+    ITER begincolumns,
+    ITER endcolumns) :
+  namedclass(Name, "tablereader"),
+  tablestream(T, PGSTD::string()),
+  m_Done(true)
+{
+  setup(T, Name, columnlist(begincolumns, endcolumns));
+}
 
 template<typename ITER> inline
 tablereader::tablereader(transaction_base &T,

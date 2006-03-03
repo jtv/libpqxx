@@ -96,7 +96,9 @@ int main(int, char *argv[])
     }
     catch (const sql_error &e)
     {
-      cout << "(Expected) Setting unknown variable failed" << endl;
+      cout << "(Expected) Setting unknown variable failed: "
+	   << e.what()
+	   << endl;
     }
   }
   catch (const sql_error &e)
