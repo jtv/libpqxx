@@ -682,7 +682,7 @@ template<typename T> inline PGSTD::string Quote(T Obj)
 
 namespace internal
 {
-void freepqmem(void *);
+void PQXX_LIBEXPORT freepqmem(void *);
 
 /// Reference-counted smart pointer to libpq-allocated object
 /** Keep track of a libpq-allocated object, and free it once all references to

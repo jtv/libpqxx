@@ -50,12 +50,16 @@ public:
   /// Write only the given sequence of columns
   /** @since PostgreSQL backend 7.3.
    */
-  template<typename ITER>
-  tablewriter(transaction_base &,
+  template<typename ITER> tablewriter(transaction_base &,
+      const PGSTD::string &WName,
+      ITER begincolumns,
+      ITER endcolumns);							//[t9]
+
+  template<typename ITER> tablewriter(transaction_base &,
       const PGSTD::string &WName,
       ITER begincolumns,
       ITER endcolumns,
-      const PGSTD::string &Null=PGSTD::string());			//[t9]
+      const PGSTD::string &Null);					//[t9]
 
   ~tablewriter() throw ();						//[t5]
 
@@ -151,8 +155,17 @@ private:
 namespace pqxx
 {
 
-template<typename ITER> inline
-tablewriter::tablewriter(transaction_base &T,
+template<typename ITER> inline tablewriter::tablewriter(transaction_base &T,
+    const PGSTD::string &WName,
+    ITER begincolumns,
+    ITER endcolumns) :
+  namedclass("tablewriter", WName),
+  tablestream(T, PGSTD::string())
+{
+  setup(T, WName, columnlist(begincolumns, endcolumns));
+}
+
+template<typename ITER> inline tablewriter::tablewriter(transaction_base &T,
     const PGSTD::string &WName,
     ITER begincolumns,
     ITER endcolumns,

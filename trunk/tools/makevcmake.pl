@@ -18,9 +18,10 @@ my @objs = split / /, $files;
 
 print <<EOF;
 # AUTOMATICALLY GENERATED--DO NOT EDIT
-# This file is generated automatically by the "makevcmak.pl" script found in the
-# tools directory.
-# Based on the original by Clinton James <clinton.james\@jidn.com>
+# This file is generated automatically by the "makevcmake.pl" script found in
+# the tools directory.
+# Based on the original by Clinton James, with improvements by various
+# contributors
 !IF "\$(CFG)" != "dll" && "\$(CFG)" != "dll debug" && "\$(CFG)" != "static" && "\$(CFG)" != "static debug"
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
@@ -123,8 +124,8 @@ ALL :
 
 CLEAN :
 	\@echo Deleting all files from \$(INTDIR) and \$(OUTDIR).
-	-\@erase "\$(INTDIR)" /Q
-	-\@erase "\$(OUTDIR)" /Q
+	-\@del "\$(INTDIR)" /Q
+	-\@del "\$(OUTDIR)" /Q
 
 !IF "\$(CFG)" == "dll" || "\$(CFG)" == "dll debug" || "\$(CFG)" == "static" || "\$(CFG)" == "static debug"
 !MESSAGE
@@ -133,25 +134,25 @@ CLEAN :
 LIBPQXXDLL : "\$(OUTFILE).dll"
 
 "\$(OUTFILE).dll" : "\$(OUTDIR)" \$(LINK32_OBJS)
-    \@\$(LINK32) \@<<
+    \$(LINK32) \@<<
   \$(LINK32_FLAGS) \$(LINK32_OBJS)
 <<
 !IF "\$(CFG)" == "dll debug"
-   -\@erase "\$(OUTFILE).ilk"
-   #-\@erase "\$(OUTFILE).pdb"
+   -\@del "\$(OUTFILE).ilk"
+   -\@REM del "\$(OUTFILE).pdb"
 !ENDIF
-   -\@erase "\$(OUTFILE).exp"
-   #-\@erase "\$(INTDIR)\\*.?db"
-   -\@erase "\$(INTDIR)\\*.obj"
+   -\@del "\$(OUTFILE).exp"
+   -\@REM del "\$(INTDIR)\\*.?db"
+   -\@del "\$(INTDIR)\\*.obj"
 
 LIBPQXXSTATIC : "\$(OUTFILE).lib"
 
 "\$(OUTFILE).lib" : "\$(OUTDIR)" \$(DEF_FILE) \$(LINK32_OBJS)
-    \@\$(LIB32) \@<<
+    \$(LIB32) \@<<
   \$(LIB32_FLAGS) \$(DEF_FLAGS) \$(LINK32_OBJS)
 <<
-	-\@erase "\$(INTDIR)\\*.obj"
-	#-\@erase "\$(INTDIR)\\*.?db"
+	-\@del "\$(INTDIR)\\*.obj"
+	-\@REM del "\$(INTDIR)\\*.?db"
 
 "\$(OUTDIR)" :
     if not exist "\$(OUTDIR)/\$(NULL)" mkdir "\$(OUTDIR)"
@@ -169,7 +170,7 @@ foreach my $t (@objs) {
   print <<EOF
 SOURCE=..\\src\\$t.cxx
 "\$(INTDIR)\\$t.obj" : \$(SOURCE) "\$(INTDIR)"
-	\@\$(CPP) \$(CPP_PROJ) \$(SOURCE)
+	\$(CPP) \$(CPP_PROJ) \$(SOURCE)
 
 EOF
 }
@@ -177,7 +178,7 @@ EOF
 print <<EOF;
 SOURCE=.\\libpqxx.cxx
 "\$(INTDIR)\\libpqxx.obj" : \$(SOURCE) "\$(INTDIR)"
-	\@\$(CPP) \$(CPP_PROJ) \$(SOURCE)
+	\$(CPP) \$(CPP_PROJ) \$(SOURCE)
 
 !ENDIF
 

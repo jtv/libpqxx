@@ -17,19 +17,23 @@ $files =~ s/\.cxx//g;
 $files =~ s/[^ \/]*\///g;
 my @tests = split / /, $files;
 
+# Last of currently available tests
+my $last = @tests[@tests-1];
+$last =~ s/[^0-9]//g;
+
 print <<EOF;
 # AUTOMATICALLY GENERATED--DO NOT EDIT
 # This file is generated automatically for automake whenever test programs are
 # added to libpqxx, using the Perl script "maketestvcmak.pl" found in the tools
 # directory.
 #
-# Contents of this file based on the original test.mak by Clinton James:
-# Clinton James (March 2002)
+# Contents of this file based on the original test.mak by Clinton James (March
+# 2002) with changes including those by Bart Samwel (February 2006) 
 
 !IF \"\$(CFG)\" != \"Release\" && \"\$(CFG)\" != \"Debug\"
 !MESSAGE You can specify a specific testcase when running NMAKE. For example:
 !MESSAGE     NMAKE /f \"test.mak\" testcase
-!MESSAGE Possible choices for testcase are TEST001 through TEST059 or ALL
+!MESSAGE Possible choices for testcase are TEST000 through TEST$last or ALL
 !MESSAGE
 CFG=Release
 !ENDIF
@@ -52,7 +56,8 @@ LINK32_FLAG_EXTRA=/incremental:no /debug /pdbtype:sept
 !ENDIF
 
 CPP=cl.exe
-CPP_PROJ=/nologo \$(CPP_EXTRA) /W3 /GX /FD /c \\
+CPP_PROJ=/nologo \$(CPP_EXTRA) /W3 /GX /FD /GR /wd4800 /wd4258 /Zc:forScope \\
+	/c \\
 	/D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"HAVE_VSNPRINTF_DECL\" \$(STD) \\
 	/I \"../include\" /I \"\$(PGSQLSRC)/include\" /I \"\$(PGSQLSRC)/interfaces/libpq\" \\
 	/YX /Fo\"\$(INTDIR)\\\\\" /Fd\"\$(INTDIR)\\\\\"
@@ -79,8 +84,9 @@ foreach my $t (@tests) {
 print <<EOF;
 
 CLEAN :
-         \"\$(INTDIR)\" /Q
-        -\@erase \"\$(OUTDIR)\\test*.exe\" /Q
+	-\@del \"\$(INTDIR)\" /Q
+	-\@del vc70.pch /Q
+	-\@del \"\$(OUTDIR)\\test*.exe\" /Q
 
 \"\$(INTDIR)\" :
         if not exist \"\$(INTDIR)/\$(NULL)\" mkdir \"\$(INTDIR)\"
@@ -96,7 +102,7 @@ foreach my $t (@tests) {
     \@\$(LINK32) \@<<
   \$(LINK32_FLAGS) /out:\"\$(OUTDIR)\\$t.exe\" \"\$(INTDIR)\\$t.obj\"
 <<
-        -\@erase \"\$(INTDIR)\" /Q
+        -\@del \"\$(INTDIR)\" /Q
 
 EOF
 }
