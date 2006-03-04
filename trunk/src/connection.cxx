@@ -7,7 +7,7 @@
  *      implementation of the pqxx::connection and sibling classes.
  *   Different ways of setting up a backend connection.
  *
- * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -72,6 +72,13 @@ pqxx::connectionpolicy::do_disconnect(handle orig) throw ()
   if (orig) PQfinish(orig);
   return 0;
 }
+
+
+bool pqxx::connectionpolicy::is_ready(handle h) const throw ()
+{
+  return h != 0;
+}
+
 
 pqxx::connectionpolicy::handle
 pqxx::connect_direct::do_startconnect(handle orig)
@@ -162,5 +169,11 @@ pqxx::connect_async::do_dropconnect(handle orig) throw ()
 {
   m_connecting = false;
   return orig;
+}
+
+
+bool pqxx::connect_async::is_ready(handle h) const throw ()
+{
+  return h && !m_connecting;
 }
 

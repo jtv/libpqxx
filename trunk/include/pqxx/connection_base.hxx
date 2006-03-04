@@ -583,6 +583,7 @@ protected:
   void wait_write() const;
 
 private:
+  void PQXX_PRIVATE clearcaps() throw ();
   void PQXX_PRIVATE SetupState();
   void PQXX_PRIVATE check_result(const result &, const char Query[]);
 
@@ -595,6 +596,7 @@ private:
   void PQXX_PRIVATE process_notice_raw(const char msg[]) throw ();
 
   void read_capabilities() throw ();
+  void set_capability(capability) throw ();
 
   prepare::internal::prepared_def &find_prepared(const PGSTD::string &);
 

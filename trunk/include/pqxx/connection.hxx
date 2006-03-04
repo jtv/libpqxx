@@ -87,6 +87,7 @@ public:
   virtual handle do_startconnect(handle);
   virtual handle do_completeconnect(handle);
   virtual handle do_dropconnect(handle) throw ();
+  virtual bool is_ready(handle) const throw ();
 
 private:
   /// Is a connection attempt in progress?
