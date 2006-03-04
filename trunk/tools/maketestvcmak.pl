@@ -65,7 +65,7 @@ LINK32_FLAG_EXTRA=/incremental:no
 !ELSEIF  \"\$(CFG)\" == \"Debug\"
 CPP_EXTRA=/MDd /Gm /GZ /Zi /Od /D \"_DEBUG\"
 LINK32_FLAG_LIB=libpqxxD.lib
-LINK32_FLAG_EXTRA=/incremental:no /debug /pdbtype:sept
+LINK32_FLAG_EXTRA=/incremental:no /debug
 
 !ENDIF
 
