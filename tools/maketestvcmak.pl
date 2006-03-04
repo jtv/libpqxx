@@ -7,15 +7,21 @@
 # MS-DOS likes it.  A simple "sed -e 's/$/\r/'" should do the trick.
 #
 
-my $dir = shift;
-if ($dir eq '') {
-  $dir = "."
+my $dir = '';
+if (@ARGV > 0) {
+  $dir = $ARGV[0]
 }
-my $files = `ls $dir/test???\.cxx`;
-$files =~ s/\s\s*/ /g;
-$files =~ s/\.cxx//g;
-$files =~ s/[^ \/]*\///g;
-my @tests = split / /, $files;
+if ($dir eq '') {
+  $dir = "../test"
+}
+my @tests;
+opendir(DIRHANDLE, "$dir") or die "Could not open $dir: $!";
+while (defined($filename=readdir(DIRHANDLE))) {
+  if (substr($filename,-4) eq '.cxx') {
+    push(@tests, substr($filename, 0, length($filename)-4));
+  }
+}
+closedir(DIRHANDLE);
 
 # Last of currently available tests
 my $last = @tests[@tests-1];
@@ -38,9 +44,18 @@ print <<EOF;
 CFG=Release
 !ENDIF
 
+!IF \"\$(CFG)\" = \"Debug\"
+!MESSAGE NOTE:
+!MESSAGE The Debug configuration only works if you've built libpqxx
+!MESSAGE with the debug target, AND you've built libpq with that as
+!MESSAGE well. You can do this by doing:
+!MESSAGE     CD postgresql-x.y.z\\src\\interfaces\\libpq
+!MESSAGE     NMAKE /F win32.mak DEBUG=1
+!ENDIF
+
 !include common
-OUTDIR=./lib
-INTDIR=./obj
+OUTDIR=.\\lib
+INTDIR=.\\obj
 
 !IF  \"\$(CFG)\" == \"Release\"
 CPP_EXTRA=/MD /D \"NDEBUG\"
@@ -49,8 +64,7 @@ LINK32_FLAG_EXTRA=/incremental:no
 
 !ELSEIF  \"\$(CFG)\" == \"Debug\"
 CPP_EXTRA=/MDd /Gm /GZ /Zi /Od /D \"_DEBUG\"
-#LINK32_FLAG_LIB=libpqxxD.lib
-LINK32_FLAG_LIB=libpqxx.lib
+LINK32_FLAG_LIB=libpqxxD.lib
 LINK32_FLAG_EXTRA=/incremental:no /debug /pdbtype:sept
 
 !ENDIF
@@ -102,7 +116,8 @@ foreach my $t (@tests) {
     \@\$(LINK32) \@<<
   \$(LINK32_FLAGS) /out:\"\$(OUTDIR)\\$t.exe\" \"\$(INTDIR)\\$t.obj\"
 <<
-        -\@del \"\$(INTDIR)\" /Q
+	-\@del \"\$(INTDIR)\" /Q
+	\@\"\$(OUTDIR)\\$t.exe\"
 
 EOF
 }
