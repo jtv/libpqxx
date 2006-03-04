@@ -577,10 +577,6 @@ protected:
   explicit connection_base(connectionpolicy &);
   void init();
 
-#ifdef PQXX_QUIET_DESTRUCTORS
-  ~connection_base();
-#endif
-
   void close() throw ();
   void wait_read() const;
   void wait_read(long seconds, long microseconds) const;
@@ -687,15 +683,6 @@ private:
 
 //@}
 
-
-#ifdef PQXX_QUIET_DESTRUCTORS
-inline connection_base::~connection_base()
-{
-  // Visual C++ seems to have a problem with output during destructors!
-  PGSTD::auto_ptr<noticer> n(new nonnoticer());
-  set_noticer(n);
-}
-#endif
 
 
 namespace internal
