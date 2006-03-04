@@ -7,7 +7,7 @@
  *      Compiler deficiency workarounds for compiling libpqxx itself.
  *      DO NOT INCLUDE THIS FILE when building client programs.
  *
- * Copyright (c) 2002-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -29,15 +29,28 @@
 #include "pqxx/config-internal-autotools.h"
 
 #ifdef _WIN32
+
 #ifdef PQXX_SHARED
 #undef  PQXX_LIBEXPORT
 #define PQXX_LIBEXPORT __declspec(dllexport)
 // TODO: Does Windows have a way to "unexport" a symbol in an exported class?
 #define PQXX_PRIVATE
 #endif	// PQXX_SHARED
+
+#ifdef _MSC_VER
+#pragma warning (disable: 4251 4275 4273)
+#pragma warning (disable: 4258) // Complains that for-scope usage is correct
+#pragma warning (disable: 4290)
+#pragma warning (disable: 4355)
+#pragma warning (disable: 4786)
+#pragma warning (disable: 4800)	// Performance warning for boolean conversions
+#endif
+
 #elif defined(__GNUC__) && defined(PQXX_HAVE_GCC_VISIBILITY)	// !_WIN32
+
 #define PQXX_LIBEXPORT __attribute__ ((visibility("default")))
 #define PQXX_PRIVATE __attribute__ ((visibility("hidden")))
+
 #endif	// __GNUC__ && PQXX_HAVE_GCC_VISIBILITY
 
 

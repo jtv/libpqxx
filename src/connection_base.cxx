@@ -99,12 +99,14 @@ pqxx::connection_base::connection_base(connectionpolicy &pol) :
   m_reactivation_avoidance(),
   m_unique_id(0)
 {
+  clearcaps();
 }
 
 
 void pqxx::connection_base::init()
 {
   m_Conn = m_policy.do_startconnect(m_Conn);
+  if (m_policy.is_ready(m_Conn)) activate();
 }
 
 
@@ -214,6 +216,12 @@ string pqxx::connection_base::RawGetVar(const string &Var)
   if (i != m_Vars.end()) return i->second;
 
   return Exec(("SHOW " + Var).c_str(), 0).at(0).at(0).as(string());
+}
+
+
+void pqxx::connection_base::clearcaps() throw ()
+{
+  for (int i=0; i<cap_end; ++i) m_caps[i] = false;
 }
 
 
@@ -364,7 +372,7 @@ void pqxx::connection_base::check_result(const result &R, const char Query[])
 void pqxx::connection_base::disconnect() throw ()
 {
   // When we activate again, the server may be different!
-  for (int i=0; i<cap_end; ++i) m_caps[i] = false;
+  clearcaps();
 
   m_Conn = m_policy.do_disconnect(m_Conn);
 }
@@ -1205,6 +1213,12 @@ void pqxx::connection_base::read_capabilities() throw ()
   m_caps[cap_cursor_with_hold] = (v >= 70400);
   m_caps[cap_nested_transactions] = (v >= 80000);
   m_caps[cap_create_table_with_oids] = (v >= 80000);
+}
+
+
+void pqxx::connection_base::set_capability(capability c) throw ()
+{
+  m_caps[c] = true;
 }
 
 

@@ -8,7 +8,7 @@
  *   Interface for defining connection policies
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection instead.
  *
- * Copyright (c) 2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2005-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -46,6 +46,7 @@ public:
   virtual handle do_completeconnect(handle orig);
   virtual handle do_dropconnect(handle orig) throw ();
   virtual handle do_disconnect(handle orig) throw ();
+  virtual bool is_ready(handle) const throw ();
 
 protected:
   handle normalconnect(handle);

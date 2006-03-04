@@ -1,8 +1,9 @@
 2.6.4
+ - Massively improved compatibility with Windows and Visual C++
+ - Fixed late initialization of "direct" connection state
+ - Fixed problem with initialization of connection capabilities
  - Fixed configuration bug for libpq in nonstandard locations
- - Fixed detection of ws2 socket library on Windows
- - Worked around problems with, Visual C++.NET 2003
- - Reviewed reference documentation
+ - Sample configuration header for libpq found in PostgreSQL 8.1
 2.6.3
  - Radical rework of prepared statements; INCOMPATIBLE INTERFACE CHANGE!
  - Dropped support for g++ 2.95

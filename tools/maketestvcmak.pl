@@ -70,7 +70,7 @@ LINK32_FLAG_EXTRA=/incremental:no /debug /pdbtype:sept
 !ENDIF
 
 CPP=cl.exe
-CPP_PROJ=/nologo \$(CPP_EXTRA) /W3 /GX /FD /GR /wd4800 /wd4258 /Zc:forScope \\
+CPP_PROJ=/nologo \$(CPP_EXTRA) /W3 /GX /FD /GR /wd4800 \\
 	/c \\
 	/D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"HAVE_VSNPRINTF_DECL\" \$(STD) \\
 	/I \"../include\" /I \"\$(PGSQLSRC)/include\" /I \"\$(PGSQLSRC)/interfaces/libpq\" \\

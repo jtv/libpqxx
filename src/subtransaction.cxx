@@ -33,7 +33,9 @@ pqxx::subtransaction::subtransaction(dbtransaction &T,
   dbtransaction(T.conn(), false),
   m_parent(T)
 {
+#if defined(PQXX_HAVE_PQSERVERVERSION)
   check_backendsupport();
+#endif
 }
 
 
@@ -42,10 +44,17 @@ void pqxx::subtransaction::do_begin()
   try
   {
     DirectExec(("SAVEPOINT \"" + name() + "\"").c_str());
+#if !defined(PQXX_HAVE_PQSERVERVERSION)
+    // We can't establish capabilities directly, but evidently nested
+    // transactions do work.
+    m_parent.conn().set_capability(connection_base::cap_nested_transactions);
+#endif
   }
   catch (const sql_error &)
   {
+#if !defined(PQXX_HAVE_PQSERVERVERSION)
     check_backendsupport();
+#endif
     throw;
   }
 }
@@ -68,9 +77,7 @@ void pqxx::subtransaction::do_abort()
 
 void pqxx::subtransaction::check_backendsupport() const
 {
-#if defined(PQXX_HAVE_PQSERVERVERSION)
   if (!m_parent.conn().supports(connection_base::cap_nested_transactions))
     throw runtime_error("Backend version does not support nested transactions");
-#endif
 }
 

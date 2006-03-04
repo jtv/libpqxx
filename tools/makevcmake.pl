@@ -79,7 +79,7 @@ IAM=\$(MAKEDIR)\\libpqxx.mak /NOLOGO
 # Putting the extra options together with the options common to all the
 # different builds.
 CPP=cl.exe
-CPP_PROJ=/nologo /W3 /GX /FD /GR /wd4800 /c \$(CPP_EXTRAS) \\
+CPP_PROJ=/nologo /W3 /GX /FD /GR /c \$(CPP_EXTRAS) \\
 	/I "../include" /I "\$(PGSQLSRC)/include" /I "\$(PGSQLSRC)/interfaces/libpq" \\
 	\$(STD) /D "WIN32" /D "_MBCS" \\
 	/Fo"\$(INTDIR)\\\\" /Fd"\$(INTDIR)\\\\" \\

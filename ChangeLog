@@ -1,3 +1,28 @@
+2006-02-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/libpq/8.1/config-internal-libpq.h
+  - New
+  - Adds PQserverVersion()--thanks Bart Samwel
+  - Adds PQprepare()
+ include/pqxx/basic_connection.hxx, include/pqxx/connection_base.hxx,
+ include/pqxx/connectionpolicy.hxx, src/connection_base.cxx,
+ src/connection.cxx:
+  - Moved workaround for MSVC++ "output in destructor" bug to leaf destructor
+  - Fixed late activation in "direct" connections (thanks Bart Samwel)
+  - Explicitly zero-initialize capabilities (thanks Bart Samwel)
+  - Allow friends to set capabilities explicity (handy if proven present)
+ include/pqxx/compiler-internal.hxx, include/pqxx/compiler-public.hxx:
+  - Moved Visual C++ "silence stupid warning" pragmas to "internal" header
+  - Silence Visual C++ warning 4800 from here
+ include/pqxx/subtransaction.hxx, src/subtransaction.cxx:
+  - More intelligent check for nested-transactions support on the backend
+ test/test074.cxx:
+  - More work on silencing pointless Visual C++ warning, thanks Bart Samwel
+ tools/maketestvcmak.pl, tools/makevcmake.pl:
+  - Made compatible with Windows, thanks Bart Samwel
+  - Missing compiler options from Bart's previous patch
+  - Deal with release/debug mode incompatibility, (Bart Samwel)
+  - Run tests after building them (Bart Samwel)
+  - Don't silence libpqxx warnings from makefile
 2006-02-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/pipeline.hxx:
   - Missing include: limits.  Thanks Bart Samwel.
