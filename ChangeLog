@@ -3,6 +3,8 @@
   - New
   - Adds PQserverVersion()--thanks Bart Samwel
   - Adds PQprepare()
+ include/pqxx/compiler-public.hxx:
+  - Use debug build of libpq when building debug libpqxx, (Bart Samwel)
  include/pqxx/basic_connection.hxx, include/pqxx/connection_base.hxx,
  include/pqxx/connectionpolicy.hxx, src/connection_base.cxx,
  src/connection.cxx:
@@ -15,6 +17,8 @@
   - Silence Visual C++ warning 4800 from here
  include/pqxx/subtransaction.hxx, src/subtransaction.cxx:
   - More intelligent check for nested-transactions support on the backend
+ src/except.cxx:
+  - Forgot to include compiler-internal.hxx
  test/test074.cxx:
   - More work on silencing pointless Visual C++ warning, thanks Bart Samwel
  tools/maketestvcmak.pl, tools/makevcmake.pl:
@@ -23,6 +27,8 @@
   - Deal with release/debug mode incompatibility, (Bart Samwel)
   - Run tests after building them (Bart Samwel)
   - Don't silence libpqxx warnings from makefile
+ win32/common, win32/INSTALL.txt:
+  - Add debug-library path, not just release-library path (Bart Samwel)
 2006-02-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/pipeline.hxx:
   - Missing include: limits.  Thanks Bart Samwel.

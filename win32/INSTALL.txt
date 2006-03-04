@@ -190,8 +190,15 @@ files from postgres, some of the header files are necessary.  Set this option
 where the src directory of postgres is located.  It can handle it from there.
 
 LIBPATH
-This is where the release version of libpq is located.  Refer to the postgres
-documentation on building this file if you don't have one.
+This is where libpq is located.  Refer to the postgres documentation on building
+that library if you don't have one.
+
+Make sure your LIBPATH includes at least the version of libpq that corresponds
+to the mode you want to build libpqxx in: if you want to produce a debug build
+of libpqxx, ensure that at least the debug build of libpq is in this path.  If
+you intend to produce a release build, ensure that the release build of libpq is
+available somewhere in your LIBPATH directories.  The given example provides for
+both of these.
 
 
 Shared and Static Libraries, or DLL vs. .LIB
