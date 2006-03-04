@@ -69,7 +69,7 @@ void pqxx::subtransaction::do_abort()
 void pqxx::subtransaction::check_backendsupport() const
 {
 #if defined(PQXX_HAVE_PQSERVERVERSION)
-  if (!T.conn().supports(connection_base::cap_nested_transactions))
+  if (!m_parent.conn().supports(connection_base::cap_nested_transactions))
     throw runtime_error("Backend version does not support nested transactions");
 #endif
 }
