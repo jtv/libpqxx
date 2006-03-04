@@ -1,3 +1,5 @@
+2.6.5
+ - Even more work on Visual C++ problems
 2.6.4
  - Massively improved compatibility with Windows and Visual C++
  - Fixed late initialization of "direct" connection state

@@ -17,6 +17,7 @@
  *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-public.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
 
 #include "pqxx/tablestream"
 
@@ -243,6 +244,7 @@ inline tablewriter &tablewriter::operator<<(const TUPLE &T)
   return *this;
 }
 
-}
+} // namespace pqxx
 
 
+#include "pqxx/compiler-internal-post.hxx"

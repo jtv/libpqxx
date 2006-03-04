@@ -121,7 +121,7 @@ PQXXVERSION=`grep '\<PQXXVERSION\>' VERSION | sed -e 's/^[[:space:]A-Z_]*//' | s
 log "Seeing if debian/changelog is up to date..."
 if ! head -n 1 debian/changelog | grep "($PQXXVERSION-" >/dev/null
 then
-	echo "Please update debian/changelog to mention version $PQXXVERSION!"
+	echo "Please update debian/changelog to mention version $PQXXVERSION"
 	exit 1
 fi
 
@@ -129,10 +129,28 @@ fi
 log "Seeing if NEWS is up to date..."
 if ! head -n 1 NEWS | grep "^$PQXXVERSION[[:space:]]*$"
 then
-	echo "Please update NEWS to describe $PQXXVERSION release!"
+	echo "Please update NEWS to describe $PQXXVERSION release"
 	exit 1
 fi
 
+# Check that compiler-internal-pre.hxx and compiler-internal-post.hxx inclusions
+# match up
+findhdr() {
+  HDR="$1"
+  shift
+  grep "^[[:space:]]*#[[:space:]]*include[[:space:]]*[<\"]$HDR[>\"]" $*
+}
+PREFILES=`mktemp`
+log "Looking for mismatched pre/post compiler headers..."
+findhdr pqxx/compiler-internal-pre.hxx -l include/pqxx/* >"$PREFILES"
+if ! findhdr pqxx/compiler-internal-post.hxx -l include/pqxx/* | \
+	diff "$PREFILES" - ; \
+	then
+	echo "Mismatched compiler-internal-pre/post headers"
+	rm -f "$PREFILES"
+	exit 1
+fi
+rm -f "$PREFILES"
 
 log "Preparing libpqxx release $PQXXVERSION."
 log "Log file is $LOGFILE, errors go to $ERRLOG"

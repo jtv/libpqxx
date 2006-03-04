@@ -17,6 +17,7 @@
  *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-public.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
 
 #include "pqxx/connection_base"
 #include "pqxx/transaction"
@@ -221,3 +222,4 @@ inline void pqxx::connection_base::perform(const TRANSACTOR &T,
 }
 
 
+#include "pqxx/compiler-internal-post.hxx"

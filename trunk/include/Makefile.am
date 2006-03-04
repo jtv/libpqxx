@@ -5,6 +5,7 @@ nobase_include_HEADERS= pqxx/pqxx pqxx/all.h \
 	pqxx/binarystring pqxx/binarystring.hxx \
 	pqxx/cachedresult.h \
 	pqxx/compiler-public.hxx \
+	pqxx/compiler-internal-pre.hxx pqxx/compiler-internal-post.hxx \
 	pqxx/connection pqxx/connection.hxx pqxx/connection.h \
 	pqxx/connection_base pqxx/connection_base.hxx pqxx/connection_base.h \
 	pqxx/connectionitf.h \

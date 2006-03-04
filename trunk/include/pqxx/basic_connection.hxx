@@ -17,6 +17,7 @@
  *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-public.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
 
 #include <string>
 
@@ -80,4 +81,6 @@ private:
 };
 
 } // namespace
+
+#include "pqxx/compiler-internal-post.hxx"
 

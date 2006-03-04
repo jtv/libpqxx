@@ -17,6 +17,7 @@
  *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-public.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
 
 #include "pqxx/result"
 #include "pqxx/tablestream"
@@ -162,3 +163,4 @@ inline tablereader &pqxx::tablereader::operator>>(TUPLE &T)
 
 } // namespace pqxx
 
+#include "pqxx/compiler-internal-post.hxx"

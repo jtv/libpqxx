@@ -17,6 +17,7 @@
  *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-public.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
 
 #include <map>
 #include <memory>
@@ -783,3 +784,4 @@ void wait_write(const internal::pq::PGconn *);
 
 } // namespace pqxx
 
+#include "pqxx/compiler-internal-post.hxx"

@@ -17,6 +17,7 @@
  *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-public.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
 
 #include <limits>
 #include <map>
@@ -207,3 +208,4 @@ private:
 } // namespace
 
 
+#include "pqxx/compiler-internal-post.hxx"
