@@ -207,6 +207,7 @@ require_product doc/html/Tutorial/index.html
 
 command "mv $TARBALL .."
 command "cd .."
+command "md5sum $TARBALL >$TARBALL.md5sum" nice
 command "rm -rf $DISTNAME"
 
 set +e
