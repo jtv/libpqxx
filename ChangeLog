@@ -15,6 +15,7 @@
  include/pqxx/compiler-internal.hxx, include/pqxx/compiler-public.hxx:
   - Moved Visual C++ "silence stupid warning" pragmas to "internal" header
   - Silence Visual C++ warning 4800 from here
+  - No longer require config-internal-autotools header
  include/pqxx/subtransaction.hxx, src/subtransaction.cxx:
   - More intelligent check for nested-transactions support on the backend
  src/except.cxx:
@@ -27,6 +28,8 @@
   - Deal with release/debug mode incompatibility, (Bart Samwel)
   - Run tests after building them (Bart Samwel)
   - Don't silence libpqxx warnings from makefile
+ tools/preprelease:
+  - Compute MD5 checksum of release tarball
  win32/common, win32/INSTALL.txt:
   - Add debug-library path, not just release-library path (Bart Samwel)
 2006-02-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
