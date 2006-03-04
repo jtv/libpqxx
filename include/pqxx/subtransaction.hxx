@@ -17,6 +17,7 @@
  *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-public.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
 
 #include "pqxx/dbtransaction"
 
@@ -57,3 +58,4 @@ private:
 }
 
 
+#include "pqxx/compiler-internal-post.hxx"

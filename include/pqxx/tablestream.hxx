@@ -17,6 +17,7 @@
  *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-public.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
 
 #include "pqxx/transaction_base"
 
@@ -89,3 +90,4 @@ PGSTD::string tablestream::columnlist(ITER colbegin, ITER colend)
 }
 } // namespace pqxx
 
+#include "pqxx/compiler-internal-post.hxx"

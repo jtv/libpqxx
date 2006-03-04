@@ -17,6 +17,7 @@
  *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-public.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
 
 #ifdef PQXX_HAVE_STREAMBUF
 #include <streambuf>
@@ -711,4 +712,6 @@ private:
 
 typedef basic_lostream<char> lostream;
 
-}
+} // namespace pqxx
+
+#include "pqxx/compiler-internal-post.hxx"

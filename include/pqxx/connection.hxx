@@ -16,6 +16,9 @@
  *
  *-------------------------------------------------------------------------
  */
+#include "pqxx/compiler-public.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
+
 #include "pqxx/connectionpolicy"
 #include "pqxx/basic_connection"
 
@@ -120,3 +123,4 @@ typedef basic_connection<connect_null> nullconnection;
 
 }
 
+#include "pqxx/compiler-internal-post.hxx"

@@ -16,6 +16,7 @@
  *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-public.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
 
 #include <string>
 
@@ -167,3 +168,4 @@ PGSTD::string PQXX_LIBEXPORT escape_binary(const unsigned char bin[], size_t len
 
 }
 
+#include "pqxx/compiler-internal-post.hxx"

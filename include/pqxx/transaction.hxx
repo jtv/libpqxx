@@ -17,7 +17,7 @@
  *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-public.hxx"
-
+#include "pqxx/compiler-internal-pre.hxx"
 
 #include "pqxx/dbtransaction"
 
@@ -115,3 +115,4 @@ typedef transaction<> work;
 }
 
 
+#include "pqxx/compiler-internal-post.hxx"

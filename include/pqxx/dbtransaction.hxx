@@ -17,6 +17,7 @@
  *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-public.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
 
 #include "pqxx/transaction_base"
 
@@ -92,3 +93,4 @@ private:
 
 } // namespace pqxx
 
+#include "pqxx/compiler-internal-post.hxx"

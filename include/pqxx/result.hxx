@@ -17,6 +17,7 @@
  *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-public.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
 
 #ifdef PQXX_HAVE_IOS
 #include <ios>
@@ -1118,3 +1119,4 @@ trivial as it may be.
 */
 
 
+#include "pqxx/compiler-internal-post.hxx"

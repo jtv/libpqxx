@@ -17,6 +17,7 @@
  *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-public.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
 
 #include "pqxx/connection_base"
 
@@ -98,3 +99,4 @@ private:
 }
 
 
+#include "pqxx/compiler-internal-post.hxx"

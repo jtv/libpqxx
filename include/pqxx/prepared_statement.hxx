@@ -15,6 +15,9 @@
  *
  *-------------------------------------------------------------------------
  */
+#include "pqxx/compiler-public.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
+
 #include "pqxx/util"
 
 namespace pqxx
@@ -158,3 +161,4 @@ struct PQXX_PRIVATE get_sqltype
 } // namespace pqxx::prepared
 } // namespace pqxx
 
+#include "pqxx/compiler-internal-post.hxx"

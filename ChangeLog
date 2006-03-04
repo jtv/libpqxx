@@ -1,3 +1,17 @@
+2006-02-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/*:
+  - Disable pointless Visual C++ warnings in headers (Bart Samwel)
+ include/pqxx/compiler-internal-post.hxx,
+ include/pqxx/compiler-internal-pre.hxx:
+  - New
+  - Wrap libpqxx headers in temporary warning suppression on Visual C++
+  - Designed by Bart Samwel
+ include/pqxx/util.hxx:
+  - Work around yet another pointless Visual C++ warning (Bart Samwel)
+ tools/maketestvcmak.pl:
+  - Removed obsolete linker function /pdbtype (Bart Samwel)
+ tools/preprelease:
+  - Check for matching compiler-internal-pre/post.hxx headers
 2006-02-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/libpq/8.1/config-internal-libpq.h
   - New

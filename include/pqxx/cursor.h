@@ -18,6 +18,9 @@
 #ifndef PQXX_OLD_CURSOR_H
 #define PQXX_OLD_CURSOR_H
 
+#include "pqxx/compiler-public.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
+
 #include "pqxx/result.h"
 #include "pqxx/transaction_base.h"
 #include "pqxx/util.h"
@@ -286,6 +289,8 @@ private:
 
 
 } // namespace pqxx
+
+#include "pqxx/compiler-internal-post.hxx"
 
 #endif
 

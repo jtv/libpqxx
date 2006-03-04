@@ -17,6 +17,7 @@
  *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-public.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
 
 #ifdef PQXX_HAVE_LIMITS
 #include <limits>
@@ -619,3 +620,4 @@ private:
 
 } // namespace pqxx
 
+#include "pqxx/compiler-internal-post.hxx"
