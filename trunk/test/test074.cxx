@@ -46,7 +46,7 @@ int main(int, char *argv[])
       throw logic_error("Got double " + to_string(dval) + " from fieldstream, "
 	  "but " + to_string(R[0][0].as<double>()) + " from field");
 
-    const float roughpi = static_cat<float>(3.1415926435);
+    const float roughpi = static_cast<float>(3.1415926435);
     R = W.exec("SELECT " + to_string(roughpi));
     float pival;
     (fieldstream(R.at(0).at(0))) >> pival;
