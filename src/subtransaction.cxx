@@ -7,7 +7,7 @@
  *      implementation of the pqxx::subtransaction class.
  *   pqxx::transaction is a nested transaction, i.e. one within a transaction
  *
- * Copyright (c) 2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2005-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -33,14 +33,21 @@ pqxx::subtransaction::subtransaction(dbtransaction &T,
   dbtransaction(T.conn(), false),
   m_parent(T)
 {
-  if (!T.conn().supports(connection_base::cap_nested_transactions))
-    throw runtime_error("Backend version does not support nested transactions");
+  check_backendsupport();
 }
 
 
 void pqxx::subtransaction::do_begin()
 {
-  DirectExec(("SAVEPOINT \"" + name() + "\"").c_str());
+  try
+  {
+    DirectExec(("SAVEPOINT \"" + name() + "\"").c_str());
+  }
+  catch (const sql_error &)
+  {
+    check_backendsupport();
+    throw;
+  }
 }
 
 
@@ -56,5 +63,14 @@ void pqxx::subtransaction::do_commit()
 void pqxx::subtransaction::do_abort()
 {
   DirectExec(("ROLLBACK TO SAVEPOINT \"" + name() + "\"").c_str());
+}
+
+
+void pqxx::subtransaction::check_backendsupport() const
+{
+#if defined(PQXX_HAVE_PQSERVERVERSION)
+  if (!T.conn().supports(connection_base::cap_nested_transactions))
+    throw runtime_error("Backend version does not support nested transactions");
+#endif
 }
 
