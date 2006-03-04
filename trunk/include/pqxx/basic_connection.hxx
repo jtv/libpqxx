@@ -60,7 +60,14 @@ public:
     m_policy(m_options)
 	{ init(); }
 
-  ~basic_connection() throw () { close(); }
+  ~basic_connection() throw ()
+  {
+#ifdef PQXX_QUIET_DESTRUCTORS
+    PGSTD::auto_ptr<noticer> n(new nonnoticer);
+    set_noticer(n);
+#endif
+    close();
+  }
 
   const PGSTD::string &options() const throw ()				//[t1]
 	{return m_policy.options();}
