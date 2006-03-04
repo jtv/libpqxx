@@ -146,7 +146,11 @@ template<> struct char_traits<unsigned char>
 #define PQXX_TYPENAME
 #endif	// _MSC_VER < 1310
 
+#ifdef _DEBUG
+#pragma comment(lib, "libpqddll")
+#else
 #pragma comment(lib, "libpqdll")
+#endif
 
 /// Apparently Visual C++.NET 2003 breaks on stdout/stderr output in destructors
 /** Defining this macro will disable all error or warning messages whenever a

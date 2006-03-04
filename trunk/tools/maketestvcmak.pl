@@ -44,7 +44,7 @@ print <<EOF;
 CFG=Release
 !ENDIF
 
-!IF \"\$(CFG)\" = \"Debug\"
+!IF \"\$(CFG)\" == \"Debug\"
 !MESSAGE NOTE:
 !MESSAGE The Debug configuration only works if you've built libpqxx
 !MESSAGE with the debug target, AND you've built libpq with that as

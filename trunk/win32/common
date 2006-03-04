@@ -34,5 +34,5 @@ PGSQLSRC=/Project/postgresql-7.1.2/src
 
 # If the LIBPQ library is not in the LIB environment or search path, specify its
 # location here.
-LIBPATH=/libpath:"/Project/postgresql-7.1.2/src/interfaces/libpq/Release"
+LIBPATH=/libpath:"/Project/postgresql-7.1.2/src/interfaces/libpq/Release" /libpath:"/Project/postgresql-7.1.2/src/interfaces/libpq/Debug"
 
