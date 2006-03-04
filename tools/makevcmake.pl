@@ -6,15 +6,19 @@
 # MS-DOS likes it.  A simple "sed -e 's/$/\r/'" should do the trick.
 #
 
-my $dir = shift;
-if ($dir eq '') {
-  $dir = "."
+my $dir = '../src';
+if (@ARGV > 0) {
+  $dir = $ARGV[0]
 }
-my $files = `ls "$dir"/*.cxx`;
-$files =~ s/\s\s*/ /g;
-$files =~ s/\.cxx//g;
-$files =~ s/[^ \/]*\///g;
-my @objs = split / /, $files;
+
+my @objs;
+opendir(DIRHANDLE,$dir) or die "Could not open $dir: $!";
+while (defined(my $filename=readdir(DIRHANDLE))) {
+  if (substr($filename,-4) eq '.cxx') {
+    push(@objs, substr($filename, 0, length($filename)-4))
+  }
+}
+closedir(DIRHANDLE);
 
 print <<EOF;
 # AUTOMATICALLY GENERATED--DO NOT EDIT
@@ -75,7 +79,7 @@ IAM=\$(MAKEDIR)\\libpqxx.mak /NOLOGO
 # Putting the extra options together with the options common to all the
 # different builds.
 CPP=cl.exe
-CPP_PROJ=/nologo /W3 /GX /FD /c \$(CPP_EXTRAS) \\
+CPP_PROJ=/nologo /W3 /GX /FD /GR /wd4800 /c \$(CPP_EXTRAS) \\
 	/I "../include" /I "\$(PGSQLSRC)/include" /I "\$(PGSQLSRC)/interfaces/libpq" \\
 	\$(STD) /D "WIN32" /D "_MBCS" \\
 	/Fo"\$(INTDIR)\\\\" /Fd"\$(INTDIR)\\\\" \\
