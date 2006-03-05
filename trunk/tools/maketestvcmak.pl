@@ -83,17 +83,17 @@ LINK32_FLAGS=\$(LINK32_FLAG_LIB) kernel32.lib user32.lib wsock32.lib \\
 
 EOF
 
-foreach my $t (@tests) {
-  my $ut = uc $t;
-  print "$ut".': "$(OUTDIR)\\'."$t".'.exe"'."\n"
-}
-print "\n";
-
 print "ALL :";
 foreach my $t (@tests) {
   my $ut = uc $t;
   print " $ut"
 }
+
+foreach my $t (@tests) {
+  my $ut = uc $t;
+  print "$ut".': "$(OUTDIR)\\'."$t".'.exe"'."\n"
+}
+print "\n";
 
 print <<EOF;
 

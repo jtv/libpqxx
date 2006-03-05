@@ -12,6 +12,7 @@
   - Work around yet another pointless Visual C++ warning (Bart Samwel)
  tools/maketestvcmak.pl:
   - Removed obsolete linker function /pdbtype (Bart Samwel)
+  - Make ALL the default target (Bart Samwel)
  tools/preprelease:
   - Check for matching compiler-internal-pre/post.hxx headers
 2006-02-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
