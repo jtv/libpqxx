@@ -1,5 +1,6 @@
 2.6.5
  - Even more work on Visual C++ problems
+ - Fixed bug in prepared statements (mostly visible on Visual C++)
 2.6.4
  - Massively improved compatibility with Windows and Visual C++
  - Fixed late initialization of "direct" connection state

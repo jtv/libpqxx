@@ -75,7 +75,7 @@ public:
   invocation(transaction_base &, const PGSTD::string &statement);
 
   /// Execute!
-  result exec();
+  result exec() const;
 
   /// Pass null parameter
   invocation &operator()();
@@ -113,7 +113,7 @@ private:
   transaction_base &m_home;
   const PGSTD::string &m_statement;
   PGSTD::vector<PGSTD::string> m_values;
-  PGSTD::vector<const char *> m_ptrs;
+  PGSTD::vector<bool> m_nonnull;
 
   invocation &setparam(const PGSTD::string &, bool nonnull);
 };
