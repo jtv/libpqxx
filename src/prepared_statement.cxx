@@ -48,15 +48,24 @@ pqxx::prepare::invocation::invocation(transaction_base &home,
   m_home(home),
   m_statement(statement),
   m_values(),
-  m_ptrs()
+  m_nonnull()
 {
 }
 
 
-pqxx::result pqxx::prepare::invocation::exec()
+pqxx::result pqxx::prepare::invocation::exec() const
 {
-  m_ptrs.push_back(0);
-  return m_home.prepared_exec(m_statement, &m_ptrs[0], m_ptrs.size()-1);
+  const size_t elts = m_nonnull.size();
+  pqxx::internal::scoped_array<const char *> ptrs(elts+1);
+  int v = 0;
+  for (size_t i = 0; i < elts; ++i)
+  {
+    if (m_nonnull[i]) ptrs[i] = m_values[v++].c_str();
+    else ptrs[i] = 0;
+  }
+
+  ptrs[elts] = 0;
+  return m_home.prepared_exec(m_statement, ptrs.c_ptr(), elts);
 }
 
 
@@ -69,13 +78,18 @@ pqxx::prepare::invocation &pqxx::prepare::invocation::operator()()
 pqxx::prepare::invocation &
 pqxx::prepare::invocation::setparam(const string &v, bool nonnull)
 {
-  const char *val = 0;
-  if (nonnull)
+  m_nonnull.push_back(nonnull);
+  if (nonnull) try
   {
     m_values.push_back(v);
-    val = m_values.back().c_str();
   }
-  m_ptrs.push_back(val);
+  catch (const exception &)
+  {
+    // This probably doesn't help much, but it makes the function exception-safe
+    // at very little cost.
+    m_nonnull.resize(m_nonnull.size()-1);
+    throw;
+  }
   return *this;
 }
 

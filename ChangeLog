@@ -6,6 +6,8 @@
   - New
   - Wrap libpqxx headers in temporary warning suppression on Visual C++
   - Designed by Bart Samwel
+ include/pqxx/prepared_statement.hxx, src/prepared_statement.cxx:
+  - Fixed bug that was hidden with some string implementations (Bart Samwel)
  include/pqxx/util.hxx:
   - Work around yet another pointless Visual C++ warning (Bart Samwel)
  tools/maketestvcmak.pl:
