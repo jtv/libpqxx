@@ -1,6 +1,8 @@
 2006-02-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx:
   - Compile fix for change in subtransaction (Bart Samwel)
+ include/pqxx/pipeline.hxx:
+  - Previous Visual C++ fix broke compilers without "limits" header
  tools/maketestvcmak.pl, win32/common:
   - More little fixes by Bart "who was that again?" Samwel
  tools/preprelease:
