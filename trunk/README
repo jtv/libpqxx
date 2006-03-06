@@ -8,8 +8,11 @@ libpq, though this fact is almost completely hidden from programs that use
 libpqxx.
 
 Further information, as well as updates, a mailing list, and a bug reporting
-system can be found at:
+system can be found at any of these URLs (they should all bring you to the same
+site):
 
+	http://pqxx.org/
+	http://pqxx.tk/
 	http://thaiopensource.org/development/libpqxx/
 
 There are also ready-made libpqxx packages available for several systems: Debian
@@ -217,9 +220,10 @@ compiler, and PostgreSQL versions support.  Normally the configure script would
 do this for you; in theory it should be possible to run the configure script
 with e.g. Visual C++ as your compiler.
 
-Before trying to compile with Visual C++, you'll at least need to edit the file
-win32/common to reflect the proper paths to your PostgreSQL headers and the
-libpq library.  See the win32 subdirectory for more documentation.
+Before trying to compile with Visual C++, you'll at least need to copy the file
+win32/common-sample to win32/common, and edit the latter to reflect the proper
+paths to your PostgreSQL headers and the libpq library.  See the win32
+subdirectory for more documentation.
 
 
 Manual Configuration: config-*-*.h

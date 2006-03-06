@@ -1,3 +1,7 @@
+2006-02-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Replaced AC_TRY_LINK loop for socket library with AC_SEARCH_LIBS
+  - Should fix MinGW socket problems, thanks Bart "doesn't ring a bell" Samwel
 2006-02-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx:
   - Compile fix for change in subtransaction (Bart Samwel)
