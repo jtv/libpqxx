@@ -1,3 +1,9 @@
+# Common options for Visual C++ makefiles to build libpqxx and its regression
+# test.
+# THE ORIGINAL OF THIS FILE IS CALLED common-sample; DON'T EDIT THE ORIGINAL or
+# you may lose your changes when you upgrade your libpqxx sources.
+# Instead, copy "common-sample" to "common" and edit just the file "common".
+
 !IF "$(OS)" == "Windows_NT"
 NULL=
 !ELSE 
@@ -30,9 +36,10 @@ STD=/D "PGSTD=std"
 #	postgres_ext.h (in src/include in the PostgreSQL source tree)
 #	libpq-fe.h (in src/interfaces/libpq in the PostgreSQL source tree)
 #
-PGSQLSRC=/Project/postgresql-7.1.2/src
+# This directory is also used to find the compiled libpq and libpqd.
+PGSQLSRC=D:\Src\postgresql-8.1.3\src
 
-# If the LIBPQ library is not in the LIB environment or search path, specify its
-# location here.
-LIBPATH=/libpath:"/Project/postgresql-7.1.2/src/interfaces/libpq/Release" /libpath:"/Project/postgresql-7.1.2/src/interfaces/libpq/Debug"
+# We should use the libpq libraries that correspond to the source tree whose
+# headers we are including.  This ensures that we find all in the same place:
+LIBPATH=/libpath:"$(PGSQLSRC)/interfaces/libpq/Release" /libpath:"$(PGSQLSRC)/interfaces/libpq/Debug"
 

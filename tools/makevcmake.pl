@@ -107,24 +107,32 @@ RSC_PROJ=/l 0x409 /fo"\$(INTDIR)\\libpqxx.res"
 RELEASE :
 	\@\$(MAKE) /f \$(IAM) CFG="dll" LIBPQXXDLL
 	\@\$(MAKE) /f \$(IAM) CFG="static" LIBPQXXSTATIC
+	\@COPY \$(PGSQLSRC)\\interfaces\\libpq\\Release\\libpq.dll \$(OUTDIR)
 
 DEBUG :
 	\@\$(MAKE) /f \$(IAM) CFG="dll debug" LIBPQXXDLL
 	\@\$(MAKE) /f \$(IAM) CFG="static debug" LIBPQXXSTATIC
+	\@COPY \$(PGSQLSRC)\\interfaces\\libpq\\Debug\\libpqd.dll \$(OUTDIR)
 
 DLL :
 	\@\$(MAKE) /f \$(IAM) CFG="dll" LIBPQXXDLL
 	\@\$(MAKE) /f \$(IAM) CFG="dll debug" LIBPQXXDLL
+	\@COPY \$(PGSQLSRC)\\interfaces\\libpq\\Release\\libpq.dll \$(OUTDIR)
+	\@COPY \$(PGSQLSRC)\\interfaces\\libpq\\Debug\\libpqd.dll \$(OUTDIR)
 
 STATIC:
 	\@\$(MAKE) /f \$(IAM) CFG="static" LIBPQXXSTATIC
 	\@\$(MAKE) /f \$(IAM) CFG="static debug" LIBPQXXSTATIC
+	\@COPY \$(PGSQLSRC)\\interfaces\\libpq\\Release\\libpq.dll \$(OUTDIR)
+	\@COPY \$(PGSQLSRC)\\interfaces\\libpq\\Debug\\libpqd.dll \$(OUTDIR)
 
 ALL :
 	\@\$(MAKE) /f \$(IAM) CFG="dll" LIBPQXXDLL
 	\@\$(MAKE) /f \$(IAM) CFG="dll debug" LIBPQXXDLL
 	\@\$(MAKE) /f \$(IAM) CFG="static" LIBPQXXSTATIC
 	\@\$(MAKE) /f \$(IAM) CFG="static debug" LIBPQXXSTATIC
+	\@COPY \$(PGSQLSRC)\\interfaces\\libpq\\Release\\libpq.dll \$(OUTDIR)
+	\@COPY \$(PGSQLSRC)\\interfaces\\libpq\\Debug\\libpqd.dll \$(OUTDIR)
 
 CLEAN :
 	\@echo Deleting all files from \$(INTDIR) and \$(OUTDIR).

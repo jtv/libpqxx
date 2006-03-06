@@ -1,3 +1,13 @@
+2006-02-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx:
+  - Compile fix for change in subtransaction (Bart Samwel)
+ tools/maketestvcmak.pl, win32/common:
+  - More little fixes by Bart "who was that again?" Samwel
+ tools/preprelease:
+  - Fix md5sum generation
+ win32/common, win32/common-sample, win32/INSTALL.txt:
+  - Updated with help from Alexandre Hanft
+  - No longer edit win32/common; copy from common-sample first (Bart Samwel)
 2006-02-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/*:
   - Disable pointless Visual C++ warnings in headers (Bart Samwel)
@@ -13,8 +23,12 @@
  tools/maketestvcmak.pl:
   - Removed obsolete linker function /pdbtype (Bart Samwel)
   - Make ALL the default target (Bart Samwel)
+ tools/makevcmak.pl:
+  - Copy libpq libraries into our own directories (Bart Samwel)
  tools/preprelease:
   - Check for matching compiler-internal-pre/post.hxx headers
+ win32/common:
+  - Single definition for use in all relevant paths (Bart Samwel)
 2006-02-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/libpq/8.1/config-internal-libpq.h
   - New

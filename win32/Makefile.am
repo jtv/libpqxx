@@ -1,5 +1,5 @@
 EXTRA_DIST = \
-	common \
+	common-sample \
 	INSTALL.txt \
 	libpqxx.cxx \
 	libpqxx.mak \
