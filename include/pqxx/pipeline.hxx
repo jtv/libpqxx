@@ -19,7 +19,10 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
+#ifdef PQXX_HAVE_LIMITS
 #include <limits>
+#endif
+
 #include <map>
 #include <string>
 
