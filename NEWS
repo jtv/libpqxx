@@ -1,5 +1,6 @@
 2.6.5
  - Visual C++ users: copy win32/common-sample to win32/common before editing it
+ - Should fix problems finding socket library on MinGW
  - Even more work on Visual C++ problems
  - Updated documentation for Visual C++ users
  - Fixed bug in prepared statements (mostly visible on Visual C++)

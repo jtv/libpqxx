@@ -503,42 +503,15 @@ AC_MSG_RESULT(yes)
 
 
 # After this check, we should be able to link socket-based programs.
-AC_MSG_CHECKING([for separate socket library])
-socklibopt=""
-socklibok="no"
-LDFLAGS_SAVE="$LDFLAGS"
-for linkopt in "" "-lws2_32" "-lwsock32" "-lws2_32 -lwsock32" "-lwinsock" "-lsocket" "-lsocket -lnsl" ; do
-	LDFLAGS="$LDFLAGS_SAVE $linkopt"
-	AC_LINK_IFELSE(
-	[#include <cstring>
-	#ifdef PQXX_HAVE_SYS_SELECT_H
-	#include <sys/select.h>
-	#else
-	#include <ctime>
-	#include <sys/types.h>
-	#endif
-	#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-	#endif
-	#ifdef _WIN32
-	#include <winsock2.h>
-	#endif
-	${usestd}
-	int main(){return select(0,0,0,0,0);}],
-	[socklibopt="$linkopt"; socklibok="yes"; break])
-done
-if test "$socklibok" != "yes" ; then
-	AC_MSG_RESULT([failed])
+socklibok=no
+AC_SEARCH_LIBS(select, ws2_32 wsock32 winsock socket nsl, [socklibok=yes])
+
+if test "${socklibok}" != "yes" ; then
 	AC_MSG_ERROR([
 Could not figure out how to link a simple sockets-based program.  Please read
-the config.log file for more clues as to why this failed.])
+the config.log file for more clues as to why this failed.
+])
 fi
-if test -z "$socklibopt" ; then
-	AC_MSG_RESULT([none])
-else
-	AC_MSG_RESULT($socklibopt)
-fi
-
 
 AC_MSG_CHECKING([if select() accepts NULL fdsets])
 select_accepts_null=yes
