@@ -109,6 +109,14 @@ public:
     invocation &operator()(T *v, bool nonnull=true)
 	{ return setparam((v ? to_string(v) : ""), nonnull); }
 
+  /// Pass C-style string parameter, or null if pointer is null
+  /** This duplicates the pointer-to-template-argument-type version of the
+   * operator, but helps compilers with less advanced template implementations
+   * disambiguate calls where C-style strings are passed.
+   */
+  invocation &operator()(const char *v, bool nonnull=true)
+	{ return setparam((v ? to_string(v) : ""), nonnull); }
+
 private:
   transaction_base &m_home;
   const PGSTD::string &m_statement;

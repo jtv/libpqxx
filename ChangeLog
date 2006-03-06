@@ -3,6 +3,8 @@
   - Compile fix for change in subtransaction (Bart Samwel)
  include/pqxx/pipeline.hxx:
   - Previous Visual C++ fix broke compilers without "limits" header
+ include/pqxx/prepared_statement.hxx:
+  - Help older compilers disambiguate invocation operator() templates
  tools/maketestvcmak.pl, win32/common:
   - More little fixes by Bart "who was that again?" Samwel
  tools/preprelease:
