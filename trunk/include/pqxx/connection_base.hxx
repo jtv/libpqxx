@@ -597,6 +597,8 @@ private:
   void PQXX_PRIVATE process_notice_raw(const char msg[]) throw ();
 
   void read_capabilities() throw ();
+
+  friend class subtransaction;
   void set_capability(capability) throw ();
 
   prepare::internal::prepared_def &find_prepared(const PGSTD::string &);

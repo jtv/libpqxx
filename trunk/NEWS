@@ -1,6 +1,9 @@
 2.6.5
+ - Visual C++ users: copy win32/common-sample to win32/common before editing it
  - Even more work on Visual C++ problems
+ - Updated documentation for Visual C++ users
  - Fixed bug in prepared statements (mostly visible on Visual C++)
+ - Nested transactions work harder to detect backend support
 2.6.4
  - Massively improved compatibility with Windows and Visual C++
  - Fixed late initialization of "direct" connection state

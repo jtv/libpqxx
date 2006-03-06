@@ -88,6 +88,7 @@ foreach my $t (@tests) {
   my $ut = uc $t;
   print " $ut"
 }
+print "\n\n";
 
 foreach my $t (@tests) {
   my $ut = uc $t;
