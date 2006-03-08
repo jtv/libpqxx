@@ -254,7 +254,7 @@ public:
    * @param Buf Data to write; no terminating zero is written
    */
   void write(const PGSTD::string &Buf)					//[t50]
-  	{ write(Buf.c_str(), Buf.size()); }
+  	{ write(Buf.c_str(), static_cast<size_type>(Buf.size())); }
 
   /// Read data from large object
   /** Throws an exception if an error occurs while reading.
