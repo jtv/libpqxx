@@ -820,8 +820,7 @@ pqxx::result pqxx::connection_base::prepared_exec(const string &statement,
   stringstream Q;
   if (supports(cap_prepared_statements))
   {
-    Q << "EXECUTE "
-      << pname;
+    Q << "EXECUTE " << statement;
     if (nparams)
     {
       Q << " (";
