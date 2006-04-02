@@ -6,7 +6,7 @@ License: LGPL
 Group: Development/Libraries
 Source: ftp://thaiopensource.org/software/libpqxx/libpqxx-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
-URL: http://pqxx.tk/
+URL: http://pqxx.org/
 Vendor:    Andromeda Technology & Automation
 Packager:  Arjen Baart <arjen@andromeda.nl>
 Prefix: %{_prefix}

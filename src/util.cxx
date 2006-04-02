@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      Various utility functions for libpqxx
  *
- * Copyright (c) 2003-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -372,7 +372,13 @@ template<typename T> inline string to_string_signed(T Obj)
   {
     // Remember--the smallest negative number for a given two's-complement type
     // cannot be negated.
-    if (-Obj > 0)
+#if PQXX_HAVE_LIMITS
+    const bool negatable = (Obj != numeric_limits<T>::min());
+#else
+    T Neg(-Obj);
+    const bool negatable = Neg > 0;
+#endif
+    if (negatable)
       return '-' + to_string_unsigned(-Obj);
     else
       return to_string_fallback(Obj);

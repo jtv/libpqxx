@@ -119,8 +119,6 @@ if test "$GCC" = "yes" ; then
 			-Wmissing-include-dirs \
 			-Wunused \
 			-funit-at-a-time \
-			-funsafe-loop-optimizations \
-			-Wunsafe-loop-optimizations \
 			-fmudflap
 	fi
 

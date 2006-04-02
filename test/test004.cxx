@@ -67,7 +67,7 @@ public:
     Backend_PID = T.conn().backendpid();
   }
 
-  void OnAbort(const char Reason[]) throw ()
+  void on_abort(const char Reason[]) throw ()
   {
     try
     {

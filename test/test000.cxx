@@ -51,6 +51,9 @@ template<typename T> inline void strconv(string type,
 {
   const string Objstr(to_string(Obj));
 
+  cout << '\t' << type << '\t' << Obj << ":\t" << Objstr
+       << " (expect " << expected << ")" << endl;
+
   check(expected, Objstr, type);
   T NewObj;
   from_string(Objstr, NewObj);
@@ -139,9 +142,15 @@ int main()
 #else
     const long long_min = LONG_MIN, long_max = LONG_MAX;
 #endif
+    stringstream lminstr, lmaxstr;
+    lminstr.imbue(locale("C"));
+    lmaxstr.imbue(locale("C"));
+    lminstr << long_min;
+    lmaxstr << long_max;
 
-    strconv("long", long_min, to_string(long_min));
-    strconv("long", long_max, to_string(long_max));
+    strconv("long", 0, "0");
+    strconv("long", long_min, lminstr.str());
+    strconv("long", long_max, lmaxstr.str());
     strconv("double", 0.0, "0");
     strconv("double", not_a_number, "nan");
     strconv("string", string(), "");

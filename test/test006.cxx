@@ -61,7 +61,7 @@ public:
     T.exec(("DELETE FROM " + m_Table).c_str());
   }
 
-  void OnCommit()
+  void on_commit()
   {
     cout << "Table successfully cleared." << endl;
   }
@@ -108,7 +108,7 @@ public:
     CheckState(Org);
   }
 
-  void OnCommit()
+  void on_commit()
   {
     cout << "Table successfully copied." << endl;
   }

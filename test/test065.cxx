@@ -41,7 +41,7 @@ public:
     S << m_Contents;
   }
 
-  void OnCommit()
+  void on_commit()
   {
     m_ObjectOutput = m_Object;
   }
@@ -70,7 +70,7 @@ public:
     m_Contents = UnStream(S);
   }
 
-  void OnCommit()
+  void on_commit()
   {
     m_ContentsOutput = m_Contents;
   }
