@@ -82,7 +82,7 @@ public:
     throw runtime_error("Transaction deliberately aborted");
   }
 
-  void OnAbort(const char Reason[]) throw ()
+  void on_abort(const char Reason[]) throw ()
   {
     if (Reason != LastReason)
     {
@@ -92,12 +92,12 @@ public:
     }
   }
 
-  void OnCommit()
+  void on_commit()
   {
     cerr << "Transactor " << Name() << " succeeded." << endl;
   }
 
-  void OnDoubt() throw ()
+  void on_doubt() throw ()
   {
     cerr << "Transactor " << Name() << " in indeterminate state!" << endl;
   }

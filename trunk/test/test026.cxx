@@ -81,7 +81,7 @@ public:
   }
 
   // Postprocessing code for successful execution
-  void OnCommit()
+  void on_commit()
   {
     // Report the conversions performed once the transaction has completed
     // successfully.  Do not report conversions occurring in unsuccessful
@@ -93,7 +93,7 @@ public:
   }
 
   // Postprocessing code for aborted execution attempt
-  void OnAbort(const char Reason[]) throw ()
+  void on_abort(const char Reason[]) throw ()
   {
     try
     {

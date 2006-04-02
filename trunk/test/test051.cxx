@@ -64,7 +64,7 @@ public:
 	                "got '" + Buf + "' back");
   }
 
-  void OnCommit()
+  void on_commit()
   {
     if (!(m_ObjectOutput != m_Object))
       throw logic_error("Large objects: false negative on !=");

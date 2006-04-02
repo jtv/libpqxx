@@ -31,7 +31,7 @@ public:
     m_Result = T.exec("SELECT * FROM pg_tables");
   }
 
-  void OnCommit()
+  void on_commit()
   {
     for (result::const_iterator c = m_Result.begin(); c != m_Result.end(); ++c)
     {

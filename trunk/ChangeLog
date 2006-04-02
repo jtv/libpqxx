@@ -1,3 +1,19 @@
+2006-04-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Remove unsafe loop optimizations with g++ 4.1; breaks standard library
+ src/util.cxx:
+  - Fixed conversion of non-negatable signed numbers (breaks with g++ 4.1)
+ test/test000.cxx:
+  - List tests as they proceed, to facilitate debugging
+  - Use stringstreams as example for LONG_MIN/LONG_MAX strings
+ test/test004.cxx, test/test006.cxx, test/test007.cxx, test/test013.cxx,
+ test/test015.cxx, test/test017.cxx, test/test018.cxx, test/test023.cxx,
+ test/test025.cxx, test/test026.cxx, test/test032.cxx, test/test034.cxx,
+ test/test036.cxx, test/test037.cxx, test/test048.cxx, test/test050.cxx,
+ test/test051.cxx, test/test052.cxx, test/test054.cxx, test/test057.cxx,
+ test/test059.cxx, test/test065.cxx, test/test078.cxx, test/test079.cxx,
+ test/test087.cxx:
+  - Converted OnCommit()/OnAbort()/OnDoubt() to 2.x-style equivalents
 2006-03-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
   - Fixed workaround code for missing PQexecPrepared()
