@@ -365,11 +365,12 @@
 	  transaction, whereas <literal>nontransaction</literal> is not.
 	</para>
 	<para>
-	  This gives you the best performance, but may have unforeseen
-	  implications if you expect certain levels of consistency in the
-	  database--especially if other programs (perhaps even other instances
-	  of your own) may be modifying the database at the same time.  You'll
-	  probably only want to use this in the following cases:
+	  This is likely to give you better performance if your transaction does
+	  not modify the database, but may have unforeseen implications if you
+	  expect certain levels of consistency in the database--especially if
+	  other programs (perhaps even other instances of your own) may be
+	  modifying the database at the same time.  You'll probably only want to
+	  use this in the following cases:
 	</para>
 
 	<itemizedlist>
@@ -394,7 +395,12 @@
 	      If full integrity is less important than performance, as might be
 	      the case with e.g. updating or displaying a webcounter.  Losing
 	      one or two hits may be less of a problem to you than keeping
-	      visitors waiting.
+	      visitors waiting.  If you make multiple modifications to the
+	      database, a regular transaction is still likely to be faster than
+	      a <literal>nontransaction</literal> because all changes made by a
+	      backend transaction are bundled up and incorporated together once
+	      the transaction commits.  In other words, regular transactions
+	      give you a "bulk discount" on modifications.
 	    </para>
 	  </listitem>
 	</itemizedlist>
