@@ -1,3 +1,9 @@
+2006-04-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/libpqxx.xml:
+  - No big performance gain with nontransaction (thanks Markus Schaber)
+  - Use nontransaction for metadata modifications
+ include/pqxx/connection_base.hxx:
+  - Documented fact that PQhost() returns NULL if no host *specified*
 2006-04-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/libpqxx.xml:
   - nontransaction is only faster when read-only, thanks Markus Schaber

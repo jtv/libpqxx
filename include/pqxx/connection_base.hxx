@@ -255,7 +255,7 @@ public:
   /// Database user ID we're connected under, if any.
   const char *username();						//[t1]
 
-  /// Address of server (NULL for local connections).
+  /// Address of server, or NULL if none specified (i.e. default or local)
   const char *hostname();						//[t1]
 
   /// Server port number we're connected to.
