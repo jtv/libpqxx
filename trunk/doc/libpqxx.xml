@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 	"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
-<book id="manual">
+<book id="manual" lang="en">
   <bookinfo>
     <title>libpqxx tutorial</title>
 
     <authorgroup>
       <author>
 	<firstname>Jeroen</firstname>
+	<othername>T.<othername>
 	<surname>Vermeulen</surname>
 	<affiliation>
 	  <address>
@@ -18,10 +19,12 @@
     </authorgroup>
 
     <copyright>
-      <year>2002</year>
-      <year>2003</year>
-      <year>2004</year>
-      <holder>Jeroen Vermeulen</holder>
+      <year>2002</year>--<year>2006</year>
+      <holder>
+        <firstname>Jeroen</firstname>
+	<othername>T.<othername>
+	<surname>Vermeulen</surname>
+      </holder>
     </copyright>
   </bookinfo>
 
@@ -42,6 +45,11 @@
       <productname>libpq</productname> library on your system prior to getting
       started with <productname>libpqxx</productname>.  This is similar to the
       situation with the older <productname>libpq++</productname> interface.
+    </para>
+
+    <para>
+      See the <ulink url="http://pqxx.org/"><productname>libpqxx</productname>
+      website</ulink> for more information.
     </para>
   </preface>
 
@@ -243,6 +251,9 @@
 	      best reliability respectively.
 	    </para>
 	  </footnote>
+
+	  You may execute any number of transactions consecutively on a single
+	  <literal>connection</literal>, but only one at a time.
 	</para>
 
 	<para>
@@ -269,7 +280,7 @@
       I would also like to use this opportunity to plug the invaluable
       <function>sqlesc</function> function, which you should use whenever you
       want to include a variable as a string in your SQL (eg. insert it into a
-      CHAR field in a table).  See below.
+      text field in a table).  See below.
     </para>
 
     <para>

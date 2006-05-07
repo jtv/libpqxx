@@ -1,3 +1,8 @@
+2006-05-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/libpqxx.xml:
+  - Updated copyright string
+  - Added middle initial to my name
+  - Only one transaction (per connection) at a time
 2006-04-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/libpqxx.xml:
   - No big performance gain with nontransaction (thanks Markus Schaber)
