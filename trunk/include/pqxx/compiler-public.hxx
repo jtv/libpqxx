@@ -146,10 +146,34 @@ template<> struct char_traits<unsigned char>
 #define PQXX_TYPENAME
 #endif	// _MSC_VER < 1310
 
+// Automatically link with the appropriate libpq DLL (debug or release).
 #ifdef _DEBUG
 #pragma comment(lib, "libpqddll")
 #else
 #pragma comment(lib, "libpqdll")
+#endif
+
+// If we're not compiling libpqxx itself, automatically link with the correct
+// libpqxx library.  To link with the libpqxx DLL, define PQXX_SHARED; the
+// default is to link with the static library.  This is also the recommended
+// practice.
+// Note that the preprocessor macro PQXX_INTERNAL is used to detect whether we
+// are compiling the libpqxx library itself. When you compile the library
+// yourself using your own project file, make sure to include this define.
+#ifndef PQXX_INTERNAL
+  #ifdef PQXX_SHARED
+    #ifdef _DEBUG
+      #pragma comment(lib, "libpqxxD")
+    #else
+      #pragma comment(lib, "libpqxx")
+    #endif
+  #else // !PQXX_SHARED
+    #ifdef _DEBUG
+      #pragma comment(lib, "libpqxx_staticD")
+    #else
+      #pragma comment(lib, "libpqxx_static")
+    #endif
+  #endif
 #endif
 
 /// Apparently Visual C++.NET 2003 breaks on stdout/stderr output in destructors
