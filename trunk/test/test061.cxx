@@ -81,7 +81,7 @@ int main(int, char *argv[])
       T.set_variable("NONEXISTANT_VARIABLE_I_HOPE", "1");
       throw logic_error("Setting unknown variable failed to fail");
     }
-    catch (const sql_error &e)
+    catch (const sql_error &)
     {
       cout << "(Expected) Setting unknown variable failed" << endl;
     }
