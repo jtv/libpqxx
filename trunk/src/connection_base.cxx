@@ -93,6 +93,7 @@ pqxx::connection_base::connection_base(connectionpolicy &pol) :
   m_Completed(false),
   m_Trans(),
   m_Noticer(),
+  m_defaultNoticeProcessor(0),
   m_Trace(0),
   m_caps(),
   m_inhibit_reactivation(false),
@@ -247,8 +248,8 @@ void pqxx::connection_base::SetupState()
   for (PSMap::iterator p = m_prepared.begin(); p != prepared_end; ++p)
     p->second.registered = false;
 
-  if (m_Noticer.get())
-    PQsetNoticeProcessor(m_Conn, pqxxNoticeCaller, m_Noticer.get());
+  m_defaultNoticeProcessor = 0;
+  if (m_Noticer.get()) switchnoticer(m_Noticer);
 
   InternalSetTrace();
 
@@ -384,13 +385,22 @@ bool pqxx::connection_base::is_open() const throw ()
 }
 
 
+void pqxx::connection_base::switchnoticer(const auto_ptr<noticer> &N) throw ()
+{
+  const PQnoticeProcessor old =
+	PQsetNoticeProcessor(m_Conn, pqxxNoticeCaller, N.get());
+  if (!m_defaultNoticeProcessor)
+    m_defaultNoticeProcessor = old;
+}
+
+
 auto_ptr<pqxx::noticer>
 pqxx::connection_base::set_noticer(auto_ptr<noticer> N) throw ()
 {
   if (m_Conn)
   {
-    if (N.get()) PQsetNoticeProcessor(m_Conn, pqxxNoticeCaller, N.get());
-    else PQsetNoticeProcessor(m_Conn, 0, 0);
+    if (N.get()) switchnoticer(N);
+    else PQsetNoticeProcessor(m_Conn, m_defaultNoticeProcessor, 0);
   }
 
   auto_ptr<noticer> Old = m_Noticer;

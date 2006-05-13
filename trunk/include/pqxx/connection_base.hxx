@@ -595,6 +595,7 @@ private:
   void PQXX_PRIVATE RestoreVars();
   PGSTD::string PQXX_PRIVATE RawGetVar(const PGSTD::string &);
   void PQXX_PRIVATE process_notice_raw(const char msg[]) throw ();
+  void switchnoticer(const PGSTD::auto_ptr<noticer> &) throw ();
 
   void read_capabilities() throw ();
 
@@ -623,6 +624,14 @@ private:
 
   /// User-defined notice processor, if any
   PGSTD::auto_ptr<noticer> m_Noticer;
+
+  /// Default notice processor
+  /** We must restore the notice processor to this default after removing our
+   * own noticers.  Failure to do so caused test005 to crash on some systems.
+   * Kudos to Bart Samwel for tracking this down and submitting the fix!
+   */
+  internal::pq::PQnoticeProcessor m_defaultNoticeProcessor;
+
   /// File to trace to, if any
   FILE *m_Trace;
 
