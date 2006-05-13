@@ -1,3 +1,6 @@
+2006-05-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/Doxyfile.in:
+  - Disabled collaboration graphs (not of much use to end-users)
 2006-05-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/libpqxx.xml:
   - Fixed bugs that caused validation to fail
