@@ -10,6 +10,8 @@
   - Removed unnecessary PQXX_LIBEXPORT directives (Bart Samwel)
  src/largeobject.cxx:
   - Fixed "long" return types; should be pos_type
+ test/test000.cxx:
+  - Visual C++ workaround: no stringstream << operator (Bart Samwel)
 2006-05-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/libpqxx.xml:
   - Fixed bugs that caused validation to fail

@@ -51,7 +51,7 @@ template<typename T> inline void strconv(string type,
 {
   const string Objstr(to_string(Obj));
 
-  cout << '\t' << type << '\t' << Obj << ":\t" << Objstr
+  cout << '\t' << type << '\t' << ":\t" << Objstr
        << " (expect " << expected << ")" << endl;
 
   check(expected, Objstr, type);
