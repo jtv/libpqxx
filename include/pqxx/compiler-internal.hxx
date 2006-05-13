@@ -29,9 +29,9 @@
 
 #ifdef PQXX_SHARED
 #undef  PQXX_LIBEXPORT
-#define PQXX_LIBEXPORT __declspec(dllexport)
+#define PQXX_LIBEXPORT	__declspec(dllexport)
 // TODO: Does Windows have a way to "unexport" a symbol in an exported class?
-#define PQXX_PRIVATE
+#define PQXX_PRIVATE	__declspec()
 #endif	// PQXX_SHARED
 
 #ifdef _MSC_VER

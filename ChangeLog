@@ -3,6 +3,14 @@
   - This compiler has vsnprintf(), thanks Bart Samwel
  doc/Doxyfile.in:
   - Disabled collaboration graphs (not of much use to end-users)
+ include/pqxx/compiler-public.hxx:
+  - Select appropriate libpq/libpqxx binaries in Visual C++ (Bart Samwel)
+ include/pqxx/cursor.hxx, src/cursor.cxx:
+  - Made check_displacement() const (Bart Samwel)
+  - Removed unnecessary PQXX_LIBEXPORT directives (Bart Samwel)
+ include/pqxx/largeobject.hxx, src/largeobject.cxx:
+  - Made size_type and off_type int instead of long (Bart Samwel)
+  - Fixed "long" return types; should be pos_type
 2006-05-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/libpqxx.xml:
   - Fixed bugs that caused validation to fail

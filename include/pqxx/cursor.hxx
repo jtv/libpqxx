@@ -197,7 +197,7 @@ protected:
   transaction_base *m_context;
   bool m_done;
 
-  template<accesspolicy A> void check_displacement(difference_type) { }
+  template<accesspolicy A> void check_displacement(difference_type) const { }
 
 private:
   PGSTD::string m_name;
@@ -223,7 +223,8 @@ private:
 
 
 template<> void
-  cursor_base::check_displacement<cursor_base::forward_only>(difference_type);
+  cursor_base::check_displacement<cursor_base::forward_only>(difference_type)
+  	const;
 
 
 inline cursor_base::difference_type cursor_base::all() throw ()
@@ -250,7 +251,7 @@ inline cursor_base::difference_type cursor_base::backward_all() throw ()
 // TODO: How do we work updates into the scheme?
 /// The simplest form of cursor, with no concept of position or stride
 template<cursor_base::accesspolicy ACCESS, cursor_base::updatepolicy UPDATE>
-class PQXX_LIBEXPORT basic_cursor : public cursor_base
+class basic_cursor : public cursor_base
 {
 public:
   /// Create cursor based on given query
@@ -346,7 +347,7 @@ public:
 
 /// Cursor that knows its position
 template<cursor_base::accesspolicy ACCESS, cursor_base::updatepolicy UPDATE>
-class PQXX_LIBEXPORT absolute_cursor : public basic_cursor<ACCESS,UPDATE>
+class absolute_cursor : public basic_cursor<ACCESS,UPDATE>
 {
   typedef basic_cursor<ACCESS,UPDATE> super;
 public:

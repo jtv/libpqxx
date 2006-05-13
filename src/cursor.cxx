@@ -7,7 +7,7 @@
  *      implementation of libpqxx STL-style cursor classes.
  *   These classes wrap SQL cursors in STL-like interfaces
  *
- * Copyright (c) 2004-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -199,7 +199,7 @@ pqxx::result pqxx::cursor_base::fetch(difference_type n, difference_type &d)
 
 template<> void
 pqxx::cursor_base::check_displacement<pqxx::cursor_base::forward_only>(
-    difference_type d)
+    difference_type d) const
 {
   if (d < 0)
     throw logic_error("Attempt to move cursor " + name() + " "
