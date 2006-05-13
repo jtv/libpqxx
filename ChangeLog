@@ -32,12 +32,16 @@
   - Moved "don't edit this file" from templates to script
  win32/common-sample:
   - Generalized for use by MinGW and Visual C++ makefiles
+  - Warning about slashes and backslashes, thanks Bart Samwel
  win32/mingw.mak.template:
   - New
   - Major cleanup of MinGW makefile (does it even work?)
+  - Now also includes "common"
  win32/vc-libpqxx.mak.template, win32/vc-test.mak.template
   - New (written by Bart Samwel)
   - Slightly improved naming scheme (easier with Subversion than with CVS)
+ win32/INSTALL.txt:
+  - Updated for new, truly shared "common" file
 2006-05-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/libpqxx.xml:
   - Fixed bugs that caused validation to fail

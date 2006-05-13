@@ -1,15 +1,11 @@
 # MinGW makefile for libpqxx.  Don't use this; use the configure script instead!
 # Based on original contributed by Pasquale Fersini <basquale.fersini@libero.it>
 
+include "common"
+
 CXX = g++.exe
 
 OBJ = \
-###MAKTEMPLATE:FOREACH ../src/*.cxx
-  "src/###BASENAME###.o" \
-###MAKTEMPLATE:ENDFOREACH
-
-
-LINKOBJ = \
 ###MAKTEMPLATE:FOREACH ../src/*.cxx
   "src/###BASENAME###.o" \
 ###MAKTEMPLATE:ENDFOREACH
@@ -34,8 +30,8 @@ DLLWRAP=dllwrap.exe
 DEFFILE=libpqxx.def
 STATICLIB=libpqxx.a
 
-$(BIN): $(LINKOBJ)
-	$(DLLWRAP) --output-def $(DEFFILE) --driver-name c++ --implib $(STATICLIB) $(LINKOBJ) $(LDFLAGS) $(LIBS) -o $(BIN)
+$(BIN): $(OBJ)
+	$(DLLWRAP) --output-def $(DEFFILE) --driver-name c++ --implib $(STATICLIB) $(OBJ) $(LDFLAGS) $(LIBS) -o $(BIN)
 
 ###MAKTEMPLATE:FOREACH ../src/*.cxx
 src/###BASENAME###.o: src/###BASENAME###.cxx

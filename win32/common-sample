@@ -4,6 +4,10 @@
 # you may lose your changes when you upgrade your libpqxx sources.
 # Instead, copy "common-sample" to "common" and edit just the file "common".
 
+# Caution: on Windows, some environments, such as the "make" that comes with
+# Visual C++, expect you to use backslashes as path separators (for example,
+# "C:\src\libpqxx") whereas others like MinGW want you to use more conventional
+# slashes (as in "C:/src/libpqxx").
 
 # Standard library namespace.
 # There are only two reasons why you might want to change this:
