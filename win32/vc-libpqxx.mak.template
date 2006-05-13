@@ -28,6 +28,12 @@ default:
 	@echo define "PQXX_SHARED". This will make your program link against the DLL version
 	@echo of libpqxx.
 
+!IF "$(OS)" == "Windows_NT"
+NULL=
+!ELSE 
+NULL=nul
+!ENDIF 
+
 !include common
 
 
@@ -59,14 +65,14 @@ LIBTOOL=link.exe -lib
 # The options common to all the different builds.
 CXX_FLAGS_BASE=/nologo /W3 /GX /FD /GR /c \
     /I "../include" /I "$(PGSQLSRC)/include" /I "$(PGSQLSRC)/interfaces/libpq" \
-    $(STD) /D "WIN32" /D "_MBCS" /D "_WINDOWS" /D "PQXX_INTERNAL"
+    /D PGSTD=$(STD) /D "WIN32" /D "_MBCS" /D "_WINDOWS" /D "PQXX_INTERNAL"
 
 CXX_FLAGS_DLLRELEASE=$(CXX_FLAGS_BASE) /MD  /D "NDEBUG" /D "PQXX_SHARED"
 CXX_FLAGS_DLLDEBUG=$(CXX_FLAGS_BASE) /MDd /Gm /ZI /Od /D "_DEBUG" /D "PQXX_SHARED" /GZ
 CXX_FLAGS_STATICRELEASE=$(CXX_FLAGS_BASE) /MD /D "_LIB" /D "NDEBUG"
 CXX_FLAGS_STATICDEBUG=$(CXX_FLAGS_BASE) /MDd /Gm /ZI /Od /D "_LIB" /D "_DEBUG" /GZ
 
-LINK_FLAGS_BASE=kernel32.lib wsock32.lib advapi32.lib /nologo /dll /machine:I386 $(LIBPATH)
+LINK_FLAGS_BASE=kernel32.lib wsock32.lib advapi32.lib /nologo /dll /machine:I386 /libpath:$(LIBPATH1) /libpath:$(LIBPATH2)
 
 LINK_FLAGS_DLLRELEASE=$(LINK_FLAGS_BASE)
 LINK_FLAGS_DLLDEBUG=$(LINK_FLAGS_BASE) /debug

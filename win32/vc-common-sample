@@ -4,28 +4,30 @@
 # you may lose your changes when you upgrade your libpqxx sources.
 # Instead, copy "common-sample" to "common" and edit just the file "common".
 
-!IF "$(OS)" == "Windows_NT"
-NULL=
-!ELSE 
-NULL=nul
-!ENDIF 
 
-# Standard library namespace.  There are only two reasons why you might want to
-# change this: 1. your compiler doesn't define the standard library in the "std"
-# namespace, in which case PGSTD should be the empty string (but a compiler with
-# that problem is not likely to be good enough to compile libpqxx); or 2. you
-# are using a third-party standard library implementation such as STLport, which
-# lives in another namespace to avoid clashes with the implementation that came
-# with the compiler.  In the latter case, PGSTD must be set to the namespace
-# used by your preferred implementation.
-# In all other cases, just leave this set to "std".
-STD=/D "PGSTD=std"
+# Standard library namespace.
+# There are only two reasons why you might want to change this:
+#
+# 1. Your compiler doesn't define the standard library in the "std" namespace
+# but in the global namespace, in which case PGSTD should be the empty string.
+# However, a compiler with that problem is not likely to be good enough to
+# compile libpqxx.
+#
+# 2. You are using a third-party standard library implementation such as
+# STLport, which lives in another namespace to avoid clashes with the
+# implementation that came with the compiler.
+#
+# In the latter case, PGSTD must be set to the namespace used by your preferred
+# implementation.  In all other cases, just leave this set to "std".
+STD="std"
 
-# If you are using a 3rd party STL like STLport, remember to check your path
+# If you are using a 3rd-party STL like STLport, remember to check your path
 # and be sure the STLport is included before the MSVC includes. VCVARS32.BAT
 # doesn't know anything about the directories as defined in the IDE. I use
+#
 # set INCLUDE=\Utility\Code\STLport-4.5\stlport;%INCLUDE%
-# STD=/D "PGSTD=_STL" 
+#
+# ...and set STD to "_STL".
 
 # Depending on your STL library min/max need to be defined.  Using STLport
 # there is no need for libpqxx to redefine these for me.
@@ -37,9 +39,11 @@ STD=/D "PGSTD=std"
 #	libpq-fe.h (in src/interfaces/libpq in the PostgreSQL source tree)
 #
 # This directory is also used to find the compiled libpq and libpqd.
-PGSQLSRC=D:\Src\postgresql-8.1.3\src
+PGSQLSRC="D:\Src\postgresql-8.1.3\src"
 
+# Paths where the libpq library binary or binaries can be found.
 # We should use the libpq libraries that correspond to the source tree whose
 # headers we are including.  This ensures that we find all in the same place:
-LIBPATH=/libpath:"$(PGSQLSRC)/interfaces/libpq/Release" /libpath:"$(PGSQLSRC)/interfaces/libpq/Debug"
+LIBPATH1="$(PGSQLSRC)/interfaces/libpq/Release"
+LIBPATH2="$(PGSQLSRC)/interfaces/libpq/Debug"
 

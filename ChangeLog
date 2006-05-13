@@ -1,4 +1,7 @@
 2006-05-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh:
+  - Use Bart Samwel's templating script to generate all Windows Makefiles
+  - Skip Windows Makefile generation scripts if Python not installed
  config/sample-headers/compiler/VisualC++.NET-2003/config-internal-compiler.h:
   - This compiler has vsnprintf(), thanks Bart Samwel
  doc/Doxyfile.in:
@@ -22,7 +25,19 @@
   - New (written by Bart Samwel)
   - Generates Visual C++ makefiles from templates
   - Replaces the maketestvcmak.pl and makevcmake.pl scripts
-  - In the future could replace makemingwmak.pl as well
+  - Now also replaces makemingwmak.pl
+  - Now sorts files in loops
+  - Now checks for superfluous arguments
+  - Fixed bug in two-argument format (opend output for reading only)
+  - Moved "don't edit this file" from templates to script
+ win32/common-sample:
+  - Generalized for use by MinGW and Visual C++ makefiles
+ win32/mingw.mak.template:
+  - New
+  - Major cleanup of MinGW makefile (does it even work?)
+ win32/vc-libpqxx.mak.template, win32/vc-test.mak.template
+  - New (written by Bart Samwel)
+  - Slightly improved naming scheme (easier with Subversion than with CVS)
 2006-05-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/libpqxx.xml:
   - Fixed bugs that caused validation to fail
