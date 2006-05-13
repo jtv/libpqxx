@@ -214,7 +214,6 @@ public:
    * @addtogroup noticer Error/warning output
    */
   //@{
-  // TODO: Define a default noticer (mainly to help out Windows users)
   /// Set handler for postgresql errors or warning messages.
   /** The use of auto_ptr implies ownership, so unless the returned value is
    * copied to another auto_ptr, it will be deleted directly after the call.
