@@ -199,6 +199,14 @@ protected:
 
   template<accesspolicy A> void check_displacement(difference_type) const { }
 
+#if defined(_MSC_VER)
+  /* Visual C++ won't accept this specialization declaration unless it's in
+   * here!  See below for the "standard" alternative.
+   */
+  template<>
+    void check_displacement<cursor_base::forward_only>(difference_type) const;
+#endif
+
 private:
   PGSTD::string m_name;
   bool m_adopted;
@@ -221,10 +229,15 @@ private:
   cursor_base &operator=(const cursor_base &);
 };
 
-
+/* Visual C++ demands that this specialization be declared inside the class,
+ * which gcc claims is illegal.  There seems to be no single universally
+ * accepted way to do this.
+ */
+#if !defined(_MSC_VER)
 template<> void
   cursor_base::check_displacement<cursor_base::forward_only>(difference_type)
   	const;
+#endif
 
 
 inline cursor_base::difference_type cursor_base::all() throw ()

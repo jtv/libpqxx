@@ -11,6 +11,7 @@
  include/pqxx/cursor.hxx, src/cursor.cxx:
   - Made check_displacement() const (Bart Samwel)
   - Removed unnecessary PQXX_LIBEXPORT directives (Bart Samwel)
+  - Workaround for disagreement between Visual C++ and g++, thanks Bart Samwel
  src/largeobject.cxx:
   - Fixed "long" return types; should be pos_type
  test/test000.cxx:
