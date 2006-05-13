@@ -1,4 +1,6 @@
 2006-05-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/VisualC++.NET-2003/config-internal-compiler.h:
+  - This compiler has vsnprintf(), thanks Bart Samwel
  doc/Doxyfile.in:
   - Disabled collaboration graphs (not of much use to end-users)
 2006-05-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
