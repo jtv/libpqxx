@@ -1,0 +1,213 @@
+# Visual C++ makefile for libpqxx
+# This file was created by Bart Samwel.
+
+default:
+	@echo LIBPQXX Makefile for Visual C++ Available Targets
+	@echo -------------------------------------------------
+	@echo.
+	@echo Static library targets:
+	@echo.
+	@echo STATIC
+	@echo STATICRELEASE (release mode only)
+	@echo STATICDEBUG (debug mode only)
+	@echo.
+	@echo Dynamic Link Library (DLL) targets:
+	@echo.
+	@echo DLL
+	@echo DLLRELEASE
+	@echo DLLDEBUG
+	@echo.
+	@echo Other targets:
+	@echo.
+	@echo ALL: build both the DLL and STATIC builds.
+	@echo CLEAN: clean up all output.
+	@echo.
+	@echo It is recommended that you link to libpqxx statically. Therefore, you should
+	@echo normally build the "STATIC" target. If you want to link your programto libpqxx
+	@echo dynamically, build target "DLL" and compile your program with preprocessor
+	@echo define "PQXX_SHARED". This will make your program link against the DLL version
+	@echo of libpqxx.
+
+!include common
+
+
+
+########################################################
+# Configuration
+########################################################
+
+
+
+# Output DLL/LIB files. No extensions, they are added automatically!
+OUTDIR=lib
+OUTFILE_STATICDEBUG=$(OUTDIR)/libpqxx_staticD
+OUTFILE_STATICRELEASE=$(OUTDIR)/libpqxx_static
+OUTFILE_DLLDEBUG=$(OUTDIR)/libpqxxD
+OUTFILE_DLLRELEASE=$(OUTDIR)/libpqxx
+
+# Directories for intermediate output.
+INTDIR_STATICDEBUG=ObjStaticDebug
+INTDIR_STATICRELEASE=ObjStaticRelease
+INTDIR_DLLDEBUG=ObjDllDebug
+INTDIR_DLLRELEASE=ObjDllRelease
+
+# C++ compiler, linker (for DLLs) and library tool (for static builds).
+CXX=cl.exe
+LINK=link.exe
+LIBTOOL=link.exe -lib
+
+# The options common to all the different builds.
+CXX_FLAGS_BASE=/nologo /W3 /GX /FD /GR /c \
+    /I "../include" /I "$(PGSQLSRC)/include" /I "$(PGSQLSRC)/interfaces/libpq" \
+    $(STD) /D "WIN32" /D "_MBCS" /D "_WINDOWS" /D "PQXX_INTERNAL"
+
+CXX_FLAGS_DLLRELEASE=$(CXX_FLAGS_BASE) /MD  /D "NDEBUG" /D "PQXX_SHARED"
+CXX_FLAGS_DLLDEBUG=$(CXX_FLAGS_BASE) /MDd /Gm /ZI /Od /D "_DEBUG" /D "PQXX_SHARED" /GZ
+CXX_FLAGS_STATICRELEASE=$(CXX_FLAGS_BASE) /MD /D "_LIB" /D "NDEBUG"
+CXX_FLAGS_STATICDEBUG=$(CXX_FLAGS_BASE) /MDd /Gm /ZI /Od /D "_LIB" /D "_DEBUG" /GZ
+
+LINK_FLAGS_BASE=kernel32.lib wsock32.lib advapi32.lib /nologo /dll /machine:I386 $(LIBPATH)
+
+LINK_FLAGS_DLLRELEASE=$(LINK_FLAGS_BASE)
+LINK_FLAGS_DLLDEBUG=$(LINK_FLAGS_BASE) /debug
+
+LIB_FLAGS=/nologo
+
+
+
+########################################################
+# List of intermediate files
+########################################################
+
+OBJ_STATICDEBUG=\
+    ###MAKTEMPLATE:FOREACH ../src/*.cxx
+       "$(INTDIR_STATICDEBUG)\###BASENAME###.obj" \
+    ###MAKTEMPLATE:ENDFOREACH
+
+OBJ_STATICRELEASE=\
+    ###MAKTEMPLATE:FOREACH ../src/*.cxx
+       "$(INTDIR_STATICRELEASE)\###BASENAME###.obj" \
+    ###MAKTEMPLATE:ENDFOREACH
+
+OBJ_DLLDEBUG=\
+    ###MAKTEMPLATE:FOREACH ../src/*.cxx,libpqxx.cxx
+       "$(INTDIR_DLLDEBUG)\###BASENAME###.obj" \
+    ###MAKTEMPLATE:ENDFOREACH
+
+OBJ_DLLRELEASE=\
+    ###MAKTEMPLATE:FOREACH ../src/*.cxx,libpqxx.cxx
+       "$(INTDIR_DLLRELEASE)\###BASENAME###.obj" \
+    ###MAKTEMPLATE:ENDFOREACH
+
+
+
+########################################################
+# Logical targets
+########################################################
+
+static: staticdebug staticrelease
+
+dll: dlldebug dllrelease
+
+all: static dll
+
+staticdebug: $(OUTFILE_STATICDEBUG).lib $(OUTDIR)\libpqd.dll
+
+staticrelease: $(OUTFILE_STATICRELEASE).lib $(OUTDIR)\libpq.dll
+
+dlldebug: $(OUTFILE_DLLDEBUG).dll $(OUTDIR)\libpqd.dll
+
+dllrelease: $(OUTFILE_DLLRELEASE).dll $(OUTDIR)\libpq.dll
+
+clean:
+	@echo Deleting all intermediate output files and the contents of $(OUTDIR).
+	-@del /Q "$(INTDIR_STATICDEBUG)\*"
+	-@del /Q "$(INTDIR_STATICRELEASE)\*"
+	-@del /Q "$(INTDIR_DLLDEBUG)\*"
+	-@del /Q "$(INTDIR_DLLRELEASE)\*"
+	-@del /Q "$(OUTDIR)\*"
+
+
+
+########################################################
+# Physical targets
+########################################################
+
+$(OUTDIR)\libpq.dll:
+	@echo -------------------------------------------------------------
+	@echo Copying libpq.dll to $(OUTDIR).
+	@echo.
+	@echo IMPORTANT: you MUST copy this libpq.dll into the directory
+	@echo where your program's .EXE resides. The system libpq.dll is
+	@echo not necessarily compatible with the libpq include files that
+	@echo you built libpqxx with. Do NOT copy this file into your
+	@echo Windows system32 directory, that may break other programs.
+	@echo Instead, keep it with your program and distribute it along
+	@echo with the program.
+	@echo -------------------------------------------------------------
+	copy $(PGSQLSRC)\interfaces\libpq\release\libpq.dll $(OUTDIR)
+
+$(OUTDIR)\libpqd.dll:
+	@echo -------------------------------------------------------------
+	@echo Copying libpqD.dll to $(OUTDIR).
+	@echo.
+	@echo IMPORTANT: you MUST copy this libpqd.dll into the directory
+	@echo where your program's .EXE resides, or you must make sure that
+	@echo it is in your system PATH.
+	@echo -------------------------------------------------------------
+	copy $(PGSQLSRC)\interfaces\libpq\debug\libpqd.dll $(OUTDIR)
+
+$(OUTFILE_STATICDEBUG).lib: $(OBJ_STATICDEBUG)
+	$(LIBTOOL) $(LIB_FLAGS) $(OBJ_STATICDEBUG) /out:"$(OUTFILE_STATICDEBUG).lib"
+
+$(OUTFILE_STATICRELEASE).lib: $(OBJ_STATICRELEASE)
+	$(LIBTOOL) $(LIB_FLAGS) $(OBJ_STATICRELEASE) /out:"$(OUTFILE_STATICRELEASE).lib"
+
+$(OUTFILE_DLLDEBUG).dll: $(OBJ_DLLDEBUG)
+	$(LINK) $(LINK_FLAGS_DLLDEBUG) $(OBJ_DLLDEBUG) /out:"$(OUTFILE_DLLDEBUG).dll" /implib:"$(OUTFILE_DLLDEBUG).lib"
+
+$(OUTFILE_DLLRELEASE).dll: $(OBJ_DLLRELEASE)
+	$(LINK) $(LINK_FLAGS_DLLRELEASE) $(OBJ_DLLRELEASE) /out:"$(OUTFILE_DLLRELEASE).dll" /implib:"$(OUTFILE_DLLRELEASE).lib"
+
+
+$(INTDIR_STATICDEBUG):
+	-@mkdir $(INTDIR_STATICDEBUG)
+
+$(INTDIR_STATICRELEASE):
+	-@mkdir $(INTDIR_STATICRELEASE)
+
+$(INTDIR_DLLDEBUG):
+	-@mkdir $(INTDIR_DLLDEBUG)
+
+$(INTDIR_DLLRELEASE):
+	-@mkdir $(INTDIR_DLLRELEASE)
+
+
+
+
+########################################################
+# Physical intermediate files
+########################################################
+
+
+###MAKTEMPLATE:FOREACH ..\src\*.cxx
+
+"$(INTDIR_STATICRELEASE)\###BASENAME###.obj": ###FILENAME### $(INTDIR_STATICRELEASE)
+	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" ###FILENAME###
+
+"$(INTDIR_STATICDEBUG)\###BASENAME###.obj": ###FILENAME### $(INTDIR_STATICDEBUG)
+	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" ###FILENAME###
+
+###MAKTEMPLATE:ENDFOREACH
+
+
+###MAKTEMPLATE:FOREACH ..\src\*.cxx,libpqxx.cxx
+
+"$(INTDIR_DLLRELEASE)\###BASENAME###.obj": ###FILENAME### $(INTDIR_DLLRELEASE)
+	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" ###FILENAME###
+
+"$(INTDIR_DLLDEBUG)\###BASENAME###.obj": ###FILENAME### $(INTDIR_DLLDEBUG)
+	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" ###FILENAME###
+
+###MAKTEMPLATE:ENDFOREACH
+

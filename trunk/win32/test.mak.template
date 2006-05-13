@@ -1,0 +1,123 @@
+# Visual C++ Makefile for libpqxx test suite
+# This file was written by Bart Samwel.
+
+default:
+	@echo LIBPQXX testsuite Makefile for Visual C++ Available Targets
+	@echo -----------------------------------------------------------
+	@echo.
+	@echo ALL: perform all tests
+	@echo TESTxxx: perform specific test xxx
+	@echo CLEAN: clean up all output so that tests will run again.
+	@echo.
+	@echo Pass the option DLL=1 to link the test suite against the libpqxx DLL instead
+	@echo of against the static libpqxx library, and pass DEBUG=1 to link against
+	@echo the debug build of libpqxx.
+
+!include common
+
+LIBDIR=lib
+
+!IF "$(DLL)"== "1"
+PQXX_SHARED=/D "PQXX_SHARED"
+!IF "$(DEBUG)" == "1"
+INTDIR=TestDllDebug
+PQXX=$(LIBDIR)\libpqxxD.dll
+PQXXCOPY=$(INTDIR)\libpqxxD.dll
+!ELSE
+INTDIR=TestDllRelease
+PQXX=$(LIBDIR)\libpqxx.dll
+PQXXCOPY=$(INTDIR)\libpqxx.dll
+!ENDIF
+!ELSE
+PQXX_DLL=
+!IF "$(DEBUG)" == "1"
+INTDIR=TestStaticDebug
+PQXX=$(LIBDIR)\libpqxx_staticD.lib
+PQXXCOPY=$(INTDIR)\libpqxx_staticD.lib
+!ELSE
+INTDIR=TestStaticRelease
+PQXX=$(LIBDIR)\libpqxx_static.lib
+PQXXCOPY=$(INTDIR)\libpqxx_static.lib
+!ENDIF
+!ENDIF
+
+!IF "$(DEBUG)" == "1"
+LIBPQ=libpqd.dll
+!ELSE
+LIBPQ=libpq.dll
+!ENDIF
+
+
+# C++ compiler, linker
+CXX=cl.exe
+LINK=link.exe
+
+
+CXX_FLAGS_BASE=/nologo /W3 /GX /FD /GR /YX /c \
+    /I "../include" /I "$(PGSQLSRC)/include" /I "$(PGSQLSRC)/interfaces/libpq" \
+    /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_WINDOWS" $(PQXX_SHARED)
+
+LINK_FLAGS_BASE=kernel32.lib wsock32.lib advapi32.lib /nologo /machine:I386 /libpath:"$(LIBDIR)" $(LIBPATH)
+
+!IF "$(DEBUG)" == "1"
+
+CXX_FLAGS=$(CXX_FLAGS_BASE) /MDd /Gm /ZI /Od /D "_DEBUG" /GZ
+LINK_FLAGS=$(LINK_FLAGS_BASE) /debug
+
+!ELSE
+
+CXX_FLAGS=$(CXX_FLAGS_BASE) /MD /D "NDEBUG"
+LINK_FLAGS=$(LINK_FLAGS_BASE)
+
+!ENDIF
+
+
+
+########################################################
+# List of tests
+########################################################
+
+TESTS = \
+    ###MAKTEMPLATE:FOREACH ../test/*.cxx
+        ###BASENAME### \
+    ###MAKTEMPLATE:ENDFOREACH
+
+
+########################################################
+# Logical targets
+########################################################
+
+all: $(TESTS)
+
+clean:
+	-@del /Q vc70.pch
+	-@del /Q $(INTDIR)\*
+
+$(INTDIR):
+	@mkdir $(INTDIR)
+
+
+########################################################
+# Test implementations
+########################################################
+
+
+###MAKTEMPLATE:FOREACH ../test/*.cxx
+
+###BASENAME###: $(INTDIR)\###BASENAME###.success
+
+$(INTDIR)\###BASENAME###.success: $(INTDIR)\###BASENAME###.exe $(INTDIR)\$(LIBPQ) $(PQXX)
+	@copy $(PQXX) $(PQXXCOPY)
+	@$(INTDIR)\###BASENAME###.exe
+	@echo >$(INTDIR)\###BASENAME###.success
+
+$(INTDIR)\###BASENAME###.exe: ###FILENAME### $(INTDIR) $(PQXX)
+	@$(CXX) $(CXX_FLAGS) ###FILENAME### /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
+	@$(LINK) $(LINK_FLAGS) "$(INTDIR)\\###BASENAME###.obj" /out:"$(INTDIR)\\###BASENAME###.exe"
+
+###MAKTEMPLATE:ENDFOREACH
+
+
+$(INTDIR)\$(LIBPQ):
+	@copy $(LIBDIR)\$(LIBPQ) $(INTDIR)
+

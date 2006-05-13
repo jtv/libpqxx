@@ -26,8 +26,22 @@ sed -e "s/@PQXXVERSION@/$PQXXVERSION/g" configure.ac.in >configure.ac
 ./tools/maketestam.pl test >test/Makefile.am
 
 # Generate Windows makefiles (adding carriage returns to make it MS-DOS format)
-./tools/maketestvcmak.pl test | sed -e 's/$/\r/' >win32/test.mak
-./tools/makevcmake.pl src | sed -e 's/$/\r/' >win32/libpqxx.mak
+makewinmake() {
+	./tools/template2mak.py "$1" | sed -e 's/$/\r/' >"$2"
+}
+
+if which python >/dev/null ; then
+	makewinmake win32/libpqxx.mak.template win32/libpqxx.mak
+	makewinmake win32/test.mak.template win32/test.mak
+else
+	echo "Python not available--not generating Visual C++ makefiles."
+fi
+
+# The outdated way of doing this...
+#./tools/maketestvcmak.pl test | sed -e 's/$/\r/' >win32/test.mak
+#./tools/makevcmake.pl src | sed -e 's/$/\r/' >win32/libpqxx.mak
+
+# TODO: Convert this to a template as well!
 ./tools/makemingwmak.pl src | sed -e 's/$/\r/' >win32/MinGW.mak
 
 autoheader
