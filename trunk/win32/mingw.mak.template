@@ -1,0 +1,45 @@
+# MinGW makefile for libpqxx.  Don't use this; use the configure script instead!
+# Based on original contributed by Pasquale Fersini <basquale.fersini@libero.it>
+
+CXX = g++.exe
+
+OBJ = \
+###MAKTEMPLATE:FOREACH ../src/*.cxx
+  "src/###BASENAME###.o" \
+###MAKTEMPLATE:ENDFOREACH
+
+
+LINKOBJ = \
+###MAKTEMPLATE:FOREACH ../src/*.cxx
+  "src/###BASENAME###.o" \
+###MAKTEMPLATE:ENDFOREACH
+
+
+LDFLAGS = -L$(LIBPATH1) -L$(LIBPATH2) --export-all-symbols --add-stdcall-alias -fpic
+LIBS = -lpq -lm -lwsock32
+
+CPPFLAGS = -Iinclude -I$(PGSQLSRC)/src/include -I$(PGSQLSRC)/src/interfaces \
+  -DBUILDING_DLL -DPQXX_SHARED -DPGSTD=$(STD)
+
+BIN = libpqxx.dll
+
+.PHONY: all clean
+
+all: libpqxx.dll
+
+clean:
+	rm -f $(OBJ) $(BIN)
+
+DLLWRAP=dllwrap.exe
+DEFFILE=libpqxx.def
+STATICLIB=libpqxx.a
+
+$(BIN): $(LINKOBJ)
+	$(DLLWRAP) --output-def $(DEFFILE) --driver-name c++ --implib $(STATICLIB) $(LINKOBJ) $(LDFLAGS) $(LIBS) -o $(BIN)
+
+###MAKTEMPLATE:FOREACH ../src/*.cxx
+src/###BASENAME###.o: src/###BASENAME###.cxx
+	$(CXX) $(CPPFLAGS) -c src/###BASENAME###.cxx -o src/###BASENAME###.o $(CXXFLAGS)
+
+###MAKTEMPLATE:ENDFOREACH
+

@@ -31,18 +31,12 @@ makewinmake() {
 }
 
 if which python >/dev/null ; then
-	makewinmake win32/libpqxx.mak.template win32/libpqxx.mak
-	makewinmake win32/test.mak.template win32/test.mak
+	makewinmake win32/vc-libpqxx.mak.template win32/libpqxx.mak
+	makewinmake win32/vc-test.mak.template win32/test.mak
+	makewinmake win32/mingw.mak.template win32/MinGW.mak
 else
 	echo "Python not available--not generating Visual C++ makefiles."
 fi
-
-# The outdated way of doing this...
-#./tools/maketestvcmak.pl test | sed -e 's/$/\r/' >win32/test.mak
-#./tools/makevcmake.pl src | sed -e 's/$/\r/' >win32/libpqxx.mak
-
-# TODO: Convert this to a template as well!
-./tools/makemingwmak.pl src | sed -e 's/$/\r/' >win32/MinGW.mak
 
 autoheader
 

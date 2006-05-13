@@ -37,7 +37,9 @@ def expand_foreach_template(path,template,outfile):
 # write the results to outfile.
 def foreach_file_in_patterns_expand_template(filepatterns,template,outfile):
    for pattern in filepatterns:
-       for path in glob.glob(pattern):
+       files = glob.glob(pattern)
+       files.sort()
+       for path in files:
            expand_foreach_template(path,template,outfile)
 
 
@@ -82,8 +84,22 @@ if __name__ == '__main__':
 
     me = os.path.basename(sys.argv[0])
     hr = "#"*80
-    print hr
-    print """# AUTOMATICALLY GENERATED FILE--DO NOT EDIT
+
+    input = sys.stdin
+    inarg = None
+    output = sys.stdout
+    outarg = None
+
+    if len(sys.argv) >= 2:
+        inarg = sys.argv[1]
+        input = file(inarg)
+        os.chdir(os.path.dirname(inarg))
+	if len(sys.argv) >= 3:
+	    outarg = sys.argv[2]
+	    output = file(outarg, 'w')
+
+    output.write(hr)
+    output.write("""# AUTOMATICALLY GENERATED FILE--DO NOT EDIT
 #
 # This file is generated automatically by libpqxx's %s script.
 #
@@ -91,17 +107,14 @@ if __name__ == '__main__':
 # the file will be re-written from time to time.
 #
 # The %s script should be available in the tools directory of the
-# libpqxx source archive.""" % (me, me)
+# libpqxx source archive.
+""" % (me, me))
+
     if len(sys.argv) > 1:
-        print "#"
-        print "# Generated from template '%s'." % os.path.basename(sys.argv[1])
+        output.write("#\n")
+        output.write("# Generated from template '%s'.\n" % inarg)
 
-    print hr
+    output.write(hr)
 
-    if len(sys.argv) == 1:
-        template2mak(sys.stdin, sys.stdout)
-    elif len(sys.argv) == 2:
-        template2mak(open(sys.argv[1]), sys.stdout)
-    else:
-        template2mak(open(sys.argv[1]), open(sys.argv[2]))
+    template2mak(input, output)
 
