@@ -18,6 +18,11 @@
   - Visual C++ workaround: no stringstream << operator (Bart Samwel)
  test/test061.cxx:
   - Fixed "unreferenced local variable" warning (Bart Samwel)
+ tools/template2mak.py:
+  - New (written by Bart Samwel)
+  - Generates Visual C++ makefiles from templates
+  - Replaces the maketestvcmak.pl and makevcmake.pl scripts
+  - In the future could replace makemingwmak.pl as well
 2006-05-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/libpqxx.xml:
   - Fixed bugs that caused validation to fail
