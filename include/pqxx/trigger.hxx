@@ -85,7 +85,7 @@ public:
 
 #ifdef PQXX_DEPRECATED_HEADERS
   /// @deprecated Use name() instead
-  PGSTD::string Name() const { return name(); }
+  PGSTD::string Name() const PQXX_DEPRECATED { return name(); }
 #endif
 
 protected:

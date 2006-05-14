@@ -95,10 +95,10 @@ public:
 #ifdef PQXX_DEPRECATED_HEADERS
   /// @deprecated Use generate() instead
   template<typename IT> PGSTD::string ezinekoT(IT Begin, IT End) const
-    	{ return generate(Begin, End); }
+    	PQXX_DEPRECATED { return generate(Begin, End); }
   /// @deprecated Use generate() instead
   template<typename TUPLE> PGSTD::string ezinekoT(const TUPLE &T) const
-    	{ return generate(T); }
+    	PQXX_DEPRECATED { return generate(T); }
 #endif
 
 private:

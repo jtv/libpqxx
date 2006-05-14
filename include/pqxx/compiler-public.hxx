@@ -38,7 +38,7 @@
 #define NOMINMAX
 #endif
 
-#endif
+#endif	// _MSC_VER
 
 
 // Workarounds & definitions that need to be included even in library's headers
@@ -119,6 +119,11 @@ template<> struct char_traits<unsigned char>
 #define __USE_STD_IOSTREAM
 #endif	// __DECCXX_VER
 
+#if defined(__GNUC__) && defined(PQXX_HAVE_GCC_DEPRECATED)
+#define PQXX_DEPRECATED __attribute__ ((deprecated))
+#else
+#define PQXX_DEPRECATED
+#endif
 
 // Workarounds for Windows
 #ifdef _WIN32

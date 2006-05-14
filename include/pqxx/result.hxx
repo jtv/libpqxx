@@ -209,14 +209,14 @@ public:
      */
     //@{
     /// @deprecated Use rownumber() instead
-    result::size_type Row() const { return rownumber(); }
+    result::size_type Row() const PQXX_DEPRECATED { return rownumber(); }
 
     /// @deprecated Use column_number() instead
-    size_type ColumnNumber(const PGSTD::string &ColName) const
+    size_type ColumnNumber(const PGSTD::string &ColName) const PQXX_DEPRECATED
 	{ return column_number(ColName); }
 
     /// @deprecated Use column_number() instead
-    size_type ColumnNumber(const char ColName[]) const
+    size_type ColumnNumber(const char ColName[]) const PQXX_DEPRECATED
 	{ return column_number(ColName); }
     //@}
 #endif
@@ -378,7 +378,7 @@ public:
 
 #ifdef PQXX_DEPRECATED_HEADERS
     /// @deprecated Use name() instead
-    const char *Name() const {return name();}
+    const char *Name() const PQXX_DEPRECATED {return name();}
 #endif
 
   private:
@@ -855,19 +855,19 @@ public:
   /// @deprecated For compatibility with old Field class
   typedef field Field;
   /// @deprecated Use inserted_oid() instead
-  oid InsertedOid() const { return inserted_oid(); }
+  oid InsertedOid() const PQXX_DEPRECATED { return inserted_oid(); }
   /// @deprecated Use affected_rows() instead
-  size_type AffectedRows() const { return affected_rows(); }
+  size_type AffectedRows() const PQXX_DEPRECATED { return affected_rows(); }
   /// @deprecated Use columns() instead
-  tuple::size_type Columns() const { return columns(); }
+  tuple::size_type Columns() const PQXX_DEPRECATED { return columns(); }
   /// @deprecated Use column_number() instead
-  tuple::size_type ColumnNumber(const char Name[]) const
-  	{return column_number(Name);}
+  tuple::size_type ColumnNumber(const char Name[]) const PQXX_DEPRECATED
+	{return column_number(Name);}
   /// @deprecated Use column_number() instead
-  tuple::size_type ColumnNumber(const PGSTD::string &Name) const
+  tuple::size_type ColumnNumber(const PGSTD::string &Name) const PQXX_DEPRECATED
   	{return column_number(Name);}
   /// @deprecated Use column_name() instead
-  const char *ColumnName(tuple::size_type Number) const
+  const char *ColumnName(tuple::size_type Number) const PQXX_DEPRECATED
   	{return column_name(Number);}
   //@}
 #endif
