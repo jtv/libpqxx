@@ -2,6 +2,7 @@
  configure.ac.in:
   - Test for gcc's "deprecated" attribute
   - Don't try to enable gcc's mudflap
+  - Remove redundant -lpq arguments
  include/pqxx/compiler-public.hxx, include/pqxx/connection_base.hxx,
  include/pqxx/result.hxx, include/pqxx/tablereader.hxx,
  include/pqxx/tablestream.hxx, include/pqxx/tablewriter.hxx,

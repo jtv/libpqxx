@@ -151,10 +151,7 @@ CXXFLAGS="$SAVE_CXXFLAGS"
 
 AC_MSG_CHECKING([g++ deprecation attribute])
 gcc_deprecated=yes
-AC_TRY_COMPILE([
-#ifdef __GNUC__
-void f() __attribute__ ((deprecated));
-#endif],
+AC_TRY_COMPILE([void f() __attribute__ ((deprecated));],
 	[],
 	AC_DEFINE([PQXX_HAVE_GCC_DEPRECATED],1,
 		[Define if g++ supports deprecated attribute, as in g++ 4.0]),
@@ -250,7 +247,7 @@ AC_MSG_NOTICE([using PostgreSQL libraries at $with_postgres_lib])
 
 AC_SUBST(with_postgres_lib)
 AC_SUBST(with_postgres_include)
-POSTGRES_LIB="-L${with_postgres_lib} -R${with_postgres_lib} -lpq"
+POSTGRES_LIB="-R${with_postgres_lib}"
 AC_SUBST(POSTGRES_LIB)
 POSTGRES_INCLUDE="-I${with_postgres_include}"
 AC_SUBST(POSTGRES_INCLUDE)
@@ -330,9 +327,12 @@ but be warned that this is no easy reading.  Look for the last error message
 occurring in the file.
 ])], -L${with_postgres_lib})
 
+# Remove redundant occurrances of -lpq
+LIBS="`echo "$LIBS" | sed -e 's/-lpq\>[[:space:]]*-lpq\>/-lpq/g'`"
+
 AC_LANG_POP(C)
 
-LDFLAGS="$LDFLAGS -L${with_postgres_lib} -lpq"
+LDFLAGS="$LDFLAGS -L${with_postgres_lib}"
 
 AC_MSG_CHECKING([for correct C++ linkage of basic libpq functions])
 if test "$enable_maintainer_mode" = "yes"; then
