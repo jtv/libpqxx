@@ -1,4 +1,7 @@
 2006-05-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Test for gcc's "deprecated" attribute
+  - Don't try to enable gcc's mudflap
  test/Makefile.am.template
   - Fixed empty line after escaped newline that automake stumbled over
 2006-05-14  Jeroen T. Vermeulen <jtv@xs4all.nl>

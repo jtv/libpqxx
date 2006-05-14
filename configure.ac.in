@@ -118,8 +118,7 @@ if test "$GCC" = "yes" ; then
 			-Wmissing-field-initializers \
 			-Wmissing-include-dirs \
 			-Wunused \
-			-funit-at-a-time \
-			-fmudflap
+			-funit-at-a-time
 	fi
 
 	if test "$enable_long_long" = "yes" ; then
@@ -149,8 +148,20 @@ AC_MSG_RESULT($gcc_visibility)
 		#add_compiler_opts -fvisibility=hidden
 	fi
 CXXFLAGS="$SAVE_CXXFLAGS"
-fi
 
+AC_MSG_CHECKING([g++ deprecation attribute])
+gcc_deprecated=yes
+AC_TRY_COMPILE([
+#ifdef __GNUC__
+void f() __attribute__ ((deprecated));
+#endif],
+	[],
+	AC_DEFINE([PQXX_HAVE_GCC_DEPRECATED],1,
+		[Define if g++ supports deprecated attribute, as in g++ 4.0]),
+	gcc_deprecated=no)
+AC_MSG_RESULT($gcc_deprecated)
+
+fi
 
 # Determine name of standard namespace.  PGSTD will be set to this name.  The
 # --with-std= option takes precedence if given; otherwise, several alternatives
