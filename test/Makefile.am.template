@@ -19,6 +19,7 @@ TESTS = \
 ###MAKTEMPLATE:FOREACH test*.cxx
   ###BASENAME### \
 ###MAKTEMPLATE:ENDFOREACH
+  # (end)
 
 check_PROGRAMS = ${TESTS}
 
