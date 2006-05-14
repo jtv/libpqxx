@@ -230,26 +230,28 @@ public:
    */
   //@{
   /// @deprecated Use commit() instead
-  void Commit() { commit(); }
+  void Commit() PQXX_DEPRECATED { commit(); }
   /// @deprecated Use abort() instead
-  void Abort() { abort(); }
+  void Abort() PQXX_DEPRECATED { abort(); }
   /// @deprecated Use exec() instead
   result Exec(const char Q[], const PGSTD::string &D=PGSTD::string())
-	{ return exec(Q,D); }
+	PQXX_DEPRECATED { return exec(Q,D); }
   /// @deprecated Use exec() instead
   result Exec(const PGSTD::string &Q, const PGSTD::string &D=PGSTD::string())
-    	{ return exec(Q,D); }
+    	PQXX_DEPRECATED { return exec(Q,D); }
   /// @deprecated Use process_notice() instead
-  void ProcessNotice(const char M[]) const { return process_notice(M); }
+  void ProcessNotice(const char M[]) const PQXX_DEPRECATED
+	{ return process_notice(M); }
   /// @deprecated Use process_notice() instead
-  void ProcessNotice(const PGSTD::string &M) const { return process_notice(M); }
+  void ProcessNotice(const PGSTD::string &M) const PQXX_DEPRECATED
+	{ return process_notice(M); }
   /// @deprecated Use name() instead
-  PGSTD::string Name() const { return name(); }
+  PGSTD::string Name() const PQXX_DEPRECATED { return name(); }
   /// @deprecated Use conn() instead
-  connection_base &Conn() const { return conn(); }
+  connection_base &Conn() const PQXX_DEPRECATED { return conn(); }
   /// @deprecated Use set_variable() instead
   void SetVariable(const PGSTD::string &Var, const PGSTD::string &Val)
-    	{ set_variable(Var,Val); }
+    	PQXX_DEPRECATED { set_variable(Var,Val); }
   //@}
 #endif
 

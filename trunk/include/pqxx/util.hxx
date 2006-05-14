@@ -391,7 +391,7 @@ typedef long result_difference_type;
  * for the symbol error_unsupported_type_in_string_conversion(), with a template
  * argument describing the unsupported input type.
  */
-template<typename T> inline const char *FmtString(T t)
+template<typename T> inline const char *FmtString(T t) PQXX_DEPRECATED
 {
   error_unsupported_type_in_string_conversion(t);
   return 0;
@@ -422,7 +422,7 @@ template<> inline const char *FmtString(long double)   { return "%Lf"; }
  * C default, you'll need to switch back to the C locale before the call.
  * This problem does not exist with the newer to_string function template.
  */
-template<typename T> inline PGSTD::string ToString(const T &Obj)
+template<typename T> inline PGSTD::string ToString(const T &Obj) PQXX_DEPRECATED
 {
   // TODO: Find a decent way to determine max string length at compile time!
   char Buf[500];
@@ -466,6 +466,7 @@ template<> inline PGSTD::string ToString(const unsigned short &Obj)
  * This problem does not exist with the newer from_string function template.
  */
 template<typename T> inline void FromString(const char Str[], T &Obj)
+  PQXX_DEPRECATED
 {
   if (!Str) throw PGSTD::runtime_error("Attempt to convert NULL string to " +
 		                     PGSTD::string(typeid(T).name()));
@@ -482,13 +483,15 @@ namespace internal
 /// For libpqxx internal use only: convert C string to C++ string
 /** @deprecated To be removed when FromString is taken out
  */
-void PQXX_LIBEXPORT FromString_string(const char Str[], PGSTD::string &Obj);
+void PQXX_LIBEXPORT FromString_string(const char Str[], PGSTD::string &Obj)
+  PQXX_DEPRECATED;
 
 /// For libpqxx internal use only: convert unsigned char * to C++ string
 /** @deprecated To be removed when FromString is taken out
  */
 void PQXX_LIBEXPORT FromString_ucharptr(const char Str[],
-    	const unsigned char *&Obj);
+    	const unsigned char *&Obj)
+  PQXX_DEPRECATED;
 
 /// For libpqxx internal use only: quote std::string
 PGSTD::string PQXX_LIBEXPORT Quote_string(const PGSTD::string &Obj,
@@ -627,7 +630,8 @@ PGSTD::string PQXX_LIBEXPORT sqlesc(const PGSTD::string &);		//[t0]
  * string will generate the null value rather than an empty string.
  * @deprecated Use sqlesc instead.
  */
-template<typename T> PGSTD::string Quote(const T &Obj, bool EmptyIsNull);
+template<typename T> PGSTD::string Quote(const T &Obj, bool EmptyIsNull)
+  PQXX_DEPRECATED;
 
 
 /// std::string version, on which the other versions are built
@@ -635,6 +639,7 @@ template<typename T> PGSTD::string Quote(const T &Obj, bool EmptyIsNull);
  */
 template<>
 inline PGSTD::string Quote(const PGSTD::string &Obj, bool EmptyIsNull)
+  PQXX_DEPRECATED
 {
   return internal::Quote_string(Obj, EmptyIsNull);
 }
@@ -643,6 +648,7 @@ inline PGSTD::string Quote(const PGSTD::string &Obj, bool EmptyIsNull)
 /** @deprecated Use sqlesc instead.
  */
 template<> inline PGSTD::string Quote(const char *const & Obj, bool EmptyIsNull)
+  PQXX_DEPRECATED
 {
   return internal::Quote_charptr(Obj, EmptyIsNull);
 }
@@ -658,12 +664,14 @@ template<> inline PGSTD::string Quote(const char *const & Obj, bool EmptyIsNull)
  */
 template<int LEN> inline PGSTD::string Quote(const char (&Obj)[LEN],
     					     bool EmptyIsNull)
+  PQXX_DEPRECATED
 {
   return internal::Quote_charptr(Obj, EmptyIsNull);
 }
 
 
 template<typename T> inline PGSTD::string Quote(const T &Obj, bool EmptyIsNull)
+  PQXX_DEPRECATED
 {
   return Quote(ToString(Obj), EmptyIsNull);
 }
@@ -673,7 +681,7 @@ template<typename T> inline PGSTD::string Quote(const T &Obj, bool EmptyIsNull)
 /** This version of the function never generates null values.
  * @deprecated Use sqlesc instead.
  */
-template<typename T> inline PGSTD::string Quote(T Obj)
+template<typename T> inline PGSTD::string Quote(T Obj) PQXX_DEPRECATED
 {
   return Quote(Obj, false);
 }
