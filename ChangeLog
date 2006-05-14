@@ -2,6 +2,12 @@
  configure.ac.in:
   - Test for gcc's "deprecated" attribute
   - Don't try to enable gcc's mudflap
+ include/pqxx/compiler-public.hxx, include/pqxx/connection_base.hxx,
+ include/pqxx/result.hxx, include/pqxx/tablereader.hxx,
+ include/pqxx/tablestream.hxx, include/pqxx/tablewriter.hxx,
+ include/pqxx/transaction_base.hxx, include/pqxx/trigger.hxx,
+ include/pqxx/util.hxx:
+  - Apply gcc's "deprecated" attribute to deprecated functions
  test/Makefile.am.template
   - Fixed empty line after escaped newline that automake stumbled over
 2006-05-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
