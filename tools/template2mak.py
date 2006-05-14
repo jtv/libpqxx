@@ -83,7 +83,7 @@ if __name__ == '__main__':
 	sys.exit(1)
 
     me = os.path.basename(sys.argv[0])
-    hr = "#"*80
+    hr = "#"*80 + "\n"
 
     input = sys.stdin
     inarg = None
@@ -93,10 +93,10 @@ if __name__ == '__main__':
     if len(sys.argv) >= 2:
         inarg = sys.argv[1]
         input = file(inarg)
-        os.chdir(os.path.dirname(inarg))
 	if len(sys.argv) >= 3:
 	    outarg = sys.argv[2]
 	    output = file(outarg, 'w')
+        os.chdir(os.path.dirname(inarg))
 
     output.write(hr)
     output.write("""# AUTOMATICALLY GENERATED FILE--DO NOT EDIT

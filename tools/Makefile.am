@@ -1,10 +1,7 @@
 EXTRA_DIST = \
-	makemingwmak.pl \
-	maketestam.pl \
-	maketestvcmak.pl \
-	makevcmake.pl \
 	preprelease \
-	rmlo.cxx
+	rmlo.cxx \
+	template2mak.py
 
 INCLUDES=-I$(top_builddir)/include -I$(top_srcdir)/include ${POSTGRES_INCLUDE}
 

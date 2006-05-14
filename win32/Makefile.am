@@ -2,7 +2,10 @@ EXTRA_DIST = \
 	common-sample \
 	INSTALL.txt \
 	libpqxx.cxx \
-	libpqxx.mak \
-	test.mak \
-	MinGW.mak
+	mingw.mak.template \
+	MinGW.mak \
+	vc-libpqxx.mak.template \
+	vc-libpqxx.mak \
+	vc-test.mak.template \
+	vc-test.mak
 
