@@ -1,3 +1,10 @@
+2006-05-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh
+  - Use templating script to generate test/Makefile.am as well
+ tools/template2mak.py:
+  - Don't change directories until after output file has been opened
+ tools/*.pl:
+  - Got rid of all Perl scripts!
 2006-05-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
   - Use Bart Samwel's templating script to generate all Windows Makefiles

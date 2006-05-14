@@ -22,15 +22,14 @@ echo "libpqxx version $PQXXVERSION"
 # Generate configure.ac based on current version numbers
 sed -e "s/@PQXXVERSION@/$PQXXVERSION/g" configure.ac.in >configure.ac
 
-# Generate test/Makefile.am
-./tools/maketestam.pl test >test/Makefile.am
-
 # Generate Windows makefiles (adding carriage returns to make it MS-DOS format)
 makewinmake() {
 	./tools/template2mak.py "$1" | sed -e 's/$/\r/' >"$2"
 }
 
 if which python >/dev/null ; then
+	# Use templating system to generate various Makefiles
+	./tools/template2mak.py test/Makefile.am.template test/Makefile.am
 	makewinmake win32/vc-libpqxx.mak.template win32/vc-libpqxx.mak
 	makewinmake win32/vc-test.mak.template win32/vc-test.mak
 	makewinmake win32/mingw.mak.template win32/MinGW.mak
