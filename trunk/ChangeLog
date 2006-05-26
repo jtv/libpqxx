@@ -1,3 +1,8 @@
+2006-05-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/template2mak.py:
+  - Fixed case where input file argument has no path component (Bart Samwel)
+ win32/vc-test.mak.template:
+  - Fixed usage of LIBPATH variables (Bart Samwel)
 2006-05-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Test for gcc's "deprecated" attribute
@@ -9,8 +14,12 @@
  include/pqxx/transaction_base.hxx, include/pqxx/trigger.hxx,
  include/pqxx/util.hxx:
   - Apply gcc's "deprecated" attribute to deprecated functions
+ src/connection_base.cxx:
+  - Quote prepared statement names so they can contain upper-case letters
  test/Makefile.am.template
   - Fixed empty line after escaped newline that automake stumbled over
+ test/test0085.cxx:
+  - Test upper-case letters in prepared-statement names
 2006-05-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh
   - Use templating script to generate test/Makefile.am as well

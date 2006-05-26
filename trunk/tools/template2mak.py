@@ -91,7 +91,7 @@ if __name__ == '__main__':
     outarg = None
 
     if len(sys.argv) >= 2:
-        inarg = sys.argv[1]
+        inarg = os.path.abspath(sys.argv[1])
         input = file(inarg)
 	if len(sys.argv) >= 3:
 	    outarg = sys.argv[2]
