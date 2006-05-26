@@ -712,7 +712,7 @@ void pqxx::connection_base::unprepare(const string &name)
   // Quietly ignore duplicated or spurious unprepare()s
   if (i == m_prepared.end()) return;
 
-  if (i->second.registered) Exec(("DEALLOCATE " + name).c_str(), 0);
+  if (i->second.registered) Exec(("DEALLOCATE \"" + name + "\"").c_str(), 0);
 
   m_prepared.erase(i);
 }
@@ -808,7 +808,7 @@ pqxx::result pqxx::connection_base::prepared_exec(const string &statement,
     PQprepare(m_Conn, statement.c_str(), s.definition.c_str(), 0, 0);
 #else
     stringstream P;
-    P << "PREPARE " << statement;
+    P << "PREPARE \"" << statement << '"';
 
     if (!s.parameters.empty())
       P << '('
@@ -830,7 +830,7 @@ pqxx::result pqxx::connection_base::prepared_exec(const string &statement,
   stringstream Q;
   if (supports(cap_prepared_statements))
   {
-    Q << "EXECUTE " << statement;
+    Q << "EXECUTE \"" << statement << '"';
     if (nparams)
     {
       Q << " (";
