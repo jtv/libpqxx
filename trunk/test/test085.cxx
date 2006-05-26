@@ -59,11 +59,11 @@ int main()
 {
   try
   {
-    const string QN_readpgtables = "readpgtables",
+    const string QN_readpgtables = "ReadPGTables",
 	  Q_readpgtables = "SELECT * FROM pg_tables",
-	  QN_seetable = "seetable",
+	  QN_seetable = "SeeTable",
 	  Q_seetable = Q_readpgtables + " WHERE tablename=$1",
-	  QN_seetables = "seetables",
+	  QN_seetables = "SeeTables",
 	  Q_seetables = Q_seetable + " OR tablename=$2";
 
     lazyconnection C;

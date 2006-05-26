@@ -1,4 +1,5 @@
 2.6.6
+ - Upper-case letters now allowed in prepared-statement names
  - Fixes crash in test005
  - More Visual C++ improvements
  - Removed collaboration diagrams from reference docs
