@@ -1,3 +1,10 @@
+libpqxx (2.6.6-1) stable; urgency=high
+
+  * New upstream release.
+  * Fixes security problem with string escaping
+
+ -- Jeroen T. Vermeulen <jtv@xs4all.nl>  Sat, 27 May 2006 17:20:00 +0700
+
 libpqxx (2.6.5-1) unstable; urgency=medium
 
   * New upstream release.
