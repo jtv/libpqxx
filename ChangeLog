@@ -7,6 +7,11 @@
  src/util.cxx:
   - Use PQescapeStringConn() where available
   - New escaping functions
+ test/test000.cxx:
+  - Removed now obsolete sqlesc() tests
+ test/test090.cxx:
+  - New
+  - Tests new string-escaping functions
 2006-05-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/template2mak.py:
   - Fixed case where input file argument has no path component (Bart Samwel)

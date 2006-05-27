@@ -572,13 +572,13 @@ template<> inline void FromString(const char Str[], bool &Obj)
  * which is always @c true.  Therefore, the attacker will get to see all
  * accounts in the database!
  *
- * To prevent this from happening, use sqlesc():
+ * To prevent this from happening, use the transaction's esc() function:
  *
  * @code
  * 	TX.exec("SELECT number,amount "
  * 		"FROM accounts "
- * 		"WHERE allowed_to_see('" + sqlesc(userid) + "', "
- * 			"'" + sqlesc(password) + "')");
+ * 		"WHERE allowed_to_see('" + TX.esc(userid) + "', "
+ * 			"'" + TX.esc(password) + "')");
  * @endcode
  *
  * Now, the quotes embedded in the attacker's string will be neatly escaped so
@@ -605,8 +605,10 @@ template<> inline void FromString(const char Str[], bool &Obj)
  * Unlike its predecessor Quote(), which is now obsolete, this function does not
  * add SQL-style single quotes around the result string; nor does it recognize
  * and generate nulls.
+ *
+ * @deprecated Use the transaction's esc() function instead
  */
-PGSTD::string PQXX_LIBEXPORT sqlesc(const char str[]);			//[t0]
+PGSTD::string PQXX_LIBEXPORT sqlesc(const char str[]);
 
 /// Escape string for inclusion in SQL strings
 /** Reads and escapes input string.  The string is terminated by either a nul
@@ -619,28 +621,33 @@ PGSTD::string PQXX_LIBEXPORT sqlesc(const char str[]);			//[t0]
  * Unlike its predecessor Quote(), which is now obsolete, this function does not
  * add SQL-style single quotes around the result string; nor does it recognize
  * and generate nulls.
+ *
+ * @deprecated Use the transaction's esc() function instead
  */
-PGSTD::string PQXX_LIBEXPORT sqlesc(const char str[], size_t maxlen);	//[t0]
+PGSTD::string PQXX_LIBEXPORT sqlesc(const char str[], size_t maxlen);
 
 /// Escape string for inclusion in SQL strings
 /** This works like the other sqlesc() variants, which means that if the string
  * contains a nul character, conversion will stop there.  PostgreSQL does not
  * allow nul characters in strings.
+ *
+ * @deprecated Use the transaction's esc() function instead
  */
-PGSTD::string PQXX_LIBEXPORT sqlesc(const PGSTD::string &);		//[t0]
+PGSTD::string PQXX_LIBEXPORT sqlesc(const PGSTD::string &);
 
 
 /// Quote string for use in SQL
 /** Generate SQL-quoted version of string.  If EmptyIsNull is set, an empty
  * string will generate the null value rather than an empty string.
- * @deprecated Use sqlesc instead.
+ *
+ * @deprecated Use the transaction's esc() function instead
  */
 template<typename T> PGSTD::string Quote(const T &Obj, bool EmptyIsNull)
   PQXX_DEPRECATED;
 
 
 /// std::string version, on which the other versions are built
-/** @deprecated Use sqlesc instead.
+/** @deprecated Use the transaction's esc() function instead
  */
 template<>
 inline PGSTD::string Quote(const PGSTD::string &Obj, bool EmptyIsNull)
@@ -650,7 +657,7 @@ inline PGSTD::string Quote(const PGSTD::string &Obj, bool EmptyIsNull)
 }
 
 /// Special case for const char *, accepting null pointer as null value
-/** @deprecated Use sqlesc instead.
+/** @deprecated Use the transaction's esc() function instead
  */
 template<> inline PGSTD::string Quote(const char *const & Obj, bool EmptyIsNull)
   PQXX_DEPRECATED
@@ -665,7 +672,7 @@ template<> inline PGSTD::string Quote(const char *const & Obj, bool EmptyIsNull)
  * Note that the size of the array is part of the type, for which reason we need
  * it in our template here.
  *
- * @deprecated Use sqlesc() instead.
+ * @deprecated Use the transaction's esc() function instead
  */
 template<int LEN> inline PGSTD::string Quote(const char (&Obj)[LEN],
     					     bool EmptyIsNull)
@@ -675,6 +682,8 @@ template<int LEN> inline PGSTD::string Quote(const char (&Obj)[LEN],
 }
 
 
+/** @deprecated Use the transaction's esc() function instead
+ */
 template<typename T> inline PGSTD::string Quote(const T &Obj, bool EmptyIsNull)
   PQXX_DEPRECATED
 {
@@ -684,7 +693,8 @@ template<typename T> inline PGSTD::string Quote(const T &Obj, bool EmptyIsNull)
 
 /// Quote string for use in SQL
 /** This version of the function never generates null values.
- * @deprecated Use sqlesc instead.
+ *
+ * @deprecated Use the transaction's esc() function instead
  */
 template<typename T> inline PGSTD::string Quote(T Obj) PQXX_DEPRECATED
 {

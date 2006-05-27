@@ -20,23 +20,38 @@ void compare_results(string name, result lhs, result rhs)
 }
 
 
-string stringize(const string &arg) { return "'" + sqlesc(arg) + "'"; }
-string stringize(const char arg[]) {return arg?stringize(string(arg)):"null";}
-string stringize(char arg[]) {return arg?stringize(string(arg)):"null";}
-template<typename T> string stringize(T i) { return stringize(to_string(i)); }
+string stringize(transaction_base &t, const string &arg)
+{
+  return "'" + t.esc(arg) + "'";
+}
+string stringize(transaction_base &t, const char arg[])
+{
+  return arg ? stringize(t,string(arg)) : "null";
+}
+string stringize(transaction_base &t, char arg[])
+{
+  return arg ? stringize(t, string(arg)) : "null";
+}
+template<typename T> string stringize(transaction_base &t, T i)
+{
+  return stringize(t, to_string(i));
+}
 
 // Substitute variables in raw query.  This is not likely to be very robust,
 // but it should do for just this test.  The main shortcomings are escaping,
 // and not knowing when to quote the variables.
 // Note we do the replacement backwards (meaning forward_only iterators won't
 // do!) to avoid substituting e.g. "$12" as "$1" first.
-template<typename ITER> string subst(string q, ITER patbegin, ITER patend)
+template<typename ITER> string subst(transaction_base &t,
+	string q,
+	ITER patbegin,
+	ITER patend)
 {
   int i = distance(patbegin, patend);
   for (ITER arg = --patend; i > 0; --arg, --i)
   {
     const string marker = "$" + to_string(i),
-	  var = stringize(*arg);
+	  var = stringize(t, *arg);
     const string::size_type msz = marker.size();
     while (q.find(marker) != string::npos) q.replace(q.find(marker),msz,var);
   }
@@ -44,9 +59,11 @@ template<typename ITER> string subst(string q, ITER patbegin, ITER patend)
 }
 
 
-template<typename CNTNR> string subst(string q, const CNTNR &patterns)
+template<typename CNTNR> string subst(transaction_base &t,
+	string q,
+	const CNTNR &patterns)
 {
-  return subst(q, patterns.begin(), patterns.end());
+  return subst(t, q, patterns.begin(), patterns.end());
 }
 
 } // namespace
@@ -130,7 +147,7 @@ int main()
     args.push_back("pg_type");
     compare_results(QN_seetable+"_seq",
 	T.prepared(QN_seetable)(args[0]).exec(),
-	T.exec(subst(Q_seetable,args)));
+	T.exec(subst(T,Q_seetable,args)));
 
     cout << "Testing prepared statement with 2 parameters..." << endl;
 
@@ -140,7 +157,7 @@ int main()
     args.push_back("pg_index");
     compare_results(QN_seetables+"_seq",
       T.prepared(QN_seetables)(args[0])(args[1]).exec(),
-      T.exec(subst(Q_seetables,args)));
+      T.exec(subst(T,Q_seetables,args)));
 
     cout << "Testing prepared statement with a null parameter..." << endl;
     vector<const char *> ptrs;
@@ -148,7 +165,7 @@ int main()
     ptrs.push_back("pg_index");
     compare_results(QN_seetables+"_null1",
 	T.prepared(QN_seetables)(ptrs[0])(ptrs[1]).exec(),
-	T.exec(subst(Q_seetables,ptrs)));
+	T.exec(subst(T,Q_seetables,ptrs)));
     compare_results(QN_seetables+"_null2",
 	T.prepared(QN_seetables)(ptrs[0])(ptrs[1]).exec(),
 	T.prepared(QN_seetables)()(ptrs[1]).exec());

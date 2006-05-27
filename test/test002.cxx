@@ -14,7 +14,7 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-// Example program for libpqxx.  Perform a query and enumerate its output
+// Example/test program for libpqxx.  Perform a query and enumerate its output
 // using array indexing.
 //
 // Usage: test002 [connect-string]
