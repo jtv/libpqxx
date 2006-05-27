@@ -7,7 +7,7 @@
  *      implementation of the pqxx::robusttransaction class.
  *   pqxx::robusttransaction is a slower but safer transaction class
  *
- * Copyright (c) 2002-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -194,7 +194,7 @@ void pqxx::basic_robusttransaction::CreateTransactionRecord()
 	                "(name, date) "
 			"VALUES "
 	                "(" +
-			(name().empty() ? "null" : "'"+sqlesc(name())+"'") +
+			(name().empty() ? "null" : "'"+esc(name())+"'") +
 			", "
 	                "CURRENT_TIMESTAMP"
 	                ")";

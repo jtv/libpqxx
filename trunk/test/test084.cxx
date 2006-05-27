@@ -80,7 +80,7 @@ int main(int, char *argv[])
     // a result field for this purpose.  This isn't easy because it's not 
     // supposed to be easy; normally we'd only construct streams around existing
     // SQL cursors if they were being returned by functions.
-    icursorstream C(T, T.exec("SELECT '"+sqlesc(CurName)+"'")[0][0], GetRows);
+    icursorstream C(T, T.exec("SELECT '"+T.esc(CurName)+"'")[0][0], GetRows);
 
     // Create parallel cursor to check results
     icursorstream C2(T, Query, "CHECKCUR", GetRows);

@@ -36,15 +36,6 @@ void check(string ref, string val, string vdesc)
 	"<> " + ref + "'");
 }
 
-void esc(string str, string expected=string())
-{
-  if (expected.empty()) expected = str;
-  check(expected, sqlesc(str), "string");
-  check(expected, sqlesc(str.c_str()), "const char[]");
-  check(expected, sqlesc(str.c_str(), str.size()), "const char[],size_t");
-  check(expected, sqlesc(str.c_str(), 1000), "const char[],1000");
-}
-
 template<typename T> inline void strconv(string type,
     const T &Obj,
     string expected)
@@ -118,16 +109,6 @@ int main()
 
     const char weird[] = "foo\t\n\0bar";
     const string weirdstr(weird, sizeof(weird)-1);
-
-    cout << "Testing SQL string escape functions..." << endl;
-    esc("");
-    esc("foo");
-    esc("foo bar");
-    esc("unquote' ha!", "unquote'' ha!");
-    esc("'", "''");
-    esc("\\", "\\\\");
-    esc("\t");
-    esc(weirdstr, weird);
 
     cout << "Testing string conversions..." << endl;
     strconv("const char[]", "", "");

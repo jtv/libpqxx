@@ -730,7 +730,7 @@ string escape_param(const char in[], prepare::param_treatment treatment)
     return "'" + escape_binary(in) + "'";
 
   case treat_string:
-    return "'" + sqlesc(in) + "'";
+    return "'" + pqxx::internal::escape_string(in, strlen(in)) + "'";
 
   case treat_bool:
     switch (in[0])
