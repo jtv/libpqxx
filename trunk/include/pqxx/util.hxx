@@ -480,6 +480,11 @@ template<typename T> inline void FromString(const char Str[], T &Obj)
 
 namespace internal
 {
+/// Internal string-escaping function; does not deal with encodings well
+/** @deprecated Use transaction's esc() function instead
+ */
+PGSTD::string escape_string(const char str[], size_t maxlen);
+
 /// For libpqxx internal use only: convert C string to C++ string
 /** @deprecated To be removed when FromString is taken out
  */

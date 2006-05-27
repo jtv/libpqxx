@@ -471,9 +471,7 @@ void pqxx::internal::FromString_ucharptr(const char Str[],
 }
 
 
-namespace
-{
-string libpq_escape(const char str[], size_t maxlen)
+string pqxx::internal::escape_string(const char str[], size_t maxlen)
 {
   string result;
 
@@ -532,6 +530,9 @@ string libpq_escape(const char str[], size_t maxlen)
   return result;
 }
 
+
+namespace
+{
 size_t pqxx_strnlen(const char s[], size_t max)
 {
 #if defined(PQXX_HAVE_STRNLEN)
@@ -546,12 +547,12 @@ size_t pqxx_strnlen(const char s[], size_t max)
 
 string pqxx::sqlesc(const char str[])
 {
-  return libpq_escape(str, strlen(str));
+  return escape_string(str, strlen(str));
 }
 
 string pqxx::sqlesc(const char str[], size_t maxlen)
 {
-  return libpq_escape(str, pqxx_strnlen(str,maxlen));
+  return escape_string(str, pqxx_strnlen(str,maxlen));
 }
 
 

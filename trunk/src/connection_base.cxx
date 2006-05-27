@@ -1132,6 +1132,35 @@ pqxx::internal::pq::PGresult *pqxx::connection_base::get_result()
 }
 
 
+string pqxx::connection_base::esc(const char str[], size_t maxlen)
+{
+#ifdef PQXX_HAVE_PQESCAPESTRINGCONN
+  // We need a connection object...  This is the one reason why this function is
+  // not const!
+  if (!m_Conn) activate();
+
+  char *const buf = new char[2*maxlen+1];
+  string escaped;
+  try
+  {
+    int err = 0;
+    const size_t result = PQescapeStringConn(m_Conn, buf, str, maxlen, &err);
+    if (err) throw invalid_argument(ErrMsg());
+    escaped = string(buf);
+  }
+  catch (const exception &)
+  {
+    delete [] buf;
+    throw;
+  }
+  delete [] buf;
+
+  return escaped;
+#else
+  return internal::escape_string(str, maxlen);
+#endif
+}
+
 
 namespace
 {

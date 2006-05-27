@@ -8,7 +8,7 @@
  *   pqxx::transaction_base defines the interface for any abstract class that
  *   represents a database transaction
  *
- * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -186,6 +186,18 @@ void pqxx::transaction_base::abort()
 
   m_Status = st_aborted;
   End();
+}
+
+
+string pqxx::transaction_base::esc(const char str[]) const
+{
+  return m_Conn.esc(str, strlen(str));
+}
+
+
+string pqxx::transaction_base::esc(const string &str) const
+{
+  return m_Conn.esc(str.c_str(), str.size());
 }
 
 
