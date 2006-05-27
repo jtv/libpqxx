@@ -117,6 +117,19 @@ public:
    */
   void abort();								//[t10]
 
+  /**
+   * @addtogroup escaping String escaping
+   */
+  //@{
+  /// Escape string for use as SQL string literal in this transaction
+  PGSTD::string esc(const char str[]) const;				//[]
+  /// Escape string for use as SQL string literal in this transaction
+  PGSTD::string esc(const char str[], size_t maxlen) const		//[]
+	{ return m_Conn.esc(str,maxlen); }
+  /// Escape string for use as SQL string literal in this transaction
+  PGSTD::string esc(const PGSTD::string &) const;			//[]
+  //@}
+
   /// Execute query
   /** Perform a query in this transaction.
    * @param Query Query or command to execute

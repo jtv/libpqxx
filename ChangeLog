@@ -1,3 +1,12 @@
+2006-05-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Check for new PQescapeStringConn()
+  - Check for new PQescapeByteaConn()
+ include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
+ include/pqxx/util.hxx, src/connection_base.cxx, src/transaction_base.cxx,
+ src/util.cxx:
+  - Use PQescapeStringConn() where available
+  - New escaping functions
 2006-05-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/template2mak.py:
   - Fixed case where input file argument has no path component (Bart Samwel)

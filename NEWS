@@ -1,4 +1,5 @@
 2.6.6
+ - New, encoding-safe string-escaping functions
  - Upper-case letters now allowed in prepared-statement names
  - Fixes crash in test005
  - More Visual C++ improvements

@@ -588,15 +588,15 @@ before going any further!
 ])
 fi
 
-AC_MSG_CHECKING([PQescapeStringWithConn()])
-pqescapestringwithconn=yes
+AC_MSG_CHECKING([PQescapeStringConn()])
+pqescapestringconn=yes
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[char b[1];pgConn *c;PQescapeStringWithConn(c,b,b,sizeof(b))],
-	AC_DEFINE(PQXX_HAVE_PQESCAPESTRINGWITHCONN, 1,
-		[Define if libpq has PQescapeStringWithConn()]),
-	[pqescapestringwithconn=no]
+	[char b[1];PQescapeStringConn(0,b,b,sizeof(b),0)],
+	AC_DEFINE(PQXX_HAVE_PQESCAPESTRINGCONN, 1,
+		[Define if libpq has PQescapeStringConn()]),
+	[pqescapestringconn=no]
 )
-AC_MSG_RESULT($pqescapestringwithconn)
+AC_MSG_RESULT($pqescapestringconn)
 
 AC_MSG_CHECKING([PQescapeBytea()])
 pqescapebytea=yes
@@ -608,6 +608,17 @@ ${usestd}],
 	[pqescapebytea=no]
 )
 AC_MSG_RESULT($pqescapebytea)
+
+AC_MSG_CHECKING([PQescapeByteaConn()])
+pqescapebyteaconn=yes
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>
+#include<cstddef>
+${usestd}],
+	[unsigned char b[1];size_t c;PQescapeByteaConn(0,b,sizeof(b),&c)],
+	AC_DEFINE(PQXX_HAVE_PQESCAPEBYTEACONN,1,[Define if libpq has PQescapeByteaConn()]),
+	[pqescapebyteaconn=no]
+)
+AC_MSG_RESULT($pqescapebyteaconn)
 
 AC_MSG_CHECKING([PQunescapeBytea()])
 pqunescapebytea=yes
