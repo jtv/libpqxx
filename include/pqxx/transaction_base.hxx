@@ -122,12 +122,12 @@ public:
    */
   //@{
   /// Escape string for use as SQL string literal in this transaction
-  PGSTD::string esc(const char str[]) const;				//[]
+  PGSTD::string esc(const char str[]) const;				//[t90]
   /// Escape string for use as SQL string literal in this transaction
-  PGSTD::string esc(const char str[], size_t maxlen) const		//[]
+  PGSTD::string esc(const char str[], size_t maxlen) const		//[t90]
 	{ return m_Conn.esc(str,maxlen); }
   /// Escape string for use as SQL string literal in this transaction
-  PGSTD::string esc(const PGSTD::string &) const;			//[]
+  PGSTD::string esc(const PGSTD::string &) const;			//[t90]
   //@}
 
   /// Execute query
