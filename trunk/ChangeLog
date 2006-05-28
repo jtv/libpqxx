@@ -1,3 +1,6 @@
+2006-05-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/libpqxx.xml:
+  - Replaced sqlesc() with esc()
 2006-05-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Check for new PQescapeStringConn()
