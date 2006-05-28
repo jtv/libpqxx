@@ -1,0 +1,19 @@
+#! /bin/sh
+# Scan the given directory (or current directory by default) recursively and,
+# for every .cvsignore file found, tell Subversion to ignore the presence in
+# that directory of any files listed in the .cvsignore file.
+# This stops Subversion from complaining about automatically generated files
+# that have every right to be in the working copy, though not in the repository.
+# The .cvsignore files were inherited from the days libpqxx was kept in a CVS
+# repository, but they're also a lot more convenient than the way Subversion
+# does this by itself.
+DIR="$1"
+if test -z "$DIR" ; then
+	DIR="."
+fi
+
+for i in `find "$DIR" -name .cvsignore` ; do
+	dir="`echo "$i" | sed -e 's|/\.cvsignore$||'`"
+	svn propset svn:ignore -q --non-interactive --file "$i" "$dir"
+done
+
