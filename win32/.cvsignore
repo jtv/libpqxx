@@ -1,5 +1,5 @@
 Makefile
 Makefile.in
 MinGW.mak
-libpqxx.mak
-test.mak
+vc-libpqxx.mak
+vc-test.mak
