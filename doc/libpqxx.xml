@@ -280,9 +280,9 @@
 
     <para>
       I would also like to use this opportunity to plug the invaluable
-      <function>sqlesc</function> function, which you should use whenever you
-      want to include a variable as a string in your SQL (eg. insert it into a
-      text field in a table).  See below.
+      <function>esc</function> function, which you should use whenever you want
+      to include a variable as a string in your SQL (eg. insert it into a text
+      field in a table).  See below.
     </para>
 
     <para>
@@ -553,15 +553,15 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  <function>sqlesc</function> is the canonical way to use strings in
-	  your SQL.  This function escapes any quotes, backslashes, and other
-	  characters in your input string that would otherwise cause syntax
-	  errors (or worse, security holes) in your queries when included
-	  directly.
+	  <function>esc</function>, found in the transaction classes, is the
+	  canonical way to use strings in your SQL.  This function escapes any
+	  quotes, backslashes, and other characters in your input string that
+	  would otherwise cause syntax errors (or worse, security holes) in your
+	  queries when included directly.
 	</para>
 
 	<para>
-	  <emphasis>Use this function</emphasis> whenever you want to have a
+	  <emphasis>Use these functions</emphasis> whenever you want to have a
 	  variable string in your SQL queries.  If you don't, you'll be left
 	  with annoying bugs or possibly even security holes in your program.
 	  Use this function, use this function, use this function.  Please.
