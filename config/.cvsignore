@@ -4,6 +4,6 @@ depcomp
 install-sh
 missing
 mkinstalldirs
-config.guess                                        
+config.guess
 config.sub
 ltmain.sh
