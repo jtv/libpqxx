@@ -188,6 +188,11 @@ log "Building from \"$SOURCEDIR\" (`pwd`)"
 DISTNAME=libpqxx-$PQXXVERSION
 TARBALL=$DISTNAME.tar.gz
 
+log "Cleaning up old documentation"
+command "rm -f doc/html/Reference/*"
+command "rm -f doc/html/Tutorial/*"
+command "rm -f doc/reference-stamp doc/tutorial-stamp"
+
 log "Generating autoconf/automake files"
 command "env NOCONFIGURE=1 ./autogen.sh" nice
 
