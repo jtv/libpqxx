@@ -10,3 +10,4 @@ libpqxx.pc
 autom4te.cache
 libtool
 aclocal.m4
+.*.swp
