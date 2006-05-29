@@ -13,6 +13,7 @@ PQXX_HAVE_CHAR_TRAITS	public	compiler
 PQXX_HAVE_COUNT_IF	internal	compiler
 PQXX_HAVE_CPP_PRAGMA_MESSAGE	public	compiler
 PQXX_HAVE_CPP_WARNING	public	compiler
+PQXX_HAVE_IMBUE	private	compiler
 PQXX_HAVE_IOS	public	compiler
 PQXX_HAVE_LIMITS	public	compiler
 PQXX_HAVE_LO_TELL	internal	libpq

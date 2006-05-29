@@ -2,6 +2,10 @@
 // IN NORMAL CLIENT PROGRAMS!
 #include "pqxx/compiler-internal.hxx"
 
+#ifdef PQXX_HAVE_LOCALE
+#include <locale>
+#endif
+
 #include <iostream>
 
 #include <pqxx/pqxx>
@@ -124,8 +128,10 @@ int main()
     const long long_min = LONG_MIN, long_max = LONG_MAX;
 #endif
     stringstream lminstr, lmaxstr;
+#if defined(PQXX_HAVE_IMBUE)
     lminstr.imbue(locale("C"));
     lmaxstr.imbue(locale("C"));
+#endif
     lminstr << long_min;
     lmaxstr << long_max;
 

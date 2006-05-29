@@ -207,6 +207,18 @@ AC_CHECK_HEADER(locale,AC_DEFINE(PQXX_HAVE_LOCALE,1,
 [Define if you have the <locale> header]),
 localehdr=no)
 
+imbue=yes
+AC_MSG_CHECKING([locale function and stringstream::imbue])
+AC_TRY_COMPILE([#include <sstream>
+	#ifdef PQXX_HAVE_LOCALE
+	#include <locale>
+	#endif
+	${usestd}],
+	[stringstream S; S.imbue(locale("C"))],
+	[AC_DEFINE(PQXX_HAVE_IMBUE, 1, [Define if stringstream::imbue works])],
+	[imbue=no])
+AC_MSG_RESULT($imbue)
+
 AC_MSG_CHECKING([char_traits template])
 char_traits=yes
 AC_TRY_COMPILE([#include <string>
@@ -247,7 +259,7 @@ AC_MSG_NOTICE([using PostgreSQL libraries at $with_postgres_lib])
 
 AC_SUBST(with_postgres_lib)
 AC_SUBST(with_postgres_include)
-POSTGRES_LIB="-R${with_postgres_lib}"
+#POSTGRES_LIB="-R${with_postgres_lib}"
 AC_SUBST(POSTGRES_LIB)
 POSTGRES_INCLUDE="-I${with_postgres_include}"
 AC_SUBST(POSTGRES_INCLUDE)
