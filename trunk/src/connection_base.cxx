@@ -834,7 +834,7 @@ pqxx::result pqxx::connection_base::prepared_exec(const string &statement,
     if (nparams)
     {
       Q << " (";
-      for (a = 0; a < nparams; ++a)
+      for (int a = 0; a < nparams; ++a)
       {
 	Q << escape_param(params[a],s.parameters[a].treatment);
 	if (a < nparams-1) Q << ',';
@@ -850,7 +850,7 @@ pqxx::result pqxx::connection_base::prepared_exec(const string &statement,
     for (int n = nparams-1; n >= 0; --n)
     {
       const string key = "$" + to_string(n+1),
-	           val = escape_param(params[n],s.parameters[a].treatment);
+	           val = escape_param(params[n],s.parameters[n].treatment);
       const string::size_type keysz = key.size();
       for (string::size_type h=S.find(key); h!=string::npos; h=S.find(key))
 	S.replace(h,keysz,val);

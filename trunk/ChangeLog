@@ -1,6 +1,18 @@
+2006-05-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+  - Compile fix  for old libpq versions, thanks Pawel Sikora
 2006-05-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Removed -R option (thanks Pawel Sikora and Roger Leigh for explaining)
  doc/libpqxx.xml:
   - Replaced sqlesc() with esc()
+ test/test000.cxx:
+  - Include <locale> if appropriate
+ tools/svnignore:
+  - New
+  - Updates svn:ignore properties of files/dirs based on .cvsignore files
+ tools/preprelease:
+  - Clean up old files from reference documentation--saved tons of space!
 2006-05-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Check for new PQescapeStringConn()

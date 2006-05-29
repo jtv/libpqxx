@@ -1,6 +1,7 @@
 #define HAVE_SYS_TYPES_H 1
 #define HAVE_UNISTD_H 1
 /* #undef PQXX_HAVE_COUNT_IF */
+#define PQXX_HAVE_IMBUE 1
 #define PQXX_HAVE_LOCALE 1
 #define PQXX_HAVE_SLEEP 1
 #define PQXX_HAVE_STRING_CLEAR 1
