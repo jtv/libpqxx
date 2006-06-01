@@ -681,7 +681,7 @@ AC_MSG_RESULT($pqputcopy)
 AC_MSG_CHECKING([PQprepare()])
 pqprepare=yes
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[PGconn*c=0;PQprepare(c,"","",NULL,0)],
+	[extern PGconn*c;Oid o;PQprepare(c,"","",0,&o)],
 	AC_DEFINE(PQXX_HAVE_PQPREPARE,1,[Define if libpq has PQprepare()]),
 	[pqprepare=no]
 )
