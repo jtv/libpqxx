@@ -13,7 +13,7 @@ PQXX_HAVE_CHAR_TRAITS	public	compiler
 PQXX_HAVE_COUNT_IF	internal	compiler
 PQXX_HAVE_CPP_PRAGMA_MESSAGE	public	compiler
 PQXX_HAVE_CPP_WARNING	public	compiler
-PQXX_HAVE_IMBUE	private	compiler
+PQXX_HAVE_IMBUE	internal	compiler
 PQXX_HAVE_IOS	public	compiler
 PQXX_HAVE_LIMITS	public	compiler
 PQXX_HAVE_LO_TELL	internal	libpq
@@ -24,7 +24,9 @@ PQXX_HAVE_C_NAN	internal	compiler
 PQXX_HAVE_GCC_VISIBILITY	internal	compiler
 PQXX_HAVE_QUIET_NAN	internal	compiler
 PQXX_HAVE_PQESCAPEBYTEA	internal	libpq
+PQXX_HAVE_PQESCAPEBYTEACONN	internal	libpq
 PQXX_HAVE_PQESCAPESTRING	internal	libpq
+PQXX_HAVE_PQESCAPESTRINGCONN	internal	libpq
 PQXX_HAVE_PQPREPARE	internal	libpq
 PQXX_HAVE_PQEXECPREPARED	internal	libpq
 PQXX_HAVE_PQFREEMEM	internal	libpq
