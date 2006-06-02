@@ -40,11 +40,11 @@ namespace pqxx
  * The binarystring retains its value even if the result it was obtained from is
  * destroyed, but it cannot be copied or assigned.
  *
- * \relatesalso escape_binary
+ * \relatesalso transaction_base::esc_raw
  *
  * To convert the other way, i.e. from a raw series of bytes to a string
- * suitable for inclusion as bytea values in your SQL, use the escape_binary()
- * functions.
+ * suitable for inclusion as bytea values in your SQL, use the transaction's
+ * esc_raw() functions.
  *
  * @warning This class is implemented as a reference-counting smart pointer.
  * Copying, swapping, and destroying binarystring objects that refer to the same
@@ -144,23 +144,33 @@ private:
  */
 //@{
 /// Escape binary string for inclusion in SQL
-/** \relatesalso binarystring
+/**
+ * @deprecated Use the transaction's esc_raw() functions instead
+ * \relatesalso binarystring
  */
 PGSTD::string PQXX_LIBEXPORT escape_binary(const PGSTD::string &bin);
 /// Escape binary string for inclusion in SQL
-/** \relatesalso binarystring
+/**
+ * @deprecated Use the transaction's esc_raw() functions instead
+ * \relatesalso binarystring
  */
 PGSTD::string PQXX_LIBEXPORT escape_binary(const char bin[]);
 /// Escape binary string for inclusion in SQL
-/** \relatesalso binarystring
+/**
+ * @deprecated Use the transaction's esc_raw() functions instead
+ * \relatesalso binarystring
  */
 PGSTD::string PQXX_LIBEXPORT escape_binary(const char bin[], size_t len);
 /// Escape binary string for inclusion in SQL
-/** \relatesalso binarystring
+/**
+ * @deprecated Use the transaction's esc_raw() functions instead
+ * \relatesalso binarystring
  */
 PGSTD::string PQXX_LIBEXPORT escape_binary(const unsigned char bin[]);
 /// Escape binary string for inclusion in SQL
-/** \relatesalso binarystring
+/**
+ * @deprecated Use the transaction's esc_raw() functions instead
+ * \relatesalso binarystring
  */
 PGSTD::string PQXX_LIBEXPORT escape_binary(const unsigned char bin[], size_t len);
 //@}

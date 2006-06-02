@@ -1,3 +1,19 @@
+2006-06-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems:
+  - One item said "private" instead of "internal"
+ configure.ac.in:
+  - Fixed warning in PQprepare() (can't have those in maintainer mode)
+ include/pqxx/binarystring.hxx:
+  - Documented escape_binary() as deprecated
+ include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
+ src/connection_base.cxx, src/transaction_base.cxx:
+  - Implemented bytea equivalents of esc()
+ test/test062.cxx:
+  - Use new transaction_base::esc_raw() function
+2006-06-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/vc-libpqxx.mak.template:
+  - Replaced backslashes in paths with slashes
+  - Fixes "incomplete makefile" problem
 2006-05-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
   - Compile fix  for old libpq versions, thanks Pawel Sikora

@@ -718,6 +718,7 @@ void pqxx::connection_base::unprepare(const string &name)
 }
 
 
+#ifndef PQXX_HAVE_PQEXECPREPARED
 namespace
 {
 string escape_param(const char in[], prepare::param_treatment treatment)
@@ -761,6 +762,7 @@ string escape_param(const char in[], prepare::param_treatment treatment)
   return in;
 }
 } // namespace
+#endif
 
 
 pqxx::prepare::internal::prepared_def &
@@ -1144,7 +1146,7 @@ string pqxx::connection_base::esc(const char str[], size_t maxlen)
   try
   {
     int err = 0;
-    const size_t result = PQescapeStringConn(m_Conn, buf, str, maxlen, &err);
+    PQescapeStringConn(m_Conn, buf, str, maxlen, &err);
     if (err) throw invalid_argument(ErrMsg());
     escaped = string(buf);
   }
@@ -1159,6 +1161,28 @@ string pqxx::connection_base::esc(const char str[], size_t maxlen)
 #else
   return internal::escape_string(str, maxlen);
 #endif
+}
+
+
+string pqxx::connection_base::esc_raw(const unsigned char str[], size_t len)
+{
+  size_t bytes = 0;
+#ifdef PQXX_HAVE_PQESCAPEBYTEACONN
+  // We need a connection object...  This is the one reason why this function is
+  // not const!
+  if (!m_Conn) activate();
+
+  PQAlloc<unsigned char> buf( PQescapeByteaConn(m_Conn, str, len, &bytes) );
+  if (!buf.c_ptr())
+  {
+    // TODO: Distinguish different errors in exception type
+    throw runtime_error(ErrMsg());
+  }
+#else
+  PQAlloc<unsigned char> buf( PQescapeBytea(str, len, &bytes) );
+  if (!buf.c_ptr()) throw bad_alloc();
+#endif
+  return string(reinterpret_cast<char *>(buf.c_ptr()));
 }
 
 

@@ -128,6 +128,23 @@ public:
 	{ return m_Conn.esc(str,maxlen); }
   /// Escape string for use as SQL string literal in this transaction
   PGSTD::string esc(const PGSTD::string &) const;			//[t90]
+
+  /// Escape binary data for use as SQL string literal in this transaction
+  /** Raw, binary data is treated differently from regular strings.  Binary
+   * strings are never interpreted as text, so they may safely include byte
+   * values or byte sequences that don't happen to represent valid characters in
+   * the character encoding being used.
+   *
+   * The binary string does not stop at the first zero byte, as is the case with
+   * textual strings.  Instead, they may contain zero bytes anywhere.  If it
+   * happens to contain bytes that look like quote characters, or other things
+   * that can disrupt their use in SQL queries, they will be replaced with
+   * special escape sequences.
+   */
+  PGSTD::string esc_raw(const unsigned char str[], size_t len) const	//[]
+	{ return m_Conn.esc_raw(str, len); }
+  /// Escape binary data for use as SQL string literal in this transaction
+  PGSTD::string esc_raw(const PGSTD::string &) const;			//[t62]
   //@}
 
   /// Execute query

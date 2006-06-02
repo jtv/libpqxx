@@ -671,6 +671,7 @@ private:
   void PQXX_PRIVATE start_exec(const PGSTD::string &);
   internal::pq::PGresult *get_result();
   PGSTD::string esc(const char str[], size_t maxlen);
+  PGSTD::string esc_raw(const unsigned char str[], size_t len);
 
   void PQXX_PRIVATE RawSetVar(const PGSTD::string &, const PGSTD::string &);
   void PQXX_PRIVATE AddVariables(const PGSTD::map<PGSTD::string,

@@ -1,3 +1,10 @@
+2.6.7
+ - New escape functions for binary data: transaction_base::esc_raw()
+ - Fixes problem with configuration headers
+ - Fixes PQprepare() detection
+ - Fixes incomplete Visual C++ Makefile
+ - Fixes compile error in workaround for older libpq versions
+ - Removes "rpath" link option
 2.6.6
  - New, encoding-safe string-escaping functions
  - Upper-case letters now allowed in prepared-statement names
