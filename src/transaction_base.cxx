@@ -201,6 +201,13 @@ string pqxx::transaction_base::esc(const string &str) const
 }
 
 
+string pqxx::transaction_base::esc_raw(const string &str) const
+{
+  const unsigned char *p = reinterpret_cast<const unsigned char *>(str.c_str());
+  return m_Conn.esc_raw(p, str.size());
+}
+
+
 pqxx::result pqxx::transaction_base::exec(const char Query[],
     					  const string &Desc)
 {

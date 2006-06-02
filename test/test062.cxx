@@ -31,7 +31,7 @@ int main(int, char *argv[])
     work T(C, "test62");
 
     T.exec("CREATE TEMP TABLE pqxxbin (binfield bytea)");
-    const string Esc = escape_binary(TestStr);
+    const string Esc = T.esc_raw(TestStr);
     T.exec("INSERT INTO pqxxbin VALUES ('" + Esc + "')");
 
     result R = T.exec("SELECT * from pqxxbin");
