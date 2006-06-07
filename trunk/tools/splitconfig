@@ -1,0 +1,142 @@
+#! /bin/sh
+
+# Extract configuration items into various configuration headers
+# This uses the configitems file, a database consisting of text lines with the
+# following single-tab-separated fields:
+# 1. Name of the configuration item, e.g. PQXX_HAVE_PTRDIFF_T
+# 2. Publication marker: public or internal
+# 3. A single environmental factor determining the item, e.g. libpq or compiler
+
+# Usage: splitconfig [srcdir]
+# where [srcdir] is the main libpqxx source directory containing the configitems
+# file, the include directory etc.  This defaults to the current directory.
+
+srcdir="$1"
+if test -z "${srcdir}" ; then
+	srcdir="."
+fi
+
+
+# Some greps don't accept "-" for standard input as an argument to the -f
+# option, so we need to use -F instead.  OTOH some versions of GNU grep break
+# when the -F or -f option is combined with -w.  The one released with Fedora
+# Core 4 contained a speedup patch that caused it to crash altogether, but in
+# June 2006 we ran into several 2.5.1 versions that would stop processing when
+# a near-match was found that didn't end in a word boundary (e.g. "foo" while
+# looking for "fo").
+# Attempt to test the available grep and pick our best option.
+
+# Check output of a candidate "grep" command line searching file $SAMPLETXT
+# for any of the whole-word patterns in $SAMPLEPAT.  The output of the grep
+# command line is passed as $1; $2 is echoed to standard out if the command
+# line works.
+working_grep() {
+	if test -z "$1" ; then
+		cat <<EOF >&2
+This version of grep seems to be broken: searching for literal whole-word
+patterns does not match anything.  This problem is known to have occurred with
+a patched version of GNU grep shipped with the original Fedora Core 4 release.
+EOF
+	elif test -z "`echo "$1" | grep '\<splat\>'`" ; then
+		cat <<EOF >&2
+This version of grep seems to be broken: searching for literal whole-word
+patterns stops when one of the patterns is found, but does not end in a word
+boundary.  This problem is known to have happened with some 2.5.1 versions of
+GNU grep.
+EOF
+	elif ! test -z "`echo "$1" | grep 'barr'`" ; then
+		cat <<EOF >&2
+This "grep" command line fails to take word boundaries into account.  This means
+that, as an example, when looking for an exact match on the word "foo" it does
+not distinguish between "foo" and "food".
+Please report this to the libpqxx-general mailing list or create a bug ticket on
+the libpqxx website.
+EOF
+	else
+		echo "$2"
+	fi
+}
+
+
+SAMPLETXT="`mktemp`"
+
+# Perform a "grep -F -w -h", or simulate one, searching for any of the patterns
+# listed in "$2" (one per line) in file "$3".  A code for the grep command line
+# to be used is passed as $1.
+wordgrep () {
+	GREPCODE="$1"
+	PAT="$2"
+	TXT="$3"
+	case "$GREPCODE" in
+	"grep-F")
+		# This is the standard, modern, POSIX-compliant way of doing
+		# things.  Unfortunately it breaks on some systems.
+		grep -F -w -h "$PAT" "$TXT"
+		;;
+	"grep-f")
+		echo "$PAT" | grep -w -h -f - "$TXT"
+		;;
+	fgrep)
+		fgrep -w -h "$PAT" "$TXT"
+		;;
+	symw)
+		echo "$PAT" | sed -e 's/^\(.*\)$/\\<\1\\>/' | grep -f - "$TXT"
+		;;
+	*)
+		echo "Unknown grep alternative: '$GREPCODE'" >&2
+		rm -f -- "$SAMPLETXT"
+		exit 1
+		;;
+	esac
+}
+
+echo -n "Checking for usable grep -F or equivalent... "
+SAMPLEPAT="foo
+bar
+splat"
+
+cat >"$SAMPLETXT" <<EOF
+foo
+barr
+splat
+EOF
+
+grepcode=''
+for g in "grep-F" "grep-f" "fgrep" "symw" ; do
+	if test -z "${grepcode}" ; then
+		GREPOUT=`wordgrep "$g" "$SAMPLEPAT" "$SAMPLETXT"`
+		grepcode="`working_grep "$GREPOUT" "$g"`"
+	fi
+done
+rm -f -- "$SAMPLETXT"
+if test -z "${grepcode}" ; then
+	echo "No capable grep found" >&2
+	exit 1
+fi
+echo "${grepcode}"
+
+CFDB="${srcdir}/configitems"
+ORGHDR="include/pqxx/config.h"
+LC_ALL=C
+PUBLICATIONS=`cut -f 2 "$CFDB" | sort -u`
+FACTORS=`cut -f 3 "$CFDB" | sort -u`
+
+for publication in $PUBLICATIONS ; do
+	for factor in $FACTORS ; do
+		CFGFILE="include/pqxx/config-${publication}-${factor}.h"
+		echo -n "Generating $CFGFILE: "
+		ITEMS="`grep -w "${publication}" "$CFDB" | grep -w "${factor}" | cut -f 1 | grep -v '^$'`"
+		if test -z "$ITEMS" ; then
+			echo "no items--skipping"
+		else
+			wordgrep "${grepcode}" "$ITEMS" "$ORGHDR" >"$CFGFILE"
+			if test -s "$CFGFILE" ; then
+				echo "ok"
+			else
+				rm -f -- "$CFGFILE"
+				echo "no items--deleting"
+			fi
+		fi
+	done
+done
+
