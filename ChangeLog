@@ -1,3 +1,15 @@
+2006-06-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Moved detection of and workaround for broken grep to tools/splitconfig
+ tools/Makefile.am:
+  - Added tools/splitconfig
+ tools/preprelease:
+  - Don't erase reference documentation every time (takes too much time)
+ tools/splitconfig:
+  - New
+  - Encapsulates workaround for broken greps
+  - Should now also detect latest bug with "grep -w -F" in some GNU greps
+  - Major cleanup of grep failure detection
 2006-06-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems:
   - One item said "private" instead of "internal"

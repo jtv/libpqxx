@@ -1,5 +1,6 @@
 2.6.7
  - New escape functions for binary data: transaction_base::esc_raw()
+ - Works around bug in some versions of GNU grep 2.5.1
  - Fixes problem with configuration headers
  - Fixes PQprepare() detection
  - Fixes incomplete Visual C++ Makefile

@@ -189,7 +189,9 @@ DISTNAME=libpqxx-$PQXXVERSION
 TARBALL=$DISTNAME.tar.gz
 
 log "Cleaning up old documentation"
-command "rm -f doc/html/Reference/*"
+# Re-generating the reference docs every time just takes too much time...  Just
+# remember to clean them out every once in a while.
+#command "rm -f doc/html/Reference/*"
 command "rm -f doc/html/Tutorial/*"
 command "rm -f doc/reference-stamp doc/tutorial-stamp"
 

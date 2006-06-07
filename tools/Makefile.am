@@ -1,6 +1,7 @@
 EXTRA_DIST = \
 	preprelease \
 	rmlo.cxx \
+	splitconfig \
 	template2mak.py
 
 INCLUDES=-I$(top_builddir)/include -I$(top_srcdir)/include ${POSTGRES_INCLUDE}
