@@ -80,7 +80,9 @@ wordgrep () {
 		fgrep -w -h "$PAT" "$TXT"
 		;;
 	symw)
-		echo "$PAT" | sed -e 's/^\(.*\)$/\\<\1\\>/' | grep -f - "$TXT"
+		for p in $PAT ; do
+			grep "\<$p\>" "$TXT"
+		done
 		;;
 	*)
 		echo "Unknown grep alternative: '$GREPCODE'" >&2
