@@ -39,8 +39,6 @@ Thread-safety
 
 Transactions
 (*) User schema support for robusttransaction log table
-(*) Support SET CONSTRAINTS (no-op for nontransaction).  Make DEFER scoped?
-(*) Support constraints definition
 (*) Pipelined operation for high-level classes: cursor, tablestream, ...
 
 Util
