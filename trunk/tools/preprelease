@@ -113,7 +113,7 @@ require_product () {
 
 LC_ALL=C
 
-rm -f $LOGFILE $ERRLOG
+rm -f -- $LOGFILE $ERRLOG
 
 PQXXVERSION=`grep '\<PQXXVERSION\>' VERSION | sed -e 's/^[[:space:]A-Z_]*//' | sed -e 's/[[:space:]]*#.*$//'`
 
@@ -147,10 +147,10 @@ if ! findhdr pqxx/compiler-internal-post.hxx -l include/pqxx/* | \
 	diff "$PREFILES" - ; \
 	then
 	echo "Mismatched compiler-internal-pre/post headers"
-	rm -f "$PREFILES"
+	rm -f -- "$PREFILES"
 	exit 1
 fi
-rm -f "$PREFILES"
+rm -f -- "$PREFILES"
 
 log "Preparing libpqxx release $PQXXVERSION."
 log "Log file is $LOGFILE, errors go to $ERRLOG"
@@ -191,9 +191,9 @@ TARBALL=$DISTNAME.tar.gz
 log "Cleaning up old documentation"
 # Re-generating the reference docs every time just takes too much time...  Just
 # remember to clean them out every once in a while.
-#command "rm -f doc/html/Reference/*"
-command "rm -f doc/html/Tutorial/*"
-command "rm -f doc/reference-stamp doc/tutorial-stamp"
+#command "rm -f -- doc/html/Reference/*"
+command "rm -f -- doc/html/Tutorial/*"
+command "rm -f -- doc/reference-stamp doc/tutorial-stamp"
 
 log "Generating autoconf/automake files"
 command "env NOCONFIGURE=1 ./autogen.sh" nice
@@ -204,15 +204,15 @@ command "./configure $CONFIGDIST_ARGS" nice
 log "Creating $TARBALL"
 command "make dist" nice
 
-command "rm -f /tmp/$TARBALL"
-command "mv $TARBALL /tmp"
+command "rm -f -- /tmp/$TARBALL"
+command "mv -- $TARBALL /tmp"
 
 command "cd /tmp"
-command "rm -rf $DISTNAME"
+command "rm -rf -- $DISTNAME"
 
 log "Extracting $TARBALL in /tmp"
 command "tar xzf $TARBALL"
-command "rm $TARBALL"
+command "rm -- $TARBALL"
 command "cd $DISTNAME"
 
 for compiler in $COMPILERS ; do
@@ -230,10 +230,11 @@ command "make dist" nice
 require_product doc/html/Reference/index.html
 require_product doc/html/Tutorial/index.html
 
-command "mv $TARBALL .."
+command "mv -- $TARBALL .."
 command "cd .."
-command "md5sum $TARBALL" >"$TARBALL.md5sum" nice
-command "rm -rf $DISTNAME"
+# Can't use "command" function here--breaks redirection:
+nice md5sum -b $TARBALL >"$TARBALL.md5sum"
+command "rm -rf -- $DISTNAME"
 
 set +e
 nice vacuumdb >/dev/null 2>&1 &
