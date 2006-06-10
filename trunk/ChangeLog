@@ -1,3 +1,9 @@
+2006-06-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - MinGW socket library detection patch by tometzky@batory.org.pl
+ tools/preprelease:
+  - Fixed md5sum generation (wrote empty file before)
+  - Use "--" option on mv, rm, etc.
 2006-06-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Moved detection of and workaround for broken grep to tools/splitconfig
