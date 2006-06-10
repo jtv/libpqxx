@@ -525,7 +525,18 @@ AC_MSG_RESULT(yes)
 
 # After this check, we should be able to link socket-based programs.
 socklibok=no
-AC_SEARCH_LIBS(select, ws2_32 wsock32 winsock socket nsl, [socklibok=yes])
+AC_SEARCH_LIBS(select, socket nsl ws2_32 wsock32 winsock, [socklibok=yes])
+
+# Microsoft proprietary libraries do not work with code that is generated with
+# autoconf's SEARCH_LIBS macro, so we need to check manually and just use the
+# first socket library available.
+# We only do this if select() is not available by other means, to avoid picking
+# up an unnecessary Windows compatibility library on a non-Windows system.
+for l in ws2_32 wsock32 winsock ; do
+	if test "${socklibok}" != "yes" ; then
+		AC_CHECK_LIB($l,main,LIBS="$LIBS -l$l";[socklibok=yes])
+	fi
+done
 
 if test "${socklibok}" != "yes" ; then
 	AC_MSG_ERROR([
