@@ -76,8 +76,8 @@ included in the package.  Unix, Cygwin, or MSYS users simply type "make check"
 to build and run the entire regression test.  For Visual C++ users, the
 following steps should accomplish the same:
 
- 3) "nmake /f vc-test.mak ALL" will compile and link all the test files. It is
-    currently set to use the DLL version of libpqxx.
+ 3) "nmake /f win32\vc-test.mak ALL" will compile and link all the test files.
+    It is currently set to use the DLL version of libpqxx.
  4) Make sure a PostgreSQL database is running and accessible; set up the
     environment as described in README so that the test programs can access the
     database without needing to pass a connection string.

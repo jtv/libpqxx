@@ -34,7 +34,7 @@ NULL=
 NULL=nul
 !ENDIF 
 
-!include common
+!include win32/common
 
 
 
@@ -64,7 +64,7 @@ LIBTOOL=link.exe -lib
 
 # The options common to all the different builds.
 CXX_FLAGS_BASE=/nologo /W3 /GX /FD /GR /c \
-    /I "../include" /I "$(PGSQLSRC)/include" /I "$(PGSQLSRC)/interfaces/libpq" \
+    /I "include" /I "$(PGSQLSRC)/include" /I "$(PGSQLSRC)/interfaces/libpq" \
     /D PGSTD=$(STD) /D "WIN32" /D "_MBCS" /D "_WINDOWS" /D "PQXX_INTERNAL"
 
 CXX_FLAGS_DLLRELEASE=$(CXX_FLAGS_BASE) /MD  /D "NDEBUG" /D "PQXX_SHARED"
@@ -86,22 +86,22 @@ LIB_FLAGS=/nologo
 ########################################################
 
 OBJ_STATICDEBUG=\
-    ###MAKTEMPLATE:FOREACH ../src/*.cxx
+    ###MAKTEMPLATE:FOREACH src/*.cxx
        "$(INTDIR_STATICDEBUG)\###BASENAME###.obj" \
     ###MAKTEMPLATE:ENDFOREACH
 
 OBJ_STATICRELEASE=\
-    ###MAKTEMPLATE:FOREACH ../src/*.cxx
+    ###MAKTEMPLATE:FOREACH src/*.cxx
        "$(INTDIR_STATICRELEASE)\###BASENAME###.obj" \
     ###MAKTEMPLATE:ENDFOREACH
 
 OBJ_DLLDEBUG=\
-    ###MAKTEMPLATE:FOREACH ../src/*.cxx,libpqxx.cxx
+    ###MAKTEMPLATE:FOREACH src/*.cxx,win32/libpqxx.cxx
        "$(INTDIR_DLLDEBUG)\###BASENAME###.obj" \
     ###MAKTEMPLATE:ENDFOREACH
 
 OBJ_DLLRELEASE=\
-    ###MAKTEMPLATE:FOREACH ../src/*.cxx,libpqxx.cxx
+    ###MAKTEMPLATE:FOREACH src/*.cxx,win32/libpqxx.cxx
        "$(INTDIR_DLLRELEASE)\###BASENAME###.obj" \
     ###MAKTEMPLATE:ENDFOREACH
 
@@ -196,7 +196,7 @@ $(INTDIR_DLLRELEASE):
 ########################################################
 
 
-###MAKTEMPLATE:FOREACH ../src/*.cxx
+###MAKTEMPLATE:FOREACH src/*.cxx
 
 "$(INTDIR_STATICRELEASE)\###BASENAME###.obj": ###FILENAME### $(INTDIR_STATICRELEASE)
 	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" ###FILENAME###
@@ -207,7 +207,7 @@ $(INTDIR_DLLRELEASE):
 ###MAKTEMPLATE:ENDFOREACH
 
 
-###MAKTEMPLATE:FOREACH ../src/*.cxx,libpqxx.cxx
+###MAKTEMPLATE:FOREACH src/*.cxx,win32/libpqxx.cxx
 
 "$(INTDIR_DLLRELEASE)\###BASENAME###.obj": ###FILENAME### $(INTDIR_DLLRELEASE)
 	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" ###FILENAME###
