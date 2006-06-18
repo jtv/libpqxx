@@ -1,3 +1,5 @@
+2.6.8
+ - Windows "make" fixed to run from main directory, not win32
 2.6.7
  - New escape functions for binary data: transaction_base::esc_raw()
  - Improved detection of socket libraries, especially for MinGW

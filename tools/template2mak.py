@@ -96,7 +96,7 @@ if __name__ == '__main__':
 	if len(sys.argv) >= 3:
 	    outarg = sys.argv[2]
 	    output = file(outarg, 'w')
-        os.chdir(os.path.dirname(inarg))
+        #os.chdir(os.path.dirname(inarg))
 
     output.write(hr)
     output.write("""# AUTOMATICALLY GENERATED FILE--DO NOT EDIT
