@@ -1,3 +1,9 @@
+2006-06-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/INSTALL.txt:
+  - Warned MSYS users to update grep & install mktemp, thanks Jason Sheets
+  - Rewrote some text to be a little clearer
+  - Reduced duplication in description of "common" file
+  - Updated description of "common" file to current way of working
 2006-06-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
  win32/INSTALL.txt, win32/mingw.mak.template, tools/template2mak.py,
  win32/vc-test.mak.template, win32/vc-libpqxx.mak.template:
