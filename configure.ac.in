@@ -287,6 +287,29 @@ linked in, and so on.
 AC_MSG_RESULT(yes)
 
 
+# After this check, we should be able to link socket-based programs.
+socklibok=no
+AC_SEARCH_LIBS(select, socket nsl ws2_32 wsock32 winsock, [socklibok=yes])
+
+# Microsoft proprietary libraries do not work with code that is generated with
+# autoconf's SEARCH_LIBS macro, so we need to check manually and just use the
+# first socket library available.
+# We only do this if select() is not available by other means, to avoid picking
+# up an unnecessary Windows compatibility library on a non-Windows system.
+for l in ws2_32 wsock32 winsock ; do
+	if test "${socklibok}" != "yes" ; then
+		AC_CHECK_LIB($l,main,LIBS="$LIBS -l$l";[socklibok=yes])
+	fi
+done
+
+if test "${socklibok}" != "yes" ; then
+	AC_MSG_ERROR([
+Could not figure out how to link a simple sockets-based program.  Please read
+the config.log file for more clues as to why this failed.
+])
+fi
+
+
 AC_CHECK_HEADER([${with_postgres_include}/libpq-fe.h],[],[AC_MSG_ERROR([
 Can't find libpq-fe.h in ${with_postgres_include}.  Are you sure the libpq
 headers are installed correctly?  They should be in the directory returned by
@@ -522,28 +545,6 @@ See config.log for more details; look for the last error message in the file.
 fi
 AC_MSG_RESULT(yes)
 
-
-# After this check, we should be able to link socket-based programs.
-socklibok=no
-AC_SEARCH_LIBS(select, socket nsl ws2_32 wsock32 winsock, [socklibok=yes])
-
-# Microsoft proprietary libraries do not work with code that is generated with
-# autoconf's SEARCH_LIBS macro, so we need to check manually and just use the
-# first socket library available.
-# We only do this if select() is not available by other means, to avoid picking
-# up an unnecessary Windows compatibility library on a non-Windows system.
-for l in ws2_32 wsock32 winsock ; do
-	if test "${socklibok}" != "yes" ; then
-		AC_CHECK_LIB($l,main,LIBS="$LIBS -l$l";[socklibok=yes])
-	fi
-done
-
-if test "${socklibok}" != "yes" ; then
-	AC_MSG_ERROR([
-Could not figure out how to link a simple sockets-based program.  Please read
-the config.log file for more clues as to why this failed.
-])
-fi
 
 AC_MSG_CHECKING([if select() accepts NULL fdsets])
 select_accepts_null=yes
