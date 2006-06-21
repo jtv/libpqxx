@@ -1,4 +1,6 @@
 2006-06-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Check for socket library before checking for libpq.  Thanks Jason Sheets!
  win32/INSTALL.txt:
   - Warned MSYS users to update grep & install mktemp, thanks Jason Sheets
   - Rewrote some text to be a little clearer
