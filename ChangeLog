@@ -1,3 +1,6 @@
+2006-06-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/Makefile.am:
+  - Needed fixing after template2mak stopped changing directories
 2006-06-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Check for socket library before checking for libpq.  Thanks Jason Sheets!
