@@ -1,3 +1,9 @@
+2006-07-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/preprelease, tools/splitconfig:
+  - Use new "maketemporary" script to work around mktemp differences
+ tools/maketemporary:
+  - New
+  - Slightly more portable wrapper for mktemp
 2006-06-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/Makefile.am:
   - Needed fixing after template2mak stopped changing directories
