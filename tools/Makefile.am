@@ -1,4 +1,5 @@
 EXTRA_DIST = \
+	maketemporary \
 	preprelease \
 	rmlo.cxx \
 	splitconfig \
