@@ -140,7 +140,12 @@ findhdr() {
   shift
   grep "^[[:space:]]*#[[:space:]]*include[[:space:]]*[<\"]$HDR[>\"]" $*
 }
-PREFILES=`mktemp`
+
+OLDPATH="$PATH"
+PATH="$OLDPATH:.:./tools"
+PREFILES="`maketemporary`"
+PATH="$OLDPATH"
+
 log "Looking for mismatched pre/post compiler headers..."
 findhdr pqxx/compiler-internal-pre.hxx -l include/pqxx/* >"$PREFILES"
 if ! findhdr pqxx/compiler-internal-post.hxx -l include/pqxx/* | \

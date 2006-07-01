@@ -1,0 +1,28 @@
+#! /bin/sh
+
+# Work around differences in mktemp implementations
+
+if test -z "$TMPDIR" ; then
+	TMPDIR='/tmp'
+fi
+
+T="`mktemp`"
+if test -z "$T" ; then
+	T="`mktemp -t pqxx.XXXXXX`"
+fi
+if test -z "$T" ; then
+	T="`mktemp pqxx.XXXXXX`"
+fi
+if test -z "$T" ; then
+	T="`mktemp "$TMPDIR/pqxx.XXXXXX"`"
+fi
+if test -z "$T" ; then
+	UNIQUE="`date '%s.%N'`"
+	T="pqxx.$UNIQUE"
+	if test -d "$TMPDIR" ; then
+		T="$TMPDIR/$T"
+	fi
+fi
+
+echo "$T"
+

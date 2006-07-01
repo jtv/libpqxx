@@ -57,8 +57,10 @@ EOF
 	fi
 }
 
-
-SAMPLETXT="`mktemp`"
+OLDPATH="$PATH"
+PATH="$OLDPATH:.:./tools"
+SAMPLETXT="`maketemporary`"
+PATH="$OLDPATH"
 
 # Perform a "grep -F -w -h", or simulate one, searching for any of the patterns
 # listed in "$2" (one per line) in file "$3".  A code for the grep command line
