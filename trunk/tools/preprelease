@@ -83,7 +83,10 @@ run_test () {
 	if test -z "$1" || which "$1" ; then
 		log "********* Testing with $1 *********"
 		log "Configuring"
+		OLDPATH="$PATH"
+		PATH="$OLDPATH:.:./tools"
 		command "./configure $CONFIG_ARGS $COMPILEROPT" nice
+		PATH="$OLDPATH"
 
 		log "Building"
 		command "make -j $CONCURRENCY_LEVEL" nice
@@ -201,10 +204,16 @@ command "rm -f -- doc/html/Tutorial/*"
 command "rm -f -- doc/reference-stamp doc/tutorial-stamp"
 
 log "Generating autoconf/automake files"
+OLDPATH="$PATH"
+PATH="$OLDPATH:.:./tools"
 command "env NOCONFIGURE=1 ./autogen.sh" nice
+PATH="$OLDPATH"
 
+OLDPATH="$PATH"
+PATH="$OLDPATH:.:./tools"
 log "Configuring for make dist"
 command "./configure $CONFIGDIST_ARGS" nice
+PATH="$OLDPATH"
 
 log "Creating $TARBALL"
 command "make dist" nice
