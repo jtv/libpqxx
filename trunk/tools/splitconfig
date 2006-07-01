@@ -11,6 +11,8 @@
 # where [srcdir] is the main libpqxx source directory containing the configitems
 # file, the include directory etc.  This defaults to the current directory.
 
+#set -e
+
 srcdir="$1"
 if test -z "${srcdir}" ; then
 	srcdir="."
@@ -32,11 +34,17 @@ fi
 # line works.
 working_grep() {
 	if test -z "$1" ; then
-		cat <<EOF >&2
+		if ! which grep >/dev/null ; then
+			cat <<EOF >&2
+Could not run "grep"--no way to proceed!
+EOF
+		else
+			cat <<EOF >&2
 This version of grep seems to be broken: searching for literal whole-word
 patterns does not match anything.  This problem is known to have occurred with
 a patched version of GNU grep shipped with the original Fedora Core 4 release.
 EOF
+		fi
 	elif test -z "`echo "$1" | grep '\<splat\>'`" ; then
 		cat <<EOF >&2
 This version of grep seems to be broken: searching for literal whole-word
@@ -57,10 +65,8 @@ EOF
 	fi
 }
 
-OLDPATH="$PATH"
-PATH="$OLDPATH:.:./tools"
-SAMPLETXT="`maketemporary`"
-PATH="$OLDPATH"
+ls "${srcdir}/tools" >&2 # DEBUG CODE
+SAMPLETXT="`${srcdir}/tools/maketemporary`"
 
 # Perform a "grep -F -w -h", or simulate one, searching for any of the patterns
 # listed in "$2" (one per line) in file "$3".  A code for the grep command line
