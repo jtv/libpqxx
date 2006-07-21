@@ -888,6 +888,8 @@ private:
   operator bool() const throw () { return c_ptr() != 0; }
   void PQXX_PRIVATE CheckStatus(const PGSTD::string &Query) const;
   void PQXX_PRIVATE CheckStatus(const char Query[]) const;
+  void PQXX_PRIVATE ThrowSQLError(const PGSTD::string &Err,
+	const PGSTD::string &Query) const;
   int PQXX_PRIVATE errorposition() const throw ();
   PGSTD::string PQXX_PRIVATE StatusError() const;
 

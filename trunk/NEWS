@@ -2,6 +2,7 @@
  - Automatically detect Windows socket library with MinGW
  - Windows "make" fixed to run from main directory, not win32
  - Fixes "mktemp" problems on some BSD-based platforms
+ - New, more specific exception types for errors from server
 2.6.7
  - New escape functions for binary data: transaction_base::esc_raw()
  - Improved detection of socket libraries, especially for MinGW

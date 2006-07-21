@@ -1,3 +1,7 @@
+2006-07-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/except.hxx, include/pqxx/result.hxx, src/result.cxx:
+  - Lots of new, more specific sql_error-derived exception types
+  - Thanks Tomek Rydzynski for getting me going with this
 2006-07-01  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/preprelease, tools/splitconfig:
   - Use new "maketemporary" script to work around mktemp differences
