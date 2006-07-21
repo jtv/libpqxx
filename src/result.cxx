@@ -7,7 +7,7 @@
  *      implementation of the pqxx::result class and support classes.
  *   pqxx::result represents the set of result tuples from a database query
  *
- * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -101,17 +101,77 @@ const pqxx::result::tuple pqxx::result::at(pqxx::result::size_type i) const
 }
 
 
+void pqxx::result::ThrowSQLError(const string &Err, const string &Query) const
+{
+#if defined(PQXX_HAVE_PQRESULTERRORFIELD)
+  // Try to establish more precise error type, and throw corresponding exception
+  const char *const code = PQresultErrorField(c_ptr(), PG_DIAG_SQLSTATE);
+  if (!code) return;
+  switch (code[0])
+  {
+  case '0':
+    switch (code[1])
+    {
+    case '8':
+      throw broken_connection(Err);
+    case 'A':
+      throw feature_not_supported(Err, Query);
+    }
+    break;
+  case '2':
+    switch (code[1])
+    {
+    case '2':
+      throw data_exception(Err, Query);
+    case '3':
+      throw integrity_constraint_violation(Err, Query);
+    case '4':
+      throw invalid_cursor_state(Err, Query);
+    case '6':
+      throw invalid_sql_statement_name(Err, Query);
+    }
+    break;
+  case '3':
+    switch (code[1])
+    {
+    case '4':
+      throw invalid_cursor_name(Err, Query);
+    }
+    break;
+  case '4':
+    switch (code[1])
+    {
+    case '2':
+      if (strcmp(code,"42501")==0) throw insufficient_privilege(Err, Query);
+      if (strcmp(code,"42601")==0) throw syntax_error(Err, Query);
+    }
+    break;
+  case '5':
+    switch (code[1])
+    {
+    case '3':
+      if (strcmp(code,"53100")==0) throw disk_full(Err, Query);
+      if (strcmp(code,"53200")==0) throw out_of_memory(Err, Query);
+      if (strcmp(code,"53300")==0) throw too_many_connections(Err, Query);
+      throw insufficient_resources(Err, Query);
+    }
+    break;
+  }
+#endif
+  throw sql_error(Err, Query);
+}
+
 void pqxx::result::CheckStatus(const string &Query) const
 {
   const string Err = StatusError();
-  if (!Err.empty()) throw sql_error(Err, Query);
+  if (!Err.empty()) ThrowSQLError(Err, Query);
 }
 
 
 void pqxx::result::CheckStatus(const char Query[]) const
 {
   const string Err = StatusError();
-  if (!Err.empty()) throw sql_error(Err, string(Query ? Query : ""));
+  if (!Err.empty()) ThrowSQLError(Err, string(Query ? Query : ""));
 }
 
 

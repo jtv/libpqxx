@@ -58,6 +58,7 @@ public:
 };
 
 
+// TODO: should this be called statement_completion_unknown!?
 /// "Help, I don't know whether transaction was committed successfully!"
 /** Exception that might be thrown in rare cases where the connection to the
  * database is lost while finishing a database transaction, and there's no way
@@ -77,6 +78,112 @@ class PQXX_LIBEXPORT internal_error : public PGSTD::logic_error
 {
 public:
   explicit internal_error(const PGSTD::string &);
+};
+
+
+/// Database feature not supported in current setup
+class PQXX_LIBEXPORT feature_not_supported : public sql_error
+{
+public:
+  explicit feature_not_supported(const PGSTD::string &err) : sql_error(err) {}
+  feature_not_supported(const PGSTD::string &err, const PGSTD::string &Q) :
+	sql_error(err,Q) {}
+};
+
+/// Error in data provided to SQL statement
+class PQXX_LIBEXPORT data_exception : public sql_error
+{
+public:
+  explicit data_exception(const PGSTD::string &err) : sql_error(err) {}
+  data_exception(const PGSTD::string &err, const PGSTD::string &Q) :
+	sql_error(err,Q) {}
+};
+
+class PQXX_LIBEXPORT integrity_constraint_violation : public sql_error
+{
+public:
+  explicit integrity_constraint_violation(const PGSTD::string &err) :
+	sql_error(err) {}
+  integrity_constraint_violation(const PGSTD::string &err,
+  	const PGSTD::string &Q) :
+	sql_error(err, Q) {}
+};
+
+
+class PQXX_LIBEXPORT invalid_cursor_state : public sql_error
+{
+public:
+  explicit invalid_cursor_state(const PGSTD::string &err) : sql_error(err) {}
+  invalid_cursor_state(const PGSTD::string &err, const PGSTD::string &Q) :
+	sql_error(err,Q) {}
+};
+
+class PQXX_LIBEXPORT invalid_sql_statement_name : public sql_error
+{
+public:
+  explicit invalid_sql_statement_name(const PGSTD::string &err) :
+	sql_error(err) {}
+  invalid_sql_statement_name(const PGSTD::string &err, const PGSTD::string &Q) :
+	sql_error(err,Q) {}
+};
+
+class PQXX_LIBEXPORT invalid_cursor_name : public sql_error
+{
+public:
+  explicit invalid_cursor_name(const PGSTD::string &err) : sql_error(err) {}
+  invalid_cursor_name(const PGSTD::string &err, const PGSTD::string &Q) :
+	sql_error(err,Q) {}
+};
+
+class PQXX_LIBEXPORT syntax_error : public sql_error
+{
+public:
+  explicit syntax_error(const PGSTD::string &err) : sql_error(err) {}
+  syntax_error(const PGSTD::string &err, const PGSTD::string &Q) :
+	sql_error(err,Q) {}
+};
+
+class PQXX_LIBEXPORT insufficient_privilege : public sql_error
+{
+public:
+  explicit insufficient_privilege(const PGSTD::string &err) : sql_error(err) {}
+  insufficient_privilege(const PGSTD::string &err, const PGSTD::string &Q) :
+	sql_error(err,Q) {}
+};
+
+/// Resource shortage on the server
+class PQXX_LIBEXPORT insufficient_resources : public sql_error
+{
+public:
+  explicit insufficient_resources(const PGSTD::string &err) : sql_error(err) {}
+  insufficient_resources(const PGSTD::string &err, const PGSTD::string &Q) :
+	sql_error(err,Q) {}
+};
+
+class PQXX_LIBEXPORT disk_full : public insufficient_resources
+{
+public:
+  explicit disk_full(const PGSTD::string &err) : insufficient_resources(err) {}
+  disk_full(const PGSTD::string &err, const PGSTD::string &Q) :
+	insufficient_resources(err,Q) {}
+};
+
+class PQXX_LIBEXPORT out_of_memory : public insufficient_resources
+{
+public:
+  explicit out_of_memory(const PGSTD::string &err) :
+	insufficient_resources(err) {}
+  out_of_memory(const PGSTD::string &err, const PGSTD::string &Q) :
+	insufficient_resources(err,Q) {}
+};
+
+class PQXX_LIBEXPORT too_many_connections : public insufficient_resources
+{
+public:
+  explicit too_many_connections(const PGSTD::string &err) :
+	insufficient_resources(err) {}
+  too_many_connections(const PGSTD::string &err, const PGSTD::string &Q) :
+	insufficient_resources(err,Q) {}
 };
 
 //@}
