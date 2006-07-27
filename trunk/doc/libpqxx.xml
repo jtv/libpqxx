@@ -1100,7 +1100,7 @@
 	Iterators may be incremented or decremented (whether pre- or post-),
 	they may be added to or subtracted from to jump through the result
 	tuples; their positions may be compared (provided they point into the
-	same <literal>result</literal>, and they may be dereferenced through
+	same <literal>result</literal>), and they may be dereferenced through
 	the <literal>*</literal> or <literal>-></literal> operators.
       </para>
 
