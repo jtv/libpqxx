@@ -4,6 +4,13 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 includedir=@includedir@
 libdir=@libdir@
+pkgconfig=@PKG_CONFIG@
+
+deprecated() {
+    cat 1>&2 <<EOF
+pqxx-config is deprecated; please use $1
+EOF
+}
 
 usage()
 {
@@ -18,6 +25,7 @@ Known values for OPTION are:
   --help		display this help and exit
   --version		output version information
 EOF
+    deprecated "$pkgconfig (module libpqxx)"
 
     exit $1
 }
@@ -45,7 +53,8 @@ while test $# -gt 0; do
 	;;
 
     --version)
-	echo @PQXXVERSION@
+	deprecated "\"$pkgconfig --modversion libpqxx\""
+	$pkgconfig --modversion libpqxx
 	exit 0
 	;;
 
@@ -54,11 +63,13 @@ while test $# -gt 0; do
 	;;
 
     --cflags)
-       	echo -I@includedir@ @POSTGRES_INCLUDE@
+	deprecated "\"$pkgconfig --cflags libpqxx\""
+	$pkgconfig --cflags libpqxx
        	;;
 
     --libs)
-       	echo -L@libdir@ -lpqxx -L@with_postgres_lib@ -lpq
+	deprecated "\"$pkgconfig --libs libpqxx\""
+	$pkgconfig --libs libpqxx
        	;;
 
     *)
