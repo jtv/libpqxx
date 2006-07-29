@@ -1,3 +1,6 @@
+2006-07-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ pqxx-config.in:
+  - Is deprecated, and now says so (thanks Roger Leigh)
 2006-07-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Test for pkg-config (Roger Leigh)
