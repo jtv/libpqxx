@@ -4,6 +4,7 @@
  - Fixes "mktemp" problems on some BSD-based platforms
  - New, more specific exception types for errors from server
  - pqxx-config is deprecated; use pkg-config instead
+ - On GNU/Linux, use poll() instead of select() to avoid file descriptor limit
 2.6.7
  - New escape functions for binary data: transaction_base::esc_raw()
  - Improved detection of socket libraries, especially for MinGW

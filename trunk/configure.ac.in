@@ -488,6 +488,19 @@ ${usestd}]
 AC_MSG_RESULT($select_h)
 
 
+AC_MSG_CHECKING([for poll()])
+poll=yes
+AC_TRY_COMPILE(
+	[#include <poll.h>
+${usestd}],
+	[pollfd p = { 0,0,0 }; poll(&p,1,0)],
+	AC_DEFINE(PQXX_HAVE_POLL,1,
+[Define if the system has the poll() function (mainly GNU/Linux)]),
+	poll=no
+)
+AC_MSG_RESULT($poll)
+
+
 # Long-standing annoyance in glibc: the definition for FD_SET includes an
 # unnecessary C-style cast that the compiler may warn for.  If the compiler is
 # configured to treat warnings as errors, that may be a problem for us.
