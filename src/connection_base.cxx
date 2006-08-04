@@ -36,6 +36,10 @@
 #endif
 #endif // PQXX_HAVE_SYS_SELECT_H
 
+#ifdef PQXX_HAVE_POLL
+#include <poll.h>
+#endif
+
 #include "libpq-fe.h"
 
 #include "pqxx/binarystring"
@@ -72,18 +76,19 @@ static fd_set *const fdset_none = &emptyfd;
 #endif	// PQXX_SELECT_ACCEPTS_NULL
 
 
-
+#ifndef PQXX_HAVE_POLL
 // Concentrate stupid "old-style cast" warnings for GNU libc in one place, and
 // by using "C" linkage, perhaps silence them altogether.
 static void set_fdbit(int f, fd_set *s)
 {
   FD_SET(f, s);
 }
-
 static void clear_fdmask(fd_set *mask)
 {
   FD_ZERO(mask);
 }
+#endif
+
 }
 
 
@@ -338,14 +343,24 @@ void pqxx::connection_base::check_result(const result &R, const char Query[])
     if (!consume_input()) throw broken_connection(e.what());
     const int fd = sock();
     if (fd < 0) throw broken_connection(e.what());
+
+#ifdef PQXX_HAVE_POLL
+    pollfd pfd = { fd, POLLERR|POLLHUP|POLLNVAL, 0 };
+#else
     fd_set errs;
     clear_fdmask(&errs);
+#endif
+
     int sel;
     do
     {
+#ifdef PQXX_HAVE_POLL
+      sel = poll(&pfd, 1, 0);
+#else
       timeval nowait = { 0, 0 };
       set_fdbit(fd, &errs);
       sel = select(fd+1, 0, 0, &errs, &nowait);
+#endif
     } while (sel == -1 && errno == EINTR);
 
     switch (sel)
@@ -359,6 +374,7 @@ void pqxx::connection_base::check_result(const result &R, const char Query[])
       case ENOMEM:
         throw bad_alloc();
       }
+      break;
     case 0:
       break;
     case 1:
@@ -1191,10 +1207,16 @@ namespace
 void wait_fd(int fd, bool forwrite=false, timeval *tv=0)
 {
   if (fd < 0) throw pqxx::broken_connection();
+
+#ifdef PQXX_HAVE_POLL
+  pollfd pfd = { fd, POLLERR|POLLHUP|POLLNVAL | (forwrite?POLLOUT:POLLIN) , 0 };
+  poll(&pfd, 1, (tv ? (tv->tv_sec*1000 + tv->tv_usec/1000) : -1));
+#else
   fd_set s;
   clear_fdmask(&s);
   set_fdbit(fd, &s);
   select(fd+1, (forwrite?fdset_none:&s), (forwrite?&s:fdset_none), &s, tv);
+#endif
 }
 } // namespace
 
