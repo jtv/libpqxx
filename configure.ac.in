@@ -131,9 +131,7 @@ gcc_visibility=yes
 SAVE_CXXFLAGS="$CXXFLAGS"
 CXXFLAGS="$CXXFLAGS -Werror"
 AC_TRY_COMPILE([
-#ifdef __GNUC__
 struct __attribute__ ((visibility("hidden"))) d { d() {} void f() {} };
-#endif
 	],
 	[d D;D.f()],
 	AC_DEFINE([PQXX_HAVE_GCC_VISIBILITY],1,
