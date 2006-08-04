@@ -1,4 +1,7 @@
 2006-08-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Allow test for gcc visibility attribute to fail if not GNU C++
+2006-08-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in, configitems, src/connection_base.hxx:
   - Use GNU/Linux poll() instead of select(), if available
 2006-07-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
