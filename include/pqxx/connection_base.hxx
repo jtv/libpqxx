@@ -335,6 +335,38 @@ public:
    */
   bool supports(capability c) const throw () { return m_caps[c]; }	//[]
 
+  /// What version of the PostgreSQL protocol is this connection using?
+  /** The answer can be 0 (when there is no connection, or the libpq version
+   * being used is too old to obtain the information); 2 for protocol 2.0; 3 for
+   * protocol 3.0; and possibly higher values as newer protocol versions are
+   * taken into use.
+   *
+   * If the connection is broken and restored, the restored connection could
+   * possibly a different server and protocol version.  This would normally
+   * happen if the server is upgraded without shutting down the client program,
+   * for example.
+   *
+   * @requires libpq version from PostgreSQL 7.4 or better
+   */
+  int protocol_version() const throw ();				//[]
+
+  /// What version of the PostgreSQL server are we connected to?
+  /** The result is a bit complicated: each of the major, medium, and minor
+   * release numbers is written as a two-digit decimal number, and the three
+   * are then concatenated.  Thus server version 7.4.2 will be returned as the
+   * decimal number 70402.  If there is no connection to the server, of if the
+   * libpq version is too old to obtain the information, zero is returned.
+   *
+   * @caution When writing version numbers in your code, don't add zero at the
+   * beginning!  Numbers beginning with zero are interpreted as octal (base-8)
+   * in C++.  Thus, 070402 is not the same as 70402, and 080000 is not a number
+   * at all because there is no digit "8" in octal notation.  Use strictly
+   * decimal notation when it comes to these version numbers.
+   *
+   * @requires libpq version from PostgreSQL 8.0 or better
+   */
+  int server_version() const throw ();					//[]
+
   /// Set client-side character encoding
   /** Search the PostgreSQL documentation for "multibyte" or "character set
    * encodings" to find out more about the available encodings, how to extend

@@ -192,6 +192,26 @@ void pqxx::connection_base::deactivate()
 }
 
 
+int pqxx::connection_base::protocol_version() const throw ()
+{
+#ifdef PQXX_HAVE_PQPROTOCOLVERSION
+  return m_Conn ? PQprotocolVersion(m_Conn) : 0;
+#else
+  return 0;
+#endif
+}
+
+
+int pqxx::connection_base::server_version() const throw ()
+{
+#ifdef PQXX_HAVE_PQSERVERVERSION
+  return m_Conn ? PQserverVersion(m_Conn) : 0;
+#else
+  return 0;
+#endif
+}
+
+
 void pqxx::connection_base::set_variable(const string &Var, const string &Value)
 {
   if (m_Trans.get())
