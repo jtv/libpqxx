@@ -178,7 +178,7 @@ if test "${guessstd}" = "yes" -o "${withval}" = "yes"; then
 	# namespaces, in order of preference.
 	for ns in std _STL stlp_std "" ; do
 		AC_COMPILE_IFELSE([#include <string>
-			${ns}::string a;],
+			${ns}::string justastring;],
 			[std="${ns}"; break])
 	done
 fi
@@ -604,6 +604,17 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 	[pqserverversion=no]
 )
 AC_MSG_RESULT($pqserverversion)
+
+AC_MSG_CHECKING([PQprotocolVersion()])
+pqprotocolversion=yes
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[PQprotocolVersion(0)],
+	AC_DEFINE(PQXX_HAVE_PQPROTOCOLVERSION, 1,
+		[Define if libpq has PQprotocolVersion()]),
+	[pqprotocolversion=no]
+)
+AC_MSG_RESULT($pqprotocolversion)
+
 
 AC_MSG_CHECKING([PQescapeString()])
 pqescapestring=yes
