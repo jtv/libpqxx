@@ -722,7 +722,7 @@ void PQXX_LIBEXPORT freepqmem(void *);
  * each of these operations is protected against concurrency with similar
  * operations on the same object--or other copies of the same object.
  */
-template<typename T> class PQXX_LIBEXPORT PQAlloc
+template<typename T> class PQAlloc
 {
   T *m_Obj;
   mutable const PQAlloc *m_l, *m_r;
