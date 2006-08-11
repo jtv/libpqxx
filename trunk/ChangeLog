@@ -1,3 +1,6 @@
+2006-08-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/trigger.hxx:
+  - Forbid copy construction and copy assignment (thanks Bart Samwel)
 2006-08-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in, config/sample-headers/libpq/7.4,
  config/sample-headers/libpq/8.0, config/sample-headers/libpq/8.1,

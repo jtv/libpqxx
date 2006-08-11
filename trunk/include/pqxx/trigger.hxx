@@ -92,6 +92,11 @@ protected:
   connection_base &Conn() const throw () { return m_Conn; }		//[t23]
 
 private:
+  /// Not allowed
+  trigger(const trigger &);
+  /// Not allowed
+  trigger &operator=(const trigger &);
+
   connection_base &m_Conn;
   PGSTD::string m_Name;
 };
