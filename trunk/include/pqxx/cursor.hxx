@@ -242,7 +242,7 @@ template<> void
 
 inline cursor_base::difference_type cursor_base::all() throw ()
 {
-  // Microsoft Visual C++ sabotages numeric limits by defining min() and max()
+  // Microsoft Visual C++ sabotages numeric_limits by defining min() and max()
   // as preprocessor macros; some other compilers just don't have numeric_limits
 #if defined(PQXX_HAVE_LIMITS)
   return PGSTD::numeric_limits<difference_type>::max();
