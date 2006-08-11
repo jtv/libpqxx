@@ -682,8 +682,6 @@ template<int LEN> inline PGSTD::string Quote(const char (&Obj)[LEN],
 }
 
 
-/** @deprecated Use the transaction's esc() function instead
- */
 template<typename T> inline PGSTD::string Quote(const T &Obj, bool EmptyIsNull)
   PQXX_DEPRECATED
 {
