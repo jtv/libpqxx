@@ -13,6 +13,8 @@
  src/transaction_base.cxx:
   - Qualified parameter types identically between declarations and definitions
   - Works around Doxygen problem
+ include/pqxx/transactor.hxx:
+  - connection_base::perform() was documented in two places
 2006-08-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/trigger.hxx:
   - Forbid copy construction and copy assignment (thanks Bart Samwel)

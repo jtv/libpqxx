@@ -151,16 +151,6 @@ private:
 }
 
 
-/** Invoke a transactor, making at most Attempts attempts to perform the
- * encapsulated code on the database.  If the code throws any exception other
- * than broken_connection, it will be aborted right away.
- *
- * Take care: no member functions will be invoked on the original transactor you
- * pass into the function.  It only serves as a prototype for the transaction to
- * be performed.  The perform() function will copy-construct transactors from
- * the original you passed in, executing the copies only and retaining a "clean"
- * original.
- */
 template<typename TRANSACTOR>
 inline void pqxx::connection_base::perform(const TRANSACTOR &T,
                                            int Attempts)

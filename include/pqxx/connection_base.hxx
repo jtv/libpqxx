@@ -530,10 +530,20 @@ public:
    * doubt over whether execution succeeded (this can happen if the connection
    * to the server is lost just before the backend can confirm success), it is
    * no longer retried and an in_doubt_error is thrown.
+   *
+   * Take care: no member functions will ever be invoked on the transactor
+   * object you pass into perform().  The object you pass in only serves as a
+   * "prototype" for the job to be done.  The perform() function will
+   * copy-construct transactors from the original you passed in, executing the
+   * copies only.  The original object remains "clean" in its original state.
    */
   //@{
   /// Perform the transaction defined by a transactor-based object.
   /** 
+   * Invokes the given transactor, making at most Attempts attempts to perform
+   * the encapsulated code.  If the code throws any exception other than
+   * broken_connection, it will be aborted right away.
+   *
    * @param T The transactor to be executed.
    * @param Attempts Maximum number of attempts to be made to execute T.
    */
