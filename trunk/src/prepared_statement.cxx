@@ -27,7 +27,7 @@ using namespace pqxx;
 
 
 pqxx::prepare::declaration::declaration(connection_base &home,
-    const string &statement) :
+    const PGSTD::string &statement) :
   m_home(home),
   m_statement(statement)
 {
@@ -35,7 +35,7 @@ pqxx::prepare::declaration::declaration(connection_base &home,
 
 
 const pqxx::prepare::declaration &
-pqxx::prepare::declaration::operator()(const string &sqltype,
+pqxx::prepare::declaration::operator()(const PGSTD::string &sqltype,
     param_treatment treatment) const
 {
   m_home.prepare_param_declare(m_statement, sqltype, treatment);
@@ -44,7 +44,7 @@ pqxx::prepare::declaration::operator()(const string &sqltype,
 
 
 pqxx::prepare::invocation::invocation(transaction_base &home,
-    const string &statement) :
+    const PGSTD::string &statement) :
   m_home(home),
   m_statement(statement),
   m_values(),
@@ -76,7 +76,7 @@ pqxx::prepare::invocation &pqxx::prepare::invocation::operator()()
 
 
 pqxx::prepare::invocation &
-pqxx::prepare::invocation::setparam(const string &v, bool nonnull)
+pqxx::prepare::invocation::setparam(const PGSTD::string &v, bool nonnull)
 {
   m_nonnull.push_back(nonnull);
   if (nonnull) try
@@ -94,8 +94,9 @@ pqxx::prepare::invocation::setparam(const string &v, bool nonnull)
 }
 
 
-pqxx::prepare::internal::prepared_def::param::param(const string &SQLtype,
-    param_treatment Treatment) :
+pqxx::prepare::internal::prepared_def::param::param(
+	const PGSTD::string &SQLtype,
+	param_treatment Treatment) :
   sqltype(SQLtype),
   treatment(Treatment)
 {
@@ -111,7 +112,7 @@ pqxx::prepare::internal::prepared_def::prepared_def() :
 }
 
 
-pqxx::prepare::internal::prepared_def::prepared_def(const string &def) :
+pqxx::prepare::internal::prepared_def::prepared_def(const PGSTD::string &def) :
   definition(def),
   parameters(),
   registered(false),
@@ -120,8 +121,9 @@ pqxx::prepare::internal::prepared_def::prepared_def(const string &def) :
 }
 
 
-void pqxx::prepare::internal::prepared_def::addparam(const string &sqltype,
-    param_treatment treatment)
+void pqxx::prepare::internal::prepared_def::addparam(
+	const PGSTD::string &sqltype,
+	param_treatment treatment)
 {
   parameters.push_back(param(sqltype,treatment));
 }

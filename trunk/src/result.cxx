@@ -101,7 +101,8 @@ const pqxx::result::tuple pqxx::result::at(pqxx::result::size_type i) const
 }
 
 
-void pqxx::result::ThrowSQLError(const string &Err, const string &Query) const
+void pqxx::result::ThrowSQLError(const PGSTD::string &Err,
+	const PGSTD::string &Query) const
 {
 #if defined(PQXX_HAVE_PQRESULTERRORFIELD)
   // Try to establish more precise error type, and throw corresponding exception
@@ -161,7 +162,7 @@ void pqxx::result::ThrowSQLError(const string &Err, const string &Query) const
   throw sql_error(Err, Query);
 }
 
-void pqxx::result::CheckStatus(const string &Query) const
+void pqxx::result::CheckStatus(const PGSTD::string &Query) const
 {
   const string Err = StatusError();
   if (!Err.empty()) ThrowSQLError(Err, Query);

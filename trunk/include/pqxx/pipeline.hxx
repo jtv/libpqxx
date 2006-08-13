@@ -186,8 +186,8 @@ private:
   void PQXX_PRIVATE receive_if_available();
 
   /// Receive results, up to stop if possible
-  void PQXX_PRIVATE receive(QueryMap::const_iterator stop);
-  PGSTD::pair<query_id, result> retrieve(QueryMap::iterator);
+  void PQXX_PRIVATE receive(pipeline::QueryMap::const_iterator stop);
+  PGSTD::pair<pipeline::query_id, result> retrieve(pipeline::QueryMap::iterator);
 
   QueryMap m_queries;
   PGSTD::pair<QueryMap::iterator,QueryMap::iterator> m_issuedrange;

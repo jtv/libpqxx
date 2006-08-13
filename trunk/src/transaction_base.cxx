@@ -195,13 +195,13 @@ string pqxx::transaction_base::esc(const char str[]) const
 }
 
 
-string pqxx::transaction_base::esc(const string &str) const
+string pqxx::transaction_base::esc(const PGSTD::string &str) const
 {
   return m_Conn.esc(str.c_str(), str.size());
 }
 
 
-string pqxx::transaction_base::esc_raw(const string &str) const
+string pqxx::transaction_base::esc_raw(const PGSTD::string &str) const
 {
   const unsigned char *p = reinterpret_cast<const unsigned char *>(str.c_str());
   return m_Conn.esc_raw(p, str.size());
@@ -209,7 +209,7 @@ string pqxx::transaction_base::esc_raw(const string &str) const
 
 
 pqxx::result pqxx::transaction_base::exec(const char Query[],
-    					  const string &Desc)
+    					  const PGSTD::string &Desc)
 {
   CheckPendingError();
 
@@ -247,22 +247,23 @@ pqxx::result pqxx::transaction_base::exec(const char Query[],
 
 
 pqxx::prepare::invocation
-pqxx::transaction_base::prepared(const string &statement)
+pqxx::transaction_base::prepared(const PGSTD::string &statement)
 {
   return prepare::invocation(*this, statement);
 }
 
 
-pqxx::result pqxx::transaction_base::prepared_exec(const string &statement,
-    const char *const params[],
-    int nparams)
+pqxx::result pqxx::transaction_base::prepared_exec(
+	const PGSTD::string &statement,
+	const char *const params[],
+	int nparams)
 {
   return m_Conn.prepared_exec(statement, params, nparams);
 }
 
 
-void pqxx::transaction_base::set_variable(const string &Var,
-                                          const string &Value)
+void pqxx::transaction_base::set_variable(const PGSTD::string &Var,
+                                          const PGSTD::string &Value)
 {
   // Before committing to this new value, see what the backend thinks about it
   m_Conn.RawSetVar(Var, Value);
@@ -270,7 +271,7 @@ void pqxx::transaction_base::set_variable(const string &Var,
 }
 
 
-string pqxx::transaction_base::get_variable(const string &Var)
+string pqxx::transaction_base::get_variable(const PGSTD::string &Var)
 {
   const map<string,string>::const_iterator i = m_Vars.find(Var);
   if (i != m_Vars.end()) return i->second;
@@ -366,7 +367,8 @@ pqxx::result pqxx::transaction_base::DirectExec(const char C[], int Retries)
 }
 
 
-void pqxx::transaction_base::RegisterPendingError(const string &Err) throw ()
+void pqxx::transaction_base::RegisterPendingError(const PGSTD::string &Err)
+	throw ()
 {
   if (m_PendingError.empty() && !Err.empty())
   {
@@ -417,15 +419,15 @@ string MakeCopyString(const string &Table, const string &Columns)
 } // namespace
 
 
-void pqxx::transaction_base::BeginCopyRead(const string &Table,
-    const string &Columns)
+void pqxx::transaction_base::BeginCopyRead(const PGSTD::string &Table,
+    const PGSTD::string &Columns)
 {
   exec(MakeCopyString(Table, Columns) + "TO STDOUT");
 }
 
 
-void pqxx::transaction_base::BeginCopyWrite(const string &Table,
-    const string &Columns)
+void pqxx::transaction_base::BeginCopyWrite(const PGSTD::string &Table,
+    const PGSTD::string &Columns)
 {
   exec(MakeCopyString(Table, Columns) + "FROM STDIN");
 }
@@ -445,7 +447,8 @@ void pqxx::internal::transactionfocus::unregister_me() throw ()
 }
 
 void
-pqxx::internal::transactionfocus::reg_pending_error(const string &err) throw ()
+pqxx::internal::transactionfocus::reg_pending_error(const PGSTD::string &err)
+	throw ()
 {
   m_Trans.RegisterPendingError(err);
 }

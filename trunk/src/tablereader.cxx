@@ -7,7 +7,7 @@
  *      implementation of the pqxx::tablereader class.
  *   pqxx::tablereader enables optimized batch reads from a database table
  *
- * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -25,8 +25,8 @@ using namespace pqxx::internal;
 
 
 pqxx::tablereader::tablereader(transaction_base &T,
-    const string &Name,
-    const string &Null) :
+    const PGSTD::string &Name,
+    const PGSTD::string &Null) :
   namedclass("tablereader", Name),
   tablestream(T, Null),
   m_Done(true)
@@ -35,8 +35,8 @@ pqxx::tablereader::tablereader(transaction_base &T,
 }
 
 void pqxx::tablereader::setup(transaction_base &T,
-    const string &Name,
-    const string &Columns)
+    const PGSTD::string &Name,
+    const PGSTD::string &Columns)
 {
   T.BeginCopyRead(Name, Columns);
   register_me();
@@ -59,7 +59,7 @@ pqxx::tablereader::~tablereader() throw ()
 }
 
 
-bool pqxx::tablereader::get_raw_line(string &Line)
+bool pqxx::tablereader::get_raw_line(PGSTD::string &Line)
 {
   if (!m_Done) try
   {
@@ -118,7 +118,8 @@ inline bool is_octalchar(char o) throw ()
 /// Find first tab character at or after start position in string
 /** If not found, returns Line.size() rather than string::npos.
  */
-string::size_type findtab(const string &Line, string::size_type start)
+string::size_type findtab(const PGSTD::string &Line,
+	PGSTD::string::size_type start)
 {
   const string::size_type here = Line.find('\t', start);
   return (here == string::npos) ? Line.size() : here;
@@ -126,8 +127,8 @@ string::size_type findtab(const string &Line, string::size_type start)
 } // namespace
 
 
-string pqxx::tablereader::extract_field(const string &Line,
-    string::size_type &i) const
+string pqxx::tablereader::extract_field(const PGSTD::string &Line,
+    PGSTD::string::size_type &i) const
 {
   // TODO: Pick better exception types
   string R;

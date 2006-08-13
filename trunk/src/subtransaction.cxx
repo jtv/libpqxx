@@ -27,7 +27,7 @@ using namespace PGSTD;
 
 
 pqxx::subtransaction::subtransaction(dbtransaction &T,
-    const string &Name) :
+    const PGSTD::string &Name) :
   namedclass("subtransaction", T.conn().adorn_name(Name)),
   transactionfocus(T),
   dbtransaction(T.conn(), false),

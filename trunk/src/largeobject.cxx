@@ -7,7 +7,7 @@
  *      Implementation of the Large Objects interface
  *   Allows access to large objects directly, or though I/O streams
  *
- * Copyright (c) 2003-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -89,7 +89,7 @@ pqxx::largeobject::largeobject(dbtransaction &T) :
 }
 
 
-pqxx::largeobject::largeobject(dbtransaction &T, const string &File) :
+pqxx::largeobject::largeobject(dbtransaction &T, const PGSTD::string &File) :
   m_ID()
 {
   m_ID = lo_import(RawConnection(T), File.c_str());
@@ -109,7 +109,8 @@ pqxx::largeobject::largeobject(const largeobjectaccess &O) throw () :
 }
 
 
-void pqxx::largeobject::to_file(dbtransaction &T, const string &File) const
+void pqxx::largeobject::to_file(dbtransaction &T,
+	const PGSTD::string &File) const
 {
   if (lo_export(RawConnection(T), id(), File.c_str()) == -1)
   {
@@ -177,7 +178,7 @@ pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
 
 
 pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
-					   const string &File,
+					   const PGSTD::string &File,
 					   openmode mode) :
   largeobject(T, File),
   m_Trans(T),
@@ -309,7 +310,7 @@ string pqxx::largeobjectaccess::Reason(int err) const
 }
 
 
-void pqxx::largeobjectaccess::process_notice(const string &s) throw ()
+void pqxx::largeobjectaccess::process_notice(const PGSTD::string &s) throw ()
 {
   m_Trans.process_notice(s);
 }

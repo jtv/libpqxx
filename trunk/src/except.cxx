@@ -25,7 +25,7 @@ pqxx::broken_connection::broken_connection() :
 {
 }
 
-pqxx::broken_connection::broken_connection(const string &whatarg) :
+pqxx::broken_connection::broken_connection(const PGSTD::string &whatarg) :
   runtime_error(whatarg)
 {
 }
@@ -36,13 +36,14 @@ pqxx::sql_error::sql_error() :
 {
 }
 
-pqxx::sql_error::sql_error(const string &whatarg) :
+pqxx::sql_error::sql_error(const PGSTD::string &whatarg) :
   runtime_error(whatarg),
   m_Q()
 {
 }
 
-pqxx::sql_error::sql_error(const string &whatarg, const string &Q) :
+pqxx::sql_error::sql_error(const PGSTD::string &whatarg,
+	const PGSTD::string &Q) :
   runtime_error(whatarg),
   m_Q(Q)
 {
@@ -56,13 +57,13 @@ pqxx::sql_error::~sql_error() throw ()
 const string &pqxx::sql_error::query() const throw () { return m_Q; }
 
 
-pqxx::in_doubt_error::in_doubt_error(const string &whatarg) :
+pqxx::in_doubt_error::in_doubt_error(const PGSTD::string &whatarg) :
   runtime_error(whatarg)
 {
 }
 
 
-pqxx::internal_error::internal_error(const string &whatarg) :
+pqxx::internal_error::internal_error(const PGSTD::string &whatarg) :
   logic_error("libpqxx internal error: " + whatarg)
 {
 }
