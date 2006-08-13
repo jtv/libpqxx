@@ -7,7 +7,7 @@
  *      implementation of the pqxx::pipeline class
  *   Throughput-optimized query manager
  *
- * Copyright (c) 2003-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -34,7 +34,7 @@ const string theDummyQuery("SELECT " + theDummyValue + theSeparator);
 }
 
 
-pqxx::pipeline::pipeline(transaction_base &t, const string &Name) :
+pqxx::pipeline::pipeline(transaction_base &t, const PGSTD::string &Name) :
   namedclass("pipeline", Name),
   transactionfocus(t),
   m_queries(),
@@ -60,7 +60,7 @@ pqxx::pipeline::~pipeline() throw ()
 }
 
 
-pipeline::query_id pqxx::pipeline::insert(const string &q)
+pipeline::query_id pqxx::pipeline::insert(const PGSTD::string &q)
 {
   const query_id qid = generate_id();
   pqxxassert(qid > 0);
@@ -204,7 +204,8 @@ void pqxx::pipeline::issue()
 }
 
 
-void pqxx::pipeline::internal_error(const string &err) throw (logic_error)
+void pqxx::pipeline::internal_error(const PGSTD::string &err)
+	throw (logic_error)
 {
   set_error_at(0);
   throw pqxx::internal_error(err);
@@ -337,7 +338,7 @@ void pqxx::pipeline::obtain_dummy()
 }
 
 
-pair<pipeline::query_id, result>
+PGSTD::pair<pipeline::query_id, result>
 pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 {
   if (q == m_queries.end())

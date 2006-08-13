@@ -7,7 +7,7 @@
  *      implementation of the pqxx::tablewriter class.
  *   pqxx::tablewriter enables optimized batch updates to a database table
  *
- * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -26,8 +26,8 @@ using namespace pqxx::internal;
 
 
 pqxx::tablewriter::tablewriter(transaction_base &T,
-    const string &WName,
-    const string &Null) :
+    const PGSTD::string &WName,
+    const PGSTD::string &Null) :
   namedclass("tablewriter", WName),
   tablestream(T, Null)
 {
@@ -52,8 +52,8 @@ pqxx::tablewriter::~tablewriter() throw ()
 
 
 void pqxx::tablewriter::setup(transaction_base &T,
-    const string &WName,
-    const string &Columns)
+    const PGSTD::string &WName,
+    const PGSTD::string &Columns)
 {
   T.BeginCopyWrite(WName, Columns);
   register_me();
@@ -74,7 +74,7 @@ pqxx::tablewriter &pqxx::tablewriter::operator<<(pqxx::tablereader &R)
 }
 
 
-void pqxx::tablewriter::WriteRawLine(const string &Line)
+void pqxx::tablewriter::WriteRawLine(const PGSTD::string &Line)
 {
   m_Trans.WriteCopyLine(Line);
 }

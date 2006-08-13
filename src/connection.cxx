@@ -26,7 +26,7 @@
 using namespace PGSTD;
 
 
-pqxx::connectionpolicy::connectionpolicy(const string &opts) :
+pqxx::connectionpolicy::connectionpolicy(const PGSTD::string &opts) :
   m_options(opts)
 {
 }
@@ -102,7 +102,7 @@ pqxx::connect_lazy::do_completeconnect(handle orig)
 }
 
 
-pqxx::connect_async::connect_async(const string &opts) :
+pqxx::connect_async::connect_async(const PGSTD::string &opts) :
   connectionpolicy(opts),
   m_connecting(false)
 {

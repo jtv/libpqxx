@@ -33,7 +33,7 @@ docs: $(DOCS)
 
 reference: reference-stamp
 reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
-	$(DOXYGEN) Doxyfile | grep -v '\.\.\.$$' | grep -v '^Generating .* for'
+	$(DOXYGEN) Doxyfile | grep -v '\.\.\.$$' #| grep -v '^Generating .* for'
 	touch $@
 
 ../src/libpqxx.la:

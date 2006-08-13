@@ -31,7 +31,7 @@ using namespace pqxx::internal;
 // TODO: Use two-phase transaction if backend supports it
 
 pqxx::basic_robusttransaction::basic_robusttransaction(connection_base &C,
-	const string &IsolationLevel) :
+	const PGSTD::string &IsolationLevel) :
   namedclass("robusttransaction"),
   dbtransaction(C, IsolationLevel),
   m_ID(oid_none),

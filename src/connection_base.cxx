@@ -212,7 +212,8 @@ int pqxx::connection_base::server_version() const throw ()
 }
 
 
-void pqxx::connection_base::set_variable(const string &Var, const string &Value)
+void pqxx::connection_base::set_variable(const PGSTD::string &Var,
+	const PGSTD::string &Value)
 {
   if (m_Trans.get())
   {
@@ -228,13 +229,13 @@ void pqxx::connection_base::set_variable(const string &Var, const string &Value)
 }
 
 
-string pqxx::connection_base::get_variable(const string &Var)
+string pqxx::connection_base::get_variable(const PGSTD::string &Var)
 {
   return m_Trans.get() ? m_Trans.get()->get_variable(Var) : RawGetVar(Var);
 }
 
 
-string pqxx::connection_base::RawGetVar(const string &Var)
+string pqxx::connection_base::RawGetVar(const PGSTD::string &Var)
 {
   // Is this variable in our local map of set variables?
   // TODO: Is it safe to read-allocate variables in the "cache?"
@@ -503,7 +504,7 @@ void pqxx::connection_base::process_notice(const char msg[]) throw ()
   }
 }
 
-void pqxx::connection_base::process_notice(const string &msg) throw ()
+void pqxx::connection_base::process_notice(const PGSTD::string &msg) throw ()
 {
   // Ensure that message passed to noticer ends in newline
   if (msg[msg.size()-1] == '\n')
@@ -718,8 +719,9 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 }
 
 
-pqxx::prepare::declaration pqxx::connection_base::prepare(const string &name,
-    const string &definition)
+pqxx::prepare::declaration pqxx::connection_base::prepare(
+	const PGSTD::string &name,
+	const PGSTD::string &definition)
 {
   PSMap::iterator i = m_prepared.find(name);
   if (i != m_prepared.end())
@@ -741,7 +743,7 @@ pqxx::prepare::declaration pqxx::connection_base::prepare(const string &name,
 }
 
 
-void pqxx::connection_base::unprepare(const string &name)
+void pqxx::connection_base::unprepare(const PGSTD::string &name)
 {
   PSMap::iterator i = m_prepared.find(name);
 
@@ -802,7 +804,7 @@ string escape_param(const char in[], prepare::param_treatment treatment)
 
 
 pqxx::prepare::internal::prepared_def &
-pqxx::connection_base::find_prepared(const string &statement)
+pqxx::connection_base::find_prepared(const PGSTD::string &statement)
 {
   PSMap::iterator s = m_prepared.find(statement);
   if (s == m_prepared.end())
@@ -810,9 +812,10 @@ pqxx::connection_base::find_prepared(const string &statement)
   return s->second;
 }
 
-void pqxx::connection_base::prepare_param_declare(const string &statement,
-    const string &sqltype,
-    param_treatment treatment)
+void pqxx::connection_base::prepare_param_declare(
+	const PGSTD::string &statement,
+	const string &sqltype,
+	param_treatment treatment)
 {
   prepare::internal::prepared_def &s = find_prepared(statement);
   if (s.complete)
@@ -823,7 +826,8 @@ void pqxx::connection_base::prepare_param_declare(const string &statement,
 }
 
 
-pqxx::result pqxx::connection_base::prepared_exec(const string &statement,
+pqxx::result pqxx::connection_base::prepared_exec(
+	const PGSTD::string &statement,
 	const char *const params[],
 	int nparams)
 {
@@ -958,13 +962,15 @@ void pqxx::connection_base::close() throw ()
 }
 
 
-void pqxx::connection_base::RawSetVar(const string &Var, const string &Value)
+void pqxx::connection_base::RawSetVar(const PGSTD::string &Var,
+	const PGSTD::string &Value)
 {
     Exec(("SET " + Var + "=" + Value).c_str(), 0);
 }
 
 
-void pqxx::connection_base::AddVariables(const map<string,string> &Vars)
+void pqxx::connection_base::AddVariables(
+	const PGSTD::map<PGSTD::string,PGSTD::string> &Vars)
 {
   for (map<string,string>::const_iterator i=Vars.begin(); i!=Vars.end(); ++i)
     m_Vars[i->first] = i->second;
@@ -1024,7 +1030,7 @@ const string theWriteTerminator = "\\.";
 #endif
 
 
-bool pqxx::connection_base::ReadCopyLine(string &Line)
+bool pqxx::connection_base::ReadCopyLine(PGSTD::string &Line)
 {
   if (!is_open())
     throw internal_error("ReadCopyLine() without connection");
@@ -1100,7 +1106,7 @@ bool pqxx::connection_base::ReadCopyLine(string &Line)
 }
 
 
-void pqxx::connection_base::WriteCopyLine(const string &Line)
+void pqxx::connection_base::WriteCopyLine(const PGSTD::string &Line)
 {
   if (!is_open())
     throw internal_error("WriteCopyLine() without connection");
@@ -1156,7 +1162,7 @@ void pqxx::connection_base::EndCopyWrite()
 }
 
 
-void pqxx::connection_base::start_exec(const string &Q)
+void pqxx::connection_base::start_exec(const PGSTD::string &Q)
 {
   activate();
   if (!PQsendQuery(m_Conn, Q.c_str())) throw runtime_error(ErrMsg());
@@ -1200,7 +1206,8 @@ string pqxx::connection_base::esc(const char str[], size_t maxlen)
 }
 
 
-string pqxx::connection_base::esc_raw(const unsigned char str[], size_t len)
+PGSTD::string pqxx::connection_base::esc_raw(const unsigned char str[],
+	size_t len)
 {
   size_t bytes = 0;
 #ifdef PQXX_HAVE_PQESCAPEBYTEACONN
@@ -1326,7 +1333,7 @@ void pqxx::connection_base::set_capability(capability c) throw ()
 }
 
 
-string pqxx::connection_base::adorn_name(const string &n)
+string pqxx::connection_base::adorn_name(const PGSTD::string &n)
 {
   const string id = to_string(++m_unique_id);
   return n.empty() ? ("x"+id) : (n+"_"+id);

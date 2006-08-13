@@ -43,7 +43,7 @@ pqxx::cursor_base::difference_type adjust(
 
 
 pqxx::cursor_base::cursor_base(transaction_base *context,
-    const string &Name,
+    const PGSTD::string &Name,
     bool embellish_name) :
   m_context(context),
   m_done(false),
@@ -86,7 +86,7 @@ inline bool useless_trail(char c)
 }
 
 
-void pqxx::cursor_base::declare(const string &query,
+void pqxx::cursor_base::declare(const PGSTD::string &query,
     accesspolicy ap,
     updatepolicy up,
     ownershippolicy op,
@@ -252,8 +252,8 @@ pqxx::cursor_base::move(difference_type n, difference_type &d)
 
 
 pqxx::icursorstream::icursorstream(pqxx::transaction_base &context,
-    const string &query,
-    const string &basename,
+    const PGSTD::string &query,
+    const PGSTD::string &basename,
     difference_type Stride) :
   super(&context, query, basename),
   m_stride(Stride),
@@ -293,7 +293,7 @@ pqxx::result pqxx::icursorstream::fetchblock()
 }
 
 
-pqxx::icursorstream &pqxx::icursorstream::ignore(streamsize n)
+pqxx::icursorstream &pqxx::icursorstream::ignore(PGSTD::streamsize n)
 {
   m_realpos += move(n);
   return *this;
