@@ -422,7 +422,8 @@ bool pqxx::connection_base::is_open() const throw ()
 }
 
 
-void pqxx::connection_base::switchnoticer(const auto_ptr<noticer> &N) throw ()
+void pqxx::connection_base::switchnoticer(const PGSTD::auto_ptr<noticer> &N)
+	throw ()
 {
   const PQnoticeProcessor old =
 	PQsetNoticeProcessor(m_Conn, pqxxNoticeCaller, N.get());
@@ -432,7 +433,7 @@ void pqxx::connection_base::switchnoticer(const auto_ptr<noticer> &N) throw ()
 
 
 auto_ptr<pqxx::noticer>
-pqxx::connection_base::set_noticer(auto_ptr<noticer> N) throw ()
+pqxx::connection_base::set_noticer(PGSTD::auto_ptr<noticer> N) throw ()
 {
   if (m_Conn)
   {
@@ -814,7 +815,7 @@ pqxx::connection_base::find_prepared(const PGSTD::string &statement)
 
 void pqxx::connection_base::prepare_param_declare(
 	const PGSTD::string &statement,
-	const string &sqltype,
+	const PGSTD::string &sqltype,
 	param_treatment treatment)
 {
   prepare::internal::prepared_def &s = find_prepared(statement);
