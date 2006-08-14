@@ -31,8 +31,9 @@ namespace pqxx
 
 /**
  * @addtogroup transaction Transaction classes
+ *
+ * @{
  */
-//@{
 
 class PQXX_LIBEXPORT basic_robusttransaction : public dbtransaction
 {
@@ -157,7 +158,9 @@ public:
   }
 };
 
-//@}
+/**
+ * @}
+ */
 
 } // namespace pqxx
 

@@ -107,6 +107,7 @@ void pqxx::result::ThrowSQLError(const PGSTD::string &Err,
 #if defined(PQXX_HAVE_PQRESULTERRORFIELD)
   // Try to establish more precise error type, and throw corresponding exception
   const char *const code = PQresultErrorField(c_ptr(), PG_DIAG_SQLSTATE);
+  // TODO: Move this into a factory in except.cxx
   if (!code) return;
   switch (code[0])
   {
@@ -145,6 +146,7 @@ void pqxx::result::ThrowSQLError(const PGSTD::string &Err,
     case '2':
       if (strcmp(code,"42501")==0) throw insufficient_privilege(Err, Query);
       if (strcmp(code,"42601")==0) throw syntax_error(Err, Query);
+      if (strcmp(code,"42P01")==0) throw undefined_table(Err, Query);
     }
     break;
   case '5':
@@ -153,7 +155,7 @@ void pqxx::result::ThrowSQLError(const PGSTD::string &Err,
     case '3':
       if (strcmp(code,"53100")==0) throw disk_full(Err, Query);
       if (strcmp(code,"53200")==0) throw out_of_memory(Err, Query);
-      if (strcmp(code,"53300")==0) throw too_many_connections(Err, Query);
+      if (strcmp(code,"53300")==0) throw too_many_connections(Err);
       throw insufficient_resources(Err, Query);
     }
     break;
