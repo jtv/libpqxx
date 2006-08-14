@@ -40,9 +40,14 @@ int main(int, char *argv[])
       nontransaction Drop(C, "drop_" + Table);
       Drop.exec("DROP TABLE " + Table);
     }
-    catch (const sql_error &e)
+    catch (const undefined_table &e)
     {
       cout << "(Expected) Couldn't drop table: " << e.what() << endl
+	   << "Query was: " << e.query() << endl;
+    }
+    catch (const sql_error &e)
+    {
+      cerr << "Couldn't drop table: " << e.what() << endl
 	   << "Query was: " << e.query() << endl;
     }
 
