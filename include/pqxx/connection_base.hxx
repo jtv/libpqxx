@@ -323,7 +323,7 @@ public:
    * try not to rely on this function being exactly right.  Older versions of
    * libpq may not detect any capabilities.
    */
-  bool supports(capability c) const throw () { return m_caps[c]; }	//[]
+  bool supports(capability c) const throw () { return m_caps[c]; }	//[t88]
 
   /// What version of the PostgreSQL protocol is this connection using?
   /** The answer can be 0 (when there is no connection, or the libpq version
