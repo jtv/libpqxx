@@ -23,7 +23,7 @@ int main()
 
       throw logic_error("Invalid query did not throw exception!");
     }
-    catch (const sql_error &e)
+    catch (const syntax_error &e)
     {
       cout << "(Expected) Query failed: " << e.query() << endl
 	   << "(Expected) Error was: " << e.what() << endl;
