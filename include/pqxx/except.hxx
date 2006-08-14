@@ -29,8 +29,19 @@ namespace pqxx
 
 /**
  * @addtogroup exception Exception classes
+ *
+ * These exception classes follow, roughly, the two-level hierarchy defined by
+ * the PostgreSQL error codes (see Appendix A of the PostgreSQL documentation
+ * corresponding to your server version).  The hierarchy given here is, as yet,
+ * not a complete mirror of the error codes.  There are some other differences
+ * as well, e.g. the error code statement_completion_unknown has a separate
+ * status in libpqxx as in_doubt_error, and too_many_connections is classified
+ * as a broken_connection rather than a subtype of insufficient_resources.
+ *
+ * @see http://www.postgresql.org/docs/8.1/interactive/errcodes-appendix.html
+ *
+ * @{
  */
-//@{
 
 /// Exception class for lost or failed backend connection.
 class PQXX_LIBEXPORT broken_connection : public PGSTD::runtime_error
@@ -143,6 +154,14 @@ public:
 	sql_error(err,Q) {}
 };
 
+class PQXX_LIBEXPORT undefined_table : public syntax_error
+{
+public:
+  explicit undefined_table(const PGSTD::string &err) : syntax_error(err) {}
+  undefined_table(const PGSTD::string &err, const PGSTD::string &Q) :
+    syntax_error(err, Q) {}
+};
+
 class PQXX_LIBEXPORT insufficient_privilege : public sql_error
 {
 public:
@@ -177,16 +196,16 @@ public:
 	insufficient_resources(err,Q) {}
 };
 
-class PQXX_LIBEXPORT too_many_connections : public insufficient_resources
+class PQXX_LIBEXPORT too_many_connections : public broken_connection
 {
 public:
   explicit too_many_connections(const PGSTD::string &err) :
-	insufficient_resources(err) {}
-  too_many_connections(const PGSTD::string &err, const PGSTD::string &Q) :
-	insufficient_resources(err,Q) {}
+	broken_connection(err) {}
 };
 
-//@}
+/**
+ * @}
+ */
 
 }
 

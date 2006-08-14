@@ -1,3 +1,14 @@
+2006-08-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx:
+  - Finally resolved Doxygen problems!
+  - Corrected prepared-statement execution example
+ include/pqxx/except.hxx:
+  - too_many_connections is a broken_connection, not an insufficient_resources
+  - New undefined_table class (too useful not to have)
+ include/pqxx/subtransaction.hxx:
+  - Documented class
+ src/result.cxx:
+  - Recognize undefined_table error
 2006-08-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/Doxyfile.in:
   - Include libpqxx version number

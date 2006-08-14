@@ -33,9 +33,9 @@ namespace pqxx
  * connection_base class (where essentially all connection-related functionality
  * is defined) with a policy class which governs how the connection is to be
  * established.
+ *
+ * @{
  */
-//@{
-
 
 /// Connection policy; creates an immediate connection to a database.
 /** This is the policy you typically need when you work with a database through
@@ -118,8 +118,9 @@ public:
 /// A "dummy" connection type: don't connect to any database at all
 typedef basic_connection<connect_null> nullconnection;
 
-
-//@}
+/**
+ * @}
+ */
 
 }
 

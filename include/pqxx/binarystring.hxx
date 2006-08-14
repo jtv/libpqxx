@@ -28,6 +28,7 @@ namespace pqxx
 
 /// Reveals "unescaped" version of PostgreSQL bytea string
 /** @addtogroup escaping String escaping
+ *
  * This class represents a postgres-internal buffer containing the original,
  * binary string represented by a field of type bytea.  The raw value returned
  * by such a field contains escape sequences for certain characters, which are
@@ -141,8 +142,10 @@ private:
 
 /**
  * @addtogroup escaping String escaping
+ *
+ * @{
  */
-//@{
+
 /// Escape binary string for inclusion in SQL
 /**
  * @deprecated Use the transaction's esc_raw() functions instead
@@ -173,7 +176,10 @@ PGSTD::string PQXX_LIBEXPORT escape_binary(const unsigned char bin[]);
  * \relatesalso binarystring
  */
 PGSTD::string PQXX_LIBEXPORT escape_binary(const unsigned char bin[], size_t len);
-//@}
+
+/**
+ * @}
+ */
 
 
 }

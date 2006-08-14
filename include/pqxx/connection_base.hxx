@@ -70,12 +70,13 @@ private:
 
 /**
  * @addtogroup noticer Error/warning output
+ * @{
  */
-//@{
+
 /// Base class for user-definable error/warning message processor
 /** To define a custom method of handling notices, derive a new class from
  * noticer and override the virtual function
- * @code operator()(const char[]) throw()@endcode
+ * @code operator()(const char[]) throw() @endcode
  * to process the message passed to it.
  */
 struct PQXX_LIBEXPORT noticer : PGSTD::unary_function<const char[], void>
@@ -92,13 +93,12 @@ struct PQXX_LIBEXPORT nonnoticer : noticer
   nonnoticer(){}	// Silences bogus warning in some gcc versions
   virtual void operator()(const char []) throw () {}
 };
-//@}
-
 
 /**
- * @addtogroup connection Connection classes
+ * @}
  */
-//@{
+
+
 /// connection_base abstract base class; represents a connection to a database.
 /** This is the first class to look at when you wish to work with a database
  * through libpqxx.  Depending on the implementing concrete child class, a
@@ -123,10 +123,6 @@ struct PQXX_LIBEXPORT nonnoticer : noticer
 class PQXX_LIBEXPORT connection_base
 {
 public:
-  /**
-   * @name Connection state
-   */
-  //@{
   /// Explicitly close connection.
   void disconnect() throw ();						//[t2]
 
@@ -208,12 +204,7 @@ public:
    * that will be thrown on connection failure instead.
    */
   bool is_open() const throw ();					//[t1]
-  //@}
 
-  /**
-   * @addtogroup noticer Error/warning output
-   */
-  //@{
   /// Set handler for postgresql errors or warning messages.
   /** The use of auto_ptr implies ownership, so unless the returned value is
    * copied to another auto_ptr, it will be deleted directly after the call.
@@ -235,7 +226,6 @@ public:
   void process_notice(const char[]) throw ();				//[t14]
   /// Invoke notice processor function.  Newline at end is recommended.
   void process_notice(const PGSTD::string &) throw ();			//[t14]
-  //@}
 
   /// Enable tracing to a given output stream, or NULL to disable.
   void trace(FILE *) throw ();						//[t3]
@@ -243,9 +233,9 @@ public:
   /**
    * @name Connection properties
    *
-   * These are probably not needed very often: since most are derived from
-   * information supplied by the client program itself, but are included for
-   * completeness.
+   * These are probably not of great interest, since most are derived from
+   * information supplied by the client program itself, but they are included
+   * for completeness.
    */
   //@{
   /// Name of database we're connected to, if any.
@@ -346,7 +336,7 @@ public:
    * happen if the server is upgraded without shutting down the client program,
    * for example.
    *
-   * @requires libpq version from PostgreSQL 7.4 or better
+   * Requires libpq version from PostgreSQL 7.4 or better.
    */
   int protocol_version() const throw ();				//[]
 
@@ -357,13 +347,13 @@ public:
    * decimal number 70402.  If there is no connection to the server, of if the
    * libpq version is too old to obtain the information, zero is returned.
    *
-   * @caution When writing version numbers in your code, don't add zero at the
+   * @warning When writing version numbers in your code, don't add zero at the
    * beginning!  Numbers beginning with zero are interpreted as octal (base-8)
    * in C++.  Thus, 070402 is not the same as 70402, and 080000 is not a number
    * at all because there is no digit "8" in octal notation.  Use strictly
    * decimal notation when it comes to these version numbers.
    *
-   * @requires libpq version from PostgreSQL 8.0 or better
+   * Requires libpq version from PostgreSQL 8.0 or better.
    */
   int server_version() const throw ();					//[]
 
@@ -410,7 +400,7 @@ public:
 
 
   /**
-   * @addtogroup notification Notifications and Triggers
+   * @name Notifications and Triggers
    */
   //@{
   /// Check for pending trigger notifications and take appropriate action.
@@ -475,8 +465,10 @@ public:
    * @warning Never try to prepare, execute, or unprepare a prepared statement
    * manually using direct SQL queries.  Always use the functions provided by
    * libpqxx.
+   *
+   * @{
    */
-  //@{
+
   /// Define a prepared statement
   /** To declare parameters to this statement, add them by calling the function
    * invocation operator (@c operator()) on the returned object.  See
@@ -500,7 +492,7 @@ public:
    *             "select * from pg_tables where name=$1")
    *             ("varchar", treat_string);
    *   work W(C);
-   *   result R = W.prepared("findtable")("mytable");
+   *   result R = W.prepared("findtable")("mytable").exec();
    *   if (R.empty()) throw runtime_error("mytable not found!");
    * }
    * @endcode
@@ -513,11 +505,14 @@ public:
 
   /// Drop prepared statement
   void unprepare(const PGSTD::string &name);				//[t85]
-  //@}
+
+  /**
+   * @}
+   */
 
 
   /**
-   * @addtogroup transactor Transactor framework
+   * @name Transactor framework
    *
    * See the transactor class template for more about transactors.  To use the
    * transactor framework, encapsulate your transaction code in a class derived
@@ -536,8 +531,10 @@ public:
    * "prototype" for the job to be done.  The perform() function will
    * copy-construct transactors from the original you passed in, executing the
    * copies only.  The original object remains "clean" in its original state.
+   *
+   * @{
    */
-  //@{
+
   /// Perform the transaction defined by a transactor-based object.
   /** 
    * Invokes the given transactor, making at most Attempts attempts to perform
@@ -556,7 +553,10 @@ public:
    */
   template<typename TRANSACTOR>
   void perform(const TRANSACTOR &T) { perform(T, 3); }
-  //@}
+
+  /**
+   * @}
+   */
 
   /// Suffix unique number to name to make it unique within session context
   /** Used internally to generate identifiers for SQL objects (such as cursors
@@ -570,8 +570,9 @@ public:
    * 
    * These are all deprecated; they were defined in the libpqxx 1.x API but are
    * no longer actively supported.
+   *
+   * @{
    */
-  //@{
   /// @deprecated Use disconnect() instead
   void Disconnect() throw () PQXX_DEPRECATED { disconnect(); }
   /// @deprecated Use perform() instead
@@ -612,9 +613,11 @@ public:
   /// @deprecated Use set_variable() instead
   void SetVariable(const PGSTD::string &Var, const PGSTD::string &Val)
   	PQXX_DEPRECATED { set_variable(Var, Val); }
-  //@}
-#endif
 
+  /**
+   * @}
+   */
+#endif
 
 protected:
   explicit connection_base(connectionpolicy &);
@@ -738,8 +741,6 @@ private:
   connection_base(const connection_base &);
   connection_base &operator=(const connection_base &);
 };
-
-//@}
 
 
 
