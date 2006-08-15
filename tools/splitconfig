@@ -65,7 +65,6 @@ EOF
 	fi
 }
 
-ls "${srcdir}/tools" >&2 # DEBUG CODE
 SAMPLETXT="`${srcdir}/tools/maketemporary`"
 
 # Perform a "grep -F -w -h", or simulate one, searching for any of the patterns
