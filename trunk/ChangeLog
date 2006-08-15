@@ -1,3 +1,6 @@
+2006-08-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/Makefile.am:
+  - More now-unnecessary output filtering removed
 2006-08-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx:
   - Finally resolved Doxygen problems!
