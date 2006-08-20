@@ -18,6 +18,10 @@ int main()
     // Set up a connection to the backend.
     connection C;
 
+    cout << "Connected to database." << endl
+         << "Backend version: " << C.server_version() << endl
+	 << "Protocol version: " << C.protocol_version() << endl;
+
     // Begin a transaction acting on our current connection.  Give it a human-
     // readable name so the library can include it in error messages.
     work T(C, "test1");

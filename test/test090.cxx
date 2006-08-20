@@ -51,6 +51,14 @@ int main()
   {
     connection C;
 
+    // Test connection's adorn_name() function for uniqueness
+    const string nametest = "basename";
+    const string nt1 = C.adorn_name(nametest),
+                 nt2 = C.adorn_name(nametest);
+    if (nt1 == nt2)
+      throw logic_error("\"Unique\" names are not unique: got '" + nt1 + "' "
+	"twice");
+
     nontransaction N(C, "test90non");
     dotests(N);
     N.abort();
