@@ -338,7 +338,7 @@ public:
    *
    * Requires libpq version from PostgreSQL 7.4 or better.
    */
-  int protocol_version() const throw ();				//[]
+  int protocol_version() const throw ();				//[t1]
 
   /// What version of the PostgreSQL server are we connected to?
   /** The result is a bit complicated: each of the major, medium, and minor
@@ -355,7 +355,7 @@ public:
    *
    * Requires libpq version from PostgreSQL 8.0 or better.
    */
-  int server_version() const throw ();					//[]
+  int server_version() const throw ();					//[t1]
 
   /// Set client-side character encoding
   /** Search the PostgreSQL documentation for "multibyte" or "character set
@@ -562,7 +562,7 @@ public:
   /** Used internally to generate identifiers for SQL objects (such as cursors
    * and nested transactions) based on a given human-readable base name.
    */
-  PGSTD::string adorn_name(const PGSTD::string &);			//[]
+  PGSTD::string adorn_name(const PGSTD::string &);			//[90]
 
 #ifdef PQXX_DEPRECATED_HEADERS
   /**
