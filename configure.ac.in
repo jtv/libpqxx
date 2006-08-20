@@ -362,7 +362,7 @@ occurring in the file.
 ])], -L${with_postgres_lib})
 
 # Remove redundant occurrances of -lpq
-LIBS="`echo "$LIBS" | sed -e 's/-lpq\>[[:space:]]*-lpq\>/-lpq/g'`"
+LIBS="`echo "$LIBS" | sed -e 's/-lpq[[:space:]]*[[:space:]]-lpq\>/-lpq/g'`"
 
 AC_LANG_POP(C)
 
