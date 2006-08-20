@@ -1,3 +1,13 @@
+2006-08-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, test/test001.cxx, test/test090.cxx:
+  - Test new functions protocol_version() and server_version()
+  - Test adorn_name()
+  - Back to full test coverage for connection classes
+ include/pqxx/cursor.hxx:
+  - Now testing most of absolute_cursor (but not ready for use yet)
+ test/test091.cxx:
+  - New
+  - Tests absolute_cursor
 2006-08-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/transaction_base.hxx, test/test062.cxx:
   - Test esc_raw(const unsigned char[], size_t)

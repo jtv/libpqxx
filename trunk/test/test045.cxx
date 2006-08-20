@@ -115,7 +115,14 @@ int main(int, char *argv[])
     Cur.move(cursor_base::backward_all());
 
     // Now start testing our new cursor.
-    R = Cur.fetch(GetRows);
+    cursor::difference_type offset;
+    R = Cur.fetch(GetRows, offset);
+    if (offset > GetRows)
+      throw logic_error("Fetched " + to_string(GetRows) + " rows, "
+      	"but displacement was " + to_string(offset));
+    if (result::size_type(offset) != R.size())
+      throw logic_error("Received " + to_string(R.size()) + " rows, "
+	"but displacement was " + to_string(offset));
 
     if (R.size() > result::size_type(GetRows))
       throw logic_error("Expected " + to_string(GetRows) + " rows, "
