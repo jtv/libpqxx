@@ -141,7 +141,7 @@ public:
    * that can disrupt their use in SQL queries, they will be replaced with
    * special escape sequences.
    */
-  PGSTD::string esc_raw(const unsigned char str[], size_t len) const	//[]
+  PGSTD::string esc_raw(const unsigned char str[], size_t len) const	//[t62]
 	{ return m_Conn.esc_raw(str, len); }
   /// Escape binary data for use as SQL string literal in this transaction
   PGSTD::string esc_raw(const PGSTD::string &) const;			//[t62]

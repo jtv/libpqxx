@@ -1,3 +1,7 @@
+2006-08-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/transaction_base.hxx, test/test062.cxx:
+  - Test esc_raw(const unsigned char[], size_t)
+  - Back to full test coverage for transaction classes
 2006-08-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/Makefile.am:
   - More now-unnecessary output filtering removed
