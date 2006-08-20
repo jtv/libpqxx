@@ -331,7 +331,7 @@ public:
     return cursor_base::fetch(n);
   }
 
-  virtual result fetch(difference_type n, difference_type &d)		//[]
+  virtual result fetch(difference_type n, difference_type &d)		//[t45]
   {
     check_displacement<ACCESS>(n);
     return cursor_base::fetch(n, d);
@@ -358,7 +358,7 @@ public:
 };
 
 
-/// Cursor that knows its position
+/// Cursor that knows its position @warning Experimental; do not use!
 template<cursor_base::accesspolicy ACCESS, cursor_base::updatepolicy UPDATE>
 class absolute_cursor : public basic_cursor<ACCESS,UPDATE>
 {
@@ -378,7 +378,7 @@ public:
    */
   absolute_cursor(transaction_base *t,
       const PGSTD::string &query,
-      const PGSTD::string &cname) :					//[]
+      const PGSTD::string &cname) :					//[t91]
     super(t, query, cname, cursor_base::owned),
     m_pos(0),
     m_size(0),
@@ -386,13 +386,13 @@ public:
   {
   }
 
-  virtual result fetch(difference_type n)				//[]
+  virtual result fetch(difference_type n)				//[t91]
   {
     difference_type m;
-    return fetch(n, m);
+    return absolute_cursor::fetch(n, m);
   }
 
-  virtual difference_type move(difference_type n)			//[]
+  virtual difference_type move(difference_type n)			//[t91]
   {
     difference_type m;
     return move(n, m);
@@ -405,16 +405,17 @@ public:
     return r;
   }
 
-  virtual result fetch(difference_type d, difference_type &m)		//[]
+  virtual result fetch(difference_type d, difference_type &m)		//[t91]
   {
     const result r(super::fetch(d, m));
     digest(d, m);
     return r;
   }
 
-  size_type pos() const throw () { return m_pos; }			//[]
+  size_type pos() const throw () { return m_pos; }			//[t91]
 
-  difference_type move_to(cursor_base::size_type);			//[]
+  difference_type move_to(cursor_base::size_type to)			//[t91]
+	{ return move(difference_type(to)-difference_type(pos())); }
 
 private:
   /// Set result size if appropriate, given requested and actual displacement
