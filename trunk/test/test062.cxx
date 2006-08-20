@@ -1,5 +1,6 @@
 #include <pqxx/compiler-internal.hxx>
 
+#include <cstring>
 #include <iostream>
 
 #include <pqxx/binarystring>
@@ -31,7 +32,13 @@ int main(int, char *argv[])
     work T(C, "test62");
 
     T.exec("CREATE TEMP TABLE pqxxbin (binfield bytea)");
-    const string Esc = T.esc_raw(TestStr);
+
+    const string Esc = T.esc_raw(TestStr),
+      Chk = T.esc_raw(reinterpret_cast<const unsigned char *>(TestStr.c_str()),
+                      strlen(TestStr.c_str()));
+
+    if (Chk != Esc) throw logic_error("Inconsistent results from esc_raw()");
+
     T.exec("INSERT INTO pqxxbin VALUES ('" + Esc + "')");
 
     result R = T.exec("SELECT * from pqxxbin");
