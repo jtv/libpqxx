@@ -1,3 +1,7 @@
+2006-08-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test091.cxx:
+  - Still doesn't work
+  - Now throw exception rather than go into infinite recursion
 2006-08-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, test/test001.cxx, test/test090.cxx:
   - Test new functions protocol_version() and server_version()
