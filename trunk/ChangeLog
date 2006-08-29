@@ -1,11 +1,20 @@
 2006-08-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
- src/connection_base.cxx, src/prepared_statement.cxx,
- src/transaction_base.cxx:
+ include/pqxx/util.hxx, src/connection_base.cxx, src/prepared_statement.cxx,
+ src/transaction_base.cxx, src/util.cxx:
   - Binary args to prepared statements got truncated at 0! Thanks Lumir Vanek
+  - New from_string<>() with length argument
+ include/pqxx/result.hxx:
+  - Use new from_string() for strings
+  - No longer include field names in conversion errors
+ test/test000.cxx:
+  - Test new from_string<>() versions
  test/test091.cxx:
   - Still doesn't work
   - Now throw exception rather than go into infinite recursion
+ test/test092.cxx:
+  - New
+  - Tests nul byte in binary parameter to prepared statement
 2006-08-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, test/test001.cxx, test/test090.cxx:
   - Test new functions protocol_version() and server_version()

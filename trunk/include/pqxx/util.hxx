@@ -149,6 +149,22 @@ template<typename T> PGSTD::string error_ambiguous_string_conversion(T);
  */
 template<typename T> void from_string(const char Str[], T &Obj);
 
+/// Conversion with known string length (for strings that may contain nuls)
+/** This is only used for strings, where embedded nul bytes should not determine
+ * the end of the string.
+ *
+ * For all other types, this just uses the regular, nul-terminated version of
+ * from_string().
+ */
+template<typename T> void from_string(const char Str[], T &Obj, size_t)
+{
+  return from_string(Str, Obj);
+}
+
+template<> void PQXX_LIBEXPORT from_string(const char Str[],
+	PGSTD::string &,
+	size_t);							//[t0]
+
 template<> void PQXX_LIBEXPORT from_string(const char Str[], long &);	//[t45]
 template<>
   void PQXX_LIBEXPORT from_string(const char Str[], unsigned long &);	//[t45]

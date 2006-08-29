@@ -75,6 +75,7 @@ pqxx::result pqxx::prepare::invocation::exec() const
   }
 
   ptrs[elts] = 0;
+  lens[elts] = 0;
   return m_home.prepared_exec(m_statement, ptrs.c_ptr(), lens.c_ptr(), elts);
 }
 

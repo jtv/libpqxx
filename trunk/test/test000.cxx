@@ -143,6 +143,23 @@ int main()
     strconv("string", string(), "");
     strconv("string", weirdstr, weirdstr);
 
+    const char zerobuf[] = "0";
+    string zero;
+    from_string(zerobuf, zero, sizeof(zerobuf)-1);
+    if (zero != zerobuf)
+      throw logic_error("Converting \"0\" with explicit length failed!");
+
+    const char nulbuf[] = "\0string\0with\0nuls\0";
+    const string nully(nulbuf, sizeof(nulbuf)-1);
+    string nully_parsed;
+    from_string(nulbuf, nully_parsed, sizeof(nulbuf)-1);
+    if (nully_parsed != nully)
+      throw logic_error("String with nuls now " +
+	to_string(nully_parsed.size()) + " bytes!");
+    from_string(nully.c_str(), nully_parsed, nully.size());
+    if (nully_parsed != nully)
+      throw logic_error("Nul conversion worked, but not on strings!");
+
     stringstream ss;
     strconv("empty stringstream", ss, "");
     ss << -3.1415;

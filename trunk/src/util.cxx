@@ -94,6 +94,12 @@ template<typename L, typename R>
 
 namespace pqxx
 {
+template<> void from_string(const char Str[], PGSTD::string &Obj, size_t len)
+{
+  Obj = string(Str, len);
+}
+
+
 template<> void from_string(const char Str[], long &Obj)
 {
   int i = 0;
