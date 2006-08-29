@@ -872,12 +872,17 @@ pqxx::result pqxx::connection_base::prepared_exec(
   }
 
 #ifdef PQXX_HAVE_PQEXECPREPARED
+  internal::scoped_array<int> binary(nparams+1);
+  for (int i=0; i<nparams; ++i)
+    binary[i] = (s.parameters[i].treatment == treat_binary);
+  binary[nparams] = 0;
+
   result r(PQexecPrepared(m_Conn,
   	statement.c_str(),
 	nparams,
 	params,
 	paramlengths,
-	0,
+	binary.c_ptr(),
 	0));
 #else
   stringstream Q;

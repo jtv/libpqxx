@@ -53,14 +53,22 @@ enum param_treatment
 
 
 /// Helper class for declaring parameters to prepared statements
+/** You probably won't want to use this class.  It's here just so you can
+ * declare parameters by adding parenthesized declarations directly after the
+ * statement declaration itself:
+ *
+ * @code
+ * C.prepare(name, query)(paramtype1)(paramtype2, treatment)(paramtype3);
+ * @endcode
+ */
 class PQXX_LIBEXPORT declaration
 {
 public:
   declaration(connection_base &, const PGSTD::string &statement);
 
   /// Add a parameter specification to prepared statement declaration
-  const declaration &operator()(const PGSTD::string &sqltype,
-	param_treatment) const;
+  const declaration &
+  operator()(const PGSTD::string &sqltype, param_treatment) const;
 
 private:
   connection_base &m_home;
