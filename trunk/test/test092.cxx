@@ -34,17 +34,17 @@ int main()
 
     const result R( T.exec("SELECT " + Field + " FROM " + Table) );
  
-    const string roundtrip = R[0][0].as<string>();
+    const binarystring roundtrip(R[0][0]);
 
-    if (roundtrip != data)
+    if (string(roundtrip.str()) != data)
       throw logic_error("Sent " + to_string(data.size()) + " bytes "
       	"of binary data, got " + to_string(roundtrip.size()) + " back: "
-	"'" + roundtrip + "'");
+	"'" + roundtrip.str() + "'");
 
-    string tostr;
-    R[0][0].to(tostr);
-    if (tostr != data)
-      throw logic_error("as() succeeded, but to() failed");
+    if (roundtrip.size() != data.size())
+      throw logic_error("Binary string reports wrong size: " +
+	to_string(roundtrip.size()) + " "
+	"(expected " + to_string(data.size()) + ")");
   }
   catch (const sql_error &e)
   {

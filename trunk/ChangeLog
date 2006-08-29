@@ -4,6 +4,8 @@
  src/transaction_base.cxx, src/util.cxx:
   - Binary args to prepared statements got truncated at 0! Thanks Lumir Vanek
   - New from_string<>() with length argument
+ include/pqxx/pqxx:
+  - Also include binarystring
  include/pqxx/result.hxx:
   - Use new from_string() for strings
   - No longer include field names in conversion errors
