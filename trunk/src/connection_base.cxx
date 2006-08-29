@@ -760,14 +760,16 @@ void pqxx::connection_base::unprepare(const PGSTD::string &name)
 #ifndef PQXX_HAVE_PQEXECPREPARED
 namespace
 {
-string escape_param(const char in[], prepare::param_treatment treatment)
+string escape_param(const char in[],
+	int len,
+	prepare::param_treatment treatment)
 {
   if (!in) return "null";
   
   switch (treatment)
   {
   case treat_binary:
-    return "'" + escape_binary(in) + "'";
+    return "'" + escape_binary(string(in,len)) + "'";
 
   case treat_string:
     return "'" + pqxx::internal::escape_string(in, strlen(in)) + "'";
@@ -827,9 +829,11 @@ void pqxx::connection_base::prepare_param_declare(
 }
 
 
+// TODO: Can we make this work with std::string instead of C-style?
 pqxx::result pqxx::connection_base::prepared_exec(
 	const PGSTD::string &statement,
 	const char *const params[],
+	const int paramlengths[],
 	int nparams)
 {
   activate();
@@ -868,7 +872,13 @@ pqxx::result pqxx::connection_base::prepared_exec(
   }
 
 #ifdef PQXX_HAVE_PQEXECPREPARED
-  result r(PQexecPrepared(m_Conn,statement.c_str(),nparams,params,0,0,0));
+  result r(PQexecPrepared(m_Conn,
+  	statement.c_str(),
+	nparams,
+	params,
+	paramlengths,
+	0,
+	0));
 #else
   stringstream Q;
   if (supports(cap_prepared_statements))
@@ -879,7 +889,7 @@ pqxx::result pqxx::connection_base::prepared_exec(
       Q << " (";
       for (int a = 0; a < nparams; ++a)
       {
-	Q << escape_param(params[a],s.parameters[a].treatment);
+	Q << escape_param(params[a],paramlengths[a],s.parameters[a].treatment);
 	if (a < nparams-1) Q << ',';
       }
       Q << ')';
@@ -893,7 +903,9 @@ pqxx::result pqxx::connection_base::prepared_exec(
     for (int n = nparams-1; n >= 0; --n)
     {
       const string key = "$" + to_string(n+1),
-	           val = escape_param(params[n],s.parameters[n].treatment);
+	           val = escape_param(params[n],
+		   		paramlengths[n],
+				s.parameters[n].treatment);
       const string::size_type keysz = key.size();
       for (string::size_type h=S.find(key); h!=string::npos; h=S.find(key))
 	S.replace(h,keysz,val);

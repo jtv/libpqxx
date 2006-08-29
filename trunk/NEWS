@@ -1,4 +1,5 @@
 2.6.8
+ - Fixes bug: binary parameters to prepared statements truncated at nul bytes
  - New, more specific exception types to distinguish errors from server
  - Resolved serious problems with generated reference documentation
  - Automatically detect Windows socket library with MinGW
