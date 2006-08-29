@@ -256,9 +256,10 @@ pqxx::transaction_base::prepared(const PGSTD::string &statement)
 pqxx::result pqxx::transaction_base::prepared_exec(
 	const PGSTD::string &statement,
 	const char *const params[],
+	const int paramlengths[],
 	int nparams)
 {
-  return m_Conn.prepared_exec(statement, params, nparams);
+  return m_Conn.prepared_exec(statement, params, paramlengths, nparams);
 }
 
 

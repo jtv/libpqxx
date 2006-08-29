@@ -57,15 +57,25 @@ pqxx::result pqxx::prepare::invocation::exec() const
 {
   const size_t elts = m_nonnull.size();
   pqxx::internal::scoped_array<const char *> ptrs(elts+1);
+  pqxx::internal::scoped_array<int> lens(elts+1);
   int v = 0;
   for (size_t i = 0; i < elts; ++i)
   {
-    if (m_nonnull[i]) ptrs[i] = m_values[v++].c_str();
-    else ptrs[i] = 0;
+    if (m_nonnull[i])
+    {
+      ptrs[i] = m_values[v].c_str();
+      lens[i] = m_values[v].size();
+      ++v;
+    }
+    else
+    {
+      ptrs[i] = 0;
+      lens[i] = 0;
+    }
   }
 
   ptrs[elts] = 0;
-  return m_home.prepared_exec(m_statement, ptrs.c_ptr(), elts);
+  return m_home.prepared_exec(m_statement, ptrs.c_ptr(), lens.c_ptr(), elts);
 }
 
 

@@ -654,7 +654,10 @@ private:
       const PGSTD::string &sqltype,
       prepare::param_treatment);
 
-  result prepared_exec(const PGSTD::string &, const char *const params[], int);
+  result prepared_exec(const PGSTD::string &,
+	const char *const[],
+	const int[],
+	int);
 
   /// Connection handle
   internal::pq::PGconn *m_Conn;

@@ -387,7 +387,10 @@ private:
   bool is_busy() const throw () { return m_Conn.is_busy(); }
 
   friend class prepare::invocation;
-  result prepared_exec(const PGSTD::string &, const char *const[], int);
+  result prepared_exec(const PGSTD::string &,
+  	const char *const[],
+	const int[],
+	int);
 
   connection_base &m_Conn;
 
