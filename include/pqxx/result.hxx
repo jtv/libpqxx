@@ -314,17 +314,9 @@ public:
     /// Read value into Obj; or leave Obj untouched and return @c false if null
     template<typename T> bool to(T &Obj) const				//[t3]
     {
-      if (is_null()) return false;
-      try
-      {
-        from_string(c_str(), Obj);
-      }
-      catch (const PGSTD::exception &e)
-      {
-        throw PGSTD::domain_error("Error reading field " +
-			          PGSTD::string(name()) + ": " +
-				  e.what());
-      }
+      const char *const bytes = c_str();
+      if (!bytes[0] && is_null()) return false;
+      from_string(bytes, Obj);
       return true;
     }
 
@@ -931,20 +923,21 @@ inline STREAM &operator<<(STREAM &S, const pqxx::result::field &F)	//[t46]
 /// Convert a field's string contents to another type
 template<typename T>
 inline void from_string(const result::field &F, T &Obj)			//[t46]
-	{ from_string(F.c_str(), Obj); }
+	{ from_string(F.c_str(), Obj, F.size()); }
 
 /// Convert a field to a string
 template<>
 inline PGSTD::string to_string(const result::field &Obj)		//[t74]
-	{ return to_string(Obj.c_str()); }
+	{ return PGSTD::string(Obj.c_str(), Obj.size()); }
 
 
 /// Specialization: <tt>to(string &)</tt>.
 template<>
 inline bool result::field::to<PGSTD::string>(PGSTD::string &Obj) const
 {
-  if (is_null()) return false;
-  Obj = c_str();
+  const char *const bytes = c_str();
+  if (!bytes[0] && is_null()) return false;
+  Obj = PGSTD::string(bytes, size());
   return true;
 }
 
