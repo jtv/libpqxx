@@ -25,7 +25,7 @@ using namespace pqxx;
 
 namespace
 {
-template<typename VEC, typename VAL> 
+template<typename VEC, typename VAL>
 void InitVector(VEC &V, typename VEC::size_type s, VAL val)
 {
   V.resize(s);
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     for (result::const_iterator i = R.begin(); i != R.end(); i++)
     {
       if ((*i).rownumber() != i->rownumber())
-	throw logic_error("Inconsistent rows: operator*() says " + 
+	throw logic_error("Inconsistent rows: operator*() says " +
 			  to_string((*i).rownumber()) + ", "
 			  "operator->() says " +
 			  to_string(i->rownumber()));
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
 	  throw logic_error("Difference between iterator and successor is " +
 			    to_string(j-i));
 
-	if ((j == i) || !(j != i) || 
+	if ((j == i) || !(j != i) ||
 	    (j >= i) || (j > i) ||
 	    (i <= j) || (i < j) ||
 	    !(j <= i) || !(j < i))
@@ -147,8 +147,8 @@ int main(int argc, char *argv[])
       cout << to_string(f) << ":\t"
 	   << R.column_name(f) << '\t'
 	   << NullFields[f] << '\t'
-	   << (SortedUp[f] ? 
-		(SortedDown[f] ? "equal" : "up" ) : 
+	   << (SortedUp[f] ?
+		(SortedDown[f] ? "equal" : "up" ) :
 		(SortedDown[f] ? "down" : "no" ) )
 	   << endl;
 

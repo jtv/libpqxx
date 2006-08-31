@@ -26,7 +26,7 @@ int main(int, char *argv[])
     connection C(argv[1]);
     nontransaction T(C, "test77");
     result RFalse = T.exec("SELECT 1=0"),
-    	   RTrue  = T.exec("SELECT 1=1");
+	   RTrue  = T.exec("SELECT 1=1");
     bool f, t;
     from_string(RFalse[0][0], f);
     from_string(RTrue[0][0],  t);

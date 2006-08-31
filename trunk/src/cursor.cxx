@@ -30,7 +30,7 @@ namespace
 {
 /// Compute actual displacement based on requested and reported displacements
 pqxx::cursor_base::difference_type adjust(
-    pqxx::cursor_base::difference_type d, 
+    pqxx::cursor_base::difference_type d,
     pqxx::cursor_base::difference_type r)
 {
   const pqxx::cursor_base::difference_type hoped = labs(d);
@@ -170,7 +170,7 @@ void pqxx::cursor_base::close() throw ()
 pqxx::result pqxx::cursor_base::fetch(difference_type n)
 {
   result r;
-  if (n) 
+  if (n)
   {
     // We cache the last-executed fetch query.  If the current fetch uses the
     // same distance, we just re-use the cached string instead of composing a

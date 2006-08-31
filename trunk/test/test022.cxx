@@ -12,7 +12,7 @@ using namespace pqxx;
 
 
 // Test program for libpqxx.  Read list of tables through a cursor, starting
-// with a deferred connection.  Default blocksize is 1; use 0 to read all rows 
+// with a deferred connection.  Default blocksize is 1; use 0 to read all rows
 // at once.  Negative blocksizes read backwards.
 //
 // Usage: test022 [connect-string] [blocksize]

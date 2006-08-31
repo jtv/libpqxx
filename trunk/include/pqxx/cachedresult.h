@@ -66,12 +66,12 @@ public:
 
   /** Perform query and transparently fetch and cache resulting data.
    * @param T is the transaction context in which the cachedresult lives.  This
-   * 	will be used whenever data is fetched.  Must have isolation level
-   * 	"serializable," otherwise a build error will be generated for the symbol
-   * 	error_permitted_isolation_level.
+   *	will be used whenever data is fetched.  Must have isolation level
+   *	"serializable," otherwise a build error will be generated for the symbol
+   *	error_permitted_isolation_level.
    * @param Query is the SQL query that yields the desired result set.
    * @param BaseName gives the initial part of the name for this cachedresult
-   * 	and the Cursor it uses to obtain its results.
+   *	and the Cursor it uses to obtain its results.
    * @param Granularity determines how large the blocks of data used internally
    * will be; must be at least 2.
    */
@@ -102,7 +102,7 @@ public:
    * @param i the number of the tuple to be accessed.
    */
   const tuple operator[](size_type i) const				//[t41]
-  	{ return GetBlock(BlockFor(i))[Offset(i)]; }
+	{ return GetBlock(BlockFor(i))[Offset(i)]; }
 
   /// Access a tuple.  Throws exception if index is out of range.
   /**
@@ -117,7 +117,7 @@ public:
    * @param i the number of the tuple to be accessed.
    */
    const tuple at(size_type i) const					//[t40]
-  	{ return GetBlock(BlockFor(i)).at(Offset(i)); }
+	{ return GetBlock(BlockFor(i)).at(Offset(i)); }
 
   /// Number of rows in result set.  First call may be slow.
   size_type size() const;						//[t40]
@@ -140,11 +140,11 @@ private:
   void init();
 
   blocknum BlockFor(size_type Row) const throw ()
-  	{ return Row / m_Granularity; }
+	{ return Row / m_Granularity; }
   size_type Offset(size_type Row) const throw ()
-  	{ return Row % m_Granularity; }
+	{ return Row % m_Granularity; }
   Cursor::size_type FirstRowOf(blocknum Block) const throw ()
-    	{ return Block*m_Granularity; }
+	{ return Block*m_Granularity; }
 
   void MoveTo(blocknum) const;
 

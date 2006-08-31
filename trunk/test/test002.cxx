@@ -60,7 +60,7 @@ int main(int, char *argv[])
     // we could in this case even omit it altogether.
     T.commit();
 
-    // Since we don't need the database anymore, we can be even more 
+    // Since we don't need the database anymore, we can be even more
     // considerate and close the connection now.  This is optional.
     C.disconnect();
 
@@ -76,7 +76,7 @@ int main(int, char *argv[])
     if (crtable != rtable)
       throw logic_error("Field " + rcol + " comes from "
                         "'" + to_string(rtable) + "', "
-	  		"but by name, result says it's from "
+			"but by name, result says it's from "
                         "'" + to_string(crtable) + "'");
 #endif
 
@@ -97,11 +97,11 @@ int main(int, char *argv[])
       if (ttable != rtable)
 	throw logic_error("Tuple says field comes from "
                           "'" + to_string(ttable) + "'; "
-	    		  "expected '" + to_string(rtable) + "'");
+			  "expected '" + to_string(rtable) + "'");
       const oid cttable = R[i].column_table(rcol);
       if (cttable != rtable)
 	throw logic_error("Field comes from '" + to_string(rtable) + "', "
-	                  "but by name, tuple says it's from '" + 
+	                  "but by name, tuple says it's from '" +
 			  to_string(cttable) + "'");
 #endif
     }

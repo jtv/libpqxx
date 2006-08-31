@@ -15,7 +15,7 @@ using namespace pqxx;
 
 
 // "Adopted SQL cursor" test program for libpqxx.  Create SQL cursor, wrap it in
-// a cursor object.  Then scroll it back and forth and check for consistent 
+// a cursor object.  Then scroll it back and forth and check for consistent
 // results.
 //
 // Usage: test045 [connect-string]
@@ -58,7 +58,7 @@ int main(int, char *argv[])
     // Count rows.
     result R( T.exec("SELECT count(*) FROM " + Table) );
 
-    if (R.at(0).at(0).as<long>() <= 10) 
+    if (R.at(0).at(0).as<long>() <= 10)
       throw runtime_error("Not enough rows in '" + Table + "' "
 		          "for serious testing.  Sorry.");
 
@@ -119,7 +119,7 @@ int main(int, char *argv[])
     R = Cur.fetch(GetRows, offset);
     if (offset > GetRows)
       throw logic_error("Fetched " + to_string(GetRows) + " rows, "
-      	"but displacement was " + to_string(offset));
+	"but displacement was " + to_string(offset));
     if (result::size_type(offset) != R.size())
       throw logic_error("Received " + to_string(R.size()) + " rows, "
 	"but displacement was " + to_string(offset));
@@ -178,7 +178,7 @@ int main(int, char *argv[])
 		        "as they were read forwards!");
 
     R = Cur.fetch(cursor_base::next());
-    if (R.size() != 1) 
+    if (R.size() != 1)
       throw logic_error("NEXT: wanted 1 row, got " + to_string(R.size()));
     const string Row = R[0][0].c_str();
 

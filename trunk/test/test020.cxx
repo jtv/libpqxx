@@ -10,7 +10,7 @@ using namespace pqxx;
 
 
 // Test program for libpqxx.  Modify the database inside a NonTransaction, and
-// verify that the change gets made regardless of whether the NonTransaction is 
+// verify that the change gets made regardless of whether the NonTransaction is
 // eventually committed or aborted.
 //
 // Usage: test020 [connect-string] [table]
@@ -20,7 +20,7 @@ using namespace pqxx;
 // called template1, or "host=foo.bar.net user=smith" to connect to a
 // backend running on host foo.bar.net, logging in as user smith.
 //
-// The table argument is the table being modified.  This defaults to 
+// The table argument is the table being modified.  This defaults to
 // "pqxxevents".
 // It is assumed to consist of an integer key called year, and a string.
 namespace
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     result R( T1.exec(("SELECT * FROM " + Table + " "
 	               "WHERE year=" + to_string(BoringYear)).c_str()) );
     if (R.size() != 0)
-      throw runtime_error("There is already a record for " + 
+      throw runtime_error("There is already a record for " +
 	                  to_string(BoringYear) + ". "
 		          "Can't run test.");
 
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
     R = T2.exec(("SELECT * FROM " + Table + " "
 		 "WHERE year=" + to_string(BoringYear)).c_str());
     if (R.size() != 1)
-      throw runtime_error("Expected to find 1 record for " + 
+      throw runtime_error("Expected to find 1 record for " +
 		          to_string(BoringYear) + ", found " +
 			  to_string(R.size()) + ". "
 			  "This could be a bug in libpqxx, "

@@ -36,7 +36,7 @@ private:
 class ReadLargeObject : public transactor<>
 {
 public:
-  explicit ReadLargeObject(largeobject &O) : 
+  explicit ReadLargeObject(largeobject &O) :
     transactor<>("ReadLargeObject"),
     m_Object(O)
   {
@@ -48,7 +48,7 @@ public:
     largeobjectaccess O(T, m_Object, ios::in);
     Buf[O.read(Buf, sizeof(Buf)-1)] = '\0';
     if (Contents != Buf)
-      throw runtime_error("Expected large object #" + 
+      throw runtime_error("Expected large object #" +
 	                  to_string(m_Object.id()) + " "
 			  "to contain '" + Contents + "', "
 			  "but found '" + Buf + "'");

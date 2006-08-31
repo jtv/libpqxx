@@ -42,11 +42,11 @@ namespace pqxx
  * body of code in the connection_base class which might otherwise lead to
  * unacceptable code duplication.
  */
-template<typename CONNECTPOLICY> class basic_connection : 
+template<typename CONNECTPOLICY> class basic_connection :
   public connection_base
 {
 public:
-  basic_connection() : 
+  basic_connection() :
     connection_base(m_policy),
     m_options(PGSTD::string()),
     m_policy(m_options)

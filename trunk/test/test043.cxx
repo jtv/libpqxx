@@ -16,7 +16,7 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-// Cursor test program for libpqxx.  Scan through a table using a cursor, and 
+// Cursor test program for libpqxx.  Scan through a table using a cursor, and
 // verify that correct cursor positions are being reported.
 //
 // Usage: test043 [connect-string]
@@ -65,7 +65,7 @@ int main(int, char *argv[])
     int Rows;
     R.at(0).at(0).to(Rows);
 
-    if (Rows <= 10) 
+    if (Rows <= 10)
       throw runtime_error("Not enough rows in '" + Table + "' "
 		          "for serious testing.  Sorry.");
 
@@ -86,7 +86,7 @@ int main(int, char *argv[])
     MoveTo(Cur, Cursor::BACKWARD_ALL(), 0);
 
     R = Cur.Fetch(Cursor::NEXT());
-    if (R.size() != 1) 
+    if (R.size() != 1)
       throw logic_error("NEXT: wanted 1 row, got " + to_string(R.size()));
     ExpectPos(Cur, 1);
 

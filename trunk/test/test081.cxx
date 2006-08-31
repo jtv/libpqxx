@@ -25,7 +25,7 @@ namespace
 void cmp_results(const result &org, result::size_type &here, const result &part)
 {
   if (here + part.size() > org.size())
-    throw logic_error("Cursor returned more than expected " + 
+    throw logic_error("Cursor returned more than expected " +
 	to_string(org.size()) + " rows");
   if (part[0].size() != org[0].size())
     throw logic_error("Expected " + to_string(org[0].size()) + " columns, "
@@ -107,7 +107,7 @@ int main(int, char *argv[])
     icursorstream Cur1(T, Query, "singlestep", cursor_base::next());
 
     if (Cur1.stride() != cursor_base::next())
-      throw logic_error("Expected stride to be " + 
+      throw logic_error("Expected stride to be " +
 	  to_string(cursor_base::next()) + ", found " +
 	  to_string(Cur1.stride()));
 
@@ -122,7 +122,7 @@ int main(int, char *argv[])
     Cur2.set_stride(cursor_base::all());
 
     if (Cur2.stride() != cursor_base::all())
-      throw logic_error("Expected stride to be " + 
+      throw logic_error("Expected stride to be " +
 	  to_string(cursor_base::all()) + ", found " +
 	  to_string(Cur2.stride()));
 
@@ -158,7 +158,7 @@ int main(int, char *argv[])
       throw runtime_error("Could not skip " + to_string(rows-1) + " rows");
     if (!Cur5.get(R))
       throw runtime_error("Expected " + to_string(rows) + " rows, got " +
-	  	to_string(rows-1));
+		to_string(rows-1));
     if (R.empty())
       throw runtime_error("Unexpected empty result at last row");
     if (Cur5.get(R))

@@ -78,7 +78,7 @@ public:
   /** The field will be zero-terminated, even if the original bytea field isn't.
    * @param F the field to read; must be a bytea field
    */
-  explicit binarystring(const result::field &F); 			//[t62]
+  explicit binarystring(const result::field &F);			//[t62]
 
   /// Size of converted string in bytes
   size_type size() const throw () { return m_size; }			//[t62]
@@ -93,21 +93,21 @@ public:
   const_reference back() const throw () { return *(data()+m_size-1); }	//[t62]
 
 #ifdef PQXX_HAVE_REVERSE_ITERATOR
-  const_reverse_iterator rbegin() const 				//[t62]
-  	{ return const_reverse_iterator(end()); }
-  const_reverse_iterator rend() const 					//[t62]
-  	{ return const_reverse_iterator(begin()); }
+  const_reverse_iterator rbegin() const					//[t62]
+	{ return const_reverse_iterator(end()); }
+  const_reverse_iterator rend() const					//[t62]
+	{ return const_reverse_iterator(begin()); }
 #endif
 
   /// Unescaped field contents
   const value_type *data() const throw () {return super::c_ptr();}	//[t62]
 
-  const_reference operator[](size_type i) const throw () 		//[t62]
-  	{ return data()[i]; }
+  const_reference operator[](size_type i) const throw ()		//[t62]
+	{ return data()[i]; }
 
   bool operator==(const binarystring &) const throw ();			//[t62]
   bool operator!=(const binarystring &rhs) const throw ()		//[t62]
-  	{ return !operator==(rhs); }
+	{ return !operator==(rhs); }
 
   /// Index contained string, checking for valid index
   const_reference at(size_type) const;					//[t62]
@@ -119,7 +119,7 @@ public:
   /** @warning No terminating zero is added!  If the binary data did not end in
    * a null character, you will not find one here.
    */
-  const char *c_ptr() const throw () 					//[t62]
+  const char *c_ptr() const throw ()					//[t62]
   {
     return reinterpret_cast<char *>(super::c_ptr());
   }

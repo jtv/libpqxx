@@ -156,7 +156,7 @@ pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T, openmode mode) :
 
 
 pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
-    					   oid O,
+					   oid O,
 					   openmode mode) :
   largeobject(O),
   m_Trans(T),
@@ -167,7 +167,7 @@ pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
 
 
 pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
-    					   largeobject O,
+					   largeobject O,
 					   openmode mode) :
   largeobject(O),
   m_Trans(T),

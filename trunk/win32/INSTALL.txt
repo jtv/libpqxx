@@ -142,7 +142,7 @@ libpqxx (based on description by Alexandre Hanft, 2006-03-06):
     it properly, change them to pass a connection string where it connects to
     any databases, and include your user's configuration settings.  A typical
     connection string setting all parameters named above might look like:
-    	"dbname=testbase user=testuser host=my.dbserver.somewhere.com"
+	"dbname=testbase user=testuser host=my.dbserver.somewhere.com"
 14) For any other problems, please check the project homepage as listed in the
     main libpqxx README file.
 

@@ -35,7 +35,7 @@ public:
     m_Done = true;
     if (be_pid != Conn().backendpid())
       throw logic_error("Expected notification from backend process " +
-		        to_string(Conn().backendpid()) + 
+		        to_string(Conn().backendpid()) +
 			", but got one from " +
 			to_string(be_pid));
 
@@ -52,7 +52,7 @@ class Notify : public transactor<>
   string m_Trigger;
 
 public:
-  explicit Notify(string TrigName) : 
+  explicit Notify(string TrigName) :
     transactor<>("Notifier"), m_Trigger(TrigName) { }
 
   void operator()(argument_type &T)
@@ -98,7 +98,7 @@ int main()
     }
     cout << endl;
 
-    if (!Trig.Done()) 
+    if (!Trig.Done())
     {
       cout << "No notification received!" << endl;
       return 1;

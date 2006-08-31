@@ -239,7 +239,7 @@ private:
 #if !defined(_MSC_VER)
 template<> void
   cursor_base::check_displacement<cursor_base::forward_only>(difference_type)
-  	const;
+	const;
 #endif
 
 
@@ -421,7 +421,7 @@ public:
 	{ return move(difference_type(to)-difference_type(pos())); }
 
   difference_type move_to(cursor_base::size_type to,			//[t91]
-  	cursor_base::difference_type &d)
+	cursor_base::difference_type &d)
 	{ return move(difference_type(to)-difference_type(pos()), d); }
 private:
   /// Set result size if appropriate, given requested and actual displacement
@@ -513,7 +513,7 @@ public:
    */
   icursorstream(transaction_base &Context,
       const result::field &Name,
-      difference_type Stride=1); 					//[t84]
+      difference_type Stride=1);					//[t84]
 
   /// Read new value into given result object; same as operator >>
   /** The result set may continue any number of rows from zero to the chosen
@@ -592,7 +592,7 @@ private:
  */
 class PQXX_LIBEXPORT icursor_iterator :
   public PGSTD::iterator<PGSTD::input_iterator_tag,
-  	result,
+	result,
 	cursor_base::size_type,
 	const result *,
 	const result &>
@@ -616,7 +616,7 @@ public:
 
   bool operator==(const icursor_iterator &rhs) const;			//[t84]
   bool operator!=(const icursor_iterator &rhs) const throw ()		//[t84]
-  	{ return !operator==(rhs); }
+	{ return !operator==(rhs); }
   bool operator<(const icursor_iterator &rhs) const;			//[t84]
   bool operator>(const icursor_iterator &rhs) const			//[t84]
 	{ return rhs < *this; }

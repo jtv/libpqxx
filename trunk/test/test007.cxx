@@ -21,9 +21,9 @@ using namespace pqxx;
 // called template1, or "host=foo.bar.net user=smith" to connect to a
 // backend running on host foo.bar.net, logging in as user smith.
 //
-// This assumes the existence of a database table "pqxxevents" containing a 
-// 2-digit "year" field, which is extended to a 4-digit format by assuming all 
-// year numbers of 70 or higher are in the 20th century, and all others in the 
+// This assumes the existence of a database table "pqxxevents" containing a
+// 2-digit "year" field, which is extended to a 4-digit format by assuming all
+// year numbers of 70 or higher are in the 20th century, and all others in the
 // 21st, and that no years before 1970 are possible.
 
 namespace
@@ -75,7 +75,7 @@ public:
     const oid rcctype = R.column_type(rcol);
     if (rcctype != rctype)
       throw logic_error("Column has type " + rct + ", "
-	  		"but by name, it's " + to_string(rcctype));
+			"but by name, it's " + to_string(rcctype));
     const oid rawrcctype = R.column_type(rcol.c_str());
     if (rawrcctype != rctype)
       throw logic_error("Column has type " + rct + ", "
@@ -100,16 +100,16 @@ public:
       const oid ctctype = r->column_type(rcol);
       if (ctctype != rctype)
 	throw logic_error("Column has type " + rct + ", "
-	    		  "but by name, tuple says it's " + to_string(ctctype));
+			  "but by name, tuple says it's " + to_string(ctctype));
       const oid rawctctype = r->column_type(rcol.c_str());
       if (rawctctype != rctype)
 	throw logic_error("Column has type " + rct + ", "
-	    		  "but by C-style name, tuple says it's " + 
+			  "but by C-style name, tuple says it's " +
 			  to_string(rawctctype));
       const oid fctype = r[0].type();
       if (fctype != rctype)
 	throw logic_error("Column has type " + rct + ", "
-	    		  "but field says it's " + to_string(fctype));
+			  "but field says it's " + to_string(fctype));
     }
 
     result::size_type AffectedRows = 0;

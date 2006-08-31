@@ -116,7 +116,7 @@ public:
   explicit integrity_constraint_violation(const PGSTD::string &err) :
 	sql_error(err) {}
   integrity_constraint_violation(const PGSTD::string &err,
-  	const PGSTD::string &Q) :
+	const PGSTD::string &Q) :
 	sql_error(err, Q) {}
 };
 

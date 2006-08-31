@@ -18,19 +18,19 @@ using namespace pqxx;
 //
 // Where connect-string is a set of connection options in PostgreSQL's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a backend 
+// called template1, or "host=foo.bar.net user=smith" to connect to a backend
 // running on host foo.bar.net, logging in as user smith.
 //
 // The default table name is "pqxxevents" as used by other test programs.
 // PostgreSQL currently implements pg_tables as a view, which cannot be read by
-// using the COPY command.  Otherwise, pg_tables would have made a better 
+// using the COPY command.  Otherwise, pg_tables would have made a better
 // default value here.
 int main(int, char *argv[])
 {
   try
   {
     const string Table = "pqxxevents";
-    
+
     items<> Columns("year","event");
     items<> RevColumns;
     RevColumns("event")("year");
@@ -71,7 +71,7 @@ int main(int, char *argv[])
       Verify.tokenize(Line, R);
       const vector<string> &Rconst(R);
       vector<string> S;
-      for (vector<string>::const_reverse_iterator i = Rconst.rbegin(); 
+      for (vector<string>::const_reverse_iterator i = Rconst.rbegin();
 	   i != Rconst.rend();
 	   ++i)
 	S.push_back(*i);

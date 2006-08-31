@@ -102,7 +102,7 @@ public:
    * to subsequent queries.
    */
   result retrieve(query_id qid)						//[t71]
-  	{ return retrieve(m_queries.find(qid)).second; }
+	{ return retrieve(m_queries.find(qid)).second; }
 
   /// Retrieve oldest unretrieved result (possibly wait for one)
   /** @return The query's identifier and its result set */
@@ -122,7 +122,7 @@ public:
    * cause queries to be issued immediately
    * @return Old retention capacity
    */
-  int retain(int retain_max=2); 					//[t70]
+  int retain(int retain_max=2);						//[t70]
 
 
   /// Resume retained query emission (harmless when not needed)
@@ -166,7 +166,7 @@ private:
   query_id PQXX_PRIVATE generate_id();
 
   bool have_pending() const throw ()
-  	{ return m_issuedrange.second != m_issuedrange.first; }
+	{ return m_issuedrange.second != m_issuedrange.first; }
 
   void PQXX_PRIVATE issue();
 

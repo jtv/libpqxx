@@ -21,7 +21,7 @@ void TestPipeline(pipeline &P, int numqueries)
     for (int i=numqueries; i; --i) P.insert(Q);
     P.resume();
 
-    if (numqueries && P.empty()) 
+    if (numqueries && P.empty())
       throw logic_error("Pipeline is inexplicably empty");
 
     int res = 0;
@@ -31,7 +31,7 @@ void TestPipeline(pipeline &P, int numqueries)
 
     for (int i=numqueries; i; --i)
     {
-      if (P.empty()) 
+      if (P.empty())
 	throw logic_error("Got " + to_string(numqueries-i) + " "
 	    "results from pipeline; expected " + to_string(numqueries));
 
@@ -62,7 +62,7 @@ void TestPipeline(pipeline &P, int numqueries)
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a backend 
+// called template1, or "host=foo.bar.net user=smith" to connect to a backend
 // running on host foo.bar.net, logging in as user smith.
 int main(int, char *argv[])
 {
@@ -110,7 +110,7 @@ int main(int, char *argv[])
       failed = true;
       cout << "(Expected) " << e.what() << endl;
     }
-    if (!failed) 
+    if (!failed)
       throw logic_error("retrieve() from empty pipeline failed to complain");
   }
   catch (const sql_error &e)

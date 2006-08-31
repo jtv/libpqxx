@@ -75,7 +75,7 @@ public:
    * values (see below):
    *
    * @code
-   * 	cout << tuple["date"].c_str() << ": " << tuple["name"].c_str() << endl;
+   *	cout << tuple["date"].c_str() << ": " << tuple["name"].c_str() << endl;
    * @endcode
    *
    * The tuple itself acts like a (non-modifyable) container, complete with its
@@ -244,7 +244,7 @@ public:
      * @param T Tuple that this field is part of.
      * @param C Column number of this field.
      */
-    field(const tuple &T, tuple::size_type C) throw () : 		//[t1]
+    field(const tuple &T, tuple::size_type C) throw () :		//[t1]
 	m_tup(T), m_col(C) {}
 
     /**
@@ -284,7 +284,7 @@ public:
     const char *name() const { return home()->column_name(col()); }	//[t11]
 
     /// Column type
-    oid type() const { return home()->column_type(col()); } 		//[t7]
+    oid type() const { return home()->column_type(col()); }		//[t7]
 
     /// What table did this column come from?  Requires PostgreSQL 7.4 C API.
     /** Only defined if the libpqxx library was compiled against a libpq
@@ -306,7 +306,7 @@ public:
     /// Read as plain C string
     /** Since the field's data is stored internally in the form of a
      * zero-terminated C string, this is the fastest way to read it.  Use the
-     * to() or as() functions to convert the string to other types such as 
+     * to() or as() functions to convert the string to other types such as
      * @c int, or to C++ strings.
      */
     const char *c_str() const { return home()->GetValue(idx(),col()); }	//[t2]
@@ -386,8 +386,9 @@ public:
   typedef PGSTD::iterator<PGSTD::random_access_iterator_tag,
                            const tuple,
                            result::difference_type,
-    			   const_iterator,
-    			   tuple> const_iterator_base;
+			   const_iterator,
+			   tuple>
+	const_iterator_base;
 
   /// Iterator for rows (tuples) in a query result set.
   /** A result, once obtained, cannot be modified.  Therefore there is no
@@ -435,9 +436,9 @@ public:
     const_iterator operator--(int);					//[t12]
     const_iterator &operator--() { --m_Index; return *this; }		//[t12]
 
-    const_iterator &operator+=(difference_type i) 			//[t12]
+    const_iterator &operator+=(difference_type i)			//[t12]
 	{ m_Index+=i; return *this; }
-    const_iterator &operator-=(difference_type i) 			//[t12]
+    const_iterator &operator-=(difference_type i)			//[t12]
 	{ m_Index-=i; return *this; }
     //@}
 
@@ -445,17 +446,17 @@ public:
      * @name Comparisons
      */
     //@{
-    bool operator==(const const_iterator &i) const 			//[t12]
+    bool operator==(const const_iterator &i) const			//[t12]
 	{return m_Index==i.m_Index;}
-    bool operator!=(const const_iterator &i) const 			//[t12]
+    bool operator!=(const const_iterator &i) const			//[t12]
 	{return m_Index!=i.m_Index;}
-    bool operator<(const const_iterator &i) const   			//[t12]
- 	{return m_Index<i.m_Index;}
-    bool operator<=(const const_iterator &i) const 			//[t12]
+    bool operator<(const const_iterator &i) const			//[t12]
+	{return m_Index<i.m_Index;}
+    bool operator<=(const const_iterator &i) const			//[t12]
 	{return m_Index<=i.m_Index;}
-    bool operator>(const const_iterator &i) const   			//[t12]
+    bool operator>(const const_iterator &i) const			//[t12]
 	{return m_Index>i.m_Index;}
-    bool operator>=(const const_iterator &i) const 			//[t12]
+    bool operator>=(const const_iterator &i) const			//[t12]
 	{return m_Index>=i.m_Index;}
     //@}
 
@@ -473,7 +474,7 @@ public:
   private:
     friend class pqxx::result;
     const_iterator(const pqxx::result *r, result::size_type i) throw () :
-  	tuple(r, i) {}
+	tuple(r, i) {}
   };
 
   class PQXX_LIBEXPORT const_reverse_iterator : private const_iterator
@@ -495,7 +496,7 @@ public:
 
     const_reverse_iterator(const const_reverse_iterator &rhs) :		//[t75]
       const_iterator(rhs) {}
-    explicit const_reverse_iterator(const const_iterator &rhs) : 	//[t75]
+    explicit const_reverse_iterator(const const_iterator &rhs) :	//[t75]
       const_iterator(rhs) { super::operator--(); }
 
     iterator_type base() const throw ();				//[t75]
@@ -504,10 +505,10 @@ public:
      * @name Dereferencing operators
      */
     //@{
-    using const_iterator::operator->;	 				//[t75]
+    using const_iterator::operator->;					//[t75]
     using const_iterator::operator*;					//[t75]
     //@}
- 
+
     /**
      * @name Manipulations
      */
@@ -517,7 +518,7 @@ public:
     const_reverse_iterator operator++()					//[t75]
 	{ iterator_type::operator--(); return *this; }
     const_reverse_iterator operator++(int);				//[t75]
-    const_reverse_iterator &operator--() 				//[t75]
+    const_reverse_iterator &operator--()				//[t75]
 	{ iterator_type::operator++(); return *this; }
     const_reverse_iterator operator--(int);				//[t75]
     const_reverse_iterator &operator+=(difference_type i)		//[t75]
@@ -547,13 +548,13 @@ public:
     bool operator!=(const const_reverse_iterator &rhs) const throw ()	//[t75]
 	{ return !operator==(rhs); }
 
-    bool operator<(const const_reverse_iterator &rhs) const 		//[t75]
+    bool operator<(const const_reverse_iterator &rhs) const		//[t75]
 	{ return iterator_type::operator>(rhs); }
-    bool operator<=(const const_reverse_iterator &rhs) const 		//[t75]
+    bool operator<=(const const_reverse_iterator &rhs) const		//[t75]
 	{ return iterator_type::operator>=(rhs); }
-    bool operator>(const const_reverse_iterator &rhs) const 		//[t75]
+    bool operator>(const const_reverse_iterator &rhs) const		//[t75]
 	{ return iterator_type::operator<(rhs); }
-    bool operator>=(const const_reverse_iterator &rhs) const 		//[t75]
+    bool operator>=(const const_reverse_iterator &rhs) const		//[t75]
 	{ return iterator_type::operator<=(rhs); }
     //@}
   };
@@ -565,7 +566,7 @@ public:
     public field
   {
     typedef PGSTD::iterator<PGSTD::random_access_iterator_tag,
-  				  const field,
+				  const field,
 				  tuple::size_type> it;
   public:
     using it::pointer;
@@ -594,9 +595,9 @@ public:
     const_fielditerator operator--(int);				//[t82]
     const_fielditerator &operator--() { --m_col; return *this; }	//[t82]
 
-    const_fielditerator &operator+=(difference_type i) 			//[t82]
+    const_fielditerator &operator+=(difference_type i)			//[t82]
 	{ m_col+=i; return *this; }
-    const_fielditerator &operator-=(difference_type i) 			//[t82]
+    const_fielditerator &operator-=(difference_type i)			//[t82]
 	{ m_col-=i; return *this; }
     //@}
 
@@ -604,17 +605,17 @@ public:
      * @name Comparisons
      */
     //@{
-    bool operator==(const const_fielditerator &i) const 		//[t82]
+    bool operator==(const const_fielditerator &i) const			//[t82]
 	{return col()==i.col();}
-    bool operator!=(const const_fielditerator &i) const 		//[t82]
+    bool operator!=(const const_fielditerator &i) const			//[t82]
 	{return col()!=i.col();}
-    bool operator<(const const_fielditerator &i) const  		//[t82]
- 	{return col()<i.col();}
-    bool operator<=(const const_fielditerator &i) const 		//[t82]
+    bool operator<(const const_fielditerator &i) const			//[t82]
+	{return col()<i.col();}
+    bool operator<=(const const_fielditerator &i) const			//[t82]
 	{return col()<=i.col();}
-    bool operator>(const const_fielditerator &i) const   		//[t82]
+    bool operator>(const const_fielditerator &i) const			//[t82]
 	{return col()>i.col();}
-    bool operator>=(const const_fielditerator &i) const 		//[t82]
+    bool operator>=(const const_fielditerator &i) const			//[t82]
 	{return col()>=i.col();}
     //@}
 
@@ -625,7 +626,7 @@ public:
     inline const_fielditerator operator+(difference_type) const;	//[t82]
 
     friend const_fielditerator operator+(difference_type,
-		    		          const_fielditerator);		//[t82]
+				          const_fielditerator);		//[t82]
 
     inline const_fielditerator operator-(difference_type) const;	//[t82]
     inline difference_type operator-(const_fielditerator) const;	//[t82]
@@ -675,7 +676,7 @@ public:
     const_reverse_fielditerator operator++()				//[t82]
 	{ iterator_type::operator--(); return *this; }
     const_reverse_fielditerator operator++(int);			//[t82]
-    const_reverse_fielditerator &operator--() 				//[t82]
+    const_reverse_fielditerator &operator--()				//[t82]
 	{ iterator_type::operator++(); return *this; }
     const_reverse_fielditerator operator--(int);			//[t82]
     const_reverse_fielditerator &operator+=(difference_type i)		//[t82]
@@ -708,13 +709,13 @@ public:
       operator!=(const const_reverse_fielditerator &rhs) const throw ()	//[t82]
 	{ return !operator==(rhs); }
 
-    bool operator<(const const_reverse_fielditerator &rhs) const 	//[t82]
+    bool operator<(const const_reverse_fielditerator &rhs) const	//[t82]
 	{ return iterator_type::operator>(rhs); }
-    bool operator<=(const const_reverse_fielditerator &rhs) const 	//[t82]
+    bool operator<=(const const_reverse_fielditerator &rhs) const	//[t82]
 	{ return iterator_type::operator>=(rhs); }
-    bool operator>(const const_reverse_fielditerator &rhs) const 	//[t82]
+    bool operator>(const const_reverse_fielditerator &rhs) const	//[t82]
 	{ return iterator_type::operator<(rhs); }
-    bool operator>=(const const_reverse_fielditerator &rhs) const 	//[t82]
+    bool operator>=(const const_reverse_fielditerator &rhs) const	//[t82]
 	{ return iterator_type::operator<=(rhs); }
     //@}
   };
@@ -724,7 +725,7 @@ public:
   result(const result &rhs) throw () : super(rhs) {}			//[t1]
 
   result &operator=(const result &rhs) throw ()				//[t10]
-  	{ super::operator=(rhs); return *this; }
+	{ super::operator=(rhs); return *this; }
 
   /**
    * @name Comparisons
@@ -732,16 +733,16 @@ public:
   //@{
   bool operator==(const result &) const throw ();			//[t70]
   bool operator!=(const result &rhs) const throw ()			//[t70]
-  	{ return !operator==(rhs); }
+	{ return !operator==(rhs); }
   //@}
 
-  const_reverse_iterator rbegin() const 				//[t75]
-  	{ return const_reverse_iterator(end()); }
+  const_reverse_iterator rbegin() const					//[t75]
+	{ return const_reverse_iterator(end()); }
   const_reverse_iterator rend() const					//[t75]
-   	{ return const_reverse_iterator(begin()); }
+	{ return const_reverse_iterator(begin()); }
 
   const_iterator begin() const throw ()					//[t1]
-  	{ return const_iterator(this, 0); }
+	{ return const_iterator(this, 0); }
   inline const_iterator end() const throw ();				//[t1]
 
   reference front() const throw () { return tuple(this,0); }		//[t74]
@@ -753,8 +754,8 @@ public:
 
   void swap(result &) throw ();						//[t77]
 
-  const tuple operator[](size_type i) const throw () 			//[t2]
-  	{ return tuple(this, i); }
+  const tuple operator[](size_type i) const throw ()			//[t2]
+	{ return tuple(this, i); }
   const tuple at(size_type) const throw (PGSTD::out_of_range);		//[t10]
 
   using super::clear;							//[t20]
@@ -764,14 +765,14 @@ public:
    */
   //@{
   /// Number of columns in result
-  tuple::size_type columns() const throw (); 				//[t11]
+  tuple::size_type columns() const throw ();				//[t11]
 
   /// Number of given column (throws exception if it doesn't exist)
   tuple::size_type column_number(const char ColName[]) const;		//[t11]
 
   /// Number of given column (throws exception if it doesn't exist)
   tuple::size_type column_number(const PGSTD::string &Name) const	//[t11]
-  	{return column_number(Name.c_str());}
+	{return column_number(Name.c_str());}
 
   /// Name of column with this number (throws exception if it doesn't exist)
   const char *column_name(tuple::size_type Number) const;		//[t11]
@@ -780,15 +781,15 @@ public:
   oid column_type(tuple::size_type ColNum) const;			//[t7]
   /// Type of given column
   oid column_type(int ColNum) const					//[t7]
-  	{ return column_type(tuple::size_type(ColNum)); }
+	{ return column_type(tuple::size_type(ColNum)); }
 
   /// Type of given column
   oid column_type(const PGSTD::string &ColName) const			//[t7]
-    	{ return column_type(column_number(ColName)); }
+	{ return column_type(column_number(ColName)); }
 
   /// Type of given column
   oid column_type(const char ColName[]) const				//[t7]
-    	{ return column_type(column_number(ColName)); }
+	{ return column_type(column_number(ColName)); }
 
   /// What table did this column come from?  Requires PostgreSQL 7.4 C API.
   /** Only defined if the libpqxx library was compiled against a libpq
@@ -809,7 +810,7 @@ public:
    * @c PQftable function first became available in PostgreSQL 7.4.
    */
   oid column_table(int ColNum) const					//[t2]
-  	{ return column_table(tuple::size_type(ColNum)); }
+	{ return column_table(tuple::size_type(ColNum)); }
 
   /// What table did this column come from?  Requires PostgreSQL 7.4 C API.
   /** Only defined if the libpqxx library was compiled against a libpq
@@ -820,7 +821,7 @@ public:
    * @c PQftable function first became available in PostgreSQL 7.4.
    */
   oid column_table(const PGSTD::string &ColName) const			//[t2]
-    	{ return column_table(column_number(ColName)); }
+	{ return column_table(column_number(ColName)); }
   //@}
 
   /// If command was @c INSERT of 1 row, return oid of inserted row
@@ -857,10 +858,10 @@ public:
 	{return column_number(Name);}
   /// @deprecated Use column_number() instead
   tuple::size_type ColumnNumber(const PGSTD::string &Name) const PQXX_DEPRECATED
-  	{return column_number(Name);}
+	{return column_number(Name);}
   /// @deprecated Use column_name() instead
   const char *ColumnName(tuple::size_type Number) const PQXX_DEPRECATED
-  	{return column_name(Number);}
+	{return column_name(Number);}
   //@}
 #endif
 
@@ -875,7 +876,7 @@ private:
   friend class pipeline;
   explicit result(internal::pq::PGresult *rhs) throw () : super(rhs) {}
   result &operator=(internal::pq::PGresult *rhs) throw ()
-  	{ super::operator=(rhs); return *this; }
+	{ super::operator=(rhs); return *this; }
   bool operator!() const throw () { return !c_ptr(); }
   operator bool() const throw () { return c_ptr() != 0; }
   void PQXX_PRIVATE CheckStatus(const PGSTD::string &Query) const;
@@ -1026,7 +1027,7 @@ public:
   typedef PGSTD::ios::openmode openmode;
   typedef PGSTD::ios::seekdir seekdir;
 
-  explicit field_streambuf(const result::field &F) : 			//[t74]
+  explicit field_streambuf(const result::field &F) :			//[t74]
     m_Field(F)
   {
     initialize();

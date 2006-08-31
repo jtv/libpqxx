@@ -92,27 +92,27 @@ public:
   //@{
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator==(const largeobject &other) const 			//[t51]
+  bool operator==(const largeobject &other) const			//[t51]
 	  { return m_ID == other.m_ID; }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator!=(const largeobject &other) const 			//[t51]
+  bool operator!=(const largeobject &other) const			//[t51]
 	  { return m_ID != other.m_ID; }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator<=(const largeobject &other) const 			//[t51]
+  bool operator<=(const largeobject &other) const			//[t51]
 	  { return m_ID <= other.m_ID; }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator>=(const largeobject &other) const 			//[t51]
+  bool operator>=(const largeobject &other) const			//[t51]
 	  { return m_ID >= other.m_ID; }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator<(const largeobject &other) const 			//[t51]
+  bool operator<(const largeobject &other) const			//[t51]
 	  { return m_ID < other.m_ID; }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator>(const largeobject &other) const 			//[t51]
+  bool operator>(const largeobject &other) const			//[t51]
 	  { return m_ID > other.m_ID; }
   //@}
 
@@ -121,7 +121,7 @@ public:
    * @param T Transaction in which the object is to be accessed
    * @param File A filename on the client's filesystem
    */
-  void to_file(dbtransaction &T, const PGSTD::string &File) const; 	//[t52]
+  void to_file(dbtransaction &T, const PGSTD::string &File) const;	//[t52]
 
   /// Delete large object from database
   /** Unlike its low-level equivalent cunlink, this will throw an exception if
@@ -223,8 +223,8 @@ public:
   /** Writes the data stored in the large object to the given file.
    * @param File A filename on the client's filesystem
    */
-  void to_file(const PGSTD::string &File) const 			//[t54]
-  	{ largeobject::to_file(m_Trans, File); }
+  void to_file(const PGSTD::string &File) const				//[t54]
+	{ largeobject::to_file(m_Trans, File); }
 
 #ifdef PQXX_BROKEN_USING_DECL
   /// Export large object's contents to a local file
@@ -233,7 +233,7 @@ public:
    * @param File A filename on the client's filesystem
    */
   void to_file(dbtransaction &T, const PGSTD::string &F) const
-  	{ largeobject::to_file(T, F); }
+	{ largeobject::to_file(T, F); }
 #else
   using largeobject::to_file;
 #endif
@@ -254,7 +254,7 @@ public:
    * @param Buf Data to write; no terminating zero is written
    */
   void write(const PGSTD::string &Buf)					//[t50]
-  	{ write(Buf.c_str(), static_cast<size_type>(Buf.size())); }
+	{ write(Buf.c_str(), static_cast<size_type>(Buf.size())); }
 
   /// Read data from large object
   /** Throws an exception if an error occurs while reading.
@@ -270,7 +270,7 @@ public:
    * @return The new position in the large object
    */
   size_type seek(size_type dest, seekdir dir);				//[t51]
-	
+
   /// Report current position in large object's data stream
   /** Throws an exception if an error occurs.
    * @return The current position in the large object
@@ -299,7 +299,7 @@ public:
   pos_type cseek(off_type dest, seekdir dir) throw ();			//[t50]
 
   /// Write to large object's data stream
-  /** Does not throw exception in case of error; inspect return value and 
+  /** Does not throw exception in case of error; inspect return value and
    * @c errno instead.
    * @param Buf Data to write
    * @param Len Number of bytes to write
@@ -308,14 +308,14 @@ public:
   off_type cwrite(const char Buf[], size_type Len) throw ();		//[t50]
 
   /// Read from large object's data stream
-  /** Does not throw exception in case of error; inspect return value and 
+  /** Does not throw exception in case of error; inspect return value and
    * @c errno instead.
    * @param Buf Area where incoming bytes should be stored
    * @param Len Number of bytes to read
    * @return Number of bytes actually read, or -1 if an error occurred.
    */
   off_type cread(char Buf[], size_type Len) throw ();			//[t50]
-  
+
   /// Report current position in large object's data stream
   /** Does not throw exception in case of error; inspect return value and
    * @c errno instead.
@@ -344,7 +344,7 @@ public:
 private:
   PGSTD::string PQXX_PRIVATE Reason(int err) const;
   internal::pq::PGconn *RawConnection() const
-  	{ return largeobject::RawConnection(m_Trans); }
+	{ return largeobject::RawConnection(m_Trans); }
 
   void open(openmode mode);
   void close() throw ();
@@ -394,22 +394,22 @@ public:
   largeobject_streambuf(dbtransaction &T,
 			largeobject O,
 			openmode mode = PGSTD::ios::in | PGSTD::ios::out,
-			size_type BufSize=512) : 			//[t48]
+			size_type BufSize=512) :			//[t48]
     m_BufSize(BufSize),
     m_Obj(T, O),
     m_G(0),
     m_P(0)
-  	{ initialize(mode); }
+	{ initialize(mode); }
 
   largeobject_streambuf(dbtransaction &T,
 			oid O,
 			openmode mode = PGSTD::ios::in | PGSTD::ios::out,
-			size_type BufSize=512) : 			//[t48]
+			size_type BufSize=512) :			//[t48]
     m_BufSize(BufSize),
     m_Obj(T, O),
     m_G(0),
     m_P(0)
-  	{ initialize(mode); }
+	{ initialize(mode); }
 
   virtual ~largeobject_streambuf() throw () { delete [] m_P; delete [] m_G; }
 
@@ -534,7 +534,7 @@ public:
 		  largeobject::size_type BufSize=512) :			//[t57]
     super(0),
     m_Buf(T, O, PGSTD::ios::in, BufSize)
-  	{ super::init(&m_Buf); }
+	{ super::init(&m_Buf); }
 
   /// Create a basic_ilostream
   /**
@@ -547,7 +547,7 @@ public:
 		  largeobject::size_type BufSize=512) :			//[t48]
     super(0),
     m_Buf(T, O, PGSTD::ios::in, BufSize)
-  	{ super::init(&m_Buf); }
+	{ super::init(&m_Buf); }
 
 private:
   largeobject_streambuf<CHAR,TRAITS> m_Buf;
@@ -596,7 +596,7 @@ public:
 		  largeobject::size_type BufSize=512) :			//[t48]
     super(0),
     m_Buf(T, O, PGSTD::ios::out, BufSize)
-  	{ super::init(&m_Buf); }
+	{ super::init(&m_Buf); }
 
   /// Create a basic_olostream
   /**
@@ -605,11 +605,11 @@ public:
    * @param BufSize size of buffer to use internally (optional)
    */
   basic_olostream(dbtransaction &T,
-      		  oid O,
+		  oid O,
 		  largeobject::size_type BufSize=512) :			//[t57]
     super(0),
     m_Buf(T, O, PGSTD::ios::out, BufSize)
-  	{ super::init(&m_Buf); }
+	{ super::init(&m_Buf); }
 
   ~basic_olostream()
   {
@@ -671,11 +671,11 @@ public:
    * @param BufSize Size of buffer to use internally (optional)
    */
   basic_lostream(dbtransaction &T,
-      		 largeobject O,
+		 largeobject O,
 		 largeobject::size_type BufSize=512) :			//[t59]
     super(0),
     m_Buf(T, O, PGSTD::ios::in | PGSTD::ios::out, BufSize)
-  	{ super::init(&m_Buf); }
+	{ super::init(&m_Buf); }
 
   /// Create a basic_lostream
   /**
@@ -684,11 +684,11 @@ public:
    * @param BufSize Size of buffer to use internally (optional)
    */
   basic_lostream(dbtransaction &T,
-      		 oid O,
+		 oid O,
 		 largeobject::size_type BufSize=512) :			//[t59]
     super(0),
     m_Buf(T, O, PGSTD::ios::in | PGSTD::ios::out, BufSize)
-  	{ super::init(&m_Buf); }
+	{ super::init(&m_Buf); }
 
   ~basic_lostream()
   {

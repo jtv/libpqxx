@@ -95,10 +95,10 @@ public:
 #ifdef PQXX_DEPRECATED_HEADERS
   /// @deprecated Use generate() instead
   template<typename IT> PGSTD::string ezinekoT(IT Begin, IT End) const
-    	PQXX_DEPRECATED { return generate(Begin, End); }
+	PQXX_DEPRECATED { return generate(Begin, End); }
   /// @deprecated Use generate() instead
   template<typename TUPLE> PGSTD::string ezinekoT(const TUPLE &T) const
-    	PQXX_DEPRECATED { return generate(T); }
+	PQXX_DEPRECATED { return generate(T); }
 #endif
 
 private:
@@ -129,7 +129,7 @@ public:
     m_Writer(&W) {}
 
   back_insert_iterator &
-    operator=(const back_insert_iterator &rhs) throw () 		//[t83]
+    operator=(const back_insert_iterator &rhs) throw ()			//[t83]
   {
     m_Writer = rhs.m_Writer;
     return *this;

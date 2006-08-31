@@ -23,7 +23,7 @@ template<typename T> string UnStream(T &Stream)
 class WriteLargeObject : public transactor<>
 {
 public:
-  WriteLargeObject(const string &Contents, largeobject &O) : 
+  WriteLargeObject(const string &Contents, largeobject &O) :
     transactor<>("WriteLargeObject"),
     m_Contents(Contents),
     m_Object(),

@@ -15,7 +15,7 @@ using namespace pqxx;
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a backend 
+// called template1, or "host=foo.bar.net user=smith" to connect to a backend
 // running on host foo.bar.net, logging in as user smith.
 int main(int, char *argv[])
 {

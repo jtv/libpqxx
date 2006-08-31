@@ -60,7 +60,7 @@ int main(int, char *argv[])
     int Rows;
     R.at(0).at(0).to(Rows);
 
-    if (Rows <= 10) 
+    if (Rows <= 10)
       throw runtime_error("Not enough rows in '" + Table + "' "
 		          "for serious testing.  Sorry.");
 
@@ -122,7 +122,7 @@ int main(int, char *argv[])
 		        "as they were read forwards!");
 
     R = Cur.fetch(cursor_base::next());
-    if (R.size() != 1) 
+    if (R.size() != 1)
       throw logic_error("NEXT: wanted 1 row, got " + to_string(R.size()));
     const string Row = R[0][0].c_str();
 

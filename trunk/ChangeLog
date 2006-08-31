@@ -6,6 +6,9 @@
   - Test didn't account for "end()" element
  include/pqxx/util.hxx, src/util.cxx:
   - Factored reference-counting out of PQAlloc
+ *:
+  - Whitespace cleanup: spaces before tab
+  - Whitespace cleanup: whitespace before end-of-line
 2006-08-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
  include/pqxx/util.hxx, src/connection_base.cxx, src/prepared_statement.cxx,

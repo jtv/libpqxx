@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
       string N= R.column_name(c);
       cout << c << ":\t" << N << endl;
       if (R.column_number(N) != c)
-	throw logic_error("Expected column '" + N + 
+	throw logic_error("Expected column '" + N +
 			  "' to be no. " + to_string(c) + ", "
 			  "but it was no. " + to_string(R.column_number(N)));
     }
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     // If there are rows in R, compare their metadata to R's.
     if (!R.empty())
     {
-      if (R[0].rownumber() != 0) 
+      if (R[0].rownumber() != 0)
 	throw logic_error("Row 0 said it was row " + R[0].rownumber());
 
       if (R.size() < 2)
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
 
 	if (size_t(R[0][c].size()) != strlen(R[0][c].c_str()))
 	  throw logic_error("Field '" + N + "' "
-			    "says its length is " + to_string(R[0][c].size()) + 
+			    "says its length is " + to_string(R[0][c].size()) +
 			    ", "
 			    "but its value is '" + R[0][c].c_str() + "' "
 			    "(" + to_string(strlen(R[0][c].c_str())) + " "

@@ -63,13 +63,13 @@ int main(int, char *argv[])
     // Count rows.
     result R( T.exec("SELECT count(*) FROM " + Table) );
 
-    if (R.at(0).at(0).as<long>() <= 20) 
+    if (R.at(0).at(0).as<long>() <= 20)
       throw runtime_error("Not enough rows in '" + Table + "' "
 		          "for serious testing.  Sorry.");
 
     // Create an SQL cursor and, for good measure, muddle up its state a bit.
     const string CurName = "MYCUR",
-	  	 Query = "SELECT * FROM " + Table + " ORDER BY " + Key;
+		 Query = "SELECT * FROM " + Table + " ORDER BY " + Key;
     const int InitialSkip = 2, GetRows = 3;
 
     T.exec("DECLARE \"" + CurName + "\" CURSOR FOR " + Query);
@@ -77,7 +77,7 @@ int main(int, char *argv[])
 
 
     // Wrap cursor in cursor stream.  Apply some trickery to get its name inside
-    // a result field for this purpose.  This isn't easy because it's not 
+    // a result field for this purpose.  This isn't easy because it's not
     // supposed to be easy; normally we'd only construct streams around existing
     // SQL cursors if they were being returned by functions.
     icursorstream C(T, T.exec("SELECT '"+T.esc(CurName)+"'")[0][0], GetRows);

@@ -183,7 +183,7 @@ public:
    * to continue doing work on the connection afterwards that no longer requires
    * the temp tables, you can permit it again to get the benefits of connection
    * reactivation for the remainder of the program.
-   * 
+   *
    * @param inhibit should reactivation be inhibited from here on?
    *
    * @warning Some connection types (the lazy and asynchronous types) defer
@@ -195,7 +195,7 @@ public:
    * connection first.  This will ensure that definite activation happens before
    * you inhibit it.
    */
-  void inhibit_reactivation(bool inhibit) 				//[t86]
+  void inhibit_reactivation(bool inhibit)				//[t86]
 	{ m_inhibit_reactivation=inhibit; }
 
   /// Is this connection open at the moment?
@@ -248,7 +248,7 @@ public:
   const char *hostname();						//[t1]
 
   /// Server port number we're connected to.
-  const char *port();		 					//[t1]
+  const char *port();							//[t1]
 
   /// Process ID for backend process.
   /** Use with care: connections may be lost and automatically re-established
@@ -365,7 +365,7 @@ public:
    * @param Encoding Name of the character set encoding to use
    */
   void set_client_encoding(const PGSTD::string &Encoding)		//[t7]
-  	{ set_variable("CLIENT_ENCODING", Encoding); }
+	{ set_variable("CLIENT_ENCODING", Encoding); }
 
   /// Set session variable
   /** Set a session variable for this connection, using the SET command.  If the
@@ -385,7 +385,7 @@ public:
    * number.
    */
   void set_variable(const PGSTD::string &Var,
-      		    const PGSTD::string &Value);			//[t60]
+		    const PGSTD::string &Value);			//[t60]
 
   /// Read session variable
   /** Will try to read the value locally, from the list of variables set with
@@ -404,7 +404,7 @@ public:
    */
   //@{
   /// Check for pending trigger notifications and take appropriate action.
-  /** 
+  /**
    * All notifications found pending at call time are processed by finding
    * any matching triggers and invoking those.  If no triggers matched the
    * notification string, none are invoked but the notification is considered
@@ -488,7 +488,7 @@ public:
    * using namespace pqxx;
    * void foo(connection_base &C)
    * {
-   *   C.prepare("findtable", 
+   *   C.prepare("findtable",
    *             "select * from pg_tables where name=$1")
    *             ("varchar", treat_string);
    *   work W(C);
@@ -536,7 +536,7 @@ public:
    */
 
   /// Perform the transaction defined by a transactor-based object.
-  /** 
+  /**
    * Invokes the given transactor, making at most Attempts attempts to perform
    * the encapsulated code.  If the code throws any exception other than
    * broken_connection, it will be aborted right away.
@@ -548,7 +548,7 @@ public:
   void perform(const TRANSACTOR &T, int Attempts);			//[t4]
 
   /// Perform the transaction defined by a transactor-based object.
-  /** 
+  /**
    * @param T The transactor to be executed.
    */
   template<typename TRANSACTOR>
@@ -567,7 +567,7 @@ public:
 #ifdef PQXX_DEPRECATED_HEADERS
   /**
    * @name 1.x API
-   * 
+   *
    * These are all deprecated; they were defined in the libpqxx 1.x API but are
    * no longer actively supported.
    *
@@ -588,7 +588,7 @@ public:
 	{ return process_notice(msg); }
   /// @deprecated Use process_notice() instead
   void ProcessNotice(const PGSTD::string &msg) throw () PQXX_DEPRECATED
-  	{ return process_notice(msg); }
+	{ return process_notice(msg); }
   /// @deprecated Use trace() instead
   void Trace(FILE *F) PQXX_DEPRECATED { trace(F); }
   /// @deprecated Use get_notifs() instead
@@ -612,7 +612,7 @@ public:
 	{ set_client_encoding(E); }
   /// @deprecated Use set_variable() instead
   void SetVariable(const PGSTD::string &Var, const PGSTD::string &Val)
-  	PQXX_DEPRECATED { set_variable(Var, Val); }
+	PQXX_DEPRECATED { set_variable(Var, Val); }
 
   /**
    * @}

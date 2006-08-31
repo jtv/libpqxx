@@ -8,7 +8,7 @@ using namespace pqxx;
 
 
 // Simple test program for libpqxx's asyncconnection.  Asynchronously open a
-// connection to the database, start a transaction, and perform a query inside 
+// connection to the database, start a transaction, and perform a query inside
 // it.
 //
 // Usage: test063

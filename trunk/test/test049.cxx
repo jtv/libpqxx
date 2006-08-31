@@ -33,14 +33,14 @@ template<typename CONTAINER> struct Add
 
   Add(string K, CONTAINER &C) : Container(C), Key(K) {}
 
-  void operator()(const result::tuple &T) 
-  { 
-    Container.push_back(T[Key].c_str()); 
+  void operator()(const result::tuple &T)
+  {
+    Container.push_back(T[Key].c_str());
   }
 };
 
 
-template<typename CONTAINER> 
+template<typename CONTAINER>
 Add<CONTAINER> AdderFor(string K, CONTAINER &C)
 {
   return Add<CONTAINER>(K, C);
@@ -74,15 +74,15 @@ struct CountGreaterSmaller : unary_function<result::tuple, void>
       Greater = count_if(R.begin(), R.end(), bind2nd(Cmp(Key),T)),
       Smaller = count_if(R.begin(), R.end(), bind1st(Cmp(Key),T));
 
-    cout << "'" << T[Key] << "': " 
+    cout << "'" << T[Key] << "': "
          << Greater << " greater, "
          << Smaller << " smaller "
 	 << "(" << (Greater + Smaller) << " total)"
 	 << endl;
 
     if (Greater + Smaller >= R.size())
-      throw logic_error("Of " + to_string(R.size()) + " keys, " + 
-	                to_string(Greater) + " were greater than '" + 
+      throw logic_error("Of " + to_string(R.size()) + " keys, " +
+	                to_string(Greater) + " were greater than '" +
 			string(T[Key].c_str()) + "' and " +
 			to_string(Smaller) + " were smaller--that's too many!");
   }
@@ -101,7 +101,7 @@ struct CountGreaterSmaller : unary_function<result::tuple, void>
 // called template1, or "host=foo.bar.net user=smith" to connect to a
 // backend running on host foo.bar.net, logging in as user smith.
 //
-// The tablename / key combination defines which table to query, and a 
+// The tablename / key combination defines which table to query, and a
 // field (which must be a text field in this case) to sort by.
 
 int main(int argc, char *argv[])
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
       Key = argv[3];
       break;
 
-    case 3: 
+    case 3:
     default:
       throw invalid_argument("Usage: test049 [connectstring] [tablename key]");
     }

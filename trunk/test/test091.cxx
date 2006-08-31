@@ -42,7 +42,7 @@ int main(int, char *argv[])
     //throw logic_error("absolute_cursor::fetch() does not work yet");
     result all = a.fetch(cursor_base::all());
     const cursor_base::difference_type backwards =
-    	-cursor_base::difference_type(all.size());
+	-cursor_base::difference_type(all.size());
 
     cursor_base::difference_type offset;
 
@@ -77,7 +77,7 @@ int main(int, char *argv[])
 	to_string(all.size()) + " rows vs. " + to_string(allagain.size()));
     if (result::size_type(offset) != all.size()+1)
       throw logic_error("Unexpected offset: " + to_string(offset) + " "
-      	"(expected " + to_string(all.size()+1) + ")");
+	"(expected " + to_string(all.size()+1) + ")");
 
     offset = a.move_to(1);
     if (offset != cursor_base::difference_type(all.size()))

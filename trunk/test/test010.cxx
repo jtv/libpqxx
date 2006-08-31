@@ -11,7 +11,7 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-// Test program for libpqxx.  Open connection to database, start a transaction, 
+// Test program for libpqxx.  Open connection to database, start a transaction,
 // abort it, and verify that it "never happened."
 //
 // Usage: test010 [connect-string]
@@ -36,8 +36,8 @@ const string Table = "pqxxevents";
 pair<int,int> CountEvents(transaction_base &T)
 {
   const string EventsQuery = "SELECT count(*) FROM " + Table;
-  const string BoringQuery = EventsQuery + 
-		             " WHERE year=" + 
+  const string BoringQuery = EventsQuery +
+		             " WHERE year=" +
 			     to_string(BoringYear);
   int EventsCount = 0,
       BoringCount = 0;
@@ -100,11 +100,11 @@ void Test(connection_base &C, bool ExplicitAbort)
     if (Recount.second != 1)
       throw runtime_error("Expected to find one event for " +
 			  to_string(BoringYear) + ", "
-			  "found " + 
+			  "found " +
 			  to_string(Recount.second));
 
     if (Recount.first != EventCounts.first+1)
-      throw runtime_error("Number of events changed from " + 
+      throw runtime_error("Number of events changed from " +
 			  to_string(EventCounts.first) + " "
 			  "to " +
 			  to_string(Recount.first) + "; "
@@ -119,13 +119,13 @@ void Test(connection_base &C, bool ExplicitAbort)
   }
 
   // Now check that we're back in the original state.  Note that this may go
-  // wrong if somebody managed to change the table between our two 
+  // wrong if somebody managed to change the table between our two
   // transactions.
   work Checkup(C, "Checkup");
 
   const pair<int,int> NewEvents = CountEvents(Checkup);
   if (NewEvents.first != EventCounts.first)
-    throw runtime_error("Number of events changed from " + 
+    throw runtime_error("Number of events changed from " +
 		        to_string(EventCounts.first) + " "
 			"to " +
 			to_string(NewEvents.first) + "; "

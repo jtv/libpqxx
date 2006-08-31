@@ -58,7 +58,7 @@ class Notify : public transactor<>
   string m_Trigger;
 
 public:
-  explicit Notify(string TrigName) : 
+  explicit Notify(string TrigName) :
     transactor<>("Notifier"), m_Trigger(TrigName) { }
 
   void operator()(argument_type &T)
@@ -98,7 +98,7 @@ int main(int, char *argv[])
     for (int i=0; (i < 20) && !Trig.Done(); ++i)
     {
       if (notifs)
-	throw logic_error("Got " + to_string(notifs) + 
+	throw logic_error("Got " + to_string(notifs) +
 	    " unexpected notification(s)!");
       // Sleep one second using a libpqxx-internal function.  Kids, don't try
       // this at home!  The pqxx::internal namespace is not for third-party use
@@ -109,7 +109,7 @@ int main(int, char *argv[])
     }
     cout << endl;
 
-    if (!Trig.Done()) 
+    if (!Trig.Done())
     {
       cout << "No notification received!" << endl;
       return 1;

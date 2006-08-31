@@ -15,7 +15,7 @@ const string Contents = "Large object test contents";
 class WriteLargeObject : public transactor<>
 {
 public:
-  explicit WriteLargeObject() : 
+  explicit WriteLargeObject() :
     transactor<>("WriteLargeObject")
   {
   }
@@ -40,11 +40,11 @@ public:
     // Redundant typedef to work around bug in Visual C++.NET
     typedef largeobjectaccess::size_type loa_size;
     if (Here != loa_size(Contents.size()-1))
-      throw logic_error("Expected to move back 1 byte to " + 
+      throw logic_error("Expected to move back 1 byte to " +
 	                to_string(Contents.size()-1) + ", "
 			"ended up at " + to_string(Here));
     A.write("!", 1);
-    
+
     // Now check that we really did
     A.seek(-1, ios::cur);
     if (Here != loa_size(Contents.size()-1))
@@ -66,7 +66,7 @@ public:
 
     Here = A.read(&Check, 1);
     if (Here != 1)
-      throw logic_error("Tried to read back 1st byte, got " + 
+      throw logic_error("Tried to read back 1st byte, got " +
 	                to_string(Here) + " bytes");
 
     if (Check != Contents[0])

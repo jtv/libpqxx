@@ -24,7 +24,7 @@ int main(int, char *argv[])
     lazyconnection C(argv[1]);
 
     // Begin a "non-transaction" acting on our current connection.  This is
-    // really all the transactional integrity we need since we're only 
+    // really all the transactional integrity we need since we're only
     // performing one query which does not modify the database.
     nontransaction T(C, "test33");
 

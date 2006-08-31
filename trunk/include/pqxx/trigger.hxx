@@ -61,10 +61,10 @@ public:
    * @param C Connection this trigger resides in.
    * @param N A name for the trigger.
    */
-  trigger(connection_base &C, const PGSTD::string &N) : 		//[t4]
+  trigger(connection_base &C, const PGSTD::string &N) :			//[t4]
     m_Conn(C), m_Name(N) { m_Conn.AddTrigger(this); }
 
-  virtual ~trigger() throw () 						//[t4]
+  virtual ~trigger() throw ()						//[t4]
   {
 #ifdef PQXX_QUIET_DESTRUCTORS
     internal::disable_noticer Quiet(Conn());

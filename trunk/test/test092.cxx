@@ -24,7 +24,7 @@ int main()
     work T(C, "test92");
     T.exec("CREATE TEMP TABLE " + Table + " (" + Field + " BYTEA)");
     C.prepare(Stat, "INSERT INTO " + Table + " VALUES ($1)")
-    	("BYTEA", pqxx::prepare::treat_binary);
+	("BYTEA", pqxx::prepare::treat_binary);
     T.prepared(Stat)(data).exec();
 
     const result L( T.exec("SELECT length("+Field+") FROM " + Table) );
@@ -33,12 +33,12 @@ int main()
 	"but " + L[0][0].as<string>() + " arrived");
 
     const result R( T.exec("SELECT " + Field + " FROM " + Table) );
- 
+
     const binarystring roundtrip(R[0][0]);
 
     if (string(roundtrip.str()) != data)
       throw logic_error("Sent " + to_string(data.size()) + " bytes "
-      	"of binary data, got " + to_string(roundtrip.size()) + " back: "
+	"of binary data, got " + to_string(roundtrip.size()) + " back: "
 	"'" + roundtrip.str() + "'");
 
     if (roundtrip.size() != data.size())

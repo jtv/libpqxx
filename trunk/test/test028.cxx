@@ -18,7 +18,7 @@ using namespace pqxx;
 //
 // Where the connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a backend 
+// called template1, or "host=foo.bar.net user=smith" to connect to a backend
 // running on host foo.bar.net, logging in as user smith.
 //
 // The default table name is "testtable."
@@ -74,8 +74,8 @@ void CheckTable(transaction_base &T, string TableName)
   cout << Rows << " rows in table." << endl;
 
   if (Rows != Contents.size())
-    throw runtime_error("Found " + 
-		        string(Count[0][0].c_str()) + 
+    throw runtime_error("Found " +
+		        string(Count[0][0].c_str()) +
 			" rows in table--after writing " +
 			to_string(Contents.size()) +
 			"!");

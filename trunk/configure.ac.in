@@ -819,7 +819,7 @@ AC_TRY_COMPILE([#include <iterator>
 	[AC_DEFINE(PQXX_BROKEN_ITERATOR,
 			1,
 			[Define if <iterator> lacks an iterator template definition])
-      	 it='no'])
+	 it='no'])
 AC_MSG_RESULT($it)
 
 AC_MSG_CHECKING([for reverse_iterator template])
