@@ -593,6 +593,39 @@ void pqxx::internal::freemem_notif(pqxx::internal::pq::PGnotify *p) throw ()
 }
 
 
+pqxx::internal::refcount::refcount() :
+  m_l(this),
+  m_r(this)
+{
+}
+
+
+pqxx::internal::refcount::~refcount()
+{
+  loseref();
+}
+
+
+void pqxx::internal::refcount::makeref(refcount &rhs) throw ()
+{
+  // TODO: Make threadsafe
+  m_l = &rhs;
+  m_r = rhs.m_r;
+  m_l->m_r = m_r->m_l = this;
+}
+
+
+bool pqxx::internal::refcount::loseref() throw ()
+{
+  // TODO: Make threadsafe
+  const bool result = (m_l == this);
+  m_r->m_l = m_l;
+  m_l->m_r = m_r;
+  m_l = m_r = this;
+  return result;
+}
+
+
 string pqxx::internal::namedclass::description() const
 {
   try
