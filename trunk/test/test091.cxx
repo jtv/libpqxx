@@ -39,26 +39,48 @@ int main(int, char *argv[])
     if (a.pos() != 0)
       throw logic_error("Fresh cursor is at position " + to_string(a.pos()));
 
-    throw logic_error("absolute_cursor::fetch() does not work yet");
+    //throw logic_error("absolute_cursor::fetch() does not work yet");
     result all = a.fetch(cursor_base::all());
+    const cursor_base::difference_type backwards =
+    	-cursor_base::difference_type(all.size());
 
     cursor_base::difference_type offset;
 
-    offset = a.move_to(0);
-    if (offset != -cursor_base::difference_type(all.size()))
-      throw logic_error("Expected to move " + to_string(-all.size()) + " "
+    const cursor_base::difference_type backabs = a.move_to(0);
+    if (result::size_type(backabs) != all.size())
+      throw logic_error("Moved " + to_string(backabs) + " rows back, "
+	"but expected " + to_string(all.size()));
+
+    const cursor_base::difference_type fwd = a.move_to(cursor_base::all());
+    if (backabs != fwd)
+      throw logic_error("Moved " + to_string(backabs) + " rows back "
+	"but " + to_string(fwd) + " rows forward");
+
+    cursor_base::difference_type backabs2 = a.move_to(0, offset);
+
+    if (backabs2 != backabs)
+      throw logic_error("Inconsistent backwards movements: " +
+	to_string(backabs) + " rows vs. " + to_string(backabs2));
+    if (result::size_type(backabs) != all.size())
+      throw logic_error("Got " + to_string(all.size()) + " rows forwards, "
+	"but " + to_string(backabs) + " moving backwards");
+    if (offset != backwards-1)
+      throw logic_error("Expected to move " + to_string(backwards-1) + " "
 	"rows, but moved " + to_string(offset));
+    if (backabs != cursor_base::difference_type(all.size()))
+      throw logic_error("Backwards move reported " + to_string(backabs) + " "
+	"rows instead of " + to_string(all.size()));
 
     result allagain = a.fetch(cursor_base::all(), offset);
     if (allagain.size() != all.size())
       throw logic_error("Inconsistent result from cursor: " +
 	to_string(all.size()) + " rows vs. " + to_string(allagain.size()));
-    if (result::size_type(offset) != allagain.size())
+    if (result::size_type(offset) != all.size()+1)
       throw logic_error("Unexpected offset: " + to_string(offset) + " "
-      	"(expected " + to_string(all.size()) + ")");
+      	"(expected " + to_string(all.size()+1) + ")");
 
     offset = a.move_to(1);
-    if (offset != 1-cursor_base::difference_type(all.size()))
+    if (offset != cursor_base::difference_type(all.size()))
       throw logic_error("Unexpected displacement moving to position 1: "
 	"expected " + to_string(1-long(all.size())) + ", "
 	"got " + to_string(offset));

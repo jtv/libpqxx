@@ -1,3 +1,11 @@
+2006-08-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.hxx, src/cursor.cxx, test/test091.cxx:
+  - Got absolute_cursor working, I think
+  - Fixed infinite recursions on fetch() and move()
+  - Extra two-argument move_to()
+  - Test didn't account for "end()" element
+ include/pqxx/util.hxx, src/util.cxx:
+  - Factored reference-counting out of PQAlloc
 2006-08-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
  include/pqxx/util.hxx, src/connection_base.cxx, src/prepared_statement.cxx,

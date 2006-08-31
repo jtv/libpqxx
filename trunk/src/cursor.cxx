@@ -191,7 +191,7 @@ pqxx::result pqxx::cursor_base::fetch(difference_type n)
 
 pqxx::result pqxx::cursor_base::fetch(difference_type n, difference_type &d)
 {
-  result r(fetch(n));
+  result r(cursor_base::fetch(n));
   d = adjust(n, r.size());
   return r;
 }
@@ -245,7 +245,7 @@ pqxx::cursor_base::difference_type pqxx::cursor_base::move(difference_type n)
 pqxx::cursor_base::difference_type
 pqxx::cursor_base::move(difference_type n, difference_type &d)
 {
-  const difference_type got = move(n);
+  const difference_type got = cursor_base::move(n);
   d = adjust(n, got);
   return got;
 }
