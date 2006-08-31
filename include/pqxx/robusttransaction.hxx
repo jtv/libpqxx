@@ -147,7 +147,7 @@ public:
       const PGSTD::string &Name=PGSTD::string()) :
     namedclass(fullname("robusttransaction",isolation_tag::name()), Name),
     basic_robusttransaction(C, isolation_tag::name())
-    	{ Begin(); }
+	{ Begin(); }
 
   virtual ~robusttransaction() throw ()
   {

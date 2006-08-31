@@ -54,8 +54,8 @@ int main(int argc, char *argv[])
     // Now begin new transaction to create new table & write data
     work T(C, "test5");
 
-    T.exec(("CREATE TABLE " + 
-	    TableName + 
+    T.exec(("CREATE TABLE " +
+	    TableName +
 	    "(year INTEGER, event VARCHAR)").c_str());
 
     tablewriter W(T, TableName);
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     cout << "Writing data to " << TableName << endl;
 
     // Insert tuple of data using "begin" and "end" abstraction
-    for (int i=0; CData[i][0]; ++i) 
+    for (int i=0; CData[i][0]; ++i)
       W.insert(&CData[i][0], &CData[i][2]);
 
     // Insert tuple of data held in container

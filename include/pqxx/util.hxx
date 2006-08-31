@@ -45,7 +45,7 @@
  */
 
 /** @page threading Thread safety
- * 
+ *
  * This library does not contain any locking code to protect objects against
  * simultaneous modification in multi-threaded programs.  Therefore it is up to
  * you, the user of the library, to ensure that your client programs perform no
@@ -188,18 +188,18 @@ template<> inline void from_string(const char Str[],PGSTD::string &Obj)	//[t46]
 
 template<>
   inline void from_string(const char Str[], PGSTD::stringstream &Obj)	//[t0]
-  	{ Obj.clear(); Obj << Str; }
+	{ Obj.clear(); Obj << Str; }
 
 template<typename T>
-  inline void from_string(const PGSTD::string &Str, T &Obj) 		//[t45]
+  inline void from_string(const PGSTD::string &Str, T &Obj)		//[t45]
 	{ from_string(Str.c_str(), Obj); }
 
 template<typename T>
   inline void from_string(const PGSTD::stringstream &Str, T &Obj)	//[t0]
-  	{ from_string(Str.str(), Obj); }
+	{ from_string(Str.str(), Obj); }
 
 template<> inline void
-from_string(const PGSTD::string &Str, PGSTD::string &Obj) 		//[t46]
+from_string(const PGSTD::string &Str, PGSTD::string &Obj)		//[t46]
 	{ Obj = Str; }
 
 template<> inline void
@@ -254,7 +254,7 @@ template<> PGSTD::string PQXX_LIBEXPORT to_string(const bool &);	//[t76]
 template<> PGSTD::string PQXX_LIBEXPORT to_string(const long double &);	//[t74]
 #endif
 
-inline PGSTD::string to_string(const char Obj[]) 			//[t14]
+inline PGSTD::string to_string(const char Obj[])			//[t14]
 	{ return PGSTD::string(Obj); }
 
 inline PGSTD::string to_string(const PGSTD::stringstream &Obj)		//[t0]
@@ -302,14 +302,14 @@ public:
   items() : CONT() {}							//[t80]
   /// Create items list with one element
   explicit items(const T &t) : CONT() { push_back(t); }			//[t0]
-  items(const T &t1, const T &t2) : CONT() 				//[t80]
-  	{ push_back(t1); push_back(t2); }
-  items(const T &t1, const T &t2, const T &t3) : CONT() 		//[t0]
-  	{ push_back(t1); push_back(t2); push_back(t3); }
-  items(const T &t1, const T &t2, const T &t3, const T &t4) : CONT() 	//[t0]
-  	{ push_back(t1); push_back(t2); push_back(t3); push_back(t4); }
-  items(const T&t1,const T&t2,const T&t3,const T&t4,const T&t5):CONT() 	//[t0]
-  	{push_back(t1);push_back(t2);push_back(t3);push_back(t4);push_back(t5);}
+  items(const T &t1, const T &t2) : CONT()				//[t80]
+	{ push_back(t1); push_back(t2); }
+  items(const T &t1, const T &t2, const T &t3) : CONT()			//[t0]
+	{ push_back(t1); push_back(t2); push_back(t3); }
+  items(const T &t1, const T &t2, const T &t3, const T &t4) : CONT()	//[t0]
+	{ push_back(t1); push_back(t2); push_back(t3); push_back(t4); }
+  items(const T&t1,const T&t2,const T&t3,const T&t4,const T&t5):CONT()	//[t0]
+	{push_back(t1);push_back(t2);push_back(t3);push_back(t4);push_back(t5);}
   /// Copy container
   items(const CONT &c) : CONT(c) {}					//[t0]
 
@@ -511,12 +511,12 @@ void PQXX_LIBEXPORT FromString_string(const char Str[], PGSTD::string &Obj)
 /** @deprecated To be removed when FromString is taken out
  */
 void PQXX_LIBEXPORT FromString_ucharptr(const char Str[],
-    	const unsigned char *&Obj)
+	const unsigned char *&Obj)
   PQXX_DEPRECATED;
 
 /// For libpqxx internal use only: quote std::string
 PGSTD::string PQXX_LIBEXPORT Quote_string(const PGSTD::string &Obj,
-    	bool EmptyIsNull);
+	bool EmptyIsNull);
 
 /// For libpqxx internal use only: quote const char *
 PGSTD::string PQXX_LIBEXPORT Quote_charptr(const char Obj[], bool EmptyIsNull);
@@ -558,9 +558,9 @@ template<> inline void FromString(const char Str[], bool &Obj)
  * program:
  *
  * @code
- * 	TX.exec("SELECT number,amount "
- * 		"FROM accounts "
- * 		"WHERE allowed_to_see('" + userid + "','" + password + "')");
+ *	TX.exec("SELECT number,amount "
+ *		"FROM accounts "
+ *		"WHERE allowed_to_see('" + userid + "','" + password + "')");
  * @endcode
  *
  * This shows a logged-in user important information on all accounts he is
@@ -571,16 +571,16 @@ template<> inline void FromString(const char Str[], bool &Obj)
  * shape of this SQL statement, imagine he enters the following password:
  *
  * @code
- * 	'x') OR ('x' = 'x
+ *	'x') OR ('x' = 'x
  * @endcode
  *
  * Does that make sense to you?  Probably not.  But if this is inserted into the
  * SQL string by the C++ code above, the query becomes:
  *
  * @code
- * 	SELECT number,amount
- * 	FROM accounts
- * 	WHERE allowed_to_see('user','x') OR ('x' = 'x')
+ *	SELECT number,amount
+ *	FROM accounts
+ *	WHERE allowed_to_see('user','x') OR ('x' = 'x')
  * @endcode
  *
  * Is this what you wanted to happen?  Probably not!  The neat allowed_to_see()
@@ -591,19 +591,19 @@ template<> inline void FromString(const char Str[], bool &Obj)
  * To prevent this from happening, use the transaction's esc() function:
  *
  * @code
- * 	TX.exec("SELECT number,amount "
- * 		"FROM accounts "
- * 		"WHERE allowed_to_see('" + TX.esc(userid) + "', "
- * 			"'" + TX.esc(password) + "')");
+ *	TX.exec("SELECT number,amount "
+ *		"FROM accounts "
+ *		"WHERE allowed_to_see('" + TX.esc(userid) + "', "
+ *			"'" + TX.esc(password) + "')");
  * @endcode
  *
  * Now, the quotes embedded in the attacker's string will be neatly escaped so
  * they can't "break out" of the quoted SQL string they were meant to go into:
  *
  * @code
- * 	SELECT number,amount
- * 	FROM accounts
- * 	WHERE allowed_to_see('user', 'x'') OR (''x'' = ''x')
+ *	SELECT number,amount
+ *	FROM accounts
+ *	WHERE allowed_to_see('user', 'x'') OR (''x'' = ''x')
  * @endcode
  *
  * If you look carefully, you'll see that thanks to the added escape characters
@@ -691,7 +691,7 @@ template<> inline PGSTD::string Quote(const char *const & Obj, bool EmptyIsNull)
  * @deprecated Use the transaction's esc() function instead
  */
 template<int LEN> inline PGSTD::string Quote(const char (&Obj)[LEN],
-    					     bool EmptyIsNull)
+					     bool EmptyIsNull)
   PQXX_DEPRECATED
 {
   return internal::Quote_charptr(Obj, EmptyIsNull);
@@ -771,8 +771,7 @@ public:
   PQAlloc(const PQAlloc &rhs) throw () : m_Obj(0), m_rc() { makeref(rhs); }
   ~PQAlloc() throw () { loseref(); }
 
-  PQAlloc &operator=(const PQAlloc &rhs) throw ()
-  	{ redoref(rhs); return *this; }
+  PQAlloc &operator=(const PQAlloc &rhs) throw () {redoref(rhs); return *this;}
 
   /// Assume ownership of a pointer
   /** @warning Don't to this more than once for a given object!

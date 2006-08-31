@@ -12,7 +12,7 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-// Test program for libpqxx.  Copy a table from one database connection to 
+// Test program for libpqxx.  Copy a table from one database connection to
 // another using a tablereader and a tablewriter.  Any data already in the
 // destination table is overwritten.  Lazy connections are used.
 //
@@ -20,14 +20,14 @@ using namespace pqxx;
 //
 // Where the connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a backend 
+// called template1, or "host=foo.bar.net user=smith" to connect to a backend
 // running on host foo.bar.net, logging in as user smith.
 //
 // The sample program assumes that both orgtable and dsttable are tables that
 // exist in the database that connect-string (whether the default or one
 // specified explicitly on the command line) connects to.
 //
-// The default origin table name is "pqxxorgevents"; the default destination 
+// The default origin table name is "pqxxorgevents"; the default destination
 // table is "pqxxevents".
 
 namespace
@@ -97,7 +97,7 @@ public:
 
     CheckState(Org);
 
-    // Copy table Org into table Dst.  This transfers all the data to the 
+    // Copy table Org into table Dst.  This transfers all the data to the
     // frontend and back to the backend.  Since in this example Ord and Dst are
     // really in the same database, we'd do this differently in real life; a
     // simple SQL query would suffice.
@@ -131,14 +131,14 @@ int main(int argc, char *argv[])
 
     // Set up a transaction to access the original table from
     work orgTrans(orgC, "test25org");
- 
+
     // Attempt to create table.  Ignore errors, as they're probably one of:
     // (1) Table already exists--fine with us
     // (2) Something else is wrong--we'll just fail later on anyway
     try
     {
       dstC.perform(CreateTable(dstTable));
-    } 
+    }
     catch (const sql_error &)
     {
     }

@@ -11,7 +11,7 @@ using namespace pqxx;
 
 
 // Test program for libpqxx.  Create a table of numbers, write data to it using
-// a tablewriter back_insert_iterator, then verify the table's contents using 
+// a tablewriter back_insert_iterator, then verify the table's contents using
 // field iterators
 //
 // Usage: test083 [connect-string]
@@ -70,7 +70,7 @@ int main(int, char *argv[])
       if (r->at(0).as(0) != (*i)[0])
 	throw logic_error("Writing numbers with tablewriter went wrong: "
 	    "expected " + to_string((*i)[0]) + ", found " + r[0].c_str());
-  
+
     T.commit();
   }
   catch (const sql_error &e)

@@ -42,7 +42,7 @@ class CountEvents : public transactor<>
   string m_Table;
   pair<int, int> &m_Results;
 public:
-  CountEvents(string Table, pair<int,int> &Results) : 
+  CountEvents(string Table, pair<int,int> &Results) :
     transactor<>("CountEvents"), m_Table(Table), m_Results(Results) {}
 
   void operator()(argument_type &T)
@@ -64,7 +64,7 @@ class FailedInsert : public transactor<>
 {
   string m_Table;
 public:
-  FailedInsert(string Table) : 
+  FailedInsert(string Table) :
     transactor<>("FailedInsert"),
     m_Table(Table)
   {
@@ -112,8 +112,8 @@ int main(int argc, char *argv[])
 
     pair<int,int> Before;
     C.perform(CountEvents(Table, Before));
-    if (Before.second) 
-      throw runtime_error("Table already has an event for " + 
+    if (Before.second)
+      throw runtime_error("Table already has an event for " +
 		          to_string(BoringYear) + ", "
 			  "cannot run.");
 
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 
     if (After != Before)
       throw logic_error("Event counts changed from "
-			"{" + to_string(Before.first) + "," + 
+			"{" + to_string(Before.first) + "," +
 			to_string(Before.second) + "} "
 			"to "
 			"{" + to_string(After.first) + "," +

@@ -25,7 +25,7 @@ namespace pqxx
 {
 
 /// Abstract base class responsible for bracketing a backend transaction
-/** 
+/**
  * @addtogroup transaction Transaction classes
  *
  * Use a dbtransaction-derived object such as "work" (transaction<>) to enclose
@@ -83,7 +83,7 @@ protected:
   virtual void do_abort();						//[t13]
 
   static PGSTD::string fullname(const PGSTD::string &ttype,
-      	const PGSTD::string &isolation);
+	const PGSTD::string &isolation);
 
 private:
   /// Precomputed SQL command to run at start of this transaction

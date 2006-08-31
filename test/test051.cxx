@@ -16,7 +16,7 @@ const string Contents = "Large object test contents";
 class WriteLargeObject : public transactor<>
 {
 public:
-  explicit WriteLargeObject(largeobject &O) : 
+  explicit WriteLargeObject(largeobject &O) :
     transactor<>("WriteLargeObject"),
     m_Object(),
     m_ObjectOutput(O)

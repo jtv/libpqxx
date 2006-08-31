@@ -28,7 +28,7 @@ namespace pqxx
 /**
  * @addtogroup connection Connection classes
  *
- * Several types of connections are available, including plain connection and 
+ * Several types of connections are available, including plain connection and
  * lazyconnection.  These types are typedefs combining a derivative of the
  * connection_base class (where essentially all connection-related functionality
  * is defined) with a policy class which governs how the connection is to be

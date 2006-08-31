@@ -78,7 +78,7 @@ private:
 
 
 /// Interface definition (and common code) for "transaction" classes.
-/** 
+/**
  * @addtogroup transaction Transaction classes
  * All database access must be channeled through one of these classes for
  * safety, although not all implementations of this interface need to provide
@@ -154,7 +154,7 @@ public:
    * @return A result set describing the query's or command's result
    */
   result exec(const char Query[],
-      	      const PGSTD::string &Desc=PGSTD::string());		//[t1]
+	      const PGSTD::string &Desc=PGSTD::string());		//[t1]
 
   /// Execute query
   /** Perform a query in this transaction.  This version may be slightly
@@ -166,12 +166,12 @@ public:
    * @return A result set describing the query's or command's result
    */
   result exec(const PGSTD::string &Query,
-              const PGSTD::string &Desc=PGSTD::string()) 		//[t2]
-  	{ return exec(Query.c_str(), Desc); }
+              const PGSTD::string &Desc=PGSTD::string())		//[t2]
+	{ return exec(Query.c_str(), Desc); }
 
   result exec(const PGSTD::stringstream &Query,
-      	      const PGSTD::string &Desc=PGSTD::string())		//[t9]
-    	{ return exec(Query.str(), Desc); }
+	      const PGSTD::string &Desc=PGSTD::string())		//[t9]
+	{ return exec(Query.str(), Desc); }
 
   /**
    * @name Prepared statements
@@ -221,11 +221,11 @@ public:
    */
   //@{
   /// Have connection process warning message
-  void process_notice(const char Msg[]) const 				//[t14]
-  	{ m_Conn.process_notice(Msg); }
+  void process_notice(const char Msg[]) const				//[t14]
+	{ m_Conn.process_notice(Msg); }
   /// Have connection process warning message
   void process_notice(const PGSTD::string &Msg) const			//[t14]
-  	{ m_Conn.process_notice(Msg); }
+	{ m_Conn.process_notice(Msg); }
   //@}
 
   /// Connection this transaction is running in
@@ -268,7 +268,7 @@ public:
 	PQXX_DEPRECATED { return exec(Q,D); }
   /// @deprecated Use exec() instead
   result Exec(const PGSTD::string &Q, const PGSTD::string &D=PGSTD::string())
-    	PQXX_DEPRECATED { return exec(Q,D); }
+	PQXX_DEPRECATED { return exec(Q,D); }
   /// @deprecated Use process_notice() instead
   void ProcessNotice(const char M[]) const PQXX_DEPRECATED
 	{ return process_notice(M); }
@@ -281,7 +281,7 @@ public:
   connection_base &Conn() const PQXX_DEPRECATED { return conn(); }
   /// @deprecated Use set_variable() instead
   void SetVariable(const PGSTD::string &Var, const PGSTD::string &Val)
-    	PQXX_DEPRECATED { set_variable(Var,Val); }
+	PQXX_DEPRECATED { set_variable(Var,Val); }
   //@}
 #endif
 
@@ -376,7 +376,7 @@ private:
   bool ReadCopyLine(PGSTD::string &L) { return m_Conn.ReadCopyLine(L); }
   friend class tablewriter;
   void PQXX_PRIVATE BeginCopyWrite(const PGSTD::string &Table,
-      	const PGSTD::string &Columns = PGSTD::string());
+	const PGSTD::string &Columns = PGSTD::string());
   void WriteCopyLine(const PGSTD::string &L) { m_Conn.WriteCopyLine(L); }
   void EndCopyWrite() { m_Conn.EndCopyWrite(); }
 
@@ -388,7 +388,7 @@ private:
 
   friend class prepare::invocation;
   result prepared_exec(const PGSTD::string &,
-  	const char *const[],
+	const char *const[],
 	const int[],
 	int);
 

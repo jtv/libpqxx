@@ -45,8 +45,8 @@ class TestTrig : public trigger
   bool m_Done;
 
 public:
-  explicit TestTrig(connection_base &C, string Name) : 
-    trigger(C, Name), m_Done(false) 
+  explicit TestTrig(connection_base &C, string Name) :
+    trigger(C, Name), m_Done(false)
   {
   }
 
@@ -55,7 +55,7 @@ public:
     m_Done = true;
     if (be_pid != Conn().backendpid())
       throw logic_error("Expected notification from backend process " +
-		        to_string(Conn().backendpid()) + 
+		        to_string(Conn().backendpid()) +
 			", but got one from " +
 			to_string(be_pid));
 
@@ -72,7 +72,7 @@ class Notify : public transactor<nontransaction>
   string m_Trigger;
 
 public:
-  explicit Notify(string TrigName) : 
+  explicit Notify(string TrigName) :
     transactor<nontransaction>("Notifier"), m_Trigger(TrigName) { }
 
   void operator()(argument_type &T)
@@ -93,7 +93,7 @@ public:
   }
 };
 
-extern "C" 
+extern "C"
 {
 static void set_fdbit(fd_set &s, int b)
 {
@@ -132,7 +132,7 @@ int main()
     }
     cout << endl;
 
-    if (!Trig.Done()) 
+    if (!Trig.Done())
     {
       cout << "No notification received!" << endl;
       return 1;

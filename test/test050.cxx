@@ -42,7 +42,7 @@ private:
 class WriteLargeObject : public transactor<>
 {
 public:
-  explicit WriteLargeObject(largeobject &O) : 
+  explicit WriteLargeObject(largeobject &O) :
     transactor<>("WriteLargeObject"),
     m_Object(O)
   {
@@ -65,7 +65,7 @@ public:
 	  to_string(cxxorgpos) + " "
 	  "(expected 0)");
 
-    A.process_notice("Writing to large object #" + 
+    A.process_notice("Writing to large object #" +
 	to_string(largeobject(A).id()) + "\n");
     long Bytes = A.cwrite(Contents.c_str(), Contents.size());
     if (Bytes != long(Contents.size()))
@@ -92,10 +92,10 @@ public:
 
     string::size_type Offset = A.cseek(0, ios::cur);
     if (Offset != Contents.size())
-      throw logic_error("Expected to be at position " + 
+      throw logic_error("Expected to be at position " +
 	                 to_string(Contents.size()) + " in large object, "
 			 "but cseek(0, cur) returned " + to_string(Offset));
-    
+
     Offset = A.cseek(1, ios::beg);
     if (Offset != 1)
       throw logic_error("After seeking to position 1 in large object, cseek() "

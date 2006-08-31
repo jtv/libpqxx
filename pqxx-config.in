@@ -65,12 +65,12 @@ while test $# -gt 0; do
     --cflags)
 	deprecated "\"$pkgconfig --cflags libpqxx\""
 	$pkgconfig --cflags libpqxx
-       	;;
+	;;
 
     --libs)
 	deprecated "\"$pkgconfig --libs libpqxx\""
 	$pkgconfig --libs libpqxx
-       	;;
+	;;
 
     *)
 	usage

@@ -174,31 +174,31 @@ string pqxx::tablereader::extract_field(const PGSTD::string &Line,
 	    const char n2 = Line[++i];
 	    if (!is_octalchar(n1) || !is_octalchar(n2))
 	      throw runtime_error("Invalid octal in encoded table stream");
-	    R += char((digit_to_number(n)<<6) | 
-		(digit_to_number(n1)<<3) | 
+	    R += char((digit_to_number(n)<<6) |
+		(digit_to_number(n1)<<3) |
 		digit_to_number(n2));
           }
 	  break;
 
-    	case 'b':
+	case 'b':
 	  // TODO: Escape code?
 	  R += char(8);
 	  break;	// Backspace
-    	case 'v':
+	case 'v':
 	  // TODO: Escape code?
 	  R += char(11);
 	  break;	// Vertical tab
-    	case 'f':
+	case 'f':
 	  // TODO: Escape code?
 	  R += char(12);
 	  break;	// Form feed
-    	case 'n':
+	case 'n':
 	  R += '\n';
 	  break;	// Newline
-    	case 't':
+	case 't':
 	  R += '\t';
 	  break;	// Tab
-    	case 'r':
+	case 'r':
 	  R += '\r';
 	  break;	// Carriage return;
 

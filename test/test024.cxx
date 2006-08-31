@@ -9,8 +9,8 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-// Test program for libpqxx.  Write a predetermined data set to a table using a 
-// tablewriter on a deferred connection.  This data will be used by subsequent 
+// Test program for libpqxx.  Write a predetermined data set to a table using a
+// tablewriter on a deferred connection.  This data will be used by subsequent
 // tests.  Any data previously in the table will be deleted.
 //
 // Usage: test024 [connect-string] [tablename]
@@ -47,8 +47,8 @@ int main(int argc, char *argv[])
 
     T.exec("CREATE TABLE " + TableName + "(year INTEGER, event VARCHAR)");
 
-    // NOTE: start a nested block here to ensure that our stream W is closed 
-    // before we attempt to commit our transaction T.  Otherwise we might end 
+    // NOTE: start a nested block here to ensure that our stream W is closed
+    // before we attempt to commit our transaction T.  Otherwise we might end
     // up committing T before all data going into W had been written.
     {
       tablewriter W(T, TableName);
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
       cout << "Writing data to " << TableName << endl;
 
       // Insert tuple of data using "begin" and "end" abstraction
-      for (int i=0; CData[i][0]; ++i) 
+      for (int i=0; CData[i][0]; ++i)
 	W.insert(&CData[i][0], &CData[i][2]);
 
       // Insert tuple of data held in container

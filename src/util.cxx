@@ -109,7 +109,7 @@ template<> void from_string(const char Str[], long &Obj)
   {
     if (Str[i] != '-')
       throw runtime_error("Could not convert string to integer: '" +
-      	string(Str) + "'");
+	string(Str) + "'");
 
     for (++i; isdigit(Str[i]); ++i)
     {
@@ -142,7 +142,7 @@ template<> void from_string(const char Str[], unsigned long &Obj)
 
   if (!isdigit(Str[i]))
     throw runtime_error("Could not convert string to unsigned integer: '" +
-    	string(Str) + "'");
+	string(Str) + "'");
 
   for (result=0; isdigit(Str[i]); ++i)
   {
@@ -351,7 +351,7 @@ template<typename T> inline string to_string_fallback(T Obj)
 template<typename T> inline bool is_NaN(T Obj)
 {
     // TODO: Is this workaround for missing isnan() reliable?  Infinities?
-  return 
+  return
 #if defined(PQXX_HAVE_ISNAN)
     isnan(Obj);
 #elif defined(PQXX_HAVE_LIMITS)
@@ -665,7 +665,7 @@ void pqxx::internal::CheckUniqueUnregistration(const namedclass *New,
   {
     if (!New)
       throw logic_error("Expected to close " + Old->description() + ", "
-	  		"but got NULL pointer instead");
+			"but got NULL pointer instead");
     if (!Old)
       throw logic_error("Closed while not open: " + New->description());
     throw logic_error("Closed " + New->description() + "; "

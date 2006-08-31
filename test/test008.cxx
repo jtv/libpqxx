@@ -10,7 +10,7 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-// Simple test program for libpqxx.  Read a table using a tablereader, which 
+// Simple test program for libpqxx.  Read a table using a tablereader, which
 // may be faster than a conventional query.  A tablereader is really a frontend
 // for a PostgreSQL COPY TO stdout command.
 //
@@ -18,12 +18,12 @@ using namespace pqxx;
 //
 // Where connect-string is a set of connection options in Postgresql's
 // PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a backend 
+// called template1, or "host=foo.bar.net user=smith" to connect to a backend
 // running on host foo.bar.net, logging in as user smith.
 //
 // The default table name is "pqxxevents" as used by other test programs.
 // PostgreSQL currently implements pg_tables as a view, which cannot be read by
-// using the COPY command.  Otherwise, pg_tables would have made a better 
+// using the COPY command.  Otherwise, pg_tables would have made a better
 // default value here.
 int main(int argc, char *argv[])
 {

@@ -19,7 +19,7 @@ namespace
 {
 
 // Verify that cachedresult::at() catches an index overrun
-void CheckOverrun(const cachedresult &CR, 
+void CheckOverrun(const cachedresult &CR,
                   result::difference_type Overrun,
 		  string &LastReason)
 {
@@ -43,7 +43,7 @@ void CheckOverrun(const cachedresult &CR,
     }
   }
 
-  if (!OK) 
+  if (!OK)
     throw logic_error("Failed to detect overrun "
 	              "(row " + to_string(Base + Overrun) + "); "
 		      "found '" + Entry + "'");
@@ -76,7 +76,7 @@ int main(int, char *argv[])
     for (result::size_type BlockSize = 2; BlockSize <= R.size()+1; ++BlockSize)
     {
       cachedresult CR(T, Query, "cachedresult", BlockSize);
- 
+
       // Verify that we get an exception if we exceed CR's range, and are able
       // to recover afterwards
       for (result::difference_type n = -2; n < 2; ++n)

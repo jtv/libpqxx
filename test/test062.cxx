@@ -53,7 +53,7 @@ int main(int, char *argv[])
 	 << "returned: " << B.c_ptr() << endl;
 
     if (B.size() != TestStr.size())
-      throw logic_error("Binary string got changed from " + 
+      throw logic_error("Binary string got changed from " +
 	  to_string(TestStr.size()) + " to " + to_string(B.size()) + " bytes");
 
     binarystring::const_iterator c;

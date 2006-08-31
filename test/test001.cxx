@@ -36,7 +36,7 @@ int main()
     for (result::const_iterator c = R.begin(); c != R.end(); ++c)
     {
       // Dump tuple number and column 0 value to cout.  Read the value using
-      // as(), which converts the field to the same type as the default value 
+      // as(), which converts the field to the same type as the default value
       // you give it (or returns the default value if the field is null).
       cout << '\t' << to_string(c.num()) << '\t' << c[0].as(string()) << endl;
     }

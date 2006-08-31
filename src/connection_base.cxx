@@ -589,7 +589,7 @@ void pqxx::connection_base::RemoveTrigger(pqxx::trigger *T) throw ()
     else
     {
       // Erase first; otherwise a notification for the same trigger may yet come
-      // in and wreak havoc.  Thanks Dragan Milenkovic. 
+      // in and wreak havoc.  Thanks Dragan Milenkovic.
       m_Triggers.erase(i);
 
       if (m_Conn && (R.second == ++R.first))
@@ -765,7 +765,7 @@ string escape_param(const char in[],
 	prepare::param_treatment treatment)
 {
   if (!in) return "null";
-  
+
   switch (treatment)
   {
   case treat_binary:
@@ -860,7 +860,7 @@ pqxx::result pqxx::connection_base::prepared_exec(
     if (!s.parameters.empty())
       P << '('
 	<< separated_list(",",
-	   	s.parameters.begin(),
+		s.parameters.begin(),
 		s.parameters.end(),
 		prepare::internal::get_sqltype())
 	<< ')';
@@ -878,7 +878,7 @@ pqxx::result pqxx::connection_base::prepared_exec(
   binary[nparams] = 0;
 
   result r(PQexecPrepared(m_Conn,
-  	statement.c_str(),
+	statement.c_str(),
 	nparams,
 	params,
 	paramlengths,
@@ -909,7 +909,7 @@ pqxx::result pqxx::connection_base::prepared_exec(
     {
       const string key = "$" + to_string(n+1),
 	           val = escape_param(params[n],
-		   		paramlengths[n],
+				paramlengths[n],
 				s.parameters[n].treatment);
       const string::size_type keysz = key.size();
       for (string::size_type h=S.find(key); h!=string::npos; h=S.find(key))

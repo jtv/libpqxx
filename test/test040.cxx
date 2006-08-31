@@ -72,11 +72,11 @@ int main(int, char *argv[])
       // object find out its size by reading rows until they run out.
       cachedresult CR2(T, Query, "cachedresult2", BlockSize);
       CR2.at(CRS - 1);
-      try 
-      { 
-	CR2.at(CRS); 
+      try
+      {
+	CR2.at(CRS);
       }
-      catch (const exception &e) 
+      catch (const exception &e)
       {
 	if (e.what() != LastReason)
 	{
@@ -86,8 +86,8 @@ int main(int, char *argv[])
       }
       if (CR2.size() != CRS)
 	throw logic_error("BlockSize " + to_string(BlockSize) + ": "
-	                  "Inconsistent discovered size (" + 
-			  to_string(CR2.size()) + " vs. " + 
+	                  "Inconsistent discovered size (" +
+			  to_string(CR2.size()) + " vs. " +
 			  to_string(CRS) + ")");
     }
   }

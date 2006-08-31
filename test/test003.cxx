@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
       // status it reports with operator bool() and operator !() (1)
       if (!Cur) throw logic_error("Inconsistent cursor state!");
 
-      // Received a block of rows.  Note that this may be less than the 
+      // Received a block of rows.  Note that this may be less than the
       // blocksize we requested if we're at the end of our query.
       cout << "* Got " << R.size() << " row(s) *" << endl;
 
