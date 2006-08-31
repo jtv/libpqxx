@@ -159,7 +159,7 @@ public:
    * position--but the result is still only 1 row wide!
    *
    * The output parameter compensates for this, returning true displacement
-   * (which also signed, so it includes direction).
+   * (which is also signed, so it includes direction).
    */
   virtual result fetch(difference_type, difference_type &);		//[]
 
@@ -176,6 +176,9 @@ public:
   /// Move cursor, but also return actual displacement in output parameter
   /** As with the @c fetch functions, the actual displacement may differ from
    * the number of data rows skipped by the move.
+   *
+   * @return the number of data rows that would have been returned if this had
+   * been a fetch() command.
    */
   virtual difference_type move(difference_type, difference_type &);	//[]
 
@@ -417,6 +420,9 @@ public:
   difference_type move_to(cursor_base::size_type to)			//[t91]
 	{ return move(difference_type(to)-difference_type(pos())); }
 
+  difference_type move_to(cursor_base::size_type to,			//[t91]
+  	cursor_base::difference_type &d)
+	{ return move(difference_type(to)-difference_type(pos()), d); }
 private:
   /// Set result size if appropriate, given requested and actual displacement
   void digest(cursor_base::difference_type req,
