@@ -721,6 +721,30 @@ namespace internal
 {
 void PQXX_LIBEXPORT freepqmem(void *);
 
+
+/// Helper class used in reference counting (doubly-linked circular list)
+class PQXX_LIBEXPORT refcount
+{
+  refcount *volatile m_l, *volatile m_r;
+
+public:
+  refcount();
+  ~refcount();
+
+  /// Create additional reference based on existing refcount object
+  void makeref(refcount &) throw ();
+
+  /// Drop this reference; return whether we were the last reference
+  bool loseref() throw ();
+
+private:
+  /// Not allowed
+  refcount(const refcount &);
+  /// Not allowed
+  refcount &operator=(const refcount &);
+};
+
+
 /// Reference-counted smart pointer to libpq-allocated object
 /** Keep track of a libpq-allocated object, and free it once all references to
  * it have died.
@@ -739,13 +763,12 @@ void PQXX_LIBEXPORT freepqmem(void *);
 template<typename T> class PQAlloc
 {
   T *m_Obj;
-  mutable const PQAlloc *m_l, *m_r;
+  mutable refcount m_rc;
 public:
   typedef T content_type;
 
-  PQAlloc() throw () : m_Obj(0), m_l(this), m_r(this) {}
-  PQAlloc(const PQAlloc &rhs) throw () :
-    m_Obj(0), m_l(this), m_r(this) { makeref(rhs); }
+  PQAlloc() throw () : m_Obj(0), m_rc() {}
+  PQAlloc(const PQAlloc &rhs) throw () : m_Obj(0), m_rc() { makeref(rhs); }
   ~PQAlloc() throw () { loseref(); }
 
   PQAlloc &operator=(const PQAlloc &rhs) throw ()
@@ -754,7 +777,7 @@ public:
   /// Assume ownership of a pointer
   /** @warning Don't to this more than once for a given object!
    */
-  explicit PQAlloc(T *obj) throw () : m_Obj(obj), m_l(this), m_r(this) {}
+  explicit PQAlloc(T *obj) throw () : m_Obj(obj), m_rc() {}
 
   void swap(PQAlloc &rhs) throw ()
   {
@@ -797,25 +820,17 @@ private:
 
   void makeref(const PQAlloc &rhs) throw ()
   {
-    // TODO: Make threadsafe
-    m_l = &rhs;
-    m_r = rhs.m_r;
     m_Obj = rhs.m_Obj;
-    m_l->m_r = m_r->m_l = this;
+    m_rc.makeref(rhs.m_rc);
   }
 
   /// Free and reset current pointer (if any)
   void loseref() throw ()
   {
-    // TODO: Make threadsafe
-    if (m_l == this && m_Obj) freemem();
+    if (m_rc.loseref() && m_Obj) freemem();
     m_Obj = 0;
-    m_l->m_r = m_r;
-    m_r->m_l = m_l;
-    m_l = m_r = this;
   }
 
-  // TODO: Make threadsafe
   void redoref(const PQAlloc &rhs) throw ()
 	{ if (rhs.m_Obj != m_Obj) { loseref(); makeref(rhs); } }
   void redoref(T *obj) throw ()
