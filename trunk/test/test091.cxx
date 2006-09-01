@@ -39,7 +39,6 @@ int main(int, char *argv[])
     if (a.pos() != 0)
       throw logic_error("Fresh cursor is at position " + to_string(a.pos()));
 
-    //throw logic_error("absolute_cursor::fetch() does not work yet");
     result all = a.fetch(cursor_base::all());
     const cursor_base::difference_type backwards =
 	-cursor_base::difference_type(all.size());
