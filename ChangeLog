@@ -1,4 +1,6 @@
 2006-09-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ README:
+  - Removed old pqxx.tk URL
  src/connection_base.cxx:
   - Forgot to check result of PQprepare(), thanks theo@crazygreek.co.uk
 2006-08-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
