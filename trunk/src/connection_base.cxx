@@ -852,7 +852,8 @@ pqxx::result pqxx::connection_base::prepared_exec(
   if (!s.registered && supports(cap_prepared_statements))
   {
 #ifdef PQXX_HAVE_PQPREPARE
-    PQprepare(m_Conn, statement.c_str(), s.definition.c_str(), 0, 0);
+    result r(PQprepare(m_Conn, statement.c_str(), s.definition.c_str(), 0, 0));
+    r.CheckStatus("[PREPARE " + statement + "]");
 #else
     stringstream P;
     P << "PREPARE \"" << statement << '"';

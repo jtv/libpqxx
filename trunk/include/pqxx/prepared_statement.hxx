@@ -97,8 +97,11 @@ public:
     invocation &operator()(const T &v, bool nonnull=true)
 	{ return setparam(to_string(v), nonnull); }
 
-  /// Pass pointer parameter value, or null if pointer is null
+  /// Pass C-style parameter string, or null if pointer is null
   /**
+   * This version is for passing C-style strings; it's a template, so any
+   * pointer type that @c to_string accepts will do.
+   *
    * @warning Be very careful with the special constant @c NULL!  Since @c NULL
    * in C++ is an @c int, not a pointer, a value of @c NULL would cause the
    * wrong version of this template to be invoked.  To all intents and purposes
@@ -110,8 +113,8 @@ public:
    * operator; if you don't want to do that, at least add a second argument of
    * @c false to make clear that you want a null, not a zero.
    *
-   * @param v parameter value (will be represented as a string internally)
-   * @param nonnull replaces value with null if set to false
+   * @param v parameter value (will be represented as a C++ string internally)
+   * @param nonnull replaces value with null if set to @c false
    */
   template<typename T>
     invocation &operator()(T *v, bool nonnull=true)
