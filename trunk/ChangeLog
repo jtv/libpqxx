@@ -1,3 +1,6 @@
+2006-09-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, src/connection_base.cxx, test/test085.cxx:
+  - New function prepare_now(), thanks theo@crazygreek.co.uk
 2006-09-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  README:
   - Removed old pqxx.tk URL
