@@ -94,6 +94,9 @@ int main()
 	T.prepared(QN_readpgtables).exec(),
 	T.exec(Q_readpgtables));
 
+    // Try prepare_now() on an already prepared statement
+    C.prepare_now(QN_readpgtables);
+
     // Pro forma check: same thing but with name passed as C-style string
     compare_results(QN_readpgtables+"_char",
 	T.prepared(QN_readpgtables.c_str()).exec(),
@@ -101,6 +104,20 @@ int main()
 
     cout << "Dropping prepared statement..." << endl;
     C.unprepare(QN_readpgtables);
+
+    bool failed = true;
+    try
+    {
+      C.prepare_now(QN_readpgtables);
+      failed = false;
+    }
+    catch (const exception &e)
+    {
+      cout << "(Expected) " << e.what() << endl;
+    }
+    if (!failed)
+      throw runtime_error("prepare_now() succeeded on dropped statement");
+
 
     // Just to try and confuse things, "unprepare" twice
     cout << "Testing error detection and handling..." << endl;
@@ -115,6 +132,7 @@ int main()
 
     // Re-prepare the same statement and test again
     C.prepare(QN_readpgtables, Q_readpgtables);
+    C.prepare_now(QN_readpgtables);
     compare_results(QN_readpgtables+"_2",
 	T.prepared(QN_readpgtables).exec(),
 	T.exec(Q_readpgtables));

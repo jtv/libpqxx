@@ -497,6 +497,11 @@ public:
    * }
    * @endcode
    *
+   * For better performance, prepared statements aren't really registered with
+   * the backend until they are first used.  If this is not what you want, e.g.
+   * because you have very specific realtime requirements, you can use the
+   * @c prepare_now() function to force immediate preparation.
+   *
    * @param name unique identifier to associate with new prepared statement
    * @param definition SQL statement to prepare
    */
@@ -505,6 +510,19 @@ public:
 
   /// Drop prepared statement
   void unprepare(const PGSTD::string &name);				//[t85]
+
+  /// Request that prepared statement be registered with the server
+  /** If the statement had already been fully prepared, this will do nothing.
+   *
+   * If the connection should break and be transparently restored, then the new
+   * connection will again defer registering the statement with the server.
+   * Since connections are never restored inside backend transactions, doing
+   * this once at the beginning of your transaction ensures that the statement
+   * will not be re-registered during that transaction.  In most cases, however,
+   * it's probably better not to use this and let the connection decide when and
+   * whether to register prepared statements that you've defined.
+   */
+  void prepare_now(const PGSTD::string &name);				//[t85]
 
   /**
    * @}
@@ -654,6 +672,7 @@ private:
       const PGSTD::string &sqltype,
       prepare::param_treatment);
 
+  prepare::internal::prepared_def &register_prepared(const PGSTD::string &);
   result prepared_exec(const PGSTD::string &,
 	const char *const[],
 	const int[],

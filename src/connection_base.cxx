@@ -829,22 +829,12 @@ void pqxx::connection_base::prepare_param_declare(
 }
 
 
-// TODO: Can we make this work with std::string instead of C-style?
-pqxx::result pqxx::connection_base::prepared_exec(
-	const PGSTD::string &statement,
-	const char *const params[],
-	const int paramlengths[],
-	int nparams)
+pqxx::prepare::internal::prepared_def &
+pqxx::connection_base::register_prepared(const PGSTD::string &name)
 {
   activate();
 
-  prepare::internal::prepared_def &s = find_prepared(statement);
-
-  if (nparams != int(s.parameters.size()))
-    throw logic_error("Wrong number of parameters for prepared statement " +
-	statement + ": "
-	"expected " + to_string(s.parameters.size()) + ", "
-	"received " + to_string(nparams));
+  prepare::internal::prepared_def &s = find_prepared(name);
 
   s.complete = true;
 
@@ -852,11 +842,11 @@ pqxx::result pqxx::connection_base::prepared_exec(
   if (!s.registered && supports(cap_prepared_statements))
   {
 #ifdef PQXX_HAVE_PQPREPARE
-    result r(PQprepare(m_Conn, statement.c_str(), s.definition.c_str(), 0, 0));
-    r.CheckStatus("[PREPARE " + statement + "]");
+    result r(PQprepare(m_Conn, name.c_str(), s.definition.c_str(), 0, 0));
+    r.CheckStatus("[PREPARE " + name + "]");
 #else
     stringstream P;
-    P << "PREPARE \"" << statement << '"';
+    P << "PREPARE \"" << name << '"';
 
     if (!s.parameters.empty())
       P << '('
@@ -871,6 +861,31 @@ pqxx::result pqxx::connection_base::prepared_exec(
 #endif
     s.registered = true;
   }
+
+  return s;
+}
+
+void pqxx::connection_base::prepare_now(const PGSTD::string &name)
+{
+  register_prepared(name);
+}
+
+
+// TODO: Can we make this work with std::string instead of C-style?
+pqxx::result pqxx::connection_base::prepared_exec(
+	const PGSTD::string &statement,
+	const char *const params[],
+	const int paramlengths[],
+	int nparams)
+{
+  prepare::internal::prepared_def &s = register_prepared(statement);
+
+  if (nparams != int(s.parameters.size()))
+    throw logic_error("Wrong number of parameters for prepared statement " +
+	statement + ": "
+	"expected " + to_string(s.parameters.size()) + ", "
+	"received " + to_string(nparams));
+
 
 #ifdef PQXX_HAVE_PQEXECPREPARED
   internal::scoped_array<int> binary(nparams+1);
