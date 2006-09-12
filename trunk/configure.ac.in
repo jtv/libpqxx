@@ -704,6 +704,15 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 )
 AC_MSG_RESULT($pqftable)
 
+AC_MSG_CHECKING([PQftablecol()])
+pqftablecol=yes
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[PGresult*r=0;PQftablecol(r,0)],
+	AC_DEFINE(PQXX_HAVE_PQFTABLECOL,1,[Define if libpq has PQftablecol()]),
+	[pqftablecol=no]
+)
+AC_MSG_RESULT($pqftablecol)
+
 AC_MSG_CHECKING([for new COPY functions])
 pqputcopy=yes
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
