@@ -198,6 +198,28 @@ public:
      */
     oid column_table(const PGSTD::string &ColName) const		//[t2]
 	{ return column_table(column_number(ColName)); }
+
+    /// What column number in its table did this result column come from?
+    /** A meaningful answer can be given only if the column in question comes
+     * directly from a column in a table.  If the column is computed in any
+     * other way, a logic_error will be thrown.
+     *
+     * @param ColNum a zero-based column number in this result set
+     * @return a zero-based column number in originating table
+     * 
+     * Requires libpq from PostgreSQL 7.4 or better, as well as a server version
+     * of at least 7.4.
+     */
+    size_type table_column(size_type ColNum) const			//[t93]
+	{ return m_Home->table_column(ColNum); }
+
+    /// What column number in its table did this result column come from?
+    size_type table_column(int ColNum) const				//[t93]
+	{ return table_column(size_type(ColNum)); }
+
+    /// What column number in its table did this result column come from?
+    size_type table_column(const PGSTD::string &ColName) const		//[t93]
+	{ return table_column(column_number(ColName)); }
     //@}
 
     result::size_type num() const { return rownumber(); }		//[t1]
@@ -297,6 +319,10 @@ public:
     oid table() const { return home()->column_table(col()); }		//[t2]
 
     tuple::size_type num() const { return col(); }			//[t82]
+
+    /// What column number in its originating table did this column come from?
+    tuple::size_type table_column() const				//[t93]
+	{ return home()->table_column(col()); }
     //@}
 
     /**
@@ -721,11 +747,11 @@ public:
   };
 
 
-  result() throw () : super() {}					//[t3]
-  result(const result &rhs) throw () : super(rhs) {}			//[t1]
+  result() throw () : super(), m_protocol(0) {}				//[t3]
+  result(const result &rhs) throw () : super(rhs), m_protocol(0) {}	//[t1]
 
   result &operator=(const result &rhs) throw ()				//[t10]
-	{ super::operator=(rhs); return *this; }
+	{ super::operator=(rhs); m_protocol=rhs.m_protocol; return *this; }
 
   /**
    * @name Comparisons
@@ -822,6 +848,17 @@ public:
    */
   oid column_table(const PGSTD::string &ColName) const			//[t2]
 	{ return column_table(column_number(ColName)); }
+
+  /// What column in its table did this column come from?
+  tuple::size_type table_column(tuple::size_type ColNum) const;		//[t93]
+
+  /// What column in its table did this column come from?
+  tuple::size_type table_column(int ColNum) const			//[t93]
+	{ return table_column(tuple::size_type(ColNum)); }
+
+  /// What column in its table did this column come from?
+  tuple::size_type table_column(const PGSTD::string &ColName) const	//[t93]
+	{ return table_column(column_number(ColName)); }
   //@}
 
   /// If command was @c INSERT of 1 row, return oid of inserted row
@@ -874,9 +911,8 @@ private:
 
   friend class connection_base;
   friend class pipeline;
-  explicit result(internal::pq::PGresult *rhs) throw () : super(rhs) {}
-  result &operator=(internal::pq::PGresult *rhs) throw ()
-	{ super::operator=(rhs); return *this; }
+  explicit result(internal::pq::PGresult *rhs, int protocol=0) throw () :
+    super(rhs), m_protocol(protocol) {}
   bool operator!() const throw () { return !c_ptr(); }
   operator bool() const throw () { return c_ptr() != 0; }
   void PQXX_PRIVATE CheckStatus(const PGSTD::string &Query) const;
@@ -889,6 +925,8 @@ private:
   friend class Cursor;	// deprecated
   friend class cursor_base;
   const char *CmdStatus() const throw ();
+
+  int m_protocol;
 };
 
 

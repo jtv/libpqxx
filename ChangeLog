@@ -1,6 +1,12 @@
 2006-09-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in, config/sample-headers/libpq/*/libpq-internal.h:
   - Check for PQftablecol()
+ include/pqxx/result.cxx, src/result.cxx, src/connection_base.cxx:
+  - Removed private assignment-to-PGresult * operator
+  - Results can keep track of backend protocol
+ test/test093.cxx:
+  - New
+  - Test querying of table columns' origins
  TODO:
   - Cleaned up old items
   - Being phased out in favour of online Trac environment

@@ -281,6 +281,32 @@ pqxx::oid pqxx::result::column_table(tuple::size_type ColNum) const
 #endif
 
 
+#ifdef PQXX_HAVE_PQFTABLECOL
+pqxx::result::tuple::size_type
+pqxx::result::table_column(tuple::size_type ColNum) const
+{
+  const tuple::size_type n = PQftablecol(c_ptr(), ColNum);
+  if (n) return n-1;
+
+  // Failed.  Now find out why, so we can throw a sensible exception.
+  // Possible reasons:
+  // 1. Column out of range
+  // 2. Not using protocol 3.0 or better
+  // 3. Column not taken directly from a table
+  if (ColNum > columns())
+    throw out_of_range("Invalid column index in table_column(): " +
+      to_string(ColNum));
+
+  if (m_protocol < 3)
+    throw feature_not_supported("Backend version does not support querying of "
+      "column's original number",
+      "[TABLE_COLUMN]");
+
+  throw logic_error("Can't query origin of column " + to_string(ColNum) + ": "
+	"not derived from table column");
+}
+#endif
+
 int pqxx::result::errorposition() const throw ()
 {
   int pos = -1;
