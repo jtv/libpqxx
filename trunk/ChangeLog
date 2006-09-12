@@ -1,3 +1,6 @@
+2006-09-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/vc-libpqxx.mak.template:
+  - Create $(OUTDIR) if needed, thanks xf10036@hotmail.com
 2006-09-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, src/connection_base.cxx, test/test085.cxx:
   - New function prepare_now(), thanks theo@crazygreek.co.uk

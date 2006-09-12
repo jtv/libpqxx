@@ -117,13 +117,16 @@ dll: dlldebug dllrelease
 
 all: static dll
 
-staticdebug: $(OUTFILE_STATICDEBUG).lib $(OUTDIR)\libpqd.dll
+$(OUTDIR):
+	-@mkdir $(OUTDIR)
 
-staticrelease: $(OUTFILE_STATICRELEASE).lib $(OUTDIR)\libpq.dll
+staticdebug: $(OUTFILE_STATICDEBUG).lib $(OUTDIR) $(OUTDIR)\libpqd.dll
 
-dlldebug: $(OUTFILE_DLLDEBUG).dll $(OUTDIR)\libpqd.dll
+staticrelease: $(OUTFILE_STATICRELEASE).lib $(OUTDIR) $(OUTDIR)\libpq.dll
 
-dllrelease: $(OUTFILE_DLLRELEASE).dll $(OUTDIR)\libpq.dll
+dlldebug: $(OUTFILE_DLLDEBUG).dll $(OUTDIR) $(OUTDIR)\libpqd.dll
+
+dllrelease: $(OUTFILE_DLLRELEASE).dll $(OUTDIR) $(OUTDIR)\libpq.dll
 
 clean:
 	@echo Deleting all intermediate output files and the contents of $(OUTDIR).
