@@ -1,5 +1,6 @@
 2.6.9
- - Fixed small memory leak when preparing statements
+ - Fixes small memory leak when preparing statements
+ - With Visual C++, creates lib/ directory if not already present
  - Useful error messages when preparing statements
  - Allows prepared statements to be registered explicitly
 2.6.8
