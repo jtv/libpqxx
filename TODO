@@ -1,12 +1,5 @@
-All over
-(*) Use gcc's malloc attribute ("pointer not aliased after return")
-(*) Use gcc's nonnull attribute for non-null pointer parameters
-(*) Use gcc's noreturn attribute for non-returning functions
-(*) Use gcc's pure function attribute
-
 Build & Configuration
 (*) Move PGHOST guessing logic from tools/preprelease to Makefile.am?
-(*) Make test suite install to a temporary directory & build a test program
 
 Connections
 (*) Support scoped/unscoped non-superuser identity (outside transaction only)
@@ -17,9 +10,7 @@ Exceptions
 (*) Document exception guarantees (weak / strong / poorly defined / pure)
 
 Results
-(*) Splice out a reusable interface definition
 (*) Real encoding support (PQmblen(), PQenv2encoding())
-(*) Support PQftablecol()
 (*) Conceive metadata model
 
 Streams
@@ -32,15 +23,3 @@ Streams
 Tests
 (*) Test broken connections
 (*) Test tablereader and rows ending in empty fields
-
-Thread-safety
-(*) Guard against race bugs by marking "last modification" of objects
-(*) User-definable locking primitive set
-
-Transactions
-(*) User schema support for robusttransaction log table
-(*) Pipelined operation for high-level classes: cursor, tablestream, ...
-
-Util
-(*) Report closing of non-open sessionfocus only during explicit close, not dtor
-
