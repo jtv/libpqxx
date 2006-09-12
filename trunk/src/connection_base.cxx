@@ -310,7 +310,7 @@ void pqxx::connection_base::SetupState()
     // Now do the whole batch at once
     PQsendQuery(m_Conn, restore_query.str().c_str());
     result r;
-    do r = PQgetResult(m_Conn); while (r);
+    do r = result(PQgetResult(m_Conn)); while (r);
   }
 
   m_Completed = true;
@@ -703,14 +703,15 @@ const char *pqxx::connection_base::ErrMsg() const throw ()
 pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 {
   activate();
+  const int proto = protocol_version();
 
-  result R( PQexec(m_Conn, Query) );
+  result R(PQexec(m_Conn, Query), proto);
 
   while ((Retries > 0) && !R && !is_open())
   {
     Retries--;
     Reset();
-    if (is_open()) R = PQexec(m_Conn, Query);
+    if (is_open()) R = result(PQexec(m_Conn, Query), proto);
   }
 
   check_result(R, Query);
@@ -880,6 +881,8 @@ pqxx::result pqxx::connection_base::prepared_exec(
 {
   prepare::internal::prepared_def &s = register_prepared(statement);
 
+  const int proto = protocol_version();
+
   if (nparams != int(s.parameters.size()))
     throw logic_error("Wrong number of parameters for prepared statement " +
 	statement + ": "
@@ -899,7 +902,8 @@ pqxx::result pqxx::connection_base::prepared_exec(
 	params,
 	paramlengths,
 	binary.c_ptr(),
-	0));
+	0),
+	proto);
 #else
   stringstream Q;
   if (supports(cap_prepared_statements))
@@ -933,7 +937,7 @@ pqxx::result pqxx::connection_base::prepared_exec(
     }
     Q << S;
   }
-  result r(Exec(Q.str().c_str(), 0));
+  result r(Exec(Q.str().c_str(), 0), proto);
 #endif
   check_result(r, statement.c_str());
   get_notifs();
@@ -1080,7 +1084,7 @@ bool pqxx::connection_base::ReadCopyLine(PGSTD::string &Line)
       throw runtime_error("Reading of table data failed: " + string(ErrMsg()));
 
     case -1:
-      for (result R(PQgetResult(m_Conn)); R; R=PQgetResult(m_Conn))
+      for (result R(PQgetResult(m_Conn)); R; R=result(PQgetResult(m_Conn)))
 	check_result(R, "[END COPY]");
       Result = false;
       break;
