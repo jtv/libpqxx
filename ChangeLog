@@ -1,4 +1,9 @@
 2006-09-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in, config/sample-headers/libpq/*/libpq-internal.h:
+  - Check for PQftablecol()
+ TODO:
+  - Cleaned up old items
+  - Being phased out in favour of online Trac environment
  win32/vc-libpqxx.mak.template:
   - Create $(OUTDIR) if needed, thanks xf10036@hotmail.com
 2006-09-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
