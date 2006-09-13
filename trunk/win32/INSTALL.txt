@@ -45,6 +45,7 @@ The source package for PostgreSQL can be obtained from http://postgresql.org/
 
 To build PostgreSQL with Visual C++, "cd" into the source tree and run:
 
+	VCVARS32.BAT
 	nmake /f win32.mak
 
 (Instructions for building PostgreSQL with MinGW are given in the MSYS section
