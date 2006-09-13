@@ -70,7 +70,7 @@ int main(int, char *argv[])
 
     const char Query[] = "SELECT * FROM pqxxevents ORDER BY year";
 
-    result R( T.Exec(Query) );
+    result R( T.exec(Query) );
     string Msg;
 
     for (result::size_type BlockSize = 2; BlockSize <= R.size()+1; ++BlockSize)

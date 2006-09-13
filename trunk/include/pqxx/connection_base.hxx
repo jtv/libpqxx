@@ -582,60 +582,6 @@ public:
    */
   PGSTD::string adorn_name(const PGSTD::string &);			//[90]
 
-#ifdef PQXX_DEPRECATED_HEADERS
-  /**
-   * @name 1.x API
-   *
-   * These are all deprecated; they were defined in the libpqxx 1.x API but are
-   * no longer actively supported.
-   *
-   * @{
-   */
-  /// @deprecated Use disconnect() instead
-  void Disconnect() throw () PQXX_DEPRECATED { disconnect(); }
-  /// @deprecated Use perform() instead
-  template<typename TRANSACTOR> void Perform(const TRANSACTOR &T, int A=3)
-	PQXX_DEPRECATED { perform(T,A); }
-  /// @deprecated Use set_noticer() instead
-  PGSTD::auto_ptr<noticer> SetNoticer(PGSTD::auto_ptr<noticer> N)
-	PQXX_DEPRECATED { return set_noticer(N); }
-  /// @deprecated Use get_noticer() instead
-  noticer *GetNoticer() const throw () PQXX_DEPRECATED { return get_noticer(); }
-  /// @deprecated Use process_notice() instead
-  void ProcessNotice(const char msg[]) throw () PQXX_DEPRECATED
-	{ return process_notice(msg); }
-  /// @deprecated Use process_notice() instead
-  void ProcessNotice(const PGSTD::string &msg) throw () PQXX_DEPRECATED
-	{ return process_notice(msg); }
-  /// @deprecated Use trace() instead
-  void Trace(FILE *F) PQXX_DEPRECATED { trace(F); }
-  /// @deprecated Use get_notifs() instead
-  void GetNotifs() PQXX_DEPRECATED { get_notifs(); }
-  /// @deprecated Use dbname() instead
-  const char *DbName() PQXX_DEPRECATED { return dbname(); }
-  /// @deprecated Use username() instead
-  const char *UserName() PQXX_DEPRECATED { return username(); }
-  /// @deprecated Use hostname() instead
-  const char *HostName() PQXX_DEPRECATED { return hostname(); }
-  /// @deprecated Use port() instead
-  const char *Port() PQXX_DEPRECATED { return port(); }
-  /// @deprecated Use backendpid() instead
-  int BackendPID() const PQXX_DEPRECATED { return backendpid(); }
-  /// @deprecated Use activate() instead
-  void Activate() PQXX_DEPRECATED { activate(); }
-  /// @deprecated Use deactivate() instead
-  void Deactivate() PQXX_DEPRECATED { deactivate(); }
-  /// @deprecated Use set_client_encoding() instead
-  void SetClientEncoding(const PGSTD::string &E) PQXX_DEPRECATED
-	{ set_client_encoding(E); }
-  /// @deprecated Use set_variable() instead
-  void SetVariable(const PGSTD::string &Var, const PGSTD::string &Val)
-	PQXX_DEPRECATED { set_variable(Var, Val); }
-
-  /**
-   * @}
-   */
-#endif
 
 protected:
   explicit connection_base(connectionpolicy &);

@@ -58,11 +58,6 @@ public:
    */
   virtual void complete() =0;
 
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use name() instead
-  PGSTD::string Name() const PQXX_DEPRECATED { return name(); }
-#endif
-
 protected:
   const PGSTD::string &NullStr() const { return m_Null; }
   bool is_finished() const throw () { return m_Finished; }

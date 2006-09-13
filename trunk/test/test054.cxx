@@ -30,7 +30,7 @@ public:
     A.to_file("pqxxlo.txt");
   }
 
-  void OnCommit()
+  void on_commit()
   {
     m_ObjectOutput = m_Object;
   }

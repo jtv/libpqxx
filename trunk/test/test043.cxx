@@ -61,7 +61,7 @@ int main(int, char *argv[])
     transaction<serializable> T(C, "test19");
 
     // Count rows.
-    result R( T.Exec("SELECT count(*) FROM " + Table) );
+    result R( T.exec("SELECT count(*) FROM " + Table) );
     int Rows;
     R.at(0).at(0).to(Rows);
 

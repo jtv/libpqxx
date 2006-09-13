@@ -92,14 +92,6 @@ public:
    */
   virtual void complete();						//[t8]
 
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use get_raw_line() instead
-  bool GetRawLine(PGSTD::string &L) PQXX_DEPRECATED { return get_raw_line(L); }
-  /// @deprecated Use tokenize<>() instead
-  template<typename TUPLE> void Tokenize(PGSTD::string L, TUPLE &T) const
-	PQXX_DEPRECATED { tokenize(L, T); }
-#endif
-
 private:
   void setup(transaction_base &T,
       const PGSTD::string &RName,
