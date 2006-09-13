@@ -1,3 +1,7 @@
+2006-09-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/INSTALL.txt
+  - Need to run VCVARS32.BAT before building postgres as well as libpqxx
+  - Thanks Bart Samwel and Jonathan Blitz
 2006-09-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/Makefile.am, include/pqxx/all.h, include/pqxx/connection.h,
  include/pqxx/connection_base.h, include/pqxx/connectionitf.h,
