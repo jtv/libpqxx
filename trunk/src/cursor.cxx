@@ -159,7 +159,13 @@ void pqxx::cursor_base::close() throw ()
 {
   if (m_ownership==owned)
   {
-    try { m_context->exec("CLOSE " + name()); } catch (const exception &) { }
+    try
+    {
+      m_context->exec("CLOSE \"" + name() + "\"");
+    }
+    catch (const exception &)
+    {
+    }
 
     if (m_adopted) m_context->m_reactivation_avoidance.add(-1);
     m_ownership = loose;
