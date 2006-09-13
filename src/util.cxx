@@ -460,23 +460,6 @@ template<> string to_string(const char &Obj)
 } // namespace pqxx
 
 
-void pqxx::internal::FromString_string(const char Str[], string &Obj)
-{
-  if (!Str)
-    throw runtime_error("Attempt to convert NULL C string to C++ string");
-  Obj = Str;
-}
-
-
-void pqxx::internal::FromString_ucharptr(const char Str[],
-    const unsigned char *&Obj)
-{
-  const char *C;
-  FromString(Str, C);
-  Obj = reinterpret_cast<const unsigned char *>(C);
-}
-
-
 string pqxx::internal::escape_string(const char str[], size_t maxlen)
 {
   string result;
@@ -565,18 +548,6 @@ string pqxx::sqlesc(const char str[], size_t maxlen)
 string pqxx::sqlesc(const string &str)
 {
   return sqlesc(str.c_str(), str.size());
-}
-
-
-string pqxx::internal::Quote_string(const string &Obj, bool EmptyIsNull)
-{
-  return (EmptyIsNull && Obj.empty()) ? "null" : ("'" + sqlesc(Obj) + "'");
-}
-
-
-string pqxx::internal::Quote_charptr(const char Obj[], bool EmptyIsNull)
-{
-  return Obj ? Quote(string(Obj), EmptyIsNull) : "null";
 }
 
 

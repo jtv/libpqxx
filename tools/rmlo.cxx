@@ -32,7 +32,7 @@ int main(int, char *argv[])
     for (int i=1; argv[i]; ++i)
     {
       oid O;
-      FromString(argv[i], O);
+      from_string(argv[i], O);
       try
       {
         C.perform(RemoveLO(O));

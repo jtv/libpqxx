@@ -397,152 +397,17 @@ namespace internal
 {
 typedef unsigned long result_size_type;
 typedef long result_difference_type;
-
-/// C-style format strings for various built-in types
-/** @deprecated To be removed when ToString and FromString are taken out
- *
- * Only allowed for certain types, for which this function is explicitly
- * specialized.  When attempting to use the template for an unsupported type,
- * the generic version will be instantiated.  This will result in a link error
- * for the symbol error_unsupported_type_in_string_conversion(), with a template
- * argument describing the unsupported input type.
- */
-template<typename T> inline const char *FmtString(T t) PQXX_DEPRECATED
-{
-  error_unsupported_type_in_string_conversion(t);
-  return 0;
-}
-
-template<> inline const char *FmtString(short)         { return "%hd"; }
-template<> inline const char *FmtString(unsigned short){ return "%hu"; }
-template<> inline const char *FmtString(int)           { return  "%i"; }
-template<> inline const char *FmtString(long)          { return "%li"; }
-template<> inline const char *FmtString(unsigned)      { return  "%u"; }
-template<> inline const char *FmtString(unsigned long) { return "%lu"; }
-template<> inline const char *FmtString(float)         { return  "%f"; }
-template<> inline const char *FmtString(double)        { return "%lf"; }
-template<> inline const char *FmtString(char)          { return  "%c"; }
-template<> inline const char *FmtString(unsigned char) { return  "%c"; }
-#if defined(PQXX_HAVE_LONG_DOUBLE)
-template<> inline const char *FmtString(long double)   { return "%Lf"; }
-#endif
-
 } // namespace internal
-
-/// Convert object of built-in type to string
-/** @deprecated Use the newer, rewritten to_string() instead.
- * @warning The conversion is done using the currently active locale, whereas
- * PostgreSQL expects values in the "default" (C) locale.  This means that if
- * you intend to use this function from a locale that renders the data types in
- * question (particularly numeric types like float and int) differently from the
- * C default, you'll need to switch back to the C locale before the call.
- * This problem does not exist with the newer to_string function template.
- */
-template<typename T> inline PGSTD::string ToString(const T &Obj) PQXX_DEPRECATED
-{
-  // TODO: Find a decent way to determine max string length at compile time!
-  char Buf[500];
-  sprintf(Buf, internal::FmtString(Obj), Obj);
-  return PGSTD::string(Buf);
-}
-
-
-template<> inline PGSTD::string ToString(const PGSTD::string &Obj) {return Obj;}
-template<> inline PGSTD::string ToString(const char *const &Obj) { return Obj; }
-template<> inline PGSTD::string ToString(char *const &Obj) { return Obj; }
-
-template<> inline PGSTD::string ToString(const unsigned char *const &Obj)
-{
-  return reinterpret_cast<const char *>(Obj);
-}
-
-template<> inline PGSTD::string ToString(const bool &Obj)
-{
-  return ToString(unsigned(Obj));
-}
-
-template<> inline PGSTD::string ToString(const short &Obj)
-{
-  return ToString(int(Obj));
-}
-
-template<> inline PGSTD::string ToString(const unsigned short &Obj)
-{
-  return ToString(unsigned(Obj));
-}
-
-
-/// Convert string to object of built-in type
-/** @deprecated Use the stricter, safer from_string instead.
- * @warning The conversion is done using the currently active locale, whereas
- * PostgreSQL delivers values in the "default" (C) locale.  This means that if
- * you intend to use this function from a locale that doesn't understand the
- * data types in question (particularly numeric types like float and int) in
- * default C format, you'll need to switch back to the C locale before the call.
- * This problem does not exist with the newer from_string function template.
- */
-template<typename T> inline void FromString(const char Str[], T &Obj)
-  PQXX_DEPRECATED
-{
-  if (!Str) throw PGSTD::runtime_error("Attempt to convert NULL string to " +
-		                     PGSTD::string(typeid(T).name()));
-
-  if (sscanf(Str, internal::FmtString(Obj), &Obj) != 1)
-    throw PGSTD::runtime_error("Cannot convert value '" +
-		             PGSTD::string(Str) +
-			     "' to " + typeid(T).name());
-}
 
 
 namespace internal
 {
-/// Internal string-escaping function; does not deal with encodings well
+/// Internal string-escaping function; does not deal well with encoding issues
 /** @deprecated Use transaction's esc() function instead
  */
-PGSTD::string escape_string(const char str[], size_t maxlen);
-
-/// For libpqxx internal use only: convert C string to C++ string
-/** @deprecated To be removed when FromString is taken out
- */
-void PQXX_LIBEXPORT FromString_string(const char Str[], PGSTD::string &Obj)
-  PQXX_DEPRECATED;
-
-/// For libpqxx internal use only: convert unsigned char * to C++ string
-/** @deprecated To be removed when FromString is taken out
- */
-void PQXX_LIBEXPORT FromString_ucharptr(const char Str[],
-	const unsigned char *&Obj)
-  PQXX_DEPRECATED;
-
-/// For libpqxx internal use only: quote std::string
-PGSTD::string PQXX_LIBEXPORT Quote_string(const PGSTD::string &Obj,
-	bool EmptyIsNull);
-
-/// For libpqxx internal use only: quote const char *
-PGSTD::string PQXX_LIBEXPORT Quote_charptr(const char Obj[], bool EmptyIsNull);
+PGSTD::string escape_string(const char str[], size_t maxlen) PQXX_DEPRECATED;
 } // namespace internal
 
-
-template<> inline void FromString(const char Str[], PGSTD::string &Obj)
-{
-  internal::FromString_string(Str, Obj);
-}
-
-template<> inline void FromString(const char Str[], const char *&Obj)
-{
-  if (!Str) throw PGSTD::runtime_error("Attempt to read NULL string");
-  Obj = Str;
-}
-
-template<> inline void FromString(const char Str[], const unsigned char *&Obj)
-{
-  internal::FromString_ucharptr(Str, Obj);
-}
-
-template<> inline void FromString(const char Str[], bool &Obj)
-{
-  from_string(Str, Obj);
-}
 
 
 /**
@@ -618,13 +483,12 @@ template<> inline void FromString(const char Str[], bool &Obj)
  * code by feeding it some string containing e.g. a closing quote followed by
  * SQL commands you did not intend to execute.
  *
- * Unlike its predecessor Quote(), which is now obsolete, this function does not
- * add SQL-style single quotes around the result string; nor does it recognize
- * and generate nulls.
+ * This function does not add SQL-style single quotes around the result string,
+ * nor does it recognize or generate nulls.
  *
  * @deprecated Use the transaction's esc() function instead
  */
-PGSTD::string PQXX_LIBEXPORT sqlesc(const char str[]);
+PGSTD::string PQXX_LIBEXPORT sqlesc(const char str[]) PQXX_DEPRECATED;
 
 /// Escape string for inclusion in SQL strings
 /** Reads and escapes input string.  The string is terminated by either a nul
@@ -634,13 +498,13 @@ PGSTD::string PQXX_LIBEXPORT sqlesc(const char str[]);
  * @param maxlen largest possible length of input string, not including optional
  * terminating nul character.
  *
- * Unlike its predecessor Quote(), which is now obsolete, this function does not
- * add SQL-style single quotes around the result string; nor does it recognize
- * and generate nulls.
+ * This function does not add SQL-style single quotes around the result string,
+ * nor does it recognize or generate nulls.
  *
  * @deprecated Use the transaction's esc() function instead
  */
-PGSTD::string PQXX_LIBEXPORT sqlesc(const char str[], size_t maxlen);
+PGSTD::string PQXX_LIBEXPORT sqlesc(const char str[], size_t maxlen)
+	PQXX_DEPRECATED;
 
 /// Escape string for inclusion in SQL strings
 /** This works like the other sqlesc() variants, which means that if the string
@@ -649,71 +513,8 @@ PGSTD::string PQXX_LIBEXPORT sqlesc(const char str[], size_t maxlen);
  *
  * @deprecated Use the transaction's esc() function instead
  */
-PGSTD::string PQXX_LIBEXPORT sqlesc(const PGSTD::string &);
+PGSTD::string PQXX_LIBEXPORT sqlesc(const PGSTD::string &) PQXX_DEPRECATED;
 
-
-/// Quote string for use in SQL
-/** Generate SQL-quoted version of string.  If EmptyIsNull is set, an empty
- * string will generate the null value rather than an empty string.
- *
- * @deprecated Use the transaction's esc() function instead
- */
-template<typename T> PGSTD::string Quote(const T &Obj, bool EmptyIsNull)
-  PQXX_DEPRECATED;
-
-
-/// std::string version, on which the other versions are built
-/** @deprecated Use the transaction's esc() function instead
- */
-template<>
-inline PGSTD::string Quote(const PGSTD::string &Obj, bool EmptyIsNull)
-  PQXX_DEPRECATED
-{
-  return internal::Quote_string(Obj, EmptyIsNull);
-}
-
-/// Special case for const char *, accepting null pointer as null value
-/** @deprecated Use the transaction's esc() function instead
- */
-template<> inline PGSTD::string Quote(const char *const & Obj, bool EmptyIsNull)
-  PQXX_DEPRECATED
-{
-  return internal::Quote_charptr(Obj, EmptyIsNull);
-}
-
-
-/// Specialization for string constants
-/** This specialization is a little complicated, because string constants are
- * of the type @c char[], not of type <tt>const char *</tt> as one might expect.
- * Note that the size of the array is part of the type, for which reason we need
- * it in our template here.
- *
- * @deprecated Use the transaction's esc() function instead
- */
-template<int LEN> inline PGSTD::string Quote(const char (&Obj)[LEN],
-					     bool EmptyIsNull)
-  PQXX_DEPRECATED
-{
-  return internal::Quote_charptr(Obj, EmptyIsNull);
-}
-
-
-template<typename T> inline PGSTD::string Quote(const T &Obj, bool EmptyIsNull)
-  PQXX_DEPRECATED
-{
-  return Quote(ToString(Obj), EmptyIsNull);
-}
-
-
-/// Quote string for use in SQL
-/** This version of the function never generates null values.
- *
- * @deprecated Use the transaction's esc() function instead
- */
-template<typename T> inline PGSTD::string Quote(T Obj) PQXX_DEPRECATED
-{
-  return Quote(Obj, false);
-}
 //@}
 
 

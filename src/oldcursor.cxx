@@ -7,7 +7,7 @@
  *      implementation of the pqxx::Cursor class.
  *   pqxx::Cursor represents a database cursor.
  *
- * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -31,7 +31,7 @@ using namespace PGSTD;
 
 void pqxx::Cursor::init(const char Query[])
 {
-  m_Trans.Exec("DECLARE " + m_Name + " SCROLL CURSOR FOR " + Query);
+  m_Trans.exec("DECLARE " + m_Name + " SCROLL CURSOR FOR " + Query);
 }
 
 
@@ -66,7 +66,7 @@ pqxx::result pqxx::Cursor::Fetch(difference_type Count)
 
   try
   {
-    R = m_Trans.Exec(Cmd.c_str());
+    R = m_Trans.exec(Cmd.c_str());
   }
   catch (const exception &)
   {
@@ -91,7 +91,7 @@ pqxx::result::difference_type pqxx::Cursor::Move(difference_type Count)
 
   try
   {
-    result R( m_Trans.Exec(Cmd.c_str()) );
+    result R( m_Trans.exec(Cmd.c_str()) );
     if (!sscanf(R.CmdStatus(), "MOVE %ld", &A))
       throw runtime_error("Didn't understand database's reply to MOVE: "
 	                    "'" + string(R.CmdStatus()) + "'");

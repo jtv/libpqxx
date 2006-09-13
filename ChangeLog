@@ -1,3 +1,28 @@
+2006-09-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/Makefile.am, include/pqxx/all.h, include/pqxx/connection.h,
+ include/pqxx/connection_base.h, include/pqxx/connectionitf.h,
+ include/pqxx/dbtransaction.h, include/pqxx/except.h,
+ include/pqxx/isolation.h, include/pqxx/largeobject.h,
+ include/pqxx/tablereader.h, include/pqxx/tablestream.h,
+ include/pqxx/tablewriter.h, include/pqxx/transaction.h,
+ include/pqxx/transaction_base.h, include/pqxx/transactionitf.h,
+ include/pqxx/transactor.h, include/pqxx/trigger.h:
+  - Retired old 1.x-style ".h" headers
+ include/pqxx/result.hxx, include/pqxx/tablereader.hxx,
+ include/pqxx/tablestream.hxx, include/pqxx/tablewriter.hxx:
+  - Retired deprecated 1.x API functions
+ include/pqxx/transaction_base.hxx, src/oldcursor.cxx, test/test041.cxx,
+ src/cursor.cxx:
+  - Forgot to quote cursor name in cursor_base::close()
+ test/test043.cxx:
+  - Retired deprecated 1.x API functions
+ include/pqxx/transactor.hxx, test/test052.cxx, test/test054.cxx,
+ test/test057.cxx:
+  - Retired deprecated OnCommit() etc. callbacks
+ include/pqxx/trigger.hxx:
+  - Removed deprecated Name() function
+ include/pqxx/util.hxx, src/utils.cxx, tools/rmlo.cxx:
+  - Removed 1.x ToString(), FromString(), and Quote() functions
 2006-09-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in, config/sample-headers/libpq/*/libpq-internal.h:
   - Check for PQftablecol()

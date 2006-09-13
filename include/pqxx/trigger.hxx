@@ -83,11 +83,6 @@ public:
   virtual void operator()(int be_pid) =0;				//[t4]
 
 
-#ifdef PQXX_DEPRECATED_HEADERS
-  /// @deprecated Use name() instead
-  PGSTD::string Name() const PQXX_DEPRECATED { return name(); }
-#endif
-
 protected:
   connection_base &Conn() const throw () { return m_Conn; }		//[t23]
 

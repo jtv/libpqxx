@@ -26,9 +26,6 @@
 /* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
 
-/// Support deprecated OnCommit(), OnAbort(), OnDoubt() for the time being
-#define PQXX_DEPRECATED_TRANSACTION_CALLBACKS
-
 namespace pqxx
 {
 
@@ -122,23 +119,6 @@ public:
    */
   void on_doubt() throw () {}						//[t13]
 
-#ifdef PQXX_DEPRECATED_TRANSACTION_CALLBACKS
-  /**
-   * @name 1.x API
-   */
-  //@{
-  /// @deprecated Define on_commit instead.
-  /** @see on_commit */
-  void OnCommit() {}
-  /// @deprecated Define on_abort instead.
-  /** @see on_abort */
-  void OnAbort(const char[]) throw () {}
-  /// @deprecated Define on_doubt instead.
-  /** @see on_doubt */
-  void OnDoubt() throw () {}
-  //@}
-#endif
-
   // TODO: Rename Name()--is there a compatible way?
   /// The transactor's name.
   PGSTD::string Name() const { return m_Name; }				//[t13]
@@ -178,18 +158,12 @@ inline void pqxx::connection_base::perform(const TRANSACTOR &T,
     {
       // Not sure whether transaction went through or not.  The last thing in
       // the world that we should do now is retry.
-#ifdef PQXX_DEPRECATED_TRANSACTION_CALLBACKS
-      T2.OnDoubt();
-#endif
       T2.on_doubt();
       throw;
     }
     catch (const PGSTD::exception &e)
     {
       // Could be any kind of error.
-#ifdef PQXX_DEPRECATED_TRANSACTION_CALLBACKS
-      T2.OnAbort(e.what());
-#endif
       T2.on_abort(e.what());
       if (Attempts <= 0) throw;
       continue;
@@ -197,16 +171,10 @@ inline void pqxx::connection_base::perform(const TRANSACTOR &T,
     catch (...)
     {
       // Don't try to forge ahead if we don't even know what happened
-#ifdef PQXX_DEPRECATED_TRANSACTION_CALLBACKS
-      T2.OnAbort("Unknown exception");
-#endif
       T2.on_abort("Unknown exception");
       throw;
     }
 
-#ifdef PQXX_DEPRECATED_TRANSACTION_CALLBACKS
-    T2.OnCommit();
-#endif
     T2.on_commit();
   } while (!Done);
 }

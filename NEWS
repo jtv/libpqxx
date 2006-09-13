@@ -1,4 +1,5 @@
 2.6.9
+ - Deprecating old 1.x API (that means all identifiers with capital letters!)
  - Fixes small memory leak when preparing statements
  - With Visual C++, creates lib/ directory if not already present
  - Useful error messages when preparing statements

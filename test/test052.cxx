@@ -27,7 +27,7 @@ public:
     cout << "Created large object #" << m_Object.id() << endl;
   }
 
-  void OnCommit()
+  void on_commit()
   {
     m_ObjectOutput = m_Object;
   }
