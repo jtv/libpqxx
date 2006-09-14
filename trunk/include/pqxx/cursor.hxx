@@ -401,7 +401,7 @@ public:
     return move(n, m);
   }
 
-  virtual difference_type move(difference_type d, difference_type &m)	//[]
+  virtual difference_type move(difference_type d, difference_type &m)	//[t43]
   {
     const difference_type r(super::move(d, m));
     digest(d, m);
@@ -447,6 +447,9 @@ private:
 /// Convenience typedef: the most common cursor type (read-only, random access)
 typedef basic_cursor<cursor_base::random_access, cursor_base::read_only> cursor;
 
+/// Convenience typedef: read-only, random-access absolutely-positioning cursor
+typedef absolute_cursor<cursor_base::random_access, cursor_base::read_only>
+	abscursor;
 
 class icursor_iterator;
 
