@@ -1,4 +1,8 @@
 2006-09-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.hxx:
+  - Convenience typedef abscursor for most common type of absolute_cursor
+ test/test043.cxx:
+  - Migrated from old Cursor to new absolute_cursor
  win32/INSTALL.txt
   - Need to run VCVARS32.BAT before building postgres as well as libpqxx
   - Thanks Bart Samwel and Jonathan Blitz
