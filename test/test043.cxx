@@ -5,10 +5,8 @@
 #include <string>
 #include <vector>
 
-#define PQXXYES_I_KNOW_DEPRECATED_HEADER
-
 #include <pqxx/connection>
-#include <pqxx/cursor.h>
+#include <pqxx/cursor>
 #include <pqxx/transaction>
 #include <pqxx/result>
 
@@ -29,20 +27,23 @@ using namespace pqxx;
 namespace
 {
 
-void ExpectPos(Cursor &C, Cursor::size_type Pos)
+void ExpectPos(abscursor &C, cursor_base::size_type Pos)
 {
-  if (C.Pos() != Pos)
+  if (C.pos() != Pos)
     throw logic_error("Expected to find cursor at " + to_string(Pos) + ", "
-	              "got " + to_string(C.Pos()));
+	              "got " + to_string(C.pos()));
 }
 
 
-void MoveTo(Cursor &C, Cursor::difference_type N, Cursor::size_type NewPos)
+void MoveTo(abscursor &C,
+	cursor_base::difference_type N,
+	cursor_base::size_type NewPos)
 {
-  const result::size_type OldPos = C.Pos();
-  const result::difference_type Dist = C.Move(N);
-  if (OldPos + Dist != NewPos)
-    throw logic_error("Inconsistent move: " + to_string(Dist) + " rows "
+  const result::size_type OldPos = C.pos();
+  cursor_base::difference_type rows = 0;
+  C.move(N, rows);
+  if (OldPos + rows != NewPos)
+    throw logic_error("Inconsistent move: " + to_string(rows) + " rows "
 	              "from " + to_string(OldPos) + " "
 		      "got us to " + to_string(NewPos));
   ExpectPos(C, NewPos);
@@ -70,9 +71,9 @@ int main(int, char *argv[])
 		          "for serious testing.  Sorry.");
 
     int GetRows = 4;
-    Cursor Cur(T, ("SELECT * FROM " + Table).c_str(), "tablecur", GetRows);
+    abscursor Cur(&T, "SELECT * FROM " + Table, "tablecur");
     ExpectPos(Cur, 0);
-    Cur >> R;
+    R = Cur.fetch(GetRows);
     ExpectPos(Cur, GetRows);
 
     if (R.size() != result::size_type(GetRows))
@@ -83,9 +84,9 @@ int main(int, char *argv[])
     // current row
     MoveTo(Cur, 1, GetRows+1);
 
-    MoveTo(Cur, Cursor::BACKWARD_ALL(), 0);
+    MoveTo(Cur, -Cur.pos(), 0);
 
-    R = Cur.Fetch(Cursor::NEXT());
+    R = Cur.fetch(cursor_base::next());
     if (R.size() != 1)
       throw logic_error("NEXT: wanted 1 row, got " + to_string(R.size()));
     ExpectPos(Cur, 1);
@@ -93,7 +94,7 @@ int main(int, char *argv[])
     MoveTo(Cur, 3, 4);
     MoveTo(Cur, -2, 2);
 
-    R = Cur.Fetch(Cursor::PRIOR());
+    R = Cur.fetch(cursor_base::prior());
     if (R.size() != 1)
       throw logic_error("PRIOR: wanted 1 row, got " + to_string(R.size()));
     ExpectPos(Cur, 1);
