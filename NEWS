@@ -2,6 +2,7 @@
  - Removed old 1.x API (that means all identifiers with capital letters!)
  - No longer have old OnCommit()/OnAbort()/OnDoubt() callbacks in transactor!
  - Fixes failure when closing cursors with upper-case letters in their names
+ - Fixes bug when removing triggers
  - Fixes small memory leak when preparing statements
  - With Visual C++, creates lib/ directory if not already present
  - Useful error messages when preparing statements
