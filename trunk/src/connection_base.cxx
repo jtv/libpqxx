@@ -590,10 +590,9 @@ void pqxx::connection_base::RemoveTrigger(pqxx::trigger *T) throw ()
     {
       // Erase first; otherwise a notification for the same trigger may yet come
       // in and wreak havoc.  Thanks Dragan Milenkovic.
+      const bool gone = (m_Conn && (R.second == ++R.first));
       m_Triggers.erase(i);
-
-      if (m_Conn && (R.second == ++R.first))
-        Exec(("UNLISTEN \"" + T->name() + "\"").c_str(), 0);
+      if (gone) Exec(("UNLISTEN \"" + T->name() + "\"").c_str(), 0);
     }
   }
   catch (const exception &e)

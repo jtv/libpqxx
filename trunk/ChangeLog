@@ -1,3 +1,6 @@
+2006-09-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+  - Fixed bug in removing trigger, thanks Xiaofeng Zhao and Bart Samwel
 2006-09-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cursor.hxx:
   - Convenience typedef abscursor for most common type of absolute_cursor
