@@ -17,7 +17,7 @@
 #ifndef PQXX_RESULT_H
 #define PQXX_RESULT_H
 
-#include "pqxx/util.h"
+#include "pqxx/util"
 #include "pqxx/result"
 #include "pqxx/binarystring"
 

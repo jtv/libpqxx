@@ -7,7 +7,7 @@
  *      definition of the pqxx::Cursor class.
  *   pqxx::Cursor represents a database cursor.
  *
- * Copyright (c) 2001-2005, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -21,9 +21,9 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
-#include "pqxx/result.h"
-#include "pqxx/transaction_base.h"
-#include "pqxx/util.h"
+#include "pqxx/result"
+#include "pqxx/transaction_base"
+#include "pqxx/util"
 
 /* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
