@@ -126,7 +126,6 @@ public:
   bool empty() const;							//[t47]
 
 private:
-  typedef Cursor::pos pos;
 
   /// Only defined for permitted isolation levels (in this case, serializable)
   /** If you get a link or compile error saying this function is not defined,
