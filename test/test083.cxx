@@ -66,10 +66,11 @@ int main(int, char *argv[])
     W.complete();
 
     const result R = T.exec("SELECT * FROM " + Table + " ORDER BY num DESC");
-    for (result::const_iterator r = R.begin(); r != R.end(); --i, ++r)
-      if (r->at(0).as(0) != (*i)[0])
+    items<items<int> >::const_reverse_iterator j(++i);
+    for (result::const_iterator r = R.begin(); r != R.end(); ++j, ++r)
+      if (r->at(0).as(0) != (*j)[0])
 	throw logic_error("Writing numbers with tablewriter went wrong: "
-	    "expected " + to_string((*i)[0]) + ", found " + r[0].c_str());
+	    "expected " + to_string((*j)[0]) + ", found " + r[0].c_str());
 
     T.commit();
   }
