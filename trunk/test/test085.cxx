@@ -48,8 +48,9 @@ template<typename ITER> string subst(transaction_base &t,
 	ITER patend)
 {
   int i = distance(patbegin, patend);
-  for (ITER arg = --patend; i > 0; --arg, --i)
+  for (ITER arg = patend; i > 0; --i)
   {
+   --arg;
     const string marker = "$" + to_string(i),
 	  var = stringize(t, *arg);
     const string::size_type msz = marker.size();
