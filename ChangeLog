@@ -1,3 +1,11 @@
+2006-09-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cachedresult.h:
+  - Include pqxx/result, not old pqxx/result.h
+ test/test083.cxx
+  - Fixed problem found by Visual Studio 8, thanks Xiaofeng Zhao
+2006-09-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test085.cxx:
+  - Fixed problem found by Visual Studio 8, thanks Xiaofeng Zhao
 2006-09-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
   - Fixed bug in removing trigger, thanks Xiaofeng Zhao and Bart Samwel
