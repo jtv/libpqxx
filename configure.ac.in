@@ -49,11 +49,6 @@ AC_MSG_CHECKING([maintainer mode])
 AC_ARG_ENABLE(maintainer-mode)
 AC_MSG_RESULT(${enable_maintainer_mode})
 
-# TODO: This is still sketchy, g++-only!
-AC_MSG_CHECKING([long long])
-AC_ARG_ENABLE(long-long)
-AC_MSG_RESULT(${enable_long_long})
-
 AC_ARG_ENABLE(shared)
 if test "${shared}" = "yes" ; then
 	CPPFLAGS="$CPPFLAGS -DPQXX_SHARED"
@@ -460,9 +455,16 @@ AC_TRY_COMPILE(
 	${usestd}],
 	[return strnlen("",1)],
 	[AC_DEFINE(PQXX_HAVE_STRNLEN,1,[Define if strnlen exists])],
-	[strnlen=no])
+	strnlen=no)
 AC_MSG_RESULT($strnlen)
 
+AC_MSG_CHECKING([for long long])
+long_long=yes
+AC_TRY_COMPILE(,[long long l=0LL; return int(l)],
+	AC_DEFINE(PQXX_HAVE_LONG_LONG,1,
+	[Define if the compiler supports "long long" types]),
+	long_long=no)
+AC_MSG_RESULT($long_long)
 
 AC_MSG_CHECKING([for long double])
 long_double=yes

@@ -17,6 +17,7 @@ PQXX_HAVE_IMBUE	internal	compiler
 PQXX_HAVE_IOS	public	compiler
 PQXX_HAVE_LIMITS	public	compiler
 PQXX_HAVE_LO_TELL	internal	libpq
+PQXX_HAVE_LONG_LONG	public	compiler
 PQXX_HAVE_LOCALE	internal	compiler
 PQXX_HAVE_LONG_DOUBLE	public	compiler
 PQXX_HAVE_NAN	internal	compiler

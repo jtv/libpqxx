@@ -89,21 +89,11 @@ template<typename L, typename R>
   return 10*value + digit;
 }
 
-} // namespace
 
-
-namespace pqxx
-{
-template<> void from_string(const char Str[], PGSTD::string &Obj, size_t len)
-{
-  Obj = string(Str, len);
-}
-
-
-template<> void from_string(const char Str[], long &Obj)
+template<typename T> void from_string_signed(const char Str[], T &Obj)
 {
   int i = 0;
-  long result = 0;
+  T result = 0;
 
   if (!isdigit(Str[i]))
   {
@@ -113,7 +103,7 @@ template<> void from_string(const char Str[], long &Obj)
 
     for (++i; isdigit(Str[i]); ++i)
     {
-      const long newresult = absorb_digit(result, -digit_to_number(Str[i]));
+      const T newresult = absorb_digit(result, -digit_to_number(Str[i]));
       if (newresult > result)
         throw runtime_error("Integer too small to read: " + string(Str));
       result = newresult;
@@ -121,7 +111,7 @@ template<> void from_string(const char Str[], long &Obj)
   }
   else for (; isdigit(Str[i]); ++i)
   {
-    const long newresult = absorb_digit(result, digit_to_number(Str[i]));
+    const T newresult = absorb_digit(result, digit_to_number(Str[i]));
     if (newresult < result)
       throw runtime_error("Integer too large to read: " + string(Str));
     result = newresult;
@@ -133,10 +123,10 @@ template<> void from_string(const char Str[], long &Obj)
   Obj = result;
 }
 
-template<> void from_string(const char Str[], unsigned long &Obj)
+template<typename T> void from_string_unsigned(const char Str[], T &Obj)
 {
   int i = 0;
-  unsigned long result;
+  T result;
 
   if (!Str) throw runtime_error("Attempt to convert NULL string to integer");
 
@@ -146,7 +136,7 @@ template<> void from_string(const char Str[], unsigned long &Obj)
 
   for (result=0; isdigit(Str[i]); ++i)
   {
-    const unsigned long newres = absorb_digit(result, digit_to_number(Str[i]));
+    const T newres = absorb_digit(result, digit_to_number(Str[i]));
     if (newres < result)
       throw runtime_error("Unsigned integer too large to read: " + string(Str));
 
@@ -159,29 +149,6 @@ template<> void from_string(const char Str[], unsigned long &Obj)
   Obj = result;
 }
 
-} // namespace pqxx
-
-
-namespace
-{
-template<typename T> inline void from_string_signed(const char Str[], T &Obj)
-{
-  long L;
-  pqxx::from_string(Str, L);
-  const T result = T(L);
-  if (result != L) throw runtime_error("Overflow in integer conversion");
-  Obj = result;
-}
-
-template<typename T> inline void from_string_unsigned(const char Str[], T &Obj)
-{
-  unsigned long L;
-  pqxx::from_string(Str, L);
-  const T result = T(L);
-  if (result != L)
-    throw runtime_error("Overflow in unsigned integer conversion");
-  Obj = result;
-}
 
 /* These are hard.  Sacrifice performance of specialized, nonflexible,
  * non-localized code and lean on standard library.  Some special-case code
@@ -219,6 +186,20 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
 
 namespace pqxx
 {
+template<> void from_string(const char Str[], PGSTD::string &Obj, size_t len)
+{
+  Obj = string(Str, len);
+}
+
+template<> void from_string(const char Str[], long &Obj)
+{
+  from_string_signed(Str, Obj);
+}
+
+template<> void from_string(const char Str[], unsigned long &Obj)
+{
+  from_string_unsigned(Str, Obj);
+}
 
 template<> void from_string(const char Str[], int &Obj)
 {
@@ -230,7 +211,6 @@ template<> void from_string(const char Str[], unsigned int &Obj)
   from_string_unsigned(Str, Obj);
 }
 
-
 template<> void from_string(const char Str[], short &Obj)
 {
   from_string_signed(Str, Obj);
@@ -240,6 +220,18 @@ template<> void from_string(const char Str[], unsigned short &Obj)
 {
   from_string_unsigned(Str, Obj);
 }
+
+#ifdef PQXX_HAVE_LONG_LONG
+template<> void from_string(const char Str[], long long &Obj)
+{
+  from_string_signed(Str, Obj);
+}
+
+template<> void from_string(const char Str[], unsigned long long &Obj)
+{
+  from_string_unsigned(Str, Obj);
+}
+#endif
 
 template<> void from_string(const char Str[], float &Obj)
 {
@@ -324,7 +316,10 @@ template<typename T> inline string to_string_unsigned(T Obj)
 {
   if (!Obj) return "0";
 
+  // Every byte of width on T adds somewhere between 3 and 4 digits to the
+  // maximum length of our decimal string.
   char buf[4*sizeof(T)+1];
+
   char *p = &buf[sizeof(buf)];
   *--p = '\0';
   for (T next; Obj > 0; Obj = next)
@@ -427,6 +422,18 @@ template<> string to_string(const unsigned long &Obj)
 {
   return to_string_unsigned(Obj);
 }
+
+
+#if defined(PQXX_HAVE_LONG_LONG)
+template<> string to_string(const long long &Obj)
+{
+  return to_string_signed(Obj);
+}
+template<> string to_string(const unsigned long long &Obj)
+{
+  return to_string_unsigned(Obj);
+}
+#endif
 
 template<> string to_string(const float &Obj)
 {
