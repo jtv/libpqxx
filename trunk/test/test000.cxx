@@ -1,3 +1,6 @@
+// Test "long long" support, if available
+#define PQXX_ALLOW_LONG_LONG
+
 // We need some libpqxx-internal configuration items.  DON'T INCLUDE THIS HEADER
 // IN NORMAL CLIENT PROGRAMS!
 #include "pqxx/compiler-internal.hxx"
@@ -127,13 +130,30 @@ int main()
 #else
     const long long_min = LONG_MIN, long_max = LONG_MAX;
 #endif
-    stringstream lminstr, lmaxstr;
+
+    stringstream lminstr, lmaxstr, llminstr, llmaxstr, ullmaxstr;
 #if defined(PQXX_HAVE_IMBUE)
     lminstr.imbue(locale("C"));
     lmaxstr.imbue(locale("C"));
+    llminstr.imbue(locale("C"));
+    llmaxstr.imbue(locale("C"));
+    ullmaxstr.imbue(locale("C"));
 #endif
+
     lminstr << long_min;
     lmaxstr << long_max;
+
+#if defined(PQXX_HAVE_LONG_LONG)
+    typedef long long longlong;
+    typedef unsigned long long ulonglong;
+    const unsigned long long ullong_max = ~ulonglong(0);
+    const long long llong_max = longlong(ullong_max >> 2),
+	llong_min = -1 - llong_max;
+
+    llminstr << llong_min;
+    llmaxstr << llong_max;
+    ullmaxstr << ullong_max;
+#endif
 
     strconv("long", 0, "0");
     strconv("long", long_min, lminstr.str());
@@ -142,6 +162,14 @@ int main()
     strconv("double", not_a_number, "nan");
     strconv("string", string(), "");
     strconv("string", weirdstr, weirdstr);
+
+#if defined(PQXX_HAVE_LONG_LONG)
+    strconv("long long", 0LL, "0");
+    strconv("long long", llong_min, llminstr.str());
+    strconv("long long", llong_max, llmaxstr.str());
+    strconv("unsigned long long", 0ULL, "0");
+    strconv("unsigned long long", ullong_max, ullmaxstr.str());
+#endif
 
     const char zerobuf[] = "0";
     string zero;

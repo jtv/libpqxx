@@ -177,6 +177,14 @@ template<>
 template<> void PQXX_LIBEXPORT from_string(const char Str[], float &);	//[t46]
 template<> void PQXX_LIBEXPORT from_string(const char Str[], double &);	//[t46]
 template<> void PQXX_LIBEXPORT from_string(const char Str[], bool &);	//[t76]
+
+#if defined(PQXX_HAVE_LONG_LONG) && defined(PQXX_ALLOW_LONG_LONG)
+template<> void PQXX_LIBEXPORT
+  from_string(const char Str[], long long &);				//[t0]
+template<> void PQXX_LIBEXPORT
+  from_string(const char Str[], unsigned long long &);			//[t0]
+#endif
+
 #if defined(PQXX_HAVE_LONG_DOUBLE)
 template<>
   void PQXX_LIBEXPORT from_string(const char Str[], long double &);	//[t46]
@@ -250,6 +258,23 @@ template<>
 template<> PGSTD::string PQXX_LIBEXPORT to_string(const float &);	//[t74]
 template<> PGSTD::string PQXX_LIBEXPORT to_string(const double &);	//[t74]
 template<> PGSTD::string PQXX_LIBEXPORT to_string(const bool &);	//[t76]
+
+/* Even if the compiler supports "long long" and friends, the user may not want
+ * them used because they may break compilation of client programs with
+ * different compiler options.
+ * When "long long" becomes a standard feature (both de jure and de facto),
+ * we'll make long long support the default and provide a different option to
+ * suppress these declarations.
+ */
+#if defined(PQXX_HAVE_LONG_LONG) && defined(PQXX_ALLOW_LONG_LONG)
+/// Conversion for "long long"--define PQXX_ALLOW_LONG_LONG to enable
+template<> PGSTD::string PQXX_LIBEXPORT
+  to_string(const long long &);						//[t0]
+/// Conversion for "unsigned long long"--define PQXX_ALLOW_LONG_LONG to enable
+template<> PGSTD::string PQXX_LIBEXPORT
+  to_string(const unsigned long long &);				//[t0]
+#endif
+
 #if defined(PQXX_HAVE_LONG_DOUBLE)
 template<> PGSTD::string PQXX_LIBEXPORT to_string(const long double &);	//[t74]
 #endif

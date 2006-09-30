@@ -1,3 +1,8 @@
+2006-09-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in, configitems, src/util.cxx, include/pqxx/util.hxx,
+ test/test000.cxx:
+  - Support "long long" and "unsigned long long" types
+  - Redid from_string implementations as template
 2006-09-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cachedresult.h:
   - Include pqxx/result, not old pqxx/result.h
