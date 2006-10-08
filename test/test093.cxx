@@ -7,6 +7,8 @@
 #include <pqxx/tablewriter>
 #include <pqxx/transaction>
 
+#include <pqxx/config-internal-libpq.h>
+
 using namespace PGSTD;
 using namespace pqxx;
 
@@ -38,6 +40,7 @@ int main(int, char *argv[])
       // T and C are closed here; result objects remain
     }
 
+#ifdef PQXX_HAVE_PQFTABLECOL
     int x = R.table_column(2),
 	y = R.table_column(1),
 	z = R.table_column(int(0));
@@ -118,7 +121,7 @@ int main(int, char *argv[])
     if (!failed)
       throw logic_error("table_column() on non-table column returned " +
 	to_string(f) + " instead of failing");
-
+#endif	// PQXX_HAVE_PQFTABLECOL
   }
   catch (const sql_error &e)
   {
