@@ -17,16 +17,8 @@ void test(connection_base &C, const string &desc)
   // Trivial test: create subtransactions, and commit/abort
   work T0(C, "T0");
   cout << T0.exec("SELECT 'T0 starts'")[0][0].c_str() << endl;
-  try
-  {
-    subtransaction T0a(T0, "T0a");
-    T0a.commit();
-  }
-  catch (const feature_not_supported &e)
-  {
-    cerr << e.what() << endl;
-    return 0;
-  }
+  subtransaction T0a(T0, "T0a");
+  T0a.commit();
   subtransaction T0b(T0, "T0b");
   T0b.abort();
   cout << T0.exec("SELECT 'T0 ends'")[0][0].c_str() << endl;
@@ -103,7 +95,15 @@ int main()
       throw logic_error("Virgin asyncconnection supports nested transactions, "
 	  "but initialized one doesn't!");
 
-    test(A2, "asyncconnection (initialized)");
+    try
+    {
+      test(A2, "asyncconnection (initialized)");
+    }
+    catch (const feature_not_supported &e)
+    {
+      cerr << e.what() << endl;
+      return 0;
+    }
 
     lazyconnection L1;
     test(L1, "lazyconnection (virgin)");
