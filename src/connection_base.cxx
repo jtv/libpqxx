@@ -880,8 +880,6 @@ pqxx::result pqxx::connection_base::prepared_exec(
 {
   prepare::internal::prepared_def &s = register_prepared(statement);
 
-  const int proto = protocol_version();
-
   if (nparams != int(s.parameters.size()))
     throw logic_error("Wrong number of parameters for prepared statement " +
 	statement + ": "
