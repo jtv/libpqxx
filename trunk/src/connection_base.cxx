@@ -900,7 +900,7 @@ pqxx::result pqxx::connection_base::prepared_exec(
 	paramlengths,
 	binary.c_ptr(),
 	0),
-	protocol_version);
+	protocol_version());
 #else
   stringstream Q;
   if (supports(cap_prepared_statements))
