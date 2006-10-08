@@ -1259,7 +1259,8 @@ PGSTD::string pqxx::connection_base::esc_raw(const unsigned char str[],
     throw runtime_error(ErrMsg());
   }
 #else
-  PQAlloc<unsigned char> buf( PQescapeBytea(str, len, &bytes) );
+  unsigned char *const s = const_cast<unsigned char *>(str);
+  PQAlloc<unsigned char> buf( PQescapeBytea(s, len, &bytes) );
   if (!buf.c_ptr()) throw bad_alloc();
 #endif
   return string(reinterpret_cast<char *>(buf.c_ptr()));
