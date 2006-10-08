@@ -2,6 +2,8 @@
  src/connection_base.cxx:
   - Fixed typo.  How did this ever come through the regression test?
   - Fixed constness problem in esc_raw() for old libpq versions
+ src/subtransaction.cxx:
+  - If nested transactions not supported, throw feature_not_supported
  test/test093.cxx:
   - Work around missing PQftableCol() in older libpq versions
 2006-09-30  Jeroen T. Vermeulen <jtv@xs4all.nl>

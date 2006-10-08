@@ -17,8 +17,16 @@ void test(connection_base &C, const string &desc)
   // Trivial test: create subtransactions, and commit/abort
   work T0(C, "T0");
   cout << T0.exec("SELECT 'T0 starts'")[0][0].c_str() << endl;
-  subtransaction T0a(T0, "T0a");
-  T0a.commit();
+  try
+  {
+    subtransaction T0a(T0, "T0a");
+    T0a.commit();
+  }
+  catch (const feature_not_supported &e)
+  {
+    cerr << e.what() << endl;
+    return 0;
+  }
   subtransaction T0b(T0, "T0b");
   T0b.abort();
   cout << T0.exec("SELECT 'T0 ends'")[0][0].c_str() << endl;
