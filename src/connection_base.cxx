@@ -936,7 +936,7 @@ pqxx::result pqxx::connection_base::prepared_exec(
     }
     Q << S;
   }
-  result r(Exec(Q.str().c_str(), 0), proto);
+  result r(Exec(Q.str().c_str(), 0));
 #endif
   check_result(r, statement.c_str());
   get_notifs();

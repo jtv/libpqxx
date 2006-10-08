@@ -1,3 +1,6 @@
+2006-10-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+  - Fixed typo.  How did this ever come through the regression test?
 2006-09-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in, configitems, src/util.cxx, include/pqxx/util.hxx,
  test/test000.cxx:
