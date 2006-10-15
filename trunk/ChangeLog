@@ -1,3 +1,7 @@
+2006-10-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test090.cxx:
+  - Test esc_raw() as well as plain esc()
+  - Test nul bytes only with esc_raw(), not with esc()
 2006-10-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
   - Fixed typo.  How did this ever come through the regression test?
