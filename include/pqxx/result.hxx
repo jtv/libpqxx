@@ -382,7 +382,7 @@ public:
     result::size_type idx() const throw () { return m_tup.m_Index; }
 
   protected:
-    const tuple::size_type col() const throw () { return m_col; }
+    tuple::size_type col() const throw () { return m_col; }
     tuple m_tup;
     tuple::size_type m_col;
   };
