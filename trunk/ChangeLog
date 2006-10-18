@@ -1,3 +1,6 @@
+2006-10-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result.hxx:
+  - Removed meaningless const in return type, thanks Jo Ellen Brandmeyer
 2006-10-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test090.cxx:
   - Test esc_raw() as well as plain esc()
