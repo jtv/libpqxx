@@ -595,7 +595,7 @@ REFERENCES_RELATION    = YES
 # tagging system (see http://www.gnu.org/software/global/global.html). You 
 # will need version 4.8.6 or higher.
 
-USE_HTAGS              = NO
+#USE_HTAGS              = NO
 
 # If the VERBATIM_HEADERS tag is set to YES (the default) then Doxygen
 # will generate a verbatim copy of the header file for each class for
