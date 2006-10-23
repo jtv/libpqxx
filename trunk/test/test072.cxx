@@ -46,6 +46,7 @@ int main(int, char *argv[])
     bool failed = true;
     try
     {
+      disable_noticer d(C);
       P.retrieve(id_2).at(0).at(0).as<int>();
       failed = false;
     }

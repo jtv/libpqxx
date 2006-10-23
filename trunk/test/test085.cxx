@@ -109,6 +109,7 @@ int main()
     bool failed = true;
     try
     {
+      disable_noticer d(C);
       C.prepare_now(QN_readpgtables);
       failed = false;
     }

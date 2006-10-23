@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
     try
     {
       work Drop(C, "drop_" + TableName);
+      disable_noticer d(C);
       Drop.exec(("DROP TABLE " + TableName).c_str());
       Drop.commit();
     }

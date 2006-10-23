@@ -91,7 +91,8 @@ int main(int, char *argv[])
      // Prove that setting an unknown variable causes an error, as expected
     try
     {
-      C.set_variable("NONEXISTANT_VARIABLE_I_HOPE", "1");
+      disable_noticer d(C);
+      C.set_variable("NONEXISTENT_VARIABLE_I_HOPE", "1");
       throw logic_error("Setting unknown variable failed to fail");
     }
     catch (const sql_error &e)
