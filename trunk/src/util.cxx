@@ -467,7 +467,6 @@ template<> string to_string(const char &Obj)
 } // namespace pqxx
 
 
-#ifndef PQXX_HAVE_PQESCAPESTRINGCONN
 string pqxx::internal::escape_string(const char str[], size_t maxlen)
 {
   string result;
@@ -511,7 +510,6 @@ string pqxx::internal::escape_string(const char str[], size_t maxlen)
 
   return result;
 }
-#endif
 
 
 namespace
