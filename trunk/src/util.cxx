@@ -467,6 +467,7 @@ template<> string to_string(const char &Obj)
 } // namespace pqxx
 
 
+#ifndef PQXX_HAVE_PQESCAPESTRINGCONN
 string pqxx::internal::escape_string(const char str[], size_t maxlen)
 {
   string result;
@@ -474,22 +475,7 @@ string pqxx::internal::escape_string(const char str[], size_t maxlen)
 #ifdef PQXX_HAVE_PQESCAPESTRING
   scoped_array<char> buf;
 
-  try
-  {
-    /* Going by the letter of the PQescapeString() documentation we only need
-     * 2*maxlen+1 bytes.  But what happens to nonprintable characters?  They
-     * might be escaped to octal notation, whether in current or future versions
-     * of libpq--in which case we would need this more conservative size.
-     */
-    buf = new char[5*maxlen + 1];
-  }
-  catch (const bad_alloc &)
-  {
-    /* Okay, maybe we're just dealing with an extremely large string.  Try the
-     * documented size limit, which is likely to be just fine.
-     */
-    buf = new char[2*maxlen+1];
-  }
+  buf = new char[2*maxlen+1];
 
   const size_t bytes = PQescapeString(buf.c_ptr(), str, maxlen);
   result.assign(buf.c_ptr(), bytes);
@@ -525,6 +511,7 @@ string pqxx::internal::escape_string(const char str[], size_t maxlen)
 
   return result;
 }
+#endif
 
 
 namespace
