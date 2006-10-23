@@ -176,10 +176,12 @@ void pqxx::basic_robusttransaction::CreateLogTable()
   string CrTab = "CREATE TABLE \"" + m_LogTable + "\" "
 		 "("
 		 "name VARCHAR(256), "
-		 "date TIMESTAMP, "
-		 "CONSTRAINT identity UNIQUE(oid))";
+		 "date TIMESTAMP";
+
   if (conn().supports(connection_base::cap_create_table_with_oids))
-    CrTab += " WITH OIDS";
+    CrTab += ") WITH OIDS";
+  else
+    CrTab += ", CONSTRAINT identity UNIQUE(oid))";
 
   try { DirectExec(CrTab.c_str(), 1); } catch (const exception &) { }
 }

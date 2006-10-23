@@ -1,3 +1,16 @@
+2006-10-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx:
+  - Published some more utility classes from pqxx::internal
+ src/util.cxx:
+  - Don't allocate 5n+1 bytes for escaping; 2n+1 really is enough
+ test/test005.cxx, test/test013.cxx, test/test018.cxx, test/test032.cxx,
+ test/test056.cxx, test/test060.cxx, test/test061.cxx, test/test064.cxx,
+ test/test070.cxx, test/test072.cxx, test/test073.cxx, test/test083.cxx,
+ test/test085.cxx, test/test086.cxx:
+  - Suppress expected error output from notice processor
+  - Correct typo: "existant" should be "existent"
+ test/test089.cxx:
+  - Account for different ways of detecting nested-transactions capability
 2006-10-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/result.hxx:
   - Removed meaningless const in return type, thanks Jo Ellen Brandmeyer

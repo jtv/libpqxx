@@ -4,11 +4,14 @@
  - Fixes failure when closing cursors with upper-case letters in their names
  - Fixes bug when removing triggers
  - Fixes small memory leak when preparing statements
+ - Fixes many problems with older backends
+ - Greatly reduced memory usage while escaping strings
  - With Visual C++, creates lib/ directory if not already present
  - Useful error messages when preparing statements
  - Allows prepared statements to be registered explicitly
  - Support for "long long" types; enable with PQXX_ALLOW_LONG_LONG macro
  - Compilation errors for older libpq versions fixed
+ - Some new small utility classes for disabling notice processing etc.
 2.6.8
  - Fixes bug: binary parameters to prepared statements truncated at nul bytes
  - New, more specific exception types to distinguish errors from server
