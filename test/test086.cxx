@@ -29,6 +29,7 @@ int main()
     try
     {
       nontransaction N2(C, "test86N2");
+      disable_noticer d(C);
       N2.exec(Query);
     }
     catch (const broken_connection &e)

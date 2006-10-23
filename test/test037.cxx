@@ -127,6 +127,7 @@ int main(int argc, char *argv[])
 
     try
     {
+      disable_noticer d(C);
       C.perform(DoomedTransaction);
     }
     catch (const exception &e)

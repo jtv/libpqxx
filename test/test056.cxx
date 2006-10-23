@@ -18,6 +18,8 @@ int main()
 
     try
     {
+      disable_noticer d(C);
+
       // This should fail:
       T.exec("DELIBERATELY INVALID TEST QUERY...", "invalid_query");
 

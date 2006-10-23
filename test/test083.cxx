@@ -38,6 +38,7 @@ int main(int, char *argv[])
     try
     {
       nontransaction Drop(C, "drop_" + Table);
+      disable_noticer d(C);
       Drop.exec("DROP TABLE " + Table);
     }
     catch (const undefined_table &e)
