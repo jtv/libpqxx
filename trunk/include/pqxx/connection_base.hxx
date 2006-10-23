@@ -712,9 +712,6 @@ private:
 
 
 
-namespace internal
-{
-
 /// Temporarily set different noticer for connection, then restore old one
 /** Set different noticer in given connection for the duration of the
  * scoped_noticer's lifetime.  After that, the original noticer is restored.
@@ -770,6 +767,9 @@ public:
 };
 
 
+namespace internal
+{
+
 /// Scoped exemption to reactivation avoidance
 class PQXX_LIBEXPORT reactivation_avoidance_exemption
 {
@@ -802,7 +802,6 @@ private:
 void wait_read(const internal::pq::PGconn *);
 void wait_read(const internal::pq::PGconn *, long seconds, long microseconds);
 void wait_write(const internal::pq::PGconn *);
-
 } // namespace pqxx::internal
 
 
