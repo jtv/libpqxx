@@ -77,18 +77,38 @@ int main()
   try
   {
     asyncconnection A1;
-    const bool ok = test_and_catch(A1, "asyncconnection (virgin)");
+    bool ok = test_and_catch(A1, "asyncconnection (virgin)");
 
     asyncconnection A2;
     A2.activate();
     if (!A2.supports(connection_base::cap_nested_transactions))
     {
       if (ok)
-	throw logic_error("Initialized asyncconnection doesn't support "
-	    "nested transactions, but a virgin one does!");
-      cout << "Backend does not support nested transactions.  Skipping test."
-	   << endl;
-      return 0;
+      {
+        /* A1 supported nested transactions but A2 says it doesn't.  What may
+	 * have happened is we weren't able to establish the connections'
+	 * capabilities, and the capability for nested transactions was deduced
+	 * from the fact that that first subtransaction actually worked.
+	 * If so, try that again.
+	 */
+	try
+	{
+	  work W(A2);
+	  subtransaction s(W);
+	  s.commit();
+	}
+	catch (const exception &)
+	{
+	  throw logic_error("First asyncconnection supported nested "
+		"transactions, but second one doesn't!");
+	}
+      }
+      else
+      {
+        cout << "Backend does not support nested transactions.  Skipping test."
+	     << endl;
+        return 0;
+      }
     }
 
     if (!ok)
