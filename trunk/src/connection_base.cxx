@@ -542,14 +542,14 @@ void pqxx::connection_base::AddTrigger(pqxx::trigger *T)
   const TriggerList::iterator p = m_Triggers.find(T->name());
   const TriggerList::value_type NewVal(T->name(), T);
 
-  if (m_Conn && (p == m_Triggers.end()))
+  if (p == m_Triggers.end())
   {
     // Not listening on this event yet, start doing so.
     const string LQ("LISTEN \"" + T->name() + "\"");
-    result R( PQexec(m_Conn, LQ.c_str()) );
 
     if (is_open()) try
     {
+      result R( PQexec(m_Conn, LQ.c_str()) );
       check_result(R,LQ.c_str());
     }
     catch (const broken_connection &)
@@ -582,9 +582,7 @@ void pqxx::connection_base::RemoveTrigger(pqxx::trigger *T) throw ()
 
     if (i == R.second)
     {
-      process_notice("Attempt to remove unknown trigger '" +
-		     E.first +
-		     "'");
+      process_notice("Attempt to remove unknown trigger '" + E.first + "'");
     }
     else
     {
