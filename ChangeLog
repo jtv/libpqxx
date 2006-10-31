@@ -1,3 +1,6 @@
+2006-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+  - Add trigger even if connection not open, thanks Markus Schmidleitner
 2006-10-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx:
   - Published some more utility classes from pqxx::internal
