@@ -1,3 +1,7 @@
+2006-11-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh:
+  - Try for automake 1.9
+  - Minor cleanup
 2006-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
   - Add trigger even if connection not open, thanks Markus Schmidleitner
