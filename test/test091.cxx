@@ -46,6 +46,7 @@ int main(int, char *argv[])
     cursor_base::difference_type offset;
 
     const cursor_base::difference_type backabs = a.move_to(0);
+    // TODO: On postgres 7.3, get "Moved 0 rows back, but expected 33"
     if (result::size_type(backabs) != all.size())
       throw logic_error("Moved " + to_string(backabs) + " rows back, "
 	"but expected " + to_string(all.size()));

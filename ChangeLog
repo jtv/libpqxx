@@ -2,6 +2,8 @@
  autogen.sh:
   - Try for automake 1.9
   - Minor cleanup
+ test/test056.cxx, test/test091.cxx:
+  - Fail with postgres/libpq 7.3
  tools/preprelease:
   - Suppress a bit of unwanted output
 2006-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>

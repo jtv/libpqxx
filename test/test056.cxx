@@ -23,6 +23,7 @@ int main()
       // This should fail:
       T.exec("DELIBERATELY INVALID TEST QUERY...", "invalid_query");
 
+      // TODO: This does not seem to fail as it should on postgres 7.3
       throw logic_error("Invalid query did not throw exception!");
     }
     catch (const syntax_error &e)
