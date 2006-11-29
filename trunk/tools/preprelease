@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 #
 # Prepare a release of libpqxx.  This is tailored to my machine and my current
 # postgres installation.  It's not supposed to work on anything else.
@@ -80,7 +80,7 @@ run_test () {
 		COMPILEROPT="CXX=$1"
 	fi
 
-	if test -z "$1" || which "$1" ; then
+	if test -z "$1" || which "$1" >/dev/null ; then
 		log "********* Testing with $1 *********"
 		log "Configuring"
 		command "./configure $CONFIG_ARGS $COMPILEROPT" nice
