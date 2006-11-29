@@ -8,12 +8,16 @@ set -e
 # involved in localization, encoding issues etc.  We only do ASCII here.
 export LC_ALL=C
 
-ver=""
-for amv in "1.6" "1.7" "1.8" "1.9" ; do
-	if which "automake-$amv" >/dev/null 2>&1; then
-		ver="-$amv"
-	fi
-done
+latest_automake() {
+	for v in "-1.10" "-1.9" "-1.8" "-1.7" "-1.6" "" ; do
+		if which "automake$v" >/dev/null ; then
+			echo "$v"
+			return
+		fi
+	done
+}
+
+ver="`latest_automake`"
 
 # The VERSION file defines our versioning
 PQXXVERSION=`grep '\<PQXXVERSION\>' VERSION | sed -e 's/^[[:space:]A-Z_]*//' -e 's/[[:space:]]*#.*$//'`
