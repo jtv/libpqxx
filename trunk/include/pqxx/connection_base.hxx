@@ -110,15 +110,20 @@ struct PQXX_LIBEXPORT nonnoticer : noticer
  * transaction classes (see pqxx/transaction_base.hxx) or preferably the
  * transactor framework (see pqxx/transactor.hxx).
  *
- * A word of caution: if a network connection to the database server fails, the
- * connection will be restored automatically (although any transaction going on
- * at the time will have to be aborted).  This also means that any information
- * set in previous transactions that is not stored in the database, such as
- * connection-local variables defined with PostgreSQL's SET command, will be
- * lost.  Whenever you need to create such state, either do it within each
- * transaction that may need it, or if at all possible, use specialized
- * functions made available by libpqxx.  Always avoid raw queries if libpqxx
- * offers a dedicated function for the same purpose.
+ * If a network connection to the database server fails, the connection will be
+ * restored automatically (although any transaction going on at the time will
+ * have to be aborted).  This also means that any information set in previous
+ * transactions that is not stored in the database, such as connection-local
+ * variables defined with PostgreSQL's SET command, will be lost.  Whenever you
+ * create such state, either do it within each transaction that may need it, or
+ * if at all possible, use specialized functions made available by libpqxx.
+ * Always avoid raw queries if libpqxx offers a dedicated function for the same
+ * purpose.
+ *
+ * @warning On Unix-like systems, including GNU and BSD systems, your program
+ * may receive the SIGPIPE signal when the connection to the backend breaks.  By
+ * default this signal will abort your program.  Use "signal(SIGPIPE, SIG_IGN)"
+ * if you want your program to continue running after a connection fails.
  */
 class PQXX_LIBEXPORT connection_base
 {
@@ -126,6 +131,23 @@ public:
   /// Explicitly close connection.
   void disconnect() throw ();						//[t2]
 
+   /// Is this connection open at the moment?
+  /** @warning This function is @b not needed in most code.  Resist the
+   * temptation to check it after opening a connection; rely on the exception
+   * that will be thrown on connection failure instead.
+   */
+  bool is_open() const throw ();					//[t1]
+
+ /**
+   * @name Activation
+   *
+   * Connections can be temporarily deactivated, or they can break because of
+   * overly impatient firewalls dropping TCP connections.  Where possible,
+   * libpqxx will try to re-activate these when resume using them, or you can
+   * wake them up explicitly.  You probably won't need this feature, but you
+   * should be aware of it.
+   */
+  //@{
   /// Explicitly activate deferred or deactivated connection.
   /** Use of this method is entirely optional.  Whenever a connection is used
    * while in a deferred or deactivated state, it will transparently try to
@@ -197,13 +219,17 @@ public:
    */
   void inhibit_reactivation(bool inhibit)				//[t86]
 	{ m_inhibit_reactivation=inhibit; }
+  //@}
 
-  /// Is this connection open at the moment?
-  /** @warning This function is @b not needed in most code.  Resist the
-   * temptation to check it after opening a connection; rely on the exception
-   * that will be thrown on connection failure instead.
+  /**
+   * @name Error/warning output
+   *
+   * Whenever the database has a warning or error to report, it will call a
+   * @e noticer to process the associated message.  The default noticer sends
+   * the text of the message to standard error output, but you may choose to
+   * select a different noticer for the connection.
    */
-  bool is_open() const throw ();					//[t1]
+  //@{
 
   /// Set handler for postgresql errors or warning messages.
   /** The use of auto_ptr implies ownership, so unless the returned value is
@@ -226,6 +252,8 @@ public:
   void process_notice(const char[]) throw ();				//[t14]
   /// Invoke notice processor function.  Newline at end is recommended.
   void process_notice(const PGSTD::string &) throw ();			//[t14]
+
+  //@}
 
   /// Enable tracing to a given output stream, or NULL to disable.
   void trace(FILE *) throw ();						//[t3]
@@ -279,13 +307,18 @@ public:
    */
   int sock() const throw ();						//[t87]
 
-  /// Session capabilities
-  /** Some functionality is only available in certain versions of the backend,
+  /** 
+   * @name Capabilities
+   *
+   * Some functionality is only available in certain versions of the backend,
    * or only when speaking certain versions of the communications protocol that
    * connects us to the backend.  This includes clauses for SQL statements that
    * were not accepted in older database versions, but are required in newer
    * versions to get the same behaviour.
    */
+  //@{
+ 
+  /// Session capabilities
   enum capability
   {
     /// Does the backend support prepared statements?  (If not, we emulate them)
@@ -356,6 +389,7 @@ public:
    * Requires libpq version from PostgreSQL 8.0 or better.
    */
   int server_version() const throw ();					//[t1]
+  //@}
 
   /// Set client-side character encoding
   /** Search the PostgreSQL documentation for "multibyte" or "character set
