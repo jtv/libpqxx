@@ -46,10 +46,17 @@ int main(int, char *argv[])
     cursor_base::difference_type offset;
 
     const cursor_base::difference_type backabs = a.move_to(0);
-    // TODO: On postgres 7.3, get "Moved 0 rows back, but expected 33"
     if (result::size_type(backabs) != all.size())
+    {
+      if (c.server_version() < 70300)
+      {
+        // Prior to that, cursors became inert after fetching all data
+        cerr << "Backend version limits cursor mobility, not testing." << endl;
+        return 0;
+      }
       throw logic_error("Moved " + to_string(backabs) + " rows back, "
 	"but expected " + to_string(all.size()));
+    }
 
     const cursor_base::difference_type fwd = a.move_to(cursor_base::all());
     if (backabs != fwd)
