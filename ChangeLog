@@ -4,6 +4,8 @@
   - More grouping in connection documentation
  include/pqxx/connection.hxx:
   - Fleshed out "connections" documentation module
+ test/test091.cxx:
+  - Don't test full cursor mobility on backend <= 7.3 (just wouldn't work)
 2006-11-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
   - Try for automake 1.9
