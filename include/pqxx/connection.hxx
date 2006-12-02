@@ -28,11 +28,41 @@ namespace pqxx
 /**
  * @addtogroup connection Connection classes
  *
+ * The connection classes are where the use of a database begins.  You must
+ * connect to a database in order to access it.  Your connection represents a
+ * session with the database.  In the context of that connection you can create
+ * transactions, which in turn you can use to execute SQL.  A connection can
+ * have only one regular transaction open at a time, but you can break your work
+ * down into any number of consecutive transactions and there is also some
+ * support for transaction nesting (using the subtransaction class).
+ *
+ * Many things come together in the connection classes.  Handling of error and
+ * warning messages, for example, is defined by @e noticers in the context of a
+ * connection.  Prepared statements are also defined here.
+ * 
  * Several types of connections are available, including plain connection and
  * lazyconnection.  These types are typedefs combining a derivative of the
  * connection_base class (where essentially all connection-related functionality
  * is defined) with a policy class which governs how the connection is to be
- * established.
+ * established.  You pass details such as the database you wish to connect to,
+ * username and password, and so on as as PostgreSQL "connection string" and
+ * certain environment variables that you can learn more about from the core
+ * postgres documentation.
+ *
+ * See the connection_base documentation for a full list of features inherited
+ * by all connection classes.  Connections can be deactivated and reactivated if
+ * needed (within reason, of course--you can't do this in the middle of a
+ * transaction), and where possible, disabled or broken connections are
+ * transparently re-enabled when you use them again.  This is called
+ * "reactivation," and you may need to understand it because you'll want it
+ * disabled in certain situations.
+ *
+ * You can also set certain variables defined by the backend to influence its
+ * behaviour for the duration of your session, such as the applicable text
+ * encoding.  You can query the connection's capabilities (because some features
+ * will depend on the versions of libpq and of the server backend that you're
+ * using) and parameters that you set in your connection string and/or
+ * environment variables.
  *
  * @{
  */

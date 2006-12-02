@@ -1,3 +1,9 @@
+2006-12-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, include/pqxx/except.hxx:
+  - Documented SIGPIPE when connection breaks, thanks Leandro Lucarella
+  - More grouping in connection documentation
+ include/pqxx/connection.hxx:
+  - Fleshed out "connections" documentation module
 2006-11-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
   - Try for automake 1.9

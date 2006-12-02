@@ -44,6 +44,24 @@ namespace pqxx
  */
 
 /// Exception class for lost or failed backend connection.
+/**
+ * @warning When this happens on Unix-like systems, you may also get a SIGPIPE
+ * signal.  That signal aborts the program by default, so if you wish to be able
+ * to continue after a connection breaks, be sure to disarm this signal.
+ *
+ * If you're working on a Unix-like system, see the manual page for
+ * @c signal (2) on how to deal with SIGPIPE.  The easiest way to make this
+ * signal harmless is to make your program ignore it:
+ *
+ * @code
+ * #include <signal.h>
+ *
+ * int main()
+ * {
+ *   signal(SIGPIPE, SIG_IGN);
+ *   // ...
+ * @endcode
+ */
 class PQXX_LIBEXPORT broken_connection : public PGSTD::runtime_error
 {
 public:
