@@ -34,6 +34,34 @@
 
 namespace pqxx
 {
+class result;
+
+namespace internal
+{
+/// Information shared between all copies of a result set
+struct PQXX_PRIVATE result_data
+{
+  pqxx::internal::pq::PGresult *data;
+
+  /// Frontend/backend protocol version
+  int protocol;
+
+  /// Query string that yielded this result
+  PGSTD::string query;
+
+  // TODO: Locking for result copy-construction etc. also goes here
+
+  result_data();
+  result_data(pqxx::internal::pq::PGresult *, int, const PGSTD::string &);
+  ~result_data();
+};
+
+void freemem_result_data(result_data *) throw ();
+template<> inline
+void PQAlloc<result_data>::freemem() throw () { freemem_result_data(m_Obj); }
+} // namespace internal
+
+
 /// Query or command result set.
 /** This behaves as a container (as defined by the C++ standard library) and
  * provides random access const iterators to iterate over its tuples.  A tuple
@@ -55,9 +83,9 @@ namespace pqxx
  * the same result set--even if it is doing so through a different result
  * object!
  */
-class PQXX_LIBEXPORT result : private internal::PQAlloc<internal::pq::PGresult>
+class PQXX_LIBEXPORT result : private internal::PQAlloc<internal::result_data>
 {
-  typedef internal::PQAlloc<internal::pq::PGresult> super;
+  typedef internal::PQAlloc<internal::result_data> super;
 public:
   class const_iterator;
   class const_fielditerator;
@@ -725,11 +753,12 @@ public:
   };
 
 
-  result() throw () : super(), m_protocol(0) {}				//[t3]
-  result(const result &rhs) throw () : super(rhs), m_protocol(0) {}	//[t1]
+  result() throw () : super(), m_data(0) {}				//[t3]
+  result(const result &rhs) throw () :					//[t1]
+	super(rhs), m_data(rhs.m_data) {}
 
   result &operator=(const result &rhs) throw ()				//[t10]
-	{ super::operator=(rhs); m_protocol=rhs.m_protocol; return *this; }
+	{ super::operator=(rhs); m_data=rhs.m_data; return *this; }
 
   /**
    * @name Comparisons
@@ -762,7 +791,7 @@ public:
 	{ return tuple(this, i); }
   const tuple at(size_type) const throw (PGSTD::out_of_range);		//[t10]
 
-  using super::clear;							//[t20]
+  void clear() throw () { super::clear(); m_data = 0; }			//[t20]
 
   /**
    * @name Column information
@@ -839,6 +868,9 @@ public:
 	{ return table_column(column_number(ColName)); }
   //@}
 
+  /// Query that produced this result, if available (empty string otherwise)
+  const PGSTD::string &query() const throw ();				//[t70]
+
   /// If command was @c INSERT of 1 row, return oid of inserted row
   /** @return Identifier of inserted row if exactly one row was inserted, or
    * oid_none otherwise.
@@ -861,12 +893,14 @@ private:
 
   friend class connection_base;
   friend class pipeline;
-  explicit result(internal::pq::PGresult *rhs, int protocol=0) throw () :
-    super(rhs), m_protocol(protocol) {}
-  bool operator!() const throw () { return !c_ptr(); }
-  operator bool() const throw () { return c_ptr() != 0; }
-  void PQXX_PRIVATE CheckStatus(const PGSTD::string &Query) const;
-  void PQXX_PRIVATE CheckStatus(const char Query[]) const;
+  result(internal::pq::PGresult *rhs,
+	int protocol,
+	const PGSTD::string &Query=PGSTD::string());
+  bool operator!() const throw () { return !m_data; }
+  operator bool() const throw () { return m_data != 0; }
+
+  void PQXX_PRIVATE CheckStatus() const;
+
   void PQXX_PRIVATE ThrowSQLError(const PGSTD::string &Err,
 	const PGSTD::string &Query) const;
   int PQXX_PRIVATE errorposition() const throw ();
@@ -876,7 +910,10 @@ private:
   friend class cursor_base;
   const char *CmdStatus() const throw ();
 
-  int m_protocol;
+  /// Shortcut: pointer to result data
+  pqxx::internal::pq::PGresult *m_data;
+
+  static const PGSTD::string PQXX_PRIVATE s_empty_string;
 };
 
 

@@ -27,6 +27,32 @@
 
 using namespace PGSTD;
 
+const string pqxx::result::s_empty_string;
+
+
+pqxx::internal::result_data::result_data() : data(0), protocol(0), query() {}
+
+pqxx::internal::result_data::result_data(pqxx::internal::pq::PGresult *d,
+	int p,
+	const string &q) :
+  data(d),
+  protocol(p),
+  query(q)
+	{}
+
+
+pqxx::internal::result_data::~result_data() { PQclear(data); }
+
+
+void pqxx::internal::freemem_result_data(result_data *d) throw () { delete d; }
+
+
+pqxx::result::result(pqxx::internal::pq::PGresult *rhs,
+	int protocol,
+	const string &Query) :
+  super(new internal::result_data(rhs, protocol, Query)),
+  m_data(rhs)
+	{}
 
 bool pqxx::result::operator==(const result &rhs) const throw ()
 {
@@ -75,19 +101,21 @@ bool pqxx::result::field::operator==(const field &rhs) const
 
 pqxx::result::size_type pqxx::result::size() const throw ()
 {
-  return c_ptr() ? PQntuples(c_ptr()) : 0;
+  return m_data ? PQntuples(m_data) : 0;
 }
 
 
 bool pqxx::result::empty() const throw ()
 {
-  return !c_ptr() || !PQntuples(c_ptr());
+  return !m_data || !PQntuples(m_data);
 }
 
 
 void pqxx::result::swap(result &rhs) throw ()
 {
   super::swap(rhs);
+  m_data = (c_ptr() ? c_ptr()->data : 0);
+  rhs.m_data = (rhs.c_ptr() ? rhs.c_ptr()->data : 0);
 }
 
 
@@ -106,7 +134,7 @@ void pqxx::result::ThrowSQLError(const PGSTD::string &Err,
 {
 #if defined(PQXX_HAVE_PQRESULTERRORFIELD)
   // Try to establish more precise error type, and throw corresponding exception
-  const char *const code = PQresultErrorField(c_ptr(), PG_DIAG_SQLSTATE);
+  const char *const code = PQresultErrorField(m_data, PG_DIAG_SQLSTATE);
   // TODO: Move this into a factory in except.cxx
   if (!code) return;
   switch (code[0])
@@ -164,28 +192,21 @@ void pqxx::result::ThrowSQLError(const PGSTD::string &Err,
   throw sql_error(Err, Query);
 }
 
-void pqxx::result::CheckStatus(const PGSTD::string &Query) const
+void pqxx::result::CheckStatus() const
 {
   const string Err = StatusError();
-  if (!Err.empty()) ThrowSQLError(Err, Query);
-}
-
-
-void pqxx::result::CheckStatus(const char Query[]) const
-{
-  const string Err = StatusError();
-  if (!Err.empty()) ThrowSQLError(Err, string(Query ? Query : ""));
+  if (!Err.empty()) ThrowSQLError(Err, query());
 }
 
 
 string pqxx::result::StatusError() const
 {
-  if (!c_ptr())
+  if (!m_data)
     throw runtime_error("No result set given");
 
   string Err;
 
-  switch (PQresultStatus(c_ptr()))
+  switch (PQresultStatus(m_data))
   {
   case PGRES_EMPTY_QUERY: // The string sent to the backend was empty.
   case PGRES_COMMAND_OK: // Successful completion of a command returning no data
@@ -199,12 +220,12 @@ string pqxx::result::StatusError() const
   case PGRES_BAD_RESPONSE: // The server's response was not understood
   case PGRES_NONFATAL_ERROR:
   case PGRES_FATAL_ERROR:
-    Err = PQresultErrorMessage(c_ptr());
+    Err = PQresultErrorMessage(m_data);
     break;
 
   default:
     throw internal_error("pqxx::result: Unrecognized response code " +
-		      to_string(int(PQresultStatus(c_ptr()))));
+		      to_string(int(PQresultStatus(m_data))));
   }
   return Err;
 }
@@ -212,22 +233,28 @@ string pqxx::result::StatusError() const
 
 const char *pqxx::result::CmdStatus() const throw ()
 {
-  return PQcmdStatus(c_ptr());
+  return PQcmdStatus(m_data);
+}
+
+
+const string &pqxx::result::query() const throw ()
+{
+  return c_ptr() ? c_ptr()->query : s_empty_string;
 }
 
 
 pqxx::oid pqxx::result::inserted_oid() const
 {
-  if (!c_ptr())
+  if (!m_data)
     throw logic_error("Attempt to read oid of inserted row without an INSERT "
 	"result");
-  return PQoidValue(c_ptr());
+  return PQoidValue(m_data);
 }
 
 
 pqxx::result::size_type pqxx::result::affected_rows() const
 {
-  const char *const RowsStr = PQcmdTuples(c_ptr());
+  const char *const RowsStr = PQcmdTuples(m_data);
   return RowsStr[0] ? atoi(RowsStr) : 0;
 }
 
@@ -235,27 +262,27 @@ pqxx::result::size_type pqxx::result::affected_rows() const
 const char *pqxx::result::GetValue(pqxx::result::size_type Row,
 		                 pqxx::result::tuple::size_type Col) const
 {
-  return PQgetvalue(c_ptr(), Row, Col);
+  return PQgetvalue(m_data, Row, Col);
 }
 
 
 bool pqxx::result::GetIsNull(pqxx::result::size_type Row,
 		           pqxx::result::tuple::size_type Col) const
 {
-  return PQgetisnull(c_ptr(), Row, Col) != 0;
+  return PQgetisnull(m_data, Row, Col) != 0;
 }
 
 pqxx::result::field::size_type
 pqxx::result::GetLength(pqxx::result::size_type Row,
                         pqxx::result::tuple::size_type Col) const
 {
-  return PQgetlength(c_ptr(), Row, Col);
+  return PQgetlength(m_data, Row, Col);
 }
 
 
 pqxx::oid pqxx::result::column_type(tuple::size_type ColNum) const
 {
-  const oid T = PQftype(c_ptr(), ColNum);
+  const oid T = PQftype(m_data, ColNum);
   if (T == oid_none)
     throw PGSTD::invalid_argument(
 	"Attempt to retrieve type of nonexistant column " +
@@ -267,7 +294,7 @@ pqxx::oid pqxx::result::column_type(tuple::size_type ColNum) const
 #ifdef PQXX_HAVE_PQFTABLE
 pqxx::oid pqxx::result::column_table(tuple::size_type ColNum) const
 {
-  const oid T = PQftable(c_ptr(), ColNum);
+  const oid T = PQftable(m_data, ColNum);
 
   /* If we get oid_none, it may be because the column is computed, or because we
    * got an invalid row number.
@@ -285,7 +312,7 @@ pqxx::oid pqxx::result::column_table(tuple::size_type ColNum) const
 pqxx::result::tuple::size_type
 pqxx::result::table_column(tuple::size_type ColNum) const
 {
-  const tuple::size_type n = PQftablecol(c_ptr(), ColNum);
+  const tuple::size_type n = PQftablecol(m_data, ColNum);
   if (n) return n-1;
 
   // Failed.  Now find out why, so we can throw a sensible exception.
@@ -297,7 +324,7 @@ pqxx::result::table_column(tuple::size_type ColNum) const
     throw out_of_range("Invalid column index in table_column(): " +
       to_string(ColNum));
 
-  if (m_protocol < 3)
+  if (!c_ptr() || c_ptr()->protocol < 3)
     throw feature_not_supported("Backend version does not support querying of "
       "column's original number",
       "[TABLE_COLUMN]");
@@ -311,9 +338,9 @@ int pqxx::result::errorposition() const throw ()
 {
   int pos = -1;
 #if defined(PQXX_HAVE_PQRESULTERRORFIELD)
-  if (c_ptr())
+  if (m_data)
   {
-    const char *p = PQresultErrorField(c_ptr(), PG_DIAG_STATEMENT_POSITION);
+    const char *p = PQresultErrorField(m_data, PG_DIAG_STATEMENT_POSITION);
     if (p) from_string(p, pos);
   }
 #endif // PQXX_HAVE_PQRESULTERRORFIELD
@@ -353,7 +380,7 @@ pqxx::result::tuple::at(pqxx::result::tuple::size_type i) const throw (out_of_ra
 const char *
 pqxx::result::column_name(pqxx::result::tuple::size_type Number) const
 {
-  const char *const N = PQfname(c_ptr(), Number);
+  const char *const N = PQfname(m_data, Number);
   if (!N)
     throw out_of_range("Invalid column number: " + to_string(Number));
 
@@ -363,14 +390,14 @@ pqxx::result::column_name(pqxx::result::tuple::size_type Number) const
 
 pqxx::result::tuple::size_type pqxx::result::columns() const throw ()
 {
-  return c_ptr() ? PQnfields(c_ptr()) : 0;
+  return m_data ? PQnfields(m_data) : 0;
 }
 
 
 pqxx::result::tuple::size_type
 pqxx::result::column_number(const char ColName[]) const
 {
-  const int N = PQfnumber(c_ptr(), ColName);
+  const int N = PQfnumber(m_data, ColName);
   // TODO: Should this be an out_of_range?
   if (N == -1)
     throw invalid_argument("Unknown column name: '" + string(ColName) + "'");

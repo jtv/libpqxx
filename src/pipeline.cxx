@@ -229,7 +229,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   }
 
   pqxxassert(r);
-  const result res(r);
+  const result res(r, 0, m_queries.begin()->second.get_query());
 
   if (!have_pending())
   {
@@ -257,11 +257,11 @@ void pqxx::pipeline::obtain_dummy()
   if (!r)
     internal_error("pipeline got no result from backend when it expected one");
 
-  result R(r);
+  result R(r, 0, "[DUMMY PIPELINE QUERY]");
   bool OK = false;
   try
   {
-    R.CheckStatus("[DUMMY PIPELINE QUERY]");
+    R.CheckStatus();
     OK = true;
   }
   catch (const sql_error &)
@@ -315,7 +315,7 @@ void pqxx::pipeline::obtain_dummy()
       const string &query = m_issuedrange.first->second.get_query();
       const result res(m_Trans.exec(query));
       m_issuedrange.first->second.set_result(res);
-      res.CheckStatus(query);
+      res.CheckStatus();
       ++m_issuedrange.first;
     }
     while (m_issuedrange.first != stop);
@@ -382,13 +382,12 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
   // Don't leave the backend idle if there are queries waiting to be issued
   if (m_num_waiting && !have_pending() && (m_error==qid_limit())) issue();
 
-  const string query(q->second.get_query());
   const result R = q->second.get_result();
   pair<query_id,result> P(make_pair(q->first, R));
 
   m_queries.erase(q);
 
-  R.CheckStatus(query);
+  R.CheckStatus();
   return P;
 }
 

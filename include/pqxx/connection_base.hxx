@@ -629,7 +629,7 @@ protected:
 private:
   void PQXX_PRIVATE clearcaps() throw ();
   void PQXX_PRIVATE SetupState();
-  void PQXX_PRIVATE check_result(const result &, const char Query[]);
+  void PQXX_PRIVATE check_result(const result &);
 
   void PQXX_PRIVATE InternalSetTrace() throw ();
   int PQXX_PRIVATE Status() const throw ();
