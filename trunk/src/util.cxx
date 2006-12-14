@@ -543,9 +543,6 @@ string pqxx::sqlesc(const string &str)
 }
 
 
-void pqxx::internal::freemem_result(pqxx::internal::pq::PGresult *p) throw ()
-	{ PQclear(p); }
-
 void pqxx::internal::freemem_notif(pqxx::internal::pq::PGnotify *p) throw ()
 {
 #ifdef PQXX_HAVE_PQFREENOTIFY

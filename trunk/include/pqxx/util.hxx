@@ -665,10 +665,6 @@ private:
 };
 
 
-void PQXX_LIBEXPORT freemem_result(pq::PGresult *) throw ();
-template<> inline void PQAlloc<pq::PGresult>::freemem() throw ()
-	{ freemem_result(m_Obj); }
-
 void PQXX_LIBEXPORT freemem_notif(pq::PGnotify *) throw ();
 template<> inline void PQAlloc<pq::PGnotify>::freemem() throw ()
 	{ freemem_notif(m_Obj); }

@@ -16,6 +16,8 @@ void TestPipeline(pipeline &P, int numqueries)
     const result Empty;
     if (!Empty.empty())
       throw logic_error("Default-constructed result is not empty");
+    if (!Empty.query().empty())
+      throw logic_error("Default-constructed result has query");
 
     P.retain();
     for (int i=numqueries; i; --i) P.insert(Q);
@@ -43,6 +45,10 @@ void TestPipeline(pipeline &P, int numqueries)
       Prev = R.second;
       if (Prev != R.second)
 	throw logic_error("Result equality does not hold after assignment");
+
+      if (R.second.query() != Q)
+        throw logic_error("Unexpected query in result: "
+		"'" + R.second.query() + "'");
 
       if (res && (Prev[0][0].as<int>() != res))
 	throw logic_error("Expected " + to_string(res) + " out of pipeline, "
@@ -76,24 +82,29 @@ int main(int, char *argv[])
 
     // Try to confuse the pipeline by feeding it a query and flushing
     P.retain();
-    P.insert("SELECT * FROM pg_tables");
+    const string Q = "SELECT * FROM pg_tables";
+    P.insert(Q);
     P.flush();
 
     if (!P.empty()) throw logic_error("Pipeline not empty after flush()");
 
     // See if complete() breaks retain() as it should
     P.retain();
-    P.insert("SELECT * FROM pg_tables");
+    P.insert(Q);
     if (P.empty()) throw logic_error("Pipeline empty after insert()");
     P.complete();
     if (P.empty()) throw logic_error("Pipeline empty after complete()");
-    P.retrieve();
+
+    if (P.retrieve().second.query() != Q)
+      throw logic_error("Unexpected query in result");
+
     if (!P.empty()) throw logic_error("Pipeline not empty after retrieve()");
 
     // See if retrieve() breaks retain() when it needs to
     P.retain();
-    P.insert("SELECT * FROM pg_tables");
-    P.retrieve();
+    P.insert(Q);
+    if (P.retrieve().second.query() != Q)
+      throw logic_error("Unexpected query in result");
 
     // See if regular retain()/resume() works
     for (int i=0; i<5; ++i) TestPipeline(P, i);

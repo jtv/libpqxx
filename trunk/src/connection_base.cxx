@@ -310,7 +310,8 @@ void pqxx::connection_base::SetupState()
     // Now do the whole batch at once
     PQsendQuery(m_Conn, restore_query.str().c_str());
     result r;
-    do r = result(PQgetResult(m_Conn)); while (r);
+    const int proto = protocol_version();
+    do r = result(PQgetResult(m_Conn), proto, "[RECONNECT]"); while (r);
   }
 
   m_Completed = true;
@@ -318,7 +319,7 @@ void pqxx::connection_base::SetupState()
 }
 
 
-void pqxx::connection_base::check_result(const result &R, const char Query[])
+void pqxx::connection_base::check_result(const result &R)
 {
   if (!is_open()) throw broken_connection();
 
@@ -327,7 +328,7 @@ void pqxx::connection_base::check_result(const result &R, const char Query[])
 
   try
   {
-    R.CheckStatus(Query);
+    R.CheckStatus();
   }
   catch (const exception &e)
   {
@@ -549,8 +550,8 @@ void pqxx::connection_base::AddTrigger(pqxx::trigger *T)
 
     if (is_open()) try
     {
-      result R( PQexec(m_Conn, LQ.c_str()) );
-      check_result(R,LQ.c_str());
+      result R( PQexec(m_Conn, LQ.c_str()), protocol_version(), LQ );
+      check_result(R);
     }
     catch (const broken_connection &)
     {
@@ -702,16 +703,16 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
   activate();
   const int proto = protocol_version();
 
-  result R(PQexec(m_Conn, Query), proto);
+  result R(PQexec(m_Conn, Query), proto, Query);
 
   while ((Retries > 0) && !R && !is_open())
   {
     Retries--;
     Reset();
-    if (is_open()) R = result(PQexec(m_Conn, Query), proto);
+    if (is_open()) R = result(PQexec(m_Conn, Query), proto, Query);
   }
 
-  check_result(R, Query);
+  check_result(R);
 
   get_notifs();
   return R;
@@ -840,8 +841,10 @@ pqxx::connection_base::register_prepared(const PGSTD::string &name)
   if (!s.registered && supports(cap_prepared_statements))
   {
 #ifdef PQXX_HAVE_PQPREPARE
-    result r(PQprepare(m_Conn, name.c_str(), s.definition.c_str(), 0, 0));
-    r.CheckStatus("[PREPARE " + name + "]");
+    result r(PQprepare(m_Conn, name.c_str(), s.definition.c_str(), 0, 0),
+	protocol_version(),
+	"[PREPARE " + name + "]");
+    r.CheckStatus();
 #else
     stringstream P;
     P << "PREPARE \"" << name << '"';
@@ -884,7 +887,6 @@ pqxx::result pqxx::connection_base::prepared_exec(
 	"expected " + to_string(s.parameters.size()) + ", "
 	"received " + to_string(nparams));
 
-
 #ifdef PQXX_HAVE_PQEXECPREPARED
   internal::scoped_array<int> binary(nparams+1);
   for (int i=0; i<nparams; ++i)
@@ -898,7 +900,8 @@ pqxx::result pqxx::connection_base::prepared_exec(
 	paramlengths,
 	binary.c_ptr(),
 	0),
-	protocol_version());
+	protocol_version(),
+	statement);
 #else
   stringstream Q;
   if (supports(cap_prepared_statements))
@@ -934,7 +937,7 @@ pqxx::result pqxx::connection_base::prepared_exec(
   }
   result r(Exec(Q.str().c_str(), 0));
 #endif
-  check_result(r, statement.c_str());
+  check_result(r);
   get_notifs();
   return r;
 }
@@ -1051,7 +1054,8 @@ void pqxx::connection_base::MakeEmpty(pqxx::result &R)
   if (!m_Conn)
     throw internal_error("MakeEmpty() on null connection");
 
-  R = result(PQmakeEmptyPGresult(m_Conn, PGRES_EMPTY_QUERY));
+  R = result(PQmakeEmptyPGresult(m_Conn, PGRES_EMPTY_QUERY),
+             protocol_version());
 }
 
 
@@ -1073,14 +1077,18 @@ bool pqxx::connection_base::ReadCopyLine(PGSTD::string &Line)
 
 #ifdef PQXX_HAVE_PQPUTCOPY
   char *Buf = 0;
+  const int proto = protocol_version();
+  const string querydesc = "[END COPY]";
   switch (PQgetCopyData(m_Conn, &Buf, false))
   {
     case -2:
       throw runtime_error("Reading of table data failed: " + string(ErrMsg()));
 
     case -1:
-      for (result R(PQgetResult(m_Conn)); R; R=result(PQgetResult(m_Conn)))
-	check_result(R, "[END COPY]");
+      for (result R(PQgetResult(m_Conn), proto, querydesc);
+           R;
+	   R=result(PQgetResult(m_Conn), proto, querydesc))
+	check_result(R);
       Result = false;
       break;
 
@@ -1181,8 +1189,8 @@ void pqxx::connection_base::EndCopyWrite()
 	"from PQputCopyEnd()");
   }
 
-  const result R(PQgetResult(m_Conn));
-  check_result(R, "[END COPY]");
+  const result R(PQgetResult(m_Conn), protocol_version(), "[END COPY]");
+  check_result(R);
 
 #else
   WriteCopyLine(theWriteTerminator);

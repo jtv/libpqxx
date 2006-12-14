@@ -6,6 +6,7 @@
  - Fixes bug when removing triggers
  - Fixes small memory leak when preparing statements
  - Fixes many problems with older backends
+ - Fixes bug in result::swap(): protocol versions were not swapped
  - Greatly reduced memory usage while escaping strings
  - With Visual C++, creates lib/ directory if not already present
  - Useful error messages when preparing statements
@@ -13,6 +14,7 @@
  - Support for "long long" types; enable with PQXX_ALLOW_LONG_LONG macro
  - Compilation errors for older libpq versions fixed
  - Some new small utility classes for disabling notice processing etc.
+ - Result sets remember the queries that yielded them
 2.6.8
  - Fixes bug: binary parameters to prepared statements truncated at nul bytes
  - New, more specific exception types to distinguish errors from server
