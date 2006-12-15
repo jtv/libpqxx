@@ -135,7 +135,6 @@ void pqxx::result::ThrowSQLError(const PGSTD::string &Err,
 #if defined(PQXX_HAVE_PQRESULTERRORFIELD)
   // Try to establish more precise error type, and throw corresponding exception
   const char *const code = PQresultErrorField(m_data, PG_DIAG_SQLSTATE);
-  // TODO: Move this into a factory in except.cxx
   if (!code) return;
   switch (code[0])
   {
@@ -174,6 +173,8 @@ void pqxx::result::ThrowSQLError(const PGSTD::string &Err,
     case '2':
       if (strcmp(code,"42501")==0) throw insufficient_privilege(Err, Query);
       if (strcmp(code,"42601")==0) throw syntax_error(Err, Query);
+      if (strcmp(code,"42703")==0) throw undefined_column(Err, Query);
+      if (strcmp(code,"42883")==0) throw undefined_function(Err, Query);
       if (strcmp(code,"42P01")==0) throw undefined_table(Err, Query);
     }
     break;

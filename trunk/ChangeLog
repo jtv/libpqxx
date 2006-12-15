@@ -1,3 +1,7 @@
+2006-12-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/except.hxx, src/result.cxx:
+  - New exception class: undefined_column
+  - New exception class: undefined_function
 2006-12-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, include/pqxx/result.hxx,
  include/pqxx/util.hxx, src/connection_base.cxx, src/pipeline.cxx,
