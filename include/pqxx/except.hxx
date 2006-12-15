@@ -172,6 +172,22 @@ public:
 	sql_error(err,Q) {}
 };
 
+class PQXX_LIBEXPORT undefined_column : public syntax_error
+{
+public:
+  explicit undefined_column(const PGSTD::string &err) : syntax_error(err) {}
+  undefined_column(const PGSTD::string &err, const PGSTD::string &Q) :
+    syntax_error(err, Q) {}
+};
+
+class PQXX_LIBEXPORT undefined_function : public syntax_error
+{
+public:
+  explicit undefined_function(const PGSTD::string &err) : syntax_error(err) {}
+  undefined_function(const PGSTD::string &err, const PGSTD::string &Q) :
+    syntax_error(err, Q) {}
+};
+
 class PQXX_LIBEXPORT undefined_table : public syntax_error
 {
 public:
