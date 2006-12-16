@@ -1356,16 +1356,17 @@ int pqxx::connection_base::await_notification(long seconds, long microseconds)
 
 void pqxx::connection_base::read_capabilities() throw ()
 {
-  int v = 0;
-#ifdef PQXX_HAVE_PQSERVERVERSION
-  if (m_Conn) v = PQserverVersion(m_Conn);
-#endif
+  const int v = server_version(), p = protocol_version();
 
   m_caps[cap_prepared_statements] = (v >= 70300);
   m_caps[cap_cursor_scroll] = (v >= 70400);
   m_caps[cap_cursor_with_hold] = (v >= 70400);
   m_caps[cap_nested_transactions] = (v >= 80000);
   m_caps[cap_create_table_with_oids] = (v >= 80000);
+
+#ifdef PQXX_HAVE_PQFTABLECOL
+  m_caps[cap_table_column] = (p >= 3);
+#endif
 }
 
 

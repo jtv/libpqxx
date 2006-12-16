@@ -37,8 +37,16 @@ int main(int, char *argv[])
       T.exec("INSERT INTO pqxxfoo VALUES ('xx', 1, 2)");
       R = T.exec("SELECT z,y,x FROM pqxxfoo");
       X = T.exec("SELECT x,y,z,99 FROM pqxxfoo");
+
+      if (!C.supports(connection_base::cap_table_column))
+      {
+        cout << "No support for querying table columns.  Skipping." << endl;
+	return 0;
+      }
+
       // T and C are closed here; result objects remain
     }
+
 
 #ifdef PQXX_HAVE_PQFTABLECOL
     int x = R.table_column(2),

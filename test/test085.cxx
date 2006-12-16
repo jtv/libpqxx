@@ -227,6 +227,12 @@ int main()
 
     cout << "Done." << endl;
   }
+  catch (const feature_not_supported &e)
+  {
+    cout << "Backend version does not support prepared statements.  Skipping."
+         << endl;
+    return 0;
+  }
   catch (const sql_error &e)
   {
     cerr << "SQL error: " << e.what() << endl

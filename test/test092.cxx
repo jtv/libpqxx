@@ -23,6 +23,14 @@ int main()
     lazyconnection C;
     work T(C, "test92");
     T.exec("CREATE TEMP TABLE " + Table + " (" + Field + " BYTEA)");
+
+    if (!C.supports(connection_base::cap_prepared_statements))
+    {
+      cout << "Backend version does not support prepared statements.  Skipping."
+           << endl;
+      return 0;
+    }
+
     C.prepare(Stat, "INSERT INTO " + Table + " VALUES ($1)")
 	("BYTEA", pqxx::prepare::treat_binary);
     T.prepared(Stat)(data).exec();
