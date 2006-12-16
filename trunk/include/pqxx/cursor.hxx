@@ -361,7 +361,7 @@ public:
 };
 
 
-/// Cursor that knows its position @warning Experimental; do not use!
+/// Cursor that knows its position
 template<cursor_base::accesspolicy ACCESS, cursor_base::updatepolicy UPDATE>
 class absolute_cursor : public basic_cursor<ACCESS,UPDATE>
 {

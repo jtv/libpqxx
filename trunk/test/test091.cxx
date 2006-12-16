@@ -43,6 +43,13 @@ int main(int, char *argv[])
     const cursor_base::difference_type backwards =
 	-cursor_base::difference_type(all.size());
 
+    if (!c.server_version())
+    {
+      cout << "Can't see whether backend supports scrolling cursors.  Skipping."
+           << endl;
+      return 0;
+    }
+
     cursor_base::difference_type offset;
 
     const cursor_base::difference_type backabs = a.move_to(0);

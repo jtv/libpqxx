@@ -108,6 +108,7 @@ void pqxx::cursor_base::declare(const PGSTD::string &query,
 
   cq << "DECLARE \"" << name() << "\" ";
 
+  m_context->conn().activate();
   if (m_context->conn().supports(connection_base::cap_cursor_scroll))
   {
     if (ap == forward_only) cq << "NO ";
