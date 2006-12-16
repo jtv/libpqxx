@@ -337,6 +337,9 @@ public:
     /// Can cursors be updateable?
     cap_cursor_update,
 
+    /// Can we ask what table column a result column came from?
+    cap_table_column,
+
     /// Not a capability value; end-of-enumeration marker
     cap_end
   };
@@ -355,6 +358,10 @@ public:
    * Some guesswork is involved in establishing the presence of any capability;
    * try not to rely on this function being exactly right.  Older versions of
    * libpq may not detect any capabilities.
+   *
+   * @warning Make sure your connection is active before calling this function,
+   * or the answer will always be "no."  In particular, if you are using this
+   * function on a newly-created lazyconnection, activate the connection first.
    */
   bool supports(capability c) const throw () { return m_caps[c]; }	//[t88]
 
