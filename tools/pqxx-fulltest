@@ -1,0 +1,234 @@
+#! /bin/sh
+set -e
+
+# Full test of given libpqxx source tree against all available backends, libpq
+# versions, and compilers.  Any new PostgreSQL versions are downloaded
+# automatically.
+# If no source tree is given, the latest source tree is retrieved from the
+# subversion repository.
+
+# Set CONCURRENCY_LEVEL to number of parallel make processes to use, or leave
+# unset to default for one process per processor.
+# Set SKIP_PREPRELEASE to forgo the "preprelease" test which builds and tests
+# against multiple compilers on the current stable backend and libpq.
+
+SOURCE="$1"
+
+TESTDIR="$HOME/tmp/libpqxxtest"
+mkdir -p "$TESTDIR"
+
+#SVNURL="file:///srv/svn/libpqxx/trunk/"
+SVNURL="svn://thaiopensource.org/libpqxx/trunk/"
+
+# Where and how to obtain PostgreSQL versions
+PGVERSIONPAT="^v[0-9][0-9A-Za-z_.-]\+"
+FTPSERVER="mirror.in.th"
+#FTPSERVER="ftp.hk.postgresql.org"
+FTPDIR="postgresql/source"
+
+if test -z "$CONCURRENCY_LEVEL" ; then
+	CONCURRENCY_LEVEL=`grep '^processor[[:space:]]*:' /proc/cpuinfo | wc -l`
+fi
+export CONCURRENCY_LEVEL
+echo "## Concurrency level: $CONCURRENCY_LEVEL ##"
+MAKEOPT="-j $CONCURRENCY_LEVEL"
+
+export COMPILERS="`find /usr/bin -name g++-[0-9].[0-9]`"
+export COMPILERS="${COMPILERS:-g++}"
+echo "## Compilers: "$COMPILERS" ##"
+
+upstreampgversions() {
+	lftp $FTPSERVER -e "cls -1 -B $FTPDIR ; exit" | grep -o "$PGVERSIONPAT"
+}
+
+pgdir() {
+	echo "$TESTDIR/pg/$1"
+}
+
+havepgversions() {
+	pushd "$TESTDIR/pg" >/dev/null
+	SKIP="`find v* -name PQXX_SKIP -maxdepth 1 | sed -e 's|/.*||'`"
+	ls -1 | grep -o "$PGVERSIONPAT" | grep -vFx "$SKIP"
+	popd >/dev/null
+}
+
+buildpg() {
+	DEST="$1"
+	./configure --prefix="$DEST" && make $MAKEOPT
+}
+
+install_pg() {
+	# Strip leading "v" off version number
+	VERSIONNAME="$1"
+	VERSION="${VERSIONNAME:1}"
+	BASENAME="postgresql-$VERSION"
+	FILENAME="$BASENAME.tar.bz2"
+	DEST="`pgdir "$VERSIONNAME"`"
+
+	# Download, build & install PostgreSQL source
+	echo
+	echo "## Don't have $FILENAME.  Downloading... ##"
+	if wget -q "ftp://$FTPSERVER/$FTPDIR/$VERSIONNAME/$FILENAME" ; then
+		tar xjf "$FILENAME"
+		rm -f "$FILENAME"
+		
+		pushd "$BASENAME" >/dev/null
+		echo "## Building PostgreSQL $VERSIONNAME ##"
+		if buildpg "$DEST" >/dev/null 2>&1 ; then
+			mkdir -p "$DEST"
+			make install >/dev/null
+		fi
+		popd >/dev/null
+
+		rm -rf "$BASENAME"
+	fi
+	echo
+}
+
+newpgversions() {
+	for v in `upstreampgversions` ; do
+		if ! test -d "$TESTDIR/pg/$v" ; then
+			BUILDDIR=`mktemp -d`
+			pushd "$BUILDDIR" >/dev/null
+			install_pg "$v"
+			popd >/dev/null
+			rm -rf "$BUILDDIR"
+		fi
+	done
+}
+
+
+checkoutpqxx() {
+	if test -z "$SOURCE" ; then
+		SOURCE="$TESTDIR/svn"
+		echo
+		echo "## Checking out latest source to $SOURCE ##"
+		rm -rf "$SOURCE"
+		pushd "$TESTDIR" >/dev/null
+		svn co -q "$SVNURL" svn
+		popd >/dev/null
+		echo
+	fi
+}
+
+
+export BACKEND=""
+
+
+# Start backend installed in "$1"
+startbackend() {
+	BE="$1"
+	if test -f "$BE/PQXX_SKIP" ; then
+		echo "## Skipping backend $BE ##"
+		echo
+		false
+	else
+		echo "## Starting backend $BE ##"
+		rm -rf "$BE/data"
+		mkdir -p "$BE/data"
+
+		OLDPATH="$PATH"
+		export PATH="$BE/bin:$PATH"
+
+		OLDLIBPATH="$LD_LIBRARY_PATH"
+		export LD_LIBRARY_PATH="$BE/lib"
+
+		export PGHOST="$BE"
+		export PGDATA="$BE/data"
+
+		initdb >/dev/null
+		postmaster -F -k $BE -h '' >"$BE/backend.log" 2>&1 &
+		sleep 10
+		createdb "$USER" >/dev/null &
+
+		export PATH="$OLDPATH"
+		export LD_LIBRARY_PATH="$OLDLIBPATH"
+
+		export BACKEND="$BE"
+		echo
+	fi
+}
+
+stopbackend() {
+	BE="$BACKEND"
+	if test -z "$BE" ; then
+		return
+	fi
+	PID="`ps -f -C postmaster |
+		grep "^$USER[[:space:]]\+.*postmaster[[:space:]]* -F -k $BE" |
+		sed -e 's/^[^[:space:]]\+[[:space:]]\+\([0-9]\+\).*/\1/'`"
+	if test -z "$PID" ; then
+		echo "## Backend $BE not found, not stopping ##"
+	else
+		kill -INT "$PID"
+	fi
+	unset BACKEND
+	export BACKEND
+}
+
+newpgversions
+checkoutpqxx
+
+cd "$SOURCE"
+
+set -e
+
+if test -z "$SKIP_PREPRELEASE" ; then
+	STABLEBACKEND="`havepgversions | grep -vi beta | tail -n 1`"
+	startbackend "`pgdir "$STABLEBACKEND"`"
+
+
+	echo "## Testing against available compilers ##"
+
+	OLDPATH="$PATH"
+	export PATH="`pgdir $STABLEBACKEND`/bin:$PATH"
+	OLDLIBPATH="$LD_LIBRARY_PATH"
+	export LD_LIBRARY_PATH="`pgdir $STABLEBACKEND`/lib"
+
+	if ! env CXXFLAGS="-Wno-long-long" ./tools/preprelease >/dev/null ; then
+		stopbackend
+		exit 1
+	fi
+
+	export PATH="$OLDPATH"
+	export LD_LIBRARY_PATH="$OLDLIBPATH"
+
+	echo
+fi
+
+
+for be in `havepgversions | head -n 1` `havepgversions | tail -n 1` ; do
+	stopbackend
+	sleep 5
+	if startbackend "`pgdir $be`" ; then
+		for fe in `havepgversions` ; do
+			echo "## Testing with libpq $fe ##"
+			OLDPATH="$PATH"
+			export PATH="`pgdir $fe`/bin:$PATH"
+			OLDLIBPATH="$LD_LIBRARY_PATH"
+			export LD_LIBRARY_PATH="`pgdir $fe`/lib"
+			./configure --enable-maintainer-mode >/dev/null
+			if ! make $MAKEOPT >/dev/null ; then
+				stopbackend
+				echo "## Build failure with libpq $fe ##" 
+				exit 1
+			fi
+			if ! make $MAKEOPT check >pqxx-fulltest.log 2>&1 ; then
+				stopbackend
+				echo "## Test failure with libpq $fe, backend $be ##" 
+				exit 1
+			fi
+			make $MAKEOPT clean >/dev/null
+			export PATH="$OLDPATH"
+			export LD_LIBRARY_PATH="$OLDLIBPATH"
+			echo
+		done
+	fi
+done
+
+stopbackend
+
+# TODO: Test against oldest libpq against newest backend, newest against oldest
+
+echo "## Done. ##"
+
