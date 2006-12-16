@@ -756,7 +756,6 @@ void pqxx::connection_base::unprepare(const PGSTD::string &name)
 }
 
 
-#ifndef PQXX_HAVE_PQEXECPREPARED
 namespace
 {
 string escape_param(const char in[],
@@ -802,7 +801,6 @@ string escape_param(const char in[],
   return in;
 }
 } // namespace
-#endif
 
 
 pqxx::prepare::internal::prepared_def &
@@ -847,7 +845,7 @@ pqxx::connection_base::register_prepared(const PGSTD::string &name)
     r.CheckStatus();
 #else
     stringstream P;
-    P << "PREPARE \"" << name << '"';
+    P << "PREPARE \"" << name << "\" ";
 
     if (!s.parameters.empty())
       P << '('
@@ -887,13 +885,19 @@ pqxx::result pqxx::connection_base::prepared_exec(
 	"expected " + to_string(s.parameters.size()) + ", "
 	"received " + to_string(nparams));
 
-#ifdef PQXX_HAVE_PQEXECPREPARED
-  internal::scoped_array<int> binary(nparams+1);
-  for (int i=0; i<nparams; ++i)
-    binary[i] = (s.parameters[i].treatment == treat_binary);
-  binary[nparams] = 0;
+  result r;
 
-  result r(PQexecPrepared(m_Conn,
+  activate();
+
+  if (supports(cap_prepared_statements))
+  {
+#ifdef PQXX_HAVE_PQEXECPREPARED
+    internal::scoped_array<int> binary(nparams+1);
+    for (int i=0; i<nparams; ++i)
+      binary[i] = (s.parameters[i].treatment == treat_binary);
+    binary[nparams] = 0;
+
+    r = result(PQexecPrepared(m_Conn,
 	statement.c_str(),
 	nparams,
 	params,
@@ -903,9 +907,7 @@ pqxx::result pqxx::connection_base::prepared_exec(
 	protocol_version(),
 	statement);
 #else
-  stringstream Q;
-  if (supports(cap_prepared_statements))
-  {
+    stringstream Q;
     Q << "EXECUTE \"" << statement << '"';
     if (nparams)
     {
@@ -917,9 +919,12 @@ pqxx::result pqxx::connection_base::prepared_exec(
       }
       Q << ')';
     }
+    r = Exec(Q.str().c_str(), 0);
+#endif
   }
   else
   {
+    stringstream Q;
     // This backend doesn't support prepared statements.  Do our own variable
     // substitution.
     string S = s.definition;
@@ -934,9 +939,8 @@ pqxx::result pqxx::connection_base::prepared_exec(
 	S.replace(h,keysz,val);
     }
     Q << S;
+    r = Exec(Q.str().c_str(), 0);
   }
-  result r(Exec(Q.str().c_str(), 0));
-#endif
   check_result(r);
   get_notifs();
   return r;

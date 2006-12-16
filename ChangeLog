@@ -1,9 +1,15 @@
 2006-12-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.hxx:
+  - absolute_cursor is about ready for use
  include/pqxx/connection_base.hxx, src/connection_base.cxx:
   - Added capability cap_table_column
   - Warning about deactivated connections and supports()
   - Re-use server_version() and protocol_version()
- test/test085.cxx, test/test092.cxx, test/test093.cxx:
+  - Activate connection before checking prepared-statements capability
+  - Don't use PQexecPrepared() with old backends
+ src/cursor.cxx:
+  - Activate connection before checking scroll capability
+ test/test085.cxx, test/test091.cxx, test/test092.cxx, test/test093.cxx:
   - Skip test if essential backend features missing
  tools/pqxx-fulltest
   - New
