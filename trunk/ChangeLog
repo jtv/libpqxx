@@ -5,6 +5,9 @@
   - Re-use server_version() and protocol_version()
  test/test085.cxx, test/test092.cxx, test/test093.cxx:
   - Skip test if essential backend features missing
+ tools/pqxx-fulltest
+  - New
+  - Tests across all available combinations of frontends and backends
 2006-12-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/except.hxx, src/result.cxx:
   - New exception class: undefined_column
