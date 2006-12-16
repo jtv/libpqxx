@@ -41,6 +41,10 @@ namespace internal
 /// Information shared between all copies of a result set
 struct PQXX_PRIVATE result_data
 {
+  /// Underlying libpq-managed result set
+  /** @warning This member is duplicated in the result object as a performance
+   * shortcut.
+   */
   pqxx::internal::pq::PGresult *data;
 
   /// Frontend/backend protocol version
