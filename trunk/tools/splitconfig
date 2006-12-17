@@ -40,25 +40,31 @@ Could not run "grep"--no way to proceed!
 EOF
 		else
 			cat <<EOF >&2
+
 This version of grep seems to be broken: searching for literal whole-word
 patterns does not match anything.  This problem is known to have occurred with
 a patched version of GNU grep shipped with the original Fedora Core 4 release.
+
 EOF
 		fi
 	elif test -z "`echo "$1" | grep '\<splat\>'`" ; then
 		cat <<EOF >&2
+
 This version of grep seems to be broken: searching for literal whole-word
 patterns stops when one of the patterns is found, but does not end in a word
 boundary.  This problem is known to have happened with some 2.5.1 versions of
 GNU grep.
+
 EOF
-	elif ! test -z "`echo "$1" | grep 'barr'`" ; then
+	elif test -n "`echo "$1" | grep 'barr'`" ; then
 		cat <<EOF >&2
+
 This "grep" command line fails to take word boundaries into account.  This means
 that, as an example, when looking for an exact match on the word "foo" it does
 not distinguish between "foo" and "food".
 Please report this to the libpqxx-general mailing list or create a bug ticket on
 the libpqxx website.
+
 EOF
 	else
 		echo "$2"
@@ -110,19 +116,19 @@ barr
 splat
 EOF
 
-grepcode=''
+GREPCODE=''
 for g in "grep-F" "grep-f" "fgrep" "symw" ; do
-	if test -z "${grepcode}" ; then
+	if test -z "$GREPCODE" ; then
 		GREPOUT=`wordgrep "$g" "$SAMPLEPAT" "$SAMPLETXT"`
-		grepcode="`working_grep "$GREPOUT" "$g"`"
+		GREPCODE="`working_grep "$GREPOUT" "$g"`"
 	fi
 done
 rm -f -- "$SAMPLETXT"
-if test -z "${grepcode}" ; then
+if test -z "$GREPCODE" ; then
 	echo "No capable grep found" >&2
 	exit 1
 fi
-echo "${grepcode}"
+echo "$GREPCODE"
 
 CFDB="${srcdir}/configitems"
 ORGHDR="include/pqxx/config.h"
@@ -138,7 +144,7 @@ for publication in $PUBLICATIONS ; do
 		if test -z "$ITEMS" ; then
 			echo "no items--skipping"
 		else
-			wordgrep "${grepcode}" "$ITEMS" "$ORGHDR" >"$CFGFILE"
+			wordgrep "$GREPCODE" "$ITEMS" "$ORGHDR" >"$CFGFILE"
 			if test -s "$CFGFILE" ; then
 				echo "ok"
 			else

@@ -1,4 +1,9 @@
 2006-12-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/splitconfig:
+  - Blank lines before grep warnings (looks better in configure)
+  - replaced "grepcode" variable with "GREPCODE"
+  - Use "test -n" instead of "! test -z"
+2006-12-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cursor.hxx:
   - absolute_cursor is about ready for use
  include/pqxx/connection_base.hxx, src/connection_base.cxx:
@@ -11,7 +16,7 @@
   - Activate connection before checking scroll capability
  test/test085.cxx, test/test091.cxx, test/test092.cxx, test/test093.cxx:
   - Skip test if essential backend features missing
- tools/pqxx-fulltest
+ tools/pqxx-fulltest:
   - New
   - Tests across all available combinations of frontends and backends
 2006-12-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
