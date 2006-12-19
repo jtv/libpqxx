@@ -1,3 +1,7 @@
+2006-12-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/pqxx-fulltest:
+  - Check for existence of /proc/cpuinfo before reading it
+  - Set CONCURRENCY_LEVEL to 1 if no other value available
 2006-12-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/splitconfig:
   - Blank lines before grep warnings (looks better in configure)

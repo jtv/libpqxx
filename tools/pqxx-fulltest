@@ -27,7 +27,11 @@ FTPSERVER="mirror.in.th"
 FTPDIR="postgresql/source"
 
 if test -z "$CONCURRENCY_LEVEL" ; then
-	CONCURRENCY_LEVEL=`grep '^processor[[:space:]]*:' /proc/cpuinfo | wc -l`
+	if test -f /proc/cpuinfo ; then
+		CONCURRENCY_LEVEL=`grep -c '^processor[[:space:]]*:' /proc/cpuinfo`
+	else
+		CONCURRENTY_LEVEL=1
+	fi
 fi
 export CONCURRENCY_LEVEL
 echo "## Concurrency level: $CONCURRENCY_LEVEL ##"
