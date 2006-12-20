@@ -98,7 +98,7 @@ struct PQXX_LIBEXPORT nonnoticer : noticer
  * @}
  */
 
-/// Encrypt password for given user
+/// Encrypt password for given user.  Requires libpq 8.2 or better.
 /** Use this when setting a new password for the user if password encryption is
  * enabled.  Inputs are the username the password is for, and the plaintext
  * password.
@@ -114,6 +114,8 @@ struct PQXX_LIBEXPORT nonnoticer : noticer
  *   	"PASSWORD '" + encrypt_password(user,pw) + "'");
  * }
  * @endcode
+ *
+ * @since libpq 8.2
  */
 PGSTD::string encrypt_password(const PGSTD::string &user,		//[]
 	const PGSTD::string &password);
