@@ -92,6 +92,15 @@ static void clear_fdmask(fd_set *mask)
 }
 
 
+#ifdef PQXX_HAVE_PQENCRYPTPASSWORD
+string pqxx::encrypt_password(const string &user, const string &password)
+{
+  PQAlloc<char> p(PQencryptPassword(password.c_str(), user.c_str()));
+  return string(p.c_ptr());
+}
+#endif
+
+
 pqxx::connection_base::connection_base(connectionpolicy &pol) :
   m_Conn(0),
   m_policy(pol),

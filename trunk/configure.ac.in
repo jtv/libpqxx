@@ -751,6 +751,15 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 )
 AC_MSG_RESULT($pqresulterrorfield)
 
+AC_MSG_CHECKING([PQencryptPassword()])
+pqencryptpassword=yes
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[PQencryptPassword("x","y")],
+	AC_DEFINE(PQXX_HAVE_PQENCRYPTPASSWORD,1,[Define if libpq has PQencryptPassword()]),
+	[pqencryptpassword=no]
+)
+AC_MSG_RESULT($pqencryptpassword)
+
 AC_CHECK_HEADER(limits,
 	[AC_DEFINE(PQXX_HAVE_LIMITS, 1, [Define if <limits> exists])])
 

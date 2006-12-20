@@ -98,6 +98,25 @@ struct PQXX_LIBEXPORT nonnoticer : noticer
  * @}
  */
 
+/// Encrypt password for given user
+/** Use this when setting a new password for the user if password encryption is
+ * enabled.  Inputs are the username the password is for, and the plaintext
+ * password.
+ *
+ * @return encrypted version of the password, suitable for encrypted PostgreSQL
+ * authentication.
+ *
+ * Thus the password for a user can be changed with:
+ * @code
+ * void setpw(transaction_base &t, const string &user, const string &pw)
+ * {
+ *   t.exec("ALTER USER " + user + " "
+ *   	"PASSWORD '" + encrypt_password(user,pw) + "'");
+ * }
+ * @endcode
+ */
+PGSTD::string encrypt_password(const PGSTD::string &user,		//[]
+	const PGSTD::string &password);
 
 /// connection_base abstract base class; represents a connection to a database.
 /** This is the first class to look at when you wish to work with a database
