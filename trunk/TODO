@@ -6,7 +6,6 @@ Connections
 (*) libpqxx-level trace output
 
 Exceptions
-(*) Strip newlines from PostgreSQL error messages in exceptions?
 (*) Document exception guarantees (weak / strong / poorly defined / pure)
 
 Results
