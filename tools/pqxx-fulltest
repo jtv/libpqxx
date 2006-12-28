@@ -217,7 +217,8 @@ for be in `havepgversions | head -n 1` `havepgversions | tail -n 1` ; do
 				echo "## Build failure with libpq $fe ##" 
 				exit 1
 			fi
-			if ! make $MAKEOPT check >pqxx-fulltest.log 2>&1 ; then
+			echo "## Testing with libpq $fe, backend $be ##" >pqxx-fulltest.log
+			if ! make $MAKEOPT check >>pqxx-fulltest.log 2>&1 ; then
 				stopbackend
 				echo "## Test failure with libpq $fe, backend $be ##" 
 				exit 1
