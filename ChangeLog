@@ -1,5 +1,5 @@
 2006-12-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
- include/pqxx/transaction_base.hxx:
+ include/pqxx/transaction_base.hxx, src/transaction_base.cxx:
   - Just one version of exec(), taking const string references
   - May fix lifetime-of-temporaries bug (query string was dying early)
 2006-12-28  Jeroen T. Vermeulen <jtv@xs4all.nl>

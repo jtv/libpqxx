@@ -242,7 +242,7 @@ pqxx::result pqxx::transaction_base::exec(const PGSTD::string &Query,
   }
 
   // TODO: Pass Desc to do_exec(), and from there on down
-  return do_exec(Query);
+  return do_exec(Query.c_str());
 }
 
 
