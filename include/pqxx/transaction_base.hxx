@@ -153,25 +153,9 @@ public:
    * @param Desc Optional identifier for query, to help pinpoint SQL errors
    * @return A result set describing the query's or command's result
    */
-  result exec(const char Query[],
+  result exec(const PGSTD::string &Query,
 	      const PGSTD::string &Desc=PGSTD::string());		//[t1]
 
-  /// Execute query
-  /** Perform a query in this transaction.  This version may be slightly
-   * slower than the version taking a const char[], although the difference is
-   * not likely to be very noticeable compared to the time required to execute
-   * even a simple query.
-   * @param Query Query or command to execute
-   * @param Desc Optional identifier for query, to help pinpoint SQL errors
-   * @return A result set describing the query's or command's result
-   */
-  result exec(const PGSTD::string &Query,
-              const PGSTD::string &Desc=PGSTD::string())		//[t2]
-	{ return exec(Query.c_str(), Desc); }
-
-  result exec(const PGSTD::stringstream &Query,
-	      const PGSTD::string &Desc=PGSTD::string())		//[t9]
-	{ return exec(Query.str(), Desc); }
 
   /**
    * @name Prepared statements

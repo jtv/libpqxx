@@ -208,7 +208,7 @@ string pqxx::transaction_base::esc_raw(const PGSTD::string &str) const
 }
 
 
-pqxx::result pqxx::transaction_base::exec(const char Query[],
+pqxx::result pqxx::transaction_base::exec(const PGSTD::string &Query,
 					  const PGSTD::string &Desc)
 {
   CheckPendingError();
