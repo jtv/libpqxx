@@ -156,6 +156,9 @@ public:
   result exec(const PGSTD::string &Query,
 	      const PGSTD::string &Desc=PGSTD::string());		//[t1]
 
+  result exec(const PGSTD::stringstream &Query,
+	      const PGSTD::string &Desc=PGSTD::string())		//[t9]
+	{ return exec(Query.str(), Desc); }
 
   /**
    * @name Prepared statements
