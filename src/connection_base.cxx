@@ -109,6 +109,7 @@ pqxx::connection_base::connection_base(connectionpolicy &pol) :
   m_Noticer(),
   m_defaultNoticeProcessor(0),
   m_Trace(0),
+  m_serverversion(0),
   m_caps(),
   m_inhibit_reactivation(false),
   m_reactivation_avoidance(),
@@ -213,11 +214,7 @@ int pqxx::connection_base::protocol_version() const throw ()
 
 int pqxx::connection_base::server_version() const throw ()
 {
-#ifdef PQXX_HAVE_PQSERVERVERSION
-  return m_Conn ? PQserverVersion(m_Conn) : 0;
-#else
-  return 0;
-#endif
+  return m_serverversion;
 }
 
 
@@ -1377,7 +1374,28 @@ int pqxx::connection_base::await_notification(long seconds, long microseconds)
 
 void pqxx::connection_base::read_capabilities() throw ()
 {
-  const int v = server_version();
+#ifdef PQXX_HAVE_PQSERVERVERSION
+  m_serverversion = PQserverVersion(m_Conn);
+#else
+  m_serverversion = 0;
+  try
+  {
+    // Estimate server version by querying 'version()'.  This may not be exact!
+    const string VQ = "SELECT version()";
+    const result r(PQexec(m_Conn, VQ.c_str()), protocol_version(), VQ);
+    int x=0, y=0, z=0;
+    if ((sscanf(r[0][0].c_str(), "PostgreSQL %d.%d.%d", &x, &y, &z) == 3) &&
+        (x >= 0) && (x < 100) &&
+	(y >= 0) && (y < 100) &&
+	(z >= 0) && (z < 100))
+      m_serverversion = 10000*x + 100*y + z;
+  }
+  catch (const exception &)
+  {
+  }
+#endif
+
+  const int v = m_serverversion;
 
   m_caps[cap_prepared_statements] = (v >= 70300);
   m_caps[cap_cursor_scroll] = (v >= 70400);

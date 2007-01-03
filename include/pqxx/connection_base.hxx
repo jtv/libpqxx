@@ -8,7 +8,7 @@
  *   pqxx::connection_base encapsulates a frontend to backend connection
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
  *
- * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -413,8 +413,6 @@ public:
    * in C++.  Thus, 070402 is not the same as 70402, and 080000 is not a number
    * at all because there is no digit "8" in octal notation.  Use strictly
    * decimal notation when it comes to these version numbers.
-   *
-   * Requires libpq version from PostgreSQL 8.0 or better.
    */
   int server_version() const throw ();					//[t1]
   //@}
@@ -721,6 +719,9 @@ private:
 
   /// Prepared statements existing in this section
   PSMap m_prepared;
+
+  /// Server version
+  int m_serverversion;
 
   /// Set of session capabilities
   bool m_caps[cap_end];
