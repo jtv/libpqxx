@@ -30,9 +30,12 @@ int main()
     }
 #if defined(PQXX_HAVE_PQRESULTERRORFIELD)
     catch (const syntax_error &e)
-#else
-    catch (const sql_error &e)
+    {
+      cout << "(Expected) Syntax error: " << e.query() << endl
+	   << "(Expected) Error was: " << e.what() << endl;
+    }
 #endif
+    catch (const sql_error &e)
     {
       cout << "(Expected) Query failed: " << e.query() << endl
 	   << "(Expected) Error was: " << e.what() << endl;
