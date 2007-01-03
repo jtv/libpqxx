@@ -7,7 +7,7 @@
  *      implementation of the pqxx::result class and support classes.
  *   pqxx::result represents the set of result tuples from a database query
  *
- * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
