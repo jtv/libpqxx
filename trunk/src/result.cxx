@@ -135,8 +135,7 @@ void pqxx::result::ThrowSQLError(const PGSTD::string &Err,
 #if defined(PQXX_HAVE_PQRESULTERRORFIELD)
   // Try to establish more precise error type, and throw corresponding exception
   const char *const code = PQresultErrorField(m_data, PG_DIAG_SQLSTATE);
-  if (!code) return;
-  switch (code[0])
+  if (code) switch (code[0])
   {
   case '0':
     switch (code[1])
