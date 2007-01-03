@@ -850,7 +850,7 @@ pqxx::connection_base::register_prepared(const PGSTD::string &name)
     result r(PQprepare(m_Conn, name.c_str(), s.definition.c_str(), 0, 0),
 	protocol_version(),
 	"[PREPARE " + name + "]");
-    r.CheckStatus();
+    check_result(r);
 #else
     stringstream P;
     P << "PREPARE \"" << name << "\" ";
