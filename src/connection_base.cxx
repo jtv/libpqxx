@@ -332,7 +332,7 @@ void pqxx::connection_base::check_result(const result &R)
 {
   if (!is_open()) throw broken_connection();
 
-  // A shame we can't detect out-of-memory to turn this into a bad_alloc...
+  // A shame we can't quite detect out-of-memory to turn this into a bad_alloc!
   if (!R) throw runtime_error(ErrMsg());
 
   try
@@ -710,15 +710,14 @@ const char *pqxx::connection_base::ErrMsg() const throw ()
 pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 {
   activate();
-  const int proto = protocol_version();
 
-  result R(PQexec(m_Conn, Query), proto, Query);
+  result R(PQexec(m_Conn, Query), protocol_version(), Query);
 
   while ((Retries > 0) && !R && !is_open())
   {
     Retries--;
     Reset();
-    if (is_open()) R = result(PQexec(m_Conn, Query), proto, Query);
+    if (is_open()) R = result(PQexec(m_Conn, Query), protocol_version(), Query);
   }
 
   check_result(R);
@@ -915,6 +914,8 @@ pqxx::result pqxx::connection_base::prepared_exec(
 	0),
 	protocol_version(),
 	statement);
+
+    check_result(r);
 #else
     stringstream Q;
     Q << "EXECUTE \"" << statement << '"';
@@ -950,7 +951,6 @@ pqxx::result pqxx::connection_base::prepared_exec(
     Q << S;
     r = Exec(Q.str().c_str(), 0);
   }
-  check_result(r);
   get_notifs();
   return r;
 }
