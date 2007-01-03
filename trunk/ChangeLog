@@ -2,6 +2,7 @@
  src/connection_base.cxx:
   - Eliminated unnecessary check_result()
   - Exec() cached protocol version across connection resets
+  - PQprepare()/PQexecPrepared() only work with protocol 3.0
  src/result.cxx:
   - If result contains an error but has no PG_DIAG_SQLSTATE, throw sql_error
  test/test056.cxx:

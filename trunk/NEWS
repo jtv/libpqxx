@@ -8,6 +8,7 @@
  - Fixes many problems with older backends
  - Fixes bug in result::swap(): protocol versions were not swapped
  - Some errors went undetected when using certain libpq versions
+ - Fixes prepared statements on new libpq versions talking to old backends
  - Greatly reduced memory usage while escaping strings
  - With Visual C++, creates lib/ directory if not already present
  - Useful error messages when preparing statements
