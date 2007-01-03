@@ -4,6 +4,8 @@
   - Exec() cached protocol version across connection resets
  src/result.cxx:
   - If result contains an error but has no PG_DIAG_SQLSTATE, throw sql_error
+ test/test056.cxx:
+  - Don't always get syntax_error even if we do have PQresultErrorField()
 2006-12-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/transaction_base.hxx, src/transaction_base.cxx:
   - Just one version of exec(), taking const string references
