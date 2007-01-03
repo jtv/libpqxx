@@ -1,8 +1,10 @@
 2007-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
- src/connection_base.cxx:
+ include/pqxx/connection_base.hxx, src/connection_base.cxx:
   - Eliminated unnecessary check_result()
   - Exec() cached protocol version across connection resets
   - PQprepare()/PQexecPrepared() only work with protocol 3.0
+  - Estimate server version if libpq doesn't have PQserverVersion()
+  - Keep (estimated) server version in connection object
  src/result.cxx:
   - If result contains an error but has no PG_DIAG_SQLSTATE, throw sql_error
  test/test056.cxx:
