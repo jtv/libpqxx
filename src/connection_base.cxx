@@ -7,7 +7,7 @@
  *      implementation of the pqxx::connection_base abstract base class.
  *   pqxx::connection_base encapsulates a frontend to backend connection
  *
- * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -847,11 +847,16 @@ pqxx::connection_base::register_prepared(const PGSTD::string &name)
   if (!s.registered && supports(cap_prepared_statements))
   {
 #ifdef PQXX_HAVE_PQPREPARE
-    result r(PQprepare(m_Conn, name.c_str(), s.definition.c_str(), 0, 0),
+    if (protocol_version() >= 3)
+    {
+      result r(PQprepare(m_Conn, name.c_str(), s.definition.c_str(), 0, 0),
 	protocol_version(),
 	"[PREPARE " + name + "]");
-    check_result(r);
-#else
+      check_result(r);
+      s.registered = true;
+      return s;
+    }
+#endif
     stringstream P;
     P << "PREPARE \"" << name << "\" ";
 
@@ -865,7 +870,6 @@ pqxx::connection_base::register_prepared(const PGSTD::string &name)
 
     P << " AS " << s.definition;
     Exec(P.str().c_str(), 0);
-#endif
     s.registered = true;
   }
 
@@ -900,12 +904,14 @@ pqxx::result pqxx::connection_base::prepared_exec(
   if (supports(cap_prepared_statements))
   {
 #ifdef PQXX_HAVE_PQEXECPREPARED
-    internal::scoped_array<int> binary(nparams+1);
-    for (int i=0; i<nparams; ++i)
-      binary[i] = (s.parameters[i].treatment == treat_binary);
-    binary[nparams] = 0;
+    if (protocol_version() >= 3)
+    {
+      internal::scoped_array<int> binary(nparams+1);
+      for (int i=0; i<nparams; ++i)
+        binary[i] = (s.parameters[i].treatment == treat_binary);
+      binary[nparams] = 0;
 
-    r = result(PQexecPrepared(m_Conn,
+      r = result(PQexecPrepared(m_Conn,
 	statement.c_str(),
 	nparams,
 	params,
@@ -915,8 +921,11 @@ pqxx::result pqxx::connection_base::prepared_exec(
 	protocol_version(),
 	statement);
 
-    check_result(r);
-#else
+      check_result(r);
+      get_notifs();
+      return r;
+    }
+#endif
     stringstream Q;
     Q << "EXECUTE \"" << statement << '"';
     if (nparams)
@@ -930,7 +939,6 @@ pqxx::result pqxx::connection_base::prepared_exec(
       Q << ')';
     }
     r = Exec(Q.str().c_str(), 0);
-#endif
   }
   else
   {
