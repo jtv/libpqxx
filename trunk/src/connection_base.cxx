@@ -202,6 +202,16 @@ void pqxx::connection_base::deactivate()
 }
 
 
+void pqxx::connection_base::simulate_failure()
+{
+  if (m_Conn)
+  {
+    m_Conn = m_policy.do_disconnect(m_Conn);
+    inhibit_reactivation(true);
+  }
+}
+
+
 int pqxx::connection_base::protocol_version() const throw ()
 {
 #ifdef PQXX_HAVE_PQPROTOCOLVERSION

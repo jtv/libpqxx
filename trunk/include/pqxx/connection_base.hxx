@@ -240,6 +240,14 @@ public:
    */
   void inhibit_reactivation(bool inhibit)				//[t86]
 	{ m_inhibit_reactivation=inhibit; }
+
+  /// Make the connection fail.  @warning Do not use this except for testing!
+  /** Breaks the connection in some unspecified, horrible, dirty way to enable
+   * failure testing.
+   *
+   * Do not use this in normal programs.  This is only meant for testing.
+   */
+  void simulate_failure();						//[t94]
   //@}
 
   /**
