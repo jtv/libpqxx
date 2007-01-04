@@ -1,3 +1,9 @@
+2007-01-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, src/connection_base.cxx:
+  - Added simulate_failure() for testing, thanks Joshua Moore-Oliva
+ test/test094.cxx:
+  - New
+  - Tests transactor in-doubt handling, thanks Joshua Moore-Oliva
 2007-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, src/connection_base.cxx:
   - Eliminated unnecessary check_result()
