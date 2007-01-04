@@ -4,6 +4,10 @@
  test/test094.cxx:
   - New
   - Tests transactor in-doubt handling, thanks Joshua Moore-Oliva
+ tools/pqxx-fulltest:
+  - Set TMPDIR to test directory to keep /tmp clean
+ tools/preprelease:
+  - Can leave its files in other places than /tmp (set by TMPDIR variable)
 2007-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, src/connection_base.cxx:
   - Eliminated unnecessary check_result()

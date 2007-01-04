@@ -15,7 +15,8 @@ set -e
 SOURCE="$1"
 
 TESTDIR="$HOME/tmp/libpqxxtest"
-mkdir -p "$TESTDIR"
+TMPDIR="$TESTDIR/tmp"
+mkdir -p "$TMPDIR"
 
 #SVNURL="file:///srv/svn/libpqxx/trunk/"
 SVNURL="svn://thaiopensource.org/libpqxx/trunk/"

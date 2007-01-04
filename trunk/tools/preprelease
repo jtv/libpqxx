@@ -13,7 +13,8 @@
 # of the distribution archive, and that there are no regression failures in the
 # released version.
 #
-# If successful, the script leaves a distribution tarball in /tmp.
+# If successful, the script leaves a distribution tarball in $TMPDIR (which
+# defaults to /tmp).
 #
 # Set CONFIG_ARGS to any argument list you wish to pass to configure for
 # compilation.  Defaults to "--enable-shared".  Don't set the compiler here;
@@ -30,8 +31,10 @@
 # Set CONCURRENCY_LEVEL to the number of parallel jobs you want "make" to run.
 # This can be useful on SMP or SMT systems, or in conjunction with distcc.
 
-LOGFILE=/tmp/libpqxx-preprelease.log
-ERRLOG=/tmp/libpqxx-preprelease.err
+TMPDIR="${TMPDIR:-/tmp}"
+
+LOGFILE="$TMPDIR/libpqxx-preprelease.log"
+ERRLOG="$TMPDIR/libpqxx-preprelease.err"
 
 SOURCEDIR=$1
 
@@ -165,7 +168,7 @@ tail -f --pid=$$ $ERRLOG &
 if test -z "$PGHOST"; then 
 	log "Looking for local PostgreSQL socket..."
 	SOCKET=".s.PGSQL.5432"
-	for d in /var/run /tmp /var/run/postgresql ; do
+	for d in "$TMPDIR" /var/run /tmp /var/run/postgresql ; do
 		if test -S "$d/$SOCKET" ; then
 			log "Found socket in $d."
 			export PGHOST="$d"
@@ -209,13 +212,13 @@ command "./configure $CONFIGDIST_ARGS" nice
 log "Creating $TARBALL"
 command "make dist" nice
 
-command "rm -f -- /tmp/$TARBALL"
-command "mv -- $TARBALL /tmp"
+command "rm -f -- '$TMPDIR/$TARBALL'"
+command "mv -- $TARBALL '$TMPDIR'"
 
-command "cd /tmp"
+command "cd '$TMPDIR'"
 command "rm -rf -- $DISTNAME"
 
-log "Extracting $TARBALL in /tmp"
+log "Extracting $TARBALL in $TMPDIR"
 command "tar xzf $TARBALL"
 command "rm -- $TARBALL"
 command "cd $DISTNAME"
@@ -244,7 +247,7 @@ command "rm -rf -- $DISTNAME"
 set +e
 nice vacuumdb >/dev/null 2>&1 &
 
-log "Finished.  Release tarball is /tmp/$TARBALL"
+log "Finished.  Release tarball is $TMPDIR/$TARBALL"
 
 # Give output time to catch up with command prompt
 sleep 2
