@@ -86,12 +86,12 @@ int main()
 
     lazyconnection C;
 
+    cout << "Preparing a simple statement..." << endl;
+    C.prepare(QN_readpgtables, Q_readpgtables);
+    nontransaction T(C, "test85");
+
     try
     {
-      cout << "Preparing a simple statement..." << endl;
-      C.prepare(QN_readpgtables, Q_readpgtables);
-      nontransaction T(C, "test85");
-
       // See if a basic prepared statement works just like a regular query
       cout << "Basic correctness check on prepared statement..." << endl;
       compare_results(QN_readpgtables,
