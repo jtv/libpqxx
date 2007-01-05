@@ -214,10 +214,10 @@ command "./configure $CONFIGDIST_ARGS" nice
 log "Creating $TARBALL"
 command "make dist" nice
 
-command "rm -f -- '$TMPDIR/$TARBALL'"
-command "mv -- $TARBALL '$TMPDIR'"
+command "rm -f -- $TMPDIR/$TARBALL"
+command "mv -- $TARBALL $TMPDIR"
 
-command "cd '$TMPDIR'"
+command "cd $TMPDIR"
 command "rm -rf -- $DISTNAME"
 
 log "Extracting $TARBALL in $TMPDIR"
