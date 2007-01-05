@@ -1,5 +1,5 @@
 2007-01-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
- tools/pqxx-fulltest, tools/preprelease:
+ tools/maketemporary, tools/pqxx-fulltest, tools/preprelease:
   - Made "export" usage compatible with more shells
   - export TMPDIR
 2007-01-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
