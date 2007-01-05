@@ -31,12 +31,13 @@
 # Set CONCURRENCY_LEVEL to the number of parallel jobs you want "make" to run.
 # This can be useful on SMP or SMT systems, or in conjunction with distcc.
 
+SOURCEDIR="$1"
+
 TMPDIR="${TMPDIR:-/tmp}"
+export TMPDIR
 
 LOGFILE="$TMPDIR/libpqxx-preprelease.log"
 ERRLOG="$TMPDIR/libpqxx-preprelease.err"
-
-SOURCEDIR=$1
 
 DEFAULTCOMPILERS="g++-3.0 g++-3.3 g++-3.4 g++-4.0 g++-4.1"
 

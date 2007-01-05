@@ -2,9 +2,8 @@
 
 # Work around differences in mktemp implementations
 
-if test -z "$TMPDIR" ; then
-	TMPDIR='/tmp'
-fi
+TMPDIR="${TMPDIR:/tmp}"
+export TMPDIR
 
 T="`mktemp`"
 if test -z "$T" ; then

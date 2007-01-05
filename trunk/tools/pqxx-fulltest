@@ -252,7 +252,5 @@ done
 
 stopbackend
 
-# TODO: Test against oldest libpq against newest backend, newest against oldest
-
 echo "## Done. ##"
 
