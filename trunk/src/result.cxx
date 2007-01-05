@@ -34,7 +34,7 @@ pqxx::internal::result_data::result_data() : data(0), protocol(0), query() {}
 
 pqxx::internal::result_data::result_data(pqxx::internal::pq::PGresult *d,
 	int p,
-	const string &q) :
+	const PGSTD::string &q) :
   data(d),
   protocol(p),
   query(q)
@@ -49,7 +49,7 @@ void pqxx::internal::freemem_result_data(result_data *d) throw () { delete d; }
 
 pqxx::result::result(pqxx::internal::pq::PGresult *rhs,
 	int protocol,
-	const string &Query) :
+	const PGSTD::string &Query) :
   super(new internal::result_data(rhs, protocol, Query)),
   m_data(rhs)
 	{}
