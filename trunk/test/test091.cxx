@@ -55,7 +55,7 @@ int main(int, char *argv[])
     const cursor_base::difference_type backabs = a.move_to(0);
     if (result::size_type(backabs) != all.size())
     {
-      if (c.server_version() < 70300)
+      if (c.server_version() < 70400)
       {
         // Prior to that, cursors became inert after fetching all data
         cerr << "Backend version limits cursor mobility, not testing." << endl;
