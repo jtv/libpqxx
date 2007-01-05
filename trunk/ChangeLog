@@ -1,6 +1,7 @@
 2007-01-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test085.cxx:
   - Skip if backend version does not support prepared statements
+  - Work around syntax error with prepared-statement parameters on 7.3 backend
  test/test091.cxx:
   - "Inert cursor" problem is fixed in backend 7.4, not 7.3.
  tools/maketemporary, tools/pqxx-fulltest, tools/preprelease:
