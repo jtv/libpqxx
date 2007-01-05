@@ -231,7 +231,7 @@ for be in `havepgversions | head -n 1` `havepgversions | tail -n 1` ; do
 			./configure --enable-maintainer-mode >/dev/null
 
 			# Skip documentation build--we've tested it already
-			touch doc/reference-stamp doc/tutorial-stamp &
+			touch doc/reference-stamp doc/tutorial-stamp
 
 			if ! make $MAKEOPT >/dev/null ; then
 				stopbackend
