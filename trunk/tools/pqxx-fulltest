@@ -16,6 +16,7 @@ SOURCE="$1"
 
 TESTDIR="$HOME/tmp/libpqxxtest"
 TMPDIR="$TESTDIR/tmp"
+export TMPDIR
 mkdir -p "$TMPDIR"
 
 #SVNURL="file:///srv/svn/libpqxx/trunk/"
@@ -38,8 +39,9 @@ export CONCURRENCY_LEVEL
 echo "## Concurrency level: $CONCURRENCY_LEVEL ##"
 MAKEOPT="-j $CONCURRENCY_LEVEL"
 
-export COMPILERS="`find /usr/bin -name g++-[0-9].[0-9]`"
-export COMPILERS="${COMPILERS:-g++}"
+COMPILERS="`find /usr/bin -name g++-[0-9].[0-9]`"
+COMPILERS="${COMPILERS:-g++}"
+export COMPILERS
 echo "## Compilers: "$COMPILERS" ##"
 
 upstreampgversions() {
@@ -117,7 +119,8 @@ checkoutpqxx() {
 }
 
 
-export BACKEND=""
+BACKEND=""
+export BACKEND
 
 
 # Start backend installed in "$1"
@@ -133,23 +136,30 @@ startbackend() {
 		mkdir -p "$BE/data"
 
 		OLDPATH="$PATH"
-		export PATH="$BE/bin:$PATH"
+		PATH="$BE/bin:$PATH"
+		export PATH
 
 		OLDLIBPATH="$LD_LIBRARY_PATH"
-		export LD_LIBRARY_PATH="$BE/lib"
+		LD_LIBRARY_PATH="$BE/lib"
+		export LD_LIBRARY_PATH
 
-		export PGHOST="$BE"
-		export PGDATA="$BE/data"
+		PGHOST="$BE"
+		export PGHOST
+		PGDATA="$BE/data"
+		export PGDATA
 
 		initdb >/dev/null
 		postmaster -F -k $BE -h '' >"$BE/backend.log" 2>&1 &
 		sleep 10
 		createdb "$USER" >/dev/null &
 
-		export PATH="$OLDPATH"
-		export LD_LIBRARY_PATH="$OLDLIBPATH"
+		PATH="$OLDPATH"
+		export PATH
+		LD_LIBRARY_PATH="$OLDLIBPATH"
+		export LD_LIBRARY_PATH
 
-		export BACKEND="$BE"
+		BACKEND="$BE"
+		export BACKEND
 		echo
 	fi
 }
@@ -186,17 +196,21 @@ if test -z "$SKIP_PREPRELEASE" ; then
 	echo "## Testing against available compilers ##"
 
 	OLDPATH="$PATH"
-	export PATH="`pgdir $STABLEBACKEND`/bin:$PATH"
+	PATH="`pgdir $STABLEBACKEND`/bin:$PATH"
+	export PATH
 	OLDLIBPATH="$LD_LIBRARY_PATH"
-	export LD_LIBRARY_PATH="`pgdir $STABLEBACKEND`/lib"
+	LD_LIBRARY_PATH="`pgdir $STABLEBACKEND`/lib"
+	export LD_LIBRARY_PATH
 
 	if ! env CXXFLAGS="-Wno-long-long" ./tools/preprelease >/dev/null ; then
 		stopbackend
 		exit 1
 	fi
 
-	export PATH="$OLDPATH"
-	export LD_LIBRARY_PATH="$OLDLIBPATH"
+	PATH="$OLDPATH"
+	export PATH
+	LD_LIBRARY_PATH="$OLDLIBPATH"
+	export LD_LIBRARY_PATH
 
 	echo
 fi
@@ -209,9 +223,11 @@ for be in `havepgversions | head -n 1` `havepgversions | tail -n 1` ; do
 		for fe in `havepgversions` ; do
 			echo "## Testing with libpq $fe ##"
 			OLDPATH="$PATH"
-			export PATH="`pgdir $fe`/bin:$PATH"
+			PATH="`pgdir $fe`/bin:$PATH"
+			export PATH
 			OLDLIBPATH="$LD_LIBRARY_PATH"
-			export LD_LIBRARY_PATH="`pgdir $fe`/lib"
+			LD_LIBRARY_PATH="`pgdir $fe`/lib"
+			export LD_LIBRARY_PATH
 			./configure --enable-maintainer-mode >/dev/null
 			if ! make $MAKEOPT >/dev/null ; then
 				stopbackend
@@ -225,8 +241,10 @@ for be in `havepgversions | head -n 1` `havepgversions | tail -n 1` ; do
 				exit 1
 			fi
 			make $MAKEOPT clean >/dev/null
-			export PATH="$OLDPATH"
-			export LD_LIBRARY_PATH="$OLDLIBPATH"
+			PATH="$OLDPATH"
+			export PATH
+			LD_LIBRARY_PATH="$OLDLIBPATH"
+			export LD_LIBRARY_PATH
 			echo
 		done
 	fi

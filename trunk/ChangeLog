@@ -1,3 +1,7 @@
+2007-01-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/pqxx-fulltest, tools/preprelease:
+  - Made "export" usage compatible with more shells
+  - export TMPDIR
 2007-01-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, src/connection_base.cxx:
   - Added simulate_failure() for testing, thanks Joshua Moore-Oliva
