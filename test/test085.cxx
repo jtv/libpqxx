@@ -77,10 +77,16 @@ int main()
 {
   try
   {
+    /* A bit of nastiness in prepared statements: on 7.3.x backends we can't
+     * use "WHERE tablename=$1" because the '$=' part is read as a nonexistent
+     * operator.  We work around this by inserting some spaces, but it's not
+     * very pretty.
+     * Later backend versions do not suffer from this problem.
+     */
     const string QN_readpgtables = "ReadPGTables",
 	  Q_readpgtables = "SELECT * FROM pg_tables",
 	  QN_seetable = "SeeTable",
-	  Q_seetable = Q_readpgtables + " WHERE tablename=$1",
+	  Q_seetable = Q_readpgtables + " WHERE tablename = $1",
 	  QN_seetables = "SeeTables",
 	  Q_seetables = Q_seetable + " OR tablename=$2";
 
