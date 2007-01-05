@@ -85,15 +85,30 @@ int main()
 	  Q_seetables = Q_seetable + " OR tablename=$2";
 
     lazyconnection C;
-    cout << "Preparing a simple statement..." << endl;
-    C.prepare(QN_readpgtables, Q_readpgtables);
-    nontransaction T(C, "test85");
 
-    // See if a basic prepared statement runs consistently with a regular query
-    cout << "Basic correctness check on prepared statement..." << endl;
-    compare_results(QN_readpgtables,
+    try
+    {
+      cout << "Preparing a simple statement..." << endl;
+      C.prepare(QN_readpgtables, Q_readpgtables);
+      nontransaction T(C, "test85");
+
+      // See if a basic prepared statement works just like a regular query
+      cout << "Basic correctness check on prepared statement..." << endl;
+      compare_results(QN_readpgtables,
 	T.prepared(QN_readpgtables).exec(),
 	T.exec(Q_readpgtables));
+    }
+    catch (const exception &)
+    {
+      if (!C.supports(connection_base::cap_prepared_statements))
+      {
+        cout << "Backend version does not support prepared statements.  "
+	        "Skipping."
+	     << endl;
+	return 0;
+      }
+      throw;
+    }
 
     // Try prepare_now() on an already prepared statement
     C.prepare_now(QN_readpgtables);
