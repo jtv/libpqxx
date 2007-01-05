@@ -171,7 +171,8 @@ if test -z "$PGHOST"; then
 	for d in "$TMPDIR" /var/run /tmp /var/run/postgresql ; do
 		if test -S "$d/$SOCKET" ; then
 			log "Found socket in $d."
-			export PGHOST="$d"
+			PGHOST="$d"
+			export PGHOST
 		fi
 	done
 	if test -z "$PGHOST" ; then
