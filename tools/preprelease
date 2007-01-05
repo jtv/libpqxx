@@ -86,6 +86,10 @@ run_test () {
 
 	if test -z "$1" || which "$1" >/dev/null ; then
 		log "********* Testing with $1 *********"
+
+		# Skip documentation build: we tested that the first time around
+		touch doc/reference-stamp doc/tutorial-stamp &
+
 		log "Configuring"
 		command "./configure $CONFIG_ARGS $COMPILEROPT" nice
 

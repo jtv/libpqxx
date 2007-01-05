@@ -2,6 +2,7 @@
  tools/maketemporary, tools/pqxx-fulltest, tools/preprelease:
   - Made "export" usage compatible with more shells
   - export TMPDIR
+  - Skip documentation builds after the very first build
 2007-01-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, src/connection_base.cxx:
   - Added simulate_failure() for testing, thanks Joshua Moore-Oliva
