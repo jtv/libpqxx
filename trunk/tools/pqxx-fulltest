@@ -229,6 +229,10 @@ for be in `havepgversions | head -n 1` `havepgversions | tail -n 1` ; do
 			LD_LIBRARY_PATH="`pgdir $fe`/lib"
 			export LD_LIBRARY_PATH
 			./configure --enable-maintainer-mode >/dev/null
+
+			# Skip documentation build--we've tested it already
+			touch doc/reference-stamp doc/tutorial-stamp &
+
 			if ! make $MAKEOPT >/dev/null ; then
 				stopbackend
 				echo "## Build failure with libpq $fe ##" 
