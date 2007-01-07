@@ -147,7 +147,7 @@ public:
   const PGSTD::string &name() const throw () { return m_name; }		//[t81]
 
   /// Fetch up to given number of rows of data
-  virtual result fetch(difference_type);				//[]
+  virtual result fetch(difference_type) =0;
 
   /// Fetch result, but also return the number of rows of actual displacement
   /** The relationship between actual displacement and result size gets tricky
@@ -161,7 +161,7 @@ public:
    * The output parameter compensates for this, returning true displacement
    * (which is also signed, so it includes direction).
    */
-  virtual result fetch(difference_type, difference_type &);		//[]
+  virtual result fetch(difference_type, difference_type &) =0;
 
   /// Move cursor by given number of rows, returning number of data rows skipped
   /** The number of data rows skipped is equal to the number of rows of data
@@ -171,7 +171,7 @@ public:
    * @return the number of data rows that would have been returned if this had
    * been a fetch() command.
    */
-  virtual difference_type move(difference_type);			//[]
+  virtual difference_type move(difference_type) =0;
 
   /// Move cursor, but also return actual displacement in output parameter
   /** As with the @c fetch functions, the actual displacement may differ from
@@ -180,9 +180,9 @@ public:
    * @return the number of data rows that would have been returned if this had
    * been a fetch() command.
    */
-  virtual difference_type move(difference_type, difference_type &);	//[]
+  virtual difference_type move(difference_type, difference_type &) =0;
 
-  void close() throw ();						//[]
+  void close() throw ();						//[t3]
 
 protected:
   cursor_base(transaction_base *,

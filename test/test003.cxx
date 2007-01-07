@@ -83,6 +83,8 @@ int main(int argc, char *argv[])
     // status it reports with operator bool() and operator !() (2)
     if (!!Cur) throw logic_error("Inconsistent cursor state!");
 
+    Cur.close();
+
     // Tell the transaction that it has been successful
     T.commit();
   }
