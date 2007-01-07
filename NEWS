@@ -21,6 +21,7 @@
  - Result sets remember the queries that yielded them
  - New test script, pqxx-fulltest, tests against all current postgres versions
  - Connections can simulate failure
+ - Adds password encryption function
 2.6.8
  - Fixes bug: binary parameters to prepared statements truncated at nul bytes
  - New, more specific exception types to distinguish errors from server

@@ -195,6 +195,16 @@ int main()
 
     // TODO: Test binarystring reversibility
 
+#ifdef PQXX_HAVE_PQENCRYPTPASSWORD
+    const string pw = encrypt_password("foo", "bar");
+    if (pw.empty())
+      throw logic_error("Encrypting a password returned no data");
+    if (pw == encrypt_password("splat", "blub"))
+      throw logic_error("Password encryption does not work");
+    if (pw.find("bar") != pw.end())
+      throw logic_error("Encrypted password contains original");
+#endif
+
     cout << "Testing error handling for failed connections..." << endl;
     try
     {
