@@ -201,7 +201,7 @@ int main()
       throw logic_error("Encrypting a password returned no data");
     if (pw == encrypt_password("splat", "blub"))
       throw logic_error("Password encryption does not work");
-    if (pw.find("bar") != pw.end())
+    if (pw.find("bar") != string::npos)
       throw logic_error("Encrypted password contains original");
 #endif
 
