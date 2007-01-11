@@ -1,3 +1,6 @@
+2007-01-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/pqxx-fulltest:
+  - Allow FTPSERVER and FTPDIR to be overridden
 2007-01-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, test/test000.cxx:
   - Test password encryption

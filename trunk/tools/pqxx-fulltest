@@ -7,6 +7,8 @@ set -e
 # If no source tree is given, the latest source tree is retrieved from the
 # subversion repository.
 
+# Set PG_FTPSERVER to a convenient FTP download server for postgres source.
+# Set PG_FTPDIR to the directory on the FTP server containing source tarballs.
 # Set CONCURRENCY_LEVEL to number of parallel make processes to use, or leave
 # unset to default for one process per processor.
 # Set SKIP_PREPRELEASE to forgo the "preprelease" test which builds and tests
@@ -24,9 +26,8 @@ SVNURL="svn://thaiopensource.org/libpqxx/trunk/"
 
 # Where and how to obtain PostgreSQL versions
 PGVERSIONPAT="^v[0-9][0-9A-Za-z_.-]\+"
-FTPSERVER="mirror.in.th"
-#FTPSERVER="ftp.hk.postgresql.org"
-FTPDIR="postgresql/source"
+FTPSERVER="${PG_FTPSERVER:-mirror.in.th}"
+FTPDIR="${PG_FTPDIR:-postgresql/source}"
 
 if test -z "$CONCURRENCY_LEVEL" ; then
 	if test -f /proc/cpuinfo ; then
