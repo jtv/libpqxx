@@ -82,7 +82,7 @@ install_pg() {
 		
 		pushd "$BASENAME" >/dev/null
 		echo "## Building PostgreSQL $VERSIONNAME ##"
-		if buildpg "$DEST" >/dev/null 2>&1 ; then
+		if buildpg "$DEST" >"$TMPDIR/postgres-build.log" 2>&1 ; then
 			mkdir -p "$DEST"
 			make install >/dev/null
 		fi
