@@ -29,7 +29,7 @@ namespace
 // Let's take a boring year that is not going to be in the "pqxxevents" table
 const int BoringYear = 1977;
 
-const string Table = "pqxxevents";
+const string Table("pqxxevents");
 
 
 // Count events, and boring events, in table
