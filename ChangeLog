@@ -1,3 +1,8 @@
+2007-01-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/except.hxx, src/except.cxx, test/test000.cxx:
+  - New mixin base class pqxx_exception, thanks Marcel Loose
+ VERSION:
+  - Bumped to 2.6.10
 2007-01-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test010.cxx:
   - Work around gcc bug with -fprofile-arcs in string initializer
