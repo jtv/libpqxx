@@ -237,6 +237,23 @@ int main()
     {
       cout << "(Expected) " << c.what() << endl;
     }
+
+    // Now that we know nullconnections throw errors as expected, test
+    // pqxx_exception.
+    try
+    {
+      nullconnection nc;
+      work w(nc);
+    }
+    catch (const pqxx_exception &e)
+    {
+      if (!dynamic_cast<const broken_connection *>(&e.base()))
+        throw logic_error("Downcast pqxx_exception is not a broken_connection");
+      cout << "(Expected) " << e.base().what() << endl;
+      if (dynamic_cast<const broken_connection &>(e.base()).what() !=
+          e.base().what())
+	throw logic_error("Inconsistent what() message in exception!");
+    }
   }
   catch (const bad_alloc &)
   {
