@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      implementation of libpqxx exception classes
  *
- * Copyright (c) 2005-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2005-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -19,6 +19,10 @@
 #include "pqxx/except"
 
 using namespace PGSTD;
+
+pqxx::pqxx_exception::~pqxx_exception() throw ()
+{
+}
 
 pqxx::broken_connection::broken_connection() :
   runtime_error("Connection to database failed")

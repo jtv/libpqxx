@@ -8,7 +8,7 @@
  *   pqxx::sql_error, pqxx::broken_connection, pqxx::in_doubt_error, ...
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/except instead.
  *
- * Copyright (c) 2003-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -43,6 +43,51 @@ namespace pqxx
  * @{
  */
 
+/// Mixin base class to identify libpqxx-specific exception types
+/**
+ * If you wish to catch all exception types specific to libpqxx for some reason,
+ * catch this type.  All of libpqxx's exception classes are derived from it
+ * through multiple-inheritance (they also fit into the standard library's
+ * exception hierarchy in more fitting places).
+ *
+ * This class is not derived from std::exception, since that could easily lead
+ * to exception classes with multiple std::exception base-class objects.  As
+ * Bart Samwel points out, "catch" is subject to some nasty fineprint in such
+ * cases.
+ */
+class PQXX_LIBEXPORT pqxx_exception
+{
+public:
+  /// Support run-time polymorphism, and keep this class abstract
+  virtual ~pqxx_exception() throw () =0;
+
+  /// Return std::exception base-class object
+  /** Use this to get at the exception's what() function, or to downcast to a
+   * more specific type using dynamic_cast.
+   *
+   * Casting directly from pqxx_exception to a specific exception type is not
+   * likely to work since pqxx_exception is not (and could not safely be)
+   * derived from std::exception.
+   *
+   * For example, to test dynamically whether an exception is an sql_error:
+   *
+   * @code
+   * try
+   * {
+   *   // ...
+   * }
+   * catch (const pqxx::pqxx_exception &e)
+   * {
+   *   std::cerr << e.base().what() << std::endl;
+   *   const pqxx::sql_error *s=dynamic_cast<const pqxx::sql_error*>(&e.base());
+   *   if (s) std::cerr << "Query was: " << s->query() << std::endl;
+   * }
+   * @endcode
+   */
+  virtual const PGSTD::exception &base() const throw () =0;		//[t0]
+};
+
+
 /// Exception class for lost or failed backend connection.
 /**
  * @warning When this happens on Unix-like systems, you may also get a SIGPIPE
@@ -62,8 +107,10 @@ namespace pqxx
  *   // ...
  * @endcode
  */
-class PQXX_LIBEXPORT broken_connection : public PGSTD::runtime_error
+class PQXX_LIBEXPORT broken_connection :
+  public pqxx_exception, public PGSTD::runtime_error
 {
+  virtual const PGSTD::exception &base() const throw () { return *this; }
 public:
   broken_connection();
   explicit broken_connection(const PGSTD::string &);
@@ -72,8 +119,10 @@ public:
 
 /// Exception class for failed queries.
 /** Carries a copy of the failed query in addition to a regular error message */
-class PQXX_LIBEXPORT sql_error : public PGSTD::runtime_error
+class PQXX_LIBEXPORT sql_error :
+  public pqxx_exception, public PGSTD::runtime_error
 {
+  virtual const PGSTD::exception &base() const throw () { return *this; }
   PGSTD::string m_Q;
 
 public:
@@ -95,16 +144,20 @@ public:
  * the database is left in an indeterminate (but consistent) state, and only
  * manual inspection will tell which is the case.
  */
-class PQXX_LIBEXPORT in_doubt_error : public PGSTD::runtime_error
+class PQXX_LIBEXPORT in_doubt_error :
+  public pqxx_exception, public PGSTD::runtime_error
 {
+  virtual const PGSTD::exception &base() const throw () { return *this; }
 public:
   explicit in_doubt_error(const PGSTD::string &);
 };
 
 
 /// Internal error in libpqxx library
-class PQXX_LIBEXPORT internal_error : public PGSTD::logic_error
+class PQXX_LIBEXPORT internal_error :
+  public pqxx_exception, public PGSTD::logic_error
 {
+  virtual const PGSTD::exception &base() const throw () { return *this; }
 public:
   explicit internal_error(const PGSTD::string &);
 };
