@@ -1,4 +1,6 @@
 2007-01-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test010.cxx:
+  - Work around gcc bug with -fprofile-arcs in string initializer
  tools/pqxx-fulltest:
   - Allow FTPSERVER and FTPDIR to be overridden
   - Keep log of postgres builds--may require packages to be installed
