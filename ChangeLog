@@ -1,3 +1,7 @@
+2007-02-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/robusttransaction.hxx, include/pqxx/transaction.hxx,
+ include/pqxx/trigger.hxx, src/tablereader.cxx, src/tablewriter.cxx:
+  - disable_noticer incorrectly qualified as internal::, thanks Trigve Siver
 2007-01-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/except.hxx, src/except.cxx, test/test000.cxx:
   - New mixin base class pqxx_exception, thanks Marcel Loose
