@@ -152,7 +152,7 @@ public:
   virtual ~robusttransaction() throw ()
   {
 #ifdef PQXX_QUIET_DESTRUCTORS
-    internal::disable_noticer Quiet(conn());
+    disable_noticer Quiet(conn());
 #endif
     End();
   }

@@ -46,7 +46,7 @@ void pqxx::tablereader::setup(transaction_base &T,
 pqxx::tablereader::~tablereader() throw ()
 {
 #ifdef PQXX_QUIET_DESTRUCTORS
-  internal::disable_noticer Quiet(m_Trans.conn());
+  disable_noticer Quiet(m_Trans.conn());
 #endif
   try
   {

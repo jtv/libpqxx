@@ -67,7 +67,7 @@ public:
   virtual ~trigger() throw ()						//[t4]
   {
 #ifdef PQXX_QUIET_DESTRUCTORS
-    internal::disable_noticer Quiet(Conn());
+    disable_noticer Quiet(Conn());
 #endif
     m_Conn.RemoveTrigger(this);
   }
