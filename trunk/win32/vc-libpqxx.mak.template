@@ -142,7 +142,7 @@ clean:
 # Physical targets
 ########################################################
 
-$(OUTDIR)\libpq.dll:
+$(OUTDIR)\libpq.dll: $(OUTDIR)
 	@echo -------------------------------------------------------------
 	@echo Copying libpq.dll to $(OUTDIR).
 	@echo.
@@ -156,7 +156,7 @@ $(OUTDIR)\libpq.dll:
 	@echo -------------------------------------------------------------
 	copy $(PGSQLSRC)\interfaces\libpq\release\libpq.dll $(OUTDIR)
 
-$(OUTDIR)\libpqd.dll:
+$(OUTDIR)\libpqd.dll: $(OUTDIR)
 	@echo -------------------------------------------------------------
 	@echo Copying libpqD.dll to $(OUTDIR).
 	@echo.
@@ -166,16 +166,16 @@ $(OUTDIR)\libpqd.dll:
 	@echo -------------------------------------------------------------
 	copy $(PGSQLSRC)\interfaces\libpq\debug\libpqd.dll $(OUTDIR)
 
-$(OUTFILE_STATICDEBUG).lib: $(OBJ_STATICDEBUG)
+$(OUTFILE_STATICDEBUG).lib: $(OUTDIR) $(OBJ_STATICDEBUG)
 	$(LIBTOOL) $(LIB_FLAGS) $(OBJ_STATICDEBUG) /out:"$(OUTFILE_STATICDEBUG).lib"
 
-$(OUTFILE_STATICRELEASE).lib: $(OBJ_STATICRELEASE)
+$(OUTFILE_STATICRELEASE).lib: $(OUTDIR) $(OBJ_STATICRELEASE)
 	$(LIBTOOL) $(LIB_FLAGS) $(OBJ_STATICRELEASE) /out:"$(OUTFILE_STATICRELEASE).lib"
 
-$(OUTFILE_DLLDEBUG).dll: $(OBJ_DLLDEBUG)
+$(OUTFILE_DLLDEBUG).dll: $(OUTDIR) $(OBJ_DLLDEBUG)
 	$(LINK) $(LINK_FLAGS_DLLDEBUG) $(OBJ_DLLDEBUG) /out:"$(OUTFILE_DLLDEBUG).dll" /implib:"$(OUTFILE_DLLDEBUG).lib"
 
-$(OUTFILE_DLLRELEASE).dll: $(OBJ_DLLRELEASE)
+$(OUTFILE_DLLRELEASE).dll: $(OUTDIR) $(OBJ_DLLRELEASE)
 	$(LINK) $(LINK_FLAGS_DLLRELEASE) $(OBJ_DLLRELEASE) /out:"$(OUTFILE_DLLRELEASE).dll" /implib:"$(OUTFILE_DLLRELEASE).lib"
 
 
