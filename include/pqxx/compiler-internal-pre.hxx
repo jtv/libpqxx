@@ -10,7 +10,7 @@
  *      Must be balanced by an include of -header-post.hxx at the end
  *      of the header.
  *
- * Copyright (c) 2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2006,2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -39,6 +39,7 @@
 #pragma warning (disable: 4512) // Assignment operator could not be generated
 #pragma warning (disable: 4786)
 #pragma warning (disable: 4800) // Performance warning for boolean conversions
+#pragma warning (disable: 4996) // Complaint that strncpy() "may" be unsafe
 
 #endif // _MSC_VER
 

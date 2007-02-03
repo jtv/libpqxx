@@ -2,8 +2,11 @@
  include/pqxx/robusttransaction.hxx, include/pqxx/transaction.hxx,
  include/pqxx/trigger.hxx, src/tablereader.cxx, src/tablewriter.cxx:
   - disable_noticer incorrectly qualified as internal::, thanks Trigve Siver
+ include/pqxx/compiler-internal-pre.hxx:
+  - Suppress warning that strncpy() "may be" unsafe, thanks Trigve Siver
  win32/vc-libpqxx.mak.template:
   - Always create lib directory, thanks Trigve Siver
+  - Replace obsolete /GX compiler option with /EHsc, thanks Trigve Siver
 2007-01-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/except.hxx, src/except.cxx, test/test000.cxx:
   - New mixin base class pqxx_exception, thanks Marcel Loose

@@ -63,7 +63,7 @@ LINK=link.exe
 LIBTOOL=link.exe -lib
 
 # The options common to all the different builds.
-CXX_FLAGS_BASE=/nologo /W3 /GX /FD /GR /c \
+CXX_FLAGS_BASE=/nologo /W3 /EHsc /FD /GR /c \
     /I "include" /I "$(PGSQLSRC)/include" /I "$(PGSQLSRC)/interfaces/libpq" \
     /D PGSTD=$(STD) /D "WIN32" /D "_MBCS" /D "_WINDOWS" /D "PQXX_INTERNAL"
 
