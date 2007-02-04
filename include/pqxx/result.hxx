@@ -60,7 +60,7 @@ struct PQXX_PRIVATE result_data
   ~result_data();
 };
 
-void freemem_result_data(result_data *) throw ();
+void PQXX_LIBEXPORT freemem_result_data(result_data *) throw ();
 template<> inline
 void PQAlloc<result_data>::freemem() throw () { freemem_result_data(m_Obj); }
 } // namespace internal
