@@ -21,8 +21,7 @@ TMPDIR="$TESTDIR/tmp"
 export TMPDIR
 mkdir -p "$TMPDIR"
 
-#SVNURL="file:///srv/svn/libpqxx/trunk/"
-SVNURL="svn://thaiopensource.org/libpqxx/trunk/"
+SVNURL="svn://pqxx.org/libpqxx/trunk/"
 
 # Where and how to obtain PostgreSQL versions
 PGVERSIONPAT="^v[0-9][0-9A-Za-z_.-]\+"
@@ -135,6 +134,7 @@ startbackend() {
 		echo "## Starting backend $BE ##"
 		rm -rf "$BE/data"
 		mkdir -p "$BE/data"
+		chmod -R go-rwx "$BE"
 
 		OLDPATH="$PATH"
 		PATH="$BE/bin:$PATH"
