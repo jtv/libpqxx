@@ -1,3 +1,6 @@
+2007-02-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/vc-libpqxx.mak.template:
+  - Replaced obsolete /GZ option with /RTC1, thanks Trigve Siver
 2007-02-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/robusttransaction.hxx, include/pqxx/transaction.hxx,
  include/pqxx/trigger.hxx, src/tablereader.cxx, src/tablewriter.cxx:
