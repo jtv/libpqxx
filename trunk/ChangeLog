@@ -1,4 +1,6 @@
 2007-02-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result.hxx:
+  - freemem_result_data() needs PQXX_LIBEXPORT, thanks drankevich@cosmostv.by
  tools/pqxx-fulltest:
   - Use pqxx.org instead of full thaiopensource.org URL
   - Ensure that local postgres instance is private
