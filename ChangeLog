@@ -1,3 +1,6 @@
+2007-02-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in, src/util.cxx:
+  - Use strlcpy() instead of strncpy() where available
 2007-02-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/result.hxx:
   - freemem_result_data() needs PQXX_LIBEXPORT, thanks drankevich@cosmostv.by

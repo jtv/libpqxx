@@ -458,6 +458,16 @@ AC_TRY_COMPILE(
 	strnlen=no)
 AC_MSG_RESULT($strnlen)
 
+AC_MSG_CHECKING([for strlcpy])
+strlcpy=yes
+AC_TRY_COMPILE(
+	[#include <cstring>
+	${usestd}],
+	[char buf[2];return strlcpy(buf,"",1)],
+	[AC_DEFINE(PQXX_HAVE_STRLCPY,1,[Define if strlcpy exists])],
+	strlcpy=no)
+AC_MSG_RESULT($strlcpy)
+
 AC_MSG_CHECKING([for long long])
 long_long=yes
 AC_TRY_COMPILE(,[long long l=0LL; return int(l)],
