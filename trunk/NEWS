@@ -1,6 +1,7 @@
 2.6.10
  - New mixin base class pqxx_exception distinguishes libpqxx exception types
  - Several build problems with Visual C++ fixed
+ - Uses strlcpy() where available, instead of strncpy()
 2.6.9
  - Removed old 1.x API (that means all identifiers with capital letters!)
  - Tested with all current libpq versions and oldest/newest supported backends

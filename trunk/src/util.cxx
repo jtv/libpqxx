@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      Various utility functions for libpqxx
  *
- * Copyright (c) 2003-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -678,11 +678,14 @@ void pqxx::internal::sleep_seconds(int s)
 
 namespace
 {
-void copymsg(char buf[], const char msg[], size_t buflen) throw ()
+
+#if !defined(PQXX_HAVE_STRLCPY)
+size_t strlcpy(char buf[], const char input[], size_t buflen) throw ()
 {
-  strncpy(buf, msg, buflen);
-  if (strlen(msg) >= buflen) buf[buflen-1] = '\0';
+  strncpy(buf, input, buflen);
+  if (buflen) buf[buflen-1] = '\0';
 }
+#endif
 
 // Single Unix Specification version of strerror_r returns result code
 const char *strerror_r_result(int sus_return, char buf[], size_t len) throw ()
@@ -690,9 +693,9 @@ const char *strerror_r_result(int sus_return, char buf[], size_t len) throw ()
   switch (sus_return)
   {
   case 0: break;
-  case -1: copymsg(buf, "Unknown error", len); break;
+  case -1: strlcpy(buf, "Unknown error", len); break;
   default:
-    copymsg(buf,
+    strlcpy(buf,
 	  "Unexpected result from strerror_r()!  Is it really SUS-compliant?",
 	  len);
     break;
@@ -717,7 +720,7 @@ const char *pqxx::internal::strerror_wrapper(int err, char buf[], size_t len)
   const char *res = buf;
 
 #if !defined(PQXX_HAVE_STRERROR_R)
-  copymsg(buf, strerror(err), len);
+  strlcpy(buf, strerror(err), len);
 #else
   // This will pick the appropriate strerror_r() subwrapper using overloading
   // (an idea first suggested by Bart Samwel.  Thanks a bundle, Bart!)
