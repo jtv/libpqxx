@@ -7,7 +7,7 @@
  *      implementation of libpqxx STL-style cursor classes.
  *   These classes wrap SQL cursors in STL-like interfaces
  *
- * Copyright (c) 2004-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -101,6 +101,7 @@ void pqxx::cursor_base::declare(const PGSTD::string &query,
    * the first useless trailing character.
    */
   string::const_iterator last = query.end();
+  // TODO: May break on multibyte encodings!
   for (--last; last!=query.begin() && useless_trail(*last); --last);
   if (last==query.begin() && useless_trail(*last))
     throw invalid_argument("Cursor created on empty query");

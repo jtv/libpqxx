@@ -692,6 +692,9 @@ private:
 	const int[],
 	int);
 
+  friend class arrayvalue;
+  int PQXX_PRIVATE encoding_code() throw ();
+
   /// Connection handle
   internal::pq::PGconn *m_Conn;
 
