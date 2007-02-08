@@ -1,4 +1,7 @@
 2007-02-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in:
+  - Check for PQclientEncoding()
+  - Check for PQmblen()
  include/pqxx/transaction.hxx, include/pqxx/trigger.hxx, src/tablewriter.cxx:
   - Updated copyright notices
 2007-02-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
