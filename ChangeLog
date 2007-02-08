@@ -2,6 +2,10 @@
  configitems, configure.ac.in:
   - Check for PQclientEncoding()
   - Check for PQmblen()
+ include/pqxx/connection_base.hxx, include/pqxx/result.hxx,
+ src/connection_base.cxx, src/cursor.cxx, src/pipeline.cxx, src/result.cxx,
+ src/tablereader.cxx:
+  - Keep track of client encoding in connections and results
  include/pqxx/transaction.hxx, include/pqxx/trigger.hxx, src/tablewriter.cxx:
   - Updated copyright notices
 2007-02-07  Jeroen T. Vermeulen <jtv@xs4all.nl>

@@ -7,7 +7,7 @@
  *      implementation of the pqxx::tablereader class.
  *   pqxx::tablereader enables optimized batch reads from a database table
  *
- * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -121,6 +121,7 @@ inline bool is_octalchar(char o) throw ()
 string::size_type findtab(const PGSTD::string &Line,
 	PGSTD::string::size_type start)
 {
+  // TODO: Fix for multibyte encodings?
   const string::size_type here = Line.find('\t', start);
   return (here == string::npos) ? Line.size() : here;
 }

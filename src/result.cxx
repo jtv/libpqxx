@@ -30,15 +30,22 @@ using namespace PGSTD;
 const string pqxx::result::s_empty_string;
 
 
-pqxx::internal::result_data::result_data() : data(0), protocol(0), query() {}
+pqxx::internal::result_data::result_data() :
+  data(0),
+  protocol(0),
+  query(),
+  encoding_code(0)
+{}
 
 pqxx::internal::result_data::result_data(pqxx::internal::pq::PGresult *d,
 	int p,
-	const PGSTD::string &q) :
+	const PGSTD::string &q,
+	int e) :
   data(d),
   protocol(p),
-  query(q)
-	{}
+  query(q),
+  encoding_code(e)
+{}
 
 
 pqxx::internal::result_data::~result_data() { PQclear(data); }
@@ -49,10 +56,11 @@ void pqxx::internal::freemem_result_data(result_data *d) throw () { delete d; }
 
 pqxx::result::result(pqxx::internal::pq::PGresult *rhs,
 	int protocol,
-	const PGSTD::string &Query) :
-  super(new internal::result_data(rhs, protocol, Query)),
+	const PGSTD::string &Query,
+	int encoding_code) :
+  super(new internal::result_data(rhs, protocol, Query, encoding_code)),
   m_data(rhs)
-	{}
+{}
 
 bool pqxx::result::operator==(const result &rhs) const throw ()
 {

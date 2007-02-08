@@ -8,7 +8,7 @@
  *   pqxx::result represents the set of result tuples from a database query
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/result instead.
  *
- * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -53,10 +53,15 @@ struct PQXX_PRIVATE result_data
   /// Query string that yielded this result
   PGSTD::string query;
 
+  int encoding_code;
+
   // TODO: Locking for result copy-construction etc. also goes here
 
   result_data();
-  result_data(pqxx::internal::pq::PGresult *, int, const PGSTD::string &);
+  result_data(pqxx::internal::pq::PGresult *,
+		int protocol,
+		const PGSTD::string &,
+		int encoding_code);
   ~result_data();
 };
 
@@ -899,7 +904,8 @@ private:
   friend class pipeline;
   result(internal::pq::PGresult *rhs,
 	int protocol,
-	const PGSTD::string &Query=PGSTD::string());
+	const PGSTD::string &Query,
+	int encoding_code);
   bool operator!() const throw () { return !m_data; }
   operator bool() const throw () { return m_data != 0; }
 

@@ -327,7 +327,10 @@ void pqxx::connection_base::SetupState()
     PQsendQuery(m_Conn, restore_query.str().c_str());
     result r;
     const int proto = protocol_version();
-    do r = result(PQgetResult(m_Conn), proto, "[RECONNECT]"); while (r);
+    const int encoding = encoding_code();
+    do
+      r = result(PQgetResult(m_Conn), proto, "[RECONNECT]", encoding);
+    while (r);
   }
 
   m_Completed = true;
@@ -566,7 +569,11 @@ void pqxx::connection_base::AddTrigger(pqxx::trigger *T)
 
     if (is_open()) try
     {
-      result R( PQexec(m_Conn, LQ.c_str()), protocol_version(), LQ );
+      result R( PQexec(m_Conn,
+		LQ.c_str()),
+		protocol_version(),
+		LQ,
+		encoding_code() );
       check_result(R);
     }
     catch (const broken_connection &)
@@ -718,13 +725,17 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 {
   activate();
 
-  result R(PQexec(m_Conn, Query), protocol_version(), Query);
+  result R(PQexec(m_Conn, Query), protocol_version(), Query, encoding_code());
 
   while ((Retries > 0) && !R && !is_open())
   {
     Retries--;
     Reset();
-    if (is_open()) R = result(PQexec(m_Conn, Query), protocol_version(), Query);
+    if (is_open())
+      R = result(PQexec(m_Conn, Query),
+	protocol_version(),
+	Query,
+	encoding_code());
   }
 
   check_result(R);
@@ -858,7 +869,8 @@ pqxx::connection_base::register_prepared(const PGSTD::string &name)
     {
       result r(PQprepare(m_Conn, name.c_str(), s.definition.c_str(), 0, 0),
 	protocol_version(),
-	"[PREPARE " + name + "]");
+	"[PREPARE " + name + "]",
+	encoding_code());
       check_result(r);
       s.registered = true;
       return s;
@@ -919,14 +931,15 @@ pqxx::result pqxx::connection_base::prepared_exec(
       binary[nparams] = 0;
 
       r = result(PQexecPrepared(m_Conn,
-	statement.c_str(),
-	nparams,
-	params,
-	paramlengths,
-	binary.c_ptr(),
-	0),
+		statement.c_str(),
+		nparams,
+		params,
+		paramlengths,
+		binary.c_ptr(),
+		0),
 	protocol_version(),
-	statement);
+	statement,
+	encoding_code());
 
       check_result(r);
       get_notifs();
@@ -960,6 +973,7 @@ pqxx::result pqxx::connection_base::prepared_exec(
 				paramlengths[n],
 				s.parameters[n].treatment);
       const string::size_type keysz = key.size();
+      // TODO: Skip quoted strings!  (And careful with multibyte encodings...)
       for (string::size_type h=S.find(key); h!=string::npos; h=S.find(key))
 	S.replace(h,keysz,val);
     }
@@ -1083,7 +1097,9 @@ void pqxx::connection_base::MakeEmpty(pqxx::result &R)
     throw internal_error("MakeEmpty() on null connection");
 
   R = result(PQmakeEmptyPGresult(m_Conn, PGRES_EMPTY_QUERY),
-             protocol_version());
+		protocol_version(),
+		"[]",
+		encoding_code());
 }
 
 
@@ -1105,7 +1121,7 @@ bool pqxx::connection_base::ReadCopyLine(PGSTD::string &Line)
 
 #ifdef PQXX_HAVE_PQPUTCOPY
   char *Buf = 0;
-  const int proto = protocol_version();
+  const int proto = protocol_version(), encoding=encoding_code();
   const string querydesc = "[END COPY]";
   switch (PQgetCopyData(m_Conn, &Buf, false))
   {
@@ -1113,9 +1129,9 @@ bool pqxx::connection_base::ReadCopyLine(PGSTD::string &Line)
       throw runtime_error("Reading of table data failed: " + string(ErrMsg()));
 
     case -1:
-      for (result R(PQgetResult(m_Conn), proto, querydesc);
+      for (result R(PQgetResult(m_Conn), proto, querydesc, encoding);
            R;
-	   R=result(PQgetResult(m_Conn), proto, querydesc))
+	   R=result(PQgetResult(m_Conn), proto, querydesc, encoding))
 	check_result(R);
       Result = false;
       break;
@@ -1217,7 +1233,10 @@ void pqxx::connection_base::EndCopyWrite()
 	"from PQputCopyEnd()");
   }
 
-  const result R(PQgetResult(m_Conn), protocol_version(), "[END COPY]");
+  const result R(PQgetResult(m_Conn),
+		protocol_version(),
+		"[END COPY]",
+		encoding_code());
   check_result(R);
 
 #else
@@ -1430,5 +1449,16 @@ string pqxx::connection_base::adorn_name(const PGSTD::string &n)
 {
   const string id = to_string(++m_unique_id);
   return n.empty() ? ("x"+id) : (n+"_"+id);
+}
+
+
+int pqxx::connection_base::encoding_code() throw ()
+{
+#ifdef PQXX_HAVE_PQENCODING
+  activate();
+  return PQclientEncoding(m_Conn);
+#else
+  return 0;
+#endif
 }
 
