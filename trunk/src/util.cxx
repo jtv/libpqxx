@@ -679,13 +679,15 @@ void pqxx::internal::sleep_seconds(int s)
 namespace
 {
 
-#if !defined(PQXX_HAVE_STRLCPY)
-size_t strlcpy(char buf[], const char input[], size_t buflen) throw ()
+void cpymsg(char buf[], const char input[], size_t buflen) throw ()
 {
+#if defined(PQXX_HAVE_STRLCPY)
+  strlcpy(buf, input, buflen);
+#else
   strncpy(buf, input, buflen);
   if (buflen) buf[buflen-1] = '\0';
-}
 #endif
+}
 
 // Single Unix Specification version of strerror_r returns result code
 const char *strerror_r_result(int sus_return, char buf[], size_t len) throw ()
@@ -693,9 +695,9 @@ const char *strerror_r_result(int sus_return, char buf[], size_t len) throw ()
   switch (sus_return)
   {
   case 0: break;
-  case -1: strlcpy(buf, "Unknown error", len); break;
+  case -1: cpymsg(buf, "Unknown error", len); break;
   default:
-    strlcpy(buf,
+    cpymsg(buf,
 	  "Unexpected result from strerror_r()!  Is it really SUS-compliant?",
 	  len);
     break;
@@ -720,7 +722,7 @@ const char *pqxx::internal::strerror_wrapper(int err, char buf[], size_t len)
   const char *res = buf;
 
 #if !defined(PQXX_HAVE_STRERROR_R)
-  strlcpy(buf, strerror(err), len);
+  cpymsg(buf, strerror(err), len);
 #else
   // This will pick the appropriate strerror_r() subwrapper using overloading
   // (an idea first suggested by Bart Samwel.  Thanks a bundle, Bart!)
