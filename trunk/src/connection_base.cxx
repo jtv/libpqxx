@@ -1411,7 +1411,11 @@ void pqxx::connection_base::read_capabilities() throw ()
   {
     // Estimate server version by querying 'version()'.  This may not be exact!
     const string VQ = "SELECT version()";
-    const result r(PQexec(m_Conn, VQ.c_str()), protocol_version(), VQ);
+    const result r(PQexec(m_Conn, VQ.c_str()),
+		protocol_version(),
+		VQ,
+		encoding_code());
+
     int x=0, y=0, z=0;
     if ((sscanf(r[0][0].c_str(), "PostgreSQL %d.%d.%d", &x, &y, &z) == 3) &&
         (x >= 0) && (x < 100) &&
