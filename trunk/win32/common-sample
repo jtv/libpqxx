@@ -48,6 +48,6 @@ PGSQLSRC="D:\Src\postgresql-8.1.3\src"
 # Paths where the libpq library binary or binaries can be found.
 # We should use the libpq libraries that correspond to the source tree whose
 # headers we are including.  This ensures that we find all in the same place:
-LIBPATH1="$(PGSQLSRC)/interfaces/libpq/Release"
-LIBPATH2="$(PGSQLSRC)/interfaces/libpq/Debug"
+LIBPATH1=$(PGSQLSRC)/interfaces/libpq/Release
+LIBPATH2=$(PGSQLSRC)/interfaces/libpq/Debug
 

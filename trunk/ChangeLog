@@ -1,3 +1,7 @@
+2007-02-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/common-sample, win32/vc-libpqxx.mak.template:
+  - Removed quotes to fix problems with spaces, thanks Curran Schiefelbein
+  - Thanks Bart Samwel for confirming
 2007-02-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in:
   - Check for PQclientEncoding()
