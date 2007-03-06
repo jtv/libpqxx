@@ -8,7 +8,7 @@
  *   pqxx::tablewriter enables optimized batch updates to a database table
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablewriter.hxx instead.
  *
- * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -50,12 +50,25 @@ public:
 
   /// Write only the given sequence of columns
   /** @since PostgreSQL backend 7.3.
+   *
+   * This constructor takes a sequence of names of columns to write to.  Only
+   * those columns will be written, and they will be taken from your input data
+   * in that order.
    */
   template<typename ITER> tablewriter(transaction_base &,
       const PGSTD::string &WName,
       ITER begincolumns,
       ITER endcolumns);							//[t9]
 
+  /// Write only the given sequence of columns, with customized "null" string
+  /** @since PostgreSQL backend 7.3.
+   *
+   * This constructor takes a sequence of names of columns to write to.  Only
+   * those columns will be written, and they will be taken from your input data
+   * in that order.
+   *
+   * @param Null the string that is used in your input data to denote null
+   */
   template<typename ITER> tablewriter(transaction_base &,
       const PGSTD::string &WName,
       ITER begincolumns,
