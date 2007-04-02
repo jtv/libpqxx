@@ -17,6 +17,7 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
+#include <cstdlib>
 #include <stdexcept>
 
 #include "libpq-fe.h"
