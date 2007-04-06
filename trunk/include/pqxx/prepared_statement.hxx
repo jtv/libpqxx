@@ -7,7 +7,7 @@
  *      Helper classes for defining and executing prepared statements
  *   See the connection_base hierarchy for more about prepared statements
  *
- * Copyright (c) 2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2006,2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -72,7 +72,7 @@ public:
 
 private:
   connection_base &m_home;
-  const PGSTD::string &m_statement;
+  const PGSTD::string m_statement;
 };
 
 
@@ -130,7 +130,7 @@ public:
 
 private:
   transaction_base &m_home;
-  const PGSTD::string &m_statement;
+  const PGSTD::string m_statement;
   PGSTD::vector<PGSTD::string> m_values;
   PGSTD::vector<bool> m_nonnull;
 

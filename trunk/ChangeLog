@@ -1,3 +1,6 @@
+2007-04-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/prepared_statement.hxx:
+  - m_statement shouldn't be a reference, thanks John Mudd
 2007-04-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/result.cxx:
   - Missing include: cstdlib, thanks Martin Michlmayr
