@@ -4,6 +4,7 @@
  - Uses strlcpy() where available, instead of strncpy()
  - Keeps better track of applicable text encodings
  - Compile fix for gcc 4.3
+ - Fixed bug with prepared statement parameters in separate C++ statements
 2.6.9
  - Removed old 1.x API (that means all identifiers with capital letters!)
  - Tested with all current libpq versions and oldest/newest supported backends
