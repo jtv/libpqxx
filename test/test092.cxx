@@ -53,6 +53,31 @@ int main()
       throw logic_error("Binary string reports wrong size: " +
 	to_string(roundtrip.size()) + " "
 	"(expected " + to_string(data.size()) + ")");
+
+    // People seem to like the multi-line invocation style, where you get your
+    // invocation object first, then add parameters in separate C++ statements.
+    // As John Mudd found, that used to break the code.  Let's test it.
+    T.exec("CREATE TEMP TABLE tuple (one INTEGER, two VARCHAR)");
+
+    pqxx::prepare::declaration d(
+	C.prepare("maketuple", "INSERT INTO tuple VALUES ($1, $2)") );
+    d("INTEGER", pqxx::prepare::treat_direct);
+    d("VARCHAR", pqxx::prepare::treat_string);
+
+    pqxx::prepare::invocation i( T.prepared("maketuple") );
+    const string f = "frobnalicious";
+    i(6);
+    i(f);
+    i.exec();
+
+    const result t( T.exec("SELECT * FROM tuple") );
+    if (t.size() != 1)
+      throw logic_error("Expected 1 tuple, got " + to_string(t.size()));
+    if (t[0][0].as<string>() != "6")
+      throw logic_error("Expected value 6, got " + t[0][0].as<string>());
+    if (t[0][1].c_str() != f)
+      throw logic_error("Expected string '" + f + "', "
+	"got '" + t[0][1].c_str() + "'");
   }
   catch (const sql_error &e)
   {
