@@ -7,7 +7,7 @@
  *      implementation of the pqxx::robusttransaction class.
  *   pqxx::robusttransaction is a slower but safer transaction class
  *
- * Copyright (c) 2002-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -181,8 +181,8 @@ void pqxx::basic_robusttransaction::CreateLogTable()
   if (conn().supports(connection_base::cap_create_table_with_oids))
     CrTab += ") WITH OIDS";
   else
-    CrTab += ", CONSTRAINT identity UNIQUE(oid))";
-
+    CrTab += string(", CONSTRAINT pqxxlog_identity_") + conn().username() +
+	     " UNIQUE(oid)";
   try { DirectExec(CrTab.c_str(), 1); } catch (const exception &) { }
 }
 

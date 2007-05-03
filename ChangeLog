@@ -1,3 +1,8 @@
+2007-05-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/robusttransaction.cxx:
+  - Fixed constraint name clash in multi-user use, thanks anonymous
+ test/test092.cxx:
+  - Test "one parameter per line" style of invoking prepared statements
 2007-04-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/prepared_statement.hxx:
   - m_statement shouldn't be a reference, thanks John Mudd
