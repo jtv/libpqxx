@@ -71,6 +71,9 @@ public:
   operator()(const PGSTD::string &sqltype, param_treatment) const;
 
 private:
+  /// Not allowed
+  declaration &operator=(const declaration &);
+
   connection_base &m_home;
   const PGSTD::string m_statement;
 };
@@ -129,6 +132,9 @@ public:
 	{ return setparam((v ? to_string(v) : ""), nonnull); }
 
 private:
+  /// Not allowed
+  invocation &operator=(const invocation &);
+
   transaction_base &m_home;
   const PGSTD::string m_statement;
   PGSTD::vector<PGSTD::string> m_values;
