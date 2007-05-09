@@ -293,6 +293,13 @@ which kind of library is being built.  It has a slightly different meaning in
 that case, but this should really only matter to you if you are helping debug
 the library)
 
+Similarly, you may choose to link to either the static or the shared version of
+libpq.  The default is to use the dynamic library, which makes more sense there
+because libpq's API and ABI are much simpler and more stable.  To build a
+libpqxx for use with a static libpq, however, define the preprocessor symbol
+PQXX_PQ_STATIC both when compiling libpqxx and while building your own
+application.
+
 
 Troubleshooting
 

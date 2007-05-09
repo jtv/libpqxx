@@ -1,12 +1,12 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pqxx/compiler-public.h
+ *	pqxx/compiler-public.hxx
  *
  *   DESCRIPTION
  *      Compiler deficiency workarounds for libpqxx clients
  *
- * Copyright (c) 2002-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -151,11 +151,22 @@ template<> struct char_traits<unsigned char>
 #define PQXX_TYPENAME
 #endif	// _MSC_VER < 1310
 
-// Automatically link with the appropriate libpq DLL (debug or release).
+// Automatically link with the appropriate libpq (static or dynamic, debug or
+// release).  The default is to use the release DLL.  Define PQXX_PQ_STATIC to
+// link to a static version of libpq, and _DEBUG to link to a debug version.
+// The two may be combined.
+#if defined(PQXX_PQ_STATIC)
+#ifdef _DEBUG
+#pragma comment(lib, "libpqd")
+#else
+#pragma comment(lib, "libpq")
+#endif
+#else
 #ifdef _DEBUG
 #pragma comment(lib, "libpqddll")
 #else
 #pragma comment(lib, "libpqdll")
+#endif
 #endif
 
 // If we're not compiling libpqxx itself, automatically link with the correct
