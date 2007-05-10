@@ -1,3 +1,7 @@
+2007-05-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+  - Removed unnecessary retrieval of error message, thanks JuJu
+  - Moved code around a bit
 2007-05-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/compiler-public.hxx, win32/INSTALL.txt:
   - Define PQXX_PQ_STATIC to link to static libpq in Windows.  Thanks JuJu.

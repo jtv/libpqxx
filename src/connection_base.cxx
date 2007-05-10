@@ -149,7 +149,7 @@ int pqxx::connection_base::sock() const throw ()
 
 void pqxx::connection_base::activate()
 {
-  if (!is_open()) try
+  if (!is_open())
   {
     if (m_inhibit_reactivation)
       throw broken_connection("Could not reactivate connection; "
@@ -159,25 +159,27 @@ void pqxx::connection_base::activate()
     // connection, don't try to reactivate
     if (m_reactivation_avoidance.get()) return;
 
-    m_Conn = m_policy.do_startconnect(m_Conn);
-    m_Conn = m_policy.do_completeconnect(m_Conn);
-    m_Completed = true;	// (But retracted if error is thrown below)
+    try
+    {
+      m_Conn = m_policy.do_startconnect(m_Conn);
+      m_Conn = m_policy.do_completeconnect(m_Conn);
+      m_Completed = true;	// (But retracted if error is thrown below)
 
-    if (!is_open()) throw broken_connection();
+      if (!is_open()) throw broken_connection();
 
-    SetupState();
-  }
-  catch (const broken_connection &e)
-  {
-    const string Msg( ErrMsg() );
-    disconnect();
-    m_Completed = false;
-    throw broken_connection(e.what());
-  }
-  catch (const exception &)
-  {
-    m_Completed = false;
-    throw;
+      SetupState();
+    }
+    catch (const broken_connection &e)
+    {
+      disconnect();
+      m_Completed = false;
+      throw broken_connection(e.what());
+    }
+    catch (const exception &)
+    {
+      m_Completed = false;
+      throw;
+    }
   }
 }
 
