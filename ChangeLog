@@ -1,3 +1,6 @@
+2007-05-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection.cxx:
+  - Pass on more error messages in broken_connection exceptions, thanks JuJu
 2007-05-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
   - Removed unnecessary retrieval of error message, thanks JuJu

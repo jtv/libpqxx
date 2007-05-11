@@ -1,4 +1,5 @@
 2.6.10
+ - More helpful error messages on failed connections
  - New mixin base class pqxx_exception distinguishes libpqxx exception types
  - Several build problems with Visual C++ fixed
  - Uses strlcpy() where available, instead of strncpy()
