@@ -7,7 +7,7 @@
  *      implementation of the pqxx::connection and sibling classes.
  *   Different ways of setting up a backend connection.
  *
- * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -43,6 +43,8 @@ pqxx::connectionpolicy::normalconnect(handle orig)
   if (orig) return orig;
   orig = PQconnectdb(options().c_str());
   if (!orig) throw bad_alloc();
+  if (PQstatus(orig) != CONNECTION_OK)
+    throw broken_connection(string(PQerrorMessage(orig)));
   return orig;
 }
 
@@ -118,7 +120,7 @@ pqxx::connect_async::do_startconnect(handle orig)
   if (PQconnectPoll(orig) == PGRES_POLLING_FAILED)
   {
     do_dropconnect(orig);
-    throw broken_connection();
+    throw broken_connection(string(PQerrorMessage(orig)));
   }
   m_connecting = true;
   return orig;
@@ -144,7 +146,7 @@ pqxx::connect_async::do_completeconnect(handle orig)
     {
     case PGRES_POLLING_FAILED:
       if (makenew) do_disconnect(orig);
-      throw broken_connection();
+      throw broken_connection(string(PQerrorMessage(orig)));
 
     case PGRES_POLLING_READING:
       internal::wait_read(orig);
