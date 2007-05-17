@@ -1,3 +1,6 @@
+2007-05-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx:
+  - More explanation, particularly on exceptions.  Thanks Gary Jefferson.
 2007-05-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection.cxx:
   - Pass on more error messages in broken_connection exceptions, thanks JuJu

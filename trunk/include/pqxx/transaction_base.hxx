@@ -149,6 +149,16 @@ public:
 
   /// Execute query
   /** Perform a query in this transaction.
+   *
+   * This is one of the most important functions in libpqxx.
+   *
+   * Most libpqxx exceptions can be thrown from here, including sql_error,
+   * broken_connection, and many sql_error subtypes such as
+   * feature_not_supported or insufficient_privilege.  But any exception thrown
+   * by the C++ standard library may also occur here.  All exceptions will be
+   * derived from std::exception, however, and all libpqxx-specific exception
+   * types are derived from pqxx::pqxx_exception.
+   *
    * @param Query Query or command to execute
    * @param Desc Optional identifier for query, to help pinpoint SQL errors
    * @return A result set describing the query's or command's result

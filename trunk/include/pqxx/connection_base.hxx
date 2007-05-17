@@ -134,12 +134,20 @@ PGSTD::string encrypt_password(const PGSTD::string &user,		//[t0]
  * If a network connection to the database server fails, the connection will be
  * restored automatically (although any transaction going on at the time will
  * have to be aborted).  This also means that any information set in previous
- * transactions that is not stored in the database, such as connection-local
- * variables defined with PostgreSQL's SET command, will be lost.  Whenever you
- * create such state, either do it within each transaction that may need it, or
- * if at all possible, use specialized functions made available by libpqxx.
- * Always avoid raw queries if libpqxx offers a dedicated function for the same
- * purpose.
+ * transactions that is not stored in the database, such as temp tables or
+ * connection-local variables defined with PostgreSQL's SET command, will be
+ * lost.  Whenever you create such state, either keept it local to one
+ * transaction, where possible, or inhibit automatic reactivation of the
+ * connection using the inhibit_reactivation() method.
+ *
+ * When a connection breaks, you will typically get a broken_connection
+ * exception.  This can happen at almost any point, and the details may depend
+ * on which connection class (all derived from this one) you use.
+ *
+ * As a general rule, always avoid raw queries if libpqxx offers a dedicated
+ * function for the same purpose.  There may be hidden logic to hide certain
+ * complications from you, such as reinstating session variables when a
+ * broken or disabled connection is reactivated.
  *
  * @warning On Unix-like systems, including GNU and BSD systems, your program
  * may receive the SIGPIPE signal when the connection to the backend breaks.  By
@@ -154,8 +162,8 @@ public:
 
    /// Is this connection open at the moment?
   /** @warning This function is @b not needed in most code.  Resist the
-   * temptation to check it after opening a connection; rely on the exception
-   * that will be thrown on connection failure instead.
+   * temptation to check it after opening a connection; instead, rely on the
+   * broken_connection exception that will be thrown on connection failure.
    */
   bool is_open() const throw ();					//[t1]
 
@@ -296,15 +304,27 @@ public:
    */
   //@{
   /// Name of database we're connected to, if any.
+  /** @warning This activates the connection, which may fail with a
+   * broken_connection exception.
+   */
   const char *dbname();							//[t1]
 
   /// Database user ID we're connected under, if any.
+  /** @warning This activates the connection, which may fail with a
+   * broken_connection exception.
+   */
   const char *username();						//[t1]
 
   /// Address of server, or NULL if none specified (i.e. default or local)
+  /** @warning This activates the connection, which may fail with a
+   * broken_connection exception.
+   */
   const char *hostname();						//[t1]
 
   /// Server port number we're connected to.
+  /** @warning This activates the connection, which may fail with a
+   * broken_connection exception.
+   */
   const char *port();							//[t1]
 
   /// Process ID for backend process.
@@ -385,8 +405,7 @@ public:
    * were available previously.
    *
    * Some guesswork is involved in establishing the presence of any capability;
-   * try not to rely on this function being exactly right.  Older versions of
-   * libpq may not detect any capabilities.
+   * try not to rely on this function being exactly right.
    *
    * @warning Make sure your connection is active before calling this function,
    * or the answer will always be "no."  In particular, if you are using this
@@ -478,8 +497,9 @@ public:
    * notification string, none are invoked but the notification is considered
    * processed.
    *
-   * Exceptions thrown by client-registered trigger handlers are reported, but
-   * not passed on outside this function.
+   * Exceptions thrown by client-registered trigger handlers are reported using
+   * the connection's message noticer, but the exceptions themselves are not
+   * passed on outside this function.
    *
    * @return Number of notifications processed
    */
@@ -569,6 +589,13 @@ public:
    * the backend until they are first used.  If this is not what you want, e.g.
    * because you have very specific realtime requirements, you can use the
    * @c prepare_now() function to force immediate preparation.
+   *
+   * @warning The statement may not be registered with the backend until it is
+   * actually used.  So if the statement is syntactically incorrect, for
+   * example, a syntax_error may be thrown either from here, or when you try to
+   * call the statement later, or somewhere inbetween if prepare_now() is
+   * called.  This is not guaranteed, and it's still possible to get a
+   * broken_connection or sql_error here, for example.
    *
    * @param name unique identifier to associate with new prepared statement
    * @param definition SQL statement to prepare
