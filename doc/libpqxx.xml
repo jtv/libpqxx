@@ -485,27 +485,26 @@
 
       <listitem>
 	<para>
-	  <literal>trigger</literal> is an instance of the Observer design
-	  pattern.  Any code connected to a backend may flag an event using the
-	  <productname>PostgreSQL</productname> <literal>NOTIFY</literal>
-	  command.  Frontends connected to that same backend database may be
-	  listening for an event of that name to occur.  A frontend using
-	  <productname>libpqxx</productname> does this by registering an
-	  observer object derived from <literal>trigger</literal>, which will
-	  be invoked by <productname>libpqxx</productname> to handle the event
-	  when it occurs.
+	  <literal>notify_listener</literal> is an instance of the Observer
+	  design pattern.  Any code connected to a backend may flag an event
+	  using the <productname>PostgreSQL</productname>
+	  <literal>NOTIFY</literal> command.  Frontends connected to that same
+	  backend database may be listening for an event of that name to occur.
+	  A frontend using <productname>libpqxx</productname> does this by
+	  registering an observer object derived from
+	  <literal>notify_listener</literal>, which will be invoked by
+	  <productname>libpqxx</productname> to handle the event when it occurs.
 	</para>
 
 	<para>
-	  What every programmer using triggers in PostgreSQL should know, by
-	  the way, is that trigger notifications are not delivered to your
-	  program while it is inside a back-end transaction.  Nor are they sent
-	  until the notifying process has committed the transaction, if any,
-	  that the notification was done from.  This makes sense from a
-	  correctness point of view (otherwise your processing of the
-	  event might get rolled back just because the transaction you're in
-	  happens to fail), but may be a little confusing to the unaware
-	  programmer.
+	  Something every programmer using notification listeners in PostgreSQL
+	  should know, by the way, is that notifications are not delivered to
+	  your program while it is inside a back-end transaction.  Nor are they
+	  sent until the notifying process has committed any transaction it may
+	  be in.  This makes sense from a correctness point of view (otherwise
+	  your processing of the event might get rolled back just because the
+	  transaction you're in happens to fail), but may be a little confusing
+	  to the unaware programmer.
 	</para>
       </listitem>
 

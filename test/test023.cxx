@@ -5,7 +5,7 @@
 #include <pqxx/connection>
 #include <pqxx/transaction>
 #include <pqxx/transactor>
-#include <pqxx/trigger>
+#include <pqxx/notify-listen>
 #include <pqxx/result>
 
 
@@ -22,13 +22,14 @@ using namespace pqxx;
 namespace
 {
 
-// Sample implementation of trigger handler
-class TestTrig : public trigger
+// Sample implementation of notification listener
+class TestListener : public notify_listener
 {
   bool m_Done;
 
 public:
-  explicit TestTrig(connection_base &C) : trigger(C, "trig"), m_Done(false) {}
+  explicit TestListener(connection_base &C) :
+	notify_listener(C, "listen"), m_Done(false) {}
 
   virtual void operator()(int be_pid)
   {
@@ -46,18 +47,18 @@ public:
 };
 
 
-// A transactor to trigger our trigger handler
+// A transactor to trigger our notification listener
 class Notify : public transactor<>
 {
-  string m_Trigger;
+  string m_notif;
 
 public:
-  explicit Notify(string TrigName) :
-    transactor<>("Notifier"), m_Trigger(TrigName) { }
+  explicit Notify(string NotifName) :
+    transactor<>("Notifier"), m_notif(NotifName) { }
 
   void operator()(argument_type &T)
   {
-    T.exec("NOTIFY " + m_Trigger);
+    T.exec("NOTIFY " + m_notif);
   }
 
   void on_abort(const char Reason[]) throw ()
@@ -80,14 +81,14 @@ int main()
   try
   {
     lazyconnection C;
-    cout << "Adding trigger..." << endl;
-    TestTrig Trig(C);
+    cout << "Adding listener..." << endl;
+    TestListener L(C);
 
     cout << "Sending notification..." << endl;
-    C.perform(Notify(Trig.name()));
+    C.perform(Notify(L.name()));
 
     int notifs = 0;
-    for (int i=0; (i < 20) && !Trig.Done(); ++i)
+    for (int i=0; (i < 20) && !L.Done(); ++i)
     {
       if (notifs)
 	throw logic_error("Got " + to_string(notifs) + " "
@@ -98,7 +99,7 @@ int main()
     }
     cout << endl;
 
-    if (!Trig.Done())
+    if (!L.Done())
     {
       cout << "No notification received!" << endl;
       return 1;
