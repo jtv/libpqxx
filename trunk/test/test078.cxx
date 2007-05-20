@@ -5,7 +5,7 @@
 #include <pqxx/connection>
 #include <pqxx/transaction>
 #include <pqxx/transactor>
-#include <pqxx/trigger>
+#include <pqxx/notify-listen>
 #include <pqxx/result>
 
 
@@ -13,7 +13,7 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-// Example program for libpqxx.  Send notification to self, using a trigger
+// Example program for libpqxx.  Send notification to self, using a notification
 // name with unusal characters, and without polling.
 //
 // Usage: test078
@@ -22,14 +22,14 @@ using namespace pqxx;
 namespace
 {
 
-// Sample implementation of trigger handler
-class TestTrig : public trigger
+// Sample implementation of notification listener
+class TestListener : public notify_listener
 {
   bool m_Done;
 
 public:
-  explicit TestTrig(connection_base &C, string Name) :
-    trigger(C, Name), m_Done(false)
+  explicit TestListener(connection_base &C, string Name) :
+    notify_listener(C, Name), m_Done(false)
   {
   }
 
@@ -49,18 +49,18 @@ public:
 };
 
 
-// A transactor to trigger our trigger handler
+// A transactor to trigger our notification listener
 class Notify : public transactor<>
 {
-  string m_Trigger;
+  string m_notif;
 
 public:
-  explicit Notify(string TrigName) :
-    transactor<>("Notifier"), m_Trigger(TrigName) { }
+  explicit Notify(string NotifName) :
+    transactor<>("Notifier"), m_notif(NotifName) { }
 
   void operator()(argument_type &T)
   {
-    T.exec("NOTIFY \"" + m_Trigger + "\"");
+    T.exec("NOTIFY \"" + m_notif + "\"");
   }
 
   void on_abort(const char Reason[]) throw ()
@@ -82,16 +82,16 @@ int main()
 {
   try
   {
-    const string TrigName = "my trigger";
+    const string NotifName = "my listener";
     connection C;
-    cout << "Adding trigger..." << endl;
-    TestTrig Trig(C, TrigName);
+    cout << "Adding listener..." << endl;
+    TestListener L(C, NotifName);
 
     cout << "Sending notification..." << endl;
-    C.perform(Notify(Trig.name()));
+    C.perform(Notify(L.name()));
 
     int notifs = 0;
-    for (int i=0; (i < 20) && !Trig.Done(); ++i)
+    for (int i=0; (i < 20) && !L.Done(); ++i)
     {
       if (notifs)
 	throw logic_error("Got " + to_string(notifs) + " "
@@ -101,7 +101,7 @@ int main()
     }
     cout << endl;
 
-    if (!Trig.Done())
+    if (!L.Done())
     {
       cout << "No notification received!" << endl;
       return 1;

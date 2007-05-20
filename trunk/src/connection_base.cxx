@@ -49,7 +49,7 @@
 #include "pqxx/pipeline"
 #include "pqxx/result"
 #include "pqxx/transaction"
-#include "pqxx/trigger"
+#include "pqxx/notify-listen"
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -297,21 +297,21 @@ void pqxx::connection_base::SetupState()
 
   InternalSetTrace();
 
-  if (!m_Triggers.empty() || !m_Vars.empty())
+  if (!m_listeners.empty() || !m_Vars.empty())
   {
     stringstream restore_query;
 
-    // Pipeline all queries needed to restore triggers and variables, so we can
+    // Pipeline all queries needed to restore listeners and variables, so we can
     // send them over in one go.
 
-    // Reinstate all active triggers
-    if (!m_Triggers.empty())
+    // Reinstate all active listeners
+    if (!m_listeners.empty())
     {
-      const TriggerList::const_iterator End = m_Triggers.end();
+      const listenerlist::const_iterator End = m_listeners.end();
       string Last;
-      for (TriggerList::const_iterator i = m_Triggers.begin(); i != End; ++i)
+      for (listenerlist::const_iterator i = m_listeners.begin(); i != End; ++i)
       {
-        // m_Triggers can handle multiple Triggers waiting on the same event;
+        // m_listeners can handle multiple listeners waiting on the same event;
         // issue just one LISTEN for each event.
         if (i->first != Last)
         {
@@ -556,15 +556,15 @@ void pqxx::connection_base::trace(FILE *Out) throw ()
 }
 
 
-void pqxx::connection_base::AddTrigger(pqxx::trigger *T)
+void pqxx::connection_base::add_listener(pqxx::notify_listener *T)
 {
-  if (!T) throw invalid_argument("Null trigger registered");
+  if (!T) throw invalid_argument("Null listener registered");
 
-  // Add to triggers list and attempt to start listening.
-  const TriggerList::iterator p = m_Triggers.find(T->name());
-  const TriggerList::value_type NewVal(T->name(), T);
+  // Add to listener list and attempt to start listening.
+  const listenerlist::iterator p = m_listeners.find(T->name());
+  const listenerlist::value_type NewVal(T->name(), T);
 
-  if (p == m_Triggers.end())
+  if (p == m_listeners.end())
   {
     // Not listening on this event yet, start doing so.
     const string LQ("LISTEN \"" + T->name() + "\"");
@@ -581,41 +581,41 @@ void pqxx::connection_base::AddTrigger(pqxx::trigger *T)
     catch (const broken_connection &)
     {
     }
-    m_Triggers.insert(NewVal);
+    m_listeners.insert(NewVal);
   }
   else
   {
-    m_Triggers.insert(p, NewVal);
+    m_listeners.insert(p, NewVal);
   }
 
 }
 
 
-void pqxx::connection_base::RemoveTrigger(pqxx::trigger *T) throw ()
+void pqxx::connection_base::remove_listener(pqxx::notify_listener *T) throw ()
 {
   if (!T) return;
 
   try
   {
     // Keep Sun compiler happy...  Hope it doesn't annoy other compilers
-    pair<const string, trigger *> tmp_pair(T->name(), T);
-    TriggerList::value_type E = tmp_pair;
+    pair<const string, notify_listener *> tmp_pair(T->name(), T);
+    listenerlist::value_type E = tmp_pair;
 
-    typedef pair<TriggerList::iterator, TriggerList::iterator> Range;
-    Range R = m_Triggers.equal_range(E.first);
+    typedef pair<listenerlist::iterator, listenerlist::iterator> Range;
+    Range R = m_listeners.equal_range(E.first);
 
-    const TriggerList::iterator i = find(R.first, R.second, E);
+    const listenerlist::iterator i = find(R.first, R.second, E);
 
     if (i == R.second)
     {
-      process_notice("Attempt to remove unknown trigger '" + E.first + "'");
+      process_notice("Attempt to remove unknown listener '" + E.first + "'");
     }
     else
     {
-      // Erase first; otherwise a notification for the same trigger may yet come
-      // in and wreak havoc.  Thanks Dragan Milenkovic.
+      // Erase first; otherwise a notification for the same listener may yet
+      // come in and wreak havoc.  Thanks Dragan Milenkovic.
       const bool gone = (m_Conn && (R.second == ++R.first));
-      m_Triggers.erase(i);
+      m_listeners.erase(i);
       if (gone) Exec(("UNLISTEN \"" + T->name() + "\"").c_str(), 0);
     }
   }
@@ -651,11 +651,11 @@ int pqxx::connection_base::get_notifs()
 
   for (PQAlloc<PGnotify> N( PQnotifies(m_Conn) ); N; N = PQnotifies(m_Conn))
   {
-    typedef TriggerList::iterator TI;
+    typedef listenerlist::iterator TI;
 
     notifs++;
 
-    pair<TI, TI> Hit = m_Triggers.equal_range(string(N->relname));
+    pair<TI, TI> Hit = m_listeners.equal_range(string(N->relname));
     for (TI i = Hit.first; i != Hit.second; ++i) try
     {
       (*i->second)(N->be_pid);
@@ -664,7 +664,7 @@ int pqxx::connection_base::get_notifs()
     {
       try
       {
-        process_notice("Exception in trigger handler '" +
+        process_notice("Exception in notification listener '" +
 		       i->first +
 		       "': " +
 		       e.what() +
@@ -673,12 +673,12 @@ int pqxx::connection_base::get_notifs()
       catch (const bad_alloc &)
       {
         // Out of memory.  Try to get the message out in a more robust way.
-        process_notice("Exception in trigger handler, "
+        process_notice("Exception in notification listener, "
 	    "and also ran out of memory\n");
       }
       catch (const exception &)
       {
-        process_notice("Exception in trigger handler "
+        process_notice("Exception in notification listener "
 	    "(compounded by other error)\n");
       }
     }
@@ -1028,10 +1028,10 @@ void pqxx::connection_base::close() throw ()
       process_notice("Closing connection while " +
 	             m_Trans.get()->description() + " still open");
 
-    if (!m_Triggers.empty())
+    if (!m_listeners.empty())
     {
-      process_notice("Closing connection with outstanding triggers");
-      m_Triggers.clear();
+      process_notice("Closing connection with outstanding listeners");
+      m_listeners.clear();
     }
 
     m_Conn = m_policy.do_disconnect(m_Conn);

@@ -40,7 +40,7 @@ namespace pqxx
 {
 class result;
 class transaction_base;
-class trigger;
+class notify_listener;
 class connectionpolicy;
 
 namespace internal
@@ -346,7 +346,7 @@ public:
    *
    * Please try to stay away from this function.  It is really only meant for
    * event loops that need to wait on more than one file descriptor.  If all you
-   * need is to block until a trigger notification arrives, for instance, use
+   * need is to block until a notification arrives, for instance, use
    * await_notification().  If you want to issue queries and retrieve results in
    * nonblocking fashion, check out the pipeline class.
    *
@@ -487,26 +487,26 @@ public:
 
 
   /**
-   * @name Notifications and Triggers
+   * @name Notifications and Listeners
    */
   //@{
-  /// Check for pending trigger notifications and take appropriate action.
+  /// Check for pending notifications and take appropriate action.
   /**
    * All notifications found pending at call time are processed by finding
-   * any matching triggers and invoking those.  If no triggers matched the
+   * any matching listeners and invoking those.  If no listeners matched the
    * notification string, none are invoked but the notification is considered
    * processed.
    *
-   * Exceptions thrown by client-registered trigger handlers are reported using
-   * the connection's message noticer, but the exceptions themselves are not
-   * passed on outside this function.
+   * Exceptions thrown by client-registered listeners handlers are reported
+   * using the connection's message noticer, but the exceptions themselves are
+   * not passed on outside this function.
    *
    * @return Number of notifications processed
    */
   int get_notifs();							//[t4]
 
 
-  /// Wait for a trigger notification notification to come in
+  /// Wait for a notification to come in
   /** The wait may also be terminated by other events, such as the connection
    * to the backend failing.  Any pending or received notifications are
    * processed as part of the call.
@@ -515,7 +515,7 @@ public:
    */
   int await_notification();						//[t78]
 
-  /// Wait for a trigger notification to come in, or for given timeout to pass
+  /// Wait for a notification to come in, or for given timeout to pass
   /** The wait may also be terminated by other events, such as the connection
    * to the backend failing.  Any pending or received notifications are
    * processed as part of the call.
@@ -746,9 +746,9 @@ private:
   /// File to trace to, if any
   FILE *m_Trace;
 
-  typedef PGSTD::multimap<PGSTD::string, pqxx::trigger *> TriggerList;
-  /// Triggers this session is listening on
-  TriggerList m_Triggers;
+  typedef PGSTD::multimap<PGSTD::string, pqxx::notify_listener *> listenerlist;
+  /// Notifications this session is listening on
+  listenerlist m_listeners;
 
   /// Variables set in this session
   PGSTD::map<PGSTD::string, PGSTD::string> m_Vars;
@@ -794,9 +794,9 @@ private:
   friend class largeobject;
   internal::pq::PGconn *RawConnection() const { return m_Conn; }
 
-  friend class trigger;
-  void AddTrigger(trigger *);
-  void RemoveTrigger(trigger *) throw ();
+  friend class notify_listener;
+  void add_listener(notify_listener *);
+  void remove_listener(notify_listener *) throw ();
 
   friend class pipeline;
   bool PQXX_PRIVATE consume_input() throw ();

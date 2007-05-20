@@ -1,10 +1,11 @@
 2.6.10
  - More helpful error messages on failed connections
+ - trigger is now called notify_listener, trigger header is now notify-listen
  - New mixin base class pqxx_exception distinguishes libpqxx exception types
  - Several build problems with Visual C++ fixed
  - Uses strlcpy() where available, instead of strncpy()
  - Keeps better track of applicable text encodings
- - Compile fix for gcc 4.3
+ - Compile fix for gcc 4.2
  - Fixed bug with prepared statement parameters in separate C++ statements
  - robusttransaction now works for multiple users
 2.6.9

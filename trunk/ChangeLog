@@ -1,3 +1,16 @@
+2007-05-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Added some warning options for g++ 4.2.0
+ doc/libpqxx.xml, include/pqxx/connection_base.hxx, include/pqxx/pqx,
+ src/connection_base.cxx, test/test004.cxx, test/test023.cxx,
+ test/test078.cxx, test/test079.cxx, test/test087.cxx:
+  - Renamed trigger to notify_listener
+ include/pqxx/notify-listen, include/pqxx/notify-listen.hxx:
+  - New
+ include/pqxx/trigger, include/pqxx/trigger.hxx:
+  - Marked as obsolete
+ VERSION:
+  - Proceeding to 3.0.0
 2007-05-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx:
   - More explanation, particularly on exceptions.  Thanks Gary Jefferson.
