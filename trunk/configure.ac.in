@@ -82,6 +82,7 @@ if test "$GCC" = "yes" ; then
 			-Wno-div-by-zero \
 			-ffor-scope \
 			-fstrict-aliasing \
+			-Wstrict-aliasing \
 			-funit-at-a-time \
 			-pedantic \
 			-fno-nonansi-builtins \
@@ -97,7 +98,11 @@ if test "$GCC" = "yes" ; then
 			-Wcast-align  \
 			-Wconversion \
 			-Wctor-dtor-privacy \
+			-Wc++-compat \
 			-Wendif-labels \
+			-Wlogical-op \
+			-Woverlength-strings \
+			-Wpointer-sign \
 			-Wredundant-decls \
 			-Wsign-compare \
 			-Wwrite-strings  \
