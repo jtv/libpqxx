@@ -1,4 +1,4 @@
-2.6.10
+3.0.0
  - More helpful error messages on failed connections
  - trigger is now called notify_listener, trigger header is now notify-listen
  - New mixin base class pqxx_exception distinguishes libpqxx exception types
