@@ -4,7 +4,7 @@ Version: @VERSION@
 Release: 1
 License: LGPL
 Group: Development/Libraries
-Source: ftp://thaiopensource.org/software/libpqxx/libpqxx-%{version}.tar.gz
+Source: ftp://pqxx.org/software/libpqxx/libpqxx-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 URL: http://pqxx.org/
 Vendor:    Andromeda Technology & Automation

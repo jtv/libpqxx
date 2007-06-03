@@ -1,3 +1,9 @@
+2007-06-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx, libpqxx.spec.in, NEWS, README:
+  - The thaiopensource.org hostname no longer works; it's now pqxx.org
+2007-05-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.hxx:
+  - Fixed some raw HTML that was showing up wrong in docs, thanks Trigve Siver
 2007-05-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Added some warning options for g++ 4.2.0

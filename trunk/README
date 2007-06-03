@@ -8,11 +8,7 @@ libpq, though this fact is almost completely hidden from programs that use
 libpqxx.
 
 Further information, as well as updates, a mailing list, and a bug reporting
-system can be found at any of these URLs (they should all bring you to the same
-site):
-
-	http://pqxx.org/
-	http://thaiopensource.org/development/libpqxx/
+system can be found at http://pqxx.org/
 
 There are also ready-made libpqxx packages available for several systems: Debian
 packages are available on any Debian download mirror, Mark Round maintains a
@@ -431,7 +427,7 @@ Doxygen		http://www.stack.nl/~dimitri/doxygen/
 gcc		http://gcc.gnu.org/
 Google		http://www.google.com/
 libpq		http://candle.pha.pa.us/main/writings/pgsql/sgml/libpq.html
-libpqxx		http://thaiopensource.org/development/libpqxx/
+libpqxx		http://pqxx.org/
 Linux		http://www.linux.org/
 MinGW		http://www.mingw.org/
 OpenSSL		http://www.openssl.org/
