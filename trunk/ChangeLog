@@ -1,4 +1,6 @@
 2007-06-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/Makefile.am:
+  - Added notify-listen headers
  tools/preprelease:
   - Print errors to stderr
 2007-06-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
