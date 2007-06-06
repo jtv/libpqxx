@@ -70,6 +70,12 @@ log () {
 	print
 }
 
+error () {
+	print "$1"
+	echo "$1" >&2
+	exit 1
+}
+
 command () {
 	print "$ $1"
 	$2 $1 >>$LOGFILE 2>>$ERRLOG
@@ -129,7 +135,7 @@ PQXXVERSION=`grep '\<PQXXVERSION\>' VERSION | sed -e 's/^[[:space:]A-Z_]*//' | s
 log "Seeing if debian/changelog is up to date..."
 if ! head -n 1 debian/changelog | grep "($PQXXVERSION-" >/dev/null
 then
-	echo "Please update debian/changelog to mention version $PQXXVERSION"
+	error "Please update debian/changelog to mention version $PQXXVERSION"
 	exit 1
 fi
 
@@ -137,7 +143,7 @@ fi
 log "Seeing if NEWS is up to date..."
 if ! head -n 1 NEWS | grep "^$PQXXVERSION[[:space:]]*$"
 then
-	echo "Please update NEWS to describe $PQXXVERSION release"
+	error "Please update NEWS to describe $PQXXVERSION release"
 	exit 1
 fi
 
@@ -159,7 +165,7 @@ findhdr pqxx/compiler-internal-pre.hxx -l include/pqxx/* >"$PREFILES"
 if ! findhdr pqxx/compiler-internal-post.hxx -l include/pqxx/* | \
 	diff "$PREFILES" - ; \
 	then
-	echo "Mismatched compiler-internal-pre/post headers"
+	error "Mismatched compiler-internal-pre/post headers"
 	rm -f -- "$PREFILES"
 	exit 1
 fi
