@@ -16,6 +16,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/largeobject pqxx/largeobject.hxx \
 	pqxx/libpq-forward.hxx \
 	pqxx/nontransaction pqxx/nontransaction.hxx \
+	pqxx/notify-listen pqxx/notify-listen.hxx \
 	pqxx/pipeline pqxx/pipeline.hxx \
 	pqxx/prepared_statement pqxx/prepared_statement.hxx \
 	pqxx/result pqxx/result.hxx \
