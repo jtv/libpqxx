@@ -19,7 +19,7 @@
 
 namespace pqxx
 {
-/// @obsolete The trigger class from libpqxx 1.x/2.x is now notify_listener.
+/// @deprecated The trigger class from libpqxx 1.x/2.x is now notify_listener.
 typedef notify_listener trigger;
 }
 

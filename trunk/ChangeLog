@@ -1,3 +1,6 @@
+2007-06-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/trigger.hxx:
+  - Fixed wrong doxygen tag
 2007-06-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/Makefile.am:
   - Added notify-listen headers
