@@ -147,7 +147,7 @@ private:
 namespace internal
 {
 /// Internal representation of a prepared statement definition
-struct PQXX_PRIVATE prepared_def
+struct PQXX_LIBEXPORT prepared_def
 {
   /// Parameter definition
   struct param
