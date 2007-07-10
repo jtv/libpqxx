@@ -1,3 +1,6 @@
+2007-07-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/prepared_statement.hxx:
+  - Exported prepared_def, thanks Daniel Frey
 2007-06-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/trigger.hxx:
   - Fixed wrong doxygen tag
