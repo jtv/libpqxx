@@ -122,9 +122,9 @@ inline char escapechar(char i)
   return r;
 }
 
-inline bool ishigh(char i)
+inline bool unprintable(char i)
 {
-  return (i & 0x80) != 0;
+  return i < ' ' || i > '~';
 }
 
 inline char tooctdigit(unsigned int i, int n)
@@ -152,7 +152,7 @@ string pqxx::internal::Escape(const string &s, const string &null)
       R += '\\';
       R += e;
     }
-    else if (ishigh(c))
+    else if (unprintable(c))
     {
       R += '\\';
       unsigned char u=c;

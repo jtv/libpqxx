@@ -1,3 +1,6 @@
+2007-07-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/tablewriter.cxx:
+  - Fix for escaping binary data in COPY mode, thanks Peter Schuller
 2007-07-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/prepared_statement.hxx:
   - Exported prepared_def, thanks Daniel Frey
