@@ -10,6 +10,7 @@
  - Compile fix for gcc 4.2
  - Fixed bug with prepared statement parameters in separate C++ statements
  - robusttransaction now works for multiple users
+ - Fixed broken escaping of binary values in TableWriter
 2.6.9
  - Removed old 1.x API (that means all identifiers with capital letters!)
  - Tested with all current libpq versions and oldest/newest supported backends
