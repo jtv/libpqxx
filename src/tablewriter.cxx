@@ -154,7 +154,7 @@ string pqxx::internal::Escape(const string &s, const string &null)
     }
     else if (unprintable(c))
     {
-      R += '\\';
+      R += "\\\\";
       unsigned char u=c;
       for (int n=2; n>=0; --n) R += tooctdigit(u,n);
     }

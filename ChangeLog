@@ -2,6 +2,8 @@
  README:
   - Documented PGPASSWORD, thanks Andrew Maclean
   - Documented how to set environment variables, thanks Andrew Maclean
+ src/tablewriter.cxx:
+  - Double-escape binary data, thanks Peter Schuller
  win32/INSTALL.txt:
   - Documented how to create Windows makefiles, thanks Andrew Maclean
 2007-07-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
