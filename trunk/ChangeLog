@@ -1,3 +1,9 @@
+2007-07-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ README:
+  - Documented PGPASSWORD, thanks Andrew Maclean
+  - Documented how to set environment variables, thanks Andrew Maclean
+ win32/INSTALL.txt:
+  - Documented how to create Windows makefiles, thanks Andrew Maclean
 2007-07-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/tablewriter.cxx:
   - Fix for escaping binary data in COPY mode, thanks Peter Schuller
