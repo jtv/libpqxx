@@ -148,12 +148,27 @@ description above):
 	PGHOST		(database server; defaults to local machine)
 	PGPORT		(PostgreSQL port to connect to; default is 5432)
 	PGUSER		(your PostgreSQL user ID; defaults to your login name)
+	PGPASSWORD	(your PostgreSQL password, if needed)
 
 Further environment variables that may be of use to you are documented in the
 libpq documentation and in the manpage for Postgres' command-line client, psql.
 
+Setting environment variables works differently depending on your shell, but
+try (preferably in this order):
+    export VARIABLE=value
+or
+    VARIABLE=value
+    export VARIABLE
+or
+    set VARIABLE=value
+
+Try printing the variable afterwards to make sure.  The command is normally
+    echo $VARIABLE
+and, if you set the variable successfully, should print the value you assigned.
+It will print nothing if you failed to set the variable.
+
 Should you have trouble finding the socket for a database running locally on a
-Unix socket, try locating the socket in the filesystem.  This should appear as a
+Unix socket, try locating the socket in the filesystem.  It should appear as a
 "file" called .s.PGSQL.5432 (if you are new to Unix-like systems, be warned that
 files whose name start with a dot are not displayed by default).  Set PGHOST to
 the directory where this "file" resides, as an absolute path--e.g. "/tmp".  On
