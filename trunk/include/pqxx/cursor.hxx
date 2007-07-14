@@ -428,7 +428,7 @@ private:
     }
   }
 
-  cursor_base::difference_type m_pos;
+  difference_type m_pos;
   cursor_base::size_type m_size;
   bool m_size_known;
 };
@@ -571,9 +571,8 @@ private:
  * stream.
  *
  * The stream's stride defines the granularity for all iterator movement or
- * access operations, i.e. "ici += 1" advances the stream by one
- * stride's worth of tuples, and "*ici++" reads one stride's worth of tuples
- * from the stream.
+ * access operations, i.e. "ici += 1" advances the stream by one stride's worth
+ * of tuples, and "*ici++" reads one stride's worth of tuples from the stream.
  *
  * @warning Do not read from the underlying stream or its cursor, move its read
  * position, or change its stride, between the time the first icursor_iterator
