@@ -1,3 +1,6 @@
+2007-07-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.hxx, src/cursor.cxx, test/test043.cxx:
+  - Use difference_type instead of size_type to indicate positions
 2007-07-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  README:
   - Documented PGPASSWORD, thanks Andrew Maclean

@@ -27,7 +27,7 @@ using namespace pqxx;
 namespace
 {
 
-void ExpectPos(abscursor &C, cursor_base::size_type Pos)
+void ExpectPos(abscursor &C, cursor_base::difference_type Pos)
 {
   if (C.pos() != Pos)
     throw logic_error("Expected to find cursor at " + to_string(Pos) + ", "
@@ -37,16 +37,17 @@ void ExpectPos(abscursor &C, cursor_base::size_type Pos)
 
 void MoveTo(abscursor &C,
 	cursor_base::difference_type N,
-	cursor_base::size_type NewPos)
+	cursor_base::difference_type NewPos)
 {
-  const result::size_type OldPos = C.pos();
+  const result::difference_type OldPos = C.pos();
   cursor_base::difference_type rows = 0;
+  cout << "Moving " << N << " row(s) from position " << OldPos << endl;
   C.move(N, rows);
+  ExpectPos(C, NewPos);
   if (OldPos + rows != NewPos)
     throw logic_error("Inconsistent move: " + to_string(rows) + " rows "
 	              "from " + to_string(OldPos) + " "
 		      "got us to " + to_string(NewPos));
-  ExpectPos(C, NewPos);
 }
 
 }
