@@ -245,22 +245,12 @@ template<> void
 
 inline cursor_base::difference_type cursor_base::all() throw ()
 {
-  // Microsoft Visual C++ sabotages numeric_limits by defining min() and max()
-  // as preprocessor macros; some other compilers just don't have numeric_limits
-#if defined(PQXX_HAVE_LIMITS)
-  return PGSTD::numeric_limits<difference_type>::max();
-#else
-  return INT_MAX;
-#endif
+  return INT_MAX-1;
 }
 
 inline cursor_base::difference_type cursor_base::backward_all() throw ()
 {
-#if defined(PQXX_HAVE_LIMITS)
-  return PGSTD::numeric_limits<difference_type>::min() + 1;
-#else
   return INT_MIN + 1;
-#endif
 }
 
 
@@ -415,14 +405,14 @@ public:
     return r;
   }
 
-  size_type pos() const throw () { return m_pos; }			//[t91]
+  difference_type pos() const throw () { return m_pos; }		//[t91]
 
   difference_type move_to(cursor_base::size_type to)			//[t91]
-	{ return move(difference_type(to)-difference_type(pos())); }
+	{ return move(difference_type(to)-pos()); }
 
   difference_type move_to(cursor_base::size_type to,			//[t91]
 	cursor_base::difference_type &d)
-	{ return move(difference_type(to)-difference_type(pos()), d); }
+	{ return move(difference_type(to)-pos(), d); }
 private:
   /// Set result size if appropriate, given requested and actual displacement
   void digest(cursor_base::difference_type req,
@@ -438,7 +428,7 @@ private:
     }
   }
 
-  cursor_base::size_type m_pos;
+  cursor_base::difference_type m_pos;
   cursor_base::size_type m_size;
   bool m_size_known;
 };
@@ -523,7 +513,7 @@ public:
    * stride, inclusive.  An empty result will only be returned if there are no
    * more rows to retrieve.
    * @return Reference to this very stream, to facilitate "chained" invocations
-   * (<tt>C.get(r1).get(r2);</tt>)
+   * ("C.get(r1).get(r2);")
    */
   icursorstream &get(result &res) { res = fetchblock(); return *this; }	//[t81]
   /// Read new value into given result object; same as get(result &)
@@ -531,13 +521,13 @@ public:
    * stride, inclusive.  An empty result will only be returned if there are no
    * more rows to retrieve.
    * @return Reference to this very stream, to facilitate "chained" invocations
-   * (<tt>C >> r1 >> r2;</tt>)
+   * ("C >> r1 >> r2;")
    */
   icursorstream &operator>>(result &res) { return get(res); }		//[t81]
   /// Move given number of rows forward (ignoring stride) without reading data
   /**
    * @return Reference to this very stream, to facilitate "chained" invocations
-   * (<tt>C.ignore(2).get(r).ignore(4);</tt>)
+   * ("C.ignore(2).get(r).ignore(4);")
    */
   icursorstream &ignore(PGSTD::streamsize n=1);				//[t81]
 
@@ -556,10 +546,10 @@ private:
   void insert_iterator(icursor_iterator *) throw ();
   void remove_iterator(icursor_iterator *) const throw ();
 
-  void service_iterators(size_type);
+  void service_iterators(difference_type);
 
   difference_type m_stride;
-  size_type m_realpos, m_reqpos;
+  difference_type m_realpos, m_reqpos;
 
   mutable icursor_iterator *m_iterators;
 };
@@ -581,9 +571,9 @@ private:
  * stream.
  *
  * The stream's stride defines the granularity for all iterator movement or
- * access operations, i.e. "<tt>ici += 1</tt>" advances the stream by one
- * stride's worth of tuples, and "<tt>*ici++</tt>" reads one stride's worth of
- * tuples from the stream.
+ * access operations, i.e. "ici += 1" advances the stream by one
+ * stride's worth of tuples, and "*ici++" reads one stride's worth of tuples
+ * from the stream.
  *
  * @warning Do not read from the underlying stream or its cursor, move its read
  * position, or change its stride, between the time the first icursor_iterator
@@ -632,12 +622,12 @@ private:
   void refresh() const;
 
   friend class icursorstream;
-  size_type pos() const throw () { return m_pos; }
+  difference_type pos() const throw () { return m_pos; }
   void fill(const result &);
 
   icursorstream *m_stream;
   result m_here;
-  size_type m_pos;
+  difference_type m_pos;
   icursor_iterator *m_prev, *m_next;
 };
 

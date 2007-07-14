@@ -340,11 +340,11 @@ void pqxx::icursorstream::remove_iterator(icursor_iterator *i) const throw ()
 }
 
 
-void pqxx::icursorstream::service_iterators(size_type topos)
+void pqxx::icursorstream::service_iterators(difference_type topos)
 {
   if (topos < m_realpos) return;
 
-  typedef multimap<size_type,icursor_iterator*> todolist;
+  typedef multimap<difference_type,icursor_iterator*> todolist;
   todolist todo;
   for (icursor_iterator *i = m_iterators; i; i = i->m_next)
     if (i->m_pos >= m_realpos && i->m_pos <= topos)
@@ -352,7 +352,7 @@ void pqxx::icursorstream::service_iterators(size_type topos)
   const todolist::const_iterator todo_end(todo.end());
   for (todolist::const_iterator i = todo.begin(); i != todo_end; )
   {
-    const size_type readpos = i->first;
+    const difference_type readpos = i->first;
     if (readpos > m_realpos) ignore(readpos - m_realpos);
     const result r = fetchblock();
     for ( ; i != todo_end && i->first == readpos; ++i)
