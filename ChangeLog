@@ -1,4 +1,6 @@
 2007-08-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/util.cxx:
+  - Convert float types with full precision, thanks Denis Dzyubenko
  win32/INSTALL.txt:
   - Don't use same libpq for debug and release, thanks Peter Geoghegan
 2007-08-08  Jeroen T. Vermeulen <jtv@xs4all.nl>

@@ -4,7 +4,7 @@
  - trigger is now called notify_listener, trigger header is now notify-listen
  - Many nasty corner cases in cursor position accounting fixed
  - New mixin base class pqxx_exception distinguishes libpqxx exception types
- - Several build problems with Visual C++ fixed
+ - Several build & documentation problems with Visual C++ fixed
  - Uses strlcpy() where available, instead of strncpy()
  - Keeps better track of applicable text encodings
  - Compile fix for gcc 4.2
@@ -12,6 +12,7 @@
  - robusttransaction now works for multiple users
  - Fixed broken escaping of binary values in TableWriter
  - Cursor uses difference_type instead of size_type for positions
+ - Floating-point types now represented with full precision
 2.6.9
  - Removed old 1.x API (that means all identifiers with capital letters!)
  - Tested with all current libpq versions and oldest/newest supported backends

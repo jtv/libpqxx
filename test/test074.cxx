@@ -57,13 +57,22 @@ int main(int, char *argv[])
       throw logic_error("to_string(result::field) "
 	  "inconsistent with to_string(const char[])");
 
-    if (to_string(roughpi) != to_string(double(roughpi)))
-      throw logic_error("to_string(float) inconsistent with to_string(double)");
+    float float_pi;
+    from_string(to_string(roughpi), float_pi);
+    if (fabs(float_pi-roughpi) > 0.00001)
+      throw logic_error("Float changes in conversion");
+
+    double double_pi;
+    from_string(to_string(double(roughpi)), double_pi);
+    if (fabs(double_pi-roughpi) > 0.00001)
+      throw logic_error("Double changes in conversion");
+
 #if defined(PQXX_HAVE_LONG_DOUBLE)
     const long double ld = roughpi;
-    if (to_string(roughpi) != to_string(ld))
-      throw logic_error("to_string(float) "
-	  "inconsistent with to_string(long double)");
+    long double long_double_pi;
+    from_string(to_string(ld), long_double_pi);
+    if (fabs(long_double_pi-roughpi) > 0.00001)
+      throw logic_error("Long double changes in conversion");
 #endif
   }
   catch (const sql_error &e)
