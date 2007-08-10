@@ -60,16 +60,21 @@ Preparing to Compile libpqxx
 Before you can build libpqxx you need to provide certain common settings.
 
   i) Copy win32/common-sample to win32/common, and edit the latter to reflect
-    the paths to your PostgreSQL includes and library files.  On Windows these
-    may differ from one person's system to another, but if you compiled
-    PostgreSQL for yourself to obtain libpq, simply set the PGSQLSRC in
+    the paths to your PostgreSQL includes and library files.
+    On Windows these may differ from one person's system to another, but if you
+    compiled PostgreSQL for yourself to obtain libpq, simply set the PGSQLSRC in
     win32/common to point to the "src" subdirectory in your PostgreSQL source
-    tree.  You may also have to edit the LIBPATH1 and LIBPATH2 variables to
-    point to where your actual libpq library is.  There are two of these because
+    tree.
+    You may also have to edit the LIBPATH1 and LIBPATH2 variables to point to
+    where your actual libpq library is.  There are two of these because
     Visual C++ will normally produce two versions ("release" and "debug") of the
     library, and the build procedure may need to find either, depending on which
-    kind of libpqxx build you'll be doing.  If you have only one libpq version,
-    just set LIBPATH1 and LIBPATH2 to name the same directory.
+    kind of libpqxx build you'll be doing.  You can produce a Debug build of
+    libpq by setting the DEBUG variable while building PostgreSQL, e.g.
+    "nmake /f win32.mak DEBUG=1" (leaving this variable unset will produce a
+    Release build).  If you've already built one variety of libpq, be sure to
+    move it out of the way and clean up its object files before you try building
+    another.
 
  ii) If you cannot run the configure script: Create the configuration headers,
     include/pqxx/config-*-*.h.  The easiest start for this is to copy from
