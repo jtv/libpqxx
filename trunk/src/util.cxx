@@ -336,6 +336,7 @@ template<typename T> inline string to_string_fallback(T Obj)
 #ifdef PQXX_HAVE_IMBUE
   S.imbue(locale("C"));
 #endif
+  S.precision(numeric_limits<T>::digits10);
   S << Obj;
   string R;
   S >> R;
