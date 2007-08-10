@@ -1,3 +1,6 @@
+2007-08-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/INSTALL.txt:
+  - Don't use same libpq for debug and release, thanks Peter Geoghegan
 2007-08-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
  win32/INSTALL.txt:
   - Made the bit about copying config headers a bit clearer.
