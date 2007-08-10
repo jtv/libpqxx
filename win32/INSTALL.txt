@@ -48,6 +48,10 @@ To build PostgreSQL with Visual C++, "cd" into the source tree and run:
 	VCVARS32.BAT
 	nmake /f win32.mak
 
+You'll also want to build a Debug-flavour libpq, so add:
+
+	nmake /f win32.mak DEBUG=1
+
 (Instructions for building PostgreSQL with MinGW are given in the MSYS section
 below).
 
@@ -67,14 +71,12 @@ Before you can build libpqxx you need to provide certain common settings.
     tree.
     You may also have to edit the LIBPATH1 and LIBPATH2 variables to point to
     where your actual libpq library is.  There are two of these because
-    Visual C++ will normally produce two versions ("release" and "debug") of the
+    Visual C++ will normally produce two flavours ("release" and "debug") of the
     library, and the build procedure may need to find either, depending on which
-    kind of libpqxx build you'll be doing.  You can produce a Debug build of
-    libpq by setting the DEBUG variable while building PostgreSQL, e.g.
-    "nmake /f win32.mak DEBUG=1" (leaving this variable unset will produce a
-    Release build).  If you've already built one variety of libpq, be sure to
-    move it out of the way and clean up its object files before you try building
-    another.
+    flavour of libpqxx build you'll be doing.  If you only ever use one of these
+    two flavours, ever, you can probably get away by pointing LIBPATH1 and
+    LIBPATH2 to the same directory.  Be prepared for failures if you ever switch
+    flavours later!
 
  ii) If you cannot run the configure script: Create the configuration headers,
     include/pqxx/config-*-*.h.  The easiest start for this is to copy from
@@ -141,7 +143,7 @@ libpqxx (based on description by Alexandre Hanft, 2006-03-06):
     C:\src\postgresql-8.1.3\interfaces\libpq\Release;C:\src\libpqxx\win32\lib
     That is for your Release build.  Do the same for your Debug build, but
     replace that "Release" in there with "Debug" there.
-10) Edit Project Properties, Linker: Additional Dependencies.  Add:
+10) Edit Project Properties, Linker, Input: Additional Dependencies.  Add:
     libpqxx.lib.
 11) Your program should build successfully now.  It may not be ready to run yet,
     because some dynamically loaded libraries are needed when starting your
@@ -290,7 +292,7 @@ to include/pqxx/ and, if you have any problems compiling with those, editing
 them by hand to enable or disable features that appear to be giving you trouble.
 
 
-Shared and Static Libraries, or DLL vs. .LIB
+Shared and Static Libraries, or .DLL vs. .LIB
 
 There are two ways to build the libpqxx library: as a shared library (known
 in the Unix world as a Shared Object or "so," but in the Windows world as a
