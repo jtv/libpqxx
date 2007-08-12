@@ -73,10 +73,7 @@ Before you can build libpqxx you need to provide certain common settings.
     where your actual libpq library is.  There are two of these because
     Visual C++ will normally produce two flavours ("release" and "debug") of the
     library, and the build procedure may need to find either, depending on which
-    flavour of libpqxx build you'll be doing.  If you only ever use one of these
-    two flavours, ever, you can probably get away by pointing LIBPATH1 and
-    LIBPATH2 to the same directory.  Be prepared for failures if you ever switch
-    flavours later!
+    flavour of libpqxx build you'll be doing.
 
  ii) If you cannot run the configure script: Create the configuration headers,
     include/pqxx/config-*-*.h.  The easiest start for this is to copy from
