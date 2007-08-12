@@ -1,5 +1,8 @@
 2007-08-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
- win32/INSTALL.txt: Yet more clarificatin, thanks Peter Geoghegan
+ src/util.cxx:
+  - Guess float precision if no numeric_limits, thanks Denis Dzyubenko
+ win32/INSTALL.txt:
+  - Yet more clarificatin, thanks Peter Geoghegan
 2007-08-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/util.cxx:
   - Convert float types with full precision, thanks Denis Dzyubenko
