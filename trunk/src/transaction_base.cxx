@@ -8,7 +8,7 @@
  *   pqxx::transaction_base defines the interface for any abstract class that
  *   represents a database transaction
  *
- * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -326,12 +326,7 @@ void pqxx::transaction_base::End() throw ()
     try { abort(); }
     catch (const exception &e) { m_Conn.process_notice(e.what()); }
 
-    const int ra = m_reactivation_avoidance.get();
-    if (ra)
-    {
-      reactivation_avoidance_clear();
-      conn().m_reactivation_avoidance.add(ra);
-    }
+    m_reactivation_avoidance.give_to(conn().m_reactivation_avoidance);
   }
   catch (const exception &e)
   {
