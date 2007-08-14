@@ -48,9 +48,13 @@ To build PostgreSQL with Visual C++, "cd" into the source tree and run:
 	VCVARS32.BAT
 	nmake /f win32.mak
 
-You'll also want to build a Debug-flavour libpq, so add:
+You'll also want to build a Debug-flavour libpq, so then run:
 
 	nmake /f win32.mak DEBUG=1
+
+The libpq binaries will be produced in src/interfaces/libpq/Release and
+src/interface/libpq/Debug, respectively, and the Debug versions will have an
+extra "D" in their names.
 
 (Instructions for building PostgreSQL with MinGW are given in the MSYS section
 below).
@@ -318,7 +322,7 @@ PQXX_PQ_STATIC both when compiling libpqxx and while building your own
 application.
 
 
-Troubleshooting
+Troubleshooting: config headers
 
 The biggest typical problem for Windows/VC++ users is the need to edit the
 configuration headers manually, resulting usually in compile errors, e.g. for
@@ -341,4 +345,15 @@ CAUTION: DO NOT try to unset yes/no configuration items by defining their macros
 to zero.  A value of zero counts as "yes."  If a macro is defined at all, that
 means "yes" (or "true," or "enabled" etc.) regardless of what actual value you
 set.  To disable an item, make sure it is not defined at all.
+
+
+Troubleshooting: linking
+
+When you link your application to libpqxx on Windows, you may also need to link
+to wsock32.lib.  On Visual C++, add these in the compiler user interface under:
+
+Project Properties::Linker::Input::Additional Dependencies
+
+We recommend that you specify libpqxx_static.lib and wsock32.lib there, in that
+order.
 
