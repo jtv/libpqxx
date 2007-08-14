@@ -1,3 +1,6 @@
+2007-08-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/INSTALL.txt:
+  - Solution to application link problems, thanks Peter Geoghegan
 2007-08-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/util.cxx:
   - Guess float precision if no numeric_limits, thanks Denis Dzyubenko
