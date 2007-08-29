@@ -81,6 +81,27 @@ int main()
       if (R[n][0].as<int>() != expected[n])
 	throw logic_error("Expected row no. " + to_string(expected[n]) + ", "
 	    "got " + R[n][0].c_str());
+
+    T2.abort();
+
+    // Auto-abort should only roll back the subtransaction.
+    work T3(C, "T3");
+    subtransaction T3a(T3, "T3a");
+    try
+    {
+      T3a.exec("SELECT * FROM nonexistent_table WHERE nonattribute=0");
+      throw logic_error("Bogus query did not fail");
+    }
+    catch (const sql_error &e)
+    {
+      cout << "(Expected) " << e.what() << endl;
+    }
+    // Subtransaction can only be aborted now, because there was an error.
+    T3a.abort();
+    // We're back in our top-level transaction.  This did not abort.
+    T3.exec("SELECT count(*) FROM pqxxevents");
+    // Make sure we can commit exactly one more level of transaction.
+    T3.commit();
   }
   catch (const sql_error &e)
   {
