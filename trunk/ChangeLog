@@ -1,3 +1,6 @@
+2007-08-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Check for PQdescribePortal()
 2007-08-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test088.cxx:
   - Test error handling in subtransactions, thanks Bert Hubert

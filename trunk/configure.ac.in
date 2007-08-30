@@ -796,6 +796,15 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 AC_MSG_RESULT($pqmblen)
 
 
+AC_MSG_CHECKING([PQdescribePortal()])
+pqdescribeportal=yes
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[return PQdescribePrepared(NULL, "foo");],
+	AC_DEFINE(PQXX_HAVE_PQDESCRIBEPREPARED,1,[Define if libpq has PQdescribePrepared()]),
+	[pqdescribeportal=no]
+)
+AC_MSG_RESULT($pqdescribeportal)
+
 AC_CHECK_HEADER(limits,
 	[AC_DEFINE(PQXX_HAVE_LIMITS, 1, [Define if <limits> exists])])
 
