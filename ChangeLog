@@ -1,3 +1,6 @@
+2007-09-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx:
+  - Made esc() and esc_raw() public
 2007-08-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Check for PQdescribePortal()
