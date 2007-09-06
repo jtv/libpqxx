@@ -9,7 +9,7 @@
  *   represents a database transaction
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction_base instead.
  *
- * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -44,6 +44,8 @@ class transaction_base;
 
 namespace internal
 {
+class lowlevel_cursor;
+
 class PQXX_LIBEXPORT transactionfocus : public virtual namedclass
 {
 public:
@@ -331,7 +333,7 @@ private:
   template<typename T> bool parm_is_null(T) const throw () { return false; }
 
   friend class Cursor;
-  friend class cursor_base;
+  friend class pqxx::internal::lowlevel_cursor;
   void MakeEmpty(result &R) const { m_Conn.MakeEmpty(R); }
 
   friend class internal::transactionfocus;
