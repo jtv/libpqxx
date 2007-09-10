@@ -21,6 +21,7 @@
 #include <cassert>
 #include <cerrno>
 #include <cstdio>
+#include <cstring>
 #include <ctime>
 #include <stdexcept>
 
