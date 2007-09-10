@@ -1,3 +1,6 @@
+2007-09-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/binarystring.cxx, src/connection_base.cxx, src/result.cxx:
+  - Added <cstring> include
 2007-09-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx:
   - Made esc() and esc_raw() public
