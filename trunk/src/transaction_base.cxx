@@ -18,6 +18,7 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
+#include <cstring>
 #include <stdexcept>
 
 #include "pqxx/connection_base"
