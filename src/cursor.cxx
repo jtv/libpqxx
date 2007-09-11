@@ -18,6 +18,7 @@
 #include "pqxx/compiler-internal.hxx"
 
 #include <cstdlib>
+#include <cstring>
 
 #include "pqxx/cursor"
 #include "pqxx/result"
