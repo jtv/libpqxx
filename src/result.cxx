@@ -162,6 +162,11 @@ void pqxx::result::ThrowSQLError(const PGSTD::string &Err,
     case '2':
       throw data_exception(Err, Query);
     case '3':
+      if (strcmp(code,"23001")==0) throw restrict_violation(Err, Query);
+      if (strcmp(code,"23502")==0) throw not_null_violation(Err, Query);
+      if (strcmp(code,"23503")==0) throw foreign_key_violation(Err, Query);
+      if (strcmp(code,"23505")==0) throw unique_violation(Err, Query);
+      if (strcmp(code,"23514")==0) throw check_violation(Err, Query);
       throw integrity_constraint_violation(Err, Query);
     case '4':
       throw invalid_cursor_state(Err, Query);
