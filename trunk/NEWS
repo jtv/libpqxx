@@ -1,6 +1,7 @@
 3.0.0
  - Website is now at http://pqxx.org/ (no redirects)
  - More helpful error messages on failed connections
+ - More detailed hierarchy of constraint-violation exception classes
  - trigger is now called notify_listener, trigger header is now notify-listen
  - Many nasty corner cases in cursor position accounting fixed
  - New mixin base class pqxx_exception distinguishes libpqxx exception types

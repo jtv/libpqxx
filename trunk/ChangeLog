@@ -1,3 +1,13 @@
+2007-11-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/except.hxx, src/result.cxx:
+  - More detailed constraint error classes, thanks Peter Geoghegan
+2007-10-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/libpqxx.xml:
+  - Made the way result objects work clearer, thanks Carlos Moreno
+2007-09-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/cursor.cxx, src/transaction_base.cxx, test/test003.cxx, test/test011.cxx,
+ test/test022.cxx, test/test030.cxx, test/test092.cxx:
+  - Added <cstring> and <cstdlib> includes where missing, thanks Roger Leigh
 2007-09-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/binarystring.cxx, src/connection_base.cxx, src/result.cxx:
   - Added <cstring> include
