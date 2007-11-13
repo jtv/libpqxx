@@ -194,7 +194,10 @@ public:
 class PQXX_LIBEXPORT restrict_violation :
   public integrity_constraint_violation
 {
-  explicit restrict_violation(const PGSTD::string &err,
+public:
+  explicit restrict_violation(const PGSTD::string &err) :
+	integrity_constraint_violation(err) {}
+  restrict_violation(const PGSTD::string &err,
 	const PGSTD::string &Q) :
 	integrity_constraint_violation(err, Q) {}
 };
@@ -202,7 +205,10 @@ class PQXX_LIBEXPORT restrict_violation :
 class PQXX_LIBEXPORT not_null_violation :
   public integrity_constraint_violation
 {
-  explicit not_null_violation(const PGSTD::string &err,
+public:
+  explicit not_null_violation(const PGSTD::string &err) :
+	integrity_constraint_violation(err) {}
+  not_null_violation(const PGSTD::string &err,
 	const PGSTD::string &Q) :
 	integrity_constraint_violation(err, Q) {}
 };
@@ -210,7 +216,10 @@ class PQXX_LIBEXPORT not_null_violation :
 class PQXX_LIBEXPORT foreign_key_violation :
   public integrity_constraint_violation
 {
-  explicit foreign_key_violation(const PGSTD::string &err,
+public:
+  explicit foreign_key_violation(const PGSTD::string &err) :
+	integrity_constraint_violation(err) {}
+  foreign_key_violation(const PGSTD::string &err,
 	const PGSTD::string &Q) :
 	integrity_constraint_violation(err, Q) {}
 };
@@ -218,7 +227,10 @@ class PQXX_LIBEXPORT foreign_key_violation :
 class PQXX_LIBEXPORT unique_violation :
   public integrity_constraint_violation
 {
-  explicit unique_violation(const PGSTD::string &err,
+public:
+  explicit unique_violation(const PGSTD::string &err) :
+	integrity_constraint_violation(err) {}
+  unique_violation(const PGSTD::string &err,
 	const PGSTD::string &Q) :
 	integrity_constraint_violation(err, Q) {}
 };
@@ -226,7 +238,10 @@ class PQXX_LIBEXPORT unique_violation :
 class PQXX_LIBEXPORT check_violation :
   public integrity_constraint_violation
 {
-  explicit check_violation(const PGSTD::string &err,
+public:
+  explicit check_violation(const PGSTD::string &err) :
+	integrity_constraint_violation(err) {}
+  check_violation(const PGSTD::string &err,
 	const PGSTD::string &Q) :
 	integrity_constraint_violation(err, Q) {}
 };
