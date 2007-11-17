@@ -1023,6 +1023,11 @@
       </programlisting>
 
       <para>
+	This executes a query on the database, collects all matching data, and
+	stores it in the form of a <literal>result</literal>.
+      </para>
+
+      <para>
 	Two ways are provided to get at individual rows in a
 	<literal>result</literal>: first, through indexing with the array
 	index operator <literal>[]</literal> or the <function>at</function>
