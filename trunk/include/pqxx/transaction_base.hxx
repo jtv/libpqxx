@@ -333,6 +333,7 @@ private:
   template<typename T> bool parm_is_null(T) const throw () { return false; }
 
   friend class Cursor;
+  friend class cursor_base;
   friend class pqxx::internal::lowlevel_cursor;
   void MakeEmpty(result &R) const { m_Conn.MakeEmpty(R); }
 
