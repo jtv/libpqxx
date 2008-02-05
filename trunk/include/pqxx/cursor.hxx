@@ -245,12 +245,20 @@ template<> void
 
 inline cursor_base::difference_type cursor_base::all() throw ()
 {
+#ifdef PQXX_HAVE_LIMITS
+  return PGSTD::numeric_limits<int>::max()-1;
+#else
   return INT_MAX-1;
+#endif
 }
 
 inline cursor_base::difference_type cursor_base::backward_all() throw ()
 {
-  return INT_MIN + 1;
+#ifdef PQXX_HAVE_LIMITS
+  return PGSTD::numeric_limits<int>::min()+1;
+#else
+  return INT_MIN+1;
+#endif
 }
 
 
