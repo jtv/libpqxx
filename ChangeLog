@@ -1,3 +1,6 @@
+2008-02-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.hxx:
+  - <limits> fix for gcc 3.4, thanks Richard B. Kreckel
 2007-11-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/except.hxx, src/result.cxx:
   - More detailed constraint error classes, thanks Peter Geoghegan
