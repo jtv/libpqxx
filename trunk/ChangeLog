@@ -1,6 +1,5 @@
 2008-04-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/pqxx-fulltest:
-  - Fixed typo that bash tolerated
   - Create some directories on demand
   - Run under bash, not /bin/sh (pushd/popd are bash-specific)
 2008-04-14  Jeroen T. Vermeulen <jtv@xs4all.nl>

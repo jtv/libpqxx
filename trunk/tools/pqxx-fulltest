@@ -68,7 +68,7 @@ buildpg() {
 install_pg() {
 	# Strip leading "v" off version number
 	VERSIONNAME="$1"
-	VERSION="${VERSIONNAME:-1}"
+	VERSION="${VERSIONNAME:1}"
 	BASENAME="postgresql-$VERSION"
 	FILENAME="$BASENAME.tar.bz2"
 	DEST="`pgdir "$VERSIONNAME"`"
