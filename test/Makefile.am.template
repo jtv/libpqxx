@@ -4,13 +4,13 @@ SUBDIRS = unit
 
 EXTRA_DIST = Makefile.am.template
 
-INCLUDES=-I$(top_builddir)/include #-I$(top_srcdir)/include ${POSTGRES_INCLUDE}
+INCLUDES=-I$(top_builddir)/include -I$(top_srcdir)/include
 
 # Override automatically generated list of default includes.  It contains only
 # unnecessary entries, and incorrectly mentions include/pqxx directly.
 DEFAULT_INCLUDES=
 
-nodist_noinst_HEADERS = test_helpers.hxx
+noinst_HEADERS = test_helpers.hxx
 
 CLEANFILES=pqxxlo.txt
 MAINTAINERCLEANFILES=Makefile.in
