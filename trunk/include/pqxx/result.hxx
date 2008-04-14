@@ -38,6 +38,8 @@ class result;
 
 namespace internal
 {
+class sql_cursor;
+
 /// Information shared between all copies of a result set
 struct PQXX_PRIVATE result_data
 {
@@ -917,7 +919,7 @@ private:
   PGSTD::string PQXX_PRIVATE StatusError() const;
 
   friend class Cursor;	// deprecated
-  friend class cursor_base;
+  friend class internal::sql_cursor;
   const char *CmdStatus() const throw ();
 
   /// Shortcut: pointer to result data

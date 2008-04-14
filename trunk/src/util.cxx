@@ -79,8 +79,16 @@ template<> inline void set_to_NaN(double &t) { t = nan_d; }
 const long double nan_ld(0.0/0.0);
 template<> inline void set_to_NaN(long double &t) { t = nan_ld; }
 #endif
-
 #endif
+
+// TODO: This may need tweaking for various compilers.
+template<typename T> inline void set_to_Inf(T &t, int sign=1)
+{
+  T value = INFINITY;
+  if (sign < 0) value = -value;
+  t = value;
+}
+
 
 /// For use in string parsing: add new numeric digit to intermediate value
 template<typename L, typename R>
@@ -150,6 +158,16 @@ template<typename T> void from_string_unsigned(const char Str[], T &Obj)
 }
 
 
+bool valid_infinity_string(const char str[])
+{
+  // TODO: Also accept less sensible case variations.
+  return
+	strcmp("infinity", str) == 0 ||
+	strcmp("Infinity", str) == 0 ||
+	strcmp("INFINITY", str) == 0;
+}
+
+
 /* These are hard.  Sacrifice performance of specialized, nonflexible,
  * non-localized code and lean on standard library.  Some special-case code
  * handles NaNs.
@@ -159,19 +177,36 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
   bool ok = false;
   T result;
 
-  if (Str[0]=='N' || Str[0]=='n')
+  switch (Str[0])
   {
+  case 'N':
+  case 'n':
     // Accept "NaN," "nan," etc.
     ok = ((Str[1]=='A'||Str[1]=='a') && (Str[2]=='N'||Str[2]=='n') && !Str[3]);
     set_to_NaN(result);
-  }
-  else
-  {
-    stringstream S(Str);
+    break;
+
+  case 'I':
+  case 'i':
+    ok = valid_infinity_string(Str);
+    set_to_Inf(result);
+    break;
+
+  default:
+    if (Str[0] == '-' && valid_infinity_string(&Str[1]))
+    {
+      ok = true;
+      set_to_Inf(result, -1);
+    }
+    else
+    {
+      stringstream S(Str);
 #if defined(PQXX_HAVE_IMBUE)
-    S.imbue(locale("C"));
+      S.imbue(locale("C"));
 #endif
-    ok = (S >> result);
+      ok = (S >> result);
+    }
+    break;
   }
 
   if (!ok)

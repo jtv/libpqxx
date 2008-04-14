@@ -7,7 +7,7 @@
  *      implementation of libpqxx STL-style cursor classes.
  *   These classes wrap SQL cursors in STL-like interfaces
  *
- * Copyright (c) 2004-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -25,52 +25,7 @@
 #include "pqxx/transaction"
 
 using namespace PGSTD;
-
-
-namespace
-{
-/// Compute actual displacement based on requested and reported displacements
-pqxx::cursor_base::difference_type adjust(
-    pqxx::cursor_base::difference_type d,
-    pqxx::cursor_base::difference_type r)
-{
-  const pqxx::cursor_base::difference_type hoped = labs(d);
-  pqxx::cursor_base::difference_type actual = r;
-  if (hoped < 0 || r < hoped) ++actual;
-  return (d < 0) ? -actual : actual;
-}
-}
-
-
-
-pqxx::cursor_base::cursor_base(transaction_base *context,
-    const PGSTD::string &Name,
-    bool embellish_name) :
-  m_context(context),
-  m_done(false),
-  m_name(embellish_name ? context->conn().adorn_name(Name) : Name),
-  m_adopted(false),
-  m_ownership(loose),
-  m_lastfetch(),
-  m_lastmove()
-{
-}
-
-
-string pqxx::cursor_base::stridestring(difference_type n)
-{
-  /* Some special-casing for ALL and BACKWARD ALL here.  We used to use numeric
-   * "infinities" for difference_type for this (the highest and lowest possible
-   * values for "long"), but for PostgreSQL 8.0 at least, the backend appears to
-   * expect a 32-bit number and fails to parse large 64-bit numbers.
-   * We could change the typedef to match this behaviour, but that would break
-   * if/when Postgres is changed to accept 64-bit displacements.
-   */
-  static const string All("ALL"), BackAll("BACKWARD ALL");
-  if (n == all()) return All;
-  else if (n == backward_all()) return BackAll;
-  return to_string(n);
-}
+using namespace pqxx;
 
 
 namespace
@@ -87,12 +42,22 @@ inline bool useless_trail(char c)
 }
 
 
-void pqxx::cursor_base::declare(const PGSTD::string &query,
-    accesspolicy ap,
-    updatepolicy up,
-    ownershippolicy op,
-    bool hold)
+pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
+	const string &query,
+	const string &cname,
+	cursor_base::accesspolicy ap,
+	cursor_base::updatepolicy up,
+	cursor_base::ownershippolicy op,
+	bool hold) :
+  cursor_base(t.conn(), cname),
+  m_home(t.conn()),
+  m_empty_result(),
+  m_adopted(false),
+  m_at_end(-1),
+  m_pos(0),
+  m_endpos(-1)
 {
+  if (&t.conn() != &m_home) throw internal_error("Cursor in wrong connection");
   stringstream cq, qn;
 
   /* Strip trailing semicolons (and whitespace, as side effect) off query.  The
@@ -110,10 +75,10 @@ void pqxx::cursor_base::declare(const PGSTD::string &query,
 
   cq << "DECLARE \"" << name() << "\" ";
 
-  m_context->conn().activate();
-  if (m_context->conn().supports(connection_base::cap_cursor_scroll))
+  m_home.activate();
+  if (m_home.supports(connection_base::cap_cursor_scroll))
   {
-    if (ap == forward_only) cq << "NO ";
+    if (ap == cursor_base::forward_only) cq << "NO ";
     cq << "SCROLL ";
   }
 
@@ -121,7 +86,7 @@ void pqxx::cursor_base::declare(const PGSTD::string &query,
 
   if (hold)
   {
-    if (!m_context->conn().supports(connection_base::cap_cursor_with_hold))
+    if (!m_home.supports(connection_base::cap_cursor_with_hold))
       throw runtime_error("Cursor " + name() + " "
 	  "created for use outside of its originating transaction, "
 	  "but this backend version does not support that.");
@@ -130,104 +95,154 @@ void pqxx::cursor_base::declare(const PGSTD::string &query,
 
   cq << "FOR " << string(query.begin(),last) << ' ';
 
-  if (up != update) cq << "FOR READ ONLY ";
-  else if (!m_context->conn().supports(connection_base::cap_cursor_update))
+  if (up != cursor_base::update) cq << "FOR READ ONLY ";
+  else if (!m_home.supports(connection_base::cap_cursor_update))
     throw runtime_error("Cursor " + name() + " "
 	"created as updatable, "
 	"but this backend version does not support that.");
   else cq << "FOR UPDATE ";
 
   qn << "[DECLARE " << name() << ']';
-  m_context->exec(cq, qn.str());
+  t.exec(cq, qn.str());
+
+  // Now that we're here in the starting position, keep a copy of an empty
+  // result.  That may come in handy later, because we may not be able to
+  // construct an empty result with all the right metadata due to the weird
+  // meaning of "FETCH 0."
+  init_empty_result(t);
 
   // If we're creating a WITH HOLD cursor, noone is going to destroy it until
   // after this transaction.  That means the connection cannot be deactivated
   // without losing the cursor.
+  if (hold) t.m_reactivation_avoidance.add(1);
+
   m_ownership = op;
-  if (op==loose) m_context->m_reactivation_avoidance.add(1);
 }
 
 
-void pqxx::cursor_base::adopt(ownershippolicy op)
+pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
+	const string &cname,
+	cursor_base::ownershippolicy op) :
+  cursor_base(t.conn(), cname, false),
+  m_home(t.conn()),
+  m_empty_result(),
+  m_adopted(true),
+  m_at_end(0),
+  m_pos(-1),
+  m_endpos(-1)
 {
   // If we take responsibility for destroying the cursor, that's one less reason
   // not to allow the connection to be deactivated and reactivated.
-  if (op==owned) m_context->m_reactivation_avoidance.add(-1);
+  // TODO: Go over lifetime/reactivation rules again to be sure they work
+  if (op==cursor_base::owned) t.m_reactivation_avoidance.add(-1);
   m_adopted = true;
   m_ownership = op;
 }
 
 
-void pqxx::cursor_base::close() throw ()
+void pqxx::internal::sql_cursor::close() throw ()
 {
-  if (m_ownership==owned)
+  if (m_ownership==cursor_base::owned)
   {
     try
     {
-      m_context->exec("CLOSE \"" + name() + "\"");
+      m_home.Exec(("CLOSE \"" + name() + "\"").c_str(), 0);
     }
     catch (const exception &)
     {
     }
 
-    if (m_adopted) m_context->m_reactivation_avoidance.add(-1);
-    m_ownership = loose;
+    if (m_adopted) m_home.m_reactivation_avoidance.add(-1);
+    m_ownership = cursor_base::loose;
   }
 }
 
 
-pqxx::result pqxx::cursor_base::fetch(difference_type n)
+void pqxx::internal::sql_cursor::init_empty_result(transaction_base &t)
 {
-  result r;
-  if (n)
+  m_empty_result = t.exec("FETCH 0 IN \"" + name() + '"');
+}
+
+
+/// Compute actual displacement based on requested and reported displacements
+internal::sql_cursor::difference_type
+pqxx::internal::sql_cursor::adjust(difference_type hoped,
+	difference_type actual)
+{
+  if (actual < 0) throw internal_error("Negative rows in cursor movement");
+  if (hoped == 0) return 0;
+  const int direction = ((hoped < 0) ? -1 : 1);
+  bool hit_end = false;
+  if (actual != labs(hoped))
   {
-    // We cache the last-executed fetch query.  If the current fetch uses the
-    // same distance, we just re-use the cached string instead of composing a
-    // new one.
-    const string fq(
-	(n == m_lastfetch.dist) ?
-         m_lastfetch.query :
-         "FETCH " + stridestring(n) + " IN \"" + name() + "\"");
+    if (actual > labs(hoped))
+      throw internal_error("Cursor displacement larger than requested");
 
-    // Set m_done on exception (but no need for try/catch)
-    m_done = true;
-    r = m_context->exec(fq);
-    if (!r.empty()) m_done = false;
+    // If we see fewer rows than requested, then we've hit an end (on either
+    // side) of the result set.  Wether we make an extra step to a one-past-end
+    // position or whether we're already there depends on where we were
+    // previously: if our last move was in the same direction and also fell
+    // short, we're already at a one-past-end row.
+    if (m_at_end != direction) ++actual;
+
+    // If we hit the beginning, make sure our position calculation ends up
+    // at zero (even if we didn't previously know where we were!), and if we
+    // hit the other end, register the fact that we now know where the end
+    // of the result set is.
+    if (direction > 0) hit_end = true;
+    else if (m_pos == -1) m_pos = actual;
+    else if (m_pos != actual)
+      throw internal_error("Moved back to beginning, but wrong position: "
+        "hoped=" + to_string(hoped) + ", "
+        "actual=" + to_string(actual) + ", "
+        "m_pos=" + to_string(m_pos) + ", "
+        "direction=" + to_string(direction));
+
+    m_at_end = direction;
   }
+  else
+  {
+    m_at_end = 0;
+  }
+
+  if (m_pos >= 0) m_pos += direction*actual;
+  if (hit_end)
+  {
+    if (m_endpos >= 0 && m_pos != m_endpos)
+      throw internal_error("Inconsistent cursor end positions");
+    m_endpos = m_pos;
+  }
+  return direction*actual;
+}
+
+
+result pqxx::internal::sql_cursor::fetch(difference_type rows,
+	difference_type &displacement)
+{
+  if (!rows)
+  {
+    displacement = 0;
+    return m_empty_result;
+  }
+  const string query = "FETCH " + stridestring(rows) + " IN \"" + name() + "\"";
+  const result r(m_home.Exec(query.c_str(), 0));
+  displacement = adjust(rows, r.size());
   return r;
 }
 
 
-pqxx::result pqxx::cursor_base::fetch(difference_type n, difference_type &d)
+cursor_base::difference_type pqxx::internal::sql_cursor::move(
+	difference_type rows,
+	difference_type &displacement)
 {
-  result r(cursor_base::fetch(n));
-  d = adjust(n, r.size());
-  return r;
-}
+  if (!rows)
+  {
+    displacement = 0;
+    return 0;
+  }
 
-
-template<> void
-pqxx::cursor_base::check_displacement<pqxx::cursor_base::forward_only>(
-    difference_type d) const
-{
-  if (d < 0)
-    throw logic_error("Attempt to move cursor " + name() + " "
-	"backwards (this cursor is only allowed to move forwards)");
-}
-
-
-pqxx::cursor_base::difference_type pqxx::cursor_base::move(difference_type n)
-{
-  if (!n) return 0;
-
-  const string mq(
-      (n == m_lastmove.dist) ?
-      m_lastmove.query :
-      "MOVE " + stridestring(n) + " IN \"" + name() + "\"");
-
-  // Set m_done on exception (but no need for try/catch)
-  m_done = true;
-  const result r(m_context->exec(mq));
+  const string query = "MOVE " + stridestring(rows) + " IN \"" + name() + "\"";
+  const result r(m_home.Exec(query.c_str(), 0));
 
   // Starting with the libpq in PostgreSQL 7.4, PQcmdTuples() (which we call
   // indirectly here) also returns the number of rows skipped by a MOVE
@@ -246,44 +261,104 @@ pqxx::cursor_base::difference_type pqxx::cursor_base::move(difference_type n)
 
     from_string(r.CmdStatus()+StdResponse.size(), d);
   }
-  m_done = (d != n);
+
+  displacement = adjust(rows, d);
   return d;
 }
 
 
-pqxx::cursor_base::difference_type
-pqxx::cursor_base::move(difference_type n, difference_type &d)
+result pqxx::internal::sql_cursor::fetch_current_row()
 {
-  const difference_type got = cursor_base::move(n);
-  d = adjust(n, got);
-  return got;
+  return m_home.Exec(("FETCH 0 IN \"" + name() + "\"").c_str(), 0);
 }
 
 
-pqxx::icursorstream::icursorstream(pqxx::transaction_base &context,
+string pqxx::internal::sql_cursor::stridestring(difference_type n)
+{
+  /* Some special-casing for ALL and BACKWARD ALL here.  We used to use numeric
+   * "infinities" for difference_type for this (the highest and lowest possible
+   * values for "long"), but for PostgreSQL 8.0 at least, the backend appears to
+   * expect a 32-bit number and fails to parse large 64-bit numbers.
+   * We could change the typedef to match this behaviour, but that would break
+   * if/when Postgres is changed to accept 64-bit displacements.
+   */
+  static const string All("ALL"), BackAll("BACKWARD ALL");
+  if (n >= cursor_base::all()) return All;
+  else if (n <= cursor_base::backward_all()) return BackAll;
+  return to_string(n);
+}
+
+
+pqxx::cursor_base::cursor_base(connection_base &context,
+	const PGSTD::string &Name,
+	bool embellish_name) :
+  m_name(embellish_name ? context.adorn_name(Name) : Name)
+{
+}
+
+
+result::size_type pqxx::internal::obtain_stateless_cursor_size(sql_cursor &cur)
+{
+  if (cur.endpos() == -1) cur.move(cursor_base::all());
+  return cur.endpos() - 1;
+}
+
+
+result pqxx::internal::stateless_cursor_retrieve(
+	sql_cursor &cur,
+	result::difference_type size,
+	result::difference_type begin_pos,
+	result::difference_type end_pos)
+{
+  if (begin_pos < 0 || begin_pos > size)
+    throw out_of_range("Starting position out of range");
+
+  if (end_pos < -1) end_pos = -1;
+  else if (end_pos > size) end_pos = size;
+
+  if (begin_pos == end_pos) return cur.empty_result();
+
+  const int direction = ((begin_pos < end_pos) ? 1 : -1);
+  cur.move((begin_pos-direction) - (cur.pos()-1));
+  return cur.fetch(end_pos - begin_pos);
+}
+
+
+pqxx::icursorstream::icursorstream(
+    transaction_base &context,
     const PGSTD::string &query,
     const PGSTD::string &basename,
-    difference_type Stride) :
-  super(&context, query, basename),
-  m_stride(Stride),
+    difference_type sstride) :
+  m_cur(context,
+	query,
+	basename,
+	cursor_base::forward_only,
+	cursor_base::read_only,
+	cursor_base::owned,
+	false),
+  m_stride(sstride),
   m_realpos(0),
   m_reqpos(0),
-  m_iterators(0)
+  m_iterators(0),
+  m_done(false)
 {
-  set_stride(Stride);
+  set_stride(sstride);
 }
 
 
-pqxx::icursorstream::icursorstream(transaction_base &Context,
-    const result::field &Name,
-    difference_type Stride) :
-  super(&Context, Name.c_str()),
-  m_stride(Stride),
+pqxx::icursorstream::icursorstream(
+    transaction_base &context,
+    const result::field &cname,
+    difference_type sstride,
+    cursor_base::ownershippolicy op) :
+  m_cur(context, cname.c_str(), op),
+  m_stride(sstride),
   m_realpos(0),
   m_reqpos(0),
-  m_iterators(0)
+  m_iterators(0),
+  m_done(false)
 {
-  set_stride(Stride);
+  set_stride(sstride);
 }
 
 
@@ -294,22 +369,25 @@ void pqxx::icursorstream::set_stride(difference_type n)
   m_stride = n;
 }
 
-pqxx::result pqxx::icursorstream::fetchblock()
+result pqxx::icursorstream::fetchblock()
 {
-  const result r(fetch(m_stride));
+  const result r(m_cur.fetch(m_stride));
   m_realpos += r.size();
+  if (r.empty()) m_done = true;
   return r;
 }
 
 
-pqxx::icursorstream &pqxx::icursorstream::ignore(PGSTD::streamsize n)
+icursorstream &pqxx::icursorstream::ignore(PGSTD::streamsize n)
 {
-  m_realpos += move(n);
+  difference_type offset = m_cur.move(n);
+  m_realpos += offset;
+  if (offset < n) m_done = true;
   return *this;
 }
 
 
-pqxx::icursorstream::size_type pqxx::icursorstream::forward(size_type n)
+icursorstream::size_type pqxx::icursorstream::forward(size_type n)
 {
   m_reqpos += n*m_stride;
   return m_reqpos;
@@ -398,7 +476,7 @@ pqxx::icursor_iterator::~icursor_iterator() throw ()
 }
 
 
-pqxx::icursor_iterator pqxx::icursor_iterator::operator++(int)
+icursor_iterator pqxx::icursor_iterator::operator++(int)
 {
   icursor_iterator old(*this);
   m_pos = m_stream->forward();
@@ -407,7 +485,7 @@ pqxx::icursor_iterator pqxx::icursor_iterator::operator++(int)
 }
 
 
-pqxx::icursor_iterator &pqxx::icursor_iterator::operator++()
+icursor_iterator &pqxx::icursor_iterator::operator++()
 {
   m_pos = m_stream->forward();
   m_here.clear();
@@ -415,7 +493,7 @@ pqxx::icursor_iterator &pqxx::icursor_iterator::operator++()
 }
 
 
-pqxx::icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
+icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
 {
   if (n <= 0)
   {
@@ -428,7 +506,7 @@ pqxx::icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
 }
 
 
-pqxx::icursor_iterator &
+icursor_iterator &
 pqxx::icursor_iterator::operator=(const icursor_iterator &rhs) throw ()
 {
   if (rhs.m_stream == m_stream)
@@ -477,5 +555,4 @@ void pqxx::icursor_iterator::fill(const result &r)
 {
   m_here = r;
 }
-
 

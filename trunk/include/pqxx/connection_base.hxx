@@ -46,6 +46,7 @@ class connectionpolicy;
 namespace internal
 {
 class reactivation_avoidance_exemption;
+class sql_cursor;
 
 class reactivation_avoidance_counter
 {
@@ -677,6 +678,15 @@ public:
    */
   PGSTD::string adorn_name(const PGSTD::string &);			//[90]
 
+  /**
+   * @addtogroup escaping String escaping
+   */
+  //@{
+  /// Escape string for use as SQL string literal on this connection
+  PGSTD::string esc(const char str[], size_t maxlen);
+  /// Escape binary string for use as SQL string literal on this connection
+  PGSTD::string esc_raw(const unsigned char str[], size_t len);
+  //@}
 
 protected:
   explicit connection_base(connectionpolicy &);
@@ -784,8 +794,6 @@ private:
   void PQXX_PRIVATE EndCopyWrite();
   void PQXX_PRIVATE start_exec(const PGSTD::string &);
   internal::pq::PGresult *get_result();
-  PGSTD::string esc(const char str[], size_t maxlen);
-  PGSTD::string esc_raw(const unsigned char str[], size_t len);
 
   void PQXX_PRIVATE RawSetVar(const PGSTD::string &, const PGSTD::string &);
   void PQXX_PRIVATE AddVariables(const PGSTD::map<PGSTD::string,
@@ -802,7 +810,7 @@ private:
   bool PQXX_PRIVATE consume_input() throw ();
   bool PQXX_PRIVATE is_busy() const throw ();
 
-  friend class cursor_base;
+  friend class internal::sql_cursor;
   friend class dbtransaction;
   friend class internal::reactivation_avoidance_exemption;
 
