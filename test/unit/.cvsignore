@@ -1,0 +1,10 @@
+.deps
+.libs
+Makefile
+Makefile.am
+Makefile.in
+*.o
+*.swp
+test_sql_cursor
+test_stateless_cursor
+test_test_helpers
