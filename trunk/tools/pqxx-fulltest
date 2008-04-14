@@ -25,8 +25,8 @@ SVNURL="svn://pqxx.org/libpqxx/trunk/"
 
 # Where and how to obtain PostgreSQL versions
 PGVERSIONPAT="^v[0-9][0-9A-Za-z_.-]\+"
-FTPSERVER="${PG_FTPSERVER:-mirror.in.th}"
-FTPDIR="${PG_FTPDIR:-postgresql/source}"
+FTPSERVER="${PG_FTPSERVER:-ftp.postgresql.org}"
+FTPDIR="${PG_FTPDIR:-pub/source}"
 
 if test -z "$CONCURRENCY_LEVEL" ; then
 	if test -f /proc/cpuinfo ; then
