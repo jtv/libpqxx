@@ -3,13 +3,12 @@ SUBDIRS = pqxx
 nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/basic_connection pqxx/basic_connection.hxx \
 	pqxx/binarystring pqxx/binarystring.hxx \
-	pqxx/cachedresult.h \
 	pqxx/compiler-public.hxx \
 	pqxx/compiler-internal-pre.hxx pqxx/compiler-internal-post.hxx \
 	pqxx/connection pqxx/connection.hxx \
 	pqxx/connection_base pqxx/connection_base.hxx \
 	pqxx/connectionpolicy pqxx/connectionpolicy.hxx \
-	pqxx/cursor pqxx/cursor.hxx pqxx/cursor.h \
+	pqxx/cursor pqxx/cursor.hxx \
 	pqxx/dbtransaction pqxx/dbtransaction.hxx \
 	pqxx/except pqxx/except.hxx \
 	pqxx/isolation pqxx/isolation.hxx \

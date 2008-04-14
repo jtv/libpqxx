@@ -1,4 +1,17 @@
 2008-04-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cachedresult.h, include/pqxx/cursor.h, src/oldcursor.cxx,
+ test/src/cachedresult.cxx, test/test040.cxx, test/test041.cxx,
+ test/test044.cxx, test/test047.cxx:
+  - Deleted
+  - Removed cachedresult and old Cursor classes
+ include/Makefile.am, src/Makefile.am:
+  - Retiring old *.h files and old cursor/cachedresult classes
+ include/pqxx/cursor.hxx:
+  - Made cursor_base::m_name const
+ include/pqxx/nontransaction.h, include/pqxx/robusttransaction.h:
+  - Deleted
+  - Retired 1.x-style "*.h" headers
+2008-04-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/pqxx-fulltest:
   - Create some directories on demand
   - Run under bash, not /bin/sh (pushd/popd are bash-specific)
