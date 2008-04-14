@@ -1,6 +1,5 @@
 lib_LTLIBRARIES = libpqxx.la
 libpqxx_la_SOURCES = binarystring.cxx \
-	cachedresult.cxx \
 	connection_base.cxx \
 	connection.cxx \
 	cursor.cxx \
@@ -8,7 +7,6 @@ libpqxx_la_SOURCES = binarystring.cxx \
 	except.cxx \
 	largeobject.cxx \
 	nontransaction.cxx \
-	oldcursor.cxx \
 	pipeline.cxx \
 	prepared_statement.cxx \
 	result.cxx \

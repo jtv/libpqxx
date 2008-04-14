@@ -140,7 +140,7 @@ protected:
 	const PGSTD::string &Name,
 	bool embellish_name=true);
 
-  PGSTD::string m_name;
+  const PGSTD::string m_name;
 
 private:
   /// Not allowed
