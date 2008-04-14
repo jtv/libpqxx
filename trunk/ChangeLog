@@ -1,4 +1,7 @@
 2008-04-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/Doxyfile.in:
+  - Upgraded from Doxygen 1.4.6 to 1.5.5.
+2008-04-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cachedresult.h, include/pqxx/cursor.h, src/oldcursor.cxx,
  test/src/cachedresult.cxx, test/test040.cxx, test/test041.cxx,
  test/test044.cxx, test/test047.cxx:
