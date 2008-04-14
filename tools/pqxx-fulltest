@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 set -e
 
 # Full test of given libpqxx source tree against all available backends, libpq

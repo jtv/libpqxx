@@ -1,6 +1,7 @@
 2008-04-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/pqxx-fulltest:
   - Fixed typo that bash tolerated
+  - Run under bash, not /bin/sh (pushd/popd are bash-specific)
 2008-04-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh, configure.ac.in, test/Makefile.am.template,
  test/test_helpers.hxx, test/unit/, test/unit/Makefile.am.template,
