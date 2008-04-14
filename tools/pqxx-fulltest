@@ -21,7 +21,7 @@ TMPDIR="$TESTDIR/tmp"
 export TMPDIR
 mkdir -p "$TMPDIR"
 
-SVNURL="svn://pqxx.org/libpqxx/trunk/"
+SVNURL="${SVNURL:-svn://pqxx.org/libpqxx/trunk/}"
 
 # Where and how to obtain PostgreSQL versions
 PGVERSIONPAT="^v[0-9][0-9A-Za-z_.-]\+"
