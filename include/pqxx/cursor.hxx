@@ -184,6 +184,9 @@ namespace internal
  * Positions of actual rows are numbered starting at 1.  Position 0 exists but
  * does not refer to a row.  There is a similar non-row position at the end of
  * the result set.
+ *
+ * Don't use this at home.  You deserve better.  Use the stateles_cursor
+ * instead.
  */
 class PQXX_LIBEXPORT sql_cursor : public cursor_base
 {
@@ -267,6 +270,7 @@ private:
   difference_type m_endpos;
 };
 
+
 result::size_type obtain_stateless_cursor_size(sql_cursor &);
 result stateless_cursor_retrieve(
 	sql_cursor &,
@@ -277,6 +281,13 @@ result stateless_cursor_retrieve(
 } // namespace internal
 
 
+/// "Stateless cursor" class: easy API for retrieving parts of result sets
+/** This is a front-end for SQL cursors, but with a more C++-like API.
+ *
+ * Actually, stateless_cursor feels entirely different from SQL cursors.  You
+ * don't keep track of positions, fetches, and moves; you just say which rows
+ * you want.  See the retrieve() member function.
+ */
 template<cursor_base::updatepolicy up, cursor_base::ownershippolicy op>
 class stateless_cursor
 {
@@ -306,8 +317,24 @@ public:
 
   void close() throw () { m_cur.close(); }
 
+  /// Number of rows in cursor's result set
+  /** @note This function is not const; it may need to scroll to find the size
+   * of the result set.
+   */
   size_type size() { return internal::obtain_stateless_cursor_size(m_cur); }
 
+  /// Retrieve rows from begin_pos (inclusive) to end_pos (exclusive)
+  /** Rows are numbered starting from 0 to size()-1.
+   *
+   * @param begin_pos First row to retrieve.  May be one row beyond the end of
+   * the result set, to avoid errors for empty result sets.  Otherwise, must be
+   * a valid row number in the result set.
+   * @param end_pos Row up to which to fetch.  Rows are returned ordered from
+   * begin_pos to end_pos, i.e. in ascending order if begin_pos < end_pos but
+   * in descending order if begin_pos > end_pos.  The end_pos may be arbitrarily
+   * inside or outside the result set; only existing rows are included in the
+   * result.
+   */
   result retrieve(difference_type begin_pos, difference_type end_pos)
   {
     return internal::stateless_cursor_retrieve(
