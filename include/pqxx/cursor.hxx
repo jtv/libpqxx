@@ -8,7 +8,7 @@
  *   C++-style wrappers for SQL cursors
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/pipeline instead.
  *
- * Copyright (c) 2004-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -18,6 +18,8 @@
  */
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
+
+#include <stdexcept>
 
 #ifdef PQXX_HAVE_LIMITS
 #include <limits>
@@ -30,6 +32,7 @@
 namespace pqxx
 {
 class dbtransaction;
+
 
 /// Common definitions for cursor types
 /** In C++ terms, fetches are always done in pre-increment or pre-decrement
@@ -48,8 +51,6 @@ class PQXX_LIBEXPORT cursor_base
 public:
   typedef result::size_type size_type;
   typedef result::difference_type difference_type;
-
-  virtual ~cursor_base() throw () { close(); }
 
   /// Cursor access-pattern policy
   /** Allowing a cursor to move forward only can result in better performance,
@@ -102,19 +103,6 @@ public:
     loose
   };
 
-  /// Does it make sense to try reading from this cursor again?
-  /**
-   * @return Null pointer if finished, or some arbitrary non-null pointer
-   * otherwise.
-   */
-  operator void *() const {return m_done ? 0 : m_context;}		//[t81]
-
-  /// Is this cursor finished?
-  /** The logical negation of the converstion-to-pointer operator.
-   * @return Whether the last attempt to read failed
-   */
-  bool operator!() const { return m_done; }				//[t81]
-
   /**
    * @name Special movement distances
    */
@@ -136,6 +124,7 @@ public:
   /** @return Minimum value for result::difference_type
    */
   static difference_type backward_all() throw ();			//[t0]
+
   //@}
 
   /// Name of underlying SQL cursor
@@ -146,84 +135,14 @@ public:
    */
   const PGSTD::string &name() const throw () { return m_name; }		//[t81]
 
-  /// Fetch up to given number of rows of data
-  virtual result fetch(difference_type) =0;
-
-  /// Fetch result, but also return the number of rows of actual displacement
-  /** The relationship between actual displacement and result size gets tricky
-   * at the edges of the cursor's range of movement.  As an example, consider a
-   * fresh cursor that's been moved forward by 2 rows from its starting
-   * position; we can move it backwards from that position by 1 row and get a
-   * result set of 1 row, ending up on the first actual row of data.  If instead
-   * we move it backwards by 2 or more rows, we end up back at the starting
-   * position--but the result is still only 1 row wide!
-   *
-   * The output parameter compensates for this, returning true displacement
-   * (which is also signed, so it includes direction).
-   */
-  virtual result fetch(difference_type, difference_type &) =0;
-
-  /// Move cursor by given number of rows, returning number of data rows skipped
-  /** The number of data rows skipped is equal to the number of rows of data
-   * that would have been returned if this were a fetch instead of a move
-   * command.
-   *
-   * @return the number of data rows that would have been returned if this had
-   * been a fetch() command.
-   */
-  virtual difference_type move(difference_type) =0;
-
-  /// Move cursor, but also return actual displacement in output parameter
-  /** As with the @c fetch functions, the actual displacement may differ from
-   * the number of data rows skipped by the move.
-   *
-   * @return the number of data rows that would have been returned if this had
-   * been a fetch() command.
-   */
-  virtual difference_type move(difference_type, difference_type &) =0;
-
-  void close() throw ();						//[t3]
-
 protected:
-  cursor_base(transaction_base *,
-      const PGSTD::string &Name,
-      bool embellish_name = true);
+  cursor_base(connection_base &,
+	const PGSTD::string &Name,
+	bool embellish_name=true);
 
-  void declare(const PGSTD::string &query,
-      accesspolicy,
-      updatepolicy,
-      ownershippolicy,
-      bool hold);
-  void adopt(ownershippolicy);
-
-  static PGSTD::string stridestring(difference_type);
-  transaction_base *m_context;
-  bool m_done;
-
-  template<accesspolicy A> void check_displacement(difference_type) const { }
-
-#if defined(_MSC_VER)
-  /* Visual C++ won't accept this specialization declaration unless it's in
-   * here!  See below for the "standard" alternative.
-   */
-  template<>
-    void check_displacement<cursor_base::forward_only>(difference_type) const;
-#endif
+  PGSTD::string m_name;
 
 private:
-  PGSTD::string m_name;
-  bool m_adopted;
-  ownershippolicy m_ownership;
-
-  struct cachedquery
-  {
-    difference_type dist;
-    PGSTD::string query;
-
-    cachedquery() : dist(0), query() {}
-  };
-  cachedquery m_lastfetch, m_lastmove;
-
   /// Not allowed
   cursor_base();
   /// Not allowed
@@ -231,16 +150,6 @@ private:
   /// Not allowed
   cursor_base &operator=(const cursor_base &);
 };
-
-/* Visual C++ demands that this specialization be declared inside the class,
- * which gcc claims is illegal.  There seems to be no single universally
- * accepted way to do this.
- */
-#if !defined(_MSC_VER)
-template<> void
-  cursor_base::check_displacement<cursor_base::forward_only>(difference_type)
-	const;
-#endif
 
 
 inline cursor_base::difference_type cursor_base::all() throw ()
@@ -262,192 +171,158 @@ inline cursor_base::difference_type cursor_base::backward_all() throw ()
 }
 
 
-// TODO: How do we work updates into the scheme?
-/// The simplest form of cursor, with no concept of position or stride
-template<cursor_base::accesspolicy ACCESS, cursor_base::updatepolicy UPDATE>
-class basic_cursor : public cursor_base
+namespace internal
+{
+/// Cursor with SQL positioning semantics
+/** Thin wrapper around an SQL cursor, with SQL's ideas of positioning.
+ *
+ * SQL cursors have pre-increment/pre-decrement semantics, with on either end of
+ * the result set a special position that does not repesent a row.  This class
+ * models SQL cursors for the purpose of implementing more C++-like semantics on
+ * top.
+ *
+ * Positions of actual rows are numbered starting at 1.  Position 0 exists but
+ * does not refer to a row.  There is a similar non-row position at the end of
+ * the result set.
+ */
+class PQXX_LIBEXPORT sql_cursor : public cursor_base
 {
 public:
-  /// Create cursor based on given query
+  sql_cursor(transaction_base &t,
+	const PGSTD::string &query,
+	const PGSTD::string &cname,
+	cursor_base::accesspolicy ap,
+	cursor_base::updatepolicy up,
+	cursor_base::ownershippolicy op,
+	bool hold);
+
+  sql_cursor(transaction_base &t,
+	const PGSTD::string &cname,
+	cursor_base::ownershippolicy op);
+
+  ~sql_cursor() throw () { close(); }
+
+  result fetch(difference_type rows, difference_type &displacement);
+  result fetch(difference_type rows)
+				{ difference_type d=0; return fetch(rows, d); }
+  difference_type move(difference_type rows, difference_type &displacement);
+  difference_type move(difference_type rows)
+				{ difference_type d=0; return move(rows, d); }
+
+  /// Fetch just the row currently under the cursor, don't move
+  /** Requires random_access policy.
+   */
+  result fetch_current_row();
+
+  /// Current position, or -1 for unknown
   /**
-   * @param t transaction this cursor is to live in
-   * @param query SQL query whose results this cursor will iterate
-   * @param cname name for this cursor, which will be changed to make it unique
-   * @param op are we responsible for closing this cursor?
+   * The starting position, just before the first row, counts as position zero.
    *
-   * @warning If the transaction being used is a nontransaction, or if the
-   * ownership policy is "loose," a "WITH HOLD" cursor will be created.  Not all
-   * backends versions support this.
+   * Position may be unknown if (and only if) this cursor was adopted, and has
+   * never hit its starting position (position zero).
    */
-  basic_cursor(transaction_base *t,
-      const PGSTD::string &query,
-      const PGSTD::string &cname,
-      ownershippolicy op=owned) :					//[t3]
-    cursor_base(t, cname, true)
-  {
-    declare(query,
-	ACCESS,
-	UPDATE,
-	op,
-	op==loose || !dynamic_cast<dbtransaction *>(t));
-  }
+  difference_type pos() const throw () { return m_pos; }
 
-  /// Adopt existing SQL cursor
-  /** Create a cursor object based on an existing SQL cursor.  The name must be
-   * the exact name of that cursor (and unlike the name of a newly created
-   * cursor, will not be embellished for uniqueness).
-   *
-   * @param t transaction this cursor is to live in
-   * @param cname exact name of this cursor, as declared in SQL
-   * @param op are we responsible for closing this cursor?
-   */
-  basic_cursor(transaction_base *t,
-      const PGSTD::string &cname,
-      ownershippolicy op=owned) :					//[t45]
-    cursor_base(t, cname, false)
-  {
-    adopt(op);
-  }
-
-  /// Fetch a number of rows from cursor
-  /** This function can be used to fetch a given number of rows (by passing the
-   * desired number of rows as an argument), or all remaining rows (by passing
-   * cursor_base::all()), or fetch a given number of rows backwards from the
-   * current position (by passing the negative of the desired number), or all
-   * rows remaining behind the current position (by using
-   * cursor_base::backwards_all()).
-   *
-   * This function behaves slightly differently from the SQL FETCH command.
-   * Most notably, fetching zero rows does not move the cursor, and returns an
-   * empty result.
-   *
-   * @warning When zero rows are fetched, the returned result may not contain
-   * any metadata such as the number of columns and their names.
-   * @param n number of rows to fetch
-   * @return a result set containing at most n rows of data
-   */
-  virtual result fetch(difference_type n)				//[t3]
-  {
-    check_displacement<ACCESS>(n);
-    return cursor_base::fetch(n);
-  }
-
-  virtual result fetch(difference_type n, difference_type &d)		//[t45]
-  {
-    check_displacement<ACCESS>(n);
-    return cursor_base::fetch(n, d);
-  }
-
-  /// Move cursor by given number of rows
+  /// End position, or -1 for unknown
   /**
-   * @param n number of rows to move
-   * @return number of rows actually moved (which cannot exceed n)
-   */
-  virtual difference_type move(difference_type n)			//[t3]
-  {
-    check_displacement<ACCESS>(n);
-    return cursor_base::move(n);
-  }
-
-  virtual difference_type move(difference_type n, difference_type &d)	//[t42]
-  {
-    check_displacement<ACCESS>(n);
-    return cursor_base::move(n, d);
-  }
-
-  using cursor_base::close;
-};
-
-
-/// Cursor that knows its position
-template<cursor_base::accesspolicy ACCESS, cursor_base::updatepolicy UPDATE>
-class absolute_cursor : public basic_cursor<ACCESS,UPDATE>
-{
-  typedef basic_cursor<ACCESS,UPDATE> super;
-public:
-  typedef cursor_base::size_type size_type;
-  typedef cursor_base::difference_type difference_type;
-
-  /// Create cursor based on given query
-  /**
-   * @param t transaction this cursor is to live in
-   * @param query SQL query whose results this cursor will iterate
-   * @param cname name for this cursor, which will be changed to make it unique
+   * Returns the final position, just after the last row in the result set.  The
+   * starting position, just before the first row, counts as position zero.
    *
-   * @warning If the transaction being used is a nontransaction, a "WITH HOLD"
-   * cursor will be created.  Not all backends versions support this.
+   * End position is unknown until it is encountered during use.
    */
-  absolute_cursor(transaction_base *t,
-      const PGSTD::string &query,
-      const PGSTD::string &cname) :					//[t91]
-    super(t, query, cname, cursor_base::owned),
-    m_pos(0),
-    m_size(0),
-    m_size_known(false)
-  {
-  }
+  difference_type endpos() const throw () { return m_endpos; }
 
-  virtual result fetch(difference_type n)				//[t91]
-  {
-    difference_type m;
-    return absolute_cursor::fetch(n, m);
-  }
+  /// Return zero-row result for this cursor
+  const result &empty_result() const throw () { return m_empty_result; }
 
-  virtual difference_type move(difference_type n)			//[t91]
-  {
-    difference_type m;
-    return move(n, m);
-  }
+  void close() throw ();
 
-  virtual difference_type move(difference_type d, difference_type &m)	//[t43]
-  {
-    const difference_type r(super::move(d, m));
-    digest(d, m);
-    return r;
-  }
-
-  virtual result fetch(difference_type d, difference_type &m)		//[t91]
-  {
-    const result r(super::fetch(d, m));
-    digest(d, m);
-    return r;
-  }
-
-  difference_type pos() const throw () { return m_pos; }		//[t91]
-
-  difference_type move_to(cursor_base::size_type to)			//[t91]
-	{ return move(difference_type(to)-pos()); }
-
-  difference_type move_to(cursor_base::size_type to,			//[t91]
-	cursor_base::difference_type &d)
-	{ return move(difference_type(to)-pos(), d); }
 private:
-  /// Set result size if appropriate, given requested and actual displacement
-  void digest(cursor_base::difference_type req,
-      cursor_base::difference_type got) throw ()
-  {
-    m_pos += got;
+  difference_type adjust(difference_type hoped, difference_type actual);
+  static PGSTD::string stridestring(difference_type);
+  /// Initialize cached empty result.  Call only at beginning or end!
+  void init_empty_result(transaction_base &);
 
-    // This assumes that got < req can only happen if req < 0
-    if (got < req && !m_size_known)
-    {
-      m_size = m_pos;
-      m_size_known = true;
-    }
-  }
+  /// Connection this cursor lives in
+  connection_base &m_home;
 
+  /// Zero-row result from this cursor (or plain empty one if cursor is adopted)
+  result m_empty_result;
+
+  result m_cached_current_row;
+
+  /// Is this cursor adopted (as opposed to created by this cursor object)?
+  bool m_adopted;
+
+  /// Will this cursor object destroy its SQL cursor when it dies?
+  cursor_base::ownershippolicy m_ownership;
+
+  /// At starting position (-1), somewhere in the middle (0), or past end (1)
+  int m_at_end;
+
+  /// Position, or -1 for unknown
   difference_type m_pos;
-  cursor_base::size_type m_size;
-  bool m_size_known;
+
+  /// End position, or -1 for unknown
+  difference_type m_endpos;
 };
 
+result::size_type obtain_stateless_cursor_size(sql_cursor &);
+result stateless_cursor_retrieve(
+	sql_cursor &,
+	result::difference_type size,
+	result::difference_type begin_pos,
+	result::difference_type end_pos);
 
-/// Convenience typedef: the most common cursor type (read-only, random access)
-typedef basic_cursor<cursor_base::random_access, cursor_base::read_only> cursor;
+} // namespace internal
 
-/// Convenience typedef: read-only, random-access absolutely-positioning cursor
-typedef absolute_cursor<cursor_base::random_access, cursor_base::read_only>
-	abscursor;
+
+template<cursor_base::updatepolicy up, cursor_base::ownershippolicy op>
+class stateless_cursor
+{
+public:
+  typedef result::size_type size_type;
+  typedef result::difference_type difference_type;
+
+  /// Create cursor.
+  stateless_cursor(
+	transaction_base &trans,
+	const PGSTD::string &query,
+	const PGSTD::string &cname,
+	bool hold) :
+    m_cur(trans, query, cname, cursor_base::random_access, up, op, hold)
+  {
+  }
+
+  /// Adopt existing scrolling SQL cursor.
+  stateless_cursor(
+	transaction_base &trans,
+	const PGSTD::string adopted_cursor) :
+    m_cur(trans, adopted_cursor, up, op)
+  {
+    // Put cursor in known position
+    m_cur.move(cursor_base::backward_all());
+  }
+
+  void close() throw () { m_cur.close(); }
+
+  size_type size() { return internal::obtain_stateless_cursor_size(m_cur); }
+
+  result retrieve(difference_type begin_pos, difference_type end_pos)
+  {
+    return internal::stateless_cursor_retrieve(
+	m_cur,
+	size(),
+	begin_pos,
+	end_pos);
+  }
+
+  const PGSTD::string &name() const throw () { return m_cur.name(); }
+
+private:
+  internal::sql_cursor m_cur;
+};
+
 
 class icursor_iterator;
 
@@ -467,27 +342,28 @@ class icursor_iterator;
  * This class can create or adopt cursors that live outside any backend
  * transaction, which your backend version may not support.
  */
-class PQXX_LIBEXPORT icursorstream :
-  public basic_cursor<cursor_base::forward_only, cursor_base::read_only>
+class PQXX_LIBEXPORT icursorstream
 {
-  typedef basic_cursor<cursor_base::forward_only, cursor_base::read_only> super;
 public:
+  typedef cursor_base::size_type size_type;
+  typedef cursor_base::difference_type difference_type;
+
   /// Set up a read-only, forward-only cursor
   /** Roughly equivalent to a C++ Standard Library istream, this cursor type
    * supports only two operations: reading a block of rows while moving forward,
    * and moving forward without reading any data.
    *
-   * @param Context Transaction context that this cursor will be active in
-   * @param Query SQL query whose results this cursor shall iterate
-   * @param Basename Suggested name for the SQL cursor; a unique code will be
+   * @param context Transaction context that this cursor will be active in
+   * @param query SQL query whose results this cursor shall iterate
+   * @param basename Suggested name for the SQL cursor; a unique code will be
    * appended by the library to ensure its uniqueness
-   * @param Stride Number of rows to fetch per read operation; must be a
+   * @param sstride Number of rows to fetch per read operation; must be a
    * positive number
    */
-  icursorstream(transaction_base &Context,
-      const PGSTD::string &Query,
-      const PGSTD::string &Basename,
-      difference_type Stride=1);					//[t81]
+  icursorstream(transaction_base &context,
+      const PGSTD::string &query,
+      const PGSTD::string &basename,
+      difference_type sstride=1);					//[t81]
 
   /// Adopt existing SQL cursor.  Use with care.
   /** Forms a cursor stream around an existing SQL cursor, as returned by e.g. a
@@ -507,14 +383,17 @@ public:
    * defer doing so until after entering the transaction context that will
    * eventually destroy it.
    *
-   * @param Context Transaction context that this cursor will be active in
-   * @param Name Result field containing the name of the SQL cursor to adopt
-   * @param Stride Number of rows to fetch per read operation; must be a
+   * @param context Transaction context that this cursor will be active in
+   * @param cname Result field containing the name of the SQL cursor to adopt
+   * @param sstride Number of rows to fetch per read operation; must be a
    * positive number
    */
-  icursorstream(transaction_base &Context,
-      const result::field &Name,
-      difference_type Stride=1);					//[t84]
+  icursorstream(transaction_base &context,
+      const result::field &cname,
+      difference_type sstride=1,
+      cursor_base::ownershippolicy op=cursor_base::owned);		//[t84]
+
+  operator bool() const throw () { return !m_done; }
 
   /// Read new value into given result object; same as operator >>
   /** The result set may continue any number of rows from zero to the chosen
@@ -532,6 +411,7 @@ public:
    * ("C >> r1 >> r2;")
    */
   icursorstream &operator>>(result &res) { return get(res); }		//[t81]
+
   /// Move given number of rows forward (ignoring stride) without reading data
   /**
    * @return Reference to this very stream, to facilitate "chained" invocations
@@ -556,10 +436,14 @@ private:
 
   void service_iterators(difference_type);
 
+  internal::sql_cursor m_cur;
+
   difference_type m_stride;
   difference_type m_realpos, m_reqpos;
 
   mutable icursor_iterator *m_iterators;
+
+  bool m_done;
 };
 
 

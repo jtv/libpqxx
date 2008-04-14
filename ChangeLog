@@ -1,6 +1,32 @@
+2008-04-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh, configure.ac.in, test/Makefile.am.template,
+ test/test_helpers.hxx, test/unit/, test/unit/Makefile.am.template,
+ test/unit/test_sql_cursor.cxx, test/unit/test_stateless_cursor.cxx,
+ test/test_test_helpers.css:
+  - New test framework for less verbose tests
+  - Proper unit tests
+ include/pqxx/cursor.hxx, include/pqxx/result.hxx,
+ include/pqxx/transaction_base.hxx, src/cursor.cxx, test/Makefile.am.template,
+ test/test050.cxx, test/test084.cxx:
+  - Made sql_cursor "internal"
+  - New stateless_cursor: better API, fewer bugs, smaller code
+  - Made cursor_base entirely stateless
+ include/pqxx/connection_base.hxx:
+  - Documentation fix
+ src/connection_base.cxx:
+  - Cosmetic
+ src/util.cxx:
+  - Infinity support
+ test/test003.cxx, test/test019.cxx, test/test022.cxx, test/test038.cxx,
+ test/test042.cxx, test/test043.cxx, test/test045.cxx, test081.cxx,
+ test/test091.cxx:
+  - Removed tests for old cursor classes
 2008-02-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cursor.hxx:
   - <limits> fix for gcc 3.4, thanks Richard B. Kreckel
+2008-01-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/transaction_base.hxx:
+  - Let cursor_base access m_reactivation_avoidance, thanks Richard B. Kreckel
 2007-11-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/except.hxx, src/result.cxx:
   - More detailed constraint error classes, thanks Peter Geoghegan

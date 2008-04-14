@@ -44,7 +44,7 @@ class transaction_base;
 
 namespace internal
 {
-class lowlevel_cursor;
+class sql_cursor;
 
 class PQXX_LIBEXPORT transactionfocus : public virtual namedclass
 {
@@ -332,9 +332,7 @@ private:
   template<typename T> bool parm_is_null(T *p) const throw () { return !p; }
   template<typename T> bool parm_is_null(T) const throw () { return false; }
 
-  friend class Cursor;
-  friend class cursor_base;
-  friend class pqxx::internal::lowlevel_cursor;
+  friend class pqxx::internal::sql_cursor;
   void MakeEmpty(result &R) const { m_Conn.MakeEmpty(R); }
 
   friend class internal::transactionfocus;

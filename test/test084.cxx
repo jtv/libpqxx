@@ -75,7 +75,6 @@ int main(int, char *argv[])
     T.exec("DECLARE \"" + CurName + "\" CURSOR FOR " + Query);
     T.exec("MOVE " + to_string(InitialSkip*GetRows) + " IN \""+CurName+'\"');
 
-
     // Wrap cursor in cursor stream.  Apply some trickery to get its name inside
     // a result field for this purpose.  This isn't easy because it's not
     // supposed to be easy; normally we'd only construct streams around existing

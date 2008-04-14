@@ -51,7 +51,7 @@ public:
   void operator()(argument_type &T)
   {
     largeobjectaccess A(T, m_Object);
-    const cursor::size_type orgpos = A.ctell(), copyorgpos = A.ctell();
+    const cursor_base::size_type orgpos = A.ctell(), copyorgpos = A.ctell();
     if (orgpos)
       throw logic_error("Large object reported initial position " +
 	  to_string(orgpos) + " "
@@ -59,7 +59,7 @@ public:
     if (copyorgpos != orgpos)
       throw logic_error("ctell() moved large object from position 0 to " +
 	  to_string(copyorgpos));
-    const cursor::size_type cxxorgpos = A.tell();
+    const cursor_base::size_type cxxorgpos = A.tell();
     if (cxxorgpos != orgpos)
       throw logic_error("tell() reported large object position " +
 	  to_string(cxxorgpos) + " "

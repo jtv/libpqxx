@@ -588,7 +588,6 @@ void pqxx::connection_base::add_listener(pqxx::notify_listener *T)
   {
     m_listeners.insert(p, NewVal);
   }
-
 }
 
 

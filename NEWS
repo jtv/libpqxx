@@ -1,18 +1,17 @@
 3.0.0
  - Website is now at http://pqxx.org/ (no redirects)
+ - Completely replaced cursor classes
  - More helpful error messages on failed connections
  - More detailed hierarchy of constraint-violation exception classes
  - trigger is now called notify_listener, trigger header is now notify-listen
- - Many nasty corner cases in cursor position accounting fixed
  - New mixin base class pqxx_exception distinguishes libpqxx exception types
  - Several build & documentation problems with Visual C++ fixed
  - Uses strlcpy() where available, instead of strncpy()
  - Keeps better track of applicable text encodings
- - Compile fix for gcc 4.2
+ - Compile fixes for gcc 4.2
  - Fixed bug with prepared statement parameters in separate C++ statements
  - robusttransaction now works for multiple users
  - Fixed broken escaping of binary values in TableWriter
- - Cursor uses difference_type instead of size_type for positions
  - Floating-point types now represented with full precision
 2.6.9
  - Removed old 1.x API (that means all identifiers with capital letters!)
