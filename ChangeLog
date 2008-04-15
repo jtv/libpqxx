@@ -1,4 +1,6 @@
 2008-04-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/cursor.cxx:
+  - Made init_empty_result() conditional on backend version
  test/test_helpers.hxx, test/unit/test_stateless_cursor.cxx,
  test/unit/test_sql_cursor.cxx:
   - Workaround for pre-8.0 backends, which lack generate_series()
