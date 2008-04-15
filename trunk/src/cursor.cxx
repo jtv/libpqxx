@@ -160,7 +160,11 @@ void pqxx::internal::sql_cursor::close() throw ()
 
 void pqxx::internal::sql_cursor::init_empty_result(transaction_base &t)
 {
-  m_empty_result = t.exec("FETCH 0 IN \"" + name() + '"');
+  if (pos() != 0) throw internal_error("init_empty_result() from bad pos()");
+
+  // This doesn't work with older backends, where "FETCH 0" meant "FETCH ALL."
+  if (m_home.server_version() >= 70400)
+    m_empty_result = t.exec("FETCH 0 IN \"" + name() + '"');
 }
 
 
