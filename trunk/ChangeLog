@@ -1,3 +1,9 @@
+2008-04-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test_helpers.hxx, test/unit/test_stateless_cursor.cxx,
+ test/unit/test_sql_cursor.cxx:
+  - Workaround for pre-8.0 backends, which lack generate_series()
+ include/pqxx/transaction.hxx:
+  - Cosmetic
 2008-04-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/Doxyfile.in:
   - Upgraded from Doxygen 1.4.6 to 1.5.5.

@@ -9,7 +9,7 @@ void test_stateless_cursor(connection_base &, transaction_base &trans)
 {
   stateless_cursor<cursor_base::read_only, cursor_base::owned> empty(
 	trans,
-	"SELECT generate_series(0, -1)",
+	pqxx::test::select_series(trans.conn(), 0, -1),
 	"empty",
 	false);
 
@@ -27,7 +27,7 @@ void test_stateless_cursor(connection_base &, transaction_base &trans)
 
   stateless_cursor<cursor_base::read_only, cursor_base::owned> stateless(
 	trans,
-	"SELECT generate_series(0, 9)",
+	pqxx::test::select_series(trans.conn(), 0, 9),
 	"stateless",
 	false);
 
