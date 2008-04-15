@@ -88,12 +88,12 @@ public:
    * may contain letters and digits only
    */
   explicit transaction(connection_base &C, const PGSTD::string &TName):	//[t1]
-    namedclass(fullname("transaction",isolation_tag::name()), TName),
+    namedclass(fullname("transaction", isolation_tag::name()), TName),
     basic_transaction(C, isolation_tag::name())
 	{ Begin(); }
 
   explicit transaction(connection_base &C) :				//[t1]
-    namedclass(fullname("transaction",isolation_tag::name())),
+    namedclass(fullname("transaction", isolation_tag::name())),
     basic_transaction(C, isolation_tag::name())
 	{ Begin(); }
 

@@ -64,7 +64,52 @@ inline int pqxxtest(TESTFUNC &func)
 } // pqxxtest()
 
 
-// Base class for libpqxx tests.  Sets up a connection and transaction.
+/// Does this backend have generate_series()?
+inline bool have_generate_series(const connection_base &c)
+{
+  return c.server_version() >= 80000;
+}
+
+/// For backends that don't have generate_series(): sequence of ints
+/** If the backend lacks generate_series(), prepares a temp table called
+ * series" containing given range of numbers (including lowest and highest).
+ *
+ * Use select_series() to construct a query selecting a range of numbers.  For
+ * the workaround on older backends to work, the ranges of numbers passed to
+ * select_series() must be subsets of the range passed here.
+ */
+inline void prepare_series(transaction_base &t, int lowest, int highest)
+{
+  if (!have_generate_series(t.conn()))
+  {
+    t.exec("CREATE TEMP TABLE series(x integer)");
+    for (int x=lowest; x <= highest; ++x)
+      t.exec("INSERT INTO series(x) VALUES (" + to_string(x) + ")");
+  }
+}
+
+/// Generate query selecting series of numbers from lowest to highest, inclusive
+/** Needs to see connection object to determine whether the backend supports
+ * generate_series().
+ */
+inline
+PGSTD::string select_series(connection_base &conn, int lowest, int highest)
+{
+  if (pqxx::test::have_generate_series(conn))
+    return
+	"SELECT generate_series(" +
+	to_string(lowest) + ", " + to_string(highest) + ")";
+
+  return
+	"SELECT x FROM series "
+	"WHERE "
+	  "x >= " + to_string(lowest) + " AND "
+	  "x <= " + to_string(highest) + " "
+	"ORDER BY x";
+}
+
+
+/// Base class for libpqxx tests.  Sets up a connection and transaction.
 template<typename CONNECTION=connection, typename TRANSACTION=work>
 class TestCase
 {
@@ -76,14 +121,17 @@ public:
     m_conn(),
     m_trans(m_conn, name),
     m_func(func)
-  {}
+  {
+    // Workaround for older backend versions that lack generate_series().
+    prepare_series(m_trans, 0, 100);
+  }
 
   void operator()() { m_func(m_conn, m_trans); }
 
 private:
   CONNECTION m_conn;
   TRANSACTION m_trans;
-  testfunc &m_func;
+  testfunc m_func;
 };
 
 
@@ -134,6 +182,6 @@ private:
 		"did not throw)"); \
 	}
 
-} // namespace pqxx
 } // namespace test
+} // namespace pqxx
 
