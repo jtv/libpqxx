@@ -218,7 +218,7 @@ void test_adopted_sql_cursor(connection_base &conn, transaction_base &trans)
     internal::sql_cursor(trans, "adopted2", cursor_base::owned);
   }
   PQXX_CHECK_THROWS(
-	trans.exec("MOVE 1 IN adopted2"),
+	trans.exec("FETCH 1 IN adopted2"),
 	 sql_error,
 	 "Owned adopted cursor not cleaned up");
 
