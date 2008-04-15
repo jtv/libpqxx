@@ -212,11 +212,6 @@ public:
   difference_type move(difference_type rows)
 				{ difference_type d=0; return move(rows, d); }
 
-  /// Fetch just the row currently under the cursor, don't move
-  /** Requires random_access policy.
-   */
-  result fetch_current_row();
-
   /// Current position, or -1 for unknown
   /**
    * The starting position, just before the first row, counts as position zero.

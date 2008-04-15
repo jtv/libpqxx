@@ -20,9 +20,6 @@ void test_forward_sql_cursor(connection_base &, transaction_base &trans)
   PQXX_CHECK_EQUAL(forward.pos(), 0, "Wrong initial position");
   PQXX_CHECK_EQUAL(forward.endpos(), -1, "Wrong initial endpos()");
 
-  result initial_row = forward.fetch_current_row();
-  PQXX_CHECK_EQUAL(initial_row.size(), 0, "Starting row not empty");
-
   result empty_result = forward.empty_result();
   PQXX_CHECK_EQUAL(empty_result.size(), 0, "Empty result not empty");
 

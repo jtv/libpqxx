@@ -1,4 +1,7 @@
 2008-04-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.hxx, src/cursor.cxx:
+  - Removed fetch_current_row() (it was odd, and hard to guarantee)
+2008-04-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/cursor.cxx:
   - Made init_empty_result() conditional on backend version
  test/test_helpers.hxx, test/unit/test_stateless_cursor.cxx,
