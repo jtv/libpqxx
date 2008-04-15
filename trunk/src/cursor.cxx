@@ -271,12 +271,6 @@ cursor_base::difference_type pqxx::internal::sql_cursor::move(
 }
 
 
-result pqxx::internal::sql_cursor::fetch_current_row()
-{
-  return m_home.Exec(("FETCH 0 IN \"" + name() + "\"").c_str(), 0);
-}
-
-
 string pqxx::internal::sql_cursor::stridestring(difference_type n)
 {
   /* Some special-casing for ALL and BACKWARD ALL here.  We used to use numeric
