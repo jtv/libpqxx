@@ -163,7 +163,7 @@ private:
 		PGSTD::string(desc) + " " \
 		"(" #action ": " \
 		"expected=" #exception_type ", " \
-		"threw='" + e.what() + ")"); \
+		"threw='" + e.what() + "')"); \
 	  } \
 	  catch (...) \
 	  { \
