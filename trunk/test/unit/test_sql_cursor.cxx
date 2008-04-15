@@ -217,10 +217,20 @@ void test_adopted_sql_cursor(connection_base &conn, transaction_base &trans)
   {
     internal::sql_cursor(trans, "adopted2", cursor_base::owned);
   }
-  PQXX_CHECK_THROWS(
+  if (conn.server_version() >= 80000)
+  {
+    // Modern backends: accessing the cursor now is an error, as you'd expect.
+    PQXX_CHECK_THROWS(
 	trans.exec("FETCH 1 IN adopted2"),
 	 sql_error,
 	 "Owned adopted cursor not cleaned up");
+  }
+  else
+  {
+    // Old backends: see that we can at least create a new cursor with the same
+    // name.
+    trans.exec("DECLARE adopted2 CURSOR FOR SELECT TRUE");
+  }
 
   trans.abort();
 
