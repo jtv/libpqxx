@@ -235,6 +235,7 @@ void test_adopted_sql_cursor(connection_base &conn, transaction_base &trans)
   trans.abort();
 
   work trans2(conn, "trans2");
+  pqxx::test::prepare_series(conn, 1, 3);
   trans2.exec(
 	"DECLARE adopted3 CURSOR FOR " +
 	pqxx::test::select_series(conn, 1, 3));

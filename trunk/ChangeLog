@@ -4,6 +4,7 @@
  test/unit/test_sql_cursor.cxx:
   - Test cursor existence using FETCH, not MOVE (to make failure more likely)
   - On older backends, test for cursor existence differently
+  - Re-create series table when opening new transaction
 2008-04-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/cursor.cxx:
   - Made init_empty_result() conditional on backend version
