@@ -183,7 +183,14 @@ void pqxx::basic_robusttransaction::CreateLogTable()
   else
     CrTab += string(", CONSTRAINT pqxxlog_identity_") + conn().username() +
 	     " UNIQUE(oid)";
-  try { DirectExec(CrTab.c_str(), 1); } catch (const exception &) { }
+  try
+  {
+    DirectExec(CrTab.c_str(), 1);
+  } catch (const exception &e)
+  {
+    conn().process_notice(
+	"Could not create transaction log table: " + e.what());
+  }
 }
 
 
