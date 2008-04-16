@@ -182,7 +182,7 @@ void pqxx::basic_robusttransaction::CreateLogTable()
     CrTab += ") WITH OIDS";
   else
     CrTab += string(", CONSTRAINT pqxxlog_identity_") + conn().username() +
-	     " UNIQUE(oid)";
+	     " UNIQUE(oid))";
   try
   {
     DirectExec(CrTab.c_str(), 1);
