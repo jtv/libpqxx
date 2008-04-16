@@ -1,4 +1,6 @@
 2008-04-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/Doxyfile.in:
+  - Removed some unused options to improve Doxygen version compatibility
  src/robusttransaction.cxx:
   - Log failures while creating log table
 2008-04-15  Jeroen T. Vermeulen <jtv@xs4all.nl>

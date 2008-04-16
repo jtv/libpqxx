@@ -188,32 +188,6 @@ TAB_SIZE               = 8
 
 ALIASES                = 
 
-# Set the OPTIMIZE_OUTPUT_FOR_C tag to YES if your project consists of C 
-# sources only. Doxygen will then generate output that is more tailored for C. 
-# For instance, some of the names that are used will be different. The list 
-# of all members will be omitted, etc.
-
-OPTIMIZE_OUTPUT_FOR_C  = NO
-
-# Set the OPTIMIZE_OUTPUT_JAVA tag to YES if your project consists of Java 
-# sources only. Doxygen will then generate output that is more tailored for 
-# Java. For instance, namespaces will be presented as packages, qualified 
-# scopes will look different, etc.
-
-OPTIMIZE_OUTPUT_JAVA   = NO
-
-# Set the OPTIMIZE_FOR_FORTRAN tag to YES if your project consists of Fortran 
-# sources only. Doxygen will then generate output that is more tailored for 
-# Fortran.
-
-OPTIMIZE_FOR_FORTRAN   = NO
-
-# Set the OPTIMIZE_OUTPUT_VHDL tag to YES if your project consists of VHDL 
-# sources. Doxygen will then generate output that is tailored for 
-# VHDL.
-
-OPTIMIZE_OUTPUT_VHDL   = NO
-
 # If you use STL classes (i.e. std::string, std::vector, etc.) but do not want 
 # to include (a tag file for) the STL sources as input, then you should 
 # set this tag to YES in order to let doxygen match functions declarations and 
@@ -222,17 +196,6 @@ OPTIMIZE_OUTPUT_VHDL   = NO
 # diagrams that involve STL classes more complete and accurate.
 
 BUILTIN_STL_SUPPORT    = YES
-
-# If you use Microsoft's C++/CLI language, you should set this option to YES to
-# enable parsing support.
-
-CPP_CLI_SUPPORT        = NO
-
-# Set the SIP_SUPPORT tag to YES if your project consists of sip sources only. 
-# Doxygen will parse them like normal C++ but will assume all classes use public 
-# instead of private inheritance when no explicit protection keyword is present.
-
-SIP_SUPPORT            = NO
 
 # If member grouping is used in the documentation and the DISTRIBUTE_GROUP_DOC 
 # tag is set to YES, then doxygen will reuse the documentation of the first 
@@ -249,15 +212,6 @@ DISTRIBUTE_GROUP_DOC   = NO
 
 SUBGROUPING            = YES
 
-# When TYPEDEF_HIDES_STRUCT is enabled, a typedef of a struct, union, or enum 
-# is documented as struct, union, or enum with the name of the typedef. So 
-# typedef struct TypeS {} TypeT, will appear in the documentation as a struct 
-# with name TypeT. When disabled the typedef will appear as a member of a file, 
-# namespace, or class. And the struct will be named TypeS. This can typically 
-# be useful for C code in case the coding convention dictates that all compound 
-# types are typedef'ed and only the typedef is referenced, never the tag name.
-
-TYPEDEF_HIDES_STRUCT   = NO
 
 #---------------------------------------------------------------------------
 # Build related configuration options
