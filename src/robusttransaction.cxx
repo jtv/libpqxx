@@ -189,7 +189,7 @@ void pqxx::basic_robusttransaction::CreateLogTable()
   } catch (const exception &e)
   {
     conn().process_notice(
-	"Could not create transaction log table: " + e.what());
+	"Could not create transaction log table: " + string(e.what()));
   }
 }
 
