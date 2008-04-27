@@ -1327,7 +1327,7 @@ void wait_fd(int fd, bool forwrite=false, timeval *tv=0)
   if (fd < 0) throw pqxx::broken_connection();
 
 #ifdef PQXX_HAVE_POLL
-  pollfd pfd = { fd, POLLERR|POLLHUP|POLLNVAL | (forwrite?POLLOUT:POLLIN) , 0 };
+  pollfd pfd = { fd, short(POLLERR|POLLHUP|POLLNVAL | (forwrite?POLLOUT:POLLIN)) , 0 };
   poll(&pfd, 1, (tv ? (tv->tv_sec*1000 + tv->tv_usec/1000) : -1));
 #else
   fd_set s;

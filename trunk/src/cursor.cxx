@@ -68,7 +68,7 @@ pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
    */
   string::const_iterator last = query.end();
   // TODO: May break on multibyte encodings!
-  for (--last; last!=query.begin() && useless_trail(*last); --last);
+  for (--last; last!=query.begin() && useless_trail(*last); --last) ;
   if (last==query.begin() && useless_trail(*last))
     throw invalid_argument("Cursor created on empty query");
   ++last;

@@ -31,7 +31,7 @@ using namespace pqxx::internal;
 namespace
 {
 // Convert textual digit to value
-inline char DV(unsigned char d) { return digit_to_number(char(d)); }
+inline int DV(unsigned char d) { return digit_to_number(char(d)); }
 }
 
 pqxx::binarystring::binarystring(const result::field &F) :

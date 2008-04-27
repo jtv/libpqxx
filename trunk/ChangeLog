@@ -1,3 +1,7 @@
+2008-04-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx, src/binarystring.cxx, src/connection_base.cxx,
+ src/cursor.cxx, src/pipeline.cxx, src/tablereader.cxx, src/util.cxx:
+  - Fixed warnings in g++ 4.3
 2008-04-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/unit/test_stateless_cursor.cxx:
   - Test most likely usage pattern: batched sequential retrieval
