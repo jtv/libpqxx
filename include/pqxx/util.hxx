@@ -235,7 +235,7 @@ namespace internal
 {
 /// Compute numeric value of given textual digit (assuming that it is a digit)
 inline int digit_to_number(char c) throw () { return c-'0'; }
-inline char number_to_digit(int i) throw () { return static_cast<char>(i)+'0'; }
+inline char number_to_digit(int i) throw () { return static_cast<char>(i+'0'); }
 }
 
 

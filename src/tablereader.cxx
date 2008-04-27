@@ -92,7 +92,7 @@ void pqxx::tablereader::reader_close()
       try
       {
         string Dummy;
-        while (get_raw_line(Dummy));
+        while (get_raw_line(Dummy)) ;
       }
       catch (const broken_connection &)
       {
