@@ -39,7 +39,7 @@ export CONCURRENCY_LEVEL
 echo "## Concurrency level: $CONCURRENCY_LEVEL ##"
 MAKEOPT="-j $CONCURRENCY_LEVEL"
 
-COMPILERS="`find /usr/bin -name g++-[0-9].[0-9]`"
+COMPILERS="`find /usr/bin /usr/local/bin -name g++-[0-9].[0-9]`"
 COMPILERS="${COMPILERS:-g++}"
 export COMPILERS
 echo "## Compilers: "$COMPILERS" ##"
