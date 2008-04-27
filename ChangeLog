@@ -1,3 +1,6 @@
+2008-04-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/pqxx-fulltest:
+  - Also look for compilers in /usr/local/bin
 2008-04-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.hxx, src/binarystring.cxx, src/connection_base.cxx,
  src/cursor.cxx, src/pipeline.cxx, src/tablereader.cxx, src/util.cxx:
