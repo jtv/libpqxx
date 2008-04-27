@@ -59,10 +59,28 @@ void test_stateless_cursor(connection_base &, transaction_base &trans)
   PQXX_CHECK_EQUAL(rows.size(), 1, "Row count wrong at beginning");
   PQXX_CHECK_EQUAL(rows[0][0].as<int>(), 0, "Data/pos mismatch at beginning");
 
+  // Retrieve entire result set backwards.
   rows = stateless.retrieve(10, -15);
   PQXX_CHECK_EQUAL(rows.size(), 10, "Reverse complete retrieval is broken");
   PQXX_CHECK_EQUAL(rows[0][0].as<int>(), 9, "Data mismatch");
   PQXX_CHECK_EQUAL(rows[9][0].as<int>(), 0, "Data mismatch");
+
+  // Normal usage pattern: step through result set, 4 rows at a time.
+  rows = stateless.retrieve(0, 4);
+  PQXX_CHECK_EQUAL(rows.size(), 4, "Wrong batch size");
+  PQXX_CHECK_EQUAL(rows[0][0].as<int>(), 0, "Batch in wrong place");
+  PQXX_CHECK_EQUAL(rows[3][0].as<int>(), 3, "Batch in wrong place");
+
+  rows = stateless.retrieve(4, 8);
+  PQXX_CHECK_EQUAL(rows.size(), 4, "Wrong batch size");
+  PQXX_CHECK_EQUAL(rows[0][0].as<int>(), 4, "Batch in wrong place");
+  PQXX_CHECK_EQUAL(rows[3][0].as<int>(), 7, "Batch in wrong place");
+
+  rows = stateless.retrieve(8, 12);
+  PQXX_CHECK_EQUAL(rows.size(), 2, "Wrong batch size");
+  PQXX_CHECK_EQUAL(rows[0][0].as<int>(), 8, "Batch in wrong place");
+  PQXX_CHECK_EQUAL(rows[1][0].as<int>(), 9, "Batch in wrong place");
+
 }
 } // namespace
 
