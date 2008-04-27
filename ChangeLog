@@ -1,3 +1,6 @@
+2008-04-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/unit/test_stateless_cursor.cxx:
+  - Test most likely usage pattern: batched sequential retrieval
 2008-04-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/Doxyfile.in:
   - Removed some unused options to improve Doxygen version compatibility
