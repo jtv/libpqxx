@@ -1,3 +1,7 @@
+2008-05-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx, src/connection_base.cxx, src/pipeline.cxx,
+ src/prepared_statement.cxx, src/util.cxx:
+  - Fixes for Visual C++ 8 warnings (correct ones)--thanks Kirit Saelensminde
 2008-04-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/pqxx-fulltest:
   - Also look for compilers in /usr/local/bin

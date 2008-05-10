@@ -64,7 +64,7 @@ pqxx::result pqxx::prepare::invocation::exec() const
     if (m_nonnull[i])
     {
       ptrs[i] = m_values[v].c_str();
-      lens[i] = m_values[v].size();
+      lens[i] = int(m_values[v].size());
       ++v;
     }
     else

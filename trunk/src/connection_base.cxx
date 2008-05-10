@@ -1203,14 +1203,14 @@ void pqxx::connection_base::WriteCopyLine(const PGSTD::string &Line)
   const string::size_type Len = L.size();
 
 #ifdef PQXX_HAVE_PQPUTCOPY
-  if (PQputCopyData(m_Conn, LC, Len) <= 0)
+  if (PQputCopyData(m_Conn, LC, int(Len)) <= 0)
   {
     const string Msg = string("Error writing to table: ") + ErrMsg();
     PQendcopy(m_Conn);
     throw runtime_error(Msg);
   }
 #else
-  if (PQputnbytes(m_Conn, LC, Len) == EOF)
+  if (PQputnbytes(m_Conn, LC, int(Len)) == EOF)
     throw runtime_error(string("Error writing to table: ") + ErrMsg());
 #endif
 }

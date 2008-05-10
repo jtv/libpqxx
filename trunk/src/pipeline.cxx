@@ -7,7 +7,7 @@
  *      implementation of the pqxx::pipeline class
  *   Throughput-optimized query manager
  *
- * Copyright (c) 2003-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -200,7 +200,7 @@ void pqxx::pipeline::issue()
   m_dummy_pending = prepend_dummy;
   m_issuedrange.first = oldest;
   m_issuedrange.second = m_queries.end();
-  m_num_waiting -= num_issued;
+  m_num_waiting -= int(num_issued);
 }
 
 

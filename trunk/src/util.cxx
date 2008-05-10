@@ -94,7 +94,7 @@ template<typename T> inline void set_to_Inf(T &t, int sign=1)
 template<typename L, typename R>
   inline L absorb_digit(L value, R digit) throw ()
 {
-  return L(10*value + digit);
+  return 10*value + L(digit);
 }
 
 
