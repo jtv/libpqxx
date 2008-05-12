@@ -1,3 +1,6 @@
+2008-05-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx:
+  - Changed fix for Visual C++ warning (was bad overload).
 2008-05-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.hxx, src/connection_base.cxx, src/pipeline.cxx,
  src/prepared_statement.cxx, src/util.cxx:
