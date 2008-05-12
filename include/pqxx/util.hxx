@@ -7,7 +7,7 @@
  *      Various utility definitions for libpqxx
  *      DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/util instead.
  *
- * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -685,8 +685,8 @@ public:
 
   T *c_ptr() const throw () { return m_ptr; }
   T &operator*() const throw () { return *m_ptr; }
-  T &operator[](size_type i) const throw () { return m_ptr[i]; }
-  T &operator[](difference_type i) const throw () { return m_ptr[i]; }
+  template<typename INDEX> T &operator[](INDEX i) const throw ()
+	{ return m_ptr[i]; }
 
   scoped_array &operator=(T *t) throw ()
   {
