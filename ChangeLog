@@ -1,7 +1,7 @@
 2008-05-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/transaction_base.hxx, src/connection_base.cxx, src/pipeline.cxx:
   - Check for errors during PQconsumeInput()
-  - Fixed "endless network timeout."  Thanks anonymous tipster!
+  - Fixed "endless network timeout."  Thanks Dragomir Ivanov!
   - transaction_base::consume_input() now returns success value.
 2008-05-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.hxx:
