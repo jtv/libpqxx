@@ -7,7 +7,7 @@
  *      implementation of the pqxx::connection_base abstract base class.
  *   pqxx::connection_base encapsulates a frontend to backend connection
  *
- * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -643,7 +643,7 @@ int pqxx::connection_base::get_notifs()
   int notifs = 0;
   if (!is_open()) return notifs;
 
-  PQconsumeInput(m_Conn);
+  if (!consume_input()) throw broken_connection();
 
   // Even if somehow we receive notifications during our transaction, don't
   // deliver them.

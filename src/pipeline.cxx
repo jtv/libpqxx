@@ -398,13 +398,14 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 void pqxx::pipeline::get_further_available_results()
 {
   pqxxassert(!m_dummy_pending);
-  while (!m_Trans.is_busy() && obtain_result()) m_Trans.consume_input();
+  while (!m_Trans.is_busy() && obtain_result())
+    if (!m_Trans.consume_input()) throw broken_connection();
 }
 
 
 void pqxx::pipeline::receive_if_available()
 {
-  m_Trans.consume_input();
+  if (!m_Trans.consume_input()) throw broken_connection();
   if (m_Trans.is_busy()) return;
 
   if (m_dummy_pending) obtain_dummy();
