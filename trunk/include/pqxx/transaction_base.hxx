@@ -9,7 +9,7 @@
  *   represents a database transaction
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction_base instead.
  *
- * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -351,7 +351,7 @@ private:
   friend class pipeline;
   void start_exec(const PGSTD::string &Q) { m_Conn.start_exec(Q); }
   internal::pq::PGresult *get_result() { return m_Conn.get_result(); }
-  void consume_input() throw () { m_Conn.consume_input(); }
+  bool consume_input() throw () { return m_Conn.consume_input(); }
   bool is_busy() const throw () { return m_Conn.is_busy(); }
 
   friend class prepare::invocation;
