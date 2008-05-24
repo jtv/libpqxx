@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      Compiler deficiency workarounds for libpqxx clients
  *
- * Copyright (c) 2002-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -37,6 +37,9 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
+
+// Suppress vtables on abstract classes.
+#define PQXX_NOVTABLE __declspec(novtable)
 
 #endif	// _MSC_VER
 
@@ -221,6 +224,10 @@ template<> struct char_traits<unsigned char>
 // Some compilers (well, VC) stumble over some required cases of "typename"
 #ifndef PQXX_TYPENAME
 #define PQXX_TYPENAME typename
+#endif
+
+#ifndef PQXX_NOVTABLE
+#define PQXX_NOVTABLE
 #endif
 
 #endif

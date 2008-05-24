@@ -8,7 +8,7 @@
  *   pqxx::robusttransaction is a slower but safer transaction class
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/robusttransaction instead.
  *
- * Copyright (c) 2002-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -35,7 +35,8 @@ namespace pqxx
  * @{
  */
 
-class PQXX_LIBEXPORT basic_robusttransaction : public dbtransaction
+class PQXX_LIBEXPORT PQXX_NOVTABLE basic_robusttransaction :
+  public dbtransaction
 {
 public:
   /// Isolation level is read_committed by default

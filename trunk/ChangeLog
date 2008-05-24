@@ -1,3 +1,9 @@
+2008-05-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/compiler-public.hxx, include/pqxx/connection_base.hxx,
+ include/pqxx/dbtransaction.hxx, include/pqxx/except.hxx,
+ include/pqxx/notify-listen.hxx, include/pqxx/robusttransaction.hxx,
+ include/pqxx/tablestream.hxx, include/pqxx/transaction_base.hxx:
+  - Suppress vtables for abstract classes on Visual C++, thanks Kirit.
 2008-05-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/transaction_base.hxx, src/connection_base.cxx, src/pipeline.cxx:
   - Check for errors during PQconsumeInput()

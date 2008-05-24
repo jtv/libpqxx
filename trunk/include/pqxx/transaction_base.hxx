@@ -90,7 +90,8 @@ private:
  * the plain transaction class, the entirely unprotected nontransaction, and the
  * more cautions robusttransaction.
  */
-class PQXX_LIBEXPORT transaction_base : public virtual internal::namedclass
+class PQXX_LIBEXPORT PQXX_NOVTABLE transaction_base :
+  public virtual internal::namedclass
 {
 public:
   /// If nothing else is known, our isolation level is at least read_committed
