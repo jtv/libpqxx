@@ -53,7 +53,8 @@ namespace pqxx
  * same name.  An incoming notification is processed by invoking all listeners
  * (zero or more) of the same name.
  */
-class PQXX_LIBEXPORT notify_listener : public PGSTD::unary_function<int, void>
+class PQXX_LIBEXPORT PQXX_NOVTABLE notify_listener :
+  public PGSTD::unary_function<int, void>
 {
 public:
   /// Constructor.  Registers the listener with connection C.

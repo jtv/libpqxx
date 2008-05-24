@@ -8,7 +8,7 @@
  *   pqxx::dbransaction defines a real transaction on the database
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/dbtransaction instead.
  *
- * Copyright (c) 2004-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -55,7 +55,7 @@ namespace pqxx
  * class must also call Begin() and End() from its constructors and destructors,
  * respectively, and implement do_exec().
  */
-class PQXX_LIBEXPORT dbtransaction : public transaction_base
+class PQXX_LIBEXPORT PQXX_NOVTABLE dbtransaction : public transaction_base
 {
 protected:
   dbtransaction(connection_base &, const PGSTD::string &IsolationString);

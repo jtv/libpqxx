@@ -8,7 +8,7 @@
  *   pqxx::tablestream provides optimized batch access to a database table
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablestream instead.
  *
- * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -40,7 +40,8 @@ class transaction_base;
  * or queries may be applied to that transaction as long as the stream remains
  * open.
  */
-class PQXX_LIBEXPORT tablestream : public internal::transactionfocus
+class PQXX_LIBEXPORT PQXX_NOVTABLE tablestream :
+  public internal::transactionfocus
 {
 public:
   explicit tablestream(transaction_base &Trans,
