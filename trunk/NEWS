@@ -14,6 +14,7 @@
  - Fixed broken escaping of binary values in TableWriter
  - Floating-point types now represented with full precision
  - Proper unit tests for new functionality
+ - New traits-based system for adding data types
 2.6.9
  - Removed old 1.x API (that means all identifiers with capital letters!)
  - Tested with all current libpq versions and oldest/newest supported backends

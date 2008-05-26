@@ -234,69 +234,79 @@ template<> void from_string(const char Str[], PGSTD::string &Obj, size_t len)
   Obj = string(Str, len);
 }
 
-template<> void from_string(const char Str[], long &Obj)
+template<> void string_traits<long>::from_string(const char Str[], long &Obj)
 {
   from_string_signed(Str, Obj);
 }
 
-template<> void from_string(const char Str[], unsigned long &Obj)
+template<> void
+string_traits<unsigned long>::from_string(const char Str[], unsigned long &Obj)
 {
   from_string_unsigned(Str, Obj);
 }
 
-template<> void from_string(const char Str[], int &Obj)
+template<> void string_traits<int>::from_string(const char Str[], int &Obj)
 {
   from_string_signed(Str, Obj);
 }
 
-template<> void from_string(const char Str[], unsigned int &Obj)
+template<> void
+string_traits<unsigned int>::from_string(const char Str[], unsigned int &Obj)
 {
   from_string_unsigned(Str, Obj);
 }
 
-template<> void from_string(const char Str[], short &Obj)
+template<> void string_traits<short>::from_string(const char Str[], short &Obj)
 {
   from_string_signed(Str, Obj);
 }
 
-template<> void from_string(const char Str[], unsigned short &Obj)
+template<> void
+string_traits<unsigned short>::from_string(
+	const char Str[], unsigned short &Obj)
 {
   from_string_unsigned(Str, Obj);
 }
 
 #ifdef PQXX_HAVE_LONG_LONG
-template<> void from_string(const char Str[], long long &Obj)
+template<> void
+string_traits<long long>::from_string(const char Str[], long long &Obj)
 {
   from_string_signed(Str, Obj);
 }
 
-template<> void from_string(const char Str[], unsigned long long &Obj)
+template<> void
+string_traits<unsigned long long>::from_string(
+	const char Str[],
+	unsigned long long &Obj)
 {
   from_string_unsigned(Str, Obj);
 }
 #endif
 
-template<> void from_string(const char Str[], float &Obj)
+template<> void string_traits<float>::from_string(const char Str[], float &Obj)
 {
   float result;
   from_string_float(Str, result);
   Obj = result;
 }
 
-template<> void from_string(const char Str[], double &Obj)
+template<> void
+string_traits<double>::from_string(const char Str[], double &Obj)
 {
   from_string_float(Str, Obj);
 }
 
 #if defined(PQXX_HAVE_LONG_DOUBLE)
-template<> void from_string(const char Str[], long double &Obj)
+template<> void
+string_traits<long double>::from_string(const char Str[], long double &Obj)
 {
   from_string_float(Str, Obj);
 }
 #endif
 
 
-template<> void from_string(const char Str[], bool &Obj)
+template<> void string_traits<bool>::from_string(const char Str[], bool &Obj)
 {
   if (!Str)
     throw runtime_error("Attempt to read NULL string");
@@ -321,7 +331,7 @@ template<> void from_string(const char Str[], bool &Obj)
   case '0':
     {
       int I;
-      from_string(Str, I);
+      string_traits<int>::from_string(Str, I);
       result = (I != 0);
       OK = ((I == 0) || (I == 1));
     }
@@ -412,6 +422,7 @@ template<typename T> inline string to_string_float(T Obj)
 #ifndef PQXX_HAVE_NAN_OUTPUT
   if (is_NaN(Obj)) return "nan";
 #endif
+  // TODO: What about infinities?
   return to_string_fallback(Obj);
 }
 
@@ -442,71 +453,75 @@ template<typename T> inline string to_string_signed(T Obj)
 
 namespace pqxx
 {
-template<> string to_string(const short &Obj)
+template<> string string_traits<short>::to_string(const short &Obj)
 {
   return to_string_signed(Obj);
 }
 
-template<> string to_string(const unsigned short &Obj)
+template<> string
+string_traits<unsigned short>::to_string(const unsigned short &Obj)
 {
   return to_string_unsigned(Obj);
 }
 
-template<> string to_string(const int &Obj)
+template<> string string_traits<int>::to_string(const int &Obj)
 {
   return to_string_signed(Obj);
 }
 
-template<> string to_string(const unsigned int &Obj)
+template<> string
+string_traits<unsigned int>::to_string(const unsigned int &Obj)
 {
   return to_string_unsigned(Obj);
 }
 
-template<> string to_string(const long &Obj)
+template<> string string_traits<long>::to_string(const long &Obj)
 {
   return to_string_signed(Obj);
 }
 
-template<> string to_string(const unsigned long &Obj)
+template<>
+string string_traits<unsigned long>::to_string(const unsigned long &Obj)
 {
   return to_string_unsigned(Obj);
 }
 
 
 #if defined(PQXX_HAVE_LONG_LONG)
-template<> string to_string(const long long &Obj)
+template<> string string_traits<long long>::to_string(const long long &Obj)
 {
   return to_string_signed(Obj);
 }
-template<> string to_string(const unsigned long long &Obj)
+template<> string
+string_traits<unsigned long long>::to_string(const unsigned long long &Obj)
 {
   return to_string_unsigned(Obj);
 }
 #endif
 
-template<> string to_string(const float &Obj)
+template<> string string_traits<float>::to_string(const float &Obj)
 {
   return to_string_float(Obj);
 }
 
-template<> string to_string(const double &Obj)
+template<> string string_traits<double>::to_string(const double &Obj)
 {
   return to_string_float(Obj);
 }
 
 #if defined(PQXX_HAVE_LONG_DOUBLE)
-template<> string to_string(const long double &Obj)
+template<> string string_traits<long double>::to_string(const long double &Obj)
 {
   return to_string_float(Obj);
 }
 #endif
 
-template<> string to_string(const bool &Obj)
+template<> string string_traits<bool>::to_string(const bool &Obj)
 {
   return Obj ? "true" : "false";
 }
 
-template<> string to_string(const char &Obj)
+template<> string string_traits<char>::to_string(const char &Obj)
 {
   string s;
   s += Obj;
