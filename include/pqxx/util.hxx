@@ -135,13 +135,19 @@ template<typename T> PGSTD::string error_ambiguous_string_conversion(T);
 /** Specialize this template for a type that you wish to add to_string and
  * from_string support for.
  */
-template<typename T> struct string_traits
+template<typename T> struct PQXX_LIBEXPORT string_traits
 {
   /// Is the given value of T a null?
   static bool is_null(const T &) { return false; }
 
   /// Null value for T, or domain_error if T has no null.
   static T null() { throw PGSTD::domain_error("Attempt to read null field"); }
+
+  /// Convert string to object.
+  static void from_string(const char str[], T &obj);
+
+  /// Convert object to string.
+  static PGSTD::string to_string(const T &);
 };
 
 
@@ -160,7 +166,7 @@ template<typename T> struct string_traits
  * No whitespace is stripped away.  Only the kinds of strings that come out of
  * PostgreSQL and out of to_string() can be converted.
  */
-template<typename T> void from_string(const char Str[], T &Obj)
+template<typename T> inline void from_string(const char Str[], T &Obj)
 	{ string_traits<T>::from_string(Str, Obj); }
 
 
@@ -179,31 +185,6 @@ template<typename T> void from_string(const char Str[], T &Obj, size_t)
 template<> void PQXX_LIBEXPORT from_string(const char Str[],
 	PGSTD::string &,
 	size_t);							//[t0]
-
-template<> void PQXX_LIBEXPORT from_string(const char Str[], long &);	//[t45]
-template<>
-  void PQXX_LIBEXPORT from_string(const char Str[], unsigned long &);	//[t45]
-template<> void PQXX_LIBEXPORT from_string(const char Str[], int &);	//[t45]
-template<>
-  void PQXX_LIBEXPORT from_string(const char Str[], unsigned int &);	//[t45]
-template<> void PQXX_LIBEXPORT from_string(const char Str[], short &);	//[t45]
-template<>
-  void PQXX_LIBEXPORT from_string(const char Str[], unsigned short &);	//[t45]
-template<> void PQXX_LIBEXPORT from_string(const char Str[], float &);	//[t46]
-template<> void PQXX_LIBEXPORT from_string(const char Str[], double &);	//[t46]
-template<> void PQXX_LIBEXPORT from_string(const char Str[], bool &);	//[t76]
-
-#if defined(PQXX_HAVE_LONG_LONG) && defined(PQXX_ALLOW_LONG_LONG)
-template<> void PQXX_LIBEXPORT
-  from_string(const char Str[], long long &);				//[t0]
-template<> void PQXX_LIBEXPORT
-  from_string(const char Str[], unsigned long long &);			//[t0]
-#endif
-
-#if defined(PQXX_HAVE_LONG_DOUBLE)
-template<>
-  void PQXX_LIBEXPORT from_string(const char Str[], long double &);	//[t46]
-#endif
 
 
 template<> inline void from_string(const char Str[],PGSTD::string &Obj)	//[t46]
@@ -259,22 +240,9 @@ inline char number_to_digit(int i) throw () { return static_cast<char>(i+'0'); }
  * resulting string will be human-readable and in a format suitable for use in
  * SQL queries.
  */
-template<typename T> PGSTD::string to_string(const T &t)
+template<typename T> inline PGSTD::string to_string(const T &t)
 	{ return string_traits<T>::to_string(t); }
 
-
-template<> PGSTD::string PQXX_LIBEXPORT to_string(const short &);	//[t76]
-template<>
-  PGSTD::string PQXX_LIBEXPORT to_string(const unsigned short &);	//[t76]
-template<> PGSTD::string PQXX_LIBEXPORT to_string(const int &);		//[t10]
-template<>
-  PGSTD::string PQXX_LIBEXPORT to_string(const unsigned int &);		//[t13]
-template<> PGSTD::string PQXX_LIBEXPORT to_string(const long &);	//[t18]
-template<>
-  PGSTD::string PQXX_LIBEXPORT to_string(const unsigned long &);	//[t20]
-template<> PGSTD::string PQXX_LIBEXPORT to_string(const float &);	//[t74]
-template<> PGSTD::string PQXX_LIBEXPORT to_string(const double &);	//[t74]
-template<> PGSTD::string PQXX_LIBEXPORT to_string(const bool &);	//[t76]
 
 /* Even if the compiler supports "long long" and friends, the user may not want
  * them used because they may break compilation of client programs with
@@ -292,10 +260,6 @@ template<> PGSTD::string PQXX_LIBEXPORT
   to_string(const unsigned long long &);				//[t0]
 #endif
 
-#if defined(PQXX_HAVE_LONG_DOUBLE)
-template<> PGSTD::string PQXX_LIBEXPORT to_string(const long double &);	//[t74]
-#endif
-
 inline PGSTD::string to_string(const char Obj[])			//[t14]
 	{ return PGSTD::string(Obj); }
 
@@ -303,8 +267,6 @@ inline PGSTD::string to_string(const PGSTD::stringstream &Obj)		//[t0]
 	{ return Obj.str(); }
 
 inline PGSTD::string to_string(const PGSTD::string &Obj) {return Obj;}	//[t21]
-
-template<> PGSTD::string PQXX_LIBEXPORT to_string(const char &);	//[t21]
 
 
 template<> inline PGSTD::string to_string(const signed char &Obj)
