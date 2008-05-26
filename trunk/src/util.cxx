@@ -404,14 +404,24 @@ template<typename T> inline string to_string_fallback(T Obj)
 
 template<typename T> inline bool is_NaN(T Obj)
 {
-    // TODO: Is this workaround for missing isnan() reliable?  Infinities?
   return
-#if defined(PQXX_HAVE_ISNAN)
+#if defined(PQXX_HAVE_C_ISNAN)
     isnan(Obj);
 #elif defined(PQXX_HAVE_LIMITS)
     !(Obj <= Obj+numeric_limits<T>::max());
 #else
     !(Obj <= Obj + 1000);
+#endif
+}
+
+
+template<typename T> inline bool is_Inf(T Obj)
+{
+  return
+#if defined(PQXX_HAVE_C_ISINF)
+    isinf(Obj);
+#else
+    Obj >= Obj+1 && Obj <= 2*Obj && Obj >= 2*Obj;
 #endif
 }
 
@@ -422,7 +432,10 @@ template<typename T> inline string to_string_float(T Obj)
 #ifndef PQXX_HAVE_NAN_OUTPUT
   if (is_NaN(Obj)) return "nan";
 #endif
-  // TODO: What about infinities?
+  // TODO: Omit this special case if infinity is output as "infinity"
+#ifndef PQXX_HAVE_INF_OUTPUT
+  if (is_Inf(Obj)) return Obj > 0 ? "infinity" : "-infinity";
+#endif
   return to_string_fallback(Obj);
 }
 

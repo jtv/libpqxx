@@ -852,6 +852,17 @@ AC_TRY_COMPILE([#include <cmath>
 	[nan=no])
 AC_MSG_RESULT($nan)
 
+AC_MSG_CHECKING([for C99 isinf()])
+c_isnan=yes
+AC_TRY_COMPILE([#include <cmath>
+	extern double f();
+	${usestd}],
+	[if(isinf(f())f()],
+	AC_DEFINE(PQXX_HAVE_C_ISINF,1,[Define if math.h defines C99 isinf()]),
+	[c_isinf=no]
+)
+AC_MSG_RESULT($c_isinf)
+
 AC_MSG_CHECKING([whether std::string has a clear() function])
 string_clear=yes
 AC_TRY_COMPILE([#include <string>
