@@ -145,6 +145,15 @@ private:
 		"expected=" + to_string(expected) + ", " \
 		"actual=" + to_string(actual) + ")");
 
+// Verify that two values are not equal.
+#define PQXX_CHECK_NOT_EQUAL(value1, value2, desc) \
+	if (!(value1 != value2)) throw pqxx::test::test_failure( \
+		__FILE__, \
+		__LINE__, \
+		PGSTD::string(desc) + " " \
+		"(" #value1 " == " #value2 ": " \
+		"both are " + to_string(value2) + ")");
+
 // Verify that "action" throws "exception_type."
 #define PQXX_CHECK_THROWS(action, exception_type, desc) \
 	{ \
