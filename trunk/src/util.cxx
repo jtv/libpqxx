@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      Various utility functions for libpqxx
  *
- * Copyright (c) 2003-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -18,6 +18,10 @@
 
 #include <cmath>
 #include <cstring>
+
+#ifdef PQXX_HAVE_LIMITS
+#include <limits>
+#endif
 
 #ifdef PQXX_HAVE_LOCALE
 #include <locale>
@@ -84,7 +88,11 @@ template<> inline void set_to_NaN(long double &t) { t = nan_ld; }
 // TODO: This may need tweaking for various compilers.
 template<typename T> inline void set_to_Inf(T &t, int sign=1)
 {
+#ifdef PQXX_HAVE_LIMITS
+  T value = numeric_limits<T>::infinity();
+#else
   T value = INFINITY;
+#endif
   if (sign < 0) value = -value;
   t = value;
 }
