@@ -7,7 +7,7 @@
  *      Helper classes for defining and executing prepared statements
  *   See the connection_base hierarchy for more about prepared statements
  *
- * Copyright (c) 2006,2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2006,2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -94,11 +94,22 @@ public:
   /// Pass parameter value
   /**
    * @param v parameter value (will be represented as a string internally)
+   */
+  template<typename T>
+    invocation &operator()(const T &v)
+  {
+    const bool nonnull = !pqxx::string_traits<T>::is_null(v);
+    return setparam((nonnull ? pqxx::to_string(v) : ""), nonnull);
+  }
+
+  /// Pass parameter value
+  /**
+   * @param v parameter value (will be represented as a string internally)
    * @param nonnull replaces value with null if set to false
    */
   template<typename T>
-    invocation &operator()(const T &v, bool nonnull=true)
-	{ return setparam(to_string(v), nonnull); }
+    invocation &operator()(const T &v, bool nonnull)
+	{ return setparam((nonnull ? pqxx::to_string(v) : ""), nonnull); }
 
   /// Pass C-style parameter string, or null if pointer is null
   /**

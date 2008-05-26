@@ -131,6 +131,19 @@ template<typename T> void error_unsupported_type_in_string_conversion(T);
 template<typename T> PGSTD::string error_ambiguous_string_conversion(T);
 
 
+/// Traits class for use in string conversions
+/** Specialize this template for a type that you wish to add to_string and
+ * from_string support for.
+ */
+template<typename T> struct string_traits
+{
+  /// Is the given value of T a null?
+  static bool is_null(const T &) { return false; }
+
+  /// Null value for T, or domain_error if T has no null.
+  static T null() { throw PGSTD::domain_error("Attempt to read null field"); }
+};
+
 
 // TODO: Implement date conversions
 
@@ -147,7 +160,9 @@ template<typename T> PGSTD::string error_ambiguous_string_conversion(T);
  * No whitespace is stripped away.  Only the kinds of strings that come out of
  * PostgreSQL and out of to_string() can be converted.
  */
-template<typename T> void from_string(const char Str[], T &Obj);
+template<typename T> void from_string(const char Str[], T &Obj)
+	{ string_traits<T>::from_string(Str, Obj); }
+
 
 /// Conversion with known string length (for strings that may contain nuls)
 /** This is only used for strings, where embedded nul bytes should not determine
@@ -244,7 +259,9 @@ inline char number_to_digit(int i) throw () { return static_cast<char>(i+'0'); }
  * resulting string will be human-readable and in a format suitable for use in
  * SQL queries.
  */
-template<typename T> PGSTD::string to_string(const T &);
+template<typename T> PGSTD::string to_string(const T &t)
+	{ return string_traits<T>::to_string(t); }
+
 
 template<> PGSTD::string PQXX_LIBEXPORT to_string(const short &);	//[t76]
 template<>

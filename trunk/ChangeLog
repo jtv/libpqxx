@@ -1,4 +1,7 @@
 2008-05-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/prepared_statement.hxx, include/pqxx/result.hxx,
+ include/pqxx/util.hxx:
+  - Handle nulls in string conversions using traits, thanks Daniel Frey
  src/util.cxx:
   - Use numeric_limits to get infinity, if possible.  Thanks Andrew.
 2008-05-25  Jeroen T. Vermeulen <jtv@xs4all.nl>

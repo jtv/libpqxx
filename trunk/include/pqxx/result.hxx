@@ -8,7 +8,7 @@
  *   pqxx::result represents the set of result tuples from a database query
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/result instead.
  *
- * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -406,7 +406,7 @@ public:
     {
       T Obj;
       const bool NotNull = to(Obj);
-      if (!NotNull) throw PGSTD::domain_error("Attempt to read null field");
+      if (!NotNull) Obj = string_traits<T>::null();
       return Obj;
     }
 
