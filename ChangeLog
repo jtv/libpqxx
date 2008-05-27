@@ -1,9 +1,13 @@
 2008-05-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh:
+  - Removed some GNU-isms.
  configure.ac.in, src/util.cxx, test/test_helpers.hxx,
  test/unit/test_float.cxx:
   - Support floating-point infinity.
   - Added PQXX_CHEC_NOT_EQUAL to test helpers.
   - Fixed mis-spelled macro in is_NaN()
+ include/pqxx/compiler-public.hxx:
+  - Defined PQXX_PRIVATE for SunPro compiler.
  include/pqxx/util.hxx, src/util.cxx:
   - Moved builtin to_string and from_string specializations into traits class.
 2008-05-26  Jeroen T. Vermeulen <jtv@xs4all.nl>

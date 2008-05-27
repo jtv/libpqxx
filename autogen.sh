@@ -20,7 +20,7 @@ latest_automake() {
 ver="`latest_automake`"
 
 # The VERSION file defines our versioning
-PQXXVERSION=`grep '\<PQXXVERSION\>' VERSION | sed -e 's/^[[:space:]A-Z_]*//' -e 's/[[:space:]]*#.*$//'`
+PQXXVERSION=`grep '\<PQXXVERSION\>' VERSION | sed -e 's/^[^a-zA-Z0-9._-]*//' -e 's/[ \t]*#.*$//'`
 echo "libpqxx version $PQXXVERSION"
 
 # Generate configure.ac based on current version numbers
