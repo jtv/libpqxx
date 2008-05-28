@@ -1,3 +1,6 @@
+2008-05-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh:
+  - Fixed bug in replacing GNU-ism in sed.
 2008-05-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
   - Removed some GNU-isms.

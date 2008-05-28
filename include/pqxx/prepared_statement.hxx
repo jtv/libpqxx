@@ -193,8 +193,8 @@ struct PQXX_PRIVATE get_sqltype
   }
 };
 
-} // namespace pqxx::prepared::internal
-} // namespace pqxx::prepared
+} // namespace pqxx::prepare::internal
+} // namespace pqxx::prepare
 } // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"
