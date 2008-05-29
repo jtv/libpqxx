@@ -289,7 +289,7 @@ void pqxx::connection_base::SetupState()
 
   read_capabilities();
 
-  const PSMap::const_iterator prepared_end(m_prepared.end());
+  PSMap::iterator prepared_end(m_prepared.end());
   for (PSMap::iterator p = m_prepared.begin(); p != prepared_end; ++p)
     p->second.registered = false;
 
