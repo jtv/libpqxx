@@ -185,7 +185,7 @@ void pqxx::pipeline::issue()
   if (m_error < qid_limit()) return;
 
   // Start with oldest query (lowest id) not in previous issue range
-  const QueryMap::iterator oldest = m_issuedrange.second;
+  QueryMap::iterator oldest = m_issuedrange.second;
   pqxxassert(oldest != m_queries.end());
 
   // Construct cumulative query string for entire batch

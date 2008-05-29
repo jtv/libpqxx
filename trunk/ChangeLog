@@ -1,3 +1,6 @@
+2008-05-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx, src/pipeline.cxx:
+  - Fixes for Sun Studio, thanks jgilje.
 2008-05-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
   - Fixed bug in replacing GNU-ism in sed.
