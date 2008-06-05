@@ -7,6 +7,7 @@
  - New mixin base class pqxx_exception distinguishes libpqxx exception types
  - Several build & documentation problems with Visual C++ fixed
  - Compile fixes for gcc 4.2, 4.3
+ - Compile fixes for Sun Studio Express 5.9
  - Uses strlcpy() where available, instead of strncpy()
  - Keeps better track of applicable text encodings
  - Fixed bug with prepared statement parameters in separate C++ statements
