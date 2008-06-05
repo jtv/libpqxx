@@ -20,6 +20,7 @@ template<typename ITERATOR> size_t distance(ITERATOR begin, ITERATOR end)
     ++begin;
     ++d;
   }
+  return d;
 }
 #endif // PQXX_HAVE_DISTANCE
 
