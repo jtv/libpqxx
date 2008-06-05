@@ -55,8 +55,9 @@ public:
     if (Here != 1)
       throw logic_error("Wanted to read back 1 byte, got " + to_string(Here));
 
+
     if (Check != '!')
-      throw logic_error("Read back '" + to_string(Check) + "', "
+      throw logic_error("Read back '" + string(Check, 1) + "', "
 	                "expected '!'");
 
     Here = A.seek(0, ios::beg);
@@ -67,12 +68,12 @@ public:
     Here = A.read(&Check, 1);
     if (Here != 1)
       throw logic_error("Tried to read back 1st byte, got " +
-	                to_string(Here) + " bytes");
+	                string(Here, 1) + " bytes");
 
     if (Check != Contents[0])
       throw logic_error("Expected large object to begin with '" +
-	                to_string(Contents[0]) + "', "
-			"found '" + to_string(Check) + "'");
+	                string(Contents[0], 1) + "', "
+			"found '" + string(Check, 1) + "'");
 
     // Clean up after ourselves
     A.remove(T);

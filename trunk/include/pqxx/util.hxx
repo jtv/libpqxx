@@ -90,64 +90,59 @@ const oid oid_none = 0;
  * settings and internationalization.  This section contains functionality that
  * is used extensively by libpqxx itself, but is also available for use by other
  * programs.
- *
- * Some conversions are considered to be ambiguous.  An example is the
- * conversion between @c char and string: is the @c char intended as a character
- * (in which case there are easier ways to accomplish the conversion), or is it
- * being used as merely a very small integral type?  And in the latter case,
- * what range is it expected to have--signed, unsigned, or only the range that
- * those two share?  An ambiguous conversion attempt will result in a build
- * error, typically a linker message complaining about a missing function whose
- * name starts with "<tt>error_</tt>".  Such errors are always deliberately
- * generated.  When you see one, look up the documentation for the function it
- * names.
  */
 //@{
-
-/// Dummy name, used by libpqxx in deliberate link errors
-/** If you get an error involving this function while building your program,
- * this means that the program contains an unsupported string conversion.
- *
- * In other words, the program tries to convert an object to a string, or a
- * string to an object, of a type for which libpqxx does not implement this
- * conversion.  A notable example is "<tt>long long</tt>," which is supported by
- * many compilers but does not exist in Standard C++.
- *
- * In the case of "<tt>long long</tt>" and similar types, if your implementation
- * of the standard C++ library supports it, you may use a @c stringstream to
- * perform the conversion.  For other types, you may have to write the
- * conversion routine yourself.
- */
-template<typename T> void error_unsupported_type_in_string_conversion(T);
-
-
-/// Dummy name, used to generate meaningful link errors
-/** If you get a link error naming this function, this means that your program
- * includes a string conversion involving a signed or unsigned @c char type.
- * The problem with such conversions is that they are ambiguous: do you want to
- * treat the @c char type as a small numeric type, or as a character type like
- * plain @c char?
- */
-template<typename T> PGSTD::string error_ambiguous_string_conversion(T);
-
 
 /// Traits class for use in string conversions
 /** Specialize this template for a type that you wish to add to_string and
  * from_string support for.
  */
-template<typename T> struct PQXX_LIBEXPORT string_traits
+template<typename T> struct string_traits;
+
+#define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION( T )                  \
+template<> struct PQXX_LIBEXPORT string_traits<T>                       \
+{                                                                       \
+  static bool is_null(T) { return false; }                              \
+  static T null() { throw PGSTD::domain_error("Attempt to read null field"); } \
+  static void from_string(const char Str[], T &Obj);                    \
+  static PGSTD::string to_string(T Obj);                                \
+};
+
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(bool)
+
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(short)
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned short)
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(int)
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned int)
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long)
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned long)
+#ifdef PQXX_HAVE_LONG_LONG
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long long)
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned long long)
+#endif
+
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(float)
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(double)
+#ifdef PQXX_HAVE_LONG_DOUBLE
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long double)
+#endif
+
+#undef PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION
+
+template<> struct PQXX_LIBEXPORT string_traits<PGSTD::string>
 {
-  /// Is the given value of T a null?
-  static bool is_null(const T &) { return false; }
+  static bool is_null(const PGSTD::string &) { return false; }
+  static PGSTD::string null() { throw PGSTD::domain_error("Attempt to read null field"); }
+  static void from_string(const char Str[], PGSTD::string &Obj) { Obj=Str; }
+  static PGSTD::string to_string(const PGSTD::string &Obj) { return Obj; }
+};
 
-  /// Null value for T, or domain_error if T has no null.
-  static T null() { throw PGSTD::domain_error("Attempt to read null field"); }
-
-  /// Convert string to object.
-  static void from_string(const char str[], T &obj);
-
-  /// Convert object to string.
-  static PGSTD::string to_string(const T &);
+template<> struct PQXX_LIBEXPORT string_traits<PGSTD::stringstream>
+{
+  static bool is_null(const PGSTD::stringstream &) { return false; }
+  static PGSTD::stringstream null() { throw PGSTD::domain_error("Attempt to read null field"); }
+  static void from_string(const char Str[], PGSTD::stringstream &Obj) { Obj.clear(); Obj << Str; }
+  static PGSTD::string to_string(const PGSTD::stringstream &Obj) { return Obj.str(); }
 };
 
 
@@ -166,7 +161,8 @@ template<typename T> struct PQXX_LIBEXPORT string_traits
  * No whitespace is stripped away.  Only the kinds of strings that come out of
  * PostgreSQL and out of to_string() can be converted.
  */
-template<typename T> inline void from_string(const char Str[], T &Obj)
+template<typename T>
+  inline void from_string(const char Str[], T &Obj)
 	{ string_traits<T>::from_string(Str, Obj); }
 
 
@@ -182,17 +178,13 @@ template<typename T> void from_string(const char Str[], T &Obj, size_t)
   return from_string(Str, Obj);
 }
 
-template<> void PQXX_LIBEXPORT from_string(const char Str[],
-	PGSTD::string &,
-	size_t);							//[t0]
-
-
-template<> inline void from_string(const char Str[],PGSTD::string &Obj)	//[t46]
-	{ Obj = Str; }
-
 template<>
-  inline void from_string(const char Str[], PGSTD::stringstream &Obj)	//[t0]
-	{ Obj.clear(); Obj << Str; }
+  inline void from_string<PGSTD::string>(const char Str[],
+	PGSTD::string &Obj,
+	size_t len)							//[t0]
+{
+  Obj.assign(Str, len);
+}
 
 template<typename T>
   inline void from_string(const PGSTD::string &Str, T &Obj)		//[t45]
@@ -205,26 +197,6 @@ template<typename T>
 template<> inline void
 from_string(const PGSTD::string &Str, PGSTD::string &Obj)		//[t46]
 	{ Obj = Str; }
-
-template<> inline void
-from_string(const char [], char &Obj)
-	{ error_ambiguous_string_conversion(Obj); }
-template<> inline void
-from_string(const char [], signed char &Obj)
-	{ error_ambiguous_string_conversion(Obj); }
-template<> inline void
-from_string(const char [], unsigned char &Obj)
-	{ error_ambiguous_string_conversion(Obj); }
-
-template<> inline void
-from_string(const PGSTD::string &, char &Obj)
-	{ error_ambiguous_string_conversion(Obj); }
-template<> inline void
-from_string(const PGSTD::string &, signed char &Obj)
-	{ error_ambiguous_string_conversion(Obj); }
-template<> inline void
-from_string(const PGSTD::string &, unsigned char &Obj)
-	{ error_ambiguous_string_conversion(Obj); }
 
 
 namespace internal
@@ -240,39 +212,14 @@ inline char number_to_digit(int i) throw () { return static_cast<char>(i+'0'); }
  * resulting string will be human-readable and in a format suitable for use in
  * SQL queries.
  */
-template<typename T> inline PGSTD::string to_string(const T &t)
-	{ return string_traits<T>::to_string(t); }
+template<typename T> inline PGSTD::string to_string(const T &Obj)
+	{ return string_traits<T>::to_string(Obj); }
 
-
-/* Even if the compiler supports "long long" and friends, the user may not want
- * them used because they may break compilation of client programs with
- * different compiler options.
- * When "long long" becomes a standard feature (both de jure and de facto),
- * we'll make long long support the default and provide a different option to
- * suppress these declarations.
- */
-#if defined(PQXX_HAVE_LONG_LONG) && defined(PQXX_ALLOW_LONG_LONG)
-/// Conversion for "long long"--define PQXX_ALLOW_LONG_LONG to enable
-template<> PGSTD::string PQXX_LIBEXPORT
-  to_string(const long long &);						//[t0]
-/// Conversion for "unsigned long long"--define PQXX_ALLOW_LONG_LONG to enable
-template<> PGSTD::string PQXX_LIBEXPORT
-  to_string(const unsigned long long &);				//[t0]
-#endif
 
 inline PGSTD::string to_string(const char Obj[])			//[t14]
-	{ return PGSTD::string(Obj); }
-
-inline PGSTD::string to_string(const PGSTD::stringstream &Obj)		//[t0]
-	{ return Obj.str(); }
-
-inline PGSTD::string to_string(const PGSTD::string &Obj) {return Obj;}	//[t21]
+	{ return Obj; }
 
 
-template<> inline PGSTD::string to_string(const signed char &Obj)
-	{ return error_ambiguous_string_conversion(Obj); }
-template<> inline PGSTD::string to_string(const unsigned char &Obj)
-	{ return error_ambiguous_string_conversion(Obj); }
 //@}
 
 /// Container of items with easy contents initialization and string rendering
@@ -440,7 +387,7 @@ PGSTD::string escape_string(const char str[], size_t maxlen) PQXX_DEPRECATED;
  * shape of this SQL statement, imagine he enters the following password:
  *
  * @code
- *	'x') OR ('x' = 'x
+ *	x') OR ('x' = 'x
  * @endcode
  *
  * Does that make sense to you?  Probably not.  But if this is inserted into the

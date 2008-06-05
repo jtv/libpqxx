@@ -224,147 +224,6 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
   Obj = result;
 }
 
-} // namespace
-
-
-namespace pqxx
-{
-template<> void from_string(const char Str[], PGSTD::string &Obj, size_t len)
-{
-  Obj = string(Str, len);
-}
-
-template<> void string_traits<long>::from_string(const char Str[], long &Obj)
-{
-  from_string_signed(Str, Obj);
-}
-
-template<> void
-string_traits<unsigned long>::from_string(const char Str[], unsigned long &Obj)
-{
-  from_string_unsigned(Str, Obj);
-}
-
-template<> void string_traits<int>::from_string(const char Str[], int &Obj)
-{
-  from_string_signed(Str, Obj);
-}
-
-template<> void
-string_traits<unsigned int>::from_string(const char Str[], unsigned int &Obj)
-{
-  from_string_unsigned(Str, Obj);
-}
-
-template<> void string_traits<short>::from_string(const char Str[], short &Obj)
-{
-  from_string_signed(Str, Obj);
-}
-
-template<> void
-string_traits<unsigned short>::from_string(
-	const char Str[], unsigned short &Obj)
-{
-  from_string_unsigned(Str, Obj);
-}
-
-#ifdef PQXX_HAVE_LONG_LONG
-template<> void
-string_traits<long long>::from_string(const char Str[], long long &Obj)
-{
-  from_string_signed(Str, Obj);
-}
-
-template<> void
-string_traits<unsigned long long>::from_string(
-	const char Str[],
-	unsigned long long &Obj)
-{
-  from_string_unsigned(Str, Obj);
-}
-#endif
-
-template<> void string_traits<float>::from_string(const char Str[], float &Obj)
-{
-  float result;
-  from_string_float(Str, result);
-  Obj = result;
-}
-
-template<> void
-string_traits<double>::from_string(const char Str[], double &Obj)
-{
-  from_string_float(Str, Obj);
-}
-
-#if defined(PQXX_HAVE_LONG_DOUBLE)
-template<> void
-string_traits<long double>::from_string(const char Str[], long double &Obj)
-{
-  from_string_float(Str, Obj);
-}
-#endif
-
-
-template<> void string_traits<bool>::from_string(const char Str[], bool &Obj)
-{
-  if (!Str)
-    throw runtime_error("Attempt to read NULL string");
-
-  bool OK, result=false;
-
-  switch (Str[0])
-  {
-  case 0:
-    result = false;
-    OK = true;
-    break;
-
-  case 'f':
-  case 'F':
-    result = false;
-    OK = !(Str[1] &&
-	   (strcmp(Str+1, "alse") != 0) &&
-	   (strcmp(Str+1, "ALSE") != 0));
-    break;
-
-  case '0':
-    {
-      int I;
-      string_traits<int>::from_string(Str, I);
-      result = (I != 0);
-      OK = ((I == 0) || (I == 1));
-    }
-    break;
-
-  case '1':
-    result = true;
-    OK = !Str[1];
-    break;
-
-  case 't':
-  case 'T':
-    result = true;
-    OK = !(Str[1] &&
-	   (strcmp(Str+1, "rue") != 0) &&
-	   (strcmp(Str+1, "RUE") != 0));
-    break;
-
-  default:
-    OK = false;
-  }
-
-  if (!OK)
-    throw invalid_argument("Failed conversion to bool: '" + string(Str) + "'");
-
-  Obj = result;
-}
-
-} // namespace pqxx
-
-
-namespace
-{
 template<typename T> inline string to_string_unsigned(T Obj)
 {
   if (!Obj) return "0";
@@ -396,9 +255,7 @@ template<typename T> inline string to_string_fallback(T Obj)
   S.precision(16);
 #endif
   S << Obj;
-  string R;
-  S >> R;
-  return R;
+  return S.str();
 }
 
 
@@ -466,80 +323,182 @@ template<typename T> inline string to_string_signed(T Obj)
 
 namespace pqxx
 {
-template<> string string_traits<short>::to_string(const short &Obj)
+void string_traits<bool>::from_string(const char Str[], bool &Obj)
 {
-  return to_string_signed(Obj);
+  if (!Str)
+    throw runtime_error("Attempt to read NULL string");
+
+  bool OK, result=false;
+
+  switch (Str[0])
+  {
+  case 0:
+    result = false;
+    OK = true;
+    break;
+
+  case 'f':
+  case 'F':
+    result = false;
+    OK = !(Str[1] &&
+	   (strcmp(Str+1, "alse") != 0) &&
+	   (strcmp(Str+1, "ALSE") != 0));
+    break;
+
+  case '0':
+    {
+      int I;
+      string_traits<int>::from_string(Str, I);
+      result = (I != 0);
+      OK = ((I == 0) || (I == 1));
+    }
+    break;
+
+  case '1':
+    result = true;
+    OK = !Str[1];
+    break;
+
+  case 't':
+  case 'T':
+    result = true;
+    OK = !(Str[1] &&
+	   (strcmp(Str+1, "rue") != 0) &&
+	   (strcmp(Str+1, "RUE") != 0));
+    break;
+
+  default:
+    OK = false;
+  }
+
+  if (!OK)
+    throw invalid_argument("Failed conversion to bool: '" + string(Str) + "'");
+
+  Obj = result;
 }
 
-template<> string
-string_traits<unsigned short>::to_string(const unsigned short &Obj)
-{
-  return to_string_unsigned(Obj);
-}
-
-template<> string string_traits<int>::to_string(const int &Obj)
-{
-  return to_string_signed(Obj);
-}
-
-template<> string
-string_traits<unsigned int>::to_string(const unsigned int &Obj)
-{
-  return to_string_unsigned(Obj);
-}
-
-template<> string string_traits<long>::to_string(const long &Obj)
-{
-  return to_string_signed(Obj);
-}
-
-template<>
-string string_traits<unsigned long>::to_string(const unsigned long &Obj)
-{
-  return to_string_unsigned(Obj);
-}
-
-
-#if defined(PQXX_HAVE_LONG_LONG)
-template<> string string_traits<long long>::to_string(const long long &Obj)
-{
-  return to_string_signed(Obj);
-}
-template<> string
-string_traits<unsigned long long>::to_string(const unsigned long long &Obj)
-{
-  return to_string_unsigned(Obj);
-}
-#endif
-
-template<> string string_traits<float>::to_string(const float &Obj)
-{
-  return to_string_float(Obj);
-}
-
-template<> string string_traits<double>::to_string(const double &Obj)
-{
-  return to_string_float(Obj);
-}
-
-#if defined(PQXX_HAVE_LONG_DOUBLE)
-template<> string string_traits<long double>::to_string(const long double &Obj)
-{
-  return to_string_float(Obj);
-}
-#endif
-
-template<> string string_traits<bool>::to_string(const bool &Obj)
+string string_traits<bool>::to_string(bool Obj)
 {
   return Obj ? "true" : "false";
 }
 
-template<> string string_traits<char>::to_string(const char &Obj)
+void string_traits<short>::from_string(const char Str[], short &Obj)
 {
-  string s;
-  s += Obj;
-  return s;
+  from_string_signed(Str, Obj);
 }
+
+string string_traits<short>::to_string(short Obj)
+{
+  return to_string_signed(Obj);
+}
+
+void string_traits<unsigned short>::from_string( const char Str[], unsigned short &Obj)
+{
+  from_string_unsigned(Str, Obj);
+}
+
+string string_traits<unsigned short>::to_string(unsigned short Obj)
+{
+  return to_string_unsigned(Obj);
+}
+
+void string_traits<int>::from_string(const char Str[], int &Obj)
+{
+  from_string_signed(Str, Obj);
+}
+
+string string_traits<int>::to_string(int Obj)
+{
+  return to_string_signed(Obj);
+}
+
+void string_traits<unsigned int>::from_string(const char Str[], unsigned int &Obj)
+{
+  from_string_unsigned(Str, Obj);
+}
+
+string string_traits<unsigned int>::to_string(unsigned int Obj)
+{
+  return to_string_unsigned(Obj);
+}
+
+void string_traits<long>::from_string(const char Str[], long &Obj)
+{
+  from_string_signed(Str, Obj);
+}
+
+string string_traits<long>::to_string(long Obj)
+{
+  return to_string_signed(Obj);
+}
+
+void string_traits<unsigned long>::from_string(const char Str[], unsigned long &Obj)
+{
+  from_string_unsigned(Str, Obj);
+}
+
+string string_traits<unsigned long>::to_string(unsigned long Obj)
+{
+  return to_string_unsigned(Obj);
+}
+
+#ifdef PQXX_HAVE_LONG_LONG
+void string_traits<long long>::from_string(const char Str[], long long &Obj)
+{
+  from_string_signed(Str, Obj);
+}
+
+string string_traits<long long>::to_string(long long Obj)
+{
+  return to_string_signed(Obj);
+}
+
+void string_traits<unsigned long long>::from_string(
+	const char Str[],
+	unsigned long long &Obj)
+{
+  from_string_unsigned(Str, Obj);
+}
+
+string string_traits<unsigned long long>::to_string(unsigned long long Obj)
+{
+  return to_string_unsigned(Obj);
+}
+#endif
+
+void string_traits<float>::from_string(const char Str[], float &Obj)
+{
+  float result;
+  from_string_float(Str, result);
+  Obj = result;
+}
+
+string string_traits<float>::to_string(float Obj)
+{
+  return to_string_float(Obj);
+}
+
+void string_traits<double>::from_string(const char Str[], double &Obj)
+{
+  from_string_float(Str, Obj);
+}
+
+string string_traits<double>::to_string(double Obj)
+{
+  return to_string_float(Obj);
+}
+
+#ifdef PQXX_HAVE_LONG_DOUBLE
+void string_traits<long double>::from_string(const char Str[], long double &Obj)
+{
+  from_string_float(Str, Obj);
+}
+
+string string_traits<long double>::to_string(long double Obj)
+{
+  return to_string_float(Obj);
+}
+#endif
 
 } // namespace pqxx
 
