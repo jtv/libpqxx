@@ -31,6 +31,19 @@ namespace
 const string theSeparator("; ");
 const string theDummyValue("1");
 const string theDummyQuery("SELECT " + theDummyValue + theSeparator);
+
+#ifndef PQXX_HAVE_DISTANCE
+template<typename ITERATOR> size_t distance(ITERATOR begin, ITERATOR end)
+{
+  size_t d = 0;
+  while (begin != end)
+  {
+    ++begin;
+    ++d;
+  }
+  return d;
+}
+#endif // PQXX_HAVE_DISTANCE
 }
 
 
@@ -299,9 +312,7 @@ void pqxx::pipeline::obtain_dummy()
 
 
   // Reset internal state to forget botched batch attempt
-  // (Not using std::distance() because of problem with SunC++)
-  for (QueryMap::iterator i = m_issuedrange.first; i != stop; ++i)
-    ++m_num_waiting;
+  m_num_waiting += distance(m_issuedrange.first, stop);
   m_issuedrange.second = m_issuedrange.first;
 
   pqxxassert(!m_dummy_pending);
