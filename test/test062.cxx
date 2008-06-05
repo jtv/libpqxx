@@ -70,17 +70,17 @@ int main(int, char *argv[])
       if (x != y)
       {
 	throw logic_error("Binary string byte " + to_string(i) + " "
-	    "got changed from '" + to_string(x) + "' "
+	    "got changed from '" + string(x, 1) + "' "
 	    "(" + to_string(uix) + ") "
-	    "to '" + to_string(y) + "' "
+	    "to '" + string(y, 1) + "' "
 	    "(" + to_string(uiy) + ")");
       }
 
       if (y != z)
       {
 	throw logic_error("Inconsistent byte at offset " + to_string(i) + ": "
-	    "operator[] says '" + to_string(y) + "' (" + to_string(uiy) + "), "
-	    "data() says '" + to_string(z) + "' "
+	    "operator[] says '" + string(y, 1) + "' (" + to_string(uiy) + "), "
+	    "data() says '" + string(z, 1) + "' "
 	    "(" + to_string(uiz) + ")");
       }
     }
