@@ -1,5 +1,5 @@
 2008-06-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
- configitems, configure.ac.in, src/pipeline.cxx:
+ configitems, configure.ac.in, src/pipeline.cxx, test/test085.cxx:
   - Workaround for missing distance() in Sun compiler.
 2008-05-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx, src/pipeline.cxx:

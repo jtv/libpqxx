@@ -4,11 +4,25 @@
 
 #include <pqxx/pqxx>
 
+#include <pqxx/compiler-internal.hxx>
+
 using namespace PGSTD;
 using namespace pqxx;
 
 namespace
 {
+#ifndef PQXX_HAVE_DISTANCE
+template<typename ITERATOR> size_t distance(ITERATOR begin, ITERATOR end)
+{
+  size_t d = 0;
+  while (begin != end)
+  {
+    ++begin;
+    ++d;
+  }
+}
+#endif // PQXX_HAVE_DISTANCE
+
 void compare_results(string name, result lhs, result rhs)
 {
   if (lhs != rhs)
