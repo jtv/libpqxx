@@ -2,9 +2,9 @@
 #include <iostream>
 #include <list>
 
-#include <pqxx/pqxx>
-
 #include <pqxx/compiler-internal.hxx>
+
+#include <pqxx/pqxx>
 
 using namespace PGSTD;
 using namespace pqxx;
