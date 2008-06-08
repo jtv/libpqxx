@@ -142,15 +142,13 @@ template<typename T> void from_string_signed(const char Str[], T &Obj)
 template<typename T> void from_string_unsigned(const char Str[], T &Obj)
 {
   int i = 0;
-  T result;
-
-  if (!Str) throw runtime_error("Attempt to convert NULL string to integer");
+  T result = 0;
 
   if (!isdigit(Str[i]))
     throw runtime_error("Could not convert string to unsigned integer: '" +
 	string(Str) + "'");
 
-  for (result=0; isdigit(Str[i]); ++i)
+  for (; isdigit(Str[i]); ++i)
   {
     const T newres = absorb_digit(result, digit_to_number(Str[i]));
     if (newres < result)
@@ -234,10 +232,10 @@ template<typename T> inline string to_string_unsigned(T Obj)
 
   char *p = &buf[sizeof(buf)];
   *--p = '\0';
-  for (T next; Obj > 0; Obj = next)
+  while (Obj > 0)
   {
-    next = Obj / 10;
-    *--p = number_to_digit(Obj-next*10);
+    *--p = number_to_digit(Obj%10);
+    Obj /= 10;
   }
   return p;
 }
@@ -325,9 +323,6 @@ namespace pqxx
 {
 void string_traits<bool>::from_string(const char Str[], bool &Obj)
 {
-  if (!Str)
-    throw runtime_error("Attempt to read NULL string");
-
   bool OK, result=false;
 
   switch (Str[0])
@@ -392,7 +387,9 @@ string string_traits<short>::to_string(short Obj)
   return to_string_signed(Obj);
 }
 
-void string_traits<unsigned short>::from_string( const char Str[], unsigned short &Obj)
+void string_traits<unsigned short>::from_string(
+	const char Str[],
+	unsigned short &Obj)
 {
   from_string_unsigned(Str, Obj);
 }
@@ -412,7 +409,9 @@ string string_traits<int>::to_string(int Obj)
   return to_string_signed(Obj);
 }
 
-void string_traits<unsigned int>::from_string(const char Str[], unsigned int &Obj)
+void string_traits<unsigned int>::from_string(
+	const char Str[],
+	unsigned int &Obj)
 {
   from_string_unsigned(Str, Obj);
 }
@@ -432,7 +431,9 @@ string string_traits<long>::to_string(long Obj)
   return to_string_signed(Obj);
 }
 
-void string_traits<unsigned long>::from_string(const char Str[], unsigned long &Obj)
+void string_traits<unsigned long>::from_string(
+	const char Str[],
+	unsigned long &Obj)
 {
   from_string_unsigned(Str, Obj);
 }
@@ -468,9 +469,7 @@ string string_traits<unsigned long long>::to_string(unsigned long long Obj)
 
 void string_traits<float>::from_string(const char Str[], float &Obj)
 {
-  float result;
-  from_string_float(Str, result);
-  Obj = result;
+  from_string_float(Str, Obj);
 }
 
 string string_traits<float>::to_string(float Obj)

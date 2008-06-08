@@ -1,3 +1,8 @@
+2008-06-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx, src/util.cxx:
+  - Clean up from_string null checking (Daniel Frey)
+  - Other minor cleanups (Daniel Frey)
+  - Broke some overlong lines
 2008-06-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in, src/pipeline.cxx, test/test085.cxx:
   - Workaround for missing distance() in Sun compiler.
