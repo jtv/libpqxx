@@ -163,7 +163,11 @@ template<> struct PQXX_LIBEXPORT string_traits<PGSTD::stringstream>
  */
 template<typename T>
   inline void from_string(const char Str[], T &Obj)
-	{ string_traits<T>::from_string(Str, Obj); }
+{
+  if (!Str)
+    throw PGSTD::runtime_error("Attempt to read NULL string");
+  string_traits<T>::from_string(Str, Obj);
+}
 
 
 /// Conversion with known string length (for strings that may contain nuls)
@@ -183,6 +187,8 @@ template<>
 	PGSTD::string &Obj,
 	size_t len)							//[t0]
 {
+  if (!Str)
+    throw PGSTD::runtime_error("Attempt to read NULL string");
   Obj.assign(Str, len);
 }
 
