@@ -1,3 +1,6 @@
+2008-06-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/basic_connection.hxx:
+  - Typo in documentation.
 2008-06-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.hxx, src/util.cxx:
   - Clean up from_string null checking (Daniel Frey)

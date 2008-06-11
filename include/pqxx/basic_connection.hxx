@@ -8,7 +8,7 @@
  *   Instantiations of basic_connection bring connections and policies together
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
  *
- * Copyright (c) 2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2006-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -29,7 +29,7 @@ namespace pqxx
 // TODO: Also mix in thread synchronization policy here!
 /// The ultimate template that defines a connection type
 /** Combines connection_base (the highly complex class implementing essentially
- * all connection-related functinality) with a connection policy (a simpler
+ * all connection-related functionality) with a connection policy (a simpler
  * helper class determining the rules that govern the process of setting up the
  * underlying connection to the backend).
  *
