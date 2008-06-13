@@ -16,6 +16,9 @@
  *
  *-------------------------------------------------------------------------
  */
+#ifndef PQXX_H_CONNECTION_BASE
+#define PQXX_H_CONNECTION_BASE
+
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
@@ -918,3 +921,6 @@ void wait_write(const internal::pq::PGconn *);
 } // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"
+
+#endif
+

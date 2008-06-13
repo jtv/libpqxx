@@ -15,6 +15,9 @@
  *
  *-------------------------------------------------------------------------
  */
+#ifndef PQXX_H_UTIL
+#define PQXX_H_UTIL
+
 #include "pqxx/compiler-public.hxx"
 
 #include <cstdio>
@@ -720,4 +723,6 @@ extern const char sql_begin_work[], sql_commit_work[], sql_rollback_work[];
 
 } // namespace internal
 } // namespace pqxx
+
+#endif
 

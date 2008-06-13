@@ -16,6 +16,9 @@
  *
  *-------------------------------------------------------------------------
  */
+#ifndef PQXX_H_CURSOR
+#define PQXX_H_CURSOR
+
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
@@ -548,3 +551,6 @@ private:
 } // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"
+
+#endif
+

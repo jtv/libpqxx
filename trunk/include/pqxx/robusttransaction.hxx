@@ -16,6 +16,9 @@
  *
  *-------------------------------------------------------------------------
  */
+#ifndef PQXX_H_ROBUSTTRANSACTION
+#define PQXX_H_ROBUSTTRANSACTION
+
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
@@ -167,3 +170,6 @@ public:
 
 
 #include "pqxx/compiler-internal-post.hxx"
+
+#endif
+

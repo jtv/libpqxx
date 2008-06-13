@@ -16,6 +16,9 @@
  *
  *-------------------------------------------------------------------------
  */
+#ifndef PQXX_H_EXCEPT
+#define PQXX_H_EXCEPT
+
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
@@ -351,3 +354,6 @@ public:
 }
 
 #include "pqxx/compiler-internal-post.hxx"
+
+#endif
+

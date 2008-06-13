@@ -7,7 +7,7 @@
  *      pqxx::transaction class.
  *   pqxx::transaction represents a standard database transaction
  *
- * Copyright (c) 2001-2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -15,11 +15,6 @@
  *
  *-------------------------------------------------------------------------
  */
-#ifndef PQXX_TRANSACTION
-#define PQXX_TRANSACTION
-
 // Actual definitions in .hxx file so editors and such recognize file type
 #include "pqxx/transaction.hxx"
-
-#endif
 

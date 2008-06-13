@@ -1,3 +1,33 @@
+2008-06-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/basic_connection, include/pqxx/basic_connection.hxx,
+ include/pqxx/binarystring, include/pqxx/binarystring.hxx,
+ include/pqxx/connection, include/pqxx/connection.hxx,
+ include/pqxx/connection_base, include/pqxx/connection_base.hxx,
+ include/pqxx/connectionpolicy, include/pqxx/connectionpolicy.hxx,
+ include/pqxx/cursor, include/pqxx/cursor.hxx,
+ include/pqq/dbtransaction, include/pqq/dbtransaction.hxx,
+ include/pqxx/except, include/pqxx/except.hxx, include/pqxx/isolation,
+ include/pqxx/isolation.hxx, include/pqxx/largeobject,
+ include/pqxx/largeobject.hxx, include/pqxx/nontransaction,
+ include/pqxx/nontransaction.hxx, include/pqxx/notify-listen,
+ include/pqxx/notify-listen.hxx, include/pqxx/pipeline,
+ include/pqxx/pipeline.hxx, include/pqxx/prepared_statement,
+ include/pqxx/prepared_statement.hxx, include/pqxx/result,
+ include/pqxx/result.hxx, include/pqxx/robusttransaction,
+ include/pqxx/robusttransaction.hxx, include/pqxx/subtransaction,
+ include/pqxx/subtransaction.hxx, include/pqxx/tablereader,
+ include/pqxx/tablereader.hxx, include/pqxx/tablestream,
+ include/pqxx/tablestream.hxx, include/pqxx/tablewriter,
+ include/pqxx/tablewriter.hxx, include/pqxx/transaction,
+ include/pqxx/transaction.hxx, include/pqxx/transaction_base,
+ include/pqxx/transaction_base.hxx, include/pqxx/transaction,
+ include/pqxx/transaction.hxx, include/pqxx/transactor,
+ include/pqxx/transactor.hxx, include/pqxx/trigger, include/pqxx/trigger.hxx,
+ include/pqxx/util, include/pqxx/util.hxx:
+  - Moved double-inclusion check from <pqxx/foo> to <pqxx/foo.hxx>.
+  - Made header-guard #defines more recognizable.
+ include/pqxx/result.h:
+  - Removed (was still from 1.0 API).
 2008-06-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/basic_connection.hxx:
   - Typo in documentation.

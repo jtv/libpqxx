@@ -8,7 +8,7 @@
  *   pqxx::transaction represents a standard database transaction
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction instead.
  *
- * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -16,6 +16,9 @@
  *
  *-------------------------------------------------------------------------
  */
+#ifndef PQXX_H_TRANSACTION
+#define PQXX_H_TRANSACTION
+
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
@@ -116,3 +119,6 @@ typedef transaction<> work;
 
 
 #include "pqxx/compiler-internal-post.hxx"
+
+#endif
+

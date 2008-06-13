@@ -7,7 +7,7 @@
  *      pqxx::notify_listener functor interface.
  *   pqxx::notify_listener describes an action waiting on a notification
  *
- * Copyright (c) 2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2007-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -15,12 +15,6 @@
  *
  *-------------------------------------------------------------------------
  */
-#ifndef PQXX_NOTIFY_LISTEN
-#define PQXX_NOTIFY_LISTEN
-
 // Actual definitions in .hxx file so editors and such recognize file type
 #include "pqxx/notify-listen.hxx"
-
-#endif
-
 

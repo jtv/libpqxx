@@ -16,6 +16,9 @@
  *
  *-------------------------------------------------------------------------
  */
+#ifndef PQXX_H_DBTRANSACTION
+#define PQXX_H_DBTRANSACTION
+
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
@@ -94,3 +97,6 @@ private:
 } // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"
+
+#endif
+

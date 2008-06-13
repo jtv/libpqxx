@@ -7,7 +7,7 @@
  *      Helper classes for defining and executing prepared statements
  *   See the connection_base hierarchy for more about prepared statements
  *
- * Copyright (c) 2006,2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2006-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -15,6 +15,9 @@
  *
  *-------------------------------------------------------------------------
  */
+#ifndef PQXX_H_PREPARED_STATEMENT
+#define PQXX_H_PREPARED_STATEMENT
+
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
@@ -198,3 +201,6 @@ struct PQXX_PRIVATE get_sqltype
 } // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"
+
+#endif
+

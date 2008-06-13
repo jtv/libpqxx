@@ -14,8 +14,8 @@
  *
  *-------------------------------------------------------------------------
  */
-#ifndef PQXX_LIBCOMPILER_H
-#define PQXX_LIBCOMPILER_H
+#ifndef PQXX_H_COMPILER_PUBLIC
+#define PQXX_H_COMPILER_PUBLIC
 
 #ifdef _MSC_VER
 
