@@ -8,7 +8,7 @@
  *   pqxx::tablewriter enables optimized batch updates to a database table
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablewriter.hxx instead.
  *
- * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -16,6 +16,9 @@
  *
  *-------------------------------------------------------------------------
  */
+#ifndef PQXX_H_TABLEWRITER
+#define PQXX_H_TABLEWRITER
+
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
@@ -252,3 +255,6 @@ inline tablewriter &tablewriter::operator<<(const TUPLE &T)
 
 
 #include "pqxx/compiler-internal-post.hxx"
+
+#endif
+

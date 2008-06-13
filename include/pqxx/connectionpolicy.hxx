@@ -8,7 +8,7 @@
  *   Interface for defining connection policies
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection instead.
  *
- * Copyright (c) 2005-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2005-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -16,6 +16,9 @@
  *
  *-------------------------------------------------------------------------
  */
+#ifndef PQXX_H_CONNECTIONPOLICY
+#define PQXX_H_CONNECTIONPOLICY
+
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
@@ -60,3 +63,6 @@ private:
 } // namespace
 
 #include "pqxx/compiler-internal-post.hxx"
+
+#endif
+

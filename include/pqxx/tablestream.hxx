@@ -16,6 +16,9 @@
  *
  *-------------------------------------------------------------------------
  */
+#ifndef PQXX_H_TABLESTREAM
+#define PQXX_H_TABLESTREAM
+
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
@@ -87,3 +90,6 @@ PGSTD::string tablestream::columnlist(ITER colbegin, ITER colend)
 } // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"
+
+#endif
+

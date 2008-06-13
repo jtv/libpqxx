@@ -15,8 +15,8 @@
  *
  *-------------------------------------------------------------------------
  */
-#ifndef PQXX_COMPILER_H
-#define PQXX_COMPILER_H
+#ifndef PQXX_H_COMPILER_INTERNAL
+#define PQXX_H_COMPILER_INTERNAL
 
 
 // Workarounds & definitions needed to compile libpqxx into a library

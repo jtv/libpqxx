@@ -16,6 +16,9 @@
  *
  *-------------------------------------------------------------------------
  */
+#ifndef PQXX_H_RESULT
+#define PQXX_H_RESULT
+
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
@@ -1153,3 +1156,6 @@ trivial as it may be.
 
 
 #include "pqxx/compiler-internal-post.hxx"
+
+#endif
+

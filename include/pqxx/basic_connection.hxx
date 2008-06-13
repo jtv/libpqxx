@@ -16,6 +16,9 @@
  *
  *-------------------------------------------------------------------------
  */
+#ifndef PQXX_H_BASIC_CONNECTION
+#define PQXX_H_BASIC_CONNECTION
+
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
@@ -83,4 +86,6 @@ private:
 } // namespace
 
 #include "pqxx/compiler-internal-post.hxx"
+
+#endif
 
