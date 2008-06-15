@@ -81,7 +81,8 @@ public:
    */
   query_id insert(const PGSTD::string &);				//[t69]
 
-  /// Wait for all ongoing or pending operations to complete
+  /// Wait for all ongoing or pending operations to complete.
+  /** Detaches from the transaction when done. */
   void complete();							//[t71]
 
   /// Forget all ongoing or pending operations and retrieved results
@@ -91,6 +92,8 @@ public:
    * Any error state (unless caused by an internal error) will also be cleared.
    * This is mostly useful in a nontransaction, since a backend transaction is
    * aborted automatically when an error occurs.
+   *
+   * Detaches from the transaction when done.
    */
   void flush();								//[t70]
 
@@ -155,6 +158,9 @@ private:
 	{ return i->second.get_query(); }
   };
 
+  void attach();
+  void detach();
+
   /// Upper bound to query id's
   static query_id qid_limit() throw ()
   {
@@ -190,7 +196,8 @@ private:
 
   /// Receive results, up to stop if possible
   void PQXX_PRIVATE receive(pipeline::QueryMap::const_iterator stop);
-  PGSTD::pair<pipeline::query_id, result> retrieve(pipeline::QueryMap::iterator);
+  PGSTD::pair<pipeline::query_id, result>
+    retrieve(pipeline::QueryMap::iterator);
 
   QueryMap m_queries;
   PGSTD::pair<QueryMap::iterator,QueryMap::iterator> m_issuedrange;
