@@ -59,7 +59,7 @@ pqxx::pipeline::pipeline(transaction_base &t, const PGSTD::string &Name) :
   m_error(qid_limit())
 {
   m_issuedrange = make_pair(m_queries.end(), m_queries.end());
-  register_me();
+  attach();
 }
 
 
@@ -69,12 +69,25 @@ pqxx::pipeline::~pipeline() throw ()
   disable_noticer Quiet(m_Trans.conn());
 #endif
   try { flush(); } catch (const exception &) {}
+  detach();
+}
+
+
+void pqxx::pipeline::attach()
+{
+  if (!registered()) register_me();
+}
+
+
+void pqxx::pipeline::detach()
+{
   if (registered()) unregister_me();
 }
 
 
 pipeline::query_id pqxx::pipeline::insert(const PGSTD::string &q)
 {
+  attach();
   const query_id qid = generate_id();
   pqxxassert(qid > 0);
   pqxxassert(m_queries.lower_bound(qid)==m_queries.end());
@@ -113,6 +126,7 @@ void pqxx::pipeline::complete()
     receive(m_queries.end());
     pqxxassert((m_error!=qid_limit()) || !have_pending());
   }
+  detach();
   pqxxassert((m_num_waiting == 0) || (m_error != qid_limit()));
   pqxxassert(!m_dummy_pending);
 }
@@ -120,12 +134,15 @@ void pqxx::pipeline::complete()
 
 void pqxx::pipeline::flush()
 {
-  if (m_queries.empty()) return;
-  if (have_pending()) receive(m_issuedrange.second);
-  m_issuedrange.first = m_issuedrange.second = m_queries.end();
-  m_num_waiting = 0;
-  m_dummy_pending = false;
-  m_queries.clear();
+  if (!m_queries.empty())
+  {
+    if (have_pending()) receive(m_issuedrange.second);
+    m_issuedrange.first = m_issuedrange.second = m_queries.end();
+    m_num_waiting = 0;
+    m_dummy_pending = false;
+    m_queries.clear();
+  }
+  detach();
 }
 
 

@@ -1,3 +1,11 @@
+2008-06-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx.pipeline.hxx, src/pipeline.cxx:
+  - Auto-detach after complete() or flush().
+ test/unit/Makefile.am.template:
+  - Added new pipeline unit test.
+ test/unit/test_pipeline.cxx:
+  - Added
+  - Test detaching of pipeline after complete() or flush().
 2008-06-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/basic_connection, include/pqxx/basic_connection.hxx,
  include/pqxx/binarystring, include/pqxx/binarystring.hxx,
