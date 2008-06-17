@@ -1,3 +1,7 @@
+2008-06-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result.hxx:
+  - Make streaming operator act on basic_ostream, thanks Richard B. Kreckel
+  - Should resolve ambiguity error, sorry Carlos Moreno!
 2008-06-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx.pipeline.hxx, src/pipeline.cxx:
   - Auto-detach after complete() or flush().
