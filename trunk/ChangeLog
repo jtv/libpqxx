@@ -1,3 +1,6 @@
+2008-06-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh:
+  - Don't force LC_ALL=C; breaks on Solaris, thanks Bjorn Munch & Geir Green.
 2008-06-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/result.hxx:
   - Make streaming operator act on basic_ostream, thanks Richard B. Kreckel
