@@ -4,9 +4,9 @@
 
 set -e
 
-# Run in most basic of locales to avoid performance overhead (and risk of bugs)
-# involved in localization, encoding issues etc.  We only do ASCII here.
-export LC_ALL=C
+# Optionally run in "dumb" locale to avoid performance overhead (and risk of
+# bugs) involved in localization, encoding issues etc.  We only do ASCII here.
+#export LC_ALL=C
 
 latest_automake() {
 	for v in "-1.10" "-1.9" "-1.8" "-1.7" "-1.6" "" ; do
