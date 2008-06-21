@@ -31,19 +31,6 @@ namespace
 const string theSeparator("; ");
 const string theDummyValue("1");
 const string theDummyQuery("SELECT " + theDummyValue + theSeparator);
-
-#ifndef PQXX_HAVE_DISTANCE
-template<typename ITERATOR> size_t distance(ITERATOR begin, ITERATOR end)
-{
-  size_t d = 0;
-  while (begin != end)
-  {
-    ++begin;
-    ++d;
-  }
-  return d;
-}
-#endif // PQXX_HAVE_DISTANCE
 }
 
 
@@ -220,7 +207,8 @@ void pqxx::pipeline::issue()
 
   // Construct cumulative query string for entire batch
   string cum = separated_list(theSeparator,oldest,m_queries.end(),getquery());
-  const QueryMap::size_type num_issued = distance(oldest,m_queries.end());
+  const QueryMap::size_type num_issued =
+    internal::distance(oldest,m_queries.end());
   const bool prepend_dummy = (num_issued > 1);
   if (prepend_dummy) cum = theDummyQuery + cum;
 
@@ -329,7 +317,7 @@ void pqxx::pipeline::obtain_dummy()
 
 
   // Reset internal state to forget botched batch attempt
-  m_num_waiting += distance(m_issuedrange.first, stop);
+  m_num_waiting += internal::distance(m_issuedrange.first, stop);
   m_issuedrange.second = m_issuedrange.first;
 
   pqxxassert(!m_dummy_pending);
@@ -361,7 +349,8 @@ void pqxx::pipeline::obtain_dummy()
     QueryMap::const_iterator q = m_issuedrange.first;
     set_error_at( (q == m_queries.end()) ?  thud + 1 : q->first);
 
-    pqxxassert(m_num_waiting == distance(m_issuedrange.second,m_queries.end()));
+    pqxxassert(m_num_waiting ==
+      internal::distance(m_issuedrange.second, m_queries.end()));
   }
 
   pqxxassert(m_issuedrange.first != m_queries.end());
@@ -383,7 +372,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
   if (m_issuedrange.second != m_queries.end() &&
       (q->first >= m_issuedrange.second->first))
   {
-    pqxxassert(distance(m_issuedrange.second, q) >= 0);
+    pqxxassert(internal::distance(m_issuedrange.second, q) >= 0);
 
     if (have_pending()) receive(m_issuedrange.second);
     if (m_error == qid_limit()) issue();

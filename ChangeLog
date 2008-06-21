@@ -1,3 +1,6 @@
+2008-06-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/compiler-internal.hxx, src/pipeline.cxx, test/test085.cxx:
+  - Re-did workaround for missing std::distance() in safer way.
 2008-06-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
   - Don't force LC_ALL=C; breaks on Solaris, thanks Bjorn Munch & Geir Green.
