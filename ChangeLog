@@ -1,3 +1,6 @@
+2008-06-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/unit/test_simultaneous_transactions.cxx:
+  - Added test against being allowed to have two nontransactions open.
 2008-06-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/compiler-internal.hxx, src/pipeline.cxx, test/test085.cxx:
   - Re-did workaround for missing std::distance() in safer way.
