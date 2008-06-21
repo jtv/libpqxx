@@ -7,7 +7,7 @@
  *      Compiler deficiency workarounds for compiling libpqxx itself.
  *      DO NOT INCLUDE THIS FILE when building client programs.
  *
- * Copyright (c) 2002-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -69,6 +69,26 @@ template<> inline long numeric_limits<long>::max() throw () {return LONG_MAX;}
 template<> inline long numeric_limits<long>::min() throw () {return LONG_MIN;}
 }
 #endif // PQXX_HAVE_LIMITS
+
+
+namespace pqxx
+{
+namespace internal
+{
+/// Wrapper for std::distance; not all platforms have std::distance().
+template<typename T> inline ptrdiff_t distance(T first, T last)
+{
+#ifdef PQXX_HAVE_DISTANCE
+  return PGSTD::distance(first, last);
+#else
+  // Naive implementation.  All we really need for now.
+  iterator_traits<T>::difference_type d = 0;
+  while (first != last) ++d;
+  return d;
+#endif
+}
+}
+}
 
 #endif
 
