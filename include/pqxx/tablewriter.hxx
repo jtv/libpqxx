@@ -199,7 +199,7 @@ template<typename T> inline PGSTD::string EscapeAny(const T &t,
 
 template<typename IT> class Escaper
 {
-  const PGSTD::string m_null;
+  const PGSTD::string &m_null;
 public:
   explicit Escaper(const PGSTD::string &null) : m_null(null) {}
   PGSTD::string operator()(IT i) const { return EscapeAny(*i, m_null); }
