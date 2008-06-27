@@ -28,6 +28,7 @@
 
 #include <stdexcept>
 
+#include "pqxx/except"
 #include "pqxx/util"
 
 /* Methods tested in eg. self-test program test001 are marked with "//[t1]"
@@ -168,8 +169,8 @@ public:
     reference operator[](const char[]) const;				//[t11]
     reference operator[](const PGSTD::string &s) const			//[t11]
 	{ return operator[](s.c_str()); }
-    reference at(size_type) const throw (PGSTD::out_of_range);		//[t11]
-    reference at(int i) const throw (PGSTD::out_of_range)		//[t11]
+    reference at(size_type) const throw (range_error);			//[t11]
+    reference at(int i) const throw (range_error)			//[t11]
 	{ return at(size_type(i)); }
     reference at(const char[]) const;					//[t11]
     reference at(const PGSTD::string &s) const				//[t11]
@@ -803,7 +804,7 @@ public:
 
   const tuple operator[](size_type i) const throw ()			//[t2]
 	{ return tuple(this, i); }
-  const tuple at(size_type) const throw (PGSTD::out_of_range);		//[t10]
+  const tuple at(size_type) const throw (range_error);			//[t10]
 
   void clear() throw () { super::clear(); m_data = 0; }			//[t20]
 

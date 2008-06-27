@@ -7,7 +7,7 @@
  *      implementation of the pqxx::tablereader class.
  *   pqxx::tablereader enables optimized batch reads from a database table
  *
- * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -149,13 +149,13 @@ string pqxx::tablereader::extract_field(const PGSTD::string &Line,
       {
         const char n = Line[++i];
         if (i >= Line.size())
-          throw runtime_error("Row ends in backslash");
+          throw failure("Row ends in backslash");
 
 	switch (n)
 	{
 	case 'N':	// Null value
 	  if (!R.empty())
-	    throw runtime_error("Null sequence found in nonempty field");
+	    throw failure("Null sequence found in nonempty field");
 	  R = NullStr();
 	  isnull = true;
 	  break;
@@ -170,11 +170,11 @@ string pqxx::tablereader::extract_field(const PGSTD::string &Line,
 	case '7':
           {
 	    if ((i+2) >= Line.size())
-	      throw runtime_error("Row ends in middle of octal value");
+	      throw failure("Row ends in middle of octal value");
 	    const char n1 = Line[++i];
 	    const char n2 = Line[++i];
 	    if (!is_octalchar(n1) || !is_octalchar(n2))
-	      throw runtime_error("Invalid octal in encoded table stream");
+	      throw failure("Invalid octal in encoded table stream");
 	    R += char((digit_to_number(n)<<6) |
 		(digit_to_number(n1)<<3) |
 		digit_to_number(n2));
@@ -225,7 +225,7 @@ string pqxx::tablereader::extract_field(const PGSTD::string &Line,
   ++i;
 
   if (isnull && (R.size() != NullStr().size()))
-    throw runtime_error("Field contains data behind null sequence");
+    throw failure("Field contains data behind null sequence");
 
   return R;
 }

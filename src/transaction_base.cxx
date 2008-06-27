@@ -8,7 +8,7 @@
  *   pqxx::transaction_base defines the interface for any abstract class that
  *   represents a database transaction
  *
- * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -94,7 +94,7 @@ void pqxx::transaction_base::commit()
     break;
 
   case st_aborted:
-    throw logic_error("Attempt to commit previously aborted " + description());
+    throw usage_error("Attempt to commit previously aborted " + description());
 
   case st_committed:
     // Transaction has been committed already.  This is not exactly proper
@@ -108,7 +108,7 @@ void pqxx::transaction_base::commit()
   case st_in_doubt:
     // Transaction may or may not have been committed.  Report the problem but
     // don't compound our troubles by throwing.
-    throw logic_error(description() +
+    throw usage_error(description() +
 		      "committed again while in an indeterminate state");
 
   default:
@@ -120,9 +120,9 @@ void pqxx::transaction_base::commit()
   // commit is premature.  Punish this swiftly and without fail to discourage
   // the habit from forming.
   if (m_Focus.get())
-    throw runtime_error("Attempt to commit " + description() + " "
-			"with " + m_Focus.get()->description() + " "
-			"still open");
+    throw failure("Attempt to commit " + description() + " "
+		"with " + m_Focus.get()->description() + " "
+		"still open");
 
   // Check that we're still connected (as far as we know--this is not an
   // absolute thing!) before trying to commit.  If the connection was broken
@@ -171,7 +171,7 @@ void pqxx::transaction_base::abort()
     return;
 
   case st_committed:
-    throw logic_error("Attempt to abort previously committed " + description());
+    throw usage_error("Attempt to abort previously committed " + description());
 
   case st_in_doubt:
     // Aborting an in-doubt transaction is probably a reasonably sane response
@@ -217,7 +217,7 @@ pqxx::result pqxx::transaction_base::exec(const PGSTD::string &Query,
   const string N = (Desc.empty() ? "" : "'" + Desc + "' ");
 
   if (m_Focus.get())
-    throw logic_error("Attempt to execute query " + N +
+    throw usage_error("Attempt to execute query " + N +
 		      "on " + description() + " "
 		      "with " + m_Focus.get()->description() + " "
 		      "still open");
@@ -235,7 +235,7 @@ pqxx::result pqxx::transaction_base::exec(const PGSTD::string &Query,
   case st_committed:
   case st_aborted:
   case st_in_doubt:
-    throw logic_error("Attempt to execute query " + N + " "
+    throw usage_error("Attempt to execute query " + N + " "
 	"in " + description() + ", which is already closed");
 
   default:
@@ -400,7 +400,7 @@ void pqxx::transaction_base::CheckPendingError()
 #else
     m_PendingError.resize(0);
 #endif
-    throw runtime_error(m_PendingError);
+    throw failure(m_PendingError);
   }
 }
 

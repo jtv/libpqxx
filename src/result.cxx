@@ -7,7 +7,7 @@
  *      implementation of the pqxx::result class and support classes.
  *   pqxx::result represents the set of result tuples from a database query
  *
- * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -130,11 +130,9 @@ void pqxx::result::swap(result &rhs) throw ()
 
 
 const pqxx::result::tuple pqxx::result::at(pqxx::result::size_type i) const
-  throw (out_of_range)
+  throw (range_error)
 {
-  if (i >= size())
-    throw out_of_range("Tuple number out of range");
-
+  if (i >= size()) throw range_error("Tuple number out of range");
   return operator[](i);
 }
 
@@ -216,8 +214,7 @@ void pqxx::result::CheckStatus() const
 
 string pqxx::result::StatusError() const
 {
-  if (!m_data)
-    throw runtime_error("No result set given");
+  if (!m_data) throw failure("No result set given");
 
   string Err;
 
@@ -261,7 +258,7 @@ const string &pqxx::result::query() const throw ()
 pqxx::oid pqxx::result::inserted_oid() const
 {
   if (!m_data)
-    throw logic_error("Attempt to read oid of inserted row without an INSERT "
+    throw usage_error("Attempt to read oid of inserted row without an INSERT "
 	"result");
   return PQoidValue(m_data);
 }
@@ -299,7 +296,7 @@ pqxx::oid pqxx::result::column_type(tuple::size_type ColNum) const
 {
   const oid T = PQftype(m_data, ColNum);
   if (T == oid_none)
-    throw PGSTD::invalid_argument(
+    throw argument_error(
 	"Attempt to retrieve type of nonexistant column " +
 	to_string(ColNum) + " of query result");
   return T;
@@ -315,7 +312,7 @@ pqxx::oid pqxx::result::column_table(tuple::size_type ColNum) const
    * got an invalid row number.
    */
   if (T == oid_none && ColNum >= columns())
-    throw PGSTD::invalid_argument("Attempt to retrieve table ID for column " +
+    throw argument_error("Attempt to retrieve table ID for column " +
 	to_string(ColNum) + " out of " + to_string(columns()));
 
   return T;
@@ -336,7 +333,7 @@ pqxx::result::table_column(tuple::size_type ColNum) const
   // 2. Not using protocol 3.0 or better
   // 3. Column not taken directly from a table
   if (ColNum > columns())
-    throw out_of_range("Invalid column index in table_column(): " +
+    throw range_error("Invalid column index in table_column(): " +
       to_string(ColNum));
 
   if (!c_ptr() || c_ptr()->protocol < 3)
@@ -344,7 +341,7 @@ pqxx::result::table_column(tuple::size_type ColNum) const
       "column's original number",
       "[TABLE_COLUMN]");
 
-  throw logic_error("Can't query origin of column " + to_string(ColNum) + ": "
+  throw usage_error("Can't query origin of column " + to_string(ColNum) + ": "
 	"not derived from table column");
 }
 #endif
@@ -375,18 +372,18 @@ pqxx::result::field pqxx::result::tuple::at(const char f[]) const
 {
   const int fnum = m_Home->column_number(f);
   // TODO: Should this be an out_of_range?
-  if (fnum == -1)
-    throw invalid_argument(string("Unknown field '") + f + "'");
+  if (fnum == -1) throw argument_error(string("Unknown field '") + f + "'");
 
   return field(*this, fnum);
 }
 
 
 pqxx::result::field
-pqxx::result::tuple::at(pqxx::result::tuple::size_type i) const throw (out_of_range)
+pqxx::result::tuple::at(pqxx::result::tuple::size_type i) const
+  throw (range_error)
 {
   if (i >= size())
-    throw out_of_range("Invalid field number");
+    throw range_error("Invalid field number");
 
   return operator[](i);
 }
@@ -397,7 +394,7 @@ pqxx::result::column_name(pqxx::result::tuple::size_type Number) const
 {
   const char *const N = PQfname(m_data, Number);
   if (!N)
-    throw out_of_range("Invalid column number: " + to_string(Number));
+    throw range_error("Invalid column number: " + to_string(Number));
 
   return N;
 }
@@ -415,7 +412,7 @@ pqxx::result::column_number(const char ColName[]) const
   const int N = PQfnumber(m_data, ColName);
   // TODO: Should this be an out_of_range?
   if (N == -1)
-    throw invalid_argument("Unknown column name: '" + string(ColName) + "'");
+    throw argument_error("Unknown column name: '" + string(ColName) + "'");
 
   return tuple::size_type(N);
 }

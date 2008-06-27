@@ -1,3 +1,9 @@
+2008-06-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/except.hxx, include/pqxx/result.hxx, src/connection_base.cxx,
+ src/cursor.cxx, src/except.cxx, src/largeobject.cxx, src/result.cxx,
+ src/robusttransaction.cxx, src/tablereader.cxx, src/transaction_base.cxx,
+ src/util.cxx:
+  - Throw pqxx_exception-derived exceptions instead of std ones, thanks yrs90.
 2008-06-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/tablewriter.hxx:
   - Peephole optimization, thanks Daniel Frey.

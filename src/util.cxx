@@ -114,14 +114,14 @@ template<typename T> void from_string_signed(const char Str[], T &Obj)
   if (!isdigit(Str[i]))
   {
     if (Str[i] != '-')
-      throw runtime_error("Could not convert string to integer: '" +
+      throw pqxx::failure("Could not convert string to integer: '" +
 	string(Str) + "'");
 
     for (++i; isdigit(Str[i]); ++i)
     {
       const T newresult = absorb_digit(result, -digit_to_number(Str[i]));
       if (newresult > result)
-        throw runtime_error("Integer too small to read: " + string(Str));
+        throw pqxx::failure("Integer too small to read: " + string(Str));
       result = newresult;
     }
   }
@@ -129,12 +129,12 @@ template<typename T> void from_string_signed(const char Str[], T &Obj)
   {
     const T newresult = absorb_digit(result, digit_to_number(Str[i]));
     if (newresult < result)
-      throw runtime_error("Integer too large to read: " + string(Str));
+      throw pqxx::failure("Integer too large to read: " + string(Str));
     result = newresult;
   }
 
   if (Str[i])
-    throw runtime_error("Unexpected text after integer: '" + string(Str) + "'");
+    throw pqxx::failure("Unexpected text after integer: '" + string(Str) + "'");
 
   Obj = result;
 }
@@ -145,20 +145,20 @@ template<typename T> void from_string_unsigned(const char Str[], T &Obj)
   T result = 0;
 
   if (!isdigit(Str[i]))
-    throw runtime_error("Could not convert string to unsigned integer: '" +
+    throw pqxx::failure("Could not convert string to unsigned integer: '" +
 	string(Str) + "'");
 
   for (; isdigit(Str[i]); ++i)
   {
     const T newres = absorb_digit(result, digit_to_number(Str[i]));
     if (newres < result)
-      throw runtime_error("Unsigned integer too large to read: " + string(Str));
+      throw pqxx::failure("Unsigned integer too large to read: " + string(Str));
 
     result = newres;
   }
 
   if (Str[i])
-    throw runtime_error("Unexpected text after integer: '" + string(Str) + "'");
+    throw pqxx::failure("Unexpected text after integer: '" + string(Str) + "'");
 
   Obj = result;
 }
@@ -216,7 +216,7 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
   }
 
   if (!ok)
-    throw runtime_error("Could not convert string to numeric value: '" +
+    throw pqxx::failure("Could not convert string to numeric value: '" +
 	string(Str) + "'");
 
   Obj = result;
@@ -367,7 +367,7 @@ void string_traits<bool>::from_string(const char Str[], bool &Obj)
   }
 
   if (!OK)
-    throw invalid_argument("Failed conversion to bool: '" + string(Str) + "'");
+    throw argument_error("Failed conversion to bool: '" + string(Str) + "'");
 
   Obj = result;
 }
@@ -524,7 +524,7 @@ string pqxx::internal::escape_string(const char str[], size_t maxlen)
     const unsigned char c(str[i]);
     if (c & 0x80)
     {
-      throw runtime_error("non-ASCII text passed to sqlesc(); "
+      throw failure("non-ASCII text passed to sqlesc(); "
 	  "the libpq version that libpqxx was built with does not support this "
 	  "yet (minimum is postgres 7.2)");
     }
@@ -646,8 +646,8 @@ void pqxx::internal::CheckUniqueRegistration(const namedclass *New,
   if (Old)
   {
     if (Old == New)
-      throw logic_error("Started twice: " + New->description());
-    throw logic_error("Started " + New->description() + " "
+      throw usage_error("Started twice: " + New->description());
+    throw usage_error("Started " + New->description() + " "
 		      "while " + Old->description() + " still active");
   }
 }
@@ -659,11 +659,11 @@ void pqxx::internal::CheckUniqueUnregistration(const namedclass *New,
   if (New != Old)
   {
     if (!New)
-      throw logic_error("Expected to close " + Old->description() + ", "
+      throw usage_error("Expected to close " + Old->description() + ", "
 			"but got NULL pointer instead");
     if (!Old)
-      throw logic_error("Closed while not open: " + New->description());
-    throw logic_error("Closed " + New->description() + "; "
+      throw usage_error("Closed while not open: " + New->description());
+    throw usage_error("Closed " + New->description() + "; "
 		      "expected to close " + Old->description());
   }
 }
@@ -699,7 +699,7 @@ void pqxx::internal::sleep_seconds(int s)
   if (select(0, &F, &F, &F, &timeout) == -1) switch (errno)
   {
   case EINVAL:	// Invalid timeout
-	throw out_of_range("Invalid timeout value: " + to_string(s));
+	throw range_error("Invalid timeout value: " + to_string(s));
   case EINTR:	// Interrupted by signal
 	break;
   case ENOMEM:	// Out of memory
