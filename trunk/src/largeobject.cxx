@@ -7,7 +7,7 @@
  *      Implementation of the Large Objects interface
  *   Allows access to large objects directly, or though I/O streams
  *
- * Copyright (c) 2003-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -84,7 +84,7 @@ pqxx::largeobject::largeobject(dbtransaction &T) :
   {
     const int err = errno;
     if (err == ENOMEM) throw bad_alloc();
-    throw runtime_error("Could not create large object: " + Reason(err));
+    throw failure("Could not create large object: " + Reason(err));
   }
 }
 
@@ -97,8 +97,8 @@ pqxx::largeobject::largeobject(dbtransaction &T, const PGSTD::string &File) :
   {
     const int err = errno;
     if (err == ENOMEM) throw bad_alloc();
-    throw runtime_error("Could not import file '" + File + "' "
-	                "to large object: " + Reason(err));
+    throw failure("Could not import file '" + File + "' to large object: " +
+	Reason(err));
   }
 }
 
@@ -116,7 +116,7 @@ void pqxx::largeobject::to_file(dbtransaction &T,
   {
     const int err = errno;
     if (err == ENOMEM) throw bad_alloc();
-    throw runtime_error("Could not export large object " + to_string(m_ID) + " "
+    throw failure("Could not export large object " + to_string(m_ID) + " "
 	                "to file '" + File + "': " +
 			Reason(err));
   }
@@ -129,9 +129,8 @@ void pqxx::largeobject::remove(dbtransaction &T) const
   {
     const int err = errno;
     if (err == ENOMEM) throw bad_alloc();
-    throw runtime_error("Could not delete large object " +
-	                to_string(m_ID) + ": " +
-			Reason(err));
+    throw failure("Could not delete large object " + to_string(m_ID) + ": " +
+	Reason(err));
   }
 }
 
@@ -196,7 +195,7 @@ pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
   {
     const int err = errno;
     if (err == ENOMEM) throw bad_alloc();
-    throw runtime_error("Error seeking in large object: " + Reason(err));
+    throw failure("Error seeking in large object: " + Reason(err));
   }
 
   return Result;
@@ -245,16 +244,15 @@ void pqxx::largeobjectaccess::write(const char Buf[], size_type Len)
     const int err = errno;
     if (err == ENOMEM) throw bad_alloc();
     if (Bytes < 0)
-      throw runtime_error("Error writing to large object "
-                          "#" + to_string(id()) + ": " +
-	                  Reason(err));
+      throw failure("Error writing to large object #" + to_string(id()) + ": " +
+	Reason(err));
     if (Bytes == 0)
-      throw runtime_error("Could not write to large object #" +
-	                  to_string(id()) + ": " + Reason(err));
+      throw failure("Could not write to large object #" + to_string(id()) +
+	": " + Reason(err));
 
-    throw runtime_error("Wanted to write " + to_string(Len) + " bytes "
-	                "to large object #" + to_string(id()) + "; "
-			"could only write " + to_string(Bytes));
+    throw failure("Wanted to write " + to_string(Len) + " bytes "
+	"to large object #" + to_string(id()) + "; "
+	"could only write " + to_string(Bytes));
   }
 }
 
@@ -267,8 +265,8 @@ pqxx::largeobjectaccess::read(char Buf[], size_type Len)
   {
     const int err = errno;
     if (err == ENOMEM) throw bad_alloc();
-    throw runtime_error("Error reading from large object #" + to_string(id()) +
-	                ": " + Reason(err));
+    throw failure("Error reading from large object #" + to_string(id()) +
+	": " + Reason(err));
   }
   return Bytes;
 }
@@ -281,8 +279,8 @@ void pqxx::largeobjectaccess::open(openmode mode)
   {
     const int err = errno;
     if (err == ENOMEM) throw bad_alloc();
-    throw runtime_error("Could not open large object " + to_string(id()) + ":"
-			" " + Reason(err));
+    throw failure("Could not open large object " + to_string(id()) + ": " +
+	Reason(err));
   }
 }
 
@@ -299,7 +297,7 @@ void pqxx::largeobjectaccess::close() throw ()
 pqxx::largeobjectaccess::size_type pqxx::largeobjectaccess::tell() const
 {
   const size_type res = ctell();
-  if (res == -1) throw runtime_error(Reason(errno));
+  if (res == -1) throw failure(Reason(errno));
   return res;
 }
 

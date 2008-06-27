@@ -91,6 +91,16 @@ public:
 };
 
 
+/// Run-time failure encountered by libpqxx, similar to std::runtime_error
+class PQXX_LIBEXPORT failure :
+  public pqxx_exception, public PGSTD::runtime_error
+{
+  virtual const PGSTD::exception &base() const throw () { return *this; }
+public:
+  explicit failure(const PGSTD::string &);
+};
+
+
 /// Exception class for lost or failed backend connection.
 /**
  * @warning When this happens on Unix-like systems, you may also get a SIGPIPE
@@ -110,10 +120,8 @@ public:
  *   // ...
  * @endcode
  */
-class PQXX_LIBEXPORT broken_connection :
-  public pqxx_exception, public PGSTD::runtime_error
+class PQXX_LIBEXPORT broken_connection : public failure
 {
-  virtual const PGSTD::exception &base() const throw () { return *this; }
 public:
   broken_connection();
   explicit broken_connection(const PGSTD::string &);
@@ -122,10 +130,8 @@ public:
 
 /// Exception class for failed queries.
 /** Carries a copy of the failed query in addition to a regular error message */
-class PQXX_LIBEXPORT sql_error :
-  public pqxx_exception, public PGSTD::runtime_error
+class PQXX_LIBEXPORT sql_error : public failure
 {
-  virtual const PGSTD::exception &base() const throw () { return *this; }
   PGSTD::string m_Q;
 
 public:
@@ -147,10 +153,8 @@ public:
  * the database is left in an indeterminate (but consistent) state, and only
  * manual inspection will tell which is the case.
  */
-class PQXX_LIBEXPORT in_doubt_error :
-  public pqxx_exception, public PGSTD::runtime_error
+class PQXX_LIBEXPORT in_doubt_error : public failure
 {
-  virtual const PGSTD::exception &base() const throw () { return *this; }
 public:
   explicit in_doubt_error(const PGSTD::string &);
 };
@@ -163,6 +167,36 @@ class PQXX_LIBEXPORT internal_error :
   virtual const PGSTD::exception &base() const throw () { return *this; }
 public:
   explicit internal_error(const PGSTD::string &);
+};
+
+
+/// Error in usage of libpqxx library, similar to std::logic_error
+class PQXX_LIBEXPORT usage_error :
+  public pqxx_exception, public PGSTD::logic_error
+{
+  virtual const PGSTD::exception &base() const throw () { return *this; }
+public:
+  explicit usage_error(const PGSTD::string &);
+};
+
+
+/// Invalid argument passed to libpqxx, similar to std::invalid_argument
+class PQXX_LIBEXPORT argument_error :
+  public pqxx_exception, public PGSTD::invalid_argument
+{
+  virtual const PGSTD::exception &base() const throw () { return *this; }
+public:
+  explicit argument_error(const PGSTD::string &);
+};
+
+
+/// Something is out of range, similar to std::out_of_range
+class PQXX_LIBEXPORT range_error :
+  public pqxx_exception, public PGSTD::out_of_range
+{
+  virtual const PGSTD::exception &base() const throw () { return *this; }
+public:
+  explicit range_error(const PGSTD::string &);
 };
 
 

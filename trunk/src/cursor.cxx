@@ -70,7 +70,7 @@ pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
   // TODO: May break on multibyte encodings!
   for (--last; last!=query.begin() && useless_trail(*last); --last) ;
   if (last==query.begin() && useless_trail(*last))
-    throw invalid_argument("Cursor created on empty query");
+    throw argument_error("Cursor created on empty query");
   ++last;
 
   cq << "DECLARE \"" << name() << "\" ";
@@ -87,7 +87,7 @@ pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
   if (hold)
   {
     if (!m_home.supports(connection_base::cap_cursor_with_hold))
-      throw runtime_error("Cursor " + name() + " "
+      throw failure("Cursor " + name() + " "
 	  "created for use outside of its originating transaction, "
 	  "but this backend version does not support that.");
     cq << "WITH HOLD ";
@@ -97,7 +97,7 @@ pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
 
   if (up != cursor_base::update) cq << "FOR READ ONLY ";
   else if (!m_home.supports(connection_base::cap_cursor_update))
-    throw runtime_error("Cursor " + name() + " "
+    throw failure("Cursor " + name() + " "
 	"created as updatable, "
 	"but this backend version does not support that.");
   else cq << "FOR UPDATE ";
@@ -309,7 +309,7 @@ result pqxx::internal::stateless_cursor_retrieve(
 	result::difference_type end_pos)
 {
   if (begin_pos < 0 || begin_pos > size)
-    throw out_of_range("Starting position out of range");
+    throw range_error("Starting position out of range");
 
   if (end_pos < -1) end_pos = -1;
   else if (end_pos > size) end_pos = size;
@@ -363,7 +363,7 @@ pqxx::icursorstream::icursorstream(
 void pqxx::icursorstream::set_stride(difference_type n)
 {
   if (n < 1)
-    throw invalid_argument("Attempt to set cursor stride to " + to_string(n));
+    throw argument_error("Attempt to set cursor stride to " + to_string(n));
   m_stride = n;
 }
 
@@ -496,7 +496,7 @@ icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
   if (n <= 0)
   {
     if (!n) return *this;
-    throw invalid_argument("Advancing icursor_iterator by negative offset");
+    throw argument_error("Advancing icursor_iterator by negative offset");
   }
   m_pos = m_stream->forward(n);
   m_here.clear();

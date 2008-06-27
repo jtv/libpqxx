@@ -190,7 +190,7 @@ void pqxx::connection_base::deactivate()
   if (!m_Conn) return;
 
   if (m_Trans.get())
-    throw logic_error("Attempt to deactivate connection while " +
+    throw usage_error("Attempt to deactivate connection while " +
 	m_Trans.get()->description() + " still open");
 
   if (m_reactivation_avoidance.get())
@@ -284,7 +284,7 @@ void pqxx::connection_base::SetupState()
   {
     const string Msg( ErrMsg() );
     m_Conn = m_policy.do_disconnect(m_Conn);
-    throw runtime_error(Msg);
+    throw failure(Msg);
   }
 
   read_capabilities();
@@ -346,7 +346,7 @@ void pqxx::connection_base::check_result(const result &R)
   if (!is_open()) throw broken_connection();
 
   // A shame we can't quite detect out-of-memory to turn this into a bad_alloc!
-  if (!R) throw runtime_error(ErrMsg());
+  if (!R) throw failure(ErrMsg());
 
   try
   {
@@ -559,7 +559,7 @@ void pqxx::connection_base::trace(FILE *Out) throw ()
 
 void pqxx::connection_base::add_listener(pqxx::notify_listener *T)
 {
-  if (!T) throw invalid_argument("Null listener registered");
+  if (!T) throw argument_error("Null listener registered");
 
   // Add to listener list and attempt to start listening.
   const listenerlist::iterator p = m_listeners.find(T->name());
@@ -755,7 +755,7 @@ pqxx::prepare::declaration pqxx::connection_base::prepare(
   if (i != m_prepared.end())
   {
     if (definition != i->second.definition)
-      throw invalid_argument("Inconsistent redefinition "
+      throw argument_error("Inconsistent redefinition "
 	  "of prepared statement " + name);
 
     // Prepare for repeated repetition of parameters
@@ -823,7 +823,7 @@ string escape_param(const char in[],
     break;
 
   default:
-    throw logic_error("Unknown treatment for prepared-statement parameter");
+    throw usage_error("Unknown treatment for prepared-statement parameter");
   }
 
   return in;
@@ -836,7 +836,7 @@ pqxx::connection_base::find_prepared(const PGSTD::string &statement)
 {
   PSMap::iterator s = m_prepared.find(statement);
   if (s == m_prepared.end())
-    throw invalid_argument("Unknown prepared statement '" + statement + "'");
+    throw argument_error("Unknown prepared statement '" + statement + "'");
   return s->second;
 }
 
@@ -847,7 +847,7 @@ void pqxx::connection_base::prepare_param_declare(
 {
   prepare::internal::prepared_def &s = find_prepared(statement);
   if (s.complete)
-    throw logic_error("Attempt to add parameter to prepared statement " +
+    throw usage_error("Attempt to add parameter to prepared statement " +
 	statement +
 	" after its definition was completed");
   s.addparam(sqltype,treatment);
@@ -913,7 +913,7 @@ pqxx::result pqxx::connection_base::prepared_exec(
   prepare::internal::prepared_def &s = register_prepared(statement);
 
   if (nparams != int(s.parameters.size()))
-    throw logic_error("Wrong number of parameters for prepared statement " +
+    throw usage_error("Wrong number of parameters for prepared statement " +
 	statement + ": "
 	"expected " + to_string(s.parameters.size()) + ", "
 	"received " + to_string(nparams));
@@ -1128,7 +1128,7 @@ bool pqxx::connection_base::ReadCopyLine(PGSTD::string &Line)
   switch (PQgetCopyData(m_Conn, &Buf, false))
   {
     case -2:
-      throw runtime_error("Reading of table data failed: " + string(ErrMsg()));
+      throw failure("Reading of table data failed: " + string(ErrMsg()));
 
     case -1:
       for (result R(PQgetResult(m_Conn), proto, querydesc, encoding);
@@ -1159,7 +1159,7 @@ bool pqxx::connection_base::ReadCopyLine(PGSTD::string &Line)
     {
     case EOF:
       PQendcopy(m_Conn);
-      throw runtime_error("Unexpected EOF from backend");
+      throw failure("Unexpected EOF from backend");
 
     case 0:
       LineComplete = true;
@@ -1169,7 +1169,7 @@ bool pqxx::connection_base::ReadCopyLine(PGSTD::string &Line)
       break;
 
     default:
-      throw runtime_error("Unexpected COPY response from backend");
+      throw failure("Unexpected COPY response from backend");
     }
 
     Line += Buf;
@@ -1185,7 +1185,7 @@ bool pqxx::connection_base::ReadCopyLine(PGSTD::string &Line)
   else
   {
     Line.erase();
-    if (PQendcopy(m_Conn)) throw runtime_error(ErrMsg());
+    if (PQendcopy(m_Conn)) throw failure(ErrMsg());
   }
 #endif
 
@@ -1207,11 +1207,11 @@ void pqxx::connection_base::WriteCopyLine(const PGSTD::string &Line)
   {
     const string Msg = string("Error writing to table: ") + ErrMsg();
     PQendcopy(m_Conn);
-    throw runtime_error(Msg);
+    throw failure(Msg);
   }
 #else
   if (PQputnbytes(m_Conn, LC, int(Len)) == EOF)
-    throw runtime_error(string("Error writing to table: ") + ErrMsg());
+    throw failure(string("Error writing to table: ") + ErrMsg());
 #endif
 }
 
@@ -1223,7 +1223,7 @@ void pqxx::connection_base::EndCopyWrite()
   switch (Res)
   {
   case -1:
-    throw runtime_error("Write to table failed: " + string(ErrMsg()));
+    throw failure("Write to table failed: " + string(ErrMsg()));
   case 0:
     throw internal_error("table write is inexplicably asynchronous");
   case 1:
@@ -1247,7 +1247,7 @@ void pqxx::connection_base::EndCopyWrite()
   // returning 1 (i.e., failure) but with an empty error message, and without
   // anything seeming wrong.
   if ((PQendcopy(m_Conn) != 0) && ErrMsg() && *ErrMsg())
-    throw runtime_error(ErrMsg());
+    throw failure(ErrMsg());
 #endif
 }
 
@@ -1255,7 +1255,7 @@ void pqxx::connection_base::EndCopyWrite()
 void pqxx::connection_base::start_exec(const PGSTD::string &Q)
 {
   activate();
-  if (!PQsendQuery(m_Conn, Q.c_str())) throw runtime_error(ErrMsg());
+  if (!PQsendQuery(m_Conn, Q.c_str())) throw failure(ErrMsg());
 }
 
 
@@ -1279,7 +1279,7 @@ string pqxx::connection_base::esc(const char str[], size_t maxlen)
   {
     int err = 0;
     PQescapeStringConn(m_Conn, buf, str, maxlen, &err);
-    if (err) throw invalid_argument(ErrMsg());
+    if (err) throw argument_error(ErrMsg());
     escaped = string(buf);
   }
   catch (const exception &)
@@ -1309,7 +1309,7 @@ PGSTD::string pqxx::connection_base::esc_raw(const unsigned char str[],
   if (!buf.c_ptr())
   {
     // TODO: Distinguish different errors in exception type
-    throw runtime_error(ErrMsg());
+    throw failure(ErrMsg());
   }
 #else
   unsigned char *const s = const_cast<unsigned char *>(str);

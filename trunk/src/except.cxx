@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      implementation of libpqxx exception classes
  *
- * Copyright (c) 2005-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2005-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -24,31 +24,38 @@ pqxx::pqxx_exception::~pqxx_exception() throw ()
 {
 }
 
-pqxx::broken_connection::broken_connection() :
-  runtime_error("Connection to database failed")
-{
-}
 
-pqxx::broken_connection::broken_connection(const PGSTD::string &whatarg) :
+pqxx::failure::failure(const PGSTD::string &whatarg) :
+  pqxx_exception(),
   runtime_error(whatarg)
 {
 }
 
+pqxx::broken_connection::broken_connection() :
+  failure("Connection to database failed")
+{
+}
+
+pqxx::broken_connection::broken_connection(const PGSTD::string &whatarg) :
+  failure(whatarg)
+{
+}
+
 pqxx::sql_error::sql_error() :
-  runtime_error("Failed query"),
+  failure("Failed query"),
   m_Q()
 {
 }
 
 pqxx::sql_error::sql_error(const PGSTD::string &whatarg) :
-  runtime_error(whatarg),
+  failure(whatarg),
   m_Q()
 {
 }
 
 pqxx::sql_error::sql_error(const PGSTD::string &whatarg,
 	const PGSTD::string &Q) :
-  runtime_error(whatarg),
+  failure(whatarg),
   m_Q(Q)
 {
 }
@@ -62,13 +69,31 @@ const string &pqxx::sql_error::query() const throw () { return m_Q; }
 
 
 pqxx::in_doubt_error::in_doubt_error(const PGSTD::string &whatarg) :
-  runtime_error(whatarg)
+  failure(whatarg)
 {
 }
 
 
 pqxx::internal_error::internal_error(const PGSTD::string &whatarg) :
   logic_error("libpqxx internal error: " + whatarg)
+{
+}
+
+
+pqxx::usage_error::usage_error(const PGSTD::string &whatarg) :
+  logic_error(whatarg)
+{
+}
+
+
+pqxx::argument_error::argument_error(const PGSTD::string &whatarg) :
+  invalid_argument(whatarg)
+{
+}
+
+
+pqxx::range_error::range_error(const PGSTD::string &whatarg) :
+  out_of_range(whatarg)
 {
 }
 

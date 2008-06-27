@@ -216,12 +216,15 @@ void pqxx::basic_robusttransaction::CreateTransactionRecord()
   catch (const sql_error &e) { throw sql_error(Fail+e.what(), Insert); }
   catch (const broken_connection &) { throw; }
   catch (const bad_alloc &) { throw; }
-  catch (const out_of_range &e) { throw out_of_range(Fail+e.what()); }
   catch (const range_error &e) { throw range_error(Fail+e.what()); }
-  catch (const invalid_argument &e) { throw invalid_argument(Fail+e.what()); }
-  catch (const runtime_error &e) { throw runtime_error(Fail+e.what()); }
+  catch (const out_of_range &e) { throw range_error(Fail+e.what()); }
+  catch (const argument_error &e) { throw argument_error(Fail+e.what()); }
+  catch (const invalid_argument &e) { throw argument_error(Fail+e.what()); }
+  catch (const failure &e) { throw failure(Fail+e.what()); }
+  catch (const runtime_error &e) { throw failure(Fail+e.what()); }
   catch (const domain_error &e) { throw domain_error(Fail+e.what()); }
-  catch (const logic_error &e) { throw logic_error(Fail+e.what()); }
+  catch (const usage_error &e) { throw usage_error(Fail+e.what()); }
+  catch (const logic_error &e) { throw usage_error(Fail+e.what()); }
   catch (const exception &e) { throw sql_error(Fail+e.what(), Insert); }
 
   if (m_ID == oid_none)
