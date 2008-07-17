@@ -190,18 +190,6 @@ void pqxx::transaction_base::abort()
 }
 
 
-string pqxx::transaction_base::esc(const char str[]) const
-{
-  return m_Conn.esc(str, strlen(str));
-}
-
-
-string pqxx::transaction_base::esc(const PGSTD::string &str) const
-{
-  return m_Conn.esc(str.c_str(), str.size());
-}
-
-
 string pqxx::transaction_base::esc_raw(const PGSTD::string &str) const
 {
   const unsigned char *p = reinterpret_cast<const unsigned char *>(str.c_str());

@@ -687,9 +687,25 @@ public:
    */
   //@{
   /// Escape string for use as SQL string literal on this connection
+  PGSTD::string esc(const char str[]);
+
+  /// Escape string for use as SQL string literal on this connection
   PGSTD::string esc(const char str[], size_t maxlen);
+
+  /// Escape string for use as SQL string literal on this connection
+  PGSTD::string esc(const PGSTD::string &str);
+
   /// Escape binary string for use as SQL string literal on this connection
   PGSTD::string esc_raw(const unsigned char str[], size_t len);
+
+  /// Represent object as SQL string, including quoting & escaping.
+  /** Nulls are recognized and represented as SQL nulls. */
+  template<typename T>
+  PGSTD::string quote(const T &t)
+  {
+    if (string_traits<T>::is_null(t)) return "NULL";
+    return "'" + this->esc(to_string(t)) + "'";
+  }
   //@}
 
 protected:

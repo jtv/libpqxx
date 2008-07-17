@@ -1296,8 +1296,19 @@ string pqxx::connection_base::esc(const char str[], size_t maxlen)
 }
 
 
-PGSTD::string pqxx::connection_base::esc_raw(const unsigned char str[],
-	size_t len)
+string pqxx::connection_base::esc(const char str[])
+{
+  return this->esc(str, strlen(str));
+}
+
+
+string pqxx::connection_base::esc(const PGSTD::string &str)
+{
+  return this->esc(str.c_str(), str.size());
+}
+
+
+string pqxx::connection_base::esc_raw(const unsigned char str[], size_t len)
 {
   size_t bytes = 0;
 #ifdef PQXX_HAVE_PQESCAPEBYTEACONN

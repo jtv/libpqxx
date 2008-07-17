@@ -151,6 +151,28 @@ PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long double)
 
 #undef PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION
 
+/// String traits for C-style string ("pointer to const char")
+template<> struct PQXX_LIBEXPORT string_traits<const char *>
+{
+  static const char *name() { return "const char *"; }
+  static bool has_null() { return true; }
+  static bool is_null(const char *t) { return t != NULL; }
+  static const char *null() { return NULL; }
+  static void from_string(const char Str[], const char *&Obj) { Obj = Str; }
+  static PGSTD::string to_string(const char *Obj) { return Obj; }
+};
+
+/// String traits for C-style string constant ("array of char")
+template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
+{
+  static const char *name() { return "char[]"; }
+  static bool has_null() { return true; }
+  static bool is_null(const char t[]) { return t != NULL; }
+  static const char *null() { return NULL; }
+  static void from_string(const char Str[], const char *&Obj) { Obj = Str; }
+  static PGSTD::string to_string(const char Obj[]) { return Obj; }
+};
+
 template<> struct PQXX_LIBEXPORT string_traits<PGSTD::string>
 {
   static const char *name() { return "string"; }

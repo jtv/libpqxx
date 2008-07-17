@@ -128,12 +128,14 @@ public:
    */
   //@{
   /// Escape string for use as SQL string literal in this transaction
-  PGSTD::string esc(const char str[]) const;				//[t90]
+  PGSTD::string esc(const char str[]) const				//[t90]
+                                                     { return m_Conn.esc(str); }
   /// Escape string for use as SQL string literal in this transaction
   PGSTD::string esc(const char str[], size_t maxlen) const		//[t90]
-	{ return m_Conn.esc(str,maxlen); }
+                                             { return m_Conn.esc(str, maxlen); }
   /// Escape string for use as SQL string literal in this transaction
-  PGSTD::string esc(const PGSTD::string &) const;			//[t90]
+  PGSTD::string esc(const PGSTD::string &str) const			//[t90]
+                                                     { return m_Conn.esc(str); }
 
   /// Escape binary data for use as SQL string literal in this transaction
   /** Raw, binary data is treated differently from regular strings.  Binary
@@ -148,9 +150,14 @@ public:
    * special escape sequences.
    */
   PGSTD::string esc_raw(const unsigned char str[], size_t len) const	//[t62]
-	{ return m_Conn.esc_raw(str, len); }
+                                            { return m_Conn.esc_raw(str, len); }
   /// Escape binary data for use as SQL string literal in this transaction
   PGSTD::string esc_raw(const PGSTD::string &) const;			//[t62]
+
+  /// Represent object as SQL string, including quoting & escaping.
+  /** Nulls are recognized and represented as SQL nulls. */
+  template<typename T> PGSTD::string quote(const T &t) const
+                                                     { return m_Conn.quote(t); }
   //@}
 
   /// Execute query
