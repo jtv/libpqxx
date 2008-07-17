@@ -5,6 +5,7 @@
  - More detailed hierarchy of constraint-violation exception classes
  - trigger is now called notify_listener, trigger header is now notify-listen
  - New mixin base class pqxx_exception distinguishes libpqxx exception types
+ - Quoting is back!  transaction_base::quote() & connection_base::quote()
  - Several build & documentation problems with Visual C++ fixed
  - Compile fixes for gcc 4.2, 4.3
  - Compile fixes for Sun Studio Express 5.9

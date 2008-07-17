@@ -282,24 +282,14 @@ void test_hold_cursor(connection_base &conn, transaction_base &trans)
 
 int main()
 {
-  int x;
+  test::TestCase<> test1("forward_sql_cursor", test_forward_sql_cursor),
+	test2("scroll_sql_cursor", test_scroll_sql_cursor),
+	test3("adopted_sql_cursor", test_adopted_sql_cursor),
+	test4("hold_cursor", test_hold_cursor);
 
-  test::TestCase<> test1("forward_sql_cursor", test_forward_sql_cursor);
-  x = test::pqxxtest(test1);
-  if (x != 0) return x;
-
-  test::TestCase<> test2("scroll_sql_cursor", test_scroll_sql_cursor);
-  x = test::pqxxtest(test2);
-  if (x != 0) return x;
-
-  test::TestCase<> test3("adopted_sql_cursor", test_adopted_sql_cursor);
-  x = test::pqxxtest(test3);
-  if (x != 0) return x;
-
-  test::TestCase<> test4("hold_cursor", test_hold_cursor);
-  x = test::pqxxtest(test4);
-  if (x != 0) return x;
-
-  return 0;
+  return test::pqxxtest(test1) +
+	test::pqxxtest(test2) +
+	test::pqxxtest(test3) +
+	test::pqxxtest(test4);
 }
 
