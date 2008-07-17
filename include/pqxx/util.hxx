@@ -102,13 +102,32 @@ const oid oid_none = 0;
  */
 template<typename T> struct string_traits;
 
-#define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION( T )                  \
-template<> struct PQXX_LIBEXPORT string_traits<T>                       \
-{                                                                       \
-  static bool is_null(T) { return false; }                              \
-  static T null() { throw PGSTD::domain_error("Attempt to read null field"); } \
-  static void from_string(const char Str[], T &Obj);                    \
-  static PGSTD::string to_string(T Obj);                                \
+namespace internal
+{
+/// Throw exception for attempt to convert null to given type.
+void throw_null_conversion(const PGSTD::string &type);
+
+/// Helper for string_traits: default way to construct null value for a type.
+/** Throws a conversion error if the type does not support nulls, or returns a
+ * default-constructed object otherwise.
+ */
+template<typename T> inline T default_null()
+{
+  if (!string_traits<T>::has_null())
+    throw_null_conversion(string_traits<T>::name());
+  return T();
+}
+} // namespace pqxx::internal
+
+#define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(T)                           \
+template<> struct PQXX_LIBEXPORT string_traits<T>                              \
+{                                                                              \
+  static const char *name() { return #T; }                                     \
+  static bool has_null() { return false; }                                     \
+  static bool is_null(T) { return false; }                                     \
+  static T null() { return internal::default_null<T>(); }                      \
+  static void from_string(const char Str[], T &Obj);                           \
+  static PGSTD::string to_string(T Obj);                                       \
 };
 
 PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(bool)
@@ -134,18 +153,30 @@ PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long double)
 
 template<> struct PQXX_LIBEXPORT string_traits<PGSTD::string>
 {
+  static const char *name() { return "string"; }
+  static bool has_null() { return false; }
   static bool is_null(const PGSTD::string &) { return false; }
-  static PGSTD::string null() { throw PGSTD::domain_error("Attempt to read null field"); }
+  static PGSTD::string null()
+                             { return internal::default_null<PGSTD::string>(); }
   static void from_string(const char Str[], PGSTD::string &Obj) { Obj=Str; }
   static PGSTD::string to_string(const PGSTD::string &Obj) { return Obj; }
 };
 
 template<> struct PQXX_LIBEXPORT string_traits<PGSTD::stringstream>
 {
+  static const char *name() { return "stringstream"; }
+  static bool has_null() { return false; }
   static bool is_null(const PGSTD::stringstream &) { return false; }
-  static PGSTD::stringstream null() { throw PGSTD::domain_error("Attempt to read null field"); }
-  static void from_string(const char Str[], PGSTD::stringstream &Obj) { Obj.clear(); Obj << Str; }
-  static PGSTD::string to_string(const PGSTD::stringstream &Obj) { return Obj.str(); }
+  static PGSTD::stringstream null()
+  {
+    internal::throw_null_conversion(name());
+    // No, dear compiler, we don't need a return here.
+    throw 0;
+  }
+  static void from_string(const char Str[], PGSTD::stringstream &Obj)
+                                                    { Obj.clear(); Obj << Str; }
+  static PGSTD::string to_string(const PGSTD::stringstream &Obj)
+                                                           { return Obj.str(); }
 };
 
 
