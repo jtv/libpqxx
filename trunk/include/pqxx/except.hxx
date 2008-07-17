@@ -190,6 +190,15 @@ public:
 };
 
 
+class PQXX_LIBEXPORT conversion_error :
+  public pqxx_exception, public PGSTD::domain_error
+{
+  virtual const PGSTD::exception &base() const throw () { return *this; }
+public:
+  explicit conversion_error(const PGSTD::string &);
+};
+
+
 /// Something is out of range, similar to std::out_of_range
 class PQXX_LIBEXPORT range_error :
   public pqxx_exception, public PGSTD::out_of_range

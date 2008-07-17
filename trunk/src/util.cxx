@@ -321,6 +321,15 @@ template<typename T> inline string to_string_signed(T Obj)
 
 namespace pqxx
 {
+
+namespace internal
+{
+void throw_null_conversion(const PGSTD::string &type)
+{
+  throw conversion_error("Attempt to convert null to " + type);
+}
+} // namespace pqxx::internal
+
 void string_traits<bool>::from_string(const char Str[], bool &Obj)
 {
   bool OK, result=false;

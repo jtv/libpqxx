@@ -92,6 +92,12 @@ pqxx::argument_error::argument_error(const PGSTD::string &whatarg) :
 }
 
 
+pqxx::conversion_error::conversion_error(const PGSTD::string &whatarg) :
+  domain_error(whatarg)
+{
+}
+
+
 pqxx::range_error::range_error(const PGSTD::string &whatarg) :
   out_of_range(whatarg)
 {

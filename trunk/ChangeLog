@@ -1,3 +1,8 @@
+2008-07-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/except.hxx, include/pqxx/util.hxx, src/util.cxx:
+  - New exception type conversion_error
+  - Added name() and has_null() to string_traits<>
+  - Better error messages for null conversions
 2008-06-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/except.hxx, include/pqxx/result.hxx, src/connection_base.cxx,
  src/cursor.cxx, src/except.cxx, src/largeobject.cxx, src/result.cxx,
