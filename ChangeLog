@@ -1,3 +1,7 @@
+2008-07-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/compiler-internal.hxx:
+  - Sun Studio fix: use ptrdiff_t, not iterator_traits, thanks Jorgen Austvik
+  - distance() workaround for Sun Studio was completely broken
 2008-07-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
  test/unit/test_escape.cxx:
