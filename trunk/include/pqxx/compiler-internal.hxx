@@ -82,8 +82,8 @@ template<typename T> inline ptrdiff_t distance(T first, T last)
   return PGSTD::distance(first, last);
 #else
   // Naive implementation.  All we really need for now.
-  iterator_traits<T>::difference_type d = 0;
-  while (first != last) ++d;
+  ptrdiff_t d;
+  for (d=0; first != last; ++d) ++first;
   return d;
 #endif
 }
