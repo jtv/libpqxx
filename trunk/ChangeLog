@@ -1,6 +1,8 @@
 2008-07-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/compiler/gcc-4.2/config-internal-compiler.h,
  config/sample-headers/compiler/gcc-4.2/config-public-compiler.h,
+ config/sample-headers/compiler/VisualC++.NET-2003/config-public-compiler.h:
+  - Enable "long long" support.
  config/sample-headers/libpq/8.3/config-internal/libpq.h:
   - Added sample headers for more recent gcc and libpq.
  include/pqxx/compiler-public.h, win32/vc-libpqxx.mak.template:
