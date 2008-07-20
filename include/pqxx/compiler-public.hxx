@@ -180,7 +180,7 @@ template<> struct char_traits<unsigned char>
 // Note that the preprocessor macro PQXX_INTERNAL is used to detect whether we
 // are compiling the libpqxx library itself. When you compile the library
 // yourself using your own project file, make sure to include this define.
-#ifndef PQXX_INTERNAL
+#if defined(PQXX_AUTOLINK) && !defined(PQXX_INTERNAL)
   #ifdef PQXX_SHARED
     #ifdef _DEBUG
       #pragma comment(lib, "libpqxxD")

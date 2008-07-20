@@ -1,7 +1,18 @@
+2008-07-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/gcc-4.2/config-internal-compiler.h,
+ config/sample-headers/compiler/gcc-4.2/config-public-compiler.h,
+ config/sample-headers/libpq/8.3/config-internal/libpq.h:
+  - Added sample headers for more recent gcc and libpq.
+ include/pqxx/compiler-public.h, win32/vc-libpqxx.mak.template:
+  - New PQXX_AUTOLINK for Visual C++, thanks Kirit Saelensminde
 2008-07-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+  - Removed -Wno-long-double; current gcc doesn't know it--thanks Roger Leigh
  include/pqxx/compiler-internal.hxx:
   - Sun Studio fix: use ptrdiff_t, not iterator_traits, thanks Jorgen Austvik
   - distance() workaround for Sun Studio was completely broken
+ src/util.cxx:
+  - Hopefully fixed gcc 4.3 warning, thanks Roger Leigh
 2008-07-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
  test/unit/test_escape.cxx:
