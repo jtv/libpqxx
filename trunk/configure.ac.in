@@ -78,7 +78,6 @@ if test "$GCC" = "yes" ; then
 	if test "$enable_maintainer_mode" = "yes"; then
 		add_compiler_opts \
 			-Werror \
-			-Wno-long-double \
 			-Wno-div-by-zero \
 			-ffor-scope \
 			-fstrict-aliasing \
