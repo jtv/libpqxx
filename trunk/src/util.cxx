@@ -511,51 +511,6 @@ string string_traits<long double>::to_string(long double Obj)
 } // namespace pqxx
 
 
-string pqxx::internal::escape_string(const char str[], size_t maxlen)
-{
-  string result;
-
-#ifdef PQXX_HAVE_PQESCAPESTRING
-  scoped_array<char> buf;
-
-  buf = new char[2*maxlen+1];
-
-  const size_t bytes = PQescapeString(buf.c_ptr(), str, maxlen);
-  result.assign(buf.c_ptr(), bytes);
-
-#else
-  // This is problematic.  What do we do for multibyte encoding?  What do we do
-  // for encodings different from our own, where conversion may be needed?
-  for (size_t i=0; str[i] && (i < maxlen); ++i)
-  {
-    // Ensure we don't pass negative integers to isprint()/isspace(), which
-    // Visual C++ chokes on.
-    const unsigned char c(str[i]);
-    if (c & 0x80)
-    {
-      throw failure("non-ASCII text passed to sqlesc(); "
-	  "the libpq version that libpqxx was built with does not support this "
-	  "yet (minimum is postgres 7.2)");
-    }
-    else if (isprint(c))
-    {
-      if (c=='\\' || c=='\'') result += c;
-      result += c;
-    }
-    else
-    {
-        char s[8];
-	// TODO: Number may be formatted according to locale!  :-(
-        sprintf(s, "\\%03o", static_cast<unsigned int>(c));
-        result.append(s, 4);
-    }
-  }
-#endif
-
-  return result;
-}
-
-
 namespace
 {
 size_t pqxx_strnlen(const char s[], size_t max)
@@ -569,22 +524,6 @@ size_t pqxx_strnlen(const char s[], size_t max)
 #endif
 }
 } // namespace
-
-string pqxx::sqlesc(const char str[])
-{
-  return escape_string(str, strlen(str));
-}
-
-string pqxx::sqlesc(const char str[], size_t maxlen)
-{
-  return escape_string(str, pqxx_strnlen(str,maxlen));
-}
-
-
-string pqxx::sqlesc(const string &str)
-{
-  return sqlesc(str.c_str(), str.size());
-}
 
 
 void pqxx::internal::freemem_notif(pqxx::internal::pq::PGnotify *p) throw ()

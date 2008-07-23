@@ -786,7 +786,8 @@ void pqxx::connection_base::unprepare(const PGSTD::string &name)
 
 namespace
 {
-string escape_param(const char in[],
+string escape_param(connection_base &C,
+	const char in[],
 	int len,
 	prepare::param_treatment treatment)
 {
@@ -798,7 +799,7 @@ string escape_param(const char in[],
     return "'" + escape_binary(string(in,len)) + "'";
 
   case treat_string:
-    return "'" + pqxx::internal::escape_string(in, strlen(in)) + "'";
+    return C.quote(in);
 
   case treat_bool:
     switch (in[0])
@@ -811,7 +812,7 @@ string escape_param(const char in[],
     default:
       {
         // Looks like a numeric value may have been passed.  Try to convert it
-        // back to a number, then to bool to normalize its representation
+        // back to a number, then to bool to normalize its representation.
         bool b;
 	from_string(in,b);
         return to_string(b);
@@ -955,7 +956,10 @@ pqxx::result pqxx::connection_base::prepared_exec(
       Q << " (";
       for (int a = 0; a < nparams; ++a)
       {
-	Q << escape_param(params[a],paramlengths[a],s.parameters[a].treatment);
+	Q << escape_param(*this,
+		params[a],
+		paramlengths[a],
+		s.parameters[a].treatment);
 	if (a < nparams-1) Q << ',';
       }
       Q << ')';
@@ -971,7 +975,8 @@ pqxx::result pqxx::connection_base::prepared_exec(
     for (int n = nparams-1; n >= 0; --n)
     {
       const string key = "$" + to_string(n+1),
-	           val = escape_param(params[n],
+	           val = escape_param(*this,
+				params[n],
 				paramlengths[n],
 				s.parameters[n].treatment);
       const string::size_type keysz = key.size();
@@ -1268,13 +1273,14 @@ pqxx::internal::pq::PGresult *pqxx::connection_base::get_result()
 
 string pqxx::connection_base::esc(const char str[], size_t maxlen)
 {
-#ifdef PQXX_HAVE_PQESCAPESTRINGCONN
+  string escaped;
+
+#if defined(PQXX_HAVE_PQESCAPESTRINGCONN)
   // We need a connection object...  This is the one reason why this function is
   // not const!
   if (!m_Conn) activate();
 
   char *const buf = new char[2*maxlen+1];
-  string escaped;
   try
   {
     int err = 0;
@@ -1290,9 +1296,39 @@ string pqxx::connection_base::esc(const char str[], size_t maxlen)
   delete [] buf;
 
   return escaped;
+#elif defined(PQXX_HAVE_PQESCAPESTRING)
+  scoped_array<char> buf(new char[2*maxlen+1]);
+  const size_t bytes = PQescapeString(buf.c_ptr(), str, maxlen);
+  escaped.assign(buf.c_ptr(), bytes);
 #else
-  return internal::escape_string(str, maxlen);
+  // Last-ditch workaround.  This has serious problems with multibyte encodings.
+  for (size_t i=0; str[i] && (i < maxlen); ++i)
+  {
+    // Ensure we don't pass negative integers to isprint()/isspace(), which
+    // Visual C++ chokes on.
+    const unsigned char c(str[i]);
+    if (c & 0x80)
+    {
+      throw failure("non-ASCII text passed to sqlesc(); "
+	  "the libpq version that libpqxx was built with does not support this "
+	  "yet (minimum is postgres 7.2)");
+    }
+    else if (isprint(c))
+    {
+      if (c=='\\' || c=='\'') escaped += c;
+      escaped += c;
+    }
+    else
+    {
+        char s[8];
+	// TODO: Number may be formatted according to locale!  :-(
+        sprintf(s, "\\%03o", static_cast<unsigned int>(c));
+        escaped.append(s, 4);
+    }
+  }
 #endif
+
+  return escaped;
 }
 
 

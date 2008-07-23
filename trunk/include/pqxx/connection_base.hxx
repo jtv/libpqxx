@@ -684,6 +684,70 @@ public:
 
   /**
    * @addtogroup escaping String escaping
+   *
+   * Use these functions to "groom" user-provided strings before using them in
+   * your SQL statements.  This reduces the chance of failures when users type
+   * unexpected characters, but more importantly, it helps prevent so-called SQL
+   * injection attacks.
+   *
+   * To understand what SQL injection vulnerabilities are and why they should be
+   * prevented, imagine you use the following SQL statement somewhere in your
+   * program:
+   *
+   * @code
+   *	TX.exec("SELECT number,amount "
+   *		"FROM accounts "
+   *		"WHERE allowed_to_see('" + userid + "','" + password + "')");
+   * @endcode
+   *
+   * This shows a logged-in user important information on all accounts he is
+   * authorized to view.  The userid and password strings are variables entered
+   * by the user himself.
+   *
+   * Now, if the user is actually an attacker who knows (or can guess) the
+   * general shape of this SQL statement, imagine he enters the following
+   * password:
+   *
+   * @code
+   *	x') OR ('x' = 'x
+   * @endcode
+   *
+   * Does that make sense to you?  Probably not.  But if this is inserted into
+   * the SQL string by the C++ code above, the query becomes:
+   *
+   * @code
+   *	SELECT number,amount
+   *	FROM accounts
+   *	WHERE allowed_to_see('user','x') OR ('x' = 'x')
+   * @endcode
+   *
+   * Is this what you wanted to happen?  Probably not!  The neat
+   * allowed_to_see() clause is completely circumvented by the
+   * "<tt>OR ('x' = 'x')</tt>" clause, which is always @c true.  Therefore, the
+   * attacker will get to see all accounts in the database!
+   *
+   * To prevent this from happening, use the transaction's esc() function:
+   *
+   * @code
+   *	TX.exec("SELECT number,amount "
+   *		"FROM accounts "
+   *		"WHERE allowed_to_see('" + TX.esc(userid) + "', "
+   *			"'" + TX.esc(password) + "')");
+   * @endcode
+   *
+   * Now, the quotes embedded in the attacker's string will be neatly escaped so
+   * they can't "break out" of the quoted SQL string they were meant to go into:
+   *
+   * @code
+   *	SELECT number,amount
+   *	FROM accounts
+   *	WHERE allowed_to_see('user', 'x'') OR (''x'' = ''x')
+   * @endcode
+   *
+   * If you look carefully, you'll see that thanks to the added escape
+   * characters (a single-quote is escaped in SQL by doubling it) all we get is
+   * a very strange-looking password string--but not a change in the SQL
+   * statement.
    */
   //@{
   /// Escape string for use as SQL string literal on this connection
