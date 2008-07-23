@@ -1,3 +1,9 @@
+2008-07-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx, src/connection_base.cxx, src/util.cxx:
+  - Retired old, unsafe escaping functions.
+  - Moved last-ditch escaping workaround into only place it's used.
+  - Made escape_param() safe where possible.
+  - Moved explanation of SQL injection from util to connection.
 2008-07-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/compiler/gcc-4.2/config-internal-compiler.h,
  config/sample-headers/compiler/gcc-4.2/config-public-compiler.h,
