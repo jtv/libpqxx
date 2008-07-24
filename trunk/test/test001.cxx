@@ -3,70 +3,54 @@
 
 #include <pqxx/pqxx>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
 
+namespace
+{
+
 // Simple test program for libpqxx.  Open connection to database, start
 // a transaction, and perform a query inside it.
-//
-// Usage: test001
-int main()
+void test_001(connection_base &C, transaction_base &trans)
 {
-  try
+  cout << "Connected to database." << endl
+       << "Backend version: " << C.server_version() << endl
+       << "Protocol version: " << C.protocol_version() << endl;
+
+  // Close old transaction.
+  trans.abort();
+
+  // Begin a transaction acting on our current connection.  Give it a human-
+  // readable name so the library can include it in error messages.
+  work T(C, "test1");
+
+  // Perform a query on the database, storing result tuples in R.
+  result R( T.exec("SELECT * FROM pg_tables") );
+
+  // We're expecting to find some tables...
+  if (R.empty()) throw logic_error("No tables found!");
+
+  // Process each successive result tuple
+  for (result::const_iterator c = R.begin(); c != R.end(); ++c)
   {
-    // Set up a connection to the backend.
-    connection C;
-
-    cout << "Connected to database." << endl
-         << "Backend version: " << C.server_version() << endl
-	 << "Protocol version: " << C.protocol_version() << endl;
-
-    // Begin a transaction acting on our current connection.  Give it a human-
-    // readable name so the library can include it in error messages.
-    work T(C, "test1");
-
-    // Perform a query on the database, storing result tuples in R.
-    result R( T.exec("SELECT * FROM pg_tables") );
-
-    // We're expecting to find some tables...
-    if (R.empty()) throw logic_error("No tables found!");
-
-    // Process each successive result tuple
-    for (result::const_iterator c = R.begin(); c != R.end(); ++c)
-    {
-      // Dump tuple number and column 0 value to cout.  Read the value using
-      // as(), which converts the field to the same type as the default value
-      // you give it (or returns the default value if the field is null).
-      cout << '\t' << to_string(c.num()) << '\t' << c[0].as(string()) << endl;
-    }
-
-    // Tell the transaction that it has been successful.  This is not really
-    // necessary here, since we didn't make any modifications to the database
-    // so there are no changes to commit.
-    T.commit();
-  }
-  catch (const sql_error &e)
-  {
-    // The sql_error exception class gives us some extra information
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: " << e.query() << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    // All exceptions thrown by libpqxx are derived from std::exception
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    // This is really unexpected (see above)
-    cerr << "Unhandled exception" << endl;
-    return 100;
+    // Dump tuple number and column 0 value to cout.  Read the value using
+    // as(), which converts the field to the same type as the default value
+    // you give it (or returns the default value if the field is null).
+    cout << '\t' << to_string(c.num()) << '\t' << c[0].as(string()) << endl;
   }
 
-  return 0;
+  T.commit();
 }
 
+} // namespace
+
+
+int main()
+{
+  test::TestCase<> test001("test_001", test_001);
+  return test::pqxxtest(test001);
+}
 
