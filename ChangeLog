@@ -1,8 +1,11 @@
 2008-07-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+  - Don't escape whitespace (which isn't always isprint())
+  - Closer match to what libpq's escaping functions seem to do
  test/test_helpers.hxx:
   - New "fail if you got here" macro
   - Check for bad_alloc as a special case
- test/test000.cxx, test/test001.cxx:
+ test/test000.cxx, test/test001.cxx, test/test090.cxx:
   - Use test helpers.  Really helps!
 2008-07-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.hxx, src/connection_base.cxx, src/util.cxx:
