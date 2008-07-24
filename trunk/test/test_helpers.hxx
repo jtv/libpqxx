@@ -1,4 +1,5 @@
 #include <iostream>
+#include <new>
 #include <stdexcept>
 
 #include <pqxx/pqxx>
@@ -42,6 +43,11 @@ inline int pqxxtest(TESTFUNC &func)
     PGSTD::cerr << "Test failure in " + e.file() + " line " + 
 	to_string(e.line()) << ": " << e.what() << PGSTD::endl;
     return 1;
+  }
+  catch (const PGSTD::bad_alloc &)
+  {
+    PGSTD::cerr << "Out of memory!" << PGSTD::endl;
+    return 50;
   }
   catch (const sql_error &e)
   {
@@ -134,6 +140,10 @@ private:
   testfunc m_func;
 };
 
+
+// Unconditional test failure.
+#define PQXX_CHECK_NOTREACHED(desc) \
+	throw pqxx::test::test_failure(__FILE__, __LINE__, desc)
 
 // Verify that variable has the expected value.
 #define PQXX_CHECK_EQUAL(actual, expected, desc) \

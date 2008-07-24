@@ -1,3 +1,9 @@
+2008-07-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test_helpers.hxx:
+  - New "fail if you got here" macro
+  - Check for bad_alloc as a special case
+ test/test000.cxx:
+  - Use test helpers.  Really helps!
 2008-07-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.hxx, src/connection_base.cxx, src/util.cxx:
   - Retired old, unsafe escaping functions.
