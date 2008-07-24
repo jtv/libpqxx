@@ -3,26 +3,27 @@
 
 #include <pqxx/pqxx>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
+// Test program for libpqxx.  Test string-escaping functions.
+
 namespace
 {
-void check(string ref, string val, string vdesc)
-{
-  if (ref != val)
-    throw logic_error("String mismatch: (" + vdesc + ") '" + val + "' "
-	"<> " + ref + "'");
-}
+
+#define CHECK(REF, VAL, VDESC) \
+	PQXX_CHECK_EQUAL(VAL, REF, "String mismatch for " VDESC)
 
 
 void esc(transaction_base &t, string str, string expected=string())
 {
   if (expected.empty()) expected = str;
-  check(expected, t.esc(str), "string");
-  check(expected, t.esc(str.c_str()), "const char[]");
-  check(expected, t.esc(str.c_str(), str.size()), "const char[],size_t");
-  check(expected, t.esc(str.c_str(), 1000), "const char[],1000");
+  CHECK(expected, t.esc(str), "string");
+  CHECK(expected, t.esc(str.c_str()), "const char[]");
+  CHECK(expected, t.esc(str.c_str(), str.size()), "const char[],size_t");
+  CHECK(expected, t.esc(str.c_str(), 1000), "const char[],1000");
 }
 
 
@@ -30,8 +31,8 @@ void esc_raw(transaction_base &t, string str, string expected=string())
 {
   if (expected.empty()) expected = str;
   const unsigned char *c = reinterpret_cast<const unsigned char *>(str.c_str());
-  check(expected, t.esc_raw(str), "string");
-  check(expected, t.esc_raw(c, str.size()), "const unsigned char[],size_t");
+  CHECK(expected, t.esc_raw(str), "string");
+  CHECK(expected, t.esc_raw(c, str.size()), "const unsigned char[],size_t");
 }
 
 void esc_both(transaction_base &t, string str, string expected=string())
@@ -54,52 +55,33 @@ void dotests(transaction_base &t)
   const string weirdstr(weird, sizeof(weird)-1);
   esc_raw(t, weirdstr, "foo\\\\011\\\\012\\\\000bar");
 }
+
+
+void test_090(connection_base &C, transaction_base &N)
+{
+  // Test connection's adorn_name() function for uniqueness
+  const string nametest = "basename";
+  const string nt1 = C.adorn_name(nametest),
+               nt2 = C.adorn_name(nametest);
+
+  PQXX_CHECK_NOT_EQUAL(C.adorn_name(nametest),
+	C.adorn_name(nametest),
+	"\"Unique\" names are not unique.")
+
+  dotests(N);
+  N.abort();
+
+  work W(C, "test90work");
+  dotests(W);
+  W.abort();
+}
+
 } // namespace
 
 
-// Test program for libpqxx.  Test string-escaping functions.
-//
-// Usage: test090
 int main()
 {
-  try
-  {
-    connection C;
-
-    // Test connection's adorn_name() function for uniqueness
-    const string nametest = "basename";
-    const string nt1 = C.adorn_name(nametest),
-                 nt2 = C.adorn_name(nametest);
-    if (nt1 == nt2)
-      throw logic_error("\"Unique\" names are not unique: got '" + nt1 + "' "
-	"twice");
-
-    nontransaction N(C, "test90non");
-    dotests(N);
-    N.abort();
-
-    work W(C, "test90work");
-    dotests(W);
-    W.abort();
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: " << e.query() << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
+  test::TestCase<connection, nontransaction> test090("test_090", test_090);
+  return test::pqxxtest(test090);
 }
-
 

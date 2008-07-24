@@ -1295,11 +1295,11 @@ string pqxx::connection_base::esc(const char str[], size_t maxlen)
   }
   delete [] buf;
 
-  return escaped;
 #elif defined(PQXX_HAVE_PQESCAPESTRING)
   scoped_array<char> buf(new char[2*maxlen+1]);
   const size_t bytes = PQescapeString(buf.c_ptr(), str, maxlen);
   escaped.assign(buf.c_ptr(), bytes);
+
 #else
   // Last-ditch workaround.  This has serious problems with multibyte encodings.
   for (size_t i=0; str[i] && (i < maxlen); ++i)
@@ -1313,7 +1313,7 @@ string pqxx::connection_base::esc(const char str[], size_t maxlen)
 	  "the libpq version that libpqxx was built with does not support this "
 	  "yet (minimum is postgres 7.2)");
     }
-    else if (isprint(c))
+    else if (isprint(c) || isspace(c))
     {
       if (c=='\\' || c=='\'') escaped += c;
       escaped += c;
