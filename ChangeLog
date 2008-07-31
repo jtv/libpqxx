@@ -1,3 +1,8 @@
+2008-07-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test085.cxx, test/test092.cxx:
+  - Converted to test framework.
+ test/test_helpers.hxx, test/unit/test_test_helpers.cxx:
+  - PQXX_CHECK_THROWS() swallowed all std::exception throws!
 2008-07-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
   - Don't escape whitespace (which isn't always isprint())
