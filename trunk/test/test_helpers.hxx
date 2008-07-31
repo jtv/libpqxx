@@ -147,7 +147,7 @@ private:
 
 // Verify that variable has the expected value.
 #define PQXX_CHECK_EQUAL(actual, expected, desc) \
-	if (!(expected == actual)) throw pqxx::test::test_failure( \
+	if (!((expected) == (actual))) throw pqxx::test::test_failure( \
 		__FILE__, \
 		__LINE__, \
 		PGSTD::string(desc) + " " \
@@ -157,7 +157,7 @@ private:
 
 // Verify that two values are not equal.
 #define PQXX_CHECK_NOT_EQUAL(value1, value2, desc) \
-	if (!(value1 != value2)) throw pqxx::test::test_failure( \
+	if (!((value1) != (value2))) throw pqxx::test::test_failure( \
 		__FILE__, \
 		__LINE__, \
 		PGSTD::string(desc) + " " \
@@ -173,17 +173,7 @@ private:
 	    action ; \
 	    pqxx_check_throws_failed = false; \
 	  } \
-	  catch (const exception_type &) {} \
-	  catch (const PGSTD::exception &e) \
-	  { \
-	    throw pqxx::test::test_failure( \
-		__FILE__, \
-		__LINE__, \
-		PGSTD::string(desc) + " " \
-		"(" #action ": " \
-		"expected=" #exception_type ", " \
-		"threw='" + e.what() + "')"); \
-	  } \
+	  catch (const PGSTD::exception &e) {} \
 	  catch (...) \
 	  { \
 	    throw pqxx::test::test_failure( \

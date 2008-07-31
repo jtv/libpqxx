@@ -7,6 +7,14 @@ using namespace pqxx::test;
 
 void empty() {}
 
+void test_exception()
+{
+  PQXX_CHECK_THROWS(
+	throw exception(),
+	exception,
+	"Plain exception not handled properly by PQXX_CHECK_THROWS.")
+}
+
 void test_simple_failure()
 {
   throw test_failure(__FILE__, __LINE__, "(expected) Testing test failure.");
