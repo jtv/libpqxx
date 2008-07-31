@@ -6,22 +6,59 @@
 
 #include <pqxx/pqxx>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
+// Test program for libpqxx.  Define and use prepared statements.
+
+#define COMPARE_RESULTS(name, lhs, rhs) \
+  PQXX_CHECK_EQUAL(	\
+	rhs,		\
+	lhs, 		\
+	"Executing " name " as prepared statement yields different results.") \
+  PQXX_CHECK_EQUAL(lhs.empty(), false, "Result for " name " is empty.")
+
+
 namespace
 {
-void compare_results(string name, result lhs, result rhs)
+/// Dereference result element as string
+struct deref_field
 {
-  if (lhs != rhs)
-    throw logic_error("Executing " + name + " as prepared statement "
-	  "yields different results from direct execution");
+  string operator()(const result::field &f) const { return f.c_str(); }
+};
+}
 
-  if (lhs.empty())
-    throw logic_error("Results being compared are empty.  Not much point!");
+namespace pqxx
+{
+// Support string conversion for result objects for debug output.
+template<> struct string_traits<result>
+{
+  static const char *name() { return "pqxx::result"; }
+  static bool has_null() { return true; }
+  static bool is_null(result r) { return r.empty(); }
+  static result null() { return result(); }
+  static void from_string(const char Str[], result &Obj); // Not needed
+  static string to_string(result Obj)
+  {
+    if (is_null(Obj)) return "<empty>";
+
+    string out;
+    for (result::const_iterator row = Obj.begin(); row != Obj.end(); ++row)
+    {
+      out += "{" +
+	separated_list(", ", row.begin(), row.end(), deref_field()) +
+	"}";
+    }
+    return out;
+  }
+};
 }
 
 
+namespace
+{
 string stringize(transaction_base &t, const string &arg)
 {
   return "'" + t.esc(arg) + "'";
@@ -69,13 +106,8 @@ template<typename CNTNR> string subst(transaction_base &t,
   return subst(t, q, patterns.begin(), patterns.end());
 }
 
-} // namespace
 
-
-// Test program for libpqxx.  Define and use prepared statements.
-//
-// Usage: test085
-int main()
+void test_085(connection_base &C, transaction_base &T)
 {
   try
   {
@@ -85,197 +117,131 @@ int main()
      *
      * Later backend versions do not suffer from this problem.
      */
-    const string QN_readpgtables = "ReadPGTables",
+    const string
 	  Q_readpgtables = "SELECT * FROM pg_tables",
-	  QN_seetable = "SeeTable",
 	  Q_seetable = Q_readpgtables + " WHERE tablename LIKE $1",
-	  QN_seetables = "SeeTables",
 	  Q_seetables = Q_seetable + " OR tablename LIKE $2";
 
-    lazyconnection C;
-
     cout << "Preparing a simple statement..." << endl;
-    C.prepare(QN_readpgtables, Q_readpgtables);
-    nontransaction T(C, "test85");
+    C.prepare("ReadPGTables", Q_readpgtables);
 
-    try
-    {
-      // See if a basic prepared statement works just like a regular query
-      cout << "Basic correctness check on prepared statement..." << endl;
-      compare_results(QN_readpgtables,
-	T.prepared(QN_readpgtables).exec(),
-	T.exec(Q_readpgtables));
-    }
-    catch (const exception &)
-    {
-      if (!C.supports(connection_base::cap_prepared_statements))
-      {
-        cout << "Backend version does not support prepared statements.  "
-	        "Skipping."
-	     << endl;
-	return 0;
-      }
-      throw;
-    }
+    // See if a basic prepared statement works just like a regular query
+    cout << "Basic correctness check on prepared statement..." << endl;
+    PQXX_CHECK_EQUAL(
+	T.prepared(string("ReadPGTables")).exec(),
+	T.exec(Q_readpgtables),
+	"ReadPGTables");
 
     // Try prepare_now() on an already prepared statement
-    C.prepare_now(QN_readpgtables);
+    C.prepare_now("ReadPGTables");
 
     // Pro forma check: same thing but with name passed as C-style string
-    compare_results(QN_readpgtables+"_char",
-	T.prepared(QN_readpgtables.c_str()).exec(),
+    COMPARE_RESULTS("ReadPGTables_char",
+	T.prepared("ReadPGTables").exec(),
 	T.exec(Q_readpgtables));
 
     cout << "Dropping prepared statement..." << endl;
-    C.unprepare(QN_readpgtables);
+    C.unprepare("ReadPGTables");
 
-    bool failed = true;
-    try
-    {
-      disable_noticer d(C);
-      C.prepare_now(QN_readpgtables);
-      failed = false;
-    }
-    catch (const exception &e)
-    {
-      cout << "(Expected) " << e.what() << endl;
-    }
-    if (!failed)
-      throw runtime_error("prepare_now() succeeded on dropped statement");
-
+    PQXX_CHECK_THROWS(
+	C.prepare_now("ReadPGTables"),
+	exception,
+	"prepare_now() succeeded on dropped statement.")
 
     // Just to try and confuse things, "unprepare" twice
     cout << "Testing error detection and handling..." << endl;
-    try { C.unprepare(QN_readpgtables); }
+    try { C.unprepare("ReadPGTables"); }
     catch (const exception &e) { cout << "(Expected) " << e.what() << endl; }
 
     // Verify that attempt to execute unprepared statement fails
-    bool failsOK = true;
-    try { T.prepared(QN_readpgtables).exec(); failsOK = false; }
-    catch (const exception &e) { cout << "(Expected) " << e.what() << endl; }
-    if (!failsOK) throw logic_error("Execute unprepared statement didn't fail");
+    PQXX_CHECK_THROWS(
+	T.prepared("ReadPGTables").exec(),
+	exception,
+	"Execute unprepared statement didn't fail.")
 
     // Re-prepare the same statement and test again
-    C.prepare(QN_readpgtables, Q_readpgtables);
-    C.prepare_now(QN_readpgtables);
-    compare_results(QN_readpgtables+"_2",
-	T.prepared(QN_readpgtables).exec(),
+    C.prepare("ReadPGTables", Q_readpgtables);
+    C.prepare_now("ReadPGTables");
+    COMPARE_RESULTS("ReadPGTables_2",
+	T.prepared("ReadPGTables").exec(),
 	T.exec(Q_readpgtables));
 
     // Double preparation of identical statement should be ignored...
-    C.prepare(QN_readpgtables, Q_readpgtables);
-    compare_results(QN_readpgtables+"_double",
-	T.prepared(QN_readpgtables).exec(),
+    C.prepare("ReadPGTables", Q_readpgtables);
+    COMPARE_RESULTS("ReadPGTables_double",
+	T.prepared("ReadPGTables").exec(),
 	T.exec(Q_readpgtables));
 
     // ...But a modified definition shouldn't
-    try
-    {
-      failsOK = true;
-      C.prepare(QN_readpgtables, Q_readpgtables + " ORDER BY tablename");
-      failsOK = false;
-    }
-    catch (const exception &e)
-    {
-      cout << "(Expected) " << e.what() << endl;
-    }
-    if (!failsOK)
-      throw logic_error("Bad redefinition of statement went unnoticed");
+    PQXX_CHECK_THROWS(
+	C.prepare("ReadPGTables", Q_readpgtables + " ORDER BY tablename"),
+	exception,
+	"Bad redefinition of statement went unnoticed.")
 
     cout << "Testing prepared statement with parameter..." << endl;
 
-    C.prepare(QN_seetable, Q_seetable)("varchar", pqxx::prepare::treat_string);
+    C.prepare("SeeTable", Q_seetable)("varchar", pqxx::prepare::treat_string);
 
     vector<string> args;
     args.push_back("pg_type");
-    compare_results(QN_seetable+"_seq",
-	T.prepared(QN_seetable)(args[0]).exec(),
+    COMPARE_RESULTS("SeeTable_seq",
+	T.prepared("SeeTable")(args[0]).exec(),
 	T.exec(subst(T,Q_seetable,args)));
 
     cout << "Testing prepared statement with 2 parameters..." << endl;
 
-    C.prepare(QN_seetables, Q_seetables)
+    C.prepare("SeeTables", Q_seetables)
       ("varchar",pqxx::prepare::treat_string)
       ("varchar",pqxx::prepare::treat_string);
     args.push_back("pg_index");
-    compare_results(QN_seetables+"_seq",
-      T.prepared(QN_seetables)(args[0])(args[1]).exec(),
+    COMPARE_RESULTS("SeeTables_seq",
+      T.prepared("SeeTables")(args[0])(args[1]).exec(),
       T.exec(subst(T,Q_seetables,args)));
 
     cout << "Testing prepared statement with a null parameter..." << endl;
     vector<const char *> ptrs;
     ptrs.push_back(0);
     ptrs.push_back("pg_index");
-    compare_results(QN_seetables+"_null1",
-	T.prepared(QN_seetables)(ptrs[0])(ptrs[1]).exec(),
+    COMPARE_RESULTS("SeeTables_null1",
+	T.prepared("SeeTables")(ptrs[0])(ptrs[1]).exec(),
 	T.exec(subst(T,Q_seetables,ptrs)));
-    compare_results(QN_seetables+"_null2",
-	T.prepared(QN_seetables)(ptrs[0])(ptrs[1]).exec(),
-	T.prepared(QN_seetables)()(ptrs[1]).exec());
-    compare_results(QN_seetables+"_null3",
-	T.prepared(QN_seetables)(ptrs[0])(ptrs[1]).exec(),
-	T.prepared(QN_seetables)("somestring",false)(ptrs[1]).exec());
-    compare_results(QN_seetables+"_null4",
-	T.prepared(QN_seetables)(ptrs[0])(ptrs[1]).exec(),
-	T.prepared(QN_seetables)(42,false)(ptrs[1]).exec());
-    compare_results(QN_seetables+"_null5",
-	T.prepared(QN_seetables)(ptrs[0])(ptrs[1]).exec(),
-	T.prepared(QN_seetables)(0,false)(ptrs[1]).exec());
+    COMPARE_RESULTS("SeeTables_null2",
+	T.prepared("SeeTables")(ptrs[0])(ptrs[1]).exec(),
+	T.prepared("SeeTables")()(ptrs[1]).exec());
+    COMPARE_RESULTS("SeeTables_null3",
+	T.prepared("SeeTables")(ptrs[0])(ptrs[1]).exec(),
+	T.prepared("SeeTables")("somestring",false)(ptrs[1]).exec());
+    COMPARE_RESULTS("SeeTables_null4",
+	T.prepared("SeeTables")(ptrs[0])(ptrs[1]).exec(),
+	T.prepared("SeeTables")(42,false)(ptrs[1]).exec());
+    COMPARE_RESULTS("SeeTables_null5",
+	T.prepared("SeeTables")(ptrs[0])(ptrs[1]).exec(),
+	T.prepared("SeeTables")(0,false)(ptrs[1]).exec());
 
     cout << "Testing wrong numbers of parameters..." << endl;
-    try
-    {
-      failsOK = true;
-      T.prepared(QN_seetables)()()("hi mom!").exec();
-      failsOK = false;
-    }
-    catch (const exception &e)
-    {
-      cout << "(Expected) " << e.what() << endl;
-    }
-    if (!failsOK)
-      throw logic_error("No error for too many parameters");
-    try
-    {
-      failsOK = true;
-      T.prepared(QN_seetables)("who, me?").exec();
-      failsOK = false;
-    }
-    catch (const exception &e)
-    {
-      cout << "(Expected) " << e.what() << endl;
-    }
-    if (!failsOK)
-      throw logic_error("No error for too few parameters");
+    PQXX_CHECK_THROWS(
+	T.prepared("SeeTables")()()("hi mom!").exec(),
+	exception,
+	"No error for too many parameters.")
 
-    cout << "Done." << endl;
+    PQXX_CHECK_THROWS(
+	T.prepared("SeeTables")("who, me?").exec(),
+	exception,
+	"No error for too few parameters.")
   }
   catch (const feature_not_supported &e)
   {
     cout << "Backend version does not support prepared statements.  Skipping."
          << endl;
-    return 0;
   }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: " << e.query() << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    // All exceptions thrown by libpqxx are derived from std::exception
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    // This is really unexpected (see above)
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
 }
 
+} // namespace
+
+
+int main()
+{
+  test::TestCase<lazyconnection, nontransaction> test085("test_085", test_085);
+  return test::pqxxtest(test085);
+}
 
