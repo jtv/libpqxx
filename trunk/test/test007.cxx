@@ -1,4 +1,3 @@
-#include <cassert>
 #include <iostream>
 #include <map>
 
@@ -7,19 +6,14 @@
 #include <pqxx/transactor>
 #include <pqxx/result>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
 
 // Example program for libpqxx.  Modify the database, retaining transactional
 // integrity using the transactor framework.
-//
-// Usage: test007 [connect-string]
-//
-// Where connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
 //
 // This assumes the existence of a database table "pqxxevents" containing a
 // 2-digit "year" field, which is extended to a 4-digit format by assuming all
@@ -38,10 +32,10 @@ int To4Digits(int Y)
 {
   int Result = Y;
 
-  if (Y < 0)          throw runtime_error("Negative year: " + to_string(Y));
-  else if (Y  < 70)   Result += 2000;
+  PQXX_CHECK(Y >= 0, "Negative year: " + to_string(Y));
+  if (Y  < 70)   Result += 2000;
   else if (Y  < 100)  Result += 1900;
-  else if (Y  < 1970) throw runtime_error("Unexpected year: " + to_string(Y));
+  else if (Y  < 1970) PQXX_CHECK_NOTREACHED("Unexpected year: " + to_string(Y));
 
   return Result;
 }
@@ -60,26 +54,29 @@ public:
     result R( T.exec("SELECT year FROM pqxxevents") );
 
     // SELECT affects no rows.
-    assert(!R.affected_rows());
+    PQXX_CHECK(!R.affected_rows(), "SELECT affects rows.");
 
     // See if we get reasonable type identifier for this column
     const oid rctype = R.column_type(0);
-    if (rctype != R.column_type(result::tuple::size_type(0)))
-      throw logic_error("Inconsistent result::column_type()");
+    PQXX_CHECK_EQUAL(
+	R.column_type(result::tuple::size_type(0)),
+	rctype,
+	"Inconsistent result::column_type().")
+
     const string rct = to_string(rctype);
-    if (rctype <= 0)
-      throw logic_error("Got strange type ID for column: " + rct);
+    PQXX_CHECK(rctype > 0, "Got strange type ID for column: " + rct);
+
     const string rcol = R.column_name(0);
-    if (rcol.empty())
-      throw logic_error("Didn't get a name for column!");
+    PQXX_CHECK( !rcol.empty(), "Didn't get a name for column.");
+
     const oid rcctype = R.column_type(rcol);
-    if (rcctype != rctype)
-      throw logic_error("Column has type " + rct + ", "
-			"but by name, it's " + to_string(rcctype));
+    PQXX_CHECK_EQUAL(rcctype, rctype, "Column type is not what it is by name.");
+
     const oid rawrcctype = R.column_type(rcol.c_str());
-    if (rawrcctype != rctype)
-      throw logic_error("Column has type " + rct + ", "
-	                "but by C-style name it's " + to_string(rawrcctype));
+    PQXX_CHECK_EQUAL(
+	rawrcctype,
+	rctype,
+	"Column type by C-style name is different.");
 
     // Note all different years currently occurring in the table, writing them
     // and their correct mappings to m_Conversions
@@ -161,51 +158,29 @@ private:
 };
 
 
-} // namespace
-
-
-
-int main(int, char *argv[])
+void test_007()
 {
-  try
-  {
-    connection C(argv[1]);
-    C.set_client_encoding("SQL_ASCII");
+  connection C;
+  C.set_client_encoding("SQL_ASCII");
 
-    // Perform (an instantiation of) the UpdateYears transactor we've defined
-    // in the code above.  This is where the work gets done.
-    C.perform(UpdateYears());
+  // Perform (an instantiation of) the UpdateYears transactor we've defined
+  // in the code above.  This is where the work gets done.
+  C.perform(UpdateYears());
 
-    // Just for fun, report the exact conversions performed.  Note that this
-    // list will be accurate even if other people were modifying the database
-    // at the same time; this property was established through use of the
-    // transactor framework.
-    for (map<int,int>::const_iterator i = theConversions.begin();
+  // Just for fun, report the exact conversions performed.  Note that this
+  // list will be accurate even if other people were modifying the database
+  // at the same time; this property was established through use of the
+  // transactor framework.
+  for (map<int,int>::const_iterator i = theConversions.begin();
 	 i != theConversions.end();
 	 ++i)
-      cout << '\t' << i->first << "\t-> " << i->second << endl;
-  }
-  catch (const sql_error &e)
-  {
-    // If we're interested in the text of a failed query, we can write separate
-    // exception handling code for this type of exception
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    // All exceptions thrown by libpqxx are derived from std::exception
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    // This is really unexpected (see above)
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
+    cout << '\t' << i->first << "\t-> " << i->second << endl;
+}
 
-  return 0;
+} // namespace
+
+int main()
+{
+  test::pqxxtest(test_007);
 }
 

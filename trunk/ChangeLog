@@ -1,3 +1,6 @@
+2008-08-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test004.cxx, test/test005.cxx, test/test006.cxx, test/test007.cxx:
+  - Converted to test framework.
 2008-08-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test002.cxx:
   - Converted to test framework.
