@@ -145,6 +145,15 @@ private:
 #define PQXX_CHECK_NOTREACHED(desc) \
 	throw pqxx::test::test_failure(__FILE__, __LINE__, desc)
 
+// Verify that a condition is met, similar to assert()
+#define PQXX_CHECK(condition, desc) \
+	if (!(condition))	\
+		throw pqxx::test::test_failure(	\
+			__FILE__,	\
+			__LINE__, 	\
+			PGSTD::string(desc) + \
+			" (failed expression: " # condition ")");
+
 // Verify that variable has the expected value.
 #define PQXX_CHECK_EQUAL(actual, expected, desc) \
 	if (!((expected) == (actual))) throw pqxx::test::test_failure( \

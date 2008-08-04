@@ -8,6 +8,7 @@
 #include <pqxx/transaction>
 #include <pqxx/transactor>
 
+#include "test_helpers.hxx"
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -16,20 +17,6 @@ using namespace pqxx;
 // Test program for libpqxx.  Copy a table from one database connection to
 // another using a tablereader and a tablewriter.  Any data already in the
 // destination table is overwritten.
-//
-// Usage: test006 [connect-string] [orgtable] [dsttable]
-//
-// Where the connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a backend
-// running on host foo.bar.net, logging in as user smith.
-//
-// The sample program assumes that both orgtable and dsttable are tables that
-// exist in the database that connect-string (whether the default or one
-// specified explicitly on the command line) connects to.
-//
-// The default origin table name is "pqxxorgevents"; the default destination
-// table is "pqxxevents".
 
 namespace
 {
@@ -77,13 +64,13 @@ void CheckState(tablereader &R)
 
 class CopyTable : public transactor<>
 {
-  work &m_orgTrans;	// Transaction giving us access to original table
-  string m_orgTable;	// Original table's name
-  string m_dstTable;	// Destination table's name
+  transaction_base &m_orgTrans;	// Transaction to access original table
+  string m_orgTable;		// Original table's name
+  string m_dstTable;		// Destination table's name
 
 public:
   // Constructor--pass parameters for operation here
-  CopyTable(work &OrgTrans, string OrgTable, string DstTable) :
+  CopyTable(transaction_base &OrgTrans, string OrgTable, string DstTable) :
     transactor<>("CopyTable"),
     m_orgTrans(OrgTrans),
     m_orgTable(OrgTable),
@@ -115,60 +102,37 @@ public:
 };
 
 
-}
-
-int main(int argc, char *argv[])
+void test_006(connection_base &, transaction_base &orgTrans)
 {
+  // Set up two connections to the backend: one to read our original table,
+  // and another to write our copy
+  connection dstC;
+
+  // Select our original and destination table names
+  const string orgTable = "pqxxorgevents";
+  const string dstTable = "pqxxevents";
+
+  // Attempt to create table.  Ignore errors, as they're probably one of:
+  // (1) Table already exists--fine with us
+  // (2) Something else is wrong--we'll just fail later on anyway
   try
   {
-    const char *ConnStr = argv[1];
-
-    // Set up two connections to the backend: one to read our original table,
-    // and another to write our copy
-    connection orgC(ConnStr), dstC(ConnStr);
-
-    // Select our original and destination table names
-    const string orgTable = ((argc > 2) ? argv[2] : "pqxxorgevents");
-    const string dstTable = ((argc > 3) ? argv[3] : "pqxxevents");
-
-    // Set up a transaction to access the original table from
-    work orgTrans(orgC, "test6org");
-
-    // Attempt to create table.  Ignore errors, as they're probably one of:
-    // (1) Table already exists--fine with us
-    // (2) Something else is wrong--we'll just fail later on anyway
-    try
-    {
-      dstC.perform(CreateTable(dstTable));
-    }
-    catch (const exception &)
-    {
-    }
-
-    dstC.perform(ClearTable(dstTable));
-    dstC.perform(CopyTable(orgTrans, orgTable, dstTable));
+    dstC.perform(CreateTable(dstTable));
   }
-  catch (const sql_error &e)
+  catch (const exception &)
   {
-    // If we're interested in the text of a failed query, we can write separate
-    // exception handling code for this type of exception
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    // All exceptions thrown by libpqxx are derived from std::exception
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    // This is really unexpected (see above)
-    cerr << "Unhandled exception" << endl;
-    return 100;
   }
 
-  return 0;
+  dstC.perform(ClearTable(dstTable));
+  dstC.perform(CopyTable(orgTrans, orgTable, dstTable));
+}
+
+} // namespace
+
+
+int main()
+{
+  test::TestCase<> test006("test_006", test_006);
+  return test::pqxxtest(test006);
 }
 
