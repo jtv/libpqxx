@@ -338,6 +338,8 @@ AC_MSG_RESULT(yes)
 # tries to call main()
 AC_LANG_PUSH(C)
 
+LDFLAGS="$LDFLAGS -L${with_postgres_lib}"
+
 AC_HAVE_LIBRARY(pq, [], [AC_MSG_ERROR([
 Could not link to libpq.  Make sure you have the PostgreSQL client library
 installed, and that the library binary can be found in the location returned by
@@ -364,8 +366,6 @@ occurring in the file.
 LIBS="`echo "$LIBS" | sed -e 's/-lpq[[:space:]]*[[:space:]]-lpq\>/-lpq/g'`"
 
 AC_LANG_POP(C)
-
-LDFLAGS="$LDFLAGS -L${with_postgres_lib}"
 
 AC_MSG_CHECKING([for correct C++ linkage of basic libpq functions])
 if test "$enable_maintainer_mode" = "yes"; then
