@@ -143,62 +143,100 @@ private:
 
 // Unconditional test failure.
 #define PQXX_CHECK_NOTREACHED(desc) \
-	throw pqxx::test::test_failure(__FILE__, __LINE__, desc)
+	pqxx::test::check_notreached(__FILE__, __LINE__, (desc))
+void check_notreached(const char file[], int line, PGSTD::string desc)
+{
+  throw test_failure(file, line, desc);
+}
 
 // Verify that a condition is met, similar to assert()
 #define PQXX_CHECK(condition, desc) \
-	if (!(condition))	\
-		throw pqxx::test::test_failure(	\
-			__FILE__,	\
-			__LINE__, 	\
-			PGSTD::string(desc) + \
-			" (failed expression: " # condition ")");
+	pqxx::test::check(__FILE__, __LINE__, (condition), #condition, (desc))
+void check(
+	const char file[],
+	int line,
+	bool condition,
+	const char text[], 
+	PGSTD::string desc)
+{
+  if (!condition)
+    throw test_failure(file, line, desc + " (failed expression: " + text + ")");
+}
 
 // Verify that variable has the expected value.
 #define PQXX_CHECK_EQUAL(actual, expected, desc) \
-	if (!((expected) == (actual))) throw pqxx::test::test_failure( \
+	pqxx::test::check_equal( \
 		__FILE__, \
 		__LINE__, \
-		PGSTD::string(desc) + " " \
-		"(" #actual " <> " #expected ": " + \
-		"expected=" + to_string(expected) + ", " \
-		"actual=" + to_string(actual) + ")");
+		(actual), \
+		#actual, \
+		(expected), \
+		#expected, \
+		(desc))
+template<typename ACTUAL, typename EXPECTED>
+inline void check_equal(
+	const char file[],
+	int line,
+	ACTUAL actual,
+	const char actual_text[],
+	EXPECTED expected, 
+	const char expected_text[],
+	PGSTD::string desc)
+{
+  if (expected == actual) return;
+  const PGSTD::string fulldesc =
+	desc + " (" + actual_text + " <> " + expected_text + ": "
+	"expected=" + to_string(expected) + ", "
+	"actual=" + to_string(actual) + ")";
+  throw pqxx::test::test_failure(file, line, fulldesc);
+}
 
 // Verify that two values are not equal.
 #define PQXX_CHECK_NOT_EQUAL(value1, value2, desc) \
-	if (!((value1) != (value2))) throw pqxx::test::test_failure( \
+	pqxx::test::check_not_equal( \
 		__FILE__, \
 		__LINE__, \
-		PGSTD::string(desc) + " " \
-		"(" #value1 " == " #value2 ": " \
-		"both are " + to_string(value2) + ")");
+		(value1), \
+		#value1, \
+		(value2), \
+		#value2, \
+		(desc))
+template<typename VALUE1, typename VALUE2>
+inline void check_not_equal(
+	const char file[],
+	int line,
+	VALUE1 value1,
+	const char text1[],
+	VALUE2 value2, 
+	const char text2[],
+	PGSTD::string desc)
+{
+  if (value1 != value2) return;
+  const PGSTD::string fulldesc =
+	desc + " (" + text1 + " == " + text2 + ": "
+	"both are " + to_string(value2) + ")";
+  throw pqxx::test::test_failure(file, line, fulldesc);
+}
 
 // Verify that "action" throws "exception_type."
 #define PQXX_CHECK_THROWS(action, exception_type, desc) \
-	{ \
-	  bool pqxx_check_throws_failed = true; \
+	do { \
 	  try \
 	  { \
 	    action ; \
-	    pqxx_check_throws_failed = false; \
+	    PQXX_CHECK_NOTREACHED( \
+		PGSTD::string(desc) + \
+		" (\"" #action "\" did not throw " #exception_type ")"); \
 	  } \
-	  catch (const PGSTD::exception &e) {} \
+	  catch (const exception_type &e) {} \
 	  catch (...) \
 	  { \
-	    throw pqxx::test::test_failure( \
-		__FILE__, \
-		__LINE__, \
-		PGSTD::string(desc) + " " \
-		"(" #action ": " "unexpected exception)"); \
+	    PQXX_CHECK_NOTREACHED( \
+		PGSTD::string(desc) + \
+		" (\"" #action "\" " \
+		"threw exception other than " #exception_type ")"); \
 	  } \
-	  if (!pqxx_check_throws_failed) throw pqxx::test::test_failure( \
-		__FILE__, \
-		__LINE__, \
-		PGSTD::string(desc) + " " \
-		"(" #action ": " \
-		"expected=" #exception_type ", " \
-		"did not throw)"); \
-	}
+	} while (false)
 
 } // namespace test
 

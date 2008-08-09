@@ -18,8 +18,8 @@ namespace
 void infinity_test()
 {
   double inf = make_infinity<double>();
-  PQXX_CHECK_EQUAL(to_string(inf), "infinity", "Infinity not as expected")
-  PQXX_CHECK_EQUAL(to_string(-inf), "-infinity", "Negative infinity is broken")
+  PQXX_CHECK_EQUAL(to_string(inf), "infinity", "Infinity not as expected");
+  PQXX_CHECK_EQUAL(to_string(-inf), "-infinity", "Negative infinity is broken");
 }
 }
 

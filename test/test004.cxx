@@ -88,7 +88,7 @@ void test_004()
   int notifs = 0;
   for (int i=0; (i < 20) && !L.Done(); ++i)
   {
-    PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.")
+    PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
 
     // Sleep one second using a libpqxx-internal function.  Kids, don't try
     // this at home!  The pqxx::internal namespace is not for third-party use
@@ -99,8 +99,8 @@ void test_004()
   }
   cout << endl;
 
-  PQXX_CHECK_NOT_EQUAL(L.Done(), false, "No notification received.")
-  PQXX_CHECK_EQUAL(notifs, 1, "Got too many notifications.")
+  PQXX_CHECK_NOT_EQUAL(L.Done(), false, "No notification received.");
+  PQXX_CHECK_EQUAL(notifs, 1, "Got too many notifications.");
 }
 
 } // namespace

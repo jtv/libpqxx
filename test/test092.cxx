@@ -38,17 +38,17 @@ void test_092(connection_base &C, transaction_base &T)
   const result L( T.exec("SELECT length("+Field+") FROM " + Table) );
   PQXX_CHECK_EQUAL(L[0][0].as<size_t>(),
 	data.size(),
-	"Length of field in database does not match original length.")
+	"Length of field in database does not match original length.");
 
   const result R( T.exec("SELECT " + Field + " FROM " + Table) );
 
   const binarystring roundtrip(R[0][0]);
 
-  PQXX_CHECK_EQUAL(string(roundtrip.str()), data, "Data came back different.")
+  PQXX_CHECK_EQUAL(string(roundtrip.str()), data, "Data came back different.");
 
   PQXX_CHECK_EQUAL(roundtrip.size(),
 	data.size(),
-	"Binary string reports wrong size.")
+	"Binary string reports wrong size.");
 
   // People seem to like the multi-line invocation style, where you get your
   // invocation object first, then add parameters in separate C++ statements.

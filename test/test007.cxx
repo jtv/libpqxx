@@ -61,7 +61,7 @@ public:
     PQXX_CHECK_EQUAL(
 	R.column_type(result::tuple::size_type(0)),
 	rctype,
-	"Inconsistent result::column_type().")
+	"Inconsistent result::column_type().");
 
     const string rct = to_string(rctype);
     PQXX_CHECK(rctype > 0, "Got strange type ID for column: " + rct);

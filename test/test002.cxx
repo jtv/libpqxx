@@ -34,7 +34,7 @@ void test_002()
   PQXX_CHECK_THROWS(
         bad_connect(),
 	exception,
-	"Invalid connection string did not cause exception.")
+	"Invalid connection string did not cause exception.");
 
   // Set up connection to database
   string ConnectString = "";
@@ -63,14 +63,14 @@ void test_002()
   PQXX_CHECK_EQUAL(
 	rtable,
 	R.column_table(result::tuple::size_type(0)),
-	"Inconsistent answers from column_table()")
+	"Inconsistent answers from column_table()");
 
   const string rcol = R.column_name(0);
   const oid crtable = R.column_table(rcol);
   PQXX_CHECK_EQUAL(
 	crtable,
 	rtable,
-	"Field looked up by name gives different origin.")
+	"Field looked up by name gives different origin.");
 #endif
 
   // Now we've got all that settled, let's process our results.
