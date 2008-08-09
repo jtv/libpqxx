@@ -344,7 +344,7 @@ template<typename ITER> struct dereference
   typename ITER::value_type operator()(ITER i) const { return *i; }
 };
 template<typename T> struct deref_ptr { T operator()(T *i) const {return *i;} };
-}
+} // namespace internal
 
 
 /// Access iterators using ACCESS functor, returning separator-separated list
