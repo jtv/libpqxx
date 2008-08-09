@@ -201,5 +201,48 @@ private:
 	}
 
 } // namespace test
+
+
+namespace
+{
+PGSTD::string deref_field(const result::field &f) { return f.c_str(); }
+} // namespace
+
+
+// Support string conversion on result objects for debug output.
+template<> struct string_traits<result>
+{
+  static const char *name() { return "pqxx::result"; }
+  static bool has_null() { return true; }
+  static bool is_null(result r) { return r.empty(); }
+  static result null() { return result(); }
+  static void from_string(const char Str[], result &Obj); // Not needed
+  static PGSTD::string to_string(result Obj)
+  {
+    if (is_null(Obj)) return "<empty>";
+
+    PGSTD::string out;
+    for (result::const_iterator row = Obj.begin(); row != Obj.end(); ++row)
+    {
+      out += "{" +
+	separated_list(", ", row.begin(), row.end(), deref_field) +
+	"}";
+    }
+    return out;
+  }
+};
+
+// Support string conversion on vector<string> for debug output.
+template<> struct string_traits<PGSTD::vector<PGSTD::string> >
+{
+  typedef PGSTD::vector<PGSTD::string> subject_type;
+  static const char *name() { return "vector<string>"; }
+  static bool has_null() { return false; }
+  static bool is_null(subject_type) { return false; }
+  static subject_type null(); // Not needed
+  static void from_string(const char Str[], subject_type &Obj); // Not needed
+  static PGSTD::string to_string(const subject_type &Obj)
+				 { return separated_list("; ", Obj); }
+};
 } // namespace pqxx
 

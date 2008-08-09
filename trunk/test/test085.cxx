@@ -23,42 +23,6 @@ using namespace pqxx;
 
 namespace
 {
-/// Dereference result element as string
-struct deref_field
-{
-  string operator()(const result::field &f) const { return f.c_str(); }
-};
-}
-
-namespace pqxx
-{
-// Support string conversion for result objects for debug output.
-template<> struct string_traits<result>
-{
-  static const char *name() { return "pqxx::result"; }
-  static bool has_null() { return true; }
-  static bool is_null(result r) { return r.empty(); }
-  static result null() { return result(); }
-  static void from_string(const char Str[], result &Obj); // Not needed
-  static string to_string(result Obj)
-  {
-    if (is_null(Obj)) return "<empty>";
-
-    string out;
-    for (result::const_iterator row = Obj.begin(); row != Obj.end(); ++row)
-    {
-      out += "{" +
-	separated_list(", ", row.begin(), row.end(), deref_field()) +
-	"}";
-    }
-    return out;
-  }
-};
-}
-
-
-namespace
-{
 string stringize(transaction_base &t, const string &arg)
 {
   return "'" + t.esc(arg) + "'";
