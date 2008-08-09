@@ -5,7 +5,7 @@
   - Fixed memory leak when connection fails, thanks Matthew Fanto
  test/test_helpers.hxx, test085.cxx:
   - Moved string_traits<result> into test helpers for reuse.
- test/test008.cxx:
+ test/test008.cxx, test/test009.cxx:
   - Converted to test framework.
 2008-08-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test004.cxx, test/test005.cxx, test/test006.cxx, test/test007.cxx:
