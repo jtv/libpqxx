@@ -44,7 +44,11 @@ pqxx::connectionpolicy::normalconnect(handle orig)
   orig = PQconnectdb(options().c_str());
   if (!orig) throw bad_alloc();
   if (PQstatus(orig) != CONNECTION_OK)
-    throw broken_connection(string(PQerrorMessage(orig)));
+  {
+    const string msg(PQerrorMessage(orig));
+    PQfinish(orig);
+    throw broken_connection(msg);
+  }
   return orig;
 }
 

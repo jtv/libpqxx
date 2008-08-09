@@ -1,6 +1,8 @@
 2008-08-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Fixed ordering of library search, thanks Jorgen Austvik
+ src/connection.cxx:
+  - Fixed memory leak when connection fails, thanks Matthew Fanto
  test/test_helpers.hxx, test085.cxx:
   - Moved string_traits<result> into test helpers for reuse.
  test/test008.cxx:
