@@ -17,7 +17,7 @@ void test_pipeline_detach(connection_base &, transaction_base &trans)
   // Flushing a pipeline relinquishes transaction focus.
   pipe.flush();
   result r = trans.exec("SELECT 2");
-  PQXX_CHECK_EQUAL(r.size(), 1, "Wrong query result after flushing pipeline.");
+  PQXX_CHECK_EQUAL(r.size(), 1u, "Wrong query result after flushing pipeline.");
   PQXX_CHECK_EQUAL(
     r[0][0].as<int>(),
     2,
@@ -33,7 +33,7 @@ void test_pipeline_detach(connection_base &, transaction_base &trans)
   // Invoking complete() also detaches the pipeline from the transaction.
   pipe.complete();
   r = trans.exec("SELECT 4");
-  PQXX_CHECK_EQUAL(r.size(), 1, "Wrong query result after complete().");
+  PQXX_CHECK_EQUAL(r.size(), 1u, "Wrong query result after complete().");
   PQXX_CHECK_EQUAL(
     r[0][0].as<int>(),
     4,
@@ -41,7 +41,7 @@ void test_pipeline_detach(connection_base &, transaction_base &trans)
 
   // The complete() also received any pending query results from the backend.
   r = pipe.retrieve(q);
-  PQXX_CHECK_EQUAL(r.size(), 1, "Wrong result from pipeline.");
+  PQXX_CHECK_EQUAL(r.size(), 1u, "Wrong result from pipeline.");
   PQXX_CHECK_EQUAL(
     r[0][0].as<int>(),
     2,

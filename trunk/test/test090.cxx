@@ -66,7 +66,7 @@ void test_090(connection_base &C, transaction_base &N)
 
   PQXX_CHECK_NOT_EQUAL(C.adorn_name(nametest),
 	C.adorn_name(nametest),
-	"\"Unique\" names are not unique.")
+	"\"Unique\" names are not unique.");
 
   dotests(N);
   N.abort();

@@ -17,7 +17,7 @@ using namespace pqxx;
   PQXX_CHECK_EQUAL(	\
 	rhs,		\
 	lhs, 		\
-	"Executing " name " as prepared statement yields different results.") \
+	"Executing " name " as prepared statement yields different results."); \
   PQXX_CHECK_EQUAL(lhs.empty(), false, "Result for " name " is empty.")
 
 
@@ -110,7 +110,7 @@ void test_085(connection_base &C, transaction_base &T)
     PQXX_CHECK_THROWS(
 	C.prepare_now("ReadPGTables"),
 	exception,
-	"prepare_now() succeeded on dropped statement.")
+	"prepare_now() succeeded on dropped statement.");
 
     // Just to try and confuse things, "unprepare" twice
     cout << "Testing error detection and handling..." << endl;
@@ -121,7 +121,7 @@ void test_085(connection_base &C, transaction_base &T)
     PQXX_CHECK_THROWS(
 	T.prepared("ReadPGTables").exec(),
 	exception,
-	"Execute unprepared statement didn't fail.")
+	"Execute unprepared statement didn't fail.");
 
     // Re-prepare the same statement and test again
     C.prepare("ReadPGTables", Q_readpgtables);
@@ -140,7 +140,7 @@ void test_085(connection_base &C, transaction_base &T)
     PQXX_CHECK_THROWS(
 	C.prepare("ReadPGTables", Q_readpgtables + " ORDER BY tablename"),
 	exception,
-	"Bad redefinition of statement went unnoticed.")
+	"Bad redefinition of statement went unnoticed.");
 
     cout << "Testing prepared statement with parameter..." << endl;
 
@@ -186,12 +186,12 @@ void test_085(connection_base &C, transaction_base &T)
     PQXX_CHECK_THROWS(
 	T.prepared("SeeTables")()()("hi mom!").exec(),
 	exception,
-	"No error for too many parameters.")
+	"No error for too many parameters.");
 
     PQXX_CHECK_THROWS(
 	T.prepared("SeeTables")("who, me?").exec(),
 	exception,
-	"No error for too few parameters.")
+	"No error for too few parameters.");
   }
   catch (const feature_not_supported &e)
   {

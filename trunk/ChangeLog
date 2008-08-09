@@ -1,4 +1,15 @@
 2008-08-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test000.cxx, test/test002.cxx, test/test004.cxx, test/test007.cxx,
+ test/test085.cxx, test/test090.cxx, test/test092.cxx, test/test_helpers.hxx,
+ test/unit/test_float.cxx, test/unit/test_pipeline.cxx,
+ test/unit/test_sql_cursor.cxx, test/unit/test_stateless_cursor.cxx,
+ test/unit/test_test_helpers.cxx:
+  - Fixed PQXX_CHECK_THROWS ignoring std::exception-derived exceptions
+  - Made PQXX_CHECK_* macros rely more on functions--less preprocessor magic
+  - PQXX_CHECK_* macros consistently require semicolon at end of invocation
+  - Fixed some signedness warnings in PQXX_CHECK_[NOT_]EQUAL invocations
+  - Reused PQXX_CHECK_NOTREACHED to simplify PQXX_CHECK_THROWS
+2008-08-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
   - Fixed ordering of library search, thanks Jorgen Austvik
  src/connection.cxx:

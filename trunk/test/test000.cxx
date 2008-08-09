@@ -26,18 +26,18 @@ namespace
 {
 template<typename T> void testitems(const T &I, typename T::size_type s)
 {
-  PQXX_CHECK_EQUAL(I.size(), s, "Wrong size in items class.")
+  PQXX_CHECK_EQUAL(I.size(), s, "Wrong size in items class.");
 
   for ( ; s; --s)
   {
     const typename T::size_type value(I[s-1]);
-    PQXX_CHECK_EQUAL(value, s, "Wrong value in items object.")
+    PQXX_CHECK_EQUAL(value, s, "Wrong value in items object.");
   }
 }
 
 void check(string ref, string val, string vdesc)
 {
-  PQXX_CHECK_EQUAL(val, ref, "String mismatch for " + vdesc)
+  PQXX_CHECK_EQUAL(val, ref, "String mismatch for " + vdesc);
 }
 
 template<typename T> inline void strconv(string type,
@@ -84,9 +84,9 @@ struct intderef
 void test_000()
 {
   PQXX_CHECK_EQUAL(oid_none,
-	0,
+	0u,
 	"InvalidIod is not zero as it used to be.  This may conceivably "
-	"cause problems in libpqxx.")
+	"cause problems in libpqxx.");
 
   if (cursor_base::prior() >= 0 || cursor_base::backward_all() >= 0)
     throw logic_error("cursor_base::difference_type appears to be unsigned");

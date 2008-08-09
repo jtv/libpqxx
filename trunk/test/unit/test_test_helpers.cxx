@@ -12,7 +12,7 @@ void test_exception()
   PQXX_CHECK_THROWS(
 	throw exception(),
 	exception,
-	"Plain exception not handled properly by PQXX_CHECK_THROWS.")
+	"Plain exception not handled properly by PQXX_CHECK_THROWS.");
 }
 
 void test_simple_failure()
