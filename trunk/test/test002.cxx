@@ -1,7 +1,6 @@
 #include <pqxx/compiler-internal.hxx>
 
-#include <iostream>
-
+#include <iostream> 
 #include <pqxx/connection>
 #include <pqxx/transaction>
 #include <pqxx/result>
@@ -26,7 +25,7 @@ void bad_connect()
   connection C("totally#invalid@connect$string!?");
 }
 
-void test_002()
+void test_002(connection_base &, transaction_base &)
 {
   // Before we really connect, test the expected behaviour of the default
   // connection type, where a failure to connect results in an immediate
@@ -104,6 +103,7 @@ void test_002()
 
 int main()
 {
-  return test::pqxxtest(test_002);
+  test::TestCase<nullconnection, nontransaction> test002("test_002", test_002);
+  return test002.run();
 }
 

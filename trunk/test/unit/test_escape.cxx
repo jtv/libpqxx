@@ -67,6 +67,6 @@ void test_quote(connection_base &c, transaction_base &t)
 int main()
 {
   test::TestCase<> test1("test_esc", test_esc);
-  return test::pqxxtest(test1);
+  return test1.run();
 }
 

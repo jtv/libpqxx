@@ -86,7 +86,9 @@ inline bool have_generate_series(const connection_base &c)
  */
 inline void prepare_series(transaction_base &t, int lowest, int highest)
 {
-  if (!have_generate_series(t.conn()))
+  connection_base &conn = t.conn();
+  // Don't do this for nullconnections, so nullconnection tests can run.
+  if (conn.is_open() && !have_generate_series(conn))
   {
     t.exec("CREATE TEMP TABLE series(x integer)");
     for (int x=lowest; x <= highest; ++x)
@@ -132,7 +134,11 @@ public:
     prepare_series(m_trans, 0, 100);
   }
 
+  // Invoke test function with its expected arguments
   void operator()() { m_func(m_conn, m_trans); }
+
+  // Run test, catching errors & returning Unix-style success value
+  int run() { return pqxxtest(*this); }
 
 private:
   CONNECTION m_conn;

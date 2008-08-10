@@ -51,6 +51,6 @@ void test_001(connection_base &C, transaction_base &trans)
 int main()
 {
   test::TestCase<> test001("test_001", test_001);
-  return test::pqxxtest(test001);
+  return test001.run();
 }
 

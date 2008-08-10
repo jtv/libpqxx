@@ -158,9 +158,9 @@ private:
 };
 
 
-void test_007()
+void test_007(connection_base &C, transaction_base &T)
 {
-  connection C;
+  T.abort();
   C.set_client_encoding("SQL_ASCII");
 
   // Perform (an instantiation of) the UpdateYears transactor we've defined
@@ -179,8 +179,10 @@ void test_007()
 
 } // namespace
 
+
 int main()
 {
-  test::pqxxtest(test_007);
+  test::TestCase<> test007("test_007", test_007);
+  return test007.run();
 }
 

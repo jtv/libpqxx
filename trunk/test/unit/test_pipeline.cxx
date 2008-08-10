@@ -53,6 +53,6 @@ void test_pipeline_detach(connection_base &, transaction_base &trans)
 int main()
 {
   test::TestCase<> test("pipeline_detach", test_pipeline_detach);
-  return test::pqxxtest(test);
+  return test.run();
 }
 

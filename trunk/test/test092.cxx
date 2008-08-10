@@ -82,6 +82,6 @@ void test_092(connection_base &C, transaction_base &T)
 int main()
 {
   test::TestCase<lazyconnection> test092("test_092", test_092);
-  return test::pqxxtest(test092);
+  return test092.run();
 }
 
