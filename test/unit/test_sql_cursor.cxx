@@ -211,17 +211,19 @@ void test_adopted_sql_cursor(connection_base &conn, transaction_base &trans)
   PQXX_CHECK_EQUAL(adopted.endpos(), 4, "endpos() not set properly");
 
   // Owned adopted cursors are cleaned up on destruction.
-  trans.exec(
+  connection conn2;
+  work trans2(conn2, "trans2");
+  trans2.exec(
 	"DECLARE adopted2 CURSOR FOR " +
-	pqxx::test::select_series(conn, 1, 3));
+	pqxx::test::select_series(conn2, 1, 3));
   {
-    internal::sql_cursor(trans, "adopted2", cursor_base::owned);
+    internal::sql_cursor(trans2, "adopted2", cursor_base::owned);
   }
-  if (conn.server_version() >= 80000)
+  if (conn2.server_version() >= 80000)
   {
     // Modern backends: accessing the cursor now is an error, as you'd expect.
     PQXX_CHECK_THROWS(
-	trans.exec("FETCH 1 IN adopted2"),
+	trans2.exec("FETCH 1 IN adopted2"),
 	 sql_error,
 	 "Owned adopted cursor not cleaned up");
   }
@@ -229,20 +231,20 @@ void test_adopted_sql_cursor(connection_base &conn, transaction_base &trans)
   {
     // Old backends: see that we can at least create a new cursor with the same
     // name.
-    trans.exec("DECLARE adopted2 CURSOR FOR SELECT TRUE");
+    trans2.exec("DECLARE adopted2 CURSOR FOR SELECT TRUE");
   }
 
-  trans.abort();
+  trans2.abort();
 
-  work trans2(conn, "trans2");
-  pqxx::test::prepare_series(trans2, 1, 3);
-  trans2.exec(
+  work trans3(conn2, "trans3");
+  pqxx::test::prepare_series(trans3, 1, 3);
+  trans3.exec(
 	"DECLARE adopted3 CURSOR FOR " +
-	pqxx::test::select_series(conn, 1, 3));
+	pqxx::test::select_series(conn2, 1, 3));
   {
-    internal::sql_cursor(trans2, "adopted3", cursor_base::loose);
+    internal::sql_cursor(trans3, "adopted3", cursor_base::loose);
   }
-  trans2.exec("MOVE 1 IN adopted3");
+  trans3.exec("MOVE 1 IN adopted3");
 }
 
 void test_hold_cursor(connection_base &conn, transaction_base &trans)
@@ -278,18 +280,14 @@ void test_hold_cursor(connection_base &conn, transaction_base &trans)
   PQXX_CHECK_THROWS(no_hold.fetch(1), sql_error, "Cursor not closed on commit");
 }
 
+
+void cursor_tests(connection_base &c, transaction_base &t)
+{
+  test_forward_sql_cursor(c, t);
+  test_scroll_sql_cursor(c, t);
+  test_adopted_sql_cursor(c, t);
+  test_hold_cursor(c, t);
+}
 } // namespace
 
-int main()
-{
-  test::TestCase<> test1("forward_sql_cursor", test_forward_sql_cursor),
-	test2("scroll_sql_cursor", test_scroll_sql_cursor),
-	test3("adopted_sql_cursor", test_adopted_sql_cursor),
-	test4("hold_cursor", test_hold_cursor);
-
-  return test1.run() +
-	test2.run() +
-	test3.run() +
-	test4.run();
-}
-
+PQXX_REGISTER_TEST(cursor_tests)

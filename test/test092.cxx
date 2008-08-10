@@ -78,10 +78,4 @@ void test_092(connection_base &C, transaction_base &T)
 
 } // namespace
 
-
-int main()
-{
-  test::TestCase<lazyconnection> test092("test_092", test_092);
-  return test092.run();
-}
-
+PQXX_REGISTER_TEST_CT(test_092, lazyconnection, nontransaction)
