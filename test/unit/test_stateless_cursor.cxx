@@ -87,6 +87,6 @@ void test_stateless_cursor(connection_base &, transaction_base &trans)
 int main()
 {
   test::TestCase<> test("stateless_cursor", test_stateless_cursor);
-  return test::pqxxtest(test);
+  return test.run();
 }
 
