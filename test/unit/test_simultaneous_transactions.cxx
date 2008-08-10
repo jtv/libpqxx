@@ -17,9 +17,4 @@ void test_simultaneous_transactions(connection_base &c, transaction_base &t)
 }
 } // namespace
 
-int main()
-{
-  test::TestCase<> test("simultaneous_trans", test_simultaneous_transactions);
-  return test.run();
-}
-
+PQXX_REGISTER_TEST(test_simultaneous_transactions)

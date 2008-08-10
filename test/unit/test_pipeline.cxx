@@ -50,9 +50,4 @@ void test_pipeline_detach(connection_base &, transaction_base &trans)
 }
 } // namespace
 
-int main()
-{
-  test::TestCase<> test("pipeline_detach", test_pipeline_detach);
-  return test.run();
-}
-
+PQXX_REGISTER_TEST(test_pipeline_detach)

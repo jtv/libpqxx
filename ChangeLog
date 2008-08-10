@@ -1,6 +1,8 @@
 2008-08-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection.hxx, src/connection.cxx:
   - Doc/comment update
+ include/pqxx/util.hxx:
+  - Fixed broken is_null for C-style strings
  test/test000.cxx, test/test001.cxx, test/test002.cxx, test/test004.cxx,
  test/test005.cxx, test/test006.cxx, test/test007.cxx, test/test008.cxx,
  test/test009.cxx, test/test085.cxx, test/test090.cxx, test/test092.cxx,
@@ -9,7 +11,7 @@
  test/unit/test_sql_cursor.cxx, test/unit/test_test_helpers.cxx:
   - New TestCase::run() so normal tests don't need pqxx::test::pqxxtest()
   - Rigged up test setup so it runs with nullconnection
-  - Consistently use TestCase for tests
+  - Standard main() macro for tests, so later we can do all tests in 1 program
   - Improved PQXX_CHECK_THROWS
   - More thorough testing of test helpers
 2008-08-09  Jeroen T. Vermeulen <jtv@xs4all.nl>

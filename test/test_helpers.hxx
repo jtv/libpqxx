@@ -30,46 +30,6 @@ public:
 };
 
 
-// Run a libpqxx test function.
-template<typename TESTFUNC>
-inline int pqxxtest(TESTFUNC &func)
-{
-  try
-  {
-    func();
-  }
-  catch (const test_failure &e)
-  {
-    PGSTD::cerr << "Test failure in " + e.file() + " line " + 
-	to_string(e.line()) << ": " << e.what() << PGSTD::endl;
-    return 1;
-  }
-  catch (const PGSTD::bad_alloc &)
-  {
-    PGSTD::cerr << "Out of memory!" << PGSTD::endl;
-    return 50;
-  }
-  catch (const sql_error &e)
-  {
-    PGSTD::cerr << "SQL error: " << e.what() << PGSTD::endl
-         << "Query was: " << e.query() << PGSTD::endl;
-    return 1;
-  }
-  catch (const PGSTD::exception &e)
-  {
-    PGSTD::cerr << "Exception: " << e.what() << PGSTD::endl;
-    return 2;
-  }
-  catch (...)
-  {
-    PGSTD::cerr << "Unknown exception" << PGSTD::endl;
-    return 100;
-  }
-
-  return 0;
-} // pqxxtest()
-
-
 /// Does this backend have generate_series()?
 inline bool have_generate_series(const connection_base &c)
 {
@@ -138,13 +98,67 @@ public:
   void operator()() { m_func(m_conn, m_trans); }
 
   // Run test, catching errors & returning Unix-style success value
-  int run() { return pqxxtest(*this); }
+  int run()
+  {
+    try
+    {
+      (*this)();
+    }
+    catch (const test_failure &e)
+    {
+      PGSTD::cerr << "Test failure in " + e.file() + " line " + 
+	  to_string(e.line()) << ": " << e.what() << PGSTD::endl;
+      return 1;
+    }
+    catch (const PGSTD::bad_alloc &)
+    {
+      PGSTD::cerr << "Out of memory!" << PGSTD::endl;
+      return 50;
+    }
+    catch (const sql_error &e)
+    {
+      PGSTD::cerr << "SQL error: " << e.what() << PGSTD::endl
+           << "Query was: " << e.query() << PGSTD::endl;
+      return 1;
+    }
+    catch (const PGSTD::exception &e)
+    {
+      PGSTD::cerr << "Exception: " << e.what() << PGSTD::endl;
+      return 2;
+    }
+    catch (...)
+    {
+      PGSTD::cerr << "Unknown exception" << PGSTD::endl;
+      return 100;
+    }
+
+    return 0;
+  }
 
 private:
   CONNECTION m_conn;
   TRANSACTION m_trans;
   testfunc m_func;
 };
+
+
+// Register a function taking (connection_base &, transaction_base &) as a test.
+#define PQXX_REGISTER_TEST(function) \
+	int main() \
+	{ \
+	  pqxx::test::TestCase<> test(#function, (function)); \
+	  return test.run(); \
+	}
+
+
+// Register test function that doesn't access the database.
+#define PQXX_REGISTER_TEST_NODB(function) \
+	int main() \
+	{ \
+	  pqxx::test::TestCase<nullconnection, nontransaction> \
+		test(#function, (function)); \
+	  return test.run(); \
+	}
 
 
 // Unconditional test failure.
@@ -296,4 +310,5 @@ template<> struct string_traits<PGSTD::vector<PGSTD::string> >
 				 { return separated_list("; ", Obj); }
 };
 } // namespace pqxx
+
 

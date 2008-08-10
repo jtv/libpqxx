@@ -84,9 +84,4 @@ void test_stateless_cursor(connection_base &, transaction_base &trans)
 }
 } // namespace
 
-int main()
-{
-  test::TestCase<> test("stateless_cursor", test_stateless_cursor);
-  return test.run();
-}
-
+PQXX_REGISTER_TEST(test_stateless_cursor)

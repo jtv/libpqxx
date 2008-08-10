@@ -141,11 +141,4 @@ void test_test_helpers(connection_base &, transaction_base &)
 } // namespace
 
 
-int main()
-{
-  TestCase<nullconnection, nontransaction> test(
-	"test_test_helpers",
-	test_test_helpers);
-  return test.run();
-}
-
+PQXX_REGISTER_TEST_NODB(test_test_helpers)
