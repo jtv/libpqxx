@@ -253,10 +253,4 @@ void test_000(connection_base &, transaction_base &)
 
 } // namespace
 
-
-int main()
-{
-  test::TestCase<nullconnection, nontransaction> test000("test_000", test_000);
-  return test000.run();
-}
-
+PQXX_REGISTER_TEST_NODB(test_000)

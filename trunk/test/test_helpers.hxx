@@ -150,15 +150,35 @@ private:
 	  return test.run(); \
 	}
 
-
-// Register test function that doesn't access the database.
-#define PQXX_REGISTER_TEST_NODB(function) \
+// Register a test function using given connection and transaction types.
+#define PQXX_REGISTER_TEST_CT(function, connection_type, transaction_type) \
 	int main() \
 	{ \
-	  pqxx::test::TestCase<nullconnection, nontransaction> \
+	  pqxx::test::TestCase<connection_type, transaction_type> \
 		test(#function, (function)); \
 	  return test.run(); \
 	}
+
+// Register a test function using a given connection type (instead of the
+// default "connection").
+#define PQXX_REGISTER_TEST_C(function, connection_type) \
+	int main() \
+	{ \
+	  pqxx::test::TestCase<connection_type> test(#function, (function)); \
+	  return test.run(); \
+	}
+
+// Register a test function using a given transaction type (default is "work").
+#define PQXX_REGISTER_TEST_T(function, transaction_type) \
+	PQXX_REGISTER_TEST_CT(function, pqxx::connection, transaction_type)
+
+
+// Register test function that takes a nullconnection and nontransaction.
+#define PQXX_REGISTER_TEST_NODB(function) \
+	PQXX_REGISTER_TEST_CT( \
+		function, \
+		 pqxx::nullconnection, \
+		 pqxx::nontransaction)
 
 
 // Unconditional test failure.

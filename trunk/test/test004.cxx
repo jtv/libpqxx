@@ -106,10 +106,4 @@ void test_004(connection_base &C, transaction_base &T)
 
 } // namespace
 
-
-int main()
-{
-  test::TestCase<connection, nontransaction> test004("test_004", test_004);
-  return test004.run();
-}
-
+PQXX_REGISTER_TEST_T(test_004, nontransaction)

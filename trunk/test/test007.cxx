@@ -179,10 +179,4 @@ void test_007(connection_base &C, transaction_base &T)
 
 } // namespace
 
-
-int main()
-{
-  test::TestCase<> test007("test_007", test_007);
-  return test007.run();
-}
-
+PQXX_REGISTER_TEST(test_007)

@@ -5,8 +5,8 @@
   - Fixed broken is_null for C-style strings
  test/test000.cxx, test/test001.cxx, test/test002.cxx, test/test004.cxx,
  test/test005.cxx, test/test006.cxx, test/test007.cxx, test/test008.cxx,
- test/test009.cxx, test/test085.cxx, test/test090.cxx, test/test092.cxx,
- test/test_helpers.hxx, test/unit/test_escape.cxx,
+ test/test009.cxx, test/test010.cxx, test/test085.cxx, test/test090.cxx,
+ test/test092.cxx, test/test_helpers.hxx, test/unit/test_escape.cxx,
  test/unit/test_pipeline.cxx, test/unit/test_simultaneous_transactions.cxx,
  test/unit/test_sql_cursor.cxx, test/unit/test_test_helpers.cxx:
   - New TestCase::run() so normal tests don't need pqxx::test::pqxxtest()
