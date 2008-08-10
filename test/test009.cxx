@@ -101,6 +101,6 @@ void test_009(connection_base &, transaction_base &T)
 int main()
 {
   test::TestCase<> test009("test_009", test_009);
-  return test::pqxxtest(test009);
+  return test009.run();
 }
 

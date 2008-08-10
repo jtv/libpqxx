@@ -82,6 +82,6 @@ void test_090(connection_base &C, transaction_base &N)
 int main()
 {
   test::TestCase<connection, nontransaction> test090("test_090", test_090);
-  return test::pqxxtest(test090);
+  return test090.run();
 }
 

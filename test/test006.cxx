@@ -133,6 +133,6 @@ void test_006(connection_base &, transaction_base &orgTrans)
 int main()
 {
   test::TestCase<> test006("test_006", test_006);
-  return test::pqxxtest(test006);
+  return test006.run();
 }
 

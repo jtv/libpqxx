@@ -20,6 +20,6 @@ void test_simultaneous_transactions(connection_base &c, transaction_base &t)
 int main()
 {
   test::TestCase<> test("simultaneous_trans", test_simultaneous_transactions);
-  return test::pqxxtest(test);
+  return test.run();
 }
 

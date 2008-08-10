@@ -76,9 +76,10 @@ public:
 };
 
 
-void test_004()
+void test_004(connection_base &C, transaction_base &T)
 {
-  connection C("");
+  T.abort();
+
   cout << "Adding listener..." << endl;
   TestListener L(C);
 
@@ -108,6 +109,7 @@ void test_004()
 
 int main()
 {
-  return test::pqxxtest(test_004);
+  test::TestCase<connection, nontransaction> test004("test_004", test_004);
+  return test004.run();
 }
 

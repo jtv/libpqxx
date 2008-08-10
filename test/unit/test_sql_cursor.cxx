@@ -287,9 +287,9 @@ int main()
 	test3("adopted_sql_cursor", test_adopted_sql_cursor),
 	test4("hold_cursor", test_hold_cursor);
 
-  return test::pqxxtest(test1) +
-	test::pqxxtest(test2) +
-	test::pqxxtest(test3) +
-	test::pqxxtest(test4);
+  return test1.run() +
+	test2.run() +
+	test3.run() +
+	test4.run();
 }
 

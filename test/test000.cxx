@@ -81,7 +81,7 @@ struct intderef
 };
 
 
-void test_000()
+void test_000(connection_base &, transaction_base &)
 {
   PQXX_CHECK_EQUAL(oid_none,
 	0u,
@@ -256,6 +256,7 @@ void test_000()
 
 int main()
 {
-  return test::pqxxtest(test_000);
+  test::TestCase<nullconnection, nontransaction> test000("test_000", test_000);
+  return test000.run();
 }
 
