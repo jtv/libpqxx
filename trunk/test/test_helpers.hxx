@@ -224,12 +224,19 @@ inline void check_not_equal(
   throw pqxx::test::test_failure(file, line, fulldesc);
 }
 
+
+struct failure_to_fail {};
+
 // Verify that "action" throws "exception_type."
 #define PQXX_CHECK_THROWS(action, exception_type, desc) \
 	do { \
 	  try \
 	  { \
 	    action ; \
+	    throw pqxx::test::failure_to_fail(); \
+	  } \
+	  catch (const pqxx::test::failure_to_fail &) \
+	  { \
 	    PQXX_CHECK_NOTREACHED( \
 		PGSTD::string(desc) + \
 		" (\"" #action "\" did not throw " #exception_type ")"); \

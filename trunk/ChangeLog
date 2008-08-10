@@ -6,10 +6,12 @@
  test/test009.cxx, test/test085.cxx, test/test090.cxx, test/test092.cxx,
  test/test_helpers.hxx, test/unit/test_escape.cxx,
  test/unit/test_pipeline.cxx, test/unit/test_simultaneous_transactions.cxx,
- test/unit/test_sql_cursor.cxx:
+ test/unit/test_sql_cursor.cxx, test/unit/test_test_helpers.cxx:
   - New TestCase::run() so normal tests don't need pqxx::test::pqxxtest()
   - Rigged up test setup so it runs with nullconnection
-  - Consistently use TestCase for database-connecting tests
+  - Consistently use TestCase for tests
+  - Improved PQXX_CHECK_THROWS
+  - More thorough testing of test helpers
 2008-08-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test000.cxx, test/test002.cxx, test/test004.cxx, test/test007.cxx,
  test/test085.cxx, test/test090.cxx, test/test092.cxx, test/test_helpers.hxx,
