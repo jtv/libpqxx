@@ -135,11 +135,10 @@ private:
 typedef basic_connection<connect_async> asyncconnection;
 
 
-/// Nonfunctional, always-down connection policy for debugging purposes
+/// Nonfunctional, always-down connection policy for testing/debugging purposes
 /** @warning You don't want to use this policy in normal code.
- * Written purely for debugging of exception handling, this "connection policy"
- * always fails to connect, and the internal connection pointer always remains
- * null.
+ * Written for debugging and testing, this "connection policy" always fails to
+ * connect, and the internal connection pointer always remains null.
  */
 class PQXX_LIBEXPORT connect_null  : public connectionpolicy
 {
