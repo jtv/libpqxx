@@ -62,11 +62,13 @@ void test_quote(connection_base &c, transaction_base &t)
 	c.quote("x"),
 	"Connection and transaction quote differently.");
 }
+
+
+void test_escaping(connection_base &c, transaction_base &t)
+{
+  test_esc(c, t);
+  test_quote(c, t);
+}
 } // namespace
 
-int main()
-{
-  test::TestCase<> test1("test_esc", test_esc);
-  return test1.run();
-}
-
+PQXX_REGISTER_TEST(test_escaping)

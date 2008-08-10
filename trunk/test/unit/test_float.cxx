@@ -3,6 +3,8 @@
 using namespace PGSTD;
 using namespace pqxx;
 
+namespace
+{
 template<typename T> T make_infinity()
 {
   return
@@ -13,18 +15,12 @@ template<typename T> T make_infinity()
 #endif
 }
 
-namespace
-{
-void infinity_test()
+void infinity_test(connection_base &, transaction_base &)
 {
   double inf = make_infinity<double>();
   PQXX_CHECK_EQUAL(to_string(inf), "infinity", "Infinity not as expected");
   PQXX_CHECK_EQUAL(to_string(-inf), "-infinity", "Negative infinity is broken");
 }
-}
+} // namespace
 
-int main()
-{
-  return pqxx::test::pqxxtest(infinity_test);
-}
-
+PQXX_REGISTER_TEST_NODB(infinity_test)
