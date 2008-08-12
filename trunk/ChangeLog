@@ -1,3 +1,10 @@
+2008-08-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test011.cxx, test/test012.cxx, test/test013.cxx, test/test014.cxx, 
+ test/test015.cxx, test/test016.cxx, test/test_helpers.hxx:
+  - Converted to test framework
+  - Replaced assertions with test helpers
+  - Testing string conversions for result tuples & iterators
+  - Simplified testing string conversion for result
 2008-08-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection.hxx, src/connection.cxx:
   - Doc/comment update
