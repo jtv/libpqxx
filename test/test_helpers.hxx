@@ -294,6 +294,20 @@ PGSTD::string deref_field(const result::field &f) { return f.c_str(); }
 } // namespace
 
 
+// Support string conversion on result rows for debug output.
+template<> struct string_traits<result::tuple>
+{
+  static const char *name() { return "pqxx::result::tuple"; }
+  static bool has_null() { return false; }
+  static bool is_null(result::tuple) { return false; }
+  static result null(); // Not needed
+  static void from_string(const char Str[], result &Obj); // Not needed
+  static PGSTD::string to_string(result::tuple Obj)
+  {
+    return separated_list(", ", Obj.begin(), Obj.end(), deref_field);
+  }
+};
+
 // Support string conversion on result objects for debug output.
 template<> struct string_traits<result>
 {
@@ -305,17 +319,25 @@ template<> struct string_traits<result>
   static PGSTD::string to_string(result Obj)
   {
     if (is_null(Obj)) return "<empty>";
-
-    PGSTD::string out;
-    for (result::const_iterator row = Obj.begin(); row != Obj.end(); ++row)
-    {
-      out += "{" +
-	separated_list(", ", row.begin(), row.end(), deref_field) +
-	"}";
-    }
-    return out;
+    return "{" + separated_list("}\n{", Obj) + "}";
   }
 };
+
+// Support string conversion on result::const_iterator for debug output.
+template<> struct string_traits<result::const_iterator>
+{
+  typedef result::const_iterator subject_type;
+  static const char *name() { return "pqxx::result::const_iterator"; }
+  static bool has_null() { return false; }
+  static bool is_null(subject_type) { return false; }
+  static result null(); // Not needed
+  static void from_string(const char Str[], subject_type &Obj); // Not needed
+  static PGSTD::string to_string(subject_type Obj)
+  {
+    return "<iterator at " + pqxx::to_string(Obj.rownumber()) + ">";
+  }
+};
+
 
 // Support string conversion on vector<string> for debug output.
 template<> struct string_traits<PGSTD::vector<PGSTD::string> >
