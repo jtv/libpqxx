@@ -1,3 +1,11 @@
+2008-08-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test072.cxx, test/test073.cxx, test/test074.cxx, test/test075.cxx,
+ test/test076.cxx, test/test077.cxx, test/test078.cxx, test/test079.cxx,
+ test/test080.cxx, test/test082.cxx, test/test083.cxx, test/test084.cxx,
+ test/test085.cxx, test/test086.cxx, test/test087.cxx, test/test088.cxx,
+ test/test090.cxx, test/test092.cxx, test/test093.cxx, test/test094.cxx:
+  - Converted to test framework
+  - All tests done now!
 2008-08-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test001.cxx, test/test013.cxx, test/test016.cxx, test/test017.cxx, 
  test/test018.cxx, test/test020.cxx, test/test021.cxx, test/test023.cxx, 

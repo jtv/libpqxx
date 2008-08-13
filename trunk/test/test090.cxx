@@ -9,13 +9,11 @@ using namespace pqxx;
 
 // Test program for libpqxx.  Test string-escaping functions.
 
-namespace
-{
-
 #define CHECK(REF, VAL, VDESC) \
 	PQXX_CHECK_EQUAL(VAL, REF, "String mismatch for " VDESC)
 
-
+namespace
+{
 void esc(transaction_base &t, string str, string expected=string())
 {
   if (expected.empty()) expected = str;
@@ -34,11 +32,13 @@ void esc_raw(transaction_base &t, string str, string expected=string())
   CHECK(expected, t.esc_raw(c, str.size()), "const unsigned char[],size_t");
 }
 
+
 void esc_both(transaction_base &t, string str, string expected=string())
 {
   esc(t, str, expected);
   esc_raw(t, str, expected);
 }
+
 
 void dotests(transaction_base &t)
 {
@@ -74,7 +74,6 @@ void test_090(connection_base &C, transaction_base &N)
   dotests(W);
   W.abort();
 }
-
 } // namespace
 
 PQXX_REGISTER_TEST(test_090)

@@ -8,18 +8,15 @@
 #include <pqxx/notify-listen>
 #include <pqxx/result>
 
+#include "test_helpers.hxx"
 
 using namespace PGSTD;
 using namespace pqxx;
 
 
 // Example program for libpqxx.  Test waiting for notification with timeout.
-//
-// Usage: test079
-
 namespace
 {
-
 // Sample implementation of notification listener
 class TestListener : public notify_listener
 {
@@ -74,62 +71,33 @@ public:
   }
 };
 
+
+void test_079(connection_base &C, transaction_base &orgT)
+{
+  orgT.abort();
+
+  const string NotifName = "mylistener";
+  cout << "Adding listener..." << endl;
+  TestListener L(C, NotifName);
+
+  // First see if the timeout really works: we're not expecting any notifs
+  int notifs = C.await_notification(0, 1);
+  PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notification.");
+
+  cout << "Sending notification..." << endl;
+  C.perform(Notify(L.name()));
+
+  for (int i=0; (i < 20) && !L.Done(); ++i)
+  {
+    PQXX_CHECK_EQUAL(notifs, 0, "Got notifications, but no handler called.");
+    cout << ".";
+    notifs = C.await_notification(1,0);
+  }
+  cout << endl;
+
+  PQXX_CHECK(L.Done(), "No notifications received.");
+  PQXX_CHECK_EQUAL(notifs, 1, "Got unexpected notifications.");
+}
 } // namespace
 
-int main()
-{
-  try
-  {
-    const string NotifName = "mylistener";
-    connection C;
-    cout << "Adding listener..." << endl;
-    TestListener L(C, NotifName);
-
-    // First see if the timeout really works: we're not expecting any notifs
-    int notifs = C.await_notification(0, 1);
-    if (notifs)
-      throw logic_error("Got unexpected notification!");
-
-    cout << "Sending notification..." << endl;
-    C.perform(Notify(L.name()));
-
-    for (int i=0; (i < 20) && !L.Done(); ++i)
-    {
-      if (notifs)
-	throw logic_error("Got " + to_string(notifs) + " notification(s), "
-	    "but no handler called!");
-      cout << ".";
-      notifs = C.await_notification(1,0);
-    }
-    cout << endl;
-
-    if (!L.Done())
-    {
-      cout << "No notification received!" << endl;
-      return 1;
-    }
-    if (notifs != 1)
-      throw logic_error("Expected 1 notification, got " + to_string(notifs));
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    // All exceptions thrown by libpqxx are derived from std::exception
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    // This is really unexpected (see above)
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
-}
-
+PQXX_REGISTER_TEST_T(test_079, nontransaction)

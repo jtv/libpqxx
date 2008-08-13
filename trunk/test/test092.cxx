@@ -74,7 +74,6 @@ void test_092(connection_base &C, transaction_base &T)
     throw logic_error("Expected string '" + f + "', "
 	"got '" + t[0][1].c_str() + "'");
 }
-
 } // namespace
 
 PQXX_REGISTER_TEST_CT(test_092, lazyconnection, nontransaction)

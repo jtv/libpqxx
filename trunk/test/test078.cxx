@@ -8,6 +8,7 @@
 #include <pqxx/notify-listen>
 #include <pqxx/result>
 
+#include "test_helpers.hxx"
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -15,13 +16,8 @@ using namespace pqxx;
 
 // Example program for libpqxx.  Send notification to self, using a notification
 // name with unusal characters, and without polling.
-//
-// Usage: test078
-
-
 namespace
 {
-
 // Sample implementation of notification listener
 class TestListener : public notify_listener
 {
@@ -36,11 +32,10 @@ public:
   virtual void operator()(int be_pid)
   {
     m_Done = true;
-    if (be_pid != Conn().backendpid())
-      throw logic_error("Expected notification from backend process " +
-		        to_string(Conn().backendpid()) +
-			", but got one from " +
-			to_string(be_pid));
+    PQXX_CHECK_EQUAL(
+	be_pid,
+	Conn().backendpid(),
+	"Got notification from wrong backend process.");
 
     cout << "Received notification: " << name() << " pid=" << be_pid << endl;
   }
@@ -76,58 +71,30 @@ public:
   }
 };
 
+
+void test_078(connection_base &C, transaction_base &orgT)
+{
+  orgT.abort();
+
+  const string NotifName = "my listener";
+  cout << "Adding listener..." << endl;
+  TestListener L(C, NotifName);
+
+  cout << "Sending notification..." << endl;
+  C.perform(Notify(L.name()));
+
+  int notifs = 0;
+  for (int i=0; (i < 20) && !L.Done(); ++i)
+  {
+    PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
+    cout << ".";
+    notifs = C.await_notification();
+  }
+  cout << endl;
+
+  PQXX_CHECK(L.Done(), "No notification received.");
+  PQXX_CHECK_EQUAL(notifs, 1, "Got unexpected number of notifications.");
+}
 } // namespace
 
-int main()
-{
-  try
-  {
-    const string NotifName = "my listener";
-    connection C;
-    cout << "Adding listener..." << endl;
-    TestListener L(C, NotifName);
-
-    cout << "Sending notification..." << endl;
-    C.perform(Notify(L.name()));
-
-    int notifs = 0;
-    for (int i=0; (i < 20) && !L.Done(); ++i)
-    {
-      if (notifs)
-	throw logic_error("Got " + to_string(notifs) + " "
-	    "unexpected notification(s)!");
-      cout << ".";
-      notifs = C.await_notification();
-    }
-    cout << endl;
-
-    if (!L.Done())
-    {
-      cout << "No notification received!" << endl;
-      return 1;
-    }
-    if (notifs != 1)
-      throw logic_error("Expected 1 notification, got " + to_string(notifs));
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    // All exceptions thrown by libpqxx are derived from std::exception
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    // This is really unexpected (see above)
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
-}
-
+PQXX_REGISTER_TEST_T(test_078, nontransaction)

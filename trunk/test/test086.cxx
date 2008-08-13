@@ -4,61 +4,39 @@
 #include <pqxx/nontransaction>
 #include <pqxx/transaction>
 
+#include "test_helpers.hxx"
 
 using namespace PGSTD;
 using namespace pqxx;
 
+
 // Test inhibition of connection reactivation
-//
-// Usage: test086
-int main()
+namespace
 {
-  try
+void test_086(connection_base &C, transaction_base &N1)
+{
+  const string Query = "SELECT * from pg_tables";
+
+  cout << "Some datum: " << N1.exec(Query)[0][0] << endl;
+  N1.commit();
+
+  C.inhibit_reactivation(true);
+  C.deactivate();
+
+  disable_noticer d(C);
   {
-    const string Query = "SELECT * from pg_tables";
-
-    connection C;
-
-    nontransaction N1(C, "test86N1");
-    cout << "Some datum: " << N1.exec(Query)[0][0] << endl;
-    N1.commit();
-
-    C.inhibit_reactivation(true);
-    C.deactivate();
-
-    try
-    {
-      nontransaction N2(C, "test86N2");
-      disable_noticer d(C);
-      N2.exec(Query);
-    }
-    catch (const broken_connection &e)
-    {
-      cout << "(Expected) " << e.what() << endl;
-    }
-    catch (const exception &)
-    {
-      cerr << "Expected broken_connection, got different exception!" << endl;
-      throw;
-    }
-
-    C.inhibit_reactivation(false);
-    work W(C, "test86W");
-    W.exec(Query);
-    W.commit();
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-	 << "Query was: " << e.query() << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    cerr << "Exception: " << e.what() << endl;
-    return 1;
+    nontransaction N2(C, "test86N2");
+    PQXX_CHECK_THROWS(
+	N2.exec(Query),
+	broken_connection,
+	"Deactivated connection did not throw broken_connection on exec().");
   }
 
-  return 0;
+  C.inhibit_reactivation(false);
+  work W(C, "test86W");
+  W.exec(Query);
+  W.commit();
 }
+} // namespace
 
+PQXX_REGISTER_TEST_T(test_086, nontransaction)
