@@ -7,22 +7,15 @@
 #include <pqxx/transactor>
 #include <pqxx/result>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
 
 // Test program for libpqxx.  Simulate "in-doubt" transaction failure.
-//
-// Usage: test094 [connect-string]
-//
-// Where connect-string is a set of connection options in PostgreSQL's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, of "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
-
 namespace
 {
-
 // Transaction class that simulates connection failure during commit.
 class basic_flakytransaction : public dbtransaction
 {
@@ -68,6 +61,7 @@ private:
   }
 };
 
+
 template<isolation_level ISOLATIONLEVEL=read_committed>
 class flakytransaction : public basic_flakytransaction
 {
@@ -86,6 +80,7 @@ public:
 
   virtual ~flakytransaction() throw () { End(); }
 };
+
 
 // A transactor build to fail, at least for the first m_failcount commits
 class FlakyTransactor : public transactor<flakytransaction<> >
@@ -142,39 +137,19 @@ void simulate(connection_base &C, int failures, int attempts)
     throw logic_error("Simulated failure did not lead to in-doubt error");
 }
 
+
+void test_094(connection_base &C, transaction_base &orgT)
+{
+  orgT.abort();
+
+  // Run without simulating failure
+  cout << "Playing transactor without simulating failure..." << endl;
+  simulate(C, 0, 1);
+
+  // Simulate one failure, but succeed on retry
+  cout << "Playing transactor with simulated failure..." << endl;
+  simulate(C, 1, 2);
+}
 } // namespace
 
-int main(int, char *argv[])
-{
-  try
-  {
-    connection C(argv[1]);
-
-    // Run without simulating failure
-    cout << "Playing transactor without simulating failure..." << endl;
-    simulate(C, 0, 1);
-
-    // Simulate one failure, but succeed on retry
-    cout << "Playing transactor with simulated failure..." << endl;
-    simulate(C, 1, 2);
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
-}
-
+PQXX_REGISTER_TEST_T(test_094, nontransaction)

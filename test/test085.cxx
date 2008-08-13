@@ -10,6 +10,7 @@
 using namespace PGSTD;
 using namespace pqxx;
 
+
 // Test program for libpqxx.  Define and use prepared statements.
 
 #define COMPARE_RESULTS(name, lhs, rhs) \
@@ -19,25 +20,31 @@ using namespace pqxx;
 	"Executing " name " as prepared statement yields different results."); \
   PQXX_CHECK_EQUAL(lhs.empty(), false, "Result for " name " is empty.")
 
-
 namespace
 {
 string stringize(transaction_base &t, const string &arg)
 {
   return "'" + t.esc(arg) + "'";
 }
+
+
 string stringize(transaction_base &t, const char arg[])
 {
   return arg ? stringize(t,string(arg)) : "null";
 }
+
+
 string stringize(transaction_base &t, char arg[])
 {
   return arg ? stringize(t, string(arg)) : "null";
 }
+
+
 template<typename T> string stringize(transaction_base &t, T i)
 {
   return stringize(t, to_string(i));
 }
+
 
 // Substitute variables in raw query.  This is not likely to be very robust,
 // but it should do for just this test.  The main shortcomings are escaping,
@@ -198,7 +205,6 @@ void test_085(connection_base &C, transaction_base &T)
          << endl;
   }
 }
-
 } // namespace
 
 PQXX_REGISTER_TEST(test_085)

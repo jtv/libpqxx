@@ -4,12 +4,17 @@
 #include <pqxx/subtransaction>
 #include <pqxx/transaction>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
+
+// Test program for libpqxx.  Attempt to perform nested queries on various types
+// of connections.
 namespace
 {
-void test(connection_base &C, const string &desc)
+void do_test(connection_base &C, const string &desc)
 {
   cout << "Testing " << desc << ":" << endl;
 
@@ -39,12 +44,13 @@ void test(connection_base &C, const string &desc)
   T1.commit();
 }
 
+
 bool test_and_catch(connection_base &C, const string &desc)
 {
   bool ok = false;
   try
   {
-    test(C,desc);
+    do_test(C,desc);
     ok = true;
   }
   catch (const broken_connection &)
@@ -65,95 +71,72 @@ bool test_and_catch(connection_base &C, const string &desc)
   return ok;
 }
 
-} // namespace
 
-// Test program for libpqxx.  Attempt to perform nested queries on various types
-// of connections.
-//
-// Usage: test089
-int main()
+void test_089(connection_base &, transaction_base &)
 {
+  asyncconnection A1;
+  bool ok = test_and_catch(A1, "asyncconnection (virgin)");
+
+  asyncconnection A2;
+  A2.activate();
+  if (!A2.supports(connection_base::cap_nested_transactions))
+  {
+    if (ok)
+    {
+      /* A1 supported nested transactions but A2 says it doesn't.  What may
+       * have happened is we weren't able to establish the connections'
+       * capabilities, and the capability for nested transactions was deduced
+       * from the fact that that first subtransaction actually worked.
+       * If so, try that again.
+       */
+      try
+      {
+        work W(A2);
+        subtransaction s(W);
+        s.commit();
+      }
+      catch (const exception &)
+      {
+        throw logic_error(
+		"First asyncconnection supported nested "
+		"transactions, but second one doesn't!");
+      }
+    }
+    else
+    {
+      cout << "Backend does not support nested transactions.  Skipping test."
+	   << endl;
+      return;
+    }
+  }
+
+  PQXX_CHECK(
+	ok,
+	"Virgin asyncconnection supports nested transactions, "
+	"but initialized one doesn't!");
+
   try
   {
-    asyncconnection A1;
-    bool ok = test_and_catch(A1, "asyncconnection (virgin)");
-
-    asyncconnection A2;
-    A2.activate();
-    if (!A2.supports(connection_base::cap_nested_transactions))
-    {
-      if (ok)
-      {
-        /* A1 supported nested transactions but A2 says it doesn't.  What may
-	 * have happened is we weren't able to establish the connections'
-	 * capabilities, and the capability for nested transactions was deduced
-	 * from the fact that that first subtransaction actually worked.
-	 * If so, try that again.
-	 */
-	try
-	{
-	  work W(A2);
-	  subtransaction s(W);
-	  s.commit();
-	}
-	catch (const exception &)
-	{
-	  throw logic_error("First asyncconnection supported nested "
-		"transactions, but second one doesn't!");
-	}
-      }
-      else
-      {
-        cout << "Backend does not support nested transactions.  Skipping test."
-	     << endl;
-        return 0;
-      }
-    }
-
-    if (!ok)
-      throw logic_error("Virgin asyncconnection supports nested transactions, "
-	  "but initialized one doesn't!");
-
-    try
-    {
-      test(A2, "asyncconnection (initialized)");
-    }
-    catch (const feature_not_supported &e)
-    {
-      cerr << e.what() << endl;
-      return 0;
-    }
-
-    lazyconnection L1;
-    test(L1, "lazyconnection (virgin)");
-
-    lazyconnection L2;
-    L2.activate();
-    test(L2, "lazyconnection (initialized)");
-
-    connection C;
-    C.activate();
-    C.deactivate();
-    test(C, "connection (deactivated)");
+    do_test(A2, "asyncconnection (initialized)");
   }
-  catch (const sql_error &e)
+  catch (const feature_not_supported &e)
   {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: " << e.query() << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    cerr << "Unhandled exception" << endl;
-    return 100;
+    cerr << e.what() << endl;
+    return;
   }
 
-  return 0;
+  lazyconnection L1;
+  do_test(L1, "lazyconnection (virgin)");
+
+  lazyconnection L2;
+  L2.activate();
+  do_test(L2, "lazyconnection (initialized)");
+
+  connection C;
+  C.activate();
+  C.deactivate();
+  do_test(C, "connection (deactivated)");
 }
+} // namespace
 
-
+PQXX_REGISTER_TEST_NODB(test_089)

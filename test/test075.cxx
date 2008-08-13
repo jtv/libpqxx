@@ -7,164 +7,119 @@
 #include <pqxx/transaction>
 #include <pqxx/result>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
 
 // Test program for libpqxx.  Compare const_reverse_iterator iteration of a
 // result to a regular, const_iterator iteration.
-//
-// Usage: test075 [connect-string]
-//
-// Where connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
-
-int main(int, char *argv[])
+namespace
 {
-  try
-  {
-    connection C(argv[1]);
-    work W(C, "test75");
-    const result R( W.exec("SELECT year FROM pqxxevents") );
+void test_075(connection_base &, transaction_base &W)
+{
+  const result R( W.exec("SELECT year FROM pqxxevents") );
 
-    if (R.empty()) throw runtime_error("No events found, can't test!");
+  if (R.empty()) throw runtime_error("No events found, can't test!");
 
-    if (!(R[0] == R.at(0)))
-      throw logic_error("result[0] == result.at(0) doesn't hold!");
-    if (R[0] != R.at(0))
-      throw logic_error("Something wrong with result::tuple::operator!=");
+  PQXX_CHECK_EQUAL(R[0], R.at(0), "Inconsistent result indexing.");
+  PQXX_CHECK(!(R[0] != R.at(0)), "result::tuple::operator!=() is broken.");
 
-    if (!(R[0][0] == R[0].at(0)))
-      throw logic_error("tuple[0] == tuple.at(0) doesn't hold!");
-    if (R[0][0] != R[0].at(0))
-      throw logic_error("Something wrong with result::field::operator!=");
+  PQXX_CHECK_EQUAL(R[0][0], R[0].at(0), "Inconsistent row indexing.");
+  PQXX_CHECK(
+	!(R[0][0] != R[0].at(0)),
+	"result::field::operator!=() is broken.");
 
-    vector<string> contents;
-    for (result::const_iterator i=R.begin(); i!=R.end(); ++i)
-      contents.push_back(i->at(0).as<string>());
-    cout << to_string(contents.size()) << " years read" << endl;
+  vector<string> contents;
+  for (result::const_iterator i=R.begin(); i!=R.end(); ++i)
+    contents.push_back(i->at(0).as<string>());
+  cout << to_string(contents.size()) << " years read" << endl;
 
-    if (contents.size() != vector<string>::size_type(R.size()))
-      throw logic_error("Got " + to_string(contents.size()) + " values "
-	  "out of result with size " + to_string(R.size()));
+  PQXX_CHECK_EQUAL(
+	contents.size(),
+	vector<string>::size_type(R.size()),
+	"Number of values does not match result size.");
 
-    for (result::size_type i=0; i<R.size(); ++i)
-      if (contents[i] != R.at(i).at(0).c_str())
-	throw logic_error("Inconsistent iteration: '" + contents[i] + "' "
-	    "became '" + R[i][0].as<string>());
-    cout << to_string(R.size()) << " years checked" << endl;
+  for (result::size_type i=0; i<R.size(); ++i)
+    PQXX_CHECK_EQUAL(
+	contents[i],
+	R.at(i).at(0).c_str(),
+	"Inconsistent iteration.");
+
+  cout << to_string(R.size()) << " years checked" << endl;
 
 #ifdef PQXX_HAVE_REVERSE_ITERATOR
-    // Thorough test for result::const_reverse_iterator
-    result::const_reverse_iterator ri1(R.rbegin()), ri2(ri1), ri3(R.end());
-    ri2 = R.rbegin();
+  // Thorough test for result::const_reverse_iterator
+  result::const_reverse_iterator ri1(R.rbegin()), ri2(ri1), ri3(R.end());
+  ri2 = R.rbegin();
 
-    if (!(ri1 == ri2))
-      throw logic_error("Copy-constructed reverse_iterator "
-	  "not identical to assigned one");
-    if (ri2 != ri3)
-      throw logic_error("result:end() does not generate rbegin()");
-    if (ri2 - ri3)
-      throw logic_error("Distance between identical const_reverse_iterators "
-	  "is nonzero: " + to_string(ri2 - ri3));
-    if (ri2 != ri3 + 0)
-      throw logic_error("reverse_iterator+0 gives strange result");
-    if (ri2 != ri3 - 0)
-      throw logic_error("reverse_iterator-0 gives strange result");
-    if (ri3 < ri2)
-      throw logic_error("Equality with reverse_iterator operator < wrong");
-    if (!(ri2 <= ri3))
-      throw logic_error("Equality with reverse_iterator operator <= wrong");
+  PQXX_CHECK(ri2 == ri1, "reverse_iterator copy constructor is broken.");
+  PQXX_CHECK(ri3 == ri2, "result::end() does not generate rbegin().");
+  PQXX_CHECK_EQUAL(
+	ri2 - ri3,
+	0,
+	"const_reverse_iterator is at nonzero distance from its own copy.");
 
-    if (ri3++ != ri2)
-      throw logic_error("reverse_iterator postfix ++ returns wrong result");
+  PQXX_CHECK(ri2 == ri3 + 0, "reverse_iterator+0 gives strange result.");
+  PQXX_CHECK(ri2 == ri3 - 0, "reverse_iterator-0 gives strange result.");
+  PQXX_CHECK(!(ri3 < ri2), "operator<() breaks on equal reverse_iterators.");
+  PQXX_CHECK(ri2 <= ri3, "operator<=() breaks on equal reverse_iterators.");
 
-    if (ri3 - ri2 != 1)
-      throw logic_error("Nonzero reverse_iterator distance came out at " +
-	  to_string(ri3 - ri2) + ", "
-	  "expected 1");
-    if (!(ri3 > ri2))
-      throw logic_error("Something wrong with reverse_iterator operator >");
-    if (!(ri3 >= ri2))
-      throw logic_error("Something wrong with reverse_iterator operator >=");
-    if (!(ri2 < ri3))
-      throw logic_error("Something wrong with reverse_iterator operator <");
-    if (!(ri2 <= ri3))
-      throw logic_error("Something wrong with reverse_iterator operator <=");
-    if (ri3 != ri2 + 1)
-      throw logic_error("Adding number to reverse_iterator goes wrong");
-    if (ri2 != ri3 - 1)
-      throw logic_error("Subtracting from reverse_iterator goes wrong");
+  PQXX_CHECK(ri3++ == ri2, "reverse_iterator post-increment is broken.");
 
-    if (ri3 != ++ri2)
-      throw logic_error("reverse_iterator prefix ++ returns wrong result");
-    if (!(ri3 >= ri2))
-      throw logic_error("Equality with reverse_iterator operator >= failed");
-    if (!(ri3 >= ri2))
-      throw logic_error("Equality with reverse_iterator operator <= failed");
-    if (ri3.base() != R.back())
-      throw logic_error("reverse_iterator does not arrive at back()");
-    if (ri1->at(0) != (*ri1).at(0))
-      throw logic_error("reverse_iterator -> differs from * operator");
+  PQXX_CHECK_EQUAL(ri3 - ri2, 1, "Wrong nonzero reverse_iterator distance.");
+  PQXX_CHECK(ri3 > ri2, "reverse_iterator operator>() is broken.");
+  PQXX_CHECK(ri3 >= ri2, "reverse_iterator operator>=() is broken.");
+  PQXX_CHECK(ri2 < ri3, "reverse_iterator operator<() is broken.");
+  PQXX_CHECK(ri2 <= ri3, "reverse_iterator operator<=() is broken.");
+  PQXX_CHECK(ri3 == ri2 + 1, "Adding int to reverse_iterator is broken.");
+  PQXX_CHECK(
+	ri2 == ri3 - 1,
+	"Subtracting int from reverse_iterator is broken.");
 
-    if (ri2-- != ri3)
-      throw logic_error("reverse_iterator postfix -- returns wrong result");
-    if (ri2 != --ri3)
-      throw logic_error("reverse_iterator prefix -- returns wrong result");
+  PQXX_CHECK(ri3 == ++ri2, "reverse_iterator pre-increment is broken.");
+  PQXX_CHECK(ri3 >= ri2, "operator>=() breaks on equal reverse_iterators.");
+  PQXX_CHECK(ri3 >= ri2, "operator<=() breaks on equal reverse_iterators.");
 
-    if (ri2 != R.rbegin())
-      throw logic_error("Something wrong with reverse_iterator -- operator");
+  PQXX_CHECK(
+	ri3.base() == R.back(),
+	"reverse_iterator does not arrive at back().");
 
-    ri2 += 1;
-    ri3 -= -1;
+  PQXX_CHECK(
+	ri1->at(0) == (*ri1).at(0),
+	"reverse_iterator operator->() is inconsistent with operator*().");
 
-    if (ri2 == R.rbegin())
-      throw logic_error("Adding to reverse_iterator doesn't work");
-    if (ri3 != ri2)
-      throw logic_error("reverse_iterator -= broken for negative numbers?");
+  PQXX_CHECK(ri2-- == ri3, "reverse_iterator post-decrement is broken.");
+  PQXX_CHECK(ri2 == --ri3, "reverse_iterator pre-decrement is broken.");
+  PQXX_CHECK(ri2 == R.rbegin(), "reverse_iterator decrement is broken.");
 
-    ri2 -= 1;
-    if (ri2 != R.rbegin())
-      throw logic_error("reverse_iterator += and -= do not cancel out");
+  ri2 += 1;
+  ri3 -= -1;
 
+  PQXX_CHECK(ri2 != R.rbegin(), "Adding to reverse_iterator does not work.");
+  PQXX_CHECK(
+	ri3 == ri2,
+	"reverse_iterator operator-=() breaks on negative distances.");
 
-    // Now verify that reverse iterator also sees the same results...
-    vector<string>::reverse_iterator l = contents.rbegin();
-    for (result::const_reverse_iterator i = R.rbegin(); i != R.rend(); ++i, ++l)
-    {
-      if (*l != i->at(0).c_str())
-	throw logic_error("Inconsistent reverse iteration: "
-	    "'" + *l + "' became '" + (*i)[0].as<string>() + "'");
-    }
+  ri2 -= 1;
+  PQXX_CHECK(
+	ri2 == R.rbegin(),
+	"reverse_iterator operator+=() and operator-=() do not cancel out.");
 
-    if (l != contents.rend())
-      throw logic_error("Reverse iteration of result ended too soon");
+  // Now verify that reverse iterator also sees the same results...
+  vector<string>::reverse_iterator l = contents.rbegin();
+  for (result::const_reverse_iterator i = R.rbegin(); i != R.rend(); ++i, ++l)
+    PQXX_CHECK_EQUAL(
+	*l,
+	i->at(0).c_str(),
+	"Inconsistent reverse iteration.");
+
+  PQXX_CHECK(l == contents.rend(), "Reverse iteration ended too soon.");
 #endif	// PQXX_HAVE_REVERSE_ITERATOR
 
-    if (R.empty())
-      throw runtime_error("No years found in events table, can't test!");
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    // All exceptions thrown by libpqxx are derived from std::exception
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    // This is really unexpected (see above)
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
+  PQXX_CHECK(!R.empty(), "No events found in table, cannot test.");
 }
+} // namespace
 
+PQXX_REGISTER_TEST(test_075)
