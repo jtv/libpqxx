@@ -8,6 +8,7 @@
 #include <pqxx/notify-listen>
 #include <pqxx/result>
 
+#include "test_helpers.hxx"
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -15,10 +16,6 @@ using namespace pqxx;
 
 // Example program for libpqxx.  Send notification to self, using deferred
 // connection.
-//
-// Usage: test023
-
-
 namespace
 {
 
@@ -74,58 +71,30 @@ public:
   }
 };
 
+
+void test_023(connection_base &, transaction_base &)
+{
+  lazyconnection C;
+  cout << "Adding listener..." << endl;
+  TestListener L(C);
+
+  cout << "Sending notification..." << endl;
+  C.perform(Notify(L.name()));
+
+  int notifs = 0;
+  for (int i=0; (i < 20) && !L.Done(); ++i)
+  {
+    PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
+    pqxx::internal::sleep_seconds(1);
+    notifs = C.get_notifs();
+    cout << ".";
+  }
+  cout << endl;
+
+  PQXX_CHECK(L.Done(), "No notification received.");
+
+  PQXX_CHECK_EQUAL(notifs, 1, "Unexpected number of notifications.");
+}
 } // namespace
 
-int main()
-{
-  try
-  {
-    lazyconnection C;
-    cout << "Adding listener..." << endl;
-    TestListener L(C);
-
-    cout << "Sending notification..." << endl;
-    C.perform(Notify(L.name()));
-
-    int notifs = 0;
-    for (int i=0; (i < 20) && !L.Done(); ++i)
-    {
-      if (notifs)
-	throw logic_error("Got " + to_string(notifs) + " "
-	    "unexpected notifications!");
-      pqxx::internal::sleep_seconds(1);
-      notifs = C.get_notifs();
-      cout << ".";
-    }
-    cout << endl;
-
-    if (!L.Done())
-    {
-      cout << "No notification received!" << endl;
-      return 1;
-    }
-    if (notifs != 1)
-      throw logic_error("Expected 1 notification, got " + to_string(notifs));
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    // All exceptions thrown by libpqxx are derived from std::exception
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    // This is really unexpected (see above)
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
-}
-
+PQXX_REGISTER_TEST_NODB(test_023)

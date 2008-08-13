@@ -6,45 +6,45 @@
 #include <pqxx/nontransaction>
 #include <pqxx/result>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
+
+// Example program for libpqxx.  Test session variables with asyncconnection.
 namespace
 {
-
 string GetDatestyle(connection_base &C)
 {
   return nontransaction(C, "getdatestyle").get_variable("DATESTYLE");
 }
+
 
 string SetDatestyle(connection_base &C, string style)
 {
   C.set_variable("DATESTYLE", style);
   const string fullname = GetDatestyle(C);
   cout << "Set datestyle to " << style << ": " << fullname << endl;
-  if (fullname.empty())
-    throw logic_error("Setting datestyle to " + style + " "
-	"makes it an empty string");
+  PQXX_CHECK(
+	!fullname.empty(),
+	"Setting datestyle to " + style + " makes it an empty string.");
 
   return fullname;
 }
 
-void CompareDatestyles(string fullname, string expected)
-{
-  if (fullname != expected)
-    throw logic_error("Datestyle is '" + fullname + "', "
-	"expected '" + expected + "'");
-}
 
 void CheckDatestyle(connection_base &C, string expected)
 {
-  CompareDatestyles(GetDatestyle(C), expected);
+  PQXX_CHECK_EQUAL(GetDatestyle(C), expected, "Got wrong datestyle.");
 }
+
 
 void RedoDatestyle(connection_base &C, string style, string expected)
 {
-  CompareDatestyles(SetDatestyle(C, style), expected);
+  PQXX_CHECK_EQUAL(SetDatestyle(C, style), expected, "Set wrong datestyle.");
 }
+
 
 void ActivationTest(connection_base &C, string style, string expected)
 {
@@ -57,72 +57,30 @@ void ActivationTest(connection_base &C, string style, string expected)
   CheckDatestyle(C, expected);
 }
 
-}
 
-// Example program for libpqxx.  Test session variables with asyncconnection.
-//
-// Usage: test064 [connect-string]
-//
-// Where connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
-
-int main(int, char *argv[])
+void test_064(connection_base &, transaction_base &)
 {
-  try
-  {
-    asyncconnection C(argv[1]);
+  asyncconnection C;
 
-    if (GetDatestyle(C).empty())
-      throw logic_error("Initial datestyle not set");
+  PQXX_CHECK(!GetDatestyle(C).empty(), "Initial datestyle not set.");
 
-    const string ISOname = SetDatestyle(C, "ISO");
-    const string SQLname = SetDatestyle(C, "SQL");
+  const string ISOname = SetDatestyle(C, "ISO");
+  const string SQLname = SetDatestyle(C, "SQL");
 
-    if (ISOname == SQLname)
-      throw logic_error("Datestyles SQL and ISO both show as '"+ISOname+"'");
+  PQXX_CHECK_NOT_EQUAL(ISOname, SQLname, "Same datestyle in SQL and ISO.");
 
-    RedoDatestyle(C, "SQL", SQLname);
+  RedoDatestyle(C, "SQL", SQLname);
 
-    ActivationTest(C, "ISO", ISOname);
-    ActivationTest(C, "SQL", SQLname);
+  ActivationTest(C, "ISO", ISOname);
+  ActivationTest(C, "SQL", SQLname);
 
-     // Prove that setting an unknown variable causes an error, as expected
-    try
-    {
-      disable_noticer d(C);
-      C.set_variable("NONEXISTENT_VARIABLE_I_HOPE", "1");
-      throw logic_error("Setting unknown variable failed to fail");
-    }
-    catch (const sql_error &e)
-    {
-      cout << "(Expected) Setting unknown variable failed: "
-	   << e.what()
-	   << endl;
-    }
-  }
-  catch (const sql_error &e)
-  {
-    // If we're interested in the text of a failed query, we can write separate
-    // exception handling code for this type of exception
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    // All exceptions thrown by libpqxx are derived from std::exception
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    // This is really unexpected (see above)
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
+  // Prove that setting an unknown variable causes an error, as expected
+  disable_noticer d(C);
+  PQXX_CHECK_THROWS(
+	C.set_variable("NONEXISTENT_VARIABLE_I_HOPE", "1"),
+	sql_error,
+	"Setting unknown variable failed to fail.");
 }
+} // namespace
 
+PQXX_REGISTER_TEST_NODB(test_064)

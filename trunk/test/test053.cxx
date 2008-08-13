@@ -3,12 +3,15 @@
 
 #include <pqxx/pqxx>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
+
+// Test program for libpqxx: import file to large object
 namespace
 {
-
 const string Contents = "Large object test contents";
 
 class ImportLargeObject : public transactor<>
@@ -33,6 +36,7 @@ private:
   string m_File;
 };
 
+
 class ReadLargeObject : public transactor<>
 {
 public:
@@ -46,12 +50,11 @@ public:
   {
     char Buf[200];
     largeobjectaccess O(T, m_Object, ios::in);
-    Buf[O.read(Buf, sizeof(Buf)-1)] = '\0';
-    if (Contents != Buf)
-      throw runtime_error("Expected large object #" +
-	                  to_string(m_Object.id()) + " "
-			  "to contain '" + Contents + "', "
-			  "but found '" + Buf + "'");
+    const size_t len = O.read(Buf, sizeof(Buf)-1);
+    PQXX_CHECK_EQUAL(
+	string(Buf, len),
+	Contents,
+	"Large object contents were mangled.");
   }
 
 private:
@@ -73,47 +76,17 @@ private:
   largeobject m_Object;
 };
 
-}
 
-
-// Test program for libpqxx: import file to large object
-//
-// Usage: test053 [connect-string]
-//
-// Where connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
-int main(int, char *argv[])
+void test_053(connection_base &C, transaction_base &orgT)
 {
-  try
-  {
-    connection C(argv[1]);
+  orgT.abort();
 
-    largeobject Obj;
+  largeobject Obj;
 
-    C.perform(ImportLargeObject(Obj, "pqxxlo.txt"));
-    C.perform(ReadLargeObject(Obj));
-    C.perform(DeleteLargeObject(Obj));
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
+  C.perform(ImportLargeObject(Obj, "pqxxlo.txt"));
+  C.perform(ReadLargeObject(Obj));
+  C.perform(DeleteLargeObject(Obj));
 }
+} // namespace
 
-
+PQXX_REGISTER_TEST_T(test_053, nontransaction)

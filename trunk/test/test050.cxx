@@ -5,13 +5,17 @@
 
 #include <pqxx/pqxx>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
+
+// Simple test program for libpqxx's Large Objects interface.
 namespace
 {
-
 const string Contents = "Large object test contents";
+
 
 class CreateLargeObject : public transactor<>
 {
@@ -39,6 +43,7 @@ private:
   largeobject &m_ObjectOutput;
 };
 
+
 class WriteLargeObject : public transactor<>
 {
 public:
@@ -52,69 +57,57 @@ public:
   {
     largeobjectaccess A(T, m_Object);
     const cursor_base::size_type orgpos = A.ctell(), copyorgpos = A.ctell();
-    if (orgpos)
-      throw logic_error("Large object reported initial position " +
-	  to_string(orgpos) + " "
-	  "(expected 0)");
-    if (copyorgpos != orgpos)
-      throw logic_error("ctell() moved large object from position 0 to " +
-	  to_string(copyorgpos));
+
+    PQXX_CHECK_EQUAL(orgpos, 0u, "Bad initial position in large object.");
+    PQXX_CHECK_EQUAL(copyorgpos, orgpos, "ctell() affected positioning.");
+
     const cursor_base::size_type cxxorgpos = A.tell();
-    if (cxxorgpos != orgpos)
-      throw logic_error("tell() reported large object position " +
-	  to_string(cxxorgpos) + " "
-	  "(expected 0)");
+    PQXX_CHECK_EQUAL(cxxorgpos, orgpos, "tell() reports bad position.");
 
     A.process_notice("Writing to large object #" +
 	to_string(largeobject(A).id()) + "\n");
     long Bytes = A.cwrite(Contents.c_str(), Contents.size());
-    if (Bytes != long(Contents.size()))
-      throw logic_error("Tried to write " + to_string(Contents.size()) + " "
-	                "bytes to large object, but wrote " + to_string(Bytes));
-    if (A.tell() != A.ctell())
-      throw logic_error("Inconsistent answers from tell() and ctell()");
-    if (A.tell() != Bytes)
-      throw logic_error("Large object reports position " +
-	  to_string(A.tell()) + " "
-	  "(expected " + to_string(Bytes) + ")");
+
+    PQXX_CHECK_EQUAL(
+	Bytes,
+	long(Contents.size()),
+	"Wrote wrong number of bytes.");
+
+    PQXX_CHECK_EQUAL(
+	A.tell(),
+	A.ctell(),
+	"tell() is inconsistent with ctell().");
+
+    PQXX_CHECK_EQUAL(A.tell(), Bytes, "Bad large-object position.");
 
     char Buf[200];
     const size_t Size = sizeof(Buf) - 1;
-    Bytes = A.cread(Buf, Size);
-    if (Bytes)
-    {
-      if (Bytes < 0)
-	throw runtime_error("Read error at end of large object: " +
-	                    string(strerror(errno)));
-      throw logic_error("Could read " + to_string(Bytes) + " bytes "
-	                "from large object after writing");
-    }
+    PQXX_CHECK_EQUAL(
+	A.cread(Buf, Size),
+	0,
+	"Bad return value from cread() after writing.");
 
-    string::size_type Offset = A.cseek(0, ios::cur);
-    if (Offset != Contents.size())
-      throw logic_error("Expected to be at position " +
-	                 to_string(Contents.size()) + " in large object, "
-			 "but cseek(0, cur) returned " + to_string(Offset));
+    PQXX_CHECK_EQUAL(
+	size_t(A.cseek(0, ios::cur)),
+	Contents.size(),
+	"Unexpected position after cseek(0, cur).");
 
-    Offset = A.cseek(1, ios::beg);
-    if (Offset != 1)
-      throw logic_error("After seeking to position 1 in large object, cseek() "
-	                "returned " + to_string(Offset));
+    PQXX_CHECK_EQUAL(
+	A.cseek(1, ios::beg),
+	1,
+	"Unexpected cseek() result after seeking to position 1.");
 
-    Offset = A.cseek(-1, ios::cur);
-    if (Offset != 0)
-      throw logic_error("After seeking -1 from position 1 in large object, "
-	                "cseek() returned " + to_string(Offset));
+    PQXX_CHECK_EQUAL(
+	A.cseek(-1, ios::cur),
+	0,
+	"Unexpected cseek() result after seeking -1 from position 1.");
 
-    const size_t Read = A.read(Buf, Size);
-    if (Read > Size)
-      throw logic_error("Tried to read " + to_string(Size) + " bytes "
-	                "from large object, got " + to_string(Read));
+    PQXX_CHECK(size_t(A.read(Buf, Size)) <= Size, "Got too many bytes.");
 
-    Buf[Read] = '\0';
-    if (Contents != Buf)
-      throw logic_error("Wrote '" + Contents + "' to large object, "
-	                "got '" + Buf + "' back");
+    PQXX_CHECK_EQUAL(
+	string(Buf, Bytes),
+	Contents,
+	"Large-object contents were mutilated.");
   }
 
 private:
@@ -137,47 +130,16 @@ private:
 };
 
 
-}
-
-
-// Simple test program for libpqxx's Large Objects interface.
-//
-// Usage: test050 [connect-string]
-//
-// Where connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
-int main(int, char *argv[])
+void test_050(connection_base &C, transaction_base &orgT)
 {
-  try
-  {
-    connection C(argv[1]);
+  orgT.abort();
 
-    largeobject Obj;
+  largeobject Obj;
 
-    C.perform(CreateLargeObject(Obj));
-    C.perform(WriteLargeObject(Obj));
-    C.perform(DeleteLargeObject(Obj));
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
+  C.perform(CreateLargeObject(Obj));
+  C.perform(WriteLargeObject(Obj));
+  C.perform(DeleteLargeObject(Obj));
 }
+} // namespace
 
-
+PQXX_REGISTER_TEST_T(test_050, nontransaction)

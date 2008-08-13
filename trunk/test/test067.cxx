@@ -6,23 +6,14 @@
 #include <pqxx/transaction>
 #include <pqxx/result>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
 
 // Test program for libpqxx.  See which fields in a query are null, and figure
 // out whether any fields are lexicographically sorted.  Use asyncconnection.
-//
-// Usage: test067 [connect-string] [table]
-//
-// Where table is the table to be queried; if none is given, pg_tables is
-// queried by default.
-//
-// The connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
-
 namespace
 {
 template<typename VEC, typename VAL>
@@ -31,152 +22,101 @@ void InitVector(VEC &V, typename VEC::size_type s, VAL val)
   V.resize(s);
   for (typename VEC::iterator i = V.begin(); i != V.end(); ++i) *i = val;
 }
-} // namespace
 
-int main(int argc, char *argv[])
+
+void test_067(connection_base &C, transaction_base &orgT)
 {
-  try
+  orgT.abort();
+
+  const string Table = "pg_tables";
+
+  // Tell C we won't be needing it for a while (not true, but let's pretend)
+  C.deactivate();
+
+  // Now set up some data structures
+  vector<int> NullFields;		// Maps column to no. of null fields
+  vector<bool> SortedUp, SortedDown;	// Does column appear to be sorted?
+
+  // ...And reactivate C (not really needed, but it sounds more polite)
+  C.activate();
+
+  work T(C, "test67");
+
+  result R( T.exec("SELECT * FROM " + Table) );
+
+  InitVector(NullFields, R.columns(), 0);
+  InitVector(SortedUp, R.columns(), true);
+  InitVector(SortedDown, R.columns(), true);
+
+  for (result::const_iterator i = R.begin(); i != R.end(); i++)
   {
-    const string Table = ((argc >= 3) ? argv[2] : "pg_tables");
+    PQXX_CHECK_EQUAL(
+	(*i).rownumber(),
+	i->rownumber(),
+	"operator*() is inconsistent with operator->().");
 
-    asyncconnection C(argv[1]);
+    PQXX_CHECK_EQUAL(i->size(), R.columns(), "result::columns() is broken.");
 
-    // Tell C we won't be needing it for a while (not true, but let's pretend)
-    C.deactivate();
-
-    // Now set up some data structures
-    vector<int> NullFields;		// Maps column to no. of null fields
-    vector<bool> SortedUp, SortedDown;	// Does column appear to be sorted?
-
-    // ...And reactivate C (not really needed, but it sounds more polite)
-    C.activate();
-
-    work T(C, "test67");
-
-    result R( T.exec("SELECT * FROM " + Table) );
-
-    InitVector(NullFields, R.columns(), 0);
-    InitVector(SortedUp, R.columns(), true);
-    InitVector(SortedDown, R.columns(), true);
-
-    for (result::const_iterator i = R.begin(); i != R.end(); i++)
+    // Look for null fields
+    for (result::tuple::size_type f=0; f<i->size(); ++f)
     {
-      if ((*i).rownumber() != i->rownumber())
-	throw logic_error("Inconsistent rows: operator*() says " +
-			  to_string((*i).rownumber()) + ", "
-			  "operator->() says " +
-			  to_string(i->rownumber()));
+      NullFields[f] += i.at(f).is_null();
 
-      if (i->size() != R.columns())
-	throw logic_error("Row claims to have " + to_string(i->size()) + " "
-			  "fields, but result claims to have " +
-			  to_string(R.columns()) + " columns!");
+      string A, B;
+      PQXX_CHECK_EQUAL(
+	i[f].to(A),
+	i[f].to(B, string("")),
+	"Variants of to() disagree on nullness.");
 
-      // Look for null fields
-      for (result::tuple::size_type f=0; f<i->size(); ++f)
+      PQXX_CHECK_EQUAL(A, B, "to() variants return different values.");
+    }
+
+    // Compare fields to those of preceding row
+    if (i != R.begin())
+    {
+      const result::const_iterator j = i - 1;
+
+      // First perform some sanity checks on j vs. i and how libpqxx handles
+      // their interrelationship...
+      PQXX_CHECK_EQUAL(i - j, 1, "Successor is at wrong distance.");
+
+      // ...Now let's do meaningful stuff with j, such as finding out which
+      // fields may be sorted.  Don't do anything fancy like trying to
+      // detect numbers and comparing them as such, just compare them as
+      // simple strings.
+      for (result::tuple::size_type f = 0; f < R.columns(); ++f)
       {
-	NullFields[f] += i.at(f).is_null();
-
-        string A, B;
-        if (i[f].to(A) != i[f].to(B, string("")))
-          throw logic_error("Variants of to() disagree on nullness!");
-
-        if (A != B)
-          throw logic_error("Field is '" + A + "' according to one to(), "
-			    "but '" + B + "' to the other!");
-      }
-
-      // Compare fields to those of preceding row
-      if (i != R.begin())
-      {
-        const result::const_iterator j = i - 1;
-
-	// First perform some sanity checks on j vs. i and how libpqxx handles
-	// their interrelationship...
-	if ((i - j) != 1)
-	  throw logic_error("Difference between iterator and successor is " +
-			    to_string(j-i));
-
-	if ((j == i) || !(j != i) ||
-	    (j >= i) || (j > i) ||
-	    (i <= j) || (i < j) ||
-	    !(j <= i) || !(j < i))
-          throw logic_error("Something wrong in comparison between iterator "
-			    "and its successor!");
-
-	if ((1 + j) != i)
-	  throw logic_error("Adding iterator's predecessor to 1 "
-			    "doesn't bring us back to original iterator!");
-
-	result::const_iterator k(i);
-	if ((k-- != i) || (k != j))
-          throw logic_error("Something wrong with increment operator!");
-
-	result::const_iterator l(i);
-	if ((--l != j) || (l != j))
-	  throw logic_error("Something wrong with pre-increment operator!");
-
-	if ((k += 1) != i)
-	  throw logic_error("Something wrong with += operator!");
-
-	if ((k -= 1) != j)
-	  throw logic_error("Something wrong with -= operator!");
-
-	// ...Now let's do meaningful stuff with j, such as finding out which
-	// fields may be sorted.  Don't do anything fancy like trying to
-	// detect numbers and comparing them as such, just compare them as
-	// simple strings.
-	for (result::tuple::size_type f = 0; f < R.columns(); ++f)
+	if (!j[f].is_null() && !i[f].is_null())
 	{
-	  if (!j[f].is_null() && !i[f].is_null())
-	  {
-	    const bool U = SortedUp[f], D = SortedDown[f];
-	    SortedUp[f] = (U && (j[f].as<string>() <= i[f].as<string>()));
-	    SortedDown[f] = (D && (j[f].as<string>() >= i[f].as<string>()));
-	  }
+	  const bool U = SortedUp[f], D = SortedDown[f];
+	  SortedUp[f] = (U && (j[f].as<string>() <= i[f].as<string>()));
+	  SortedDown[f] = (D && (j[f].as<string>() >= i[f].as<string>()));
 	}
       }
     }
+  }
 
-    // Now report on what we've found
-    cout << "Read " << to_string(R.size()) << " rows." << endl;
-    cout << "Field \t Field Name\t Nulls\t Sorted" << endl;
+  // Now report on what we've found
+  cout << "Read " << to_string(R.size()) << " rows." << endl;
+  cout << "Field \t Field Name\t Nulls\t Sorted" << endl;
 
-    for (result::tuple::size_type f = 0; f < R.columns(); ++f)
-    {
-      cout << to_string(f) << ":\t"
-	   << R.column_name(f) << '\t'
-	   << NullFields[f] << '\t'
-	   << (SortedUp[f] ?
+  for (result::tuple::size_type f = 0; f < R.columns(); ++f)
+  {
+    cout << to_string(f) << ":\t"
+	 << R.column_name(f) << '\t'
+	 << NullFields[f] << '\t'
+	 << (SortedUp[f] ?
 		(SortedDown[f] ? "equal" : "up" ) :
 		(SortedDown[f] ? "down" : "no" ) )
-	   << endl;
+	 << endl;
 
-      if (NullFields[f] > int(R.size()))
-	throw logic_error("Found more nulls than there were rows!");
-    }
+    PQXX_CHECK_BOUNDS(
+	NullFields[f],
+	0,
+	int(R.size()+1),
+	"Found impossible number of nulls.");
   }
-  catch (const sql_error &e)
-  {
-    // If we're interested in the text of a failed query, we can write separate
-    // exception handling code for this type of exception
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    // All exceptions thrown by libpqxx are derived from std::exception
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    // This is really unexpected (see above)
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
 }
+} // namespace
 
+PQXX_REGISTER_TEST_CT(test_067, asyncconnection, nontransaction)

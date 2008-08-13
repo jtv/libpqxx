@@ -8,6 +8,8 @@
 #include <pqxx/robusttransaction>
 #include <pqxx/transactor>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
@@ -15,20 +17,10 @@ using namespace pqxx;
 // Test program for libpqxx.  Verify abort behaviour of RobustTransaction with
 // a lazy connection.
 //
-// Usage: test037 [connect-string] [table]
-//
-// Where connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
-//
 // The program will attempt to add an entry to a table called "pqxxevents",
 // with a key column called "year"--and then abort the change.
-
-
 namespace
 {
-
 // Let's take a boring year that is not going to be in the "pqxxevents" table
 const int BoringYear = 1977;
 
@@ -59,7 +51,6 @@ public:
     R.at(0).at(0).to(m_Results.second);
   }
 };
-
 
 
 class FailedInsert : public transactor<robusttransaction<> >
@@ -103,70 +94,42 @@ public:
   }
 };
 
+
 string FailedInsert::LastReason;
 
-} // namespace
 
-
-int main(int argc, char *argv[])
+void test_037(connection_base &, transaction_base &)
 {
-  try
-  {
-    lazyconnection C(argv[1]);
+    lazyconnection C;
 
-    const string Table = ((argc > 2) ? argv[2] : "pqxxevents");
+    const string Table = "pqxxevents";
 
     pair<int,int> Before;
     C.perform(CountEvents(Table, Before));
-    if (Before.second)
-      throw runtime_error("Table already has an event for " +
-		          to_string(BoringYear) + ", "
-			  "cannot run.");
+    PQXX_CHECK_EQUAL(
+	Before.second,
+	0,
+	"Already have event for " + to_string(BoringYear) + ", cannot test.");
 
     const FailedInsert DoomedTransaction(Table);
 
-    try
     {
       disable_noticer d(C);
-      C.perform(DoomedTransaction);
-    }
-    catch (const exception &e)
-    {
-      cout << "(Expected) Doomed transaction failed: " << e.what() << endl;
+      PQXX_CHECK_THROWS(
+	C.perform(DoomedTransaction),
+	runtime_error,
+	"Did not get expected exception from failing transactor.");
     }
 
     pair<int,int> After;
     C.perform(CountEvents(Table, After));
 
-    if (After != Before)
-      throw logic_error("Event counts changed from "
-			"{" + to_string(Before.first) + "," +
-			to_string(Before.second) + "} "
-			"to "
-			"{" + to_string(After.first) + "," +
-			to_string(After.second) + "} "
-		        "despite abort.  This could be a bug in libpqxx, "
-			"or something else modified the table.");
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    // All exceptions thrown by libpqxx are derived from std::exception
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    // This is really unexpected (see above)
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
+    PQXX_CHECK_EQUAL(After.first, Before.first, "Number of events changed.");
+    PQXX_CHECK_EQUAL(
+	After.second,
+	Before.second,
+	"Number of events for " + to_string(BoringYear) + " changed.");
 }
+} // namespace
 
+PQXX_REGISTER_TEST_NODB(test_037)

@@ -1,4 +1,3 @@
-#include <cassert>
 #include <cstring>
 #include <iostream>
 #include <list>
@@ -19,7 +18,7 @@ void test_092(connection_base &C, transaction_base &T)
 {
   const char databuf[] = "Test\0data";
   const string data(databuf, sizeof(databuf));
-  assert(data.size() > strlen(databuf));
+  PQXX_CHECK(data.size() > strlen(databuf), "Unknown data length problem.");
 
   const string Table = "pqxxbin", Field = "binfield", Stat = "nully";
   T.exec("CREATE TEMP TABLE " + Table + " (" + Field + " BYTEA)");

@@ -4,13 +4,17 @@
 
 #include <pqxx/pqxx>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
+
+// Mixed-mode, seeking test program for libpqxx's Large Objects interface.
 namespace
 {
-
 const string Contents = "Large object test contents";
+
 
 class WriteLargeObject : public transactor<>
 {
@@ -29,51 +33,50 @@ public:
 
     char Buf[200];
     const size_t Size = sizeof(Buf) - 1;
-    largeobjectaccess::size_type Bytes = A.read(Buf, Size);
-    if (Bytes)
-      throw logic_error("Could read " + to_string(Bytes) + " bytes "
-	                "from large object after writing");
+    PQXX_CHECK_EQUAL(
+	A.read(Buf, Size),
+	0u,
+	"Could read bytes from large object after writing.");
 
     // Overwrite terminating zero
     largeobjectaccess::size_type Here = A.seek(-1, ios::cur);
 
     // Redundant typedef to work around bug in Visual C++.NET
     typedef largeobjectaccess::size_type loa_size;
-    if (Here != loa_size(Contents.size()-1))
-      throw logic_error("Expected to move back 1 byte to " +
-	                to_string(Contents.size()-1) + ", "
-			"ended up at " + to_string(Here));
+    PQXX_CHECK_EQUAL(
+	Here,
+	loa_size(Contents.size()-1),
+	"Ended up in wrong place after moving back 1 byte.");
+
     A.write("!", 1);
 
     // Now check that we really did
-    A.seek(-1, ios::cur);
-    if (Here != loa_size(Contents.size()-1))
-      throw logic_error("Inconsistent seek: ended up at " + to_string(Here));
+    PQXX_CHECK_EQUAL(
+	A.seek(-1, ios::cur),
+	loa_size(Contents.size()-1),
+	"Inconsistent seek.");
 
     char Check;
-    Here = A.read(&Check, 1);
-    if (Here != 1)
-      throw logic_error("Wanted to read back 1 byte, got " + to_string(Here));
+    PQXX_CHECK_EQUAL(
+	A.read(&Check, 1),
+	1,
+	"Unexpected result from read().");
+    PQXX_CHECK_EQUAL(string(&Check, 1), "!", "Read back wrong character.");
 
+    PQXX_CHECK_EQUAL(
+	A.seek(0, ios::beg),
+	0,
+	"Ended up in wrong place after seeking back to beginning.");
 
-    if (Check != '!')
-      throw logic_error("Read back '" + string(Check, 1) + "', "
-	                "expected '!'");
+    PQXX_CHECK_EQUAL(
+	A.read(&Check, 1),
+	1,
+	"Unexpected result when trying to read back 1st byte.");
 
-    Here = A.seek(0, ios::beg);
-    if (Here != 0)
-      throw logic_error("Tried to seek back to beginning of large object, "
-	                "ended up at " + to_string(Here));
-
-    Here = A.read(&Check, 1);
-    if (Here != 1)
-      throw logic_error("Tried to read back 1st byte, got " +
-	                string(Here, 1) + " bytes");
-
-    if (Check != Contents[0])
-      throw logic_error("Expected large object to begin with '" +
-	                string(Contents[0], 1) + "', "
-			"found '" + string(Check, 1) + "'");
+    PQXX_CHECK_EQUAL(
+	string(&Check, 1),
+	string(Contents, 0, 1),
+	"Wrong first character in large object.");
 
     // Clean up after ourselves
     A.remove(T);
@@ -83,42 +86,13 @@ private:
   largeobject m_Object;
 };
 
-}
 
-
-// Mixed-mode, seeking test program for libpqxx's Large Objects interface.
-//
-// Usage: test058 [connect-string]
-//
-// Where connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
-int main(int, char *argv[])
+void test_058(connection_base &C, transaction_base &orgT)
 {
-  try
-  {
-    connection C(argv[1]);
-    C.perform(WriteLargeObject());
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
+  orgT.abort();
 
-  return 0;
+  C.perform(WriteLargeObject());
 }
+} // namespace
 
-
+PQXX_REGISTER_TEST_T(test_058, nontransaction)

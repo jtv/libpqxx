@@ -3,13 +3,17 @@
 
 #include <pqxx/pqxx>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
+
+// Test program for libpqxx: write large object to test files.
 namespace
 {
-
 const string Contents = "Large object test contents";
+
 
 class CreateLargeObject : public transactor<>
 {
@@ -55,46 +59,16 @@ private:
   largeobject m_Object;
 };
 
-}
 
-
-// Test program for libpqxx: write large object to test files.
-//
-// Usage: test054 [connect-string]
-//
-// Where connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
-int main(int, char *argv[])
+void test_054(connection_base &C, transaction_base &orgT)
 {
-  try
-  {
-    connection C(argv[1]);
+  orgT.abort();
 
-    largeobject Obj;
+  largeobject Obj;
 
-    C.perform(CreateLargeObject(Obj));
-    C.perform(DeleteLargeObject(Obj));
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
+  C.perform(CreateLargeObject(Obj));
+  C.perform(DeleteLargeObject(Obj));
 }
+} // namespace
 
-
+PQXX_REGISTER_TEST_T(test_054, nontransaction)
