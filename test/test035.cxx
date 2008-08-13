@@ -4,64 +4,33 @@
 #include <pqxx/robusttransaction>
 #include <pqxx/result>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
 
 // Simple test program for libpqxx.  Open connection to database, start
 // a dummy transaction to gain nontransactional access, and perform a query.
-// This test uses a lazy connection.
-//
-// Usage: test035 [connect-string]
-//
-// Where connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
-int main(int, char *argv[])
+// This test combines a lazy connection with a robust transaction.
+namespace
 {
-  try
+void test_035(connection_base &, transaction_base &T)
+{
+  result R( T.exec("SELECT * FROM pg_tables") );
+
+  for (result::const_iterator c = R.begin(); c != R.end(); ++c)
   {
-    lazyconnection C(argv[1]);
+    string N;
+    c[0].to(N);
 
-    // Begin a "non-transaction" acting on our current connection.  This is
-    // really all the transactional integrity we need since we're only
-    // performing one query which does not modify the database.
-    robusttransaction<> T(C, "test35");
-
-    result R( T.exec("SELECT * FROM pg_tables") );
-
-    for (result::const_iterator c = R.begin(); c != R.end(); ++c)
-    {
-      string N;
-      c[0].to(N);
-
-      cout << '\t' << to_string(c.num()) << '\t' << N << endl;
-    }
-
-    // "Commit" the non-transaction.  This doesn't really do anything since
-    // NonTransaction doesn't start a backend transaction.
-    T.commit();
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    // All exceptions thrown by libpqxx are derived from std::exception
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    // This is really unexpected (see above)
-    cerr << "Unhandled exception" << endl;
-    return 100;
+    cout << '\t' << to_string(c.num()) << '\t' << N << endl;
   }
 
-  return 0;
+  // "Commit" the non-transaction.  This doesn't really do anything since
+  // NonTransaction doesn't start a backend transaction.
+  T.commit();
 }
+} // namespace
 
+PQXX_REGISTER_TEST_CT(test_035, lazyconnection, robusttransaction<>)

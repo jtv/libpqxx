@@ -6,108 +6,64 @@
 #include <pqxx/transaction>
 #include <pqxx/result>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
+
+// Example program for libpqxx.  Test local variable functionality.
 namespace
 {
-
 string GetDatestyle(transaction_base &T)
 {
   return T.get_variable("DATESTYLE");
 }
+
 
 string SetDatestyle(transaction_base &T, string style)
 {
   T.set_variable("DATESTYLE", style);
   const string fullname = GetDatestyle(T);
   cout << "Set datestyle to " << style << ": " << fullname << endl;
-  if (fullname.empty())
-    throw logic_error("Setting datestyle to " + style + " "
-	"makes it an empty string");
+  PQXX_CHECK(
+	!fullname.empty(),
+	"Setting datestyle to " + style + " makes it an empty string.");
 
   return fullname;
 }
 
-void CompareDatestyles(string fullname, string expected)
-{
-  if (fullname != expected)
-    throw logic_error("Datestyle is '" + fullname + "', "
-	"expected '" + expected + "'");
-}
 
 void CheckDatestyle(transaction_base &T, string expected)
 {
-  CompareDatestyles(GetDatestyle(T), expected);
+  PQXX_CHECK_EQUAL(GetDatestyle(T), expected, "Got wrong datestyle.");
 }
+
 
 void RedoDatestyle(transaction_base &T, string style, string expected)
 {
-  CompareDatestyles(SetDatestyle(T, style), expected);
+  PQXX_CHECK_EQUAL(SetDatestyle(T, style), expected, "Set wrong datestyle.");
 }
 
-}
 
-// Example program for libpqxx.  Test local variable functionality.
-//
-// Usage: test061 [connect-string]
-//
-// Where connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
-
-int main(int, char *argv[])
+void test_061(connection_base &C, transaction_base &T)
 {
-  try
-  {
-    connection C(argv[1]);
-    work T(C, "test61");
+  PQXX_CHECK(!GetDatestyle(T).empty(), "Initial datestyle not set.");
 
-    if (GetDatestyle(T).empty())
-      throw logic_error("Initial datestyle not set");
+  const string ISOname = SetDatestyle(T, "ISO");
+  const string SQLname = SetDatestyle(T, "SQL");
 
-    const string ISOname = SetDatestyle(T, "ISO");
-    const string SQLname = SetDatestyle(T, "SQL");
+  PQXX_CHECK_NOT_EQUAL(ISOname, SQLname, "Same datestyle in SQL and ISO.");
 
-    if (ISOname == SQLname)
-      throw logic_error("Datestyles SQL and ISO both show as '"+ISOname+"'");
+  RedoDatestyle(T, "SQL", SQLname);
 
-    RedoDatestyle(T, "SQL", SQLname);
-
-     // Prove that setting an unknown variable causes an error, as expected
-    try
-    {
-      disable_noticer d(C);
-      T.set_variable("NONEXISTENT_VARIABLE_I_HOPE", "1");
-      throw logic_error("Setting unknown variable failed to fail");
-    }
-    catch (const sql_error &)
-    {
-      cout << "(Expected) Setting unknown variable failed" << endl;
-    }
-  }
-  catch (const sql_error &e)
-  {
-    // If we're interested in the text of a failed query, we can write separate
-    // exception handling code for this type of exception
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    // All exceptions thrown by libpqxx are derived from std::exception
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    // This is really unexpected (see above)
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
+   // Prove that setting an unknown variable causes an error, as expected
+  disable_noticer d(C);
+  PQXX_CHECK_THROWS(
+	T.set_variable("NONEXISTENT_VARIABLE_I_HOPE", "1"),
+	sql_error,
+	"Setting unknown variable failed to fail.");
 }
+} // namespace
 
+PQXX_REGISTER_TEST(test_061)

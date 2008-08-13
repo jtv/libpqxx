@@ -285,6 +285,60 @@ struct failure_to_fail {};
 	  } \
 	} while (false)
 
+#define PQXX_CHECK_BOUNDS(value, lower, upper, desc) \
+	pqxx::test::check_bounds( \
+		__FILE__, \
+		 __LINE__, \
+		(value), \
+		#value, \
+		(lower), \
+		#lower, \
+		(upper), \
+		#upper, \
+		(desc))
+template<typename VALUE, typename LOWER, typename UPPER>
+inline void check_bounds(
+	const char file[],
+	int line,
+	VALUE value,
+	const char text[],
+	LOWER lower,
+	const char lower_text[],
+	UPPER upper,
+	const char upper_text[],
+	const PGSTD::string &desc)
+{
+  if (!(lower < upper))
+  {
+    const PGSTD::string fulldesc =
+	desc + " ("
+	"bounds allow no values: " +
+	lower_text + " >= " + upper_text + ": "
+	"lower=" + to_string(lower) + ", "
+	"upper=" + to_string(upper) + ", "
+	"value=" + to_string(value) + ")";
+    throw pqxx::test::test_failure(file, line, fulldesc);
+  }
+
+  if (value < lower)
+  {
+    const PGSTD::string fulldesc =
+	desc + " (" +
+	text + " is below lower bound " + lower_text + ": " +
+	to_string(value) + " < " + to_string(lower) + ")";
+    throw pqxx::test::test_failure(file, line, fulldesc);
+  }
+
+  if (!(value < upper))
+  {
+    const PGSTD::string fulldesc =
+	desc + " (" +
+	text + " is not below upper bound " + upper_text + ": " +
+	to_string(value) + " >= " + to_string(upper) + ")";
+    throw pqxx::test::test_failure(file, line, fulldesc);
+  }
+}
+
 } // namespace test
 
 

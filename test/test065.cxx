@@ -4,12 +4,16 @@
 
 #include <pqxx/pqxx>
 
+#include "test_helpers.hxx"
+
+
 using namespace PGSTD;
 using namespace pqxx;
 
+
+// Simple test program for libpqxx's large objects on asynchronous connection.
 namespace
 {
-
 /* Read contents of Stream into a single string.  The data will go through
  * input formatting, so whitespace will be taken as separators between chunks
  * of data.
@@ -20,6 +24,7 @@ template<typename T> string UnStream(T &Stream)
   while (Stream >> X) Result += X;
   return Result;
 }
+
 
 class WriteLargeObject : public transactor<>
 {
@@ -97,67 +102,32 @@ private:
 };
 
 
-}
-
-
-// Simple test program for libpqxx's large objects on asynchronous connection.
-//
-// Usage: test065 [connect-string]
-//
-// Where connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
-int main(int, char *argv[])
+void test_065(connection_base &, transaction_base &)
 {
-  try
-  {
-    const string connstr = (argv[1] ? argv[1] : "");
-    asyncconnection C(connstr);
+  asyncconnection C("");
 
-    largeobject Obj(oid_none);
-    const string Contents = "Testing, testing, 1-2-3";
+  largeobject Obj(oid_none);
+  const string Contents = "Testing, testing, 1-2-3";
 
-    C.perform(WriteLargeObject(Contents, Obj));
+  C.perform(WriteLargeObject(Contents, Obj));
 
-    string Readback;		// Contents as read back from large object
-    C.perform(ReadLargeObject(Readback, Obj));
+  string Readback;		// Contents as read back from large object
+  C.perform(ReadLargeObject(Readback, Obj));
 
-    C.perform(DeleteLargeObject(Obj));
+  C.perform(DeleteLargeObject(Obj));
 
-    /* Reconstruct what will happen to our contents string if we put it into a
-     * stream and then read it back.  We can compare this with what comes back
-     * from our large object stream.
-     */
-    stringstream TestStream;
-    TestStream << Contents;
-    const string StreamedContents = UnStream(TestStream);
+  /* Reconstruct what will happen to our contents string if we put it into a
+   * stream and then read it back.  We can compare this with what comes back
+   * from our large object stream.
+   */
+  stringstream TestStream;
+  TestStream << Contents;
+  const string StreamedContents = UnStream(TestStream);
 
-    cout << StreamedContents << endl << Readback << endl;
+  cout << StreamedContents << endl << Readback << endl;
 
-    if (Readback != StreamedContents)
-      throw logic_error("Large objects: expected to read "
-	                "'" + StreamedContents + "', "
-			"got '" + Readback + "'");
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
+  PQXX_CHECK_EQUAL(Readback, StreamedContents, "Large object was mangled.");
 }
+} // namespace
 
-
+PQXX_REGISTER_TEST_NODB(test_065)

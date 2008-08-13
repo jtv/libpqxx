@@ -135,9 +135,28 @@ void test_test_helpers(connection_base &, transaction_base &)
 	PQXX_CHECK_NOT_EQUAL(1, 1L, "(expected)"),
 	test_failure,
 	"PQXX_CHECK_NOT_EQUAL breaks on type mismatch.");
+
+  // PQXX_CHECK_BOUNDS checks a value against a range.
+  PQXX_CHECK_BOUNDS(2, 1, 3, "PQXX_CHECK_BOUNDS wrongly finds fault.");
+
+  PQXX_CHECK_THROWS(
+	PQXX_CHECK_BOUNDS(1, 2, 3, "(Expected)"),
+	test_failure,
+	"PQXX_CHECK_BOUNDS did not detect value below permitted range.");
+
+  // PQXX_CHECK_BOUNDS tests against a half-open interval.
+  PQXX_CHECK_BOUNDS(1, 1, 3, "PQXX_CHECK_BOUNDS goes wrong on lower bound.");
+  PQXX_CHECK_THROWS(
+	PQXX_CHECK_BOUNDS(3, 1, 3, "(Expected)"),
+	test_failure,
+	"PQXX_CHECK_BOUNDS interval is not half-open.");
+
+  // PQXX_CHECK_BOUNDS deals well with empty intervals.
+  PQXX_CHECK_THROWS(
+	PQXX_CHECK_BOUNDS(1, 2, 1, "(Expected)"),
+	test_failure,
+	"PQXX_CHECK_BOUNDS did not detect empty interval.");
 }
-
-
 } // namespace
 
 

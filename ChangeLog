@@ -1,3 +1,22 @@
+2008-08-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test001.cxx, test/test013.cxx, test/test016.cxx, test/test017.cxx, 
+ test/test018.cxx, test/test020.cxx, test/test021.cxx, test/test023.cxx, 
+ test/test024.cxx, test/test025.cxx, test/test026.cxx, test/test030.cxx, 
+ test/test031.cxx, test/test032.cxx, test/test033.cxx, test/test034.cxx, 
+ test/test035.cxx, test/test036.cxx, test/test037.cxx, test/test038.cxx, 
+ test/test035.cxx, test/test046.cxx, test/test048.cxx, test/test049.cxx, 
+ test/test050.cxx, test/test051.cxx, test/test052.cxx, test/test053.cxx, 
+ test/test054.cxx, test/test055.cxx, test/test056.cxx, test/test057.cxx, 
+ test/test058.cxx, test/test059.cxx, test/test060.cxx, test/test061.cxx, 
+ test/test062.cxx, test/test063.cxx, test/test064.cxx, test/test065.cxx, 
+ test/test066.cxx, test/test067.cxx, test/test068.cxx, test/test069.cxx, 
+ test/test070.cxx, test/test071.cxx, test/test085.cxx, test/test088.cxx, 
+ test/test089.cxx, test/test090.cxx, test/test092.cxx,
+ test/test_helpers.hxx, test/unit/test_test_helpers.cxx:
+  - Converted lots more tests to test framework
+  - Removed all asserts from tests
+  - New test helper: boundary check
+  - Removed non-encoded "text" output from test062.
 2008-08-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test011.cxx, test/test012.cxx, test/test013.cxx, test/test014.cxx, 
  test/test015.cxx, test/test016.cxx, test/test_helpers.hxx:

@@ -6,12 +6,17 @@
 
 #include <pqxx/pqxx>
 
+#include "test_helpers.hxx"
+
 // For count_if workaround
 #include <pqxx/config-internal-compiler.h>
 
 using namespace PGSTD;
 using namespace pqxx;
 
+
+// Test program for libpqxx.  Run a query and try various standard C++
+// algorithms on it.
 namespace
 {
 
@@ -59,6 +64,7 @@ struct Cmp : binary_function<result::tuple, result::tuple, bool>
   }
 };
 
+
 struct CountGreaterSmaller : unary_function<result::tuple, void>
 {
   string Key;
@@ -80,82 +86,23 @@ struct CountGreaterSmaller : unary_function<result::tuple, void>
 	 << "(" << (Greater + Smaller) << " total)"
 	 << endl;
 
-    if (Greater + Smaller >= R.size())
-      throw logic_error("Of " + to_string(R.size()) + " keys, " +
-	                to_string(Greater) + " were greater than '" +
-			string(T[Key].c_str()) + "' and " +
-			to_string(Smaller) + " were smaller--that's too many!");
+    PQXX_CHECK( Greater + Smaller < R.size(), "More non-equal rows than rows.");
   }
 };
 
+
+void test_049(connection_base &, transaction_base &T)
+{
+  string Table="pg_tables", Key="tablename";
+
+  result R( T.exec("SELECT * FROM " + Table + " ORDER BY " + Key) );
+  cout << "Read " << R.size() << " tuples." << endl;
+  PQXX_CHECK(!R.empty(), "No rows in " + Table + ".");
+
+  // Verify that for each key in R, the number of greater and smaller keys
+  // are sensible; use std::for_each<>() to iterate over rows in R
+  for_each(R.begin(), R.end(), CountGreaterSmaller(Key, R));
+}
 } // namespace
 
-
-// Test program for libpqxx.  Run a query and try various standard C++
-// algorithms on it.
-//
-// Usage: test049 [connect-string] [tablename key]
-//
-// The connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
-//
-// The tablename / key combination defines which table to query, and a
-// field (which must be a text field in this case) to sort by.
-
-int main(int argc, char *argv[])
-{
-  try
-  {
-    string Table="pg_tables", Key="tablename";
-
-    switch (argc)
-    {
-    case 0: throw logic_error("argc is zero!");
-    case 1: break; // OK, no arguments
-    case 2: break; // OK, just a connection string
-
-    case 4:
-      Table = argv[2];
-      Key = argv[3];
-      break;
-
-    case 3:
-    default:
-      throw invalid_argument("Usage: test049 [connectstring] [tablename key]");
-    }
-
-    connection C(argv[1]);
-    work T(C, "test49");
-
-    result R( T.exec("SELECT * FROM " + Table + " ORDER BY " + Key) );
-    cout << "Read " << R.size() << " tuples." << endl;
-    if (R.empty()) throw runtime_error("No entries in table '" + Table + "'!");
-
-    // Verify that for each key in R, the number of greater and smaller keys
-    // are sensible; use std::for_each<>() to iterate over rows in R
-    for_each(R.begin(), R.end(), CountGreaterSmaller(Key, R));
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    // All exceptions thrown by libpqxx are derived from std::exception
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    // This is really unexpected (see above)
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
-}
-
+PQXX_REGISTER_TEST(test_049)

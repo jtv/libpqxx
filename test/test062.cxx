@@ -8,153 +8,100 @@
 #include <pqxx/transaction>
 #include <pqxx/result>
 
+#include "test_helpers.hxx"
+
+
 using namespace PGSTD;
 using namespace pqxx;
 
+
 // Example program for libpqxx.  Test binarystring functionality.
-//
-// Usage: test062 [connect-string]
-//
-// Where connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
-
-int main(int, char *argv[])
+namespace
 {
-  try
-  {
-    const string TestStr =
-      "Nasty\n\030Test\n\t String with \200\277 weird bytes "
-      "\r\0 and Trailer\\\\\0";
+void test_062(connection_base &, transaction_base &T)
+{
+  const string TestStr =
+	"Nasty\n\030Test\n\t String with \200\277 weird bytes "
+	"\r\0 and Trailer\\\\\0";
 
-    connection C(argv[1]);
-    work T(C, "test62");
+  T.exec("CREATE TEMP TABLE pqxxbin (binfield bytea)");
 
-    T.exec("CREATE TEMP TABLE pqxxbin (binfield bytea)");
-
-    const string Esc = T.esc_raw(TestStr),
-      Chk = T.esc_raw(reinterpret_cast<const unsigned char *>(TestStr.c_str()),
+  const string Esc = T.esc_raw(TestStr),
+	Chk = T.esc_raw(reinterpret_cast<const unsigned char *>(TestStr.c_str()),
                       strlen(TestStr.c_str()));
 
-    if (Chk != Esc) throw logic_error("Inconsistent results from esc_raw()");
+  PQXX_CHECK_EQUAL(Chk, Esc, "Inconsistent results from esc_raw().");
 
-    T.exec("INSERT INTO pqxxbin VALUES ('" + Esc + "')");
+  T.exec("INSERT INTO pqxxbin VALUES ('" + Esc + "')");
 
-    result R = T.exec("SELECT * from pqxxbin");
-    T.exec("DELETE FROM pqxxbin");
+  result R = T.exec("SELECT * from pqxxbin");
+  T.exec("DELETE FROM pqxxbin");
 
-    binarystring B( R.at(0).at(0) );
+  binarystring B( R.at(0).at(0) );
 
-    if (B.empty())
-      throw logic_error("Binary string became empty in conversion");
+  PQXX_CHECK(!B.empty(), "Binary string became empty in conversion.");
 
-    cout << "original: " << TestStr << endl
-	 << "returned: " << B.c_ptr() << endl;
+  PQXX_CHECK_EQUAL(B.size(), TestStr.size(), "Binary string was mangled.");
 
-    if (B.size() != TestStr.size())
-      throw logic_error("Binary string got changed from " +
-	  to_string(TestStr.size()) + " to " + to_string(B.size()) + " bytes");
+  binarystring::const_iterator c;
+  binarystring::size_type i;
+  for (i=0, c=B.begin(); i<B.size(); ++i, ++c)
+  {
+    PQXX_CHECK(c != B.end(), "Premature end to binary string.");
 
-    binarystring::const_iterator c;
-    binarystring::size_type i;
-    for (i=0, c=B.begin(); i<B.size(); ++i, ++c)
-    {
-      if (c == B.end())
-	throw logic_error("Premature end to binary string at " + to_string(i));
+    const char x = TestStr.at(i), y = B.at(i), z = B.data()[i];
 
-      const char x = TestStr.at(i), y = B.at(i), z = B.data()[i];
-      const unsigned char ux = x, uy = y, uz = z;
-      const unsigned int uix = ux, uiy = uy, uiz = uz;
+    PQXX_CHECK_EQUAL(
+	string(&x, 1),
+	string(&y, 1),
+	"Binary string byte changed.");
 
-      if (x != y)
-      {
-	throw logic_error("Binary string byte " + to_string(i) + " "
-	    "got changed from '" + string(x, 1) + "' "
-	    "(" + to_string(uix) + ") "
-	    "to '" + string(y, 1) + "' "
-	    "(" + to_string(uiy) + ")");
-      }
+    PQXX_CHECK_EQUAL(
+	string(&y, 1),
+	string(&z, 1),
+	"Inconsistent byte at offset " + to_string(i) + ".");
+  }
 
-      if (y != z)
-      {
-	throw logic_error("Inconsistent byte at offset " + to_string(i) + ": "
-	    "operator[] says '" + string(y, 1) + "' (" + to_string(uiy) + "), "
-	    "data() says '" + string(z, 1) + "' "
-	    "(" + to_string(uiz) + ")");
-      }
-    }
-    if (B.at(0) != B.front())
-      throw logic_error("Something wrong with binarystring::front()");
-    if (c != B.end())
-      throw logic_error("end() of binary string not reached");
-    --c;
-    if (*c != B.back())
-      throw logic_error("Something wrong with binarystring::back()");
+  PQXX_CHECK(B.at(0) == B.front(), "front() is inconsistent with at(0).");
+  PQXX_CHECK(c == B.end(), "end() of binary string not reached.");
+
+  --c;
+
+  PQXX_CHECK(*c == B.back(), "binarystring::back() is broken.");
 
 #ifdef PQXX_HAVE_REVERSE_ITERATOR
-    binarystring::const_reverse_iterator r;
-    for (i=B.length(), r=B.rbegin(); i>0; --i, ++r)
-    {
-      if (r == B.rend())
-	throw logic_error("Premature rend to binary string at " + to_string(i));
+  binarystring::const_reverse_iterator r;
+  for (i=B.length(), r=B.rbegin(); i>0; --i, ++r)
+  {
+    PQXX_CHECK(
+	r != B.rend(),
+	"Premature rend to binary string at " + to_string(i) + ".");
 
-      if (char(B[i-1]) != char(TestStr.at(i-1)))
-	throw logic_error("Reverse iterator differs at " + to_string(i));
-    }
-    if (r != B.rend())
-      throw logic_error("rend() of binary string not reached");
+    PQXX_CHECK(B[i-1] == TestStr.at(i-1), "Reverse iterator is broken.");
+  }
+  PQXX_CHECK(r == B.rend(), "rend() of binary string not reached.");
 #endif
 
-    if (B.str() != TestStr)
-      throw logic_error("Binary string got mangled: '" + B.str() + "'");
+  PQXX_CHECK_EQUAL(B.str(), TestStr, "Binary string was mangled.");
 
-    const string TestStr2("(More conventional text)");
-    T.exec("INSERT INTO pqxxbin VALUES ('" + TestStr2 + "')");
-    R = T.exec("SELECT * FROM pqxxbin");
-    binarystring B2(R.front().front());
+  const string TestStr2("(More conventional text)");
+  T.exec("INSERT INTO pqxxbin VALUES ('" + TestStr2 + "')");
+  R = T.exec("SELECT * FROM pqxxbin");
+  binarystring B2(R.front().front());
 
-    if (B2 == B)
-      throw logic_error("Two different binarystrings say they're equal!");
-    if (!(B2 != B))
-      throw logic_error("Problem with binarystring::operator!=");
+  PQXX_CHECK(!(B2 == B), "False positive on binarystring::operator==().");
+  PQXX_CHECK(B2 != B, "False negative on binarystring::operator!=().");
 
-    binarystring B1c(B), B2c(B2);
-    if (B1c != B)
-      throw logic_error("Copied binarystring differs from original");
-    if (!(B2c == B2))
-      throw logic_error("Copied binarystring not equal to original");
+  binarystring B1c(B), B2c(B2);
+  PQXX_CHECK(!(B1c != B), "Copied binarystring differs from original.");
+  PQXX_CHECK(B2c == B2, "Copied binarystring not equal to original.");
 
-    B1c.swap(B2c);
+  B1c.swap(B2c);
 
-    if (B2c == B1c)
-      throw logic_error("Swapped binarystrings say they're identical!");
-    if (B2c != B)
-      throw logic_error("Problem with binarystring::swap()");
-    if (!(B1c == B2))
-      throw logic_error("Problem with one of two swapped binarystrings");
-  }
-  catch (const sql_error &e)
-  {
-    // If we're interested in the text of a failed query, we can write separate
-    // exception handling code for this type of exception
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    // All exceptions thrown by libpqxx are derived from std::exception
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    // This is really unexpected (see above)
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
+  PQXX_CHECK(B2c != B1c, "binarystring::swap() produced identical strings.");
+  PQXX_CHECK(B2c == B, "binarystring::swap() is broken.");
+  PQXX_CHECK(B1c == B2, "Cross-check of swapped binarystrings failed.");
 }
+} // namespace
 
+PQXX_REGISTER_TEST(test_062)

@@ -3,12 +3,15 @@
 
 #include <pqxx/pqxx>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
+
+// Simple test program for libpqxx's Large Objects interface.
 namespace
 {
-
 /* Read contents of Stream into a single string.  The data will go through
  * input formatting, so whitespace will be taken as separators between chunks
  * of data.
@@ -19,6 +22,7 @@ template<typename T> string UnStream(T &Stream)
   while (Stream >> X) Result += X;
   return Result;
 }
+
 
 class WriteLargeObject : public transactor<>
 {
@@ -96,66 +100,35 @@ private:
 };
 
 
-}
-
-
-// Simple test program for libpqxx's Large Objects interface.
-//
-// Usage: test059 [connect-string]
-//
-// Where connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
-int main(int, char *argv[])
+void test_059(connection_base &C, transaction_base &orgT)
 {
-  try
-  {
-    connection C(argv[1]);
+  orgT.abort();
 
-    largeobject Obj(oid_none);
-    const string Contents = "Testing, testing, 1-2-3";
+  largeobject Obj(oid_none);
+  const string Contents = "Testing, testing, 1-2-3";
 
-    C.perform(WriteLargeObject(Contents, Obj));
+  C.perform(WriteLargeObject(Contents, Obj));
 
-    string Readback;		// Contents as read back from large object
-    C.perform(ReadLargeObject(Readback, Obj));
+  string Readback;		// Contents as read back from large object
+  C.perform(ReadLargeObject(Readback, Obj));
 
-    C.perform(DeleteLargeObject(Obj));
+  C.perform(DeleteLargeObject(Obj));
 
-    /* Reconstruct what will happen to our contents string if we put it into a
-     * stream and then read it back.  We can compare this with what comes back
-     * from our large object stream.
-     */
-    stringstream TestStream;
-    TestStream << Contents;
-    const string StreamedContents = UnStream(TestStream);
+  /* Reconstruct what will happen to our contents string if we put it into a
+   * stream and then read it back.  We can compare this with what comes back
+   * from our large object stream.
+   */
+  stringstream TestStream;
+  TestStream << Contents;
+  const string StreamedContents = UnStream(TestStream);
 
-    cout << StreamedContents << endl << Readback << endl;
+  cout << StreamedContents << endl << Readback << endl;
 
-    if (Readback != StreamedContents)
-      throw logic_error("Large objects: expected to read "
-	                "'" + StreamedContents + "', "
-			"got '" + Readback + "'");
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
+  PQXX_CHECK_EQUAL(
+	Readback,
+	StreamedContents,
+	"Large object contents were mangled.");
 }
+} // namespace
 
-
+PQXX_REGISTER_TEST(test_059)

@@ -6,25 +6,14 @@
 #include <pqxx/transactor>
 #include <pqxx/result>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
 
 // Example program for libpqxx.  Modify the database, retaining transactional
 // integrity using the transactor framework, and using lazy connections.
-//
-// Usage: test026 [connect-string]
-//
-// Where connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
-//
-// This assumes the existence of a database table "pqxxevents" containing a
-// 2-digit "year" field, which is extended to a 4-digit format by assuming all
-// year numbers of 70 or higher are in the 20th century, and all others in the
-// 21st, and that no years before 1970 are possible.
-
 namespace
 {
 
@@ -37,11 +26,11 @@ int To4Digits(int Y)
 {
   int Result = Y;
 
-  if (Y < 0)          throw runtime_error("Negative year: " + to_string(Y));
-  else if (Y  < 70)   Result += 2000;
-  else if (Y  < 100)  Result += 1900;
-  else if (Y  < 1970) throw runtime_error("Unexpected year: " + to_string(Y));
+  PQXX_CHECK(Y >= 0, "Negative year: " + to_string(Y));
 
+  if (Y  < 70)   Result += 2000;
+  else if (Y  < 100)  Result += 1900;
+  else PQXX_CHECK(Y >= 1970, "Unexpected year: " + to_string(Y));
   return Result;
 }
 
@@ -112,46 +101,23 @@ private:
 };
 
 
+void test_026(connection_base &, transaction_base &)
+{
+  lazyconnection C;
+
+  // Perform (an instantiation of) the UpdateYears transactor we've defined
+  // in the code above.  This is where the work gets done.
+  C.perform(UpdateYears());
+
+  // Just for fun, report the exact conversions performed.  Note that this
+  // list will be accurate even if other people were modifying the database
+  // at the same time; this property was established through use of the
+  // transactor framework.
+  for (map<int,int>::const_iterator i = theConversions.begin();
+       i != theConversions.end();
+       ++i)
+    cout << '\t' << i->first << "\t-> " << i->second << endl;
+}
 } // namespace
 
-
-
-int main(int, char *argv[])
-{
-  try
-  {
-    lazyconnection C(argv[1]);
-
-    // Perform (an instantiation of) the UpdateYears transactor we've defined
-    // in the code above.  This is where the work gets done.
-    C.perform(UpdateYears());
-
-    // Just for fun, report the exact conversions performed.  Note that this
-    // list will be accurate even if other people were modifying the database
-    // at the same time; this property was established through use of the
-    // transactor framework.
-    for (map<int,int>::const_iterator i = theConversions.begin();
-	 i != theConversions.end();
-	 ++i)
-      cout << '\t' << i->first << "\t-> " << i->second << endl;
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
-}
-
+PQXX_REGISTER_TEST_NODB(test_026)
