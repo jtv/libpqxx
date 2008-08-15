@@ -1,4 +1,5 @@
 #include <iostream>
+#include <map>
 #include <new>
 #include <stdexcept>
 
@@ -9,7 +10,6 @@ namespace pqxx
 {
 namespace test
 {
-
 class test_failure : public PGSTD::logic_error
 {
   const PGSTD::string m_file;
@@ -63,7 +63,7 @@ inline void prepare_series(transaction_base &t, int lowest, int highest)
 inline
 PGSTD::string select_series(connection_base &conn, int lowest, int highest)
 {
-  if (pqxx::test::have_generate_series(conn))
+  if (have_generate_series(conn))
     return
 	"SELECT generate_series(" +
 	to_string(lowest) + ", " + to_string(highest) + ")";
@@ -77,32 +77,55 @@ PGSTD::string select_series(connection_base &conn, int lowest, int highest)
 }
 
 
-/// Base class for libpqxx tests.  Sets up a connection and transaction.
-template<typename CONNECTION=connection, typename TRANSACTION=work>
-class TestCase
+class base_test;
+typedef PGSTD::map<PGSTD::string, base_test *> test_map;
+const test_map &register_test(base_test *);
+
+
+/// Base class for test cases.
+class base_test
 {
 public:
   typedef void (*testfunc)(connection_base &, transaction_base &);
+  base_test(const PGSTD::string &tname, testfunc func) :
+	m_name(tname),
+	m_func(func)
+  {
+    register_test(this);
+  }
+  virtual int run() =0;
+  virtual ~base_test() =0;
+  const PGSTD::string &name() const throw () { return m_name; }
+private:
+  PGSTD::string m_name;
+protected:
+  testfunc m_func;
+};
 
+
+/// Runner class for libpqxx tests.  Sets up a connection and transaction.
+template<typename CONNECTION=connection, typename TRANSACTION=work>
+class test_case : public base_test
+{
+public:
   // func takes connection and transaction as arguments.
-  TestCase(const PGSTD::string &name, testfunc func) :
+  test_case(const PGSTD::string &tname, testfunc func) :
+    base_test(tname, func),
     m_conn(),
-    m_trans(m_conn, name),
-    m_func(func)
+    m_trans(m_conn, tname)
   {
     // Workaround for older backend versions that lack generate_series().
     prepare_series(m_trans, 0, 100);
   }
 
-  // Invoke test function with its expected arguments
-  void operator()() { m_func(m_conn, m_trans); }
+  ~test_case() {}
 
   // Run test, catching errors & returning Unix-style success value
-  int run()
+  virtual int run()
   {
     try
     {
-      (*this)();
+      m_func(m_conn, m_trans);
     }
     catch (const test_failure &e)
     {
@@ -138,35 +161,28 @@ public:
 private:
   CONNECTION m_conn;
   TRANSACTION m_trans;
-  testfunc m_func;
 };
 
 
 // Register a function taking (connection_base &, transaction_base &) as a test.
 #define PQXX_REGISTER_TEST(function) \
-	int main() \
+	namespace \
 	{ \
-	  pqxx::test::TestCase<> test(#function, (function)); \
-	  return test.run(); \
+	pqxx::test::test_case<> test(#function, function); \
 	}
 
 // Register a test function using given connection and transaction types.
 #define PQXX_REGISTER_TEST_CT(function, connection_type, transaction_type) \
-	int main() \
+	namespace \
 	{ \
-	  pqxx::test::TestCase<connection_type, transaction_type> \
-		test(#function, (function)); \
-	  return test.run(); \
+	pqxx::test::test_case<connection_type, transaction_type> \
+		test(#function, function); \
 	}
 
 // Register a test function using a given connection type (instead of the
 // default "connection").
 #define PQXX_REGISTER_TEST_C(function, connection_type) \
-	int main() \
-	{ \
-	  pqxx::test::TestCase<connection_type> test(#function, (function)); \
-	  return test.run(); \
-	}
+	PQXX_REGISTER_TEST_CT(function, connection_type, pqxx::work)
 
 // Register a test function using a given transaction type (default is "work").
 #define PQXX_REGISTER_TEST_T(function, transaction_type) \
@@ -177,14 +193,44 @@ private:
 #define PQXX_REGISTER_TEST_NODB(function) \
 	PQXX_REGISTER_TEST_CT( \
 		function, \
-		 pqxx::nullconnection, \
-		 pqxx::nontransaction)
+		pqxx::nullconnection, \
+		pqxx::nontransaction)
+
+
+#define PQXX_RUN_TESTS \
+	namespace pqxx \
+	{ \
+	namespace test \
+	{ \
+	base_test::~base_test() {} \
+	const test_map &register_test(base_test *tc) \
+	{ \
+	  static test_map tests; \
+	  if (tc) tests[tc->name()] = tc; \
+	  return tests; \
+	} \
+	} \
+	} \
+	int main() \
+	{ \
+	  pqxx::test::run_tests(); \
+	}
+
+inline void run_tests()
+{
+  const test_map &tests = register_test(NULL);
+  for (test_map::const_iterator i = tests.begin(); i != tests.end(); ++i)
+  {
+    PGSTD::cout << "Running: " << i->first << PGSTD::endl;
+    i->second->run();
+  }
+}
 
 
 // Unconditional test failure.
 #define PQXX_CHECK_NOTREACHED(desc) \
 	pqxx::test::check_notreached(__FILE__, __LINE__, (desc))
-void check_notreached(const char file[], int line, PGSTD::string desc)
+inline void check_notreached(const char file[], int line, PGSTD::string desc)
 {
   throw test_failure(file, line, desc);
 }
@@ -192,7 +238,7 @@ void check_notreached(const char file[], int line, PGSTD::string desc)
 // Verify that a condition is met, similar to assert()
 #define PQXX_CHECK(condition, desc) \
 	pqxx::test::check(__FILE__, __LINE__, (condition), #condition, (desc))
-void check(
+inline void check(
 	const char file[],
 	int line,
 	bool condition,
@@ -200,7 +246,10 @@ void check(
 	PGSTD::string desc)
 {
   if (!condition)
-    throw test_failure(file, line, desc + " (failed expression: " + text + ")");
+    throw test_failure(
+	file,
+	line,
+	desc + " (failed expression: " + text + ")");
 }
 
 // Verify that variable has the expected value.
@@ -228,7 +277,7 @@ inline void check_equal(
 	desc + " (" + actual_text + " <> " + expected_text + ": "
 	"expected=" + to_string(expected) + ", "
 	"actual=" + to_string(actual) + ")";
-  throw pqxx::test::test_failure(file, line, fulldesc);
+  throw test_failure(file, line, fulldesc);
 }
 
 // Verify that two values are not equal.
@@ -255,7 +304,7 @@ inline void check_not_equal(
   const PGSTD::string fulldesc =
 	desc + " (" + text1 + " == " + text2 + ": "
 	"both are " + to_string(value2) + ")";
-  throw pqxx::test::test_failure(file, line, fulldesc);
+  throw test_failure(file, line, fulldesc);
 }
 
 
@@ -317,7 +366,7 @@ inline void check_bounds(
 	"lower=" + to_string(lower) + ", "
 	"upper=" + to_string(upper) + ", "
 	"value=" + to_string(value) + ")";
-    throw pqxx::test::test_failure(file, line, fulldesc);
+    throw test_failure(file, line, fulldesc);
   }
 
   if (value < lower)
@@ -326,7 +375,7 @@ inline void check_bounds(
 	desc + " (" +
 	text + " is below lower bound " + lower_text + ": " +
 	to_string(value) + " < " + to_string(lower) + ")";
-    throw pqxx::test::test_failure(file, line, fulldesc);
+    throw test_failure(file, line, fulldesc);
   }
 
   if (!(value < upper))
@@ -335,16 +384,15 @@ inline void check_bounds(
 	desc + " (" +
 	text + " is not below upper bound " + upper_text + ": " +
 	to_string(value) + " >= " + to_string(upper) + ")";
-    throw pqxx::test::test_failure(file, line, fulldesc);
+    throw test_failure(file, line, fulldesc);
   }
 }
-
 } // namespace test
 
 
 namespace
 {
-PGSTD::string deref_field(const result::field &f) { return f.c_str(); }
+PGSTD::string deref_field(const pqxx::result::field &f) { return f.c_str(); }
 } // namespace
 
 

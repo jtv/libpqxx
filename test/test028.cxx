@@ -7,22 +7,14 @@
 #include <pqxx/tablewriter>
 #include <pqxx/transaction>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
 
 // Test program for libpqxx.  Create a table and write data to it, using
 // tablewriter's back_insert_iterator, and on a lazy connection.
-//
-// Usage: test028 [connect-string] [table]
-//
-// Where the connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a backend
-// running on host foo.bar.net, logging in as user smith.
-//
-// The default table name is "testtable."
-
 namespace
 {
 set< vector<string> > Contents;
@@ -70,62 +62,30 @@ void CheckTable(transaction_base &T, string TableName)
   result Count = T.exec("SELECT COUNT(*) FROM " + TableName);
   size_t Rows = 0;
 
-  if (!Count[0][0].to(Rows)) throw runtime_error("NULL row count!");
+  PQXX_CHECK(Count[0][0].to(Rows), "Row count is NULL.");
   cout << Rows << " rows in table." << endl;
 
-  if (Rows != Contents.size())
-    throw runtime_error("Found " +
-		        string(Count[0][0].c_str()) +
-			" rows in table--after writing " +
-			to_string(Contents.size()) +
-			"!");
-
+  PQXX_CHECK_EQUAL(Rows, Contents.size(), "Got different number of rows back.");
   // TODO: Compare table contents to Contents
 }
-}
 
-int main(int argc, char *argv[])
+
+void test_028(connection_base &, transaction_base &T)
 {
-  try
-  {
-    PrepareContents();
+  PrepareContents();
 
-    // Set up two connections to the backend: one to read our original table,
-    // and another to write our copy
-    lazyconnection C(argv[1]);
+  // Select our original and destination table names
+  const string TableName = "testtable";
 
-    // Select our original and destination table names
-    string TableName = "testtable";
-    if (argc > 2) TableName = argv[2];
+  // Create table.  If the table already existed, better to fail now.
+  T.exec("CREATE TABLE " + TableName + "(content VARCHAR)");
 
-    work T(C, "test28");
+  FillTable(T, TableName);
+  CheckTable(T, TableName);
 
-    // Create table.  If the table already existed, better to fail now.
-    T.exec("CREATE TABLE " + TableName + "(content VARCHAR)");
-
-    FillTable(T, TableName);
-    CheckTable(T, TableName);
-
-    T.exec("DROP TABLE " + TableName);
-    T.commit();
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
+  T.exec("DROP TABLE " + TableName);
+  T.commit();
 }
+} // namespace
 
+PQXX_REGISTER_TEST_C(test_028, lazyconnection)

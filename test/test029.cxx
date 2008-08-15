@@ -7,6 +7,8 @@
 #include <pqxx/transaction>
 #include <pqxx/result>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
@@ -14,19 +16,10 @@ using namespace pqxx;
 // Test program for libpqxx.  Open connection to database, start a transaction,
 // abort it, and verify that it "never happened."  Use lazy connection.
 //
-// Usage: test029 [connect-string]
-//
-// Where connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a
-// backend running on host foo.bar.net, logging in as user smith.
-//
 // The program will attempt to add an entry to a table called "pqxxevents",
 // with a key column called "year"--and then abort the change.
-
 namespace
 {
-
 // Let's take a boring year that is not going to be in the "pqxxevents" table
 const int BoringYear = 1977;
 
@@ -53,7 +46,6 @@ pair<int,int> CountEvents(transaction_base &T)
 }
 
 
-
 // Try adding a record, then aborting it, and check whether the abort was
 // performed correctly.
 void Test(connection_base &C, bool ExplicitAbort)
@@ -74,45 +66,30 @@ void Test(connection_base &C, bool ExplicitAbort)
     // Verify that our Boring Year was not yet in the events table
     EventCounts = CountEvents(Doomed);
 
-    if (EventCounts.second)
-      throw runtime_error("Can't run, year " +
-			  to_string(BoringYear) + " "
-			  "is already in table " +
-			  Table);
+    PQXX_CHECK_EQUAL(
+	EventCounts.second,
+	0,
+	"Can't run; " + to_string(BoringYear) + " is already in the table.");
 
     // Now let's try to introduce a tuple for our Boring Year
     {
       tablewriter W(Doomed, Table);
 
-      if (W.name() != Table)
-        throw logic_error("Set tablewriter name to '" + Table + "', "
-                "but now it's '" + W.name() + "'");
+      PQXX_CHECK_EQUAL(W.name(), Table, "tablewriter name is not what I set.");
 
       const string Literal = W.generate(BoringTuple);
       const string Expected = to_string(BoringYear) + "\t" + BoringTuple[1];
-      if (Literal != Expected)
-	throw logic_error("tablewriter writes new tuple as '" +
-			  Literal + "', "
-			  "ought to be '" +
-			  Expected + "'");
+      PQXX_CHECK_EQUAL(Literal, Expected, "tablewriter mangles new tuple.");
 
       W.push_back(BoringTuple);
     }
 
     const pair<int,int> Recount = CountEvents(Doomed);
-    if (Recount.second != 1)
-      throw runtime_error("Expected to find one event for " +
-			  to_string(BoringYear) + ", "
-			  "found " +
-			  to_string(Recount.second));
-
-    if (Recount.first != EventCounts.first+1)
-      throw runtime_error("Number of events changed from " +
-			  to_string(EventCounts.first) + " "
-			  "to " +
-			  to_string(Recount.first) + "; "
-			  "expected " +
-			  to_string(EventCounts.first + 1));
+    PQXX_CHECK_EQUAL(Recount.second, 1, "Unexpected number of events.");
+    PQXX_CHECK_EQUAL(
+	Recount.first,
+	EventCounts.first+1,
+	"Number of events changed.");
 
     // Okay, we've added an entry but we don't really want to.  Abort it
     // explicitly if requested, or simply let the Transaction object "expire."
@@ -127,55 +104,23 @@ void Test(connection_base &C, bool ExplicitAbort)
   work Checkup(C, "Checkup");
 
   const pair<int,int> NewEvents = CountEvents(Checkup);
-  if (NewEvents.first != EventCounts.first)
-    throw runtime_error("Number of events changed from " +
-		        to_string(EventCounts.first) + " "
-			"to " +
-			to_string(NewEvents.first) + "; "
-			"this may be due to a bug in libpqxx, or the table "
-			"was modified by some other process.");
+  PQXX_CHECK_EQUAL(
+	NewEvents.first,
+	EventCounts.first,
+	"Wrong number of events.");
 
-  if (NewEvents.second)
-    throw runtime_error("Found " +
-		        to_string(NewEvents.second) + " "
-			"events in " +
-			to_string(BoringYear) + "; "
-			"wasn't expecting any.  This may be due to a bug in "
-			"libpqxx, or the table was modified by some other "
-			"process.");
+  PQXX_CHECK_EQUAL(NewEvents.second, 0, "Found unexpected events.");
 }
 
+
+void test_029(connection_base &, transaction_base &)
+{
+  lazyconnection C;
+
+  // Test abort semantics, both with explicit and implicit abort
+  Test(C, true);
+  Test(C, false);
+}
 } // namespace
 
-
-int main(int, char *argv[])
-{
-  try
-  {
-    lazyconnection C(argv[1]);
-
-    // Test abort semantics, both with explicit and implicit abort
-    Test(C, true);
-    Test(C, false);
-
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
-
-  return 0;
-}
-
+PQXX_REGISTER_TEST_NODB(test_029)

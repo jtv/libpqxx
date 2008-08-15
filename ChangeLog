@@ -1,3 +1,11 @@
+2008-08-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/Makefile.am.template, test/runner.cxx, test/test027.cxx,
+ test/test028.cxx, test/test029.cxx, test/test039.cxx, test/test_helpers.hxx,
+ test/unit/Makefile.am.template, test/unit/runner.cxx:
+  - Missed some spots in converting to test framework
+  - Run all tests in directory as single program!
+  - Test build & run now 20% faster on my laptop
+  - Should be easier to build tests with Visual C++'s stupid project files
 2008-08-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test072.cxx, test/test073.cxx, test/test074.cxx, test/test075.cxx,
  test/test076.cxx, test/test077.cxx, test/test078.cxx, test/test079.cxx,

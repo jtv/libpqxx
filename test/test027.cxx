@@ -6,91 +6,59 @@
 #include <pqxx/tablereader>
 #include <pqxx/transaction>
 
+#include "test_helpers.hxx"
+
 using namespace PGSTD;
 using namespace pqxx;
 
 
 // Test program for libpqxx.  Read a table using a tablereader, which may be
 // faster than a conventional query, on a lazy connection.
-//
-// Usage: test027 [connect-string] [table]
-//
-// Where connect-string is a set of connection options in Postgresql's
-// PQconnectdb() format, eg. "dbname=template1" to select from a database
-// called template1, or "host=foo.bar.net user=smith" to connect to a backend
-// running on host foo.bar.net, logging in as user smith.
-//
-// The default table name is "pqxxevents" as used by other test programs.
-// PostgreSQL currently implements pg_tables as a view, which cannot be read by
-// using the COPY command.  Otherwise, pg_tables would have made a better
-// default value here.
-int main(int argc, char *argv[])
+namespace
 {
-  try
+void test_027(connection_base &, transaction_base &T)
+{
+  const string Table = "pqxxevents";
+
+  vector<string> R, First;
+
   {
-    // Set up a connection to the backend
-    lazyconnection C(argv[1]);
+    // Set up a tablereader stream to read data from table pg_tables
+    tablereader Stream(T, Table);
 
-    string Table = "pqxxevents";
-    if (argc > 2) Table = argv[2];
-
-    // Begin a transaction acting on our current connection
-    work T(C, "test27");
-
-    vector<string> R, First;
-
+    // Read results into string vectors and print them
+    for (int n=0; (Stream >> R); ++n)
     {
-      // Set up a tablereader stream to read data from table pg_tables
-      tablereader Stream(T, Table);
+      // Keep the first row for later consistency check
+      if (n == 0) First = R;
 
-      // Read results into string vectors and print them
-      for (int n=0; (Stream >> R); ++n)
-      {
-        // Keep the first row for later consistency check
-        if (n == 0) First = R;
-
-        cout << n << ":\t";
-        for (vector<string>::const_iterator i = R.begin(); i != R.end(); ++i)
-          cout << *i << '\t';
-        cout << endl;
-        R.clear();
-      }
-    }
-
-    // Verify the contents we got for the first row
-    if (!First.empty())
-    {
-      tablereader Verify(T, Table);
-      string Line;
-
-      if (!Verify.get_raw_line(Line))
-	throw logic_error("tablereader got rows the first time around, "
-	                  "but none the second time!");
-
-      cout << "First tuple was: " << endl << Line << endl;
-
-      Verify.tokenize(Line, R);
-      if (R != First)
-        throw logic_error("Got different results re-parsing first tuple!");
+      cout << n << ":\t";
+      for (vector<string>::const_iterator i = R.begin(); i != R.end(); ++i)
+        cout << *i << '\t';
+      cout << endl;
+      R.clear();
     }
   }
-  catch (const sql_error &e)
-  {
-    cerr << "SQL error: " << e.what() << endl
-         << "Query was: '" << e.query() << "'" << endl;
-    return 1;
-  }
-  catch (const exception &e)
-  {
-    cerr << "Exception: " << e.what() << endl;
-    return 2;
-  }
-  catch (...)
-  {
-    cerr << "Unhandled exception" << endl;
-    return 100;
-  }
 
-  return 0;
+  // Verify the contents we got for the first row
+  if (!First.empty())
+  {
+    tablereader Verify(T, Table);
+    string Line;
+
+    PQXX_CHECK(
+	Verify.get_raw_line(Line),
+	"tablereader got rows on the first read, but not on the second.");
+
+    cout << "First tuple was: " << endl << Line << endl;
+
+    Verify.tokenize(Line, R);
+    PQXX_CHECK_EQUAL(
+	R,
+	First,
+	"Re-parsing the first tuple yields different results.");
+  }
 }
+} // namespace
 
+PQXX_REGISTER_TEST_C(test_027, lazyconnection)
