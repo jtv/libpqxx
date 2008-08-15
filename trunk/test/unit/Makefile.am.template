@@ -8,15 +8,18 @@ DEFAULT_INCLUDES=
 
 MAINTAINERCLEANFILES=Makefile.in
 
-TESTS = \
+runner_SOURCES = \
 ###MAKTEMPLATE:FOREACH test/unit/test_*.cxx
-  ###BASENAME### \
+  ###BASENAME###.cxx \
 ###MAKTEMPLATE:ENDFOREACH
-  # (end)
+  runner.cxx
 
+runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+
+TESTS = runner
 check_PROGRAMS = ${TESTS}
 
-###MAKTEMPLATE:FOREACH test/unit/test_*.cxx
-###BASENAME###_SOURCES = ###BASENAME###.cxx
-###BASENAME###_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+# ###MAKTEMPLATE:FOREACH test/unit/test_*.cxx
+# ###BASENAME###_SOURCES = ###BASENAME###.cxx
+# ###BASENAME###_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 
