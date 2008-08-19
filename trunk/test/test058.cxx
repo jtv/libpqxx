@@ -35,7 +35,7 @@ public:
     const size_t Size = sizeof(Buf) - 1;
     PQXX_CHECK_EQUAL(
 	A.read(Buf, Size),
-	0u,
+	0,
 	"Could read bytes from large object after writing.");
 
     // Overwrite terminating zero
