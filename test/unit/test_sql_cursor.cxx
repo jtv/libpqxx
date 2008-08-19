@@ -33,7 +33,7 @@ void test_forward_sql_cursor(connection_base &, transaction_base &trans)
   cursor_base::difference_type offset = forward.move(1, displacement);
   PQXX_CHECK_EQUAL(offset, 1, "Unexpected offset from move()");
   PQXX_CHECK_EQUAL(displacement, 1, "Unexpected displacement after move()");
-  PQXX_CHECK_EQUAL(forward.pos(), 2u, "Wrong position after move()");
+  PQXX_CHECK_EQUAL(forward.pos(), 2, "Wrong position after move()");
   PQXX_CHECK_EQUAL(forward.endpos(), -1, "endpos() unexpectedly set");
 
   result row = forward.fetch(0, displacement);
