@@ -26,15 +26,14 @@ void test_020(connection_base &C, transaction_base &T1)
   // record already.
   result R( T1.exec(("SELECT * FROM " + Table + " "
 	               "WHERE year=" + to_string(BoringYear)).c_str()) );
-  if (R.size() != 0)
-    throw runtime_error("There is already a record for " +
-	                  to_string(BoringYear) + ". "
-		          "Can't run test.");
+  PQXX_CHECK_EQUAL(
+	R.size(),
+	0u,
+	"Already have a row for " + to_string(BoringYear) + ", cannot test.");
 
   // (Not needed, but verify that clear() works on empty containers)
   R.clear();
-  if (!R.empty())
-    throw logic_error("Result non-empty after clear()!");
+  PQXX_CHECK(R.empty(), "result::clear() is broken.");
 
   // OK.  Having laid that worry to rest, add a record for 1977.
   T1.exec(("INSERT INTO " + Table + " VALUES"

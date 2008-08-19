@@ -31,11 +31,10 @@ public:
   virtual void operator()(int be_pid)
   {
     m_Done = true;
-    if (be_pid != Conn().backendpid())
-      throw logic_error("Expected notification from backend process " +
-		        to_string(Conn().backendpid()) +
-			", but got one from " +
-			to_string(be_pid));
+    PQXX_CHECK_EQUAL(
+	be_pid,
+	Conn().backendpid(),
+	"Notification came from wrong backend.");
 
     cout << "Received notification: " << name() << " pid=" << be_pid << endl;
   }

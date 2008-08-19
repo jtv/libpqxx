@@ -32,20 +32,6 @@ void dump(const result &R)
 }
 
 
-void compare_results(const result &lhs, const result &rhs, string desc)
-{
-  if (lhs != rhs)
-  {
-    cerr << "Outputs at " << desc << ':' << endl;
-    cerr << "lhs:" << endl;
-    dump(lhs);
-    cerr << "rhs:" << endl;
-    dump(rhs);
-    throw logic_error("Different results at " + desc);
-  }
-}
-
-
 void test_084(connection_base &, transaction_base &T)
 {
   const string Table = "pg_tables", Key = "tablename";
@@ -104,23 +90,26 @@ void test_084(connection_base &, transaction_base &T)
 	result::size_type(GetRows),
 	"Got unexpected number of rows.");
 
-  compare_results(R, R2, "[1]");
+  PQXX_CHECK_EQUAL(R, R2, "Unexpected result at [1]");
 
   C.get(R);
   R2 = *i2;
-  compare_results(R, R2, "[2]");
+  PQXX_CHECK_EQUAL(R, R2, "Unexpected result at [2]");
   i2 += 1;
 
   C.ignore(GetRows);
   C.get(R);
   R2 = *++i2;
 
-  compare_results(R, R2, "[3]");
+  PQXX_CHECK_EQUAL(R, R2, "Unexpected result at [3]");
 
   ++i2;
   R2 = *i2++;
   for (int i=1; C.get(R) && i2 != iend; R2 = *i2++, ++i)
-    compare_results(R, R2, "iteration " + to_string(i));
+    PQXX_CHECK_EQUAL(
+	R,
+	R2,
+	"Unexpected result in iteration at " + to_string(i));
 
   PQXX_CHECK(i2 == iend, "Adopted cursor terminated early.");
   PQXX_CHECK(!(C >> R), "icursor_iterator terminated early.");

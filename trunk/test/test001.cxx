@@ -30,7 +30,7 @@ void test_001(connection_base &C, transaction_base &trans)
   result R( T.exec("SELECT * FROM pg_tables") );
 
   // We're expecting to find some tables...
-  if (R.empty()) throw logic_error("No tables found!");
+  PQXX_CHECK(!R.empty(), "No tables found.  Cannot test.");
 
   // Process each successive result tuple
   for (result::const_iterator c = R.begin(); c != R.end(); ++c)

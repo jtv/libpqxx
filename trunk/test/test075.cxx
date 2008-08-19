@@ -20,8 +20,7 @@ namespace
 void test_075(connection_base &, transaction_base &W)
 {
   const result R( W.exec("SELECT year FROM pqxxevents") );
-
-  if (R.empty()) throw runtime_error("No events found, can't test!");
+  PQXX_CHECK(!R.empty(), "No events found, cannot test.");
 
   PQXX_CHECK_EQUAL(R[0], R.at(0), "Inconsistent result indexing.");
   PQXX_CHECK(!(R[0] != R.at(0)), "result::tuple::operator!=() is broken.");

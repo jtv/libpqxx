@@ -89,24 +89,36 @@ public:
 
       // See if type identifiers are consistent
       const oid tctype = r->column_type(0);
-      if (tctype != r->column_type(result::tuple::size_type(0)))
-	throw logic_error("Inconsistent result::tuple::column_type()");
-      if (tctype != rctype)
-	throw logic_error("Column has type " + rct + ", "
-	                  "but tuple says it's " + to_string(tctype));
+
+      PQXX_CHECK_EQUAL(
+	tctype,
+	r->column_type(result::tuple::size_type(0)),
+	"Inconsistent result::tuple::column_type()");
+
+      PQXX_CHECK_EQUAL(
+	tctype,
+	rctype,
+	"tuple::column_type() is inconsistent with result::column_type().");
+
       const oid ctctype = r->column_type(rcol);
-      if (ctctype != rctype)
-	throw logic_error("Column has type " + rct + ", "
-			  "but by name, tuple says it's " + to_string(ctctype));
+
+      PQXX_CHECK_EQUAL(
+	ctctype,
+	rctype,
+	"Column type lookup by column name is broken.");
+
       const oid rawctctype = r->column_type(rcol.c_str());
-      if (rawctctype != rctype)
-	throw logic_error("Column has type " + rct + ", "
-			  "but by C-style name, tuple says it's " +
-			  to_string(rawctctype));
+
+      PQXX_CHECK_EQUAL(
+	rawctctype,
+	rctype,
+	"Column type lookup by C-style name is broken.");
+
       const oid fctype = r[0].type();
-      if (fctype != rctype)
-	throw logic_error("Column has type " + rct + ", "
-			  "but field says it's " + to_string(fctype));
+      PQXX_CHECK_EQUAL(
+	fctype,
+	rctype,
+	"Field type lookup is broken.");
     }
 
     result::size_type AffectedRows = 0;
