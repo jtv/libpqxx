@@ -1,3 +1,9 @@
+2008-08-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test000.cxx, test/test001.cxx, test/test002.cxx, test/test004.cxx,
+ test/test006.cxx, test/test007.cxx, test/test020.cxx, test/test023.cxx,
+ test/test075.cxx, test/test079.cxx, test/test084.cxx, test/test087.cxx,
+ test/test089.cxx, test/test092.cxx, test/test094.cxx:
+  - Replaced throws with test helpers.
 2008-08-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/Makefile.am.template, test/runner.cxx, test/test027.cxx,
  test/test028.cxx, test/test029.cxx, test/test039.cxx, test/test_helpers.hxx,

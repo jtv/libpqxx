@@ -88,8 +88,9 @@ void test_000(connection_base &, transaction_base &)
 	"InvalidIod is not zero as it used to be.  This may conceivably "
 	"cause problems in libpqxx.");
 
-  if (cursor_base::prior() >= 0 || cursor_base::backward_all() >= 0)
-    throw logic_error("cursor_base::difference_type appears to be unsigned");
+  PQXX_CHECK(
+	cursor_base::prior() < 0 && cursor_base::backward_all() < 0,
+	"cursor_base::difference_type appears to be unsigned.");
 
   cout << "Testing items template..." << endl;
   items<int> I0;
@@ -105,7 +106,7 @@ void test_000(connection_base &, transaction_base &)
   items<int> I5(1,2,3,4,5);
   testitems(I5,5);
   const string l = separated_list(",",I5.begin(),I5.end(),intderef());
-  if (l != "1,2,3,4,5") throw logic_error("Separated list was '" + l + "'");
+  PQXX_CHECK_EQUAL(l, "1,2,3,4,5", "separated_list is broken.");
   vector<int> V2(I2);
   testitems(items<int>(V2),2);
 
@@ -169,19 +170,19 @@ void test_000(connection_base &, transaction_base &)
   const char zerobuf[] = "0";
   string zero;
   from_string(zerobuf, zero, sizeof(zerobuf)-1);
-  if (zero != zerobuf)
-    throw logic_error("Converting \"0\" with explicit length failed!");
+  PQXX_CHECK_EQUAL(
+	zero,
+	zerobuf,
+	"Converting \"0\" with explicit length failed.");
 
   const char nulbuf[] = "\0string\0with\0nuls\0";
   const string nully(nulbuf, sizeof(nulbuf)-1);
   string nully_parsed;
   from_string(nulbuf, nully_parsed, sizeof(nulbuf)-1);
-  if (nully_parsed != nully)
-    throw logic_error("String with nuls now " +
-	to_string(nully_parsed.size()) + " bytes!");
+  PQXX_CHECK_EQUAL(nully_parsed.size(), nully.size(), "Nul truncates string.");
+  PQXX_CHECK_EQUAL(nully_parsed, nully, "String conversion breaks on nuls.");
   from_string(nully.c_str(), nully_parsed, nully.size());
-  if (nully_parsed != nully)
-    throw logic_error("Nul conversion worked, but not on strings!");
+  PQXX_CHECK_EQUAL(nully_parsed, nully, "Nul conversion breaks on strings.");
 
   stringstream ss;
   strconv("empty stringstream", ss, "");
@@ -192,45 +193,38 @@ void test_000(connection_base &, transaction_base &)
 
 #ifdef PQXX_HAVE_PQENCRYPTPASSWORD
   const string pw = encrypt_password("foo", "bar");
-  if (pw.empty())
-    throw logic_error("Encrypting a password returned no data");
-  if (pw == encrypt_password("splat", "blub"))
-    throw logic_error("Password encryption does not work");
-  if (pw.find("bar") != string::npos)
-    throw logic_error("Encrypted password contains original");
+  PQXX_CHECK(!pw.empty(), "Encrypting a password returned no data.");
+  PQXX_CHECK_NOT_EQUAL(
+	pw,
+	encrypt_password("splat", "blub"), 
+	"Password encryption is broken.");
+  PQXX_CHECK(
+	pw.find("bar") == string::npos,
+	"Encrypted password contains original.");
 #endif
 
   cout << "Testing error handling for failed connections..." << endl;
-  try
   {
     nullconnection nc;
-    work w(nc);
-    throw logic_error("nullconnection failed to fail!");
+    PQXX_CHECK_THROWS(
+    	work w(nc),
+	broken_connection,
+	"nullconnection fails to fail.");
   }
-  catch (broken_connection &c)
-  {
-    cout << "(Expected) " << c.what() << endl;
-  }
-  try
   {
     nullconnection nc("");
-    work w(nc);
-    throw logic_error("nullconnection(const char[]) failed to fail!");
+    PQXX_CHECK_THROWS(
+	work w(nc),
+	broken_connection,
+	"nullconnection(const char[]) is broken.");
   }
-  catch (broken_connection &c)
-  {
-    cout << "(Expected) " << c.what() << endl;
-  }
-  try
   {
     string n;
     nullconnection nc(n);
-    work w(nc);
-    throw logic_error("nullconnection(const std::string &) failed to fail!");
-  }
-  catch (broken_connection &c)
-  {
-    cout << "(Expected) " << c.what() << endl;
+    PQXX_CHECK_THROWS(
+	work w(nc),
+	broken_connection,
+	"nullconnection(const string &) is broken.");
   }
 
   // Now that we know nullconnections throw errors as expected, test
@@ -242,12 +236,14 @@ void test_000(connection_base &, transaction_base &)
   }
   catch (const pqxx_exception &e)
   {
-    if (!dynamic_cast<const broken_connection *>(&e.base()))
-      throw logic_error("Downcast pqxx_exception is not a broken_connection");
+    PQXX_CHECK(
+	dynamic_cast<const broken_connection *>(&e.base()),
+	"Downcast pqxx_exception is not a broken_connection");
     cout << "(Expected) " << e.base().what() << endl;
-    if (dynamic_cast<const broken_connection &>(e.base()).what() !=
-        e.base().what())
-      throw logic_error("Inconsistent what() message in exception!");
+    PQXX_CHECK_EQUAL(
+	dynamic_cast<const broken_connection &>(e.base()).what(),
+        e.base().what(),
+	"Inconsistent what() message in exception.");
   }
 }
 

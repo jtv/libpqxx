@@ -97,7 +97,7 @@ void test_089(connection_base &, transaction_base &)
       }
       catch (const exception &)
       {
-        throw logic_error(
+        PQXX_CHECK_NOTREACHED(
 		"First asyncconnection supported nested "
 		"transactions, but second one doesn't!");
       }

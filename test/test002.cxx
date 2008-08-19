@@ -79,21 +79,23 @@ void test_002(connection_base &, transaction_base &)
 
 #ifdef PQXX_HAVE_PQFTABLE
     const oid ftable = R[i][0].table();
-    if (ftable != rtable)
-      throw logic_error("Field says it comes from '" + to_string(ftable) + "'; "
-			  "expected '" + to_string(rtable) + "'");
+    PQXX_CHECK_EQUAL(ftable, rtable, "result::field::table() is broken.");
+
     const oid ttable = R[i].column_table(0);
-    if (ttable != R[i].column_table(result::tuple::size_type(0)))
-      throw logic_error("Inconsistent result::tuple::column_table()");
-    if (ttable != rtable)
-      throw logic_error("Tuple says field comes from "
-                          "'" + to_string(ttable) + "'; "
-			  "expected '" + to_string(rtable) + "'");
+
+    PQXX_CHECK_EQUAL(
+	ttable,
+	R[i].column_table(result::tuple::size_type(0)),
+	"Inconsistent result::tuple::column_table().");
+
+    PQXX_CHECK_EQUAL(ttable, rtable, "Inconsistent result::column_table().");
+
     const oid cttable = R[i].column_table(rcol);
-    if (cttable != rtable)
-      throw logic_error("Field comes from '" + to_string(rtable) + "', "
-	                  "but by name, tuple says it's from '" +
-			  to_string(cttable) + "'");
+
+    PQXX_CHECK_EQUAL(
+	cttable,
+	rtable,
+	"result::tuple::column_table() is broken.");
 #endif
   }
 }

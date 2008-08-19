@@ -66,13 +66,9 @@ void test_092(connection_base &C, transaction_base &T)
   i.exec();
 
   const result t( T.exec("SELECT * FROM tuple") );
-  if (t.size() != 1)
-    throw logic_error("Expected 1 tuple, got " + to_string(t.size()));
-  if (t[0][0].as<string>() != "6")
-    throw logic_error("Expected value 6, got " + t[0][0].as<string>());
-  if (t[0][1].c_str() != f)
-    throw logic_error("Expected string '" + f + "', "
-	"got '" + t[0][1].c_str() + "'");
+  PQXX_CHECK_EQUAL(t.size(), 1u, "Wrong result size.");
+  PQXX_CHECK_EQUAL(t[0][0].as<string>(), "6", "Unexpected result value.");
+  PQXX_CHECK_EQUAL(t[0][1].c_str(), f, "Unexpected string result.");
 }
 } // namespace
 

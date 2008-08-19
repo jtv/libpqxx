@@ -42,8 +42,7 @@ private:
     {
       if (conn().is_open())
       {
-        if (simulate_failure)
-	  throw logic_error("Connection did not simulate failure");
+        PQXX_CHECK(!simulate_failure, "Connection did not simulate failure.");
 	cerr << "Unexpected exception (connection still open)" << endl;
 	throw;
       }
@@ -120,35 +119,21 @@ public:
 };
 
 
-void simulate(connection_base &C, int failures, int attempts)
-{
-  bool failed = true;
-  try
-  {
-    C.perform(FlakyTransactor(failures), attempts);
-    failed = false;
-  }
-  catch (const in_doubt_error &e)
-  {
-    if (!failures) throw;
-    cout << "(Expected) " << e.what() << endl;
-  }
-  if (failures && !failed)
-    throw logic_error("Simulated failure did not lead to in-doubt error");
-}
-
-
 void test_094(connection_base &C, transaction_base &orgT)
 {
   orgT.abort();
 
   // Run without simulating failure
   cout << "Playing transactor without simulating failure..." << endl;
-  simulate(C, 0, 1);
+  C.perform(FlakyTransactor(0), 1);
 
-  // Simulate one failure, but succeed on retry
+  // Simulate one failure.  The transactor will succeed on a second attempt, but
+  // since this is an in-doubt error, the framework does not retry.
   cout << "Playing transactor with simulated failure..." << endl;
-  simulate(C, 1, 2);
+  PQXX_CHECK_THROWS(
+	C.perform(FlakyTransactor(1), 2),
+	in_doubt_error,
+	"Simulated failure did not lead to in-doubt error.");
 }
 } // namespace
 

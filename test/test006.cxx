@@ -57,6 +57,10 @@ public:
 
 void CheckState(tablereader &R)
 {
+  PQXX_CHECK_EQUAL(
+	!R,
+	!bool(R),
+	"tablereader " + R.name() + " is in inconsistent state.");
   if (!R != !bool(R))
     throw logic_error("tablereader " + R.name() + " in inconsistent state!");
 }
