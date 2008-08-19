@@ -72,26 +72,23 @@ LINK_FLAGS=$(LINK_FLAGS_BASE) /libpath:$(LIBPATH1)
 !ENDIF
 
 
-
-########################################################
-# List of tests
-########################################################
-
-TESTS = \
-    ###MAKTEMPLATE:FOREACH test/*.cxx
-        ###BASENAME### \
-    ###MAKTEMPLATE:ENDFOREACH
+OBJS= \
+###MAKTEMPLATE:FOREACH test/test*.cxx
+  ###BASENAME###.obj \
+###MAKTEMPLATE:ENDFOREACH
+  runner.obj
 
 
 ########################################################
 # Logical targets
 ########################################################
 
-all: $(TESTS)
+all: runner
 
 clean:
 	-@del /Q vc70.pch
 	-@del /Q $(INTDIR)\*
+	-@del /Q $(OBJS)
 
 $(INTDIR):
 	@mkdir $(INTDIR)
@@ -102,19 +99,18 @@ $(INTDIR):
 ########################################################
 
 
-###MAKTEMPLATE:FOREACH test/*.cxx
-
-###BASENAME###: $(INTDIR)\###BASENAME###.success
-
-$(INTDIR)\###BASENAME###.success: $(INTDIR)\###BASENAME###.exe $(INTDIR)\$(LIBPQ) $(PQXX)
+$(INTDIR)\runner.success: $(INTDIR)\runner.exe \
+  $(INTDIR)\$(LIBPQXX) $(PQXX) 
 	@copy $(PQXX) $(PQXXCOPY)
-	@$(INTDIR)\###BASENAME###.exe
-	@echo >$(INTDIR)\###BASENAME###.success
+	@$(INTDIR)\runner.exe
+	@echo >$(INTDIR)\runne.success
 
-$(INTDIR)\###BASENAME###.exe: ###FILENAME### $(INTDIR) $(PQXX)
+$(INTDIR)\runner.exe: $(OBJS) $(INTDIR) $(PQXX)
+	@$(LINK) $(LINK_FLAGS) "$(INTDIR)\\runner.obj" /out:"$(INTDIR)\\runner.exe"
+
+###MAKTEMPLATE:FOREACH test/*.cxx
+$(INTDIR)\###BASENAME###.obj:
 	@$(CXX) $(CXX_FLAGS) ###FILENAME### /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-	@$(LINK) $(LINK_FLAGS) "$(INTDIR)\\###BASENAME###.obj" /out:"$(INTDIR)\\###BASENAME###.exe"
-
 ###MAKTEMPLATE:ENDFOREACH
 
 

@@ -4,6 +4,8 @@
  test/test075.cxx, test/test079.cxx, test/test084.cxx, test/test087.cxx,
  test/test089.cxx, test/test092.cxx, test/test094.cxx:
   - Replaced throws with test helpers.
+ win32/vc-test.mak.template:
+  - First stab at adjusting to new test configuration
 2008-08-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/Makefile.am.template, test/runner.cxx, test/test027.cxx,
  test/test028.cxx, test/test029.cxx, test/test039.cxx, test/test_helpers.hxx,
