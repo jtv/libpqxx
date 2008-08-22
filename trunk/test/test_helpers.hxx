@@ -175,7 +175,7 @@ private:
 #define PQXX_REGISTER_TEST_CT(function, connection_type, transaction_type) \
 	namespace \
 	{ \
-	pqxx::test::test_case<connection_type, transaction_type> \
+	pqxx::test::test_case< connection_type, transaction_type > \
 		test(#function, function); \
 	}
 
