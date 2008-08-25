@@ -122,7 +122,8 @@ struct PQXX_LIBEXPORT nonnoticer : noticer
  *
  * @since libpq 8.2
  */
-PGSTD::string encrypt_password(const PGSTD::string &user,		//[t0]
+PGSTD::string PQXX_LIBEXPORT encrypt_password(				//[t0]
+	const PGSTD::string &user,
 	const PGSTD::string &password);
 
 /// connection_base abstract base class; represents a connection to a database.
