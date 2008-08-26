@@ -1,3 +1,6 @@
+2008-08-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/compiler-public.hxx:
+  - Apply PQXX_AUTOLINK to static link as well, thanks Kirit
 2008-08-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx:
   - Export encrypt_password, thanks boto

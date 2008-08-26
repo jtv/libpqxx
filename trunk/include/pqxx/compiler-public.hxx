@@ -159,6 +159,7 @@ template<> struct char_traits<unsigned char>
 // release).  The default is to use the release DLL.  Define PQXX_PQ_STATIC to
 // link to a static version of libpq, and _DEBUG to link to a debug version.
 // The two may be combined.
+#if defined(PQXX_AUTOLINK)
 #if defined(PQXX_PQ_STATIC)
 #ifdef _DEBUG
 #pragma comment(lib, "libpqd")
@@ -170,6 +171,7 @@ template<> struct char_traits<unsigned char>
 #pragma comment(lib, "libpqddll")
 #else
 #pragma comment(lib, "libpqdll")
+#endif
 #endif
 #endif
 
