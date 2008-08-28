@@ -1,3 +1,10 @@
+2008-08-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, test/test085.cxx,
+ test/unit/test_prepared_statement.cxx:
+  - Re-branded test085 as a unit test
+ include/pqxx/transaction_base.hxx, sr/transaction_base.cxx:
+  - New function activate() for explicit bracketing
+  - Activate before executing prepared statement, thanks qelo
 2008-08-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/compiler-public.hxx:
   - Apply PQXX_AUTOLINK to static link as well, thanks Kirit

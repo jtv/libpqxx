@@ -197,19 +197,8 @@ string pqxx::transaction_base::esc_raw(const PGSTD::string &str) const
 }
 
 
-pqxx::result pqxx::transaction_base::exec(const PGSTD::string &Query,
-					  const PGSTD::string &Desc)
+void pqxx::transaction_base::activate()
 {
-  CheckPendingError();
-
-  const string N = (Desc.empty() ? "" : "'" + Desc + "' ");
-
-  if (m_Focus.get())
-    throw usage_error("Attempt to execute query " + N +
-		      "on " + description() + " "
-		      "with " + m_Focus.get()->description() + " "
-		      "still open");
-
   switch (m_Status)
   {
   case st_nascent:
@@ -223,11 +212,36 @@ pqxx::result pqxx::transaction_base::exec(const PGSTD::string &Query,
   case st_committed:
   case st_aborted:
   case st_in_doubt:
-    throw usage_error("Attempt to execute query " + N + " "
-	"in " + description() + ", which is already closed");
+    throw usage_error(
+	"Attempt to activate " + description() + " "
+	"which is already closed");
 
   default:
     throw internal_error("pqxx::transaction: invalid status code");
+  }
+}
+
+
+pqxx::result pqxx::transaction_base::exec(const PGSTD::string &Query,
+					  const PGSTD::string &Desc)
+{
+  CheckPendingError();
+
+  const string N = (Desc.empty() ? "" : "'" + Desc + "' ");
+
+  if (m_Focus.get())
+    throw usage_error("Attempt to execute query " + N +
+		      "on " + description() + " "
+		      "with " + m_Focus.get()->description() + " "
+		      "still open");
+
+  try
+  {
+    activate();
+  }
+  catch (const usage_error &e)
+  {
+    throw usage_error("Error executing query " + N + ".  " + e.what());
   }
 
   // TODO: Pass Desc to do_exec(), and from there on down
@@ -238,6 +252,15 @@ pqxx::result pqxx::transaction_base::exec(const PGSTD::string &Query,
 pqxx::prepare::invocation
 pqxx::transaction_base::prepared(const PGSTD::string &statement)
 {
+  try
+  {
+    activate();
+  }
+  catch (const usage_error &e)
+  {
+    throw usage_error(
+	"Error executing prepared statement " + statement + ".  " + e.what());
+  }
   return prepare::invocation(*this, statement);
 }
 

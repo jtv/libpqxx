@@ -607,10 +607,10 @@ public:
    * @param definition SQL statement to prepare
    */
   prepare::declaration prepare(const PGSTD::string &name,
-	const PGSTD::string &definition);				//[t85]
+	const PGSTD::string &definition);
 
   /// Drop prepared statement
-  void unprepare(const PGSTD::string &name);				//[t85]
+  void unprepare(const PGSTD::string &name);
 
   /// Request that prepared statement be registered with the server
   /** If the statement had already been fully prepared, this will do nothing.
@@ -623,7 +623,7 @@ public:
    * it's probably better not to use this and let the connection decide when and
    * whether to register prepared statements that you've defined.
    */
-  void prepare_now(const PGSTD::string &name);				//[t85]
+  void prepare_now(const PGSTD::string &name);
 
   /**
    * @}
