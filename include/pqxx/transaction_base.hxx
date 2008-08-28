@@ -222,7 +222,7 @@ public:
    * statement may not show up until it is executed--and perhaps abort the
    * ongoing transaction in the process.
    */
-  prepare::invocation prepared(const PGSTD::string &statement);		//[t85]
+  prepare::invocation prepared(const PGSTD::string &statement);
 
   //@}
 
@@ -337,6 +337,8 @@ private:
     st_in_doubt
   };
 
+  /// Make sure transaction is opened on backend, if appropriate
+  void PQXX_PRIVATE activate();
 
   void PQXX_PRIVATE CheckPendingError();
 
