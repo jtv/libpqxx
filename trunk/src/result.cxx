@@ -200,6 +200,12 @@ void pqxx::result::ThrowSQLError(const PGSTD::string &Err,
       throw insufficient_resources(Err, Query);
     }
     break;
+
+  case 'P':
+    if (strcmp(code, "P0001")==0) throw plpgsql_raise(Err, Query);
+    if (strcmp(code, "P0002")==0) throw plpgsql_no_data_found(Err, Query);
+    if (strcmp(code, "P0003")==0) throw plpgsql_too_many_rows(Err, Query);
+    throw plpgsql_error(Err, Query);
   }
 #endif
   throw sql_error(Err, Query);

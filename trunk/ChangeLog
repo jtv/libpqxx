@@ -1,3 +1,6 @@
+2008-09-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/except.hxx, src/result.cxx:
+  - PL/pgSQL exceptions, thanks Michal Jankowsk
 2008-08-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, test/test085.cxx,
  test/unit/test_prepared_statement.cxx:
