@@ -390,6 +390,46 @@ public:
 	broken_connection(err) {}
 };
 
+/// PL/pgSQL error
+/** Exceptions derived from this class are errors from PL/pgSQL procedures.
+ */
+class PQXX_LIBEXPORT plpgsql_error : public sql_error
+{
+public:
+  explicit plpgsql_error(const PGSTD::string &err) :
+    sql_error(err) {}
+  plpgsql_error(const PGSTD::string &err, const PGSTD::string &Q) :
+    sql_error(err, Q) {}
+};
+
+/// Exception raised in PL/pgSQL procedure
+class PQXX_LIBEXPORT plpgsql_raise : public plpgsql_error
+{
+public:
+  explicit plpgsql_raise(const PGSTD::string &err) :
+    plpgsql_error(err) {}
+  plpgsql_raise(const PGSTD::string &err, const PGSTD::string &Q) :
+    plpgsql_error(err, Q) {}
+};
+
+class PQXX_LIBEXPORT plpgsql_no_data_found : public plpgsql_error
+{
+public:
+  explicit plpgsql_no_data_found(const PGSTD::string &err) :
+    plpgsql_error(err) {}
+  plpgsql_no_data_found(const PGSTD::string &err, const PGSTD::string &Q) :
+    plpgsql_error(err, Q) {}
+};
+
+class PQXX_LIBEXPORT plpgsql_too_many_rows : public plpgsql_error
+{
+public:
+  explicit plpgsql_too_many_rows(const PGSTD::string &err) :
+    plpgsql_error(err) {}
+  plpgsql_too_many_rows(const PGSTD::string &err, const PGSTD::string &Q) :
+    plpgsql_error(err, Q) {}
+};
+
 /**
  * @}
  */
