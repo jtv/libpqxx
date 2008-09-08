@@ -1,3 +1,7 @@
+2008-09-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sampledata/*:
+  - Moved all sample headers into "pqxx" subdirectories
+  - No longer need to copy headers, thanks Kirit Saelensminde
 2008-09-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/except.hxx, src/result.cxx:
   - PL/pgSQL exceptions, thanks Michal Jankowsk
