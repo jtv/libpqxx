@@ -4,6 +4,8 @@
   - No longer need to copy headers, thanks Kirit Saelensminde
  include/pqxx/util.hxx:
   - Simplified default_null, eliminated warning; thanks Kirit Saelensminde
+ src/connection_base.cxx:
+  - Suppressed stupid Visual C++ warnings, thanks Kirit Saelensminde
 2008-09-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/except.hxx, src/result.cxx:
   - PL/pgSQL exceptions, thanks Michal Jankowsk
