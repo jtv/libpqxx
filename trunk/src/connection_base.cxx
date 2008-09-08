@@ -82,8 +82,22 @@ static fd_set *const fdset_none = &emptyfd;
 // by using "C" linkage, perhaps silence them altogether.
 static void set_fdbit(int f, fd_set *s)
 {
+
+#ifdef _MSC_VER
+#pragma warning ( push )
+#pragma warning ( disable: 4389 ) // signed/unsigned mismatch
+#pragma warning ( disable: 4127 ) // conditional expression is constant
+#endif
+
   FD_SET(f, s);
+
+#ifdef _MSC_VER
+#pragma warning ( pop )
+#endif
+
 }
+
+
 static void clear_fdmask(fd_set *mask)
 {
   FD_ZERO(mask);
