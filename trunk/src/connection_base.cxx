@@ -1389,7 +1389,7 @@ void wait_fd(int fd, bool forwrite=false, timeval *tv=0)
 
 #ifdef PQXX_HAVE_POLL
   pollfd pfd = { fd, short(POLLERR|POLLHUP|POLLNVAL | (forwrite?POLLOUT:POLLIN)) , 0 };
-  poll(&pfd, 1, (tv ? (tv->tv_sec*1000 + tv->tv_usec/1000) : -1));
+  poll(&pfd, 1, (tv ? int(tv->tv_sec*1000 + tv->tv_usec/1000) : -1));
 #else
   fd_set s;
   clear_fdmask(&s);

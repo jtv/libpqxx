@@ -1,3 +1,6 @@
+2008-09-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+  - Fixed compile warning on poll(), thanks Eugene V. Lyubimkin
 2008-09-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sampledata/*:
   - Moved all sample headers into "pqxx" subdirectories
