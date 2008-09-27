@@ -35,6 +35,7 @@ public:
  */
 void prepare_series(transaction_base &t, int lowest, int highest);
 
+
 /// Generate query selecting series of numbers from lowest to highest, inclusive
 /** Needs to see connection object to determine whether the backend supports
  * generate_series().
@@ -44,6 +45,8 @@ PGSTD::string select_series(connection_base &conn, int lowest, int highest);
 
 class base_test;
 typedef PGSTD::map<PGSTD::string, base_test *> test_map;
+
+/// Register test (if given); return test_map.
 const test_map &register_test(base_test *);
 
 
@@ -54,7 +57,10 @@ public:
   typedef void (*testfunc)(connection_base &, transaction_base &);
 
   base_test(const PGSTD::string &tname, testfunc func);
+
+  /// Overridable: run test case.
   virtual void run() =0;
+
   virtual ~base_test() =0;
   const PGSTD::string &name() const throw () { return m_name; }
 private:
@@ -242,43 +248,38 @@ inline void check_bounds(
 	const char upper_text[],
 	const PGSTD::string &desc)
 {
-  if (!(lower < upper))
-  {
-    const PGSTD::string fulldesc =
-	desc + " ("
-	"bounds allow no values: " +
-	lower_text + " >= " + upper_text + ": "
-	"lower=" + to_string(lower) + ", "
-	"upper=" + to_string(upper) + ", "
-	"value=" + to_string(value) + ")";
-    throw test_failure(file, line, fulldesc);
-  }
+  const PGSTD::string
+	range_check = PGSTD::string(lower_text) + " < " + upper_text,
+	lower_check = PGSTD::string("!(") + text + " < " + lower_text + ")",
+	upper_check = PGSTD::string(text) + " < " + upper_text;
 
-  if (value < lower)
-  {
-    const PGSTD::string fulldesc =
-	desc + " (" +
-	text + " is below lower bound " + lower_text + ": " +
-	to_string(value) + " < " + to_string(lower) + ")";
-    throw test_failure(file, line, fulldesc);
-  }
-
-  if (!(value < upper))
-  {
-    const PGSTD::string fulldesc =
-	desc + " (" +
-	text + " is not below upper bound " + upper_text + ": " +
-	to_string(value) + " >= " + to_string(upper) + ")";
-    throw test_failure(file, line, fulldesc);
-  }
+  pqxx::test::check(
+	file,
+	line,
+	lower < upper,
+	range_check.c_str(),
+	desc + " (acceptable range is empty; value was " + text + ")");
+  pqxx::test::check(
+	file,
+	line,
+	!(value < lower),
+	lower_check.c_str(),
+	desc + " (" + text + " is below lower bound)");
+  pqxx::test::check(
+	file,
+	line,
+	value < upper,
+	upper_check.c_str(),
+	desc + " (" + text + " is not below upper bound)");
 }
+
+/// Represent result tuple as string
+PGSTD::string list_tuple(result::tuple);
+/// Represent result as string
+PGSTD::string list_result(result);
+/// Represent result iterator as string
+PGSTD::string list_result_iterator(result::const_iterator);
 } // namespace test
-
-
-namespace
-{
-PGSTD::string deref_field(const pqxx::result::field &f) { return f.c_str(); }
-} // namespace
 
 
 // Support string conversion on result rows for debug output.
@@ -290,9 +291,7 @@ template<> struct string_traits<result::tuple>
   static result null(); // Not needed
   static void from_string(const char Str[], result &Obj); // Not needed
   static PGSTD::string to_string(result::tuple Obj)
-  {
-    return separated_list(", ", Obj.begin(), Obj.end(), deref_field);
-  }
+	{ return pqxx::test::list_tuple(Obj); }
 };
 
 // Support string conversion on result objects for debug output.
@@ -304,10 +303,7 @@ template<> struct string_traits<result>
   static result null() { return result(); }
   static void from_string(const char Str[], result &Obj); // Not needed
   static PGSTD::string to_string(result Obj)
-  {
-    if (is_null(Obj)) return "<empty>";
-    return "{" + separated_list("}\n{", Obj) + "}";
-  }
+	{ return pqxx::test::list_result(Obj); }
 };
 
 // Support string conversion on result::const_iterator for debug output.
@@ -320,9 +316,7 @@ template<> struct string_traits<result::const_iterator>
   static result null(); // Not needed
   static void from_string(const char Str[], subject_type &Obj); // Not needed
   static PGSTD::string to_string(subject_type Obj)
-  {
-    return "<iterator at " + pqxx::to_string(Obj.rownumber()) + ">";
-  }
+	{ return pqxx::test::list_result_iterator(Obj); }
 };
 
 
