@@ -1,3 +1,7 @@
+2008-09-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/Makefile.am.template, test/runner.cxx, test/test/helpers.hxx,
+ test/test_main.hxx, test/unit/runner.cxx:
+  - Moved test main() into a header of its own; not a macro anymore
 2008-09-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
   - Fixed compile warning on poll(), thanks Eugene V. Lyubimkin
