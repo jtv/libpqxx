@@ -12,7 +12,7 @@ const pqxx::test::test_map &pqxx::test::register_test(base_test *tc)
 }
 
 
-int main(int, char *argv[])
+int main(int, const char *argv[])
 {
   const char *const test_name = argv[1];
   const pqxx::test::test_map &tests = pqxx::test::register_test(NULL);
