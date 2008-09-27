@@ -1,3 +1,2 @@
 #include "test_helpers.hxx"
-
-PQXX_RUN_TESTS
+#include "test_main.hxx"

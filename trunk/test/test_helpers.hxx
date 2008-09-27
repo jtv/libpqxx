@@ -197,36 +197,6 @@ private:
 		pqxx::nontransaction)
 
 
-#define PQXX_RUN_TESTS \
-	namespace pqxx \
-	{ \
-	namespace test \
-	{ \
-	base_test::~base_test() {} \
-	const test_map &register_test(base_test *tc) \
-	{ \
-	  static test_map tests; \
-	  if (tc) tests[tc->name()] = tc; \
-	  return tests; \
-	} \
-	} \
-	} \
-	int main() \
-	{ \
-	  pqxx::test::run_tests(); \
-	}
-
-inline void run_tests()
-{
-  const test_map &tests = register_test(NULL);
-  for (test_map::const_iterator i = tests.begin(); i != tests.end(); ++i)
-  {
-    PGSTD::cout << "Running: " << i->first << PGSTD::endl;
-    i->second->run();
-  }
-}
-
-
 // Unconditional test failure.
 #define PQXX_CHECK_NOTREACHED(desc) \
 	pqxx::test::check_notreached(__FILE__, __LINE__, (desc))

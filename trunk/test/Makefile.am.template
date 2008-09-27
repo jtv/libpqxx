@@ -10,7 +10,7 @@ INCLUDES=-I$(top_builddir)/include -I$(top_srcdir)/include
 # unnecessary entries, and incorrectly mentions include/pqxx directly.
 DEFAULT_INCLUDES=
 
-noinst_HEADERS = test_helpers.hxx
+noinst_HEADERS = test_helpers.hxx test_main.hxx
 
 CLEANFILES=pqxxlo.txt
 MAINTAINERCLEANFILES=Makefile.in
