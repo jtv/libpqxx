@@ -1,4 +1,3 @@
-#include <iostream>
 #include <vector>
 
 #include "test_helpers.hxx"
@@ -43,8 +42,6 @@ void test_005(connection_base &, transaction_base &T)
     { "2001", "A Space Odyssey" },
     {0,0}
   };
-
-  cout << "Writing data to " << TableName << endl;
 
   // Insert tuple of data using "begin" and "end" abstraction
   for (int i=0; CData[i][0]; ++i)

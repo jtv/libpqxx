@@ -1,7 +1,5 @@
 #include <pqxx/compiler-internal.hxx>
 
-#include <iostream> 
-
 #include "test_helpers.hxx"
 
 // Don't try this at home: peeking inside libpqxx to see if we can test the
@@ -67,14 +65,10 @@ void test_002(connection_base &, transaction_base &)
 	crtable,
 	rtable,
 	"Field looked up by name gives different origin.");
-#endif
 
   // Now we've got all that settled, let's process our results.
   for (result::size_type i = 0; i < R.size(); ++i)
   {
-    cout << '\t' << to_string(i) << '\t' << R[i][0].c_str() << endl;
-
-#ifdef PQXX_HAVE_PQFTABLE
     const oid ftable = R[i][0].table();
     PQXX_CHECK_EQUAL(ftable, rtable, "result::field::table() is broken.");
 
@@ -93,8 +87,8 @@ void test_002(connection_base &, transaction_base &)
 	cttable,
 	rtable,
 	"result::tuple::column_table() is broken.");
-#endif
   }
+#endif
 }
 
 } // namespace

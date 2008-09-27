@@ -115,7 +115,7 @@ void check(
 
 void expected_exception(const string &message)
 {
-  cout << message << endl;
+  cout << "(Expected) " << message << endl;
 }
 
 

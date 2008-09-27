@@ -1,7 +1,6 @@
 #include <cerrno>
 #include <cstring>
 #include <ctime>
-#include <iostream>
 
 #include "test_helpers.hxx"
 
@@ -32,8 +31,6 @@ public:
 	be_pid,
 	Backend_PID,
 	"Notification came from wrong backend process.");
-
-    cout << "Received notification: " << name() << " pid=" << be_pid << endl;
   }
 
   bool Done() const { return m_Done; }
@@ -54,18 +51,6 @@ public:
     T.exec("NOTIFY \"" + m_notif + "\"");
     Backend_PID = T.conn().backendpid();
   }
-
-  void on_abort(const char Reason[]) throw ()
-  {
-    try
-    {
-      cerr << "Notify failed!" << endl;
-      if (Reason) cerr << "Reason: " << Reason << endl;
-    }
-    catch (const exception &)
-    {
-    }
-  }
 };
 
 
@@ -73,10 +58,8 @@ void test_004(connection_base &C, transaction_base &T)
 {
   T.abort();
 
-  cout << "Adding listener..." << endl;
   TestListener L(C);
 
-  cout << "Sending notification..." << endl;
   C.perform(Notify(L.name()));
 
   int notifs = 0;
@@ -89,9 +72,7 @@ void test_004(connection_base &C, transaction_base &T)
     // and may change radically at any time.
     pqxx::internal::sleep_seconds(1);
     notifs = C.get_notifs();
-    cout << ".";
   }
-  cout << endl;
 
   PQXX_CHECK_NOT_EQUAL(L.Done(), false, "No notification received.");
   PQXX_CHECK_EQUAL(notifs, 1, "Got too many notifications.");

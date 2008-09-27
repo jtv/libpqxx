@@ -9,8 +9,6 @@
 #include <locale>
 #endif
 
-#include <iostream>
-
 #include "test_helpers.hxx"
 
 using namespace PGSTD;
