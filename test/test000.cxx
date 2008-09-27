@@ -11,8 +11,6 @@
 
 #include <iostream>
 
-#include <pqxx/pqxx>
-
 #include "test_helpers.hxx"
 
 using namespace PGSTD;
@@ -45,9 +43,6 @@ template<typename T> inline void strconv(string type,
     string expected)
 {
   const string Objstr(to_string(Obj));
-
-  cout << '\t' << type << '\t' << ":\t" << Objstr
-       << " (expect " << expected << ")" << endl;
 
   check(expected, Objstr, type);
   T NewObj;
@@ -92,7 +87,7 @@ void test_000(connection_base &, transaction_base &)
 	cursor_base::prior() < 0 && cursor_base::backward_all() < 0,
 	"cursor_base::difference_type appears to be unsigned.");
 
-  cout << "Testing items template..." << endl;
+  // Test items template
   items<int> I0;
   testitems(I0, 0);
   items<int> I1(1);
@@ -113,7 +108,7 @@ void test_000(connection_base &, transaction_base &)
   const char weird[] = "foo\t\n\0bar";
   const string weirdstr(weird, sizeof(weird)-1);
 
-  cout << "Testing string conversions..." << endl;
+  // Test string conversions
   strconv("const char[]", "", "");
   strconv("const char[]", "foo", "foo");
   strconv("int", 0, "0");
@@ -203,7 +198,7 @@ void test_000(connection_base &, transaction_base &)
 	"Encrypted password contains original.");
 #endif
 
-  cout << "Testing error handling for failed connections..." << endl;
+  // Test error handling for failed connections
   {
     nullconnection nc;
     PQXX_CHECK_THROWS(
@@ -239,7 +234,7 @@ void test_000(connection_base &, transaction_base &)
     PQXX_CHECK(
 	dynamic_cast<const broken_connection *>(&e.base()),
 	"Downcast pqxx_exception is not a broken_connection");
-    cout << "(Expected) " << e.base().what() << endl;
+    pqxx::test::expected_exception(e.base().what());
     PQXX_CHECK_EQUAL(
 	dynamic_cast<const broken_connection &>(e.base()).what(),
         e.base().what(),

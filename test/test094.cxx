@@ -1,11 +1,4 @@
 #include <iostream>
-#include <stdexcept>
-
-#include <pqxx/connection>
-#include <pqxx/cursor>
-#include <pqxx/transaction>
-#include <pqxx/transactor>
-#include <pqxx/result>
 
 #include "test_helpers.hxx"
 
@@ -105,7 +98,7 @@ public:
       if (m_failcount > 0)
       {
         --m_failcount;
-	cout << "(Expected) Transactor outcome in doubt" << endl;
+        pqxx::test::expected_exception("Transactor outcome in doubt.");
       }
       else
       {
@@ -124,12 +117,10 @@ void test_094(connection_base &C, transaction_base &orgT)
   orgT.abort();
 
   // Run without simulating failure
-  cout << "Playing transactor without simulating failure..." << endl;
   C.perform(FlakyTransactor(0), 1);
 
   // Simulate one failure.  The transactor will succeed on a second attempt, but
   // since this is an in-doubt error, the framework does not retry.
-  cout << "Playing transactor with simulated failure..." << endl;
   PQXX_CHECK_THROWS(
 	C.perform(FlakyTransactor(1), 2),
 	in_doubt_error,

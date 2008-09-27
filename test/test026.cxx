@@ -1,11 +1,6 @@
 #include <iostream>
 #include <map>
 
-#include <pqxx/connection>
-#include <pqxx/transaction>
-#include <pqxx/transactor>
-#include <pqxx/result>
-
 #include "test_helpers.hxx"
 
 using namespace PGSTD;

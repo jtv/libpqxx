@@ -1,11 +1,4 @@
-#include <iostream>
-
-#include <pqxx/pqxx>
-
 #include "test_helpers.hxx"
-
-// Don't try this at home: use some libpqxx-internal information about libpq
-#include <pqxx/config-internal-libpq.h>
 
 using namespace PGSTD;
 using namespace pqxx;

@@ -1,10 +1,5 @@
 #include <iostream>
-#include <stdexcept>
 #include <vector>
-
-#include <pqxx/connection>
-#include <pqxx/tablereader>
-#include <pqxx/nontransaction>
 
 #include "test_helpers.hxx"
 

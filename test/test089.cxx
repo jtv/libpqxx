@@ -1,9 +1,5 @@
 #include <iostream>
 
-#include <pqxx/connection>
-#include <pqxx/subtransaction>
-#include <pqxx/transaction>
-
 #include "test_helpers.hxx"
 
 using namespace PGSTD;
@@ -64,8 +60,9 @@ bool test_and_catch(connection_base &C, const string &desc)
   catch (const exception &)
   {
     if (C.supports(connection_base::cap_nested_transactions))
-      throw;
-    cout << "Backend does not support nested transactions." << endl;
+      throw feature_not_supported(
+	"Backend does not support nested transactions.");
+    throw;
   }
 
   return ok;
@@ -104,9 +101,8 @@ void test_089(connection_base &, transaction_base &)
     }
     else
     {
-      cout << "Backend does not support nested transactions.  Skipping test."
-	   << endl;
-      return;
+      throw feature_not_supported(
+      	"Backend does not support nested transactions.");
     }
   }
 
@@ -115,15 +111,7 @@ void test_089(connection_base &, transaction_base &)
 	"Virgin asyncconnection supports nested transactions, "
 	"but initialized one doesn't!");
 
-  try
-  {
-    do_test(A2, "asyncconnection (initialized)");
-  }
-  catch (const feature_not_supported &e)
-  {
-    cerr << e.what() << endl;
-    return;
-  }
+  do_test(A2, "asyncconnection (initialized)");
 
   lazyconnection L1;
   do_test(L1, "lazyconnection (virgin)");

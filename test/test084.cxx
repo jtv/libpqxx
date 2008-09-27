@@ -1,14 +1,8 @@
 #include <algorithm>
 #include <cstdio>
 #include <iostream>
-#include <stdexcept>
 #include <string>
 #include <vector>
-
-#include <pqxx/connection>
-#include <pqxx/cursor>
-#include <pqxx/transaction>
-#include <pqxx/result>
 
 #include "test_helpers.hxx"
 

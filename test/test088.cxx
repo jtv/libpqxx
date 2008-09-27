@@ -1,7 +1,5 @@
 #include <iostream>
 
-#include <pqxx/pqxx>
-
 #include "test_helpers.hxx"
 
 using namespace PGSTD;
@@ -22,16 +20,10 @@ void test_088(connection_base &C, transaction_base &T0)
 
   // Trivial test: create subtransactions, and commit/abort
   cout << T0.exec("SELECT 'T0 starts'")[0][0].c_str() << endl;
-  try
-  {
-    subtransaction T0a(static_cast<dbtransaction &>(T0), "T0a");
-    T0a.commit();
-  }
-  catch (const feature_not_supported &e)
-  {
-    cerr << e.what() << endl;
-    return;
-  }
+
+  subtransaction T0a(static_cast<dbtransaction &>(T0), "T0a");
+  T0a.commit();
+
   subtransaction T0b(static_cast<dbtransaction &>(T0), "T0b");
   T0b.abort();
   cout << T0.exec("SELECT 'T0 ends'")[0][0].c_str() << endl;

@@ -1,10 +1,5 @@
 #include <cstdio>
-#include <iostream>
 #include <vector>
-
-#include <pqxx/connection>
-#include <pqxx/transaction>
-#include <pqxx/result>
 
 #include "test_helpers.hxx"
 
@@ -123,24 +118,10 @@ void test_012(connection_base &C, transaction_base &orgT)
     }
   }
 
-  // Now report on what we've found
-  cout << "Read " << to_string(R.size()) << " rows." << endl;
-  cout << "Field \t Field Name\t Nulls\t Sorted" << endl;
-
   for (result::tuple::size_type f = 0; f < R.columns(); ++f)
-  {
-    cout << to_string(f) << ":\t"
-         << R.column_name(f) << '\t'
-         << NullFields[f] << '\t'
-         << (SortedUp[f] ?
-		(SortedDown[f] ? "equal" : "up" ) :
-		(SortedDown[f] ? "down" : "no" ) )
-         << endl;
-
     PQXX_CHECK(
 	NullFields[f] <= int(R.size()),
 	"Found more nulls than there were rows.");
-  }
 }
 } // namespace
 

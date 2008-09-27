@@ -2,8 +2,6 @@
 #include <iostream>
 #include <list>
 
-#include <pqxx/pqxx>
-
 #include "test_helpers.hxx"
 
 

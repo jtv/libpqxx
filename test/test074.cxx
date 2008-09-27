@@ -1,10 +1,4 @@
 #include <cmath>
-#include <iostream>
-#include <stdexcept>
-
-#include <pqxx/connection>
-#include <pqxx/result>
-#include <pqxx/transaction>
 
 #include "test_helpers.hxx"
 

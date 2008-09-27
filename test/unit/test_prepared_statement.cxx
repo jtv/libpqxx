@@ -3,8 +3,6 @@
 
 #include <pqxx/compiler-internal.hxx>
 
-#include <pqxx/pqxx>
-
 #include "test_helpers.hxx"
 
 using namespace PGSTD;
@@ -92,11 +90,10 @@ void test_prepared_statement(connection_base &C, transaction_base &T)
 
   try
   {
-    cout << "Preparing a simple statement..." << endl;
+    // Prepare a simple statement
     C.prepare("ReadPGTables", Q_readpgtables);
 
     // See if a basic prepared statement works just like a regular query
-    cout << "Basic correctness check on prepared statement..." << endl;
     PQXX_CHECK_EQUAL(
 	T.prepared(string("ReadPGTables")).exec(),
 	T.exec(Q_readpgtables),

@@ -2,11 +2,6 @@
 
 #include <iostream>
 #include <map>
-#include <stdexcept>
-
-#include <pqxx/connection>
-#include <pqxx/transaction>
-#include <pqxx/pipeline>
 
 #include "test_helpers.hxx"
 
