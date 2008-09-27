@@ -7,6 +7,8 @@
 #include "pqxx/except"
 #include "pqxx/util"
 
+#include "test_helpers.hxx"
+
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -20,6 +22,14 @@ bool have_generate_series(const connection_base &c)
 {
   return c.server_version() >= 80000;
 }
+
+
+string deref_field(const result::field &f)
+{
+  return f.c_str();
+}
+
+
 } // namespace
 
 
@@ -34,7 +44,6 @@ test_failure::test_failure(const string &ffile, int fline, const string &desc) :
 {
 }
 
-
 test_failure::~test_failure() throw () {}
 
 
@@ -48,12 +57,14 @@ base_test::base_test(const string &tname, testfunc func) :
 
 base_test::~base_test() {}
 
+
 const test_map &register_test(base_test *tc)
 {
   static test_map tests;
   if (tc) tests[tc->name()] = tc;
   return tests;
 }
+
 
 void prepare_series(transaction_base &t, int lowest, int highest)
 {
@@ -104,6 +115,24 @@ void check(
 	desc + " (failed expression: " + text + ")");
 }
 
+
+string list_tuple(result::tuple Obj)
+{
+  return separated_list(", ", Obj.begin(), Obj.end(), deref_field);
+}
+
+
+string list_result(result Obj)
+{
+  if (Obj.empty()) return "<empty>";
+  return "{" + separated_list("}\n{", Obj) + "}";
+}
+
+
+string list_result_iterator(result::const_iterator Obj)
+{
+  return "<iterator at " + to_string(Obj.rownumber()) + ">";
+}
 } // namespace pqxx::test
 } // namespace pqxx
 
