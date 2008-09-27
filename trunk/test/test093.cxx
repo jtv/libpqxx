@@ -1,11 +1,9 @@
 #include <iostream>
 #include <set>
-#include <stdexcept>
 #include <vector>
 
-#include <pqxx/connection>
-#include <pqxx/tablewriter>
-#include <pqxx/transaction>
+// Get some information about our libpq version
+#include <pqxx/config-internal-libpq.h>
 
 #include "test_helpers.hxx"
 

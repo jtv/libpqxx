@@ -4,9 +4,6 @@
 #include <new>
 #include <stdexcept>
 
-#include "pqxx/except"
-#include "pqxx/util"
-
 #include "test_helpers.hxx"
 
 
@@ -79,7 +76,7 @@ void prepare_series(transaction_base &t, int lowest, int highest)
 }
 
 
-PGSTD::string select_series(connection_base &conn, int lowest, int highest)
+string select_series(connection_base &conn, int lowest, int highest)
 {
   if (have_generate_series(conn))
     return
@@ -95,7 +92,7 @@ PGSTD::string select_series(connection_base &conn, int lowest, int highest)
 }
 
 
-void check_notreached(const char file[], int line, PGSTD::string desc)
+void check_notreached(const char file[], int line, string desc)
 {
   throw test_failure(file, line, desc);
 }
@@ -106,13 +103,19 @@ void check(
 	int line,
 	bool condition,
 	const char text[], 
-	PGSTD::string desc)
+	string desc)
 {
   if (!condition)
     throw test_failure(
 	file,
 	line,
 	desc + " (failed expression: " + text + ")");
+}
+
+
+void expected_exception(const string &message)
+{
+  cout << message << endl;
 }
 
 
@@ -146,7 +149,7 @@ int main(int, const char *argv[])
   for (test_map::const_iterator i = tests.begin(); i != tests.end(); ++i)
     if (!test_name || test_name == i->first)
     {
-      PGSTD::cout << PGSTD::endl << "Running: " << i->first << PGSTD::endl;
+      cout << endl << "Running: " << i->first << endl;
 
       bool success = false;
       try
@@ -156,35 +159,43 @@ int main(int, const char *argv[])
       }
       catch (const test_failure &e)
       {
-        PGSTD::cerr << "Test failure in " + e.file() + " line " + 
-	    to_string(e.line()) << ": " << e.what() << PGSTD::endl;
+        cerr << "Test failure in " + e.file() + " line " + 
+	    to_string(e.line()) << ": " << e.what() << endl;
       }
-      catch (const PGSTD::bad_alloc &)
+      catch (const bad_alloc &)
       {
-        PGSTD::cerr << "Out of memory!" << PGSTD::endl;
+        cerr << "Out of memory!" << endl;
+      }
+      catch (const feature_not_supported &e)
+      {
+        cerr << "Not testing unsupported feature: " << e.what() << endl;
       }
       catch (const sql_error &e)
       {
-        PGSTD::cerr << "SQL error: " << e.what() << PGSTD::endl
-             << "Query was: " << e.query() << PGSTD::endl;
+        cerr << "SQL error: " << e.what() << endl
+             << "Query was: " << e.query() << endl;
       }
-      catch (const PGSTD::exception &e)
+      catch (const exception &e)
       {
-        PGSTD::cerr << "Exception: " << e.what() << PGSTD::endl;
+        cerr << "Exception: " << e.what() << endl;
       }
       catch (...)
       {
-        PGSTD::cerr << "Unknown exception" << PGSTD::endl;
+        cerr << "Unknown exception" << endl;
       }
 
-      if (!success) ++failures;
+      if (!success)
+      {
+        cerr << "FAILED: " << i->first << endl;
+        ++failures;
+      }
       ++test_count;
     }
 
-  PGSTD::cout << "Ran " << test_count << " test(s)." << PGSTD::endl;
+  cout << "Ran " << test_count << " test(s)." << endl;
 
   if (failures > 0)
-    PGSTD::cout << "*** " << failures << " test(s) failed. ***" << PGSTD::endl;
+    cerr << "*** " << failures << " test(s) failed. ***" << endl;
 
   return failures;
 }

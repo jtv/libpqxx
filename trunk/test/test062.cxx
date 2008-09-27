@@ -3,11 +3,6 @@
 #include <cstring>
 #include <iostream>
 
-#include <pqxx/binarystring>
-#include <pqxx/connection>
-#include <pqxx/transaction>
-#include <pqxx/result>
-
 #include "test_helpers.hxx"
 
 

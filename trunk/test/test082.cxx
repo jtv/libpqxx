@@ -1,10 +1,4 @@
-#include <pqxx/compiler-internal.hxx>
-
 #include <iostream>
-
-#include <pqxx/connection>
-#include <pqxx/nontransaction>
-#include <pqxx/result>
 
 #include "test_helpers.hxx"
 

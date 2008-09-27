@@ -3,8 +3,6 @@
 #include <iostream>
 #include <sstream>
 
-#include <pqxx/pqxx>
-
 #include "test_helpers.hxx"
 
 using namespace PGSTD;

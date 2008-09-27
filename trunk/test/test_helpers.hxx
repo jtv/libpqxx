@@ -273,11 +273,16 @@ inline void check_bounds(
 	desc + " (" + text + " is not below upper bound)");
 }
 
-/// Represent result tuple as string
+
+// Report expected exception
+void expected_exception(const PGSTD::string &);
+
+
+// Represent result tuple as string
 PGSTD::string list_tuple(result::tuple);
-/// Represent result as string
+// Represent result as string
 PGSTD::string list_result(result);
-/// Represent result iterator as string
+// Represent result iterator as string
 PGSTD::string list_result_iterator(result::const_iterator);
 } // namespace test
 

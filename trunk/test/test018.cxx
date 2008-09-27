@@ -1,14 +1,3 @@
-#include <cstdio>
-#include <iostream>
-#include <stdexcept>
-
-#include <pqxx/connection>
-#include <pqxx/nontransaction>
-#include <pqxx/result>
-#include <pqxx/robusttransaction>
-#include <pqxx/transaction>
-#include <pqxx/transactor>
-
 #include "test_helpers.hxx"
 
 using namespace PGSTD;
@@ -54,6 +43,11 @@ public:
 };
 
 
+struct deliberate_error : exception
+{
+};
+
+
 class FailedInsert : public transactor<robusttransaction<serializable> >
 {
   string m_Table;
@@ -70,27 +64,17 @@ public:
     T.exec("INSERT INTO " + m_Table + " VALUES (" +
 	   to_string(BoringYear) + ", '" + T.esc("yawn") + "')");
 
-    throw runtime_error("Transaction deliberately aborted");
+    throw deliberate_error();
   }
 
   void on_abort(const char Reason[]) throw ()
   {
     if (Reason != LastReason)
     {
-      cout << "(Expected) Transactor " << Name() << " failed: "
-	   << Reason << endl;
+      pqxx::test::expected_exception(
+	"Transactor " + Name() + " failed: " + Reason);
       LastReason = Reason;
     }
-  }
-
-  void on_commit()
-  {
-    cerr << "Transactor " << Name() << " succeeded." << endl;
-  }
-
-  void on_doubt() throw ()
-  {
-    cerr << "Transactor " << Name() << " in indeterminate state!" << endl;
   }
 };
 
@@ -117,7 +101,7 @@ void test_018(connection_base &C, transaction_base &T)
     disable_noticer d(C);
     PQXX_CHECK_THROWS(
 	C.perform(DoomedTransaction),
-	runtime_error,
+	deliberate_error,
 	"Not getting expected exception from failing transactor.");
   }
 

@@ -17,12 +17,6 @@
 #endif
 #endif // PQXX_HAVE_SYS_SELECT_H
 
-#include <pqxx/connection>
-#include <pqxx/nontransaction>
-#include <pqxx/transactor>
-#include <pqxx/notify-listen>
-#include <pqxx/result>
-
 #include "test_helpers.hxx"
 
 using namespace PGSTD;

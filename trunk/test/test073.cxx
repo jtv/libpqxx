@@ -1,9 +1,4 @@
 #include <iostream>
-#include <stdexcept>
-
-#include <pqxx/connection>
-#include <pqxx/nontransaction>
-#include <pqxx/pipeline>
 
 #include "test_helpers.hxx"
 

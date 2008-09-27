@@ -4,8 +4,6 @@
 #include <iostream>
 #include <iterator>
 
-#include <pqxx/pqxx>
-
 #include "test_helpers.hxx"
 
 // For count_if workaround

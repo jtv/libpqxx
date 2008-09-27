@@ -1,12 +1,3 @@
-#include <cstdio>
-#include <iostream>
-#include <stdexcept>
-
-#include <pqxx/connection>
-#include <pqxx/transaction>
-#include <pqxx/transactor>
-#include <pqxx/result>
-
 #include "test_helpers.hxx"
 
 using namespace PGSTD;
@@ -51,6 +42,11 @@ public:
 };
 
 
+struct deliberate_error : exception
+{
+};
+
+
 class FailedInsert : public transactor<>
 {
   string m_Table;
@@ -68,24 +64,13 @@ public:
 	             "'yawn')") );
 
     PQXX_CHECK_EQUAL(R.affected_rows(), 1u, "Bad affected_rows().");
-    cout << "Inserted row with oid " << R.inserted_oid() << endl;
 
-    throw runtime_error("Transaction deliberately aborted");
+    throw deliberate_error();
   }
 
   void on_abort(const char Reason[]) throw ()
   {
-    cout << "(Expected) Transactor " << Name() << " failed: " << Reason << endl;
-  }
-
-  void on_commit()
-  {
-    cerr << "Transactor " << Name() << " succeeded." << endl;
-  }
-
-  void on_doubt() throw ()
-  {
-    cerr << "Transactor " << Name() << " in indeterminate state!" << endl;
+    pqxx::test::expected_exception(Name() + " failed: " + Reason);
   }
 };
 
@@ -107,7 +92,7 @@ void test_013(connection_base &C, transaction_base &T)
   disable_noticer d(C);
   PQXX_CHECK_THROWS(
 	C.perform(DoomedTransaction),
-	runtime_error,
+	deliberate_error,
 	"Failing transactor failed to throw correct exception.");
 
   pair<int,int> After;

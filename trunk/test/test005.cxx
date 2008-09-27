@@ -1,10 +1,6 @@
 #include <iostream>
 #include <vector>
 
-#include <pqxx/connection>
-#include <pqxx/tablewriter>
-#include <pqxx/transaction>
-
 #include "test_helpers.hxx"
 
 using namespace PGSTD;

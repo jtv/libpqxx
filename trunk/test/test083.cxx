@@ -1,11 +1,3 @@
-#include <iostream>
-#include <vector>
-
-#include <pqxx/connection>
-#include <pqxx/nontransaction>
-#include <pqxx/tablewriter>
-#include <pqxx/transaction>
-
 #include "test_helpers.hxx"
 
 using namespace PGSTD;
@@ -30,22 +22,15 @@ void test_083(connection_base &C, transaction_base &orgT)
     contents.push_back(n);
   }
 
-  cout << "Dropping old " << Table << endl;
   try
   {
     nontransaction Drop(C, "drop_" + Table);
     disable_noticer d(C);
     Drop.exec("DROP TABLE " + Table);
   }
-  catch (const undefined_table &e)
+  catch (const exception &e)
   {
-    cout << "(Expected) Couldn't drop table: " << e.what() << endl
-	 << "Query was: " << e.query() << endl;
-  }
-  catch (const sql_error &e)
-  {
-    cerr << "Couldn't drop table: " << e.what() << endl
-	 << "Query was: " << e.query() << endl;
+    pqxx::test::expected_exception(string("Could not drop table: ") + e.what());
   }
 
   work T(C, "test83");

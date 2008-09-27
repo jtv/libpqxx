@@ -1,9 +1,5 @@
 #include <iostream>
 
-#include <pqxx/connection>
-#include <pqxx/nontransaction>
-#include <pqxx/transaction>
-
 #include "test_helpers.hxx"
 
 using namespace PGSTD;
