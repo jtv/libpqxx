@@ -1,7 +1,4 @@
-#include <iostream>
 #include <map>
-#include <new>
-#include <stdexcept>
 
 #include <pqxx/pqxx>
 
@@ -17,24 +14,16 @@ class test_failure : public PGSTD::logic_error
 
 public:
   test_failure(
-	const PGSTD::string &ffile, int fline, const PGSTD::string &desc) :
-    logic_error(desc),
-    m_file(ffile),
-    m_line(fline)
-  {}
+	const PGSTD::string &ffile,
+	int fline,
+	const PGSTD::string &desc);
 
-  ~test_failure() throw () {}
+  ~test_failure() throw ();
 
   const PGSTD::string &file() const throw () { return m_file; }
   int line() const throw () { return m_line; }
 };
 
-
-/// Does this backend have generate_series()?
-inline bool have_generate_series(const connection_base &c)
-{
-  return c.server_version() >= 80000;
-}
 
 /// For backends that don't have generate_series(): sequence of ints
 /** If the backend lacks generate_series(), prepares a temp table called
@@ -44,37 +33,13 @@ inline bool have_generate_series(const connection_base &c)
  * the workaround on older backends to work, the ranges of numbers passed to
  * select_series() must be subsets of the range passed here.
  */
-inline void prepare_series(transaction_base &t, int lowest, int highest)
-{
-  connection_base &conn = t.conn();
-  // Don't do this for nullconnections, so nullconnection tests can run.
-  if (conn.is_open() && !have_generate_series(conn))
-  {
-    t.exec("CREATE TEMP TABLE series(x integer)");
-    for (int x=lowest; x <= highest; ++x)
-      t.exec("INSERT INTO series(x) VALUES (" + to_string(x) + ")");
-  }
-}
+void prepare_series(transaction_base &t, int lowest, int highest);
 
 /// Generate query selecting series of numbers from lowest to highest, inclusive
 /** Needs to see connection object to determine whether the backend supports
  * generate_series().
  */
-inline
-PGSTD::string select_series(connection_base &conn, int lowest, int highest)
-{
-  if (have_generate_series(conn))
-    return
-	"SELECT generate_series(" +
-	to_string(lowest) + ", " + to_string(highest) + ")";
-
-  return
-	"SELECT x FROM series "
-	"WHERE "
-	  "x >= " + to_string(lowest) + " AND "
-	  "x <= " + to_string(highest) + " "
-	"ORDER BY x";
-}
+PGSTD::string select_series(connection_base &conn, int lowest, int highest);
 
 
 class base_test;
@@ -87,13 +52,9 @@ class base_test
 {
 public:
   typedef void (*testfunc)(connection_base &, transaction_base &);
-  base_test(const PGSTD::string &tname, testfunc func) :
-	m_name(tname),
-	m_func(func)
-  {
-    register_test(this);
-  }
-  virtual int run() =0;
+
+  base_test(const PGSTD::string &tname, testfunc func);
+  virtual void run() =0;
   virtual ~base_test() =0;
   const PGSTD::string &name() const throw () { return m_name; }
 private:
@@ -120,43 +81,7 @@ public:
 
   ~test_case() {}
 
-  // Run test, catching errors & returning Unix-style success value
-  virtual int run()
-  {
-    try
-    {
-      m_func(m_conn, m_trans);
-    }
-    catch (const test_failure &e)
-    {
-      PGSTD::cerr << "Test failure in " + e.file() + " line " + 
-	  to_string(e.line()) << ": " << e.what() << PGSTD::endl;
-      return 1;
-    }
-    catch (const PGSTD::bad_alloc &)
-    {
-      PGSTD::cerr << "Out of memory!" << PGSTD::endl;
-      return 50;
-    }
-    catch (const sql_error &e)
-    {
-      PGSTD::cerr << "SQL error: " << e.what() << PGSTD::endl
-           << "Query was: " << e.query() << PGSTD::endl;
-      return 1;
-    }
-    catch (const PGSTD::exception &e)
-    {
-      PGSTD::cerr << "Exception: " << e.what() << PGSTD::endl;
-      return 2;
-    }
-    catch (...)
-    {
-      PGSTD::cerr << "Unknown exception" << PGSTD::endl;
-      return 100;
-    }
-
-    return 0;
-  }
+  virtual void run() { m_func(m_conn, m_trans); }
 
 private:
   CONNECTION m_conn;
@@ -200,27 +125,17 @@ private:
 // Unconditional test failure.
 #define PQXX_CHECK_NOTREACHED(desc) \
 	pqxx::test::check_notreached(__FILE__, __LINE__, (desc))
-inline void check_notreached(const char file[], int line, PGSTD::string desc)
-{
-  throw test_failure(file, line, desc);
-}
+void check_notreached(const char file[], int line, PGSTD::string desc);
 
 // Verify that a condition is met, similar to assert()
 #define PQXX_CHECK(condition, desc) \
 	pqxx::test::check(__FILE__, __LINE__, (condition), #condition, (desc))
-inline void check(
+void check(
 	const char file[],
 	int line,
 	bool condition,
 	const char text[], 
-	PGSTD::string desc)
-{
-  if (!condition)
-    throw test_failure(
-	file,
-	line,
-	desc + " (failed expression: " + text + ")");
-}
+	PGSTD::string desc);
 
 // Verify that variable has the expected value.
 #define PQXX_CHECK_EQUAL(actual, expected, desc) \
@@ -294,7 +209,7 @@ struct failure_to_fail {};
 		PGSTD::string(desc) + \
 		" (\"" #action "\" did not throw " #exception_type ")"); \
 	  } \
-	  catch (const exception_type &e) {} \
+	  catch (const exception_type &) {} \
 	  catch (...) \
 	  { \
 	    PQXX_CHECK_NOTREACHED( \
