@@ -280,21 +280,21 @@ pqxx::result::size_type pqxx::result::affected_rows() const
 const char *pqxx::result::GetValue(pqxx::result::size_type Row,
 		                 pqxx::result::tuple::size_type Col) const
 {
-  return PQgetvalue(m_data, Row, Col);
+  return PQgetvalue(m_data, int(Row), int(Col));
 }
 
 
 bool pqxx::result::GetIsNull(pqxx::result::size_type Row,
 		           pqxx::result::tuple::size_type Col) const
 {
-  return PQgetisnull(m_data, Row, Col) != 0;
+  return PQgetisnull(m_data, int(Row), int(Col)) != 0;
 }
 
 pqxx::result::field::size_type
 pqxx::result::GetLength(pqxx::result::size_type Row,
                         pqxx::result::tuple::size_type Col) const
 {
-  return PQgetlength(m_data, Row, Col);
+  return PQgetlength(m_data, int(Row), int(Col));
 }
 
 

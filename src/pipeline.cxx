@@ -317,7 +317,7 @@ void pqxx::pipeline::obtain_dummy()
 
 
   // Reset internal state to forget botched batch attempt
-  m_num_waiting += internal::distance(m_issuedrange.first, stop);
+  m_num_waiting += int(internal::distance(m_issuedrange.first, stop));
   m_issuedrange.second = m_issuedrange.first;
 
   pqxxassert(!m_dummy_pending);

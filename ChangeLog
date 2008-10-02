@@ -1,3 +1,7 @@
+2008-10-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/largeobject.cxx, src/pipeline.cxx, src/prepared_statement.cxx,
+ src/result.cxx, src/util.cxx:
+  - Fixed gcc 4.3 warnings (I hope), thanks Eugene V. Lyubimkin
 2008-09-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/Makefile.am.template, test/runner.cxx, test/test/helpers.hxx,
  test/test_main.hxx, test/unit/runner.cxx:
