@@ -102,7 +102,7 @@ template<typename T> inline void set_to_Inf(T &t, int sign=1)
 template<typename L, typename R>
   inline L absorb_digit(L value, R digit) throw ()
 {
-  return L(10)*value + L(digit);
+  return L(L(10)*value + L(digit));
 }
 
 
@@ -234,7 +234,7 @@ template<typename T> inline string to_string_unsigned(T Obj)
   *--p = '\0';
   while (Obj > 0)
   {
-    *--p = number_to_digit(Obj%10);
+    *--p = number_to_digit(int(Obj%10));
     Obj /= 10;
   }
   return p;
@@ -519,7 +519,7 @@ size_t pqxx_strnlen(const char s[], size_t max)
   return strnlen(s,max);
 #else
   size_t len;
-  for (len=0; len<max && s[len]; ++len);
+  for (len=0; len<max && s[len]; ++len) ;
   return len;
 #endif
 }

@@ -205,7 +205,7 @@ pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
 pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::cseek(off_type dest, seekdir dir) throw ()
 {
-  return lo_lseek(RawConnection(), m_fd, dest, StdDirToPQDir(dir));
+  return lo_lseek(RawConnection(), m_fd, int(dest), StdDirToPQDir(dir));
 }
 
 
