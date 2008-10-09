@@ -55,7 +55,7 @@ pqxx::pipeline::~pipeline() throw ()
 #ifdef PQXX_QUIET_DESTRUCTORS
   disable_noticer Quiet(m_Trans.conn());
 #endif
-  try { flush(); } catch (const exception &) {}
+  try { cancel(); } catch (const exception &) {}
   detach();
 }
 
@@ -130,6 +130,18 @@ void pqxx::pipeline::flush()
     m_queries.clear();
   }
   detach();
+}
+
+
+void pqxx::pipeline::cancel()
+{
+  while (have_pending())
+  {
+    m_Trans.conn().cancel_query();
+    QueryMap::iterator canceled_query = m_issuedrange.first;
+    ++m_issuedrange.first;
+    m_queries.erase(canceled_query);
+  }
 }
 
 

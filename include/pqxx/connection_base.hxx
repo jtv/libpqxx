@@ -894,6 +894,7 @@ private:
   friend class pipeline;
   bool PQXX_PRIVATE consume_input() throw ();
   bool PQXX_PRIVATE is_busy() const throw ();
+  void cancel_query();
 
   friend class internal::sql_cursor;
   friend class dbtransaction;

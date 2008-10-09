@@ -13,6 +13,7 @@
  - Keeps better track of applicable text encodings
  - Fixed bug with prepared statement parameters in separate C++ statements
  - robusttransaction now works for multiple users
+ - Pipeline lets you cancel ongoing queries
  - Fixed broken escaping of binary values in TableWriter
  - Floating-point types now represented with full precision
  - Proper unit tests for new functionality
