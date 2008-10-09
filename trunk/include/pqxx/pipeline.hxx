@@ -97,6 +97,17 @@ public:
    */
   void flush();								//[t70]
 
+  /// Cancel ongoing query, if any.
+  /** May cancel any or all of the queries that have been inserted at this point
+   * whose results have not yet been retrieved.  If the pipeline lives in a
+   * backend transaction, that transaction may be left in a nonfunctional state
+   * in which it can only be aborted.
+   *
+   * Therefore, either use this function in a nontransaction, or abort the
+   * transaction after calling it.
+   */
+  void cancel();
+
   /// Is result for given query available?
   bool is_finished(query_id) const;					//[t71]
 

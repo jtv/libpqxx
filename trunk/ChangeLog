@@ -1,3 +1,10 @@
+2008-10-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, config/sample-headers/libpq/8.*/pqxx/config-internal-libpq.h,
+ configure.ac.in:
+  - Check for PQcancel() (and friends, PQgetCancel() and PQfreeCancel())
+ include/pqxx/connection_base.hxx, include/pqxx/pipeline.hxx,
+ src/connection_base.cxx, src/pipeline.cxx, test/unit/test_pipeline.cxx:
+  - Implemented pipeline::cancel_query()
 2008-10-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/largeobject.cxx, src/pipeline.cxx, src/prepared_statement.cxx,
  src/result.cxx, src/util.cxx:

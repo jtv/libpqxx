@@ -652,6 +652,43 @@ bool pqxx::connection_base::is_busy() const throw ()
 }
 
 
+#ifdef PQXX_HAVE_PQCANCEL
+namespace
+{
+class cancel_wrapper
+{
+  PGcancel *m_cancel;
+  char m_errbuf[500];
+public:
+  cancel_wrapper(PGconn *conn) :
+    m_cancel(NULL),
+    m_errbuf()
+  {
+    m_cancel = PQgetCancel(conn);
+    if (!m_cancel) throw bad_alloc();
+  }
+  ~cancel_wrapper() { PQfreeCancel(m_cancel); }
+
+  void operator()()
+  {
+    if (!PQcancel(m_cancel, m_errbuf, int(sizeof(m_errbuf))))
+      throw sql_error(string(m_errbuf));
+  }
+};
+}
+#endif
+
+void pqxx::connection_base::cancel_query()
+{
+#ifdef PQXX_HAVE_PQCANCEL
+  cancel_wrapper cancel(m_Conn);
+  cancel();
+#else
+  if (!PQrequestCancel(m_Conn)) throw sql_error(ErrMsg());
+#endif
+}
+
+
 int pqxx::connection_base::get_notifs()
 {
   int notifs = 0;

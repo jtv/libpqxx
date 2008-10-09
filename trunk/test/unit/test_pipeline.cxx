@@ -5,7 +5,7 @@ using namespace pqxx;
 
 namespace
 {
-void test_pipeline_detach(connection_base &, transaction_base &trans)
+void test_pipeline(connection_base &, transaction_base &trans)
 {
   // A pipeline grabs transaction focus, blocking regular queries and such.
   pipeline pipe(trans, "test_pipeline_detach");
@@ -47,7 +47,15 @@ void test_pipeline_detach(connection_base &, transaction_base &trans)
     2,
     "Pipeline returned wrong data.");
 
+  // We can cancel while the pipe is empty, and things will still work.
+  pipe.cancel();
+
+  // Issue a query and cancel it.
+  pipe.retain(0);
+  pipe.insert("pg_sleep(10)");
+  pipe.cancel();
+  // TODO: Measure time to ensure we don't really wait.
 }
 } // namespace
 
-PQXX_REGISTER_TEST(test_pipeline_detach)
+PQXX_REGISTER_TEST(test_pipeline)
