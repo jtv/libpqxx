@@ -2,8 +2,8 @@ Document: libpqxx-tutorial
 Title: libpqxx Tutorial
 Author: Jeroen T. Vermeulen
 Abstract: Tutorial for libpqxx, a C++ API to the PostgreSQL database management system.
-Section: Apps/Programming
+Section: Programming/C++
 
 Format: HTML
-Index: /usr/share/doc/libpqxx-dev/html/Tutorial/index.html
-Files: /usr/share/doc/libpqxx-dev/html/Tutorial/*
+Index: /usr/share/doc/libpqxx-doc/html/Tutorial/index.html
+Files: /usr/share/doc/libpqxx-doc/html/Tutorial/*

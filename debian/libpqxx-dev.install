@@ -1,7 +1,4 @@
 debian/install/usr/include          usr
-debian/install/usr/lib/libpqxx.a    usr/lib
 debian/install/usr/lib/libpqxx.la   usr/lib
 debian/install/usr/lib/libpqxx.so   usr/lib
 debian/install/usr/lib/pkgconfig    usr/lib
-doc/html                            usr/share/doc/libpqxx-dev
-test/*.cxx                          usr/share/doc/libpqxx-dev/examples
