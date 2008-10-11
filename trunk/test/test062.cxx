@@ -72,7 +72,11 @@ void test_062(connection_base &, transaction_base &T)
 	r != B.rend(),
 	"Premature rend to binary string at " + to_string(i) + ".");
 
-    PQXX_CHECK(B[i-1] == TestStr.at(i-1), "Reverse iterator is broken.");
+    typedef unsigned char uchar;
+    PQXX_CHECK_EQUAL(
+	int(B[i-1]),
+	int(uchar(TestStr.at(i-1))),
+	"Reverse iterator is broken.");
   }
   PQXX_CHECK(r == B.rend(), "rend() of binary string not reached.");
 #endif
