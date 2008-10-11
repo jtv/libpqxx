@@ -1,3 +1,6 @@
+2008-10-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test062.cxx:
+  - Made it easier to diagnose a test failure, maybe even solved it
 2008-10-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, config/sample-headers/libpq/8.*/pqxx/config-internal-libpq.h,
  configure.ac.in:
