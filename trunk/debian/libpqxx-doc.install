@@ -1,0 +1,2 @@
+doc/html            usr/share/doc/libpqxx-doc
+test/*.cxx          usr/share/doc/libpqxx-doc/examples
