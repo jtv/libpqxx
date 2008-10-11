@@ -1,3 +1,9 @@
+2008-10-11  Eugene V. Lyubimkin <jackyf.devel@gmail.com>
+ debian/libpqxx*, debian/rules, debian/compat, debian/control,
+ debian/watch:
+  - Significantly reworked to make ready for upcoming 3.0.0 release.
+ debian/Makefile.am:
+  - Corrected to let 'make deb' working.
 2008-10-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/prepared_statement.hxx:
   - Made treat_direct the default, thanks maho at pagema net
