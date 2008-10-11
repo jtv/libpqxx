@@ -71,7 +71,7 @@ public:
 
   /// Add a parameter specification to prepared statement declaration
   const declaration &
-  operator()(const PGSTD::string &sqltype, param_treatment) const;
+  operator()(const PGSTD::string &sqltype, param_treatment=treat_direct) const;
 
 private:
   /// Not allowed
