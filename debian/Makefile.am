@@ -23,7 +23,7 @@ EXTRA_DIST = \
 
 dist-hook:
 # Distribute debian/control (not in EXTRA_DIST to avoid $(srcdir) dependencies
-# Do nothing actually, leaved for compatibility
+# Do nothing actually, left in for compatibility
 
 DEBUILD_OPTIONS = -us -uc
 deb: changelog control rules
