@@ -246,8 +246,13 @@ template<typename T> inline string to_string_fallback(T Obj)
 #ifdef PQXX_HAVE_IMBUE
   S.imbue(locale("C"));
 #endif
+
+// Provide enough precision.
 #ifdef PQXX_HAVE_LIMITS
-  S.precision(numeric_limits<T>::digits10);
+  // Kirit reports getting two more digits of precision than
+  // numeric_limits::digits10 would give him, so we try not to make him lose
+  // those last few bits.
+  S.precision(numeric_limits<T>::digits10 + 2);
 #else
   // Guess: enough for an IEEE 754 double-precision value.
   S.precision(16);
