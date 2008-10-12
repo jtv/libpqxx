@@ -1,6 +1,8 @@
 2008-10-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
  README-UPGRADE:
   - Updated for 3.0.
+ src/util.cxx:
+  - Preserve slightly more precision in floats, thanks Kirit Saelensminde
  test/test005.cxx:
   - Removed use of "IF EXISTS" in DROP TABLE (older backends don't have it)
  test/test_main.hxx:
