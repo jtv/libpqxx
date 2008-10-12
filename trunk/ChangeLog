@@ -1,3 +1,6 @@
+2008-10-12  Eugene V. Lyubimkin <jackyf.devel@gmail.com>
+ test/unit/test_sql_cursor.cxx:
+  - Fixed test failure on old backends that need test workaround
 2008-10-11  Eugene V. Lyubimkin <jackyf.devel@gmail.com>
  debian/libpqxx*, debian/rules, debian/compat, debian/control,
  debian/watch:
