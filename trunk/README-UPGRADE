@@ -1,3 +1,17 @@
+NOTICES FOR USERS UPGRADING FROM 2.x TO 3.x
+
+All items marked as deprecated in the 2.x API have been removed.
+
+The Cursor and CachedResult classes are gone.  A new class "stateless_cursor"
+offers the functionality of Cursor combined with CachedResult's ease of use.
+The only thing still missing is that stateless_cursor does not do any
+client-side caching.
+
+The sql_base class is still there, and sql_cursor offers low-level cursor access
+for those who want to get close to the metal.  The cursor stream API remains
+unchanged.
+
+
 NOTICES FOR USERS UPGRADING FROM 2.0 AND 2.1 VERSIONS TO 2.2.0 OR LATER
 
 The default installation location has changed from /usr/local/pqxx to /usr/local
