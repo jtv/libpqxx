@@ -13,14 +13,22 @@ using namespace pqxx;
 namespace
 {
 
-void test_005(connection_base &, transaction_base &T)
+void test_005(connection_base &C, transaction_base &orgT)
 {
   string TableName("pqxxorgevents");
 
   // First create a separate transaction to drop old table, if any.  This may
   // fail if the table didn't previously exist.
-  T.exec("DROP TABLE IF EXISTS " + TableName);
+  try
+  {
+    orgT.exec("DROP TABLE " + TableName);
+    orgT.commit();
+  }
+  catch (const sql_error &)
+  {
+  }
 
+  work T(C);
   T.exec(("CREATE TABLE " +
 	    TableName +
 	    "(year INTEGER, event VARCHAR)").c_str());

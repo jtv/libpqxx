@@ -1,4 +1,6 @@
-2008-10-12  Eugene V. Lyubimkin <jackyf.devel@gmail.com>
+2008-10-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test005.cxx:
+  - Removed use of "IF EXISTS" in DROP TABLE (older backends don't have it)
  test/test_main.hxx:
   - Test runner no longer considers "unsupported feature" a test failure
  test/unit/test_sql_cursor.cxx:
