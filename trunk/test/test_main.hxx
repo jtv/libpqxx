@@ -169,6 +169,8 @@ int main(int, const char *argv[])
       catch (const feature_not_supported &e)
       {
         cerr << "Not testing unsupported feature: " << e.what() << endl;
+        success = true;
+        --test_count;
       }
       catch (const sql_error &e)
       {
