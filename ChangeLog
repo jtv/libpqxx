@@ -1,3 +1,7 @@
+2008-10-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/largeobject.hxx, include/pqxx/result.hxx, test/test009.cxx,
+ test/test028.cxx:
+  - Fixed g++ 4.3 warnings, thanks Eugene V. Lyubimkin
 2008-10-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
  README-UPGRADE:
   - Updated for 3.0.

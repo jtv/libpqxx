@@ -472,7 +472,9 @@ private:
   static int_type EoF() { return traits_type::eof(); }
 
   /// Helper: change error position of -1 to EOF (probably a no-op)
-  static PGSTD::streampos AdjustEOF(int pos) { return (pos==-1) ? EoF() : pos; }
+  template<typename INTYPE>
+  static PGSTD::streampos AdjustEOF(INTYPE pos)
+	{ return (pos==-1) ? PGSTD::streampos(EoF()) : PGSTD::streampos(pos); }
 
   void initialize(openmode mode)
   {

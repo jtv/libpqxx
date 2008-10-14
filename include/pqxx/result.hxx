@@ -1095,7 +1095,7 @@ private:
     char_type *G =
       reinterpret_cast<char_type *>(const_cast<char *>(m_Field.c_str()));
     setg(G, G, G + m_Field.size());
-    return m_Field.size();
+    return int_type(m_Field.size());
   }
 };
 
