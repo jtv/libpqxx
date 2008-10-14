@@ -45,7 +45,7 @@ void PrepareContents()
 void FillTable(transaction_base &T, string TableName, string Column)
 {
   tablewriter W(T, TableName, &Column, &Column+1);
-  W.reserve(Contents.size());
+  W.reserve(tablewriter::size_type(Contents.size()));
 
   copy(Contents.begin(), Contents.end(), back_inserter(W));
 
