@@ -1,3 +1,6 @@
+2008-10-16  Eugene V. Lyubimkin <jackyf.devel@gmail.com>
+ include/pqxx/largeobject.hxx, test/unit/test_prepared_statement.cxx:
+  - Fixed last g++ 4.3 warnings on 64-bit platforms.
 2008-10-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/largeobject.hxx:
   - Fixed more g++ 4.3 warnings, thanks Eugene V. Lyubimkin
