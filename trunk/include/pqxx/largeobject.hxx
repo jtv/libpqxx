@@ -446,7 +446,7 @@ protected:
     char *const pb = this->pbase();
     int_type res = 0;
 
-    if (pp > pb) res = AdjustEOF(m_Obj.cwrite(pb, pp-pb));
+    if (pp > pb) res = int_type(AdjustEOF(m_Obj.cwrite(pb, pp-pb)));
     setp(m_P, m_P + m_BufSize);
 
     // Write that one more character, if it's there.
@@ -462,7 +462,7 @@ protected:
   {
     if (!this->gptr()) return EoF();
     char *const eb = this->eback();
-    const int res = AdjustEOF(m_Obj.cread(this->eback(), m_BufSize));
+    const int_type res(AdjustEOF(m_Obj.cread(this->eback(), m_BufSize)));
     setg(eb, eb, eb + ((res==EoF()) ? 0 : res));
     return (!res || (res == EoF())) ? EoF() : *eb;
   }
