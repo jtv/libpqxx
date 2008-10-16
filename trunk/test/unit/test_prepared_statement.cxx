@@ -54,7 +54,7 @@ template<typename ITER> string subst(transaction_base &t,
 	ITER patbegin,
 	ITER patend)
 {
-  int i = pqxx::internal::distance(patbegin, patend);
+  ptrdiff_t i = pqxx::internal::distance(patbegin, patend);
   for (ITER arg = patend; i > 0; --i)
   {
    --arg;
