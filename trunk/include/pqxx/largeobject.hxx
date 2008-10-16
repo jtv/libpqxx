@@ -462,7 +462,7 @@ protected:
   {
     if (!this->gptr()) return EoF();
     char *const eb = this->eback();
-    const int_type res(AdjustEOF(m_Obj.cread(this->eback(), m_BufSize)));
+    const int_type res(static_cast<int_type>(AdjustEOF(m_Obj.cread(this->eback(), m_BufSize))));
     setg(eb, eb, eb + ((res==EoF()) ? 0 : res));
     return (!res || (res == EoF())) ? EoF() : *eb;
   }
