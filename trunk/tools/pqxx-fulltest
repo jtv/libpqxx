@@ -65,6 +65,15 @@ buildpg() {
 	./configure --prefix="$DEST" && make $MAKEOPT
 }
 
+augment_pg_config() {
+	cat <<EOF >>"$1/data/postgresql.conf"
+
+# Custom additions for libpqxx testing.
+fsync = false
+max_connections = 200
+EOF
+}
+
 install_pg() {
 	# Strip leading "v" off version number
 	VERSIONNAME="$1"
@@ -85,6 +94,8 @@ install_pg() {
 		if buildpg "$DEST" >"$TMPDIR/postgres-build.log" 2>&1 ; then
 			mkdir -p "$DEST"
 			make install >/dev/null
+
+			augment_pg_config "$DEST"
 		fi
 		popd >/dev/null
 
