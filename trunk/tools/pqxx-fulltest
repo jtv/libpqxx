@@ -205,7 +205,6 @@ if test -z "$SKIP_PREPRELEASE" ; then
 	STABLEBACKEND="`havepgversions | grep -vi beta | tail -n 1`"
 	startbackend "`pgdir "$STABLEBACKEND"`"
 
-
 	echo "## Testing against available compilers ##"
 
 	OLDPATH="$PATH"
@@ -215,7 +214,11 @@ if test -z "$SKIP_PREPRELEASE" ; then
 	LD_LIBRARY_PATH="`pgdir $STABLEBACKEND`/lib"
 	export LD_LIBRARY_PATH
 
-	if ! env CXXFLAGS="-Wno-long-long" ./tools/preprelease >/dev/null ; then
+	# Some time for the database to be set up in the background.
+	sleep 5
+
+	if ! nice env CXXFLAGS="-Wno-long-long" ./tools/preprelease >/dev/null
+ 	then
 		stopbackend
 		exit 1
 	fi
