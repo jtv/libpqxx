@@ -1,6 +1,7 @@
 2008-10-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/pqxx-fulltest:
   - Customize configs of postgres installations made for testing
+  - Allow some time for database to be created
 2008-10-16  Eugene V. Lyubimkin <jackyf.devel@gmail.com>
  include/pqxx/largeobject.hxx, test/unit/test_prepared_statement.cxx:
   - Fixed last g++ 4.3 warnings on 64-bit platforms.
