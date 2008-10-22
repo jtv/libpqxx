@@ -1,3 +1,6 @@
+2008-10-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/pqxx-fulltest:
+  - More tweaks to backend startup
 2008-10-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/pqxx-fulltest:
   - Allow some time for database to be created
