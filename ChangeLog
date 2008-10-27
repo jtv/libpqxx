@@ -1,3 +1,8 @@
+2008-10-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/pipeline.hxx:
+  - Removed warning; pipeline is stable now
+ tools/pqxx-fulltest:
+  - Sod testing against the 7.3 backend; too complicated for now
 2008-10-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/pqxx-fulltest:
   - More tweaks to backend startup
