@@ -160,7 +160,7 @@ startbackend() {
 		export PGDATA
 
 		initdb >/dev/null
-		postgres -F >"$BE/backend.log" -h '' -D "$BE/data" 2>&1 &
+		postgres -F >"$BE/backend.log" -h '' -D "$BE" 2>&1 &
 		sleep 20
 		createdb "$USER" >/dev/null &
 
