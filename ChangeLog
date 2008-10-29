@@ -1,3 +1,6 @@
+2008-10-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/pqxx-fulltest:
+  - Went back to invoking postmaster for compatibility with older versions
 2008-10-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/pipeline.hxx:
   - Removed warning; pipeline is stable now
