@@ -160,7 +160,9 @@ startbackend() {
 		export PGDATA
 
 		initdb >/dev/null
-		postgres -F -h '' -k "$BE" >"$BE/backend.log" 2>&1 &
+		# Use postmaster, not postgres; older versions of postgres don't
+		# support -h or -k, and we need both.
+		postmaster -F -h '' -k "$BE" >"$BE/backend.log" 2>&1 &
 		sleep 20
 		createdb "$USER" >/dev/null &
 
