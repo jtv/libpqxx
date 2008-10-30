@@ -133,6 +133,8 @@ BACKEND=""
 export BACKEND
 
 
+BACKEND_CMD="postmaster"
+
 # Start backend installed in "$1"
 startbackend() {
 	BE="$1"
@@ -162,7 +164,7 @@ startbackend() {
 		initdb >/dev/null
 		# Use postmaster, not postgres; older versions of postgres don't
 		# support -h or -k, and we need both.
-		postmaster -F -h '' -k "$BE" >"$BE/backend.log" 2>&1 &
+		"$BACKEND_CMD" -F -h '' -k "$BE" >"$BE/backend.log" 2>&1 &
 		sleep 20
 		createdb "$USER" >/dev/null &
 
@@ -182,8 +184,8 @@ stopbackend() {
 	if test -z "$BE" ; then
 		return
 	fi
-	PID="`ps -f -C postgres |
-		grep "^$USER[[:space:]]\+.*postgres[[:space:]]* -F -k $BE" |
+	PID="`ps -f -C "$BACKEND_CMD" |
+		grep "^$USER[[:space:]]\+.*"$BACKEND_CMD"[[:space:]].* $BE" |
 		sed -e 's/^[^[:space:]]\+[[:space:]]\+\([0-9]\+\).*/\1/'`"
 	if test -z "$PID" ; then
 		echo "## Backend $BE not found, not stopping ##"

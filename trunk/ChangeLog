@@ -1,3 +1,6 @@
+2008-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/pqxx-fulltest:
+  - Starting postmaster again, but was still killing postgres
 2008-10-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/pqxx-fulltest:
   - Went back to invoking postmaster for compatibility with older versions
