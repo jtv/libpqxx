@@ -2,7 +2,7 @@
 
 EXTRA_DIST = Makefile.am.template
 
-INCLUDES = -I$(top_builddir)/include -I$(top_builddir)/test
+INCLUDES = -I$(top_builddir)/include -I$(top_builddir)/test -I$(srcdir)/.. -I$(srcdir)/../../include
 
 DEFAULT_INCLUDES=
 

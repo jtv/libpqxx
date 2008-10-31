@@ -1,3 +1,7 @@
+2008-10-31  Eugene V. Lyubimkin <jackyf.devel@gmail.com>
+ test/unit/Makefile.am.template:
+  - Added includes to fill 'make check' missing includes when building in
+    non-stardard build directory.
 2008-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/tablewriter.hxx, src/tablewriter.cxx,
  test/unit/test_tablestream.cxx:
