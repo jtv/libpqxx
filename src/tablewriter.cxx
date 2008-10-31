@@ -71,10 +71,11 @@ pqxx::tablewriter &pqxx::tablewriter::operator<<(pqxx::tablereader &R)
 
 void pqxx::tablewriter::write_raw_line(const PGSTD::string &Line)
 {
-  string stripped_line = Line;
-  if (!stripped_line.empty() && (stripped_line[stripped_line.size()-1]=='\n'))
-    stripped_line.erase(stripped_line.size()-1);
-  m_Trans.WriteCopyLine(stripped_line);
+  const string::size_type len = Line.size();
+  m_Trans.WriteCopyLine(
+	(!len || Line[len-1] != '\n') ?
+	Line :
+	string(Line, 0, len-1));
 }
 
 
