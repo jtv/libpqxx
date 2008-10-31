@@ -108,12 +108,14 @@ public:
    */
   virtual void complete();						//[t5]
 
+  /// Write line of raw data (e.g. obtained from tablereader.get_raw_line).
+  void write_raw_line(const PGSTD::string &);
+
 private:
   void setup(transaction_base &,
       const PGSTD::string &WName,
       const PGSTD::string &Columns = PGSTD::string());
 
-  void WriteRawLine(const PGSTD::string &);
   void PQXX_PRIVATE writer_close();
 };
 
@@ -223,7 +225,7 @@ inline PGSTD::string tablewriter::generate(const TUPLE &T) const
 
 template<typename IT> inline void tablewriter::insert(IT Begin, IT End)
 {
-  WriteRawLine(generate(Begin, End));
+  write_raw_line(generate(Begin, End));
 }
 
 
