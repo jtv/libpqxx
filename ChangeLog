@@ -1,4 +1,8 @@
 2008-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/tablewriter.hxx, src/tablewriter.cxx,
+ test/unit/test_tablestream.cxx:
+  - Turned private WriteRawLine() into public write_raw_line()
+  - Now supports tablereader-to-tablewriter copying
  tools/pqxx-fulltest:
   - Starting postmaster again, but was still killing postgres
 2008-10-29  Jeroen T. Vermeulen <jtv@xs4all.nl>

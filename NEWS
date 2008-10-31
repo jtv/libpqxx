@@ -14,7 +14,8 @@
  - Fixed bug with prepared statement parameters in separate C++ statements
  - robusttransaction now works for multiple users
  - Pipeline lets you cancel ongoing queries, e.g. because they run for too long
- - Fixed broken escaping of binary values in TableWriter
+ - Fixed broken escaping of binary values in tablewriter
+ - Supports direct tablereader-to-tablewriter copying
  - Floating-point types now represented with full precision
  - Proper unit tests for new functionality
  - New traits-based system for adding data types

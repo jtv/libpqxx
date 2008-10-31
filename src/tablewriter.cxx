@@ -64,19 +64,17 @@ pqxx::tablewriter &pqxx::tablewriter::operator<<(pqxx::tablereader &R)
 {
   string Line;
   // TODO: Can we do this in binary mode? (Might require protocol version check)
-  while (R.get_raw_line(Line))
-  {
-    if (!Line.empty() && (Line[Line.size()-1]=='\n')) Line.erase(Line.size()-1);
-    WriteRawLine(Line);
-  }
-
+  while (R.get_raw_line(Line)) write_raw_line(Line);
   return *this;
 }
 
 
-void pqxx::tablewriter::WriteRawLine(const PGSTD::string &Line)
+void pqxx::tablewriter::write_raw_line(const PGSTD::string &Line)
 {
-  m_Trans.WriteCopyLine(Line);
+  string stripped_line = Line;
+  if (!stripped_line.empty() && (stripped_line[stripped_line.size()-1]=='\n'))
+    stripped_line.erase(stripped_line.size()-1);
+  m_Trans.WriteCopyLine(stripped_line);
 }
 
 
