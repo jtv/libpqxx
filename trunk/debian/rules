@@ -32,7 +32,7 @@ autoconfigure-stamp: debian/control
 
 	mkdir debian/build && \
 	cd debian/build && \
-	../../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-shared --disable-static CXXFLAGS="$(CXXFLAGS)"
+	../../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-shared --disable-static --enable-maintainer-mode CXXFLAGS="$(CXXFLAGS)"
 
 	touch autoconfigure-stamp
 

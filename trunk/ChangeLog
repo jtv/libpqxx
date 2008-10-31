@@ -4,6 +4,8 @@
     non-stardard build directory.
  debian/rules:
   - Updated, deleted some cruft.
+  - Corrected to pass '--enable-maintainer-mode' to configure. Now 'make
+    check' in 'debian/build' directory creats properly linked 'runner'.
 2008-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/tablewriter.hxx, src/tablewriter.cxx,
  test/unit/test_tablestream.cxx:
