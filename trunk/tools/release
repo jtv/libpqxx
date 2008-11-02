@@ -11,8 +11,8 @@ then
 	exit 1
 fi
 
-#REPO="file://localhost/srv/svn/libpqxx"
-REPO="svn+ssh://pqxx.org/srv/svn/libpqxx/"
+REPO="file://localhost/srv/svn/libpqxx"
+#REPO="svn+ssh://pqxx.org/srv/svn/libpqxx/"
 FTP="/srv/ftp/libpqxx"
 SNAPSHOT="/home/jtv/public_html/tmp/pqxx/snapshot"
 DOC="/srv/www/devprojects/libpqxx/doc"
