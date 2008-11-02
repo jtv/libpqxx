@@ -129,7 +129,7 @@ LC_ALL=C
 
 rm -f -- $LOGFILE $ERRLOG
 
-PQXXVERSION="`extract_version`"
+PQXXVERSION="`./tools/extract_version`"
 
 # See if debian/changelog needs updating
 log "Seeing if debian/changelog is up to date..."
