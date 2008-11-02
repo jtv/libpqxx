@@ -15,13 +15,13 @@
  - robusttransaction now works for multiple users
  - Pipeline lets you cancel ongoing queries, e.g. because they run for too long
  - Fixed broken escaping of binary values in tablewriter
- - Supports direct tablereader-to-tablewriter copying
  - Floating-point types now represented with full precision
  - Proper unit tests for new functionality
  - New traits-based system for adding data types
  - Floating-point infinities now supported
  - Flushing/completing a pipeline now frees up the transaction for other use
  - Completely reworked test suite, builds and runs much faster
+ - tablewriter supports writing of raw lines
 2.6.9
  - Removed old 1.x API (that means all identifiers with capital letters!)
  - Tested with all current libpq versions and oldest/newest supported backends
