@@ -1,4 +1,4 @@
-3.0.0
+3.0
  - Website is now at http://pqxx.org/ (no redirects)
  - Completely replaced cursor classes
  - More helpful error messages on failed connections
