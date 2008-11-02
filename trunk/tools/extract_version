@@ -1,0 +1,4 @@
+#! /bin/sh
+set -e
+grep '\<PQXXVERSION\>' VERSION |
+	sed -e 's/^[[:space:]A-Z_]*\([^[:space:]#]\+\).*$/\1/'

@@ -1,0 +1,78 @@
+#! /bin/bash
+# Release current libpqxx trunk.
+# Arguments:
+#   <new version number>
+set -e
+
+NEWVERSION="$1"
+if test -z "$NEWVERSION"
+then
+	echo "Usage: $0 <new-version>" >&2
+	exit 1
+fi
+
+#REPO="file://localhost/srv/svn/libpqxx"
+REPO="svn+ssh://pqxx.org/srv/svn/libpqxx/"
+FTP="/srv/ftp/libpqxx"
+SNAPSHOT="/home/jtv/public_html/tmp/pqxx/snapshot"
+DOC="/srv/www/devprojects/libpqxx/doc"
+
+CHECKOUT="`mktemp -d pqxx.XXXXXXXXXX`"
+cd "$CHECKOUT"
+svn co "$REPO"
+cd libpqxx/
+
+export PATH="$PATH:$CHECKOUT/libpqxx/trunk/tools"
+
+pushd trunk >/dev/null
+PQXXVERSION="`extract_version`"
+popd >/dev/null
+
+if "$PQXXVERSION" = "$NEWVERSION"
+then
+	echo "Given new version is same as existing version." >&2
+	exit 2
+fi
+
+RELEASEDATE="`date +'%a, %d %b %y %T %z'`"
+
+svn cp trunk "tags/$PQXXVERSION"
+
+# Mark new trunk in debian/changelog
+TEMPCHANGELOG="`mktemp`"
+cat - <<EOF trunk/debian/changelog >"$TEMPCHANGELOG"
+libpqxx ($NEWVERSION-1) unstable; urgency=medium
+
+  * Forked release $PQXXVERSION.
+
+ -- Jeroen T. Vermeulen <jtv@xs4all.nl>  $RELEASEDATE
+
+EOF
+mv "$TEMPCHANGELOG" trunk/debian/changelog
+
+echo "PQXX_VERSION	$NEWVERSION" >trunk/VERSION
+
+#svn commit -m "Forking release $PQXXVERSION, moving on to $NEWVERSION."
+cd /tmp
+#rm -rf -- "$CHECKOUT"
+
+TEMPDOC="`mktemp -d pqxxdoc.XXXXXXXXXX`"
+cd "$TEMPDOC"
+tar xzf "$SNAPSHOT"/libpqxx-*.tar.gz
+cd libpqxx-*/
+
+PREVIOUS=''
+for d in `ls "$DOC" | grep '[0-9]'
+do
+	PREVIOUS="$PREVIOUS --link-dest='$d'"
+done
+
+rsync -r $PREVIOUS doc "$DOC/$PQXXVERSION"
+
+cd /tmp
+rm -rf "$TEMPDOC"
+
+# Move snapshot tarball to FTP directory.
+mv "$SNAPSHOT"/libpqxx-*.tar.* "$FTP/"
+
+
