@@ -17,9 +17,10 @@ FTP="/srv/ftp/libpqxx"
 SNAPSHOT="/home/jtv/public_html/tmp/pqxx/snapshot"
 DOC="/srv/www/devprojects/libpqxx/doc"
 
-CHECKOUT="`mktemp -d pqxx.XXXXXXXXXX`"
+CHECKOUT="`mktemp -p /tmp -d pqxx.XXXXXXXXXX`"
+echo "** Checking out to $CHECKOUT **"
 cd "$CHECKOUT"
-svn co "$REPO"
+svn co -q "$REPO"
 cd libpqxx/
 
 export PATH="$PATH:$CHECKOUT/libpqxx/trunk/tools"
@@ -56,7 +57,7 @@ echo "PQXX_VERSION	$NEWVERSION" >trunk/VERSION
 cd /tmp
 #rm -rf -- "$CHECKOUT"
 
-TEMPDOC="`mktemp -d pqxxdoc.XXXXXXXXXX`"
+TEMPDOC="`mktemp -p /tmp -d pqxxdoc.XXXXXXXXXX`"
 cd "$TEMPDOC"
 tar xzf "$SNAPSHOT"/libpqxx-*.tar.gz
 cd libpqxx-*/
