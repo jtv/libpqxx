@@ -129,7 +129,7 @@ LC_ALL=C
 
 rm -f -- $LOGFILE $ERRLOG
 
-PQXXVERSION=`grep '\<PQXXVERSION\>' VERSION | sed -e 's/^[[:space:]A-Z_]*//' | sed -e 's/[[:space:]]*#.*$//'`
+PQXXVERSION="`extract_version`"
 
 # See if debian/changelog needs updating
 log "Seeing if debian/changelog is up to date..."

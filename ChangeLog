@@ -1,3 +1,8 @@
+2008-11-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/extract_version, tools/preprelease, tools/release:
+  - Automating part of release process
+ VERSION
+  - Use 2-level versions for x.0; more stability among 3-level versions
 2008-10-31  Eugene V. Lyubimkin <jackyf.devel@gmail.com>
  test/unit/Makefile.am.template:
   - Added includes to fill 'make check' missing includes when building in
