@@ -1,7 +1,9 @@
 #! /bin/bash
-# Release current libpqxx trunk.
+# Release current libpqxx trunk (or other branch).
 # Arguments:
-#   <new version number>
+#   <new version number> [parent]
+#
+# The parent branch defaults to "trunk."
 set -e
 
 NEWVERSION="$1"
@@ -9,6 +11,11 @@ if test -z "$NEWVERSION"
 then
 	echo "Usage: $0 <new-version>" >&2
 	exit 1
+fi
+
+PARENT="$2"
+if test -z "$PARENT"
+	PARENT="trunk"
 fi
 
 REPO="file://localhost/srv/svn/libpqxx"
@@ -23,9 +30,9 @@ cd "$CHECKOUT"
 svn co -q "$REPO"
 cd libpqxx/
 
-export PATH="$PATH:$CHECKOUT/libpqxx/trunk/tools"
+export PATH="$PATH:$CHECKOUT/libpqxx/$PARENT/tools"
 
-pushd trunk >/dev/null
+pushd "$PARENT" >/dev/null
 PQXXVERSION="`extract_version`"
 popd >/dev/null
 
@@ -38,11 +45,11 @@ fi
 RELEASEDATE="`date +'%a, %d %b %y %T %z'`"
 
 echo "** Updating source tree **"
-svn cp trunk "tags/$PQXXVERSION"
+svn cp "$PARENT" "tags/$PQXXVERSION"
 
 # Mark new trunk in debian/changelog
 TEMPCHANGELOG="`mktemp`"
-cat - <<EOF trunk/debian/changelog >"$TEMPCHANGELOG"
+cat - <<EOF "$PARENT"/debian/changelog >"$TEMPCHANGELOG"
 libpqxx ($NEWVERSION-1) unstable; urgency=medium
 
   * Forked release $PQXXVERSION.
@@ -50,9 +57,9 @@ libpqxx ($NEWVERSION-1) unstable; urgency=medium
  -- Jeroen T. Vermeulen <jtv@xs4all.nl>  $RELEASEDATE
 
 EOF
-mv "$TEMPCHANGELOG" trunk/debian/changelog
+mv "$TEMPCHANGELOG" "$PARENT"/debian/changelog
 
-echo "PQXX_VERSION	$NEWVERSION" >trunk/VERSION
+echo "PQXX_VERSION	$NEWVERSION" >"$PARENT"/VERSION
 
 svn commit -m "Forking release $PQXXVERSION, moving on to $NEWVERSION."
 cd /tmp
