@@ -18,7 +18,7 @@ SNAPSHOT="/home/jtv/public_html/tmp/pqxx/snapshot"
 DOC="/srv/www/devprojects/libpqxx/doc"
 
 CHECKOUT="`mktemp -p /tmp -d pqxx.XXXXXXXXXX`"
-echo "** Checking out to $CHECKOUT **"
+echo "** Checking out source tree to $CHECKOUT **"
 cd "$CHECKOUT"
 svn co -q "$REPO"
 cd libpqxx/
@@ -29,7 +29,7 @@ pushd trunk >/dev/null
 PQXXVERSION="`extract_version`"
 popd >/dev/null
 
-if "$PQXXVERSION" = "$NEWVERSION"
+if test "$PQXXVERSION" = "$NEWVERSION"
 then
 	echo "Given new version is same as existing version." >&2
 	exit 2
@@ -37,6 +37,7 @@ fi
 
 RELEASEDATE="`date +'%a, %d %b %y %T %z'`"
 
+echo "** Updating source tree **"
 svn cp trunk "tags/$PQXXVERSION"
 
 # Mark new trunk in debian/changelog
@@ -53,22 +54,24 @@ mv "$TEMPCHANGELOG" trunk/debian/changelog
 
 echo "PQXX_VERSION	$NEWVERSION" >trunk/VERSION
 
-#svn commit -m "Forking release $PQXXVERSION, moving on to $NEWVERSION."
+svn commit -m "Forking release $PQXXVERSION, moving on to $NEWVERSION."
 cd /tmp
-#rm -rf -- "$CHECKOUT"
+rm -rf -- "$CHECKOUT"
 
+
+echo "** Setting up new documentation **"
 TEMPDOC="`mktemp -p /tmp -d pqxxdoc.XXXXXXXXXX`"
 cd "$TEMPDOC"
 tar xzf "$SNAPSHOT"/libpqxx-*.tar.gz
 cd libpqxx-*/
 
 PREVIOUS=''
-for d in `ls "$DOC" | grep '[0-9]'
+for d in `ls "$DOC" | grep '[0-9]'`
 do
 	PREVIOUS="$PREVIOUS --link-dest='$d'"
 done
 
-rsync -r $PREVIOUS doc "$DOC/$PQXXVERSION"
+rsync -r $PREVIOUS doc/html "$DOC/$PQXXVERSION"
 
 cd /tmp
 rm -rf "$TEMPDOC"
@@ -76,4 +79,4 @@ rm -rf "$TEMPDOC"
 # Move snapshot tarball to FTP directory.
 mv "$SNAPSHOT"/libpqxx-*.tar.* "$FTP/"
 
-
+echo "** Done. **"
