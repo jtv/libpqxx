@@ -83,7 +83,12 @@ rsync -r $PREVIOUS doc/html "$DOC/$PQXXVERSION"
 cd /tmp
 rm -rf "$TEMPDOC"
 
-# Move snapshot tarball to FTP directory.
-mv "$SNAPSHOT"/libpqxx-*.tar.* "$FTP/"
+if test "$PARENT" = "trunk"
+then
+	# Move snapshot tarball to FTP directory.
+	mv "$SNAPSHOT"/libpqxx-*.tar.* "$FTP/"
+else
+	echo "*** Remember: Build tarball and make available for upload ***"
+fi
 
-echo "** Done. **"
+echo "** Done **"
