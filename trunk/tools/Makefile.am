@@ -1,6 +1,8 @@
 EXTRA_DIST = \
+	extract_version \
 	maketemporary \
 	preprelease \
+	release \
 	rmlo.cxx \
 	splitconfig \
 	template2mak.py
