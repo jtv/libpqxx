@@ -2,7 +2,7 @@ libpqxx (3.1-1) unstable; urgency=medium
 
   * Forked release 3.0.
 
- -- Jeroen T. Vermeulen <jtv@xs4all.nl>  Sun, 02 Nov 08 12:35:55 +0700
+ -- Jeroen T. Vermeulen <jtv@xs4all.nl>  Sun, 02 Nov 2008 12:35:55 +0700
 
 libpqxx (3.0.0-1) stable; urgency=medium
 
