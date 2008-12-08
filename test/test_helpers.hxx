@@ -264,13 +264,13 @@ inline void check_bounds(
 	line,
 	!(value < lower),
 	lower_check.c_str(),
-	desc + " (" + text + " is below lower bound)");
+	desc + " (" + text + " is below lower bound " + lower_text + ")");
   pqxx::test::check(
 	file,
 	line,
 	value < upper,
 	upper_check.c_str(),
-	desc + " (" + text + " is not below upper bound)");
+	desc + " (" + text + " is not below upper bound " + upper_text + ")");
 }
 
 

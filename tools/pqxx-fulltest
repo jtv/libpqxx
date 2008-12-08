@@ -93,7 +93,6 @@ install_pg() {
 		if buildpg "$DEST" >"$TMPDIR/postgres-build.log" 2>&1 ; then
 			mkdir -p "$DEST"
 			make install >/dev/null
-			augment_pg_config "$DEST"
 		fi
 		popd >/dev/null
 
@@ -162,6 +161,9 @@ startbackend() {
 		export PGDATA
 
 		initdb >/dev/null
+
+		augment_pg_config "$DEST"
+
 		# Use postmaster, not postgres; older versions of postgres don't
 		# support -h or -k, and we need both.
 		"$BACKEND_CMD" -F -h '' -k "$BE" >"$BE/backend.log" 2>&1 &

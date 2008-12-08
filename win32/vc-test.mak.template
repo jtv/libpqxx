@@ -85,6 +85,8 @@ OBJS= \
 
 all: runner
 
+runner: $(INTDIR)\runner.exe
+
 clean:
 	-@del /Q vc70.pch
 	-@del /Q $(INTDIR)\*

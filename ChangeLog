@@ -1,6 +1,8 @@
 2008-12-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/Makefile.am:
   - Fixed glitch that broke with Solaris "make," thanks Doug.
+ test/test_helpers.hxx:
+  - Bounds check failure message now includes value of violated boundary
 2008-11-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/pqxx-fulltest:
   - Write postgres config data after initdb, not after building.
