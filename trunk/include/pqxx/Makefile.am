@@ -1,5 +1,4 @@
-MAINTAINERCLEANFILES=Makefile.in
-	stamp-h.in
+MAINTAINERCLEANFILES=Makefile.in stamp-h.in
 
 noinst_HEADERS = \
 	compiler-internal.hxx \
