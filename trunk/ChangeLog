@@ -1,3 +1,8 @@
+2008-12-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/dbtransaction.hxx, include/pqxx/transaction.hxx,
+ src/dbtransaction.cxx, src/transaction.cxx,
+ test/unit/test_read_transaction.cxx:
+  - Added support for read-only transactions.
 2008-12-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/Makefile.am:
   - Fixed glitch that broke with Solaris "make," thanks Doug.
