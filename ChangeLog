@@ -3,6 +3,8 @@
  src/dbtransaction.cxx, src/transaction.cxx,
  test/unit/test_read_transaction.cxx:
   - Added support for read-only transactions.
+ tools/pqxx-fulltest:
+  - Tried to augment postgresql.conf in wrong place
 2008-12-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/Makefile.am:
   - Fixed glitch that broke with Solaris "make," thanks Doug.
