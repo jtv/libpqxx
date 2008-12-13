@@ -7,7 +7,7 @@
  *      implementation of the pqxx::transaction class.
  *   pqxx::transaction represents a regular database transaction
  *
- * Copyright (c) 2001-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -27,10 +27,12 @@
 using namespace PGSTD;
 
 
-pqxx::basic_transaction::basic_transaction(connection_base &C,
-    const PGSTD::string &IsolationLevel) :
+pqxx::basic_transaction::basic_transaction(
+	connection_base &C,
+	const PGSTD::string &IsolationLevel,
+	readwrite_policy rw) :
   namedclass("transaction"),
-  dbtransaction(C, IsolationLevel)
+  dbtransaction(C, IsolationLevel, rw)
 {
 }
 

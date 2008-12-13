@@ -41,8 +41,10 @@ namespace pqxx
 class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 {
 protected:
-  basic_transaction(connection_base &C,
-			     const PGSTD::string &IsolationLevel);	//[t1]
+  basic_transaction(							//[t1]
+	connection_base &C,
+	const PGSTD::string &IsolationLevel,
+	readwrite_policy);
 
 private:
   virtual void do_commit();						//[t1]
@@ -78,7 +80,9 @@ private:
  * }
  * @endcode
  */
-template<isolation_level ISOLATIONLEVEL=read_committed>
+template<
+	isolation_level ISOLATIONLEVEL=read_committed,
+	readwrite_policy READWRITE=read_write>
 class transaction : public basic_transaction
 {
 public:
@@ -92,12 +96,12 @@ public:
    */
   explicit transaction(connection_base &C, const PGSTD::string &TName):	//[t1]
     namedclass(fullname("transaction", isolation_tag::name()), TName),
-    basic_transaction(C, isolation_tag::name())
+    basic_transaction(C, isolation_tag::name(), READWRITE)
 	{ Begin(); }
 
   explicit transaction(connection_base &C) :				//[t1]
     namedclass(fullname("transaction", isolation_tag::name())),
-    basic_transaction(C, isolation_tag::name())
+    basic_transaction(C, isolation_tag::name(), READWRITE)
 	{ Begin(); }
 
   virtual ~transaction() throw ()
@@ -112,6 +116,9 @@ public:
 
 /// Bog-standard, default transaction type
 typedef transaction<> work;
+
+/// Read-only transaction
+typedef transaction<read_committed, read_only> read_transaction;
 
 //@}
 

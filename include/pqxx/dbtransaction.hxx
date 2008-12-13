@@ -27,6 +27,13 @@
 namespace pqxx
 {
 
+enum readwrite_policy
+{
+  read_only,
+  read_write
+};
+
+
 /// Abstract base class responsible for bracketing a backend transaction
 /**
  * @addtogroup transaction Transaction classes
@@ -61,8 +68,15 @@ namespace pqxx
 class PQXX_LIBEXPORT PQXX_NOVTABLE dbtransaction : public transaction_base
 {
 protected:
-  dbtransaction(connection_base &, const PGSTD::string &IsolationString);
-  explicit dbtransaction(connection_base &, bool direct=true);
+  dbtransaction(
+	connection_base &,
+	const PGSTD::string &IsolationString,
+	readwrite_policy rw=read_write);
+
+  explicit dbtransaction(
+	connection_base &,
+	bool direct=true,
+	readwrite_policy rw=read_write);
 
   virtual ~dbtransaction();
 

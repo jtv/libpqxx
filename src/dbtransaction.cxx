@@ -7,7 +7,7 @@
  *      implementation of the pqxx::dbtransaction class.
  *   pqxx::dbtransaction represents a real backend transaction
  *
- * Copyright (c) 2004-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -22,21 +22,46 @@
 using namespace PGSTD;
 
 
-pqxx::dbtransaction::dbtransaction(connection_base &C,
-    const PGSTD::string &IsolationString) :
-  namedclass("dbtransaction"),
-  transaction_base(C),
-  m_StartCmd(internal::sql_begin_work)
+namespace
 {
-  if (IsolationString != isolation_traits<read_committed>::name())
-    m_StartCmd += ";SET TRANSACTION ISOLATION LEVEL " + IsolationString;
+string generate_set_transaction(
+	pqxx::readwrite_policy rw,
+	const string &IsolationString=string())
+{
+  string args;
+
+  if (!IsolationString.empty())
+    if (IsolationString != pqxx::isolation_traits<pqxx::read_committed>::name())
+      args += " ISOLATION LEVEL " + IsolationString;
+
+  if (rw != pqxx::read_write)
+    args += " READ ONLY";
+
+  return args.empty() ?
+	pqxx::internal::sql_begin_work :
+	(string(pqxx::internal::sql_begin_work) + "; SET TRANSACTION" + args);
+}
 }
 
 
-pqxx::dbtransaction::dbtransaction(connection_base &C, bool direct) :
+pqxx::dbtransaction::dbtransaction(
+	connection_base &C,
+	const PGSTD::string &IsolationString,
+	readwrite_policy rw) :
+  namedclass("dbtransaction"),
+  transaction_base(C),
+  m_StartCmd(generate_set_transaction(rw, IsolationString))
+{
+}
+
+
+pqxx::dbtransaction::dbtransaction(
+	connection_base &C,
+	bool direct,
+	readwrite_policy rw) :
   namedclass("dbtransaction"),
   transaction_base(C, direct),
-  m_StartCmd(internal::sql_begin_work)
+  m_StartCmd(generate_set_transaction(rw))
 {
 }
 
