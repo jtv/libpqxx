@@ -162,7 +162,7 @@ startbackend() {
 
 		initdb >/dev/null
 
-		augment_pg_config "$BE/data"
+		augment_pg_config "$BE"
 
 		# Use postmaster, not postgres; older versions of postgres don't
 		# support -h or -k, and we need both.
