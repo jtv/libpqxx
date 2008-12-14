@@ -62,7 +62,7 @@ havepgversions() {
 
 buildpg() {
 	DEST="$1"
-	./configure --prefix="$DEST" && make $MAKEOPT
+	./configure --without-readline --prefix="$DEST" && make $MAKEOPT
 }
 
 augment_pg_config() {
