@@ -69,7 +69,7 @@ augment_pg_config() {
 	cat <<EOF >>"$1/data/postgresql.conf"
 # Don't bother syncing to disk.
 fsync = false
-unix_socket_directory = "$1"
+#unix_socket_directory = "$1"
 EOF
 }
 
