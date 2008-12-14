@@ -12,7 +12,9 @@ void test_read_transaction(connection_base &, transaction_base &trans)
 	1,
 	"Bad result from read transaction.");
 
-  PQXX_CHECK_THROWS(
+  // This error terminates the test on 7.4 backends, so can't test for it there.
+  if (conn.server_version() >= 80000)
+    PQXX_CHECK_THROWS(
 	trans.exec("CREATE TABLE should_not_exist(x integer)"),
 	sql_error,
 	"Read-only transaction allows database to be modified.");
