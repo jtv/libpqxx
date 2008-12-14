@@ -5,7 +5,7 @@ using namespace pqxx;
 
 namespace
 {
-void test_read_transaction(connection_base &, transaction_base &trans)
+void test_read_transaction(connection_base &conn, transaction_base &trans)
 {
   PQXX_CHECK_EQUAL(
 	trans.exec("SELECT 1")[0][0].as<int>(),
