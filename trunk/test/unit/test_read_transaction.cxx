@@ -8,7 +8,7 @@ namespace
 void test_read_transaction(connection_base &, transaction_base &trans)
 {
   PQXX_CHECK_EQUAL(
-	trans.exec("SELECT 1")[0][0],
+	trans.exec("SELECT 1")[0][0].as<int>(),
 	1,
 	"Bad result from read transaction.");
 
