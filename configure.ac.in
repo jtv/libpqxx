@@ -930,9 +930,21 @@ AC_TRY_COMPILE([#include <iterator>
 	[reverseit='no'])
 AC_MSG_RESULT($reverseit)
 
+AC_MSG_CHECKING([for tr1::shared_ptr])
+sharedptr='yes'
+AC_TRY_COMPILE([#include <tr1/memory>
+	${usestd}],
+	[tr1::shared_ptr<int> i(new int(1)); return *i;],
+	[AC_DEFINE(PQXX_HAVE_SHARED_PTR,
+		1,
+		[Define if compiler has tr1::shared_ptr])],
+	[sharedptr='no'])
+AC_MSG_RESULT($sharedptr)
 
 AC_MSG_CHECKING([whether overloaded using-declarations work])
-AC_TRY_COMPILE([struct A{A(){}void f(int){}};struct B:A{B(){}using A::f;void f(int,bool){}};],
+AC_TRY_COMPILE([
+	struct A {A(){} void f(int){}};
+	struct B:A {B(){} using A::f; void f(int,bool){}};],
 	[B b;b.f(1,true);],
 	[usingdecl='yes'],
 	[AC_DEFINE(PQXX_BROKEN_USING_DECL,

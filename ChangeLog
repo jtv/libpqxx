@@ -1,3 +1,10 @@
+2008-12-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in, include/pqxx/result.hxx, include/pqxx/util.hxx,
+ src/util.cxx:
+  - Check for shared_ptr (still needs work; won't always be in std::tr1)
+  - Implement PQAlloc as a shared_ptr if available
+  - Turn PQ memory freeing functions into shared_ptr-style deleters
+  - Make result's result_data const.
 2008-12-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/dbtransaction.hxx, include/pqxx/transaction.hxx,
  src/dbtransaction.cxx, src/transaction.cxx,
