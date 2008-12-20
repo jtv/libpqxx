@@ -28,6 +28,11 @@
 #include <typeinfo>
 #include <vector>
 
+#ifdef PQXX_HAVE_SHARED_PTR
+#include <tr1/memory>
+#endif
+
+
 /** @mainpage
  * @author Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
@@ -406,10 +411,31 @@ typedef long result_difference_type;
 
 namespace internal
 {
-void PQXX_LIBEXPORT freepqmem(void *);
+void PQXX_LIBEXPORT freepqmem(const void *);
 
+
+#ifdef PQXX_HAVE_SHARED_PTR
+
+/// Reference-counted smart pointer to libpq-allocated object
+template<typename T> class PQAlloc : public PGSTD::tr1::shared_ptr<T>
+{
+  typedef PGSTD::tr1::shared_ptr<T> super;
+public:
+  typedef T content_type;
+  PQAlloc() : super() {}
+  explicit PQAlloc(T *t) : super(t, PQAlloc::freemem) {}
+  PQAlloc &operator=(T *t) throw () { return *this = PQAlloc(t); }
+  void clear() { super::reset(); }
+  T *c_ptr() const throw () { return super::get(); }
+
+private:
+  static void freemem(T *t) throw () { freepqmem(t); }
+};
+
+#else // !PQXX_HAVE_SHARED_PTR
 
 /// Helper class used in reference counting (doubly-linked circular list)
+/// Reference-counted smart-pointer for libpq-allocated resources.
 class PQXX_LIBEXPORT refcount
 {
   refcount *volatile m_l, *volatile m_r;
@@ -513,7 +539,7 @@ private:
   /// Free and reset current pointer (if any)
   void loseref() throw ()
   {
-    if (m_rc.loseref() && m_Obj) freemem();
+    if (m_rc.loseref() && m_Obj) freemem(m_Obj);
     m_Obj = 0;
   }
 
@@ -522,14 +548,16 @@ private:
   void redoref(T *obj) throw ()
 	{ if (obj != m_Obj) { loseref(); makeref(obj); } }
 
-  void freemem() throw () { freepqmem(m_Obj); }
+  void freemem(T *t) throw () { freepqmem(t); }
 };
 
+#endif // PQXX_HAVE_SHARED_PTR
 
-void PQXX_LIBEXPORT freemem_notif(pq::PGnotify *) throw ();
-template<> inline void PQAlloc<pq::PGnotify>::freemem() throw ()
-	{ freemem_notif(m_Obj); }
 
+void PQXX_LIBEXPORT freemem_notif(const pq::PGnotify *) throw ();
+template<>
+inline void PQAlloc<const pq::PGnotify>::freemem(const pq::PGnotify *t) throw ()
+	{ freemem_notif(t); }
 
 
 template<typename T> class scoped_array

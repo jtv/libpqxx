@@ -73,7 +73,8 @@ struct PQXX_PRIVATE result_data
 
 void PQXX_LIBEXPORT freemem_result_data(result_data *) throw ();
 template<> inline
-void PQAlloc<result_data>::freemem() throw () { freemem_result_data(m_Obj); }
+void PQAlloc<result_data>::freemem(result_data *t) throw ()
+	{ freemem_result_data(t); }
 } // namespace internal
 
 
@@ -98,9 +99,10 @@ void PQAlloc<result_data>::freemem() throw () { freemem_result_data(m_Obj); }
  * the same result set--even if it is doing so through a different result
  * object!
  */
-class PQXX_LIBEXPORT result : private internal::PQAlloc<internal::result_data>
+class PQXX_LIBEXPORT result :
+  private internal::PQAlloc<const internal::result_data>
 {
-  typedef internal::PQAlloc<internal::result_data> super;
+  typedef internal::PQAlloc<const internal::result_data> super;
 public:
   class const_iterator;
   class const_fielditerator;

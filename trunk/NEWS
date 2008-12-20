@@ -1,6 +1,7 @@
 3.1
  - Supports read-only transactions.
  - Fixed breakage with Solaris "make."
+ - Uses shared_ptr if available.
 3.0
  - Website is now at http://pqxx.org/ (no redirects)
  - Completely replaced cursor classes

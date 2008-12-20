@@ -531,16 +531,18 @@ size_t pqxx_strnlen(const char s[], size_t max)
 } // namespace
 
 
-void pqxx::internal::freemem_notif(pqxx::internal::pq::PGnotify *p) throw ()
+void pqxx::internal::freemem_notif(const pqxx::internal::pq::PGnotify *p)
+  throw ()
 {
 #ifdef PQXX_HAVE_PQFREENOTIFY
-  PQfreeNotify(p);
+  PQfreeNotify(const_cast<pqxx::internal::pq::PGnotify *>(p));
 #else
   freepqmem(p);
 #endif
 }
 
 
+#ifndef PQXX_HAVE_SHARED_PTR
 pqxx::internal::refcount::refcount() :
   m_l(this),
   m_r(this)
@@ -572,6 +574,7 @@ bool pqxx::internal::refcount::loseref() throw ()
   m_l = m_r = this;
   return result;
 }
+#endif // PQXX_HAVE_SHARED_PTR
 
 
 string pqxx::internal::namedclass::description() const
@@ -622,10 +625,10 @@ void pqxx::internal::CheckUniqueUnregistration(const namedclass *New,
 }
 
 
-void pqxx::internal::freepqmem(void *p)
+void pqxx::internal::freepqmem(const void *p)
 {
 #ifdef PQXX_HAVE_PQFREEMEM
-  PQfreemem(p);
+  PQfreemem(const_cast<void *>(p));
 #else
   free(p);
 #endif
