@@ -57,7 +57,7 @@ namespace pqxx
  * is protected against concurrency with similar operations on the same object,
  * or other objects pointing to the same data block.
  */
-class PQXX_LIBEXPORT binarystring : internal::PQAlloc<unsigned char>
+class PQXX_LIBEXPORT binarystring : internal::PQAlloc<const unsigned char>
 {
   // TODO: Templatize on character type?
 public:
@@ -124,7 +124,7 @@ public:
    */
   const char *c_ptr() const throw ()					//[t62]
   {
-    return reinterpret_cast<char *>(super::c_ptr());
+    return reinterpret_cast<const char *>(super::c_ptr());
   }
 
   /// Read as regular C++ string (may include null characters)

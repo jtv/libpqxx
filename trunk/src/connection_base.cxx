@@ -700,7 +700,8 @@ int pqxx::connection_base::get_notifs()
   // deliver them.
   if (m_Trans.get()) return notifs;
 
-  for (PQAlloc<PGnotify> N( PQnotifies(m_Conn) ); N; N = PQnotifies(m_Conn))
+  typedef PQAlloc<PGnotify> notifptr;
+  for (notifptr N( PQnotifies(m_Conn) ); N; N = notifptr(PQnotifies(m_Conn)))
   {
     typedef listenerlist::iterator TI;
 
