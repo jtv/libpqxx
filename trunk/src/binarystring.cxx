@@ -36,8 +36,7 @@ inline int DV(unsigned char d) { return digit_to_number(char(d)); }
 
 pqxx::binarystring::binarystring(const result::field &F) :
   super(),
-  m_size(0),
-  m_str()
+  m_size(0)
 {
   const unsigned char *const b(reinterpret_cast<const_iterator>(F.c_str()));
 
@@ -101,9 +100,6 @@ pqxx::binarystring::const_reference pqxx::binarystring::at(size_type n) const
 
 void pqxx::binarystring::swap(binarystring &rhs)
 {
-  // This might fail, so do it first
-  m_str.swap(rhs.m_str);
-
   // PQAlloc<>::swap() is nothrow
   super::swap(rhs);
 
@@ -114,10 +110,9 @@ void pqxx::binarystring::swap(binarystring &rhs)
 }
 
 
-const string &pqxx::binarystring::str() const
+string pqxx::binarystring::str() const
 {
-  if (m_size && m_str.empty()) m_str = string(c_ptr(), m_size);
-  return m_str;
+  return string(c_ptr(), m_size);
 }
 
 

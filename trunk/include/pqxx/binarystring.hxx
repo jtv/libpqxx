@@ -128,18 +128,16 @@ public:
   }
 
   /// Read as regular C++ string (may include null characters)
-  /** Caches string buffer to speed up repeated reads.
-   *
-   * @warning The first invocation of this function on a given binarystring
-   * is not threadsafe; the first invocation constructs the string object and
-   * stores it in the binarystring.  After it has been called once, any
-   * subsequent calls on the same binarystring are safe.
+  /** @warning libpqxx releases before 3.1 stored the string and returned a
+   * reference to it.  This is no longer the case!  It now creates and returns
+   * a new string object.  Avoid repeated use of this function; retrieve your
+   * string once and keep it in a local variable.  Also, do not expect to be
+   * able to compare the string's address to that of an earlier invocation.
    */
-  const PGSTD::string &str() const;					//[t62]
+  PGSTD::string str() const;						//[t62]
 
 private:
   size_type m_size;
-  mutable PGSTD::string m_str;
 };
 
 
