@@ -116,7 +116,7 @@ void pqxx::binarystring::swap(binarystring &rhs)
 
 const string &pqxx::binarystring::str() const
 {
-  if (m_str.empty() && m_size) m_str = string(c_ptr(), m_size);
+  if (m_size && m_str.empty()) m_str = string(c_ptr(), m_size);
   return m_str;
 }
 
