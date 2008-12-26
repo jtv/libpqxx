@@ -1,3 +1,10 @@
+2008-12-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/binarystring.hxx, include/pqxx/util.hxx, src/binary_string.cxx,
+ src/connection_base.cxx:
+  - Disallow pointer-to-smart-pointer assignment, thanks Kirit Saelensminde
+2008-12-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/binarystring.hxx:
+  - Made binarystring contents const
 2008-12-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in, include/pqxx/result.hxx, include/pqxx/util.hxx,
  src/util.cxx:

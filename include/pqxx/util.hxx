@@ -424,7 +424,7 @@ public:
   typedef T content_type;
   PQAlloc() : super() {}
   explicit PQAlloc(T *t) : super(t, PQAlloc::freemem) {}
-  PQAlloc &operator=(T *t) throw () { return *this = PQAlloc(t); }
+  //PQAlloc &operator=(T *t) throw () { return *this = PQAlloc(t); }
   void clear() { super::reset(); }
   T *c_ptr() const throw () { return super::get(); }
 
@@ -498,7 +498,7 @@ public:
     rhs = tmp;
   }
 
-  PQAlloc &operator=(T *obj) throw () { redoref(obj); return *this; }
+  //PQAlloc &operator=(T *obj) throw () { redoref(obj); return *this; }
 
   /// Is this pointer non-null?
   operator bool() const throw () { return m_Obj != 0; }

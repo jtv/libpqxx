@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      implementation of bytea (binary string) conversions
  *
- * Copyright (c) 2003-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -39,13 +39,13 @@ pqxx::binarystring::binarystring(const result::field &F) :
   m_size(0),
   m_str()
 {
-  unsigned char *p = const_cast<unsigned char *>(
-      reinterpret_cast<const_iterator>(F.c_str()));
+  const unsigned char *const b(reinterpret_cast<const_iterator>(F.c_str()));
 
 #ifdef PQXX_HAVE_PQUNESCAPEBYTEA
+  unsigned char *const p = const_cast<unsigned char *>(b);
 
   size_t sz = 0;
-  super::operator=(PQunescapeBytea(p, &sz));
+  super::operator=(super(PQunescapeBytea(p, &sz)));
   if (!c_ptr()) throw bad_alloc();
   m_size = sz;
 
@@ -54,13 +54,13 @@ pqxx::binarystring::binarystring(const result::field &F) :
   m_str.reserve(F.size());
   for (result::field::size_type i=0; i<F.size(); ++i)
   {
-    unsigned char c = p[i];
+    unsigned char c = b[i];
     if (c == '\\')
     {
-      c = p[++i];
-      if (isdigit(c) && isdigit(p[i+1]) && isdigit(p[i+2]))
+      c = b[++i];
+      if (isdigit(c) && isdigit(b[i+1]) && isdigit(b[i+2]))
       {
-	c = (DV(c)<<6) | (DV(p[i+1])<<3) | DV(p[i+2]);
+	c = (DV(c)<<6) | (DV(b[i+1])<<3) | DV(b[i+2]);
 	i += 2;
       }
     }
