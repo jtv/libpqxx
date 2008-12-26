@@ -1,7 +1,8 @@
 2008-12-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
- include/pqxx/binarystring.hxx, include/pqxx/util.hxx, src/binary_string.cxx,
+ include/pqxx/binarystring.hxx, include/pqxx/util.hxx, src/binarystring.cxx,
  src/connection_base.cxx:
   - Disallow pointer-to-smart-pointer assignment, thanks Kirit Saelensminde
+  - Removed caching of str(); binarystring is now immutable
 2008-12-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/binarystring.hxx:
   - Made binarystring contents const

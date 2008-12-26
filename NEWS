@@ -2,6 +2,7 @@
  - Supports read-only transactions.
  - Fixed breakage with Solaris "make."
  - Uses shared_ptr if available.
+ - binarystring::str() is no longer cached; no longer returns reference
 3.0
  - Website is now at http://pqxx.org/ (no redirects)
  - Completely replaced cursor classes
