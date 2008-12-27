@@ -17,6 +17,7 @@
 #include "pqxx/compiler-internal.hxx"
 
 #include <cmath>
+#include <cstdlib>
 #include <cstring>
 
 #ifdef PQXX_HAVE_LIMITS
@@ -630,7 +631,7 @@ void pqxx::internal::freepqmem(const void *p)
 #ifdef PQXX_HAVE_PQFREEMEM
   PQfreemem(const_cast<void *>(p));
 #else
-  free(p);
+  free(const_cast<void *>(p));
 #endif
 }
 
