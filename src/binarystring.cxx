@@ -50,7 +50,8 @@ pqxx::binarystring::binarystring(const result::field &F) :
 
 #else
 
-  m_str.reserve(F.size());
+  string str;
+  str.reserve(F.size());
   for (result::field::size_type i=0; i<F.size(); ++i)
   {
     unsigned char c = b[i];
@@ -63,15 +64,15 @@ pqxx::binarystring::binarystring(const result::field &F) :
 	i += 2;
       }
     }
-    m_str += char(c);
+    str += char(c);
   }
 
-  m_size = m_str.size();
+  m_size = str.size();
   void *buf = malloc(m_size+1);
   if (!buf)
     throw bad_alloc();
   super::operator=(static_cast<unsigned char *>(buf));
-  strcpy(static_cast<char *>(buf), m_str.c_str());
+  strcpy(static_cast<char *>(buf), str.c_str());
 
 #endif
 }
