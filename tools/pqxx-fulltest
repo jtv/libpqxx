@@ -55,7 +55,7 @@ pgdir() {
 havepgversions() {
 	mkdir -p "$TESTDIR/pg"
 	pushd "$TESTDIR/pg" >/dev/null
-	SKIP="`find v* -name PQXX_SKIP -maxdepth 1 | sed -e 's|/.*||'`"
+	SKIP="`find v* -maxdepth 1 -name PQXX_SKIP | sed -e 's|/.*||'`"
 	ls -1 | grep -o "$PGVERSIONPAT" | grep -vFx "$SKIP"
 	popd >/dev/null
 }

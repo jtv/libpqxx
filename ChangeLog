@@ -1,6 +1,8 @@
 2008-12-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/binarystring.cxx:
   - Workaround for 7.3 libpq without PQunescape() still used m_str
+ tools/pqxx-fulltest:
+  - Rearranged "find" options to silence warning.
 2008-12-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/binarystring.hxx, include/pqxx/util.hxx, src/binarystring.cxx,
  src/connection_base.cxx:
