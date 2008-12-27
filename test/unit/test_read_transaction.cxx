@@ -5,14 +5,8 @@ using namespace pqxx;
 
 namespace
 {
-void test_read_transaction(connection_base &conn, transaction_base &orgtrans)
+void test_read_transaction(connection_base &conn, transaction_base &trans)
 {
-  orgtrans.abort();
-
-  // Open read transaction here, where we can catch the error if this backend
-  // doesn't support read-only transactions.
-  read_transaction trans(conn);
-
   PQXX_CHECK_EQUAL(
 	trans.exec("SELECT 1")[0][0].as<int>(),
 	1,
@@ -27,4 +21,4 @@ void test_read_transaction(connection_base &conn, transaction_base &orgtrans)
 }
 }
 
-PQXX_REGISTER_TEST_T(test_read_transaction, nontransaction)
+PQXX_REGISTER_TEST_T(test_read_transaction, read_transaction)

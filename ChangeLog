@@ -1,4 +1,6 @@
 2008-12-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/dbstransaction.hxx, src/dbtransaction.cxx:
+  - Use regular transaction if backend doesn't support read transactions
  src/binarystring.cxx:
   - Workaround for 7.3 libpq without PQunescape() still used m_str
   - Missing include for workaround
@@ -7,8 +9,6 @@
  src/util.cxx:
   - Missing include for workaround to missing PQfreemem()
   - Fixed const error in workaround
- test/unit/test_read_transaction.cxx:
-  - Deal more gracefully with backends that don't support read transactions
  tools/pqxx-fulltest:
   - Rearranged "find" options to silence warning.
 2008-12-26  Jeroen T. Vermeulen <jtv@xs4all.nl>

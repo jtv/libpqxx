@@ -25,6 +25,7 @@ using namespace PGSTD;
 namespace
 {
 string generate_set_transaction(
+	pqxx::connection_base &C,
 	pqxx::readwrite_policy rw,
 	const string &IsolationString=string())
 {
@@ -34,7 +35,7 @@ string generate_set_transaction(
     if (IsolationString != pqxx::isolation_traits<pqxx::read_committed>::name())
       args += " ISOLATION LEVEL " + IsolationString;
 
-  if (rw != pqxx::read_write)
+  if (rw != pqxx::read_write && C.server_version() >= 80000)
     args += " READ ONLY";
 
   return args.empty() ?
@@ -50,7 +51,7 @@ pqxx::dbtransaction::dbtransaction(
 	readwrite_policy rw) :
   namedclass("dbtransaction"),
   transaction_base(C),
-  m_StartCmd(generate_set_transaction(rw, IsolationString))
+  m_StartCmd(generate_set_transaction(C, rw, IsolationString))
 {
 }
 
@@ -61,7 +62,7 @@ pqxx::dbtransaction::dbtransaction(
 	readwrite_policy rw) :
   namedclass("dbtransaction"),
   transaction_base(C, direct),
-  m_StartCmd(generate_set_transaction(rw))
+  m_StartCmd(generate_set_transaction(C, rw))
 {
 }
 
