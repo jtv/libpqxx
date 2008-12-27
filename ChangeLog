@@ -4,6 +4,9 @@
   - Missing include for workaround
   - Use memcpy(), not strcpy() in workaround; there may be nul bytes
   - Fixed int-to-unsigned-char warnings in workaround
+ src/util.cxx:
+  - Missing include for workaround to missing PQfreemem()
+  - Fixed const error in workaround
  tools/pqxx-fulltest:
   - Rearranged "find" options to silence warning.
 2008-12-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
