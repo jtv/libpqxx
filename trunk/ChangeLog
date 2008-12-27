@@ -7,6 +7,8 @@
  src/util.cxx:
   - Missing include for workaround to missing PQfreemem()
   - Fixed const error in workaround
+ test/unit/test_read_transaction.cxx:
+  - Deal more gracefully with backends that don't support read transactions
  tools/pqxx-fulltest:
   - Rearranged "find" options to silence warning.
 2008-12-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
