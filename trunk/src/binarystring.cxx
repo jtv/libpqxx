@@ -71,7 +71,7 @@ pqxx::binarystring::binarystring(const result::field &F) :
   void *buf = malloc(m_size+1);
   if (!buf)
     throw bad_alloc();
-  super::operator=(static_cast<unsigned char *>(buf));
+  super::operator=(super(static_cast<unsigned char *>(buf)));
   strcpy(static_cast<char *>(buf), str.c_str());
 
 #endif
