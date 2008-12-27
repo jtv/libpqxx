@@ -1,3 +1,7 @@
+2008-12-27  Eugene V. Lyubimkin <jackyf.devel@gmail.com>
+ debian/rules, debian/control:
+ - Deal better with config.{sub,guess} files, thanks Roger Leigh.
+ - Prepare for future 3.1 release, now Debian package builds correctly.
 2008-12-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/dbstransaction.hxx, src/dbtransaction.cxx:
   - Use regular transaction if backend doesn't support read transactions

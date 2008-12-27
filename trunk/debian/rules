@@ -16,12 +16,21 @@ endif
 
 
 # Get upstream version, and define libpqxx suffix
-UPSTREAM_VERSION = $(shell dpkg-parsechangelog | grep ^Version | sed "s/.* //" | sed "s/-[^-]*$$//" | sed "s/[+~].*//g")
-LIBRARY_VERSION =  -$(UPSTREAM_VERSION)
+LIBRARY_VERSION =  -3.1
 
 autoconfigure: autoconfigure-stamp
 autoconfigure-stamp: debian/control
 	dh_testdir
+
+	[ -r config/config.sub.orig ] || \
+		cp -f config/config.sub config/config.sub.orig
+	[ -r config/config.guess.orig ] || \
+		cp -f config/config.guess config/config.guess.orig
+
+	[ ! -r /usr/share/misc/config.sub ] || \
+		cp -f /usr/share/misc/config.sub config/config.sub
+	[ ! -r /usr/share/misc/config.guess ] || \
+		cp -f /usr/share/misc/config.guess config/config.guess
 
 	# Create versioned symlinks
 	cd debian; \
@@ -32,7 +41,8 @@ autoconfigure-stamp: debian/control
 
 	mkdir debian/build && \
 	cd debian/build && \
-	../../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-shared --disable-static --enable-maintainer-mode CXXFLAGS="$(CXXFLAGS)"
+	../../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-shared --disable-static --enable-maintainer-mode CXXFLAGS="$(CXXFLAGS)" && \
+	mkdir doc/html
 
 	touch autoconfigure-stamp
 
@@ -51,15 +61,13 @@ clean:
 	[ ! -f Makefile ] || $(MAKE) distclean
 	rm -f build-stamp autoconfigure-stamp
 
-ifneq "$(wildcard /usr/share/misc/config.sub)" ""
-	cp -f /usr/share/misc/config.sub config/config.sub
-endif
-ifneq "$(wildcard /usr/share/misc/config.guess)" ""
-	cp -f /usr/share/misc/config.guess config/config.guess
-endif
-
 	rm -rf debian/build debian/install
 	rm -rf debian/libpqxx$(LIBRARY_VERSION)*
+
+	[ ! -r config/config.guess.orig ] || \
+		mv -f config/config.guess.orig config/config.guess || :
+	[ ! -r config/config.sub.orig ] || \
+		mv -f config/config.sub.orig config/config.sub || :
 
 	dh_clean
 
