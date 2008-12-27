@@ -16,6 +16,7 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
+#include <cstdlib>
 #include <cstring>
 #include <new>
 #include <stdexcept>
@@ -30,8 +31,13 @@ using namespace pqxx::internal;
 
 namespace
 {
+typedef unsigned char unsigned_char;
+
 // Convert textual digit to value
-inline int DV(unsigned char d) { return digit_to_number(char(d)); }
+inline unsigned char DV(unsigned char d)
+{
+  return unsigned_char(digit_to_number(char(d)));
+}
 }
 
 pqxx::binarystring::binarystring(const result::field &F) :
@@ -50,8 +56,8 @@ pqxx::binarystring::binarystring(const result::field &F) :
 
 #else
 
-  string str;
-  str.reserve(F.size());
+  string s;
+  s.reserve(F.size());
   for (result::field::size_type i=0; i<F.size(); ++i)
   {
     unsigned char c = b[i];
@@ -60,19 +66,19 @@ pqxx::binarystring::binarystring(const result::field &F) :
       c = b[++i];
       if (isdigit(c) && isdigit(b[i+1]) && isdigit(b[i+2]))
       {
-	c = (DV(c)<<6) | (DV(b[i+1])<<3) | DV(b[i+2]);
+	c = unsigned_char((DV(c)<<6) | (DV(b[i+1])<<3) | DV(b[i+2]));
 	i += 2;
       }
     }
-    str += char(c);
+    s += char(c);
   }
 
-  m_size = str.size();
+  m_size = s.size();
   void *buf = malloc(m_size+1);
   if (!buf)
     throw bad_alloc();
   super::operator=(super(static_cast<unsigned char *>(buf)));
-  strcpy(static_cast<char *>(buf), str.c_str());
+  memcpy(static_cast<char *>(buf), s.c_str(), m_size);
 
 #endif
 }
