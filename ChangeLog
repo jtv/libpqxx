@@ -1,6 +1,9 @@
 2008-12-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/binarystring.cxx:
   - Workaround for 7.3 libpq without PQunescape() still used m_str
+  - Missing include for workaround
+  - Use memcpy(), not strcpy() in workaround; there may be nul bytes
+  - Fixed int-to-unsigned-char warnings in workaround
  tools/pqxx-fulltest:
   - Rearranged "find" options to silence warning.
 2008-12-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
