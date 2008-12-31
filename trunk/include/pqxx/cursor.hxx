@@ -408,10 +408,12 @@ public:
    * defer doing so until after entering the transaction context that will
    * eventually destroy it.
    *
-   * @param context Transaction context that this cursor will be active in
-   * @param cname Result field containing the name of the SQL cursor to adopt
+   * @param context Transaction context that this cursor will be active in.
+   * @param cname Result field containing the name of the SQL cursor to adopt.
    * @param sstride Number of rows to fetch per read operation; must be a
-   * positive number
+   * positive number.
+   * @param op Ownership policy.  Determines whether the cursor underlying this
+   * stream will be destroyed when the stream is closed.
    */
   icursorstream(transaction_base &context,
       const result::field &cname,

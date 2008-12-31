@@ -1,3 +1,18 @@
+2008-12-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/libpqxx.xml:
+  - Restructured chapters for more balance
+  - Made text less tedious in places
+ include/pqxx/connection_base.hxx, src/connection_base.cxx, src/cursor.cxx,
+ src/dbtransaction.cxx:
+  - Added capability for read-only transactions
+  - Added capability for cursor "fetch 0"
+ include/pqxx/cursor.hxx, include/pqxx/tablewriter.hxx,
+ include/pqxx/transaction_base.hxx:
+  - Documented some more parameters to keep doxygen happy.
+ include/pqxx/util.hxx:
+  - Updated threading documentation
+  - Created "getting started" page
+  - Linked to threading & getting-started pages from front page
 2008-12-27  Eugene V. Lyubimkin <jackyf.devel@gmail.com>
  debian/rules, debian/control:
  - Deal better with config.{sub,guess} files, thanks Roger Leigh.

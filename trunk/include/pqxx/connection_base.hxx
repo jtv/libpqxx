@@ -379,7 +379,7 @@ public:
     /// Does the backend support prepared statements?  (If not, we emulate them)
     cap_prepared_statements,
 
-    /// Can we specify WITH OIDS with CREATE TABLE?  If we can, we should.
+    /// Can we specify WITH OIDS with CREATE TABLE?
     cap_create_table_with_oids,
 
     /// Can transactions be nested in other transactions?
@@ -391,9 +391,14 @@ public:
     cap_cursor_with_hold,
     /// Can cursors be updateable?
     cap_cursor_update,
+    /// Can cursors fetch zero elements?  (Used to trigger a "fetch all")
+    cap_cursor_fetch_0,
 
     /// Can we ask what table column a result column came from?
     cap_table_column,
+
+    /// Can transactions be READ ONLY?
+    cap_read_only_transactions,
 
     /// Not a capability value; end-of-enumeration marker
     cap_end

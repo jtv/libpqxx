@@ -270,9 +270,10 @@ protected:
   /** The optional name, if nonempty, must begin with a letter and may contain
    * letters and digits only.
    *
-   * @param direct running directly in connection context (i.e. not nested)?
+   * @param c The connection that this transaction is to act on.
+   * @param direct Running directly in connection context (i.e. not nested)?
    */
-  explicit transaction_base(connection_base &, bool direct=true);
+  explicit transaction_base(connection_base &c, bool direct=true);
 
   /// Begin transaction (to be called by implementing class)
   /** Will typically be called from implementing class' constructor.
