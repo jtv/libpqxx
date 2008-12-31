@@ -11,6 +11,7 @@ libpqxx_la_SOURCES = binarystring.cxx \
 	prepared_statement.cxx \
 	result.cxx \
 	robusttransaction.cxx \
+	strconv.cxx \
 	subtransaction.cxx \
 	tablereader.cxx \
 	tablestream.cxx \
