@@ -21,7 +21,9 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
+#include "pqxx/strconv"
 #include "pqxx/util"
+
 
 namespace pqxx
 {

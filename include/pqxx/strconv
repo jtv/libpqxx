@@ -1,0 +1,19 @@
+/*-------------------------------------------------------------------------
+ *
+ *   FILE
+ *	pqxx/strconv
+ *
+ *   DESCRIPTION
+ *      String conversion definitions for libpqxx
+ *
+ * Copyright (c) 2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
+ *
+ *-------------------------------------------------------------------------
+ */
+// Actual definitions in .hxx file so editors and such recognize file type
+#include "pqxx/strconv.hxx"
+

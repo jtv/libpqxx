@@ -27,6 +27,7 @@
 
 #include "pqxx/except"
 #include "pqxx/prepared_statement"
+#include "pqxx/strconv"
 #include "pqxx/util"
 
 

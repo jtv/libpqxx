@@ -1,4 +1,9 @@
 2008-12-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, include/pqxx/prepared_statement.hxx,
+ include/pqxx/result.hxx, include/pqxx/strconv, include/pqxx/strconv.hxx,
+ include/pqxx/util.hxx, src/Makefile.am, src/strconv.cxx, src/util.cxx:
+  - Broke string conversion out into its own module
+2008-12-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/libpqxx.xml:
   - Restructured chapters for more balance
   - Made text less tedious in places

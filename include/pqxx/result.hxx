@@ -29,6 +29,7 @@
 #include <stdexcept>
 
 #include "pqxx/except"
+#include "pqxx/strconv"
 #include "pqxx/util"
 
 /* Methods tested in eg. self-test program test001 are marked with "//[t1]"
