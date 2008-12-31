@@ -19,18 +19,14 @@
     </authorgroup>
 
     <copyright>
-      <year>2002</year>
-      <year>2003</year>
-      <year>2004</year>
-      <year>2005</year>
-      <year>2006</year>
+      <year>2002—2008</year>
       <holder>
         Jeroen T. Vermeulen
       </holder>
     </copyright>
   </bookinfo>
 
-  <preface id="preface">
+  <chapter id="preface">
     <title>About libpqxx</title>
 
     <para>
@@ -53,166 +49,162 @@
       See the <ulink url="http://pqxx.org/"><productname>libpqxx</productname>
       website</ulink> for more information.
     </para>
-  </preface>
 
-  <chapter id="whyanother">
-    <title>Why another C++ SQL library?</title>
+    <section id="whyanother">
+      <title>Why another C++ SQL library?</title>
 
-    <para>
-      Several open-source C++ wrapper libraries are available for various
-      databases, as well as some database-independent ones; there's
-      <productname>libpql++</productname>, <productname>libpq++</productname>,
-      <productname>libsqlxx</productname> and so on.
-    </para>
+      <para>
+        Several open-source C++ wrapper libraries are available for various
+        databases, as well as some database-independent ones; there's
+        <productname>libpql++</productname>, <productname>libpq++</productname>,
+        <productname>libsqlxx</productname> and so on.
+      </para>
 
-    <para>
-      So was <productname>libpqxx</productname> really necessary?
-    </para>
+      <para>
+        So was <productname>libpqxx</productname> really necessary?
+      </para>
 
-    <para>
-      I think it is.  The C++ Standard, and its standard library in particular,
-      have stabilized over the mid-1990s; compilers and standard library
-      implementations are still following suit at the time of writing.  As a
-      result, most older third-party libraries suffer from symptoms such as:
-    </para>
+      <para>
+        I think it is.  The C++ Standard, and its standard library in
+        particular, have stabilized over the mid-1990s; compilers and standard
+        library implementations are still following suit at the time of writing.
+        As a result, most older third-party libraries suffer from symptoms such
+        as:
+      </para>
 
-    <itemizedlist>
-      <listitem>
-	<para>
-	  Not using exceptions.  Many libraries return a status code and expect
-	  the caller to check for errors "if he's interested."  <emphasis>Of
-	    course</emphasis> he's interested.  But checking each and every call
-	  is tedious and error prone.
-	</para>
-      </listitem>
+      <itemizedlist>
+        <listitem>
+	  <para>
+	    Not using exceptions.  Many libraries return a status code and
+            expect callers to check for errors "if they're interested."
+            <emphasis>Of course</emphasis> they're interested.  But checking
+            each and every call is tedious and error prone.
+	  </para>
+        </listitem>
 
-      <listitem>
-	<para>
-	  Ad-hoc exception classes.  Programs using C++ libraries need to deal
-	  with various incompatible exception class hierarchies, and error
-	  handling becomes a total nightmare with multiple essentially identical
-	  <literal>catch</literal> clauses for every <literal>try</literal> block.
-	</para>
-      </listitem>
+        <listitem>
+	  <para>
+	    Ad-hoc exception classes.  Programs using C++ libraries need to deal
+	    with various incompatible exception class hierarchies, and error
+	    handling becomes a total nightmare with multiple essentially
+            identical <literal>catch</literal> clauses for every
+            <literal>try</literal> block.
+	  </para>
+        </listitem>
 
-      <listitem>
-	<para>
-	  Ad-hoc string classes.  As one member of the C++ standards committee
-	  put it, if the C++ wasn't going to have a standard string class, "there
-	  will be blood in the streets."  Luckily, the committee saw the wisdom
-	  in this, and civilization was spared.
-	</para>
-      </listitem>
+        <listitem>
+	  <para>
+	    Ad-hoc string classes.  As one member of the C++ standards committee
+	    put it, if the C++ wasn't going to have a standard string class,
+            "there will be blood in the streets."  Luckily the committee saw
+            the wisdom in this, and civilization was spared.
+	  </para>
+        </listitem>
 
-      <listitem>
-	<para>
-	  "A Better C."  Using only the oldest features of C++ as extensions to
-	  the C language really only complicates things, but there was a time
-	  when this was the only way to write portable C++.
-	</para>
-      </listitem>
+        <listitem>
+	  <para>
+	    "A Better C."  Using only the oldest features of C++ as extensions
+            to the C language really only complicates things, but there was a
+            time when this was the only way to write portable C++.
+	  </para>
+        </listitem>
 
-      <listitem>
-	<para>
-	  Ad-hoc containers and algorithms.  Inventing your own container APIs,
-	  interesting as it may be, in most cases is wasted development effort.
-	  Besides that, there's also the redundant effort of having to learn how
-	  they work.
-	</para>
-      </listitem>
-    </itemizedlist>
+        <listitem>
+	  <para>
+	    Ad-hoc containers and algorithms.  Inventing your own container
+            APIs, interesting as it may be, in most cases is wasted development
+            effort.  Besides that, there's also the redundant effort of having
+            to learn how they work.
+	  </para>
+        </listitem>
+      </itemizedlist>
 
-    <para>
-      For these reasons, third-party libraries have tended to grow into
-      intrusive frameworks.  Third-party code, and class libraries in
-      particular, need to be rewritten to replace such ad-hockery with the rich
-      and standardized functionality now provided by C++.  This is what
-      <productname>libpqxx</productname> intends to do for
-      <productname>PostgreSQL</productname>.  The library was designed to be a
-      forward-looking one, which means that ports to vendor X's compiler Y may
-      have to wait until X improves its support of the Standard.
-    </para>
+      <para>
+        For these reasons, third-party libraries have tended to grow into
+        intrusive frameworks.  Third-party code, and class libraries in
+        particular, need to be rewritten to replace such ad-hockery with the
+        rich and standardized functionality now provided by C++.  This is what
+        <productname>libpqxx</productname> intends to do for
+        <productname>PostgreSQL</productname>.  The library was designed to be a
+        forward-looking one, which means that ports to vendor X's compiler Y may
+        have to wait until X improves its support of the Standard.
+      </para>
 
-    <para>
-      But there were other reasons to design a new SQL frontend from scratch.
-      C++ is a complex language, and the only things stopping a library writer
-      from shooting himself
-      <footnote>
-	<para>
-	  Yes, <emphasis>him</emphasis>self. A "writer" is grammatically
-	  masculine, unless actual gender is known and definite.
-	</para>
-      </footnote>
-      in the foot are years of experience and an extensive idiom of good
-      practices.  To name a few typical symptoms of foot-shooting:
-    </para>
+      <para>
+        But there were other reasons to design a new SQL frontend from scratch.
+        C++ is a complex language, and the only things stopping library writers
+        from shooting themselves in the feet are years of experience and an
+        extensive idiom of good practices.  To name a few typical symptoms of
+        foot-shooting:
+      </para>
 
-    <itemizedlist>
-      <listitem>
-	<para>
-	  Poor language integration.  Users need to learn myriads of function
-	  names when standard C++ operators can be overloaded instead to make
-	  code fit in more naturally with the core language.
-	</para>
-      </listitem>
+      <itemizedlist>
+        <listitem>
+	  <para>
+	    Poor language integration.  Users need to learn myriads of function
+	    names when standard C++ operators can be overloaded instead to make
+	    code fit in more naturally with the core language.
+	  </para>
+        </listitem>
 
-      <listitem>
-	<para>
-	  Overdoing overloading.  It's also easy to go overboard with operator
-	  or function overloading, and many classes do.  Some programmers use
-	  identical function names to mean very different things, or define
-	  operators whose semantics are not clearly derived from their
-	  conventional meanings.
-	</para>
-      </listitem>
+        <listitem>
+	  <para>
+	    Overdoing overloading.  It's also easy to go overboard with operator
+	    or function overloading, and many classes do.  Some programmers use
+	    identical function names to mean very different things, or define
+	    operators whose semantics are not clearly derived from their
+	    conventional meanings.
+	  </para>
+        </listitem>
 
-      <listitem>
-	<para>
-	  Resource management.  In the complex world of C++, what the user
-	  really needs from a library is a little help in ensuring that objects
-	  are deleted at the proper time, pointers don't go off into never-never
-	  land, and so on.  Perhaps the most compelling usage of C++ is the
-	  "resource acquisition is initialization" paradigm, but too few
-	  libraries apply it as yet.
-	</para>
-      </listitem>
+        <listitem>
+	  <para>
+	    Resource management.  In the complex world of C++, what the user
+	    really needs from a library is a little help in ensuring that
+            objects are deleted at the proper time, pointers don't go off into
+            never-never land, and so on.  Perhaps the most compelling aspect of
+            C++ is the "resource acquisition is initialization" paradigm, but
+            too few libraries apply it as yet.
+	  </para>
+        </listitem>
 
-      <listitem>
-	<para>
-	  Convoluted family trees.  Class derivation is a beautiful thing, but
-	  it can be overused.  Some libraries construe far-fetched relations
-	  between classes, or needlessly expose "convenience" relations using
-	  public inheritance.
-	</para>
-      </listitem>
+        <listitem>
+	  <para>
+	    Convoluted family trees.  Class derivation is a beautiful thing, but
+	    it can be overused.  Some libraries construe far-fetched relations
+	    between classes, or needlessly expose "convenience" relations using
+	    public inheritance.
+	  </para>
+        </listitem>
 
-      <listitem>
-	<para>
-	  Overweight classes.  Some classes lump together different pieces of
-	  functionality with different lifetimes.  For instance, some C++ SQL
-	  libraries integrate transaction bracketing into a connection class.
-	  Yet it is not unreasonable for an application to perform multiple
-	  consecutive transactions using the same connection.
-	</para>
-      </listitem>
+        <listitem>
+	  <para>
+	    Overweight classes.  Some classes lump together different pieces of
+	    functionality with different lifetimes.  For instance, some C++ SQL
+	    libraries integrate transaction bracketing into a connection class.
+	    Yet it is not unreasonable for an application to perform multiple
+	    consecutive transactions using the same connection.
+	  </para>
+        </listitem>
 
-      <listitem>
-	<para>
-	 Exposure of low-level interfaces.  Some C++ wrappers for C-level SQL
-	 interface libraries (including <productname>libpq++</productname>)
-	 don't hide the ugly details of the underlying API.  Worse, some only
-	 provide "utility" classes that the user can mix in freely with C-level
-	 function calls.
-	</para>
-      </listitem>
-    </itemizedlist>
+        <listitem>
+	  <para>
+	   Exposure of low-level interfaces.  Some C++ wrappers for C-level SQL
+	   interface libraries (including <productname>libpq++</productname>)
+	   don't hide the ugly details of the underlying API.  Worse, some only
+	   provide "utility" classes that the user can mix in freely with
+           C-level function calls.
+	  </para>
+        </listitem>
+      </itemizedlist>
 
-    <para>
-      Again, <productname>libpqxx</productname> is an attempt to do better.
-      Hopefully this has resulted in a library that is easier to use than most
-      alternatives while giving you more flexibility, that helps you avoid
-      common pitfalls and reduces the need for debugging.
-    </para>
+      <para>
+        Again, <productname>libpqxx</productname> is an attempt to do better.
+        Hopefully this has resulted in a library that is easier to use than most
+        alternatives while giving you more flexibility, that helps you avoid
+        common pitfalls and reduces the need for debugging.
+      </para>
+    </section>
   </chapter>
 
   <chapter id="classoverview">
@@ -250,11 +242,13 @@
 	      doing this at various levels of reliability, called
 	      <literal>nontransaction</literal>, <literal>transaction</literal>,
 	      and <literal>robusttransaction</literal> for no, standard, and
-	      best reliability respectively.
+	      best reliability respectively.  You probably shouldn't mess with
+              <literal>robusttransaction</literal> though, because it comes with
+              complications.
 	    </para>
 	  </footnote>
 
-	  You may execute any number of transactions consecutively on a single
+	  You may execute any number of transactions on a single
 	  <literal>connection</literal>, but only one at a time.
 	</para>
 
@@ -270,9 +264,10 @@
 	  A <literal>result</literal> is a container holding the resulting data
 	  coming out of a query or command executed in a
 	  <literal>transaction</literal>.  It behaves just like a standard C++
-	  container as found in the STL, although its contents are not
-	  modifiable.  The tuples held in the result in turn behave much like
-	  (non-modifiable) containers themselves.
+	  container as found in the STL, although its contents can't be modified
+          in any way.  (You can assign or copy it cheaply though; it's basically
+          a smart pointer).  The tuples held in the result in turn behave much
+          like non-modifiable containers themselves.
 	</para>
       </listitem>
 
@@ -696,17 +691,19 @@
       </programlisting>
 
       <para>
-	The <literal>connection</literal> constructor is passed one argument,
+        This gives us a connection object called <literal>Conn</literal>.
+      </para>
+
+      <para>
+	The <literal>connection</literal> constructor here takes one argument,
 	the "connect string."  This string may be used to specify which host
 	on the network runs the database backend we wish to connect to, which
 	database we're interested in, which user name we'll be using to log
 	in, etc.  Refer to the libpq <function>connect</function> call for a
 	complete definition of what may go into the connect string.  In this
 	case we're connecting to a database <literal>test</literal> residing
-	on the local machine.  By default (if the connect string is null or
-	empty, or left out, and no environment variables are set to override
-	this) the client will try to connect to a server running on the local
-	machine.
+	on the local machine.  By default the client will try to connect to a
+        server running on the local machine.
       </para>
 
       <para>

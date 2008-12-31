@@ -35,7 +35,8 @@ string generate_set_transaction(
     if (IsolationString != pqxx::isolation_traits<pqxx::read_committed>::name())
       args += " ISOLATION LEVEL " + IsolationString;
 
-  if (rw != pqxx::read_write && C.server_version() >= 80000)
+  if (rw != pqxx::read_write &&
+      C.supports(pqxx::connection_base::cap_read_only_transactions))
     args += " READ ONLY";
 
   return args.empty() ?

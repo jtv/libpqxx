@@ -49,25 +49,96 @@
  * The latest information, as well as updates, a mailing list, and a bug
  * reporting system can be found at the project's home page.
  *
+ * \li \ref gettingstarted
+ * \li \ref threading
+ * \li \ref connection
+ * \li \ref transaction
+ *
  * @see http://pqxx.org/
+ */
+
+/** @page gettingstarted Getting started
+ * The most basic three types in libpqxx are the connection (which inherits its
+ * API from pqxx::connection_base and its setup behaviour from
+ * pqxx::connectionpolicy), the transaction (derived from
+ * pqxx::transaction_base), and the result (pqxx::result).
+ *
+ * They fit together as follows:
+ * \li You connect to the database by creating a
+ * connection object (see \ref connection).  The connection type you'll usually
+ * want is pqxx::connection.
+ * \li Within that connection, you create a transaction object (see
+ * \ref transaction).  You'll usually want the pqxx::work variety.  If you don't
+ * want transactional behaviour, use pqxx::nontransaction.  Once you're done you
+ * call the transaction's @c commit function to make its work final.  If you
+ * don't call this, the work will be rolled back when the transaction object is
+ * destroyed.
+ * \li While you have the transaction object, use its @c exec function to
+ * execute a query.  The query is a simple string.  The function returns a
+ * pqxx::result object, which acts as a standard container of rows.  Each row in
+ * itself acts as a container of fields.  You can use array indexing and/or
+ * iterators to access either.
+ * \li The field's data is stored as a text string.  You can read it as such
+ * using its @c c_str() function, or convert it to other types using its @c as()
+ * and @c to() functions.  These are templated on the destination type.
+ *
+ * Here's a very basic example.  It connects to the default database (you'll
+ * need to have one set up), asks the database for a very simple result,
+ * converts it to an @c int, and prints it.  It also contains some basic error
+ * handling.
+ *
+ * @code
+ * #include <iostream>
+ * #include <pqxx/pqxx>
+ *
+ * main()
+ * {
+ *   try
+ *   {
+ *     pqxx::connection c;
+ *     pqxx::work w(c);
+ *     pqxx::result r = c.exec("SELECT 1");
+ *     w.commit();
+ *
+ *     std::cout << r[0][0].as<int>() << std::endl;
+ *   }
+ *   catch (const std::exception &e)
+ *   {
+ *     std::cerr << e.what() << std::endl;
+ *   }
+ * }
+ * @endcode
+ *
+ * This should print the number 1.  Notice that you can keep the result object
+ * around after the transaction (or even the connection) has been closed.
  */
 
 /** @page threading Thread safety
  *
  * This library does not contain any locking code to protect objects against
- * simultaneous modification in multi-threaded programs.  Therefore it is up to
- * you, the user of the library, to ensure that your client programs perform no
- * conflicting operations simultaneously in multiple threads.
+ * simultaneous modification in multi-threaded programs.  There are many
+ * different threading interfaces and libpqxx does not dictate the choice.
  *
- * The reason for this is simple: there are many different threading interfaces
- * and libpqxx does not mean to impose a choice.  Additionally, locking incurs a
- * performance overhead without benefitting most programs.
+ * Therefore it is up to you, the user of the library, to ensure that your
+ * threaded client programs perform no conflicting operations concurrently.
  *
- * It's not all bad news, however.  The library tries to avoid unsafe operations
- * and so does the underlying libpq.  Apart from a few exceptions--which should
- * generally be noted in this documentation--all your program needs to do to
- * maintain thread safety is to ensure that no two threads perform a non-const
- * operation on a single object simultaneously.
+ * The library does try to avoid non-obvious unsafe operations and so does the
+ * underlying libpq.  Here's what you should do to keep your threaded libpqxx
+ * application safe:
+ *
+ * \li Treat a connection and all objects related to it as a "world" of its own.
+ * With some exceptions (see below), you should make sure that the same "world"
+ * is never accessed concurrently by multiple threads.
+ *
+ * \li Result sets (pqxx::result) and binary data (pqxx::binarystring)
+ * are special.  Copying these objects is very cheap, and you can give the copy
+ * to another thread.  Just make sure that no other thread accesses the same
+ * copy when it's being assigned to, swapped, cleared, or destroyed.
+ *
+ * @warning Prior to libpqxx 3.1, or in C++ environments without the standard
+ * smart pointer type @c "shared_ptr," copying, assigning, or destroying a
+ * pqxx::result or pqxx::binarystring could also affect any other other object
+ * of the same type referring to the same underlying data.
  */
 
 /// The home of all libpqxx classes, functions, templates, etc.

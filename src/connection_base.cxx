@@ -1534,8 +1534,10 @@ void pqxx::connection_base::read_capabilities() throw ()
   m_caps[cap_prepared_statements] = (v >= 70300);
   m_caps[cap_cursor_scroll] = (v >= 70400);
   m_caps[cap_cursor_with_hold] = (v >= 70400);
+  m_caps[cap_cursor_fetch_0] = (v >= 70400);
   m_caps[cap_nested_transactions] = (v >= 80000);
   m_caps[cap_create_table_with_oids] = (v >= 80000);
+  m_caps[cap_read_only_transactions] = (v >= 80000);
 
 #ifdef PQXX_HAVE_PQFTABLECOL
   const int p = protocol_version();
