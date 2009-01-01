@@ -1,4 +1,6 @@
 2009-01-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/Makefile.am:
+  - Forgot to add new strconv headers
  src/connection_base.cxx, src/cursor.cxx:
   - Include strconv where (sometimes) needed
 2008-12-31  Jeroen T. Vermeulen <jtv@xs4all.nl>

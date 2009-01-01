@@ -20,6 +20,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/prepared_statement pqxx/prepared_statement.hxx \
 	pqxx/result pqxx/result.hxx \
 	pqxx/robusttransaction pqxx/robusttransaction.hxx \
+	pqxx/strconv pqxx/strconv.hxx \
 	pqxx/subtransaction pqxx/subtransaction.hxx \
 	pqxx/tablereader pqxx/tablereader.hxx \
 	pqxx/tablestream pqxx/tablestream.hxx \
