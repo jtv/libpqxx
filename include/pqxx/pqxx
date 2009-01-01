@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      Convenience header: include all libpqxx definitions
  *
- * Copyright (c) 2003-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -17,15 +17,18 @@
 #include "pqxx/binarystring"
 #include "pqxx/connection"
 #include "pqxx/cursor"
+#include "pqxx/except"
 #include "pqxx/largeobject"
-#include "pqxx/transaction"
 #include "pqxx/nontransaction"
+#include "pqxx/notify-listen"
 #include "pqxx/pipeline"
+#include "pqxx/prepared_statement"
 #include "pqxx/result"
 #include "pqxx/robusttransaction"
 #include "pqxx/subtransaction"
-#include "pqxx/transactor"
+#include "pqxx/strconv"
 #include "pqxx/tablereader"
 #include "pqxx/tablewriter"
-#include "pqxx/notify-listen"
-
+#include "pqxx/transaction"
+#include "pqxx/transactor"
+#include "pqxx/util"
