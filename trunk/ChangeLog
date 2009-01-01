@@ -1,6 +1,14 @@
 2009-01-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/Makefile.am:
   - Forgot to add new strconv headers
+ include/pqxx/pqxx:
+  - Ordered alphabetically
+  - Updated for completeness (probably no practical difference)
+ include/pqxx/strconv.hxx:
+  - Provide string_traits<> for non-const "char *"
+ include/pqxx/util.hxx:
+  - Added extra example to "getting started" page
+  - Compile fixes for examples
  src/connection_base.cxx, src/cursor.cxx:
   - Include strconv where (sometimes) needed
 2008-12-31  Jeroen T. Vermeulen <jtv@xs4all.nl>

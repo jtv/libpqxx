@@ -7,7 +7,7 @@
  *      String conversion definitions for libpqxx
  *      DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stringconv instead.
  *
- * Copyright (c) 2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2008-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -96,6 +96,20 @@ template<> struct PQXX_LIBEXPORT string_traits<const char *>
   static PGSTD::string to_string(const char *Obj) { return Obj; }
 };
 
+/// String traits for non-const C-style string ("pointer to char")
+template<> struct PQXX_LIBEXPORT string_traits<char *>
+{
+  static const char *name() { return "char *"; }
+  static bool has_null() { return true; }
+  static bool is_null(const char *t) { return !t; }
+  static const char *null() { return NULL; }
+
+  // Don't allow this conversion since it breaks const-safety.
+  // static void from_string(const char Str[], char *&Obj);
+
+  static PGSTD::string to_string(char *Obj) { return Obj; }
+};
+
 /// String traits for C-style string constant ("array of char")
 template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
 {
@@ -167,7 +181,7 @@ template<typename T>
  * For all other types, this just uses the regular, nul-terminated version of
  * from_string().
  */
-template<typename T> void from_string(const char Str[], T &Obj, size_t)
+template<typename T> inline void from_string(const char Str[], T &Obj, size_t)
 {
   return from_string(Str, Obj);
 }
