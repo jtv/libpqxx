@@ -7,7 +7,7 @@
  *      Various utility definitions for libpqxx
  *      DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/util instead.
  *
- * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -48,6 +48,7 @@
  * The latest information, as well as updates, a mailing list, and a bug
  * reporting system can be found at the project's home page.
  *
+ * Some links that should help you find your bearings:
  * \li \ref gettingstarted
  * \li \ref threading
  * \li \ref connection
@@ -90,13 +91,13 @@
  * #include <iostream>
  * #include <pqxx/pqxx>
  *
- * main()
+ * int main()
  * {
  *   try
  *   {
  *     pqxx::connection c;
  *     pqxx::work w(c);
- *     pqxx::result r = c.exec("SELECT 1");
+ *     pqxx::result r = w.exec("SELECT 1");
  *     w.commit();
  *
  *     std::cout << r[0][0].as<int>() << std::endl;
@@ -104,12 +105,47 @@
  *   catch (const std::exception &e)
  *   {
  *     std::cerr << e.what() << std::endl;
+ *     return 1;
  *   }
  * }
  * @endcode
  *
  * This should print the number 1.  Notice that you can keep the result object
  * around after the transaction (or even the connection) has been closed.
+ *
+ * Here's a slightly more complicated example.  It takes an argument from the
+ * command line and retrieves a string with that value.  The interesting part is
+ * that it uses the escaping-and-quoting function @c quote() to embed this
+ * string value in SQL safely.  It also reads the result field's value as a
+ * plain C-style string using its @c c_str() function.
+ *
+ * @code
+ * #include <iostream>
+ * #include <pqxx/pqxx>
+ *
+ * int main(int argc, char *argv[])
+ * {
+ *   if (!argv[1])
+ *   {
+ *     std::cerr << "Give me a string!" << std::endl;
+ *     return 1;
+ *   }
+ *   try
+ *   {
+ *     pqxx::connection c;
+ *     pqxx::work w(c);
+ *     pqxx::result r = w.exec("SELECT " + w.quote(argv[1]));
+ *     w.commit();
+ *
+ *     std::cout << r[0][0].c_str() << std::endl;
+ *   }
+ *   catch (const std::exception &e)
+ *   {
+ *     std::cerr << e.what() << std::endl;
+ *     return 1;
+ *   }
+ * }
+* @endcode
  */
 
 /** @page threading Thread safety
