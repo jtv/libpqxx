@@ -7,7 +7,7 @@
  *      implementation of libpqxx STL-style cursor classes.
  *   These classes wrap SQL cursors in STL-like interfaces
  *
- * Copyright (c) 2004-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -22,7 +22,9 @@
 
 #include "pqxx/cursor"
 #include "pqxx/result"
+#include "pqxx/strconv"
 #include "pqxx/transaction"
+
 
 using namespace PGSTD;
 using namespace pqxx;
