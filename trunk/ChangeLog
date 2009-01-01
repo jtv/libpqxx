@@ -1,3 +1,6 @@
+2009-01-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx, src/cursor.cxx:
+  - Include strconv where (sometimes) needed
 2008-12-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, include/pqxx/prepared_statement.hxx,
  include/pqxx/result.hxx, include/pqxx/strconv, include/pqxx/strconv.hxx,
