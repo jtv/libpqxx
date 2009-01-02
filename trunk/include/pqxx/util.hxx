@@ -145,7 +145,14 @@
  *     return 1;
  *   }
  * }
-* @endcode
+ * @endcode
+ *
+ * You can find more about converting field values to native types, or
+ * converting values to strings for use with libpqxx, under
+ * \ref stringconversion.
+ *
+ * If you want to handle exceptions thrown by libpqxx in more detail, for
+ * example to print the SQL contents of a query that failed, see \ref exception.
  */
 
 /** @page threading Thread safety
