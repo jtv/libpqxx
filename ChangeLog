@@ -1,4 +1,9 @@
 2009-01-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/basic_connection.hxx, src/binarystring.cxx, src/util.cxx:
+  - Added includes that may be needed in some situations
+ test/test000.cxx:
+  - More consistent spacing
+2009-01-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/Makefile.am:
   - Forgot to add new strconv headers
  include/pqxx/pqxx:

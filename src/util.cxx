@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      Various utility functions for libpqxx
  *
- * Copyright (c) 2003-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -16,16 +16,24 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
+#include <cerrno>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <new>
+
+#ifdef PQXX_HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#else
+#include <sys/types.h>
+#if defined(_WIN32)
+#include <winsock2.h>
+#endif
+#endif // PQXX_HAVE_SYS_SELECT_H
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-
-#include <cerrno>
-#include <new>
 
 #ifdef _WIN32
 #include <windows.h>

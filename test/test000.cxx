@@ -58,7 +58,7 @@ inline void strconv(string type, const char Obj[], string expected)
 const double not_a_number =
 #if defined(PQXX_HAVE_QUIET_NAN)
   numeric_limits<double>::quiet_NaN();
-#elif defined (PQXX_HAVE_C_NAN)
+#elif defined(PQXX_HAVE_C_NAN)
   NAN;
 #elif defined(PQXX_HAVE_NAN)
   nan("");
