@@ -1,3 +1,8 @@
+2009-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx:
+  - Yet more introductory documentation
+ README-UPGRADE:
+  - Added 3.1 section
 2009-01-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/basic_connection.hxx, src/binarystring.cxx, src/util.cxx:
   - Added includes that may be needed in some situations
