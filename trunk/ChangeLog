@@ -1,4 +1,7 @@
 2009-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx:
+  - Separate doc page about accessing results
+2009-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/binarystring.hxx, include/pqxx/result.hxx,
  include/pqxx/util.hxx, src/connection_base.cxx, src/binarystring.cxx,
  src/result.cxx:

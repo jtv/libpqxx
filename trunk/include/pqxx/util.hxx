@@ -151,40 +151,70 @@
  *
  * You can find more about converting field values to native types, or
  * converting values to strings for use with libpqxx, under
- * \ref stringconversion.
- *
- * These examples access the result object and its contents through indexing, as
- * if they were arrays.  But they also define @c const_iterator types:
- *
- * @code
- *     for (pqxx::result::const_iterator i = r.begin();
- *          i != r.end();
- *          ++i)
- *       std::cout << i[0].c_str() << std::endl;
- * @endcode
- *
- * And @c const_reverse_iterator types:
- *
- * @code
- *     for (pqxx::result::const_reverse_iterator i = r.begin();
- *          i != r.rend();
- *          ++i)
- *       std::cout << i[0].c_str() << std::endl;
- * @endcode
- *
- * That goes not just for the rows in the result, but for the fields in a row as
- * well:
- *
- * @code
- *     const result::tuple tup = r[0];
- *     for (result::tuple::const_iterator j = tup.begin();
- *          j != tup.end();
- *          ++j)
- *       std::cout << j->c_str() << std::endl;
- * @endcode
+ * \ref stringconversion.  More about getting to the tuples and fields of a
+ * result is under \ref accessingresults.
  *
  * If you want to handle exceptions thrown by libpqxx in more detail, for
  * example to print the SQL contents of a query that failed, see \ref exception.
+ */
+
+/** @page accessingresults Accessing results and result rows
+ *
+ * Let's say you have a result object.  For example, your program may have done:
+ *
+ * @code
+ * pqxx::result r = w.exec("SELECT * FROM mytable");
+ * @endcode
+ *
+ * Now how do you access the data inside @c r?
+ *
+ * The simplest way is array indexing.  A result acts as an array of tuples,
+ * and a tuple acts as an array of fields.
+ *
+ * @code
+ * for (int rownum=0; rownum < r.size(); ++rownum)
+ * {
+ *   const result::tuple row = r[rownum];
+ *
+ *   for (int colnum=0; colnum < row.size(); ++colnum)
+ *   {
+ *     const result::field = row[colnum];
+ *
+ *     std::cout << field.c_str() << '\t';
+ *   }
+ *
+ *   std::cout << std::endl;
+ * }
+ *
+ * But results and rows also define @c const_iterator types:
+ *
+ * @code
+ * for (pqxx::result::const_iterator row = r.begin();
+ *      row != r.end();
+ *      ++row)
+ *  {
+ *    for (pqxx::result::tuple::const_iterator field = row->begin();
+ *         field != row->end();
+ *         ++field)
+ *      std::cout << field->c_str() << '\t';
+ *
+ *    std::cout << std::endl;
+ *  }
+ * @endcode
+ *
+ * They also have @c const_reverse_iterator types, which iterate backwards from
+ * @c rbegin() to @c rend() exclusive.
+ *
+ * All these iterator types provide one extra bit of convenience that you won't
+ * normally find in C++ iterators: referential transparency.  You don't need to
+ * dereference them to get to the row or field they refer to.  That is, instead
+ * of @c row->end() you can also choose to sasy @c row.end().  Similarly, you
+ * may prefer @c field.c_str() over @c field->c_str().
+ *
+ * This becomes really helpful with operators such as the array-indexing
+ * operator.  With regular C++ iterators you would need ugly expressions such as
+ * @c (*row)[0] or @c row->operator[](0).  With the iterator types defined by
+ * the result and tuple classes you can simply say @c row[0].
  */
 
 /** @page threading Thread safety
