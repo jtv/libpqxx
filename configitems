@@ -58,4 +58,6 @@ PQXX_HAVE_SYS_SELECT_H	internal	compiler
 PQXX_SEEKDIRS_MATCH_C	internal	compiler
 PQXX_PQ_IN_NAMESPACE	public	compiler
 PQXX_SELECT_ACCEPTS_NULL	internal	compiler
+PQXX_TR1_HEADERS	public	compiler
+PQXXTR1	public	compiler
 VERSION	internal	autotools

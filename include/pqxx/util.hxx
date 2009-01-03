@@ -27,8 +27,10 @@
 #include <typeinfo>
 #include <vector>
 
-#ifdef PQXX_HAVE_SHARED_PTR
+#ifdef PQXX_TR1_HEADERS
 #include <tr1/memory>
+#else
+#include <memory>
 #endif
 
 

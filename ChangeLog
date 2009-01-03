@@ -1,4 +1,9 @@
 2009-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in, include/pqxx/util.hxx:
+  - Check for separate TR1 header directory
+  - Configure check & option for TR1 namespace
+  - Include <tr1/memory> if available, or <memory> otherwise
+2009-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.hxx:
   - Yet more introductory documentation
  README-UPGRADE:

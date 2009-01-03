@@ -168,7 +168,9 @@ AH_TEMPLATE(PGSTD,[name of standard library namespace (normally "std")])
 AC_MSG_CHECKING([name of standard library namespace (normally "std")])
 guessstd=no
 AC_ARG_WITH(std,
-	AC_HELP_STRING([--with-std],[name of standard library namespace (normally "std")]),
+	AC_HELP_STRING(
+		[--with-std],
+		[name of standard library namespace (normally "std")]),
 	[std=${withval};],
 	[guessstd=yes])
 
@@ -181,7 +183,10 @@ if test "${guessstd}" = "yes" -o "${withval}" = "yes"; then
 			[std="${ns}"; break])
 	done
 fi
-AC_DEFINE_UNQUOTED(PGSTD,[$std],[name of standard library namespace (normally "std")])
+AC_DEFINE_UNQUOTED(
+	PGSTD,
+	[$std],
+	[name of standard library namespace (normally "std")])
 if ! test -z "${std}" ; then
 	AC_MSG_RESULT([::${std}])
 	usestd="using namespace ${std};"
@@ -189,6 +194,51 @@ else
 	AC_MSG_RESULT([::])
 fi
 
+
+AC_MSG_CHECKING([whether TR1 headers live in tr1 directory])
+tr1headers=yes
+AC_TRY_COMPILE(
+	[#include <tr1/memory>],
+	[],
+	AC_DEFINE(
+		[PQXX_TR1_HEADERS],
+		1,
+		[Define if headers for TR1 extension to standard live in tr1/]),
+	tr1headers=no)
+AC_MSG_RESULT($tr1headers)
+
+if test "${tr1headers}" = "yes" ; then
+	tr1dir="tr1/"
+else
+	tr1dir=""
+fi
+
+AH_TEMPLATE(PQXXTR1, [namespace of TR1 extension to the C++ standard])
+AC_MSG_CHECKING([namespace of TR1 extension to the C++ standard])
+guesstr1=no
+AC_ARG_WITH(
+	tr1,
+	AC_HELP_STRING(
+		[--with-tr1],
+		[namespace of TR1 extension to the C++ standard]),
+	[tr1=${withval};],
+	[guesstr1=yes])
+
+if test "${guesstr1}" = "yes" -o "${withval}" = "yes"; then
+	# No explicit TR1 namespace given.  Try PGSTD::tr1.  If that doesn't
+	# work, assume PGSTD as our best bet.
+	tr1="${std}::tr1"
+	AC_TRY_COMPILE(
+		[#include <${tr1dir}memory>],
+		[using namespace ${tr1}],
+		[],
+		[tr1=${std}])
+fi
+AC_DEFINE_UNQUOTED(
+	PQXXTR1,
+	[$tr1],
+	[namespace of TR1 standard extensions (e.g. "std" or "std::tr1")])
+AC_MSG_RESULT([$tr1])
 
 ioshdr=yes
 AC_CHECK_HEADER(ios,AC_DEFINE(PQXX_HAVE_IOS,1,
@@ -932,12 +982,11 @@ AC_MSG_RESULT($reverseit)
 
 AC_MSG_CHECKING([for tr1::shared_ptr])
 sharedptr='yes'
-AC_TRY_COMPILE([#include <tr1/memory>
-	${usestd}],
-	[tr1::shared_ptr<int> i(new int(1)); return *i;],
+AC_TRY_COMPILE([#include <${tr1dir}memory>],
+	[${tr1}::shared_ptr<int> i(new int(1)); return *i;],
 	[AC_DEFINE(PQXX_HAVE_SHARED_PTR,
 		1,
-		[Define if compiler has tr1::shared_ptr])],
+		[Define if compiler has shared_ptr])],
 	[sharedptr='no'])
 AC_MSG_RESULT($sharedptr)
 
