@@ -7,7 +7,7 @@
  *      implementation of the pqxx::result class and support classes.
  *   pqxx::result represents the set of result tuples from a database query
  *
- * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -124,8 +124,8 @@ bool pqxx::result::empty() const throw ()
 void pqxx::result::swap(result &rhs) throw ()
 {
   super::swap(rhs);
-  m_data = (c_ptr() ? c_ptr()->data : 0);
-  rhs.m_data = (rhs.c_ptr() ? rhs.c_ptr()->data : 0);
+  m_data = (get() ? get()->data : 0);
+  rhs.m_data = (rhs.get() ? rhs.get()->data : 0);
 }
 
 
@@ -257,7 +257,7 @@ const char *pqxx::result::CmdStatus() const throw ()
 
 const string &pqxx::result::query() const throw ()
 {
-  return c_ptr() ? c_ptr()->query : s_empty_string;
+  return get() ? get()->query : s_empty_string;
 }
 
 
@@ -342,7 +342,7 @@ pqxx::result::table_column(tuple::size_type ColNum) const
     throw range_error("Invalid column index in table_column(): " +
       to_string(ColNum));
 
-  if (!c_ptr() || c_ptr()->protocol < 3)
+  if (!get() || get()->protocol < 3)
     throw feature_not_supported("Backend version does not support querying of "
       "column's original number",
       "[TABLE_COLUMN]");

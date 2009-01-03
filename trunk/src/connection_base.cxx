@@ -113,7 +113,7 @@ static void clear_fdmask(fd_set *mask)
 string pqxx::encrypt_password(const string &user, const string &password)
 {
   PQAlloc<char> p(PQencryptPassword(password.c_str(), user.c_str()));
-  return string(p.c_ptr());
+  return string(p.get());
 }
 #endif
 
@@ -703,7 +703,9 @@ int pqxx::connection_base::get_notifs()
   if (m_Trans.get()) return notifs;
 
   typedef PQAlloc<PGnotify> notifptr;
-  for (notifptr N( PQnotifies(m_Conn) ); N; N = notifptr(PQnotifies(m_Conn)))
+  for (notifptr N( PQnotifies(m_Conn) );
+       N.get();
+       N = notifptr(PQnotifies(m_Conn)))
   {
     typedef listenerlist::iterator TI;
 
@@ -737,7 +739,7 @@ int pqxx::connection_base::get_notifs()
       }
     }
 
-    N.clear();
+    N.reset();
   }
   return notifs;
 }
@@ -992,7 +994,7 @@ pqxx::result pqxx::connection_base::prepared_exec(
 		nparams,
 		params,
 		paramlengths,
-		binary.c_ptr(),
+		binary.get(),
 		0),
 	protocol_version(),
 	statement,
@@ -1351,8 +1353,8 @@ string pqxx::connection_base::esc(const char str[], size_t maxlen)
 
 #elif defined(PQXX_HAVE_PQESCAPESTRING)
   scoped_array<char> buf(new char[2*maxlen+1]);
-  const size_t bytes = PQescapeString(buf.c_ptr(), str, maxlen);
-  escaped.assign(buf.c_ptr(), bytes);
+  const size_t bytes = PQescapeString(buf.get(), str, maxlen);
+  escaped.assign(buf.get(), bytes);
 
 #else
   // Last-ditch workaround.  This has serious problems with multibyte encodings.
@@ -1407,7 +1409,7 @@ string pqxx::connection_base::esc_raw(const unsigned char str[], size_t len)
   if (!m_Conn) activate();
 
   PQAlloc<unsigned char> buf( PQescapeByteaConn(m_Conn, str, len, &bytes) );
-  if (!buf.c_ptr())
+  if (!buf.get())
   {
     // TODO: Distinguish different errors in exception type
     throw failure(ErrMsg());
@@ -1415,9 +1417,9 @@ string pqxx::connection_base::esc_raw(const unsigned char str[], size_t len)
 #else
   unsigned char *const s = const_cast<unsigned char *>(str);
   PQAlloc<unsigned char> buf( PQescapeBytea(s, len, &bytes) );
-  if (!buf.c_ptr()) throw bad_alloc();
+  if (!buf.get()) throw bad_alloc();
 #endif
-  return string(reinterpret_cast<char *>(buf.c_ptr()));
+  return string(reinterpret_cast<char *>(buf.get()));
 }
 
 

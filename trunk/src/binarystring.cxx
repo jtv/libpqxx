@@ -52,7 +52,7 @@ pqxx::binarystring::binarystring(const result::field &F) :
 
   size_t sz = 0;
   super::operator=(super(PQunescapeBytea(p, &sz)));
-  if (!c_ptr()) throw bad_alloc();
+  if (!get()) throw bad_alloc();
   m_size = sz;
 
 #else
@@ -120,7 +120,7 @@ void pqxx::binarystring::swap(binarystring &rhs)
 
 string pqxx::binarystring::str() const
 {
-  return string(c_ptr(), m_size);
+  return string(get(), m_size);
 }
 
 
@@ -130,7 +130,7 @@ string pqxx::escape_binary(const unsigned char bin[], size_t len)
   size_t escapedlen = 0;
   unsigned char *p = const_cast<unsigned char *>(bin);
   PQAlloc<unsigned char> A(PQescapeBytea(p, len, &escapedlen));
-  const char *cstr = reinterpret_cast<const char *>(A.c_ptr());
+  const char *cstr = reinterpret_cast<const char *>(A.get());
   if (!cstr) throw bad_alloc();
   return string(cstr, escapedlen-1);
 #else
