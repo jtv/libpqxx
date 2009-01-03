@@ -151,6 +151,36 @@
  * converting values to strings for use with libpqxx, under
  * \ref stringconversion.
  *
+ * These examples access the result object and its contents through indexing, as
+ * if they were arrays.  But they also define @c const_iterator types:
+ *
+ * @code
+ *     for (pqxx::result::const_iterator i = r.begin();
+ *          i != r.end();
+ *          ++i)
+ *       std::cout << i[0].c_str() << std::endl;
+ * @endcode
+ *
+ * And @c const_reverse_iterator types:
+ *
+ * @code
+ *     for (pqxx::result::const_reverse_iterator i = r.begin();
+ *          i != r.rend();
+ *          ++i)
+ *       std::cout << i[0].c_str() << std::endl;
+ * @endcode
+ *
+ * That goes not just for the rows in the result, but for the fields in a row as
+ * well:
+ *
+ * @code
+ *     const result::tuple tup = r[0];
+ *     for (result::tuple::const_iterator j = tup.begin();
+ *          j != tup.end();
+ *          ++j)
+ *       std::cout << j->c_str() << std::endl;
+ * @endcode
+ *
  * If you want to handle exceptions thrown by libpqxx in more detail, for
  * example to print the SQL contents of a query that failed, see \ref exception.
  */
