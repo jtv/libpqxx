@@ -1,3 +1,17 @@
+NOTICES FOR USERS UPGRADING FROM 3.0 TO 3.1
+
+The machinery to support conversion between the database's textual format and
+the client's native types are now in a separate header, pqxx/strconv.
+If your program fails to compile, try adding an include statement to include
+this new header.
+
+In binarystring objects, the results of the str() function are no longer cached
+inside the object.  This means that calling this function repeatedly will be a
+lot slower (but keeping and caching the result yourself could be a lot faster)
+than it was in previous versions.  It also means that subsequent invocations
+will return different string objects, not references to the same one.
+
+
 NOTICES FOR USERS UPGRADING FROM 2.x TO 3.x
 
 All items marked as deprecated in the 2.x API have been removed.
