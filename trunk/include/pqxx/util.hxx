@@ -261,6 +261,61 @@ namespace PGSTD {}
 
 namespace pqxx
 {
+/// Descriptor of library's thread-safety model.
+/** This describes what the library knows about various risks to thread-safety.
+ */
+struct PQXX_LIBEXPORT thread_safety_model
+{
+  /// Does standard C library offer @c strerror_r?
+  /** If not, its @c strerror implementation may still be thread-safe.  Check
+   * your compiler's manual.
+   *
+   * Without @c strerror_r or a thread-safe @c strerror, the library can't
+   * safely obtain descriptions of certain run-time errors.  In that case, your
+   * application must serialize all use of libpqxx.
+   */
+  bool have_strerror_r;
+
+  /// Is the underlying libpq build thread-safe?
+  /** A @c "false" here may mean one of two things: either the libpq build is
+   * not thread-safe, or it is a thread-safe build of an older version that did
+   * not offer thread-safety information.
+   *
+   * In that case, the best fix is to rebuild libpqxx against (a thread-safe
+   * build of) a newer libpq version.
+   */
+  bool safe_libpq;
+
+  /// Is canceling queries thread-safe?
+  /** If not, avoid use of the pqxx::pipeline class in threaded programs.  Or
+   * better, rebuild libpqxx against a newer libpq version.
+   */
+  bool safe_query_cancel;
+
+  /// Are copies of pqxx::result and pqxx::binarystring objects thread-safe?
+  /** If @c true, it's safe to copy an object of either of these types (copying
+   * these is done very efficiently, so don't worry about data size) and hand
+   * the copy off to another thread.  The other thread may access the copy
+   * freely without any concurrency concerns.
+   */
+  bool safe_result_copy;
+
+  /// Is Kerberos thread-safe?
+  /** @warning Is currently always @c false.
+   *
+   * If your application uses Kerberos, all accesses to libpqxx or Kerberos must
+   * be serialized.  Confine their use to a single thread, or protect it with a
+   * global lock.
+   */
+  bool safe_kerberos;
+
+  /// A human-readable description of any thread-safety issues.
+  PGSTD::string description;
+};
+
+/// Describe thread safety available in this build.
+thread_safety_model describe_thread_safety() throw ();
+
 /// The "null" oid
 const oid oid_none = 0;
 

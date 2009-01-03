@@ -1,4 +1,12 @@
 2009-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in, include/pqxx/util.hxx, src/util.cxx,
+ test/unit/test_thread_safety_model.cxx:
+  - Provide thread-safety information to the program
+ tools/Makefile.am, tools/pqxxthreadsafety.cxx:
+  - New tool to print thread-safety information
+ tools/rmlo.cxx:
+  - Use PGSTD, not std
+2009-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.hxx:
   - Separate doc page about accessing results
 2009-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
