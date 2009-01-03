@@ -185,6 +185,7 @@
  *
  *   std::cout << std::endl;
  * }
+ * @endcode
  *
  * But results and rows also define @c const_iterator types:
  *
