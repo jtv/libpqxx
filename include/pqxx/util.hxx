@@ -371,16 +371,20 @@ void PQXX_LIBEXPORT freepqmem(const void *);
 #ifdef PQXX_HAVE_SHARED_PTR
 
 /// Reference-counted smart pointer to libpq-allocated object
-template<typename T> class PQAlloc : public PGSTD::tr1::shared_ptr<T>
+template<typename T> class PQAlloc : protected PGSTD::tr1::shared_ptr<T>
 {
   typedef PGSTD::tr1::shared_ptr<T> super;
 public:
   typedef T content_type;
   PQAlloc() : super() {}
   explicit PQAlloc(T *t) : super(t, PQAlloc::freemem) {}
-  //PQAlloc &operator=(T *t) throw () { return *this = PQAlloc(t); }
-  void clear() { super::reset(); }
-  T *c_ptr() const throw () { return super::get(); }
+
+  using super::get;
+  using super::operator=;
+  using super::operator->;
+  using super::operator*;
+  using super::reset;
+  using super::swap;
 
 private:
   static void freemem(T *t) throw () { freepqmem(t); }
@@ -477,9 +481,9 @@ public:
   /// Obtain underlying pointer
   /** Ownership of the pointer's memory remains with the PQAlloc object
    */
-  T *c_ptr() const throw () { return m_Obj; }
+  T *get() const throw () { return m_Obj; }
 
-  void clear() throw () { loseref(); }
+  void reset() throw () { loseref(); }
 
 private:
   void makeref(T *p) throw () { m_Obj = p; }
@@ -526,7 +530,7 @@ public:
   explicit scoped_array(T *t) : m_ptr(t) {}
   ~scoped_array() { delete [] m_ptr; }
 
-  T *c_ptr() const throw () { return m_ptr; }
+  T *get() const throw () { return m_ptr; }
   T &operator*() const throw () { return *m_ptr; }
   template<typename INDEX> T &operator[](INDEX i) const throw ()
 	{ return m_ptr[i]; }

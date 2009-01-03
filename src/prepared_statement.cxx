@@ -7,7 +7,7 @@
  *      Helper classes for defining and executing prepared statements
  *   See the connection_base hierarchy for more about prepared statements
  *
- * Copyright (c) 2006-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2006-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -78,8 +78,8 @@ pqxx::result pqxx::prepare::invocation::exec() const
   lens[elts] = 0;
   return m_home.prepared_exec(
 	m_statement,
-	 ptrs.c_ptr(),
-	 lens.c_ptr(),
+	 ptrs.get(),
+	 lens.get(),
 	 int(elts));
 }
 

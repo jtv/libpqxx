@@ -1,4 +1,11 @@
 2009-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/binarystring.hxx, include/pqxx/result.hxx,
+ include/pqxx/util.hxx, src/connection_base.cxx, src/binarystring.cxx,
+ src/result.cxx:
+  - Made PQAlloc API conform more (almost entirely) to shared_ptr
+  - Renamed scoped_array::clear() to reset() to match shared_ptr
+  - Hid PQAlloc's derivation from shared_ptr a bit more to narrow interface
+2009-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in, include/pqxx/util.hxx:
   - Check for separate TR1 header directory
   - Configure check & option for TR1 namespace

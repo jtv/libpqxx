@@ -7,7 +7,7 @@
  *      declarations for bytea (binary string) conversions
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/binarystring instead.
  *
- * Copyright (c) 2003-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -103,7 +103,7 @@ public:
 #endif
 
   /// Unescaped field contents
-  const value_type *data() const throw () {return super::c_ptr();}	//[t62]
+  const value_type *data() const throw () {return super::get();}	//[t62]
 
   const_reference operator[](size_type i) const throw ()		//[t62]
 	{ return data()[i]; }
@@ -122,9 +122,9 @@ public:
   /** @warning No terminating zero is added!  If the binary data did not end in
    * a null character, you will not find one here.
    */
-  const char *c_ptr() const throw ()					//[t62]
+  const char *get() const throw ()					//[t62]
   {
-    return reinterpret_cast<const char *>(super::c_ptr());
+    return reinterpret_cast<const char *>(super::get());
   }
 
   /// Read as regular C++ string (may include null characters)
