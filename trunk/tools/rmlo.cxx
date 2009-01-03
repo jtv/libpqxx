@@ -3,7 +3,7 @@
 
 #include "pqxx/pqxx"
 
-using namespace std;
+using namespace PGSTD;
 using namespace pqxx;
 
 namespace
