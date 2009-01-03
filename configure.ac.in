@@ -661,6 +661,18 @@ AC_TRY_COMPILE([#ifdef HAVE_UNISTD_H
 )
 AC_MSG_RESULT($sleep)
 
+AC_MSG_CHECKING([PQisthreadsafe()])
+pqisthreadsafe=yes
+AC_TRY_COMPILE(
+	[#include<${with_postgres_include}/libpq-fe.h>],
+	[PQisthreadsafe()],
+	AC_DEFINE(
+		PQXX_HAVE_PQISTHREADSAFE,
+		1,
+		[Define if libpq has PQisthreadsafe()]),
+	[pqisthreadsafe=no])
+AC_MSG_RESULT($pqisthreadsafe)
+
 AC_MSG_CHECKING([PQserverVersion()])
 pqserverversion=yes
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],

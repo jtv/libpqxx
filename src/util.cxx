@@ -54,6 +54,59 @@ const char pqxx::internal::sql_begin_work[] = "BEGIN",
       pqxx::internal::sql_rollback_work[] = "ROLLBACK";
 
 
+pqxx::thread_safety_model pqxx::describe_thread_safety() throw ()
+{
+  thread_safety_model model;
+
+#ifdef PQXX_HAVE_STRERROR_R
+  model.have_strerror_r = true;
+#else
+  model.have_strerror_r = false;
+  model.description += "The available strerror() may not be thread-safe.\n";
+#endif
+
+#ifdef PQXX_HAVE_PQISTHREADSAFE
+  if (PQisthreadsafe())
+  {
+    model.safe_libpq = true;
+  }
+  else
+  {
+    model.safe_libpq = false;
+    model.description += "Using a libpq build that is not thread-safe.\n";
+  }
+#else
+  model.safe_libpq = false;
+  model.description +=
+	"Built with old libpq version; can't tell whether it is thread-safe.\n";
+#endif
+
+#ifdef PQXX_HAVE_PQCANCEL
+  model.safe_query_cancel = true;
+#else
+  model.safe_query_cancel = false;
+  model.description +=
+	"Built with old libpq version; canceling queries is unsafe..\n";
+#endif
+
+#ifdef PQXX_HAVE_SHARED_PTR
+  model.safe_result_copy = true;
+#else
+  model.safe_result_copy = false;
+  model.description +=
+	"Built without shared_ptr.  Copying & destroying results is unsafe.\n";
+#endif
+
+  // Sadly I'm not aware of any way to avoid this just yet.
+  model.safe_kerberos = false;
+  model.description +=
+	"Kerberos is not thread-safe.  If your application uses Kerberos, "
+	"protect all calls to Kerberos or libpqxx using a global lock.\n";
+
+  return model;
+}
+
+
 void pqxx::internal::freemem_notif(const pqxx::internal::pq::PGnotify *p)
   throw ()
 {
