@@ -74,9 +74,9 @@ LINK_FLAGS=$(LINK_FLAGS_BASE) /libpath:$(LIBPATH1)
 
 OBJS= \
 ###MAKTEMPLATE:FOREACH test/test*.cxx
-  ###BASENAME###.obj \
+  $(INTDIR)\###BASENAME###.obj \
 ###MAKTEMPLATE:ENDFOREACH
-  runner.obj
+  $(INTDIR)\runner.obj
 
 
 ########################################################
@@ -89,7 +89,7 @@ runner: $(INTDIR)\runner.exe
 
 clean:
 	-@del /Q vc70.pch
-	-@del /Q $(INTDIR)\*
+	-@del /Q $(INTDIR)\*.obj $(INTDIR)\*.exe
 	-@del /Q $(OBJS)
 
 $(INTDIR):
@@ -105,10 +105,13 @@ $(INTDIR)\runner.success: $(INTDIR)\runner.exe \
   $(INTDIR)\$(LIBPQXX) $(PQXX) 
 	@copy $(PQXX) $(PQXXCOPY)
 	@$(INTDIR)\runner.exe
-	@echo >$(INTDIR)\runne.success
+	@echo >$(INTDIR)\runner.success
+
 
 $(INTDIR)\runner.exe: $(OBJS) $(INTDIR) $(PQXX)
-	@$(LINK) $(LINK_FLAGS) "$(INTDIR)\\runner.obj" /out:"$(INTDIR)\\runner.exe"
+	@$(LINK) $(LINK_FLAGS) "$(INTDIR)\\runner.obj" $(OBJS) \
+		/out:"$(INTDIR)\\runner.exe"
+
 
 ###MAKTEMPLATE:FOREACH test/*.cxx
 $(INTDIR)\###BASENAME###.obj:

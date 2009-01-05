@@ -1,3 +1,8 @@
+2009-01-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/vc-test.mak.template:
+  - Link individual tests' object files into test runner
+  - Consistently place all object files and executables in $(INTDIR)
+  - Fixed typo in filename "runner.success"
 2009-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in, include/pqxx/util.hxx, src/util.cxx,
  test/unit/test_thread_safety_model.cxx:
