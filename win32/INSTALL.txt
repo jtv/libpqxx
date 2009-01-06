@@ -15,8 +15,8 @@ The only Windows compilers currently documented here are:
 
 If you are using a different compiler, such as Borland C++ Builder, you should
 still be able to get it to work.  If you do, or if you fail, please report your
-results so any problems can be resolved and support for the compiler can be
-included in the standard libpqxx distribution.
+results so any problems can be resolved, and so that we can add support for your
+compiler in the standard libpqxx distribution.
 
 Throughout this document, we'll be using the command line.
 
