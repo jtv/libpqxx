@@ -48,7 +48,7 @@ template<typename T> struct string_traits;
 namespace internal
 {
 /// Throw exception for attempt to convert null to given type.
-void throw_null_conversion(const PGSTD::string &type);
+void PQXX_LIBEXPORT throw_null_conversion(const PGSTD::string &type);
 } // namespace pqxx::internal
 
 #define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(T)			\

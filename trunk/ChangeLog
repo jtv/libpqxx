@@ -1,3 +1,8 @@
+2009-01-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/strconv.hxx:
+  - Export throw_null_conversion, thanks Andrew Maclean
+ win32/INSTALL.txt:
+  - Tiny wording fix
 2009-01-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
  win32/vc-test.mak.template:
   - Link individual tests' object files into test runner
