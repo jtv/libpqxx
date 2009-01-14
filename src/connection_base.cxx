@@ -814,7 +814,7 @@ pqxx::prepare::declaration pqxx::connection_base::prepare(
       throw argument_error("Inconsistent redefinition "
 	  "of prepared statement " + name);
 
-    // Prepare for repeated repetition of parameters
+    // Prepare for repeated definition of parameters
     i->second.parameters.clear();
     i->second.complete = false;
   }
