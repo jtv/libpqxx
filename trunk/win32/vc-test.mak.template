@@ -17,36 +17,6 @@ default:
 
 LIBDIR=lib
 
-!IF "$(DLL)"== "1"
-PQXX_SHARED=/D "PQXX_SHARED"
-!IF "$(DEBUG)" == "1"
-INTDIR=TestDllDebug
-PQXX=$(LIBDIR)\libpqxxD.dll
-PQXXCOPY=$(INTDIR)\libpqxxD.dll
-!ELSE
-INTDIR=TestDllRelease
-PQXX=$(LIBDIR)\libpqxx.dll
-PQXXCOPY=$(INTDIR)\libpqxx.dll
-!ENDIF
-!ELSE
-PQXX_DLL=
-!IF "$(DEBUG)" == "1"
-INTDIR=TestStaticDebug
-PQXX=$(LIBDIR)\libpqxx_staticD.lib
-PQXXCOPY=$(INTDIR)\libpqxx_staticD.lib
-!ELSE
-INTDIR=TestStaticRelease
-PQXX=$(LIBDIR)\libpqxx_static.lib
-PQXXCOPY=$(INTDIR)\libpqxx_static.lib
-!ENDIF
-!ENDIF
-
-!IF "$(DEBUG)" == "1"
-LIBPQ=libpqd.dll
-!ELSE
-LIBPQ=libpq.dll
-!ENDIF
-
 
 # C++ compiler, linker
 CXX=cl.exe
@@ -59,17 +29,36 @@ CXX_FLAGS_BASE=/nologo /W3 /GX /FD /GR /YX /c \
 
 LINK_FLAGS_BASE=kernel32.lib wsock32.lib advapi32.lib /nologo /machine:I386 /libpath:"$(LIBDIR)"
 
-!IF "$(DEBUG)" == "1"
 
+!IF "$(DLL)" == "1"
+PQXX_SHARED=/D "PQXX_SHARED"
+PQXXLIBTYPE="Dll"
+PQXXLIBTYPESUFFIX=""
+PQXXLIBEXT=".dll"
+!ELSE
+PQXXLIBTYPE="Static"
+PQXXLIBEXT=".lib"
+PQXXLIBTYPESUFFIX="_static"
+!ENDIF
+
+!IF "$(DEBUG)" == "1"
+BUILDMODE="Debug"
+DEBUGSUFFIX="D"
 CXX_FLAGS=$(CXX_FLAGS_BASE) /MDd /Gm /ZI /Od /D "_DEBUG" /GZ
 LINK_FLAGS=$(LINK_FLAGS_BASE) /debug /libpath:$(LIBPATH2)
-
 !ELSE
-
+BUILDMODE="Release"
+DEBUGSUFFIX=""
 CXX_FLAGS=$(CXX_FLAGS_BASE) /MD /D "NDEBUG"
 LINK_FLAGS=$(LINK_FLAGS_BASE) /libpath:$(LIBPATH1)
-
 !ENDIF
+
+
+INTDIR="Test$(PQXXLIBTYPE)$(BUILDMODE)"
+PQXXSUBPATH="libpqxx$(PQXXLIBTYPESUFFIX)$(DEBUGSUFFIX).$(PQXXLIBEXT)"
+PQXX=$(LIBDIR)\$(PQXXSUBPATH)
+PQXXCOPY=$(INTDIR)\$(PQXXSUBPATH)
+LIBPQ=libpq$(DEBUGSUFFIX).dll
 
 
 OBJS= \
@@ -89,8 +78,7 @@ runner: $(INTDIR) $(INTDIR)\runner.exe
 
 clean:
 	-@del /Q vc70.pch
-	-@del /Q $(INTDIR)\*.obj $(INTDIR)\*.exe
-	-@del /Q $(OBJS)
+	-@del /Q $(OBJS) $(INTDIR)\*.exe
 
 $(INTDIR):
 	@mkdir $(INTDIR)
