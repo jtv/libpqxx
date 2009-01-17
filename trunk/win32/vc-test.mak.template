@@ -85,7 +85,7 @@ OBJS= \
 
 all: runner
 
-runner: $(INTDIR)\runner.exe
+runner: $(INTDIR) $(INTDIR)\runner.exe
 
 clean:
 	-@del /Q vc70.pch
@@ -108,7 +108,7 @@ $(INTDIR)\runner.success: $(INTDIR)\runner.exe \
 	@echo >$(INTDIR)\runner.success
 
 
-$(INTDIR)\runner.exe: $(OBJS) $(INTDIR) $(PQXX)
+$(INTDIR)\runner.exe: $(OBJS) $(PQXX)
 	@$(LINK) $(LINK_FLAGS) "$(INTDIR)\\runner.obj" $(OBJS) \
 		/out:"$(INTDIR)\\runner.exe"
 
