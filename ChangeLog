@@ -1,3 +1,7 @@
+2009-01-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/vc-test.mak.template:
+  - Removed superfluous dot in library name.
+  - Got rid of unnecessary quotes, thanks Andrew Maclean.
 2009-01-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  win32/vc-test.mak.template:
   - Found better place to have $(INTDIR) created, thanks Andrew Maclean.
