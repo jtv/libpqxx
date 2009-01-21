@@ -9,6 +9,8 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 URL: http://pqxx.org/
 Vendor:    Andromeda Technology & Automation
 Packager:  Arjen Baart <arjen@andromeda.nl>
+Requires: postgresql-libs
+BuildRequires: postgresql-devel
 Prefix: %{_prefix}
 Docdir: %{_docdir}
 
@@ -34,15 +36,12 @@ Libraries, include files, etc you can use to develop PostgreSQL applications in 
 %setup -q
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%prefix --sysconfdir="/etc" --mandir=%{_mandir} --enable-shared
-make
+%configure --enable-shared
+make 
 
 %install
 rm -rf $RPM_BUILD_ROOT
-
-#install -d $RPM_BUILD_ROOT%{_mandir}/man1
-#install -d $RPM_BUILD_ROOT%{_mandir}/man4
-make prefix=$RPM_BUILD_ROOT%{prefix} mandir=$RPM_BUILD_ROOT%{_mandir} install
+make DESTDIR=$RPM_BUILD_ROOT install
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -53,23 +52,15 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-, root, root)
-
 %doc AUTHORS ChangeLog NEWS README COPYING TODO
-#%doc %{_mandir}/man4/libxml.4*
-
-%{prefix}/lib/lib*.so
+%{_libdir}/lib*.so
 
 %files devel
 %defattr(-, root, root)
-
-#%doc %{_mandir}/man1/xml2-config.1*
-#%doc doc/*.html doc/html
-
-%{prefix}/lib/lib*.so
-%{prefix}/lib/*a
-%{prefix}/include/*
-%{prefix}/bin/pqxx-config
-%{prefix}/lib/pkgconfig/libpqxx.pc
+%{_libdir}/*a
+%{_libdir}/pkgconfig/libpqxx.pc
+%{_includedir}/*
+%{_bindir}/pqxx-config
 
 %changelog
 
