@@ -1,4 +1,9 @@
 2009-01-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ libpqxx.spec.in:
+  - Depend on postgresql-libs and postgresql-devel, thanks Bob Knock
+  - Install x86_64 libs in /usr/lib64, thanks Bob Knock
+  - Use %configure, not ./configure, thanks Bob Knock
+  - Removed some hard-coding of directories, thanks Bob Knock
  win32/vc-test.mak.template:
   - Removed superfluous dot in library name.
   - Got rid of unnecessary quotes, thanks Andrew Maclean.
