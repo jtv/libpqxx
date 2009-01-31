@@ -457,9 +457,9 @@ void PQXX_LIBEXPORT freepqmem(const void *);
 #ifdef PQXX_HAVE_SHARED_PTR
 
 /// Reference-counted smart pointer to libpq-allocated object
-template<typename T> class PQAlloc : protected PGSTD::tr1::shared_ptr<T>
+template<typename T> class PQAlloc : protected PQXXTR1::shared_ptr<T>
 {
-  typedef PGSTD::tr1::shared_ptr<T> super;
+  typedef PQXXTR1::shared_ptr<T> super;
 public:
   typedef T content_type;
   PQAlloc() : super() {}
