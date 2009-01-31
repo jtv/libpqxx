@@ -1,3 +1,6 @@
+2009-01-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx:
+  - Use PQXXTR1, not PGSTD::tr1, thanks Eugene V. Lyubimkin
 2009-01-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
  libpqxx.spec.in:
   - Depend on postgresql-libs and postgresql-devel, thanks Bob Knock
