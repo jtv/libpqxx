@@ -46,10 +46,10 @@ NULL=nul
 
 # Output DLL/LIB files. No extensions, they are added automatically!
 OUTDIR=lib
-OUTFILE_STATICDEBUG=$(OUTDIR)/libpqxx_staticD
-OUTFILE_STATICRELEASE=$(OUTDIR)/libpqxx_static
-OUTFILE_DLLDEBUG=$(OUTDIR)/libpqxxD
-OUTFILE_DLLRELEASE=$(OUTDIR)/libpqxx
+OUTFILE_STATICDEBUG=$(OUTDIR)\libpqxx_staticD
+OUTFILE_STATICRELEASE=$(OUTDIR)\libpqxx_static
+OUTFILE_DLLDEBUG=$(OUTDIR)\libpqxxD
+OUTFILE_DLLRELEASE=$(OUTDIR)\libpqxx
 
 # Directories for intermediate output.
 INTDIR_STATICDEBUG=ObjStaticDebug
@@ -64,7 +64,7 @@ LIBTOOL=link.exe -lib
 
 # The options common to all the different builds.
 CXX_FLAGS_BASE=/nologo /W3 /EHsc /FD /GR /c \
-    /I "include" /I $(PGSQLSRC)/include /I $(PGSQLSRC)/interfaces/libpq \
+    /I "include" /I $(PGSQLSRC)\include /I $(PGSQLSRC)\interfaces\libpq \
     /D PGSTD=$(STD) /D "WIN32" /D "_MBCS" /D "_WINDOWS" /D "PQXX_INTERNAL" \
     /D "PQXX_AUTOLINK"
 

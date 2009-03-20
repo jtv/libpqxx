@@ -114,7 +114,7 @@ void test_prepared_statement(connection_base &C, transaction_base &T)
 	T.prepared("ReadPGTables").exec(),
 	T.exec(Q_readpgtables));
 
-  cout << "Dropping prepared statement..." << endl;
+  // Drop prepared statement.
   C.unprepare("ReadPGTables");
 
   PQXX_CHECK_THROWS(
@@ -123,7 +123,6 @@ void test_prepared_statement(connection_base &C, transaction_base &T)
 	"prepare_now() succeeded on dropped statement.");
 
   // Just to try and confuse things, "unprepare" twice
-  cout << "Testing error detection and handling..." << endl;
   try { C.unprepare("ReadPGTables"); }
   catch (const exception &e) { cout << "(Expected) " << e.what() << endl; }
 
@@ -152,7 +151,7 @@ void test_prepared_statement(connection_base &C, transaction_base &T)
 	exception,
 	"Bad redefinition of statement went unnoticed.");
 
-  cout << "Testing prepared statement with parameter..." << endl;
+  // Test prepared statement with parameter.
 
   C.prepare("SeeTable", Q_seetable)("varchar", pqxx::prepare::treat_string);
 
@@ -162,7 +161,7 @@ void test_prepared_statement(connection_base &C, transaction_base &T)
 	T.prepared("SeeTable")(args[0]).exec(),
 	T.exec(subst(T,Q_seetable,args)));
 
-  cout << "Testing prepared statement with 2 parameters..." << endl;
+  // Test prepared statement with 2 parameters.
 
   C.prepare("SeeTables", Q_seetables)
       ("varchar",pqxx::prepare::treat_string)
@@ -172,7 +171,7 @@ void test_prepared_statement(connection_base &C, transaction_base &T)
       T.prepared("SeeTables")(args[0])(args[1]).exec(),
       T.exec(subst(T,Q_seetables,args)));
 
-  cout << "Testing prepared statement with a null parameter..." << endl;
+  // Test prepared statement with a null parameter.
   vector<const char *> ptrs;
   ptrs.push_back(0);
   ptrs.push_back("pg_index");
@@ -192,16 +191,32 @@ void test_prepared_statement(connection_base &C, transaction_base &T)
 	T.prepared("SeeTables")(ptrs[0])(ptrs[1]).exec(),
 	T.prepared("SeeTables")(0,false)(ptrs[1]).exec());
 
-  cout << "Testing wrong numbers of parameters..." << endl;
+  // Test wrong numbers of parameters.
   PQXX_CHECK_THROWS(
 	T.prepared("SeeTables")()()("hi mom!").exec(),
-	exception,
+	usage_error,
 	"No error for too many parameters.");
 
   PQXX_CHECK_THROWS(
 	T.prepared("SeeTables")("who, me?").exec(),
-	exception,
+	usage_error,
 	"No error for too few parameters.");
+
+  // Varargs statement.
+  C.prepare("varargs", "SELECT $1")("integer").etc();
+
+  PQXX_CHECK_THROWS(
+	T.prepared("varargs").exec(),
+	usage_error,
+	"No error from too few parameters for varargs statement.");
+
+  // Passing more parameters than expected is okay with varargs.
+  result r = T.prepared("varargs")(1)(2).exec();
+  PQXX_CHECK_EQUAL(
+	int(r.size()),
+	1,
+	"Varargs statement produced strange result.");
+  PQXX_CHECK_EQUAL(r[0][0].as<int>(), 1, "Bad answer from varargs statement.");
 }
 } // namespace
 

@@ -907,9 +907,25 @@ void pqxx::connection_base::prepare_param_declare(
     throw usage_error("Attempt to add parameter to prepared statement " +
 	statement +
 	" after its definition was completed");
+  if (s.varargs)
+    throw usage_error("Attempt to add parameters to prepared statement " +
+	statement + " after arbitrary trailing parameters.");
   s.addparam(sqltype,treatment);
 }
 
+
+void pqxx::connection_base::prepare_param_declare_varargs(
+	const PGSTD::string &statement,
+	param_treatment treatment)
+{
+  prepare::internal::prepared_def &s = find_prepared(statement);
+  if (s.complete)
+    throw usage_error("Attempt to add arbitrary parameters to prepared "
+	"statement " + statement + " after its definition was completed.");
+  s.varargs = true;
+  s.varargs_treatment = treatment;
+}
+ 
 
 pqxx::prepare::internal::prepared_def &
 pqxx::connection_base::register_prepared(const PGSTD::string &name)
@@ -969,11 +985,19 @@ pqxx::result pqxx::connection_base::prepared_exec(
 {
   prepare::internal::prepared_def &s = register_prepared(statement);
 
-  if (nparams != int(s.parameters.size()))
-    throw usage_error("Wrong number of parameters for prepared statement " +
-	statement + ": "
-	"expected " + to_string(s.parameters.size()) + ", "
+  const int expected_params = int(s.parameters.size());
+  if (nparams != expected_params)
+  {
+    if (nparams < expected_params)
+      throw usage_error("Insufficient parameters for prepared statement " +
+	statement + ": expected " + to_string(expected_params) + ", "
 	"received " + to_string(nparams));
+
+    if (!s.varargs)
+      throw usage_error("Too many arguments for prepared statement " +
+	statement + ": expected " + to_string(expected_params) + ", "
+	"received " + to_string(nparams));
+  }
 
   result r;
 
@@ -985,8 +1009,10 @@ pqxx::result pqxx::connection_base::prepared_exec(
     if (protocol_version() >= 3)
     {
       internal::scoped_array<int> binary(nparams+1);
-      for (int i=0; i<nparams; ++i)
+      for (int i=0; i<expected_params; ++i)
         binary[i] = (s.parameters[i].treatment == treat_binary);
+      for (int j=expected_params; j < nparams; ++j)
+        binary[j] = (s.varargs_treatment == treat_binary);
       binary[nparams] = 0;
 
       r = result(PQexecPrepared(m_Conn,
@@ -1015,7 +1041,8 @@ pqxx::result pqxx::connection_base::prepared_exec(
 	Q << escape_param(*this,
 		params[a],
 		paramlengths[a],
-		s.parameters[a].treatment);
+		(a < expected_params) ?
+			s.parameters[a].treatment : s.varargs_treatment);
 	if (a < nparams-1) Q << ',';
       }
       Q << ')';
