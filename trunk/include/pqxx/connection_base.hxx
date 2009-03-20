@@ -8,7 +8,7 @@
  *   pqxx::connection_base encapsulates a frontend to backend connection
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
  *
- * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -572,7 +572,7 @@ public:
   /// Define a prepared statement
   /** To declare parameters to this statement, add them by calling the function
    * invocation operator (@c operator()) on the returned object.  See
-   * prepare_param_declaration and prepare::param_treatment for more about how
+   * prepare::param_declaration and prepare::param_treatment for more about how
    * to do this.
    *
    * The statement's definition can refer to a parameter using the parameter's
@@ -812,6 +812,8 @@ private:
   friend class prepare::declaration;
   void prepare_param_declare(const PGSTD::string &statement,
       const PGSTD::string &sqltype,
+      prepare::param_treatment);
+  void prepare_param_declare_varargs(const PGSTD::string &statement,
       prepare::param_treatment);
 
   prepare::internal::prepared_def &register_prepared(const PGSTD::string &);

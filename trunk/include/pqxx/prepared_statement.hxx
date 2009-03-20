@@ -7,7 +7,7 @@
  *      Helper classes for defining and executing prepared statements
  *   See the connection_base hierarchy for more about prepared statements
  *
- * Copyright (c) 2006-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2006-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -74,6 +74,16 @@ public:
   /// Add a parameter specification to prepared statement declaration
   const declaration &
   operator()(const PGSTD::string &sqltype, param_treatment=treat_direct) const;
+
+  /// Permit arbitrary parameters after the last declared one.
+  /**
+   * When used, this allows an arbitrary number of parameters to be passed after
+   * the last declared one.  This is similar to the C language's varargs.
+   *
+   * Calling this completes the declaration; no parameters can be declared after
+   * etc().
+   */
+  const declaration &etc(param_treatment=treat_direct) const;
 
 private:
   /// Not allowed
@@ -182,6 +192,12 @@ struct PQXX_LIBEXPORT prepared_def
   bool registered;
   /// Is this definition complete?
   bool complete;
+
+  /// Does this statement accept variable arguments, as declared with etc()?
+  bool varargs;
+
+  /// How should parameters after the last declared one be treated?
+  param_treatment varargs_treatment;
 
   prepared_def();
   explicit prepared_def(const PGSTD::string &);

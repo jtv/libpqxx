@@ -43,6 +43,14 @@ pqxx::prepare::declaration::operator()(const PGSTD::string &sqltype,
 }
 
 
+const pqxx::prepare::declaration &
+pqxx::prepare::declaration::etc(param_treatment treatment) const
+{
+  m_home.prepare_param_declare_varargs(m_statement, treatment);
+  return *this;
+}
+
+
 pqxx::prepare::invocation::invocation(transaction_base &home,
     const PGSTD::string &statement) :
   m_home(home),
@@ -122,7 +130,8 @@ pqxx::prepare::internal::prepared_def::prepared_def() :
   definition(),
   parameters(),
   registered(false),
-  complete(false)
+  complete(false),
+  varargs(false)
 {
 }
 
@@ -131,7 +140,8 @@ pqxx::prepare::internal::prepared_def::prepared_def(const PGSTD::string &def) :
   definition(def),
   parameters(),
   registered(false),
-  complete(false)
+  complete(false),
+  varargs(false)
 {
 }
 
