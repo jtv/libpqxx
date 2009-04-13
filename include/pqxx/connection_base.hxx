@@ -551,8 +551,9 @@ public:
    * a statement has been prepared, only closing the connection or explicitly
    * "unpreparing" it can make it go away.
    *
-   * Use the transaction classes' exec_prepared() functions to execute a
-   * prepared statement.
+   * Use the transaction classes' @c prepared().exec() function to execute a
+   * prepared statement.  Use @c prepared().exists() to find out whether a
+   * statement has been prepared under a given name.
    *
    * @warning Prepared statements are not necessarily defined on the backend
    * right away; they may be cached by libpqxx.  This means that statements may
@@ -821,6 +822,7 @@ private:
 	const char *const[],
 	const int[],
 	int);
+  bool prepared_exists(const PGSTD::string &) const;
 
   friend class arrayvalue;
   int PQXX_PRIVATE encoding_code() throw ();

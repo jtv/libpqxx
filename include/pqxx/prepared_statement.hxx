@@ -103,6 +103,9 @@ public:
   /// Execute!
   result exec() const;
 
+  /// Has a statement of this name been defined?
+  bool exists() const;
+
   /// Pass null parameter
   invocation &operator()();
 

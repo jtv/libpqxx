@@ -90,8 +90,16 @@ void test_prepared_statement(connection_base &C, transaction_base &T)
 
   try
   {
+    PQXX_CHECK(
+	~T.prepared("ReadPGTables").exists(),
+	"Nonexistent prepared statement thinks it exists.");
+
     // Prepare a simple statement
     C.prepare("ReadPGTables", Q_readpgtables);
+
+    PQXX_CHECK(
+	T.prepared("ReadPGTables").exists(),
+	"Prepared statement thinks it doesn't exist.");
 
     // See if a basic prepared statement works just like a regular query
     PQXX_CHECK_EQUAL(
@@ -202,21 +210,21 @@ void test_prepared_statement(connection_base &C, transaction_base &T)
 	usage_error,
 	"No error for too few parameters.");
 
-  // Varargs statement.
-  C.prepare("varargs", "SELECT $1")("integer").etc();
-
+  // Varargs statement called with too few parameters.
+  C.prepare("varargs1", "SELECT 1 * $1")("integer")("integer").etc();
   PQXX_CHECK_THROWS(
-	T.prepared("varargs").exec(),
+	T.prepared("varargs1").exec(),
 	usage_error,
 	"No error from too few parameters for varargs statement.");
 
   // Passing more parameters than expected is okay with varargs.
-  result r = T.prepared("varargs")(1)(2).exec();
+  C.prepare("varargs2", "SELECT 1 * $1 * $2 * $3")("integer").etc();
+  result r = T.prepared("varargs2")(1)(2)(3).exec();
   PQXX_CHECK_EQUAL(
 	int(r.size()),
 	1,
 	"Varargs statement produced strange result.");
-  PQXX_CHECK_EQUAL(r[0][0].as<int>(), 1, "Bad answer from varargs statement.");
+  PQXX_CHECK_EQUAL(r[0][0].as<int>(), 6, "Bad answer from varargs statement.");
 }
 } // namespace
 

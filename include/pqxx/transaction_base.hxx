@@ -211,6 +211,13 @@ public:
    * and number 4 again is an integer.  The ultimate invocation of exec() is
    * essential; if you forget this, nothing happens.
    *
+   * To see whether any prepared statement has been defined under a given name,
+   * use:
+   *
+   * @code
+   * T.prepared("mystatement").exists()
+   * @endcode
+   *
    * @warning Do not try to execute a prepared statement manually through direct
    * SQL statements.  This is likely not to work, and even if it does, is likely
    * to be slower than using the proper libpqxx functions.  Also, libpqxx knows
@@ -373,6 +380,7 @@ private:
 	const char *const[],
 	const int[],
 	int);
+  bool prepared_exists(const PGSTD::string &) const;
 
   connection_base &m_Conn;
 

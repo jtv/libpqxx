@@ -922,8 +922,8 @@ void pqxx::connection_base::prepare_param_declare_varargs(
   if (s.complete)
     throw usage_error("Attempt to add arbitrary parameters to prepared "
 	"statement " + statement + " after its definition was completed.");
-  s.varargs = true;
   s.varargs_treatment = treatment;
+  s.varargs = true;
 }
  
 
@@ -942,7 +942,8 @@ pqxx::connection_base::register_prepared(const PGSTD::string &name)
 #ifdef PQXX_HAVE_PQPREPARE
     if (protocol_version() >= 3)
     {
-      result r(PQprepare(m_Conn, name.c_str(), s.definition.c_str(), 0, 0),
+      result r(
+	PQprepare(m_Conn, name.c_str(), s.definition.c_str(), 0, 0),
 	protocol_version(),
 	"[PREPARE " + name + "]",
 	encoding_code());
@@ -954,7 +955,7 @@ pqxx::connection_base::register_prepared(const PGSTD::string &name)
     stringstream P;
     P << "PREPARE \"" << name << "\" ";
 
-    if (!s.parameters.empty())
+    if (!s.varargs && !s.parameters.empty())
       P << '('
 	<< separated_list(",",
 		s.parameters.begin(),
@@ -986,18 +987,15 @@ pqxx::result pqxx::connection_base::prepared_exec(
   prepare::internal::prepared_def &s = register_prepared(statement);
 
   const int expected_params = int(s.parameters.size());
-  if (nparams != expected_params)
-  {
-    if (nparams < expected_params)
-      throw usage_error("Insufficient parameters for prepared statement " +
+  if (nparams < expected_params)
+    throw usage_error("Insufficient parameters for prepared statement " +
 	statement + ": expected " + to_string(expected_params) + ", "
 	"received " + to_string(nparams));
 
-    if (!s.varargs)
-      throw usage_error("Too many arguments for prepared statement " +
+  if (nparams > expected_params && !s.varargs)
+    throw usage_error("Too many arguments for prepared statement " +
 	statement + ": expected " + to_string(expected_params) + ", "
 	"received " + to_string(nparams));
-  }
 
   result r;
 
@@ -1072,6 +1070,13 @@ pqxx::result pqxx::connection_base::prepared_exec(
   }
   get_notifs();
   return r;
+}
+
+
+bool pqxx::connection_base::prepared_exists(const string &statement) const
+{
+  PSMap::const_iterator s = m_prepared.find(statement);
+  return s != PSMap::const_iterator(m_prepared.end());
 }
 
 
