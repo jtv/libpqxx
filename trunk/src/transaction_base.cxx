@@ -275,6 +275,13 @@ pqxx::result pqxx::transaction_base::prepared_exec(
 }
 
 
+bool
+pqxx::transaction_base::prepared_exists(const PGSTD::string &statement) const
+{
+  return m_Conn.prepared_exists(statement);
+}
+
+
 void pqxx::transaction_base::set_variable(const PGSTD::string &Var,
                                           const PGSTD::string &Value)
 {

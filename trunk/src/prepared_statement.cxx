@@ -92,6 +92,12 @@ pqxx::result pqxx::prepare::invocation::exec() const
 }
 
 
+bool pqxx::prepare::invocation::exists() const
+{
+  return m_home.prepared_exists(m_statement);
+}
+
+
 pqxx::prepare::invocation &pqxx::prepare::invocation::operator()()
 {
   return setparam("", false);
