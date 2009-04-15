@@ -1,3 +1,6 @@
+2009-04-15  Eugene V. Lyubimkin <jackyf.devel@gmail.com>
+ NEWS:
+  - Typo fix.
 2009-04-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, include/pqxx/prepared_statement.hxx,
  include/pqxx/transaction_base.hxx, src/connection_base.cxx,
