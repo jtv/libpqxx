@@ -39,20 +39,28 @@ namespace prepare
  * quoted, escaped, binary-escaped, and/or converted to boolean as it is
  * passed to a prepared statement on execution.
  *
- * This treatment becomes relevant when either the available libpq version
- * doesn't provide direct support for prepared statements, so the definition
- * must be generated as SQL.  This is the case with libpq versions prior to the
- * one shipped with PostgreSQL 7.4).
+ * This treatment becomes especially relevant when either the available libpq
+ * version doesn't provide direct support for prepared statements, so the
+ * definition must be generated as SQL.  This is the case with libpq versions
+ * prior to the one shipped with PostgreSQL 7.4).
+ *
+ * To pass binary data into a prepared statement, declare it using treat_binary.
+ * When invoking the statement, pass in the binary data as a standard string
+ * object.  If your data can contain null bytes, be careful to have those
+ * included in the string object: @c std::string("\0 xyz") will construct an
+ * empty string because it stops reading data at the nul byte.  You can include
+ * the full array of data by passing its length to the string constructor:
+ * @c std::string("\0 xyz", 5)
  */
 enum param_treatment
 {
-  /// Pass as raw, binary bytes
+  /// Pass as raw, binary bytes.
   treat_binary,
-  /// Escape special characters and add quotes
+  /// Escape special characters and add quotes.
   treat_string,
-  /// Represent as named Boolean value
+  /// Represent as named Boolean value.
   treat_bool,
-  /// Include directly in SQL without conversion (e.g. for numeric types)
+  /// Include directly in SQL without conversion (e.g. for numeric types).
   treat_direct
 };
 
