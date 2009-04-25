@@ -3,6 +3,8 @@
 
 #include <pqxx/compiler-internal.hxx>
 
+#include <cassert>
+
 #include "test_helpers.hxx"
 
 using namespace PGSTD;
@@ -198,6 +200,20 @@ void test_prepared_statement(connection_base &C, transaction_base &T)
   COMPARE_RESULTS("SeeTables_null5",
 	T.prepared("SeeTables")(ptrs[0])(ptrs[1]).exec(),
 	T.prepared("SeeTables")(0,false)(ptrs[1]).exec());
+
+  // Test prepared statement with a binary parameter.
+  C.prepare("GimmeBinary", "SELECT $1::bytea")
+	("bytea", pqxx::prepare::treat_binary);
+
+  const string bin_data("x \0 \x01 \x02 \xff y", 11);
+  assert(bin_data.size() == 11);
+  assert(bin_data[2] == '\0');
+  assert(bin_data[bin_data.size()-1] != '\0');
+
+  PQXX_CHECK_EQUAL(
+	binarystring(T.prepared("GimmeBinary")(bin_data).exec()[0][0]).str(),
+	bin_data,
+	"Binary parameter was mangled somewhere along the way.");
 
   // Test wrong numbers of parameters.
   PQXX_CHECK_THROWS(
