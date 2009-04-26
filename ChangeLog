@@ -1,3 +1,6 @@
+2009-04-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/dbtransaction.hxx:
+  - Made constructor public again, thanks Maurice Gittens.
 2009-04-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/prepared_statement.hxx, test/unit/test_prepared_statement.cxx:
   - Documented & tested binary parameters, thanks Michael Akinde.

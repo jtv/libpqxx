@@ -8,7 +8,7 @@
  *   pqxx::dbransaction defines a real transaction on the database
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/dbtransaction instead.
  *
- * Copyright (c) 2004-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -72,6 +72,9 @@ enum readwrite_policy
  */
 class PQXX_LIBEXPORT PQXX_NOVTABLE dbtransaction : public transaction_base
 {
+public:
+  virtual ~dbtransaction();
+
 protected:
   dbtransaction(
 	connection_base &,
@@ -83,12 +86,10 @@ protected:
 	bool direct=true,
 	readwrite_policy rw=read_write);
 
-  virtual ~dbtransaction();
 
   /// Start a transaction on the backend and set desired isolation level
   void start_backend_transaction();
 
-protected:
   /// Sensible default implemented here: begin backend transaction
   virtual void do_begin();						//[t1]
   /// Sensible default implemented here: perform query
