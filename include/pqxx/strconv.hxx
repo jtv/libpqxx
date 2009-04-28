@@ -132,6 +132,16 @@ template<> struct PQXX_LIBEXPORT string_traits<PGSTD::string>
   static PGSTD::string to_string(const PGSTD::string &Obj) { return Obj; }
 };
 
+template<> struct PQXX_LIBEXPORT string_traits<const PGSTD::string>
+{
+  static const char *name() { return "const string"; }
+  static bool has_null() { return false; }
+  static bool is_null(const PGSTD::string &) { return false; }
+  static const PGSTD::string null()
+	{ internal::throw_null_conversion(name()); return PGSTD::string(); }
+  static const PGSTD::string to_string(const PGSTD::string &Obj) { return Obj; }
+};
+
 template<> struct PQXX_LIBEXPORT string_traits<PGSTD::stringstream>
 {
   static const char *name() { return "stringstream"; }
