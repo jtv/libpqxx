@@ -1,7 +1,10 @@
-2009-04-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+2009-04-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
  src/connection_base.cxx, test/unit/test_prepared_statement.cxx:
  - Support unnamed prepared statement.
+ include/pqxx/strconv.hxx:
+ - Specialized string_traits for const string.
+ - Made from_string on const break at compile time, thanks Robert Barnett.
 2009-04-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/dbtransaction.hxx:
   - Made constructor public again, thanks Maurice Gittens.
