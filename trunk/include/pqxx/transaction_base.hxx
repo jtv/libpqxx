@@ -187,7 +187,7 @@ public:
    * @name Prepared statements
    */
   //@{
-  /// Execute prepared statement
+  /// Execute prepared statement.
   /** Prepared statements are defined using the connection classes' prepare()
    * function, and continue to live on in the ongoing session regardless of
    * the context they were defined in (unless explicitly dropped using the
@@ -228,8 +228,11 @@ public:
    * deferred until its first use, which means that any errors in the prepared
    * statement may not show up until it is executed--and perhaps abort the
    * ongoing transaction in the process.
+   *
+   * If you leave out the statement name, the call refers to the nameless
+   * statement instead.
    */
-  prepare::invocation prepared(const PGSTD::string &statement);
+  prepare::invocation prepared(const PGSTD::string &statement=PGSTD::string());
 
   //@}
 

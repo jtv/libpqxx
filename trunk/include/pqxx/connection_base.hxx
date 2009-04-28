@@ -555,6 +555,10 @@ public:
    * prepared statement.  Use @c prepared().exists() to find out whether a
    * statement has been prepared under a given name.
    *
+   * A special case is the nameless prepared statement.  You may prepare a
+   * statement without a name.  The unnamed statement can be redefined at any
+   * time, without un-preparing it first.
+   *
    * @warning Prepared statements are not necessarily defined on the backend
    * right away; they may be cached by libpqxx.  This means that statements may
    * be prepared before the connection is fully established, and that it's
@@ -615,6 +619,15 @@ public:
    */
   prepare::declaration prepare(const PGSTD::string &name,
 	const PGSTD::string &definition);
+
+  /// Define a nameless prepared statement.
+  /**
+   * This can be useful if you merely want to pass large binary parameters to a
+   * statement without otherwise wishing to prepare it.  If you use this
+   * feature, always keep the definition and the use close together to avoid
+   * the nameless statement being redefined unexpectedly by code somewhere else.
+   */
+  prepare::declaration prepare(const PGSTD::string &definition);
 
   /// Drop prepared statement
   void unprepare(const PGSTD::string &name);
