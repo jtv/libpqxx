@@ -43,7 +43,7 @@ namespace pqxx
 /** Specialize this template for a type that you wish to add to_string and
  * from_string support for.
  */
-template<typename T> struct string_traits;
+template<typename T> struct string_traits {};
 
 namespace internal
 {
