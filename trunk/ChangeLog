@@ -5,6 +5,7 @@
  include/pqxx/strconv.hxx:
  - Specialized string_traits for const string.
  - Made from_string on const break at compile time, thanks Robert Barnett.
+ - Empty definition for default string_traits, thanks Daniel Frey.
 2009-04-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/dbtransaction.hxx:
   - Made constructor public again, thanks Maurice Gittens.
