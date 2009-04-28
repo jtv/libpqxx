@@ -810,12 +810,13 @@ pqxx::prepare::declaration pqxx::connection_base::prepare(
   PSMap::iterator i = m_prepared.find(name);
   if (i != m_prepared.end())
   {
-    if (definition != i->second.definition)
+    if (name != string() && definition != i->second.definition)
       throw argument_error("Inconsistent redefinition "
 	  "of prepared statement " + name);
 
     // Prepare for repeated definition of parameters
     i->second.parameters.clear();
+    i->second.varargs = false;
     i->second.complete = false;
   }
   else
@@ -824,6 +825,13 @@ pqxx::prepare::declaration pqxx::connection_base::prepare(
 	  prepare::internal::prepared_def(definition)));
   }
   return prepare::declaration(*this,name);
+}
+
+
+pqxx::prepare::declaration pqxx::connection_base::prepare(
+	const PGSTD::string &definition)
+{
+  return this->prepare(string(), definition);
 }
 
 
@@ -955,7 +963,7 @@ pqxx::connection_base::register_prepared(const PGSTD::string &name)
     stringstream P;
     P << "PREPARE \"" << name << "\" ";
 
-    if (!s.varargs && !s.parameters.empty())
+    if (!s.parameters.empty())
       P << '('
 	<< separated_list(",",
 		s.parameters.begin(),

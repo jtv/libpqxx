@@ -1,9 +1,16 @@
+2009-04-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
+ src/connection_base.cxx, test/unit/test_prepared_statement.cxx:
+ - Support unnamed prepared statement.
 2009-04-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/dbtransaction.hxx:
   - Made constructor public again, thanks Maurice Gittens.
 2009-04-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/prepared_statement.hxx, test/unit/test_prepared_statement.cxx:
   - Documented & tested binary parameters, thanks Michael Akinde.
+2009-04-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+  - When preparing varargs statement in SQL, don't skip parameter list.
 2009-04-15  Eugene V. Lyubimkin <jackyf.devel@gmail.com>
  NEWS:
   - Typo fix.
