@@ -29,8 +29,10 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/transaction_base pqxx/transaction_base.hxx \
 	pqxx/transactor pqxx/transactor.hxx \
 	pqxx/trigger pqxx/trigger.hxx \
-	pqxx/util pqxx/util.hxx
+	pqxx/util pqxx/util.hxx \
+	pqxx/version pqxx/version.hxx
 
 nobase_nodist_include_HEADERS = \
 	pqxx/config-public-compiler.h
 
+EXTRA_DIST = pqxx/version.hxx.template

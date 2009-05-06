@@ -32,3 +32,4 @@
 #include "pqxx/transaction"
 #include "pqxx/transactor"
 #include "pqxx/util"
+#include "pqxx/version"
