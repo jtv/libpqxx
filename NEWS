@@ -1,5 +1,6 @@
 3.1
  - Threading behaviour is now documented, and can be queried.
+ - Version information available at compile time.
  - String conversion now has its own header file.
  - Supports read-only transactions.
  - Fixed breakage with Solaris "make".

@@ -1,3 +1,7 @@
+2009-05-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh, include/Makefile.am, include/pqxx/Makefile.am,
+ include/pqxx/pqxx, include/pqxx/version, include/pqxx/version.hxx.template:
+ - Provide version info preprocessor macros, thanks jdennis at redhat.
 2009-04-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
  src/connection_base.cxx, test/unit/test_prepared_statement.cxx:
