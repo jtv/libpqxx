@@ -133,9 +133,11 @@ public:
     typedef unsigned int size_type;
     typedef signed int difference_type;
     typedef const_fielditerator const_iterator;
+    typedef const_iterator iterator;
     typedef field reference;
     typedef const_fielditerator pointer;
     typedef const_reverse_fielditerator const_reverse_iterator;
+    typedef const_reverse_iterator reverse_iterator;
 
     tuple(const result *r, result::size_type i) throw () :
       m_Home(r), m_Index(i) {}
@@ -527,6 +529,8 @@ public:
 	tuple(r, i) {}
   };
 
+  typedef const_iterator iterator;
+
   class PQXX_LIBEXPORT const_reverse_iterator : private const_iterator
   {
   public:
@@ -608,6 +612,8 @@ public:
 	{ return iterator_type::operator<=(rhs); }
     //@}
   };
+
+  typedef const_reverse_iterator reverse_iterator;
 
   class PQXX_LIBEXPORT const_fielditerator :
     public PGSTD::iterator<PGSTD::random_access_iterator_tag,

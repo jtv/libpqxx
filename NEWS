@@ -11,6 +11,7 @@
  - Lets you check whether a prepared statement has been defined.
  - "Varargs" prepared statements.
  - Unnamed prepared statements now supported.
+ - Results have iterator as well as const_iterator.
 3.0
  - Website is now at http://pqxx.org/ (no redirects)
  - Completely replaced cursor classes
