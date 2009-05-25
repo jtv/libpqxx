@@ -1,3 +1,7 @@
+2009-05-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result.hxx:
+ - Provide iterator as well as const_iterator
+ - Fixes bug #184
 2009-05-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh, include/Makefile.am, include/pqxx/Makefile.am,
  include/pqxx/pqxx, include/pqxx/version, include/pqxx/version.hxx.template:
