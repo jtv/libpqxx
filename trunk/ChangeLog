@@ -1,3 +1,6 @@
+2009-05-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/unit/test_tablestream.cxx:
+ - Also demonstrate column lists.  Thanks Robert Backhaus.
 2009-05-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/result.hxx:
  - Provide iterator as well as const_iterator
