@@ -72,9 +72,9 @@ struct PQXX_PRIVATE result_data
   ~result_data();
 };
 
-void PQXX_LIBEXPORT freemem_result_data(result_data *) throw ();
+void PQXX_LIBEXPORT freemem_result_data(const result_data *) throw ();
 template<> inline
-void PQAlloc<result_data>::freemem(result_data *t) throw ()
+void PQAlloc<const result_data>::freemem(const result_data *t) throw ()
 	{ freemem_result_data(t); }
 } // namespace internal
 
