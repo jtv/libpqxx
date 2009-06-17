@@ -53,7 +53,8 @@ pqxx::internal::result_data::result_data(pqxx::internal::pq::PGresult *d,
 pqxx::internal::result_data::~result_data() { PQclear(data); }
 
 
-void pqxx::internal::freemem_result_data(result_data *d) throw () { delete d; }
+void pqxx::internal::freemem_result_data(const result_data *d) throw ()
+	{ delete d; }
 
 
 pqxx::result::result(pqxx::internal::pq::PGresult *rhs,

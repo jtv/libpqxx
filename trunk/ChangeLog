@@ -1,3 +1,7 @@
+2009-06-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result.hxx, src/result.cxx:
+ - result used wrong deallocation function after result_data became const.
+ - Thanks Kirit Saelensminde for figuring this out and fixing it!
 2009-05-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/unit/test_tablestream.cxx:
  - Also demonstrate column lists.  Thanks Robert Backhaus.
