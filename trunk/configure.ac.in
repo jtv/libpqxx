@@ -195,6 +195,12 @@ else
 fi
 
 
+boost_smart_ptr=yes
+AC_CHECK_HEADER(boost/smart_ptr.hpp, AC_DEFINE(PQXX_HAVE_BOOST_SMART_PTR, 1,
+	[Define if you have the <boost/smart_ptr.hpp> header]),
+	boost_smart_ptr=no)
+
+
 AC_MSG_CHECKING([whether TR1 headers live in tr1 directory])
 tr1headers=yes
 AC_TRY_COMPILE(
@@ -224,7 +230,7 @@ AC_ARG_WITH(
 	[tr1=${withval};],
 	[guesstr1=yes])
 
-if test "${guesstr1}" = "yes" -o "${withval}" = "yes"; then
+if test "${guesstr1}" = "yes" ; then
 	# No explicit TR1 namespace given.  Try PGSTD::tr1.  If that doesn't
 	# work, assume PGSTD as our best bet.
 	tr1="${std}::tr1"
