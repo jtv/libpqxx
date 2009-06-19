@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      Compiler deficiency workarounds for libpqxx clients
  *
- * Copyright (c) 2002-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -16,6 +16,10 @@
  */
 #ifndef PQXX_H_COMPILER_PUBLIC
 #define PQXX_H_COMPILER_PUBLIC
+
+#ifdef PQXX_HAVE_BOOST_SMART_PTR
+#include <boost/smart_ptr.hpp>
+#endif
 
 #ifdef _MSC_VER
 

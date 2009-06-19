@@ -1,3 +1,9 @@
+2009-06-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in, include/pqxx/compiler-public.hxx:
+ - Check for BOOST smart_ptr header, include it if available.
+ - Fixed configuration of TR1 namespace choice.
+ - Build with BOOST shared_ptr by configuring --with-tr1=boost
+ - Thanks Kirit Saelensminde.
 2009-06-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/result.hxx, src/result.cxx:
  - result used wrong deallocation function after result_data became const.

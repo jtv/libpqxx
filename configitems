@@ -9,6 +9,7 @@ PACKAGE_VERSION	internal	autotools
 PGSTD	public	compiler
 PQXX_BROKEN_ITERATOR	public	compiler
 PQXX_BROKEN_USING_DECL	public	compiler
+PQXX_HAVE_BOOST_SMART_PTR	public	compiler
 PQXX_HAVE_CHAR_TRAITS	public	compiler
 PQXX_HAVE_COUNT_IF	internal	compiler
 PQXX_HAVE_CPP_PRAGMA_MESSAGE	public	compiler
