@@ -401,6 +401,9 @@ public:
     /// Can transactions be READ ONLY?
     cap_read_only_transactions,
 
+    /// Do prepared statements support varargs?
+    cap_statement_varargs,
+
     /// Not a capability value; end-of-enumeration marker
     cap_end
   };

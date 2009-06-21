@@ -226,21 +226,29 @@ void test_prepared_statement(connection_base &C, transaction_base &T)
 	usage_error,
 	"No error for too few parameters.");
 
-  // Varargs statement called with too few parameters.
-  C.prepare("varargs1", "SELECT 1 * $1")("integer")("integer").etc();
-  PQXX_CHECK_THROWS(
-	T.prepared("varargs1").exec(),
-	usage_error,
-	"No error from too few parameters for varargs statement.");
+  // Varargs statements.  These only work if both frontend library and backend
+  // are reasonably up-to-date.
+  if (C.supports(connection_base::cap_statement_varargs))
+  {
+    // Varargs statement called with too few parameters.
+    C.prepare("varargs1", "SELECT 1 * $1")("integer")("integer").etc();
+    PQXX_CHECK_THROWS(
+	  T.prepared("varargs1").exec(),
+	  usage_error,
+	  "No error from too few parameters for varargs statement.");
 
-  // Passing more parameters than expected is okay with varargs.
-  C.prepare("varargs2", "SELECT 1 * $1 * $2 * $3")("integer").etc();
-  result r = T.prepared("varargs2")(1)(2)(3).exec();
-  PQXX_CHECK_EQUAL(
-	int(r.size()),
-	1,
-	"Varargs statement produced strange result.");
-  PQXX_CHECK_EQUAL(r[0][0].as<int>(), 6, "Bad answer from varargs statement.");
+    // Passing more parameters than expected is okay with varargs.
+    C.prepare("varargs2", "SELECT 1 * $1 * $2 * $3")("integer").etc();
+    result r = T.prepared("varargs2")(1)(2)(3).exec();
+    PQXX_CHECK_EQUAL(
+	  int(r.size()),
+	  1,
+	  "Varargs statement produced strange result.");
+    PQXX_CHECK_EQUAL(
+	r[0][0].as<int>(),
+	6,
+	"Bad answer from varargs statement.");
+  }
 
   // Test unnamed prepared statement.
   C.prepare("SELECT 2*$1")("integer");

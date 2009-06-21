@@ -926,6 +926,10 @@ void pqxx::connection_base::prepare_param_declare_varargs(
 	const PGSTD::string &statement,
 	param_treatment treatment)
 {
+  if (!supports(cap_statement_varargs))
+    throw feature_not_supported(
+	"Prepared statements do not support variable argument lists "
+	"in this configuration.");
   prepare::internal::prepared_def &s = find_prepared(statement);
   if (s.complete)
     throw usage_error("Attempt to add arbitrary parameters to prepared "
@@ -1573,9 +1577,13 @@ void pqxx::connection_base::read_capabilities() throw ()
   }
 #endif
 
-  const int v = m_serverversion;
+  const int
+	v = m_serverversion,
+  	p = protocol_version();
 
   m_caps[cap_prepared_statements] = (v >= 70300);
+  m_caps[cap_statement_varargs] = 
+	(v >= 70300 && PQXX_HAVE_PQPREPARE && (p >= 3));
   m_caps[cap_cursor_scroll] = (v >= 70400);
   m_caps[cap_cursor_with_hold] = (v >= 70400);
   m_caps[cap_cursor_fetch_0] = (v >= 70400);
@@ -1584,7 +1592,6 @@ void pqxx::connection_base::read_capabilities() throw ()
   m_caps[cap_read_only_transactions] = (v >= 80000);
 
 #ifdef PQXX_HAVE_PQFTABLECOL
-  const int p = protocol_version();
   m_caps[cap_table_column] = (p >= 3);
 #endif
 }
