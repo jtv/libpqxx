@@ -896,7 +896,6 @@ private:
 
   friend class transaction_base;
   result PQXX_PRIVATE Exec(const char[], int Retries);
-  result pq_exec_prepared(const PGSTD::string &, int, const char *const *);
   void PQXX_PRIVATE RegisterTransaction(transaction_base *);
   void PQXX_PRIVATE UnregisterTransaction(transaction_base *) throw ();
   void PQXX_PRIVATE MakeEmpty(result &);
