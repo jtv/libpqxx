@@ -25,9 +25,12 @@
 #include "pqxx/strconv"
 #include "pqxx/transaction"
 
+#include "pqxx/internal/connection-sql_cursor-gate.hxx"
+#include "pqxx/internal/result-sql_cursor-gate.hxx"
 
 using namespace PGSTD;
 using namespace pqxx;
+using namespace pqxx::internal;
 
 
 namespace
@@ -116,7 +119,8 @@ pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
   // If we're creating a WITH HOLD cursor, noone is going to destroy it until
   // after this transaction.  That means the connection cannot be deactivated
   // without losing the cursor.
-  if (hold) t.m_reactivation_avoidance.add(1);
+  if (hold)
+    connection_sql_cursor_gate(t.conn()).add_reactivation_avoidance_count(1);
 
   m_ownership = op;
 }
@@ -136,7 +140,8 @@ pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
   // If we take responsibility for destroying the cursor, that's one less reason
   // not to allow the connection to be deactivated and reactivated.
   // TODO: Go over lifetime/reactivation rules again to be sure they work
-  if (op==cursor_base::owned) t.m_reactivation_avoidance.add(-1);
+  if (op==cursor_base::owned)
+    connection_sql_cursor_gate(t.conn()).add_reactivation_avoidance_count(-1);
   m_adopted = true;
   m_ownership = op;
 }
@@ -148,13 +153,17 @@ void pqxx::internal::sql_cursor::close() throw ()
   {
     try
     {
-      m_home.Exec(("CLOSE \"" + name() + "\"").c_str(), 0);
+      connection_sql_cursor_gate(m_home).Exec(
+	("CLOSE \"" + name() + "\"").c_str(),
+	0);
     }
     catch (const exception &)
     {
     }
 
-    if (m_adopted) m_home.m_reactivation_avoidance.add(-1);
+    if (m_adopted)
+      connection_sql_cursor_gate(m_home).add_reactivation_avoidance_count(-1);
+
     m_ownership = cursor_base::loose;
   }
 }
@@ -231,7 +240,7 @@ result pqxx::internal::sql_cursor::fetch(difference_type rows,
     return m_empty_result;
   }
   const string query = "FETCH " + stridestring(rows) + " IN \"" + name() + "\"";
-  const result r(m_home.Exec(query.c_str(), 0));
+  const result r(connection_sql_cursor_gate(m_home).Exec(query.c_str(), 0));
   displacement = adjust(rows, r.size());
   return r;
 }
@@ -248,7 +257,7 @@ cursor_base::difference_type pqxx::internal::sql_cursor::move(
   }
 
   const string query = "MOVE " + stridestring(rows) + " IN \"" + name() + "\"";
-  const result r(m_home.Exec(query.c_str(), 0));
+  const result r(connection_sql_cursor_gate(m_home).Exec(query.c_str(), 0));
 
   // Starting with the libpq in PostgreSQL 7.4, PQcmdTuples() (which we call
   // indirectly here) also returns the number of rows skipped by a MOVE
@@ -260,12 +269,13 @@ cursor_base::difference_type pqxx::internal::sql_cursor::move(
   if (!d)
   {
     static const string StdResponse("MOVE ");
-    if (strncmp(r.CmdStatus(), StdResponse.c_str(), StdResponse.size()) != 0)
+    const char *const status = result_sql_cursor_gate(r).CmdStatus();
+    if (strncmp(status, StdResponse.c_str(), StdResponse.size()) != 0)
       throw internal_error("cursor MOVE returned "
-	  "'" + string(r.CmdStatus()) + "' "
+	  "'" + string(status) + "' "
 	  "(expected '" + StdResponse + "')");
 
-    from_string(r.CmdStatus()+StdResponse.size(), d);
+    from_string(status + StdResponse.size(), d);
   }
 
   displacement = adjust(rows, d);

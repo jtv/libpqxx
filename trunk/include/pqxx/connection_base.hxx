@@ -61,12 +61,6 @@ public:
   void clear() throw () { m_counter = 0; }
   int get() const throw () { return m_counter; }
 
-  void give_to(reactivation_avoidance_counter &rhs) throw ()
-  {
-    rhs.add(m_counter);
-    clear();
-  }
-
 private:
   int m_counter;
 };
@@ -126,6 +120,20 @@ struct PQXX_LIBEXPORT nonnoticer : noticer
 PGSTD::string PQXX_LIBEXPORT encrypt_password(				//[t0]
 	const PGSTD::string &user,
 	const PGSTD::string &password);
+
+
+namespace internal
+{
+class connection_dbtransaction_gate;
+class connection_largeobject_gate;
+class connection_notify_listener_gate;
+class connection_pipeline_gate;
+class connection_prepare_declaration_gate;
+class connection_prepare_invocation_gate;
+class connection_sql_cursor_gate;
+class connection_transaction_gate;
+} // namespace pqxx::internal
+
 
 /// connection_base abstract base class; represents a connection to a database.
 /** This is the first class to look at when you wish to work with a database
@@ -806,6 +814,12 @@ protected:
   void wait_write() const;
 
 private:
+  static result make_result(
+	internal::pq::PGresult *rhs,
+	int protocol, 
+	const PGSTD::string &query,
+	int encoding_code);
+
   void PQXX_PRIVATE clearcaps() throw ();
   void PQXX_PRIVATE SetupState();
   void PQXX_PRIVATE check_result(const result &);
@@ -821,27 +835,25 @@ private:
 
   void read_capabilities() throw ();
 
-  friend class subtransaction;
-  void set_capability(capability) throw ();
-
   prepare::internal::prepared_def &find_prepared(const PGSTD::string &);
 
-  friend class prepare::declaration;
-  void prepare_param_declare(const PGSTD::string &statement,
-      const PGSTD::string &sqltype,
-      prepare::param_treatment);
-  void prepare_param_declare_varargs(const PGSTD::string &statement,
-      prepare::param_treatment);
+  friend class internal::connection_prepare_declaration_gate;
+  void prepare_param_declare(
+	const PGSTD::string &statement,
+	const PGSTD::string &sqltype,
+	prepare::param_treatment);
+  void prepare_param_declare_varargs(
+	const PGSTD::string &statement,
+	prepare::param_treatment);
 
   prepare::internal::prepared_def &register_prepared(const PGSTD::string &);
+
+  friend class internal::connection_prepare_invocation_gate;
   result prepared_exec(const PGSTD::string &,
 	const char *const[],
 	const int[],
 	int);
   bool prepared_exists(const PGSTD::string &) const;
-
-  friend class arrayvalue;
-  int PQXX_PRIVATE encoding_code() throw ();
 
   /// Connection handle
   internal::pq::PGconn *m_Conn;
@@ -894,35 +906,37 @@ private:
   /// Unique number to use as suffix for identifiers (see adorn_name())
   int m_unique_id;
 
-  friend class transaction_base;
+  friend class internal::connection_transaction_gate;
   result PQXX_PRIVATE Exec(const char[], int Retries);
   void PQXX_PRIVATE RegisterTransaction(transaction_base *);
   void PQXX_PRIVATE UnregisterTransaction(transaction_base *) throw ();
-  void PQXX_PRIVATE MakeEmpty(result &);
   bool PQXX_PRIVATE ReadCopyLine(PGSTD::string &);
   void PQXX_PRIVATE WriteCopyLine(const PGSTD::string &);
   void PQXX_PRIVATE EndCopyWrite();
-  void PQXX_PRIVATE start_exec(const PGSTD::string &);
-  internal::pq::PGresult *get_result();
-
   void PQXX_PRIVATE RawSetVar(const PGSTD::string &, const PGSTD::string &);
   void PQXX_PRIVATE AddVariables(const PGSTD::map<PGSTD::string,
       PGSTD::string> &);
 
-  friend class largeobject;
+  friend class internal::connection_largeobject_gate;
   internal::pq::PGconn *RawConnection() const { return m_Conn; }
 
-  friend class notify_listener;
+  friend class internal::connection_notify_listener_gate;
   void add_listener(notify_listener *);
   void remove_listener(notify_listener *) throw ();
 
-  friend class pipeline;
+  friend class internal::connection_pipeline_gate;
+  void PQXX_PRIVATE start_exec(const PGSTD::string &);
   bool PQXX_PRIVATE consume_input() throw ();
   bool PQXX_PRIVATE is_busy() const throw ();
   void cancel_query();
+  int PQXX_PRIVATE encoding_code() throw ();
+  internal::pq::PGresult *get_result();
 
-  friend class internal::sql_cursor;
-  friend class dbtransaction;
+  friend class internal::connection_dbtransaction_gate;
+
+  friend class internal::connection_sql_cursor_gate;
+  void add_reactivation_avoidance_count(int);
+
   friend class internal::reactivation_avoidance_exemption;
 
   // Not allowed:

@@ -7,7 +7,7 @@
  *      implementation of the pqxx::tablewriter class.
  *   pqxx::tablewriter enables optimized batch updates to a database table
  *
- * Copyright (c) 2001-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -20,6 +20,8 @@
 #include "pqxx/tablereader"
 #include "pqxx/tablewriter"
 #include "pqxx/transaction"
+
+#include "pqxx/internal/transaction-tablewriter-gate.hxx"
 
 using namespace PGSTD;
 using namespace pqxx::internal;
@@ -55,7 +57,7 @@ void pqxx::tablewriter::setup(transaction_base &T,
     const PGSTD::string &WName,
     const PGSTD::string &Columns)
 {
-  T.BeginCopyWrite(WName, Columns);
+  transaction_tablewriter_gate(T).BeginCopyWrite(WName, Columns);
   register_me();
 }
 
@@ -72,7 +74,7 @@ pqxx::tablewriter &pqxx::tablewriter::operator<<(pqxx::tablereader &R)
 void pqxx::tablewriter::write_raw_line(const PGSTD::string &Line)
 {
   const string::size_type len = Line.size();
-  m_Trans.WriteCopyLine(
+  transaction_tablewriter_gate(m_Trans).WriteCopyLine(
 	(!len || Line[len-1] != '\n') ?
 	Line :
 	string(Line, 0, len-1));
@@ -92,7 +94,7 @@ void pqxx::tablewriter::writer_close()
     base_close();
     try
     {
-      m_Trans.EndCopyWrite();
+      transaction_tablewriter_gate(m_Trans).EndCopyWrite();
     }
     catch (const exception &)
     {

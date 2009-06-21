@@ -7,7 +7,7 @@
  *      implementation of the pqxx::pipeline class
  *   Throughput-optimized query manager
  *
- * Copyright (c) 2003-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -19,6 +19,10 @@
 
 #include "pqxx/dbtransaction"
 #include "pqxx/pipeline"
+
+#include "pqxx/internal/connection-pipeline-gate.hxx"
+#include "pqxx/internal/result-creation-gate.hxx"
+
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -137,7 +141,7 @@ void pqxx::pipeline::cancel()
 {
   while (have_pending())
   {
-    m_Trans.conn().cancel_query();
+    connection_pipeline_gate(m_Trans.conn()).cancel_query();
     QueryMap::iterator canceled_query = m_issuedrange.first;
     ++m_issuedrange.first;
     m_queries.erase(canceled_query);
@@ -224,7 +228,7 @@ void pqxx::pipeline::issue()
   const bool prepend_dummy = (num_issued > 1);
   if (prepend_dummy) cum = theDummyQuery + cum;
 
-  m_Trans.start_exec(cum);
+  connection_pipeline_gate(m_Trans.conn()).start_exec(cum);
 
   // Since we managed to send out these queries, update state to reflect this
   m_dummy_pending = prepend_dummy;
@@ -247,7 +251,8 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   pqxxassert(!m_dummy_pending);
   pqxxassert(!m_queries.empty());
 
-  internal::pq::PGresult *r = m_Trans.get_result();
+  connection_pipeline_gate gate(m_Trans.conn());
+  internal::pq::PGresult *r = gate.get_result();
   if (!r)
   {
     if (have_pending() && !expect_none)
@@ -259,10 +264,11 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   }
 
   pqxxassert(r);
-  const result res(r,
-		0,
-		m_queries.begin()->second.get_query(),
-		m_Trans.conn().encoding_code());
+  const result res = result_creation_gate::create(
+	r,
+	0,
+	m_queries.begin()->second.get_query(),
+	connection_pipeline_gate(m_Trans.conn()).encoding_code());
 
   if (!have_pending())
   {
@@ -284,17 +290,23 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 void pqxx::pipeline::obtain_dummy()
 {
   pqxxassert(m_dummy_pending);
-  internal::pq::PGresult *const r = m_Trans.get_result();
+  connection_pipeline_gate gate(m_Trans.conn());
+  internal::pq::PGresult *const r = gate.get_result();
   m_dummy_pending = false;
 
   if (!r)
     internal_error("pipeline got no result from backend when it expected one");
 
-  result R(r, 0, "[DUMMY PIPELINE QUERY]", m_Trans.conn().encoding_code());
+  result R = result_creation_gate::create(
+	r,
+	0,
+	"[DUMMY PIPELINE QUERY]",
+	connection_pipeline_gate(m_Trans.conn()).encoding_code());
+
   bool OK = false;
   try
   {
-    R.CheckStatus();
+    result_creation_gate(R).CheckStatus();
     OK = true;
   }
   catch (const sql_error &)
@@ -346,7 +358,7 @@ void pqxx::pipeline::obtain_dummy()
       const string &query = m_issuedrange.first->second.get_query();
       const result res(m_Trans.exec(query));
       m_issuedrange.first->second.set_result(res);
-      res.CheckStatus();
+      result_creation_gate(res).CheckStatus();
       ++m_issuedrange.first;
     }
     while (m_issuedrange.first != stop);
@@ -419,7 +431,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 
   m_queries.erase(q);
 
-  R.CheckStatus();
+  result_creation_gate(R).CheckStatus();
   return P;
 }
 
@@ -427,15 +439,17 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 void pqxx::pipeline::get_further_available_results()
 {
   pqxxassert(!m_dummy_pending);
-  while (!m_Trans.is_busy() && obtain_result())
-    if (!m_Trans.consume_input()) throw broken_connection();
+  connection_pipeline_gate gate(m_Trans.conn());
+  while (!gate.is_busy() && obtain_result())
+    if (!gate.consume_input()) throw broken_connection();
 }
 
 
 void pqxx::pipeline::receive_if_available()
 {
-  if (!m_Trans.consume_input()) throw broken_connection();
-  if (m_Trans.is_busy()) return;
+  connection_pipeline_gate gate(m_Trans.conn());
+  if (!gate.consume_input()) throw broken_connection();
+  if (gate.is_busy()) return;
 
   if (m_dummy_pending) obtain_dummy();
   if (have_pending()) get_further_available_results();

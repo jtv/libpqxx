@@ -27,7 +27,7 @@ public:
     m_Done = true;
     PQXX_CHECK_EQUAL(
 	be_pid,
-	Conn().backendpid(),
+	conn().backendpid(),
 	"Notification came from wrong backend process.");
 
     cout << "Received notification: " << name() << " pid=" << be_pid << endl;
