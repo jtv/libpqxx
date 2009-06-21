@@ -65,16 +65,9 @@ public:
    * @param C Connection this listener resides in.
    * @param N Name of the notification to listen for.
    */
-  notify_listener(connection_base &C, const PGSTD::string &N) :		//[t4]
-    m_Conn(C), m_Name(N) { m_Conn.add_listener(this); }
+  notify_listener(connection_base &C, const PGSTD::string &N);		//[t4]
 
-  virtual ~notify_listener() throw ()					//[t4]
-  {
-#ifdef PQXX_QUIET_DESTRUCTORS
-    disable_noticer Quiet(Conn());
-#endif
-    m_Conn.remove_listener(this);
-  }
+  virtual ~notify_listener() throw ();					//[t4]
 
   const PGSTD::string &name() const { return m_Name; }			//[t4]
 
@@ -88,7 +81,11 @@ public:
 
 
 protected:
-  connection_base &Conn() const throw () { return m_Conn; }		//[t23]
+  /// @deprecated Use conn() instead.
+  connection_base &Conn() const throw () { return conn(); }		//[t23]
+
+  /// Get the connection that this listener listens on.
+  connection_base &conn() const throw () { return m_conn; }		//[t23]
 
 private:
   /// Not allowed
@@ -96,7 +93,7 @@ private:
   /// Not allowed
   notify_listener &operator=(const notify_listener &);
 
-  connection_base &m_Conn;
+  connection_base &m_conn;
   PGSTD::string m_Name;
 };
 
@@ -106,4 +103,3 @@ private:
 #include "pqxx/compiler-internal-post.hxx" 
 
 #endif
-

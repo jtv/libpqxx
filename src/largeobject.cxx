@@ -7,7 +7,7 @@
  *      Implementation of the Large Objects interface
  *   Allows access to large objects directly, or though I/O streams
  *
- * Copyright (c) 2003-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -29,6 +29,8 @@
 #define INV_READ		0x00040000
 
 #include "pqxx/largeobject"
+
+#include "pqxx/internal/connection-largeobject-gate.hxx"
 
 using namespace PGSTD;
 using namespace pqxx::internal;
@@ -132,6 +134,13 @@ void pqxx::largeobject::remove(dbtransaction &T) const
     throw failure("Could not delete large object " + to_string(m_ID) + ": " +
 	Reason(err));
   }
+}
+
+
+pqxx::internal::pq::PGconn *pqxx::largeobject::RawConnection(
+	const dbtransaction &T)
+{
+  return connection_largeobject_gate(T.conn()).RawConnection();
 }
 
 

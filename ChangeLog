@@ -1,3 +1,31 @@
+2009-06-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx,
+ include/pqxx/internal/connection-dbtransaction-gate.hxx,
+ include/pqxx/internal/connection-largeobject-gate.hxx, 
+ include/pqxx/internal/connection-notify-listener-gate.hxx, 
+ include/pqxx/internal/connection-pipeline-gate.hxx, 
+ include/pqxx/internal/connection-prepare-declaration-gate.hxx, 
+ include/pqxx/internal/connection-prepare-invocation-gate.hxx, 
+ include/pqxx/internal/connection-sql_cursor-gate.hxx, 
+ include/pqxx/internal/connection-transaction-gate.hxx, 
+ include/pqxx/internal/result-connection-gate.hxx, 
+ include/pqxx/internal/result-creation-gate.hxx, 
+ include/pqxx/internal/result-sql_cursor-gate.hxx, 
+ include/pqxx/internal/transaction-subtransaction-gate.hxx, 
+ include/pqxx/internal/transaction-tablereader-gate.hxx, 
+ include/pqxx/internal/transaction-tablewriter-gate.hxx, 
+ include/pqxx/internal/transaction-transactionfocus-gate.hxx, 
+ include/pqxx/largeobject.hxx, include/Makefile.am,
+ include/pqxx/notify-listen.hxx, include/pqxx/result.hxx,
+ include/pqxx/transaction_base.hxx, src/connection_base.cxx, src/cursor.cxx,
+ src/dbtransaction.cxx, src/Makefile.am, src/notify-listen.cxx,
+ src/pipeline.cxx, src/prepared_statement.cxx, src/subtransaction.cxx,
+ src/tablereader.cxx, src/tablewriter.cxx, src/transaction_base.cxx:
+ - New "gates" system to control friendships between library classes.
+ - New header directory.
+ - Moved tiny bit of notify-listener code into new source file.
+ test/test023.cxx:
+ - Deprecated Conn() in favour of conn().
 2009-06-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, src/connection_base.cxx:
  - New capability for prepared-statement varargs.

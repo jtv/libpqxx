@@ -7,7 +7,7 @@
  *      implementation of the pqxx::tablereader class.
  *   pqxx::tablereader enables optimized batch reads from a database table
  *
- * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -19,6 +19,8 @@
 
 #include "pqxx/tablereader"
 #include "pqxx/transaction"
+
+#include "pqxx/internal/transaction-tablereader-gate.hxx"
 
 using namespace PGSTD;
 using namespace pqxx::internal;
@@ -38,7 +40,7 @@ void pqxx::tablereader::setup(transaction_base &T,
     const PGSTD::string &Name,
     const PGSTD::string &Columns)
 {
-  T.BeginCopyRead(Name, Columns);
+  transaction_tablereader_gate(T).BeginCopyRead(Name, Columns);
   register_me();
   m_Done = false;
 }
@@ -63,7 +65,7 @@ bool pqxx::tablereader::get_raw_line(PGSTD::string &Line)
 {
   if (!m_Done) try
   {
-    m_Done = !m_Trans.ReadCopyLine(Line);
+    m_Done = !transaction_tablereader_gate(m_Trans).ReadCopyLine(Line);
   }
   catch (const exception &)
   {

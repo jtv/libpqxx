@@ -79,6 +79,14 @@ void PQAlloc<const result_data>::freemem(const result_data *t) throw ()
 } // namespace internal
 
 
+namespace internal
+{
+class result_connection_gate;
+class result_creation_gate;
+class result_sql_cursor_gate;
+} // namespace internal
+
+
 /// Query or command result set.
 /** This behaves as a container (as defined by the C++ standard library) and
  * provides random access const iterators to iterate over its tuples.  A tuple
@@ -915,24 +923,23 @@ private:
   bool GetIsNull(size_type Row, tuple::size_type Col) const;
   field::size_type GetLength(size_type, tuple::size_type) const;
 
-  friend class connection_base;
-  friend class pipeline;
+  friend class pqxx::internal::result_creation_gate;
   result(internal::pq::PGresult *rhs,
 	int protocol,
 	const PGSTD::string &Query,
 	int encoding_code);
+  void PQXX_PRIVATE CheckStatus() const;
+
+  friend class pqxx::internal::result_connection_gate;
   bool operator!() const throw () { return !m_data; }
   operator bool() const throw () { return m_data != 0; }
-
-  void PQXX_PRIVATE CheckStatus() const;
 
   void PQXX_PRIVATE ThrowSQLError(const PGSTD::string &Err,
 	const PGSTD::string &Query) const;
   int PQXX_PRIVATE errorposition() const throw ();
   PGSTD::string PQXX_PRIVATE StatusError() const;
 
-  friend class Cursor;	// deprecated
-  friend class internal::sql_cursor;
+  friend class pqxx::internal::result_sql_cursor_gate;
   const char *CmdStatus() const throw ();
 
   /// Shortcut: pointer to result data

@@ -19,7 +19,10 @@
 
 #include "pqxx/dbtransaction"
 
+#include "pqxx/internal/connection-dbtransaction-gate.hxx"
+
 using namespace PGSTD;
+using namespace pqxx::internal;
 
 
 namespace
@@ -43,7 +46,7 @@ string generate_set_transaction(
 	pqxx::internal::sql_begin_work :
 	(string(pqxx::internal::sql_begin_work) + "; SET TRANSACTION" + args);
 }
-}
+} // namespace
 
 
 pqxx::dbtransaction::dbtransaction(
@@ -75,7 +78,9 @@ pqxx::dbtransaction::~dbtransaction()
 
 void pqxx::dbtransaction::do_begin()
 {
-  DirectExec(m_StartCmd.c_str(), conn().m_reactivation_avoidance.get() ? 0 : 2);
+  const connection_dbtransaction_gate gate(conn());
+  const int avoidance_counter = gate.get_reactivation_avoidance_count();
+  DirectExec(m_StartCmd.c_str(), avoidance_counter ? 0 : 2);
 }
 
 

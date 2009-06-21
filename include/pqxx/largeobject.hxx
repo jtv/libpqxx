@@ -8,7 +8,7 @@
  *   Allows access to large objects directly, or through I/O streams
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/largeobject instead.
  *
- * Copyright (c) 2003-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -134,10 +134,7 @@ public:
   void remove(dbtransaction &T) const;					//[t48]
 
 protected:
-  static internal::pq::PGconn *RawConnection(const dbtransaction &T)
-  {
-    return T.conn().RawConnection();
-  }
+  static internal::pq::PGconn *RawConnection(const dbtransaction &T);
 
   PGSTD::string Reason(int err) const;
 

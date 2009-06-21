@@ -9,7 +9,7 @@
  *   represents a database transaction
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction_base instead.
  *
- * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -80,6 +80,14 @@ private:
 
 } // namespace internal
 
+
+namespace internal
+{
+class transaction_subtransaction_gate;
+class transaction_tablereader_gate;
+class transaction_tablewriter_gate;
+class transaction_transactionfocus_gate;
+} // namespace internal
 
 
 /// Interface definition (and common code) for "transaction" classes.
@@ -319,6 +327,12 @@ protected:
   void reactivation_avoidance_clear() throw ()
 	{m_reactivation_avoidance.clear();}
 
+protected:
+  /// Resources allocated in this transaction that make reactivation impossible
+  /** This number may be negative!
+   */
+  internal::reactivation_avoidance_counter m_reactivation_avoidance;
+
 private:
   /* A transaction goes through the following stages in its lifecycle:
    * <ul>
@@ -356,34 +370,23 @@ private:
   template<typename T> bool parm_is_null(T *p) const throw () { return !p; }
   template<typename T> bool parm_is_null(T) const throw () { return false; }
 
-  friend class pqxx::internal::sql_cursor;
-  void MakeEmpty(result &R) const { m_Conn.MakeEmpty(R); }
-
-  friend class internal::transactionfocus;
+  friend class pqxx::internal::transaction_transactionfocus_gate;
   void PQXX_PRIVATE RegisterFocus(internal::transactionfocus *);
   void PQXX_PRIVATE UnregisterFocus(internal::transactionfocus *) throw ();
   void PQXX_PRIVATE RegisterPendingError(const PGSTD::string &) throw ();
-  friend class tablereader;
+
+  friend class pqxx::internal::transaction_tablereader_gate;
   void PQXX_PRIVATE BeginCopyRead(const PGSTD::string &, const PGSTD::string &);
-  bool ReadCopyLine(PGSTD::string &L) { return m_Conn.ReadCopyLine(L); }
-  friend class tablewriter;
-  void PQXX_PRIVATE BeginCopyWrite(const PGSTD::string &Table,
-	const PGSTD::string &Columns = PGSTD::string());
-  void WriteCopyLine(const PGSTD::string &L) { m_Conn.WriteCopyLine(L); }
-  void EndCopyWrite() { m_Conn.EndCopyWrite(); }
+  bool ReadCopyLine(PGSTD::string &);
 
-  friend class pipeline;
-  void start_exec(const PGSTD::string &Q) { m_Conn.start_exec(Q); }
-  internal::pq::PGresult *get_result() { return m_Conn.get_result(); }
-  bool consume_input() throw () { return m_Conn.consume_input(); }
-  bool is_busy() const throw () { return m_Conn.is_busy(); }
+  friend class pqxx::internal::transaction_tablewriter_gate;
+  void PQXX_PRIVATE BeginCopyWrite(
+	const PGSTD::string &Table,
+	const PGSTD::string &Columns);
+  void WriteCopyLine(const PGSTD::string &);
+  void EndCopyWrite();
 
-  friend class prepare::invocation;
-  result prepared_exec(const PGSTD::string &,
-	const char *const[],
-	const int[],
-	int);
-  bool prepared_exists(const PGSTD::string &) const;
+  friend class pqxx::internal::transaction_subtransaction_gate;
 
   connection_base &m_Conn;
 
@@ -392,12 +395,6 @@ private:
   bool m_Registered;
   PGSTD::map<PGSTD::string, PGSTD::string> m_Vars;
   PGSTD::string m_PendingError;
-
-  friend class subtransaction;
-  /// Resources allocated in this transaction that make reactivation impossible
-  /** This number may be negative!
-   */
-  internal::reactivation_avoidance_counter m_reactivation_avoidance;
 
   /// Not allowed
   transaction_base();

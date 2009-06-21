@@ -7,7 +7,7 @@
  *      implementation of the pqxx::subtransaction class.
  *   pqxx::transaction is a nested transaction, i.e. one within a transaction
  *
- * Copyright (c) 2005-2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2005-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -22,8 +22,10 @@
 #include "pqxx/connection_base"
 #include "pqxx/subtransaction"
 
+#include "pqxx/internal/transaction-subtransaction-gate.hxx"
 
 using namespace PGSTD;
+using namespace pqxx::internal;
 
 
 pqxx::subtransaction::subtransaction(dbtransaction &T,
@@ -44,11 +46,6 @@ void pqxx::subtransaction::do_begin()
   try
   {
     DirectExec(("SAVEPOINT \"" + name() + "\"").c_str());
-#if !defined(PQXX_HAVE_PQSERVERVERSION)
-    // We can't establish capabilities directly, but evidently nested
-    // transactions do work.
-    m_parent.conn().set_capability(connection_base::cap_nested_transactions);
-#endif
   }
   catch (const sql_error &)
   {
@@ -65,7 +62,8 @@ void pqxx::subtransaction::do_commit()
   const int ra = m_reactivation_avoidance.get();
   m_reactivation_avoidance.clear();
   DirectExec(("RELEASE SAVEPOINT \"" + name() + "\"").c_str());
-  m_parent.m_reactivation_avoidance.add(ra);
+  transaction_subtransaction_gate(m_parent).add_reactivation_avoidance_count(
+	ra);
 }
 
 

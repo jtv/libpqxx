@@ -53,6 +53,8 @@
 #include "pqxx/transaction"
 #include "pqxx/notify-listen"
 
+#include "pqxx/internal/result-creation-gate.hxx"
+#include "pqxx/internal/result-connection-gate.hxx"
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -140,6 +142,16 @@ void pqxx::connection_base::init()
 {
   m_Conn = m_policy.do_startconnect(m_Conn);
   if (m_policy.is_ready(m_Conn)) activate();
+}
+
+
+pqxx::result pqxx::connection_base::make_result(
+	internal::pq::PGresult *rhs,
+	int protocol,
+	const PGSTD::string &query,
+	int encoding)
+{
+  return result_creation_gate::create(rhs, protocol, query, encoding);
 }
 
 
@@ -348,8 +360,8 @@ void pqxx::connection_base::SetupState()
     const int proto = protocol_version();
     const int encoding = encoding_code();
     do
-      r = result(PQgetResult(m_Conn), proto, "[RECONNECT]", encoding);
-    while (r);
+      r = make_result(PQgetResult(m_Conn), proto, "[RECONNECT]", encoding);
+    while (result_connection_gate(r));
   }
 
   m_Completed = true;
@@ -362,11 +374,11 @@ void pqxx::connection_base::check_result(const result &R)
   if (!is_open()) throw broken_connection();
 
   // A shame we can't quite detect out-of-memory to turn this into a bad_alloc!
-  if (!R) throw failure(ErrMsg());
+  if (!result_connection_gate(R)) throw failure(ErrMsg());
 
   try
   {
-    R.CheckStatus();
+    result_creation_gate(R).CheckStatus();
   }
   catch (const exception &e)
   {
@@ -588,12 +600,11 @@ void pqxx::connection_base::add_listener(pqxx::notify_listener *T)
 
     if (is_open()) try
     {
-      result R( PQexec(m_Conn,
-		LQ.c_str()),
-		protocol_version(),
-		LQ,
-		encoding_code() );
-      check_result(R);
+      check_result(make_result(
+	PQexec(m_Conn, LQ.c_str()),
+	protocol_version(),
+	LQ,
+	encoding_code()));
     }
     catch (const broken_connection &)
     {
@@ -783,14 +794,18 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 {
   activate();
 
-  result R(PQexec(m_Conn, Query), protocol_version(), Query, encoding_code());
+  result R = make_result(
+	PQexec(m_Conn, Query),
+	protocol_version(),
+	Query,
+	encoding_code());
 
-  while ((Retries > 0) && !R && !is_open())
+  while ((Retries > 0) && !result_connection_gate(R) && !is_open())
   {
     Retries--;
     Reset();
     if (is_open())
-      R = result(PQexec(m_Conn, Query),
+      R = make_result(PQexec(m_Conn, Query),
 	protocol_version(),
 	Query,
 	encoding_code());
@@ -954,7 +969,7 @@ pqxx::connection_base::register_prepared(const PGSTD::string &name)
 #ifdef PQXX_HAVE_PQPREPARE
     if (protocol_version() >= 3)
     {
-      result r(
+      result r = make_result(
 	PQprepare(m_Conn, name.c_str(), s.definition.c_str(), 0, 0),
 	protocol_version(),
 	"[PREPARE " + name + "]",
@@ -1025,7 +1040,7 @@ pqxx::result pqxx::connection_base::prepared_exec(
         binary[j] = (s.varargs_treatment == treat_binary);
       binary[nparams] = 0;
 
-      r = result(PQexecPrepared(m_Conn,
+      r = make_result(PQexecPrepared(m_Conn,
 		statement.c_str(),
 		nparams,
 		params,
@@ -1198,18 +1213,6 @@ void pqxx::connection_base::UnregisterTransaction(transaction_base *T)
 }
 
 
-void pqxx::connection_base::MakeEmpty(pqxx::result &R)
-{
-  if (!m_Conn)
-    throw internal_error("MakeEmpty() on null connection");
-
-  R = result(PQmakeEmptyPGresult(m_Conn, PGRES_EMPTY_QUERY),
-		protocol_version(),
-		"[]",
-		encoding_code());
-}
-
-
 #ifndef PQXX_HAVE_PQPUTCOPY
 namespace
 {
@@ -1229,16 +1232,16 @@ bool pqxx::connection_base::ReadCopyLine(PGSTD::string &Line)
 #ifdef PQXX_HAVE_PQPUTCOPY
   char *Buf = 0;
   const int proto = protocol_version(), encoding=encoding_code();
-  const string querydesc = "[END COPY]";
+  const string query = "[END COPY]";
   switch (PQgetCopyData(m_Conn, &Buf, false))
   {
     case -2:
       throw failure("Reading of table data failed: " + string(ErrMsg()));
 
     case -1:
-      for (result R(PQgetResult(m_Conn), proto, querydesc, encoding);
-           R;
-	   R=result(PQgetResult(m_Conn), proto, querydesc, encoding))
+      for (result R(make_result(PQgetResult(m_Conn), proto, query, encoding));
+           result_connection_gate(R);
+	   R=make_result(PQgetResult(m_Conn), proto, query, encoding))
 	check_result(R);
       Result = false;
       break;
@@ -1340,11 +1343,11 @@ void pqxx::connection_base::EndCopyWrite()
 	"from PQputCopyEnd()");
   }
 
-  const result R(PQgetResult(m_Conn),
-		protocol_version(),
-		"[END COPY]",
-		encoding_code());
-  check_result(R);
+  check_result(make_result(
+	PQgetResult(m_Conn),
+	protocol_version(),
+	"[END COPY]",
+	encoding_code()));
 
 #else
   WriteCopyLine(theWriteTerminator);
@@ -1368,6 +1371,12 @@ pqxx::internal::pq::PGresult *pqxx::connection_base::get_result()
 {
   if (!m_Conn) throw broken_connection();
   return PQgetResult(m_Conn);
+}
+
+
+void pqxx::connection_base::add_reactivation_avoidance_count(int n)
+{
+  m_reactivation_avoidance.add(n);
 }
 
 
@@ -1594,12 +1603,6 @@ void pqxx::connection_base::read_capabilities() throw ()
 #ifdef PQXX_HAVE_PQFTABLECOL
   m_caps[cap_table_column] = (p >= 3);
 #endif
-}
-
-
-void pqxx::connection_base::set_capability(capability c) throw ()
-{
-  m_caps[c] = true;
 }
 
 
