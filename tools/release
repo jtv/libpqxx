@@ -1,15 +1,23 @@
 #! /bin/bash
 # Release current libpqxx trunk (or other branch).
-# Arguments:
-#   <new version number> [parent]
 #
-# The parent branch defaults to "trunk."
+# Use this after a successful preprelease run in the parent series.
+#
+# Arguments:
+#   <next version number> [parent]
+#
+# The next version number is the one for a future release in the parent series,
+# not the version that's being released now.  So if you're releasing x.y.0, that
+# would be x.y+1.0.  If you're releasing some other x.y.z, it's x.y.z+1.
+#
+# The parent branch defaults to "trunk."  For x.y.z releases (where z > 0), use
+# branches/x.y.
 set -e
 
 NEWVERSION="$1"
-if test -z "$NEWVERSION"
+if test -z "$NEXTVERSION"
 then
-	echo "Usage: $0 <new-version>" >&2
+	echo "Usage: $0 <next-version>" >&2
 	exit 1
 fi
 
@@ -35,39 +43,41 @@ pushd "$PARENT" >/dev/null
 PQXXVERSION="`extract_version`"
 popd >/dev/null
 
-if test "$PQXXVERSION" = "$NEWVERSION"
+if test "$PQXXVERSION" = "$NEXTVERSION"
 then
-	echo "Given new version is same as existing version." >&2
+	cat <<EOF >&2
+The given "next version" is the same as the existing version in
+$PARENT/PQXXVERSION.  Instead, give the next version for a future
+release in the same series.
+EOF
 	exit 2
 fi
 
 RELEASEDATE="`date +'%a, %d %b %y %T %z'`"
 
+
 echo "** Updating source tree **"
 svn cp "$PARENT" "tags/$PQXXVERSION"
 
-# Mark new trunk in debian/changelog
-TEMPCHANGELOG="`mktemp`"
-cat - <<EOF "$PARENT"/debian/changelog >"$TEMPCHANGELOG"
-libpqxx ($NEWVERSION-1) unstable; urgency=medium
+
+# Mark new trunk in debian/changelog.
+cat - <<EOF "tags/$PQXXVERSION"/debian/changelog >"$PARENT"/debian/changelog
+libpqxx ($NEXTVERSION-1) unstable; urgency=medium
 
   * Forked release $PQXXVERSION.
 
  -- Jeroen T. Vermeulen <jtv@xs4all.nl>  $RELEASEDATE
 
 EOF
-mv "$TEMPCHANGELOG" "$PARENT"/debian/changelog
 
-# Mark new version in NEWS
-TEMPNEWS="`mktemp`"
-cat - <<EOF "$PARENT/NEWS" >"$TEMPNEWS"
-$NEWVERSION
+# Mark next version in NEWS.
+cat - <<EOF "$tags/$PQXXVERSION/NEWS" >"$PARENT/NEWS"
+$NEXTVERSION
 EOF
-mv "$TEMPNEWS" "$PARENT"/NEWS
 
-echo "PQXX_VERSION	$NEWVERSION" >"$PARENT"/VERSION
+echo "PQXX_VERSION	$NEXTVERSION" >"$PARENT"/VERSION
 
-svn commit -m "Forking release $PQXXVERSION, moving on to $NEWVERSION."
+svn commit -m "Forking release $PQXXVERSION, moving on to $NEXTVERSION."
 cd /tmp
 rm -rf -- "$CHECKOUT"
 
