@@ -1,3 +1,8 @@
+2009-06-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, src/connection_base.cxx:
+ - New capability for prepared-statement varargs.
+ test/unit/test_prepared_statement.cxx:
+ - Skip varargs test in environments that don't support the feature.
 2009-06-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in, include/pqxx/compiler-public.hxx:
  - Check for BOOST smart_ptr header, include it if available.
