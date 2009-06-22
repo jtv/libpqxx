@@ -39,7 +39,7 @@ export TMPDIR
 LOGFILE="$TMPDIR/libpqxx-preprelease.log"
 ERRLOG="$TMPDIR/libpqxx-preprelease.err"
 
-DEFAULTCOMPILERS="g++-3.0 g++-3.3 g++-3.4 g++-4.0 g++-4.1"
+DEFAULTCOMPILERS=/usr/bin/g++-[1-9]*
 
 
 if test -z "$CONCURRENCY_LEVEL" ; then
@@ -94,7 +94,7 @@ run_test () {
 		log "********* Testing with $1 *********"
 
 		# Skip documentation build: we tested that the first time around
-		touch doc/reference-stamp doc/tutorial-stamp &
+		touch doc/reference-stamp doc/tutorial-stamp
 
 		log "Configuring"
 		command "./configure $CONFIG_ARGS $COMPILEROPT" nice
@@ -105,7 +105,7 @@ run_test () {
 		log "Running regression test"
 		command "make -j $CONCURRENCY_LEVEL check" nice
 		grep '^FAIL:' $LOGFILE 2>>$ERRLOG || true
-		grep '^All [0-9]* tests passed' $LOGFILE
+		grep '^A*l* *[0-9]* tests* passed$' $LOGFILE
 	else
 		log "********* Skipping $1      *********"
 	fi
@@ -211,7 +211,7 @@ TARBALL=$DISTNAME.tar.gz
 log "Cleaning up old documentation"
 # Re-generating the reference docs every time just takes too much time...  Just
 # remember to clean them out every once in a while.
-#command "rm -f -- doc/html/Reference/*"
+command "rm -f -- doc/html/Reference/*"
 command "rm -f -- doc/html/Tutorial/*"
 command "rm -f -- doc/reference-stamp doc/tutorial-stamp"
 
@@ -221,18 +221,17 @@ command "env NOCONFIGURE=1 ./autogen.sh" nice
 log "Configuring for make dist"
 command "./configure $CONFIGDIST_ARGS" nice
 
+log "Preparing documentation"
+command "make doc" nice
+
 log "Creating $TARBALL"
 command "make dist" nice
-
-command "rm -f -- $TMPDIR/$TARBALL"
-command "mv -- $TARBALL $TMPDIR"
 
 command "cd $TMPDIR"
 command "rm -rf -- $DISTNAME"
 
 log "Extracting $TARBALL in $TMPDIR"
-command "tar xzf $TARBALL"
-command "rm -- $TARBALL"
+command "tar xzf $SOURCEDIR/$TARBALL"
 command "cd $DISTNAME"
 
 for compiler in $COMPILERS ; do
@@ -244,23 +243,20 @@ log "Generating symbol table"
 mkdir -p "$SOURCEDIR/lib"
 nm --demangle src/.libs/libpqxx.a | cut -d' ' -f 3-  | grep -v '^_' | grep -v '^$' | grep -i '^pqxx' | sort -u -o "$SOURCEDIR/lib/SYMBOLS.$PQXXVERSION"
 
-log "Creating release version of $TARBALL"
-command "make dist" nice
-
 require_product doc/html/Reference/index.html
 require_product doc/html/Tutorial/index.html
 
-command "mv -- $TARBALL .."
 command "cd .."
-# Can't use "command" function here--breaks redirection:
-nice md5sum -b $TARBALL >"$TARBALL.md5sum"
 command "rm -rf -- $DISTNAME"
+
+# Can't use "command" function here--breaks redirection:
+nice md5sum -b "$SOURCEDIR/$TARBALL" >"$SOURCEDIR/$TARBALL.md5sum"
+
+log "Finished.  Release tarball is $SOURCEDIR/$TARBALL"
 
 set +e
 nice vacuumdb >/dev/null 2>&1 &
 
-log "Finished.  Release tarball is $TMPDIR/$TARBALL"
-
 # Give output time to catch up with command prompt
 sleep 2
-
+echo
