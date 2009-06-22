@@ -1,4 +1,9 @@
 2009-06-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/preprelease:
+ - Don't build tarball again.
+ - Deal with changed "make check" output.
+ - Clean up and rebuild reference documentation.
+2009-06-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx,
  include/pqxx/internal/connection-dbtransaction-gate.hxx,
  include/pqxx/internal/connection-largeobject-gate.hxx, 
