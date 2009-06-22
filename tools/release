@@ -14,7 +14,7 @@
 # branches/x.y.
 set -e
 
-NEWVERSION="$1"
+NEXTVERSION="$1"
 if test -z "$NEXTVERSION"
 then
 	echo "Usage: $0 <next-version> [parent]" >&2
