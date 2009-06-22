@@ -17,7 +17,7 @@ set -e
 NEWVERSION="$1"
 if test -z "$NEXTVERSION"
 then
-	echo "Usage: $0 <next-version>" >&2
+	echo "Usage: $0 <next-version> [parent]" >&2
 	exit 1
 fi
 
