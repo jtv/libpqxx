@@ -262,7 +262,7 @@ public:
      *
      * @param ColNum a zero-based column number in this result set
      * @return a zero-based column number in originating table
-     * 
+     *
      * Requires libpq from PostgreSQL 7.4 or better, as well as a server version
      * of at least 7.4.
      */
