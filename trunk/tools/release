@@ -23,6 +23,7 @@ fi
 
 PARENT="$2"
 if test -z "$PARENT"
+then
 	PARENT="trunk"
 fi
 
@@ -71,7 +72,7 @@ libpqxx ($NEXTVERSION-1) unstable; urgency=medium
 EOF
 
 # Mark next version in NEWS.
-cat - <<EOF "$tags/$PQXXVERSION/NEWS" >"$PARENT/NEWS"
+cat - <<EOF "tags/$PQXXVERSION/NEWS" >"$PARENT/NEWS"
 $NEXTVERSION
 EOF
 
