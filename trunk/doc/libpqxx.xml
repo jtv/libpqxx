@@ -992,7 +992,7 @@
       <programlisting>
 	void DeleteEntry(work &amp;T, string Table, long ID)
 	{
-	T.exec("DELETE FROM " + Table + " WHERE ID=" + ID);
+	T.exec("DELETE FROM " + Table + " WHERE ID=" + to_string(ID));
 	}
       </programlisting>
 

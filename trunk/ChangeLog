@@ -1,3 +1,7 @@
+2009-06-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/libpqxx.xml:
+ - Fixed mistake in tutorial example.  Thanks Patrick Daryll Glandien.
+ - Closes #187.
 2009-06-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/preprelease:
  - Don't build tarball again.
