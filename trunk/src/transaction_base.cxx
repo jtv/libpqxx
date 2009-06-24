@@ -45,7 +45,8 @@ pqxx::transaction_base::transaction_base(connection_base &C, bool direct) :
 {
   if (direct)
   {
-    connection_transaction_gate(conn()).RegisterTransaction(this);
+    connection_transaction_gate gate(conn());
+    gate.RegisterTransaction(this);
     m_Registered = true;
   }
 }
