@@ -431,10 +431,17 @@ protected:
   virtual pos_type seekoff(off_type offset,
 			   seekdir dir,
 			   openmode)
-	{ return AdjustEOF(m_Obj.cseek(offset, dir)); }
+  {
+    return AdjustEOF(m_Obj.cseek(largeobjectaccess::off_type(offset), dir));
+  }
 
   virtual pos_type seekpos(pos_type pos, openmode)
-	{ return AdjustEOF(m_Obj.cseek(pos, PGSTD::ios::beg)); }
+  {
+    const largeobjectaccess::pos_type newpos = m_Obj.cseek(
+	largeobjectaccess::off_type(pos),
+	PGSTD::ios::beg);
+    return AdjustEOF(newpos);
+  }
 
   virtual int_type overflow(int_type ch = EoF())
   {
