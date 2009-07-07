@@ -1,4 +1,6 @@
 2009-07-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/Doxyfile.in:
+ - Don't generate huge HTML versions of source, thanks Eugene V. Lyubimkin.
  include/pqxx/result.hxx, include/pqxx/util.hxx src/connection_base.cxx,
  src/util.cxx:
  - Clean up deleter handling in PQAlloc, thanks Kirit Saelensminde.
