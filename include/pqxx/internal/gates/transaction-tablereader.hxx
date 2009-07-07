@@ -2,8 +2,6 @@
 
 namespace pqxx
 {
-class tablereader;
-
 namespace internal
 {
 namespace gate

@@ -2,8 +2,6 @@
 
 namespace pqxx
 {
-class connection_base;
-
 namespace internal
 {
 namespace gate

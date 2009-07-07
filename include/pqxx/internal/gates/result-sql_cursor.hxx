@@ -4,8 +4,6 @@ namespace pqxx
 {
 namespace internal
 {
-class sql_cursor;
-
 namespace gate
 {
 class PQXX_PRIVATE result_sql_cursor : callgate<const result>

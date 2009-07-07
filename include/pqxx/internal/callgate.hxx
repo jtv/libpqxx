@@ -1,6 +1,30 @@
 #ifndef PQXX_H_CALLGATE
 #define PQXX_H_CALLGATE
 
+/*
+Here's what a typical gate class definition looks like:
+
+#include <pqxx/internal/callgate.hxx>
+
+namespace pqxx
+{
+namespace internal
+{
+namespace gate
+{
+class PQXX_PRIVATE @gateclass@ : callgate<@host@>
+{
+  friend class @client@;
+
+  @gateclass@(reference x) : super(x) {}
+
+  // Methods here.  Use home() to access the host-class object.
+};
+} // namespace pqxx::internal::gate
+} // namespace pqxx::internal
+} // namespace pqxx
+*/
+
 namespace pqxx
 {
 namespace internal

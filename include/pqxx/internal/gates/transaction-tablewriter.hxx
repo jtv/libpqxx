@@ -2,8 +2,6 @@
 
 namespace pqxx
 {
-class tablewriter;
-
 namespace internal
 {
 namespace gate
