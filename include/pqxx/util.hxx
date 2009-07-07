@@ -516,7 +516,7 @@ private:
  * each of these operations is protected against concurrency with similar
  * operations on the same object--or other copies of the same object.
  */
-template<typename T> class PQAlloc
+template<typename T, void (*DELETER)(T *) = freepqmem_templated> class PQAlloc
 {
   T *m_Obj;
   mutable refcount m_rc;
@@ -582,7 +582,7 @@ private:
   /// Free and reset current pointer (if any)
   void loseref() throw ()
   {
-    if (m_rc.loseref() && m_Obj) freemem(m_Obj);
+    if (m_rc.loseref() && m_Obj) DELETER(m_Obj);
     m_Obj = 0;
   }
 
@@ -590,8 +590,6 @@ private:
 	{ if (rhs.m_Obj != m_Obj) { loseref(); makeref(rhs); } }
   void redoref(T *obj) throw ()
 	{ if (obj != m_Obj) { loseref(); makeref(obj); } }
-
-  void freemem(T *t) throw () { freepqmem(t); }
 };
 
 #endif // PQXX_HAVE_SHARED_PTR
