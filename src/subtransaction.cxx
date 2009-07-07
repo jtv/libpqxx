@@ -22,7 +22,7 @@
 #include "pqxx/connection_base"
 #include "pqxx/subtransaction"
 
-#include "pqxx/internal/transaction-subtransaction-gate.hxx"
+#include "pqxx/internal/gates/transaction-subtransaction-gate.hxx"
 
 using namespace PGSTD;
 using namespace pqxx::internal;

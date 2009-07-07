@@ -25,8 +25,8 @@
 #include "pqxx/strconv"
 #include "pqxx/transaction"
 
-#include "pqxx/internal/connection-sql_cursor-gate.hxx"
-#include "pqxx/internal/result-sql_cursor-gate.hxx"
+#include "pqxx/internal/gates/connection-sql_cursor-gate.hxx"
+#include "pqxx/internal/gates/result-sql_cursor-gate.hxx"
 
 using namespace PGSTD;
 using namespace pqxx;

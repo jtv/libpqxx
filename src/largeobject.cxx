@@ -30,7 +30,7 @@
 
 #include "pqxx/largeobject"
 
-#include "pqxx/internal/connection-largeobject-gate.hxx"
+#include "pqxx/internal/gates/connection-largeobject-gate.hxx"
 
 using namespace PGSTD;
 using namespace pqxx::internal;

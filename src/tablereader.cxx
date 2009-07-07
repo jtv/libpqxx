@@ -20,7 +20,7 @@
 #include "pqxx/tablereader"
 #include "pqxx/transaction"
 
-#include "pqxx/internal/transaction-tablereader-gate.hxx"
+#include "pqxx/internal/gates/transaction-tablereader-gate.hxx"
 
 using namespace PGSTD;
 using namespace pqxx::internal;
