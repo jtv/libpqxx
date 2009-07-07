@@ -270,7 +270,7 @@ const char *strerror_r_result(const char gnu_return[], char[], size_t) throw ()
 }
 
 
-const char *pqxx::internal::strerror_wrapper(int err, char buf[], size_t len)
+cstring pqxx::internal::strerror_wrapper(int err, char buf[], PGSTD::size_t len)
 	throw ()
 {
   if (!buf || len <= 0) return "No buffer provided for error message!";

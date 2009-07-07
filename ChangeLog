@@ -1,4 +1,7 @@
 2009-07-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/Doxyfile.in, src/util.cxx:
+ - Make Doxygen see through some cpp macros and such that get in the way.
+ - Removed obsolete Doxygen directive DETAILS_AT_TOP.
  src/transaction_base.cxx:
  - gcc 3.3 stumbles over foo_gate(bar).splat()
 2009-07-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
