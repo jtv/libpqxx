@@ -356,6 +356,7 @@ namespace internal
 {
 namespace gate
 {
+class icursor_iterator_icursorstream;
 class icursorstream_icursor_iterator;
 } // namespace internal::gate
 } // namespace internal
@@ -549,7 +550,7 @@ public:
 private:
   void refresh() const;
 
-  friend class icursorstream;
+  friend class internal::gate::icursor_iterator_icursorstream;
   difference_type pos() const throw () { return m_pos; }
   void fill(const result &);
 
