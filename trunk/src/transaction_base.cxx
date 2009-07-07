@@ -66,7 +66,8 @@ pqxx::transaction_base::~transaction_base()
     if (m_Registered)
     {
       m_Conn.process_notice(description() + " was never closed properly!\n");
-      connection_transaction_gate(conn()).UnregisterTransaction(this);
+      connection_transaction_gate gate(conn());
+      gate.UnregisterTransaction(this);
     }
   }
   catch (const exception &e)
@@ -152,7 +153,8 @@ void pqxx::transaction_base::commit()
     throw;
   }
 
-  connection_transaction_gate(conn()).AddVariables(m_Vars);
+  connection_transaction_gate gate(conn());
+  gate.AddVariables(m_Vars);
 
   End();
 }
@@ -273,7 +275,8 @@ void pqxx::transaction_base::set_variable(const PGSTD::string &Var,
                                           const PGSTD::string &Value)
 {
   // Before committing to this new value, see what the backend thinks about it
-  connection_transaction_gate(conn()).RawSetVar(Var, Value);
+  connection_transaction_gate gate(conn());
+  gate.RawSetVar(Var, Value);
   m_Vars[Var] = Value;
 }
 
@@ -319,7 +322,8 @@ void pqxx::transaction_base::End() throw ()
     if (m_Registered)
     {
       m_Registered = false;
-      connection_transaction_gate(conn()).UnregisterTransaction(this);
+      connection_transaction_gate gate(conn());
+      gate.UnregisterTransaction(this);
     }
 
     if (m_Status != st_active) return;
@@ -332,8 +336,8 @@ void pqxx::transaction_base::End() throw ()
     try { abort(); }
     catch (const exception &e) { m_Conn.process_notice(e.what()); }
 
-    connection_transaction_gate(conn()).take_reactivation_avoidance(
-	m_reactivation_avoidance.get());
+    connection_transaction_gate gate(conn());
+    gate.take_reactivation_avoidance(m_reactivation_avoidance.get());
     m_reactivation_avoidance.clear();
   }
   catch (const exception &e)
@@ -445,26 +449,30 @@ bool pqxx::transaction_base::ReadCopyLine(PGSTD::string &line)
 
 void pqxx::transaction_base::WriteCopyLine(const PGSTD::string &line)
 {
-  connection_transaction_gate(conn()).WriteCopyLine(line);
+  connection_transaction_gate gate(conn());
+  gate.WriteCopyLine(line);
 }
 
 
 void pqxx::transaction_base::EndCopyWrite()
 {
-  connection_transaction_gate(conn()).EndCopyWrite();
+  connection_transaction_gate gate(conn());
+  gate.EndCopyWrite();
 }
 
 
 void pqxx::internal::transactionfocus::register_me()
 {
-  transaction_transactionfocus_gate(m_Trans).RegisterFocus(this);
+  transaction_transactionfocus_gate gate(m_Trans);
+  gate.RegisterFocus(this);
   m_registered = true;
 }
 
 
 void pqxx::internal::transactionfocus::unregister_me() throw ()
 {
-  transaction_transactionfocus_gate(m_Trans).UnregisterFocus(this);
+  transaction_transactionfocus_gate gate(m_Trans);
+  gate.UnregisterFocus(this);
   m_registered = false;
 }
 
@@ -472,7 +480,6 @@ void
 pqxx::internal::transactionfocus::reg_pending_error(const PGSTD::string &err)
 	throw ()
 {
-  transaction_transactionfocus_gate(m_Trans).RegisterPendingError(err);
+  transaction_transactionfocus_gate gate(m_Trans);
+  gate.RegisterPendingError(err);
 }
-
-
