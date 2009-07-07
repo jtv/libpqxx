@@ -1,3 +1,8 @@
+2009-07-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result.hxx, include/pqxx/util.hxx src/connection_base.cxx,
+ src/util.cxx:
+ - Clean up deleter handling in PQAlloc, thanks Kirit Saelensminde.
+ - Should fix a case of mismatched allocation/deallocation.
 2009-07-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/largeobject.hxx:
  - Fixed compile warnings on some 32-bit configurations.

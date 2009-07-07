@@ -107,17 +107,6 @@ pqxx::thread_safety_model pqxx::describe_thread_safety() throw ()
 }
 
 
-void pqxx::internal::freemem_notif(const pqxx::internal::pq::PGnotify *p)
-  throw ()
-{
-#ifdef PQXX_HAVE_PQFREENOTIFY
-  PQfreeNotify(const_cast<pqxx::internal::pq::PGnotify *>(p));
-#else
-  freepqmem(p);
-#endif
-}
-
-
 #ifndef PQXX_HAVE_SHARED_PTR
 pqxx::internal::refcount::refcount() :
   m_l(this),

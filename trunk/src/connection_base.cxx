@@ -702,6 +702,19 @@ void pqxx::connection_base::cancel_query()
 }
 
 
+namespace
+{
+void freemem_notif(PGnotify *p) throw ()
+{
+#ifdef PQXX_HAVE_PQFREENOTIFY
+  PQfreeNotify(p);
+#else
+  freepqmem(p);
+#endif
+}
+} // namespace
+
+
 int pqxx::connection_base::get_notifs()
 {
   int notifs = 0;
@@ -713,7 +726,7 @@ int pqxx::connection_base::get_notifs()
   // deliver them.
   if (m_Trans.get()) return notifs;
 
-  typedef PQAlloc<PGnotify> notifptr;
+  typedef PQAlloc<PGnotify, freemem_notif> notifptr;
   for (notifptr N( PQnotifies(m_Conn) );
        N.get();
        N = notifptr(PQnotifies(m_Conn)))
