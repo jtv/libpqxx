@@ -73,9 +73,6 @@ struct PQXX_PRIVATE result_data
 };
 
 void PQXX_LIBEXPORT freemem_result_data(const result_data *) throw ();
-template<> inline
-void PQAlloc<const result_data>::freemem(const result_data *t) throw ()
-	{ freemem_result_data(t); }
 } // namespace internal
 
 
@@ -109,9 +106,11 @@ class result_sql_cursor_gate;
  * object!
  */
 class PQXX_LIBEXPORT result :
-  private internal::PQAlloc<const internal::result_data>
+  private internal::PQAlloc<
+	const internal::result_data, internal::freemem_result_data>
 {
-  typedef internal::PQAlloc<const internal::result_data> super;
+  typedef internal::PQAlloc<
+	const internal::result_data, internal::freemem_result_data> super;
 public:
   class const_iterator;
   class const_fielditerator;

@@ -452,18 +452,20 @@ typedef long result_difference_type;
 namespace internal
 {
 void PQXX_LIBEXPORT freepqmem(const void *);
+template<typename P> inline void freepqmem_templated(P *p) { freepqmem(p); }
 
 
 #ifdef PQXX_HAVE_SHARED_PTR
 
 /// Reference-counted smart pointer to libpq-allocated object
-template<typename T> class PQAlloc : protected PQXXTR1::shared_ptr<T>
+template<typename T, void (*DELETER)(T *) = freepqmem_templated<T> >
+  class PQAlloc : protected PQXXTR1::shared_ptr<T>
 {
   typedef PQXXTR1::shared_ptr<T> super;
 public:
   typedef T content_type;
   PQAlloc() : super() {}
-  explicit PQAlloc(T *t) : super(t, PQAlloc::freemem) {}
+  explicit PQAlloc(T *t) : super(t, DELETER) {}
 
   using super::get;
   using super::operator=;
@@ -471,9 +473,6 @@ public:
   using super::operator*;
   using super::reset;
   using super::swap;
-
-private:
-  static void freemem(T *t) throw () { freepqmem(t); }
 };
 
 #else // !PQXX_HAVE_SHARED_PTR
@@ -596,12 +595,6 @@ private:
 };
 
 #endif // PQXX_HAVE_SHARED_PTR
-
-
-void PQXX_LIBEXPORT freemem_notif(const pq::PGnotify *) throw ();
-template<>
-inline void PQAlloc<const pq::PGnotify>::freemem(const pq::PGnotify *t) throw ()
-	{ freemem_notif(t); }
 
 
 template<typename T> class scoped_array
