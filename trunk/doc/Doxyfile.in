@@ -155,13 +155,6 @@ QT_AUTOBRIEF           = NO
 
 MULTILINE_CPP_IS_BRIEF = NO
 
-# If the DETAILS_AT_TOP tag is set to YES then Doxygen 
-# will output the detailed description near the top, like JavaDoc.
-# If set to NO, the detailed description appears after the member 
-# documentation.
-
-DETAILS_AT_TOP         = NO
-
 # If the INHERIT_DOCS tag is set to YES (the default) then an undocumented 
 # member inherits the documentation from any documented member that it 
 # re-implements.
@@ -1047,13 +1040,13 @@ ENABLE_PREPROCESSING   = YES
 # compilation will be performed. Macro expansion can be done in a controlled 
 # way by setting EXPAND_ONLY_PREDEF to YES.
 
-MACRO_EXPANSION        = NO
+MACRO_EXPANSION        = YES
 
 # If the EXPAND_ONLY_PREDEF and MACRO_EXPANSION tags are both set to YES 
 # then the macro expansion is limited to the macros specified with the 
 # PREDEFINED and EXPAND_AS_DEFINED tags.
 
-EXPAND_ONLY_PREDEF     = NO
+EXPAND_ONLY_PREDEF     = YES
 
 # If the SEARCH_INCLUDES tag is set to YES (the default) the includes files 
 # in the INCLUDE_PATH (see below) will be search if a #include is found.
@@ -1082,8 +1075,15 @@ INCLUDE_FILE_PATTERNS  =
 # instead of the = operator.
 
 PREDEFINED             = PGSTD=std \
+                         PQXX_ABI="@PQXX_ABI@" \
+                         PQXX_DEPRECATED= \
                          PQXX_LIBEXPORT= \
-                         PQXX_PRIVATE=
+                         PQXX_NOVTABLE= \
+                         PQXX_PRIVATE= \
+                         PQXX_TYPENAME=typename \
+                         PQXX_VERSION="@PQXXVERSION@" \
+                         PQXX_MAJOR=@PQXX_MAJOR@ \
+                         PQXX_MINOR=@PQXX_MINOR@
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
 # this tag can be used to specify a list of macro names that should be expanded. 
