@@ -1582,10 +1582,11 @@ void pqxx::connection_base::read_capabilities() throw ()
   {
     // Estimate server version by querying 'version()'.  This may not be exact!
     const string VQ = "SELECT version()";
-    const result r(PQexec(m_Conn, VQ.c_str()),
-		protocol_version(),
-		VQ,
-		encoding_code());
+    const result r = result_creation_gate::create(
+	PQexec(m_Conn, VQ.c_str()),
+	protocol_version(),
+	VQ,
+	encoding_code());
 
     int x=0, y=0, z=0;
     if ((sscanf(r[0][0].c_str(), "PostgreSQL %d.%d.%d", &x, &y, &z) == 3) &&
@@ -1604,8 +1605,13 @@ void pqxx::connection_base::read_capabilities() throw ()
   	p = protocol_version();
 
   m_caps[cap_prepared_statements] = (v >= 70300);
-  m_caps[cap_statement_varargs] = 
-	(v >= 70300 && PQXX_HAVE_PQPREPARE && (p >= 3));
+
+#ifdef PQXX_HAVE_PQPREPARE
+  m_caps[cap_statement_varargs] = (v >= 70300 && (p >= 3));
+#else
+  m_caps[cap_statement_varargs] = false;
+#endif
+
   m_caps[cap_cursor_scroll] = (v >= 70400);
   m_caps[cap_cursor_with_hold] = (v >= 70400);
   m_caps[cap_cursor_fetch_0] = (v >= 70400);
