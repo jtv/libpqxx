@@ -25,4 +25,8 @@
 
 /// Minor version number for this libpqxx release.
 #define PQXX_VERSION_MINOR @PQXX_MINOR@
+
+/// Library ABI version.
+#define PQXX_ABI "@PQXX_ABI@"
+
 #endif
