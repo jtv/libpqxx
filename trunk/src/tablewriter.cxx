@@ -21,7 +21,7 @@
 #include "pqxx/tablewriter"
 #include "pqxx/transaction"
 
-#include "pqxx/internal/transaction-tablewriter-gate.hxx"
+#include "pqxx/internal/gates/transaction-tablewriter-gate.hxx"
 
 using namespace PGSTD;
 using namespace pqxx::internal;

@@ -26,8 +26,8 @@
 #include "pqxx/tablestream"
 #include "pqxx/transaction_base"
 
-#include "pqxx/internal/connection-transaction-gate.hxx"
-#include "pqxx/internal/transaction-transactionfocus-gate.hxx"
+#include "pqxx/internal/gates/connection-transaction-gate.hxx"
+#include "pqxx/internal/gates/transaction-transactionfocus-gate.hxx"
 
 
 using namespace PGSTD;

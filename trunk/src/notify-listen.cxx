@@ -19,7 +19,7 @@
 
 #include "pqxx/notify-listen"
 
-#include "pqxx/internal/connection-notify-listener-gate.hxx"
+#include "pqxx/internal/gates/connection-notify-listener-gate.hxx"
 
 using namespace pqxx::internal;
 

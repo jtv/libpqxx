@@ -22,8 +22,8 @@
 #include "pqxx/result"
 #include "pqxx/transaction_base"
 
-#include "pqxx/internal/connection-prepare-declaration-gate.hxx"
-#include "pqxx/internal/connection-prepare-invocation-gate.hxx"
+#include "pqxx/internal/gates/connection-prepare-declaration-gate.hxx"
+#include "pqxx/internal/gates/connection-prepare-invocation-gate.hxx"
 
 
 using namespace PGSTD;

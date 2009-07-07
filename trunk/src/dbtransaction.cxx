@@ -19,7 +19,7 @@
 
 #include "pqxx/dbtransaction"
 
-#include "pqxx/internal/connection-dbtransaction-gate.hxx"
+#include "pqxx/internal/gates/connection-dbtransaction-gate.hxx"
 
 using namespace PGSTD;
 using namespace pqxx::internal;

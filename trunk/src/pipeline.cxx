@@ -20,8 +20,8 @@
 #include "pqxx/dbtransaction"
 #include "pqxx/pipeline"
 
-#include "pqxx/internal/connection-pipeline-gate.hxx"
-#include "pqxx/internal/result-creation-gate.hxx"
+#include "pqxx/internal/gates/connection-pipeline-gate.hxx"
+#include "pqxx/internal/gates/result-creation-gate.hxx"
 
 
 using namespace PGSTD;

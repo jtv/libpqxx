@@ -53,8 +53,8 @@
 #include "pqxx/transaction"
 #include "pqxx/notify-listen"
 
-#include "pqxx/internal/result-creation-gate.hxx"
-#include "pqxx/internal/result-connection-gate.hxx"
+#include "pqxx/internal/gates/result-creation-gate.hxx"
+#include "pqxx/internal/gates/result-connection-gate.hxx"
 
 using namespace PGSTD;
 using namespace pqxx;
