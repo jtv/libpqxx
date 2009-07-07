@@ -38,8 +38,10 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/gates/connection-pipeline.hxx \
 	pqxx/internal/gates/connection-prepare-declaration.hxx \
 	pqxx/internal/gates/connection-prepare-invocation.hxx \
+	pqxx/internal/gates/connection-reactivation_avoidance_exemption.hxx \
 	pqxx/internal/gates/connection-sql_cursor.hxx \
 	pqxx/internal/gates/connection-transaction.hxx \
+	pqxx/internal/gates/icursorstream-icursor_iterator.hxx \
 	pqxx/internal/gates/result-connection.hxx \
 	pqxx/internal/gates/result-creation.hxx \
 	pqxx/internal/gates/result-sql_cursor.hxx \

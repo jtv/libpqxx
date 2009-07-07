@@ -8,7 +8,7 @@
  *   C++-style wrappers for SQL cursors
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/pipeline instead.
  *
- * Copyright (c) 2004-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -351,6 +351,16 @@ private:
 
 class icursor_iterator;
 
+
+namespace internal
+{
+namespace gate
+{
+class icursorstream_icursor_iterator;
+} // namespace internal::gate
+} // namespace internal
+
+
 /// Simple read-only cursor represented as a stream of results
 /** SQL cursors can be tricky, especially in C++ since the two languages seem to
  * have been designed on different planets.  An SQL cursor has two singular
@@ -456,7 +466,7 @@ public:
 private:
   result fetchblock();
 
-  friend class icursor_iterator;
+  friend class internal::gate::icursorstream_icursor_iterator;
   size_type forward(size_type n=1);
   void insert_iterator(icursor_iterator *) throw ();
   void remove_iterator(icursor_iterator *) const throw ();
