@@ -4,8 +4,6 @@ namespace pqxx
 {
 namespace internal
 {
-class transactionfocus;
-
 namespace gate
 {
 class PQXX_PRIVATE transaction_transactionfocus : callgate<transaction_base>

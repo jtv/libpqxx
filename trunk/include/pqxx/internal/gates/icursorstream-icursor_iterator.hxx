@@ -2,8 +2,6 @@
 
 namespace pqxx
 {
-class icursor_iterator;
-
 namespace internal
 {
 namespace gate

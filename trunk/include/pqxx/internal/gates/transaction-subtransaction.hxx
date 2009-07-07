@@ -2,8 +2,6 @@
 
 namespace pqxx
 {
-class subtransaction;
-
 namespace internal
 {
 namespace gate

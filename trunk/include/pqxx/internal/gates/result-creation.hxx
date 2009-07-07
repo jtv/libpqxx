@@ -2,9 +2,6 @@
 
 namespace pqxx
 {
-class connection_base;
-class pipeline;
-
 namespace internal
 {
 namespace gate
