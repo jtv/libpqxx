@@ -838,11 +838,22 @@ pqxx::prepare::declaration pqxx::connection_base::prepare(
   PSMap::iterator i = m_prepared.find(name);
   if (i != m_prepared.end())
   {
-    if (name != string() && definition != i->second.definition)
-      throw argument_error("Inconsistent redefinition "
-	  "of prepared statement " + name);
+    if (definition != i->second.definition)
+    {
+      if (name != string())
+        throw argument_error(
+		"Inconsistent redefinition of prepared statement " + name);
 
-    // Prepare for repeated definition of parameters
+      if (!supports(cap_prepare_unnamed_statement))
+        throw feature_not_supported(
+		"Defining unnamed prepared statements requires a newer "
+		"libpq version.");
+
+      i->second.registered = false;
+      i->second.definition = definition;
+    }
+
+    // Prepare for new definition of parameters
     i->second.parameters.clear();
     i->second.varargs = false;
     i->second.complete = false;
@@ -852,7 +863,7 @@ pqxx::prepare::declaration pqxx::connection_base::prepare(
     m_prepared.insert(make_pair(name,
 	  prepare::internal::prepared_def(definition)));
   }
-  return prepare::declaration(*this,name);
+  return prepare::declaration(*this, name);
 }
 
 
@@ -1608,8 +1619,10 @@ void pqxx::connection_base::read_capabilities() throw ()
 
 #ifdef PQXX_HAVE_PQPREPARE
   m_caps[cap_statement_varargs] = (v >= 70300 && (p >= 3));
+  m_caps[cap_prepare_unnamed_statement] = true;
 #else
   m_caps[cap_statement_varargs] = false;
+  m_caps[cap_prepare_unnamed_statement] = false;
 #endif
 
   m_caps[cap_cursor_scroll] = (v >= 70400);

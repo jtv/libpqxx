@@ -412,6 +412,9 @@ public:
     /// Do prepared statements support varargs?
     cap_statement_varargs,
 
+    /// Is the unnamed prepared statement supported?
+    cap_prepare_unnamed_statement,
+
     /// Not a capability value; end-of-enumeration marker
     cap_end
   };

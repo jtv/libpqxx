@@ -250,15 +250,19 @@ void test_prepared_statement(connection_base &C, transaction_base &T)
 	"Bad answer from varargs statement.");
   }
 
-  // Test unnamed prepared statement.
-  C.prepare("SELECT 2*$1")("integer");
-  int outcome = T.prepared()(9).exec()[0][0].as<int>();
-  PQXX_CHECK_EQUAL(outcome, 18, "Unnamed prepared statement went mad.");
+  if (C.supports(connection_base::cap_prepare_unnamed_statement))
+  {
+    // Test unnamed prepared statement.
+    C.prepare("SELECT 2*$1")("integer");
+    int outcome = T.prepared()(9).exec()[0][0].as<int>();
+    PQXX_CHECK_EQUAL(outcome, 18, "Unnamed prepared statement went mad.");
 
-  // Redefine unnamed prepared statement.  Does not need to be unprepared first.
-  C.prepare("SELECT 2*$1 + $2")("integer")("integer");
-  //outcome = T.prepared()(9)(2).exec()[0][0].as<int>();
-  //PQXX_CHECK_EQUAL(outcome, 20, "Unnamed statement not properly redefined.");
+    // Redefine unnamed prepared statement.  Does not need to be unprepared
+    // first.
+    C.prepare("SELECT 2*$1 + $2")("integer")("integer");
+    outcome = T.prepared()(9)(2).exec()[0][0].as<int>();
+    PQXX_CHECK_EQUAL(outcome, 20, "Unnamed statement not properly redefined.");
+  }
 }
 } // namespace
 
