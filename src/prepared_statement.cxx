@@ -22,8 +22,8 @@
 #include "pqxx/result"
 #include "pqxx/transaction_base"
 
-#include "pqxx/internal/gates/connection-prepare-declaration-gate.hxx"
-#include "pqxx/internal/gates/connection-prepare-invocation-gate.hxx"
+#include "pqxx/internal/gates/connection-prepare-declaration.hxx"
+#include "pqxx/internal/gates/connection-prepare-invocation.hxx"
 
 
 using namespace PGSTD;
@@ -43,7 +43,7 @@ const pqxx::prepare::declaration &
 pqxx::prepare::declaration::operator()(const PGSTD::string &sqltype,
     param_treatment treatment) const
 {
-  connection_prepare_declaration_gate(m_home).prepare_param_declare(
+  gate::connection_prepare_declaration(m_home).prepare_param_declare(
 	m_statement,
 	sqltype,
 	treatment);
@@ -54,7 +54,7 @@ pqxx::prepare::declaration::operator()(const PGSTD::string &sqltype,
 const pqxx::prepare::declaration &
 pqxx::prepare::declaration::etc(param_treatment treatment) const
 {
-  connection_prepare_declaration_gate(m_home).prepare_param_declare_varargs(
+  gate::connection_prepare_declaration(m_home).prepare_param_declare_varargs(
 	m_statement,
 	treatment);
   return *this;
@@ -94,7 +94,7 @@ pqxx::result pqxx::prepare::invocation::exec() const
 
   ptrs[elts] = 0;
   lens[elts] = 0;
-  return connection_prepare_invocation_gate(m_home.conn()).prepared_exec(
+  return gate::connection_prepare_invocation(m_home.conn()).prepared_exec(
 	m_statement,
 	ptrs.get(),
 	lens.get(),
@@ -104,7 +104,7 @@ pqxx::result pqxx::prepare::invocation::exec() const
 
 bool pqxx::prepare::invocation::exists() const
 {
-  return connection_prepare_invocation_gate(m_home.conn()).prepared_exists(
+  return gate::connection_prepare_invocation(m_home.conn()).prepared_exists(
 	m_statement);
 }
 

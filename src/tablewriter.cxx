@@ -21,7 +21,7 @@
 #include "pqxx/tablewriter"
 #include "pqxx/transaction"
 
-#include "pqxx/internal/gates/transaction-tablewriter-gate.hxx"
+#include "pqxx/internal/gates/transaction-tablewriter.hxx"
 
 using namespace PGSTD;
 using namespace pqxx::internal;
@@ -57,7 +57,7 @@ void pqxx::tablewriter::setup(transaction_base &T,
     const PGSTD::string &WName,
     const PGSTD::string &Columns)
 {
-  transaction_tablewriter_gate(T).BeginCopyWrite(WName, Columns);
+  gate::transaction_tablewriter(T).BeginCopyWrite(WName, Columns);
   register_me();
 }
 
@@ -74,7 +74,7 @@ pqxx::tablewriter &pqxx::tablewriter::operator<<(pqxx::tablereader &R)
 void pqxx::tablewriter::write_raw_line(const PGSTD::string &Line)
 {
   const string::size_type len = Line.size();
-  transaction_tablewriter_gate(m_Trans).WriteCopyLine(
+  gate::transaction_tablewriter(m_Trans).WriteCopyLine(
 	(!len || Line[len-1] != '\n') ?
 	Line :
 	string(Line, 0, len-1));
@@ -94,7 +94,7 @@ void pqxx::tablewriter::writer_close()
     base_close();
     try
     {
-      transaction_tablewriter_gate(m_Trans).EndCopyWrite();
+      gate::transaction_tablewriter(m_Trans).EndCopyWrite();
     }
     catch (const exception &)
     {

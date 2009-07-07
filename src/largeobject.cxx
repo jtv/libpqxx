@@ -30,7 +30,7 @@
 
 #include "pqxx/largeobject"
 
-#include "pqxx/internal/gates/connection-largeobject-gate.hxx"
+#include "pqxx/internal/gates/connection-largeobject.hxx"
 
 using namespace PGSTD;
 using namespace pqxx::internal;
@@ -140,7 +140,7 @@ void pqxx::largeobject::remove(dbtransaction &T) const
 pqxx::internal::pq::PGconn *pqxx::largeobject::RawConnection(
 	const dbtransaction &T)
 {
-  return connection_largeobject_gate(T.conn()).RawConnection();
+  return gate::connection_largeobject(T.conn()).RawConnection();
 }
 
 

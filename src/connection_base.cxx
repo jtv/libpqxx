@@ -53,8 +53,8 @@
 #include "pqxx/transaction"
 #include "pqxx/notify-listen"
 
-#include "pqxx/internal/gates/result-creation-gate.hxx"
-#include "pqxx/internal/gates/result-connection-gate.hxx"
+#include "pqxx/internal/gates/result-creation.hxx"
+#include "pqxx/internal/gates/result-connection.hxx"
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -151,7 +151,7 @@ pqxx::result pqxx::connection_base::make_result(
 	const PGSTD::string &query,
 	int encoding)
 {
-  return result_creation_gate::create(rhs, protocol, query, encoding);
+  return gate::result_creation::create(rhs, protocol, query, encoding);
 }
 
 
@@ -361,7 +361,7 @@ void pqxx::connection_base::SetupState()
     const int encoding = encoding_code();
     do
       r = make_result(PQgetResult(m_Conn), proto, "[RECONNECT]", encoding);
-    while (result_connection_gate(r));
+    while (gate::result_connection(r));
   }
 
   m_Completed = true;
@@ -374,11 +374,11 @@ void pqxx::connection_base::check_result(const result &R)
   if (!is_open()) throw broken_connection();
 
   // A shame we can't quite detect out-of-memory to turn this into a bad_alloc!
-  if (!result_connection_gate(R)) throw failure(ErrMsg());
+  if (!gate::result_connection(R)) throw failure(ErrMsg());
 
   try
   {
-    result_creation_gate(R).CheckStatus();
+    gate::result_creation(R).CheckStatus();
   }
   catch (const exception &e)
   {
@@ -813,7 +813,7 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 	Query,
 	encoding_code());
 
-  while ((Retries > 0) && !result_connection_gate(R) && !is_open())
+  while ((Retries > 0) && !gate::result_connection(R) && !is_open())
   {
     Retries--;
     Reset();
@@ -1264,7 +1264,7 @@ bool pqxx::connection_base::ReadCopyLine(PGSTD::string &Line)
 
     case -1:
       for (result R(make_result(PQgetResult(m_Conn), proto, query, encoding));
-           result_connection_gate(R);
+           gate::result_connection(R);
 	   R=make_result(PQgetResult(m_Conn), proto, query, encoding))
 	check_result(R);
       Result = false;
@@ -1593,7 +1593,7 @@ void pqxx::connection_base::read_capabilities() throw ()
   {
     // Estimate server version by querying 'version()'.  This may not be exact!
     const string VQ = "SELECT version()";
-    const result r = result_creation_gate::create(
+    const result r = gate::result_creation::create(
 	PQexec(m_Conn, VQ.c_str()),
 	protocol_version(),
 	VQ,

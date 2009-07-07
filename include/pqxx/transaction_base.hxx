@@ -83,10 +83,13 @@ private:
 
 namespace internal
 {
-class transaction_subtransaction_gate;
-class transaction_tablereader_gate;
-class transaction_tablewriter_gate;
-class transaction_transactionfocus_gate;
+namespace gate
+{
+class transaction_subtransaction;
+class transaction_tablereader;
+class transaction_tablewriter;
+class transaction_transactionfocus;
+} // namespace internal::gate
 } // namespace internal
 
 
@@ -370,23 +373,23 @@ private:
   template<typename T> bool parm_is_null(T *p) const throw () { return !p; }
   template<typename T> bool parm_is_null(T) const throw () { return false; }
 
-  friend class pqxx::internal::transaction_transactionfocus_gate;
+  friend class pqxx::internal::gate::transaction_transactionfocus;
   void PQXX_PRIVATE RegisterFocus(internal::transactionfocus *);
   void PQXX_PRIVATE UnregisterFocus(internal::transactionfocus *) throw ();
   void PQXX_PRIVATE RegisterPendingError(const PGSTD::string &) throw ();
 
-  friend class pqxx::internal::transaction_tablereader_gate;
+  friend class pqxx::internal::gate::transaction_tablereader;
   void PQXX_PRIVATE BeginCopyRead(const PGSTD::string &, const PGSTD::string &);
   bool ReadCopyLine(PGSTD::string &);
 
-  friend class pqxx::internal::transaction_tablewriter_gate;
+  friend class pqxx::internal::gate::transaction_tablewriter;
   void PQXX_PRIVATE BeginCopyWrite(
 	const PGSTD::string &Table,
 	const PGSTD::string &Columns);
   void WriteCopyLine(const PGSTD::string &);
   void EndCopyWrite();
 
-  friend class pqxx::internal::transaction_subtransaction_gate;
+  friend class pqxx::internal::gate::transaction_subtransaction;
 
   connection_base &m_Conn;
 

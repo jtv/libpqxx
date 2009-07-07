@@ -20,7 +20,7 @@
 #include "pqxx/tablereader"
 #include "pqxx/transaction"
 
-#include "pqxx/internal/gates/transaction-tablereader-gate.hxx"
+#include "pqxx/internal/gates/transaction-tablereader.hxx"
 
 using namespace PGSTD;
 using namespace pqxx::internal;
@@ -40,7 +40,7 @@ void pqxx::tablereader::setup(transaction_base &T,
     const PGSTD::string &Name,
     const PGSTD::string &Columns)
 {
-  transaction_tablereader_gate(T).BeginCopyRead(Name, Columns);
+  gate::transaction_tablereader(T).BeginCopyRead(Name, Columns);
   register_me();
   m_Done = false;
 }
@@ -65,7 +65,7 @@ bool pqxx::tablereader::get_raw_line(PGSTD::string &Line)
 {
   if (!m_Done) try
   {
-    m_Done = !transaction_tablereader_gate(m_Trans).ReadCopyLine(Line);
+    m_Done = !gate::transaction_tablereader(m_Trans).ReadCopyLine(Line);
   }
   catch (const exception &)
   {

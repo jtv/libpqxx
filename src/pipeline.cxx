@@ -20,8 +20,8 @@
 #include "pqxx/dbtransaction"
 #include "pqxx/pipeline"
 
-#include "pqxx/internal/gates/connection-pipeline-gate.hxx"
-#include "pqxx/internal/gates/result-creation-gate.hxx"
+#include "pqxx/internal/gates/connection-pipeline.hxx"
+#include "pqxx/internal/gates/result-creation.hxx"
 
 
 using namespace PGSTD;
@@ -141,7 +141,7 @@ void pqxx::pipeline::cancel()
 {
   while (have_pending())
   {
-    connection_pipeline_gate(m_Trans.conn()).cancel_query();
+    gate::connection_pipeline(m_Trans.conn()).cancel_query();
     QueryMap::iterator canceled_query = m_issuedrange.first;
     ++m_issuedrange.first;
     m_queries.erase(canceled_query);
@@ -228,7 +228,7 @@ void pqxx::pipeline::issue()
   const bool prepend_dummy = (num_issued > 1);
   if (prepend_dummy) cum = theDummyQuery + cum;
 
-  connection_pipeline_gate(m_Trans.conn()).start_exec(cum);
+  gate::connection_pipeline(m_Trans.conn()).start_exec(cum);
 
   // Since we managed to send out these queries, update state to reflect this
   m_dummy_pending = prepend_dummy;
@@ -251,7 +251,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   pqxxassert(!m_dummy_pending);
   pqxxassert(!m_queries.empty());
 
-  connection_pipeline_gate gate(m_Trans.conn());
+  gate::connection_pipeline gate(m_Trans.conn());
   internal::pq::PGresult *r = gate.get_result();
   if (!r)
   {
@@ -264,11 +264,11 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   }
 
   pqxxassert(r);
-  const result res = result_creation_gate::create(
+  const result res = gate::result_creation::create(
 	r,
 	0,
 	m_queries.begin()->second.get_query(),
-	connection_pipeline_gate(m_Trans.conn()).encoding_code());
+	gate::connection_pipeline(m_Trans.conn()).encoding_code());
 
   if (!have_pending())
   {
@@ -290,23 +290,23 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 void pqxx::pipeline::obtain_dummy()
 {
   pqxxassert(m_dummy_pending);
-  connection_pipeline_gate gate(m_Trans.conn());
+  gate::connection_pipeline gate(m_Trans.conn());
   internal::pq::PGresult *const r = gate.get_result();
   m_dummy_pending = false;
 
   if (!r)
     internal_error("pipeline got no result from backend when it expected one");
 
-  result R = result_creation_gate::create(
+  result R = gate::result_creation::create(
 	r,
 	0,
 	"[DUMMY PIPELINE QUERY]",
-	connection_pipeline_gate(m_Trans.conn()).encoding_code());
+	gate::connection_pipeline(m_Trans.conn()).encoding_code());
 
   bool OK = false;
   try
   {
-    result_creation_gate(R).CheckStatus();
+    gate::result_creation(R).CheckStatus();
     OK = true;
   }
   catch (const sql_error &)
@@ -358,7 +358,7 @@ void pqxx::pipeline::obtain_dummy()
       const string &query = m_issuedrange.first->second.get_query();
       const result res(m_Trans.exec(query));
       m_issuedrange.first->second.set_result(res);
-      result_creation_gate(res).CheckStatus();
+      gate::result_creation(res).CheckStatus();
       ++m_issuedrange.first;
     }
     while (m_issuedrange.first != stop);
@@ -431,7 +431,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 
   m_queries.erase(q);
 
-  result_creation_gate(R).CheckStatus();
+  gate::result_creation(R).CheckStatus();
   return P;
 }
 
@@ -439,7 +439,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 void pqxx::pipeline::get_further_available_results()
 {
   pqxxassert(!m_dummy_pending);
-  connection_pipeline_gate gate(m_Trans.conn());
+  gate::connection_pipeline gate(m_Trans.conn());
   while (!gate.is_busy() && obtain_result())
     if (!gate.consume_input()) throw broken_connection();
 }
@@ -447,7 +447,7 @@ void pqxx::pipeline::get_further_available_results()
 
 void pqxx::pipeline::receive_if_available()
 {
-  connection_pipeline_gate gate(m_Trans.conn());
+  gate::connection_pipeline gate(m_Trans.conn());
   if (!gate.consume_input()) throw broken_connection();
   if (gate.is_busy()) return;
 

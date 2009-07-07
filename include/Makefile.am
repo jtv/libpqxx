@@ -31,21 +31,22 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/trigger pqxx/trigger.hxx \
 	pqxx/util pqxx/util.hxx \
 	pqxx/version pqxx/version.hxx \
-	pqxx/internal/gates/connection-dbtransaction-gate.hxx \
-	pqxx/internal/gates/connection-largeobject-gate.hxx \
-	pqxx/internal/gates/connection-notify-listener-gate.hxx \
-	pqxx/internal/gates/connection-pipeline-gate.hxx \
-	pqxx/internal/gates/connection-prepare-declaration-gate.hxx \
-	pqxx/internal/gates/connection-prepare-invocation-gate.hxx \
-	pqxx/internal/gates/connection-sql_cursor-gate.hxx \
-	pqxx/internal/gates/connection-transaction-gate.hxx \
-	pqxx/internal/gates/result-connection-gate.hxx \
-	pqxx/internal/gates/result-creation-gate.hxx \
-	pqxx/internal/gates/result-sql_cursor-gate.hxx \
-	pqxx/internal/gates/transaction-subtransaction-gate.hxx \
-	pqxx/internal/gates/transaction-tablereader-gate.hxx \
-	pqxx/internal/gates/transaction-tablewriter-gate.hxx \
-	pqxx/internal/gates/transaction-transactionfocus-gate.hxx
+	pqxx/internal/callgate.hxx \
+	pqxx/internal/gates/connection-dbtransaction.hxx \
+	pqxx/internal/gates/connection-largeobject.hxx \
+	pqxx/internal/gates/connection-notify-listener.hxx \
+	pqxx/internal/gates/connection-pipeline.hxx \
+	pqxx/internal/gates/connection-prepare-declaration.hxx \
+	pqxx/internal/gates/connection-prepare-invocation.hxx \
+	pqxx/internal/gates/connection-sql_cursor.hxx \
+	pqxx/internal/gates/connection-transaction.hxx \
+	pqxx/internal/gates/result-connection.hxx \
+	pqxx/internal/gates/result-creation.hxx \
+	pqxx/internal/gates/result-sql_cursor.hxx \
+	pqxx/internal/gates/transaction-subtransaction.hxx \
+	pqxx/internal/gates/transaction-tablereader.hxx \
+	pqxx/internal/gates/transaction-tablewriter.hxx \
+	pqxx/internal/gates/transaction-transactionfocus.hxx
 
 
 nobase_nodist_include_HEADERS = \

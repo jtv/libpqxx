@@ -19,7 +19,7 @@
 
 #include "pqxx/notify-listen"
 
-#include "pqxx/internal/gates/connection-notify-listener-gate.hxx"
+#include "pqxx/internal/gates/connection-notify-listener.hxx"
 
 using namespace pqxx::internal;
 
@@ -29,7 +29,7 @@ pqxx::notify_listener::notify_listener(
   m_conn(c),
   m_Name(n)
 {
-  connection_notify_listener_gate(c).add_listener(this);
+  gate::connection_notify_listener(c).add_listener(this);
 }
 
 
@@ -39,5 +39,5 @@ pqxx::notify_listener::~notify_listener() throw ()
 #ifdef PQXX_QUIET_DESTRUCTORS
   disable_noticer Quiet(c);
 #endif
-  connection_notify_listener_gate(c).remove_listener(this);
+  gate::connection_notify_listener(c).remove_listener(this);
 }
