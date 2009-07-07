@@ -1,6 +1,9 @@
 2009-07-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
- include/Makefile.am, include/pqxx/internal/*, src/*.cxx:
+ include/Makefile.am, include/pqxx/internal/callgate.hxx,
+ include/pqxx/internal/*, src/*.cxx:
  - Moved "gate" headers into include/pqxx/internal/gates.
+ - Replaced gate-class name suffix with namespace.
+ - Extracted common base class for call gates.
 2009-07-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, src/connection_base.cxx,
  test/unit/test_prepared_statement:

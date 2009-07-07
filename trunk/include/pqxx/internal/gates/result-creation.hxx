@@ -1,3 +1,5 @@
+#include <pqxx/internal/callgate.hxx>
+
 namespace pqxx
 {
 class connection_base;
@@ -5,12 +7,14 @@ class pipeline;
 
 namespace internal
 {
-class PQXX_PRIVATE result_creation_gate
+namespace gate
+{
+class PQXX_PRIVATE result_creation : callgate<const result>
 {
   friend class pqxx::connection_base;
   friend class pqxx::pipeline;
 
-  result_creation_gate(const result &home) : m_home(home) {}
+  result_creation(reference x) : super(x) {}
 
   static result create(
 	internal::pq::PGresult *rhs,
@@ -21,9 +25,8 @@ class PQXX_PRIVATE result_creation_gate
     return result(rhs, protocol, query, encoding_code);
   }
 
-  void CheckStatus() const { return m_home.CheckStatus(); }
-
-  const result &m_home;
+  void CheckStatus() const { return home().CheckStatus(); }
 };
+} // namespace pqxx::internal::gate
 } // namespace pqxx::internal
 } // namespace pqxx

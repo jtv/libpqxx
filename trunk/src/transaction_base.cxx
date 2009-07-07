@@ -26,8 +26,8 @@
 #include "pqxx/tablestream"
 #include "pqxx/transaction_base"
 
-#include "pqxx/internal/gates/connection-transaction-gate.hxx"
-#include "pqxx/internal/gates/transaction-transactionfocus-gate.hxx"
+#include "pqxx/internal/gates/connection-transaction.hxx"
+#include "pqxx/internal/gates/transaction-transactionfocus.hxx"
 
 
 using namespace PGSTD;
@@ -45,7 +45,7 @@ pqxx::transaction_base::transaction_base(connection_base &C, bool direct) :
 {
   if (direct)
   {
-    connection_transaction_gate gate(conn());
+    gate::connection_transaction gate(conn());
     gate.RegisterTransaction(this);
     m_Registered = true;
   }
@@ -66,7 +66,7 @@ pqxx::transaction_base::~transaction_base()
     if (m_Registered)
     {
       m_Conn.process_notice(description() + " was never closed properly!\n");
-      connection_transaction_gate gate(conn());
+      gate::connection_transaction gate(conn());
       gate.UnregisterTransaction(this);
     }
   }
@@ -153,7 +153,7 @@ void pqxx::transaction_base::commit()
     throw;
   }
 
-  connection_transaction_gate gate(conn());
+  gate::connection_transaction gate(conn());
   gate.AddVariables(m_Vars);
 
   End();
@@ -275,7 +275,7 @@ void pqxx::transaction_base::set_variable(const PGSTD::string &Var,
                                           const PGSTD::string &Value)
 {
   // Before committing to this new value, see what the backend thinks about it
-  connection_transaction_gate gate(conn());
+  gate::connection_transaction gate(conn());
   gate.RawSetVar(Var, Value);
   m_Vars[Var] = Value;
 }
@@ -285,7 +285,7 @@ string pqxx::transaction_base::get_variable(const PGSTD::string &Var)
 {
   const map<string,string>::const_iterator i = m_Vars.find(Var);
   if (i != m_Vars.end()) return i->second;
-  return connection_transaction_gate(conn()).RawGetVar(Var);
+  return gate::connection_transaction(conn()).RawGetVar(Var);
 }
 
 
@@ -322,7 +322,7 @@ void pqxx::transaction_base::End() throw ()
     if (m_Registered)
     {
       m_Registered = false;
-      connection_transaction_gate gate(conn());
+      gate::connection_transaction gate(conn());
       gate.UnregisterTransaction(this);
     }
 
@@ -336,7 +336,7 @@ void pqxx::transaction_base::End() throw ()
     try { abort(); }
     catch (const exception &e) { m_Conn.process_notice(e.what()); }
 
-    connection_transaction_gate gate(conn());
+    gate::connection_transaction gate(conn());
     gate.take_reactivation_avoidance(m_reactivation_avoidance.get());
     m_reactivation_avoidance.clear();
   }
@@ -371,7 +371,7 @@ void pqxx::transaction_base::UnregisterFocus(internal::transactionfocus *S)
 pqxx::result pqxx::transaction_base::DirectExec(const char C[], int Retries)
 {
   CheckPendingError();
-  return connection_transaction_gate(conn()).Exec(C, Retries);
+  return gate::connection_transaction(conn()).Exec(C, Retries);
 }
 
 
@@ -443,27 +443,27 @@ void pqxx::transaction_base::BeginCopyWrite(const PGSTD::string &Table,
 
 bool pqxx::transaction_base::ReadCopyLine(PGSTD::string &line)
 {
-  return connection_transaction_gate(conn()).ReadCopyLine(line);
+  return gate::connection_transaction(conn()).ReadCopyLine(line);
 }
 
 
 void pqxx::transaction_base::WriteCopyLine(const PGSTD::string &line)
 {
-  connection_transaction_gate gate(conn());
+  gate::connection_transaction gate(conn());
   gate.WriteCopyLine(line);
 }
 
 
 void pqxx::transaction_base::EndCopyWrite()
 {
-  connection_transaction_gate gate(conn());
+  gate::connection_transaction gate(conn());
   gate.EndCopyWrite();
 }
 
 
 void pqxx::internal::transactionfocus::register_me()
 {
-  transaction_transactionfocus_gate gate(m_Trans);
+  gate::transaction_transactionfocus gate(m_Trans);
   gate.RegisterFocus(this);
   m_registered = true;
 }
@@ -471,7 +471,7 @@ void pqxx::internal::transactionfocus::register_me()
 
 void pqxx::internal::transactionfocus::unregister_me() throw ()
 {
-  transaction_transactionfocus_gate gate(m_Trans);
+  gate::transaction_transactionfocus gate(m_Trans);
   gate.UnregisterFocus(this);
   m_registered = false;
 }
@@ -480,6 +480,6 @@ void
 pqxx::internal::transactionfocus::reg_pending_error(const PGSTD::string &err)
 	throw ()
 {
-  transaction_transactionfocus_gate gate(m_Trans);
+  gate::transaction_transactionfocus gate(m_Trans);
   gate.RegisterPendingError(err);
 }

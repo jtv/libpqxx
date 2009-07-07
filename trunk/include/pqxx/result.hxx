@@ -78,9 +78,12 @@ void PQXX_LIBEXPORT freemem_result_data(const result_data *) throw ();
 
 namespace internal
 {
-class result_connection_gate;
-class result_creation_gate;
-class result_sql_cursor_gate;
+namespace gate
+{
+class result_connection;
+class result_creation;
+class result_sql_cursor;
+} // namespace internal::gate
 } // namespace internal
 
 
@@ -922,14 +925,14 @@ private:
   bool GetIsNull(size_type Row, tuple::size_type Col) const;
   field::size_type GetLength(size_type, tuple::size_type) const;
 
-  friend class pqxx::internal::result_creation_gate;
+  friend class pqxx::internal::gate::result_creation;
   result(internal::pq::PGresult *rhs,
 	int protocol,
 	const PGSTD::string &Query,
 	int encoding_code);
   void PQXX_PRIVATE CheckStatus() const;
 
-  friend class pqxx::internal::result_connection_gate;
+  friend class pqxx::internal::gate::result_connection;
   bool operator!() const throw () { return !m_data; }
   operator bool() const throw () { return m_data != 0; }
 
@@ -938,7 +941,7 @@ private:
   int PQXX_PRIVATE errorposition() const throw ();
   PGSTD::string PQXX_PRIVATE StatusError() const;
 
-  friend class pqxx::internal::result_sql_cursor_gate;
+  friend class pqxx::internal::gate::result_sql_cursor;
   const char *CmdStatus() const throw ();
 
   /// Shortcut: pointer to result data

@@ -1,3 +1,5 @@
+#include <pqxx/internal/callgate.hxx>
+
 namespace pqxx
 {
 namespace prepare
@@ -7,11 +9,13 @@ class invocation;
 
 namespace internal
 {
-class PQXX_PRIVATE connection_prepare_invocation_gate
+namespace gate
+{
+class PQXX_PRIVATE connection_prepare_invocation : callgate<connection_base>
 {
   friend class pqxx::prepare::invocation;
 
-  connection_prepare_invocation_gate(connection_base &home) : m_home(home) {}
+  connection_prepare_invocation(reference x) : super(x) {}
 
   result prepared_exec(
 	const PGSTD::string &statement,
@@ -19,13 +23,12 @@ class PQXX_PRIVATE connection_prepare_invocation_gate
 	const int paramlengths[],
 	int nparams)
   {
-    return m_home.prepared_exec(statement, params, paramlengths, nparams);
+    return home().prepared_exec(statement, params, paramlengths, nparams);
   }
 
   bool prepared_exists(const PGSTD::string &statement) const
-	{ return m_home.prepared_exists(statement); }
-
-  connection_base &m_home;
+	{ return home().prepared_exists(statement); }
 };
+} // namespace pqxx::internal::gate
 } // namespace pqxx::internal
 } // namespace pqxx

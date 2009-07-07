@@ -7,7 +7,7 @@
  *      implementation of the pqxx::dbtransaction class.
  *   pqxx::dbtransaction represents a real backend transaction
  *
- * Copyright (c) 2004-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -19,7 +19,7 @@
 
 #include "pqxx/dbtransaction"
 
-#include "pqxx/internal/gates/connection-dbtransaction-gate.hxx"
+#include "pqxx/internal/gates/connection-dbtransaction.hxx"
 
 using namespace PGSTD;
 using namespace pqxx::internal;
@@ -78,7 +78,7 @@ pqxx::dbtransaction::~dbtransaction()
 
 void pqxx::dbtransaction::do_begin()
 {
-  const connection_dbtransaction_gate gate(conn());
+  const gate::connection_dbtransaction gate(conn());
   const int avoidance_counter = gate.get_reactivation_avoidance_count();
   DirectExec(m_StartCmd.c_str(), avoidance_counter ? 0 : 2);
 }
