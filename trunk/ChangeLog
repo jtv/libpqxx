@@ -1,6 +1,8 @@
 2009-07-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/result.hxx:
  - Fix up PQAlloc deletion handling if shared_ptr not available.
+ src/connection_base.cxx:
+ - Conditionally-compiled code wasn't using the proper gate.
 2009-07-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
  - Substitute full version information.
