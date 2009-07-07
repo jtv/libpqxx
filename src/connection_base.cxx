@@ -55,6 +55,7 @@
 
 #include "pqxx/internal/gates/result-creation.hxx"
 #include "pqxx/internal/gates/result-connection.hxx"
+#include "pqxx/internal/gates/connection-reactivation_avoidance_exemption.hxx"
 
 using namespace PGSTD;
 using namespace pqxx;
@@ -1497,6 +1498,29 @@ string pqxx::connection_base::esc_raw(const unsigned char str[], size_t len)
   if (!buf.get()) throw bad_alloc();
 #endif
   return string(reinterpret_cast<char *>(buf.get()));
+}
+
+
+pqxx::internal::reactivation_avoidance_exemption::
+  reactivation_avoidance_exemption(
+	connection_base &C) :
+  m_home(C),
+  m_count(gate::connection_reactivation_avoidance_exemption(C).get_counter()),
+  m_open(C.is_open())
+{
+  gate::connection_reactivation_avoidance_exemption gate(C);
+  gate.clear_counter();
+}
+
+
+pqxx::internal::reactivation_avoidance_exemption::
+  ~reactivation_avoidance_exemption()
+{
+  // Don't leave the connection open if reactivation avoidance is in effect and
+  // the connection needed to be reactivated temporarily.
+  if (m_count && !m_open) m_home.deactivate();
+  gate::connection_reactivation_avoidance_exemption gate(m_home);
+  gate.add_counter(m_count);
 }
 
 

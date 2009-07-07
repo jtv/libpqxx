@@ -1,4 +1,9 @@
 2009-07-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx,
+ include/pqxx/internal/gates/connection-reactivation_avoidance_exemption.hxx,
+ src/connection_base.cxx:
+ - Set up another call gate.
+2009-07-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/Makefile.am, include/pqxx/internal/callgate.hxx,
  include/pqxx/internal/*, src/*.cxx:
  - Moved "gate" headers into include/pqxx/internal/gates.

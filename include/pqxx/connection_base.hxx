@@ -132,6 +132,7 @@ class connection_notify_listener;
 class connection_pipeline;
 class connection_prepare_declaration;
 class connection_prepare_invocation;
+class connection_reactivation_avoidance_exemption;
 class connection_sql_cursor;
 class connection_transaction;
 } // namespace pqxx::internal::gate
@@ -943,7 +944,7 @@ private:
   friend class internal::gate::connection_sql_cursor;
   void add_reactivation_avoidance_count(int);
 
-  friend class internal::reactivation_avoidance_exemption;
+  friend class internal::gate::connection_reactivation_avoidance_exemption;
 
   // Not allowed:
   connection_base(const connection_base &);
@@ -1014,21 +1015,8 @@ namespace internal
 class PQXX_LIBEXPORT reactivation_avoidance_exemption
 {
 public:
-  explicit reactivation_avoidance_exemption(connection_base &C) :
-    m_home(C),
-    m_count(C.m_reactivation_avoidance.get()),
-    m_open(C.is_open())
-  {
-    C.m_reactivation_avoidance.clear();
-  }
-
-  ~reactivation_avoidance_exemption()
-  {
-    // Don't leave connection open if reactivation avoidance is in effect and
-    // the connection needed to be reactivated temporarily.
-    if (m_count && !m_open) m_home.deactivate();
-    m_home.m_reactivation_avoidance.add(m_count);
-  }
+  explicit reactivation_avoidance_exemption(connection_base &C);
+  ~reactivation_avoidance_exemption();
 
   void close_connection() throw () { m_open = false; }
 
