@@ -26,6 +26,7 @@
 #include "pqxx/transaction"
 
 #include "pqxx/internal/gates/connection-sql_cursor.hxx"
+#include "pqxx/internal/gates/icursorstream-icursor_iterator.hxx"
 #include "pqxx/internal/gates/result-sql_cursor.hxx"
 
 using namespace PGSTD;
@@ -462,11 +463,11 @@ pqxx::icursor_iterator::icursor_iterator() throw () :
 pqxx::icursor_iterator::icursor_iterator(istream_type &s) throw () :
   m_stream(&s),
   m_here(),
-  m_pos(s.forward(0)),
+  m_pos(gate::icursorstream_icursor_iterator(s).forward(0)),
   m_prev(0),
   m_next(0)
 {
-  s.insert_iterator(this);
+  gate::icursorstream_icursor_iterator(*m_stream).insert_iterator(this);
 }
 
 pqxx::icursor_iterator::icursor_iterator(const icursor_iterator &rhs) throw () :
@@ -476,20 +477,22 @@ pqxx::icursor_iterator::icursor_iterator(const icursor_iterator &rhs) throw () :
   m_prev(0),
   m_next(0)
 {
-  if (m_stream) m_stream->insert_iterator(this);
+  if (m_stream) 
+    gate::icursorstream_icursor_iterator(*m_stream).insert_iterator(this);
 }
 
 
 pqxx::icursor_iterator::~icursor_iterator() throw ()
 {
-  if (m_stream) m_stream->remove_iterator(this);
+  if (m_stream)
+    gate::icursorstream_icursor_iterator(*m_stream).remove_iterator(this);
 }
 
 
 icursor_iterator pqxx::icursor_iterator::operator++(int)
 {
   icursor_iterator old(*this);
-  m_pos = m_stream->forward();
+  m_pos = gate::icursorstream_icursor_iterator(*m_stream).forward();
   m_here.clear();
   return old;
 }
@@ -497,7 +500,7 @@ icursor_iterator pqxx::icursor_iterator::operator++(int)
 
 icursor_iterator &pqxx::icursor_iterator::operator++()
 {
-  m_pos = m_stream->forward();
+  m_pos = gate::icursorstream_icursor_iterator(*m_stream).forward();
   m_here.clear();
   return *this;
 }
@@ -510,7 +513,7 @@ icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
     if (!n) return *this;
     throw argument_error("Advancing icursor_iterator by negative offset");
   }
-  m_pos = m_stream->forward(n);
+  m_pos = gate::icursorstream_icursor_iterator(*m_stream).forward(n);
   m_here.clear();
   return *this;
 }
@@ -526,11 +529,13 @@ pqxx::icursor_iterator::operator=(const icursor_iterator &rhs) throw ()
   }
   else
   {
-    if (m_stream) m_stream->remove_iterator(this);
+    if (m_stream)
+      gate::icursorstream_icursor_iterator(*m_stream).remove_iterator(this);
     m_here = rhs.m_here;
     m_pos = rhs.m_pos;
     m_stream = rhs.m_stream;
-    if (m_stream) m_stream->insert_iterator(this);
+    if (m_stream)
+      gate::icursorstream_icursor_iterator(*m_stream).insert_iterator(this);
   }
   return *this;
 }
@@ -557,7 +562,8 @@ bool pqxx::icursor_iterator::operator<(const icursor_iterator &rhs) const
 
 void pqxx::icursor_iterator::refresh() const
 {
-  if (m_stream) m_stream->service_iterators(pos());
+  if (m_stream)
+    gate::icursorstream_icursor_iterator(*m_stream).service_iterators(pos());
 }
 
 
@@ -565,4 +571,3 @@ void pqxx::icursor_iterator::fill(const result &r)
 {
   m_here = r;
 }
-
