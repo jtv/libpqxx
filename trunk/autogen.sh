@@ -23,6 +23,9 @@ ver="`latest_automake`"
 PQXXVERSION=`./tools/extract_version`
 echo "libpqxx version $PQXXVERSION"
 
+PQXX_ABI=`./tools/extract_version --abi`
+echo "libpqxx ABI version $PQXX_ABI"
+
 # Generate configure.ac based on current version numbers
 sed -e "s/@PQXXVERSION@/$PQXXVERSION/g" configure.ac.in >configure.ac
 
@@ -32,6 +35,7 @@ PQXX_MINOR="`echo "$PQXXVERSION" | sed -e 's/[^.]*\.\([0-9]*\).*$/\1/'`"
 sed -e "s/@PQXXVERSION@/$PQXXVERSION/g" \
 	-e "s/@PQXX_MAJOR@/$PQXX_MAJOR/g" \
 	-e "s/@PQXX_MINOR@/$PQXX_MINOR/g" \
+	-e "s/@PQXX_ABI@/$PQXX_ABI/g" \
 	include/pqxx/version.hxx.template >include/pqxx/version.hxx
 
 # Generate Windows makefiles (adding carriage returns to make it MS-DOS format)

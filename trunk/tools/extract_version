@@ -1,4 +1,51 @@
 #! /bin/sh
 set -e
-grep -w 'PQXX_VERSION' VERSION |
-	sed -e 's/^[[:space:]A-Z_]*\([^[:space:]#]\+\).*$/\1/'
+
+ARG="$1"
+
+case "$ARG" in
+'')
+	MODE="lib"
+	;;
+-h|--help)
+	cat <<EOF
+Usage: $0 [-a|--abi]
+
+Prints the full library version by default.  If the --abi option is given,
+prints the library's ABI version instead.
+EOF
+	exit
+	;;
+-a|--abi)
+	MODE="abi"
+	;;
+*)
+	cat <<EOF >&2
+Unknown argument.  Try
+
+	$0 --help
+
+for usage information.
+EOF
+	exit 1
+esac
+
+
+get_version() {
+	grep -w 'PQXX_VERSION' VERSION |
+		sed -e 's/^[[:space:]A-Z_]*\([^[:space:]#]\+\).*$/\1/'
+}
+
+
+case "$MODE" in
+lib)
+	get_version
+	;;
+abi)
+	get_version | sed -e 's/\([^.]*\.[^.]*\)\..*/\1/'
+	;;
+*)
+	echo "Unknown mode." 2>&1
+	exit 2
+	;;
+esac
