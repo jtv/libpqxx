@@ -111,17 +111,17 @@ void pqxx::transaction_base::commit()
     return;
 
   case st_in_doubt:
-    // Transaction may or may not have been committed.  Report the problem but
-    // don't compound our troubles by throwing.
-    throw usage_error(description() +
-		      "committed again while in an indeterminate state");
+    // Transaction may or may not have been committed.  The only thing we can
+    // really do is keep telling the caller that the transaction is in doubt.
+    throw in_doubt_error(description() +
+		      " committed again while in an indeterminate state");
 
   default:
     throw internal_error("pqxx::transaction: invalid status code");
   }
 
   // Tricky one.  If stream is nested in transaction but inside the same scope,
-  // the Commit() will come before the stream is closed.  Which means the
+  // the commit() will come before the stream is closed.  Which means the
   // commit is premature.  Punish this swiftly and without fail to discourage
   // the habit from forming.
   if (m_Focus.get())

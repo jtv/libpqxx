@@ -1,3 +1,6 @@
+2009-07-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/transaction_base.cxx:
+ - Throw in_doubt again when trying to commit again while doubt.
 2009-07-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/cursor.hxx,
  include/pqxx/internal/gates/icursorstream_icursor_iterator.hxx,
