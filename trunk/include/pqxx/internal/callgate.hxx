@@ -68,9 +68,7 @@ protected:
   callgate(reference x) : m_home(x) {}
 
   /// The home object.  The gate class has full "private" access.
-  const reference home() const throw () { return m_home; }
-  /// The home object.  The gate class has full "private" access.
-  reference home() throw () { return m_home; }
+  reference home() const throw () { return m_home; }
 
 private:
   reference m_home;
