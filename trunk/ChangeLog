@@ -1,3 +1,6 @@
+2009-08-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+ - Tiny warning fix for 7.3 libpq versions.
 2009-08-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/robusttransaction.hxx, src/robusttransaction.cxx:
  - Redid robusttransaction logic; may actually work now.
