@@ -249,8 +249,9 @@ require_product doc/html/Tutorial/index.html
 command "cd .."
 command "rm -rf -- $DISTNAME"
 
+command "cd $SOURCEDIR"
 # Can't use "command" function here--breaks redirection:
-nice md5sum -b "$SOURCEDIR/$TARBALL" >"$SOURCEDIR/$TARBALL.md5sum"
+nice md5sum -b "$TARBALL" >"$TARBALL.md5sum"
 
 log "Finished.  Release tarball is $SOURCEDIR/$TARBALL"
 

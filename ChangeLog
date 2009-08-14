@@ -5,6 +5,8 @@
  - Use string::empty.
  test/test018.cxx, test/test037.cxx:
  - Better transactor names.
+ tools/preprelease:
+ - Keep absolute tarball path out of md5sum file.
 2009-08-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/internal/callgate.hxx:
  - Cleaned up constness, thanks Kirit Saelensminde.
