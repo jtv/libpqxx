@@ -1,3 +1,8 @@
+2009-08-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+ - Use string::empty.
+ test/test018.cxx, test/test037.cxx:
+ - Better transactor names.
 2009-08-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/internal/callgate.hxx:
  - Cleaned up constness, thanks Kirit Saelensminde.
