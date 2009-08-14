@@ -841,7 +841,7 @@ pqxx::prepare::declaration pqxx::connection_base::prepare(
   {
     if (definition != i->second.definition)
     {
-      if (name != string())
+      if (!name.empty())
         throw argument_error(
 		"Inconsistent redefinition of prepared statement " + name);
 
