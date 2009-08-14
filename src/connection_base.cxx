@@ -1636,7 +1636,7 @@ void pqxx::connection_base::read_capabilities() throw ()
 #endif
 
   const int v = m_serverversion;
-#ifdef PQXX_HAVE_PQPREPARE || PQXX_HAVE_PQFTABLECOL
+#if defined(PQXX_HAVE_PQPREPARE) || defined(PQXX_HAVE_PQFTABLECOL)
   const int p = protocol_version();
 #endif
 
