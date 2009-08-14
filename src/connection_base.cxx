@@ -1635,9 +1635,10 @@ void pqxx::connection_base::read_capabilities() throw ()
   }
 #endif
 
-  const int
-	v = m_serverversion,
-  	p = protocol_version();
+  const int v = m_serverversion;
+#ifdef PQXX_HAVE_PQPREPARE || PQXX_HAVE_PQFTABLECOL
+  const int p = protocol_version();
+#endif
 
   m_caps[cap_prepared_statements] = (v >= 70300);
 
