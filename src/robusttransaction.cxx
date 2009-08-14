@@ -7,7 +7,7 @@
  *      implementation of the pqxx::robusttransaction class.
  *   pqxx::robusttransaction is a slower but safer transaction class
  *
- * Copyright (c) 2002-2007, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -28,17 +28,22 @@ using namespace PGSTD;
 using namespace pqxx::internal;
 
 
-// TODO: Use two-phase transaction if backend supports it
+// TODO: Log username in more places.
 
-pqxx::basic_robusttransaction::basic_robusttransaction(connection_base &C,
-	const PGSTD::string &IsolationLevel) :
+pqxx::basic_robusttransaction::basic_robusttransaction(
+	connection_base &C,
+	const PGSTD::string &IsolationLevel,
+	const PGSTD::string &table_name) :
   namedclass("robusttransaction"),
   dbtransaction(C, IsolationLevel),
-  m_ID(oid_none),
-  m_LogTable(),
+  m_record_id(0),
+  m_xid(),
+  m_LogTable(table_name),
+  m_sequence(),
   m_backendpid(-1)
 {
-  m_LogTable = string("pqxxlog_") + conn().username();
+  if (table_name.empty()) m_LogTable = "pqxx_robusttransaction_log";
+  m_sequence = m_LogTable + "_seq";
 }
 
 
@@ -49,8 +54,6 @@ pqxx::basic_robusttransaction::~basic_robusttransaction()
 
 void pqxx::basic_robusttransaction::do_begin()
 {
-  dbtransaction::do_begin();
-
   try
   {
     CreateTransactionRecord();
@@ -65,106 +68,112 @@ void pqxx::basic_robusttransaction::do_begin()
     m_backendpid = conn().backendpid();
     CreateTransactionRecord();
   }
+
+  dbtransaction::do_begin();
+
+  // If this transaction commits, the transaction record should also be gone.
+  DirectExec(sql_delete().c_str());
+
+  if (conn().server_version() >= 80300)
+    DirectExec("SELECT txid_current()")[0][0].to(m_xid);
 }
 
 
 
 void pqxx::basic_robusttransaction::do_commit()
 {
-  const IDType ID = m_ID;
-
-  if (ID == oid_none)
+  if (!m_record_id)
     throw internal_error("transaction '" + name() + "' has no ID");
 
   // Check constraints before sending the COMMIT to the database to reduce the
-  // work being done inside our in-doubt window.  It also implicitly provides
-  // one last check that our connection is really working before sending the
-  // commit command.
-  //
-  // This may not be an entirely clear-cut 100% obvious unambiguous Good Thing.
-  // If we lose our connection during the in-doubt window, it may be better if
-  // the transaction didn't actually go though, and having constraints checked
-  // first theoretically makes it more likely that it will once we get to that
-  // stage.
-  //
-  // However, it seems reasonable to assume that most transactions will satisfy
-  // their constraints.  Besides, the goal of robusttransaction is to weed out
-  // indeterminacy, rather than to improve the odds of desirable behaviour when
-  // all bets are off anyway.
-  DirectExec("SET CONSTRAINTS ALL IMMEDIATE");
+  // work being done inside our in-doubt window.
+  try
+  {
+    DirectExec("SET CONSTRAINTS ALL IMMEDIATE");
+  }
+  catch (...)
+  {
+    do_abort();
+    throw;
+  }
 
   // Here comes the critical part.  If we lose our connection here, we'll be
   // left clueless as to whether the backend got the message and is trying to
-  // commit the transaction (let alone whether it will succeed if so).  This
+  // commit the transaction (let alone whether it will succeed if so).  That
   // case requires some special handling that makes robusttransaction what it
   // is.
   try
   {
     DirectExec(sql_commit_work);
+
+    // If we make it here, great.  Normal, successful commit.
+    m_record_id = 0;
+    return;
   }
-  catch (const exception &e)
+  catch (const broken_connection &)
   {
-    m_ID = oid_none;
-    if (!conn().is_open())
-    {
-      // We've lost the connection while committing.  We'll have to go back to
-      // the backend and check our transaction log to see what happened.
-      process_notice(e.what() + string("\n"));
-
-      // See if transaction record ID exists; if yes, our transaction was
-      // committed before the connection went down.  If not, the transaction
-      // was aborted.
-      bool Exists;
-      try
-      {
-        Exists = CheckTransactionRecord(ID);
-      }
-      catch (const exception &f)
-      {
-	// Couldn't check for transaction record.  We're still in doubt as to
-	// whether the transaction was performed.
-        const string Msg = "WARNING: "
-		    "Connection lost while committing transaction "
-		    "'" + name() + "' (oid " + to_string(ID) + "). "
-		    "Please check for this record in the "
-		    "'" + m_LogTable + "' table.  "
-		    "If the record exists, the transaction was executed. "
-		    "If not, then it wasn't.\n";
-
-        process_notice(Msg);
-	process_notice("Could not verify existence of transaction record "
-	    "because of the following error:\n");
-	process_notice(string(f.what()) + "\n");
-
-        throw in_doubt_error(Msg);
-      }
-
-      // Transaction record is gone, so all we have is a "normal" transaction
-      // failure.
-      if (!Exists) throw;
-    }
-    else
+    // Oops, lost connection at the crucial moment.  Fall through to in-doubt
+    // handling below.
+  }
+  catch (...)
+  {
+    if (conn().is_open())
     {
       // Commit failed--probably due to a constraint violation or something
       // similar.  But we're still connected, so no worries from a consistency
       // point of view.
-
-      // Try to delete transaction record ID, if it still exists (although it
-      // really shouldn't)
-      DeleteTransactionRecord(ID);
+      do_abort();
       throw;
     }
+    // Otherwise, fall through to in-doubt handling.
   }
 
-  m_ID = oid_none;
-  DeleteTransactionRecord(ID);
+  // If we get here, we're in doubt.  Talk to the backend, figure out what
+  // happened.  If the transaction record still exists, the transaction failed.
+  // If not, it succeeded.
+
+  bool exists;
+  try
+  {
+    exists = CheckTransactionRecord();
+  }
+  catch (const exception &f)
+  {
+    // Couldn't check for transaction record.  We're still in doubt as to
+    // whether the transaction was performed.
+    const string Msg = "WARNING: "
+	"Connection lost while committing transaction "
+	"'" + name() + "' (id " + to_string(m_record_id) + ", "
+	"transaction_id " + m_xid + "). "
+	"Please check for this record in the "
+	"'" + m_LogTable + "' table.  "
+	"If the record exists, the transaction was executed. "
+	"If not, then it wasn't.\n";
+
+    process_notice(Msg);
+    process_notice("Could not verify existence of transaction record "
+	"because of the following error:\n");
+    process_notice(string(f.what()) + "\n");
+
+    throw in_doubt_error(Msg);
+  }
+
+  // Transaction record is still there, so the transaction failed and all we
+  // have is a "normal" transaction failure.
+  if (exists)
+  {
+    do_abort();
+    throw broken_connection("Connection lost while committing.");
+  }
+
+  // Otherwise, the transaction succeeded.  Forget there was ever an error.
 }
 
 
 void pqxx::basic_robusttransaction::do_abort()
 {
-  m_ID = oid_none;
   dbtransaction::do_abort();
+  DeleteTransactionRecord();
 }
 
 
@@ -173,23 +182,32 @@ void pqxx::basic_robusttransaction::CreateLogTable()
 {
   // Create log table in case it doesn't already exist.  This code must only be
   // executed before the backend transaction has properly started.
-  string CrTab = "CREATE TABLE \"" + m_LogTable + "\" "
-		 "("
-		 "name VARCHAR(256), "
-		 "date TIMESTAMP";
+  string CrTab = "CREATE TABLE \"" + m_LogTable + "\" ("
+	"id INTEGER NOT NULL, "
+        "username VARCHAR(256), "
+	"transaction_id xid, "
+	"name VARCHAR(256), "
+	"date TIMESTAMP NOT NULL"
+	")";
 
-  if (conn().supports(connection_base::cap_create_table_with_oids))
-    CrTab += ") WITH OIDS";
-  else
-    CrTab += string(", CONSTRAINT pqxxlog_identity_") + conn().username() +
-	     " UNIQUE(oid))";
   try
   {
     DirectExec(CrTab.c_str(), 1);
-  } catch (const exception &e)
+  }
+  catch (const exception &e)
   {
     conn().process_notice(
 	"Could not create transaction log table: " + string(e.what()));
+  }
+
+  try
+  {
+    DirectExec(("CREATE SEQUENCE " + m_sequence).c_str());
+  }
+  catch (const exception &e)
+  {
+    conn().process_notice(
+	"Could not create transaction log sequence: " + string(e.what()));
   }
 }
 
@@ -198,95 +216,59 @@ void pqxx::basic_robusttransaction::CreateTransactionRecord()
 {
   static const string Fail = "Could not create transaction log record: ";
 
-  // TODO: Might as well include real transaction ID and backend PID
-  const string Insert = "INSERT INTO \"" + m_LogTable + "\" "
-	                "(name, date) "
-			"VALUES "
-	                "(" +
-			(name().empty() ? "null" : "'"+esc(name())+"'") +
-			", "
-	                "CURRENT_TIMESTAMP"
-	                ")";
+  // Clean up old transaction records.
+  DirectExec((
+	"DELETE FROM " + m_LogTable + " "
+	"WHERE date < CURRENT_TIMESTAMP - '30 days'::interval").c_str());
 
-  try
-  {
-    const result R(DirectExec(Insert.c_str()));
-    m_ID = R.inserted_oid();
-  }
-  catch (const sql_error &e) { throw sql_error(Fail+e.what(), Insert); }
-  catch (const broken_connection &) { throw; }
-  catch (const bad_alloc &) { throw; }
-  catch (const range_error &e) { throw range_error(Fail+e.what()); }
-  catch (const out_of_range &e) { throw range_error(Fail+e.what()); }
-  catch (const argument_error &e) { throw argument_error(Fail+e.what()); }
-  catch (const invalid_argument &e) { throw argument_error(Fail+e.what()); }
-  catch (const failure &e) { throw failure(Fail+e.what()); }
-  catch (const runtime_error &e) { throw failure(Fail+e.what()); }
-  catch (const domain_error &e) { throw domain_error(Fail+e.what()); }
-  catch (const usage_error &e) { throw usage_error(Fail+e.what()); }
-  catch (const logic_error &e) { throw usage_error(Fail+e.what()); }
-  catch (const exception &e) { throw sql_error(Fail+e.what(), Insert); }
+  // Allocate id.
+  const string sql_get_id("SELECT nextval(" + quote(m_sequence) + ")");
+  DirectExec(sql_get_id.c_str())[0][0].to(m_record_id);
 
-  if (m_ID == oid_none)
-  {
-    if (conn().supports(connection_base::cap_create_table_with_oids))
-      throw runtime_error(Fail +
-	  "Transaction log table " + m_LogTable + " exists but does not seem\n"
-	  "to have been created with an implicit oid column.\n"
-	  "This column was automatically present in all tables prior to "
-	  "PostgreSQL 8.1.\n"
-	  "It may be missing here because the table was created by a libpqxx "
-	  "version prior to 2.6.0,\n"
-	  "or the table may have been imported from a PostgreSQL version prior "
-	  "to 8.1 without preserving the oid column.\n"
-	  "It should be safe to drop the table; a new one will then be created "
-	  "with the oid column present.");
-    throw runtime_error(Fail + "For some reason the transaction log record "
-	"was not assigned a valid oid by the backend.");
-  }
+  DirectExec((
+	"INSERT INTO \"" + m_LogTable + "\" "
+	"(id, username, name, date) "
+	"VALUES "
+	"(" +
+	to_string(m_record_id) + ", " +
+        quote(conn().username()) + ", " +
+	(name().empty() ? "NULL" : quote(name())) + ", "
+	"CURRENT_TIMESTAMP"
+	")").c_str());
 }
 
 
-void pqxx::basic_robusttransaction::DeleteTransactionRecord(IDType ID) throw ()
+string pqxx::basic_robusttransaction::sql_delete() const
 {
-  if (ID == oid_none) return;
+  return "DELETE FROM \"" + m_LogTable + "\" "
+	"WHERE id = " + to_string(m_record_id);
+}
+
+
+void pqxx::basic_robusttransaction::DeleteTransactionRecord() throw ()
+{
+  if (!m_record_id) return;
 
   try
   {
-    // Try very, very hard to delete the transaction record.  This MUST go
-    // through in order to reflect the proper state of the transaction.
-    const string Del = "DELETE FROM \"" + m_LogTable + "\" "
-	               "WHERE oid=" + to_string(ID);
+    const string Del = sql_delete();
 
-    try
-    {
-      DirectExec(Del.c_str());
-    }
-    catch (const broken_connection &)
-    {
-      // Ignore any reactivation avoidance that may apply; we're on a MISSION!
-      reactivation_avoidance_exemption E(conn());
-      E.close_connection();
-
-      // Try deleting again, this time attempting to reconnect.  Specify an
-      // absurd retry count so that a potential crashed server gets some time
-      // to restart before we give up.
-      DirectExec(Del.c_str(), 20);
-    }
+    reactivation_avoidance_exemption E(conn());
+    DirectExec(Del.c_str(), 20);
 
     // Now that we've arrived here, we're about as sure as we can be that that
     // record is quite dead.
-    ID = oid_none;
+    m_record_id = 0;
   }
   catch (const exception &)
   {
   }
 
-  if (ID != oid_none) try
+  if (m_record_id != 0) try
   {
     process_notice("WARNING: "
-	           "Failed to delete obsolete transaction record with oid " +
-		   to_string(ID) + " ('" + name() + "'). "
+	           "Failed to delete obsolete transaction record with id " +
+		   to_string(m_record_id) + " ('" + name() + "'). "
 		   "Please delete it manually.  Thank you.\n");
   }
   catch (const exception &)
@@ -296,50 +278,48 @@ void pqxx::basic_robusttransaction::DeleteTransactionRecord(IDType ID) throw ()
 
 
 // Attempt to establish whether transaction record with given ID still exists
-bool pqxx::basic_robusttransaction::CheckTransactionRecord(IDType ID)
+bool pqxx::basic_robusttransaction::CheckTransactionRecord()
 {
-  /* First, wait for the old backend (with the lost connection) to die.
-   *
-   * On 2004-09-18, Tom Lane wrote:
-   *
-   * I don't see any reason for guesswork.  Remember the PID of the backend
-   * you were connected to.  On reconnect, look in pg_stat_activity to see
-   * if that backend is still alive; if so, sleep till it's not.  Then check
-   * to see if your transaction committed or not.  No need for anything so
-   * dangerous as a timeout.
-   */
-  /* Actually, looking if the query has finished is only possible if the
-   * stats_command_string has been set in postgresql.conf and we're running
-   * as the postgres superuser.  If we get a string saying this option has not
-   * been enabled, we must wait as if the query were still executing--and hope
-   * that the backend dies.
-   */
-  // TODO: Tom says we need stats_start_collector, not stats_command_string!?
-  /* Starting with PostgreSQL 7.4, we can use pg_locks.  The entry for the
-   * zombied transaction will have a "relation" field of null, a "transaction"
-   * field with the transaction ID (which we don't have--m_ID is the ID of our
-   * own transaction record!), and "pid" set to our backendpid.  If the relation
-   * exists but no such record is found, then the transaction is no longer
-   * running.
-   */
-  // TODO: Support multiple means of detection for zombied transaction?
   bool hold = true;
   for (int c=20; hold && c; internal::sleep_seconds(5), --c)
   {
-    const result R(DirectExec(("SELECT current_query "
-	  "FROM pq_stat_activity "
-	  "WHERE procpid=" + to_string(m_backendpid)).c_str()));
-    hold = (!R.empty() &&
-      !R[0][0].as(string()).empty() &&
-      (R[0][0].as(string()) != "<IDLE>"));
+    if (conn().server_version() > 80300)
+    {
+      const string query(
+	"SELECT " + m_xid + " >= txid_snapshot_xmin(txid_current_snapshot())");
+      DirectExec(query.c_str())[0][0].to(hold);
+    }
+    else
+    {
+      /* Wait for the old backend (with the lost connection) to die.
+       *
+       * Actually this is only possible if stats_command_string (or maybe
+       * stats_start_collector?) has been set in postgresql.conf and we're
+       * running as the postgres superuser.
+       *
+       * Starting with 7.4, we could also use pg_locks.  The entry for a zombied
+       * transaction will have a "relation" field of null, a "transaction" field
+       * with the transaction ID, and "pid" set to our backend pid.  If the
+       * relation exists but no such record is found, then the transaction is no
+       * longer running.
+       */
+      const result R(DirectExec((
+	"SELECT current_query "
+	"FROM pq_stat_activity "
+	"WHERE procpid = " + to_string(m_backendpid)).c_str()));
+      hold = !R.empty();
+    }
   }
 
   if (hold)
-    throw runtime_error("Old backend process stays alive too long to wait for");
+    throw in_doubt_error(
+	"Old backend process stays alive too long to wait for.");
 
   // Now look for our transaction record
-  const string Find = "SELECT oid FROM \"" + m_LogTable + "\" "
-	              "WHERE oid=" + to_string(ID);
+  const string Find = "SELECT id FROM \"" + m_LogTable + "\" "
+	              "WHERE "
+                        "id = " + to_string(m_record_id) + " AND "
+                        "user = " + conn().username();
 
   return !DirectExec(Find.c_str(), 20).empty();
 }

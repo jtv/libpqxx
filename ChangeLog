@@ -1,4 +1,6 @@
 2009-08-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/robusttransaction.hxx, src/robusttransaction.cxx:
+ - Redid robusttransaction logic; may actually work now.
  src/connection_base.cxx:
  - Use string::empty.
  test/test018.cxx, test/test037.cxx:
