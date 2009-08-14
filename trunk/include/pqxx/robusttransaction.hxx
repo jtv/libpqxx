@@ -8,7 +8,7 @@
  *   pqxx::robusttransaction is a slower but safer transaction class
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/robusttransaction instead.
  *
- * Copyright (c) 2002-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -48,13 +48,17 @@ public:
   virtual ~basic_robusttransaction() =0;				//[t16]
 
 protected:
-  basic_robusttransaction(connection_base &C,
-	const PGSTD::string &IsolationLevel);				//[t16]
+  basic_robusttransaction(
+	connection_base &C,
+	const PGSTD::string &IsolationLevel,
+	const PGSTD::string &table_name=PGSTD::string());		//[t16]
 
 private:
   typedef unsigned long IDType;
-  IDType m_ID;
+  IDType m_record_id;
+  PGSTD::string m_xid;
   PGSTD::string m_LogTable;
+  PGSTD::string m_sequence;
   int m_backendpid;
 
   virtual void do_begin();						//[t18]
@@ -63,8 +67,9 @@ private:
 
   void PQXX_PRIVATE CreateLogTable();
   void PQXX_PRIVATE CreateTransactionRecord();
-  void PQXX_PRIVATE DeleteTransactionRecord(IDType ID) throw ();
-  bool PQXX_PRIVATE CheckTransactionRecord(IDType ID);
+  PGSTD::string PQXX_PRIVATE sql_delete() const;
+  void PQXX_PRIVATE DeleteTransactionRecord() throw ();
+  bool PQXX_PRIVATE CheckTransactionRecord();
 };
 
 
