@@ -976,6 +976,7 @@ void pqxx::connection_base::prepare_param_declare_varargs(
 	"statement " + statement + " after its definition was completed.");
   s.varargs_treatment = treatment;
   s.varargs = true;
+  s.complete = true;
 }
  
 
