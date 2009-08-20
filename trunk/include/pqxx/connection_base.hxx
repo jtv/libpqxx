@@ -811,6 +811,9 @@ public:
   }
   //@}
 
+  /// Attempt to cancel the ongoing query, if any.
+  void cancel_query();
+
 protected:
   explicit connection_base(connectionpolicy &);
   void init();
@@ -935,7 +938,6 @@ private:
   void PQXX_PRIVATE start_exec(const PGSTD::string &);
   bool PQXX_PRIVATE consume_input() throw ();
   bool PQXX_PRIVATE is_busy() const throw ();
-  void cancel_query();
   int PQXX_PRIVATE encoding_code() throw ();
   internal::pq::PGresult *get_result();
 

@@ -666,40 +666,52 @@ bool pqxx::connection_base::is_busy() const throw ()
 }
 
 
-#ifdef PQXX_HAVE_PQCANCEL
 namespace
 {
 class cancel_wrapper
 {
   PGcancel *m_cancel;
+#ifndef PQXX_HAVE_PQCANCEL
+  PGconn *m_conn;
+#endif
   char m_errbuf[500];
+
 public:
   cancel_wrapper(PGconn *conn) :
     m_cancel(NULL),
+#ifndef PQXX_HAVE_PQCANCEL
+    m_conn(conn),
+#endif
     m_errbuf()
   {
-    m_cancel = PQgetCancel(conn);
-    if (!m_cancel) throw bad_alloc();
+    if (conn)
+    {
+#ifdef PQXX_HAVE_PQCANCEL
+      m_cancel = PQgetCancel(conn);
+      if (!m_cancel) throw bad_alloc();
+#endif
+    }
   }
-  ~cancel_wrapper() { PQfreeCancel(m_cancel); }
+  ~cancel_wrapper() { if (m_cancel) PQfreeCancel(m_cancel); }
 
   void operator()()
   {
-    if (!PQcancel(m_cancel, m_errbuf, int(sizeof(m_errbuf))))
+#ifdef PQXX_HAVE_PQCANCEL
+    if (m_cancel && !PQcancel(m_cancel, m_errbuf, int(sizeof(m_errbuf))))
       throw sql_error(string(m_errbuf));
+#else
+    if (m_conn && !PQrequestCancel(m_conn))
+      throw sql_error(PQerrorMessage(m_Conn));
+#endif
   }
 };
 }
-#endif
+
 
 void pqxx::connection_base::cancel_query()
 {
-#ifdef PQXX_HAVE_PQCANCEL
   cancel_wrapper cancel(m_Conn);
   cancel();
-#else
-  if (!PQrequestCancel(m_Conn)) throw sql_error(ErrMsg());
-#endif
 }
 
 
