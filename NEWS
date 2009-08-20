@@ -15,6 +15,7 @@
  - Unnamed prepared statements now supported.
  - Results have iterator as well as const_iterator.
  - Rewrite of robusttransaction logic; may actually do its job now.
+ - Connections support async query cancel from signal handler or thread.
 3.0
  - Website is now at http://pqxx.org/ (no redirects)
  - Completely replaced cursor classes
