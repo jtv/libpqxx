@@ -670,19 +670,21 @@ namespace
 {
 class cancel_wrapper
 {
+#ifdef PQXX_HAVE_PQCANCEL
   PGcancel *m_cancel;
-#ifndef PQXX_HAVE_PQCANCEL
+  char m_errbuf[500];
+#else
   PGconn *m_conn;
 #endif
-  char m_errbuf[500];
 
 public:
   cancel_wrapper(PGconn *conn) :
+#ifdef PQXX_HAVE_PQCANCEL
     m_cancel(NULL),
-#ifndef PQXX_HAVE_PQCANCEL
-    m_conn(conn),
-#endif
     m_errbuf()
+#else
+    m_conn(conn)
+#endif
   {
     if (conn)
     {
@@ -692,7 +694,9 @@ public:
 #endif
     }
   }
+#ifdef PQXX_HAVE_PQCANCEL
   ~cancel_wrapper() { if (m_cancel) PQfreeCancel(m_cancel); }
+#endif
 
   void operator()()
   {
