@@ -705,7 +705,7 @@ public:
       throw sql_error(string(m_errbuf));
 #else
     if (m_conn && !PQrequestCancel(m_conn))
-      throw sql_error(PQerrorMessage(m_Conn));
+      throw sql_error(PQerrorMessage(m_conn));
 #endif
   }
 };
