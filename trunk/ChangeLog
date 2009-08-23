@@ -1,8 +1,11 @@
 2009-08-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
  - libpq versions without PQcancel don't have PGcancel either.
+ - Never consider unnamed statement prepared, thanks Trigve Siver.
  test/unit/test_cancel_query.cxx:
  - Added test for cancel_query, thanks Don Madden.
+ test/unit/test_prepared_statement.cxx:
+ - Test less volatile unnamed prepared statement, thanks RhodiumToad.
 2009-08-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, src/connection_base.cxx:
  - Made cancel_query public, thanks Don Madden.

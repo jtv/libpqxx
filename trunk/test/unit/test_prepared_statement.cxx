@@ -262,6 +262,12 @@ void test_prepared_statement(connection_base &C, transaction_base &T)
     C.prepare("SELECT 2*$1 + $2")("integer")("integer");
     outcome = T.prepared()(9)(2).exec()[0][0].as<int>();
     PQXX_CHECK_EQUAL(outcome, 20, "Unnamed statement not properly redefined.");
+
+    // Unlike how the unnamed prepared statement works in libpq, we can issue
+    // other queries and then re-use the unnamed prepared statement.
+    T.exec("SELECT 12");
+    outcome = T.prepared()(3)(1).exec()[0][0].as<int>();
+    PQXX_CHECK_EQUAL(outcome, 7, "Unnamed statement isn't what it was.");
   }
 }
 } // namespace

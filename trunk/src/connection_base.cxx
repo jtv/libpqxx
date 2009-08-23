@@ -1017,7 +1017,7 @@ pqxx::connection_base::register_prepared(const PGSTD::string &name)
 	"[PREPARE " + name + "]",
 	encoding_code());
       check_result(r);
-      s.registered = true;
+      s.registered = !name.empty();
       return s;
     }
 #endif
@@ -1034,7 +1034,7 @@ pqxx::connection_base::register_prepared(const PGSTD::string &name)
 
     P << " AS " << s.definition;
     Exec(P.str().c_str(), 0);
-    s.registered = true;
+    s.registered = !name.empty();
   }
 
   return s;
