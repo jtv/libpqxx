@@ -1,3 +1,5 @@
+#include <pqxx/compiler-internal.hxx>
+
 #include <test_helpers.hxx>
 
 using namespace PGSTD;
@@ -11,7 +13,9 @@ void test_cancel_query(connection_base &c, transaction_base &t)
   p.retain(0);
   const pipeline::query_id i = p.insert("SELECT pg_sleep(3)");
   c.cancel_query();
+#ifdef PQXX_HAVE_PQCANCEL
   PQXX_CHECK_THROWS(p.retrieve(i), sql_error, "Canceled query did not throw.");
+#endif
 }
 } // namespace
 
