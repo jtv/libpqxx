@@ -1,5 +1,3 @@
-#include <pqxx/compiler-internal.hxx>
-
 #include <test_helpers.hxx>
 
 using namespace PGSTD;
@@ -9,16 +7,15 @@ namespace
 {
 void test_cancel_query(connection_base &c, transaction_base &t)
 {
+  // Calling cancel_query() while none is in progress has no effect.
+  c.cancel_query();
+
+  // Nothing much is guaranteed about cancel_query, except that it doesn't make
+  // the process die in flames.
   pipeline p(t, "test_cancel_query");
   p.retain(0);
-  const pipeline::query_id i = p.insert("SELECT pg_sleep(3)");
+  p.insert("SELECT pg_sleep(1)");
   c.cancel_query();
-  PQXX_CHECK(i, "No query id assigned.");
-
-#ifdef PQXX_HAVE_PQCANCEL
-  if (c.server_version() >= 80000)
-    PQXX_CHECK_THROWS(p.retrieve(i), sql_error, "Canceled query succeeded.");
-#endif
 }
 } // namespace
 
