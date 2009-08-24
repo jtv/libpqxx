@@ -15,6 +15,8 @@ void test_cancel_query(connection_base &c, transaction_base &t)
   c.cancel_query();
 #ifdef PQXX_HAVE_PQCANCEL
   PQXX_CHECK_THROWS(p.retrieve(i), sql_error, "Canceled query did not throw.");
+#else
+   PQXX_CHECK(i, "No query id assigned.");
 #endif
 }
 } // namespace
