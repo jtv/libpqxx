@@ -77,21 +77,22 @@ class test_case : public base_test
 public:
   // func takes connection and transaction as arguments.
   test_case(const PGSTD::string &tname, testfunc func) :
-    base_test(tname, func),
-    m_conn(),
-    m_trans(m_conn, tname)
+    base_test(tname, func)
   {
-    // Workaround for older backend versions that lack generate_series().
-    prepare_series(m_trans, 0, 100);
   }
 
   ~test_case() {}
 
-  virtual void run() { m_func(m_conn, m_trans); }
+  virtual void run()
+  {
+    CONNECTION c;
+    TRANSACTION t(c, name());
 
-private:
-  CONNECTION m_conn;
-  TRANSACTION m_trans;
+    // Workaround for older backend versions that lack generate_series().
+    prepare_series(t, 0, 100);
+
+    m_func(c, t);
+  }
 };
 
 
@@ -338,5 +339,3 @@ template<> struct string_traits<PGSTD::vector<PGSTD::string> >
 				 { return separated_list("; ", Obj); }
 };
 } // namespace pqxx
-
-

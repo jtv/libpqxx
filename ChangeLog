@@ -1,4 +1,8 @@
 2009-08-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test_helpers.hxx:
+ - Create connection/transaction in run(), so only when needed.
+ - Should fix test bailouts with 7.3 backends.
+ - Makes it easier to catch & report connection failures better in the future.
  test/unit/test_cancel_query.cxx:
  - Pretty much nothing we can test about cancel_query, apart from no segfault.
 2009-08-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
