@@ -1,3 +1,6 @@
+2009-08-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/unit/test_cancel_query.cxx:
+ - Fixed silly compile warning on pre-8.0 libpq versions.
 2009-08-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
  - libpq versions without PQcancel don't have PGcancel either.
