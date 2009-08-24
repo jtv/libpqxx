@@ -13,10 +13,11 @@ void test_cancel_query(connection_base &c, transaction_base &t)
   p.retain(0);
   const pipeline::query_id i = p.insert("SELECT pg_sleep(3)");
   c.cancel_query();
+  PQXX_CHECK(i, "No query id assigned.");
+
 #ifdef PQXX_HAVE_PQCANCEL
-  PQXX_CHECK_THROWS(p.retrieve(i), sql_error, "Canceled query did not throw.");
-#else
-   PQXX_CHECK(i, "No query id assigned.");
+  if (c.server_version() >= 80000)
+    PQXX_CHECK_THROWS(p.retrieve(i), sql_error, "Canceled query succeeded.");
 #endif
 }
 } // namespace
