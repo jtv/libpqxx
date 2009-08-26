@@ -1661,7 +1661,7 @@ void pqxx::connection_base::read_capabilities() throw ()
 
 #ifdef PQXX_HAVE_PQPREPARE
   m_caps[cap_statement_varargs] = (v >= 70300 && (p >= 3));
-  m_caps[cap_prepare_unnamed_statement] = true;
+  m_caps[cap_prepare_unnamed_statement] = (p >= 3);
 #else
   m_caps[cap_statement_varargs] = false;
   m_caps[cap_prepare_unnamed_statement] = false;
