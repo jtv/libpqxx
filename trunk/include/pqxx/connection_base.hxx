@@ -22,6 +22,7 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
+#include <bitset>
 #include <map>
 #include <memory>
 
@@ -441,7 +442,7 @@ public:
    * or the answer will always be "no."  In particular, if you are using this
    * function on a newly-created lazyconnection, activate the connection first.
    */
-  bool supports(capability c) const throw () { return m_caps[c]; }	//[t88]
+  bool supports(capability c) const throw () { return m_caps.test(c); }	//[t88]
 
   /// What version of the PostgreSQL protocol is this connection using?
   /** The answer can be 0 (when there is no connection, or the libpq version
@@ -905,7 +906,7 @@ private:
   int m_serverversion;
 
   /// Set of session capabilities
-  bool m_caps[cap_end];
+  PGSTD::bitset<cap_end> m_caps;
 
   /// Is reactivation currently inhibited?
   bool m_inhibit_reactivation;

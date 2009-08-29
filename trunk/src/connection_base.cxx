@@ -296,7 +296,7 @@ string pqxx::connection_base::RawGetVar(const PGSTD::string &Var)
 
 void pqxx::connection_base::clearcaps() throw ()
 {
-  for (int i=0; i<cap_end; ++i) m_caps[i] = false;
+  m_caps.reset();
 }
 
 
