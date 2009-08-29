@@ -124,16 +124,16 @@ string pqxx::encrypt_password(const string &user, const string &password)
 pqxx::connection_base::connection_base(connectionpolicy &pol) :
   m_Conn(0),
   m_policy(pol),
-  m_Completed(false),
   m_Trans(),
   m_Noticer(),
   m_defaultNoticeProcessor(0),
   m_Trace(0),
   m_serverversion(0),
-  m_caps(),
-  m_inhibit_reactivation(false),
   m_reactivation_avoidance(),
-  m_unique_id(0)
+  m_unique_id(0),
+  m_Completed(false),
+  m_inhibit_reactivation(false),
+  m_caps()
 {
   clearcaps();
 }

@@ -871,9 +871,6 @@ private:
 
   connectionpolicy &m_policy;
 
-  /// Have we successfully established this connection?
-  bool m_Completed;
-
   /// Active transaction on connection, if any
   internal::unique<transaction_base> m_Trans;
 
@@ -905,17 +902,20 @@ private:
   /// Server version
   int m_serverversion;
 
-  /// Set of session capabilities
-  PGSTD::bitset<cap_end> m_caps;
-
-  /// Is reactivation currently inhibited?
-  bool m_inhibit_reactivation;
-
   /// Stacking counter: known objects that can't be auto-reactivated
   internal::reactivation_avoidance_counter m_reactivation_avoidance;
 
   /// Unique number to use as suffix for identifiers (see adorn_name())
   int m_unique_id;
+
+  /// Have we successfully established this connection?
+  bool m_Completed;
+
+  /// Is reactivation currently inhibited?
+  bool m_inhibit_reactivation;
+
+  /// Set of session capabilities
+  PGSTD::bitset<cap_end> m_caps;
 
   friend class internal::gate::connection_transaction;
   result PQXX_PRIVATE Exec(const char[], int Retries);

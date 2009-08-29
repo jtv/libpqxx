@@ -1,6 +1,7 @@
 2009-08-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, src/connection_base.cxx:
  - Use bitset for capabilities array, thanks Kirit Saelensminde.
+ - Rearranged member variables by size.
 2009-08-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
  - Unnamed statements don't work with libpq 8 on 7.3 backend.
