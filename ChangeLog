@@ -1,3 +1,7 @@
+2009-09-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/notify-listen.cxx:
+ - Added missing include: compiler-internal.hxx
+ - Should fix link errors on Visual C++ from when callgates were introduced.
 2009-08-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, src/connection_base.cxx:
  - Use bitset for capabilities array, thanks Kirit Saelensminde.
