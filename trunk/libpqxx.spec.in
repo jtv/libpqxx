@@ -52,7 +52,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-, root, root)
-%doc AUTHORS ChangeLog NEWS README COPYING TODO
+%doc AUTHORS ChangeLog NEWS README COPYING
 %{_libdir}/lib*.so
 
 %files devel
