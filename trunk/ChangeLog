@@ -1,3 +1,6 @@
+2009-10-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ TODO:
+ - Finally replaced with bug tickets.  Closes #29.
 2009-09-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/notify-listen.cxx:
  - Added missing include: compiler-internal.hxx
