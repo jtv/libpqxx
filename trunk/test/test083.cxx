@@ -9,8 +9,9 @@ using namespace pqxx;
 // field iterators
 namespace
 {
-void test_083(connection_base &C, transaction_base &orgT)
+void test_083(transaction_base &orgT)
 {
+  connection_base &C(orgT.conn());
   orgT.abort();
 
   const string Table = "pqxxnumbers";

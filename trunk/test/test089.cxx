@@ -69,7 +69,7 @@ bool test_and_catch(connection_base &C, const string &desc)
 }
 
 
-void test_089(connection_base &, transaction_base &)
+void test_089(transaction_base &)
 {
   asyncconnection A1;
   bool ok = test_and_catch(A1, "asyncconnection (virgin)");

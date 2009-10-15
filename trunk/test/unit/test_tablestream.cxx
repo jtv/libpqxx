@@ -5,7 +5,7 @@ using namespace pqxx;
 
 namespace
 {
-void test_tablestream(connection_base &, transaction_base &Tsource)
+void test_tablestream(transaction_base &Tsource)
 {
   connection Cdest;
   work Tdest(Cdest);

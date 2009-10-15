@@ -74,7 +74,7 @@ struct intderef
 };
 
 
-void test_000(connection_base &, transaction_base &)
+void test_000(transaction_base &)
 {
   PQXX_CHECK_EQUAL(oid_none,
 	0u,

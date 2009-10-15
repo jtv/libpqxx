@@ -5,8 +5,9 @@ using namespace pqxx;
 
 namespace
 {
-void test_simultaneous_transactions(connection_base &c, transaction_base &t)
+void test_simultaneous_transactions(transaction_base &t)
 {
+  connection_base &c(t.conn());
   t.abort();
 
   nontransaction n1(c);

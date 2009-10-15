@@ -13,7 +13,7 @@ using namespace pqxx;
 
 namespace
 {
-void test_008(connection_base &, transaction_base &T)
+void test_008(transaction_base &T)
 {
   const string Table = "pqxxevents";
 

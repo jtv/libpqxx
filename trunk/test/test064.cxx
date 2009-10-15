@@ -54,7 +54,7 @@ void ActivationTest(connection_base &C, string style, string expected)
 }
 
 
-void test_064(connection_base &, transaction_base &)
+void test_064(transaction_base &)
 {
   asyncconnection C;
 

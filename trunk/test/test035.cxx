@@ -11,7 +11,7 @@ using namespace pqxx;
 // This test combines a lazy connection with a robust transaction.
 namespace
 {
-void test_035(connection_base &, transaction_base &T)
+void test_035(transaction_base &T)
 {
   result R( T.exec("SELECT * FROM pg_tables") );
 

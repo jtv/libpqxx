@@ -94,7 +94,7 @@ public:
 };
 
 
-void test_025(connection_base &, transaction_base &)
+void test_025(transaction_base &)
 {
   // Set up two connections to the backend: one to read our original table,
   // and another to write our copy

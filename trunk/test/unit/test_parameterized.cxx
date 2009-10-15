@@ -7,7 +7,7 @@ using namespace pqxx;
 
 namespace
 {
-void test_exec_params(connection_base &, transaction_base &trans)
+void test_exec_params(transaction_base &trans)
 {
   if (!trans.conn().supports(connection_base::cap_parameterized_statements))
     return;

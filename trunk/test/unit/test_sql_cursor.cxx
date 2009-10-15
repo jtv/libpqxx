@@ -5,7 +5,7 @@ using namespace pqxx;
 
 namespace
 {
-void test_forward_sql_cursor(connection_base &, transaction_base &trans)
+void test_forward_sql_cursor(transaction_base &trans)
 {
   // Plain owned, scoped, forward-only read-only cursor.
   internal::sql_cursor forward(
@@ -116,7 +116,7 @@ void test_forward_sql_cursor(connection_base &, transaction_base &trans)
   PQXX_CHECK_EQUAL(offset, 0, "move() in empty result counted rows");
 }
 
-void test_scroll_sql_cursor(connection_base &, transaction_base &trans)
+void test_scroll_sql_cursor(transaction_base &trans)
 {
   internal::sql_cursor scroll(
 	trans,
@@ -282,12 +282,12 @@ void test_hold_cursor(connection_base &conn, transaction_base &trans)
 }
 
 
-void cursor_tests(connection_base &c, transaction_base &t)
+void cursor_tests(transaction_base &t)
 {
-  test_forward_sql_cursor(c, t);
-  test_scroll_sql_cursor(c, t);
-  test_adopted_sql_cursor(c, t);
-  test_hold_cursor(c, t);
+  test_forward_sql_cursor(t);
+  test_scroll_sql_cursor(t);
+  test_adopted_sql_cursor(t.conn(), t);
+  test_hold_cursor(t.conn(), t);
 }
 } // namespace
 

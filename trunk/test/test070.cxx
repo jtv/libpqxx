@@ -49,7 +49,7 @@ void TestPipeline(pipeline &P, int numqueries)
 
 // Test program for libpqxx.  Issue a query repeatedly through a pipeline, and
 // compare results.  Use retain() and resume() for performance.
-void test_070(connection_base &C, transaction_base &W)
+void test_070(transaction_base &W)
 {
   pipeline P(W);
 
@@ -89,7 +89,7 @@ void test_070(connection_base &C, transaction_base &W)
   for (int i=0; i<5; ++i) TestPipeline(P, i);
 
   // See if retrieve() fails on an empty pipeline, as it should
-  disable_noticer d(C);
+  disable_noticer d(W.conn());
   PQXX_CHECK_THROWS(
 	P.retrieve(),
 	exception,

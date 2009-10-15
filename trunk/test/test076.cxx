@@ -7,7 +7,7 @@ using namespace pqxx;
 // Simple test program for libpqxx.  Test string conversion routines.
 namespace
 {
-void test_076(connection_base &, transaction_base &T)
+void test_076(transaction_base &T)
 {
   result RFalse = T.exec("SELECT 1=0"),
 	 RTrue  = T.exec("SELECT 1=1");

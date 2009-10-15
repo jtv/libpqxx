@@ -11,7 +11,7 @@ using namespace pqxx;
 // it.
 namespace
 {
-void test_063(connection_base &, transaction_base &T)
+void test_063(transaction_base &T)
 {
   result R( T.exec("SELECT * FROM pg_tables") );
   PQXX_CHECK(!R.empty(), "No tables found.  Cannot test.");

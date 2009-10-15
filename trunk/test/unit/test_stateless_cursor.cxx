@@ -5,7 +5,7 @@ using namespace pqxx;
 
 namespace
 {
-void test_stateless_cursor(connection_base &, transaction_base &trans)
+void test_stateless_cursor(transaction_base &trans)
 {
   stateless_cursor<cursor_base::read_only, cursor_base::owned> empty(
 	trans,

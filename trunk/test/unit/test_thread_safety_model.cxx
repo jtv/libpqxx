@@ -7,7 +7,7 @@ using namespace pqxx;
 
 namespace
 {
-void test_thread_safety_model(connection_base &, transaction_base &)
+void test_thread_safety_model(transaction_base &)
 {
   const thread_safety_model model = describe_thread_safety();
 

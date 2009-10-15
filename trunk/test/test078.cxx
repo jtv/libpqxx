@@ -66,8 +66,9 @@ public:
 };
 
 
-void test_078(connection_base &C, transaction_base &orgT)
+void test_078(transaction_base &orgT)
 {
+  connection_base &C(orgT.conn());
   orgT.abort();
 
   const string NotifName = "my listener";

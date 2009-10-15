@@ -12,7 +12,7 @@ using namespace pqxx;
 // types of streams.
 namespace
 {
-void test_046(connection_base &, transaction_base &T)
+void test_046(transaction_base &T)
 {
   result R( T.exec("SELECT count(*) FROM pg_tables") );
 

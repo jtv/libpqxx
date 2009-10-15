@@ -90,8 +90,9 @@ private:
 };
 
 
-void test_052(connection_base &C, transaction_base &orgT)
+void test_052(transaction_base &orgT)
 {
+  connection_base &C(orgT.conn());
   orgT.abort();
 
   largeobject Obj;

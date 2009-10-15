@@ -13,7 +13,7 @@ using namespace pqxx;
 // Example program for libpqxx.  Test binarystring functionality.
 namespace
 {
-void test_062(connection_base &, transaction_base &T)
+void test_062(transaction_base &T)
 {
   const string TestStr =
 	"Nasty\n\030Test\n\t String with \200\277 weird bytes "

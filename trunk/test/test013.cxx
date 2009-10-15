@@ -75,8 +75,9 @@ public:
 };
 
 
-void test_013(connection_base &C, transaction_base &T)
+void test_013(transaction_base &T)
 {
+  connection_base &C(T.conn());
   T.abort();
 
   const string Table = "pqxxevents";

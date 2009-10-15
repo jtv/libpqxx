@@ -39,7 +39,7 @@ void TestPipeline(pipeline &P, int numqueries)
 }
 
 
-void test_069(connection_base &, transaction_base &W)
+void test_069(transaction_base &W)
 {
   pipeline P(W);
   PQXX_CHECK(P.empty(), "Pipeline is not empty initially.");

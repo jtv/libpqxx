@@ -42,7 +42,7 @@ void RedoDatestyle(transaction_base &T, string style, string expected)
 }
 
 
-void test_061(connection_base &C, transaction_base &T)
+void test_061(transaction_base &T)
 {
   PQXX_CHECK(!GetDatestyle(T).empty(), "Initial datestyle not set.");
 
@@ -54,7 +54,7 @@ void test_061(connection_base &C, transaction_base &T)
   RedoDatestyle(T, "SQL", SQLname);
 
    // Prove that setting an unknown variable causes an error, as expected
-  disable_noticer d(C);
+  disable_noticer d(T.conn());
   PQXX_CHECK_THROWS(
 	T.set_variable("NONEXISTENT_VARIABLE_I_HOPE", "1"),
 	sql_error,

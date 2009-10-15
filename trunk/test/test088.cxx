@@ -9,8 +9,9 @@ using namespace pqxx;
 // Test program for libpqxx.  Attempt to perform nested queries.
 namespace
 {
-void test_088(connection_base &C, transaction_base &T0)
+void test_088(transaction_base &T0)
 {
+  connection_base &C(T0.conn());
   if (!C.supports(connection_base::cap_nested_transactions))
   {
     cout << "Backend version does not support nested transactions. "

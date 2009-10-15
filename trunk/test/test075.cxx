@@ -13,7 +13,7 @@ using namespace pqxx;
 // result to a regular, const_iterator iteration.
 namespace
 {
-void test_075(connection_base &, transaction_base &W)
+void test_075(transaction_base &W)
 {
   const result R( W.exec("SELECT year FROM pqxxevents") );
   PQXX_CHECK(!R.empty(), "No events found, cannot test.");

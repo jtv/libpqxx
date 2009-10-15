@@ -15,7 +15,7 @@ template<typename T> T make_infinity()
 #endif
 }
 
-void infinity_test(connection_base &, transaction_base &)
+void infinity_test(transaction_base &)
 {
   double inf = make_infinity<double>();
   PQXX_CHECK_EQUAL(to_string(inf), "infinity", "Infinity not as expected");

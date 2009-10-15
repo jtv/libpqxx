@@ -11,7 +11,7 @@ using namespace pqxx;
 // faster than a conventional query, on a lazy connection.
 namespace
 {
-void test_027(connection_base &, transaction_base &T)
+void test_027(transaction_base &T)
 {
   const string Table = "pqxxevents";
 

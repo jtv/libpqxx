@@ -54,8 +54,9 @@ void ActivationTest(connection_base &C, string style, string expected)
 }
 
 
-void test_060(connection_base &C, transaction_base &orgT)
+void test_060(transaction_base &orgT)
 {
+  connection_base &C(orgT.conn());
   orgT.abort();
 
   PQXX_CHECK(!GetDatestyle(C).empty(), "Initial datestyle not set.");

@@ -108,7 +108,7 @@ void Test(connection_base &C, bool ExplicitAbort)
 }
 
 
-void test_029(connection_base &, transaction_base &)
+void test_029(transaction_base &)
 {
   lazyconnection C;
 

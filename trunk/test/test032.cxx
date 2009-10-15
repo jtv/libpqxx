@@ -82,7 +82,7 @@ public:
 string FailedInsert::LastReason;
 
 
-void test_032(connection_base &, transaction_base &)
+void test_032(transaction_base &)
 {
   lazyconnection C;
 

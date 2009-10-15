@@ -54,7 +54,7 @@ const test_map &register_test(base_test *);
 class base_test
 {
 public:
-  typedef void (*testfunc)(connection_base &, transaction_base &);
+  typedef void (*testfunc)(transaction_base &);
 
   base_test(const PGSTD::string &tname, testfunc func);
 
@@ -91,7 +91,7 @@ public:
     // Workaround for older backend versions that lack generate_series().
     prepare_series(t, 0, 100);
 
-    m_func(c, t);
+    m_func(t);
   }
 };
 

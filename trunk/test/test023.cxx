@@ -65,7 +65,7 @@ public:
 };
 
 
-void test_023(connection_base &, transaction_base &)
+void test_023(transaction_base &)
 {
   lazyconnection C;
   cout << "Adding listener..." << endl;

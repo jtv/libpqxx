@@ -52,8 +52,9 @@ void dotests(transaction_base &t)
 }
 
 
-void test_090(connection_base &C, transaction_base &N)
+void test_090(transaction_base &N)
 {
+  connection_base &C(N.conn());
   // Test connection's adorn_name() function for uniqueness
   const string nametest = "basename";
   const string nt1 = C.adorn_name(nametest),

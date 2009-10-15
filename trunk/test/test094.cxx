@@ -112,8 +112,9 @@ public:
 };
 
 
-void test_094(connection_base &C, transaction_base &orgT)
+void test_094(transaction_base &orgT)
 {
+  connection_base &C(orgT.conn());
   orgT.abort();
 
   // Run without simulating failure
