@@ -130,6 +130,7 @@ namespace gate
 class connection_dbtransaction;
 class connection_largeobject;
 class connection_notify_listener;
+class connection_parameterized_invocation;
 class connection_pipeline;
 class connection_prepare_declaration;
 class connection_prepare_invocation;
@@ -419,6 +420,9 @@ public:
 
     /// Is the unnamed prepared statement supported?
     cap_prepare_unnamed_statement,
+
+    /// Can this connection execute parameterized statements?
+    cap_parameterized_statements,
 
     /// Not a capability value; end-of-enumeration marker
     cap_end
@@ -825,11 +829,7 @@ protected:
   void wait_write() const;
 
 private:
-  static result make_result(
-	internal::pq::PGresult *rhs,
-	int protocol, 
-	const PGSTD::string &query,
-	int encoding_code);
+  result make_result(internal::pq::PGresult *rhs, const PGSTD::string &query);
 
   void PQXX_PRIVATE clearcaps() throw ();
   void PQXX_PRIVATE SetupState();
@@ -948,6 +948,13 @@ private:
   void add_reactivation_avoidance_count(int);
 
   friend class internal::gate::connection_reactivation_avoidance_exemption;
+
+  friend class internal::gate::connection_parameterized_invocation;
+  result parameterized_exec(
+	const PGSTD::string &query,
+	const char *const params[],
+	const int paramlengths[],
+	int nparams);
 
   // Not allowed:
   connection_base(const connection_base &);

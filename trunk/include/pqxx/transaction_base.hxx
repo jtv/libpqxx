@@ -78,6 +78,28 @@ private:
   transactionfocus &operator=(const transactionfocus &);
 };
 
+
+class PQXX_LIBEXPORT parameterized_invocation : statement_parameters
+{
+public:
+  parameterized_invocation(connection_base &, const PGSTD::string &query);
+
+  parameterized_invocation &operator()() { add_param(); return *this; }
+  template<typename T> parameterized_invocation &operator()(const T &v)
+	{ add_param(v); return *this; }
+  template<typename T>
+	parameterized_invocation &operator()(const T &v, bool nonnull)
+	{ add_param(v, nonnull); return *this; }
+
+  result exec();
+
+private:
+  /// Not allowed
+  parameterized_invocation &operator=(const parameterized_invocation &);
+
+  connection_base &m_home;
+  const PGSTD::string m_query;
+};
 } // namespace internal
 
 
@@ -193,6 +215,14 @@ public:
   result exec(const PGSTD::stringstream &Query,
 	      const PGSTD::string &Desc=PGSTD::string())		//[t9]
 	{ return exec(Query.str(), Desc); }
+
+  /// Parameterize a statement.
+  /* Use this to build up a parameterized statement invocation, then invoke it
+   * using @c exec()
+   *
+   * Example: @c trans.parameterized("SELECT $1 + 1")(1).exec();
+   */
+  internal::parameterized_invocation parameterized(const PGSTD::string &query);
 
   /**
    * @name Prepared statements

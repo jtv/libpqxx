@@ -27,11 +27,35 @@
 #include "pqxx/transaction_base"
 
 #include "pqxx/internal/gates/connection-transaction.hxx"
+#include "pqxx/internal/gates/connection-parameterized_invocation.hxx"
 #include "pqxx/internal/gates/transaction-transactionfocus.hxx"
 
 
 using namespace PGSTD;
 using namespace pqxx::internal;
+
+
+pqxx::internal::parameterized_invocation::parameterized_invocation(
+	connection_base &c,
+	const PGSTD::string &query) :
+  m_home(c),
+  m_query(query)
+{
+}
+
+
+pqxx::result pqxx::internal::parameterized_invocation::exec()
+{
+  scoped_array<const char *> values;
+  scoped_array<int> lengths;
+  const int elements = marshall(values, lengths);
+
+  return gate::connection_parameterized_invocation(m_home).parameterized_exec(
+	m_query,
+	values.get(),
+	lengths.get(),
+	elements);
+}
 
 
 pqxx::transaction_base::transaction_base(connection_base &C, bool direct) :
@@ -253,6 +277,15 @@ pqxx::result pqxx::transaction_base::exec(const PGSTD::string &Query,
   // TODO: Pass Desc to do_exec(), and from there on down
   return do_exec(Query.c_str());
 }
+
+
+#ifdef PQXX_HAVE_PQEXECPARAMS
+pqxx::internal::parameterized_invocation
+pqxx::transaction_base::parameterized(const PGSTD::string &query)
+{
+  return internal::parameterized_invocation(conn(), query);
+}
+#endif // PQXX_HAVE_PQEXECPARAMS
 
 
 pqxx::prepare::invocation

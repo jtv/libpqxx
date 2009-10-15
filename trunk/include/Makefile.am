@@ -32,9 +32,11 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/util pqxx/util.hxx \
 	pqxx/version pqxx/version.hxx \
 	pqxx/internal/callgate.hxx \
+	pqxx/internal/statement_parameters.hxx \
 	pqxx/internal/gates/connection-dbtransaction.hxx \
 	pqxx/internal/gates/connection-largeobject.hxx \
 	pqxx/internal/gates/connection-notify-listener.hxx \
+	pqxx/internal/gates/connection-parameterized_invocation.hxx \
 	pqxx/internal/gates/connection-pipeline.hxx \
 	pqxx/internal/gates/connection-prepare-declaration.hxx \
 	pqxx/internal/gates/connection-prepare-invocation.hxx \

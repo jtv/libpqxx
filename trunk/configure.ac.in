@@ -830,6 +830,15 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 )
 AC_MSG_RESULT($pqexecprepared)
 
+AC_MSG_CHECKING([PQexecParams()])
+pqexecparams=yes
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[PQexecParams(0, "", 0, 0, 0, 0, 0, 0)],
+	AC_DEFINE(PQXX_HAVE_PQEXECPARAMS,1,[Define if libpq has PQexecParams()]),
+	[pqexecparams=no]
+)
+AC_MSG_RESULT($pqexecparams)
+
 AC_MSG_CHECKING([PQresultErrorField()])
 pqresulterrorfield=yes
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],

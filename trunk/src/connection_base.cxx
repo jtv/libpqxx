@@ -148,11 +148,13 @@ void pqxx::connection_base::init()
 
 pqxx::result pqxx::connection_base::make_result(
 	internal::pq::PGresult *rhs,
-	int protocol,
-	const PGSTD::string &query,
-	int encoding)
+	const PGSTD::string &query)
 {
-  return gate::result_creation::create(rhs, protocol, query, encoding);
+  return gate::result_creation::create(
+	rhs,
+	protocol_version(),
+	query,
+	encoding_code());
 }
 
 
@@ -358,10 +360,8 @@ void pqxx::connection_base::SetupState()
     // Now do the whole batch at once
     PQsendQuery(m_Conn, restore_query.str().c_str());
     result r;
-    const int proto = protocol_version();
-    const int encoding = encoding_code();
     do
-      r = make_result(PQgetResult(m_Conn), proto, "[RECONNECT]", encoding);
+      r = make_result(PQgetResult(m_Conn), "[RECONNECT]");
     while (gate::result_connection(r));
   }
 
@@ -601,11 +601,7 @@ void pqxx::connection_base::add_listener(pqxx::notify_listener *T)
 
     if (is_open()) try
     {
-      check_result(make_result(
-	PQexec(m_Conn, LQ.c_str()),
-	protocol_version(),
-	LQ,
-	encoding_code()));
+      check_result(make_result(PQexec(m_Conn, LQ.c_str()), LQ));
     }
     catch (const broken_connection &)
     {
@@ -824,21 +820,13 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 {
   activate();
 
-  result R = make_result(
-	PQexec(m_Conn, Query),
-	protocol_version(),
-	Query,
-	encoding_code());
+  result R = make_result(PQexec(m_Conn, Query), Query);
 
   while ((Retries > 0) && !gate::result_connection(R) && !is_open())
   {
     Retries--;
     Reset();
-    if (is_open())
-      R = make_result(PQexec(m_Conn, Query),
-	protocol_version(),
-	Query,
-	encoding_code());
+    if (is_open()) R = make_result(PQexec(m_Conn, Query), Query);
   }
 
   check_result(R);
@@ -1013,9 +1001,7 @@ pqxx::connection_base::register_prepared(const PGSTD::string &name)
     {
       result r = make_result(
 	PQprepare(m_Conn, name.c_str(), s.definition.c_str(), 0, 0),
-	protocol_version(),
-	"[PREPARE " + name + "]",
-	encoding_code());
+	"[PREPARE " + name + "]");
       check_result(r);
       s.registered = !name.empty();
       return s;
@@ -1089,9 +1075,7 @@ pqxx::result pqxx::connection_base::prepared_exec(
 		paramlengths,
 		binary.get(),
 		0),
-	protocol_version(),
-	statement,
-	encoding_code());
+	statement);
 
       check_result(r);
       get_notifs();
@@ -1273,7 +1257,6 @@ bool pqxx::connection_base::ReadCopyLine(PGSTD::string &Line)
 
 #ifdef PQXX_HAVE_PQPUTCOPY
   char *Buf = 0;
-  const int proto = protocol_version(), encoding=encoding_code();
   const string query = "[END COPY]";
   switch (PQgetCopyData(m_Conn, &Buf, false))
   {
@@ -1281,9 +1264,9 @@ bool pqxx::connection_base::ReadCopyLine(PGSTD::string &Line)
       throw failure("Reading of table data failed: " + string(ErrMsg()));
 
     case -1:
-      for (result R(make_result(PQgetResult(m_Conn), proto, query, encoding));
+      for (result R(make_result(PQgetResult(m_Conn), query));
            gate::result_connection(R);
-	   R=make_result(PQgetResult(m_Conn), proto, query, encoding))
+	   R=make_result(PQgetResult(m_Conn), query))
 	check_result(R);
       Result = false;
       break;
@@ -1385,11 +1368,7 @@ void pqxx::connection_base::EndCopyWrite()
 	"from PQputCopyEnd()");
   }
 
-  check_result(make_result(
-	PQgetResult(m_Conn),
-	protocol_version(),
-	"[END COPY]",
-	encoding_code()));
+  check_result(make_result(PQgetResult(m_Conn), "[END COPY]"));
 
 #else
   WriteCopyLine(theWriteTerminator);
@@ -1677,6 +1656,10 @@ void pqxx::connection_base::read_capabilities() throw ()
 #ifdef PQXX_HAVE_PQFTABLECOL
   m_caps[cap_table_column] = (p >= 3);
 #endif
+
+#ifdef PQXX_HAVE_PQEXECPARAMS
+  m_caps[cap_parameterized_statements] = (p >= 3);
+#endif
 }
 
 
@@ -1697,3 +1680,40 @@ int pqxx::connection_base::encoding_code() throw ()
 #endif
 }
 
+
+#ifdef PQXX_HAVE_PQEXECPARAMS
+pqxx::result pqxx::connection_base::parameterized_exec(
+	const PGSTD::string &query,
+	const char *const params[],
+	const int paramlengths[],
+	int nparams)
+{
+  if (!supports(cap_parameterized_statements)) throw feature_not_supported(
+	"Database backend version does not support parameterized statements.");
+
+  result r = make_result(
+  	PQexecParams(
+		m_Conn,
+		query.c_str(),
+		nparams,
+		NULL,
+		params,
+		paramlengths,
+		NULL,
+		0),
+	query);
+  check_result(r);
+  get_notifs();
+  return r;
+}
+#else
+pqxx::result pqxx::connection_base::parameterized_exec(
+	const PGSTD::string &,
+	const char *const[],
+	const int[],
+	int)
+{
+  throw feature_not_supported(
+	"This libpq version does not support parameterized statements.");
+}
+#endif // PQXX_HAVE_PQEXECPARAMS
