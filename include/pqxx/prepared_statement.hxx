@@ -21,8 +21,7 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
-#include "pqxx/strconv"
-#include "pqxx/util"
+#include "pqxx/internal/statement_parameters.hxx"
 
 
 namespace pqxx
@@ -103,7 +102,7 @@ private:
 
 
 /// Helper class for passing parameters to, and executing, prepared statements
-class PQXX_LIBEXPORT invocation
+class PQXX_LIBEXPORT invocation : internal::statement_parameters
 {
 public:
   invocation(transaction_base &, const PGSTD::string &statement);
@@ -115,27 +114,22 @@ public:
   bool exists() const;
 
   /// Pass null parameter
-  invocation &operator()();
+  invocation &operator()() { add_param(); return *this; }
 
   /// Pass parameter value
   /**
    * @param v parameter value (will be represented as a string internally)
    */
-  template<typename T>
-    invocation &operator()(const T &v)
-  {
-    const bool nonnull = !pqxx::string_traits<T>::is_null(v);
-    return setparam((nonnull ? pqxx::to_string(v) : ""), nonnull);
-  }
+  template<typename T> invocation &operator()(const T &v)
+	{ add_param(v); return *this; }
 
   /// Pass parameter value
   /**
    * @param v parameter value (will be represented as a string internally)
    * @param nonnull replaces value with null if set to false
    */
-  template<typename T>
-    invocation &operator()(const T &v, bool nonnull)
-	{ return setparam((nonnull ? pqxx::to_string(v) : ""), nonnull); }
+  template<typename T> invocation &operator()(const T &v, bool nonnull)
+	{ add_param(v, nonnull); return *this; }
 
   /// Pass C-style parameter string, or null if pointer is null
   /**
@@ -156,9 +150,8 @@ public:
    * @param v parameter value (will be represented as a C++ string internally)
    * @param nonnull replaces value with null if set to @c false
    */
-  template<typename T>
-    invocation &operator()(T *v, bool nonnull=true)
-	{ return setparam((v ? to_string(v) : ""), nonnull); }
+  template<typename T> invocation &operator()(T *v, bool nonnull=true)
+	{ add_param(v, nonnull); return *this; }
 
   /// Pass C-style string parameter, or null if pointer is null
   /** This duplicates the pointer-to-template-argument-type version of the
@@ -166,7 +159,7 @@ public:
    * disambiguate calls where C-style strings are passed.
    */
   invocation &operator()(const char *v, bool nonnull=true)
-	{ return setparam((v ? to_string(v) : ""), nonnull); }
+	{ add_param(v, nonnull); return *this; }
 
 private:
   /// Not allowed

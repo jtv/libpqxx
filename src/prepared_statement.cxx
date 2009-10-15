@@ -63,42 +63,24 @@ pqxx::prepare::declaration::etc(param_treatment treatment) const
 
 pqxx::prepare::invocation::invocation(transaction_base &home,
     const PGSTD::string &statement) :
+  statement_parameters(),
   m_home(home),
-  m_statement(statement),
-  m_values(),
-  m_nonnull()
+  m_statement(statement)
 {
 }
 
 
 pqxx::result pqxx::prepare::invocation::exec() const
 {
-  const size_t elts = m_nonnull.size();
-  pqxx::internal::scoped_array<const char *> ptrs(elts+1);
-  pqxx::internal::scoped_array<int> lens(2*(elts+1));
-  int v = 0;
-  for (size_t i = 0; i < elts; ++i)
-  {
-    if (m_nonnull[i])
-    {
-      ptrs[i] = m_values[v].c_str();
-      lens[i] = int(m_values[v].size());
-      ++v;
-    }
-    else
-    {
-      ptrs[i] = 0;
-      lens[i] = 0;
-    }
-  }
+  scoped_array<const char *> ptrs;
+  scoped_array<int> lens;
+  const int elts = marshall(ptrs, lens);
 
-  ptrs[elts] = 0;
-  lens[elts] = 0;
   return gate::connection_prepare_invocation(m_home.conn()).prepared_exec(
 	m_statement,
 	ptrs.get(),
 	lens.get(),
-	int(elts));
+	elts);
 }
 
 
@@ -106,31 +88,6 @@ bool pqxx::prepare::invocation::exists() const
 {
   return gate::connection_prepare_invocation(m_home.conn()).prepared_exists(
 	m_statement);
-}
-
-
-pqxx::prepare::invocation &pqxx::prepare::invocation::operator()()
-{
-  return setparam("", false);
-}
-
-
-pqxx::prepare::invocation &
-pqxx::prepare::invocation::setparam(const PGSTD::string &v, bool nonnull)
-{
-  m_nonnull.push_back(nonnull);
-  if (nonnull) try
-  {
-    m_values.push_back(v);
-  }
-  catch (const exception &)
-  {
-    // This probably doesn't help much, but it makes the function exception-safe
-    // at very little cost.
-    m_nonnull.resize(m_nonnull.size()-1);
-    throw;
-  }
-  return *this;
 }
 
 

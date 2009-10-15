@@ -1,3 +1,14 @@
+2009-10-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in:
+ - Check for PQexecParams.
+ include/Makefile.am, include/pqxx/connection_base.hxx,
+ include/pqxx/internal/gates/connection-parameterized_invocation.hxx,
+ include/pqxx/internal/statement_parameters.hxx,
+ include/pqxx/prepared_statement.hxx, include/pqxx/transaction_base.hxx,
+ src/connection_base.cxx, src/Makefile.am, src/prepared_statement.cxx,
+ src/transaction_base.cxx, test/unit/test_parameterized.cxx:
+ - Support parameterized statements.  Thanks Trigve Siver.
+ - Splice parameter marshalling out of prepared::invocation.
 2009-10-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  TODO:
  - Finally replaced with bug tickets.  Closes #29.
