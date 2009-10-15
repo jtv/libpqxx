@@ -12,8 +12,9 @@ namespace
 int BoringYear = 1977;
 
 
-void test_066(connection_base &C, transaction_base &T1)
+void test_066(transaction_base &T1)
 {
+  connection_base &C(T1.conn());
   const string Table = "pqxxevents";
 
   // Verify our start condition before beginning: there must not be a 1977

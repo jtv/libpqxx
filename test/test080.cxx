@@ -7,13 +7,11 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-// TODO: Permit failure on pre-7.3 backends
-
 // Test program for libpqxx.  Read pqxxevents table using a tablereader, with a
 // column list specification.  This requires a backend version of at least 7.3.
 namespace
 {
-void test_080(connection_base &, transaction_base &T)
+void test_080(transaction_base &T)
 {
   const string Table = "pqxxevents";
 

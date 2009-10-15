@@ -7,7 +7,7 @@ using namespace pqxx;
 // Test program for libpqxx.  Test result::swap()
 namespace
 {
-void test_077(connection_base &, transaction_base &T)
+void test_077(transaction_base &T)
 {
   result RFalse = T.exec("SELECT 1=0"),
 	 RTrue  = T.exec("SELECT 1=1");

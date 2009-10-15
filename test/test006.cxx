@@ -99,7 +99,7 @@ public:
 };
 
 
-void test_006(connection_base &, transaction_base &orgTrans)
+void test_006(transaction_base &orgTrans)
 {
   // Set up two connections to the backend: one to read our original table,
   // and another to write our copy

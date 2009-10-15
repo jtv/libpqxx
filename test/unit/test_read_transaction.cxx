@@ -5,7 +5,7 @@ using namespace pqxx;
 
 namespace
 {
-void test_read_transaction(connection_base &conn, transaction_base &trans)
+void test_read_transaction(transaction_base &trans)
 {
   PQXX_CHECK_EQUAL(
 	trans.exec("SELECT 1")[0][0].as<int>(),
@@ -13,7 +13,7 @@ void test_read_transaction(connection_base &conn, transaction_base &trans)
 	"Bad result from read transaction.");
 
   // This error terminates the test on 7.4 backends, so can't test for it there.
-  if (conn.server_version() >= 80000)
+  if (trans.conn().server_version() >= 80000)
     PQXX_CHECK_THROWS(
 	trans.exec("CREATE TABLE should_not_exist(x integer)"),
 	sql_error,

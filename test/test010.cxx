@@ -115,8 +115,9 @@ void Test(connection_base &C, bool ExplicitAbort)
 }
 
 
-void test_abort(connection_base &c, transaction_base &t)
+void test_abort(transaction_base &t)
 {
+  connection_base &c(t.conn());
   t.abort();
   Test(c, true);
   Test(c, false);

@@ -34,7 +34,7 @@ public:
 };
 
 
-void test_036(connection_base &, transaction_base &)
+void test_036(transaction_base &)
 {
   lazyconnection C;
   C.perform(ReadTables());

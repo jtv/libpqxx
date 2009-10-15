@@ -9,11 +9,11 @@ using namespace pqxx;
 // Test program for libpqxx.  Read and print table using field iterators.
 namespace
 {
-void test_082(connection_base &C, transaction_base &T)
+void test_082(transaction_base &T)
 {
   const string Table = "pqxxevents";
   result R( T.exec("SELECT * FROM " + Table) );
-  C.disconnect();
+  T.conn().disconnect();
 
   PQXX_CHECK(!R.empty(), "Got empty result.");
 

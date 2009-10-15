@@ -1,4 +1,7 @@
 2009-10-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test_helpers.hxx, test/test0*.cxx, test/unit/test_*.cxx:
+ - Don't pass connection to test functions.  Closes #198.
+2009-10-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in:
  - Check for PQexecParams.
  include/Makefile.am, include/pqxx/connection_base.hxx,

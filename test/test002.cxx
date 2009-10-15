@@ -20,7 +20,7 @@ void bad_connect()
   connection C("totally#invalid@connect$string!?");
 }
 
-void test_002(connection_base &, transaction_base &)
+void test_002(transaction_base &)
 {
   // Before we really connect, test the expected behaviour of the default
   // connection type, where a failure to connect results in an immediate

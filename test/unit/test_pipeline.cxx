@@ -5,7 +5,7 @@ using namespace pqxx;
 
 namespace
 {
-void test_pipeline(connection_base &, transaction_base &trans)
+void test_pipeline(transaction_base &trans)
 {
   // A pipeline grabs transaction focus, blocking regular queries and such.
   pipeline pipe(trans, "test_pipeline_detach");

@@ -12,7 +12,7 @@ using namespace pqxx;
 // connection.
 namespace
 {
-void test_030(connection_base &, transaction_base &)
+void test_030(transaction_base &)
 {
   const string Table = "pg_tables";
 

@@ -165,8 +165,9 @@ private:
 };
 
 
-void test_007(connection_base &C, transaction_base &T)
+void test_007(transaction_base &T)
 {
+  connection_base &C(T.conn());
   T.abort();
   C.set_client_encoding("SQL_ASCII");
 

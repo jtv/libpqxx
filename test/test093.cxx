@@ -16,7 +16,7 @@ using namespace pqxx;
 // Test program for libpqxx.  Test querying of result column origins.
 namespace
 {
-void test_093(connection_base &C, transaction_base &T)
+void test_093(transaction_base &T)
 {
   result R, X;
 
@@ -26,13 +26,13 @@ void test_093(connection_base &C, transaction_base &T)
     R = T.exec("SELECT z,y,x FROM pqxxfoo");
     X = T.exec("SELECT x,y,z,99 FROM pqxxfoo");
 
-    if (!C.supports(connection_base::cap_table_column))
+    if (!T.conn().supports(connection_base::cap_table_column))
     {
       cout << "No support for querying table columns.  Skipping." << endl;
       return;
     }
 
-    // T and C are closed here; result objects remain
+    // T and connection are closed here; result objects remain
   }
 
 #ifdef PQXX_HAVE_PQFTABLECOL

@@ -24,8 +24,9 @@ struct ReportWarning : noticer
 };
 
 
-void test_014(connection_base &C, transaction_base &orgT)
+void test_014(transaction_base &orgT)
 {
+  connection_base &C(orgT.conn());
   orgT.abort();
 
   // Tell C to report its warnings through std::cerr instead of the default

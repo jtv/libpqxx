@@ -9,7 +9,7 @@ using namespace pqxx;
 // Test program for libpqxx.  Test error handling for pipeline.
 namespace
 {
-void test_072(connection_base &C, transaction_base &W)
+void test_072(transaction_base &W)
 {
   pipeline P(W);
 
@@ -33,7 +33,7 @@ void test_072(connection_base &C, transaction_base &W)
   // We should *not* get a result for the query behind the error
   cout << "Retrieving post-error result..." << endl;
   {
-    disable_noticer d(C);
+    disable_noticer d(W.conn());
     PQXX_CHECK_THROWS(
 	P.retrieve(id_2).at(0).at(0).as<int>(),
 	runtime_error,
@@ -43,7 +43,7 @@ void test_072(connection_base &C, transaction_base &W)
   // Now see that we get an exception when we touch the failed result
   cout << "Retrieving result for failed query..." << endl;
   {
-    disable_noticer d(C);
+    disable_noticer d(W.conn());
     PQXX_CHECK_THROWS(
 	P.retrieve(id_f),
 	sql_error,

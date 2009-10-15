@@ -12,7 +12,7 @@ using namespace pqxx;
 
 namespace
 {
-void test_092(connection_base &C, transaction_base &T)
+void test_092(transaction_base &T)
 {
   const char databuf[] = "Test\0data";
   const string data(databuf, sizeof(databuf));
@@ -21,14 +21,14 @@ void test_092(connection_base &C, transaction_base &T)
   const string Table = "pqxxbin", Field = "binfield", Stat = "nully";
   T.exec("CREATE TEMP TABLE " + Table + " (" + Field + " BYTEA)");
 
-  if (!C.supports(connection_base::cap_prepared_statements))
+  if (!T.conn().supports(connection_base::cap_prepared_statements))
   {
     cout << "Backend version does not support prepared statements.  Skipping."
          << endl;
     return;
   }
 
-  C.prepare(Stat, "INSERT INTO " + Table + " VALUES ($1)")
+  T.conn().prepare(Stat, "INSERT INTO " + Table + " VALUES ($1)")
 	("BYTEA", pqxx::prepare::treat_binary);
   T.prepared(Stat)(data).exec();
 
@@ -53,7 +53,7 @@ void test_092(connection_base &C, transaction_base &T)
   T.exec("CREATE TEMP TABLE tuple (one INTEGER, two VARCHAR)");
 
   pqxx::prepare::declaration d(
-	C.prepare("maketuple", "INSERT INTO tuple VALUES ($1, $2)") );
+	T.conn().prepare("maketuple", "INSERT INTO tuple VALUES ($1, $2)") );
   d("INTEGER", pqxx::prepare::treat_direct);
   d("VARCHAR", pqxx::prepare::treat_string);
 

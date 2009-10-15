@@ -26,7 +26,7 @@ void dump(const result &R)
 }
 
 
-void test_084(connection_base &, transaction_base &T)
+void test_084(transaction_base &T)
 {
   const string Table = "pg_tables", Key = "tablename";
 

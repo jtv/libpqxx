@@ -64,10 +64,10 @@ void test_quote(connection_base &c, transaction_base &t)
 }
 
 
-void test_escaping(connection_base &c, transaction_base &t)
+void test_escaping(transaction_base &t)
 {
-  test_esc(c, t);
-  test_quote(c, t);
+  test_esc(t.conn(), t);
+  test_quote(t.conn(), t);
 }
 } // namespace
 

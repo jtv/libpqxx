@@ -82,8 +82,9 @@ public:
 string FailedInsert::LastReason;
 
 
-void test_018(connection_base &C, transaction_base &T)
+void test_018(transaction_base &T)
 {
+  connection_base &C(T.conn());
   T.abort();
 
   const string Table = "pqxxevents";

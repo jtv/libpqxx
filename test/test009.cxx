@@ -69,7 +69,7 @@ void CheckTable(transaction_base &T, string TableName)
   // TODO: Compare table contents to Contents
 }
 
-void test_009(connection_base &, transaction_base &T)
+void test_009(transaction_base &T)
 {
   PrepareContents();
 

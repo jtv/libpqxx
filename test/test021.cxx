@@ -10,7 +10,7 @@ using namespace pqxx;
 // a transaction, and perform a query inside it.
 namespace
 {
-void test_021(connection_base &, transaction_base &)
+void test_021(transaction_base &)
 {
   lazyconnection C;
   C.process_notice("Printing details on deferred connection\n");

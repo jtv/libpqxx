@@ -9,7 +9,7 @@ namespace
 {
 void empty() {}
 
-void test_test_helpers(connection_base &, transaction_base &)
+void test_test_helpers(transaction_base &)
 {
   bool failed = true;
 

@@ -12,7 +12,7 @@ using namespace pqxx;
 // tests.  Any data previously in the table will be deleted.
 namespace
 {
-void test_024(connection_base &, transaction_base &)
+void test_024(transaction_base &)
 {
   // Set up a deferred connection to the backend
   lazyconnection C;

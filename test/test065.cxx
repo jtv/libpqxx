@@ -100,7 +100,7 @@ private:
 };
 
 
-void test_065(connection_base &, transaction_base &)
+void test_065(transaction_base &)
 {
   asyncconnection C("");
 

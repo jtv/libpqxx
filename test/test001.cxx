@@ -11,18 +11,18 @@ namespace
 
 // Simple test program for libpqxx.  Open connection to database, start
 // a transaction, and perform a query inside it.
-void test_001(connection_base &C, transaction_base &trans)
+void test_001(transaction_base &trans)
 {
   cout << "Connected to database." << endl
-       << "Backend version: " << C.server_version() << endl
-       << "Protocol version: " << C.protocol_version() << endl;
+       << "Backend version: " << trans.conn().server_version() << endl
+       << "Protocol version: " << trans.conn().protocol_version() << endl;
 
   // Close old transaction.
   trans.abort();
 
   // Begin a transaction acting on our current connection.  Give it a human-
   // readable name so the library can include it in error messages.
-  work T(C, "test1");
+  work T(trans.conn(), "test1");
 
   // Perform a query on the database, storing result tuples in R.
   result R( T.exec("SELECT * FROM pg_tables") );

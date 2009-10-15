@@ -77,8 +77,10 @@ template<typename CNTNR> string subst(transaction_base &t,
 }
 
 
-void test_prepared_statement(connection_base &C, transaction_base &T)
+void test_prepared_statement(transaction_base &T)
 {
+  connection_base &C(T.conn());
+
   /* A bit of nastiness in prepared statements: on 7.3.x backends we can't
    * compare pg_tables.tablename to a string.  We work around this by using
    * the LIKE operator.

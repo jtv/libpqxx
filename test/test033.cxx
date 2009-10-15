@@ -10,7 +10,7 @@ using namespace pqxx;
 // a dummy transaction to gain nontransactional access, and perform a query.
 namespace
 {
-void test_033(connection_base &, transaction_base &T)
+void test_033(transaction_base &T)
 {
   result R( T.exec("SELECT * FROM pg_tables") );
 

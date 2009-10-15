@@ -20,8 +20,9 @@ void InitVector(VEC &V, typename VEC::size_type s, VAL val)
 }
 
 
-void test_067(connection_base &C, transaction_base &orgT)
+void test_067(transaction_base &orgT)
 {
+  connection_base &C(orgT.conn());
   orgT.abort();
 
   const string Table = "pg_tables";

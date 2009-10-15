@@ -89,7 +89,7 @@ struct CountGreaterSmaller : unary_function<result::tuple, void>
 };
 
 
-void test_049(connection_base &, transaction_base &T)
+void test_049(transaction_base &T)
 {
   string Table="pg_tables", Key="tablename";
 

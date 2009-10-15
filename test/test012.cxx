@@ -19,8 +19,9 @@ void InitVector(VEC &V, typename VEC::size_type s, VAL val)
   for (typename VEC::iterator i = V.begin(); i != V.end(); ++i) *i = val;
 }
 
-void test_012(connection_base &C, transaction_base &orgT)
+void test_012(transaction_base &orgT)
 {
+  connection_base &C(orgT.conn());
   orgT.abort();
 
   const string Table = "pg_tables";

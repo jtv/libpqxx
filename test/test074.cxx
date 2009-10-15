@@ -9,7 +9,7 @@ using namespace pqxx;
 // Test program for libpqxx.  Test fieldstream.
 namespace
 {
-void test_074(connection_base &, transaction_base &W)
+void test_074(transaction_base &W)
 {
   result R = W.exec("SELECT * FROM pg_tables");
   const string sval = R.at(0).at(1).c_str();

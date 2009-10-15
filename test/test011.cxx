@@ -11,7 +11,7 @@ using namespace pqxx;
 // Test program for libpqxx.  Query a table and report its metadata.
 namespace
 {
-void test_011(connection_base &, transaction_base &T)
+void test_011(transaction_base &T)
 {
   const string Table = "pg_tables";
 

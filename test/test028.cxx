@@ -65,7 +65,7 @@ void CheckTable(transaction_base &T, string TableName)
 }
 
 
-void test_028(connection_base &, transaction_base &T)
+void test_028(transaction_base &T)
 {
   PrepareContents();
 

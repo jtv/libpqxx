@@ -96,7 +96,7 @@ private:
 };
 
 
-void test_026(connection_base &, transaction_base &)
+void test_026(transaction_base &)
 {
   lazyconnection C;
 

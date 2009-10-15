@@ -11,7 +11,7 @@ using namespace pqxx;
 // faster than a conventional query, on an asynchronous connection.
 namespace
 {
-void test_068(connection_base &, transaction_base &T)
+void test_068(transaction_base &T)
 {
   string Table = "pqxxevents";
 

@@ -54,13 +54,13 @@ public:
 };
 
 
-void test_004(connection_base &C, transaction_base &T)
+void test_004(transaction_base &T)
 {
   T.abort();
 
-  TestListener L(C);
+  TestListener L(T.conn());
 
-  C.perform(Notify(L.name()));
+  T.conn().perform(Notify(L.name()));
 
   int notifs = 0;
   for (int i=0; (i < 20) && !L.Done(); ++i)
@@ -71,7 +71,7 @@ void test_004(connection_base &C, transaction_base &T)
     // this at home!  The pqxx::internal namespace is not for third-party use
     // and may change radically at any time.
     pqxx::internal::sleep_seconds(1);
-    notifs = C.get_notifs();
+    notifs = T.conn().get_notifs();
   }
 
   PQXX_CHECK_NOT_EQUAL(L.Done(), false, "No notification received.");

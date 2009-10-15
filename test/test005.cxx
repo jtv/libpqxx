@@ -13,8 +13,9 @@ using namespace pqxx;
 namespace
 {
 
-void test_005(connection_base &C, transaction_base &orgT)
+void test_005(transaction_base &orgT)
 {
+  connection_base &C(orgT.conn());
   string TableName("pqxxorgevents");
 
   // First create a separate transaction to drop old table, if any.  This may
