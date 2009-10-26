@@ -39,11 +39,11 @@ protected:
   statement_parameters();
 
   void add_param() { add_checked_param("", false); }
-  template<typename T> void add_param(const T &v) { add_param(v, true); }
+  template<typename T> void add_param(const T &v) { this->add_param(v, true); }
   template<typename T> void add_param(const T &v, bool nonnull)
   {
     nonnull = (nonnull && !pqxx::string_traits<T>::is_null(v));
-    add_checked_param((nonnull ? to_string(v) : ""), nonnull);
+    this->add_checked_param((nonnull ? pqxx::to_string(v) : ""), nonnull);
   }
 
   /// Marshall parameter values into C-style arrays for passing to libpq.
