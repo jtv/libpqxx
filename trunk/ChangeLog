@@ -1,3 +1,6 @@
+2009-11-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx:
+ - Bit of documentation work.
 2009-10-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/internal/statement_parameters.hxx:
  - Qualified some function calls, thanks Daniel Frey.
