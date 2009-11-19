@@ -48,7 +48,7 @@
  * file; a more extensive tutorial is available in doc/html/Tutorial/index.html.
  *
  * The latest information, as well as updates, a mailing list, and a bug
- * reporting system can be found at the project's home page.
+ * reporting system can be found at http://pqxx.org/
  *
  * Some links that should help you find your bearings:
  * \li \ref gettingstarted
@@ -69,25 +69,25 @@
  * \li You connect to the database by creating a
  * connection object (see \ref connection).  The connection type you'll usually
  * want is pqxx::connection.
- * \li Within that connection, you create a transaction object (see
- * \ref transaction).  You'll usually want the pqxx::work variety.  If you don't
- * want transactional behaviour, use pqxx::nontransaction.  Once you're done you
- * call the transaction's @c commit function to make its work final.  If you
- * don't call this, the work will be rolled back when the transaction object is
+ * \li You create a transaction object (see \ref transaction) operating on that
+ * connection.  You'll usually want the pqxx::work variety.  If you don't want
+ * transactional behaviour, use pqxx::nontransaction.  Once you're done you call
+ * the transaction's @c commit function to make its work final.  If you don't
+ * call this, the work will be rolled back when the transaction object is
  * destroyed.
- * \li While you have the transaction object, use its @c exec function to
- * execute a query.  The query is a simple string.  The function returns a
- * pqxx::result object, which acts as a standard container of rows.  Each row in
- * itself acts as a container of fields.  You can use array indexing and/or
- * iterators to access either.
+ * \li Until then, use the transaction's @c exec function to execute queries,
+ * which you pass in as simple strings.
+ * \li The function returns a pqxx::result object, which acts as a standard
+ * container of rows.  Each row in itself acts as a container of fields.  You
+ * can use array indexing and/or iterators to access either.
  * \li The field's data is stored as a text string.  You can read it as such
  * using its @c c_str() function, or convert it to other types using its @c as()
- * and @c to() functions.  These are templated on the destination type.
+ * and @c to() member functions.  These are templated on the destination type:
+ * @c myfield.as<int>(); or @c myfield.to(myint);
  *
  * Here's a very basic example.  It connects to the default database (you'll
- * need to have one set up), asks the database for a very simple result,
- * converts it to an @c int, and prints it.  It also contains some basic error
- * handling.
+ * need to have one set up), queries it for a very simple result, converts it to
+ * an @c int, and prints it out.  It also contains some basic error handling.
  *
  * @code
  * #include <iostream>
@@ -112,7 +112,7 @@
  * }
  * @endcode
  *
- * This should print the number 1.  Notice that you can keep the result object
+ * This prints the number 1.  Notice that you can keep the result object
  * around after the transaction (or even the connection) has been closed.
  *
  * Here's a slightly more complicated example.  It takes an argument from the
@@ -209,20 +209,20 @@
  * All these iterator types provide one extra bit of convenience that you won't
  * normally find in C++ iterators: referential transparency.  You don't need to
  * dereference them to get to the row or field they refer to.  That is, instead
- * of @c row->end() you can also choose to sasy @c row.end().  Similarly, you
+ * of @c row->end() you can also choose to say @c row.end().  Similarly, you
  * may prefer @c field.c_str() over @c field->c_str().
  *
- * This becomes really helpful with operators such as the array-indexing
- * operator.  With regular C++ iterators you would need ugly expressions such as
- * @c (*row)[0] or @c row->operator[](0).  With the iterator types defined by
- * the result and tuple classes you can simply say @c row[0].
+ * This becomes really helpful with the array-indexing operator.  With regular
+ * C++ iterators you would need ugly expressions like @c (*row)[0] or
+ * @c row->operator[](0).  With the iterator types defined by the result and
+ * tuple classes you can simply say @c row[0].
  */
 
 /** @page threading Thread safety
  *
  * This library does not contain any locking code to protect objects against
  * simultaneous modification in multi-threaded programs.  There are many
- * different threading interfaces and libpqxx does not dictate the choice.
+ * different threading interfaces and libpqxx does not dictate your choice.
  *
  * Therefore it is up to you, the user of the library, to ensure that your
  * threaded client programs perform no conflicting operations concurrently.
@@ -231,9 +231,9 @@
  * underlying libpq.  Here's what you should do to keep your threaded libpqxx
  * application safe:
  *
- * \li Treat a connection and all objects related to it as a "world" of its own.
- * With some exceptions (see below), you should make sure that the same "world"
- * is never accessed concurrently by multiple threads.
+ * \li Treat a connection, together with any and all objects related to it, as a
+ * "world" of its own.  With some exceptions (see below), you should make sure
+ * that the same "world" is never accessed concurrently by multiple threads.
  *
  * \li Result sets (pqxx::result) and binary data (pqxx::binarystring)
  * are special.  Copying these objects is very cheap, and you can give the copy
@@ -241,9 +241,15 @@
  * copy when it's being assigned to, swapped, cleared, or destroyed.
  *
  * @warning Prior to libpqxx 3.1, or in C++ environments without the standard
- * smart pointer type @c "shared_ptr," copying, assigning, or destroying a
+ * @c "shared_ptr" smart pointer type, copying, assigning, or destroying a
  * pqxx::result or pqxx::binarystring could also affect any other other object
  * of the same type referring to the same underlying data.
+ *
+ * Use @c pqxx::describe_thread_safety to find out at runtime what level of
+ * thread safety is implemented in your build and version of libpqxx.  It
+ * returns a pqxx::thread_safety_model describing what you can and cannot rely
+ * on.  A command-line utility @c tools/pqxxthreadsafety prints out the same
+ * information.
  */
 
 /// The home of all libpqxx classes, functions, templates, etc.
