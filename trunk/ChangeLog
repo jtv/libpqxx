@@ -1,4 +1,6 @@
 2009-11-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure:
+ - Put configure script under revision control.
  include/pqxx/util.hxx:
  - Bit of documentation work.
 2009-10-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
