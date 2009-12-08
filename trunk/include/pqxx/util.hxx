@@ -232,8 +232,9 @@
  * application safe:
  *
  * \li Treat a connection, together with any and all objects related to it, as a
- * "world" of its own.  With some exceptions (see below), you should make sure
- * that the same "world" is never accessed concurrently by multiple threads.
+ * "world" of its own.  You should generally make sure that the same "world" is
+ * never accessed concurrently by multiple threads.  There are a few cases where
+ * you don't need to be this careful, however; see below.
  *
  * \li Result sets (pqxx::result) and binary data (pqxx::binarystring)
  * are special.  Copying these objects is very cheap, and you can give the copy
