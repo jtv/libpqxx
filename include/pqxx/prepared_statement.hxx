@@ -33,6 +33,93 @@ class result;
 /// Dedicated namespace for helper types related to prepared statements
 namespace prepare
 {
+/** \defgroup prepared Prepared statements
+ *
+ * Prepared statements are SQL queries that you define once and then invoke
+ * as many times as you like, typically with varying parameters.  It's basically
+ * a function that you can define ad hoc.
+ *
+ * If you have an SQL statement that you're going to execute many times in
+ * quick succession, it may be more efficient to prepare it once and reuse it.
+ * This saves the database backend the effort of parsing complex SQL and
+ * figuring out an efficient execution plan.  Another nice side effect is that
+ * you don't need to worry about escaping parameters.
+ *
+ * You create a prepared statement by preparing it on the connection, passing an
+ * identifier and its SQL text.  The identifier is the name by which the
+ * prepared statement will be known; it should consist of letters, digits, and
+ * underscores only and start with a letter.  The name is case-sensitive.
+ *
+ * @code
+ * void prepare_my_statement(pqxx::connection_base &c)
+ * {
+ *   c.prepare("my_statement", "SELECT * FROM Employee WHERE name = 'Xavier'");
+ * }
+ * @endcode
+ *
+ * Once you've done this, you'll be able to call @c my_statement from any
+ * transaction you execute on the same connection.  Note that this uses a member
+ * function called @c "prepared"; the definition used a member function called
+ * @c "prepare".
+ *
+ * @code
+ * pqxx::result execute_my_statement(pqxx::transaction_base &t)
+ * {
+ *   return t.prepared("my_statement").exec();
+ * }
+ * @endcode
+ *
+ * Did I mention that you can pass parameters to prepared statements?  You
+ * define those along with the statement.  The query text uses $@c 1, @c $2 etc.
+ * as placeholders for the parameters in the SQL text.  Since your C++ compiler
+ * doesn't know how many parameters you're going to define, the syntax that lets
+ * you do this is a bit strange:
+ *
+ * @code
+ * void prepare_find(pqxx::connection_base &c)
+ * {
+ *   // Prepare a statement called "find" that looks for employees with a given
+ *   // name (parameter 1) whose salary exceeds a given number (parameter 2).
+ *   const std::string sql =
+ *     "SELECT * FROM Employee WHERE name = $1 AND salary > $2";
+ * 
+ *   c.prepare("find", sql)("varchar", pqxx::prepare::treat_string)("integer");
+ * }
+ * @endcode
+ *
+ * The first parameter is defined as having SQL type @c varchar; and libpqxx is
+ * to treat it as a string.  This last point matters if prepared-statement
+ * support is missing in the current backend version or the underlying C
+ * library, and libpqxx needs to emulate the prepared statement.  See
+ * pqxx::prepare::param_treatment for the list of ways parameters may need to be
+ * treated.  This detail will go away in the future.
+ *
+ * The second parameter is an integer, with default treatment by libpqxx.
+ *
+ * When invoking the prepared statement, you pass parameter values using the
+ * same syntax.
+ *
+ * @code
+ * pqxx::result execute_find(
+ *   pqxx::transaction_base &t, std::string name, int min_salary)
+ * {
+ *   return t.prepared("find")(name)(min_salary).exec();
+ * }
+ * @endcode
+ *
+ * @warning There are cases where prepared statements are actually slower than
+ * plain SQL.  Sometimes the backend can produce a better execution plan when it
+ * knows the parameter values.  For example, say you've got a web application
+ * and you're querying for users with status "inactive" who have email addresses
+ * in a given domain name X.  If X is a very popular provider, the best way to
+ * plan the query may be to list the inactive users first and then filter for
+ * the email addresses you're looking for.  But in other cases, it may be much
+ * faster to find matching email addresses first and then see which of their
+ * owners are "inactive."  A prepared statement must be planned to fit either
+ * case, but a direct query can be optimized based on table statistics, partial
+ * indexes, etc.
+ */
+
 /// Type of treatment of a particular parameter to a prepared statement
 /** This information is needed to determine whether a parameter needs to be
  * quoted, escaped, binary-escaped, and/or converted to boolean as it is

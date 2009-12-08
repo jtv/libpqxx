@@ -1,4 +1,10 @@
 2009-12-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/Makefile.am, include/pqxx/performance.hxx:
+ - Added documentation-only header for performance features. 
+ include/pqxx/connection_base.hxx, include/pqxx/prepared_statement.hxx,
+ include/pqxx/util.hxx:
+ - Improvements to reference documentation.
+2009-12-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.hxx:
  - Docs wording.
 2009-11-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
