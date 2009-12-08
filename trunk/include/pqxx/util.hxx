@@ -55,6 +55,7 @@
  * \li \ref threading
  * \li \ref connection
  * \li \ref transaction
+ * \li \ref performance
  *
  * @see http://pqxx.org/
  */
@@ -84,6 +85,8 @@
  * using its @c c_str() function, or convert it to other types using its @c as()
  * and @c to() member functions.  These are templated on the destination type:
  * @c myfield.as<int>(); or @c myfield.to(myint);
+ * \li After you've closed the transaction, the connection is free to run a next
+ * transaction.
  *
  * Here's a very basic example.  It connects to the default database (you'll
  * need to have one set up), queries it for a very simple result, converts it to

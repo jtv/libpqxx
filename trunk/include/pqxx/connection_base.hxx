@@ -145,8 +145,8 @@ class connection_transaction;
 /** This is the first class to look at when you wish to work with a database
  * through libpqxx.  Depending on the implementing concrete child class, a
  * connection can be automatically opened when it is constructed, or when it is
- * first used.  The connection is automatically closed upon destruction, if it
- * hasn't already been closed manually.
+ * first used, or somewhere inbetween.  The connection is automatically closed
+ * upon destruction (if it hasn't been closed already).
  *
  * To query or manipulate the database once connected, use one of the
  * transaction classes (see pqxx/transaction_base.hxx) or preferably the
@@ -583,12 +583,12 @@ public:
    * time, without un-preparing it first.
    *
    * @warning Prepared statements are not necessarily defined on the backend
-   * right away; they may be cached by libpqxx.  This means that statements may
-   * be prepared before the connection is fully established, and that it's
-   * relatively cheap to pre-prepare lots of statements that may or may not be
-   * used during the session.  It also means, however, that errors in the
-   * prepared statement may not show up until it is first used.  Such failure
-   * may cause the current transaction to roll back.
+   * right away; libpqxx generally does that lazily.  This means that you can
+   * prepare statements before the connection is fully established, and that
+   * it's relatively cheap to pre-prepare lots of statements that you may or may
+   * not use during the session.  On the other hand, it also means that errors
+   * in a prepared statement may not show up until you first try to invoke it.
+   * Such an error may then break the transaction it occurs in.
    *
    * @warning Never try to prepare, execute, or unprepare a prepared statement
    * manually using direct SQL queries.  Always use the functions provided by
