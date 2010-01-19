@@ -23,7 +23,6 @@ MAINTAINERCLEANFILES=Makefile.in
 
 runner_SOURCES = \
   test_cancel_query.cxx \
-  test_datetime.cxx \
   test_escape.cxx \
   test_float.cxx \
   test_parameterized.cxx \

@@ -66,8 +66,7 @@ CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__EXEEXT_1 = runner$(EXEEXT)
-am_runner_OBJECTS = test_cancel_query.$(OBJEXT) \
-	test_datetime.$(OBJEXT) test_escape.$(OBJEXT) \
+am_runner_OBJECTS = test_cancel_query.$(OBJEXT) test_escape.$(OBJEXT) \
 	test_float.$(OBJEXT) test_parameterized.$(OBJEXT) \
 	test_pipeline.$(OBJEXT) test_prepared_statement.$(OBJEXT) \
 	test_read_transaction.$(OBJEXT) \
@@ -235,7 +234,6 @@ DEFAULT_INCLUDES =
 MAINTAINERCLEANFILES = Makefile.in
 runner_SOURCES = \
   test_cancel_query.cxx \
-  test_datetime.cxx \
   test_escape.cxx \
   test_float.cxx \
   test_parameterized.cxx \
@@ -306,7 +304,6 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/runner.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_cancel_query.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_datetime.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_escape.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_float.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_parameterized.Po@am__quote@
