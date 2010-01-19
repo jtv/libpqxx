@@ -257,7 +257,6 @@ nobase_include_HEADERS = pqxx/pqxx \
 	pqxx/connection_base pqxx/connection_base.hxx \
 	pqxx/connectionpolicy pqxx/connectionpolicy.hxx \
 	pqxx/cursor pqxx/cursor.hxx \
-	pqxx/datetime pqxx/datetime.hxx \
 	pqxx/dbtransaction pqxx/dbtransaction.hxx \
 	pqxx/except pqxx/except.hxx \
 	pqxx/isolation pqxx/isolation.hxx \
@@ -269,7 +268,6 @@ nobase_include_HEADERS = pqxx/pqxx \
 	pqxx/prepared_statement pqxx/prepared_statement.hxx \
 	pqxx/result pqxx/result.hxx \
 	pqxx/robusttransaction pqxx/robusttransaction.hxx \
-	pqxx/singularity pqxx/singularity.hxx \
 	pqxx/strconv pqxx/strconv.hxx \
 	pqxx/subtransaction pqxx/subtransaction.hxx \
 	pqxx/tablereader pqxx/tablereader.hxx \
@@ -304,7 +302,8 @@ nobase_include_HEADERS = pqxx/pqxx \
 	pqxx/internal/gates/transaction-transactionfocus.hxx
 
 nobase_nodist_include_HEADERS = \
-	pqxx/config-public-compiler.h
+	pqxx/config-public-compiler.h \
+	pqxx/performance.hxx
 
 EXTRA_DIST = pqxx/version.hxx.template
 all: all-recursive
