@@ -1,0 +1,244 @@
+/* include/pqxx/config.h.in.  Generated from configure.ac by autoheader.  */
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the `pq' library (-lpq). */
+#undef HAVE_LIBPQ
+
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
+#undef LT_OBJDIR
+
+/* Name of package */
+#undef PACKAGE
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* name of standard library namespace (normally "std") */
+#undef PGSTD
+
+/* namespace of TR1 standard extensions (e.g. "std" or "std::tr1") */
+#undef PQXXTR1
+
+/* Define if <iterator> lacks an iterator template definition */
+#undef PQXX_BROKEN_ITERATOR
+
+/* Define if function overloading using "using" breaks */
+#undef PQXX_BROKEN_USING_DECL
+
+/* Define if you have <boost/date_time/gregorian.hpp> */
+#undef PQXX_HAVE_BOOST_GREGORIAN_DATE
+
+/* Define if you have the <boost/smart_ptr.hpp> header */
+#undef PQXX_HAVE_BOOST_SMART_PTR
+
+/* Define if std provides the char_traits template and <char> specialization
+   */
+#undef PQXX_HAVE_CHAR_TRAITS
+
+/* Define if count_if() works according to the standard */
+#undef PQXX_HAVE_COUNT_IF
+
+/* Define if preprocessor supports pragma "message" */
+#undef PQXX_HAVE_CPP_PRAGMA_MESSAGE
+
+/* Define if preprocessor supports nonstandard "warning" directive */
+#undef PQXX_HAVE_CPP_WARNING
+
+/* Define if math.h defines C99 isinf() */
+#undef PQXX_HAVE_C_ISINF
+
+/* Define if math.h defines C99 isnan() */
+#undef PQXX_HAVE_C_ISNAN
+
+/* Define if C math header defines NAN */
+#undef PQXX_HAVE_C_NAN
+
+/* Define if distance() works according to the standard */
+#undef PQXX_HAVE_DISTANCE
+
+/* Define if g++ supports deprecated attribute, as in g++ 4.0 */
+#undef PQXX_HAVE_GCC_DEPRECATED
+
+/* Define if g++ supports visibility attribute, as in g++ 4.0 */
+#undef PQXX_HAVE_GCC_VISIBILITY
+
+/* Define if stringstream::imbue works */
+#undef PQXX_HAVE_IMBUE
+
+/* Define if you have the <ios> header */
+#undef PQXX_HAVE_IOS
+
+/* Define if <limits> exists */
+#undef PQXX_HAVE_LIMITS
+
+/* Define if you have the <locale> header */
+#undef PQXX_HAVE_LOCALE
+
+/* Define if the compiler supports the standard "long double" type */
+#undef PQXX_HAVE_LONG_DOUBLE
+
+/* Define if the compiler supports "long long" types */
+#undef PQXX_HAVE_LONG_LONG
+
+/* Define if libpq has lo_tell() */
+#undef PQXX_HAVE_LO_TELL
+
+/* Define if C99 fnan()/nan()/lnan() are available */
+#undef PQXX_HAVE_NAN
+
+/* Define if the system has the poll() function (mainly GNU/Linux) */
+#undef PQXX_HAVE_POLL
+
+/* Define if libpq has PQcancel() and friends */
+#undef PQXX_HAVE_PQCANCEL
+
+/* Define if libpq has PQclientEncoding() */
+#undef PQXX_HAVE_PQCLIENTENCODING
+
+/* Define if libpq has PQdescribePortal() */
+#undef PQXX_HAVE_PQDESCRIBEPORTAL
+
+/* Define if libpq has PQencryptPassword() */
+#undef PQXX_HAVE_PQENCRYPTPASSWORD
+
+/* Define if libpq has PQescapeBytea() */
+#undef PQXX_HAVE_PQESCAPEBYTEA
+
+/* Define if libpq has PQescapeByteaConn() */
+#undef PQXX_HAVE_PQESCAPEBYTEACONN
+
+/* Define if libpq has PQescapeString() */
+#undef PQXX_HAVE_PQESCAPESTRING
+
+/* Define if libpq has PQescapeStringConn() */
+#undef PQXX_HAVE_PQESCAPESTRINGCONN
+
+/* Define if libpq has PQexecParams() */
+#undef PQXX_HAVE_PQEXECPARAMS
+
+/* Define if libpq has PQexecPrepared() */
+#undef PQXX_HAVE_PQEXECPREPARED
+
+/* Define if libpq has PQfreemem() */
+#undef PQXX_HAVE_PQFREEMEM
+
+/* Define if libpq has PQfreeNotify() */
+#undef PQXX_HAVE_PQFREENOTIFY
+
+/* Define if libpq has PQftable() */
+#undef PQXX_HAVE_PQFTABLE
+
+/* Define if libpq has PQftablecol() */
+#undef PQXX_HAVE_PQFTABLECOL
+
+/* Define if libpq has PQisthreadsafe() */
+#undef PQXX_HAVE_PQISTHREADSAFE
+
+/* Define if libpq has PQmblen() */
+#undef PQXX_HAVE_PQMBLEN
+
+/* Define if libpq has PQprepare() */
+#undef PQXX_HAVE_PQPREPARE
+
+/* Define if libpq has PQprotocolVersion() */
+#undef PQXX_HAVE_PQPROTOCOLVERSION
+
+/* Define if libpq has PQputCopyData() and related functions */
+#undef PQXX_HAVE_PQPUTCOPY
+
+/* Define if libpq has PQresultErrorField() and PG_DIAG_STATEMENT_POSITION */
+#undef PQXX_HAVE_PQRESULTERRORFIELD
+
+/* Define if libpq has PQserverVersion() */
+#undef PQXX_HAVE_PQSERVERVERSION
+
+/* Define if libpq has PQunescapeBytea() */
+#undef PQXX_HAVE_PQUNESCAPEBYTEA
+
+/* Define if std::numeric_limits has quiet_NaN() */
+#undef PQXX_HAVE_QUIET_NAN
+
+/* Define if reverse_iterator template works as expected */
+#undef PQXX_HAVE_REVERSE_ITERATOR
+
+/* Define if compiler has shared_ptr */
+#undef PQXX_HAVE_SHARED_PTR
+
+/* Define if POSIX sleep() exists */
+#undef PQXX_HAVE_SLEEP
+
+/* Define if you have the <streambuf> header; if not, <streambuf.h> is used */
+#undef PQXX_HAVE_STREAMBUF
+
+/* Define if strerror_r exists */
+#undef PQXX_HAVE_STRERROR_R
+
+/* Define if string class has the clear() function */
+#undef PQXX_HAVE_STRING_CLEAR
+
+/* Define if strlcpy exists */
+#undef PQXX_HAVE_STRLCPY
+
+/* Define if strnlen exists */
+#undef PQXX_HAVE_STRNLEN
+
+/* Define if the sys/select.h header defines a working select() and friends,
+   as per POSIX 1003.1-2001 */
+#undef PQXX_HAVE_SYS_SELECT_H
+
+/* Define if select() accepts NULL fd_set arguments */
+#undef PQXX_SELECT_ACCEPTS_NULL
+
+/* Define if headers for TR1 extension to standard live in tr1/ */
+#undef PQXX_TR1_HEADERS
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* Version number of package */
+#undef VERSION
