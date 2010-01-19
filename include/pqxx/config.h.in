@@ -70,9 +70,6 @@
 /* Define if function overloading using "using" breaks */
 #undef PQXX_BROKEN_USING_DECL
 
-/* Define if you have <boost/date_time/gregorian.hpp> */
-#undef PQXX_HAVE_BOOST_GREGORIAN_DATE
-
 /* Define if you have the <boost/smart_ptr.hpp> header */
 #undef PQXX_HAVE_BOOST_SMART_PTR
 

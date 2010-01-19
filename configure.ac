@@ -207,12 +207,6 @@ AC_CHECK_HEADER(boost/smart_ptr.hpp, AC_DEFINE(PQXX_HAVE_BOOST_SMART_PTR, 1,
 	boost_smart_ptr=no)
 
 
-boost_gregorian_date=yes
-AC_CHECK_HEADER(boost/date_time/gregorian/gregorian.hpp,
-	AC_DEFINE(PQXX_HAVE_BOOST_GREGORIAN_DATE, 1,
-		[Define if you have <boost/date_time/gregorian.hpp>]),
-	boost_gregorian_date=no)
-
 AC_MSG_CHECKING([whether TR1 headers live in tr1 directory])
 tr1headers=yes
 AC_TRY_COMPILE(
