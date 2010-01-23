@@ -1,0 +1,85 @@
+#include <test_helpers.hxx>
+
+using namespace PGSTD;
+using namespace pqxx;
+
+namespace pqxx
+{
+template<> struct PQXX_PRIVATE string_traits<result::const_fielditerator>
+{
+  static const char *name() { return "result::const_fielditerator"; }
+  static bool has_null() { return false; }
+  static bool is_null(result::const_fielditerator) { return false; }
+  static string to_string(result::const_fielditerator)
+	{ return "[const_fielditerator]"; }
+};
+template<>
+struct PQXX_PRIVATE string_traits<result::const_reverse_fielditerator>
+{
+  static const char *name() { return "result::const_reverse_fielditerator"; }
+  static bool has_null() { return false; }
+  static bool is_null(result::const_fielditerator) { return false; }
+  static string to_string(result::const_reverse_fielditerator)
+	{ return "[const_reverse_fielditerator]"; }
+};
+}
+
+namespace
+{
+void test_result_slicing(transaction_base &t)
+{
+  result r;
+
+  // Empty slice at beginning of tuple.
+  r = t.exec("SELECT 1");
+  result::tuple s = r[0].slice(0, 0);
+  PQXX_CHECK_EQUAL(s.size(), 0u, "Slicing produces wrong tuple size.");
+  PQXX_CHECK_EQUAL(s.begin(), s.end(), "Slice begin()/end() are broken.");
+  PQXX_CHECK_EQUAL(s.rbegin(), s.rend(), "Slice rbegin()/rend() are broken.");
+
+  PQXX_CHECK_THROWS(s.at(0), pqxx::range_error, "at() does not throw.");
+  PQXX_CHECK_THROWS(r[0].slice(0, 2), pqxx::range_error, "No range check.");
+  PQXX_CHECK_THROWS(r[0].slice(1, 0), pqxx::range_error, "Can reverse-slice.");
+
+  // Empty slice at end of tuple.
+  s = r[0].slice(1, 1);
+  PQXX_CHECK_EQUAL(s.size(), 0u, "size() is broken.");
+  PQXX_CHECK_EQUAL(s.begin(), s.end(), "begin()/end() are broken.");
+  PQXX_CHECK_EQUAL(s.rbegin(), s.rend(), "rbegin()/rend() are broken.");
+
+  PQXX_CHECK_THROWS(s.at(0), pqxx::range_error, "at() is inconsistent.");
+
+  // Slice that matches the entire tuple.
+  s = r[0].slice(0, 1);
+  PQXX_CHECK_EQUAL(s.size(), 1u, "size() breaks for non-empty slice.");
+  PQXX_CHECK_EQUAL(s.begin() + 1, s.end(), "Iteration is broken.");
+  PQXX_CHECK_EQUAL(s.rbegin() + 1, s.rend(), "Reverse iteration is broken.");
+  PQXX_CHECK_EQUAL(s.at(0).as<int>(), 1, "Accessing a slice is broken.");
+  PQXX_CHECK_EQUAL(s[0].as<int>(), 1, "operator[] is broken.");
+  PQXX_CHECK_THROWS(s.at(1).as<int>(), pqxx::range_error, "at() is off.");
+
+  // Meaningful slice at beginning of tuple.
+  r = t.exec("SELECT 1, 2, 3");
+  s = r[0].slice(0, 1);
+  PQXX_CHECK_THROWS(
+	s.at(1).as<int>(),
+	pqxx::range_error,
+	"at() does not enforce slice.");
+
+  // Meaningful slice that skips an initial column.
+  s = r[0].slice(1, 2);
+  PQXX_CHECK_EQUAL(s[0].as<int>(), 2, "Slicing offset is broken.");
+  PQXX_CHECK_EQUAL(s.begin()->as<int>(), 2, "Iteration uses wrong offset.");
+  PQXX_CHECK_EQUAL(s.begin() + 1, s.end(), "Iteration has wrong range.");
+  PQXX_CHECK_EQUAL(
+	s.rbegin() + 1,
+	s.rend(),
+	"Reverse iteration has wrong range.");
+  PQXX_CHECK_THROWS(
+	s.at(1).as<int>(),
+	pqxx::range_error,
+	"Offset slicing is broken.");
+}
+} // namespace
+
+PQXX_REGISTER_TEST(test_result_slicing)

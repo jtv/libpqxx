@@ -91,10 +91,16 @@ void pqxx::result::tuple::swap(tuple &rhs) throw ()
 {
   const result *const h(m_Home);
   const result::size_type i(m_Index);
+  const size_type b(m_Begin);
+  const size_type e(m_End);
   m_Home = rhs.m_Home;
   m_Index = rhs.m_Index;
+  m_Begin = rhs.m_Begin;
+  m_End = rhs.m_End;
   rhs.m_Home = h;
   rhs.m_Index = i;
+  rhs.m_Begin = b;
+  rhs.m_End = e;
 }
 
 
@@ -293,7 +299,7 @@ bool pqxx::result::GetIsNull(pqxx::result::size_type Row,
 
 pqxx::result::field::size_type
 pqxx::result::GetLength(pqxx::result::size_type Row,
-                        pqxx::result::tuple::size_type Col) const
+                        pqxx::result::tuple::size_type Col) const throw ()
 {
   return PQgetlength(m_data, int(Row), int(Col));
 }
@@ -369,19 +375,9 @@ int pqxx::result::errorposition() const throw ()
 
 // tuple
 
-pqxx::result::field pqxx::result::tuple::operator[](const char f[]) const
-{
-  return field(*this, m_Home->column_number(f));
-}
-
-
 pqxx::result::field pqxx::result::tuple::at(const char f[]) const
 {
-  const int fnum = m_Home->column_number(f);
-  // TODO: Should this be an out_of_range?
-  if (fnum == -1) throw argument_error(string("Unknown field '") + f + "'");
-
-  return field(*this, fnum);
+  return field(*this, m_Begin + column_number(f));
 }
 
 
@@ -414,6 +410,24 @@ pqxx::result::tuple::size_type pqxx::result::columns() const throw ()
 
 
 pqxx::result::tuple::size_type
+pqxx::result::tuple::column_number(const char ColName[]) const
+{
+  const size_type n = m_Home->column_number(ColName);
+  if (n >= m_End)
+    return result().column_number(ColName);
+  if (n >= m_Begin)
+    return n - m_Begin;
+
+  const char *const AdaptedColName = m_Home->column_name(n);
+  for (size_type i = m_Begin; i < m_End; ++i)
+    if (strcmp(AdaptedColName, m_Home->column_name(i)) == 0)
+      return i - m_Begin;
+
+  return result().column_number(ColName);
+}
+
+
+pqxx::result::tuple::size_type
 pqxx::result::column_number(const char ColName[]) const
 {
   const int N = PQfnumber(m_data, ColName);
@@ -422,6 +436,19 @@ pqxx::result::column_number(const char ColName[]) const
     throw argument_error("Unknown column name: '" + string(ColName) + "'");
 
   return tuple::size_type(N);
+}
+
+
+pqxx::result::tuple
+pqxx::result::tuple::slice(size_type Begin, size_type End) const
+{
+  if (Begin > End || End > size())
+    throw range_error("Invalid field range");
+
+  tuple result(*this);
+  result.m_Begin = m_Begin + Begin;
+  result.m_End = m_Begin + End;
+  return result;
 }
 
 

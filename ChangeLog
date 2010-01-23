@@ -1,3 +1,6 @@
+2010-01-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/result.hxx, src/result.cxx, test/unit/test_result_slicing.cxx:
+ - Applied Daniel Frey's slicing implementation for result tuples.
 2009-12-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/Makefile.am, include/pqxx/performance.hxx:
  - Added documentation-only header for performance features. 

@@ -69,7 +69,7 @@ am__EXEEXT_1 = runner$(EXEEXT)
 am_runner_OBJECTS = test_cancel_query.$(OBJEXT) test_escape.$(OBJEXT) \
 	test_float.$(OBJEXT) test_parameterized.$(OBJEXT) \
 	test_pipeline.$(OBJEXT) test_prepared_statement.$(OBJEXT) \
-	test_read_transaction.$(OBJEXT) \
+	test_read_transaction.$(OBJEXT) test_result_slicing.$(OBJEXT) \
 	test_simultaneous_transactions.$(OBJEXT) \
 	test_sql_cursor.$(OBJEXT) test_stateless_cursor.$(OBJEXT) \
 	test_tablestream.$(OBJEXT) test_test_helpers.$(OBJEXT) \
@@ -240,6 +240,7 @@ runner_SOURCES = \
   test_pipeline.cxx \
   test_prepared_statement.cxx \
   test_read_transaction.cxx \
+  test_result_slicing.cxx \
   test_simultaneous_transactions.cxx \
   test_sql_cursor.cxx \
   test_stateless_cursor.cxx \
@@ -310,6 +311,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pipeline.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_prepared_statement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_read_transaction.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_result_slicing.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_simultaneous_transactions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_sql_cursor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stateless_cursor.Po@am__quote@
