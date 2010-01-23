@@ -283,8 +283,6 @@ public:
     result::size_type num() const { return rownumber(); }		//[t1]
 
     tuple slice(size_type Begin, size_type End) const;
-    tuple slice(int Begin, int End) const
-	{ return slice(size_type(Begin), size_type(End)); }
 
   protected:
     friend class field;
