@@ -3,6 +3,7 @@
  - Threading behaviour is now documented, and can be queried.
  - Version information available at compile time.
  - Supports parameterized statements.
+ - Result tuples now support slicing.
  - Configure with --with-tr1=boost to use BOOST shared_ptr.
  - String conversion now has its own header file.
  - Supports read-only transactions.
