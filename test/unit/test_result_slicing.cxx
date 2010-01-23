@@ -79,6 +79,28 @@ void test_result_slicing(transaction_base &t)
 	s.at(1).as<int>(),
 	pqxx::range_error,
 	"Offset slicing is broken.");
+
+  // Column names in a slice.
+  r = t.exec("SELECT 1 AS one, 2 AS two, 3 AS three");
+  s = r[0].slice(1, 2);
+  PQXX_CHECK_EQUAL(s["two"].as<int>(), 2, "Column addressing breaks.");
+  PQXX_CHECK_THROWS(
+	s.column_number("one"),
+	argument_error,
+	"Can access column name before slice.");
+  PQXX_CHECK_THROWS(
+	s.column_number("three"),
+	argument_error,
+	"Can access column name after slice.");
+  PQXX_CHECK_EQUAL(
+	s.column_number("Two"),
+	0u,
+	"Column name is case sensitive.");
+
+  // Identical column names.
+  r = t.exec("SELECT 1 AS x, 2 AS x");
+  s = r[0].slice(1, 2);
+  PQXX_CHECK_EQUAL(s["x"].as<int>(), 2, "Identical column names break slice.");
 }
 } // namespace
 
