@@ -29,6 +29,7 @@ runner_SOURCES = \
   test_pipeline.cxx \
   test_prepared_statement.cxx \
   test_read_transaction.cxx \
+  test_result_slicing.cxx \
   test_simultaneous_transactions.cxx \
   test_sql_cursor.cxx \
   test_stateless_cursor.cxx \

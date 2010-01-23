@@ -150,7 +150,7 @@ public:
     typedef const_reverse_iterator reverse_iterator;
 
     tuple(const result *r, result::size_type i) throw () :
-      m_Home(r), m_Index(i) {}
+      m_Home(r), m_Index(i), m_Begin(0), m_End(r ? r->columns() : 0) {}
     ~tuple() throw () {} // Yes Scott Meyers, you're absolutely right[1]
 
     /**
@@ -163,25 +163,26 @@ public:
     //@}
 
     const_iterator begin() const throw ()				//[t82]
-	{ return const_iterator(*this, 0); }
+	{ return const_iterator(*this, m_Begin); }
     const_iterator end() const throw ()					//[t82]
-	{ return const_iterator(*this, size()); }
+	{ return const_iterator(*this, m_End); }
 
     /**
      * @name Field access
      */
     //@{
-    reference front() const throw () { return field(*this, 0); }	//[t74]
-    reference back() const throw () { return field(*this, size()-1); }	//[t75]
+    reference front() const throw () { return field(*this, m_Begin); }	//[t74]
+    reference back() const throw () { return field(*this, m_End-1); }	//[t75]
 
     const_reverse_fielditerator rbegin() const;				//[t82]
     const_reverse_fielditerator rend() const;				//[t82]
 
     reference operator[](size_type i) const throw ()			//[t11]
-	{ return field(*this, i); }
+	{ return field(*this, m_Begin+i); }
     reference operator[](int i) const throw ()				//[t2]
 	{ return operator[](size_type(i)); }
-    reference operator[](const char[]) const;				//[t11]
+    reference operator[](const char f[]) const				//[t11]
+	{ return at(f); }
     reference operator[](const PGSTD::string &s) const			//[t11]
 	{ return operator[](s.c_str()); }
     reference at(size_type) const throw (range_error);			//[t11]
@@ -192,7 +193,7 @@ public:
 	{ return at(s.c_str()); }
     //@}
 
-    size_type size() const throw () { return m_Home->columns(); }	//[t11]
+    size_type size() const throw () { return m_End-m_Begin; }	       	//[t11]
 
     void swap(tuple &) throw ();					//[t11]
 
@@ -204,15 +205,14 @@ public:
     //@{
     /// Number of given column (throws exception if it doesn't exist)
     size_type column_number(const PGSTD::string &ColName) const		//[t30]
-	{ return m_Home->column_number(ColName); }
+	{ return column_number(ColName.c_str()); }
 
     /// Number of given column (throws exception if it doesn't exist)
-    size_type column_number(const char ColName[]) const			//[t30]
-	{ return m_Home->column_number(ColName); }
+    size_type column_number(const char[]) const;       			//[t30]
 
     /// Type of given column
     oid column_type(size_type ColNum) const				//[t7]
-	{ return m_Home->column_type(ColNum); }
+	{ return m_Home->column_type(m_Begin+ColNum); }
 
     /// Type of given column
     oid column_type(int ColNum) const					//[t7]
@@ -235,7 +235,7 @@ public:
      * @c PQftable function first became available in PostgreSQL 7.4.
      */
     oid column_table(size_type ColNum) const				//[t2]
-	{ return m_Home->column_table(ColNum); }
+	{ return m_Home->column_table(m_Begin+ColNum); }
     /// What table did this column come from?  Requires PostgreSQL 7.4 C API.
     /** Only defined if the libpqxx library was compiled against a libpq
      * version that supports the @c PQftable function.
@@ -269,7 +269,7 @@ public:
      * of at least 7.4.
      */
     size_type table_column(size_type ColNum) const			//[t93]
-	{ return m_Home->table_column(ColNum); }
+	{ return m_Home->table_column(m_Begin+ColNum); }
 
     /// What column number in its table did this result column come from?
     size_type table_column(int ColNum) const				//[t93]
@@ -282,11 +282,16 @@ public:
 
     result::size_type num() const { return rownumber(); }		//[t1]
 
+    tuple slice(size_type Begin, size_type End) const;
+    tuple slice(int Begin, int End) const
+	{ return slice(size_type(Begin), size_type(End)); }
 
   protected:
     friend class field;
     const result *m_Home;
     result::size_type m_Index;
+    size_type m_Begin;
+    size_type m_End;
 
     // Not allowed:
     tuple();
@@ -923,7 +928,7 @@ private:
   friend class pqxx::result::field;
   const char *GetValue(size_type Row, tuple::size_type Col) const;
   bool GetIsNull(size_type Row, tuple::size_type Col) const;
-  field::size_type GetLength(size_type, tuple::size_type) const;
+  field::size_type GetLength(size_type, tuple::size_type) const throw ();
 
   friend class pqxx::internal::gate::result_creation;
   result(internal::pq::PGresult *rhs,
