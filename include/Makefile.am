@@ -16,6 +16,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/libpq-forward.hxx \
 	pqxx/nontransaction pqxx/nontransaction.hxx \
 	pqxx/notify-listen pqxx/notify-listen.hxx \
+	pqxx/performance.hxx \
 	pqxx/pipeline pqxx/pipeline.hxx \
 	pqxx/prepared_statement pqxx/prepared_statement.hxx \
 	pqxx/result pqxx/result.hxx \
@@ -56,6 +57,5 @@ nobase_include_HEADERS= pqxx/pqxx \
 
 nobase_nodist_include_HEADERS = \
 	pqxx/config-public-compiler.h \
-	pqxx/performance.hxx
 
 EXTRA_DIST = pqxx/version.hxx.template
