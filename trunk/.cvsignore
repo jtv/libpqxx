@@ -1,13 +1,8 @@
 libpqxx.spec
-configure
-Makefile.in
 config.log
-configure.ac
 pqxx-config
 Makefile
 config.status
 libpqxx.pc
 autom4te.cache
-libtool
-aclocal.m4
 .*.swp

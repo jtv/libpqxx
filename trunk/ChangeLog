@@ -1,3 +1,8 @@
+2010-01-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ aclocal.m4:
+ - Still struggling to get everything needed for ./configure into the repo.
+ autogen.sh:
+ - Try automake-1.11.
 2010-01-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/result.hxx, src/result.cxx, test/unit/test_result_slicing.cxx:
  - Applied Daniel Frey's slicing implementation for result tuples.
