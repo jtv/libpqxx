@@ -3,6 +3,8 @@
  - Still struggling to get everything needed for ./configure into the repo.
  autogen.sh:
  - Try automake-1.11.
+ include/Makefile.am:
+ - Do need to distribute performance.hxx.
  tools/preprelease:
  - Don't run autogen.sh; just take the setup that comes out of svn.
 2010-01-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
