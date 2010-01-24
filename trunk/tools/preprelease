@@ -215,8 +215,9 @@ command "rm -f -- doc/html/Reference/*"
 command "rm -f -- doc/html/Tutorial/*"
 command "rm -f -- doc/reference-stamp doc/tutorial-stamp"
 
-log "Generating autoconf/automake files"
-command "env NOCONFIGURE=1 ./autogen.sh" nice
+# No longer needed; the files this generates are in revision control now.
+#log "Generating autoconf/automake files"
+#command "env NOCONFIGURE=1 ./autogen.sh" nice
 
 log "Configuring for make dist"
 command "./configure $CONFIGDIST_ARGS" nice
