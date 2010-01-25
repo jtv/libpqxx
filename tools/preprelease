@@ -227,12 +227,13 @@ command "make doc" nice
 
 log "Creating $TARBALL"
 command "make dist" nice
+command "mv $TARBALL $TMPDIR"
 
 command "cd $TMPDIR"
 command "rm -rf -- $DISTNAME"
 
 log "Extracting $TARBALL in $TMPDIR"
-command "tar xzf $SOURCEDIR/$TARBALL"
+command "tar xzf $TARBALL"
 command "cd $DISTNAME"
 
 for compiler in $COMPILERS ; do
