@@ -227,13 +227,12 @@ command "make doc" nice
 
 log "Creating $TARBALL"
 command "make dist" nice
-command "mv $TARBALL $TMPDIR"
 
 command "cd $TMPDIR"
 command "rm -rf -- $DISTNAME"
 
 log "Extracting $TARBALL in $TMPDIR"
-command "tar xzf $TARBALL"
+command "tar xzf $SOURCEDIR/$TARBALL"
 command "cd $DISTNAME"
 
 for compiler in $COMPILERS ; do
@@ -254,6 +253,8 @@ command "rm -rf -- $DISTNAME"
 command "cd $SOURCEDIR"
 # Can't use "command" function here--breaks redirection:
 nice md5sum -b "$TARBALL" >"$TARBALL.md5sum"
+
+command "mv $TARBALL $TARBALL.md5sum $TMPDIR"
 
 log "Finished.  Release tarball is $SOURCEDIR/$TARBALL"
 
