@@ -7,7 +7,7 @@
  *      implementation of the pqxx::result class and support classes.
  *   pqxx::result represents the set of result tuples from a database query
  *
- * Copyright (c) 2001-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2010, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -449,6 +449,12 @@ pqxx::result::tuple::slice(size_type Begin, size_type End) const
   result.m_Begin = m_Begin + Begin;
   result.m_End = m_Begin + End;
   return result;
+}
+
+
+bool pqxx::result::tuple::empty() const throw ()
+{
+  return m_Begin == m_End;
 }
 
 
