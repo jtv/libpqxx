@@ -28,11 +28,13 @@ namespace
 {
 void test_result_slicing(transaction_base &t)
 {
-  result r;
+  result r = t.exec("SELECT 1");
+
+  PQXX_CHECK(!r[0].empty(), "A plain tuple shows up as empty.");
 
   // Empty slice at beginning of tuple.
-  r = t.exec("SELECT 1");
   result::tuple s = r[0].slice(0, 0);
+  PQXX_CHECK(s.empty(), "Empty slice does not show up as empty.");
   PQXX_CHECK_EQUAL(s.size(), 0u, "Slicing produces wrong tuple size.");
   PQXX_CHECK_EQUAL(s.begin(), s.end(), "Slice begin()/end() are broken.");
   PQXX_CHECK_EQUAL(s.rbegin(), s.rend(), "Slice rbegin()/rend() are broken.");
@@ -43,6 +45,7 @@ void test_result_slicing(transaction_base &t)
 
   // Empty slice at end of tuple.
   s = r[0].slice(1, 1);
+  PQXX_CHECK(s.empty(), "empty() is broken.");
   PQXX_CHECK_EQUAL(s.size(), 0u, "size() is broken.");
   PQXX_CHECK_EQUAL(s.begin(), s.end(), "begin()/end() are broken.");
   PQXX_CHECK_EQUAL(s.rbegin(), s.rend(), "rbegin()/rend() are broken.");
@@ -51,6 +54,7 @@ void test_result_slicing(transaction_base &t)
 
   // Slice that matches the entire tuple.
   s = r[0].slice(0, 1);
+  PQXX_CHECK(!s.empty(), "Nonempty slice shows up as empty.");
   PQXX_CHECK_EQUAL(s.size(), 1u, "size() breaks for non-empty slice.");
   PQXX_CHECK_EQUAL(s.begin() + 1, s.end(), "Iteration is broken.");
   PQXX_CHECK_EQUAL(s.rbegin() + 1, s.rend(), "Reverse iteration is broken.");
@@ -61,6 +65,7 @@ void test_result_slicing(transaction_base &t)
   // Meaningful slice at beginning of tuple.
   r = t.exec("SELECT 1, 2, 3");
   s = r[0].slice(0, 1);
+  PQXX_CHECK(!s.empty(), "Slicing confuses empty().");
   PQXX_CHECK_THROWS(
 	s.at(1).as<int>(),
 	pqxx::range_error,
@@ -68,6 +73,7 @@ void test_result_slicing(transaction_base &t)
 
   // Meaningful slice that skips an initial column.
   s = r[0].slice(1, 2);
+  PQXX_CHECK(!s.empty(), "Slicing away leading columns confuses empty().");
   PQXX_CHECK_EQUAL(s[0].as<int>(), 2, "Slicing offset is broken.");
   PQXX_CHECK_EQUAL(s.begin()->as<int>(), 2, "Iteration uses wrong offset.");
   PQXX_CHECK_EQUAL(s.begin() + 1, s.end(), "Iteration has wrong range.");

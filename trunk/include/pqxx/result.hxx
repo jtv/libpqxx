@@ -8,7 +8,7 @@
  *   pqxx::result represents the set of result tuples from a database query
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/result instead.
  *
- * Copyright (c) 2001-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2010, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -282,7 +282,22 @@ public:
 
     result::size_type num() const { return rownumber(); }		//[t1]
 
+    /** Produce a slice of this tuple, containing the given range of columns.
+     *
+     * The slice runs from the range's starting column to the range's end
+     * column, exclusive.  It looks just like a normal result tuple, except
+     * slices can be empty.
+     *
+     * @warning Slicing is a relatively new feature, and not all software may be
+     * prepared to deal with empty slices.  If there is any chance that your
+     * program might be creating empty slices and passing them to code that may
+     * not be designed with the possibility of empty tuples in mind, be sure to
+     * test for that case.
+     */
     tuple slice(size_type Begin, size_type End) const;
+
+    // Is this an empty slice?
+    bool empty() const throw ();
 
   protected:
     friend class field;
