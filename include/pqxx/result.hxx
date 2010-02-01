@@ -149,8 +149,10 @@ public:
     typedef const_reverse_fielditerator const_reverse_iterator;
     typedef const_reverse_iterator reverse_iterator;
 
+    /// @deprecated Do not use this constructor.  It will become private.
     tuple(const result *r, result::size_type i) throw () :
       m_Home(r), m_Index(i), m_Begin(0), m_End(r ? r->columns() : 0) {}
+
     ~tuple() throw () {} // Yes Scott Meyers, you're absolutely right[1]
 
     /**
@@ -306,6 +308,7 @@ public:
     size_type m_Begin;
     size_type m_End;
 
+  private:
     // Not allowed:
     tuple();
   };
