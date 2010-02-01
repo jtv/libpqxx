@@ -2,6 +2,7 @@
  include/pqxx/result.hxx, src/result.cxx:
  - Added empty()
  - Documented risk of empty slices triggering bugs.
+ - Deprecation warning for tuple constructor; it's to become private.
 2010-01-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
  aclocal.m4:
  - Still struggling to get everything needed for ./configure into the repo.
