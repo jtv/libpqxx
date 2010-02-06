@@ -462,7 +462,10 @@ typedef long result_difference_type;
 namespace internal
 {
 void PQXX_LIBEXPORT freepqmem(const void *);
-template<typename P> inline void freepqmem_templated(P *p) { freepqmem(p); }
+template<typename P> inline void PQXX_LIBEXPORT freepqmem_templated(P *p)
+{
+  freepqmem(p);
+}
 
 
 #ifdef PQXX_HAVE_SHARED_PTR
@@ -526,7 +529,8 @@ private:
  * each of these operations is protected against concurrency with similar
  * operations on the same object--or other copies of the same object.
  */
-template<typename T, void (*DELETER)(T *) = freepqmem_templated> class PQAlloc
+template<typename T, void (*DELETER)(T *) = freepqmem_templated<T> >
+class PQAlloc
 {
   T *m_Obj;
   mutable refcount m_rc;
