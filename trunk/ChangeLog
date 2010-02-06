@@ -1,3 +1,6 @@
+2010-02-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx:
+ - Hopefully fix problem with CentOS gcc 4.1, thanks Devrim Gunduz.
 2010-01-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/result.hxx, src/result.cxx:
  - Added empty()
