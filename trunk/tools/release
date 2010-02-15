@@ -34,7 +34,7 @@ DOC="/srv/www/devprojects/libpqxx/doc"
 
 CHECKOUT="`mktemp -p /tmp -d pqxx.XXXXXXXXXX`"
 echo "** Checking out source tree to $CHECKOUT **"
-cd "$CHECKOUT"
+cd -- "$CHECKOUT"
 svn co -q "$REPO"
 cd libpqxx/
 
@@ -78,14 +78,11 @@ EOF
 
 echo "PQXX_VERSION	$NEXTVERSION" >"$PARENT"/VERSION
 
-svn commit -m "Forking release $PQXXVERSION, moving on to $NEXTVERSION."
 cd /tmp
-rm -rf -- "$CHECKOUT"
-
 
 echo "** Setting up new documentation **"
 TEMPDOC="`mktemp -p /tmp -d pqxxdoc.XXXXXXXXXX`"
-cd "$TEMPDOC"
+cd -- "$TEMPDOC"
 tar xzf "$SNAPSHOT"/libpqxx-*.tar.gz
 cd libpqxx-*/
 
@@ -107,5 +104,10 @@ then
 else
 	echo "*** Remember: Build tarball and make available for upload ***"
 fi
+
+cd -- "$CHECKOUT"
+svn commit -m "Forking release $PQXXVERSION, moving on to $NEXTVERSION."
+cd /tmp
+rm -rf -- "$CHECKOUT"
 
 echo "** Done **"
