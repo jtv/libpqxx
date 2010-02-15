@@ -89,7 +89,7 @@ cd libpqxx-*/
 PREVIOUS=''
 for d in `ls "$DOC" | grep '[0-9]'`
 do
-	PREVIOUS="$PREVIOUS --link-dest='$d'"
+	PREVIOUS="$PREVIOUS --link-dest='$DOC/$d'"
 done
 
 rsync -r $PREVIOUS doc/html "$DOC/$PQXXVERSION"
