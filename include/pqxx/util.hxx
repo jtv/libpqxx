@@ -7,7 +7,7 @@
  *      Various utility definitions for libpqxx
  *      DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/util instead.
  *
- * Copyright (c) 2001-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2010, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -462,7 +462,7 @@ typedef long result_difference_type;
 namespace internal
 {
 void PQXX_LIBEXPORT freepqmem(const void *);
-template<typename P> inline void PQXX_LIBEXPORT freepqmem_templated(P *p)
+template<typename P> inline void freepqmem_templated(P *p)
 {
   freepqmem(p);
 }
