@@ -14667,7 +14667,7 @@ fi
 # Add options to compiler command line, if compiler accepts it
 add_compiler_opts() {
 	for option in $* ; do
-		SAVE_CXXFLAGS="$CXXFLAGS"
+		ACO_SAVE_CXXFLAGS="$CXXFLAGS"
 		CXXFLAGS="$CXXFLAGS $option"
 		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $CXX accepts $option" >&5
 $as_echo_n "checking whether $CXX accepts $option... " >&6; }
@@ -14691,7 +14691,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $has_option" >&5
 $as_echo "$has_option" >&6; }
 		if test "$has_option" = "no" ; then
-			CXXFLAGS="$SAVE_CXXFLAGS"
+			CXXFLAGS="$ACO_SAVE_CXXFLAGS"
 		fi
 	done
 }

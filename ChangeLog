@@ -1,3 +1,9 @@
+2010-02-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure, configure.ac, configure.ac.in:
+ - Fixed #104: -Werror option always used.  Thanks Ray Dassen.
+ - Works around RedHat gcc 4.1 problem.
+ include/pqxx/util.hxx:
+ - Removed failed attempt at working around RedHat gcc 4.1 problem.
 2010-02-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.hxx:
  - Hopefully fix problem with CentOS gcc 4.1, thanks Devrim Gunduz.

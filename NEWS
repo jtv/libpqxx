@@ -12,6 +12,7 @@
  - binarystring::str() is no longer cached; no longer returns reference.
  - Fixed problems in Visual C++ Makefile for test suite.
  - Fixed problems with RPM packaging.
+ - Fixed build problem on RedHat/CentOS 5.
  - Lets you check whether a prepared statement has been defined.
  - "Varargs" prepared statements.
  - Unnamed prepared statements now supported.
