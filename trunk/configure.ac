@@ -63,13 +63,13 @@ fi
 # Add options to compiler command line, if compiler accepts it
 add_compiler_opts() {
 	for option in $* ; do
-		SAVE_CXXFLAGS="$CXXFLAGS"
+		ACO_SAVE_CXXFLAGS="$CXXFLAGS"
 		CXXFLAGS="$CXXFLAGS $option"
 		AC_MSG_CHECKING([whether $CXX accepts $option])
 		AC_TRY_COMPILE([], [], has_option=yes, has_option=no,)
 		AC_MSG_RESULT($has_option)
 		if test "$has_option" = "no" ; then
-			CXXFLAGS="$SAVE_CXXFLAGS"
+			CXXFLAGS="$ACO_SAVE_CXXFLAGS"
 		fi
 	done
 }
