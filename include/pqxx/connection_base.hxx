@@ -819,6 +819,29 @@ public:
   /// Attempt to cancel the ongoing query, if any.
   void cancel_query();
 
+
+  /// Error verbosity levels.
+  enum error_verbosity
+  {
+      // These values must match those in libpq's PGVerbosity enum.
+      terse=0,
+      normal=1,
+      verbose=2
+  };
+
+  /// Set session verbosity.
+  /** Set the verbosity of error messages to "terse", "normal" (i.e. default) or
+   * "verbose."
+   *
+   *  If "terse", returned messages include severity, primary text, and position
+   *  only; this will normally fit on a single line. "normal" produces messages
+   *  that include the above plus any detail, hint, or context fields (these
+   *  might span multiple lines).  "verbose" includes all available fields.
+   */
+  void set_verbosity(error_verbosity verbosity) throw();
+   /// Retrieve current error verbosity
+  error_verbosity get_verbosity() const throw() {return m_verbosity;}
+
 protected:
   explicit connection_base(connectionpolicy &);
   void init();
@@ -916,6 +939,9 @@ private:
 
   /// Set of session capabilities
   PGSTD::bitset<cap_end> m_caps;
+
+  /// Current verbosity level
+  error_verbosity m_verbosity;
 
   friend class internal::gate::connection_transaction;
   result PQXX_PRIVATE Exec(const char[], int Retries);
