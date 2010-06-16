@@ -898,6 +898,15 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 )
 AC_MSG_RESULT($pqcancel)
 
+AC_MSG_CHECKING([PQsetErrorVerbosity()])
+pqverbosity=yes
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[PGconn*c=0;PGVerbosity verb=PQERRORS_DEFAULT;PQsetErrorVerbosity(c, verb)],
+	AC_DEFINE(PQXX_HAVE_PQSETERRORVERBOSITY,1,[Define if libpq has PQsetErrorVerbosity()]),
+	[pqverbosity=no]
+)
+AC_MSG_RESULT($pqverbosity)
+
 AC_CHECK_HEADER(limits,
 	[AC_DEFINE(PQXX_HAVE_LIMITS, 1, [Define if <limits> exists])])
 

@@ -194,6 +194,9 @@
 /* Define if libpq has PQserverVersion() */
 #undef PQXX_HAVE_PQSERVERVERSION
 
+/* Define if libpq has PQsetErrorVerbosity() */
+#undef PQXX_HAVE_PQSETERRORVERBOSITY
+
 /* Define if libpq has PQunescapeBytea() */
 #undef PQXX_HAVE_PQUNESCAPEBYTEA
 

@@ -133,7 +133,8 @@ pqxx::connection_base::connection_base(connectionpolicy &pol) :
   m_unique_id(0),
   m_Completed(false),
   m_inhibit_reactivation(false),
-  m_caps()
+  m_caps(),
+  m_verbosity(normal)
 {
   clearcaps();
 }
@@ -714,6 +715,13 @@ void pqxx::connection_base::cancel_query()
   cancel();
 }
 
+void pqxx::connection_base::set_verbosity(error_verbosity verbosity) throw ()
+{
+#ifdef PQXX_HAVE_PQSETERRORVERBOSITY
+    PQsetErrorVerbosity(m_Conn, static_cast<PGVerbosity>(verbosity));
+#endif
+    m_verbosity = verbosity;
+}
 
 namespace
 {

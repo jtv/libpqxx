@@ -66,7 +66,8 @@ CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__EXEEXT_1 = runner$(EXEEXT)
-am_runner_OBJECTS = test_cancel_query.$(OBJEXT) test_escape.$(OBJEXT) \
+am_runner_OBJECTS = test_cancel_query.$(OBJEXT) \
+	test_error_verbosity.$(OBJEXT) test_escape.$(OBJEXT) \
 	test_float.$(OBJEXT) test_parameterized.$(OBJEXT) \
 	test_pipeline.$(OBJEXT) test_prepared_statement.$(OBJEXT) \
 	test_read_transaction.$(OBJEXT) test_result_slicing.$(OBJEXT) \
@@ -229,11 +230,12 @@ top_srcdir = @top_srcdir@
 with_postgres_include = @with_postgres_include@
 with_postgres_lib = @with_postgres_lib@
 EXTRA_DIST = Makefile.am.template
-INCLUDES = -I$(top_builddir)/include -I$(top_builddir)/test -I$(srcdir)/.. -I$(srcdir)/../../include
+INCLUDES = -I$(top_builddir)/include -I$(top_builddir)/test -I$(srcdir)/.. -I$(srcdir)/../../include ${POSTGRES_INCLUDE}
 DEFAULT_INCLUDES = 
 MAINTAINERCLEANFILES = Makefile.in
 runner_SOURCES = \
   test_cancel_query.cxx \
+  test_error_verbosity.cxx \
   test_escape.cxx \
   test_float.cxx \
   test_parameterized.cxx \
@@ -305,6 +307,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/runner.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_cancel_query.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_error_verbosity.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_escape.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_float.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_parameterized.Po@am__quote@

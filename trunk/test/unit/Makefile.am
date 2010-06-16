@@ -15,7 +15,7 @@
 
 EXTRA_DIST = Makefile.am.template
 
-INCLUDES = -I$(top_builddir)/include -I$(top_builddir)/test -I$(srcdir)/.. -I$(srcdir)/../../include
+INCLUDES = -I$(top_builddir)/include -I$(top_builddir)/test -I$(srcdir)/.. -I$(srcdir)/../../include ${POSTGRES_INCLUDE}
 
 DEFAULT_INCLUDES=
 
@@ -23,6 +23,7 @@ MAINTAINERCLEANFILES=Makefile.in
 
 runner_SOURCES = \
   test_cancel_query.cxx \
+  test_error_verbosity.cxx \
   test_escape.cxx \
   test_float.cxx \
   test_parameterized.cxx \

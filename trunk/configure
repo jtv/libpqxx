@@ -16706,6 +16706,32 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pqcancel" >&5
 $as_echo "$pqcancel" >&6; }
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking PQsetErrorVerbosity()" >&5
+$as_echo_n "checking PQsetErrorVerbosity()... " >&6; }
+pqverbosity=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include<${with_postgres_include}/libpq-fe.h>
+int
+main ()
+{
+PGconn*c=0;PGVerbosity verb=PQERRORS_DEFAULT;PQsetErrorVerbosity(c, verb)
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_PQSETERRORVERBOSITY 1" >>confdefs.h
+
+else
+  pqverbosity=no
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pqverbosity" >&5
+$as_echo "$pqverbosity" >&6; }
+
 ac_fn_cxx_check_header_mongrel "$LINENO" "limits" "ac_cv_header_limits" "$ac_includes_default"
 if test "x$ac_cv_header_limits" = x""yes; then :
 
