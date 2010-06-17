@@ -250,6 +250,10 @@ for be in `havepgversions | head -n 1` `havepgversions | tail -n 1` ; do
 			export LD_LIBRARY_PATH
 			./configure --enable-maintainer-mode >/dev/null
 
+			# While we're here, copy the libpq config.
+			mkdir -p -- "lib/libpq-$fe"
+			cp -- include/pqxx/config-*-libpq.h "lib/libpq-$fe/"
+
 			# Skip documentation build--we've tested it already
 			touch doc/reference-stamp doc/tutorial-stamp
 
