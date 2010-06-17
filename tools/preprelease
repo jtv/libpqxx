@@ -99,6 +99,10 @@ run_test () {
 		log "Configuring"
 		command "./configure $CONFIG_ARGS $COMPILEROPT" nice
 
+		# While we're here, save a copy of the compiler config.
+		command "mkdir -p lib/config/$1"
+		command "cp -- include/pqxx/config-*-compiler.h lib/config/$1"
+
 		log "Building"
 		command "make -j $CONCURRENCY_LEVEL" nice
 
