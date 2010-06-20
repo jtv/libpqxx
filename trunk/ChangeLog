@@ -1,3 +1,6 @@
+2010-06-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/libpq/7.3/config-internal-libpq.h:
+ - Sample header for libpq 7.3.
 2010-06-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/pqxx-fulltest, tools/preprelease:
  - Save copies of generated config headers.
