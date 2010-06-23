@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      implementation of bytea (binary string) conversions
  *
- * Copyright (c) 2003-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2010, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -56,7 +56,6 @@ pqxx::binarystring::binarystring(const result::field &F) :
   m_size = sz;
 
 #else
-
   string s;
   s.reserve(F.size());
   for (result::field::size_type i=0; i<F.size(); ++i)
@@ -76,8 +75,7 @@ pqxx::binarystring::binarystring(const result::field &F) :
 
   m_size = s.size();
   void *buf = malloc(m_size+1);
-  if (!buf)
-    throw bad_alloc();
+  if (!buf) throw bad_alloc();
   super::operator=(super(static_cast<unsigned char *>(buf)));
   memcpy(static_cast<char *>(buf), s.c_str(), m_size);
 

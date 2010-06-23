@@ -207,15 +207,20 @@ void test_prepared_statement(transaction_base &T)
   C.prepare("GimmeBinary", "SELECT $1::bytea")
 	("bytea", pqxx::prepare::treat_binary);
 
-  const string bin_data("x \0 \x01 \x02 \xff y", 11);
-  assert(bin_data.size() == 11);
-  assert(bin_data[2] == '\0');
+  const string bin_data("x \x01 \x02 \xff y", 9);
+  assert(bin_data.size() == 9);
   assert(bin_data[bin_data.size()-1] != '\0');
 
   PQXX_CHECK_EQUAL(
 	binarystring(T.prepared("GimmeBinary")(bin_data).exec()[0][0]).str(),
 	bin_data,
 	"Binary parameter was mangled somewhere along the way.");
+
+  const string nully("x\0y", 3);
+  PQXX_CHECK_EQUAL(
+	binarystring(T.prepared("GimmeBinary")(nully).exec()[0][0]).str(),
+	nully,
+	"Binary string breaks on nul byte.");
 
   // Test wrong numbers of parameters.
   PQXX_CHECK_THROWS(
