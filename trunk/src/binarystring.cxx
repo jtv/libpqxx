@@ -57,20 +57,48 @@ pqxx::binarystring::binarystring(const result::field &F) :
 
 #else
   string s;
-  s.reserve(F.size());
-  for (result::field::size_type i=0; i<F.size(); ++i)
+  const string::size_type len = F.size();
+  s.reserve(len);
+
+  if (len >= 2 && b[0] == '\\' && b[1] == 'x')
   {
-    unsigned char c = b[i];
-    if (c == '\\')
+    bool in_pair = false;
+    int last_nibble = 0;
+    for (result::field::size_type i=2; i<len; ++i)
     {
-      c = b[++i];
-      if (isdigit(c) && isdigit(b[i+1]) && isdigit(b[i+2]))
+      const unsigned char c = b[i];
+      if (isspace(c))
       {
-	c = unsigned_char((DV(c)<<6) | (DV(b[i+1])<<3) | DV(b[i+2]));
-	i += 2;
+        if (in_pair) throw out_of_range("Escaped binary data is malformed.");
+      }
+      else
+      {
+        if (!isxdigit(c))
+	  throw out_of_range("Escaped binary data is malformed.");
+        const int nibble = (isdigit(c) ? DV(c) : (tolower(c) - 'a'));
+        if (in_pair) s += char((last_nibble<<4) | nibble);
+        else last_nibble = nibble;
+        in_pair = !in_pair;
       }
     }
-    s += char(c);
+    if (in_pair) throw out_of_range("Escaped binary data appears truncated.");
+  }
+  else
+  {
+    for (result::field::size_type i=0; i<len; ++i)
+    {
+      unsigned char c = b[i];
+      if (c == '\\')
+      {
+	c = b[++i];
+	if (isdigit(c) && isdigit(b[i+1]) && isdigit(b[i+2]))
+	{
+	  c = unsigned_char((DV(c)<<6) | (DV(b[i+1])<<3) | DV(b[i+2]));
+	  i += 2;
+	}
+      }
+      s += char(c);
+    }
   }
 
   m_size = s.size();
