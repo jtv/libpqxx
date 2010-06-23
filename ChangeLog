@@ -1,3 +1,8 @@
+2010-06-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/binarystring.cxx:
+ - Support 9.0-style hex-escaping on ancient libpq.
+ test/unit/test_binarystring.cxx:
+ - New
 2010-06-21  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/libpq/*:
  - Lots more automatically-stored libpq config headers.
