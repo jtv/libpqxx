@@ -8,7 +8,9 @@ namespace
 {
 binarystring make_binarystring(transaction_base &T, string content)
 {
-  const string query = "SELECT E'" + T.esc_raw(content) + "'::bytea";
+  const string escape_indicator((T.conn().server_version()>=80200) ? "E" : "");
+  const string query = "SELECT " + escape_indicator +
+	"'" + T.esc_raw(content) + "'::bytea";
   return binarystring(T.exec(query)[0][0]);
 }
 
