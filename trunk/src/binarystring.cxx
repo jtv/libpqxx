@@ -71,11 +71,13 @@ pqxx::binarystring::binarystring(const result::field &F) :
       {
         if (in_pair) throw out_of_range("Escaped binary data is malformed.");
       }
+      else if (!isxdigit(c))
+      {
+	  throw out_of_range("Escaped binary data is malformed.");
+      }
       else
       {
-        if (!isxdigit(c))
-	  throw out_of_range("Escaped binary data is malformed.");
-        const int nibble = (isdigit(c) ? DV(c) : (tolower(c) - 'a'));
+        const int nibble = (isdigit(c) ? DV(c) : (10 + tolower(c) - 'a'));
         if (in_pair) s += char((last_nibble<<4) | nibble);
         else last_nibble = nibble;
         in_pair = !in_pair;
