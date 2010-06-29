@@ -1,3 +1,9 @@
+2010-06-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
+ src/connection_base.cxx, src/transaction_base.cxx,
+ test/unit/test_binarystring.cxx:
+ - Added quote() for binarystring.
+ - More testing of escaping/unescaping.
 2010-06-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/binarystring.cxx:
  - Added missing 10 to hex digits.

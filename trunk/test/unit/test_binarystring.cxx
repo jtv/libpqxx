@@ -8,11 +8,9 @@ namespace
 {
 binarystring make_binarystring(transaction_base &T, string content)
 {
-  const string escape_indicator((T.conn().server_version()>=80200) ? "E" : "");
-  const string query = "SELECT " + escape_indicator +
-	"'" + T.esc_raw(content) + "'::bytea";
-  return binarystring(T.exec(query)[0][0]);
+  return binarystring(T.exec("SELECT " + T.quote_raw(content))[0][0]);
 }
+
 
 void test_binarystring(transaction_base &T)
 {
@@ -41,11 +39,23 @@ void test_binarystring(transaction_base &T)
   PQXX_CHECK(b.at(0) == 'x', "Unexpected data at index 0.");
   PQXX_CHECK_THROWS(b.at(1), out_of_range, "Failed to catch range error.");
 
-  const string bytes("\x01\x02\x03\xff");
+  const string bytes("\x01\x23\x23\xa1\x2b\x0c\xff");
   b = make_binarystring(T, bytes);
   PQXX_CHECK_EQUAL(b.str(), bytes, "Binary (un)escaping went wrong somewhere.");
   PQXX_CHECK_EQUAL(b.size(), bytes.size(), "Escaping confuses length.");
 
+  PQXX_CHECK_EQUAL(
+	T.quote_raw(
+		reinterpret_cast<const unsigned char *>(bytes.c_str()),
+		 bytes.size()),
+	T.quote(b),
+	"quote_raw is broken");
+  PQXX_CHECK_EQUAL(T.quote(b), T.quote_raw(bytes), "Binary quoting is broken.");
+  PQXX_CHECK_EQUAL(
+	binarystring(T.exec("SELECT " + T.quote(b))[0][0]).str(),
+	bytes,
+	"Binary string is not idempotent.");
+  
   const string nully("a\0b", 3);
   b = make_binarystring(T, nully);
   PQXX_CHECK_EQUAL(b.str(), nully, "Nul byte broke binary (un)escaping.");

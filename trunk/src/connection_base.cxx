@@ -1505,6 +1505,20 @@ string pqxx::connection_base::esc_raw(const unsigned char str[], size_t len)
 }
 
 
+string pqxx::connection_base::quote_raw(const unsigned char str[], size_t len)
+{
+  // Since 8.2, postgres prefers E'escape strings' for bytea.
+  const string prefix((server_version() >= 80200) ? "E'" : "'");
+  return prefix + esc_raw(str, len) + "'::bytea";
+}
+
+
+string pqxx::connection_base::quote(const binarystring &b)
+{
+  return quote_raw(b.data(), b.size());
+}
+
+
 pqxx::internal::reactivation_avoidance_exemption::
   reactivation_avoidance_exemption(
 	connection_base &C) :

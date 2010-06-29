@@ -8,7 +8,7 @@
  *   pqxx::connection_base encapsulates a frontend to backend connection
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
  *
- * Copyright (c) 2001-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2010, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -43,10 +43,11 @@
 
 namespace pqxx
 {
+class binarystring;
+class connectionpolicy;
+class notify_listener;
 class result;
 class transaction_base;
-class notify_listener;
-class connectionpolicy;
 
 namespace internal
 {
@@ -806,6 +807,9 @@ public:
   /// Escape binary string for use as SQL string literal on this connection
   PGSTD::string esc_raw(const unsigned char str[], size_t len);
 
+  /// Escape and quote a string of binary data.
+  PGSTD::string quote_raw(const unsigned char str[], size_t len);
+
   /// Represent object as SQL string, including quoting & escaping.
   /** Nulls are recognized and represented as SQL nulls. */
   template<typename T>
@@ -814,6 +818,8 @@ public:
     if (string_traits<T>::is_null(t)) return "NULL";
     return "'" + this->esc(to_string(t)) + "'";
   }
+
+  PGSTD::string quote(const binarystring &);
   //@}
 
   /// Attempt to cancel the ongoing query, if any.

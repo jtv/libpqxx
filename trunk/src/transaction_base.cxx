@@ -8,7 +8,7 @@
  *   pqxx::transaction_base defines the interface for any abstract class that
  *   represents a database transaction
  *
- * Copyright (c) 2001-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2010, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -223,7 +223,14 @@ void pqxx::transaction_base::abort()
 string pqxx::transaction_base::esc_raw(const PGSTD::string &str) const
 {
   const unsigned char *p = reinterpret_cast<const unsigned char *>(str.c_str());
-  return m_Conn.esc_raw(p, str.size());
+  return conn().esc_raw(p, str.size());
+}
+
+
+string pqxx::transaction_base::quote_raw(const PGSTD::string &str) const
+{
+  const unsigned char *p = reinterpret_cast<const unsigned char *>(str.c_str());
+  return conn().quote_raw(p, str.size());
 }
 
 
