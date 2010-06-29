@@ -62,6 +62,7 @@ pqxx::binarystring::binarystring(const result::field &F) :
 
   if (len >= 2 && b[0] == '\\' && b[1] == 'x')
   {
+    // Hex escape format (9.0+): \x3a20
     bool in_pair = false;
     int last_nibble = 0;
     for (result::field::size_type i=2; i<len; ++i)
@@ -87,6 +88,7 @@ pqxx::binarystring::binarystring(const result::field &F) :
   }
   else
   {
+    // Octal escape format (pre-9.0): a\123b
     for (result::field::size_type i=0; i<len; ++i)
     {
       unsigned char c = b[i];
