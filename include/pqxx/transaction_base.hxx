@@ -9,7 +9,7 @@
  *   represents a database transaction
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction_base instead.
  *
- * Copyright (c) 2001-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2010, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -162,13 +162,13 @@ public:
   //@{
   /// Escape string for use as SQL string literal in this transaction
   PGSTD::string esc(const char str[]) const				//[t90]
-                                                     { return m_Conn.esc(str); }
+                                                     { return conn().esc(str); }
   /// Escape string for use as SQL string literal in this transaction
   PGSTD::string esc(const char str[], size_t maxlen) const		//[t90]
-                                             { return m_Conn.esc(str, maxlen); }
+                                             { return conn().esc(str, maxlen); }
   /// Escape string for use as SQL string literal in this transaction
   PGSTD::string esc(const PGSTD::string &str) const			//[t90]
-                                                     { return m_Conn.esc(str); }
+                                                     { return conn().esc(str); }
 
   /// Escape binary data for use as SQL string literal in this transaction
   /** Raw, binary data is treated differently from regular strings.  Binary
@@ -183,14 +183,20 @@ public:
    * special escape sequences.
    */
   PGSTD::string esc_raw(const unsigned char str[], size_t len) const	//[t62]
-                                            { return m_Conn.esc_raw(str, len); }
+                                            { return conn().esc_raw(str, len); }
   /// Escape binary data for use as SQL string literal in this transaction
   PGSTD::string esc_raw(const PGSTD::string &) const;			//[t62]
 
   /// Represent object as SQL string, including quoting & escaping.
   /** Nulls are recognized and represented as SQL nulls. */
   template<typename T> PGSTD::string quote(const T &t) const
-                                                     { return m_Conn.quote(t); }
+                                                     { return conn().quote(t); }
+
+  /// Binary-escape and quote a binarystring for use as an SQL constant.
+  PGSTD::string quote_raw(const unsigned char str[], size_t len) const
+					  { return conn().quote_raw(str, len); }
+
+  PGSTD::string quote_raw(const PGSTD::string &str) const;
   //@}
 
   /// Execute query
