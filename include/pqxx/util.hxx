@@ -33,6 +33,8 @@
 #include <memory>
 #endif
 
+#include "pqxx/strconv"
+
 
 /** @mainpage
  * @author Jeroen T. Vermeulen <jtv@xs4all.nl>
