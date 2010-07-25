@@ -307,7 +307,7 @@ public:
   stateless_cursor(
 	transaction_base &trans,
 	const PGSTD::string adopted_cursor) :
-    m_cur(trans, adopted_cursor, up, op)
+    m_cur(trans, adopted_cursor, op)
   {
     // Put cursor in known position
     m_cur.move(cursor_base::backward_all());
