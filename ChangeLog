@@ -1,3 +1,10 @@
+2010-08-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+ - Fixed some breakage with 9.0 hex-escaping support detection.
+ test/test090.cxx:
+ - Retired binary-escaping tests that don't apply to the hex format.
+ test/unit/test_binarystring.cxx:
+ - Check that binary-escaped string contains no "high bytes."
 2010-08-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in:
  - Check for PostgreSQL 9.0 hex binary-escaping format.
