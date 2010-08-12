@@ -200,6 +200,9 @@
 /* Define if libpq has PQunescapeBytea() */
 #undef PQXX_HAVE_PQUNESCAPEBYTEA
 
+/* Define if PQunescapeBytea() supports hex escape format */
+#undef PQXX_HAVE_PQUNESCAPEBYTEA_9
+
 /* Define if std::numeric_limits has quiet_NaN() */
 #undef PQXX_HAVE_QUIET_NAN
 

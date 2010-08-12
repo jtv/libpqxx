@@ -39,79 +39,123 @@ inline unsigned char DV(unsigned char d)
 {
   return unsigned_char(digit_to_number(char(d)));
 }
+
+
+/// Is this in PostgreSQL 9.0 hex-escaped binary format?
+bool is_hex(const unsigned char buf[], size_t len)
+{
+  return len >= 2 && buf[0] == '\\' && buf[1] == 'x';
 }
+
+
+/// Unescape PostgreSQL 9.0 hex-escaped binary format: "\x3a20"
+string unescape_hex(const unsigned char buf[], size_t len)
+{
+  string bin;
+  bin.reserve((len-2)/2);
+  bool in_pair = false;
+  int last_nibble = 0;
+
+  for (size_t i=2; i<len; ++i)
+  {
+    const unsigned char c = buf[i];
+    if (isspace(c))
+    {
+      if (in_pair) throw out_of_range("Escaped binary data is malformed.");
+    }
+    else if (!isxdigit(c))
+    {
+      throw out_of_range("Escaped binary data contains invalid characters.");
+    }
+    else
+    {
+      const int nibble = (isdigit(c) ? DV(c) : (10 + tolower(c) - 'a'));
+      if (in_pair) bin += char((last_nibble<<4) | nibble);
+      else last_nibble = nibble;
+      in_pair = !in_pair;
+    }
+  }
+  if (in_pair) throw out_of_range("Escaped binary data appears truncated.");
+
+  return bin;
+}
+
+
+/// Unescape PostgreSQL pre-9.0 octal-escaped binary format: a\123b
+string unescape_oct(const unsigned char buf[], size_t len)
+{
+  string bin;
+  bin.reserve(len);
+
+  for (size_t i=0; i<len; ++i)
+  {
+    unsigned char c = buf[i];
+    if (c == '\\')
+    {
+      c = buf[++i];
+      if (isdigit(c) && isdigit(buf[i+1]) && isdigit(buf[i+2]))
+      {
+	c = unsigned_char((DV(c)<<6) | (DV(buf[i+1])<<3) | DV(buf[i+2]));
+	i += 2;
+      }
+    }
+    bin += char(c);
+  }
+
+  return bin;
+}
+
+
+typedef pair<const unsigned char *, size_t> buffer;
+
+
+#if defined(PQXX_HAVE_PQUNESCAPEBYTEA)
+buffer builtin_unescape(const unsigned char escaped[], size_t)
+{
+  buffer unescaped;
+  unescaped.first = PQunescapeBytea(
+	const_cast<unsigned char *>(escaped), &unescaped.second);
+  if (!unescaped.first) throw bad_alloc();
+  return unescaped;
+}
+#endif
+
+
+buffer to_buffer(const string &source)
+{
+  void *const output(malloc(source.size() + 1));
+  if (!output) throw bad_alloc();
+  memcpy(static_cast<char *>(output), source.c_str(), source.size());
+  return buffer(static_cast<unsigned char *>(output), source.size());
+}
+
+
+buffer unescape(const unsigned char escaped[], size_t len)
+{
+#if defined(PQXX_HAVE_PQUNESCAPEBYTEA_9)
+  return builtin_unescape(escaped, len);
+#elif defined(PQXX_HAVE_PQUNESCAPEBYTEA)
+  // Supports octal format but not the newer hex format.
+  if (is_hex(escaped, len)) return to_buffer(unescape_hex(escaped, len));
+  else return builtin_unescape(escaped, len);
+#else
+  return to_buffer(
+	is_hex(escaped, len) ?
+		unescape_hex(escaped, len) : unescape_oct(escaped, len));
+#endif
+}
+
+} // namespace
+
 
 pqxx::binarystring::binarystring(const result::field &F) :
   super(),
   m_size(0)
 {
-  const unsigned char *const b(reinterpret_cast<const_iterator>(F.c_str()));
-
-#ifdef PQXX_HAVE_PQUNESCAPEBYTEA
-  unsigned char *const p = const_cast<unsigned char *>(b);
-
-  size_t sz = 0;
-  super::operator=(super(PQunescapeBytea(p, &sz)));
-  if (!get()) throw bad_alloc();
-  m_size = sz;
-
-#else
-  string s;
-  const string::size_type len = F.size();
-  s.reserve(len);
-
-  if (len >= 2 && b[0] == '\\' && b[1] == 'x')
-  {
-    // Hex escape format (9.0+): \x3a20
-    bool in_pair = false;
-    int last_nibble = 0;
-    for (result::field::size_type i=2; i<len; ++i)
-    {
-      const unsigned char c = b[i];
-      if (isspace(c))
-      {
-        if (in_pair) throw out_of_range("Escaped binary data is malformed.");
-      }
-      else if (!isxdigit(c))
-      {
-	  throw out_of_range("Escaped binary data is malformed.");
-      }
-      else
-      {
-        const int nibble = (isdigit(c) ? DV(c) : (10 + tolower(c) - 'a'));
-        if (in_pair) s += char((last_nibble<<4) | nibble);
-        else last_nibble = nibble;
-        in_pair = !in_pair;
-      }
-    }
-    if (in_pair) throw out_of_range("Escaped binary data appears truncated.");
-  }
-  else
-  {
-    // Octal escape format (pre-9.0): a\123b
-    for (result::field::size_type i=0; i<len; ++i)
-    {
-      unsigned char c = b[i];
-      if (c == '\\')
-      {
-	c = b[++i];
-	if (isdigit(c) && isdigit(b[i+1]) && isdigit(b[i+2]))
-	{
-	  c = unsigned_char((DV(c)<<6) | (DV(b[i+1])<<3) | DV(b[i+2]));
-	  i += 2;
-	}
-      }
-      s += char(c);
-    }
-  }
-
-  m_size = s.size();
-  void *buf = malloc(m_size+1);
-  if (!buf) throw bad_alloc();
-  super::operator=(super(static_cast<unsigned char *>(buf)));
-  memcpy(static_cast<char *>(buf), s.c_str(), m_size);
-
-#endif
+  buffer unescaped(
+	unescape(reinterpret_cast<const_pointer>(F.c_str()), F.size()));
+  super::operator=(super(unescaped.first));
+  m_size = unescaped.second;
 }
 
 

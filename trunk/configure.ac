@@ -123,8 +123,7 @@ if test "$GCC" = "yes" ; then
 			-Wswitch \
 			-Wmissing-field-initializers \
 			-Wmissing-include-dirs \
-			-Wunused \
-			-funit-at-a-time
+			-Wunused
 	fi
 
 	if test "$enable_long_long" = "yes" ; then
@@ -766,6 +765,29 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>
 	[pqunescapebytea=no]
 )
 AC_MSG_RESULT($pqunescapebytea)
+
+AC_MSG_CHECKING([support for hex binary escaping format])
+if test "$pqunescapebytea" = "yes"
+then
+	AC_RUN_IFELSE([
+#include<${with_postgres_include}/libpq-fe.h>
+int main()
+{
+  typedef unsigned char *ucharptr;
+  size_t sz = 0;
+  // Pre-9.0 octal escaping will unescape this as "x".
+  const unsigned char *foo = PQunescapeBytea(ucharptr("\\\\x"), &sz);
+  return foo && !*foo;
+}
+],
+		AC_DEFINE(PQXX_HAVE_PQUNESCAPEBYTEA_9, 1,
+[Define if PQunescapeBytea() supports hex escape format]),
+		pqunescapebytea_9=no,
+		pqunescapebytea_9=no)
+else
+	pqunescapebytea_9 = "no"
+fi
+AC_MSG_RESULT($pqunescapebytea_9)
 
 AC_MSG_CHECKING([PQfreemem()])
 pqfreemem=yes
