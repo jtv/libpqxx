@@ -48,9 +48,6 @@ public:
     // First select all different years occurring in the table.
     result R( T.exec("SELECT year FROM pqxxevents") );
 
-    // SELECT affects no rows.
-    PQXX_CHECK(!R.affected_rows(), "SELECT affects rows.");
-
     // See if we get reasonable type identifier for this column
     const oid rctype = R.column_type(0);
     PQXX_CHECK_EQUAL(

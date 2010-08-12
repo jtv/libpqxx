@@ -1,5 +1,6 @@
 3.2
- - Fixed problems with binary-string handling, esp. on 9.0 backends w/old libpq.
+ - Fixes problems with binary-string handling and escaping.
+ - Fixes compatibility problems between 9.x libpq and 7.x backend.
 3.1
  - Shared libraries are now versioned by ABI: 3.1 instead of 3.1.0 etc.
  - Threading behaviour is now documented, and can be queried.
