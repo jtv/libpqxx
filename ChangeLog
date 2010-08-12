@@ -1,3 +1,9 @@
+2010-08-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in:
+ - Check for PostgreSQL 9.0 hex binary-escaping format.
+ src/binarystring.cxx:
+ - Refactor unescaping.
+ - Work around hex-format support in PQunescapeBytea.
 2010-06-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
  src/connection_base.cxx, src/transaction_base.cxx,
