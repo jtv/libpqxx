@@ -1,6 +1,8 @@
 2010-08-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
  - Fixed some breakage with 9.0 hex-escaping support detection.
+ test/test007.cxx:
+ - "Affected rows" also works for SELECT in 9.0.
  test/test090.cxx:
  - Retired binary-escaping tests that don't apply to the hex format.
  test/unit/test_binarystring.cxx:
