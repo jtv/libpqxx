@@ -777,7 +777,10 @@ int main()
   size_t sz = 0;
   // Pre-9.0 octal escaping will unescape this as "x".
   const unsigned char *foo = PQunescapeBytea(ucharptr("\\\\x"), &sz);
-  return foo && !*foo;
+puts("**\\\\x**");
+puts(reinterpret_cast<const char *>(foo));
+puts("**");
+  return !foo || *foo;
 }
 ],
 		AC_DEFINE(PQXX_HAVE_PQUNESCAPEBYTEA_9, 1,
