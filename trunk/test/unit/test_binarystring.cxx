@@ -44,6 +44,13 @@ void test_binarystring(transaction_base &T)
   PQXX_CHECK_EQUAL(b.str(), bytes, "Binary (un)escaping went wrong somewhere.");
   PQXX_CHECK_EQUAL(b.size(), bytes.size(), "Escaping confuses length.");
 
+  const string bytes_escaped(T.esc_raw(bytes));
+  for (string::size_type i=0; i<bytes_escaped.size(); ++i)
+  {
+    const unsigned char uc = static_cast<unsigned char>(bytes_escaped[i]);
+    PQXX_CHECK(uc <= 127, "Non-ASCII byte in escaped string.");
+  }
+
   PQXX_CHECK_EQUAL(
 	T.quote_raw(
 		reinterpret_cast<const unsigned char *>(bytes.c_str()),

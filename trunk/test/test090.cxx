@@ -20,35 +20,15 @@ void esc(transaction_base &t, string str, string expected=string())
 }
 
 
-void esc_raw(transaction_base &t, string str, string expected=string())
-{
-  if (expected.empty()) expected = str;
-  const unsigned char *c = reinterpret_cast<const unsigned char *>(str.c_str());
-  CHECK(expected, t.esc_raw(str), "string");
-  CHECK(expected, t.esc_raw(c, str.size()), "const unsigned char[],size_t");
-}
-
-
-void esc_both(transaction_base &t, string str, string expected=string())
-{
-  esc(t, str, expected);
-  esc_raw(t, str, expected);
-}
-
-
 void dotests(transaction_base &t)
 {
-  esc_both(t, "");
-  esc_both(t, "foo");
-  esc_both(t, "foo bar");
-  esc_both(t, "unquote' ha!", "unquote'' ha!");
-  esc_both(t, "'", "''");
+  esc(t, "");
+  esc(t, "foo");
+  esc(t, "foo bar");
+  esc(t, "unquote' ha!", "unquote'' ha!");
+  esc(t, "'", "''");
   esc(t, "\\", "\\\\");
   esc(t, "\t");
-
-  const char weird[] = "foo\t\n\0bar";
-  const string weirdstr(weird, sizeof(weird)-1);
-  esc_raw(t, weirdstr, "foo\\\\011\\\\012\\\\000bar");
 }
 
 

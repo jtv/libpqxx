@@ -769,6 +769,7 @@ AC_MSG_RESULT($pqunescapebytea)
 AC_MSG_CHECKING([support for hex binary escaping format])
 if test "$pqunescapebytea" = "yes"
 then
+	pqunescapebytea_9 = "yes"
 	AC_RUN_IFELSE([
 #include<${with_postgres_include}/libpq-fe.h>
 int main()
