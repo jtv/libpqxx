@@ -320,9 +320,13 @@ public:
 class PQXX_LIBEXPORT syntax_error : public sql_error
 {
 public:
-  explicit syntax_error(const PGSTD::string &err) : sql_error(err) {}
-  syntax_error(const PGSTD::string &err, const PGSTD::string &Q) :
-	sql_error(err,Q) {}
+  /// Approximate position in string where error occurred, or -1 if unknown.
+  const int error_position;
+
+  explicit syntax_error(const PGSTD::string &err, int pos=-1) :
+    sql_error(err), error_position(pos) {}
+  syntax_error(const PGSTD::string &err, const PGSTD::string &Q, int pos=-1) :
+	sql_error(err,Q), error_position(pos) {}
 };
 
 class PQXX_LIBEXPORT undefined_column : public syntax_error
