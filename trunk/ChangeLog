@@ -1,3 +1,8 @@
+2010-09-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/notify-listen.hxx:
+ - Fixed mistaken implication in documentation, thanks Michael Krelin.
+ src/connection_base.cxx:
+ - Cosmetic.
 2010-08-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/except.hxx, src/result.cxx:
  - Include approximate location of error in syntax_error.
