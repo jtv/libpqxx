@@ -8,7 +8,7 @@
  *   pqxx::notify_listener describes a notification to wait on, and what it does
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/notify-listen instead.
  *
- * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2010, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -39,10 +39,9 @@ namespace pqxx
  * raw SQL to listen for notifications, or your attempts to listen won't be
  * resumed when a connection fails--and you'll have no way to notice.
  *
- * Notifications never arrive inside a backend transaction.  Therefore, unless
- * you may be using a nontransaction when a notification arrives, you are free
- * to open a transaction of your own inside your listener's function invocation
- * operator.
+ * Notifications never arrive inside a transaction (not even in a
+ * nontransaction).  Therefore, you are free to open a transaction of your own
+ * inside your listener's function invocation operator.
  *
  * Notifications you are listening for may arrive anywhere within libpqxx code,
  * but be aware that @b PostgreSQL @b defers @b notifications @b occurring

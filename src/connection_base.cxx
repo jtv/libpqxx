@@ -738,15 +738,15 @@ void freemem_notif(PGnotify *p) throw ()
 
 int pqxx::connection_base::get_notifs()
 {
-  int notifs = 0;
-  if (!is_open()) return notifs;
+  if (!is_open()) return 0;
 
   if (!consume_input()) throw broken_connection();
 
   // Even if somehow we receive notifications during our transaction, don't
   // deliver them.
-  if (m_Trans.get()) return notifs;
+  if (m_Trans.get()) return 0;
 
+  int notifs = 0;
   typedef PQAlloc<PGnotify, freemem_notif> notifptr;
   for (notifptr N( PQnotifies(m_Conn) );
        N.get();
