@@ -29,20 +29,15 @@ void compare_esc(connection_base &c, transaction_base &t, const char str[])
 	"Oversized buffer affects esc().");
 }
 
+
 void test_esc(connection_base &c, transaction_base &t)
 {
   PQXX_CHECK_EQUAL(t.esc("", 0), "", "Empty string doesn't escape properly.");
   PQXX_CHECK_EQUAL(t.esc("'", 1), "''", "Single quote escaped incorrectly.");
   const char *const escstrings[] = {
     "x",
+    " ",
     "",
-    "'",
-    "''",
-    "'''",
-    "''''",
-    "\\",
-    "\\\\",
-    "\\'",
     NULL
   };
   for (size_t i=0; escstrings[i]; ++i) compare_esc(c, t, escstrings[i]);
@@ -61,6 +56,28 @@ void test_quote(connection_base &c, transaction_base &t)
   PQXX_CHECK_EQUAL(t.quote("x"),
 	c.quote("x"),
 	"Connection and transaction quote differently.");
+
+  const char *test_strings[] = {
+    "",
+    "x",
+    "\\",
+    "\\\\",
+    "'",
+    "''",
+    "\\'",
+    "\t",
+    "\n",
+    NULL
+  };
+
+  for (size_t i=0; test_strings[i]; ++i)
+  {
+    result r = t.exec("SELECT " + t.quote(test_strings[i]));
+    PQXX_CHECK_EQUAL(
+	r[0][0].as<string>(),
+	test_strings[i],
+	"Selecting quoted string does not come back equal.");
+  }
 }
 
 
