@@ -315,7 +315,7 @@ public:
   //@}
 
   /// Enable tracing to a given output stream, or NULL to disable.
-  void trace(FILE *) throw ();						//[t3]
+  void trace(PGSTD::FILE *) throw ();					//[t3]
 
   /**
    * @name Connection properties
@@ -914,7 +914,7 @@ private:
   internal::pq::PQnoticeProcessor m_defaultNoticeProcessor;
 
   /// File to trace to, if any
-  FILE *m_Trace;
+  PGSTD::FILE *m_Trace;
 
   typedef PGSTD::multimap<PGSTD::string, pqxx::notify_listener *> listenerlist;
   /// Notifications this session is listening on

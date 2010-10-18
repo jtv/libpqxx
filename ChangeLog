@@ -1,3 +1,6 @@
+2010-10-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx:
+ - std-qualified use of FILE; fixes #208.
 2010-09-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/notify-listen.hxx:
  - Fixed mistaken implication in documentation, thanks Michael Krelin.
