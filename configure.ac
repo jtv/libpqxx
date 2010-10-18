@@ -769,6 +769,7 @@ AC_MSG_RESULT($pqunescapebytea)
 AC_MSG_CHECKING([support for hex binary escaping format])
 if test "$pqunescapebytea" = "yes"
 then
+	pqunescapebytea_9 = "yes"
 	AC_RUN_IFELSE([
 #include<${with_postgres_include}/libpq-fe.h>
 int main()
@@ -777,9 +778,6 @@ int main()
   size_t sz = 0;
   // Pre-9.0 octal escaping will unescape this as "x".
   const unsigned char *foo = PQunescapeBytea(ucharptr("\\\\x"), &sz);
-puts("**\\\\x**");
-puts(reinterpret_cast<const char *>(foo));
-puts("**");
   return !foo || *foo;
 }
 ],
