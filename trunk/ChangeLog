@@ -1,6 +1,11 @@
 2010-10-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx:
  - std-qualified use of FILE; fixes #208.
+ include/pqxx/transaction_base.hxx, test/test090.cxx,
+ test/unit/test_escape.cxx:
+ - Removed duplicate test coverage from test090.
+ - Don't test exactly what esc() does; meant for use with quote().
+ - Full roundtrip tests for quote(): less brittle for quoting changes.
 2010-09-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/notify-listen.hxx:
  - Fixed mistaken implication in documentation, thanks Michael Krelin.

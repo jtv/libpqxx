@@ -161,14 +161,12 @@ public:
    */
   //@{
   /// Escape string for use as SQL string literal in this transaction
-  PGSTD::string esc(const char str[]) const				//[t90]
-                                                     { return conn().esc(str); }
+  PGSTD::string esc(const char str[]) const          { return conn().esc(str); }
   /// Escape string for use as SQL string literal in this transaction
-  PGSTD::string esc(const char str[], size_t maxlen) const		//[t90]
+  PGSTD::string esc(const char str[], size_t maxlen) const
                                              { return conn().esc(str, maxlen); }
   /// Escape string for use as SQL string literal in this transaction
-  PGSTD::string esc(const PGSTD::string &str) const			//[t90]
-                                                     { return conn().esc(str); }
+  PGSTD::string esc(const PGSTD::string &str) const  { return conn().esc(str); }
 
   /// Escape binary data for use as SQL string literal in this transaction
   /** Raw, binary data is treated differently from regular strings.  Binary
