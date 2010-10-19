@@ -149,6 +149,9 @@
 /* Define if libpq has PQescapeByteaConn() */
 #undef PQXX_HAVE_PQESCAPEBYTEACONN
 
+/* Define if libpq has PQescapeLiteral() */
+#undef PQXX_HAVE_PQESCAPELITERAL
+
 /* Define if libpq has PQescapeString() */
 #undef PQXX_HAVE_PQESCAPESTRING
 

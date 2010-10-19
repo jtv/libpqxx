@@ -1,3 +1,6 @@
+2010-10-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in:
+ - Check for PQescapeLiteral (not used yet).
 2010-10-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx:
  - std-qualified use of FILE; fixes #208.
