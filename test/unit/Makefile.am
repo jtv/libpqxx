@@ -9,7 +9,7 @@
 # The template2mak.py script should be available in the tools directory of the
 # libpqxx source archive.
 #
-# Generated from template '/tmp/libpqxx/test/unit/Makefile.am.template'.
+# Generated from template '/home/jtv/proj/libpqxx/trunk/test/unit/Makefile.am.template'.
 ################################################################################
 #MAINTAINERCLEANFILES=Makefile.in
 

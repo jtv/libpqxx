@@ -734,6 +734,17 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 )
 AC_MSG_RESULT($pqescapestringconn)
 
+
+AC_MSG_CHECKING([PQescapeLiteral()])
+pqescapeliteral=yes
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[PQescapeLiteral(0,"x",1)],
+	AC_DEFINE(PQXX_HAVE_PQESCAPELITERAL, 1,
+		[Define if libpq has PQescapeLiteral()]),
+	[pqescapeliteral=no]
+)
+AC_MSG_RESULT($pqescapeliteral)
+
 AC_MSG_CHECKING([PQescapeBytea()])
 pqescapebytea=yes
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>
@@ -769,7 +780,7 @@ AC_MSG_RESULT($pqunescapebytea)
 AC_MSG_CHECKING([support for hex binary escaping format])
 if test "$pqunescapebytea" = "yes"
 then
-	pqunescapebytea_9 = "yes"
+	pqunescapebytea_9=yes
 	AC_RUN_IFELSE([
 #include<${with_postgres_include}/libpq-fe.h>
 int main()
@@ -786,7 +797,7 @@ int main()
 		pqunescapebytea_9=no,
 		pqunescapebytea_9=no)
 else
-	pqunescapebytea_9 = "no"
+	pqunescapebytea_9=no
 fi
 AC_MSG_RESULT($pqunescapebytea_9)
 
