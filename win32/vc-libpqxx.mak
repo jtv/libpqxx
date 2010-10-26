@@ -86,7 +86,7 @@ CXX_FLAGS_DLLDEBUG=$(CXX_FLAGS_BASE) /MDd /Gm /ZI /Od /D "_DEBUG" /D "PQXX_SHARE
 CXX_FLAGS_STATICRELEASE=$(CXX_FLAGS_BASE) /MD /D "_LIB" /D "NDEBUG"
 CXX_FLAGS_STATICDEBUG=$(CXX_FLAGS_BASE) /MDd /Gm /ZI /Od /D "_LIB" /D "_DEBUG" /RTC1
 
-LINK_FLAGS_BASE=kernel32.lib wsock32.lib advapi32.lib /nologo /dll /machine:I386 /libpath:$(LIBPATH1) /libpath:$(LIBPATH2)
+LINK_FLAGS_BASE=kernel32.lib ws2_32.lib advapi32.lib /nologo /dll /machine:I386 /libpath:$(LIBPATH1) /libpath:$(LIBPATH2)
 
 LINK_FLAGS_DLLRELEASE=$(LINK_FLAGS_BASE)
 LINK_FLAGS_DLLDEBUG=$(LINK_FLAGS_BASE) /debug
