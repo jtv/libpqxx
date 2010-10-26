@@ -40,7 +40,7 @@ CXX_FLAGS_BASE=/nologo /W3 /GX /FD /GR /YX /c \
     /I "include" /I "$(PGSQLSRC)/include" /I "$(PGSQLSRC)/interfaces/libpq" \
     /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_WINDOWS" $(PQXX_SHARED)
 
-LINK_FLAGS_BASE=kernel32.lib wsock32.lib advapi32.lib /nologo /machine:I386 /libpath:"$(LIBDIR)"
+LINK_FLAGS_BASE=kernel32.lib ws2_32.lib advapi32.lib /nologo /machine:I386 /libpath:"$(LIBDIR)"
 
 
 !IF "$(DLL)" == "1"

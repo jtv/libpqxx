@@ -350,10 +350,9 @@ set.  To disable an item, make sure it is not defined at all.
 Troubleshooting: linking
 
 When you link your application to libpqxx on Windows, you may also need to link
-to wsock32.lib.  On Visual C++, add these in the compiler user interface under:
+to ws2_32.lib.  On Visual C++, add these in the compiler user interface under:
 
 Project Properties::Linker::Input::Additional Dependencies
 
-We recommend that you specify libpqxx_static.lib and wsock32.lib there, in that
+We recommend that you specify libpqxx_static.lib and ws2_32.lib there, in that
 order.
-

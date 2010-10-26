@@ -1,3 +1,9 @@
+2010-10-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/INSTALL.txt, win32/mingw.mak.template, win32/vc-libpqxx.mak.template,
+ win32/vc-test.mak.template:
+ - Use ws2_32, not wsock32.  Thanks Christian Freund.
+ - Don't use /GX and /YX for test build, thanks Christian Freund.
+ - Link in shell32.lib, secur32.lib, wldap32.lib, thanks Christian Freund.
 2010-10-19  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in:
  - Check for PQescapeLiteral (not used yet).

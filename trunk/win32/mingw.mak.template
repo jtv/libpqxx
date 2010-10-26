@@ -12,7 +12,7 @@ OBJ = \
 
 
 LDFLAGS = -L$(LIBPATH1) -L$(LIBPATH2) --export-all-symbols --add-stdcall-alias -fpic
-LIBS = -lpq -lm -lwsock32
+LIBS = -lpq -lm -lws2_32
 
 CPPFLAGS = -Iinclude -I$(PGSQLSRC)/src/include -I$(PGSQLSRC)/src/interfaces \
   -DBUILDING_DLL -DPQXX_SHARED -DPGSTD=$(STD)
