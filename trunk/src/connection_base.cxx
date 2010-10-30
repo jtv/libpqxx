@@ -1491,11 +1491,7 @@ string pqxx::connection_base::esc_raw(const unsigned char str[], size_t len)
   if (!m_Conn) activate();
 
   PQAlloc<unsigned char> buf( PQescapeByteaConn(m_Conn, str, len, &bytes) );
-  if (!buf.get())
-  {
-    // TODO: Distinguish different errors in exception type
-    throw failure(ErrMsg());
-  }
+  if (!buf.get()) throw bad_alloc();
 #else
   unsigned char *const s = const_cast<unsigned char *>(str);
   PQAlloc<unsigned char> buf( PQescapeBytea(s, len, &bytes) );

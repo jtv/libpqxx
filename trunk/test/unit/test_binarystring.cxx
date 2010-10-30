@@ -15,8 +15,8 @@ binarystring make_binarystring(transaction_base &T, string content)
 void test_binarystring(transaction_base &T)
 {
   binarystring b = make_binarystring(T, "");
-  PQXX_CHECK_EQUAL(b.str(), "", "Empty binarystring doesn't work.");
   PQXX_CHECK(b.empty(), "Empty binarystring is not empty.");
+  PQXX_CHECK_EQUAL(b.str(), "", "Empty binarystring doesn't work.");
   PQXX_CHECK_EQUAL(b.size(), 0u, "Empty binarystring has nonzero size.");
   PQXX_CHECK_EQUAL(b.length(), 0u, "Length/size mismatch.");
   PQXX_CHECK(b.begin() == b.end(), "Empty binarystring iterates.");
