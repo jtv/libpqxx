@@ -777,29 +777,34 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>
 )
 AC_MSG_RESULT($pqunescapebytea)
 
-AC_MSG_CHECKING([support for hex binary escaping format])
+
 if test "$pqunescapebytea" = "yes"
 then
+AC_MSG_CHECKING([support for hex binary escaping format])
 	pqunescapebytea_9=yes
 	AC_RUN_IFELSE([
+#include<stdio.h>
 #include<${with_postgres_include}/libpq-fe.h>
 int main()
 {
   typedef unsigned char *ucharptr;
   size_t sz = 0;
-  // Pre-9.0 octal escaping will unescape this as "x".
-  const unsigned char *foo = PQunescapeBytea(ucharptr("\\\\x"), &sz);
-  return !foo || *foo;
+  /* Pre-9.0 octal escaping will unescape this as "x20". */
+  const unsigned char *foo;
+  foo = PQunescapeBytea(ucharptr("\\\\x20"), &sz);
+printf("**%s**\n",foo);/* DEBUG CODE */
+  return *foo != 0x20;
 }
 ],
 		AC_DEFINE(PQXX_HAVE_PQUNESCAPEBYTEA_9, 1,
 [Define if PQunescapeBytea() supports hex escape format]),
 		pqunescapebytea_9=no,
 		pqunescapebytea_9=no)
+AC_MSG_RESULT($pqunescapebytea_9)
 else
 	pqunescapebytea_9=no
 fi
-AC_MSG_RESULT($pqunescapebytea_9)
+
 
 AC_MSG_CHECKING([PQfreemem()])
 pqfreemem=yes
