@@ -16366,10 +16366,11 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pqunescapebytea" >&5
 $as_echo "$pqunescapebytea" >&6; }
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking support for hex binary escaping format" >&5
-$as_echo_n "checking support for hex binary escaping format... " >&6; }
+
 if test "$pqunescapebytea" = "yes"
 then
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking support for hex binary escaping format" >&5
+$as_echo_n "checking support for hex binary escaping format... " >&6; }
 	pqunescapebytea_9=yes
 	if test "$cross_compiling" = yes; then :
   pqunescapebytea_9=no
@@ -16377,14 +16378,17 @@ else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
+#include<stdio.h>
 #include<${with_postgres_include}/libpq-fe.h>
 int main()
 {
   typedef unsigned char *ucharptr;
   size_t sz = 0;
-  // Pre-9.0 octal escaping will unescape this as "x".
-  const unsigned char *foo = PQunescapeBytea(ucharptr("\\\\x"), &sz);
-  return !foo || *foo;
+  /* Pre-9.0 octal escaping will unescape this as "x20". */
+  const unsigned char *foo;
+  foo = PQunescapeBytea(ucharptr("\\\\x20"), &sz);
+printf("**%s**\n",foo);/* DEBUG CODE */
+  return *foo != 0x20;
 }
 
 _ACEOF
@@ -16399,11 +16403,12 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
   conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pqunescapebytea_9" >&5
+$as_echo "$pqunescapebytea_9" >&6; }
 else
 	pqunescapebytea_9=no
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pqunescapebytea_9" >&5
-$as_echo "$pqunescapebytea_9" >&6; }
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking PQfreemem()" >&5
 $as_echo_n "checking PQfreemem()... " >&6; }
