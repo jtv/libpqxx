@@ -41,7 +41,10 @@ void test_binarystring(transaction_base &T)
 
   const string simple("ab");
   b = make_binarystring(T, simple);
-  PQXX_CHECK_EQUAL(b.str(), simple, "Binary (un)escaping went wrong somewhere.");
+  PQXX_CHECK_EQUAL(
+	b.str(),
+	simple,
+	"Binary (un)escaping went wrong somewhere.");
   PQXX_CHECK_EQUAL(b.size(), simple.size(), "Escaping confuses length.");
 
   //const string bytes("\x01\x23\x23\xa1\x2b\x0c\xff");
