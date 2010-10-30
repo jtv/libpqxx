@@ -47,27 +47,32 @@ void test_binarystring(transaction_base &T)
 	"Binary (un)escaping went wrong somewhere.");
   PQXX_CHECK_EQUAL(b.size(), simple.size(), "Escaping confuses length.");
 
-  //const string bytes("\x01\x23\x23\xa1\x2b\x0c\xff");
-
-  const string bytes_escaped(T.esc_raw(bytes));
-  for (string::size_type i=0; i<bytes_escaped.size(); ++i)
+  const string simple_escaped(T.esc_raw(simple));
+  for (string::size_type i=0; i<simple_escaped.size(); ++i)
   {
-    const unsigned char uc = static_cast<unsigned char>(bytes_escaped[i]);
+    const unsigned char uc = static_cast<unsigned char>(simple_escaped[i]);
     PQXX_CHECK(uc <= 127, "Non-ASCII byte in escaped string.");
   }
 
   PQXX_CHECK_EQUAL(
 	T.quote_raw(
-		reinterpret_cast<const unsigned char *>(bytes.c_str()),
-		 bytes.size()),
+		reinterpret_cast<const unsigned char *>(simple.c_str()),
+		 simple.size()),
 	T.quote(b),
 	"quote_raw is broken");
-  PQXX_CHECK_EQUAL(T.quote(b), T.quote_raw(bytes), "Binary quoting is broken.");
+  PQXX_CHECK_EQUAL(
+	T.quote(b),
+	T.quote_raw(simple),
+	"Binary quoting is broken.");
   PQXX_CHECK_EQUAL(
 	binarystring(T.exec("SELECT " + T.quote(b))[0][0]).str(),
-	bytes,
+	simple,
 	"Binary string is not idempotent.");
-  
+
+  const string bytes("\x01\x23\x23\xa1\x2b\x0c\xff");
+  b = make_binarystring(T, bytes);
+  PQXX_CHECK_EQUAL( b.str(), bytes, "Binary data breaks (un)escaping.");
+ 
   const string nully("a\0b", 3);
   b = make_binarystring(T, nully);
   PQXX_CHECK_EQUAL(b.str(), nully, "Nul byte broke binary (un)escaping.");
