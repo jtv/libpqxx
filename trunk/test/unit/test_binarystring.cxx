@@ -39,11 +39,12 @@ void test_binarystring(transaction_base &T)
   PQXX_CHECK(b.at(0) == 'z', "Unexpected data at index 0.");
   PQXX_CHECK_THROWS(b.at(1), out_of_range, "Failed to catch range error.");
 
+  const string simple("ab");
+  b = make_binarystring(T, simple);
+  PQXX_CHECK_EQUAL(b.str(), simple, "Binary (un)escaping went wrong somewhere.");
+  PQXX_CHECK_EQUAL(b.size(), simple.size(), "Escaping confuses length.");
+
   //const string bytes("\x01\x23\x23\xa1\x2b\x0c\xff");
-  const string bytes("ab");
-  b = make_binarystring(T, bytes);
-  PQXX_CHECK_EQUAL(b.str(), bytes, "Binary (un)escaping went wrong somewhere.");
-  PQXX_CHECK_EQUAL(b.size(), bytes.size(), "Escaping confuses length.");
 
   const string bytes_escaped(T.esc_raw(bytes));
   for (string::size_type i=0; i<bytes_escaped.size(); ++i)
