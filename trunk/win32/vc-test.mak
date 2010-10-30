@@ -36,7 +36,7 @@ CXX=cl.exe
 LINK=link.exe
 
 
-CXX_FLAGS_BASE=/nologo /W3 /GX /FD /GR /YX /c \
+CXX_FLAGS_BASE=/nologo /W3 /FD /GR /c \
     /I "include" /I "$(PGSQLSRC)/include" /I "$(PGSQLSRC)/interfaces/libpq" \
     /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_WINDOWS" $(PQXX_SHARED)
 
