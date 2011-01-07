@@ -2,7 +2,7 @@ Summary: C++ API to the PostgreSQL database management system.
 Name: libpqxx
 Version: @VERSION@
 Release: 1
-License: LGPL
+License: BSD
 Group: Development/Libraries
 Source: ftp://pqxx.org/software/libpqxx/libpqxx-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
