@@ -792,7 +792,6 @@ int main()
   /* Pre-9.0 octal escaping will unescape this as "x20". */
   const unsigned char *foo;
   foo = PQunescapeBytea(ucharptr("\\\\x20"), &sz);
-printf("**%s**\n",foo);/* DEBUG CODE */
   return *foo != 0x20;
 }
 ],
