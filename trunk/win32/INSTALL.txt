@@ -5,7 +5,7 @@ Please see the regular README for general instructions on building, installing,
 and using the library.  If you are using Cygwin, MSYS, or another Unix-like
 environment please try the Unix configuration & build procedure instead of the
 one described here.  Some help for the MSYS/MinGW combination is given below,
-but in general, things are much more complicated for Windows than they are for
+but in general, things are a bit more complicated for Windows than they are for
 other environments.
 
 The only Windows compilers currently documented here are:
@@ -18,7 +18,7 @@ still be able to get it to work.  If you do, or if you fail, please report your
 results so any problems can be resolved, and so that we can add support for your
 compiler in the standard libpqxx distribution.
 
-Throughout this document, we'll be using the command line.
+We'll be using the command line throughout this document.
 
 
 Build Environment
@@ -30,37 +30,12 @@ http://gnuwin32.sf.net/).  If you use Visual C++, make sure you have at least
 version 7.0 or you'll run into serious compilation trouble.
 
 Next, make sure you have a working installation of libpq, the C-level client
-library included with PostgreSQL.  Note that for some reason, enabling the
-"Include and Library Files" in the graphical PostgreSQL installer may not be
-enough to ensure this.
+library included with PostgreSQL.  Get the full postgres installer or the
+individual files at:
 
-The best way to ensure that you have libpq available, on a Windows system, is to
-compile a recent version of PostgreSQL from source.  Its source tree should
-then contain libpq in binary form, as well as its headers.  Look for these in
-src/interfaces/libpq: Visual C++ will generate separate Debug and Release
-versions in subdirectories called Debug and Release, respectively, in that
-location.  Note these locations; they will become important in the next section.
+    http://postgresql.org/download/windows
 
-The source package for PostgreSQL can be obtained from http://postgresql.org/
-
-To build PostgreSQL with Visual C++, "cd" into the source tree and run:
-
-	VCVARS32.BAT
-	nmake /f win32.mak
-
-You'll also want to build a Debug-flavour libpq, so then run:
-
-	nmake /f win32.mak DEBUG=1
-
-The libpq binaries will be produced in src/interfaces/libpq/Release and
-src/interface/libpq/Debug, respectively, and the Debug versions will have an
-extra "D" in their names.
-
-(Instructions for building PostgreSQL with MinGW are given in the MSYS section
-below).
-
-The rest of this text will assume that you have the libpq library in its binary 
-form(s), as well as its header files.  Now, to work on building libpqxx!
+Make sure that you install at least the libpq library and its include files.
 
 
 Preparing to Compile libpqxx
@@ -184,22 +159,6 @@ Packages to download if you don't have them already:
 5) zlib (http://www.zlib.org/).
 
 It is generally recommended to get the latest versions of these packages.
-
-Compiling and installing PostgreSQL before you get to libpqxx:
-1) Install MinGW (install to c:\mingw)
-2) Install MSYS--but not into MinGW directory tree!
-3) Run MSYS (Start->Programs->MinGW->MSYS->msys)
-4) Extract, compile, and install zlib
-    # From main source directory of zlib:
-    ./configure --prefix=c:/mingw/local && make && make install
-5) Extract, compile, and install postgres
-    # From main source directory of PostgreSQL:
-    ./configure --prefix=c:/mingw/local --with-includes=c:/mingw/local/include --with-libs=c:/mingw/local/lib
-    make && make install
-6) Extract, compile, and install libpqxx
-    export LDFLAGS=-lws2_32
-    ./configure --prefix=c:/mingw/local --enable-static
-    make && make install
 
 If you don't have and don't want to install MSYS, you won't be able to perform
 the "./configure" step.  You can build libpqxx without it, but it takes a bit
