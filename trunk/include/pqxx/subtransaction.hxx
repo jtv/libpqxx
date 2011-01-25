@@ -59,7 +59,7 @@ namespace pqxx
  *   try
  *   {
  *     subtransaction S(W, "droptemp");
- *     W.exec("DROP TABLE " + temptable);
+ *     S.exec("DROP TABLE " + temptable);
  *   }
  *   catch (const undefined_table &)
  *   {
@@ -67,12 +67,16 @@ namespace pqxx
  *     // Carry on without regrets.
  *   }
  *
- *   W.exec("CREATE TEMP TABLE " + fleetingtable +
- *          "(bar integer, splat varchar)");
+ *   // S has gone into a failed state and been destroyed, but the upper-level
+ *   // transaction W is still fine.  We can continue to use it.
+ *   W.exec("CREATE TEMP TABLE " + temptable + "(bar integer, splat varchar)");
  *
  *   do_lastpart(W);
  * }
  * @endcode
+ *
+ * (This is just an example.  If you really wanted to do drop a table without an
+ * error if it doesn't exist, you'd use DROP TABLE IF EXISTS.)
  *
  * There are no isolation levels inside a transaction.  They are not needed
  * because all actions within the same backend transaction are always performed
