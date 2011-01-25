@@ -1,3 +1,6 @@
+2011-01-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/subtransaction.hxx:
+ - Corrected documentation.  Thanks Maxime van Noppen.
 2010-10-30  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
  - Quote bytea as '', not E''.  Thanks RhodiumToad.
