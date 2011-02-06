@@ -7,25 +7,8 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-// Test program for libpqxx.  Copy a table from one database connection to
-// another using a tablereader and a tablewriter.  Any data already in the
-// destination table is overwritten.  Lazy connections are used.
 namespace
 {
-class CreateTable : public transactor<>
-{
-  string m_Table;
-
-public:
-  CreateTable(string Table) : transactor<>("CreateTable"), m_Table(Table) {}
-
-  void operator()(argument_type &T)
-  {
-    T.exec("CREATE TABLE " + m_Table + "(year INTEGER, event TEXT)");
-    cout << "Table " << m_Table << " created." << endl;
-  }
-};
-
 class ClearTable : public transactor<>
 {
   string m_Table;
@@ -94,7 +77,7 @@ public:
 };
 
 
-void test_025(transaction_base &)
+void test_025(transaction_base &T)
 {
   // Set up two connections to the backend: one to read our original table,
   // and another to write our copy
@@ -104,23 +87,13 @@ void test_025(transaction_base &)
   const string orgTable = "pqxxorgevents";
   const string dstTable = "pqxxevents";
 
+  T.exec("DROP TABLE IF EXISTS " + dstTable);
+  T.exec("CREATE TABLE " + dstTable + "(year INTEGER, event TEXT)");
+
   // Set up a transaction to access the original table from
   work orgTrans(orgC, "test25org");
-
-  // Attempt to create table.  Ignore errors, as they're probably one of:
-  // (1) Table already exists--fine with us
-  // (2) Something else is wrong--we'll just fail later on anyway
-  try
-  {
-    dstC.perform(CreateTable(dstTable));
-  }
-  catch (const sql_error &)
-  {
-  }
-
-  dstC.perform(ClearTable(dstTable));
   dstC.perform(CopyTable(orgTrans, orgTable, dstTable));
 }
 } // namespace
 
-PQXX_REGISTER_TEST_NODB(test_025)
+PQXX_REGISTER_TEST_T(test_025, nontransaction)

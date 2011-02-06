@@ -1,3 +1,6 @@
+2011-02-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test025.cxx:
+ - Use DROP TABLE IF EXISTS, not transactor, to drop/create test table.
 2011-01-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/subtransaction.hxx:
  - Corrected documentation.  Thanks Maxime van Noppen.
