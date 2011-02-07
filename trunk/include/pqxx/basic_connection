@@ -7,7 +7,7 @@
  *      connection class template.
  *   Combines the components of a connection into something usable
  *
- * Copyright (c) 2005-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2005-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -17,4 +17,3 @@
  */
 // Actual definitions in .hxx file so editors and such recognize file type
 #include "pqxx/basic_connection.hxx"
-
