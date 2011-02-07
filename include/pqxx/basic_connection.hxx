@@ -6,9 +6,9 @@
  *   DESCRIPTION
  *      definition of the pqxx::basic_connection class template
  *   Instantiations of basic_connection bring connections and policies together
- *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
+ *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/basic_connection instead.
  *
- * Copyright (c) 2006-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2006-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -89,4 +89,3 @@ private:
 #include "pqxx/compiler-internal-post.hxx"
 
 #endif
-

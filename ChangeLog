@@ -1,4 +1,9 @@
 2011-02-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/basic_connection.hxx, include/pqxx/cursor.hxx:
+ - Fixed "don't include this" directions; fixes #211.  Thanks ehoeks.
+ include/pqxx/basic_connection:
+ - Cosmetic.
+2011-02-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/libpqxx.xml, include/Makefile.am, include/pqxx/connection_base.hxx,
  include/pqxx/internal/gates/connection-notify-listener.hxx,
  include/pqxx/notification, include/pqxx/notification.hxx,
