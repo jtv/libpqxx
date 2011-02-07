@@ -27,6 +27,7 @@ runner_SOURCES = \
   test_error_verbosity.cxx \
   test_escape.cxx \
   test_float.cxx \
+  test_notification.cxx \
   test_parameterized.cxx \
   test_pipeline.cxx \
   test_prepared_statement.cxx \

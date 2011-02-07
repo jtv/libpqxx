@@ -108,6 +108,7 @@ OBJ_STATICDEBUG=\
        "$(INTDIR_STATICDEBUG)\except.obj" \
        "$(INTDIR_STATICDEBUG)\largeobject.obj" \
        "$(INTDIR_STATICDEBUG)\nontransaction.obj" \
+       "$(INTDIR_STATICDEBUG)\notification.obj" \
        "$(INTDIR_STATICDEBUG)\notify-listen.obj" \
        "$(INTDIR_STATICDEBUG)\pipeline.obj" \
        "$(INTDIR_STATICDEBUG)\prepared_statement.obj" \
@@ -132,6 +133,7 @@ OBJ_STATICRELEASE=\
        "$(INTDIR_STATICRELEASE)\except.obj" \
        "$(INTDIR_STATICRELEASE)\largeobject.obj" \
        "$(INTDIR_STATICRELEASE)\nontransaction.obj" \
+       "$(INTDIR_STATICRELEASE)\notification.obj" \
        "$(INTDIR_STATICRELEASE)\notify-listen.obj" \
        "$(INTDIR_STATICRELEASE)\pipeline.obj" \
        "$(INTDIR_STATICRELEASE)\prepared_statement.obj" \
@@ -156,6 +158,7 @@ OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\except.obj" \
        "$(INTDIR_DLLDEBUG)\largeobject.obj" \
        "$(INTDIR_DLLDEBUG)\nontransaction.obj" \
+       "$(INTDIR_DLLDEBUG)\notification.obj" \
        "$(INTDIR_DLLDEBUG)\notify-listen.obj" \
        "$(INTDIR_DLLDEBUG)\pipeline.obj" \
        "$(INTDIR_DLLDEBUG)\prepared_statement.obj" \
@@ -181,6 +184,7 @@ OBJ_DLLRELEASE=\
        "$(INTDIR_DLLRELEASE)\except.obj" \
        "$(INTDIR_DLLRELEASE)\largeobject.obj" \
        "$(INTDIR_DLLRELEASE)\nontransaction.obj" \
+       "$(INTDIR_DLLRELEASE)\notification.obj" \
        "$(INTDIR_DLLRELEASE)\notify-listen.obj" \
        "$(INTDIR_DLLRELEASE)\pipeline.obj" \
        "$(INTDIR_DLLRELEASE)\prepared_statement.obj" \
@@ -348,6 +352,13 @@ $(INTDIR_DLLRELEASE):
 	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/nontransaction.cxx
 
 
+"$(INTDIR_STATICRELEASE)\notification.obj": src/notification.cxx $(INTDIR_STATICRELEASE)
+	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/notification.cxx
+
+"$(INTDIR_STATICDEBUG)\notification.obj": src/notification.cxx $(INTDIR_STATICDEBUG)
+	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/notification.cxx
+
+
 "$(INTDIR_STATICRELEASE)\notify-listen.obj": src/notify-listen.cxx $(INTDIR_STATICRELEASE)
 	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/notify-listen.cxx
 
@@ -502,6 +513,13 @@ $(INTDIR_DLLRELEASE):
 
 "$(INTDIR_DLLDEBUG)\nontransaction.obj": src/nontransaction.cxx $(INTDIR_DLLDEBUG)
 	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/nontransaction.cxx
+
+
+"$(INTDIR_DLLRELEASE)\notification.obj": src/notification.cxx $(INTDIR_DLLRELEASE)
+	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/notification.cxx
+
+"$(INTDIR_DLLDEBUG)\notification.obj": src/notification.cxx $(INTDIR_DLLDEBUG)
+	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/notification.cxx
 
 
 "$(INTDIR_DLLRELEASE)\notify-listen.obj": src/notify-listen.cxx $(INTDIR_DLLRELEASE)

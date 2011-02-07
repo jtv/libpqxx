@@ -1,4 +1,16 @@
 2011-02-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/libpqxx.xml, include/Makefile.am, include/pqxx/connection_base.hxx,
+ include/pqxx/internal/gates/connection-notify-listener.hxx,
+ include/pqxx/notification, include/pqxx/notification.hxx,
+ include/pqxx/notify-listen, include/pqxx/notify-listen.hxx,
+ include/pqxx/pqxx, include/pqxx/trigger.hxx, src/connection_base.cxx,
+ src/Makefile.am, src/notification.cxx, src/notify-listen.cxx,
+ test/unit/test_notification.cxx:
+ - Deprecated in favour of new notification_receiver.
+ - Takes payload argument (in addition to existing backend_pid).
+ include/pqxx/internal/gates/connection-notify-listener.hxx:
+ - Renamed to connection-notification_receiver.hxx.
+2011-02-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test025.cxx:
  - Use DROP TABLE IF EXISTS, not transactor, to drop/create test table.
 2011-01-25  Jeroen T. Vermeulen <jtv@xs4all.nl>

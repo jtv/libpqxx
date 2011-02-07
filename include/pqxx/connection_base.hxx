@@ -8,7 +8,7 @@
  *   pqxx::connection_base encapsulates a frontend to backend connection
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
  *
- * Copyright (c) 2001-2010, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -45,7 +45,7 @@ namespace pqxx
 {
 class binarystring;
 class connectionpolicy;
-class notify_listener;
+class notification_receiver;
 class result;
 class transaction_base;
 
@@ -130,7 +130,7 @@ namespace gate
 {
 class connection_dbtransaction;
 class connection_largeobject;
-class connection_notify_listener;
+class connection_notification_receiver;
 class connection_parameterized_invocation;
 class connection_pipeline;
 class connection_prepare_declaration;
@@ -425,6 +425,9 @@ public:
     /// Can this connection execute parameterized statements?
     cap_parameterized_statements,
 
+    /// Can notifications carry payloads?
+    cap_notify_payload,
+
     /// Not a capability value; end-of-enumeration marker
     cap_end
   };
@@ -523,19 +526,19 @@ public:
 
 
   /**
-   * @name Notifications and Listeners
+   * @name Notifications and Receivers
    */
   //@{
   /// Check for pending notifications and take appropriate action.
   /**
    * All notifications found pending at call time are processed by finding
-   * any matching listeners and invoking those.  If no listeners matched the
+   * any matching receivers and invoking those.  If no receivers matched the
    * notification string, none are invoked but the notification is considered
    * processed.
    *
-   * Exceptions thrown by client-registered listeners handlers are reported
-   * using the connection's message noticer, but the exceptions themselves are
-   * not passed on outside this function.
+   * Exceptions thrown by client-registered receivers are reported using the
+   * connection's message noticer, but the exceptions themselves are not passed
+   * on outside this function.
    *
    * @return Number of notifications processed
    */
@@ -916,9 +919,10 @@ private:
   /// File to trace to, if any
   PGSTD::FILE *m_Trace;
 
-  typedef PGSTD::multimap<PGSTD::string, pqxx::notify_listener *> listenerlist;
-  /// Notifications this session is listening on
-  listenerlist m_listeners;
+  typedef PGSTD::multimap<PGSTD::string, pqxx::notification_receiver *>
+	receiver_list;
+  /// Notification receivers.
+  receiver_list m_receivers;
 
   /// Variables set in this session
   PGSTD::map<PGSTD::string, PGSTD::string> m_Vars;
@@ -963,9 +967,9 @@ private:
   friend class internal::gate::connection_largeobject;
   internal::pq::PGconn *RawConnection() const { return m_Conn; }
 
-  friend class internal::gate::connection_notify_listener;
-  void add_listener(notify_listener *);
-  void remove_listener(notify_listener *) throw ();
+  friend class internal::gate::connection_notification_receiver;
+  void add_receiver(notification_receiver *);
+  void remove_receiver(notification_receiver *) throw ();
 
   friend class internal::gate::connection_pipeline;
   void PQXX_PRIVATE start_exec(const PGSTD::string &);

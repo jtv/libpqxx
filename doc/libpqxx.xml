@@ -480,19 +480,19 @@
 
       <listitem>
 	<para>
-	  <literal>notify_listener</literal> is an instance of the Observer
-	  design pattern.  Any code connected to a backend may flag an event
-	  using the <productname>PostgreSQL</productname>
+	  <literal>notification_receiver</literal> is an instance of the
+	  Observer design pattern.  Any code connected to a backend may flag an
+	  event using the <productname>PostgreSQL</productname>
 	  <literal>NOTIFY</literal> command.  Frontends connected to that same
 	  backend database may be listening for an event of that name to occur.
 	  A frontend using <productname>libpqxx</productname> does this by
 	  registering an observer object derived from
-	  <literal>notify_listener</literal>, which will be invoked by
+	  <literal>notification_receiver</literal>, which will be invoked by
 	  <productname>libpqxx</productname> to handle the event when it occurs.
 	</para>
 
 	<para>
-	  Something every programmer using notification listeners in PostgreSQL
+	  Something every programmer using notification receivers in PostgreSQL
 	  should know, by the way, is that notifications are not delivered to
 	  your program while it is inside a back-end transaction.  Nor are they
 	  sent until the notifying process has committed any transaction it may

@@ -15,6 +15,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/largeobject pqxx/largeobject.hxx \
 	pqxx/libpq-forward.hxx \
 	pqxx/nontransaction pqxx/nontransaction.hxx \
+	pqxx/notification pqxx/notification.hxx \
 	pqxx/notify-listen pqxx/notify-listen.hxx \
 	pqxx/performance.hxx \
 	pqxx/pipeline pqxx/pipeline.hxx \
@@ -36,7 +37,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/statement_parameters.hxx \
 	pqxx/internal/gates/connection-dbtransaction.hxx \
 	pqxx/internal/gates/connection-largeobject.hxx \
-	pqxx/internal/gates/connection-notify-listener.hxx \
+	pqxx/internal/gates/connection-notification_receiver.hxx \
 	pqxx/internal/gates/connection-parameterized_invocation.hxx \
 	pqxx/internal/gates/connection-pipeline.hxx \
 	pqxx/internal/gates/connection-prepare-declaration.hxx \
