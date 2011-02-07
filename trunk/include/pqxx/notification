@@ -1,13 +1,13 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pqxx/notify-listen
+ *	pqxx/notification
  *
  *   DESCRIPTION
- *      Obsolete pqxx::notify_listener functor interface.
- *   Predecessor to notification_receiver.  Deprecated.  Do not use.
+ *      pqxx::notification_receiver functor interface.
+ *   pqxx::notification_receiver handles incoming notifications.
  *
- * Copyright (c) 2007-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -16,5 +16,4 @@
  *-------------------------------------------------------------------------
  */
 // Actual definitions in .hxx file so editors and such recognize file type
-#include "pqxx/notify-listen.hxx"
-
+#include "pqxx/notification.hxx"

@@ -1,0 +1,71 @@
+#include <test_helpers.hxx>
+
+using namespace PGSTD;
+using namespace pqxx;
+
+
+namespace
+{
+class TestReceiver : public notification_receiver
+{
+public:
+  string payload;
+  int backend_pid;
+  bool done;
+
+  TestReceiver(connection_base &c, const string &channel_name) :
+    notification_receiver(c, channel_name),
+    payload(),
+    backend_pid(0)
+  {
+  }
+
+  virtual void operator()(const string &payload_string, int backend)
+  {
+    this->payload = payload_string;
+    this->backend_pid = backend;
+  }
+};
+
+
+void test_receive(
+	transaction_base &t,
+	const string &channel,
+	const char payload[] = NULL)
+{
+  string SQL = "NOTIFY \"" + channel + "\"";
+  if (payload) SQL += ", \"" + string(payload) + "\"";
+
+  TestReceiver receiver(t.conn(), channel);
+
+  // Clear out any pending notifications.
+  t.conn().get_notifs();
+
+  // Notify, and receive.
+  t.exec(SQL);
+  t.commit();
+
+  int notifs = 0;
+  for (int i=0; (i < 10) && !notifs; ++i, pqxx::internal::sleep_seconds(1))
+    notifs = t.conn().get_notifs();
+
+  PQXX_CHECK_EQUAL(notifs, 1, "Got wrong number of notifications.");
+  PQXX_CHECK_EQUAL(receiver.backend_pid, t.conn().backendpid(), "Bad pid.");
+  if (payload) PQXX_CHECK_EQUAL(receiver.payload, payload, "Bad payload.");
+  else PQXX_CHECK(receiver.payload.empty(), "Unexpected payload.");
+}
+
+
+void test_notification(transaction_base &t)
+{
+  TestReceiver receiver(t.conn(), "mychannel");
+  PQXX_CHECK_EQUAL(receiver.channel(), "mychannel", "Bad channel.");
+
+  test_receive(t, "channel1");
+
+  if (t.conn().supports(connection_base::cap_notify_payload))
+    test_receive(t, "channel2", "payload");
+}
+} // namespace
+
+PQXX_REGISTER_TEST_T(test_notification, nontransaction)

@@ -4,11 +4,11 @@
  *	pqxx/notify-listen.hxx
  *
  *   DESCRIPTION
- *      definition of the pqxx::notify_listener functor interface.
- *   pqxx::notify_listener describes a notification to wait on, and what it does
+ *      Definition of the obsolete pqxx::notify_listener functor interface.
+ *   Predecessor to notification_receiver.  Deprecated.  Do not use.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/notify-listen instead.
  *
- * Copyright (c) 2001-2010, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -22,80 +22,57 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
-#include "pqxx/connection_base"
+#include "pqxx/notification"
 
-
-/* Methods tested in eg. self-test program test001 are marked with "//[t1]"
- */
 
 namespace pqxx
 {
-/// "Observer" base class for notifications.
-/** @addtogroup notification Notifications and Listeners
- * To listen on a notification issued using the NOTIFY command, derive your own
- * class from notify_listener and define its function call operator to perform
- * whatever action you wish to take when the given notification arrives.  Then
- * create an object of that class and pass it to your connection.  DO NOT use
- * raw SQL to listen for notifications, or your attempts to listen won't be
- * resumed when a connection fails--and you'll have no way to notice.
- *
- * Notifications never arrive inside a transaction (not even in a
- * nontransaction).  Therefore, you are free to open a transaction of your own
- * inside your listener's function invocation operator.
- *
- * Notifications you are listening for may arrive anywhere within libpqxx code,
- * but be aware that @b PostgreSQL @b defers @b notifications @b occurring
- * @b inside @b transactions.  (This was done for excellent reasons; just think
- * about what happens if the transaction where you happen to handle an incoming
- * notification is later rolled back for other reasons).  So if you're keeping a
- * transaction open, don't expect any of your listeners on the same connection
- * to be notified.
- *
- * Multiple listeners on the same connection may listen on a notification of the
- * same name.  An incoming notification is processed by invoking all listeners
- * (zero or more) of the same name.
+class connection_base;
+class notify_listener;
+
+namespace internal
+{
+/// Internal helper class to support old-style, payloadless notifications.
+class notify_listener_forwarder: public notification_receiver
+{
+public:
+  notify_listener_forwarder(
+	connection_base &c,
+	const PGSTD::string &channel_name,
+	notify_listener *wrappee) :
+    notification_receiver(c, channel_name),
+    m_wrappee(wrappee)
+  {}
+
+  virtual void operator()(const PGSTD::string &, int backend_pid);
+
+private:
+  notify_listener *m_wrappee;
+};
+}
+
+
+/// Obsolete notification receiver.
+/** @deprecated Use notification_receiver instead.
  */
 class PQXX_LIBEXPORT PQXX_NOVTABLE notify_listener :
   public PGSTD::unary_function<int, void>
 {
 public:
-  /// Constructor.  Registers the listener with connection C.
-  /**
-   * @param C Connection this listener resides in.
-   * @param N Name of the notification to listen for.
-   */
-  notify_listener(connection_base &C, const PGSTD::string &N);		//[t4]
-
-  virtual ~notify_listener() throw ();					//[t4]
-
-  const PGSTD::string &name() const { return m_Name; }			//[t4]
-
-  /// Overridable: action to invoke when notification arrives
-  /**
-   * @param be_pid Process ID of the database backend process that served our
-   * connection when the notification arrived.  The actual process ID behind the
-   * connection may have changed by the time this method is called.
-   */
-  virtual void operator()(int be_pid) =0;				//[t4]
+  notify_listener(connection_base &c, const PGSTD::string &n);
+  virtual ~notify_listener() throw ();
+  const PGSTD::string &name() const { return m_forwarder.channel(); }
+  virtual void operator()(int be_pid) =0;
 
 
 protected:
-  /// @deprecated Use conn() instead.
-  connection_base &Conn() const throw () { return conn(); }		//[t23]
-
-  /// Get the connection that this listener listens on.
-  connection_base &conn() const throw () { return m_conn; }		//[t23]
+  connection_base &Conn() const throw () { return conn(); }
+  connection_base &conn() const throw () { return m_conn; }
 
 private:
-  /// Not allowed
-  notify_listener(const notify_listener &);
-  /// Not allowed
-  notify_listener &operator=(const notify_listener &);
-
   connection_base &m_conn;
-  PGSTD::string m_Name;
+  internal::notify_listener_forwarder m_forwarder;
 };
-
 }
 
 

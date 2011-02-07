@@ -7,7 +7,7 @@
  *      implementation of the pqxx::connection_base abstract base class.
  *   pqxx::connection_base encapsulates a frontend to backend connection
  *
- * Copyright (c) 2001-2010, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -51,7 +51,7 @@
 #include "pqxx/result"
 #include "pqxx/strconv"
 #include "pqxx/transaction"
-#include "pqxx/notify-listen"
+#include "pqxx/notification"
 
 #include "pqxx/internal/gates/result-creation.hxx"
 #include "pqxx/internal/gates/result-connection.hxx"
@@ -330,21 +330,21 @@ void pqxx::connection_base::SetupState()
 
   InternalSetTrace();
 
-  if (!m_listeners.empty() || !m_Vars.empty())
+  if (!m_receivers.empty() || !m_Vars.empty())
   {
     stringstream restore_query;
 
-    // Pipeline all queries needed to restore listeners and variables, so we can
+    // Pipeline all queries needed to restore receivers and variables, so we can
     // send them over in one go.
 
-    // Reinstate all active listeners
-    if (!m_listeners.empty())
+    // Reinstate all active receivers
+    if (!m_receivers.empty())
     {
-      const listenerlist::const_iterator End = m_listeners.end();
+      const receiver_list::const_iterator End = m_receivers.end();
       string Last;
-      for (listenerlist::const_iterator i = m_listeners.begin(); i != End; ++i)
+      for (receiver_list::const_iterator i = m_receivers.begin(); i != End; ++i)
       {
-        // m_listeners can handle multiple listeners waiting on the same event;
+        // m_receivers can handle multiple receivers waiting on the same event;
         // issue just one LISTEN for each event.
         if (i->first != Last)
         {
@@ -587,18 +587,18 @@ void pqxx::connection_base::trace(FILE *Out) throw ()
 }
 
 
-void pqxx::connection_base::add_listener(pqxx::notify_listener *T)
+void pqxx::connection_base::add_receiver(pqxx::notification_receiver *T)
 {
-  if (!T) throw argument_error("Null listener registered");
+  if (!T) throw argument_error("Null receiver registered");
 
-  // Add to listener list and attempt to start listening.
-  const listenerlist::iterator p = m_listeners.find(T->name());
-  const listenerlist::value_type NewVal(T->name(), T);
+  // Add to receiver list and attempt to start listening.
+  const receiver_list::iterator p = m_receivers.find(T->channel());
+  const receiver_list::value_type NewVal(T->channel(), T);
 
-  if (p == m_listeners.end())
+  if (p == m_receivers.end())
   {
     // Not listening on this event yet, start doing so.
-    const string LQ("LISTEN \"" + T->name() + "\"");
+    const string LQ("LISTEN \"" + T->channel() + "\"");
 
     if (is_open()) try
     {
@@ -607,41 +607,42 @@ void pqxx::connection_base::add_listener(pqxx::notify_listener *T)
     catch (const broken_connection &)
     {
     }
-    m_listeners.insert(NewVal);
+    m_receivers.insert(NewVal);
   }
   else
   {
-    m_listeners.insert(p, NewVal);
+    m_receivers.insert(p, NewVal);
   }
 }
 
 
-void pqxx::connection_base::remove_listener(pqxx::notify_listener *T) throw ()
+void pqxx::connection_base::remove_receiver(pqxx::notification_receiver *T)
+	throw ()
 {
   if (!T) return;
 
   try
   {
     // Keep Sun compiler happy...  Hope it doesn't annoy other compilers
-    pair<const string, notify_listener *> tmp_pair(T->name(), T);
-    listenerlist::value_type E = tmp_pair;
+    pair<const string, notification_receiver *> tmp_pair(T->channel(), T);
+    receiver_list::value_type E = tmp_pair;
 
-    typedef pair<listenerlist::iterator, listenerlist::iterator> Range;
-    Range R = m_listeners.equal_range(E.first);
+    typedef pair<receiver_list::iterator, receiver_list::iterator> Range;
+    Range R = m_receivers.equal_range(E.first);
 
-    const listenerlist::iterator i = find(R.first, R.second, E);
+    const receiver_list::iterator i = find(R.first, R.second, E);
 
     if (i == R.second)
     {
-      process_notice("Attempt to remove unknown listener '" + E.first + "'");
+      process_notice("Attempt to remove unknown receiver '" + E.first + "'");
     }
     else
     {
-      // Erase first; otherwise a notification for the same listener may yet
+      // Erase first; otherwise a notification for the same receiver may yet
       // come in and wreak havoc.  Thanks Dragan Milenkovic.
       const bool gone = (m_Conn && (R.second == ++R.first));
-      m_listeners.erase(i);
-      if (gone) Exec(("UNLISTEN \"" + T->name() + "\"").c_str(), 0);
+      m_receivers.erase(i);
+      if (gone) Exec(("UNLISTEN \"" + T->channel() + "\"").c_str(), 0);
     }
   }
   catch (const exception &e)
@@ -752,20 +753,20 @@ int pqxx::connection_base::get_notifs()
        N.get();
        N = notifptr(PQnotifies(m_Conn)))
   {
-    typedef listenerlist::iterator TI;
+    typedef receiver_list::iterator TI;
 
     notifs++;
 
-    pair<TI, TI> Hit = m_listeners.equal_range(string(N->relname));
+    pair<TI, TI> Hit = m_receivers.equal_range(string(N->relname));
     for (TI i = Hit.first; i != Hit.second; ++i) try
     {
-      (*i->second)(N->be_pid);
+      (*i->second)(N->extra, N->be_pid);
     }
     catch (const exception &e)
     {
       try
       {
-        process_notice("Exception in notification listener '" +
+        process_notice("Exception in notification receiver '" +
 		       i->first +
 		       "': " +
 		       e.what() +
@@ -774,12 +775,12 @@ int pqxx::connection_base::get_notifs()
       catch (const bad_alloc &)
       {
         // Out of memory.  Try to get the message out in a more robust way.
-        process_notice("Exception in notification listener, "
+        process_notice("Exception in notification receiver, "
 	    "and also ran out of memory\n");
       }
       catch (const exception &)
       {
-        process_notice("Exception in notification listener "
+        process_notice("Exception in notification receiver "
 	    "(compounded by other error)\n");
       }
     }
@@ -1182,10 +1183,10 @@ void pqxx::connection_base::close() throw ()
       process_notice("Closing connection while " +
 	             m_Trans.get()->description() + " still open");
 
-    if (!m_listeners.empty())
+    if (!m_receivers.empty())
     {
-      process_notice("Closing connection with outstanding listeners");
-      m_listeners.clear();
+      process_notice("Closing connection with outstanding receivers.");
+      m_receivers.clear();
     }
 
     m_Conn = m_policy.do_disconnect(m_Conn);
@@ -1668,6 +1669,8 @@ void pqxx::connection_base::read_capabilities() throw ()
   m_caps[cap_nested_transactions] = (v >= 80000);
   m_caps[cap_create_table_with_oids] = (v >= 80000);
   m_caps[cap_read_only_transactions] = (v >= 80000);
+
+  m_caps[cap_notify_payload] = (v >= 90000);
 
 #ifdef PQXX_HAVE_PQFTABLECOL
   m_caps[cap_table_column] = (p >= 3);

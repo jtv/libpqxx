@@ -27,6 +27,7 @@ OBJ = \
   "src/except.o" \
   "src/largeobject.o" \
   "src/nontransaction.o" \
+  "src/notification.o" \
   "src/notify-listen.o" \
   "src/pipeline.o" \
   "src/prepared_statement.o" \
@@ -88,6 +89,9 @@ src/largeobject.o: src/largeobject.cxx
 
 src/nontransaction.o: src/nontransaction.cxx
 	$(CXX) $(CPPFLAGS) -c src/nontransaction.cxx -o src/nontransaction.o $(CXXFLAGS)
+
+src/notification.o: src/notification.cxx
+	$(CXX) $(CPPFLAGS) -c src/notification.cxx -o src/notification.o $(CXXFLAGS)
 
 src/notify-listen.o: src/notify-listen.cxx
 	$(CXX) $(CPPFLAGS) -c src/notify-listen.cxx -o src/notify-listen.o $(CXXFLAGS)
