@@ -59,9 +59,10 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE notification_receiver :
 public:
   /// Register the receiver with a connection.
   /**
+   * @param c Connnection to operate on.
    * @param channel Name of the notification to listen for.
    */
-  notification_receiver(connection_base &, const PGSTD::string &channel);
+  notification_receiver(connection_base &c, const PGSTD::string &channel);
   virtual ~notification_receiver();
 
   /// The channel that this receiver listens on.
@@ -71,9 +72,9 @@ public:
   /**
    * @param payload On PostgreSQL 9.0 or later, an optional string that may have
    * been passed to the NOTIFY command.
-   * @param be_pid Process ID of the database backend process that served our
-   * connection when the notification arrived.  The actual process ID behind the
-   * connection may have changed by the time this method is called.
+   * @param backend_pid Process ID of the database backend process that served
+   * our connection when the notification arrived.  The actual process ID behind
+   * the connection may have changed by the time this method is called.
    */
   virtual void operator()(const PGSTD::string &payload, int backend_pid) =0;
 

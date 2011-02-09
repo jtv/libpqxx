@@ -39,7 +39,7 @@ export TMPDIR
 LOGFILE="$TMPDIR/libpqxx-preprelease.log"
 ERRLOG="$TMPDIR/libpqxx-preprelease.err"
 
-DEFAULTCOMPILERS=/usr/bin/g++-[1-9]*
+DEFAULTCOMPILERS="/usr/bin/g++-[1-9]* /usr/bin/clang++"
 
 
 if test -z "$CONCURRENCY_LEVEL" ; then

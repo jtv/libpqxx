@@ -8,7 +8,7 @@
  *   Allows access to large objects directly, or through I/O streams
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/largeobject instead.
  *
- * Copyright (c) 2003-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -423,7 +423,7 @@ protected:
   virtual int sync()
   {
     // setg() sets eback, gptr, egptr
-    setg(this->eback(), this->eback(), this->egptr());
+    this->setg(this->eback(), this->eback(), this->egptr());
     return overflow(EoF());
   }
 
@@ -451,7 +451,7 @@ protected:
     int_type res = 0;
 
     if (pp > pb) res = int_type(AdjustEOF(m_Obj.cwrite(pb, pp-pb)));
-    setp(m_P, m_P + m_BufSize);
+    this->setp(m_P, m_P + m_BufSize);
 
     // Write that one more character, if it's there.
     if (ch != EoF())
@@ -466,8 +466,9 @@ protected:
   {
     if (!this->gptr()) return EoF();
     char *const eb = this->eback();
-    const int_type res(static_cast<int_type>(AdjustEOF(m_Obj.cread(this->eback(), m_BufSize))));
-    setg(eb, eb, eb + ((res==EoF()) ? 0 : res));
+    const int_type res(static_cast<int_type>(
+	AdjustEOF(m_Obj.cread(this->eback(), m_BufSize))));
+    this->setg(eb, eb, eb + ((res==EoF()) ? 0 : res));
     return (!res || (res == EoF())) ? EoF() : *eb;
   }
 
@@ -485,12 +486,12 @@ private:
     if (mode & PGSTD::ios::in)
     {
       m_G = new char_type[m_BufSize];
-      setg(m_G, m_G, m_G);
+      this->setg(m_G, m_G, m_G);
     }
     if (mode & PGSTD::ios::out)
     {
       m_P = new char_type[m_BufSize];
-      setp(m_P, m_P + m_BufSize);
+      this->setp(m_P, m_P + m_BufSize);
     }
   }
 
