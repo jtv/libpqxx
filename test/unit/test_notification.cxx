@@ -33,6 +33,8 @@ void test_receive(
 	const string &channel,
 	const char payload[] = NULL)
 {
+  connection_base &conn(t.conn());
+
   string SQL = "NOTIFY \"" + channel + "\"";
   if (payload) SQL += ", \"" + string(payload) + "\"";
 
@@ -47,10 +49,10 @@ void test_receive(
 
   int notifs = 0;
   for (int i=0; (i < 10) && !notifs; ++i, pqxx::internal::sleep_seconds(1))
-    notifs = t.conn().get_notifs();
+    notifs = conn.get_notifs();
 
   PQXX_CHECK_EQUAL(notifs, 1, "Got wrong number of notifications.");
-  PQXX_CHECK_EQUAL(receiver.backend_pid, t.conn().backendpid(), "Bad pid.");
+  PQXX_CHECK_EQUAL(receiver.backend_pid, conn.backendpid(), "Bad pid.");
   if (payload) PQXX_CHECK_EQUAL(receiver.payload, payload, "Bad payload.");
   else PQXX_CHECK(receiver.payload.empty(), "Unexpected payload.");
 }

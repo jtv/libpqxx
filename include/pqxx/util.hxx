@@ -7,7 +7,7 @@
  *      Various utility definitions for libpqxx
  *      DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/util instead.
  *
- * Copyright (c) 2001-2010, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -362,22 +362,33 @@ public:
   /// Create empty items list
   items() : CONT() {}							//[t80]
   /// Create items list with one element
-  explicit items(const T &t) : CONT() { push_back(t); }			//[t0]
+  explicit items(const T &t) : CONT() { this->push_back(t); }		//[t0]
   items(const T &t1, const T &t2) : CONT()				//[t80]
-	{ push_back(t1); push_back(t2); }
+	{ this->push_back(t1); this->push_back(t2); }
   items(const T &t1, const T &t2, const T &t3) : CONT()			//[t0]
-	{ push_back(t1); push_back(t2); push_back(t3); }
+	{ this->push_back(t1); this->push_back(t2); this->push_back(t3); }
   items(const T &t1, const T &t2, const T &t3, const T &t4) : CONT()	//[t0]
-	{ push_back(t1); push_back(t2); push_back(t3); push_back(t4); }
+  {
+    this->push_back(t1);
+    this->push_back(t2);
+    this->push_back(t3);
+    this->push_back(t4);
+  }
   items(const T&t1,const T&t2,const T&t3,const T&t4,const T&t5):CONT()	//[t0]
-	{push_back(t1);push_back(t2);push_back(t3);push_back(t4);push_back(t5);}
+  {
+    this->push_back(t1);
+    this->push_back(t2);
+    this->push_back(t3);
+    this->push_back(t4);
+    this->push_back(t5);
+  }
   /// Copy container
   items(const CONT &c) : CONT(c) {}					//[t0]
 
   /// Add element to items list
   items &operator()(const T &t)						//[t80]
   {
-    push_back(t);
+    this->push_back(t);
     return *this;
   }
 };
