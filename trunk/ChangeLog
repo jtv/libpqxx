@@ -1,6 +1,7 @@
 2011-02-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/unit/test_notification.cxx:
  - Eliminated some more use of already-committed nontransaction.
+ - Payload should be single-quoted, not double-quoted.
 2011-02-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/largeobject.hxx, include/pqxx/result.hxx, include/pqxx/util.hxx:
  - Fixes for problems spotted by clang++.
