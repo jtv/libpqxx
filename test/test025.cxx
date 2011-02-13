@@ -87,7 +87,7 @@ void test_025(transaction_base &T)
   const string orgTable = "pqxxorgevents";
   const string dstTable = "pqxxevents";
 
-  T.exec("DROP TABLE IF EXISTS " + dstTable);
+  pqxx::test::drop_table(T, dstTable);
   T.exec("CREATE TABLE " + dstTable + "(year INTEGER, event TEXT)");
 
   // Set up a transaction to access the original table from

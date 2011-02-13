@@ -43,6 +43,10 @@ void prepare_series(transaction_base &t, int lowest, int highest);
 PGSTD::string select_series(connection_base &conn, int lowest, int highest);
 
 
+/// Drop a table, if it exists.
+void drop_table(transaction_base &, const PGSTD::string &table);
+
+
 class base_test;
 typedef PGSTD::map<PGSTD::string, base_test *> test_map;
 
