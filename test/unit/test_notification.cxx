@@ -36,7 +36,7 @@ void test_receive(
   connection_base &conn(t.conn());
 
   string SQL = "NOTIFY \"" + channel + "\"";
-  if (payload) SQL += ", \"" + string(payload) + "\"";
+  if (payload) SQL += ", " + t.quote(payload);
 
   TestReceiver receiver(t.conn(), channel);
 
