@@ -2,6 +2,9 @@
  test/unit/test_notification.cxx:
  - Eliminated some more use of already-committed nontransaction.
  - Payload should be single-quoted, not double-quoted.
+ test/test_helpers.hxx, test/test_main.hxx, test/test025.cxx:
+ - New helper drop_table.
+ - Fixed test for older backends, which don't have "DROP TABLE IF EXISTS."
 2011-02-09  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/largeobject.hxx, include/pqxx/result.hxx, include/pqxx/util.hxx:
  - Fixes for problems spotted by clang++.

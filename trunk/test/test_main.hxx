@@ -92,6 +92,50 @@ string select_series(connection_base &conn, int lowest, int highest)
 }
 
 
+namespace
+{
+bool drop_table_if_exists(transaction_base &t, const PGSTD::string &table)
+{
+  if (t.conn().server_version() < 80100) return false;
+  t.exec("DROP TABLE IF EXISTS " + table);
+  return true;
+}
+}
+
+void drop_table(transaction_base &t, const PGSTD::string &table)
+{
+  if (drop_table_if_exists(t, table)) return;
+
+  dbtransaction *dbt(dynamic_cast<dbtransaction *>(&t));
+  if (dbt)
+  {
+    subtransaction s(*dbt, "drop_table");
+    try
+    {
+      s.exec("DROP TABLE " + table);
+    }
+    catch (const sql_error &e)
+    {
+      PGSTD::cerr << e.what() << PGSTD::endl;
+      s.abort();
+    }
+    s.commit();
+  }
+  else
+  {
+    nontransaction *nt(dynamic_cast<nontransaction *>(&t));
+    try
+    {
+      nt->exec("DROP TABLE " + table);
+    }
+    catch (const sql_error &e)
+    {
+      PGSTD::cerr << e.what() << PGSTD::endl;
+    }
+  }
+}
+
+
 void check_notreached(const char file[], int line, string desc)
 {
   throw test_failure(file, line, desc);
