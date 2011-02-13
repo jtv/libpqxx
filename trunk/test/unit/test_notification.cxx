@@ -41,7 +41,7 @@ void test_receive(
   TestReceiver receiver(t.conn(), channel);
 
   // Clear out any pending notifications.
-  t.conn().get_notifs();
+  conn.get_notifs();
 
   // Notify, and receive.
   t.exec(SQL);
@@ -60,13 +60,17 @@ void test_receive(
 
 void test_notification(transaction_base &t)
 {
-  TestReceiver receiver(t.conn(), "mychannel");
+  connection_base &conn(t.conn());
+  TestReceiver receiver(conn, "mychannel");
   PQXX_CHECK_EQUAL(receiver.channel(), "mychannel", "Bad channel.");
 
   test_receive(t, "channel1");
 
-  if (t.conn().supports(connection_base::cap_notify_payload))
-    test_receive(t, "channel2", "payload");
+  if (conn.supports(connection_base::cap_notify_payload))
+  {
+    nontransaction u(conn);
+    test_receive(u, "channel2", "payload");
+  }
 }
 } // namespace
 
