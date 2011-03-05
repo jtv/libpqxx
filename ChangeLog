@@ -1,4 +1,9 @@
 2011-03-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in:
+ - Check for GNU-style strerror_r.
+ src/util.cxx:
+ - Dump Bart's wonderful strerror_r trick; clang didn't like it.
+2011-03-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in, include/pqxx/result.hxx, src/binarystring.cxx,
  src/connection_base.cxx, src/cursor.cxx, src/largeobject.cxx,
  src/pipeline.cxx, src/result.cxx, src/statement_parameters.cxx,
