@@ -26,7 +26,7 @@ template<typename T> void testitems(const T &I, typename T::size_type s)
 
   for ( ; s; --s)
   {
-    const typename T::size_type value(I[s-1]);
+    const typename T::size_type value = typename T::size_type((I[s-1]));
     PQXX_CHECK_EQUAL(value, s, "Wrong value in items object.");
   }
 }

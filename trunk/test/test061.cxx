@@ -30,12 +30,6 @@ string SetDatestyle(transaction_base &T, string style)
 }
 
 
-void CheckDatestyle(transaction_base &T, string expected)
-{
-  PQXX_CHECK_EQUAL(GetDatestyle(T), expected, "Got wrong datestyle.");
-}
-
-
 void RedoDatestyle(transaction_base &T, string style, string expected)
 {
   PQXX_CHECK_EQUAL(SetDatestyle(T, style), expected, "Set wrong datestyle.");

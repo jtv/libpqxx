@@ -34,12 +34,6 @@ string stringize(transaction_base &t, const char arg[])
 }
 
 
-string stringize(transaction_base &t, char arg[])
-{
-  return arg ? stringize(t, string(arg)) : "null";
-}
-
-
 template<typename T> string stringize(transaction_base &t, T i)
 {
   return stringize(t, to_string(i));

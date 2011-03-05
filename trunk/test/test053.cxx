@@ -48,9 +48,9 @@ public:
   {
     char Buf[200];
     largeobjectaccess O(T, m_Object, ios::in);
-    const size_t len = O.read(Buf, sizeof(Buf)-1);
+    const largeobjectaccess::size_type len = O.read(Buf, sizeof(Buf)-1);
     PQXX_CHECK_EQUAL(
-	string(Buf, len),
+	string(Buf, string::size_type(len)),
 	Contents,
 	"Large object contents were mangled.");
   }
