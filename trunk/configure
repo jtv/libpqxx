@@ -14891,7 +14891,7 @@ _ACEOF
 if ! test -z "${std}" ; then
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ::${std}" >&5
 $as_echo "::${std}" >&6; }
-	usestd="using namespace ${std};"
+	usestd="namespace ${std} {} using namespace ${std};"
 else
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ::" >&5
 $as_echo "::" >&6; }

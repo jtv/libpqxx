@@ -7,7 +7,7 @@
  *      implementation of the pqxx::result class and support classes.
  *   pqxx::result represents the set of result tuples from a database query
  *
- * Copyright (c) 2001-2010, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -118,7 +118,7 @@ bool pqxx::result::field::operator==(const field &rhs) const
 
 pqxx::result::size_type pqxx::result::size() const throw ()
 {
-  return m_data ? PQntuples(m_data) : 0;
+  return m_data ? size_type(PQntuples(m_data)) : 0;
 }
 
 
@@ -282,7 +282,7 @@ pqxx::oid pqxx::result::inserted_oid() const
 pqxx::result::size_type pqxx::result::affected_rows() const
 {
   const char *const RowsStr = PQcmdTuples(m_data);
-  return RowsStr[0] ? atoi(RowsStr) : 0;
+  return RowsStr[0] ? size_type(atoi(RowsStr)) : 0;
 }
 
 
@@ -303,13 +303,13 @@ pqxx::result::field::size_type
 pqxx::result::GetLength(pqxx::result::size_type Row,
                         pqxx::result::tuple::size_type Col) const throw ()
 {
-  return PQgetlength(m_data, int(Row), int(Col));
+  return field::size_type(PQgetlength(m_data, int(Row), int(Col)));
 }
 
 
 pqxx::oid pqxx::result::column_type(tuple::size_type ColNum) const
 {
-  const oid T = PQftype(m_data, ColNum);
+  const oid T = PQftype(m_data, int(ColNum));
   if (T == oid_none)
     throw argument_error(
 	"Attempt to retrieve type of nonexistant column " +
@@ -321,7 +321,7 @@ pqxx::oid pqxx::result::column_type(tuple::size_type ColNum) const
 #ifdef PQXX_HAVE_PQFTABLE
 pqxx::oid pqxx::result::column_table(tuple::size_type ColNum) const
 {
-  const oid T = PQftable(m_data, ColNum);
+  const oid T = PQftable(m_data, int(ColNum));
 
   /* If we get oid_none, it may be because the column is computed, or because we
    * got an invalid row number.
@@ -339,7 +339,7 @@ pqxx::oid pqxx::result::column_table(tuple::size_type ColNum) const
 pqxx::result::tuple::size_type
 pqxx::result::table_column(tuple::size_type ColNum) const
 {
-  const tuple::size_type n = PQftablecol(m_data, ColNum);
+  const tuple::size_type n = tuple::size_type(PQftablecol(m_data, int(ColNum)));
   if (n) return n-1;
 
   // Failed.  Now find out why, so we can throw a sensible exception.
@@ -397,7 +397,7 @@ pqxx::result::tuple::at(pqxx::result::tuple::size_type i) const
 const char *
 pqxx::result::column_name(pqxx::result::tuple::size_type Number) const
 {
-  const char *const N = PQfname(m_data, Number);
+  const char *const N = PQfname(m_data, int(Number));
   if (!N)
     throw range_error("Invalid column number: " + to_string(Number));
 
@@ -407,7 +407,7 @@ pqxx::result::column_name(pqxx::result::tuple::size_type Number) const
 
 pqxx::result::tuple::size_type pqxx::result::columns() const throw ()
 {
-  return m_data ? PQnfields(m_data) : 0;
+  return m_data ? tuple::size_type(PQnfields(m_data)) : 0;
 }
 
 

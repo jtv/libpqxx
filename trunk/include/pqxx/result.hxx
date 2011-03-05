@@ -520,9 +520,9 @@ public:
     const_iterator &operator--() { --m_Index; return *this; }		//[t12]
 
     const_iterator &operator+=(difference_type i)			//[t12]
-	{ m_Index+=i; return *this; }
+	{ m_Index = size_type(difference_type(m_Index) + i); return *this; }
     const_iterator &operator-=(difference_type i)			//[t12]
-	{ m_Index-=i; return *this; }
+	{ m_Index = size_type(difference_type (m_Index) - i); return *this; }
     //@}
 
     /**
@@ -683,9 +683,9 @@ public:
     const_fielditerator &operator--() { --m_col; return *this; }	//[t82]
 
     const_fielditerator &operator+=(difference_type i)			//[t82]
-	{ m_col+=i; return *this; }
+	{ m_col = size_type(difference_type(m_col) + i); return *this; }
     const_fielditerator &operator-=(difference_type i)			//[t82]
-	{ m_col-=i; return *this; }
+	{ m_col = size_type(difference_type(m_col) - i); return *this; }
     //@}
 
     /**
@@ -1045,7 +1045,9 @@ inline result::tuple::const_reverse_iterator result::tuple::rend() const
 
 inline result::const_iterator
 result::const_iterator::operator+(difference_type o) const
-	{ return const_iterator(m_Home, m_Index + o); }
+{
+  return const_iterator(m_Home, size_type(difference_type(m_Index) + o));
+}
 
 inline result::const_iterator
 operator+(result::const_iterator::difference_type o, result::const_iterator i)
@@ -1053,11 +1055,13 @@ operator+(result::const_iterator::difference_type o, result::const_iterator i)
 
 inline result::const_iterator
 result::const_iterator::operator-(difference_type o) const
-	{ return const_iterator(m_Home, m_Index - o); }
+{
+  return const_iterator(m_Home, size_type(difference_type(m_Index) - o));
+}
 
 inline result::const_iterator::difference_type
 result::const_iterator::operator-(const_iterator i) const
-	{ return num()-i.num(); }
+	{ return difference_type(num() - i.num()); }
 
 inline result::const_iterator result::end() const throw ()
 	{ return const_iterator(this, size()); }
@@ -1070,7 +1074,9 @@ operator+(result::const_reverse_iterator::difference_type n,
 
 inline result::const_fielditerator
 result::const_fielditerator::operator+(difference_type o) const
-	{ return const_fielditerator(m_tup, col() + o); }
+{
+  return const_fielditerator(m_tup, size_type(difference_type(col()) + o));
+}
 
 inline result::const_fielditerator
 operator+(result::const_fielditerator::difference_type o,
@@ -1079,11 +1085,13 @@ operator+(result::const_fielditerator::difference_type o,
 
 inline result::const_fielditerator
 result::const_fielditerator::operator-(difference_type o) const
-	{ return const_fielditerator(m_tup, col() - o); }
+{
+  return const_fielditerator(m_tup, size_type(difference_type(col()) - o));
+}
 
 inline result::const_fielditerator::difference_type
 result::const_fielditerator::operator-(const_fielditerator i) const
-	{ return num()-i.num(); }
+	{ return difference_type(num() - i.num()); }
 
 
 template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >

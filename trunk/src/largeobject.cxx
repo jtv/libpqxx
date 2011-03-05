@@ -7,7 +7,7 @@
  *      Implementation of the Large Objects interface
  *   Allows access to large objects directly, or though I/O streams
  *
- * Copyright (c) 2003-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -222,14 +222,16 @@ pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::cwrite(const char Buf[], size_type Len) throw ()
 {
   return
-    PGSTD::max(lo_write(RawConnection(),m_fd,const_cast<char *>(Buf), Len), -1);
+    PGSTD::max(
+	lo_write(RawConnection(), m_fd,const_cast<char *>(Buf), size_t(Len)),
+        -1);
 }
 
 
 pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::cread(char Buf[], size_type Bytes) throw ()
 {
-  return PGSTD::max(lo_read(RawConnection(), m_fd, Buf, Bytes), -1);
+  return PGSTD::max(lo_read(RawConnection(), m_fd, Buf, size_t(Bytes)), -1);
 }
 
 
