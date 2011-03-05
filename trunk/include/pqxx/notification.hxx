@@ -49,6 +49,9 @@ class connection_base;
  * transaction open, don't expect any of your receivers on the same connection
  * to be notified.
  *
+ * (For very similar reasons, outgoing notifications are also not sent until the
+ * transaction that sends them commits.)
+ *
  * Multiple receivers on the same connection may listen on a notification of the
  * same name.  An incoming notification is processed by invoking all receivers
  * (zero or more) of the same name.
