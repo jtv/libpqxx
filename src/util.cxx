@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      Various utility functions for libpqxx
  *
- * Copyright (c) 2003-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -206,7 +206,7 @@ void pqxx::internal::sleep_seconds(int s)
 
 #if defined(PQXX_HAVE_SLEEP)
   // Use POSIX.1 sleep() if available
-  sleep(s);
+  sleep(unsigned(s));
 #elif defined(_WIN32)
   // Windows has its own Sleep(), which speaks milliseconds
   Sleep(s*1000);
@@ -286,4 +286,3 @@ cstring pqxx::internal::strerror_wrapper(int err, char buf[], PGSTD::size_t len)
 #endif
   return res;
 }
-

@@ -194,7 +194,7 @@ AC_DEFINE_UNQUOTED(
 	[name of standard library namespace (normally "std")])
 if ! test -z "${std}" ; then
 	AC_MSG_RESULT([::${std}])
-	usestd="using namespace ${std};"
+	usestd="namespace ${std} {} using namespace ${std};"
 else
 	AC_MSG_RESULT([::])
 fi

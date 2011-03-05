@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      implementation of bytea (binary string) conversions
  *
- * Copyright (c) 2003-2010, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -81,6 +81,7 @@ string unescape_hex(const unsigned char buf[], size_t len)
 }
 
 
+#if !defined(PQXX_HAVE_PQUNESCAPEBYTEA_9) && !defined(PQXX_HAVE_PQUNESCAPEBYTEA)
 /// Unescape PostgreSQL pre-9.0 octal-escaped binary format: a\123b
 string unescape_oct(const unsigned char buf[], size_t len)
 {
@@ -104,6 +105,7 @@ string unescape_oct(const unsigned char buf[], size_t len)
 
   return bin;
 }
+#endif
 
 
 typedef pair<const unsigned char *, size_t> buffer;

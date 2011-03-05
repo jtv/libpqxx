@@ -7,7 +7,7 @@
  *      implementation of the pqxx::pipeline class
  *   Throughput-optimized query manager
  *
- * Copyright (c) 2003-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -224,7 +224,7 @@ void pqxx::pipeline::issue()
   // Construct cumulative query string for entire batch
   string cum = separated_list(theSeparator,oldest,m_queries.end(),getquery());
   const QueryMap::size_type num_issued =
-    internal::distance(oldest,m_queries.end());
+    QueryMap::size_type(internal::distance(oldest, m_queries.end()));
   const bool prepend_dummy = (num_issued > 1);
   if (prepend_dummy) cum = theDummyQuery + cum;
 
