@@ -35,10 +35,10 @@ void test_082(transaction_base &T)
     }
 
     PQXX_CHECK(
-	r->begin() + r->size() == r->end(),
+	r->begin() + result::tuple::difference_type(r->size()) == r->end(),
 	"Tuple end() appears to be in the wrong place.");
     PQXX_CHECK(
-	r->size() + r->begin() == r->end(),
+	result::tuple::difference_type(r->size()) + r->begin() == r->end(),
 	"Field iterator addition is not commutative.");
     PQXX_CHECK_EQUAL(r->begin()->num(), 0u, "Wrong column number at begin().");
 

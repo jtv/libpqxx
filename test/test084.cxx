@@ -15,17 +15,6 @@ using namespace pqxx;
 // Compare results against an icursor_iterator so that is tested as well.
 namespace
 {
-void dump(const result &R)
-{
-  for (result::const_iterator r(R.begin()); r != R.end(); ++r)
-  {
-    for (result::tuple::const_iterator f(r->begin()); f != r->end(); ++f)
-	cerr << '\t' << f;
-    cerr << endl;
-  }
-}
-
-
 void test_084(transaction_base &T)
 {
   const string Table = "pg_tables", Key = "tablename";

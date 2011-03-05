@@ -1,3 +1,10 @@
+2011-03-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/cursor.hxx, include/pqxx/largeobject.hxx,
+ include/pqxx/result.hcxx, test/test000.cxx, test/test049.cxx,
+ test/test050.cxx, test/test051.cxx, test/test053.cxx, test/test055.cxx,
+ test/test061.cxx, test/test062.cxx, test/test082.cxx, test/test084.cxx,
+ test/test093.cxx, test/unit/test_prepared_statement.cxx:
+ - More clang fixes.
 2011-03-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in:
  - Check for GNU-style strerror_r.

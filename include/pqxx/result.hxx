@@ -997,7 +997,7 @@ template<typename CHAR>
 inline PGSTD::basic_ostream<CHAR> &operator<<(
 	PGSTD::basic_ostream<CHAR> &S, const pqxx::result::field &F)	//[t46]
 {
-  S.write(F.c_str(), F.size());
+  S.write(F.c_str(), PGSTD::streamsize(F.size()));
   return S;
 }
 

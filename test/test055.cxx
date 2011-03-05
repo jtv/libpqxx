@@ -32,9 +32,9 @@ public:
             "to large object #" << m_Object.id() << endl;
 
     char Buf[200];
-    const size_t len = A.read(Buf, sizeof(Buf)-1);
+    const largeobjectaccess::size_type len = A.read(Buf, sizeof(Buf)-1);
     PQXX_CHECK_EQUAL(
-	string(Buf, len),
+	string(Buf, string::size_type(len)),
 	Contents,
 	"Large object contents were mangled.");
   }

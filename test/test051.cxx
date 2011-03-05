@@ -52,7 +52,7 @@ public:
 	0,
 	"Bad position after seeking to beginning of large object.");
 
-    A.write(Buf, Contents.size());
+    A.write(Buf, largeobjectaccess::size_type(Contents.size()));
     A.seek(0, ios::beg);
     PQXX_CHECK_EQUAL(
 	size_t(A.read(Buf, Size)),

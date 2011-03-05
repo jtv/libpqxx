@@ -485,12 +485,12 @@ private:
   {
     if (mode & PGSTD::ios::in)
     {
-      m_G = new char_type[m_BufSize];
+      m_G = new char_type[unsigned(m_BufSize)];
       this->setg(m_G, m_G, m_G);
     }
     if (mode & PGSTD::ios::out)
     {
-      m_P = new char_type[m_BufSize];
+      m_P = new char_type[unsigned(m_BufSize)];
       this->setp(m_P, m_P + m_BufSize);
     }
   }
