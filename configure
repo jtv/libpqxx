@@ -14739,7 +14739,9 @@ if test "$GCC" = "yes" ; then
 		add_compiler_opts \
 			-Werror \
 			-Wno-div-by-zero \
+			-fnothrow-opt \
 			-ffor-scope \
+			-fstrict-enums \
 			-fstrict-aliasing \
 			-Wstrict-aliasing \
 			-funit-at-a-time \
