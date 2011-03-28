@@ -76,7 +76,7 @@ namespace pqxx
 namespace internal
 {
 /// Wrapper for std::distance; not all platforms have std::distance().
-template<typename T> inline ptrdiff_t distance(T first, T last)
+template<typename T> inline PGSTD::ptrdiff_t distance(T first, T last)
 {
 #ifdef PQXX_HAVE_DISTANCE
   return PGSTD::distance(first, last);
