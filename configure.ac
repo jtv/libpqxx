@@ -103,11 +103,9 @@ if test "$GCC" = "yes" ; then
 			-Wcast-align  \
 			-Wconversion \
 			-Wctor-dtor-privacy \
-			-Wc++-compat \
 			-Wendif-labels \
 			-Wlogical-op \
 			-Woverlength-strings \
-			-Wpointer-sign \
 			-Wredundant-decls \
 			-Wsign-compare \
 			-Wwrite-strings  \
@@ -118,7 +116,6 @@ if test "$GCC" = "yes" ; then
 			-Wsign-promo \
 			-Wstrict-null-sentinel \
 			-Wformat-security \
-			-Wnonnull \
 			-Winit-self \
 			-Wswitch \
 			-Wmissing-field-initializers \

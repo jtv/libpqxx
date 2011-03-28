@@ -49,8 +49,8 @@ void test_quote(connection_base &c, transaction_base &t)
   PQXX_CHECK_EQUAL(t.quote("x"), "'x'", "Basic quote() fails.");
   PQXX_CHECK_EQUAL(t.quote(1), "'1'", "quote() not dealing with int properly.");
   PQXX_CHECK_EQUAL(t.quote(0), "'0'", "Quoting zero is a problem.");
-  const char *const nullptr = NULL;
-  PQXX_CHECK_EQUAL(t.quote(nullptr), "NULL", "Not quoting NULL correctly.");
+  const char *const null_ptr = NULL;
+  PQXX_CHECK_EQUAL(t.quote(null_ptr), "NULL", "Not quoting NULL correctly.");
   PQXX_CHECK_EQUAL(t.quote(string("'")), "''''", "Escaping quotes goes wrong.");
 
   PQXX_CHECK_EQUAL(t.quote("x"),
