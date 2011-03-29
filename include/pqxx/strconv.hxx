@@ -7,7 +7,7 @@
  *      String conversion definitions for libpqxx
  *      DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stringconv instead.
  *
- * Copyright (c) 2008-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2008-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -48,7 +48,8 @@ template<typename T> struct string_traits {};
 namespace internal
 {
 /// Throw exception for attempt to convert null to given type.
-void PQXX_LIBEXPORT throw_null_conversion(const PGSTD::string &type);
+void PQXX_LIBEXPORT PQXX_NORETURN throw_null_conversion(
+	const PGSTD::string &type);
 } // namespace pqxx::internal
 
 #define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(T)			\

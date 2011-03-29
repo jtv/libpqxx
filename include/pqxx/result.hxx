@@ -159,7 +159,7 @@ public:
      * @name Comparison
      */
     //@{
-    bool operator==(const tuple &) const throw ();			//[t75]
+    bool PQXX_PURE operator==(const tuple &) const throw ();		//[t75]
     bool operator!=(const tuple &rhs) const throw ()			//[t75]
 	{ return !operator==(rhs); }
     //@}
@@ -195,7 +195,8 @@ public:
 	{ return at(s.c_str()); }
     //@}
 
-    size_type size() const throw () { return m_End-m_Begin; }	       	//[t11]
+    size_type size() const throw ()					//[t11]
+						       { return m_End-m_Begin; }
 
     void swap(tuple &) throw ();					//[t11]
 
@@ -299,7 +300,7 @@ public:
     tuple slice(size_type Begin, size_type End) const;
 
     // Is this an empty slice?
-    bool empty() const throw ();
+    bool PQXX_PURE empty() const throw ();
 
   protected:
     friend class field;
@@ -356,7 +357,8 @@ public:
     /// Byte-by-byte comparison (all nulls are considered equal)
     /** @warning See operator==() for important information about this operator
      */
-    bool operator!=(const field &rhs) const {return !operator==(rhs);}	//[t82]
+    bool operator!=(const field &rhs) const				//[t82]
+						      {return !operator==(rhs);}
     //@}
 
     /**
@@ -584,7 +586,7 @@ public:
     explicit const_reverse_iterator(const const_iterator &rhs) :	//[t75]
       const_iterator(rhs) { super::operator--(); }
 
-    iterator_type base() const throw ();				//[t75]
+    iterator_type PQXX_PURE base() const throw ();			//[t75]
 
     /**
      * @name Dereferencing operators
@@ -743,7 +745,7 @@ public:
       const_reverse_fielditerator(const super &rhs) throw() :		//[t82]
 	const_fielditerator(rhs) { super::operator--(); }
 
-    iterator_type base() const throw ();				//[t82]
+    iterator_type PQXX_PURE base() const throw ();			//[t82]
 
     /**
      * @name Dereferencing operators
@@ -836,8 +838,8 @@ public:
   reference front() const throw () { return tuple(this,0); }		//[t74]
   reference back() const throw () {return tuple(this,size()-1);}	//[t75]
 
-  size_type size() const throw ();					//[t2]
-  bool empty() const throw ();						//[t11]
+  size_type PQXX_PURE size() const throw ();				//[t2]
+  bool PQXX_PURE empty() const throw ();				//[t11]
   size_type capacity() const throw () { return size(); }		//[t20]
 
   void swap(result &) throw ();						//[t77]
@@ -853,7 +855,7 @@ public:
    */
   //@{
   /// Number of columns in result
-  tuple::size_type columns() const throw ();				//[t11]
+  tuple::size_type PQXX_PURE columns() const throw ();			//[t11]
 
   /// Number of given column (throws exception if it doesn't exist)
   tuple::size_type column_number(const char ColName[]) const;		//[t11]
@@ -924,27 +926,29 @@ public:
   //@}
 
   /// Query that produced this result, if available (empty string otherwise)
-  const PGSTD::string &query() const throw ();				//[t70]
+  const PGSTD::string & PQXX_PURE query() const throw ();		//[t70]
 
   /// If command was @c INSERT of 1 row, return oid of inserted row
   /** @return Identifier of inserted row if exactly one row was inserted, or
    * oid_none otherwise.
    */
-  oid inserted_oid() const;						//[t13]
+  oid PQXX_PURE inserted_oid() const;					//[t13]
 
 
   /// If command was @c INSERT, @c UPDATE, or @c DELETE: number of affected rows
   /** @return Number of affected rows if last command was @c INSERT, @c UPDATE,
    * or @c DELETE; zero for all other commands.
    */
-  size_type affected_rows() const;					//[t7]
+  size_type PQXX_PURE affected_rows() const;				//[t7]
 
 
 private:
   friend class pqxx::result::field;
-  const char *GetValue(size_type Row, tuple::size_type Col) const;
-  bool GetIsNull(size_type Row, tuple::size_type Col) const;
-  field::size_type GetLength(size_type, tuple::size_type) const throw ();
+  const char * PQXX_PURE GetValue(size_type Row, tuple::size_type Col) const;
+  bool PQXX_PURE GetIsNull(size_type Row, tuple::size_type Col) const;
+  field::size_type PQXX_PURE GetLength(
+	size_type,
+	tuple::size_type) const throw ();
 
   friend class pqxx::internal::gate::result_creation;
   result(internal::pq::PGresult *rhs,
@@ -957,13 +961,14 @@ private:
   bool operator!() const throw () { return !m_data; }
   operator bool() const throw () { return m_data != 0; }
 
-  void PQXX_PRIVATE ThrowSQLError(const PGSTD::string &Err,
+  void PQXX_PRIVATE PQXX_NORETURN ThrowSQLError(
+	const PGSTD::string &Err,
 	const PGSTD::string &Query) const;
-  int PQXX_PRIVATE errorposition() const throw ();
+  int PQXX_PRIVATE PQXX_PURE errorposition() const throw ();
   PGSTD::string PQXX_PRIVATE StatusError() const;
 
   friend class pqxx::internal::gate::result_sql_cursor;
-  const char *CmdStatus() const throw ();
+  const char * PQXX_PURE CmdStatus() const throw ();
 
   /// Shortcut: pointer to result data
   pqxx::internal::pq::PGresult *m_data;

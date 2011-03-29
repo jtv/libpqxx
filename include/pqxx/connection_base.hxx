@@ -187,7 +187,7 @@ public:
    * temptation to check it after opening a connection; instead, rely on the
    * broken_connection exception that will be thrown on connection failure.
    */
-  bool is_open() const throw ();					//[t1]
+  bool PQXX_PURE is_open() const throw ();				//[t1]
 
  /**
    * @name Activation
@@ -359,7 +359,7 @@ public:
    *
    * @return Process identifier, or 0 if not currently connected.
    */
-  int backendpid() const throw ();					//[t1]
+  int PQXX_PURE backendpid() const throw ();				//[t1]
 
   /// Socket currently used for connection, or -1 for none.  Use with care!
   /** Query the current socket number.  This is intended for event loops based
@@ -376,7 +376,7 @@ public:
    * possibility that there is no socket.  The socket may change or even go away
    * during any invocation of libpqxx code, no matter how trivial.
    */
-  int sock() const throw ();						//[t87]
+  int PQXX_PURE sock() const throw ();					//[t87]
 
   /** 
    * @name Capabilities
@@ -465,7 +465,7 @@ public:
    *
    * Requires libpq version from PostgreSQL 7.4 or better.
    */
-  int protocol_version() const throw ();				//[t1]
+  int PQXX_PURE protocol_version() const throw ();			//[t1]
 
   /// What version of the PostgreSQL server are we connected to?
   /** The result is a bit complicated: each of the major, medium, and minor
@@ -480,7 +480,7 @@ public:
    * at all because there is no digit "8" in octal notation.  Use strictly
    * decimal notation when it comes to these version numbers.
    */
-  int server_version() const throw ();					//[t1]
+  int PQXX_PURE server_version() const throw ();			//[t1]
   //@}
 
   /// Set client-side character encoding
@@ -868,8 +868,8 @@ private:
   void PQXX_PRIVATE check_result(const result &);
 
   void PQXX_PRIVATE InternalSetTrace() throw ();
-  int PQXX_PRIVATE Status() const throw ();
-  const char *ErrMsg() const throw ();
+  int PQXX_PRIVATE PQXX_PURE Status() const throw ();
+  const char * PQXX_PURE ErrMsg() const throw ();
   void PQXX_PRIVATE Reset();
   void PQXX_PRIVATE RestoreVars();
   PGSTD::string PQXX_PRIVATE RawGetVar(const PGSTD::string &);

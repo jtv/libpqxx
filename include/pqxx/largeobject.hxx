@@ -134,7 +134,7 @@ public:
   void remove(dbtransaction &T) const;					//[t48]
 
 protected:
-  static internal::pq::PGconn *RawConnection(const dbtransaction &T);
+  static internal::pq::PGconn * PQXX_PURE RawConnection(const dbtransaction &T);
 
   PGSTD::string Reason(int err) const;
 

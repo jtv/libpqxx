@@ -108,7 +108,7 @@ public:
   const_reference operator[](size_type i) const throw ()		//[t62]
 	{ return data()[i]; }
 
-  bool operator==(const binarystring &) const throw ();			//[t62]
+  bool PQXX_PURE operator==(const binarystring &) const throw ();	//[t62]
   bool operator!=(const binarystring &rhs) const throw ()		//[t62]
 	{ return !operator==(rhs); }
 

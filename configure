@@ -14821,12 +14821,37 @@ $as_echo "$gcc_visibility" >&6; }
 	fi
 CXXFLAGS="$SAVE_CXXFLAGS"
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ const attribute" >&5
+$as_echo_n "checking g++ const attribute... " >&6; }
+gcc_const_attr=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+void __attribute__ ((const)) f();
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_GCC_CONST 1" >>confdefs.h
+
+else
+  gcc_const_attr=yes
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_const_attr" >&5
+$as_echo "$gcc_const_attr" >&6; }
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ deprecation attribute" >&5
 $as_echo_n "checking g++ deprecation attribute... " >&6; }
 gcc_deprecated=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-void f() __attribute__ ((deprecated));
+void __attribute__ ((deprecated)) f();
 int
 main ()
 {
@@ -14845,6 +14870,56 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_deprecated" >&5
 $as_echo "$gcc_deprecated" >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ noreturn attribute" >&5
+$as_echo_n "checking g++ noreturn attribute... " >&6; }
+gcc_noreturn=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+void __attribute__ ((noreturn)) f();
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_GCC_NORETURN 1" >>confdefs.h
+
+else
+  gcc_noreturn=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_noreturn" >&5
+$as_echo "$gcc_noreturn" >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ pure attribute" >&5
+$as_echo_n "checking g++ pure attribute... " >&6; }
+gcc_pure=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+void __attribute__ ((pure)) f();
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_GCC_PURE 1" >>confdefs.h
+
+else
+  gcc_pure=yes
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_pure" >&5
+$as_echo "$gcc_pure" >&6; }
 
 fi
 
@@ -16776,6 +16851,31 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pqdescribeportal" >&5
 $as_echo "$pqdescribeportal" >&6; }
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking PQclientEncoding()" >&5
+$as_echo_n "checking PQclientEncoding()... " >&6; }
+pqclientencoding=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include<${with_postgres_include}/libpq-fe.h>
+int
+main ()
+{
+PQclientEncoding(0)
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_PQCLIENTENCODING 1" >>confdefs.h
+
+else
+  pqclientencoding=no
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pqclientencoding" >&5
+$as_echo "$pqclientencoding" >&6; }
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking PQcancel()" >&5
 $as_echo_n "checking PQcancel()... " >&6; }

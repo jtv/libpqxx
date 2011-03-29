@@ -98,8 +98,17 @@
 /* Define if distance() works according to the standard */
 #undef PQXX_HAVE_DISTANCE
 
+/* Define if g++ supports const attribute */
+#undef PQXX_HAVE_GCC_CONST
+
 /* Define if g++ supports deprecated attribute, as in g++ 4.0 */
 #undef PQXX_HAVE_GCC_DEPRECATED
+
+/* Define if g++ supports noreturn attribute */
+#undef PQXX_HAVE_GCC_NORETURN
+
+/* Define if g++ supports pure attribute */
+#undef PQXX_HAVE_GCC_PURE
 
 /* Define if g++ supports visibility attribute, as in g++ 4.0 */
 #undef PQXX_HAVE_GCC_VISIBILITY

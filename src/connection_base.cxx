@@ -167,7 +167,7 @@ int pqxx::connection_base::backendpid() const throw ()
 
 namespace
 {
-int socket_of(const ::pqxx::internal::pq::PGconn *c)
+int PQXX_PURE socket_of(const ::pqxx::internal::pq::PGconn *c) throw ()
 {
   return c ? PQsocket(c) : -1;
 }
@@ -1692,7 +1692,7 @@ string pqxx::connection_base::adorn_name(const PGSTD::string &n)
 
 int pqxx::connection_base::encoding_code() throw ()
 {
-#ifdef PQXX_HAVE_PQENCODING
+#ifdef PQXX_HAVE_PQCLIENTENCODING
   activate();
   return PQclientEncoding(m_Conn);
 #else

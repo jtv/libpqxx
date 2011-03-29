@@ -1,3 +1,12 @@
+2011-03-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in, include/pqxx/binarystring.hxx,
+ include/pqxx/compiler-public.hxx, include/pqxx/connection_base.hxx,
+ include/pqxx/except.hxx, include/pqxx/largeobject.hxx,
+ include/pqxx/pipeline.hxx, include/pqxx/result.hxx, include/pqxx/strconv.hxx,
+ src/connection_base.cxx, src/except.cxx, test/test_main.hxx:
+ - Support for gcc "pure" and "const" attributes.
+ - Marked some functions with the "pure" and "const" attributes.
+ - A bit more of the "noreturn" attribute.
 2011-03-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in, include/pqxx/compiler-internal.hxx,
  test/unit/test_escape.cxx:
