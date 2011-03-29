@@ -65,7 +65,10 @@ pqxx::sql_error::~sql_error() throw ()
 }
 
 
-const string &pqxx::sql_error::query() const throw () { return m_Q; }
+const string & PQXX_CONST pqxx::sql_error::query() const throw ()
+{
+  return m_Q;
+}
 
 
 pqxx::in_doubt_error::in_doubt_error(const PGSTD::string &whatarg) :

@@ -151,14 +151,41 @@ AC_MSG_RESULT($gcc_visibility)
 	fi
 CXXFLAGS="$SAVE_CXXFLAGS"
 
+AC_MSG_CHECKING([g++ const attribute])
+gcc_const_attr=yes
+AC_TRY_COMPILE([void __attribute__ ((const)) f();],
+	[],
+	AC_DEFINE([PQXX_HAVE_GCC_CONST], 1,
+		[Define if g++ supports const attribute]),
+	gcc_const_attr=yes)
+AC_MSG_RESULT($gcc_const_attr)
+
 AC_MSG_CHECKING([g++ deprecation attribute])
 gcc_deprecated=yes
-AC_TRY_COMPILE([void f() __attribute__ ((deprecated));],
+AC_TRY_COMPILE([void __attribute__ ((deprecated)) f();],
 	[],
 	AC_DEFINE([PQXX_HAVE_GCC_DEPRECATED],1,
 		[Define if g++ supports deprecated attribute, as in g++ 4.0]),
 	gcc_deprecated=no)
 AC_MSG_RESULT($gcc_deprecated)
+
+AC_MSG_CHECKING([g++ noreturn attribute])
+gcc_noreturn=yes
+AC_TRY_COMPILE([void __attribute__ ((noreturn)) f();],
+	[],
+	AC_DEFINE([PQXX_HAVE_GCC_NORETURN],1,
+		[Define if g++ supports noreturn attribute]),
+	gcc_noreturn=no)
+AC_MSG_RESULT($gcc_noreturn)
+
+AC_MSG_CHECKING([g++ pure attribute])
+gcc_pure=yes
+AC_TRY_COMPILE([void __attribute__ ((pure)) f();],
+	[],
+	AC_DEFINE([PQXX_HAVE_GCC_PURE], 1,
+		[Define if g++ supports pure attribute]),
+	gcc_pure=yes)
+AC_MSG_RESULT($gcc_pure)
 
 fi
 
@@ -936,6 +963,15 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 )
 AC_MSG_RESULT($pqdescribeportal)
 
+AC_MSG_CHECKING([PQclientEncoding()])
+pqclientencoding=yes
+AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
+	[PQclientEncoding(0)],
+	AC_DEFINE(PQXX_HAVE_PQCLIENTENCODING, 1,
+		[Define if libpq has PQclientEncoding()]),
+	[pqclientencoding=no]
+)
+AC_MSG_RESULT($pqclientencoding)
 
 AC_MSG_CHECKING([PQcancel()])
 pqcancel=yes

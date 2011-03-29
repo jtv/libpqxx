@@ -136,7 +136,7 @@ void drop_table(transaction_base &t, const PGSTD::string &table)
 }
 
 
-void check_notreached(const char file[], int line, string desc)
+void PQXX_NORETURN check_notreached(const char file[], int line, string desc)
 {
   throw test_failure(file, line, desc);
 }

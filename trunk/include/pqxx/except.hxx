@@ -87,7 +87,7 @@ public:
    * }
    * @endcode
    */
-  virtual const PGSTD::exception &base() const throw () =0;		//[t0]
+  virtual const PQXX_CONST PGSTD::exception &base() const throw () =0;	//[t0]
 };
 
 
@@ -141,7 +141,7 @@ public:
   virtual ~sql_error() throw ();
 
   /// The query whose execution triggered the exception
-  const PGSTD::string &query() const throw ();				//[t56]
+  const PGSTD::string & PQXX_PURE query() const throw ();		//[t56]
 };
 
 
