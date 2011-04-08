@@ -14874,9 +14874,14 @@ $as_echo "$gcc_deprecated" >&6; }
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ noreturn attribute" >&5
 $as_echo_n "checking g++ noreturn attribute... " >&6; }
 gcc_noreturn=yes
+# Needs a throw spec and a definition in order to trip up a bug in clang++ 2.8.
+# It'll claim the throw spec is missing on the definition.
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-void __attribute__ ((noreturn)) f();
+
+	void __attribute__ ((noreturn)) f() throw (int);
+        void f()throw(int){throw 1;}
+
 int
 main ()
 {

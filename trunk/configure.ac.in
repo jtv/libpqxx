@@ -171,8 +171,12 @@ AC_MSG_RESULT($gcc_deprecated)
 
 AC_MSG_CHECKING([g++ noreturn attribute])
 gcc_noreturn=yes
-AC_TRY_COMPILE([void __attribute__ ((noreturn)) f();],
-	[],
+# Needs a throw spec and a definition in order to trip up a bug in clang++ 2.8.
+# It'll claim the throw spec is missing on the definition.
+AC_TRY_COMPILE([
+	void __attribute__ ((noreturn)) f() throw (int);
+        void f()throw(int){throw 1;}
+	], [],
 	AC_DEFINE([PQXX_HAVE_GCC_NORETURN],1,
 		[Define if g++ supports noreturn attribute]),
 	gcc_noreturn=no)

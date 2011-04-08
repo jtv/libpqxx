@@ -239,7 +239,7 @@ void pqxx::pipeline::issue()
 
 
 void pqxx::pipeline::internal_error(const PGSTD::string &err)
-	throw (logic_error)
+	throw (PGSTD::logic_error)
 {
   set_error_at(0);
   throw pqxx::internal_error(err);

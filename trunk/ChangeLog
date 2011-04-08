@@ -1,3 +1,8 @@
+2011-04-08  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+ - Workaround for "noreturn" attribute in clang++ 2.8.
+ src/pipeline.cxx:
+ - Cosmetic: std-qualify throw spec.
 2011-03-29  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in, include/pqxx/binarystring.hxx,
  include/pqxx/compiler-public.hxx, include/pqxx/connection_base.hxx,
