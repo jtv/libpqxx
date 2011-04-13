@@ -34,11 +34,13 @@ namespace
 {
 typedef unsigned char unsigned_char;
 
+#ifndef PQXX_HAVE_PQUNESCAPEBYTEA_9
 // Convert textual digit to value
 inline unsigned char DV(unsigned char d)
 {
   return unsigned_char(digit_to_number(char(d)));
 }
+#endif
 
 
 #if !defined(PQXX_HAVE_PQUNESCAPEBYTEA_9) && !defined(PQXX_HAVE_PQUNESCAPEBYTEA)
