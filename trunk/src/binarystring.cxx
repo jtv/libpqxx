@@ -41,46 +41,6 @@ inline unsigned char DV(unsigned char d)
 }
 
 
-/// Is this in PostgreSQL 9.0 hex-escaped binary format?
-bool is_hex(const unsigned char buf[], size_t len)
-{
-  return len >= 2 && buf[0] == '\\' && buf[1] == 'x';
-}
-
-
-/// Unescape PostgreSQL 9.0 hex-escaped binary format: "\x3a20"
-string unescape_hex(const unsigned char buf[], size_t len)
-{
-  string bin;
-  bin.reserve((len-2)/2);
-  bool in_pair = false;
-  int last_nibble = 0;
-
-  for (size_t i=2; i<len; ++i)
-  {
-    const unsigned char c = buf[i];
-    if (isspace(c))
-    {
-      if (in_pair) throw out_of_range("Escaped binary data is malformed.");
-    }
-    else if (!isxdigit(c))
-    {
-      throw out_of_range("Escaped binary data contains invalid characters.");
-    }
-    else
-    {
-      const int nibble = (isdigit(c) ? DV(c) : (10 + tolower(c) - 'a'));
-      if (in_pair) bin += char((last_nibble<<4) | nibble);
-      else last_nibble = nibble;
-      in_pair = !in_pair;
-    }
-  }
-  if (in_pair) throw out_of_range("Escaped binary data appears truncated.");
-
-  return bin;
-}
-
-
 #if !defined(PQXX_HAVE_PQUNESCAPEBYTEA_9) && !defined(PQXX_HAVE_PQUNESCAPEBYTEA)
 /// Unescape PostgreSQL pre-9.0 octal-escaped binary format: a\123b
 string unescape_oct(const unsigned char buf[], size_t len)
@@ -123,6 +83,51 @@ buffer builtin_unescape(const unsigned char escaped[], size_t)
 #endif
 
 
+#ifndef PQXX_HAVE_PQUNESCAPEBYTEA_9
+/// Is this in PostgreSQL 9.0 hex-escaped binary format?
+bool is_hex(const unsigned char buf[], size_t len)
+{
+  return len >= 2 && buf[0] == '\\' && buf[1] == 'x';
+}
+#endif
+
+
+#ifndef PQXX_HAVE_PQUNESCAPEBYTEA_9
+/// Unescape PostgreSQL 9.0 hex-escaped binary format: "\x3a20"
+string unescape_hex(const unsigned char buf[], size_t len)
+{
+  string bin;
+  bin.reserve((len-2)/2);
+  bool in_pair = false;
+  int last_nibble = 0;
+
+  for (size_t i=2; i<len; ++i)
+  {
+    const unsigned char c = buf[i];
+    if (isspace(c))
+    {
+      if (in_pair) throw out_of_range("Escaped binary data is malformed.");
+    }
+    else if (!isxdigit(c))
+    {
+      throw out_of_range("Escaped binary data contains invalid characters.");
+    }
+    else
+    {
+      const int nibble = (isdigit(c) ? DV(c) : (10 + tolower(c) - 'a'));
+      if (in_pair) bin += char((last_nibble<<4) | nibble);
+      else last_nibble = nibble;
+      in_pair = !in_pair;
+    }
+  }
+  if (in_pair) throw out_of_range("Escaped binary data appears truncated.");
+
+  return bin;
+}
+#endif
+
+
+#ifndef PQXX_HAVE_PQUNESCAPEBYTEA_9
 buffer to_buffer(const string &source)
 {
   void *const output(malloc(source.size() + 1));
@@ -130,6 +135,7 @@ buffer to_buffer(const string &source)
   memcpy(static_cast<char *>(output), source.c_str(), source.size());
   return buffer(static_cast<unsigned char *>(output), source.size());
 }
+#endif
 
 
 buffer unescape(const unsigned char escaped[], size_t len)
