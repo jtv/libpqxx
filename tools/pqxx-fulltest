@@ -40,7 +40,7 @@ check_for_compilers() {
 
 get_version() {
 	# Print libpqxx version of source in current directory.
-	sed -e 's/^[[:space:]]*PQXX_VERSION[[:space:]]*\([^[:space:]#]\+\)[[:space:]#]*.*$//' VERSION
+	sed -e 's/^[[:space:]]*PQXX_VERSION[[:space:]]*\([^[:space:]#]\+\)[[:space:]#]*.*$/\1/' VERSION
 }
 
 
