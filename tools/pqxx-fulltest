@@ -102,7 +102,7 @@ start_backend() {
 			LD_LIBRARY_PATH="$BACKEND_DIR/lib" \
 			PGDATA="$BACKEND_DIR/data" \
 		start-stop-daemon -b -m -p "`locate_pidfile "$ARG_BACKEND"`" \
-			-S -x "$BACKEND_DIR/bin/postmaster" -- \
+			--oknodo -S -x "$BACKEND_DIR/bin/postmaster" -- \
 				-F -h '' -k "$BACKEND_DIR" \
 				>"$BACKEND_DIR/backend.log" 2>&1
 	fi
@@ -112,7 +112,7 @@ start_backend() {
 
 stop_backend() {
 	log_message "Stopping backend $1"
-	start-stop-daemon -p "`locate_pidfile "$1"`" -K || /bin/true
+	start-stop-daemon -p "`locate_pidfile "$1"`" --oknodo -K
 }
 
 
