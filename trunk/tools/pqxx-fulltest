@@ -228,6 +228,7 @@ prepare_postgreses() {
 
 find_historic_compilers() {
 	COMPILERS="`find /usr/bin /usr/local/bin -name g++-[0-9].[0-9]`"
+	# TODO: Any way we can skip the one that g++ links to?
 	echo ${COMPILERS:-c++}
 }
 
