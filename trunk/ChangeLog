@@ -1,6 +1,7 @@
 2011-04-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/pqxx-fulltest:
  - Don't break if start-stop-daemon has no work to do.
+ - Remove pidfile after stopping a backend.
 2011-04-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/pqxx-fulltest:
  - Complete rewrite.  Faster, cleaner.
