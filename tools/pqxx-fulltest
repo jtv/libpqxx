@@ -113,8 +113,10 @@ start_backend() {
 stop_backend() {
 	log_message "Stopping backend $1"
 	BACKEND_PIDFILE="`locate_pidfile "$1"`"
-	start-stop-daemon -p "$BACKEND_PIDFILE" --oknodo -K
-	rm -- "$BACKEND_PIDFILE"
+	if start-stop-daemon -p "$BACKEND_PIDFILE" -K
+	then
+		rm -- "$BACKEND_PIDFILE"
+	fi
 }
 
 
