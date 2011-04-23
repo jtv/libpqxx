@@ -1,3 +1,8 @@
+2011-04-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+ - Support --enable-documentation (defaults to yes).
+ tools/pqxx-fulltest:
+ - Use --disable-documentation for test runs.
 2011-04-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/pqxx-fulltest:
  - Quiesce for a bit after stopping backends.
