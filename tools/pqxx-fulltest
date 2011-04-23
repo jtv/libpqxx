@@ -65,12 +65,6 @@ unpack_tarball() {
 }
 
 
-sabotage_docs_build() {
-	# Trick libpqxx into not building its documentation.
-	touch doc/reference-stamp doc/tutorial-stamp
-}
-
-
 find_backend_dir()  {
 	FBD_OLD_PWD="`pwd`"
 	cd -- "$TESTDIR/pg/$1"
@@ -96,8 +90,8 @@ start_backend() {
 		echo "\n\nSkipping backend $ARG_BACKEND.\n"
 		false
 	else
-		# Use postmaster, not postgres; older versions of postgres don't
-		# support -h or -k, and we need both.
+		# Use postmaster, not postgres; "postgres" didn't support the
+		# -h or -k options until version 8.2, and we need both.
 		env PATH="$BACKEND_DIR/bin:$PATH" \
 			LD_LIBRARY_PATH="$BACKEND_DIR/lib" \
 			PGDATA="$BACKEND_DIR/data" \
@@ -199,6 +193,15 @@ find_installed_postgreses() {
 }
 
 
+stop_all_backends() {
+	SAB_BACKENDS=`find_installed_postgreses`
+	for STOPPABLE_BACKEND in $SAB_BACKENDS
+	do
+		stop_backend $STOPPABLE_BACKEND
+	done
+}
+
+
 prepare_postgreses() {
 	PP_OLD_PWD="`pwd`"
 	for DOWNLOADABLE in `find_upstream_postgreses`
@@ -211,11 +214,7 @@ prepare_postgreses() {
 		fi
 	done
 
-	POSTGRESES=`find_installed_postgreses`
-	for PREPARE_BACKEND in $POSTGRESES
-	do
-		stop_backend $PREPARE_BACKEND
-	done
+	stop_all_backends
 	sleep 5
 	AVAILABLE_BACKENDS=`find_backends`
 	for PREPARE_BACKEND in $AVAILABLE_BACKENDS
@@ -245,8 +244,8 @@ test_against_compilers() {
 		log_message "Testing against $COMPILER"
 		env CXX=${COMPILER} ./configure \
 			--enable-shared \
-			--enable-maintainer-mode
-		sabotage_docs_build
+			--enable-maintainer-mode \
+			--disable-documentation
 		make check -j$CONCURRENCY_LEVEL
 	done
 }
@@ -277,9 +276,10 @@ test_against_postgreses() {
 		LIB_PATH="$TEST_FRONTEND_DIR/lib"
 
 		env PATH="$EXTENDED_PATH" LD_LIBRARY_PATH="$LIB_PATH" \
-		./configure --enable-shared --enable-maintainer-mode
-
-		sabotage_docs_build
+		./configure \
+			--enable-shared \
+			--enable-maintainer-mode \
+			--disable-documentation
 
 		env PATH="$EXTENDED_PATH" LD_LIBRARY_PATH="$LIB_PATH" \
 		make -j$CONCURRENCY_LEVEL
@@ -329,6 +329,8 @@ main() {
 	test_against_compilers "`find_historic_compilers`"
 
 	test_against_postgreses "`find_frontends`" "`find_backends`"
+
+	stop_all_backends
 }
 
 

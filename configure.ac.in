@@ -40,12 +40,25 @@ AC_DISABLE_SHARED
 AC_PROG_LIBTOOL
 AC_PROG_MAKE_SET
 AC_PATH_PROG([MKDIR], [mkdir])
+AC_PATH_PROG([PKG_CONFIG], [pkg-config])
+
+# Documentation.
+AC_ARG_ENABLE(
+	documentation,
+	[AS_HELP_STRING([--enable-documentation], [Generate documentation])],
+	[],
+	[enable_documentation=yes])
+if test "$enable_documentation" = "yes"
+then
 AC_PATH_PROG([DOXYGEN], [doxygen])
 AM_CONDITIONAL([BUILD_REFERENCE], [test -n "$DOXYGEN"])
 AC_CHECK_PROG(HAVE_DOT, dot, YES, NO)
 AC_PATH_PROG([XMLTO], [xmlto])
-AC_PATH_PROG([PKG_CONFIG], [pkg-config])
 AM_CONDITIONAL([BUILD_TUTORIAL], [test -n "$XMLTO"])
+else
+AM_CONDITIONAL(BUILD_REFERENCE, [/bin/false])
+AM_CONDITIONAL(BUILD_TUTORIAL, [/bin/false])
+fi
 
 
 AM_MAINTAINER_MODE
