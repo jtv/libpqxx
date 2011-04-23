@@ -216,16 +216,17 @@ prepare_postgreses() {
 	do
 		stop_backend $PREPARE_BACKEND
 	done
+	sleep 5
 	AVAILABLE_BACKENDS=`find_backends`
 	for PREPARE_BACKEND in $AVAILABLE_BACKENDS
 	do
 		start_backend "$PREPARE_BACKEND"
 		sleep 2
 	done
+	sleep 5
 	for PREPARE_BACKEND in $AVAILABLE_BACKENDS
 	do
 		create_database "$PREPARE_BACKEND" || /bin/true
-		sleep 1
 	done
 }
 
