@@ -1,3 +1,7 @@
+2011-04-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/pqxx-fulltest:
+ - Quiesce for a bit after stopping backends.
+ - Don't wait after create_database; latency covered by build.
 2011-04-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/pqxx-fulltest:
  - Don't break if start-stop-daemon has no work to do.
