@@ -14527,7 +14527,6 @@ else
   enable_documentation=yes
 fi
 
-echo "####### enable_documentation=$enable_documentation #######" # DEBUG CODE
 if test "$enable_documentation" = "yes"
 then
 # Extract the first word of "doxygen", so it can be a program name with args.
