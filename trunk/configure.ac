@@ -48,7 +48,6 @@ AC_ARG_ENABLE(
 	[AS_HELP_STRING([--enable-documentation], [Generate documentation])],
 	[],
 	[enable_documentation=yes])
-echo "####### enable_documentation=$enable_documentation #######" # DEBUG CODE
 if test "$enable_documentation" = "yes"
 then
 AC_PATH_PROG([DOXYGEN], [doxygen])
