@@ -1,6 +1,7 @@
 2011-05-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/pqxx-fulltest:
  - Always exit when "make check" fails.  Missed a spot earlier.
+ - Work harder to get a user name.
 2011-04-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
  - Support --enable-documentation (defaults to yes).

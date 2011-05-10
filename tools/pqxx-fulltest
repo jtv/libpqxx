@@ -137,12 +137,13 @@ build_postgres() {
 
 
 create_database() {
-	log_message "Creating database $USER in $1 (in case it did not exist)"
+	PQXX_USER="`whoami`"
+	log_message "(Re-)creating database $PQXX_USER in $1"
 	BACKEND_DIR="`find_backend_dir "$1"`"
 	env PGHOST="$BACKEND_DIR" \
 		LD_LIBRARY_PATH="$BACKEND_DIR/lib" \
 		PATH="$BACKEND_DIR/bin:$PATH" \
-	createdb "$USER" || /bin/true
+	createdb "$PQXX_USER" || /bin/true
 }
 
 install_postgres() {
