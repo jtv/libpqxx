@@ -246,7 +246,7 @@ test_against_compilers() {
 			--enable-shared \
 			--enable-maintainer-mode \
 			--disable-documentation
-		make check -j$CONCURRENCY_LEVEL
+		make check -j$CONCURRENCY_LEVEL || exit 1
 	done
 }
 
