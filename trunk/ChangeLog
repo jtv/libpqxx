@@ -1,3 +1,6 @@
+2011-05-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/compiler-internal.hxx:
+ - Include <cstddef>; may fix #213 on Fedora 15.  Thanks zelda.
 2011-05-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/pqxx-fulltest:
  - Always exit when "make check" fails.  Missed a spot earlier.
