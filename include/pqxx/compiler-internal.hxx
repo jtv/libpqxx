@@ -53,6 +53,8 @@
 
 #include "pqxx/compiler-public.hxx"
 
+#include <cstddef>
+
 #ifdef PQXX_HAVE_LIMITS
 #include <limits>
 #else // PQXX_HAVE_LIMITS
