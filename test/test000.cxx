@@ -147,7 +147,6 @@ void test_000(transaction_base &)
   strconv("long", 0, "0");
   strconv("long", long_min, lminstr.str());
   strconv("long", long_max, lmaxstr.str());
-  strconv("double", 0.0, "0");
   strconv("double", not_a_number, "nan");
   strconv("string", string(), "");
   strconv("string", weirdstr, weirdstr);
