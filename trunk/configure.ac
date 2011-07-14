@@ -1124,6 +1124,19 @@ AC_TRY_COMPILE([#include <iterator>
 	[reverseit='no'])
 AC_MSG_RESULT($reverseit)
 
+AC_MSG_CHECKING([for auto_ptr])
+auto_ptr='yes'
+AC_TRY_COMPILE([
+	#include <memory>
+	${usestd}
+        int *get_ptr();],
+	[auto_ptr<int> i(get_ptr())],
+	[AC_DEFINE(PQXX_HAVE_AUTO_PTR,
+		1,
+		[Define if compiler has auto_ptr])],
+	[auto_ptr='no'])
+AC_MSG_RESULT($auto_ptr)
+
 AC_MSG_CHECKING([for tr1::shared_ptr])
 sharedptr='yes'
 AC_TRY_COMPILE([#include <${tr1dir}memory>],
@@ -1133,6 +1146,32 @@ AC_TRY_COMPILE([#include <${tr1dir}memory>],
 		[Define if compiler has shared_ptr])],
 	[sharedptr='no'])
 AC_MSG_RESULT($sharedptr)
+
+AC_MSG_CHECKING([for unique_ptr])
+unique_ptr='yes'
+AC_TRY_COMPILE([
+	#include <memory>
+	${usestd}
+	int *get_ptr();],
+	[unique_ptr<int> i(get_ptr())],
+	[AC_DEFINE(PQXX_HAVE_UNIQUE_PTR,
+		1,
+		[Define if compiler has unique_ptr])],
+	[unique_ptr='no'])
+AC_MSG_RESULT($unique_ptr)
+
+AC_MSG_CHECKING([for move()])
+move='yes'
+AC_TRY_COMPILE([
+	#include <utility>
+	${usestd}
+	int foo(int &i) { return move(i); }],
+	[int i = 0; return foo(i);],
+	[AC_DEFINE(PQXX_HAVE_MOVE,
+		1,
+		[Define if compiler has move().])],
+	[move='no'])
+AC_MSG_RESULT($move)
 
 AC_MSG_CHECKING([whether overloaded using-declarations work])
 AC_TRY_COMPILE([

@@ -17243,6 +17243,34 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $reverseit" >&5
 $as_echo "$reverseit" >&6; }
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for auto_ptr" >&5
+$as_echo_n "checking for auto_ptr... " >&6; }
+auto_ptr='yes'
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+	#include <memory>
+	${usestd}
+        int *get_ptr();
+int
+main ()
+{
+auto_ptr<int> i(get_ptr())
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_AUTO_PTR 1" >>confdefs.h
+
+else
+  auto_ptr='no'
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $auto_ptr" >&5
+$as_echo "$auto_ptr" >&6; }
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for tr1::shared_ptr" >&5
 $as_echo_n "checking for tr1::shared_ptr... " >&6; }
 sharedptr='yes'
@@ -17267,6 +17295,62 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $sharedptr" >&5
 $as_echo "$sharedptr" >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for unique_ptr" >&5
+$as_echo_n "checking for unique_ptr... " >&6; }
+unique_ptr='yes'
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+	#include <memory>
+	${usestd}
+	int *get_ptr();
+int
+main ()
+{
+unique_ptr<int> i(get_ptr())
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_UNIQUE_PTR 1" >>confdefs.h
+
+else
+  unique_ptr='no'
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $unique_ptr" >&5
+$as_echo "$unique_ptr" >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for move()" >&5
+$as_echo_n "checking for move()... " >&6; }
+move='yes'
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+	#include <utility>
+	${usestd}
+	int foo(int &i) { return move(i); }
+int
+main ()
+{
+int i = 0; return foo(i);
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_MOVE 1" >>confdefs.h
+
+else
+  move='no'
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $move" >&5
+$as_echo "$move" >&6; }
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether overloaded using-declarations work" >&5
 $as_echo_n "checking whether overloaded using-declarations work... " >&6; }

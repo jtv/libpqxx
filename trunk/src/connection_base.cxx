@@ -125,7 +125,7 @@ pqxx::connection_base::connection_base(connectionpolicy &pol) :
   m_Conn(0),
   m_policy(pol),
   m_Trans(),
-  m_Noticer(),
+  m_noticer(),
   m_defaultNoticeProcessor(0),
   m_Trace(0),
   m_serverversion(0),
@@ -326,7 +326,7 @@ void pqxx::connection_base::SetupState()
     p->second.registered = false;
 
   m_defaultNoticeProcessor = 0;
-  if (m_Noticer.get()) switchnoticer(m_Noticer);
+  if (m_noticer.get()) switchnoticer(m_noticer);
 
   InternalSetTrace();
 
@@ -475,7 +475,7 @@ bool pqxx::connection_base::is_open() const throw ()
 }
 
 
-void pqxx::connection_base::switchnoticer(const PGSTD::auto_ptr<noticer> &N)
+void pqxx::connection_base::switchnoticer(const connection_base::noticer_ptr &N)
 	throw ()
 {
   const PQnoticeProcessor old =
@@ -485,8 +485,9 @@ void pqxx::connection_base::switchnoticer(const PGSTD::auto_ptr<noticer> &N)
 }
 
 
-auto_ptr<pqxx::noticer>
-pqxx::connection_base::set_noticer(PGSTD::auto_ptr<noticer> N) throw ()
+pqxx::connection_base::noticer_ptr
+pqxx::connection_base::set_noticer(pqxx::connection_base::noticer_ptr &N)
+  throw ()
 {
   if (m_Conn)
   {
@@ -494,11 +495,23 @@ pqxx::connection_base::set_noticer(PGSTD::auto_ptr<noticer> N) throw ()
     else PQsetNoticeProcessor(m_Conn, m_defaultNoticeProcessor, 0);
   }
 
-  auto_ptr<noticer> Old = m_Noticer;
-  m_Noticer = N;
-
-  return Old;
+  noticer_ptr old(m_noticer.release());
+  m_noticer = noticer_ptr(N.release());
+  return old;
 }
+
+
+#if defined(PQXX_HAVE_UNIQUE_PTR) && defined(PQXX_HAVE_AUTO_PTR)
+
+PGSTD::auto_ptr<pqxx::noticer>
+pqxx::connection_base::set_noticer(PGSTD::auto_ptr<pqxx::noticer> &N) throw ()
+{
+  noticer_ptr new_noticer(N.release());
+  noticer_ptr old_noticer = set_noticer(new_noticer);
+  return auto_ptr<noticer>(old_noticer.release());
+}
+
+#endif // PQXX_HAVE_UNIQUE_PTR && PQXX_HAVE_AUTO_PTR
 
 
 void pqxx::connection_base::process_notice_raw(const char msg[]) throw ()
@@ -506,7 +519,7 @@ void pqxx::connection_base::process_notice_raw(const char msg[]) throw ()
   if (msg && *msg)
   {
     // TODO: Read default noticer on startup!
-    if (m_Noticer.get()) (*m_Noticer.get())(msg);
+    if (m_noticer.get()) (*m_noticer.get())(msg);
     else fputs(msg, stderr);
   }
 }
@@ -1173,8 +1186,8 @@ void pqxx::connection_base::close() throw ()
 {
   m_Completed = false;
 #ifdef PQXX_QUIET_DESTRUCTORS
-  auto_ptr<noticer> n(new nonnoticer());
-  set_noticer(n);
+  noticer_ptr new_noticer(new nonnoticer());
+  set_noticer(new_noticer);
 #endif
   inhibit_reactivation(false);
   m_reactivation_avoidance.clear();

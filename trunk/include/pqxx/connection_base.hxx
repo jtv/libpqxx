@@ -290,22 +290,42 @@ public:
    */
   //@{
 
-  /// Set handler for postgresql errors or warning messages.
-  /** The use of auto_ptr implies ownership, so unless the returned value is
-   * copied to another auto_ptr, it will be deleted directly after the call.
-   * This may be important when running under Windows, where a DLL cannot free
-   * memory allocated by the main program.  The auto_ptr will delete the object
-   * from your code context, rather than from inside the library.
-   *
-   * If a noticer exists when the connection_base is destructed, it will also be
-   * deleted.
-   *
-   * @param N New message handler; must not be null or equal to the old one
-   * @return Previous handler
+#if defined(PQXX_HAVE_UNIQUE_PTR)
+  /// Smart pointer type to pass to set_noticer.
+  typedef PGSTD::unique_ptr<noticer> noticer_ptr;
+#else
+  /// Smart pointer type to pass to set_noticer.
+  typedef PGSTD::auto_ptr<noticer> noticer_ptr;
+#endif
+
+#if defined(PQXX_HAVE_AUTO_PTR) && defined(PQXX_HAVE_UNIQUE_PTR)
+  /// Obsolete: set handler for postgresql errors or warning messages.
+  /** @deprecated Use the unique_ptr version instead, or make use of the
+   * noticer_ptr typedef to hide the difference.  The auto_ptr type is
+   * deprecated in the C++ standard.
    */
-  PGSTD::auto_ptr<noticer> set_noticer(PGSTD::auto_ptr<noticer> N)
+  PGSTD::auto_ptr<noticer> set_noticer(PGSTD::auto_ptr<noticer> &N)
     throw ();								//[t14]
-  noticer *get_noticer() const throw () { return m_Noticer.get(); }	//[t14]
+#endif
+
+  /// Set handler for postgresql errors or warning messages.
+  /** Takes a new handler as a smart pointer; returns the existing handler as
+   * a smart pointer as well.  The library will hold a copy of the smart
+   * pointer.
+   *
+   * If you do not copy the return value into a smart pointer of your own, and
+   * there is no other copy outside of the connection, the smart pointer will
+   * delete it.  This will happen from the code that destroys the last copy,
+   * not from set_noticer, which may matter on Windows where a DLL cannot free
+   * memory allocated by the main program.
+   *
+   * @param N New message handler; must not be null.
+   * @return Previous handler.
+   */
+  noticer_ptr set_noticer(noticer_ptr &N) throw ();
+
+  /// Obtain a pointer to the current noticer, without affecting its ownership.
+  noticer *get_noticer() const throw () { return m_noticer.get(); }	//[t14]
 
   /// Invoke notice processor function.  The message should end in newline.
   void process_notice(const char[]) throw ();				//[t14]
@@ -861,6 +881,7 @@ protected:
   void wait_write() const;
 
 private:
+
   result make_result(internal::pq::PGresult *rhs, const PGSTD::string &query);
 
   void PQXX_PRIVATE clearcaps() throw ();
@@ -874,7 +895,7 @@ private:
   void PQXX_PRIVATE RestoreVars();
   PGSTD::string PQXX_PRIVATE RawGetVar(const PGSTD::string &);
   void PQXX_PRIVATE process_notice_raw(const char msg[]) throw ();
-  void switchnoticer(const PGSTD::auto_ptr<noticer> &) throw ();
+  void switchnoticer(const noticer_ptr &) throw ();
 
   void read_capabilities() throw ();
 
@@ -898,16 +919,16 @@ private:
 	int);
   bool prepared_exists(const PGSTD::string &) const;
 
-  /// Connection handle
+  /// Connection handle.
   internal::pq::PGconn *m_Conn;
 
   connectionpolicy &m_policy;
 
-  /// Active transaction on connection, if any
+  /// Active transaction on connection, if any.
   internal::unique<transaction_base> m_Trans;
 
-  /// User-defined notice processor, if any
-  PGSTD::auto_ptr<noticer> m_Noticer;
+  /// User-defined notice processor, if any.
+  noticer_ptr m_noticer;
 
   /// Default notice processor
   /** We must restore the notice processor to this default after removing our
@@ -1014,29 +1035,28 @@ public:
    * @param c connection object whose noticer should be temporarily changed
    * @param t temporary noticer object to use; will be destroyed on completion
    */
-  scoped_noticer(connection_base &c, PGSTD::auto_ptr<noticer> t) throw () :
-    m_c(c), m_org(c.set_noticer(t)) { }
+  scoped_noticer(connection_base &c, connection_base::noticer_ptr t) throw () :
+    m_c(c), m_org(c.set_noticer(PQXX_MOVE(t))) { }
 
-  ~scoped_noticer() { m_c.set_noticer(m_org); }
+  ~scoped_noticer() { m_c.set_noticer(PQXX_MOVE(m_org)); }
 
 protected:
-  /// Take ownership of given noticer, and start using it
+  /// Take ownership of given noticer, and start using it.
   /** This constructor is not public because its interface does not express the
-   * fact that the scoped_noticer takes ownership of the noticer through an
-   * @c auto_ptr.
+   * fact that the scoped_noticer takes ownership of the noticer through a smart
+   * pointer.
    */
   scoped_noticer(connection_base &c, noticer *t) throw () :
     m_c(c),
     m_org()
   {
-    PGSTD::auto_ptr<noticer> x(t);
-    PGSTD::auto_ptr<noticer> y(c.set_noticer(x));
-    m_org = y;
+    connection_base::noticer_ptr new_noticer(t);
+    m_org = PQXX_MOVE(c.set_noticer(new_noticer));
   }
 
 private:
   connection_base &m_c;
-  PGSTD::auto_ptr<noticer> m_org;
+  connection_base::noticer_ptr m_org;
 
   /// Not allowed
   scoped_noticer();

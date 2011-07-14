@@ -1,3 +1,16 @@
+2011-07-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in, include/pqxx/compiler-public.hxx:
+ - Check for std::auto_ptr.
+ - Check for std::move().
+ - Check for std::unique_ptr.
+ - Workaround for missing std::move().
+ include/pqxx/basic_connection.hxx, include/pqxx/connection_base.hxx,
+ src/connection_base.cxx, test/test014.cxx:
+ - Replace auto_ptr with unique_ptr for managing noticers, if available.
+ - New typedef: noticer_ptr to hide the difference (a little).
+ - Provide compatibility with auto_ptr on systems with both.
+ - set_noticer now needs reference to smart pointer.
+ - Fixes #214.
 2011-05-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/compiler-internal.hxx:
  - Include <cstddef>; may fix #213 on Fedora 15.  Thanks zelda.

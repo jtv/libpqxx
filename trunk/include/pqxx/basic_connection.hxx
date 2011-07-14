@@ -68,8 +68,7 @@ public:
   ~basic_connection() throw ()
   {
 #ifdef PQXX_QUIET_DESTRUCTORS
-    PGSTD::auto_ptr<noticer> n(new nonnoticer);
-    set_noticer(n);
+    set_noticer(noticer_ptr(new nonnoticer));
 #endif
     close();
   }
