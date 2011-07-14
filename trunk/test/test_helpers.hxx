@@ -204,6 +204,35 @@ inline void check_not_equal(
 }
 
 
+// Verify that value1 is less than value2.
+#define PQXX_CHECK_LESS(value1, value2, desc) \
+	pqxx::test::check_less( \
+		__FILE__, \
+		__LINE__, \
+		(value1), \
+		#value1, \
+		(value2), \
+		#value2, \
+		(desc))
+template<typename VALUE1, typename VALUE2>
+inline void check_less(
+	const char file[],
+	int line,
+	VALUE1 value1,
+	const char text1[],
+	VALUE2 value2,
+	const char text2[],
+	PGSTD::string desc)
+{
+  if (value1 < value2) return;
+  const PGSTD::string fulldesc =
+	desc + " (" + text1 + " >= " + text2 + ": "
+	"\"lower\"=" + to_string(value1) + ", "
+	"\"upper\"=" + to_string(value2) + ")";
+  throw test_failure(file, line, fulldesc);
+}
+
+
 struct failure_to_fail {};
 
 // Verify that "action" throws "exception_type."

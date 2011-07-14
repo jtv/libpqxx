@@ -1,4 +1,13 @@
 2011-07-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/strconv.cxx:
+ - Support "inf" as representation of infinity (C++0x standard?).
+ test/test000.cxx:
+ - Broke because 0.0 isn't always represented as "0"; loosened test.
+ test/test_helpers.cxx:
+ - Added "less than" assertion.
+ test/unit/test_float.cxx:
+ - Don't ==-compare FP values; may elicit warnings even for infinity.
+2011-07-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in, include/pqxx/compiler-public.hxx:
  - Check for std::auto_ptr.
  - Check for std::move().

@@ -151,7 +151,8 @@ bool valid_infinity_string(const char str[])
   return
 	strcmp("infinity", str) == 0 ||
 	strcmp("Infinity", str) == 0 ||
-	strcmp("INFINITY", str) == 0;
+	strcmp("INFINITY", str) == 0 ||
+	strcmp("inf", str) == 0;
 }
 
 
