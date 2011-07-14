@@ -9,6 +9,7 @@
  - On Windows, now uses ws2_32 instead of wsock32.
  - Various Windows build fixes.
  - Updated for gcc 4.6.0.
+ - Use unique_ptr for noticers if auto_ptr is no longer available.
  - configure script supports --enable-documentation/--disable-documentation.
  - All new, faster pqxx-fulltest script.
 3.1

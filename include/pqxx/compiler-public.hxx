@@ -21,6 +21,13 @@
 #include <boost/smart_ptr.hpp>
 #endif
 
+#ifdef PQXX_HAVE_MOVE
+#include <utility>
+#define PQXX_MOVE(value) (PGSTD::move(value))
+#else
+#define PQXX_MOVE(value) (value)
+#endif
+
 #ifdef _MSC_VER
 
 /* Work around a particularly pernicious and deliberate bug in Visual C++:

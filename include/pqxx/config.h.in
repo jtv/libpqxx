@@ -70,6 +70,9 @@
 /* Define if function overloading using "using" breaks */
 #undef PQXX_BROKEN_USING_DECL
 
+/* Define if compiler has auto_ptr */
+#undef PQXX_HAVE_AUTO_PTR
+
 /* Define if you have the <boost/smart_ptr.hpp> header */
 #undef PQXX_HAVE_BOOST_SMART_PTR
 
@@ -133,6 +136,9 @@
 
 /* Define if libpq has lo_tell() */
 #undef PQXX_HAVE_LO_TELL
+
+/* Define if compiler has move(). */
+#undef PQXX_HAVE_MOVE
 
 /* Define if C99 fnan()/nan()/lnan() are available */
 #undef PQXX_HAVE_NAN
@@ -248,6 +254,9 @@
 /* Define if the sys/select.h header defines a working select() and friends,
    as per POSIX 1003.1-2001 */
 #undef PQXX_HAVE_SYS_SELECT_H
+
+/* Define if compiler has unique_ptr */
+#undef PQXX_HAVE_UNIQUE_PTR
 
 /* Define if select() accepts NULL fd_set arguments */
 #undef PQXX_SELECT_ACCEPTS_NULL

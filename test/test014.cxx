@@ -33,9 +33,11 @@ void test_014(transaction_base &orgT)
   // (which is to print to stderr).  This is done just to show that the way
   // messages are processed can be changed by the client program.
   noticer *MyNoticer = new ReportWarning;
-  // This is not a memory leak: C stores MyNoticer in an auto_ptr that will
+  connection_base::noticer_ptr wrapped_noticer(MyNoticer);
+
+  // This is not a memory leak: C stores MyNoticer in a smart pointer that will
   // delete the object on destruction.
-  C.set_noticer(auto_ptr<noticer>(MyNoticer));
+  C.set_noticer(wrapped_noticer);
 
   PQXX_CHECK(C.get_noticer() == MyNoticer, "Lost noticer.");
 

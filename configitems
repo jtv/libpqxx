@@ -13,6 +13,7 @@ PQXX_HAVE_GCC_CONST	public	compiler
 PQXX_HAVE_GCC_DEPRECATED	public	compiler
 PQXX_HAVE_GCC_NORETURN	public	compiler
 PQXX_HAVE_GCC_PURE	public	compiler
+PQXX_HAVE_AUTO_PTR	public	compiler
 PQXX_HAVE_BOOST_SMART_PTR	public	compiler
 PQXX_HAVE_CHAR_TRAITS	public	compiler
 PQXX_HAVE_COUNT_IF	internal	compiler
@@ -29,6 +30,7 @@ PQXX_HAVE_LONG_DOUBLE	public	compiler
 PQXX_HAVE_NAN	internal	compiler
 PQXX_HAVE_C_NAN	internal	compiler
 PQXX_HAVE_GCC_VISIBILITY	internal	compiler
+PQXX_HAVE_MOVE	public	compiler
 PQXX_HAVE_POLL	internal	compiler
 PQXX_HAVE_PQCANCEL	internal	libpq
 PQXX_HAVE_PQCLIENTENCODING	internal	libpq
@@ -67,6 +69,7 @@ PQXX_HAVE_STRING_CLEAR	internal	compiler
 PQXX_HAVE_STRNLEN	internal	compiler
 PQXX_HAVE_STRLCPY	internal	compiler
 PQXX_HAVE_SYS_SELECT_H	internal	compiler
+PQXX_HAVE_UNIQUE_PTR	public	compiler
 PQXX_SEEKDIRS_MATCH_C	internal	compiler
 PQXX_PQ_IN_NAMESPACE	public	compiler
 PQXX_SELECT_ACCEPTS_NULL	internal	compiler
