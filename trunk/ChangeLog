@@ -1,3 +1,7 @@
+2011-07-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/notification.cxx:
+ - Fixed workaround for VC++, which can't handle console output in destructors.
+ - Thanks Kirit Saelensminde.
 2011-07-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/strconv.cxx:
  - Support "inf" as representation of infinity (C++0x standard?).
