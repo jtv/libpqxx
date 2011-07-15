@@ -40,7 +40,7 @@ pqxx::notification_receiver::notification_receiver(
 pqxx::notification_receiver::~notification_receiver()
 {
 #ifdef PQXX_QUIET_DESTRUCTORS
-  disable_notifer Quiet(this->conn());
+  disable_noticer Quiet(this->conn());
 #endif
   gate::connection_notification_receiver(this->conn()).remove_receiver(this);
 }
