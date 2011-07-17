@@ -10,7 +10,7 @@ PQXXVERSION="`./tools/extract_version`"
 # There must be no uncommitted changes.
 check_uncommitted_changes() {
 	UNCOMMITTED_CHANGES="`svn st`"
-	if test -n "UNCOMMITTED_CHANGES"
+	if test -n "$UNCOMMITTED_CHANGES"
 	then
 		cat <<EOF >&2
 Branch has uncommitted changes:
