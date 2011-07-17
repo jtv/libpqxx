@@ -1,6 +1,7 @@
 /* main() definition for libpqxx test runners.
  */
 #include <iostream>
+#include <list>
 #include <new>
 #include <stdexcept>
 
@@ -189,7 +190,8 @@ int main(int, const char *argv[])
   const char *const test_name = argv[1];
   const test_map &tests = register_test(NULL);
 
-  int test_count = 0, failures = 0;
+  int test_count = 0;
+  list<string> failed;
   for (test_map::const_iterator i = tests.begin(); i != tests.end(); ++i)
     if (!test_name || test_name == i->first)
     {
@@ -233,15 +235,19 @@ int main(int, const char *argv[])
       if (!success)
       {
         cerr << "FAILED: " << i->first << endl;
-        ++failures;
+        failed.push_back(i->first);
       }
       ++test_count;
     }
 
   cout << "Ran " << test_count << " test(s)." << endl;
 
-  if (failures > 0)
-    cerr << "*** " << failures << " test(s) failed. ***" << endl;
+  if (!failed.empty())
+  {
+    cerr << "*** " << failed.size() << " test(s) failed: ***" << endl;
+    for (list<string>::const_iterator i=failed.begin(); i!=failed.end(); ++i)
+      cerr << "\t" << *i << endl;
+  }
 
-  return failures;
+  return int(failed.size());
 }
