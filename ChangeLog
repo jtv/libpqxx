@@ -1,4 +1,6 @@
 2011-07-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/lint:
+ - New.  Routine sanity checks on the source tree.
  tools/pre-release-check:
  - New.  Part of release process re-tooling.
 2011-07-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
