@@ -123,4 +123,3 @@ check_PROGRAMS = ${TESTS}
 # ###MAKTEMPLATE:FOREACH test/test*.cxx
 # ###BASENAME###_SOURCES = ###BASENAME###.cxx
 # ###BASENAME###_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
-
