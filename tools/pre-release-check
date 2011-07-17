@@ -33,6 +33,7 @@ EOF
 }
 
 
+./tools/lint
 check_uncommitted_changes
 check_version_tag
 check_compiler_internal_headers
