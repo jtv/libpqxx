@@ -1,17 +1,19 @@
-3.2
+4.0
+ - Fixes compatibility problems between 9.x libpq and 7.x backend.
+ - API change: set_noticer takes smart-pointer reference, not smart-pointer.
+ - Changes for C++0x.
+ - Use unique_ptr for noticers if auto_ptr is no longer available.
  - Supports clang++.
  - Fixes binary-data escaping problems with postgres 9.0.
  - Fixes problems with binary-string handling and escaping.
  - notify_listener has been replaced with notification_receiver.
  - notification_receiver takes a payload parameter.
- - Fixes compatibility problems between 9.x libpq and 7.x backend.
  - syntax_error reports error's approximate location in the query.
  - On Windows, now uses ws2_32 instead of wsock32.
  - Various Windows build fixes.
  - Updated for gcc 4.6.0.
- - Use unique_ptr for noticers if auto_ptr is no longer available.
  - configure script supports --enable-documentation/--disable-documentation.
- - All new, faster pqxx-fulltest script.
+ - Streamlined test/release toolchain.
 3.1
  - Shared libraries are now versioned by ABI: 3.1 instead of 3.1.0 etc.
  - Threading behaviour is now documented, and can be queried.

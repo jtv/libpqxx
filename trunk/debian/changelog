@@ -1,8 +1,8 @@
-libpqxx (3.2-1) unstable; urgency=medium
+libpqxx (4.0-1) unstable; urgency=medium
 
-  * Forked 3.2.
+  * Forked 4.0.
 
- -- Jeroen T. Vermeulen <jtv@xs4all.nl>  Mon, 15 Feb 2010 21:00:00 +0100
+ -- Jeroen T. Vermeulen <jtv@xs4all.nl>  Mon, 17 Jul 2011 15:20:00 +0200
 
 libpqxx (3.1.0-1) unstable; urgency=medium
 
