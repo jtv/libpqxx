@@ -1,0 +1,72 @@
+#! /bin/sh
+#
+# Routine sanity checks for libpqxx source tree.
+
+PQXXVERSION="`./tools/extract_version`"
+
+# This version must be at the top of the NEWS file.
+check_news_version() {
+	if ! head -n1 NEWS | grep -q "^$PQXXVERSION\$"
+	then
+		cat <<EOF >&2
+Version $PQXXVERSION is not at the top of NEWS.
+EOF
+		exit 1
+	fi
+}
+
+
+# This version must be at the top of the Debian changelog.
+check_debian_changelog() {
+	if ! head -n1 debian/changelog | grep -q "^libpqxx ($PQXXVERSION\\>"
+	then
+		cat <<EOF >&2
+Version $PQXXVERSION is not at the top of debian/changelog.
+EOF
+		exit 1
+	fi
+}
+
+
+# Count number of times header $1 is included from each of given input files.
+# Output is lines of <filename>:<count>, one line per file, sorted.
+count_includes() {
+	HEADER_NAME="$1"
+	shift
+	WS="[[:space:]]*"
+	PAT="^$WS#$WSinclude$WS[<\"]$HEADER_NAME[>\"]"
+	grep -c "$PAT" $* | sort
+}
+
+
+# Any file that includes compiler-internal-pre.hxx must also include
+# compiler-internal-post.hxx, and vice versa.
+check_compiler_internal_headers() {
+	TEMPDIR="`mktemp -d pqxx-pre-release-check.XXXX`"
+	if test -z "$TEMPDIR"
+	then
+		cat <<EOF >&2
+Argh: TEMPDIR is empty.  Don't know how, but would have caused nasty problems.
+	fi
+	PRE="$TEMPDIR/pre"
+	POST="$TEMPDIR/post"
+	count_includes pqxx/compiler-internal-pre.hxx include/pqxx/* >"$PRE"
+	count_includes pqxx/compiler-internal-post.hxx include/pqxx/* >"$POST"
+	DIFF="`diff "$PRE" "$POST"`" || /bin/true
+	rm -rf -- "$TEMPDIR"
+	if test -n "$DIFF"
+	then
+		cat <<EOF >&2
+The number of inclusions of compiler-internal.post.hxx does not match the number
+of inclusions of compiler-internal.post.hxx:
+
+$DIFF
+EOF
+		exit 1
+	fi
+}
+
+
+check_news_version
+check_debian_changelog
+check_compiler_internal_headers
