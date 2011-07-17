@@ -8,4 +8,3 @@ MAINTAINERCLEANFILES=Makefile.in aclocal.m4 config.h.in config.log configure \
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpqxx.pc
 bin_SCRIPTS=pqxx-config
-
