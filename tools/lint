@@ -42,11 +42,12 @@ count_includes() {
 # Any file that includes compiler-internal-pre.hxx must also include
 # compiler-internal-post.hxx, and vice versa.
 check_compiler_internal_headers() {
-	TEMPDIR="`mktemp -d pqxx-pre-release-check.XXXX`"
+	TEMPDIR="`mktemp --tmpdir -d pqxx-pre-release-check.XXXX`"
 	if test -z "$TEMPDIR"
 	then
 		cat <<EOF >&2
 Argh: TEMPDIR is empty.  Don't know how, but would have caused nasty problems.
+EOF
 	fi
 	PRE="$TEMPDIR/pre"
 	POST="$TEMPDIR/post"
