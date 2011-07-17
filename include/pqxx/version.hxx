@@ -18,15 +18,15 @@
 #ifndef PQXX_H_VERSION
 
 /// Full libpqxx version string.
-#define PQXX_VERSION "3.2"
+#define PQXX_VERSION "4.0"
 
 /// Major version number for this libpqxx release.
-#define PQXX_VERSION_MAJOR 3
+#define PQXX_VERSION_MAJOR 4
 
 /// Minor version number for this libpqxx release.
-#define PQXX_VERSION_MINOR 2
+#define PQXX_VERSION_MINOR 0
 
 /// Library ABI version.
-#define PQXX_ABI "3.2"
+#define PQXX_ABI "4.0"
 
 #endif
