@@ -1,3 +1,6 @@
+2011-07-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/pre-release-check:
+ - New.  Part of release process re-tooling.
 2011-07-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/notification.cxx:
  - Fixed workaround for VC++, which can't handle console output in destructors.
