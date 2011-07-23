@@ -1,3 +1,6 @@
+2011-07-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ Makefile.am:
+ - Refer to lint as tools/lint, not ./tools/lint.  Server tests breaking.
 2011-07-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/lint:
  - New.  Routine sanity checks on the source tree.
