@@ -1,4 +1,6 @@
 2011-07-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/strconv.hxx:
+ - Removed string conversion template to char[].  Fixes #215.  Thanks oobermick.
  tools/Makefile.am:
  - Distribute tools/lint.
 2011-07-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
