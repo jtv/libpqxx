@@ -211,6 +211,7 @@ with_postgres_include = @with_postgres_include@
 with_postgres_lib = @with_postgres_lib@
 EXTRA_DIST = \
 	extract_version \
+	lint \
 	maketemporary \
 	preprelease \
 	release \
