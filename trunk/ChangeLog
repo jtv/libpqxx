@@ -1,6 +1,8 @@
 2011-07-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/strconv.hxx:
  - Removed string conversion template to char[].  Fixes #215.  Thanks oobermick.
+ src/utils.cxx:
+ - Fixed #ifdefs around strerror_r workarounds, thanks Kirit Saelensminde.
  tools/Makefile.am:
  - Distribute tools/lint.
 2011-07-23  Jeroen T. Vermeulen <jtv@xs4all.nl>

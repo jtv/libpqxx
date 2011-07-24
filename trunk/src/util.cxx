@@ -232,7 +232,7 @@ void pqxx::internal::sleep_seconds(int s)
 }
 
 
-#if defined(PQXX_HAVE_STRERROR_R) && !defined(PQXX_HAVE_STRERROR_R_GNU)
+#if !defined(PQXX_HAVE_STRERROR_R) || !defined(PQXX_HAVE_STRERROR_R_GNU)
 namespace
 {
 void cpymsg(char buf[], const char input[], size_t buflen) throw ()
