@@ -1,5 +1,6 @@
 EXTRA_DIST = \
 	extract_version \
+	lint \
 	maketemporary \
 	preprelease \
 	release \
