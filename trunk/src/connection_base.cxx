@@ -69,7 +69,7 @@ extern "C"
 // void * argument points to the noticer.
 static void pqxxNoticeCaller(void *arg, const char *Msg)
 {
-  if (arg && Msg) (*static_cast<pqxx::noticer *>(arg))(Msg);
+  if (arg && Msg) (*reinterpret_cast<pqxx::noticer *>(arg))(Msg);
 }
 
 
