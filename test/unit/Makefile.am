@@ -26,7 +26,7 @@ runner_SOURCES = \
   test_cancel_query.cxx \
   test_error_verbosity.cxx \
   test_escape.cxx \
-  test_except.cxx \
+  test_exceptions.cxx \
   test_float.cxx \
   test_notification.cxx \
   test_parameterized.cxx \
