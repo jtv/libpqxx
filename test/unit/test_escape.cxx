@@ -81,10 +81,24 @@ void test_quote(connection_base &c, transaction_base &t)
 }
 
 
+void test_quote_name(transaction_base &t)
+{
+  PQXX_CHECK_EQUAL(
+	"\"A b\"",
+	t.quote_name("A b"),
+	"Escaped identifier is not as expected.");
+  PQXX_CHECK_EQUAL(
+	string("A b"),
+	t.exec("SELECT 1 AS " + t.quote_name("A b")).column_name(0),
+	"Escaped identifier does not work in SQL.");
+}
+
+
 void test_escaping(transaction_base &t)
 {
   test_esc(t.conn(), t);
   test_quote(t.conn(), t);
+  test_quote_name(t);
 }
 } // namespace
 

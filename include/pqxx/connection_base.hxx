@@ -833,6 +833,9 @@ public:
   /// Escape and quote a string of binary data.
   PGSTD::string quote_raw(const unsigned char str[], size_t len);
 
+  /// Escape and quote an SQL identifier for use in a query.
+  PGSTD::string quote_name(const PGSTD::string &identifier);
+
   /// Represent object as SQL string, including quoting & escaping.
   /** Nulls are recognized and represented as SQL nulls. */
   template<typename T>

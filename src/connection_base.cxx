@@ -1503,7 +1503,7 @@ string pqxx::connection_base::esc_raw(const unsigned char str[], size_t len)
 #ifdef PQXX_HAVE_PQESCAPEBYTEACONN
   // We need a connection object...  This is the one reason why this function is
   // not const!
-  if (!m_Conn) activate();
+  activate();
 
   PQAlloc<unsigned char> buf( PQescapeByteaConn(m_Conn, str, len, &bytes) );
   if (!buf.get()) throw bad_alloc();
@@ -1525,6 +1525,22 @@ string pqxx::connection_base::quote_raw(const unsigned char str[], size_t len)
 string pqxx::connection_base::quote(const binarystring &b)
 {
   return quote_raw(b.data(), b.size());
+}
+
+
+string pqxx::connection_base::quote_name(const string &identifier)
+{
+#ifdef PQXX_HAVE_PQESCAPEIDENTIFIER
+  // We need a connection object...  This is the one reason why this function is
+  // not const!
+  activate();
+  PQAlloc<char> buf(
+	PQescapeIdentifier(m_Conn, identifier.c_str(), identifier.size()));
+  if (!buf.get()) throw failure(ErrMsg());
+  return string(buf.get());
+#else
+  return "\"" + identifier + "\"";
+#endif
 }
 
 

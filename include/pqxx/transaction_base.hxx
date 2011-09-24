@@ -9,7 +9,7 @@
  *   represents a database transaction
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction_base instead.
  *
- * Copyright (c) 2001-2010, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -195,6 +195,10 @@ public:
 					  { return conn().quote_raw(str, len); }
 
   PGSTD::string quote_raw(const PGSTD::string &str) const;
+
+  /// Escape an SQL identifier for use in a query.
+  PGSTD::string quote_name(const PGSTD::string &identifier) const
+				       { return conn().quote_name(identifier); }
   //@}
 
   /// Execute query
