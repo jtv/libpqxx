@@ -8,6 +8,7 @@
  - Fixes problems with binary-string handling and escaping.
  - notify_listener has been replaced with notification_receiver.
  - notification_receiver takes a payload parameter.
+ - quote_name to escape SQL identifiers for use in queries.
  - syntax_error reports error's approximate location in the query.
  - On Windows, now uses ws2_32 instead of wsock32.
  - Various Windows build fixes.

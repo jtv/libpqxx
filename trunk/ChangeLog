@@ -1,4 +1,9 @@
 2011-09-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
+ src/connection_base.cxx, test/unit/test_escape.cxx:
+ - Support PQescapeIdentifier as quote_name.  Thanks Andreas Freund.
+ - Fixes #66.
+2011-09-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in:
  - Test for PQescapeIdentifier.
 2011-09-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
