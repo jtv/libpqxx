@@ -17181,6 +17181,33 @@ else
 fi
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking PQescapeIdentifier()" >&5
+$as_echo_n "checking PQescapeIdentifier()... " >&6; }
+pqescapeidentifier=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include<${with_postgres_include}/libpq-fe.h>
+int
+main ()
+{
+PQescapeIdentifier(NULL, "foo", 3)
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_PQESCAPEIDENTIFIER 1" >>confdefs.h
+
+else
+  pqescapeidentifier=no
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: pqescapeidentifier" >&5
+$as_echo "pqescapeidentifier" >&6; }
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking PQfreemem()" >&5
 $as_echo_n "checking PQfreemem()... " >&6; }
 pqfreemem=yes

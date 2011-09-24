@@ -860,6 +860,20 @@ else
 fi
 
 
+AC_MSG_CHECKING([PQescapeIdentifier()])
+pqescapeidentifier=yes
+AC_TRY_COMPILE(
+	[#include<${with_postgres_include}/libpq-fe.h>],
+	[PQescapeIdentifier(NULL, "foo", 3)],
+	AC_DEFINE(
+		PQXX_HAVE_PQESCAPEIDENTIFIER,
+		1,
+		[Define if libpq has PQescapeIdentifier()]),
+	[pqescapeidentifier=no]
+)
+AC_MSG_RESULT(pqescapeidentifier)
+
+
 AC_MSG_CHECKING([PQfreemem()])
 pqfreemem=yes
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
