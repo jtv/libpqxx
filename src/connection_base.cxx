@@ -1579,7 +1579,11 @@ void pqxx::internal::wait_read(const pq::PGconn *c,
     long seconds,
     long microseconds)
 {
-  timeval tv = { seconds, microseconds };
+  // These are really supposed to be time_t and suseconds_t.  But not all
+  // platforms have that type; some use "long" instead, and some 64-bit
+  // systems use 32-bit integers here.  So "int" seems to be the only really
+  // safe type to use.
+  timeval tv = { time_t(seconds), int(microseconds) };
   wait_fd(socket_of(c), false, &tv);
 }
 

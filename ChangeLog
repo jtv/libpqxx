@@ -1,4 +1,7 @@
 2011-09-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+ - Make timeval initializers compatible with more platforms.
+2011-09-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/unit/Makefile.am:
  - Renamed test_except.cxx to test_exceptions.cxx.
  test/unit/test_notification.cxx:
