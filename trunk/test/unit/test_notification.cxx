@@ -40,7 +40,8 @@ void test_receive(
 
   TestReceiver receiver(t.conn(), channel);
 
-  // Clear out any pending notifications.
+  // Clear out any previously pending notifications that might otherwise
+  // confuse the test.
   conn.get_notifs();
 
   // Notify, and receive.
