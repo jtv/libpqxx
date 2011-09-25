@@ -5,7 +5,32 @@ using namespace pqxx;
 
 namespace
 {
-void test_tablestream(transaction_base &Tsource)
+void test_generate(transaction_base &t)
+{
+  t.exec("CREATE TEMP TABLE test_generate (x integer)");
+  tablewriter writer(t, "test_generate");
+
+  const char *single_field[] = {"Field"};
+  PQXX_CHECK_EQUAL(
+	"Field",
+	writer.generate(single_field, single_field + 1),
+	"Bad result from tablewriter::generate().");
+
+  const char *multicolumn_row[] = {"One", "Two", "Three"};
+  PQXX_CHECK_EQUAL(
+	"One\tTwo\tThree",
+	writer.generate(multicolumn_row, multicolumn_row + 3),
+	"tablewriter::generate() breaks on multiple columns.");
+
+  const char *row_with_null[] = {"One", NULL, "Three"};
+  PQXX_CHECK_EQUAL(
+	"One\t\\N\tThree",
+	writer.generate(row_with_null, row_with_null + 3),
+	"tablewriter::generate() breaks on NULL.");
+}
+
+
+void test_tablestream_scenario(transaction_base &Tsource)
 {
   connection Cdest;
   work Tdest(Cdest);
@@ -74,6 +99,12 @@ void test_tablestream(transaction_base &Tsource)
 
   Rdest = Tdest.exec("SELECT x FROM dest ORDER BY x");
   PQXX_CHECK_EQUAL(Rsource, Rdest, "Customized tablestream copy went wrong.");
+}
+
+void test_tablestream(transaction_base &t)
+{
+  test_generate(t);
+  test_tablestream_scenario(t);
 }
 }
 
