@@ -193,15 +193,24 @@ template<typename ITER> inline tablewriter::tablewriter(transaction_base &T,
 
 namespace internal
 {
-PGSTD::string PQXX_LIBEXPORT Escape(const PGSTD::string &s,
-    const PGSTD::string &null);
+PGSTD::string PQXX_LIBEXPORT Escape(
+	const PGSTD::string &s,
+	const PGSTD::string &null);
 
-template<typename STR> inline PGSTD::string EscapeAny(const PGSTD::string &s,
-    const PGSTD::string &null) { return Escape(s,null); }
-template<typename STR> inline PGSTD::string EscapeAny(const char s[],
-    const PGSTD::string &null) {return s ? Escape(PGSTD::string(s),null):"\\N";}
-template<typename T> inline PGSTD::string EscapeAny(const T &t,
-    const PGSTD::string &null) { return Escape(to_string(t), null); }
+inline PGSTD::string EscapeAny(
+	const PGSTD::string &s,
+	const PGSTD::string &null)
+{ return Escape(s, null); }
+
+inline PGSTD::string EscapeAny(
+	const char s[],
+	const PGSTD::string &null)
+{ return s ? Escape(PGSTD::string(s), null) : "\\N"; }
+
+template<typename T> inline PGSTD::string EscapeAny(
+	const T &t,
+	const PGSTD::string &null)
+{ return Escape(to_string(t), null); }
 
 template<typename IT> class Escaper
 {

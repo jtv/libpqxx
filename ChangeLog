@@ -1,3 +1,7 @@
+2011-09-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/tablewriter.hxx, test/unit/test_tablestream.cxx:
+ - Fixed glaring templating error in null-escaping.  Thanks sth.dev at tejp!
+ - Fixes #200.
 2011-09-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
  src/connection_base.cxx, test/unit/test_escape.cxx:
