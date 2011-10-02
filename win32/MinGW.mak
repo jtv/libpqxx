@@ -24,6 +24,7 @@ OBJ = \
   "src/connection_base.o" \
   "src/cursor.o" \
   "src/dbtransaction.o" \
+  "src/errorhandler.o" \
   "src/except.o" \
   "src/largeobject.o" \
   "src/nontransaction.o" \
@@ -80,6 +81,9 @@ src/cursor.o: src/cursor.cxx
 
 src/dbtransaction.o: src/dbtransaction.cxx
 	$(CXX) $(CPPFLAGS) -c src/dbtransaction.cxx -o src/dbtransaction.o $(CXXFLAGS)
+
+src/errorhandler.o: src/errorhandler.cxx
+	$(CXX) $(CPPFLAGS) -c src/errorhandler.cxx -o src/errorhandler.o $(CXXFLAGS)
 
 src/except.o: src/except.cxx
 	$(CXX) $(CPPFLAGS) -c src/except.cxx -o src/except.o $(CXXFLAGS)

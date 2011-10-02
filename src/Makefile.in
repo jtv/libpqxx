@@ -74,8 +74,8 @@ am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libpqxx_la_LIBADD =
 am_libpqxx_la_OBJECTS = binarystring.lo connection_base.lo \
-	connection.lo cursor.lo dbtransaction.lo except.lo \
-	largeobject.lo nontransaction.lo notification.lo \
+	connection.lo cursor.lo dbtransaction.lo errorhandler.lo \
+	except.lo largeobject.lo nontransaction.lo notification.lo \
 	notify-listen.lo pipeline.lo prepared_statement.lo result.lo \
 	robusttransaction.lo statement_parameters.lo strconv.lo \
 	subtransaction.lo tablereader.lo tablestream.lo tablewriter.lo \
@@ -240,6 +240,7 @@ libpqxx_la_SOURCES = binarystring.cxx \
 	connection.cxx \
 	cursor.cxx \
 	dbtransaction.cxx \
+	errorhandler.cxx \
 	except.cxx \
 	largeobject.cxx \
 	nontransaction.cxx \
@@ -348,6 +349,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/connection_base.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cursor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbtransaction.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/errorhandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/except.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/largeobject.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nontransaction.Plo@am__quote@

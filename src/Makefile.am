@@ -4,6 +4,7 @@ libpqxx_la_SOURCES = binarystring.cxx \
 	connection.cxx \
 	cursor.cxx \
 	dbtransaction.cxx \
+	errorhandler.cxx \
 	except.cxx \
 	largeobject.cxx \
 	nontransaction.cxx \

@@ -1,8 +1,7 @@
 4.0
+ - API change: noticers are gone!  Use errorhandlers to capture error output.
  - Fixes compatibility problems between 9.x libpq and 7.x backend.
- - API change: set_noticer takes smart-pointer reference, not smart-pointer.
  - Changes for C++0x.
- - Use unique_ptr for noticers if auto_ptr is no longer available.
  - Supports clang++.
  - Fixes binary-data escaping problems with postgres 9.0.
  - Fixes problems with binary-string handling and escaping.

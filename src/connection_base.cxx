@@ -53,24 +53,15 @@
 #include "pqxx/transaction"
 #include "pqxx/notification"
 
+#include "pqxx/internal/gates/connection-reactivation_avoidance_exemption.hxx"
+#include "pqxx/internal/gates/errorhandler-connection.hxx"
 #include "pqxx/internal/gates/result-creation.hxx"
 #include "pqxx/internal/gates/result-connection.hxx"
-#include "pqxx/internal/gates/connection-reactivation_avoidance_exemption.hxx"
 
 using namespace PGSTD;
 using namespace pqxx;
 using namespace pqxx::internal;
 using namespace pqxx::prepare;
-
-
-extern "C"
-{
-// Pass C-linkage notice processor call on to C++-linkage noticer object.  The
-// void * argument points to the noticer.
-static void pqxxNoticeCaller(void *arg, const char *Msg)
-{
-  if (arg && Msg) (*reinterpret_cast<pqxx::noticer *>(arg))(Msg);
-}
 
 
 #ifdef PQXX_SELECT_ACCEPTS_NULL
@@ -109,6 +100,15 @@ static void clear_fdmask(fd_set *mask)
 }
 #endif
 
+
+extern "C"
+{
+// The PQnoticeProcessor that receives an error or warning from libpq and sends
+// it to the appropriate connection for processing.
+static void pqxx_notice_processor(void *conn, const char *msg)
+{
+  reinterpret_cast<pqxx::connection_base *>(conn)->process_notice(msg);
+}
 }
 
 
@@ -125,8 +125,7 @@ pqxx::connection_base::connection_base(connectionpolicy &pol) :
   m_Conn(0),
   m_policy(pol),
   m_Trans(),
-  m_noticer(),
-  m_defaultNoticeProcessor(0),
+  m_errorhandlers(),
   m_Trace(0),
   m_serverversion(0),
   m_reactivation_avoidance(),
@@ -289,8 +288,8 @@ string pqxx::connection_base::get_variable(const PGSTD::string &Var)
 string pqxx::connection_base::RawGetVar(const PGSTD::string &Var)
 {
   // Is this variable in our local map of set variables?
-  // TODO: Is it safe to read-allocate variables in the "cache?"
-  map<string,string>::const_iterator i=m_Vars.find(Var);
+  // TODO: Could we safely read-allocate variables into m_Vars?
+  map<string,string>::const_iterator i = m_Vars.find(Var);
   if (i != m_Vars.end()) return i->second;
 
   return Exec(("SHOW " + Var).c_str(), 0).at(0).at(0).as(string());
@@ -325,8 +324,7 @@ void pqxx::connection_base::SetupState()
   for (PSMap::iterator p = m_prepared.begin(); p != prepared_end; ++p)
     p->second.registered = false;
 
-  m_defaultNoticeProcessor = 0;
-  if (m_noticer.get()) switchnoticer(m_noticer);
+  PQsetNoticeProcessor(m_Conn, pqxx_notice_processor, this);
 
   InternalSetTrace();
 
@@ -475,99 +473,52 @@ bool pqxx::connection_base::is_open() const throw ()
 }
 
 
-void pqxx::connection_base::switchnoticer(const connection_base::noticer_ptr &N)
-	throw ()
-{
-  const PQnoticeProcessor old =
-	PQsetNoticeProcessor(m_Conn, pqxxNoticeCaller, N.get());
-  if (!m_defaultNoticeProcessor)
-    m_defaultNoticeProcessor = old;
-}
-
-
-pqxx::connection_base::noticer_ptr
-pqxx::connection_base::set_noticer(pqxx::connection_base::noticer_ptr &N)
-  throw ()
-{
-  if (m_Conn)
-  {
-    if (N.get()) switchnoticer(N);
-    else PQsetNoticeProcessor(m_Conn, m_defaultNoticeProcessor, 0);
-  }
-
-  noticer_ptr old(m_noticer.release());
-  m_noticer = noticer_ptr(N.release());
-  return old;
-}
-
-
-#if defined(PQXX_HAVE_UNIQUE_PTR) && defined(PQXX_HAVE_AUTO_PTR)
-
-PGSTD::auto_ptr<pqxx::noticer>
-pqxx::connection_base::set_noticer(PGSTD::auto_ptr<pqxx::noticer> &N) throw ()
-{
-  noticer_ptr new_noticer(N.release());
-  noticer_ptr old_noticer = set_noticer(new_noticer);
-  return auto_ptr<noticer>(old_noticer.release());
-}
-
-#endif // PQXX_HAVE_UNIQUE_PTR && PQXX_HAVE_AUTO_PTR
-
-
 void pqxx::connection_base::process_notice_raw(const char msg[]) throw ()
 {
-  if (msg && *msg)
-  {
-    // TODO: Read default noticer on startup!
-    if (m_noticer.get()) (*m_noticer.get())(msg);
-    else fputs(msg, stderr);
-  }
+  if (!msg || !*msg) return;
+  for (
+	list<errorhandler *>::const_reverse_iterator i =
+		m_errorhandlers.rbegin();
+	i != m_errorhandlers.rend() && (**i)(msg);
+	++i);
 }
 
 
 void pqxx::connection_base::process_notice(const char msg[]) throw ()
 {
-  if (!msg)
+  if (!msg) return;
+  const size_t len = strlen(msg);
+  if (len == 0) return;
+  if (msg[len-1] == '\n')
   {
-    process_notice_raw("NULL pointer in client program message!\n");
+    process_notice_raw(msg);
   }
-  else
+  else try
   {
-    const size_t len = strlen(msg);
-    if (len > 0)
+    // Newline is missing.  Try the C++ string version of this function.
+    process_notice(string(msg));
+  }
+  catch (const exception &)
+  {
+    // If we can't even do that, use plain old buffer copying instead
+    // (unavoidably, this will break up overly long messages!)
+    const char separator[] = "[...]\n";
+    char buf[1007];
+    size_t bytes = sizeof(buf)-sizeof(separator)-1;
+    size_t written;
+    strcpy(&buf[bytes], separator);
+    // Write all chunks but last.  Each will fill the buffer exactly.
+    for (written = 0; (written+bytes) < len; written += bytes)
     {
-      if (msg[len-1] == '\n')
-      {
-        process_notice_raw(msg);
-      }
-      else try
-      {
-        // Newline is missing.  Try the C++ string version of this function.
-        process_notice(string(msg));
-      }
-      catch (const exception &)
-      {
-        // If we can't even do that, use plain old buffer copying instead
-        // (unavoidably, this will break up overly long messages!)
-        const char separator[] = "[...]\n";
-        char buf[1007];
-        size_t bytes = sizeof(buf)-sizeof(separator)-1;
-        size_t written;
-        strcpy(&buf[bytes], separator);
-        // Write all chunks but last.  Each will fill the buffer exactly.
-        for (written = 0; (written+bytes) < len; written += bytes)
-        {
-          memcpy(buf, &msg[written], bytes);
-          process_notice_raw(buf);
-        }
-        // Write any remaining bytes (which won't fill an entire buffer)
-        bytes = len-written;
-        memcpy(buf, &msg[written], bytes);
-        // Add trailing nul byte, plus newline unless there already is one
-        strcpy(&buf[bytes], &"\n"[buf[bytes-1]=='\n']);
-        process_notice_raw(buf);
-      }
+      memcpy(buf, &msg[written], bytes);
+      process_notice_raw(buf);
     }
+    // Write any remaining bytes (which won't fill an entire buffer)
+    bytes = len-written;
+    memcpy(buf, &msg[written], bytes);
+    // Add trailing nul byte, plus newline unless there already is one
+    strcpy(&buf[bytes], &"\n"[buf[bytes-1]=='\n']);
+    process_notice_raw(buf);
   }
 }
 
@@ -835,6 +786,21 @@ const char *pqxx::connection_base::port()
 const char *pqxx::connection_base::ErrMsg() const throw ()
 {
   return m_Conn ? PQerrorMessage(m_Conn) : "No connection to database";
+}
+
+
+void pqxx::connection_base::register_errorhandler(errorhandler *handler)
+{
+  m_errorhandlers.push_back(handler);
+}
+
+
+void pqxx::connection_base::unregister_errorhandler(errorhandler *handler)
+  throw ()
+{
+  // The errorhandler itself will take care of nulling its pointer to this
+  // connection.
+  m_errorhandlers.remove(handler);
 }
 
 
@@ -1186,8 +1152,7 @@ void pqxx::connection_base::close() throw ()
 {
   m_Completed = false;
 #ifdef PQXX_QUIET_DESTRUCTORS
-  noticer_ptr new_noticer(new nonnoticer());
-  set_noticer(new_noticer);
+  quiet_errorhandler(*this);
 #endif
   inhibit_reactivation(false);
   m_reactivation_avoidance.clear();
@@ -1202,6 +1167,15 @@ void pqxx::connection_base::close() throw ()
       process_notice("Closing connection with outstanding receivers.");
       m_receivers.clear();
     }
+
+    PQsetNoticeProcessor(m_Conn, NULL, NULL);
+    list<errorhandler *> old_handlers;
+    m_errorhandlers.swap(old_handlers);
+    for (
+	list<errorhandler *>::const_reverse_iterator i = old_handlers.rbegin();
+	i != old_handlers.rend();
+	++i)
+      gate::errorhandler_connection_base(**i).unregister();
 
     m_Conn = m_policy.do_disconnect(m_Conn);
   }
