@@ -1,3 +1,15 @@
+2011-10-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/html/Reference/.cvsignore:
+ - Ignore JavaScript files now generated as part of documentation.
+ include/pqxx/pqxx, include/pqxx/internal/gates/errorhandler-connection.hxx,
+ include/pqxx/internal/gates/connection-errorhandler.hxx,
+ include/pqxx/errorhandler, include/Makefile.am, src/errorhandler.cxx,
+ src/connection_base.cxx, src/Makefile.am, test/test014.cxx,
+ test/unit/test_errorhandler.cxx:
+ - New class "errorhandler" to replace noticers.
+ - No more auto_ptr or unique_ptr.
+ - Test 014 no longer mixes purposes.
+ - Thanks Kirit Saelensminde for help with design.
 2011-09-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  COPYING:
  - Included copyright notice; makes more sense now.

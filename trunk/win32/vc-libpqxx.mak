@@ -105,6 +105,7 @@ OBJ_STATICDEBUG=\
        "$(INTDIR_STATICDEBUG)\connection_base.obj" \
        "$(INTDIR_STATICDEBUG)\cursor.obj" \
        "$(INTDIR_STATICDEBUG)\dbtransaction.obj" \
+       "$(INTDIR_STATICDEBUG)\errorhandler.obj" \
        "$(INTDIR_STATICDEBUG)\except.obj" \
        "$(INTDIR_STATICDEBUG)\largeobject.obj" \
        "$(INTDIR_STATICDEBUG)\nontransaction.obj" \
@@ -130,6 +131,7 @@ OBJ_STATICRELEASE=\
        "$(INTDIR_STATICRELEASE)\connection_base.obj" \
        "$(INTDIR_STATICRELEASE)\cursor.obj" \
        "$(INTDIR_STATICRELEASE)\dbtransaction.obj" \
+       "$(INTDIR_STATICRELEASE)\errorhandler.obj" \
        "$(INTDIR_STATICRELEASE)\except.obj" \
        "$(INTDIR_STATICRELEASE)\largeobject.obj" \
        "$(INTDIR_STATICRELEASE)\nontransaction.obj" \
@@ -155,6 +157,7 @@ OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\connection_base.obj" \
        "$(INTDIR_DLLDEBUG)\cursor.obj" \
        "$(INTDIR_DLLDEBUG)\dbtransaction.obj" \
+       "$(INTDIR_DLLDEBUG)\errorhandler.obj" \
        "$(INTDIR_DLLDEBUG)\except.obj" \
        "$(INTDIR_DLLDEBUG)\largeobject.obj" \
        "$(INTDIR_DLLDEBUG)\nontransaction.obj" \
@@ -181,6 +184,7 @@ OBJ_DLLRELEASE=\
        "$(INTDIR_DLLRELEASE)\connection_base.obj" \
        "$(INTDIR_DLLRELEASE)\cursor.obj" \
        "$(INTDIR_DLLRELEASE)\dbtransaction.obj" \
+       "$(INTDIR_DLLRELEASE)\errorhandler.obj" \
        "$(INTDIR_DLLRELEASE)\except.obj" \
        "$(INTDIR_DLLRELEASE)\largeobject.obj" \
        "$(INTDIR_DLLRELEASE)\nontransaction.obj" \
@@ -329,6 +333,13 @@ $(INTDIR_DLLRELEASE):
 
 "$(INTDIR_STATICDEBUG)\dbtransaction.obj": src/dbtransaction.cxx $(INTDIR_STATICDEBUG)
 	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/dbtransaction.cxx
+
+
+"$(INTDIR_STATICRELEASE)\errorhandler.obj": src/errorhandler.cxx $(INTDIR_STATICRELEASE)
+	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/errorhandler.cxx
+
+"$(INTDIR_STATICDEBUG)\errorhandler.obj": src/errorhandler.cxx $(INTDIR_STATICDEBUG)
+	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/errorhandler.cxx
 
 
 "$(INTDIR_STATICRELEASE)\except.obj": src/except.cxx $(INTDIR_STATICRELEASE)
@@ -492,6 +503,13 @@ $(INTDIR_DLLRELEASE):
 
 "$(INTDIR_DLLDEBUG)\dbtransaction.obj": src/dbtransaction.cxx $(INTDIR_DLLDEBUG)
 	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/dbtransaction.cxx
+
+
+"$(INTDIR_DLLRELEASE)\errorhandler.obj": src/errorhandler.cxx $(INTDIR_DLLRELEASE)
+	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/errorhandler.cxx
+
+"$(INTDIR_DLLDEBUG)\errorhandler.obj": src/errorhandler.cxx $(INTDIR_DLLDEBUG)
+	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/errorhandler.cxx
 
 
 "$(INTDIR_DLLRELEASE)\except.obj": src/except.cxx $(INTDIR_DLLRELEASE)

@@ -17,6 +17,7 @@
 #include "pqxx/binarystring"
 #include "pqxx/connection"
 #include "pqxx/cursor"
+#include "pqxx/errorhandler"
 #include "pqxx/except"
 #include "pqxx/largeobject"
 #include "pqxx/nontransaction"

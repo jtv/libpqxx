@@ -25,6 +25,7 @@ runner_SOURCES = \
   test_binarystring.cxx \
   test_cancel_query.cxx \
   test_error_verbosity.cxx \
+  test_errorhandler.cxx \
   test_escape.cxx \
   test_exceptions.cxx \
   test_float.cxx \

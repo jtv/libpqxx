@@ -68,10 +68,10 @@ CONFIG_CLEAN_VPATH_FILES =
 am__EXEEXT_1 = runner$(EXEEXT)
 am_runner_OBJECTS = test_binarystring.$(OBJEXT) \
 	test_cancel_query.$(OBJEXT) test_error_verbosity.$(OBJEXT) \
-	test_escape.$(OBJEXT) test_exceptions.$(OBJEXT) \
-	test_float.$(OBJEXT) test_notification.$(OBJEXT) \
-	test_parameterized.$(OBJEXT) test_pipeline.$(OBJEXT) \
-	test_prepared_statement.$(OBJEXT) \
+	test_errorhandler.$(OBJEXT) test_escape.$(OBJEXT) \
+	test_exceptions.$(OBJEXT) test_float.$(OBJEXT) \
+	test_notification.$(OBJEXT) test_parameterized.$(OBJEXT) \
+	test_pipeline.$(OBJEXT) test_prepared_statement.$(OBJEXT) \
 	test_read_transaction.$(OBJEXT) test_result_slicing.$(OBJEXT) \
 	test_simultaneous_transactions.$(OBJEXT) \
 	test_sql_cursor.$(OBJEXT) test_stateless_cursor.$(OBJEXT) \
@@ -241,6 +241,7 @@ runner_SOURCES = \
   test_binarystring.cxx \
   test_cancel_query.cxx \
   test_error_verbosity.cxx \
+  test_errorhandler.cxx \
   test_escape.cxx \
   test_exceptions.cxx \
   test_float.cxx \
@@ -316,6 +317,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_binarystring.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_cancel_query.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_error_verbosity.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_errorhandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_escape.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_exceptions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_float.Po@am__quote@

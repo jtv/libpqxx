@@ -23,9 +23,11 @@
 #include "pqxx/compiler-internal-pre.hxx"
 
 #include <bitset>
+#include <list>
 #include <map>
 #include <memory>
 
+#include "pqxx/errorhandler"
 #include "pqxx/except"
 #include "pqxx/prepared_statement"
 #include "pqxx/strconv"
@@ -69,36 +71,24 @@ private:
 
 }
 
-/**
- * @addtogroup noticer Error/warning output
- * @{
- */
 
-/// Base class for user-definable error/warning message processor
-/** To define a custom method of handling notices, derive a new class from
- * noticer and override the virtual function
- * @code operator()(const char[]) throw() @endcode
- * to process the message passed to it.
- */
+/// @deprecated Create an errorhandler instead.
 struct PQXX_LIBEXPORT PQXX_NOVTABLE noticer :
   PGSTD::unary_function<const char[], void>
 {
-  noticer(){}		// Silences bogus warning in some gcc versions
+  noticer(){}
   virtual ~noticer() throw () {}
   virtual void operator()(const char Msg[]) throw () =0;
 };
 
 
-/// No-op message noticer; produces no output
+/// @deprecated Create an errorhandler instead.
 struct PQXX_LIBEXPORT nonnoticer : noticer
 {
-  nonnoticer(){}	// Silences bogus warning in some gcc versions
+  nonnoticer(){}
   virtual void operator()(const char []) throw () {}
 };
 
-/**
- * @}
- */
 
 /// Encrypt password for given user.  Requires libpq 8.2 or better.
 /** Use this when setting a new password for the user if password encryption is
@@ -129,6 +119,7 @@ namespace internal
 namespace gate
 {
 class connection_dbtransaction;
+class connection_errorhandler;
 class connection_largeobject;
 class connection_notification_receiver;
 class connection_parameterized_invocation;
@@ -280,59 +271,10 @@ public:
   void simulate_failure();						//[t94]
   //@}
 
-  /**
-   * @name Error/warning output
-   *
-   * Whenever the database has a warning or error to report, it will call a
-   * @e noticer to process the associated message.  The default noticer sends
-   * the text of the message to standard error output, but you may choose to
-   * select a different noticer for the connection.
-   */
-  //@{
-
-#if defined(PQXX_HAVE_UNIQUE_PTR)
-  /// Smart pointer type to pass to set_noticer.
-  typedef PGSTD::unique_ptr<noticer> noticer_ptr;
-#else
-  /// Smart pointer type to pass to set_noticer.
-  typedef PGSTD::auto_ptr<noticer> noticer_ptr;
-#endif
-
-#if defined(PQXX_HAVE_AUTO_PTR) && defined(PQXX_HAVE_UNIQUE_PTR)
-  /// Obsolete: set handler for postgresql errors or warning messages.
-  /** @deprecated Use the unique_ptr version instead, or make use of the
-   * noticer_ptr typedef to hide the difference.  The auto_ptr type is
-   * deprecated in the C++ standard.
-   */
-  PGSTD::auto_ptr<noticer> set_noticer(PGSTD::auto_ptr<noticer> &N)
-    throw ();								//[t14]
-#endif
-
-  /// Set handler for postgresql errors or warning messages.
-  /** Takes a new handler as a smart pointer; returns the existing handler as
-   * a smart pointer as well.  The library will hold a copy of the smart
-   * pointer.
-   *
-   * If you do not copy the return value into a smart pointer of your own, and
-   * there is no other copy outside of the connection, the smart pointer will
-   * delete it.  This will happen from the code that destroys the last copy,
-   * not from set_noticer, which may matter on Windows where a DLL cannot free
-   * memory allocated by the main program.
-   *
-   * @param N New message handler; must not be null.
-   * @return Previous handler.
-   */
-  noticer_ptr set_noticer(noticer_ptr &N) throw ();
-
-  /// Obtain a pointer to the current noticer, without affecting its ownership.
-  noticer *get_noticer() const throw () { return m_noticer.get(); }	//[t14]
-
   /// Invoke notice processor function.  The message should end in newline.
   void process_notice(const char[]) throw ();				//[t14]
   /// Invoke notice processor function.  Newline at end is recommended.
   void process_notice(const PGSTD::string &) throw ();			//[t14]
-
-  //@}
 
   /// Enable tracing to a given output stream, or NULL to disable.
   void trace(PGSTD::FILE *) throw ();					//[t3]
@@ -898,7 +840,6 @@ private:
   void PQXX_PRIVATE RestoreVars();
   PGSTD::string PQXX_PRIVATE RawGetVar(const PGSTD::string &);
   void PQXX_PRIVATE process_notice_raw(const char msg[]) throw ();
-  void switchnoticer(const noticer_ptr &) throw ();
 
   void read_capabilities() throw ();
 
@@ -930,15 +871,7 @@ private:
   /// Active transaction on connection, if any.
   internal::unique<transaction_base> m_Trans;
 
-  /// User-defined notice processor, if any.
-  noticer_ptr m_noticer;
-
-  /// Default notice processor
-  /** We must restore the notice processor to this default after removing our
-   * own noticers.  Failure to do so caused test005 to crash on some systems.
-   * Kudos to Bart Samwel for tracking this down and submitting the fix!
-   */
-  internal::pq::PQnoticeProcessor m_defaultNoticeProcessor;
+  PGSTD::list<errorhandler *> m_errorhandlers;
 
   /// File to trace to, if any
   PGSTD::FILE *m_Trace;
@@ -976,6 +909,10 @@ private:
 
   /// Current verbosity level
   error_verbosity m_verbosity;
+
+  friend class internal::gate::connection_errorhandler;
+  void PQXX_PRIVATE register_errorhandler(errorhandler *);
+  void PQXX_PRIVATE unregister_errorhandler(errorhandler *) throw ();
 
   friend class internal::gate::connection_transaction;
   result PQXX_PRIVATE Exec(const char[], int Retries);
@@ -1023,58 +960,32 @@ private:
 
 
 
-/// Temporarily set different noticer for connection, then restore old one
-/** Set different noticer in given connection for the duration of the
- * scoped_noticer's lifetime.  After that, the original noticer is restored.
- *
- * No effort is made to respect any new noticer that may have been set in the
- * meantime, so don't do that.
- */
-class PQXX_LIBEXPORT scoped_noticer
+#ifdef PQXX_HAVE_AUTO_PTR
+/// @deprecated Create an @e errorhandler instead.
+class PQXX_LIBEXPORT scoped_noticer : errorhandler
 {
 public:
-  /// Start period where different noticer applies to connection
-  /**
-   * @param c connection object whose noticer should be temporarily changed
-   * @param t temporary noticer object to use; will be destroyed on completion
-   */
-  scoped_noticer(connection_base &c, connection_base::noticer_ptr t) throw () :
-    m_c(c), m_org(c.set_noticer(PQXX_MOVE(t))) { }
-
-  ~scoped_noticer() { m_c.set_noticer(PQXX_MOVE(m_org)); }
-
+  scoped_noticer(connection_base &c, PGSTD::auto_ptr<noticer> t) throw () :
+    errorhandler(c), m_noticer(t.release()) {}
 protected:
-  /// Take ownership of given noticer, and start using it.
-  /** This constructor is not public because its interface does not express the
-   * fact that the scoped_noticer takes ownership of the noticer through a smart
-   * pointer.
-   */
   scoped_noticer(connection_base &c, noticer *t) throw () :
-    m_c(c),
-    m_org()
+    errorhandler(c), m_noticer(t) {}
+  virtual bool operator()(const char msg[]) throw ()
   {
-    connection_base::noticer_ptr new_noticer(t);
-    m_org = PQXX_MOVE(c.set_noticer(new_noticer));
+    (*m_noticer)(msg);
+    return false;
   }
-
 private:
-  connection_base &m_c;
-  connection_base::noticer_ptr m_org;
-
-  /// Not allowed
-  scoped_noticer();
-  scoped_noticer(const scoped_noticer &);
-  scoped_noticer operator=(const scoped_noticer &);
+  PGSTD::auto_ptr<noticer> m_noticer;
 };
-
-
-/// Temporarily disable the notice processor
+/// @deprecated Create a @e quiet_errorhandler instead.
 class PQXX_LIBEXPORT disable_noticer : scoped_noticer
 {
 public:
   explicit disable_noticer(connection_base &c) :
     scoped_noticer(c, new nonnoticer) {}
 };
+#endif
 
 
 namespace internal
@@ -1107,4 +1018,3 @@ void wait_write(const internal::pq::PGconn *);
 #include "pqxx/compiler-internal-post.hxx"
 
 #endif
-

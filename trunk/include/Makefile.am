@@ -10,6 +10,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/connectionpolicy pqxx/connectionpolicy.hxx \
 	pqxx/cursor pqxx/cursor.hxx \
 	pqxx/dbtransaction pqxx/dbtransaction.hxx \
+	pqxx/error_handler pqxx/error_handler.hxx \
 	pqxx/except pqxx/except.hxx \
 	pqxx/isolation pqxx/isolation.hxx \
 	pqxx/largeobject pqxx/largeobject.hxx \
@@ -36,6 +37,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/callgate.hxx \
 	pqxx/internal/statement_parameters.hxx \
 	pqxx/internal/gates/connection-dbtransaction.hxx \
+	pqxx/internal/gates/connection-errorhandler.hxx \
 	pqxx/internal/gates/connection-largeobject.hxx \
 	pqxx/internal/gates/connection-notification_receiver.hxx \
 	pqxx/internal/gates/connection-parameterized_invocation.hxx \
@@ -45,6 +47,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/gates/connection-reactivation_avoidance_exemption.hxx \
 	pqxx/internal/gates/connection-sql_cursor.hxx \
 	pqxx/internal/gates/connection-transaction.hxx \
+	pqxx/internal/gates/errorhandler-connection.hxx \
 	pqxx/internal/gates/icursorstream-icursor_iterator.hxx \
 	pqxx/internal/gates/icursor_iterator-icursorstream.hxx \
 	pqxx/internal/gates/result-connection.hxx \
