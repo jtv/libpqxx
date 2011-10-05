@@ -760,36 +760,6 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 AC_MSG_RESULT($pqprotocolversion)
 
 
-AC_MSG_CHECKING([PQescapeString()])
-pqescapestring=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[char c[1];PQescapeString(c,"",0x01)],
-	AC_DEFINE(PQXX_HAVE_PQESCAPESTRING, 1,
-		[Define if libpq has PQescapeString()]),
-	[pqescapestring=no]
-)
-AC_MSG_RESULT($pqescapestring)
-if test "$pqescapestring" != yes ; then
-	AC_MSG_WARN([
-You appear to be building with a very old libpq version that does not have
-PQescapeString().  This can cause serious problems when non-ASCII data is used
-in SQL strings.
-Please consider upgrading to at least the libpq that came with PostgreSQL 7.2
-before going any further!
-])
-fi
-
-AC_MSG_CHECKING([PQescapeStringConn()])
-pqescapestringconn=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[char b[1];PQescapeStringConn(0,b,b,sizeof(b),0)],
-	AC_DEFINE(PQXX_HAVE_PQESCAPESTRINGCONN, 1,
-		[Define if libpq has PQescapeStringConn()]),
-	[pqescapestringconn=no]
-)
-AC_MSG_RESULT($pqescapestringconn)
-
-
 AC_MSG_CHECKING([PQescapeLiteral()])
 pqescapeliteral=yes
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
@@ -800,41 +770,7 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 )
 AC_MSG_RESULT($pqescapeliteral)
 
-AC_MSG_CHECKING([PQescapeBytea()])
-pqescapebytea=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>
-#include<cstddef>
-${usestd}],
-	[size_t l=0;const unsigned char c[]="";PQescapeBytea(c,1,&l)],
-	AC_DEFINE(PQXX_HAVE_PQESCAPEBYTEA,1,[Define if libpq has PQescapeBytea()]),
-	[pqescapebytea=no]
-)
-AC_MSG_RESULT($pqescapebytea)
 
-AC_MSG_CHECKING([PQescapeByteaConn()])
-pqescapebyteaconn=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>
-#include<cstddef>
-${usestd}],
-	[unsigned char b[1];size_t c;PQescapeByteaConn(0,b,sizeof(b),&c)],
-	AC_DEFINE(PQXX_HAVE_PQESCAPEBYTEACONN,1,[Define if libpq has PQescapeByteaConn()]),
-	[pqescapebyteaconn=no]
-)
-AC_MSG_RESULT($pqescapebyteaconn)
-
-AC_MSG_CHECKING([PQunescapeBytea()])
-pqunescapebytea=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>
-	${usestd}],
-	[size_t l=0;const unsigned char c[]="";PQunescapeBytea(c,&l)],
-	AC_DEFINE(PQXX_HAVE_PQUNESCAPEBYTEA,1,[Define if libpq has PQunescapeBytea()]),
-	[pqunescapebytea=no]
-)
-AC_MSG_RESULT($pqunescapebytea)
-
-
-if test "$pqunescapebytea" = "yes"
-then
 AC_MSG_CHECKING([support for hex binary escaping format])
 	pqunescapebytea_9=yes
 	AC_RUN_IFELSE([
@@ -855,9 +791,6 @@ int main()
 		pqunescapebytea_9=no,
 		pqunescapebytea_9=no)
 AC_MSG_RESULT($pqunescapebytea_9)
-else
-	pqunescapebytea_9=no
-fi
 
 
 AC_MSG_CHECKING([PQescapeIdentifier()])

@@ -158,23 +158,11 @@
 /* Define if libpq has PQencryptPassword() */
 #undef PQXX_HAVE_PQENCRYPTPASSWORD
 
-/* Define if libpq has PQescapeBytea() */
-#undef PQXX_HAVE_PQESCAPEBYTEA
-
-/* Define if libpq has PQescapeByteaConn() */
-#undef PQXX_HAVE_PQESCAPEBYTEACONN
-
 /* Define if libpq has PQescapeIdentifier() */
 #undef PQXX_HAVE_PQESCAPEIDENTIFIER
 
 /* Define if libpq has PQescapeLiteral() */
 #undef PQXX_HAVE_PQESCAPELITERAL
-
-/* Define if libpq has PQescapeString() */
-#undef PQXX_HAVE_PQESCAPESTRING
-
-/* Define if libpq has PQescapeStringConn() */
-#undef PQXX_HAVE_PQESCAPESTRINGCONN
 
 /* Define if libpq has PQexecParams() */
 #undef PQXX_HAVE_PQEXECPARAMS
@@ -217,9 +205,6 @@
 
 /* Define if libpq has PQsetErrorVerbosity() */
 #undef PQXX_HAVE_PQSETERRORVERBOSITY
-
-/* Define if libpq has PQunescapeBytea() */
-#undef PQXX_HAVE_PQUNESCAPEBYTEA
 
 /* Define if PQunescapeBytea() supports hex escape format */
 #undef PQXX_HAVE_PQUNESCAPEBYTEA_9
