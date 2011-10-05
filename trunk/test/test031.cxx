@@ -57,7 +57,7 @@ void test_031(transaction_base &orgT)
 	"Row size is inconsistent with result::columns().");
 
     // Look for null fields
-    for (result::tuple::size_type f=0; f<i->size(); ++f)
+    for (tuple::size_type f=0; f<i->size(); ++f)
     {
       NullFields[f] += i.at(f).is_null();
 
@@ -108,7 +108,7 @@ void test_031(transaction_base &orgT)
       // fields may be sorted.  Don't do anything fancy like trying to
       // detect numbers and comparing them as such, just compare them as
       // simple strings.
-      for (result::tuple::size_type f = 0; f < R.columns(); ++f)
+      for (tuple::size_type f = 0; f < R.columns(); ++f)
       {
         if (!j[f].is_null())
         {
@@ -126,7 +126,7 @@ void test_031(transaction_base &orgT)
   cout << "Read " << to_string(R.size()) << " rows." << endl;
   cout << "Field \t Field Name\t Nulls\t Sorted" << endl;
 
-  for (result::tuple::size_type f = 0; f < R.columns(); ++f)
+  for (tuple::size_type f = 0; f < R.columns(); ++f)
   {
     cout << to_string(f) << ":\t"
          << R.column_name(f) << '\t'

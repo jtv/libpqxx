@@ -6,6 +6,7 @@ libpqxx_la_SOURCES = binarystring.cxx \
 	dbtransaction.cxx \
 	errorhandler.cxx \
 	except.cxx \
+	field.cxx \
 	largeobject.cxx \
 	nontransaction.cxx \
 	notification.cxx \
@@ -22,6 +23,7 @@ libpqxx_la_SOURCES = binarystring.cxx \
 	tablewriter.cxx \
 	transaction.cxx \
 	transaction_base.cxx \
+	tuple.cxx \
 	util.cxx
 
 libpqxx_version = -release $(PQXX_ABI)

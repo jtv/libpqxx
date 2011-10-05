@@ -22,7 +22,7 @@ bool have_generate_series(const connection_base &c)
 }
 
 
-string deref_field(const result::field &f)
+string deref_field(const field &f)
 {
   return f.c_str();
 }
@@ -164,7 +164,7 @@ void expected_exception(const string &message)
 }
 
 
-string list_tuple(result::tuple Obj)
+string list_tuple(tuple Obj)
 {
   return separated_list(", ", Obj.begin(), Obj.end(), deref_field);
 }

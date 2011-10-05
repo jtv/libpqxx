@@ -313,7 +313,7 @@ void expected_exception(const PGSTD::string &);
 
 
 // Represent result tuple as string
-PGSTD::string list_tuple(result::tuple);
+PGSTD::string list_tuple(tuple);
 // Represent result as string
 PGSTD::string list_result(result);
 // Represent result iterator as string
@@ -322,14 +322,14 @@ PGSTD::string list_result_iterator(result::const_iterator);
 
 
 // Support string conversion on result rows for debug output.
-template<> struct string_traits<result::tuple>
+template<> struct string_traits<tuple>
 {
-  static const char *name() { return "pqxx::result::tuple"; }
+  static const char *name() { return "pqxx::tuple"; }
   static bool has_null() { return false; }
-  static bool is_null(result::tuple) { return false; }
+  static bool is_null(tuple) { return false; }
   static result null(); // Not needed
   static void from_string(const char Str[], result &Obj); // Not needed
-  static PGSTD::string to_string(result::tuple Obj)
+  static PGSTD::string to_string(tuple Obj)
 	{ return pqxx::test::list_tuple(Obj); }
 };
 

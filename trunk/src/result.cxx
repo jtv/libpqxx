@@ -24,7 +24,9 @@
 #include "libpq-fe.h"
 
 #include "pqxx/except"
+#include "pqxx/field"
 #include "pqxx/result"
+#include "pqxx/tuple"
 
 
 using namespace PGSTD;
@@ -76,43 +78,21 @@ bool pqxx::result::operator==(const result &rhs) const throw ()
 }
 
 
-bool pqxx::result::tuple::operator==(const tuple &rhs) const throw ()
+pqxx::result::const_reverse_iterator pqxx::result::rbegin() const
 {
-  if (&rhs == this) return true;
-  const size_type s(size());
-  if (rhs.size() != s) return false;
-  // TODO: Depends on how null is handled!
-  for (size_type i=0; i<s; ++i) if ((*this)[i] != rhs[i]) return false;
-  return true;
+  return const_reverse_iterator(end());
 }
 
 
-void pqxx::result::tuple::swap(tuple &rhs) throw ()
+pqxx::result::const_reverse_iterator pqxx::result::rend() const
 {
-  const result *const h(m_Home);
-  const result::size_type i(m_Index);
-  const size_type b(m_Begin);
-  const size_type e(m_End);
-  m_Home = rhs.m_Home;
-  m_Index = rhs.m_Index;
-  m_Begin = rhs.m_Begin;
-  m_End = rhs.m_End;
-  rhs.m_Home = h;
-  rhs.m_Index = i;
-  rhs.m_Begin = b;
-  rhs.m_End = e;
+  return const_reverse_iterator(begin());
 }
 
 
-bool pqxx::result::field::operator==(const field &rhs) const
+pqxx::result::const_iterator pqxx::result::begin() const throw ()
 {
-  if (is_null() != rhs.is_null()) return false;
-  // TODO: Verify null handling decision
-  const size_type s = size();
-  if (s != rhs.size()) return false;
-  const char *const l(c_str()), *const r(rhs.c_str());
-  for (size_type i = 0; i < s; ++i) if (l[i] != r[i]) return false;
-  return true;
+  return const_iterator(this, 0);
 }
 
 
@@ -136,7 +116,7 @@ void pqxx::result::swap(result &rhs) throw ()
 }
 
 
-const pqxx::result::tuple pqxx::result::at(pqxx::result::size_type i) const
+const pqxx::tuple pqxx::result::at(pqxx::result::size_type i) const
   throw (range_error)
 {
   if (i >= size()) throw range_error("Tuple number out of range");
@@ -286,22 +266,24 @@ pqxx::result::size_type pqxx::result::affected_rows() const
 }
 
 
-const char *pqxx::result::GetValue(pqxx::result::size_type Row,
-		                 pqxx::result::tuple::size_type Col) const
+const char *pqxx::result::GetValue(
+	pqxx::result::size_type Row,
+	pqxx::tuple::size_type Col) const
 {
   return PQgetvalue(m_data, int(Row), int(Col));
 }
 
 
-bool pqxx::result::GetIsNull(pqxx::result::size_type Row,
-		           pqxx::result::tuple::size_type Col) const
+bool pqxx::result::GetIsNull(
+	pqxx::result::size_type Row,
+	pqxx::tuple::size_type Col) const
 {
   return PQgetisnull(m_data, int(Row), int(Col)) != 0;
 }
 
-pqxx::result::field::size_type
-pqxx::result::GetLength(pqxx::result::size_type Row,
-                        pqxx::result::tuple::size_type Col) const throw ()
+pqxx::field::size_type pqxx::result::GetLength(
+	pqxx::result::size_type Row,
+        pqxx::tuple::size_type Col) const throw ()
 {
   return field::size_type(PQgetlength(m_data, int(Row), int(Col)));
 }
@@ -336,8 +318,7 @@ pqxx::oid pqxx::result::column_table(tuple::size_type ColNum) const
 
 
 #ifdef PQXX_HAVE_PQFTABLECOL
-pqxx::result::tuple::size_type
-pqxx::result::table_column(tuple::size_type ColNum) const
+pqxx::tuple::size_type pqxx::result::table_column(tuple::size_type ColNum) const
 {
   const tuple::size_type n = tuple::size_type(PQftablecol(m_data, int(ColNum)));
   if (n) return n-1;
@@ -377,14 +358,13 @@ int pqxx::result::errorposition() const throw ()
 
 // tuple
 
-pqxx::result::field pqxx::result::tuple::at(const char f[]) const
+pqxx::field pqxx::tuple::at(const char f[]) const
 {
   return field(*this, m_Begin + column_number(f));
 }
 
 
-pqxx::result::field
-pqxx::result::tuple::at(pqxx::result::tuple::size_type i) const
+pqxx::field pqxx::tuple::at(pqxx::tuple::size_type i) const
   throw (range_error)
 {
   if (i >= size())
@@ -395,7 +375,7 @@ pqxx::result::tuple::at(pqxx::result::tuple::size_type i) const
 
 
 const char *
-pqxx::result::column_name(pqxx::result::tuple::size_type Number) const
+pqxx::result::column_name(pqxx::tuple::size_type Number) const
 {
   const char *const N = PQfname(m_data, int(Number));
   if (!N)
@@ -405,14 +385,13 @@ pqxx::result::column_name(pqxx::result::tuple::size_type Number) const
 }
 
 
-pqxx::result::tuple::size_type pqxx::result::columns() const throw ()
+pqxx::tuple::size_type pqxx::result::columns() const throw ()
 {
   return m_data ? tuple::size_type(PQnfields(m_data)) : 0;
 }
 
 
-pqxx::result::tuple::size_type
-pqxx::result::tuple::column_number(const char ColName[]) const
+pqxx::tuple::size_type pqxx::tuple::column_number(const char ColName[]) const
 {
   const size_type n = m_Home->column_number(ColName);
   if (n >= m_End)
@@ -429,8 +408,7 @@ pqxx::result::tuple::column_number(const char ColName[]) const
 }
 
 
-pqxx::result::tuple::size_type
-pqxx::result::column_number(const char ColName[]) const
+pqxx::tuple::size_type pqxx::result::column_number(const char ColName[]) const
 {
   const int N = PQfnumber(m_data, ColName);
   // TODO: Should this be an out_of_range?
@@ -441,8 +419,7 @@ pqxx::result::column_number(const char ColName[]) const
 }
 
 
-pqxx::result::tuple
-pqxx::result::tuple::slice(size_type Begin, size_type End) const
+pqxx::tuple pqxx::tuple::slice(size_type Begin, size_type End) const
 {
   if (Begin > End || End > size())
     throw range_error("Invalid field range");
@@ -454,49 +431,28 @@ pqxx::result::tuple::slice(size_type Begin, size_type End) const
 }
 
 
-bool pqxx::result::tuple::empty() const throw ()
+bool pqxx::tuple::empty() const throw ()
 {
   return m_Begin == m_End;
 }
 
 
-// const_iterator
+// const_result_iterator
 
-pqxx::result::const_iterator
-pqxx::result::const_iterator::operator++(int)
+pqxx::const_result_iterator
+pqxx::const_result_iterator::operator++(int)
 {
-  const_iterator old(*this);
+  const_result_iterator old(*this);
   m_Index++;
   return old;
 }
 
 
-pqxx::result::const_iterator
-pqxx::result::const_iterator::operator--(int)
+pqxx::const_result_iterator
+pqxx::const_result_iterator::operator--(int)
 {
-  const_iterator old(*this);
+  const_result_iterator old(*this);
   m_Index--;
-  return old;
-}
-
-
-
-// const_fielditerator
-
-pqxx::result::const_fielditerator
-pqxx::result::const_fielditerator::operator++(int)
-{
-  const_fielditerator old(*this);
-  m_col++;
-  return old;
-}
-
-
-pqxx::result::const_fielditerator
-pqxx::result::const_fielditerator::operator--(int)
-{
-  const_fielditerator old(*this);
-  m_col--;
   return old;
 }
 
@@ -509,47 +465,19 @@ pqxx::result::const_reverse_iterator::base() const throw ()
 }
 
 
-pqxx::result::const_reverse_iterator
-pqxx::result::const_reverse_iterator::operator++(int)
+pqxx::const_reverse_result_iterator
+pqxx::const_reverse_result_iterator::operator++(int)
 {
-  const_reverse_iterator tmp(*this);
+  const_reverse_result_iterator tmp(*this);
   iterator_type::operator--();
   return tmp;
 }
 
 
-pqxx::result::const_reverse_iterator
-pqxx::result::const_reverse_iterator::operator--(int)
+pqxx::const_reverse_result_iterator
+pqxx::const_reverse_result_iterator::operator--(int)
 {
-  const_reverse_iterator tmp(*this);
+  const_reverse_result_iterator tmp(*this);
   iterator_type::operator++();
   return tmp;
 }
-
-
-pqxx::result::const_fielditerator
-pqxx::result::const_reverse_fielditerator::base() const throw ()
-{
-  iterator_type tmp(*this);
-  return ++tmp;
-}
-
-
-pqxx::result::const_reverse_fielditerator
-pqxx::result::const_reverse_fielditerator::operator++(int)
-{
-  const_reverse_fielditerator tmp(*this);
-  operator++();
-  return tmp;
-}
-
-
-pqxx::result::const_reverse_fielditerator
-pqxx::result::const_reverse_fielditerator::operator--(int)
-{
-  const_reverse_fielditerator tmp(*this);
-  operator--();
-  return tmp;
-}
-
-

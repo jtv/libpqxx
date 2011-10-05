@@ -1,3 +1,28 @@
+2011-10-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in, include/Makefile.am, include/pqxx/binarystring.hxx,
+ include/pqxx/connectionpolicy.hxx, include/pqxx/cursor.hxx,
+ include/pqxx/field, include/pqxx/field.hxx,
+ include/pqxx/internal/gates/connection-largeobject.hxx,
+ include/pqxx/internal/gates/connection-pipeline.hxx,
+ include/pqxx/internal/libpq-forward.hxx,
+ include/pqxx/internal/result_data.hxx, include/pqxx/libpq-forward.hxx,
+ include/pqxx/pqxx, include/pqxx/result.hxx, include/pqxx/tuple,
+ include/pqxx/tuple.hxx, include/pqxx/util.hxx, src/binarystring.cxx,
+ src/cursor.cxx, src/field.cxx, src/Makefile.am, src/result.cxx,
+ src/tuple.cxx, test/test002.cxx, test/test007.cxx, test/test011.cxx,
+ test/test012.cxx, test/test016.cxx, test/test030.cxx, test/test031.cxx,
+ test/test049.cxx, test/test067.cxx, test/test082.cxx, test/test093.cxx,
+ test/test_helpers.hxx, test/test_main.hxx, test/unit/test_result_slicing.cxx:
+ - const_fielditerator is now const_tuple_iterator (similar for reverse).
+ - result::const_iterator is now const_result_iterator (similar for reverse).
+ - field and tuple classes are no longer nested in result.
+ - field has its own source file and headers.
+ - tuple and iterators have their own source file and headers.
+ - tuple and result iterator classes are no longer nested in result.
+ - libpq-forward has moved into <pqxx/internal>.
+ - internal::result_data has moved into <pqxx/internal>.
+ - field no longer contains a tuple.
+ - Iterator classes are no longer mentioned by independent name.
 2011-10-02  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/html/Reference/.cvsignore:
  - Ignore JavaScript files now generated as part of documentation.

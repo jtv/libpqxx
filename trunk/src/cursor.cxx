@@ -360,7 +360,7 @@ pqxx::icursorstream::icursorstream(
 
 pqxx::icursorstream::icursorstream(
     transaction_base &context,
-    const result::field &cname,
+    const field &cname,
     difference_type sstride,
     cursor_base::ownershippolicy op) :
   m_cur(context, cname.c_str(), op),

@@ -16445,7 +16445,7 @@ $as_echo_n "checking that type of libpq's Oid is as expected... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include<${with_postgres_include}/libpq-fe.h>
-	#include"${srcdir}/include/pqxx/libpq-forward.hxx"
+	#include"${srcdir}/include/pqxx/internal/libpq-forward.hxx"
 	extern void f(pqxx::oid&);
 int
 main ()

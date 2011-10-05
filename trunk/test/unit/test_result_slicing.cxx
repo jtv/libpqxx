@@ -5,22 +5,22 @@ using namespace pqxx;
 
 namespace pqxx
 {
-template<> struct PQXX_PRIVATE string_traits<result::const_fielditerator>
+template<> struct PQXX_PRIVATE string_traits<tuple::const_iterator>
 {
-  static const char *name() { return "result::const_fielditerator"; }
+  static const char *name() { return "tuple::const_iterator"; }
   static bool has_null() { return false; }
-  static bool is_null(result::const_fielditerator) { return false; }
-  static string to_string(result::const_fielditerator)
-	{ return "[const_fielditerator]"; }
+  static bool is_null(tuple::const_iterator) { return false; }
+  static string to_string(tuple::const_iterator)
+	{ return "[tuple::const_iterator]"; }
 };
 template<>
-struct PQXX_PRIVATE string_traits<result::const_reverse_fielditerator>
+struct PQXX_PRIVATE string_traits<tuple::const_reverse_iterator>
 {
-  static const char *name() { return "result::const_reverse_fielditerator"; }
+  static const char *name() { return "tuple::const_reverse_iterator"; }
   static bool has_null() { return false; }
-  static bool is_null(result::const_fielditerator) { return false; }
-  static string to_string(result::const_reverse_fielditerator)
-	{ return "[const_reverse_fielditerator]"; }
+  static bool is_null(tuple::const_reverse_iterator) { return false; }
+  static string to_string(tuple::const_reverse_iterator)
+	{ return "[tuple::const_reverse_iterator]"; }
 };
 }
 
@@ -33,7 +33,7 @@ void test_result_slicing(transaction_base &t)
   PQXX_CHECK(!r[0].empty(), "A plain tuple shows up as empty.");
 
   // Empty slice at beginning of tuple.
-  result::tuple s = r[0].slice(0, 0);
+  tuple s = r[0].slice(0, 0);
   PQXX_CHECK(s.empty(), "Empty slice does not show up as empty.");
   PQXX_CHECK_EQUAL(s.size(), 0u, "Slicing produces wrong tuple size.");
   PQXX_CHECK_EQUAL(s.begin(), s.end(), "Slice begin()/end() are broken.");

@@ -158,7 +158,7 @@ buffer unescape(const unsigned char escaped[], size_t len)
 } // namespace
 
 
-pqxx::binarystring::binarystring(const result::field &F) :
+pqxx::binarystring::binarystring(const field &F) :
   super(),
   m_size(0)
 {

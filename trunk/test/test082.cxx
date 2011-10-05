@@ -6,7 +6,7 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-// Test program for libpqxx.  Read and print table using field iterators.
+// Test program for libpqxx.  Read and print table using tuple iterators.
 namespace
 {
 void test_082(transaction_base &T)
@@ -19,13 +19,13 @@ void test_082(transaction_base &T)
 
   const string nullstr("[null]");
 
-  for (result::tuple::const_iterator f = R[0].begin(); f != R[0].end(); ++f)
+  for (tuple::const_iterator f = R[0].begin(); f != R[0].end(); ++f)
     cout << f->name() << '\t';
   cout << endl << endl;
   for (result::const_iterator r = R.begin(); r != R.end(); ++r)
   {
-    result::tuple::const_iterator f2(r[0]);
-    for (result::tuple::const_iterator f=r->begin(); f!=r->end(); ++f, f2++)
+    tuple::const_iterator f2(r[0]);
+    for (tuple::const_iterator f=r->begin(); f!=r->end(); ++f, f2++)
     {
       cout << f->c_str() << '\t';
       PQXX_CHECK_EQUAL(
@@ -35,14 +35,14 @@ void test_082(transaction_base &T)
     }
 
     PQXX_CHECK(
-	r->begin() + result::tuple::difference_type(r->size()) == r->end(),
+	r->begin() + tuple::difference_type(r->size()) == r->end(),
 	"Tuple end() appears to be in the wrong place.");
     PQXX_CHECK(
-	result::tuple::difference_type(r->size()) + r->begin() == r->end(),
-	"Field iterator addition is not commutative.");
+	tuple::difference_type(r->size()) + r->begin() == r->end(),
+	"Tuple iterator addition is not commutative.");
     PQXX_CHECK_EQUAL(r->begin()->num(), 0u, "Wrong column number at begin().");
 
-    result::tuple::const_iterator f3(r[r->size()]);
+    tuple::const_iterator f3(r[r->size()]);
 
     PQXX_CHECK(f3 == r->end(), "Did not get end() at end of tuple.");
 
@@ -50,12 +50,12 @@ void test_082(transaction_base &T)
 
     PQXX_CHECK(
 	f3 >= r->end() && r->begin() < f3,
-	"Field iterator operator<() is broken.");
+	"Tuple iterator operator<() is broken.");
 
     PQXX_CHECK(f3 > r->begin(), "Tuple end() not greater than begin().");
 
-    result::tuple::const_iterator f4(*r, r->size());
-    PQXX_CHECK(f4 == f3, "Field iterator constructor with offset is broken.");
+    tuple::const_iterator f4(*r, r->size());
+    PQXX_CHECK(f4 == f3, "Tuple iterator constructor with offset is broken.");
 
     f3--;
     f4 -= 1;
@@ -68,11 +68,11 @@ void test_082(transaction_base &T)
 	1,
 	"Wrong distance from last tuple to end().");
 
-    PQXX_CHECK(f4 == f3, "Field iterator operator-=() is broken.");
+    PQXX_CHECK(f4 == f3, "Tuple iterator operator-=() is broken.");
     f4 += 1;
-    PQXX_CHECK(f4 == r->end(), "Field iterator operator+=() is broken.");
+    PQXX_CHECK(f4 == r->end(), "Tuple iterator operator+=() is broken.");
 
-    for (result::tuple::const_reverse_iterator fr = r->rbegin();
+    for (tuple::const_reverse_iterator fr = r->rbegin();
 	 fr != r->rend();
 	 ++fr, --f3)
       PQXX_CHECK_EQUAL(
@@ -83,8 +83,8 @@ void test_082(transaction_base &T)
     cout <<endl;
   }
 
-  // Thorough test for result::const_reverse_fielditerator
-  result::tuple::const_reverse_iterator
+  // Thorough test for tuple::const_reverse_iterator
+  tuple::const_reverse_iterator
     ri1(R.front().rbegin()), ri2(ri1), ri3(R.front().end());
   ri2 = R.front().rbegin();
 
@@ -99,7 +99,7 @@ void test_082(transaction_base &T)
 	"Distance between identical const_reverse_iterators was nonzero.");
 
   PQXX_CHECK(
-	result::tuple::const_reverse_iterator(ri1.base()) == ri1,
+	tuple::const_reverse_iterator(ri1.base()) == ri1,
 	"Back-conversion of reverse_iterator base() fails.");
 
   PQXX_CHECK(ri2 == ri3 + 0, "reverse_iterator+0 gives strange result.");

@@ -513,7 +513,7 @@ AC_MSG_RESULT(yes)
 
 AC_MSG_CHECKING([that type of libpq's Oid is as expected])
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>
-	#include"${srcdir}/include/pqxx/libpq-forward.hxx"
+	#include"${srcdir}/include/pqxx/internal/libpq-forward.hxx"
 	extern void f(pqxx::oid&);],
 	[Oid o;f(o)],
 	[],
