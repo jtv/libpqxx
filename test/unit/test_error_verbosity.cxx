@@ -12,7 +12,6 @@ namespace
 {
 void test_error_verbosity(transaction_base &trans)
 {
-#ifdef PQXX_HAVE_PQSETERRORVERBOSITY
   PQXX_CHECK_EQUAL(
 	int(connection_base::terse),
 	int(PQERRORS_TERSE),
@@ -25,7 +24,6 @@ void test_error_verbosity(transaction_base &trans)
 	int(connection_base::verbose),
 	int(PQERRORS_VERBOSE),
 	"error_verbosity enum should match PGVerbosity.");
-#endif
 
   PQXX_CHECK_EQUAL(
 	int(trans.conn().get_verbosity()),

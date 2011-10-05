@@ -739,27 +739,6 @@ AC_TRY_COMPILE(
 	[pqisthreadsafe=no])
 AC_MSG_RESULT($pqisthreadsafe)
 
-AC_MSG_CHECKING([PQserverVersion()])
-pqserverversion=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[PQserverVersion(0)],
-	AC_DEFINE(PQXX_HAVE_PQSERVERVERSION, 1,
-		[Define if libpq has PQserverVersion()]),
-	[pqserverversion=no]
-)
-AC_MSG_RESULT($pqserverversion)
-
-AC_MSG_CHECKING([PQprotocolVersion()])
-pqprotocolversion=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[PQprotocolVersion(0)],
-	AC_DEFINE(PQXX_HAVE_PQPROTOCOLVERSION, 1,
-		[Define if libpq has PQprotocolVersion()]),
-	[pqprotocolversion=no]
-)
-AC_MSG_RESULT($pqprotocolversion)
-
-
 AC_MSG_CHECKING([PQescapeLiteral()])
 pqescapeliteral=yes
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
@@ -807,87 +786,6 @@ AC_TRY_COMPILE(
 AC_MSG_RESULT(pqescapeidentifier)
 
 
-AC_MSG_CHECKING([PQfreemem()])
-pqfreemem=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[char c='x';PQfreemem(&c)],
-	AC_DEFINE(PQXX_HAVE_PQFREEMEM,1,[Define if libpq has PQfreemem()]),
-	[pqfreemem=no]
-)
-AC_MSG_RESULT($pqfreemem)
-
-AC_MSG_CHECKING([PQfreeNotify()])
-pqfreenotify=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[char c='x';PQfreeNotify(&c)],
-	AC_DEFINE(PQXX_HAVE_PQFREENOTIFY,1,[Define if libpq has PQfreeNotify()]),
-	[pqfreenotify=no]
-)
-AC_MSG_RESULT($pqfreenotify)
-
-AC_MSG_CHECKING([PQftable()])
-pqftable=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[PGresult*r=0;PQftable(r,0)],
-	AC_DEFINE(PQXX_HAVE_PQFTABLE,1,[Define if libpq has PQftable()]),
-	[pqftable=no]
-)
-AC_MSG_RESULT($pqftable)
-
-AC_MSG_CHECKING([PQftablecol()])
-pqftablecol=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[PGresult*r=0;PQftablecol(r,0)],
-	AC_DEFINE(PQXX_HAVE_PQFTABLECOL,1,[Define if libpq has PQftablecol()]),
-	[pqftablecol=no]
-)
-AC_MSG_RESULT($pqftablecol)
-
-AC_MSG_CHECKING([for new COPY functions])
-pqputcopy=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[PGconn*c=0;PQputCopyData(c,"",0)],
-	AC_DEFINE(PQXX_HAVE_PQPUTCOPY,1,[Define if libpq has PQputCopyData() and related functions]),
-	[pqputcopy=no]
-)
-AC_MSG_RESULT($pqputcopy)
-
-AC_MSG_CHECKING([PQprepare()])
-pqprepare=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[extern PGconn*c;Oid o;PQprepare(c,"","",0,&o)],
-	AC_DEFINE(PQXX_HAVE_PQPREPARE,1,[Define if libpq has PQprepare()]),
-	[pqprepare=no]
-)
-AC_MSG_RESULT($pqprepare)
-
-AC_MSG_CHECKING([PQexecPrepared()])
-pqexecprepared=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[PGconn*c=0;const char*p[1]={0};const int i=0;PQexecPrepared(c,"",i,p,&i,&i,i)],
-	AC_DEFINE(PQXX_HAVE_PQEXECPREPARED,1,[Define if libpq has PQexecPrepared()]),
-	[pqexecprepared=no]
-)
-AC_MSG_RESULT($pqexecprepared)
-
-AC_MSG_CHECKING([PQexecParams()])
-pqexecparams=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[PQexecParams(0, "", 0, 0, 0, 0, 0, 0)],
-	AC_DEFINE(PQXX_HAVE_PQEXECPARAMS,1,[Define if libpq has PQexecParams()]),
-	[pqexecparams=no]
-)
-AC_MSG_RESULT($pqexecparams)
-
-AC_MSG_CHECKING([PQresultErrorField()])
-pqresulterrorfield=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[PGresult*r=0;PQresultErrorField(r,PG_DIAG_STATEMENT_POSITION)],
-	AC_DEFINE(PQXX_HAVE_PQRESULTERRORFIELD,1,[Define if libpq has PQresultErrorField() and PG_DIAG_STATEMENT_POSITION]),
-	[pqresulterrorfield=no]
-)
-AC_MSG_RESULT($pqresulterrorfield)
-
 AC_MSG_CHECKING([PQencryptPassword()])
 pqencryptpassword=yes
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
@@ -896,16 +794,6 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 	[pqencryptpassword=no]
 )
 AC_MSG_RESULT($pqencryptpassword)
-
-
-AC_MSG_CHECKING([PQclientEncoding()])
-pqclientencoding=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[return PQclientEncoding(NULL)],
-	AC_DEFINE(PQXX_HAVE_PQCLIENTENCODING,1,[Define if libpq has PQclientEncoding()]),
-	[pqclientencoding=no]
-)
-AC_MSG_RESULT($pqclientencoding)
 
 
 AC_MSG_CHECKING([PQmblen()])
@@ -946,15 +834,6 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 	[pqcancel=no]
 )
 AC_MSG_RESULT($pqcancel)
-
-AC_MSG_CHECKING([PQsetErrorVerbosity()])
-pqverbosity=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[PGconn*c=0;PGVerbosity verb=PQERRORS_DEFAULT;PQsetErrorVerbosity(c, verb)],
-	AC_DEFINE(PQXX_HAVE_PQSETERRORVERBOSITY,1,[Define if libpq has PQsetErrorVerbosity()]),
-	[pqverbosity=no]
-)
-AC_MSG_RESULT($pqverbosity)
 
 AC_CHECK_HEADER(limits,
 	[AC_DEFINE(PQXX_HAVE_LIMITS, 1, [Define if <limits> exists])])

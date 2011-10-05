@@ -1,8 +1,18 @@
 2011-10-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
- configitems, configure.ac.in, src/binarystring.cxx, src/connection_base.cxx:
- - Require PQescapeStringConn.  No point going on with older libpq.
- - Same for BYTEA variant.
- - Same for PQunescapeBytea.
+ configure/sample-headers/libpq/7.3, configure/sample-headers/libpq/7.4:
+ - Removed.
+ configitems, configure.ac.in, include/pqxx/field.hxx,
+ include/pqxx/result.hxx, include/pqxx/tuple.hxx, include/pqxx/util.hxx,
+ src/binarystring.cxx, src/connection_base.cxx, src/result.cxx,
+ src/subtransaction.cxx, src/transaction_base.cxx, src;util.cxx:
+ - Require PQescapeStringConn, PQescapeByteaConn, PQunescapeBytea.
+ - Require PQprotocolVersion and PQserverVersion.
+ - Require PQftable and PQftablecol.
+ - Require PQPutCopyData and friends.
+ - Require PQprepare, PQexecPrepared, and PQexecParams.
+ - Require PQresultErrorField and PQsetErrorVerbosity.
+ - Forget about PQfreeNotify; require PQfreeMem.
+ - Basically, require libpq 8.0 or better.
 2011-10-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in, include/Makefile.am, include/pqxx/binarystring.hxx,
  include/pqxx/connectionpolicy.hxx, include/pqxx/cursor.hxx,

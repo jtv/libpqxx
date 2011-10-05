@@ -50,7 +50,6 @@ void test_002(transaction_base &)
   // considerate and close the connection now.  This is optional.
   C.disconnect();
 
-#ifdef PQXX_HAVE_PQFTABLE
   // Ah, this version of postgres will tell you which table a column in a
   // result came from.  Let's just test that functionality...
   const oid rtable = R.column_table(0);
@@ -88,7 +87,6 @@ void test_002(transaction_base &)
 	rtable,
 	"tuple::column_table() is broken.");
   }
-#endif
 }
 
 } // namespace

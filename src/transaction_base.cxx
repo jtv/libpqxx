@@ -8,7 +8,7 @@
  *   pqxx::transaction_base defines the interface for any abstract class that
  *   represents a database transaction
  *
- * Copyright (c) 2001-2010, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -286,13 +286,11 @@ pqxx::result pqxx::transaction_base::exec(const PGSTD::string &Query,
 }
 
 
-#ifdef PQXX_HAVE_PQEXECPARAMS
 pqxx::internal::parameterized_invocation
 pqxx::transaction_base::parameterized(const PGSTD::string &query)
 {
   return internal::parameterized_invocation(conn(), query);
 }
-#endif // PQXX_HAVE_PQEXECPARAMS
 
 
 pqxx::prepare::invocation

@@ -12,7 +12,6 @@ void test_exec_params(transaction_base &trans)
   if (!trans.conn().supports(connection_base::cap_parameterized_statements))
     return;
 
-#ifdef PQXX_HAVE_PQEXECPARAMS
   result r = trans.parameterized("SELECT $1 + 1")(12).exec();
   PQXX_CHECK_EQUAL(
 	r[0][0].as<int>(),
@@ -24,7 +23,6 @@ void test_exec_params(transaction_base &trans)
 	r[0][0].as<string>(),
 	"foobar",
 	"Incorrect string result from parameterized statement.");
-#endif
 }
 } // namespace
 
