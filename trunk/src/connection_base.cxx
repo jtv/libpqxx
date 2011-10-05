@@ -1402,7 +1402,6 @@ string pqxx::connection_base::esc(const char str[], size_t maxlen)
 {
   string escaped;
 
-#if defined(PQXX_HAVE_PQESCAPESTRINGCONN)
   // We need a connection object...  This is the one reason why this function is
   // not const!
   if (!m_Conn) activate();
@@ -1421,39 +1420,6 @@ string pqxx::connection_base::esc(const char str[], size_t maxlen)
     throw;
   }
   delete [] buf;
-
-#elif defined(PQXX_HAVE_PQESCAPESTRING)
-  scoped_array<char> buf(new char[2*maxlen+1]);
-  const size_t bytes = PQescapeString(buf.get(), str, maxlen);
-  escaped.assign(buf.get(), bytes);
-
-#else
-  // Last-ditch workaround.  This has serious problems with multibyte encodings.
-  for (size_t i=0; str[i] && (i < maxlen); ++i)
-  {
-    // Ensure we don't pass negative integers to isprint()/isspace(), which
-    // Visual C++ chokes on.
-    const unsigned char c(str[i]);
-    if (c & 0x80)
-    {
-      throw failure("non-ASCII text passed to sqlesc(); "
-	  "the libpq version that libpqxx was built with does not support this "
-	  "yet (minimum is postgres 7.2)");
-    }
-    else if (isprint(c) || isspace(c))
-    {
-      if (c=='\\' || c=='\'') escaped += c;
-      escaped += c;
-    }
-    else
-    {
-        char s[8];
-	// TODO: Number may be formatted according to locale!  :-(
-        sprintf(s, "\\%03o", static_cast<unsigned int>(c));
-        escaped.append(s, 4);
-    }
-  }
-#endif
 
   return escaped;
 }
@@ -1474,18 +1440,12 @@ string pqxx::connection_base::esc(const PGSTD::string &str)
 string pqxx::connection_base::esc_raw(const unsigned char str[], size_t len)
 {
   size_t bytes = 0;
-#ifdef PQXX_HAVE_PQESCAPEBYTEACONN
   // We need a connection object...  This is the one reason why this function is
   // not const!
   activate();
 
   PQAlloc<unsigned char> buf( PQescapeByteaConn(m_Conn, str, len, &bytes) );
   if (!buf.get()) throw bad_alloc();
-#else
-  unsigned char *const s = const_cast<unsigned char *>(str);
-  PQAlloc<unsigned char> buf( PQescapeBytea(s, len, &bytes) );
-  if (!buf.get()) throw bad_alloc();
-#endif
   return string(reinterpret_cast<char *>(buf.get()));
 }
 

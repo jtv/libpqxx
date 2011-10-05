@@ -16960,75 +16960,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 $as_echo "$pqprotocolversion" >&6; }
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking PQescapeString()" >&5
-$as_echo_n "checking PQescapeString()... " >&6; }
-pqescapestring=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include<${with_postgres_include}/libpq-fe.h>
-int
-main ()
-{
-char c[1];PQescapeString(c,"",0x01)
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_PQESCAPESTRING 1" >>confdefs.h
-
-else
-  pqescapestring=no
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pqescapestring" >&5
-$as_echo "$pqescapestring" >&6; }
-if test "$pqescapestring" != yes ; then
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING:
-You appear to be building with a very old libpq version that does not have
-PQescapeString().  This can cause serious problems when non-ASCII data is used
-in SQL strings.
-Please consider upgrading to at least the libpq that came with PostgreSQL 7.2
-before going any further!
-" >&5
-$as_echo "$as_me: WARNING:
-You appear to be building with a very old libpq version that does not have
-PQescapeString().  This can cause serious problems when non-ASCII data is used
-in SQL strings.
-Please consider upgrading to at least the libpq that came with PostgreSQL 7.2
-before going any further!
-" >&2;}
-fi
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking PQescapeStringConn()" >&5
-$as_echo_n "checking PQescapeStringConn()... " >&6; }
-pqescapestringconn=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include<${with_postgres_include}/libpq-fe.h>
-int
-main ()
-{
-char b[1];PQescapeStringConn(0,b,b,sizeof(b),0)
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_PQESCAPESTRINGCONN 1" >>confdefs.h
-
-else
-  pqescapestringconn=no
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pqescapestringconn" >&5
-$as_echo "$pqescapestringconn" >&6; }
-
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking PQescapeLiteral()" >&5
 $as_echo_n "checking PQescapeLiteral()... " >&6; }
 pqescapeliteral=yes
@@ -17055,92 +16986,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pqescapeliteral" >&5
 $as_echo "$pqescapeliteral" >&6; }
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking PQescapeBytea()" >&5
-$as_echo_n "checking PQescapeBytea()... " >&6; }
-pqescapebytea=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include<${with_postgres_include}/libpq-fe.h>
-#include<cstddef>
-${usestd}
-int
-main ()
-{
-size_t l=0;const unsigned char c[]="";PQescapeBytea(c,1,&l)
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
 
-$as_echo "#define PQXX_HAVE_PQESCAPEBYTEA 1" >>confdefs.h
-
-else
-  pqescapebytea=no
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pqescapebytea" >&5
-$as_echo "$pqescapebytea" >&6; }
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking PQescapeByteaConn()" >&5
-$as_echo_n "checking PQescapeByteaConn()... " >&6; }
-pqescapebyteaconn=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include<${with_postgres_include}/libpq-fe.h>
-#include<cstddef>
-${usestd}
-int
-main ()
-{
-unsigned char b[1];size_t c;PQescapeByteaConn(0,b,sizeof(b),&c)
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_PQESCAPEBYTEACONN 1" >>confdefs.h
-
-else
-  pqescapebyteaconn=no
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pqescapebyteaconn" >&5
-$as_echo "$pqescapebyteaconn" >&6; }
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking PQunescapeBytea()" >&5
-$as_echo_n "checking PQunescapeBytea()... " >&6; }
-pqunescapebytea=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include<${with_postgres_include}/libpq-fe.h>
-	${usestd}
-int
-main ()
-{
-size_t l=0;const unsigned char c[]="";PQunescapeBytea(c,&l)
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_PQUNESCAPEBYTEA 1" >>confdefs.h
-
-else
-  pqunescapebytea=no
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pqunescapebytea" >&5
-$as_echo "$pqunescapebytea" >&6; }
-
-
-if test "$pqunescapebytea" = "yes"
-then
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking support for hex binary escaping format" >&5
 $as_echo_n "checking support for hex binary escaping format... " >&6; }
 	pqunescapebytea_9=yes
@@ -17176,9 +17022,6 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pqunescapebytea_9" >&5
 $as_echo "$pqunescapebytea_9" >&6; }
-else
-	pqunescapebytea_9=no
-fi
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking PQescapeIdentifier()" >&5

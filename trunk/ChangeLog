@@ -1,4 +1,9 @@
 2011-10-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in, src/binarystring.cxx, src/connection_base.cxx:
+ - Require PQescapeStringConn.  No point going on with older libpq.
+ - Same for BYTEA variant.
+ - Same for PQunescapeBytea.
+2011-10-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in, include/Makefile.am, include/pqxx/binarystring.hxx,
  include/pqxx/connectionpolicy.hxx, include/pqxx/cursor.hxx,
  include/pqxx/field, include/pqxx/field.hxx,

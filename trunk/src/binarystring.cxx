@@ -43,37 +43,9 @@ inline unsigned char DV(unsigned char d)
 #endif
 
 
-#if !defined(PQXX_HAVE_PQUNESCAPEBYTEA_9) && !defined(PQXX_HAVE_PQUNESCAPEBYTEA)
-/// Unescape PostgreSQL pre-9.0 octal-escaped binary format: a\123b
-string unescape_oct(const unsigned char buf[], size_t len)
-{
-  string bin;
-  bin.reserve(len);
-
-  for (size_t i=0; i<len; ++i)
-  {
-    unsigned char c = buf[i];
-    if (c == '\\')
-    {
-      c = buf[++i];
-      if (isdigit(c) && isdigit(buf[i+1]) && isdigit(buf[i+2]))
-      {
-	c = unsigned_char((DV(c)<<6) | (DV(buf[i+1])<<3) | DV(buf[i+2]));
-	i += 2;
-      }
-    }
-    bin += char(c);
-  }
-
-  return bin;
-}
-#endif
-
-
 typedef pair<const unsigned char *, size_t> buffer;
 
 
-#if defined(PQXX_HAVE_PQUNESCAPEBYTEA)
 buffer builtin_unescape(const unsigned char escaped[], size_t)
 {
   buffer unescaped;
@@ -82,7 +54,6 @@ buffer builtin_unescape(const unsigned char escaped[], size_t)
   if (!unescaped.first) throw bad_alloc();
   return unescaped;
 }
-#endif
 
 
 #ifndef PQXX_HAVE_PQUNESCAPEBYTEA_9
@@ -144,14 +115,10 @@ buffer unescape(const unsigned char escaped[], size_t len)
 {
 #if defined(PQXX_HAVE_PQUNESCAPEBYTEA_9)
   return builtin_unescape(escaped, len);
-#elif defined(PQXX_HAVE_PQUNESCAPEBYTEA)
+#else
   // Supports octal format but not the newer hex format.
   if (is_hex(escaped, len)) return to_buffer(unescape_hex(escaped, len));
   else return builtin_unescape(escaped, len);
-#else
-  return to_buffer(
-	is_hex(escaped, len) ?
-		unescape_hex(escaped, len) : unescape_oct(escaped, len));
 #endif
 }
 
@@ -210,45 +177,12 @@ string pqxx::binarystring::str() const
 
 string pqxx::escape_binary(const unsigned char bin[], size_t len)
 {
-#ifdef PQXX_HAVE_PQESCAPEBYTEA
   size_t escapedlen = 0;
   unsigned char *p = const_cast<unsigned char *>(bin);
   PQAlloc<unsigned char> A(PQescapeBytea(p, len, &escapedlen));
   const char *cstr = reinterpret_cast<const char *>(A.get());
   if (!cstr) throw bad_alloc();
   return string(cstr, escapedlen-1);
-#else
-  /* Very basic workaround for missing PQescapeBytea() in antique versions of
-   * libpq.  Clients that use BYTEA are much better off upgrading their libpq,
-   * but this might just provide usable service in cases where that is not an
-   * option.
-   */
-  string result;
-  result.reserve(len);
-  for (size_t i=0; i<len; ++i)
-  {
-    if (bin[i] >= 0x80 || bin[i] < 0x20)
-    {
-      char buf[8];
-      sprintf(buf, "\\\\%03o", unsigned(bin[i]));
-      result += buf;
-    }
-    else switch (bin[i])
-    {
-    case '\'':
-      result += "\\'";
-      break;
-
-    case '\\':
-      result += "\\\\\\\\";
-      break;
-
-    default:
-      result += char(bin[i]);
-    }
-  }
-  return result;
-#endif
 }
 
 string pqxx::escape_binary(const unsigned char bin[])
