@@ -130,34 +130,13 @@ public:
   oid column_type(const char ColName[]) const				//[t7]
       { return column_type(column_number(ColName)); }
 
-  /// What table did this column come from?  Requires PostgreSQL 7.4 C API.
-  /** Only defined if the libpqxx library was compiled against a libpq
-   * version that supports the @c PQftable function.
-   *
-   * If you get a link error saying this function is undefined, that must be
-   * because libpqxx was compiled against an older version of libpq.  The
-   * @c PQftable function first became available in PostgreSQL 7.4.
-   */
+  /// What table did this column come from?
   oid column_table(size_type ColNum) const;				//[t2]
 
-  /// What table did this column come from?  Requires PostgreSQL 7.4 C API.
-  /** Only defined if the libpqxx library was compiled against a libpq
-   * version that supports the @c PQftable function.
-   *
-   * If you get a link error saying this function is undefined, that must be
-   * because libpqxx was compiled against an older version of libpq.  The
-   * @c PQftable function first became available in PostgreSQL 7.4.
-   */
+  /// What table did this column come from?
   oid column_table(int ColNum) const					//[t2]
       { return column_table(size_type(ColNum)); }
-  /// What table did this column come from?  Requires PostgreSQL 7.4 C API.
-  /** Only defined if the libpqxx library was compiled against a libpq
-   * version that supports the @c PQftable function.
-   *
-   * If you get a link error saying this function is undefined, that must be
-   * because libpqxx was compiled against an older version of libpq.  The
-   * @c PQftable function first became available in PostgreSQL 7.4.
-   */
+  /// What table did this column come from?
   oid column_table(const PGSTD::string &ColName) const		//[t2]
       { return column_table(column_number(ColName)); }
 

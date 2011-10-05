@@ -92,14 +92,7 @@ public:
   /// Column type
   oid type() const;							//[t7]
 
-  /// What table did this column come from?  Requires PostgreSQL 7.4 C API.
-  /** Only defined if the libpqxx library was compiled against a libpq
-   * version that supports the @c PQftable function.
-   *
-   * If you get a link error saying this function is undefined, that must be
-   * because libpqxx was compiled against an older version of libpq.  The
-   * @c PQftable function first became available in PostgreSQL 7.4.
-   */
+  /// What table did this column come from?
   oid table() const;							//[t2]
 
   tuple_size_type num() const { return col(); }				//[t82]

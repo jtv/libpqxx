@@ -474,8 +474,8 @@ typedef long result_difference_type;
 
 namespace internal
 {
-void PQXX_LIBEXPORT freepqmem(const void *);
-template<typename P> inline void freepqmem_templated(P *p)
+void PQXX_LIBEXPORT freepqmem(const void *) throw ();
+template<typename P> inline void freepqmem_templated(P *p) throw ()
 {
   freepqmem(p);
 }
@@ -531,9 +531,8 @@ private:
 /** Keep track of a libpq-allocated object, and free it once all references to
  * it have died.
  *
- * If the available PostgreSQL development files supply @c PQfreemem() or
- * @c PQfreeNotify(), this is used to free the memory.  If not, free() is used
- * instead.  This matters on Windows, where memory allocated by a DLL must be
+ * The memory is freed with @c PQfreemem() by default.  This matters on Windows,
+ * where apparently under some circumstances, memory allocated by a DLL must be
  * freed by the same DLL.
  *
  * @warning Copying, swapping, and destroying PQAlloc objects that refer to the

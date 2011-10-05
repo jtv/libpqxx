@@ -248,11 +248,7 @@ void pqxx::connection_base::simulate_failure()
 
 int pqxx::connection_base::protocol_version() const throw ()
 {
-#ifdef PQXX_HAVE_PQPROTOCOLVERSION
   return m_Conn ? PQprotocolVersion(m_Conn) : 0;
-#else
-  return 0;
-#endif
 }
 
 
@@ -682,23 +678,9 @@ void pqxx::connection_base::cancel_query()
 
 void pqxx::connection_base::set_verbosity(error_verbosity verbosity) throw ()
 {
-#ifdef PQXX_HAVE_PQSETERRORVERBOSITY
     PQsetErrorVerbosity(m_Conn, static_cast<PGVerbosity>(verbosity));
-#endif
     m_verbosity = verbosity;
 }
-
-namespace
-{
-void freemem_notif(PGnotify *p) throw ()
-{
-#ifdef PQXX_HAVE_PQFREENOTIFY
-  PQfreeNotify(p);
-#else
-  freepqmem(p);
-#endif
-}
-} // namespace
 
 
 int pqxx::connection_base::get_notifs()
@@ -712,7 +694,7 @@ int pqxx::connection_base::get_notifs()
   if (m_Trans.get()) return 0;
 
   int notifs = 0;
-  typedef PQAlloc<PGnotify, freemem_notif> notifptr;
+  typedef PQAlloc<PGnotify> notifptr;
   for (notifptr N( PQnotifies(m_Conn) );
        N.get();
        N = notifptr(PQnotifies(m_Conn)))
@@ -984,7 +966,6 @@ pqxx::connection_base::register_prepared(const PGSTD::string &name)
   // "Register" (i.e., define) prepared statement with backend on demand
   if (!s.registered && supports(cap_prepared_statements))
   {
-#ifdef PQXX_HAVE_PQPREPARE
     if (protocol_version() >= 3)
     {
       result r = make_result(
@@ -994,7 +975,6 @@ pqxx::connection_base::register_prepared(const PGSTD::string &name)
       s.registered = !name.empty();
       return s;
     }
-#endif
     stringstream P;
     P << "PREPARE \"" << name << "\" ";
 
@@ -1046,7 +1026,6 @@ pqxx::result pqxx::connection_base::prepared_exec(
 
   if (supports(cap_prepared_statements))
   {
-#ifdef PQXX_HAVE_PQEXECPREPARED
     if (protocol_version() >= 3)
     {
       internal::scoped_array<int> binary(size_t(nparams+1));
@@ -1069,7 +1048,6 @@ pqxx::result pqxx::connection_base::prepared_exec(
       get_notifs();
       return r;
     }
-#endif
     stringstream Q;
     Q << "EXECUTE \"" << statement << '"';
     if (nparams)
@@ -1236,14 +1214,6 @@ void pqxx::connection_base::UnregisterTransaction(transaction_base *T)
 }
 
 
-#ifndef PQXX_HAVE_PQPUTCOPY
-namespace
-{
-const string theWriteTerminator = "\\.";
-}
-#endif
-
-
 bool pqxx::connection_base::ReadCopyLine(PGSTD::string &Line)
 {
   if (!is_open())
@@ -1252,7 +1222,6 @@ bool pqxx::connection_base::ReadCopyLine(PGSTD::string &Line)
   Line.erase();
   bool Result;
 
-#ifdef PQXX_HAVE_PQPUTCOPY
   char *Buf = 0;
   const string query = "[END COPY]";
   switch (PQgetCopyData(m_Conn, &Buf, false))
@@ -1279,45 +1248,6 @@ bool pqxx::connection_base::ReadCopyLine(PGSTD::string &Line)
       }
       Result = true;
   }
-#else
-  char Buf[10000];
-  bool LineComplete = false;
-
-  while (!LineComplete)
-  {
-    switch (PQgetline(m_Conn, Buf, sizeof(Buf)))
-    {
-    case EOF:
-      PQendcopy(m_Conn);
-      throw failure("Unexpected EOF from backend");
-
-    case 0:
-      LineComplete = true;
-      break;
-
-    case 1:
-      break;
-
-    default:
-      throw failure("Unexpected COPY response from backend");
-    }
-
-    Line += Buf;
-  }
-
-  Result = (Line != theWriteTerminator);
-
-  if (Result)
-  {
-    if (!Line.empty() && (Line[Line.size()-1] == '\n'))
-      Line.erase(Line.size()-1);
-  }
-  else
-  {
-    Line.erase();
-    if (PQendcopy(m_Conn)) throw failure(ErrMsg());
-  }
-#endif
 
   return Result;
 }
@@ -1332,23 +1262,17 @@ void pqxx::connection_base::WriteCopyLine(const PGSTD::string &Line)
   const char *const LC = L.c_str();
   const string::size_type Len = L.size();
 
-#ifdef PQXX_HAVE_PQPUTCOPY
   if (PQputCopyData(m_Conn, LC, int(Len)) <= 0)
   {
     const string Msg = string("Error writing to table: ") + ErrMsg();
     PQendcopy(m_Conn);
     throw failure(Msg);
   }
-#else
-  if (PQputnbytes(m_Conn, LC, int(Len)) == EOF)
-    throw failure(string("Error writing to table: ") + ErrMsg());
-#endif
 }
 
 
 void pqxx::connection_base::EndCopyWrite()
 {
-#ifdef PQXX_HAVE_PQPUTCOPY
   int Res = PQputCopyEnd(m_Conn, NULL);
   switch (Res)
   {
@@ -1366,15 +1290,6 @@ void pqxx::connection_base::EndCopyWrite()
   }
 
   check_result(make_result(PQgetResult(m_Conn), "[END COPY]"));
-
-#else
-  WriteCopyLine(theWriteTerminator);
-  // This check is a little odd, but for some reason PostgreSQL 7.4 keeps
-  // returning 1 (i.e., failure) but with an empty error message, and without
-  // anything seeming wrong.
-  if ((PQendcopy(m_Conn) != 0) && ErrMsg() && *ErrMsg())
-    throw failure(ErrMsg());
-#endif
 }
 
 
@@ -1590,46 +1505,15 @@ int pqxx::connection_base::await_notification(long seconds, long microseconds)
 
 void pqxx::connection_base::read_capabilities() throw ()
 {
-#ifdef PQXX_HAVE_PQSERVERVERSION
   m_serverversion = PQserverVersion(m_Conn);
-#else
-  m_serverversion = 0;
-  try
-  {
-    // Estimate server version by querying 'version()'.  This may not be exact!
-    const string VQ = "SELECT version()";
-    const result r = gate::result_creation::create(
-	PQexec(m_Conn, VQ.c_str()),
-	protocol_version(),
-	VQ,
-	encoding_code());
-
-    int x=0, y=0, z=0;
-    if ((sscanf(r[0][0].c_str(), "PostgreSQL %d.%d.%d", &x, &y, &z) == 3) &&
-        (x >= 0) && (x < 100) &&
-	(y >= 0) && (y < 100) &&
-	(z >= 0) && (z < 100))
-      m_serverversion = 10000*x + 100*y + z;
-  }
-  catch (const exception &)
-  {
-  }
-#endif
 
   const int v = m_serverversion;
-#if defined(PQXX_HAVE_PQPREPARE) || defined(PQXX_HAVE_PQFTABLECOL)
   const int p = protocol_version();
-#endif
 
   m_caps[cap_prepared_statements] = (v >= 70300);
 
-#ifdef PQXX_HAVE_PQPREPARE
   m_caps[cap_statement_varargs] = (v >= 70300 && (p >= 3));
   m_caps[cap_prepare_unnamed_statement] = (p >= 3);
-#else
-  m_caps[cap_statement_varargs] = false;
-  m_caps[cap_prepare_unnamed_statement] = false;
-#endif
 
   m_caps[cap_cursor_scroll] = (v >= 70400);
   m_caps[cap_cursor_with_hold] = (v >= 70400);
@@ -1640,13 +1524,9 @@ void pqxx::connection_base::read_capabilities() throw ()
 
   m_caps[cap_notify_payload] = (v >= 90000);
 
-#ifdef PQXX_HAVE_PQFTABLECOL
   m_caps[cap_table_column] = (p >= 3);
-#endif
 
-#ifdef PQXX_HAVE_PQEXECPARAMS
   m_caps[cap_parameterized_statements] = (p >= 3);
-#endif
 }
 
 
@@ -1668,7 +1548,6 @@ int pqxx::connection_base::encoding_code() throw ()
 }
 
 
-#ifdef PQXX_HAVE_PQEXECPARAMS
 pqxx::result pqxx::connection_base::parameterized_exec(
 	const PGSTD::string &query,
 	const char *const params[],
@@ -1693,14 +1572,3 @@ pqxx::result pqxx::connection_base::parameterized_exec(
   get_notifs();
   return r;
 }
-#else
-pqxx::result pqxx::connection_base::parameterized_exec(
-	const PGSTD::string &,
-	const char *const[],
-	const int[],
-	int)
-{
-  throw feature_not_supported(
-	"This libpq version does not support parameterized statements.");
-}
-#endif // PQXX_HAVE_PQEXECPARAMS

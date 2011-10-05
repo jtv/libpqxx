@@ -190,13 +190,9 @@ void pqxx::internal::CheckUniqueUnregistration(const namedclass *New,
 }
 
 
-void pqxx::internal::freepqmem(const void *p)
+void pqxx::internal::freepqmem(const void *p) throw ()
 {
-#ifdef PQXX_HAVE_PQFREEMEM
   PQfreemem(const_cast<void *>(p));
-#else
-  free(const_cast<void *>(p));
-#endif
 }
 
 

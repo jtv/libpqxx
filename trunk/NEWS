@@ -2,7 +2,8 @@
  - API change: noticers are gone!  Use errorhandlers to capture error output.
  - API change: fields and tuples are now stand-alone classes in ::pqxx.
  - Fixes compatibility problems between 9.x libpq and 7.x backend.
- - Ancient libpq versions without PQescapeStringConn are now absolutely dead.
+ - Absolutely requires a libpq version with PQescapeStringConn.
+ - Absolutely requires libpq 8.0 or better.
  - Changes for C++0x.
  - Supports clang++.
  - Fixes binary-data escaping problems with postgres 9.0.

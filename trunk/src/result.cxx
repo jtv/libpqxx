@@ -128,7 +128,6 @@ void pqxx::result::ThrowSQLError(
 	const PGSTD::string &Err,
 	const PGSTD::string &Query) const
 {
-#if defined(PQXX_HAVE_PQRESULTERRORFIELD)
   // Try to establish more precise error type, and throw corresponding exception
   const char *const code = PQresultErrorField(m_data, PG_DIAG_SQLSTATE);
   if (code) switch (code[0])
@@ -196,7 +195,6 @@ void pqxx::result::ThrowSQLError(
     if (strcmp(code, "P0003")==0) throw plpgsql_too_many_rows(Err, Query);
     throw plpgsql_error(Err, Query);
   }
-#endif
   throw sql_error(Err, Query);
 }
 
@@ -300,7 +298,6 @@ pqxx::oid pqxx::result::column_type(tuple::size_type ColNum) const
 }
 
 
-#ifdef PQXX_HAVE_PQFTABLE
 pqxx::oid pqxx::result::column_table(tuple::size_type ColNum) const
 {
   const oid T = PQftable(m_data, int(ColNum));
@@ -314,10 +311,8 @@ pqxx::oid pqxx::result::column_table(tuple::size_type ColNum) const
 
   return T;
 }
-#endif
 
 
-#ifdef PQXX_HAVE_PQFTABLECOL
 pqxx::tuple::size_type pqxx::result::table_column(tuple::size_type ColNum) const
 {
   const tuple::size_type n = tuple::size_type(PQftablecol(m_data, int(ColNum)));
@@ -340,18 +335,15 @@ pqxx::tuple::size_type pqxx::result::table_column(tuple::size_type ColNum) const
   throw usage_error("Can't query origin of column " + to_string(ColNum) + ": "
 	"not derived from table column");
 }
-#endif
 
 int pqxx::result::errorposition() const throw ()
 {
   int pos = -1;
-#if defined(PQXX_HAVE_PQRESULTERRORFIELD)
   if (m_data)
   {
     const char *p = PQresultErrorField(m_data, PG_DIAG_STATEMENT_POSITION);
     if (p) from_string(p, pos);
   }
-#endif // PQXX_HAVE_PQRESULTERRORFIELD
   return pos;
 }
 

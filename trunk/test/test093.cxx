@@ -35,7 +35,6 @@ void test_093(transaction_base &T)
     // T and connection are closed here; result objects remain
   }
 
-#ifdef PQXX_HAVE_PQFTABLECOL
   tuple::size_type
 	x = R.table_column(2),
 	y = R.table_column(1),
@@ -82,7 +81,6 @@ void test_093(transaction_base &T)
 	X.table_column(3),
 	exception,
 	"table_column() on non-table didn't fail.");
-#endif	// PQXX_HAVE_PQFTABLECOL
 }
 } // namespace
 
