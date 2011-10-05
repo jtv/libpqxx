@@ -1,13 +1,13 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pqxx/libpq-forward.hxx
+ *	pqxx/internal/libpq-forward.hxx
  *
  *   DESCRIPTION
  *      Minimal forward declarations of libpq types needed in libpqxx headers
  *      DO NOT INCLUDE THIS FILE when building client programs.
  *
- * Copyright (c) 2005, 2006, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2005-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,

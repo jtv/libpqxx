@@ -427,7 +427,7 @@ public:
    * stream will be destroyed when the stream is closed.
    */
   icursorstream(transaction_base &context,
-      const result::field &cname,
+      const field &cname,
       difference_type sstride=1,
       cursor_base::ownershippolicy op=cursor_base::owned);		//[t84]
 

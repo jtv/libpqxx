@@ -107,6 +107,7 @@ OBJ_STATICDEBUG=\
        "$(INTDIR_STATICDEBUG)\dbtransaction.obj" \
        "$(INTDIR_STATICDEBUG)\errorhandler.obj" \
        "$(INTDIR_STATICDEBUG)\except.obj" \
+       "$(INTDIR_STATICDEBUG)\field.obj" \
        "$(INTDIR_STATICDEBUG)\largeobject.obj" \
        "$(INTDIR_STATICDEBUG)\nontransaction.obj" \
        "$(INTDIR_STATICDEBUG)\notification.obj" \
@@ -123,6 +124,7 @@ OBJ_STATICDEBUG=\
        "$(INTDIR_STATICDEBUG)\tablewriter.obj" \
        "$(INTDIR_STATICDEBUG)\transaction.obj" \
        "$(INTDIR_STATICDEBUG)\transaction_base.obj" \
+       "$(INTDIR_STATICDEBUG)\tuple.obj" \
        "$(INTDIR_STATICDEBUG)\util.obj" \
 
 OBJ_STATICRELEASE=\
@@ -133,6 +135,7 @@ OBJ_STATICRELEASE=\
        "$(INTDIR_STATICRELEASE)\dbtransaction.obj" \
        "$(INTDIR_STATICRELEASE)\errorhandler.obj" \
        "$(INTDIR_STATICRELEASE)\except.obj" \
+       "$(INTDIR_STATICRELEASE)\field.obj" \
        "$(INTDIR_STATICRELEASE)\largeobject.obj" \
        "$(INTDIR_STATICRELEASE)\nontransaction.obj" \
        "$(INTDIR_STATICRELEASE)\notification.obj" \
@@ -149,6 +152,7 @@ OBJ_STATICRELEASE=\
        "$(INTDIR_STATICRELEASE)\tablewriter.obj" \
        "$(INTDIR_STATICRELEASE)\transaction.obj" \
        "$(INTDIR_STATICRELEASE)\transaction_base.obj" \
+       "$(INTDIR_STATICRELEASE)\tuple.obj" \
        "$(INTDIR_STATICRELEASE)\util.obj" \
 
 OBJ_DLLDEBUG=\
@@ -159,6 +163,7 @@ OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\dbtransaction.obj" \
        "$(INTDIR_DLLDEBUG)\errorhandler.obj" \
        "$(INTDIR_DLLDEBUG)\except.obj" \
+       "$(INTDIR_DLLDEBUG)\field.obj" \
        "$(INTDIR_DLLDEBUG)\largeobject.obj" \
        "$(INTDIR_DLLDEBUG)\nontransaction.obj" \
        "$(INTDIR_DLLDEBUG)\notification.obj" \
@@ -175,6 +180,7 @@ OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\tablewriter.obj" \
        "$(INTDIR_DLLDEBUG)\transaction.obj" \
        "$(INTDIR_DLLDEBUG)\transaction_base.obj" \
+       "$(INTDIR_DLLDEBUG)\tuple.obj" \
        "$(INTDIR_DLLDEBUG)\util.obj" \
        "$(INTDIR_DLLDEBUG)\libpqxx.obj" \
 
@@ -186,6 +192,7 @@ OBJ_DLLRELEASE=\
        "$(INTDIR_DLLRELEASE)\dbtransaction.obj" \
        "$(INTDIR_DLLRELEASE)\errorhandler.obj" \
        "$(INTDIR_DLLRELEASE)\except.obj" \
+       "$(INTDIR_DLLRELEASE)\field.obj" \
        "$(INTDIR_DLLRELEASE)\largeobject.obj" \
        "$(INTDIR_DLLRELEASE)\nontransaction.obj" \
        "$(INTDIR_DLLRELEASE)\notification.obj" \
@@ -202,6 +209,7 @@ OBJ_DLLRELEASE=\
        "$(INTDIR_DLLRELEASE)\tablewriter.obj" \
        "$(INTDIR_DLLRELEASE)\transaction.obj" \
        "$(INTDIR_DLLRELEASE)\transaction_base.obj" \
+       "$(INTDIR_DLLRELEASE)\tuple.obj" \
        "$(INTDIR_DLLRELEASE)\util.obj" \
        "$(INTDIR_DLLRELEASE)\libpqxx.obj" \
 
@@ -349,6 +357,13 @@ $(INTDIR_DLLRELEASE):
 	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/except.cxx
 
 
+"$(INTDIR_STATICRELEASE)\field.obj": src/field.cxx $(INTDIR_STATICRELEASE)
+	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/field.cxx
+
+"$(INTDIR_STATICDEBUG)\field.obj": src/field.cxx $(INTDIR_STATICDEBUG)
+	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/field.cxx
+
+
 "$(INTDIR_STATICRELEASE)\largeobject.obj": src/largeobject.cxx $(INTDIR_STATICRELEASE)
 	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/largeobject.cxx
 
@@ -461,6 +476,13 @@ $(INTDIR_DLLRELEASE):
 	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/transaction_base.cxx
 
 
+"$(INTDIR_STATICRELEASE)\tuple.obj": src/tuple.cxx $(INTDIR_STATICRELEASE)
+	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/tuple.cxx
+
+"$(INTDIR_STATICDEBUG)\tuple.obj": src/tuple.cxx $(INTDIR_STATICDEBUG)
+	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/tuple.cxx
+
+
 "$(INTDIR_STATICRELEASE)\util.obj": src/util.cxx $(INTDIR_STATICRELEASE)
 	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/util.cxx
 
@@ -517,6 +539,13 @@ $(INTDIR_DLLRELEASE):
 
 "$(INTDIR_DLLDEBUG)\except.obj": src/except.cxx $(INTDIR_DLLDEBUG)
 	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/except.cxx
+
+
+"$(INTDIR_DLLRELEASE)\field.obj": src/field.cxx $(INTDIR_DLLRELEASE)
+	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/field.cxx
+
+"$(INTDIR_DLLDEBUG)\field.obj": src/field.cxx $(INTDIR_DLLDEBUG)
+	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/field.cxx
 
 
 "$(INTDIR_DLLRELEASE)\largeobject.obj": src/largeobject.cxx $(INTDIR_DLLRELEASE)
@@ -629,6 +658,13 @@ $(INTDIR_DLLRELEASE):
 
 "$(INTDIR_DLLDEBUG)\transaction_base.obj": src/transaction_base.cxx $(INTDIR_DLLDEBUG)
 	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/transaction_base.cxx
+
+
+"$(INTDIR_DLLRELEASE)\tuple.obj": src/tuple.cxx $(INTDIR_DLLRELEASE)
+	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/tuple.cxx
+
+"$(INTDIR_DLLDEBUG)\tuple.obj": src/tuple.cxx $(INTDIR_DLLDEBUG)
+	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/tuple.cxx
 
 
 "$(INTDIR_DLLRELEASE)\util.obj": src/util.cxx $(INTDIR_DLLRELEASE)

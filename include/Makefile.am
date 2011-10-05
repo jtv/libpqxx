@@ -10,11 +10,11 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/connectionpolicy pqxx/connectionpolicy.hxx \
 	pqxx/cursor pqxx/cursor.hxx \
 	pqxx/dbtransaction pqxx/dbtransaction.hxx \
-	pqxx/error_handler pqxx/error_handler.hxx \
+	pqxx/errorhandler pqxx/errorhandler.hxx \
 	pqxx/except pqxx/except.hxx \
+	pqxx/field pqxx/field.hxx \
 	pqxx/isolation pqxx/isolation.hxx \
 	pqxx/largeobject pqxx/largeobject.hxx \
-	pqxx/libpq-forward.hxx \
 	pqxx/nontransaction pqxx/nontransaction.hxx \
 	pqxx/notification pqxx/notification.hxx \
 	pqxx/notify-listen pqxx/notify-listen.hxx \
@@ -32,10 +32,13 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/transaction_base pqxx/transaction_base.hxx \
 	pqxx/transactor pqxx/transactor.hxx \
 	pqxx/trigger pqxx/trigger.hxx \
+	pqxx/tuple pqxx/tuple.hxx \
 	pqxx/util pqxx/util.hxx \
 	pqxx/version pqxx/version.hxx \
 	pqxx/internal/callgate.hxx \
+	pqxx/internal/libpq-forward.hxx \
 	pqxx/internal/statement_parameters.hxx \
+	pqxx/internal/result_data.hxx \
 	pqxx/internal/gates/connection-dbtransaction.hxx \
 	pqxx/internal/gates/connection-errorhandler.hxx \
 	pqxx/internal/gates/connection-largeobject.hxx \

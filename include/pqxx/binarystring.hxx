@@ -81,7 +81,7 @@ public:
   /** The field will be zero-terminated, even if the original bytea field isn't.
    * @param F the field to read; must be a bytea field
    */
-  explicit binarystring(const result::field &F);			//[t62]
+  explicit binarystring(const field &);					//[t62]
 
   /// Size of converted string in bytes
   size_type size() const throw () { return m_size; }			//[t62]

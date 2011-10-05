@@ -269,7 +269,7 @@ namespace pqxx {}
  */
 namespace PGSTD {}
 
-#include <pqxx/libpq-forward.hxx>
+#include <pqxx/internal/libpq-forward.hxx>
 
 
 namespace pqxx

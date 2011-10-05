@@ -56,7 +56,7 @@ void test_002(transaction_base &)
   const oid rtable = R.column_table(0);
   PQXX_CHECK_EQUAL(
 	rtable,
-	R.column_table(result::tuple::size_type(0)),
+	R.column_table(tuple::size_type(0)),
 	"Inconsistent answers from column_table()");
 
   const string rcol = R.column_name(0);
@@ -70,14 +70,14 @@ void test_002(transaction_base &)
   for (result::size_type i = 0; i < R.size(); ++i)
   {
     const oid ftable = R[i][0].table();
-    PQXX_CHECK_EQUAL(ftable, rtable, "result::field::table() is broken.");
+    PQXX_CHECK_EQUAL(ftable, rtable, "field::table() is broken.");
 
     const oid ttable = R[i].column_table(0);
 
     PQXX_CHECK_EQUAL(
 	ttable,
-	R[i].column_table(result::tuple::size_type(0)),
-	"Inconsistent result::tuple::column_table().");
+	R[i].column_table(tuple::size_type(0)),
+	"Inconsistent tuple::column_table().");
 
     PQXX_CHECK_EQUAL(ttable, rtable, "Inconsistent result::column_table().");
 
@@ -86,7 +86,7 @@ void test_002(transaction_base &)
     PQXX_CHECK_EQUAL(
 	cttable,
 	rtable,
-	"result::tuple::column_table() is broken.");
+	"tuple::column_table() is broken.");
   }
 #endif
 }

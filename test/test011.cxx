@@ -18,7 +18,7 @@ void test_011(transaction_base &T)
   result R( T.exec("SELECT * FROM " + Table) );
 
   // Print column names
-  for (result::tuple::size_type c = 0; c < R.columns(); ++c)
+  for (tuple::size_type c = 0; c < R.columns(); ++c)
   {
     string N = R.column_name(c);
     cout << c << ":\t" << N << endl;
@@ -36,9 +36,9 @@ void test_011(transaction_base &T)
       PQXX_CHECK_EQUAL(R[1].rownumber(), 1u, "Row 1 has wrong number.");
 
     // Test tuple::swap()
-    const result::tuple T1(R[0]), T2(R[1]);
+    const tuple T1(R[0]), T2(R[1]);
     PQXX_CHECK_NOT_EQUAL(T1, T2, "Values are identical--can't test swap().");
-    result::tuple T1s(T1), T2s(T2);
+    tuple T1s(T1), T2s(T2);
     PQXX_CHECK_EQUAL(T1s, T1, "Tuple copy-construction incorrect.");
     PQXX_CHECK_EQUAL(T2s, T2, "Tuple copy-construction inconsistently wrong.");
     T1s.swap(T2s);
@@ -47,7 +47,7 @@ void test_011(transaction_base &T)
     PQXX_CHECK_EQUAL(T2s, T1, "Tuple swap is asymmetric.");
     PQXX_CHECK_EQUAL(T1s, T2, "Tuple swap is inconsistently asymmetric.");
 
-    for (result::tuple::size_type c = 0; c < R[0].size(); ++c)
+    for (tuple::size_type c = 0; c < R[0].size(); ++c)
     {
       string N = R.column_name(c);
 

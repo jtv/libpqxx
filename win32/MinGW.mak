@@ -26,6 +26,7 @@ OBJ = \
   "src/dbtransaction.o" \
   "src/errorhandler.o" \
   "src/except.o" \
+  "src/field.o" \
   "src/largeobject.o" \
   "src/nontransaction.o" \
   "src/notification.o" \
@@ -42,6 +43,7 @@ OBJ = \
   "src/tablewriter.o" \
   "src/transaction.o" \
   "src/transaction_base.o" \
+  "src/tuple.o" \
   "src/util.o" \
 
 
@@ -87,6 +89,9 @@ src/errorhandler.o: src/errorhandler.cxx
 
 src/except.o: src/except.cxx
 	$(CXX) $(CPPFLAGS) -c src/except.cxx -o src/except.o $(CXXFLAGS)
+
+src/field.o: src/field.cxx
+	$(CXX) $(CPPFLAGS) -c src/field.cxx -o src/field.o $(CXXFLAGS)
 
 src/largeobject.o: src/largeobject.cxx
 	$(CXX) $(CPPFLAGS) -c src/largeobject.cxx -o src/largeobject.o $(CXXFLAGS)
@@ -135,6 +140,9 @@ src/transaction.o: src/transaction.cxx
 
 src/transaction_base.o: src/transaction_base.cxx
 	$(CXX) $(CPPFLAGS) -c src/transaction_base.cxx -o src/transaction_base.o $(CXXFLAGS)
+
+src/tuple.o: src/tuple.cxx
+	$(CXX) $(CPPFLAGS) -c src/tuple.cxx -o src/tuple.o $(CXXFLAGS)
 
 src/util.o: src/util.cxx
 	$(CXX) $(CPPFLAGS) -c src/util.cxx -o src/util.o $(CXXFLAGS)
