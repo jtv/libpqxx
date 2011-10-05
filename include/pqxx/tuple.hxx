@@ -33,8 +33,8 @@ namespace pqxx
 {
 class const_tuple_iterator;
 class const_reverse_tuple_iterator;
-class field;
 class result;
+
 
 /// Reference to one row in a result.
 /** A tuple represents one row (also called a tuple) in a query result set.
@@ -215,6 +215,7 @@ private:
 };
 
 
+/// Iterator for fields in a tuple.  Use as tuple::const_iterator.
 class PQXX_LIBEXPORT const_tuple_iterator :
   public PGSTD::iterator<PGSTD::random_access_iterator_tag,
 			 const field,
@@ -291,6 +292,7 @@ public:
 };
 
 
+/// Reverse iterator for a tuple.  Use as tuple::const_reverse_iterator.
 class PQXX_LIBEXPORT const_reverse_tuple_iterator : private const_tuple_iterator
 {
 public:

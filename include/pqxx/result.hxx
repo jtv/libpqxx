@@ -42,8 +42,6 @@
 
 namespace pqxx
 {
-class result;
-
 namespace internal
 {
 namespace gate
@@ -259,7 +257,7 @@ private:
 };
 
 
-/// Iterator for rows (tuples) in a query result set.
+/// Iterator for rows (tuples) in a result.  Use as result::const_iterator.
 /** A result, once obtained, cannot be modified.  Therefore there is no
  * plain iterator type for result.  However its const_iterator type can be
  * used to inspect its tuples without changing them.
@@ -353,6 +351,7 @@ private:
 };
 
 
+/// Reverse iterator for result.  Use as result::const_reverse_iterator.
 class PQXX_LIBEXPORT const_reverse_result_iterator :
   private const_result_iterator
 {
