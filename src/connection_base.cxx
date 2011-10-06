@@ -806,7 +806,7 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 }
 
 
-pqxx::prepare::declaration pqxx::connection_base::prepare(
+void pqxx::connection_base::prepare(
 	const PGSTD::string &name,
 	const PGSTD::string &definition)
 {
@@ -827,25 +827,19 @@ pqxx::prepare::declaration pqxx::connection_base::prepare(
       i->second.registered = false;
       i->second.definition = definition;
     }
-
-    // Prepare for new definition of parameters
-    i->second.parameters.clear();
-    i->second.varargs = false;
-    i->second.complete = false;
   }
   else
   {
-    m_prepared.insert(make_pair(name,
-	  prepare::internal::prepared_def(definition)));
+    m_prepared.insert(make_pair(
+	name,
+	prepare::internal::prepared_def(definition)));
   }
-  return prepare::declaration(*this, name);
 }
 
 
-pqxx::prepare::declaration pqxx::connection_base::prepare(
-	const PGSTD::string &definition)
+void pqxx::connection_base::prepare(const PGSTD::string &definition)
 {
-  return this->prepare(string(), definition);
+  this->prepare(string(), definition);
 }
 
 
@@ -862,54 +856,6 @@ void pqxx::connection_base::unprepare(const PGSTD::string &name)
 }
 
 
-namespace
-{
-string escape_param(connection_base &C,
-	const char in[],
-	int len,
-	prepare::param_treatment treatment)
-{
-  if (!in) return "null";
-
-  switch (treatment)
-  {
-  case treat_binary:
-    return "'" + escape_binary(string(in, size_t(len))) + "'";
-
-  case treat_string:
-    return C.quote(in);
-
-  case treat_bool:
-    switch (in[0])
-    {
-    case 't':
-    case 'T':
-    case 'f':
-    case 'F':
-      break;
-    default:
-      {
-        // Looks like a numeric value may have been passed.  Try to convert it
-        // back to a number, then to bool to normalize its representation.
-        bool b;
-	from_string(in,b);
-        return to_string(b);
-      }
-    }
-    break;
-
-  case treat_direct:
-    break;
-
-  default:
-    throw usage_error("Unknown treatment for prepared-statement parameter");
-  }
-
-  return in;
-}
-} // namespace
-
-
 pqxx::prepare::internal::prepared_def &
 pqxx::connection_base::find_prepared(const PGSTD::string &statement)
 {
@@ -919,76 +865,26 @@ pqxx::connection_base::find_prepared(const PGSTD::string &statement)
   return s->second;
 }
 
-void pqxx::connection_base::prepare_param_declare(
-	const PGSTD::string &statement,
-	const PGSTD::string &sqltype,
-	param_treatment treatment)
-{
-  prepare::internal::prepared_def &s = find_prepared(statement);
-  if (s.complete)
-    throw usage_error("Attempt to add parameter to prepared statement " +
-	statement +
-	" after its definition was completed");
-  if (s.varargs)
-    throw usage_error("Attempt to add parameters to prepared statement " +
-	statement + " after arbitrary trailing parameters.");
-  s.addparam(sqltype,treatment);
-}
-
-
-void pqxx::connection_base::prepare_param_declare_varargs(
-	const PGSTD::string &statement,
-	param_treatment treatment)
-{
-  if (!supports(cap_statement_varargs))
-    throw feature_not_supported(
-	"Prepared statements do not support variable argument lists "
-	"in this configuration.");
-  prepare::internal::prepared_def &s = find_prepared(statement);
-  if (s.complete)
-    throw usage_error("Attempt to add arbitrary parameters to prepared "
-	"statement " + statement + " after its definition was completed.");
-  s.varargs_treatment = treatment;
-  s.varargs = true;
-  s.complete = true;
-}
- 
 
 pqxx::prepare::internal::prepared_def &
 pqxx::connection_base::register_prepared(const PGSTD::string &name)
 {
   activate();
+  if (!supports(cap_prepared_statements) || protocol_version() < 3)
+    throw feature_not_supported(
+	"Prepared statements in libpqxx require a newer server version.");
 
   prepare::internal::prepared_def &s = find_prepared(name);
 
-  s.complete = true;
-
   // "Register" (i.e., define) prepared statement with backend on demand
-  if (!s.registered && supports(cap_prepared_statements))
+  if (!s.registered)
   {
-    if (protocol_version() >= 3)
-    {
-      result r = make_result(
-	PQprepare(m_Conn, name.c_str(), s.definition.c_str(), 0, 0),
-	"[PREPARE " + name + "]");
-      check_result(r);
-      s.registered = !name.empty();
-      return s;
-    }
-    stringstream P;
-    P << "PREPARE \"" << name << "\" ";
-
-    if (!s.parameters.empty())
-      P << '('
-	<< separated_list(",",
-		s.parameters.begin(),
-		s.parameters.end(),
-		prepare::internal::get_sqltype())
-	<< ')';
-
-    P << " AS " << s.definition;
-    Exec(P.str().c_str(), 0);
+    result r = make_result(
+      PQprepare(m_Conn, name.c_str(), s.definition.c_str(), 0, 0),
+      "[PREPARE " + name + "]");
+    check_result(r);
     s.registered = !name.empty();
+    return s;
   }
 
   return s;
@@ -1005,89 +901,22 @@ pqxx::result pqxx::connection_base::prepared_exec(
 	const PGSTD::string &statement,
 	const char *const params[],
 	const int paramlengths[],
+	const int binary[],
 	int nparams)
 {
-  prepare::internal::prepared_def &s = register_prepared(statement);
-
-  const int expected_params = int(s.parameters.size());
-  if (nparams < expected_params)
-    throw usage_error("Insufficient parameters for prepared statement " +
-	statement + ": expected " + to_string(expected_params) + ", "
-	"received " + to_string(nparams));
-
-  if (nparams > expected_params && !s.varargs)
-    throw usage_error("Too many arguments for prepared statement " +
-	statement + ": expected " + to_string(expected_params) + ", "
-	"received " + to_string(nparams));
-
-  result r;
-
+  register_prepared(statement);
   activate();
-
-  if (supports(cap_prepared_statements))
-  {
-    if (protocol_version() >= 3)
-    {
-      internal::scoped_array<int> binary(size_t(nparams+1));
-      for (int i=0; i<expected_params; ++i)
-        binary[i] = (s.parameters[size_t(i)].treatment == treat_binary);
-      for (int j=expected_params; j < nparams; ++j)
-        binary[j] = (s.varargs_treatment == treat_binary);
-      binary[nparams] = 0;
-
-      r = make_result(PQexecPrepared(m_Conn,
+  result r = make_result(
+	PQexecPrepared(
+		m_Conn,
 		statement.c_str(),
 		nparams,
 		params,
 		paramlengths,
-		binary.get(),
+		binary,
 		0),
-	statement);
-
-      check_result(r);
-      get_notifs();
-      return r;
-    }
-    stringstream Q;
-    Q << "EXECUTE \"" << statement << '"';
-    if (nparams)
-    {
-      Q << " (";
-      for (int a = 0; a < nparams; ++a)
-      {
-	Q << escape_param(*this,
-		params[a],
-		paramlengths[a],
-		(a < expected_params) ?
-			s.parameters[size_t(a)].treatment :
-			s.varargs_treatment);
-	if (a < nparams-1) Q << ',';
-      }
-      Q << ')';
-    }
-    r = Exec(Q.str().c_str(), 0);
-  }
-  else
-  {
-    stringstream Q;
-    // This backend doesn't support prepared statements.  Do our own variable
-    // substitution.
-    string S = s.definition;
-    for (int n = nparams-1; n >= 0; --n)
-    {
-      const string key = "$" + to_string(n+1),
-	           val = escape_param(*this,
-				params[n],
-				paramlengths[n],
-				s.parameters[size_t(n)].treatment);
-      const string::size_type keysz = key.size();
-      // TODO: Skip quoted strings!  (And careful with multibyte encodings...)
-      for (string::size_type h=S.find(key); h!=string::npos; h=S.find(key))
-	S.replace(h,keysz,val);
-    }
-    Q << S;
-    r = Exec(Q.str().c_str(), 0);
-  }
+    	statement);
+  check_result(r);
   get_notifs();
   return r;
 }
@@ -1552,6 +1381,7 @@ pqxx::result pqxx::connection_base::parameterized_exec(
 	const PGSTD::string &query,
 	const char *const params[],
 	const int paramlengths[],
+	const int binaries[],
 	int nparams)
 {
   if (!supports(cap_parameterized_statements)) throw feature_not_supported(
@@ -1565,7 +1395,7 @@ pqxx::result pqxx::connection_base::parameterized_exec(
 		NULL,
 		params,
 		paramlengths,
-		NULL,
+		binaries,
 		0),
 	query);
   check_result(r);

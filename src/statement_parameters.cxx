@@ -33,29 +33,24 @@ pqxx::internal::statement_parameters::statement_parameters() :
 
 void pqxx::internal::statement_parameters::add_checked_param(
 	const PGSTD::string &v,
-	bool nonnull)
+	bool nonnull,
+	bool binary)
 {
   m_nonnull.push_back(nonnull);
-  if (nonnull) try
-  {
-    m_values.push_back(v);
-  }
-  catch (const exception &)
-  {
-    // Might as well be exception-safe. 
-    m_nonnull.resize(m_nonnull.size() - 1);
-    throw;
-  }
+  if (nonnull) m_values.push_back(v);
+  m_binary.push_back(binary);
 }
 
 
 int pqxx::internal::statement_parameters::marshall(
 	scoped_array<const char *> &values,
-	scoped_array<int> &lengths) const
+	scoped_array<int> &lengths,
+	scoped_array<int> &binaries) const
 {
   const size_t elements = m_nonnull.size();
   values = new const char *[elements+1];
   lengths = new int[2*(elements+1)];
+  binaries = new int[elements+1];
   size_t v = 0;
   for (size_t i = 0; i < elements; ++i)
   {
@@ -70,10 +65,12 @@ int pqxx::internal::statement_parameters::marshall(
       values[i] = 0;
       lengths[i] = 0;
     }
+    binaries[i] = int(m_binary[i]);
   }
 
   values[elements] = 0;
   lengths[elements] = 0;
+  binaries[elements] = 0;
 
   return int(elements);
 }

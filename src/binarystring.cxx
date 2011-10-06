@@ -100,15 +100,20 @@ string unescape_hex(const unsigned char buf[], size_t len)
 #endif
 
 
-#ifndef PQXX_HAVE_PQUNESCAPEBYTEA_9
+buffer to_buffer(const void *data, size_t len)
+{
+  void *const output(malloc(len + 1));
+  if (!output) throw bad_alloc();
+  static_cast<char *>(output)[len] = '\0';
+  memcpy(static_cast<char *>(output), data, len);
+  return buffer(static_cast<unsigned char *>(output), len);
+}
+
+
 buffer to_buffer(const string &source)
 {
-  void *const output(malloc(source.size() + 1));
-  if (!output) throw bad_alloc();
-  memcpy(static_cast<char *>(output), source.c_str(), source.size());
-  return buffer(static_cast<unsigned char *>(output), source.size());
+  return to_buffer(source.c_str(), source.size());
 }
-#endif
 
 
 buffer unescape(const unsigned char escaped[], size_t len)
@@ -133,6 +138,22 @@ pqxx::binarystring::binarystring(const field &F) :
 	unescape(reinterpret_cast<const_pointer>(F.c_str()), F.size()));
   super::operator=(super(unescaped.first));
   m_size = unescaped.second;
+}
+
+
+pqxx::binarystring::binarystring(const string &s) :
+  super(),
+  m_size(s.size())
+{
+  super::operator=(super(to_buffer(s).first));
+}
+
+
+pqxx::binarystring::binarystring(const void *binary_data, size_t len) :
+  super(),
+  m_size(len)
+{
+  super::operator=(super(to_buffer(binary_data, len).first));
 }
 
 

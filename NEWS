@@ -1,5 +1,6 @@
 4.0
  - API change: noticers are gone!  Use errorhandlers to capture error output.
+ - API change: prepared statements are now weakly-typed, and much simpler.
  - API change: fields and tuples are now stand-alone classes in ::pqxx.
  - Fixes compatibility problems between 9.x libpq and 7.x backend.
  - Absolutely requires a libpq version with PQescapeStringConn.
