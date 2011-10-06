@@ -1218,7 +1218,7 @@ string pqxx::connection_base::quote_name(const string &identifier)
   return string(buf.get());
 #else
   for (string::const_iterator i = identifier.begin(); i!=identifier.end(); ++i)
-    if (*i == '\\' || *i == '\'' || *i == '"')
+    if (*i == '\\' || *i == '\'' || *i == '"' || *i == '\0')
       throw feature_not_supported(
 	"Identifier contains characters that are difficult to escape; "
 	"this requires a newer libpq version.");
