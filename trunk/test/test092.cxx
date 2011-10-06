@@ -21,16 +21,8 @@ void test_092(transaction_base &T)
   const string Table = "pqxxbin", Field = "binfield", Stat = "nully";
   T.exec("CREATE TEMP TABLE " + Table + " (" + Field + " BYTEA)");
 
-  if (!T.conn().supports(connection_base::cap_prepared_statements))
-  {
-    cout << "Backend version does not support prepared statements.  Skipping."
-         << endl;
-    return;
-  }
-
-  T.conn().prepare(Stat, "INSERT INTO " + Table + " VALUES ($1)")
-	("BYTEA", pqxx::prepare::treat_binary);
-  T.prepared(Stat)(data).exec();
+  T.conn().prepare(Stat, "INSERT INTO " + Table + " VALUES ($1)");
+  T.prepared(Stat)(binarystring(data)).exec();
 
   const result L( T.exec("SELECT length("+Field+") FROM " + Table) );
   PQXX_CHECK_EQUAL(L[0][0].as<size_t>(),
@@ -51,11 +43,7 @@ void test_092(transaction_base &T)
   // invocation object first, then add parameters in separate C++ statements.
   // As John Mudd found, that used to break the code.  Let's test it.
   T.exec("CREATE TEMP TABLE tuple (one INTEGER, two VARCHAR)");
-
-  pqxx::prepare::declaration d(
-	T.conn().prepare("maketuple", "INSERT INTO tuple VALUES ($1, $2)") );
-  d("INTEGER", pqxx::prepare::treat_direct);
-  d("VARCHAR", pqxx::prepare::treat_string);
+  T.conn().prepare("maketuple", "INSERT INTO tuple VALUES ($1, $2)");
 
   pqxx::prepare::invocation i( T.prepared("maketuple") );
   const string f = "frobnalicious";

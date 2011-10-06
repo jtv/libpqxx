@@ -21,9 +21,15 @@ class PQXX_PRIVATE connection_prepare_invocation : callgate<connection_base>
 	const PGSTD::string &statement,
 	const char *const params[],
 	const int paramlengths[],
+	const int binary[],
 	int nparams)
   {
-    return home().prepared_exec(statement, params, paramlengths, nparams);
+    return home().prepared_exec(
+	statement,
+	params,
+	paramlengths,
+	binary,
+	nparams);
   }
 
   bool prepared_exists(const PGSTD::string &statement) const

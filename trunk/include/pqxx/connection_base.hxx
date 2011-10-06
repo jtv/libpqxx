@@ -124,7 +124,6 @@ class connection_largeobject;
 class connection_notification_receiver;
 class connection_parameterized_invocation;
 class connection_pipeline;
-class connection_prepare_declaration;
 class connection_prepare_invocation;
 class connection_reactivation_avoidance_exemption;
 class connection_sql_cursor;
@@ -564,50 +563,40 @@ public:
    */
 
   /// Define a prepared statement
-  /** To declare parameters to this statement, add them by calling the function
-   * invocation operator (@c operator()) on the returned object.  See
-   * prepare::param_declaration and prepare::param_treatment for more about how
-   * to do this.
-   *
+  /** 
    * The statement's definition can refer to a parameter using the parameter's
    * positional number n in the definition.  For example, the first parameter
    * can be used as a variable "$1", the second as "$2" and so on.
    *
-   * One might use a prepared statement as in the following example.  Note the
-   * unusual syntax associated with parameter definitions and parameter passing:
-   * every new parameter is just a parenthesized expression that is simply
-   * tacked onto the end of the statement!
+   * Here's an example of how to use prepared statements.  Note the unusual
+   * syntax for passing parameters: every new argument is a parenthesized
+   * expression that is simply tacked onto the end of the statement!
    *
    * @code
    * using namespace pqxx;
    * void foo(connection_base &C)
    * {
-   *   C.prepare("findtable",
-   *             "select * from pg_tables where name=$1")
-   *             ("varchar", treat_string);
+   *   C.prepare("findtable", "select * from pg_tables where name=$1");
    *   work W(C);
    *   result R = W.prepared("findtable")("mytable").exec();
    *   if (R.empty()) throw runtime_error("mytable not found!");
    * }
    * @endcode
    *
-   * For better performance, prepared statements aren't really registered with
-   * the backend until they are first used.  If this is not what you want, e.g.
-   * because you have very specific realtime requirements, you can use the
-   * @c prepare_now() function to force immediate preparation.
+   * To save time, prepared statements aren't really registered with the backend
+   * until they are first used.  If this is not what you want, e.g. because you
+   * have very specific realtime requirements, you can use the @c prepare_now()
+   * function to force immediate preparation.
    *
    * @warning The statement may not be registered with the backend until it is
-   * actually used.  So if the statement is syntactically incorrect, for
-   * example, a syntax_error may be thrown either from here, or when you try to
-   * call the statement later, or somewhere inbetween if prepare_now() is
-   * called.  This is not guaranteed, and it's still possible to get a
-   * broken_connection or sql_error here, for example.
+   * actually used.  So if, for example, the statement is syntactically
+   * incorrect, you may see a syntax_error here, or later when you try to call
+   * the statement, or in a prepare_now() call.
    *
-   * @param name unique identifier to associate with new prepared statement
-   * @param definition SQL statement to prepare
+   * @param name unique name for the new prepared statement.
+   * @param definition SQL statement to prepare.
    */
-  prepare::declaration prepare(const PGSTD::string &name,
-	const PGSTD::string &definition);
+  void prepare(const PGSTD::string &name, const PGSTD::string &definition);
 
   /// Define a nameless prepared statement.
   /**
@@ -616,7 +605,7 @@ public:
    * feature, always keep the definition and the use close together to avoid
    * the nameless statement being redefined unexpectedly by code somewhere else.
    */
-  prepare::declaration prepare(const PGSTD::string &definition);
+  void prepare(const PGSTD::string &definition);
 
   /// Drop prepared statement
   void unprepare(const PGSTD::string &name);
@@ -845,20 +834,12 @@ private:
 
   prepare::internal::prepared_def &find_prepared(const PGSTD::string &);
 
-  friend class internal::gate::connection_prepare_declaration;
-  void prepare_param_declare(
-	const PGSTD::string &statement,
-	const PGSTD::string &sqltype,
-	prepare::param_treatment);
-  void prepare_param_declare_varargs(
-	const PGSTD::string &statement,
-	prepare::param_treatment);
-
   prepare::internal::prepared_def &register_prepared(const PGSTD::string &);
 
   friend class internal::gate::connection_prepare_invocation;
   result prepared_exec(const PGSTD::string &,
 	const char *const[],
+	const int[],
 	const int[],
 	int);
   bool prepared_exists(const PGSTD::string &) const;
@@ -951,6 +932,7 @@ private:
 	const PGSTD::string &query,
 	const char *const params[],
 	const int paramlengths[],
+	const int binaries[],
 	int nparams);
 
   // Not allowed:

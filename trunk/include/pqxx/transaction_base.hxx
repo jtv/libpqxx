@@ -85,8 +85,12 @@ public:
   parameterized_invocation(connection_base &, const PGSTD::string &query);
 
   parameterized_invocation &operator()() { add_param(); return *this; }
+  parameterized_invocation &operator()(const binarystring &v)
+	{ add_binary_param(v, true); return *this; }
   template<typename T> parameterized_invocation &operator()(const T &v)
-	{ add_param(v); return *this; }
+	{ add_param(v, true); return *this; }
+  parameterized_invocation &operator()(const binarystring &v, bool nonnull)
+	{ add_binary_param(v, nonnull); return *this; }
   template<typename T>
 	parameterized_invocation &operator()(const T &v, bool nonnull)
 	{ add_param(v, nonnull); return *this; }

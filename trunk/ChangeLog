@@ -1,3 +1,21 @@
+2011-10-06666eroen T. Vermeulen <jtv@xs4all.nl>
+ include/Makefile.am, include/pqxx/binarystring.hxx,
+ include/pqxx/internal/gates/connection-parameterized-invocation.hxx,
+ include/pqxx/internal/gates/connection-prepare-declaration.hxx,
+ include/pqxx/internal/gates/connection-prepare-invocation.hxx,
+ include/pqxx/internal/gates/connection-transaction.hxx,
+ include/pqxx/internal/statement_parameters.hxx,
+ include/pqxx/prepared_statement.hxx, include/pqxx/transaction_base.hxx,
+ src/binarystring.cxx, src/connection_base.cxx, src/prepared_statement.cxx,
+ src/statement_parameters.cxx, src/transaction_base.cxx, test/test092.cxx,
+ test/unit/test_prepared_statement.cxx:
+ - Require server version 8.0 or better.
+ - Require backend protocol 3 or better.
+ - No longer need to declare parameter lists for prepared statements.
+ - Same for parameterized statements.
+ - binarystring can now also come from a std::string, or {void *, size_t}.
+ - To produce a binary parameter, simply pass a binarystring.
+ - No longer need connection-prepare-declaration call gate.
 2011-10-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure/sample-headers/libpq/7.3, configure/sample-headers/libpq/7.4:
  - Removed.

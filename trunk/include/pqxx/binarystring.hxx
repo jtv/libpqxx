@@ -4,10 +4,10 @@
  *	pqxx/binarystring.hxx
  *
  *   DESCRIPTION
- *      declarations for bytea (binary string) conversions
+ *      Representation for raw, binary data.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/binarystring instead.
  *
- * Copyright (c) 2003-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -29,17 +29,16 @@
 namespace pqxx
 {
 
-/// Reveals "unescaped" version of PostgreSQL bytea string
+/// Binary data corresponding to PostgreSQL's "BYTEA" binary-string type.
 /** @addtogroup escaping String escaping
  *
- * This class represents a postgres-internal buffer containing the original,
- * binary string represented by a field of type bytea.  The raw value returned
- * by such a field contains escape sequences for certain characters, which are
- * filtered out by binarystring.
+ * This class represents a binary string as stored in a field of type bytea.
+ * The raw value returned by a bytea field contains escape sequences for certain
+ * characters, which are filtered out by binarystring.
  *
- * The resulting string is zero-terminated, but may also contain zero bytes (or
- * indeed any other byte value) so don't assume that it can be treated as a
- * C-style string unless you've made sure of this yourself.
+ * Internally a binarystring is zero-terminated, but it may also contain zero
+ * bytes, just like any other byte value.  So don't assume that it can be
+ * treated as a C-style string unless you've made sure of this yourself.
  *
  * The binarystring retains its value even if the result it was obtained from is
  * destroyed, but it cannot be copied or assigned.
@@ -82,6 +81,12 @@ public:
    * @param F the field to read; must be a bytea field
    */
   explicit binarystring(const field &);					//[t62]
+
+  /// Copy binary data from std::string.
+  explicit binarystring(const PGSTD::string &);
+
+  /// Copy binary data of given length straight out of memory.
+  binarystring(const void *, size_t);
 
   /// Size of converted string in bytes
   size_type size() const throw () { return m_size; }			//[t62]

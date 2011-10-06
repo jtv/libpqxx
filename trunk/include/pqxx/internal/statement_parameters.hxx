@@ -8,7 +8,7 @@
  *   These are used for both prepared statements and parameterized statements.
  *   DO NOT INCLUDE THIS FILE DIRECTLY.  Other headers include it for you.
  *
- * Copyright (c) 2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2009-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 
+#include "pqxx/binarystring"
 #include "pqxx/strconv"
 #include "pqxx/util"
 
@@ -38,27 +39,33 @@ class PQXX_LIBEXPORT statement_parameters
 protected:
   statement_parameters();
 
-  void add_param() { add_checked_param("", false); }
-  template<typename T> void add_param(const T &v) { this->add_param(v, true); }
+  void add_param() { this->add_checked_param("", false, false); }
   template<typename T> void add_param(const T &v, bool nonnull)
   {
     nonnull = (nonnull && !pqxx::string_traits<T>::is_null(v));
-    this->add_checked_param((nonnull ? pqxx::to_string(v) : ""), nonnull);
+    this->add_checked_param(
+	(nonnull ? pqxx::to_string(v) : ""),
+	nonnull,
+	false);
   }
+  void add_binary_param(const binarystring &b, bool nonnull)
+	{ this->add_checked_param(b.str(), nonnull, true); }
 
   /// Marshall parameter values into C-style arrays for passing to libpq.
   int marshall(
 	scoped_array<const char *> &values,
-	scoped_array<int> &lengths) const;
+	scoped_array<int> &lengths,
+	scoped_array<int> &binaries) const;
 
 private:
   // Not allowed
   statement_parameters &operator=(const statement_parameters &);
 
-  void add_checked_param(const PGSTD::string &, bool nonnull);
+  void add_checked_param(const PGSTD::string &, bool nonnull, bool binary);
 
   PGSTD::vector<PGSTD::string> m_values;
   PGSTD::vector<bool> m_nonnull;
+  PGSTD::vector<bool> m_binary;
 };
 } // namespace pqxx::internal
 } // namespace pqxx

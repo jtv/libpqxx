@@ -48,12 +48,14 @@ pqxx::result pqxx::internal::parameterized_invocation::exec()
 {
   scoped_array<const char *> values;
   scoped_array<int> lengths;
-  const int elements = marshall(values, lengths);
+  scoped_array<int> binaries;
+  const int elements = marshall(values, lengths, binaries);
 
   return gate::connection_parameterized_invocation(m_home).parameterized_exec(
 	m_query,
 	values.get(),
 	lengths.get(),
+	binaries.get(),
 	elements);
 }
 
