@@ -17,6 +17,10 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
+#ifdef PQXX_QUIET_DESTRUCTORS
+#include "pqxx/errorhandler"
+#endif
+
 #include "pqxx/dbtransaction"
 #include "pqxx/pipeline"
 
@@ -57,7 +61,7 @@ pqxx::pipeline::pipeline(transaction_base &t, const PGSTD::string &Name) :
 pqxx::pipeline::~pipeline() throw ()
 {
 #ifdef PQXX_QUIET_DESTRUCTORS
-  disable_noticer Quiet(m_Trans.conn());
+  quiet_errorhandler quiet(m_Trans.conn());
 #endif
   try { cancel(); } catch (const exception &) {}
   detach();

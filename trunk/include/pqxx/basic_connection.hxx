@@ -27,6 +27,11 @@
 
 #include "pqxx/connection_base"
 
+#ifdef PQXX_QUIET_DESTRUCTORS
+#include "pqxx/errorhandler"
+#endif
+
+
 namespace pqxx
 {
 
@@ -68,7 +73,7 @@ public:
   ~basic_connection() throw ()
   {
 #ifdef PQXX_QUIET_DESTRUCTORS
-    set_noticer(noticer_ptr(new nonnoticer));
+    quiet_errorhandler quiet(*this);
 #endif
     close();
   }
