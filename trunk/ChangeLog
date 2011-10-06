@@ -1,4 +1,8 @@
-2011-10-06666eroen T. Vermeulen <jtv@xs4all.nl>
+2011-10-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+ - Refuse to escape "tricky" identifier without PQescapeIdentifier.
+ - Fixes remaining issue with #221.  Thanks Andreas Freund.
+2011-10-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/Makefile.am, include/pqxx/binarystring.hxx,
  include/pqxx/internal/gates/connection-parameterized-invocation.hxx,
  include/pqxx/internal/gates/connection-prepare-declaration.hxx,
