@@ -21,6 +21,10 @@
 #include <cstring>
 #include <stdexcept>
 
+#ifdef PQXX_QUIET_DESTRUCTORS
+#include "pqxx/errorhandler"
+#endif
+
 #include "pqxx/connection_base"
 #include "pqxx/result"
 #include "pqxx/tablestream"
@@ -81,7 +85,7 @@ pqxx::transaction_base::transaction_base(connection_base &C, bool direct) :
 pqxx::transaction_base::~transaction_base()
 {
 #ifdef PQXX_QUIET_DESTRUCTORS
-  disable_noticer Quiet(m_Conn);
+  quiet_errorhandler quiet(m_Conn);
 #endif
   try
   {

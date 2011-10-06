@@ -17,6 +17,10 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
+#ifdef PQXX_QUIET_DESTRUCTORS
+#include "pqxx/errorhandler"
+#endif
+
 #include "pqxx/tablereader"
 #include "pqxx/tablewriter"
 #include "pqxx/transaction"
@@ -40,7 +44,7 @@ pqxx::tablewriter::tablewriter(transaction_base &T,
 pqxx::tablewriter::~tablewriter() throw ()
 {
 #ifdef PQXX_QUIET_DESTRUCTORS
-  disable_noticer Quiet(m_Trans.conn());
+  quiet_errorhandler quiet(m_Trans.conn());
 #endif
   try
   {

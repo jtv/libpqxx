@@ -1,4 +1,11 @@
 2011-10-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/basic_connection.hxx, include/pqxx/robusttransaction.hxx,
+ include/pqxx/transaction.hxx, src/connection_base.cxx, src/largeobject.cxx,
+ src/notification.cxx, src/pipeline.cxx, src/tablereader.cxx,
+ src/tablewriter.cxx, src/transaction_base.cxx:
+ - Updated "quiet destructors" to use quiet_errorhandler.
+ - Fixes #224.  Thanks Kirit Saelensminde for testing this when asked.
+2011-10-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
  - Refuse to escape "tricky" identifier without PQescapeIdentifier.
  - Fixes remaining issue with #221.  Thanks Andreas Freund.
