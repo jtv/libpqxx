@@ -95,7 +95,7 @@ void test_destroyed_error_handlers_are_not_called(connection_base &c)
     TestErrorHandler doomed(c, handlers);
   }
   c.process_notice("Unheard output.");
-  PQXX_CHECK(handlers.empty(), "Message was received on dead noticer.");
+  PQXX_CHECK(handlers.empty(), "Message was received on dead errorhandler.");
 }
 
 void test_destroying_connection_unregisters_handlers()

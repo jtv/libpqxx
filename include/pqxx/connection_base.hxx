@@ -72,24 +72,6 @@ private:
 }
 
 
-/// @deprecated Create an errorhandler instead.
-struct PQXX_LIBEXPORT PQXX_NOVTABLE noticer :
-  PGSTD::unary_function<const char[], void>
-{
-  noticer(){}
-  virtual ~noticer() throw () {}
-  virtual void operator()(const char Msg[]) throw () =0;
-};
-
-
-/// @deprecated Create an errorhandler instead.
-struct PQXX_LIBEXPORT nonnoticer : noticer
-{
-  nonnoticer(){}
-  virtual void operator()(const char []) throw () {}
-};
-
-
 /// Encrypt password for given user.  Requires libpq 8.2 or better.
 /** Use this when setting a new password for the user if password encryption is
  * enabled.  Inputs are the username the password is for, and the plaintext
@@ -498,7 +480,7 @@ public:
    * processed.
    *
    * Exceptions thrown by client-registered receivers are reported using the
-   * connection's message noticer, but the exceptions themselves are not passed
+   * connection's errorhandlers, but the exceptions themselves are not passed
    * on outside this function.
    *
    * @return Number of notifications processed
@@ -943,7 +925,19 @@ private:
 
 
 #ifdef PQXX_HAVE_AUTO_PTR
-/// @deprecated Create an @e errorhandler instead.
+/// @deprecated Create an @c errorhandler instead.
+struct PQXX_LIBEXPORT PQXX_NOVTABLE noticer :
+  PGSTD::unary_function<const char[], void>
+{
+  virtual ~noticer() throw () {}
+  virtual void operator()(const char[]) throw () =0;
+};
+/// @deprecated Use @c quiet_errorhandler instead.
+struct PQXX_LIBEXPORT nonnoticer : noticer
+{
+  virtual void operator()(const char[]) throw () {}
+};
+/// @deprecated Create an @c errorhandler instead.
 class PQXX_LIBEXPORT scoped_noticer : errorhandler
 {
 public:
@@ -960,7 +954,7 @@ protected:
 private:
   PGSTD::auto_ptr<noticer> m_noticer;
 };
-/// @deprecated Create a @e quiet_errorhandler instead.
+/// @deprecated Create a @c quiet_errorhandler instead.
 class PQXX_LIBEXPORT disable_noticer : scoped_noticer
 {
 public:

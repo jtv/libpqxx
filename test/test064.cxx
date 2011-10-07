@@ -71,7 +71,7 @@ void test_064(transaction_base &)
   ActivationTest(C, "SQL", SQLname);
 
   // Prove that setting an unknown variable causes an error, as expected
-  disable_noticer d(C);
+  quiet_errorhandler d(C);
   PQXX_CHECK_THROWS(
 	C.set_variable("NONEXISTENT_VARIABLE_I_HOPE", "1"),
 	sql_error,

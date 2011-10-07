@@ -99,7 +99,7 @@ void test_037(transaction_base &)
   const FailedInsert DoomedTransaction(Table);
 
   {
-    disable_noticer d(C);
+    quiet_errorhandler d(C);
     PQXX_CHECK_THROWS(
 	C.perform(DoomedTransaction),
 	deliberate_error,

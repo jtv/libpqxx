@@ -26,7 +26,7 @@ void test_083(transaction_base &orgT)
   try
   {
     nontransaction Drop(C, "drop_" + Table);
-    disable_noticer d(C);
+    quiet_errorhandler d(C);
     Drop.exec("DROP TABLE " + Table);
   }
   catch (const exception &e)

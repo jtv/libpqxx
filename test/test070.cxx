@@ -89,7 +89,7 @@ void test_070(transaction_base &W)
   for (int i=0; i<5; ++i) TestPipeline(P, i);
 
   // See if retrieve() fails on an empty pipeline, as it should
-  disable_noticer d(W.conn());
+  quiet_errorhandler d(W.conn());
   PQXX_CHECK_THROWS(
 	P.retrieve(),
 	exception,

@@ -48,7 +48,7 @@ void test_061(transaction_base &T)
   RedoDatestyle(T, "SQL", SQLname);
 
    // Prove that setting an unknown variable causes an error, as expected
-  disable_noticer d(T.conn());
+  quiet_errorhandler d(T.conn());
   PQXX_CHECK_THROWS(
 	T.set_variable("NONEXISTENT_VARIABLE_I_HOPE", "1"),
 	sql_error,

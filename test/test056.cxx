@@ -9,7 +9,7 @@ namespace
 {
 void test_056(transaction_base &T)
 {
-  disable_noticer d(T.conn());
+  quiet_errorhandler d(T.conn());
 
   PQXX_CHECK_THROWS(
 	T.exec("DELIBERATELY INVALID TEST QUERY...", "invalid_query"),
