@@ -1,3 +1,6 @@
+2011-10-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/errorhandler.hxx:
+ - Forgot PQXX_LIBEXPORT.  Thanks Kirit Saelensminde.
 2011-10-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/basic_connection.hxx, include/pqxx/robusttransaction.hxx,
  include/pqxx/transaction.hxx, src/connection_base.cxx, src/largeobject.cxx,
