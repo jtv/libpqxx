@@ -52,7 +52,8 @@ class errorhandler_connection_base;
  * instruct the connection not to pass the message to further handlers by
  * returning "false."
  */
-class errorhandler : public PGSTD::unary_function<const char[], bool>
+class PQXX_LIBEXPORT errorhandler :
+	public PGSTD::unary_function<const char[], bool>
 {
 public:
   explicit errorhandler(connection_base &);
