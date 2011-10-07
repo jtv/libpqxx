@@ -524,7 +524,7 @@ void pqxx::connection_base::process_notice(const char msg[]) throw ()
 
 void pqxx::connection_base::process_notice(const PGSTD::string &msg) throw ()
 {
-  // Ensure that message passed to noticer ends in newline
+  // Ensure that message passed to errorhandler ends in newline
   if (msg[msg.size()-1] == '\n')
   {
     process_notice_raw(msg.c_str());

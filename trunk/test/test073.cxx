@@ -38,7 +38,7 @@ void test_073(transaction_base &W)
 
   // We should *not* get a result for the query behind the error
   cout << "Retrieving post-error result..." << endl;
-  disable_noticer d(W.conn());
+  quiet_errorhandler d(W.conn());
   PQXX_CHECK_THROWS(
 	P.retrieve(id_2).at(0).at(0).as<int>(),
 	runtime_error,

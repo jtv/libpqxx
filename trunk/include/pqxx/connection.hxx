@@ -8,7 +8,7 @@
  *   Different ways of setting up a backend connection.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection instead.
  *
- * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -40,8 +40,8 @@ namespace pqxx
  * support for transaction nesting (using the subtransaction class).
  *
  * Many things come together in the connection classes.  Handling of error and
- * warning messages, for example, is defined by @e noticers in the context of a
- * connection.  Prepared statements are also defined here.
+ * warning messages, for example, is defined by @e errorhandlers in the context
+ * of a connection.  Prepared statements are also defined here.
  * 
  * Several types of connections are available, including plain connection and
  * lazyconnection.  These types are typedefs combining a derivative of the

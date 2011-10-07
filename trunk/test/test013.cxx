@@ -90,7 +90,7 @@ void test_013(transaction_base &T)
 	"Already have event for " + to_string(BoringYear) + "--can't test.");
 
   const FailedInsert DoomedTransaction(Table);
-  disable_noticer d(C);
+  quiet_errorhandler d(C);
   PQXX_CHECK_THROWS(
 	C.perform(DoomedTransaction),
 	deliberate_error,

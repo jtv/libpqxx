@@ -20,7 +20,7 @@ void test_086(transaction_base &N1)
   C.inhibit_reactivation(true);
   C.deactivate();
 
-  disable_noticer d(C);
+  quiet_errorhandler d(C);
   {
     nontransaction N2(C, "test86N2");
     PQXX_CHECK_THROWS(

@@ -265,9 +265,7 @@ Another problem specific to Windows is that apparently it doesn't let you free
 memory in a DLL that was allocated in the main program or in another DLL, or
 vice versa.  This can cause trouble when setting your own notice handlers to
 process error or warning output.  For this reason, among others, recommended
-practice is to build libpqxx as a static library, not a DLL.  When using Windows
-you must also take care to set all "noticer"s from the same context where the
-connection object is created.
+practice is to build libpqxx as a static library, not a DLL.
 
 
 Documentation

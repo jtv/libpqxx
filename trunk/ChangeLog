@@ -1,4 +1,13 @@
 2011-10-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, include/pqxx/connection.hxx,
+ src/connection_base.cxx, test/test013.cxx, test/test018.cxx,
+ test/test032.cxx, test/test037.cxx, test/test056.cxx, test/test060.cxx,
+ test/test061.cxx, test/test064.cxx, test/test070.cxx, test/test072.cxx,
+ test/test073.cxx, test/test083.cxx, test/test086.cxx,
+ test/unit/test_errorhandler.cxx:
+ - Removed remaining references to noticer.
+ - Made all remaining noticer support conditional on auto_ptr.
+2011-10-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/errorhandler.hxx:
  - Forgot PQXX_LIBEXPORT.  Thanks Kirit Saelensminde.
 2011-10-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
