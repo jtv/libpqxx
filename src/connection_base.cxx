@@ -476,10 +476,12 @@ bool pqxx::connection_base::is_open() const throw ()
 void pqxx::connection_base::process_notice_raw(const char msg[]) throw ()
 {
   if (!msg || !*msg) return;
+  const list<errorhandler *>::const_reverse_iterator
+	rbegin = m_errorhandlers.rbegin(),
+	rend = m_errorhandlers.rend();
   for (
-	list<errorhandler *>::const_reverse_iterator i =
-		m_errorhandlers.rbegin();
-	i != m_errorhandlers.rend() && (**i)(msg);
+	list<errorhandler *>::const_reverse_iterator i = rbegin;
+	i != rend && (**i)(msg);
 	++i);
 }
 
@@ -982,10 +984,10 @@ void pqxx::connection_base::close() throw ()
     PQsetNoticeProcessor(m_Conn, NULL, NULL);
     list<errorhandler *> old_handlers;
     m_errorhandlers.swap(old_handlers);
-    for (
-	list<errorhandler *>::const_reverse_iterator i = old_handlers.rbegin();
-	i != old_handlers.rend();
-	++i)
+    const list<errorhandler *>::const_reverse_iterator
+	rbegin = old_handlers.rbegin(),
+	rend = old_handlers.rend();
+    for (list<errorhandler *>::const_reverse_iterator i = rbegin; i!=rend; ++i)
       gate::errorhandler_connection_base(**i).unregister();
 
     m_Conn = m_policy.do_disconnect(m_Conn);
