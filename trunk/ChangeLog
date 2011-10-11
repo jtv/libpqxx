@@ -1,3 +1,6 @@
+2011-10-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+ - Fixed compile errors on gcc 3.3.
 2011-10-07  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, include/pqxx/connection.hxx,
  src/connection_base.cxx, test/test013.cxx, test/test018.cxx,
