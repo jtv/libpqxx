@@ -1,3 +1,7 @@
+2011-10-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test051.cxx:
+ - Work around problem with Visual C++ 2010.  Should fix #225.
+ - Thanks Sam Kapilivsky.
 2011-10-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
  - Fix gcc warning.
