@@ -30,10 +30,11 @@ public:
 
     A.write(Contents);
 
+    typedef largeobjectaccess::size_type lobj_size_t;
     char Buf[200];
-    const largeobjectaccess::size_type Size = sizeof(Buf) - 1;
+    const lobj_size_t Size = sizeof(Buf) - 1;
 
-    largeobjectaccess::size_type Offset = A.seek(0, ios::beg);
+    lobj_size_t Offset = A.seek(0, ios::beg);
     PQXX_CHECK_EQUAL(Offset, 0, "Wrong position after seek to beginning.");
 
     PQXX_CHECK_EQUAL(
@@ -52,7 +53,7 @@ public:
 	0,
 	"Bad position after seeking to beginning of large object.");
 
-    A.write(Buf, largeobjectaccess::size_type(Contents.size()));
+    A.write(Buf, lobj_size_t(Contents.size()));
     A.seek(0, ios::beg);
     PQXX_CHECK_EQUAL(
 	size_t(A.read(Buf, Size)),
