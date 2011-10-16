@@ -36,8 +36,8 @@ CXX=cl.exe
 LINK=link.exe
 
 
-CXX_FLAGS_BASE=/nologo /W3 /FD /GR /c \
-    /I "include" /I "$(PGSQLSRC)/include" /I "$(PGSQLSRC)/interfaces/libpq" \
+CXX_FLAGS_BASE=/nologo /W3 /EHsc /FD /GR /c \
+    /I "include" /I $(PGSQLSRC)/include /I $(PGSQLSRC)/interfaces/libpq \
     /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_WINDOWS" $(PQXX_SHARED)
 
 LINK_FLAGS_BASE=kernel32.lib ws2_32.lib advapi32.lib /nologo /machine:I386 /libpath:"$(LIBDIR)"
@@ -188,7 +188,7 @@ $(INTDIR)\runner.success: $(INTDIR)\runner.exe \
 
 
 $(INTDIR)\runner.exe: $(OBJS) $(PQXX)
-	@$(LINK) $(LINK_FLAGS) "$(INTDIR)\\runner.obj" $(OBJS) \
+	@$(LINK) $(LINK_FLAGS) $(OBJS) $(PQXX) \
 		/out:"$(INTDIR)\\runner.exe"
 
 
