@@ -1,3 +1,6 @@
+2011-10-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/vc-test.mak.template:
+ - Fix build on Visual C++ 2010.  Fixes #226.  Thanks Sam Kapilivsky.
 2011-10-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
  - Fixed compile errors on gcc 3.3.
