@@ -482,7 +482,7 @@ void pqxx::connection_base::process_notice_raw(const char msg[]) throw ()
   for (
 	list<errorhandler *>::const_reverse_iterator i = rbegin;
 	i != rend && (**i)(msg);
-	++i);
+	++i) ;
 }
 
 
