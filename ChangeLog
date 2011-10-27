@@ -1,4 +1,8 @@
 2011-10-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection.hxx:
+ - Very slight wording change; hope it's a bit clearer.
+ - Thanks Sam Kapilivsky for pointing this out in #222.
+2011-10-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  win32/vc-libpqxx.mak.template, win32/vc-test.mak.template:
  - The rest of the patch in #228.  Thanks Sam Kapilivsky.
 2011-10-28  Jeroen T. Vermeulen <jtv@xs4all.nl>

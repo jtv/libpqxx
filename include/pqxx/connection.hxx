@@ -93,8 +93,8 @@ typedef basic_connection<connect_direct> connection;
 
 
 /// Lazy connection policy; causes connection to be deferred until first use.
-/** This is connect_direct's lazy younger brother.  It does not open a
- * connection right away; the connection is only created when it is actually
+/** This is connect_direct's lazy younger brother.  It does not attempt to open
+ * a connection right away; the connection is only created when it is actually
  * used.
  */
 class PQXX_LIBEXPORT connect_lazy : public connectionpolicy
