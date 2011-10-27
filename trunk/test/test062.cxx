@@ -1,5 +1,3 @@
-#include <pqxx/compiler-internal.hxx>
-
 #include <cstring>
 #include <iostream>
 
