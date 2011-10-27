@@ -228,11 +228,11 @@ all: static dll
 $(OUTDIR):
 	-@mkdir $(OUTDIR)
 
-staticdebug: $(OUTFILE_STATICDEBUG).lib $(OUTDIR) $(OUTDIR)\libpqd.dll
+staticdebug: $(OUTFILE_STATICDEBUG).lib $(OUTDIR) $(OUTDIR)\libpqd.dll $(OUTDIR)\libpqdll.lib
 
-staticrelease: $(OUTFILE_STATICRELEASE).lib $(OUTDIR) $(OUTDIR)\libpq.dll
+staticrelease: $(OUTFILE_STATICRELEASE).lib $(OUTDIR) $(OUTDIR)\libpq.dll $(OUTDIR)\libpqdll.lib
 
-dlldebug: $(OUTFILE_DLLDEBUG).dll $(OUTDIR) $(OUTDIR)\libpqd.dll
+dlldebug: $(OUTFILE_DLLDEBUG).dll $(OUTDIR) $(OUTDIR)\libpqdd.dll
 
 dllrelease: $(OUTFILE_DLLRELEASE).dll $(OUTDIR) $(OUTDIR)\libpq.dll
 
@@ -273,6 +273,12 @@ $(OUTDIR)\libpqd.dll: $(OUTDIR)
 	@echo it is in your system PATH.
 	@echo -------------------------------------------------------------
 	copy $(PGSQLSRC)\interfaces\libpq\debug\libpqd.dll $(OUTDIR)
+
+$(OUTDIR)\libpqdll.lib: $(OUTDIR)
+	copy $(PGSQLSRC)\interfaces\libpq\release\libpqdll.lib $(OUTDIR)
+
+$(OUTDIR)\libpqddll.lib: $(OUTDIR)
+	copy $(PGSQLSRC)\interfaces\libpq\debug\libpqddll.lib $(OUTDIR)
 
 $(OUTFILE_STATICDEBUG).lib: $(OUTDIR) $(OBJ_STATICDEBUG)
 	$(LIBTOOL) $(LIB_FLAGS) $(OBJ_STATICDEBUG) /out:"$(OUTFILE_STATICDEBUG).lib"
