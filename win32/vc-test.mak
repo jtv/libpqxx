@@ -35,14 +35,6 @@ LIBDIR=lib
 CXX=cl.exe
 LINK=link.exe
 
-
-CXX_FLAGS_BASE=/nologo /W3 /EHsc /FD /GR /c \
-    /I "include" /I $(PGSQLSRC)/include /I $(PGSQLSRC)/interfaces/libpq \
-    /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_WINDOWS" $(PQXX_SHARED)
-
-LINK_FLAGS_BASE=kernel32.lib ws2_32.lib advapi32.lib /nologo /machine:I386 /libpath:"$(LIBDIR)"
-
-
 !IF "$(DLL)" == "1"
 PQXX_SHARED=/D "PQXX_SHARED"
 PQXXLIBTYPE=Dll
@@ -54,25 +46,37 @@ PQXXLIBEXT=lib
 PQXXLIBTYPESUFFIX=_static
 !ENDIF
 
+
+CXX_FLAGS_BASE=/nologo /W3 /EHsc /FD /GR /c \
+    /I "include" /I $(PGSQLSRC)/include /I $(PGSQLSRC)/interfaces/libpq \
+    /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_WINDOWS" $(PQXX_SHARED)
+
+LINK_FLAGS_BASE=kernel32.lib ws2_32.lib advapi32.lib /nologo /machine:I386 /libpath:"$(LIBDIR)"
+
+
 !IF "$(DEBUG)" == "1"
 BUILDMODE=Debug
 DEBUGSUFFIX=D
-CXX_FLAGS=$(CXX_FLAGS_BASE) /MDd /Gm /ZI /Od /D "_DEBUG" /GZ
-LINK_FLAGS=$(LINK_FLAGS_BASE) /debug /libpath:$(LIBPATH2)
+CXX_FLAGS=$(CXX_FLAGS_BASE) /MDd /Gm /ZI /Od /D "_DEBUG" /RTC1
+LINK_FLAGS=$(LINK_FLAGS_BASE) /debug
 !ELSE
 BUILDMODE=Release
 DEBUGSUFFIX=
 CXX_FLAGS=$(CXX_FLAGS_BASE) /MD /D "NDEBUG"
-LINK_FLAGS=$(LINK_FLAGS_BASE) /libpath:$(LIBPATH1)
+LINK_FLAGS=$(LINK_FLAGS_BASE)
 !ENDIF
 
 
 INTDIR=Test$(PQXXLIBTYPE)$(BUILDMODE)
-PQXXSUBPATH=libpqxx$(PQXXLIBTYPESUFFIX)$(DEBUGSUFFIX).$(PQXXLIBEXT)
-PQXX=$(LIBDIR)\$(PQXXSUBPATH)
-PQXXCOPY=$(INTDIR)\$(PQXXSUBPATH)
+PQXXLIB=libpqxx$(PQXXLIBTYPESUFFIX)$(DEBUGSUFFIX).lib
+PQXX=libpqxx$(DEBUGSUFFIX).dll
 LIBPQ=libpq$(DEBUGSUFFIX).dll
 
+!IF "$(DLL)" == "1"
+DLLS=$(INTDIR)\$(LIBPQ) $(INTDIR)\$(PQXX)
+!ELSE
+DLLS=$(INTDIR)\$(LIBPQ)
+!ENDIF
 
 OBJS= \
   $(INTDIR)\test000.obj \
@@ -168,8 +172,7 @@ all: runner
 runner: $(INTDIR) $(INTDIR)\runner.exe
 
 clean:
-	-@del /Q vc70.pch
-	-@del /Q $(OBJS) $(INTDIR)\*.exe
+	-@del /Q $(INTDIR)\*.*
 
 $(INTDIR):
 	@mkdir $(INTDIR)
@@ -180,15 +183,13 @@ $(INTDIR):
 ########################################################
 
 
-$(INTDIR)\runner.success: $(INTDIR)\runner.exe \
-  $(INTDIR)\$(LIBPQXX) $(PQXX) 
-	@copy $(PQXX) $(PQXXCOPY)
+$(INTDIR)\runner.success: $(INTDIR)\runner.exe
 	@$(INTDIR)\runner.exe
 	@echo >$(INTDIR)\runner.success
 
 
-$(INTDIR)\runner.exe: $(OBJS) $(PQXX)
-	@$(LINK) $(LINK_FLAGS) $(OBJS) $(PQXX) \
+$(INTDIR)\runner.exe: $(OBJS) $(DLLS)
+	@$(LINK) $(LINK_FLAGS) $(OBJS) $(PQXXLIB) \
 		/out:"$(INTDIR)\\runner.exe"
 
 
@@ -361,3 +362,5 @@ $(INTDIR)\test094.obj:
 $(INTDIR)\$(LIBPQ):
 	@copy $(LIBDIR)\$(LIBPQ) $(INTDIR)
 
+$(INTDIR)\$(PQXX):
+	@copy $(LIBDIR)\$(PQXX) $(INTDIR)

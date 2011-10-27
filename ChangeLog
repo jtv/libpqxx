@@ -1,6 +1,6 @@
 2011-10-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
- win32/vc-libpqxx.mak.template:
- - More from the patch in #228.  Thanks Sam Kapilivsky.
+ win32/vc-libpqxx.mak.template, win32/vc-test.mak.template:
+ - The rest of the patch in #228.  Thanks Sam Kapilivsky.
 2011-10-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test000.cxx, test/test002.cxx, test/test060.cxx, test/test061.cxx,
  test/test062.cxx, test/test064.cxx, test/test071.cxx, test/test075.cxx:
