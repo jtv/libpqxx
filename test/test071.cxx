@@ -1,5 +1,3 @@
-#include <pqxx/compiler-internal.hxx>
-
 #include <iostream>
 #include <map>
 

@@ -3,7 +3,7 @@
 
 // We need some libpqxx-internal configuration items.  DON'T INCLUDE THIS HEADER
 // IN NORMAL CLIENT PROGRAMS!
-#include "pqxx/compiler-internal.hxx"
+#include "pqxx/config-internal-compiler.h"
 
 #ifdef PQXX_HAVE_LOCALE
 #include <locale>

@@ -1,10 +1,4 @@
-#include <pqxx/compiler-internal.hxx>
-
 #include "test_helpers.hxx"
-
-// Don't try this at home: peeking inside libpqxx to see if we can test the
-// column_table() functionality
-#include <pqxx/config-internal-libpq.h>
 
 using namespace PGSTD;
 using namespace pqxx;
