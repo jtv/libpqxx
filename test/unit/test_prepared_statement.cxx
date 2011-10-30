@@ -89,7 +89,7 @@ void test_prepared_statement(transaction_base &T)
   try
   {
     PQXX_CHECK(
-	~T.prepared("ReadPGTables").exists(),
+	!(T.prepared("ReadPGTables").exists()),
 	"Nonexistent prepared statement thinks it exists.");
 
     // Prepare a simple statement.
@@ -105,7 +105,7 @@ void test_prepared_statement(transaction_base &T)
 	T.exec(Q_readpgtables),
 	"ReadPGTables");
   }
-  catch (const feature_not_supported &e)
+  catch (const feature_not_supported &)
   {
     cout << "Backend version does not support prepared statements.  Skipping."
          << endl;
