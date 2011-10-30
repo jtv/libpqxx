@@ -38,6 +38,7 @@ runner_SOURCES = \
   test_simultaneous_transactions.cxx \
   test_sql_cursor.cxx \
   test_stateless_cursor.cxx \
+  test_string_conversion.cxx \
   test_tablestream.cxx \
   test_test_helpers.cxx \
   test_thread_safety_model.cxx \

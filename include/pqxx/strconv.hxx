@@ -121,6 +121,20 @@ template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
   static PGSTD::string to_string(const char Obj[]) { return Obj; }
 };
 
+/// String traits for "array of const char."
+/** Visual Studio 2010 isn't happy without this redundant specialization.
+ * Other compilers shouldn't need it.
+ */
+template<size_t N> struct PQXX_LIBEXPORT string_traits<const char[N]>
+{
+  static const char *name() { return "char[]"; }
+  static bool has_null() { return true; }
+  static bool is_null(const char t[]) { return !t; }
+  static const char *null() { return NULL; }
+  static PGSTD::string to_string(const char Obj[]) { return Obj; }
+};
+
+
 template<> struct PQXX_LIBEXPORT string_traits<PGSTD::string>
 {
   static const char *name() { return "string"; }
@@ -234,10 +248,6 @@ inline char number_to_digit(int i) throw () { return static_cast<char>(i+'0'); }
  */
 template<typename T> inline PGSTD::string to_string(const T &Obj)
 	{ return string_traits<T>::to_string(Obj); }
-
-
-inline PGSTD::string to_string(const char Obj[])			//[t14]
-	{ return Obj; }
 
 //@}
 
