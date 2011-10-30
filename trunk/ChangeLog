@@ -1,3 +1,7 @@
+2011-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/unit/test_prepared_statement.cxx:
+ - Fixed two Visual Studio warnings.
+ - Fixes #234.  Thanks (you guessed it) Sam Kapilivsky.
 2011-10-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection.hxx:
  - Very slight wording change; hope it's a bit clearer.
