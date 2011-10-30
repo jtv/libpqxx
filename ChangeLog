@@ -2,6 +2,10 @@
  test/unit/test_prepared_statement.cxx:
  - Fixed two Visual Studio warnings.
  - Fixes #234.  Thanks (you guessed it) Sam Kapilivsky.
+ win32/vc-libpqxx.mak.template:
+ - Fixed typos introduced in my application of the patch in #228.
+ - Should get Visual Studio build working again.
+ - Fixes #229.  Thanks Sam Kapilivsky.
 2011-10-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection.hxx:
  - Very slight wording change; hope it's a bit clearer.

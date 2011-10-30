@@ -121,11 +121,11 @@ all: static dll
 $(OUTDIR):
 	-@mkdir $(OUTDIR)
 
-staticdebug: $(OUTFILE_STATICDEBUG).lib $(OUTDIR) $(OUTDIR)\libpqd.dll $(OUTDIR)\libpqdll.lib
+staticdebug: $(OUTFILE_STATICDEBUG).lib $(OUTDIR) $(OUTDIR)\libpqd.dll $(OUTDIR)\libpqddll.lib
 
 staticrelease: $(OUTFILE_STATICRELEASE).lib $(OUTDIR) $(OUTDIR)\libpq.dll $(OUTDIR)\libpqdll.lib
 
-dlldebug: $(OUTFILE_DLLDEBUG).dll $(OUTDIR) $(OUTDIR)\libpqdd.dll
+dlldebug: $(OUTFILE_DLLDEBUG).dll $(OUTDIR) $(OUTDIR)\libpqd.dll
 
 dllrelease: $(OUTFILE_DLLRELEASE).dll $(OUTDIR) $(OUTDIR)\libpq.dll
 
