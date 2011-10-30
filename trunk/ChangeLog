@@ -1,7 +1,15 @@
 2011-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/strconv.hxx:
+ - Add redundant string_traits<const char[N]> to keep Visual Studio happy.
+ - Fixes #233; thanks Sam Kapilivsky.
+ test/unit/test_string_conversion.cxx:
+ - New.
+ - Unit-tests string conversions (for now, only of various string types).
+2011-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/unit/test_prepared_statement.cxx:
  - Fixed two Visual Studio warnings.
  - Fixes #234.  Thanks (you guessed it) Sam Kapilivsky.
+2011-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  win32/vc-libpqxx.mak.template:
  - Fixed typos introduced in my application of the patch in #228.
  - Should get Visual Studio build working again.
