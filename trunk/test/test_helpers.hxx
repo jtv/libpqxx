@@ -235,9 +235,19 @@ inline void check_less(
 
 struct failure_to_fail {};
 
+
+namespace internal
+{
+/// Syntactic placeholder: require (and accept) semicolon after block.
+inline void end_of_statement()
+{
+}
+}
+
+
 // Verify that "action" throws "exception_type."
 #define PQXX_CHECK_THROWS(action, exception_type, desc) \
-	do { \
+	{ \
 	  try \
 	  { \
 	    action ; \
@@ -257,7 +267,8 @@ struct failure_to_fail {};
 		" (\"" #action "\" " \
 		"threw exception other than " #exception_type ")"); \
 	  } \
-	} while (false)
+	} \
+        pqxx::test::internal::end_of_statement()
 
 #define PQXX_CHECK_BOUNDS(value, lower, upper, desc) \
 	pqxx::test::check_bounds( \
