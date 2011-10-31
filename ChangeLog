@@ -1,4 +1,9 @@
 2011-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/cursor.cxx:
+ - Cast around std::streamsize/icursorstream::difference_type mismatch.
+ - Fixes icursorstream::ignore, as per #230.
+ - Thanks once more Sam Kapilivsky.
+2011-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/compiler-internal.hxx, include/pqxx/cursor.hxx,
  include/pqxx/util.hxx, test/unit/test_prepared_statement.cxx:
  - Moved distance() wrapper from compiler-internal into util.
