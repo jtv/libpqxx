@@ -36,11 +36,13 @@
 
 #ifdef _MSC_VER
 #pragma warning (disable: 4251 4275 4273)
-#pragma warning (disable: 4258) // Complains that for-scope usage is correct
+#pragma warning (disable: 4258) // Complains that for-scope usage is correct.
 #pragma warning (disable: 4290)
+#pragma warning (disable: 4351)
 #pragma warning (disable: 4355)
 #pragma warning (disable: 4786)
-#pragma warning (disable: 4800)	// Performance warning for boolean conversions
+#pragma warning (disable: 4800)	// Performance warning for boolean conversions.
+#pragma warning (disable: 4996) // Complains that strncpy() "may" be unsafe.
 #endif
 
 #elif defined(__GNUC__) && defined(PQXX_HAVE_GCC_VISIBILITY)	// !_WIN32

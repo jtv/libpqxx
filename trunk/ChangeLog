@@ -1,4 +1,9 @@
 2011-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/compiler-internal.hxx, test/test087.cxx:
+ - Suppress pointless Visual Studio warnings.
+ - Fixes most of #231; more discussion about test_helpers.hxx patch.
+ - Thanks Sam Kapilivsky.
+2011-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/cursor.cxx:
  - Cast around std::streamsize/icursorstream::difference_type mismatch.
  - Fixes icursorstream::ignore, as per #230.
