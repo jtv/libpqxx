@@ -58,10 +58,10 @@ pqxx::thread_safety_model pqxx::describe_thread_safety() throw ()
 {
   thread_safety_model model;
 
-#ifdef PQXX_HAVE_STRERROR_R
-  model.have_strerror_r = true;
+#if defined(PQXX_HAVE_STRERROR_R) || defined(PQXX_HAVE_STRERROR_S)
+  model.have_safe_strerror = true;
 #else
-  model.have_strerror_r = false;
+  model.have_safe_strerror = false;
   model.description += "The available strerror() may not be thread-safe.\n";
 #endif
 
@@ -251,11 +251,15 @@ cstring pqxx::internal::strerror_wrapper(int err, char buf[], PGSTD::size_t len)
 
   const char *res = buf;
 
-#if !defined(PQXX_HAVE_STRERROR_R)
+#if !defined(PQXX_HAVE_STRERROR_R) && !defined(PQXX_HAVE_STRERROR_S)
   cpymsg(buf, strerror(err), len);
 #elif defined(PQXX_HAVE_STRERROR_R_GNU)
   // GNU strerror_r returns error string (which may be anywhere).
   return strerror_r(err, buf, len);
+#elif defined(PQXX_HAVE_STRERROR_S)
+  // Windows equivalent of strerror_r returns result code.
+  if (strerror_s(buf, len, err) == 0) res = buf;
+  else cpymsg(buf, "Unknown error", len);
 #else
   // Single Unix Specification version of strerror_r returns result code.
   switch (strerror_r(err, buf, len))
