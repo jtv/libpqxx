@@ -327,7 +327,7 @@ struct PQXX_LIBEXPORT thread_safety_model
 };
 
 /// Describe thread safety available in this build.
-thread_safety_model describe_thread_safety() throw ();
+thread_safety_model PQXX_LIBEXPORT describe_thread_safety() throw ();
 
 /// The "null" oid
 const oid oid_none = 0;
@@ -735,6 +735,20 @@ cstring PQXX_LIBEXPORT strerror_wrapper(int err, char buf[], PGSTD::size_t len)
 
 /// Commonly used SQL commands
 extern const char sql_begin_work[], sql_commit_work[], sql_rollback_work[];
+
+
+/// Wrapper for std::distance; not all platforms have std::distance().
+template<typename T> inline PGSTD::ptrdiff_t distance(T first, T last)
+{
+#ifdef PQXX_HAVE_DISTANCE
+  return PGSTD::distance(first, last);
+#else
+  // Naive implementation.  All we really need for now.
+  PGSTD::ptrdiff_t d;
+  for (d=0; first != last; ++d) ++first;
+  return d;
+#endif
+}
 
 } // namespace internal
 } // namespace pqxx

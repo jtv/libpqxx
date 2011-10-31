@@ -1,9 +1,6 @@
+#include <cassert>
 #include <iostream>
 #include <list>
-
-#include <pqxx/compiler-internal.hxx>
-
-#include <cassert>
 
 #include "test_helpers.hxx"
 
