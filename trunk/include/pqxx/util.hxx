@@ -485,20 +485,28 @@ template<typename P> inline void freepqmem_templated(P *p) throw ()
 
 /// Reference-counted smart pointer to libpq-allocated object
 template<typename T, void (*DELETER)(T *) = freepqmem_templated<T> >
-  class PQAlloc : protected PQXXTR1::shared_ptr<T>
+  class PQAlloc
 {
-  typedef PQXXTR1::shared_ptr<T> super;
 public:
   typedef T content_type;
-  PQAlloc() : super() {}
-  explicit PQAlloc(T *t) : super(t, DELETER) {}
+  PQAlloc() throw () : m_ptr() {}
+  PQAlloc(const PQAlloc &rhs) throw () : m_ptr(rhs.m_ptr) {}
+  explicit PQAlloc(T *t) : m_ptr(t, DELETER) {}
 
-  using super::get;
-  using super::operator=;
-  using super::operator->;
-  using super::operator*;
-  using super::reset;
-  using super::swap;
+  T *get() const throw () { return m_ptr.get(); }
+  PQAlloc &operator=(const PQAlloc &rhs) throw ()
+  {
+    m_ptr = rhs.m_ptr;
+    return *this;
+  }
+
+  T *operator->() const throw () { return m_ptr.get(); }
+  T &operator*() const throw () { return *m_ptr; }
+  void reset() throw () { m_ptr.reset(); }
+  void swap(PQAlloc &other) throw () { m_ptr.swap(other.m_ptr); }
+
+private:
+  PQXXTR1::shared_ptr<T> m_ptr;
 };
 
 #else // !PQXX_HAVE_SHARED_PTR
