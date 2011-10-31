@@ -1,4 +1,9 @@
 2011-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test_helpers.hxx:
+ - New trick for accepting (and requiring) semicolon after PQXX_CHECK_THROWS.
+ - Less idiomatic, but avoids Visual Studio warning.
+ - Completes the fix for #231.
+2011-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/compiler-internal.hxx, test/test087.cxx:
  - Suppress pointless Visual Studio warnings.
  - Fixes most of #231; more discussion about test_helpers.hxx patch.
