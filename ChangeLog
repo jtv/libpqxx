@@ -1,4 +1,11 @@
 2011-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/compiler-internal.hxx, include/pqxx/cursor.hxx,
+ include/pqxx/util.hxx, test/unit/test_prepared_statement.cxx:
+ - Moved distance() wrapper from compiler-internal into util.
+ - Added some missing PQXX_LIBEXPORT directives.
+ - Fixes #237.
+ - Thanks Sam Kapilivsky for knocking the Visual Studio build into shape.
+2011-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/strconv.hxx:
  - Add redundant string_traits<const char[N]> to keep Visual Studio happy.
  - Fixes #233; thanks Sam Kapilivsky.
