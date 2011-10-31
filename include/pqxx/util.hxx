@@ -279,15 +279,15 @@ namespace pqxx
  */
 struct PQXX_LIBEXPORT thread_safety_model
 {
-  /// Does standard C library offer @c strerror_r?
+  /// Does standard C library have a thread-safe alternative to @c strerror?
   /** If not, its @c strerror implementation may still be thread-safe.  Check
    * your compiler's manual.
    *
-   * Without @c strerror_r or a thread-safe @c strerror, the library can't
-   * safely obtain descriptions of certain run-time errors.  In that case, your
-   * application must serialize all use of libpqxx.
+   * Without @c strerror_r (@c strerror_s in Visual C++) or a thread-safe @c
+   * strerror, the library can't safely obtain descriptions of certain run-time
+   * errors.  In that case, your application must serialize all use of libpqxx.
    */
-  bool have_strerror_r;
+  bool have_safe_strerror;
 
   /// Is the underlying libpq build thread-safe?
   /** A @c "false" here may mean one of two things: either the libpq build is
@@ -728,10 +728,10 @@ void PQXX_LIBEXPORT sleep_seconds(int);
 typedef const char *cstring;
 
 /// Human-readable description for error code, possibly using given buffer
-/** Wrapper for @c strerror() or @c strerror_r(), as available.  The normal case
- * is to copy the string to the provided buffer, but this may not always be the
- * case.  The result is guaranteed to remain usable for as long as the given
- * buffer does.
+/** Wrapper for @c strerror() or thread-safe variant, as available.  The
+ * default code copies the string to the provided buffer, but this may not
+ * always be necessary.  The result is guaranteed to remain usable for as long
+ * as the given buffer does.
  * @param err system error code as copied from errno
  * @param buf caller-provided buffer for message to be stored in, if needed
  * @param len usable size (in bytes) of provided buffer

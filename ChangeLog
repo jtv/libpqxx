@@ -1,4 +1,14 @@
 2011-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/VisualStudio2005,
+ config/sample-headers/compiler/VisualStudio2008,
+ config/sample-headers/compiler/VisualStudio2010:
+ - New sample headers by Sam Kapilivksy.
+ include/pqxx/util.hxx, test/unit/test_thread_safety_model.cxx:
+ - Renamed have_strerror_r to have_safe_strerror; it's not just strerror_r.
+ src/util.cxx:
+ - Support Windows strerror_s as other safe alternative to strerror.
+ - Fixes #235.
+2011-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.hxx:
  - Made PQAlloc contain a std::shared_ptr, not derive from it.
  - As per patch in #236; fixes Visual Studio build problems.
