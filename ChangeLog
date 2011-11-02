@@ -1,4 +1,10 @@
 2011-11-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/VisualStudio2005/pqxx/config-public-compiler.h,
+ config/sample-headers/compiler/VisualStudio2008/pqxx/config-public-compiler.h,
+ config/sample-headers/compiler/VisualStudio2010/pqxx/config-public-compiler.h:
+ - Removed PQXX_HAVE_STRERROR_R; Visual Studio has strerror_s.
+ - Fixes #240.  Thanks Sam Kapilivsky.
+2011-11-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection.cxx:
  - Removed support for obsolete PGRES_POLLING_ACTIVE.
 2011-10-31  Jeroen T. Vermeulen <jtv@xs4all.nl>
