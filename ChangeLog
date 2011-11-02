@@ -1,4 +1,10 @@
 2011-11-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection.cxx:
+ - Work around compiler warning for removed PGRES_POLLING_ACTIVE in switch.
+ src/cursor.cxx:
+ - Hopefully the right fix for that Visual Studio warning this time.
+ - Fixes #239.  Thanks Sam Kapilivsky.
+2011-11-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/compiler/VisualStudio2005/pqxx/config-public-compiler.h,
  config/sample-headers/compiler/VisualStudio2008/pqxx/config-public-compiler.h,
  config/sample-headers/compiler/VisualStudio2010/pqxx/config-public-compiler.h:

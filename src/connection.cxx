@@ -162,6 +162,11 @@ pqxx::connect_async::do_completeconnect(handle orig)
 
     case PGRES_POLLING_OK:
       break;
+
+    default:
+      // Meaningless, really, but deals with the obsolete PGRES_POLLING_ACTIVE
+      // without requiring it to be defined.
+      break;
     }
   } while (pollstatus != PGRES_POLLING_OK);
 
