@@ -160,7 +160,6 @@ pqxx::connect_async::do_completeconnect(handle orig)
       internal::wait_write(orig);
       break;
 
-    case PGRES_POLLING_ACTIVE:
     case PGRES_POLLING_OK:
       break;
     }
