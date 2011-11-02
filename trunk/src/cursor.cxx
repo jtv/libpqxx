@@ -392,9 +392,9 @@ result pqxx::icursorstream::fetchblock()
 
 icursorstream &pqxx::icursorstream::ignore(PGSTD::streamsize n)
 {
-  difference_type offset = m_cur.move(n);
+  difference_type offset = m_cur.move(difference_type(n));
   m_realpos += offset;
-  if (offset < difference_type(n)) m_done = true;
+  if (offset < n) m_done = true;
   return *this;
 }
 
