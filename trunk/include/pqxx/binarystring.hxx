@@ -56,9 +56,11 @@ namespace pqxx
  * is protected against concurrency with similar operations on the same object,
  * or other objects pointing to the same data block.
  */
-class PQXX_LIBEXPORT binarystring : internal::PQAlloc<const unsigned char>
+class PQXX_LIBEXPORT binarystring :
+	internal::PQAlloc<
+		const unsigned char,
+		pqxx::internal::freemallocmem_templated<const unsigned char> >
 {
-  // TODO: Templatize on character type?
 public:
   typedef content_type char_type;
   typedef PGSTD::char_traits<char_type>::char_type value_type;
@@ -73,7 +75,10 @@ public:
 #endif
 
 private:
-  typedef internal::PQAlloc<value_type> super;
+  typedef internal::PQAlloc<
+	value_type,
+	pqxx::internal::freemallocmem_templated<const unsigned char> >
+    super;
 
 public:
   /// Read and unescape bytea field

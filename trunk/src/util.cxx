@@ -196,6 +196,12 @@ void pqxx::internal::freepqmem(const void *p) throw ()
 }
 
 
+void pqxx::internal::freemallocmem(const void *p) throw ()
+{
+  free(const_cast<void *>(p));
+}
+
+
 void pqxx::internal::sleep_seconds(int s)
 {
   if (s <= 0) return;

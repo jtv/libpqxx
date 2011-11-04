@@ -480,6 +480,12 @@ template<typename P> inline void freepqmem_templated(P *p) throw ()
   freepqmem(p);
 }
 
+void PQXX_LIBEXPORT freemallocmem(const void *) throw ();
+template<typename P> inline void freemallocmem_templated(P *p) throw ()
+{
+  freemallocmem(p);
+}
+
 
 #ifdef PQXX_HAVE_SHARED_PTR
 
