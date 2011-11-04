@@ -46,6 +46,23 @@ inline unsigned char DV(unsigned char d)
 typedef pair<const unsigned char *, size_t> buffer;
 
 
+buffer to_buffer(const void *data, size_t len)
+{
+  void *const output(malloc(len + 1));
+  if (!output) throw bad_alloc();
+  static_cast<char *>(output)[len] = '\0';
+  memcpy(static_cast<char *>(output), data, len);
+  return buffer(static_cast<unsigned char *>(output), len);
+}
+
+
+buffer to_buffer(const string &source)
+{
+  return to_buffer(source.c_str(), source.size());
+}
+
+
+
 buffer builtin_unescape(const unsigned char escaped[], size_t)
 {
 #ifdef _WIN32
@@ -58,7 +75,7 @@ buffer builtin_unescape(const unsigned char escaped[], size_t)
 	PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped_len));
   void *data = A.get();
   if (!data) throw bad_alloc();
-  return to_buffer(data, escapedlen);
+  return to_buffer(data, unescaped_len);
 #else
   /* On non-Windows platforms, it's okay to free libpq-allocated memory using
    * free().  No extra copy needed.
@@ -114,22 +131,6 @@ string unescape_hex(const unsigned char buf[], size_t len)
   return bin;
 }
 #endif
-
-
-buffer to_buffer(const void *data, size_t len)
-{
-  void *const output(malloc(len + 1));
-  if (!output) throw bad_alloc();
-  static_cast<char *>(output)[len] = '\0';
-  memcpy(static_cast<char *>(output), data, len);
-  return buffer(static_cast<unsigned char *>(output), len);
-}
-
-
-buffer to_buffer(const string &source)
-{
-  return to_buffer(source.c_str(), source.size());
-}
 
 
 buffer unescape(const unsigned char escaped[], size_t len)
