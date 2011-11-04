@@ -48,11 +48,27 @@ typedef pair<const unsigned char *, size_t> buffer;
 
 buffer builtin_unescape(const unsigned char escaped[], size_t)
 {
+#ifdef _WIN32
+  /* On Windows only, the return value from PQunescapeBytea() must be freed
+   * using PQfreemem.  Copy to a buffer allocated by libpqxx, so that the
+   * binarystring's buffer can be freed uniformly,
+   */
+  size_t unescaped_len = 0;
+  PQAlloc<unsigned char> A(
+	PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped_len));
+  void *data = A.get();
+  if (!data) throw bad_alloc();
+  return to_buffer(data, escapedlen);
+#else
+  /* On non-Windows platforms, it's okay to free libpq-allocated memory using
+   * free().  No extra copy needed.
+   */
   buffer unescaped;
   unescaped.first = PQunescapeBytea(
 	const_cast<unsigned char *>(escaped), &unescaped.second);
   if (!unescaped.first) throw bad_alloc();
   return unescaped;
+#endif
 }
 
 

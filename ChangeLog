@@ -1,3 +1,9 @@
+2011-11-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/binarystring.hxx, include/pqxx/util.hxx, src/binarystring.cxx,
+ src/util.cxx:
+ - Always free binarystring buffer using std::free().
+ - Fixes #227: on Windoes, must free() from same library that malloc()ed.
+ - Thanks Sam Kapilivsky for diagnosing the error and working out the fix.
 2011-11-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection.cxx:
  - Work around compiler warning for removed PGRES_POLLING_ACTIVE in switch.
