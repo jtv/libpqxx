@@ -121,7 +121,7 @@ pqxx::connect_async::do_startconnect(handle orig)
   m_connecting = false;
   orig = PQconnectStart(options().c_str());
   if (!orig) throw bad_alloc();
-  if (PQconnectPoll(orig) == PGRES_POLLING_FAILED)
+  if (PQstatus(orig) == CONNECTION_BAD)
   {
     do_dropconnect(orig);
     throw broken_connection(string(PQerrorMessage(orig)));
@@ -141,11 +141,10 @@ pqxx::connect_async::do_completeconnect(handle orig)
   // Our "attempt to connect" state ends here, for better or for worse
   m_connecting = false;
 
-  PostgresPollingStatusType pollstatus;
+  PostgresPollingStatusType pollstatus = PGRES_POLLING_WRITING;
 
   do
   {
-    pollstatus = PQconnectPoll(orig);
     switch (pollstatus)
     {
     case PGRES_POLLING_FAILED:
@@ -168,6 +167,7 @@ pqxx::connect_async::do_completeconnect(handle orig)
       // without requiring it to be defined.
       break;
     }
+    pollstatus = PQconnectPoll(orig);
   } while (pollstatus != PGRES_POLLING_OK);
 
   return orig;

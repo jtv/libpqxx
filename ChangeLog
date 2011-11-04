@@ -1,4 +1,8 @@
 2011-11-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection.cxx:
+ - Fix #232: long-standing asyncconnection bug (especially with SSL).
+ - Thanks again Sam Kapilivksy for tracking this down.
+2011-11-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/binarystring.hxx, include/pqxx/util.hxx, src/binarystring.cxx,
  src/util.cxx:
  - Always free binarystring buffer using std::free().
