@@ -43,9 +43,9 @@ default:
 
 !IF "$(OS)" == "Windows_NT"
 NULL=
-!ELSE 
+!ELSE
 NULL=nul
-!ENDIF 
+!ENDIF
 
 !include win32/common
 
@@ -77,19 +77,18 @@ LIBTOOL=link.exe -lib
 
 # The options common to all the different builds.
 CXX_FLAGS_BASE=/nologo /W3 /EHsc /FD /GR /c \
-    /I "include" /I $(PGSQLSRC)\include /I $(PGSQLSRC)\interfaces\libpq \
-    /D PGSTD=$(STD) /D "WIN32" /D "_MBCS" /D "_WINDOWS" /D "PQXX_INTERNAL" \
-    /D "PQXX_AUTOLINK"
+    /I "include" /I $(PGSQLINC) /I $(LIBPQINC) \
+    /D PGSTD=$(STD) /D "WIN32" /D "_MBCS" /D "_WINDOWS" /D "PQXX_INTERNAL"
 
 CXX_FLAGS_DLLRELEASE=$(CXX_FLAGS_BASE) /MD  /D "NDEBUG" /D "PQXX_SHARED"
 CXX_FLAGS_DLLDEBUG=$(CXX_FLAGS_BASE) /MDd /Gm /ZI /Od /D "_DEBUG" /D "PQXX_SHARED" /RTC1
 CXX_FLAGS_STATICRELEASE=$(CXX_FLAGS_BASE) /MD /D "_LIB" /D "NDEBUG"
 CXX_FLAGS_STATICDEBUG=$(CXX_FLAGS_BASE) /MDd /Gm /ZI /Od /D "_LIB" /D "_DEBUG" /RTC1
 
-LINK_FLAGS_BASE=kernel32.lib ws2_32.lib advapi32.lib /nologo /dll /machine:I386 /libpath:$(LIBPATH1) /libpath:$(LIBPATH2) shell32.lib secur32.lib wldap32.lib
+LINK_FLAGS_BASE=kernel32.lib ws2_32.lib advapi32.lib /nologo /dll /machine:I386 shell32.lib secur32.lib wldap32.lib
 
-LINK_FLAGS_DLLRELEASE=$(LINK_FLAGS_BASE)
-LINK_FLAGS_DLLDEBUG=$(LINK_FLAGS_BASE) /debug
+LINK_FLAGS_DLLRELEASE=$(LINK_FLAGS_BASE) /libpath:$(LIBPQPATH) $(LIBPQLIB)
+LINK_FLAGS_DLLDEBUG=$(LINK_FLAGS_BASE) /libpath:$(LIBPQDPATH) $(LIBPQDLIB) /debug
 
 LIB_FLAGS=/nologo
 
@@ -228,13 +227,12 @@ all: static dll
 $(OUTDIR):
 	-@mkdir $(OUTDIR)
 
-staticdebug: $(OUTFILE_STATICDEBUG).lib $(OUTDIR) $(OUTDIR)\libpqd.dll $(OUTDIR)\libpqddll.lib
+staticdebug: $(OUTFILE_STATICDEBUG).lib $(OUTDIR) $(OUTDIR)\$(LIBPQDDLL) $(OUTDIR)\$(LIBPQDLIB)
+staticrelease: $(OUTFILE_STATICRELEASE).lib $(OUTDIR) $(OUTDIR)\$(LIBPQDLL) $(OUTDIR)\$(LIBPQLIB)
 
-staticrelease: $(OUTFILE_STATICRELEASE).lib $(OUTDIR) $(OUTDIR)\libpq.dll $(OUTDIR)\libpqdll.lib
+dlldebug: $(OUTFILE_DLLDEBUG).dll $(OUTDIR) $(OUTDIR)\$(LIBPQDDLL)
 
-dlldebug: $(OUTFILE_DLLDEBUG).dll $(OUTDIR) $(OUTDIR)\libpqd.dll
-
-dllrelease: $(OUTFILE_DLLRELEASE).dll $(OUTDIR) $(OUTDIR)\libpq.dll
+dllrelease: $(OUTFILE_DLLRELEASE).dll $(OUTDIR) $(OUTDIR)\$(LIBPQDLL)
 
 clean:
 	@echo Deleting all intermediate output files and the contents of $(OUTDIR).
@@ -250,35 +248,35 @@ clean:
 # Physical targets
 ########################################################
 
-$(OUTDIR)\libpq.dll: $(OUTDIR)
+$(OUTDIR)\$(LIBPQDLL): $(OUTDIR)
 	@echo -------------------------------------------------------------
-	@echo Copying libpq.dll to $(OUTDIR).
+	@echo Copying $(LIBPQDLL) to $(OUTDIR).
 	@echo.
-	@echo IMPORTANT: you MUST copy this libpq.dll into the directory
-	@echo where your program's .EXE resides. The system libpq.dll is
+	@echo IMPORTANT: you MUST copy this $(LIBPQDLL) into the directory
+	@echo where your program's .EXE resides. The system $(LIBPQDLL) is
 	@echo not necessarily compatible with the libpq include files that
 	@echo you built libpqxx with. Do NOT copy this file into your
 	@echo Windows system32 directory, that may break other programs.
 	@echo Instead, keep it with your program and distribute it along
 	@echo with the program.
 	@echo -------------------------------------------------------------
-	copy $(PGSQLSRC)\interfaces\libpq\release\libpq.dll $(OUTDIR)
+	copy $(LIBPQPATH)\$(LIBPQDLL) $(OUTDIR)
 
-$(OUTDIR)\libpqd.dll: $(OUTDIR)
+$(OUTDIR)\$(LIBPQDDLL): $(OUTDIR)
 	@echo -------------------------------------------------------------
-	@echo Copying libpqD.dll to $(OUTDIR).
+	@echo Copying $(LIBPQDDLL) to $(OUTDIR).
 	@echo.
-	@echo IMPORTANT: you MUST copy this libpqd.dll into the directory
+	@echo IMPORTANT: you MUST copy this $(LIBPQDDLL) into the directory
 	@echo where your program's .EXE resides, or you must make sure that
 	@echo it is in your system PATH.
 	@echo -------------------------------------------------------------
-	copy $(PGSQLSRC)\interfaces\libpq\debug\libpqd.dll $(OUTDIR)
+	copy $(LIBPQPATH)\$(LIBPQDDLL) $(OUTDIR)
 
-$(OUTDIR)\libpqdll.lib: $(OUTDIR)
-	copy $(PGSQLSRC)\interfaces\libpq\release\libpqdll.lib $(OUTDIR)
+$(OUTDIR)\$(LIBPQLIB): $(OUTDIR)
+	copy $(LIBPQPATH)\$(LIBPQLIB) $(OUTDIR)
 
-$(OUTDIR)\libpqddll.lib: $(OUTDIR)
-	copy $(PGSQLSRC)\interfaces\libpq\debug\libpqddll.lib $(OUTDIR)
+$(OUTDIR)\$(LIBPQDLIB): $(OUTDIR)
+	copy $(LIBPQPATH)\$(LIBPQDLIB) $(OUTDIR)
 
 $(OUTFILE_STATICDEBUG).lib: $(OUTDIR) $(OBJ_STATICDEBUG)
 	$(LIBTOOL) $(LIB_FLAGS) $(OBJ_STATICDEBUG) /out:"$(OUTFILE_STATICDEBUG).lib"

@@ -1,4 +1,12 @@
 2011-11-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh, win32/vc-test-unit.mak.template:
+ - Support building of new-style unit tests on Visual C++.
+ - As per patch in #238; thanks Sam Kapilivsky.
+ win32/common-sample, win32/vc-libpqxx.mak.template,
+ win32/vc-test.mak.template:
+ - Easier Visual C++ setup.
+ - As per patch in #238; thanks Sam Kapilivsky.
+2011-11-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/libpqxx.xml:
  - Removed reference to tablestreams.
 2011-11-13  Jeroen T. Vermeulen <jtv@xs4all.nl>

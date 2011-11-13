@@ -4,16 +4,18 @@
  - API change: prepared statements are now weakly-typed, and much simpler.
  - API change: fields and tuples are now stand-alone classes in ::pqxx.
  - API change: thread-safety field have_strerror_r is now have_safe_strerror.
- - Fixes compatibility problems between 9.x libpq and 7.x backend.
+ - API change: notify_listener has been replaced with notification_receiver.
+ - notification_receiver takes a payload parameter.
+ - Easier Visual C++ setup.
  - Absolutely requires a libpq version with PQescapeStringConn.
  - Absolutely requires libpq 8.0 or better.
  - Changes for C++0x.
  - Supports clang++.
+ - Visual C++ makefiles now support new-style unit tests.
  - Sample headers for more recent Visual Studio versions.
  - Fixes binary-data escaping problems with postgres 9.0.
  - Fixes problems with binary-string handling and escaping.
- - notify_listener has been replaced with notification_receiver.
- - notification_receiver takes a payload parameter.
+ - Fixes compatibility problems between 9.x libpq and 7.x backend.
  - quote_name to escape SQL identifiers for use in queries.
  - syntax_error reports error's approximate location in the query.
  - On Windows, now uses ws2_32 instead of wsock32.

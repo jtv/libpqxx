@@ -54,6 +54,7 @@ if which python >/dev/null ; then
 	./tools/template2mak.py test/unit/Makefile.am.template test/unit/Makefile.am
 	makewinmake win32/vc-libpqxx.mak.template win32/vc-libpqxx.mak
 	makewinmake win32/vc-test.mak.template win32/vc-test.mak
+	makewinmake win32/vc-test-unit.mak.template win32/vc-test-unit.mak
 	makewinmake win32/mingw.mak.template win32/MinGW.mak
 else
 	echo "Python not available--not generating Visual C++ makefiles."
