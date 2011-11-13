@@ -1,3 +1,26 @@
+2011-11-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/tablereader.hxx, include/pqxx/tablestream.hxx,
+ include/pqxx/tablewriter.hxx:
+ - Deprecated tablestream classes (tablereader, tablewriter).
+ - Fixes #199, #223.
+ - Thanks to cuboci and Andreas Freund for pointing out the problems.
+ include/pqxx/transaction_base.hxx, include/pqxx/transactor.hxx,
+ include/pqxx/util.hxx, test/test000.cxx, test/test007.cxx, test/test010.cxx,
+ test/test013.cxx, test/test018.cxx, test/test020.cxx, test/test026.cxx,
+ test/test029.cxx, test/test032.cxx, test/test037.cxx, test/test039.cxx,
+ test/test066.cxx, test/test075.cxx, test/test082.cxx, test/test083.cxx,
+ test/test088.cxx, test/test_helpers.hxx, test/test_main.hxx:
+ - Create pqxxevents only on demand, locally per test (and as temporary).
+ - Move test coverage from deleted tests to remaining ones.
+ src/transaction_base.cxx:
+ - Removed unneeded tablestream include.
+ test/test005.cxx, test/test006.cxx, test/test008.cxx, test/test009.cxx,
+ test/test024.cxx, test/test025.cxx, test/test027.cxx, test/test028.cxx,
+ test/test068.cxx, test/test080.cxx, test/unit/test_tablestream.cxx:
+ - Deleted tablestream tests.
+ - No longer create permanent pqxxevents table.
+ test/test083.cxx:
+ - No longer create permanent pqxxnumbers table.
 2011-11-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection.cxx:
  - Fix #232: long-standing asyncconnection bug (especially with SSL).

@@ -36,11 +36,7 @@ runner_SOURCES = \
   test001.cxx \
   test002.cxx \
   test004.cxx \
-  test005.cxx \
-  test006.cxx \
   test007.cxx \
-  test008.cxx \
-  test009.cxx \
   test010.cxx \
   test011.cxx \
   test012.cxx \
@@ -53,11 +49,7 @@ runner_SOURCES = \
   test020.cxx \
   test021.cxx \
   test023.cxx \
-  test024.cxx \
-  test025.cxx \
   test026.cxx \
-  test027.cxx \
-  test028.cxx \
   test029.cxx \
   test030.cxx \
   test031.cxx \
@@ -89,7 +81,6 @@ runner_SOURCES = \
   test065.cxx \
   test066.cxx \
   test067.cxx \
-  test068.cxx \
   test069.cxx \
   test070.cxx \
   test071.cxx \
@@ -101,7 +92,6 @@ runner_SOURCES = \
   test077.cxx \
   test078.cxx \
   test079.cxx \
-  test080.cxx \
   test082.cxx \
   test083.cxx \
   test084.cxx \

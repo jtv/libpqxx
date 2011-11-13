@@ -75,9 +75,8 @@ am_runner_OBJECTS = test_binarystring.$(OBJEXT) \
 	test_read_transaction.$(OBJEXT) test_result_slicing.$(OBJEXT) \
 	test_simultaneous_transactions.$(OBJEXT) \
 	test_sql_cursor.$(OBJEXT) test_stateless_cursor.$(OBJEXT) \
-	test_string_conversion.$(OBJEXT) test_tablestream.$(OBJEXT) \
-	test_test_helpers.$(OBJEXT) test_thread_safety_model.$(OBJEXT) \
-	runner.$(OBJEXT)
+	test_string_conversion.$(OBJEXT) test_test_helpers.$(OBJEXT) \
+	test_thread_safety_model.$(OBJEXT) runner.$(OBJEXT)
 runner_OBJECTS = $(am_runner_OBJECTS)
 am__DEPENDENCIES_1 =
 runner_DEPENDENCIES = $(top_builddir)/src/libpqxx.la \
@@ -256,7 +255,6 @@ runner_SOURCES = \
   test_sql_cursor.cxx \
   test_stateless_cursor.cxx \
   test_string_conversion.cxx \
-  test_tablestream.cxx \
   test_test_helpers.cxx \
   test_thread_safety_model.cxx \
   runner.cxx
@@ -333,7 +331,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_sql_cursor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stateless_cursor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_string_conversion.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_tablestream.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_test_helpers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_thread_safety_model.Po@am__quote@
 

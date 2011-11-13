@@ -85,6 +85,10 @@ string FailedInsert::LastReason;
 void test_032(transaction_base &)
 {
   lazyconnection C;
+  {
+    nontransaction W(C);
+    test::create_pqxxevents(W);
+  }
 
   const string Table = "pqxxevents";
 

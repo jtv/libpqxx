@@ -360,10 +360,10 @@ class items : public CONT
 {
 public:
   /// Create empty items list
-  items() : CONT() {}							//[t80]
+  items() : CONT() {}							//[t0]
   /// Create items list with one element
   explicit items(const T &t) : CONT() { this->push_back(t); }		//[t0]
-  items(const T &t1, const T &t2) : CONT()				//[t80]
+  items(const T &t1, const T &t2) : CONT()				//[t0]
 	{ this->push_back(t1); this->push_back(t2); }
   items(const T &t1, const T &t2, const T &t3) : CONT()			//[t0]
 	{ this->push_back(t1); this->push_back(t2); this->push_back(t3); }
@@ -386,7 +386,7 @@ public:
   items(const CONT &c) : CONT(c) {}					//[t0]
 
   /// Add element to items list
-  items &operator()(const T &t)						//[t80]
+  items &operator()(const T &t)						//[t0]
   {
     this->push_back(t);
     return *this;
@@ -439,13 +439,13 @@ PGSTD::string separated_list(const PGSTD::string &sep,			//[t0]
 
 /// Render sequence as a string, using given separator between items
 template<typename ITER> inline PGSTD::string
-separated_list(const PGSTD::string &sep, ITER begin, ITER end)		//[t8]
+separated_list(const PGSTD::string &sep, ITER begin, ITER end)		//[t0]
 	{ return separated_list(sep,begin,end,internal::dereference<ITER>()); }
 
 
 /// Render array as a string, using given separator between items
 template<typename OBJ> inline PGSTD::string
-separated_list(const PGSTD::string &sep, OBJ *begin, OBJ *end)		//[t9]
+separated_list(const PGSTD::string &sep, OBJ *begin, OBJ *end)		//[t0]
 	{ return separated_list(sep,begin,end,internal::deref_ptr<OBJ>()); }
 
 

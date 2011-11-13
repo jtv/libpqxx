@@ -11,6 +11,7 @@ namespace
 {
 void test_082(transaction_base &T)
 {
+  test::create_pqxxevents(T);
   const string Table = "pqxxevents";
   result R( T.exec("SELECT * FROM " + Table) );
   T.conn().disconnect();

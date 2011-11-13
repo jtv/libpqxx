@@ -329,6 +329,10 @@ PGSTD::string list_tuple(tuple);
 PGSTD::string list_result(result);
 // Represent result iterator as string
 PGSTD::string list_result_iterator(result::const_iterator);
+
+
+// @deprecated Set up test data for legacy tests.
+void create_pqxxevents(transaction_base &);
 } // namespace test
 
 

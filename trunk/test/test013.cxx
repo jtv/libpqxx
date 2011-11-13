@@ -80,6 +80,12 @@ void test_013(transaction_base &T)
   connection_base &C(T.conn());
   T.abort();
 
+  {
+    work T2(C);
+    test::create_pqxxevents(T2);
+    T2.commit();
+  }
+
   const string Table = "pqxxevents";
 
   pair<int,int> Before;

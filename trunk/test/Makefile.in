@@ -54,33 +54,30 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__EXEEXT_1 = runner$(EXEEXT)
 am_runner_OBJECTS = test000.$(OBJEXT) test001.$(OBJEXT) \
-	test002.$(OBJEXT) test004.$(OBJEXT) test005.$(OBJEXT) \
-	test006.$(OBJEXT) test007.$(OBJEXT) test008.$(OBJEXT) \
-	test009.$(OBJEXT) test010.$(OBJEXT) test011.$(OBJEXT) \
-	test012.$(OBJEXT) test013.$(OBJEXT) test014.$(OBJEXT) \
-	test015.$(OBJEXT) test016.$(OBJEXT) test017.$(OBJEXT) \
-	test018.$(OBJEXT) test020.$(OBJEXT) test021.$(OBJEXT) \
-	test023.$(OBJEXT) test024.$(OBJEXT) test025.$(OBJEXT) \
-	test026.$(OBJEXT) test027.$(OBJEXT) test028.$(OBJEXT) \
-	test029.$(OBJEXT) test030.$(OBJEXT) test031.$(OBJEXT) \
-	test032.$(OBJEXT) test033.$(OBJEXT) test034.$(OBJEXT) \
-	test035.$(OBJEXT) test036.$(OBJEXT) test037.$(OBJEXT) \
-	test039.$(OBJEXT) test046.$(OBJEXT) test048.$(OBJEXT) \
-	test049.$(OBJEXT) test050.$(OBJEXT) test051.$(OBJEXT) \
-	test052.$(OBJEXT) test053.$(OBJEXT) test054.$(OBJEXT) \
-	test055.$(OBJEXT) test056.$(OBJEXT) test057.$(OBJEXT) \
-	test058.$(OBJEXT) test059.$(OBJEXT) test060.$(OBJEXT) \
-	test061.$(OBJEXT) test062.$(OBJEXT) test063.$(OBJEXT) \
-	test064.$(OBJEXT) test065.$(OBJEXT) test066.$(OBJEXT) \
-	test067.$(OBJEXT) test068.$(OBJEXT) test069.$(OBJEXT) \
+	test002.$(OBJEXT) test004.$(OBJEXT) test007.$(OBJEXT) \
+	test010.$(OBJEXT) test011.$(OBJEXT) test012.$(OBJEXT) \
+	test013.$(OBJEXT) test014.$(OBJEXT) test015.$(OBJEXT) \
+	test016.$(OBJEXT) test017.$(OBJEXT) test018.$(OBJEXT) \
+	test020.$(OBJEXT) test021.$(OBJEXT) test023.$(OBJEXT) \
+	test026.$(OBJEXT) test029.$(OBJEXT) test030.$(OBJEXT) \
+	test031.$(OBJEXT) test032.$(OBJEXT) test033.$(OBJEXT) \
+	test034.$(OBJEXT) test035.$(OBJEXT) test036.$(OBJEXT) \
+	test037.$(OBJEXT) test039.$(OBJEXT) test046.$(OBJEXT) \
+	test048.$(OBJEXT) test049.$(OBJEXT) test050.$(OBJEXT) \
+	test051.$(OBJEXT) test052.$(OBJEXT) test053.$(OBJEXT) \
+	test054.$(OBJEXT) test055.$(OBJEXT) test056.$(OBJEXT) \
+	test057.$(OBJEXT) test058.$(OBJEXT) test059.$(OBJEXT) \
+	test060.$(OBJEXT) test061.$(OBJEXT) test062.$(OBJEXT) \
+	test063.$(OBJEXT) test064.$(OBJEXT) test065.$(OBJEXT) \
+	test066.$(OBJEXT) test067.$(OBJEXT) test069.$(OBJEXT) \
 	test070.$(OBJEXT) test071.$(OBJEXT) test072.$(OBJEXT) \
 	test073.$(OBJEXT) test074.$(OBJEXT) test075.$(OBJEXT) \
 	test076.$(OBJEXT) test077.$(OBJEXT) test078.$(OBJEXT) \
-	test079.$(OBJEXT) test080.$(OBJEXT) test082.$(OBJEXT) \
-	test083.$(OBJEXT) test084.$(OBJEXT) test086.$(OBJEXT) \
-	test087.$(OBJEXT) test088.$(OBJEXT) test089.$(OBJEXT) \
-	test090.$(OBJEXT) test092.$(OBJEXT) test093.$(OBJEXT) \
-	test094.$(OBJEXT) runner.$(OBJEXT)
+	test079.$(OBJEXT) test082.$(OBJEXT) test083.$(OBJEXT) \
+	test084.$(OBJEXT) test086.$(OBJEXT) test087.$(OBJEXT) \
+	test088.$(OBJEXT) test089.$(OBJEXT) test090.$(OBJEXT) \
+	test092.$(OBJEXT) test093.$(OBJEXT) test094.$(OBJEXT) \
+	runner.$(OBJEXT)
 runner_OBJECTS = $(am_runner_OBJECTS)
 am__DEPENDENCIES_1 =
 runner_DEPENDENCIES = $(top_builddir)/src/libpqxx.la \
@@ -310,11 +307,7 @@ runner_SOURCES = \
   test001.cxx \
   test002.cxx \
   test004.cxx \
-  test005.cxx \
-  test006.cxx \
   test007.cxx \
-  test008.cxx \
-  test009.cxx \
   test010.cxx \
   test011.cxx \
   test012.cxx \
@@ -327,11 +320,7 @@ runner_SOURCES = \
   test020.cxx \
   test021.cxx \
   test023.cxx \
-  test024.cxx \
-  test025.cxx \
   test026.cxx \
-  test027.cxx \
-  test028.cxx \
   test029.cxx \
   test030.cxx \
   test031.cxx \
@@ -363,7 +352,6 @@ runner_SOURCES = \
   test065.cxx \
   test066.cxx \
   test067.cxx \
-  test068.cxx \
   test069.cxx \
   test070.cxx \
   test071.cxx \
@@ -375,7 +363,6 @@ runner_SOURCES = \
   test077.cxx \
   test078.cxx \
   test079.cxx \
-  test080.cxx \
   test082.cxx \
   test083.cxx \
   test084.cxx \
@@ -448,11 +435,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test001.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test002.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test004.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test005.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test006.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test007.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test008.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test009.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test010.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test011.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test012.Po@am__quote@
@@ -465,11 +448,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test020.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test021.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test023.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test024.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test025.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test026.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test027.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test028.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test029.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test030.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test031.Po@am__quote@
@@ -501,7 +480,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test065.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test066.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test067.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test068.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test069.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test070.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test071.Po@am__quote@
@@ -513,7 +491,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test077.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test078.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test079.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test080.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test082.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test083.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test084.Po@am__quote@

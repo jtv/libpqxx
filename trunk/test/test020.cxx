@@ -16,6 +16,7 @@ const unsigned long BoringYear = 1977;
 
 void test_020(transaction_base &T1)
 {
+  test::create_pqxxevents(T1);
   connection_base &C(T1.conn());
 
   const string Table = "pqxxevents";

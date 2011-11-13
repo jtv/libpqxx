@@ -1,5 +1,6 @@
 4.0
  - API change: noticers are gone!  Use errorhandlers to capture error output.
+ - API change: tablereaders and tablewriters are gone; they weren't safe.
  - API change: prepared statements are now weakly-typed, and much simpler.
  - API change: fields and tuples are now stand-alone classes in ::pqxx.
  - API change: thread-safety field have_strerror_r is now have_safe_strerror.
