@@ -106,7 +106,7 @@ public:
    * will remain committed, so any changes in the database remain regardless of
    * how this function terminates.
    */
-  void on_commit() {}							//[t6]
+  void on_commit() {}							//[t7]
 
   /// Overridable function to be called when "in doubt" about outcome
   /** This may happen if the connection to the backend is lost while attempting

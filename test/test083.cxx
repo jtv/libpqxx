@@ -35,7 +35,7 @@ void test_083(transaction_base &orgT)
   }
 
   work T(C, "test83");
-  T.exec("CREATE TABLE " + Table + "(num INTEGER)");
+  T.exec("CREATE TEMP TABLE " + Table + "(num INTEGER)");
 
   tablewriter W(T, Table);
   back_insert_iterator<tablewriter> b(W);

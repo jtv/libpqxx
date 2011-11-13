@@ -99,6 +99,11 @@ private:
 void test_026(transaction_base &)
 {
   lazyconnection C;
+  {
+    nontransaction T(C);
+    test::create_pqxxevents(T);
+    T.commit();
+  }
 
   // Perform (an instantiation of) the UpdateYears transactor we've defined
   // in the code above.  This is where the work gets done.

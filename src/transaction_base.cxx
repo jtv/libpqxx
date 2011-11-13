@@ -27,7 +27,6 @@
 
 #include "pqxx/connection_base"
 #include "pqxx/result"
-#include "pqxx/tablestream"
 #include "pqxx/transaction_base"
 
 #include "pqxx/internal/gates/connection-transaction.hxx"

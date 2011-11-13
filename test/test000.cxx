@@ -98,6 +98,9 @@ void test_000(transaction_base &)
   testitems(I4,4);
   items<int> I5(1,2,3,4,5);
   testitems(I5,5);
+  items<int> Ivar;
+  Ivar(1);
+  testitems(Ivar,1);
   const string l = separated_list(",",I5.begin(),I5.end(),intderef());
   PQXX_CHECK_EQUAL(l, "1,2,3,4,5", "separated_list is broken.");
   vector<int> V2(I2);

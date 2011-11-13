@@ -168,6 +168,12 @@ void test_007(transaction_base &T)
   T.abort();
   C.set_client_encoding("SQL_ASCII");
 
+  {
+    work T2(C);
+    test::create_pqxxevents(T2);
+    T2.commit();
+  }
+
   // Perform (an instantiation of) the UpdateYears transactor we've defined
   // in the code above.  This is where the work gets done.
   C.perform(UpdateYears());

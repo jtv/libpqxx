@@ -6,11 +6,12 @@ using namespace PGSTD;
 using namespace pqxx;
 
 
-// Test program for libpqxx.  Attempt to perform nested queries.
+// Test program for libpqxx.  Attempt to perform nested transactions.
 namespace
 {
 void test_088(transaction_base &T0)
 {
+  test::create_pqxxevents(T0);
   connection_base &C(T0.conn());
   if (!C.supports(connection_base::cap_nested_transactions))
   {
