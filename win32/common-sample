@@ -23,6 +23,7 @@
 #
 # In the latter case, PGSTD must be set to the namespace used by your preferred
 # implementation.  In all other cases, just leave this set to "std".
+
 STD="std"
 
 # If you are using a 3rd-party STL like STLport, remember to check your path
@@ -36,18 +37,66 @@ STD="std"
 # Depending on your STL library min/max need to be defined.  Using STLport
 # there is no need for libpqxx to redefine these for me.
 
-# The next line gives us the src directory to add additional include directories
-# We need certain header files from the Postgres code.  Specifically 
+# The next line gives us the directory under which all PostgreSQL include
+# directories, DLLs and LIB files can be found.
 #
-#	postgres_ext.h (in src/include in the PostgreSQL source tree)
-#	libpq-fe.h (in src/interfaces/libpq in the PostgreSQL source tree)
+# If you built PostgreSQL from source, this is probably the only line you
+# will need to change.
 #
-# This directory is also used to find the compiled libpq and libpqd.
-PGSQLSRC="D:\Src\postgresql-8.1.3\src"
+# If you installed PostgreSQL using the One Click Installer from EnterpriseDB,
+# comment out the following line and uncomment the line after it.
+#
+# Edit the appropriate line to match your specific installation.
 
-# Paths where the libpq library binary or binaries can be found.
-# We should use the libpq libraries that correspond to the source tree whose
-# headers we are including.  This ensures that we find all in the same place:
-LIBPATH1=$(PGSQLSRC)/interfaces/libpq/Release
-LIBPATH2=$(PGSQLSRC)/interfaces/libpq/Debug
+PGSQLSRC="C:\Sources\postgresql-9.1.1\src"
 
+#PGSQLSRC="C:\Program Files\PostgreSQL\9.1"
+
+# This is the directory where the Postgres header files, e.g. postgres_ext.h,
+# are found.
+
+PGSQLINC=$(PGSQLSRC)\include
+
+# This is the directory where the libpq header files, e.g. libpq-fe.h,
+# are found.  If you used the One Click Installer, comment out the next line
+# and uncomment the one following it:
+
+LIBPQINC=$(PGSQLSRC)\interfaces\libpq
+
+#LIBPQINC=$(PGSQLSRC)\include
+
+# This is the directory where the release build of the libpq DLL
+# and its corresponding LIB file are found, as well as the names of
+# those two files.
+#
+# If you installed PostgreSQL using the One Click Installer from EnterpriseDB,
+# comment out the next three lines and uncomment the following three:
+
+LIBPQPATH=$(PGSQLSRC)\interfaces\libpq\Release
+LIBPQDLL=libpq.dll
+LIBPQLIB=libpqdll.lib
+
+#LIBPQPATH=$(PGSQLSRC)\lib
+#LIBPQDLL=libpq.dll
+#LIBPQLIB=libpq.lib
+
+# This is the directory where the debug build of the libpq DLL
+# and its corresponding LIB file are found, as well as the names of
+# those two files.
+#
+# NOTE: If you don't have access to a debug build of libpq, just
+# provide the same information as above here. The debug builds of
+# libpqxx will reference the release version of libpq, which will
+# only limit your ability to debug libpq sources but otherwise should
+# work just fine.
+#
+# If you installed PostgreSQL using the One Click Installer from EnterpriseDB,
+# comment out the next three lines and uncomment the following three.
+
+LIBPQDPATH=$(PGSQLSRC)\interfaces\libpq\Debug
+LIBPQDDLL=libpqd.dll
+LIBPQDLIB=libpqddll.lib
+
+#LIBPQDPATH=$(PGSQLSRC)\lib
+#LIBPQDDLL=libpq.dll
+#LIBPQDLIB=libpq.lib

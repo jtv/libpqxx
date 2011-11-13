@@ -1,12 +1,12 @@
-# Visual C++ Makefile for libpqxx test suite
-# This file was written by Bart Samwel.
+# Visual C++ Makefile for libpqxx unit tests
+# This file was written by Sam Kapilivsky, based on Bart Samwel's original.
 
 default:
-	@echo LIBPQXX testsuite Makefile for Visual C++ Available Targets
-	@echo -----------------------------------------------------------
+	@echo LIBPQXX unit test suite Makefile for Visual C++ Available Targets
+	@echo -----------------------------------------------------------------
 	@echo.
 	@echo ALL: perform all tests
-	@echo TESTxxx: perform specific test xxx
+	@echo TEST_xxx: perform specific test xxx
 	@echo CLEAN: clean up all output so that tests will run again.
 	@echo.
 	@echo Pass the option DLL=1 to link the test suite against the libpqxx DLL instead
@@ -35,7 +35,8 @@ PQXXLIBTYPESUFFIX=_static
 
 
 CXX_FLAGS_BASE=/nologo /W3 /EHsc /FD /GR /c \
-    /I "include" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_WINDOWS" $(PQXX_SHARED)
+    /I "include" /I "test" /I $(PGSQLINC) /I $(LIBPQINC) \
+    /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_WINDOWS" $(PQXX_SHARED)
 
 LINK_FLAGS_BASE=kernel32.lib ws2_32.lib advapi32.lib /nologo /machine:I386 /libpath:"$(LIBDIR)"
 
@@ -55,7 +56,7 @@ LIBPQ=$(LIBPQDLL)
 !ENDIF
 
 
-INTDIR=Test$(PQXXLIBTYPE)$(BUILDMODE)
+INTDIR=Unit$(PQXXLIBTYPE)$(BUILDMODE)
 PQXXLIB=libpqxx$(PQXXLIBTYPESUFFIX)$(DEBUGSUFFIX).lib
 PQXX=libpqxx$(DEBUGSUFFIX).dll
 
@@ -98,11 +99,10 @@ $(INTDIR)\runner.success: $(INTDIR)\runner.exe
 
 
 $(INTDIR)\runner.exe: $(OBJS) $(DLLS)
-	@$(LINK) $(LINK_FLAGS) $(OBJS) $(PQXXLIB) \
-		/out:"$(INTDIR)\\runner.exe"
+	@$(LINK) $(LINK_FLAGS) $(OBJS) $(PQXXLIB) /out:"$(INTDIR)\\runner.exe"
 
 
-###MAKTEMPLATE:FOREACH test/*.cxx
+###MAKTEMPLATE:FOREACH test/unit/*.cxx
 $(INTDIR)\###BASENAME###.obj:
 	@$(CXX) $(CXX_FLAGS) ###FILENAME### /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 ###MAKTEMPLATE:ENDFOREACH
@@ -110,6 +110,7 @@ $(INTDIR)\###BASENAME###.obj:
 
 $(INTDIR)\$(LIBPQ):
 	@copy $(LIBDIR)\$(LIBPQ) $(INTDIR)
+
 
 $(INTDIR)\$(PQXX):
 	@copy $(LIBDIR)\$(PQXX) $(INTDIR)
