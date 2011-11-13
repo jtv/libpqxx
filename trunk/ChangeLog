@@ -1,4 +1,7 @@
 2011-11-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ doc/libpqxx.xml:
+ - Removed reference to tablestreams.
+2011-11-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/tablereader.hxx, include/pqxx/tablestream.hxx,
  include/pqxx/tablewriter.hxx:
  - Deprecated tablestream classes (tablereader, tablewriter).
