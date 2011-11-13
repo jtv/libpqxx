@@ -429,18 +429,6 @@
 
       <listitem>
 	<para>
-	  <literal>tablestream</literal> provides simple, relatively direct
-	  access to a table for either reading (through its child class
-	  <literal>tablereader</literal>) or writing (through child class
-	  <literal>tablewriter</literal>) using
-	  <productname>PostgreSQL</productname>'s <literal>COPY</literal>
-	  command.  This is typically much faster than issuing
-	  <literal>SELECT</literal> or <literal>UPDATE</literal> queries.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
 	  <literal>transaction_base</literal> defines the common public
 	  interface for the <literal>transaction</literal>-like classes:
 	  <literal>nontransaction</literal>,
