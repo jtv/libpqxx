@@ -188,21 +188,22 @@ void create_pqxxevents(transaction_base &t)
   t.exec(
 	"CREATE TEMP TABLE pqxxevents(year integer, event varchar) "
 	"ON COMMIT PRESERVE ROWS");
+  t.exec("INSERT INTO pqxxevents(year, event) VALUES (71, 'jtv')");
+  t.exec("INSERT INTO pqxxevents(year, event) VALUES (38, 'time_t overflow')");
   t.exec(
-	"INSERT INTO pqxxevents(year, event) VALUES "
-	"(71, 'jtv'), "
-	"(38, 'time_t overflow'), "
-	"(1, '''911'' WTC attack'), "
-	"(81, 'C:\\>'), "
-	"(1978, 'bloody\t\tcold'), "
-	"(99, ''), "
-	"(2002, 'libpqxx'), "
-	"(1989, 'Ode an die Freiheit'), "
-	"(2001, 'New millennium'), "
-	"(1974, ''), "
-	"(97, 'Asian crisis'), "
-	"(2001, 'A Space Odyssey')"
-	);
+	"INSERT INTO pqxxevents(year, event) VALUES (1, '''911'' WTC attack')");
+  t.exec("INSERT INTO pqxxevents(year, event) VALUES (81, 'C:\\>')");
+  t.exec("INSERT INTO pqxxevents(year, event) VALUES (1978, 'bloody\t\tcold')");
+  t.exec("INSERT INTO pqxxevents(year, event) VALUES (99, '')");
+  t.exec("INSERT INTO pqxxevents(year, event) VALUES (2002, 'libpqxx')");
+  t.exec(
+	"INSERT INTO pqxxevents(year, event) "
+	"VALUES (1989, 'Ode an die Freiheit')");
+  t.exec("INSERT INTO pqxxevents(year, event) VALUES (2001, 'New millennium')");
+  t.exec("INSERT INTO pqxxevents(year, event) VALUES (1974, '')");
+  t.exec("INSERT INTO pqxxevents(year, event) VALUES (97, 'Asian crisis')");
+  t.exec(
+	"INSERT INTO pqxxevents(year, event) VALUES (2001, 'A Space Odyssey')");
 }
 } // namespace pqxx::test
 } // namespace pqxx

@@ -1,3 +1,6 @@
+2011-11-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test_main.hxx:
+ - Workaround in create_pqxxevents for older backends without multi-insert.
 2011-11-13  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh, win32/vc-test-unit.mak.template:
  - Support building of new-style unit tests on Visual C++.
