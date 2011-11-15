@@ -67,7 +67,7 @@ DLLS=$(INTDIR)\$(LIBPQ)
 !ENDIF
 
 OBJS= \
-###MAKTEMPLATE:FOREACH test/test*.cxx
+###MAKTEMPLATE:FOREACH test/unit/test*.cxx
   $(INTDIR)\###BASENAME###.obj \
 ###MAKTEMPLATE:ENDFOREACH
   $(INTDIR)\runner.obj
