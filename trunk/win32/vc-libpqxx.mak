@@ -270,13 +270,13 @@ $(OUTDIR)\$(LIBPQDDLL): $(OUTDIR)
 	@echo where your program's .EXE resides, or you must make sure that
 	@echo it is in your system PATH.
 	@echo -------------------------------------------------------------
-	copy $(LIBPQPATH)\$(LIBPQDDLL) $(OUTDIR)
+	copy $(LIBPQDPATH)\$(LIBPQDDLL) $(OUTDIR)
 
 $(OUTDIR)\$(LIBPQLIB): $(OUTDIR)
 	copy $(LIBPQPATH)\$(LIBPQLIB) $(OUTDIR)
 
 $(OUTDIR)\$(LIBPQDLIB): $(OUTDIR)
-	copy $(LIBPQPATH)\$(LIBPQDLIB) $(OUTDIR)
+	copy $(LIBPQDPATH)\$(LIBPQDLIB) $(OUTDIR)
 
 $(OUTFILE_STATICDEBUG).lib: $(OUTDIR) $(OBJ_STATICDEBUG)
 	$(LIBTOOL) $(LIB_FLAGS) $(OBJ_STATICDEBUG) /out:"$(OUTFILE_STATICDEBUG).lib"
