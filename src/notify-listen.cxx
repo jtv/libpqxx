@@ -17,6 +17,7 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
+#include <functional>
 #include <string>
 
 #include "pqxx/notify-listen"
