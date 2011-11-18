@@ -22,6 +22,8 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
+#include <functional>
+
 
 namespace pqxx
 {
