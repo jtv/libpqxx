@@ -1,3 +1,8 @@
+2011-11-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, src/connection_base.cxx,
+ test/unit/test_errorhandler.cxx:
+ - Provide access to a connection's errorhandlers list.
+ - Fixes #242.  Thanks Sam Kapilivsky for pointing out the need.
 2011-11-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/errorhandler.hxx, src/notify-listen.cxx:
  - Added missing #include <functional>
