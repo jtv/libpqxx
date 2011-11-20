@@ -792,6 +792,19 @@ void pqxx::connection_base::unregister_errorhandler(errorhandler *handler)
 }
 
 
+vector<errorhandler *> pqxx::connection_base::get_errorhandlers() const
+{
+  vector<errorhandler *> handlers;
+  handlers.reserve(m_errorhandlers.size());
+  for (
+	list<errorhandler *>::const_iterator i = m_errorhandlers.begin(); 
+	i != m_errorhandlers.end();
+	++i)
+    handlers.push_back(*i);
+  return handlers;
+}
+
+
 pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 {
   activate();

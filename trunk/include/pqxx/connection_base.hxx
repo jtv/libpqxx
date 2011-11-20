@@ -764,7 +764,6 @@ public:
   /// Attempt to cancel the ongoing query, if any.
   void cancel_query();
 
-
   /// Error verbosity levels.
   enum error_verbosity
   {
@@ -786,6 +785,21 @@ public:
   void set_verbosity(error_verbosity verbosity) throw();
    /// Retrieve current error verbosity
   error_verbosity get_verbosity() const throw() {return m_verbosity;}
+
+  /// Return pointers to the active errorhandlers.
+  /** The entries are ordered from oldest to newest handler.
+   *
+   * You may use this to find errorhandlers that your application wants to
+   * delete when destroying the connection.  Be aware, however, that libpqxx
+   * may also add errorhandlers of its own, and those will be included in the
+   * list.  If this is a problem for you, derive your errorhandlers from a
+   * custom base class derived from pqxx::errorhandler.  Then use dynamic_cast
+   * to find which of the error handlers are yours.
+   *
+   * The pointers point to the real errorhandlers.  The container it returns
+   * however is a copy of the one internal to the connection, not a reference.
+   */
+  PGSTD::vector<errorhandler *> get_errorhandlers() const;
 
 protected:
   explicit connection_base(connectionpolicy &);

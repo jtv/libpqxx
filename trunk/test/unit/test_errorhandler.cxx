@@ -33,6 +33,7 @@ public:
 };
 }
 
+// Support printing of TestErrorHandler.
 namespace pqxx
 {
 template<> struct string_traits<TestErrorHandler *>
@@ -115,6 +116,88 @@ void test_destroying_connection_unregisters_handlers()
 }
 
 
+class MinimalErrorHandler: public errorhandler
+{
+public:
+  MinimalErrorHandler(connection_base &c) : errorhandler(c) {}
+  virtual bool operator()(const char[]) throw () { return true; }
+};
+
+
+void test_get_errorhandlers(connection_base &c)
+{
+  MinimalErrorHandler *eh3 = NULL;
+  const vector<errorhandler *> handlers_before = c.get_errorhandlers();
+  const size_t base_handlers = handlers_before.size();
+
+  {
+    MinimalErrorHandler eh1(c);
+    const vector<errorhandler *> handlers_with_eh1 = c.get_errorhandlers();
+    PQXX_CHECK_EQUAL(
+	handlers_with_eh1.size(),
+	base_handlers + 1,
+	"Registering a handler didn't create exactly one handler.");
+    PQXX_CHECK_EQUAL(
+	size_t(*handlers_with_eh1.rbegin()),
+	size_t(&eh1),
+	"Wrong handler or wrong order.");
+
+    {
+      MinimalErrorHandler eh2(c);
+      const vector<errorhandler *> handlers_with_eh2 = c.get_errorhandlers();
+      PQXX_CHECK_EQUAL(
+	handlers_with_eh2.size(),
+	base_handlers + 2,
+	"Adding second handler didn't work.");
+      PQXX_CHECK_EQUAL(
+	size_t(*(handlers_with_eh2.rbegin() + 1)),
+	size_t(&eh1),
+	"Second handler upset order.");
+      PQXX_CHECK_EQUAL(
+	size_t(*handlers_with_eh2.rbegin()),
+	size_t(&eh2), "Second handler isn't right.");
+    }
+    const vector<errorhandler *> handlers_without_eh2 = c.get_errorhandlers();
+    PQXX_CHECK_EQUAL(
+	handlers_without_eh2.size(),
+	base_handlers + 1,
+	"Handler destruction produced wrong-sized handlers list.");
+    PQXX_CHECK_EQUAL(
+	size_t(*handlers_without_eh2.rbegin()),
+	size_t(&eh1),
+	"Destroyed wrong handler.");
+
+    eh3 = new MinimalErrorHandler(c);
+    const vector<errorhandler *> handlers_with_eh3 = c.get_errorhandlers();
+    PQXX_CHECK_EQUAL(
+	handlers_with_eh3.size(),
+	base_handlers + 2,
+	"Remove-and-add breaks.");
+    PQXX_CHECK_EQUAL(
+	size_t(*handlers_with_eh3.rbegin()),
+	size_t(eh3),
+	"Added wrong third handler.");
+  }
+  const vector<errorhandler *> handlers_without_eh1 = c.get_errorhandlers();
+  PQXX_CHECK_EQUAL(
+	handlers_without_eh1.size(),
+	base_handlers + 1,
+	"Destroying oldest handler didn't work as expected.");
+  PQXX_CHECK_EQUAL(
+	size_t(*handlers_without_eh1.rbegin()),
+	size_t(eh3),
+	"Destroyed wrong handler.");
+
+  delete eh3;
+
+  const vector<errorhandler *> handlers_without_all = c.get_errorhandlers();
+  PQXX_CHECK_EQUAL(
+	handlers_without_all.size(),
+	base_handlers,
+	"Destroying all custom handlers didn't work as expected.");
+}
+
+
 void test_errorhandler(transaction_base &t)
 {
   test_process_notice_calls_errorhandler(t.conn());
@@ -122,6 +205,7 @@ void test_errorhandler(transaction_base &t)
   test_returning_false_stops_error_handling(t.conn());
   test_destroyed_error_handlers_are_not_called(t.conn());
   test_destroying_connection_unregisters_handlers();
+  test_get_errorhandlers(t.conn());
 }
 } // namespace
 
