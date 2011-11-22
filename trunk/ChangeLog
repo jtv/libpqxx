@@ -1,5 +1,8 @@
 2011-11-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
  win32/INSTALL.txt:
+ - Cosmetic.
+2011-11-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/INSTALL.txt:
  - Documentation patch from #243.  Thanks Sam Kapilivsky.
 2011-11-20  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, src/connection_base.cxx,
