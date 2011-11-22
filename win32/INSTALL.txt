@@ -43,14 +43,14 @@ build it from sources.
 
 Installing libpq
 ----------------
-The easiest way to get libpq on a Windows system, is to install PostgreSQL. The
+The easiest way to get libpq on a Windows system, is to install PostgreSQL.  The
 PostgreSQL installer from Windows can be obtained from
 
 	http://www.postgresql.org/download/windows
 
 This build procedure has been tested against all the versions of the One click
-installer up to the current version 9.1.1-1. If you select the pgInstaller, you
-will have to make some adjustments to these instructions and scripts for the
+installer up to the current version 9.1.1-1.  If you opt for the pgInstaller,
+you will have to make some adjustments to these instructions and scripts for the
 build to succeeed.
 
 After installing PostgreSQL, you will be able to find libpq under
@@ -61,7 +61,7 @@ Building libpq from sources
 ---------------------------
 If you prefer to build libpq from sources, you can compile a recent version of
 PostgreSQL.  Its source tree should then contain libpq in binary form, as well
-as the corresponding headers.  Look for these in src/interfaces/libpq. Visual
+as the corresponding headers.  Look for these in src/interfaces/libpq.  Visual
 C++ will generate separate Debug and Release versions in subdirectories called
 Debug and Release, respectively, at that location.  Note these locations; they
 will become important in the next section.
@@ -74,7 +74,7 @@ Select a recent version of postgres and download the corrresponding .tar.gz or
 .tar.bz2 archive for that version.  Unpack the sources to some directory on your
 computer.
 
-Select "Visual Studio Command Prompt" from the Start menu. Alternatively,
+Select "Visual Studio Command Prompt" from the Start menu.  Alternatively,
 open a Command Prompt window and run:
 
     VCVARS32.BAT
@@ -106,21 +106,21 @@ Before you can build libpqxx you need to provide certain common settings:
 
   i) Copy win32/common-sample to win32/common, and edit the latter to reflect
     the paths to your PostgreSQL includes and library files:
-    - If you compiled PostgreSQL for yourself to obtain libpq, simply set PGSQLSRC
-      in win32/common to point to the "src" subdirectory in your PostgreSQL source
-      tree.
+    - If you compiled PostgreSQL for yourself to obtain libpq, simply set
+      PGSQLSRC in win32/common to point to the "src" subdirectory in your
+      PostgreSQL source tree.
     - If you installed libpq using the One Click Installer, verify that PGSQLSRC
-      points to your specific installation of PostgreSQL. Then follow the
+      points to your specific installation of PostgreSQL.  Then follow the
       instructions in the win32/common file to comment several lines out and
       uncomment several others.
-    - If you obtained libpq in any other way, you may be able to build libpqxx by
-      making the appropriate adjustments to the 'common' file.
+    - If you obtained libpq in any other way, you may be able to build libpqxx
+      by making the appropriate adjustments to the 'common' file.
 
  ii) Create the configuration headers: include/pqxx/config-*-*.h.  The easiest
     start for this is to copy from available samples.  In config/sample-headers,
-	find the directories most accurately describing your compiler and libpq
-	version, respectively.  Take the config-*-*.h headers from those directories
-	and copy them into the include/pqxx/ directory.
+    find the directories most accurately describing your compiler and libpq
+    version, respectively.  Take the config-*-*.h headers from those directories
+    and copy them into the include/pqxx/ directory.
     On a Unix-like system these headers would be generated automatically by the
     configure script; in the Windows case they may need some editing.  How these
     files work is described in more detail below.
@@ -132,10 +132,10 @@ iii) If you are building libpqxx from a development source tree rather than from
     don't have these files but you do have a python interpreter, you can
     generate them using the template2mak.py script in the tools directory:
 
-      ./tools/template2mak.py win32/mingw.mak.template win32/mingw.mak
-      ./tools/template2mak.py win32/vc-libpqxx.mak.template win32/vc-libpqxx.mak
-      ./tools/template2mak.py win32/vc-test.mak.template win32/vc-test.mak
-      ./tools/template2mak.py win32/vc-test-unit.mak.template win32/vc-test-unit.mak
+  ./tools/template2mak.py win32/mingw.mak.template win32/mingw.mak
+  ./tools/template2mak.py win32/vc-libpqxx.mak.template win32/vc-libpqxx.mak
+  ./tools/template2mak.py win32/vc-test.mak.template win32/vc-test.mak
+  ./tools/template2mak.py win32/vc-test-unit.mak.template win32/vc-test-unit.mak
 
 
 Building libpqxx
@@ -144,7 +144,7 @@ The rest of the procedure depends on your compiler.
 
 If you're using Visual C++:
 
-1) Select Visual Studio Command Prompt from the Start menu. Alternatively,
+1) Select Visual Studio Command Prompt from the Start menu.  Alternatively,
    open a Command Prompt window and run
 
        VCVARS32.BAT
@@ -159,16 +159,16 @@ If you're using Visual C++:
        "nmake /f win32/vc-libpqxx.mak ALL"
 
    to compile all dynamic, static, debug and release libraries.  Once completed,
-   you will find them in these libraries in the lib directory. The build script
-   also copies the libpq dlls and stub libraries to the lib directory. You will
+   you will find them in these libraries in the lib directory.  The build script
+   also copies the libpq dlls and stub libraries to the lib directory.  You will
    have to link with these files when building applications that use libpqxx
    clases and methods.
 
-3) Your version of the libpq DLL may require other DLLs in order to execute. If
+3) Your version of the libpq DLL may require other DLLs in order to execute.  If
    you installed libpq with the one click installer, these DLLs can be found in
-   the same folder as libpq itself. The exact set of DLLs varies depending on the
-   version of PostgreSQL that you installed. For the current versions of the One
-   Click Installer, they are:
+   the same folder as libpq itself.  The exact set of DLLs varies depending on
+   the version of PostgreSQL that you installed.  For the current versions of
+   the One Click Installer, they are:
    - Version 8.3.16-1 - comerr32.dll, gssapi32.dll, k5sprt32.dll, krb5_32.dll
                         libiconv-2.dll and libintl-8.dll
    - Version 8.4.9-1  - comerr32.dll, gssapi32.dll, k5sprt32.dll, krb5_32.dll
@@ -180,9 +180,9 @@ If you're using Visual C++:
 4) Once you have identified any additional DLLs, you should copy them to another
    location (perhaps the libpqxx lib folder.
 
-5) At this point, you will no longer need to keep the postgres sources or binaries
-   on your computer to build applications with libpqxx.  Feel free to remove them
-   from your system if you wish to do so.
+5) At this point, you will no longer need to keep the postgres sources or
+   binaries on your computer to build applications with libpqxx.  Feel free to
+   remove them from your system if you wish to do so.
 
 If you're using MinGW (but without a Unix-like environment, see above):
 
@@ -223,10 +223,10 @@ Running the unit tests
 ----------------------
 You may also want to compile and run the unit test programs included in the
 package.  The procedure for doing so for Visual Studio users is nearly
-identical to the procedure for running the self-tests, except for the name of
-the .mak file, which is win32\vc-unit.mak. The output build directories are
-UnitStaticDebug, UnitStaticRelease, UnitDllDebug, and UnitDllRelease. The test
-application name is again runner.exe. All of these tests should complete
+identical to the procedure for running the main test suite, except for the name
+of the .mak file, which is win32\vc-unit.mak.  The output build directories are
+UnitStaticDebug, UnitStaticRelease, UnitDllDebug, and UnitDllRelease.  The test
+application name is again runner.exe.  All of these tests should complete
 successfully as well.
 
 
@@ -326,9 +326,9 @@ about not knowing how to use the -R flag, but the executable will still
 be generated, and work just fine.
 
 The last argument to that linker step MUST be -lws2_32.  Without it, the link
-will provide errors about undefined references to select(). If it's not the last
-argument, you will get the same results.  Make sure it's there, and make sure
-it's last. Trust me, you'll be happier.
+will provide errors about undefined references to select().  If it's not the
+last argument, you will get the same results.  Make sure it's there, and make
+sure it's last.  Trust me, you'll be happier.
 
 
 Setting up the configuration headers
