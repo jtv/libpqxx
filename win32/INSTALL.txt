@@ -29,18 +29,42 @@ have the "mktemp" program installed (these can be downloaded from
 http://gnuwin32.sf.net/).  If you use Visual C++, make sure you have at least
 version 7.0 or you'll run into serious compilation trouble.
 
+The latest build has been tested against Visual Studio 8, 9.0 and 10.0, so
+if you build with Visual C++ 7.0 you might have to make some adjustments to
+these instructions and scripts for the build to succeeed.
 
-Building libpq
---------------
+Obtaining libpq
+---------------
 Next, make sure you have a working installation of libpq, the C-level client
 library included with PostgreSQL.
 
-The best way to ensure that you have libpq available, on a Windows system, is to
-compile a recent version of PostgreSQL from source.  Its source tree should
-then contain libpq in binary form, as well as its headers.  Look for these in
-src/interfaces/libpq: Visual C++ will generate separate Debug and Release
-versions in subdirectories called Debug and Release, respecitively, in that
-location.  Note these locations; they will become important in the next section.
+There are two ways to make libpq available on a Windows system: Install it or
+build it from sources.
+
+Installing libpq
+----------------
+The easiest way to get libpq on a Windows system, is to install PostgreSQL. The
+PostgreSQL installer from Windows can be obtained from
+
+	http://www.postgresql.org/download/windows
+
+This build procedure has been tested against all the versions of the One click
+installer up to the current version 9.1.1-1. If you select the pgInstaller, you
+will have to make some adjustments to these instructions and scripts for the
+build to succeeed.
+
+After installing PostgreSQL, you will be able to find libpq under
+
+	C:\Program Files\PostgreSQL\{Version}\lib
+
+Building libpq from sources
+---------------------------
+If you prefer to build libpq from sources, you can compile a recent version of
+PostgreSQL.  Its source tree should then contain libpq in binary form, as well
+as the corresponding headers.  Look for these in src/interfaces/libpq. Visual
+C++ will generate separate Debug and Release versions in subdirectories called
+Debug and Release, respectively, at that location.  Note these locations; they
+will become important in the next section.
 
 The source code for PostgreSQL can be obtained from
 
@@ -50,12 +74,12 @@ Select a recent version of postgres and download the corrresponding .tar.gz or
 .tar.bz2 archive for that version.  Unpack the sources to some directory on your
 computer.
 
-Open a Command Prompt window and run:
+Select "Visual Studio Command Prompt" from the Start menu. Alternatively,
+open a Command Prompt window and run:
 
-	VCVARS32.BAT
+    VCVARS32.BAT
 
-Alternatively, launch Visual Studio and select
-Tools | Visual Studio Command Prompt from the Visual Studio menu.
+to prepare the environment.
 
 From the Command Prompt window, "cd" into the postgres source tree directory and
 run:
@@ -73,32 +97,30 @@ extra "D" in their names.
 (Instructions for building PostgreSQL with MinGW are given in the MSYS section
 below).
 
+Preparing to Compile libpqxx
+----------------------------
 The rest of this text will assume that you have the libpq library in its binary
 form(s), as well as its header files.  Now, to work on building libpqxx!
 
-
-Preparing to Compile libpqxx
-----------------------------
-Before you can build libpqxx you need to provide certain common settings.
+Before you can build libpqxx you need to provide certain common settings:
 
   i) Copy win32/common-sample to win32/common, and edit the latter to reflect
-    the paths to your PostgreSQL includes and library files.
-    On Windows these may differ from one person's system to another, but if you
-    compiled PostgreSQL for yourself to obtain libpq, simply set the PGSQLSRC in
-    win32/common to point to the "src" subdirectory in your PostgreSQL source
-    tree.
-    You may also have to edit the LIBPATH1 and LIBPATH2 variables to point to
-    where your actual libpq library is.  There are two of these because
-    Visual C++ will normally produce two flavours ("release" and "debug") of the
-    library, and the build procedure may need to find either, depending on which
-    flavour of libpqxx build you'll be doing.
+    the paths to your PostgreSQL includes and library files:
+    - If you compiled PostgreSQL for yourself to obtain libpq, simply set PGSQLSRC
+      in win32/common to point to the "src" subdirectory in your PostgreSQL source
+      tree.
+    - If you installed libpq using the One Click Installer, verify that PGSQLSRC
+      points to your specific installation of PostgreSQL. Then follow the
+      instructions in the win32/common file to comment several lines out and
+      uncomment several others.
+    - If you obtained libpq in any other way, you may be able to build libpqxx by
+      making the appropriate adjustments to the 'common' file.
 
- ii) If you cannot run the configure script: Create the configuration headers,
-    include/pqxx/config-*-*.h.  The easiest start for this is to copy from
-    available samples.  In config/sample-headers, find the directories most
-    accurately describing your compiler and libpq version, respectively.  Take
-    the config-*-*.h headers from those directories and copy them into the
-    include/pqxx/ directory.
+ ii) Create the configuration headers: include/pqxx/config-*-*.h.  The easiest
+    start for this is to copy from available samples.  In config/sample-headers,
+	find the directories most accurately describing your compiler and libpq
+	version, respectively.  Take the config-*-*.h headers from those directories
+	and copy them into the include/pqxx/ directory.
     On a Unix-like system these headers would be generated automatically by the
     configure script; in the Windows case they may need some editing.  How these
     files work is described in more detail below.
@@ -110,10 +132,10 @@ iii) If you are building libpqxx from a development source tree rather than from
     don't have these files but you do have a python interpreter, you can
     generate them using the template2mak.py script in the tools directory:
 
-./tools/template2mak.py win32/mingw.mak.template win32/mingw.mak
-./tools/template2mak.py win32/vc-libpqxx.mak.template win32/vc-libpqxx.mak
-./tools/template2mak.py win32/vc-test.mak.template win32/vc-test.mak
-./tools/template2mak.py win32/vc-test-unit.mak.template win32/vc-test-unit.mak
+      ./tools/template2mak.py win32/mingw.mak.template win32/mingw.mak
+      ./tools/template2mak.py win32/vc-libpqxx.mak.template win32/vc-libpqxx.mak
+      ./tools/template2mak.py win32/vc-test.mak.template win32/vc-test.mak
+      ./tools/template2mak.py win32/vc-test-unit.mak.template win32/vc-test-unit.mak
 
 
 Building libpqxx
@@ -121,27 +143,60 @@ Building libpqxx
 The rest of the procedure depends on your compiler.
 
 If you're using Visual C++:
-1) Run VCVARS32.BAT to prepare the environment (if you have not already done
-   so).  Then CD into the main directory of the libpqxx source tree.  Among
-   other things it will contain the files "configure" and "Makefile.am," and
+
+1) Select Visual Studio Command Prompt from the Start menu. Alternatively,
+   open a Command Prompt window and run
+
+       VCVARS32.BAT
+
+   to prepare the environment.
+   Then CD into the main directory of the libpqxx source tree.  Among other
+   things it will contain the files "configure" and "Makefile.am," and
    subdirectories "src," "include," "win32" etc.
-2) Run "nmake /f win32/vc-libpqxx.mak ALL" to compile all dynamic, static,
-   debug and release libraries.  Once completed, you will find them in the
-   lib directory.
-3) At this point, you no longer need to keep the postgres sources on your
-   computer.  Feel free to delete them if you wish to do so.
+
+2) Run:
+
+       "nmake /f win32/vc-libpqxx.mak ALL"
+
+   to compile all dynamic, static, debug and release libraries.  Once completed,
+   you will find them in these libraries in the lib directory. The build script
+   also copies the libpq dlls and stub libraries to the lib directory. You will
+   have to link with these files when building applications that use libpqxx
+   clases and methods.
+
+3) Your version of the libpq DLL may require other DLLs in order to execute. If
+   you installed libpq with the one click installer, these DLLs can be found in
+   the same folder as libpq itself. The exact set of DLLs varies depending on the
+   version of PostgreSQL that you installed. For the current versions of the One
+   Click Installer, they are:
+   - Version 8.3.16-1 - comerr32.dll, gssapi32.dll, k5sprt32.dll, krb5_32.dll
+                        libiconv-2.dll and libintl-8.dll
+   - Version 8.4.9-1  - comerr32.dll, gssapi32.dll, k5sprt32.dll, krb5_32.dll
+                        libiconv-2.dll and libintl-8.dll
+   - Version 9.0.5-1  - libiconv-2.dll and libintl-8.dll
+   - Version 9.1.1-1  - libeay32.dll, libiconv-2.dll, libintl-8.dll and
+                        ssleay32.dll
+
+4) Once you have identified any additional DLLs, you should copy them to another
+   location (perhaps the libpqxx lib folder.
+
+5) At this point, you will no longer need to keep the postgres sources or binaries
+   on your computer to build applications with libpqxx.  Feel free to remove them
+   from your system if you wish to do so.
 
 If you're using MinGW (but without a Unix-like environment, see above):
+
 1) Run "make -f win32/MinGW.mak"
+
 2) Consider installing a Unix-like environment like MSYS to automate all this!
 
 
 Running the test suite
 ----------------------
-After that, it is recommended that you compile and run the self-test programs
-included in the package.  Unix, Cygwin, or MSYS users simply type "make check"
-to build and run the entire regression test.  For Visual C++ users, the
-following steps should accomplish the same:
+After building libpqxx, it is recommended that you compile and run the self-test
+programs included in the package.  Unix, Cygwin, or MSYS users simply type
+"make check" to build and run the entire regression test.  For Visual C++ users,
+the following steps should accomplish the same:
 
  1) To build all of the self-test configurations, run:
         nmake /f win32\vc-test.mak ALL
@@ -151,15 +206,28 @@ following steps should accomplish the same:
     This will create four new directories: TestStaticDebug, TestStaticRelease,
     TestDllDebug, and TestDllRelease.  Each of these folders will contain the
     program "runner.exe," as well as any required DLLs.
+
  2) Make sure a PostgreSQL database is running and accessible, and set up the
     environment variables PGDATABASE, PGHOST, PGPORT, and PGUSER as described
     in the libpqxx README file so the test program can connect without needing
     to pass a connection string.
- 3) Run runner.exe from any of the test directories.  Each time runner.exe runs,
+
+ 3) Run runner.exe from any of the test directories.  When runner.exe runs,
     it executes each of the test programs in order.  Some of the tests will
     produce lots of output, some won't produce any.  Error messages that are
-    expected in the course of a normla test run are prefixed with "(Expected)"
+    expected in the course of a normal test run are prefixed with "(Expected)"
     to show that they are not harmful.  All tests should complete successfully.
+
+
+Running the unit tests
+----------------------
+You may also want to compile and run the unit test programs included in the
+package.  The procedure for doing so for Visual Studio users is nearly
+identical to the procedure for running the self-tests, except for the name of
+the .mak file, which is win32\vc-unit.mak. The output build directories are
+UnitStaticDebug, UnitStaticRelease, UnitDllDebug, and UnitDllRelease. The test
+application name is again runner.exe. All of these tests should complete
+successfully as well.
 
 
 Setting Up a Visual Studio Project
@@ -170,10 +238,10 @@ libpqxx (based on description by Alexandre Hanft, 2006-03-06):
  1) Create a new project in the Visual C++ development environment.
  2) Add your first C++ file and provide some initial code, e.g. by copying the
     example from the libpqxx home page.
- 8) Edit Project Properties, C++: Additional Include Directories.  Add the
+ 3) Edit Project Properties, C++: Additional Include Directories.  Add the
     location of the "include" directory found in your libpqxx source tree, e.g.
     C:\src\libpqxx\include if you keep libpqxx in C:\src\libpqxx.
- 9) Edit Project Properties, Linker: Additional Library Directories.  Add the
+ 4) Edit Project Properties, Linker: Additional Library Directories.  Add the
     directory where your libpq and libpqxx libraries are, for example:
     C:\src\libpqxx\lib
  5) Edit Project Properties, Linker, Input: Additional Dependencies.  Add:
