@@ -186,7 +186,7 @@ If you're using Visual C++:
 
 If you're using MinGW (but without a Unix-like environment, see above):
 
-1) Run "make -f win32/MinGW.mak"
+1) Run "mingw32-make -f win32/MinGW.mak"
 
 2) Consider installing a Unix-like environment like MSYS to automate all this!
 
