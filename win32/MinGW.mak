@@ -14,43 +14,43 @@
 # MinGW makefile for libpqxx.  Don't use this; use the configure script instead!
 # Based on original contributed by Pasquale Fersini <basquale.fersini@libero.it>
 
-include "win32/common"
+include win32/common
 
 CXX = g++.exe
 
 OBJ = \
-  "src/binarystring.o" \
-  "src/connection.o" \
-  "src/connection_base.o" \
-  "src/cursor.o" \
-  "src/dbtransaction.o" \
-  "src/errorhandler.o" \
-  "src/except.o" \
-  "src/field.o" \
-  "src/largeobject.o" \
-  "src/nontransaction.o" \
-  "src/notification.o" \
-  "src/notify-listen.o" \
-  "src/pipeline.o" \
-  "src/prepared_statement.o" \
-  "src/result.o" \
-  "src/robusttransaction.o" \
-  "src/statement_parameters.o" \
-  "src/strconv.o" \
-  "src/subtransaction.o" \
-  "src/tablereader.o" \
-  "src/tablestream.o" \
-  "src/tablewriter.o" \
-  "src/transaction.o" \
-  "src/transaction_base.o" \
-  "src/tuple.o" \
-  "src/util.o" \
+  src/binarystring.o \
+  src/connection.o \
+  src/connection_base.o \
+  src/cursor.o \
+  src/dbtransaction.o \
+  src/errorhandler.o \
+  src/except.o \
+  src/field.o \
+  src/largeobject.o \
+  src/nontransaction.o \
+  src/notification.o \
+  src/notify-listen.o \
+  src/pipeline.o \
+  src/prepared_statement.o \
+  src/result.o \
+  src/robusttransaction.o \
+  src/statement_parameters.o \
+  src/strconv.o \
+  src/subtransaction.o \
+  src/tablereader.o \
+  src/tablestream.o \
+  src/tablewriter.o \
+  src/transaction.o \
+  src/transaction_base.o \
+  src/tuple.o \
+  src/util.o \
 
 
-LDFLAGS = -L$(LIBPATH1) -L$(LIBPATH2) --export-all-symbols --add-stdcall-alias -fpic
+LDFLAGS = -L$(LIBPATH) --export-all-symbols --add-stdcall-alias -fpic
 LIBS = -lpq -lm -lws2_32
 
-CPPFLAGS = -Iinclude -I$(PGSQLSRC)/src/include -I$(PGSQLSRC)/src/interfaces \
+CPPFLAGS = -Iinclude -I$(PGSQLINC) -I$(LIBPQINC) \
   -DBUILDING_DLL -DPQXX_SHARED -DPGSTD=$(STD)
 
 BIN = libpqxx.dll
