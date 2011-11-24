@@ -913,7 +913,7 @@ private:
   void PQXX_PRIVATE start_exec(const PGSTD::string &);
   bool PQXX_PRIVATE consume_input() throw ();
   bool PQXX_PRIVATE is_busy() const throw ();
-  int PQXX_PRIVATE encoding_code() throw ();
+  int PQXX_PRIVATE encoding_code();
   internal::pq::PGresult *get_result();
 
   friend class internal::gate::connection_dbtransaction;
