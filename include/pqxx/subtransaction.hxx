@@ -8,7 +8,7 @@
  *   pqxx::subtransaction is a nested transaction, i.e. one within a transaction
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/subtransaction instead.
  *
- * Copyright (c) 2005-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2005-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -60,6 +60,7 @@ namespace pqxx
  *   {
  *     subtransaction S(W, "droptemp");
  *     S.exec("DROP TABLE " + temptable);
+ *     S.commit();
  *   }
  *   catch (const undefined_table &)
  *   {
@@ -67,8 +68,8 @@ namespace pqxx
  *     // Carry on without regrets.
  *   }
  *
- *   // S has gone into a failed state and been destroyed, but the upper-level
- *   // transaction W is still fine.  We can continue to use it.
+ *   // S may have gone into a failed state and been destroyed, but the
+ *   // upper-level transaction W is still fine.  We can continue to use it.
  *   W.exec("CREATE TEMP TABLE " + temptable + "(bar integer, splat varchar)");
  *
  *   do_lastpart(W);
