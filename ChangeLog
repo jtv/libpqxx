@@ -1,4 +1,10 @@
 2011-11-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx,
+ include/pqxx/internal/gates/connection-pipeline.hxx, src/connection_base.cxx:
+ - encoding_code() can't be "throw ()"; it calls activate().
+ - Crashed program when connection was lost before transaction started.
+ - Thanks Vasya Pupkin for reporting this with a great little test program.
+2011-11-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/subtransaction.hxx:
  - Fixed broken example.  Thanks Chris Angelico.
 2011-11-23  Jeroen T. Vermeulen <jtv@xs4all.nl>

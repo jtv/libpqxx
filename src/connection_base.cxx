@@ -1390,7 +1390,7 @@ string pqxx::connection_base::adorn_name(const PGSTD::string &n)
 }
 
 
-int pqxx::connection_base::encoding_code() throw ()
+int pqxx::connection_base::encoding_code()
 {
 #ifdef PQXX_HAVE_PQCLIENTENCODING
   activate();

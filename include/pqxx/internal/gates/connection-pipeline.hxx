@@ -20,7 +20,7 @@ class PQXX_PRIVATE connection_pipeline : callgate<connection_base>
   bool consume_input() throw () { return home().consume_input(); }
   bool is_busy() const throw () { return home().is_busy(); }
 
-  int encoding_code() throw () { return home().encoding_code(); }
+  int encoding_code() { return home().encoding_code(); }
 };
 } // namespace pqxx::internal::gate
 } // namespace pqxx::internal
