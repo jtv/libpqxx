@@ -8,7 +8,7 @@
  *   Documentation only: libpqxx performance features.
  *   DO NOT INCLUDE THIS FILE; it's here only to provide documentation.
  *
- * Copyright (c) 2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -29,8 +29,6 @@
  * \li @ref prepared.  These can be executed many times without the server
  *     parsing and planning them each and every time.  They also save you having
  *     to escape string parameters.
- * \li pqxx::tablewriter inserts any number of rows of data efficiently, without
- *     the need to compose repeated (or excessively long) INSERT statements.
  *
  * As always of course, don't risk the quality of your code for optimizations
  * that you don't need!
