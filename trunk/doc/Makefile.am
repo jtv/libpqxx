@@ -33,8 +33,15 @@ docs: $(DOCS)
 
 reference: reference-stamp
 reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
-	$(DOXYGEN) Doxyfile
-	touch $@
+	if test -x "$(DOXYGEN)"; then \
+	  $(DOXYGEN) Doxyfile; \
+	  touch $@; \
+	else \
+	  echo >&2 "\n*****\n"; \
+	  echo >&2 "Doxygen not found.\n"; \
+	  echo >&2 "Install it, or configure with --disable-documentation\n"; \
+	  echo >&2 "\n*****\n"; \
+	fi
 
 ../src/libpqxx.la:
 	cd ../src; \
