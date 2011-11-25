@@ -15204,7 +15204,7 @@ $as_echo "no" >&6; }
 fi
 
 
- if test -n "$DOXYGEN"; then
+ if /bin/true; then
   BUILD_REFERENCE_TRUE=
   BUILD_REFERENCE_FALSE='#'
 else
@@ -15290,7 +15290,7 @@ $as_echo "no" >&6; }
 fi
 
 
- if test -n "$XMLTO"; then
+ if /bin/true; then
   BUILD_TUTORIAL_TRUE=
   BUILD_TUTORIAL_FALSE='#'
 else

@@ -51,10 +51,10 @@ AC_ARG_ENABLE(
 if test "$enable_documentation" = "yes"
 then
 AC_PATH_PROG([DOXYGEN], [doxygen])
-AM_CONDITIONAL([BUILD_REFERENCE], [test -n "$DOXYGEN"])
+AM_CONDITIONAL([BUILD_REFERENCE], [/bin/true])
 AC_CHECK_PROG(HAVE_DOT, dot, YES, NO)
 AC_PATH_PROG([XMLTO], [xmlto])
-AM_CONDITIONAL([BUILD_TUTORIAL], [test -n "$XMLTO"])
+AM_CONDITIONAL([BUILD_TUTORIAL], [/bin/true])
 else
 AM_CONDITIONAL(BUILD_REFERENCE, [/bin/false])
 AM_CONDITIONAL(BUILD_TUTORIAL, [/bin/false])

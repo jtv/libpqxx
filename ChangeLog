@@ -1,4 +1,9 @@
 2011-11-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in, doc/Makefile.am:
+ - Fixed fail-if-no-doxygen logic.  Really fails now.
+ - Also fail if xmlto is missing (and documentation build not disabled).
+ - Really fixes #245 (I hope).
+2011-11-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
  doc/Makefile.am:
  - Fail if doxygen not available (and documentation build not disabled).
  - Fixes #245.  Thanks Chris Angelico.
