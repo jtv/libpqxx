@@ -1,0 +1,26 @@
+#! /bin/sh
+# Add GPG signature and checksums for libpqxx tarball.
+#
+# Usage:
+#   sign-tarball <tarball>
+
+TARBALL="$1"
+
+if test -z "$TARBALL"
+then
+	echo "No tarball to sign.  Usage: $0 <tarball>" >&2
+	exit 1
+fi
+
+if ! test -f "$TARBALL"
+then
+	echo "Can't find '$TARBALL'." >&2
+	exit 1
+fi
+
+gpg --armor --sign --detach-sig "$TARBALL"
+
+for DIGEST in md5sum sha256sum
+do
+	"$DIGEST" "$TARBALL" >"$TARBALL.$DIGEST"
+done
