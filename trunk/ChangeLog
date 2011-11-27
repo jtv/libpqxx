@@ -1,4 +1,7 @@
 2011-11-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ debian/changelog:
+ - Real start of 4.0 series.
+2011-11-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/subtransaction.hxx, src/subtransaction.cxx:
  - Explicit subtransaction(subtransaction &) constructor.
  - Makes it easier to nest subtransactions inside subtransactions.
