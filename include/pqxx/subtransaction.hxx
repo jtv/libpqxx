@@ -88,8 +88,13 @@ class PQXX_LIBEXPORT subtransaction :
   public dbtransaction
 {
 public:
-  explicit subtransaction(dbtransaction &T,
-	const PGSTD::string &Name=PGSTD::string());			//[t88]
+  /// Nest a subtransaction nested in another transaction.
+  explicit subtransaction(						//[t88]
+	dbtransaction &T, const PGSTD::string &Name=PGSTD::string());
+
+  /// Nest a subtransaction in another subtransaction.
+  explicit subtransaction(
+	subtransaction &T, const PGSTD::string &Name=PGSTD::string());
 
 private:
   virtual void do_begin();						//[t88]
