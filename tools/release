@@ -1,7 +1,7 @@
 #! /bin/bash
 # Release current libpqxx trunk (or other branch).
 #
-# Use this after a successful preprelease run in the parent series.
+# Use this after a successful full test run in the parent series.
 #
 # Arguments:
 #   <next version number> [parent]

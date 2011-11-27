@@ -1,4 +1,7 @@
 2011-11-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/preprelease:
+ - Removed.
+2011-11-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/sign-tarball:
  - New tool.
  - Creates GPG signature & hash sums for tarball.
