@@ -1,3 +1,8 @@
+2011-11-27  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/subtransaction.hxx, src/subtransaction.cxx:
+ - Explicit subtransaction(subtransaction &) constructor.
+ - Makes it easier to nest subtransactions inside subtransactions.
+ - Thanks Chris Angelico for reporting the problem.
 2011-11-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in, doc/Makefile.am:
  - Fixed fail-if-no-doxygen logic.  Really fails now.

@@ -28,10 +28,29 @@ using namespace PGSTD;
 using namespace pqxx::internal;
 
 
-pqxx::subtransaction::subtransaction(dbtransaction &T,
-    const PGSTD::string &Name) :
+pqxx::subtransaction::subtransaction(
+	dbtransaction &T,
+	const PGSTD::string &Name) :
   namedclass("subtransaction", T.conn().adorn_name(Name)),
   transactionfocus(T),
+  dbtransaction(T.conn(), false),
+  m_parent(T)
+{
+  check_backendsupport();
+}
+
+
+namespace
+{
+typedef pqxx::dbtransaction &dbtransaction_ref;
+}
+
+
+pqxx::subtransaction::subtransaction(
+	subtransaction &T,
+	const PGSTD::string &Name) :
+  namedclass("subtransaction", T.conn().adorn_name(Name)),
+  transactionfocus(dbtransaction_ref(T)),
   dbtransaction(T.conn(), false),
   m_parent(T)
 {
