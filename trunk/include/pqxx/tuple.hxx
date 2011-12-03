@@ -34,6 +34,7 @@ namespace pqxx
 class const_tuple_iterator;
 class const_reverse_tuple_iterator;
 class result;
+class range_error;
 
 
 /// Reference to one row in a result.
@@ -91,8 +92,8 @@ public:
   reference operator[](int) const throw ();				//[t2]
   reference operator[](const char[]) const;				//[t11]
   reference operator[](const PGSTD::string &) const;			//[t11]
-  reference at(size_type) const throw (range_error);			//[t11]
-  reference at(int) const throw (range_error);				//[t11]
+  reference at(size_type) const throw (pqxx::range_error);			//[t11]
+  reference at(int) const throw (pqxx::range_error);				//[t11]
   reference at(const char[]) const;					//[t11]
   reference at(const PGSTD::string &) const;				//[t11]
   //@}

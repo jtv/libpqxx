@@ -33,7 +33,7 @@ void test_result_slicing(transaction_base &t)
   PQXX_CHECK(!r[0].empty(), "A plain tuple shows up as empty.");
 
   // Empty slice at beginning of tuple.
-  tuple s = r[0].slice(0, 0);
+  pqxx::tuple s = r[0].slice(0, 0);
   PQXX_CHECK(s.empty(), "Empty slice does not show up as empty.");
   PQXX_CHECK_EQUAL(s.size(), 0u, "Slicing produces wrong tuple size.");
   PQXX_CHECK_EQUAL(s.begin(), s.end(), "Slice begin()/end() are broken.");
