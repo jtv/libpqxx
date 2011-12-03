@@ -60,7 +60,6 @@ am_rmlo_OBJECTS = rmlo.$(OBJEXT)
 rmlo_OBJECTS = $(am_rmlo_OBJECTS)
 rmlo_DEPENDENCIES = $(top_builddir)/src/libpqxx.la \
 	$(am__DEPENDENCIES_1)
-DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include/pqxx
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
@@ -215,7 +214,6 @@ EXTRA_DIST = \
 	extract_version \
 	lint \
 	maketemporary \
-	preprelease \
 	release \
 	rmlo.cxx \
 	splitconfig \
@@ -223,6 +221,9 @@ EXTRA_DIST = \
 	pqxxthreadsafety.cxx
 
 INCLUDES = -I$(top_builddir)/include -I$(top_srcdir)/include ${POSTGRES_INCLUDE}
+# Override automatically generated list of default includes.  It contains only
+# unnecessary entries, and incorrectly mentions include/pqxx directly.
+DEFAULT_INCLUDES = 
 rmlo_SOURCES = rmlo.cxx
 rmlo_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 pqxxthreadsafety_SOURCES = pqxxthreadsafety.cxx

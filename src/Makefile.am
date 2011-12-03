@@ -38,4 +38,3 @@ INCLUDES=-I$(top_srcdir)/include -I$(top_builddir)/include ${POSTGRES_INCLUDE}
 DEFAULT_INCLUDES=
 
 MAINTAINERCLEANFILES=Makefile.in
-
