@@ -14,20 +14,13 @@ using namespace pqxx;
   PQXX_CHECK_EQUAL(	\
 	rhs,		\
 	lhs, 		\
-	"Executing " name " as prepared statement yields different results."); \
-  PQXX_CHECK_EQUAL(lhs.empty(), false, "Result for " name " is empty.")
+	"Executing " name " as prepared statement yields different results.");
 
 namespace
 {
 string stringize(transaction_base &t, const string &arg)
 {
   return "'" + t.esc(arg) + "'";
-}
-
-
-string stringize(transaction_base &t, const char arg[])
-{
-  return arg ? stringize(t,string(arg)) : "null";
 }
 
 
@@ -72,35 +65,29 @@ void test_prepared_statement(transaction_base &T)
 {
   connection_base &C(T.conn());
 
-  /* A bit of nastiness in prepared statements: on 7.3.x backends we can't
-   * compare pg_tables.tablename to a string.  We work around this by using
-   * the LIKE operator.
-   *
-   * Later backend versions do not suffer from this problem.
-   */
   const string
 	Q_readpgtables = "SELECT * FROM pg_tables",
-	Q_seetable = Q_readpgtables + " WHERE tablename LIKE $1",
-	Q_seetables = Q_seetable + " OR tablename LIKE $2";
+	Q_seetable = Q_readpgtables + " WHERE tablename = $1",
+	Q_seetables = Q_seetable + " OR tablename = $2";
 
   try
   {
     PQXX_CHECK(
-	!(T.prepared("ReadPGTables").exists()),
+	!(T.prepared("CountToTen").exists()),
 	"Nonexistent prepared statement thinks it exists.");
 
     // Prepare a simple statement.
-    C.prepare("ReadPGTables", Q_readpgtables);
+    C.prepare("CountToTen", "SELECT * FROM generate_series(1, 10)");
 
     PQXX_CHECK(
-	T.prepared("ReadPGTables").exists(),
+	T.prepared("CountToTen").exists(),
 	"Prepared statement thinks it doesn't exist.");
 
     // See if a basic prepared statement works just like a regular query.
     PQXX_CHECK_EQUAL(
-	T.prepared(string("ReadPGTables")).exec(),
-	T.exec(Q_readpgtables),
-	"ReadPGTables");
+	T.prepared("CountToTen").exec(),
+	T.exec("SELECT * FROM generate_series(1, 10)"),
+	"CountToTen");
   }
   catch (const feature_not_supported &)
   {
@@ -110,88 +97,72 @@ void test_prepared_statement(transaction_base &T)
   }
 
   // Try prepare_now() on an already prepared statement.
-  C.prepare_now("ReadPGTables");
-
-  // Pro forma check: same thing but with name passed as C-style string.
-  COMPARE_RESULTS("ReadPGTables_char",
-	T.prepared("ReadPGTables").exec(),
-	T.exec(Q_readpgtables));
+  C.prepare_now("CountToTen");
 
   // Drop prepared statement.
-  C.unprepare("ReadPGTables");
+  C.unprepare("CountToTen");
 
   PQXX_CHECK_THROWS(
-	C.prepare_now("ReadPGTables"),
+	C.prepare_now("CountToTen"),
 	exception,
 	"prepare_now() succeeded on dropped statement.");
 
-  // Just to try and confuse things, "unprepare" twice.
-  try { C.unprepare("ReadPGTables"); }
-  catch (const exception &e) { cout << "(Expected) " << e.what() << endl; }
+  // It's okay to unprepare a statement repeatedly.
+  C.unprepare("CountToTen");
+  C.unprepare("CountToTen");
 
-  // Verify that attempt to execute unprepared statement fails.
+  // Executing an unprepared statement fails.
   PQXX_CHECK_THROWS(
-	T.prepared("ReadPGTables").exec(),
+	T.prepared("CountToTen").exec(),
 	exception,
 	"Execute unprepared statement didn't fail.");
 
-  // Re-prepare the same statement and test again.
-  C.prepare("ReadPGTables", Q_readpgtables);
-  C.prepare_now("ReadPGTables");
-  COMPARE_RESULTS("ReadPGTables_2",
-	T.prepared("ReadPGTables").exec(),
-	T.exec(Q_readpgtables));
+  // Once unprepared, a statement can be prepared and used again.
+  C.prepare("CountToTen", "SELECT generate_series FROM generate_series(1, 10)");
+  C.prepare_now("CountToTen");
+  COMPARE_RESULTS("CountToTen_2",
+	T.prepared("CountToTen").exec(),
+	T.exec("SELECT * FROM generate_series(1, 10)"));
 
   // Double preparation of identical statement should be ignored...
-  C.prepare("ReadPGTables", Q_readpgtables);
-  COMPARE_RESULTS("ReadPGTables_double",
-	T.prepared("ReadPGTables").exec(),
-	T.exec(Q_readpgtables));
+  C.prepare("CountToTen", "SELECT generate_series FROM generate_series(1, 10)");
+  COMPARE_RESULTS("CountToTen_double",
+	T.prepared("CountToTen").exec(),
+	T.exec("SELECT * FROM generate_series(1, 10)"));
 
   // ...But a modified definition shouldn't.
   PQXX_CHECK_THROWS(
-	C.prepare("ReadPGTables", Q_readpgtables + " ORDER BY tablename"),
+	C.prepare(
+		"CountToTen",
+		"SELECT generate_series FROM generate_series(1, 11)"),
 	exception,
 	"Bad redefinition of statement went unnoticed.");
 
   // Test prepared statement with parameter.
 
-  C.prepare("SeeTable", Q_seetable);
+  C.prepare("CountUpToTen", "SELECT * FROM generate_series($1, 10)");
 
-  vector<string> args;
-  args.push_back("pg_type");
-  COMPARE_RESULTS("SeeTable_seq",
-	T.prepared("SeeTable")(args[0]).exec(),
-	T.exec(subst(T,Q_seetable,args)));
+  vector<int> args;
+  args.push_back(2);
+  COMPARE_RESULTS("CountUpToTen_seq",
+	T.prepared("CountUpToTen")(args[0]).exec(),
+	T.exec(subst(T, "SELECT * FROM generate_series($1, 10)", args)));
 
   // Test prepared statement with 2 parameters.
 
-  C.prepare("SeeTables", Q_seetables);
-  args.push_back("pg_index");
-  COMPARE_RESULTS("SeeTables_seq",
-      T.prepared("SeeTables")(args[0])(args[1]).exec(),
-      T.exec(subst(T,Q_seetables,args)));
+  C.prepare("CountRange", "SELECT * FROM generate_series($1::int, $2::int)");
+  COMPARE_RESULTS("CountRange_seq",
+      T.prepared("CountRange")(2)(5).exec(),
+      T.exec("SELECT * FROM generate_series(2, 5)"));
 
   // Test prepared statement with a null parameter.
   vector<const char *> ptrs;
   ptrs.push_back(0);
-  ptrs.push_back("pg_index");
+  ptrs.push_back("99");
 
-  COMPARE_RESULTS("SeeTables_null1",
-	T.prepared("SeeTables")(ptrs[0])(ptrs[1]).exec(),
-	T.exec(subst(T, Q_seetables, ptrs)));
-  COMPARE_RESULTS("SeeTables_null2",
-	T.prepared("SeeTables")(ptrs[0])(ptrs[1]).exec(),
-	T.prepared("SeeTables")()(ptrs[1]).exec());
-  COMPARE_RESULTS("SeeTables_null3",
-	T.prepared("SeeTables")(ptrs[0])(ptrs[1]).exec(),
-	T.prepared("SeeTables")("somestring",false)(ptrs[1]).exec());
-  COMPARE_RESULTS("SeeTables_null4",
-	T.prepared("SeeTables")(ptrs[0])(ptrs[1]).exec(),
-	T.prepared("SeeTables")(42,false)(ptrs[1]).exec());
-  COMPARE_RESULTS("SeeTables_null5",
-	T.prepared("SeeTables")(ptrs[0])(ptrs[1]).exec(),
-	T.prepared("SeeTables")(0,false)(ptrs[1]).exec());
+  COMPARE_RESULTS("CountRange_null1",
+	T.prepared("CountRange")(ptrs[0])(ptrs[1]).exec(),
+	T.exec("SELECT * FROM generate_series(NULL, 99)"));
 
   // Test prepared statement with a binary parameter.
   C.prepare("GimmeBinary", "SELECT $1::bytea");
