@@ -1,4 +1,8 @@
 2012-01-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/unit/test_prepared_statement.cxx:
+ - Test was brittle w.r.t. result ordering.  Rewrote it.
+ - Thanks Jean Marie de Montarby (did I spell that right?) for the report.
+2012-01-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/binarystring.hxx, include/pqxx/notify-listen.hxx,
  test/test004.cxx, test/test023.cxx, test/test078.cxx, test/test079.cxx,
  test/test087.cxx:
