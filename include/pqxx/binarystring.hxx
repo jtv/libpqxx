@@ -7,7 +7,7 @@
  *      Representation for raw, binary data.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/binarystring instead.
  *
- * Copyright (c) 2003-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -162,13 +162,13 @@ private:
  * @deprecated Use the transaction's esc_raw() functions instead
  * \relatesalso binarystring
  */
-PGSTD::string PQXX_LIBEXPORT escape_binary(const PGSTD::string &bin);
+PGSTD::string PQXX_LIBEXPORT PQXX_DEPRECATED escape_binary(const PGSTD::string &bin);
 /// Escape binary string for inclusion in SQL
 /**
  * @deprecated Use the transaction's esc_raw() functions instead
  * \relatesalso binarystring
  */
-PGSTD::string PQXX_LIBEXPORT escape_binary(const char bin[]);
+PGSTD::string PQXX_LIBEXPORT PQXX_DEPRECATED escape_binary(const char bin[]);
 /// Escape binary string for inclusion in SQL
 /**
  * @deprecated Use the transaction's esc_raw() functions instead
@@ -180,7 +180,7 @@ PGSTD::string PQXX_LIBEXPORT escape_binary(const char bin[], size_t len);
  * @deprecated Use the transaction's esc_raw() functions instead
  * \relatesalso binarystring
  */
-PGSTD::string PQXX_LIBEXPORT escape_binary(const unsigned char bin[]);
+PGSTD::string PQXX_LIBEXPORT PQXX_DEPRECATED escape_binary(const unsigned char bin[]);
 /// Escape binary string for inclusion in SQL
 /**
  * @deprecated Use the transaction's esc_raw() functions instead

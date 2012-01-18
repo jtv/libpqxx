@@ -13,42 +13,42 @@ using namespace pqxx;
 namespace
 {
 
-// Sample implementation of notification listener
-class TestListener : public notify_listener
+// Sample implementation of notification receiver.
+class TestListener : public notification_receiver
 {
-  bool m_Done;
+  bool m_done;
 
 public:
   explicit TestListener(connection_base &C) :
-	notify_listener(C, "listen"), m_Done(false) {}
+	notification_receiver(C, "listen"), m_done(false) {}
 
-  virtual void operator()(int be_pid)
+  virtual void operator()(const string &, int be_pid)
   {
-    m_Done = true;
+    m_done = true;
     PQXX_CHECK_EQUAL(
 	be_pid,
 	conn().backendpid(),
 	"Notification came from wrong backend process.");
 
-    cout << "Received notification: " << name() << " pid=" << be_pid << endl;
+    cout << "Received notification: " << channel() << " pid=" << be_pid << endl;
   }
 
-  bool Done() const { return m_Done; }
+  bool done() const { return m_done; }
 };
 
 
 // A transactor to trigger our notification listener
 class Notify : public transactor<>
 {
-  string m_notif;
+  string m_channel;
 
 public:
   explicit Notify(string NotifName) :
-    transactor<>("Notifier"), m_notif(NotifName) { }
+    transactor<>("Notifier"), m_channel(NotifName) { }
 
   void operator()(argument_type &T)
   {
-    T.exec("NOTIFY " + m_notif);
+    T.exec("NOTIFY " + m_channel);
   }
 
   void on_abort(const char Reason[]) throw ()
@@ -72,10 +72,10 @@ void test_023(transaction_base &)
   TestListener L(C);
 
   cout << "Sending notification..." << endl;
-  C.perform(Notify(L.name()));
+  C.perform(Notify(L.channel()));
 
   int notifs = 0;
-  for (int i=0; (i < 20) && !L.Done(); ++i)
+  for (int i=0; (i < 20) && !L.done(); ++i)
   {
     PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
     pqxx::internal::sleep_seconds(1);
@@ -84,7 +84,7 @@ void test_023(transaction_base &)
   }
   cout << endl;
 
-  PQXX_CHECK(L.Done(), "No notification received.");
+  PQXX_CHECK(L.done(), "No notification received.");
 
   PQXX_CHECK_EQUAL(notifs, 1, "Unexpected number of notifications.");
 }

@@ -8,7 +8,7 @@
  *   Predecessor to notification_receiver.  Deprecated.  Do not use.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/notify-listen instead.
  *
- * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -55,7 +55,7 @@ private:
 /// Obsolete notification receiver.
 /** @deprecated Use notification_receiver instead.
  */
-class PQXX_LIBEXPORT PQXX_NOVTABLE notify_listener :
+class PQXX_LIBEXPORT PQXX_NOVTABLE PQXX_DEPRECATED notify_listener :
   public PGSTD::unary_function<int, void>
 {
 public:
