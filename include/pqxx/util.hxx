@@ -7,7 +7,7 @@
  *      Various utility definitions for libpqxx
  *      DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/util instead.
  *
- * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -177,14 +177,14 @@
  * and a tuple acts as an array of fields.
  *
  * @code
- * for (int rownum=0; rownum < r.size(); ++rownum)
+ * const int num_rows = r.size();
+ * for (int rownum=0; rownum < num_rows; ++rownum)
  * {
- *   const result::tuple row = r[rownum];
- *
- *   for (int colnum=0; colnum < row.size(); ++colnum)
+ *   const pqxx::tuple row = r[rownum];
+ *   const int num_cols = row.size();
+ *   for (int colnum=0; colnum < num_cols; ++colnum)
  *   {
- *     const result::field = row[colnum];
- *
+ *     const pqxx::field field = row[colnum];
  *     std::cout << field.c_str() << '\t';
  *   }
  *
