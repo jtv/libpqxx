@@ -33,7 +33,7 @@ esac
 
 get_version() {
 	grep -w 'PQXX_VERSION' VERSION |
-		sed -e 's/^[[:space:]A-Z_]*\([^[:space:]#]\+\).*$/\1/'
+		sed -E -e 's/^[[:space:]A-Z_]*([^[:space:]#]+).*$/\1/'
 }
 
 

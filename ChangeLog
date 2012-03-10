@@ -1,3 +1,6 @@
+2012-02-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/extract_version:
+ - Compatibility fix for OS X.  Thanks Torsten Hilgenberg.
 2012-01-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/unit/test_prepared_statement.cxx:
  - Test was brittle w.r.t. result ordering.  Rewrote it.
