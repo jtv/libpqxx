@@ -1,3 +1,7 @@
+2012-03-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/util.hxx:
+ - Fixed compile error and warnings in example code.
+ - Thanks Martin van den Nieuwelaar and Chris Angelico.
 2012-02-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/extract_version:
  - Compatibility fix for OS X.  Thanks Torsten Hilgenberg.
