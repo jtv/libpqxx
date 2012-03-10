@@ -1,4 +1,8 @@
 2012-03-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/prepared_statement.hxx:
+ - Updated docs for prepared-statement parameters: no longer need declarations.
+ - Thanks Maxime van Noppen.
+2012-03-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/util.hxx:
  - Fixed compile error and warnings in example code.
  - Thanks Martin van den Nieuwelaar and Chris Angelico.
