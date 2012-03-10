@@ -1,3 +1,9 @@
+libpqxx (5.0-1) unstable; urgency=low
+
+  * Build fix for OS X.  Thanks Torsten Hilgenberg.
+
+ -- Jeroen T. Vermeulen <jtv@xs4all.nl>  Tue, 28 Feb 2012 19:16:00 +0700
+
 libpqxx (4.0-1) unstable; urgency=medium
 
   * Forked 4.0.

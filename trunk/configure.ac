@@ -11,15 +11,15 @@
 LC_ALL=C
 
 AC_PREREQ(2.59)
-AC_INIT(libpqxx, 4.0, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, 5.0, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_LANG(C++)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([config/m4])
-AM_INIT_AUTOMAKE(libpqxx, 4.0)
+AM_INIT_AUTOMAKE(libpqxx, 5.0)
 
-PQXXVERSION=4.0
-PQXX_ABI=4.0
-PQXX_MAJOR=4
+PQXXVERSION=5.0
+PQXX_ABI=5.0
+PQXX_MAJOR=5
 PQXX_MINOR=0
 AC_SUBST(PQXXVERSION)
 AC_SUBST(PQXX_ABI)
@@ -458,7 +458,7 @@ A source file using the PQexec() function did compile without problems, and the
 libpq library is available for linking, but for some reason a call to PQexec()
 failed to link properly to the libpq library.  This may be because the libpq
 library file is damaged, or in some incorrect format. or if your libpq is much
-more recent than libpqxx version 4.0, perhaps libpq has undergone a
+more recent than libpqxx version 5.0, perhaps libpq has undergone a
 radical ABI change.
 
 The last parts of config.log may give you a clue as to what really went wrong,

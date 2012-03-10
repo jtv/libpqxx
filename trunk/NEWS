@@ -1,3 +1,5 @@
+5.0
+ - Build fix for OS X.
 4.0
  - API change: noticers are gone!  Use errorhandlers to capture error output.
  - API change: tablereaders and tablewriters are gone; they weren't safe.
