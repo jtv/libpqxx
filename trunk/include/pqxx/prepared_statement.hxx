@@ -60,9 +60,9 @@ namespace prepare
  * @endcode
  *
  * Once you've done this, you'll be able to call @c my_statement from any
- * transaction you execute on the same connection.  Note that this uses a member
- * function called @c "prepared"; the definition used a member function called
- * @c "prepare".
+ * transaction you execute on the same connection.  You start an invocation by
+ * looking up your statement using a member function called @c "prepared".  (The
+ * definition used a different member function, called @c "prepare" ).
  *
  * @code
  * pqxx::result execute_my_statement(pqxx::transaction_base &t)
@@ -71,30 +71,33 @@ namespace prepare
  * }
  * @endcode
  *
- * Did I mention that you can pass parameters to prepared statements?  You
- * define those along with the statement.  The query text uses $@c 1, @c $2 etc.
- * as placeholders for the parameters in the SQL text.  Since your C++ compiler
- * doesn't know how many parameters you're going to define, the syntax that lets
- * you do this is a bit strange:
+ * Did I mention that prepared statements can have parameters?  The query text
+ * can contain $@c 1, @c $2 etc. as placeholders for parameter values that you
+ * will provide when you invoke the prepared satement.
  *
  * @code
  * void prepare_find(pqxx::connection_base &c)
  * {
  *   // Prepare a statement called "find" that looks for employees with a given
  *   // name (parameter 1) whose salary exceeds a given number (parameter 2).
- *   const std::string sql =
- *     "SELECT * FROM Employee WHERE name = $1 AND salary > $2";
- * 
- *   c.prepare("find", sql)()();
+ *   c.prepare(
+ *   	"find",
+ *   	"SELECT * FROM Employee WHERE name = $1 AND salary > $2");
  * }
  * @endcode
  *
- * It's the @c ()() that declares the two parameters.  If any of the parameters
- * will be in binary form, you will pass treat_binary in the corresponding pair
- * of parentheses.
+ * How do you pass those parameters?  C++ has no good way to let you pass an
+ * unlimited, variable number of arguments to a function call, and the compiler
+ * does not know how many you are going to pass.  There's a trick for that: you
+ * can treat the value you get back from @c prepared as a function, which you
+ * call to pass a parameter.  What you get back from that call is the same
+ * again, so you can call it again to pass another parameter and so on.
  *
- * When invoking the prepared statement, you pass parameter values using a
- * similar syntax.
+ * Once you've passed all parameters in this way, you invoke the statement with
+ * the parameters by calling @c exec on the invocation.
+ *
+ * This example looks up the prepared statement "find," passes @c name and
+ * @c min_salary as parameters, and invokes the statement with those values:
  *
  * @code
  * pqxx::result execute_find(
