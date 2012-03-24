@@ -34,7 +34,7 @@ void test_016(transaction_base &T)
 	"Size mismatch between tuple iterator and back().");
 
   const string nullstr;
-  for (tuple::size_type i = 0; i < c->size(); ++i)
+  for (pqxx::tuple::size_type i = 0; i < c->size(); ++i)
     PQXX_CHECK_EQUAL(
 	c[i].as(nullstr),
 	R.back()[i].as(nullstr),
