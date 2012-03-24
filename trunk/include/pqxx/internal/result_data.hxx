@@ -39,7 +39,7 @@ struct PQXX_PRIVATE result_data
 };
 
 
-void PQXX_LIBEXPORT freemem_result_data(const result_data *) throw ();
+void PQXX_LIBEXPORT freemem_result_data(const result_data *) PQXX_NOEXCEPT;
 
 } // namespace pqxx::internal
 } // namespace pqxx

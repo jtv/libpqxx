@@ -70,7 +70,7 @@ struct intderef
 {
   intderef(){}	// Silences bogus warning in some gcc versions
   template<typename ITER>
-    int operator()(ITER i) const throw () { return int(*i); }
+    int operator()(ITER i) const PQXX_NOEXCEPT { return int(*i); }
 };
 
 

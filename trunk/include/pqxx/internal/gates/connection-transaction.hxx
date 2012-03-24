@@ -18,7 +18,7 @@ class PQXX_PRIVATE connection_transaction : callgate<connection_base>
 	{ return home().Exec(query, retries); }
   void RegisterTransaction(transaction_base *t)
 	{ home().RegisterTransaction(t); }
-  void UnregisterTransaction(transaction_base *t) throw ()
+  void UnregisterTransaction(transaction_base *t) PQXX_NOEXCEPT
 	{ home().UnregisterTransaction(t); }
 
   bool ReadCopyLine(PGSTD::string &line)

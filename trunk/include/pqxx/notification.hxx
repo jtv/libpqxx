@@ -8,7 +8,7 @@
  *   pqxx::notification_receiver handles incoming notifications.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/notification instead.
  *
- * Copyright (c) 2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2011-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -82,7 +82,7 @@ public:
   virtual void operator()(const PGSTD::string &payload, int backend_pid) =0;
 
 protected:
-  connection_base &conn() const throw () { return m_conn; }
+  connection_base &conn() const PQXX_NOEXCEPT { return m_conn; }
 
 private:
   // Not allowed.

@@ -42,7 +42,7 @@ test_failure::test_failure(const string &ffile, int fline, const string &desc) :
 {
 }
 
-test_failure::~test_failure() throw () {}
+test_failure::~test_failure() PQXX_NOEXCEPT {}
 
 
 base_test::base_test(const string &tname, testfunc func) :

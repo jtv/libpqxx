@@ -7,7 +7,7 @@
  *      implementation of the pqxx::notify_listener class.
  *   Predecessor to notification_receiver.  Deprecated.  Do not use.
  *
- * Copyright (c) 2009-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2009-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -40,6 +40,6 @@ pqxx::notify_listener::notify_listener(
 }
 
 
-pqxx::notify_listener::~notify_listener() throw ()
+pqxx::notify_listener::~notify_listener() PQXX_NOEXCEPT
 {
 }

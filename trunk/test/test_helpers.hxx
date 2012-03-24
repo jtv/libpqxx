@@ -18,10 +18,10 @@ public:
 	int fline,
 	const PGSTD::string &desc);
 
-  ~test_failure() throw ();
+  ~test_failure() PQXX_NOEXCEPT;
 
-  const PGSTD::string &file() const throw () { return m_file; }
-  int line() const throw () { return m_line; }
+  const PGSTD::string &file() const PQXX_NOEXCEPT { return m_file; }
+  int line() const PQXX_NOEXCEPT { return m_line; }
 };
 
 
@@ -66,7 +66,7 @@ public:
   virtual void run() =0;
 
   virtual ~base_test() =0;
-  const PGSTD::string &name() const throw () { return m_name; }
+  const PGSTD::string &name() const PQXX_NOEXCEPT { return m_name; }
 private:
   PGSTD::string m_name;
 protected:

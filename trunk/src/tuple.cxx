@@ -29,7 +29,7 @@
 using namespace PGSTD;
 
 
-pqxx::tuple::tuple(const result *r, size_t i) throw () :
+pqxx::tuple::tuple(const result *r, size_t i) PQXX_NOEXCEPT :
   m_Home(r),
   m_Index(i),
   m_Begin(0),
@@ -38,25 +38,25 @@ pqxx::tuple::tuple(const result *r, size_t i) throw () :
 }
 
 
-pqxx::tuple::const_iterator pqxx::tuple::begin() const throw ()
+pqxx::tuple::const_iterator pqxx::tuple::begin() const PQXX_NOEXCEPT
 {
   return const_iterator(*this, m_Begin);
 }
 
 
-pqxx::tuple::const_iterator pqxx::tuple::end() const throw ()
+pqxx::tuple::const_iterator pqxx::tuple::end() const PQXX_NOEXCEPT
 {
   return const_iterator(*this, m_End);
 }
 
 
-pqxx::tuple::reference pqxx::tuple::front() const throw ()
+pqxx::tuple::reference pqxx::tuple::front() const PQXX_NOEXCEPT
 {
   return field(*this, m_Begin);
 }
 
 
-pqxx::tuple::reference pqxx::tuple::back() const throw ()
+pqxx::tuple::reference pqxx::tuple::back() const PQXX_NOEXCEPT
 {
   return field(*this, m_End - 1);
 }
@@ -74,7 +74,7 @@ pqxx::tuple::const_reverse_iterator pqxx::tuple::rend() const
 }
 
 
-bool pqxx::tuple::operator==(const tuple &rhs) const throw ()
+bool pqxx::tuple::operator==(const tuple &rhs) const PQXX_NOEXCEPT
 {
   if (&rhs == this) return true;
   const size_type s(size());
@@ -85,13 +85,13 @@ bool pqxx::tuple::operator==(const tuple &rhs) const throw ()
 }
 
 
-pqxx::tuple::reference pqxx::tuple::operator[](size_type i) const throw ()
+pqxx::tuple::reference pqxx::tuple::operator[](size_type i) const PQXX_NOEXCEPT
 {
   return field(*this, m_Begin + i);
 }
 
 
-pqxx::tuple::reference pqxx::tuple::operator[](int i) const throw ()
+pqxx::tuple::reference pqxx::tuple::operator[](int i) const PQXX_NOEXCEPT
 {
   return operator[](size_type(i));
 }
@@ -121,7 +121,7 @@ pqxx::tuple::reference pqxx::tuple::at(const string &s) const
 }
 
 
-void pqxx::tuple::swap(tuple &rhs) throw ()
+void pqxx::tuple::swap(tuple &rhs) PQXX_NOEXCEPT
 {
   const result *const h(m_Home);
   const result::size_type i(m_Index);
@@ -211,7 +211,7 @@ pqxx::tuple pqxx::tuple::slice(size_type Begin, size_type End) const
 }
 
 
-bool pqxx::tuple::empty() const throw ()
+bool pqxx::tuple::empty() const PQXX_NOEXCEPT
 {
   return m_Begin == m_End;
 }
@@ -234,7 +234,7 @@ pqxx::const_tuple_iterator pqxx::const_tuple_iterator::operator--(int)
 
 
 pqxx::const_tuple_iterator
-pqxx::const_reverse_tuple_iterator::base() const throw ()
+pqxx::const_reverse_tuple_iterator::base() const PQXX_NOEXCEPT
 {
   iterator_type tmp(*this);
   return ++tmp;

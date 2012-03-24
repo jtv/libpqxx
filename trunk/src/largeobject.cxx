@@ -7,7 +7,7 @@
  *      Implementation of the Large Objects interface
  *   Allows access to large objects directly, or though I/O streams
  *
- * Copyright (c) 2003-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -45,7 +45,7 @@ inline int StdModeToPQMode(ios::openmode mode)
 }
 
 
-inline int StdDirToPQDir(ios::seekdir dir) throw ()
+inline int StdDirToPQDir(ios::seekdir dir) PQXX_NOEXCEPT
 {
   // TODO: Figure out whether seekdir values match C counterparts!
 #ifdef PQXX_SEEKDIRS_MATCH_C
@@ -72,7 +72,7 @@ inline int StdDirToPQDir(ios::seekdir dir) throw ()
 } // namespace
 
 
-pqxx::largeobject::largeobject() throw () :
+pqxx::largeobject::largeobject() PQXX_NOEXCEPT :
   m_ID(oid_none)
 {
 }
@@ -105,7 +105,7 @@ pqxx::largeobject::largeobject(dbtransaction &T, const PGSTD::string &File) :
 }
 
 
-pqxx::largeobject::largeobject(const largeobjectaccess &O) throw () :
+pqxx::largeobject::largeobject(const largeobjectaccess &O) PQXX_NOEXCEPT :
   m_ID(O.id())
 {
 }
@@ -212,14 +212,14 @@ pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
 
 
 pqxx::largeobjectaccess::pos_type
-pqxx::largeobjectaccess::cseek(off_type dest, seekdir dir) throw ()
+pqxx::largeobjectaccess::cseek(off_type dest, seekdir dir) PQXX_NOEXCEPT
 {
   return lo_lseek(RawConnection(), m_fd, int(dest), StdDirToPQDir(dir));
 }
 
 
 pqxx::largeobjectaccess::pos_type
-pqxx::largeobjectaccess::cwrite(const char Buf[], size_type Len) throw ()
+pqxx::largeobjectaccess::cwrite(const char Buf[], size_type Len) PQXX_NOEXCEPT
 {
   return
     PGSTD::max(
@@ -229,14 +229,14 @@ pqxx::largeobjectaccess::cwrite(const char Buf[], size_type Len) throw ()
 
 
 pqxx::largeobjectaccess::pos_type
-pqxx::largeobjectaccess::cread(char Buf[], size_type Bytes) throw ()
+pqxx::largeobjectaccess::cread(char Buf[], size_type Bytes) PQXX_NOEXCEPT
 {
   return PGSTD::max(lo_read(RawConnection(), m_fd, Buf, size_t(Bytes)), -1);
 }
 
 
 pqxx::largeobjectaccess::pos_type
-pqxx::largeobjectaccess::ctell() const throw ()
+pqxx::largeobjectaccess::ctell() const PQXX_NOEXCEPT
 {
   return
 #if defined(PQXX_HAVE_LO_TELL)
@@ -296,7 +296,7 @@ void pqxx::largeobjectaccess::open(openmode mode)
 }
 
 
-void pqxx::largeobjectaccess::close() throw ()
+void pqxx::largeobjectaccess::close() PQXX_NOEXCEPT
 {
 #ifdef PQXX_QUIET_DESTRUCTORS
   quiet_errorhandler quiet(m_Trans.conn());
@@ -319,7 +319,8 @@ string pqxx::largeobjectaccess::Reason(int err) const
 }
 
 
-void pqxx::largeobjectaccess::process_notice(const PGSTD::string &s) throw ()
+void pqxx::largeobjectaccess::process_notice(const PGSTD::string &s)
+	PQXX_NOEXCEPT
 {
   m_Trans.process_notice(s);
 }

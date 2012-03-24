@@ -7,7 +7,7 @@
  *      implementation of pqxx::errorhandler and helpers.
  *   pqxx::errorhandler allows programs to receive errors and warnings.
  *
- * Copyright (c) 2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2011-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -40,7 +40,7 @@ pqxx::errorhandler::~errorhandler()
 }
 
 
-void pqxx::errorhandler::unregister() throw ()
+void pqxx::errorhandler::unregister() PQXX_NOEXCEPT
 {
   if (m_home)
   {

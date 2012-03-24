@@ -8,7 +8,7 @@
  *   pqxx::transactor is a framework-style wrapper for safe transactions
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transactor instead.
  *
- * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -99,7 +99,7 @@ public:
    * the transaction failed.  This will also be logged to the connection's
    * notice processor.
    */
-  void on_abort(const char[]) throw () {}				//[t13]
+  void on_abort(const char[]) PQXX_NOEXCEPT {}				//[t13]
 
   /// Optional overridable function to be called after successful commit
   /** If your on_commit() throws an exception, the actual back-end transaction
@@ -120,7 +120,7 @@ public:
    * error occurring, at a certain cost in performance.
    * @see robusttransaction
    */
-  void on_doubt() throw () {}						//[t13]
+  void on_doubt() PQXX_NOEXCEPT {}					//[t13]
 
   // TODO: Rename Name()--is there a compatible way?
   /// The transactor's name.

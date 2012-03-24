@@ -8,7 +8,7 @@
  *   pqxx::sql_error, pqxx::broken_connection, pqxx::in_doubt_error, ...
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/except instead.
  *
- * Copyright (c) 2003-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -62,7 +62,7 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE pqxx_exception
 {
 public:
   /// Support run-time polymorphism, and keep this class abstract
-  virtual ~pqxx_exception() throw () =0;
+  virtual ~pqxx_exception() PQXX_NOEXCEPT =0;
 
   /// Return std::exception base-class object
   /** Use this to get at the exception's what() function, or to downcast to a
@@ -87,7 +87,8 @@ public:
    * }
    * @endcode
    */
-  virtual const PQXX_CONST PGSTD::exception &base() const throw () =0;	//[t0]
+  virtual const PQXX_CONST PGSTD::exception &base()			//[t0]
+	const PQXX_NOEXCEPT =0;
 };
 
 
@@ -95,7 +96,7 @@ public:
 class PQXX_LIBEXPORT failure :
   public pqxx_exception, public PGSTD::runtime_error
 {
-  virtual const PGSTD::exception &base() const throw () { return *this; }
+  virtual const PGSTD::exception &base() const PQXX_NOEXCEPT { return *this; }
 public:
   explicit failure(const PGSTD::string &);
 };
@@ -138,10 +139,10 @@ public:
   sql_error();
   explicit sql_error(const PGSTD::string &);
   sql_error(const PGSTD::string &, const PGSTD::string &Q);
-  virtual ~sql_error() throw ();
+  virtual ~sql_error() PQXX_NOEXCEPT;
 
   /// The query whose execution triggered the exception
-  const PGSTD::string & PQXX_PURE query() const throw ();		//[t56]
+  const PGSTD::string & PQXX_PURE query() const PQXX_NOEXCEPT;		//[t56]
 };
 
 
@@ -164,7 +165,7 @@ public:
 class PQXX_LIBEXPORT internal_error :
   public pqxx_exception, public PGSTD::logic_error
 {
-  virtual const PGSTD::exception &base() const throw () { return *this; }
+  virtual const PGSTD::exception &base() const PQXX_NOEXCEPT { return *this; }
 public:
   explicit internal_error(const PGSTD::string &);
 };
@@ -174,7 +175,7 @@ public:
 class PQXX_LIBEXPORT usage_error :
   public pqxx_exception, public PGSTD::logic_error
 {
-  virtual const PGSTD::exception &base() const throw () { return *this; }
+  virtual const PGSTD::exception &base() const PQXX_NOEXCEPT { return *this; }
 public:
   explicit usage_error(const PGSTD::string &);
 };
@@ -184,7 +185,7 @@ public:
 class PQXX_LIBEXPORT argument_error :
   public pqxx_exception, public PGSTD::invalid_argument
 {
-  virtual const PGSTD::exception &base() const throw () { return *this; }
+  virtual const PGSTD::exception &base() const PQXX_NOEXCEPT { return *this; }
 public:
   explicit argument_error(const PGSTD::string &);
 };
@@ -193,7 +194,7 @@ public:
 class PQXX_LIBEXPORT conversion_error :
   public pqxx_exception, public PGSTD::domain_error
 {
-  virtual const PGSTD::exception &base() const throw () { return *this; }
+  virtual const PGSTD::exception &base() const PQXX_NOEXCEPT { return *this; }
 public:
   explicit conversion_error(const PGSTD::string &);
 };
@@ -203,7 +204,7 @@ public:
 class PQXX_LIBEXPORT range_error :
   public pqxx_exception, public PGSTD::out_of_range
 {
-  virtual const PGSTD::exception &base() const throw () { return *this; }
+  virtual const PGSTD::exception &base() const PQXX_NOEXCEPT { return *this; }
 public:
   explicit range_error(const PGSTD::string &);
 };

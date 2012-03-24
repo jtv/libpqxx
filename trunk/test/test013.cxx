@@ -68,7 +68,7 @@ public:
     throw deliberate_error();
   }
 
-  void on_abort(const char Reason[]) throw ()
+  void on_abort(const char Reason[]) PQXX_NOEXCEPT
   {
     pqxx::test::expected_exception(Name() + " failed: " + Reason);
   }

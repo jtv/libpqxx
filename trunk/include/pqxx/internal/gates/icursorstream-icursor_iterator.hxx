@@ -12,10 +12,10 @@ class PQXX_PRIVATE icursorstream_icursor_iterator : callgate<icursorstream>
 
   icursorstream_icursor_iterator(reference x) : super(x) {}
 
-  void insert_iterator(icursor_iterator *i) throw ()
+  void insert_iterator(icursor_iterator *i) PQXX_NOEXCEPT
 	{ home().insert_iterator(i); }
 
-  void remove_iterator(icursor_iterator *i) const throw ()
+  void remove_iterator(icursor_iterator *i) const PQXX_NOEXCEPT
 	{ home().remove_iterator(i); }
 
   icursorstream::size_type forward() { return home().forward(); }

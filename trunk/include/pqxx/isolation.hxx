@@ -8,7 +8,7 @@
  *   Policies and traits describing SQL transaction isolation levels
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/isolation instead.
  *
- * Copyright (c) 2003-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -47,15 +47,16 @@ enum isolation_level
 /// Traits class to describe an isolation level; primarly for libpqxx's own use
 template<isolation_level LEVEL> struct isolation_traits
 {
-  static isolation_level level() throw () { return LEVEL; }
-  static const char *name() throw ();
+  static isolation_level level() PQXX_NOEXCEPT { return LEVEL; }
+  static const char *name() PQXX_NOEXCEPT;
 };
 
 
-template<> inline const char *isolation_traits<read_committed>::name() throw ()
-	{ return "READ COMMITTED"; }
-template<> inline const char *isolation_traits<serializable>::name() throw ()
-	{ return "SERIALIZABLE"; }
+template<> inline const char *isolation_traits<read_committed>::name()
+	PQXX_NOEXCEPT { return "READ COMMITTED"; }
+
+template<> inline const char *isolation_traits<serializable>::name()
+	PQXX_NOEXCEPT { return "SERIALIZABLE"; }
 
 }
 

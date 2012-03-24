@@ -9,7 +9,7 @@
  *   represents a database transaction
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction_base instead.
  *
- * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -61,9 +61,9 @@ public:
 
 protected:
   void register_me();
-  void unregister_me() throw ();
-  void reg_pending_error(const PGSTD::string &) throw ();
-  bool registered() const throw () { return m_registered; }
+  void unregister_me() PQXX_NOEXCEPT;
+  void reg_pending_error(const PGSTD::string &) PQXX_NOEXCEPT;
+  bool registered() const PQXX_NOEXCEPT { return m_registered; }
 
   transaction_base &m_Trans;
 
@@ -344,7 +344,7 @@ protected:
   void Begin();
 
   /// End transaction.  To be called by implementing class' destructor
-  void End() throw ();
+  void End() PQXX_NOEXCEPT;
 
   /// To be implemented by derived implementation class: start transaction
   virtual void do_begin() =0;
@@ -369,7 +369,7 @@ protected:
   result DirectExec(const char C[], int Retries=0);
 
   /// Forget about any reactivation-blocking resources we tried to allocate
-  void reactivation_avoidance_clear() throw ()
+  void reactivation_avoidance_clear() PQXX_NOEXCEPT
 	{m_reactivation_avoidance.clear();}
 
 protected:
@@ -412,13 +412,15 @@ private:
 
   void PQXX_PRIVATE CheckPendingError();
 
-  template<typename T> bool parm_is_null(T *p) const throw () { return !p; }
-  template<typename T> bool parm_is_null(T) const throw () { return false; }
+  template<typename T> bool parm_is_null(T *p) const PQXX_NOEXCEPT
+	{ return !p; }
+  template<typename T> bool parm_is_null(T) const PQXX_NOEXCEPT
+	{ return false; }
 
   friend class pqxx::internal::gate::transaction_transactionfocus;
   void PQXX_PRIVATE RegisterFocus(internal::transactionfocus *);
-  void PQXX_PRIVATE UnregisterFocus(internal::transactionfocus *) throw ();
-  void PQXX_PRIVATE RegisterPendingError(const PGSTD::string &) throw ();
+  void PQXX_PRIVATE UnregisterFocus(internal::transactionfocus *) PQXX_NOEXCEPT;
+  void PQXX_PRIVATE RegisterPendingError(const PGSTD::string &) PQXX_NOEXCEPT;
 
   friend class pqxx::internal::gate::transaction_tablereader;
   void PQXX_PRIVATE BeginCopyRead(const PGSTD::string &, const PGSTD::string &);

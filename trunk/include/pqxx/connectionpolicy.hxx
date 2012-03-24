@@ -8,7 +8,7 @@
  *   Interface for defining connection policies
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection instead.
  *
- * Copyright (c) 2005-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2005-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -42,15 +42,15 @@ public:
   typedef internal::pq::PGconn *handle;
 
   explicit connectionpolicy(const PGSTD::string &opts);
-  virtual ~connectionpolicy() throw ();
+  virtual ~connectionpolicy() PQXX_NOEXCEPT;
 
-  const PGSTD::string &options() const throw () { return m_options; }
+  const PGSTD::string &options() const PQXX_NOEXCEPT { return m_options; }
 
   virtual handle do_startconnect(handle orig);
   virtual handle do_completeconnect(handle orig);
-  virtual handle do_dropconnect(handle orig) throw ();
-  virtual handle do_disconnect(handle orig) throw ();
-  virtual bool is_ready(handle) const throw ();
+  virtual handle do_dropconnect(handle orig) PQXX_NOEXCEPT;
+  virtual handle do_disconnect(handle orig) PQXX_NOEXCEPT;
+  virtual bool is_ready(handle) const PQXX_NOEXCEPT;
 
 protected:
   handle normalconnect(handle);

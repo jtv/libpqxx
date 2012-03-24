@@ -8,7 +8,7 @@
  *   C++-style wrappers for SQL cursors
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/cursor instead.
  *
- * Copyright (c) 2004-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -114,19 +114,19 @@ public:
   /** @return Maximum value for result::difference_type, so the cursor will
    * attempt to read the largest possible result set.
    */
-  static difference_type all() throw ();				//[t81]
+  static difference_type all() PQXX_NOEXCEPT;				//[t81]
   /// Special value: read one row only
   /** @return Unsurprisingly, 1
    */
-  static difference_type next() throw () { return 1; }			//[t81]
+  static difference_type next() PQXX_NOEXCEPT { return 1; }		//[t81]
   /// Special value: read backwards, one row only
   /** @return Unsurprisingly, -1
    */
-  static difference_type prior() throw () { return -1; }		//[t0]
+  static difference_type prior() PQXX_NOEXCEPT { return -1; }		//[t0]
   /// Special value: read backwards from current position back to origin
   /** @return Minimum value for result::difference_type
    */
-  static difference_type backward_all() throw ();			//[t0]
+  static difference_type backward_all() PQXX_NOEXCEPT;			//[t0]
 
   //@}
 
@@ -136,7 +136,7 @@ public:
    * @warning Don't use this to access the SQL cursor directly without going
    * through the provided wrapper classes!
    */
-  const PGSTD::string &name() const throw () { return m_name; }		//[t81]
+  const PGSTD::string &name() const PQXX_NOEXCEPT { return m_name; }	//[t81]
 
 protected:
   cursor_base(connection_base &,
@@ -155,7 +155,7 @@ private:
 };
 
 
-inline cursor_base::difference_type cursor_base::all() throw ()
+inline cursor_base::difference_type cursor_base::all() PQXX_NOEXCEPT
 {
 #ifdef PQXX_HAVE_LIMITS
   return PGSTD::numeric_limits<int>::max()-1;
@@ -164,7 +164,7 @@ inline cursor_base::difference_type cursor_base::all() throw ()
 #endif
 }
 
-inline cursor_base::difference_type cursor_base::backward_all() throw ()
+inline cursor_base::difference_type cursor_base::backward_all() PQXX_NOEXCEPT
 {
 #ifdef PQXX_HAVE_LIMITS
   return PGSTD::numeric_limits<int>::min()+1;
@@ -206,7 +206,7 @@ public:
 	const PGSTD::string &cname,
 	cursor_base::ownershippolicy op);
 
-  ~sql_cursor() throw () { close(); }
+  ~sql_cursor() PQXX_NOEXCEPT { close(); }
 
   result fetch(difference_type rows, difference_type &displacement);
   result fetch(difference_type rows)
@@ -222,7 +222,7 @@ public:
    * Position may be unknown if (and only if) this cursor was adopted, and has
    * never hit its starting position (position zero).
    */
-  difference_type pos() const throw () { return m_pos; }
+  difference_type pos() const PQXX_NOEXCEPT { return m_pos; }
 
   /// End position, or -1 for unknown
   /**
@@ -231,12 +231,12 @@ public:
    *
    * End position is unknown until it is encountered during use.
    */
-  difference_type endpos() const throw () { return m_endpos; }
+  difference_type endpos() const PQXX_NOEXCEPT { return m_endpos; }
 
   /// Return zero-row result for this cursor
-  const result &empty_result() const throw () { return m_empty_result; }
+  const result &empty_result() const PQXX_NOEXCEPT { return m_empty_result; }
 
-  void close() throw ();
+  void close() PQXX_NOEXCEPT;
 
 private:
   difference_type adjust(difference_type hoped, difference_type actual);
@@ -313,7 +313,7 @@ public:
     m_cur.move(cursor_base::backward_all());
   }
 
-  void close() throw () { m_cur.close(); }
+  void close() PQXX_NOEXCEPT { m_cur.close(); }
 
   /// Number of rows in cursor's result set
   /** @note This function is not const; it may need to scroll to find the size
@@ -342,7 +342,7 @@ public:
 	end_pos);
   }
 
-  const PGSTD::string &name() const throw () { return m_cur.name(); }
+  const PGSTD::string &name() const PQXX_NOEXCEPT { return m_cur.name(); }
 
 private:
   internal::sql_cursor m_cur;
@@ -431,7 +431,7 @@ public:
       difference_type sstride=1,
       cursor_base::ownershippolicy op=cursor_base::owned);		//[t84]
 
-  operator bool() const throw () { return !m_done; }
+  operator bool() const PQXX_NOEXCEPT { return !m_done; }
 
   /// Read new value into given result object; same as operator >>
   /** The result set may continue any number of rows from zero to the chosen
@@ -462,15 +462,15 @@ public:
    * @param stride Must be a positive number
    */
   void set_stride(difference_type stride);				//[t81]
-  difference_type stride() const throw () { return m_stride; }		//[t81]
+  difference_type stride() const PQXX_NOEXCEPT { return m_stride; }	//[t81]
 
 private:
   result fetchblock();
 
   friend class internal::gate::icursorstream_icursor_iterator;
   size_type forward(size_type n=1);
-  void insert_iterator(icursor_iterator *) throw ();
-  void remove_iterator(icursor_iterator *) const throw ();
+  void insert_iterator(icursor_iterator *) PQXX_NOEXCEPT;
+  void remove_iterator(icursor_iterator *) const PQXX_NOEXCEPT;
 
   void service_iterators(difference_type);
 
@@ -524,20 +524,20 @@ public:
   typedef istream_type::size_type size_type;
   typedef istream_type::difference_type difference_type;
 
-  icursor_iterator() throw ();						//[t84]
-  explicit icursor_iterator(istream_type &) throw ();			//[t84]
-  icursor_iterator(const icursor_iterator &) throw ();			//[t84]
-  ~icursor_iterator() throw ();
+  icursor_iterator() PQXX_NOEXCEPT;					//[t84]
+  explicit icursor_iterator(istream_type &) PQXX_NOEXCEPT;		//[t84]
+  icursor_iterator(const icursor_iterator &) PQXX_NOEXCEPT;		//[t84]
+  ~icursor_iterator() PQXX_NOEXCEPT;
 
   const result &operator*() const { refresh(); return m_here; }		//[t84]
   const result *operator->() const { refresh(); return &m_here; }	//[t84]
   icursor_iterator &operator++();					//[t84]
   icursor_iterator operator++(int);					//[t84]
   icursor_iterator &operator+=(difference_type);			//[t84]
-  icursor_iterator &operator=(const icursor_iterator &) throw ();	//[t84]
+  icursor_iterator &operator=(const icursor_iterator &) PQXX_NOEXCEPT;	//[t84]
 
   bool operator==(const icursor_iterator &rhs) const;			//[t84]
-  bool operator!=(const icursor_iterator &rhs) const throw ()		//[t84]
+  bool operator!=(const icursor_iterator &rhs) const PQXX_NOEXCEPT	//[t84]
 	{ return !operator==(rhs); }
   bool operator<(const icursor_iterator &rhs) const;			//[t84]
   bool operator>(const icursor_iterator &rhs) const			//[t84]
@@ -551,7 +551,7 @@ private:
   void refresh() const;
 
   friend class internal::gate::icursor_iterator_icursorstream;
-  difference_type pos() const throw () { return m_pos; }
+  difference_type pos() const PQXX_NOEXCEPT { return m_pos; }
   void fill(const result &);
 
   icursorstream *m_stream;

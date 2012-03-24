@@ -60,14 +60,14 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE PQXX_DEPRECATED notify_listener :
 {
 public:
   notify_listener(connection_base &c, const PGSTD::string &n);
-  virtual ~notify_listener() throw ();
+  virtual ~notify_listener() PQXX_NOEXCEPT;
   const PGSTD::string &name() const { return m_forwarder.channel(); }
   virtual void operator()(int be_pid) =0;
 
 
 protected:
-  connection_base &Conn() const throw () { return conn(); }
-  connection_base &conn() const throw () { return m_conn; }
+  connection_base &Conn() const PQXX_NOEXCEPT { return conn(); }
+  connection_base &conn() const PQXX_NOEXCEPT { return m_conn; }
 
 private:
   connection_base &m_conn;
