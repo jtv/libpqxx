@@ -36,7 +36,7 @@ template<typename CONTAINER> struct Add
 
   Add(string K, CONTAINER &C) : Container(C), Key(K) {}
 
-  void operator()(const tuple &T)
+  void operator()(const pqxx::tuple &T)
   {
     Container.push_back(T[Key].c_str());
   }
@@ -50,27 +50,27 @@ Add<CONTAINER> AdderFor(string K, CONTAINER &C)
 }
 
 
-struct Cmp : binary_function<tuple, tuple, bool>
+struct Cmp : binary_function<pqxx::tuple, pqxx::tuple, bool>
 {
   string Key;
 
   explicit Cmp(string K) : Key(K) {}
 
-  bool operator()(const tuple &L, const tuple &R) const
+  bool operator()(const pqxx::tuple &L, const pqxx::tuple &R) const
   {
     return string(L[Key].c_str()) < string(R[Key].c_str());
   }
 };
 
 
-struct CountGreaterSmaller : unary_function<tuple, void>
+struct CountGreaterSmaller : unary_function<pqxx::tuple, void>
 {
   string Key;
   const result &R;
 
   CountGreaterSmaller(string K, const result &X) : Key(K), R(X) {}
 
-  void operator()(const tuple &T) const
+  void operator()(const pqxx::tuple &T) const
   {
     // Count number of entries with key greater/smaller than first row's key
     // using std::count_if<>()

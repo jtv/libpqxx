@@ -35,7 +35,7 @@ void test_093(transaction_base &T)
     // T and connection are closed here; result objects remain
   }
 
-  tuple::size_type
+  pqxx::tuple::size_type
 	x = R.table_column(2),
 	y = R.table_column(1),
 	z = R.table_column(int(0));
@@ -52,16 +52,16 @@ void test_093(transaction_base &T)
   PQXX_CHECK_EQUAL(y, 1u, "Wrong number for named column.");
   PQXX_CHECK_EQUAL(z, 2u, "Wrong number for named column.");
 
-  tuple::size_type
+  pqxx::tuple::size_type
 	xx = X[0].table_column(int(0)),
-	yx = X[0].table_column(tuple::size_type(1)),
+	yx = X[0].table_column(pqxx::tuple::size_type(1)),
 	zx = X[0].table_column("z");
 
   PQXX_CHECK_EQUAL(xx, 0u, "Bad result from table_column(int).");
   PQXX_CHECK_EQUAL(yx, 1u, "Bad result from table_column(size_type).");
   PQXX_CHECK_EQUAL(zx, 2u, "Bad result from table_column(string).");
 
-  for (tuple::size_type i=0; i<R[0].size(); ++i)
+  for (pqxx::tuple::size_type i=0; i<R[0].size(); ++i)
     PQXX_CHECK_EQUAL(
 	R[0][i].table_column(),
 	R.table_column(i),

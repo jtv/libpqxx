@@ -1,3 +1,8 @@
+2012-03-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test002.cxx, test/test007.cxx, test/test011.cxx, test/test012.cxx,
+ test/test016.cxx, test/test030.cxx, test/test031.cxx, test/test049.cxx,
+ test/test067.cxx, test/test082.cxx, test/test093.cxx:
+ - C++11 fixes.  Not quite there yet; NAN handling seems to have changed.
 2012-03-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
  - Check for noexcept support.
