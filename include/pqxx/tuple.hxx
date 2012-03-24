@@ -8,7 +8,7 @@
  *   pqxx::result represents the set of result tuples from a database query
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tuple instead.
  *
- * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -92,8 +92,8 @@ public:
   reference operator[](int) const throw ();				//[t2]
   reference operator[](const char[]) const;				//[t11]
   reference operator[](const PGSTD::string &) const;			//[t11]
-  reference at(size_type) const throw (pqxx::range_error);			//[t11]
-  reference at(int) const throw (pqxx::range_error);				//[t11]
+  reference at(size_type) const; 					//[t11]
+  reference at(int) const;						//[t11]
   reference at(const char[]) const;					//[t11]
   reference at(const PGSTD::string &) const;				//[t11]
   //@}

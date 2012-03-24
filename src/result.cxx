@@ -7,7 +7,7 @@
  *      implementation of the pqxx::result class and support classes.
  *   pqxx::result represents the set of result tuples from a database query
  *
- * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -117,7 +117,6 @@ void pqxx::result::swap(result &rhs) throw ()
 
 
 const pqxx::tuple pqxx::result::at(pqxx::result::size_type i) const
-  throw (range_error)
 {
   if (i >= size()) throw range_error("Tuple number out of range");
   return operator[](i);

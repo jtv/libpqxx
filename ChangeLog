@@ -1,3 +1,7 @@
+2012-03-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/pipeline.hxx, include/pqxx/result.hxx, include/pqxx/tuple.hxx,
+ include/pqxx/util.hxx, src/pipeline.cxx, src/result.cxx, src/tuple.cxx:
+ - Dynamic throw specs are deprecated.  Ditch the non-empty ones first.
 2012-03-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/prepared_statement.hxx:
  - Updated docs for prepared-statement parameters: no longer need declarations.

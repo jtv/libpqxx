@@ -592,7 +592,7 @@ public:
   /// Dereference pointer
   /** Throws a logic_error if the pointer is null.
    */
-  T *operator->() const throw (PGSTD::logic_error)
+  T *operator->() const
   {
     if (!m_Obj) throw PGSTD::logic_error("Null pointer dereferenced");
     return m_Obj;
@@ -601,7 +601,7 @@ public:
   /// Dereference pointer
   /** Throws a logic_error if the pointer is null.
    */
-  T &operator*() const throw (PGSTD::logic_error) { return *operator->(); }
+  T &operator*() const { return *operator->(); }
 
   /// Obtain underlying pointer
   /** Ownership of the pointer's memory remains with the PQAlloc object
