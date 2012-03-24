@@ -31,6 +31,7 @@ PQXX_HAVE_NAN	internal	compiler
 PQXX_HAVE_C_NAN	internal	compiler
 PQXX_HAVE_GCC_VISIBILITY	internal	compiler
 PQXX_HAVE_MOVE	public	compiler
+PQXX_HAVE_NOEXCEPT	public	compiler
 PQXX_HAVE_POLL	internal	compiler
 PQXX_HAVE_PQCANCEL	internal	libpq
 PQXX_HAVE_PQCLIENTENCODING	internal	libpq

@@ -15697,6 +15697,31 @@ $as_echo "::" >&6; }
 fi
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for noexcept support" >&5
+$as_echo_n "checking for noexcept support... " >&6; }
+noexcept_keyword=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+void foo() noexcept {}
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_NOEXCEPT 1" >>confdefs.h
+
+else
+  noexcept_keyword=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $noexcept_keyword" >&5
+$as_echo "$noexcept_keyword" >&6; }
+
 boost_smart_ptr=yes
 
 ac_fn_cxx_check_header_mongrel "$LINENO" "boost/smart_ptr.hpp" "ac_cv_header_boost_smart_ptr_hpp" "$ac_includes_default"
