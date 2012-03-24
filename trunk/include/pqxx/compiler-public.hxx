@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      Compiler deficiency workarounds for libpqxx clients
  *
- * Copyright (c) 2002-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -26,6 +26,12 @@
 #define PQXX_MOVE(value) (PGSTD::move(value))
 #else
 #define PQXX_MOVE(value) (value)
+#endif
+
+#ifdef PQXX_HAVE_NOEXCEPT
+#define PQXX_NOEXCEPT noexcept
+#else
+#define PQXX_NOEXCEPT throw ()
 #endif
 
 #ifdef _MSC_VER

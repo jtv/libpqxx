@@ -1,4 +1,9 @@
 2012-03-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+ - Check for noexcept support.
+ include/pqxx/compiler-public.hxx:
+ - Set PQXX_NOEXCEPT as compatible alias for noexcept (or empty throw spec).
+2012-03-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/pipeline.hxx, include/pqxx/result.hxx, include/pqxx/tuple.hxx,
  include/pqxx/util.hxx, src/pipeline.cxx, src/result.cxx, src/tuple.cxx:
  - Dynamic throw specs are deprecated.  Ditch the non-empty ones first.

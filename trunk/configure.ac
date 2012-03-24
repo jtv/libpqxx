@@ -243,6 +243,18 @@ else
 fi
 
 
+AC_MSG_CHECKING([for noexcept support])
+noexcept_keyword=yes
+AC_TRY_COMPILE(
+	[void foo() noexcept {}],
+	[],
+	AC_DEFINE(
+		[PQXX_HAVE_NOEXCEPT],
+		1,
+		[Define if the compiler supports the noexcept keyword.]),
+	noexcept_keyword=no)
+AC_MSG_RESULT($noexcept_keyword)
+
 boost_smart_ptr=yes
 AC_CHECK_HEADER(boost/smart_ptr.hpp, AC_DEFINE(PQXX_HAVE_BOOST_SMART_PTR, 1,
 	[Define if you have the <boost/smart_ptr.hpp> header]),

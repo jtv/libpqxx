@@ -143,6 +143,9 @@
 /* Define if C99 fnan()/nan()/lnan() are available */
 #undef PQXX_HAVE_NAN
 
+/* Define if the compiler supports the noexcept keyword. */
+#undef PQXX_HAVE_NOEXCEPT
+
 /* Define if the system has the poll() function (mainly GNU/Linux) */
 #undef PQXX_HAVE_POLL
 
