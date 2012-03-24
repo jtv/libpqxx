@@ -20,7 +20,7 @@ public:
     handler_list(activated_handlers)
   {}
 
-  virtual bool operator()(const char msg[]) throw ()
+  virtual bool operator()(const char msg[]) PQXX_NOEXCEPT
   {
     message = string(msg);
     handler_list.push_back(this);
@@ -120,7 +120,7 @@ class MinimalErrorHandler: public errorhandler
 {
 public:
   MinimalErrorHandler(connection_base &c) : errorhandler(c) {}
-  virtual bool operator()(const char[]) throw () { return true; }
+  virtual bool operator()(const char[]) PQXX_NOEXCEPT { return true; }
 };
 
 

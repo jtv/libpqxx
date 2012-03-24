@@ -7,7 +7,7 @@
  *      String conversion definitions for libpqxx
  *      DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stringconv instead.
  *
- * Copyright (c) 2008-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2008-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -236,8 +236,9 @@ from_string(const PGSTD::string &Str, PGSTD::string &Obj)		//[t46]
 namespace internal
 {
 /// Compute numeric value of given textual digit (assuming that it is a digit)
-inline int digit_to_number(char c) throw () { return c-'0'; }
-inline char number_to_digit(int i) throw () { return static_cast<char>(i+'0'); }
+inline int digit_to_number(char c) PQXX_NOEXCEPT { return c-'0'; }
+inline char number_to_digit(int i) PQXX_NOEXCEPT
+	{ return static_cast<char>(i+'0'); }
 } // namespace pqxx::internal
 
 

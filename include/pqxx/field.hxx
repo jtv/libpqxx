@@ -8,7 +8,7 @@
  *   pqxx::field refers to a field in a query result.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/field instead.
  *
- * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -50,7 +50,7 @@ public:
    * @param T Tuple that this field is part of.
    * @param C Column number of this field.
    */
-  field(const tuple &T, tuple_size_type C) throw ();		//[t1]
+  field(const tuple &T, tuple_size_type C) PQXX_NOEXCEPT;		//[t1]
 
   /**
    * @name Comparison
@@ -165,15 +165,15 @@ public:
     return Obj;
   }
 
-  bool is_null() const throw ();					//[t12]
-  size_type size() const throw ();					//[t11]
+  bool is_null() const PQXX_NOEXCEPT;					//[t12]
+  size_type size() const PQXX_NOEXCEPT;					//[t11]
   //@}
 
 
 protected:
-  const result *home() const throw () { return m_home; }
-  size_t idx() const throw () { return m_row; }
-  tuple_size_type col() const throw () { return m_col; }
+  const result *home() const PQXX_NOEXCEPT { return m_home; }
+  size_t idx() const PQXX_NOEXCEPT { return m_row; }
+  tuple_size_type col() const PQXX_NOEXCEPT { return m_col; }
 
   tuple_size_type m_col;
 

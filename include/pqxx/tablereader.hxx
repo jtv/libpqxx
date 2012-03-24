@@ -8,7 +8,7 @@
  *   pqxx::tablereader enables optimized batch reads from a database table
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablereader instead.
  *
- * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -44,10 +44,10 @@ public:
       ITER begincolumns,
       ITER endcolumns,
       const PGSTD::string &Null);
-  ~tablereader() throw ();
+  ~tablereader() PQXX_NOEXCEPT;
   template<typename TUPLE> tablereader &operator>>(TUPLE &);
-  operator bool() const throw () { return !m_Done; }
-  bool operator!() const throw () { return m_Done; }
+  operator bool() const PQXX_NOEXCEPT { return !m_Done; }
+  bool operator!() const PQXX_NOEXCEPT { return m_Done; }
   bool get_raw_line(PGSTD::string &Line);
   template<typename TUPLE>
   void tokenize(PGSTD::string, TUPLE &) const;

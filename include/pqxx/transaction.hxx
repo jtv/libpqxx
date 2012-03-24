@@ -8,7 +8,7 @@
  *   pqxx::transaction represents a standard database transaction
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction instead.
  *
- * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -108,7 +108,7 @@ public:
     basic_transaction(C, isolation_tag::name(), READWRITE)
 	{ Begin(); }
 
-  virtual ~transaction() throw ()
+  virtual ~transaction() PQXX_NOEXCEPT
   {
 #ifdef PQXX_QUIET_DESTRUCTORS
     quiet_errorhandler quiet(conn());

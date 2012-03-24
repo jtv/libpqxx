@@ -14,7 +14,7 @@ class PQXX_PRIVATE connection_dbtransaction : callgate<connection_base>
 
   connection_dbtransaction(reference x) : super(x) {}
 
-  int get_reactivation_avoidance_count() const throw ()
+  int get_reactivation_avoidance_count() const PQXX_NOEXCEPT
 	{ return home().m_reactivation_avoidance.get(); }
 };
 } // namespace pqxx::internal::gate

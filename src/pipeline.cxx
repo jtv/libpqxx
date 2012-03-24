@@ -58,7 +58,7 @@ pqxx::pipeline::pipeline(transaction_base &t, const PGSTD::string &Name) :
 }
 
 
-pqxx::pipeline::~pipeline() throw ()
+pqxx::pipeline::~pipeline() PQXX_NOEXCEPT
 {
 #ifdef PQXX_QUIET_DESTRUCTORS
   quiet_errorhandler quiet(m_Trans.conn());

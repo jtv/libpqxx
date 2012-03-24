@@ -8,7 +8,7 @@
  *   pqxx::errorhandler handlers errors and warnings in a database session.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
  *
- * Copyright (c) 2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -66,13 +66,13 @@ public:
    * @return Whether the same error message should also be passed to the
    * remaining, older errorhandlers.
    */
-  virtual bool operator()(const char msg[]) throw () =0;
+  virtual bool operator()(const char msg[]) PQXX_NOEXCEPT =0;
 
 private:
   connection_base *m_home;
 
   friend class internal::gate::errorhandler_connection_base;
-  void unregister() throw ();
+  void unregister() PQXX_NOEXCEPT;
 
   // Not allowed:
   errorhandler();
@@ -87,7 +87,7 @@ class quiet_errorhandler : public errorhandler
 public:
   quiet_errorhandler(connection_base &conn) : errorhandler(conn) {}
 
-  virtual bool operator()(const char[]) throw () { return false; }
+  virtual bool operator()(const char[]) PQXX_NOEXCEPT { return false; }
 };
 
 /**

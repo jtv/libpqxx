@@ -94,16 +94,17 @@ public:
   binarystring(const void *, size_t);
 
   /// Size of converted string in bytes
-  size_type size() const throw () { return m_size; }			//[t62]
+  size_type size() const PQXX_NOEXCEPT { return m_size; }		//[t62]
   /// Size of converted string in bytes
-  size_type length() const throw () { return size(); }			//[t62]
-  bool empty() const throw () { return size()==0; }			//[t62]
+  size_type length() const PQXX_NOEXCEPT { return size(); }		//[t62]
+  bool empty() const PQXX_NOEXCEPT { return size()==0; }		//[t62]
 
-  const_iterator begin() const throw () { return data(); }		//[t62]
-  const_iterator end() const throw () { return data()+m_size; }		//[t62]
+  const_iterator begin() const PQXX_NOEXCEPT { return data(); }		//[t62]
+  const_iterator end() const PQXX_NOEXCEPT { return data()+m_size; }	//[t62]
 
-  const_reference front() const throw () { return *begin(); }		//[t62]
-  const_reference back() const throw () { return *(data()+m_size-1); }	//[t62]
+  const_reference front() const PQXX_NOEXCEPT { return *begin(); }	//[t62]
+  const_reference back() const PQXX_NOEXCEPT				//[t62]
+	{ return *(data()+m_size-1); }
 
 #ifdef PQXX_HAVE_REVERSE_ITERATOR
   const_reverse_iterator rbegin() const					//[t62]
@@ -113,13 +114,13 @@ public:
 #endif
 
   /// Unescaped field contents
-  const value_type *data() const throw () {return super::get();}	//[t62]
+  const value_type *data() const PQXX_NOEXCEPT {return super::get();}	//[t62]
 
-  const_reference operator[](size_type i) const throw ()		//[t62]
+  const_reference operator[](size_type i) const PQXX_NOEXCEPT		//[t62]
 	{ return data()[i]; }
 
-  bool PQXX_PURE operator==(const binarystring &) const throw ();	//[t62]
-  bool operator!=(const binarystring &rhs) const throw ()		//[t62]
+  bool PQXX_PURE operator==(const binarystring &) const PQXX_NOEXCEPT;	//[t62]
+  bool operator!=(const binarystring &rhs) const PQXX_NOEXCEPT		//[t62]
 	{ return !operator==(rhs); }
 
   /// Index contained string, checking for valid index
@@ -132,7 +133,7 @@ public:
   /** @warning No terminating zero is added!  If the binary data did not end in
    * a null character, you will not find one here.
    */
-  const char *get() const throw ()					//[t62]
+  const char *get() const PQXX_NOEXCEPT					//[t62]
   {
     return reinterpret_cast<const char *>(super::get());
   }

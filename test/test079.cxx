@@ -51,7 +51,7 @@ public:
     T.exec("NOTIFY " + m_notif);
   }
 
-  void on_abort(const char Reason[]) throw ()
+  void on_abort(const char Reason[]) PQXX_NOEXCEPT
   {
     try
     {

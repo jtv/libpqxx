@@ -12,7 +12,7 @@ class PQXX_PRIVATE errorhandler_connection_base : callgate<errorhandler>
 
   errorhandler_connection_base(reference x) : super(x) {}
 
-  void unregister() throw () { home().unregister(); }
+  void unregister() PQXX_NOEXCEPT { home().unregister(); }
 };
 } // namespace pqxx::internal::gate
 } // namespace pqxx::internal

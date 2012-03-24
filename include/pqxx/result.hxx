@@ -94,49 +94,49 @@ public:
   typedef const_reverse_result_iterator const_reverse_iterator;
   typedef const_reverse_iterator reverse_iterator;
 
-  result() throw () : super(), m_data(0) {}				//[t3]
-  result(const result &rhs) throw () :					//[t1]
+  result() PQXX_NOEXCEPT : super(), m_data(0) {}				//[t3]
+  result(const result &rhs) PQXX_NOEXCEPT :					//[t1]
 	super(rhs), m_data(rhs.m_data) {}
 
-  result &operator=(const result &rhs) throw ()				//[t10]
+  result &operator=(const result &rhs) PQXX_NOEXCEPT				//[t10]
 	{ super::operator=(rhs); m_data=rhs.m_data; return *this; }
 
   /**
    * @name Comparisons
    */
   //@{
-  bool operator==(const result &) const throw ();			//[t70]
-  bool operator!=(const result &rhs) const throw ()			//[t70]
+  bool operator==(const result &) const PQXX_NOEXCEPT;			//[t70]
+  bool operator!=(const result &rhs) const PQXX_NOEXCEPT		//[t70]
 	{ return !operator==(rhs); }
   //@}
 
   const_reverse_iterator rbegin() const;				//[t75]
   const_reverse_iterator rend() const;					//[t75]
 
-  const_iterator begin() const throw ();				//[t1]
-  inline const_iterator end() const throw ();				//[t1]
+  const_iterator begin() const PQXX_NOEXCEPT;				//[t1]
+  inline const_iterator end() const PQXX_NOEXCEPT;			//[t1]
 
-  reference front() const throw () { return tuple(this,0); }		//[t74]
-  reference back() const throw () {return tuple(this,size()-1);}	//[t75]
+  reference front() const PQXX_NOEXCEPT { return tuple(this,0); }	//[t74]
+  reference back() const PQXX_NOEXCEPT {return tuple(this,size()-1);}	//[t75]
 
-  size_type PQXX_PURE size() const throw ();				//[t2]
-  bool PQXX_PURE empty() const throw ();				//[t11]
-  size_type capacity() const throw () { return size(); }		//[t20]
+  size_type PQXX_PURE size() const PQXX_NOEXCEPT;			//[t2]
+  bool PQXX_PURE empty() const PQXX_NOEXCEPT;				//[t11]
+  size_type capacity() const PQXX_NOEXCEPT { return size(); }		//[t20]
 
-  void swap(result &) throw ();						//[t77]
+  void swap(result &) PQXX_NOEXCEPT;					//[t77]
 
-  const tuple operator[](size_type i) const throw ()			//[t2]
+  const tuple operator[](size_type i) const PQXX_NOEXCEPT		//[t2]
 	{ return tuple(this, i); }
   const tuple at(size_type) const;					//[t10]
 
-  void clear() throw () { super::reset(); m_data = 0; }			//[t20]
+  void clear() PQXX_NOEXCEPT { super::reset(); m_data = 0; }		//[t20]
 
   /**
    * @name Column information
    */
   //@{
   /// Number of columns in result
-  tuple::size_type PQXX_PURE columns() const throw ();			//[t11]
+  tuple::size_type PQXX_PURE columns() const PQXX_NOEXCEPT;		//[t11]
 
   /// Number of given column (throws exception if it doesn't exist)
   tuple::size_type column_number(const char ColName[]) const;		//[t11]
@@ -186,7 +186,7 @@ public:
   //@}
 
   /// Query that produced this result, if available (empty string otherwise)
-  const PGSTD::string & PQXX_PURE query() const throw ();		//[t70]
+  const PGSTD::string & PQXX_PURE query() const PQXX_NOEXCEPT;		//[t70]
 
   /// If command was @c INSERT of 1 row, return oid of inserted row
   /** @return Identifier of inserted row if exactly one row was inserted, or
@@ -207,7 +207,7 @@ private:
   bool PQXX_PURE GetIsNull(size_type Row, tuple::size_type Col) const;
   field::size_type PQXX_PURE GetLength(
 	size_type,
-	tuple::size_type) const throw ();
+	tuple::size_type) const PQXX_NOEXCEPT;
 
   friend class pqxx::internal::gate::result_creation;
   result(internal::pq::PGresult *rhs,
@@ -217,17 +217,17 @@ private:
   void PQXX_PRIVATE CheckStatus() const;
 
   friend class pqxx::internal::gate::result_connection;
-  bool operator!() const throw () { return !m_data; }
-  operator bool() const throw () { return m_data != 0; }
+  bool operator!() const PQXX_NOEXCEPT { return !m_data; }
+  operator bool() const PQXX_NOEXCEPT { return m_data != 0; }
 
   void PQXX_PRIVATE PQXX_NORETURN ThrowSQLError(
 	const PGSTD::string &Err,
 	const PGSTD::string &Query) const;
-  int PQXX_PRIVATE PQXX_PURE errorposition() const throw ();
+  int PQXX_PRIVATE PQXX_PURE errorposition() const PQXX_NOEXCEPT;
   PGSTD::string PQXX_PRIVATE StatusError() const;
 
   friend class pqxx::internal::gate::result_sql_cursor;
-  const char * PQXX_PURE CmdStatus() const throw ();
+  const char * PQXX_PURE CmdStatus() const PQXX_NOEXCEPT;
 
   /// Shortcut: pointer to result data
   pqxx::internal::pq::PGresult *m_data;
@@ -256,8 +256,8 @@ public:
   typedef result::size_type size_type;
   typedef result::difference_type difference_type;
 
-  const_result_iterator() throw () : tuple(0,0) {}
-  const_result_iterator(const tuple &t) throw () : tuple(t) {}
+  const_result_iterator() PQXX_NOEXCEPT : tuple(0,0) {}
+  const_result_iterator(const tuple &t) PQXX_NOEXCEPT : tuple(t) {}
 
   /**
    * @name Dereferencing operators
@@ -325,8 +325,9 @@ public:
 
 private:
   friend class pqxx::result;
-  const_result_iterator(const pqxx::result *r, result::size_type i) throw () :
-      tuple(r, i) {}
+  const_result_iterator(const pqxx::result *r, result::size_type i)
+	PQXX_NOEXCEPT :
+    tuple(r, i) {}
 };
 
 
@@ -356,7 +357,7 @@ public:
 	const const_result_iterator &rhs) :
     const_result_iterator(rhs) { super::operator--(); }
 
-  const_result_iterator PQXX_PURE base() const throw ();		//[t75]
+  const_result_iterator PQXX_PURE base() const PQXX_NOEXCEPT;		//[t75]
 
   /**
    * @name Dereferencing operators
@@ -403,10 +404,10 @@ public:
    */
   //@{
   bool operator==(							//[t75]
-	const const_reverse_result_iterator &rhs) const throw ()
+	const const_reverse_result_iterator &rhs) const PQXX_NOEXCEPT
       { return iterator_type::operator==(rhs); }
   bool operator!=(							//[t75]
-	const const_reverse_result_iterator &rhs) const throw ()
+	const const_reverse_result_iterator &rhs) const PQXX_NOEXCEPT
       { return !operator==(rhs); }
 
   bool operator<(const const_reverse_result_iterator &rhs) const	//[t75]
@@ -486,7 +487,7 @@ inline result::difference_type
 const_result_iterator::operator-(const_result_iterator i) const
 	{ return result::difference_type(num() - i.num()); }
 
-inline const_result_iterator result::end() const throw ()
+inline const_result_iterator result::end() const PQXX_NOEXCEPT
 	{ return const_result_iterator(this, size()); }
 
 

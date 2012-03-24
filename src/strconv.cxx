@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      implementation of string conversions
  *
- * Copyright (c) 2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2008-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -81,7 +81,7 @@ template<typename T> inline void set_to_Inf(T &t, int sign=1)
 
 /// For use in string parsing: add new numeric digit to intermediate value
 template<typename L, typename R>
-  inline L absorb_digit(L value, R digit) throw ()
+  inline L absorb_digit(L value, R digit) PQXX_NOEXCEPT
 {
   return L(L(10)*value + L(digit));
 }

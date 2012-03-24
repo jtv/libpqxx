@@ -55,7 +55,7 @@ pqxx::internal::result_data::result_data(pqxx::internal::pq::PGresult *d,
 pqxx::internal::result_data::~result_data() { PQclear(data); }
 
 
-void pqxx::internal::freemem_result_data(const result_data *d) throw ()
+void pqxx::internal::freemem_result_data(const result_data *d) PQXX_NOEXCEPT
 	{ delete d; }
 
 
@@ -67,7 +67,7 @@ pqxx::result::result(pqxx::internal::pq::PGresult *rhs,
   m_data(rhs)
 {}
 
-bool pqxx::result::operator==(const result &rhs) const throw ()
+bool pqxx::result::operator==(const result &rhs) const PQXX_NOEXCEPT
 {
   if (&rhs == this) return true;
   const size_type s(size());
@@ -90,25 +90,25 @@ pqxx::result::const_reverse_iterator pqxx::result::rend() const
 }
 
 
-pqxx::result::const_iterator pqxx::result::begin() const throw ()
+pqxx::result::const_iterator pqxx::result::begin() const PQXX_NOEXCEPT
 {
   return const_iterator(this, 0);
 }
 
 
-pqxx::result::size_type pqxx::result::size() const throw ()
+pqxx::result::size_type pqxx::result::size() const PQXX_NOEXCEPT
 {
   return m_data ? size_type(PQntuples(m_data)) : 0;
 }
 
 
-bool pqxx::result::empty() const throw ()
+bool pqxx::result::empty() const PQXX_NOEXCEPT
 {
   return !m_data || !PQntuples(m_data);
 }
 
 
-void pqxx::result::swap(result &rhs) throw ()
+void pqxx::result::swap(result &rhs) PQXX_NOEXCEPT
 {
   super::swap(rhs);
   m_data = (get() ? get()->data : 0);
@@ -235,13 +235,13 @@ string pqxx::result::StatusError() const
 }
 
 
-const char *pqxx::result::CmdStatus() const throw ()
+const char *pqxx::result::CmdStatus() const PQXX_NOEXCEPT
 {
   return PQcmdStatus(m_data);
 }
 
 
-const string &pqxx::result::query() const throw ()
+const string &pqxx::result::query() const PQXX_NOEXCEPT
 {
   return get() ? get()->query : s_empty_string;
 }
@@ -280,7 +280,7 @@ bool pqxx::result::GetIsNull(
 
 pqxx::field::size_type pqxx::result::GetLength(
 	pqxx::result::size_type Row,
-        pqxx::tuple::size_type Col) const throw ()
+        pqxx::tuple::size_type Col) const PQXX_NOEXCEPT
 {
   return field::size_type(PQgetlength(m_data, int(Row), int(Col)));
 }
@@ -335,7 +335,7 @@ pqxx::tuple::size_type pqxx::result::table_column(tuple::size_type ColNum) const
 	"not derived from table column");
 }
 
-int pqxx::result::errorposition() const throw ()
+int pqxx::result::errorposition() const PQXX_NOEXCEPT
 {
   int pos = -1;
   if (m_data)
@@ -357,7 +357,7 @@ const char *pqxx::result::column_name(pqxx::tuple::size_type Number) const
 }
 
 
-pqxx::tuple::size_type pqxx::result::columns() const throw ()
+pqxx::tuple::size_type pqxx::result::columns() const PQXX_NOEXCEPT
 {
   return m_data ? tuple::size_type(PQnfields(m_data)) : 0;
 }
@@ -382,7 +382,7 @@ pqxx::const_result_iterator pqxx::const_result_iterator::operator--(int)
 
 
 pqxx::result::const_iterator
-pqxx::result::const_reverse_iterator::base() const throw ()
+pqxx::result::const_reverse_iterator::base() const PQXX_NOEXCEPT
 {
   iterator_type tmp(*this);
   return ++tmp;

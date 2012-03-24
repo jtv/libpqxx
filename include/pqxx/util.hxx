@@ -327,7 +327,7 @@ struct PQXX_LIBEXPORT thread_safety_model
 };
 
 /// Describe thread safety available in this build.
-thread_safety_model PQXX_LIBEXPORT describe_thread_safety() throw ();
+thread_safety_model PQXX_LIBEXPORT describe_thread_safety() PQXX_NOEXCEPT;
 
 /// The "null" oid
 const oid oid_none = 0;
@@ -474,14 +474,14 @@ typedef long result_difference_type;
 
 namespace internal
 {
-void PQXX_LIBEXPORT freepqmem(const void *) throw ();
-template<typename P> inline void freepqmem_templated(P *p) throw ()
+void PQXX_LIBEXPORT freepqmem(const void *) PQXX_NOEXCEPT;
+template<typename P> inline void freepqmem_templated(P *p) PQXX_NOEXCEPT
 {
   freepqmem(p);
 }
 
-void PQXX_LIBEXPORT freemallocmem(const void *) throw ();
-template<typename P> inline void freemallocmem_templated(P *p) throw ()
+void PQXX_LIBEXPORT freemallocmem(const void *) PQXX_NOEXCEPT;
+template<typename P> inline void freemallocmem_templated(P *p) PQXX_NOEXCEPT
 {
   freemallocmem(p);
 }
@@ -495,21 +495,21 @@ template<typename T, void (*DELETER)(T *) = freepqmem_templated<T> >
 {
 public:
   typedef T content_type;
-  PQAlloc() throw () : m_ptr() {}
-  PQAlloc(const PQAlloc &rhs) throw () : m_ptr(rhs.m_ptr) {}
+  PQAlloc() PQXX_NOEXCEPT : m_ptr() {}
+  PQAlloc(const PQAlloc &rhs) PQXX_NOEXCEPT : m_ptr(rhs.m_ptr) {}
   explicit PQAlloc(T *t) : m_ptr(t, DELETER) {}
 
-  T *get() const throw () { return m_ptr.get(); }
-  PQAlloc &operator=(const PQAlloc &rhs) throw ()
+  T *get() const PQXX_NOEXCEPT { return m_ptr.get(); }
+  PQAlloc &operator=(const PQAlloc &rhs) PQXX_NOEXCEPT
   {
     m_ptr = rhs.m_ptr;
     return *this;
   }
 
-  T *operator->() const throw () { return m_ptr.get(); }
-  T &operator*() const throw () { return *m_ptr; }
-  void reset() throw () { m_ptr.reset(); }
-  void swap(PQAlloc &other) throw () { m_ptr.swap(other.m_ptr); }
+  T *operator->() const PQXX_NOEXCEPT { return m_ptr.get(); }
+  T &operator*() const PQXX_NOEXCEPT { return *m_ptr; }
+  void reset() PQXX_NOEXCEPT { m_ptr.reset(); }
+  void swap(PQAlloc &other) PQXX_NOEXCEPT { m_ptr.swap(other.m_ptr); }
 
 private:
   PQXXTR1::shared_ptr<T> m_ptr;
@@ -528,10 +528,10 @@ public:
   ~refcount();
 
   /// Create additional reference based on existing refcount object
-  void makeref(refcount &) throw ();
+  void makeref(refcount &) PQXX_NOEXCEPT;
 
   /// Drop this reference; return whether we were the last reference
-  bool loseref() throw ();
+  bool loseref() PQXX_NOEXCEPT;
 
 private:
   /// Not allowed
@@ -563,31 +563,30 @@ class PQAlloc
 public:
   typedef T content_type;
 
-  PQAlloc() throw () : m_Obj(0), m_rc() {}
-  PQAlloc(const PQAlloc &rhs) throw () : m_Obj(0), m_rc() { makeref(rhs); }
-  ~PQAlloc() throw () { loseref(); }
+  PQAlloc() PQXX_NOEXCEPT : m_Obj(0), m_rc() {}
+  PQAlloc(const PQAlloc &rhs) PQXX_NOEXCEPT : m_Obj(0), m_rc() { makeref(rhs); }
+  ~PQAlloc() PQXX_NOEXCEPT { loseref(); }
 
-  PQAlloc &operator=(const PQAlloc &rhs) throw () {redoref(rhs); return *this;}
+  PQAlloc &operator=(const PQAlloc &rhs) PQXX_NOEXCEPT
+	{redoref(rhs); return *this;}
 
   /// Assume ownership of a pointer
   /** @warning Don't to this more than once for a given object!
    */
-  explicit PQAlloc(T *obj) throw () : m_Obj(obj), m_rc() {}
+  explicit PQAlloc(T *obj) PQXX_NOEXCEPT : m_Obj(obj), m_rc() {}
 
-  void swap(PQAlloc &rhs) throw ()
+  void swap(PQAlloc &rhs) PQXX_NOEXCEPT
   {
     PQAlloc tmp(*this);
     *this = rhs;
     rhs = tmp;
   }
 
-  //PQAlloc &operator=(T *obj) throw () { redoref(obj); return *this; }
-
   /// Is this pointer non-null?
-  operator bool() const throw () { return m_Obj != 0; }
+  operator bool() const PQXX_NOEXCEPT { return m_Obj != 0; }
 
   /// Is this pointer null?
-  bool operator!() const throw () { return !m_Obj; }
+  bool operator!() const PQXX_NOEXCEPT { return !m_Obj; }
 
   /// Dereference pointer
   /** Throws a logic_error if the pointer is null.
@@ -606,29 +605,29 @@ public:
   /// Obtain underlying pointer
   /** Ownership of the pointer's memory remains with the PQAlloc object
    */
-  T *get() const throw () { return m_Obj; }
+  T *get() const PQXX_NOEXCEPT { return m_Obj; }
 
-  void reset() throw () { loseref(); }
+  void reset() PQXX_NOEXCEPT { loseref(); }
 
 private:
-  void makeref(T *p) throw () { m_Obj = p; }
+  void makeref(T *p) PQXX_NOEXCEPT { m_Obj = p; }
 
-  void makeref(const PQAlloc &rhs) throw ()
+  void makeref(const PQAlloc &rhs) PQXX_NOEXCEPT
   {
     m_Obj = rhs.m_Obj;
     m_rc.makeref(rhs.m_rc);
   }
 
   /// Free and reset current pointer (if any)
-  void loseref() throw ()
+  void loseref() PQXX_NOEXCEPT
   {
     if (m_rc.loseref() && m_Obj) DELETER(m_Obj);
     m_Obj = 0;
   }
 
-  void redoref(const PQAlloc &rhs) throw ()
+  void redoref(const PQAlloc &rhs) PQXX_NOEXCEPT
 	{ if (rhs.m_Obj != m_Obj) { loseref(); makeref(rhs); } }
-  void redoref(T *obj) throw ()
+  void redoref(T *obj) PQXX_NOEXCEPT
 	{ if (obj != m_Obj) { loseref(); makeref(obj); } }
 };
 
@@ -647,12 +646,12 @@ public:
   explicit scoped_array(T *t) : m_ptr(t) {}
   ~scoped_array() { delete [] m_ptr; }
 
-  T *get() const throw () { return m_ptr; }
-  T &operator*() const throw () { return *m_ptr; }
-  template<typename INDEX> T &operator[](INDEX i) const throw ()
+  T *get() const PQXX_NOEXCEPT { return m_ptr; }
+  T &operator*() const PQXX_NOEXCEPT { return *m_ptr; }
+  template<typename INDEX> T &operator[](INDEX i) const PQXX_NOEXCEPT
 	{ return m_ptr[i]; }
 
-  scoped_array &operator=(T *t) throw ()
+  scoped_array &operator=(T *t) PQXX_NOEXCEPT
   {
     if (t != m_ptr)
     {
@@ -678,8 +677,9 @@ public:
   {
   }
 
-  const PGSTD::string &name() const throw () { return m_Name; }		//[t1]
-  const PGSTD::string &classname() const throw () {return m_Classname;}	//[t73]
+  const PGSTD::string &name() const PQXX_NOEXCEPT { return m_Name; }	//[t1]
+  const PGSTD::string &classname() const PQXX_NOEXCEPT			//[t73]
+	{return m_Classname;}
   PGSTD::string description() const;
 
 private:
@@ -701,7 +701,7 @@ class unique
 public:
   unique() : m_Guest(0) {}
 
-  GUEST *get() const throw () { return m_Guest; }
+  GUEST *get() const PQXX_NOEXCEPT { return m_Guest; }
 
   void Register(GUEST *G)
   {
@@ -744,7 +744,7 @@ typedef const char *cstring;
  * @return human-readable error string, which may or may not reside in buf
  */
 cstring PQXX_LIBEXPORT strerror_wrapper(int err, char buf[], PGSTD::size_t len)
-  throw ();
+  PQXX_NOEXCEPT;
 
 
 /// Commonly used SQL commands

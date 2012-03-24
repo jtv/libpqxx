@@ -8,7 +8,7 @@
  *   Instantiations of basic_connection bring connections and policies together
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/basic_connection instead.
  *
- * Copyright (c) 2006-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2006-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -70,7 +70,7 @@ public:
     m_policy(m_options)
 	{ init(); }
 
-  ~basic_connection() throw ()
+  ~basic_connection() PQXX_NOEXCEPT
   {
 #ifdef PQXX_QUIET_DESTRUCTORS
     quiet_errorhandler quiet(*this);
@@ -78,7 +78,7 @@ public:
     close();
   }
 
-  const PGSTD::string &options() const throw ()				//[t1]
+  const PGSTD::string &options() const PQXX_NOEXCEPT			//[t1]
 	{return m_policy.options();}
 
 private:

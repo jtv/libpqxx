@@ -8,7 +8,7 @@
  *   pqxx::connection_base encapsulates a frontend to backend connection
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
  *
- * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -61,9 +61,9 @@ class reactivation_avoidance_counter
 public:
   reactivation_avoidance_counter() : m_counter(0) {}
 
-  void add(int n) throw () { m_counter += n; }
-  void clear() throw () { m_counter = 0; }
-  int get() const throw () { return m_counter; }
+  void add(int n) PQXX_NOEXCEPT { m_counter += n; }
+  void clear() PQXX_NOEXCEPT { m_counter = 0; }
+  int get() const PQXX_NOEXCEPT { return m_counter; }
 
 private:
   int m_counter;
@@ -152,14 +152,14 @@ class PQXX_LIBEXPORT connection_base
 {
 public:
   /// Explicitly close connection.
-  void disconnect() throw ();						//[t2]
+  void disconnect() PQXX_NOEXCEPT;					//[t2]
 
    /// Is this connection open at the moment?
   /** @warning This function is @b not needed in most code.  Resist the
    * temptation to check it after opening a connection; instead, rely on the
    * broken_connection exception that will be thrown on connection failure.
    */
-  bool PQXX_PURE is_open() const throw ();				//[t1]
+  bool PQXX_PURE is_open() const PQXX_NOEXCEPT;				//[t1]
 
  /**
    * @name Activation
@@ -253,12 +253,12 @@ public:
   //@}
 
   /// Invoke notice processor function.  The message should end in newline.
-  void process_notice(const char[]) throw ();				//[t14]
+  void process_notice(const char[]) PQXX_NOEXCEPT;			//[t14]
   /// Invoke notice processor function.  Newline at end is recommended.
-  void process_notice(const PGSTD::string &) throw ();			//[t14]
+  void process_notice(const PGSTD::string &) PQXX_NOEXCEPT;		//[t14]
 
   /// Enable tracing to a given output stream, or NULL to disable.
-  void trace(PGSTD::FILE *) throw ();					//[t3]
+  void trace(PGSTD::FILE *) PQXX_NOEXCEPT;				//[t3]
 
   /**
    * @name Connection properties
@@ -302,7 +302,7 @@ public:
    *
    * @return Process identifier, or 0 if not currently connected.
    */
-  int PQXX_PURE backendpid() const throw ();				//[t1]
+  int PQXX_PURE backendpid() const PQXX_NOEXCEPT;			//[t1]
 
   /// Socket currently used for connection, or -1 for none.  Use with care!
   /** Query the current socket number.  This is intended for event loops based
@@ -319,7 +319,7 @@ public:
    * possibility that there is no socket.  The socket may change or even go away
    * during any invocation of libpqxx code, no matter how trivial.
    */
-  int PQXX_PURE sock() const throw ();					//[t87]
+  int PQXX_PURE sock() const PQXX_NOEXCEPT;				//[t87]
 
   /** 
    * @name Capabilities
@@ -393,7 +393,8 @@ public:
    * or the answer will always be "no."  In particular, if you are using this
    * function on a newly-created lazyconnection, activate the connection first.
    */
-  bool supports(capability c) const throw () { return m_caps.test(c); }	//[t88]
+  bool supports(capability c) const PQXX_NOEXCEPT			//[t88]
+	{ return m_caps.test(c); }
 
   /// What version of the PostgreSQL protocol is this connection using?
   /** The answer can be 0 (when there is no connection, or the libpq version
@@ -408,7 +409,7 @@ public:
    *
    * Requires libpq version from PostgreSQL 7.4 or better.
    */
-  int PQXX_PURE protocol_version() const throw ();			//[t1]
+  int PQXX_PURE protocol_version() const PQXX_NOEXCEPT;			//[t1]
 
   /// What version of the PostgreSQL server are we connected to?
   /** The result is a bit complicated: each of the major, medium, and minor
@@ -423,7 +424,7 @@ public:
    * at all because there is no digit "8" in octal notation.  Use strictly
    * decimal notation when it comes to these version numbers.
    */
-  int PQXX_PURE server_version() const throw ();			//[t1]
+  int PQXX_PURE server_version() const PQXX_NOEXCEPT;			//[t1]
   //@}
 
   /// Set client-side character encoding
@@ -782,9 +783,9 @@ public:
    *  that include the above plus any detail, hint, or context fields (these
    *  might span multiple lines).  "verbose" includes all available fields.
    */
-  void set_verbosity(error_verbosity verbosity) throw();
+  void set_verbosity(error_verbosity verbosity) PQXX_NOEXCEPT;
    /// Retrieve current error verbosity
-  error_verbosity get_verbosity() const throw() {return m_verbosity;}
+  error_verbosity get_verbosity() const PQXX_NOEXCEPT {return m_verbosity;}
 
   /// Return pointers to the active errorhandlers.
   /** The entries are ordered from oldest to newest handler.
@@ -805,7 +806,7 @@ protected:
   explicit connection_base(connectionpolicy &);
   void init();
 
-  void close() throw ();
+  void close() PQXX_NOEXCEPT;
   void wait_read() const;
   void wait_read(long seconds, long microseconds) const;
   void wait_write() const;
@@ -814,19 +815,19 @@ private:
 
   result make_result(internal::pq::PGresult *rhs, const PGSTD::string &query);
 
-  void PQXX_PRIVATE clearcaps() throw ();
+  void PQXX_PRIVATE clearcaps() PQXX_NOEXCEPT;
   void PQXX_PRIVATE SetupState();
   void PQXX_PRIVATE check_result(const result &);
 
-  void PQXX_PRIVATE InternalSetTrace() throw ();
-  int PQXX_PRIVATE PQXX_PURE Status() const throw ();
-  const char * PQXX_PURE ErrMsg() const throw ();
+  void PQXX_PRIVATE InternalSetTrace() PQXX_NOEXCEPT;
+  int PQXX_PRIVATE PQXX_PURE Status() const PQXX_NOEXCEPT;
+  const char * PQXX_PURE ErrMsg() const PQXX_NOEXCEPT;
   void PQXX_PRIVATE Reset();
   void PQXX_PRIVATE RestoreVars();
   PGSTD::string PQXX_PRIVATE RawGetVar(const PGSTD::string &);
-  void PQXX_PRIVATE process_notice_raw(const char msg[]) throw ();
+  void PQXX_PRIVATE process_notice_raw(const char msg[]) PQXX_NOEXCEPT;
 
-  void read_capabilities() throw ();
+  void read_capabilities() PQXX_NOEXCEPT;
 
   prepare::internal::prepared_def &find_prepared(const PGSTD::string &);
 
@@ -889,12 +890,12 @@ private:
 
   friend class internal::gate::connection_errorhandler;
   void PQXX_PRIVATE register_errorhandler(errorhandler *);
-  void PQXX_PRIVATE unregister_errorhandler(errorhandler *) throw ();
+  void PQXX_PRIVATE unregister_errorhandler(errorhandler *) PQXX_NOEXCEPT;
 
   friend class internal::gate::connection_transaction;
   result PQXX_PRIVATE Exec(const char[], int Retries);
   void PQXX_PRIVATE RegisterTransaction(transaction_base *);
-  void PQXX_PRIVATE UnregisterTransaction(transaction_base *) throw ();
+  void PQXX_PRIVATE UnregisterTransaction(transaction_base *) PQXX_NOEXCEPT;
   bool PQXX_PRIVATE ReadCopyLine(PGSTD::string &);
   void PQXX_PRIVATE WriteCopyLine(const PGSTD::string &);
   void PQXX_PRIVATE EndCopyWrite();
@@ -907,12 +908,12 @@ private:
 
   friend class internal::gate::connection_notification_receiver;
   void add_receiver(notification_receiver *);
-  void remove_receiver(notification_receiver *) throw ();
+  void remove_receiver(notification_receiver *) PQXX_NOEXCEPT;
 
   friend class internal::gate::connection_pipeline;
   void PQXX_PRIVATE start_exec(const PGSTD::string &);
-  bool PQXX_PRIVATE consume_input() throw ();
-  bool PQXX_PRIVATE is_busy() const throw ();
+  bool PQXX_PRIVATE consume_input() PQXX_NOEXCEPT;
+  bool PQXX_PRIVATE is_busy() const PQXX_NOEXCEPT;
   int PQXX_PRIVATE encoding_code();
   internal::pq::PGresult *get_result();
 
@@ -943,24 +944,24 @@ private:
 struct PQXX_LIBEXPORT PQXX_NOVTABLE noticer :
   PGSTD::unary_function<const char[], void>
 {
-  virtual ~noticer() throw () {}
-  virtual void operator()(const char[]) throw () =0;
+  virtual ~noticer() PQXX_NOEXCEPT {}
+  virtual void operator()(const char[]) PQXX_NOEXCEPT =0;
 };
 /// @deprecated Use @c quiet_errorhandler instead.
 struct PQXX_LIBEXPORT nonnoticer : noticer
 {
-  virtual void operator()(const char[]) throw () {}
+  virtual void operator()(const char[]) PQXX_NOEXCEPT {}
 };
 /// @deprecated Create an @c errorhandler instead.
 class PQXX_LIBEXPORT scoped_noticer : errorhandler
 {
 public:
-  scoped_noticer(connection_base &c, PGSTD::auto_ptr<noticer> t) throw () :
+  scoped_noticer(connection_base &c, PGSTD::auto_ptr<noticer> t) PQXX_NOEXCEPT :
     errorhandler(c), m_noticer(t.release()) {}
 protected:
-  scoped_noticer(connection_base &c, noticer *t) throw () :
+  scoped_noticer(connection_base &c, noticer *t) PQXX_NOEXCEPT :
     errorhandler(c), m_noticer(t) {}
-  virtual bool operator()(const char msg[]) throw ()
+  virtual bool operator()(const char msg[]) PQXX_NOEXCEPT
   {
     (*m_noticer)(msg);
     return false;
@@ -988,7 +989,7 @@ public:
   explicit reactivation_avoidance_exemption(connection_base &C);
   ~reactivation_avoidance_exemption();
 
-  void close_connection() throw () { m_open = false; }
+  void close_connection() PQXX_NOEXCEPT { m_open = false; }
 
 private:
   connection_base &m_home;
