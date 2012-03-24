@@ -8,7 +8,7 @@
  *   Throughput-optimized query manager
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/pipeline instead.
  *
- * Copyright (c) 2003-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -186,8 +186,8 @@ private:
   /// The given query failed; never issue anything beyond that
   void set_error_at(query_id qid) throw () { if (qid < m_error) m_error = qid; }
 
-  void PQXX_PRIVATE PQXX_NORETURN internal_error(const PGSTD::string &err)
-    throw (PGSTD::logic_error);
+  /// Throw pqxx::internal_error.
+  void PQXX_PRIVATE PQXX_NORETURN internal_error(const PGSTD::string &err);
 
   bool PQXX_PRIVATE obtain_result(bool expect_none=false);
 

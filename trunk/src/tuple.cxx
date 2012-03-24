@@ -7,7 +7,7 @@
  *      implementation of the pqxx::result class and support classes.
  *   pqxx::result represents the set of result tuples from a database query
  *
- * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -109,7 +109,7 @@ pqxx::tuple::reference pqxx::tuple::operator[](const string &s) const
 }
 
 
-pqxx::tuple::reference pqxx::tuple::at(int i) const throw (range_error)
+pqxx::tuple::reference pqxx::tuple::at(int i) const
 {
   return at(size_type(i));
 }
@@ -145,7 +145,6 @@ pqxx::field pqxx::tuple::at(const char f[]) const
 
 
 pqxx::field pqxx::tuple::at(pqxx::tuple::size_type i) const
-  throw (range_error)
 {
   if (i >= size())
     throw range_error("Invalid field number");
