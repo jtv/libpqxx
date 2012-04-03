@@ -31,6 +31,7 @@ log_message() {
 
 
 check_for_compilers() {
+	local POTENTIAL_COMPILER 
 	for POTENTIAL_COMPILER in $1
 	do
 		which "$POTENTIAL_COMPILER"
@@ -66,6 +67,7 @@ unpack_tarball() {
 
 
 find_backend_dir()  {
+	local FBD_OLD_PWD
 	FBD_OLD_PWD="`pwd`"
 	cd -- "$TESTDIR/pg/$1"
 	pwd
@@ -80,6 +82,7 @@ locate_pidfile() {
 
 start_backend() {
 	# Start up a PostgreSQL backend.
+	local ARG_BACKEND BACKEND_DIR SB_OLD_PWD
 	log_message "Starting backend $1"
 	ARG_BACKEND="$1"
 	BACKEND_DIR="`find_backend_dir "$ARG_BACKEND"`"
@@ -105,6 +108,7 @@ start_backend() {
 
 
 stop_backend() {
+	local BACKEND_PIDFILE
 	log_message "Stopping backend $1"
 	BACKEND_PIDFILE="`locate_pidfile "$1"`"
 	if PATH="$PATH:/sbin" start-stop-daemon -p "$BACKEND_PIDFILE" -K
@@ -116,6 +120,7 @@ stop_backend() {
 
 augment_postgres_config() {
 	# Tweak configuration for backend $1.
+	local BACKEND_CONFIG
 	BACKEND_CONFIG="$1/data/postgresql.conf"
 	if ! grep -- '^fsync = false' "$BACKEND_CONFIG"
 	then
@@ -137,6 +142,7 @@ build_postgres() {
 
 
 create_database() {
+	local PQXX_USER BACKEND_DIR
 	PQXX_USER="`whoami`"
 	log_message "(Re-)creating database $PQXX_USER in $1"
 	BACKEND_DIR="`find_backend_dir "$1"`"
@@ -148,6 +154,8 @@ create_database() {
 
 install_postgres() {
 	# Download, build, and install a postgres version.
+	local ARG_VERSION_NAME STRIPPED_VERSION BASE_NAME PG_TARBALL \
+		DOWNLOAD_PATH PG_URL INSTALL_DIR IP_OLD_PWD
 	ARG_VERSION_NAME="$1"
 	STRIPPED_VERSION="`echo "$ARG_VERSION_NAME" | sed -e 's/^v//'`"
 	BASE_NAME="postgresql-$STRIPPED_VERSION"
@@ -186,6 +194,7 @@ find_upstream_postgreses() {
 
 
 find_installed_postgreses() {
+	local FIP_OLD_PWD SKIP
 	FIP_OLD_PWD="`pwd`"
 	cd -- "$TESTDIR/pg"
 	SKIP="`find v* -maxdepth 1 -name PQXX_SKIP | sed -e 's|/.*||'`"
@@ -195,6 +204,7 @@ find_installed_postgreses() {
 
 
 stop_all_backends() {
+	local SAB_BACKENDS STOPPABLE_BACKEND 
 	SAB_BACKENDS=`find_installed_postgreses`
 	for STOPPABLE_BACKEND in $SAB_BACKENDS
 	do
@@ -204,6 +214,7 @@ stop_all_backends() {
 
 
 prepare_postgreses() {
+	local PP_OLD_PWD DOWNLOADABLE AVAILABLE_BACKENDS PREPARE_BACKEND 
 	PP_OLD_PWD="`pwd`"
 	for DOWNLOADABLE in `find_upstream_postgreses`
 	do
@@ -232,6 +243,7 @@ prepare_postgreses() {
 
 
 find_historic_compilers() {
+	local COMPILERS
 	COMPILERS="`find /usr/bin /usr/local/bin -name g++-[0-9].[0-9]`"
 	# TODO: Any way we can skip the one that g++ links to?
 	echo ${COMPILERS:-c++}
@@ -239,6 +251,7 @@ find_historic_compilers() {
 
 
 test_against_compilers() {
+	local COMPILER 
 	log_message "Testing against compilers: $1"
 	for COMPILER in $1
 	do
@@ -267,6 +280,8 @@ find_backends() {
 
 
 test_against_postgreses() {
+	local ARG_FRONTENDS ARG_BACKENDS TEST_FRONTEND TEST_FRONTEND_DIR \
+		EXTENDED_PATH LIB_PATH TEST_BACKEND
 	ARG_FRONTENDS=$1
 	ARG_BACKENDS=$2
 	for TEST_FRONTEND in $ARG_FRONTENDS
@@ -299,6 +314,8 @@ test_against_postgreses() {
 
 
 main() {
+	local PQXX_TARBALL CURRENT_POSTGRES CURRENT_POSTGRES_DIR CURRENT_PATH \
+		CURRENT_LIB_PATH
 	build_tarball
 	PQXX_TARBALL="`get_tarball`"
 	cd -- "$TESTDIR"

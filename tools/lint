@@ -31,6 +31,7 @@ EOF
 # Count number of times header $1 is included from each of given input files.
 # Output is lines of <filename>:<count>, one line per file, sorted.
 count_includes() {
+	local HEADER_NAME WS PAT
 	HEADER_NAME="$1"
 	shift
 	WS="[[:space:]]*"
@@ -42,6 +43,7 @@ count_includes() {
 # Any file that includes compiler-internal-pre.hxx must also include
 # compiler-internal-post.hxx, and vice versa.
 check_compiler_internal_headers() {
+	local TEMPDIR PRE POST
 	TEMPDIR="`mktemp --tmpdir -d pqxx-pre-release-check.XXXX`"
 	if test -z "$TEMPDIR"
 	then

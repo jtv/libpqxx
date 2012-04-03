@@ -77,6 +77,7 @@ SAMPLETXT="`${srcdir}/tools/maketemporary`"
 # listed in "$2" (one per line) in file "$3".  A code for the grep command line
 # to be used is passed as $1.
 wordgrep () {
+	local GREPCODE PAT TXT
 	GREPCODE="$1"
 	PAT="$2"
 	TXT="$3"
@@ -154,4 +155,3 @@ for publication in $PUBLICATIONS ; do
 		fi
 	done
 done
-

@@ -1,3 +1,6 @@
+2012-04-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/lint, tools/pqxx-fulltest, tools/pre-release-check, tools/splitconfig:
+ - Mark local variables in shell functions with "local."
 2012-03-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/basic_connection.hxx, include/pqxx/binarystring.hxx,
  include/pqxx/connection_base.hxx, include/pqxx/connection.hxx,
