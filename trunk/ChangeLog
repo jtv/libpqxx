@@ -1,3 +1,8 @@
+2012-04-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in, debian, Makefile.am, tools/lint, tools/release:
+ - Removed obsolete debian and RPM packaging.
+ - No longer check, or update, debian/changelog for releases.
+ - Dropped debian directory altogether.
 2012-04-04  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/lint, tools/pqxx-fulltest, tools/pre-release-check, tools/splitconfig:
  - Mark local variables in shell functions with "local."
