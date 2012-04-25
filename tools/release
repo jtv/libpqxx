@@ -61,16 +61,6 @@ echo "** Updating source tree **"
 svn cp "$PARENT" "tags/$PQXXVERSION"
 
 
-# Mark new trunk in debian/changelog.
-cat - <<EOF "tags/$PQXXVERSION"/debian/changelog >"$PARENT"/debian/changelog
-libpqxx ($NEXTVERSION-1) unstable; urgency=medium
-
-  * Forked release $PQXXVERSION.
-
- -- Jeroen T. Vermeulen <jtv@xs4all.nl>  $RELEASEDATE
-
-EOF
-
 # Mark next version in NEWS.
 cat - <<EOF "tags/$PQXXVERSION/NEWS" >"$PARENT/NEWS"
 $NEXTVERSION

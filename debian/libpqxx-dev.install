@@ -1,4 +1,0 @@
-debian/install/usr/include          usr
-debian/install/usr/lib/libpqxx.la   usr/lib
-debian/install/usr/lib/libpqxx.so   usr/lib
-debian/install/usr/lib/pkgconfig    usr/lib

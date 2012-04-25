@@ -38,8 +38,8 @@ host_triplet = @host@
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/libpqxx.pc.in \
-	$(srcdir)/libpqxx.spec.in $(srcdir)/pqxx-config.in \
-	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS
+	$(srcdir)/pqxx-config.in $(top_srcdir)/configure AUTHORS \
+	COPYING ChangeLog INSTALL NEWS
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/m4/libtool.m4 \
 	$(top_srcdir)/config/m4/ltoptions.m4 \
@@ -53,7 +53,7 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h
-CONFIG_CLEAN_FILES = libpqxx.pc pqxx-config libpqxx.spec
+CONFIG_CLEAN_FILES = libpqxx.pc pqxx-config
 CONFIG_CLEAN_VPATH_FILES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -277,10 +277,8 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 with_postgres_include = @with_postgres_include@
 with_postgres_lib = @with_postgres_lib@
-SUBDIRS = include src test tools win32 config debian doc
-EXTRA_DIST = autogen.sh configure.ac.in libpqxx.spec libpqxx.spec.in \
-	configitems README-UPGRADE VERSION
-
+SUBDIRS = include src test tools win32 config doc
+EXTRA_DIST = autogen.sh configure.ac.in configitems README-UPGRADE VERSION
 MAINTAINERCLEANFILES = Makefile.in aclocal.m4 config.h.in config.log configure \
 	stamp-h.in
 
@@ -328,8 +326,6 @@ $(am__aclocal_m4_deps):
 libpqxx.pc: $(top_builddir)/config.status $(srcdir)/libpqxx.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 pqxx-config: $(top_builddir)/config.status $(srcdir)/pqxx-config.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-libpqxx.spec: $(top_builddir)/config.status $(srcdir)/libpqxx.spec.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 install-binSCRIPTS: $(bin_SCRIPTS)
 	@$(NORMAL_INSTALL)
