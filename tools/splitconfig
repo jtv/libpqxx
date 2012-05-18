@@ -100,6 +100,7 @@ wordgrep () {
 		;;
 	openbsd)
 		echo "$PAT" | grep -w -h -f /dev/stdin "$TXT"
+		;;
 	symw)
 		for p in $PAT
 		do
