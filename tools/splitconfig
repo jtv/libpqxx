@@ -14,7 +14,8 @@
 #set -e
 
 srcdir="$1"
-if test -z "${srcdir}" ; then
+if test -z "${srcdir}"
+then
 	srcdir="."
 fi
 
@@ -33,8 +34,10 @@ fi
 # command line is passed as $1; $2 is echoed to standard out if the command
 # line works.
 working_grep() {
-	if test -z "$1" ; then
-		if ! which grep >/dev/null ; then
+	if test -z "$1"
+	then
+		if ! which grep >/dev/null
+		then
 			cat <<EOF >&2
 Could not run "grep"--no way to proceed!
 EOF
@@ -47,7 +50,8 @@ a patched version of GNU grep shipped with the original Fedora Core 4 release.
 
 EOF
 		fi
-	elif test -z "`echo "$1" | grep '\<splat\>'`" ; then
+	elif test -z "`echo "$1" | grep '\<splat\>'`"
+	then
 		cat <<EOF >&2
 
 This version of grep seems to be broken: searching for literal whole-word
@@ -56,7 +60,8 @@ boundary.  This problem is known to have happened with some 2.5.1 versions of
 GNU grep.
 
 EOF
-	elif test -n "`echo "$1" | grep 'barr'`" ; then
+	elif test -n "`echo "$1" | grep 'barr'`"
+	then
 		cat <<EOF >&2
 
 This "grep" command line fails to take word boundaries into account.  This means
@@ -93,8 +98,11 @@ wordgrep () {
 	fgrep)
 		fgrep -w -h "$PAT" "$TXT"
 		;;
+	openbsd)
+		echo "$PAT" | grep -w -h -f /dev/stdin "$TXT"
 	symw)
-		for p in $PAT ; do
+		for p in $PAT
+		do
 			grep "\<$p\>" "$TXT"
 		done
 		;;
@@ -118,14 +126,17 @@ splat
 EOF
 
 GREPCODE=''
-for g in "grep-F" "grep-f" "fgrep" "symw" ; do
-	if test -z "$GREPCODE" ; then
+for g in "grep-F" "grep-f" "fgrep" "openbsd" "symw"
+do
+	if test -z "$GREPCODE"
+	then
 		GREPOUT=`wordgrep "$g" "$SAMPLEPAT" "$SAMPLETXT"`
 		GREPCODE="`working_grep "$GREPOUT" "$g"`"
 	fi
 done
 rm -f -- "$SAMPLETXT"
-if test -z "$GREPCODE" ; then
+if test -z "$GREPCODE"
+then
 	echo "No capable grep found" >&2
 	exit 1
 fi
@@ -137,16 +148,20 @@ LC_ALL=C
 PUBLICATIONS=`cut -f 2 "$CFDB" | sort -u`
 FACTORS=`cut -f 3 "$CFDB" | sort -u`
 
-for publication in $PUBLICATIONS ; do
-	for factor in $FACTORS ; do
+for publication in $PUBLICATIONS
+do
+	for factor in $FACTORS
+	do
 		CFGFILE="include/pqxx/config-${publication}-${factor}.h"
 		echo -n "Generating $CFGFILE: "
 		ITEMS="`grep -w "${publication}" "$CFDB" | grep -w "${factor}" | cut -f 1 | grep -v '^$'`"
-		if test -z "$ITEMS" ; then
+		if test -z "$ITEMS"
+		then
 			echo "no items--skipping"
 		else
 			wordgrep "$GREPCODE" "$ITEMS" "$ORGHDR" >"$CFGFILE"
-			if test -s "$CFGFILE" ; then
+			if test -s "$CFGFILE"
+			then
 				echo "ok"
 			else
 				rm -f -- "$CFGFILE"
