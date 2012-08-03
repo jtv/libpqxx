@@ -192,7 +192,7 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
 #if defined(PQXX_HAVE_IMBUE)
       S.imbue(locale("C"));
 #endif
-      ok = (S >> result);
+      ok = static_cast<bool>(S >> result);
     }
     break;
   }
