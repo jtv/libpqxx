@@ -1,3 +1,7 @@
+2012-08-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/largeobject.hxx:
+ - Compile fix for clang++ 3.2.  Thanks Amy Troschinetz.
+ - Fixes #252.
 2012-04-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in, debian, Makefile.am, tools/lint, tools/release:
  - Removed obsolete debian and RPM packaging.
