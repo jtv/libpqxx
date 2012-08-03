@@ -1,4 +1,8 @@
 2012-08-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/strconv.cxx:
+ - Compile fix for clang++ 3.2.  Thanks Amy Troschinetz.
+ - Fixes #253.
+2012-08-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/largeobject.hxx:
  - Compile fix for clang++ 3.2.  Thanks Amy Troschinetz.
  - Fixes #252.
