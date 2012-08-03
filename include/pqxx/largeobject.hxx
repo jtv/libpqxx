@@ -396,7 +396,7 @@ public:
 			openmode mode = PGSTD::ios::in | PGSTD::ios::out,
 			size_type BufSize=512) :			//[t48]
     m_BufSize(BufSize),
-    m_Obj(T, O),
+    m_Obj(T, O, mode),
     m_G(0),
     m_P(0)
 	{ initialize(mode); }
@@ -406,7 +406,7 @@ public:
 			openmode mode = PGSTD::ios::in | PGSTD::ios::out,
 			size_type BufSize=512) :			//[t48]
     m_BufSize(BufSize),
-    m_Obj(T, O),
+    m_Obj(T, O, mode),
     m_G(0),
     m_P(0)
 	{ initialize(mode); }
