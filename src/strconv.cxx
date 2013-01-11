@@ -79,11 +79,66 @@ template<typename T> inline void set_to_Inf(T &t, int sign=1)
 }
 
 
+void report_overflow()
+{
+  throw pqxx::failure(
+	"Could not convert string to integer: value out of range.");
+}
+
+
+/** Helper to check for underflow before multiplying a number by 10.
+ *
+ * Needed just so the compiler doesn't get to complain about an "if (n < 0)"
+ * clause that's pointless for unsigned numbers.
+ */
+template<typename T, bool is_signed> struct underflow_check;
+
+/* Specialization for signed types: check.
+ */
+template<typename T> struct underflow_check<T, true>
+{
+  static void check_before_adding_digit(T n)
+  {
+    const T ten(10);
+    if (n < 0 && (numeric_limits<T>::min() / ten) > n) report_overflow();
+  }
+};
+
+/* Specialization for unsigned types: no check needed becaue negative
+ * numbers don't exist.
+ */
+template<typename T> struct underflow_check<T, false>
+{
+  static void check_before_adding_digit(T) {}
+};
+
+
+/// Return 10*n, or throw exception if it overflows.
+template<typename T> T safe_multiply_by_ten(T n)
+{
+  const T ten(10);
+  if (n > 0 && (numeric_limits<T>::max() / n) < ten) report_overflow();
+  underflow_check<T, numeric_limits<T>::is_signed>::check_before_adding_digit(
+	n);
+  return T(n * ten);
+}
+
+
+/// Add a digit d to n, or throw exception if it overflows.
+template<typename T> T safe_add_digit(T n, T d)
+{
+  assert((n >= 0 && d >= 0) || (n <=0 && d <= 0));
+  if ((n > 0) && (n > (numeric_limits<T>::max() - d))) report_overflow();
+  if ((n < 0) && (n < (numeric_limits<T>::min() - d))) report_overflow();
+  return n + d;
+}
+
+
 /// For use in string parsing: add new numeric digit to intermediate value
 template<typename L, typename R>
-  inline L absorb_digit(L value, R digit) PQXX_NOEXCEPT
+  inline L absorb_digit(L value, R digit)
 {
-  return L(L(10)*value + L(digit));
+  return L(safe_multiply_by_ten(value) + L(digit));
 }
 
 
@@ -99,20 +154,10 @@ template<typename T> void from_string_signed(const char Str[], T &Obj)
 	string(Str) + "'");
 
     for (++i; isdigit(Str[i]); ++i)
-    {
-      const T newresult = absorb_digit(result, -digit_to_number(Str[i]));
-      if (newresult > result)
-        throw pqxx::failure("Integer too small to read: " + string(Str));
-      result = newresult;
-    }
+      result = absorb_digit(result, -digit_to_number(Str[i]));
   }
   else for (; isdigit(Str[i]); ++i)
-  {
-    const T newresult = absorb_digit(result, digit_to_number(Str[i]));
-    if (newresult < result)
-      throw pqxx::failure("Integer too large to read: " + string(Str));
-    result = newresult;
-  }
+    result = absorb_digit(result, digit_to_number(Str[i]));
 
   if (Str[i])
     throw pqxx::failure("Unexpected text after integer: '" + string(Str) + "'");
@@ -130,13 +175,7 @@ template<typename T> void from_string_unsigned(const char Str[], T &Obj)
 	string(Str) + "'");
 
   for (; isdigit(Str[i]); ++i)
-  {
-    const T newres = absorb_digit(result, digit_to_number(Str[i]));
-    if (newres < result)
-      throw pqxx::failure("Unsigned integer too large to read: " + string(Str));
-
-    result = newres;
-  }
+    result = absorb_digit(result, digit_to_number(Str[i]));
 
   if (Str[i])
     throw pqxx::failure("Unexpected text after integer: '" + string(Str) + "'");
@@ -496,4 +535,3 @@ string string_traits<long double>::to_string(long double Obj)
 #endif
 
 } // namespace pqxx
-
