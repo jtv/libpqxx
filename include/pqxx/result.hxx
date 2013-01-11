@@ -8,7 +8,7 @@
  *   pqxx::result represents the set of result tuples from a database query
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/result instead.
  *
- * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2013, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -290,7 +290,7 @@ public:
   const_result_iterator &operator+=(difference_type i)			//[t12]
       { m_Index = size_type(difference_type(m_Index) + i); return *this; }
   const_result_iterator &operator-=(difference_type i)			//[t12]
-      { m_Index = size_type(difference_type (m_Index) - i); return *this; }
+      { m_Index = size_type(difference_type(m_Index) - i); return *this; }
   //@}
 
   /**
