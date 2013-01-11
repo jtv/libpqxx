@@ -2,6 +2,7 @@
  - Build fix for OS X.
  - Build fixes for clang++ 3.2.
  - Build fix for clang++ 3.0.
+ - Build fix for MinGW.
  - Supports C++11.
  - No longer has obsolete debian & RPM packaging built in.
  - Fixed failure to detect some integer overflows during conversion.

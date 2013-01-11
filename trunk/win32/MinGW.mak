@@ -47,7 +47,7 @@ OBJ = \
   src/util.o \
 
 
-LDFLAGS = -L$(LIBPATH) --export-all-symbols --add-stdcall-alias -fpic
+LDFLAGS = -L$(LIBPQPATH) --export-all-symbols --add-stdcall-alias -fpic
 LIBS = -lpq -lm -lws2_32
 
 CPPFLAGS = -Iinclude -I$(PGSQLINC) -I$(LIBPQINC) \
