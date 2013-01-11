@@ -1,3 +1,7 @@
+2013-01-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/strconv.cxx, test/unit/test_string_conversion.cxx:
+ - Some integer overflows in from_string were not detected.
+ - Fixes #263.
 2013-01-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
  - Fix w clang++ 3.0: basic C-library test broke.
