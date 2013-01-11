@@ -383,6 +383,7 @@ AC_HEADER_STDC
 
 AC_MSG_CHECKING([ability to compile programs using the standard C library])
 AC_TRY_COMPILE([#include <string.h>
+	namespace std {} // In case string.h does not define it.
 	${usestd}
 	extern void f(size_t);],
 	[f(strlen(""))],[],

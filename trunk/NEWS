@@ -1,6 +1,7 @@
 5.0
  - Build fix for OS X.
  - Build fixes for clang++ 3.2.
+ - Build fix for clang++ 3.0.
  - Supports C++11.
  - No longer has obsolete debian & RPM packaging built in.
 4.0

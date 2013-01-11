@@ -1,3 +1,6 @@
+2013-01-10  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+ - Fix w clang++ 3.0: basic C-library test broke.
 2012-08-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/strconv.cxx:
  - Compile fix for clang++ 3.2.  Thanks Amy Troschinetz.
