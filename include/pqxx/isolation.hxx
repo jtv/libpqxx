@@ -28,19 +28,19 @@ namespace pqxx
 {
 
 /// Transaction isolation levels; PostgreSQL doesn't implement all SQL levels
-/** The only levels implemented in postgres are read_committed and serializable;
- * SQL also defines read_uncommitted and repeatable_read.  Unless you're bent on
- * using nasty tricks to communicate between ongoing transactions and such, you
- * won't really need isolation levels for anything except performance
- * optimization.  In that case, you can safely emulate read_uncommitted by using
- * read_committed and repeatable_read by using serializable.  In general,
- * serializable is the safest choice.
+/** The only levels implemented in postgres are read_committed,
+ * repeatable_read and serializable; SQL also defines
+ * read_uncommitted.  Unless you're bent on using nasty tricks to
+ * communicate between ongoing transactions and such, you won't really
+ * need isolation levels for anything except performance optimization.
+ * In that case, you can safely emulate read_uncommitted by using
+ * read_committed.  In general, serializable is the safest choice.
  */
 enum isolation_level
 {
   // read_uncommitted,
   read_committed,
-  // repeatable_read,
+  repeatable_read,
   serializable
 };
 
@@ -54,6 +54,9 @@ template<isolation_level LEVEL> struct isolation_traits
 
 template<> inline const char *isolation_traits<read_committed>::name()
 	PQXX_NOEXCEPT { return "READ COMMITTED"; }
+
+template<> inline const char *isolation_traits<repeatable_read>::name()
+	PQXX_NOEXCEPT { return "REPEATABLE READ"; }
 
 template<> inline const char *isolation_traits<serializable>::name()
 	PQXX_NOEXCEPT { return "SERIALIZABLE"; }

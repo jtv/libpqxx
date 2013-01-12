@@ -1,4 +1,8 @@
 2013-01-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/isolation.hxx:
+ - Support for REPEATABLE READ isolation level.  Thanks pawsa.
+ - Fixes #259.
+2013-01-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
  win32/mingw.mak.template:
  - Build fix for MinGW: LIBPQPATH, not LIBPATH.  Thanks Maxwell (?)
  - Fixes #261.
