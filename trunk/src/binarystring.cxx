@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      implementation of bytea (binary string) conversions
  *
- * Copyright (c) 2003-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2013, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -43,7 +43,7 @@ inline unsigned char DV(unsigned char d)
 #endif
 
 
-typedef pair<const unsigned char *, size_t> buffer;
+typedef pair<unsigned char *, size_t> buffer;
 
 
 buffer to_buffer(const void *data, size_t len)
