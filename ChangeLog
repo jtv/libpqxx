@@ -1,4 +1,9 @@
 2013-01-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/splitconfig:
+ - Rewrote in python.
+ - Much shorter: most of the code was detecting & handling grep flavours!
+ - Should fix BSD build problem.  Thanks Martin van den Nieuwelaar.
+2013-01-17  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/binarystring.hxx, src/binarystring.cxx:
  - C++11 fix: instantiate on non-const unsigned char.  Thanks Linus Kallberg.
 2013-01-12  Jeroen T. Vermeulen <jtv@xs4all.nl>
