@@ -7,7 +7,7 @@
  *      Representation for raw, binary data.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/binarystring instead.
  *
- * Copyright (c) 2003-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2013, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -58,8 +58,8 @@ namespace pqxx
  */
 class PQXX_LIBEXPORT binarystring :
 	internal::PQAlloc<
-		const unsigned char,
-		pqxx::internal::freemallocmem_templated<const unsigned char> >
+		unsigned char,
+		pqxx::internal::freemallocmem_templated<unsigned char> >
 {
 public:
   typedef content_type char_type;
@@ -77,7 +77,7 @@ public:
 private:
   typedef internal::PQAlloc<
 	value_type,
-	pqxx::internal::freemallocmem_templated<const unsigned char> >
+	pqxx::internal::freemallocmem_templated<unsigned char> >
     super;
 
 public:
