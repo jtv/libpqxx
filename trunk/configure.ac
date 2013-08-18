@@ -262,15 +262,17 @@ AC_CHECK_HEADER(boost/smart_ptr.hpp, AC_DEFINE(PQXX_HAVE_BOOST_SMART_PTR, 1,
 
 
 AC_MSG_CHECKING([whether TR1 headers live in tr1 directory])
-tr1headers=yes
+tr1headers=no
+# Try to include regular <memory>.  If that doesn't work, assume it has to be
+# <tr1/memory>.
 AC_TRY_COMPILE(
-	[#include <tr1/memory>],
+	[#include <memory>],
 	[],
 	AC_DEFINE(
 		[PQXX_TR1_HEADERS],
-		1,
+		0,
 		[Define if headers for TR1 extension to standard live in tr1/]),
-	tr1headers=no)
+	tr1headers=yes)
 AC_MSG_RESULT($tr1headers)
 
 if test "${tr1headers}" = "yes" ; then
