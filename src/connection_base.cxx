@@ -7,7 +7,7 @@
  *      implementation of the pqxx::connection_base abstract base class.
  *   pqxx::connection_base encapsulates a frontend to backend connection
  *
- * Copyright (c) 2001-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2014, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -68,6 +68,7 @@ using namespace pqxx::internal;
 using namespace pqxx::prepare;
 
 
+#ifndef PQXX_HAVE_POLL
 #ifdef PQXX_SELECT_ACCEPTS_NULL
   // The always-empty fd_set
 static fd_set *const fdset_none = 0;
@@ -75,6 +76,7 @@ static fd_set *const fdset_none = 0;
 static fd_set emptyfd;	// Relies on zero-initialization
 static fd_set *const fdset_none = &emptyfd;
 #endif	// PQXX_SELECT_ACCEPTS_NULL
+#endif  // !PQXX_HAVE_POLL
 
 
 #ifndef PQXX_HAVE_POLL
