@@ -1,6 +1,8 @@
 2014-04-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
  - Conditionally comment out Conditionally unused variable.
+ tools/pqxx-fulltest:
+ - Only care about postgres versions 8 and up.
 2013-08-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
  - Prefer <memory> over <tr1/memory>
