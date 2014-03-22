@@ -1,4 +1,7 @@
-2014-04-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+2014-03-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+ - Always accept "long long": the postgres header now requires it.
+2014-03-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
  - Conditionally comment out Conditionally unused variable.
  tools/pqxx-fulltest:

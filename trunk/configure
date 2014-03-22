@@ -15671,9 +15671,8 @@ if test "$GCC" = "yes" ; then
 			-Wunused
 	fi
 
-	if test "$enable_long_long" = "yes" ; then
-		add_compiler_opts -Wno-long-long
-	fi
+	# The PostgreSQL headers now require "long long".
+	add_compiler_opts -Wno-long-long
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ visibility attribute" >&5
 $as_echo_n "checking g++ visibility attribute... " >&6; }
