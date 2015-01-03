@@ -97,35 +97,6 @@ template<typename Cat,
 #include <iterator>
 #endif // PQXX_BROKEN_ITERATOR
 
-#ifndef PQXX_HAVE_CHAR_TRAITS
-#include <cstddef>
-namespace std
-{
-/// Work around missing std::char_traits
-template<typename CHAR> struct char_traits {};
-/// Work around missing std::char_traits<char>
-template<> struct char_traits<char>
-{
-  typedef int int_type;
-  typedef size_t pos_type;
-  typedef long off_type;
-  typedef char char_type;
-
-  static int_type eof() { return -1; }
-};
-/// Work around missing std::char_traits<unsigned char>
-template<> struct char_traits<unsigned char>
-{
-  typedef int int_type;
-  typedef size_t pos_type;
-  typedef long off_type;
-  typedef unsigned char char_type;
-
-  static int_type eof() { return -1; }
-};
-}
-#endif
-
 // Workarounds for SUN Workshop 6
 #if defined(__SUNPRO_CC)
 #if __SUNPRO_CC_COMPAT < 5

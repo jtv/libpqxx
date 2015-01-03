@@ -299,16 +299,6 @@ AC_TRY_COMPILE([#include <sstream>
 	[imbue=no])
 AC_MSG_RESULT($imbue)
 
-AC_MSG_CHECKING([char_traits template])
-char_traits=yes
-AC_TRY_COMPILE([#include <string>
-	${usestd}], 
-	[char_traits<char>::eof()],
-	AC_DEFINE(PQXX_HAVE_CHAR_TRAITS, 1,
-[Define if std provides the char_traits template and <char> specialization]),
-char_traits=no)
-AC_MSG_RESULT($char_traits)
-
 AC_MSG_CHECKING(["warning" preprocessor directive])
 cpp_warning=yes
 AC_TRY_COMPILE([#warning cpp supports warning directive], [], AC_DEFINE(PQXX_HAVE_CPP_WARNING, 1,

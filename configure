@@ -15999,32 +15999,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $imbue" >&5
 $as_echo "$imbue" >&6; }
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking char_traits template" >&5
-$as_echo_n "checking char_traits template... " >&6; }
-char_traits=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <string>
-	${usestd}
-int
-main ()
-{
-char_traits<char>::eof()
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_CHAR_TRAITS 1" >>confdefs.h
-
-else
-  char_traits=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $char_traits" >&5
-$as_echo "$char_traits" >&6; }
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking \"warning\" preprocessor directive" >&5
 $as_echo_n "checking \"warning\" preprocessor directive... " >&6; }
 cpp_warning=yes

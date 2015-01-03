@@ -14,7 +14,6 @@ PQXX_HAVE_GCC_NORETURN	public	compiler
 PQXX_HAVE_GCC_PURE	public	compiler
 PQXX_HAVE_AUTO_PTR	public	compiler
 PQXX_HAVE_BOOST_SMART_PTR	public	compiler
-PQXX_HAVE_CHAR_TRAITS	public	compiler
 PQXX_HAVE_COUNT_IF	internal	compiler
 PQXX_HAVE_CPP_PRAGMA_MESSAGE	public	compiler
 PQXX_HAVE_CPP_WARNING	public	compiler
