@@ -270,11 +270,6 @@ AC_DEFINE_UNQUOTED(
 	[namespace of TR1 standard extensions (e.g. "std" or "std::tr1")])
 AC_MSG_RESULT([$tr1])
 
-streambuf=yes
-AC_CHECK_HEADER(streambuf,AC_DEFINE(PQXX_HAVE_STREAMBUF,1,
-[Define if you have the <streambuf> header; if not, <streambuf.h> is used]),
-streambuf=no)
-
 localehdr=yes
 AC_CHECK_HEADER(locale,AC_DEFINE(PQXX_HAVE_LOCALE,1,
 [Define if you have the <locale> header]),

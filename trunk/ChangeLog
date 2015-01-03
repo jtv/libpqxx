@@ -9,6 +9,19 @@
  config/sample-headers/compiler/gcc-3.3/pqxx/config-public-compiler.h,
  config/sample-headers/compiler/gcc-4.2/pqxx/config-public-compiler.h,
  configitems, configure.ac.in, include/pqxx/config.h.in,
+ include/pqxx/field.hxx, include/pqxx/largeobject.hxx:
+ - Remove workaround for missing streambuf header.
+2015-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/MinGW-3.4/pqxx/config-public-compiler.h,
+ config/sample-headers/compiler/SunStudio-8/pqxx/config-public-compiler.h,
+ config/sample-headers/compiler/VisualStudio2008/pqxx/config-public-compiler.h,
+ config/sample-headers/compiler/VisualStudio2010/pqxx/config-public-compiler.h,
+ config/sample-headers/compiler/gcc-3.3-apple/config-public-compiler.h_strict,
+ config/sample-headers/compiler/gcc-3.3-apple/pqxx/config-public-compiler.h,
+ config/sample-headers/compiler/gcc-3.3/config-public-compiler.h_strict,
+ config/sample-headers/compiler/gcc-3.3/pqxx/config-public-compiler.h,
+ config/sample-headers/compiler/gcc-4.2/pqxx/config-public-compiler.h,
+ configitems, configure.ac.in, include/pqxx/config.h.in,
  include/pqxx/result.hxx:
  - Remove workaround for missing ios header.
 2015-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
