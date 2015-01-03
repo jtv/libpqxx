@@ -122,13 +122,11 @@ void test_000(transaction_base &)
 #endif
 
   stringstream lminstr, lmaxstr, llminstr, llmaxstr, ullmaxstr;
-#if defined(PQXX_HAVE_IMBUE)
   lminstr.imbue(locale("C"));
   lmaxstr.imbue(locale("C"));
   llminstr.imbue(locale("C"));
   llmaxstr.imbue(locale("C"));
   ullmaxstr.imbue(locale("C"));
-#endif
 
   lminstr << long_min;
   lmaxstr << long_max;

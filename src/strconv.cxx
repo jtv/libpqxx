@@ -226,9 +226,7 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
     else
     {
       stringstream S(Str);
-#if defined(PQXX_HAVE_IMBUE)
       S.imbue(locale("C"));
-#endif
       ok = static_cast<bool>(S >> result);
     }
     break;
@@ -262,9 +260,7 @@ template<typename T> inline string to_string_unsigned(T Obj)
 template<typename T> inline string to_string_fallback(T Obj)
 {
   stringstream S;
-#ifdef PQXX_HAVE_IMBUE
   S.imbue(locale("C"));
-#endif
 
 // Provide enough precision.
 #ifdef PQXX_HAVE_LIMITS
