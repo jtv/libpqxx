@@ -15932,18 +15932,6 @@ _ACEOF
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $tr1" >&5
 $as_echo "$tr1" >&6; }
 
-localehdr=yes
-ac_fn_cxx_check_header_mongrel "$LINENO" "locale" "ac_cv_header_locale" "$ac_includes_default"
-if test "x$ac_cv_header_locale" = xyes; then :
-
-$as_echo "#define PQXX_HAVE_LOCALE 1" >>confdefs.h
-
-else
-  localehdr=no
-fi
-
-
-
 usestd="namespace std {} using namespace std;"
 
 imbue=yes
@@ -15952,9 +15940,7 @@ $as_echo_n "checking locale function and stringstream::imbue... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <sstream>
-	#ifdef PQXX_HAVE_LOCALE
 	#include <locale>
-	#endif
 	${usestd}
 int
 main ()

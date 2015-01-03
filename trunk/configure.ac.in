@@ -270,19 +270,12 @@ AC_DEFINE_UNQUOTED(
 	[namespace of TR1 standard extensions (e.g. "std" or "std::tr1")])
 AC_MSG_RESULT([$tr1])
 
-localehdr=yes
-AC_CHECK_HEADER(locale,AC_DEFINE(PQXX_HAVE_LOCALE,1,
-[Define if you have the <locale> header]),
-localehdr=no)
-
 usestd="namespace std {} using namespace std;"
 
 imbue=yes
 AC_MSG_CHECKING([locale function and stringstream::imbue])
 AC_TRY_COMPILE([#include <sstream>
-	#ifdef PQXX_HAVE_LOCALE
 	#include <locale>
-	#endif
 	${usestd}],
 	[stringstream S; S.imbue(locale("C"))],
 	[AC_DEFINE(PQXX_HAVE_IMBUE, 1, [Define if stringstream::imbue works])],

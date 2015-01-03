@@ -5,9 +5,7 @@
 // IN NORMAL CLIENT PROGRAMS!
 #include "pqxx/config-internal-compiler.h"
 
-#ifdef PQXX_HAVE_LOCALE
 #include <locale>
-#endif
 
 #include "test_helpers.hxx"
 
