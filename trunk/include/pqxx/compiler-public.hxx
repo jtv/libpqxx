@@ -183,7 +183,7 @@ template<> struct char_traits<unsigned char>
 #ifdef _MSC_VER
 
 #if _MSC_VER < 1300
-#error If you're using Visual C++, you'll need at least version 7 (.NET)
+#error "If you're using Visual C++, you'll need at least version 7 (.NET)"
 #elif _MSC_VER < 1310
 // Workarounds for pre-2003 Visual C++.NET
 #undef PQXX_HAVE_REVERSE_ITERATOR
