@@ -8,7 +8,7 @@
  *   Throughput-optimized query manager
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/pipeline instead.
  *
- * Copyright (c) 2003-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -61,7 +61,7 @@ public:
   typedef long query_id;
 
   explicit pipeline(transaction_base &,
-      const PGSTD::string &Name=PGSTD::string());			//[t69]
+      const std::string &Name=std::string());				//[t69]
 
   ~pipeline() PQXX_NOEXCEPT;
 
@@ -72,7 +72,7 @@ public:
    * confused!
    * @return Identifier for this query, unique only within this pipeline
    */
-  query_id insert(const PGSTD::string &);				//[t69]
+  query_id insert(const std::string &);					//[t69]
 
   /// Wait for all ongoing or pending operations to complete.
   /** Detaches from the transaction when done. */
@@ -116,7 +116,7 @@ public:
 
   /// Retrieve oldest unretrieved result (possibly wait for one)
   /** @return The query's identifier and its result set */
-  PGSTD::pair<query_id, result> retrieve();				//[t69]
+  std::pair<query_id, result> retrieve();				//[t69]
 
   bool empty() const PQXX_NOEXCEPT { return m_queries.empty(); }	//[t69]
 
@@ -142,23 +142,23 @@ private:
   class PQXX_PRIVATE Query
   {
   public:
-    explicit Query(const PGSTD::string &q) : m_query(q), m_res() {}
+    explicit Query(const std::string &q) : m_query(q), m_res() {}
 
     const result &get_result() const PQXX_NOEXCEPT { return m_res; }
     void set_result(const result &r) PQXX_NOEXCEPT { m_res = r; }
-    const PGSTD::string &get_query() const PQXX_NOEXCEPT { return m_query; }
+    const std::string &get_query() const PQXX_NOEXCEPT { return m_query; }
 
   private:
-    PGSTD::string m_query;
+    std::string m_query;
     result m_res;
   };
 
-  typedef PGSTD::map<query_id,Query> QueryMap;
+  typedef std::map<query_id,Query> QueryMap;
 
-  struct getquery:PGSTD::unary_function<QueryMap::const_iterator,PGSTD::string>
+  struct getquery:std::unary_function<QueryMap::const_iterator,std::string>
   {
     getquery(){}	// Silences bogus warning in some gcc versions
-    PGSTD::string operator()(QueryMap::const_iterator i) const
+    std::string operator()(QueryMap::const_iterator i) const
 	{ return i->second.get_query(); }
   };
 
@@ -169,7 +169,7 @@ private:
   static query_id qid_limit() PQXX_NOEXCEPT
   {
 #if defined(PQXX_HAVE_LIMITS)
-    return PGSTD::numeric_limits<query_id>::max();
+    return std::numeric_limits<query_id>::max();
 #else
     return LONG_MAX;
 #endif
@@ -188,7 +188,7 @@ private:
 	{ if (qid < m_error) m_error = qid; }
 
   /// Throw pqxx::internal_error.
-  void PQXX_PRIVATE PQXX_NORETURN internal_error(const PGSTD::string &err);
+  void PQXX_PRIVATE PQXX_NORETURN internal_error(const std::string &err);
 
   bool PQXX_PRIVATE obtain_result(bool expect_none=false);
 
@@ -201,11 +201,11 @@ private:
 
   /// Receive results, up to stop if possible
   void PQXX_PRIVATE receive(pipeline::QueryMap::const_iterator stop);
-  PGSTD::pair<pipeline::query_id, result>
+  std::pair<pipeline::query_id, result>
     retrieve(pipeline::QueryMap::iterator);
 
   QueryMap m_queries;
-  PGSTD::pair<QueryMap::iterator,QueryMap::iterator> m_issuedrange;
+  std::pair<QueryMap::iterator,QueryMap::iterator> m_issuedrange;
   int m_retain;
   int m_num_waiting;
   query_id m_q_id;

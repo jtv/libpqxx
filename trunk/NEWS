@@ -1,4 +1,5 @@
 5.0
+ - The PGSTD namespace alias is gone.  Use the std namespace directly.
  - pqxx::tuple is now pqxx::row, to avoid clashes with std::tuple.
  - Support for REPEATABLE READ isolation level.
  - Build fix for OS X.

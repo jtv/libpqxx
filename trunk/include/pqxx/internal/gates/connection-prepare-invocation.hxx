@@ -18,7 +18,7 @@ class PQXX_PRIVATE connection_prepare_invocation : callgate<connection_base>
   connection_prepare_invocation(reference x) : super(x) {}
 
   result prepared_exec(
-	const PGSTD::string &statement,
+	const std::string &statement,
 	const char *const params[],
 	const int paramlengths[],
 	const int binary[],
@@ -32,7 +32,7 @@ class PQXX_PRIVATE connection_prepare_invocation : callgate<connection_base>
 	nparams);
   }
 
-  bool prepared_exists(const PGSTD::string &statement) const
+  bool prepared_exists(const std::string &statement) const
 	{ return home().prepared_exists(statement); }
 };
 } // namespace pqxx::internal::gate

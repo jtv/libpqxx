@@ -24,7 +24,7 @@ struct PQXX_PRIVATE result_data
   int protocol;
 
   /// Query string that yielded this result
-  PGSTD::string query;
+  std::string query;
 
   int encoding_code;
 
@@ -33,7 +33,7 @@ struct PQXX_PRIVATE result_data
   result_data();
   result_data(pqxx::internal::pq::PGresult *,
 		int protocol,
-		const PGSTD::string &,
+		const std::string &,
 		int encoding_code);
   ~result_data();
 };

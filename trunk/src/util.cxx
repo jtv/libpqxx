@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      Various utility functions for libpqxx
  *
- * Copyright (c) 2003-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -45,7 +45,7 @@
 #include "pqxx/util"
 
 
-using namespace PGSTD;
+using namespace std;
 using namespace pqxx::internal;
 
 
@@ -250,7 +250,7 @@ void cpymsg(char buf[], const char input[], size_t buflen) PQXX_NOEXCEPT
 #endif
 
 
-cstring pqxx::internal::strerror_wrapper(int err, char buf[], PGSTD::size_t len)
+cstring pqxx::internal::strerror_wrapper(int err, char buf[], std::size_t len)
 	PQXX_NOEXCEPT
 {
   if (!buf || len <= 0) return "No buffer provided for error message!";

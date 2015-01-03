@@ -7,7 +7,7 @@
  *      Compiler deficiency workarounds for compiling libpqxx itself.
  *      DO NOT INCLUDE THIS FILE when building client programs.
  *
- * Copyright (c) 2002-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -61,7 +61,7 @@
 #include <limits>
 #else // PQXX_HAVE_LIMITS
 #include <climits>
-namespace PGSTD
+namespace std
 {
 /// Work around lacking "limits" header
 template<typename T> struct numeric_limits

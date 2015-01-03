@@ -1074,8 +1074,7 @@ INCLUDE_FILE_PATTERNS  =
 # undefined via #undef or recursively expanded use the := operator 
 # instead of the = operator.
 
-PREDEFINED             = PGSTD=std \
-                         PQXX_ABI="@PQXX_ABI@" \
+PREDEFINED             = PQXX_ABI="@PQXX_ABI@" \
                          PQXX_DEPRECATED= \
                          PQXX_LIBEXPORT= \
                          PQXX_NOVTABLE= \

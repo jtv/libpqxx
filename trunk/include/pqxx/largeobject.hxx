@@ -8,7 +8,7 @@
  *   Allows access to large objects directly, or through I/O streams
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/largeobject instead.
  *
- * Copyright (c) 2003-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -69,7 +69,7 @@ public:
    * @param T Backend transaction in which the large object is to be created
    * @param File A filename on the client program's filesystem
    */
-  largeobject(dbtransaction &T, const PGSTD::string &File);		//[t53]
+  largeobject(dbtransaction &T, const std::string &File);		//[t53]
 
   /// Take identity of an opened large object
   /** Copy identity of already opened large object.  Note that this may be done
@@ -124,7 +124,7 @@ public:
    * @param T Transaction in which the object is to be accessed
    * @param File A filename on the client's filesystem
    */
-  void to_file(dbtransaction &T, const PGSTD::string &File) const;	//[t52]
+  void to_file(dbtransaction &T, const std::string &File) const;	//[t52]
 
   /// Delete large object from database
   /** Unlike its low-level equivalent cunlink, this will throw an exception if
@@ -136,7 +136,7 @@ public:
 protected:
   static internal::pq::PGconn * PQXX_PURE RawConnection(const dbtransaction &T);
 
-  PGSTD::string Reason(int err) const;
+  std::string Reason(int err) const;
 
 private:
   oid m_ID;
@@ -158,14 +158,14 @@ public:
    * take them from @c std::ios instead, which should be safe because it
    * inherits the same definition, to accommodate gcc 2.95 & 2.96.
    */
-  typedef PGSTD::ios::openmode openmode;
+  typedef std::ios::openmode openmode;
 
   /// Seek direction: @c beg, @c cur, @c end
   /** According to the C++ standard, these should be in @c std::ios_base.  We
    * take them from @c std::ios instead, which should be safe because it
    * inherits the same definition, to accommodate gcc 2.95 & 2.96.
    */
-  typedef PGSTD::ios::seekdir seekdir;
+  typedef std::ios::seekdir seekdir;
 
   /// Create new large object and open it
   /**
@@ -173,9 +173,7 @@ public:
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
   explicit largeobjectaccess(dbtransaction &T,
-			     openmode mode =
-				PGSTD::ios::in |
-				PGSTD::ios::out);			//[t51]
+			     openmode mode=std::ios::in|std::ios::out);	//[t51]
 
   /// Open large object with given oid
   /** Convert combination of a transaction and object identifier into a
@@ -186,9 +184,7 @@ public:
    */
   largeobjectaccess(dbtransaction &T,
 		    oid O,
-		    openmode mode =
-			PGSTD::ios::in |
-			PGSTD::ios::out);				//[t52]
+		    openmode mode=std::ios::in|std::ios::out);		//[t52]
 
   /// Open given large object
   /** Open a large object with the given identity for reading and/or writing
@@ -198,7 +194,7 @@ public:
    */
   largeobjectaccess(dbtransaction &T,
 		    largeobject O,
-		    openmode mode = PGSTD::ios::in | PGSTD::ios::out);	//[t50]
+		    openmode mode=std::ios::in|std::ios::out);		//[t50]
 
   /// Import large object from a local file and open it
   /** Creates a large object containing the data found in the given file.
@@ -207,9 +203,8 @@ public:
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
   largeobjectaccess(dbtransaction &T,
-		    const PGSTD::string &File,
-		    openmode mode =
-			PGSTD::ios::in | PGSTD::ios::out);		//[t55]
+		    const std::string &File,
+		    openmode mode=std::ios::in|std::ios::out);		//[t55]
 
   ~largeobjectaccess() PQXX_NOEXCEPT { close(); }
 
@@ -223,7 +218,7 @@ public:
   /** Writes the data stored in the large object to the given file.
    * @param File A filename on the client's filesystem
    */
-  void to_file(const PGSTD::string &File) const				//[t54]
+  void to_file(const std::string &File) const				//[t54]
 	{ largeobject::to_file(m_Trans, File); }
 
 #ifdef PQXX_BROKEN_USING_DECL
@@ -232,7 +227,7 @@ public:
    * @param T Transaction in which the object is to be accessed
    * @param File A filename on the client's filesystem
    */
-  void to_file(dbtransaction &T, const PGSTD::string &F) const
+  void to_file(dbtransaction &T, const std::string &F) const
 	{ largeobject::to_file(T, F); }
 #else
   using largeobject::to_file;
@@ -253,7 +248,7 @@ public:
   /** If not all bytes could be written, an exception is thrown.
    * @param Buf Data to write; no terminating zero is written
    */
-  void write(const PGSTD::string &Buf)					//[t50]
+  void write(const std::string &Buf)					//[t50]
 	{ write(Buf.c_str(), static_cast<size_type>(Buf.size())); }
 
   /// Read data from large object
@@ -329,7 +324,7 @@ public:
    */
   //@{
   /// Issue message to transaction's notice processor
-  void process_notice(const PGSTD::string &) PQXX_NOEXCEPT;		//[t50]
+  void process_notice(const std::string &) PQXX_NOEXCEPT;		//[t50]
   //@}
 
   using largeobject::remove;
@@ -342,7 +337,7 @@ public:
   using largeobject::operator>=;
 
 private:
-  PGSTD::string PQXX_PRIVATE Reason(int err) const;
+  std::string PQXX_PRIVATE Reason(int err) const;
   internal::pq::PGconn *RawConnection() const
 	{ return largeobject::RawConnection(m_Trans); }
 
@@ -368,12 +363,12 @@ private:
  * @warning This class may not work properly in compiler environments that don't
  * fully support Standard-compliant streambufs, such as g++ 2.95 or older.
  */
-template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
+template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
   class largeobject_streambuf :
 #ifdef PQXX_HAVE_STREAMBUF
-    public PGSTD::basic_streambuf<CHAR, TRAITS>
+    public std::basic_streambuf<CHAR, TRAITS>
 #else
-    public PGSTD::streambuf
+    public std::streambuf
 #endif
 {
   typedef long size_type;
@@ -393,7 +388,7 @@ public:
 
   largeobject_streambuf(dbtransaction &T,
 			largeobject O,
-			openmode mode = PGSTD::ios::in | PGSTD::ios::out,
+			openmode mode=std::ios::in|std::ios::out,
 			size_type BufSize=512) :			//[t48]
     m_BufSize(BufSize),
     m_Obj(T, O, mode),
@@ -403,7 +398,7 @@ public:
 
   largeobject_streambuf(dbtransaction &T,
 			oid O,
-			openmode mode = PGSTD::ios::in | PGSTD::ios::out,
+			openmode mode=std::ios::in|std::ios::out,
 			size_type BufSize=512) :			//[t48]
     m_BufSize(BufSize),
     m_Obj(T, O, mode),
@@ -416,7 +411,7 @@ public:
 
 
   /// For use by large object stream classes
-  void process_notice(const PGSTD::string &s) { m_Obj.process_notice(s); }
+  void process_notice(const std::string &s) { m_Obj.process_notice(s); }
 
 #ifdef PQXX_HAVE_STREAMBUF
 protected:
@@ -440,7 +435,7 @@ protected:
   {
     const largeobjectaccess::pos_type newpos = m_Obj.cseek(
 	largeobjectaccess::off_type(pos),
-	PGSTD::ios::beg);
+	std::ios::beg);
     return AdjustEOF(newpos);
   }
 
@@ -479,17 +474,17 @@ private:
 
   /// Helper: change error position of -1 to EOF (probably a no-op)
   template<typename INTYPE>
-  static PGSTD::streampos AdjustEOF(INTYPE pos)
-	{ return (pos==-1) ? PGSTD::streampos(EoF()) : PGSTD::streampos(pos); }
+  static std::streampos AdjustEOF(INTYPE pos)
+	{ return (pos==-1) ? std::streampos(EoF()) : std::streampos(pos); }
 
   void initialize(openmode mode)
   {
-    if (mode & PGSTD::ios::in)
+    if (mode & std::ios::in)
     {
       m_G = new char_type[unsigned(m_BufSize)];
       this->setg(m_G, m_G, m_G);
     }
-    if (mode & PGSTD::ios::out)
+    if (mode & std::ios::out)
     {
       m_P = new char_type[unsigned(m_BufSize)];
       this->setp(m_P, m_P + m_BufSize);
@@ -513,18 +508,18 @@ private:
  *
  * Currently only works for <tt><char, std::char_traits<char> ></tt>.
  */
-template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
+template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
   class basic_ilostream :
 #ifdef PQXX_HAVE_STREAMBUF
-    public PGSTD::basic_istream<CHAR, TRAITS>
+    public std::basic_istream<CHAR, TRAITS>
 #else
-    public PGSTD::istream
+    public std::istream
 #endif
 {
 #ifdef PQXX_HAVE_STREAMBUF
-  typedef PGSTD::basic_istream<CHAR, TRAITS> super;
+  typedef std::basic_istream<CHAR, TRAITS> super;
 #else
-  typedef PGSTD::istream super;
+  typedef std::istream super;
 #endif
 
 public:
@@ -544,7 +539,7 @@ public:
                   largeobject O,
 		  largeobject::size_type BufSize=512) :			//[t57]
     super(0),
-    m_Buf(T, O, PGSTD::ios::in, BufSize)
+    m_Buf(T, O, std::ios::in, BufSize)
 	{ super::init(&m_Buf); }
 
   /// Create a basic_ilostream
@@ -557,7 +552,7 @@ public:
                   oid O,
 		  largeobject::size_type BufSize=512) :			//[t48]
     super(0),
-    m_Buf(T, O, PGSTD::ios::in, BufSize)
+    m_Buf(T, O, std::ios::in, BufSize)
 	{ super::init(&m_Buf); }
 
 private:
@@ -576,18 +571,18 @@ typedef basic_ilostream<char> ilostream;
  *
  * Currently only works for <tt><char, std::char_traits<char> ></tt>.
  */
-template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
+template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
   class basic_olostream :
 #ifdef PQXX_HAVE_STREAMBUF
-    public PGSTD::basic_ostream<CHAR, TRAITS>
+    public std::basic_ostream<CHAR, TRAITS>
 #else
-    public PGSTD::ostream
+    public std::ostream
 #endif
 {
 #ifdef PQXX_HAVE_STREAMBUF
-  typedef PGSTD::basic_ostream<CHAR, TRAITS> super;
+  typedef std::basic_ostream<CHAR, TRAITS> super;
 #else
-  typedef PGSTD::ostream super;
+  typedef std::ostream super;
 #endif
 public:
   typedef CHAR char_type;
@@ -606,7 +601,7 @@ public:
                   largeobject O,
 		  largeobject::size_type BufSize=512) :			//[t48]
     super(0),
-    m_Buf(T, O, PGSTD::ios::out, BufSize)
+    m_Buf(T, O, std::ios::out, BufSize)
 	{ super::init(&m_Buf); }
 
   /// Create a basic_olostream
@@ -619,7 +614,7 @@ public:
 		  oid O,
 		  largeobject::size_type BufSize=512) :			//[t57]
     super(0),
-    m_Buf(T, O, PGSTD::ios::out, BufSize)
+    m_Buf(T, O, std::ios::out, BufSize)
 	{ super::init(&m_Buf); }
 
   ~basic_olostream()
@@ -632,7 +627,7 @@ public:
       m_Buf.sync(); m_Buf.sync();
 #endif
     }
-    catch (const PGSTD::exception &e)
+    catch (const std::exception &e)
     {
       m_Buf.process_notice(e.what());
     }
@@ -654,18 +649,18 @@ typedef basic_olostream<char> olostream;
  *
  * Currently only works for <tt><char, std::char_traits<char> ></tt>.
  */
-template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
+template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
   class basic_lostream :
 #ifdef PQXX_HAVE_STREAMBUF
-    public PGSTD::basic_iostream<CHAR, TRAITS>
+    public std::basic_iostream<CHAR, TRAITS>
 #else
-    public PGSTD::iostream
+    public std::iostream
 #endif
 {
 #ifdef PQXX_HAVE_STREAMBUF
-  typedef PGSTD::basic_iostream<CHAR, TRAITS> super;
+  typedef std::basic_iostream<CHAR, TRAITS> super;
 #else
-  typedef PGSTD::iostream super;
+  typedef std::iostream super;
 #endif
 
 public:
@@ -685,7 +680,7 @@ public:
 		 largeobject O,
 		 largeobject::size_type BufSize=512) :			//[t59]
     super(0),
-    m_Buf(T, O, PGSTD::ios::in | PGSTD::ios::out, BufSize)
+    m_Buf(T, O, std::ios::in | std::ios::out, BufSize)
 	{ super::init(&m_Buf); }
 
   /// Create a basic_lostream
@@ -698,7 +693,7 @@ public:
 		 oid O,
 		 largeobject::size_type BufSize=512) :			//[t59]
     super(0),
-    m_Buf(T, O, PGSTD::ios::in | PGSTD::ios::out, BufSize)
+    m_Buf(T, O, std::ios::in | std::ios::out, BufSize)
 	{ super::init(&m_Buf); }
 
   ~basic_lostream()
@@ -711,7 +706,7 @@ public:
       m_Buf.sync(); m_Buf.sync();
 #endif
     }
-    catch (const PGSTD::exception &e)
+    catch (const std::exception &e)
     {
       m_Buf.process_notice(e.what());
     }

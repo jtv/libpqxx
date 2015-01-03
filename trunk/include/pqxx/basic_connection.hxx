@@ -8,7 +8,7 @@
  *   Instantiations of basic_connection bring connections and policies together
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/basic_connection instead.
  *
- * Copyright (c) 2006-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2006-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -57,16 +57,16 @@ template<typename CONNECTPOLICY> class basic_connection :
 public:
   basic_connection() :
     connection_base(m_policy),
-    m_options(PGSTD::string()),
+    m_options(std::string()),
     m_policy(m_options)
 	{ init(); }
 
-  explicit basic_connection(const PGSTD::string &opt) :
+  explicit basic_connection(const std::string &opt) :
     connection_base(m_policy), m_options(opt), m_policy(m_options) {init();}
 
   explicit basic_connection(const char opt[]) :
     connection_base(m_policy),
-    m_options(opt?opt:PGSTD::string()),
+    m_options(opt?opt:std::string()),
     m_policy(m_options)
 	{ init(); }
 
@@ -78,12 +78,12 @@ public:
     close();
   }
 
-  const PGSTD::string &options() const PQXX_NOEXCEPT			//[t1]
+  const std::string &options() const PQXX_NOEXCEPT			//[t1]
 	{return m_policy.options();}
 
 private:
   /// Connect string.  @warn Must be initialized before the connector!
-  PGSTD::string m_options;
+  std::string m_options;
   /// Connection policy.  @warn Must be initialized after the connect string!
   CONNECTPOLICY m_policy;
 };

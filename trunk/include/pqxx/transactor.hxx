@@ -8,7 +8,7 @@
  *   pqxx::transactor is a framework-style wrapper for safe transactions
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transactor instead.
  *
- * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -64,10 +64,10 @@ namespace pqxx
  */
 template<typename TRANSACTION=transaction<read_committed> >
   class transactor :
-    public PGSTD::unary_function<TRANSACTION, void>
+    public std::unary_function<TRANSACTION, void>
 {
 public:
-  explicit transactor(const PGSTD::string &TName="transactor") :	//[t4]
+  explicit transactor(const std::string &TName="transactor") :		//[t4]
     m_Name(TName) { }
 
   /// Overridable transaction definition; insert your database code here
@@ -124,10 +124,10 @@ public:
 
   // TODO: Rename Name()--is there a compatible way?
   /// The transactor's name.
-  PGSTD::string Name() const { return m_Name; }				//[t13]
+  std::string Name() const { return m_Name; }				//[t13]
 
 private:
-  PGSTD::string m_Name;
+  std::string m_Name;
 };
 
 
@@ -164,7 +164,7 @@ inline void pqxx::connection_base::perform(const TRANSACTOR &T,
       T2.on_doubt();
       throw;
     }
-    catch (const PGSTD::exception &e)
+    catch (const std::exception &e)
     {
       // Could be any kind of error.
       T2.on_abort(e.what());

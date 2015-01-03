@@ -15,7 +15,7 @@ LDFLAGS = -L$(LIBPQPATH) --export-all-symbols --add-stdcall-alias -fpic
 LIBS = -lpq -lm -lws2_32
 
 CPPFLAGS = -Iinclude -I$(PGSQLINC) -I$(LIBPQINC) \
-  -DBUILDING_DLL -DPQXX_SHARED -DPGSTD=$(STD)
+  -DBUILDING_DLL -DPQXX_SHARED
 
 BIN = libpqxx.dll
 

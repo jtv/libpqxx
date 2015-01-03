@@ -791,7 +791,6 @@ with_sysroot
 enable_libtool_lock
 enable_documentation
 enable_maintainer_mode
-with_std
 with_tr1
 '
       ac_precious_vars='build_alias
@@ -1450,7 +1449,6 @@ Optional Packages:
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
   --with-sysroot=DIR Search for dependent libraries within DIR
                         (or the compiler's sysroot if not specified).
-  --with-std              name of standard library namespace (normally "std")
   --with-tr1              namespace of TR1 extension to the C++ standard
 
 Some influential environment variables:
@@ -15819,55 +15817,6 @@ $as_echo "$gcc_pure" >&6; }
 
 fi
 
-# Determine name of standard namespace.  PGSTD will be set to this name.  The
-# --with-std= option takes precedence if given; otherwise, several alternatives
-# are tried.
-# As a special case, if the argument to the --with-std option is "yes" (as would
-# be the case if the user specified the option but no argument for it), the
-# guessing logic is enabled as if the option had not been used.
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking name of standard library namespace (normally \"std\")" >&5
-$as_echo_n "checking name of standard library namespace (normally \"std\")... " >&6; }
-guessstd=no
-
-# Check whether --with-std was given.
-if test "${with_std+set}" = set; then :
-  withval=$with_std; std=${withval};
-else
-  guessstd=yes
-fi
-
-
-if test "${guessstd}" = "yes" -o "${withval}" = "yes"; then
-	# No explicit std namespace given.  Check for alternative "standard"
-	# namespaces, in order of preference.
-	for ns in std _STL stlp_std "" ; do
-		cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <string>
-			${ns}::string justastring;
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-  std="${ns}"; break
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-	done
-fi
-
-cat >>confdefs.h <<_ACEOF
-#define PGSTD $std
-_ACEOF
-
-if ! test -z "${std}" ; then
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ::${std}" >&5
-$as_echo "::${std}" >&6; }
-	usestd="namespace ${std} {} using namespace ${std};"
-else
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ::" >&5
-$as_echo "::" >&6; }
-fi
-
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for noexcept support" >&5
 $as_echo_n "checking for noexcept support... " >&6; }
 noexcept_keyword=yes
@@ -15954,9 +15903,9 @@ fi
 
 
 if test "${guesstr1}" = "yes" ; then
-	# No explicit TR1 namespace given.  Try PGSTD::tr1.  If that doesn't
-	# work, assume PGSTD as our best bet.
-	tr1="${std}::tr1"
+	# No explicit TR1 namespace given.  Try std::tr1.  If that doesn't
+	# work, assume std as our best bet.
+	tr1="std::tr1"
 	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <${tr1dir}memory>
@@ -15971,7 +15920,7 @@ _ACEOF
 if ac_fn_cxx_try_compile "$LINENO"; then :
 
 else
-  tr1=${std}
+  tr1=std
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
@@ -16018,6 +15967,8 @@ else
 fi
 
 
+
+usestd="namespace std {} using namespace std;"
 
 imbue=yes
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking locale function and stringstream::imbue" >&5

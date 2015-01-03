@@ -8,7 +8,7 @@
  *   pqxx::transaction represents a standard database transaction
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction instead.
  *
- * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -47,7 +47,7 @@ class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 protected:
   basic_transaction(							//[t1]
 	connection_base &C,
-	const PGSTD::string &IsolationLevel,
+	const std::string &IsolationLevel,
 	readwrite_policy);
 
 private:
@@ -98,7 +98,7 @@ public:
    * @param TName Optional name for transaction; must begin with a letter and
    * may contain letters and digits only
    */
-  explicit transaction(connection_base &C, const PGSTD::string &TName):	//[t1]
+  explicit transaction(connection_base &C, const std::string &TName):	//[t1]
     namedclass(fullname("transaction", isolation_tag::name()), TName),
     basic_transaction(C, isolation_tag::name(), READWRITE)
 	{ Begin(); }

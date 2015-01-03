@@ -13,7 +13,7 @@ class PQXX_PRIVATE connection_pipeline : callgate<connection_base>
 
   connection_pipeline(reference x) : super(x) {}
 
-  void start_exec(const PGSTD::string &query) { home().start_exec(query); }
+  void start_exec(const std::string &query) { home().start_exec(query); }
   pqxx::internal::pq::PGresult *get_result() { return home().get_result(); }
   void cancel_query() { home().cancel_query(); }
 

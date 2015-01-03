@@ -7,7 +7,7 @@
  *      implementation of the pqxx::robusttransaction class.
  *   pqxx::robusttransaction is a slower but safer transaction class
  *
- * Copyright (c) 2002-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -24,7 +24,7 @@
 #include "pqxx/robusttransaction"
 
 
-using namespace PGSTD;
+using namespace std;
 using namespace pqxx::internal;
 
 
@@ -32,8 +32,8 @@ using namespace pqxx::internal;
 
 pqxx::basic_robusttransaction::basic_robusttransaction(
 	connection_base &C,
-	const PGSTD::string &IsolationLevel,
-	const PGSTD::string &table_name) :
+	const std::string &IsolationLevel,
+	const std::string &table_name) :
   namedclass("robusttransaction"),
   dbtransaction(C, IsolationLevel),
   m_record_id(0),

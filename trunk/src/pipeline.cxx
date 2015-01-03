@@ -7,7 +7,7 @@
  *      implementation of the pqxx::pipeline class
  *   Throughput-optimized query manager
  *
- * Copyright (c) 2003-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -28,7 +28,7 @@
 #include "pqxx/internal/gates/result-creation.hxx"
 
 
-using namespace PGSTD;
+using namespace std;
 using namespace pqxx;
 using namespace pqxx::internal;
 
@@ -42,7 +42,7 @@ const string theDummyQuery("SELECT " + theDummyValue + theSeparator);
 }
 
 
-pqxx::pipeline::pipeline(transaction_base &t, const PGSTD::string &Name) :
+pqxx::pipeline::pipeline(transaction_base &t, const std::string &Name) :
   namedclass("pipeline", Name),
   transactionfocus(t),
   m_queries(),
@@ -80,7 +80,7 @@ void pqxx::pipeline::detach()
 }
 
 
-pipeline::query_id pqxx::pipeline::insert(const PGSTD::string &q)
+pipeline::query_id pqxx::pipeline::insert(const std::string &q)
 {
   attach();
   const query_id qid = generate_id();
@@ -242,7 +242,7 @@ void pqxx::pipeline::issue()
 }
 
 
-void pqxx::pipeline::internal_error(const PGSTD::string &err)
+void pqxx::pipeline::internal_error(const std::string &err)
 {
   set_error_at(0);
   throw pqxx::internal_error(err);
@@ -385,7 +385,7 @@ void pqxx::pipeline::obtain_dummy()
 }
 
 
-PGSTD::pair<pipeline::query_id, result>
+std::pair<pipeline::query_id, result>
 pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 {
   if (q == m_queries.end())

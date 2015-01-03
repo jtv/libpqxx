@@ -11,7 +11,7 @@
 
 #include "test_helpers.hxx"
 
-using namespace PGSTD;
+using namespace std;
 using namespace pqxx;
 
 
@@ -117,8 +117,8 @@ void test_000(transaction_base &)
   strconv("int", -1, "-1");
 
 #if defined(PQXX_HAVE_LIMITS) && !defined(_MSC_VER)
-  const long long_min = PGSTD::numeric_limits<long>::min(),
-	long_max = PGSTD::numeric_limits<long>::max();
+  const long long_min = std::numeric_limits<long>::min(),
+	long_max = std::numeric_limits<long>::max();
 #else
   const long long_min = LONG_MIN, long_max = LONG_MAX;
 #endif

@@ -8,7 +8,7 @@
 #include "test_helpers.hxx"
 
 
-using namespace PGSTD;
+using namespace std;
 using namespace pqxx;
 using namespace pqxx::test;
 
@@ -95,7 +95,7 @@ string select_series(connection_base &conn, int lowest, int highest)
 
 namespace
 {
-bool drop_table_if_exists(transaction_base &t, const PGSTD::string &table)
+bool drop_table_if_exists(transaction_base &t, const std::string &table)
 {
   if (t.conn().server_version() < 80100) return false;
   t.exec("DROP TABLE IF EXISTS " + table);
@@ -103,7 +103,7 @@ bool drop_table_if_exists(transaction_base &t, const PGSTD::string &table)
 }
 }
 
-void drop_table(transaction_base &t, const PGSTD::string &table)
+void drop_table(transaction_base &t, const std::string &table)
 {
   if (drop_table_if_exists(t, table)) return;
 
@@ -117,7 +117,7 @@ void drop_table(transaction_base &t, const PGSTD::string &table)
     }
     catch (const sql_error &e)
     {
-      PGSTD::cerr << e.what() << PGSTD::endl;
+      std::cerr << e.what() << std::endl;
       s.abort();
     }
     s.commit();
@@ -131,7 +131,7 @@ void drop_table(transaction_base &t, const PGSTD::string &table)
     }
     catch (const sql_error &e)
     {
-      PGSTD::cerr << e.what() << PGSTD::endl;
+      std::cerr << e.what() << std::endl;
     }
   }
 }

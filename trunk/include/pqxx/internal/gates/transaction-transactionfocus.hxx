@@ -15,7 +15,7 @@ class PQXX_PRIVATE transaction_transactionfocus : callgate<transaction_base>
   void RegisterFocus(transactionfocus *focus) { home().RegisterFocus(focus); }
   void UnregisterFocus(transactionfocus *focus) PQXX_NOEXCEPT
 	{ home().UnregisterFocus(focus); }
-  void RegisterPendingError(const PGSTD::string &error)
+  void RegisterPendingError(const std::string &error)
 	{ home().RegisterPendingError(error); }
 };
 } // namespace pqxx::internal::gate

@@ -8,7 +8,7 @@
  *   pqxx::sql_error, pqxx::broken_connection, pqxx::in_doubt_error, ...
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/except instead.
  *
- * Copyright (c) 2003-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -87,18 +87,18 @@ public:
    * }
    * @endcode
    */
-  virtual const PQXX_CONST PGSTD::exception &base()			//[t0]
+  virtual const PQXX_CONST std::exception &base()			//[t0]
 	const PQXX_NOEXCEPT =0;
 };
 
 
 /// Run-time failure encountered by libpqxx, similar to std::runtime_error
 class PQXX_LIBEXPORT failure :
-  public pqxx_exception, public PGSTD::runtime_error
+  public pqxx_exception, public std::runtime_error
 {
-  virtual const PGSTD::exception &base() const PQXX_NOEXCEPT { return *this; }
+  virtual const std::exception &base() const PQXX_NOEXCEPT { return *this; }
 public:
-  explicit failure(const PGSTD::string &);
+  explicit failure(const std::string &);
 };
 
 
@@ -125,7 +125,7 @@ class PQXX_LIBEXPORT broken_connection : public failure
 {
 public:
   broken_connection();
-  explicit broken_connection(const PGSTD::string &);
+  explicit broken_connection(const std::string &);
 };
 
 
@@ -133,16 +133,16 @@ public:
 /** Carries a copy of the failed query in addition to a regular error message */
 class PQXX_LIBEXPORT sql_error : public failure
 {
-  PGSTD::string m_Q;
+  std::string m_Q;
 
 public:
   sql_error();
-  explicit sql_error(const PGSTD::string &);
-  sql_error(const PGSTD::string &, const PGSTD::string &Q);
+  explicit sql_error(const std::string &);
+  sql_error(const std::string &, const std::string &Q);
   virtual ~sql_error() PQXX_NOEXCEPT;
 
   /// The query whose execution triggered the exception
-  const PGSTD::string & PQXX_PURE query() const PQXX_NOEXCEPT;		//[t56]
+  const std::string & PQXX_PURE query() const PQXX_NOEXCEPT;		//[t56]
 };
 
 
@@ -157,56 +157,56 @@ public:
 class PQXX_LIBEXPORT in_doubt_error : public failure
 {
 public:
-  explicit in_doubt_error(const PGSTD::string &);
+  explicit in_doubt_error(const std::string &);
 };
 
 
 /// Internal error in libpqxx library
 class PQXX_LIBEXPORT internal_error :
-  public pqxx_exception, public PGSTD::logic_error
+  public pqxx_exception, public std::logic_error
 {
-  virtual const PGSTD::exception &base() const PQXX_NOEXCEPT { return *this; }
+  virtual const std::exception &base() const PQXX_NOEXCEPT { return *this; }
 public:
-  explicit internal_error(const PGSTD::string &);
+  explicit internal_error(const std::string &);
 };
 
 
 /// Error in usage of libpqxx library, similar to std::logic_error
 class PQXX_LIBEXPORT usage_error :
-  public pqxx_exception, public PGSTD::logic_error
+  public pqxx_exception, public std::logic_error
 {
-  virtual const PGSTD::exception &base() const PQXX_NOEXCEPT { return *this; }
+  virtual const std::exception &base() const PQXX_NOEXCEPT { return *this; }
 public:
-  explicit usage_error(const PGSTD::string &);
+  explicit usage_error(const std::string &);
 };
 
 
 /// Invalid argument passed to libpqxx, similar to std::invalid_argument
 class PQXX_LIBEXPORT argument_error :
-  public pqxx_exception, public PGSTD::invalid_argument
+  public pqxx_exception, public std::invalid_argument
 {
-  virtual const PGSTD::exception &base() const PQXX_NOEXCEPT { return *this; }
+  virtual const std::exception &base() const PQXX_NOEXCEPT { return *this; }
 public:
-  explicit argument_error(const PGSTD::string &);
+  explicit argument_error(const std::string &);
 };
 
 
 class PQXX_LIBEXPORT conversion_error :
-  public pqxx_exception, public PGSTD::domain_error
+  public pqxx_exception, public std::domain_error
 {
-  virtual const PGSTD::exception &base() const PQXX_NOEXCEPT { return *this; }
+  virtual const std::exception &base() const PQXX_NOEXCEPT { return *this; }
 public:
-  explicit conversion_error(const PGSTD::string &);
+  explicit conversion_error(const std::string &);
 };
 
 
 /// Something is out of range, similar to std::out_of_range
 class PQXX_LIBEXPORT range_error :
-  public pqxx_exception, public PGSTD::out_of_range
+  public pqxx_exception, public std::out_of_range
 {
-  virtual const PGSTD::exception &base() const PQXX_NOEXCEPT { return *this; }
+  virtual const std::exception &base() const PQXX_NOEXCEPT { return *this; }
 public:
-  explicit range_error(const PGSTD::string &);
+  explicit range_error(const std::string &);
 };
 
 
@@ -214,8 +214,8 @@ public:
 class PQXX_LIBEXPORT feature_not_supported : public sql_error
 {
 public:
-  explicit feature_not_supported(const PGSTD::string &err) : sql_error(err) {}
-  feature_not_supported(const PGSTD::string &err, const PGSTD::string &Q) :
+  explicit feature_not_supported(const std::string &err) : sql_error(err) {}
+  feature_not_supported(const std::string &err, const std::string &Q) :
 	sql_error(err,Q) {}
 };
 
@@ -223,18 +223,18 @@ public:
 class PQXX_LIBEXPORT data_exception : public sql_error
 {
 public:
-  explicit data_exception(const PGSTD::string &err) : sql_error(err) {}
-  data_exception(const PGSTD::string &err, const PGSTD::string &Q) :
+  explicit data_exception(const std::string &err) : sql_error(err) {}
+  data_exception(const std::string &err, const std::string &Q) :
 	sql_error(err,Q) {}
 };
 
 class PQXX_LIBEXPORT integrity_constraint_violation : public sql_error
 {
 public:
-  explicit integrity_constraint_violation(const PGSTD::string &err) :
+  explicit integrity_constraint_violation(const std::string &err) :
 	sql_error(err) {}
-  integrity_constraint_violation(const PGSTD::string &err,
-	const PGSTD::string &Q) :
+  integrity_constraint_violation(const std::string &err,
+	const std::string &Q) :
 	sql_error(err, Q) {}
 };
 
@@ -242,10 +242,10 @@ class PQXX_LIBEXPORT restrict_violation :
   public integrity_constraint_violation
 {
 public:
-  explicit restrict_violation(const PGSTD::string &err) :
+  explicit restrict_violation(const std::string &err) :
 	integrity_constraint_violation(err) {}
-  restrict_violation(const PGSTD::string &err,
-	const PGSTD::string &Q) :
+  restrict_violation(const std::string &err,
+	const std::string &Q) :
 	integrity_constraint_violation(err, Q) {}
 };
 
@@ -253,10 +253,10 @@ class PQXX_LIBEXPORT not_null_violation :
   public integrity_constraint_violation
 {
 public:
-  explicit not_null_violation(const PGSTD::string &err) :
+  explicit not_null_violation(const std::string &err) :
 	integrity_constraint_violation(err) {}
-  not_null_violation(const PGSTD::string &err,
-	const PGSTD::string &Q) :
+  not_null_violation(const std::string &err,
+	const std::string &Q) :
 	integrity_constraint_violation(err, Q) {}
 };
 
@@ -264,10 +264,10 @@ class PQXX_LIBEXPORT foreign_key_violation :
   public integrity_constraint_violation
 {
 public:
-  explicit foreign_key_violation(const PGSTD::string &err) :
+  explicit foreign_key_violation(const std::string &err) :
 	integrity_constraint_violation(err) {}
-  foreign_key_violation(const PGSTD::string &err,
-	const PGSTD::string &Q) :
+  foreign_key_violation(const std::string &err,
+	const std::string &Q) :
 	integrity_constraint_violation(err, Q) {}
 };
 
@@ -275,10 +275,10 @@ class PQXX_LIBEXPORT unique_violation :
   public integrity_constraint_violation
 {
 public:
-  explicit unique_violation(const PGSTD::string &err) :
+  explicit unique_violation(const std::string &err) :
 	integrity_constraint_violation(err) {}
-  unique_violation(const PGSTD::string &err,
-	const PGSTD::string &Q) :
+  unique_violation(const std::string &err,
+	const std::string &Q) :
 	integrity_constraint_violation(err, Q) {}
 };
 
@@ -286,35 +286,35 @@ class PQXX_LIBEXPORT check_violation :
   public integrity_constraint_violation
 {
 public:
-  explicit check_violation(const PGSTD::string &err) :
+  explicit check_violation(const std::string &err) :
 	integrity_constraint_violation(err) {}
-  check_violation(const PGSTD::string &err,
-	const PGSTD::string &Q) :
+  check_violation(const std::string &err,
+	const std::string &Q) :
 	integrity_constraint_violation(err, Q) {}
 };
 
 class PQXX_LIBEXPORT invalid_cursor_state : public sql_error
 {
 public:
-  explicit invalid_cursor_state(const PGSTD::string &err) : sql_error(err) {}
-  invalid_cursor_state(const PGSTD::string &err, const PGSTD::string &Q) :
+  explicit invalid_cursor_state(const std::string &err) : sql_error(err) {}
+  invalid_cursor_state(const std::string &err, const std::string &Q) :
 	sql_error(err,Q) {}
 };
 
 class PQXX_LIBEXPORT invalid_sql_statement_name : public sql_error
 {
 public:
-  explicit invalid_sql_statement_name(const PGSTD::string &err) :
+  explicit invalid_sql_statement_name(const std::string &err) :
 	sql_error(err) {}
-  invalid_sql_statement_name(const PGSTD::string &err, const PGSTD::string &Q) :
+  invalid_sql_statement_name(const std::string &err, const std::string &Q) :
 	sql_error(err,Q) {}
 };
 
 class PQXX_LIBEXPORT invalid_cursor_name : public sql_error
 {
 public:
-  explicit invalid_cursor_name(const PGSTD::string &err) : sql_error(err) {}
-  invalid_cursor_name(const PGSTD::string &err, const PGSTD::string &Q) :
+  explicit invalid_cursor_name(const std::string &err) : sql_error(err) {}
+  invalid_cursor_name(const std::string &err, const std::string &Q) :
 	sql_error(err,Q) {}
 };
 
@@ -324,41 +324,41 @@ public:
   /// Approximate position in string where error occurred, or -1 if unknown.
   const int error_position;
 
-  explicit syntax_error(const PGSTD::string &err, int pos=-1) :
+  explicit syntax_error(const std::string &err, int pos=-1) :
     sql_error(err), error_position(pos) {}
-  syntax_error(const PGSTD::string &err, const PGSTD::string &Q, int pos=-1) :
+  syntax_error(const std::string &err, const std::string &Q, int pos=-1) :
 	sql_error(err,Q), error_position(pos) {}
 };
 
 class PQXX_LIBEXPORT undefined_column : public syntax_error
 {
 public:
-  explicit undefined_column(const PGSTD::string &err) : syntax_error(err) {}
-  undefined_column(const PGSTD::string &err, const PGSTD::string &Q) :
+  explicit undefined_column(const std::string &err) : syntax_error(err) {}
+  undefined_column(const std::string &err, const std::string &Q) :
     syntax_error(err, Q) {}
 };
 
 class PQXX_LIBEXPORT undefined_function : public syntax_error
 {
 public:
-  explicit undefined_function(const PGSTD::string &err) : syntax_error(err) {}
-  undefined_function(const PGSTD::string &err, const PGSTD::string &Q) :
+  explicit undefined_function(const std::string &err) : syntax_error(err) {}
+  undefined_function(const std::string &err, const std::string &Q) :
     syntax_error(err, Q) {}
 };
 
 class PQXX_LIBEXPORT undefined_table : public syntax_error
 {
 public:
-  explicit undefined_table(const PGSTD::string &err) : syntax_error(err) {}
-  undefined_table(const PGSTD::string &err, const PGSTD::string &Q) :
+  explicit undefined_table(const std::string &err) : syntax_error(err) {}
+  undefined_table(const std::string &err, const std::string &Q) :
     syntax_error(err, Q) {}
 };
 
 class PQXX_LIBEXPORT insufficient_privilege : public sql_error
 {
 public:
-  explicit insufficient_privilege(const PGSTD::string &err) : sql_error(err) {}
-  insufficient_privilege(const PGSTD::string &err, const PGSTD::string &Q) :
+  explicit insufficient_privilege(const std::string &err) : sql_error(err) {}
+  insufficient_privilege(const std::string &err, const std::string &Q) :
 	sql_error(err,Q) {}
 };
 
@@ -366,32 +366,32 @@ public:
 class PQXX_LIBEXPORT insufficient_resources : public sql_error
 {
 public:
-  explicit insufficient_resources(const PGSTD::string &err) : sql_error(err) {}
-  insufficient_resources(const PGSTD::string &err, const PGSTD::string &Q) :
+  explicit insufficient_resources(const std::string &err) : sql_error(err) {}
+  insufficient_resources(const std::string &err, const std::string &Q) :
 	sql_error(err,Q) {}
 };
 
 class PQXX_LIBEXPORT disk_full : public insufficient_resources
 {
 public:
-  explicit disk_full(const PGSTD::string &err) : insufficient_resources(err) {}
-  disk_full(const PGSTD::string &err, const PGSTD::string &Q) :
+  explicit disk_full(const std::string &err) : insufficient_resources(err) {}
+  disk_full(const std::string &err, const std::string &Q) :
 	insufficient_resources(err,Q) {}
 };
 
 class PQXX_LIBEXPORT out_of_memory : public insufficient_resources
 {
 public:
-  explicit out_of_memory(const PGSTD::string &err) :
+  explicit out_of_memory(const std::string &err) :
 	insufficient_resources(err) {}
-  out_of_memory(const PGSTD::string &err, const PGSTD::string &Q) :
+  out_of_memory(const std::string &err, const std::string &Q) :
 	insufficient_resources(err,Q) {}
 };
 
 class PQXX_LIBEXPORT too_many_connections : public broken_connection
 {
 public:
-  explicit too_many_connections(const PGSTD::string &err) :
+  explicit too_many_connections(const std::string &err) :
 	broken_connection(err) {}
 };
 
@@ -401,9 +401,9 @@ public:
 class PQXX_LIBEXPORT plpgsql_error : public sql_error
 {
 public:
-  explicit plpgsql_error(const PGSTD::string &err) :
+  explicit plpgsql_error(const std::string &err) :
     sql_error(err) {}
-  plpgsql_error(const PGSTD::string &err, const PGSTD::string &Q) :
+  plpgsql_error(const std::string &err, const std::string &Q) :
     sql_error(err, Q) {}
 };
 
@@ -411,27 +411,27 @@ public:
 class PQXX_LIBEXPORT plpgsql_raise : public plpgsql_error
 {
 public:
-  explicit plpgsql_raise(const PGSTD::string &err) :
+  explicit plpgsql_raise(const std::string &err) :
     plpgsql_error(err) {}
-  plpgsql_raise(const PGSTD::string &err, const PGSTD::string &Q) :
+  plpgsql_raise(const std::string &err, const std::string &Q) :
     plpgsql_error(err, Q) {}
 };
 
 class PQXX_LIBEXPORT plpgsql_no_data_found : public plpgsql_error
 {
 public:
-  explicit plpgsql_no_data_found(const PGSTD::string &err) :
+  explicit plpgsql_no_data_found(const std::string &err) :
     plpgsql_error(err) {}
-  plpgsql_no_data_found(const PGSTD::string &err, const PGSTD::string &Q) :
+  plpgsql_no_data_found(const std::string &err, const std::string &Q) :
     plpgsql_error(err, Q) {}
 };
 
 class PQXX_LIBEXPORT plpgsql_too_many_rows : public plpgsql_error
 {
 public:
-  explicit plpgsql_too_many_rows(const PGSTD::string &err) :
+  explicit plpgsql_too_many_rows(const std::string &err) :
     plpgsql_error(err) {}
-  plpgsql_too_many_rows(const PGSTD::string &err, const PGSTD::string &Q) :
+  plpgsql_too_many_rows(const std::string &err, const std::string &Q) :
     plpgsql_error(err, Q) {}
 };
 

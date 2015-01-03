@@ -21,21 +21,21 @@ class PQXX_PRIVATE connection_transaction : callgate<connection_base>
   void UnregisterTransaction(transaction_base *t) PQXX_NOEXCEPT
 	{ home().UnregisterTransaction(t); }
 
-  bool ReadCopyLine(PGSTD::string &line)
+  bool ReadCopyLine(std::string &line)
 	{ return home().ReadCopyLine(line); }
-  void WriteCopyLine(const PGSTD::string &line)
+  void WriteCopyLine(const std::string &line)
 	{ home().WriteCopyLine(line); }
   void EndCopyWrite() { home().EndCopyWrite(); }
 
-  PGSTD::string RawGetVar(const PGSTD::string &var)
+  std::string RawGetVar(const std::string &var)
 	{ return home().RawGetVar(var); }
-  void RawSetVar(const PGSTD::string &var, const PGSTD::string &value)
+  void RawSetVar(const std::string &var, const std::string &value)
 	{ home().RawSetVar(var, value); }
-  void AddVariables(const PGSTD::map<PGSTD::string, PGSTD::string> &vars)
+  void AddVariables(const std::map<std::string, std::string> &vars)
 	{ home().AddVariables(vars); }
 
   result prepared_exec(
-	const PGSTD::string &statement,
+	const std::string &statement,
 	const char *const params[],
 	const int paramlengths[],
 	const int binaries[],
@@ -49,7 +49,7 @@ class PQXX_PRIVATE connection_transaction : callgate<connection_base>
 	nparams);
   }
 
-  bool prepared_exists(const PGSTD::string &statement) const
+  bool prepared_exists(const std::string &statement) const
 	{ return home().prepared_exists(statement); }
 
   void take_reactivation_avoidance(int counter)

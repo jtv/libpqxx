@@ -7,7 +7,7 @@
  *      String conversion definitions for libpqxx
  *      DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stringconv instead.
  *
- * Copyright (c) 2008-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2008-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -49,7 +49,7 @@ namespace internal
 {
 /// Throw exception for attempt to convert null to given type.
 void PQXX_LIBEXPORT PQXX_NORETURN throw_null_conversion(
-	const PGSTD::string &type);
+	const std::string &type);
 } // namespace pqxx::internal
 
 #define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(T)			\
@@ -62,7 +62,7 @@ template<> struct PQXX_LIBEXPORT string_traits<T>			\
   static T null() 							\
     { internal::throw_null_conversion(name()); return subject_type(); }	\
   static void from_string(const char Str[], T &Obj);			\
-  static PGSTD::string to_string(T Obj);				\
+  static std::string to_string(T Obj);					\
 };
 
 PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(bool)
@@ -94,7 +94,7 @@ template<> struct PQXX_LIBEXPORT string_traits<const char *>
   static bool is_null(const char *t) { return !t; }
   static const char *null() { return NULL; }
   static void from_string(const char Str[], const char *&Obj) { Obj = Str; }
-  static PGSTD::string to_string(const char *Obj) { return Obj; }
+  static std::string to_string(const char *Obj) { return Obj; }
 };
 
 /// String traits for non-const C-style string ("pointer to char")
@@ -108,7 +108,7 @@ template<> struct PQXX_LIBEXPORT string_traits<char *>
   // Don't allow this conversion since it breaks const-safety.
   // static void from_string(const char Str[], char *&Obj);
 
-  static PGSTD::string to_string(char *Obj) { return Obj; }
+  static std::string to_string(char *Obj) { return Obj; }
 };
 
 /// String traits for C-style string constant ("array of char")
@@ -118,7 +118,7 @@ template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
   static bool has_null() { return true; }
   static bool is_null(const char t[]) { return !t; }
   static const char *null() { return NULL; }
-  static PGSTD::string to_string(const char Obj[]) { return Obj; }
+  static std::string to_string(const char Obj[]) { return Obj; }
 };
 
 /// String traits for "array of const char."
@@ -131,45 +131,45 @@ template<size_t N> struct PQXX_LIBEXPORT string_traits<const char[N]>
   static bool has_null() { return true; }
   static bool is_null(const char t[]) { return !t; }
   static const char *null() { return NULL; }
-  static PGSTD::string to_string(const char Obj[]) { return Obj; }
+  static std::string to_string(const char Obj[]) { return Obj; }
 };
 
 
-template<> struct PQXX_LIBEXPORT string_traits<PGSTD::string>
+template<> struct PQXX_LIBEXPORT string_traits<std::string>
 {
   static const char *name() { return "string"; }
   static bool has_null() { return false; }
-  static bool is_null(const PGSTD::string &) { return false; }
-  static PGSTD::string null()
-	{ internal::throw_null_conversion(name()); return PGSTD::string(); }
-  static void from_string(const char Str[], PGSTD::string &Obj) { Obj=Str; }
-  static PGSTD::string to_string(const PGSTD::string &Obj) { return Obj; }
+  static bool is_null(const std::string &) { return false; }
+  static std::string null()
+	{ internal::throw_null_conversion(name()); return std::string(); }
+  static void from_string(const char Str[], std::string &Obj) { Obj=Str; }
+  static std::string to_string(const std::string &Obj) { return Obj; }
 };
 
-template<> struct PQXX_LIBEXPORT string_traits<const PGSTD::string>
+template<> struct PQXX_LIBEXPORT string_traits<const std::string>
 {
   static const char *name() { return "const string"; }
   static bool has_null() { return false; }
-  static bool is_null(const PGSTD::string &) { return false; }
-  static const PGSTD::string null()
-	{ internal::throw_null_conversion(name()); return PGSTD::string(); }
-  static const PGSTD::string to_string(const PGSTD::string &Obj) { return Obj; }
+  static bool is_null(const std::string &) { return false; }
+  static const std::string null()
+	{ internal::throw_null_conversion(name()); return std::string(); }
+  static const std::string to_string(const std::string &Obj) { return Obj; }
 };
 
-template<> struct PQXX_LIBEXPORT string_traits<PGSTD::stringstream>
+template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
 {
   static const char *name() { return "stringstream"; }
   static bool has_null() { return false; }
-  static bool is_null(const PGSTD::stringstream &) { return false; }
-  static PGSTD::stringstream null()
+  static bool is_null(const std::stringstream &) { return false; }
+  static std::stringstream null()
   {
     internal::throw_null_conversion(name());
     // No, dear compiler, we don't need a return here.
     throw 0;
   }
-  static void from_string(const char Str[], PGSTD::stringstream &Obj)
+  static void from_string(const char Str[], std::stringstream &Obj)
                                                     { Obj.clear(); Obj << Str; }
-  static PGSTD::string to_string(const PGSTD::stringstream &Obj)
+  static std::string to_string(const std::stringstream &Obj)
                                                            { return Obj.str(); }
 };
 
@@ -193,7 +193,7 @@ template<typename T>
   inline void from_string(const char Str[], T &Obj)
 {
   if (!Str)
-    throw PGSTD::runtime_error("Attempt to read NULL string");
+    throw std::runtime_error("Attempt to read NULL string");
   string_traits<T>::from_string(Str, Obj);
 }
 
@@ -211,25 +211,25 @@ template<typename T> inline void from_string(const char Str[], T &Obj, size_t)
 }
 
 template<>
-  inline void from_string<PGSTD::string>(const char Str[],
-	PGSTD::string &Obj,
+  inline void from_string<std::string>(const char Str[],
+	std::string &Obj,
 	size_t len)							//[t0]
 {
   if (!Str)
-    throw PGSTD::runtime_error("Attempt to read NULL string");
+    throw std::runtime_error("Attempt to read NULL string");
   Obj.assign(Str, len);
 }
 
 template<typename T>
-  inline void from_string(const PGSTD::string &Str, T &Obj)		//[t45]
+  inline void from_string(const std::string &Str, T &Obj)		//[t45]
 	{ from_string(Str.c_str(), Obj); }
 
 template<typename T>
-  inline void from_string(const PGSTD::stringstream &Str, T &Obj)	//[t0]
+  inline void from_string(const std::stringstream &Str, T &Obj)		//[t0]
 	{ from_string(Str.str(), Obj); }
 
 template<> inline void
-from_string(const PGSTD::string &Str, PGSTD::string &Obj)		//[t46]
+from_string(const std::string &Str, std::string &Obj)			//[t46]
 	{ Obj = Str; }
 
 
@@ -247,7 +247,7 @@ inline char number_to_digit(int i) PQXX_NOEXCEPT
  * resulting string will be human-readable and in a format suitable for use in
  * SQL queries.
  */
-template<typename T> inline PGSTD::string to_string(const T &Obj)
+template<typename T> inline std::string to_string(const T &Obj)
 	{ return string_traits<T>::to_string(Obj); }
 
 //@}

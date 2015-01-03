@@ -5,7 +5,7 @@ extern "C"
 #include "libpq-fe.h"
 }
 
-using namespace PGSTD;
+using namespace std;
 using namespace pqxx;
 
 namespace

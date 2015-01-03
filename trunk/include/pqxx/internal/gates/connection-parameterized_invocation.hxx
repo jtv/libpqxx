@@ -16,7 +16,7 @@ class PQXX_PRIVATE connection_parameterized_invocation :
   connection_parameterized_invocation(reference x) : super(x) {}
 
   result parameterized_exec(
-	const PGSTD::string &query,
+	const std::string &query,
 	const char *const params[],
 	const int paramlengths[],
 	const int binaries[],

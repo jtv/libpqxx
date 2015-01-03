@@ -7,7 +7,7 @@
  *      implementation of the pqxx::dbtransaction class.
  *   pqxx::dbtransaction represents a real backend transaction
  *
- * Copyright (c) 2004-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -21,7 +21,7 @@
 
 #include "pqxx/internal/gates/connection-dbtransaction.hxx"
 
-using namespace PGSTD;
+using namespace std;
 using namespace pqxx::internal;
 
 
@@ -51,7 +51,7 @@ string generate_set_transaction(
 
 pqxx::dbtransaction::dbtransaction(
 	connection_base &C,
-	const PGSTD::string &IsolationString,
+	const std::string &IsolationString,
 	readwrite_policy rw) :
   namedclass("dbtransaction"),
   transaction_base(C),
@@ -105,8 +105,8 @@ void pqxx::dbtransaction::do_abort()
 }
 
 
-string pqxx::dbtransaction::fullname(const PGSTD::string &ttype,
-	const PGSTD::string &isolation)
+string pqxx::dbtransaction::fullname(const std::string &ttype,
+	const std::string &isolation)
 {
   return ttype + "<" + isolation + ">";
 }
