@@ -22,9 +22,7 @@
 #include <limits>
 #endif
 
-#ifdef PQXX_HAVE_LOCALE
 #include <locale>
-#endif
 
 #include "pqxx/except"
 #include "pqxx/strconv"

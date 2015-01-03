@@ -115,9 +115,6 @@
 /* Define if <limits> exists */
 #undef PQXX_HAVE_LIMITS
 
-/* Define if you have the <locale> header */
-#undef PQXX_HAVE_LOCALE
-
 /* Define if the compiler supports the standard "long double" type */
 #undef PQXX_HAVE_LONG_DOUBLE
 
