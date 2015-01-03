@@ -81,13 +81,7 @@ pqxx::thread_safety_model pqxx::describe_thread_safety() PQXX_NOEXCEPT
 	"Built with old libpq version; can't tell whether it is thread-safe.\n";
 #endif
 
-#ifdef PQXX_HAVE_PQCANCEL
   model.safe_query_cancel = true;
-#else
-  model.safe_query_cancel = false;
-  model.description +=
-	"Built with old libpq version; canceling queries is unsafe..\n";
-#endif
 
 #ifdef PQXX_HAVE_SHARED_PTR
   model.safe_result_copy = true;
