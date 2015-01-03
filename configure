@@ -15932,18 +15932,6 @@ _ACEOF
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $tr1" >&5
 $as_echo "$tr1" >&6; }
 
-streambuf=yes
-ac_fn_cxx_check_header_mongrel "$LINENO" "streambuf" "ac_cv_header_streambuf" "$ac_includes_default"
-if test "x$ac_cv_header_streambuf" = xyes; then :
-
-$as_echo "#define PQXX_HAVE_STREAMBUF 1" >>confdefs.h
-
-else
-  streambuf=no
-fi
-
-
-
 localehdr=yes
 ac_fn_cxx_check_header_mongrel "$LINENO" "locale" "ac_cv_header_locale" "$ac_includes_default"
 if test "x$ac_cv_header_locale" = xyes; then :

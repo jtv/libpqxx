@@ -210,23 +210,14 @@ inline bool field::to<const char *>(const char *&Obj) const
 
 template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
   class field_streambuf :
-#ifdef PQXX_HAVE_STREAMBUF
   public std::basic_streambuf<CHAR, TRAITS>
-#else
-  public std::streambuf
-#endif
 {
 public:
   typedef CHAR char_type;
   typedef TRAITS traits_type;
   typedef typename traits_type::int_type int_type;
-#ifdef PQXX_HAVE_STREAMBUF
   typedef typename traits_type::pos_type pos_type;
   typedef typename traits_type::off_type off_type;
-#else
-  typedef streamoff off_type;
-  typedef streampos pos_type;
-#endif
   typedef std::ios::openmode openmode;
   typedef std::ios::seekdir seekdir;
 
@@ -236,9 +227,7 @@ public:
     initialize();
   }
 
-#ifdef PQXX_HAVE_STREAMBUF
 protected:
-#endif
   virtual int sync() { return traits_type::eof(); }
 
 protected:
@@ -272,17 +261,9 @@ private:
  */
 template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
   class basic_fieldstream :
-#ifdef PQXX_HAVE_STREAMBUF
     public std::basic_istream<CHAR, TRAITS>
-#else
-    public std::istream
-#endif
 {
-#ifdef PQXX_HAVE_STREAMBUF
   typedef std::basic_istream<CHAR, TRAITS> super;
-#else
-  typedef std::istream super;
-#endif
 
 public:
   typedef CHAR char_type;

@@ -22,11 +22,7 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
-#ifdef PQXX_HAVE_STREAMBUF
 #include <streambuf>
-#else
-#include <streambuf.h>
-#endif
 
 #include "pqxx/dbtransaction"
 
@@ -365,24 +361,15 @@ private:
  */
 template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
   class largeobject_streambuf :
-#ifdef PQXX_HAVE_STREAMBUF
     public std::basic_streambuf<CHAR, TRAITS>
-#else
-    public std::streambuf
-#endif
 {
   typedef long size_type;
 public:
   typedef CHAR   char_type;
   typedef TRAITS traits_type;
   typedef typename traits_type::int_type int_type;
-#ifdef PQXX_HAVE_STREAMBUF
   typedef typename traits_type::pos_type pos_type;
   typedef typename traits_type::off_type off_type;
-#else
-  typedef streamoff off_type;
-  typedef streampos pos_type;
-#endif
   typedef largeobjectaccess::openmode openmode;
   typedef largeobjectaccess::seekdir seekdir;
 
@@ -413,9 +400,7 @@ public:
   /// For use by large object stream classes
   void process_notice(const std::string &s) { m_Obj.process_notice(s); }
 
-#ifdef PQXX_HAVE_STREAMBUF
 protected:
-#endif
   virtual int sync()
   {
     // setg() sets eback, gptr, egptr
@@ -510,17 +495,9 @@ private:
  */
 template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
   class basic_ilostream :
-#ifdef PQXX_HAVE_STREAMBUF
     public std::basic_istream<CHAR, TRAITS>
-#else
-    public std::istream
-#endif
 {
-#ifdef PQXX_HAVE_STREAMBUF
   typedef std::basic_istream<CHAR, TRAITS> super;
-#else
-  typedef std::istream super;
-#endif
 
 public:
   typedef CHAR char_type;
@@ -573,17 +550,9 @@ typedef basic_ilostream<char> ilostream;
  */
 template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
   class basic_olostream :
-#ifdef PQXX_HAVE_STREAMBUF
     public std::basic_ostream<CHAR, TRAITS>
-#else
-    public std::ostream
-#endif
 {
-#ifdef PQXX_HAVE_STREAMBUF
   typedef std::basic_ostream<CHAR, TRAITS> super;
-#else
-  typedef std::ostream super;
-#endif
 public:
   typedef CHAR char_type;
   typedef TRAITS traits_type;
@@ -621,11 +590,7 @@ public:
   {
     try
     {
-#ifdef PQXX_HAVE_STREAMBUF
       m_Buf.pubsync(); m_Buf.pubsync();
-#else
-      m_Buf.sync(); m_Buf.sync();
-#endif
     }
     catch (const std::exception &e)
     {
@@ -651,17 +616,9 @@ typedef basic_olostream<char> olostream;
  */
 template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
   class basic_lostream :
-#ifdef PQXX_HAVE_STREAMBUF
     public std::basic_iostream<CHAR, TRAITS>
-#else
-    public std::iostream
-#endif
 {
-#ifdef PQXX_HAVE_STREAMBUF
   typedef std::basic_iostream<CHAR, TRAITS> super;
-#else
-  typedef std::iostream super;
-#endif
 
 public:
   typedef CHAR char_type;
@@ -700,11 +657,7 @@ public:
   {
     try
     {
-#ifdef PQXX_HAVE_STREAMBUF
       m_Buf.pubsync(); m_Buf.pubsync();
-#else
-      m_Buf.sync(); m_Buf.sync();
-#endif
     }
     catch (const std::exception &e)
     {

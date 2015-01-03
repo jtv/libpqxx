@@ -178,9 +178,6 @@
 /* Define if POSIX sleep() exists */
 #undef PQXX_HAVE_SLEEP
 
-/* Define if you have the <streambuf> header; if not, <streambuf.h> is used */
-#undef PQXX_HAVE_STREAMBUF
-
 /* Define if strerror_r exists */
 #undef PQXX_HAVE_STRERROR_R
 
