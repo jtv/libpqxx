@@ -270,11 +270,6 @@ AC_DEFINE_UNQUOTED(
 	[namespace of TR1 standard extensions (e.g. "std" or "std::tr1")])
 AC_MSG_RESULT([$tr1])
 
-ioshdr=yes
-AC_CHECK_HEADER(ios,AC_DEFINE(PQXX_HAVE_IOS,1,
-[Define if you have the <ios> header]),
-ioshdr=no)
-
 streambuf=yes
 AC_CHECK_HEADER(streambuf,AC_DEFINE(PQXX_HAVE_STREAMBUF,1,
 [Define if you have the <streambuf> header; if not, <streambuf.h> is used]),

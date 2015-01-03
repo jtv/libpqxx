@@ -15932,18 +15932,6 @@ _ACEOF
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $tr1" >&5
 $as_echo "$tr1" >&6; }
 
-ioshdr=yes
-ac_fn_cxx_check_header_mongrel "$LINENO" "ios" "ac_cv_header_ios" "$ac_includes_default"
-if test "x$ac_cv_header_ios" = xyes; then :
-
-$as_echo "#define PQXX_HAVE_IOS 1" >>confdefs.h
-
-else
-  ioshdr=no
-fi
-
-
-
 streambuf=yes
 ac_fn_cxx_check_header_mongrel "$LINENO" "streambuf" "ac_cv_header_streambuf" "$ac_includes_default"
 if test "x$ac_cv_header_streambuf" = xyes; then :

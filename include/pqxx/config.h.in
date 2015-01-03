@@ -112,9 +112,6 @@
 /* Define if stringstream::imbue works */
 #undef PQXX_HAVE_IMBUE
 
-/* Define if you have the <ios> header */
-#undef PQXX_HAVE_IOS
-
 /* Define if <limits> exists */
 #undef PQXX_HAVE_LIMITS
 

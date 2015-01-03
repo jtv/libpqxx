@@ -22,10 +22,7 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
-#ifdef PQXX_HAVE_IOS
 #include <ios>
-#endif
-
 #include <stdexcept>
 
 #include "pqxx/internal/result_data.hxx"
