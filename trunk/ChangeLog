@@ -1,4 +1,9 @@
 2015-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/VisualC++.NET-2003,
+ config/sample-headers/compiler/VisualStudio2005,
+ config/sample-headers/compiler/gcc-2.95:
+ - Remove sample headers for very old compilers.
+2015-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/compiler/MinGW-3.4/pqxx/config-public-compiler.h,
  config/sample-headers/compiler/SunStudio-8/pqxx/config-public-compiler.h,
  config/sample-headers/compiler/VisualC++.NET-2003/pqxx/config-public-compiler.h,
