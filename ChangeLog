@@ -1,3 +1,6 @@
+2015-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pxx/compiler-public.hxx:
+ - Always quote #error message; fixes C++11 compile error.
 2014-03-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
  - Always accept "long long": the postgres header now requires it.
