@@ -62,7 +62,6 @@ void test_062(transaction_base &T)
 
   PQXX_CHECK(*c == B.back(), "binarystring::back() is broken.");
 
-#ifdef PQXX_HAVE_REVERSE_ITERATOR
   binarystring::const_reverse_iterator r;
   for (i=B.length(), r=B.rbegin(); i>0; --i, ++r)
   {
@@ -77,7 +76,6 @@ void test_062(transaction_base &T)
 	"Reverse iterator is broken.");
   }
   PQXX_CHECK(r == B.rend(), "rend() of binary string not reached.");
-#endif
 
   PQXX_CHECK_EQUAL(B.str(), TestStr, "Binary string was mangled.");
 

@@ -43,7 +43,6 @@ void test_075(transaction_base &W)
 
   cout << to_string(R.size()) << " years checked" << endl;
 
-#ifdef PQXX_HAVE_REVERSE_ITERATOR
   // Thorough test for result::const_reverse_iterator
   result::const_reverse_iterator ri1(R.rbegin()), ri2(ri1), ri3(R.end());
   ri2 = R.rbegin();
@@ -110,7 +109,6 @@ void test_075(transaction_base &W)
 	"Inconsistent reverse iteration.");
 
   PQXX_CHECK(l == contents.rend(), "Reverse iteration ended too soon.");
-#endif	// PQXX_HAVE_REVERSE_ITERATOR
 
   PQXX_CHECK(!R.empty(), "No events found in table, cannot test.");
 }
