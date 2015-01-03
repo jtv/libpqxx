@@ -17454,32 +17454,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $c_isinf" >&5
 $as_echo "$c_isinf" >&6; }
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether std::string has a clear() function" >&5
-$as_echo_n "checking whether std::string has a clear() function... " >&6; }
-string_clear=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <string>
-	${usestd}
-int
-main ()
-{
-string i;i.clear()
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_STRING_CLEAR 1" >>confdefs.h
-
-else
-  string_clear=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $string_clear" >&5
-$as_echo "$string_clear" >&6; }
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for standard distance()" >&5
 $as_echo_n "checking for standard distance()... " >&6; }
 distance=yes

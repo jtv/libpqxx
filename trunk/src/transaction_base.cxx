@@ -449,11 +449,7 @@ void pqxx::transaction_base::CheckPendingError()
   if (!m_PendingError.empty())
   {
     const string Err(m_PendingError);
-#ifdef PQXX_HAVE_STRING_CLEAR
     m_PendingError.clear();
-#else
-    m_PendingError.resize(0);
-#endif
     throw failure(m_PendingError);
   }
 }

@@ -862,17 +862,6 @@ AC_TRY_COMPILE([#include <cmath>
 )
 AC_MSG_RESULT($c_isinf)
 
-AC_MSG_CHECKING([whether std::string has a clear() function])
-string_clear=yes
-AC_TRY_COMPILE([#include <string>
-	${usestd}],
-	[string i;i.clear()],
-	[AC_DEFINE(PQXX_HAVE_STRING_CLEAR,
-			1,
-			[Define if string class has the clear() function])],
-	[string_clear=no])
-AC_MSG_RESULT($string_clear)
-
 AC_MSG_CHECKING([for standard distance()])
 distance=yes
 AC_TRY_COMPILE([#include <iterator>

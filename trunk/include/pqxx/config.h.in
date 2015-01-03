@@ -190,9 +190,6 @@
 /* Define for GNU-style strerror_r */
 #undef PQXX_HAVE_STRERROR_R_GNU
 
-/* Define if string class has the clear() function */
-#undef PQXX_HAVE_STRING_CLEAR
-
 /* Define if strlcpy exists */
 #undef PQXX_HAVE_STRLCPY
 
