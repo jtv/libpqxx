@@ -826,19 +826,6 @@ AC_TRY_COMPILE([#include <iterator>
 	[distance='no'])
 AC_MSG_RESULT($distance)
 
-AC_MSG_CHECKING([if count_if() works as expected])
-count_if='yes'
-AC_TRY_COMPILE([#include <algorithm>
-#include <functional>
-${usestd}
-struct P{P(){}bool operator()(const int&)const{return false;}}p;],
-	[int v;return int(count_if(&v,&v,p))],
-	[AC_DEFINE(PQXX_HAVE_COUNT_IF,
-			1,
-			[Define if count_if() works according to the standard])],
-	[count_if='no'])
-AC_MSG_RESULT($count_if)
-
 AC_MSG_CHECKING([whether <iterator> defines a usable iterator template])
 AC_TRY_COMPILE([#include <iterator>
 	${usestd}],

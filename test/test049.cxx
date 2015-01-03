@@ -18,16 +18,6 @@ using namespace pqxx;
 namespace
 {
 
-#ifndef PQXX_HAVE_COUNT_IF
-template<typename IN, typename P> inline long count_if(IN first, IN last, P p)
-{
-  long cnt;
-  for (cnt=0; first!=last; ++first) cnt += p(*first);
-  return cnt;
-}
-#endif
-
-
 // Adds first element of each row it receives to a container
 template<typename CONTAINER> struct Add
 {

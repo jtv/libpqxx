@@ -1,4 +1,13 @@
 2015-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/MinGW-3.4/pqxx/config-internal-compiler.h,
+ config/sample-headers/compiler/VisualStudio2008/pqxx/config-internal-compiler.h,
+ config/sample-headers/compiler/VisualStudio2010/pqxx/config-internal-compiler.h,
+ config/sample-headers/compiler/gcc-3.3-apple/pqxx/config-internal-compiler.h,
+ config/sample-headers/compiler/gcc-3.3/pqxx/config-internal-compiler.h,
+ config/sample-headers/compiler/gcc-4.2/pqxx/config-internal-compiler.h,
+ configitems, configure.ac.in, include/pqxx/config.h.in, test/test049.cxx:
+ - Remove workaround for missing count_if.
+2015-01-03  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/libpq/8.0/pqxx/config-internal-libpq.h,
  config/sample-headers/libpq/8.1/pqxx/config-internal-libpq.h,
  config/sample-headers/libpq/8.2/pqxx/config-internal-libpq.h,
