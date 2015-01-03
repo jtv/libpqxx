@@ -151,9 +151,6 @@
 /* Define if libpq has PQisthreadsafe() */
 #undef PQXX_HAVE_PQISTHREADSAFE
 
-/* Define if libpq has PQmblen() */
-#undef PQXX_HAVE_PQMBLEN
-
 /* Define if PQunescapeBytea() supports hex escape format */
 #undef PQXX_HAVE_PQUNESCAPEBYTEA_9
 

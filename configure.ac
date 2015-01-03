@@ -738,16 +738,6 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 AC_MSG_RESULT($pqencryptpassword)
 
 
-AC_MSG_CHECKING([PQmblen()])
-pqmblen=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[return PQmblen(NULL,1)],
-	AC_DEFINE(PQXX_HAVE_PQMBLEN,1,[Define if libpq has PQmblen()]),
-	[pqmblen=no]
-)
-AC_MSG_RESULT($pqmblen)
-
-
 AC_MSG_CHECKING([PQdescribePortal()])
 pqdescribeportal=yes
 AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
