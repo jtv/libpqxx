@@ -17469,32 +17469,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $it" >&5
 $as_echo "$it" >&6; }
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for reverse_iterator template" >&5
-$as_echo_n "checking for reverse_iterator template... " >&6; }
-reverseit='yes'
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <iterator>
-	${usestd} struct I:iterator<random_access_iterator_tag,int>{};
-int
-main ()
-{
-reverse_iterator<I> rit
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_REVERSE_ITERATOR 1" >>confdefs.h
-
-else
-  reverseit='no'
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $reverseit" >&5
-$as_echo "$reverseit" >&6; }
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for auto_ptr" >&5
 $as_echo_n "checking for auto_ptr... " >&6; }
 auto_ptr='yes'

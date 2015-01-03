@@ -163,9 +163,6 @@
 /* Define if std::numeric_limits has quiet_NaN() */
 #undef PQXX_HAVE_QUIET_NAN
 
-/* Define if reverse_iterator template works as expected */
-#undef PQXX_HAVE_REVERSE_ITERATOR
-
 /* Define if compiler has shared_ptr */
 #undef PQXX_HAVE_SHARED_PTR
 

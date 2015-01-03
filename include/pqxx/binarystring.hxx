@@ -69,10 +69,7 @@ public:
   typedef const value_type &const_reference;
   typedef const value_type *const_pointer;
   typedef const_pointer const_iterator;
-
-#ifdef PQXX_HAVE_REVERSE_ITERATOR
   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-#endif
 
 private:
   typedef internal::PQAlloc<
@@ -106,12 +103,10 @@ public:
   const_reference back() const PQXX_NOEXCEPT				//[t62]
 	{ return *(data()+m_size-1); }
 
-#ifdef PQXX_HAVE_REVERSE_ITERATOR
   const_reverse_iterator rbegin() const					//[t62]
 	{ return const_reverse_iterator(end()); }
   const_reverse_iterator rend() const					//[t62]
 	{ return const_reverse_iterator(begin()); }
-#endif
 
   /// Unescaped field contents
   const value_type *data() const PQXX_NOEXCEPT {return super::get();}	//[t62]

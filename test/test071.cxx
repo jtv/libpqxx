@@ -46,11 +46,9 @@ void test_071(transaction_base &W)
 
   P.resume();
 
-#ifdef PQXX_HAVE_REVERSE_ITERATOR
   // Retrieve results in reverse order
   for (Exp::reverse_iterator c=values.rbegin(); c!=values.rend(); ++c)
     checkresult(P, c);
-#endif	// PQXX_HAVE_REVERSE_ITERATOR
 
   values.clear();
   P.retain(10);

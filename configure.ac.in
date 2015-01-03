@@ -870,17 +870,6 @@ AC_TRY_COMPILE([#include <iterator>
 	 it='no'])
 AC_MSG_RESULT($it)
 
-AC_MSG_CHECKING([for reverse_iterator template])
-reverseit='yes'
-AC_TRY_COMPILE([#include <iterator>
-	${usestd} struct I:iterator<random_access_iterator_tag,int>{};],
-	[reverse_iterator<I> rit],
-	[AC_DEFINE(PQXX_HAVE_REVERSE_ITERATOR,
-		1,
-		[Define if reverse_iterator template works as expected])],
-	[reverseit='no'])
-AC_MSG_RESULT($reverseit)
-
 AC_MSG_CHECKING([for auto_ptr])
 auto_ptr='yes'
 AC_TRY_COMPILE([
