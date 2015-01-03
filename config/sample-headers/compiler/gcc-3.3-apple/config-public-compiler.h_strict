@@ -1,4 +1,3 @@
-#define PGSTD std
 /* #undef PQXX_BROKEN_ITERATOR */
 /* #undef PQXX_BROKEN_USING_DECL */
 #define PQXX_HAVE_CHAR_TRAITS 1

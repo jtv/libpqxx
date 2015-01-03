@@ -261,14 +261,6 @@
 /// The home of all libpqxx classes, functions, templates, etc.
 namespace pqxx {}
 
-/// Alias for the standard namespace "<tt>std</tt>"
-/** This alias is used throughout libpqxx to accomodate the use of other
- * standard library implementations than the one native to the compiler.  These
- * alternative implementations may live in separate namespaces to avoid
- * confusion.
- */
-namespace PGSTD {}
-
 #include <pqxx/internal/libpq-forward.hxx>
 
 
@@ -323,7 +315,7 @@ struct PQXX_LIBEXPORT thread_safety_model
   bool safe_kerberos;
 
   /// A human-readable description of any thread-safety issues.
-  PGSTD::string description;
+  std::string description;
 };
 
 /// Describe thread safety available in this build.
@@ -355,7 +347,7 @@ const oid oid_none = 0;
  * @warning This class may see substantial change in its interface before it
  * stabilizes.  Do not count on it remaining the way it is.
  */
-template<typename T=PGSTD::string, typename CONT=PGSTD::vector<T> >
+template<typename T=std::string, typename CONT=std::vector<T> >
 class items : public CONT
 {
 public:
@@ -414,12 +406,12 @@ template<typename T> struct deref_ptr { T operator()(T *i) const {return *i;} };
  * @param access functor defining how to dereference sequence elements
  */
 template<typename ITER, typename ACCESS> inline
-PGSTD::string separated_list(const PGSTD::string &sep,			//[t0]
+std::string separated_list(const std::string &sep,			//[t0]
     ITER begin,
     ITER end,
     ACCESS access)
 {
-  PGSTD::string result;
+  std::string result;
   if (begin != end)
   {
     result = to_string(access(begin));
@@ -438,20 +430,20 @@ PGSTD::string separated_list(const PGSTD::string &sep,			//[t0]
 //@{
 
 /// Render sequence as a string, using given separator between items
-template<typename ITER> inline PGSTD::string
-separated_list(const PGSTD::string &sep, ITER begin, ITER end)		//[t0]
+template<typename ITER> inline std::string
+separated_list(const std::string &sep, ITER begin, ITER end)		//[t0]
 	{ return separated_list(sep,begin,end,internal::dereference<ITER>()); }
 
 
 /// Render array as a string, using given separator between items
-template<typename OBJ> inline PGSTD::string
-separated_list(const PGSTD::string &sep, OBJ *begin, OBJ *end)		//[t0]
+template<typename OBJ> inline std::string
+separated_list(const std::string &sep, OBJ *begin, OBJ *end)		//[t0]
 	{ return separated_list(sep,begin,end,internal::deref_ptr<OBJ>()); }
 
 
 /// Render items in a container as a string, using given separator
-template<typename CONTAINER> inline PGSTD::string
-separated_list(const PGSTD::string &sep, const CONTAINER &c)		//[t10]
+template<typename CONTAINER> inline std::string
+separated_list(const std::string &sep, const CONTAINER &c)		//[t10]
 	{ return separated_list(sep, c.begin(), c.end()); }
 //@}
 
@@ -593,7 +585,7 @@ public:
    */
   T *operator->() const
   {
-    if (!m_Obj) throw PGSTD::logic_error("Null pointer dereferenced");
+    if (!m_Obj) throw std::logic_error("Null pointer dereferenced");
     return m_Obj;
   }
 
@@ -671,19 +663,19 @@ private:
 class PQXX_LIBEXPORT namedclass
 {
 public:
-  namedclass(const PGSTD::string &Classname, const PGSTD::string &Name="") :
+  namedclass(const std::string &Classname, const std::string &Name="") :
     m_Classname(Classname),
     m_Name(Name)
   {
   }
 
-  const PGSTD::string &name() const PQXX_NOEXCEPT { return m_Name; }	//[t1]
-  const PGSTD::string &classname() const PQXX_NOEXCEPT			//[t73]
+  const std::string &name() const PQXX_NOEXCEPT { return m_Name; }	//[t1]
+  const std::string &classname() const PQXX_NOEXCEPT			//[t73]
 	{return m_Classname;}
-  PGSTD::string description() const;
+  std::string description() const;
 
 private:
-  PGSTD::string m_Classname, m_Name;
+  std::string m_Classname, m_Name;
 };
 
 
@@ -743,7 +735,7 @@ typedef const char *cstring;
  * @param len usable size (in bytes) of provided buffer
  * @return human-readable error string, which may or may not reside in buf
  */
-cstring PQXX_LIBEXPORT strerror_wrapper(int err, char buf[], PGSTD::size_t len)
+cstring PQXX_LIBEXPORT strerror_wrapper(int err, char buf[], std::size_t len)
   PQXX_NOEXCEPT;
 
 
@@ -752,13 +744,13 @@ extern const char sql_begin_work[], sql_commit_work[], sql_rollback_work[];
 
 
 /// Wrapper for std::distance; not all platforms have std::distance().
-template<typename T> inline PGSTD::ptrdiff_t distance(T first, T last)
+template<typename T> inline std::ptrdiff_t distance(T first, T last)
 {
 #ifdef PQXX_HAVE_DISTANCE
-  return PGSTD::distance(first, last);
+  return std::distance(first, last);
 #else
   // Naive implementation.  All we really need for now.
-  PGSTD::ptrdiff_t d;
+  std::ptrdiff_t d;
   for (d=0; first != last; ++d) ++first;
   return d;
 #endif

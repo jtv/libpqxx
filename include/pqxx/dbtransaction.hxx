@@ -8,7 +8,7 @@
  *   pqxx::dbransaction defines a real transaction on the database
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/dbtransaction instead.
  *
- * Copyright (c) 2004-2009, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -78,7 +78,7 @@ public:
 protected:
   dbtransaction(
 	connection_base &,
-	const PGSTD::string &IsolationString,
+	const std::string &IsolationString,
 	readwrite_policy rw=read_write);
 
   explicit dbtransaction(
@@ -105,12 +105,12 @@ protected:
    */
   virtual void do_abort();						//[t13]
 
-  static PGSTD::string fullname(const PGSTD::string &ttype,
-	const PGSTD::string &isolation);
+  static std::string fullname(const std::string &ttype,
+	const std::string &isolation);
 
 private:
   /// Precomputed SQL command to run at start of this transaction
-  PGSTD::string m_StartCmd;
+  std::string m_StartCmd;
 };
 
 

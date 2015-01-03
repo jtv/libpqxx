@@ -136,14 +136,14 @@ public:
    * @warning Don't use this to access the SQL cursor directly without going
    * through the provided wrapper classes!
    */
-  const PGSTD::string &name() const PQXX_NOEXCEPT { return m_name; }	//[t81]
+  const std::string &name() const PQXX_NOEXCEPT { return m_name; }	//[t81]
 
 protected:
   cursor_base(connection_base &,
-	const PGSTD::string &Name,
+	const std::string &Name,
 	bool embellish_name=true);
 
-  const PGSTD::string m_name;
+  const std::string m_name;
 
 private:
   /// Not allowed
@@ -158,7 +158,7 @@ private:
 inline cursor_base::difference_type cursor_base::all() PQXX_NOEXCEPT
 {
 #ifdef PQXX_HAVE_LIMITS
-  return PGSTD::numeric_limits<int>::max()-1;
+  return std::numeric_limits<int>::max()-1;
 #else
   return INT_MAX-1;
 #endif
@@ -167,7 +167,7 @@ inline cursor_base::difference_type cursor_base::all() PQXX_NOEXCEPT
 inline cursor_base::difference_type cursor_base::backward_all() PQXX_NOEXCEPT
 {
 #ifdef PQXX_HAVE_LIMITS
-  return PGSTD::numeric_limits<int>::min()+1;
+  return std::numeric_limits<int>::min()+1;
 #else
   return INT_MIN+1;
 #endif
@@ -195,15 +195,15 @@ class PQXX_LIBEXPORT sql_cursor : public cursor_base
 {
 public:
   sql_cursor(transaction_base &t,
-	const PGSTD::string &query,
-	const PGSTD::string &cname,
+	const std::string &query,
+	const std::string &cname,
 	cursor_base::accesspolicy ap,
 	cursor_base::updatepolicy up,
 	cursor_base::ownershippolicy op,
 	bool hold);
 
   sql_cursor(transaction_base &t,
-	const PGSTD::string &cname,
+	const std::string &cname,
 	cursor_base::ownershippolicy op);
 
   ~sql_cursor() PQXX_NOEXCEPT { close(); }
@@ -240,7 +240,7 @@ public:
 
 private:
   difference_type adjust(difference_type hoped, difference_type actual);
-  static PGSTD::string stridestring(difference_type);
+  static std::string stridestring(difference_type);
   /// Initialize cached empty result.  Call only at beginning or end!
   void init_empty_result(transaction_base &);
 
@@ -296,8 +296,8 @@ public:
   /// Create cursor.
   stateless_cursor(
 	transaction_base &trans,
-	const PGSTD::string &query,
-	const PGSTD::string &cname,
+	const std::string &query,
+	const std::string &cname,
 	bool hold) :
     m_cur(trans, query, cname, cursor_base::random_access, up, op, hold)
   {
@@ -306,7 +306,7 @@ public:
   /// Adopt existing scrolling SQL cursor.
   stateless_cursor(
 	transaction_base &trans,
-	const PGSTD::string adopted_cursor) :
+	const std::string adopted_cursor) :
     m_cur(trans, adopted_cursor, op)
   {
     // Put cursor in known position
@@ -342,7 +342,7 @@ public:
 	end_pos);
   }
 
-  const PGSTD::string &name() const PQXX_NOEXCEPT { return m_cur.name(); }
+  const std::string &name() const PQXX_NOEXCEPT { return m_cur.name(); }
 
 private:
   internal::sql_cursor m_cur;
@@ -397,8 +397,8 @@ public:
    * positive number
    */
   icursorstream(transaction_base &context,
-      const PGSTD::string &query,
-      const PGSTD::string &basename,
+      const std::string &query,
+      const std::string &basename,
       difference_type sstride=1);					//[t81]
 
   /// Adopt existing SQL cursor.  Use with care.
@@ -455,7 +455,7 @@ public:
    * @return Reference to this very stream, to facilitate "chained" invocations
    * ("C.ignore(2).get(r).ignore(4);")
    */
-  icursorstream &ignore(PGSTD::streamsize n=1);				//[t81]
+  icursorstream &ignore(std::streamsize n=1);				//[t81]
 
   /// Change stride, i.e. the number of rows to fetch per read operation
   /**
@@ -513,7 +513,7 @@ private:
  * destroying one affects the stream as a whole.
  */
 class PQXX_LIBEXPORT icursor_iterator :
-  public PGSTD::iterator<PGSTD::input_iterator_tag,
+  public std::iterator<std::input_iterator_tag,
 	result,
 	cursor_base::size_type,
 	const result *,

@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      Compiler deficiency workarounds for libpqxx clients
  *
- * Copyright (c) 2002-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -23,7 +23,7 @@
 
 #ifdef PQXX_HAVE_MOVE
 #include <utility>
-#define PQXX_MOVE(value) (PGSTD::move(value))
+#define PQXX_MOVE(value) (std::move(value))
 #else
 #define PQXX_MOVE(value) (value)
 #endif
@@ -69,7 +69,7 @@
 #include <cstddef>
 #include <cstdlib>
 /// Alias for the std namespace to accomodate nonstandard C++ implementations
-/** The PGSTD name will almost always be defined to mean std.  The exception are
+/** The std name will almost always be defined to mean std.  The exception are
  * third-party C++ standard library implementations that use a different
  * namespace to avoid conflicts with the standard library that came with the
  * compiler.
@@ -77,7 +77,7 @@
  * Some definitions that appear missing in the standard library of the host
  * system may be added to get libpqxx working.
  */
-namespace PGSTD
+namespace std
 {
 /// Work around lacking iterator template definition in <iterator>
 template<typename Cat,
@@ -99,7 +99,7 @@ template<typename Cat,
 
 #ifndef PQXX_HAVE_CHAR_TRAITS
 #include <cstddef>
-namespace PGSTD
+namespace std
 {
 /// Work around missing std::char_traits
 template<typename CHAR> struct char_traits {};

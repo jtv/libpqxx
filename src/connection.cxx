@@ -7,7 +7,7 @@
  *      implementation of the pqxx::connection and sibling classes.
  *   Different ways of setting up a backend connection.
  *
- * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -23,10 +23,10 @@
 
 #include "pqxx/connection"
 
-using namespace PGSTD;
+using namespace std;
 
 
-pqxx::connectionpolicy::connectionpolicy(const PGSTD::string &opts) :
+pqxx::connectionpolicy::connectionpolicy(const std::string &opts) :
   m_options(opts)
 {
 }
@@ -108,7 +108,7 @@ pqxx::connect_lazy::do_completeconnect(handle orig)
 }
 
 
-pqxx::connect_async::connect_async(const PGSTD::string &opts) :
+pqxx::connect_async::connect_async(const std::string &opts) :
   connectionpolicy(opts),
   m_connecting(false)
 {

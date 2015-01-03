@@ -7,7 +7,7 @@
  *      Implementation of the Large Objects interface
  *   Allows access to large objects directly, or though I/O streams
  *
- * Copyright (c) 2003-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -32,7 +32,7 @@
 
 #include "pqxx/internal/gates/connection-largeobject.hxx"
 
-using namespace PGSTD;
+using namespace std;
 using namespace pqxx::internal;
 
 namespace
@@ -91,7 +91,7 @@ pqxx::largeobject::largeobject(dbtransaction &T) :
 }
 
 
-pqxx::largeobject::largeobject(dbtransaction &T, const PGSTD::string &File) :
+pqxx::largeobject::largeobject(dbtransaction &T, const std::string &File) :
   m_ID()
 {
   m_ID = lo_import(RawConnection(T), File.c_str());
@@ -112,7 +112,7 @@ pqxx::largeobject::largeobject(const largeobjectaccess &O) PQXX_NOEXCEPT :
 
 
 void pqxx::largeobject::to_file(dbtransaction &T,
-	const PGSTD::string &File) const
+	const std::string &File) const
 {
   if (lo_export(RawConnection(T), id(), File.c_str()) == -1)
   {
@@ -186,7 +186,7 @@ pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
 
 
 pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
-					   const PGSTD::string &File,
+					   const std::string &File,
 					   openmode mode) :
   largeobject(T, File),
   m_Trans(T),
@@ -222,7 +222,7 @@ pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::cwrite(const char Buf[], size_type Len) PQXX_NOEXCEPT
 {
   return
-    PGSTD::max(
+    std::max(
 	lo_write(RawConnection(), m_fd,const_cast<char *>(Buf), size_t(Len)),
         -1);
 }
@@ -231,7 +231,7 @@ pqxx::largeobjectaccess::cwrite(const char Buf[], size_type Len) PQXX_NOEXCEPT
 pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::cread(char Buf[], size_type Bytes) PQXX_NOEXCEPT
 {
-  return PGSTD::max(lo_read(RawConnection(), m_fd, Buf, size_t(Bytes)), -1);
+  return std::max(lo_read(RawConnection(), m_fd, Buf, size_t(Bytes)), -1);
 }
 
 
@@ -319,7 +319,7 @@ string pqxx::largeobjectaccess::Reason(int err) const
 }
 
 
-void pqxx::largeobjectaccess::process_notice(const PGSTD::string &s)
+void pqxx::largeobjectaccess::process_notice(const std::string &s)
 	PQXX_NOEXCEPT
 {
   m_Trans.process_notice(s);

@@ -16,7 +16,7 @@ class PQXX_PRIVATE result_creation : callgate<const result>
   static result create(
 	internal::pq::PGresult *rhs,
 	int protocol,
-	const PGSTD::string &query,
+	const std::string &query,
 	int encoding_code)
   {
     return result(rhs, protocol, query, encoding_code);

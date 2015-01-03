@@ -4,7 +4,7 @@
 
 #include "test_helpers.hxx"
 
-using namespace PGSTD;
+using namespace std;
 using namespace pqxx;
 
 // Example program for libpqxx.  Send notification to self.

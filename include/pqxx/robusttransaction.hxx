@@ -8,7 +8,7 @@
  *   pqxx::robusttransaction is a slower but safer transaction class
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/robusttransaction instead.
  *
- * Copyright (c) 2002-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -54,15 +54,15 @@ public:
 protected:
   basic_robusttransaction(
 	connection_base &C,
-	const PGSTD::string &IsolationLevel,
-	const PGSTD::string &table_name=PGSTD::string());		//[t16]
+	const std::string &IsolationLevel,
+	const std::string &table_name=std::string());			//[t16]
 
 private:
   typedef unsigned long IDType;
   IDType m_record_id;
-  PGSTD::string m_xid;
-  PGSTD::string m_LogTable;
-  PGSTD::string m_sequence;
+  std::string m_xid;
+  std::string m_LogTable;
+  std::string m_sequence;
   int m_backendpid;
 
   virtual void do_begin();						//[t18]
@@ -71,7 +71,7 @@ private:
 
   void PQXX_PRIVATE CreateLogTable();
   void PQXX_PRIVATE CreateTransactionRecord();
-  PGSTD::string PQXX_PRIVATE sql_delete() const;
+  std::string PQXX_PRIVATE sql_delete() const;
   void PQXX_PRIVATE DeleteTransactionRecord() PQXX_NOEXCEPT;
   bool PQXX_PRIVATE CheckTransactionRecord();
 };
@@ -157,7 +157,7 @@ public:
    * @param Name optional human-readable name for this transaction
    */
   explicit robusttransaction(connection_base &C,
-      const PGSTD::string &Name=PGSTD::string()) :
+      const std::string &Name=std::string()) :
     namedclass(fullname("robusttransaction",isolation_tag::name()), Name),
     basic_robusttransaction(C, isolation_tag::name())
 	{ Begin(); }

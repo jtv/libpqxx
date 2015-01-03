@@ -7,7 +7,7 @@
  *      Common implementation for statement parameter lists.
  *   See the connection_base hierarchy for more about prepared statements
  *
- * Copyright (c) 2006-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2006-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -21,7 +21,7 @@
 
 #include "pqxx/internal/statement_parameters.hxx"
 
-using namespace PGSTD;
+using namespace std;
 
 
 pqxx::internal::statement_parameters::statement_parameters() :
@@ -32,7 +32,7 @@ pqxx::internal::statement_parameters::statement_parameters() :
 
 
 void pqxx::internal::statement_parameters::add_checked_param(
-	const PGSTD::string &v,
+	const std::string &v,
 	bool nonnull,
 	bool binary)
 {

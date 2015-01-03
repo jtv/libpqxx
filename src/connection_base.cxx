@@ -7,7 +7,7 @@
  *      implementation of the pqxx::connection_base abstract base class.
  *   pqxx::connection_base encapsulates a frontend to backend connection
  *
- * Copyright (c) 2001-2014, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -62,7 +62,7 @@
 #include "pqxx/internal/gates/result-creation.hxx"
 #include "pqxx/internal/gates/result-connection.hxx"
 
-using namespace PGSTD;
+using namespace std;
 using namespace pqxx;
 using namespace pqxx::internal;
 using namespace pqxx::prepare;
@@ -154,7 +154,7 @@ void pqxx::connection_base::init()
 
 pqxx::result pqxx::connection_base::make_result(
 	internal::pq::PGresult *rhs,
-	const PGSTD::string &query)
+	const std::string &query)
 {
   return gate::result_creation::create(
 	rhs,
@@ -264,8 +264,8 @@ int pqxx::connection_base::server_version() const PQXX_NOEXCEPT
 }
 
 
-void pqxx::connection_base::set_variable(const PGSTD::string &Var,
-	const PGSTD::string &Value)
+void pqxx::connection_base::set_variable(const std::string &Var,
+	const std::string &Value)
 {
   if (m_Trans.get())
   {
@@ -281,13 +281,13 @@ void pqxx::connection_base::set_variable(const PGSTD::string &Var,
 }
 
 
-string pqxx::connection_base::get_variable(const PGSTD::string &Var)
+string pqxx::connection_base::get_variable(const std::string &Var)
 {
   return m_Trans.get() ? m_Trans.get()->get_variable(Var) : RawGetVar(Var);
 }
 
 
-string pqxx::connection_base::RawGetVar(const PGSTD::string &Var)
+string pqxx::connection_base::RawGetVar(const std::string &Var)
 {
   // Is this variable in our local map of set variables?
   // TODO: Could we safely read-allocate variables into m_Vars?
@@ -526,7 +526,7 @@ void pqxx::connection_base::process_notice(const char msg[]) PQXX_NOEXCEPT
   }
 }
 
-void pqxx::connection_base::process_notice(const PGSTD::string &msg)
+void pqxx::connection_base::process_notice(const std::string &msg)
 	PQXX_NOEXCEPT
 {
   // Ensure that message passed to errorhandler ends in newline
@@ -830,8 +830,8 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 
 
 void pqxx::connection_base::prepare(
-	const PGSTD::string &name,
-	const PGSTD::string &definition)
+	const std::string &name,
+	const std::string &definition)
 {
   PSMap::iterator i = m_prepared.find(name);
   if (i != m_prepared.end())
@@ -860,13 +860,13 @@ void pqxx::connection_base::prepare(
 }
 
 
-void pqxx::connection_base::prepare(const PGSTD::string &definition)
+void pqxx::connection_base::prepare(const std::string &definition)
 {
   this->prepare(string(), definition);
 }
 
 
-void pqxx::connection_base::unprepare(const PGSTD::string &name)
+void pqxx::connection_base::unprepare(const std::string &name)
 {
   PSMap::iterator i = m_prepared.find(name);
 
@@ -880,7 +880,7 @@ void pqxx::connection_base::unprepare(const PGSTD::string &name)
 
 
 pqxx::prepare::internal::prepared_def &
-pqxx::connection_base::find_prepared(const PGSTD::string &statement)
+pqxx::connection_base::find_prepared(const std::string &statement)
 {
   PSMap::iterator s = m_prepared.find(statement);
   if (s == m_prepared.end())
@@ -890,7 +890,7 @@ pqxx::connection_base::find_prepared(const PGSTD::string &statement)
 
 
 pqxx::prepare::internal::prepared_def &
-pqxx::connection_base::register_prepared(const PGSTD::string &name)
+pqxx::connection_base::register_prepared(const std::string &name)
 {
   activate();
   if (!supports(cap_prepared_statements) || protocol_version() < 3)
@@ -913,7 +913,7 @@ pqxx::connection_base::register_prepared(const PGSTD::string &name)
   return s;
 }
 
-void pqxx::connection_base::prepare_now(const PGSTD::string &name)
+void pqxx::connection_base::prepare_now(const std::string &name)
 {
   register_prepared(name);
 }
@@ -921,7 +921,7 @@ void pqxx::connection_base::prepare_now(const PGSTD::string &name)
 
 // TODO: Can we make this work with std::string instead of C-style?
 pqxx::result pqxx::connection_base::prepared_exec(
-	const PGSTD::string &statement,
+	const std::string &statement,
 	const char *const params[],
 	const int paramlengths[],
 	const int binary[],
@@ -1015,15 +1015,15 @@ void pqxx::connection_base::close() PQXX_NOEXCEPT
 }
 
 
-void pqxx::connection_base::RawSetVar(const PGSTD::string &Var,
-	const PGSTD::string &Value)
+void pqxx::connection_base::RawSetVar(const std::string &Var,
+	const std::string &Value)
 {
     Exec(("SET " + Var + "=" + Value).c_str(), 0);
 }
 
 
 void pqxx::connection_base::AddVariables(
-	const PGSTD::map<PGSTD::string,PGSTD::string> &Vars)
+	const std::map<std::string,std::string> &Vars)
 {
   for (map<string,string>::const_iterator i=Vars.begin(); i!=Vars.end(); ++i)
     m_Vars[i->first] = i->second;
@@ -1066,7 +1066,7 @@ void pqxx::connection_base::UnregisterTransaction(transaction_base *T)
 }
 
 
-bool pqxx::connection_base::ReadCopyLine(PGSTD::string &Line)
+bool pqxx::connection_base::ReadCopyLine(std::string &Line)
 {
   if (!is_open())
     throw internal_error("ReadCopyLine() without connection");
@@ -1105,7 +1105,7 @@ bool pqxx::connection_base::ReadCopyLine(PGSTD::string &Line)
 }
 
 
-void pqxx::connection_base::WriteCopyLine(const PGSTD::string &Line)
+void pqxx::connection_base::WriteCopyLine(const std::string &Line)
 {
   if (!is_open())
     throw internal_error("WriteCopyLine() without connection");
@@ -1145,7 +1145,7 @@ void pqxx::connection_base::EndCopyWrite()
 }
 
 
-void pqxx::connection_base::start_exec(const PGSTD::string &Q)
+void pqxx::connection_base::start_exec(const std::string &Q)
 {
   activate();
   if (!PQsendQuery(m_Conn, Q.c_str())) throw failure(ErrMsg());
@@ -1198,7 +1198,7 @@ string pqxx::connection_base::esc(const char str[])
 }
 
 
-string pqxx::connection_base::esc(const PGSTD::string &str)
+string pqxx::connection_base::esc(const std::string &str)
 {
   return this->esc(str.c_str(), str.size());
 }
@@ -1387,7 +1387,7 @@ void pqxx::connection_base::read_capabilities() PQXX_NOEXCEPT
 }
 
 
-string pqxx::connection_base::adorn_name(const PGSTD::string &n)
+string pqxx::connection_base::adorn_name(const std::string &n)
 {
   const string id = to_string(++m_unique_id);
   return n.empty() ? ("x"+id) : (n+"_"+id);
@@ -1406,7 +1406,7 @@ int pqxx::connection_base::encoding_code()
 
 
 pqxx::result pqxx::connection_base::parameterized_exec(
-	const PGSTD::string &query,
+	const std::string &query,
 	const char *const params[],
 	const int paramlengths[],
 	const int binaries[],

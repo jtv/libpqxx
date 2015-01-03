@@ -7,7 +7,7 @@
  *      Representation for raw, binary data.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/binarystring instead.
  *
- * Copyright (c) 2003-2013, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -63,7 +63,7 @@ class PQXX_LIBEXPORT binarystring :
 {
 public:
   typedef content_type char_type;
-  typedef PGSTD::char_traits<char_type>::char_type value_type;
+  typedef std::char_traits<char_type>::char_type value_type;
   typedef size_t size_type;
   typedef long difference_type;
   typedef const value_type &const_reference;
@@ -71,7 +71,7 @@ public:
   typedef const_pointer const_iterator;
 
 #ifdef PQXX_HAVE_REVERSE_ITERATOR
-  typedef PGSTD::reverse_iterator<const_iterator> const_reverse_iterator;
+  typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 #endif
 
 private:
@@ -88,7 +88,7 @@ public:
   explicit binarystring(const field &);					//[t62]
 
   /// Copy binary data from std::string.
-  explicit binarystring(const PGSTD::string &);
+  explicit binarystring(const std::string &);
 
   /// Copy binary data of given length straight out of memory.
   binarystring(const void *, size_t);
@@ -145,7 +145,7 @@ public:
    * string once and keep it in a local variable.  Also, do not expect to be
    * able to compare the string's address to that of an earlier invocation.
    */
-  PGSTD::string str() const;						//[t62]
+  std::string str() const;						//[t62]
 
 private:
   size_type m_size;
@@ -163,31 +163,31 @@ private:
  * @deprecated Use the transaction's esc_raw() functions instead
  * \relatesalso binarystring
  */
-PGSTD::string PQXX_LIBEXPORT PQXX_DEPRECATED escape_binary(const PGSTD::string &bin);
+std::string PQXX_LIBEXPORT PQXX_DEPRECATED escape_binary(const std::string &bin);
 /// Escape binary string for inclusion in SQL
 /**
  * @deprecated Use the transaction's esc_raw() functions instead
  * \relatesalso binarystring
  */
-PGSTD::string PQXX_LIBEXPORT PQXX_DEPRECATED escape_binary(const char bin[]);
+std::string PQXX_LIBEXPORT PQXX_DEPRECATED escape_binary(const char bin[]);
 /// Escape binary string for inclusion in SQL
 /**
  * @deprecated Use the transaction's esc_raw() functions instead
  * \relatesalso binarystring
  */
-PGSTD::string PQXX_LIBEXPORT escape_binary(const char bin[], size_t len);
+std::string PQXX_LIBEXPORT escape_binary(const char bin[], size_t len);
 /// Escape binary string for inclusion in SQL
 /**
  * @deprecated Use the transaction's esc_raw() functions instead
  * \relatesalso binarystring
  */
-PGSTD::string PQXX_LIBEXPORT PQXX_DEPRECATED escape_binary(const unsigned char bin[]);
+std::string PQXX_LIBEXPORT PQXX_DEPRECATED escape_binary(const unsigned char bin[]);
 /// Escape binary string for inclusion in SQL
 /**
  * @deprecated Use the transaction's esc_raw() functions instead
  * \relatesalso binarystring
  */
-PGSTD::string PQXX_LIBEXPORT escape_binary(const unsigned char bin[], size_t len);
+std::string PQXX_LIBEXPORT escape_binary(const unsigned char bin[], size_t len);
 
 /**
  * @}

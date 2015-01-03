@@ -142,7 +142,7 @@ public:
   row::size_type column_number(const char ColName[]) const;		//[t11]
 
   /// Number of given column (throws exception if it doesn't exist)
-  row::size_type column_number(const PGSTD::string &Name) const		//[t11]
+  row::size_type column_number(const std::string &Name) const		//[t11]
 	{return column_number(Name.c_str());}
 
   /// Name of column with this number (throws exception if it doesn't exist)
@@ -155,7 +155,7 @@ public:
 	{ return column_type(row::size_type(ColNum)); }
 
   /// Type of given column
-  oid column_type(const PGSTD::string &ColName) const			//[t7]
+  oid column_type(const std::string &ColName) const			//[t7]
 	{ return column_type(column_number(ColName)); }
 
   /// Type of given column
@@ -170,7 +170,7 @@ public:
 	{ return column_table(row::size_type(ColNum)); }
 
   /// What table did this column come from? 
-  oid column_table(const PGSTD::string &ColName) const			//[t2]
+  oid column_table(const std::string &ColName) const			//[t2]
 	{ return column_table(column_number(ColName)); }
 
   /// What column in its table did this column come from?
@@ -181,12 +181,12 @@ public:
 	{ return table_column(row::size_type(ColNum)); }
 
   /// What column in its table did this column come from?
-  row::size_type table_column(const PGSTD::string &ColName) const	//[t93]
+  row::size_type table_column(const std::string &ColName) const		//[t93]
 	{ return table_column(column_number(ColName)); }
   //@}
 
   /// Query that produced this result, if available (empty string otherwise)
-  const PGSTD::string & PQXX_PURE query() const PQXX_NOEXCEPT;		//[t70]
+  const std::string & PQXX_PURE query() const PQXX_NOEXCEPT;		//[t70]
 
   /// If command was @c INSERT of 1 row, return oid of inserted row
   /** @return Identifier of inserted row if exactly one row was inserted, or
@@ -212,7 +212,7 @@ private:
   friend class pqxx::internal::gate::result_creation;
   result(internal::pq::PGresult *rhs,
 	int protocol,
-	const PGSTD::string &Query,
+	const std::string &Query,
 	int encoding_code);
   void PQXX_PRIVATE CheckStatus() const;
 
@@ -221,10 +221,10 @@ private:
   operator bool() const PQXX_NOEXCEPT { return m_data != 0; }
 
   void PQXX_PRIVATE PQXX_NORETURN ThrowSQLError(
-	const PGSTD::string &Err,
-	const PGSTD::string &Query) const;
+	const std::string &Err,
+	const std::string &Query) const;
   int PQXX_PRIVATE PQXX_PURE errorposition() const PQXX_NOEXCEPT;
-  PGSTD::string PQXX_PRIVATE StatusError() const;
+  std::string PQXX_PRIVATE StatusError() const;
 
   friend class pqxx::internal::gate::result_sql_cursor;
   const char * PQXX_PURE CmdStatus() const PQXX_NOEXCEPT;
@@ -232,7 +232,7 @@ private:
   /// Shortcut: pointer to result data
   pqxx::internal::pq::PGresult *m_data;
 
-  static const PGSTD::string PQXX_PRIVATE s_empty_string;
+  static const std::string PQXX_PRIVATE s_empty_string;
 };
 
 
@@ -242,8 +242,8 @@ private:
  * used to inspect its rows without changing them.
  */
 class PQXX_LIBEXPORT const_result_iterator :
-  public PGSTD::iterator<
-	PGSTD::random_access_iterator_tag,
+  public std::iterator<
+	std::random_access_iterator_tag,
 	const row,
 	result::difference_type,
 	const_result_iterator,
@@ -445,10 +445,10 @@ public:
  * @endcode
  */
 template<typename CHAR>
-inline PGSTD::basic_ostream<CHAR> &operator<<(
-	PGSTD::basic_ostream<CHAR> &S, const pqxx::field &F)		//[t46]
+inline std::basic_ostream<CHAR> &operator<<(
+	std::basic_ostream<CHAR> &S, const pqxx::field &F)		//[t46]
 {
-  S.write(F.c_str(), PGSTD::streamsize(F.size()));
+  S.write(F.c_str(), std::streamsize(F.size()));
   return S;
 }
 
@@ -460,8 +460,8 @@ inline void from_string(const field &F, T &Obj)				//[t46]
 
 /// Convert a field to a string
 template<>
-inline PGSTD::string to_string(const field &Obj)			//[t74]
-	{ return PGSTD::string(Obj.c_str(), Obj.size()); }
+inline std::string to_string(const field &Obj)				//[t74]
+	{ return std::string(Obj.c_str(), Obj.size()); }
 
 
 inline const_result_iterator

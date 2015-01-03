@@ -8,7 +8,7 @@
  *   These are used for both prepared statements and parameterized statements.
  *   DO NOT INCLUDE THIS FILE DIRECTLY.  Other headers include it for you.
  *
- * Copyright (c) 2009-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2009-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -61,11 +61,11 @@ private:
   // Not allowed
   statement_parameters &operator=(const statement_parameters &);
 
-  void add_checked_param(const PGSTD::string &, bool nonnull, bool binary);
+  void add_checked_param(const std::string &, bool nonnull, bool binary);
 
-  PGSTD::vector<PGSTD::string> m_values;
-  PGSTD::vector<bool> m_nonnull;
-  PGSTD::vector<bool> m_binary;
+  std::vector<std::string> m_values;
+  std::vector<bool> m_nonnull;
+  std::vector<bool> m_binary;
 };
 } // namespace pqxx::internal
 } // namespace pqxx

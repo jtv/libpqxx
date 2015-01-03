@@ -128,7 +128,7 @@ public:
 
 #ifdef PQXX_NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
   /// Specialization: to(string &)
-  template<> bool to<PGSTD::string>(PGSTD::string &Obj) const;
+  template<> bool to<std::string>(std::string &Obj) const;
 
   /// Specialization: <tt>to(const char *&)</tt>.
   /** The buffer has the same lifetime as the result, so take care not to
@@ -185,11 +185,11 @@ private:
 
 /// Specialization: <tt>to(string &)</tt>.
 template<>
-inline bool field::to<PGSTD::string>(PGSTD::string &Obj) const
+inline bool field::to<std::string>(std::string &Obj) const
 {
   const char *const bytes = c_str();
   if (!bytes[0] && is_null()) return false;
-  Obj = PGSTD::string(bytes, size());
+  Obj = std::string(bytes, size());
   return true;
 }
 
@@ -208,12 +208,12 @@ inline bool field::to<const char *>(const char *&Obj) const
 }
 
 
-template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
+template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
   class field_streambuf :
 #ifdef PQXX_HAVE_STREAMBUF
-  public PGSTD::basic_streambuf<CHAR, TRAITS>
+  public std::basic_streambuf<CHAR, TRAITS>
 #else
-  public PGSTD::streambuf
+  public std::streambuf
 #endif
 {
 public:
@@ -227,8 +227,8 @@ public:
   typedef streamoff off_type;
   typedef streampos pos_type;
 #endif
-  typedef PGSTD::ios::openmode openmode;
-  typedef PGSTD::ios::seekdir seekdir;
+  typedef std::ios::openmode openmode;
+  typedef std::ios::seekdir seekdir;
 
   explicit field_streambuf(const field &F) :			//[t74]
     m_Field(F)
@@ -270,18 +270,18 @@ private:
  *
  * This class has only been tested for the char type (and its default traits).
  */
-template<typename CHAR=char, typename TRAITS=PGSTD::char_traits<CHAR> >
+template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
   class basic_fieldstream :
 #ifdef PQXX_HAVE_STREAMBUF
-    public PGSTD::basic_istream<CHAR, TRAITS>
+    public std::basic_istream<CHAR, TRAITS>
 #else
-    public PGSTD::istream
+    public std::istream
 #endif
 {
 #ifdef PQXX_HAVE_STREAMBUF
-  typedef PGSTD::basic_istream<CHAR, TRAITS> super;
+  typedef std::basic_istream<CHAR, TRAITS> super;
 #else
-  typedef PGSTD::istream super;
+  typedef std::istream super;
 #endif
 
 public:

@@ -8,7 +8,7 @@
  *   pqxx::errorhandler handlers errors and warnings in a database session.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
  *
- * Copyright (c) 2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2012-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -55,7 +55,7 @@ class errorhandler_connection_base;
  * returning "false."
  */
 class PQXX_LIBEXPORT errorhandler :
-	public PGSTD::unary_function<const char[], bool>
+	public std::unary_function<const char[], bool>
 {
 public:
   explicit errorhandler(connection_base &);

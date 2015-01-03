@@ -8,7 +8,7 @@
  *   pqxx::tablereader enables optimized batch reads from a database table
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablereader instead.
  *
- * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -32,52 +32,53 @@ class PQXX_LIBEXPORT tablereader : public tablestream
 {
 public:
   tablereader(transaction_base &,
-      const PGSTD::string &Name,
-      const PGSTD::string &Null=PGSTD::string());
+      const std::string &Name,
+      const std::string &Null=std::string());
   template<typename ITER>
   tablereader(transaction_base &,
-      const PGSTD::string &Name,
+      const std::string &Name,
       ITER begincolumns,
       ITER endcolumns);
   template<typename ITER> tablereader(transaction_base &,
-      const PGSTD::string &Name,
+      const std::string &Name,
       ITER begincolumns,
       ITER endcolumns,
-      const PGSTD::string &Null);
+      const std::string &Null);
   ~tablereader() PQXX_NOEXCEPT;
   template<typename TUPLE> tablereader &operator>>(TUPLE &);
   operator bool() const PQXX_NOEXCEPT { return !m_Done; }
   bool operator!() const PQXX_NOEXCEPT { return m_Done; }
-  bool get_raw_line(PGSTD::string &Line);
+  bool get_raw_line(std::string &Line);
   template<typename TUPLE>
-  void tokenize(PGSTD::string, TUPLE &) const;
+  void tokenize(std::string, TUPLE &) const;
   virtual void complete();
 private:
   void setup(transaction_base &T,
-      const PGSTD::string &RName,
-      const PGSTD::string &Columns=PGSTD::string());
+      const std::string &RName,
+      const std::string &Columns=std::string());
   void PQXX_PRIVATE reader_close();
-  PGSTD::string extract_field(const PGSTD::string &,
-      PGSTD::string::size_type &) const;
+  std::string extract_field(
+	const std::string &,
+	std::string::size_type &) const;
   bool m_Done;
 };
 template<typename ITER> inline
 tablereader::tablereader(transaction_base &T,
-    const PGSTD::string &Name,
+    const std::string &Name,
     ITER begincolumns,
     ITER endcolumns) :
   namedclass(Name, "tablereader"),
-  tablestream(T, PGSTD::string()),
+  tablestream(T, std::string()),
   m_Done(true)
 {
   setup(T, Name, columnlist(begincolumns, endcolumns));
 }
 template<typename ITER> inline
 tablereader::tablereader(transaction_base &T,
-    const PGSTD::string &Name,
+    const std::string &Name,
     ITER begincolumns,
     ITER endcolumns,
-    const PGSTD::string &Null) :
+    const std::string &Null) :
   namedclass(Name, "tablereader"),
   tablestream(T, Null),
   m_Done(true)
@@ -85,16 +86,16 @@ tablereader::tablereader(transaction_base &T,
   setup(T, Name, columnlist(begincolumns, endcolumns));
 }
 template<typename TUPLE>
-inline void tablereader::tokenize(PGSTD::string Line, TUPLE &T) const
+inline void tablereader::tokenize(std::string Line, TUPLE &T) const
 {
-  PGSTD::back_insert_iterator<TUPLE> ins = PGSTD::back_inserter(T);
-  PGSTD::string::size_type here=0;
+  std::back_insert_iterator<TUPLE> ins = std::back_inserter(T);
+  std::string::size_type here=0;
   while (here < Line.size()) *ins++ = extract_field(Line, here);
 }
 template<typename TUPLE>
 inline tablereader &pqxx::tablereader::operator>>(TUPLE &T)
 {
-  PGSTD::string Line;
+  std::string Line;
   if (get_raw_line(Line)) tokenize(Line, T);
   return *this;
 }

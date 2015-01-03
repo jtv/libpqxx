@@ -7,7 +7,7 @@
  *      Helper classes for defining and executing prepared statements
  *   See the connection_base hierarchy for more about prepared statements
  *
- * Copyright (c) 2006-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2006-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -124,7 +124,7 @@ namespace prepare
 class PQXX_LIBEXPORT invocation : internal::statement_parameters
 {
 public:
-  invocation(transaction_base &, const PGSTD::string &statement);
+  invocation(transaction_base &, const std::string &statement);
 
   /// Execute!
   result exec() const;
@@ -200,11 +200,11 @@ private:
   invocation &operator=(const invocation &);
 
   transaction_base &m_home;
-  const PGSTD::string m_statement;
-  PGSTD::vector<PGSTD::string> m_values;
-  PGSTD::vector<bool> m_nonnull;
+  const std::string m_statement;
+  std::vector<std::string> m_values;
+  std::vector<bool> m_nonnull;
 
-  invocation &setparam(const PGSTD::string &, bool nonnull);
+  invocation &setparam(const std::string &, bool nonnull);
 };
 
 
@@ -214,12 +214,12 @@ namespace internal
 struct PQXX_LIBEXPORT prepared_def
 {
   /// Text of prepared query
-  PGSTD::string definition;
+  std::string definition;
   /// Has this prepared statement been prepared in the current session?
   bool registered;
 
   prepared_def();
-  explicit prepared_def(const PGSTD::string &);
+  explicit prepared_def(const std::string &);
 };
 
 } // namespace pqxx::prepare::internal

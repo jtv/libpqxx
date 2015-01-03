@@ -7,7 +7,7 @@
  *      implementation of the pqxx::tablewriter class.
  *   pqxx::tablewriter enables optimized batch updates to a database table
  *
- * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -27,13 +27,13 @@
 
 #include "pqxx/internal/gates/transaction-tablewriter.hxx"
 
-using namespace PGSTD;
+using namespace std;
 using namespace pqxx::internal;
 
 
 pqxx::tablewriter::tablewriter(transaction_base &T,
-    const PGSTD::string &WName,
-    const PGSTD::string &Null) :
+    const std::string &WName,
+    const std::string &Null) :
   namedclass("tablewriter", WName),
   tablestream(T, Null)
 {
@@ -58,8 +58,8 @@ pqxx::tablewriter::~tablewriter() PQXX_NOEXCEPT
 
 
 void pqxx::tablewriter::setup(transaction_base &T,
-    const PGSTD::string &WName,
-    const PGSTD::string &Columns)
+    const std::string &WName,
+    const std::string &Columns)
 {
   gate::transaction_tablewriter(T).BeginCopyWrite(WName, Columns);
   register_me();
@@ -75,7 +75,7 @@ pqxx::tablewriter &pqxx::tablewriter::operator<<(pqxx::tablereader &R)
 }
 
 
-void pqxx::tablewriter::write_raw_line(const PGSTD::string &Line)
+void pqxx::tablewriter::write_raw_line(const std::string &Line)
 {
   const string::size_type len = Line.size();
   gate::transaction_tablewriter(m_Trans).WriteCopyLine(

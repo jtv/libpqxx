@@ -8,7 +8,7 @@
  *   pqxx::transaction_base defines the interface for any abstract class that
  *   represents a database transaction
  *
- * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -34,13 +34,13 @@
 #include "pqxx/internal/gates/transaction-transactionfocus.hxx"
 
 
-using namespace PGSTD;
+using namespace std;
 using namespace pqxx::internal;
 
 
 pqxx::internal::parameterized_invocation::parameterized_invocation(
 	connection_base &c,
-	const PGSTD::string &query) :
+	const std::string &query) :
   m_home(c),
   m_query(query)
 {
@@ -225,14 +225,14 @@ void pqxx::transaction_base::abort()
 }
 
 
-string pqxx::transaction_base::esc_raw(const PGSTD::string &str) const
+string pqxx::transaction_base::esc_raw(const std::string &str) const
 {
   const unsigned char *p = reinterpret_cast<const unsigned char *>(str.c_str());
   return conn().esc_raw(p, str.size());
 }
 
 
-string pqxx::transaction_base::quote_raw(const PGSTD::string &str) const
+string pqxx::transaction_base::quote_raw(const std::string &str) const
 {
   const unsigned char *p = reinterpret_cast<const unsigned char *>(str.c_str());
   return conn().quote_raw(p, str.size());
@@ -264,8 +264,8 @@ void pqxx::transaction_base::activate()
 }
 
 
-pqxx::result pqxx::transaction_base::exec(const PGSTD::string &Query,
-					  const PGSTD::string &Desc)
+pqxx::result pqxx::transaction_base::exec(const std::string &Query,
+					  const std::string &Desc)
 {
   CheckPendingError();
 
@@ -292,14 +292,14 @@ pqxx::result pqxx::transaction_base::exec(const PGSTD::string &Query,
 
 
 pqxx::internal::parameterized_invocation
-pqxx::transaction_base::parameterized(const PGSTD::string &query)
+pqxx::transaction_base::parameterized(const std::string &query)
 {
   return internal::parameterized_invocation(conn(), query);
 }
 
 
 pqxx::prepare::invocation
-pqxx::transaction_base::prepared(const PGSTD::string &statement)
+pqxx::transaction_base::prepared(const std::string &statement)
 {
   try
   {
@@ -314,8 +314,8 @@ pqxx::transaction_base::prepared(const PGSTD::string &statement)
 }
 
 
-void pqxx::transaction_base::set_variable(const PGSTD::string &Var,
-                                          const PGSTD::string &Value)
+void pqxx::transaction_base::set_variable(const std::string &Var,
+                                          const std::string &Value)
 {
   // Before committing to this new value, see what the backend thinks about it
   gate::connection_transaction gate(conn());
@@ -324,7 +324,7 @@ void pqxx::transaction_base::set_variable(const PGSTD::string &Var,
 }
 
 
-string pqxx::transaction_base::get_variable(const PGSTD::string &Var)
+string pqxx::transaction_base::get_variable(const std::string &Var)
 {
   const map<string,string>::const_iterator i = m_Vars.find(Var);
   if (i != m_Vars.end()) return i->second;
@@ -418,7 +418,7 @@ pqxx::result pqxx::transaction_base::DirectExec(const char C[], int Retries)
 }
 
 
-void pqxx::transaction_base::RegisterPendingError(const PGSTD::string &Err)
+void pqxx::transaction_base::RegisterPendingError(const std::string &Err)
 	PQXX_NOEXCEPT
 {
   if (m_PendingError.empty() && !Err.empty())
@@ -470,27 +470,27 @@ string MakeCopyString(const string &Table, const string &Columns)
 } // namespace
 
 
-void pqxx::transaction_base::BeginCopyRead(const PGSTD::string &Table,
-    const PGSTD::string &Columns)
+void pqxx::transaction_base::BeginCopyRead(const std::string &Table,
+    const std::string &Columns)
 {
   exec(MakeCopyString(Table, Columns) + "TO STDOUT");
 }
 
 
-void pqxx::transaction_base::BeginCopyWrite(const PGSTD::string &Table,
-    const PGSTD::string &Columns)
+void pqxx::transaction_base::BeginCopyWrite(const std::string &Table,
+    const std::string &Columns)
 {
   exec(MakeCopyString(Table, Columns) + "FROM STDIN");
 }
 
 
-bool pqxx::transaction_base::ReadCopyLine(PGSTD::string &line)
+bool pqxx::transaction_base::ReadCopyLine(std::string &line)
 {
   return gate::connection_transaction(conn()).ReadCopyLine(line);
 }
 
 
-void pqxx::transaction_base::WriteCopyLine(const PGSTD::string &line)
+void pqxx::transaction_base::WriteCopyLine(const std::string &line)
 {
   gate::connection_transaction gate(conn());
   gate.WriteCopyLine(line);
@@ -520,7 +520,7 @@ void pqxx::internal::transactionfocus::unregister_me() PQXX_NOEXCEPT
 }
 
 void
-pqxx::internal::transactionfocus::reg_pending_error(const PGSTD::string &err)
+pqxx::internal::transactionfocus::reg_pending_error(const std::string &err)
 	PQXX_NOEXCEPT
 {
   gate::transaction_transactionfocus gate(m_Trans);

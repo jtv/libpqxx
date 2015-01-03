@@ -29,7 +29,7 @@
 #include "pqxx/row"
 
 
-using namespace PGSTD;
+using namespace std;
 
 const string pqxx::result::s_empty_string;
 
@@ -43,7 +43,7 @@ pqxx::internal::result_data::result_data() :
 
 pqxx::internal::result_data::result_data(pqxx::internal::pq::PGresult *d,
 	int p,
-	const PGSTD::string &q,
+	const std::string &q,
 	int e) :
   data(d),
   protocol(p),
@@ -61,7 +61,7 @@ void pqxx::internal::freemem_result_data(const result_data *d) PQXX_NOEXCEPT
 
 pqxx::result::result(pqxx::internal::pq::PGresult *rhs,
 	int protocol,
-	const PGSTD::string &Query,
+	const std::string &Query,
 	int encoding_code) :
   super(new internal::result_data(rhs, protocol, Query, encoding_code)),
   m_data(rhs)
@@ -124,8 +124,8 @@ const pqxx::row pqxx::result::at(pqxx::result::size_type i) const
 
 
 void pqxx::result::ThrowSQLError(
-	const PGSTD::string &Err,
-	const PGSTD::string &Query) const
+	const std::string &Err,
+	const std::string &Query) const
 {
   // Try to establish more precise error type, and throw corresponding exception
   const char *const code = PQresultErrorField(m_data, PG_DIAG_SQLSTATE);

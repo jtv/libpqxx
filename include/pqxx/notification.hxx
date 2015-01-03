@@ -8,7 +8,7 @@
  *   pqxx::notification_receiver handles incoming notifications.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/notification instead.
  *
- * Copyright (c) 2011-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2011-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -57,7 +57,7 @@ class connection_base;
  * (zero or more) of the same name.
  */
 class PQXX_LIBEXPORT PQXX_NOVTABLE notification_receiver :
-  public PGSTD::binary_function<const PGSTD::string &, int, void>
+  public std::binary_function<const std::string &, int, void>
 {
 public:
   /// Register the receiver with a connection.
@@ -65,11 +65,11 @@ public:
    * @param c Connnection to operate on.
    * @param channel Name of the notification to listen for.
    */
-  notification_receiver(connection_base &c, const PGSTD::string &channel);
+  notification_receiver(connection_base &c, const std::string &channel);
   virtual ~notification_receiver();
 
   /// The channel that this receiver listens on.
-  const PGSTD::string &channel() const { return m_channel; }
+  const std::string &channel() const { return m_channel; }
 
   /// Overridable: action to invoke when notification arrives.
   /**
@@ -79,7 +79,7 @@ public:
    * our connection when the notification arrived.  The actual process ID behind
    * the connection may have changed by the time this method is called.
    */
-  virtual void operator()(const PGSTD::string &payload, int backend_pid) =0;
+  virtual void operator()(const std::string &payload, int backend_pid) =0;
 
 protected:
   connection_base &conn() const PQXX_NOEXCEPT { return m_conn; }
@@ -91,7 +91,7 @@ private:
   notification_receiver &operator=(const notification_receiver &);
 
   connection_base &m_conn;
-  PGSTD::string m_channel;
+  std::string m_channel;
 };
 }
 

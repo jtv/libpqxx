@@ -7,7 +7,7 @@
  *      implementation of the pqxx::tablereader class.
  *   pqxx::tablereader enables optimized batch reads from a database table
  *
- * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -26,13 +26,13 @@
 
 #include "pqxx/internal/gates/transaction-tablereader.hxx"
 
-using namespace PGSTD;
+using namespace std;
 using namespace pqxx::internal;
 
 
 pqxx::tablereader::tablereader(transaction_base &T,
-    const PGSTD::string &Name,
-    const PGSTD::string &Null) :
+    const std::string &Name,
+    const std::string &Null) :
   namedclass("tablereader", Name),
   tablestream(T, Null),
   m_Done(true)
@@ -41,8 +41,8 @@ pqxx::tablereader::tablereader(transaction_base &T,
 }
 
 void pqxx::tablereader::setup(transaction_base &T,
-    const PGSTD::string &Name,
-    const PGSTD::string &Columns)
+    const std::string &Name,
+    const std::string &Columns)
 {
   gate::transaction_tablereader(T).BeginCopyRead(Name, Columns);
   register_me();
@@ -65,7 +65,7 @@ pqxx::tablereader::~tablereader() PQXX_NOEXCEPT
 }
 
 
-bool pqxx::tablereader::get_raw_line(PGSTD::string &Line)
+bool pqxx::tablereader::get_raw_line(std::string &Line)
 {
   if (!m_Done) try
   {
@@ -124,8 +124,8 @@ inline bool is_octalchar(char o) PQXX_NOEXCEPT
 /// Find first tab character at or after start position in string
 /** If not found, returns Line.size() rather than string::npos.
  */
-string::size_type findtab(const PGSTD::string &Line,
-	PGSTD::string::size_type start)
+string::size_type findtab(const std::string &Line,
+	std::string::size_type start)
 {
   // TODO: Fix for multibyte encodings?
   const string::size_type here = Line.find('\t', start);
@@ -134,8 +134,8 @@ string::size_type findtab(const PGSTD::string &Line,
 } // namespace
 
 
-string pqxx::tablereader::extract_field(const PGSTD::string &Line,
-    PGSTD::string::size_type &i) const
+string pqxx::tablereader::extract_field(const std::string &Line,
+    std::string::size_type &i) const
 {
   // TODO: Pick better exception types
   string R;

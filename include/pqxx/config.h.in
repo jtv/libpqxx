@@ -58,9 +58,6 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* name of standard library namespace (normally "std") */
-#undef PGSTD
-
 /* namespace of TR1 standard extensions (e.g. "std" or "std::tr1") */
 #undef PQXXTR1
 

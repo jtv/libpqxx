@@ -8,7 +8,7 @@
  *   pqxx::nontransaction provides nontransactional database access
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/nontransaction instead.
  *
- * Copyright (c) 2002-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -69,7 +69,7 @@ public:
    * and containing only letters and digits.
    */
   explicit nontransaction(connection_base &C,
-		          const PGSTD::string &Name=PGSTD::string()) :	//[t14]
+		          const std::string &Name=std::string()) :	//[t14]
     namedclass("nontransaction", Name), transaction_base(C) { Begin(); }
 
   virtual ~nontransaction();						//[t14]

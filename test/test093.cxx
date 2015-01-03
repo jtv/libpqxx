@@ -9,7 +9,7 @@
 
 #include <pqxx/config-internal-libpq.h>
 
-using namespace PGSTD;
+using namespace std;
 using namespace pqxx;
 
 

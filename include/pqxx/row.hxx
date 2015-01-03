@@ -91,11 +91,11 @@ public:
   reference operator[](size_type) const PQXX_NOEXCEPT;			//[t11]
   reference operator[](int) const PQXX_NOEXCEPT;			//[t2]
   reference operator[](const char[]) const;				//[t11]
-  reference operator[](const PGSTD::string &) const;			//[t11]
+  reference operator[](const std::string &) const;			//[t11]
   reference at(size_type) const; 					//[t11]
   reference at(int) const;						//[t11]
   reference at(const char[]) const;					//[t11]
-  reference at(const PGSTD::string &) const;				//[t11]
+  reference at(const std::string &) const;				//[t11]
   //@}
 
   size_type size() const PQXX_NOEXCEPT					//[t11]
@@ -110,7 +110,7 @@ public:
    */
   //@{
   /// Number of given column (throws exception if it doesn't exist)
-  size_type column_number(const PGSTD::string &ColName) const		//[t30]
+  size_type column_number(const std::string &ColName) const		//[t30]
       { return column_number(ColName.c_str()); }
 
   /// Number of given column (throws exception if it doesn't exist)
@@ -124,7 +124,7 @@ public:
       { return column_type(size_type(ColNum)); }
 
   /// Type of given column
-  oid column_type(const PGSTD::string &ColName) const			//[t7]
+  oid column_type(const std::string &ColName) const			//[t7]
       { return column_type(column_number(ColName)); }
 
   /// Type of given column
@@ -138,7 +138,7 @@ public:
   oid column_table(int ColNum) const					//[t2]
       { return column_table(size_type(ColNum)); }
   /// What table did this column come from?
-  oid column_table(const PGSTD::string &ColName) const		//[t2]
+  oid column_table(const std::string &ColName) const			//[t2]
       { return column_table(column_number(ColName)); }
 
   /// What column number in its table did this result column come from?
@@ -159,7 +159,7 @@ public:
       { return table_column(size_type(ColNum)); }
 
   /// What column number in its table did this result column come from?
-  size_type table_column(const PGSTD::string &ColName) const		//[t93]
+  size_type table_column(const std::string &ColName) const		//[t93]
       { return table_column(column_number(ColName)); }
   //@}
 
@@ -197,14 +197,14 @@ private:
 
 /// Iterator for fields in a row.  Use as row::const_iterator.
 class PQXX_LIBEXPORT const_row_iterator :
-  public PGSTD::iterator<PGSTD::random_access_iterator_tag,
-			 const field,
-			 row::size_type>,
+  public std::iterator<std::random_access_iterator_tag,
+		       const field,
+		       row::size_type>,
   public field
 {
-  typedef PGSTD::iterator<PGSTD::random_access_iterator_tag,
-				const field,
-				row::size_type> it;
+  typedef std::iterator<std::random_access_iterator_tag,
+			const field,
+			row::size_type> it;
 public:
   using it::pointer;
   typedef row::size_type size_type;

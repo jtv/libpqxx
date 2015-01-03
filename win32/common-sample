@@ -9,31 +9,6 @@
 # "C:\src\libpqxx") whereas others like MinGW want you to use more conventional
 # slashes (as in "C:/src/libpqxx").
 
-# Standard library namespace.
-# There are only two reasons why you might want to change this:
-#
-# 1. Your compiler doesn't define the standard library in the "std" namespace
-# but in the global namespace, in which case PGSTD should be the empty string.
-# However, a compiler with that problem is not likely to be good enough to
-# compile libpqxx.
-#
-# 2. You are using a third-party standard library implementation such as
-# STLport, which lives in another namespace to avoid clashes with the
-# implementation that came with the compiler.
-#
-# In the latter case, PGSTD must be set to the namespace used by your preferred
-# implementation.  In all other cases, just leave this set to "std".
-
-STD="std"
-
-# If you are using a 3rd-party STL like STLport, remember to check your path
-# and be sure the STLport is included before the MSVC includes. VCVARS32.BAT
-# doesn't know anything about the directories as defined in the IDE. I use
-#
-# set INCLUDE=\Utility\Code\STLport-4.5\stlport;%INCLUDE%
-#
-# ...and set STD to "_STL".
-
 # Depending on your STL library min/max need to be defined.  Using STLport
 # there is no need for libpqxx to redefine these for me.
 

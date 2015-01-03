@@ -8,7 +8,7 @@
  *   Predecessor to notification_receiver.  Deprecated.  Do not use.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/notify-listen instead.
  *
- * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -38,13 +38,13 @@ class notify_listener_forwarder: public notification_receiver
 public:
   notify_listener_forwarder(
 	connection_base &c,
-	const PGSTD::string &channel_name,
+	const std::string &channel_name,
 	notify_listener *wrappee) :
     notification_receiver(c, channel_name),
     m_wrappee(wrappee)
   {}
 
-  virtual void operator()(const PGSTD::string &, int backend_pid);
+  virtual void operator()(const std::string &, int backend_pid);
 
 private:
   notify_listener *m_wrappee;
@@ -56,12 +56,12 @@ private:
 /** @deprecated Use notification_receiver instead.
  */
 class PQXX_LIBEXPORT PQXX_NOVTABLE PQXX_DEPRECATED notify_listener :
-  public PGSTD::unary_function<int, void>
+  public std::unary_function<int, void>
 {
 public:
-  notify_listener(connection_base &c, const PGSTD::string &n);
+  notify_listener(connection_base &c, const std::string &n);
   virtual ~notify_listener() PQXX_NOEXCEPT;
-  const PGSTD::string &name() const { return m_forwarder.channel(); }
+  const std::string &name() const { return m_forwarder.channel(); }
   virtual void operator()(int be_pid) =0;
 
 

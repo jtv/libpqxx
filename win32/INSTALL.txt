@@ -348,12 +348,6 @@ undefined.  Note that defining these macros to anything at all, even 0, means
 that the corresponding option is enabled.  They are normally defined to 1, but
 that value seems to have been chosen more for convention than anything else.
 
-A few of the items require a textual value however, e.g. PGSTD needs to be
-defined to the name of the standard namespace.  You'll typically want to have
-this defined to "std" (leave out the quotes though!), but you may want to change
-that if you use a standard library other than the default one shipped with your
-compiler.
-
 At the time of writing, there are 3 of these configuration headers that you
 need to concern yourself about, all of which should be created in the
 include/pqxx subdirectory:
@@ -369,8 +363,8 @@ The names contain two variables:
 your client program are located in the config-public-*.h files (currently only
 one file); ones that affect only the compilation of the library itself are kept
 in the config-internal-*.h ones and are not included at all when compiling
-client programs.  Public configuration items (except PGSTD) are prefixed with
-PQXX_ to avoid clashes with macros defined by other code.
+client programs.  Public configuration items are prefixed with PQXX_ to avoid
+clashes with macros defined by other code.
 
 2. Autotools-related, compiler-related, or libpq-related.  The autotools items
 are of no real interest, but the compiler and libpq ones are different.  The

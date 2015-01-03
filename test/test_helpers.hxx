@@ -7,20 +7,20 @@ namespace pqxx
 {
 namespace test
 {
-class test_failure : public PGSTD::logic_error
+class test_failure : public std::logic_error
 {
-  const PGSTD::string m_file;
+  const std::string m_file;
   int m_line;
 
 public:
   test_failure(
-	const PGSTD::string &ffile,
+	const std::string &ffile,
 	int fline,
-	const PGSTD::string &desc);
+	const std::string &desc);
 
   ~test_failure() PQXX_NOEXCEPT;
 
-  const PGSTD::string &file() const PQXX_NOEXCEPT { return m_file; }
+  const std::string &file() const PQXX_NOEXCEPT { return m_file; }
   int line() const PQXX_NOEXCEPT { return m_line; }
 };
 
@@ -40,15 +40,15 @@ void prepare_series(transaction_base &t, int lowest, int highest);
 /** Needs to see connection object to determine whether the backend supports
  * generate_series().
  */
-PGSTD::string select_series(connection_base &conn, int lowest, int highest);
+std::string select_series(connection_base &conn, int lowest, int highest);
 
 
 /// Drop a table, if it exists.
-void drop_table(transaction_base &, const PGSTD::string &table);
+void drop_table(transaction_base &, const std::string &table);
 
 
 class base_test;
-typedef PGSTD::map<PGSTD::string, base_test *> test_map;
+typedef std::map<std::string, base_test *> test_map;
 
 /// Register test (if given); return test_map.
 const test_map &register_test(base_test *);
@@ -60,15 +60,15 @@ class base_test
 public:
   typedef void (*testfunc)(transaction_base &);
 
-  base_test(const PGSTD::string &tname, testfunc func);
+  base_test(const std::string &tname, testfunc func);
 
   /// Overridable: run test case.
   virtual void run() =0;
 
   virtual ~base_test() =0;
-  const PGSTD::string &name() const PQXX_NOEXCEPT { return m_name; }
+  const std::string &name() const PQXX_NOEXCEPT { return m_name; }
 private:
-  PGSTD::string m_name;
+  std::string m_name;
 protected:
   testfunc m_func;
 };
@@ -80,7 +80,7 @@ class test_case : public base_test
 {
 public:
   // func takes connection and transaction as arguments.
-  test_case(const PGSTD::string &tname, testfunc func) :
+  test_case(const std::string &tname, testfunc func) :
     base_test(tname, func)
   {
   }
@@ -136,7 +136,7 @@ public:
 // Unconditional test failure.
 #define PQXX_CHECK_NOTREACHED(desc) \
 	pqxx::test::check_notreached(__FILE__, __LINE__, (desc))
-void check_notreached(const char file[], int line, PGSTD::string desc);
+void check_notreached(const char file[], int line, std::string desc);
 
 // Verify that a condition is met, similar to assert()
 #define PQXX_CHECK(condition, desc) \
@@ -146,7 +146,7 @@ void check(
 	int line,
 	bool condition,
 	const char text[], 
-	PGSTD::string desc);
+	std::string desc);
 
 // Verify that variable has the expected value.
 #define PQXX_CHECK_EQUAL(actual, expected, desc) \
@@ -166,10 +166,10 @@ inline void check_equal(
 	const char actual_text[],
 	EXPECTED expected, 
 	const char expected_text[],
-	PGSTD::string desc)
+	std::string desc)
 {
   if (expected == actual) return;
-  const PGSTD::string fulldesc =
+  const std::string fulldesc =
 	desc + " (" + actual_text + " <> " + expected_text + ": "
 	"expected=" + to_string(expected) + ", "
 	"actual=" + to_string(actual) + ")";
@@ -194,10 +194,10 @@ inline void check_not_equal(
 	const char text1[],
 	VALUE2 value2, 
 	const char text2[],
-	PGSTD::string desc)
+	std::string desc)
 {
   if (value1 != value2) return;
-  const PGSTD::string fulldesc =
+  const std::string fulldesc =
 	desc + " (" + text1 + " == " + text2 + ": "
 	"both are " + to_string(value2) + ")";
   throw test_failure(file, line, fulldesc);
@@ -222,10 +222,10 @@ inline void check_less(
 	const char text1[],
 	VALUE2 value2,
 	const char text2[],
-	PGSTD::string desc)
+	std::string desc)
 {
   if (value1 < value2) return;
-  const PGSTD::string fulldesc =
+  const std::string fulldesc =
 	desc + " (" + text1 + " >= " + text2 + ": "
 	"\"lower\"=" + to_string(value1) + ", "
 	"\"upper\"=" + to_string(value2) + ")";
@@ -256,14 +256,14 @@ inline void end_of_statement()
 	  catch (const pqxx::test::failure_to_fail &) \
 	  { \
 	    PQXX_CHECK_NOTREACHED( \
-		PGSTD::string(desc) + \
+		std::string(desc) + \
 		" (\"" #action "\" did not throw " #exception_type ")"); \
 	  } \
 	  catch (const exception_type &) {} \
 	  catch (...) \
 	  { \
 	    PQXX_CHECK_NOTREACHED( \
-		PGSTD::string(desc) + \
+		std::string(desc) + \
 		" (\"" #action "\" " \
 		"threw exception other than " #exception_type ")"); \
 	  } \
@@ -291,12 +291,12 @@ inline void check_bounds(
 	const char lower_text[],
 	UPPER upper,
 	const char upper_text[],
-	const PGSTD::string &desc)
+	const std::string &desc)
 {
-  const PGSTD::string
-	range_check = PGSTD::string(lower_text) + " < " + upper_text,
-	lower_check = PGSTD::string("!(") + text + " < " + lower_text + ")",
-	upper_check = PGSTD::string(text) + " < " + upper_text;
+  const std::string
+	range_check = std::string(lower_text) + " < " + upper_text,
+	lower_check = std::string("!(") + text + " < " + lower_text + ")",
+	upper_check = std::string(text) + " < " + upper_text;
 
   pqxx::test::check(
 	file,
@@ -320,15 +320,15 @@ inline void check_bounds(
 
 
 // Report expected exception
-void expected_exception(const PGSTD::string &);
+void expected_exception(const std::string &);
 
 
 // Represent result row as string
-PGSTD::string list_row(row);
+std::string list_row(row);
 // Represent result as string
-PGSTD::string list_result(result);
+std::string list_result(result);
 // Represent result iterator as string
-PGSTD::string list_result_iterator(result::const_iterator);
+std::string list_result_iterator(result::const_iterator);
 
 
 // @deprecated Set up test data for legacy tests.
@@ -344,7 +344,7 @@ template<> struct string_traits<row>
   static bool is_null(row) { return false; }
   static result null(); // Not needed
   static void from_string(const char Str[], result &Obj); // Not needed
-  static PGSTD::string to_string(row Obj)
+  static std::string to_string(row Obj)
 	{ return pqxx::test::list_row(Obj); }
 };
 
@@ -356,7 +356,7 @@ template<> struct string_traits<result>
   static bool is_null(result r) { return r.empty(); }
   static result null() { return result(); }
   static void from_string(const char Str[], result &Obj); // Not needed
-  static PGSTD::string to_string(result Obj)
+  static std::string to_string(result Obj)
 	{ return pqxx::test::list_result(Obj); }
 };
 
@@ -369,21 +369,21 @@ template<> struct string_traits<result::const_iterator>
   static bool is_null(subject_type) { return false; }
   static result null(); // Not needed
   static void from_string(const char Str[], subject_type &Obj); // Not needed
-  static PGSTD::string to_string(subject_type Obj)
+  static std::string to_string(subject_type Obj)
 	{ return pqxx::test::list_result_iterator(Obj); }
 };
 
 
 // Support string conversion on vector<string> for debug output.
-template<> struct string_traits<PGSTD::vector<PGSTD::string> >
+template<> struct string_traits<std::vector<std::string> >
 {
-  typedef PGSTD::vector<PGSTD::string> subject_type;
+  typedef std::vector<std::string> subject_type;
   static const char *name() { return "vector<string>"; }
   static bool has_null() { return false; }
   static bool is_null(subject_type) { return false; }
   static subject_type null(); // Not needed
   static void from_string(const char Str[], subject_type &Obj); // Not needed
-  static PGSTD::string to_string(const subject_type &Obj)
+  static std::string to_string(const subject_type &Obj)
 				 { return separated_list("; ", Obj); }
 };
 } // namespace pqxx

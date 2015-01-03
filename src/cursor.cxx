@@ -7,7 +7,7 @@
  *      implementation of libpqxx STL-style cursor classes.
  *   These classes wrap SQL cursors in STL-like interfaces
  *
- * Copyright (c) 2004-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -30,7 +30,7 @@
 #include "pqxx/internal/gates/icursorstream-icursor_iterator.hxx"
 #include "pqxx/internal/gates/result-sql_cursor.hxx"
 
-using namespace PGSTD;
+using namespace std;
 using namespace pqxx;
 using namespace pqxx::internal;
 
@@ -302,7 +302,7 @@ string pqxx::internal::sql_cursor::stridestring(difference_type n)
 
 
 pqxx::cursor_base::cursor_base(connection_base &context,
-	const PGSTD::string &Name,
+	const std::string &Name,
 	bool embellish_name) :
   m_name(embellish_name ? context.adorn_name(Name) : Name)
 {
@@ -338,8 +338,8 @@ result pqxx::internal::stateless_cursor_retrieve(
 
 pqxx::icursorstream::icursorstream(
     transaction_base &context,
-    const PGSTD::string &query,
-    const PGSTD::string &basename,
+    const std::string &query,
+    const std::string &basename,
     difference_type sstride) :
   m_cur(context,
 	query,
@@ -390,7 +390,7 @@ result pqxx::icursorstream::fetchblock()
 }
 
 
-icursorstream &pqxx::icursorstream::ignore(PGSTD::streamsize n)
+icursorstream &pqxx::icursorstream::ignore(std::streamsize n)
 {
   difference_type offset = m_cur.move(difference_type(n));
   m_realpos += offset;

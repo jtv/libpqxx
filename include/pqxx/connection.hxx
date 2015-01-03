@@ -8,7 +8,7 @@
  *   Different ways of setting up a backend connection.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection instead.
  *
- * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -84,7 +84,7 @@ namespace pqxx
 class PQXX_LIBEXPORT connect_direct : public connectionpolicy
 {
 public:
-  explicit connect_direct(const PGSTD::string &opts) : connectionpolicy(opts) {}
+  explicit connect_direct(const std::string &opts) : connectionpolicy(opts) {}
   virtual handle do_startconnect(handle);
 };
 
@@ -100,7 +100,7 @@ typedef basic_connection<connect_direct> connection;
 class PQXX_LIBEXPORT connect_lazy : public connectionpolicy
 {
 public:
-  explicit connect_lazy(const PGSTD::string &opts) : connectionpolicy(opts) {}
+  explicit connect_lazy(const std::string &opts) : connectionpolicy(opts) {}
   virtual handle do_completeconnect(handle);
 };
 
@@ -119,7 +119,7 @@ typedef basic_connection<connect_lazy> lazyconnection;
 class PQXX_LIBEXPORT connect_async : public connectionpolicy
 {
 public:
-  explicit connect_async(const PGSTD::string &opts);
+  explicit connect_async(const std::string &opts);
   virtual handle do_startconnect(handle);
   virtual handle do_completeconnect(handle);
   virtual handle do_dropconnect(handle) PQXX_NOEXCEPT;
@@ -143,7 +143,7 @@ typedef basic_connection<connect_async> asyncconnection;
 class PQXX_LIBEXPORT connect_null  : public connectionpolicy
 {
 public:
-  explicit connect_null(const PGSTD::string &opts) : connectionpolicy(opts) {}
+  explicit connect_null(const std::string &opts) : connectionpolicy(opts) {}
 };
 
 

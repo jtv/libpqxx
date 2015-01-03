@@ -26,7 +26,7 @@
 #include "pqxx/result"
 
 
-using namespace PGSTD;
+using namespace std;
 
 
 pqxx::row::row(const result *r, size_t i) PQXX_NOEXCEPT :

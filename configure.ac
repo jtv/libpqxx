@@ -205,43 +205,6 @@ AC_MSG_RESULT($gcc_pure)
 
 fi
 
-# Determine name of standard namespace.  PGSTD will be set to this name.  The
-# --with-std= option takes precedence if given; otherwise, several alternatives
-# are tried.
-# As a special case, if the argument to the --with-std option is "yes" (as would
-# be the case if the user specified the option but no argument for it), the
-# guessing logic is enabled as if the option had not been used.
-AH_TEMPLATE(PGSTD,[name of standard library namespace (normally "std")])
-AC_MSG_CHECKING([name of standard library namespace (normally "std")])
-guessstd=no
-AC_ARG_WITH(std,
-	AC_HELP_STRING(
-		[--with-std],
-		[name of standard library namespace (normally "std")]),
-	[std=${withval};],
-	[guessstd=yes])
-
-if test "${guessstd}" = "yes" -o "${withval}" = "yes"; then
-	# No explicit std namespace given.  Check for alternative "standard"
-	# namespaces, in order of preference.
-	for ns in std _STL stlp_std "" ; do
-		AC_COMPILE_IFELSE([#include <string>
-			${ns}::string justastring;],
-			[std="${ns}"; break])
-	done
-fi
-AC_DEFINE_UNQUOTED(
-	PGSTD,
-	[$std],
-	[name of standard library namespace (normally "std")])
-if ! test -z "${std}" ; then
-	AC_MSG_RESULT([::${std}])
-	usestd="namespace ${std} {} using namespace ${std};"
-else
-	AC_MSG_RESULT([::])
-fi
-
-
 AC_MSG_CHECKING([for noexcept support])
 noexcept_keyword=yes
 AC_TRY_COMPILE(
@@ -292,14 +255,14 @@ AC_ARG_WITH(
 	[guesstr1=yes])
 
 if test "${guesstr1}" = "yes" ; then
-	# No explicit TR1 namespace given.  Try PGSTD::tr1.  If that doesn't
-	# work, assume PGSTD as our best bet.
-	tr1="${std}::tr1"
+	# No explicit TR1 namespace given.  Try std::tr1.  If that doesn't
+	# work, assume std as our best bet.
+	tr1="std::tr1"
 	AC_TRY_COMPILE(
 		[#include <${tr1dir}memory>],
 		[using namespace ${tr1}],
 		[],
-		[tr1=${std}])
+		[tr1=std])
 fi
 AC_DEFINE_UNQUOTED(
 	PQXXTR1,
@@ -321,6 +284,8 @@ localehdr=yes
 AC_CHECK_HEADER(locale,AC_DEFINE(PQXX_HAVE_LOCALE,1,
 [Define if you have the <locale> header]),
 localehdr=no)
+
+usestd="namespace std {} using namespace std;"
 
 imbue=yes
 AC_MSG_CHECKING([locale function and stringstream::imbue])

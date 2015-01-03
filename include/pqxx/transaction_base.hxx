@@ -9,7 +9,7 @@
  *   represents a database transaction
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction_base instead.
  *
- * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -62,7 +62,7 @@ public:
 protected:
   void register_me();
   void unregister_me() PQXX_NOEXCEPT;
-  void reg_pending_error(const PGSTD::string &) PQXX_NOEXCEPT;
+  void reg_pending_error(const std::string &) PQXX_NOEXCEPT;
   bool registered() const PQXX_NOEXCEPT { return m_registered; }
 
   transaction_base &m_Trans;
@@ -82,7 +82,7 @@ private:
 class PQXX_LIBEXPORT parameterized_invocation : statement_parameters
 {
 public:
-  parameterized_invocation(connection_base &, const PGSTD::string &query);
+  parameterized_invocation(connection_base &, const std::string &query);
 
   parameterized_invocation &operator()() { add_param(); return *this; }
   parameterized_invocation &operator()(const binarystring &v)
@@ -102,7 +102,7 @@ private:
   parameterized_invocation &operator=(const parameterized_invocation &);
 
   connection_base &m_home;
-  const PGSTD::string m_query;
+  const std::string m_query;
 };
 } // namespace internal
 
@@ -165,12 +165,12 @@ public:
    */
   //@{
   /// Escape string for use as SQL string literal in this transaction
-  PGSTD::string esc(const char str[]) const          { return conn().esc(str); }
+  std::string esc(const char str[]) const            { return conn().esc(str); }
   /// Escape string for use as SQL string literal in this transaction
-  PGSTD::string esc(const char str[], size_t maxlen) const
+  std::string esc(const char str[], size_t maxlen) const
                                              { return conn().esc(str, maxlen); }
   /// Escape string for use as SQL string literal in this transaction
-  PGSTD::string esc(const PGSTD::string &str) const  { return conn().esc(str); }
+  std::string esc(const std::string &str) const      { return conn().esc(str); }
 
   /// Escape binary data for use as SQL string literal in this transaction
   /** Raw, binary data is treated differently from regular strings.  Binary
@@ -184,24 +184,24 @@ public:
    * that can disrupt their use in SQL queries, they will be replaced with
    * special escape sequences.
    */
-  PGSTD::string esc_raw(const unsigned char str[], size_t len) const	//[t62]
+  std::string esc_raw(const unsigned char str[], size_t len) const	//[t62]
                                             { return conn().esc_raw(str, len); }
   /// Escape binary data for use as SQL string literal in this transaction
-  PGSTD::string esc_raw(const PGSTD::string &) const;			//[t62]
+  std::string esc_raw(const std::string &) const;			//[t62]
 
   /// Represent object as SQL string, including quoting & escaping.
   /** Nulls are recognized and represented as SQL nulls. */
-  template<typename T> PGSTD::string quote(const T &t) const
+  template<typename T> std::string quote(const T &t) const
                                                      { return conn().quote(t); }
 
   /// Binary-escape and quote a binarystring for use as an SQL constant.
-  PGSTD::string quote_raw(const unsigned char str[], size_t len) const
+  std::string quote_raw(const unsigned char str[], size_t len) const
 					  { return conn().quote_raw(str, len); }
 
-  PGSTD::string quote_raw(const PGSTD::string &str) const;
+  std::string quote_raw(const std::string &str) const;
 
   /// Escape an SQL identifier for use in a query.
-  PGSTD::string quote_name(const PGSTD::string &identifier) const
+  std::string quote_name(const std::string &identifier) const
 				       { return conn().quote_name(identifier); }
   //@}
 
@@ -221,11 +221,11 @@ public:
    * @param Desc Optional identifier for query, to help pinpoint SQL errors
    * @return A result set describing the query's or command's result
    */
-  result exec(const PGSTD::string &Query,
-	      const PGSTD::string &Desc=PGSTD::string());		//[t1]
+  result exec(const std::string &Query,
+	      const std::string &Desc=std::string());			//[t1]
 
-  result exec(const PGSTD::stringstream &Query,
-	      const PGSTD::string &Desc=PGSTD::string())
+  result exec(const std::stringstream &Query,
+	      const std::string &Desc=std::string())
 	{ return exec(Query.str(), Desc); }
 
   /// Parameterize a statement.
@@ -234,7 +234,7 @@ public:
    *
    * Example: @c trans.parameterized("SELECT $1 + 1")(1).exec();
    */
-  internal::parameterized_invocation parameterized(const PGSTD::string &query);
+  internal::parameterized_invocation parameterized(const std::string &query);
 
   /**
    * @name Prepared statements
@@ -285,7 +285,7 @@ public:
    * If you leave out the statement name, the call refers to the nameless
    * statement instead.
    */
-  prepare::invocation prepared(const PGSTD::string &statement=PGSTD::string());
+  prepare::invocation prepared(const std::string &statement=std::string());
 
   //@}
 
@@ -297,7 +297,7 @@ public:
   void process_notice(const char Msg[]) const				//[t14]
 	{ m_Conn.process_notice(Msg); }
   /// Have connection process warning message
-  void process_notice(const PGSTD::string &Msg) const			//[t14]
+  void process_notice(const std::string &Msg) const			//[t14]
 	{ m_Conn.process_notice(Msg); }
   //@}
 
@@ -313,7 +313,7 @@ public:
    * @param Var The variable to set
    * @param Val The new value to store in the variable
    */
-  void set_variable(const PGSTD::string &Var, const PGSTD::string &Val);//[t61]
+  void set_variable(const std::string &Var, const std::string &Val);	//[t61]
 
   /// Get currently applicable value of variable
   /** First consults an internal cache of variables that have been set (whether
@@ -325,7 +325,7 @@ public:
    *
    * @warning This function used to be declared as @c const but isn't anymore.
    */
-  PGSTD::string get_variable(const PGSTD::string &);			//[t61]
+  std::string get_variable(const std::string &);			//[t61]
 
 
 protected:
@@ -420,17 +420,17 @@ private:
   friend class pqxx::internal::gate::transaction_transactionfocus;
   void PQXX_PRIVATE RegisterFocus(internal::transactionfocus *);
   void PQXX_PRIVATE UnregisterFocus(internal::transactionfocus *) PQXX_NOEXCEPT;
-  void PQXX_PRIVATE RegisterPendingError(const PGSTD::string &) PQXX_NOEXCEPT;
+  void PQXX_PRIVATE RegisterPendingError(const std::string &) PQXX_NOEXCEPT;
 
   friend class pqxx::internal::gate::transaction_tablereader;
-  void PQXX_PRIVATE BeginCopyRead(const PGSTD::string &, const PGSTD::string &);
-  bool ReadCopyLine(PGSTD::string &);
+  void PQXX_PRIVATE BeginCopyRead(const std::string &, const std::string &);
+  bool ReadCopyLine(std::string &);
 
   friend class pqxx::internal::gate::transaction_tablewriter;
   void PQXX_PRIVATE BeginCopyWrite(
-	const PGSTD::string &Table,
-	const PGSTD::string &Columns);
-  void WriteCopyLine(const PGSTD::string &);
+	const std::string &Table,
+	const std::string &Columns);
+  void WriteCopyLine(const std::string &);
   void EndCopyWrite();
 
   friend class pqxx::internal::gate::transaction_subtransaction;
@@ -440,8 +440,8 @@ private:
   internal::unique<internal::transactionfocus> m_Focus;
   Status m_Status;
   bool m_Registered;
-  PGSTD::map<PGSTD::string, PGSTD::string> m_Vars;
-  PGSTD::string m_PendingError;
+  std::map<std::string, std::string> m_Vars;
+  std::string m_PendingError;
 
   /// Not allowed
   transaction_base();

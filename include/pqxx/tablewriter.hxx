@@ -8,7 +8,7 @@
  *   pqxx::tablewriter enables optimized batch updates to a database table
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablewriter.hxx instead.
  *
- * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -33,17 +33,17 @@ class PQXX_LIBEXPORT tablewriter : public tablestream
 public:
   typedef unsigned size_type;
   tablewriter(transaction_base &,
-      const PGSTD::string &WName,
-      const PGSTD::string &Null=PGSTD::string());
+      const std::string &WName,
+      const std::string &Null=std::string());
   template<typename ITER> tablewriter(transaction_base &,
-      const PGSTD::string &WName,
+      const std::string &WName,
       ITER begincolumns,
       ITER endcolumns);
   template<typename ITER> tablewriter(transaction_base &T,
-      const PGSTD::string &WName,
+      const std::string &WName,
       ITER begincolumns,
       ITER endcolumns,
-      const PGSTD::string &Null);
+      const std::string &Null);
   ~tablewriter() PQXX_NOEXCEPT;
   template<typename IT> void insert(IT Begin, IT End);
   template<typename TUPLE> void insert(const TUPLE &);
@@ -52,18 +52,18 @@ public:
   void reserve(size_type) {}
   template<typename TUPLE> tablewriter &operator<<(const TUPLE &);
   tablewriter &operator<<(tablereader &);
-  template<typename IT> PGSTD::string generate(IT Begin, IT End) const;
-  template<typename TUPLE> PGSTD::string generate(const TUPLE &) const;
+  template<typename IT> std::string generate(IT Begin, IT End) const;
+  template<typename TUPLE> std::string generate(const TUPLE &) const;
   virtual void complete();
-  void write_raw_line(const PGSTD::string &);
+  void write_raw_line(const std::string &);
 private:
   void setup(transaction_base &,
-      const PGSTD::string &WName,
-      const PGSTD::string &Columns = PGSTD::string());
+      const std::string &WName,
+      const std::string &Columns = std::string());
   void PQXX_PRIVATE writer_close();
 };
 } // namespace pqxx
-namespace PGSTD
+namespace std
 {
 template<>
   class back_insert_iterator<pqxx::tablewriter> :
@@ -90,23 +90,23 @@ public:
 private:
   pqxx::tablewriter *m_Writer;
 };
-} // namespace PGSTD
+} // namespace std
 namespace pqxx
 {
 template<typename ITER> inline tablewriter::tablewriter(transaction_base &T,
-    const PGSTD::string &WName,
+    const std::string &WName,
     ITER begincolumns,
     ITER endcolumns) :
   namedclass("tablewriter", WName),
-  tablestream(T, PGSTD::string())
+  tablestream(T, std::string())
 {
   setup(T, WName, columnlist(begincolumns, endcolumns));
 }
 template<typename ITER> inline tablewriter::tablewriter(transaction_base &T,
-    const PGSTD::string &WName,
+    const std::string &WName,
     ITER begincolumns,
     ITER endcolumns,
-    const PGSTD::string &Null) :
+    const std::string &Null) :
   namedclass("tablewriter", WName),
   tablestream(T, Null)
 {
@@ -114,36 +114,36 @@ template<typename ITER> inline tablewriter::tablewriter(transaction_base &T,
 }
 namespace internal
 {
-PGSTD::string PQXX_LIBEXPORT Escape(
-	const PGSTD::string &s,
-	const PGSTD::string &null);
-inline PGSTD::string EscapeAny(
-	const PGSTD::string &s,
-	const PGSTD::string &null)
+std::string PQXX_LIBEXPORT Escape(
+	const std::string &s,
+	const std::string &null);
+inline std::string EscapeAny(
+	const std::string &s,
+	const std::string &null)
 { return Escape(s, null); }
-inline PGSTD::string EscapeAny(
+inline std::string EscapeAny(
 	const char s[],
-	const PGSTD::string &null)
-{ return s ? Escape(PGSTD::string(s), null) : "\\N"; }
-template<typename T> inline PGSTD::string EscapeAny(
+	const std::string &null)
+{ return s ? Escape(std::string(s), null) : "\\N"; }
+template<typename T> inline std::string EscapeAny(
 	const T &t,
-	const PGSTD::string &null)
+	const std::string &null)
 { return Escape(to_string(t), null); }
 template<typename IT> class Escaper
 {
-  const PGSTD::string &m_null;
+  const std::string &m_null;
 public:
-  explicit Escaper(const PGSTD::string &null) : m_null(null) {}
-  PGSTD::string operator()(IT i) const { return EscapeAny(*i, m_null); }
+  explicit Escaper(const std::string &null) : m_null(null) {}
+  std::string operator()(IT i) const { return EscapeAny(*i, m_null); }
 };
 }
 template<typename IT>
-inline PGSTD::string tablewriter::generate(IT Begin, IT End) const
+inline std::string tablewriter::generate(IT Begin, IT End) const
 {
   return separated_list("\t", Begin, End, internal::Escaper<IT>(NullStr()));
 }
 template<typename TUPLE>
-inline PGSTD::string tablewriter::generate(const TUPLE &T) const
+inline std::string tablewriter::generate(const TUPLE &T) const
 {
   return generate(T.begin(), T.end());
 }

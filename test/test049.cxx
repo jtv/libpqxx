@@ -9,7 +9,7 @@
 // For count_if workaround
 #include <pqxx/config-internal-compiler.h>
 
-using namespace PGSTD;
+using namespace std;
 using namespace pqxx;
 
 

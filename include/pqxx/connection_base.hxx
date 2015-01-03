@@ -8,7 +8,7 @@
  *   pqxx::connection_base encapsulates a frontend to backend connection
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
  *
- * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -91,9 +91,9 @@ private:
  *
  * @since libpq 8.2
  */
-PGSTD::string PQXX_LIBEXPORT encrypt_password(				//[t0]
-	const PGSTD::string &user,
-	const PGSTD::string &password);
+std::string PQXX_LIBEXPORT encrypt_password(				//[t0]
+	const std::string &user,
+	const std::string &password);
 
 
 namespace internal
@@ -255,10 +255,10 @@ public:
   /// Invoke notice processor function.  The message should end in newline.
   void process_notice(const char[]) PQXX_NOEXCEPT;			//[t14]
   /// Invoke notice processor function.  Newline at end is recommended.
-  void process_notice(const PGSTD::string &) PQXX_NOEXCEPT;		//[t14]
+  void process_notice(const std::string &) PQXX_NOEXCEPT;		//[t14]
 
   /// Enable tracing to a given output stream, or NULL to disable.
-  void trace(PGSTD::FILE *) PQXX_NOEXCEPT;				//[t3]
+  void trace(std::FILE *) PQXX_NOEXCEPT;				//[t3]
 
   /**
    * @name Connection properties
@@ -434,7 +434,7 @@ public:
    * with all client-side encodings or vice versa.
    * @param Encoding Name of the character set encoding to use
    */
-  void set_client_encoding(const PGSTD::string &Encoding)		//[t7]
+  void set_client_encoding(const std::string &Encoding)			//[t7]
 	{ set_variable("CLIENT_ENCODING", Encoding); }
 
   /// Set session variable
@@ -454,8 +454,8 @@ public:
    * @param Value Value vor Var to assume: an identifier, a quoted string, or a
    * number.
    */
-  void set_variable(const PGSTD::string &Var,
-		    const PGSTD::string &Value);			//[t60]
+  void set_variable(const std::string &Var,
+		    const std::string &Value);				//[t60]
 
   /// Read session variable
   /** Will try to read the value locally, from the list of variables set with
@@ -465,7 +465,7 @@ public:
    * set variables while a tablestream or pipeline is active on the same
    * connection.
    */
-  PGSTD::string get_variable(const PGSTD::string &);			//[t60]
+  std::string get_variable(const std::string &);			//[t60]
   //@}
 
 
@@ -579,7 +579,7 @@ public:
    * @param name unique name for the new prepared statement.
    * @param definition SQL statement to prepare.
    */
-  void prepare(const PGSTD::string &name, const PGSTD::string &definition);
+  void prepare(const std::string &name, const std::string &definition);
 
   /// Define a nameless prepared statement.
   /**
@@ -588,10 +588,10 @@ public:
    * feature, always keep the definition and the use close together to avoid
    * the nameless statement being redefined unexpectedly by code somewhere else.
    */
-  void prepare(const PGSTD::string &definition);
+  void prepare(const std::string &definition);
 
   /// Drop prepared statement
-  void unprepare(const PGSTD::string &name);
+  void unprepare(const std::string &name);
 
   /// Request that prepared statement be registered with the server
   /** If the statement had already been fully prepared, this will do nothing.
@@ -604,7 +604,7 @@ public:
    * it's probably better not to use this and let the connection decide when and
    * whether to register prepared statements that you've defined.
    */
-  void prepare_now(const PGSTD::string &name);
+  void prepare_now(const std::string &name);
 
   /**
    * @}
@@ -662,7 +662,7 @@ public:
   /** Used internally to generate identifiers for SQL objects (such as cursors
    * and nested transactions) based on a given human-readable base name.
    */
-  PGSTD::string adorn_name(const PGSTD::string &);			//[90]
+  std::string adorn_name(const std::string &);				//[90]
 
   /**
    * @addtogroup escaping String escaping
@@ -733,33 +733,33 @@ public:
    */
   //@{
   /// Escape string for use as SQL string literal on this connection
-  PGSTD::string esc(const char str[]);
+  std::string esc(const char str[]);
 
   /// Escape string for use as SQL string literal on this connection
-  PGSTD::string esc(const char str[], size_t maxlen);
+  std::string esc(const char str[], size_t maxlen);
 
   /// Escape string for use as SQL string literal on this connection
-  PGSTD::string esc(const PGSTD::string &str);
+  std::string esc(const std::string &str);
 
   /// Escape binary string for use as SQL string literal on this connection
-  PGSTD::string esc_raw(const unsigned char str[], size_t len);
+  std::string esc_raw(const unsigned char str[], size_t len);
 
   /// Escape and quote a string of binary data.
-  PGSTD::string quote_raw(const unsigned char str[], size_t len);
+  std::string quote_raw(const unsigned char str[], size_t len);
 
   /// Escape and quote an SQL identifier for use in a query.
-  PGSTD::string quote_name(const PGSTD::string &identifier);
+  std::string quote_name(const std::string &identifier);
 
   /// Represent object as SQL string, including quoting & escaping.
   /** Nulls are recognized and represented as SQL nulls. */
   template<typename T>
-  PGSTD::string quote(const T &t)
+  std::string quote(const T &t)
   {
     if (string_traits<T>::is_null(t)) return "NULL";
     return "'" + this->esc(to_string(t)) + "'";
   }
 
-  PGSTD::string quote(const binarystring &);
+  std::string quote(const binarystring &);
   //@}
 
   /// Attempt to cancel the ongoing query, if any.
@@ -800,7 +800,7 @@ public:
    * The pointers point to the real errorhandlers.  The container it returns
    * however is a copy of the one internal to the connection, not a reference.
    */
-  PGSTD::vector<errorhandler *> get_errorhandlers() const;
+  std::vector<errorhandler *> get_errorhandlers() const;
 
 protected:
   explicit connection_base(connectionpolicy &);
@@ -813,7 +813,7 @@ protected:
 
 private:
 
-  result make_result(internal::pq::PGresult *rhs, const PGSTD::string &query);
+  result make_result(internal::pq::PGresult *rhs, const std::string &query);
 
   void PQXX_PRIVATE clearcaps() PQXX_NOEXCEPT;
   void PQXX_PRIVATE SetupState();
@@ -824,22 +824,22 @@ private:
   const char * PQXX_PURE ErrMsg() const PQXX_NOEXCEPT;
   void PQXX_PRIVATE Reset();
   void PQXX_PRIVATE RestoreVars();
-  PGSTD::string PQXX_PRIVATE RawGetVar(const PGSTD::string &);
+  std::string PQXX_PRIVATE RawGetVar(const std::string &);
   void PQXX_PRIVATE process_notice_raw(const char msg[]) PQXX_NOEXCEPT;
 
   void read_capabilities() PQXX_NOEXCEPT;
 
-  prepare::internal::prepared_def &find_prepared(const PGSTD::string &);
+  prepare::internal::prepared_def &find_prepared(const std::string &);
 
-  prepare::internal::prepared_def &register_prepared(const PGSTD::string &);
+  prepare::internal::prepared_def &register_prepared(const std::string &);
 
   friend class internal::gate::connection_prepare_invocation;
-  result prepared_exec(const PGSTD::string &,
+  result prepared_exec(const std::string &,
 	const char *const[],
 	const int[],
 	const int[],
 	int);
-  bool prepared_exists(const PGSTD::string &) const;
+  bool prepared_exists(const std::string &) const;
 
   /// Connection handle.
   internal::pq::PGconn *m_Conn;
@@ -849,20 +849,20 @@ private:
   /// Active transaction on connection, if any.
   internal::unique<transaction_base> m_Trans;
 
-  PGSTD::list<errorhandler *> m_errorhandlers;
+  std::list<errorhandler *> m_errorhandlers;
 
   /// File to trace to, if any
-  PGSTD::FILE *m_Trace;
+  std::FILE *m_Trace;
 
-  typedef PGSTD::multimap<PGSTD::string, pqxx::notification_receiver *>
+  typedef std::multimap<std::string, pqxx::notification_receiver *>
 	receiver_list;
   /// Notification receivers.
   receiver_list m_receivers;
 
   /// Variables set in this session
-  PGSTD::map<PGSTD::string, PGSTD::string> m_Vars;
+  std::map<std::string, std::string> m_Vars;
 
-  typedef PGSTD::map<PGSTD::string, prepare::internal::prepared_def> PSMap;
+  typedef std::map<std::string, prepare::internal::prepared_def> PSMap;
 
   /// Prepared statements existing in this section
   PSMap m_prepared;
@@ -883,7 +883,7 @@ private:
   bool m_inhibit_reactivation;
 
   /// Set of session capabilities
-  PGSTD::bitset<cap_end> m_caps;
+  std::bitset<cap_end> m_caps;
 
   /// Current verbosity level
   error_verbosity m_verbosity;
@@ -896,12 +896,11 @@ private:
   result PQXX_PRIVATE Exec(const char[], int Retries);
   void PQXX_PRIVATE RegisterTransaction(transaction_base *);
   void PQXX_PRIVATE UnregisterTransaction(transaction_base *) PQXX_NOEXCEPT;
-  bool PQXX_PRIVATE ReadCopyLine(PGSTD::string &);
-  void PQXX_PRIVATE WriteCopyLine(const PGSTD::string &);
+  bool PQXX_PRIVATE ReadCopyLine(std::string &);
+  void PQXX_PRIVATE WriteCopyLine(const std::string &);
   void PQXX_PRIVATE EndCopyWrite();
-  void PQXX_PRIVATE RawSetVar(const PGSTD::string &, const PGSTD::string &);
-  void PQXX_PRIVATE AddVariables(const PGSTD::map<PGSTD::string,
-      PGSTD::string> &);
+  void PQXX_PRIVATE RawSetVar(const std::string &, const std::string &);
+  void PQXX_PRIVATE AddVariables(const std::map<std::string, std::string> &);
 
   friend class internal::gate::connection_largeobject;
   internal::pq::PGconn *RawConnection() const { return m_Conn; }
@@ -911,7 +910,7 @@ private:
   void remove_receiver(notification_receiver *) PQXX_NOEXCEPT;
 
   friend class internal::gate::connection_pipeline;
-  void PQXX_PRIVATE start_exec(const PGSTD::string &);
+  void PQXX_PRIVATE start_exec(const std::string &);
   bool PQXX_PRIVATE consume_input() PQXX_NOEXCEPT;
   bool PQXX_PRIVATE is_busy() const PQXX_NOEXCEPT;
   int PQXX_PRIVATE encoding_code();
@@ -926,7 +925,7 @@ private:
 
   friend class internal::gate::connection_parameterized_invocation;
   result parameterized_exec(
-	const PGSTD::string &query,
+	const std::string &query,
 	const char *const params[],
 	const int paramlengths[],
 	const int binaries[],
@@ -942,7 +941,7 @@ private:
 #ifdef PQXX_HAVE_AUTO_PTR
 /// @deprecated Create an @c errorhandler instead.
 struct PQXX_LIBEXPORT PQXX_NOVTABLE noticer :
-  PGSTD::unary_function<const char[], void>
+  std::unary_function<const char[], void>
 {
   virtual ~noticer() PQXX_NOEXCEPT {}
   virtual void operator()(const char[]) PQXX_NOEXCEPT =0;
@@ -956,7 +955,7 @@ struct PQXX_LIBEXPORT nonnoticer : noticer
 class PQXX_LIBEXPORT scoped_noticer : errorhandler
 {
 public:
-  scoped_noticer(connection_base &c, PGSTD::auto_ptr<noticer> t) PQXX_NOEXCEPT :
+  scoped_noticer(connection_base &c, std::auto_ptr<noticer> t) PQXX_NOEXCEPT :
     errorhandler(c), m_noticer(t.release()) {}
 protected:
   scoped_noticer(connection_base &c, noticer *t) PQXX_NOEXCEPT :
@@ -967,7 +966,7 @@ protected:
     return false;
   }
 private:
-  PGSTD::auto_ptr<noticer> m_noticer;
+  std::auto_ptr<noticer> m_noticer;
 };
 /// @deprecated Create a @c quiet_errorhandler instead.
 class PQXX_LIBEXPORT disable_noticer : scoped_noticer
