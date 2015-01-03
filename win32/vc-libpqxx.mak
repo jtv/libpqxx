@@ -115,6 +115,7 @@ OBJ_STATICDEBUG=\
        "$(INTDIR_STATICDEBUG)\prepared_statement.obj" \
        "$(INTDIR_STATICDEBUG)\result.obj" \
        "$(INTDIR_STATICDEBUG)\robusttransaction.obj" \
+       "$(INTDIR_STATICDEBUG)\row.obj" \
        "$(INTDIR_STATICDEBUG)\statement_parameters.obj" \
        "$(INTDIR_STATICDEBUG)\strconv.obj" \
        "$(INTDIR_STATICDEBUG)\subtransaction.obj" \
@@ -123,7 +124,6 @@ OBJ_STATICDEBUG=\
        "$(INTDIR_STATICDEBUG)\tablewriter.obj" \
        "$(INTDIR_STATICDEBUG)\transaction.obj" \
        "$(INTDIR_STATICDEBUG)\transaction_base.obj" \
-       "$(INTDIR_STATICDEBUG)\tuple.obj" \
        "$(INTDIR_STATICDEBUG)\util.obj" \
 
 OBJ_STATICRELEASE=\
@@ -143,6 +143,7 @@ OBJ_STATICRELEASE=\
        "$(INTDIR_STATICRELEASE)\prepared_statement.obj" \
        "$(INTDIR_STATICRELEASE)\result.obj" \
        "$(INTDIR_STATICRELEASE)\robusttransaction.obj" \
+       "$(INTDIR_STATICRELEASE)\row.obj" \
        "$(INTDIR_STATICRELEASE)\statement_parameters.obj" \
        "$(INTDIR_STATICRELEASE)\strconv.obj" \
        "$(INTDIR_STATICRELEASE)\subtransaction.obj" \
@@ -151,7 +152,6 @@ OBJ_STATICRELEASE=\
        "$(INTDIR_STATICRELEASE)\tablewriter.obj" \
        "$(INTDIR_STATICRELEASE)\transaction.obj" \
        "$(INTDIR_STATICRELEASE)\transaction_base.obj" \
-       "$(INTDIR_STATICRELEASE)\tuple.obj" \
        "$(INTDIR_STATICRELEASE)\util.obj" \
 
 OBJ_DLLDEBUG=\
@@ -171,6 +171,7 @@ OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\prepared_statement.obj" \
        "$(INTDIR_DLLDEBUG)\result.obj" \
        "$(INTDIR_DLLDEBUG)\robusttransaction.obj" \
+       "$(INTDIR_DLLDEBUG)\row.obj" \
        "$(INTDIR_DLLDEBUG)\statement_parameters.obj" \
        "$(INTDIR_DLLDEBUG)\strconv.obj" \
        "$(INTDIR_DLLDEBUG)\subtransaction.obj" \
@@ -179,7 +180,6 @@ OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\tablewriter.obj" \
        "$(INTDIR_DLLDEBUG)\transaction.obj" \
        "$(INTDIR_DLLDEBUG)\transaction_base.obj" \
-       "$(INTDIR_DLLDEBUG)\tuple.obj" \
        "$(INTDIR_DLLDEBUG)\util.obj" \
        "$(INTDIR_DLLDEBUG)\libpqxx.obj" \
 
@@ -200,6 +200,7 @@ OBJ_DLLRELEASE=\
        "$(INTDIR_DLLRELEASE)\prepared_statement.obj" \
        "$(INTDIR_DLLRELEASE)\result.obj" \
        "$(INTDIR_DLLRELEASE)\robusttransaction.obj" \
+       "$(INTDIR_DLLRELEASE)\row.obj" \
        "$(INTDIR_DLLRELEASE)\statement_parameters.obj" \
        "$(INTDIR_DLLRELEASE)\strconv.obj" \
        "$(INTDIR_DLLRELEASE)\subtransaction.obj" \
@@ -208,7 +209,6 @@ OBJ_DLLRELEASE=\
        "$(INTDIR_DLLRELEASE)\tablewriter.obj" \
        "$(INTDIR_DLLRELEASE)\transaction.obj" \
        "$(INTDIR_DLLRELEASE)\transaction_base.obj" \
-       "$(INTDIR_DLLRELEASE)\tuple.obj" \
        "$(INTDIR_DLLRELEASE)\util.obj" \
        "$(INTDIR_DLLRELEASE)\libpqxx.obj" \
 
@@ -424,6 +424,13 @@ $(INTDIR_DLLRELEASE):
 	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/robusttransaction.cxx
 
 
+"$(INTDIR_STATICRELEASE)\row.obj": src/row.cxx $(INTDIR_STATICRELEASE)
+	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/row.cxx
+
+"$(INTDIR_STATICDEBUG)\row.obj": src/row.cxx $(INTDIR_STATICDEBUG)
+	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/row.cxx
+
+
 "$(INTDIR_STATICRELEASE)\statement_parameters.obj": src/statement_parameters.cxx $(INTDIR_STATICRELEASE)
 	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/statement_parameters.cxx
 
@@ -478,13 +485,6 @@ $(INTDIR_DLLRELEASE):
 
 "$(INTDIR_STATICDEBUG)\transaction_base.obj": src/transaction_base.cxx $(INTDIR_STATICDEBUG)
 	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/transaction_base.cxx
-
-
-"$(INTDIR_STATICRELEASE)\tuple.obj": src/tuple.cxx $(INTDIR_STATICRELEASE)
-	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/tuple.cxx
-
-"$(INTDIR_STATICDEBUG)\tuple.obj": src/tuple.cxx $(INTDIR_STATICDEBUG)
-	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/tuple.cxx
 
 
 "$(INTDIR_STATICRELEASE)\util.obj": src/util.cxx $(INTDIR_STATICRELEASE)
@@ -608,6 +608,13 @@ $(INTDIR_DLLRELEASE):
 	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/robusttransaction.cxx
 
 
+"$(INTDIR_DLLRELEASE)\row.obj": src/row.cxx $(INTDIR_DLLRELEASE)
+	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/row.cxx
+
+"$(INTDIR_DLLDEBUG)\row.obj": src/row.cxx $(INTDIR_DLLDEBUG)
+	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/row.cxx
+
+
 "$(INTDIR_DLLRELEASE)\statement_parameters.obj": src/statement_parameters.cxx $(INTDIR_DLLRELEASE)
 	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/statement_parameters.cxx
 
@@ -662,13 +669,6 @@ $(INTDIR_DLLRELEASE):
 
 "$(INTDIR_DLLDEBUG)\transaction_base.obj": src/transaction_base.cxx $(INTDIR_DLLDEBUG)
 	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/transaction_base.cxx
-
-
-"$(INTDIR_DLLRELEASE)\tuple.obj": src/tuple.cxx $(INTDIR_DLLRELEASE)
-	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/tuple.cxx
-
-"$(INTDIR_DLLDEBUG)\tuple.obj": src/tuple.cxx $(INTDIR_DLLDEBUG)
-	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/tuple.cxx
 
 
 "$(INTDIR_DLLRELEASE)\util.obj": src/util.cxx $(INTDIR_DLLRELEASE)

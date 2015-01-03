@@ -35,6 +35,7 @@ OBJ = \
   src/prepared_statement.o \
   src/result.o \
   src/robusttransaction.o \
+  src/row.o \
   src/statement_parameters.o \
   src/strconv.o \
   src/subtransaction.o \
@@ -43,7 +44,6 @@ OBJ = \
   src/tablewriter.o \
   src/transaction.o \
   src/transaction_base.o \
-  src/tuple.o \
   src/util.o \
 
 
@@ -117,6 +117,9 @@ src/result.o: src/result.cxx
 src/robusttransaction.o: src/robusttransaction.cxx
 	$(CXX) $(CPPFLAGS) -c src/robusttransaction.cxx -o src/robusttransaction.o $(CXXFLAGS)
 
+src/row.o: src/row.cxx
+	$(CXX) $(CPPFLAGS) -c src/row.cxx -o src/row.o $(CXXFLAGS)
+
 src/statement_parameters.o: src/statement_parameters.cxx
 	$(CXX) $(CPPFLAGS) -c src/statement_parameters.cxx -o src/statement_parameters.o $(CXXFLAGS)
 
@@ -140,9 +143,6 @@ src/transaction.o: src/transaction.cxx
 
 src/transaction_base.o: src/transaction_base.cxx
 	$(CXX) $(CPPFLAGS) -c src/transaction_base.cxx -o src/transaction_base.o $(CXXFLAGS)
-
-src/tuple.o: src/tuple.cxx
-	$(CXX) $(CPPFLAGS) -c src/tuple.cxx -o src/tuple.o $(CXXFLAGS)
 
 src/util.o: src/util.cxx
 	$(CXX) $(CPPFLAGS) -c src/util.cxx -o src/util.o $(CXXFLAGS)

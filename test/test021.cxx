@@ -43,11 +43,11 @@ void test_021(transaction_base &)
   result R( T.exec("SELECT * FROM pg_tables") );
 
   T.process_notice(to_string(R.size()) + " "
-		   "result tuples in transaction " +
+		   "result row in transaction " +
 		   T.name() +
 		   "\n");
 
-  // Process each successive result tuple
+  // Process each successive result row
   for (result::const_iterator c = R.begin(); c != R.end(); ++c)
   {
     string N;

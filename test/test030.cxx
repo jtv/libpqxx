@@ -23,7 +23,7 @@ void test_030(transaction_base &)
   PQXX_CHECK(!R.empty(), "Table " + Table + " is empty, cannot test.");
 
   // Print column names
-  for (pqxx::tuple::size_type c = 0; c < R.columns(); ++c)
+  for (pqxx::row::size_type c = 0; c < R.columns(); ++c)
   {
     string N= R.column_name(c);
     cout << c << ":\t" << N << endl;
@@ -31,7 +31,7 @@ void test_030(transaction_base &)
     PQXX_CHECK_EQUAL(
 	R[0].column_number(N),
 	R.column_number(N),
-	"tuple::column_number() is inconsistent with result::column_number().");
+	"row::column_number() is inconsistent with result::column_number().");
 
     PQXX_CHECK_EQUAL(
 	R[0].column_number(N.c_str()),
@@ -53,7 +53,7 @@ void test_030(transaction_base &)
   else
     PQXX_CHECK_EQUAL(R[1].rownumber(), 1u, "Row 1 reports wrong number.");
 
-  for (pqxx::tuple::size_type c = 0; c < R[0].size(); ++c)
+  for (pqxx::row::size_type c = 0; c < R[0].size(); ++c)
   {
     string N = R.column_name(c);
 

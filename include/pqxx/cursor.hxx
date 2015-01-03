@@ -8,7 +8,7 @@
  *   C++-style wrappers for SQL cursors
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/cursor instead.
  *
- * Copyright (c) 2004-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -502,7 +502,7 @@ private:
  *
  * The stream's stride defines the granularity for all iterator movement or
  * access operations, i.e. "ici += 1" advances the stream by one stride's worth
- * of tuples, and "*ici++" reads one stride's worth of tuples from the stream.
+ * of rows, and "*ici++" reads one stride's worth of rows from the stream.
  *
  * @warning Do not read from the underlying stream or its cursor, move its read
  * position, or change its stride, between the time the first icursor_iterator

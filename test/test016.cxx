@@ -23,7 +23,7 @@ void test_016(transaction_base &T)
     cout << '\t' << to_string(c.num()) << '\t' << N << endl;
   }
 
-  // See if back() and tuple comparison work properly
+  // See if back() and row comparison work properly
   PQXX_CHECK(R.size() >= 2, "Not enough rows in pg_tables to test, sorry!");
 
   --c;
@@ -31,16 +31,16 @@ void test_016(transaction_base &T)
   PQXX_CHECK_EQUAL(
 	c->size(),
 	R.back().size(),
-	"Size mismatch between tuple iterator and back().");
+	"Size mismatch between row iterator and back().");
 
   const string nullstr;
-  for (pqxx::tuple::size_type i = 0; i < c->size(); ++i)
+  for (pqxx::row::size_type i = 0; i < c->size(); ++i)
     PQXX_CHECK_EQUAL(
 	c[i].as(nullstr),
 	R.back()[i].as(nullstr),
 	"Value mismatch in back().");
-    PQXX_CHECK(c == R.back(), "Tuple equality is broken.");
-    PQXX_CHECK(!(c != R.back()), "Tuple inequality is broken.");
+    PQXX_CHECK(c == R.back(), "Row equality is broken.");
+    PQXX_CHECK(!(c != R.back()), "Row inequality is broken.");
 
   // "Commit" the non-transaction.  This doesn't really do anything since
   // NonTransaction doesn't start a backend transaction.

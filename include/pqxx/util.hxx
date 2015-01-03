@@ -7,7 +7,7 @@
  *      Various utility definitions for libpqxx
  *      DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/util instead.
  *
- * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -156,7 +156,7 @@
  *
  * You can find more about converting field values to native types, or
  * converting values to strings for use with libpqxx, under
- * \ref stringconversion.  More about getting to the tuples and fields of a
+ * \ref stringconversion.  More about getting to the rows and fields of a
  * result is under \ref accessingresults.
  *
  * If you want to handle exceptions thrown by libpqxx in more detail, for
@@ -173,14 +173,14 @@
  *
  * Now how do you access the data inside @c r?
  *
- * The simplest way is array indexing.  A result acts as an array of tuples,
- * and a tuple acts as an array of fields.
+ * The simplest way is array indexing.  A result acts as an array of rows,
+ * and a row acts as an array of fields.
  *
  * @code
  * const int num_rows = r.size();
  * for (int rownum=0; rownum < num_rows; ++rownum)
  * {
- *   const pqxx::tuple row = r[rownum];
+ *   const pqxx::row row = r[rownum];
  *   const int num_cols = row.size();
  *   for (int colnum=0; colnum < num_cols; ++colnum)
  *   {
@@ -199,7 +199,7 @@
  *      row != r.end();
  *      ++row)
  *  {
- *    for (pqxx::result::tuple::const_iterator field = row->begin();
+ *    for (pqxx::result::row::const_iterator field = row->begin();
  *         field != row->end();
  *         ++field)
  *      std::cout << field->c_str() << '\t';
@@ -220,7 +220,7 @@
  * This becomes really helpful with the array-indexing operator.  With regular
  * C++ iterators you would need ugly expressions like @c (*row)[0] or
  * @c row->operator[](0).  With the iterator types defined by the result and
- * tuple classes you can simply say @c row[0].
+ * row classes you can simply say @c row[0].
  */
 
 /** @page threading Thread safety

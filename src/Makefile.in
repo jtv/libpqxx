@@ -132,7 +132,7 @@ am_libpqxx_la_OBJECTS = binarystring.lo connection_base.lo \
 	prepared_statement.lo result.lo robusttransaction.lo \
 	statement_parameters.lo strconv.lo subtransaction.lo \
 	tablereader.lo tablestream.lo tablewriter.lo transaction.lo \
-	transaction_base.lo tuple.lo util.lo
+	transaction_base.lo row.lo util.lo
 libpqxx_la_OBJECTS = $(am_libpqxx_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -360,7 +360,7 @@ libpqxx_la_SOURCES = binarystring.cxx \
 	tablewriter.cxx \
 	transaction.cxx \
 	transaction_base.cxx \
-	tuple.cxx \
+	row.cxx \
 	util.cxx
 
 libpqxx_version = -release $(PQXX_ABI)
@@ -468,6 +468,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/prepared_statement.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/result.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/robusttransaction.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/row.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/statement_parameters.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strconv.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/subtransaction.Plo@am__quote@
@@ -476,7 +477,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tablewriter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transaction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transaction_base.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tuple.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Plo@am__quote@
 
 .cxx.o:

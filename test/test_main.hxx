@@ -164,7 +164,7 @@ void expected_exception(const string &message)
 }
 
 
-string list_tuple(tuple Obj)
+string list_row(row Obj)
 {
   return separated_list(", ", Obj.begin(), Obj.end(), deref_field);
 }

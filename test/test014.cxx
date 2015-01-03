@@ -31,7 +31,7 @@ void test_014(transaction_base &orgT)
 
   // Give some feedback to the test program's user prior to the real work
   T.process_notice(to_string(R.size()) + " "
-	"result tuples in transaction " +
+	"result rows in transaction " +
 	T.name() + "\n");
 
   for (result::const_iterator c = R.begin(); c != R.end(); ++c)
