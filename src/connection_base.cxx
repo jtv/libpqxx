@@ -637,43 +637,26 @@ namespace
 {
 class cancel_wrapper
 {
-#ifdef PQXX_HAVE_PQCANCEL
   PGcancel *m_cancel;
   char m_errbuf[500];
-#else
-  PGconn *m_conn;
-#endif
 
 public:
   cancel_wrapper(PGconn *conn) :
-#ifdef PQXX_HAVE_PQCANCEL
     m_cancel(NULL),
     m_errbuf()
-#else
-    m_conn(conn)
-#endif
   {
     if (conn)
     {
-#ifdef PQXX_HAVE_PQCANCEL
       m_cancel = PQgetCancel(conn);
       if (!m_cancel) throw bad_alloc();
-#endif
     }
   }
-#ifdef PQXX_HAVE_PQCANCEL
   ~cancel_wrapper() { if (m_cancel) PQfreeCancel(m_cancel); }
-#endif
 
   void operator()()
   {
-#ifdef PQXX_HAVE_PQCANCEL
     if (m_cancel && !PQcancel(m_cancel, m_errbuf, int(sizeof(m_errbuf))))
       throw sql_error(string(m_errbuf));
-#else
-    if (m_conn && !PQrequestCancel(m_conn))
-      throw sql_error(PQerrorMessage(m_conn));
-#endif
   }
 };
 }

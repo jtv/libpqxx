@@ -767,16 +767,6 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 )
 AC_MSG_RESULT($pqclientencoding)
 
-AC_MSG_CHECKING([PQcancel()])
-pqcancel=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[PQcancel(NULL, NULL, 0)],
-	AC_DEFINE(PQXX_HAVE_PQCANCEL, 1,
-		[Define if libpq has PQcancel() and friends]),
-	[pqcancel=no]
-)
-AC_MSG_RESULT($pqcancel)
-
 AC_CHECK_HEADER(limits,
 	[AC_DEFINE(PQXX_HAVE_LIMITS, 1, [Define if <limits> exists])])
 

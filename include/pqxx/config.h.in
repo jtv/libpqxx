@@ -133,9 +133,6 @@
 /* Define if the system has the poll() function (mainly GNU/Linux) */
 #undef PQXX_HAVE_POLL
 
-/* Define if libpq has PQcancel() and friends */
-#undef PQXX_HAVE_PQCANCEL
-
 /* Define if libpq has PQclientEncoding() */
 #undef PQXX_HAVE_PQCLIENTENCODING
 
