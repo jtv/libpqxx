@@ -5,9 +5,9 @@
  *
  *   DESCRIPTION
  *      implementation of the pqxx::result class and support classes.
- *   pqxx::result represents the set of result tuples from a database query
+ *   pqxx::result represents the set of result rows from a database query
  *
- * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -26,7 +26,7 @@
 #include "pqxx/except"
 #include "pqxx/field"
 #include "pqxx/result"
-#include "pqxx/tuple"
+#include "pqxx/row"
 
 
 using namespace PGSTD;
@@ -116,9 +116,9 @@ void pqxx::result::swap(result &rhs) PQXX_NOEXCEPT
 }
 
 
-const pqxx::tuple pqxx::result::at(pqxx::result::size_type i) const
+const pqxx::row pqxx::result::at(pqxx::result::size_type i) const
 {
-  if (i >= size()) throw range_error("Tuple number out of range");
+  if (i >= size()) throw range_error("Row number out of range");
   return operator[](i);
 }
 
@@ -265,7 +265,7 @@ pqxx::result::size_type pqxx::result::affected_rows() const
 
 const char *pqxx::result::GetValue(
 	pqxx::result::size_type Row,
-	pqxx::tuple::size_type Col) const
+	pqxx::row::size_type Col) const
 {
   return PQgetvalue(m_data, int(Row), int(Col));
 }
@@ -273,20 +273,20 @@ const char *pqxx::result::GetValue(
 
 bool pqxx::result::GetIsNull(
 	pqxx::result::size_type Row,
-	pqxx::tuple::size_type Col) const
+	pqxx::row::size_type Col) const
 {
   return PQgetisnull(m_data, int(Row), int(Col)) != 0;
 }
 
 pqxx::field::size_type pqxx::result::GetLength(
 	pqxx::result::size_type Row,
-        pqxx::tuple::size_type Col) const PQXX_NOEXCEPT
+        pqxx::row::size_type Col) const PQXX_NOEXCEPT
 {
   return field::size_type(PQgetlength(m_data, int(Row), int(Col)));
 }
 
 
-pqxx::oid pqxx::result::column_type(tuple::size_type ColNum) const
+pqxx::oid pqxx::result::column_type(row::size_type ColNum) const
 {
   const oid T = PQftype(m_data, int(ColNum));
   if (T == oid_none)
@@ -297,7 +297,7 @@ pqxx::oid pqxx::result::column_type(tuple::size_type ColNum) const
 }
 
 
-pqxx::oid pqxx::result::column_table(tuple::size_type ColNum) const
+pqxx::oid pqxx::result::column_table(row::size_type ColNum) const
 {
   const oid T = PQftable(m_data, int(ColNum));
 
@@ -312,9 +312,9 @@ pqxx::oid pqxx::result::column_table(tuple::size_type ColNum) const
 }
 
 
-pqxx::tuple::size_type pqxx::result::table_column(tuple::size_type ColNum) const
+pqxx::row::size_type pqxx::result::table_column(row::size_type ColNum) const
 {
-  const tuple::size_type n = tuple::size_type(PQftablecol(m_data, int(ColNum)));
+  const row::size_type n = row::size_type(PQftablecol(m_data, int(ColNum)));
   if (n) return n-1;
 
   // Failed.  Now find out why, so we can throw a sensible exception.
@@ -347,7 +347,7 @@ int pqxx::result::errorposition() const PQXX_NOEXCEPT
 }
 
 
-const char *pqxx::result::column_name(pqxx::tuple::size_type Number) const
+const char *pqxx::result::column_name(pqxx::row::size_type Number) const
 {
   const char *const N = PQfname(m_data, int(Number));
   if (!N)
@@ -357,9 +357,9 @@ const char *pqxx::result::column_name(pqxx::tuple::size_type Number) const
 }
 
 
-pqxx::tuple::size_type pqxx::result::columns() const PQXX_NOEXCEPT
+pqxx::row::size_type pqxx::result::columns() const PQXX_NOEXCEPT
 {
-  return m_data ? tuple::size_type(PQnfields(m_data)) : 0;
+  return m_data ? row::size_type(PQnfields(m_data)) : 0;
 }
 
 

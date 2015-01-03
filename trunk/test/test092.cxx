@@ -42,16 +42,16 @@ void test_092(transaction_base &T)
   // People seem to like the multi-line invocation style, where you get your
   // invocation object first, then add parameters in separate C++ statements.
   // As John Mudd found, that used to break the code.  Let's test it.
-  T.exec("CREATE TEMP TABLE tuple (one INTEGER, two VARCHAR)");
-  T.conn().prepare("maketuple", "INSERT INTO tuple VALUES ($1, $2)");
+  T.exec("CREATE TEMP TABLE row (one INTEGER, two VARCHAR)");
+  T.conn().prepare("makerow", "INSERT INTO row VALUES ($1, $2)");
 
-  pqxx::prepare::invocation i( T.prepared("maketuple") );
+  pqxx::prepare::invocation i( T.prepared("makerow") );
   const string f = "frobnalicious";
   i(6);
   i(f);
   i.exec();
 
-  const result t( T.exec("SELECT * FROM tuple") );
+  const result t( T.exec("SELECT * FROM row") );
   PQXX_CHECK_EQUAL(t.size(), 1u, "Wrong result size.");
   PQXX_CHECK_EQUAL(t[0][0].as<string>(), "6", "Unexpected result value.");
   PQXX_CHECK_EQUAL(t[0][1].c_str(), f, "Unexpected string result.");

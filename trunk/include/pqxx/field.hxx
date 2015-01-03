@@ -8,7 +8,7 @@
  *   pqxx::field refers to a field in a query result.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/field instead.
  *
- * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -31,13 +31,13 @@
 namespace pqxx
 {
 class result;
-class tuple;
+class row;
 
-typedef unsigned int tuple_size_type;
-typedef signed int tuple_difference_type;
+typedef unsigned int row_size_type;
+typedef signed int row_difference_type;
 
 /// Reference to a field in a result set.
-/** A field represents one entry in a tuple.  It represents an actual value
+/** A field represents one entry in a row.  It represents an actual value
  * in the result set, and can be converted to various types.
  */
 class PQXX_LIBEXPORT field
@@ -47,10 +47,10 @@ public:
 
   /// Constructor.
   /** Create field as reference to a field in a result set.
-   * @param T Tuple that this field is part of.
+   * @param R Row that this field is part of.
    * @param C Column number of this field.
    */
-  field(const tuple &T, tuple_size_type C) PQXX_NOEXCEPT;		//[t1]
+  field(const row &R, row_size_type C) PQXX_NOEXCEPT;		//[t1]
 
   /**
    * @name Comparison
@@ -95,10 +95,10 @@ public:
   /// What table did this column come from?
   oid table() const;							//[t2]
 
-  tuple_size_type num() const { return col(); }				//[t82]
+  row_size_type num() const { return col(); }				//[t82]
 
   /// What column number in its originating table did this column come from?
-  tuple_size_type table_column() const;					//[t93]
+  row_size_type table_column() const;					//[t93]
   //@}
 
   /**
@@ -173,9 +173,9 @@ public:
 protected:
   const result *home() const PQXX_NOEXCEPT { return m_home; }
   size_t idx() const PQXX_NOEXCEPT { return m_row; }
-  tuple_size_type col() const PQXX_NOEXCEPT { return m_col; }
+  row_size_type col() const PQXX_NOEXCEPT { return m_col; }
 
-  tuple_size_type m_col;
+  row_size_type m_col;
 
 private:
   const result *m_home;

@@ -1,13 +1,13 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pqxx/tuple
+ *	pqxx/row
  *
  *   DESCRIPTION
- *      pqxx::tuple class.
- *   pqxx::tuple refers to a row in a result.
+ *      pqxx::row class.
+ *   pqxx::row refers to a row in a result.
  *
- * Copyright (c) 2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2011-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -16,4 +16,4 @@
  *-------------------------------------------------------------------------
  */
 // Actual definitions in .hxx file so editors and such recognize file type
-#include "pqxx/tuple.hxx"
+#include "pqxx/row.hxx"

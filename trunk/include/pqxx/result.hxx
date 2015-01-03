@@ -5,10 +5,10 @@
  *
  *   DESCRIPTION
  *      definitions for the pqxx::result class and support classes.
- *   pqxx::result represents the set of result tuples from a database query
+ *   pqxx::result represents the set of result rows from a database query
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/result instead.
  *
- * Copyright (c) 2001-2013, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -32,7 +32,7 @@
 
 #include "pqxx/except"
 #include "pqxx/field"
-#include "pqxx/tuple"
+#include "pqxx/row"
 #include "pqxx/util"
 
 /* Methods tested in eg. self-test program test001 are marked with "//[t1]"
@@ -59,8 +59,8 @@ class const_reverse_result_iterator;
 
 /// Result set containing data returned by a query or command.
 /** This behaves as a container (as defined by the C++ standard library) and
- * provides random access const iterators to iterate over its tuples.  A tuple
- * can also be accessed by indexing a result R by the tuple's zero-based
+ * provides random access const iterators to iterate over its rows.  A row
+ * can also be accessed by indexing a result R by the row's zero-based
  * number:
  *
  * @code
@@ -87,7 +87,7 @@ class PQXX_LIBEXPORT result :
 public:
   typedef unsigned long size_type;
   typedef signed long difference_type;
-  typedef tuple reference;
+  typedef row reference;
   typedef const_result_iterator const_iterator;
   typedef const_iterator pointer;
   typedef const_iterator iterator;
@@ -116,8 +116,8 @@ public:
   const_iterator begin() const PQXX_NOEXCEPT;				//[t1]
   inline const_iterator end() const PQXX_NOEXCEPT;			//[t1]
 
-  reference front() const PQXX_NOEXCEPT { return tuple(this,0); }	//[t74]
-  reference back() const PQXX_NOEXCEPT {return tuple(this,size()-1);}	//[t75]
+  reference front() const PQXX_NOEXCEPT { return row(this,0); }		//[t74]
+  reference back() const PQXX_NOEXCEPT {return row(this,size()-1);}	//[t75]
 
   size_type PQXX_PURE size() const PQXX_NOEXCEPT;			//[t2]
   bool PQXX_PURE empty() const PQXX_NOEXCEPT;				//[t11]
@@ -125,9 +125,9 @@ public:
 
   void swap(result &) PQXX_NOEXCEPT;					//[t77]
 
-  const tuple operator[](size_type i) const PQXX_NOEXCEPT		//[t2]
-	{ return tuple(this, i); }
-  const tuple at(size_type) const;					//[t10]
+  const row operator[](size_type i) const PQXX_NOEXCEPT			//[t2]
+	{ return row(this, i); }
+  const row at(size_type) const;					//[t10]
 
   void clear() PQXX_NOEXCEPT { super::reset(); m_data = 0; }		//[t20]
 
@@ -136,23 +136,23 @@ public:
    */
   //@{
   /// Number of columns in result
-  tuple::size_type PQXX_PURE columns() const PQXX_NOEXCEPT;		//[t11]
+  row::size_type PQXX_PURE columns() const PQXX_NOEXCEPT;		//[t11]
 
   /// Number of given column (throws exception if it doesn't exist)
-  tuple::size_type column_number(const char ColName[]) const;		//[t11]
+  row::size_type column_number(const char ColName[]) const;		//[t11]
 
   /// Number of given column (throws exception if it doesn't exist)
-  tuple::size_type column_number(const PGSTD::string &Name) const	//[t11]
+  row::size_type column_number(const PGSTD::string &Name) const		//[t11]
 	{return column_number(Name.c_str());}
 
   /// Name of column with this number (throws exception if it doesn't exist)
-  const char *column_name(tuple::size_type Number) const;		//[t11]
+  const char *column_name(row::size_type Number) const;			//[t11]
 
   /// Type of given column
-  oid column_type(tuple::size_type ColNum) const;			//[t7]
+  oid column_type(row::size_type ColNum) const;				//[t7]
   /// Type of given column
   oid column_type(int ColNum) const					//[t7]
-	{ return column_type(tuple::size_type(ColNum)); }
+	{ return column_type(row::size_type(ColNum)); }
 
   /// Type of given column
   oid column_type(const PGSTD::string &ColName) const			//[t7]
@@ -163,25 +163,25 @@ public:
 	{ return column_type(column_number(ColName)); }
 
   /// What table did this column come from?
-  oid column_table(tuple::size_type ColNum) const;			//[t2]
+  oid column_table(row::size_type ColNum) const;			//[t2]
 
   /// What table did this column come from?
   oid column_table(int ColNum) const					//[t2]
-	{ return column_table(tuple::size_type(ColNum)); }
+	{ return column_table(row::size_type(ColNum)); }
 
   /// What table did this column come from? 
   oid column_table(const PGSTD::string &ColName) const			//[t2]
 	{ return column_table(column_number(ColName)); }
 
   /// What column in its table did this column come from?
-  tuple::size_type table_column(tuple::size_type ColNum) const;		//[t93]
+  row::size_type table_column(row::size_type ColNum) const;		//[t93]
 
   /// What column in its table did this column come from?
-  tuple::size_type table_column(int ColNum) const			//[t93]
-	{ return table_column(tuple::size_type(ColNum)); }
+  row::size_type table_column(int ColNum) const				//[t93]
+	{ return table_column(row::size_type(ColNum)); }
 
   /// What column in its table did this column come from?
-  tuple::size_type table_column(const PGSTD::string &ColName) const	//[t93]
+  row::size_type table_column(const PGSTD::string &ColName) const	//[t93]
 	{ return table_column(column_number(ColName)); }
   //@}
 
@@ -203,11 +203,11 @@ public:
 
 private:
   friend class pqxx::field;
-  const char * PQXX_PURE GetValue(size_type Row, tuple::size_type Col) const;
-  bool PQXX_PURE GetIsNull(size_type Row, tuple::size_type Col) const;
+  const char * PQXX_PURE GetValue(size_type Row, row::size_type Col) const;
+  bool PQXX_PURE GetIsNull(size_type Row, row::size_type Col) const;
   field::size_type PQXX_PURE GetLength(
 	size_type,
-	tuple::size_type) const PQXX_NOEXCEPT;
+	row::size_type) const PQXX_NOEXCEPT;
 
   friend class pqxx::internal::gate::result_creation;
   result(internal::pq::PGresult *rhs,
@@ -236,34 +236,34 @@ private:
 };
 
 
-/// Iterator for rows (tuples) in a result.  Use as result::const_iterator.
+/// Iterator for rows in a result.  Use as result::const_iterator.
 /** A result, once obtained, cannot be modified.  Therefore there is no
  * plain iterator type for result.  However its const_iterator type can be
- * used to inspect its tuples without changing them.
+ * used to inspect its rows without changing them.
  */
 class PQXX_LIBEXPORT const_result_iterator :
   public PGSTD::iterator<
 	PGSTD::random_access_iterator_tag,
-	const tuple,
+	const row,
 	result::difference_type,
 	const_result_iterator,
-	tuple>,
-  public tuple
+	row>,
+  public row
 {
 public:
-  typedef const tuple *pointer;
-  typedef tuple reference;
+  typedef const row *pointer;
+  typedef row reference;
   typedef result::size_type size_type;
   typedef result::difference_type difference_type;
 
-  const_result_iterator() PQXX_NOEXCEPT : tuple(0,0) {}
-  const_result_iterator(const tuple &t) PQXX_NOEXCEPT : tuple(t) {}
+  const_result_iterator() PQXX_NOEXCEPT : row(0,0) {}
+  const_result_iterator(const row &t) PQXX_NOEXCEPT : row(t) {}
 
   /**
    * @name Dereferencing operators
    */
   //@{
-  /** The iterator "points to" its own tuple, which is also itself.  This
+  /** The iterator "points to" its own row, which is also itself.  This
    * allows a result to be addressed as a two-dimensional container without
    * going through the intermediate step of dereferencing the iterator.  I
    * hope this works out to be similar to C pointer/array semantics in useful
@@ -275,7 +275,7 @@ public:
    * distinguished company.
    */
   pointer operator->() const { return this; }				//[t12]
-  reference operator*() const { return tuple(*this); }			//[t12]
+  reference operator*() const { return row(*this); }			//[t12]
   //@}
 
   /**
@@ -327,7 +327,7 @@ private:
   friend class pqxx::result;
   const_result_iterator(const pqxx::result *r, result::size_type i)
 	PQXX_NOEXCEPT :
-    tuple(r, i) {}
+    row(r, i) {}
 };
 
 
@@ -346,8 +346,8 @@ public:
   using iterator_type::reference;
 #else
   // Workaround for Visual C++.NET 2003, which has access problems
-  typedef const tuple &reference;
-  typedef tuple value_type;
+  typedef const row &reference;
+  typedef row value_type;
 #endif
 
   const_reverse_result_iterator(					//[t75]

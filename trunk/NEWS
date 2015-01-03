@@ -1,4 +1,5 @@
 5.0
+ - pqxx::tuple is now pqxx::row, to avoid clashes with std::tuple.
  - Support for REPEATABLE READ isolation level.
  - Build fix for OS X.
  - Build fixes for clang++ 3.2.

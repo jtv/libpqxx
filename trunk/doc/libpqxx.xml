@@ -266,7 +266,7 @@
 	  <literal>transaction</literal>.  It behaves just like a standard C++
 	  container as found in the STL, although its contents can't be modified
           in any way.  (You can assign or copy it cheaply though; it's basically
-          a smart pointer).  The tuples held in the result in turn behave much
+          a smart pointer).  The rows held in the result in turn behave much
           like non-modifiable containers themselves.
 	</para>
       </listitem>
@@ -493,17 +493,15 @@
 
       <listitem>
 	<para>
-	  <literal>result::tuple</literal> is a nested class defined within
-	  <literal>result</literal>.  It refers to a tuple of data within a
+	  <literal>row</literal> refers to a row of data within a
 	  <literal>result</literal> object.
 	</para>
       </listitem>
 
       <listitem>
 	<para>
-	  <literal>result::field</literal>, also nested within
-	  <literal>result</literal>, refers to one field within a
-	  <literal>tuple</literal>.  A <literal>field</literal> contains one
+	  <literal>field</literal> refers to one field within a
+	  <literal>row</literal>.  A <literal>field</literal> contains one
 	  retrieved value such as a number or a string, and can be read into
 	  variables of various types such as <literal>int</literal>s or
 	  <literal>string</literal>s.
@@ -513,15 +511,15 @@
       <listitem>
 	<para>
 	  <literal>result::const_iterator</literal> allows you to enumerate the
-	  <literal>tuple</literal>s in a <literal>result</literal> in a similar
+	  <literal>row</literal>s in a <literal>result</literal> in a similar
 	  way to the iterators defined by any standard C++ container.
 	</para>
       </listitem>
 
       <listitem>
 	<para>
-	  <literal>result::tuple::const_iterator</literal> similarly iterates
-	  over the <literal>field</literal>s in a <literal>tuple</literal>.
+	  <literal>result::row::const_iterator</literal> similarly iterates
+	  over the <literal>field</literal>s in a <literal>row</literal>.
 	</para>
       </listitem>
     </itemizedlist>
@@ -564,7 +562,7 @@
 	<para>
 	  <function>from_string</function> is the inverse of
 	  <function>to_string</function>.  It is used by eg.
-	  <function>result::field::to()</function> to convert the incoming
+	  <function>field::to()</function> to convert the incoming
 	  field data (which is in text format) to the desired C++ type.
 	</para>
       </listitem>
@@ -1017,8 +1015,8 @@
 	<literal>result</literal>: first, through indexing with the array
 	index operator <literal>[]</literal> or the <function>at</function>
 	member function, and second, through random-access iterators.  Either
-	will give you a <literal>result::tuple</literal> object that in turn
-	can be addressed with the array index operator (or the
+	will give you a <literal>row</literal> object that in turn can be
+        addressed with the array index operator (or the
 	<function>at</function> member function) or using iterators to get at
 	its individual fields
 
@@ -1036,12 +1034,12 @@
       </para>
 
       <para>
-	Thus, <literal>R[0]</literal> will return the first ("zeroth") tuple
+	Thus, <literal>R[0]</literal> will return the first ("zeroth") row
 	in R.  You won't normally want to bother with
-	<literal>tuple</literal>s though; they don't contain the actual data,
+	<literal>row</literal>s though; they don't contain the actual data,
 	but rather serve as placeholders to later tell
 	<literal>result</literal> which fields to fetch when field values
-	from the tuple are requested.  The class exists mostly for technical
+	from the row are requested.  The class exists mostly for technical
 	reasons related to the array index operators
 	<footnote>
 	  <para>
@@ -1051,7 +1049,7 @@
 	    index operator doesn't allow this usage directly, but the operator
 	    can be applied to the result of a previous use of the same operator.
 	    The "result in the middle" needs to have a type of its own, though,
-	    and that's what <literal>tuple</literal> is for.
+	    and that's what <literal>row</literal> is for.
 	  </para>
 	</footnote>.
 
@@ -1061,7 +1059,7 @@
       </para>
 
       <para>
-	Array indexing of tuples also works with the fields' names instead of
+	Array indexing of rows also works with the fields' names instead of
 	their numbers, eg.:
       </para>
 
@@ -1075,7 +1073,7 @@
 	}
       </programlisting>
       <para>
-	As for the alternative, accessing the result tuples through an iterator,
+	As for the alternative, accessing the result rows through an iterator,
 	only <literal>const</literal> iterators are provided so the contents of
 	the result cannot be modified.  Use these iterators as random-access
 	iterators like with any STL-like container:
@@ -1088,13 +1086,13 @@
       <para>
 	Iterators may be incremented or decremented (whether pre- or post-),
 	they may be added to or subtracted from to jump through the result
-	tuples; their positions may be compared (provided they point into the
+	rows; their positions may be compared (provided they point into the
 	same <literal>result</literal>), and they may be dereferenced through
 	the <literal>*</literal> or <literal>-></literal> operators.
       </para>
 
       <para>
-	Finally, the iterated tuples' fields may be addressed using the array
+	Finally, the iterated rows' fields may be addressed using the array
 	index operator on the iterator directly, eg.
 	<literal>R.begin()[0]</literal> gets you the first field of
 	<literal>R</literal>'s first row, just like
@@ -1111,8 +1109,8 @@
       </para>
 
       <para>
-	Either way, once you've indexed the <literal>result::tuple</literal>
-	you get a <literal>result::field</literal>--which is another
+	Either way, once you've indexed the <literal>row</literal>
+	you get a <literal>field</literal>--which is another
 	placeholder, but this time encapsulates an actual field value in our
 	query result.  A <literal>field</literal> <literal>F</literal> also
 	knows its column name, which can be obtained as
@@ -1155,7 +1153,7 @@
 
       <programlisting>
 	// Pay an employee his salary.  Add bonus for managers.
-	// The employee tuple must contain the fields
+	// The employee row must contain the fields
 	void PaySalary(result::const_iterator empl)
 	{
 	long id;

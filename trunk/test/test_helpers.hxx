@@ -323,8 +323,8 @@ inline void check_bounds(
 void expected_exception(const PGSTD::string &);
 
 
-// Represent result tuple as string
-PGSTD::string list_tuple(tuple);
+// Represent result row as string
+PGSTD::string list_row(row);
 // Represent result as string
 PGSTD::string list_result(result);
 // Represent result iterator as string
@@ -337,15 +337,15 @@ void create_pqxxevents(transaction_base &);
 
 
 // Support string conversion on result rows for debug output.
-template<> struct string_traits<tuple>
+template<> struct string_traits<row>
 {
-  static const char *name() { return "pqxx::tuple"; }
+  static const char *name() { return "pqxx::row"; }
   static bool has_null() { return false; }
-  static bool is_null(tuple) { return false; }
+  static bool is_null(row) { return false; }
   static result null(); // Not needed
   static void from_string(const char Str[], result &Obj); // Not needed
-  static PGSTD::string to_string(tuple Obj)
-	{ return pqxx::test::list_tuple(Obj); }
+  static PGSTD::string to_string(row Obj)
+	{ return pqxx::test::list_row(Obj); }
 };
 
 // Support string conversion on result objects for debug output.

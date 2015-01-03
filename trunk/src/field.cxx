@@ -7,7 +7,7 @@
  *      implementation of the pqxx::field class.
  *   pqxx::field refers to a field in a query result.
  *
- * Copyright (c) 2001-2012, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -21,17 +21,17 @@
 
 #include "pqxx/field"
 #include "pqxx/result"
-#include "pqxx/tuple"
+#include "pqxx/row"
 
 
 using namespace PGSTD;
 
 
-pqxx::field::field(const pqxx::tuple &T, pqxx::tuple::size_type C)
+pqxx::field::field(const pqxx::row &R, pqxx::row::size_type C)
 	PQXX_NOEXCEPT :
   m_col(C),
-  m_home(T.m_Home),
-  m_row(T.m_Index)
+  m_home(R.m_Home),
+  m_row(R.m_Index)
 {
 }
 
@@ -66,7 +66,7 @@ pqxx::oid pqxx::field::table() const
 }
 
 
-pqxx::tuple::size_type pqxx::field::table_column() const
+pqxx::row::size_type pqxx::field::table_column() const
 {
   return home()->table_column(col());
 }

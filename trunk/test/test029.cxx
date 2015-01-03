@@ -45,9 +45,9 @@ pair<int,int> CountEvents(transaction_base &T)
 // performed correctly.
 void Test(connection_base &C, bool ExplicitAbort)
 {
-  vector<string> BoringTuple;
-  BoringTuple.push_back(to_string(BoringYear));
-  BoringTuple.push_back("yawn");
+  vector<string> BoringRow;
+  BoringRow.push_back(to_string(BoringYear));
+  BoringRow.push_back("yawn");
 
   pair<int,int> EventCounts;
 
@@ -66,17 +66,17 @@ void Test(connection_base &C, bool ExplicitAbort)
 	0,
 	"Can't run; " + to_string(BoringYear) + " is already in the table.");
 
-    // Now let's try to introduce a tuple for our Boring Year
+    // Now let's try to introduce a row for our Boring Year
     {
       tablewriter W(Doomed, Table);
 
       PQXX_CHECK_EQUAL(W.name(), Table, "tablewriter name is not what I set.");
 
-      const string Literal = W.generate(BoringTuple);
-      const string Expected = to_string(BoringYear) + "\t" + BoringTuple[1];
-      PQXX_CHECK_EQUAL(Literal, Expected, "tablewriter mangles new tuple.");
+      const string Literal = W.generate(BoringRow);
+      const string Expected = to_string(BoringYear) + "\t" + BoringRow[1];
+      PQXX_CHECK_EQUAL(Literal, Expected, "tablewriter mangles new row.");
 
-      W.push_back(BoringTuple);
+      W.push_back(BoringRow);
     }
 
     const pair<int,int> Recount = CountEvents(Doomed);

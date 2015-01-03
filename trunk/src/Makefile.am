@@ -23,7 +23,7 @@ libpqxx_la_SOURCES = binarystring.cxx \
 	tablewriter.cxx \
 	transaction.cxx \
 	transaction_base.cxx \
-	tuple.cxx \
+	row.cxx \
 	util.cxx
 
 libpqxx_version = -release $(PQXX_ABI)

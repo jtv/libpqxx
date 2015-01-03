@@ -54,7 +54,7 @@ void test_012(transaction_base &orgT)
     PQXX_CHECK_EQUAL(i->size(), R.columns(), "Inconsistent row size.");
 
     // Look for null fields
-    for (pqxx::tuple::size_type f=0; f<i->size(); ++f)
+    for (pqxx::row::size_type f=0; f<i->size(); ++f)
     {
       NullFields[f] += i.at(f).is_null();
 
@@ -105,7 +105,7 @@ void test_012(transaction_base &orgT)
       // fields may be sorted.  Don't do anything fancy like trying to
       // detect numbers and comparing them as such, just compare them as
       // simple strings.
-      for (pqxx::tuple::size_type f = 0; f < R.columns(); ++f)
+      for (pqxx::row::size_type f = 0; f < R.columns(); ++f)
       {
         if (!j[f].is_null())
         {
@@ -119,7 +119,7 @@ void test_012(transaction_base &orgT)
     }
   }
 
-  for (pqxx::tuple::size_type f = 0; f < R.columns(); ++f)
+  for (pqxx::row::size_type f = 0; f < R.columns(); ++f)
     PQXX_CHECK(
 	NullFields[f] <= int(R.size()),
 	"Found more nulls than there were rows.");

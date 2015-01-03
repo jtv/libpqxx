@@ -51,7 +51,7 @@ public:
     // See if we get reasonable type identifier for this column
     const oid rctype = R.column_type(0);
     PQXX_CHECK_EQUAL(
-	R.column_type(pqxx::tuple::size_type(0)),
+	R.column_type(pqxx::row::size_type(0)),
 	rctype,
 	"Inconsistent result::column_type().");
 
@@ -84,13 +84,13 @@ public:
 
       PQXX_CHECK_EQUAL(
 	tctype,
-	r->column_type(pqxx::tuple::size_type(0)),
-	"Inconsistent pqxx::tuple::column_type()");
+	r->column_type(pqxx::row::size_type(0)),
+	"Inconsistent pqxx::row::column_type()");
 
       PQXX_CHECK_EQUAL(
 	tctype,
 	rctype,
-	"pqxx::tuple::column_type() is inconsistent with "
+	"pqxx::row::column_type() is inconsistent with "
 		"result::column_type().");
 
       const oid ctctype = r->column_type(rcol);

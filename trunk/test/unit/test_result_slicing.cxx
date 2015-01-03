@@ -5,22 +5,22 @@ using namespace pqxx;
 
 namespace pqxx
 {
-template<> struct PQXX_PRIVATE string_traits<tuple::const_iterator>
+template<> struct PQXX_PRIVATE string_traits<row::const_iterator>
 {
-  static const char *name() { return "tuple::const_iterator"; }
+  static const char *name() { return "row::const_iterator"; }
   static bool has_null() { return false; }
-  static bool is_null(tuple::const_iterator) { return false; }
-  static string to_string(tuple::const_iterator)
-	{ return "[tuple::const_iterator]"; }
+  static bool is_null(row::const_iterator) { return false; }
+  static string to_string(row::const_iterator)
+	{ return "[row::const_iterator]"; }
 };
 template<>
-struct PQXX_PRIVATE string_traits<tuple::const_reverse_iterator>
+struct PQXX_PRIVATE string_traits<row::const_reverse_iterator>
 {
-  static const char *name() { return "tuple::const_reverse_iterator"; }
+  static const char *name() { return "row::const_reverse_iterator"; }
   static bool has_null() { return false; }
-  static bool is_null(tuple::const_reverse_iterator) { return false; }
-  static string to_string(tuple::const_reverse_iterator)
-	{ return "[tuple::const_reverse_iterator]"; }
+  static bool is_null(row::const_reverse_iterator) { return false; }
+  static string to_string(row::const_reverse_iterator)
+	{ return "[row::const_reverse_iterator]"; }
 };
 }
 
@@ -30,12 +30,12 @@ void test_result_slicing(transaction_base &t)
 {
   result r = t.exec("SELECT 1");
 
-  PQXX_CHECK(!r[0].empty(), "A plain tuple shows up as empty.");
+  PQXX_CHECK(!r[0].empty(), "A plain row shows up as empty.");
 
-  // Empty slice at beginning of tuple.
-  pqxx::tuple s = r[0].slice(0, 0);
+  // Empty slice at beginning of row.
+  pqxx::row s = r[0].slice(0, 0);
   PQXX_CHECK(s.empty(), "Empty slice does not show up as empty.");
-  PQXX_CHECK_EQUAL(s.size(), 0u, "Slicing produces wrong tuple size.");
+  PQXX_CHECK_EQUAL(s.size(), 0u, "Slicing produces wrong row size.");
   PQXX_CHECK_EQUAL(s.begin(), s.end(), "Slice begin()/end() are broken.");
   PQXX_CHECK_EQUAL(s.rbegin(), s.rend(), "Slice rbegin()/rend() are broken.");
 
@@ -43,7 +43,7 @@ void test_result_slicing(transaction_base &t)
   PQXX_CHECK_THROWS(r[0].slice(0, 2), pqxx::range_error, "No range check.");
   PQXX_CHECK_THROWS(r[0].slice(1, 0), pqxx::range_error, "Can reverse-slice.");
 
-  // Empty slice at end of tuple.
+  // Empty slice at end of row.
   s = r[0].slice(1, 1);
   PQXX_CHECK(s.empty(), "empty() is broken.");
   PQXX_CHECK_EQUAL(s.size(), 0u, "size() is broken.");
@@ -52,7 +52,7 @@ void test_result_slicing(transaction_base &t)
 
   PQXX_CHECK_THROWS(s.at(0), pqxx::range_error, "at() is inconsistent.");
 
-  // Slice that matches the entire tuple.
+  // Slice that matches the entire row.
   s = r[0].slice(0, 1);
   PQXX_CHECK(!s.empty(), "Nonempty slice shows up as empty.");
   PQXX_CHECK_EQUAL(s.size(), 1u, "size() breaks for non-empty slice.");
@@ -62,7 +62,7 @@ void test_result_slicing(transaction_base &t)
   PQXX_CHECK_EQUAL(s[0].as<int>(), 1, "operator[] is broken.");
   PQXX_CHECK_THROWS(s.at(1).as<int>(), pqxx::range_error, "at() is off.");
 
-  // Meaningful slice at beginning of tuple.
+  // Meaningful slice at beginning of row.
   r = t.exec("SELECT 1, 2, 3");
   s = r[0].slice(0, 1);
   PQXX_CHECK(!s.empty(), "Slicing confuses empty().");
