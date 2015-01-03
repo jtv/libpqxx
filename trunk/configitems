@@ -18,7 +18,6 @@ PQXX_HAVE_COUNT_IF	internal	compiler
 PQXX_HAVE_CPP_PRAGMA_MESSAGE	public	compiler
 PQXX_HAVE_CPP_WARNING	public	compiler
 PQXX_HAVE_DISTANCE	internal	compiler
-PQXX_HAVE_IMBUE	internal	compiler
 PQXX_HAVE_LIMITS	public	compiler
 PQXX_HAVE_LO_TELL	internal	libpq
 PQXX_HAVE_LONG_LONG	public	compiler

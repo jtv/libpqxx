@@ -15934,33 +15934,6 @@ $as_echo "$tr1" >&6; }
 
 usestd="namespace std {} using namespace std;"
 
-imbue=yes
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking locale function and stringstream::imbue" >&5
-$as_echo_n "checking locale function and stringstream::imbue... " >&6; }
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <sstream>
-	#include <locale>
-	${usestd}
-int
-main ()
-{
-stringstream S; S.imbue(locale("C"))
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_IMBUE 1" >>confdefs.h
-
-else
-  imbue=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $imbue" >&5
-$as_echo "$imbue" >&6; }
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking \"warning\" preprocessor directive" >&5
 $as_echo_n "checking \"warning\" preprocessor directive... " >&6; }
 cpp_warning=yes

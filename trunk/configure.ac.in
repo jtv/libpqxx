@@ -272,16 +272,6 @@ AC_MSG_RESULT([$tr1])
 
 usestd="namespace std {} using namespace std;"
 
-imbue=yes
-AC_MSG_CHECKING([locale function and stringstream::imbue])
-AC_TRY_COMPILE([#include <sstream>
-	#include <locale>
-	${usestd}],
-	[stringstream S; S.imbue(locale("C"))],
-	[AC_DEFINE(PQXX_HAVE_IMBUE, 1, [Define if stringstream::imbue works])],
-	[imbue=no])
-AC_MSG_RESULT($imbue)
-
 AC_MSG_CHECKING(["warning" preprocessor directive])
 cpp_warning=yes
 AC_TRY_COMPILE([#warning cpp supports warning directive], [], AC_DEFINE(PQXX_HAVE_CPP_WARNING, 1,
