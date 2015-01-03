@@ -17362,34 +17362,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $distance" >&5
 $as_echo "$distance" >&6; }
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if count_if() works as expected" >&5
-$as_echo_n "checking if count_if() works as expected... " >&6; }
-count_if='yes'
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <algorithm>
-#include <functional>
-${usestd}
-struct P{P(){}bool operator()(const int&)const{return false;}}p;
-int
-main ()
-{
-int v;return int(count_if(&v,&v,p))
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_COUNT_IF 1" >>confdefs.h
-
-else
-  count_if='no'
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $count_if" >&5
-$as_echo "$count_if" >&6; }
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether <iterator> defines a usable iterator template" >&5
 $as_echo_n "checking whether <iterator> defines a usable iterator template... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
