@@ -1379,12 +1379,8 @@ string pqxx::connection_base::adorn_name(const std::string &n)
 
 int pqxx::connection_base::encoding_code()
 {
-#ifdef PQXX_HAVE_PQCLIENTENCODING
   activate();
   return PQclientEncoding(m_Conn);
-#else
-  return 0;
-#endif
 }
 
 

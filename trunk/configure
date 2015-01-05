@@ -17164,32 +17164,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pqdescribeportal" >&5
 $as_echo "$pqdescribeportal" >&6; }
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking PQclientEncoding()" >&5
-$as_echo_n "checking PQclientEncoding()... " >&6; }
-pqclientencoding=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include<${with_postgres_include}/libpq-fe.h>
-int
-main ()
-{
-PQclientEncoding(0)
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_PQCLIENTENCODING 1" >>confdefs.h
-
-else
-  pqclientencoding=no
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pqclientencoding" >&5
-$as_echo "$pqclientencoding" >&6; }
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for C99 isnan()" >&5
 $as_echo_n "checking for C99 isnan()... " >&6; }
 c_isnan=yes
