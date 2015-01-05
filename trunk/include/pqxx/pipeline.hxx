@@ -22,10 +22,7 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
-#ifdef PQXX_HAVE_LIMITS
 #include <limits>
-#endif
-
 #include <map>
 #include <string>
 
@@ -168,11 +165,7 @@ private:
   /// Upper bound to query id's
   static query_id qid_limit() PQXX_NOEXCEPT
   {
-#if defined(PQXX_HAVE_LIMITS)
     return std::numeric_limits<query_id>::max();
-#else
-    return LONG_MAX;
-#endif
   }
 
   /// Create new query_id

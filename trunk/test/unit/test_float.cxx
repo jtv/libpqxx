@@ -7,12 +7,7 @@ namespace
 {
 template<typename T> T make_infinity()
 {
-  return
-#ifdef PQXX_HAVE_LIMITS
-    numeric_limits<T>::infinity();
-#else
-    INFINITY;
-#endif
+  return numeric_limits<T>::infinity();
 }
 
 void infinity_test(transaction_base &)
