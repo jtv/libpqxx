@@ -127,9 +127,6 @@
 /* Define if the system has the poll() function (mainly GNU/Linux) */
 #undef PQXX_HAVE_POLL
 
-/* Define if libpq has PQclientEncoding() */
-#undef PQXX_HAVE_PQCLIENTENCODING
-
 /* Define if libpq has PQdescribePortal() */
 #undef PQXX_HAVE_PQDESCRIBEPORTAL
 

@@ -747,16 +747,6 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 )
 AC_MSG_RESULT($pqdescribeportal)
 
-AC_MSG_CHECKING([PQclientEncoding()])
-pqclientencoding=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[PQclientEncoding(0)],
-	AC_DEFINE(PQXX_HAVE_PQCLIENTENCODING, 1,
-		[Define if libpq has PQclientEncoding()]),
-	[pqclientencoding=no]
-)
-AC_MSG_RESULT($pqclientencoding)
-
 AC_MSG_CHECKING([for C99 isnan()])
 c_isnan=yes
 AC_TRY_COMPILE([#include <cmath>
