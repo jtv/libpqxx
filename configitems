@@ -32,7 +32,6 @@ PQXX_HAVE_PQESCAPEIDENTIFIER	internal	libpq
 PQXX_HAVE_PQISTHREADSAFE	internal	libpq
 PQXX_HAVE_PQENCRYPTPASSWORD	internal	libpq
 PQXX_HAVE_PQUNESCAPEBYTEA_9	internal	libpq
-PQXX_HAVE_PQCLIENTENCODING	internal	libpq
 PQXX_HAVE_QUIET_NAN	internal	compiler
 PQXX_HAVE_SHARED_PTR	public	compiler
 PQXX_HAVE_SLEEP	internal	compiler
