@@ -757,9 +757,6 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 )
 AC_MSG_RESULT($pqclientencoding)
 
-AC_CHECK_HEADER(limits,
-	[AC_DEFINE(PQXX_HAVE_LIMITS, 1, [Define if <limits> exists])])
-
 AC_MSG_CHECKING([for C99 isnan()])
 c_isnan=yes
 AC_TRY_COMPILE([#include <cmath>

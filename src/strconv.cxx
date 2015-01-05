@@ -17,11 +17,7 @@
 #include "pqxx/compiler-internal.hxx"
 
 #include <cstring>
-
-#ifdef PQXX_HAVE_LIMITS
 #include <limits>
-#endif
-
 #include <locale>
 
 #include "pqxx/except"
@@ -64,14 +60,9 @@ template<> inline void set_to_NaN(long double &t) { t = nan_ld; }
 #endif
 #endif
 
-// TODO: This may need tweaking for various compilers.
 template<typename T> inline void set_to_Inf(T &t, int sign=1)
 {
-#ifdef PQXX_HAVE_LIMITS
   T value = numeric_limits<T>::infinity();
-#else
-  T value = INFINITY;
-#endif
   if (sign < 0) value = -value;
   t = value;
 }
@@ -262,16 +253,10 @@ template<typename T> inline string to_string_fallback(T Obj)
   stringstream S;
   S.imbue(locale("C"));
 
-// Provide enough precision.
-#ifdef PQXX_HAVE_LIMITS
   // Kirit reports getting two more digits of precision than
   // numeric_limits::digits10 would give him, so we try not to make him lose
   // those last few bits.
   S.precision(numeric_limits<T>::digits10 + 2);
-#else
-  // Guess: enough for an IEEE 754 double-precision value.
-  S.precision(16);
-#endif
   S << Obj;
   return S.str();
 }
@@ -282,10 +267,8 @@ template<typename T> inline bool is_NaN(T Obj)
   return
 #if defined(PQXX_HAVE_C_ISNAN)
     isnan(Obj);
-#elif defined(PQXX_HAVE_LIMITS)
-    !(Obj <= Obj+numeric_limits<T>::max());
 #else
-    !(Obj <= Obj + 1000);
+    !(Obj <= Obj+numeric_limits<T>::max());
 #endif
 }
 
@@ -321,12 +304,7 @@ template<typename T> inline string to_string_signed(T Obj)
   {
     // Remember--the smallest negative number for a given two's-complement type
     // cannot be negated.
-#if PQXX_HAVE_LIMITS
     const bool negatable = (Obj != numeric_limits<T>::min());
-#else
-    T Neg(-Obj);
-    const bool negatable = Neg > 0;
-#endif
     if (negatable)
       return '-' + to_string_unsigned(-Obj);
     else

@@ -17190,15 +17190,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pqclientencoding" >&5
 $as_echo "$pqclientencoding" >&6; }
 
-ac_fn_cxx_check_header_mongrel "$LINENO" "limits" "ac_cv_header_limits" "$ac_includes_default"
-if test "x$ac_cv_header_limits" = xyes; then :
-
-$as_echo "#define PQXX_HAVE_LIMITS 1" >>confdefs.h
-
-fi
-
-
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for C99 isnan()" >&5
 $as_echo_n "checking for C99 isnan()... " >&6; }
 c_isnan=yes

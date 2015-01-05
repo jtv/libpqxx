@@ -56,21 +56,6 @@
 #include "pqxx/compiler-public.hxx"
 
 #include <cstddef>
-
-#ifdef PQXX_HAVE_LIMITS
 #include <limits>
-#else // PQXX_HAVE_LIMITS
-#include <climits>
-namespace std
-{
-/// Work around lacking "limits" header
-template<typename T> struct numeric_limits
-{
-  static T max() throw ();
-  static T min() throw ();
-};
-template<> inline long numeric_limits<long>::max() throw () {return LONG_MAX;}
-template<> inline long numeric_limits<long>::min() throw () {return LONG_MIN;}
-}
-#endif // PQXX_HAVE_LIMITS
+
 #endif

@@ -22,11 +22,8 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
-#include <stdexcept>
-
-#ifdef PQXX_HAVE_LIMITS
 #include <limits>
-#endif
+#include <stdexcept>
 
 #include "pqxx/result"
 #include "pqxx/transaction_base"
@@ -157,20 +154,12 @@ private:
 
 inline cursor_base::difference_type cursor_base::all() PQXX_NOEXCEPT
 {
-#ifdef PQXX_HAVE_LIMITS
   return std::numeric_limits<int>::max()-1;
-#else
-  return INT_MAX-1;
-#endif
 }
 
 inline cursor_base::difference_type cursor_base::backward_all() PQXX_NOEXCEPT
 {
-#ifdef PQXX_HAVE_LIMITS
   return std::numeric_limits<int>::min()+1;
-#else
-  return INT_MIN+1;
-#endif
 }
 
 

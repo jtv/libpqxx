@@ -114,11 +114,11 @@ void test_000(transaction_base &)
   strconv("int", 100, "100");
   strconv("int", -1, "-1");
 
-#if defined(PQXX_HAVE_LIMITS) && !defined(_MSC_VER)
+#if defined(_MSC_VER)
+  const long long_min = LONG_MIN, long_max = LONG_MAX;
+#else
   const long long_min = std::numeric_limits<long>::min(),
 	long_max = std::numeric_limits<long>::max();
-#else
-  const long long_min = LONG_MIN, long_max = LONG_MAX;
 #endif
 
   stringstream lminstr, lmaxstr, llminstr, llmaxstr, ullmaxstr;
