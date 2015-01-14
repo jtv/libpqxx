@@ -22,16 +22,11 @@
 
 #include <cstdio>
 #include <cctype>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <typeinfo>
 #include <vector>
-
-#ifdef PQXX_TR1_HEADERS
-#include <tr1/memory>
-#else
-#include <memory>
-#endif
 
 #include "pqxx/strconv"
 

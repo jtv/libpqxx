@@ -99,16 +99,10 @@ if test "$GCC" = "yes" ; then
 			-Werror \
 			-Wno-div-by-zero \
 			-fnothrow-opt \
-			-ffor-scope \
 			-fstrict-enums \
-			-fstrict-aliasing \
-			-Wstrict-aliasing \
-			-funit-at-a-time \
 			-pedantic \
 			-fno-nonansi-builtins \
 			-Wall \
-			-Wmultichar \
-			-W \
 			-Wextra \
 			-Wfloat-equal \
 			-Wundef \
@@ -122,18 +116,14 @@ if test "$GCC" = "yes" ; then
 			-Wlogical-op \
 			-Woverlength-strings \
 			-Wredundant-decls \
-			-Wsign-compare \
 			-Wwrite-strings  \
 			-Wnon-virtual-dtor \
-			-Wreorder \
 			-Wold-style-cast \
 			-Woverloaded-virtual \
 			-Wsign-promo \
 			-Wstrict-null-sentinel \
 			-Wformat-security \
 			-Winit-self \
-			-Wswitch \
-			-Wmissing-field-initializers \
 			-Wmissing-include-dirs \
 			-Wunused
 	fi
@@ -222,53 +212,6 @@ AC_CHECK_HEADER(boost/smart_ptr.hpp, AC_DEFINE(PQXX_HAVE_BOOST_SMART_PTR, 1,
 	[Define if you have the <boost/smart_ptr.hpp> header]),
 	boost_smart_ptr=no)
 
-
-AC_MSG_CHECKING([whether TR1 headers live in tr1 directory])
-tr1headers=no
-# Try to include regular <memory>.  If that doesn't work, assume it has to be
-# <tr1/memory>.
-AC_TRY_COMPILE(
-	[#include <memory>],
-	[],
-	AC_DEFINE(
-		[PQXX_TR1_HEADERS],
-		0,
-		[Define if headers for TR1 extension to standard live in tr1/]),
-	tr1headers=yes)
-AC_MSG_RESULT($tr1headers)
-
-if test "${tr1headers}" = "yes" ; then
-	tr1dir="tr1/"
-else
-	tr1dir=""
-fi
-
-AH_TEMPLATE(PQXXTR1, [namespace of TR1 extension to the C++ standard])
-AC_MSG_CHECKING([namespace of TR1 extension to the C++ standard])
-guesstr1=no
-AC_ARG_WITH(
-	tr1,
-	AC_HELP_STRING(
-		[--with-tr1],
-		[namespace of TR1 extension to the C++ standard]),
-	[tr1=${withval};],
-	[guesstr1=yes])
-
-if test "${guesstr1}" = "yes" ; then
-	# No explicit TR1 namespace given.  Try std::tr1.  If that doesn't
-	# work, assume std as our best bet.
-	tr1="std::tr1"
-	AC_TRY_COMPILE(
-		[#include <${tr1dir}memory>],
-		[using namespace ${tr1}],
-		[],
-		[tr1=std])
-fi
-AC_DEFINE_UNQUOTED(
-	PQXXTR1,
-	[$tr1],
-	[namespace of TR1 standard extensions (e.g. "std" or "std::tr1")])
-AC_MSG_RESULT([$tr1])
 
 usestd="namespace std {} using namespace std;"
 
@@ -837,10 +780,10 @@ AC_TRY_COMPILE([
 	[auto_ptr='no'])
 AC_MSG_RESULT($auto_ptr)
 
-AC_MSG_CHECKING([for tr1::shared_ptr])
+AC_MSG_CHECKING([for shared_ptr])
 sharedptr='yes'
-AC_TRY_COMPILE([#include <${tr1dir}memory>],
-	[${tr1}::shared_ptr<int> i(new int(1)); return *i;],
+AC_TRY_COMPILE([#include <memory>],
+	[std::shared_ptr<int> i(new int(1)); return *i;],
 	[AC_DEFINE(PQXX_HAVE_SHARED_PTR,
 		1,
 		[Define if compiler has shared_ptr])],
