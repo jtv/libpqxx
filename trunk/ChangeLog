@@ -1,4 +1,8 @@
 2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/gcc-3.3,
+ config/sample-headers/compiler/gcc-3.3-apple:
+ - Remove support for g++ 3.3.
+2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/compiler/VisualStudio2008:
  - Remove support for Visual Studio 2008 (still needs std::tr1).
 2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
