@@ -1,4 +1,7 @@
 2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/MinGW-3.4:
+ - Remove support for g++ 3.4.
+2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/compiler/gcc-3.3,
  config/sample-headers/compiler/gcc-3.3-apple:
  - Remove support for g++ 3.3.
