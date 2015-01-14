@@ -1,3 +1,8 @@
+2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
+ - Remove obsolete or redundant g++ options: -ffor-scope, -fstrict-aliasing,
+   -Wstrict-aliasing, -funit-at-a-time, -Wmultichar, -W, -Wswitch,
+   -Wmissing-field-initializers.
 2015-01-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/libpq/8.0/pqxx/config-internal-libpq.h,
  config/sample-headers/libpq/8.1/pqxx/config-internal-libpq.h,
