@@ -97,9 +97,6 @@
 /* Define if g++ supports visibility attribute, as in g++ 4.0 */
 #undef PQXX_HAVE_GCC_VISIBILITY
 
-/* Define if the compiler supports the standard "long double" type */
-#undef PQXX_HAVE_LONG_DOUBLE
-
 /* Define if compiler has move(). */
 #undef PQXX_HAVE_MOVE
 

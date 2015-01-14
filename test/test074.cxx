@@ -66,7 +66,6 @@ void test_074(transaction_base &W)
 	roughpi + 0.00001,
 	"Double changed in conversion.");
 
-#if defined(PQXX_HAVE_LONG_DOUBLE)
   const long double ld = roughpi;
   long double long_double_pi;
   from_string(to_string(ld), long_double_pi);
@@ -75,7 +74,6 @@ void test_074(transaction_base &W)
 	roughpi - 0.00001,
 	roughpi + 0.00001,
 	"long double changed in conversion.");
-#endif
 }
 } // namespace
 

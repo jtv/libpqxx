@@ -46,18 +46,14 @@ template<typename T> inline void set_to_NaN(T &t) { t = NAN; }
 #elif defined(PQXX_HAVE_NAN)
 template<> inline void set_to_NaN(float &t) { t = fnan(""); }
 template<> inline void set_to_NaN(double &t) { t = nan(""); }
-#ifdef PQXX_HAVE_LONG_DOUBLE
 template<> inline void set_to_NaN(long double &t) { t = lnan(""); }
-#endif
 #else
 const float nan_f(0.0/0.0);
 template<> inline void set_to_NaN(float &t) { t = nan_f; }
 const double nan_d(0.0/0.0);
 template<> inline void set_to_NaN(double &t) { t = nan_d; }
-#ifdef PQXX_HAVE_LONG_DOUBLE
 const long double nan_ld(0.0/0.0);
 template<> inline void set_to_NaN(long double &t) { t = nan_ld; }
-#endif
 #endif
 
 template<typename T> inline void set_to_Inf(T &t, int sign=1)
@@ -492,7 +488,6 @@ string string_traits<double>::to_string(double Obj)
   return to_string_float(Obj);
 }
 
-#ifdef PQXX_HAVE_LONG_DOUBLE
 void string_traits<long double>::from_string(const char Str[], long double &Obj)
 {
   from_string_float(Str, Obj);
@@ -502,6 +497,5 @@ string string_traits<long double>::to_string(long double Obj)
 {
   return to_string_float(Obj);
 }
-#endif
 
 } // namespace pqxx
