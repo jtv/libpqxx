@@ -64,39 +64,6 @@
 // Workarounds & definitions that need to be included even in library's headers
 #include "pqxx/config-public-compiler.h"
 
-
-#ifdef PQXX_BROKEN_ITERATOR
-#include <cstddef>
-#include <cstdlib>
-/// Alias for the std namespace to accomodate nonstandard C++ implementations
-/** The std name will almost always be defined to mean std.  The exception are
- * third-party C++ standard library implementations that use a different
- * namespace to avoid conflicts with the standard library that came with the
- * compiler.
- *
- * Some definitions that appear missing in the standard library of the host
- * system may be added to get libpqxx working.
- */
-namespace std
-{
-/// Work around lacking iterator template definition in <iterator>
-template<typename Cat,
-         typename T,
-	 typename Dist,
-	 typename Ptr=T*,
-	 typename Ref=T&> struct iterator
-{
-  typedef Cat iterator_category;
-  typedef T value_type;
-  typedef Dist difference_type;
-  typedef Ptr pointer;
-  typedef Ref reference;
-};
-}
-#else
-#include <iterator>
-#endif // PQXX_BROKEN_ITERATOR
-
 // Workarounds for SUN Workshop 6
 #if defined(__SUNPRO_CC)
 #if __SUNPRO_CC_COMPAT < 5
@@ -105,11 +72,6 @@ template<typename Cat,
 #define PQXX_PRIVATE __hidden
 #endif	// __SUNPRO_CC
 
-
-// Workarounds for Compaq C++ for Alpha
-#if defined(__DECCXX_VER)
-#define __USE_STD_IOSTREAM
-#endif	// __DECCXX_VER
 
 #if defined(__GNUC__) && defined(PQXX_HAVE_GCC_CONST)
 #define PQXX_CONST __attribute__ ((const))
@@ -153,14 +115,9 @@ template<typename Cat,
 // Workarounds for Microsoft Visual C++
 #ifdef _MSC_VER
 
-#if _MSC_VER < 1300
-#error "If you're using Visual C++, you'll need at least version 7 (.NET)"
-#elif _MSC_VER < 1310
-// Workarounds for pre-2003 Visual C++.NET
-#undef PQXX_HAVE_REVERSE_ITERATOR
-#define PQXX_NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
-#define PQXX_TYPENAME
-#endif	// _MSC_VER < 1310
+#if _MSC_VER < 1600
+#error "If you're using Visual C++, you'll need at least the 2010 version."
+#endif	// _MSC_VER < 1600
 
 // Automatically link with the appropriate libpq (static or dynamic, debug or
 // release).  The default is to use the release DLL.  Define PQXX_PQ_STATIC to

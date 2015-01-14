@@ -6,8 +6,6 @@ PACKAGE_NAME	internal	autotools
 PACKAGE_STRING	internal	autotools
 PACKAGE_TARNAME	internal	autotools
 PACKAGE_VERSION	internal	autotools
-PQXX_BROKEN_ITERATOR	public	compiler
-PQXX_BROKEN_USING_DECL	public	compiler
 PQXX_HAVE_GCC_CONST	public	compiler
 PQXX_HAVE_GCC_DEPRECATED	public	compiler
 PQXX_HAVE_GCC_NORETURN	public	compiler

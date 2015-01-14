@@ -217,17 +217,7 @@ public:
   void to_file(const std::string &File) const				//[t54]
 	{ largeobject::to_file(m_Trans, File); }
 
-#ifdef PQXX_BROKEN_USING_DECL
-  /// Export large object's contents to a local file
-  /** Writes the data stored in the large object to the given file.
-   * @param T Transaction in which the object is to be accessed
-   * @param File A filename on the client's filesystem
-   */
-  void to_file(dbtransaction &T, const std::string &F) const
-	{ largeobject::to_file(T, F); }
-#else
   using largeobject::to_file;
-#endif
 
   /**
    * @name High-level access to object contents

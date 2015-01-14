@@ -58,12 +58,6 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Define if <iterator> lacks an iterator template definition */
-#undef PQXX_BROKEN_ITERATOR
-
-/* Define if function overloading using "using" breaks */
-#undef PQXX_BROKEN_USING_DECL
-
 /* Define if compiler has auto_ptr */
 #undef PQXX_HAVE_AUTO_PTR
 
