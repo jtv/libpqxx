@@ -1,4 +1,14 @@
 2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/VisualStudio2010/pqxx/config-public-compiler.h,
+ config/sample-headers/compiler/gcc-4.2/pqxx/config-public-compiler.h,
+ configitems, configure.ac.in, include/pqxx/compiler-public.hxx,
+ include/pqxx/largeobject.hxx:
+ - Removed workaround for broken iterator definition.
+ - Removed workaround for broken "using" implementation.
+ include/pqxx/compiler-public.hxx:
+ - Raised minimum Visual Studio version to the 2010 release.
+ - Removed tweak for old Compaq C++ for Alpha.
+2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  README, README-UPGRADE, win32/INSTALL.txt:
  - Document updated requirements.
  doc/libpqxx.xml:

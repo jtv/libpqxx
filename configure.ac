@@ -735,17 +735,6 @@ AC_TRY_COMPILE([#include <iterator>
 	[distance='no'])
 AC_MSG_RESULT($distance)
 
-AC_MSG_CHECKING([whether <iterator> defines a usable iterator template])
-AC_TRY_COMPILE([#include <iterator>
-	${usestd}],
-	[struct I:iterator<random_access_iterator_tag,int>{}],
-	[it='yes'],
-	[AC_DEFINE(PQXX_BROKEN_ITERATOR,
-			1,
-			[Define if <iterator> lacks an iterator template definition])
-	 it='no'])
-AC_MSG_RESULT($it)
-
 AC_MSG_CHECKING([for auto_ptr])
 auto_ptr='yes'
 AC_TRY_COMPILE([
@@ -794,19 +783,6 @@ AC_TRY_COMPILE([
 		[Define if compiler has move().])],
 	[move='no'])
 AC_MSG_RESULT($move)
-
-AC_MSG_CHECKING([whether overloaded using-declarations work])
-AC_TRY_COMPILE([
-	struct A {A(){} void f(int){}};
-	struct B:A {B(){} using A::f; void f(int,bool){}};],
-	[B b;b.f(1,true);],
-	[usingdecl='yes'],
-	[AC_DEFINE(PQXX_BROKEN_USING_DECL,
-		1,
-		[Define if function overloading using "using" breaks])
-	 usingdecl='no'])
-AC_MSG_RESULT($usingdecl)
-
 
 AC_PROG_MAKE_SET
 
