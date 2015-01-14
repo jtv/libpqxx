@@ -461,14 +461,6 @@ AC_TRY_COMPILE(
 	strlcpy=no)
 AC_MSG_RESULT($strlcpy)
 
-AC_MSG_CHECKING([for long double])
-long_double=yes
-AC_TRY_COMPILE(,[long double x=0;return int(x)],
-	AC_DEFINE(PQXX_HAVE_LONG_DOUBLE,1,
-	[Define if the compiler supports the standard "long double" type]),
-	long_double=no)
-AC_MSG_RESULT($long_double)
-
 AC_MSG_CHECKING([for working <sys/select.h>])
 select_h=yes
 AC_TRY_COMPILE(

@@ -46,11 +46,9 @@ void test_046(transaction_base &T)
   from_string(R[0][0].c_str(), D);
   PQXX_CHECK_BOUNDS(D, F-0.01, F+0.01, "Bad double from from_string.");
 
-#if defined(PQXX_HAVE_LONG_DOUBLE)
   long double LD;
   from_string(R[0][0].c_str(), LD);
   PQXX_CHECK_BOUNDS(LD, F-0.01, F+0.01, "Bad long double from from_string.");
-#endif
 
   string S, S2, S3;
   from_string(R[0][0].c_str(), S);

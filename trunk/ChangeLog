@@ -6,6 +6,17 @@
  include/pqxx/config.h.in,
  include/pqxx/strconv.hxx,
  src/strconv.cxx,
+ test/test046.cxx,
+ test/test074.cxx:
+ - Always enable support for the "long double" type.
+2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/VisualStudio2010/pqxx/config-public-compiler.h,
+ config/sample-headers/compiler/gcc-4.4/pqxx/config-public-compiler.h,
+ configitems,
+ configure.ac.in,
+ include/pqxx/config.h.in,
+ include/pqxx/strconv.hxx,
+ src/strconv.cxx,
  test/test000.cxx:
  - Always enable support for the "long long" type.
 2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
