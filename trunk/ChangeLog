@@ -5,6 +5,14 @@
  config/sample-headers/libpq/8.3/pqxx/config-internal-libpq.h,
  config/sample-headers/libpq/8.4/pqxx/config-internal-libpq.h,
  config/sample-headers/libpq/9.0/pqxx/config-internal-libpq.h:
+ - Remove vestigial PQXX_HAVE_PQUNESCAPEBYTEA.
+2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/libpq/8.0/pqxx/config-internal-libpq.h,
+ config/sample-headers/libpq/8.1/pqxx/config-internal-libpq.h,
+ config/sample-headers/libpq/8.2/pqxx/config-internal-libpq.h,
+ config/sample-headers/libpq/8.3/pqxx/config-internal-libpq.h,
+ config/sample-headers/libpq/8.4/pqxx/config-internal-libpq.h,
+ config/sample-headers/libpq/9.0/pqxx/config-internal-libpq.h:
  - Remove vestigial PQXX_HAVE_PQEXECPARAMS.
  - Remove vestigial PQXX_HAVE_PQESCAPESTRING.
  - Remove vestigial PQXX_HAVE_PQESCAPESTRINGCONN.
