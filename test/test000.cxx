@@ -50,16 +50,7 @@ inline void strconv(string type, const char Obj[], string expected)
   check(expected, Objstr, type);
 }
 
-const double not_a_number =
-#if defined(PQXX_HAVE_QUIET_NAN)
-  numeric_limits<double>::quiet_NaN();
-#elif defined(PQXX_HAVE_C_NAN)
-  NAN;
-#elif defined(PQXX_HAVE_NAN)
-  nan("");
-#else
-  0.0/0.0;
-#endif
+const double not_a_number = numeric_limits<double>::quiet_NaN();
 
 struct intderef
 {

@@ -1,12 +1,10 @@
 /* Automatically generated from config.h: internal/compiler config. */
 #define HAVE_SYS_TYPES_H 1
 #define HAVE_UNISTD_H 1
-#define PQXX_HAVE_C_NAN 1
 #define PQXX_HAVE_DISTANCE 1
 #define PQXX_HAVE_GCC_VISIBILITY 1
 #define PQXX_HAVE_NAN 1
 #define PQXX_HAVE_POLL 1
-#define PQXX_HAVE_QUIET_NAN 1
 #define PQXX_HAVE_SLEEP 1
 #define PQXX_HAVE_STRERROR_R 1
 #define PQXX_HAVE_STRERROR_R_GNU 1

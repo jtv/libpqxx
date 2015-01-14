@@ -30,31 +30,10 @@ using namespace pqxx::internal;
 
 namespace
 {
-// It turns out that NaNs are pretty hard to do portably.  If the appropriate
-// C++ traits functions are not available, C99 defines a NAN macro (also widely
-// supported in other dialects, I believe) and some functions that can do the
-// same work.  But if none of those are available, we need to resort to
-// compile-time "0/0" expressions.  Most compilers won't crash while compiling
-// those anymore, but there may be unneeded warnings--which are almost as bad.
-template<typename T> void set_to_NaN(T &);
-
-#if defined(PQXX_HAVE_QUIET_NAN)
 template<typename T> inline void set_to_NaN(T &t)
-	{ t = numeric_limits<T>::quiet_NaN(); }
-#elif defined(PQXX_HAVE_C_NAN)
-template<typename T> inline void set_to_NaN(T &t) { t = NAN; }
-#elif defined(PQXX_HAVE_NAN)
-template<> inline void set_to_NaN(float &t) { t = fnan(""); }
-template<> inline void set_to_NaN(double &t) { t = nan(""); }
-template<> inline void set_to_NaN(long double &t) { t = lnan(""); }
-#else
-const float nan_f(0.0/0.0);
-template<> inline void set_to_NaN(float &t) { t = nan_f; }
-const double nan_d(0.0/0.0);
-template<> inline void set_to_NaN(double &t) { t = nan_d; }
-const long double nan_ld(0.0/0.0);
-template<> inline void set_to_NaN(long double &t) { t = nan_ld; }
-#endif
+{
+  t = numeric_limits<T>::quiet_NaN();
+}
 
 template<typename T> inline void set_to_Inf(T &t, int sign=1)
 {
