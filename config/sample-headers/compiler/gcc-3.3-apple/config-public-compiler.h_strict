@@ -1,5 +1,0 @@
-/* #undef PQXX_BROKEN_ITERATOR */
-/* #undef PQXX_BROKEN_USING_DECL */
-/* #undef PQXX_HAVE_CPP_PRAGMA_MESSAGE */
-/* #undef PQXX_HAVE_CPP_WARNING */
-/* #define PQXX_HAVE_LONG_DOUBLE 1 */
