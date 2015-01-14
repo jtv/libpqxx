@@ -1,4 +1,13 @@
 2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/libpq/8.0/pqxx/config-internal-libpq.h,
+ config/sample-headers/libpq/8.1/pqxx/config-internal-libpq.h,
+ config/sample-headers/libpq/8.2/pqxx/config-internal-libpq.h,
+ config/sample-headers/libpq/8.3/pqxx/config-internal-libpq.h,
+ config/sample-headers/libpq/8.4/pqxx/config-internal-libpq.h,
+ config/sample-headers/libpq/9.0/pqxx/config-internal-libpq.h, configitems,
+ configure.ac.in, include/pqxx/config.h.in, src/largeobject.cxx:
+ - Remove workaround for missing lo_tell().
+2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure, configure.ac.in, include/pqxx/config.h.in,
  include/pqxx/util.hxx:
  - Remove support for tr1 include directory.

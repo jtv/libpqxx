@@ -238,12 +238,7 @@ pqxx::largeobjectaccess::cread(char Buf[], size_type Bytes) PQXX_NOEXCEPT
 pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::ctell() const PQXX_NOEXCEPT
 {
-  return
-#if defined(PQXX_HAVE_LO_TELL)
-        lo_tell(RawConnection(), m_fd);
-#else
-        lo_lseek(RawConnection(), m_fd, 0, SEEK_CUR);
-#endif
+  return lo_tell(RawConnection(), m_fd);
 }
 
 
