@@ -19,7 +19,7 @@
     </authorgroup>
 
     <copyright>
-      <year>2002—2008</year>
+      <year>2002—2015</year>
       <holder>
         Jeroen T. Vermeulen
       </holder>
@@ -66,10 +66,10 @@
 
       <para>
         I think it is.  The C++ Standard, and its standard library in
-        particular, have stabilized over the mid-1990s; compilers and standard
-        library implementations are still following suit at the time of writing.
-        As a result, most older third-party libraries suffer from symptoms such
-        as:
+        particular, have stabilized over the mid-1990s, and compilers and at
+        the time of writing, standard library implementations have followed
+        suit.  As a result, most older third-party libraries suffer from
+        symptoms such as:
       </para>
 
       <itemizedlist>
@@ -78,7 +78,7 @@
 	    Not using exceptions.  Many libraries return a status code and
             expect callers to check for errors "if they're interested."
             <emphasis>Of course</emphasis> they're interested.  But checking
-            each and every call is tedious and error prone.
+            each and every call is tedious and error-prone.
 	  </para>
         </listitem>
 
@@ -124,10 +124,8 @@
         intrusive frameworks.  Third-party code, and class libraries in
         particular, need to be rewritten to replace such ad-hockery with the
         rich and standardized functionality now provided by C++.  This is what
-        <productname>libpqxx</productname> intends to do for
-        <productname>PostgreSQL</productname>.  The library was designed to be a
-        forward-looking one, which means that ports to vendor X's compiler Y may
-        have to wait until X improves its support of the Standard.
+        <productname>libpqxx</productname> does for
+        <productname>PostgreSQL</productname>.
       </para>
 
       <para>
@@ -254,7 +252,7 @@
 
 	<para>
 	  I recommend that you do not set up your own
-	  <literal>transaction</literal>s however, but have them managed for you
+	  <literal>transaction</literal>s, but have them managed for you
 	  by a <literal>transactor</literal> instead (see below).
 	</para>
       </listitem>
@@ -274,21 +272,17 @@
     </itemizedlist>
 
     <para>
-      I would also like to use this opportunity to plug the invaluable
+      I would also like to use this opportunity to plug the
       <function>esc</function> function, which you should use whenever you want
       to include a variable as a string in your SQL (eg. insert it into a text
       field in a table).  See below.
     </para>
 
     <para>
-      There are other classes that may be of interest to you; these are either
-      not essential to writing a simple program using
-      <productname>libpqxx</productname>, or are used in such a way that
-      knowledge of them is not immediately necessary.  You will probably want to
-      look them up at some point when it becomes necessary to understand complex
-      compiler warnings.  Unfortunately C++ compilers are not yet very good at
-      unravelling template-related errors and making them readable, so you may
-      find some long and strange names when they happen.
+      There are other classes that may be of interest to you, but which you
+      don't necessarily need to be aware of for writing programs.  You will
+      probably want to look them up at some point when it becomes necessary to
+      figure out complex compiler warnings.
     </para>
 
     <para>
@@ -337,13 +331,13 @@
 	<para>
 	  In theory, a "transaction" is an integral, atomic unit of work that
 	  either fails or succeeds.  This is a beautiful idea, but in practice
-	  there is nothing that cannot be broken.  In practice there is a tiny
-	  risk that, like Schroedinger's Cat, the transaction ends up in a
-	  third, indeterminate state.  This happens when the connection to the
-	  backend is lost just when you were waiting for confirmation after
-	  completing your transaction.  Your transaction may have succeeded (in
-	  fact it probably has), but if the connection is lost during just this
-	  small time window, it has no way to confirm this to your application.
+	  there is nothing that cannot be broken.  There is a tiny risk that,
+          like Schroedinger's Cat, the transaction can end up in an
+          indeterminate state.  This happens when the connection to the backend
+          is lost just when you were waiting for confirmation after completing
+          your transaction.  Your transaction may have succeeded (in fact it
+          probably has), but if the connection is lost during just this small
+          time window, there is no way to confirm this to your application.
 	</para>
 
 	<para>
@@ -376,9 +370,9 @@
 	  This may give you better performance if your transaction does not
 	  modify the database, but if it does, may have unforeseen implications
 	  if you expect certain levels of consistency in the
-	  database--especially if other programs (perhaps even other instances
-	  of your own) may be modifying the database at the same time.  You'll
-	  probably only want to use this in the following cases:
+	  database--especially if other processes or threads may be modifying
+	  the database at the same time.  You'll probably only want to use this
+	  in the following cases:
 	</para>
 
 	<itemizedlist>

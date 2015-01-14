@@ -213,11 +213,8 @@ Enjoy!
 Building on Windows
 
 Project files for Visual C++ are provided in the win32 directory, along with
-some other Windows-specific material.  You'll need at least version 7 of the
-VC compiler (also called VC.NET), earlier versions being too severely flawed to
-build serious post-1996 C++ code.  Some of the 7.x versions will work; others
-may not.  Versions of the library have also been built with Intel's compiler
-running as a Visual C++ plugin.
+some other Windows-specific material.  You'll need at least version 2010 of the
+VC compiler.
 
 Instead of going this route, you may want to try if the Unix build procedure
 works for you instead, e.g. using the Cygwin tools.  In theory it should be

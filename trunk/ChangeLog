@@ -1,4 +1,10 @@
 2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ README, README-UPGRADE, win32/INSTALL.txt:
+ - Document updated requirements.
+ doc/libpqxx.xml:
+ - Update to reflect today's C++ world.
+ - Freshen text a bit.
+2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/libpq/8.0/pqxx/config-internal-libpq.h,
  config/sample-headers/libpq/8.1/pqxx/config-internal-libpq.h,
  config/sample-headers/libpq/8.2/pqxx/config-internal-libpq.h,

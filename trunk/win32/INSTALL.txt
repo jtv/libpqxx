@@ -10,7 +10,7 @@ other environments.
 
 The only Windows compilers currently documented here are:
 
-	Visual C++ (7.0 or above)
+	Visual C++ (2010 or above)
 	MinGW
 
 If you are using a different compiler, you should still be able to get it to
@@ -27,11 +27,10 @@ Before you start, make sure your development environment is reasonably up to
 date.  If you use MSYS, be sure your "grep" program is up to date and that you
 have the "mktemp" program installed (these can be downloaded from
 http://gnuwin32.sf.net/).  If you use Visual C++, make sure you have at least
-version 7.0 or you'll run into serious compilation trouble.
+the 2010 version or you'll run into serious compilation trouble.
 
-The latest build has been tested against Visual Studio 8, 9.0 and 10.0, so
-if you build with Visual C++ 7.0 you might have to make some adjustments to
-these instructions and scripts for the build to succeeed.
+You may have to make some adjustments to these instructions and scripts for the
+build to succeeed.
 
 Obtaining libpq
 ---------------

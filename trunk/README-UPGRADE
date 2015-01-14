@@ -1,3 +1,23 @@
+NOTICES FOR USERS UPGRADING FROM EARLIER VERSIONS TO 5.0
+
+This version has some relatively radical changes.  They make the library easier
+to read and manage, but they are likely to require changes in your code or to
+your build configuration.
+
+Older libpqxx versions used PGSTD as a macro for the standard namespace.  This
+was only needed for very old compilers, which might no longer be able to
+compile current libpqxx versions anyway.  The name is gone; use just "std"
+instead.  So, PGSTD::string becomes std::string etc.
+
+The tuple header, and the tuple class, have been renamed to "row".  This avoids
+a name clash with std::tuple in code that has both "using std;" and
+"using pqxx;".
+
+Support for many older compilers and libpq versions has been removed.  You will
+need at least libpq version 8.0, and the oldest gcc version that is known to
+compile the current libpqxx is g++ 4.4.
+
+
 NOTICES FOR USERS UPGRADING FROM 3.0 TO 3.1
 
 The machinery to support conversion between the database's textual format and
