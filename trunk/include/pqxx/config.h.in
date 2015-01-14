@@ -100,9 +100,6 @@
 /* Define if the compiler supports the standard "long double" type */
 #undef PQXX_HAVE_LONG_DOUBLE
 
-/* Define if the compiler supports "long long" types */
-#undef PQXX_HAVE_LONG_LONG
-
 /* Define if compiler has move(). */
 #undef PQXX_HAVE_MOVE
 

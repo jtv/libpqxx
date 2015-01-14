@@ -450,7 +450,6 @@ string string_traits<unsigned long>::to_string(unsigned long Obj)
   return to_string_unsigned(Obj);
 }
 
-#ifdef PQXX_HAVE_LONG_LONG
 void string_traits<long long>::from_string(const char Str[], long long &Obj)
 {
   from_string_signed(Str, Obj);
@@ -472,7 +471,6 @@ string string_traits<unsigned long long>::to_string(unsigned long long Obj)
 {
   return to_string_unsigned(Obj);
 }
-#endif
 
 void string_traits<float>::from_string(const char Str[], float &Obj)
 {

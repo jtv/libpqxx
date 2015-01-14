@@ -2,9 +2,10 @@
  - The PGSTD namespace alias is gone.  Use the std namespace directly.
  - pqxx::tuple is now pqxx::row, to avoid clashes with std::tuple.
  - Support for many old compilers dropped.
+ - Support for "long long" type is always enabled.
  - No longer uses obsolete std::tr1 namespace; use plain std instead.
  - Support for pre-8.0 libpq versions dropped.
- - Support for REPEATABLE READ isolation level.
+ - Support for REPEATABLE READ isolation level added.
  - Build fix for OS X.
  - Build fixes for clang++ 3.2.
  - Build fix for clang++ 3.0.
