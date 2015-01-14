@@ -669,15 +669,6 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 AC_MSG_RESULT($pqencryptpassword)
 
 
-AC_MSG_CHECKING([PQdescribePortal()])
-pqdescribeportal=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
-	[return PQdescribePortal(NULL, "foo")!=0;],
-	AC_DEFINE(PQXX_HAVE_PQDESCRIBEPORTAL,1,[Define if libpq has PQdescribePortal()]),
-	[pqdescribeportal=no]
-)
-AC_MSG_RESULT($pqdescribeportal)
-
 AC_MSG_CHECKING([for C99 isnan()])
 c_isnan=yes
 AC_TRY_COMPILE([#include <cmath>
