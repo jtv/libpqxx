@@ -16615,31 +16615,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $strlcpy" >&5
 $as_echo "$strlcpy" >&6; }
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for long long" >&5
-$as_echo_n "checking for long long... " >&6; }
-long_long=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main ()
-{
-long long l=0LL; return int(l)
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_LONG_LONG 1" >>confdefs.h
-
-else
-  long_long=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $long_long" >&5
-$as_echo "$long_long" >&6; }
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for long double" >&5
 $as_echo_n "checking for long double... " >&6; }
 long_double=yes

@@ -461,14 +461,6 @@ AC_TRY_COMPILE(
 	strlcpy=no)
 AC_MSG_RESULT($strlcpy)
 
-AC_MSG_CHECKING([for long long])
-long_long=yes
-AC_TRY_COMPILE(,[long long l=0LL; return int(l)],
-	AC_DEFINE(PQXX_HAVE_LONG_LONG,1,
-	[Define if the compiler supports "long long" types]),
-	long_long=no)
-AC_MSG_RESULT($long_long)
-
 AC_MSG_CHECKING([for long double])
 long_double=yes
 AC_TRY_COMPILE(,[long double x=0;return int(x)],
