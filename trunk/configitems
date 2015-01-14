@@ -15,7 +15,6 @@ PQXX_HAVE_BOOST_SMART_PTR	public	compiler
 PQXX_HAVE_CPP_PRAGMA_MESSAGE	public	compiler
 PQXX_HAVE_CPP_WARNING	public	compiler
 PQXX_HAVE_DISTANCE	internal	compiler
-PQXX_HAVE_NAN	internal	compiler
 PQXX_HAVE_GCC_VISIBILITY	internal	compiler
 PQXX_HAVE_MOVE	public	compiler
 PQXX_HAVE_NOEXCEPT	public	compiler
