@@ -58,9 +58,6 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* namespace of TR1 standard extensions (e.g. "std" or "std::tr1") */
-#undef PQXXTR1
-
 /* Define if <iterator> lacks an iterator template definition */
 #undef PQXX_BROKEN_ITERATOR
 

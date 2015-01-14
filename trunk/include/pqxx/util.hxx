@@ -504,7 +504,7 @@ public:
   void swap(PQAlloc &other) PQXX_NOEXCEPT { m_ptr.swap(other.m_ptr); }
 
 private:
-  PQXXTR1::shared_ptr<T> m_ptr;
+  std::shared_ptr<T> m_ptr;
 };
 
 #else // !PQXX_HAVE_SHARED_PTR

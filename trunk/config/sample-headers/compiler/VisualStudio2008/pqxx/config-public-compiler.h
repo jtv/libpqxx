@@ -6,5 +6,4 @@
 #define PQXX_HAVE_LONG_DOUBLE 1
 #define PQXX_PQ_IN_NAMESPACE 1
 #define PQXX_HAVE_STRERROR_S 1
-#define PQXXTR1 std::tr1
 #define PQXX_HAVE_SHARED_PTR 1
