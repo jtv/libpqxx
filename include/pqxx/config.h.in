@@ -109,9 +109,6 @@
 /* Define if the compiler supports "long long" types */
 #undef PQXX_HAVE_LONG_LONG
 
-/* Define if libpq has lo_tell() */
-#undef PQXX_HAVE_LO_TELL
-
 /* Define if compiler has move(). */
 #undef PQXX_HAVE_MOVE
 

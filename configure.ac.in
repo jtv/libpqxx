@@ -408,18 +408,6 @@ change!
 ])])
 AC_MSG_RESULT(yes)
 
-AC_MSG_CHECKING([lo_tell()])
-lotell=yes
-AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>
-	void f(PGconn *c) { lo_tell(c,2); }],
-	[],
-	AC_DEFINE(PQXX_HAVE_LO_TELL, 1,
-		[Define if libpq has lo_tell()]),
-	[lotell=no]
-)
-AC_MSG_RESULT($lotell)
-
-
 AC_MSG_CHECKING([for strerror_r])
 strerror_r=yes
 AC_TRY_COMPILE(
