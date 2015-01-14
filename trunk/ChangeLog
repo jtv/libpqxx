@@ -1,4 +1,8 @@
 2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure, configure.ac.in, include/pqxx/config.h.in,
+ include/pqxx/util.hxx:
+ - Remove support for tr1 include directory.
+2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/compiler/MinGW-3.4:
  - Remove support for g++ 3.4.
 2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>

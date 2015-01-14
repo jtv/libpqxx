@@ -173,9 +173,6 @@
 /* Define if select() accepts NULL fd_set arguments */
 #undef PQXX_SELECT_ACCEPTS_NULL
 
-/* Define if headers for TR1 extension to standard live in tr1/ */
-#undef PQXX_TR1_HEADERS
-
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 

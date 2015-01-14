@@ -213,26 +213,6 @@ AC_CHECK_HEADER(boost/smart_ptr.hpp, AC_DEFINE(PQXX_HAVE_BOOST_SMART_PTR, 1,
 	boost_smart_ptr=no)
 
 
-AC_MSG_CHECKING([whether TR1 headers live in tr1 directory])
-tr1headers=no
-# Try to include regular <memory>.  If that doesn't work, assume it has to be
-# <tr1/memory>.
-AC_TRY_COMPILE(
-	[#include <memory>],
-	[],
-	AC_DEFINE(
-		[PQXX_TR1_HEADERS],
-		0,
-		[Define if headers for TR1 extension to standard live in tr1/]),
-	tr1headers=yes)
-AC_MSG_RESULT($tr1headers)
-
-if test "${tr1headers}" = "yes" ; then
-	tr1dir="tr1/"
-else
-	tr1dir=""
-fi
-
 usestd="namespace std {} using namespace std;"
 
 AC_MSG_CHECKING(["warning" preprocessor directive])
@@ -800,10 +780,10 @@ AC_TRY_COMPILE([
 	[auto_ptr='no'])
 AC_MSG_RESULT($auto_ptr)
 
-AC_MSG_CHECKING([for tr1::shared_ptr])
+AC_MSG_CHECKING([for shared_ptr])
 sharedptr='yes'
-AC_TRY_COMPILE([#include <${tr1dir}memory>],
-	[${tr1}::shared_ptr<int> i(new int(1)); return *i;],
+AC_TRY_COMPILE([#include <memory>],
+	[std::shared_ptr<int> i(new int(1)); return *i;],
 	[AC_DEFINE(PQXX_HAVE_SHARED_PTR,
 		1,
 		[Define if compiler has shared_ptr])],
