@@ -25,7 +25,6 @@ PQXX_HAVE_GCC_VISIBILITY	internal	compiler
 PQXX_HAVE_MOVE	public	compiler
 PQXX_HAVE_NOEXCEPT	public	compiler
 PQXX_HAVE_POLL	internal	compiler
-PQXX_HAVE_PQDESCRIBEPORTAL	internal	libpq
 PQXX_HAVE_PQESCAPELITERAL	internal	libpq
 PQXX_HAVE_PQESCAPEIDENTIFIER	internal	libpq
 PQXX_HAVE_PQISTHREADSAFE	internal	libpq
