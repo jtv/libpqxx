@@ -664,17 +664,6 @@ AC_TRY_COMPILE([#include <cmath>
 )
 AC_MSG_RESULT($c_isnan)
 
-AC_MSG_CHECKING([for C99 nan() family])
-nan=yes
-AC_TRY_COMPILE([#include <cmath>
-	${usestd}
-	extern void f(double);],
-	[f(nan(""))],
-	[AC_DEFINE(PQXX_HAVE_NAN,1,
-		[Define if C99 fnan()/nan()/lnan() are available])],
-	[nan=no])
-AC_MSG_RESULT($nan)
-
 AC_MSG_CHECKING([for C99 isinf()])
 c_isnan=yes
 AC_TRY_COMPILE([#include <cmath>
