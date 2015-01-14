@@ -1,4 +1,9 @@
 2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/VisualStudio2008/pqxx/config-public-compiler.h,
+ config/sample-headers/compiler/VisualStudio2010/pqxx/config-public-compiler.h,
+ configitems, configure.ac.in, include/pqxx/config.h.in, include/pqxx/util.hxx:
+ - Remove support for obsolete std::tr1 namespace; just use std.
+2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
  - Remove obsolete or redundant g++ options: -ffor-scope, -fstrict-aliasing,
    -Wstrict-aliasing, -funit-at-a-time, -Wmultichar, -W, -Wswitch,

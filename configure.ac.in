@@ -233,33 +233,6 @@ else
 	tr1dir=""
 fi
 
-AH_TEMPLATE(PQXXTR1, [namespace of TR1 extension to the C++ standard])
-AC_MSG_CHECKING([namespace of TR1 extension to the C++ standard])
-guesstr1=no
-AC_ARG_WITH(
-	tr1,
-	AC_HELP_STRING(
-		[--with-tr1],
-		[namespace of TR1 extension to the C++ standard]),
-	[tr1=${withval};],
-	[guesstr1=yes])
-
-if test "${guesstr1}" = "yes" ; then
-	# No explicit TR1 namespace given.  Try std::tr1.  If that doesn't
-	# work, assume std as our best bet.
-	tr1="std::tr1"
-	AC_TRY_COMPILE(
-		[#include <${tr1dir}memory>],
-		[using namespace ${tr1}],
-		[],
-		[tr1=std])
-fi
-AC_DEFINE_UNQUOTED(
-	PQXXTR1,
-	[$tr1],
-	[namespace of TR1 standard extensions (e.g. "std" or "std::tr1")])
-AC_MSG_RESULT([$tr1])
-
 usestd="namespace std {} using namespace std;"
 
 AC_MSG_CHECKING(["warning" preprocessor directive])
