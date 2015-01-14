@@ -664,28 +664,6 @@ AC_TRY_COMPILE([#include <cmath>
 )
 AC_MSG_RESULT($c_isnan)
 
-AC_MSG_CHECKING([for std::numeric_limits<>::quiet_NaN()])
-quiet_nan=yes
-AC_TRY_COMPILE([#include <limits>
-	extern void f(double);
-	${usestd}],
-	[f(numeric_limits<double>::quiet_NaN())],
-	[AC_DEFINE(PQXX_HAVE_QUIET_NAN,1,
-		[Define if std::numeric_limits has quiet_NaN()])],
-	[quiet_nan=no])
-AC_MSG_RESULT($quiet_nan)
-
-AC_MSG_CHECKING([for C NAN macro])
-c_nan=yes
-AC_TRY_COMPILE([#include <cmath>
-	extern void f(double);
-	${usestd}],
-	[f(NAN)],
-	[AC_DEFINE(PQXX_HAVE_C_NAN,1,
-		[Define if C math header defines NAN])],
-	[c_nan=no])
-AC_MSG_RESULT($c_nan)
-
 AC_MSG_CHECKING([for C99 nan() family])
 nan=yes
 AC_TRY_COMPILE([#include <cmath>

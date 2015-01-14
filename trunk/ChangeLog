@@ -1,4 +1,10 @@
 2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/VisualStudio2010/pqxx/config-internal-compiler.h,
+ config/sample-headers/compiler/gcc-4.4/pqxx/config-internal-compiler.h,
+ configitems, configure.ac.in, include/pqxx/config.h.in, src/strconv.cxx,
+ test/test000.cxx:
+ - Remove workarounds for missing numeric_limits::quiet_NaN().
+2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/compiler/VisualStudio2010/pqxx/config-public-compiler.h,
  config/sample-headers/compiler/gcc-4.4/pqxx/config-public-compiler.h,
  configitems,

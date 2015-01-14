@@ -17000,60 +17000,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $c_isnan" >&5
 $as_echo "$c_isnan" >&6; }
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for std::numeric_limits<>::quiet_NaN()" >&5
-$as_echo_n "checking for std::numeric_limits<>::quiet_NaN()... " >&6; }
-quiet_nan=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <limits>
-	extern void f(double);
-	${usestd}
-int
-main ()
-{
-f(numeric_limits<double>::quiet_NaN())
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_QUIET_NAN 1" >>confdefs.h
-
-else
-  quiet_nan=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $quiet_nan" >&5
-$as_echo "$quiet_nan" >&6; }
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for C NAN macro" >&5
-$as_echo_n "checking for C NAN macro... " >&6; }
-c_nan=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <cmath>
-	extern void f(double);
-	${usestd}
-int
-main ()
-{
-f(NAN)
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_C_NAN 1" >>confdefs.h
-
-else
-  c_nan=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $c_nan" >&5
-$as_echo "$c_nan" >&6; }
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for C99 nan() family" >&5
 $as_echo_n "checking for C99 nan() family... " >&6; }
 nan=yes

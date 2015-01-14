@@ -76,9 +76,6 @@
 /* Define if math.h defines C99 isnan() */
 #undef PQXX_HAVE_C_ISNAN
 
-/* Define if C math header defines NAN */
-#undef PQXX_HAVE_C_NAN
-
 /* Define if distance() works according to the standard */
 #undef PQXX_HAVE_DISTANCE
 
@@ -123,9 +120,6 @@
 
 /* Define if PQunescapeBytea() supports hex escape format */
 #undef PQXX_HAVE_PQUNESCAPEBYTEA_9
-
-/* Define if std::numeric_limits has quiet_NaN() */
-#undef PQXX_HAVE_QUIET_NAN
 
 /* Define if compiler has shared_ptr */
 #undef PQXX_HAVE_SHARED_PTR
