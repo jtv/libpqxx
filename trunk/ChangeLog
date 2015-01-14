@@ -5,6 +5,26 @@
  config/sample-headers/libpq/8.3/pqxx/config-internal-libpq.h,
  config/sample-headers/libpq/8.4/pqxx/config-internal-libpq.h,
  config/sample-headers/libpq/9.0/pqxx/config-internal-libpq.h:
+ - Remove vestigial PQXX_HAVE_PQEXECPARAMS.
+ - Remove vestigial PQXX_HAVE_PQESCAPESTRING.
+ - Remove vestigial PQXX_HAVE_PQESCAPESTRINGCONN.
+ - Remove vestigial PQXX_HAVE_PQFREEMEM.
+ - Remove vestigial PQXX_HAVE_PQFREENOTIFY.
+ - Remove vestigial PQXX_HAVE_PQFTABLE.
+ - Remove vestigial PQXX_HAVE_PQFTABLECOL.
+ - Remove vestigial PQXX_HAVE_PQPREPARE.
+ - Remove vestigial PQXX_HAVE_PQPROTOCOLVERSION.
+ - Remove vestigial PQXX_HAVE_PQPUTCOPY.
+ - Remove vestigial PQXX_HAVE_PQRESULTERRORFIELD.
+ - Remove vestigial PQXX_HAVE_PQSERVERVERSION.
+ - Remove vestigial PQXX_HAVE_PQSETERRORVERBOSITY.
+2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/libpq/8.0/pqxx/config-internal-libpq.h,
+ config/sample-headers/libpq/8.1/pqxx/config-internal-libpq.h,
+ config/sample-headers/libpq/8.2/pqxx/config-internal-libpq.h,
+ config/sample-headers/libpq/8.3/pqxx/config-internal-libpq.h,
+ config/sample-headers/libpq/8.4/pqxx/config-internal-libpq.h,
+ config/sample-headers/libpq/9.0/pqxx/config-internal-libpq.h:
  - Remove vestigial PQXX_HAVE_PQESCAPEBYTEA and PQXX_HAVE_PQESCAPEBYTEACONN.
 2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/libpq/8.0/pqxx/config-internal-libpq.h,
