@@ -70,9 +70,6 @@
 /* Define if preprocessor supports nonstandard "warning" directive */
 #undef PQXX_HAVE_CPP_WARNING
 
-/* Define if math.h defines C99 isinf() */
-#undef PQXX_HAVE_C_ISINF
-
 /* Define if distance() works according to the standard */
 #undef PQXX_HAVE_DISTANCE
 
@@ -90,6 +87,9 @@
 
 /* Define if g++ supports visibility attribute, as in g++ 4.0 */
 #undef PQXX_HAVE_GCC_VISIBILITY
+
+/* Define if either C99 isinf() or TR1 std::isinf() is available */
+#undef PQXX_HAVE_ISINF
 
 /* Define if either C99 isnan() or TR1 std::isnan() is available */
 #undef PQXX_HAVE_ISNAN

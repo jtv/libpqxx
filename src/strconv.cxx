@@ -252,7 +252,7 @@ template<typename T> inline bool is_NaN(T Obj)
 template<typename T> inline bool is_Inf(T Obj)
 {
   return
-#if defined(PQXX_HAVE_C_ISINF)
+#if defined(PQXX_HAVE_ISINF)
     isinf(Obj);
 #else
     Obj >= Obj+1 && Obj <= 2*Obj && Obj >= 2*Obj;
