@@ -653,7 +653,7 @@ AC_TRY_COMPILE([#include<${with_postgres_include}/libpq-fe.h>],
 AC_MSG_RESULT($pqencryptpassword)
 
 
-AC_MSG_CHECKING([for C99 isnan()])
+AC_MSG_CHECKING([for isnan()])
 isnan=yes
 AC_TRY_COMPILE([#include <cmath>
 	extern double f();
@@ -664,16 +664,16 @@ AC_TRY_COMPILE([#include <cmath>
 )
 AC_MSG_RESULT($isnan)
 
-AC_MSG_CHECKING([for C99 isinf()])
-c_isinf=yes
+AC_MSG_CHECKING([for isinf()])
+isinf=yes
 AC_TRY_COMPILE([#include <cmath>
 	extern double f();
 	${usestd}],
-	[if(isinf(f())f()],
-	AC_DEFINE(PQXX_HAVE_C_ISINF,1,[Define if math.h defines C99 isinf()]),
-	[c_isinf=no]
+	[if(isinf(f())) f()],
+	AC_DEFINE(PQXX_HAVE_ISINF,1,[Define if either C99 isinf() or TR1 std::isinf() is available]),
+	[isinf=no]
 )
-AC_MSG_RESULT($c_isinf)
+AC_MSG_RESULT($isinf)
 
 AC_MSG_CHECKING([for standard distance()])
 distance=yes
