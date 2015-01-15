@@ -115,9 +115,6 @@
 /* Define if strlcpy exists */
 #undef PQXX_HAVE_STRLCPY
 
-/* Define if strnlen exists */
-#undef PQXX_HAVE_STRNLEN
-
 /* Define if the sys/select.h header defines a working select() and friends,
    as per POSIX 1003.1-2001 */
 #undef PQXX_HAVE_SYS_SELECT_H
