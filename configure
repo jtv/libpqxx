@@ -16912,34 +16912,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $distance" >&5
 $as_echo "$distance" >&6; }
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for auto_ptr" >&5
-$as_echo_n "checking for auto_ptr... " >&6; }
-auto_ptr='yes'
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-	#include <memory>
-	${usestd}
-        int *get_ptr();
-int
-main ()
-{
-auto_ptr<int> i(get_ptr())
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_AUTO_PTR 1" >>confdefs.h
-
-else
-  auto_ptr='no'
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $auto_ptr" >&5
-$as_echo "$auto_ptr" >&6; }
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for shared_ptr" >&5
 $as_echo_n "checking for shared_ptr... " >&6; }
 sharedptr='yes'

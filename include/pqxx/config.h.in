@@ -58,9 +58,6 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Define if compiler has auto_ptr */
-#undef PQXX_HAVE_AUTO_PTR
-
 /* Define if you have the <boost/smart_ptr.hpp> header */
 #undef PQXX_HAVE_BOOST_SMART_PTR
 

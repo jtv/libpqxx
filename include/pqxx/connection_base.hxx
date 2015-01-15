@@ -946,47 +946,6 @@ private:
 };
 
 
-
-#ifdef PQXX_HAVE_AUTO_PTR
-/// @deprecated Create an @c errorhandler instead.
-struct PQXX_LIBEXPORT PQXX_NOVTABLE noticer :
-  std::unary_function<const char[], void>
-{
-  virtual ~noticer() PQXX_NOEXCEPT {}
-  virtual void operator()(const char[]) PQXX_NOEXCEPT =0;
-};
-/// @deprecated Use @c quiet_errorhandler instead.
-struct PQXX_LIBEXPORT nonnoticer : noticer
-{
-  virtual void operator()(const char[]) PQXX_NOEXCEPT {}
-};
-/// @deprecated Create an @c errorhandler instead.
-class PQXX_LIBEXPORT scoped_noticer : errorhandler
-{
-public:
-  scoped_noticer(connection_base &c, std::auto_ptr<noticer> t) PQXX_NOEXCEPT :
-    errorhandler(c), m_noticer(t.release()) {}
-protected:
-  scoped_noticer(connection_base &c, noticer *t) PQXX_NOEXCEPT :
-    errorhandler(c), m_noticer(t) {}
-  virtual bool operator()(const char msg[]) PQXX_NOEXCEPT
-  {
-    (*m_noticer)(msg);
-    return false;
-  }
-private:
-  std::auto_ptr<noticer> m_noticer;
-};
-/// @deprecated Create a @c quiet_errorhandler instead.
-class PQXX_LIBEXPORT disable_noticer : scoped_noticer
-{
-public:
-  explicit disable_noticer(connection_base &c) :
-    scoped_noticer(c, new nonnoticer) {}
-};
-#endif
-
-
 namespace internal
 {
 
