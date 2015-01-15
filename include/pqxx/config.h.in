@@ -103,21 +103,6 @@
 /* Define if the system has the poll() function (mainly GNU/Linux) */
 #undef PQXX_HAVE_POLL
 
-/* Define if libpq has PQencryptPassword() */
-#undef PQXX_HAVE_PQENCRYPTPASSWORD
-
-/* Define if libpq has PQescapeIdentifier() */
-#undef PQXX_HAVE_PQESCAPEIDENTIFIER
-
-/* Define if libpq has PQescapeLiteral() */
-#undef PQXX_HAVE_PQESCAPELITERAL
-
-/* Define if libpq has PQisthreadsafe() */
-#undef PQXX_HAVE_PQISTHREADSAFE
-
-/* Define if PQunescapeBytea() supports hex escape format */
-#undef PQXX_HAVE_PQUNESCAPEBYTEA_9
-
 /* Define if compiler has shared_ptr */
 #undef PQXX_HAVE_SHARED_PTR
 

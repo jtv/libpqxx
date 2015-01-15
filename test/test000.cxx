@@ -1,7 +1,3 @@
-// We need some libpqxx-internal configuration items.  DON'T INCLUDE THIS HEADER
-// IN NORMAL CLIENT PROGRAMS!
-#include "pqxx/config-internal-compiler.h"
-
 #include <locale>
 
 #include "test_helpers.hxx"
@@ -165,7 +161,6 @@ void test_000(transaction_base &)
 
   // TODO: Test binarystring reversibility
 
-#ifdef PQXX_HAVE_PQENCRYPTPASSWORD
   const string pw = encrypt_password("foo", "bar");
   PQXX_CHECK(!pw.empty(), "Encrypting a password returned no data.");
   PQXX_CHECK_NOT_EQUAL(
@@ -175,7 +170,6 @@ void test_000(transaction_base &)
   PQXX_CHECK(
 	pw.find("bar") == string::npos,
 	"Encrypted password contains original.");
-#endif
 
   // Test error handling for failed connections
   {

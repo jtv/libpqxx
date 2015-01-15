@@ -118,13 +118,11 @@ static void pqxx_notice_processor(void *conn, const char *msg)
 }
 
 
-#ifdef PQXX_HAVE_PQENCRYPTPASSWORD
 string pqxx::encrypt_password(const string &user, const string &password)
 {
   PQAlloc<char> p(PQencryptPassword(password.c_str(), user.c_str()));
   return string(p.get());
 }
-#endif
 
 
 pqxx::connection_base::connection_base(connectionpolicy &pol) :
@@ -1214,7 +1212,6 @@ string pqxx::connection_base::quote(const binarystring &b)
 
 string pqxx::connection_base::quote_name(const string &identifier)
 {
-#ifdef PQXX_HAVE_PQESCAPEIDENTIFIER
   // We need a connection object...  This is the one reason why this function is
   // not const!
   activate();
@@ -1222,14 +1219,6 @@ string pqxx::connection_base::quote_name(const string &identifier)
 	PQescapeIdentifier(m_Conn, identifier.c_str(), identifier.size()));
   if (!buf.get()) throw failure(ErrMsg());
   return string(buf.get());
-#else
-  for (string::const_iterator i = identifier.begin(); i!=identifier.end(); ++i)
-    if (*i == '\\' || *i == '\'' || *i == '"' || *i == '\0')
-      throw feature_not_supported(
-	"Identifier contains characters that are difficult to escape; "
-	"this requires a newer libpq version.");
-  return "\"" + identifier + "\"";
-#endif
 }
 
 

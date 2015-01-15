@@ -2,12 +2,7 @@
 #include <set>
 #include <vector>
 
-// Get some information about our libpq version
-#include <pqxx/config-internal-libpq.h>
-
 #include "test_helpers.hxx"
-
-#include <pqxx/config-internal-libpq.h>
 
 using namespace std;
 using namespace pqxx;

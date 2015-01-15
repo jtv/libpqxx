@@ -1,7 +1,5 @@
 #include "test_helpers.hxx"
 
-#include "pqxx/config-internal-libpq.h"
-
 using namespace std;
 using namespace pqxx;
 

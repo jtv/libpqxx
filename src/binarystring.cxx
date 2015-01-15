@@ -33,16 +33,6 @@ using namespace pqxx::internal;
 namespace
 {
 typedef unsigned char unsigned_char;
-
-#ifndef PQXX_HAVE_PQUNESCAPEBYTEA_9
-// Convert textual digit to value
-inline unsigned char DV(unsigned char d)
-{
-  return unsigned_char(digit_to_number(char(d)));
-}
-#endif
-
-
 typedef pair<unsigned char *, size_t> buffer;
 
 
@@ -89,59 +79,9 @@ buffer builtin_unescape(const unsigned char escaped[], size_t)
 }
 
 
-#ifndef PQXX_HAVE_PQUNESCAPEBYTEA_9
-/// Is this in PostgreSQL 9.0 hex-escaped binary format?
-bool is_hex(const unsigned char buf[], size_t len)
-{
-  return len >= 2 && buf[0] == '\\' && buf[1] == 'x';
-}
-#endif
-
-
-#ifndef PQXX_HAVE_PQUNESCAPEBYTEA_9
-/// Unescape PostgreSQL 9.0 hex-escaped binary format: "\x3a20"
-string unescape_hex(const unsigned char buf[], size_t len)
-{
-  string bin;
-  bin.reserve((len-2)/2);
-  bool in_pair = false;
-  int last_nibble = 0;
-
-  for (size_t i=2; i<len; ++i)
-  {
-    const unsigned char c = buf[i];
-    if (isspace(c))
-    {
-      if (in_pair) throw out_of_range("Escaped binary data is malformed.");
-    }
-    else if (!isxdigit(c))
-    {
-      throw out_of_range("Escaped binary data contains invalid characters.");
-    }
-    else
-    {
-      const int nibble = (isdigit(c) ? DV(c) : (10 + tolower(c) - 'a'));
-      if (in_pair) bin += char((last_nibble<<4) | nibble);
-      else last_nibble = nibble;
-      in_pair = !in_pair;
-    }
-  }
-  if (in_pair) throw out_of_range("Escaped binary data appears truncated.");
-
-  return bin;
-}
-#endif
-
-
 buffer unescape(const unsigned char escaped[], size_t len)
 {
-#if defined(PQXX_HAVE_PQUNESCAPEBYTEA_9)
   return builtin_unescape(escaped, len);
-#else
-  // Supports octal format but not the newer hex format.
-  if (is_hex(escaped, len)) return to_buffer(unescape_hex(escaped, len));
-  else return builtin_unescape(escaped, len);
-#endif
 }
 
 } // namespace

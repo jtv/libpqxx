@@ -4,7 +4,7 @@
  - Support for many old compilers dropped.
  - Support for "long long" and "long double" types is always enabled.
  - No longer uses obsolete std::tr1 namespace; use plain std instead.
- - Support for pre-8.0 libpq versions dropped.
+ - Now requires libpq 9.0 or better.
  - Support for REPEATABLE READ isolation level added.
  - Build fix for OS X.
  - Build fixes for clang++ 3.2.
