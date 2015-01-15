@@ -376,85 +376,7 @@ void pqxx::connection_base::check_result(const result &R)
   // A shame we can't quite detect out-of-memory to turn this into a bad_alloc!
   if (!gate::result_connection(R)) throw failure(ErrMsg());
 
-  try
-  {
-    gate::result_creation(R).CheckStatus();
-  }
-  catch (const exception &e)
-  {
-    /* If the connection is broken, we'd expect is_open() to return false, since
-     * PQstatus() is supposed to return CONNECTION_BAD.
-     *
-     * It turns out that, at least for the libpq in PostgreSQL 8.0 and the 8.1
-     * prerelease I'm looking at now (we're writing July 2005), libpq will only
-     * abandon CONNECTION_OK if the errno code for the broken connection is
-     * exactly EPIPE or ECONNRESET.  This is usually fine for local connections,
-     * but ignores the wide range of fatal errors that can occur on TCP/IP
-     * sockets, such as extreme out-of-memory conditions, hardware failures,
-     * severed network connections, and serious software errors.  In these cases
-     * libpq will return an error result that is (as far as I can make out)
-     * indistinguishable from a server-side error, but will retain its state
-     * indication of CONNECTION_OK--thus inviting the possibly false impression
-     * that the query failed to execute (in reality it may have executed
-     * successfully) and the definitely false impression that the connection is
-     * still in a workable state.
-     *
-     * A particular worry is connection timeout.  One user observed a 15-minute
-     * period of inactivity when he pulled out a network cable, after which
-     * libpq finally returned a result object containing an error (the error
-     * message for connection failure is subject to translation, by the way, and
-     * is also subject to a bug where random data may currently be embedded in
-     * it in place of the system's explanation of the error, so even attempting
-     * to recognize the string is not a reliable workaround) but said the
-     * connection was still operational.
-     *
-     * This bug seems to have been fixed in the libpq that shipped with
-     * PostgreSQL 8.1.
-     */
-    // TODO: Only do this extra check when using buggy libpq!
-    if (!consume_input()) throw broken_connection(e.what());
-    const int fd = sock();
-    if (fd < 0) throw broken_connection(e.what());
-
-#ifdef PQXX_HAVE_POLL
-    pollfd pfd = { fd, POLLERR|POLLHUP|POLLNVAL, 0 };
-#else
-    fd_set errs;
-    clear_fdmask(&errs);
-#endif
-
-    int sel;
-    do
-    {
-#ifdef PQXX_HAVE_POLL
-      sel = poll(&pfd, 1, 0);
-#else
-      timeval nowait = { 0, 0 };
-      set_fdbit(fd, &errs);
-      sel = select(fd+1, 0, 0, &errs, &nowait);
-#endif
-    } while (sel == -1 && errno == EINTR);
-
-    switch (sel)
-    {
-    case -1:
-      switch (errno)
-      {
-      case EBADF:
-      case EINVAL:
-        throw broken_connection(e.what());
-      case ENOMEM:
-        throw bad_alloc();
-      }
-      break;
-    case 0:
-      break;
-    case 1:
-      throw broken_connection(e.what());
-    }
-
-    throw;
-  }
+  gate::result_creation(R).CheckStatus();
 }
 
 
@@ -1339,9 +1261,9 @@ void pqxx::connection_base::read_capabilities() PQXX_NOEXCEPT
   const int v = m_serverversion;
   const int p = protocol_version();
 
-  if (v <= 80000)
+  if (v <= 90000)
     throw feature_not_supported(
-	"Unsupported server version; 8.0 is the minimum.");
+	"Unsupported server version; 9.0 is the minimum.");
 
   m_caps[cap_prepared_statements] = true;
 
@@ -1355,7 +1277,7 @@ void pqxx::connection_base::read_capabilities() PQXX_NOEXCEPT
   m_caps[cap_create_table_with_oids] = true;
   m_caps[cap_read_only_transactions] = true;
 
-  m_caps[cap_notify_payload] = (v >= 90000);
+  m_caps[cap_notify_payload] = true;
 
   m_caps[cap_table_column] = (p >= 3);
 

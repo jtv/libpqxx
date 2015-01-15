@@ -1,4 +1,7 @@
 2015-01-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/connection_base.cxx:
+ - Remove some more workarounds for 8.x servers.
+2015-01-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/dbtransaction.hxx, include/pqxx/subtransaction.hxx,
  src/connection_base.cxx, src/cursor.cxx, src/dbtransaction.cxx,
  src/subtransaction.cxx:
