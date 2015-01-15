@@ -180,25 +180,22 @@ void test_prepared_statement(transaction_base &T)
 	nully.str(),
 	"Binary string breaks on nul byte.");
 
-  if (C.supports(connection_base::cap_prepare_unnamed_statement))
-  {
-    // Test unnamed prepared statement.
-    C.prepare("SELECT 2*$1");
-    int outcome = T.prepared()(9).exec()[0][0].as<int>();
-    PQXX_CHECK_EQUAL(outcome, 18, "Unnamed prepared statement went mad.");
+  // Test unnamed prepared statement.
+  C.prepare("SELECT 2*$1");
+  int outcome = T.prepared()(9).exec()[0][0].as<int>();
+  PQXX_CHECK_EQUAL(outcome, 18, "Unnamed prepared statement went mad.");
 
-    // Redefine unnamed prepared statement.  Does not need to be unprepared
-    // first.
-    C.prepare("SELECT 2*$1 + $2");
-    outcome = T.prepared()(9)(2).exec()[0][0].as<int>();
-    PQXX_CHECK_EQUAL(outcome, 20, "Unnamed statement not properly redefined.");
+  // Redefine unnamed prepared statement.  Does not need to be unprepared
+  // first.
+  C.prepare("SELECT 2*$1 + $2");
+  outcome = T.prepared()(9)(2).exec()[0][0].as<int>();
+  PQXX_CHECK_EQUAL(outcome, 20, "Unnamed statement not properly redefined.");
 
-    // Unlike how the unnamed prepared statement works in libpq, we can issue
-    // other queries and then re-use the unnamed prepared statement.
-    T.exec("SELECT 12");
-    outcome = T.prepared()(3)(1).exec()[0][0].as<int>();
-    PQXX_CHECK_EQUAL(outcome, 7, "Unnamed statement isn't what it was.");
-  }
+  // Unlike how the unnamed prepared statement works in libpq, we can issue
+  // other queries and then re-use the unnamed prepared statement.
+  T.exec("SELECT 12");
+  outcome = T.prepared()(3)(1).exec()[0][0].as<int>();
+  PQXX_CHECK_EQUAL(outcome, 7, "Unnamed statement isn't what it was.");
 }
 } // namespace
 

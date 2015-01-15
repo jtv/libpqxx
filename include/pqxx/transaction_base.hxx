@@ -306,10 +306,9 @@ public:
 
   /// Set session variable in this connection
   /** The new value is typically forgotten if the transaction aborts.
-   * Known exceptions to this rule are nontransaction, and PostgreSQL versions
-   * prior to 7.3.  In the case of nontransaction, the set value will be kept
-   * regardless; but in that case, if the connection ever needs to be recovered,
-   * the set value will not be restored.
+   * However nontransaction is an exception to this rule: in that case the set
+   * value will be kept regardless.  Also, if the connection ever needs to be
+   * recovered, a value you set in a nontransaction will not be restored.
    * @param Var The variable to set
    * @param Val The new value to store in the variable
    */

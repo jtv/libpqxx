@@ -13,12 +13,6 @@ void test_088(transaction_base &T0)
 {
   test::create_pqxxevents(T0);
   connection_base &C(T0.conn());
-  if (!C.supports(connection_base::cap_nested_transactions))
-  {
-    cout << "Backend version does not support nested transactions. "
-	    "Skipping test." << endl;
-    return;
-  }
 
   // Trivial test: create subtransactions, and commit/abort
   cout << T0.exec("SELECT 'T0 starts'")[0][0].c_str() << endl;

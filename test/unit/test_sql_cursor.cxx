@@ -250,9 +250,6 @@ void test_adopted_sql_cursor(connection_base &conn, transaction_base &trans)
 
 void test_hold_cursor(connection_base &conn, transaction_base &trans)
 {
-  // "WITH HOLD" cursors require backend version 7.4 or better.
-  if (conn.server_version() <= 70400) return;
-
   // "With hold" cursor is kept after commit.
   internal::sql_cursor with_hold(
 	trans,

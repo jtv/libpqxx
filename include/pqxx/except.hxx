@@ -41,7 +41,7 @@ namespace pqxx
  * status in libpqxx as in_doubt_error, and too_many_connections is classified
  * as a broken_connection rather than a subtype of insufficient_resources.
  *
- * @see http://www.postgresql.org/docs/8.1/interactive/errcodes-appendix.html
+ * @see http://www.postgresql.org/docs/9.4/interactive/errcodes-appendix.html
  *
  * @{
  */
