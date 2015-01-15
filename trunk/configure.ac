@@ -441,16 +441,6 @@ AC_MSG_RESULT($gnu_strerror_r)
 fi # strerror_r
 
 
-AC_MSG_CHECKING([for strnlen])
-strnlen=yes
-AC_TRY_COMPILE(
-	[#include <cstring>
-	${usestd}],
-	[return strnlen("",1)],
-	[AC_DEFINE(PQXX_HAVE_STRNLEN,1,[Define if strnlen exists])],
-	strnlen=no)
-AC_MSG_RESULT($strnlen)
-
 AC_MSG_CHECKING([for strlcpy])
 strlcpy=yes
 AC_TRY_COMPILE(

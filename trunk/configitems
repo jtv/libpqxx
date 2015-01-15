@@ -24,7 +24,6 @@ PQXX_HAVE_SHARED_PTR	public	compiler
 PQXX_HAVE_SLEEP	internal	compiler
 PQXX_HAVE_STRERROR_R	internal	compiler
 PQXX_HAVE_STRERROR_R_GNU	internal	compiler
-PQXX_HAVE_STRNLEN	internal	compiler
 PQXX_HAVE_STRLCPY	internal	compiler
 PQXX_HAVE_SYS_SELECT_H	internal	compiler
 PQXX_HAVE_UNIQUE_PTR	public	compiler

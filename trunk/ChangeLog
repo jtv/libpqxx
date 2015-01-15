@@ -1,4 +1,8 @@
 2015-01-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/gcc-4.4/pqxx/config-internal-compiler.h,
+ configitems, configure.ac.in, include/pqxx/config.h.in:
+ - Remove check for nonstandard, and unneeded, strnlen().
+2015-01-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  README-UPGRADE,
  config/sample-headers/compiler/gcc-4.4/pqxx/config-public-compiler.h,
  configitems, configure.ac.in, include/pqxx/config.h.in,
