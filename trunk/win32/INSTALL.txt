@@ -347,12 +347,11 @@ undefined.  Note that defining these macros to anything at all, even 0, means
 that the corresponding option is enabled.  They are normally defined to 1, but
 that value seems to have been chosen more for convention than anything else.
 
-At the time of writing, there are 3 of these configuration headers that you
-need to concern yourself about, all of which should be created in the
+At the time of writing, there are 2 of these configuration headers that you
+need to concern yourself about, both of which should be created in the
 include/pqxx subdirectory:
 
 	config-internal-compiler.h
-	config-internal-libpq.h
 	config-public-compiler.h
 
 
@@ -366,24 +365,24 @@ client programs.  Public configuration items are prefixed with PQXX_ to avoid
 clashes with macros defined by other code.
 
 2. Autotools-related, compiler-related, or libpq-related.  The autotools items
-are of no real interest, but the compiler and libpq ones are different.  The
-compiler-related ones describe features and shortcomings of the compiler
-environment, such as the availability of the <unistd.h> header or the ability
-to compile certain complex C++ language constructs.  The libpq items describe
-what features are available in the version of libpq you're compiling against.
-At the time of writing, the latter all take the HAVE_... form; defining such a
-macro indicates that the corresponding feature is available.
+are of no real interest, and the libpq section is currently empty, but the
+compiler one is different.  The compiler-related items describe features and
+shortcomings of the compiler environment, such as the availability of
+particular headers or definitions, or the ability to compile C++ language
+constructs that aren't always available.  The libpq items (none at the time of
+writing) describe what features are available in the version of libpq you're
+compiling against.
 
 A complete list of configuration items and their categorizations can be found in
 the configitems file.  The normal configure script reads the list of items from
 include/pqxx/config.h.in and writes them to include/pqxx/config.h, then splits
 them up into the five smaller files as directed by the configitems database.
 
-Again, sample versions of these headers for various compilers and libpq versions
-can be found in the config/sample-headers/ directory.  Try copying the three
-headers for the compiler and libpq version most resembling your own environment
-to include/pqxx/ and, if you have any problems compiling with those, editing
-them by hand to enable or disable features that appear to be giving you trouble.
+Again, sample versions of these headers for various environments can be found
+in the config/sample-headers/ directory.  Try copying the ones that most
+resemble your own environment into include/pqxx/ and, if you have any problems
+compiling with those, editing them by hand to enable or disable features that
+appear to be giving you trouble.
 
 
 Shared and Static Libraries, or .DLL vs. .LIB

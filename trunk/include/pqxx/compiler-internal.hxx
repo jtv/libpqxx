@@ -22,9 +22,6 @@
 // Workarounds & definitions needed to compile libpqxx into a library
 #include "pqxx/config-internal-compiler.h"
 
-// Library-private configuration related to libpq version
-#include "pqxx/config-internal-libpq.h"
-
 #ifdef _WIN32
 
 #ifdef PQXX_SHARED

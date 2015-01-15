@@ -14,7 +14,7 @@ a name clash with std::tuple in code that has both "using std;" and
 "using pqxx;".
 
 Support for many older compilers and libpq versions has been removed.  You will
-need at least libpq version 8.0, and the oldest gcc version that is known to
+need at least libpq version 9.0, and the oldest gcc version that is known to
 compile the current libpqxx is g++ 4.4.
 
 

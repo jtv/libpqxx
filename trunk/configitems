@@ -21,11 +21,6 @@ PQXX_HAVE_ISNAN	internal	compiler
 PQXX_HAVE_MOVE	public	compiler
 PQXX_HAVE_NOEXCEPT	public	compiler
 PQXX_HAVE_POLL	internal	compiler
-PQXX_HAVE_PQESCAPELITERAL	internal	libpq
-PQXX_HAVE_PQESCAPEIDENTIFIER	internal	libpq
-PQXX_HAVE_PQISTHREADSAFE	internal	libpq
-PQXX_HAVE_PQENCRYPTPASSWORD	internal	libpq
-PQXX_HAVE_PQUNESCAPEBYTEA_9	internal	libpq
 PQXX_HAVE_SHARED_PTR	public	compiler
 PQXX_HAVE_SLEEP	internal	compiler
 PQXX_HAVE_STRERROR_R	internal	compiler
