@@ -244,26 +244,7 @@ cursor_base::difference_type pqxx::internal::sql_cursor::move(
 
   const string query = "MOVE " + stridestring(rows) + " IN \"" + name() + "\"";
   const result r(gate::connection_sql_cursor(m_home).Exec(query.c_str(), 0));
-
-  // Starting with the libpq in PostgreSQL 7.4, PQcmdTuples() (which we call
-  // indirectly here) also returns the number of rows skipped by a MOVE
   difference_type d = difference_type(r.affected_rows());
-
-  // We may not have PQcmdTuples(), or this may be a libpq version that doesn't
-  // implement it for MOVE yet.  We'll also get zero if we decide to use a
-  // prepared statement for the MOVE.
-  if (!d)
-  {
-    static const string StdResponse("MOVE ");
-    const char *const status = gate::result_sql_cursor(r).CmdStatus();
-    if (strncmp(status, StdResponse.c_str(), StdResponse.size()) != 0)
-      throw internal_error("cursor MOVE returned "
-	  "'" + string(status) + "' "
-	  "(expected '" + StdResponse + "')");
-
-    from_string(status + StdResponse.size(), d);
-  }
-
   displacement = adjust(rows, d);
   return d;
 }

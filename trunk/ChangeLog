@@ -1,4 +1,21 @@
 2015-01-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx,
+ include/pqxx/except.hxx,
+ include/pqxx/row.hxx,
+ include/pqxx/transaction_base.hxx,
+ src/connection_base.cxx,
+ src/cursor.cxx,
+ test/test088.cxx,
+ test/test089.cxx,
+ test/test093.cxx,
+ test/unit/test_parameterized.cxx,
+ test/unit/test_prepared_statement.cxx:
+ test/unit/test_read_transaction.cxx,
+ test/unit/test_sql_cursor.cxx:
+ - Drop support for frontend/backend protocol version 2; require version 3.
+ - Version 3 was introduced around postgres 7.4.
+ - The server only needs version 2 for clients that haven't been updated.
+2015-01-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/connection_base.cxx:
  - Remove some more workarounds for 8.x servers.
 2015-01-15  Jeroen T. Vermeulen <jtv@xs4all.nl>

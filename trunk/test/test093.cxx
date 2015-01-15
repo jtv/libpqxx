@@ -21,12 +21,6 @@ void test_093(transaction_base &T)
     R = T.exec("SELECT z,y,x FROM pqxxfoo");
     X = T.exec("SELECT x,y,z,99 FROM pqxxfoo");
 
-    if (!T.conn().supports(connection_base::cap_table_column))
-    {
-      cout << "No support for querying table columns.  Skipping." << endl;
-      return;
-    }
-
     // T and connection are closed here; result objects remain
   }
 

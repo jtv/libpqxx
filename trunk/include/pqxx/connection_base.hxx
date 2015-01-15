@@ -72,7 +72,7 @@ private:
 }
 
 
-/// Encrypt password for given user.  Requires libpq 8.2 or better.
+/// Encrypt password for given user.
 /** Use this when setting a new password for the user if password encryption is
  * enabled.  Inputs are the username the password is for, and the plaintext
  * password.
@@ -88,8 +88,6 @@ private:
  *   	"PASSWORD '" + encrypt_password(user,pw) + "'");
  * }
  * @endcode
- *
- * @since libpq 8.2
  */
 std::string PQXX_LIBEXPORT encrypt_password(				//[t0]
 	const std::string &user,
@@ -324,51 +322,66 @@ public:
   /** 
    * @name Capabilities
    *
-   * Some functionality is only available in certain versions of the backend,
-   * or only when speaking certain versions of the communications protocol that
-   * connects us to the backend.  This includes clauses for SQL statements that
-   * were not accepted in older database versions, but are required in newer
-   * versions to get the same behaviour.
+   * Some functionality may only be available in certain versions of the
+   * backend, or only when speaking certain versions of the communications
+   * protocol that connects us to the backend.
    */
   //@{
  
   /// Session capabilities
   enum capability
   {
-    /// Does the backend support prepared statements?  (If not, we emulate them)
+    /** Does the backend support prepared statements?
+     * @deprecated Always supported in libpqxx 5.0 or better.
+     */
     cap_prepared_statements,
-
-    /// Can we specify WITH OIDS with CREATE TABLE?
+    /** Can we specify WITH OIDS with CREATE TABLE?
+     * @deprecated Always supported in libpqxx 5.0 or better.
+     */
     cap_create_table_with_oids,
-
-    /// Can transactions be nested in other transactions?
+    /** Can transactions be nested in other transactions?
+     * @deprecated Always supported in libpqxx 5.0 or better.
+     */
     cap_nested_transactions,
-
-    /// Can cursors be declared SCROLL?
+    /** Can cursors be declared SCROLL?
+     * @deprecated Always supported in libpqxx 5.0 or better.
+     */
     cap_cursor_scroll,
-    /// Can cursors be declared WITH HOLD?
+    /** Can cursors be declared WITH HOLD?
+     * @deprecated Always supported in libpqxx 5.0 or better.
+     */
     cap_cursor_with_hold,
-    /// Can cursors be updateable?
+    /** Can cursors be updateable?
+     * @deprecated Always supported in libpqxx 5.0 or better.
+     */
     cap_cursor_update,
-    /// Can cursors fetch zero elements?  (Used to trigger a "fetch all")
+    /** Can cursors fetch zero elements?  (Used to trigger a "fetch all")
+     * @deprecated Always supported in libpqxx 5.0 or better.
+     */
     cap_cursor_fetch_0,
-
-    /// Can we ask what table column a result column came from?
+    /** Can we ask what table column a result column came from?
+     * @deprecated Always supported in libpqxx 5.0 or better.
+     */
     cap_table_column,
-
-    /// Can transactions be READ ONLY?
+    /** Can transactions be READ ONLY?
+     * @deprecated Always supported in libpqxx 5.0 or better.
+     */
     cap_read_only_transactions,
-
-    /// Do prepared statements support varargs?
+    /** Do prepared statements support varargs?
+     * @deprecated Always supported in libpqxx 5.0 or better.
+     */
     cap_statement_varargs,
-
-    /// Is the unnamed prepared statement supported?
+    /** Is the unnamed prepared statement supported?
+     * @deprecated Always supported in libpqxx 5.0 or better.
+     */
     cap_prepare_unnamed_statement,
-
-    /// Can this connection execute parameterized statements?
+    /** Can this connection execute parameterized statements?
+     * @deprecated Always supported in libpqxx 5.0 or better.
+     */
     cap_parameterized_statements,
-
-    /// Can notifications carry payloads?
+    /** Can notifications carry payloads?
+     * @deprecated Always supported in libpqxx 5.0 or better.
+     */
     cap_notify_payload,
 
     /// Not a capability value; end-of-enumeration marker
@@ -397,26 +410,22 @@ public:
 	{ return m_caps.test(c); }
 
   /// What version of the PostgreSQL protocol is this connection using?
-  /** The answer can be 0 (when there is no connection, or the libpq version
-   * being used is too old to obtain the information); 2 for protocol 2.0; 3 for
-   * protocol 3.0; and possibly higher values as newer protocol versions are
-   * taken into use.
+  /** The answer can be 0 (when there is no connection); 3 for protocol 3.0; or
+   * possibly higher values as newer protocol versions are taken into use.
    *
    * If the connection is broken and restored, the restored connection could
-   * possibly a different server and protocol version.  This would normally
+   * possibly use a different server and protocol version.  This would normally
    * happen if the server is upgraded without shutting down the client program,
    * for example.
-   *
-   * Requires libpq version from PostgreSQL 7.4 or better.
    */
   int PQXX_PURE protocol_version() const PQXX_NOEXCEPT;			//[t1]
 
   /// What version of the PostgreSQL server are we connected to?
   /** The result is a bit complicated: each of the major, medium, and minor
    * release numbers is written as a two-digit decimal number, and the three
-   * are then concatenated.  Thus server version 7.4.2 will be returned as the
-   * decimal number 70402.  If there is no connection to the server, of if the
-   * libpq version is too old to obtain the information, zero is returned.
+   * are then concatenated.  Thus server version 9.4.2 will be returned as the
+   * decimal number 90402.  If there is no connection to the server, this
+   * returns zero.
    *
    * @warning When writing version numbers in your code, don't add zero at the
    * beginning!  Numbers beginning with zero are interpreted as octal (base-8)
@@ -443,9 +452,9 @@ public:
    * be restored automatically.  See the PostgreSQL documentation for a list of
    * variables that can be set and their permissible values.
    * If a transaction is currently in progress, aborting that transaction will
-   * normally discard the newly set value.  Known exceptions are nontransaction
-   * (which doesn't start a real backend transaction) and PostgreSQL versions
-   * prior to 7.3.
+   * normally discard the newly set value.  However nontransaction (which
+   * doesn't start a real backend transaction) is an exception.
+   *
    * @warning Do not mix the set_variable interface with manual setting of
    * variables by executing the corresponding SQL commands, and do not get or
    * set variables while a tablestream or pipeline is active on the same

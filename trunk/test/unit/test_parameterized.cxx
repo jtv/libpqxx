@@ -7,9 +7,6 @@ namespace
 {
 void test_exec_params(transaction_base &trans)
 {
-  if (!trans.conn().supports(connection_base::cap_parameterized_statements))
-    return;
-
   result r = trans.parameterized("SELECT $1 + 1")(12).exec();
   PQXX_CHECK_EQUAL(
 	r[0][0].as<int>(),

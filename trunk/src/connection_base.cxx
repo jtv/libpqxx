@@ -745,11 +745,6 @@ void pqxx::connection_base::prepare(
         throw argument_error(
 		"Inconsistent redefinition of prepared statement " + name);
 
-      if (!supports(cap_prepare_unnamed_statement))
-        throw feature_not_supported(
-		"Defining unnamed prepared statements requires a newer "
-		"libpq version.");
-
       i->second.registered = false;
       i->second.definition = definition;
     }
@@ -1257,31 +1252,33 @@ int pqxx::connection_base::await_notification(long seconds, long microseconds)
 void pqxx::connection_base::read_capabilities() PQXX_NOEXCEPT
 {
   m_serverversion = PQserverVersion(m_Conn);
-
-  const int v = m_serverversion;
-  const int p = protocol_version();
-
-  if (v <= 90000)
+  if (m_serverversion <= 90000)
     throw feature_not_supported(
 	"Unsupported server version; 9.0 is the minimum.");
 
+  switch (protocol_version()) {
+  case 0:
+    throw broken_connection();
+  case 1:
+  case 2:
+    throw feature_not_supported(
+        "Unsupported frontend/backend protocol version; 3.0 is the minimum.");
+  default:
+    break;
+  }
+
   m_caps[cap_prepared_statements] = true;
-
-  m_caps[cap_statement_varargs] = (p >= 3);
-  m_caps[cap_prepare_unnamed_statement] = (p >= 3);
-
+  m_caps[cap_statement_varargs] = true;
+  m_caps[cap_prepare_unnamed_statement] = true;
   m_caps[cap_cursor_scroll] = true;
   m_caps[cap_cursor_with_hold] = true;
   m_caps[cap_cursor_fetch_0] = true;
   m_caps[cap_nested_transactions] = true;
   m_caps[cap_create_table_with_oids] = true;
   m_caps[cap_read_only_transactions] = true;
-
   m_caps[cap_notify_payload] = true;
-
-  m_caps[cap_table_column] = (p >= 3);
-
-  m_caps[cap_parameterized_statements] = (p >= 3);
+  m_caps[cap_table_column] = true;
+  m_caps[cap_parameterized_statements] = true;
 }
 
 
@@ -1306,9 +1303,6 @@ pqxx::result pqxx::connection_base::parameterized_exec(
 	const int binaries[],
 	int nparams)
 {
-  if (!supports(cap_parameterized_statements)) throw feature_not_supported(
-	"Database backend version does not support parameterized statements.");
-
   result r = make_result(
   	PQexecParams(
 		m_Conn,
