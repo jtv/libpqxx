@@ -16,6 +16,7 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
+#include <cmath>
 #include <cstring>
 #include <limits>
 #include <locale>
@@ -240,7 +241,7 @@ template<typename T> inline string to_string_fallback(T Obj)
 template<typename T> inline bool is_NaN(T Obj)
 {
   return
-#if defined(PQXX_HAVE_C_ISNAN)
+#if defined(PQXX_HAVE_ISNAN)
     isnan(Obj);
 #else
     !(Obj <= Obj+numeric_limits<T>::max());

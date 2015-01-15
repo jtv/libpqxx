@@ -1,3 +1,11 @@
+2015-01-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/gcc-4.4/pqxx/config-internal-compiler.h,
+ config/sample-headers/compiler/VisualStudio2010/pqxx/config-internal-compiler.h,
+ configitems, configure.ac.in, include/pqxx/config.h.in, src/strconv.cxx:
+ - Rename PQXX_HAVE_C_ISNAN; TR1 defines a std::isnan() and we can use either.
+ - Fix check for isnan(); it always failed due to a syntax error.
+ - Add PQXX_HAVE_ISNAN to configitems; it was missing.
+ - Add PQXX_HAVE_ISNAN to sample headers.
 2015-01-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/compiler/gcc-4.4/pqxx/config-internal-compiler.h,
  configitems, configure.ac.in, include/pqxx/config.h.in:
