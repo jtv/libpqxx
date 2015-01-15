@@ -101,8 +101,6 @@ private:
   virtual void do_commit();						//[t88]
   virtual void do_abort();						//[t88]
 
-  void check_backendsupport() const;
-
   dbtransaction &m_parent;
 };
 

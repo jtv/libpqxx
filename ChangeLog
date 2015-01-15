@@ -1,38 +1,14 @@
 2015-01-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
- NEWS,
- README-UPGRADE,
- config/sample-headers/libpq,
- config/sample-headers/libpq/8.0,
- config/sample-headers/libpq/8.0/pqxx,
- config/sample-headers/libpq/8.0/pqxx/config-internal-libpq.h,
- config/sample-headers/libpq/8.1,
- config/sample-headers/libpq/8.1/pqxx,
- config/sample-headers/libpq/8.1/pqxx/config-internal-libpq.h,
- config/sample-headers/libpq/8.2,
- config/sample-headers/libpq/8.2/pqxx,
- config/sample-headers/libpq/8.2/pqxx/config-internal-libpq.h,
- config/sample-headers/libpq/8.3,
- config/sample-headers/libpq/8.3/pqxx,
- config/sample-headers/libpq/8.3/pqxx/config-internal-libpq.h,
- config/sample-headers/libpq/8.4,
- config/sample-headers/libpq/8.4/pqxx,
- config/sample-headers/libpq/8.4/pqxx/config-internal-libpq.h,
- config/sample-headers/libpq/9.0,
- config/sample-headers/libpq/9.0/pqxx,
- config/sample-headers/libpq/9.0/pqxx/config-internal-libpq.h,
- configitems,
- configure.ac.in,
- include/pqxx/Makefile.am,
- include/pqxx/compiler-internal.hxx,
- include/pqxx/config.h.in,
- src/binarystring.cxx,
- src/connection_base.cxx,
- src/util.cxx,
- test/test000.cxx,
- test/test093.cxx,
- test/unit/test_parameterized.cxx,
- tools/pqxx-fulltest,
- win32/INSTALL.txt:
+ include/pqxx/dbtransaction.hxx, include/pqxx/subtransaction.hxx,
+ src/connection_base.cxx, src/cursor.cxx, src/dbtransaction.cxx,
+ src/subtransaction.cxx:
+ - Drop support for 8.x backends; require 9.0 or better.
+2015-01-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ README-UPGRADE, config/sample-headers/libpq/, configitems, configure.ac.in,
+ include/pqxx/Makefile.am, include/pqxx/compiler-internal.hxx,
+ include/pqxx/config.h.in, src/binarystring.cxx, src/connection_base.cxx,
+ src/util.cxx, test/test000.cxx, test/test093.cxx,
+ test/unit/test_parameterized.cxx, tools/pqxx-fulltest, win32/INSTALL.txt:
  - Drop support for libpq 8.x; require 9.0 or better.
  - The whole config header for libpq features is currently gone!
 2015-01-15  Jeroen T. Vermeulen <jtv@xs4all.nl>

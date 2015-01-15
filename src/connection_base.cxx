@@ -874,7 +874,7 @@ pqxx::prepare::internal::prepared_def &
 pqxx::connection_base::register_prepared(const std::string &name)
 {
   activate();
-  if (!supports(cap_prepared_statements) || protocol_version() < 3)
+  if (protocol_version() < 3)
     throw feature_not_supported(
 	"Prepared statements in libpqxx require a newer server version.");
 
@@ -1339,17 +1339,21 @@ void pqxx::connection_base::read_capabilities() PQXX_NOEXCEPT
   const int v = m_serverversion;
   const int p = protocol_version();
 
-  m_caps[cap_prepared_statements] = (v >= 70300);
+  if (v <= 80000)
+    throw feature_not_supported(
+	"Unsupported server version; 8.0 is the minimum.");
 
-  m_caps[cap_statement_varargs] = (v >= 70300 && (p >= 3));
+  m_caps[cap_prepared_statements] = true;
+
+  m_caps[cap_statement_varargs] = (p >= 3);
   m_caps[cap_prepare_unnamed_statement] = (p >= 3);
 
-  m_caps[cap_cursor_scroll] = (v >= 70400);
-  m_caps[cap_cursor_with_hold] = (v >= 70400);
-  m_caps[cap_cursor_fetch_0] = (v >= 70400);
-  m_caps[cap_nested_transactions] = (v >= 80000);
-  m_caps[cap_create_table_with_oids] = (v >= 80000);
-  m_caps[cap_read_only_transactions] = (v >= 80000);
+  m_caps[cap_cursor_scroll] = true;
+  m_caps[cap_cursor_with_hold] = true;
+  m_caps[cap_cursor_fetch_0] = true;
+  m_caps[cap_nested_transactions] = true;
+  m_caps[cap_create_table_with_oids] = true;
+  m_caps[cap_read_only_transactions] = true;
 
   m_caps[cap_notify_payload] = (v >= 90000);
 

@@ -36,7 +36,6 @@ pqxx::subtransaction::subtransaction(
   dbtransaction(T.conn(), false),
   m_parent(T)
 {
-  check_backendsupport();
 }
 
 
@@ -54,7 +53,6 @@ pqxx::subtransaction::subtransaction(
   dbtransaction(T.conn(), false),
   m_parent(T)
 {
-  check_backendsupport();
 }
 
 
@@ -85,12 +83,3 @@ void pqxx::subtransaction::do_abort()
 {
   DirectExec(("ROLLBACK TO SAVEPOINT \"" + name() + "\"").c_str());
 }
-
-
-void pqxx::subtransaction::check_backendsupport() const
-{
-  if (!m_parent.conn().supports(connection_base::cap_nested_transactions))
-    throw feature_not_supported(
-	"Backend version does not support nested transactions");
-}
-

@@ -67,11 +67,8 @@ void test_notification(transaction_base &t)
 
   test_receive(t, "channel1");
 
-  if (conn.supports(connection_base::cap_notify_payload))
-  {
-    nontransaction u(conn);
-    test_receive(u, "channel2", "payload");
-  }
+  nontransaction u(conn);
+  test_receive(u, "channel2", "payload");
 }
 } // namespace
 

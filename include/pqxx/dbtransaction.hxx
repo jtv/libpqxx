@@ -64,11 +64,6 @@ enum readwrite_policy
  * transaction are implemented by a derived class.  The implementing concrete
  * class must also call Begin() and End() from its constructors and destructors,
  * respectively, and implement do_exec().
- *
- * @warning Read-only transactions require backend version 8.0 or better.  On
- * older backends, these transactions will be able to modify the database.
- * Even if you have a newer server version, it is not wise to rely on read-only
- * transactions alone to enforce a security model.
  */
 class PQXX_LIBEXPORT PQXX_NOVTABLE dbtransaction : public transaction_base
 {
