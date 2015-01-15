@@ -83,30 +83,17 @@ pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
   cq << "DECLARE \"" << name() << "\" ";
 
   m_home.activate();
-  if (m_home.supports(connection_base::cap_cursor_scroll))
-  {
-    if (ap == cursor_base::forward_only) cq << "NO ";
-    cq << "SCROLL ";
-  }
+
+  if (ap == cursor_base::forward_only) cq << "NO ";
+  cq << "SCROLL ";
 
   cq << "CURSOR ";
 
-  if (hold)
-  {
-    if (!m_home.supports(connection_base::cap_cursor_with_hold))
-      throw failure("Cursor " + name() + " "
-	  "created for use outside of its originating transaction, "
-	  "but this backend version does not support that.");
-    cq << "WITH HOLD ";
-  }
+  if (hold) cq << "WITH HOLD ";
 
   cq << "FOR " << string(query.begin(),last) << ' ';
 
   if (up != cursor_base::update) cq << "FOR READ ONLY ";
-  else if (!m_home.supports(connection_base::cap_cursor_update))
-    throw failure("Cursor " + name() + " "
-	"created as updatable, "
-	"but this backend version does not support that.");
   else cq << "FOR UPDATE ";
 
   qn << "[DECLARE " << name() << ']';
@@ -174,10 +161,7 @@ void pqxx::internal::sql_cursor::close() PQXX_NOEXCEPT
 void pqxx::internal::sql_cursor::init_empty_result(transaction_base &t)
 {
   if (pos() != 0) throw internal_error("init_empty_result() from bad pos()");
-
-  // This doesn't work with older backends, where "FETCH 0" meant "FETCH ALL."
-  if (m_home.supports(connection_base::cap_cursor_fetch_0))
-    m_empty_result = t.exec("FETCH 0 IN \"" + name() + '"');
+  m_empty_result = t.exec("FETCH 0 IN \"" + name() + '"');
 }
 
 

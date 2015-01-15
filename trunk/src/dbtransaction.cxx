@@ -28,7 +28,6 @@ using namespace pqxx::internal;
 namespace
 {
 string generate_set_transaction(
-	pqxx::connection_base &C,
 	pqxx::readwrite_policy rw,
 	const string &IsolationString=string())
 {
@@ -38,9 +37,7 @@ string generate_set_transaction(
     if (IsolationString != pqxx::isolation_traits<pqxx::read_committed>::name())
       args += " ISOLATION LEVEL " + IsolationString;
 
-  if (rw != pqxx::read_write &&
-      C.supports(pqxx::connection_base::cap_read_only_transactions))
-    args += " READ ONLY";
+  if (rw != pqxx::read_write) args += " READ ONLY";
 
   return args.empty() ?
 	pqxx::internal::sql_begin_work :
@@ -55,7 +52,7 @@ pqxx::dbtransaction::dbtransaction(
 	readwrite_policy rw) :
   namedclass("dbtransaction"),
   transaction_base(C),
-  m_StartCmd(generate_set_transaction(C, rw, IsolationString))
+  m_StartCmd(generate_set_transaction(rw, IsolationString))
 {
 }
 
@@ -66,7 +63,7 @@ pqxx::dbtransaction::dbtransaction(
 	readwrite_policy rw) :
   namedclass("dbtransaction"),
   transaction_base(C, direct),
-  m_StartCmd(generate_set_transaction(C, rw))
+  m_StartCmd(generate_set_transaction(rw))
 {
 }
 

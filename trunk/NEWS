@@ -5,6 +5,7 @@
  - Support for "long long" and "long double" types is always enabled.
  - No longer uses obsolete std::tr1 namespace; use plain std instead.
  - Now requires libpq 9.0 or better.
+ - Requires server version 9.0 or better.
  - Support for REPEATABLE READ isolation level added.
  - Build fix for OS X.
  - Build fixes for clang++ 3.2.
