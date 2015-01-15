@@ -13,6 +13,8 @@ The tuple header, and the tuple class, have been renamed to "row".  This avoids
 a name clash with std::tuple in code that has both "using std;" and
 "using pqxx;".
 
+The deprecated "noticer" types have been removed.  Use errorhandler instead.
+
 Support for many older compilers and libpq versions has been removed.  You will
 need at least libpq version 9.0, and the oldest gcc version that is known to
 compile the current libpqxx is g++ 4.4.

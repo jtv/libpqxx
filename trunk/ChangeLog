@@ -1,4 +1,11 @@
 2015-01-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ README-UPGRADE,
+ config/sample-headers/compiler/gcc-4.4/pqxx/config-public-compiler.h,
+ configitems, configure.ac.in, include/pqxx/config.h.in,
+ include/pqxx/connection_base.hxx:
+ - Remove deprecated "noticer" definitions.
+ - Remove detection of auto_ptr; it is deprecated, and no longer needed either.
+2015-01-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx,
  include/pqxx/except.hxx,
  include/pqxx/row.hxx,

@@ -618,19 +618,6 @@ AC_TRY_COMPILE([#include <iterator>
 	[distance='no'])
 AC_MSG_RESULT($distance)
 
-AC_MSG_CHECKING([for auto_ptr])
-auto_ptr='yes'
-AC_TRY_COMPILE([
-	#include <memory>
-	${usestd}
-        int *get_ptr();],
-	[auto_ptr<int> i(get_ptr())],
-	[AC_DEFINE(PQXX_HAVE_AUTO_PTR,
-		1,
-		[Define if compiler has auto_ptr])],
-	[auto_ptr='no'])
-AC_MSG_RESULT($auto_ptr)
-
 AC_MSG_CHECKING([for shared_ptr])
 sharedptr='yes'
 AC_TRY_COMPILE([#include <memory>],
