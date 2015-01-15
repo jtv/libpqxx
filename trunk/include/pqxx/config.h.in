@@ -73,9 +73,6 @@
 /* Define if math.h defines C99 isinf() */
 #undef PQXX_HAVE_C_ISINF
 
-/* Define if math.h defines C99 isnan() */
-#undef PQXX_HAVE_C_ISNAN
-
 /* Define if distance() works according to the standard */
 #undef PQXX_HAVE_DISTANCE
 
@@ -93,6 +90,9 @@
 
 /* Define if g++ supports visibility attribute, as in g++ 4.0 */
 #undef PQXX_HAVE_GCC_VISIBILITY
+
+/* Define if either C99 isnan() or TR1 std::isnan() is available */
+#undef PQXX_HAVE_ISNAN
 
 /* Define if compiler has move(). */
 #undef PQXX_HAVE_MOVE

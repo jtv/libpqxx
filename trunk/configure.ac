@@ -654,18 +654,18 @@ AC_MSG_RESULT($pqencryptpassword)
 
 
 AC_MSG_CHECKING([for C99 isnan()])
-c_isnan=yes
+isnan=yes
 AC_TRY_COMPILE([#include <cmath>
 	extern double f();
 	${usestd}],
-	[if(isnan(f())f()],
-	AC_DEFINE(PQXX_HAVE_C_ISNAN,1,[Define if math.h defines C99 isnan()]),
-	[c_isnan=no]
+	[if(isnan(f())) f()],
+	AC_DEFINE(PQXX_HAVE_ISNAN,1,[Define if either C99 isnan() or TR1 std::isnan() is available]),
+	[isnan=no]
 )
-AC_MSG_RESULT($c_isnan)
+AC_MSG_RESULT($isnan)
 
 AC_MSG_CHECKING([for C99 isinf()])
-c_isnan=yes
+c_isinf=yes
 AC_TRY_COMPILE([#include <cmath>
 	extern double f();
 	${usestd}],

@@ -16974,7 +16974,7 @@ $as_echo "$pqencryptpassword" >&6; }
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for C99 isnan()" >&5
 $as_echo_n "checking for C99 isnan()... " >&6; }
-c_isnan=yes
+isnan=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <cmath>
@@ -16983,26 +16983,26 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 int
 main ()
 {
-if(isnan(f())f()
+if(isnan(f())) f()
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_cxx_try_compile "$LINENO"; then :
 
-$as_echo "#define PQXX_HAVE_C_ISNAN 1" >>confdefs.h
+$as_echo "#define PQXX_HAVE_ISNAN 1" >>confdefs.h
 
 else
-  c_isnan=no
+  isnan=no
 
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $c_isnan" >&5
-$as_echo "$c_isnan" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $isnan" >&5
+$as_echo "$isnan" >&6; }
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for C99 isinf()" >&5
 $as_echo_n "checking for C99 isinf()... " >&6; }
-c_isnan=yes
+c_isinf=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <cmath>
