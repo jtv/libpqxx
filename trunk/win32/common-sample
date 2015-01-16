@@ -45,7 +45,9 @@ LIBPQINC=$(PGSQLSRC)\interfaces\libpq
 # those two files.
 #
 # If you installed PostgreSQL using the One Click Installer from EnterpriseDB,
-# comment out the next three lines and uncomment the following three:
+# comment out the next three lines and uncomment the following three.
+#
+# If you are using MinGW, remove the "Release" part from LIBPQPATH.
 
 LIBPQPATH=$(PGSQLSRC)\interfaces\libpq\Release
 LIBPQDLL=libpq.dll
