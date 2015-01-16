@@ -40,6 +40,9 @@ library included with PostgreSQL.
 There are two ways to make libpq available on a Windows system: Install it or
 build it from sources.
 
+Either way, make sure that you get the right build: don't mix 32-bit and 64-bit
+libraries, or ones built for "debug" and "release."
+
 Installing libpq
 ----------------
 The easiest way to get libpq on a Windows system, is to install PostgreSQL.  The

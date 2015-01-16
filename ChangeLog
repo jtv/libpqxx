@@ -1,4 +1,7 @@
 2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/INSTALL.txt:
+ - Note not to combine 32-bit and 64-bit libraries.  Thanks J. Voelker.
+2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/largeobject.cxx:
  - Include <algorithm> so that min()/max() work.
 2015-01-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
