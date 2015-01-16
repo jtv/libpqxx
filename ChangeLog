@@ -1,4 +1,7 @@
 2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/trigger, include/pqxx/trigger.hxx:
+ - Remove deprecated trigger class.
+2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/binarystring.hxx, src/binarystring.cxx:
  - Remove deprecated escape_binary functions.
 2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
