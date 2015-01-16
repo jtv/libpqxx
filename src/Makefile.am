@@ -10,7 +10,6 @@ libpqxx_la_SOURCES = binarystring.cxx \
 	largeobject.cxx \
 	nontransaction.cxx \
 	notification.cxx \
-	notify-listen.cxx \
 	pipeline.cxx \
 	prepared_statement.cxx \
 	result.cxx \

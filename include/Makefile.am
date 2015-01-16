@@ -17,7 +17,6 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/largeobject pqxx/largeobject.hxx \
 	pqxx/nontransaction pqxx/nontransaction.hxx \
 	pqxx/notification pqxx/notification.hxx \
-	pqxx/notify-listen pqxx/notify-listen.hxx \
 	pqxx/performance.hxx \
 	pqxx/pipeline pqxx/pipeline.hxx \
 	pqxx/prepared_statement pqxx/prepared_statement.hxx \

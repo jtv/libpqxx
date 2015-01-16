@@ -128,11 +128,10 @@ libpqxx_la_LIBADD =
 am_libpqxx_la_OBJECTS = binarystring.lo connection_base.lo \
 	connection.lo cursor.lo dbtransaction.lo errorhandler.lo \
 	except.lo field.lo largeobject.lo nontransaction.lo \
-	notification.lo notify-listen.lo pipeline.lo \
-	prepared_statement.lo result.lo robusttransaction.lo \
-	statement_parameters.lo strconv.lo subtransaction.lo \
-	tablereader.lo tablestream.lo tablewriter.lo transaction.lo \
-	transaction_base.lo row.lo util.lo
+	notification.lo pipeline.lo prepared_statement.lo result.lo \
+	robusttransaction.lo statement_parameters.lo strconv.lo \
+	subtransaction.lo tablereader.lo tablestream.lo tablewriter.lo \
+	transaction.lo transaction_base.lo row.lo util.lo
 libpqxx_la_OBJECTS = $(am_libpqxx_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -347,7 +346,6 @@ libpqxx_la_SOURCES = binarystring.cxx \
 	largeobject.cxx \
 	nontransaction.cxx \
 	notification.cxx \
-	notify-listen.cxx \
 	pipeline.cxx \
 	prepared_statement.cxx \
 	result.cxx \
@@ -463,7 +461,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/largeobject.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nontransaction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/notification.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/notify-listen.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pipeline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/prepared_statement.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/result.Plo@am__quote@
