@@ -1,4 +1,7 @@
 2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/extract-version:
+ - Replace obsolete sed -E option.  Fixes #265.
+2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/row.hxx:
  - Document slowness of indexing fields by name.
  - Fixes #274.  Thanks redrett.
