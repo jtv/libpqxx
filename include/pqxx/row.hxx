@@ -90,11 +90,23 @@ public:
 
   reference operator[](size_type) const PQXX_NOEXCEPT;			//[t11]
   reference operator[](int) const PQXX_NOEXCEPT;			//[t2]
+  /** Address field by name.
+   * @warning This is much slower than indexing by number, or iterating.
+   */
   reference operator[](const char[]) const;				//[t11]
+  /** Address field by name.
+   * @warning This is much slower than indexing by number, or iterating.
+   */
   reference operator[](const std::string &) const;			//[t11]
   reference at(size_type) const; 					//[t11]
   reference at(int) const;						//[t11]
+  /** Address field by name.
+   * @warning This is much slower than indexing by number, or iterating.
+   */
   reference at(const char[]) const;					//[t11]
+  /** Address field by name.
+   * @warning This is much slower than indexing by number, or iterating.
+   */
   reference at(const std::string &) const;				//[t11]
   //@}
 

@@ -1,4 +1,8 @@
 2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/row.hxx:
+ - Document slowness of indexing fields by name.
+ - Fixes #274.  Thanks redrett.
+2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/splitconfig, tools/template2mak.py:
  - Use /usr/bin/python instead of /usr/bin/python.  Closees #280.
 2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
