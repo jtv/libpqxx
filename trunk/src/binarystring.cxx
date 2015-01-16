@@ -144,36 +144,3 @@ string pqxx::binarystring::str() const
 {
   return string(get(), m_size);
 }
-
-
-string pqxx::escape_binary(const unsigned char bin[], size_t len)
-{
-  size_t escapedlen = 0;
-  unsigned char *p = const_cast<unsigned char *>(bin);
-  PQAlloc<unsigned char> A(PQescapeBytea(p, len, &escapedlen));
-  const char *cstr = reinterpret_cast<const char *>(A.get());
-  if (!cstr) throw bad_alloc();
-  return string(cstr, escapedlen-1);
-}
-
-string pqxx::escape_binary(const unsigned char bin[])
-{
-  return escape_binary(bin, strlen(reinterpret_cast<const char *>(bin)));
-}
-
-string pqxx::escape_binary(const char bin[], size_t len)
-{
-  return escape_binary(reinterpret_cast<const unsigned char *>(bin), len);
-}
-
-string pqxx::escape_binary(const char bin[])
-{
-  return escape_binary(bin, strlen(bin));
-}
-
-string pqxx::escape_binary(const string &bin)
-{
-  return escape_binary(bin.c_str(), bin.size());
-}
-
-

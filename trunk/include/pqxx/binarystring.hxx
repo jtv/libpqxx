@@ -145,53 +145,8 @@ public:
 private:
   size_type m_size;
 };
-
-
-/**
- * @addtogroup escaping String escaping
- *
- * @{
- */
-
-/// Escape binary string for inclusion in SQL
-/**
- * @deprecated Use the transaction's esc_raw() functions instead
- * \relatesalso binarystring
- */
-std::string PQXX_LIBEXPORT PQXX_DEPRECATED escape_binary(const std::string &bin);
-/// Escape binary string for inclusion in SQL
-/**
- * @deprecated Use the transaction's esc_raw() functions instead
- * \relatesalso binarystring
- */
-std::string PQXX_LIBEXPORT PQXX_DEPRECATED escape_binary(const char bin[]);
-/// Escape binary string for inclusion in SQL
-/**
- * @deprecated Use the transaction's esc_raw() functions instead
- * \relatesalso binarystring
- */
-std::string PQXX_LIBEXPORT escape_binary(const char bin[], size_t len);
-/// Escape binary string for inclusion in SQL
-/**
- * @deprecated Use the transaction's esc_raw() functions instead
- * \relatesalso binarystring
- */
-std::string PQXX_LIBEXPORT PQXX_DEPRECATED escape_binary(const unsigned char bin[]);
-/// Escape binary string for inclusion in SQL
-/**
- * @deprecated Use the transaction's esc_raw() functions instead
- * \relatesalso binarystring
- */
-std::string PQXX_LIBEXPORT escape_binary(const unsigned char bin[], size_t len);
-
-/**
- * @}
- */
-
-
 }
 
 #include "pqxx/compiler-internal-post.hxx"
 
 #endif
-
