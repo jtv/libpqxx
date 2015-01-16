@@ -1,4 +1,7 @@
 2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/splitconfig, tools/template2mak.py:
+ - Use /usr/bin/python instead of /usr/bin/python.  Closees #280.
+2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/notification.hxx:
  - Remove spurious second inclusion of compiler-internal-pre.hxx.
  - Fixes #283.  Thanks Jeroen Walter.

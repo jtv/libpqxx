@@ -15,6 +15,7 @@
  - Supports C++11.
  - No longer has obsolete debian & RPM packaging built in.
  - Fixed failure to detect some integer overflows during conversion.
+ - Build tooling uses /usr/bin/env python instead of /usr/bin/python.
 4.0
  - API change: noticers are gone!  Use errorhandlers to capture error output.
  - API change: tablereaders and tablewriters are gone; they weren't safe.
