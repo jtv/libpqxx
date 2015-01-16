@@ -1,4 +1,8 @@
 2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/notification.hxx:
+ - Remove spurious second inclusion of compiler-internal-pre.hxx.
+ - Fixes #283.  Thanks Jeroen Walter.
+2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  win32/common-sample:
  - Document different libpq path when using MinGW.
  - Fixes #289.  Thanks ajonen.
