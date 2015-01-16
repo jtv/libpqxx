@@ -1,3 +1,6 @@
+2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/largeobject.cxx:
+ - Include <algorithm> so that min()/max() work.
 2015-01-15  Jeroen T. Vermeulen <jtv@xs4all.nl>
  config/sample-headers/compiler/gcc-4.4/pqxx/config-internal-compiler.h,
  configitems, configure.ac.in, include/pqxx/config.h.in:

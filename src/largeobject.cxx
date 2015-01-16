@@ -17,6 +17,7 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
+#include <algorithm>
 #include <cerrno>
 #include <stdexcept>
 
