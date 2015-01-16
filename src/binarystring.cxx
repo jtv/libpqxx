@@ -53,7 +53,7 @@ buffer to_buffer(const string &source)
 
 
 
-buffer builtin_unescape(const unsigned char escaped[], size_t)
+buffer unescape(const unsigned char escaped[])
 {
 #ifdef _WIN32
   /* On Windows only, the return value from PQunescapeBytea() must be freed
@@ -78,12 +78,6 @@ buffer builtin_unescape(const unsigned char escaped[], size_t)
 #endif
 }
 
-
-buffer unescape(const unsigned char escaped[], size_t len)
-{
-  return builtin_unescape(escaped, len);
-}
-
 } // namespace
 
 
@@ -91,8 +85,7 @@ pqxx::binarystring::binarystring(const field &F) :
   super(),
   m_size(0)
 {
-  buffer unescaped(
-	unescape(reinterpret_cast<const_pointer>(F.c_str()), F.size()));
+  buffer unescaped(unescape(reinterpret_cast<const_pointer>(F.c_str())));
   super::operator=(super(unescaped.first));
   m_size = unescaped.second;
 }

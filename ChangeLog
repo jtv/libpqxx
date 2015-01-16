@@ -1,4 +1,7 @@
 2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ src/binarystring.cxx:
+ - Remove an internal level of indirection that was no longer needed.
+2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/extract-version:
  - Replace obsolete sed -E option.  Fixes #265.
 2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
