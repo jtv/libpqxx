@@ -1,4 +1,9 @@
 2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/Makefile.am, include/pqxx/notify-listen,
+ include/pqxx/notify-listen.hxx, include/pqxx/pqxx,
+ src/Makefile.am, src/notify-listen.cxx:
+ - Remove deprecated notify_listener class.
+2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/trigger, include/pqxx/trigger.hxx:
  - Remove deprecated trigger class.
 2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>

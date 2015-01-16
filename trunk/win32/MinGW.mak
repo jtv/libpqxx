@@ -9,7 +9,7 @@
 # The template2mak.py script should be available in the tools directory of the
 # libpqxx source archive.
 #
-# Generated from template '/tmp/libpqxx/trunk/win32/mingw.mak.template'.
+# Generated from template '/home/jtv/proj/libpqxx/trunk/win32/mingw.mak.template'.
 ################################################################################
 # MinGW makefile for libpqxx.  Don't use this; use the configure script instead!
 # Based on original contributed by Pasquale Fersini <basquale.fersini@libero.it>
@@ -30,7 +30,6 @@ OBJ = \
   src/largeobject.o \
   src/nontransaction.o \
   src/notification.o \
-  src/notify-listen.o \
   src/pipeline.o \
   src/prepared_statement.o \
   src/result.o \
@@ -101,9 +100,6 @@ src/nontransaction.o: src/nontransaction.cxx
 
 src/notification.o: src/notification.cxx
 	$(CXX) $(CPPFLAGS) -c src/notification.cxx -o src/notification.o $(CXXFLAGS)
-
-src/notify-listen.o: src/notify-listen.cxx
-	$(CXX) $(CPPFLAGS) -c src/notify-listen.cxx -o src/notify-listen.o $(CXXFLAGS)
 
 src/pipeline.o: src/pipeline.cxx
 	$(CXX) $(CPPFLAGS) -c src/pipeline.cxx -o src/pipeline.o $(CXXFLAGS)

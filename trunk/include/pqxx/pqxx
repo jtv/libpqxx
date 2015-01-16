@@ -23,7 +23,6 @@
 #include "pqxx/largeobject"
 #include "pqxx/nontransaction"
 #include "pqxx/notification"
-#include "pqxx/notify-listen"
 #include "pqxx/pipeline"
 #include "pqxx/prepared_statement"
 #include "pqxx/result"

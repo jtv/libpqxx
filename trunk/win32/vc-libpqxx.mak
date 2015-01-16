@@ -9,7 +9,7 @@
 # The template2mak.py script should be available in the tools directory of the
 # libpqxx source archive.
 #
-# Generated from template '/tmp/libpqxx/trunk/win32/vc-libpqxx.mak.template'.
+# Generated from template '/home/jtv/proj/libpqxx/trunk/win32/vc-libpqxx.mak.template'.
 ################################################################################
 # Visual C++ makefile for libpqxx
 # This file was created by Bart Samwel.
@@ -110,7 +110,6 @@ OBJ_STATICDEBUG=\
        "$(INTDIR_STATICDEBUG)\largeobject.obj" \
        "$(INTDIR_STATICDEBUG)\nontransaction.obj" \
        "$(INTDIR_STATICDEBUG)\notification.obj" \
-       "$(INTDIR_STATICDEBUG)\notify-listen.obj" \
        "$(INTDIR_STATICDEBUG)\pipeline.obj" \
        "$(INTDIR_STATICDEBUG)\prepared_statement.obj" \
        "$(INTDIR_STATICDEBUG)\result.obj" \
@@ -138,7 +137,6 @@ OBJ_STATICRELEASE=\
        "$(INTDIR_STATICRELEASE)\largeobject.obj" \
        "$(INTDIR_STATICRELEASE)\nontransaction.obj" \
        "$(INTDIR_STATICRELEASE)\notification.obj" \
-       "$(INTDIR_STATICRELEASE)\notify-listen.obj" \
        "$(INTDIR_STATICRELEASE)\pipeline.obj" \
        "$(INTDIR_STATICRELEASE)\prepared_statement.obj" \
        "$(INTDIR_STATICRELEASE)\result.obj" \
@@ -166,7 +164,6 @@ OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\largeobject.obj" \
        "$(INTDIR_DLLDEBUG)\nontransaction.obj" \
        "$(INTDIR_DLLDEBUG)\notification.obj" \
-       "$(INTDIR_DLLDEBUG)\notify-listen.obj" \
        "$(INTDIR_DLLDEBUG)\pipeline.obj" \
        "$(INTDIR_DLLDEBUG)\prepared_statement.obj" \
        "$(INTDIR_DLLDEBUG)\result.obj" \
@@ -195,7 +192,6 @@ OBJ_DLLRELEASE=\
        "$(INTDIR_DLLRELEASE)\largeobject.obj" \
        "$(INTDIR_DLLRELEASE)\nontransaction.obj" \
        "$(INTDIR_DLLRELEASE)\notification.obj" \
-       "$(INTDIR_DLLRELEASE)\notify-listen.obj" \
        "$(INTDIR_DLLRELEASE)\pipeline.obj" \
        "$(INTDIR_DLLRELEASE)\prepared_statement.obj" \
        "$(INTDIR_DLLRELEASE)\result.obj" \
@@ -389,13 +385,6 @@ $(INTDIR_DLLRELEASE):
 	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/notification.cxx
 
 
-"$(INTDIR_STATICRELEASE)\notify-listen.obj": src/notify-listen.cxx $(INTDIR_STATICRELEASE)
-	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/notify-listen.cxx
-
-"$(INTDIR_STATICDEBUG)\notify-listen.obj": src/notify-listen.cxx $(INTDIR_STATICDEBUG)
-	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/notify-listen.cxx
-
-
 "$(INTDIR_STATICRELEASE)\pipeline.obj": src/pipeline.cxx $(INTDIR_STATICRELEASE)
 	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/pipeline.cxx
 
@@ -571,13 +560,6 @@ $(INTDIR_DLLRELEASE):
 
 "$(INTDIR_DLLDEBUG)\notification.obj": src/notification.cxx $(INTDIR_DLLDEBUG)
 	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/notification.cxx
-
-
-"$(INTDIR_DLLRELEASE)\notify-listen.obj": src/notify-listen.cxx $(INTDIR_DLLRELEASE)
-	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/notify-listen.cxx
-
-"$(INTDIR_DLLDEBUG)\notify-listen.obj": src/notify-listen.cxx $(INTDIR_DLLDEBUG)
-	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/notify-listen.cxx
 
 
 "$(INTDIR_DLLRELEASE)\pipeline.obj": src/pipeline.cxx $(INTDIR_DLLRELEASE)
