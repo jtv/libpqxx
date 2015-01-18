@@ -1,4 +1,10 @@
 2015-01-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/unit/test_subtransaction.cxx:
+ - Reproduce #271: subtransaction does not roll back implicitly.
+ - Test subtransaction's commit behaviour more systematically.
+ src/subtransaction.cxx:
+ - Call End() from destructor.  Fixes #271.  Thanks harmic.
+2015-01-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test069.cxx:
  - Fix spurious failure; sometimes the number of tables seems to change.
 2015-01-18  Jeroen T. Vermeulen <jtv@xs4all.nl>

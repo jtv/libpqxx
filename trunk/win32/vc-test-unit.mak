@@ -97,6 +97,7 @@ OBJS= \
   $(INTDIR)\test_sql_cursor.obj \
   $(INTDIR)\test_stateless_cursor.obj \
   $(INTDIR)\test_string_conversion.obj \
+  $(INTDIR)\test_subtransaction.obj \
   $(INTDIR)\test_test_helpers.obj \
   $(INTDIR)\test_thread_safety_model.obj \
   $(INTDIR)\runner.obj
@@ -167,6 +168,8 @@ $(INTDIR)\test_stateless_cursor.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_stateless_cursor.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_string_conversion.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_string_conversion.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
+$(INTDIR)\test_subtransaction.obj:
+	@$(CXX) $(CXX_FLAGS) test/unit/test_subtransaction.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_test_helpers.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_test_helpers.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_thread_safety_model.obj:
