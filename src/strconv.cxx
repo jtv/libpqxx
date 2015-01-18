@@ -255,21 +255,15 @@ template<typename T> inline bool is_Inf(T Obj)
 #if defined(PQXX_HAVE_ISINF)
     isinf(Obj);
 #else
-    Obj >= Obj+1 && Obj <= 2*Obj && Obj >= 2*Obj;
+    Obj >= Obj+10 && Obj <= 2*Obj && Obj >= 2*Obj;
 #endif
 }
 
 
 template<typename T> inline string to_string_float(T Obj)
 {
-  // TODO: Omit this special case if NaN is output as "nan"/"NAN"/"NaN"
-#ifndef PQXX_HAVE_NAN_OUTPUT
   if (is_NaN(Obj)) return "nan";
-#endif
-  // TODO: Omit this special case if infinity is output as "infinity"
-#ifndef PQXX_HAVE_INF_OUTPUT
   if (is_Inf(Obj)) return Obj > 0 ? "infinity" : "-infinity";
-#endif
   return to_string_fallback(Obj);
 }
 
