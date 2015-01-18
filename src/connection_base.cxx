@@ -1115,6 +1115,16 @@ string pqxx::connection_base::esc_raw(const unsigned char str[], size_t len)
 }
 
 
+string pqxx::connection_base::unesc_raw(const char *text)
+{
+  size_t len;
+  unsigned char *bytes = const_cast<unsigned char *>(
+	reinterpret_cast<const unsigned char *>(text));
+  const unsigned char *const buf = PQunescapeBytea(bytes, &len);
+  return string(buf, buf + len);
+}
+
+
 string pqxx::connection_base::quote_raw(const unsigned char str[], size_t len)
 {
   return "'" + esc_raw(str, len) + "'::bytea";

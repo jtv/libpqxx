@@ -184,10 +184,24 @@ public:
    * that can disrupt their use in SQL queries, they will be replaced with
    * special escape sequences.
    */
-  std::string esc_raw(const unsigned char str[], size_t len) const	//[t62]
-                                            { return conn().esc_raw(str, len); }
+  std::string esc_raw(const unsigned char data[], size_t len) const	//[t62]
+                                           { return conn().esc_raw(data, len); }
   /// Escape binary data for use as SQL string literal in this transaction
   std::string esc_raw(const std::string &) const;			//[t62]
+
+  /// Unescape binary data, e.g. from a table field or notification payload.
+  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
+   * copy of the original binary data.
+   */
+  std::string unesc_raw(const std::string &text) const
+					      { return conn().unesc_raw(text); }
+
+  /// Unescape binary data, e.g. from a table field or notification payload.
+  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
+   * copy of the original binary data.
+   */
+  std::string unesc_raw(const char *text) const
+					      { return conn().unesc_raw(text); }
 
   /// Represent object as SQL string, including quoting & escaping.
   /** Nulls are recognized and represented as SQL nulls. */

@@ -1,4 +1,9 @@
 2015-01-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
+ src/connection_base.cxx, test/unit/test_escape.cxx:
+ - New unesc_raw() function: un-escapes binary data.
+ - Fixes #277.  Thanks Markus Parker.
+2015-01-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/unit/test_subtransaction.cxx:
  - Reproduce #271: subtransaction does not roll back implicitly.
  - Test subtransaction's commit behaviour more systematically.
