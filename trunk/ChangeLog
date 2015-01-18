@@ -1,4 +1,9 @@
 2015-01-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/lint:
+ - Find all headers, including in subdirectories, but skip directories.
+ - Make script fail on error.
+ - Use $() instead of ``.
+2015-01-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, include/pqxx/transaction_base.hxx,
  src/connection_base.cxx, test/unit/test_escape.cxx:
  - New unesc_raw() function: un-escapes binary data.
