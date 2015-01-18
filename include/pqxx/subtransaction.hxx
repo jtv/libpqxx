@@ -96,6 +96,14 @@ public:
   explicit subtransaction(
 	subtransaction &T, const std::string &Name=std::string());
 
+  virtual ~subtransaction() PQXX_NOEXCEPT
+  {
+#ifdef PQXX_QUIET_DESTRUCTORS
+    quiet_errorhandler quiet(conn());
+#endif
+    End();
+  }
+
 private:
   virtual void do_begin();						//[t88]
   virtual void do_commit();						//[t88]
