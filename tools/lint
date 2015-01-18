@@ -2,7 +2,10 @@
 #
 # Routine sanity checks for libpqxx source tree.
 
-PQXXVERSION="`./tools/extract_version`"
+set -e
+
+
+PQXXVERSION="$(./tools/extract_version)"
 
 # This version must be at the top of the NEWS file.
 check_news_version() {
@@ -31,8 +34,8 @@ count_includes() {
 # Any file that includes compiler-internal-pre.hxx must also include
 # compiler-internal-post.hxx, and vice versa.
 check_compiler_internal_headers() {
-	local TEMPDIR PRE POST
-	TEMPDIR="`mktemp --tmpdir -d pqxx-pre-release-check.XXXX`"
+	local TEMPDIR PRE POST HEADERS
+	TEMPDIR="$(mktemp --tmpdir -d pqxx-pre-release-check.XXXX)"
 	if test -z "$TEMPDIR"
 	then
 		cat <<EOF >&2
@@ -41,9 +44,10 @@ EOF
 	fi
 	PRE="$TEMPDIR/pre"
 	POST="$TEMPDIR/post"
-	count_includes pqxx/compiler-internal-pre.hxx include/pqxx/* >"$PRE"
-	count_includes pqxx/compiler-internal-post.hxx include/pqxx/* >"$POST"
-	DIFF="`diff "$PRE" "$POST"`" || /bin/true
+	HEADERS=$(find include/pqxx/* -type f)
+	count_includes pqxx/compiler-internal-pre.hxx $HEADERS >"$PRE"
+	count_includes pqxx/compiler-internal-post.hxx $HEADERS >"$POST"
+	DIFF="$(diff "$PRE" "$POST")" || /bin/true
 	rm -rf -- "$TEMPDIR"
 	if test -n "$DIFF"
 	then
