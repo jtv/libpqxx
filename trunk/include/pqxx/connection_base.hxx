@@ -753,6 +753,19 @@ public:
   /// Escape binary string for use as SQL string literal on this connection
   std::string esc_raw(const unsigned char str[], size_t len);
 
+  /// Unescape binary data, e.g. from a table field or notification payload.
+  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
+   * copy of the original binary data.
+   */
+  std::string unesc_raw(const std::string &text)
+					     { return unesc_raw(text.c_str()); }
+
+  /// Unescape binary data, e.g. from a table field or notification payload.
+  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
+   * copy of the original binary data.
+   */
+  std::string unesc_raw(const char *text);
+
   /// Escape and quote a string of binary data.
   std::string quote_raw(const unsigned char str[], size_t len);
 

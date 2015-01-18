@@ -94,11 +94,28 @@ void test_quote_name(transaction_base &t)
 }
 
 
+void test_esc_raw_unesc_raw(transaction_base &t)
+{
+  const char binary[] = "1\0023\\4x5";
+  const string data(binary, sizeof(binary));
+  const string escaped = t.esc_raw(data);
+
+  for (string::const_iterator i = escaped.begin(); i != escaped.end(); ++i)
+    PQXX_CHECK(isascii(*i), "Non-ASCII character in escaped data: " + escaped);
+
+  PQXX_CHECK_EQUAL(
+	t.unesc_raw(escaped),
+	data,
+	"Unescaping binary data does not undo escaping it.");
+}
+
+
 void test_escaping(transaction_base &t)
 {
   test_esc(t.conn(), t);
   test_quote(t.conn(), t);
   test_quote_name(t);
+  test_esc_raw_unesc_raw(t);
 }
 } // namespace
 
