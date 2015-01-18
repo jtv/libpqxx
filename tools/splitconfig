@@ -28,8 +28,9 @@ where [srcdir] is the main libpqxx source directory containing the configitems
 file, the include directory etc.  This defaults to the current directory.
 """
 
-def help_and_exit(error_string=None):
-    if error_string != None:
+
+def help_and_exit(error_string=None, ok=True):
+    if error_string is not None:
         sys.stderr.write(error_string + '\n')
     print(usage)
     if ok:
@@ -96,7 +97,8 @@ def extract_section(header_lines, items, publication, factor):
     return sorted(
         line.strip()
         for line in header_lines
-            if items.get(extract_macro_name(line)) == (publication, factor))
+        if items.get(extract_macro_name(line)) == (publication, factor)
+        )
 
 
 def generate_config(header_lines, items, publication, factor):
@@ -123,13 +125,13 @@ def generate_config(header_lines, items, publication, factor):
 
 def check_args(argv):
     if len(argv) > 2:
-        help_and_exit("Too many arguments.")
+        help_and_exit("Too many arguments.", ok=False)
 
     if len(argv) == 2:
         if argv[1] in ('-h', '--help'):
             help_and_exit()
         if not os.path.isdir(argv[1]):
-            help_and_exit("%s is not a directory." % srcdir)
+            help_and_exit("%s is not a directory." % srcdir, ok=False)
 
 
 def get_base_dir(argv):

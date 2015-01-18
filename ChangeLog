@@ -1,3 +1,9 @@
+2015-01-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test069.cxx:
+ - Fix spurious failure; sometimes the number of tables seems to change.
+2015-01-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/lint, tools/splitconfig, tools/template2mak.py:
+ - Check for, and fix, Python lint.
 2015-01-16  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/Makefile.am, include/pqxx/notify-listen,
  include/pqxx/notify-listen.hxx, include/pqxx/pqxx,

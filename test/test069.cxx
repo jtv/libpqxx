@@ -12,7 +12,7 @@ namespace
 {
 void TestPipeline(pipeline &P, int numqueries)
 {
-  const string Q("SELECT count(*) FROM pg_tables");
+  const string Q("SELECT 99");
 
   for (int i=numqueries; i; --i) P.insert(Q);
 
