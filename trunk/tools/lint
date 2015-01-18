@@ -58,5 +58,19 @@ EOF
 }
 
 
+pylint() {
+	local PYFILES="tools/*.py tools/splitconfig"
+	if which pocketlint >/dev/null
+	then
+    	pocketlint $PYFILES
+	fi
+
+	if which flake8 >/dev/null
+	then
+    	flake8 $PYFILES
+	fi
+}
+
 check_news_version
 check_compiler_internal_headers
+pylint
