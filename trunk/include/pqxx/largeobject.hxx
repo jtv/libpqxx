@@ -130,7 +130,7 @@ public:
   void remove(dbtransaction &T) const;					//[t48]
 
 protected:
-  static internal::pq::PGconn * PQXX_PURE RawConnection(const dbtransaction &T);
+  PQXX_PURE static internal::pq::PGconn *RawConnection(const dbtransaction &T);
 
   std::string Reason(int err) const;
 
@@ -323,7 +323,7 @@ public:
   using largeobject::operator>=;
 
 private:
-  std::string PQXX_PRIVATE Reason(int err) const;
+  PQXX_PRIVATE std::string Reason(int err) const;
   internal::pq::PGconn *RawConnection() const
 	{ return largeobject::RawConnection(m_Trans); }
 

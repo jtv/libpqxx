@@ -162,22 +162,40 @@ AC_TRY_COMPILE([void __attribute__ ((const)) f();],
 	gcc_const_attr=yes)
 AC_MSG_RESULT($gcc_const_attr)
 
+AC_MSG_CHECKING([C++14 deprecation attribute])
+deprecated=yes
+AC_TRY_COMPILE([[[deprecated]] void f();],
+	[],
+	AC_DEFINE([PQXX_HAVE_DEPRECATED],1,
+		[Define if compiler supports [[deprecated]] attribute]),
+	deprecated=no)
+AC_MSG_RESULT($deprecated)
+
 AC_MSG_CHECKING([g++ deprecation attribute])
 gcc_deprecated=yes
-AC_TRY_COMPILE([void __attribute__ ((deprecated)) f();],
+AC_TRY_COMPILE([__attribute__ ((deprecated)) void f();],
 	[],
 	AC_DEFINE([PQXX_HAVE_GCC_DEPRECATED],1,
 		[Define if g++ supports deprecated attribute, as in g++ 4.0]),
 	gcc_deprecated=no)
 AC_MSG_RESULT($gcc_deprecated)
 
+AC_MSG_CHECKING([C++11 noreturn attribute])
+noreturn=yes
+AC_TRY_COMPILE([
+	[[noreturn]] void f();
+        void f(){throw 1;}
+	], [],
+	AC_DEFINE([PQXX_HAVE_NORETURN],1,
+		[Define if compiler supports [[noreturn]] attribute]),
+	noreturn=no)
+AC_MSG_RESULT($noreturn)
+
 AC_MSG_CHECKING([g++ noreturn attribute])
 gcc_noreturn=yes
-# Needs a throw spec and a definition in order to trip up a bug in clang++ 2.8.
-# It'll claim the throw spec is missing on the definition.
 AC_TRY_COMPILE([
-	void __attribute__ ((noreturn)) f() throw (int);
-        void f()throw(int){throw 1;}
+	__attribute__ ((noreturn)) void f();
+        void f(){throw 1;}
 	], [],
 	AC_DEFINE([PQXX_HAVE_GCC_NORETURN],1,
 		[Define if g++ supports noreturn attribute]),

@@ -69,11 +69,11 @@ private:
   virtual void do_commit();						//[t16]
   virtual void do_abort();						//[t18]
 
-  void PQXX_PRIVATE CreateLogTable();
-  void PQXX_PRIVATE CreateTransactionRecord();
-  std::string PQXX_PRIVATE sql_delete() const;
-  void PQXX_PRIVATE DeleteTransactionRecord() PQXX_NOEXCEPT;
-  bool PQXX_PRIVATE CheckTransactionRecord();
+  PQXX_PRIVATE void CreateLogTable();
+  PQXX_PRIVATE void CreateTransactionRecord();
+  PQXX_PRIVATE std::string sql_delete() const;
+  PQXX_PRIVATE void DeleteTransactionRecord() PQXX_NOEXCEPT;
+  PQXX_PRIVATE bool CheckTransactionRecord();
 };
 
 

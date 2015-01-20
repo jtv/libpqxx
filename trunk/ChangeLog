@@ -1,4 +1,17 @@
 2015-01-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in, include/pqxx/binarystring.hxx,
+ include/pqxx/compiler-public.hxx, include/pqxx/config.h.in,
+ include/pqxx/cursor.hxx, include/pqxx/except.hxx,
+ include/pqxx/largeobject.hxx, include/pqxx/pipeline.hxx,
+ include/pqxx/result.hxx, include/pqxx/robusttransaction.hxx,
+ include/pqxx/row.hxx, include/pqxx/strconv.hxx, include/pqxx/tablereader.hxx,
+ include/pqxx/tablewriter.hxx, include/pqxx/transaction_base.hxx,
+ include/pqxx/util.hxx, src/connection_base.cxx, src/except.cxx,
+ test/test_main.hxx:
+ - Support C++11 [[noreturn]] attribute.
+ - Support C++14 [[deprecated]] attribute.
+ - Move function attributes to front of declaration.
+2015-01-18  Jeroen T. Vermeulen <jtv@xs4all.nl>
  src/strconv.cxx:
  - Remove half-baked optimization when converting non-number floats to strings.
 2015-01-18  Jeroen T. Vermeulen <jtv@xs4all.nl>

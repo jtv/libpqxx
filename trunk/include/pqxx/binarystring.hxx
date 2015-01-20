@@ -114,7 +114,7 @@ public:
   const_reference operator[](size_type i) const PQXX_NOEXCEPT		//[t62]
 	{ return data()[i]; }
 
-  bool PQXX_PURE operator==(const binarystring &) const PQXX_NOEXCEPT;	//[t62]
+  PQXX_PURE bool operator==(const binarystring &) const PQXX_NOEXCEPT;	//[t62]
   bool operator!=(const binarystring &rhs) const PQXX_NOEXCEPT		//[t62]
 	{ return !operator==(rhs); }
 

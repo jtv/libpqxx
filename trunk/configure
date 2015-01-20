@@ -3024,6 +3024,7 @@ END
   fi
 fi
 
+
 PQXXVERSION=5.0
 PQXX_ABI=5.0
 PQXX_MAJOR=5
@@ -15723,12 +15724,37 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_const_attr" >&5
 $as_echo "$gcc_const_attr" >&6; }
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking C++14 deprecation attribute" >&5
+$as_echo_n "checking C++14 deprecation attribute... " >&6; }
+deprecated=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+[[deprecated]] void f();
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_DEPRECATED 1" >>confdefs.h
+
+else
+  deprecated=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $deprecated" >&5
+$as_echo "$deprecated" >&6; }
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ deprecation attribute" >&5
 $as_echo_n "checking g++ deprecation attribute... " >&6; }
 gcc_deprecated=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-void __attribute__ ((deprecated)) f();
+__attribute__ ((deprecated)) void f();
 int
 main ()
 {
@@ -15748,16 +15774,42 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_deprecated" >&5
 $as_echo "$gcc_deprecated" >&6; }
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ noreturn attribute" >&5
-$as_echo_n "checking g++ noreturn attribute... " >&6; }
-gcc_noreturn=yes
-# Needs a throw spec and a definition in order to trip up a bug in clang++ 2.8.
-# It'll claim the throw spec is missing on the definition.
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking C++11 noreturn attribute" >&5
+$as_echo_n "checking C++11 noreturn attribute... " >&6; }
+noreturn=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-	void __attribute__ ((noreturn)) f() throw (int);
-        void f()throw(int){throw 1;}
+	[[noreturn]] void f();
+        void f(){throw 1;}
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_NORETURN 1" >>confdefs.h
+
+else
+  noreturn=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $noreturn" >&5
+$as_echo "$noreturn" >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ noreturn attribute" >&5
+$as_echo_n "checking g++ noreturn attribute... " >&6; }
+gcc_noreturn=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+	__attribute__ ((noreturn)) void f();
+        void f(){throw 1;}
 
 int
 main ()

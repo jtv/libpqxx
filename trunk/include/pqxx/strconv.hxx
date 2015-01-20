@@ -48,7 +48,7 @@ template<typename T> struct string_traits {};
 namespace internal
 {
 /// Throw exception for attempt to convert null to given type.
-void PQXX_LIBEXPORT PQXX_NORETURN throw_null_conversion(
+PQXX_NORETURN PQXX_LIBEXPORT void throw_null_conversion(
 	const std::string &type);
 } // namespace pqxx::internal
 

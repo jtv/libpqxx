@@ -314,7 +314,7 @@ struct PQXX_LIBEXPORT thread_safety_model
 };
 
 /// Describe thread safety available in this build.
-thread_safety_model PQXX_LIBEXPORT describe_thread_safety() PQXX_NOEXCEPT;
+PQXX_LIBEXPORT thread_safety_model describe_thread_safety() PQXX_NOEXCEPT;
 
 /// The "null" oid
 const oid oid_none = 0;
@@ -461,13 +461,13 @@ typedef long result_difference_type;
 
 namespace internal
 {
-void PQXX_LIBEXPORT freepqmem(const void *) PQXX_NOEXCEPT;
+PQXX_LIBEXPORT void freepqmem(const void *) PQXX_NOEXCEPT;
 template<typename P> inline void freepqmem_templated(P *p) PQXX_NOEXCEPT
 {
   freepqmem(p);
 }
 
-void PQXX_LIBEXPORT freemallocmem(const void *) PQXX_NOEXCEPT;
+PQXX_LIBEXPORT void freemallocmem(const void *) PQXX_NOEXCEPT;
 template<typename P> inline void freemallocmem_templated(P *p) PQXX_NOEXCEPT
 {
   freemallocmem(p);
@@ -715,7 +715,7 @@ private:
 /** May return early, e.g. when interrupted by a signal.  Completes instantly if
  * a zero or negative sleep time is requested.
  */
-void PQXX_LIBEXPORT sleep_seconds(int);
+PQXX_LIBEXPORT void sleep_seconds(int);
 
 /// Work around problem with library export directives and pointers
 typedef const char *cstring;
@@ -730,7 +730,7 @@ typedef const char *cstring;
  * @param len usable size (in bytes) of provided buffer
  * @return human-readable error string, which may or may not reside in buf
  */
-cstring PQXX_LIBEXPORT strerror_wrapper(int err, char buf[], std::size_t len)
+PQXX_LIBEXPORT cstring strerror_wrapper(int err, char buf[], std::size_t len)
   PQXX_NOEXCEPT;
 
 

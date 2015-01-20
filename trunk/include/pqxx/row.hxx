@@ -70,7 +70,7 @@ public:
    * @name Comparison
    */
   //@{
-  bool PQXX_PURE operator==(const row &) const PQXX_NOEXCEPT;		//[t75]
+  PQXX_PURE bool operator==(const row &) const PQXX_NOEXCEPT;		//[t75]
   bool operator!=(const row &rhs) const PQXX_NOEXCEPT			//[t75]
       { return !operator==(rhs); }
   //@}
@@ -189,7 +189,7 @@ public:
   row slice(size_type Begin, size_type End) const;
 
   // Is this an empty slice?
-  bool PQXX_PURE empty() const PQXX_NOEXCEPT;
+  PQXX_PURE bool empty() const PQXX_NOEXCEPT;
 
 protected:
   friend class field;
@@ -306,7 +306,7 @@ public:
     const_reverse_row_iterator(const super &rhs) PQXX_NOEXCEPT :	//[t82]
       const_row_iterator(rhs) { super::operator--(); }
 
-  iterator_type PQXX_PURE base() const PQXX_NOEXCEPT;			//[t82]
+  PQXX_PURE iterator_type base() const PQXX_NOEXCEPT;			//[t82]
 
   /**
    * @name Dereferencing operators
