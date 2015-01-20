@@ -170,7 +170,7 @@ int pqxx::connection_base::backendpid() const PQXX_NOEXCEPT
 
 namespace
 {
-int PQXX_PURE socket_of(const ::pqxx::internal::pq::PGconn *c) PQXX_NOEXCEPT
+PQXX_PURE int socket_of(const ::pqxx::internal::pq::PGconn *c) PQXX_NOEXCEPT
 {
   return c ? PQsocket(c) : -1;
 }

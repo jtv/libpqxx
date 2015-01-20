@@ -116,8 +116,8 @@ public:
   reference front() const PQXX_NOEXCEPT { return row(this,0); }		//[t74]
   reference back() const PQXX_NOEXCEPT {return row(this,size()-1);}	//[t75]
 
-  size_type PQXX_PURE size() const PQXX_NOEXCEPT;			//[t2]
-  bool PQXX_PURE empty() const PQXX_NOEXCEPT;				//[t11]
+  PQXX_PURE size_type size() const PQXX_NOEXCEPT;			//[t2]
+  PQXX_PURE bool empty() const PQXX_NOEXCEPT;				//[t11]
   size_type capacity() const PQXX_NOEXCEPT { return size(); }		//[t20]
 
   void swap(result &) PQXX_NOEXCEPT;					//[t77]
@@ -133,7 +133,7 @@ public:
    */
   //@{
   /// Number of columns in result
-  row::size_type PQXX_PURE columns() const PQXX_NOEXCEPT;		//[t11]
+  PQXX_PURE row::size_type columns() const PQXX_NOEXCEPT;		//[t11]
 
   /// Number of given column (throws exception if it doesn't exist)
   row::size_type column_number(const char ColName[]) const;		//[t11]
@@ -183,26 +183,26 @@ public:
   //@}
 
   /// Query that produced this result, if available (empty string otherwise)
-  const std::string & PQXX_PURE query() const PQXX_NOEXCEPT;		//[t70]
+  PQXX_PURE const std::string &query() const PQXX_NOEXCEPT;		//[t70]
 
   /// If command was @c INSERT of 1 row, return oid of inserted row
   /** @return Identifier of inserted row if exactly one row was inserted, or
    * oid_none otherwise.
    */
-  oid PQXX_PURE inserted_oid() const;					//[t13]
+  PQXX_PURE oid inserted_oid() const;					//[t13]
 
   /// If command was @c INSERT, @c UPDATE, or @c DELETE: number of affected rows
   /** @return Number of affected rows if last command was @c INSERT, @c UPDATE,
    * or @c DELETE; zero for all other commands.
    */
-  size_type PQXX_PURE affected_rows() const;				//[t7]
+  PQXX_PURE size_type affected_rows() const;				//[t7]
 
 
 private:
   friend class pqxx::field;
-  const char * PQXX_PURE GetValue(size_type Row, row::size_type Col) const;
-  bool PQXX_PURE GetIsNull(size_type Row, row::size_type Col) const;
-  field::size_type PQXX_PURE GetLength(
+  PQXX_PURE const char *GetValue(size_type Row, row::size_type Col) const;
+  PQXX_PURE bool GetIsNull(size_type Row, row::size_type Col) const;
+  PQXX_PURE field::size_type GetLength(
 	size_type,
 	row::size_type) const PQXX_NOEXCEPT;
 
@@ -211,25 +211,25 @@ private:
 	int protocol,
 	const std::string &Query,
 	int encoding_code);
-  void PQXX_PRIVATE CheckStatus() const;
+  PQXX_PRIVATE void CheckStatus() const;
 
   friend class pqxx::internal::gate::result_connection;
   bool operator!() const PQXX_NOEXCEPT { return !m_data; }
   operator bool() const PQXX_NOEXCEPT { return m_data != 0; }
 
-  void PQXX_PRIVATE PQXX_NORETURN ThrowSQLError(
+  PQXX_NORETURN PQXX_PRIVATE void ThrowSQLError(
 	const std::string &Err,
 	const std::string &Query) const;
-  int PQXX_PRIVATE PQXX_PURE errorposition() const PQXX_NOEXCEPT;
-  std::string PQXX_PRIVATE StatusError() const;
+  PQXX_PRIVATE PQXX_PURE int errorposition() const PQXX_NOEXCEPT;
+  PQXX_PRIVATE std::string StatusError() const;
 
   friend class pqxx::internal::gate::result_sql_cursor;
-  const char * PQXX_PURE CmdStatus() const PQXX_NOEXCEPT;
+  PQXX_PURE const char *CmdStatus() const PQXX_NOEXCEPT;
 
   /// Shortcut: pointer to result data
   pqxx::internal::pq::PGresult *m_data;
 
-  static const std::string PQXX_PRIVATE s_empty_string;
+  PQXX_PRIVATE static const std::string s_empty_string;
 };
 
 
@@ -354,7 +354,7 @@ public:
 	const const_result_iterator &rhs) :
     const_result_iterator(rhs) { super::operator--(); }
 
-  const_result_iterator PQXX_PURE base() const PQXX_NOEXCEPT;		//[t75]
+  PQXX_PURE const_result_iterator base() const PQXX_NOEXCEPT;		//[t75]
 
   /**
    * @name Dereferencing operators

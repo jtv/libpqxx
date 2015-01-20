@@ -136,7 +136,10 @@ public:
 // Unconditional test failure.
 #define PQXX_CHECK_NOTREACHED(desc) \
 	pqxx::test::check_notreached(__FILE__, __LINE__, (desc))
-void check_notreached(const char file[], int line, std::string desc);
+PQXX_NORETURN void check_notreached( \
+	const char file[], \
+	int line, \
+	std::string desc);
 
 // Verify that a condition is met, similar to assert()
 #define PQXX_CHECK(condition, desc) \

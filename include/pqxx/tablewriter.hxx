@@ -60,7 +60,7 @@ private:
   void setup(transaction_base &,
       const std::string &WName,
       const std::string &Columns = std::string());
-  void PQXX_PRIVATE writer_close();
+  PQXX_PRIVATE void writer_close();
 };
 } // namespace pqxx
 namespace std
@@ -114,7 +114,7 @@ template<typename ITER> inline tablewriter::tablewriter(transaction_base &T,
 }
 namespace internal
 {
-std::string PQXX_LIBEXPORT Escape(
+PQXX_LIBEXPORT std::string Escape(
 	const std::string &s,
 	const std::string &null);
 inline std::string EscapeAny(

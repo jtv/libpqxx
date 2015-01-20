@@ -65,7 +65,7 @@ pqxx::sql_error::~sql_error() PQXX_NOEXCEPT
 }
 
 
-const string & PQXX_CONST pqxx::sql_error::query() const PQXX_NOEXCEPT
+PQXX_CONST const string &pqxx::sql_error::query() const PQXX_NOEXCEPT
 {
   return m_Q;
 }

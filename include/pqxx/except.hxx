@@ -87,7 +87,7 @@ public:
    * }
    * @endcode
    */
-  virtual const PQXX_CONST std::exception &base()			//[t0]
+  PQXX_CONST virtual const std::exception &base()			//[t0]
 	const PQXX_NOEXCEPT =0;
 };
 
@@ -142,7 +142,7 @@ public:
   virtual ~sql_error() PQXX_NOEXCEPT;
 
   /// The query whose execution triggered the exception
-  const std::string & PQXX_PURE query() const PQXX_NOEXCEPT;		//[t56]
+  PQXX_PURE const std::string &query() const PQXX_NOEXCEPT;		//[t56]
 };
 
 

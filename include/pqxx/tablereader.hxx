@@ -56,7 +56,7 @@ private:
   void setup(transaction_base &T,
       const std::string &RName,
       const std::string &Columns=std::string());
-  void PQXX_PRIVATE reader_close();
+  PQXX_PRIVATE void reader_close();
   std::string extract_field(
 	const std::string &,
 	std::string::size_type &) const;

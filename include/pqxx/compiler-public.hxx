@@ -79,14 +79,20 @@
 #define PQXX_CONST
 #endif
 
-#if defined(__GNUC__) && defined(PQXX_HAVE_GCC_DEPRECATED)
+#if defined(PQXX_HAVE_DEPRECATED)
+#define PQXX_DEPRECATED [[deprecated]]
+#elif defined(__GNUC__) && defined(PQXX_HAVE_GCC_DEPRECATED)
 #define PQXX_DEPRECATED __attribute__ ((deprecated))
 #else
 #define PQXX_DEPRECATED
 #endif
 
-#if defined(__GNUC__) && defined(PQXX_HAVE_GCC_NORETURN)
+#if defined(PQXX_HAVE_NORETURN)
+#define PQXX_NORETURN [[noreturn]]
+#elif defined(__GNUC__) && defined(PQXX_HAVE_GCC_NORETURN)
 #define PQXX_NORETURN __attribute__ ((noreturn))
+#elif defined(_MSC_VER)
+#define PQXX_NORETURN _declspec(noreturn)
 #else
 #define PQXX_NORETURN
 #endif

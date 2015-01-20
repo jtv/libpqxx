@@ -169,31 +169,31 @@ private:
   }
 
   /// Create new query_id
-  query_id PQXX_PRIVATE generate_id();
+  PQXX_PRIVATE query_id generate_id();
 
   bool have_pending() const PQXX_NOEXCEPT
 	{ return m_issuedrange.second != m_issuedrange.first; }
 
-  void PQXX_PRIVATE issue();
+  PQXX_PRIVATE void issue();
 
   /// The given query failed; never issue anything beyond that
   void set_error_at(query_id qid) PQXX_NOEXCEPT
 	{ if (qid < m_error) m_error = qid; }
 
   /// Throw pqxx::internal_error.
-  void PQXX_PRIVATE PQXX_NORETURN internal_error(const std::string &err);
+  PQXX_NORETURN PQXX_PRIVATE void internal_error(const std::string &err);
 
-  bool PQXX_PRIVATE obtain_result(bool expect_none=false);
+  PQXX_PRIVATE bool obtain_result(bool expect_none=false);
 
-  void PQXX_PRIVATE obtain_dummy();
-  void PQXX_PRIVATE get_further_available_results();
-  void PQXX_PRIVATE check_end_results();
+  PQXX_PRIVATE void obtain_dummy();
+  PQXX_PRIVATE void get_further_available_results();
+  PQXX_PRIVATE void check_end_results();
 
   /// Receive any results that happen to be available; it's not urgent
-  void PQXX_PRIVATE receive_if_available();
+  PQXX_PRIVATE void receive_if_available();
 
   /// Receive results, up to stop if possible
-  void PQXX_PRIVATE receive(pipeline::QueryMap::const_iterator stop);
+  PQXX_PRIVATE void receive(pipeline::QueryMap::const_iterator stop);
   std::pair<pipeline::query_id, result>
     retrieve(pipeline::QueryMap::iterator);
 

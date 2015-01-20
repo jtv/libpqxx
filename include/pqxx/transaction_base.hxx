@@ -421,9 +421,9 @@ private:
   };
 
   /// Make sure transaction is opened on backend, if appropriate
-  void PQXX_PRIVATE activate();
+  PQXX_PRIVATE void activate();
 
-  void PQXX_PRIVATE CheckPendingError();
+  PQXX_PRIVATE void CheckPendingError();
 
   template<typename T> bool parm_is_null(T *p) const PQXX_NOEXCEPT
 	{ return !p; }
@@ -431,16 +431,16 @@ private:
 	{ return false; }
 
   friend class pqxx::internal::gate::transaction_transactionfocus;
-  void PQXX_PRIVATE RegisterFocus(internal::transactionfocus *);
-  void PQXX_PRIVATE UnregisterFocus(internal::transactionfocus *) PQXX_NOEXCEPT;
-  void PQXX_PRIVATE RegisterPendingError(const std::string &) PQXX_NOEXCEPT;
+  PQXX_PRIVATE void RegisterFocus(internal::transactionfocus *);
+  PQXX_PRIVATE void UnregisterFocus(internal::transactionfocus *) PQXX_NOEXCEPT;
+  PQXX_PRIVATE void RegisterPendingError(const std::string &) PQXX_NOEXCEPT;
 
   friend class pqxx::internal::gate::transaction_tablereader;
-  void PQXX_PRIVATE BeginCopyRead(const std::string &, const std::string &);
+  PQXX_PRIVATE void BeginCopyRead(const std::string &, const std::string &);
   bool ReadCopyLine(std::string &);
 
   friend class pqxx::internal::gate::transaction_tablewriter;
-  void PQXX_PRIVATE BeginCopyWrite(
+  PQXX_PRIVATE void BeginCopyWrite(
 	const std::string &Table,
 	const std::string &Columns);
   void WriteCopyLine(const std::string &);

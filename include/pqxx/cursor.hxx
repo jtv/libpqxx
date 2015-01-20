@@ -258,8 +258,8 @@ private:
 };
 
 
-result::size_type PQXX_LIBEXPORT obtain_stateless_cursor_size(sql_cursor &);
-result PQXX_LIBEXPORT stateless_cursor_retrieve(
+PQXX_LIBEXPORT result::size_type obtain_stateless_cursor_size(sql_cursor &);
+PQXX_LIBEXPORT result stateless_cursor_retrieve(
 	sql_cursor &,
 	result::difference_type size,
 	result::difference_type begin_pos,

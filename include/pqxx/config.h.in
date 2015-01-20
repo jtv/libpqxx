@@ -67,6 +67,9 @@
 /* Define if preprocessor supports nonstandard "warning" directive */
 #undef PQXX_HAVE_CPP_WARNING
 
+/* Define if compiler supports [[deprecated]] attribute */
+#undef PQXX_HAVE_DEPRECATED
+
 /* Define if distance() works according to the standard */
 #undef PQXX_HAVE_DISTANCE
 
@@ -96,6 +99,9 @@
 
 /* Define if the compiler supports the noexcept keyword. */
 #undef PQXX_HAVE_NOEXCEPT
+
+/* Define if compiler supports [[noreturn]] attribute */
+#undef PQXX_HAVE_NORETURN
 
 /* Define if the system has the poll() function (mainly GNU/Linux) */
 #undef PQXX_HAVE_POLL
