@@ -69,9 +69,9 @@ AC_ARG_ENABLE(maintainer-mode)
 AC_MSG_RESULT(${enable_maintainer_mode})
 
 AC_ARG_ENABLE(shared)
-if test "${shared}" = "yes" ; then
-	CPPFLAGS="$CPPFLAGS -DPQXX_SHARED"
-fi
+AS_IF(
+    [test "${shared}" = "yes" ],
+    [CPPFLAGS="$CPPFLAGS -DPQXX_SHARED"])
 
 # Add options to compiler command line, if compiler accepts it
 add_compiler_opts() {
@@ -81,9 +81,9 @@ add_compiler_opts() {
 		AC_MSG_CHECKING([whether $CXX accepts $option])
 		AC_TRY_COMPILE([], [], has_option=yes, has_option=no,)
 		AC_MSG_RESULT($has_option)
-		if test "$has_option" = "no" ; then
-			CXXFLAGS="$ACO_SAVE_CXXFLAGS"
-		fi
+		AS_IF(
+		    [test "$has_option" = "no" ],
+		    [CXXFLAGS="$ACO_SAVE_CXXFLAGS"])
 	done
 }
 
@@ -143,14 +143,14 @@ struct __attribute__ ((visibility("hidden"))) d { d() {} void f() {} };
 		[Define if g++ supports visibility attribute, as in g++ 4.0]),
 	gcc_visibility=no)
 AC_MSG_RESULT($gcc_visibility)
-	if test "$gcc_visibility" = "yes" ; then
-		# Setting default symbol visibility to "hidden" vastly reduces
-		# library size with g++ 4.0, but unfortunately this will require
-		# some more work in the libpqxx setup.  Instead, we make only
-		# inline functions hidden.
-		add_compiler_opts -fvisibility-inlines-hidden 
-		#add_compiler_opts -fvisibility=hidden
-	fi
+if test "$gcc_visibility" = "yes" ; then
+	# Setting default symbol visibility to "hidden" vastly reduces
+	# library size with g++ 4.0, but unfortunately this will require
+	# some more work in the libpqxx setup.  Instead, we make only
+	# inline functions hidden.
+	add_compiler_opts -fvisibility-inlines-hidden 
+	#add_compiler_opts -fvisibility=hidden
+fi
 CXXFLAGS="$SAVE_CXXFLAGS"
 
 AC_MSG_CHECKING([g++ const attribute])
@@ -283,7 +283,7 @@ AC_ARG_WITH(
         [with_postgres_lib=""]))
 AS_IF(
     [test -z "$with_postgres_lib"],
-    [with_postgres_lib=`$PG_CONFIG --libdir`])
+    [with_postgres_lib=$($PG_CONFIG --libdir)])
 AC_MSG_NOTICE([using PostgreSQL libraries at $with_postgres_lib])
 AC_SUBST(with_postgres_lib)
 #POSTGRES_LIB="-R${with_postgres_lib}"
@@ -391,7 +391,7 @@ occurring in the file.
 ])], -L${with_postgres_lib})
 
 # Remove redundant occurrances of -lpq
-LIBS="`echo "$LIBS" | sed -e 's/-lpq[[:space:]]*[[:space:]]-lpq\>/-lpq/g'`"
+LIBS="$(echo "$LIBS" | sed -e 's/-lpq[[:space:]]*[[:space:]]-lpq\>/-lpq/g')"
 
 AC_LANG_POP(C)
 

@@ -15587,8 +15587,8 @@ if test "${enable_shared+set}" = set; then :
   enableval=$enable_shared;
 fi
 
-if test "${shared}" = "yes" ; then
-	CPPFLAGS="$CPPFLAGS -DPQXX_SHARED"
+if test "${shared}" = "yes" ; then :
+  CPPFLAGS="$CPPFLAGS -DPQXX_SHARED"
 fi
 
 # Add options to compiler command line, if compiler accepts it
@@ -15617,9 +15617,9 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $has_option" >&5
 $as_echo "$has_option" >&6; }
-		if test "$has_option" = "no" ; then
-			CXXFLAGS="$ACO_SAVE_CXXFLAGS"
-		fi
+		if test "$has_option" = "no" ; then :
+  CXXFLAGS="$ACO_SAVE_CXXFLAGS"
+fi
 	done
 }
 
@@ -15695,14 +15695,14 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_visibility" >&5
 $as_echo "$gcc_visibility" >&6; }
-	if test "$gcc_visibility" = "yes" ; then
-		# Setting default symbol visibility to "hidden" vastly reduces
-		# library size with g++ 4.0, but unfortunately this will require
-		# some more work in the libpqxx setup.  Instead, we make only
-		# inline functions hidden.
-		add_compiler_opts -fvisibility-inlines-hidden
-		#add_compiler_opts -fvisibility=hidden
-	fi
+if test "$gcc_visibility" = "yes" ; then
+	# Setting default symbol visibility to "hidden" vastly reduces
+	# library size with g++ 4.0, but unfortunately this will require
+	# some more work in the libpqxx setup.  Instead, we make only
+	# inline functions hidden.
+	add_compiler_opts -fvisibility-inlines-hidden
+	#add_compiler_opts -fvisibility=hidden
+fi
 CXXFLAGS="$SAVE_CXXFLAGS"
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ const attribute" >&5
@@ -16034,7 +16034,7 @@ fi
 fi
 
 if test -z "$with_postgres_lib"; then :
-  with_postgres_lib=`$PG_CONFIG --libdir`
+  with_postgres_lib=$($PG_CONFIG --libdir)
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: using PostgreSQL libraries at $with_postgres_lib" >&5
 $as_echo "$as_me: using PostgreSQL libraries at $with_postgres_lib" >&6;}
@@ -16477,7 +16477,7 @@ fi
 
 
 # Remove redundant occurrances of -lpq
-LIBS="`echo "$LIBS" | sed -e 's/-lpq[:space:]*[:space:]-lpq\>/-lpq/g'`"
+LIBS="$(echo "$LIBS" | sed -e 's/-lpq[:space:]*[:space:]-lpq\>/-lpq/g')"
 
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
