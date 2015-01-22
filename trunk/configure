@@ -637,10 +637,10 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
-POSTGRES_INCLUDE
 POSTGRES_LIB
-with_postgres_include
 with_postgres_lib
+POSTGRES_INCLUDE
+with_postgres_include
 PG_CONFIG
 MAINT
 MAINTAINER_MODE_FALSE
@@ -791,6 +791,8 @@ with_sysroot
 enable_libtool_lock
 enable_documentation
 enable_maintainer_mode
+with_postgres_include
+with_postgres_lib
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1448,6 +1450,11 @@ Optional Packages:
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
   --with-sysroot=DIR Search for dependent libraries within DIR
                         (or the compiler's sysroot if not specified).
+  --with-postgres-include=DIR
+                          Use PostgreSQL includes from DIR. Defaults to
+                          querying pg_config.
+  --with-postgres-lib=DIR Use PostgreSQL libraries from DIR. Defaults to
+                          querying pg_config.
 
 Some influential environment variables:
   CXX         C++ compiler command
@@ -3023,7 +3030,6 @@ END
     as_fn_error $? "Your 'rm' program is bad, sorry." "$LINENO" 5
   fi
 fi
-
 
 PQXXVERSION=5.0
 PQXX_ABI=5.0
@@ -16001,18 +16007,39 @@ command path before configuring.  Without it, the configure script has no way to
 find the right location for the libpq library and its headers.
 " "$LINENO" 5
 fi
-with_postgres_include=`$PG_CONFIG --includedir`
+
+
+# Check whether --with-postgres-include was given.
+if test "${with_postgres_include+set}" = set; then :
+  withval=$with_postgres_include; if test "x$with_postgres_include" == "xyes"; then :
+  with_postgres_include=""
+fi
+fi
+
+if test -z "$with_postgres_include"; then :
+  with_postgres_include=$($PG_CONFIG --includedir)
+fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: using PostgreSQL headers at $with_postgres_include" >&5
 $as_echo "$as_me: using PostgreSQL headers at $with_postgres_include" >&6;}
-with_postgres_lib=`$PG_CONFIG --libdir`
+
+POSTGRES_INCLUDE="-I${with_postgres_include}"
+
+
+
+# Check whether --with-postgres-lib was given.
+if test "${with_postgres_lib+set}" = set; then :
+  withval=$with_postgres_lib; if test "x$with_postgres_lib" == "xyes"; then :
+  with_postgres_lib=""
+fi
+fi
+
+if test -z "$with_postgres_lib"; then :
+  with_postgres_lib=`$PG_CONFIG --libdir`
+fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: using PostgreSQL libraries at $with_postgres_lib" >&5
 $as_echo "$as_me: using PostgreSQL libraries at $with_postgres_lib" >&6;}
 
-
-
 #POSTGRES_LIB="-R${with_postgres_lib}"
-
-POSTGRES_INCLUDE="-I${with_postgres_include}"
 
 
 
