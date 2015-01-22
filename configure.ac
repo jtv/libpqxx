@@ -256,17 +256,38 @@ command path before configuring.  Without it, the configure script has no way to
 find the right location for the libpq library and its headers.
 ])
 fi
-with_postgres_include=`$PG_CONFIG --includedir`
-AC_MSG_NOTICE([using PostgreSQL headers at $with_postgres_include])
-with_postgres_lib=`$PG_CONFIG --libdir`
-AC_MSG_NOTICE([using PostgreSQL libraries at $with_postgres_lib])
 
-AC_SUBST(with_postgres_lib)
+AC_ARG_WITH(
+    [postgres-include],
+    [AS_HELP_STRING(
+        [--with-postgres-include=DIR],
+        [Use PostgreSQL includes from DIR.  Defaults to querying pg_config.])],
+    AS_IF(
+        [test "x$with_postgres_include" == "xyes"],
+        [with_postgres_include=""]))
+AS_IF(
+    [test -z "$with_postgres_include"],
+    [with_postgres_include=$($PG_CONFIG --includedir)])
+AC_MSG_NOTICE([using PostgreSQL headers at $with_postgres_include])
 AC_SUBST(with_postgres_include)
-#POSTGRES_LIB="-R${with_postgres_lib}"
-AC_SUBST(POSTGRES_LIB)
 POSTGRES_INCLUDE="-I${with_postgres_include}"
 AC_SUBST(POSTGRES_INCLUDE)
+
+AC_ARG_WITH(
+    [postgres-lib],
+    [AS_HELP_STRING(
+        [--with-postgres-lib=DIR],
+        [Use PostgreSQL libraries from DIR.  Defaults to querying pg_config.])],
+    AS_IF(
+        [test "x$with_postgres_lib" == "xyes"],
+        [with_postgres_lib=""]))
+AS_IF(
+    [test -z "$with_postgres_lib"],
+    [with_postgres_lib=`$PG_CONFIG --libdir`])
+AC_MSG_NOTICE([using PostgreSQL libraries at $with_postgres_lib])
+AC_SUBST(with_postgres_lib)
+#POSTGRES_LIB="-R${with_postgres_lib}"
+AC_SUBST(POSTGRES_LIB)
 
 
 AC_HEADER_STDC
