@@ -5,23 +5,27 @@
 TMPDIR="${TMPDIR:-/tmp}"
 export TMPDIR
 
-T="`mktemp`"
-if test -z "$T" ; then
-	T="`mktemp -t pqxx.XXXXXX`"
+T="$(mktemp)"
+if test -z "$T"
+then
+	T="$(mktemp -t pqxx.XXXXXX)"
 fi
-if test -z "$T" ; then
-	T="`mktemp pqxx.XXXXXX`"
+if test -z "$T"
+then
+	T="$(mktemp pqxx.XXXXXX)"
 fi
-if test -z "$T" ; then
-	T="`mktemp "$TMPDIR/pqxx.XXXXXX"`"
+if test -z "$T"
+then
+	T="$(mktemp "$TMPDIR/pqxx.XXXXXX")"
 fi
-if test -z "$T" ; then
-	UNIQUE="`date '%s.%N'`"
+if test -z "$T"
+then
+	UNIQUE="$(date '%s.%N')"
 	T="pqxx.$UNIQUE"
-	if test -d "$TMPDIR" ; then
+	if test -d "$TMPDIR"
+	then
 		T="$TMPDIR/$T"
 	fi
 fi
 
 echo "$T"
-

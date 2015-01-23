@@ -32,7 +32,7 @@ FTP="/srv/ftp/libpqxx"
 SNAPSHOT="/home/jtv/public_html/tmp/pqxx/snapshot"
 DOC="/srv/www/devprojects/libpqxx/doc"
 
-CHECKOUT="`mktemp -p /tmp -d pqxx.XXXXXXXXXX`"
+CHECKOUT="$(mktemp -p /tmp -d pqxx.XXXXXXXXXX)"
 echo "** Checking out source tree to $CHECKOUT **"
 cd -- "$CHECKOUT"
 svn co -q "$REPO"
@@ -41,7 +41,7 @@ cd libpqxx/
 export PATH="$PATH:$CHECKOUT/libpqxx/$PARENT/tools"
 
 pushd "$PARENT" >/dev/null
-PQXXVERSION="`extract_version`"
+PQXXVERSION="$(extract_version)"
 popd >/dev/null
 
 if test "$PQXXVERSION" = "$NEXTVERSION"
@@ -54,7 +54,7 @@ EOF
 	exit 2
 fi
 
-RELEASEDATE="`date +'%a, %d %b %y %T %z'`"
+RELEASEDATE="$(date +'%a, %d %b %y %T %z')"
 
 
 echo "** Updating source tree **"
@@ -71,13 +71,13 @@ echo "PQXX_VERSION	$NEXTVERSION" >"$PARENT"/VERSION
 cd /tmp
 
 echo "** Setting up new documentation **"
-TEMPDOC="`mktemp -p /tmp -d pqxxdoc.XXXXXXXXXX`"
+TEMPDOC="$(mktemp -p /tmp -d pqxxdoc.XXXXXXXXXX)"
 cd -- "$TEMPDOC"
 tar xzf "$SNAPSHOT"/libpqxx-*.tar.gz
 cd libpqxx-*/
 
 PREVIOUS=''
-for d in `ls "$DOC" | grep '[0-9]'`
+for d in $(ls "$DOC" | grep '[0-9]')
 do
 	PREVIOUS="$PREVIOUS --link-dest='$DOC/$d'"
 done

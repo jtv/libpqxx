@@ -1,4 +1,11 @@
 2015-01-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ tools/lint:
+ - Change mktemp naming scheme.
+ tools/maketemporary, tools/pqxx-fulltest, tools/pre-release-check,
+ tools/release:
+ - Use $() instead of ``.
+ - Break shell if/then onto separate lines.
+2015-01-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
  - Cosmetic.
  config/missing:
