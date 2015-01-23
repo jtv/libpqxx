@@ -1,4 +1,12 @@
 2015-01-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh:
+ - Drop search for specific (and now long obsolete) automake versions.
+ configure.ac.in, src/Makefile.am, test/Makefile.am.template,
+ test/unit/Makefile.am.template, tools/Makefile.am:
+ - Use newer, zero-arg version of AM_INIT_AUTOMAKE.
+ - Move AC_CONFIG_SRCDIR above AM_INIT_AUTOMAKE; may be required now.
+ - Wrap source fragments in AC_LANG_SOURCE, and double-quote them.
+2015-01-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/basic_connection.hxx, include/pqxx/compiler-public.hxx,
  include/pqxx/robusttransaction.hxx, include/pqxx/subtransaction.hxx,
  include/pqxx/transaction.hxx, src/connection_base.cxx, src/largeobject.cxx,

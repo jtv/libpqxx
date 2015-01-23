@@ -2421,6 +2421,7 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
+
 ac_aux_dir=
 for ac_dir in config "$srcdir"/config; do
   if test -f "$ac_dir/install-sh"; then
@@ -2936,9 +2937,8 @@ fi
 
 
 # Define the identity of the package.
-
- PACKAGE=libpqxx
- VERSION=5.0
+ PACKAGE='libpqxx'
+ VERSION='5.0'
 
 
 cat >>confdefs.h <<_ACEOF
@@ -3035,7 +3035,6 @@ PQXXVERSION=5.0
 PQXX_ABI=5.0
 PQXX_MAJOR=5
 PQXX_MINOR=0
-
 
 
 
@@ -16490,8 +16489,10 @@ if test "$enable_maintainer_mode" = "yes"; then
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
+
 #include <${with_postgres_include}/libpq-fe.h>
 int main(){return !PQexec(0,0);}
+
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
 
@@ -16520,8 +16521,10 @@ else
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
+
 #include <${with_postgres_include}/libpq-fe.h>
 int main(){return !PQexec(0,0);}
+
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
 
@@ -16820,6 +16823,8 @@ if test "$cross_compiling" = yes; then :
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+
+
 #ifdef PQXX_HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #else
@@ -16835,6 +16840,7 @@ else
 ${usestd}
 extern "C" int foo(){fd_set f; FD_SET(1,&f); return select(2,0,&f,&f,0)<0;}
 int main() { return foo(); }
+
 _ACEOF
 if ac_fn_cxx_try_run "$LINENO"; then :
 
