@@ -17,10 +17,6 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
-#ifdef PQXX_QUIET_DESTRUCTORS
-#include "pqxx/errorhandler"
-#endif
-
 #include "pqxx/tablereader"
 #include "pqxx/transaction"
 
@@ -51,9 +47,6 @@ void pqxx::tablereader::setup(transaction_base &T,
 
 pqxx::tablereader::~tablereader() PQXX_NOEXCEPT
 {
-#ifdef PQXX_QUIET_DESTRUCTORS
-  quiet_errorhandler quiet(m_Trans.conn());
-#endif
   try
   {
     reader_close();

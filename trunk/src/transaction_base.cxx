@@ -21,10 +21,6 @@
 #include <cstring>
 #include <stdexcept>
 
-#ifdef PQXX_QUIET_DESTRUCTORS
-#include "pqxx/errorhandler"
-#endif
-
 #include "pqxx/connection_base"
 #include "pqxx/result"
 #include "pqxx/transaction_base"
@@ -83,9 +79,6 @@ pqxx::transaction_base::transaction_base(connection_base &C, bool direct) :
 
 pqxx::transaction_base::~transaction_base()
 {
-#ifdef PQXX_QUIET_DESTRUCTORS
-  quiet_errorhandler quiet(m_Conn);
-#endif
   try
   {
     reactivation_avoidance_clear();

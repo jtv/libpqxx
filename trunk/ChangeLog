@@ -1,4 +1,11 @@
-2015-01-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
+2015-01-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/basic_connection.hxx, include/pqxx/compiler-public.hxx,
+ include/pqxx/robusttransaction.hxx, include/pqxx/subtransaction.hxx,
+ include/pqxx/transaction.hxx, src/connection_base.cxx, src/largeobject.cxx,
+ src/notification.cxx, src/pipeline.cxx, src/tablereader.cxx,
+ src/tablewriter.cxx, src/transaction_base.cxx:
+ - Remove PQXX_QUIET_DESTRUCTORS.  Surely that Visual C++ 2003 bug's been fixed.
+2015-01-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
  - Make default inline symbol visibility of "hidden" work again.
  - Also make non-inline symbols hidden by default.

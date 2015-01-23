@@ -168,21 +168,6 @@
   #endif
 #endif
 
-/// Apparently Visual C++.NET 2003 breaks on stdout/stderr output in destructors
-/** Defining this macro will disable all error or warning messages whenever a
- * destructor of a libpqxx-defined class is being executed.  This may cause
- * important messages to be lost, but I'm told the code will crash without it.
- * Of course it's only a partial solution; the client code may still do bad
- * things from destructors and run into the same problem.
- *
- * If this workaround does solve the crashes, we may have to work out some
- * system of deferred messages that will remember the messages and re-issue them
- * after all known active destructors has finished.  But that could be
- * error-prone: what if memory ran out while trying to queue a message, for
- * instance?  The only solution may be for the vendor to fix the compiler.
- */
-#define PQXX_QUIET_DESTRUCTORS
-
 #endif	// _MSC_VER
 #endif	// _WIN32
 

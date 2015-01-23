@@ -43,10 +43,6 @@
 
 #include "libpq-fe.h"
 
-#ifdef PQXX_QUIET_DESTRUCTORS
-#include "pqxx/errorhandler"
-#endif
-
 #include "pqxx/binarystring"
 #include "pqxx/connection"
 #include "pqxx/connection_base"
@@ -879,9 +875,6 @@ void pqxx::connection_base::Reset()
 void pqxx::connection_base::close() PQXX_NOEXCEPT
 {
   m_Completed = false;
-#ifdef PQXX_QUIET_DESTRUCTORS
-  quiet_errorhandler quiet(*this);
-#endif
   inhibit_reactivation(false);
   m_reactivation_avoidance.clear();
   try

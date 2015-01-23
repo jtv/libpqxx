@@ -24,10 +24,6 @@
 
 #include "pqxx/dbtransaction"
 
-#ifdef PQXX_QUIET_DESTRUCTORS
-#include "pqxx/errorhandler"
-#endif
-
 
 /* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
@@ -162,13 +158,7 @@ public:
     basic_robusttransaction(C, isolation_tag::name())
 	{ Begin(); }
 
-  virtual ~robusttransaction() PQXX_NOEXCEPT
-  {
-#ifdef PQXX_QUIET_DESTRUCTORS
-    quiet_errorhandler quiet(conn());
-#endif
-    End();
-  }
+  virtual ~robusttransaction() PQXX_NOEXCEPT			      { End(); }
 };
 
 /**
