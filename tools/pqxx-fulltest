@@ -13,7 +13,7 @@ POSTGRES_FTP_DIR="${PG_FTPDIR:-pub/source}"
 
 if test -f /proc/cpuinfo
 then
-	PROCESSORS=`grep -c '^processor[[:space:]]*:' /proc/cpuinfo`
+	PROCESSORS=$(grep -c '^processor[[:space:]]*:' /proc/cpuinfo)
 else
 	PROCESSORS=1
 fi
@@ -47,13 +47,13 @@ get_version() {
 
 get_tarball() {
 	# Print full path of libpqxx tarball in current directory.
-	echo "`pwd`/libpqxx-`get_version`.tar.gz"
+	echo "$(pwd)/libpqxx-$(get_version).tar.gz"
 }
 
 build_tarball() {
 	# Produce a lipqxx tarball.
 	log_message "Creating tarball"
-	rm -f -- "`get_tarball`"
+	rm -f -- "$(get_tarball)"
 	env CXXFLAGS= ./autogen.sh
 	make dist -j$CONCURRENCY_LEVEL
 }
@@ -62,13 +62,13 @@ build_tarball() {
 unpack_tarball() {
 	# Unpack libpqxx tarball, set it up for building.
 	tar xf "$1"
-	echo "`pwd`/`ls -c -d -v libpqxx-* | tail -n1`"
+	echo "$(pwd)/$(ls -c -d -v libpqxx-* | tail -n1)"
 }
 
 
 find_backend_dir()  {
 	local FBD_OLD_PWD
-	FBD_OLD_PWD="`pwd`"
+	FBD_OLD_PWD="$(pwd)"
 	cd -- "$TESTDIR/pg/$1"
 	pwd
 	cd -- "$FBD_OLD_PWD"
@@ -76,7 +76,7 @@ find_backend_dir()  {
 
 
 locate_pidfile() {
-	echo "`find_backend_dir "$1"`/postgres.pid"
+	echo "$(find_backend_dir "$1")/postgres.pid"
 }
 
 
@@ -85,8 +85,8 @@ start_backend() {
 	local ARG_BACKEND BACKEND_DIR SB_OLD_PWD
 	log_message "Starting backend $1"
 	ARG_BACKEND="$1"
-	BACKEND_DIR="`find_backend_dir "$ARG_BACKEND"`"
-	SB_OLD_PWD="`pwd`"
+	BACKEND_DIR="$(find_backend_dir "$ARG_BACKEND")"
+	SB_OLD_PWD="$(pwd)"
 	cd "$TESTDIR/pg"
 	if test -f "$BACKEND_DIR/PQXX_SKIP"
 	then
@@ -98,7 +98,7 @@ start_backend() {
 		env PATH="$BACKEND_DIR/bin:$PATH:/sbin" \
 			LD_LIBRARY_PATH="$BACKEND_DIR/lib" \
 			PGDATA="$BACKEND_DIR/data" \
-		start-stop-daemon -b -m -p "`locate_pidfile "$ARG_BACKEND"`" \
+		start-stop-daemon -b -m -p "$(locate_pidfile "$ARG_BACKEND")" \
 			--oknodo -S -x "$BACKEND_DIR/bin/postmaster" -- \
 				-F -h '' -k "$BACKEND_DIR" \
 				>"$BACKEND_DIR/backend.log" 2>&1
@@ -110,7 +110,7 @@ start_backend() {
 stop_backend() {
 	local BACKEND_PIDFILE
 	log_message "Stopping backend $1"
-	BACKEND_PIDFILE="`locate_pidfile "$1"`"
+	BACKEND_PIDFILE="$(locate_pidfile "$1")"
 	if PATH="$PATH:/sbin" start-stop-daemon -p "$BACKEND_PIDFILE" -K
 	then
 		rm -- "$BACKEND_PIDFILE"
@@ -143,9 +143,9 @@ build_postgres() {
 
 create_database() {
 	local PQXX_USER BACKEND_DIR
-	PQXX_USER="`whoami`"
+	PQXX_USER="$(whoami)"
 	log_message "(Re-)creating database $PQXX_USER in $1"
-	BACKEND_DIR="`find_backend_dir "$1"`"
+	BACKEND_DIR="$(find_backend_dir "$1")"
 	env PGHOST="$BACKEND_DIR" \
 		LD_LIBRARY_PATH="$BACKEND_DIR/lib" \
 		PATH="$BACKEND_DIR/bin:$PATH" \
@@ -157,13 +157,13 @@ install_postgres() {
 	local ARG_VERSION_NAME STRIPPED_VERSION BASE_NAME PG_TARBALL \
 		DOWNLOAD_PATH PG_URL INSTALL_DIR IP_OLD_PWD
 	ARG_VERSION_NAME="$1"
-	STRIPPED_VERSION="`echo "$ARG_VERSION_NAME" | sed -e 's/^v//'`"
+	STRIPPED_VERSION="$(echo "$ARG_VERSION_NAME" | sed -e 's/^v//')"
 	BASE_NAME="postgresql-$STRIPPED_VERSION"
 	PG_TARBALL="$BASE_NAME.tar.bz2"
 	DOWNLOAD_PATH="$ARG_VERSION_NAME/$PG_TARBALL"
 	PG_URL="ftp://$POSTGRES_FTP_SERVER/$POSTGRES_FTP_DIR/$DOWNLOAD_PATH"
 	INSTALL_DIR="$TESTDIR/pg/$ARG_VERSION_NAME"
-	IP_OLD_PWD="`pwd`"
+	IP_OLD_PWD="$(pwd)"
 	log_message "Downloading $PG_TARBALL"
 
 	if wget -q "$PG_URL"
@@ -195,9 +195,9 @@ find_upstream_postgreses() {
 
 find_installed_postgreses() {
 	local FIP_OLD_PWD SKIP
-	FIP_OLD_PWD="`pwd`"
+	FIP_OLD_PWD="$(pwd)"
 	cd -- "$TESTDIR/pg"
-	SKIP="`find v* -maxdepth 1 -name PQXX_SKIP | sed -e 's|/.*||'`"
+	SKIP="$(find v* -maxdepth 1 -name PQXX_SKIP | sed -e 's|/.*||')"
 	ls -1 | grep -o "$POSTGRES_VERSION_PATTERN" | grep -vFx "$SKIP"
 	cd -- "$FIP_OLD_PWD"
 }
@@ -205,7 +205,7 @@ find_installed_postgreses() {
 
 stop_all_backends() {
 	local SAB_BACKENDS STOPPABLE_BACKEND 
-	SAB_BACKENDS=`find_installed_postgreses`
+	SAB_BACKENDS=$(find_installed_postgreses)
 	for STOPPABLE_BACKEND in $SAB_BACKENDS
 	do
 		stop_backend $STOPPABLE_BACKEND
@@ -215,8 +215,8 @@ stop_all_backends() {
 
 prepare_postgreses() {
 	local PP_OLD_PWD DOWNLOADABLE AVAILABLE_BACKENDS PREPARE_BACKEND 
-	PP_OLD_PWD="`pwd`"
-	for DOWNLOADABLE in `find_upstream_postgreses`
+	PP_OLD_PWD="$(pwd)"
+	for DOWNLOADABLE in $(find_upstream_postgreses)
 	do
 		if ! test -d "$TESTDIR/pg/$DOWNLOADABLE"
 		then
@@ -228,7 +228,7 @@ prepare_postgreses() {
 
 	stop_all_backends
 	sleep 5
-	AVAILABLE_BACKENDS=`find_backends`
+	AVAILABLE_BACKENDS=$(find_backends)
 	for PREPARE_BACKEND in $AVAILABLE_BACKENDS
 	do
 		start_backend "$PREPARE_BACKEND"
@@ -244,7 +244,7 @@ prepare_postgreses() {
 
 find_historic_compilers() {
 	local COMPILERS
-	COMPILERS="`find /usr/bin /usr/local/bin -name g++-[0-9].[0-9]`"
+	COMPILERS="$(find /usr/bin /usr/local/bin -name g++-[0-9].[0-9])"
 	# TODO: Any way we can skip the one that g++ links to?
 	echo ${COMPILERS:-c++}
 }
@@ -287,7 +287,7 @@ test_against_postgreses() {
 	for TEST_FRONTEND in $ARG_FRONTENDS
 	do
 		log_message "Building against frontend $TEST_FRONTEND"
-		TEST_FRONTEND_DIR="`find_backend_dir "$TEST_FRONTEND"`"
+		TEST_FRONTEND_DIR="$(find_backend_dir "$TEST_FRONTEND")"
 		EXTENDED_PATH="$TEST_FRONTEND_DIR/bin:$PATH"
 		LIB_PATH="$TEST_FRONTEND_DIR/lib"
 
@@ -303,7 +303,7 @@ test_against_postgreses() {
 		for TEST_BACKEND in $ARG_BACKENDS
 		do
 			log_message "Testing against backend $TEST_BACKEND"
-			TEST_BACKEND_DIR="`find_backend_dir "$TEST_BACKEND"`"
+			TEST_BACKEND_DIR="$(find_backend_dir "$TEST_BACKEND")"
 			env PGHOST="$TEST_BACKEND_DIR" \
 				PATH="$EXTENDED_PATH" \
 				LD_LIBRARY_PATH="$LIB_PATH" \
@@ -317,16 +317,16 @@ main() {
 	local PQXX_TARBALL CURRENT_POSTGRES CURRENT_POSTGRES_DIR CURRENT_PATH \
 		CURRENT_LIB_PATH
 	build_tarball
-	PQXX_TARBALL="`get_tarball`"
+	PQXX_TARBALL="$(get_tarball)"
 	cd -- "$TESTDIR"
 	rm -rf build
-	mv -- "`unpack_tarball "$PQXX_TARBALL"`" build
+	mv -- "$(unpack_tarball "$PQXX_TARBALL")" build
 
 	mkdir -p pg
 	prepare_postgreses
 
-	CURRENT_POSTGRES="`find_backends | tail -n 1`"
-	CURRENT_POSTGRES_DIR="`find_backend_dir "$CURRENT_POSTGRES"`"
+	CURRENT_POSTGRES="$(find_backends | tail -n 1)"
+	CURRENT_POSTGRES_DIR="$(find_backend_dir "$CURRENT_POSTGRES")"
 	CURRENT_PATH="$CURRENT_POSTGRES_DIR/bin:$PATH"
 	CURRENT_LIB_PATH="$CURRENT_POSTGRES_DIR/lib"
 
@@ -339,14 +339,14 @@ main() {
 	PATH="$CURRENT_POSTGRES_DIR/bin:$PATH"
 	export PATH
 
-	test_against_compilers "`check_for_compilers "$OPTIMIZING_COMPILERS"`"
+	test_against_compilers "$(check_for_compilers "$OPTIMIZING_COMPILERS")"
 
 	CXXFLAGS=
 	export CXXFLAGS
 
-	test_against_compilers "`find_historic_compilers`"
+	test_against_compilers "$(find_historic_compilers)"
 
-	test_against_postgreses "`find_frontends`" "`find_backends`"
+	test_against_postgreses "$(find_frontends)" "$(find_backends)"
 
 	stop_all_backends
 }

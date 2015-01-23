@@ -35,7 +35,7 @@ count_includes() {
 # compiler-internal-post.hxx, and vice versa.
 check_compiler_internal_headers() {
 	local TEMPDIR PRE POST HEADERS
-	TEMPDIR="$(mktemp --tmpdir -d pqxx-pre-release-check.XXXX)"
+	TEMPDIR="$(mktemp --tmpdir -d pqxx-lint.XXXX)"
 	if test -z "$TEMPDIR"
 	then
 		cat <<EOF >&2

@@ -5,12 +5,12 @@
 #
 # Returns 0 if the branch appears ready for release.
 
-PQXXVERSION="`./tools/extract_version`"
+PQXXVERSION="$(./tools/extract_version)"
 
 # There must be no uncommitted changes.
 check_uncommitted_changes() {
 	local UNCOMMITTED_CHANGES
-	UNCOMMITTED_CHANGES="`svn st`"
+	UNCOMMITTED_CHANGES="$(svn st)"
 	if test -n "$UNCOMMITTED_CHANGES"
 	then
 		cat <<EOF >&2
