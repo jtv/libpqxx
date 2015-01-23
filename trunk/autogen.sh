@@ -4,10 +4,6 @@
 
 set -e
 
-# Optionally run in "dumb" locale to avoid performance overhead (and risk of
-# bugs) involved in localization, encoding issues etc.  We only do ASCII here.
-#export LC_ALL=C
-
 # The VERSION file defines our versioning
 PQXXVERSION=$(./tools/extract_version)
 echo "libpqxx version $PQXXVERSION"

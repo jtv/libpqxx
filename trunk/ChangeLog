@@ -1,5 +1,8 @@
 2015-01-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
+ - Remove commented-out LC_ALL=C.  Locales work now, and fast enough.
+2015-01-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh:
  - Simply require Python.
  - Use $() instead of ``.
 2015-01-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
