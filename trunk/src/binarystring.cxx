@@ -81,29 +81,36 @@ buffer unescape(const unsigned char escaped[])
 } // namespace
 
 
+pqxx::binarystring::binarystring(const binarystring &rhs) :
+  m_buf(*new smart_pointer_type(rhs.m_buf)),
+  m_size(rhs.m_size)
+{
+}
+
+
 pqxx::binarystring::binarystring(const field &F) :
-  super(),
+  m_buf(*new smart_pointer_type),
   m_size(0)
 {
   buffer unescaped(unescape(reinterpret_cast<const_pointer>(F.c_str())));
-  super::operator=(super(unescaped.first));
+  m_buf = smart_pointer_type(unescaped.first);
   m_size = unescaped.second;
 }
 
 
 pqxx::binarystring::binarystring(const string &s) :
-  super(),
+  m_buf(*new smart_pointer_type),
   m_size(s.size())
 {
-  super::operator=(super(to_buffer(s).first));
+  m_buf = smart_pointer_type(to_buffer(s).first);
 }
 
 
 pqxx::binarystring::binarystring(const void *binary_data, size_t len) :
-  super(),
+  m_buf(*new smart_pointer_type),
   m_size(len)
 {
-  super::operator=(super(to_buffer(binary_data, len).first));
+  m_buf = smart_pointer_type(to_buffer(binary_data, len).first);
 }
 
 
@@ -112,6 +119,14 @@ bool pqxx::binarystring::operator==(const binarystring &rhs) const PQXX_NOEXCEPT
   if (rhs.size() != size()) return false;
   for (size_type i=0; i<size(); ++i) if (rhs[i] != data()[i]) return false;
   return true;
+}
+
+
+pqxx::binarystring &pqxx::binarystring::operator=(const binarystring &rhs)
+{
+  m_buf = rhs.m_buf;
+  m_size = rhs.m_size;
+  return *this;
 }
 
 
@@ -130,8 +145,8 @@ pqxx::binarystring::const_reference pqxx::binarystring::at(size_type n) const
 
 void pqxx::binarystring::swap(binarystring &rhs)
 {
-  // PQAlloc<>::swap() is nothrow
-  super::swap(rhs);
+  // PQAlloc<>::swap() does not throw.
+  m_buf.swap(rhs.m_buf);
 
   // This part very obviously can't go wrong, so do it last
   const size_type s(m_size);

@@ -15695,15 +15695,13 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_visibility" >&5
 $as_echo "$gcc_visibility" >&6; }
-if test "$gcc_visibility" = "yes" ; then
-	# Setting default symbol visibility to "hidden" vastly reduces
-	# library size with g++ 4.0, but unfortunately this will require
-	# some more work in the libpqxx setup.  Instead, we make only
-	# inline functions hidden.
-	add_compiler_opts -fvisibility-inlines-hidden
-	#add_compiler_opts -fvisibility=hidden
-fi
 CXXFLAGS="$SAVE_CXXFLAGS"
+if test "$gcc_visibility" = "yes" ; then
+    # Make internal definitions accessible only to the library itself.
+    # Only definitions marked PQXX_LIBEXPORT will be accessible.
+    add_compiler_opts -fvisibility=hidden
+    add_compiler_opts -fvisibility-inlines-hidden
+fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ const attribute" >&5
 $as_echo_n "checking g++ const attribute... " >&6; }
