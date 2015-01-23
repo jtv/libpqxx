@@ -27,10 +27,6 @@
 
 #include "pqxx/connection_base"
 
-#ifdef PQXX_QUIET_DESTRUCTORS
-#include "pqxx/errorhandler"
-#endif
-
 
 namespace pqxx
 {
@@ -70,13 +66,7 @@ public:
     m_policy(m_options)
 	{ init(); }
 
-  ~basic_connection() PQXX_NOEXCEPT
-  {
-#ifdef PQXX_QUIET_DESTRUCTORS
-    quiet_errorhandler quiet(*this);
-#endif
-    close();
-  }
+  ~basic_connection() PQXX_NOEXCEPT				    { close(); }
 
   const std::string &options() const PQXX_NOEXCEPT			//[t1]
 	{return m_policy.options();}

@@ -17,10 +17,6 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
-#ifdef PQXX_QUIET_DESTRUCTORS
-#include "pqxx/errorhandler"
-#endif
-
 #include "pqxx/tablereader"
 #include "pqxx/tablewriter"
 #include "pqxx/transaction"
@@ -43,9 +39,6 @@ pqxx::tablewriter::tablewriter(transaction_base &T,
 
 pqxx::tablewriter::~tablewriter() PQXX_NOEXCEPT
 {
-#ifdef PQXX_QUIET_DESTRUCTORS
-  quiet_errorhandler quiet(m_Trans.conn());
-#endif
   try
   {
     writer_close();

@@ -24,11 +24,6 @@
 
 #include "pqxx/dbtransaction"
 
-#ifdef PQXX_QUIET_DESTRUCTORS
-#include "pqxx/errorhandler"
-#endif
-
-
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"
  */
@@ -108,13 +103,7 @@ public:
     basic_transaction(C, isolation_tag::name(), READWRITE)
 	{ Begin(); }
 
-  virtual ~transaction() PQXX_NOEXCEPT
-  {
-#ifdef PQXX_QUIET_DESTRUCTORS
-    quiet_errorhandler quiet(conn());
-#endif
-    End();
-  }
+  virtual ~transaction() PQXX_NOEXCEPT				      { End(); }
 };
 
 

@@ -23,10 +23,6 @@
 
 #include "pqxx/notification"
 
-#ifdef PQXX_QUIET_DESTRUCTORS
-#include "pqxx/errorhandler"
-#endif
-
 
 using namespace pqxx::internal;
 
@@ -43,8 +39,5 @@ pqxx::notification_receiver::notification_receiver(
 
 pqxx::notification_receiver::~notification_receiver()
 {
-#ifdef PQXX_QUIET_DESTRUCTORS
-  quiet_errorhandler quiet(this->conn());
-#endif
   gate::connection_notification_receiver(this->conn()).remove_receiver(this);
 }

@@ -294,9 +294,6 @@ void pqxx::largeobjectaccess::open(openmode mode)
 
 void pqxx::largeobjectaccess::close() PQXX_NOEXCEPT
 {
-#ifdef PQXX_QUIET_DESTRUCTORS
-  quiet_errorhandler quiet(m_Trans.conn());
-#endif
   if (m_fd >= 0) lo_close(RawConnection(), m_fd);
 }
 

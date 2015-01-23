@@ -17,10 +17,6 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
-#ifdef PQXX_QUIET_DESTRUCTORS
-#include "pqxx/errorhandler"
-#endif
-
 #include "pqxx/dbtransaction"
 #include "pqxx/pipeline"
 
@@ -60,9 +56,6 @@ pqxx::pipeline::pipeline(transaction_base &t, const std::string &Name) :
 
 pqxx::pipeline::~pipeline() PQXX_NOEXCEPT
 {
-#ifdef PQXX_QUIET_DESTRUCTORS
-  quiet_errorhandler quiet(m_Trans.conn());
-#endif
   try { cancel(); } catch (const exception &) {}
   detach();
 }
