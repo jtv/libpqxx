@@ -6,16 +6,16 @@
 # Process configure.ac.in with autoconf to produce a configure script.
 
 # All text in libpqxx is pure ASCII, so we can afford the "C" locale which is
-# likely to be faster than any other.  This may also work around bugs in some
-# environments, esp. with UTF-8 locales.
+# likely to be faster than any other.
 LC_ALL=C
 
 AC_PREREQ(2.59)
 AC_INIT(libpqxx, 5.0, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_LANG(C++)
+AC_CONFIG_SRCDIR([src/connection.cxx])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([config/m4])
-AM_INIT_AUTOMAKE(libpqxx, 5.0)
+AM_INIT_AUTOMAKE
 
 PQXXVERSION=5.0
 PQXX_ABI=5.0
@@ -26,7 +26,6 @@ AC_SUBST(PQXX_ABI)
 AC_SUBST(PQXX_MAJOR)
 AC_SUBST(PQXX_MINOR)
 
-AC_CONFIG_SRCDIR([src/connection.cxx])
 AC_CONFIG_HEADER([include/pqxx/config.h])
 
 # default prefix for installs
@@ -396,8 +395,10 @@ AC_LANG_POP(C)
 AC_MSG_CHECKING([for correct C++ linkage of basic libpq functions])
 if test "$enable_maintainer_mode" = "yes"; then
 AC_LINK_IFELSE([
+    AC_LANG_SOURCE([[
 #include <${with_postgres_include}/libpq-fe.h>
-int main(){return !PQexec(0,0);}],
+int main(){return !PQexec(0,0);}
+]])],
 [], 
 [AC_MSG_ERROR([
 Linking a call to libpq failed in C++, even though it succeeded in C.  If your
@@ -418,8 +419,10 @@ be several pages up from the end of the file.
 ])])
 else
 AC_LINK_IFELSE([
+    AC_LANG_SOURCE([[
 #include <${with_postgres_include}/libpq-fe.h>
-int main(){return !PQexec(0,0);}],
+int main(){return !PQexec(0,0);}
+]])],
 [], 
 [AC_MSG_ERROR([
 Linking a call to libpq failed in C++, even though it succeeded in C.  If your
@@ -576,8 +579,9 @@ AC_MSG_RESULT(yes)
 
 AC_MSG_CHECKING([if select() accepts NULL fdsets])
 select_accepts_null=yes
-AC_RUN_IFELSE(
-[#ifdef PQXX_HAVE_SYS_SELECT_H
+AC_RUN_IFELSE([
+    AC_LANG_SOURCE([[
+#ifdef PQXX_HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #else
 #include <ctime>
@@ -591,7 +595,8 @@ AC_RUN_IFELSE(
 #endif
 ${usestd}
 extern "C" int foo(){fd_set f; FD_SET(1,&f); return select(2,0,&f,&f,0)<0;}
-int main() { return foo(); }],
+int main() { return foo(); }
+]])],
 	AC_DEFINE(PQXX_SELECT_ACCEPTS_NULL,1,
 [Define if select() accepts NULL fd_set arguments]),
 	select_accepts_null=no,

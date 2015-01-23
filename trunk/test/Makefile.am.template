@@ -4,7 +4,7 @@ SUBDIRS = unit
 
 EXTRA_DIST = Makefile.am.template
 
-INCLUDES=-I$(top_builddir)/include -I$(top_srcdir)/include
+AM_CPPFLAGS=-I$(top_builddir)/include -I$(top_srcdir)/include
 
 # Override automatically generated list of default includes.  It contains only
 # unnecessary entries, and incorrectly mentions include/pqxx directly.
