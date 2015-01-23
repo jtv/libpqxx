@@ -9,14 +9,14 @@ set -e
 #export LC_ALL=C
 
 # The VERSION file defines our versioning
-PQXXVERSION=`./tools/extract_version`
+PQXXVERSION=$(./tools/extract_version)
 echo "libpqxx version $PQXXVERSION"
 
-PQXX_ABI=`./tools/extract_version --abi`
+PQXX_ABI=$(./tools/extract_version --abi)
 echo "libpqxx ABI version $PQXX_ABI"
 
-PQXX_MAJOR="`echo "$PQXXVERSION" | sed -e 's/[[:space:]]*\([0-9]*\)\..*$/\1/'`"
-PQXX_MINOR="`echo "$PQXXVERSION" | sed -e 's/[^.]*\.\([0-9]*\).*$/\1/'`"
+PQXX_MAJOR="$(echo "$PQXXVERSION" | sed -e 's/[[:space:]]*\([0-9]*\)\..*$/\1/')"
+PQXX_MINOR="$(echo "$PQXXVERSION" | sed -e 's/[^.]*\.\([0-9]*\).*$/\1/')"
 
 substitute() {
 	sed -e "s/@PQXXVERSION@/$PQXXVERSION/g" \
@@ -37,17 +37,19 @@ makewinmake() {
 	./tools/template2mak.py "$1" | sed -e 's/$/\r/' >"$2"
 }
 
-if which python >/dev/null ; then
-	# Use templating system to generate various Makefiles
-	./tools/template2mak.py test/Makefile.am.template test/Makefile.am
-	./tools/template2mak.py test/unit/Makefile.am.template test/unit/Makefile.am
-	makewinmake win32/vc-libpqxx.mak.template win32/vc-libpqxx.mak
-	makewinmake win32/vc-test.mak.template win32/vc-test.mak
-	makewinmake win32/vc-test-unit.mak.template win32/vc-test-unit.mak
-	makewinmake win32/mingw.mak.template win32/MinGW.mak
-else
-	echo "Python not available--not generating Visual C++ makefiles."
+if ! which python >/dev/null
+then
+	echo "This script requires the python interpreter." >&2
+	exit 1
 fi
+
+# Use templating system to generate various Makefiles
+./tools/template2mak.py test/Makefile.am.template test/Makefile.am
+./tools/template2mak.py test/unit/Makefile.am.template test/unit/Makefile.am
+makewinmake win32/vc-libpqxx.mak.template win32/vc-libpqxx.mak
+makewinmake win32/vc-test.mak.template win32/vc-test.mak
+makewinmake win32/vc-test-unit.mak.template win32/vc-test-unit.mak
+makewinmake win32/mingw.mak.template win32/MinGW.mak
 
 autoheader
 
@@ -57,11 +59,11 @@ automake --verbose --add-missing --copy
 autoconf
 
 conf_flags="--enable-maintainer-mode $CONFIG_ARGS"
-if test -z "$NOCONFIGURE" ; then
+if test -z "$NOCONFIGURE"
+then
 	echo Running $srcdir/configure $conf_flags "$@" ...
 	./configure $conf_flags "$@" \
 	&& echo Now type \`make\' to compile $PKG_NAME || exit 1
 else
 	echo Skipping configure process.
 fi
-
