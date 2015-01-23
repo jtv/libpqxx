@@ -20,6 +20,7 @@
  - Fixed failure to detect some integer overflows during conversion.
  - Build tooling uses /usr/bin/env python instead of /usr/bin/python.
  - New configure options: --with-postgres-include and --with-postgres-lib.
+ - In g++ or compatible compilers, non-exported items are no longer accessible.
 4.0
  - API change: noticers are gone!  Use errorhandlers to capture error output.
  - API change: tablereaders and tablewriters are gone; they weren't safe.

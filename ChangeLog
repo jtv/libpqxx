@@ -1,5 +1,13 @@
 2015-01-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configure.ac.in:
+ - Make default inline symbol visibility of "hidden" work again.
+ - Also make non-inline symbols hidden by default.
+ include/pqxx/binarystring.hxx, src/binarystring.cxx:
+ - Replace PQAlloc member with a reference to PQAlloc.
+ - Less efficient, but conflicted with "hidden" inline visibility.
+ - Becomes easier once we can require shared_ptr.
+2015-01-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configure.ac.in:
  - Add --with-postgres-include and --with-postgres-lib options.
  - Start using AS_IF() instead of plain shell "if".
  - Start using $() instead of ``.

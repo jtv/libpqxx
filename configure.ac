@@ -143,15 +143,13 @@ struct __attribute__ ((visibility("hidden"))) d { d() {} void f() {} };
 		[Define if g++ supports visibility attribute, as in g++ 4.0]),
 	gcc_visibility=no)
 AC_MSG_RESULT($gcc_visibility)
-if test "$gcc_visibility" = "yes" ; then
-	# Setting default symbol visibility to "hidden" vastly reduces
-	# library size with g++ 4.0, but unfortunately this will require
-	# some more work in the libpqxx setup.  Instead, we make only
-	# inline functions hidden.
-	add_compiler_opts -fvisibility-inlines-hidden 
-	#add_compiler_opts -fvisibility=hidden
-fi
 CXXFLAGS="$SAVE_CXXFLAGS"
+if test "$gcc_visibility" = "yes" ; then
+    # Make internal definitions accessible only to the library itself.
+    # Only definitions marked PQXX_LIBEXPORT will be accessible.
+    add_compiler_opts -fvisibility=hidden
+    add_compiler_opts -fvisibility-inlines-hidden 
+fi
 
 AC_MSG_CHECKING([g++ const attribute])
 gcc_const_attr=yes

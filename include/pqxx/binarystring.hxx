@@ -56,13 +56,10 @@ namespace pqxx
  * is protected against concurrency with similar operations on the same object,
  * or other objects pointing to the same data block.
  */
-class PQXX_LIBEXPORT binarystring :
-	internal::PQAlloc<
-		unsigned char,
-		pqxx::internal::freemallocmem_templated<unsigned char> >
+class PQXX_LIBEXPORT binarystring
 {
 public:
-  typedef content_type char_type;
+  typedef unsigned char char_type;
   typedef std::char_traits<char_type>::char_type value_type;
   typedef size_t size_type;
   typedef long difference_type;
@@ -71,13 +68,9 @@ public:
   typedef const_pointer const_iterator;
   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-private:
-  typedef internal::PQAlloc<
-	value_type,
-	pqxx::internal::freemallocmem_templated<unsigned char> >
-    super;
-
 public:
+  binarystring(const binarystring &);
+
   /// Read and unescape bytea field
   /** The field will be zero-terminated, even if the original bytea field isn't.
    * @param F the field to read; must be a bytea field
@@ -89,6 +82,8 @@ public:
 
   /// Copy binary data of given length straight out of memory.
   binarystring(const void *, size_t);
+
+  ~binarystring() { delete &m_buf; }
 
   /// Size of converted string in bytes
   size_type size() const PQXX_NOEXCEPT { return m_size; }		//[t62]
@@ -109,7 +104,7 @@ public:
 	{ return const_reverse_iterator(begin()); }
 
   /// Unescaped field contents
-  const value_type *data() const PQXX_NOEXCEPT {return super::get();}	//[t62]
+  const value_type *data() const PQXX_NOEXCEPT {return m_buf.get();}	//[t62]
 
   const_reference operator[](size_type i) const PQXX_NOEXCEPT		//[t62]
 	{ return data()[i]; }
@@ -117,6 +112,8 @@ public:
   PQXX_PURE bool operator==(const binarystring &) const PQXX_NOEXCEPT;	//[t62]
   bool operator!=(const binarystring &rhs) const PQXX_NOEXCEPT		//[t62]
 	{ return !operator==(rhs); }
+
+  binarystring &operator=(const binarystring &);
 
   /// Index contained string, checking for valid index
   const_reference at(size_type) const;					//[t62]
@@ -129,9 +126,7 @@ public:
    * a null character, you will not find one here.
    */
   const char *get() const PQXX_NOEXCEPT					//[t62]
-  {
-    return reinterpret_cast<const char *>(super::get());
-  }
+			{ return reinterpret_cast<const char *>(m_buf.get()); }
 
   /// Read as regular C++ string (may include null characters)
   /** @warning libpqxx releases before 3.1 stored the string and returned a
@@ -143,6 +138,18 @@ public:
   std::string str() const;						//[t62]
 
 private:
+  typedef internal::PQAlloc<
+	value_type,
+	pqxx::internal::freemallocmem_templated<unsigned char> >
+    smart_pointer_type;
+
+  /* Using a reference to a smart pointer.  It's wasteful, but it hides the
+   * different implementations of PQAlloc: the compiler needs to know PQAlloc's
+   * memory layout in order to include an instance inside binarystring.
+   * Once shared_ptr is widespread enough, we can just have a shared_ptr and
+   * forget about PQAlloc altogether.
+   */
+  smart_pointer_type &m_buf;
   size_type m_size;
 };
 }
