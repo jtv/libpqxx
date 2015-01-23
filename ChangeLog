@@ -1,5 +1,9 @@
 2015-01-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  autogen.sh:
+ - Simply require Python.
+ - Use $() instead of ``.
+2015-01-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ autogen.sh:
  - Drop search for specific (and now long obsolete) automake versions.
  configure.ac.in, src/Makefile.am, test/Makefile.am.template,
  test/unit/Makefile.am.template, tools/Makefile.am:
