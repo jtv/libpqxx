@@ -174,8 +174,8 @@ inline void check_equal(
   if (expected == actual) return;
   const std::string fulldesc =
 	desc + " (" + actual_text + " <> " + expected_text + ": "
-	"expected=" + to_string(expected) + ", "
-	"actual=" + to_string(actual) + ")";
+	"actual=" + to_string(actual) + ", "
+	"expected=" + to_string(expected) + ")";
   throw test_failure(file, line, fulldesc);
 }
 

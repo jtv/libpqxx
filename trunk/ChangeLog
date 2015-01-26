@@ -1,3 +1,9 @@
+2015-01-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test_helpers.hxx:
+ - Show actual value before expected value; more helpful if it gets truncated.
+ test/unit/test_escape.cxx:
+ - Print escaped string for debugging.  Test fails against early 9.x postgres.
+ - Test against unprintable characters.
 2015-01-23  Jeroen T. Vermeulen <jtv@xs4all.nl>
  tools/lint:
  - Change mktemp naming scheme.

@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <test_helpers.hxx>
 
 using namespace std;
@@ -100,8 +102,15 @@ void test_esc_raw_unesc_raw(transaction_base &t)
   const string data(binary, sizeof(binary));
   const string escaped = t.esc_raw(data);
 
+  cout << "Escaped data: " << escaped << endl;
+
   for (string::const_iterator i = escaped.begin(); i != escaped.end(); ++i)
     PQXX_CHECK(isascii(*i), "Non-ASCII character in escaped data: " + escaped);
+
+  for (string::const_iterator i = escaped.begin(); i != escaped.end(); ++i)
+    PQXX_CHECK(
+	isprint(*i),
+	"Unprintable character in escaped data: " + escaped);
 
   PQXX_CHECK_EQUAL(
 	t.unesc_raw(escaped),
