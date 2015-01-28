@@ -849,7 +849,7 @@ private:
   std::string PQXX_PRIVATE RawGetVar(const std::string &);
   void PQXX_PRIVATE process_notice_raw(const char msg[]) PQXX_NOEXCEPT;
 
-  void read_capabilities() PQXX_NOEXCEPT;
+  void read_capabilities();
 
   prepare::internal::prepared_def &find_prepared(const std::string &);
 
