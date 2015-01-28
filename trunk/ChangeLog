@@ -1,4 +1,7 @@
 2015-01-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ config/sample-headers/compiler/VisualStudio2013:
+ - Sample headers for Visual Studio 2013.
+2015-01-28  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/connection_base.hxx, src/connection_base.cxx:
  - Remove promise that read_capabilities won't throw exceptions.
 2015-01-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
