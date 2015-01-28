@@ -1252,7 +1252,7 @@ int pqxx::connection_base::await_notification(long seconds, long microseconds)
 }
 
 
-void pqxx::connection_base::read_capabilities() PQXX_NOEXCEPT
+void pqxx::connection_base::read_capabilities()
 {
   m_serverversion = PQserverVersion(m_Conn);
   if (m_serverversion <= 90000)
