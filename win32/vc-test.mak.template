@@ -103,13 +103,13 @@ $(INTDIR)\runner.exe: $(OBJS) $(DLLS)
 
 
 ###MAKTEMPLATE:FOREACH test/*.cxx
-$(INTDIR)\###BASENAME###.obj:
+$(INTDIR)\###BASENAME###.obj::
 	@$(CXX) $(CXX_FLAGS) ###FILENAME### /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 ###MAKTEMPLATE:ENDFOREACH
 
 
-$(INTDIR)\$(LIBPQ):
-	@copy $(LIBDIR)\$(LIBPQ) $(INTDIR)
+$(INTDIR)\$(LIBPQ)::
+	@copy "$(LIBDIR)\$(LIBPQ)" "$(INTDIR)"
 
-$(INTDIR)\$(PQXX):
-	@copy $(LIBDIR)\$(PQXX) $(INTDIR)
+$(INTDIR)\$(PQXX)::
+	@copy "$(LIBDIR)\$(PQXX)" "$(INTDIR)"
