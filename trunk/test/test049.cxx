@@ -6,9 +6,6 @@
 
 #include "test_helpers.hxx"
 
-// For count_if workaround
-#include <pqxx/config-internal-compiler.h>
-
 using namespace std;
 using namespace pqxx;
 
