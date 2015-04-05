@@ -14,6 +14,7 @@
  - Build fix for clang++ 3.0.
  - Build fix for MinGW.
  - Build fix for BSD (and possibly other grep flavours).
+ - Makefile fixes for Visual Studio 2013.
  - Supports C++11 and C++14.
  - No longer has obsolete debian & RPM packaging built in.
  - Fixed failure to abort uncommitted subtransactions on destruction.

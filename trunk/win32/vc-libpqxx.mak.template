@@ -141,7 +141,7 @@ clean:
 # Physical targets
 ########################################################
 
-$(OUTDIR)\$(LIBPQDLL): $(OUTDIR)
+$(OUTDIR)\$(LIBPQDLL):: $(OUTDIR)
 	@echo -------------------------------------------------------------
 	@echo Copying $(LIBPQDLL) to $(OUTDIR).
 	@echo.
@@ -153,9 +153,9 @@ $(OUTDIR)\$(LIBPQDLL): $(OUTDIR)
 	@echo Instead, keep it with your program and distribute it along
 	@echo with the program.
 	@echo -------------------------------------------------------------
-	copy $(LIBPQPATH)\$(LIBPQDLL) $(OUTDIR)
+	copy "$(LIBPQPATH)\$(LIBPQDLL)" "$(OUTDIR)"
 
-$(OUTDIR)\$(LIBPQDDLL): $(OUTDIR)
+$(OUTDIR)\$(LIBPQDDLL):: $(OUTDIR)
 	@echo -------------------------------------------------------------
 	@echo Copying $(LIBPQDDLL) to $(OUTDIR).
 	@echo.
@@ -163,37 +163,37 @@ $(OUTDIR)\$(LIBPQDDLL): $(OUTDIR)
 	@echo where your program's .EXE resides, or you must make sure that
 	@echo it is in your system PATH.
 	@echo -------------------------------------------------------------
-	copy $(LIBPQDPATH)\$(LIBPQDDLL) $(OUTDIR)
+	copy "$(LIBPQDPATH)\$(LIBPQDDLL)" "$(OUTDIR)"
 
-$(OUTDIR)\$(LIBPQLIB): $(OUTDIR)
-	copy $(LIBPQPATH)\$(LIBPQLIB) $(OUTDIR)
+$(OUTDIR)\$(LIBPQLIB):: $(OUTDIR)
+	copy "$(LIBPQPATH)\$(LIBPQLIB)" "$(OUTDIR)"
 
-$(OUTDIR)\$(LIBPQDLIB): $(OUTDIR)
-	copy $(LIBPQDPATH)\$(LIBPQDLIB) $(OUTDIR)
+$(OUTDIR)\$(LIBPQDLIB):: $(OUTDIR)
+	copy "$(LIBPQDPATH)\$(LIBPQDLIB)" "$(OUTDIR)"
 
-$(OUTFILE_STATICDEBUG).lib: $(OUTDIR) $(OBJ_STATICDEBUG)
+$(OUTFILE_STATICDEBUG).lib:: $(OUTDIR) $(OBJ_STATICDEBUG)
 	$(LIBTOOL) $(LIB_FLAGS) $(OBJ_STATICDEBUG) /out:"$(OUTFILE_STATICDEBUG).lib"
 
-$(OUTFILE_STATICRELEASE).lib: $(OUTDIR) $(OBJ_STATICRELEASE)
+$(OUTFILE_STATICRELEASE).lib:: $(OUTDIR) $(OBJ_STATICRELEASE)
 	$(LIBTOOL) $(LIB_FLAGS) $(OBJ_STATICRELEASE) /out:"$(OUTFILE_STATICRELEASE).lib"
 
-$(OUTFILE_DLLDEBUG).dll: $(OUTDIR) $(OBJ_DLLDEBUG)
+$(OUTFILE_DLLDEBUG).dll:: $(OUTDIR) $(OBJ_DLLDEBUG)
 	$(LINK) $(LINK_FLAGS_DLLDEBUG) $(OBJ_DLLDEBUG) /out:"$(OUTFILE_DLLDEBUG).dll" /implib:"$(OUTFILE_DLLDEBUG).lib"
 
-$(OUTFILE_DLLRELEASE).dll: $(OUTDIR) $(OBJ_DLLRELEASE)
+$(OUTFILE_DLLRELEASE).dll:: $(OUTDIR) $(OBJ_DLLRELEASE)
 	$(LINK) $(LINK_FLAGS_DLLRELEASE) $(OBJ_DLLRELEASE) /out:"$(OUTFILE_DLLRELEASE).dll" /implib:"$(OUTFILE_DLLRELEASE).lib"
 
 
-$(INTDIR_STATICDEBUG):
+$(INTDIR_STATICDEBUG)::
 	-@mkdir $(INTDIR_STATICDEBUG)
 
-$(INTDIR_STATICRELEASE):
+$(INTDIR_STATICRELEASE)::
 	-@mkdir $(INTDIR_STATICRELEASE)
 
-$(INTDIR_DLLDEBUG):
+$(INTDIR_DLLDEBUG)::
 	-@mkdir $(INTDIR_DLLDEBUG)
 
-$(INTDIR_DLLRELEASE):
+$(INTDIR_DLLRELEASE)::
 	-@mkdir $(INTDIR_DLLRELEASE)
 
 
