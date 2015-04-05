@@ -1,4 +1,7 @@
 2015-04-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ test/test049.cxx:
+ - No longer needs to include internal compiler tweaks for count_if().
+2015-04-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
  win32/vc-libpqxx.mak.template, win32/vc-test.mak.template:
  - Use :: instead of : in each non-phony rule definition.
  - Quote filenames for "copy" command.
