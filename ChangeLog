@@ -1,5 +1,10 @@
 2015-04-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in, include/pqxx/compiler-public.hxx,
+ include/pqxx/connection_base.hxx, include/pqxx/errorhandler.hxx,
+ include/pqxx/largeobject.hxx, include/pqxx/row.hxx:
+ - Use "=delete" on forbidden special member functions if available.
+2015-04-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in, include/pqxx/compiler-public.hxx,
  include/pqxx/connection.hxx, include/pqxx/dbtransaction.hxx,
  include/pqxx/errorhandler.hxx, include/pqxx/except.hxx,
  include/pqxx/field.hxx, include/pqxx/largeobject.hxx,

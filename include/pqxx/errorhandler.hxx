@@ -75,9 +75,9 @@ private:
   void unregister() PQXX_NOEXCEPT;
 
   // Not allowed:
-  errorhandler();
-  errorhandler(const errorhandler &);
-  errorhandler &operator=(const errorhandler &);
+  errorhandler() PQXX_DELETED_OP;
+  errorhandler(const errorhandler &) PQXX_DELETED_OP;
+  errorhandler &operator=(const errorhandler &) PQXX_DELETED_OP;
 };
 
 

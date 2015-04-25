@@ -954,8 +954,8 @@ private:
 	int nparams);
 
   // Not allowed:
-  connection_base(const connection_base &);
-  connection_base &operator=(const connection_base &);
+  connection_base(const connection_base &) PQXX_DELETED_OP;
+  connection_base &operator=(const connection_base &) PQXX_DELETED_OP;
 };
 
 

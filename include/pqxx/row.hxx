@@ -200,7 +200,7 @@ protected:
 
 private:
   // Not allowed:
-  row();
+  row() PQXX_DELETED_OP;
 };
 
 

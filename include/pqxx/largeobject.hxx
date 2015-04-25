@@ -334,9 +334,9 @@ private:
   int m_fd;
 
   // Not allowed:
-  largeobjectaccess();
-  largeobjectaccess(const largeobjectaccess &);
-  largeobjectaccess operator=(const largeobjectaccess &);
+  largeobjectaccess() PQXX_DELETED_OP;
+  largeobjectaccess(const largeobjectaccess &) PQXX_DELETED_OP;
+  largeobjectaccess operator=(const largeobjectaccess &) PQXX_DELETED_OP;
 };
 
 

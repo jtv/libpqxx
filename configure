@@ -15914,6 +15914,31 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $override_keyword" >&5
 $as_echo "$override_keyword" >&6; }
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for C++14 \"=delete\" support" >&5
+$as_echo_n "checking for C++14 \"=delete\" support... " >&6; }
+deleted_op=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+struct Foo { Foo() = delete;};
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_DELETED_OP 1" >>confdefs.h
+
+else
+  deleted_op=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $deleted_op" >&5
+$as_echo "$deleted_op" >&6; }
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for C++14 final support" >&5
 $as_echo_n "checking for C++14 final support... " >&6; }
 final_keyword=yes
