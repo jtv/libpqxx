@@ -67,6 +67,9 @@
 /* Define if preprocessor supports nonstandard "warning" directive */
 #undef PQXX_HAVE_CPP_WARNING
 
+/* Define if the compiler supports "= delete" member functions. */
+#undef PQXX_HAVE_DELETED_OP
+
 /* Define if compiler supports [[deprecated]] attribute */
 #undef PQXX_HAVE_DEPRECATED
 

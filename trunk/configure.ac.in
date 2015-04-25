@@ -237,6 +237,18 @@ AC_TRY_COMPILE(
 	override_keyword=no)
 AC_MSG_RESULT($override_keyword)
 
+AC_MSG_CHECKING([for C++14 "=delete" support])
+deleted_op=yes
+AC_TRY_COMPILE(
+	[struct Foo { Foo() = delete;};],
+	[],
+	AC_DEFINE(
+		[PQXX_HAVE_DELETED_OP],
+		1,
+		[Define if the compiler supports "= delete" member functions.]),
+	deleted_op=no)
+AC_MSG_RESULT($deleted_op)
+
 AC_MSG_CHECKING([for C++14 final support])
 final_keyword=yes
 AC_TRY_COMPILE(
