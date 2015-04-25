@@ -46,7 +46,7 @@ protected:
 	readwrite_policy);
 
 private:
-  virtual void do_commit();						//[t1]
+  virtual void do_commit() PQXX_OVERRIDE;				//[t1]
 };
 
 

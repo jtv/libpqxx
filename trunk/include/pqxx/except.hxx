@@ -96,7 +96,8 @@ public:
 class PQXX_LIBEXPORT failure :
   public pqxx_exception, public std::runtime_error
 {
-  virtual const std::exception &base() const PQXX_NOEXCEPT { return *this; }
+  virtual const std::exception &base() const PQXX_NOEXCEPT PQXX_OVERRIDE
+							       { return *this; }
 public:
   explicit failure(const std::string &);
 };
@@ -165,7 +166,8 @@ public:
 class PQXX_LIBEXPORT internal_error :
   public pqxx_exception, public std::logic_error
 {
-  virtual const std::exception &base() const PQXX_NOEXCEPT { return *this; }
+  virtual const std::exception &base() const PQXX_NOEXCEPT PQXX_OVERRIDE
+							       { return *this; }
 public:
   explicit internal_error(const std::string &);
 };
@@ -175,7 +177,8 @@ public:
 class PQXX_LIBEXPORT usage_error :
   public pqxx_exception, public std::logic_error
 {
-  virtual const std::exception &base() const PQXX_NOEXCEPT { return *this; }
+  virtual const std::exception &base() const PQXX_NOEXCEPT PQXX_OVERRIDE
+							       { return *this; }
 public:
   explicit usage_error(const std::string &);
 };
@@ -185,7 +188,8 @@ public:
 class PQXX_LIBEXPORT argument_error :
   public pqxx_exception, public std::invalid_argument
 {
-  virtual const std::exception &base() const PQXX_NOEXCEPT { return *this; }
+  virtual const std::exception &base() const PQXX_NOEXCEPT PQXX_OVERRIDE
+							       { return *this; }
 public:
   explicit argument_error(const std::string &);
 };
@@ -194,7 +198,8 @@ public:
 class PQXX_LIBEXPORT conversion_error :
   public pqxx_exception, public std::domain_error
 {
-  virtual const std::exception &base() const PQXX_NOEXCEPT { return *this; }
+  virtual const std::exception &base() const PQXX_NOEXCEPT PQXX_OVERRIDE
+							       { return *this; }
 public:
   explicit conversion_error(const std::string &);
 };
@@ -204,7 +209,8 @@ public:
 class PQXX_LIBEXPORT range_error :
   public pqxx_exception, public std::out_of_range
 {
-  virtual const std::exception &base() const PQXX_NOEXCEPT { return *this; }
+  virtual const std::exception &base() const PQXX_NOEXCEPT PQXX_OVERRIDE
+							       { return *this; }
 public:
   explicit range_error(const std::string &);
 };

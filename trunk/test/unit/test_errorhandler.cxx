@@ -7,7 +7,7 @@ using namespace pqxx;
 
 namespace
 {
-class TestErrorHandler : public errorhandler
+class TestErrorHandler PQXX_FINAL : public errorhandler
 {
 public:
   TestErrorHandler(
@@ -20,7 +20,7 @@ public:
     handler_list(activated_handlers)
   {}
 
-  virtual bool operator()(const char msg[]) PQXX_NOEXCEPT
+  virtual bool operator()(const char msg[]) PQXX_NOEXCEPT PQXX_OVERRIDE
   {
     message = string(msg);
     handler_list.push_back(this);
@@ -116,11 +116,12 @@ void test_destroying_connection_unregisters_handlers()
 }
 
 
-class MinimalErrorHandler: public errorhandler
+class MinimalErrorHandler PQXX_FINAL : public errorhandler
 {
 public:
   MinimalErrorHandler(connection_base &c) : errorhandler(c) {}
-  virtual bool operator()(const char[]) PQXX_NOEXCEPT { return true; }
+  virtual bool operator()(const char[]) PQXX_NOEXCEPT PQXX_OVERRIDE
+	{ return true; }
 };
 
 

@@ -1,3 +1,16 @@
+2015-04-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in, include/pqxx/compiler-public.hxx,
+ include/pqxx/connection.hxx, include/pqxx/dbtransaction.hxx,
+ include/pqxx/errorhandler.hxx, include/pqxx/except.hxx,
+ include/pqxx/field.hxx, include/pqxx/largeobject.hxx,
+ include/pqxx/nontransaction.hxx, include/pqxx/robusttransaction.hxx,
+ include/pqxx/subtransaction.hxx, include/pqxx/tablereader.hxx,
+ include/pqxx/tablewriter.hxx, include/pqxx/transaction.hxx,
+ test/test004.cxx, test/test023.cxx, test/test079.cxx, test/test087.cxx,
+ test/test/094.cxx, test/test_helpers.hxx, test/unit/test_errorhandler.cxx,
+ test/unit/test_notification.cxx:
+ - Use C++14 "final" if available.
+ - Use C++14 "override" if available.
 2015-04-05  Jeroen T. Vermeulen <jtv@xs4all.nl>
  test/test049.cxx:
  - No longer needs to include internal compiler tweaks for count_if().

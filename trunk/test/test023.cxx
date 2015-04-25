@@ -14,7 +14,7 @@ namespace
 {
 
 // Sample implementation of notification receiver.
-class TestListener : public notification_receiver
+class TestListener PQXX_FINAL : public notification_receiver
 {
   bool m_done;
 
@@ -22,7 +22,7 @@ public:
   explicit TestListener(connection_base &C) :
 	notification_receiver(C, "listen"), m_done(false) {}
 
-  virtual void operator()(const string &, int be_pid)
+  virtual void operator() PQXX_OVERRIDE (const string &, int be_pid)
   {
     m_done = true;
     PQXX_CHECK_EQUAL(

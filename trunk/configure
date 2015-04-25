@@ -3031,6 +3031,7 @@ END
   fi
 fi
 
+
 PQXXVERSION=5.0
 PQXX_ABI=5.0
 PQXX_MAJOR=5
@@ -15860,8 +15861,8 @@ $as_echo "$gcc_pure" >&6; }
 
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for noexcept support" >&5
-$as_echo_n "checking for noexcept support... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for C++11 noexcept support" >&5
+$as_echo_n "checking for C++11 noexcept support... " >&6; }
 noexcept_keyword=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -15884,6 +15885,59 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $noexcept_keyword" >&5
 $as_echo "$noexcept_keyword" >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for C++14 override support" >&5
+$as_echo_n "checking for C++14 override support... " >&6; }
+override_keyword=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+		struct Parent {virtual ~Parent(); virtual void f();};
+		struct Child : Parent { virtual void f() override;};
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_OVERRIDE 1" >>confdefs.h
+
+else
+  override_keyword=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $override_keyword" >&5
+$as_echo "$override_keyword" >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for C++14 final support" >&5
+$as_echo_n "checking for C++14 final support... " >&6; }
+final_keyword=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+struct Foo final {};
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_FINAL 1" >>confdefs.h
+
+else
+  final_keyword=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $final_keyword" >&5
+$as_echo "$final_keyword" >&6; }
 
 boost_smart_ptr=yes
 

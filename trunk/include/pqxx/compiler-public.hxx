@@ -34,6 +34,18 @@
 #define PQXX_NOEXCEPT throw ()
 #endif
 
+#ifdef PQXX_HAVE_OVERRIDE
+#define PQXX_OVERRIDE override
+#else
+#define PQXX_OVERRIDE /*override*/
+#endif
+
+#ifdef PQXX_HAVE_FINAL
+#define PQXX_FINAL final
+#else
+#define PQXX_FINAL /*final*/
+#endif
+
 #ifdef _MSC_VER
 
 /* Work around a particularly pernicious and deliberate bug in Visual C++:

@@ -87,7 +87,8 @@ class quiet_errorhandler : public errorhandler
 public:
   quiet_errorhandler(connection_base &conn) : errorhandler(conn) {}
 
-  virtual bool operator()(const char[]) PQXX_NOEXCEPT { return false; }
+  virtual bool operator()(const char[]) PQXX_NOEXCEPT PQXX_OVERRIDE
+							       { return false; }
 };
 
 /**

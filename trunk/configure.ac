@@ -210,7 +210,7 @@ AC_MSG_RESULT($gcc_pure)
 
 fi
 
-AC_MSG_CHECKING([for noexcept support])
+AC_MSG_CHECKING([for C++11 noexcept support])
 noexcept_keyword=yes
 AC_TRY_COMPILE(
 	[void foo() noexcept {}],
@@ -221,6 +221,33 @@ AC_TRY_COMPILE(
 		[Define if the compiler supports the noexcept keyword.]),
 	noexcept_keyword=no)
 AC_MSG_RESULT($noexcept_keyword)
+
+AC_MSG_CHECKING([for C++14 override support])
+override_keyword=yes
+AC_TRY_COMPILE(
+	[
+		struct Parent {virtual ~Parent(); virtual void f();};
+		struct Child : Parent { virtual void f() override;};
+	],
+	[],
+	AC_DEFINE(
+		[PQXX_HAVE_OVERRIDE],
+		1,
+		[Define if the compiler supports the override keyword.]),
+	override_keyword=no)
+AC_MSG_RESULT($override_keyword)
+
+AC_MSG_CHECKING([for C++14 final support])
+final_keyword=yes
+AC_TRY_COMPILE(
+	[struct Foo final {};],
+	[],
+	AC_DEFINE(
+		[PQXX_HAVE_FINAL],
+		1,
+		[Define if the compiler supports the final keyword.]),
+	final_keyword=no)
+AC_MSG_RESULT($final_keyword)
 
 boost_smart_ptr=yes
 AC_CHECK_HEADER(boost/smart_ptr.hpp, AC_DEFINE(PQXX_HAVE_BOOST_SMART_PTR, 1,
