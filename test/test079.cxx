@@ -12,7 +12,7 @@ using namespace pqxx;
 namespace
 {
 // Sample implementation of notification receiver.
-class TestListener : public notification_receiver
+class TestListener PQXX_FINAL : public notification_receiver
 {
   bool m_done;
 
@@ -22,7 +22,7 @@ public:
   {
   }
 
-  virtual void operator()(const string &, int be_pid)
+  virtual void operator()(const string &, int be_pid) PQXX_OVERRIDE
   {
     m_done = true;
     PQXX_CHECK_EQUAL(

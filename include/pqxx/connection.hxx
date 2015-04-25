@@ -85,7 +85,7 @@ class PQXX_LIBEXPORT connect_direct : public connectionpolicy
 {
 public:
   explicit connect_direct(const std::string &opts) : connectionpolicy(opts) {}
-  virtual handle do_startconnect(handle);
+  virtual handle do_startconnect(handle) PQXX_OVERRIDE;
 };
 
 /// The "standard" connection type: connect to database right now
@@ -101,7 +101,7 @@ class PQXX_LIBEXPORT connect_lazy : public connectionpolicy
 {
 public:
   explicit connect_lazy(const std::string &opts) : connectionpolicy(opts) {}
-  virtual handle do_completeconnect(handle);
+  virtual handle do_completeconnect(handle) PQXX_OVERRIDE;
 };
 
 
@@ -120,10 +120,10 @@ class PQXX_LIBEXPORT connect_async : public connectionpolicy
 {
 public:
   explicit connect_async(const std::string &opts);
-  virtual handle do_startconnect(handle);
-  virtual handle do_completeconnect(handle);
-  virtual handle do_dropconnect(handle) PQXX_NOEXCEPT;
-  virtual bool is_ready(handle) const PQXX_NOEXCEPT;
+  virtual handle do_startconnect(handle) PQXX_OVERRIDE;
+  virtual handle do_completeconnect(handle) PQXX_OVERRIDE;
+  virtual handle do_dropconnect(handle) PQXX_NOEXCEPT PQXX_OVERRIDE;
+  virtual bool is_ready(handle) const PQXX_NOEXCEPT PQXX_OVERRIDE;
 
 private:
   /// Is a connection attempt in progress?

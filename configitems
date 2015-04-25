@@ -15,12 +15,14 @@ PQXX_HAVE_CPP_PRAGMA_MESSAGE	public	compiler
 PQXX_HAVE_CPP_WARNING	public	compiler
 PQXX_HAVE_DEPRECATED	public	compiler
 PQXX_HAVE_DISTANCE	internal	compiler
+PQXX_HAVE_FINAL	public	compiler
 PQXX_HAVE_GCC_VISIBILITY	internal	compiler
 PQXX_HAVE_ISINF	internal	compiler
 PQXX_HAVE_ISNAN	internal	compiler
 PQXX_HAVE_MOVE	public	compiler
 PQXX_HAVE_NOEXCEPT	public	compiler
 PQXX_HAVE_NORETURN	public	compiler
+PQXX_HAVE_OVERRIDE	public	compiler
 PQXX_HAVE_POLL	internal	compiler
 PQXX_HAVE_SHARED_PTR	public	compiler
 PQXX_HAVE_SLEEP	internal	compiler

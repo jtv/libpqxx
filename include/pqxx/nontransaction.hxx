@@ -75,10 +75,10 @@ public:
   virtual ~nontransaction();						//[t14]
 
 private:
-  virtual void do_begin() {}						//[t14]
-  virtual result do_exec(const char C[]);				//[t14]
-  virtual void do_commit() {}						//[t14]
-  virtual void do_abort() {}						//[t14]
+  virtual void do_begin() PQXX_OVERRIDE {}				//[t14]
+  virtual result do_exec(const char C[]) PQXX_OVERRIDE;			//[t14]
+  virtual void do_commit() PQXX_OVERRIDE {}				//[t14]
+  virtual void do_abort() PQXX_OVERRIDE {}				//[t14]
 };
 
 

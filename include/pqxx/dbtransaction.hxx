@@ -98,7 +98,7 @@ protected:
    * <li>Executes a ROLLBACK statement</li>
    * </ol>
    */
-  virtual void do_abort();						//[t13]
+  virtual void do_abort() PQXX_OVERRIDE;				//[t13]
 
   static std::string fullname(const std::string &ttype,
 	const std::string &isolation);

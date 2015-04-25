@@ -73,6 +73,9 @@
 /* Define if distance() works according to the standard */
 #undef PQXX_HAVE_DISTANCE
 
+/* Define if the compiler supports the final keyword. */
+#undef PQXX_HAVE_FINAL
+
 /* Define if g++ supports const attribute */
 #undef PQXX_HAVE_GCC_CONST
 
@@ -102,6 +105,9 @@
 
 /* Define if compiler supports [[noreturn]] attribute */
 #undef PQXX_HAVE_NORETURN
+
+/* Define if the compiler supports the override keyword. */
+#undef PQXX_HAVE_OVERRIDE
 
 /* Define if the system has the poll() function (mainly GNU/Linux) */
 #undef PQXX_HAVE_POLL

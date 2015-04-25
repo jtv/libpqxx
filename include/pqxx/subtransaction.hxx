@@ -99,9 +99,9 @@ public:
   virtual ~subtransaction() PQXX_NOEXCEPT			      { End(); }
 
 private:
-  virtual void do_begin();						//[t88]
-  virtual void do_commit();						//[t88]
-  virtual void do_abort();						//[t88]
+  virtual void do_begin() PQXX_OVERRIDE;				//[t88]
+  virtual void do_commit() PQXX_OVERRIDE;				//[t88]
+  virtual void do_abort() PQXX_OVERRIDE;				//[t88]
 
   dbtransaction &m_parent;
 };

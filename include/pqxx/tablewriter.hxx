@@ -54,7 +54,7 @@ public:
   tablewriter &operator<<(tablereader &);
   template<typename IT> std::string generate(IT Begin, IT End) const;
   template<typename TUPLE> std::string generate(const TUPLE &) const;
-  virtual void complete();
+  virtual void complete() PQXX_OVERRIDE;
   void write_raw_line(const std::string &);
 private:
   void setup(transaction_base &,

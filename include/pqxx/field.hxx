@@ -228,14 +228,17 @@ public:
   }
 
 protected:
-  virtual int sync() { return traits_type::eof(); }
+  virtual int sync() PQXX_OVERRIDE { return traits_type::eof(); }
 
 protected:
-  virtual pos_type seekoff(off_type, seekdir, openmode)
+  virtual pos_type seekoff(off_type, seekdir, openmode) PQXX_OVERRIDE
 	{ return traits_type::eof(); }
-  virtual pos_type seekpos(pos_type, openmode) {return traits_type::eof();}
-  virtual int_type overflow(int_type) { return traits_type::eof(); }
-  virtual int_type underflow() { return traits_type::eof(); }
+  virtual pos_type seekpos(pos_type, openmode) PQXX_OVERRIDE
+	{return traits_type::eof();}
+  virtual int_type overflow(int_type) PQXX_OVERRIDE
+	{ return traits_type::eof(); }
+  virtual int_type underflow() PQXX_OVERRIDE
+	{ return traits_type::eof(); }
 
 private:
   const field &m_Field;
