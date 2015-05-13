@@ -9,11 +9,6 @@
  - Now requires libpq 9.1 or better.
  - Requires server version 9.1 or better.
  - Support for REPEATABLE READ isolation level added.
- - Build fix for OS X.
- - Build fixes for clang++ 3.2.
- - Build fix for clang++ 3.0.
- - Build fix for MinGW.
- - Build fix for BSD (and possibly other grep flavours).
  - Makefile fixes for Visual Studio 2013.
  - Supports C++11 and C++14.
  - No longer has obsolete debian & RPM packaging built in.
@@ -22,6 +17,7 @@
  - Build tooling uses /usr/bin/env python instead of /usr/bin/python.
  - New configure options: --with-postgres-include and --with-postgres-lib.
  - In g++ or compatible compilers, non-exported items are no longer accessible.
+ - Many build fixes for various platforms and compilers.
 4.0
  - API change: noticers are gone!  Use errorhandlers to capture error output.
  - API change: tablereaders and tablewriters are gone; they weren't safe.
