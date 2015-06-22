@@ -25,7 +25,6 @@
 #include "pqxx/strconv"
 
 
-using namespace std;
 using namespace pqxx::internal;
 
 
@@ -33,12 +32,12 @@ namespace
 {
 template<typename T> inline void set_to_NaN(T &t)
 {
-  t = numeric_limits<T>::quiet_NaN();
+  t = std::numeric_limits<T>::quiet_NaN();
 }
 
 template<typename T> inline void set_to_Inf(T &t, int sign=1)
 {
-  T value = numeric_limits<T>::infinity();
+  T value = std::numeric_limits<T>::infinity();
   if (sign < 0) value = -value;
   t = value;
 }
@@ -65,7 +64,7 @@ template<typename T> struct underflow_check<T, true>
   static void check_before_adding_digit(T n)
   {
     const T ten(10);
-    if (n < 0 && (numeric_limits<T>::min() / ten) > n) report_overflow();
+    if (n < 0 && (std::numeric_limits<T>::min() / ten) > n) report_overflow();
   }
 };
 
@@ -81,10 +80,10 @@ template<typename T> struct underflow_check<T, false>
 /// Return 10*n, or throw exception if it overflows.
 template<typename T> T safe_multiply_by_ten(T n)
 {
+  typedef std::numeric_limits<T> limits;
   const T ten(10);
-  if (n > 0 && (numeric_limits<T>::max() / n) < ten) report_overflow();
-  underflow_check<T, numeric_limits<T>::is_signed>::check_before_adding_digit(
-	n);
+  if (n > 0 && (limits::max() / n) < ten) report_overflow();
+  underflow_check<T, limits::is_signed>::check_before_adding_digit(n);
   return T(n * ten);
 }
 
@@ -93,8 +92,8 @@ template<typename T> T safe_multiply_by_ten(T n)
 template<typename T> T safe_add_digit(T n, T d)
 {
   assert((n >= 0 && d >= 0) || (n <=0 && d <= 0));
-  if ((n > 0) && (n > (numeric_limits<T>::max() - d))) report_overflow();
-  if ((n < 0) && (n < (numeric_limits<T>::min() - d))) report_overflow();
+  if ((n > 0) && (n > (std::numeric_limits<T>::max() - d))) report_overflow();
+  if ((n < 0) && (n < (std::numeric_limits<T>::min() - d))) report_overflow();
   return n + d;
 }
 
@@ -115,8 +114,8 @@ template<typename T> void from_string_signed(const char Str[], T &Obj)
   if (!isdigit(Str[i]))
   {
     if (Str[i] != '-')
-      throw pqxx::failure("Could not convert string to integer: '" +
-	string(Str) + "'");
+      throw pqxx::failure(
+        "Could not convert string to integer: '" + std::string(Str) + "'");
 
     for (++i; isdigit(Str[i]); ++i)
       result = absorb_digit(result, -digit_to_number(Str[i]));
@@ -125,7 +124,8 @@ template<typename T> void from_string_signed(const char Str[], T &Obj)
     result = absorb_digit(result, digit_to_number(Str[i]));
 
   if (Str[i])
-    throw pqxx::failure("Unexpected text after integer: '" + string(Str) + "'");
+    throw pqxx::failure(
+      "Unexpected text after integer: '" + std::string(Str) + "'");
 
   Obj = result;
 }
@@ -136,14 +136,16 @@ template<typename T> void from_string_unsigned(const char Str[], T &Obj)
   T result = 0;
 
   if (!isdigit(Str[i]))
-    throw pqxx::failure("Could not convert string to unsigned integer: '" +
-	string(Str) + "'");
+    throw pqxx::failure(
+      "Could not convert string to unsigned integer: '" +
+      std::string(Str) + "'");
 
   for (; isdigit(Str[i]); ++i)
     result = absorb_digit(result, digit_to_number(Str[i]));
 
   if (Str[i])
-    throw pqxx::failure("Unexpected text after integer: '" + string(Str) + "'");
+    throw pqxx::failure(
+      "Unexpected text after integer: '" + std::string(Str) + "'");
 
   Obj = result;
 }
@@ -192,21 +194,22 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
     }
     else
     {
-      stringstream S(Str);
-      S.imbue(locale("C"));
+      std::stringstream S(Str);
+      S.imbue(std::locale("C"));
       ok = static_cast<bool>(S >> result);
     }
     break;
   }
 
   if (!ok)
-    throw pqxx::failure("Could not convert string to numeric value: '" +
-	string(Str) + "'");
+    throw pqxx::failure(
+      "Could not convert string to numeric value: '" +
+      std::string(Str) + "'");
 
   Obj = result;
 }
 
-template<typename T> inline string to_string_unsigned(T Obj)
+template<typename T> inline std::string to_string_unsigned(T Obj)
 {
   if (!Obj) return "0";
 
@@ -224,15 +227,15 @@ template<typename T> inline string to_string_unsigned(T Obj)
   return p;
 }
 
-template<typename T> inline string to_string_fallback(T Obj)
+template<typename T> inline std::string to_string_fallback(T Obj)
 {
-  stringstream S;
-  S.imbue(locale("C"));
+  std::stringstream S;
+  S.imbue(std::locale("C"));
 
   // Kirit reports getting two more digits of precision than
   // numeric_limits::digits10 would give him, so we try not to make him lose
   // those last few bits.
-  S.precision(numeric_limits<T>::digits10 + 2);
+  S.precision(std::numeric_limits<T>::digits10 + 2);
   S << Obj;
   return S.str();
 }
@@ -241,10 +244,12 @@ template<typename T> inline string to_string_fallback(T Obj)
 template<typename T> inline bool is_NaN(T Obj)
 {
   return
-#if defined(PQXX_HAVE_ISNAN)
+#if defined(PQXX_HAVE_STD_ISNAN)
+    std::isnan(Obj);
+#elif defined(PQXX_HAVE_ISNAN)
     isnan(Obj);
 #else
-    !(Obj <= Obj+numeric_limits<T>::max());
+    !(Obj <= Obj + std::numeric_limits<T>::max());
 #endif
 }
 
@@ -252,7 +257,9 @@ template<typename T> inline bool is_NaN(T Obj)
 template<typename T> inline bool is_Inf(T Obj)
 {
   return
-#if defined(PQXX_HAVE_ISINF)
+#if defined(PQXX_HAVE_STD_ISINF)
+    std::isinf(Obj);
+#elif defined(PQXX_HAVE_ISINF)
     isinf(Obj);
 #else
     Obj >= Obj+10 && Obj <= 2*Obj && Obj >= 2*Obj;
@@ -260,7 +267,7 @@ template<typename T> inline bool is_Inf(T Obj)
 }
 
 
-template<typename T> inline string to_string_float(T Obj)
+template<typename T> inline std::string to_string_float(T Obj)
 {
   if (is_NaN(Obj)) return "nan";
   if (is_Inf(Obj)) return Obj > 0 ? "infinity" : "-infinity";
@@ -268,13 +275,13 @@ template<typename T> inline string to_string_float(T Obj)
 }
 
 
-template<typename T> inline string to_string_signed(T Obj)
+template<typename T> inline std::string to_string_signed(T Obj)
 {
   if (Obj < 0)
   {
     // Remember--the smallest negative number for a given two's-complement type
     // cannot be negated.
-    const bool negatable = (Obj != numeric_limits<T>::min());
+    const bool negatable = (Obj != std::numeric_limits<T>::min());
     if (negatable)
       return '-' + to_string_unsigned(-Obj);
     else
@@ -344,12 +351,13 @@ void string_traits<bool>::from_string(const char Str[], bool &Obj)
   }
 
   if (!OK)
-    throw argument_error("Failed conversion to bool: '" + string(Str) + "'");
+    throw argument_error(
+      "Failed conversion to bool: '" + std::string(Str) + "'");
 
   Obj = result;
 }
 
-string string_traits<bool>::to_string(bool Obj)
+std::string string_traits<bool>::to_string(bool Obj)
 {
   return Obj ? "true" : "false";
 }
@@ -359,7 +367,7 @@ void string_traits<short>::from_string(const char Str[], short &Obj)
   from_string_signed(Str, Obj);
 }
 
-string string_traits<short>::to_string(short Obj)
+std::string string_traits<short>::to_string(short Obj)
 {
   return to_string_signed(Obj);
 }
@@ -371,7 +379,7 @@ void string_traits<unsigned short>::from_string(
   from_string_unsigned(Str, Obj);
 }
 
-string string_traits<unsigned short>::to_string(unsigned short Obj)
+std::string string_traits<unsigned short>::to_string(unsigned short Obj)
 {
   return to_string_unsigned(Obj);
 }
@@ -381,7 +389,7 @@ void string_traits<int>::from_string(const char Str[], int &Obj)
   from_string_signed(Str, Obj);
 }
 
-string string_traits<int>::to_string(int Obj)
+std::string string_traits<int>::to_string(int Obj)
 {
   return to_string_signed(Obj);
 }
@@ -393,7 +401,7 @@ void string_traits<unsigned int>::from_string(
   from_string_unsigned(Str, Obj);
 }
 
-string string_traits<unsigned int>::to_string(unsigned int Obj)
+std::string string_traits<unsigned int>::to_string(unsigned int Obj)
 {
   return to_string_unsigned(Obj);
 }
@@ -403,7 +411,7 @@ void string_traits<long>::from_string(const char Str[], long &Obj)
   from_string_signed(Str, Obj);
 }
 
-string string_traits<long>::to_string(long Obj)
+std::string string_traits<long>::to_string(long Obj)
 {
   return to_string_signed(Obj);
 }
@@ -415,7 +423,7 @@ void string_traits<unsigned long>::from_string(
   from_string_unsigned(Str, Obj);
 }
 
-string string_traits<unsigned long>::to_string(unsigned long Obj)
+std::string string_traits<unsigned long>::to_string(unsigned long Obj)
 {
   return to_string_unsigned(Obj);
 }
@@ -425,7 +433,7 @@ void string_traits<long long>::from_string(const char Str[], long long &Obj)
   from_string_signed(Str, Obj);
 }
 
-string string_traits<long long>::to_string(long long Obj)
+std::string string_traits<long long>::to_string(long long Obj)
 {
   return to_string_signed(Obj);
 }
@@ -437,7 +445,8 @@ void string_traits<unsigned long long>::from_string(
   from_string_unsigned(Str, Obj);
 }
 
-string string_traits<unsigned long long>::to_string(unsigned long long Obj)
+std::string string_traits<unsigned long long>::to_string(
+        unsigned long long Obj)
 {
   return to_string_unsigned(Obj);
 }
@@ -447,7 +456,7 @@ void string_traits<float>::from_string(const char Str[], float &Obj)
   from_string_float(Str, Obj);
 }
 
-string string_traits<float>::to_string(float Obj)
+std::string string_traits<float>::to_string(float Obj)
 {
   return to_string_float(Obj);
 }
@@ -457,7 +466,7 @@ void string_traits<double>::from_string(const char Str[], double &Obj)
   from_string_float(Str, Obj);
 }
 
-string string_traits<double>::to_string(double Obj)
+std::string string_traits<double>::to_string(double Obj)
 {
   return to_string_float(Obj);
 }
@@ -467,7 +476,7 @@ void string_traits<long double>::from_string(const char Str[], long double &Obj)
   from_string_float(Str, Obj);
 }
 
-string string_traits<long double>::to_string(long double Obj)
+std::string string_traits<long double>::to_string(long double Obj)
 {
   return to_string_float(Obj);
 }

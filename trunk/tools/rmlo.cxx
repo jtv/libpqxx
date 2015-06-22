@@ -3,7 +3,6 @@
 
 #include "pqxx/pqxx"
 
-using namespace std;
 using namespace pqxx;
 
 namespace
@@ -37,16 +36,16 @@ int main(int, char *argv[])
       {
         C.perform(RemoveLO(O));
       }
-      catch (const exception &e)
+      catch (const std::exception &e)
       {
-        cerr << e.what() << endl;
+        std::cerr << e.what() << std::endl;
         Failures = true;
       }
     }
   }
-  catch (const exception &e)
+  catch (const std::exception &e)
   {
-    cerr << e.what() << endl;
+    std::cerr << e.what() << std::endl;
     return 2;
   }
 

@@ -16966,14 +16966,44 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 $as_echo "$sleep" >&6; }
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for std::isnan()" >&5
+$as_echo_n "checking for std::isnan()... " >&6; }
+std_isnan=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+                #include <cmath>
+                extern double f();
+
+int
+main ()
+{
+if(std::isnan(f())) f()
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_STD_ISNAN 1" >>confdefs.h
+
+else
+  std_isnan=no
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $std_isnan" >&5
+$as_echo "$std_isnan" >&6; }
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for isnan()" >&5
 $as_echo_n "checking for isnan()... " >&6; }
 isnan=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <cmath>
-	extern double f();
-	${usestd}
+
+                #include <cmath>
+                extern double f();
+
 int
 main ()
 {
@@ -16993,6 +17023,35 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $isnan" >&5
 $as_echo "$isnan" >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for std::isinf()" >&5
+$as_echo_n "checking for std::isinf()... " >&6; }
+std_isinf=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+                #include <cmath>
+                extern double f();
+
+int
+main ()
+{
+if(std::isinf(f())) f()
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_STD_ISINF 1" >>confdefs.h
+
+else
+  std_isinf=no
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $isinf" >&5
+$as_echo "$isinf" >&6; }
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for isinf()" >&5
 $as_echo_n "checking for isinf()... " >&6; }

@@ -21,17 +21,16 @@
 
 #include "pqxx/internal/gates/connection-dbtransaction.hxx"
 
-using namespace std;
 using namespace pqxx::internal;
 
 
 namespace
 {
-string generate_set_transaction(
+std::string generate_set_transaction(
 	pqxx::readwrite_policy rw,
-	const string &IsolationString=string())
+	const std::string &IsolationString=std::string())
 {
-  string args;
+  std::string args;
 
   if (!IsolationString.empty())
     if (IsolationString != pqxx::isolation_traits<pqxx::read_committed>::name())
@@ -41,7 +40,10 @@ string generate_set_transaction(
 
   return args.empty() ?
 	pqxx::internal::sql_begin_work :
-	(string(pqxx::internal::sql_begin_work) + "; SET TRANSACTION" + args);
+	(
+          std::string(pqxx::internal::sql_begin_work) +
+          "; SET TRANSACTION" +
+          args);
 }
 } // namespace
 
@@ -87,9 +89,9 @@ pqxx::result pqxx::dbtransaction::do_exec(const char Query[])
   {
     return DirectExec(Query);
   }
-  catch (const exception &)
+  catch (const std::exception &)
   {
-    try { abort(); } catch (const exception &) {}
+    try { abort(); } catch (const std::exception &) {}
     throw;
   }
 }
@@ -102,7 +104,7 @@ void pqxx::dbtransaction::do_abort()
 }
 
 
-string pqxx::dbtransaction::fullname(const std::string &ttype,
+std::string pqxx::dbtransaction::fullname(const std::string &ttype,
 	const std::string &isolation)
 {
   return ttype + "<" + isolation + ">";

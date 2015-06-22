@@ -30,7 +30,6 @@
 #include "pqxx/internal/gates/icursorstream-icursor_iterator.hxx"
 #include "pqxx/internal/gates/result-sql_cursor.hxx"
 
-using namespace std;
 using namespace pqxx;
 using namespace pqxx::internal;
 
@@ -50,8 +49,8 @@ inline bool useless_trail(char c)
 
 
 pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
-	const string &query,
-	const string &cname,
+	const std::string &query,
+	const std::string &cname,
 	cursor_base::accesspolicy ap,
 	cursor_base::updatepolicy up,
 	cursor_base::ownershippolicy op,
@@ -65,7 +64,7 @@ pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
   m_endpos(-1)
 {
   if (&t.conn() != &m_home) throw internal_error("Cursor in wrong connection");
-  stringstream cq, qn;
+  std::stringstream cq, qn;
 
   /* Strip trailing semicolons (and whitespace, as side effect) off query.  The
    * whitespace is stripped because it might otherwise mask a semicolon.  After
@@ -73,7 +72,7 @@ pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
    * query.begin() and last, i.e. last may be equal to query.end() or point to
    * the first useless trailing character.
    */
-  string::const_iterator last = query.end();
+  std::string::const_iterator last = query.end();
   // TODO: May break on multibyte encodings!
   for (--last; last!=query.begin() && useless_trail(*last); --last) ;
   if (last==query.begin() && useless_trail(*last))
@@ -91,7 +90,7 @@ pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
 
   if (hold) cq << "WITH HOLD ";
 
-  cq << "FOR " << string(query.begin(),last) << ' ';
+  cq << "FOR " << std::string(query.begin(),last) << ' ';
 
   if (up != cursor_base::update) cq << "FOR READ ONLY ";
   else cq << "FOR UPDATE ";
@@ -116,7 +115,7 @@ pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
 
 
 pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
-	const string &cname,
+	const std::string &cname,
 	cursor_base::ownershippolicy op) :
   cursor_base(t.conn(), cname, false),
   m_home(t.conn()),
@@ -146,7 +145,7 @@ void pqxx::internal::sql_cursor::close() PQXX_NOEXCEPT
 	("CLOSE \"" + name() + "\"").c_str(),
 	0);
     }
-    catch (const exception &)
+    catch (const std::exception &)
     {
     }
 
@@ -225,7 +224,8 @@ result pqxx::internal::sql_cursor::fetch(difference_type rows,
     displacement = 0;
     return m_empty_result;
   }
-  const string query = "FETCH " + stridestring(rows) + " IN \"" + name() + "\"";
+  const std::string query =
+      "FETCH " + stridestring(rows) + " IN \"" + name() + "\"";
   const result r(gate::connection_sql_cursor(m_home).Exec(query.c_str(), 0));
   displacement = adjust(rows, difference_type(r.size()));
   return r;
@@ -242,7 +242,8 @@ cursor_base::difference_type pqxx::internal::sql_cursor::move(
     return 0;
   }
 
-  const string query = "MOVE " + stridestring(rows) + " IN \"" + name() + "\"";
+  const std::string query =
+      "MOVE " + stridestring(rows) + " IN \"" + name() + "\"";
   const result r(gate::connection_sql_cursor(m_home).Exec(query.c_str(), 0));
   difference_type d = difference_type(r.affected_rows());
   displacement = adjust(rows, d);
@@ -250,7 +251,7 @@ cursor_base::difference_type pqxx::internal::sql_cursor::move(
 }
 
 
-string pqxx::internal::sql_cursor::stridestring(difference_type n)
+std::string pqxx::internal::sql_cursor::stridestring(difference_type n)
 {
   /* Some special-casing for ALL and BACKWARD ALL here.  We used to use numeric
    * "infinities" for difference_type for this (the highest and lowest possible
@@ -259,7 +260,7 @@ string pqxx::internal::sql_cursor::stridestring(difference_type n)
    * We could change the typedef to match this behaviour, but that would break
    * if/when Postgres is changed to accept 64-bit displacements.
    */
-  static const string All("ALL"), BackAll("BACKWARD ALL");
+  static const std::string All("ALL"), BackAll("BACKWARD ALL");
   if (n >= cursor_base::all()) return All;
   else if (n <= cursor_base::backward_all()) return BackAll;
   return to_string(n);
@@ -405,7 +406,7 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
 {
   if (topos < m_realpos) return;
 
-  typedef multimap<difference_type,icursor_iterator*> todolist;
+  typedef std::multimap<difference_type,icursor_iterator*> todolist;
   todolist todo;
   for (icursor_iterator *i = m_iterators, *next; i; i = next)
   {

@@ -23,7 +23,6 @@
 
 #include "pqxx/internal/gates/transaction-tablewriter.hxx"
 
-using namespace std;
 using namespace pqxx::internal;
 
 
@@ -43,7 +42,7 @@ pqxx::tablewriter::~tablewriter() PQXX_NOEXCEPT
   {
     writer_close();
   }
-  catch (const exception &e)
+  catch (const std::exception &e)
   {
     reg_pending_error(e.what());
   }
@@ -61,7 +60,7 @@ void pqxx::tablewriter::setup(transaction_base &T,
 
 pqxx::tablewriter &pqxx::tablewriter::operator<<(pqxx::tablereader &R)
 {
-  string Line;
+  std::string Line;
   // TODO: Can we do this in binary mode? (Might require protocol version check)
   while (R.get_raw_line(Line)) write_raw_line(Line);
   return *this;
@@ -70,11 +69,11 @@ pqxx::tablewriter &pqxx::tablewriter::operator<<(pqxx::tablereader &R)
 
 void pqxx::tablewriter::write_raw_line(const std::string &Line)
 {
-  const string::size_type len = Line.size();
+  const std::string::size_type len = Line.size();
   gate::transaction_tablewriter(m_Trans).WriteCopyLine(
 	(!len || Line[len-1] != '\n') ?
 	Line :
-	string(Line, 0, len-1));
+        std::string(Line, 0, len-1));
 }
 
 
@@ -93,9 +92,9 @@ void pqxx::tablewriter::writer_close()
     {
       gate::transaction_tablewriter(m_Trans).EndCopyWrite();
     }
-    catch (const exception &)
+    catch (const std::exception &)
     {
-      try { base_close(); } catch (const exception &) {}
+      try { base_close(); } catch (const std::exception &) {}
       throw;
     }
   }
@@ -134,16 +133,18 @@ inline char tooctdigit(char c, int n)
 } // namespace
 
 
-string pqxx::internal::Escape(const string &s, const string &null)
+std::string pqxx::internal::Escape(
+        const std::string &s,
+        const std::string &null)
 {
   if (s == null) return "\\N";
   if (s.empty()) return s;
 
-  string R;
+  std::string R;
   R.reserve(s.size()+1);
 
-  const string::const_iterator s_end(s.end());
-  for (string::const_iterator j = s.begin(); j != s_end; ++j)
+  const std::string::const_iterator s_end(s.end());
+  for (std::string::const_iterator j = s.begin(); j != s_end; ++j)
   {
     const char c = *j;
     const char e = escapechar(c);
@@ -164,5 +165,3 @@ string pqxx::internal::Escape(const string &s, const string &null)
   }
   return R;
 }
-
-

@@ -21,8 +21,6 @@
 
 #include "pqxx/internal/statement_parameters.hxx"
 
-using namespace std;
-
 
 pqxx::internal::statement_parameters::statement_parameters() :
   m_values(),

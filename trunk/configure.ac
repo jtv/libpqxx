@@ -656,16 +656,44 @@ AC_TRY_COMPILE([#ifdef HAVE_UNISTD_H
 AC_MSG_RESULT($sleep)
 
 
+AC_MSG_CHECKING([for std::isnan()])
+std_isnan=yes
+AC_TRY_COMPILE(
+        [
+                #include <cmath>
+                extern double f();
+	],
+	[if(std::isnan(f())) f()],
+	AC_DEFINE(PQXX_HAVE_STD_ISNAN,1,[Define if std::isnan() is available]),
+	[std_isnan=no]
+)
+AC_MSG_RESULT($std_isnan)
+
 AC_MSG_CHECKING([for isnan()])
 isnan=yes
-AC_TRY_COMPILE([#include <cmath>
-	extern double f();
-	${usestd}],
+AC_TRY_COMPILE(
+        [
+                #include <cmath>
+                extern double f();
+	],
 	[if(isnan(f())) f()],
-	AC_DEFINE(PQXX_HAVE_ISNAN,1,[Define if either C99 isnan() or TR1 std::isnan() is available]),
+	AC_DEFINE(PQXX_HAVE_ISNAN,1,[Define if C99 isnan() is available]),
 	[isnan=no]
 )
 AC_MSG_RESULT($isnan)
+
+AC_MSG_CHECKING([for std::isinf()])
+std_isinf=yes
+AC_TRY_COMPILE(
+        [
+                #include <cmath>
+                extern double f();
+	],
+	[if(std::isinf(f())) f()],
+	AC_DEFINE(PQXX_HAVE_STD_ISINF,1,[Define if std::isinf() is available]),
+	[std_isinf=no]
+)
+AC_MSG_RESULT($isinf)
 
 AC_MSG_CHECKING([for isinf()])
 isinf=yes
@@ -673,7 +701,7 @@ AC_TRY_COMPILE([#include <cmath>
 	extern double f();
 	${usestd}],
 	[if(isinf(f())) f()],
-	AC_DEFINE(PQXX_HAVE_ISINF,1,[Define if either C99 isinf() or TR1 std::isinf() is available]),
+	AC_DEFINE(PQXX_HAVE_ISINF,1,[Define if C99 isinf() is available]),
 	[isinf=no]
 )
 AC_MSG_RESULT($isinf)

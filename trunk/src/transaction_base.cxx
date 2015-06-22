@@ -30,7 +30,6 @@
 #include "pqxx/internal/gates/transaction-transactionfocus.hxx"
 
 
-using namespace std;
 using namespace pqxx::internal;
 
 
@@ -92,13 +91,13 @@ pqxx::transaction_base::~transaction_base()
       gate.UnregisterTransaction(this);
     }
   }
-  catch (const exception &e)
+  catch (const std::exception &e)
   {
     try
     {
-      process_notice(string(e.what()) + "\n");
+      process_notice(std::string(e.what()) + "\n");
     }
-    catch (const exception &)
+    catch (const std::exception &)
     {
       process_notice(e.what());
     }
@@ -169,7 +168,7 @@ void pqxx::transaction_base::commit()
     m_Status = st_in_doubt;
     throw;
   }
-  catch (const exception &)
+  catch (const std::exception &)
   {
     m_Status = st_aborted;
     throw;
@@ -192,7 +191,7 @@ void pqxx::transaction_base::abort()
     break;
 
   case st_active:
-    try { do_abort(); } catch (const exception &) { }
+    try { do_abort(); } catch (const std::exception &) { }
     break;
 
   case st_aborted:
@@ -218,14 +217,14 @@ void pqxx::transaction_base::abort()
 }
 
 
-string pqxx::transaction_base::esc_raw(const std::string &str) const
+std::string pqxx::transaction_base::esc_raw(const std::string &str) const
 {
   const unsigned char *p = reinterpret_cast<const unsigned char *>(str.c_str());
   return conn().esc_raw(p, str.size());
 }
 
 
-string pqxx::transaction_base::quote_raw(const std::string &str) const
+std::string pqxx::transaction_base::quote_raw(const std::string &str) const
 {
   const unsigned char *p = reinterpret_cast<const unsigned char *>(str.c_str());
   return conn().quote_raw(p, str.size());
@@ -262,7 +261,7 @@ pqxx::result pqxx::transaction_base::exec(const std::string &Query,
 {
   CheckPendingError();
 
-  const string N = (Desc.empty() ? "" : "'" + Desc + "' ");
+  const std::string N = (Desc.empty() ? "" : "'" + Desc + "' ");
 
   if (m_Focus.get())
     throw usage_error("Attempt to execute query " + N +
@@ -317,9 +316,9 @@ void pqxx::transaction_base::set_variable(const std::string &Var,
 }
 
 
-string pqxx::transaction_base::get_variable(const std::string &Var)
+std::string pqxx::transaction_base::get_variable(const std::string &Var)
 {
-  const map<string,string>::const_iterator i = m_Vars.find(Var);
+  const std::map<std::string,std::string>::const_iterator i = m_Vars.find(Var);
   if (i != m_Vars.end()) return i->second;
   return gate::connection_transaction(conn()).RawGetVar(Var);
 }
@@ -339,7 +338,7 @@ void pqxx::transaction_base::Begin()
     do_begin();
     m_Status = st_active;
   }
-  catch (const exception &)
+  catch (const std::exception &)
   {
     End();
     throw;
@@ -353,7 +352,7 @@ void pqxx::transaction_base::End() PQXX_NOEXCEPT
   try
   {
     try { CheckPendingError(); }
-    catch (const exception &e) { m_Conn.process_notice(e.what()); }
+    catch (const std::exception &e) { m_Conn.process_notice(e.what()); }
 
     if (m_Registered)
     {
@@ -370,15 +369,15 @@ void pqxx::transaction_base::End() PQXX_NOEXCEPT
 			    "still open\n");
 
     try { abort(); }
-    catch (const exception &e) { m_Conn.process_notice(e.what()); }
+    catch (const std::exception &e) { m_Conn.process_notice(e.what()); }
 
     gate::connection_transaction gate(conn());
     gate.take_reactivation_avoidance(m_reactivation_avoidance.get());
     m_reactivation_avoidance.clear();
   }
-  catch (const exception &e)
+  catch (const std::exception &e)
   {
-    try { m_Conn.process_notice(e.what()); } catch (const exception &) {}
+    try { m_Conn.process_notice(e.what()); } catch (const std::exception &) {}
   }
 }
 
@@ -397,9 +396,9 @@ void pqxx::transaction_base::UnregisterFocus(internal::transactionfocus *S)
   {
     m_Focus.Unregister(S);
   }
-  catch (const exception &e)
+  catch (const std::exception &e)
   {
-    m_Conn.process_notice(string(e.what()) + "\n");
+    m_Conn.process_notice(std::string(e.what()) + "\n");
   }
 }
 
@@ -420,7 +419,7 @@ void pqxx::transaction_base::RegisterPendingError(const std::string &Err)
     {
       m_PendingError = Err;
     }
-    catch (const exception &e)
+    catch (const std::exception &e)
     {
       try
       {
@@ -441,7 +440,7 @@ void pqxx::transaction_base::CheckPendingError()
 {
   if (!m_PendingError.empty())
   {
-    const string Err(m_PendingError);
+    const std::string Err(m_PendingError);
     m_PendingError.clear();
     throw failure(m_PendingError);
   }
@@ -450,9 +449,11 @@ void pqxx::transaction_base::CheckPendingError()
 
 namespace
 {
-string MakeCopyString(const string &Table, const string &Columns)
+std::string MakeCopyString(
+        const std::string &Table,
+        const std::string &Columns)
 {
-  string Q = "COPY " + Table + " ";
+  std::string Q = "COPY " + Table + " ";
   if (!Columns.empty()) Q += "(" + Columns + ") ";
   return Q;
 }

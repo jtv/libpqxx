@@ -1,3 +1,16 @@
+2015-06-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in:
+ - Test for isnan()/isinf() and std::isnan()/std::isinf() separately.
+ README, src/binarystring.cxx, src/connection_base.cxx, src/connection.cxx,
+ src/cursor.cxx, src/dbtransaction.cxx, src/except.cxx, src/field.cxx,
+ src/largeobject.cxx, src/nontransaction.cxx, src/pipeline.cxx,
+ src/prepared_statement.cxx, src/result.cxx, src/robusttransaction.cxx,
+ src/row.cxx, src/statement_parameters.cxx, src/strconv.cxx,
+ src/subtransaction.cxx, src/tablereader.cxx, src/tablestream.cxx,
+ src/tablewriter.cxx, src/transaction_base.hcxx, src/transaction.cxx,
+ src/util.cxx, tools/pqxxthreadsafety.cxx, tools/rmlo.cxx:
+ - Remove "using namespace std;" qualify explicitly.
+ - Should resolve ambiguous isnan/std::isnan overload on some systems.
 2015-04-26  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in, include/pqxx/compiler-public.hxx,
  include/pqxx/connection_base.hxx, include/pqxx/errorhandler.hxx,

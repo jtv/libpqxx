@@ -20,8 +20,6 @@
 #include "pqxx/nontransaction"
 
 
-using namespace std;
-
 pqxx::nontransaction::~nontransaction()
 {
   End();
