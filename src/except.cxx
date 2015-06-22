@@ -18,7 +18,6 @@
 
 #include "pqxx/except"
 
-using namespace std;
 
 pqxx::pqxx_exception::~pqxx_exception() PQXX_NOEXCEPT
 {
@@ -27,7 +26,7 @@ pqxx::pqxx_exception::~pqxx_exception() PQXX_NOEXCEPT
 
 pqxx::failure::failure(const std::string &whatarg) :
   pqxx_exception(),
-  runtime_error(whatarg)
+  std::runtime_error(whatarg)
 {
 }
 
@@ -65,7 +64,7 @@ pqxx::sql_error::~sql_error() PQXX_NOEXCEPT
 }
 
 
-PQXX_CONST const string &pqxx::sql_error::query() const PQXX_NOEXCEPT
+PQXX_CONST const std::string &pqxx::sql_error::query() const PQXX_NOEXCEPT
 {
   return m_Q;
 }

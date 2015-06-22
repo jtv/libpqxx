@@ -94,10 +94,10 @@
 /* Define if g++ supports visibility attribute, as in g++ 4.0 */
 #undef PQXX_HAVE_GCC_VISIBILITY
 
-/* Define if either C99 isinf() or TR1 std::isinf() is available */
+/* Define if C99 isinf() is available */
 #undef PQXX_HAVE_ISINF
 
-/* Define if either C99 isnan() or TR1 std::isnan() is available */
+/* Define if C99 isnan() is available */
 #undef PQXX_HAVE_ISNAN
 
 /* Define if compiler has move(). */
@@ -120,6 +120,12 @@
 
 /* Define if POSIX sleep() exists */
 #undef PQXX_HAVE_SLEEP
+
+/* Define if std::isinf() is available */
+#undef PQXX_HAVE_STD_ISINF
+
+/* Define if std::isnan() is available */
+#undef PQXX_HAVE_STD_ISNAN
 
 /* Define if strerror_r exists */
 #undef PQXX_HAVE_STRERROR_R

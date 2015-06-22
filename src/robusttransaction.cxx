@@ -24,7 +24,6 @@
 #include "pqxx/robusttransaction"
 
 
-using namespace std;
 using namespace pqxx::internal;
 
 
@@ -58,11 +57,11 @@ void pqxx::basic_robusttransaction::do_begin()
   {
     CreateTransactionRecord();
   }
-  catch (const exception &)
+  catch (const std::exception &)
   {
     // The problem here *may* be that the log table doesn't exist yet.  Create
     // one, start a new transaction, and try again.
-    try { dbtransaction::do_abort(); } catch (const exception &) {}
+    try { dbtransaction::do_abort(); } catch (const std::exception &) {}
     CreateLogTable();
     dbtransaction::do_begin();
     m_backendpid = conn().backendpid();
@@ -137,11 +136,11 @@ void pqxx::basic_robusttransaction::do_commit()
   {
     exists = CheckTransactionRecord();
   }
-  catch (const exception &f)
+  catch (const std::exception &f)
   {
     // Couldn't check for transaction record.  We're still in doubt as to
     // whether the transaction was performed.
-    const string Msg = "WARNING: "
+    const std::string Msg = "WARNING: "
 	"Connection lost while committing transaction "
 	"'" + name() + "' (id " + to_string(m_record_id) + ", "
 	"transaction_id " + m_xid + "). "
@@ -153,7 +152,7 @@ void pqxx::basic_robusttransaction::do_commit()
     process_notice(Msg);
     process_notice("Could not verify existence of transaction record "
 	"because of the following error:\n");
-    process_notice(string(f.what()) + "\n");
+    process_notice(std::string(f.what()) + "\n");
 
     throw in_doubt_error(Msg);
   }
@@ -182,7 +181,7 @@ void pqxx::basic_robusttransaction::CreateLogTable()
 {
   // Create log table in case it doesn't already exist.  This code must only be
   // executed before the backend transaction has properly started.
-  string CrTab = "CREATE TABLE \"" + m_LogTable + "\" ("
+  std::string CrTab = "CREATE TABLE \"" + m_LogTable + "\" ("
 	"id INTEGER NOT NULL, "
         "username VARCHAR(256), "
 	"transaction_id xid, "
@@ -194,27 +193,27 @@ void pqxx::basic_robusttransaction::CreateLogTable()
   {
     DirectExec(CrTab.c_str(), 1);
   }
-  catch (const exception &e)
+  catch (const std::exception &e)
   {
     conn().process_notice(
-	"Could not create transaction log table: " + string(e.what()));
+	"Could not create transaction log table: " + std::string(e.what()));
   }
 
   try
   {
     DirectExec(("CREATE SEQUENCE " + m_sequence).c_str());
   }
-  catch (const exception &e)
+  catch (const std::exception &e)
   {
     conn().process_notice(
-	"Could not create transaction log sequence: " + string(e.what()));
+	"Could not create transaction log sequence: " + std::string(e.what()));
   }
 }
 
 
 void pqxx::basic_robusttransaction::CreateTransactionRecord()
 {
-  static const string Fail = "Could not create transaction log record: ";
+  static const std::string Fail = "Could not create transaction log record: ";
 
   // Clean up old transaction records.
   DirectExec((
@@ -222,7 +221,7 @@ void pqxx::basic_robusttransaction::CreateTransactionRecord()
 	"WHERE date < CURRENT_TIMESTAMP - '30 days'::interval").c_str());
 
   // Allocate id.
-  const string sql_get_id("SELECT nextval(" + quote(m_sequence) + ")");
+  const std::string sql_get_id("SELECT nextval(" + quote(m_sequence) + ")");
   DirectExec(sql_get_id.c_str())[0][0].to(m_record_id);
 
   DirectExec((
@@ -238,7 +237,7 @@ void pqxx::basic_robusttransaction::CreateTransactionRecord()
 }
 
 
-string pqxx::basic_robusttransaction::sql_delete() const
+std::string pqxx::basic_robusttransaction::sql_delete() const
 {
   return "DELETE FROM \"" + m_LogTable + "\" "
 	"WHERE id = " + to_string(m_record_id);
@@ -251,7 +250,7 @@ void pqxx::basic_robusttransaction::DeleteTransactionRecord() PQXX_NOEXCEPT
 
   try
   {
-    const string Del = sql_delete();
+    const std::string Del = sql_delete();
 
     reactivation_avoidance_exemption E(conn());
     DirectExec(Del.c_str(), 20);
@@ -260,7 +259,7 @@ void pqxx::basic_robusttransaction::DeleteTransactionRecord() PQXX_NOEXCEPT
     // record is quite dead.
     m_record_id = 0;
   }
-  catch (const exception &)
+  catch (const std::exception &)
   {
   }
 
@@ -271,7 +270,7 @@ void pqxx::basic_robusttransaction::DeleteTransactionRecord() PQXX_NOEXCEPT
 		   to_string(m_record_id) + " ('" + name() + "'). "
 		   "Please delete it manually.  Thank you.\n");
   }
-  catch (const exception &)
+  catch (const std::exception &)
   {
   }
 }
@@ -285,7 +284,7 @@ bool pqxx::basic_robusttransaction::CheckTransactionRecord()
   {
     if (conn().server_version() > 80300)
     {
-      const string query(
+      const std::string query(
 	"SELECT " + m_xid + " >= txid_snapshot_xmin(txid_current_snapshot())");
       DirectExec(query.c_str())[0][0].to(hold);
     }
@@ -316,10 +315,11 @@ bool pqxx::basic_robusttransaction::CheckTransactionRecord()
 	"Old backend process stays alive too long to wait for.");
 
   // Now look for our transaction record
-  const string Find = "SELECT id FROM \"" + m_LogTable + "\" "
-	              "WHERE "
-                        "id = " + to_string(m_record_id) + " AND "
-                        "user = " + conn().username();
+  const std::string Find =
+        "SELECT id FROM \"" + m_LogTable + "\" "
+        "WHERE "
+            "id = " + to_string(m_record_id) + " AND "
+            "user = " + conn().username();
 
   return !DirectExec(Find.c_str(), 20).empty();
 }

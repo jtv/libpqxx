@@ -26,9 +26,6 @@
 #include "pqxx/result"
 
 
-using namespace std;
-
-
 pqxx::row::row(const result *r, size_t i) PQXX_NOEXCEPT :
   m_Home(r),
   m_Index(i),
@@ -103,7 +100,7 @@ pqxx::row::reference pqxx::row::operator[](const char f[]) const
 }
 
 
-pqxx::row::reference pqxx::row::operator[](const string &s) const
+pqxx::row::reference pqxx::row::operator[](const std::string &s) const
 {
   return operator[](s.c_str());
 }
@@ -115,7 +112,7 @@ pqxx::row::reference pqxx::row::at(int i) const
 }
 
 
-pqxx::row::reference pqxx::row::at(const string &s) const
+pqxx::row::reference pqxx::row::at(const std::string &s) const
 {
   return at(s.c_str());
 }
@@ -193,7 +190,7 @@ pqxx::row::size_type pqxx::result::column_number(const char ColName[]) const
   const int N = PQfnumber(m_data, ColName);
   // TODO: Should this be an out_of_range?
   if (N == -1)
-    throw argument_error("Unknown column name: '" + string(ColName) + "'");
+    throw argument_error("Unknown column name: '" + std::string(ColName) + "'");
 
   return row::size_type(N);
 }

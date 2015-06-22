@@ -24,7 +24,6 @@
 
 #include "pqxx/internal/gates/transaction-subtransaction.hxx"
 
-using namespace std;
 using namespace pqxx::internal;
 
 

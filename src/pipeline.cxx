@@ -24,7 +24,6 @@
 #include "pqxx/internal/gates/result-creation.hxx"
 
 
-using namespace std;
 using namespace pqxx;
 using namespace pqxx::internal;
 
@@ -32,9 +31,9 @@ using namespace pqxx::internal;
 
 namespace
 {
-const string theSeparator("; ");
-const string theDummyValue("1");
-const string theDummyQuery("SELECT " + theDummyValue + theSeparator);
+const std::string theSeparator("; ");
+const std::string theDummyValue("1");
+const std::string theDummyQuery("SELECT " + theDummyValue + theSeparator);
 }
 
 
@@ -56,7 +55,7 @@ pqxx::pipeline::pipeline(transaction_base &t, const std::string &Name) :
 
 pqxx::pipeline::~pipeline() PQXX_NOEXCEPT
 {
-  try { cancel(); } catch (const exception &) {}
+  try { cancel(); } catch (const std::exception &) {}
   detach();
 }
 
@@ -79,7 +78,8 @@ pipeline::query_id pqxx::pipeline::insert(const std::string &q)
   const query_id qid = generate_id();
   pqxxassert(qid > 0);
   pqxxassert(m_queries.lower_bound(qid)==m_queries.end());
-  const QueryMap::iterator i = m_queries.insert(make_pair(qid,Query(q))).first;
+  const QueryMap::iterator i = m_queries.insert(
+          std::make_pair(qid,Query(q))).first;
 
   if (m_issuedrange.second == m_queries.end())
   {
@@ -149,16 +149,17 @@ void pqxx::pipeline::cancel()
 bool pqxx::pipeline::is_finished(pipeline::query_id q) const
 {
   if (m_queries.find(q) == m_queries.end())
-    throw logic_error("Requested status for unknown query " + to_string(q));
+    throw std::logic_error(
+      "Requested status for unknown query " + to_string(q));
   return (QueryMap::const_iterator(m_issuedrange.first)==m_queries.end()) ||
          (q < m_issuedrange.first->first && q < m_error);
 }
 
 
-pair<pipeline::query_id, result> pqxx::pipeline::retrieve()
+std::pair<pipeline::query_id, result> pqxx::pipeline::retrieve()
 {
   if (m_queries.empty())
-    throw logic_error("Attempt to retrieve result from empty pipeline");
+    throw std::logic_error("Attempt to retrieve result from empty pipeline");
   return retrieve(m_queries.begin());
 }
 
@@ -192,7 +193,7 @@ void pqxx::pipeline::resume()
 pipeline::query_id pqxx::pipeline::generate_id()
 {
   if (m_q_id == qid_limit())
-    throw overflow_error("Too many queries went through pipeline");
+    throw std::overflow_error("Too many queries went through pipeline");
   ++m_q_id;
   return m_q_id;
 }
@@ -219,7 +220,8 @@ void pqxx::pipeline::issue()
   pqxxassert(oldest != m_queries.end());
 
   // Construct cumulative query string for entire batch
-  string cum = separated_list(theSeparator,oldest,m_queries.end(),getquery());
+  std::string cum = separated_list(
+          theSeparator, oldest, m_queries.end(), getquery());
   const QueryMap::size_type num_issued =
     QueryMap::size_type(internal::distance(oldest, m_queries.end()));
   const bool prepend_dummy = (num_issued > 1);
@@ -269,7 +271,8 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   if (!have_pending())
   {
     set_error_at(m_queries.begin()->first);
-    throw logic_error("Got more results from pipeline than there were queries");
+    throw std::logic_error(
+      "Got more results from pipeline than there were queries");
   }
 
   // Must be the result for the oldest pending query
@@ -313,7 +316,7 @@ void pqxx::pipeline::obtain_dummy()
     if (R.size() > 1)
       internal_error("unexpected result for dummy query in pipeline");
 
-    if (string(R.at(0).at(0).c_str()) != theDummyValue)
+    if (std::string(R.at(0).at(0).c_str()) != theDummyValue)
       internal_error("dummy query in pipeline returned unexpected value");
     return;
   }
@@ -351,7 +354,7 @@ void pqxx::pipeline::obtain_dummy()
     do
     {
       m_num_waiting--;
-      const string &query = m_issuedrange.first->second.get_query();
+      const std::string &query = m_issuedrange.first->second.get_query();
       const result res(m_Trans.exec(query));
       m_issuedrange.first->second.set_result(res);
       gate::result_creation(res).CheckStatus();
@@ -359,7 +362,7 @@ void pqxx::pipeline::obtain_dummy()
     }
     while (m_issuedrange.first != stop);
   }
-  catch (const exception &)
+  catch (const std::exception &)
   {
     pqxxassert(m_issuedrange.first != m_queries.end());
 
@@ -382,10 +385,10 @@ std::pair<pipeline::query_id, result>
 pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 {
   if (q == m_queries.end())
-    throw logic_error("Attempt to retrieve result for unknown query");
+    throw std::logic_error("Attempt to retrieve result for unknown query");
 
   if (q->first >= m_error)
-    throw runtime_error("Could not complete query in pipeline "
+    throw std::runtime_error("Could not complete query in pipeline "
 	"due to error in earlier query");
 
   // If query hasn't issued yet, do it now
@@ -416,14 +419,14 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
   pqxxassert((m_error <= q->first) || (q != m_issuedrange.first));
 
   if (q->first >= m_error)
-    throw runtime_error("Could not complete query in pipeline "
+    throw std::runtime_error("Could not complete query in pipeline "
 	"due to error in earlier query");
 
   // Don't leave the backend idle if there are queries waiting to be issued
   if (m_num_waiting && !have_pending() && (m_error==qid_limit())) issue();
 
   const result R = q->second.get_result();
-  pair<query_id,result> P(make_pair(q->first, R));
+  std::pair<query_id,result> P(std::make_pair(q->first, R));
 
   m_queries.erase(q);
 
@@ -465,5 +468,3 @@ void pqxx::pipeline::receive(pipeline::QueryMap::const_iterator stop)
   if (QueryMap::const_iterator(m_issuedrange.first) == stop)
     get_further_available_results();
 }
-
-

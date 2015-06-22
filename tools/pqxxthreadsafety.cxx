@@ -3,9 +3,8 @@
 
 #include "pqxx/util"
 
-using namespace std;
 
 int main()
 {
-  cout << pqxx::describe_thread_safety().description << endl;
+  std::cout << pqxx::describe_thread_safety().description << std::endl;
 }

@@ -20,8 +20,6 @@
 #include "pqxx/tablestream"
 #include "pqxx/transaction"
 
-using namespace std;
-
 
 pqxx::tablestream::tablestream(transaction_base &STrans,
 	const std::string &Null) :

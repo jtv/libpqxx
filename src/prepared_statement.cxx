@@ -25,7 +25,6 @@
 #include "pqxx/internal/gates/connection-prepare-invocation.hxx"
 
 
-using namespace std;
 using namespace pqxx;
 using namespace pqxx::internal;
 

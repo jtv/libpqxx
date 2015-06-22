@@ -45,7 +45,6 @@
 #include "pqxx/util"
 
 
-using namespace std;
 using namespace pqxx::internal;
 
 
@@ -130,15 +129,15 @@ bool pqxx::internal::refcount::loseref() PQXX_NOEXCEPT
 #endif // PQXX_HAVE_SHARED_PTR
 
 
-string pqxx::internal::namedclass::description() const
+std::string pqxx::internal::namedclass::description() const
 {
   try
   {
-    string desc = classname();
+    std::string desc = classname();
     if (!name().empty()) desc += " '" + name() + "'";
     return desc;
   }
-  catch (const exception &)
+  catch (const std::exception &)
   {
     // Oops, string composition failed!  Probably out of memory.
     // Let's try something easier.

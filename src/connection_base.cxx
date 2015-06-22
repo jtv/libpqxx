@@ -58,7 +58,6 @@
 #include "pqxx/internal/gates/result-creation.hxx"
 #include "pqxx/internal/gates/result-connection.hxx"
 
-using namespace std;
 using namespace pqxx;
 using namespace pqxx::internal;
 using namespace pqxx::prepare;
@@ -114,10 +113,11 @@ static void pqxx_notice_processor(void *conn, const char *msg)
 }
 
 
-string pqxx::encrypt_password(const string &user, const string &password)
+std::string pqxx::encrypt_password(
+        const std::string &user, const std::string &password)
 {
   PQAlloc<char> p(PQencryptPassword(password.c_str(), user.c_str()));
-  return string(p.get());
+  return std::string(p.get());
 }
 
 
@@ -207,7 +207,7 @@ void pqxx::connection_base::activate()
       m_Completed = false;
       throw broken_connection(e.what());
     }
-    catch (const exception &)
+    catch (const std::exception &)
     {
       m_Completed = false;
       throw;
@@ -275,20 +275,20 @@ void pqxx::connection_base::set_variable(const std::string &Var,
 }
 
 
-string pqxx::connection_base::get_variable(const std::string &Var)
+std::string pqxx::connection_base::get_variable(const std::string &Var)
 {
   return m_Trans.get() ? m_Trans.get()->get_variable(Var) : RawGetVar(Var);
 }
 
 
-string pqxx::connection_base::RawGetVar(const std::string &Var)
+std::string pqxx::connection_base::RawGetVar(const std::string &Var)
 {
   // Is this variable in our local map of set variables?
   // TODO: Could we safely read-allocate variables into m_Vars?
-  map<string,string>::const_iterator i = m_Vars.find(Var);
+  std::map<std::string,std::string>::const_iterator i = m_Vars.find(Var);
   if (i != m_Vars.end()) return i->second;
 
-  return Exec(("SHOW " + Var).c_str(), 0).at(0).at(0).as(string());
+  return Exec(("SHOW " + Var).c_str(), 0).at(0).at(0).as(std::string());
 }
 
 
@@ -309,7 +309,7 @@ void pqxx::connection_base::SetupState()
 
   if (Status() != CONNECTION_OK)
   {
-    const string Msg( ErrMsg() );
+    const std::string Msg( ErrMsg() );
     m_Conn = m_policy.do_disconnect(m_Conn);
     throw failure(Msg);
   }
@@ -326,7 +326,7 @@ void pqxx::connection_base::SetupState()
 
   if (!m_receivers.empty() || !m_Vars.empty())
   {
-    stringstream restore_query;
+    std::stringstream restore_query;
 
     // Pipeline all queries needed to restore receivers and variables, so we can
     // send them over in one go.
@@ -335,7 +335,7 @@ void pqxx::connection_base::SetupState()
     if (!m_receivers.empty())
     {
       const receiver_list::const_iterator End = m_receivers.end();
-      string Last;
+      std::string Last;
       for (receiver_list::const_iterator i = m_receivers.begin(); i != End; ++i)
       {
         // m_receivers can handle multiple receivers waiting on the same event;
@@ -348,8 +348,12 @@ void pqxx::connection_base::SetupState()
       }
     }
 
-    const map<string,string>::const_iterator var_end(m_Vars.end());
-    for (map<string,string>::const_iterator i=m_Vars.begin(); i!=var_end; ++i)
+    const std::map<std::string,std::string>::const_iterator var_end(
+      m_Vars.end());
+    for (
+        std::map<std::string,std::string>::const_iterator i=m_Vars.begin();
+        i!=var_end;
+        ++i)
       restore_query << "SET " << i->first << "=" << i->second << "; ";
 
     // Now do the whole batch at once
@@ -394,11 +398,11 @@ bool pqxx::connection_base::is_open() const PQXX_NOEXCEPT
 void pqxx::connection_base::process_notice_raw(const char msg[]) PQXX_NOEXCEPT
 {
   if (!msg || !*msg) return;
-  const list<errorhandler *>::const_reverse_iterator
+  const std::list<errorhandler *>::const_reverse_iterator
 	rbegin = m_errorhandlers.rbegin(),
 	rend = m_errorhandlers.rend();
   for (
-	list<errorhandler *>::const_reverse_iterator i = rbegin;
+	std::list<errorhandler *>::const_reverse_iterator i = rbegin;
 	i != rend && (**i)(msg);
 	++i) ;
 }
@@ -416,9 +420,9 @@ void pqxx::connection_base::process_notice(const char msg[]) PQXX_NOEXCEPT
   else try
   {
     // Newline is missing.  Try the C++ string version of this function.
-    process_notice(string(msg));
+    process_notice(std::string(msg));
   }
-  catch (const exception &)
+  catch (const std::exception &)
   {
     // If we can't even do that, use plain old buffer copying instead
     // (unavoidably, this will break up overly long messages!)
@@ -452,10 +456,10 @@ void pqxx::connection_base::process_notice(const std::string &msg)
   }
   else try
   {
-    const string nl = msg + "\n";
+    const std::string nl = msg + "\n";
     process_notice_raw(nl.c_str());
   }
-  catch (const exception &)
+  catch (const std::exception &)
   {
     // If nothing else works, try writing the message without the newline
     process_notice_raw(msg.c_str());
@@ -483,7 +487,7 @@ void pqxx::connection_base::add_receiver(pqxx::notification_receiver *T)
   if (p == m_receivers.end())
   {
     // Not listening on this event yet, start doing so.
-    const string LQ("LISTEN \"" + T->channel() + "\"");
+    const std::string LQ("LISTEN \"" + T->channel() + "\"");
 
     if (is_open()) try
     {
@@ -509,10 +513,11 @@ void pqxx::connection_base::remove_receiver(pqxx::notification_receiver *T)
   try
   {
     // Keep Sun compiler happy...  Hope it doesn't annoy other compilers
-    pair<const string, notification_receiver *> tmp_pair(T->channel(), T);
+      std::pair<const std::string, notification_receiver *> tmp_pair(
+        T->channel(), T);
     receiver_list::value_type E = tmp_pair;
 
-    typedef pair<receiver_list::iterator, receiver_list::iterator> Range;
+    typedef std::pair<receiver_list::iterator, receiver_list::iterator> Range;
     Range R = m_receivers.equal_range(E.first);
 
     const receiver_list::iterator i = find(R.first, R.second, E);
@@ -530,7 +535,7 @@ void pqxx::connection_base::remove_receiver(pqxx::notification_receiver *T)
       if (gone) Exec(("UNLISTEN \"" + T->channel() + "\"").c_str(), 0);
     }
   }
-  catch (const exception &e)
+  catch (const std::exception &e)
   {
     process_notice(e.what());
   }
@@ -564,7 +569,7 @@ public:
     if (conn)
     {
       m_cancel = PQgetCancel(conn);
-      if (!m_cancel) throw bad_alloc();
+      if (!m_cancel) throw std::bad_alloc();
     }
   }
   ~cancel_wrapper() { if (m_cancel) PQfreeCancel(m_cancel); }
@@ -572,7 +577,7 @@ public:
   void operator()()
   {
     if (m_cancel && !PQcancel(m_cancel, m_errbuf, int(sizeof(m_errbuf))))
-      throw sql_error(string(m_errbuf));
+      throw sql_error(std::string(m_errbuf));
   }
 };
 }
@@ -612,12 +617,12 @@ int pqxx::connection_base::get_notifs()
 
     notifs++;
 
-    pair<TI, TI> Hit = m_receivers.equal_range(string(N->relname));
+    std::pair<TI, TI> Hit = m_receivers.equal_range(std::string(N->relname));
     for (TI i = Hit.first; i != Hit.second; ++i) try
     {
       (*i->second)(N->extra, N->be_pid);
     }
-    catch (const exception &e)
+    catch (const std::exception &e)
     {
       try
       {
@@ -627,13 +632,13 @@ int pqxx::connection_base::get_notifs()
 		       e.what() +
 		       "\n");
       }
-      catch (const bad_alloc &)
+      catch (const std::bad_alloc &)
       {
         // Out of memory.  Try to get the message out in a more robust way.
         process_notice("Exception in notification receiver, "
 	    "and also ran out of memory\n");
       }
-      catch (const exception &)
+      catch (const std::exception &)
       {
         process_notice("Exception in notification receiver "
 	    "(compounded by other error)\n");
@@ -695,12 +700,12 @@ void pqxx::connection_base::unregister_errorhandler(errorhandler *handler)
 }
 
 
-vector<errorhandler *> pqxx::connection_base::get_errorhandlers() const
+std::vector<errorhandler *> pqxx::connection_base::get_errorhandlers() const
 {
-  vector<errorhandler *> handlers;
+    std::vector<errorhandler *> handlers;
   handlers.reserve(m_errorhandlers.size());
   for (
-	list<errorhandler *>::const_iterator i = m_errorhandlers.begin(); 
+	std::list<errorhandler *>::const_iterator i = m_errorhandlers.begin(); 
 	i != m_errorhandlers.end();
 	++i)
     handlers.push_back(*i);
@@ -756,7 +761,7 @@ void pqxx::connection_base::prepare(
 
 void pqxx::connection_base::prepare(const std::string &definition)
 {
-  this->prepare(string(), definition);
+  this->prepare(std::string(), definition);
 }
 
 
@@ -839,7 +844,7 @@ pqxx::result pqxx::connection_base::prepared_exec(
 }
 
 
-bool pqxx::connection_base::prepared_exists(const string &statement) const
+bool pqxx::connection_base::prepared_exists(const std::string &statement) const
 {
   PSMap::const_iterator s = m_prepared.find(statement);
   return s != PSMap::const_iterator(m_prepared.end());
@@ -890,12 +895,15 @@ void pqxx::connection_base::close() PQXX_NOEXCEPT
     }
 
     PQsetNoticeProcessor(m_Conn, NULL, NULL);
-    list<errorhandler *> old_handlers;
+    std::list<errorhandler *> old_handlers;
     m_errorhandlers.swap(old_handlers);
-    const list<errorhandler *>::const_reverse_iterator
+    const std::list<errorhandler *>::const_reverse_iterator
 	rbegin = old_handlers.rbegin(),
 	rend = old_handlers.rend();
-    for (list<errorhandler *>::const_reverse_iterator i = rbegin; i!=rend; ++i)
+    for (
+            std::list<errorhandler *>::const_reverse_iterator i = rbegin;
+            i!=rend;
+            ++i)
       gate::errorhandler_connection_base(**i).unregister();
 
     m_Conn = m_policy.do_disconnect(m_Conn);
@@ -916,7 +924,10 @@ void pqxx::connection_base::RawSetVar(const std::string &Var,
 void pqxx::connection_base::AddVariables(
 	const std::map<std::string,std::string> &Vars)
 {
-  for (map<string,string>::const_iterator i=Vars.begin(); i!=Vars.end(); ++i)
+  for (
+        std::map<std::string,std::string>::const_iterator i=Vars.begin();
+        i!=Vars.end();
+        ++i)
     m_Vars[i->first] = i->second;
 }
 
@@ -950,7 +961,7 @@ void pqxx::connection_base::UnregisterTransaction(transaction_base *T)
   {
     m_Trans.Unregister(T);
   }
-  catch (const exception &e)
+  catch (const std::exception &e)
   {
     process_notice(e.what());
   }
@@ -966,11 +977,11 @@ bool pqxx::connection_base::ReadCopyLine(std::string &Line)
   bool Result;
 
   char *Buf = 0;
-  const string query = "[END COPY]";
+  const std::string query = "[END COPY]";
   switch (PQgetCopyData(m_Conn, &Buf, false))
   {
     case -2:
-      throw failure("Reading of table data failed: " + string(ErrMsg()));
+      throw failure("Reading of table data failed: " + std::string(ErrMsg()));
 
     case -1:
       for (result R(make_result(PQgetResult(m_Conn), query));
@@ -1001,13 +1012,13 @@ void pqxx::connection_base::WriteCopyLine(const std::string &Line)
   if (!is_open())
     throw internal_error("WriteCopyLine() without connection");
 
-  const string L = Line + '\n';
+  const std::string L = Line + '\n';
   const char *const LC = L.c_str();
-  const string::size_type Len = L.size();
+  const std::string::size_type Len = L.size();
 
   if (PQputCopyData(m_Conn, LC, int(Len)) <= 0)
   {
-    const string Msg = string("Error writing to table: ") + ErrMsg();
+    const std::string Msg = std::string("Error writing to table: ") + ErrMsg();
     PQendcopy(m_Conn);
     throw failure(Msg);
   }
@@ -1020,7 +1031,7 @@ void pqxx::connection_base::EndCopyWrite()
   switch (Res)
   {
   case -1:
-    throw failure("Write to table failed: " + string(ErrMsg()));
+    throw failure("Write to table failed: " + std::string(ErrMsg()));
   case 0:
     throw internal_error("table write is inexplicably asynchronous");
   case 1:
@@ -1056,9 +1067,9 @@ void pqxx::connection_base::add_reactivation_avoidance_count(int n)
 }
 
 
-string pqxx::connection_base::esc(const char str[], size_t maxlen)
+std::string pqxx::connection_base::esc(const char str[], size_t maxlen)
 {
-  string escaped;
+  std::string escaped;
 
   // We need a connection object...  This is the one reason why this function is
   // not const!
@@ -1070,9 +1081,9 @@ string pqxx::connection_base::esc(const char str[], size_t maxlen)
     int err = 0;
     PQescapeStringConn(m_Conn, buf, str, maxlen, &err);
     if (err) throw argument_error(ErrMsg());
-    escaped = string(buf);
+    escaped = std::string(buf);
   }
-  catch (const exception &)
+  catch (const std::exception &)
   {
     delete [] buf;
     throw;
@@ -1083,19 +1094,21 @@ string pqxx::connection_base::esc(const char str[], size_t maxlen)
 }
 
 
-string pqxx::connection_base::esc(const char str[])
+std::string pqxx::connection_base::esc(const char str[])
 {
   return this->esc(str, strlen(str));
 }
 
 
-string pqxx::connection_base::esc(const std::string &str)
+std::string pqxx::connection_base::esc(const std::string &str)
 {
   return this->esc(str.c_str(), str.size());
 }
 
 
-string pqxx::connection_base::esc_raw(const unsigned char str[], size_t len)
+std::string pqxx::connection_base::esc_raw(
+        const unsigned char str[],
+        size_t len)
 {
   size_t bytes = 0;
   // We need a connection object...  This is the one reason why this function is
@@ -1103,34 +1116,36 @@ string pqxx::connection_base::esc_raw(const unsigned char str[], size_t len)
   activate();
 
   PQAlloc<unsigned char> buf( PQescapeByteaConn(m_Conn, str, len, &bytes) );
-  if (!buf.get()) throw bad_alloc();
-  return string(reinterpret_cast<char *>(buf.get()));
+  if (!buf.get()) throw std::bad_alloc();
+  return std::string(reinterpret_cast<char *>(buf.get()));
 }
 
 
-string pqxx::connection_base::unesc_raw(const char *text)
+std::string pqxx::connection_base::unesc_raw(const char *text)
 {
   size_t len;
   unsigned char *bytes = const_cast<unsigned char *>(
 	reinterpret_cast<const unsigned char *>(text));
   const unsigned char *const buf = PQunescapeBytea(bytes, &len);
-  return string(buf, buf + len);
+  return std::string(buf, buf + len);
 }
 
 
-string pqxx::connection_base::quote_raw(const unsigned char str[], size_t len)
+std::string pqxx::connection_base::quote_raw(
+        const unsigned char str[],
+        size_t len)
 {
   return "'" + esc_raw(str, len) + "'::bytea";
 }
 
 
-string pqxx::connection_base::quote(const binarystring &b)
+std::string pqxx::connection_base::quote(const binarystring &b)
 {
   return quote_raw(b.data(), b.size());
 }
 
 
-string pqxx::connection_base::quote_name(const string &identifier)
+std::string pqxx::connection_base::quote_name(const std::string &identifier)
 {
   // We need a connection object...  This is the one reason why this function is
   // not const!
@@ -1138,7 +1153,7 @@ string pqxx::connection_base::quote_name(const string &identifier)
   PQAlloc<char> buf(
 	PQescapeIdentifier(m_Conn, identifier.c_str(), identifier.size()));
   if (!buf.get()) throw failure(ErrMsg());
-  return string(buf.get());
+  return std::string(buf.get());
 }
 
 
@@ -1285,9 +1300,9 @@ void pqxx::connection_base::read_capabilities()
 }
 
 
-string pqxx::connection_base::adorn_name(const std::string &n)
+std::string pqxx::connection_base::adorn_name(const std::string &n)
 {
-  const string id = to_string(++m_unique_id);
+  const std::string id = to_string(++m_unique_id);
   return n.empty() ? ("x"+id) : (n+"_"+id);
 }
 

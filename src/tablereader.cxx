@@ -22,7 +22,6 @@
 
 #include "pqxx/internal/gates/transaction-tablereader.hxx"
 
-using namespace std;
 using namespace pqxx::internal;
 
 
@@ -51,7 +50,7 @@ pqxx::tablereader::~tablereader() PQXX_NOEXCEPT
   {
     reader_close();
   }
-  catch (const exception &e)
+  catch (const std::exception &e)
   {
     reg_pending_error(e.what());
   }
@@ -64,7 +63,7 @@ bool pqxx::tablereader::get_raw_line(std::string &Line)
   {
     m_Done = !gate::transaction_tablereader(m_Trans).ReadCopyLine(Line);
   }
-  catch (const exception &)
+  catch (const std::exception &)
   {
     m_Done = true;
     throw;
@@ -90,15 +89,15 @@ void pqxx::tablereader::reader_close()
     {
       try
       {
-        string Dummy;
+        std::string Dummy;
         while (get_raw_line(Dummy)) ;
       }
       catch (const broken_connection &)
       {
-	try { base_close(); } catch (const exception &) {}
+	try { base_close(); } catch (const std::exception &) {}
 	throw;
       }
-      catch (const exception &e)
+      catch (const std::exception &e)
       {
         reg_pending_error(e.what());
       }
@@ -117,23 +116,23 @@ inline bool is_octalchar(char o) PQXX_NOEXCEPT
 /// Find first tab character at or after start position in string
 /** If not found, returns Line.size() rather than string::npos.
  */
-string::size_type findtab(const std::string &Line,
+std::string::size_type findtab(const std::string &Line,
 	std::string::size_type start)
 {
   // TODO: Fix for multibyte encodings?
-  const string::size_type here = Line.find('\t', start);
-  return (here == string::npos) ? Line.size() : here;
+  const std::string::size_type here = Line.find('\t', start);
+  return (here == std::string::npos) ? Line.size() : here;
 }
 } // namespace
 
 
-string pqxx::tablereader::extract_field(const std::string &Line,
+std::string pqxx::tablereader::extract_field(const std::string &Line,
     std::string::size_type &i) const
 {
   // TODO: Pick better exception types
-  string R;
+    std::string R;
   bool isnull=false;
-  string::size_type stop = findtab(Line, i);
+  std::string::size_type stop = findtab(Line, i);
   for (; i < stop; ++i)
   {
     const char c = Line[i];

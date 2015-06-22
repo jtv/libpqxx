@@ -24,9 +24,6 @@
 #include "pqxx/row"
 
 
-using namespace std;
-
-
 pqxx::field::field(const pqxx::row &R, pqxx::row::size_type C)
 	PQXX_NOEXCEPT :
   m_col(C),

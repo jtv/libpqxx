@@ -27,26 +27,25 @@
 #include "pqxx/binarystring"
 
 
-using namespace std;
 using namespace pqxx::internal;
 
 namespace
 {
 typedef unsigned char unsigned_char;
-typedef pair<unsigned char *, size_t> buffer;
+typedef std::pair<unsigned char *, size_t> buffer;
 
 
 buffer to_buffer(const void *data, size_t len)
 {
   void *const output(malloc(len + 1));
-  if (!output) throw bad_alloc();
+  if (!output) throw std::bad_alloc();
   static_cast<char *>(output)[len] = '\0';
   memcpy(static_cast<char *>(output), data, len);
   return buffer(static_cast<unsigned char *>(output), len);
 }
 
 
-buffer to_buffer(const string &source)
+buffer to_buffer(const std::string &source)
 {
   return to_buffer(source.c_str(), source.size());
 }
@@ -73,7 +72,7 @@ buffer unescape(const unsigned char escaped[])
   buffer unescaped;
   unescaped.first = PQunescapeBytea(
 	const_cast<unsigned char *>(escaped), &unescaped.second);
-  if (!unescaped.first) throw bad_alloc();
+  if (!unescaped.first) throw std::bad_alloc();
   return unescaped;
 #endif
 }
@@ -98,7 +97,7 @@ pqxx::binarystring::binarystring(const field &F) :
 }
 
 
-pqxx::binarystring::binarystring(const string &s) :
+pqxx::binarystring::binarystring(const std::string &s) :
   m_buf(*new smart_pointer_type),
   m_size(s.size())
 {
@@ -135,8 +134,8 @@ pqxx::binarystring::const_reference pqxx::binarystring::at(size_type n) const
   if (n >= m_size)
   {
     if (!m_size)
-      throw out_of_range("Accessing empty binarystring");
-    throw out_of_range("binarystring index out of range: " +
+      throw std::out_of_range("Accessing empty binarystring");
+    throw std::out_of_range("binarystring index out of range: " +
 	to_string(n) + " (should be below " + to_string(m_size) + ")");
   }
   return data()[n];
@@ -155,7 +154,7 @@ void pqxx::binarystring::swap(binarystring &rhs)
 }
 
 
-string pqxx::binarystring::str() const
+std::string pqxx::binarystring::str() const
 {
-  return string(get(), m_size);
+  return std::string(get(), m_size);
 }

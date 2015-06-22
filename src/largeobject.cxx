@@ -33,20 +33,20 @@
 
 #include "pqxx/internal/gates/connection-largeobject.hxx"
 
-using namespace std;
+
 using namespace pqxx::internal;
 
 namespace
 {
 
-inline int StdModeToPQMode(ios::openmode mode)
+inline int StdModeToPQMode(std::ios::openmode mode)
 {
-  return ((mode & ios::in)  ? INV_READ  : 0) |
-         ((mode & ios::out) ? INV_WRITE : 0);
+  return ((mode & std::ios::in)  ? INV_READ  : 0) |
+         ((mode & std::ios::out) ? INV_WRITE : 0);
 }
 
 
-inline int StdDirToPQDir(ios::seekdir dir) PQXX_NOEXCEPT
+inline int StdDirToPQDir(std::ios::seekdir dir) PQXX_NOEXCEPT
 {
   // TODO: Figure out whether seekdir values match C counterparts!
 #ifdef PQXX_SEEKDIRS_MATCH_C
@@ -55,9 +55,9 @@ inline int StdDirToPQDir(ios::seekdir dir) PQXX_NOEXCEPT
   int pqdir;
   switch (dir)
   {
-  case ios::beg: pqdir=SEEK_SET; break;
-  case ios::cur: pqdir=SEEK_CUR; break;
-  case ios::end: pqdir=SEEK_END; break;
+      case std::ios::beg: pqdir=SEEK_SET; break;
+  case std::ios::cur: pqdir=SEEK_CUR; break;
+  case std::ios::end: pqdir=SEEK_END; break;
 
   /* Added mostly to silence compiler warning, but also to help compiler detect
    * cases where this function can be optimized away completely.  This latter
@@ -86,7 +86,7 @@ pqxx::largeobject::largeobject(dbtransaction &T) :
   if (m_ID == oid_none)
   {
     const int err = errno;
-    if (err == ENOMEM) throw bad_alloc();
+    if (err == ENOMEM) throw std::bad_alloc();
     throw failure("Could not create large object: " + Reason(err));
   }
 }
@@ -99,7 +99,7 @@ pqxx::largeobject::largeobject(dbtransaction &T, const std::string &File) :
   if (m_ID == oid_none)
   {
     const int err = errno;
-    if (err == ENOMEM) throw bad_alloc();
+    if (err == ENOMEM) throw std::bad_alloc();
     throw failure("Could not import file '" + File + "' to large object: " +
 	Reason(err));
   }
@@ -118,7 +118,7 @@ void pqxx::largeobject::to_file(dbtransaction &T,
   if (lo_export(RawConnection(T), id(), File.c_str()) == -1)
   {
     const int err = errno;
-    if (err == ENOMEM) throw bad_alloc();
+    if (err == ENOMEM) throw std::bad_alloc();
     throw failure("Could not export large object " + to_string(m_ID) + " "
 	                "to file '" + File + "': " +
 			Reason(err));
@@ -131,7 +131,7 @@ void pqxx::largeobject::remove(dbtransaction &T) const
   if (lo_unlink(RawConnection(T), id()) == -1)
   {
     const int err = errno;
-    if (err == ENOMEM) throw bad_alloc();
+    if (err == ENOMEM) throw std::bad_alloc();
     throw failure("Could not delete large object " + to_string(m_ID) + ": " +
 	Reason(err));
   }
@@ -145,13 +145,13 @@ pqxx::internal::pq::PGconn *pqxx::largeobject::RawConnection(
 }
 
 
-string pqxx::largeobject::Reason(int err) const
+std::string pqxx::largeobject::Reason(int err) const
 {
   if (err == ENOMEM) return "Out of memory";
   if (id() == oid_none) return "No object selected";
 
   char buf[500];
-  return string(strerror_wrapper(err, buf, sizeof(buf)));
+  return std::string(strerror_wrapper(err, buf, sizeof(buf)));
 }
 
 
@@ -204,7 +204,7 @@ pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
   if (Result == -1)
   {
     const int err = errno;
-    if (err == ENOMEM) throw bad_alloc();
+    if (err == ENOMEM) throw std::bad_alloc();
     throw failure("Error seeking in large object: " + Reason(err));
   }
 
@@ -249,7 +249,7 @@ void pqxx::largeobjectaccess::write(const char Buf[], size_type Len)
   if (Bytes < Len)
   {
     const int err = errno;
-    if (err == ENOMEM) throw bad_alloc();
+    if (err == ENOMEM) throw std::bad_alloc();
     if (Bytes < 0)
       throw failure("Error writing to large object #" + to_string(id()) + ": " +
 	Reason(err));
@@ -271,7 +271,7 @@ pqxx::largeobjectaccess::read(char Buf[], size_type Len)
   if (Bytes < 0)
   {
     const int err = errno;
-    if (err == ENOMEM) throw bad_alloc();
+    if (err == ENOMEM) throw std::bad_alloc();
     throw failure("Error reading from large object #" + to_string(id()) +
 	": " + Reason(err));
   }
@@ -285,7 +285,7 @@ void pqxx::largeobjectaccess::open(openmode mode)
   if (m_fd < 0)
   {
     const int err = errno;
-    if (err == ENOMEM) throw bad_alloc();
+    if (err == ENOMEM) throw std::bad_alloc();
     throw failure("Could not open large object " + to_string(id()) + ": " +
 	Reason(err));
   }
@@ -306,7 +306,7 @@ pqxx::largeobjectaccess::size_type pqxx::largeobjectaccess::tell() const
 }
 
 
-string pqxx::largeobjectaccess::Reason(int err) const
+std::string pqxx::largeobjectaccess::Reason(int err) const
 {
   return (m_fd == -1) ? "No object opened" : largeobject::Reason(err);
 }

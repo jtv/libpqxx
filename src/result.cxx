@@ -29,9 +29,7 @@
 #include "pqxx/row"
 
 
-using namespace std;
-
-const string pqxx::result::s_empty_string;
+const std::string pqxx::result::s_empty_string;
 
 
 pqxx::internal::result_data::result_data() :
@@ -199,16 +197,16 @@ void pqxx::result::ThrowSQLError(
 
 void pqxx::result::CheckStatus() const
 {
-  const string Err = StatusError();
+  const std::string Err = StatusError();
   if (!Err.empty()) ThrowSQLError(Err, query());
 }
 
 
-string pqxx::result::StatusError() const
+std::string pqxx::result::StatusError() const
 {
   if (!m_data) throw failure("No result set given");
 
-  string Err;
+  std::string Err;
 
   switch (PQresultStatus(m_data))
   {
@@ -241,7 +239,7 @@ const char *pqxx::result::CmdStatus() const PQXX_NOEXCEPT
 }
 
 
-const string &pqxx::result::query() const PQXX_NOEXCEPT
+const std::string &pqxx::result::query() const PQXX_NOEXCEPT
 {
   return get() ? get()->query : s_empty_string;
 }

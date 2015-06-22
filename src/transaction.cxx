@@ -24,9 +24,6 @@
 #include "pqxx/transaction"
 
 
-using namespace std;
-
-
 pqxx::basic_transaction::basic_transaction(
 	connection_base &C,
 	const std::string &IsolationLevel,
@@ -43,15 +40,15 @@ void pqxx::basic_transaction::do_commit()
   {
     DirectExec(internal::sql_commit_work);
   }
-  catch (const exception &e)
+  catch (const std::exception &e)
   {
     if (!conn().is_open())
     {
       // We've lost the connection while committing.  There is just no way of
       // telling what happened on the other end.  >8-O
-      process_notice(e.what() + string("\n"));
+      process_notice(e.what() + std::string("\n"));
 
-      const string Msg = "WARNING: "
+      const std::string Msg = "WARNING: "
 		  "Connection lost while committing transaction "
 		  "'" + name() + "'. "
 		  "There is no way to tell whether the transaction succeeded "
