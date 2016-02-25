@@ -1,3 +1,6 @@
+2016-02-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/tablewriter.hxx:
+ - Include <iterator>.  Thanks Ivan Zinkevich.
 2015-06-22  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in:
  - Test for isnan()/isinf() and std::isnan()/std::isinf() separately.
