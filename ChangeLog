@@ -1,4 +1,8 @@
 2016-03-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/INSTALL.txt:
+ - Run "VCVARSALL.BAT amd64", not "VCVARS32.BAT".
+ - See #361.  Thanks WedgetailSystems.
+2016-03-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  win32/vc-libpqxx.mak.template:
  - Change Windows build from x86 to x86-64.
  - See #361.  Thanks WedgetailSystems.
