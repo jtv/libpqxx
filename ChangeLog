@@ -1,3 +1,7 @@
+2016-03-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ win32/vc-libpqxx.mak.template:
+ - Change Windows build from x86 to x86-64.
+ - See #361.  Thanks WedgetailSystems.
 2016-02-25  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/tablewriter.hxx:
  - Include <iterator>.  Thanks Ivan Zinkevich.
