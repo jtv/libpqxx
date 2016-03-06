@@ -79,7 +79,7 @@ computer.
 Select "Visual Studio Command Prompt" from the Start menu.  Alternatively,
 open a Command Prompt window and run:
 
-    VCVARS32.BAT
+    VCVARSALL.BAT amd64
 
 to prepare the environment.
 
@@ -149,7 +149,7 @@ If you're using Visual C++:
 1) Select Visual Studio Command Prompt from the Start menu.  Alternatively,
    open a Command Prompt window and run
 
-       VCVARS32.BAT
+       VCVARSALL.BAT amd64
 
    to prepare the environment.
    Then CD into the main directory of the libpqxx source tree.  Among other
