@@ -4,6 +4,8 @@ depcomp
 install-sh
 missing
 mkinstalldirs
+compile
 config.guess
 config.sub
 ltmain.sh
+test-driver
