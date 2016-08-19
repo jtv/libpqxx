@@ -4,4 +4,7 @@ Makefile
 Makefile.am
 Makefile.in
 pqxxlo.txt
+runner.log
+runner.trs
+test-suite.log
 *.swp
