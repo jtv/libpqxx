@@ -131,7 +131,7 @@ am_runner_OBJECTS = test_binarystring.$(OBJEXT) \
 	test_sql_cursor.$(OBJEXT) test_stateless_cursor.$(OBJEXT) \
 	test_string_conversion.$(OBJEXT) test_subtransaction.$(OBJEXT) \
 	test_test_helpers.$(OBJEXT) test_thread_safety_model.$(OBJEXT) \
-	runner.$(OBJEXT)
+	test_transaction.$(OBJEXT) runner.$(OBJEXT)
 runner_OBJECTS = $(am_runner_OBJECTS)
 am__DEPENDENCIES_1 =
 runner_DEPENDENCIES = $(top_builddir)/src/libpqxx.la \
@@ -452,6 +452,7 @@ LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
+LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
@@ -531,6 +532,7 @@ pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
+runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -566,6 +568,7 @@ runner_SOURCES = \
   test_subtransaction.cxx \
   test_test_helpers.cxx \
   test_thread_safety_model.cxx \
+  test_transaction.cxx \
   runner.cxx
 
 runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
@@ -643,6 +646,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_subtransaction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_test_helpers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_thread_safety_model.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_transaction.Po@am__quote@
 
 .cxx.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
