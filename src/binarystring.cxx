@@ -63,7 +63,7 @@ buffer unescape(const unsigned char escaped[])
   PQAlloc<unsigned char> A(
 	PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped_len));
   void *data = A.get();
-  if (!data) throw bad_alloc();
+  if (!data) throw std::bad_alloc();
   return to_buffer(data, unescaped_len);
 #else
   /* On non-Windows platforms, it's okay to free libpq-allocated memory using
