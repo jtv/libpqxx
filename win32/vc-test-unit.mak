@@ -9,7 +9,7 @@
 # The template2mak.py script should be available in the tools directory of the
 # libpqxx source archive.
 #
-# Generated from template '/home/jtv/proj/libpqxx/trunk/win32/vc-test-unit.mak.template'.
+# Generated from template '/home/jtv/proj/libpqxx/win32/vc-test-unit.mak.template'.
 ################################################################################
 # Visual C++ Makefile for libpqxx unit tests
 # This file was written by Sam Kapilivsky, based on Bart Samwel's original.
@@ -100,7 +100,6 @@ OBJS= \
   $(INTDIR)\test_subtransaction.obj \
   $(INTDIR)\test_test_helpers.obj \
   $(INTDIR)\test_thread_safety_model.obj \
-  $(INTDIR)\test_transaction.obj \
   $(INTDIR)\runner.obj
 
 
@@ -175,8 +174,6 @@ $(INTDIR)\test_test_helpers.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_test_helpers.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_thread_safety_model.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_thread_safety_model.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test_transaction.obj:
-	@$(CXX) $(CXX_FLAGS) test/unit/test_transaction.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 
 
 $(INTDIR)\$(LIBPQ):

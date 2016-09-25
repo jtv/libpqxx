@@ -25,7 +25,7 @@
 # The template2mak.py script should be available in the tools directory of the
 # libpqxx source archive.
 #
-# Generated from template '/home/jtv/proj/libpqxx/trunk/test/unit/Makefile.am.template'.
+# Generated from template '/home/jtv/proj/libpqxx/test/unit/Makefile.am.template'.
 ################################################################################
 #MAINTAINERCLEANFILES=Makefile.in
 VPATH = @srcdir@
@@ -131,7 +131,7 @@ am_runner_OBJECTS = test_binarystring.$(OBJEXT) \
 	test_sql_cursor.$(OBJEXT) test_stateless_cursor.$(OBJEXT) \
 	test_string_conversion.$(OBJEXT) test_subtransaction.$(OBJEXT) \
 	test_test_helpers.$(OBJEXT) test_thread_safety_model.$(OBJEXT) \
-	test_transaction.$(OBJEXT) runner.$(OBJEXT)
+	runner.$(OBJEXT)
 runner_OBJECTS = $(am_runner_OBJECTS)
 am__DEPENDENCIES_1 =
 runner_DEPENDENCIES = $(top_builddir)/src/libpqxx.la \
@@ -568,7 +568,6 @@ runner_SOURCES = \
   test_subtransaction.cxx \
   test_test_helpers.cxx \
   test_thread_safety_model.cxx \
-  test_transaction.cxx \
   runner.cxx
 
 runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
@@ -646,7 +645,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_subtransaction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_test_helpers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_thread_safety_model.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_transaction.Po@am__quote@
 
 .cxx.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

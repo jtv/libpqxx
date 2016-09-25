@@ -9,7 +9,7 @@
 # The template2mak.py script should be available in the tools directory of the
 # libpqxx source archive.
 #
-# Generated from template '/home/jtv/proj/libpqxx/trunk/test/unit/Makefile.am.template'.
+# Generated from template '/home/jtv/proj/libpqxx/test/unit/Makefile.am.template'.
 ################################################################################
 #MAINTAINERCLEANFILES=Makefile.in
 
@@ -42,7 +42,6 @@ runner_SOURCES = \
   test_subtransaction.cxx \
   test_test_helpers.cxx \
   test_thread_safety_model.cxx \
-  test_transaction.cxx \
   runner.cxx
 
 runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
