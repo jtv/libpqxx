@@ -1,0 +1,17 @@
+autom4te.cache
+config.log
+config.status
+config/compile
+config/test-driver
+doc/Doxyfile
+include/pqxx/config-*-*.h
+include/pqxx/config.h
+include/pqxx/stamp-h1
+tools/pqxxthreadsafety
+tools/rmlo
+**/Makefile
+**/Makefile.in
+**/*.la
+**/*.lo
+**/*.o
+**/.*
