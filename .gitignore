@@ -4,6 +4,10 @@ config.status
 config/compile
 config/test-driver
 doc/Doxyfile
+doc/html/Reference
+doc/html/Tutorial
+doc/reference-stamp
+doc/tutorial-stamp
 include/pqxx/config-*-*.h
 include/pqxx/config.h
 include/pqxx/stamp-h1
