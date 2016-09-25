@@ -8,6 +8,7 @@ include/pqxx/config-*-*.h
 include/pqxx/config.h
 include/pqxx/stamp-h1
 libpqxx.pc
+libtool
 pqxx-config
 tools/pqxxthreadsafety
 tools/rmlo
