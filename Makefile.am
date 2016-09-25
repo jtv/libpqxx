@@ -9,3 +9,8 @@ pkgconfig_DATA = libpqxx.pc
 bin_SCRIPTS=pqxx-config
 
 TESTS = tools/lint
+
+
+# We use README.md, but automake expects plain README.
+README: README.md
+	ln -s $< $@
