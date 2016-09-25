@@ -41,7 +41,7 @@
  * standard C API, libpq.  The libpq headers are not needed to compile client
  * programs, however.
  *
- * For a quick introduction to installing and using libpqxx, see the README
+ * For a quick introduction to installing and using libpqxx, see the README.md
  * file; a more extensive tutorial is available in doc/html/Tutorial/index.html.
  *
  * The latest information, as well as updates, a mailing list, and a bug

@@ -557,9 +557,11 @@ top_srcdir = @top_srcdir@
 with_postgres_include = @with_postgres_include@
 with_postgres_lib = @with_postgres_lib@
 SUBDIRS = include src test tools win32 config doc
-EXTRA_DIST = autogen.sh configure.ac.in configitems README-UPGRADE VERSION
-MAINTAINERCLEANFILES = Makefile.in aclocal.m4 config.h.in config.log configure \
-	stamp-h.in
+EXTRA_DIST = \
+    autogen.sh configure.ac.in configitems README.md README-UPGRADE VERSION
+
+MAINTAINERCLEANFILES = \
+    Makefile.in aclocal.m4 config.h.in config.log configure stamp-h.in
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpqxx.pc
@@ -1264,6 +1266,10 @@ uninstall-am: uninstall-binSCRIPTS uninstall-pkgconfigDATA
 
 .PRECIOUS: Makefile
 
+
+# We use README.md, but automake expects plain README.
+README: README.md
+	ln -s $< $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
