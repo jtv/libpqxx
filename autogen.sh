@@ -3,6 +3,7 @@
 # Set CONFIG_ARGS to the argument list you wish to pass to configure
 
 set -e
+set -u
 
 # The VERSION file defines our versioning
 PQXXVERSION=$(./tools/extract_version)
@@ -54,10 +55,10 @@ aclocal -I . -I config/m4
 automake --verbose --add-missing --copy
 autoconf
 
-conf_flags="--enable-maintainer-mode $CONFIG_ARGS"
-if test -z "$NOCONFIGURE"
+conf_flags="--enable-maintainer-mode ${CONFIG_ARGS:-}"
+if [ -z "${NOCONFIGURE:-}" ]
 then
-	echo Running $srcdir/configure $conf_flags "$@" ...
+	echo Running ./configure $conf_flags "$@" ...
 	./configure $conf_flags "$@" \
 	&& echo "Now type 'make' to compile libpqxx" || exit 1
 else
