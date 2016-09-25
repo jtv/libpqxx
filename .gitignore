@@ -7,6 +7,8 @@ doc/Doxyfile
 include/pqxx/config-*-*.h
 include/pqxx/config.h
 include/pqxx/stamp-h1
+libpqxx.pc
+pqxx-config
 tools/pqxxthreadsafety
 tools/rmlo
 **/Makefile
@@ -14,4 +16,6 @@ tools/rmlo
 **/*.la
 **/*.lo
 **/*.o
-**/.*
+**/.*.swp
+**/.deps
+**/.libs
