@@ -24,6 +24,7 @@
 #include <cstring>
 #include <ctime>
 #include <stdexcept>
+#include <sys/time.h>
 
 #ifdef PQXX_HAVE_SYS_SELECT_H
 #include <sys/select.h>
@@ -685,6 +686,83 @@ const char *pqxx::connection_base::ErrMsg() const PQXX_NOEXCEPT
 }
 
 
+pqxx::internal::pq::PGresult *pqxx::connection_base::ExecuteQuery(const char Query[], long Timeout)
+{
+  start_exec(Query);
+
+  int fd = sock();
+
+  fd_set set;
+  FD_ZERO(&set);
+  FD_SET(fd, &set);
+
+  PGresult *res = NULL;
+  const long orig_timeout = Timeout;
+  while (1) {
+    timeval to, start, end;
+    to.tv_sec = Timeout/1000;
+    to.tv_usec = (Timeout%1000)*1000;
+
+    gettimeofday(&start, NULL);
+    int rcode = select(FD_SETSIZE, &set, NULL, NULL, &to);
+
+    if (rcode == -1)
+      throw broken_connection(strerror(errno));
+
+    if (rcode == 0)
+      throw transaction_timeout(orig_timeout);
+
+    if (consume_input()) {
+      bool done = false;
+      while (!is_busy()) {
+        PGresult *new_res = get_result();
+        if (new_res == NULL) {
+          done = true;
+          break;
+        }
+        /* only return last Result as in PQexec */
+        PQclear(res);
+        res = new_res;
+      }
+      if (done)
+        break;
+    } else {
+      throw failure(ErrMsg());
+    }
+
+    gettimeofday(&end, NULL);
+    long elapsed = (end.tv_sec - start.tv_sec)*1000 + (end.tv_usec - start.tv_usec)/1000;
+    Timeout -= elapsed;
+  }
+
+  return res;
+}
+
+pqxx::internal::pq::PGresult *pqxx::connection_base::ExecuteQuery(const char Query[])
+{
+  return PQexec(m_Conn, Query);
+}
+
+pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries, long Timeout)
+{
+  activate();
+
+  result R = make_result(ExecuteQuery(Query, Timeout), Query);
+
+  while ((Retries > 0) && !gate::result_connection(R) && !is_open())
+  {
+    Retries--;
+    Reset();
+    if (is_open()) R = make_result(ExecuteQuery(Query, Timeout), Query);
+  }
+
+  check_result(R);
+
+  get_notifs();
+  return R;
+}
+
+
 void pqxx::connection_base::register_errorhandler(errorhandler *handler)
 {
   m_errorhandlers.push_back(handler);
@@ -705,7 +783,7 @@ std::vector<errorhandler *> pqxx::connection_base::get_errorhandlers() const
     std::vector<errorhandler *> handlers;
   handlers.reserve(m_errorhandlers.size());
   for (
-	std::list<errorhandler *>::const_iterator i = m_errorhandlers.begin(); 
+	std::list<errorhandler *>::const_iterator i = m_errorhandlers.begin();
 	i != m_errorhandlers.end();
 	++i)
     handlers.push_back(*i);
@@ -717,13 +795,13 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 {
   activate();
 
-  result R = make_result(PQexec(m_Conn, Query), Query);
+  result R = make_result(ExecuteQuery(Query), Query);
 
   while ((Retries > 0) && !gate::result_connection(R) && !is_open())
   {
     Retries--;
     Reset();
-    if (is_open()) R = make_result(PQexec(m_Conn, Query), Query);
+    if (is_open()) R = make_result(ExecuteQuery(Query), Query);
   }
 
   check_result(R);

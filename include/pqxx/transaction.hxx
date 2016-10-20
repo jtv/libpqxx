@@ -72,7 +72,7 @@ private:
  *   T.exec("UPDATE employees SET wage=wage*2");
  *   T.commit();	// NOTE: do this inside try block
  * }
- * catch (const exception &e)
+ * catch (const std::exception &e)
  * {
  *   cerr << e.what() << endl;
  *   T.abort();		// Usually not needed; same happens when T's life ends.
@@ -107,6 +107,54 @@ public:
 };
 
 
+template<
+	isolation_level ISOLATIONLEVEL=read_committed,
+	readwrite_policy READWRITE=read_write>
+class timed_transaction : public basic_transaction
+{
+public:
+  typedef isolation_traits<ISOLATIONLEVEL> isolation_tag;
+
+  /// Create a transaction
+  /**
+   * @param C Connection for this transaction to operate on
+   * @param TName Optional name for transaction; must begin with a letter and
+   * may contain letters and digits only
+   */
+  explicit timed_transaction(connection_base &C, const std::string &TName, long Timeout):
+    namedclass(fullname("timed_transaction",isolation_tag::name()), TName),
+    basic_transaction(C, isolation_tag::name(), READWRITE),
+    m_Timeout(Timeout),
+    m_C(C)
+	{ Begin(); }
+
+  explicit timed_transaction(connection_base &C, int Timeout) :
+    namedclass(fullname("timed_transaction",isolation_tag::name())),
+    basic_transaction(C, isolation_tag::name(), READWRITE),
+    m_Timeout(Timeout),
+    m_C(C)
+	{ Begin(); }
+
+  virtual ~timed_transaction() throw ()
+  {
+#ifdef PQXX_QUIET_DESTRUCTORS
+    internal::disable_noticer Quiet(conn());
+#endif
+    End();
+  }
+
+  void do_begin();
+  result do_exec(const char Query[]);
+  void do_commit();
+  void do_abort();
+
+private:
+  long m_Timeout;
+  connection_base &m_C;
+};
+
+typedef timed_transaction<> timed_work;
+
 /// Bog-standard, default transaction type
 typedef transaction<> work;
 
@@ -115,6 +163,84 @@ typedef transaction<read_committed, read_only> read_transaction;
 
 //@}
 
+}
+
+
+template<pqxx::isolation_level ISOLATIONLEVEL, pqxx::readwrite_policy READWRITE>
+inline void pqxx::timed_transaction<ISOLATIONLEVEL, READWRITE>::do_begin()
+{
+  try {
+    DirectExec("BEGIN", 0, m_Timeout);
+  }
+  catch (const transaction_timeout &) {
+    try { abort(); m_C.deactivate(); } catch (const std::exception &) {}
+    throw;
+  }
+}
+
+template<pqxx::isolation_level ISOLATIONLEVEL, pqxx::readwrite_policy READWRITE>
+inline pqxx::result pqxx::timed_transaction<ISOLATIONLEVEL, READWRITE>::do_exec(const char Query[])
+{
+    try
+    {
+      return DirectExec(Query, 0, m_Timeout);
+    }
+    catch (const transaction_timeout &) {
+      try { abort(); m_C.deactivate(); } catch (const std::exception &) {}
+      throw;
+    }
+    catch (const std::exception &)
+    {
+      try { abort(); } catch (const std::exception &) {}
+      throw;
+    }
+}
+
+template<pqxx::isolation_level ISOLATIONLEVEL, pqxx::readwrite_policy READWRITE>
+inline void pqxx::timed_transaction<ISOLATIONLEVEL, READWRITE>::do_commit()
+{
+  try
+  {
+    DirectExec(internal::sql_commit_work, 0, m_Timeout);
+  }
+  catch (const transaction_timeout &) {
+    try { abort(); m_C.deactivate(); } catch (const std::exception &) {}
+    throw;
+  }
+  catch (const std::exception &e)
+  {
+    if (!conn().is_open()) {
+      // We've lost the connection while committing.  There is just no way of
+      // telling what happened on the other end.  >8-O
+      process_notice(e.what() + std::string("\n"));
+
+      const std::string Msg = "WARNING: "
+              "Connection lost while committing transaction "
+              "'" + name() + "'. "
+              "There is no way to tell whether the transaction succeeded "
+              "or was aborted except to check manually.";
+
+      process_notice(Msg + "\n");
+      throw in_doubt_error(Msg);
+    }
+    else {
+      // Commit failed--probably due to a constraint violation or something
+      // similar.
+      throw;
+    }
+  }
+}
+
+template<pqxx::isolation_level ISOLATIONLEVEL, pqxx::readwrite_policy READWRITE>
+inline void pqxx::timed_transaction<ISOLATIONLEVEL, READWRITE>::do_abort()
+{
+  try {
+    reactivation_avoidance_clear();
+    DirectExec(internal::sql_rollback_work, 0, m_Timeout);
+  } catch (const transaction_timeout &) {
+    try { m_C.deactivate(); } catch (const std::exception &) {}
+    throw;
+  }
 }
 
 

@@ -319,7 +319,7 @@ public:
    */
   int PQXX_PURE sock() const PQXX_NOEXCEPT;				//[t87]
 
-  /** 
+  /**
    * @name Capabilities
    *
    * Some functionality may only be available in certain versions of the
@@ -327,7 +327,7 @@ public:
    * protocol that connects us to the backend.
    */
   //@{
- 
+
   /// Session capabilities
   enum capability
   {
@@ -555,7 +555,7 @@ public:
    */
 
   /// Define a prepared statement
-  /** 
+  /**
    * The statement's definition can refer to a parameter using the parameter's
    * positional number n in the definition.  For example, the first parameter
    * can be used as a variable "$1", the second as "$2" and so on.
@@ -915,6 +915,9 @@ private:
   void PQXX_PRIVATE unregister_errorhandler(errorhandler *) PQXX_NOEXCEPT;
 
   friend class internal::gate::connection_transaction;
+  internal::pq::PGresult * ExecuteQuery(const char Query[], long Timeout);
+  internal::pq::PGresult * ExecuteQuery(const char Query[]);
+  result PQXX_PRIVATE Exec(const char[], int Retries, long Timeout);
   result PQXX_PRIVATE Exec(const char[], int Retries);
   void PQXX_PRIVATE RegisterTransaction(transaction_base *);
   void PQXX_PRIVATE UnregisterTransaction(transaction_base *) PQXX_NOEXCEPT;

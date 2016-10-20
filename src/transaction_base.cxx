@@ -403,10 +403,10 @@ void pqxx::transaction_base::UnregisterFocus(internal::transactionfocus *S)
 }
 
 
-pqxx::result pqxx::transaction_base::DirectExec(const char C[], int Retries)
+pqxx::result pqxx::transaction_base::DirectExec(const char C[], int Retries, long Timeout)
 {
   CheckPendingError();
-  return gate::connection_transaction(conn()).Exec(C, Retries);
+  return Timeout?gate::connection_transaction(conn()).Exec(C, Retries, Timeout):gate::connection_transaction(conn()).Exec(C, Retries);
 }
 
 

@@ -378,8 +378,9 @@ protected:
    * transaction, you may be setting up a new connection transparently and
    * executing the latter part of the transaction without a backend transaction
    * being active (and with the former part aborted).
+   * @param Timeout Timeout
    */
-  result DirectExec(const char C[], int Retries=0);
+  result DirectExec(const char C[], int Retries=0, long Timeout=0);
 
   /// Forget about any reactivation-blocking resources we tried to allocate
   void reactivation_avoidance_clear() PQXX_NOEXCEPT
