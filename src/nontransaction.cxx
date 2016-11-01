@@ -28,6 +28,6 @@ pqxx::nontransaction::~nontransaction()
 
 pqxx::result pqxx::nontransaction::do_exec(const char Query[])
 {
-  return DirectExec(Query, 0);
+  return DirectExec(Query, 0, m_Timeout);
 }
 
