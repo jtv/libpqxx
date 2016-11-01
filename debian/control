@@ -1,0 +1,68 @@
+Source: libpqxx
+Section: libs
+Priority: optional
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+XSBC-Original-Maintainer: Marcin Kulisz (kuLa) <debian@kulisz.net>
+Build-Depends: debhelper (>> 9.0.0), libpq-dev (>= 8.0.3), chrpath, libtool,
+ python-all, dh-autoreconf
+Standards-Version: 3.9.5
+Vcs-Git: git://anonscm.debian.org/collab-maint/libpqxx.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/libpqxx.git;a=summary
+Homepage: http://pqxx.org
+
+Package: libpqxx-dev
+Section: libdevel
+Architecture: any
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, libpq-dev (>= 8.0.3-1),
+ libpqxx (= ${binary:Version}), pkg-config
+Suggests: libpqxx-doc
+Conflicts: libpqxx4-dev, libpqxx-dev
+Breaks: libpqxx3-dev (<< 4)
+Replaces: libpqxx3-dev (<< 4), libpqxx4-dev, libpqxx-dev
+Description: C++ library to connect to PostgreSQL (development files)
+ C++ library to enable user programs to communicate with
+ the PostgreSQL database back-end.
+ .
+ This package contains header files for linking against libpqxx. Obsoletes
+ the libpqpp-dev package.
+
+Package: libpqxx-doc
+Section: doc
+Architecture: all
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, libjs-jquery
+Suggests: libpqxx-dev (>= ${binary:Version})
+Conflicts: libpqxx3-doc, libpqxx4-doc, libpqxx5-doc
+Replaces: libpqxx3-doc, libpqxx4-doc, libpqxx5-doc
+Description: C++ library to connect to PostgreSQL (documentation)
+ C++ library to enable user programs to communicate with
+ the PostgreSQL database back-end.
+ .
+ This package contains documentation and examples.
+
+Package: libpqxx
+Architecture: any
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: C++ library to connect to PostgreSQL
+ C++ library to enable user programs to communicate with
+ the PostgreSQL database back-end. The database back-end can
+ be local or it may be on another machine, accessed via
+ TCP/IP. This package obsoletes the libpqpp package.
+
+Package: libpqxx-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, libpqxx (= ${binary:Version})
+Conflicts: libpqxx4-dbg, libpqxx-dbg
+Replaces: libpqxx4-dbg, libpqxx-dbg
+Description: C++ library to connect to PostgreSQL (debugging symbols)
+ C++ library to enable user programs to communicate with
+ the PostgreSQL database back-end.
+ .
+ This package contains debugging symbols for the libpqxx library. It is usually
+ needed to get a useful backtrace when applications using the libpqxx library
+ crashes.

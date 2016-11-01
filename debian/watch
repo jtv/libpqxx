@@ -1,0 +1,4 @@
+version=3
+opts="dversionmangle=s/\+dfsg//" \
+ftp://pqxx.org/software/libpqxx/libpqxx-(.+)\.tar\.gz \
+  debian sh debian/repack.sh

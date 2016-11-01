@@ -1,0 +1,5 @@
+debian/tmp/usr/include          usr
+debian/tmp/usr/lib/*/libpqxx.la
+debian/tmp/usr/lib/*/libpqxx.so
+debian/tmp/usr/lib/*/pkgconfig
+debian/tmp/usr/lib/*/libpqxx.a
