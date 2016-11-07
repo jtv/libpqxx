@@ -24,3 +24,9 @@ tools/rmlo
 **/.*.swp
 **/.deps
 **/.libs
+**/deploy
+debian/libpqxx/**
+debian/libpqxx-dev/**
+debian/libpqxx-doc/**
+debian/libpqxx-dbg/**
+debian/tmp/**

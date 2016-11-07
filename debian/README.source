@@ -1,0 +1,34 @@
+libpqxx for Debian
+------------------
+
+The libpqxx source is obtained from <http://pqxx.org/download/software/libpqxx/>
+or via SVN from <svn://pqxx.org/libpqxx/trunk/>
+The debian packaging tracks the latest tarball from the 1st url.
+
+Due to DSFG upstream source is cleaned by removing minified JavaScript files
+without source and other incompatible code. Cleaned source has "dfsg" as
+suffix. It’s handled with debian/rules get-orig-source target. Following files
+has been removed from orig.tar.gz:
+  * doc/html/Reference/jquery.js
+
+The libpqxx package source is maintained in the Debian collab-maint project. You
+can obtain a copy of the source (including the upstream source) from
+<git://git.debian.org/git/collab-maint/libpqxx.git>
+
+  * The 'pristine-tar' branch is used to store imported (with pristine-tar)
+    tarballs
+    ** If you wish you can recreate original tarball running pristine-tar
+      command
+    ** It's a standalone branch 
+  * 'upstream' branch is where we're keeping untarred source code for libpqxx
+    coming in from tarball which was loaded into pristine-tar branch
+    ** It's a clean branch which is merged into master
+  * The 'master' branch is a branch where we're keeping Debian package specific
+    files and merging in (with --no-ff) 'upstream' branch to build packages.
+    ** All Debian specific patches are stored in this branch
+  * We carry upstream's tags in 'upstream' branch prefixed with 'upstream/', if
+    there is no tag on revision we're using tag accordingly to following e.g:
+      upstream/3.0.0.svn1419
+  * We prefix our tags with 'debian/' e.g. debian/3.0.2-2
+    ** experimental releases are prefixed 'debian/experimental'
+     e.g. debian/experimental/4.0-1

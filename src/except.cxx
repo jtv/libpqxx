@@ -105,3 +105,14 @@ pqxx::range_error::range_error(const std::string &whatarg) :
 {
 }
 
+
+pqxx::transaction_timeout::transaction_timeout(long timeoutms) :
+  failure("transaction timed out"),
+  tms(timeoutms)
+{
+}
+
+long pqxx::transaction_timeout::timeout() const
+{
+  return tms;
+}

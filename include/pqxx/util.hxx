@@ -735,7 +735,7 @@ PQXX_LIBEXPORT cstring strerror_wrapper(int err, char buf[], std::size_t len)
 
 
 /// Commonly used SQL commands
-extern const char sql_begin_work[], sql_commit_work[], sql_rollback_work[];
+PQXX_LIBEXPORT extern const char sql_begin_work[], sql_commit_work[], sql_rollback_work[];
 
 
 /// Wrapper for std::distance; not all platforms have std::distance().

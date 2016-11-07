@@ -24,6 +24,7 @@
 #include <cstring>
 #include <ctime>
 #include <stdexcept>
+#include <sys/time.h>
 
 #ifdef PQXX_HAVE_SYS_SELECT_H
 #include <sys/select.h>
@@ -685,6 +686,68 @@ const char *pqxx::connection_base::ErrMsg() const PQXX_NOEXCEPT
 }
 
 
+pqxx::internal::pq::PGresult *pqxx::connection_base::ExecuteQuery(const char Query[], long Timeout)
+{
+  start_exec(Query);
+
+  PGresult *res = NULL;
+  while(1) {
+    int rcode = wait_read((long)Timeout/1000, (long)((Timeout%1000)*1000));
+
+    if (rcode == -1)
+      throw broken_connection(strerror(errno));
+
+    if (rcode == 0)
+      throw transaction_timeout(Timeout);
+
+    if (consume_input()) {
+      bool done = false;
+      while (!is_busy()) {
+        PGresult *new_res = get_result();
+        if (new_res == NULL) {
+          done = true;
+          break;
+        }
+        /* only return last Result as in PQexec */
+        PQclear(res);
+        res = new_res;
+      }
+      if (done)
+        break;
+    } else {
+      throw failure(ErrMsg());
+    }
+  } while(0);
+
+  return res;
+}
+
+
+pqxx::internal::pq::PGresult *pqxx::connection_base::ExecuteQuery(const char Query[])
+{
+  return PQexec(m_Conn, Query);
+}
+
+pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries, long Timeout)
+{
+  activate();
+
+  result R = make_result(ExecuteQuery(Query, Timeout), Query);
+
+  while ((Retries > 0) && !gate::result_connection(R) && !is_open())
+  {
+    Retries--;
+    Reset();
+    if (is_open()) R = make_result(ExecuteQuery(Query, Timeout), Query);
+  }
+
+  check_result(R);
+
+  get_notifs();
+  return R;
+}
+
+
 void pqxx::connection_base::register_errorhandler(errorhandler *handler)
 {
   m_errorhandlers.push_back(handler);
@@ -705,7 +768,7 @@ std::vector<errorhandler *> pqxx::connection_base::get_errorhandlers() const
     std::vector<errorhandler *> handlers;
   handlers.reserve(m_errorhandlers.size());
   for (
-	std::list<errorhandler *>::const_iterator i = m_errorhandlers.begin(); 
+	std::list<errorhandler *>::const_iterator i = m_errorhandlers.begin();
 	i != m_errorhandlers.end();
 	++i)
     handlers.push_back(*i);
@@ -717,13 +780,13 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 {
   activate();
 
-  result R = make_result(PQexec(m_Conn, Query), Query);
+  result R = make_result(ExecuteQuery(Query), Query);
 
   while ((Retries > 0) && !gate::result_connection(R) && !is_open())
   {
     Retries--;
     Reset();
-    if (is_open()) R = make_result(PQexec(m_Conn, Query), Query);
+    if (is_open()) R = make_result(ExecuteQuery(Query), Query);
   }
 
   check_result(R);
@@ -1182,29 +1245,29 @@ pqxx::internal::reactivation_avoidance_exemption::
 
 namespace
 {
-void wait_fd(int fd, bool forwrite=false, timeval *tv=0)
+int wait_fd(int fd, bool forwrite=false, timeval *tv=0)
 {
   if (fd < 0) throw pqxx::broken_connection();
 
 #ifdef PQXX_HAVE_POLL
   pollfd pfd = { fd, short(POLLERR|POLLHUP|POLLNVAL | (forwrite?POLLOUT:POLLIN)) , 0 };
-  poll(&pfd, 1, (tv ? int(tv->tv_sec*1000 + tv->tv_usec/1000) : -1));
+  return poll(&pfd, 1, (tv ? int(tv->tv_sec*1000 + tv->tv_usec/1000) : -1));
 #else
   fd_set s;
   clear_fdmask(&s);
   set_fdbit(fd, &s);
-  select(fd+1, (forwrite?fdset_none:&s), (forwrite?&s:fdset_none), &s, tv);
+  return select(fd+1, (forwrite?fdset_none:&s), (forwrite?&s:fdset_none), &s, tv);
 #endif
 }
 } // namespace
 
-void pqxx::internal::wait_read(const pq::PGconn *c)
+int pqxx::internal::wait_read(const pq::PGconn *c)
 {
-  wait_fd(socket_of(c));
+  return wait_fd(socket_of(c));
 }
 
 
-void pqxx::internal::wait_read(const pq::PGconn *c,
+int pqxx::internal::wait_read(const pq::PGconn *c,
     long seconds,
     long microseconds)
 {
@@ -1213,31 +1276,50 @@ void pqxx::internal::wait_read(const pq::PGconn *c,
   // systems use 32-bit integers here.  So "int" seems to be the only really
   // safe type to use.
   timeval tv = { time_t(seconds), int(microseconds) };
-  wait_fd(socket_of(c), false, &tv);
+  return wait_fd(socket_of(c), false, &tv);
 }
 
 
-void pqxx::internal::wait_write(const pq::PGconn *c)
+int pqxx::internal::wait_write(const pq::PGconn *c)
 {
-  wait_fd(socket_of(c), true);
+  return wait_fd(socket_of(c), true);
 }
 
 
-void pqxx::connection_base::wait_read() const
+int pqxx::internal::wait_write(const pq::PGconn *c,
+    long seconds,
+    long microseconds)
 {
-  internal::wait_read(m_Conn);
+  // These are really supposed to be time_t and suseconds_t.  But not all
+  // platforms have that type; some use "long" instead, and some 64-bit
+  // systems use 32-bit integers here.  So "int" seems to be the only really
+  // safe type to use.
+  timeval tv = { time_t(seconds), int(microseconds) };
+  return wait_fd(socket_of(c), true, &tv);
 }
 
 
-void pqxx::connection_base::wait_read(long seconds, long microseconds) const
+int pqxx::connection_base::wait_read() const
 {
-  internal::wait_read(m_Conn, seconds, microseconds);
+  return internal::wait_read(m_Conn);
 }
 
 
-void pqxx::connection_base::wait_write() const
+int pqxx::connection_base::wait_read(long seconds, long microseconds) const
 {
-  internal::wait_write(m_Conn);
+  return internal::wait_read(m_Conn, seconds, microseconds);
+}
+
+
+int pqxx::connection_base::wait_write() const
+{
+  return internal::wait_write(m_Conn);
+}
+
+
+int pqxx::connection_base::wait_write(long seconds, long microseconds) const
+{
+  return internal::wait_write(m_Conn, seconds, microseconds);
 }
 
 

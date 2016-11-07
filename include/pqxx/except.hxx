@@ -441,6 +441,18 @@ public:
     plpgsql_error(err, Q) {}
 };
 
+
+class PQXX_LIBEXPORT transaction_timeout : public failure
+{
+public:
+  explicit transaction_timeout(long timeoutms);
+  long timeout() const;
+
+private:
+  long tms;
+};
+
+
 /**
  * @}
  */

@@ -16,6 +16,8 @@ class PQXX_PRIVATE connection_transaction : callgate<connection_base>
 
   result Exec(const char query[], int retries)
 	{ return home().Exec(query, retries); }
+  result Exec(const char query[], int retries, long timeout)
+	{ return home().Exec(query, retries, timeout); }
   void RegisterTransaction(transaction_base *t)
 	{ home().RegisterTransaction(t); }
   void UnregisterTransaction(transaction_base *t) PQXX_NOEXCEPT

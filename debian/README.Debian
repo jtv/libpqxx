@@ -1,0 +1,9 @@
+libpqxx for Debian
+---------------
+
+As original source code includes jquery.js which is separately packaged in
+Debian (http://packages.qa.debian.org/j/jquery.html) subjected file has been
+removed from source. In it's place symbolic link has been created and dependency for
+libjs-jquery has been added into libpqxx-doc package.
+
+ -- Marcin Kulisz (kuLa) <debian@kulisz.net>  Tue, 20 Dec 2011 19:35:43 +0000

@@ -1,0 +1,32 @@
+#!/usr/bin/make -f
+
+#export DH_VERBOSE=1
+export LIBRARY_VERSION=5.0
+## Below variable is for repacking upstream source
+
+%:
+	dh $@ --with autoreconf
+
+override_dh_auto_configure:
+	dh_auto_configure -- --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --disable-documentation --enable-shared CXXFLAGS="$(CXXFLAGS) -std=c++11"
+
+override_dh_auto_test:
+	$(MAKE) PGDATABASE=test check
+	#@echo "not doing any testing"
+
+override_dh_install:
+	dh_install --exclude=jquery.js
+	## cleaning up dependency_libs filed in *.la files
+	sed -i "/dependency_libs/ s/'.*'/''/" `find . -name '*.la'`
+
+override_dh_installchangelogs:
+	dh_installchangelogs ChangeLog
+
+override_dh_makeshlibs:
+	dh_makeshlibs -- -v$(LIBRARY_VERSION)
+
+override_dh_strip:
+	dh_strip --dbg-package=libpqxx-dbg
+
+#get-orig-source:
+#	uscan --force --verbose --no-symlink

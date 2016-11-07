@@ -1,0 +1,539 @@
+libpqxx (4.0.1+dfsg-3ubuntu1) trusty; urgency=medium
+
+  * Merge from Debian unstable. Remaining changes:
+    - debian/control: Remove dummy transition package for libpqxx3-dev, as
+      libpqxx3 is still used.
+
+ -- Logan Rosen <logan@ubuntu.com>  Mon, 31 Mar 2014 19:01:27 -0400
+
+libpqxx (4.0.1+dfsg-3) unstable; urgency=low
+
+  * Removing all minified js files, changing debian version into dfsg
+    (Closes: #729785)
+  * Adding missing credits in d/copyright
+  * Removing unsed d/libpqxx-doc.postinst
+  * Switching autotools-dev to dh-autoreconf (Closes: 735954), thx to Logan
+    Rosen for the patch
+  * Closing (LP: #370913)
+  * Added source.lintian-overrides
+  * Bumping up standars version to 3.9.5
+
+ -- Marcin Kulisz (kuLa) <debian@kulisz.net>  Sun, 19 Jan 2014 20:04:55 +0000
+
+libpqxx (4.0.1-2ubuntu2) trusty; urgency=medium
+
+  * Use dh-autoreconf instead of autotools-dev to also fix FTBFS on ppc64el by
+    getting new libtool macros (still updates config.{sub,guess}).
+
+ -- Logan Rosen <logan@ubuntu.com>  Fri, 17 Jan 2014 01:46:21 -0500
+
+libpqxx (4.0.1-2ubuntu1) trusty; urgency=low
+
+  * Remove dummy transition package for libpqxx3-dev,
+    libpqxx3 is still used
+
+ -- Jonathan Riddell <jriddell@ubuntu.com>  Wed, 27 Nov 2013 11:42:39 +0000
+
+libpqxx (4.0.1-2) unstable; urgency=low
+
+  * Created dummy transition package for libpqxx3-dev
+  * Removing lintian overrides, not in use anymore
+  * Dropped the soversion from the -doc and -dbg package too.
+
+ -- Marcin Kulisz (kuLa) <debian@kulisz.net>  Thu, 14 Nov 2013 20:03:43 +0000
+
+libpqxx (4.0.1-1) unstable; urgency=low
+
+  * New upstream
+    - Improvements for clang compilation
+    - Fixes for BSD compilation
+    - Compatibility for OS X
+    - Bug fixes
+  * Added python as a build dep for autogenerating configs (regarding upstream
+    changes)
+  * Added lintian override for symlink in libpqxx-4.0 package for libpqxx.so ->
+    libpqxx-4.0.so
+  * Fixing autotools bug (Closes: #727432)
+  * Added build dep on autotools-dev
+  * Fixed vcs urls
+  * Standards-version bump to 3.9.4
+
+ -- Marcin Kulisz (kuLa) <debian@kulisz.net>  Wed, 30 Oct 2013 18:38:26 +0100
+
+libpqxx (4.0-2) unstable; urgency=low
+
+  * Upload to unstable
+  * Added README.source describing workflaw for working with this package
+
+ -- Marcin Kulisz (kuLa) <debian@kulisz.net>  Thu, 14 Jun 2012 14:08:21 +0100
+
+libpqxx (4.0-1) experimental; urgency=low
+
+  [ Marcin Kulisz]
+  * New upstream, slightly changed API
+  * d/control:
+    - renaming packages to libpqxx-4.0 and libpqxx4 (changed ABI)
+  * removing useless quilt patches
+  * d/copyright bump to DEP5
+  * Closing (LP: 842873)
+  * Implementing propper URL for Copyright format 1.0 (DEP-5)
+  * Closing (Closes: #672021) as not applicable for v4.0
+  * Standards version bump to 3.9.3
+
+  [ Matthijs Möhlmann ]
+  * Debhelper level 9, adjust the control file.
+  * Fix the install files and update to multiarch.
+
+ -- Marcin Kulisz (kuLa) <debian@kulisz.net>  Thu, 10 May 2012 20:49:13 +0100
+
+libpqxx3 (3.1-1) unstable; urgency=low
+
+  [ Marcin Kulisz ]
+  * Adopting package (Closes: #618703)
+  * d/rules total rewrite
+  * adding symbols file
+  * fixing all lintian issues
+
+  [ Matthijs Möhlmann ]
+  * New upstream version (Closes: #622728)
+  * Update copyright file and include BSD license.
+  * Switch to dpkg-source 3.0 (quilt) format
+  * Empty the dependency_lib line in the .la file. (Closes: #622480)
+  * Use debhelper 8
+
+ -- Marcin Kulisz (kuLa) <debian@kulisz.net>  Mon, 28 Nov 2011 20:52:27 +0000
+
+libpqxx3 (3.0.2-2) unstable; urgency=low
+
+  * Orphaned the package.
+  * debian/control:
+    - Added quilt to Build-Depends.
+    - Bumped Standards-Version to 3.9.2, no changes needed.
+  * debian/rules:
+    - Use quilt.
+  * debian/patches:
+    - New patch 100-fix-g++4.6-compilation.patch (provided by
+      Matthias Klose <doko@ubuntu.com>). (Closes: #624876)
+  * debian/README.source:
+    - Added with standard instructions how to use quilt.
+
+ -- Eugene V. Lyubimkin <jackyf@debian.org>  Tue, 03 May 2011 20:00:49 +0300
+
+libpqxx3 (3.0.2-1) unstable; urgency=low
+
+  * New upstream bugfix-only release.
+  * debian/control:
+    - Bumped Standards-Version to 3.8.3, no changes needed.
+    - Added {misc:Depends} to dependencies of binary packages.
+    - Updated my mail address.
+  * debian/libpqxx3-doc.install:
+    - Added test headers to allow compiling examples. (Closes: 539814)
+
+ -- Eugene V. Lyubimkin <jackyf@debian.org>  Mon, 28 Sep 2009 01:13:16 +0300
+
+libpqxx3 (3.0.0-3) unstable; urgency=medium
+
+  * debian/control:
+    - Make libpqxx3-dev also replace the libpqxx-dev to easy upgrade path.
+      (Closes: #520171)
+    - Make libpqxx3-doc conflict with and replace libpqxx-doc. Fixes a RC bug,
+      so urgency is set to medium. (Closes: #520169)
+    - Binary package 'libpqxx-3.0-dbg' is now in 'debug' section.
+    - Removed duplicated 'Section' tag for 'libpqxx-3.0', as suggested by
+      lintian.
+    - Bump 'Standards-Version' to 3.8.1, no changes needed.
+
+ -- Eugene V. Lyubimkin <jackyf.devel@gmail.com>  Thu, 19 Mar 2009 19:50:47 +0200
+
+libpqxx3 (3.0.0-2) unstable; urgency=low
+
+  * Upload to unstable.
+
+ -- Eugene V. Lyubimkin <jackyf.devel@gmail.com>  Sun, 01 Mar 2009 09:11:59 +0200
+
+libpqxx3 (3.0.0-1) experimental; urgency=low
+
+  * New upstream release.
+  * Switched source package from libpqxx to libpqxx3, allowing both
+    libpqxx v2 and v3 being installed simultaneously.
+  * debian/control:
+    - Added 'Vcs-Git' and 'Vcs-Browser' fields.
+    - Make libpqxx3-dev conflict with libpqxx-dev, they contain the same
+      include paths.
+  * debian/rules:
+    - Moved renewing config.sub and config.guess code to 'autoconfigure'
+      target. Added deleting of these files in 'clean' target.
+    - Don't parse changelog for library version, it changes rarely anyway.
+    - Deal better with config/config.{sub,guess} files in 'clean' and
+      'autoconfigure' targets.
+  * Deleted obsolete debian/libpqxx3-dev.preinst.
+  * Reverted default config/config.{sub,guess} files to upstream ones.
+
+ -- Eugene V. Lyubimkin <jackyf.devel@gmail.com>  Sun, 30 Nov 2008 14:52:11 +0200
+
+libpqxx (3.0.0~svn1419-1) experimental; urgency=low
+
+  * New upstream development snapshot.
+    - No more g++ 4.3 warnings on build.
+    - Test suite passed fully.
+  * debian/rules:
+    - Removed check for 'noopt', it is handled automatically by providing
+      appropriate values in CFLAGS by dpkg-buildpackage.
+    - Removed unneeded 'rm -rf' for previously unsynced upstream files as
+      these files are not shipped anymore.
+
+ -- Eugene V. Lyubimkin <jackyf.devel@gmail.com>  Thu, 16 Oct 2008 20:42:28 +0300
+
+libpqxx (3.0.0~svn1401-1) experimental; urgency=low
+
+  * New upstream development snapshot.
+  * debian/control.in:
+    - Eliminated, it leads to synchronize errors too often.
+  * debian/control:
+    - Changed section of 'libpqxx-3.0.0-dbg' from libs to libdevel.
+    - Updated accordingly to SONAME and version bump.
+  * debian/libpqxx-3.0.0.shlibs:
+    - Introduced.
+  * debian/rules:
+    - Updated accordingly to upstream version bump.
+    - Removed obsoleted debian/control.in stuff.
+
+ -- Eugene V. Lyubimkin <jackyf.devel@gmail.com>  Sat, 04 Oct 2008 15:16:27 +0300
+
+libpqxx (2.6.9-8) unstable; urgency=low
+
+  * debian/control:
+    - Bumped 'Conflicts' and 'Replaces' in libpqxx-doc to (<< 2.6.9-7) due to
+      broken build system of 2.6.9-6.
+
+ -- Eugene V. Lyubimkin <jackyf.devel@gmail.com>  Tue, 29 Jul 2008 23:40:12 +0300
+
+libpqxx (2.6.9-7) unstable; urgency=low
+
+  * Introduced debug package: libpqxx2.6.9ldbl-dbg.
+  * Removed static library from -dev package, I see no objections to use
+    shared version of library.
+  * Patch: used PQXX_LIBEXPORT in function
+    'void pqxx::internal::freemem_result_data(result_data *d)'.
+    Now 'make check'-tests are passed fully.
+  * debian/rules:
+    - Now library compiles with '-D_REENTRANT'.
+    - Add deleting of author-provided 'libpqxx-dev.doc-base.*' in
+      'autoconfigure' rule to avoid incorrect doc-base entries in 'libpqxx-dev'
+      package.  (Closes: #492174)
+
+ -- Eugene V. Lyubimkin <jackyf.devel@gmail.com>  Fri, 11 Jul 2008 11:10:12 +0300
+
+libpqxx (2.6.9-6) unstable; urgency=low
+
+  * New maintainer. (Closes: #479399)
+    - Thanks for work, Roger Leigh!
+  * Moved all documentation stuff to new binary package 'libpqxx-doc'.
+  * debian/rules:
+    - Some cleanup.
+    - Added support for 'parallel=n' in DEB_BUILD_OPTIONS.
+    - Fixed support for 'noopt' in DEB_BUILD_OPTIONS.
+  * debian/control.in:
+    - Fixed using "${binary:Version}" in new builds.
+    - Bumped 'Standards-Version' to 3.8.0.
+      - Added 'Homepage' field.
+      - Added debian/watch.
+      - Added 'parallel=n' support (see above).
+      - Changed 'doc-base' sections to 'Programming/C++'.
+  * debian/copyright:
+    - Fixed a typo: 'Authors' -> 'Author'.
+    - Renewed copyrights.
+
+ -- Eugene V. Lyubimkin <jackyf.devel@gmail.com>  Sat, 09 Jul 2008 02:09:30 +0300
+
+libpqxx (2.6.9-5) unstable; urgency=low
+
+  * src/binarystring.cxx, src/connection_base.cxx, src/cursor.cxx,
+    src/result.cxx, src/transaction_base.cxx, test/test003.cxx,
+    test/test011.cxx, test/test022.cxx, test/test030.cxx,
+    test/test092.cxx: Include <cstring> and <cmath> to prototype
+    string, memory, and maths functions needed to build with
+    GCC 4.3 (Closes: #441558).
+  * debian/rules: Remove redundant "make distclean" in clean target.
+  * debian/control: Use ${binary:Version} in place of
+    ${Source-Version}.
+
+ -- Roger Leigh <rleigh@debian.org>  Tue, 11 Sep 2007 09:38:15 +0100
+
+libpqxx (2.6.9-4) unstable; urgency=low
+
+  * debian/rules: Add "ldbl" suffix to LIBRARY_VERSION for the "long
+    double" ABI transition (Closes: #430294).
+  * debian/control.in: libpqxx: Conflict with libpqxx-2.6.9.
+
+ -- Roger Leigh <rleigh@debian.org>  Sun, 24 Jun 2007 12:18:44 +0100
+
+libpqxx (2.6.9-3) unstable; urgency=low
+
+  * src/result.cxx: Really include missing cstdlib header, needed to build
+    with GCC 4.3 (Closes: #417360).
+
+ -- Roger Leigh <rleigh@debian.org>  Fri, 27 Apr 2007 20:58:53 +0100
+
+libpqxx (2.6.9-2) unstable; urgency=low
+
+  * src/result.cxx: Include missing cstdlib header, needed to build with
+    GCC 4.3 (Closes: #417360).
+  * debian/compat: New file.  Set debhelper compatibility level to 5.
+  * debian/control: Build-Depend on debhelper >> 5.0.0.
+
+ -- Roger Leigh <rleigh@debian.org>  Sun, 22 Apr 2007 16:16:39 +0100
+
+libpqxx (2.6.9-1) experimental; urgency=low
+
+  * New upstream release.
+
+ -- Roger Leigh <rleigh@debian.org>  Sat,  3 Feb 2007 11:52:31 +0000
+
+libpqxx (2.6.8-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Roger Leigh <rleigh@debian.org>  Thu,  7 Sep 2006 10:05:55 +0100
+
+libpqxx (2.6.7-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/libpqxx-dev.docs: Include README-UPGRADE.
+  * debian/rules: Drop c2a library suffix.
+  * debian/control:
+    - Drop c2a library suffix.
+    - Update to Standards-Version 3.7.2.
+    - Added Martin Pitt to Uploaders.
+
+ -- Roger Leigh <rleigh@debian.org>  Sun,  9 Jul 2006 13:04:15 +0100
+
+libpqxx (2.5.5-2) unstable; urgency=low
+
+  * debian/control.in:
+    - Add a "c2a" suffix to the library package name, and conflict
+      with the previous name.  This is for rebuilding against the
+      new libstdc++ allocator, which changes the C++ ABI
+      (Closes: #339216).
+    - Build-Depend upon at least debhelper version 4.
+  * debian/rules:
+    - Create and remove package symlinks with a "c2a" suffix.
+    - Use debhelper v4 compatibility mode.
+
+ -- Roger Leigh <rleigh@debian.org>  Thu, 17 Nov 2005 12:48:21 +0000
+
+libpqxx (2.5.5-1) unstable; urgency=low
+
+  * New upstream release.
+  * Update to Standards-Version 3.6.2.
+  * The package is built with g++ 4.0, but no "c2" suffix has
+    been added because the soname has also changed.
+
+ -- Roger Leigh <rleigh@debian.org>  Sat,  9 Jul 2005 14:49:05 +0100
+
+libpqxx (2.4.3-2) unstable; urgency=low
+
+  * PostgreSQL 8.0 transition.
+    - Build-Depend upon libpq-dev rather than postgresql-dev.
+    - libpqxx-dev: Depend upon libpq-dev rather than postgresql-dev.
+
+ -- Roger Leigh <rleigh@debian.org>  Thu,  9 Jun 2005 19:37:04 +0100
+
+libpqxx (2.4.3-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Roger Leigh <rleigh@debian.org>  Thu, 10 Feb 2005 21:30:15 +0000
+
+libpqxx (2.4.1-2) unstable; urgency=low
+
+  * Regenerate debian/control to ensure packages names are
+    correct.
+
+ -- Roger Leigh <rleigh@debian.org>  Wed, 24 Nov 2004 23:55:55 +0000
+
+libpqxx (2.4.1-1) unstable; urgency=low
+
+  * New upstream release.
+  * Dropped all patches; these are now incorporated upstream.
+  * Build-Depend on postgresql-dev (>= 7.4.6-1) in order to
+    guarantee ABI compatibility with postgresql on all arches.
+
+ -- Roger Leigh <rleigh@debian.org>  Sun,  7 Nov 2004 22:44:23 +0000
+
+libpqxx (2.4.0-2) unstable; urgency=low
+
+  * Really bootstrap with the current autotools.
+
+ -- Roger Leigh <rleigh@debian.org>  Sun, 31 Oct 2004 14:02:07 +0000
+
+libpqxx (2.4.0-1) unstable; urgency=low
+
+  * New upstream release.
+  * Retained patches from previous release:
+    - include/pqxx/Makefile.am (installed headers)
+    - debian/rules (delete examples using internal headers)
+    - debian/control.in (version Build-Depends on postgresql-dev
+      and chrpath, libpqxx-dev depends on versioned postgresql-dev
+      and pkg-config).
+  * Re-bootstrapped with current autotools.
+
+ -- Roger Leigh <rleigh@debian.org>  Sun, 31 Oct 2004 12:14:11 +0000
+
+libpqxx (2.3.0-3) unstable; urgency=low
+
+  * libpqxx-dev:
+    - Depend upon pkg-config.
+    - Don't install compiler.h, which includes internal headers
+      that are not installed.
+    Thanks to Dennis Lubert for reporting these problems.
+    -  Remove all examples that include private headers; the
+       deletion rules were outdated due to header renaming.
+
+ -- Roger Leigh <rleigh@debian.org>  Sun, 10 Oct 2004 15:59:52 +0100
+
+libpqxx (2.3.0-2) unstable; urgency=low
+
+  * Don't install private headers which are only for internal
+    use for the duration of the build.  Only install
+    config-public-*.h.
+  * Patch configure.ac.in to work with automake-1.9 (added
+    a tar-ustar option to ensure portable tarballs may be
+    generated).
+
+ -- Roger Leigh <rleigh@debian.org>  Tue, 28 Sep 2004 22:38:24 +0100
+
+libpqxx (2.3.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #265639).
+  * This release builds with GCC 3.4 (Closes: #260467).
+  * configure.ac.in and tools/Makefile.am required minor changes to
+    allow VPATH building.  The changes have been submitted upstream.
+
+ -- Roger Leigh <rleigh@debian.org>  Wed,  1 Sep 2004 23:16:10 +0100
+
+libpqxx (2.2.2-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/rules: Removed deletion of include/pqxx/config.h and
+    include/pqxx/libconfig.h, which are no longer distributed.
+  * debian/rules: libpqxx-dev includes the regression tests as
+    example code.  Some tests use the internal headers internalconfig.h
+    and compiler.h.  These tests are now removed from libpqxx-dev
+    (Closes: #240499).
+
+ -- Roger Leigh <rleigh@debian.org>  Sat,  8 May 2004 14:55:23 +0100
+
+libpqxx (2.2.1-2) unstable; urgency=low
+
+  * tools/Makefile.am: add -I$(top_builddir)/include to INCLUDES to
+    fix VPATH build.  Regenerate Makefile.ins with automake.
+
+ -- Roger Leigh <rleigh@debian.org>  Sun,  4 Apr 2004 17:52:32 +0100
+
+libpqxx (2.2.1-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Roger Leigh <rleigh@debian.org>  Mon, 22 Mar 2004 20:43:26 +0000
+
+libpqxx (2.2.0-1) unstable; urgency=low
+
+  * New upstream release.
+  * pqxx::result memory leak present in 2.1.3 is fixed with this
+    release (Closes: #239195).
+
+ -- Roger Leigh <rleigh@debian.org>  Sun, 21 Mar 2004 15:08:01 +0000
+
+libpqxx (2.1.3-5) unstable; urgency=low
+
+  * libpqxx-dev depends upon postgresql-dev.  This should solve
+    some potential build environment incompatibilities.
+
+ -- Roger Leigh <rleigh@debian.org>  Wed, 17 Mar 2004 20:41:59 +0000
+
+libpqxx (2.1.3-4) unstable; urgency=low
+
+  * Force building with the correct version of postgresql-dev by
+    Build-Depending upon postgresql-dev (>= 7.4.1-3).
+
+ -- Roger Leigh <rleigh@debian.org>  Sun,  8 Feb 2004 20:25:43 +0000
+
+libpqxx (2.1.3-3) unstable; urgency=low
+
+  * Rebuild to fix a dependency issue due to an outdated libpq3 shlibs
+    file (Bug #230259, which was reassigned to postgresql).  This
+    caused run-time linker errors when used with older libpq3 versions,
+    due to missing symbols only present with PostgreSQL 7.4.x.
+
+ -- Roger Leigh <rleigh@debian.org>  Sun,  8 Feb 2004 17:58:54 +0000
+
+libpqxx (2.1.3-2) unstable; urgency=low
+
+  * Fix failure when converting a pqxx::result::tuple into
+    a bool.  The fix was backported from libpqxx CVS.
+
+ -- Roger Leigh <rleigh@debian.org>  Thu, 15 Jan 2004 11:09:35 +0000
+
+libpqxx (2.1.3-1) unstable; urgency=low
+
+  * New upstream release (Closes: #219389).
+  * Acknowledge bugs closed by previous NMUs
+    (Closes: #217203, #198441, #201263).
+  * Switched to using the new library versioning scheme with
+    package version string in the library DT_SONAME.  This
+    requires preprocessing of debian/control, and versioned
+    symlinks are created at build time.
+  * Added pkg-config libpqxx.pc file.
+
+ -- Roger Leigh <rleigh@debian.org>  Thu,  8 Jan 2004 15:05:44 +0000
+
+libpqxx (2.0.0-1) unstable; urgency=low
+
+  * New upstream release.
+  * Added myself as the new maintainer of libpqxx.
+  * Merge upstream Debian packaging changes:
+    - 1.7.6-1: Example packaging to be used with libpqxx development version
+               1.7.6 (Greg Hookey).
+    - 1.9.6-1: Source changes (Jeroen T. Vermeulen).
+    - 2.0.0-1: [debian/control, debian/rules] Use chrpath to get rid of RPATH
+               in the shared library (J.H.M. Dassen (Ray))
+  * Added the new tutorial to libpqxx-dev.
+
+ -- Roger Leigh <rleigh@debian.org>  Thu, 20 Nov 2003 21:09:06 +0000
+
+libpqxx (1.5.1-1.2) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Include test/*.cxx as usage examples in libpqxx-dev (Closes: #217203).
+
+ -- Roger Leigh <rleigh@debian.org>  Mon, 27 Oct 2003 22:23:31 +0000
+
+libpqxx (1.5.1-1.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Add API reference documentation to libpqxx-dev
+    (Closes: #198441, #201263).
+  * Use dh_install instead of the old dh_movefiles, to enable
+    copying of the HTML documentation.
+  * Use DESTDIR rather than prefix for make install, since
+    overriding prefix may cause subtle breakage.
+  * /usr/share/doc/libpqxx-dev may no longer be a symbolic link.
+    libpqxx now has a preinst script to remove the link if it is
+    detected, to prevent the documentation being incorrectly
+    installed under /usr/share/doc/libpqxx0 (since dpkg follows
+    symbolic links).
+  * CVS directories present in the upstream tarball are removed
+    in the debian/rules clean rule, to prevent inclusion in a
+    binary package.
+  * Fold lines over 79 columns in debian/copyright.
+  * Change section of libpqxx-dev from libs to libdevel.
+
+ -- Roger Leigh <rleigh@debian.org>  Thu,  4 Sep 2003 23:49:17 +0100
+
+libpqxx (1.5.1-1) unstable; urgency=low
+
+  * Initial Release. (closes: #170932)
+
+ -- Greg Hookey <debian@deadly.ca>  Sat, 22 Mar 2003 16:00:10 -0800
+

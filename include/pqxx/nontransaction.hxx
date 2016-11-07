@@ -66,11 +66,12 @@ public:
   /** Create a "dummy" transaction.
    * @param C Connection that this "transaction" will operate on.
    * @param Name Optional name for the transaction, beginning with a letter
+   * @param Timeout Optional value for query timeout
    * and containing only letters and digits.
    */
   explicit nontransaction(connection_base &C,
-		          const std::string &Name=std::string()) :	//[t14]
-    namedclass("nontransaction", Name), transaction_base(C) { Begin(); }
+		          const std::string &Name=std::string(), long Timeout = 0) :	//[t14]
+    namedclass("nontransaction", Name), transaction_base(C), m_Timeout(Timeout) { Begin(); }
 
   virtual ~nontransaction();						//[t14]
 
@@ -79,6 +80,8 @@ private:
   virtual result do_exec(const char C[]) PQXX_OVERRIDE;			//[t14]
   virtual void do_commit() PQXX_OVERRIDE {}				//[t14]
   virtual void do_abort() PQXX_OVERRIDE {}				//[t14]
+
+  long m_Timeout;
 };
 
 
