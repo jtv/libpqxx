@@ -829,9 +829,10 @@ protected:
   void init();
 
   void close() PQXX_NOEXCEPT;
-  void wait_read() const;
-  void wait_read(long seconds, long microseconds) const;
-  void wait_write() const;
+  int wait_read() const;
+  int wait_read(long seconds, long microseconds) const;
+  int wait_write() const;
+  int wait_write(long seconds, long microseconds) const;
 
 private:
 
@@ -981,9 +982,10 @@ private:
 };
 
 
-void wait_read(const internal::pq::PGconn *);
-void wait_read(const internal::pq::PGconn *, long seconds, long microseconds);
-void wait_write(const internal::pq::PGconn *);
+int wait_read(const internal::pq::PGconn *);
+int wait_read(const internal::pq::PGconn *, long seconds, long microseconds);
+int wait_write(const internal::pq::PGconn *);
+int wait_write(const internal::pq::PGconn *, long seconds, long microseconds);
 } // namespace pqxx::internal
 
 

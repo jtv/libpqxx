@@ -690,27 +690,15 @@ pqxx::internal::pq::PGresult *pqxx::connection_base::ExecuteQuery(const char Que
 {
   start_exec(Query);
 
-  int fd = sock();
-
-  fd_set set;
-  FD_ZERO(&set);
-  FD_SET(fd, &set);
-
   PGresult *res = NULL;
-  const long orig_timeout = Timeout;
-  while (1) {
-    timeval to, start, end;
-    to.tv_sec = Timeout/1000;
-    to.tv_usec = (Timeout%1000)*1000;
-
-    gettimeofday(&start, NULL);
-    int rcode = select(FD_SETSIZE, &set, NULL, NULL, &to);
+  while(1) {
+    int rcode = wait_read((long)Timeout/1000, (long)((Timeout%1000)*1000));
 
     if (rcode == -1)
       throw broken_connection(strerror(errno));
 
     if (rcode == 0)
-      throw transaction_timeout(orig_timeout);
+      throw transaction_timeout(Timeout);
 
     if (consume_input()) {
       bool done = false;
@@ -729,14 +717,11 @@ pqxx::internal::pq::PGresult *pqxx::connection_base::ExecuteQuery(const char Que
     } else {
       throw failure(ErrMsg());
     }
-
-    gettimeofday(&end, NULL);
-    long elapsed = (end.tv_sec - start.tv_sec)*1000 + (end.tv_usec - start.tv_usec)/1000;
-    Timeout -= elapsed;
-  }
+  } while(0);
 
   return res;
 }
+
 
 pqxx::internal::pq::PGresult *pqxx::connection_base::ExecuteQuery(const char Query[])
 {
@@ -1260,29 +1245,29 @@ pqxx::internal::reactivation_avoidance_exemption::
 
 namespace
 {
-void wait_fd(int fd, bool forwrite=false, timeval *tv=0)
+int wait_fd(int fd, bool forwrite=false, timeval *tv=0)
 {
   if (fd < 0) throw pqxx::broken_connection();
 
 #ifdef PQXX_HAVE_POLL
   pollfd pfd = { fd, short(POLLERR|POLLHUP|POLLNVAL | (forwrite?POLLOUT:POLLIN)) , 0 };
-  poll(&pfd, 1, (tv ? int(tv->tv_sec*1000 + tv->tv_usec/1000) : -1));
+  return poll(&pfd, 1, (tv ? int(tv->tv_sec*1000 + tv->tv_usec/1000) : -1));
 #else
   fd_set s;
   clear_fdmask(&s);
   set_fdbit(fd, &s);
-  select(fd+1, (forwrite?fdset_none:&s), (forwrite?&s:fdset_none), &s, tv);
+  return select(fd+1, (forwrite?fdset_none:&s), (forwrite?&s:fdset_none), &s, tv);
 #endif
 }
 } // namespace
 
-void pqxx::internal::wait_read(const pq::PGconn *c)
+int pqxx::internal::wait_read(const pq::PGconn *c)
 {
-  wait_fd(socket_of(c));
+  return wait_fd(socket_of(c));
 }
 
 
-void pqxx::internal::wait_read(const pq::PGconn *c,
+int pqxx::internal::wait_read(const pq::PGconn *c,
     long seconds,
     long microseconds)
 {
@@ -1291,31 +1276,50 @@ void pqxx::internal::wait_read(const pq::PGconn *c,
   // systems use 32-bit integers here.  So "int" seems to be the only really
   // safe type to use.
   timeval tv = { time_t(seconds), int(microseconds) };
-  wait_fd(socket_of(c), false, &tv);
+  return wait_fd(socket_of(c), false, &tv);
 }
 
 
-void pqxx::internal::wait_write(const pq::PGconn *c)
+int pqxx::internal::wait_write(const pq::PGconn *c)
 {
-  wait_fd(socket_of(c), true);
+  return wait_fd(socket_of(c), true);
 }
 
 
-void pqxx::connection_base::wait_read() const
+int pqxx::internal::wait_write(const pq::PGconn *c,
+    long seconds,
+    long microseconds)
 {
-  internal::wait_read(m_Conn);
+  // These are really supposed to be time_t and suseconds_t.  But not all
+  // platforms have that type; some use "long" instead, and some 64-bit
+  // systems use 32-bit integers here.  So "int" seems to be the only really
+  // safe type to use.
+  timeval tv = { time_t(seconds), int(microseconds) };
+  return wait_fd(socket_of(c), true, &tv);
 }
 
 
-void pqxx::connection_base::wait_read(long seconds, long microseconds) const
+int pqxx::connection_base::wait_read() const
 {
-  internal::wait_read(m_Conn, seconds, microseconds);
+  return internal::wait_read(m_Conn);
 }
 
 
-void pqxx::connection_base::wait_write() const
+int pqxx::connection_base::wait_read(long seconds, long microseconds) const
 {
-  internal::wait_write(m_Conn);
+  return internal::wait_read(m_Conn, seconds, microseconds);
+}
+
+
+int pqxx::connection_base::wait_write() const
+{
+  return internal::wait_write(m_Conn);
+}
+
+
+int pqxx::connection_base::wait_write(long seconds, long microseconds) const
+{
+  return internal::wait_write(m_Conn, seconds, microseconds);
 }
 
 
