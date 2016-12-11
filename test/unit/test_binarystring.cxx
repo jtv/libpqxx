@@ -20,7 +20,9 @@ void test_binarystring(transaction_base &T)
   PQXX_CHECK_EQUAL(b.size(), 0u, "Empty binarystring has nonzero size.");
   PQXX_CHECK_EQUAL(b.length(), 0u, "Length/size mismatch.");
   PQXX_CHECK(b.begin() == b.end(), "Empty binarystring iterates.");
+  PQXX_CHECK(b.cbegin() == b.begin(), "Wrong cbegin for empty binarystring.");
   PQXX_CHECK(b.rbegin() == b.rend(), "Empty binarystring reverse-iterates.");
+  PQXX_CHECK(b.crbegin() == b.rbegin(), "Wrong crbegin for empty binarystring.");
   PQXX_CHECK_THROWS(b.at(0), out_of_range, "Empty binarystring accepts at().");
 
   b = make_binarystring(T, "z");
@@ -34,6 +36,10 @@ void test_binarystring(transaction_base &T)
 	 "Nonempty binarystring does not reverse-iterate.");
   PQXX_CHECK(b.begin() + 1 == b.end(), "Bad iteration.");
   PQXX_CHECK(b.rbegin() + 1 == b.rend(), "Bad reverse iteration.");
+  PQXX_CHECK(b.cbegin() == b.begin(), "Wrong cbegin.");
+  PQXX_CHECK(b.cend() == b.end(), "Wrong cend.");
+  PQXX_CHECK(b.crbegin() == b.rbegin(), "Wrong crbegin.");
+  PQXX_CHECK(b.crend() == b.rend(), "Wrong crend.");
   PQXX_CHECK(b.front() == 'z', "Unexpected front().");
   PQXX_CHECK(b.back() == 'z', "Unexpected back().");
   PQXX_CHECK(b.at(0) == 'z', "Unexpected data at index 0.");
