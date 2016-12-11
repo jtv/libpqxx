@@ -7,7 +7,7 @@
  *      Various utility definitions for libpqxx
  *      DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/util instead.
  *
- * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -493,6 +493,11 @@ public:
     return *this;
   }
 
+#if __cplusplus >= 201103L
+  PQAlloc(PQAlloc &&) =default;
+  PQAlloc &operator=(PQAlloc &&) =default;
+#endif
+
   T *operator->() const PQXX_NOEXCEPT { return m_ptr.get(); }
   T &operator*() const PQXX_NOEXCEPT { return *m_ptr; }
   void reset() PQXX_NOEXCEPT { m_ptr.reset(); }
@@ -619,40 +624,6 @@ private:
 };
 
 #endif // PQXX_HAVE_SHARED_PTR
-
-
-template<typename T> class scoped_array
-{
-  T *m_ptr;
-public:
-  typedef size_t size_type;
-  typedef long difference_type;
-
-  scoped_array() : m_ptr(0) {}
-  explicit scoped_array(size_type n) : m_ptr(new T[n]) {}
-  explicit scoped_array(T *t) : m_ptr(t) {}
-  ~scoped_array() { delete [] m_ptr; }
-
-  T *get() const PQXX_NOEXCEPT { return m_ptr; }
-  T &operator*() const PQXX_NOEXCEPT { return *m_ptr; }
-  template<typename INDEX> T &operator[](INDEX i) const PQXX_NOEXCEPT
-	{ return m_ptr[i]; }
-
-  scoped_array &operator=(T *t) PQXX_NOEXCEPT
-  {
-    if (t != m_ptr)
-    {
-      delete [] m_ptr;
-      m_ptr = t;
-    }
-    return *this;
-  }
-
-private:
-  /// Not allowed
-  scoped_array(const scoped_array &);
-  scoped_array &operator=(const scoped_array &);
-};
 
 
 class PQXX_LIBEXPORT namedclass

@@ -8,7 +8,7 @@
  *   pqxx::transaction_base defines the interface for any abstract class that
  *   represents a database transaction
  *
- * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -44,16 +44,16 @@ pqxx::internal::parameterized_invocation::parameterized_invocation(
 
 pqxx::result pqxx::internal::parameterized_invocation::exec()
 {
-  scoped_array<const char *> values;
-  scoped_array<int> lengths;
-  scoped_array<int> binaries;
+  std::vector<const char *> values;
+  std::vector<int> lengths;
+  std::vector<int> binaries;
   const int elements = marshall(values, lengths, binaries);
 
   return gate::connection_parameterized_invocation(m_home).parameterized_exec(
 	m_query,
-	values.get(),
-	lengths.get(),
-	binaries.get(),
+	&values[0],
+	&lengths[0],
+	&binaries[0],
 	elements);
 }
 

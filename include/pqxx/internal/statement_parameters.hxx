@@ -8,7 +8,7 @@
  *   These are used for both prepared statements and parameterized statements.
  *   DO NOT INCLUDE THIS FILE DIRECTLY.  Other headers include it for you.
  *
- * Copyright (c) 2009-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2009-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -51,11 +51,11 @@ protected:
   void add_binary_param(const binarystring &b, bool nonnull)
 	{ this->add_checked_param(b.str(), nonnull, true); }
 
-  /// Marshall parameter values into C-style arrays for passing to libpq.
+  /// Marshall parameter values into C-compatible arrays for passing to libpq.
   int marshall(
-	scoped_array<const char *> &values,
-	scoped_array<int> &lengths,
-	scoped_array<int> &binaries) const;
+	std::vector<const char *> &values,
+	std::vector<int> &lengths,
+	std::vector<int> &binaries) const;
 
 private:
   // Not allowed

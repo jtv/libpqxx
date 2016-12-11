@@ -7,7 +7,7 @@
  *      Common implementation for statement parameter lists.
  *   See the connection_base hierarchy for more about prepared statements
  *
- * Copyright (c) 2006-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2006-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -41,34 +41,32 @@ void pqxx::internal::statement_parameters::add_checked_param(
 
 
 int pqxx::internal::statement_parameters::marshall(
-	scoped_array<const char *> &values,
-	scoped_array<int> &lengths,
-	scoped_array<int> &binaries) const
+	std::vector<const char *> &values,
+	std::vector<int> &lengths,
+	std::vector<int> &binaries) const
 {
   const size_t elements = m_nonnull.size();
-  values = new const char *[elements+1];
-  lengths = new int[2*(elements+1)];
-  binaries = new int[elements+1];
-  size_t v = 0;
-  for (size_t i = 0; i < elements; ++i)
-  {
-    if (m_nonnull[i])
+  const size_t array_size = elements + 1;
+  values.clear();
+  values.resize(array_size, NULL);
+  lengths.clear();
+  lengths.resize(array_size, 0);
+  // "Unpack" from m_values, which skips arguments that are null, to the
+  // outputs which represent all parameters including nulls.
+  size_t arg = 0;
+  for (size_t param = 0; param < elements; ++param)
+    if (m_nonnull[param])
     {
-      values[i] = m_values[v].c_str();
-      lengths[i] = int(m_values[v].size());
-      ++v;
+      values[param] = m_values[arg].c_str();
+      lengths[param] = int(m_values[arg].size());
+      ++arg;
     }
-    else
-    {
-      values[i] = 0;
-      lengths[i] = 0;
-    }
-    binaries[i] = int(m_binary[i]);
-  }
 
-  values[elements] = 0;
-  lengths[elements] = 0;
-  binaries[elements] = 0;
+  // The binaries array is simpler: it maps 1-on-1.
+  binaries.resize(array_size);
+  for (size_t param = 0; param < elements; ++param)
+    binaries[param] = int(m_binary[param]);
+  binaries.back() = 0;
 
   return int(elements);
 }

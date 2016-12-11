@@ -7,7 +7,7 @@
  *      Helper classes for defining and executing prepared statements
  *   See the connection_base hierarchy for more about prepared statements
  *
- * Copyright (c) 2006-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2006-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -41,16 +41,16 @@ pqxx::prepare::invocation::invocation(
 
 pqxx::result pqxx::prepare::invocation::exec() const
 {
-  scoped_array<const char *> ptrs;
-  scoped_array<int> lens;
-  scoped_array<int> binaries;
+  std::vector<const char *> ptrs;
+  std::vector<int> lens;
+  std::vector<int> binaries;
   const int elts = marshall(ptrs, lens, binaries);
 
   return gate::connection_prepare_invocation(m_home.conn()).prepared_exec(
 	m_statement,
-	ptrs.get(),
-	lens.get(),
-	binaries.get(),
+	&ptrs[0],
+	&lens[0],
+	&binaries[0],
 	elts);
 }
 
