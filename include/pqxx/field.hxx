@@ -176,21 +176,13 @@ public:
 #if defined(PQXX_HAVE_OPTIONAL)
   /// Return value as std::optional, or blank value if null.
   template<typename T> std::optional<T> get() const
-  {
-    typedef std::optional<T> optional;
-    if (is_null()) return optional();
-    else return optional(as<T>());
-  }
+	{ return get_opt<T, std::optional<T> >(); }
 #endif
 
 #if defined(PQXX_HAVE_EXP_OPTIONAL)
   /// Return value as std::experimental::optional, or blank value if null.
   template<typename T> std::experimental::optional<T> get() const
-  {
-    typedef std::experimental::optional<T> optional;
-    if (is_null()) return optional();
-    else return optional(as<T>());
-  }
+	{ return get_opt<T, std::experimental::optional<T> >(); }
 #endif
 
   /// Is this field's value null?
@@ -212,6 +204,18 @@ protected:
   row_size_type m_col;
 
 private:
+  /// Implementation for get().
+  /**
+   * Abstracts away the difference between std::optional and
+   * std::experimental::optional.  Both can be supported at the same time,
+   * so pre-C++17 code can still work once the compiler defaults to C++17.
+   */
+  template<typename T, typename OPTIONAL> OPTIONAL get_opt() const
+  {
+    if (is_null()) return OPTIONAL();
+    else return OPTIONAL(as<T>());
+  }
+
   const result *m_home;
   size_t m_row;
 };
