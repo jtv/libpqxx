@@ -92,7 +92,9 @@ public:
   bool empty() const PQXX_NOEXCEPT { return size()==0; }		//[t62]
 
   const_iterator begin() const PQXX_NOEXCEPT { return data(); }		//[t62]
+  const_iterator cbegin() const PQXX_NOEXCEPT { return begin(); }
   const_iterator end() const PQXX_NOEXCEPT { return data()+m_size; }	//[t62]
+  const_iterator cend() const PQXX_NOEXCEPT { return end(); }
 
   const_reference front() const PQXX_NOEXCEPT { return *begin(); }	//[t62]
   const_reference back() const PQXX_NOEXCEPT				//[t62]
@@ -100,8 +102,10 @@ public:
 
   const_reverse_iterator rbegin() const					//[t62]
 	{ return const_reverse_iterator(end()); }
+  const_reverse_iterator crbegin() const { return rbegin(); }
   const_reverse_iterator rend() const					//[t62]
 	{ return const_reverse_iterator(begin()); }
+  const_reverse_iterator crend() const { return rend(); }
 
   /// Unescaped field contents
   const value_type *data() const PQXX_NOEXCEPT {return m_buf.get();}	//[t62]

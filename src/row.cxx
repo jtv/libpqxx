@@ -41,9 +41,21 @@ pqxx::row::const_iterator pqxx::row::begin() const PQXX_NOEXCEPT
 }
 
 
+pqxx::row::const_iterator pqxx::row::cbegin() const PQXX_NOEXCEPT
+{
+  return begin();
+}
+
+
 pqxx::row::const_iterator pqxx::row::end() const PQXX_NOEXCEPT
 {
   return const_iterator(*this, m_End);
+}
+
+
+pqxx::row::const_iterator pqxx::row::cend() const PQXX_NOEXCEPT
+{
+  return end();
 }
 
 
@@ -65,9 +77,21 @@ pqxx::row::const_reverse_iterator pqxx::row::rbegin() const
 }
 
 
+pqxx::row::const_reverse_iterator pqxx::row::crbegin() const
+{
+  return rbegin();
+}
+
+
 pqxx::row::const_reverse_iterator pqxx::row::rend() const
 {
   return const_reverse_row_iterator(begin());
+}
+
+
+pqxx::row::const_reverse_iterator pqxx::row::crend() const
+{
+  return rend();
 }
 
 

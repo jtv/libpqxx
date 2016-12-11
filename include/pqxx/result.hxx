@@ -8,7 +8,7 @@
  *   pqxx::result represents the set of result rows from a database query
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/result instead.
  *
- * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -108,10 +108,14 @@ public:
   //@}
 
   const_reverse_iterator rbegin() const;				//[t75]
+  const_reverse_iterator crbegin() const;
   const_reverse_iterator rend() const;					//[t75]
+  const_reverse_iterator crend() const;
 
   const_iterator begin() const PQXX_NOEXCEPT;				//[t1]
+  const_iterator cbegin() const PQXX_NOEXCEPT;
   inline const_iterator end() const PQXX_NOEXCEPT;			//[t1]
+  inline const_iterator cend() const PQXX_NOEXCEPT;
 
   reference front() const PQXX_NOEXCEPT { return row(this,0); }		//[t74]
   reference back() const PQXX_NOEXCEPT {return row(this,size()-1);}	//[t75]
@@ -486,6 +490,10 @@ const_result_iterator::operator-(const_result_iterator i) const
 
 inline const_result_iterator result::end() const PQXX_NOEXCEPT
 	{ return const_result_iterator(this, size()); }
+
+
+inline const_result_iterator result::cend() const PQXX_NOEXCEPT
+	{ return end(); }
 
 
 inline const_reverse_result_iterator

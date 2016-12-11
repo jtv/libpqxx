@@ -1,3 +1,7 @@
+2016-12-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/binarystring.hxx, include/pqxx/result.hxx, include/pqxx/row.hxx,
+ src/result.cxx, src/row.cxx:
+ - Add cbegin/cend/crbegin/crend.
 2016-03-06  Jeroen T. Vermeulen <jtv@xs4all.nl>
  win32/INSTALL.txt:
  - Run "VCVARSALL.BAT amd64", not "VCVARS32.BAT".

@@ -8,7 +8,7 @@
  *   pqxx::result represents the set of result rows from a database query
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/result instead.
  *
- * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -76,7 +76,9 @@ public:
   //@}
 
   const_iterator begin() const PQXX_NOEXCEPT;				//[t82]
+  const_iterator cbegin() const PQXX_NOEXCEPT;
   const_iterator end() const PQXX_NOEXCEPT;				//[t82]
+  const_iterator cend() const PQXX_NOEXCEPT;
 
   /**
    * @name Field access
@@ -86,7 +88,9 @@ public:
   reference back() const PQXX_NOEXCEPT;					//[t75]
 
   const_reverse_row_iterator rbegin() const;				//[t82]
+  const_reverse_row_iterator crbegin() const;
   const_reverse_row_iterator rend() const;				//[t82]
+  const_reverse_row_iterator crend() const;
 
   reference operator[](size_type) const PQXX_NOEXCEPT;			//[t11]
   reference operator[](int) const PQXX_NOEXCEPT;			//[t2]

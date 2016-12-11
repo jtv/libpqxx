@@ -7,7 +7,7 @@
  *      implementation of the pqxx::result class and support classes.
  *   pqxx::result represents the set of result rows from a database query
  *
- * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -82,15 +82,33 @@ pqxx::result::const_reverse_iterator pqxx::result::rbegin() const
 }
 
 
+pqxx::result::const_reverse_iterator pqxx::result::crbegin() const
+{
+  return rbegin();
+}
+
+
 pqxx::result::const_reverse_iterator pqxx::result::rend() const
 {
   return const_reverse_iterator(begin());
 }
 
 
+pqxx::result::const_reverse_iterator pqxx::result::crend() const
+{
+  return rend();
+}
+
+
 pqxx::result::const_iterator pqxx::result::begin() const PQXX_NOEXCEPT
 {
   return const_iterator(this, 0);
+}
+
+
+pqxx::result::const_iterator pqxx::result::cbegin() const PQXX_NOEXCEPT
+{
+  return begin();
 }
 
 
