@@ -92,7 +92,9 @@ OBJS= \
   $(INTDIR)\test_pipeline.obj \
   $(INTDIR)\test_prepared_statement.obj \
   $(INTDIR)\test_read_transaction.obj \
+  $(INTDIR)\test_result_iteration.obj \
   $(INTDIR)\test_result_slicing.obj \
+  $(INTDIR)\test_row.obj \
   $(INTDIR)\test_simultaneous_transactions.obj \
   $(INTDIR)\test_sql_cursor.obj \
   $(INTDIR)\test_stateless_cursor.obj \
@@ -158,8 +160,12 @@ $(INTDIR)\test_prepared_statement.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_prepared_statement.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_read_transaction.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_read_transaction.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
+$(INTDIR)\test_result_iteration.obj:
+	@$(CXX) $(CXX_FLAGS) test/unit/test_result_iteration.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_result_slicing.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_result_slicing.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
+$(INTDIR)\test_row.obj:
+	@$(CXX) $(CXX_FLAGS) test/unit/test_row.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_simultaneous_transactions.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_simultaneous_transactions.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_sql_cursor.obj:

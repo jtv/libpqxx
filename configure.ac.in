@@ -261,6 +261,30 @@ AC_TRY_COMPILE(
 	final_keyword=no)
 AC_MSG_RESULT($final_keyword)
 
+AC_MSG_CHECKING([for C++17 std::optional support])
+have_optional=yes
+AC_TRY_COMPILE(
+	[#include <optional>],
+	[return std::optional<int>(0).value()],
+	AC_DEFINE(
+		[PQXX_HAVE_OPTIONAL],
+		1,
+		[Define if the compiler supports std::optional.]),
+	have_optional=no)
+AC_MSG_RESULT($have_optional)
+
+AC_MSG_CHECKING([for experimental C++17 std::optional support])
+have_exp_optional=yes
+AC_TRY_COMPILE(
+	[#include <experimental/optional>],
+	[return std::experimental::optional<int>(0).value()],
+	AC_DEFINE(
+		[PQXX_HAVE_EXP_OPTIONAL],
+		1,
+		[Define if the compiler supports std::experimental::optional.]),
+	have_exp_optional=no)
+AC_MSG_RESULT($have_exp_optional)
+
 boost_smart_ptr=yes
 AC_CHECK_HEADER(boost/smart_ptr.hpp, AC_DEFINE(PQXX_HAVE_BOOST_SMART_PTR, 1,
 	[Define if you have the <boost/smart_ptr.hpp> header]),

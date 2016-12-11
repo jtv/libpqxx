@@ -75,6 +75,9 @@
 /* Define if distance() works according to the standard */
 #undef PQXX_HAVE_DISTANCE
 
+/* Define if the compiler supports std::experimental::optional. */
+#undef PQXX_HAVE_EXP_OPTIONAL
+
 /* Define if the compiler supports the final keyword. */
 #undef PQXX_HAVE_FINAL
 
@@ -107,6 +110,9 @@
 
 /* Define if compiler supports [[noreturn]] attribute */
 #undef PQXX_HAVE_NORETURN
+
+/* Define if the compiler supports std::optional. */
+#undef PQXX_HAVE_OPTIONAL
 
 /* Define if the compiler supports the override keyword. */
 #undef PQXX_HAVE_OVERRIDE

@@ -22,6 +22,14 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
+#if defined(PQXX_HAVE_OPTIONAL)
+#include <optional>
+#endif
+
+#if defined(PQXX_HAVE_EXP_OPTIONAL)
+#include <experimental/optional>
+#endif
+
 #include "pqxx/strconv"
 
 
@@ -165,7 +173,33 @@ public:
     return Obj;
   }
 
+#if defined(PQXX_HAVE_OPTIONAL)
+  /// Return value as std::optional, or blank value if null.
+  template<typename T> std::optional<T> get() const
+  {
+    typedef std::optional<T> optional;
+    if (is_null()) return optional();
+    else return optional(as<T>());
+  }
+#endif
+
+#if defined(PQXX_HAVE_EXP_OPTIONAL)
+  /// Return value as std::experimental::optional, or blank value if null.
+  template<typename T> std::experimental::optional<T> get() const
+  {
+    typedef std::experimental::optional<T> optional;
+    if (is_null()) return optional();
+    else return optional(as<T>());
+  }
+#endif
+
+  /// Is this field's value null?
   bool is_null() const PQXX_NOEXCEPT;					//[t12]
+
+  /// Return number of bytes taken up by the field's value.
+  /**
+   * Includes the terminating zero byte.
+   */
   size_type size() const PQXX_NOEXCEPT;					//[t11]
   //@}
 

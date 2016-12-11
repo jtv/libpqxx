@@ -16602,6 +16602,56 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $final_keyword" >&5
 $as_echo "$final_keyword" >&6; }
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for C++17 std::optional support" >&5
+$as_echo_n "checking for C++17 std::optional support... " >&6; }
+have_optional=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <optional>
+int
+main ()
+{
+return std::optional<int>(0).value()
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_OPTIONAL 1" >>confdefs.h
+
+else
+  have_optional=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_optional" >&5
+$as_echo "$have_optional" >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for experimental C++17 std::optional support" >&5
+$as_echo_n "checking for experimental C++17 std::optional support... " >&6; }
+have_exp_optional=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <experimental/optional>
+int
+main ()
+{
+return std::experimental::optional<int>(0).value()
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_EXP_OPTIONAL 1" >>confdefs.h
+
+else
+  have_exp_optional=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_exp_optional" >&5
+$as_echo "$have_exp_optional" >&6; }
+
 boost_smart_ptr=yes
 
 ac_fn_cxx_check_header_mongrel "$LINENO" "boost/smart_ptr.hpp" "ac_cv_header_boost_smart_ptr_hpp" "$ac_includes_default"
@@ -19715,7 +19765,6 @@ $as_echo X"$file" |
     cat <<_LT_EOF >> "$cfgfile"
 #! $SHELL
 # Generated automatically by $as_me ($PACKAGE) $VERSION
-# Libtool was configured on host `(hostname || uname -n) 2>/dev/null | sed 1q`:
 # NOTE: Changes made to this file will be lost: look at ltmain.sh.
 
 # Provide generalized library-building support services.

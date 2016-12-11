@@ -1,4 +1,8 @@
 2016-12-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ configitems, configure.ac.in, include/pqxx/field.hxx:
+ - Support std::optional or std::experimental::optional if available.
+ - New field::get returns optional.
+2016-12-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
  include/pqxx/binarystring.hxx, include/pqxx/result.hxx, include/pqxx/row.hxx,
  src/result.cxx, src/row.cxx:
  - Add cbegin/cend/crbegin/crend.

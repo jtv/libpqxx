@@ -20,6 +20,8 @@ PQXX_HAVE_FINAL	public	compiler
 PQXX_HAVE_GCC_VISIBILITY	internal	compiler
 PQXX_HAVE_ISINF	internal	compiler
 PQXX_HAVE_ISNAN	internal	compiler
+PQXX_HAVE_OPTIONAL	public	compiler
+PQXX_HAVE_EXP_OPTIONAL	public	compiler
 PQXX_HAVE_MOVE	public	compiler
 PQXX_HAVE_NOEXCEPT	public	compiler
 PQXX_HAVE_NORETURN	public	compiler
