@@ -1,4 +1,10 @@
 2016-12-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/internal/statement_parameters.hxx, include/pqxx/util.hxx,
+ src/prepared_statement.cxx, src/statement_parameters.cxx,
+ src/transaction_base.cxx:
+ - Retired scoped_array; std::vector will do.
+ - Added C++ move constructor/assignment for PQAlloc.
+2016-12-11  Jeroen T. Vermeulen <jtv@xs4all.nl>
  configitems, configure.ac.in, include/pqxx/field.hxx:
  - Support std::optional or std::experimental::optional if available.
  - New field::get returns optional.
