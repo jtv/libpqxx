@@ -10,7 +10,7 @@
 LC_ALL=C
 
 AC_PREREQ(2.59)
-AC_INIT(libpqxx, 5.0, [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, [5.0], [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_LANG(C++)
 AC_CONFIG_SRCDIR([src/connection.cxx])
 AC_CONFIG_AUX_DIR(config)
