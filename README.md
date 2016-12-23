@@ -139,10 +139,10 @@ interested.
 
 If configuration just absolutely plain won't work for whatever reason: take a
 look in the config/sample-headers/ directory.  Here you will find configuration
-headers for various compilers and libpq versions.  Pick the config-internal-*.h
-and config-public-*.h headers for the compiler and libpq version most closely
-matching your own, and see if they work for you.  You may also want to tweak
-them manually.
+headers for various compilers and libpq versions.  Pick the
+config-internal-\*.h and config-public-\*.h headers for the compiler and libpq
+version most closely matching your own, and see if they work for you.  You may
+also want to tweak them manually.
 
 
 #### 2. Make
@@ -261,10 +261,10 @@ paths to your PostgreSQL headers and the libpq library.  See the win32
 subdirectory for more documentation.
 
 
-#### Manual Configuration: config-*-*.h
+#### Manual Configuration: config-\*-\*.h
 
 Normally, on any vaguely Unix-like system, the configuration headers (called
-config-internal-*.h for the library's internal use, config-public-*.h for
+config-internal-\*.h for the library's internal use, config-public-\*.h for
 both the library and client programs) are generated from config.h.in.  All these
 files, once generated, are situated in the include/pqxx/ directory.
 
