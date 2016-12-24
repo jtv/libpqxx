@@ -7,7 +7,7 @@ using namespace pqxx;
 
 namespace
 {
-void test_exceptions(transaction_base &)
+void test_exceptions(transaction_base &t)
 {
   const string
     broken_query = "SELECT HORRIBLE ERROR",
@@ -27,7 +27,18 @@ void test_exceptions(transaction_base &)
 	broken_query,
 	"Getting query from pqxx_exception is broken.");
   }
+
+  try
+  {
+    t.exec("INVALID QUERY HERE");
+  }
+  catch (const syntax_error &e)
+  {
+    // SQL syntax error has sqlstate error 42601.
+    PQXX_CHECK_EQUAL(
+	e.sqlstate(), "42601", "Unexpected sqlstate on syntax error.");
+  }
 }
 } // namespace
 
-PQXX_REGISTER_TEST_NODB(test_exceptions)
+PQXX_REGISTER_TEST(test_exceptions)
