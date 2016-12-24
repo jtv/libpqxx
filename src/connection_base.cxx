@@ -7,7 +7,7 @@
  *      implementation of the pqxx::connection_base abstract base class.
  *   pqxx::connection_base encapsulates a frontend to backend connection
  *
- * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -184,8 +184,9 @@ void pqxx::connection_base::activate()
   if (!is_open())
   {
     if (m_inhibit_reactivation)
-      throw broken_connection("Could not reactivate connection; "
-	  "reactivation is inhibited");
+      throw broken_connection(
+	"Could not reactivate connection; "
+	"reactivation is inhibited");
 
     // If any objects were open that didn't survive the closing of our
     // connection, don't try to reactivate
@@ -221,7 +222,8 @@ void pqxx::connection_base::deactivate()
   if (!m_Conn) return;
 
   if (m_Trans.get())
-    throw usage_error("Attempt to deactivate connection while " +
+    throw usage_error(
+	"Attempt to deactivate connection while " +
 	m_Trans.get()->description() + " still open");
 
   if (m_reactivation_avoidance.get())
@@ -556,6 +558,7 @@ bool pqxx::connection_base::is_busy() const PQXX_NOEXCEPT
 
 namespace
 {
+/// Stateful libpq "cancel" operation.
 class cancel_wrapper
 {
   PGcancel *m_cancel;
@@ -854,8 +857,8 @@ bool pqxx::connection_base::prepared_exists(const std::string &statement) const
 void pqxx::connection_base::Reset()
 {
   if (m_inhibit_reactivation)
-    throw broken_connection("Could not reset connection: "
-	"reactivation is inhibited");
+    throw broken_connection(
+	"Could not reset connection: reactivation is inhibited");
   if (m_reactivation_avoidance.get()) return;
 
   // TODO: Probably need to go through a full disconnect/reconnect!
@@ -1039,8 +1042,8 @@ void pqxx::connection_base::EndCopyWrite()
     break;
 
   default:
-    throw internal_error("unexpected result " + to_string(Res) + " "
-	"from PQputCopyEnd()");
+    throw internal_error(
+	"unexpected result " + to_string(Res) + " from PQputCopyEnd()");
   }
 
   check_result(make_result(PQgetResult(m_Conn), "[END COPY]"));

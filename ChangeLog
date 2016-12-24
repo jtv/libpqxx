@@ -1,4 +1,8 @@
 2016-12-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
+ include/pqxx/except.hxx, src/connection_base.cxx, src/except.cxx,
+ src/result.cxx:
+ - Exposed sqlstate in exceptions, if available.  Thanks anse1.
+2016-12-24  Jeroen T. Vermeulen <jtv@xs4all.nl>
  VERSION:
  - Tagged 5.0.0, at last.  Moving on to 5.0.1.
 2016-12-11  Jeroen T. Vermeulen <jtv@xs4all.nl>

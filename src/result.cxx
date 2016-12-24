@@ -143,7 +143,8 @@ void pqxx::result::ThrowSQLError(
 	const std::string &Err,
 	const std::string &Query) const
 {
-  // Try to establish more precise error type, and throw corresponding exception
+  // Try to establish more precise error type, and throw corresponding
+  // type of exception.
   const char *const code = PQresultErrorField(m_data, PG_DIAG_SQLSTATE);
   if (code) switch (code[0])
   {
@@ -153,32 +154,33 @@ void pqxx::result::ThrowSQLError(
     case '8':
       throw broken_connection(Err);
     case 'A':
-      throw feature_not_supported(Err, Query);
+      throw feature_not_supported(Err, Query, code);
     }
     break;
   case '2':
     switch (code[1])
     {
     case '2':
-      throw data_exception(Err, Query);
+      throw data_exception(Err, Query, code);
     case '3':
-      if (strcmp(code,"23001")==0) throw restrict_violation(Err, Query);
-      if (strcmp(code,"23502")==0) throw not_null_violation(Err, Query);
-      if (strcmp(code,"23503")==0) throw foreign_key_violation(Err, Query);
-      if (strcmp(code,"23505")==0) throw unique_violation(Err, Query);
-      if (strcmp(code,"23514")==0) throw check_violation(Err, Query);
-      throw integrity_constraint_violation(Err, Query);
+      if (strcmp(code,"23001")==0) throw restrict_violation(Err, Query, code);
+      if (strcmp(code,"23502")==0) throw not_null_violation(Err, Query, code);
+      if (strcmp(code,"23503")==0)
+        throw foreign_key_violation(Err, Query, code);
+      if (strcmp(code,"23505")==0) throw unique_violation(Err, Query, code);
+      if (strcmp(code,"23514")==0) throw check_violation(Err, Query, code);
+      throw integrity_constraint_violation(Err, Query, code);
     case '4':
-      throw invalid_cursor_state(Err, Query);
+      throw invalid_cursor_state(Err, Query, code);
     case '6':
-      throw invalid_sql_statement_name(Err, Query);
+      throw invalid_sql_statement_name(Err, Query, code);
     }
     break;
   case '3':
     switch (code[1])
     {
     case '4':
-      throw invalid_cursor_name(Err, Query);
+      throw invalid_cursor_name(Err, Query, code);
     }
     break;
   case '4':
@@ -187,30 +189,33 @@ void pqxx::result::ThrowSQLError(
     case '2':
       if (strcmp(code,"42501")==0) throw insufficient_privilege(Err, Query);
       if (strcmp(code,"42601")==0)
-        throw syntax_error(Err, Query, errorposition());
-      if (strcmp(code,"42703")==0) throw undefined_column(Err, Query);
-      if (strcmp(code,"42883")==0) throw undefined_function(Err, Query);
-      if (strcmp(code,"42P01")==0) throw undefined_table(Err, Query);
+        throw syntax_error(Err, Query, code, errorposition());
+      if (strcmp(code,"42703")==0) throw undefined_column(Err, Query, code);
+      if (strcmp(code,"42883")==0) throw undefined_function(Err, Query, code);
+      if (strcmp(code,"42P01")==0) throw undefined_table(Err, Query, code);
     }
     break;
   case '5':
     switch (code[1])
     {
     case '3':
-      if (strcmp(code,"53100")==0) throw disk_full(Err, Query);
-      if (strcmp(code,"53200")==0) throw out_of_memory(Err, Query);
+      if (strcmp(code,"53100")==0) throw disk_full(Err, Query, code);
+      if (strcmp(code,"53200")==0) throw out_of_memory(Err, Query, code);
       if (strcmp(code,"53300")==0) throw too_many_connections(Err);
-      throw insufficient_resources(Err, Query);
+      throw insufficient_resources(Err, Query, code);
     }
     break;
 
   case 'P':
-    if (strcmp(code, "P0001")==0) throw plpgsql_raise(Err, Query);
-    if (strcmp(code, "P0002")==0) throw plpgsql_no_data_found(Err, Query);
-    if (strcmp(code, "P0003")==0) throw plpgsql_too_many_rows(Err, Query);
-    throw plpgsql_error(Err, Query);
+    if (strcmp(code, "P0001")==0) throw plpgsql_raise(Err, Query, code);
+    if (strcmp(code, "P0002")==0)
+      throw plpgsql_no_data_found(Err, Query, code);
+    if (strcmp(code, "P0003")==0)
+      throw plpgsql_too_many_rows(Err, Query, code);
+    throw plpgsql_error(Err, Query, code);
   }
-  throw sql_error(Err, Query);
+  // Fallback: No error code.
+  throw sql_error(Err, Query, code);
 }
 
 void pqxx::result::CheckStatus() const
@@ -343,7 +348,8 @@ pqxx::row::size_type pqxx::result::table_column(row::size_type ColNum) const
       to_string(ColNum));
 
   if (!get() || get()->protocol < 3)
-    throw feature_not_supported("Backend version does not support querying of "
+    throw feature_not_supported(
+      "Backend version does not support querying of "
       "column's original number",
       "[TABLE_COLUMN]");
 

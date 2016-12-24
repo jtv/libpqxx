@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      implementation of libpqxx exception classes
  *
- * Copyright (c) 2005-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2005-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -40,22 +40,13 @@ pqxx::broken_connection::broken_connection(const std::string &whatarg) :
 {
 }
 
-pqxx::sql_error::sql_error() :
-  failure("Failed query"),
-  m_Q()
-{
-}
-
-pqxx::sql_error::sql_error(const std::string &whatarg) :
+pqxx::sql_error::sql_error(
+	const std::string &whatarg,
+	const std::string &Q,
+	const char sqlstate[]) :
   failure(whatarg),
-  m_Q()
-{
-}
-
-pqxx::sql_error::sql_error(const std::string &whatarg,
-	const std::string &Q) :
-  failure(whatarg),
-  m_Q(Q)
+  m_Q(Q),
+  m_sqlstate(sqlstate ? sqlstate : "")
 {
 }
 
@@ -67,6 +58,12 @@ pqxx::sql_error::~sql_error() PQXX_NOEXCEPT
 PQXX_CONST const std::string &pqxx::sql_error::query() const PQXX_NOEXCEPT
 {
   return m_Q;
+}
+
+
+PQXX_CONST const std::string &pqxx::sql_error::sqlstate() const PQXX_NOEXCEPT
+{
+  return m_sqlstate;
 }
 
 
