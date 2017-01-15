@@ -1020,7 +1020,7 @@
 	    <function>at</function> is that the latter is guaranteed to perform
 	    bounds-checking, throwing an exception if you pass it an illegal
 	    index value.  With the array index operator you may get slightly
-	    better performance, but attempting to address a nonexistant row or
+	    better performance, but attempting to address a nonexistent row or
 	    field will result in undefined behaviour such as program crashes or
 	    inexplicably strange results.
 	  </para>
