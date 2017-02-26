@@ -312,7 +312,7 @@ pqxx::oid pqxx::result::column_type(row::size_type ColNum) const
   const oid T = PQftype(m_data, int(ColNum));
   if (T == oid_none)
     throw argument_error(
-	"Attempt to retrieve type of nonexistant column " +
+	"Attempt to retrieve type of nonexistent column " +
 	to_string(ColNum) + " of query result");
   return T;
 }

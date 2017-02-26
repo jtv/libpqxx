@@ -5011,7 +5011,7 @@
   - Added new header files
  include/pqxx/connection_base, include/pqxx/transaction_base,
  src/tablestream.cxx:
-  - Fix crash closing tablestream on nonexistant table (thx Sean [Rogers?])
+  - Fix crash closing tablestream on nonexistent table (thx Sean [Rogers?])
  include/pqxx/except:
   - Moved exception classes back into pqxx namespace where they belong
 2003-06-14  Jeroen T. Vermeulen <jtv@xs4all.nl>
@@ -5201,7 +5201,7 @@
   - Removed superfluous to_file functions for const char[]
   - Extended test coverage
  include/pqxx/tablereader.h:
-  - Removed nonexistant operator>> versions for Result, string
+  - Removed nonexistent operator>> versions for Result, string
  test/test007.cxx:
   - Test ConnectionItf::SetClientEncoding()
  test/test052.cxx, test/test053.cxx, test/test054.cxx, test/test055.cxx:
