@@ -210,10 +210,10 @@ private:
    * std::experimental::optional.  Both can be supported at the same time,
    * so pre-C++17 code can still work once the compiler defaults to C++17.
    */
-  template<typename T, typename OPTIONAL> OPTIONAL get_opt() const
+  template<typename T, typename OPTIONAL_T> OPTIONAL_T get_opt() const
   {
-    if (is_null()) return OPTIONAL();
-    else return OPTIONAL(as<T>());
+    if (is_null()) return OPTIONAL_T();
+    else return OPTIONAL_T(as<T>());
   }
 
   const result *m_home;
