@@ -15,13 +15,13 @@ from __future__ import (
     unicode_literals,
     )
 
-__metaclass__ = type
-
 from argparse import ArgumentParser
 import codecs
 from errno import ENOENT
 import os.path
 import re
+
+__metaclass__ = type
 
 
 def read_text_file(path):
