@@ -124,11 +124,29 @@ bool pqxx::result::empty() const PQXX_NOEXCEPT
 }
 
 
+pqxx::result::reference pqxx::result::front() const PQXX_NOEXCEPT
+{
+  return row(this, 0);
+}
+
+
+pqxx::result::reference pqxx::result::back() const PQXX_NOEXCEPT
+{
+  return row(this, size() - 1);
+}
+
+
 void pqxx::result::swap(result &rhs) PQXX_NOEXCEPT
 {
   super::swap(rhs);
   m_data = (get() ? get()->data : 0);
   rhs.m_data = (rhs.get() ? rhs.get()->data : 0);
+}
+
+
+const pqxx::row pqxx::result::operator[](result_size_type i) const PQXX_NOEXCEPT
+{
+  return row(this, i);
 }
 
 

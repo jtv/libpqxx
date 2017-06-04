@@ -113,8 +113,8 @@ public:
   inline const_iterator end() const PQXX_NOEXCEPT;			//[t1]
   inline const_iterator cend() const PQXX_NOEXCEPT;
 
-  reference front() const PQXX_NOEXCEPT { return row(this,0); }		//[t74]
-  reference back() const PQXX_NOEXCEPT {return row(this,size()-1);}	//[t75]
+  reference front() const PQXX_NOEXCEPT;				//[t74]
+  reference back() const PQXX_NOEXCEPT;					//[t75]
 
   PQXX_PURE size_type size() const PQXX_NOEXCEPT;			//[t2]
   PQXX_PURE bool empty() const PQXX_NOEXCEPT;				//[t11]
@@ -122,8 +122,7 @@ public:
 
   void swap(result &) PQXX_NOEXCEPT;					//[t77]
 
-  const row operator[](size_type i) const PQXX_NOEXCEPT			//[t2]
-	{ return row(this, i); }
+  const row operator[](size_type i) const PQXX_NOEXCEPT;		//[t2]
   const row at(size_type) const;					//[t10]
 
   void clear() PQXX_NOEXCEPT { super::reset(); m_data = 0; }		//[t20]
