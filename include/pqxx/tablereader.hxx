@@ -8,7 +8,7 @@
  *   pqxx::tablereader enables optimized batch reads from a database table
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablereader instead.
  *
- * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -18,10 +18,13 @@
  */
 #ifndef PQXX_H_TABLEREADER
 #define PQXX_H_TABLEREADER
+
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 #include "pqxx/result"
 #include "pqxx/tablestream"
+
+
 namespace pqxx
 {
 /// @deprecated Efficiently pull data directly out of a table.
@@ -100,5 +103,6 @@ inline tablereader &pqxx::tablereader::operator>>(TUPLE &T)
   return *this;
 }
 } // namespace pqxx
+
 #include "pqxx/compiler-internal-post.hxx"
 #endif

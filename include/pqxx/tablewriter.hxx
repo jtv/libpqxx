@@ -8,7 +8,7 @@
  *   pqxx::tablewriter enables optimized batch updates to a database table
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablewriter.hxx instead.
  *
- * Copyright (c) 2001-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -23,11 +23,12 @@
 
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
+
 #include "pqxx/tablestream"
+
 
 namespace pqxx
 {
-class tablereader;
 /// @deprecated Efficiently write data directly to a database table.
 /** @warning This class does not work reliably with multibyte encodings.  Using
  * it with some multi-byte encodings may pose a security risk.
@@ -35,7 +36,6 @@ class tablereader;
 class PQXX_LIBEXPORT tablewriter : public tablestream
 {
 public:
-  typedef unsigned size_type;
   tablewriter(transaction_base &,
       const std::string &WName,
       const std::string &Null=std::string());
@@ -53,7 +53,7 @@ public:
   template<typename TUPLE> void insert(const TUPLE &);
   template<typename IT> void push_back(IT Begin, IT End);
   template<typename TUPLE> void push_back(const TUPLE &);
-  void reserve(size_type) {}
+  template<typename SIZE> void reserve(SIZE) {}
   template<typename TUPLE> tablewriter &operator<<(const TUPLE &);
   tablewriter &operator<<(tablereader &);
   template<typename IT> std::string generate(IT Begin, IT End) const;

@@ -31,12 +31,6 @@
 
 namespace pqxx
 {
-class const_row_iterator;
-class const_reverse_row_iterator;
-class result;
-class range_error;
-
-
 /// Reference to one row in a result.
 /** A row represents one row (also called a row) in a query result set.
  * It also acts as a container mapping column numbers or names to field
@@ -119,7 +113,7 @@ public:
 
   void swap(row &) PQXX_NOEXCEPT;					//[t11]
 
-  size_t rownumber() const PQXX_NOEXCEPT { return m_Index; }			//[t11]
+  size_t rownumber() const PQXX_NOEXCEPT { return m_Index; }		//[t11]
 
   /**
    * @name Column information
@@ -212,19 +206,19 @@ private:
 class PQXX_LIBEXPORT const_row_iterator :
   public std::iterator<std::random_access_iterator_tag,
 		       const field,
-		       row::size_type>,
+		       row_size_type>,
   public field
 {
   typedef std::iterator<std::random_access_iterator_tag,
 			const field,
-			row::size_type> it;
+			row_size_type> it;
 public:
   using it::pointer;
-  typedef row::size_type size_type;
-  typedef row::difference_type difference_type;
+  typedef row_size_type size_type;
+  typedef row_difference_type difference_type;
   typedef field reference;
 
-  const_row_iterator(const row &T, row::size_type C)			//[t82]
+  const_row_iterator(const row &T, row_size_type C)			//[t82]
 	PQXX_NOEXCEPT :
     field(T, C) {}
   const_row_iterator(const field &F) PQXX_NOEXCEPT : field(F) {}	//[t82]

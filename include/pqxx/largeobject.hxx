@@ -8,7 +8,7 @@
  *   Allows access to large objects directly, or through I/O streams
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/largeobject instead.
  *
- * Copyright (c) 2003-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -29,9 +29,6 @@
 
 namespace pqxx
 {
-
-class largeobjectaccess;
-
 /// Identity of a large object
 /** This class encapsulates the identity of a large object.  To access the
  * contents of the object, create a largeobjectaccess, a largeobject_streambuf,
@@ -43,7 +40,7 @@ class largeobjectaccess;
 class PQXX_LIBEXPORT largeobject
 {
 public:
-  typedef long size_type;
+  typedef large_object_size_type size_type;
 
   /// Refer to a nonexistent large object (similar to what a null pointer does)
   largeobject() PQXX_NOEXCEPT;						//[t48]

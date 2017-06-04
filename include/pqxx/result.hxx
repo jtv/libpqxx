@@ -8,7 +8,7 @@
  *   pqxx::result represents the set of result rows from a database query
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/result instead.
  *
- * Copyright (c) 2001-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -50,10 +50,6 @@ class result_sql_cursor;
 } // namespace internal
 
 
-class const_result_iterator;
-class const_reverse_result_iterator;
-
-
 /// Result set containing data returned by a query or command.
 /** This behaves as a container (as defined by the C++ standard library) and
  * provides random access const iterators to iterate over its rows.  A row
@@ -82,8 +78,8 @@ class PQXX_LIBEXPORT result :
   typedef internal::PQAlloc<
 	const internal::result_data, internal::freemem_result_data> super;
 public:
-  typedef unsigned long size_type;
-  typedef signed long difference_type;
+  typedef result_size_type size_type;
+  typedef result_difference_type difference_type;
   typedef row reference;
   typedef const_result_iterator const_iterator;
   typedef const_iterator pointer;
@@ -91,11 +87,11 @@ public:
   typedef const_reverse_result_iterator const_reverse_iterator;
   typedef const_reverse_iterator reverse_iterator;
 
-  result() PQXX_NOEXCEPT : super(), m_data(0) {}				//[t3]
-  result(const result &rhs) PQXX_NOEXCEPT :					//[t1]
+  result() PQXX_NOEXCEPT : super(), m_data(0) {}			//[t3]
+  result(const result &rhs) PQXX_NOEXCEPT :				//[t1]
 	super(rhs), m_data(rhs.m_data) {}
 
-  result &operator=(const result &rhs) PQXX_NOEXCEPT				//[t10]
+  result &operator=(const result &rhs) PQXX_NOEXCEPT			//[t10]
 	{ super::operator=(rhs); m_data=rhs.m_data; return *this; }
 
   /**
@@ -136,24 +132,24 @@ public:
    * @name Column information
    */
   //@{
-  /// Number of columns in result
-  PQXX_PURE row::size_type columns() const PQXX_NOEXCEPT;		//[t11]
+  /// Number of columns in result.
+  PQXX_PURE row_size_type columns() const PQXX_NOEXCEPT;		//[t11]
 
-  /// Number of given column (throws exception if it doesn't exist)
-  row::size_type column_number(const char ColName[]) const;		//[t11]
+  /// Number of given column (throws exception if it doesn't exist).
+  row_size_type column_number(const char ColName[]) const;		//[t11]
 
-  /// Number of given column (throws exception if it doesn't exist)
-  row::size_type column_number(const std::string &Name) const		//[t11]
+  /// Number of given column (throws exception if it doesn't exist).
+  row_size_type column_number(const std::string &Name) const		//[t11]
 	{return column_number(Name.c_str());}
 
   /// Name of column with this number (throws exception if it doesn't exist)
-  const char *column_name(row::size_type Number) const;			//[t11]
+  const char *column_name(row_size_type Number) const;			//[t11]
 
   /// Type of given column
-  oid column_type(row::size_type ColNum) const;				//[t7]
+  oid column_type(row_size_type ColNum) const;				//[t7]
   /// Type of given column
   oid column_type(int ColNum) const					//[t7]
-	{ return column_type(row::size_type(ColNum)); }
+	{ return column_type(row_size_type(ColNum)); }
 
   /// Type of given column
   oid column_type(const std::string &ColName) const			//[t7]
@@ -164,25 +160,25 @@ public:
 	{ return column_type(column_number(ColName)); }
 
   /// What table did this column come from?
-  oid column_table(row::size_type ColNum) const;			//[t2]
+  oid column_table(row_size_type ColNum) const;				//[t2]
 
   /// What table did this column come from?
   oid column_table(int ColNum) const					//[t2]
-	{ return column_table(row::size_type(ColNum)); }
+	{ return column_table(row_size_type(ColNum)); }
 
   /// What table did this column come from? 
   oid column_table(const std::string &ColName) const			//[t2]
 	{ return column_table(column_number(ColName)); }
 
   /// What column in its table did this column come from?
-  row::size_type table_column(row::size_type ColNum) const;		//[t93]
+  row_size_type table_column(row_size_type ColNum) const;		//[t93]
 
   /// What column in its table did this column come from?
-  row::size_type table_column(int ColNum) const				//[t93]
-	{ return table_column(row::size_type(ColNum)); }
+  row_size_type table_column(int ColNum) const				//[t93]
+	{ return table_column(row_size_type(ColNum)); }
 
   /// What column in its table did this column come from?
-  row::size_type table_column(const std::string &ColName) const		//[t93]
+  row_size_type table_column(const std::string &ColName) const		//[t93]
 	{ return table_column(column_number(ColName)); }
   //@}
 
@@ -204,11 +200,11 @@ public:
 
 private:
   friend class pqxx::field;
-  PQXX_PURE const char *GetValue(size_type Row, row::size_type Col) const;
-  PQXX_PURE bool GetIsNull(size_type Row, row::size_type Col) const;
-  PQXX_PURE field::size_type GetLength(
+  PQXX_PURE const char *GetValue(size_type Row, row_size_type Col) const;
+  PQXX_PURE bool GetIsNull(size_type Row, row_size_type Col) const;
+  PQXX_PURE field_size_type GetLength(
 	size_type,
-	row::size_type) const PQXX_NOEXCEPT;
+	row_size_type) const PQXX_NOEXCEPT;
 
   friend class pqxx::internal::gate::result_creation;
   result(internal::pq::PGresult *rhs,
@@ -254,8 +250,8 @@ class PQXX_LIBEXPORT const_result_iterator :
 public:
   typedef const row *pointer;
   typedef row reference;
-  typedef result::size_type size_type;
-  typedef result::difference_type difference_type;
+  typedef result_size_type size_type;
+  typedef result_difference_type difference_type;
 
   const_result_iterator() PQXX_NOEXCEPT : row(0,0) {}
   const_result_iterator(const row &t) PQXX_NOEXCEPT : row(t) {}
@@ -326,7 +322,7 @@ public:
 
 private:
   friend class pqxx::result;
-  const_result_iterator(const pqxx::result *r, result::size_type i)
+  const_result_iterator(const pqxx::result *r, result_size_type i)
 	PQXX_NOEXCEPT :
     row(r, i) {}
 };
@@ -481,7 +477,7 @@ const_result_iterator::operator-(result::difference_type o) const
 {
   return const_result_iterator(
 	m_Home,
-	result::size_type(result::difference_type(m_Index) - o));
+	result_size_type(result::difference_type(m_Index) - o));
 }
 
 inline result::difference_type

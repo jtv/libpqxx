@@ -8,7 +8,7 @@
  *   pqxx::field refers to a field in a query result.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/field instead.
  *
- * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -31,6 +31,7 @@
 #endif
 
 #include "pqxx/strconv"
+#include "pqxx/types"
 
 
 /* Methods tested in eg. self-test program test001 are marked with "//[t1]"
@@ -38,12 +39,6 @@
 
 namespace pqxx
 {
-class result;
-class row;
-
-typedef unsigned int row_size_type;
-typedef signed int row_difference_type;
-
 /// Reference to a field in a result set.
 /** A field represents one entry in a row.  It represents an actual value
  * in the result set, and can be converted to various types.
@@ -51,7 +46,7 @@ typedef signed int row_difference_type;
 class PQXX_LIBEXPORT field
 {
 public:
-  typedef size_t size_type;
+  typedef field_size_type size_type;
 
   /// Constructor.
   /** Create field as reference to a field in a result set.

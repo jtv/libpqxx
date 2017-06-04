@@ -7,7 +7,7 @@
  *      Helper classes for defining and executing prepared statements
  *   See the connection_base hierarchy for more about prepared statements
  *
- * Copyright (c) 2006-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2006-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -23,15 +23,11 @@
 
 #include "pqxx/internal/statement_parameters.hxx"
 
+#include "pqxx/types"
+
 
 namespace pqxx
 {
-class binarystring;
-class connection_base;
-class transaction_base;
-class result;
-
-
 /// Dedicated namespace for helper types related to prepared statements
 namespace prepare
 {

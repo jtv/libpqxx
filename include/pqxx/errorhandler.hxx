@@ -8,7 +8,7 @@
  *   pqxx::errorhandler handlers errors and warnings in a database session.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
  *
- * Copyright (c) 2012-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2012-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -24,11 +24,11 @@
 
 #include <functional>
 
+#include "pqxx/types"
+
 
 namespace pqxx
 {
-class connection_base;
-
 namespace internal
 {
 namespace gate

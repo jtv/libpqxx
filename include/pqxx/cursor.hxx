@@ -8,7 +8,7 @@
  *   C++-style wrappers for SQL cursors
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/cursor instead.
  *
- * Copyright (c) 2004-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -31,9 +31,6 @@
 
 namespace pqxx
 {
-class dbtransaction;
-
-
 /// Common definitions for cursor types
 /** In C++ terms, fetches are always done in pre-increment or pre-decrement
  * fashion--i.e. the result does not include the row the cursor is on at the
@@ -49,8 +46,8 @@ class dbtransaction;
 class PQXX_LIBEXPORT cursor_base
 {
 public:
-  typedef result::size_type size_type;
-  typedef result::difference_type difference_type;
+  typedef result_size_type size_type;
+  typedef result_difference_type difference_type;
 
   /// Cursor access-pattern policy
   /** Allowing a cursor to move forward only can result in better performance,
@@ -258,7 +255,7 @@ private:
 };
 
 
-PQXX_LIBEXPORT result::size_type obtain_stateless_cursor_size(sql_cursor &);
+PQXX_LIBEXPORT result_size_type obtain_stateless_cursor_size(sql_cursor &);
 PQXX_LIBEXPORT result stateless_cursor_retrieve(
 	sql_cursor &,
 	result::difference_type size,
@@ -279,8 +276,8 @@ template<cursor_base::updatepolicy up, cursor_base::ownershippolicy op>
 class stateless_cursor
 {
 public:
-  typedef result::size_type size_type;
-  typedef result::difference_type difference_type;
+  typedef result_size_type size_type;
+  typedef result_difference_type difference_type;
 
   /// Create cursor.
   stateless_cursor(

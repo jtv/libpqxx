@@ -8,7 +8,7 @@
  *   pqxx::tablestream provides optimized batch access to a database table
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablestream instead.
  *
- * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -18,12 +18,14 @@
  */
 #ifndef PQXX_H_TABLESTREAM
 #define PQXX_H_TABLESTREAM
+
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 #include "pqxx/transaction_base"
+
+
 namespace pqxx
 {
-class transaction_base;
 /// @deprecated Base class for obsolete tablereader/tablewriter classes.
 class PQXX_LIBEXPORT PQXX_NOVTABLE tablestream :
   public internal::transactionfocus
