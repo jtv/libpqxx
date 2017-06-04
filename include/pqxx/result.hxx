@@ -166,7 +166,7 @@ public:
   oid column_table(int ColNum) const					//[t2]
 	{ return column_table(row_size_type(ColNum)); }
 
-  /// What table did this column come from? 
+  /// What table did this column come from?
   oid column_table(const std::string &ColName) const			//[t2]
 	{ return column_table(column_number(ColName)); }
 

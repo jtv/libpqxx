@@ -148,7 +148,7 @@ void check(
 	const char file[],
 	int line,
 	bool condition,
-	const char text[], 
+	const char text[],
 	std::string desc);
 
 // Verify that variable has the expected value.
@@ -167,7 +167,7 @@ inline void check_equal(
 	int line,
 	ACTUAL actual,
 	const char actual_text[],
-	EXPECTED expected, 
+	EXPECTED expected,
 	const char expected_text[],
 	std::string desc)
 {
@@ -195,7 +195,7 @@ inline void check_not_equal(
 	int line,
 	VALUE1 value1,
 	const char text1[],
-	VALUE2 value2, 
+	VALUE2 value2,
 	const char text2[],
 	std::string desc)
 {

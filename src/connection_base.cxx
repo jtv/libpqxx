@@ -7,7 +7,7 @@
  *      implementation of the pqxx::connection_base abstract base class.
  *   pqxx::connection_base encapsulates a frontend to backend connection
  *
- * Copyright (c) 2001-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -708,7 +708,7 @@ std::vector<errorhandler *> pqxx::connection_base::get_errorhandlers() const
     std::vector<errorhandler *> handlers;
   handlers.reserve(m_errorhandlers.size());
   for (
-	std::list<errorhandler *>::const_iterator i = m_errorhandlers.begin(); 
+	std::list<errorhandler *>::const_iterator i = m_errorhandlers.begin();
 	i != m_errorhandlers.end();
 	++i)
     handlers.push_back(*i);
@@ -1190,7 +1190,11 @@ void wait_fd(int fd, bool forwrite=false, timeval *tv=0)
   if (fd < 0) throw pqxx::broken_connection();
 
 #ifdef PQXX_HAVE_POLL
-  pollfd pfd = { fd, short(POLLERR|POLLHUP|POLLNVAL | (forwrite?POLLOUT:POLLIN)) , 0 };
+  pollfd pfd = {
+    fd,
+    short(POLLERR|POLLHUP|POLLNVAL | (forwrite?POLLOUT:POLLIN)),
+    0,
+    };
   poll(&pfd, 1, (tv ? int(tv->tv_sec*1000 + tv->tv_usec/1000) : -1));
 #else
   fd_set s;

@@ -46,7 +46,7 @@ namespace internal
  * This special kind of "gated" friendship gives C private access to H, but only
  * through an expressly limited interface.  The gate class can access its host
  * object as home().
- * 
+ *
  * Keep gate classes entirely stateless.  They should be ultra-lightweight
  * wrappers for their host classes, and be optimized away as much as possible by
  * the compiler.  Once you start adding state, you're on a slippery slope away

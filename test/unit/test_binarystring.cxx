@@ -22,7 +22,9 @@ void test_binarystring(transaction_base &T)
   PQXX_CHECK(b.begin() == b.end(), "Empty binarystring iterates.");
   PQXX_CHECK(b.cbegin() == b.begin(), "Wrong cbegin for empty binarystring.");
   PQXX_CHECK(b.rbegin() == b.rend(), "Empty binarystring reverse-iterates.");
-  PQXX_CHECK(b.crbegin() == b.rbegin(), "Wrong crbegin for empty binarystring.");
+  PQXX_CHECK(
+	b.crbegin() == b.rbegin(),
+	"Wrong crbegin for empty binarystring.");
   PQXX_CHECK_THROWS(b.at(0), out_of_range, "Empty binarystring accepts at().");
 
   b = make_binarystring(T, "z");
@@ -78,7 +80,7 @@ void test_binarystring(transaction_base &T)
   const string bytes("\x01\x23\x23\xa1\x2b\x0c\xff");
   b = make_binarystring(T, bytes);
   PQXX_CHECK_EQUAL(b.str(), bytes, "Binary data breaks (un)escaping.");
- 
+
   const string nully("a\0b", 3);
   b = make_binarystring(T, nully);
   PQXX_CHECK_EQUAL(b.str(), nully, "Nul byte broke binary (un)escaping.");

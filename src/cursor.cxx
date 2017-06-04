@@ -7,7 +7,7 @@
  *      implementation of libpqxx STL-style cursor classes.
  *   These classes wrap SQL cursors in STL-like interfaces
  *
- * Copyright (c) 2004-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -455,7 +455,7 @@ pqxx::icursor_iterator::icursor_iterator(const icursor_iterator &rhs)
   m_prev(0),
   m_next(0)
 {
-  if (m_stream) 
+  if (m_stream)
     gate::icursorstream_icursor_iterator(*m_stream).insert_iterator(this);
 }
 

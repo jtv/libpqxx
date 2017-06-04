@@ -87,12 +87,12 @@ extern "C"
 {
 static void set_fdbit(fd_set &s, int b)
 {
-#ifdef _MSC_VER 
+#ifdef _MSC_VER
 // Suppress pointless, unfixable warnings in Visual Studio.
-#pragma warning ( push ) 
+#pragma warning ( push )
 #pragma warning ( disable: 4389 ) // Signed/unsigned mismatch.
 #pragma warning ( disable: 4127 ) // Conditional expression is constant.
-#endif 
+#endif
 
   // Do the actual work.
   FD_SET(b,&s);

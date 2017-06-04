@@ -66,7 +66,7 @@ void test_088(transaction_base &T0)
   for (result::size_type n=0; n<R.size(); ++n)
     PQXX_CHECK_EQUAL(
 	R[n][0].as<int>(),
-	expected[n], 
+	expected[n],
 	"Hit unexpected row number.");
 
   T2.abort();

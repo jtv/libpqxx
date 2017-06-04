@@ -79,7 +79,7 @@ class FlakyTransactor : public transactor<flakytransaction<> >
 {
   int m_failcount;
 public:
-  explicit FlakyTransactor(int failcount=0) : 
+  explicit FlakyTransactor(int failcount=0) :
     transactor<flakytransaction<> >("FlakyTransactor"),
     m_failcount(failcount)
 	{}

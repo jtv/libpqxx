@@ -105,7 +105,7 @@ void test_032(transaction_base &)
     quiet_errorhandler d(C);
     PQXX_CHECK_THROWS(
 	C.perform(DoomedTransaction),
-	deliberate_error, 
+	deliberate_error,
 	"Did not get expected exception from failing transactor.");
   }
 

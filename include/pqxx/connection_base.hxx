@@ -313,7 +313,7 @@ public:
    */
   int PQXX_PURE sock() const PQXX_NOEXCEPT;				//[t87]
 
-  /** 
+  /**
    * @name Capabilities
    *
    * Some functionality may only be available in certain versions of the
@@ -321,7 +321,7 @@ public:
    * protocol that connects us to the backend.
    */
   //@{
- 
+
   /// Session capabilities
   enum capability
   {
@@ -549,7 +549,7 @@ public:
    */
 
   /// Define a prepared statement
-  /** 
+  /**
    * The statement's definition can refer to a parameter using the parameter's
    * positional number n in the definition.  For example, the first parameter
    * can be used as a variable "$1", the second as "$2" and so on.

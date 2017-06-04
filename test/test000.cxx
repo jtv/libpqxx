@@ -165,7 +165,7 @@ void test_000(transaction_base &)
   PQXX_CHECK(!pw.empty(), "Encrypting a password returned no data.");
   PQXX_CHECK_NOT_EQUAL(
 	pw,
-	encrypt_password("splat", "blub"), 
+	encrypt_password("splat", "blub"),
 	"Password encryption is broken.");
   PQXX_CHECK(
 	pw.find("bar") == string::npos,

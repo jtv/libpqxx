@@ -147,7 +147,7 @@ void check(
 	const char file[],
 	int line,
 	bool condition,
-	const char text[], 
+	const char text[],
 	string desc)
 {
   if (!condition)
@@ -229,7 +229,7 @@ int main(int, const char *argv[])
       }
       catch (const test_failure &e)
       {
-        cerr << "Test failure in " + e.file() + " line " + 
+        cerr << "Test failure in " + e.file() + " line " +
 	    to_string(e.line()) << ": " << e.what() << endl;
       }
       catch (const bad_alloc &)
