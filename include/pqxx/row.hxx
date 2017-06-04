@@ -1,14 +1,14 @@
 /*-------------------------------------------------------------------------
  *
  *   FILE
- *	pqxx/result.hxx
+ *	pqxx/row.hxx
  *
  *   DESCRIPTION
  *      definitions for the pqxx::result class and support classes.
  *   pqxx::result represents the set of result rows from a database query
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/result instead.
  *
- * Copyright (c) 2001-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
