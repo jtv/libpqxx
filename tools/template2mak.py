@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-r"""
+"""
 -------------------------------------------------------------------------
 
   FILE
@@ -83,9 +83,10 @@ def template2mak(infile, outfile):
             outfile.write(line)
             lines = lines[1:]
 
+
 if __name__ == '__main__':
     if len(sys.argv) > 3:
-        print "Too many arguments."
+        print("Too many arguments.")
         sys.exit(1)
 
     me = os.path.basename(sys.argv[0])
@@ -98,10 +99,10 @@ if __name__ == '__main__':
 
     if len(sys.argv) >= 2:
         inarg = os.path.abspath(sys.argv[1])
-        input = file(inarg)
+        input = open(inarg)
         if len(sys.argv) >= 3:
             outarg = sys.argv[2]
-            output = file(outarg, 'w')
+            output = open(outarg, 'w')
 
     output.write(hr)
     output.write("""# AUTOMATICALLY GENERATED FILE--DO NOT EDIT
