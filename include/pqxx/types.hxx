@@ -7,8 +7,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_TYPES
-#define PQXX_TYPES
+#ifndef PQXX_H_TYPES
+#define PQXX_H_TYPES
 
 namespace pqxx
 {

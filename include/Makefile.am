@@ -32,6 +32,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/transactor pqxx/transactor.hxx \
 	pqxx/row pqxx/row.hxx \
 	pqxx/util pqxx/util.hxx \
+	pqxx/types pqxx/types.hxx \
 	pqxx/version pqxx/version.hxx \
 	pqxx/internal/callgate.hxx \
 	pqxx/internal/libpq-forward.hxx \
