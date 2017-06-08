@@ -200,6 +200,7 @@ protected:
 
 private:
   /// Implementation for get().
+#if defined(PQXX_HAVE_OPTIONAL) || defined(PQXX_HAVE_EXP_OPTIONAL)
   /**
    * Abstracts away the difference between std::optional and
    * std::experimental::optional.  Both can be supported at the same time,
@@ -210,6 +211,7 @@ private:
     if (is_null()) return OPTIONAL_T();
     else return OPTIONAL_T(as<T>());
   }
+#endif
 
   const result *m_home;
   size_t m_row;
