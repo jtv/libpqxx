@@ -30,6 +30,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/transaction pqxx/transaction.hxx \
 	pqxx/transaction_base pqxx/transaction_base.hxx \
 	pqxx/transactor pqxx/transactor.hxx \
+	pqxx/types pqxx/types.hxx \
 	pqxx/row pqxx/row.hxx \
 	pqxx/util pqxx/util.hxx \
 	pqxx/version pqxx/version.hxx \
