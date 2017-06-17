@@ -140,8 +140,8 @@ pqxx::result::reference pqxx::result::back() const PQXX_NOEXCEPT
 void pqxx::result::swap(result &rhs) PQXX_NOEXCEPT
 {
   m_ptr.swap(rhs.m_ptr);
-  m_data = (m_ptr.get() ? m_ptr.get()->data : 0);
-  rhs.m_data = (rhs.m_ptr.get() ? rhs.m_ptr.get()->data : 0);
+  m_data = (m_ptr.get() ? m_ptr->data : 0);
+  rhs.m_data = (rhs.m_ptr.get() ? rhs.m_ptr->data : 0);
 }
 
 
@@ -283,7 +283,7 @@ const char *pqxx::result::CmdStatus() const PQXX_NOEXCEPT
 
 const std::string &pqxx::result::query() const PQXX_NOEXCEPT
 {
-  return m_ptr.get() ? m_ptr.get()->query : s_empty_string;
+  return m_ptr.get() ? m_ptr->query : s_empty_string;
 }
 
 
@@ -358,22 +358,18 @@ pqxx::row::size_type pqxx::result::table_column(row::size_type ColNum) const
   if (n) return n-1;
 
   // Failed.  Now find out why, so we can throw a sensible exception.
-  // Possible reasons:
-  // 1. Column out of range
-  // 2. Not using protocol 3.0 or better
-  // 3. Column not taken directly from a table
+  const std::string col_num = to_string(ColNum);
   if (ColNum > columns())
-    throw range_error("Invalid column index in table_column(): " +
-      to_string(ColNum));
+    throw range_error("Invalid column index in table_column(): " + col_num);
 
-  if (!m_ptr.get() || m_ptr.get()->protocol < 3)
-    throw feature_not_supported(
-      "Backend version does not support querying of "
-      "column's original number",
-      "[TABLE_COLUMN]");
+  if (!m_ptr.get())
+    throw usage_error(
+      "Can't query origin of column " + col_num + ": "
+      "result is not initialized.");
 
-  throw usage_error("Can't query origin of column " + to_string(ColNum) + ": "
-	"not derived from table column");
+  throw usage_error(
+    "Can't query origin of column " + col_num + ": "
+    "not derived from table column");
 }
 
 int pqxx::result::errorposition() const PQXX_NOEXCEPT

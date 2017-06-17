@@ -198,6 +198,11 @@ public:
 
 
 private:
+  /// Reference to result_data.
+  /** This is mostly here just to keep the result_data alive while there is
+   * at least one result referencing it.  It's used for very little, since we
+   * cache the actual PGresult pointer in m_data.
+   */
   internal::PQAlloc<const internal::result_data, internal::freemem_result_data>
     m_ptr;
 

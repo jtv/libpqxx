@@ -795,10 +795,6 @@ pqxx::prepare::internal::prepared_def &
 pqxx::connection_base::register_prepared(const std::string &name)
 {
   activate();
-  if (protocol_version() < 3)
-    throw feature_not_supported(
-	"Prepared statements in libpqxx require a newer server version.");
-
   prepare::internal::prepared_def &s = find_prepared(name);
 
   // "Register" (i.e., define) prepared statement with backend on demand
