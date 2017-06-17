@@ -90,7 +90,7 @@ public:
   result &operator=(const result &rhs) PQXX_NOEXCEPT			//[t10]
   {
     m_ptr = rhs.m_ptr;
-    m_data=rhs.m_data;
+    m_data = rhs.m_data;
     return *this;
   }
 
