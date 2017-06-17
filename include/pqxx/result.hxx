@@ -71,12 +71,8 @@ class result_sql_cursor;
  * the same result set--even if it is doing so through a different result
  * object!
  */
-class PQXX_LIBEXPORT result :
-  private internal::PQAlloc<
-	const internal::result_data, internal::freemem_result_data>
+class PQXX_LIBEXPORT result
 {
-  typedef internal::PQAlloc<
-	const internal::result_data, internal::freemem_result_data> super;
 public:
   typedef result_size_type size_type;
   typedef result_difference_type difference_type;
@@ -87,12 +83,16 @@ public:
   typedef const_reverse_result_iterator const_reverse_iterator;
   typedef const_reverse_iterator reverse_iterator;
 
-  result() PQXX_NOEXCEPT : super(), m_data(0) {}			//[t3]
+  result() PQXX_NOEXCEPT : m_ptr(), m_data(0) {}			//[t3]
   result(const result &rhs) PQXX_NOEXCEPT :				//[t1]
-	super(rhs), m_data(rhs.m_data) {}
+	m_ptr(rhs.m_ptr), m_data(rhs.m_data) {}
 
   result &operator=(const result &rhs) PQXX_NOEXCEPT			//[t10]
-	{ super::operator=(rhs); m_data=rhs.m_data; return *this; }
+  {
+    m_ptr = rhs.m_ptr;
+    m_data=rhs.m_data;
+    return *this;
+  }
 
   /**
    * @name Comparisons
@@ -125,7 +125,7 @@ public:
   const row operator[](size_type i) const PQXX_NOEXCEPT;		//[t2]
   const row at(size_type) const;					//[t10]
 
-  void clear() PQXX_NOEXCEPT { super::reset(); m_data = 0; }		//[t20]
+  void clear() PQXX_NOEXCEPT { m_ptr.reset(); m_data = 0; }		//[t20]
 
   /**
    * @name Column information
@@ -198,6 +198,9 @@ public:
 
 
 private:
+  internal::PQAlloc<const internal::result_data, internal::freemem_result_data>
+    m_ptr;
+
   friend class pqxx::field;
   PQXX_PURE const char *GetValue(size_type Row, row_size_type Col) const;
   PQXX_PURE bool GetIsNull(size_type Row, row_size_type Col) const;

@@ -7,7 +7,7 @@
  *      implementation of the pqxx::result class and support classes.
  *   pqxx::result represents the set of result rows from a database query
  *
- * Copyright (c) 2001-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -61,9 +61,10 @@ pqxx::result::result(pqxx::internal::pq::PGresult *rhs,
 	int protocol,
 	const std::string &Query,
 	int encoding_code) :
-  super(new internal::result_data(rhs, protocol, Query, encoding_code)),
+  m_ptr(new internal::result_data(rhs, protocol, Query, encoding_code)),
   m_data(rhs)
 {}
+
 
 bool pqxx::result::operator==(const result &rhs) const PQXX_NOEXCEPT
 {
@@ -138,9 +139,9 @@ pqxx::result::reference pqxx::result::back() const PQXX_NOEXCEPT
 
 void pqxx::result::swap(result &rhs) PQXX_NOEXCEPT
 {
-  super::swap(rhs);
-  m_data = (get() ? get()->data : 0);
-  rhs.m_data = (rhs.get() ? rhs.get()->data : 0);
+  m_ptr.swap(rhs.m_ptr);
+  m_data = (m_ptr.get() ? m_ptr.get()->data : 0);
+  rhs.m_data = (rhs.m_ptr.get() ? rhs.m_ptr.get()->data : 0);
 }
 
 
@@ -282,7 +283,7 @@ const char *pqxx::result::CmdStatus() const PQXX_NOEXCEPT
 
 const std::string &pqxx::result::query() const PQXX_NOEXCEPT
 {
-  return get() ? get()->query : s_empty_string;
+  return m_ptr.get() ? m_ptr.get()->query : s_empty_string;
 }
 
 
@@ -365,7 +366,7 @@ pqxx::row::size_type pqxx::result::table_column(row::size_type ColNum) const
     throw range_error("Invalid column index in table_column(): " +
       to_string(ColNum));
 
-  if (!get() || get()->protocol < 3)
+  if (!m_ptr.get() || m_ptr.get()->protocol < 3)
     throw feature_not_supported(
       "Backend version does not support querying of "
       "column's original number",
