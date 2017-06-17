@@ -264,7 +264,6 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   pqxxassert(r);
   const result res = gate::result_creation::create(
 	r,
-	0,
 	m_queries.begin()->second.get_query(),
 	gate::connection_pipeline(m_Trans.conn()).encoding_code());
 
@@ -298,7 +297,6 @@ void pqxx::pipeline::obtain_dummy()
 
   result R = gate::result_creation::create(
 	r,
-	0,
 	"[DUMMY PIPELINE QUERY]",
 	gate::connection_pipeline(m_Trans.conn()).encoding_code());
 

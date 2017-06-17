@@ -152,7 +152,6 @@ pqxx::result pqxx::connection_base::make_result(
 {
   return gate::result_creation::create(
 	rhs,
-	protocol_version(),
 	query,
 	encoding_code());
 }

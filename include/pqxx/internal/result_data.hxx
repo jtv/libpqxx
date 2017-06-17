@@ -11,7 +11,11 @@ namespace pqxx
 namespace internal
 {
 
-/// Information shared between all copies of a result set
+/// Information shared between all copies of a result set.
+/** Holds the actual libpq result data, and deletes it on destruction.
+ * A pqxx::result acts as a reference-counting smart pointer to a
+ * result_data.
+ */
 struct PQXX_PRIVATE result_data
 {
   /// Underlying libpq-managed result set
@@ -20,21 +24,16 @@ struct PQXX_PRIVATE result_data
    */
   pqxx::internal::pq::PGresult *data;
 
-  /// Frontend/backend protocol version
-  int protocol;
-
   /// Query string that yielded this result
   std::string query;
 
   int encoding_code;
 
-  // TODO: Locking for result copy-construction etc. also goes here
-
   result_data();
-  result_data(pqxx::internal::pq::PGresult *,
-		int protocol,
-		const std::string &,
-		int encoding_code);
+  result_data(
+	pqxx::internal::pq::PGresult *,
+	const std::string &,
+	int encoding_code);
   ~result_data();
 };
 
