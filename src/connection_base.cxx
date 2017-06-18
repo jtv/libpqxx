@@ -150,10 +150,7 @@ pqxx::result pqxx::connection_base::make_result(
 	internal::pq::PGresult *rhs,
 	const std::string &query)
 {
-  return gate::result_creation::create(
-	rhs,
-	query,
-	encoding_code());
+  return gate::result_creation::create(rhs, query);
 }
 
 

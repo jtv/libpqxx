@@ -27,13 +27,8 @@ struct PQXX_PRIVATE result_data
   /// Query string that yielded this result
   std::string query;
 
-  int encoding_code;
-
   result_data();
-  result_data(
-	pqxx::internal::pq::PGresult *,
-	const std::string &,
-	int encoding_code);
+  result_data(pqxx::internal::pq::PGresult *, const std::string &);
   ~result_data();
 };
 

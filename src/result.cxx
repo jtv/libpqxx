@@ -34,16 +34,14 @@ const std::string pqxx::result::s_empty_string;
 
 pqxx::internal::result_data::result_data() :
   data(0),
-  query(),
-  encoding_code(0)
+  query()
 {}
 
-pqxx::internal::result_data::result_data(pqxx::internal::pq::PGresult *d,
-	const std::string &q,
-	int e) :
+pqxx::internal::result_data::result_data(
+	pqxx::internal::pq::PGresult *d,
+	const std::string &q) :
   data(d),
-  query(q),
-  encoding_code(e)
+  query(q)
 {}
 
 
@@ -56,9 +54,8 @@ void pqxx::internal::freemem_result_data(const result_data *d) PQXX_NOEXCEPT
 
 pqxx::result::result(
 	pqxx::internal::pq::PGresult *rhs,
-	const std::string &Query,
-	int encoding_code) :
-  m_ptr(new internal::result_data(rhs, Query, encoding_code)),
+	const std::string &Query) :
+  m_ptr(new internal::result_data(rhs, Query)),
   m_data(rhs)
 {}
 

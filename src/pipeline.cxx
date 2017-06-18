@@ -7,7 +7,7 @@
  *      implementation of the pqxx::pipeline class
  *   Throughput-optimized query manager
  *
- * Copyright (c) 2003-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -263,9 +263,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 
   pqxxassert(r);
   const result res = gate::result_creation::create(
-	r,
-	m_queries.begin()->second.get_query(),
-	gate::connection_pipeline(m_Trans.conn()).encoding_code());
+	r, m_queries.begin()->second.get_query());
 
   if (!have_pending())
   {
@@ -296,9 +294,7 @@ void pqxx::pipeline::obtain_dummy()
     internal_error("pipeline got no result from backend when it expected one");
 
   result R = gate::result_creation::create(
-	r,
-	"[DUMMY PIPELINE QUERY]",
-	gate::connection_pipeline(m_Trans.conn()).encoding_code());
+	r, "[DUMMY PIPELINE QUERY]");
 
   bool OK = false;
   try

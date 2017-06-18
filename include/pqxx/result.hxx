@@ -215,8 +215,7 @@ private:
 
   friend class pqxx::internal::gate::result_creation;
   result(internal::pq::PGresult *rhs,
-	const std::string &Query,
-	int encoding_code);
+	const std::string &Query);
   PQXX_PRIVATE void CheckStatus() const;
 
   friend class pqxx::internal::gate::result_connection;
