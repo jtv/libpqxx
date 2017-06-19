@@ -12,6 +12,14 @@ bin_SCRIPTS=pqxx-config
 TESTS = tools/lint
 
 
+# Generage ChangeLog from git history.  It goes all the way back through
+# the project's git, bzr, svn, and cvs days.
+dist-hook: ChangeLog
+
+ChangeLog: configure.ac
+	git log --stat --name-only --date=short --abbrev-commit >$@
+
+
 # We use README.md, but automake expects plain README.
 README: README.md
 	ln -s $< $@

@@ -751,19 +751,6 @@ AC_TRY_COMPILE([#include <memory>],
 	[sharedptr='no'])
 AC_MSG_RESULT($sharedptr)
 
-AC_MSG_CHECKING([for unique_ptr])
-unique_ptr='yes'
-AC_TRY_COMPILE([
-	#include <memory>
-	${usestd}
-	int *get_ptr();],
-	[unique_ptr<int> i(get_ptr())],
-	[AC_DEFINE(PQXX_HAVE_UNIQUE_PTR,
-		1,
-		[Define if compiler has unique_ptr])],
-	[unique_ptr='no'])
-AC_MSG_RESULT($unique_ptr)
-
 AC_MSG_CHECKING([for move()])
 move='yes'
 AC_TRY_COMPILE([

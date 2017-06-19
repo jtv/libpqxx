@@ -35,7 +35,6 @@ PQXX_HAVE_STRERROR_R	internal	compiler
 PQXX_HAVE_STRERROR_R_GNU	internal	compiler
 PQXX_HAVE_STRLCPY	internal	compiler
 PQXX_HAVE_SYS_SELECT_H	internal	compiler
-PQXX_HAVE_UNIQUE_PTR	public	compiler
 PQXX_SEEKDIRS_MATCH_C	internal	compiler
 PQXX_PQ_IN_NAMESPACE	public	compiler
 PQXX_SELECT_ACCEPTS_NULL	internal	compiler

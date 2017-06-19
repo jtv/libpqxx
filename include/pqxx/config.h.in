@@ -145,9 +145,6 @@
    as per POSIX 1003.1-2001 */
 #undef PQXX_HAVE_SYS_SELECT_H
 
-/* Define if compiler has unique_ptr */
-#undef PQXX_HAVE_UNIQUE_PTR
-
 /* Define if select() accepts NULL fd_set arguments */
 #undef PQXX_SELECT_ACCEPTS_NULL
 
