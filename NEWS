@@ -1,3 +1,6 @@
+5.1.0
+ - Internal simplification to pqxx::result.
+ - ChangeLog is done.  It was a drag on maintenance.
 5.0.1
  - Exposed sqlstate in sql_error exception class.
 5.0
