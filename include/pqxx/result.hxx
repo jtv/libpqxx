@@ -25,8 +25,6 @@
 #include <ios>
 #include <stdexcept>
 
-#include "pqxx/internal/result_data.hxx"
-
 #include "pqxx/except"
 #include "pqxx/field"
 #include "pqxx/row"
@@ -41,6 +39,8 @@ namespace pqxx
 {
 namespace internal
 {
+void clear_result(const pq::PGresult *);
+
 namespace gate
 {
 class result_connection;
@@ -61,8 +61,8 @@ class result_sql_cursor;
  * @endcode
  *
  * Result sets in libpqxx are lightweight, reference-counted wrapper objects
- * (following the Proxy design pattern) that are small and cheap to copy.  Think
- * of a result object as a "smart pointer" to an underlying result set.
+ * which are relatively small and cheap to copy.  Think of a result object as
+ * a "smart pointer" to an underlying result set.
  *
  * @warning The result set that a result object points to is not thread-safe.
  * If you copy a result object, it still refers to the same underlying result
@@ -83,14 +83,14 @@ public:
   typedef const_reverse_result_iterator const_reverse_iterator;
   typedef const_reverse_iterator reverse_iterator;
 
-  result() PQXX_NOEXCEPT : m_ptr(), m_data(0) {}			//[t3]
+  result() PQXX_NOEXCEPT : m_data(0), m_query() {}			//[t3]
   result(const result &rhs) PQXX_NOEXCEPT :				//[t1]
-	m_ptr(rhs.m_ptr), m_data(rhs.m_data) {}
+	m_data(rhs.m_data), m_query(rhs.m_query) {}
 
   result &operator=(const result &rhs) PQXX_NOEXCEPT			//[t10]
   {
-    m_ptr = rhs.m_ptr;
     m_data = rhs.m_data;
+    m_query = rhs.m_query;
     return *this;
   }
 
@@ -125,7 +125,7 @@ public:
   const row operator[](size_type i) const PQXX_NOEXCEPT;		//[t2]
   const row at(size_type) const;					//[t10]
 
-  void clear() PQXX_NOEXCEPT { m_ptr.reset(); m_data = 0; }		//[t20]
+  void clear() PQXX_NOEXCEPT { m_data.reset(); m_query.erase(); }	//[t20]
 
   /**
    * @name Column information
@@ -198,13 +198,12 @@ public:
 
 
 private:
-  /// Reference to result_data.
-  /** This is mostly here just to keep the result_data alive while there is
-   * at least one result referencing it.  It's used for very little, since we
-   * cache the actual PGresult pointer in m_data.
-   */
-  internal::PQAlloc<const internal::result_data, internal::freemem_result_data>
-    m_ptr;
+  /// Underlying libpq result set.
+  internal::PQAlloc<const internal::pq::PGresult, internal::clear_result>
+    m_data;
+
+  /// Query string.
+  std::string m_query;
 
   friend class pqxx::field;
   PQXX_PURE const char *GetValue(size_type Row, row_size_type Col) const;
@@ -219,8 +218,8 @@ private:
   PQXX_PRIVATE void CheckStatus() const;
 
   friend class pqxx::internal::gate::result_connection;
-  bool operator!() const PQXX_NOEXCEPT { return !m_data; }
-  operator bool() const PQXX_NOEXCEPT { return m_data != 0; }
+  bool operator!() const PQXX_NOEXCEPT { return !m_data.get(); }
+  operator bool() const PQXX_NOEXCEPT { return m_data.get(); }
 
   PQXX_NORETURN PQXX_PRIVATE void ThrowSQLError(
 	const std::string &Err,
@@ -230,11 +229,6 @@ private:
 
   friend class pqxx::internal::gate::result_sql_cursor;
   PQXX_PURE const char *CmdStatus() const PQXX_NOEXCEPT;
-
-  /// Shortcut: pointer to result data
-  pqxx::internal::pq::PGresult *m_data;
-
-  PQXX_PRIVATE static const std::string s_empty_string;
 };
 
 

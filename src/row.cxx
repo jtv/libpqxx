@@ -211,7 +211,8 @@ pqxx::row::size_type pqxx::row::column_number(const char ColName[]) const
 
 pqxx::row::size_type pqxx::result::column_number(const char ColName[]) const
 {
-  const int N = PQfnumber(m_data, ColName);
+  const int N = PQfnumber(
+	const_cast<internal::pq::PGresult *>(m_data.get()), ColName);
   // TODO: Should this be an out_of_range?
   if (N == -1)
     throw argument_error("Unknown column name: '" + std::string(ColName) + "'");
