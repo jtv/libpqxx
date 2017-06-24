@@ -24,6 +24,7 @@
 
 #include "pqxx/except"
 #include "pqxx/field"
+#include "pqxx/result"
 
 
 /* Methods tested in eg. self-test program test001 are marked with "//[t1]"
@@ -56,7 +57,7 @@ public:
   typedef const_reverse_iterator reverse_iterator;
 
   /// @deprecated Do not use this constructor.  It will become private.
-  row(const result *r, size_t i) PQXX_NOEXCEPT;
+  row(result r, size_t i) PQXX_NOEXCEPT;
 
   ~row() PQXX_NOEXCEPT {} // Yes Scott Meyers, you're absolutely right[1]
 
@@ -192,7 +193,7 @@ public:
 protected:
   friend class field;
   /// Result set of which this is one row.
-  const result *m_Home;
+  result m_Home;
   /// Row number.
   size_t m_Index;
   /// First column in slice.  This row ignores lower-numbered columns.
@@ -377,7 +378,7 @@ inline const_row_iterator
 const_row_iterator::operator+(difference_type o) const
 {
   return const_row_iterator(
-	row(home(), idx()),
+	row(*home(), idx()),
 	size_type(difference_type(col()) + o));
 }
 
@@ -389,7 +390,7 @@ inline const_row_iterator
 const_row_iterator::operator-(difference_type o) const
 {
   return const_row_iterator(
-	row(home(), idx()),
+	row(*home(), idx()),
 	size_type(difference_type(col()) - o));
 }
 

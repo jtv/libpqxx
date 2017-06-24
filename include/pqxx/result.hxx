@@ -44,6 +44,7 @@ namespace gate
 {
 class result_connection;
 class result_creation;
+class result_row;
 class result_sql_cursor;
 } // namespace internal::gate
 } // namespace internal
@@ -217,6 +218,7 @@ private:
   PQXX_PRIVATE void CheckStatus() const;
 
   friend class pqxx::internal::gate::result_connection;
+  friend class pqxx::internal::gate::result_row;
   bool operator!() const PQXX_NOEXCEPT { return !m_data.get(); }
   operator bool() const PQXX_NOEXCEPT { return m_data.get(); }
 

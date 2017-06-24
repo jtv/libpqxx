@@ -27,7 +27,7 @@
 pqxx::field::field(const pqxx::row &R, pqxx::row::size_type C)
 	PQXX_NOEXCEPT :
   m_col(C),
-  m_home(R.m_Home),
+  m_home(&R.m_Home),
   m_row(R.m_Index)
 {
 }

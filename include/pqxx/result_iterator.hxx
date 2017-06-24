@@ -53,7 +53,7 @@ public:
   typedef result_size_type size_type;
   typedef result_difference_type difference_type;
 
-  const_result_iterator() PQXX_NOEXCEPT : row(0,0) {}
+  const_result_iterator() PQXX_NOEXCEPT : row(result(),0) {}
   const_result_iterator(const row &t) PQXX_NOEXCEPT : row(t) {}
 
   /**
@@ -124,7 +124,7 @@ private:
   friend class pqxx::result;
   const_result_iterator(const pqxx::result *r, result_size_type i)
 	PQXX_NOEXCEPT :
-    row(r, i) {}
+    row(*r, i) {}
 };
 
 
@@ -223,7 +223,7 @@ inline const_result_iterator
 const_result_iterator::operator+(result::difference_type o) const
 {
   return const_result_iterator(
-	m_Home, size_type(result::difference_type(m_Index) + o));
+	&m_Home, size_type(result::difference_type(m_Index) + o));
 }
 
 inline const_result_iterator
@@ -234,7 +234,7 @@ inline const_result_iterator
 const_result_iterator::operator-(result::difference_type o) const
 {
   return const_result_iterator(
-	m_Home,
+	&m_Home,
 	result_size_type(result::difference_type(m_Index) - o));
 }
 

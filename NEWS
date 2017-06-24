@@ -1,6 +1,7 @@
 5.1.0
  - Internal simplification to pqxx::result.
- - ChangeLog is done.  It was a drag on maintenance.
+ - A row object now keeps its result object alive.
+ - ChangeLog is gone.  It was a drag on maintenance.
 5.0.1
  - Exposed sqlstate in sql_error exception class.
 5.0

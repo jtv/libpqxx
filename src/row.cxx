@@ -7,7 +7,7 @@
  *      implementation of the pqxx::result class and support classes.
  *   pqxx::result represents the set of result rows from a database query
  *
- * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -25,12 +25,14 @@
 #include "pqxx/except"
 #include "pqxx/result"
 
+#include "pqxx/internal/gates/result-row.hxx"
 
-pqxx::row::row(const result *r, size_t i) PQXX_NOEXCEPT :
+
+pqxx::row::row(result r, size_t i) PQXX_NOEXCEPT :
   m_Home(r),
   m_Index(i),
   m_Begin(0),
-  m_End(r ? r->columns() : 0)
+  m_End(internal::gate::result_row(r) ? r.columns() : 0)
 {
 }
 
@@ -144,15 +146,13 @@ pqxx::row::reference pqxx::row::at(const std::string &s) const
 
 void pqxx::row::swap(row &rhs) PQXX_NOEXCEPT
 {
-  const result *const h(m_Home);
   const result::size_type i(m_Index);
   const size_type b(m_Begin);
   const size_type e(m_End);
-  m_Home = rhs.m_Home;
+  m_Home.swap(rhs.m_Home);
   m_Index = rhs.m_Index;
   m_Begin = rhs.m_Begin;
   m_End = rhs.m_End;
-  rhs.m_Home = h;
   rhs.m_Index = i;
   rhs.m_Begin = b;
   rhs.m_End = e;
@@ -176,33 +176,33 @@ pqxx::field pqxx::row::at(pqxx::row::size_type i) const
 
 pqxx::oid pqxx::row::column_type(size_type ColNum) const
 {
-  return m_Home->column_type(m_Begin + ColNum);
+  return m_Home.column_type(m_Begin + ColNum);
 }
 
 
 pqxx::oid pqxx::row::column_table(size_type ColNum) const
 {
-  return m_Home->column_table(m_Begin + ColNum);
+  return m_Home.column_table(m_Begin + ColNum);
 }
 
 
 pqxx::row::size_type pqxx::row::table_column(size_type ColNum) const
 {
-  return m_Home->table_column(m_Begin + ColNum);
+  return m_Home.table_column(m_Begin + ColNum);
 }
 
 
 pqxx::row::size_type pqxx::row::column_number(const char ColName[]) const
 {
-  const size_type n = m_Home->column_number(ColName);
+  const size_type n = m_Home.column_number(ColName);
   if (n >= m_End)
     return result().column_number(ColName);
   if (n >= m_Begin)
     return n - m_Begin;
 
-  const char *const AdaptedColName = m_Home->column_name(n);
+  const char *const AdaptedColName = m_Home.column_name(n);
   for (size_type i = m_Begin; i < m_End; ++i)
-    if (strcmp(AdaptedColName, m_Home->column_name(i)) == 0)
+    if (strcmp(AdaptedColName, m_Home.column_name(i)) == 0)
       return i - m_Begin;
 
   return result().column_number(ColName);
