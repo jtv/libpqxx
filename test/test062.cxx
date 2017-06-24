@@ -17,7 +17,7 @@ void test_062(transaction_base &T)
 	"Nasty\n\030Test\n\t String with \200\277 weird bytes "
 	"\r\0 and Trailer\\\\\0";
 
-  T.exec("CREATE TEMP TABLE pqxxbin (binfield bytea)");
+  T.exec0("CREATE TEMP TABLE pqxxbin (binfield bytea)");
 
   const string Esc = T.esc_raw(TestStr),
 	Chk = T.esc_raw(reinterpret_cast<const unsigned char *>(TestStr.c_str()),
@@ -25,10 +25,10 @@ void test_062(transaction_base &T)
 
   PQXX_CHECK_EQUAL(Chk, Esc, "Inconsistent results from esc_raw().");
 
-  T.exec("INSERT INTO pqxxbin VALUES ('" + Esc + "')");
+  T.exec0("INSERT INTO pqxxbin VALUES ('" + Esc + "')");
 
   result R = T.exec("SELECT * from pqxxbin");
-  T.exec("DELETE FROM pqxxbin");
+  T.exec0("DELETE FROM pqxxbin");
 
   binarystring B( R.at(0).at(0) );
 
@@ -80,7 +80,7 @@ void test_062(transaction_base &T)
   PQXX_CHECK_EQUAL(B.str(), TestStr, "Binary string was mangled.");
 
   const string TestStr2("(More conventional text)");
-  T.exec("INSERT INTO pqxxbin VALUES ('" + TestStr2 + "')");
+  T.exec0("INSERT INTO pqxxbin VALUES ('" + TestStr2 + "')");
   R = T.exec("SELECT * FROM pqxxbin");
   binarystring B2(R.front().front());
 

@@ -16,8 +16,8 @@ void test_093(transaction_base &T)
   result R, X;
 
   {
-    T.exec("CREATE TEMP TABLE pqxxfoo (x varchar, y integer, z integer)");
-    T.exec("INSERT INTO pqxxfoo VALUES ('xx', 1, 2)");
+    T.exec0("CREATE TEMP TABLE pqxxfoo (x varchar, y integer, z integer)");
+    T.exec0("INSERT INTO pqxxfoo VALUES ('xx', 1, 2)");
     R = T.exec("SELECT z,y,x FROM pqxxfoo");
     X = T.exec("SELECT x,y,z,99 FROM pqxxfoo");
 

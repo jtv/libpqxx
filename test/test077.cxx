@@ -9,16 +9,17 @@ namespace
 {
 void test_077(transaction_base &T)
 {
-  result RFalse = T.exec("SELECT 1=0"),
-	 RTrue  = T.exec("SELECT 1=1");
+  row
+	RFalse = T.exec1("SELECT 1=0"),
+	RTrue  = T.exec1("SELECT 1=1");
   bool f, t;
-  from_string(RFalse[0][0], f);
-  from_string(RTrue[0][0],  t);
+  from_string(RFalse[0], f);
+  from_string(RTrue[0],  t);
   PQXX_CHECK(!f && t, "Booleans converted incorrectly; can't trust this test.");
 
   RFalse.swap(RTrue);
-  from_string(RFalse[0][0], f);
-  from_string(RTrue[0][0],  t);
+  from_string(RFalse[0], f);
+  from_string(RTrue[0],  t);
   PQXX_CHECK(f && !t, "result::swap() is broken.");
 }
 } // namespace

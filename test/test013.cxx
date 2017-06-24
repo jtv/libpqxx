@@ -31,13 +31,13 @@ public:
   void operator()(argument_type &T)
   {
     const string CountQuery = "SELECT count(*) FROM " + m_Table;
-    result R;
+    row R;
 
-    R = T.exec(CountQuery);
-    R.at(0).at(0).to(m_Results.first);
+    R = T.exec1(CountQuery);
+    R.front().to(m_Results.first);
 
-    R = T.exec(CountQuery + " WHERE year=" + to_string(BoringYear));
-    R.at(0).at(0).to(m_Results.second);
+    R = T.exec1(CountQuery + " WHERE year=" + to_string(BoringYear));
+    R.front().to(m_Results.second);
   }
 };
 
@@ -59,9 +59,10 @@ public:
 
   void operator()(argument_type &T)
   {
-    result R( T.exec("INSERT INTO " + m_Table + " VALUES (" +
-	             to_string(BoringYear) + ", "
-	             "'yawn')") );
+    result R( T.exec0(
+	"INSERT INTO " + m_Table + " VALUES (" +
+	to_string(BoringYear) + ", "
+	"'yawn')") );
 
     PQXX_CHECK_EQUAL(R.affected_rows(), 1u, "Bad affected_rows().");
 

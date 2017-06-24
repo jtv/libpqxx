@@ -8,7 +8,7 @@
  *   pqxx::sql_error, pqxx::broken_connection, pqxx::in_doubt_error, ...
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/except instead.
  *
- * Copyright (c) 2003-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -221,6 +221,16 @@ class PQXX_LIBEXPORT range_error :
 							       { return *this; }
 public:
   explicit range_error(const std::string &);
+};
+
+
+/// Query returned an unexpected number of rows.
+class PQXX_LIBEXPORT unexpected_rows : range_error
+{
+  virtual const std::exception &base() const PQXX_NOEXCEPT PQXX_OVERRIDE
+							       { return *this; }
+public:
+  explicit unexpected_rows(const std::string &msg) : range_error(msg) {}
 };
 
 

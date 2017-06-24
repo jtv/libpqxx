@@ -27,7 +27,7 @@ void test_083(transaction_base &orgT)
   {
     nontransaction Drop(C, "drop_" + Table);
     quiet_errorhandler d(C);
-    Drop.exec("DROP TABLE " + Table);
+    Drop.exec0("DROP TABLE " + Table);
   }
   catch (const exception &e)
   {
@@ -35,7 +35,7 @@ void test_083(transaction_base &orgT)
   }
 
   work T(C, "test83");
-  T.exec("CREATE TEMP TABLE " + Table + "(num INTEGER)");
+  T.exec0("CREATE TEMP TABLE " + Table + "(num INTEGER)");
 
   tablewriter W(T, Table);
   back_insert_iterator<tablewriter> b(W);

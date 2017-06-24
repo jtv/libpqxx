@@ -56,6 +56,8 @@ public:
   typedef const_reverse_row_iterator const_reverse_iterator;
   typedef const_reverse_iterator reverse_iterator;
 
+  row() : m_Home(), m_Index(0), m_Begin(0), m_End(0) {}
+
   /// @deprecated Do not use this constructor.  It will become private.
   row(result r, size_t i) PQXX_NOEXCEPT;
 
@@ -200,10 +202,6 @@ protected:
   size_type m_Begin;
   /// End column in slice.  This row only sees lower-numbered columns.
   size_type m_End;
-
-private:
-  // Not allowed:
-  row() PQXX_DELETED_OP;
 };
 
 

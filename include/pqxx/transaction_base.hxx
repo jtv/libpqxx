@@ -231,12 +231,46 @@ public:
    * @param Desc Optional identifier for query, to help pinpoint SQL errors
    * @return A result set describing the query's or command's result
    */
-  result exec(const std::string &Query,
-	      const std::string &Desc=std::string());			//[t1]
+  result exec(
+	const std::string &Query,
+	const std::string &Desc=std::string());				//[t1]
 
-  result exec(const std::stringstream &Query,
-	      const std::string &Desc=std::string())
+  result exec(
+	const std::stringstream &Query,
+	const std::string &Desc=std::string())
 	{ return exec(Query.str(), Desc); }
+
+  /// Execute query, which should zero rows of data.
+  /** Works like exec, but fails if the result contains data.  It still returns
+   * a result, however, which may contain useful metadata.
+   *
+   * @throw unexpected_rows If the query returned the wrong number of rows.
+   */
+  result exec0(
+	const std::string &Query,
+	const std::string &Desc=std::string())
+	{ return exec_n(0, Query, Desc); }
+
+  /// Execute query returning a single row of data.
+  /** Works like exec, but requires the result to contain exactly one row.
+   * The row can be addressed directly, without the need to find the first row
+   * in a result set.
+   *
+   * @throw unexpected_rows If the query returned the wrong number of rows.
+   */
+  row exec1(const std::string &Query, const std::string &Desc=std::string())
+	{ return exec_n(1, Query, Desc).front(); }
+
+  /// Execute query, expect given number of rows.
+  /** Works like exec, but checks that the number of rows is exactly what's
+   * expected.
+   *
+   * @throw unexpected_rows If the query returned the wrong number of rows.
+   */
+  result exec_n(
+        size_t rows,
+	const std::string &Query,
+	const std::string &Desc=std::string());
 
   /// Parameterize a statement.
   /* Use this to build up a parameterized statement invocation, then invoke it

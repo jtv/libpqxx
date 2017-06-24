@@ -102,6 +102,7 @@ OBJS= \
   $(INTDIR)\test_subtransaction.obj \
   $(INTDIR)\test_test_helpers.obj \
   $(INTDIR)\test_thread_safety_model.obj \
+  $(INTDIR)\test_transaction_base.obj \
   $(INTDIR)\runner.obj
 
 
@@ -180,6 +181,8 @@ $(INTDIR)\test_test_helpers.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_test_helpers.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_thread_safety_model.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_thread_safety_model.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
+$(INTDIR)\test_transaction_base.obj:
+	@$(CXX) $(CXX_FLAGS) test/unit/test_transaction_base.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 
 
 $(INTDIR)\$(LIBPQ):

@@ -123,7 +123,7 @@ public:
 	 c != m_Conversions.end();
 	 ++c)
     {
-      R = T.exec(("UPDATE pqxxevents "
+      R = T.exec0(("UPDATE pqxxevents "
 	          "SET year=" + to_string(c->second) + " "
 	          "WHERE year=" + to_string(c->first)).c_str());
       AffectedRows += R.affected_rows();

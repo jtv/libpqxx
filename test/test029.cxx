@@ -31,11 +31,11 @@ pair<int,int> CountEvents(transaction_base &T)
   int EventsCount = 0,
       BoringCount = 0;
 
-  result R( T.exec(EventsQuery) );
-  R.at(0).at(0).to(EventsCount);
+  row R( T.exec1(EventsQuery) );
+  R.front().to(EventsCount);
 
-  R = T.exec(BoringQuery);
-  R.at(0).at(0).to(BoringCount);
+  R = T.exec1(BoringQuery);
+  R.front().to(BoringCount);
 
   return make_pair(EventsCount, BoringCount);
 }

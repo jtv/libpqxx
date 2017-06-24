@@ -256,8 +256,9 @@ void pqxx::transaction_base::activate()
 }
 
 
-pqxx::result pqxx::transaction_base::exec(const std::string &Query,
-					  const std::string &Desc)
+pqxx::result pqxx::transaction_base::exec(
+	const std::string &Query,
+	const std::string &Desc)
 {
   CheckPendingError();
 
@@ -281,6 +282,24 @@ pqxx::result pqxx::transaction_base::exec(const std::string &Query,
   // TODO: Pass Desc to do_exec(), and from there on down
   return do_exec(Query.c_str());
 }
+
+
+pqxx::result pqxx::transaction_base::exec_n(
+	size_t rows,
+	const std::string &Query,
+	const std::string &Desc)
+{
+  const result r = exec(Query, Desc);
+  if (r.size() != rows)
+  {
+    const std::string N = (Desc.empty() ? "" : "'" + Desc + "'");
+    throw unexpected_rows(
+	"Expected " + to_string(rows) + " row(s) of data "
+        "from query " + N + ", got " + to_string(r.size()));
+  }
+  return r;
+}
+
 
 
 pqxx::internal::parameterized_invocation

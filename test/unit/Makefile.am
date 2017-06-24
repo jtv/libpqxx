@@ -44,6 +44,7 @@ runner_SOURCES = \
   test_subtransaction.cxx \
   test_test_helpers.cxx \
   test_thread_safety_model.cxx \
+  test_transaction_base.cxx \
   runner.cxx
 
 runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}

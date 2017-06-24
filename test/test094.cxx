@@ -88,7 +88,7 @@ public:
   {
     T.simulate_failure = (m_failcount > 0);
 
-    T.exec("SELECT count(*) FROM pg_tables");
+    T.exec1("SELECT count(*) FROM pg_tables");
   }
 
   void on_doubt() PQXX_NOEXCEPT

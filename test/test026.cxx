@@ -59,9 +59,10 @@ public:
     for (map<int,int>::const_iterator c = m_Conversions.begin();
 	 c != m_Conversions.end();
 	 ++c)
-      T.exec("UPDATE pqxxevents "
-	     "SET year=" + to_string(c->second) + " "
-	     "WHERE year=" + to_string(c->first));
+      T.exec0(
+	"UPDATE pqxxevents "
+	"SET year=" + to_string(c->second) + " "
+	"WHERE year=" + to_string(c->first));
   }
 
   // Postprocessing code for successful execution

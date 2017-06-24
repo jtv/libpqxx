@@ -19,7 +19,7 @@ void test_092(transaction_base &T)
   PQXX_CHECK(data.size() > strlen(databuf), "Unknown data length problem.");
 
   const string Table = "pqxxbin", Field = "binfield", Stat = "nully";
-  T.exec("CREATE TEMP TABLE " + Table + " (" + Field + " BYTEA)");
+  T.exec0("CREATE TEMP TABLE " + Table + " (" + Field + " BYTEA)");
 
   T.conn().prepare(Stat, "INSERT INTO " + Table + " VALUES ($1)");
   T.prepared(Stat)(binarystring(data)).exec();
@@ -42,7 +42,7 @@ void test_092(transaction_base &T)
   // People seem to like the multi-line invocation style, where you get your
   // invocation object first, then add parameters in separate C++ statements.
   // As John Mudd found, that used to break the code.  Let's test it.
-  T.exec("CREATE TEMP TABLE row (one INTEGER, two VARCHAR)");
+  T.exec0("CREATE TEMP TABLE row (one INTEGER, two VARCHAR)");
   T.conn().prepare("makerow", "INSERT INTO row VALUES ($1, $2)");
 
   pqxx::prepare::invocation i( T.prepared("makerow") );

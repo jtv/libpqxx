@@ -33,11 +33,12 @@ void test_066(transaction_base &T1)
   PQXX_CHECK(R.empty(), "Result is not empty after clear().");
 
   // OK.  Having laid that worry to rest, add a record for 1977.
-  T1.exec("INSERT INTO " + Table + " VALUES"
-          "(" +
-	  to_string(BoringYear) + ","
-	  "'Yawn'"
-	  ")");
+  T1.exec0(
+	"INSERT INTO " + Table + " VALUES"
+        "(" +
+	to_string(BoringYear) + ","
+	"'Yawn'"
+	")");
 
   // Abort T1.  Since T1 is a NonTransaction, which provides only the
   // transaction class interface without providing any form of transactional
@@ -59,8 +60,9 @@ void test_066(transaction_base &T1)
   PQXX_CHECK(R.empty(), "result::clear() doesn't always work.");
 
   // Now remove our record again
-  T2.exec("DELETE FROM " + Table + " "
-	  "WHERE year=" + to_string(BoringYear));
+  T2.exec0(
+	"DELETE FROM " + Table + " "
+	"WHERE year=" + to_string(BoringYear));
 
   T2.commit();
 

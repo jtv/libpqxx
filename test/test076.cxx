@@ -9,18 +9,19 @@ namespace
 {
 void test_076(transaction_base &T)
 {
-  result RFalse = T.exec("SELECT 1=0"),
-	 RTrue  = T.exec("SELECT 1=1");
+  row
+	RFalse = T.exec1("SELECT 1=0"),
+	RTrue  = T.exec1("SELECT 1=1");
   bool False, True;
-  from_string(RFalse[0][0], False);
-  from_string(RTrue[0][0],  True);
+  from_string(RFalse[0], False);
+  from_string(RTrue[0],  True);
   PQXX_CHECK(!False, "False bool converted to true.");
   PQXX_CHECK(True, "True bool converted to false.");
 
-  RFalse = T.exec("SELECT " + to_string(False));
-  RTrue  = T.exec("SELECT " + to_string(True));
-  from_string(RFalse[0][0], False);
-  from_string(RTrue[0][0],  True);
+  RFalse = T.exec1("SELECT " + to_string(False));
+  RTrue  = T.exec1("SELECT " + to_string(True));
+  from_string(RFalse[0], False);
+  from_string(RTrue[0],  True);
   PQXX_CHECK(!False, "False bool converted to true.");
   PQXX_CHECK(True, "True bool converted to false.");
 
