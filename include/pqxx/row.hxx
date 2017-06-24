@@ -191,9 +191,13 @@ public:
 
 protected:
   friend class field;
+  /// Result set of which this is one row.
   const result *m_Home;
+  /// Row number.
   size_t m_Index;
+  /// First column in slice.  This row ignores lower-numbered columns.
   size_type m_Begin;
+  /// End column in slice.  This row only sees lower-numbered columns.
   size_type m_End;
 
 private:
