@@ -21,6 +21,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/pipeline pqxx/pipeline.hxx \
 	pqxx/prepared_statement pqxx/prepared_statement.hxx \
 	pqxx/result pqxx/result.hxx \
+	pqxx/result_iterator.hxx \
 	pqxx/robusttransaction pqxx/robusttransaction.hxx \
 	pqxx/strconv pqxx/strconv.hxx \
 	pqxx/subtransaction pqxx/subtransaction.hxx \
