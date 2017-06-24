@@ -53,6 +53,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/gates/icursor_iterator-icursorstream.hxx \
 	pqxx/internal/gates/result-connection.hxx \
 	pqxx/internal/gates/result-creation.hxx \
+	pqxx/internal/gates/result-row.hxx \
 	pqxx/internal/gates/result-sql_cursor.hxx \
 	pqxx/internal/gates/transaction-subtransaction.hxx \
 	pqxx/internal/gates/transaction-tablereader.hxx \
