@@ -411,7 +411,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=NULL) :
-    sql_error(err,Q) {}
+    sql_error(err,Q, sqlstate) {}
 };
 
 class PQXX_LIBEXPORT disk_full : public insufficient_resources
