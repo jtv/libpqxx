@@ -8,7 +8,7 @@ namespace
 {
 void TestPipeline(pipeline &P, int numqueries)
 {
-  const string Q("SELECT count(*) FROM pg_tables");
+  const string Q("SELECT * FROM generate_series(1, 10)");
   const result Empty;
   PQXX_CHECK(Empty.empty(), "Default-constructed result is not empty.");
   PQXX_CHECK(Empty.query().empty(), "Default-constructed result has query");
