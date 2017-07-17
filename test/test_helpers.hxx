@@ -25,21 +25,7 @@ public:
 };
 
 
-/// For backends that don't have generate_series(): sequence of ints
-/** If the backend lacks generate_series(), prepares a temp table called
- * series" containing given range of numbers (including lowest and highest).
- *
- * Use select_series() to construct a query selecting a range of numbers.  For
- * the workaround on older backends to work, the ranges of numbers passed to
- * select_series() must be subsets of the range passed here.
- */
-void prepare_series(transaction_base &t, int lowest, int highest);
-
-
-/// Generate query selecting series of numbers from lowest to highest, inclusive
-/** Needs to see connection object to determine whether the backend supports
- * generate_series().
- */
+/// Generate query selecting the numbers from lowest to highest, inclusive.
 std::string select_series(connection_base &conn, int lowest, int highest);
 
 
@@ -91,10 +77,6 @@ public:
   {
     CONNECTION c;
     TRANSACTION t(c, name());
-
-    // Workaround for older backend versions that lack generate_series().
-    prepare_series(t, 0, 100);
-
     m_func(t);
   }
 };

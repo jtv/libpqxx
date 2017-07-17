@@ -64,19 +64,6 @@ const test_map &register_test(base_test *tc)
 }
 
 
-void prepare_series(transaction_base &t, int lowest, int highest)
-{
-  connection_base &conn = t.conn();
-  // Don't do this for nullconnections, so nullconnection tests can run.
-  if (conn.is_open() && !have_generate_series(conn))
-  {
-    t.exec("CREATE TEMP TABLE series(x integer)");
-    for (int x=lowest; x <= highest; ++x)
-      t.exec("INSERT INTO series(x) VALUES (" + to_string(x) + ")");
-  }
-}
-
-
 string select_series(connection_base &conn, int lowest, int highest)
 {
   if (have_generate_series(conn))

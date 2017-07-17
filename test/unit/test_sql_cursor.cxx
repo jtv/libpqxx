@@ -213,7 +213,6 @@ void test_adopted_sql_cursor(connection_base &conn, transaction_base &trans)
   // Owned adopted cursors are cleaned up on destruction.
   connection conn2;
   work trans2(conn2, "trans2");
-  pqxx::test::prepare_series(trans2, 0, 5);
   trans2.exec(
 	"DECLARE adopted2 CURSOR FOR " +
 	pqxx::test::select_series(conn2, 1, 3));
@@ -238,7 +237,6 @@ void test_adopted_sql_cursor(connection_base &conn, transaction_base &trans)
   trans2.abort();
 
   work trans3(conn2, "trans3");
-  pqxx::test::prepare_series(trans3, 1, 3);
   trans3.exec(
 	"DECLARE adopted3 CURSOR FOR " +
 	pqxx::test::select_series(conn2, 1, 3));
