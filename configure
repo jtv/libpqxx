@@ -16575,56 +16575,6 @@ $as_echo "$have_exp_optional" >&6; }
 
 usestd="namespace std {} using namespace std;"
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking \"warning\" preprocessor directive" >&5
-$as_echo_n "checking \"warning\" preprocessor directive... " >&6; }
-cpp_warning=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#warning cpp supports warning directive
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_CPP_WARNING 1" >>confdefs.h
-
-else
-  cpp_warning=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cpp_warning" >&5
-$as_echo "$cpp_warning" >&6; }
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking \"message\" preprocessor pragma" >&5
-$as_echo_n "checking \"message\" preprocessor pragma... " >&6; }
-cpp_pragma_message=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#pragma message("cpp supports message pragma")
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_CPP_PRAGMA_MESSAGE 1" >>confdefs.h
-
-else
-  cpp_pragma_message=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cpp_pragma_message" >&5
-$as_echo "$cpp_pragma_message" >&6; }
-
 # Find PostgreSQL includes and libraries
 for ac_prog in pg_config
 do

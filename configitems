@@ -9,8 +9,6 @@ PACKAGE_VERSION	internal	autotools
 PQXX_HAVE_GCC_CONST	public	compiler
 PQXX_HAVE_GCC_DEPRECATED	public	compiler
 PQXX_HAVE_GCC_PURE	public	compiler
-PQXX_HAVE_CPP_PRAGMA_MESSAGE	public	compiler
-PQXX_HAVE_CPP_WARNING	public	compiler
 PQXX_HAVE_DEPRECATED	public	compiler
 PQXX_HAVE_DELETED_OP	public	compiler
 PQXX_HAVE_FINAL	public	compiler

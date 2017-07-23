@@ -255,20 +255,6 @@ AC_MSG_RESULT($have_exp_optional)
 
 usestd="namespace std {} using namespace std;"
 
-AC_MSG_CHECKING(["warning" preprocessor directive])
-cpp_warning=yes
-AC_TRY_COMPILE([#warning cpp supports warning directive], [], AC_DEFINE(PQXX_HAVE_CPP_WARNING, 1,
-[Define if preprocessor supports nonstandard "warning" directive]),
-cpp_warning=no)
-AC_MSG_RESULT($cpp_warning)
-
-AC_MSG_CHECKING(["message" preprocessor pragma])
-cpp_pragma_message=yes
-AC_TRY_COMPILE([#pragma message("cpp supports message pragma")], [], AC_DEFINE(PQXX_HAVE_CPP_PRAGMA_MESSAGE, 1,
-[Define if preprocessor supports pragma "message"]),
-cpp_pragma_message=no)
-AC_MSG_RESULT($cpp_pragma_message)
-
 # Find PostgreSQL includes and libraries
 AC_PATH_PROGS(PG_CONFIG, pg_config)
 if test -z "$PG_CONFIG" || test ! -r "$PG_CONFIG"; then

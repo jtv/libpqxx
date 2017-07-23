@@ -57,12 +57,6 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Define if preprocessor supports pragma "message" */
-#undef PQXX_HAVE_CPP_PRAGMA_MESSAGE
-
-/* Define if preprocessor supports nonstandard "warning" directive */
-#undef PQXX_HAVE_CPP_WARNING
-
 /* Define if the compiler supports "= delete" member functions. */
 #undef PQXX_HAVE_DELETED_OP
 
