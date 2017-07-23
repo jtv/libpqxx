@@ -1,5 +1,6 @@
 #include <cassert>
 #include <iostream>
+#include <iterator>
 #include <list>
 
 #include "test_helpers.hxx"
@@ -40,7 +41,7 @@ template<typename ITER> string subst(transaction_base &t,
 	ITER patbegin,
 	ITER patend)
 {
-  ptrdiff_t i = pqxx::internal::distance(patbegin, patend);
+  ptrdiff_t i = distance(patbegin, patend);
   for (ITER arg = patend; i > 0; --i)
   {
    --arg;

@@ -17,6 +17,8 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
+#include <iterator>
+
 #include "pqxx/dbtransaction"
 #include "pqxx/pipeline"
 
@@ -223,7 +225,7 @@ void pqxx::pipeline::issue()
   std::string cum = separated_list(
           theSeparator, oldest, m_queries.end(), getquery());
   const QueryMap::size_type num_issued =
-    QueryMap::size_type(internal::distance(oldest, m_queries.end()));
+    QueryMap::size_type(std::distance(oldest, m_queries.end()));
   const bool prepend_dummy = (num_issued > 1);
   if (prepend_dummy) cum = theDummyQuery + cum;
 
@@ -334,7 +336,7 @@ void pqxx::pipeline::obtain_dummy()
 
 
   // Reset internal state to forget botched batch attempt
-  m_num_waiting += int(internal::distance(m_issuedrange.first, stop));
+  m_num_waiting += int(std::distance(m_issuedrange.first, stop));
   m_issuedrange.second = m_issuedrange.first;
 
   pqxxassert(!m_dummy_pending);
@@ -367,7 +369,7 @@ void pqxx::pipeline::obtain_dummy()
     set_error_at( (q == m_queries.end()) ?  thud + 1 : q->first);
 
     pqxxassert(m_num_waiting ==
-      internal::distance(m_issuedrange.second, m_queries.end()));
+      std::distance(m_issuedrange.second, m_queries.end()));
   }
 
   pqxxassert(m_issuedrange.first != m_queries.end());
@@ -389,7 +391,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
   if (m_issuedrange.second != m_queries.end() &&
       (q->first >= m_issuedrange.second->first))
   {
-    pqxxassert(internal::distance(m_issuedrange.second, q) >= 0);
+    pqxxassert(std::distance(m_issuedrange.second, q) >= 0);
 
     if (have_pending()) receive(m_issuedrange.second);
     if (m_error == qid_limit()) issue();

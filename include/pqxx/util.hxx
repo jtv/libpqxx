@@ -701,20 +701,6 @@ PQXX_LIBEXPORT cstring strerror_wrapper(int err, char buf[], std::size_t len)
 /// Commonly used SQL commands
 extern const char sql_begin_work[], sql_commit_work[], sql_rollback_work[];
 
-
-/// Wrapper for std::distance; not all platforms have std::distance().
-template<typename T> inline std::ptrdiff_t distance(T first, T last)
-{
-#ifdef PQXX_HAVE_DISTANCE
-  return std::distance(first, last);
-#else
-  // Naive implementation.  All we really need for now.
-  std::ptrdiff_t d;
-  for (d=0; first != last; ++d) ++first;
-  return d;
-#endif
-}
-
 } // namespace internal
 } // namespace pqxx
 

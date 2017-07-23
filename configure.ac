@@ -730,16 +730,6 @@ AC_TRY_COMPILE([#include <cmath>
 )
 AC_MSG_RESULT($isinf)
 
-AC_MSG_CHECKING([for standard distance()])
-distance=yes
-AC_TRY_COMPILE([#include <iterator>
-	${usestd}],
-	[int i[1]; return distance(i, i+1)],
-	[AC_DEFINE(PQXX_HAVE_DISTANCE,
-		1,
-		[Define if distance() works according to the standard])],
-	[distance='no'])
-AC_MSG_RESULT($distance)
 
 AC_MSG_CHECKING([for shared_ptr])
 sharedptr='yes'

@@ -72,9 +72,6 @@
 /* Define if compiler supports [[deprecated]] attribute */
 #undef PQXX_HAVE_DEPRECATED
 
-/* Define if distance() works according to the standard */
-#undef PQXX_HAVE_DISTANCE
-
 /* Define if the compiler supports std::experimental::optional. */
 #undef PQXX_HAVE_EXP_OPTIONAL
 
