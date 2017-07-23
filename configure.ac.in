@@ -177,28 +177,6 @@ AC_TRY_COMPILE([__attribute__ ((deprecated)) void f();],
 	gcc_deprecated=no)
 AC_MSG_RESULT($gcc_deprecated)
 
-AC_MSG_CHECKING([C++11 noreturn attribute])
-noreturn=yes
-AC_TRY_COMPILE([
-	[[noreturn]] void f();
-        void f(){throw 1;}
-	], [],
-	AC_DEFINE([PQXX_HAVE_NORETURN],1,
-		[Define if compiler supports [[noreturn]] attribute]),
-	noreturn=no)
-AC_MSG_RESULT($noreturn)
-
-AC_MSG_CHECKING([g++ noreturn attribute])
-gcc_noreturn=yes
-AC_TRY_COMPILE([
-	__attribute__ ((noreturn)) void f();
-        void f(){throw 1;}
-	], [],
-	AC_DEFINE([PQXX_HAVE_GCC_NORETURN],1,
-		[Define if g++ supports noreturn attribute]),
-	gcc_noreturn=no)
-AC_MSG_RESULT($gcc_noreturn)
-
 AC_MSG_CHECKING([g++ pure attribute])
 gcc_pure=yes
 AC_TRY_COMPILE([void __attribute__ ((pure)) f();],
@@ -210,17 +188,6 @@ AC_MSG_RESULT($gcc_pure)
 
 fi
 
-AC_MSG_CHECKING([for C++11 noexcept support])
-noexcept_keyword=yes
-AC_TRY_COMPILE(
-	[void foo() noexcept {}],
-	[],
-	AC_DEFINE(
-		[PQXX_HAVE_NOEXCEPT],
-		1,
-		[Define if the compiler supports the noexcept keyword.]),
-	noexcept_keyword=no)
-AC_MSG_RESULT($noexcept_keyword)
 
 AC_MSG_CHECKING([for C++14 override support])
 override_keyword=yes

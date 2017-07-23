@@ -8,7 +8,7 @@
  *   Throughput-optimized query manager
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/pipeline instead.
  *
- * Copyright (c) 2003-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -60,7 +60,7 @@ public:
   explicit pipeline(transaction_base &,
       const std::string &Name=std::string());				//[t69]
 
-  ~pipeline() PQXX_NOEXCEPT;
+  ~pipeline() noexcept;
 
   /// Add query to the pipeline.
   /** Queries are accumulated in the pipeline and sent to the backend in a
@@ -115,7 +115,7 @@ public:
   /** @return The query's identifier and its result set */
   std::pair<query_id, result> retrieve();				//[t69]
 
-  bool empty() const PQXX_NOEXCEPT { return m_queries.empty(); }	//[t69]
+  bool empty() const noexcept { return m_queries.empty(); }		//[t69]
 
   /// Set maximum number of queries to retain before issuing them to the backend
   /** The pipeline will perform better if multiple queries are issued at once,
@@ -141,9 +141,9 @@ private:
   public:
     explicit Query(const std::string &q) : m_query(q), m_res() {}
 
-    const result &get_result() const PQXX_NOEXCEPT { return m_res; }
-    void set_result(const result &r) PQXX_NOEXCEPT { m_res = r; }
-    const std::string &get_query() const PQXX_NOEXCEPT { return m_query; }
+    const result &get_result() const noexcept { return m_res; }
+    void set_result(const result &r) noexcept { m_res = r; }
+    const std::string &get_query() const noexcept { return m_query; }
 
   private:
     std::string m_query;
@@ -163,7 +163,7 @@ private:
   void detach();
 
   /// Upper bound to query id's
-  static query_id qid_limit() PQXX_NOEXCEPT
+  static query_id qid_limit() noexcept
   {
     return std::numeric_limits<query_id>::max();
   }
@@ -171,17 +171,17 @@ private:
   /// Create new query_id
   PQXX_PRIVATE query_id generate_id();
 
-  bool have_pending() const PQXX_NOEXCEPT
+  bool have_pending() const noexcept
 	{ return m_issuedrange.second != m_issuedrange.first; }
 
   PQXX_PRIVATE void issue();
 
   /// The given query failed; never issue anything beyond that
-  void set_error_at(query_id qid) PQXX_NOEXCEPT
+  void set_error_at(query_id qid) noexcept
 	{ if (qid < m_error) m_error = qid; }
 
   /// Throw pqxx::internal_error.
-  PQXX_NORETURN PQXX_PRIVATE void internal_error(const std::string &err);
+  [[noreturn]] PQXX_PRIVATE void internal_error(const std::string &err);
 
   PQXX_PRIVATE bool obtain_result(bool expect_none=false);
 

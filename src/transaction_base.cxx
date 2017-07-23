@@ -8,7 +8,7 @@
  *   pqxx::transaction_base defines the interface for any abstract class that
  *   represents a database transaction
  *
- * Copyright (c) 2001-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -366,7 +366,7 @@ void pqxx::transaction_base::Begin()
 
 
 
-void pqxx::transaction_base::End() PQXX_NOEXCEPT
+void pqxx::transaction_base::End() noexcept
 {
   try
   {
@@ -409,7 +409,7 @@ void pqxx::transaction_base::RegisterFocus(internal::transactionfocus *S)
 
 
 void pqxx::transaction_base::UnregisterFocus(internal::transactionfocus *S)
-	PQXX_NOEXCEPT
+	noexcept
 {
   try
   {
@@ -430,7 +430,7 @@ pqxx::result pqxx::transaction_base::DirectExec(const char C[], int Retries)
 
 
 void pqxx::transaction_base::RegisterPendingError(const std::string &Err)
-	PQXX_NOEXCEPT
+	noexcept
 {
   if (m_PendingError.empty() && !Err.empty())
   {
@@ -521,7 +521,7 @@ void pqxx::internal::transactionfocus::register_me()
 }
 
 
-void pqxx::internal::transactionfocus::unregister_me() PQXX_NOEXCEPT
+void pqxx::internal::transactionfocus::unregister_me() noexcept
 {
   gate::transaction_transactionfocus gate(m_Trans);
   gate.UnregisterFocus(this);
@@ -530,7 +530,7 @@ void pqxx::internal::transactionfocus::unregister_me() PQXX_NOEXCEPT
 
 void
 pqxx::internal::transactionfocus::reg_pending_error(const std::string &err)
-	PQXX_NOEXCEPT
+	noexcept
 {
   gate::transaction_transactionfocus gate(m_Trans);
   gate.RegisterPendingError(err);

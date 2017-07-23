@@ -103,7 +103,8 @@ public:
     basic_transaction(C, isolation_tag::name(), READWRITE)
 	{ Begin(); }
 
-  virtual ~transaction() PQXX_NOEXCEPT				      { End(); }
+  virtual ~transaction() noexcept
+	{ End(); }
 };
 
 

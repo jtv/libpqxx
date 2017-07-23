@@ -135,7 +135,7 @@ pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
 }
 
 
-void pqxx::internal::sql_cursor::close() PQXX_NOEXCEPT
+void pqxx::internal::sql_cursor::close() noexcept
 {
   if (m_ownership==cursor_base::owned)
   {
@@ -372,7 +372,7 @@ icursorstream::size_type pqxx::icursorstream::forward(size_type n)
 }
 
 
-void pqxx::icursorstream::insert_iterator(icursor_iterator *i) PQXX_NOEXCEPT
+void pqxx::icursorstream::insert_iterator(icursor_iterator *i) noexcept
 {
   gate::icursor_iterator_icursorstream(*i).set_next(m_iterators);
   if (m_iterators)
@@ -381,8 +381,7 @@ void pqxx::icursorstream::insert_iterator(icursor_iterator *i) PQXX_NOEXCEPT
 }
 
 
-void pqxx::icursorstream::remove_iterator(icursor_iterator *i)
-	const PQXX_NOEXCEPT
+void pqxx::icursorstream::remove_iterator(icursor_iterator *i) const noexcept
 {
   gate::icursor_iterator_icursorstream igate(*i);
   if (i == m_iterators)
@@ -428,7 +427,7 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
 }
 
 
-pqxx::icursor_iterator::icursor_iterator() PQXX_NOEXCEPT :
+pqxx::icursor_iterator::icursor_iterator() noexcept :
   m_stream(0),
   m_here(),
   m_pos(0),
@@ -437,7 +436,7 @@ pqxx::icursor_iterator::icursor_iterator() PQXX_NOEXCEPT :
 {
 }
 
-pqxx::icursor_iterator::icursor_iterator(istream_type &s) PQXX_NOEXCEPT :
+pqxx::icursor_iterator::icursor_iterator(istream_type &s) noexcept :
   m_stream(&s),
   m_here(),
   m_pos(difference_type(gate::icursorstream_icursor_iterator(s).forward(0))),
@@ -448,7 +447,7 @@ pqxx::icursor_iterator::icursor_iterator(istream_type &s) PQXX_NOEXCEPT :
 }
 
 pqxx::icursor_iterator::icursor_iterator(const icursor_iterator &rhs)
-	PQXX_NOEXCEPT :
+	noexcept :
   m_stream(rhs.m_stream),
   m_here(rhs.m_here),
   m_pos(rhs.m_pos),
@@ -460,7 +459,7 @@ pqxx::icursor_iterator::icursor_iterator(const icursor_iterator &rhs)
 }
 
 
-pqxx::icursor_iterator::~icursor_iterator() PQXX_NOEXCEPT
+pqxx::icursor_iterator::~icursor_iterator() noexcept
 {
   if (m_stream)
     gate::icursorstream_icursor_iterator(*m_stream).remove_iterator(this);
@@ -502,7 +501,7 @@ icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
 
 
 icursor_iterator &
-pqxx::icursor_iterator::operator=(const icursor_iterator &rhs) PQXX_NOEXCEPT
+pqxx::icursor_iterator::operator=(const icursor_iterator &rhs) noexcept
 {
   if (rhs.m_stream == m_stream)
   {

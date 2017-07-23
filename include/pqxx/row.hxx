@@ -59,38 +59,38 @@ public:
   row() : m_Home(), m_Index(0), m_Begin(0), m_End(0) {}
 
   /// @deprecated Do not use this constructor.  It will become private.
-  row(result r, size_t i) PQXX_NOEXCEPT;
+  row(result r, size_t i) noexcept;
 
-  ~row() PQXX_NOEXCEPT {} // Yes Scott Meyers, you're absolutely right[1]
+  ~row() noexcept {} // Yes Scott Meyers, you're absolutely right[1]
 
   /**
    * @name Comparison
    */
   //@{
-  PQXX_PURE bool operator==(const row &) const PQXX_NOEXCEPT;		//[t75]
-  bool operator!=(const row &rhs) const PQXX_NOEXCEPT			//[t75]
+  PQXX_PURE bool operator==(const row &) const noexcept;		//[t75]
+  bool operator!=(const row &rhs) const noexcept			//[t75]
       { return !operator==(rhs); }
   //@}
 
-  const_iterator begin() const PQXX_NOEXCEPT;				//[t82]
-  const_iterator cbegin() const PQXX_NOEXCEPT;
-  const_iterator end() const PQXX_NOEXCEPT;				//[t82]
-  const_iterator cend() const PQXX_NOEXCEPT;
+  const_iterator begin() const noexcept;				//[t82]
+  const_iterator cbegin() const noexcept;
+  const_iterator end() const noexcept;					//[t82]
+  const_iterator cend() const noexcept;
 
   /**
    * @name Field access
    */
   //@{
-  reference front() const PQXX_NOEXCEPT;				//[t74]
-  reference back() const PQXX_NOEXCEPT;					//[t75]
+  reference front() const noexcept;					//[t74]
+  reference back() const noexcept;					//[t75]
 
   const_reverse_row_iterator rbegin() const;				//[t82]
   const_reverse_row_iterator crbegin() const;
   const_reverse_row_iterator rend() const;				//[t82]
   const_reverse_row_iterator crend() const;
 
-  reference operator[](size_type) const PQXX_NOEXCEPT;			//[t11]
-  reference operator[](int) const PQXX_NOEXCEPT;			//[t2]
+  reference operator[](size_type) const noexcept;			//[t11]
+  reference operator[](int) const noexcept;				//[t2]
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
@@ -111,12 +111,12 @@ public:
   reference at(const std::string &) const;				//[t11]
   //@}
 
-  size_type size() const PQXX_NOEXCEPT					//[t11]
+  size_type size() const noexcept					//[t11]
 						     { return m_End-m_Begin; }
 
-  void swap(row &) PQXX_NOEXCEPT;					//[t11]
+  void swap(row &) noexcept;						//[t11]
 
-  size_t rownumber() const PQXX_NOEXCEPT { return m_Index; }		//[t11]
+  size_t rownumber() const noexcept { return m_Index; }			//[t11]
 
   /**
    * @name Column information
@@ -190,7 +190,7 @@ public:
   row slice(size_type Begin, size_type End) const;
 
   // Is this an empty slice?
-  PQXX_PURE bool empty() const PQXX_NOEXCEPT;
+  PQXX_PURE bool empty() const noexcept;
 
 protected:
   friend class field;
@@ -221,10 +221,9 @@ public:
   typedef row_difference_type difference_type;
   typedef field reference;
 
-  const_row_iterator(const row &T, row_size_type C)			//[t82]
-	PQXX_NOEXCEPT :
+  const_row_iterator(const row &T, row_size_type C) noexcept :		//[t82]
     field(T, C) {}
-  const_row_iterator(const field &F) PQXX_NOEXCEPT : field(F) {}	//[t82]
+  const_row_iterator(const field &F) noexcept : field(F) {}		//[t82]
 
   /**
    * @name Dereferencing operators
@@ -304,10 +303,10 @@ public:
   const_reverse_row_iterator(const const_reverse_row_iterator &r) :	//[t82]
     const_row_iterator(r) {}
   explicit
-    const_reverse_row_iterator(const super &rhs) PQXX_NOEXCEPT :	//[t82]
+    const_reverse_row_iterator(const super &rhs) noexcept :		//[t82]
       const_row_iterator(rhs) { super::operator--(); }
 
-  PQXX_PURE iterator_type base() const PQXX_NOEXCEPT;			//[t82]
+  PQXX_PURE iterator_type base() const noexcept;			//[t82]
 
   /**
    * @name Dereferencing operators
@@ -353,11 +352,9 @@ public:
    * @name Comparisons
    */
   //@{
-  bool operator==(const const_reverse_row_iterator &rhs)		//[t82]
-	const PQXX_NOEXCEPT
+  bool operator==(const const_reverse_row_iterator &rhs) const noexcept	//[t82]
       { return iterator_type::operator==(rhs); }
-  bool operator!=(const const_reverse_row_iterator &rhs)		//[t82]
-	const PQXX_NOEXCEPT
+  bool operator!=(const const_reverse_row_iterator &rhs) const noexcept	//[t82]
       { return !operator==(rhs); }
 
   bool operator<(const const_reverse_row_iterator &rhs) const		//[t82]

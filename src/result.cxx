@@ -45,7 +45,7 @@ pqxx::result::result(
 }
 
 
-bool pqxx::result::operator==(const result &rhs) const PQXX_NOEXCEPT
+bool pqxx::result::operator==(const result &rhs) const noexcept
 {
   if (&rhs == this) return true;
   const size_type s(size());
@@ -80,50 +80,50 @@ pqxx::result::const_reverse_iterator pqxx::result::crend() const
 }
 
 
-pqxx::result::const_iterator pqxx::result::begin() const PQXX_NOEXCEPT
+pqxx::result::const_iterator pqxx::result::begin() const noexcept
 {
   return const_iterator(this, 0);
 }
 
 
-pqxx::result::const_iterator pqxx::result::cbegin() const PQXX_NOEXCEPT
+pqxx::result::const_iterator pqxx::result::cbegin() const noexcept
 {
   return begin();
 }
 
 
-pqxx::result::size_type pqxx::result::size() const PQXX_NOEXCEPT
+pqxx::result::size_type pqxx::result::size() const noexcept
 {
   return m_data.get() ? size_type(PQntuples(m_data.get())) : 0;
 }
 
 
-bool pqxx::result::empty() const PQXX_NOEXCEPT
+bool pqxx::result::empty() const noexcept
 {
   return !m_data.get() || !PQntuples(m_data.get());
 }
 
 
-pqxx::result::reference pqxx::result::front() const PQXX_NOEXCEPT
+pqxx::result::reference pqxx::result::front() const noexcept
 {
   return row(*this, 0);
 }
 
 
-pqxx::result::reference pqxx::result::back() const PQXX_NOEXCEPT
+pqxx::result::reference pqxx::result::back() const noexcept
 {
   return row(*this, size() - 1);
 }
 
 
-void pqxx::result::swap(result &rhs) PQXX_NOEXCEPT
+void pqxx::result::swap(result &rhs) noexcept
 {
   m_data.swap(rhs.m_data);
   m_query.swap(rhs.m_query);
 }
 
 
-const pqxx::row pqxx::result::operator[](result_size_type i) const PQXX_NOEXCEPT
+const pqxx::row pqxx::result::operator[](result_size_type i) const noexcept
 {
   return row(*this, i);
 }
@@ -254,13 +254,13 @@ std::string pqxx::result::StatusError() const
 }
 
 
-const char *pqxx::result::CmdStatus() const PQXX_NOEXCEPT
+const char *pqxx::result::CmdStatus() const noexcept
 {
   return PQcmdStatus(const_cast<internal::pq::PGresult *>(m_data.get()));
 }
 
 
-const std::string &pqxx::result::query() const PQXX_NOEXCEPT
+const std::string &pqxx::result::query() const noexcept
 {
   return m_query;
 }
@@ -300,7 +300,7 @@ bool pqxx::result::GetIsNull(
 
 pqxx::field::size_type pqxx::result::GetLength(
 	pqxx::result::size_type Row,
-        pqxx::row::size_type Col) const PQXX_NOEXCEPT
+        pqxx::row::size_type Col) const noexcept
 {
   return field::size_type(PQgetlength(m_data.get(), int(Row), int(Col)));
 }
@@ -353,7 +353,7 @@ pqxx::row::size_type pqxx::result::table_column(row::size_type ColNum) const
     "not derived from table column");
 }
 
-int pqxx::result::errorposition() const PQXX_NOEXCEPT
+int pqxx::result::errorposition() const noexcept
 {
   int pos = -1;
   if (m_data.get())
@@ -377,7 +377,7 @@ const char *pqxx::result::column_name(pqxx::row::size_type Number) const
 }
 
 
-pqxx::row::size_type pqxx::result::columns() const PQXX_NOEXCEPT
+pqxx::row::size_type pqxx::result::columns() const noexcept
 {
   internal::pq::PGresult *ptr =
 	const_cast<internal::pq::PGresult *>(m_data.get());
@@ -404,7 +404,7 @@ pqxx::const_result_iterator pqxx::const_result_iterator::operator--(int)
 
 
 pqxx::result::const_iterator
-pqxx::result::const_reverse_iterator::base() const PQXX_NOEXCEPT
+pqxx::result::const_reverse_iterator::base() const noexcept
 {
   iterator_type tmp(*this);
   return ++tmp;

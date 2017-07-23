@@ -82,7 +82,7 @@ public:
   virtual void operator()(const std::string &payload, int backend_pid) =0;
 
 protected:
-  connection_base &conn() const PQXX_NOEXCEPT { return m_conn; }
+  connection_base &conn() const noexcept { return m_conn; }
 
 private:
   // Not allowed.

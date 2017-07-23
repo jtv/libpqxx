@@ -48,7 +48,7 @@ public:
       ITER begincolumns,
       ITER endcolumns,
       const std::string &Null);
-  ~tablewriter() PQXX_NOEXCEPT;
+  ~tablewriter() noexcept;
   template<typename IT> void insert(IT Begin, IT End);
   template<typename TUPLE> void insert(const TUPLE &);
   template<typename IT> void push_back(IT Begin, IT End);
@@ -74,10 +74,10 @@ template<>
 	public iterator<output_iterator_tag, void,void,void,void>
 {
 public:
-  explicit back_insert_iterator(pqxx::tablewriter &W) PQXX_NOEXCEPT :
+  explicit back_insert_iterator(pqxx::tablewriter &W) noexcept :
     m_Writer(&W) {}
   back_insert_iterator &
-    operator=(const back_insert_iterator &rhs) PQXX_NOEXCEPT
+    operator=(const back_insert_iterator &rhs) noexcept
   {
     m_Writer = rhs.m_Writer;
     return *this;

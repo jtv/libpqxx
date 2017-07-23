@@ -33,11 +33,11 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE tablestream :
 public:
   explicit tablestream(transaction_base &Trans,
 	      const std::string &Null=std::string());
-  virtual ~tablestream() PQXX_NOEXCEPT =0;
+  virtual ~tablestream() noexcept =0;
   virtual void complete() =0;
 protected:
   const std::string &NullStr() const { return m_Null; }
-  bool is_finished() const PQXX_NOEXCEPT { return m_Finished; }
+  bool is_finished() const noexcept { return m_Finished; }
   void base_close();
   template<typename ITER>
   static std::string columnlist(ITER colbegin, ITER colend);

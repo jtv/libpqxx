@@ -43,7 +43,7 @@ public:
   typedef large_object_size_type size_type;
 
   /// Refer to a nonexistent large object (similar to what a null pointer does)
-  largeobject() PQXX_NOEXCEPT;						//[t48]
+  largeobject() noexcept;						//[t48]
 
   /// Create new large object
   /** @param T Backend transaction in which the object is to be created
@@ -55,7 +55,7 @@ public:
    * large object identity.  Does not affect the database.
    * @param O Object identifier for the given object
    */
-  explicit largeobject(oid O) PQXX_NOEXCEPT : m_ID(O) {}		//[t48]
+  explicit largeobject(oid O) noexcept : m_ID(O) {}			//[t48]
 
   /// Import large object from a local file
   /** Creates a large object containing the data found in the given file.
@@ -69,14 +69,14 @@ public:
    * as an implicit conversion.
    * @param O Already opened large object to copy identity from
    */
-  largeobject(const largeobjectaccess &O) PQXX_NOEXCEPT;		//[t50]
+  largeobject(const largeobjectaccess &O) noexcept;			//[t50]
 
   /// Object identifier
   /** The number returned by this function identifies the large object in the
    * database we're connected to (or oid_none is returned if we refer to the
    * null object).
    */
-  oid id() const PQXX_NOEXCEPT { return m_ID; }				//[t48]
+  oid id() const noexcept { return m_ID; }				//[t48]
 
   /**
    * @name Identity comparisons
@@ -199,7 +199,7 @@ public:
 		    const std::string &File,
 		    openmode mode=std::ios::in|std::ios::out);		//[t55]
 
-  ~largeobjectaccess() PQXX_NOEXCEPT { close(); }
+  ~largeobjectaccess() noexcept { close(); }
 
   /// Object identifier
   /** The number returned by this function uniquely identifies the large object
@@ -274,7 +274,7 @@ public:
    *        ios_base;:end (from end of object)
    * @return New position in large object, or -1 if an error occurred.
    */
-  pos_type cseek(off_type dest, seekdir dir) PQXX_NOEXCEPT;		//[t50]
+  pos_type cseek(off_type dest, seekdir dir) noexcept;			//[t50]
 
   /// Write to large object's data stream
   /** Does not throw exception in case of error; inspect return value and
@@ -283,7 +283,7 @@ public:
    * @param Len Number of bytes to write
    * @return Number of bytes actually written, or -1 if an error occurred.
    */
-  off_type cwrite(const char Buf[], size_type Len) PQXX_NOEXCEPT;	//[t50]
+  off_type cwrite(const char Buf[], size_type Len) noexcept;		//[t50]
 
   /// Read from large object's data stream
   /** Does not throw exception in case of error; inspect return value and
@@ -292,14 +292,14 @@ public:
    * @param Len Number of bytes to read
    * @return Number of bytes actually read, or -1 if an error occurred.
    */
-  off_type cread(char Buf[], size_type Len) PQXX_NOEXCEPT;		//[t50]
+  off_type cread(char Buf[], size_type Len) noexcept;			//[t50]
 
   /// Report current position in large object's data stream
   /** Does not throw exception in case of error; inspect return value and
    * @c errno instead.
    * @return Current position in large object, of -1 if an error occurred.
    */
-  pos_type ctell() const PQXX_NOEXCEPT;					//[t50]
+  pos_type ctell() const noexcept;					//[t50]
   //@}
 
   /**
@@ -307,7 +307,7 @@ public:
    */
   //@{
   /// Issue message to transaction's notice processor
-  void process_notice(const std::string &) PQXX_NOEXCEPT;		//[t50]
+  void process_notice(const std::string &) noexcept;			//[t50]
   //@}
 
   using largeobject::remove;
@@ -325,7 +325,7 @@ private:
 	{ return largeobject::RawConnection(m_Trans); }
 
   void open(openmode mode);
-  void close() PQXX_NOEXCEPT;
+  void close() noexcept;
 
   dbtransaction &m_Trans;
   int m_fd;
@@ -380,7 +380,7 @@ public:
     m_P(0)
 	{ initialize(mode); }
 
-  virtual ~largeobject_streambuf() PQXX_NOEXCEPT
+  virtual ~largeobject_streambuf() noexcept
 	{ delete [] m_P; delete [] m_G; }
 
 

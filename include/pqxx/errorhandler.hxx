@@ -66,13 +66,13 @@ public:
    * @return Whether the same error message should also be passed to the
    * remaining, older errorhandlers.
    */
-  virtual bool operator()(const char msg[]) PQXX_NOEXCEPT =0;
+  virtual bool operator()(const char msg[]) noexcept =0;
 
 private:
   connection_base *m_home;
 
   friend class internal::gate::errorhandler_connection_base;
-  void unregister() PQXX_NOEXCEPT;
+  void unregister() noexcept;
 
   // Not allowed:
   errorhandler() PQXX_DELETED_OP;
@@ -87,7 +87,7 @@ class quiet_errorhandler : public errorhandler
 public:
   quiet_errorhandler(connection_base &conn) : errorhandler(conn) {}
 
-  virtual bool operator()(const char[]) PQXX_NOEXCEPT PQXX_OVERRIDE
+  virtual bool operator()(const char[]) noexcept PQXX_OVERRIDE
 							       { return false; }
 };
 

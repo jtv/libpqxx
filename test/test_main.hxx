@@ -42,7 +42,7 @@ test_failure::test_failure(const string &ffile, int fline, const string &desc) :
 {
 }
 
-test_failure::~test_failure() PQXX_NOEXCEPT {}
+test_failure::~test_failure() noexcept {}
 
 
 base_test::base_test(const string &tname, testfunc func) :
@@ -124,7 +124,7 @@ void drop_table(transaction_base &t, const std::string &table)
 }
 
 
-PQXX_NORETURN void check_notreached(const char file[], int line, string desc)
+[[noreturn]] void check_notreached(const char file[], int line, string desc)
 {
   throw test_failure(file, line, desc);
 }

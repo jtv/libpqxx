@@ -122,8 +122,8 @@ public:
   explicit connect_async(const std::string &opts);
   virtual handle do_startconnect(handle) PQXX_OVERRIDE;
   virtual handle do_completeconnect(handle) PQXX_OVERRIDE;
-  virtual handle do_dropconnect(handle) PQXX_NOEXCEPT PQXX_OVERRIDE;
-  virtual bool is_ready(handle) const PQXX_NOEXCEPT PQXX_OVERRIDE;
+  virtual handle do_dropconnect(handle) noexcept PQXX_OVERRIDE;
+  virtual bool is_ready(handle) const noexcept PQXX_OVERRIDE;
 
 private:
   /// Is a connection attempt in progress?

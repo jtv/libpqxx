@@ -53,7 +53,7 @@ public:
    * @param R Row that this field is part of.
    * @param C Column number of this field.
    */
-  field(const row &R, row_size_type C) PQXX_NOEXCEPT;		//[t1]
+  field(const row &R, row_size_type C) noexcept;			//[t1]
 
   /**
    * @name Comparison
@@ -181,20 +181,20 @@ public:
 #endif
 
   /// Is this field's value null?
-  bool is_null() const PQXX_NOEXCEPT;					//[t12]
+  bool is_null() const noexcept;					//[t12]
 
   /// Return number of bytes taken up by the field's value.
   /**
    * Includes the terminating zero byte.
    */
-  size_type size() const PQXX_NOEXCEPT;					//[t11]
+  size_type size() const noexcept;					//[t11]
   //@}
 
 
 protected:
-  const result *home() const PQXX_NOEXCEPT { return m_home; }
-  size_t idx() const PQXX_NOEXCEPT { return m_row; }
-  row_size_type col() const PQXX_NOEXCEPT { return m_col; }
+  const result *home() const noexcept { return m_home; }
+  size_t idx() const noexcept { return m_row; }
+  row_size_type col() const noexcept { return m_col; }
 
   row_size_type m_col;
 

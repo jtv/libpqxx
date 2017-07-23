@@ -47,10 +47,10 @@ public:
       ITER begincolumns,
       ITER endcolumns,
       const std::string &Null);
-  ~tablereader() PQXX_NOEXCEPT;
+  ~tablereader() noexcept;
   template<typename TUPLE> tablereader &operator>>(TUPLE &);
-  operator bool() const PQXX_NOEXCEPT { return !m_Done; }
-  bool operator!() const PQXX_NOEXCEPT { return m_Done; }
+  operator bool() const noexcept { return !m_Done; }
+  bool operator!() const noexcept { return m_Done; }
   bool get_raw_line(std::string &Line);
   template<typename TUPLE>
   void tokenize(std::string, TUPLE &) const;

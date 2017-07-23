@@ -18,10 +18,10 @@ public:
 	int fline,
 	const std::string &desc);
 
-  ~test_failure() PQXX_NOEXCEPT;
+  ~test_failure() noexcept;
 
-  const std::string &file() const PQXX_NOEXCEPT { return m_file; }
-  int line() const PQXX_NOEXCEPT { return m_line; }
+  const std::string &file() const noexcept { return m_file; }
+  int line() const noexcept { return m_line; }
 };
 
 
@@ -52,7 +52,7 @@ public:
   virtual void run() =0;
 
   virtual ~base_test() =0;
-  const std::string &name() const PQXX_NOEXCEPT { return m_name; }
+  const std::string &name() const noexcept { return m_name; }
 private:
   std::string m_name;
 protected:
@@ -118,7 +118,7 @@ public:
 // Unconditional test failure.
 #define PQXX_CHECK_NOTREACHED(desc) \
 	pqxx::test::check_notreached(__FILE__, __LINE__, (desc))
-PQXX_NORETURN void check_notreached( \
+[[noreturn]] void check_notreached( \
 	const char file[], \
 	int line, \
 	std::string desc);

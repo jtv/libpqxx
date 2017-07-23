@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      Various utility functions for libpqxx
  *
- * Copyright (c) 2003-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -53,7 +53,7 @@ const char pqxx::internal::sql_begin_work[] = "BEGIN",
       pqxx::internal::sql_rollback_work[] = "ROLLBACK";
 
 
-pqxx::thread_safety_model pqxx::describe_thread_safety() PQXX_NOEXCEPT
+pqxx::thread_safety_model pqxx::describe_thread_safety() noexcept
 {
   thread_safety_model model;
 
@@ -108,7 +108,7 @@ pqxx::internal::refcount::~refcount()
 }
 
 
-void pqxx::internal::refcount::makeref(refcount &rhs) PQXX_NOEXCEPT
+void pqxx::internal::refcount::makeref(refcount &rhs) noexcept
 {
   // TODO: Make threadsafe
   m_l = &rhs;
@@ -117,7 +117,7 @@ void pqxx::internal::refcount::makeref(refcount &rhs) PQXX_NOEXCEPT
 }
 
 
-bool pqxx::internal::refcount::loseref() PQXX_NOEXCEPT
+bool pqxx::internal::refcount::loseref() noexcept
 {
   // TODO: Make threadsafe
   const bool result = (m_l == this);
@@ -177,13 +177,13 @@ void pqxx::internal::CheckUniqueUnregistration(const namedclass *New,
 }
 
 
-void pqxx::internal::freepqmem(const void *p) PQXX_NOEXCEPT
+void pqxx::internal::freepqmem(const void *p) noexcept
 {
   PQfreemem(const_cast<void *>(p));
 }
 
 
-void pqxx::internal::freemallocmem(const void *p) PQXX_NOEXCEPT
+void pqxx::internal::freemallocmem(const void *p) noexcept
 {
   free(const_cast<void *>(p));
 }
@@ -224,7 +224,7 @@ void pqxx::internal::sleep_seconds(int s)
 #if !defined(PQXX_HAVE_STRERROR_R) || !defined(PQXX_HAVE_STRERROR_R_GNU)
 namespace
 {
-void cpymsg(char buf[], const char input[], size_t buflen) PQXX_NOEXCEPT
+void cpymsg(char buf[], const char input[], size_t buflen) noexcept
 {
 #if defined(PQXX_HAVE_STRLCPY)
   strlcpy(buf, input, buflen);
@@ -238,7 +238,7 @@ void cpymsg(char buf[], const char input[], size_t buflen) PQXX_NOEXCEPT
 
 
 cstring pqxx::internal::strerror_wrapper(int err, char buf[], std::size_t len)
-	PQXX_NOEXCEPT
+	noexcept
 {
   if (!buf || len <= 0) return "No buffer provided for error message!";
 

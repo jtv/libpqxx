@@ -13,7 +13,7 @@ class PQXX_PRIVATE transaction_transactionfocus : callgate<transaction_base>
   transaction_transactionfocus(reference x) : super(x) {}
 
   void RegisterFocus(transactionfocus *focus) { home().RegisterFocus(focus); }
-  void UnregisterFocus(transactionfocus *focus) PQXX_NOEXCEPT
+  void UnregisterFocus(transactionfocus *focus) noexcept
 	{ home().UnregisterFocus(focus); }
   void RegisterPendingError(const std::string &error)
 	{ home().RegisterPendingError(error); }

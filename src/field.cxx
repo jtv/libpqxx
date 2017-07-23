@@ -7,7 +7,7 @@
  *      implementation of the pqxx::field class.
  *   pqxx::field refers to a field in a query result.
  *
- * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -24,8 +24,7 @@
 #include "pqxx/row"
 
 
-pqxx::field::field(const pqxx::row &R, pqxx::row::size_type C)
-	PQXX_NOEXCEPT :
+pqxx::field::field(const pqxx::row &R, pqxx::row::size_type C) noexcept :
   m_col(C),
   m_home(&R.m_Home),
   m_row(R.m_Index)
@@ -75,13 +74,13 @@ const char *pqxx::field::c_str() const
 }
 
 
-bool pqxx::field::is_null() const PQXX_NOEXCEPT
+bool pqxx::field::is_null() const noexcept
 {
   return home()->GetIsNull(idx(), col());
 }
 
 
-pqxx::field::size_type pqxx::field::size() const PQXX_NOEXCEPT
+pqxx::field::size_type pqxx::field::size() const noexcept
 {
   return home()->GetLength(idx(), col());
 }

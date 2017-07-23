@@ -57,9 +57,9 @@ public:
 
 protected:
   void register_me();
-  void unregister_me() PQXX_NOEXCEPT;
-  void reg_pending_error(const std::string &) PQXX_NOEXCEPT;
-  bool registered() const PQXX_NOEXCEPT { return m_registered; }
+  void unregister_me() noexcept;
+  void reg_pending_error(const std::string &) noexcept;
+  bool registered() const noexcept { return m_registered; }
 
   transaction_base &m_Trans;
 
@@ -387,7 +387,7 @@ protected:
   void Begin();
 
   /// End transaction.  To be called by implementing class' destructor
-  void End() PQXX_NOEXCEPT;
+  void End() noexcept;
 
   /// To be implemented by derived implementation class: start transaction
   virtual void do_begin() =0;
@@ -412,7 +412,7 @@ protected:
   result DirectExec(const char C[], int Retries=0);
 
   /// Forget about any reactivation-blocking resources we tried to allocate
-  void reactivation_avoidance_clear() PQXX_NOEXCEPT
+  void reactivation_avoidance_clear() noexcept
 	{m_reactivation_avoidance.clear();}
 
 protected:
@@ -455,15 +455,15 @@ private:
 
   PQXX_PRIVATE void CheckPendingError();
 
-  template<typename T> bool parm_is_null(T *p) const PQXX_NOEXCEPT
+  template<typename T> bool parm_is_null(T *p) const noexcept
 	{ return !p; }
-  template<typename T> bool parm_is_null(T) const PQXX_NOEXCEPT
+  template<typename T> bool parm_is_null(T) const noexcept
 	{ return false; }
 
   friend class pqxx::internal::gate::transaction_transactionfocus;
   PQXX_PRIVATE void RegisterFocus(internal::transactionfocus *);
-  PQXX_PRIVATE void UnregisterFocus(internal::transactionfocus *) PQXX_NOEXCEPT;
-  PQXX_PRIVATE void RegisterPendingError(const std::string &) PQXX_NOEXCEPT;
+  PQXX_PRIVATE void UnregisterFocus(internal::transactionfocus *) noexcept;
+  PQXX_PRIVATE void RegisterPendingError(const std::string &) noexcept;
 
   friend class pqxx::internal::gate::transaction_tablereader;
   PQXX_PRIVATE void BeginCopyRead(const std::string &, const std::string &);

@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      Compiler deficiency workarounds for libpqxx clients
  *
- * Copyright (c) 2002-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -26,12 +26,6 @@
 #define PQXX_MOVE(value) (std::move(value))
 #else
 #define PQXX_MOVE(value) (value)
-#endif
-
-#ifdef PQXX_HAVE_NOEXCEPT
-#define PQXX_NOEXCEPT noexcept
-#else
-#define PQXX_NOEXCEPT throw ()
 #endif
 
 #ifdef PQXX_HAVE_DELETED_OP
@@ -103,16 +97,6 @@
 #define PQXX_DEPRECATED __attribute__ ((deprecated))
 #else
 #define PQXX_DEPRECATED
-#endif
-
-#if defined(PQXX_HAVE_NORETURN)
-#define PQXX_NORETURN [[noreturn]]
-#elif defined(__GNUC__) && defined(PQXX_HAVE_GCC_NORETURN)
-#define PQXX_NORETURN __attribute__ ((noreturn))
-#elif defined(_MSC_VER)
-#define PQXX_NORETURN _declspec(noreturn)
-#else
-#define PQXX_NORETURN
 #endif
 
 #if defined(__GNUC__) && defined(PQXX_HAVE_GCC_PURE)

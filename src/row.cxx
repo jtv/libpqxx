@@ -28,7 +28,7 @@
 #include "pqxx/internal/gates/result-row.hxx"
 
 
-pqxx::row::row(result r, size_t i) PQXX_NOEXCEPT :
+pqxx::row::row(result r, size_t i) noexcept :
   m_Home(r),
   m_Index(i),
   m_Begin(0),
@@ -37,37 +37,37 @@ pqxx::row::row(result r, size_t i) PQXX_NOEXCEPT :
 }
 
 
-pqxx::row::const_iterator pqxx::row::begin() const PQXX_NOEXCEPT
+pqxx::row::const_iterator pqxx::row::begin() const noexcept
 {
   return const_iterator(*this, m_Begin);
 }
 
 
-pqxx::row::const_iterator pqxx::row::cbegin() const PQXX_NOEXCEPT
+pqxx::row::const_iterator pqxx::row::cbegin() const noexcept
 {
   return begin();
 }
 
 
-pqxx::row::const_iterator pqxx::row::end() const PQXX_NOEXCEPT
+pqxx::row::const_iterator pqxx::row::end() const noexcept
 {
   return const_iterator(*this, m_End);
 }
 
 
-pqxx::row::const_iterator pqxx::row::cend() const PQXX_NOEXCEPT
+pqxx::row::const_iterator pqxx::row::cend() const noexcept
 {
   return end();
 }
 
 
-pqxx::row::reference pqxx::row::front() const PQXX_NOEXCEPT
+pqxx::row::reference pqxx::row::front() const noexcept
 {
   return field(*this, m_Begin);
 }
 
 
-pqxx::row::reference pqxx::row::back() const PQXX_NOEXCEPT
+pqxx::row::reference pqxx::row::back() const noexcept
 {
   return field(*this, m_End - 1);
 }
@@ -97,7 +97,7 @@ pqxx::row::const_reverse_iterator pqxx::row::crend() const
 }
 
 
-bool pqxx::row::operator==(const row &rhs) const PQXX_NOEXCEPT
+bool pqxx::row::operator==(const row &rhs) const noexcept
 {
   if (&rhs == this) return true;
   const size_type s(size());
@@ -108,13 +108,13 @@ bool pqxx::row::operator==(const row &rhs) const PQXX_NOEXCEPT
 }
 
 
-pqxx::row::reference pqxx::row::operator[](size_type i) const PQXX_NOEXCEPT
+pqxx::row::reference pqxx::row::operator[](size_type i) const noexcept
 {
   return field(*this, m_Begin + i);
 }
 
 
-pqxx::row::reference pqxx::row::operator[](int i) const PQXX_NOEXCEPT
+pqxx::row::reference pqxx::row::operator[](int i) const noexcept
 {
   return operator[](size_type(i));
 }
@@ -144,7 +144,7 @@ pqxx::row::reference pqxx::row::at(const std::string &s) const
 }
 
 
-void pqxx::row::swap(row &rhs) PQXX_NOEXCEPT
+void pqxx::row::swap(row &rhs) noexcept
 {
   const result::size_type i(m_Index);
   const size_type b(m_Begin);
@@ -233,7 +233,7 @@ pqxx::row pqxx::row::slice(size_type Begin, size_type End) const
 }
 
 
-bool pqxx::row::empty() const PQXX_NOEXCEPT
+bool pqxx::row::empty() const noexcept
 {
   return m_Begin == m_End;
 }
@@ -256,7 +256,7 @@ pqxx::const_row_iterator pqxx::const_row_iterator::operator--(int)
 
 
 pqxx::const_row_iterator
-pqxx::const_reverse_row_iterator::base() const PQXX_NOEXCEPT
+pqxx::const_reverse_row_iterator::base() const noexcept
 {
   iterator_type tmp(*this);
   return ++tmp;

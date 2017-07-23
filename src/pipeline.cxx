@@ -55,7 +55,7 @@ pqxx::pipeline::pipeline(transaction_base &t, const std::string &Name) :
 }
 
 
-pqxx::pipeline::~pipeline() PQXX_NOEXCEPT
+pqxx::pipeline::~pipeline() noexcept
 {
   try { cancel(); } catch (const std::exception &) {}
   detach();

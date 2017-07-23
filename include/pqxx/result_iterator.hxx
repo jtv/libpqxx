@@ -53,8 +53,8 @@ public:
   typedef result_size_type size_type;
   typedef result_difference_type difference_type;
 
-  const_result_iterator() PQXX_NOEXCEPT : row(result(),0) {}
-  const_result_iterator(const row &t) PQXX_NOEXCEPT : row(t) {}
+  const_result_iterator() noexcept : row(result(),0) {}
+  const_result_iterator(const row &t) noexcept : row(t) {}
 
   /**
    * @name Dereferencing operators
@@ -122,8 +122,7 @@ public:
 
 private:
   friend class pqxx::result;
-  const_result_iterator(const pqxx::result *r, result_size_type i)
-	PQXX_NOEXCEPT :
+  const_result_iterator(const pqxx::result *r, result_size_type i) noexcept :
     row(*r, i) {}
 };
 
@@ -154,7 +153,7 @@ public:
 	const const_result_iterator &rhs) :
     const_result_iterator(rhs) { super::operator--(); }
 
-  PQXX_PURE const_result_iterator base() const PQXX_NOEXCEPT;		//[t75]
+  PQXX_PURE const_result_iterator base() const noexcept;		//[t75]
 
   /**
    * @name Dereferencing operators
@@ -201,10 +200,10 @@ public:
    */
   //@{
   bool operator==(							//[t75]
-	const const_reverse_result_iterator &rhs) const PQXX_NOEXCEPT
+	const const_reverse_result_iterator &rhs) const noexcept
       { return iterator_type::operator==(rhs); }
   bool operator!=(							//[t75]
-	const const_reverse_result_iterator &rhs) const PQXX_NOEXCEPT
+	const const_reverse_result_iterator &rhs) const noexcept
       { return !operator==(rhs); }
 
   bool operator<(const const_reverse_result_iterator &rhs) const	//[t75]
@@ -242,11 +241,11 @@ inline result::difference_type
 const_result_iterator::operator-(const_result_iterator i) const
 	{ return result::difference_type(num() - i.num()); }
 
-inline const_result_iterator result::end() const PQXX_NOEXCEPT
+inline const_result_iterator result::end() const noexcept
 	{ return const_result_iterator(this, size()); }
 
 
-inline const_result_iterator result::cend() const PQXX_NOEXCEPT
+inline const_result_iterator result::cend() const noexcept
 	{ return end(); }
 
 

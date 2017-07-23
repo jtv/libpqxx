@@ -83,11 +83,11 @@ public:
   typedef const_reverse_result_iterator const_reverse_iterator;
   typedef const_reverse_iterator reverse_iterator;
 
-  result() PQXX_NOEXCEPT : m_data(0), m_query() {}			//[t3]
-  result(const result &rhs) PQXX_NOEXCEPT :				//[t1]
+  result() noexcept : m_data(0), m_query() {}				//[t3]
+  result(const result &rhs) noexcept :					//[t1]
 	m_data(rhs.m_data), m_query(rhs.m_query) {}
 
-  result &operator=(const result &rhs) PQXX_NOEXCEPT			//[t10]
+  result &operator=(const result &rhs) noexcept				//[t10]
   {
     m_data = rhs.m_data;
     m_query = rhs.m_query;
@@ -98,8 +98,8 @@ public:
    * @name Comparisons
    */
   //@{
-  bool operator==(const result &) const PQXX_NOEXCEPT;			//[t70]
-  bool operator!=(const result &rhs) const PQXX_NOEXCEPT		//[t70]
+  bool operator==(const result &) const noexcept;			//[t70]
+  bool operator!=(const result &rhs) const noexcept			//[t70]
 	{ return !operator==(rhs); }
   //@}
 
@@ -108,31 +108,31 @@ public:
   const_reverse_iterator rend() const;					//[t75]
   const_reverse_iterator crend() const;
 
-  const_iterator begin() const PQXX_NOEXCEPT;				//[t1]
-  const_iterator cbegin() const PQXX_NOEXCEPT;
-  inline const_iterator end() const PQXX_NOEXCEPT;			//[t1]
-  inline const_iterator cend() const PQXX_NOEXCEPT;
+  const_iterator begin() const noexcept;				//[t1]
+  const_iterator cbegin() const noexcept;
+  inline const_iterator end() const noexcept;				//[t1]
+  inline const_iterator cend() const noexcept;
 
-  reference front() const PQXX_NOEXCEPT;				//[t74]
-  reference back() const PQXX_NOEXCEPT;					//[t75]
+  reference front() const noexcept;					//[t74]
+  reference back() const noexcept;					//[t75]
 
-  PQXX_PURE size_type size() const PQXX_NOEXCEPT;			//[t2]
-  PQXX_PURE bool empty() const PQXX_NOEXCEPT;				//[t11]
-  size_type capacity() const PQXX_NOEXCEPT { return size(); }		//[t20]
+  PQXX_PURE size_type size() const noexcept;				//[t2]
+  PQXX_PURE bool empty() const noexcept;				//[t11]
+  size_type capacity() const noexcept { return size(); }		//[t20]
 
-  void swap(result &) PQXX_NOEXCEPT;					//[t77]
+  void swap(result &) noexcept;						//[t77]
 
-  const row operator[](size_type i) const PQXX_NOEXCEPT;		//[t2]
+  const row operator[](size_type i) const noexcept;			//[t2]
   const row at(size_type) const;					//[t10]
 
-  void clear() PQXX_NOEXCEPT { m_data.reset(); m_query.erase(); }	//[t20]
+  void clear() noexcept { m_data.reset(); m_query.erase(); }		//[t20]
 
   /**
    * @name Column information
    */
   //@{
   /// Number of columns in result.
-  PQXX_PURE row_size_type columns() const PQXX_NOEXCEPT;		//[t11]
+  PQXX_PURE row_size_type columns() const noexcept;			//[t11]
 
   /// Number of given column (throws exception if it doesn't exist).
   row_size_type column_number(const char ColName[]) const;		//[t11]
@@ -182,7 +182,7 @@ public:
   //@}
 
   /// Query that produced this result, if available (empty string otherwise)
-  PQXX_PURE const std::string &query() const PQXX_NOEXCEPT;		//[t70]
+  PQXX_PURE const std::string &query() const noexcept;			//[t70]
 
   /// If command was @c INSERT of 1 row, return oid of inserted row
   /** @return Identifier of inserted row if exactly one row was inserted, or
@@ -210,7 +210,7 @@ private:
   PQXX_PURE bool GetIsNull(size_type Row, row_size_type Col) const;
   PQXX_PURE field_size_type GetLength(
 	size_type,
-	row_size_type) const PQXX_NOEXCEPT;
+	row_size_type) const noexcept;
 
   friend class pqxx::internal::gate::result_creation;
   result(internal::pq::PGresult *rhs,
@@ -219,17 +219,17 @@ private:
 
   friend class pqxx::internal::gate::result_connection;
   friend class pqxx::internal::gate::result_row;
-  bool operator!() const PQXX_NOEXCEPT { return !m_data.get(); }
-  operator bool() const PQXX_NOEXCEPT { return m_data.get(); }
+  bool operator!() const noexcept { return !m_data.get(); }
+  operator bool() const noexcept { return m_data.get(); }
 
-  PQXX_NORETURN PQXX_PRIVATE void ThrowSQLError(
+  [[noreturn]] PQXX_PRIVATE void ThrowSQLError(
 	const std::string &Err,
 	const std::string &Query) const;
-  PQXX_PRIVATE PQXX_PURE int errorposition() const PQXX_NOEXCEPT;
+  PQXX_PRIVATE PQXX_PURE int errorposition() const noexcept;
   PQXX_PRIVATE std::string StatusError() const;
 
   friend class pqxx::internal::gate::result_sql_cursor;
-  PQXX_PURE const char *CmdStatus() const PQXX_NOEXCEPT;
+  PQXX_PURE const char *CmdStatus() const noexcept;
 };
 
 

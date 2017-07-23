@@ -7,7 +7,7 @@
  *      Representation for raw, binary data.
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/binarystring instead.
  *
- * Copyright (c) 2003-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -86,18 +86,18 @@ public:
   ~binarystring() { delete &m_buf; }
 
   /// Size of converted string in bytes
-  size_type size() const PQXX_NOEXCEPT { return m_size; }		//[t62]
+  size_type size() const noexcept { return m_size; }			//[t62]
   /// Size of converted string in bytes
-  size_type length() const PQXX_NOEXCEPT { return size(); }		//[t62]
-  bool empty() const PQXX_NOEXCEPT { return size()==0; }		//[t62]
+  size_type length() const noexcept { return size(); }			//[t62]
+  bool empty() const noexcept { return size()==0; }			//[t62]
 
-  const_iterator begin() const PQXX_NOEXCEPT { return data(); }		//[t62]
-  const_iterator cbegin() const PQXX_NOEXCEPT { return begin(); }
-  const_iterator end() const PQXX_NOEXCEPT { return data()+m_size; }	//[t62]
-  const_iterator cend() const PQXX_NOEXCEPT { return end(); }
+  const_iterator begin() const noexcept { return data(); }		//[t62]
+  const_iterator cbegin() const noexcept { return begin(); }
+  const_iterator end() const noexcept { return data()+m_size; }		//[t62]
+  const_iterator cend() const noexcept { return end(); }
 
-  const_reference front() const PQXX_NOEXCEPT { return *begin(); }	//[t62]
-  const_reference back() const PQXX_NOEXCEPT				//[t62]
+  const_reference front() const noexcept { return *begin(); }		//[t62]
+  const_reference back() const noexcept					//[t62]
 	{ return *(data()+m_size-1); }
 
   const_reverse_iterator rbegin() const					//[t62]
@@ -108,13 +108,13 @@ public:
   const_reverse_iterator crend() const { return rend(); }
 
   /// Unescaped field contents
-  const value_type *data() const PQXX_NOEXCEPT {return m_buf.get();}	//[t62]
+  const value_type *data() const noexcept {return m_buf.get();}		//[t62]
 
-  const_reference operator[](size_type i) const PQXX_NOEXCEPT		//[t62]
+  const_reference operator[](size_type i) const noexcept		//[t62]
 	{ return data()[i]; }
 
-  PQXX_PURE bool operator==(const binarystring &) const PQXX_NOEXCEPT;	//[t62]
-  bool operator!=(const binarystring &rhs) const PQXX_NOEXCEPT		//[t62]
+  PQXX_PURE bool operator==(const binarystring &) const noexcept;	//[t62]
+  bool operator!=(const binarystring &rhs) const noexcept		//[t62]
 	{ return !operator==(rhs); }
 
   binarystring &operator=(const binarystring &);
@@ -129,7 +129,7 @@ public:
   /** @warning No terminating zero is added!  If the binary data did not end in
    * a null character, you will not find one here.
    */
-  const char *get() const PQXX_NOEXCEPT					//[t62]
+  const char *get() const noexcept					//[t62]
 			{ return reinterpret_cast<const char *>(m_buf.get()); }
 
   /// Read as regular C++ string (may include null characters)

@@ -7,7 +7,7 @@
  *      String conversion definitions for libpqxx
  *      DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stringconv instead.
  *
- * Copyright (c) 2008-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2008-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -48,7 +48,7 @@ template<typename T> struct string_traits {};
 namespace internal
 {
 /// Throw exception for attempt to convert null to given type.
-PQXX_NORETURN PQXX_LIBEXPORT void throw_null_conversion(
+[[noreturn]] PQXX_LIBEXPORT void throw_null_conversion(
 	const std::string &type);
 } // namespace pqxx::internal
 
@@ -232,8 +232,8 @@ from_string(const std::string &Str, std::string &Obj)			//[t46]
 namespace internal
 {
 /// Compute numeric value of given textual digit (assuming that it is a digit)
-inline int digit_to_number(char c) PQXX_NOEXCEPT { return c-'0'; }
-inline char number_to_digit(int i) PQXX_NOEXCEPT
+inline int digit_to_number(char c) noexcept { return c-'0'; }
+inline char number_to_digit(int i) noexcept
 	{ return static_cast<char>(i+'0'); }
 } // namespace pqxx::internal
 

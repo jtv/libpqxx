@@ -55,9 +55,9 @@ class reactivation_avoidance_counter
 public:
   reactivation_avoidance_counter() : m_counter(0) {}
 
-  void add(int n) PQXX_NOEXCEPT { m_counter += n; }
-  void clear() PQXX_NOEXCEPT { m_counter = 0; }
-  int get() const PQXX_NOEXCEPT { return m_counter; }
+  void add(int n) noexcept { m_counter += n; }
+  void clear() noexcept { m_counter = 0; }
+  int get() const noexcept { return m_counter; }
 
 private:
   int m_counter;
@@ -144,14 +144,14 @@ class PQXX_LIBEXPORT connection_base
 {
 public:
   /// Explicitly close connection.
-  void disconnect() PQXX_NOEXCEPT;					//[t2]
+  void disconnect() noexcept;						//[t2]
 
    /// Is this connection open at the moment?
   /** @warning This function is @b not needed in most code.  Resist the
    * temptation to check it after opening a connection; instead, rely on the
    * broken_connection exception that will be thrown on connection failure.
    */
-  bool PQXX_PURE is_open() const PQXX_NOEXCEPT;				//[t1]
+  bool PQXX_PURE is_open() const noexcept;				//[t1]
 
  /**
    * @name Activation
@@ -245,12 +245,12 @@ public:
   //@}
 
   /// Invoke notice processor function.  The message should end in newline.
-  void process_notice(const char[]) PQXX_NOEXCEPT;			//[t14]
+  void process_notice(const char[]) noexcept;				//[t14]
   /// Invoke notice processor function.  Newline at end is recommended.
-  void process_notice(const std::string &) PQXX_NOEXCEPT;		//[t14]
+  void process_notice(const std::string &) noexcept;			//[t14]
 
   /// Enable tracing to a given output stream, or NULL to disable.
-  void trace(std::FILE *) PQXX_NOEXCEPT;				//[t3]
+  void trace(std::FILE *) noexcept;					//[t3]
 
   /**
    * @name Connection properties
@@ -294,7 +294,7 @@ public:
    *
    * @return Process identifier, or 0 if not currently connected.
    */
-  int PQXX_PURE backendpid() const PQXX_NOEXCEPT;			//[t1]
+  int PQXX_PURE backendpid() const noexcept;				//[t1]
 
   /// Socket currently used for connection, or -1 for none.  Use with care!
   /** Query the current socket number.  This is intended for event loops based
@@ -311,7 +311,7 @@ public:
    * possibility that there is no socket.  The socket may change or even go away
    * during any invocation of libpqxx code, no matter how trivial.
    */
-  int PQXX_PURE sock() const PQXX_NOEXCEPT;				//[t87]
+  int PQXX_PURE sock() const noexcept;					//[t87]
 
   /**
    * @name Capabilities
@@ -400,7 +400,7 @@ public:
    * or the answer will always be "no."  In particular, if you are using this
    * function on a newly-created lazyconnection, activate the connection first.
    */
-  bool supports(capability c) const PQXX_NOEXCEPT			//[t88]
+  bool supports(capability c) const noexcept				//[t88]
 	{ return m_caps.test(c); }
 
   /// What version of the PostgreSQL protocol is this connection using?
@@ -412,7 +412,7 @@ public:
    * happen if the server is upgraded without shutting down the client program,
    * for example.
    */
-  int PQXX_PURE protocol_version() const PQXX_NOEXCEPT;			//[t1]
+  int PQXX_PURE protocol_version() const noexcept;			//[t1]
 
   /// What version of the PostgreSQL server are we connected to?
   /** The result is a bit complicated: each of the major, medium, and minor
@@ -427,7 +427,7 @@ public:
    * at all because there is no digit "8" in octal notation.  Use strictly
    * decimal notation when it comes to these version numbers.
    */
-  int PQXX_PURE server_version() const PQXX_NOEXCEPT;			//[t1]
+  int PQXX_PURE server_version() const noexcept;			//[t1]
   //@}
 
   /// Set client-side character encoding
@@ -799,9 +799,9 @@ public:
    *  that include the above plus any detail, hint, or context fields (these
    *  might span multiple lines).  "verbose" includes all available fields.
    */
-  void set_verbosity(error_verbosity verbosity) PQXX_NOEXCEPT;
+  void set_verbosity(error_verbosity verbosity) noexcept;
    /// Retrieve current error verbosity
-  error_verbosity get_verbosity() const PQXX_NOEXCEPT {return m_verbosity;}
+  error_verbosity get_verbosity() const noexcept {return m_verbosity;}
 
   /// Return pointers to the active errorhandlers.
   /** The entries are ordered from oldest to newest handler.
@@ -822,7 +822,7 @@ protected:
   explicit connection_base(connectionpolicy &);
   void init();
 
-  void close() PQXX_NOEXCEPT;
+  void close() noexcept;
   void wait_read() const;
   void wait_read(long seconds, long microseconds) const;
   void wait_write() const;
@@ -831,17 +831,17 @@ private:
 
   result make_result(internal::pq::PGresult *rhs, const std::string &query);
 
-  void PQXX_PRIVATE clearcaps() PQXX_NOEXCEPT;
+  void PQXX_PRIVATE clearcaps() noexcept;
   void PQXX_PRIVATE SetupState();
   void PQXX_PRIVATE check_result(const result &);
 
-  void PQXX_PRIVATE InternalSetTrace() PQXX_NOEXCEPT;
-  int PQXX_PRIVATE PQXX_PURE Status() const PQXX_NOEXCEPT;
-  const char * PQXX_PURE ErrMsg() const PQXX_NOEXCEPT;
+  void PQXX_PRIVATE InternalSetTrace() noexcept;
+  int PQXX_PRIVATE PQXX_PURE Status() const noexcept;
+  const char * PQXX_PURE ErrMsg() const noexcept;
   void PQXX_PRIVATE Reset();
   void PQXX_PRIVATE RestoreVars();
   std::string PQXX_PRIVATE RawGetVar(const std::string &);
-  void PQXX_PRIVATE process_notice_raw(const char msg[]) PQXX_NOEXCEPT;
+  void PQXX_PRIVATE process_notice_raw(const char msg[]) noexcept;
 
   void read_capabilities();
 
@@ -906,12 +906,12 @@ private:
 
   friend class internal::gate::connection_errorhandler;
   void PQXX_PRIVATE register_errorhandler(errorhandler *);
-  void PQXX_PRIVATE unregister_errorhandler(errorhandler *) PQXX_NOEXCEPT;
+  void PQXX_PRIVATE unregister_errorhandler(errorhandler *) noexcept;
 
   friend class internal::gate::connection_transaction;
   result PQXX_PRIVATE Exec(const char[], int Retries);
   void PQXX_PRIVATE RegisterTransaction(transaction_base *);
-  void PQXX_PRIVATE UnregisterTransaction(transaction_base *) PQXX_NOEXCEPT;
+  void PQXX_PRIVATE UnregisterTransaction(transaction_base *) noexcept;
   bool PQXX_PRIVATE ReadCopyLine(std::string &);
   void PQXX_PRIVATE WriteCopyLine(const std::string &);
   void PQXX_PRIVATE EndCopyWrite();
@@ -923,12 +923,12 @@ private:
 
   friend class internal::gate::connection_notification_receiver;
   void add_receiver(notification_receiver *);
-  void remove_receiver(notification_receiver *) PQXX_NOEXCEPT;
+  void remove_receiver(notification_receiver *) noexcept;
 
   friend class internal::gate::connection_pipeline;
   void PQXX_PRIVATE start_exec(const std::string &);
-  bool PQXX_PRIVATE consume_input() PQXX_NOEXCEPT;
-  bool PQXX_PRIVATE is_busy() const PQXX_NOEXCEPT;
+  bool PQXX_PRIVATE consume_input() noexcept;
+  bool PQXX_PRIVATE is_busy() const noexcept;
   int PQXX_PRIVATE encoding_code();
   internal::pq::PGresult *get_result();
 
@@ -963,7 +963,7 @@ public:
   explicit reactivation_avoidance_exemption(connection_base &C);
   ~reactivation_avoidance_exemption();
 
-  void close_connection() PQXX_NOEXCEPT { m_open = false; }
+  void close_connection() noexcept { m_open = false; }
 
 private:
   connection_base &m_home;

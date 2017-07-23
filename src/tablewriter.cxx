@@ -7,7 +7,7 @@
  *      implementation of the pqxx::tablewriter class.
  *   pqxx::tablewriter enables optimized batch updates to a database table
  *
- * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -36,7 +36,7 @@ pqxx::tablewriter::tablewriter(transaction_base &T,
 }
 
 
-pqxx::tablewriter::~tablewriter() PQXX_NOEXCEPT
+pqxx::tablewriter::~tablewriter() noexcept
 {
   try
   {

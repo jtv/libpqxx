@@ -62,7 +62,7 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE pqxx_exception
 {
 public:
   /// Support run-time polymorphism, and keep this class abstract
-  virtual ~pqxx_exception() PQXX_NOEXCEPT =0;
+  virtual ~pqxx_exception() noexcept =0;
 
   /// Return std::exception base-class object
   /** Use this to get at the exception's what() function, or to downcast to a
@@ -87,8 +87,7 @@ public:
    * }
    * @endcode
    */
-  PQXX_CONST virtual const std::exception &base()			//[t0]
-	const PQXX_NOEXCEPT =0;
+  PQXX_CONST virtual const std::exception &base() const noexcept =0;	//[t0]
 };
 
 
@@ -96,7 +95,7 @@ public:
 class PQXX_LIBEXPORT failure :
   public pqxx_exception, public std::runtime_error
 {
-  virtual const std::exception &base() const PQXX_NOEXCEPT PQXX_OVERRIDE
+  virtual const std::exception &base() const noexcept PQXX_OVERRIDE
 							       { return *this; }
 public:
   explicit failure(const std::string &);
@@ -146,11 +145,11 @@ public:
 	const std::string &msg="",
 	const std::string &Q="",
 	const char sqlstate[]=NULL);
-  virtual ~sql_error() PQXX_NOEXCEPT;
+  virtual ~sql_error() noexcept;
 
   /// The query whose execution triggered the exception
-  PQXX_PURE const std::string &query() const PQXX_NOEXCEPT;		//[t56]
-  PQXX_PURE const std::string &sqlstate() const PQXX_NOEXCEPT;
+  PQXX_PURE const std::string &query() const noexcept;			//[t56]
+  PQXX_PURE const std::string &sqlstate() const noexcept;
 };
 
 
@@ -173,7 +172,7 @@ public:
 class PQXX_LIBEXPORT internal_error :
   public pqxx_exception, public std::logic_error
 {
-  virtual const std::exception &base() const PQXX_NOEXCEPT PQXX_OVERRIDE
+  virtual const std::exception &base() const noexcept PQXX_OVERRIDE
 							       { return *this; }
 public:
   explicit internal_error(const std::string &);
@@ -184,7 +183,7 @@ public:
 class PQXX_LIBEXPORT usage_error :
   public pqxx_exception, public std::logic_error
 {
-  virtual const std::exception &base() const PQXX_NOEXCEPT PQXX_OVERRIDE
+  virtual const std::exception &base() const noexcept PQXX_OVERRIDE
 							       { return *this; }
 public:
   explicit usage_error(const std::string &);
@@ -195,7 +194,7 @@ public:
 class PQXX_LIBEXPORT argument_error :
   public pqxx_exception, public std::invalid_argument
 {
-  virtual const std::exception &base() const PQXX_NOEXCEPT PQXX_OVERRIDE
+  virtual const std::exception &base() const noexcept PQXX_OVERRIDE
 							       { return *this; }
 public:
   explicit argument_error(const std::string &);
@@ -206,7 +205,7 @@ public:
 class PQXX_LIBEXPORT conversion_error :
   public pqxx_exception, public std::domain_error
 {
-  virtual const std::exception &base() const PQXX_NOEXCEPT PQXX_OVERRIDE
+  virtual const std::exception &base() const noexcept PQXX_OVERRIDE
 							       { return *this; }
 public:
   explicit conversion_error(const std::string &);
@@ -217,7 +216,7 @@ public:
 class PQXX_LIBEXPORT range_error :
   public pqxx_exception, public std::out_of_range
 {
-  virtual const std::exception &base() const PQXX_NOEXCEPT PQXX_OVERRIDE
+  virtual const std::exception &base() const noexcept PQXX_OVERRIDE
 							       { return *this; }
 public:
   explicit range_error(const std::string &);
@@ -227,7 +226,7 @@ public:
 /// Query returned an unexpected number of rows.
 class PQXX_LIBEXPORT unexpected_rows : range_error
 {
-  virtual const std::exception &base() const PQXX_NOEXCEPT PQXX_OVERRIDE
+  virtual const std::exception &base() const noexcept PQXX_OVERRIDE
 							       { return *this; }
 public:
   explicit unexpected_rows(const std::string &msg) : range_error(msg) {}

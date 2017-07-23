@@ -7,7 +7,7 @@
  *      implementation of the pqxx::tablestream class.
  *   pqxx::tablestream provides optimized batch access to a database table
  *
- * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -31,7 +31,7 @@ pqxx::tablestream::tablestream(transaction_base &STrans,
 }
 
 
-pqxx::tablestream::~tablestream() PQXX_NOEXCEPT
+pqxx::tablestream::~tablestream() noexcept
 {
 }
 

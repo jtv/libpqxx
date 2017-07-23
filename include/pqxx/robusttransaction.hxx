@@ -8,7 +8,7 @@
  *   pqxx::robusttransaction is a slower but safer transaction class
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/robusttransaction instead.
  *
- * Copyright (c) 2002-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -68,7 +68,7 @@ private:
   PQXX_PRIVATE void CreateLogTable();
   PQXX_PRIVATE void CreateTransactionRecord();
   PQXX_PRIVATE std::string sql_delete() const;
-  PQXX_PRIVATE void DeleteTransactionRecord() PQXX_NOEXCEPT;
+  PQXX_PRIVATE void DeleteTransactionRecord() noexcept;
   PQXX_PRIVATE bool CheckTransactionRecord();
 };
 
@@ -158,7 +158,8 @@ public:
     basic_robusttransaction(C, isolation_tag::name())
 	{ Begin(); }
 
-  virtual ~robusttransaction() PQXX_NOEXCEPT			      { End(); }
+  virtual ~robusttransaction() noexcept
+	{ End(); }
 };
 
 /**

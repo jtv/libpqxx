@@ -7,7 +7,7 @@
  *      implementation of the pqxx::connection and sibling classes.
  *   Different ways of setting up a backend connection.
  *
- * Copyright (c) 2001-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -30,7 +30,7 @@ pqxx::connectionpolicy::connectionpolicy(const std::string &opts) :
 }
 
 
-pqxx::connectionpolicy::~connectionpolicy() PQXX_NOEXCEPT
+pqxx::connectionpolicy::~connectionpolicy() noexcept
 {
 }
 
@@ -64,13 +64,13 @@ pqxx::connectionpolicy::do_completeconnect(handle orig)
 }
 
 pqxx::connectionpolicy::handle
-pqxx::connectionpolicy::do_dropconnect(handle orig) PQXX_NOEXCEPT
+pqxx::connectionpolicy::do_dropconnect(handle orig) noexcept
 {
   return orig;
 }
 
 pqxx::connectionpolicy::handle
-pqxx::connectionpolicy::do_disconnect(handle orig) PQXX_NOEXCEPT
+pqxx::connectionpolicy::do_disconnect(handle orig) noexcept
 {
   orig = do_dropconnect(orig);
   if (orig) PQfinish(orig);
@@ -78,7 +78,7 @@ pqxx::connectionpolicy::do_disconnect(handle orig) PQXX_NOEXCEPT
 }
 
 
-bool pqxx::connectionpolicy::is_ready(handle h) const PQXX_NOEXCEPT
+bool pqxx::connectionpolicy::is_ready(handle h) const noexcept
 {
   return h != 0;
 }
@@ -173,14 +173,14 @@ pqxx::connect_async::do_completeconnect(handle orig)
 
 
 pqxx::connectionpolicy::handle
-pqxx::connect_async::do_dropconnect(handle orig) PQXX_NOEXCEPT
+pqxx::connect_async::do_dropconnect(handle orig) noexcept
 {
   m_connecting = false;
   return orig;
 }
 
 
-bool pqxx::connect_async::is_ready(handle h) const PQXX_NOEXCEPT
+bool pqxx::connect_async::is_ready(handle h) const noexcept
 {
   return h && !m_connecting;
 }

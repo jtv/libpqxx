@@ -16416,62 +16416,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_deprecated" >&5
 $as_echo "$gcc_deprecated" >&6; }
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking C++11 noreturn attribute" >&5
-$as_echo_n "checking C++11 noreturn attribute... " >&6; }
-noreturn=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-	[[noreturn]] void f();
-        void f(){throw 1;}
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_NORETURN 1" >>confdefs.h
-
-else
-  noreturn=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $noreturn" >&5
-$as_echo "$noreturn" >&6; }
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ noreturn attribute" >&5
-$as_echo_n "checking g++ noreturn attribute... " >&6; }
-gcc_noreturn=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-	__attribute__ ((noreturn)) void f();
-        void f(){throw 1;}
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_GCC_NORETURN 1" >>confdefs.h
-
-else
-  gcc_noreturn=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_noreturn" >&5
-$as_echo "$gcc_noreturn" >&6; }
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ pure attribute" >&5
 $as_echo_n "checking g++ pure attribute... " >&6; }
 gcc_pure=yes
@@ -16499,30 +16443,6 @@ $as_echo "$gcc_pure" >&6; }
 
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for C++11 noexcept support" >&5
-$as_echo_n "checking for C++11 noexcept support... " >&6; }
-noexcept_keyword=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-void foo() noexcept {}
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_NOEXCEPT 1" >>confdefs.h
-
-else
-  noexcept_keyword=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $noexcept_keyword" >&5
-$as_echo "$noexcept_keyword" >&6; }
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for C++14 override support" >&5
 $as_echo_n "checking for C++14 override support... " >&6; }

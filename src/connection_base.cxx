@@ -154,7 +154,7 @@ pqxx::result pqxx::connection_base::make_result(
 }
 
 
-int pqxx::connection_base::backendpid() const PQXX_NOEXCEPT
+int pqxx::connection_base::backendpid() const noexcept
 {
   return m_Conn ? PQbackendPID(m_Conn) : 0;
 }
@@ -162,14 +162,14 @@ int pqxx::connection_base::backendpid() const PQXX_NOEXCEPT
 
 namespace
 {
-PQXX_PURE int socket_of(const ::pqxx::internal::pq::PGconn *c) PQXX_NOEXCEPT
+PQXX_PURE int socket_of(const ::pqxx::internal::pq::PGconn *c) noexcept
 {
   return c ? PQsocket(c) : -1;
 }
 }
 
 
-int pqxx::connection_base::sock() const PQXX_NOEXCEPT
+int pqxx::connection_base::sock() const noexcept
 {
   return socket_of(m_Conn);
 }
@@ -244,13 +244,13 @@ void pqxx::connection_base::simulate_failure()
 }
 
 
-int pqxx::connection_base::protocol_version() const PQXX_NOEXCEPT
+int pqxx::connection_base::protocol_version() const noexcept
 {
   return m_Conn ? PQprotocolVersion(m_Conn) : 0;
 }
 
 
-int pqxx::connection_base::server_version() const PQXX_NOEXCEPT
+int pqxx::connection_base::server_version() const noexcept
 {
   return m_serverversion;
 }
@@ -290,7 +290,7 @@ std::string pqxx::connection_base::RawGetVar(const std::string &Var)
 }
 
 
-void pqxx::connection_base::clearcaps() PQXX_NOEXCEPT
+void pqxx::connection_base::clearcaps() noexcept
 {
   m_caps.reset();
 }
@@ -378,7 +378,7 @@ void pqxx::connection_base::check_result(const result &R)
 }
 
 
-void pqxx::connection_base::disconnect() PQXX_NOEXCEPT
+void pqxx::connection_base::disconnect() noexcept
 {
   // When we activate again, the server may be different!
   clearcaps();
@@ -387,13 +387,13 @@ void pqxx::connection_base::disconnect() PQXX_NOEXCEPT
 }
 
 
-bool pqxx::connection_base::is_open() const PQXX_NOEXCEPT
+bool pqxx::connection_base::is_open() const noexcept
 {
   return m_Conn && m_Completed && (Status() == CONNECTION_OK);
 }
 
 
-void pqxx::connection_base::process_notice_raw(const char msg[]) PQXX_NOEXCEPT
+void pqxx::connection_base::process_notice_raw(const char msg[]) noexcept
 {
   if (!msg || !*msg) return;
   const std::list<errorhandler *>::const_reverse_iterator
@@ -406,7 +406,7 @@ void pqxx::connection_base::process_notice_raw(const char msg[]) PQXX_NOEXCEPT
 }
 
 
-void pqxx::connection_base::process_notice(const char msg[]) PQXX_NOEXCEPT
+void pqxx::connection_base::process_notice(const char msg[]) noexcept
 {
   if (!msg) return;
   const size_t len = strlen(msg);
@@ -444,8 +444,7 @@ void pqxx::connection_base::process_notice(const char msg[]) PQXX_NOEXCEPT
   }
 }
 
-void pqxx::connection_base::process_notice(const std::string &msg)
-	PQXX_NOEXCEPT
+void pqxx::connection_base::process_notice(const std::string &msg) noexcept
 {
   // Ensure that message passed to errorhandler ends in newline
   if (msg[msg.size()-1] == '\n')
@@ -467,7 +466,7 @@ void pqxx::connection_base::process_notice(const std::string &msg)
 }
 
 
-void pqxx::connection_base::trace(FILE *Out) PQXX_NOEXCEPT
+void pqxx::connection_base::trace(FILE *Out) noexcept
 {
   m_Trace = Out;
   if (m_Conn) InternalSetTrace();
@@ -504,7 +503,7 @@ void pqxx::connection_base::add_receiver(pqxx::notification_receiver *T)
 
 
 void pqxx::connection_base::remove_receiver(pqxx::notification_receiver *T)
-	PQXX_NOEXCEPT
+	noexcept
 {
   if (!T) return;
 
@@ -540,13 +539,13 @@ void pqxx::connection_base::remove_receiver(pqxx::notification_receiver *T)
 }
 
 
-bool pqxx::connection_base::consume_input() PQXX_NOEXCEPT
+bool pqxx::connection_base::consume_input() noexcept
 {
   return PQconsumeInput(m_Conn) != 0;
 }
 
 
-bool pqxx::connection_base::is_busy() const PQXX_NOEXCEPT
+bool pqxx::connection_base::is_busy() const noexcept
 {
   return PQisBusy(m_Conn) != 0;
 }
@@ -588,8 +587,7 @@ void pqxx::connection_base::cancel_query()
   cancel();
 }
 
-void pqxx::connection_base::set_verbosity(error_verbosity verbosity)
-	PQXX_NOEXCEPT
+void pqxx::connection_base::set_verbosity(error_verbosity verbosity) noexcept
 {
     PQsetErrorVerbosity(m_Conn, static_cast<PGVerbosity>(verbosity));
     m_verbosity = verbosity;
@@ -678,7 +676,7 @@ const char *pqxx::connection_base::port()
 }
 
 
-const char *pqxx::connection_base::ErrMsg() const PQXX_NOEXCEPT
+const char *pqxx::connection_base::ErrMsg() const noexcept
 {
   return m_Conn ? PQerrorMessage(m_Conn) : "No connection to database";
 }
@@ -691,7 +689,7 @@ void pqxx::connection_base::register_errorhandler(errorhandler *handler)
 
 
 void pqxx::connection_base::unregister_errorhandler(errorhandler *handler)
-  PQXX_NOEXCEPT
+  noexcept
 {
   // The errorhandler itself will take care of nulling its pointer to this
   // connection.
@@ -872,7 +870,7 @@ void pqxx::connection_base::Reset()
 }
 
 
-void pqxx::connection_base::close() PQXX_NOEXCEPT
+void pqxx::connection_base::close() noexcept
 {
   m_Completed = false;
   inhibit_reactivation(false);
@@ -927,7 +925,7 @@ void pqxx::connection_base::AddVariables(
 }
 
 
-void pqxx::connection_base::InternalSetTrace() PQXX_NOEXCEPT
+void pqxx::connection_base::InternalSetTrace() noexcept
 {
   if (m_Conn)
   {
@@ -937,7 +935,7 @@ void pqxx::connection_base::InternalSetTrace() PQXX_NOEXCEPT
 }
 
 
-int pqxx::connection_base::Status() const PQXX_NOEXCEPT
+int pqxx::connection_base::Status() const noexcept
 {
   return PQstatus(m_Conn);
 }
@@ -949,8 +947,7 @@ void pqxx::connection_base::RegisterTransaction(transaction_base *T)
 }
 
 
-void pqxx::connection_base::UnregisterTransaction(transaction_base *T)
-  PQXX_NOEXCEPT
+void pqxx::connection_base::UnregisterTransaction(transaction_base *T) noexcept
 {
   try
   {

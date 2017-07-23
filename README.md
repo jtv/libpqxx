@@ -8,18 +8,11 @@ client development.  The library builds on top of PostgreSQL's standard C API,
 libpq, though this fact is almost completely hidden from programs that use
 libpqxx.
 
-Further information, as well as updates, a mailing list, and a bug reporting
-system can be found at http://pqxx.org/
+As of release 6.0, C++11 is the minimum supported C++ version.  Make sure your
+compiler supports this, and if necessary, that you have support for C++11
+configured.
 
-There are also ready-made libpqxx packages available for several systems: Debian
-packages are available on any Debian download mirror, Mark Round maintains a
-Blastwave package for Solaris, and Arjen Baart has made RPM packages (source and
-i386 binaries) available on
-
-	http://www.andromeda.nl/UNIX/packages/
-
-You may want to check these before going to the trouble of building libpqxx
-yourself.
+Find libpqxx on Github: https://github.com/jtv/libpqxx
 
 
 Building libpqxx
