@@ -1,6 +1,8 @@
 5.1.0
+ - Releases after this will require C++11!
  - Internal simplification to pqxx::result.
  - A row object now keeps its result object alive.
+ - New exec() variants: "expect & return 1 row," "expect no rows," "expect n."
  - ChangeLog is gone.  It was a drag on maintenance.
 5.0.1
  - Exposed sqlstate in sql_error exception class.
