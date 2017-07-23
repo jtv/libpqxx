@@ -462,36 +462,6 @@ template<typename P> inline void freemallocmem_templated(P *p) noexcept
 }
 
 
-/// Reference-counted smart pointer to libpq-allocated object
-template<typename T, void (*DELETER)(T *) = freepqmem_templated<T> >
-  class PQAlloc
-{
-public:
-  typedef T content_type;
-  PQAlloc() noexcept : m_ptr() {}
-  PQAlloc(const PQAlloc &rhs) noexcept : m_ptr(rhs.m_ptr) {}
-  explicit PQAlloc(T *t) : m_ptr(t, DELETER) {}
-
-  T *get() const noexcept { return m_ptr.get(); }
-  PQAlloc &operator=(const PQAlloc &rhs) noexcept
-  {
-    m_ptr = rhs.m_ptr;
-    return *this;
-  }
-
-  PQAlloc(PQAlloc &&) =default;
-  PQAlloc &operator=(PQAlloc &&) =default;
-
-  T *operator->() const noexcept { return m_ptr.get(); }
-  T &operator*() const noexcept { return *m_ptr; }
-  void reset() noexcept { m_ptr.reset(); }
-  void swap(PQAlloc &other) noexcept { m_ptr.swap(other.m_ptr); }
-
-private:
-  std::shared_ptr<T> m_ptr;
-};
-
-
 class PQXX_LIBEXPORT namedclass
 {
 public:

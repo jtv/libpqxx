@@ -60,8 +60,9 @@ buffer unescape(const unsigned char escaped[])
    * binarystring's buffer can be freed uniformly,
    */
   size_t unescaped_len = 0;
-  PQAlloc<unsigned char> A(
-	PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped_len));
+  std::unique_ptr<unsigned char> A(
+	PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped_len),
+	internal::freepqmem_templated<unsigned char>);
   void *data = A.get();
   if (!data) throw std::bad_alloc();
   return to_buffer(data, unescaped_len);
@@ -144,7 +145,6 @@ pqxx::binarystring::const_reference pqxx::binarystring::at(size_type n) const
 
 void pqxx::binarystring::swap(binarystring &rhs)
 {
-  // PQAlloc<>::swap() does not throw.
   m_buf.swap(rhs.m_buf);
 
   // This part very obviously can't go wrong, so do it last

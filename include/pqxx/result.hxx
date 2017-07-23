@@ -83,7 +83,7 @@ public:
   typedef const_reverse_result_iterator const_reverse_iterator;
   typedef const_reverse_iterator reverse_iterator;
 
-  result() noexcept : m_data(0), m_query() {}				//[t3]
+  result() noexcept : m_data(make_data_pointer()), m_query() {}		//[t3]
   result(const result &rhs) noexcept :					//[t1]
 	m_data(rhs.m_data), m_query(rhs.m_query) {}
 
@@ -198,9 +198,15 @@ public:
 
 
 private:
+  typedef std::shared_ptr<const internal::pq::PGresult> data_pointer;
+
   /// Underlying libpq result set.
-  internal::PQAlloc<const internal::pq::PGresult, internal::clear_result>
-    m_data;
+   data_pointer m_data;
+
+  /// Factory for data_pointer.
+  static data_pointer make_data_pointer(
+	const internal::pq::PGresult *res=nullptr)
+	{ return data_pointer(res, internal::clear_result); }
 
   /// Query string.
   std::string m_query;

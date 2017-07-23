@@ -39,7 +39,7 @@ void pqxx::internal::clear_result(const pq::PGresult *data)
 pqxx::result::result(
 	pqxx::internal::pq::PGresult *rhs,
 	const std::string &Query) :
-  m_data(rhs),
+  m_data(make_data_pointer(rhs)),
   m_query(Query)
 {
 }

@@ -23,6 +23,7 @@
 #include <cstdio>
 #include <cstring>
 #include <ctime>
+#include <memory>
 #include <stdexcept>
 
 #ifdef PQXX_HAVE_SYS_SELECT_H
@@ -116,7 +117,9 @@ static void pqxx_notice_processor(void *conn, const char *msg)
 std::string pqxx::encrypt_password(
         const std::string &user, const std::string &password)
 {
-  PQAlloc<char> p(PQencryptPassword(password.c_str(), user.c_str()));
+  std::unique_ptr<char, void (*)(char *)> p(
+	PQencryptPassword(password.c_str(), user.c_str()),
+        freepqmem_templated<char>);
   return std::string(p.get());
 }
 
@@ -605,10 +608,10 @@ int pqxx::connection_base::get_notifs()
   if (m_Trans.get()) return 0;
 
   int notifs = 0;
-  typedef PQAlloc<PGnotify> notifptr;
-  for (notifptr N( PQnotifies(m_Conn) );
+  typedef std::unique_ptr<PGnotify, void (*)(PGnotify *)> notifptr;
+  for (notifptr N(PQnotifies(m_Conn), freepqmem_templated<PGnotify>);
        N.get();
-       N = notifptr(PQnotifies(m_Conn)))
+       N = notifptr(PQnotifies(m_Conn), freepqmem_templated<PGnotify>))
   {
     typedef receiver_list::iterator TI;
 
@@ -989,7 +992,8 @@ bool pqxx::connection_base::ReadCopyLine(std::string &Line)
     default:
       if (Buf)
       {
-        PQAlloc<char> PQA(Buf);
+        std::unique_ptr<char, void (*)(char *)> PQA(
+            Buf, freepqmem_templated<char>);
         Line = Buf;
       }
       Result = true;
@@ -1107,7 +1111,9 @@ std::string pqxx::connection_base::esc_raw(
   // not const!
   activate();
 
-  PQAlloc<unsigned char> buf( PQescapeByteaConn(m_Conn, str, len, &bytes) );
+  std::unique_ptr<unsigned char, void (*)(unsigned char *)> buf(
+	PQescapeByteaConn(m_Conn, str, len, &bytes),
+	freepqmem_templated<unsigned char>);
   if (!buf.get()) throw std::bad_alloc();
   return std::string(reinterpret_cast<char *>(buf.get()));
 }
@@ -1142,8 +1148,9 @@ std::string pqxx::connection_base::quote_name(const std::string &identifier)
   // We need a connection object...  This is the one reason why this function is
   // not const!
   activate();
-  PQAlloc<char> buf(
-	PQescapeIdentifier(m_Conn, identifier.c_str(), identifier.size()));
+  std::unique_ptr<char, void (*)(char *)> buf(
+	PQescapeIdentifier(m_Conn, identifier.c_str(), identifier.size()),
+        freepqmem_templated<char>);
   if (!buf.get()) throw failure(ErrMsg());
   return std::string(buf.get());
 }

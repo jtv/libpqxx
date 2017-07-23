@@ -144,7 +144,7 @@ private:
   typedef std::shared_ptr<value_type> smart_pointer_type;
 
   /// Shorthand: construct a smart_pointer_type.
-  smart_pointer_type make_smart_pointer(unsigned char *buf=nullptr) const
+  static smart_pointer_type make_smart_pointer(unsigned char *buf=nullptr)
   {
     return smart_pointer_type(
 	buf,
