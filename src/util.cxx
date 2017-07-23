@@ -75,14 +75,7 @@ pqxx::thread_safety_model pqxx::describe_thread_safety() noexcept
   }
 
   model.safe_query_cancel = true;
-
-#ifdef PQXX_HAVE_SHARED_PTR
   model.safe_result_copy = true;
-#else
-  model.safe_result_copy = false;
-  model.description +=
-	"Built without shared_ptr.  Copying & destroying results is unsafe.\n";
-#endif
 
   // Sadly I'm not aware of any way to avoid this just yet.
   model.safe_kerberos = false;
@@ -92,41 +85,6 @@ pqxx::thread_safety_model pqxx::describe_thread_safety() noexcept
 
   return model;
 }
-
-
-#ifndef PQXX_HAVE_SHARED_PTR
-pqxx::internal::refcount::refcount() :
-  m_l(this),
-  m_r(this)
-{
-}
-
-
-pqxx::internal::refcount::~refcount()
-{
-  loseref();
-}
-
-
-void pqxx::internal::refcount::makeref(refcount &rhs) noexcept
-{
-  // TODO: Make threadsafe
-  m_l = &rhs;
-  m_r = rhs.m_r;
-  m_l->m_r = m_r->m_l = this;
-}
-
-
-bool pqxx::internal::refcount::loseref() noexcept
-{
-  // TODO: Make threadsafe
-  const bool result = (m_l == this);
-  m_r->m_l = m_l;
-  m_l->m_r = m_r;
-  m_l = m_r = this;
-  return result;
-}
-#endif // PQXX_HAVE_SHARED_PTR
 
 
 std::string pqxx::internal::namedclass::description() const

@@ -10,17 +10,17 @@
 LC_ALL=C
 
 AC_PREREQ(2.59)
-AC_INIT(libpqxx, [5.1.0], [Jeroen T. Vermeulen <jtv@xs4all.nl>])
+AC_INIT(libpqxx, [6.0.0], [Jeroen T. Vermeulen <jtv@xs4all.nl>])
 AC_LANG(C++)
 AC_CONFIG_SRCDIR([src/connection.cxx])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([config/m4])
 AM_INIT_AUTOMAKE
 
-PQXXVERSION=5.1.0
-PQXX_ABI=5.1
-PQXX_MAJOR=5
-PQXX_MINOR=1
+PQXXVERSION=6.0.0
+PQXX_ABI=6.0
+PQXX_MAJOR=6
+PQXX_MINOR=0
 AC_SUBST(PQXXVERSION)
 AC_SUBST(PQXX_ABI)
 AC_SUBST(PQXX_MAJOR)
@@ -252,11 +252,6 @@ AC_TRY_COMPILE(
 	have_exp_optional=no)
 AC_MSG_RESULT($have_exp_optional)
 
-boost_smart_ptr=yes
-AC_CHECK_HEADER(boost/smart_ptr.hpp, AC_DEFINE(PQXX_HAVE_BOOST_SMART_PTR, 1,
-	[Define if you have the <boost/smart_ptr.hpp> header]),
-	boost_smart_ptr=no)
-
 
 usestd="namespace std {} using namespace std;"
 
@@ -409,7 +404,7 @@ A source file using the PQexec() function did compile without problems, and the
 libpq library is available for linking, but for some reason a call to PQexec()
 failed to link properly to the libpq library.  This may be because the libpq
 library file is damaged, or in some incorrect format. or if your libpq is much
-more recent than libpqxx version 5.1.0, perhaps libpq has undergone a
+more recent than libpqxx version 6.0.0, perhaps libpq has undergone a
 radical ABI change.
 
 The last parts of config.log may give you a clue as to what really went wrong,
@@ -697,16 +692,6 @@ AC_TRY_COMPILE([#include <cmath>
 )
 AC_MSG_RESULT($isinf)
 
-
-AC_MSG_CHECKING([for shared_ptr])
-sharedptr='yes'
-AC_TRY_COMPILE([#include <memory>],
-	[std::shared_ptr<int> i(new int(1)); return *i;],
-	[AC_DEFINE(PQXX_HAVE_SHARED_PTR,
-		1,
-		[Define if compiler has shared_ptr])],
-	[sharedptr='no'])
-AC_MSG_RESULT($sharedptr)
 
 AC_MSG_CHECKING([for move()])
 move='yes'

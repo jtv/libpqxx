@@ -21,6 +21,7 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
+#include <memory>
 #include <string>
 
 #include "pqxx/result"
@@ -83,8 +84,6 @@ public:
   /// Copy binary data of given length straight out of memory.
   binarystring(const void *, size_t);
 
-  ~binarystring() { delete &m_buf; }
-
   /// Size of converted string in bytes
   size_type size() const noexcept { return m_size; }			//[t62]
   /// Size of converted string in bytes
@@ -130,7 +129,7 @@ public:
    * a null character, you will not find one here.
    */
   const char *get() const noexcept					//[t62]
-			{ return reinterpret_cast<const char *>(m_buf.get()); }
+	{ return reinterpret_cast<const char *>(m_buf.get()); }
 
   /// Read as regular C++ string (may include null characters)
   /** @warning libpqxx releases before 3.1 stored the string and returned a
@@ -142,18 +141,18 @@ public:
   std::string str() const;						//[t62]
 
 private:
-  typedef internal::PQAlloc<
-	value_type,
-	pqxx::internal::freemallocmem_templated<unsigned char> >
-    smart_pointer_type;
+  typedef std::shared_ptr<value_type> smart_pointer_type;
 
-  /* Using a reference to a smart pointer.  It's wasteful, but it hides the
-   * different implementations of PQAlloc: the compiler needs to know PQAlloc's
-   * memory layout in order to include an instance inside binarystring.
-   * Once shared_ptr is widespread enough, we can just have a shared_ptr and
-   * forget about PQAlloc altogether.
-   */
-  smart_pointer_type &m_buf;
+  /// Shorthand: construct a smart_pointer_type.
+  smart_pointer_type make_smart_pointer(unsigned char *buf=nullptr) const
+  {
+    return smart_pointer_type(
+	buf,
+	internal::freemallocmem_templated<unsigned char>);
+  }
+
+  smart_pointer_type m_buf;
+
   size_type m_size;
 };
 }

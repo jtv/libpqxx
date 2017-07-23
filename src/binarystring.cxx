@@ -81,35 +81,35 @@ buffer unescape(const unsigned char escaped[])
 
 
 pqxx::binarystring::binarystring(const binarystring &rhs) :
-  m_buf(*new smart_pointer_type(rhs.m_buf)),
+  m_buf(rhs.m_buf),
   m_size(rhs.m_size)
 {
 }
 
 
 pqxx::binarystring::binarystring(const field &F) :
-  m_buf(*new smart_pointer_type),
+  m_buf(make_smart_pointer()),
   m_size(0)
 {
   buffer unescaped(unescape(reinterpret_cast<const_pointer>(F.c_str())));
-  m_buf = smart_pointer_type(unescaped.first);
+  m_buf = make_smart_pointer(unescaped.first);
   m_size = unescaped.second;
 }
 
 
 pqxx::binarystring::binarystring(const std::string &s) :
-  m_buf(*new smart_pointer_type),
+  m_buf(make_smart_pointer()),
   m_size(s.size())
 {
-  m_buf = smart_pointer_type(to_buffer(s).first);
+  m_buf = make_smart_pointer(to_buffer(s).first);
 }
 
 
 pqxx::binarystring::binarystring(const void *binary_data, size_t len) :
-  m_buf(*new smart_pointer_type),
+  m_buf(make_smart_pointer()),
   m_size(len)
 {
-  m_buf = smart_pointer_type(to_buffer(binary_data, len).first);
+  m_buf = make_smart_pointer(to_buffer(binary_data, len).first);
 }
 
 

@@ -252,11 +252,6 @@ AC_TRY_COMPILE(
 	have_exp_optional=no)
 AC_MSG_RESULT($have_exp_optional)
 
-boost_smart_ptr=yes
-AC_CHECK_HEADER(boost/smart_ptr.hpp, AC_DEFINE(PQXX_HAVE_BOOST_SMART_PTR, 1,
-	[Define if you have the <boost/smart_ptr.hpp> header]),
-	boost_smart_ptr=no)
-
 
 usestd="namespace std {} using namespace std;"
 
@@ -697,16 +692,6 @@ AC_TRY_COMPILE([#include <cmath>
 )
 AC_MSG_RESULT($isinf)
 
-
-AC_MSG_CHECKING([for shared_ptr])
-sharedptr='yes'
-AC_TRY_COMPILE([#include <memory>],
-	[std::shared_ptr<int> i(new int(1)); return *i;],
-	[AC_DEFINE(PQXX_HAVE_SHARED_PTR,
-		1,
-		[Define if compiler has shared_ptr])],
-	[sharedptr='no'])
-AC_MSG_RESULT($sharedptr)
 
 AC_MSG_CHECKING([for move()])
 move='yes'

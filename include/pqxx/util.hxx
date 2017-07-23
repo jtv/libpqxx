@@ -241,11 +241,6 @@
  * to another thread.  Just make sure that no other thread accesses the same
  * copy when it's being assigned to, swapped, cleared, or destroyed.
  *
- * @warning Prior to libpqxx 3.1, or in C++ environments without the standard
- * @c "shared_ptr" smart pointer type, copying, assigning, or destroying a
- * pqxx::result or pqxx::binarystring could also affect any other other object
- * of the same type referring to the same underlying data.
- *
  * Use @c pqxx::describe_thread_safety to find out at runtime what level of
  * thread safety is implemented in your build and version of libpqxx.  It
  * returns a pqxx::thread_safety_model describing what you can and cannot rely
@@ -467,8 +462,6 @@ template<typename P> inline void freemallocmem_templated(P *p) noexcept
 }
 
 
-#ifdef PQXX_HAVE_SHARED_PTR
-
 /// Reference-counted smart pointer to libpq-allocated object
 template<typename T, void (*DELETER)(T *) = freepqmem_templated<T> >
   class PQAlloc
@@ -486,10 +479,8 @@ public:
     return *this;
   }
 
-#if __cplusplus >= 201103L
   PQAlloc(PQAlloc &&) =default;
   PQAlloc &operator=(PQAlloc &&) =default;
-#endif
 
   T *operator->() const noexcept { return m_ptr.get(); }
   T &operator*() const noexcept { return *m_ptr; }
@@ -499,124 +490,6 @@ public:
 private:
   std::shared_ptr<T> m_ptr;
 };
-
-#else // !PQXX_HAVE_SHARED_PTR
-
-/// Helper class used in reference counting (doubly-linked circular list)
-/// Reference-counted smart-pointer for libpq-allocated resources.
-class PQXX_LIBEXPORT refcount
-{
-  refcount *volatile m_l, *volatile m_r;
-
-public:
-  refcount();
-  ~refcount();
-
-  /// Create additional reference based on existing refcount object
-  void makeref(refcount &) noexcept;
-
-  /// Drop this reference; return whether we were the last reference
-  bool loseref() noexcept;
-
-private:
-  /// Not allowed
-  refcount(const refcount &);
-  /// Not allowed
-  refcount &operator=(const refcount &);
-};
-
-
-/// Reference-counted smart pointer to libpq-allocated object
-/** Keep track of a libpq-allocated object, and free it once all references to
- * it have died.
- *
- * The memory is freed with @c PQfreemem() by default.  This matters on Windows,
- * where apparently under some circumstances, memory allocated by a DLL must be
- * freed by the same DLL.
- *
- * @warning Copying, swapping, and destroying PQAlloc objects that refer to the
- * same underlying libpq-allocated block is <em>not thread-safe</em>.  If you
- * wish to pass reference-counted objects around between threads, make sure that
- * each of these operations is protected against concurrency with similar
- * operations on the same object--or other copies of the same object.
- */
-template<typename T, void (*DELETER)(T *) = freepqmem_templated<T> >
-class PQAlloc
-{
-  T *m_Obj;
-  mutable refcount m_rc;
-public:
-  typedef T content_type;
-
-  PQAlloc() noexcept : m_Obj(0), m_rc() {}
-  PQAlloc(const PQAlloc &rhs) noexcept : m_Obj(0), m_rc() { makeref(rhs); }
-  ~PQAlloc() noexcept { loseref(); }
-
-  PQAlloc &operator=(const PQAlloc &rhs) noexcept
-	{redoref(rhs); return *this;}
-
-  /// Assume ownership of a pointer
-  /** @warning Don't to this more than once for a given object!
-   */
-  explicit PQAlloc(T *obj) noexcept : m_Obj(obj), m_rc() {}
-
-  void swap(PQAlloc &rhs) noexcept
-  {
-    PQAlloc tmp(*this);
-    *this = rhs;
-    rhs = tmp;
-  }
-
-  /// Is this pointer non-null?
-  operator bool() const noexcept { return m_Obj != 0; }
-
-  /// Is this pointer null?
-  bool operator!() const noexcept { return !m_Obj; }
-
-  /// Dereference pointer
-  /** Throws a logic_error if the pointer is null.
-   */
-  T *operator->() const
-  {
-    if (!m_Obj) throw std::logic_error("Null pointer dereferenced");
-    return m_Obj;
-  }
-
-  /// Dereference pointer
-  /** Throws a logic_error if the pointer is null.
-   */
-  T &operator*() const { return *operator->(); }
-
-  /// Obtain underlying pointer
-  /** Ownership of the pointer's memory remains with the PQAlloc object
-   */
-  T *get() const noexcept { return m_Obj; }
-
-  void reset() noexcept { loseref(); }
-
-private:
-  void makeref(T *p) noexcept { m_Obj = p; }
-
-  void makeref(const PQAlloc &rhs) noexcept
-  {
-    m_Obj = rhs.m_Obj;
-    m_rc.makeref(rhs.m_rc);
-  }
-
-  /// Free and reset current pointer (if any)
-  void loseref() noexcept
-  {
-    if (m_rc.loseref() && m_Obj) DELETER(m_Obj);
-    m_Obj = 0;
-  }
-
-  void redoref(const PQAlloc &rhs) noexcept
-	{ if (rhs.m_Obj != m_Obj) { loseref(); makeref(rhs); } }
-  void redoref(T *obj) noexcept
-	{ if (obj != m_Obj) { loseref(); makeref(obj); } }
-};
-
-#endif // PQXX_HAVE_SHARED_PTR
 
 
 class PQXX_LIBEXPORT namedclass

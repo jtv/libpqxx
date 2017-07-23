@@ -1,6 +1,5 @@
 /* Automatically generated from config.h: public/compiler config. */
 
-#define PQXX_HAVE_BOOST_SMART_PTR 1
 #define PQXX_HAVE_CPP_PRAGMA_MESSAGE 1
 #define PQXX_HAVE_DELETED_OP 1
 #define PQXX_HAVE_DEPRECATED 1
@@ -11,4 +10,3 @@
 #define PQXX_HAVE_GCC_PURE 1
 #define PQXX_HAVE_MOVE 1
 #define PQXX_HAVE_OVERRIDE 1
-#define PQXX_HAVE_SHARED_PTR 1
