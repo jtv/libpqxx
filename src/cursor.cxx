@@ -317,7 +317,7 @@ pqxx::icursorstream::icursorstream(
   m_stride(sstride),
   m_realpos(0),
   m_reqpos(0),
-  m_iterators(0),
+  m_iterators(nullptr),
   m_done(false)
 {
   set_stride(sstride);
@@ -333,7 +333,7 @@ pqxx::icursorstream::icursorstream(
   m_stride(sstride),
   m_realpos(0),
   m_reqpos(0),
-  m_iterators(0),
+  m_iterators(nullptr),
   m_done(false)
 {
   set_stride(sstride);
@@ -428,11 +428,11 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
 
 
 pqxx::icursor_iterator::icursor_iterator() noexcept :
-  m_stream(0),
+  m_stream(nullptr),
   m_here(),
   m_pos(0),
-  m_prev(0),
-  m_next(0)
+  m_prev(nullptr),
+  m_next(nullptr)
 {
 }
 
@@ -440,8 +440,8 @@ pqxx::icursor_iterator::icursor_iterator(istream_type &s) noexcept :
   m_stream(&s),
   m_here(),
   m_pos(difference_type(gate::icursorstream_icursor_iterator(s).forward(0))),
-  m_prev(0),
-  m_next(0)
+  m_prev(nullptr),
+  m_next(nullptr)
 {
   gate::icursorstream_icursor_iterator(*m_stream).insert_iterator(this);
 }
@@ -451,8 +451,8 @@ pqxx::icursor_iterator::icursor_iterator(const icursor_iterator &rhs)
   m_stream(rhs.m_stream),
   m_here(rhs.m_here),
   m_pos(rhs.m_pos),
-  m_prev(0),
-  m_next(0)
+  m_prev(nullptr),
+  m_next(nullptr)
 {
   if (m_stream)
     gate::icursorstream_icursor_iterator(*m_stream).insert_iterator(this);

@@ -125,11 +125,11 @@ std::string pqxx::encrypt_password(
 
 
 pqxx::connection_base::connection_base(connectionpolicy &pol) :
-  m_Conn(0),
+  m_Conn(nullptr),
   m_policy(pol),
   m_Trans(),
   m_errorhandlers(),
-  m_Trace(0),
+  m_Trace(nullptr),
   m_serverversion(0),
   m_reactivation_avoidance(),
   m_unique_id(0),
@@ -798,7 +798,7 @@ pqxx::connection_base::register_prepared(const std::string &name)
   if (!s.registered)
   {
     result r = make_result(
-      PQprepare(m_Conn, name.c_str(), s.definition.c_str(), 0, 0),
+      PQprepare(m_Conn, name.c_str(), s.definition.c_str(), 0, nullptr),
       "[PREPARE " + name + "]");
     check_result(r);
     s.registered = !name.empty();
