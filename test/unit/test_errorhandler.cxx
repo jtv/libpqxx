@@ -127,7 +127,7 @@ public:
 
 void test_get_errorhandlers(connection_base &c)
 {
-  MinimalErrorHandler *eh3 = NULL;
+  MinimalErrorHandler *eh3 = nullptr;
   const vector<errorhandler *> handlers_before = c.get_errorhandlers();
   const size_t base_handlers = handlers_before.size();
 

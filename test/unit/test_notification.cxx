@@ -32,7 +32,7 @@ public:
 void test_receive(
 	transaction_base &t,
 	const string &channel,
-	const char payload[] = NULL)
+	const char payload[] = nullptr)
 {
   connection_base &conn(t.conn());
 

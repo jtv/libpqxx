@@ -199,7 +199,7 @@ void create_pqxxevents(transaction_base &t)
 int main(int, const char *argv[])
 {
   const char *const test_name = argv[1];
-  const test_map &tests = register_test(NULL);
+  const test_map &tests = register_test(nullptr);
 
   int test_count = 0;
   list<string> failed;

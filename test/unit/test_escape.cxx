@@ -40,7 +40,7 @@ void test_esc(connection_base &c, transaction_base &t)
     "x",
     " ",
     "",
-    NULL
+    nullptr
   };
   for (size_t i=0; escstrings[i]; ++i) compare_esc(c, t, escstrings[i]);
 }
@@ -51,7 +51,7 @@ void test_quote(connection_base &c, transaction_base &t)
   PQXX_CHECK_EQUAL(t.quote("x"), "'x'", "Basic quote() fails.");
   PQXX_CHECK_EQUAL(t.quote(1), "'1'", "quote() not dealing with int properly.");
   PQXX_CHECK_EQUAL(t.quote(0), "'0'", "Quoting zero is a problem.");
-  const char *const null_ptr = NULL;
+  const char *const null_ptr = nullptr;
   PQXX_CHECK_EQUAL(t.quote(null_ptr), "NULL", "Not quoting NULL correctly.");
   PQXX_CHECK_EQUAL(t.quote(string("'")), "''''", "Escaping quotes goes wrong.");
 
@@ -69,7 +69,7 @@ void test_quote(connection_base &c, transaction_base &t)
     "\\'",
     "\t",
     "\n",
-    NULL
+    nullptr
   };
 
   for (size_t i=0; test_strings[i]; ++i)
