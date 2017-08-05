@@ -211,7 +211,7 @@ void pqxx::pipeline::issue()
 
   // TODO: Wrap in nested transaction if available, for extra "replayability"
 
-  // Retrieve that NULL result for the last query, if needed
+  // Retrieve that null result for the last query, if needed
   obtain_result();
 
   // Don't issue anything if we've encountered an error
@@ -331,7 +331,7 @@ void pqxx::pipeline::obtain_dummy()
   // Remember where the end of this batch was
   const QueryMap::iterator stop = m_issuedrange.second;
 
-  // Retrieve that NULL result for the last query, if needed
+  // Retrieve that null result for the last query, if needed
   obtain_result(true);
 
 

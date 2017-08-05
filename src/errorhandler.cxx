@@ -45,7 +45,7 @@ void pqxx::errorhandler::unregister() noexcept
   if (m_home)
   {
     gate::connection_errorhandler connection_gate(*m_home);
-    m_home = NULL;
+    m_home = nullptr;
     connection_gate.unregister_errorhandler(this);
   }
 }

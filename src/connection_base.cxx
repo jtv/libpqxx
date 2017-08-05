@@ -564,7 +564,7 @@ class cancel_wrapper
 
 public:
   cancel_wrapper(PGconn *conn) :
-    m_cancel(NULL),
+    m_cancel(nullptr),
     m_errbuf()
   {
     if (conn)
@@ -890,7 +890,7 @@ void pqxx::connection_base::close() noexcept
       m_receivers.clear();
     }
 
-    PQsetNoticeProcessor(m_Conn, NULL, NULL);
+    PQsetNoticeProcessor(m_Conn, nullptr, nullptr);
     std::list<errorhandler *> old_handlers;
     m_errorhandlers.swap(old_handlers);
     const std::list<errorhandler *>::const_reverse_iterator
@@ -1023,7 +1023,7 @@ void pqxx::connection_base::WriteCopyLine(const std::string &Line)
 
 void pqxx::connection_base::EndCopyWrite()
 {
-  int Res = PQputCopyEnd(m_Conn, NULL);
+  int Res = PQputCopyEnd(m_Conn, nullptr);
   switch (Res)
   {
   case -1:
@@ -1329,7 +1329,7 @@ pqxx::result pqxx::connection_base::parameterized_exec(
 		m_Conn,
 		query.c_str(),
 		nparams,
-		NULL,
+		nullptr,
 		params,
 		paramlengths,
 		binaries,

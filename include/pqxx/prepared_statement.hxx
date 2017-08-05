@@ -156,7 +156,7 @@ public:
   /// Pass binary parameter value for a BYTEA field.
   /**
    * @param v binary string; will be passed on directly in binary form.
-   * @param nonnull determines whether to pass a real value, or NULL.
+   * @param nonnull determines whether to pass a real value, or nullptr.
    */
   invocation &operator()(const binarystring &v, bool nonnull)
 	{ add_binary_param(v, nonnull); return *this; }
@@ -165,17 +165,6 @@ public:
   /**
    * This version is for passing C-style strings; it's a template, so any
    * pointer type that @c to_string accepts will do.
-   *
-   * @warning Be very careful with the special constant @c NULL!  Since @c NULL
-   * in C++ is an @c int, not a pointer, a value of @c NULL would cause the
-   * wrong version of this template to be invoked.  To all intents and purposes
-   * it would look like you were trying to pass a regular zero as an integer
-   * value, instead of a null string.  This is not a problem with pointer
-   * variables that may happen to be @c NULL, since in that case the value's
-   * type is not subject to any confusion.  So if you know at compile time that
-   * you want to pass a null value, use the zero-argument version of this
-   * operator; if you don't want to do that, at least add a second argument of
-   * @c false to make clear that you want a null, not a zero.
    *
    * @param v parameter value (will be represented as a C++ string internally)
    * @param nonnull replaces value with null if set to @c false

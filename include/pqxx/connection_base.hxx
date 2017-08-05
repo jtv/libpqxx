@@ -249,7 +249,7 @@ public:
   /// Invoke notice processor function.  Newline at end is recommended.
   void process_notice(const std::string &) noexcept;			//[t14]
 
-  /// Enable tracing to a given output stream, or NULL to disable.
+  /// Enable tracing to a given output stream, or nullptr to disable.
   void trace(std::FILE *) noexcept;					//[t3]
 
   /**
@@ -272,7 +272,7 @@ public:
    */
   const char *username();						//[t1]
 
-  /// Address of server, or NULL if none specified (i.e. default or local)
+  /// Address of server, or nullptr if none specified (i.e. default or local)
   /** @warning This activates the connection, which may fail with a
    * broken_connection exception.
    */

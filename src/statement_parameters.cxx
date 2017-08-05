@@ -7,7 +7,7 @@
  *      Common implementation for statement parameter lists.
  *   See the connection_base hierarchy for more about prepared statements
  *
- * Copyright (c) 2006-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2006-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -48,7 +48,7 @@ int pqxx::internal::statement_parameters::marshall(
   const size_t elements = m_nonnull.size();
   const size_t array_size = elements + 1;
   values.clear();
-  values.resize(array_size, NULL);
+  values.resize(array_size, nullptr);
   lengths.clear();
   lengths.resize(array_size, 0);
   // "Unpack" from m_values, which skips arguments that are null, to the

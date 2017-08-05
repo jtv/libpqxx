@@ -108,7 +108,7 @@ void pqxx::internal::CheckUniqueRegistration(const namedclass *New,
     const namedclass *Old)
 {
   if (!New)
-    throw internal_error("NULL pointer registered");
+    throw internal_error("null pointer registered");
   if (Old)
   {
     if (Old == New)
@@ -126,7 +126,7 @@ void pqxx::internal::CheckUniqueUnregistration(const namedclass *New,
   {
     if (!New)
       throw usage_error("Expected to close " + Old->description() + ", "
-			"but got NULL pointer instead");
+			"but got null pointer instead");
     if (!Old)
       throw usage_error("Closed while not open: " + New->description());
     throw usage_error("Closed " + New->description() + "; "

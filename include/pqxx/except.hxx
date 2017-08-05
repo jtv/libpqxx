@@ -144,7 +144,7 @@ public:
   explicit sql_error(
 	const std::string &msg="",
 	const std::string &Q="",
-	const char sqlstate[]=NULL);
+	const char sqlstate[]=nullptr);
   virtual ~sql_error() noexcept;
 
   /// The query whose execution triggered the exception
@@ -240,7 +240,7 @@ public:
   explicit feature_not_supported(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     sql_error(err, Q, sqlstate) {}
 };
 
@@ -251,7 +251,7 @@ public:
   explicit data_exception(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     sql_error(err, Q, sqlstate) {}
 };
 
@@ -261,7 +261,7 @@ public:
   explicit integrity_constraint_violation(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     sql_error(err, Q, sqlstate) {}
 };
 
@@ -271,7 +271,7 @@ class PQXX_LIBEXPORT restrict_violation :
 public:
   explicit restrict_violation(const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     integrity_constraint_violation(err, Q, sqlstate) {}
 };
 
@@ -281,7 +281,7 @@ class PQXX_LIBEXPORT not_null_violation :
 public:
   explicit not_null_violation(const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     integrity_constraint_violation(err, Q, sqlstate) {}
 };
 
@@ -292,7 +292,7 @@ public:
   explicit foreign_key_violation(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     integrity_constraint_violation(err, Q, sqlstate) {}
 };
 
@@ -303,7 +303,7 @@ public:
   explicit unique_violation(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     integrity_constraint_violation(err, Q, sqlstate) {}
 };
 
@@ -314,7 +314,7 @@ public:
   explicit check_violation(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     integrity_constraint_violation(err, Q, sqlstate) {}
 };
 
@@ -324,7 +324,7 @@ public:
   explicit invalid_cursor_state(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     sql_error(err, Q, sqlstate) {}
 };
 
@@ -334,7 +334,7 @@ public:
   explicit invalid_sql_statement_name(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     sql_error(err, Q, sqlstate) {}
 };
 
@@ -344,7 +344,7 @@ public:
   explicit invalid_cursor_name(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     sql_error(err, Q, sqlstate) {}
 };
 
@@ -357,7 +357,7 @@ public:
   explicit syntax_error(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL,
+	const char sqlstate[]=nullptr,
 	int pos=-1) :
     sql_error(err, Q, sqlstate), error_position(pos) {}
 };
@@ -368,7 +368,7 @@ public:
   explicit undefined_column(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     syntax_error(err, Q, sqlstate) {}
 };
 
@@ -378,7 +378,7 @@ public:
   explicit undefined_function(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     syntax_error(err, Q, sqlstate) {}
 };
 
@@ -388,7 +388,7 @@ public:
   explicit undefined_table(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     syntax_error(err, Q, sqlstate) {}
 };
 
@@ -398,7 +398,7 @@ public:
   explicit insufficient_privilege(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     sql_error(err, Q, sqlstate) {}
 };
 
@@ -409,7 +409,7 @@ public:
   explicit insufficient_resources(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     sql_error(err,Q, sqlstate) {}
 };
 
@@ -419,7 +419,7 @@ public:
   explicit disk_full(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     insufficient_resources(err, Q, sqlstate) {}
 };
 
@@ -429,7 +429,7 @@ public:
   explicit out_of_memory(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     insufficient_resources(err, Q, sqlstate) {}
 };
 
@@ -449,7 +449,7 @@ public:
   explicit plpgsql_error(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     sql_error(err, Q, sqlstate) {}
 };
 
@@ -460,7 +460,7 @@ public:
   explicit plpgsql_raise(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     plpgsql_error(err, Q, sqlstate) {}
 };
 
@@ -470,7 +470,7 @@ public:
   explicit plpgsql_no_data_found(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     plpgsql_error(err, Q, sqlstate) {}
 };
 
@@ -480,7 +480,7 @@ public:
   explicit plpgsql_too_many_rows(
 	const std::string &err,
 	const std::string &Q="",
-	const char sqlstate[]=NULL) :
+	const char sqlstate[]=nullptr) :
     plpgsql_error(err, Q, sqlstate) {}
 };
 

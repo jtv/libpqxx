@@ -88,7 +88,7 @@ template<> struct PQXX_LIBEXPORT string_traits<const char *>
   static const char *name() { return "const char *"; }
   static bool has_null() { return true; }
   static bool is_null(const char *t) { return !t; }
-  static const char *null() { return NULL; }
+  static const char *null() { return nullptr; }
   static void from_string(const char Str[], const char *&Obj) { Obj = Str; }
   static std::string to_string(const char *Obj) { return Obj; }
 };
@@ -99,7 +99,7 @@ template<> struct PQXX_LIBEXPORT string_traits<char *>
   static const char *name() { return "char *"; }
   static bool has_null() { return true; }
   static bool is_null(const char *t) { return !t; }
-  static const char *null() { return NULL; }
+  static const char *null() { return nullptr; }
 
   // Don't allow this conversion since it breaks const-safety.
   // static void from_string(const char Str[], char *&Obj);
@@ -113,7 +113,7 @@ template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
   static const char *name() { return "char[]"; }
   static bool has_null() { return true; }
   static bool is_null(const char t[]) { return !t; }
-  static const char *null() { return NULL; }
+  static const char *null() { return nullptr; }
   static std::string to_string(const char Obj[]) { return Obj; }
 };
 
@@ -126,7 +126,7 @@ template<size_t N> struct PQXX_LIBEXPORT string_traits<const char[N]>
   static const char *name() { return "char[]"; }
   static bool has_null() { return true; }
   static bool is_null(const char t[]) { return !t; }
-  static const char *null() { return NULL; }
+  static const char *null() { return nullptr; }
   static std::string to_string(const char Obj[]) { return Obj; }
 };
 
@@ -189,7 +189,7 @@ template<typename T>
   inline void from_string(const char Str[], T &Obj)
 {
   if (!Str)
-    throw std::runtime_error("Attempt to read NULL string");
+    throw std::runtime_error("Attempt to read null string");
   string_traits<T>::from_string(Str, Obj);
 }
 
@@ -212,7 +212,7 @@ template<>
 	size_t len)							//[t0]
 {
   if (!Str)
-    throw std::runtime_error("Attempt to read NULL string");
+    throw std::runtime_error("Attempt to read null string");
   Obj.assign(Str, len);
 }
 
