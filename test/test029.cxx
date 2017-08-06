@@ -45,9 +45,7 @@ pair<int,int> CountEvents(transaction_base &T)
 // performed correctly.
 void Test(connection_base &C, bool ExplicitAbort)
 {
-  vector<string> BoringRow;
-  BoringRow.push_back(to_string(BoringYear));
-  BoringRow.push_back("yawn");
+  vector<string> BoringRow = {to_string(BoringYear), "yawn"};
 
   pair<int,int> EventCounts;
 

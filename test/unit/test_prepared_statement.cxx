@@ -143,8 +143,7 @@ void test_prepared_statement(transaction_base &T)
 
   C.prepare("CountUpToTen", "SELECT * FROM generate_series($1, 10)");
 
-  vector<int> args;
-  args.push_back(2);
+  vector<int> args = {2};
   COMPARE_RESULTS("CountUpToTen_seq",
 	T.prepared("CountUpToTen")(args[0]).exec(),
 	T.exec(subst(T, "SELECT * FROM generate_series($1, 10)", args)));
@@ -157,9 +156,7 @@ void test_prepared_statement(transaction_base &T)
       T.exec("SELECT * FROM generate_series(2, 5)"));
 
   // Test prepared statement with a null parameter.
-  vector<const char *> ptrs;
-  ptrs.push_back(0);
-  ptrs.push_back("99");
+  vector<const char *> ptrs = {nullptr, "99"};
 
   COMPARE_RESULTS("CountRange_null1",
 	T.prepared("CountRange")(ptrs[0])(ptrs[1]).exec(),
