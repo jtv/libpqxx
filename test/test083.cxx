@@ -9,20 +9,22 @@ using namespace pqxx;
 // field iterators
 namespace
 {
+/// Create a vector of vectors of ints: {{1}, {2}, {3}, ...}
+std::vector<std::vector<int>> make_contents()
+{
+  std::vector<std::vector<int> > contents;
+  for (int x=0; x<10; ++x) contents.push_back(std::vector<int>{x + 1});
+  return contents;
+}
+
+
 void test_083(transaction_base &orgT)
 {
   connection_base &C(orgT.conn());
   orgT.abort();
 
   const string Table = "pqxxnumbers";
-
-  items<items<int> > contents;
-  for (int x=0; x<10; ++x)
-  {
-    items<int> n(x+1);
-    contents.push_back(n);
-  }
-
+  const auto contents = make_contents();
   try
   {
     nontransaction Drop(C, "drop_" + Table);
@@ -49,7 +51,7 @@ void test_083(transaction_base &orgT)
   W.complete();
 
   const result R = T.exec("SELECT * FROM " + Table + " ORDER BY num DESC");
-  items<items<int> >::const_reverse_iterator j(++i);
+  decltype(contents)::const_reverse_iterator j(++i);
   for (auto r = R.begin(); r != R.end(); ++j, ++r)
     PQXX_CHECK_EQUAL(
 	r->at(0).as(0),

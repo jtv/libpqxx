@@ -11,17 +11,6 @@ using namespace pqxx;
 
 namespace
 {
-template<typename T> void testitems(const T &I, typename T::size_type s)
-{
-  PQXX_CHECK_EQUAL(I.size(), s, "Wrong size in items class.");
-
-  for ( ; s; --s)
-  {
-    const auto value = typename T::size_type((I[s-1]));
-    PQXX_CHECK_EQUAL(value, s, "Wrong value in items object.");
-  }
-}
-
 void check(string ref, string val, string vdesc)
 {
   PQXX_CHECK_EQUAL(val, ref, "String mismatch for " + vdesc);
@@ -66,27 +55,6 @@ void test_000(transaction_base &)
   PQXX_CHECK(
 	cursor_base::prior() < 0 && cursor_base::backward_all() < 0,
 	"cursor_base::difference_type appears to be unsigned.");
-
-  // Test items template
-  items<int> I0;
-  testitems(I0, 0);
-  items<int> I1(1);
-  testitems(I1, 1);
-  items<int> I2(1,2);
-  testitems(I2,2);
-  items<int> I3(1,2,3);
-  testitems(I3,3);
-  items<int> I4(1,2,3,4);
-  testitems(I4,4);
-  items<int> I5(1,2,3,4,5);
-  testitems(I5,5);
-  items<int> Ivar;
-  Ivar(1);
-  testitems(Ivar,1);
-  const string l = separated_list(",",I5.begin(),I5.end(),intderef());
-  PQXX_CHECK_EQUAL(l, "1,2,3,4,5", "separated_list is broken.");
-  vector<int> V2(I2);
-  testitems(items<int>(V2),2);
 
   const char weird[] = "foo\t\n\0bar";
   const string weirdstr(weird, sizeof(weird)-1);

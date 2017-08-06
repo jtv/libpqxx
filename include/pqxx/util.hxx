@@ -314,67 +314,6 @@ PQXX_LIBEXPORT thread_safety_model describe_thread_safety() noexcept;
 /// The "null" oid
 const oid oid_none = 0;
 
-/// Container of items with easy contents initialization and string rendering
-/** Designed as a wrapper around an arbitrary container type, this class lets
- * you easily create a container object and provide its contents in the same
- * line.  Regular addition methods such as push_back() will also still work, but
- * you can now write things like
- * @code
- *  items<int> numbers; numbers(1)(2)(3)(4);
- * @endcode
- *
- * Up to five elements may be specified directly as constructor arguments, e.g.
- * @code
- * items<int> numbers(1,2,3,4);
- * @endcode
- *
- * One thing that cannot be done with this simple class is create const objects
- * with nontrivial contents.  This is because the function invocation operator
- * (which is being used to add items) modifies the container rather than
- * creating a new one.  This was done to keep performance within reasonable
- * bounds.
- *
- * @warning This class may see substantial change in its interface before it
- * stabilizes.  Do not count on it remaining the way it is.
- */
-template<typename T=std::string, typename CONT=std::vector<T> >
-class items : public CONT
-{
-public:
-  /// Create empty items list
-  items() : CONT() {}							//[t0]
-  /// Create items list with one element
-  explicit items(const T &t) : CONT() { this->push_back(t); }		//[t0]
-  items(const T &t1, const T &t2) : CONT()				//[t0]
-	{ this->push_back(t1); this->push_back(t2); }
-  items(const T &t1, const T &t2, const T &t3) : CONT()			//[t0]
-	{ this->push_back(t1); this->push_back(t2); this->push_back(t3); }
-  items(const T &t1, const T &t2, const T &t3, const T &t4) : CONT()	//[t0]
-  {
-    this->push_back(t1);
-    this->push_back(t2);
-    this->push_back(t3);
-    this->push_back(t4);
-  }
-  items(const T&t1,const T&t2,const T&t3,const T&t4,const T&t5):CONT()	//[t0]
-  {
-    this->push_back(t1);
-    this->push_back(t2);
-    this->push_back(t3);
-    this->push_back(t4);
-    this->push_back(t5);
-  }
-  /// Copy container
-  items(const CONT &c) : CONT(c) {}					//[t0]
-
-  /// Add element to items list
-  items &operator()(const T &t)						//[t0]
-  {
-    this->push_back(t);
-    return *this;
-  }
-};
-
 
 namespace internal
 {
