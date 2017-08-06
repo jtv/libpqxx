@@ -590,6 +590,20 @@ void pqxx::connection_base::set_verbosity(error_verbosity verbosity) noexcept
 }
 
 
+namespace
+{
+/// Unique pointer to PGnotify.
+typedef std::unique_ptr<PGnotify, void (*)(PGnotify *)> notify_ptr;
+
+
+/// Get one notification from a connection, or null.
+notify_ptr get_notif(pqxx::internal::pq::PGconn *conn)
+{
+  return notify_ptr(PQnotifies(conn), freepqmem_templated<PGnotify>);
+}
+}
+
+
 int pqxx::connection_base::get_notifs()
 {
   if (!is_open()) return 0;
@@ -601,10 +615,7 @@ int pqxx::connection_base::get_notifs()
   if (m_Trans.get()) return 0;
 
   int notifs = 0;
-  typedef std::unique_ptr<PGnotify, void (*)(PGnotify *)> notifptr;
-  for (notifptr N(PQnotifies(m_Conn), freepqmem_templated<PGnotify>);
-       N.get();
-       N = notifptr(PQnotifies(m_Conn), freepqmem_templated<PGnotify>))
+  for (auto N = get_notif(m_Conn); N.get(); N = get_notif(m_Conn))
   {
     notifs++;
 
