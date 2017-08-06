@@ -509,8 +509,8 @@ void pqxx::connection_base::remove_receiver(pqxx::notification_receiver *T)
   try
   {
     // Keep Sun compiler happy...  Hope it doesn't annoy other compilers
-      std::pair<const std::string, notification_receiver *> tmp_pair(
-        T->channel(), T);
+    std::pair<const std::string, notification_receiver *> tmp_pair(
+	T->channel(), T);
     auto E = tmp_pair;
     auto R = m_receivers.equal_range(E.first);
     const auto i = find(R.first, R.second, E);
