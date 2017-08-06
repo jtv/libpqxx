@@ -64,13 +64,15 @@ using namespace pqxx::internal;
 using namespace pqxx::prepare;
 
 
+namespace
+{
 #ifndef PQXX_HAVE_POLL
 #ifdef PQXX_SELECT_ACCEPTS_NULL
   // The always-empty fd_set
-static fd_set *const fdset_none = 0;
+fd_set *const fdset_none = nullptr;
 #else	// PQXX_SELECT_ACCEPTS_NULL
-static fd_set emptyfd;	// Relies on zero-initialization
-static fd_set *const fdset_none = &emptyfd;
+fd_set emptyfd;	// Relies on zero-initialization
+fd_set *const fdset_none = &emptyfd;
 #endif	// PQXX_SELECT_ACCEPTS_NULL
 #endif  // !PQXX_HAVE_POLL
 
@@ -78,7 +80,7 @@ static fd_set *const fdset_none = &emptyfd;
 #ifndef PQXX_HAVE_POLL
 // Concentrate stupid "old-style cast" warnings for GNU libc in one place, and
 // by using "C" linkage, perhaps silence them altogether.
-static void set_fdbit(int f, fd_set *s)
+void set_fdbit(int f, fd_set *s)
 {
 
 #ifdef _MSC_VER
@@ -96,7 +98,7 @@ static void set_fdbit(int f, fd_set *s)
 }
 
 
-static void clear_fdmask(fd_set *mask)
+void clear_fdmask(fd_set *mask)
 {
   FD_ZERO(mask);
 }
@@ -107,11 +109,12 @@ extern "C"
 {
 // The PQnoticeProcessor that receives an error or warning from libpq and sends
 // it to the appropriate connection for processing.
-static void pqxx_notice_processor(void *conn, const char *msg)
+void pqxx_notice_processor(void *conn, const char *msg)
 {
   reinterpret_cast<pqxx::connection_base *>(conn)->process_notice(msg);
 }
-}
+} // extern "C"
+} // namespace
 
 
 std::string pqxx::encrypt_password(
