@@ -22,6 +22,7 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
+#include <cstddef>
 #include <memory>
 #include <string>
 
@@ -58,13 +59,15 @@ public:
 	{ init(); }
 
   explicit basic_connection(const std::string &opt) :
-    connection_base(m_policy), m_options(opt), m_policy(m_options) {init();}
+    connection_base(m_policy),
+    m_options(opt),
+    m_policy(m_options)
+	{init();}
 
   explicit basic_connection(const char opt[]) :
-    connection_base(m_policy),
-    m_options(opt?opt:std::string()),
-    m_policy(m_options)
-	{ init(); }
+    basic_connection(opt ? std::string(opt) : std::string()) {}
+
+  explicit basic_connection(std::nullptr_t) : basic_connection() {}
 
   ~basic_connection() noexcept
 	{ close(); }

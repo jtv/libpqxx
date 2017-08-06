@@ -99,9 +99,7 @@ public:
 	{ Begin(); }
 
   explicit transaction(connection_base &C) :				//[t1]
-    namedclass(fullname("transaction", isolation_tag::name())),
-    basic_transaction(C, isolation_tag::name(), READWRITE)
-	{ Begin(); }
+    transaction(C, "") {}
 
   virtual ~transaction() noexcept
 	{ End(); }

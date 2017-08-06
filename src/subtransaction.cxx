@@ -7,7 +7,7 @@
  *      implementation of the pqxx::subtransaction class.
  *   pqxx::transaction is a nested transaction, i.e. one within a transaction
  *
- * Copyright (c) 2005-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2005-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -47,10 +47,7 @@ typedef pqxx::dbtransaction &dbtransaction_ref;
 pqxx::subtransaction::subtransaction(
 	subtransaction &T,
 	const std::string &Name) :
-  namedclass("subtransaction", T.conn().adorn_name(Name)),
-  transactionfocus(dbtransaction_ref(T)),
-  dbtransaction(T.conn(), false),
-  m_parent(T)
+  subtransaction(dbtransaction_ref(T), Name)
 {
 }
 
