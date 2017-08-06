@@ -23,9 +23,9 @@ void test_073(transaction_base &W)
        << endl;
 
   // The middle query should fail; the surrounding two should succeed
-  const pipeline::query_id id_1 = P.insert("SELECT 1");
-  const pipeline::query_id id_f = P.insert("DELIBERATE SYNTAX ERROR");
-  const pipeline::query_id id_2 = P.insert("SELECT 2");
+  const auto id_1 = P.insert("SELECT 1");
+  const auto id_f = P.insert("DELIBERATE SYNTAX ERROR");
+  const auto id_2 = P.insert("SELECT 2");
 
   // See that we can process the queries without stumbling over the error
   P.complete();

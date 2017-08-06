@@ -79,7 +79,7 @@ void Test(connection_base &C, bool ExplicitAbort)
       W.push_back(BoringRow);
     }
 
-    const pair<int,int> Recount = CountEvents(Doomed);
+    auto Recount = CountEvents(Doomed);
     PQXX_CHECK_EQUAL(Recount.second, 1, "Unexpected number of events.");
     PQXX_CHECK_EQUAL(
 	Recount.first,
@@ -98,7 +98,7 @@ void Test(connection_base &C, bool ExplicitAbort)
   // transactions.
   work Checkup(C, "Checkup");
 
-  const pair<int,int> NewEvents = CountEvents(Checkup);
+  auto NewEvents = CountEvents(Checkup);
   PQXX_CHECK_EQUAL(
 	NewEvents.first,
 	EventCounts.first,

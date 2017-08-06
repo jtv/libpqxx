@@ -100,7 +100,7 @@ pqxx::row::const_reverse_iterator pqxx::row::crend() const
 bool pqxx::row::operator==(const row &rhs) const noexcept
 {
   if (&rhs == this) return true;
-  const size_type s(size());
+  const auto s = size();
   if (rhs.size() != s) return false;
   // TODO: Depends on how null is handled!
   for (size_type i=0; i<s; ++i) if ((*this)[i] != rhs[i]) return false;
@@ -146,9 +146,9 @@ pqxx::row::reference pqxx::row::at(const std::string &s) const
 
 void pqxx::row::swap(row &rhs) noexcept
 {
-  const result::size_type i(m_Index);
-  const size_type b(m_Begin);
-  const size_type e(m_End);
+  const auto i = m_Index;
+  const auto b= m_Begin;
+  const auto e= m_End;
   m_Home.swap(rhs.m_Home);
   m_Index = rhs.m_Index;
   m_Begin = rhs.m_Begin;
@@ -194,14 +194,14 @@ pqxx::row::size_type pqxx::row::table_column(size_type ColNum) const
 
 pqxx::row::size_type pqxx::row::column_number(const char ColName[]) const
 {
-  const size_type n = m_Home.column_number(ColName);
+  const auto n = m_Home.column_number(ColName);
   if (n >= m_End)
     return result().column_number(ColName);
   if (n >= m_Begin)
     return n - m_Begin;
 
   const char *const AdaptedColName = m_Home.column_name(n);
-  for (size_type i = m_Begin; i < m_End; ++i)
+  for (auto i = m_Begin; i < m_End; ++i)
     if (strcmp(AdaptedColName, m_Home.column_name(i)) == 0)
       return i - m_Begin;
 

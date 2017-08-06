@@ -45,8 +45,8 @@ int pqxx::internal::statement_parameters::marshall(
 	std::vector<int> &lengths,
 	std::vector<int> &binaries) const
 {
-  const size_t elements = m_nonnull.size();
-  const size_t array_size = elements + 1;
+  const auto elements = m_nonnull.size();
+  const auto array_size = elements + 1;
   values.clear();
   values.resize(array_size, nullptr);
   lengths.clear();

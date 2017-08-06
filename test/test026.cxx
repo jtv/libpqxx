@@ -44,7 +44,7 @@ public:
 
     // Note all different years currently occurring in the table, writing them
     // and their correct mappings to m_Conversions
-    for (result::const_iterator r = R.begin(); r != R.end(); ++r)
+    for (auto r = R.begin(); r != R.end(); ++r)
     {
       int Y;
 
@@ -56,9 +56,7 @@ public:
     // For each occurring year, write converted date back to whereever it may
     // occur in the table.  Since we're in a transaction, any changes made by
     // others at the same time will not affect us.
-    for (map<int,int>::const_iterator c = m_Conversions.begin();
-	 c != m_Conversions.end();
-	 ++c)
+    for (auto c = m_Conversions.begin(); c != m_Conversions.end(); ++c)
       T.exec0(
 	"UPDATE pqxxevents "
 	"SET year=" + to_string(c->second) + " "
@@ -114,9 +112,7 @@ void test_026(transaction_base &)
   // list will be accurate even if other people were modifying the database
   // at the same time; this property was established through use of the
   // transactor framework.
-  for (map<int,int>::const_iterator i = theConversions.begin();
-       i != theConversions.end();
-       ++i)
+  for (auto i = theConversions.begin(); i != theConversions.end(); ++i)
     cout << '\t' << i->first << "\t-> " << i->second << endl;
 }
 } // namespace

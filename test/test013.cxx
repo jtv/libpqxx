@@ -59,10 +59,10 @@ public:
 
   void operator()(argument_type &T)
   {
-    result R( T.exec0(
+    result R = T.exec0(
 	"INSERT INTO " + m_Table + " VALUES (" +
 	to_string(BoringYear) + ", "
-	"'yawn')") );
+	"'yawn')");
 
     PQXX_CHECK_EQUAL(R.affected_rows(), 1u, "Bad affected_rows().");
 

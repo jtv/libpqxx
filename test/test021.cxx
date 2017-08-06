@@ -48,7 +48,7 @@ void test_021(transaction_base &)
 		   "\n");
 
   // Process each successive result row
-  for (result::const_iterator c = R.begin(); c != R.end(); ++c)
+  for (auto c = R.begin(); c != R.end(); ++c)
   {
     string N;
     c[0].to(N);

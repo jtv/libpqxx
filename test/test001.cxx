@@ -31,7 +31,7 @@ void test_001(transaction_base &trans)
   PQXX_CHECK(!R.empty(), "No tables found.  Cannot test.");
 
   // Process each successive result row
-  for (result::const_iterator c = R.begin(); c != R.end(); ++c)
+  for (auto c = R.begin(); c != R.end(); ++c)
   {
     // Dump row number and column 0 value to cout.  Read the value using
     // as(), which converts the field to the same type as the default value

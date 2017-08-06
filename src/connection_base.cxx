@@ -286,7 +286,7 @@ std::string pqxx::connection_base::RawGetVar(const std::string &Var)
 {
   // Is this variable in our local map of set variables?
   // TODO: Could we safely read-allocate variables into m_Vars?
-  std::map<std::string,std::string>::const_iterator i = m_Vars.find(Var);
+  const auto i = m_Vars.find(Var);
   if (i != m_Vars.end()) return i->second;
 
   return Exec(("SHOW " + Var).c_str(), 0).at(0).at(0).as(std::string());
@@ -310,15 +310,15 @@ void pqxx::connection_base::SetupState()
 
   if (Status() != CONNECTION_OK)
   {
-    const std::string Msg( ErrMsg() );
+    const auto Msg = ErrMsg();
     m_Conn = m_policy.do_disconnect(m_Conn);
     throw failure(Msg);
   }
 
   read_capabilities();
 
-  PSMap::iterator prepared_end(m_prepared.end());
-  for (PSMap::iterator p = m_prepared.begin(); p != prepared_end; ++p)
+  const auto prepared_end = m_prepared.end();
+  for (auto p = m_prepared.begin(); p != prepared_end; ++p)
     p->second.registered = false;
 
   PQsetNoticeProcessor(m_Conn, pqxx_notice_processor, this);
@@ -335,9 +335,9 @@ void pqxx::connection_base::SetupState()
     // Reinstate all active receivers
     if (!m_receivers.empty())
     {
-      const receiver_list::const_iterator End = m_receivers.end();
+      const auto End = m_receivers.end();
       std::string Last;
-      for (receiver_list::const_iterator i = m_receivers.begin(); i != End; ++i)
+      for (auto i = m_receivers.begin(); i != End; ++i)
       {
         // m_receivers can handle multiple receivers waiting on the same event;
         // issue just one LISTEN for each event.
@@ -349,12 +349,8 @@ void pqxx::connection_base::SetupState()
       }
     }
 
-    const std::map<std::string,std::string>::const_iterator var_end(
-      m_Vars.end());
-    for (
-        std::map<std::string,std::string>::const_iterator i=m_Vars.begin();
-        i!=var_end;
-        ++i)
+    const auto var_end = m_Vars.end();
+    for (auto i=m_Vars.begin(); i!=var_end; ++i)
       restore_query << "SET " << i->first << "=" << i->second << "; ";
 
     // Now do the whole batch at once
@@ -399,20 +395,17 @@ bool pqxx::connection_base::is_open() const noexcept
 void pqxx::connection_base::process_notice_raw(const char msg[]) noexcept
 {
   if (!msg || !*msg) return;
-  const std::list<errorhandler *>::const_reverse_iterator
+  const auto
 	rbegin = m_errorhandlers.rbegin(),
 	rend = m_errorhandlers.rend();
-  for (
-	std::list<errorhandler *>::const_reverse_iterator i = rbegin;
-	i != rend && (**i)(msg);
-	++i) ;
+  for (auto i = rbegin; i != rend && (**i)(msg); ++i) ;
 }
 
 
 void pqxx::connection_base::process_notice(const char msg[]) noexcept
 {
   if (!msg) return;
-  const size_t len = strlen(msg);
+  const auto len = strlen(msg);
   if (len == 0) return;
   if (msg[len-1] == '\n')
   {
@@ -481,7 +474,7 @@ void pqxx::connection_base::add_receiver(pqxx::notification_receiver *T)
   if (!T) throw argument_error("Null receiver registered");
 
   // Add to receiver list and attempt to start listening.
-  const receiver_list::iterator p = m_receivers.find(T->channel());
+  const auto p = m_receivers.find(T->channel());
   const receiver_list::value_type NewVal(T->channel(), T);
 
   if (p == m_receivers.end())
@@ -515,12 +508,9 @@ void pqxx::connection_base::remove_receiver(pqxx::notification_receiver *T)
     // Keep Sun compiler happy...  Hope it doesn't annoy other compilers
       std::pair<const std::string, notification_receiver *> tmp_pair(
         T->channel(), T);
-    receiver_list::value_type E = tmp_pair;
-
-    typedef std::pair<receiver_list::iterator, receiver_list::iterator> Range;
-    Range R = m_receivers.equal_range(E.first);
-
-    const receiver_list::iterator i = find(R.first, R.second, E);
+    auto E = tmp_pair;
+    auto R = m_receivers.equal_range(E.first);
+    const auto i = find(R.first, R.second, E);
 
     if (i == R.second)
     {
@@ -613,12 +603,10 @@ int pqxx::connection_base::get_notifs()
        N.get();
        N = notifptr(PQnotifies(m_Conn), freepqmem_templated<PGnotify>))
   {
-    typedef receiver_list::iterator TI;
-
     notifs++;
 
-    std::pair<TI, TI> Hit = m_receivers.equal_range(std::string(N->relname));
-    for (TI i = Hit.first; i != Hit.second; ++i) try
+    const auto Hit = m_receivers.equal_range(std::string(N->relname));
+    for (auto i = Hit.first; i != Hit.second; ++i) try
     {
       (*i->second)(N->extra, N->be_pid);
     }
@@ -626,22 +614,25 @@ int pqxx::connection_base::get_notifs()
     {
       try
       {
-        process_notice("Exception in notification receiver '" +
-		       i->first +
-		       "': " +
-		       e.what() +
-		       "\n");
+        process_notice(
+		"Exception in notification receiver '" +
+		i->first +
+		"': " +
+		e.what() +
+		"\n");
       }
       catch (const std::bad_alloc &)
       {
         // Out of memory.  Try to get the message out in a more robust way.
-        process_notice("Exception in notification receiver, "
-	    "and also ran out of memory\n");
+        process_notice(
+		"Exception in notification receiver, "
+		"and also ran out of memory\n");
       }
       catch (const std::exception &)
       {
-        process_notice("Exception in notification receiver "
-	    "(compounded by other error)\n");
+        process_notice(
+		"Exception in notification receiver "
+		"(compounded by other error)\n");
       }
     }
 
@@ -702,12 +693,9 @@ void pqxx::connection_base::unregister_errorhandler(errorhandler *handler)
 
 std::vector<errorhandler *> pqxx::connection_base::get_errorhandlers() const
 {
-    std::vector<errorhandler *> handlers;
+  std::vector<errorhandler *> handlers;
   handlers.reserve(m_errorhandlers.size());
-  for (
-	std::list<errorhandler *>::const_iterator i = m_errorhandlers.begin();
-	i != m_errorhandlers.end();
-	++i)
+  for (auto i = m_errorhandlers.begin(); i != m_errorhandlers.end(); ++i)
     handlers.push_back(*i);
   return handlers;
 }
@@ -717,7 +705,7 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
 {
   activate();
 
-  result R = make_result(PQexec(m_Conn, Query), Query);
+  auto R = make_result(PQexec(m_Conn, Query), Query);
 
   while ((Retries > 0) && !gate::result_connection(R) && !is_open())
   {
@@ -737,7 +725,7 @@ void pqxx::connection_base::prepare(
 	const std::string &name,
 	const std::string &definition)
 {
-  PSMap::iterator i = m_prepared.find(name);
+  auto i = m_prepared.find(name);
   if (i != m_prepared.end())
   {
     if (definition != i->second.definition)
@@ -767,7 +755,7 @@ void pqxx::connection_base::prepare(const std::string &definition)
 
 void pqxx::connection_base::unprepare(const std::string &name)
 {
-  PSMap::iterator i = m_prepared.find(name);
+  auto i = m_prepared.find(name);
 
   // Quietly ignore duplicated or spurious unprepare()s
   if (i == m_prepared.end()) return;
@@ -781,7 +769,7 @@ void pqxx::connection_base::unprepare(const std::string &name)
 pqxx::prepare::internal::prepared_def &
 pqxx::connection_base::find_prepared(const std::string &statement)
 {
-  PSMap::iterator s = m_prepared.find(statement);
+  auto s = m_prepared.find(statement);
   if (s == m_prepared.end())
     throw argument_error("Unknown prepared statement '" + statement + "'");
   return s->second;
@@ -792,12 +780,12 @@ pqxx::prepare::internal::prepared_def &
 pqxx::connection_base::register_prepared(const std::string &name)
 {
   activate();
-  prepare::internal::prepared_def &s = find_prepared(name);
+  auto &s = find_prepared(name);
 
   // "Register" (i.e., define) prepared statement with backend on demand
   if (!s.registered)
   {
-    result r = make_result(
+    auto r = make_result(
       PQprepare(m_Conn, name.c_str(), s.definition.c_str(), 0, nullptr),
       "[PREPARE " + name + "]");
     check_result(r);
@@ -824,7 +812,7 @@ pqxx::result pqxx::connection_base::prepared_exec(
 {
   register_prepared(statement);
   activate();
-  result r = make_result(
+  auto r = make_result(
 	PQexecPrepared(
 		m_Conn,
 		statement.c_str(),
@@ -842,7 +830,7 @@ pqxx::result pqxx::connection_base::prepared_exec(
 
 bool pqxx::connection_base::prepared_exists(const std::string &statement) const
 {
-  PSMap::const_iterator s = m_prepared.find(statement);
+  auto s = m_prepared.find(statement);
   return s != PSMap::const_iterator(m_prepared.end());
 }
 
@@ -893,13 +881,10 @@ void pqxx::connection_base::close() noexcept
     PQsetNoticeProcessor(m_Conn, nullptr, nullptr);
     std::list<errorhandler *> old_handlers;
     m_errorhandlers.swap(old_handlers);
-    const std::list<errorhandler *>::const_reverse_iterator
+    const auto
 	rbegin = old_handlers.rbegin(),
 	rend = old_handlers.rend();
-    for (
-            std::list<errorhandler *>::const_reverse_iterator i = rbegin;
-            i!=rend;
-            ++i)
+    for (auto i = rbegin; i!=rend; ++i)
       gate::errorhandler_connection_base(**i).unregister();
 
     m_Conn = m_policy.do_disconnect(m_Conn);
@@ -920,10 +905,7 @@ void pqxx::connection_base::RawSetVar(const std::string &Var,
 void pqxx::connection_base::AddVariables(
 	const std::map<std::string,std::string> &Vars)
 {
-  for (
-        std::map<std::string,std::string>::const_iterator i=Vars.begin();
-        i!=Vars.end();
-        ++i)
+  for (auto i = Vars.begin(); i != Vars.end(); ++i)
     m_Vars[i->first] = i->second;
 }
 
@@ -979,7 +961,7 @@ bool pqxx::connection_base::ReadCopyLine(std::string &Line)
       throw failure("Reading of table data failed: " + std::string(ErrMsg()));
 
     case -1:
-      for (result R(make_result(PQgetResult(m_Conn), query));
+      for (auto R = make_result(PQgetResult(m_Conn), query);
            gate::result_connection(R);
 	   R=make_result(PQgetResult(m_Conn), query))
 	check_result(R);
@@ -1010,7 +992,7 @@ void pqxx::connection_base::WriteCopyLine(const std::string &Line)
 
   const std::string L = Line + '\n';
   const char *const LC = L.c_str();
-  const std::string::size_type Len = L.size();
+  const auto Len = L.size();
 
   if (PQputCopyData(m_Conn, LC, int(Len)) <= 0)
   {
@@ -1324,7 +1306,7 @@ pqxx::result pqxx::connection_base::parameterized_exec(
 	const int binaries[],
 	int nparams)
 {
-  result r = make_result(
+  auto r = make_result(
   	PQexecParams(
 		m_Conn,
 		query.c_str(),

@@ -61,7 +61,7 @@ struct CountGreaterSmaller : unary_function<pqxx::row, void>
   {
     // Count number of entries with key greater/smaller than first row's key
     // using std::count_if<>()
-    const ptrdiff_t
+    const auto
       Greater = count_if(R.begin(), R.end(), bind2nd(Cmp(Key),T)),
       Smaller = count_if(R.begin(), R.end(), bind1st(Cmp(Key),T));
 

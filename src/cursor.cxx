@@ -72,7 +72,7 @@ pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
    * query.begin() and last, i.e. last may be equal to query.end() or point to
    * the first useless trailing character.
    */
-  std::string::const_iterator last = query.end();
+  auto last = query.end();
   // TODO: May break on multibyte encodings!
   for (--last; last!=query.begin() && useless_trail(*last); --last) ;
   if (last==query.begin() && useless_trail(*last))
@@ -358,7 +358,7 @@ result pqxx::icursorstream::fetchblock()
 
 icursorstream &pqxx::icursorstream::ignore(std::streamsize n)
 {
-  difference_type offset = m_cur.move(difference_type(n));
+  auto offset = m_cur.move(difference_type(n));
   m_realpos += offset;
   if (offset < n) m_done = true;
   return *this;
@@ -392,7 +392,7 @@ void pqxx::icursorstream::remove_iterator(icursor_iterator *i) const noexcept
   }
   else
   {
-    icursor_iterator *prev = igate.get_prev(), *next = igate.get_next();
+    auto prev = igate.get_prev(), next = igate.get_next();
     gate::icursor_iterator_icursorstream(*prev).set_next(next);
     if (next) gate::icursor_iterator_icursorstream(*next).set_prev(prev);
   }
@@ -410,15 +410,15 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
   for (icursor_iterator *i = m_iterators, *next; i; i = next)
   {
     gate::icursor_iterator_icursorstream gate(*i);
-    const icursor_iterator::difference_type ipos = gate.pos();
+    const auto ipos = gate.pos();
     if (ipos >= m_realpos && ipos <= topos)
       todo.insert(todolist::value_type(ipos, i));
     next = gate.get_next();
   }
-  const todolist::const_iterator todo_end(todo.end());
-  for (todolist::const_iterator i = todo.begin(); i != todo_end; )
+  const auto todo_end = todo.end();
+  for (auto i = todo.begin(); i != todo_end; )
   {
-    const difference_type readpos = i->first;
+    const auto readpos = i->first;
     if (readpos > m_realpos) ignore(readpos - m_realpos);
     const result r = fetchblock();
     for ( ; i != todo_end && i->first == readpos; ++i)

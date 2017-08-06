@@ -27,7 +27,7 @@ void TestPipeline(pipeline &P, int numqueries)
   {
     PQXX_CHECK(!P.empty(), "Got no results from pipeline.");
 
-    pair<pipeline::query_id, result> R = P.retrieve();
+    auto R = P.retrieve();
 
     PQXX_CHECK_NOT_EQUAL(R.second, Empty, "Got empty result.");
     if (Prev != Empty)

@@ -143,8 +143,8 @@ std::string pqxx::internal::Escape(
   std::string R;
   R.reserve(s.size()+1);
 
-  const std::string::const_iterator s_end(s.end());
-  for (std::string::const_iterator j = s.begin(); j != s_end; ++j)
+  const auto s_end(s.end());
+  for (auto j = s.begin(); j != s_end; ++j)
   {
     const char c = *j;
     const char e = escapechar(c);

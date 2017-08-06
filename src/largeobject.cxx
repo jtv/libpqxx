@@ -200,7 +200,7 @@ pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
 pqxx::largeobjectaccess::size_type
 pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
 {
-  const size_type Result = cseek(dest, dir);
+  const auto Result = cseek(dest, dir);
   if (Result == -1)
   {
     const int err = errno;
@@ -245,7 +245,7 @@ pqxx::largeobjectaccess::ctell() const noexcept
 
 void pqxx::largeobjectaccess::write(const char Buf[], size_type Len)
 {
-  const long Bytes = cwrite(Buf, Len);
+  const auto Bytes = cwrite(Buf, Len);
   if (Bytes < Len)
   {
     const int err = errno;
@@ -267,7 +267,7 @@ void pqxx::largeobjectaccess::write(const char Buf[], size_type Len)
 pqxx::largeobjectaccess::size_type
 pqxx::largeobjectaccess::read(char Buf[], size_type Len)
 {
-  const long Bytes = cread(Buf, Len);
+  const auto Bytes = cread(Buf, Len);
   if (Bytes < 0)
   {
     const int err = errno;

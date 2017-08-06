@@ -32,7 +32,7 @@ public:
             "to large object #" << m_Object.id() << endl;
 
     char Buf[200];
-    const largeobjectaccess::size_type len = A.read(Buf, sizeof(Buf)-1);
+    const auto len = A.read(Buf, sizeof(Buf)-1);
     PQXX_CHECK_EQUAL(
 	string(Buf, string::size_type(len)),
 	Contents,

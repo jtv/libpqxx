@@ -16,7 +16,7 @@ template<typename VEC, typename VAL>
 void InitVector(VEC &V, typename VEC::size_type s, VAL val)
 {
   V.resize(s);
-  for (typename VEC::iterator i = V.begin(); i != V.end(); ++i) *i = val;
+  for (auto i = V.begin(); i != V.end(); ++i) *i = val;
 }
 
 
@@ -45,7 +45,7 @@ void test_067(transaction_base &orgT)
   InitVector(SortedUp, R.columns(), true);
   InitVector(SortedDown, R.columns(), true);
 
-  for (result::const_iterator i = R.begin(); i != R.end(); i++)
+  for (auto i = R.begin(); i != R.end(); i++)
   {
     PQXX_CHECK_EQUAL(
 	(*i).rownumber(),
@@ -71,7 +71,7 @@ void test_067(transaction_base &orgT)
     // Compare fields to those of preceding row
     if (i != R.begin())
     {
-      const result::const_iterator j = i - 1;
+      const auto j = i - 1;
 
       // First perform some sanity checks on j vs. i and how libpqxx handles
       // their interrelationship...

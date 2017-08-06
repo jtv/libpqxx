@@ -48,7 +48,7 @@ pqxx::result::result(
 bool pqxx::result::operator==(const result &rhs) const noexcept
 {
   if (&rhs == this) return true;
-  const size_type s(size());
+  const auto s = size();
   if (rhs.size() != s) return false;
   for (size_type i=0; i<s; ++i)
     if ((*this)[i] != rhs[i]) return false;
@@ -334,8 +334,7 @@ pqxx::oid pqxx::result::column_table(row::size_type ColNum) const
 
 pqxx::row::size_type pqxx::result::table_column(row::size_type ColNum) const
 {
-  const row::size_type n = row::size_type(
-    PQftablecol(m_data.get(), int(ColNum)));
+  const auto n = row::size_type(PQftablecol(m_data.get(), int(ColNum)));
   if (n) return n-1;
 
   // Failed.  Now find out why, so we can throw a sensible exception.
@@ -379,8 +378,7 @@ const char *pqxx::result::column_name(pqxx::row::size_type Number) const
 
 pqxx::row::size_type pqxx::result::columns() const noexcept
 {
-  internal::pq::PGresult *ptr =
-	const_cast<internal::pq::PGresult *>(m_data.get());
+  auto ptr = const_cast<internal::pq::PGresult *>(m_data.get());
   return ptr ? row::size_type(PQnfields(ptr)) : 0;
 }
 

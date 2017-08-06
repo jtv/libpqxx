@@ -20,13 +20,13 @@ void test_082(transaction_base &T)
 
   const string nullstr("[null]");
 
-  for (pqxx::row::const_iterator f = R[0].begin(); f != R[0].end(); ++f)
+  for (auto f = R[0].begin(); f != R[0].end(); ++f)
     cout << f->name() << '\t';
   cout << endl << endl;
-  for (result::const_iterator r = R.begin(); r != R.end(); ++r)
+  for (auto r = R.begin(); r != R.end(); ++r)
   {
     pqxx::row::const_iterator f2(r[0]);
-    for (pqxx::row::const_iterator f=r->begin(); f!=r->end(); ++f, f2++)
+    for (auto f=r->begin(); f!=r->end(); ++f, f2++)
     {
       cout << f->c_str() << '\t';
       PQXX_CHECK_EQUAL(
@@ -73,9 +73,7 @@ void test_082(transaction_base &T)
     f4 += 1;
     PQXX_CHECK(f4 == r->end(), "Row iterator operator+=() is broken.");
 
-    for (pqxx::row::const_reverse_iterator fr = r->rbegin();
-	 fr != r->rend();
-	 ++fr, --f3)
+    for (auto fr = r->rbegin(); fr != r->rend(); ++fr, --f3)
       PQXX_CHECK_EQUAL(
 	*fr,
 	*f3,

@@ -54,7 +54,7 @@ public:
   void operator()(argument_type &T)
   {
     largeobjectaccess A(T, m_Object);
-    const largeobjectaccess::pos_type
+    const auto
 	orgpos = A.ctell(),
 	copyorgpos = A.ctell();
 

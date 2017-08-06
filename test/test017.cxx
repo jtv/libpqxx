@@ -23,7 +23,7 @@ public:
 
   void on_commit()
   {
-    for (result::const_iterator c = m_Result.begin(); c != m_Result.end(); ++c)
+    for (auto c = m_Result.begin(); c != m_Result.end(); ++c)
     {
       string N;
       c[0].to(N);

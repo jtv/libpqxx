@@ -33,7 +33,7 @@ void test_071(transaction_base &W)
   for (int i=1; i<10; ++i) values[P.insert("SELECT " + to_string(i))] = i;
 
   // Retrieve results in query_id order, and compare to expected values
-  for (Exp::const_iterator c=values.begin(); c!=values.end(); ++c)
+  for (auto c=values.begin(); c!=values.end(); ++c)
     checkresult(P, c);
 
   PQXX_CHECK(P.empty(), "Pipeline was not empty retrieving all results.");
@@ -47,13 +47,13 @@ void test_071(transaction_base &W)
   P.resume();
 
   // Retrieve results in reverse order
-  for (Exp::reverse_iterator c=values.rbegin(); c!=values.rend(); ++c)
+  for (auto c=values.rbegin(); c!=values.rend(); ++c)
     checkresult(P, c);
 
   values.clear();
   P.retain(10);
   for (int i=1010; i>1000; --i) values[P.insert("SELECT "+to_string(i))] = i;
-  for (Exp::const_iterator c=values.begin(); c!=values.end(); ++c)
+  for (auto c=values.begin(); c!=values.end(); ++c)
   {
     if (P.is_finished(c->first))
       cout << "Query #" << c->first << " completed despite retain()" << endl;
@@ -61,7 +61,7 @@ void test_071(transaction_base &W)
 
   // See that all results are retrieved by complete()
   P.complete();
-  for (Exp::const_iterator c=values.begin(); c!=values.end(); ++c)
+  for (auto c=values.begin(); c!=values.end(); ++c)
     PQXX_CHECK(P.is_finished(c->first), "Query not finished after complete().");
 }
 } // namespace

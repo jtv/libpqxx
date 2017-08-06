@@ -34,7 +34,7 @@ void test_014(transaction_base &orgT)
 	"result rows in transaction " +
 	T.name() + "\n");
 
-  for (result::const_iterator c = R.begin(); c != R.end(); ++c)
+  for (auto c = R.begin(); c != R.end(); ++c)
   {
     string N;
     c[0].to(N);

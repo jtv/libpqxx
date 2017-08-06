@@ -39,7 +39,7 @@ void test_083(transaction_base &orgT)
 
   tablewriter W(T, Table);
   back_insert_iterator<tablewriter> b(W);
-  items<items<int> >::const_iterator i = contents.begin();
+  auto i = contents.begin();
   *b = *i++;
   ++b;
   *b++ = *i++;
@@ -50,7 +50,7 @@ void test_083(transaction_base &orgT)
 
   const result R = T.exec("SELECT * FROM " + Table + " ORDER BY num DESC");
   items<items<int> >::const_reverse_iterator j(++i);
-  for (result::const_iterator r = R.begin(); r != R.end(); ++j, ++r)
+  for (auto r = R.begin(); r != R.end(); ++j, ++r)
     PQXX_CHECK_EQUAL(
 	r->at(0).as(0),
 	(*j)[0],

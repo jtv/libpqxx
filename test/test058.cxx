@@ -37,7 +37,7 @@ public:
 	"Could read bytes from large object after writing.");
 
     // Overwrite terminating zero
-    largeobjectaccess::size_type Here = A.seek(-1, ios::cur);
+    auto Here = A.seek(-1, ios::cur);
 
     // Redundant typedef to work around bug in Visual C++.NET
     typedef largeobjectaccess::size_type loa_size;

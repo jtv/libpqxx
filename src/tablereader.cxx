@@ -120,7 +120,7 @@ std::string::size_type findtab(const std::string &Line,
 	std::string::size_type start)
 {
   // TODO: Fix for multibyte encodings?
-  const std::string::size_type here = Line.find('\t', start);
+  const auto here = Line.find('\t', start);
   return (here == std::string::npos) ? Line.size() : here;
 }
 } // namespace
@@ -130,9 +130,9 @@ std::string pqxx::tablereader::extract_field(const std::string &Line,
     std::string::size_type &i) const
 {
   // TODO: Pick better exception types
-    std::string R;
+  std::string R;
   bool isnull=false;
-  std::string::size_type stop = findtab(Line, i);
+  auto stop = findtab(Line, i);
   for (; i < stop; ++i)
   {
     const char c = Line[i];

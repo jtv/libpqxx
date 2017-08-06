@@ -26,7 +26,7 @@ void test_075(transaction_base &W)
 	"result::field::operator!=() is broken.");
 
   vector<string> contents;
-  for (result::const_iterator i=R.begin(); i!=R.end(); ++i)
+  for (auto i=R.begin(); i!=R.end(); ++i)
     contents.push_back(i->at(0).as<string>());
   cout << to_string(contents.size()) << " years read" << endl;
 
@@ -101,8 +101,8 @@ void test_075(transaction_base &W)
 	"reverse_iterator operator+=() and operator-=() do not cancel out.");
 
   // Now verify that reverse iterator also sees the same results...
-  vector<string>::reverse_iterator l = contents.rbegin();
-  for (result::const_reverse_iterator i = R.rbegin(); i != R.rend(); ++i, ++l)
+  auto l = contents.rbegin();
+  for (auto i = R.rbegin(); i != R.rend(); ++i, ++l)
     PQXX_CHECK_EQUAL(
 	*l,
 	i->at(0).c_str(),

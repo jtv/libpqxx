@@ -265,10 +265,11 @@ void pqxx::basic_robusttransaction::DeleteTransactionRecord() noexcept
 
   if (m_record_id != 0) try
   {
-    process_notice("WARNING: "
-	           "Failed to delete obsolete transaction record with id " +
-		   to_string(m_record_id) + " ('" + name() + "'). "
-		   "Please delete it manually.  Thank you.\n");
+    process_notice(
+	"WARNING: "
+	"Failed to delete obsolete transaction record with id " +
+	to_string(m_record_id) + " ('" + name() + "'). "
+	"Please delete it manually.  Thank you.\n");
   }
   catch (const std::exception &)
   {
@@ -323,4 +324,3 @@ bool pqxx::basic_robusttransaction::CheckTransactionRecord()
 
   return !DirectExec(Find.c_str(), 20).empty();
 }
-
