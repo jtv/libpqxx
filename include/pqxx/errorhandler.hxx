@@ -74,10 +74,9 @@ private:
   friend class internal::gate::errorhandler_connection_base;
   void unregister() noexcept;
 
-  // Not allowed:
-  errorhandler() PQXX_DELETED_OP;
-  errorhandler(const errorhandler &) PQXX_DELETED_OP;
-  errorhandler &operator=(const errorhandler &) PQXX_DELETED_OP;
+  errorhandler() =delete;
+  errorhandler(const errorhandler &) =delete;
+  errorhandler &operator=(const errorhandler &) =delete;
 };
 
 

@@ -10,7 +10,6 @@ PQXX_HAVE_GCC_CONST	public	compiler
 PQXX_HAVE_GCC_DEPRECATED	public	compiler
 PQXX_HAVE_GCC_PURE	public	compiler
 PQXX_HAVE_DEPRECATED	public	compiler
-PQXX_HAVE_DELETED_OP	public	compiler
 PQXX_HAVE_FINAL	public	compiler
 PQXX_HAVE_GCC_VISIBILITY	internal	compiler
 PQXX_HAVE_ISINF	internal	compiler

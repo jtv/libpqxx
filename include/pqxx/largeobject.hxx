@@ -330,10 +330,9 @@ private:
   dbtransaction &m_Trans;
   int m_fd;
 
-  // Not allowed:
-  largeobjectaccess() PQXX_DELETED_OP;
-  largeobjectaccess(const largeobjectaccess &) PQXX_DELETED_OP;
-  largeobjectaccess operator=(const largeobjectaccess &) PQXX_DELETED_OP;
+  largeobjectaccess() =delete;
+  largeobjectaccess(const largeobjectaccess &) =delete;
+  largeobjectaccess operator=(const largeobjectaccess &) =delete;
 };
 
 

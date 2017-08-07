@@ -28,12 +28,6 @@
 #define PQXX_MOVE(value) (value)
 #endif
 
-#ifdef PQXX_HAVE_DELETED_OP
-#define PQXX_DELETED_OP =delete
-#else
-#define PQXX_DELETED_OP /* =delete */
-#endif
-
 #ifdef PQXX_HAVE_OVERRIDE
 #define PQXX_OVERRIDE override
 #else

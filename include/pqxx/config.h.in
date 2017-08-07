@@ -57,9 +57,6 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Define if the compiler supports "= delete" member functions. */
-#undef PQXX_HAVE_DELETED_OP
-
 /* Define if compiler supports [[deprecated]] attribute */
 #undef PQXX_HAVE_DEPRECATED
 
