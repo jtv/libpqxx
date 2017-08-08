@@ -61,9 +61,9 @@ private:
   std::string m_sequence;
   int m_backendpid;
 
-  virtual void do_begin() PQXX_OVERRIDE;				//[t18]
-  virtual void do_commit() PQXX_OVERRIDE;				//[t16]
-  virtual void do_abort() PQXX_OVERRIDE;				//[t18]
+  virtual void do_begin() override;					//[t18]
+  virtual void do_commit() override;					//[t16]
+  virtual void do_abort() override;					//[t18]
 
   PQXX_PRIVATE void CreateLogTable();
   PQXX_PRIVATE void CreateTransactionRecord();

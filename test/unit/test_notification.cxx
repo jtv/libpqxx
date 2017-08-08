@@ -6,7 +6,7 @@ using namespace pqxx;
 
 namespace
 {
-class TestReceiver PQXX_FINAL : public notification_receiver
+class TestReceiver final : public notification_receiver
 {
 public:
   string payload;
@@ -20,8 +20,7 @@ public:
   {
   }
 
-  virtual void operator()(const string &payload_string, int backend)
-    PQXX_OVERRIDE
+  virtual void operator()(const string &payload_string, int backend) override
   {
     this->payload = payload_string;
     this->backend_pid = backend;

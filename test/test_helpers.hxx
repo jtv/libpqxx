@@ -62,7 +62,7 @@ protected:
 
 /// Runner class for libpqxx tests.  Sets up a connection and transaction.
 template<typename CONNECTION=connection, typename TRANSACTION=work>
-class test_case PQXX_FINAL : public base_test
+class test_case final : public base_test
 {
 public:
   // func takes connection and transaction as arguments.
@@ -73,7 +73,7 @@ public:
 
   ~test_case() {}
 
-  virtual void run() PQXX_OVERRIDE
+  virtual void run() override
   {
     CONNECTION c;
     TRANSACTION t(c, name());

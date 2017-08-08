@@ -17,10 +17,12 @@
 #include "pqxx/compiler-internal.hxx"
 
 #include <cerrno>
+#include <chrono>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
 #include <new>
+#include <thread>
 
 #ifdef PQXX_HAVE_SYS_SELECT_H
 #include <sys/select.h>
@@ -149,33 +151,7 @@ void pqxx::internal::freemallocmem(const void *p) noexcept
 
 void pqxx::internal::sleep_seconds(int s)
 {
-  if (s <= 0) return;
-
-#if defined(PQXX_HAVE_SLEEP)
-  // Use POSIX.1 sleep() if available
-  sleep(unsigned(s));
-#elif defined(_WIN32)
-  // Windows has its own Sleep(), which speaks milliseconds
-  Sleep(s*1000);
-#else
-  // If all else fails, use select() on nothing and specify a timeout
-  fd_set F;
-  FD_ZERO(&F);
-  struct timeval timeout;
-  timeout.tv_sec = s;
-  timeout.tv_usec = 0;
-  if (select(0, &F, &F, &F, &timeout) == -1) switch (errno)
-  {
-  case EINVAL:	// Invalid timeout
-	throw range_error("Invalid timeout value: " + to_string(s));
-  case EINTR:	// Interrupted by signal
-	break;
-  case ENOMEM:	// Out of memory
-	throw bad_alloc();
-  default:
-    throw internal_error("select() failed for unknown reason");
-  }
-#endif
+  std::this_thread::sleep_for(std::chrono::seconds(s));
 }
 
 

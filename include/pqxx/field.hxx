@@ -261,16 +261,16 @@ public:
   }
 
 protected:
-  virtual int sync() PQXX_OVERRIDE { return traits_type::eof(); }
+  virtual int sync() override { return traits_type::eof(); }
 
 protected:
-  virtual pos_type seekoff(off_type, seekdir, openmode) PQXX_OVERRIDE
+  virtual pos_type seekoff(off_type, seekdir, openmode) override
 	{ return traits_type::eof(); }
-  virtual pos_type seekpos(pos_type, openmode) PQXX_OVERRIDE
+  virtual pos_type seekpos(pos_type, openmode) override
 	{return traits_type::eof();}
-  virtual int_type overflow(int_type) PQXX_OVERRIDE
+  virtual int_type overflow(int_type) override
 	{ return traits_type::eof(); }
-  virtual int_type underflow() PQXX_OVERRIDE
+  virtual int_type underflow() override
 	{ return traits_type::eof(); }
 
 private:

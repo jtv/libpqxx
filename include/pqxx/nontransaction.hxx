@@ -8,7 +8,7 @@
  *   pqxx::nontransaction provides nontransactional database access
  *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/nontransaction instead.
  *
- * Copyright (c) 2002-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -75,10 +75,10 @@ public:
   virtual ~nontransaction();						//[t14]
 
 private:
-  virtual void do_begin() PQXX_OVERRIDE {}				//[t14]
-  virtual result do_exec(const char C[]) PQXX_OVERRIDE;			//[t14]
-  virtual void do_commit() PQXX_OVERRIDE {}				//[t14]
-  virtual void do_abort() PQXX_OVERRIDE {}				//[t14]
+  virtual void do_begin() override {}					//[t14]
+  virtual result do_exec(const char C[]) override;			//[t14]
+  virtual void do_commit() override {}					//[t14]
+  virtual void do_abort() override {}					//[t14]
 };
 
 

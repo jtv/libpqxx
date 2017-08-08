@@ -387,7 +387,7 @@ public:
   void process_notice(const std::string &s) { m_Obj.process_notice(s); }
 
 protected:
-  virtual int sync() PQXX_OVERRIDE
+  virtual int sync() override
   {
     // setg() sets eback, gptr, egptr
     this->setg(this->eback(), this->eback(), this->egptr());
@@ -397,12 +397,12 @@ protected:
 protected:
   virtual pos_type seekoff(off_type offset,
 			   seekdir dir,
-			   openmode) PQXX_OVERRIDE
+			   openmode) override
   {
     return AdjustEOF(m_Obj.cseek(largeobjectaccess::off_type(offset), dir));
   }
 
-  virtual pos_type seekpos(pos_type pos, openmode) PQXX_OVERRIDE
+  virtual pos_type seekpos(pos_type pos, openmode) override
   {
     const largeobjectaccess::pos_type newpos = m_Obj.cseek(
 	largeobjectaccess::off_type(pos),
@@ -410,7 +410,7 @@ protected:
     return AdjustEOF(newpos);
   }
 
-  virtual int_type overflow(int_type ch = EoF()) PQXX_OVERRIDE
+  virtual int_type overflow(int_type ch = EoF()) override
   {
     char *const pp = this->pptr();
     if (!pp) return EoF();
@@ -429,7 +429,7 @@ protected:
     return res;
   }
 
-  virtual int_type underflow() PQXX_OVERRIDE
+  virtual int_type underflow() override
   {
     if (!this->gptr()) return EoF();
     char *const eb = this->eback();

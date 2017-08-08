@@ -54,7 +54,7 @@ public:
   bool get_raw_line(std::string &Line);
   template<typename TUPLE>
   void tokenize(std::string, TUPLE &) const;
-  virtual void complete() PQXX_OVERRIDE;
+  virtual void complete() override;
 private:
   void setup(transaction_base &T,
       const std::string &RName,

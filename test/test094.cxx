@@ -10,7 +10,7 @@ using namespace pqxx;
 namespace
 {
 // Transaction class that simulates connection failure during commit.
-class basic_flakytransaction PQXX_FINAL : public dbtransaction
+class basic_flakytransaction : public dbtransaction
 {
 public:
   bool simulate_failure;
@@ -23,7 +23,7 @@ protected:
 	{}
 
 private:
-  virtual void do_commit() PQXX_OVERRIDE
+  virtual void do_commit() override
   {
     if (simulate_failure) conn().simulate_failure();
 
@@ -55,7 +55,7 @@ private:
 
 
 template<isolation_level ISOLATIONLEVEL=read_committed>
-class flakytransaction : public basic_flakytransaction
+class flakytransaction final : public basic_flakytransaction
 {
 public:
   typedef isolation_traits<ISOLATIONLEVEL> isolation_tag;

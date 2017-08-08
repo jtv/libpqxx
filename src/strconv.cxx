@@ -6,7 +6,7 @@
  *   DESCRIPTION
  *      implementation of string conversions
  *
- * Copyright (c) 2008-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2008-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -241,36 +241,10 @@ template<typename T> inline std::string to_string_fallback(T Obj)
 }
 
 
-template<typename T> inline bool is_NaN(T Obj)
-{
-  return
-#if defined(PQXX_HAVE_STD_ISNAN)
-    std::isnan(Obj);
-#elif defined(PQXX_HAVE_ISNAN)
-    isnan(Obj);
-#else
-    !(Obj <= Obj + std::numeric_limits<T>::max());
-#endif
-}
-
-
-template<typename T> inline bool is_Inf(T Obj)
-{
-  return
-#if defined(PQXX_HAVE_STD_ISINF)
-    std::isinf(Obj);
-#elif defined(PQXX_HAVE_ISINF)
-    isinf(Obj);
-#else
-    Obj >= Obj+10 && Obj <= 2*Obj && Obj >= 2*Obj;
-#endif
-}
-
-
 template<typename T> inline std::string to_string_float(T Obj)
 {
-  if (is_NaN(Obj)) return "nan";
-  if (is_Inf(Obj)) return Obj > 0 ? "infinity" : "-infinity";
+  if (std::isnan(Obj)) return "nan";
+  if (std::isinf(Obj)) return Obj > 0 ? "infinity" : "-infinity";
   return to_string_fallback(Obj);
 }
 

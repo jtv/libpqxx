@@ -30,7 +30,7 @@ using namespace pqxx;
 namespace
 {
 // Sample implementation of notification receiver.
-class TestListener PQXX_FINAL : public notification_receiver
+class TestListener final : public notification_receiver
 {
   bool m_done;
 
@@ -40,7 +40,7 @@ public:
   {
   }
 
-  virtual void operator() PQXX_OVERRIDE (const string &, int be_pid)
+  virtual void operator()(const string &, int be_pid) override
   {
     m_done = true;
     PQXX_CHECK_EQUAL(
@@ -56,7 +56,7 @@ public:
 
 
 // A transactor to trigger our notification listener
-class Notify PQXX_FINAL : public transactor<nontransaction>
+class Notify final : public transactor<nontransaction>
 {
   string m_channel;
 

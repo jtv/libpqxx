@@ -16444,59 +16444,6 @@ $as_echo "$gcc_pure" >&6; }
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for C++14 override support" >&5
-$as_echo_n "checking for C++14 override support... " >&6; }
-override_keyword=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-		struct Parent {virtual ~Parent(); virtual void f();};
-		struct Child : Parent { virtual void f() override;};
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_OVERRIDE 1" >>confdefs.h
-
-else
-  override_keyword=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $override_keyword" >&5
-$as_echo "$override_keyword" >&6; }
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for C++14 final support" >&5
-$as_echo_n "checking for C++14 final support... " >&6; }
-final_keyword=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-struct Foo final {};
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_FINAL 1" >>confdefs.h
-
-else
-  final_keyword=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $final_keyword" >&5
-$as_echo "$final_keyword" >&6; }
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for C++17 std::optional support" >&5
 $as_echo_n "checking for C++17 std::optional support... " >&6; }
 have_optional=yes
@@ -16547,8 +16494,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_exp_optional" >&5
 $as_echo "$have_exp_optional" >&6; }
 
-
-usestd="namespace std {} using namespace std;"
 
 # Find PostgreSQL includes and libraries
 for ac_prog in pg_config
@@ -16753,44 +16698,8 @@ $as_echo "#define STDC_HEADERS 1" >>confdefs.h
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking ability to compile programs using the standard C library" >&5
-$as_echo_n "checking ability to compile programs using the standard C library... " >&6; }
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <string.h>
-	namespace std {} // In case string.h does not define it.
-	${usestd}
-	extern void f(size_t);
-int
-main ()
-{
-f(strlen(""))
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
 
-else
-  as_fn_error $? "
-Could not build even a tiny test program using the standard C library.
-
-Something very basic has gone wrong; try reading config.log to find out what.
-You'll probably want to go straight to the end of that file and read backwards
-until you find an error message.  Then identify the problem, try to fix it, and
-run this script again.
-
-The configure script's --help option may provide useful tips on how to influence
-what compiler and command line options are used, what additional libraries are
-linked in, and so on.
-" "$LINENO" 5
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-
-
-# After this check, we should be able to link socket-based programs.
+# We should be able to link socket-based programs.
 socklibok=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing select" >&5
 $as_echo_n "checking for library containing select... " >&6; }
@@ -17178,7 +17087,7 @@ strerror_r=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <cstring>
-	${usestd}
+	using namespace std;
 	bool f(char x[]) { return strerror_r(0,x,10) != 0; }
 int
 main ()
@@ -17220,7 +17129,7 @@ gnu_strerror_r=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <cstring>
-	${usestd}
+	using namespace std;
 	const char *it_is_a_string(char *x) { return strerror_r(0,x,10); }
 int
 main ()
@@ -17249,7 +17158,7 @@ strlcpy=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <cstring>
-	${usestd}
+	using namespace std;
 int
 main ()
 {
@@ -17276,7 +17185,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <cstring>
 #include <sys/select.h>
-${usestd}
+using namespace std;
 
 int
 main ()
@@ -17307,7 +17216,7 @@ poll=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <poll.h>
-${usestd}
+using namespace std;
 int
 main ()
 {
@@ -17327,91 +17236,6 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $poll" >&5
 $as_echo "$poll" >&6; }
-
-
-# Long-standing annoyance in glibc: the definition for FD_SET includes an
-# unnecessary C-style cast that the compiler may warn for.  If the compiler is
-# configured to treat warnings as errors, that may be a problem for us.
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for working fd_set" >&5
-$as_echo_n "checking for working fd_set... " >&6; }
-if test "$enable_maintainer_mode" = "yes"; then
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <cstring>
-#ifdef PQXX_HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#else
-#include <ctime>
-#include <sys/types.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#ifdef _WIN32
-#include <winsock2.h>
-#endif
-${usestd}
-extern "C" void f() { fd_set s; FD_ZERO(&s); FD_SET(1, &s); }
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-else
-  as_fn_error $? "
-Could not compile code using fd_set.  This may be a known problem with GNU libc
-and the extremely strict compiler options used in libpqxx's maintainer mode; try
-configuring again, this time omitting the --enable-maintainer-mode option.
-" "$LINENO" 5
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-else
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <cstring>
-#ifdef PQXX_HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#else
-#include <ctime>
-#include <sys/types.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#ifdef _WIN32
-#include <winsock2.h>
-#endif
-${usestd}
-int
-main ()
-{
-fd_set s;FD_ZERO(&s);FD_SET(1,&s)
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-else
-  as_fn_error $? "
-Could not compile code using fd_set.  There is something seriously wrong, or
-maybe your warning options are too strict.  If you are using GNU libc (as will
-be the case on a GNU/Linux system) and are telling the compiler to treat
-warnings as errors, the cause may be an old-style cast in the definition of
-FD_SET that triggers a compiler warning.
-
-See config.log for more details; look for the last error message in the file.
-" "$LINENO" 5
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if select() accepts NULL fdsets" >&5
@@ -17437,7 +17261,7 @@ else
 #ifdef _WIN32
 #include <winsock2.h>
 #endif
-${usestd}
+using namespace std;
 extern "C" int foo(){fd_set f; FD_SET(1,&f); return select(2,0,&f,&f,0)<0;}
 int main() { return foo(); }
 
@@ -17456,180 +17280,6 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $select_accepts_null" >&5
 $as_echo "$select_accepts_null" >&6; }
 
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking sleep()" >&5
-$as_echo_n "checking sleep()... " >&6; }
-sleep=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-	${usestd}
-int
-main ()
-{
-sleep(0x01)
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_SLEEP 1" >>confdefs.h
-
-else
-  sleep=no
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $sleep" >&5
-$as_echo "$sleep" >&6; }
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for std::isnan()" >&5
-$as_echo_n "checking for std::isnan()... " >&6; }
-std_isnan=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-                #include <cmath>
-                extern double f();
-
-int
-main ()
-{
-if(std::isnan(f())) f()
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_STD_ISNAN 1" >>confdefs.h
-
-else
-  std_isnan=no
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $std_isnan" >&5
-$as_echo "$std_isnan" >&6; }
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for isnan()" >&5
-$as_echo_n "checking for isnan()... " >&6; }
-isnan=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-                #include <cmath>
-                extern double f();
-
-int
-main ()
-{
-if(isnan(f())) f()
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_ISNAN 1" >>confdefs.h
-
-else
-  isnan=no
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $isnan" >&5
-$as_echo "$isnan" >&6; }
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for std::isinf()" >&5
-$as_echo_n "checking for std::isinf()... " >&6; }
-std_isinf=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-                #include <cmath>
-                extern double f();
-
-int
-main ()
-{
-if(std::isinf(f())) f()
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_STD_ISINF 1" >>confdefs.h
-
-else
-  std_isinf=no
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $isinf" >&5
-$as_echo "$isinf" >&6; }
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for isinf()" >&5
-$as_echo_n "checking for isinf()... " >&6; }
-isinf=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <cmath>
-	extern double f();
-	${usestd}
-int
-main ()
-{
-if(isinf(f())) f()
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_ISINF 1" >>confdefs.h
-
-else
-  isinf=no
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $isinf" >&5
-$as_echo "$isinf" >&6; }
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for move()" >&5
-$as_echo_n "checking for move()... " >&6; }
-move='yes'
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-	#include <utility>
-	${usestd}
-	int foo(int &i) { return move(i); }
-int
-main ()
-{
-int i = 0; return foo(i);
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_MOVE 1" >>confdefs.h
-
-else
-  move='no'
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $move" >&5
-$as_echo "$move" >&6; }
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${MAKE-make} sets \$(MAKE)" >&5
 $as_echo_n "checking whether ${MAKE-make} sets \$(MAKE)... " >&6; }

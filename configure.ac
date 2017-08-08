@@ -189,33 +189,6 @@ AC_MSG_RESULT($gcc_pure)
 fi
 
 
-AC_MSG_CHECKING([for C++14 override support])
-override_keyword=yes
-AC_TRY_COMPILE(
-	[
-		struct Parent {virtual ~Parent(); virtual void f();};
-		struct Child : Parent { virtual void f() override;};
-	],
-	[],
-	AC_DEFINE(
-		[PQXX_HAVE_OVERRIDE],
-		1,
-		[Define if the compiler supports the override keyword.]),
-	override_keyword=no)
-AC_MSG_RESULT($override_keyword)
-
-AC_MSG_CHECKING([for C++14 final support])
-final_keyword=yes
-AC_TRY_COMPILE(
-	[struct Foo final {};],
-	[],
-	AC_DEFINE(
-		[PQXX_HAVE_FINAL],
-		1,
-		[Define if the compiler supports the final keyword.]),
-	final_keyword=no)
-AC_MSG_RESULT($final_keyword)
-
 AC_MSG_CHECKING([for C++17 std::optional support])
 have_optional=yes
 AC_TRY_COMPILE(
@@ -240,8 +213,6 @@ AC_TRY_COMPILE(
 	have_exp_optional=no)
 AC_MSG_RESULT($have_exp_optional)
 
-
-usestd="namespace std {} using namespace std;"
 
 # Find PostgreSQL includes and libraries
 AC_PATH_PROGS(PG_CONFIG, pg_config)
@@ -288,28 +259,8 @@ AC_SUBST(POSTGRES_LIB)
 
 AC_HEADER_STDC
 
-AC_MSG_CHECKING([ability to compile programs using the standard C library])
-AC_TRY_COMPILE([#include <string.h>
-	namespace std {} // In case string.h does not define it.
-	${usestd}
-	extern void f(size_t);],
-	[f(strlen(""))],[],
-	[AC_MSG_ERROR([
-Could not build even a tiny test program using the standard C library.
 
-Something very basic has gone wrong; try reading config.log to find out what.
-You'll probably want to go straight to the end of that file and read backwards
-until you find an error message.  Then identify the problem, try to fix it, and
-run this script again.
-
-The configure script's --help option may provide useful tips on how to influence
-what compiler and command line options are used, what additional libraries are
-linked in, and so on.
-])])
-AC_MSG_RESULT(yes)
-
-
-# After this check, we should be able to link socket-based programs.
+# We should be able to link socket-based programs.
 socklibok=no
 AC_SEARCH_LIBS(select, socket nsl ws2_32 wsock32 winsock, [socklibok=yes])
 
@@ -451,7 +402,7 @@ AC_MSG_CHECKING([for strerror_r])
 strerror_r=yes
 AC_TRY_COMPILE(
 	[#include <cstring>
-	${usestd}
+	using namespace std;
 	bool f(char x[]) { return strerror_r(0,x,10) != 0; }],
 	[],
 	[AC_DEFINE(PQXX_HAVE_STRERROR_R,1,[Define if strerror_r exists])],
@@ -470,7 +421,7 @@ AC_MSG_CHECKING([for GNU-style strerror_r])
 gnu_strerror_r=yes
 AC_TRY_COMPILE(
 	[#include <cstring>
-	${usestd}
+	using namespace std;
 	const char *it_is_a_string(char *x) { return strerror_r(0,x,10); }],
 	[],
 	[AC_DEFINE(
@@ -484,7 +435,7 @@ AC_MSG_CHECKING([for strlcpy])
 strlcpy=yes
 AC_TRY_COMPILE(
 	[#include <cstring>
-	${usestd}],
+	using namespace std;],
 	[char buf[2];return strlcpy(buf,"",1)],
 	[AC_DEFINE(PQXX_HAVE_STRLCPY,1,[Define if strlcpy exists])],
 	strlcpy=no)
@@ -495,7 +446,7 @@ select_h=yes
 AC_TRY_COMPILE(
 	[#include <cstring>
 #include <sys/select.h>
-${usestd}]
+using namespace std;]
 	, [select(0,0,0,0,0)]
 	, AC_DEFINE(PQXX_HAVE_SYS_SELECT_H,1,
 [Define if the sys/select.h header defines a working select() and friends, as per POSIX 1003.1-2001])
@@ -508,72 +459,13 @@ AC_MSG_CHECKING([for poll()])
 poll=yes
 AC_TRY_COMPILE(
 	[#include <poll.h>
-${usestd}],
+using namespace std;],
 	[pollfd p = { 0,0,0 }; poll(&p,1,0)],
 	AC_DEFINE(PQXX_HAVE_POLL,1,
 [Define if the system has the poll() function (mainly GNU/Linux)]),
 	poll=no
 )
 AC_MSG_RESULT($poll)
-
-
-# Long-standing annoyance in glibc: the definition for FD_SET includes an
-# unnecessary C-style cast that the compiler may warn for.  If the compiler is
-# configured to treat warnings as errors, that may be a problem for us.
-AC_MSG_CHECKING([for working fd_set])
-if test "$enable_maintainer_mode" = "yes"; then
-AC_TRY_COMPILE(
-[#include <cstring>
-#ifdef PQXX_HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#else
-#include <ctime>
-#include <sys/types.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#ifdef _WIN32
-#include <winsock2.h>
-#endif
-${usestd}
-extern "C" void f() { fd_set s; FD_ZERO(&s); FD_SET(1, &s); }],
-	[],
-	[],
-	[AC_MSG_ERROR([
-Could not compile code using fd_set.  This may be a known problem with GNU libc
-and the extremely strict compiler options used in libpqxx's maintainer mode; try
-configuring again, this time omitting the --enable-maintainer-mode option.
-])])
-else
-AC_TRY_COMPILE(
-[#include <cstring>
-#ifdef PQXX_HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#else
-#include <ctime>
-#include <sys/types.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#ifdef _WIN32
-#include <winsock2.h>
-#endif
-${usestd}],
-	[fd_set s;FD_ZERO(&s);FD_SET(1,&s)],
-	[],
-	[AC_MSG_ERROR([
-Could not compile code using fd_set.  There is something seriously wrong, or
-maybe your warning options are too strict.  If you are using GNU libc (as will
-be the case on a GNU/Linux system) and are telling the compiler to treat
-warnings as errors, the cause may be an old-style cast in the definition of
-FD_SET that triggers a compiler warning.
-
-See config.log for more details; look for the last error message in the file.
-])])
-fi
-AC_MSG_RESULT(yes)
 
 
 AC_MSG_CHECKING([if select() accepts NULL fdsets])
@@ -592,7 +484,7 @@ AC_RUN_IFELSE([
 #ifdef _WIN32
 #include <winsock2.h>
 #endif
-${usestd}
+using namespace std;
 extern "C" int foo(){fd_set f; FD_SET(1,&f); return select(2,0,&f,&f,0)<0;}
 int main() { return foo(); }
 ]])],
@@ -603,82 +495,6 @@ int main() { return foo(); }
 )
 AC_MSG_RESULT($select_accepts_null)
 
-
-AC_MSG_CHECKING([sleep()])
-sleep=yes
-AC_TRY_COMPILE([#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-	${usestd}],[sleep(0x01)],
-	AC_DEFINE(PQXX_HAVE_SLEEP, 1, [Define if POSIX sleep() exists]),
-	[sleep=no]
-)
-AC_MSG_RESULT($sleep)
-
-
-AC_MSG_CHECKING([for std::isnan()])
-std_isnan=yes
-AC_TRY_COMPILE(
-        [
-                #include <cmath>
-                extern double f();
-	],
-	[if(std::isnan(f())) f()],
-	AC_DEFINE(PQXX_HAVE_STD_ISNAN,1,[Define if std::isnan() is available]),
-	[std_isnan=no]
-)
-AC_MSG_RESULT($std_isnan)
-
-AC_MSG_CHECKING([for isnan()])
-isnan=yes
-AC_TRY_COMPILE(
-        [
-                #include <cmath>
-                extern double f();
-	],
-	[if(isnan(f())) f()],
-	AC_DEFINE(PQXX_HAVE_ISNAN,1,[Define if C99 isnan() is available]),
-	[isnan=no]
-)
-AC_MSG_RESULT($isnan)
-
-AC_MSG_CHECKING([for std::isinf()])
-std_isinf=yes
-AC_TRY_COMPILE(
-        [
-                #include <cmath>
-                extern double f();
-	],
-	[if(std::isinf(f())) f()],
-	AC_DEFINE(PQXX_HAVE_STD_ISINF,1,[Define if std::isinf() is available]),
-	[std_isinf=no]
-)
-AC_MSG_RESULT($isinf)
-
-AC_MSG_CHECKING([for isinf()])
-isinf=yes
-AC_TRY_COMPILE([#include <cmath>
-	extern double f();
-	${usestd}],
-	[if(isinf(f())) f()],
-	AC_DEFINE(PQXX_HAVE_ISINF,1,[Define if C99 isinf() is available]),
-	[isinf=no]
-)
-AC_MSG_RESULT($isinf)
-
-
-AC_MSG_CHECKING([for move()])
-move='yes'
-AC_TRY_COMPILE([
-	#include <utility>
-	${usestd}
-	int foo(int &i) { return move(i); }],
-	[int i = 0; return foo(i);],
-	[AC_DEFINE(PQXX_HAVE_MOVE,
-		1,
-		[Define if compiler has move().])],
-	[move='no'])
-AC_MSG_RESULT($move)
 
 AC_PROG_MAKE_SET
 

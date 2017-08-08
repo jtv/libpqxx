@@ -63,9 +63,6 @@
 /* Define if the compiler supports std::experimental::optional. */
 #undef PQXX_HAVE_EXP_OPTIONAL
 
-/* Define if the compiler supports the final keyword. */
-#undef PQXX_HAVE_FINAL
-
 /* Define if g++ supports const attribute */
 #undef PQXX_HAVE_GCC_CONST
 
@@ -78,32 +75,11 @@
 /* Define if g++ supports visibility attribute, as in g++ 4.0 */
 #undef PQXX_HAVE_GCC_VISIBILITY
 
-/* Define if C99 isinf() is available */
-#undef PQXX_HAVE_ISINF
-
-/* Define if C99 isnan() is available */
-#undef PQXX_HAVE_ISNAN
-
-/* Define if compiler has move(). */
-#undef PQXX_HAVE_MOVE
-
 /* Define if the compiler supports std::optional. */
 #undef PQXX_HAVE_OPTIONAL
 
-/* Define if the compiler supports the override keyword. */
-#undef PQXX_HAVE_OVERRIDE
-
 /* Define if the system has the poll() function (mainly GNU/Linux) */
 #undef PQXX_HAVE_POLL
-
-/* Define if POSIX sleep() exists */
-#undef PQXX_HAVE_SLEEP
-
-/* Define if std::isinf() is available */
-#undef PQXX_HAVE_STD_ISINF
-
-/* Define if std::isnan() is available */
-#undef PQXX_HAVE_STD_ISNAN
 
 /* Define if strerror_r exists */
 #undef PQXX_HAVE_STRERROR_R

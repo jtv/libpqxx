@@ -100,9 +100,9 @@ public:
 	{ End(); }
 
 private:
-  virtual void do_begin() PQXX_OVERRIDE;				//[t88]
-  virtual void do_commit() PQXX_OVERRIDE;				//[t88]
-  virtual void do_abort() PQXX_OVERRIDE;				//[t88]
+  virtual void do_begin() override;					//[t88]
+  virtual void do_commit() override;					//[t88]
+  virtual void do_abort() override;					//[t88]
 
   dbtransaction &m_parent;
 };
