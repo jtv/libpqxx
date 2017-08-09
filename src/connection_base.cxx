@@ -703,9 +703,8 @@ void pqxx::connection_base::unregister_errorhandler(errorhandler *handler)
 
 std::vector<errorhandler *> pqxx::connection_base::get_errorhandlers() const
 {
-  std::vector<errorhandler *> handlers;
-  handlers.reserve(m_errorhandlers.size());
-  for (auto &i: m_errorhandlers) handlers.push_back(i);
+  std::vector<errorhandler *> handlers(m_errorhandlers.size());
+  std::copy(m_errorhandlers.begin(), m_errorhandlers.end(), handlers.begin());
   return handlers;
 }
 

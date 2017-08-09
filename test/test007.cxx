@@ -181,8 +181,8 @@ void test_007(transaction_base &T)
   // list will be accurate even if other people were modifying the database
   // at the same time; this property was established through use of the
   // transactor framework.
-  for (auto i = theConversions.begin(); i != theConversions.end(); ++i)
-    cout << '\t' << i->first << "\t-> " << i->second << endl;
+  for (auto &i: theConversions)
+    cout << '\t' << i.first << "\t-> " << i.second << endl;
 }
 
 } // namespace

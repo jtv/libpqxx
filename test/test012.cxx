@@ -12,13 +12,6 @@ using namespace pqxx;
 
 namespace
 {
-template<typename VEC, typename VAL>
-void InitVector(VEC &V, typename VEC::size_type s, VAL val)
-{
-  V.resize(s);
-  for (auto i = V.begin(); i != V.end(); ++i) *i = val;
-}
-
 void test_012(transaction_base &orgT)
 {
   connection_base &C(orgT.conn());
@@ -29,10 +22,6 @@ void test_012(transaction_base &orgT)
   // Tell C we won't be needing it for a while (not true, but let's pretend)
   C.deactivate();
 
-  // Now set up some data structures
-  vector<int> NullFields;		// Maps column to no. of null fields
-  vector<bool> SortedUp, SortedDown;	// Does column appear to be sorted?
-
   // ...And reactivate C (not really needed, but it sounds more polite)
   C.activate();
 
@@ -40,9 +29,12 @@ void test_012(transaction_base &orgT)
 
   result R( T.exec("SELECT * FROM " + Table) );
 
-  InitVector(NullFields, R.columns(), 0);
-  InitVector(SortedUp, R.columns(), true);
-  InitVector(SortedDown, R.columns(), true);
+  // Map column to no. of null fields.
+  vector<int> NullFields(R.columns(), 0);
+  // Does column appear to be sorted?
+  vector<bool>
+	SortedUp(R.columns(), true),
+	SortedDown(R.columns(), true);
 
   for (auto i = R.begin(); i != R.end(); i++)
   {
