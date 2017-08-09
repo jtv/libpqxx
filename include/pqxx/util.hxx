@@ -190,15 +190,9 @@
  * But results and rows also define @c const_iterator types:
  *
  * @code
- * for (pqxx::result::const_iterator row = r.begin();
- *      row != r.end();
- *      ++row)
+ * for (auto &row: r)
  *  {
- *    for (pqxx::result::row::const_iterator field = row->begin();
- *         field != row->end();
- *         ++field)
- *      std::cout << field->c_str() << '\t';
- *
+ *    for (auto &field: row) std::cout << field->c_str() << '\t';
  *    std::cout << std::endl;
  *  }
  * @endcode

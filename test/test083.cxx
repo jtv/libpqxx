@@ -52,11 +52,14 @@ void test_083(transaction_base &orgT)
 
   const result R = T.exec("SELECT * FROM " + Table + " ORDER BY num DESC");
   decltype(contents)::const_reverse_iterator j(++i);
-  for (auto r = R.begin(); r != R.end(); ++j, ++r)
+  for (const auto &r: R)
+  {
     PQXX_CHECK_EQUAL(
-	r->at(0).as(0),
+	r.at(0).as(0),
 	(*j)[0],
 	"Writing numbers with tablewriter went wrong.");
+    ++j;
+  }
 
   T.commit();
 }

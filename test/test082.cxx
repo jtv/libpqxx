@@ -20,60 +20,60 @@ void test_082(transaction_base &T)
 
   const string nullstr("[null]");
 
-  for (auto f = R[0].begin(); f != R[0].end(); ++f)
-    cout << f->name() << '\t';
+  for (const auto &f: R[0]) cout << f.name() << '\t';
   cout << endl << endl;
-  for (auto r = R.begin(); r != R.end(); ++r)
+  for (const auto &r: R)
   {
     pqxx::row::const_iterator f2(r[0]);
-    for (auto f=r->begin(); f!=r->end(); ++f, f2++)
+    for (const auto &f: r)
     {
-      cout << f->c_str() << '\t';
+      cout << f.c_str() << '\t';
       PQXX_CHECK_EQUAL(
 	(*f2).as(nullstr),
-	f->as(nullstr),
+	f.as(nullstr),
 	"Inconsistent iteration result.");
+      f2++;
     }
 
     PQXX_CHECK(
-	r->begin() + pqxx::row::difference_type(r->size()) == r->end(),
+	r.begin() + pqxx::row::difference_type(r.size()) == r.end(),
 	"Row end() appears to be in the wrong place.");
     PQXX_CHECK(
-	pqxx::row::difference_type(r->size()) + r->begin() == r->end(),
+	pqxx::row::difference_type(r.size()) + r.begin() == r.end(),
 	"Row iterator addition is not commutative.");
-    PQXX_CHECK_EQUAL(r->begin()->num(), 0u, "Wrong column number at begin().");
+    PQXX_CHECK_EQUAL(r.begin()->num(), 0u, "Wrong column number at begin().");
 
-    pqxx::row::const_iterator f3(r[r->size()]);
+    pqxx::row::const_iterator f3(r[r.size()]);
 
-    PQXX_CHECK(f3 == r->end(), "Did not get end() at end of row.");
+    PQXX_CHECK(f3 == r.end(), "Did not get end() at end of row.");
 
-    PQXX_CHECK(f3 > r->begin(), "Row end() appears to precede its begin().");
+    PQXX_CHECK(f3 > r.begin(), "Row end() appears to precede its begin().");
 
     PQXX_CHECK(
-	f3 >= r->end() && r->begin() < f3,
+	f3 >= r.end() && r.begin() < f3,
 	"Row iterator operator<() is broken.");
 
-    PQXX_CHECK(f3 > r->begin(), "Row end() not greater than begin().");
+    PQXX_CHECK(f3 > r.begin(), "Row end() not greater than begin().");
 
-    pqxx::row::const_iterator f4(*r, r->size());
+    pqxx::row::const_iterator f4(r, r.size());
     PQXX_CHECK(f4 == f3, "Row iterator constructor with offset is broken.");
 
     f3--;
     f4 -= 1;
 
-    PQXX_CHECK(f3 < r->end(), "Last field in row is not before end().");
+    PQXX_CHECK(f3 < r.end(), "Last field in row is not before end().");
     PQXX_CHECK(f3 >= r.begin(), "Last field in row precedes begin().");
     PQXX_CHECK(f3 == r.end()-1, "Back from end() doese not yield end()-1.");
     PQXX_CHECK_EQUAL(
-	r->end() - f3,
+	r.end() - f3,
 	1,
 	"Wrong distance from last row to end().");
 
     PQXX_CHECK(f4 == f3, "Row iterator operator-=() is broken.");
     f4 += 1;
-    PQXX_CHECK(f4 == r->end(), "Row iterator operator+=() is broken.");
+    PQXX_CHECK(f4 == r.end(), "Row iterator operator+=() is broken.");
 
-    for (auto fr = r->rbegin(); fr != r->rend(); ++fr, --f3)
+    for (auto fr = r.rbegin(); fr != r.rend(); ++fr, --f3)
       PQXX_CHECK_EQUAL(
 	*fr,
 	*f3,

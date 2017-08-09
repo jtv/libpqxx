@@ -26,8 +26,7 @@ void test_075(transaction_base &W)
 	"result::field::operator!=() is broken.");
 
   vector<string> contents;
-  for (auto i=R.begin(); i!=R.end(); ++i)
-    contents.push_back(i->at(0).as<string>());
+  for (const auto &i: R) contents.push_back(i.at(0).as<string>());
   cout << to_string(contents.size()) << " years read" << endl;
 
   PQXX_CHECK_EQUAL(

@@ -14,7 +14,7 @@ void test_033(transaction_base &T)
 {
   result R( T.exec("SELECT * FROM pg_tables") );
 
-  for (auto c = R.begin(); c != R.end(); ++c)
+  for (const auto &c: R)
   {
     string N;
     c[0].to(N);

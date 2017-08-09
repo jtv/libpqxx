@@ -13,12 +13,12 @@ namespace
 {
 typedef map<pipeline::query_id, int> Exp;
 
-template<typename MAPIT>
-void checkresult(pipeline &P, MAPIT c)
+template<typename PAIR>
+void checkresult(pipeline &P, PAIR c)
 {
-  const result r = P.retrieve(c->first);
+  const result r = P.retrieve(c.first);
   const int val = r.at(0).at(0).as(int(0));
-  PQXX_CHECK_EQUAL(val, c->second, "Wrong result from pipeline.");
+  PQXX_CHECK_EQUAL(val, c.second, "Wrong result from pipeline.");
 }
 
 
@@ -33,8 +33,7 @@ void test_071(transaction_base &W)
   for (int i=1; i<10; ++i) values[P.insert("SELECT " + to_string(i))] = i;
 
   // Retrieve results in query_id order, and compare to expected values
-  for (auto c=values.begin(); c!=values.end(); ++c)
-    checkresult(P, c);
+  for (auto &c: values) checkresult(P, c);
 
   PQXX_CHECK(P.empty(), "Pipeline was not empty retrieving all results.");
 
@@ -48,21 +47,21 @@ void test_071(transaction_base &W)
 
   // Retrieve results in reverse order
   for (auto c=values.rbegin(); c!=values.rend(); ++c)
-    checkresult(P, c);
+    checkresult(P, *c);
 
   values.clear();
   P.retain(10);
   for (int i=1010; i>1000; --i) values[P.insert("SELECT "+to_string(i))] = i;
-  for (auto c=values.begin(); c!=values.end(); ++c)
+  for (auto &c: values)
   {
-    if (P.is_finished(c->first))
-      cout << "Query #" << c->first << " completed despite retain()" << endl;
+    if (P.is_finished(c.first))
+      cout << "Query #" << c.first << " completed despite retain()" << endl;
   }
 
   // See that all results are retrieved by complete()
   P.complete();
-  for (auto c=values.begin(); c!=values.end(); ++c)
-    PQXX_CHECK(P.is_finished(c->first), "Query not finished after complete().");
+  for (auto &c: values)
+    PQXX_CHECK(P.is_finished(c.first), "Query not finished after complete().");
 }
 } // namespace
 

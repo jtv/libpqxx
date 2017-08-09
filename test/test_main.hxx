@@ -203,15 +203,15 @@ int main(int, const char *argv[])
 
   int test_count = 0;
   list<string> failed;
-  for (test_map::const_iterator i = tests.begin(); i != tests.end(); ++i)
-    if (!test_name || test_name == i->first)
+  for (const auto &i: tests)
+    if (!test_name || test_name == i.first)
     {
-      cout << endl << "Running: " << i->first << endl;
+      cout << endl << "Running: " << i.first << endl;
 
       bool success = false;
       try
       {
-        i->second->run();
+        i.second->run();
         success = true;
       }
       catch (const test_failure &e)
@@ -245,8 +245,8 @@ int main(int, const char *argv[])
 
       if (!success)
       {
-        cerr << "FAILED: " << i->first << endl;
-        failed.push_back(i->first);
+        cerr << "FAILED: " << i.first << endl;
+        failed.push_back(i.first);
       }
       ++test_count;
     }
@@ -256,8 +256,7 @@ int main(int, const char *argv[])
   if (!failed.empty())
   {
     cerr << "*** " << failed.size() << " test(s) failed: ***" << endl;
-    for (list<string>::const_iterator i=failed.begin(); i!=failed.end(); ++i)
-      cerr << "\t" << *i << endl;
+    for (const auto &i: failed) cerr << "\t" << i << endl;
   }
 
   return int(failed.size());

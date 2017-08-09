@@ -57,7 +57,7 @@ void test_088(transaction_base &T0)
     T2c.exec0("INSERT INTO "+Table+" VALUES(4,'T2c')");
     T2c.commit();
   const result R = T2.exec("SELECT * FROM " + Table + " ORDER BY no");
-  for (result::const_iterator i=R.begin(); i!=R.end(); ++i)
+  for (const auto &i: R)
     cout << '\t' << i[0].c_str() << '\t' << i[1].c_str() << endl;
 
   PQXX_CHECK_EQUAL(R.size(), 3u, "Wrong number of results.");

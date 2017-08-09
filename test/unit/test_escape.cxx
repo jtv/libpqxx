@@ -104,12 +104,12 @@ void test_esc_raw_unesc_raw(transaction_base &t)
 
   cout << "Escaped data: " << escaped << endl;
 
-  for (string::const_iterator i = escaped.begin(); i != escaped.end(); ++i)
-    PQXX_CHECK(isascii(*i), "Non-ASCII character in escaped data: " + escaped);
+  for (const auto i: escaped)
+    PQXX_CHECK(isascii(i), "Non-ASCII character in escaped data: " + escaped);
 
-  for (string::const_iterator i = escaped.begin(); i != escaped.end(); ++i)
+  for (const auto i: escaped)
     PQXX_CHECK(
-	isprint(*i),
+	isprint(i),
 	"Unprintable character in escaped data: " + escaped);
 
   PQXX_CHECK_EQUAL(

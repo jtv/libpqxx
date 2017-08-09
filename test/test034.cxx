@@ -24,7 +24,7 @@ public:
 
   void on_commit()
   {
-    for (auto c = m_Result.begin(); c != m_Result.end(); ++c)
+    for (const auto &c: m_Result)
     {
       string N;
       c[0].to(N);

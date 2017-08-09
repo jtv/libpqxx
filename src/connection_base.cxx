@@ -320,9 +320,7 @@ void pqxx::connection_base::SetupState()
 
   read_capabilities();
 
-  const auto prepared_end = m_prepared.end();
-  for (auto p = m_prepared.begin(); p != prepared_end; ++p)
-    p->second.registered = false;
+  for (auto &p: m_prepared) p.second.registered = false;
 
   PQsetNoticeProcessor(m_Conn, pqxx_notice_processor, this);
 
@@ -338,23 +336,21 @@ void pqxx::connection_base::SetupState()
     // Reinstate all active receivers
     if (!m_receivers.empty())
     {
-      const auto End = m_receivers.end();
       std::string Last;
-      for (auto i = m_receivers.begin(); i != End; ++i)
+      for (auto &i: m_receivers)
       {
         // m_receivers can handle multiple receivers waiting on the same event;
         // issue just one LISTEN for each event.
-        if (i->first != Last)
+        if (i.first != Last)
         {
-          restore_query << "LISTEN \"" << i->first << "\"; ";
-          Last = i->first;
+          restore_query << "LISTEN \"" << i.first << "\"; ";
+          Last = i.first;
         }
       }
     }
 
-    const auto var_end = m_Vars.end();
-    for (auto i=m_Vars.begin(); i!=var_end; ++i)
-      restore_query << "SET " << i->first << "=" << i->second << "; ";
+    for (auto &i: m_Vars)
+      restore_query << "SET " << i.first << "=" << i.second << "; ";
 
     // Now do the whole batch at once
     PQsendQuery(m_Conn, restore_query.str().c_str());
@@ -709,8 +705,7 @@ std::vector<errorhandler *> pqxx::connection_base::get_errorhandlers() const
 {
   std::vector<errorhandler *> handlers;
   handlers.reserve(m_errorhandlers.size());
-  for (auto i = m_errorhandlers.begin(); i != m_errorhandlers.end(); ++i)
-    handlers.push_back(*i);
+  for (auto &i: m_errorhandlers) handlers.push_back(i);
   return handlers;
 }
 
@@ -919,8 +914,7 @@ void pqxx::connection_base::RawSetVar(const std::string &Var,
 void pqxx::connection_base::AddVariables(
 	const std::map<std::string,std::string> &Vars)
 {
-  for (auto i = Vars.begin(); i != Vars.end(); ++i)
-    m_Vars[i->first] = i->second;
+  for (auto &i: Vars) m_Vars[i.first] = i.second;
 }
 
 
