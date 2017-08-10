@@ -190,9 +190,9 @@
  * But results and rows also define @c const_iterator types:
  *
  * @code
- * for (auto &row: r)
+ * for (const auto &row: r)
  *  {
- *    for (auto &field: row) std::cout << field->c_str() << '\t';
+ *    for (const auto &field: row) std::cout << field.c_str() << '\t';
  *    std::cout << std::endl;
  *  }
  * @endcode
