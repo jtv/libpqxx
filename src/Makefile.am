@@ -1,5 +1,6 @@
 lib_LTLIBRARIES = libpqxx.la
-libpqxx_la_SOURCES = binarystring.cxx \
+libpqxx_la_SOURCES = \
+	binarystring.cxx \
 	connection_base.cxx \
 	connection.cxx \
 	cursor.cxx \
@@ -31,7 +32,9 @@ libpqxx_la_LDFLAGS = $(libpqxx_version) \
 	-rpath $(libdir) \
 	${POSTGRES_LIB}
 
-AM_CPPFLAGS=-I$(top_srcdir)/include -I$(top_builddir)/include ${POSTGRES_INCLUDE}
+AM_CPPFLAGS = \
+    -I$(top_srcdir)/include -I$(top_builddir)/include ${POSTGRES_INCLUDE}
+
 # Override automatically generated list of default includes.  It contains only
 # unnecessary entries, and incorrectly mentions include/pqxx directly.
 DEFAULT_INCLUDES=
