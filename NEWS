@@ -1,6 +1,7 @@
 6.0.0
  - C++11 is now required.  Your compiler must have shared_ptr, noexcept, etc.
  - Removed pqxx::items.  Use the new C++11 initialiser syntax.
+ - Removed maketemporary.  We weren't using it.
 5.1.0
  - Releases after this will require C++11!
  - Internal simplification to pqxx::result.

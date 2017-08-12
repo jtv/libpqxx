@@ -1,7 +1,6 @@
 EXTRA_DIST = \
 	extract_version \
 	lint \
-	maketemporary \
 	release \
 	rmlo.cxx \
 	splitconfig \
