@@ -172,9 +172,7 @@ public:
   /// Return value as std::optional, or blank value if null.
   template<typename T> std::optional<T> get() const
 	{ return get_opt<T, std::optional<T> >(); }
-#endif
-
-#if defined(PQXX_HAVE_EXP_OPTIONAL)
+#elif defined(PQXX_HAVE_EXP_OPTIONAL)
   /// Return value as std::experimental::optional, or blank value if null.
   template<typename T> std::experimental::optional<T> get() const
 	{ return get_opt<T, std::experimental::optional<T> >(); }
