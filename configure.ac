@@ -180,6 +180,7 @@ AC_TRY_COMPILE([[[deprecated]] void f();],
 	deprecated=no)
 AC_MSG_RESULT($deprecated)
 
+if test "$deprecated" != "yes" ; then
 AC_MSG_CHECKING([g++ deprecation attribute])
 gcc_deprecated=yes
 AC_TRY_COMPILE([__attribute__ ((deprecated)) void f();],
@@ -188,6 +189,7 @@ AC_TRY_COMPILE([__attribute__ ((deprecated)) void f();],
 		[Define if g++ supports deprecated attribute, as in g++ 4.0]),
 	gcc_deprecated=no)
 AC_MSG_RESULT($gcc_deprecated)
+fi
 
 AC_MSG_CHECKING([g++ pure attribute])
 gcc_pure=yes
@@ -213,6 +215,7 @@ AC_TRY_COMPILE(
 	have_optional=no)
 AC_MSG_RESULT($have_optional)
 
+if test "$have_optional" != "yes" ; then
 AC_MSG_CHECKING([for experimental C++17 std::optional support])
 have_exp_optional=yes
 AC_TRY_COMPILE(
@@ -224,6 +227,7 @@ AC_TRY_COMPILE(
 		[Define if the compiler supports std::experimental::optional.]),
 	have_exp_optional=no)
 AC_MSG_RESULT($have_exp_optional)
+fi
 
 
 # Find PostgreSQL includes and libraries

@@ -16403,6 +16403,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $deprecated" >&5
 $as_echo "$deprecated" >&6; }
 
+if test "$deprecated" != "yes" ; then
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ deprecation attribute" >&5
 $as_echo_n "checking g++ deprecation attribute... " >&6; }
 gcc_deprecated=yes
@@ -16427,6 +16428,7 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_deprecated" >&5
 $as_echo "$gcc_deprecated" >&6; }
+fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ pure attribute" >&5
 $as_echo_n "checking g++ pure attribute... " >&6; }
@@ -16481,6 +16483,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_optional" >&5
 $as_echo "$have_optional" >&6; }
 
+if test "$have_optional" != "yes" ; then
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for experimental C++17 std::optional support" >&5
 $as_echo_n "checking for experimental C++17 std::optional support... " >&6; }
 have_exp_optional=yes
@@ -16505,6 +16508,7 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_exp_optional" >&5
 $as_echo "$have_exp_optional" >&6; }
+fi
 
 
 # Find PostgreSQL includes and libraries
