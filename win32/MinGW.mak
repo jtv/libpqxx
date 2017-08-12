@@ -1,15 +1,15 @@
 ################################################################################
-# AUTOMATICALLY GENERATED FILE--DO NOT EDIT
+# AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
 #
-# This file is generated automatically by libpqxx's template2mak.py script.
+# This file is generated automatically by libpqxx's template2mak.py script, and
+# will be rewritten from time to time.
 #
-# If you modify this file, chances are your modifications will be lost because
-# the file will be re-written from time to time.
+# If you modify this file, chances are your modifications will be lost.
 #
 # The template2mak.py script should be available in the tools directory of the
 # libpqxx source archive.
 #
-# Generated from template '/home/jtv/proj/libpqxx/win32/mingw.mak.template'.
+# Generated from template 'win32/mingw.mak.template'.
 ################################################################################
 # MinGW makefile for libpqxx.  Don't use this; use the configure script instead!
 # Based on original contributed by Pasquale Fersini <basquale.fersini@libero.it>

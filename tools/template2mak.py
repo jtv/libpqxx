@@ -1,57 +1,7 @@
 #! /usr/bin/env python
-"""
--------------------------------------------------------------------------
+"""Minimal macro processor.  Used for generating VC++ makefiles.
 
-  FILE
-      tools/template2mak.py
-
-  DESCRIPTION
-      Translates a template MAK file into a real MAK file.
-      Used for generating VC++ makefiles.
-
-  Copyright (c) 2006-2015, Bart Samwel <bart@samwel.tk> and
-      Jeroen T. Vermeulen <jtv@xs4all.nl>
-
-  See COPYING for copyright license.  If you did not receive a file called
-  COPYING with this source code, please notify the distributor of this mistake,
-  or contact the author.
-
--------------------------------------------------------------------------
-"""
-
-import glob
-import os
-import sys
-
-
-def expand_foreach_template(path, template, outfile):
-    """
-    Expand a foreach template with the given path, and write the results to
-    outfile.
-    """
-    basepath = os.path.splitext(os.path.basename(path))[0]
-    for line in template:
-        line = line.replace("###FILENAME###", path)
-        line = line.replace("###BASENAME###", basepath)
-        outfile.write(line)
-
-
-def foreach_file_in_patterns_expand_template(filepatterns, template, outfile):
-    """
-    Expand the given foreach template with the given list of file patterns, and
-    write the results to outfile.
-    """
-    for pattern in filepatterns:
-        files = glob.glob(pattern)
-        files.sort()
-        for path in files:
-            expand_foreach_template(path, template, outfile)
-
-
-def template2mak(infile, outfile):
-    """
-    Transform the template in infile into a makfile, and write the results to
-    outfile. The available template commands are:
+The available template commands are:
 
     Expand a template section for each file in a list of file patterns::
         ###MAKTEMPLATE:FOREACH my/path*/*.cxx,other*.cxx
@@ -61,65 +11,186 @@ def template2mak(infile, outfile):
     In the template section, you can use `###BASENAME###` to get the base name
     of the file being processed (e.g. "base" for "../base.cxx"), and you can
     use `###FILENAME###` to get the full filename.
+
+
+Copyright (c) 2006-2017, Bart Samwel and Jeroen T. Vermeulen <jtv@xs4all.nl>
+"""
+
+from __future__ import (
+    absolute_import,
+    print_function,
+    unicode_literals,
+    )
+
+from argparse import (
+    ArgumentError,
+    ArgumentParser,
+    RawDescriptionHelpFormatter,
+    )
+from contextlib import contextmanager
+from glob import glob
+import os
+from sys import (
+    argv,
+    exit,
+    stdin,
+    stderr,
+    stdout,
+    )
+from textwrap import dedent
+
+
+def expand_foreach_file(path, block, outfile):
+    """Expand a "foreach" block for a single file path.
+
+    Write the results to outfile.
     """
-    lines = infile.readlines()
-    foreachcmd = r"###MAKTEMPLATE:FOREACH "
-    endforeachcmd = r"###MAKTEMPLATE:ENDFOREACH"
-    while lines:
-        line = lines[0]
-        if line.strip().upper().startswith(foreachcmd):
-            filepatterns = line.strip()[len(foreachcmd):].split(',')
-            lines = lines[1:]
-            l = 0
-            for line in lines:
-                if line.strip().upper().startswith(endforeachcmd):
-                    break
-                l = l + 1
-            template = lines[:l]
-            lines = lines[(l + 1):]
-            foreach_file_in_patterns_expand_template(
-                filepatterns, template, outfile)
-        else:
+    basepath, extension = os.path.splitext(os.path.basename(path))
+    for line in block:
+        line = line.replace("###FILENAME###", path)
+        line = line.replace("###BASENAME###", basepath)
+        outfile.write(line)
+
+
+def match_globs(globs):
+    """List all files matching any item in globs.
+
+    Eliminates duplicates.
+    """
+    return sorted({
+        path
+        for pattern in globs
+        for path in glob(pattern)
+        })
+
+
+def expand_foreach(globs, block, outfile):
+    """Expand a foreach block for each file matching one of globs.
+
+    Write the results to outfile.
+    """
+    # We'll be iterating over block a variable number of times.  Turn it
+    # from a generic iterable into an immutable array.
+    block = tuple(block)
+    for path in match_globs(globs):
+        expand_foreach_file(path, block, outfile)
+
+
+# Header to be prefixed to the generated file.
+OUTPUT_HEADER = dedent("""\
+    # AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
+    #
+    # This file is generated automatically by libpqxx's {script} script, and
+    # will be rewritten from time to time.
+    #
+    # If you modify this file, chances are your modifications will be lost.
+    #
+    # The {script} script should be available in the tools directory of the
+    # libpqxx source archive.
+    """)
+
+
+foreach_marker = r"###MAKTEMPLATE:FOREACH "
+end_foreach_marker = r"###MAKTEMPLATE:ENDFOREACH"
+
+
+def parse_foreach(line):
+    """Parse FOREACH directive, if line contains one.
+
+    :param line: One line of template input.
+    :return: A list of FOREACH globs, or None if this was not a FOREACH line.
+    """
+    line = line.strip()
+    if line.startswith(foreach_marker):
+        return line[len(foreach_marker):].split(',')
+    else:
+        return None
+
+
+def read_foreach_block(infile):
+    """Read a FOREACH block from infile (not including the FOREACH directive).
+
+    Assumes that the FOREACH directive was in the preceding line.  Consumes
+    the line with the ENDFOREACH directive, but does not yield it.
+
+    :return: Iterable of lines.
+    """
+    for line in infile:
+        if line.strip().startswith(end_foreach_marker):
+            return
+        yield line
+
+
+def expand_template(infile, outfile):
+    """Expand the template in infile, and write the results to outfile."""
+    for line in infile:
+        globs = parse_foreach(line)
+        if globs is None:
+            # Not a FOREACH line.  Copy to output.
             outfile.write(line)
-            lines = lines[1:]
+        else:
+            block = read_foreach_block(infile)
+            expand_foreach(globs, block, outfile)
+
+
+@contextmanager
+def open_stream(path=None, default=None, mode='r'):
+    """Open file at given path, or yield default.  Close as appropriate.
+
+    The default should be a stream, not a path; closing the context will not
+    close it.
+    """
+    if path is None:
+        yield default
+    else:
+        with open(path, mode) as stream:
+            yield stream
+
+
+def parse_args():
+    """Parse command-line arguments.
+
+    :return: Tuple of: input path (or None for stdin), output path (or None
+        for stdout).
+    """
+    parser = ArgumentParser(
+        description=__doc__, formatter_class=RawDescriptionHelpFormatter)
+
+    parser.add_argument(
+        'template', nargs='?',
+        help="Input template.  Defaults to standard input.")
+    parser.add_argument(
+        'output', nargs='?',
+        help="Output file.  Defaults to standard output.")
+
+    args = parser.parse_args()
+    return args.template, args.output
+
+
+def write_header(stream, template_path=None):
+    """
+    Write header to stream.
+    """
+    hr = ("#" * 80) + "\n"
+    script = os.path.basename(argv[0])
+
+    outstream.write(hr)
+    outstream.write(OUTPUT_HEADER.format(script=script))
+    if template_path is not None:
+        outstream.write("#\n")
+        outstream.write("# Generated from template '%s'.\n" % template_path)
+    outstream.write(hr)
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 3:
-        print("Too many arguments.")
-        sys.exit(1)
+    try:
+        template_path, output_path = parse_args()
+    except ArgumentError as error:
+        stderr.write('%s\n' % error)
+        exit(2)
 
-    me = os.path.basename(sys.argv[0])
-    hr = ("#" * 80) + "\n"
-
-    input = sys.stdin
-    inarg = None
-    output = sys.stdout
-    outarg = None
-
-    if len(sys.argv) >= 2:
-        inarg = os.path.abspath(sys.argv[1])
-        input = open(inarg)
-        if len(sys.argv) >= 3:
-            outarg = sys.argv[2]
-            output = open(outarg, 'w')
-
-    output.write(hr)
-    output.write("""# AUTOMATICALLY GENERATED FILE--DO NOT EDIT
-#
-# This file is generated automatically by libpqxx's %s script.
-#
-# If you modify this file, chances are your modifications will be lost because
-# the file will be re-written from time to time.
-#
-# The %s script should be available in the tools directory of the
-# libpqxx source archive.
-""" % (me, me))
-
-    if len(sys.argv) > 1:
-        output.write("#\n")
-        output.write("# Generated from template '%s'.\n" % inarg)
-
-    output.write(hr)
-
-    template2mak(input, output)
+    input_stream = open_stream(template_path, stdin, 'r')
+    output_stream = open_stream(output_path, stdout, 'w')
+    with input_stream as instream, output_stream as outstream:
+        write_header(outstream, template_path)
+        expand_template(instream, outstream)

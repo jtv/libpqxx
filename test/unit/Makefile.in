@@ -15,17 +15,17 @@
 @SET_MAKE@
 
 ################################################################################
-# AUTOMATICALLY GENERATED FILE--DO NOT EDIT
+# AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
 #
-# This file is generated automatically by libpqxx's template2mak.py script.
+# This file is generated automatically by libpqxx's template2mak.py script, and
+# will be rewritten from time to time.
 #
-# If you modify this file, chances are your modifications will be lost because
-# the file will be re-written from time to time.
+# If you modify this file, chances are your modifications will be lost.
 #
 # The template2mak.py script should be available in the tools directory of the
 # libpqxx source archive.
 #
-# Generated from template '/home/jtv/proj/libpqxx/test/unit/Makefile.am.template'.
+# Generated from template 'test/unit/Makefile.am.template'.
 ################################################################################
 #MAINTAINERCLEANFILES=Makefile.in
 VPATH = @srcdir@
