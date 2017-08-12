@@ -17,10 +17,6 @@
 #ifndef PQXX_H_COMPILER_PUBLIC
 #define PQXX_H_COMPILER_PUBLIC
 
-#ifdef PQXX_HAVE_BOOST_SMART_PTR
-#include <boost/smart_ptr.hpp>
-#endif
-
 #ifdef _MSC_VER
 
 /* Work around a particularly pernicious and deliberate bug in Visual C++:
@@ -53,9 +49,6 @@
 
 // Workarounds for SUN Workshop 6
 #if defined(__SUNPRO_CC)
-#if __SUNPRO_CC_COMPAT < 5
-#error "This compiler version is not capable of building libpqxx."
-#endif	// __SUNPRO_CC_COMPAT < 5
 #define PQXX_PRIVATE __hidden
 #endif	// __SUNPRO_CC
 
@@ -84,7 +77,6 @@
 // Workarounds for Windows
 #ifdef _WIN32
 
-
 /* For now, export DLL symbols if _DLL is defined.  This is done automatically
  * by the compiler when linking to the dynamic version of the runtime library,
  * according to "gzh"
@@ -97,10 +89,6 @@
 
 // Workarounds for Microsoft Visual C++
 #ifdef _MSC_VER
-
-#if _MSC_VER < 1600
-#error "If you're using Visual C++, you'll need at least the 2010 version."
-#endif	// _MSC_VER < 1600
 
 // Automatically link with the appropriate libpq (static or dynamic, debug or
 // release).  The default is to use the release DLL.  Define PQXX_PQ_STATIC to
@@ -148,6 +136,7 @@
 #endif	// _MSC_VER
 #endif	// _WIN32
 
+
 #ifndef PQXX_LIBEXPORT
 #define PQXX_LIBEXPORT
 #endif
@@ -156,14 +145,8 @@
 #define PQXX_PRIVATE
 #endif
 
-// Some compilers (well, VC) stumble over some required cases of "typename"
-#ifndef PQXX_TYPENAME
-#define PQXX_TYPENAME typename
-#endif
-
 #ifndef PQXX_NOVTABLE
 #define PQXX_NOVTABLE
 #endif
 
 #endif
-

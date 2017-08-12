@@ -7,7 +7,7 @@
  *      Compiler deficiency workarounds for compiling libpqxx itself.
  *      DO NOT INCLUDE THIS FILE when building client programs.
  *
- * Copyright (c) 2002-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2002-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -33,13 +33,8 @@
 
 #ifdef _MSC_VER
 #pragma warning (disable: 4251 4275 4273)
-#pragma warning (disable: 4258) // Complains that for-scope usage is correct.
-#pragma warning (disable: 4290)
-#pragma warning (disable: 4351)
 #pragma warning (disable: 4355)
-#pragma warning (disable: 4786)
-#pragma warning (disable: 4800)	// Performance warning for boolean conversions.
-#pragma warning (disable: 4996) // Complains that strncpy() "may" be unsafe.
+#pragma warning (disable: 4996) // Deprecation warning, e.g. about strncpy().
 #endif
 
 #elif defined(__GNUC__) && defined(PQXX_HAVE_GCC_VISIBILITY)	// !_WIN32
@@ -51,8 +46,5 @@
 
 
 #include "pqxx/compiler-public.hxx"
-
-#include <cstddef>
-#include <limits>
 
 #endif
