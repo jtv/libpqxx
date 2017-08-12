@@ -72,8 +72,9 @@ AS_IF(
     [test "${shared}" = "yes" ],
     [CPPFLAGS="$CPPFLAGS -DPQXX_SHARED"])
 
+
 # Add options to compiler command line, if compiler accepts it
-add_compiler_opts() {
+add_compiler_opts_if_ok() {
 	for option in $* ; do
 		ACO_SAVE_CXXFLAGS="$CXXFLAGS"
 		CXXFLAGS="$CXXFLAGS $option"
@@ -87,48 +88,59 @@ add_compiler_opts() {
 }
 
 
-# Let's try to get the compiler to be helpful
+# Add options to compiler command line, unconditionally.
+add_compiler_opts() {
+	CXXFLAGS="$CXXFLAGS $*"
+}
+
+
+# Let's try to get the compiler to be helpful.
+#
 # (Omit options -Weffc++ and -Wabi because they currently yield too many
 # warnings in gcc's standard headers; omit -Wunreachable-code because it isn't
 # always right)
 if test "$GCC" = "yes" ; then
-	# In maintainer mode, enable all the warning options we can
+	# In maintainer mode, enable all the warning options we can.
 	if test "$enable_maintainer_mode" = "yes"; then
+		# "Eternal" (FLW) g++ options.  These have been around for
+		# ages, and both g++ and clang++ support them.  Don't bother
+		# checking for support; just add them to the compiler options.
 		add_compiler_opts \
-			-Werror \
-			-Wno-div-by-zero \
-			-fnothrow-opt \
 			-fstrict-enums \
-			-pedantic \
-			-fno-nonansi-builtins \
+			-Werror \
 			-Wall \
-			-Wextra \
-			-Wfloat-equal \
-			-Wundef \
-			-Wshadow \
-			-Wpointer-arith  \
-			-Wcast-qual  \
+			-pedantic \
 			-Wcast-align  \
+			-Wcast-qual  \
 			-Wconversion \
 			-Wctor-dtor-privacy \
 			-Wendif-labels \
-			-Wlogical-op \
-			-Woverlength-strings \
-			-Wredundant-decls \
-			-Wwrite-strings  \
-			-Wnon-virtual-dtor \
-			-Wold-style-cast \
-			-Woverloaded-virtual \
-			-Wsign-promo \
-			-Wstrict-null-sentinel \
+			-Wextra \
+			-Wfloat-equal \
 			-Wformat-security \
 			-Winit-self \
 			-Wmissing-include-dirs \
+			-Wno-div-by-zero \
+			-Wnon-virtual-dtor \
+			-Wold-style-cast \
+			-Woverlength-strings \
+			-Woverloaded-virtual \
+			-Wpointer-arith  \
+			-Wredundant-decls \
+			-Wshadow \
+			-Wsign-promo \
+			-Wwrite-strings  \
+			-Wundef \
 			-Wunused
+
+		# "Iffy" g++ options.  Some reasonably current g++-like
+		# compilers may not support these.
+		add_compiler_opts_if_ok \
+			-fnothrow-opt
 	fi
 
 	# The PostgreSQL headers now require "long long".
-	add_compiler_opts -Wno-long-long
+	add_compiler_opts_if_ok -Wno-long-long
 
 AC_MSG_CHECKING([g++ visibility attribute])
 gcc_visibility=yes
@@ -309,6 +321,7 @@ litmus test for a working libpq.
 ])])
 AC_MSG_RESULT(yes)
 
+
 # Perform this check in C; autoconf's AC_HAVE_LIBRARY breaks in C++ because it
 # tries to call main()
 AC_LANG_PUSH(C)
@@ -342,8 +355,8 @@ LIBS=[$(echo "$LIBS" | sed -e 's/-lpq * -lpq\>/-lpq/g')]
 
 AC_LANG_POP(C)
 
+
 AC_MSG_CHECKING([for correct C++ linkage of basic libpq functions])
-if test "$enable_maintainer_mode" = "yes"; then
 AC_LINK_IFELSE([
     AC_LANG_SOURCE([[
 #include <${with_postgres_include}/libpq-fe.h>
@@ -356,33 +369,17 @@ C and C++ compilers are very different beasts, this may mean that we do not have
 the right options for linking with it after all.  Alternatively, this may be
 caused by a bug in autoconf or automake.
 
-Since you are configuring libpqxx using the --enable-maintainer-mode option, any
+If you are configuring libpqxx using the --enable-maintainer-mode option, any
 compiler warnings for autoconf test programs will be treated as errors.  The
-problem may just go away if you run the configure script again but with the
-maintainer mode option omitted.  Please report such cases (including the
-config.log produced by the failed attempt) so future versions can attempt to
-work around the problem.
+problem may just go away if you run the configure script again but without the
+maintainer-mode option.  Please report such cases (including the config.log
+produced by the failed attempt) so future versions can attempt to work around
+the problem.
 
 Should this error occur even while not in maintainer mode, read the config.log
 file for more detailed information.  Look for the last error message, which may
 be several pages up from the end of the file.
 ])])
-else
-AC_LINK_IFELSE([
-    AC_LANG_SOURCE([[
-#include <${with_postgres_include}/libpq-fe.h>
-int main(){return !PQexec(0,0);}
-]])],
-[], 
-[AC_MSG_ERROR([
-Linking a call to libpq failed in C++, even though it succeeded in C.  If your
-C and C++ compilers are very different beasts, this may mean that we do not have
-the right options for linking with it after all.
-
-Read the config.log file for more detailed information.  Look for the last error
-message, which may be several pages up from the end of the file.
-])])
-fi
 AC_MSG_RESULT(yes)
 
 
