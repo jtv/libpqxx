@@ -86,11 +86,11 @@ protected:
   void start_backend_transaction();
 
   /// Sensible default implemented here: begin backend transaction
-  virtual void do_begin();						//[t1]
+  virtual void do_begin() override;					//[t1]
   /// Sensible default implemented here: perform query
-  virtual result do_exec(const char Query[]);
+  virtual result do_exec(const char Query[]) override;
   /// To be implemented by derived class: commit backend transaction
-  virtual void do_commit() =0;
+  virtual void do_commit() override =0;
   /// Sensible default implemented here: abort backend transaction
   /** Default implementation does two things:
    * <ol>
