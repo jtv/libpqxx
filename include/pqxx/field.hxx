@@ -129,17 +129,6 @@ public:
   template<typename T> bool operator>>(T &Obj) const			//[t7]
       { return to(Obj); }
 
-#ifdef PQXX_NO_PARTIAL_CLASS_TEMPLATE_SPECIALISATION
-  /// Specialization: to(string &)
-  template<> bool to<std::string>(std::string &Obj) const;
-
-  /// Specialization: <tt>to(const char *&)</tt>.
-  /** The buffer has the same lifetime as the result, so take care not to
-   * use it after the result is destroyed.
-   */
-  template<> bool to<const char *>(const char *&Obj) const;
-#endif
-
   /// Read value into Obj; or use Default & return @c false if null
   template<typename T> bool to(T &Obj, const T &Default) const	//[t12]
   {
