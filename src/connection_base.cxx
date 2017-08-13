@@ -956,28 +956,28 @@ bool pqxx::connection_base::ReadCopyLine(std::string &Line)
   const std::string query = "[END COPY]";
   switch (PQgetCopyData(m_Conn, &Buf, false))
   {
-    case -2:
-      throw failure("Reading of table data failed: " + std::string(ErrMsg()));
+  case -2:
+    throw failure("Reading of table data failed: " + std::string(ErrMsg()));
 
-    case -1:
-      for (auto R = make_result(PQgetResult(m_Conn), query);
-           gate::result_connection(R);
-	   R=make_result(PQgetResult(m_Conn), query))
-	check_result(R);
-      Result = false;
-      break;
+  case -1:
+    for (auto R = make_result(PQgetResult(m_Conn), query);
+         gate::result_connection(R);
+	 R=make_result(PQgetResult(m_Conn), query))
+      check_result(R);
+    Result = false;
+    break;
 
-    case 0:
-      throw internal_error("table read inexplicably went asynchronous");
+  case 0:
+    throw internal_error("table read inexplicably went asynchronous");
 
-    default:
-      if (Buf)
-      {
-        std::unique_ptr<char, void (*)(char *)> PQA(
-            Buf, freepqmem_templated<char>);
-        Line = Buf;
-      }
-      Result = true;
+  default:
+    if (Buf)
+    {
+      std::unique_ptr<char, void (*)(char *)> PQA(
+          Buf, freepqmem_templated<char>);
+      Line = Buf;
+    }
+    Result = true;
   }
 
   return Result;

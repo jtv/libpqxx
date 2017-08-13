@@ -48,7 +48,7 @@ inline int StdDirToPQDir(std::ios::seekdir dir) noexcept
   int pqdir;
   switch (dir)
   {
-      case std::ios::beg: pqdir=SEEK_SET; break;
+  case std::ios::beg: pqdir=SEEK_SET; break;
   case std::ios::cur: pqdir=SEEK_CUR; break;
   case std::ios::end: pqdir=SEEK_END; break;
 
