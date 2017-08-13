@@ -11,7 +11,7 @@ bin_SCRIPTS=pqxx-config
 TESTS = tools/lint
 
 
-# Generage ChangeLog from git history.  It goes all the way back through
+# Generate ChangeLog from git history.  It goes all the way back through
 # the project's git, bzr, svn, and cvs days.
 dist-hook: ChangeLog
 
