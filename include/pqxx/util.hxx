@@ -214,25 +214,25 @@
 /** @page threading Thread safety
  *
  * This library does not contain any locking code to protect objects against
- * simultaneous modification in multi-threaded programs.  There are many
- * different threading interfaces and libpqxx does not dictate your choice.
+ * simultaneous modification in multi-threaded programs.  Therefore it is up
+ * to you, the user of the library, to ensure that your threaded client
+ * programs perform no conflicting operations concurrently.
  *
- * Therefore it is up to you, the user of the library, to ensure that your
- * threaded client programs perform no conflicting operations concurrently.
+ * Most of the time this isn't hard.  Result sets are immutable, so you can
+ * share them between threads without problem.  The main rule is:
  *
- * The library does try to avoid non-obvious unsafe operations and so does the
- * underlying libpq.  Here's what you should do to keep your threaded libpqxx
- * application safe:
+ * \li Treat a connection, together with any and all objects related to it, as
+ * a "world" of its own.  You should generally make sure that the same "world"
+ * is never accessed by another thread while you're doing anything non-const
+ * in there.
  *
- * \li Treat a connection, together with any and all objects related to it, as a
- * "world" of its own.  You should generally make sure that the same "world" is
- * never accessed concurrently by multiple threads.  There are a few cases where
- * you don't need to be this careful, however; see below.
+ * That means: don't issue a query on a transaction while you're also opening
+ * a subtransaction, don't access a cursor while you may also be committing,
+ * and so on.
  *
- * \li Result sets (pqxx::result) and binary data (pqxx::binarystring)
- * are special.  Copying these objects is very cheap, and you can give the copy
- * to another thread.  Just make sure that no other thread accesses the same
- * copy when it's being assigned to, swapped, cleared, or destroyed.
+ * In particular, cursors are tricky.  It's easy to perform a non-const
+ * operation without noticing.  So, if you're going to share cursors or
+ * cursor-related objects between threads, lock very conservatively!
  *
  * Use @c pqxx::describe_thread_safety to find out at runtime what level of
  * thread safety is implemented in your build and version of libpqxx.  It
