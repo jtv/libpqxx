@@ -21,7 +21,7 @@ Building libpqxx
 The "Unix-like" section applies to systems that look like Unix: GNU/Linux,
 Apple OSX and the BSD family, AIX, HP-UX, Irix, Solaris, etc.  Microsoft
 Windows with a Unix-like environment such as Cygwin or MinGW installed should
-also be able to use these intructions.
+also work in the same way.
 
 There is a separate section below for Windows users without such an environment.
 
@@ -43,7 +43,7 @@ installation options.  You need to get these right before you compile.  Then:
 This will compile the library.  You'll also want to run the test suite to make
 sure that everything works.  To prepare for that, you need to set up a
 disposable test database that the test suite to play with.  You'll want
-password-less authentication to avoid having to log in too many times.
+password-less authentication so that you won't need to log in for every test.
 
 In this example, the test database is called pqxx-test and runs on a server at
 IP address 192.168.1.99.  Before running the test, make sure you can log into
@@ -54,10 +54,6 @@ PostgreSQL:
     PGHOST=192.168.1.99 PGDATฺABASE=pqxx-test psql
 ```
 
-
-(This is using "env" as a way of setting shell variables for the duration of one
-command; your shell may have different ways of setting variables.)
-
 Once you have that working, use the same login parameters to run the libpqxx
 test suite:
 
@@ -67,7 +63,7 @@ test suite:
 
 
 Assuming that the test suite runs successfully, you are now ready to install.
-You'll typically need superuser privileges to do run this command:
+You'll typically need superuser privileges to run this command:
 
 ```shell
     make install
@@ -76,7 +72,7 @@ You'll typically need superuser privileges to do run this command:
 Now you should be able to link your own programs with libpqxx.
 
 If something went wrong along the way, or what you have isn't quite what you
-want, it's time to move on to that fineprint that we hinted at earlier.
+wanted, it's time to move on to that fineprint that we hinted at earlier.
 
 
 #### 1. Configure
@@ -100,15 +96,16 @@ configure: error: PostgreSQL configuration script pg_config was not found.
 If you don't want to have pg\_config in your path for whatever reason, or you
 have multiple PostgreSQL installations on your system (each with their own copy
 of pg\_config) and wish to override the default version, add an option like
+this to your "configure" command line:
 
 ```shell
 	PG_CONFIG=/home/me/postgres/bin/pg_config
 ```
 
-to your "configure" command line.  Here /home/me/postgres/bin/pg\_config is
-just an example of where your preferred copy of pg\_config might be.  This
-would tell the configure script that you wish to build a libpqxx based on the
-postgres version found in /home/me/postgres.
+Here, "/home/me/postgres/bin/pg\_config" is just an example of where your
+preferred copy of pg\_config might be.  This would tell the configure script
+that you wish to build a libpqxx based on the postgres version found in
+/home/me/postgres.
 
 About installing: if you wish to install libpqxx in a custom location, such as
 your home directory /home/me, you can specify this to the configure script
@@ -126,23 +123,23 @@ Unix-like systems are /usr/local and /opt.
 Custom installation locations can also be handy if you don't have administrator
 rights on the machine you're working on!
 
-The configure scripts supports many other options to tweak how and where libpqxx
-is to be built and installed; try the --help option to get an overview if you're
-interested.
+The configure scripts supports many other options to tweak how and where
+libpqxx is to be built and installed; try the --help option to get an overview
+if you're interested.
 
-If configuration just absolutely plain won't work for whatever reason: take a
-look in the config/sample-headers/ directory.  Here you will find configuration
-headers for various compilers and libpq versions.  Pick the
-config-internal-\*.h and config-public-\*.h headers for the compiler and libpq
-version most closely matching your own, and see if they work for you.  You may
-also want to tweak them manually.
+If configuration just plain won't work for whatever reason: take a look in the
+config/sample-headers/ directory.  Here you will find configuration headers for
+various compilers and libpq versions.  Pick the config-internal-\*.h and
+config-public-\*.h headers for the compiler and libpq version most closely
+matching your own, and see if they work for you.  You may also want to tweak
+them manually.
 
 
 #### 2. Make
 
-One problem some people have run into at this stage is that the header files for
-PostgreSQL need the OpenSSL header files to be installed.  If this happens to
-you, make sure openssl is installed and its headers are in your compiler's
+One problem some people have run into at this stage is that the header files
+for PostgreSQL need the OpenSSL header files to be installed.  If this happens
+to you, make sure openssl is installed and its headers are in your compiler's
 include path.
 
 
@@ -152,15 +149,15 @@ include path.
 library's functionality.
 
 The "make check" procedure needs a database to play with.  It will create and
-drop various tables in that database.  Use a throwaway database for this or risk
-losing data!
+drop various tables in that database.  Use a throwaway database for this or
+risk losing data!
 
 (Actually the test only manipulates tables whose names start with "pqxx" so in
 practice the risk will be small.  But better safe than sorry: use a disposable
 test database separate from your own data.)
 
-To direct the test suite to the right database, set some or all of the following
-environment variables as needed for "make check":
+To direct the test suite to the right database, set some or all of the
+following environment variables as needed for "make check":
 
 ```
 	PGDATABASE	(name of database; defaults to your user name)
@@ -199,9 +196,9 @@ It will print nothing if you failed to set the variable.
 On Unix-like systems, postgres may be listening on a Unix domain socket instead
 of a TCP port.  The socket will appear as a file somewhere in the filesystem
 with a name like .s.PGSQL.5432.  To connect to this type of socket, set PGHOST
-to the directory where you find this file, as an absolute path.  For example, it
-may be "/tmp" or "/var/run" or "/var/run/postgresql".  The leading slash tells
-libpq that this is not a network address but a local Unix socket.
+to the directory where you find this file, as an absolute path.  For example,
+it may be "/tmp" or "/var/run" or "/var/run/postgresql".  The leading slash
+tells libpq that this is not a network address but a local Unix socket.
 
 
 #### 4. Make Install
@@ -211,19 +208,19 @@ This is where you install the libpqxx library and header files to your system.
 Assuming this succeeds, you should now be able to build your own programs by
 adding the location of the header files (e.g. /usr/local/pqxx/include) to your
 compiler's include path when compiling your application.  Similarly, add the
-location of the library binary (e.g. /usr/local/pqxx/lib) to your library search
-path when linking your application.  See the documentation and the test programs
-for more information on using libpqxx.
+location of the library binary (e.g. /usr/local/pqxx/lib) to your library
+search path when linking your application.  See the documentation and the test
+programs for more information on using libpqxx.
 
 If you link with the dynamic version of the library, you may find that your
 program fails to run because the run-time loader cannot find the library.
 
 There are several ways around that.  Pick the first option that works for you:
-  (i) by linking to the static version of the library, or
- (ii) adding a link to the dynamic libpqxx library somewhere in your system's
-      standard library locations, or
-(iii) adding libpqxx's lib/ directory to your loader's search path before
-      running your program.
+1. by linking to the static version of the library, or
+2. adding a link to the dynamic libpqxx library somewhere in your system's
+   standard library locations, or
+3. adding libpqxx's lib/ directory to your loader's search path before
+   running your program.
 
 On Unix-like systems including GNU/Linux, the loader's search path can be
 extended by setting the LD\_LIBRARY\_PATH variable.
@@ -234,8 +231,8 @@ Enjoy!
 ### On Microsoft Windows
 
 Project files for Visual C++ are provided in the win32 directory, along with
-some other Windows-specific material.  You'll need at least version 2010 of the
-VC compiler.
+some other Windows-specific material.  These are very old, so if you run into
+problems, please let us know what we can do to fix them.
 
 Instead of going this route, you may want to try if the Unix build procedure
 works for you instead, e.g. using the Cygwin tools.  In theory it should be
@@ -244,8 +241,8 @@ compiler.
 
 If you do proceed without the configure script, you'll need to copy the most
 appropriate compile-time configuration files from various subdirectories in
-config/example-headers/ to include/pqxx.  You may need to tweak them manually to
-define the exact features your system, compiler, and PostgreSQL versions
+config/example-headers/ to include/pqxx.  You may need to tweak them manually
+to define the exact features your system, compiler, and PostgreSQL versions
 support.  Normally the configure script would do this for you.
 
 Before trying to compile with Visual C++, you'll at least need to copy the file
@@ -258,17 +255,17 @@ subdirectory for more documentation.
 
 Normally, on any vaguely Unix-like system, the configuration headers (called
 config-internal-\*.h for the library's internal use, config-public-\*.h for
-both the library and client programs) are generated from config.h.in.  All these
-files, once generated, are situated in the include/pqxx/ directory.
+both the library and client programs) are generated from config.h.in.  All
+these files, once generated, are situated in the include/pqxx/ directory.
 
 The configitems file lists all configuration items and where they go; but see
 win32/INSTALL.txt for a detailed description of how these files work.
 
 Getting the compiler-related configuration right can take several stages of
-trying to build, looking at error messages, looking for configuration items that
-may be related, changing them, and building again.  If nothing seems to help,
-register an issue on Github.  Be sure to read the FAQ though, because there are
-some known problems.
+trying to build, looking at error messages, looking for configuration items
+that may be related, changing them, and building again.  If nothing seems to
+help, register an issue on Github.  Be sure to read the FAQ though, because
+there are some known problems.
 
 
 #### Windows-Specific Build Problems
@@ -308,10 +305,10 @@ convenience typedef for `transaction<>` which conforms to the interface defined
 in `pqxx/transaction_base.hxx`).
 
 These `*.hxx` headers are not the ones you include in your program.  Instead,
-include the versions without filename suffix (i.e. `pqxx/connection_base` etc.)
-and they will include the .hxx files for you.  This was done so that includes
-are in standard C++ style (as in `<iostream>` etc.), but an editor will still
-recognize them as files containing C++ code.
+include the versions without filename suffix (e.g. `pqxx/connection_base`).
+Those will include the actual .hxx files for you.  This was done so that
+includes are in standard C++ style (as in `<iostream>` etc.), but an editor
+will still recognize them as files containing C++ code.
 
 Continuing the list of classes, you will most likely also need the result class
 (`pqxx/result.hxx`).  In a nutshell, you create a `connection` based on a
@@ -341,11 +338,11 @@ int main()
             std::cout << row[0].c_str() << std::endl;
 
         std::cout << "Doubling all employees' salaries..." << std::endl;
-        W.exec("UPDATE employee SET salary=salary*2");
+        W.exec("UPDATE employee SET salary = salary*2");
 
         std::cout << "Making changes definite: ";
         W.commit();
-        std::cout << "ok." << std::endl;
+        std::cout << "OK." << std::endl;
     }
     catch (const std::exception &e)
     {
