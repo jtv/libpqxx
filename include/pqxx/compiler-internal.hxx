@@ -1,19 +1,12 @@
-/*-------------------------------------------------------------------------
+/** Compiler deficiency workarounds for compiling libpqxx itself.
  *
- *   FILE
- *	pqxx/compiler-internal.hxx
- *
- *   DESCRIPTION
- *      Compiler deficiency workarounds for compiling libpqxx itself.
- *      DO NOT INCLUDE THIS FILE when building client programs.
+ * DO NOT INCLUDE THIS FILE when building client programs.
  *
  * Copyright (c) 2002-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_COMPILER_INTERNAL
 #define PQXX_H_COMPILER_INTERNAL

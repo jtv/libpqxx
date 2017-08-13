@@ -1,27 +1,20 @@
-/*-------------------------------------------------------------------------
+/** Compiler deficiency workarounds for compiling libpqxx headers.
  *
- *   FILE
- *     pqxx/compiler-internal-pre.hxx
+ * To be called at the start of each libpqxx header, in order to push the
+ * client program's settings and apply libpqxx's settings.
  *
- *   DESCRIPTION
- *      Compiler deficiency workarounds for compiling libpqxx headers.
- *      To be called at the start of each libpqxx header, in order to
- *      push the client program's settings and apply libpqxx's settings.
- *      Must be balanced by an include of -header-post.hxx at the end
- *      of the header.
+ * Must be balanced by an include of -header-post.hxx at the end
+ * of the header.
  *
  * Copyright (c) 2006-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 // NO GUARDS HERE! This code should be executed every time!
 
 #ifdef _WIN32
-
 #ifdef _MSC_VER
 
 // Save client program warning state, and set warning level 4.
@@ -38,6 +31,5 @@
 #pragma warning (disable: 4996) // Deprecation warning, e.g. about strncpy().
 
 #endif // _MSC_VER
-
 #endif // _WIN32
 

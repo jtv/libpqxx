@@ -1,20 +1,14 @@
-/*-------------------------------------------------------------------------
+/** Definition of the pqxx::subtransaction class.
  *
- *   FILE
- *	pqxx/subtransaction.hxx
+ * pqxx::subtransaction is a nested transaction, i.e. one within a transaction.
  *
- *   DESCRIPTION
- *      definition of the pqxx::subtransaction class.
- *   pqxx::subtransaction is a nested transaction, i.e. one within a transaction
- *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/subtransaction instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/subtransaction instead.
  *
  * Copyright (c) 2005-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_SUBTRANSACTION
 #define PQXX_H_SUBTRANSACTION
@@ -23,7 +17,6 @@
 #include "pqxx/compiler-internal-pre.hxx"
 
 #include "pqxx/dbtransaction"
-
 
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t1]"

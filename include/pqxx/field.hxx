@@ -1,20 +1,14 @@
-/*-------------------------------------------------------------------------
+/** Definitions for the pqxx::field class.
  *
- *   FILE
- *	pqxx/field.hxx
+ * pqxx::field refers to a field in a query result.
  *
- *   DESCRIPTION
- *      definitions for the pqxx::field class.
- *   pqxx::field refers to a field in a query result.
- *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/field instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/field instead.
  *
  * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_FIELD
 #define PQXX_H_FIELD

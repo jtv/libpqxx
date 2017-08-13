@@ -1,20 +1,14 @@
-/*-------------------------------------------------------------------------
+/** Definition of the pqxx::errorhandler class.
  *
- *   FILE
- *	pqxx/errorhandler.hxx
+ * pqxx::errorhandler handlers errors and warnings in a database session.
  *
- *   DESCRIPTION
- *      definition of the pqxx::errorhandler class.
- *   pqxx::errorhandler handlers errors and warnings in a database session.
- *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
  *
  * Copyright (c) 2012-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_ERRORHANDLER
 #define PQXX_H_ERRORHANDLER

@@ -1,20 +1,12 @@
-/*-------------------------------------------------------------------------
+/** libpqxx exception classes.
  *
- *   FILE
- *	pqxx/except
+ * pqxx::sql_error, pqxx::broken_connection, pqxx::in_doubt_error, ...
  *
- *   DESCRIPTION
- *      libpqxx exception classes
- *   pqxx::sql_error, pqxx::broken_connection, pqxx::in_doubt_error, ...
- *
- * Copyright (c) 2003, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2003-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
-// Actual definitions in .hxx file so editors and such recognize file type
+// Actual definitions in .hxx file so editors and such recognize file type.
 #include "pqxx/except.hxx"
-

@@ -1,20 +1,14 @@
-/*-------------------------------------------------------------------------
+/** Definition of the pqxx::connection_base abstract base class.
  *
- *   FILE
- *	pqxx/connection_base.hxx
+ * pqxx::connection_base encapsulates a frontend to backend connection
  *
- *   DESCRIPTION
- *      definition of the pqxx::connection_base abstract base class.
- *   pqxx::connection_base encapsulates a frontend to backend connection
- *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
  *
  * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_CONNECTION_BASE
 #define PQXX_H_CONNECTION_BASE

@@ -1,20 +1,14 @@
-/*-------------------------------------------------------------------------
+/** Definition of the pqxx::robusttransaction class.
  *
- *   FILE
- *	pqxx/robusttransaction.hxx
+ * pqxx::robusttransaction is a slower but safer transaction class.
  *
- *   DESCRIPTION
- *      definition of the pqxx::robusttransaction class.
- *   pqxx::robusttransaction is a slower but safer transaction class
- *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/robusttransaction instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/robusttransaction instead.
  *
  * Copyright (c) 2002-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_ROBUSTTRANSACTION
 #define PQXX_H_ROBUSTTRANSACTION

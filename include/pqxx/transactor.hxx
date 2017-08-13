@@ -1,20 +1,14 @@
-/*-------------------------------------------------------------------------
+/** Definition of the pqxx::transactor class.
  *
- *   FILE
- *	pqxx/transactor.hxx
+ * pqxx::transactor is a framework-style wrapper for safe transactions.
  *
- *   DESCRIPTION
- *      definition of the pqxx::transactor class.
- *   pqxx::transactor is a framework-style wrapper for safe transactions
- *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transactor instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transactor instead.
  *
  * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_TRANSACTOR
 #define PQXX_H_TRANSACTOR

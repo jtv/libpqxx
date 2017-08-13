@@ -1,20 +1,14 @@
-/*-------------------------------------------------------------------------
+/** Definition of the pqxx::tablereader class.
  *
- *   FILE
- *	pqxx/tablereader.hxx
+ * pqxx::tablereader enables optimized batch reads from a database table.
  *
- *   DESCRIPTION
- *      definition of the pqxx::tablereader class.
- *   pqxx::tablereader enables optimized batch reads from a database table
- *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablereader instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablereader instead.
  *
  * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_TABLEREADER
 #define PQXX_H_TABLEREADER

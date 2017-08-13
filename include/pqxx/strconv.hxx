@@ -1,19 +1,12 @@
-/*-------------------------------------------------------------------------
+/** String conversion definitions.
  *
- *   FILE
- *	pqxx/stringconv.hxx
- *
- *   DESCRIPTION
- *      String conversion definitions for libpqxx
- *      DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stringconv instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stringconv instead.
  *
  * Copyright (c) 2008-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_STRINGCONV
 #define PQXX_H_STRINGCONV

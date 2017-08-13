@@ -1,20 +1,14 @@
-/*-------------------------------------------------------------------------
+/** Definition of the pqxx::notification_receiver functor interface.
  *
- *   FILE
- *	pqxx/notification.hxx
+ * pqxx::notification_receiver handles incoming notifications.
  *
- *   DESCRIPTION
- *      definition of the pqxx::notification_receiver functor interface.
- *   pqxx::notification_receiver handles incoming notifications.
- *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/notification instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/notification instead.
  *
  * Copyright (c) 2011-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_NOTIFICATION
 #define PQXX_H_NOTIFICATION

@@ -1,20 +1,14 @@
-/*-------------------------------------------------------------------------
+/** Definition of libpqxx exception classes.
  *
- *   FILE
- *	pqxx/except.hxx
+ * pqxx::sql_error, pqxx::broken_connection, pqxx::in_doubt_error, ...
  *
- *   DESCRIPTION
- *      definition of libpqxx exception classes
- *   pqxx::sql_error, pqxx::broken_connection, pqxx::in_doubt_error, ...
- *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/except instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/except instead.
  *
  * Copyright (c) 2003-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_EXCEPT
 #define PQXX_H_EXCEPT

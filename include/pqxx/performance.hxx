@@ -1,20 +1,14 @@
-/*-------------------------------------------------------------------------
+/** Performance features documentation.
  *
- *   FILE
- *	pqxx/performance.hxx
+ * Documentation only: libpqxx performance features.
  *
- *   DESCRIPTION
- *      performance features documentation
- *   Documentation only: libpqxx performance features.
- *   DO NOT INCLUDE THIS FILE; it's here only to provide documentation.
+ * DO NOT INCLUDE THIS FILE; it's here only to provide documentation.
  *
- * Copyright (c) 2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2011-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 
 /**

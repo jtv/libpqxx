@@ -1,21 +1,15 @@
-/*-------------------------------------------------------------------------
+/** Common code and definitions for the transaction classes.
  *
- *   FILE
- *	pqxx/transaction_base.hxx
+ * pqxx::transaction_base defines the interface for any abstract class that
+ * represents a database transaction.
  *
- *   DESCRIPTION
- *      common code and definitions for the transaction classes.
- *   pqxx::transaction_base defines the interface for any abstract class that
- *   represents a database transaction
- *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction_base instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction_base instead.
  *
  * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_TRANSACTION_BASE
 #define PQXX_H_TRANSACTION_BASE

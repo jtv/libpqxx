@@ -1,20 +1,14 @@
-/*-------------------------------------------------------------------------
+/** Definition of the pqxx::nontransaction class.
  *
- *   FILE
- *	pqxx/nontransaction.hxx
+ * pqxx::nontransaction provides nontransactional database access
  *
- *   DESCRIPTION
- *      definition of the pqxx::nontransaction class.
- *   pqxx::nontransaction provides nontransactional database access
- *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/nontransaction instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/nontransaction instead.
  *
  * Copyright (c) 2002-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_NONTRANSACTION
 #define PQXX_H_NONTRANSACTION

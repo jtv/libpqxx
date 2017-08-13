@@ -1,20 +1,13 @@
-/*-------------------------------------------------------------------------
+/** Definition of the pqxx::transaction class.
+ * pqxx::transaction represents a standard database transaction.
  *
- *   FILE
- *	pqxx/transaction.hxx
- *
- *   DESCRIPTION
- *      definition of the pqxx::transaction class.
- *   pqxx::transaction represents a standard database transaction
- *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction instead.
  *
  * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_TRANSACTION
 #define PQXX_H_TRANSACTION

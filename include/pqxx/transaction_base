@@ -1,21 +1,13 @@
-/*-------------------------------------------------------------------------
+/** Base for the transaction classes.
  *
- *   FILE
- *	pqxx/transaction_base
+ * pqxx::transaction_base defines the interface for any abstract class that
+ * represents a database transaction.
  *
- *   DESCRIPTION
- *      base for the transaction classes.
- *   pqxx::transaction_base defines the interface for any abstract class that
- *   represents a database transaction
- *
- * Copyright (c) 2001-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
-// Actual definitions in .hxx file so editors and such recognize file type
+// Actual definitions in .hxx file so editors and such recognize file type.
 #include "pqxx/transaction_base.hxx"
-

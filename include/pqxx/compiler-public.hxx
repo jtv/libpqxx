@@ -1,18 +1,10 @@
-/*-------------------------------------------------------------------------
- *
- *   FILE
- *	pqxx/compiler-public.hxx
- *
- *   DESCRIPTION
- *      Compiler deficiency workarounds for libpqxx clients
+/** Compiler deficiency workarounds for libpqxx clients.
  *
  * Copyright (c) 2002-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_COMPILER_PUBLIC
 #define PQXX_H_COMPILER_PUBLIC
