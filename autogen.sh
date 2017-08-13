@@ -22,9 +22,6 @@ substitute() {
 		"$1"
 }
 
-# Generate configure.ac based on current version numbers
-substitute configure.ac.in >configure.ac
-
 # Generate version header.
 substitute include/pqxx/version.hxx.template >include/pqxx/version.hxx
 

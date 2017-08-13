@@ -1,10 +1,3 @@
-#
-# CAUTION: THE configure.ac FILE IS AUTOMATICALLY GENERATED!  DO NOT EDIT IT.
-#
-# If you want to make changes to configure.ac, edit configure.ac.in instead.
-#
-# Process configure.ac.in with autoconf to produce a configure script.
-
 # All text in libpqxx is pure ASCII, so we can afford the "C" locale which is
 # likely to be faster than any other.
 LC_ALL=C
