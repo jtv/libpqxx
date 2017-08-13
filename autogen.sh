@@ -1,10 +1,11 @@
 #! /bin/sh
 # Run this to generate all the initial makefiles, etc.
-# Set CONFIG_ARGS to the argument list you wish to pass to configure
+#
+# Set CONFIG_ARGS to the argument list you wish to pass to configure.
 
 set -eu
 
-# The VERSION file defines our versioning
+# The VERSION file provides our version string.
 PQXXVERSION=$(./tools/extract_version)
 echo "libpqxx version $PQXXVERSION"
 
@@ -25,9 +26,10 @@ substitute() {
 # Generate version header.
 substitute include/pqxx/version.hxx.template >include/pqxx/version.hxx
 
-# Generate Windows makefiles (adding carriage returns to make it MS-DOS format)
+# Generate Windows makefiles.
+# Add carriage returns to turn them into MS-DOS format.
 makewinmake() {
-	./tools/template2mak.py "$1" | sed -e 's/$/\r/' >"$2"
+	./tools/template2mak.py "$1" | tr -d '\r' | sed -e 's/$/\r/' >"$2"
 }
 
 if ! which python >/dev/null
@@ -36,13 +38,15 @@ then
 	exit 1
 fi
 
-# Use templating system to generate various Makefiles
-./tools/template2mak.py test/Makefile.am.template test/Makefile.am
-./tools/template2mak.py test/unit/Makefile.am.template test/unit/Makefile.am
-makewinmake win32/vc-libpqxx.mak.template win32/vc-libpqxx.mak
-makewinmake win32/vc-test.mak.template win32/vc-test.mak
-makewinmake win32/vc-test-unit.mak.template win32/vc-test-unit.mak
-makewinmake win32/mingw.mak.template win32/MinGW.mak
+# Use templating system to generate various Makefiles.
+for output in test/Makefile.am test/unit/Makefile.am
+do
+	./tools/template2mak.py $output.template $output
+done
+for output in vc-libpqxx vc-test vc-test-unit MinGW
+do
+	makewinmake win32/$output.mak.template win32/$output.mak
+done
 
 autoheader
 
