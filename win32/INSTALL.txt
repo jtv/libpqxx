@@ -431,10 +431,9 @@ line defining this variable from the configuration header where it is defined
 (see the configitems file for a list of locations) and the error should
 disappear on the next compilation attempt.
 
-If you have to edit your configuration headers, please send your results to the
-author or to the libpqxx-general mailing list so that headers corresponding to
-your environment can be included in later libpqxx releases.  Be sure to give a
-usable personal name so you can be properly credited in the changelog!
+If you have to edit your configuration headers, please send your results on
+Github, so that headers corresponding to your environment can be included in
+later libpqxx releases.
 
 CAUTION: DO NOT try to unset yes/no configuration items by defining their macros
 to zero.  A value of zero counts as "yes."  If a macro is defined at all, that

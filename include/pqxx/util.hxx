@@ -44,8 +44,7 @@
  * For a quick introduction to installing and using libpqxx, see the README.md
  * file; a more extensive tutorial is available in doc/html/Tutorial/index.html.
  *
- * The latest information, as well as updates, a mailing list, and a bug
- * reporting system can be found at http://pqxx.org/
+ * The latest information can be found at http://pqxx.org/
  *
  * Some links that should help you find your bearings:
  * \li \ref gettingstarted

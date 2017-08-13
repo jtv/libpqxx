@@ -267,23 +267,17 @@ win32/INSTALL.txt for a detailed description of how these files work.
 Getting the compiler-related configuration right can take several stages of
 trying to build, looking at error messages, looking for configuration items that
 may be related, changing them, and building again.  If nothing seems to help,
-try the libpqxx mailing list or register a bug report or support request on the
-website.  Be sure to read the FAQ though, because there are some known problems
-with various compilers.
+register an issue on Github.  Be sure to read the FAQ though, because there are
+some known problems.
 
 
 #### Windows-Specific Build Problems
 
-If you're using Microsoft's compiler, you may find that some features of the
-library are left out in order to work around compiler limitations.  Several
-other workarounds for compiler bugs are automatically enabled when using
-Visual C++, regardless of whether you use the configure script.
-
-Another problem specific to Windows is that apparently it doesn't let you free
+One problem specific to Windows is that apparently it doesn't let you free
 memory in a DLL that was allocated in the main program or in another DLL, or
 vice versa.  This can cause trouble when setting your own notice handlers to
-process error or warning output.  For this reason, among others, recommended
-practice is to build libpqxx as a static library, not a DLL.
+process error or warning output.  Recommended practice is to build libpqxx as
+a static library, not a DLL.
 
 
 Documentation
