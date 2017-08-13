@@ -5,15 +5,12 @@
 
 set -eu
 
-# The VERSION file provides our version string.
 PQXXVERSION=$(./tools/extract_version)
-echo "libpqxx version $PQXXVERSION"
-
 PQXX_ABI=$(./tools/extract_version --abi)
+PQXX_MAJOR=$(./tools/extract_version --major)
+PQXX_MINOR=$(./tools/extract_version --minor)
+echo "libpqxx version $PQXXVERSION"
 echo "libpqxx ABI version $PQXX_ABI"
-
-PQXX_MAJOR="$(echo "$PQXXVERSION" | sed -e 's/[[:space:]]*\([0-9]*\)\..*$/\1/')"
-PQXX_MINOR="$(echo "$PQXXVERSION" | sed -e 's/[^.]*\.\([0-9]*\).*$/\1/')"
 
 substitute() {
 	sed -e "s/@PQXXVERSION@/$PQXXVERSION/g" \
