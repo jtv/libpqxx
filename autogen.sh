@@ -2,8 +2,7 @@
 # Run this to generate all the initial makefiles, etc.
 # Set CONFIG_ARGS to the argument list you wish to pass to configure
 
-set -e
-set -u
+set -eu
 
 # The VERSION file defines our versioning
 PQXXVERSION=$(./tools/extract_version)

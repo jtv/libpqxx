@@ -39,15 +39,9 @@ check_for_compilers() {
 }
 
 
-get_version() {
-	# Print libpqxx version of source in current directory.
-	sed -e 's/^[[:space:]]*PQXX_VERSION[[:space:]]*\([^[:space:]#]\+\)[[:space:]#]*.*$/\1/' VERSION
-}
-
-
 get_tarball() {
 	# Print full path of libpqxx tarball in current directory.
-	echo "$(pwd)/libpqxx-$(get_version).tar.gz"
+	echo "$(pwd)/libpqxx-$(cat VERSION).tar.gz"
 }
 
 build_tarball() {
