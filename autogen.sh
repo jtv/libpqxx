@@ -29,11 +29,6 @@ makewinmake() {
 	./tools/template2mak.py "$1" | tr -d '\r' | sed -e 's/$/\r/' >"$2"
 }
 
-if ! which python >/dev/null
-then
-	echo "This script requires the python interpreter." >&2
-	exit 1
-fi
 
 # Use templating system to generate various Makefiles.
 for output in test/Makefile.am test/unit/Makefile.am
@@ -46,7 +41,6 @@ do
 done
 
 autoheader
-
 libtoolize --force --automake --copy
 aclocal -I . -I config/m4
 automake --verbose --add-missing --copy
@@ -56,8 +50,10 @@ conf_flags="--enable-maintainer-mode ${CONFIG_ARGS:-}"
 if [ -z "${NOCONFIGURE:-}" ]
 then
 	echo Running ./configure $conf_flags "$@" ...
-	./configure $conf_flags "$@" \
-	&& echo "Now type 'make' to compile libpqxx" || exit 1
+	if ./configure $conf_flags "$@"
+	then
+		echo "Now type 'make' to compile libpqxx"
+	fi
 else
 	echo Skipping configure process.
 fi
