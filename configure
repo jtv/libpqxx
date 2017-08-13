@@ -16225,7 +16225,8 @@ fi
 
 # Add options to compiler command line, if compiler accepts it
 add_compiler_opts_if_ok() {
-	for option in $* ; do
+	for option in $*
+	do
 		ACO_SAVE_CXXFLAGS="$CXXFLAGS"
 		CXXFLAGS="$CXXFLAGS $option"
 		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $CXX accepts $option" >&5
@@ -16267,9 +16268,11 @@ add_compiler_opts() {
 # (Omit options -Weffc++ and -Wabi because they currently yield too many
 # warnings in gcc's standard headers; omit -Wunreachable-code because it isn't
 # always right)
-if test "$GCC" = "yes" ; then
+if test "$GCC" = "yes"
+then
 	# In maintainer mode, enable all the warning options we can.
-	if test "$enable_maintainer_mode" = "yes"; then
+	if test "$enable_maintainer_mode" = "yes"
+	then
 		# "Eternal" (FLW) g++ options.  These have been around for
 		# ages, and both g++ and clang++ support them.  Don't bother
 		# checking for support; just add them to the compiler options.
@@ -16310,6 +16313,7 @@ if test "$GCC" = "yes" ; then
 	# The PostgreSQL headers now require "long long".
 	add_compiler_opts_if_ok -Wno-long-long
 
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ visibility attribute" >&5
 $as_echo_n "checking g++ visibility attribute... " >&6; }
 gcc_visibility=yes
@@ -16318,12 +16322,16 @@ CXXFLAGS="$CXXFLAGS -Werror"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-struct __attribute__ ((visibility("hidden"))) d { d() {} void f() {} };
+		struct __attribute__ ((visibility("hidden"))) d
+		{
+			d() {}
+			void f() {}
+		};
 
 int
 main ()
 {
-d D;D.f()
+d D; D.f()
   ;
   return 0;
 }
@@ -16339,7 +16347,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_visibility" >&5
 $as_echo "$gcc_visibility" >&6; }
 CXXFLAGS="$SAVE_CXXFLAGS"
-if test "$gcc_visibility" = "yes" ; then
+if test "$gcc_visibility" = "yes"
+then
     # Make internal definitions accessible only to the library itself.
     # Only definitions marked PQXX_LIBEXPORT will be accessible.
     add_compiler_opts -fvisibility=hidden
@@ -16396,7 +16405,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $deprecated" >&5
 $as_echo "$deprecated" >&6; }
 
-if test "$deprecated" != "yes" ; then
+if test "$deprecated" != "yes"
+then
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ deprecation attribute" >&5
 $as_echo_n "checking g++ deprecation attribute... " >&6; }
 gcc_deprecated=yes
@@ -16476,7 +16486,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_optional" >&5
 $as_echo "$have_optional" >&6; }
 
-if test "$have_optional" != "yes" ; then
+if test "$have_optional" != "yes"
+then
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for experimental C++17 std::optional support" >&5
 $as_echo_n "checking for experimental C++17 std::optional support... " >&6; }
 have_exp_optional=yes
@@ -16550,7 +16561,8 @@ fi
   test -n "$PG_CONFIG" && break
 done
 
-if test -z "$PG_CONFIG" || test ! -r "$PG_CONFIG"; then
+if test -z "$PG_CONFIG" || test ! -r "$PG_CONFIG"
+then
 	as_fn_error $? "
 PostgreSQL configuration script pg_config not found.  Make sure this is in your
 command path before configuring.  Without it, the configure script has no way to
@@ -16772,8 +16784,10 @@ fi
 # first socket library available.
 # We only do this if select() is not available by other means, to avoid picking
 # up an unnecessary Windows compatibility library on a non-Windows system.
-for l in ws2_32 wsock32 winsock ; do
-	if test "${socklibok}" != "yes" ; then
+for l in ws2_32 wsock32 winsock
+do
+	if test "${socklibok}" != "yes"
+	then
 		as_ac_Lib=`$as_echo "ac_cv_lib_$l''_main" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -l$l" >&5
 $as_echo_n "checking for main in -l$l... " >&6; }
@@ -16813,7 +16827,8 @@ fi
 	fi
 done
 
-if test "${socklibok}" != "yes" ; then
+if test "${socklibok}" != "yes"
+then
 	as_fn_error $? "
 Could not figure out how to link a simple sockets-based program.  Please read
 the config.log file for more clues as to why this failed.
@@ -17009,8 +17024,8 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 
-#include <${with_postgres_include}/libpq-fe.h>
-int main(){return !PQexec(0,0);}
+		#include <${with_postgres_include}/libpq-fe.h>
+		int main(){return !PQexec(0,0);}
 
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
@@ -17044,9 +17059,11 @@ $as_echo "yes" >&6; }
 $as_echo_n "checking that type of libpq's Oid is as expected... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include<${with_postgres_include}/libpq-fe.h>
-	#include"${srcdir}/include/pqxx/internal/libpq-forward.hxx"
-	extern void f(pqxx::oid&);
+
+		#include<${with_postgres_include}/libpq-fe.h>
+		#include"${srcdir}/include/pqxx/internal/libpq-forward.hxx"
+		extern void f(pqxx::oid&);
+
 int
 main ()
 {
@@ -17072,9 +17089,11 @@ $as_echo_n "checking for strerror_r... " >&6; }
 strerror_r=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <cstring>
-	using namespace std;
-	bool f(char x[]) { return strerror_r(0,x,10) != 0; }
+
+		#include <cstring>
+		using namespace std;
+		bool f(char x[]) { return strerror_r(0,x,10) != 0; }
+
 int
 main ()
 {
@@ -17114,9 +17133,14 @@ $as_echo_n "checking for GNU-style strerror_r... " >&6; }
 gnu_strerror_r=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <cstring>
-	using namespace std;
-	const char *it_is_a_string(char *x) { return strerror_r(0,x,10); }
+
+		#include <cstring>
+		using namespace std;
+		const char *it_is_a_string(char *x)
+		{
+			return strerror_r(0,x,10);
+		}
+
 int
 main ()
 {
@@ -17127,7 +17151,9 @@ main ()
 _ACEOF
 if ac_fn_cxx_try_compile "$LINENO"; then :
 
+
 $as_echo "#define PQXX_HAVE_STRERROR_R_GNU 1" >>confdefs.h
+
 
 else
   gnu_strerror_r=no
@@ -17143,8 +17169,10 @@ $as_echo_n "checking for strlcpy... " >&6; }
 strlcpy=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <cstring>
-	using namespace std;
+
+		#include <cstring>
+		using namespace std;
+
 int
 main ()
 {
@@ -17169,15 +17197,15 @@ $as_echo_n "checking for working <sys/select.h>... " >&6; }
 select_h=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <cstring>
-#include <sys/select.h>
-using namespace std;
+
+		#include <cstring>
+		#include <sys/select.h>
+		using namespace std;
 
 int
 main ()
 {
 select(0,0,0,0,0)
-
   ;
   return 0;
 }
@@ -17186,10 +17214,8 @@ if ac_fn_cxx_try_compile "$LINENO"; then :
 
 $as_echo "#define PQXX_HAVE_SYS_SELECT_H 1" >>confdefs.h
 
-
 else
   select_h=no
-
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $select_h" >&5
@@ -17201,8 +17227,10 @@ $as_echo_n "checking for poll()... " >&6; }
 poll=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <poll.h>
-using namespace std;
+
+		#include <poll.h>
+		using namespace std;
+
 int
 main ()
 {
@@ -17229,27 +17257,31 @@ $as_echo_n "checking if select() accepts NULL fdsets... " >&6; }
 select_accepts_null=yes
 if test "$cross_compiling" = yes; then :
   select_accepts_null=no
-
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 
-#ifdef PQXX_HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#else
-#include <ctime>
-#include <sys/types.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#ifdef _WIN32
-#include <winsock2.h>
-#endif
-using namespace std;
-extern "C" int foo(){fd_set f; FD_SET(1,&f); return select(2,0,&f,&f,0)<0;}
-int main() { return foo(); }
+			#ifdef PQXX_HAVE_SYS_SELECT_H
+			#include <sys/select.h>
+			#else
+			#include <ctime>
+			#include <sys/types.h>
+			#endif
+			#ifdef HAVE_UNISTD_H
+			#include <unistd.h>
+			#endif
+			#ifdef _WIN32
+			#include <winsock2.h>
+			#endif
+			using namespace std;
+			extern "C" int foo()
+			{
+				fd_set f;
+				FD_SET(1, &f);
+				return select(2,0,&f,&f,0) < 0;
+			}
+			int main() { return foo(); }
 
 _ACEOF
 if ac_fn_cxx_try_run "$LINENO"; then :
@@ -19889,5 +19921,4 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: unrecognized options: $ac_unrecognized_opts" >&5
 $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
-
 
