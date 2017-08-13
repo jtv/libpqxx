@@ -1,6 +1,5 @@
 SUBDIRS = include src test tools win32 config doc
-EXTRA_DIST = \
-    autogen.sh configure.ac.in configitems README.md README-UPGRADE VERSION
+EXTRA_DIST = autogen.sh configitems README.md README-UPGRADE VERSION
 
 MAINTAINERCLEANFILES = \
     Makefile.in aclocal.m4 config.h.in config.log configure stamp-h.in
