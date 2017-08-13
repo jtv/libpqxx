@@ -370,8 +370,13 @@ const char *pqxx::result::column_name(pqxx::row::size_type Number) const
 {
   const char *const N = PQfname(m_data.get(), int(Number));
   if (!N)
-    throw range_error("Invalid column number: " + to_string(Number));
-
+  {
+    if (!m_data.get())
+      throw usage_error("Queried column name on null result.");
+    throw range_error(
+	"Invalid column number: " + to_string(Number) +
+	" (maximum is " + to_string(columns() - 1) + ").");
+  }
   return N;
 }
 
