@@ -1,4 +1,4 @@
-// Remove large objects given on the command line from the default database
+// Remove large objects given on the command line from the default database.
 #include <iostream>
 
 #include "pqxx/pqxx"
@@ -51,4 +51,3 @@ int main(int, char *argv[])
 
   return Failures;
 }
-

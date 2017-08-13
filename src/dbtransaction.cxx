@@ -1,19 +1,12 @@
-/*-------------------------------------------------------------------------
+/** Implementation of the pqxx::dbtransaction class.
  *
- *   FILE
- *	dbtransaction.cxx
+ * pqxx::dbtransaction represents a real backend transaction.
  *
- *   DESCRIPTION
- *      implementation of the pqxx::dbtransaction class.
- *   pqxx::dbtransaction represents a real backend transaction
- *
- * Copyright (c) 2004-2015, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2004-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-internal.hxx"
 
@@ -109,4 +102,3 @@ std::string pqxx::dbtransaction::fullname(const std::string &ttype,
 {
   return ttype + "<" + isolation + ">";
 }
-

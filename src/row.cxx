@@ -1,19 +1,12 @@
-/*-------------------------------------------------------------------------
+/** Implementation of the pqxx::result class and support classes.
  *
- *   FILE
- *	row.cxx
- *
- *   DESCRIPTION
- *      implementation of the pqxx::result class and support classes.
- *   pqxx::result represents the set of result rows from a database query
+ * pqxx::result represents the set of result rows from a database query.
  *
  * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-internal.hxx"
 

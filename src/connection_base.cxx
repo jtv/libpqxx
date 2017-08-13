@@ -1,19 +1,12 @@
-/*-------------------------------------------------------------------------
+/** Implementation of the pqxx::connection_base abstract base class.
  *
- *   FILE
- *	connection_base.cxx
- *
- *   DESCRIPTION
- *      implementation of the pqxx::connection_base abstract base class.
- *   pqxx::connection_base encapsulates a frontend to backend connection
+ * pqxx::connection_base encapsulates a frontend to backend connection.
  *
  * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-internal.hxx"
 

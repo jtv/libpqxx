@@ -1,19 +1,12 @@
-/*-------------------------------------------------------------------------
+/** Implementation of pqxx::errorhandler and helpers.
  *
- *   FILE
- *	errorhandler.cxx
- *
- *   DESCRIPTION
- *      implementation of pqxx::errorhandler and helpers.
- *   pqxx::errorhandler allows programs to receive errors and warnings.
+ * pqxx::errorhandler allows programs to receive errors and warnings.
  *
  * Copyright (c) 2011-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-internal.hxx"
 

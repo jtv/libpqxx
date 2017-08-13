@@ -1,19 +1,12 @@
-/*-------------------------------------------------------------------------
+/** Minimal forward declarations of libpq types needed in libpqxx headers.
  *
- *   FILE
- *	pqxx/internal/libpq-forward.hxx
+ * DO NOT INCLUDE THIS FILE when building client programs.
  *
- *   DESCRIPTION
- *      Minimal forward declarations of libpq types needed in libpqxx headers
- *      DO NOT INCLUDE THIS FILE when building client programs.
- *
- * Copyright (c) 2005-2011, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2005-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 extern "C"
 {
@@ -38,5 +31,4 @@ typedef void (*PQnoticeProcessor)(void *, const char *);
 
 /// PostgreSQL database row identifier
 typedef unsigned int oid;
-}
-
+} // extern "C"

@@ -1,19 +1,12 @@
-/*-------------------------------------------------------------------------
+/** Implementation of the pqxx::robusttransaction class.
  *
- *   FILE
- *	robusttransaction.cxx
- *
- *   DESCRIPTION
- *      implementation of the pqxx::robusttransaction class.
- *   pqxx::robusttransaction is a slower but safer transaction class
+ * pqxx::robusttransaction is a slower but safer transaction class.
  *
  * Copyright (c) 2002-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-internal.hxx"
 

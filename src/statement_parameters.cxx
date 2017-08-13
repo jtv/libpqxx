@@ -1,19 +1,12 @@
-/*-------------------------------------------------------------------------
+/** Common implementation for statement parameter lists.
  *
- *   FILE
- *	statement_parameters.cxx
- *
- *   DESCRIPTION
- *      Common implementation for statement parameter lists.
- *   See the connection_base hierarchy for more about prepared statements
+ * See the connection_base hierarchy for more about prepared statements
  *
  * Copyright (c) 2006-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-internal.hxx"
 

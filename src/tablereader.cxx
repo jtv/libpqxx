@@ -1,19 +1,12 @@
-/*-------------------------------------------------------------------------
+/** Implementation of the pqxx::tablereader class.
  *
- *   FILE
- *	tablereader.cxx
- *
- *   DESCRIPTION
- *      implementation of the pqxx::tablereader class.
- *   pqxx::tablereader enables optimized batch reads from a database table
+ * pqxx::tablereader enables optimized batch reads from a database table.
  *
  * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-internal.hxx"
 

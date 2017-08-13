@@ -1,19 +1,12 @@
-/*-------------------------------------------------------------------------
+/** Helper classes for defining and executing prepared statements>
  *
- *   FILE
- *	prepared_statement.cxx
+ * See the connection_base hierarchy for more about prepared statements.
  *
- *   DESCRIPTION
- *      Helper classes for defining and executing prepared statements
- *   See the connection_base hierarchy for more about prepared statements
- *
- * Copyright (c) 2006-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2006-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-internal.hxx"
 

@@ -1,19 +1,12 @@
-/*-------------------------------------------------------------------------
+/** Implementation of the pqxx::pipeline class.
  *
- *   FILE
- *	pipeline.cxx
- *
- *   DESCRIPTION
- *      implementation of the pqxx::pipeline class
- *   Throughput-optimized query manager
+ * Throughput-optimized query interface.
  *
  * Copyright (c) 2003-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-internal.hxx"
 

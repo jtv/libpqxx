@@ -1,20 +1,14 @@
-/*-------------------------------------------------------------------------
+/** Common implementation for statement parameter lists.
  *
- *   FILE
- *	pqxx/statement_parameters.hxx
+ * These are used for both prepared statements and parameterized statements.
  *
- *   DESCRIPTION
- *      Common implementation for statement parameter lists.
- *   These are used for both prepared statements and parameterized statements.
- *   DO NOT INCLUDE THIS FILE DIRECTLY.  Other headers include it for you.
+ * DO NOT INCLUDE THIS FILE DIRECTLY.  Other headers include it for you.
  *
- * Copyright (c) 2009-2016, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2009-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_STATEMENT_PARAMETER
 #define PQXX_H_STATEMENT_PARAMETER

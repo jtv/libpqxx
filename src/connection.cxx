@@ -1,19 +1,12 @@
-/*-------------------------------------------------------------------------
+/** Implementation of the pqxx::connection and sibling classes.
  *
- *   FILE
- *	connection.cxx
- *
- *   DESCRIPTION
- *      implementation of the pqxx::connection and sibling classes.
- *   Different ways of setting up a backend connection.
+ * Different ways of setting up a backend connection.
  *
  * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-internal.hxx"
 
@@ -184,4 +177,3 @@ bool pqxx::connect_async::is_ready(handle h) const noexcept
 {
   return h && !m_connecting;
 }
-

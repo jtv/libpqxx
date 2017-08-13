@@ -1,19 +1,12 @@
-/*-------------------------------------------------------------------------
+/** Implementation of the pqxx::subtransaction class.
  *
- *   FILE
- *	subtransaction.cxx
- *
- *   DESCRIPTION
- *      implementation of the pqxx::subtransaction class.
- *   pqxx::transaction is a nested transaction, i.e. one within a transaction
+ * pqxx::transaction is a nested transaction, i.e. one within a transaction
  *
  * Copyright (c) 2005-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-internal.hxx"
 

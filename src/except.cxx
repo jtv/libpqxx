@@ -1,18 +1,10 @@
-/*-------------------------------------------------------------------------
- *
- *   FILE
- *	except.cxx
- *
- *   DESCRIPTION
- *      implementation of libpqxx exception classes
+/** Implementation of libpqxx exception classes.
  *
  * Copyright (c) 2005-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #include "pqxx/compiler-internal.hxx"
 
@@ -101,4 +93,3 @@ pqxx::range_error::range_error(const std::string &whatarg) :
   out_of_range(whatarg)
 {
 }
-
