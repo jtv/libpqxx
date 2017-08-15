@@ -153,4 +153,3 @@ typedef basic_connection<connect_null> nullconnection;
 #include "pqxx/compiler-internal-post.hxx"
 
 #endif
-

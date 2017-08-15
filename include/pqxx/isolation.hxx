@@ -82,4 +82,3 @@ template<> inline const char *isolation_traits<serializable>::name() noexcept
 #include "pqxx/compiler-internal-post.hxx"
 
 #endif
-

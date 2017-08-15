@@ -99,7 +99,7 @@ protected:
 
 private:
   /// Precomputed SQL command to run at start of this transaction
-  std::string m_StartCmd;
+  std::string m_start_cmd;
 };
 
 
@@ -108,4 +108,3 @@ private:
 #include "pqxx/compiler-internal-post.hxx"
 
 #endif
-

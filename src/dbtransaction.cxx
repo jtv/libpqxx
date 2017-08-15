@@ -47,7 +47,7 @@ pqxx::dbtransaction::dbtransaction(
 	readwrite_policy rw) :
   namedclass("dbtransaction"),
   transaction_base(C),
-  m_StartCmd(generate_set_transaction(rw, IsolationString))
+  m_start_cmd(generate_set_transaction(rw, IsolationString))
 {
 }
 
@@ -58,7 +58,7 @@ pqxx::dbtransaction::dbtransaction(
 	readwrite_policy rw) :
   namedclass("dbtransaction"),
   transaction_base(C, direct),
-  m_StartCmd(generate_set_transaction(rw))
+  m_start_cmd(generate_set_transaction(rw))
 {
 }
 
@@ -72,7 +72,7 @@ void pqxx::dbtransaction::do_begin()
 {
   const gate::connection_dbtransaction gate(conn());
   const int avoidance_counter = gate.get_reactivation_avoidance_count();
-  DirectExec(m_StartCmd.c_str(), avoidance_counter ? 0 : 2);
+  DirectExec(m_start_cmd.c_str(), avoidance_counter ? 0 : 2);
 }
 
 
