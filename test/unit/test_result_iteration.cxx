@@ -4,7 +4,7 @@ namespace
 {
 void test_result_iteration(pqxx::transaction_base &trans)
 {
-  pqxx::result r = trans.exec(pqxx::test::select_series(trans.conn(), 1, 3));
+  pqxx::result r = trans.exec("SELECT generate_series(1, 3)");
 
   PQXX_CHECK(r.end() != r.begin(), "Broken begin/end.");
   PQXX_CHECK(r.rend() != r.rbegin(), "Broken rbegin/rend.");

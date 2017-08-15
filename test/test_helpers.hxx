@@ -25,10 +25,6 @@ public:
 };
 
 
-/// Generate query selecting the numbers from lowest to highest, inclusive.
-std::string select_series(connection_base &conn, int lowest, int highest);
-
-
 /// Drop a table, if it exists.
 void drop_table(transaction_base &, const std::string &table);
 

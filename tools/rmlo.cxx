@@ -24,7 +24,7 @@ namespace
 int main(int, char *argv[])
 {
   lazyconnection C;
-  bool Failures = false;
+  bool failures = false;
 
   try
   {
@@ -39,7 +39,7 @@ int main(int, char *argv[])
       catch (const std::exception &e)
       {
         std::cerr << e.what() << std::endl;
-        Failures = true;
+        failures = true;
       }
     }
   }
@@ -49,5 +49,5 @@ int main(int, char *argv[])
     return 2;
   }
 
-  return Failures;
+  return failures;
 }

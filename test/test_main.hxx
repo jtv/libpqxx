@@ -15,13 +15,6 @@ using namespace pqxx::test;
 
 namespace
 {
-// Does this backend have generate_series()?
-bool have_generate_series(const connection_base &c)
-{
-  return c.server_version() >= 80000;
-}
-
-
 string deref_field(const field &f)
 {
   return f.c_str();
@@ -64,63 +57,10 @@ const test_map &register_test(base_test *tc)
 }
 
 
-string select_series(connection_base &conn, int lowest, int highest)
-{
-  if (have_generate_series(conn))
-    return
-	"SELECT generate_series(" +
-	to_string(lowest) + ", " + to_string(highest) + ")";
-
-  return
-	"SELECT x FROM series "
-	"WHERE "
-	  "x >= " + to_string(lowest) + " AND "
-	  "x <= " + to_string(highest) + " "
-	"ORDER BY x";
-}
-
-
-namespace
-{
-bool drop_table_if_exists(transaction_base &t, const std::string &table)
-{
-  if (t.conn().server_version() < 80100) return false;
-  t.exec("DROP TABLE IF EXISTS " + table);
-  return true;
-}
-}
-
+/// Drop table, if it exists.
 void drop_table(transaction_base &t, const std::string &table)
 {
-  if (drop_table_if_exists(t, table)) return;
-
-  dbtransaction *dbt(dynamic_cast<dbtransaction *>(&t));
-  if (dbt)
-  {
-    subtransaction s(*dbt, "drop_table");
-    try
-    {
-      s.exec("DROP TABLE " + table);
-    }
-    catch (const sql_error &e)
-    {
-      std::cerr << e.what() << std::endl;
-      s.abort();
-    }
-    s.commit();
-  }
-  else
-  {
-    nontransaction *nt(dynamic_cast<nontransaction *>(&t));
-    try
-    {
-      nt->exec("DROP TABLE " + table);
-    }
-    catch (const sql_error &e)
-    {
-      std::cerr << e.what() << std::endl;
-    }
-  }
+  t.exec("DROP TABLE IF EXISTS " + table);
 }
 
 
