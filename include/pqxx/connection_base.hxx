@@ -826,15 +826,14 @@ private:
   result make_result(internal::pq::PGresult *rhs, const std::string &query);
 
   void PQXX_PRIVATE clearcaps() noexcept;
-  void PQXX_PRIVATE SetupState();
+  void PQXX_PRIVATE set_up_state();
   void PQXX_PRIVATE check_result(const result &);
 
-  void PQXX_PRIVATE InternalSetTrace() noexcept;
-  int PQXX_PRIVATE PQXX_PURE Status() const noexcept;
-  const char * PQXX_PURE ErrMsg() const noexcept;
-  void PQXX_PRIVATE Reset();
-  void PQXX_PRIVATE RestoreVars();
-  std::string PQXX_PRIVATE RawGetVar(const std::string &);
+  void PQXX_PRIVATE internal_set_trace() noexcept;
+  int PQXX_PRIVATE PQXX_PURE status() const noexcept;
+  const char * PQXX_PURE err_msg() const noexcept;
+  void PQXX_PRIVATE reset();
+  std::string PQXX_PRIVATE raw_get_var(const std::string &);
   void PQXX_PRIVATE process_notice_raw(const char msg[]) noexcept;
 
   void read_capabilities();
@@ -857,7 +856,7 @@ private:
   connectionpolicy &m_policy;
 
   /// Active transaction on connection, if any.
-  internal::unique<transaction_base> m_Trans;
+  internal::unique<transaction_base> m_trans;
 
   std::list<errorhandler *> m_errorhandlers;
 
@@ -903,17 +902,18 @@ private:
   void PQXX_PRIVATE unregister_errorhandler(errorhandler *) noexcept;
 
   friend class internal::gate::connection_transaction;
+  // TODO: Rename to lower-case style.
   result PQXX_PRIVATE Exec(const char[], int Retries);
-  void PQXX_PRIVATE RegisterTransaction(transaction_base *);
-  void PQXX_PRIVATE UnregisterTransaction(transaction_base *) noexcept;
-  bool PQXX_PRIVATE ReadCopyLine(std::string &);
-  void PQXX_PRIVATE WriteCopyLine(const std::string &);
-  void PQXX_PRIVATE EndCopyWrite();
-  void PQXX_PRIVATE RawSetVar(const std::string &, const std::string &);
-  void PQXX_PRIVATE AddVariables(const std::map<std::string, std::string> &);
+  void PQXX_PRIVATE register_transaction(transaction_base *);
+  void PQXX_PRIVATE unregister_transaction(transaction_base *) noexcept;
+  bool PQXX_PRIVATE read_copy_line(std::string &);
+  void PQXX_PRIVATE write_copy_line(const std::string &);
+  void PQXX_PRIVATE end_copy_write();
+  void PQXX_PRIVATE raw_set_var(const std::string &, const std::string &);
+  void PQXX_PRIVATE add_variables(const std::map<std::string, std::string> &);
 
   friend class internal::gate::connection_largeobject;
-  internal::pq::PGconn *RawConnection() const { return m_Conn; }
+  internal::pq::PGconn *raw_connection() const { return m_Conn; }
 
   friend class internal::gate::connection_notification_receiver;
   void add_receiver(notification_receiver *);

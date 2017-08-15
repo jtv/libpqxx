@@ -50,7 +50,7 @@ public:
   typedef const_reverse_row_iterator const_reverse_iterator;
   typedef const_reverse_iterator reverse_iterator;
 
-  row() : m_Home(), m_Index(0), m_Begin(0), m_End(0) {}
+  row() : m_result(), m_Index(0), m_Begin(0), m_End(0) {}
 
   /// @deprecated Do not use this constructor.  It will become private.
   row(result r, size_t i) noexcept;
@@ -189,7 +189,7 @@ public:
 protected:
   friend class field;
   /// Result set of which this is one row.
-  result m_Home;
+  result m_result;
   /// Row number.
   size_t m_Index;
   /// First column in slice.  This row ignores lower-numbered columns.
@@ -201,14 +201,19 @@ protected:
 
 /// Iterator for fields in a row.  Use as row::const_iterator.
 class PQXX_LIBEXPORT const_row_iterator :
-  public std::iterator<std::random_access_iterator_tag,
-		       const field,
-		       row_size_type>,
+  public std::iterator<
+	std::random_access_iterator_tag,
+	const field,
+	row_size_type
+	>,
   public field
 {
-  typedef std::iterator<std::random_access_iterator_tag,
-			const field,
-			row_size_type> it;
+  typedef std::iterator<
+	std::random_access_iterator_tag,
+	const field,
+	row_size_type
+	>
+	it;
 public:
   using it::pointer;
   typedef row_size_type size_type;

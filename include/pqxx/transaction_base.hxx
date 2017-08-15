@@ -44,7 +44,7 @@ class PQXX_LIBEXPORT transactionfocus : public virtual namedclass
 public:
   explicit transactionfocus(transaction_base &t) :
     namedclass("transactionfocus"),
-    m_Trans(t),
+    m_trans(t),
     m_registered(false)
   {
   }
@@ -55,7 +55,7 @@ protected:
   void reg_pending_error(const std::string &) noexcept;
   bool registered() const noexcept { return m_registered; }
 
-  transaction_base &m_Trans;
+  transaction_base &m_trans;
 
 private:
   bool m_registered;
@@ -461,14 +461,14 @@ private:
 
   friend class pqxx::internal::gate::transaction_tablereader;
   PQXX_PRIVATE void BeginCopyRead(const std::string &, const std::string &);
-  bool ReadCopyLine(std::string &);
+  bool read_copy_line(std::string &);
 
   friend class pqxx::internal::gate::transaction_tablewriter;
   PQXX_PRIVATE void BeginCopyWrite(
 	const std::string &Table,
 	const std::string &Columns);
-  void WriteCopyLine(const std::string &);
-  void EndCopyWrite();
+  void write_copy_line(const std::string &);
+  void end_copy_write();
 
   friend class pqxx::internal::gate::transaction_subtransaction;
 

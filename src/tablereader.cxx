@@ -54,7 +54,7 @@ bool pqxx::tablereader::get_raw_line(std::string &Line)
 {
   if (!m_Done) try
   {
-    m_Done = !gate::transaction_tablereader(m_Trans).ReadCopyLine(Line);
+    m_Done = !gate::transaction_tablereader(m_trans).read_copy_line(Line);
   }
   catch (const std::exception &)
   {

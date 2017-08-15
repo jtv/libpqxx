@@ -132,7 +132,7 @@ void pqxx::pipeline::cancel()
 {
   while (have_pending())
   {
-    gate::connection_pipeline(m_Trans.conn()).cancel_query();
+    gate::connection_pipeline(m_trans.conn()).cancel_query();
     auto canceled_query = m_issuedrange.first;
     ++m_issuedrange.first;
     m_queries.erase(canceled_query);
@@ -221,7 +221,7 @@ void pqxx::pipeline::issue()
   const bool prepend_dummy = (num_issued > 1);
   if (prepend_dummy) cum = theDummyQuery + cum;
 
-  gate::connection_pipeline(m_Trans.conn()).start_exec(cum);
+  gate::connection_pipeline(m_trans.conn()).start_exec(cum);
 
   // Since we managed to send out these queries, update state to reflect this
   m_dummy_pending = prepend_dummy;
@@ -243,7 +243,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   pqxxassert(!m_dummy_pending);
   pqxxassert(!m_queries.empty());
 
-  gate::connection_pipeline gate(m_Trans.conn());
+  gate::connection_pipeline gate(m_trans.conn());
   const auto r = gate.get_result();
   if (!r)
   {
@@ -280,7 +280,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 void pqxx::pipeline::obtain_dummy()
 {
   pqxxassert(m_dummy_pending);
-  gate::connection_pipeline gate(m_Trans.conn());
+  gate::connection_pipeline gate(m_trans.conn());
   const auto r = gate.get_result();
   m_dummy_pending = false;
 
@@ -341,7 +341,7 @@ void pqxx::pipeline::obtain_dummy()
     {
       m_num_waiting--;
       const std::string &query = m_issuedrange.first->second.get_query();
-      const result res(m_Trans.exec(query));
+      const result res(m_trans.exec(query));
       m_issuedrange.first->second.set_result(res);
       gate::result_creation(res).CheckStatus();
       ++m_issuedrange.first;
@@ -424,7 +424,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 void pqxx::pipeline::get_further_available_results()
 {
   pqxxassert(!m_dummy_pending);
-  gate::connection_pipeline gate(m_Trans.conn());
+  gate::connection_pipeline gate(m_trans.conn());
   while (!gate.is_busy() && obtain_result())
     if (!gate.consume_input()) throw broken_connection();
 }
@@ -432,7 +432,7 @@ void pqxx::pipeline::get_further_available_results()
 
 void pqxx::pipeline::receive_if_available()
 {
-  gate::connection_pipeline gate(m_Trans.conn());
+  gate::connection_pipeline gate(m_trans.conn());
   if (!gate.consume_input()) throw broken_connection();
   if (gate.is_busy()) return;
 

@@ -62,7 +62,6 @@ public:
   typedef const_pointer const_iterator;
   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-public:
   binarystring(const binarystring &);
 
   /// Read and unescape bytea field

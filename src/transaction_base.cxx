@@ -63,7 +63,7 @@ pqxx::transaction_base::transaction_base(connection_base &C, bool direct) :
   if (direct)
   {
     gate::connection_transaction gate(conn());
-    gate.RegisterTransaction(this);
+    gate.register_transaction(this);
     m_Registered = true;
   }
 }
@@ -81,7 +81,7 @@ pqxx::transaction_base::~transaction_base()
     {
       m_Conn.process_notice(description() + " was never closed properly!\n");
       gate::connection_transaction gate(conn());
-      gate.UnregisterTransaction(this);
+      gate.unregister_transaction(this);
     }
   }
   catch (const std::exception &e)
@@ -168,7 +168,7 @@ void pqxx::transaction_base::commit()
   }
 
   gate::connection_transaction gate(conn());
-  gate.AddVariables(m_Vars);
+  gate.add_variables(m_Vars);
 
   End();
 }
@@ -323,7 +323,7 @@ void pqxx::transaction_base::set_variable(const std::string &Var,
 {
   // Before committing to this new value, see what the backend thinks about it
   gate::connection_transaction gate(conn());
-  gate.RawSetVar(Var, Value);
+  gate.raw_set_var(Var, Value);
   m_Vars[Var] = Value;
 }
 
@@ -332,7 +332,7 @@ std::string pqxx::transaction_base::get_variable(const std::string &Var)
 {
   const std::map<std::string,std::string>::const_iterator i = m_Vars.find(Var);
   if (i != m_Vars.end()) return i->second;
-  return gate::connection_transaction(conn()).RawGetVar(Var);
+  return gate::connection_transaction(conn()).raw_get_var(Var);
 }
 
 
@@ -370,7 +370,7 @@ void pqxx::transaction_base::End() noexcept
     {
       m_Registered = false;
       gate::connection_transaction gate(conn());
-      gate.UnregisterTransaction(this);
+      gate.unregister_transaction(this);
     }
 
     if (m_Status != st_active) return;
@@ -486,29 +486,29 @@ void pqxx::transaction_base::BeginCopyWrite(const std::string &Table,
 }
 
 
-bool pqxx::transaction_base::ReadCopyLine(std::string &line)
+bool pqxx::transaction_base::read_copy_line(std::string &line)
 {
-  return gate::connection_transaction(conn()).ReadCopyLine(line);
+  return gate::connection_transaction(conn()).read_copy_line(line);
 }
 
 
-void pqxx::transaction_base::WriteCopyLine(const std::string &line)
+void pqxx::transaction_base::write_copy_line(const std::string &line)
 {
   gate::connection_transaction gate(conn());
-  gate.WriteCopyLine(line);
+  gate.write_copy_line(line);
 }
 
 
-void pqxx::transaction_base::EndCopyWrite()
+void pqxx::transaction_base::end_copy_write()
 {
   gate::connection_transaction gate(conn());
-  gate.EndCopyWrite();
+  gate.end_copy_write();
 }
 
 
 void pqxx::internal::transactionfocus::register_me()
 {
-  gate::transaction_transactionfocus gate(m_Trans);
+  gate::transaction_transactionfocus gate(m_trans);
   gate.RegisterFocus(this);
   m_registered = true;
 }
@@ -516,7 +516,7 @@ void pqxx::internal::transactionfocus::register_me()
 
 void pqxx::internal::transactionfocus::unregister_me() noexcept
 {
-  gate::transaction_transactionfocus gate(m_Trans);
+  gate::transaction_transactionfocus gate(m_trans);
   gate.UnregisterFocus(this);
   m_registered = false;
 }
@@ -525,6 +525,6 @@ void
 pqxx::internal::transactionfocus::reg_pending_error(const std::string &err)
 	noexcept
 {
-  gate::transaction_transactionfocus gate(m_Trans);
+  gate::transaction_transactionfocus gate(m_trans);
   gate.RegisterPendingError(err);
 }

@@ -75,12 +75,12 @@ pqxx::largeobject::largeobject() noexcept :
 pqxx::largeobject::largeobject(dbtransaction &T) :
   m_ID()
 {
-  m_ID = lo_creat(RawConnection(T), INV_READ|INV_WRITE);
+  m_ID = lo_creat(raw_connection(T), INV_READ|INV_WRITE);
   if (m_ID == oid_none)
   {
     const int err = errno;
     if (err == ENOMEM) throw std::bad_alloc();
-    throw failure("Could not create large object: " + Reason(err));
+    throw failure("Could not create large object: " + reason(err));
   }
 }
 
@@ -88,13 +88,14 @@ pqxx::largeobject::largeobject(dbtransaction &T) :
 pqxx::largeobject::largeobject(dbtransaction &T, const std::string &File) :
   m_ID()
 {
-  m_ID = lo_import(RawConnection(T), File.c_str());
+  m_ID = lo_import(raw_connection(T), File.c_str());
   if (m_ID == oid_none)
   {
     const int err = errno;
     if (err == ENOMEM) throw std::bad_alloc();
-    throw failure("Could not import file '" + File + "' to large object: " +
-	Reason(err));
+    throw failure(
+	"Could not import file '" + File + "' to large object: " +
+	reason(err));
   }
 }
 
@@ -108,37 +109,38 @@ pqxx::largeobject::largeobject(const largeobjectaccess &O) noexcept :
 void pqxx::largeobject::to_file(dbtransaction &T,
 	const std::string &File) const
 {
-  if (lo_export(RawConnection(T), id(), File.c_str()) == -1)
+  if (lo_export(raw_connection(T), id(), File.c_str()) == -1)
   {
     const int err = errno;
     if (err == ENOMEM) throw std::bad_alloc();
-    throw failure("Could not export large object " + to_string(m_ID) + " "
-	                "to file '" + File + "': " +
-			Reason(err));
+    throw failure(
+	"Could not export large object " + to_string(m_ID) + " "
+	"to file '" + File + "': " + reason(err));
   }
 }
 
 
 void pqxx::largeobject::remove(dbtransaction &T) const
 {
-  if (lo_unlink(RawConnection(T), id()) == -1)
+  if (lo_unlink(raw_connection(T), id()) == -1)
   {
     const int err = errno;
     if (err == ENOMEM) throw std::bad_alloc();
-    throw failure("Could not delete large object " + to_string(m_ID) + ": " +
-	Reason(err));
+    throw failure(
+	"Could not delete large object " + to_string(m_ID) + ": " +
+	reason(err));
   }
 }
 
 
-pqxx::internal::pq::PGconn *pqxx::largeobject::RawConnection(
+pqxx::internal::pq::PGconn *pqxx::largeobject::raw_connection(
 	const dbtransaction &T)
 {
-  return gate::connection_largeobject(T.conn()).RawConnection();
+  return gate::connection_largeobject(T.conn()).raw_connection();
 }
 
 
-std::string pqxx::largeobject::Reason(int err) const
+std::string pqxx::largeobject::reason(int err) const
 {
   if (err == ENOMEM) return "Out of memory";
   if (id() == oid_none) return "No object selected";
@@ -150,7 +152,7 @@ std::string pqxx::largeobject::Reason(int err) const
 
 pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T, openmode mode) :
   largeobject(T),
-  m_Trans(T),
+  m_trans(T),
   m_fd(-1)
 {
   open(mode);
@@ -161,7 +163,7 @@ pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
 					   oid O,
 					   openmode mode) :
   largeobject(O),
-  m_Trans(T),
+  m_trans(T),
   m_fd(-1)
 {
   open(mode);
@@ -172,7 +174,7 @@ pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
 					   largeobject O,
 					   openmode mode) :
   largeobject(O),
-  m_Trans(T),
+  m_trans(T),
   m_fd(-1)
 {
   open(mode);
@@ -183,7 +185,7 @@ pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
 					   const std::string &File,
 					   openmode mode) :
   largeobject(T, File),
-  m_Trans(T),
+  m_trans(T),
   m_fd(-1)
 {
   open(mode);
@@ -198,7 +200,7 @@ pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
   {
     const int err = errno;
     if (err == ENOMEM) throw std::bad_alloc();
-    throw failure("Error seeking in large object: " + Reason(err));
+    throw failure("Error seeking in large object: " + reason(err));
   }
 
   return Result;
@@ -208,7 +210,7 @@ pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
 pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::cseek(off_type dest, seekdir dir) noexcept
 {
-  return lo_lseek(RawConnection(), m_fd, int(dest), StdDirToPQDir(dir));
+  return lo_lseek(raw_connection(), m_fd, int(dest), StdDirToPQDir(dir));
 }
 
 
@@ -217,7 +219,7 @@ pqxx::largeobjectaccess::cwrite(const char Buf[], size_type Len) noexcept
 {
   return
     std::max(
-	lo_write(RawConnection(), m_fd,const_cast<char *>(Buf), size_t(Len)),
+	lo_write(raw_connection(), m_fd,const_cast<char *>(Buf), size_t(Len)),
         -1);
 }
 
@@ -225,14 +227,14 @@ pqxx::largeobjectaccess::cwrite(const char Buf[], size_type Len) noexcept
 pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::cread(char Buf[], size_type Bytes) noexcept
 {
-  return std::max(lo_read(RawConnection(), m_fd, Buf, size_t(Bytes)), -1);
+  return std::max(lo_read(raw_connection(), m_fd, Buf, size_t(Bytes)), -1);
 }
 
 
 pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::ctell() const noexcept
 {
-  return lo_tell(RawConnection(), m_fd);
+  return lo_tell(raw_connection(), m_fd);
 }
 
 
@@ -244,11 +246,13 @@ void pqxx::largeobjectaccess::write(const char Buf[], size_type Len)
     const int err = errno;
     if (err == ENOMEM) throw std::bad_alloc();
     if (Bytes < 0)
-      throw failure("Error writing to large object #" + to_string(id()) + ": " +
-	Reason(err));
+      throw failure(
+	"Error writing to large object #" + to_string(id()) + ": " +
+	reason(err));
     if (Bytes == 0)
-      throw failure("Could not write to large object #" + to_string(id()) +
-	": " + Reason(err));
+      throw failure(
+	"Could not write to large object #" + to_string(id()) + ": " +
+	reason(err));
 
     throw failure("Wanted to write " + to_string(Len) + " bytes "
 	"to large object #" + to_string(id()) + "; "
@@ -265,8 +269,9 @@ pqxx::largeobjectaccess::read(char Buf[], size_type Len)
   {
     const int err = errno;
     if (err == ENOMEM) throw std::bad_alloc();
-    throw failure("Error reading from large object #" + to_string(id()) +
-	": " + Reason(err));
+    throw failure(
+	"Error reading from large object #" + to_string(id()) + ": " +
+	reason(err));
   }
   return Bytes;
 }
@@ -274,38 +279,39 @@ pqxx::largeobjectaccess::read(char Buf[], size_type Len)
 
 void pqxx::largeobjectaccess::open(openmode mode)
 {
-  m_fd = lo_open(RawConnection(), id(), StdModeToPQMode(mode));
+  m_fd = lo_open(raw_connection(), id(), StdModeToPQMode(mode));
   if (m_fd < 0)
   {
     const int err = errno;
     if (err == ENOMEM) throw std::bad_alloc();
-    throw failure("Could not open large object " + to_string(id()) + ": " +
-	Reason(err));
+    throw failure(
+	"Could not open large object " + to_string(id()) + ": " +
+	reason(err));
   }
 }
 
 
 void pqxx::largeobjectaccess::close() noexcept
 {
-  if (m_fd >= 0) lo_close(RawConnection(), m_fd);
+  if (m_fd >= 0) lo_close(raw_connection(), m_fd);
 }
 
 
 pqxx::largeobjectaccess::size_type pqxx::largeobjectaccess::tell() const
 {
   const size_type res = ctell();
-  if (res == -1) throw failure(Reason(errno));
+  if (res == -1) throw failure(reason(errno));
   return res;
 }
 
 
-std::string pqxx::largeobjectaccess::Reason(int err) const
+std::string pqxx::largeobjectaccess::reason(int err) const
 {
-  return (m_fd == -1) ? "No object opened" : largeobject::Reason(err);
+  return (m_fd == -1) ? "No object opened" : largeobject::reason(err);
 }
 
 
 void pqxx::largeobjectaccess::process_notice(const std::string &s) noexcept
 {
-  m_Trans.process_notice(s);
+  m_trans.process_notice(s);
 }

@@ -22,7 +22,7 @@
 
 
 pqxx::row::row(result r, size_t i) noexcept :
-  m_Home(r),
+  m_result(r),
   m_Index(i),
   m_Begin(0),
   m_End(internal::gate::result_row(r) ? r.columns() : 0)
@@ -142,7 +142,7 @@ void pqxx::row::swap(row &rhs) noexcept
   const auto i = m_Index;
   const auto b= m_Begin;
   const auto e= m_End;
-  m_Home.swap(rhs.m_Home);
+  m_result.swap(rhs.m_result);
   m_Index = rhs.m_Index;
   m_Begin = rhs.m_Begin;
   m_End = rhs.m_End;
@@ -169,33 +169,33 @@ pqxx::field pqxx::row::at(pqxx::row::size_type i) const
 
 pqxx::oid pqxx::row::column_type(size_type ColNum) const
 {
-  return m_Home.column_type(m_Begin + ColNum);
+  return m_result.column_type(m_Begin + ColNum);
 }
 
 
 pqxx::oid pqxx::row::column_table(size_type ColNum) const
 {
-  return m_Home.column_table(m_Begin + ColNum);
+  return m_result.column_table(m_Begin + ColNum);
 }
 
 
 pqxx::row::size_type pqxx::row::table_column(size_type ColNum) const
 {
-  return m_Home.table_column(m_Begin + ColNum);
+  return m_result.table_column(m_Begin + ColNum);
 }
 
 
 pqxx::row::size_type pqxx::row::column_number(const char ColName[]) const
 {
-  const auto n = m_Home.column_number(ColName);
+  const auto n = m_result.column_number(ColName);
   if (n >= m_End)
     return result().column_number(ColName);
   if (n >= m_Begin)
     return n - m_Begin;
 
-  const char *const AdaptedColName = m_Home.column_name(n);
+  const char *const AdaptedColName = m_result.column_name(n);
   for (auto i = m_Begin; i < m_End; ++i)
-    if (strcmp(AdaptedColName, m_Home.column_name(i)) == 0)
+    if (strcmp(AdaptedColName, m_result.column_name(i)) == 0)
       return i - m_Begin;
 
   return result().column_number(ColName);

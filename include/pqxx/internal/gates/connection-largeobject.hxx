@@ -15,7 +15,7 @@ class PQXX_PRIVATE connection_largeobject : callgate<connection_base>
 
   connection_largeobject(reference x) : super(x) {}
 
-  pq::PGconn *RawConnection() const { return home().RawConnection(); }
+  pq::PGconn *raw_connection() const { return home().raw_connection(); }
 };
 } // namespace pqxx::internal::gate
 } // namespace pqxx::internal

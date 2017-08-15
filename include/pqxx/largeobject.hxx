@@ -121,9 +121,10 @@ public:
   void remove(dbtransaction &T) const;					//[t48]
 
 protected:
-  PQXX_PURE static internal::pq::PGconn *RawConnection(const dbtransaction &T);
+  PQXX_PURE static internal::pq::PGconn *raw_connection(
+	const dbtransaction &T);
 
-  std::string Reason(int err) const;
+  std::string reason(int err) const;
 
 private:
   oid m_ID;
@@ -206,7 +207,7 @@ public:
    * @param File A filename on the client's filesystem
    */
   void to_file(const std::string &File) const				//[t54]
-	{ largeobject::to_file(m_Trans, File); }
+	{ largeobject::to_file(m_trans, File); }
 
   using largeobject::to_file;
 
@@ -314,14 +315,14 @@ public:
   using largeobject::operator>=;
 
 private:
-  PQXX_PRIVATE std::string Reason(int err) const;
-  internal::pq::PGconn *RawConnection() const
-	{ return largeobject::RawConnection(m_Trans); }
+  PQXX_PRIVATE std::string reason(int err) const;
+  internal::pq::PGconn *raw_connection() const
+	{ return largeobject::raw_connection(m_trans); }
 
   void open(openmode mode);
   void close() noexcept;
 
-  dbtransaction &m_Trans;
+  dbtransaction &m_trans;
   int m_fd;
 
   largeobjectaccess() =delete;

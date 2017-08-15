@@ -216,7 +216,7 @@ inline const_result_iterator
 const_result_iterator::operator+(result::difference_type o) const
 {
   return const_result_iterator(
-	&m_Home, size_type(result::difference_type(m_Index) + o));
+	&m_result, size_type(result::difference_type(m_Index) + o));
 }
 
 inline const_result_iterator
@@ -227,7 +227,7 @@ inline const_result_iterator
 const_result_iterator::operator-(result::difference_type o) const
 {
   return const_result_iterator(
-	&m_Home,
+	&m_result,
 	result_size_type(result::difference_type(m_Index) - o));
 }
 

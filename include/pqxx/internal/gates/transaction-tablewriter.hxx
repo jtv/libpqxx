@@ -17,9 +17,10 @@ class PQXX_PRIVATE transaction_tablewriter : callgate<transaction_base>
 	const std::string &columns = std::string())
 	{ home().BeginCopyWrite(table, columns); }
 
-  void WriteCopyLine(const std::string &line) { home().WriteCopyLine(line); }
+  void write_copy_line(const std::string &line)
+	{ home().write_copy_line(line); }
 
-  void EndCopyWrite() { home().EndCopyWrite(); }
+  void end_copy_write() { home().end_copy_write(); }
 };
 } // namespace pqxx::internal::gate
 } // namespace pqxx::internal

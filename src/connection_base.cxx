@@ -123,7 +123,7 @@ std::string pqxx::encrypt_password(
 pqxx::connection_base::connection_base(connectionpolicy &pol) :
   m_Conn(nullptr),
   m_policy(pol),
-  m_Trans(),
+  m_trans(),
   m_errorhandlers(),
   m_Trace(nullptr),
   m_serverversion(0),
@@ -195,7 +195,7 @@ void pqxx::connection_base::activate()
 
       if (!is_open()) throw broken_connection();
 
-      SetupState();
+      set_up_state();
     }
     catch (const broken_connection &e)
     {
@@ -216,10 +216,10 @@ void pqxx::connection_base::deactivate()
 {
   if (!m_Conn) return;
 
-  if (m_Trans.get())
+  if (m_trans.get())
     throw usage_error(
 	"Attempt to deactivate connection while " +
-	m_Trans.get()->description() + " still open");
+	m_trans.get()->description() + " still open");
 
   if (m_reactivation_avoidance.get())
   {
@@ -258,15 +258,15 @@ int pqxx::connection_base::server_version() const noexcept
 void pqxx::connection_base::set_variable(const std::string &Var,
 	const std::string &Value)
 {
-  if (m_Trans.get())
+  if (m_trans.get())
   {
     // We're in a transaction.  The variable should go in there.
-    m_Trans.get()->set_variable(Var, Value);
+    m_trans.get()->set_variable(Var, Value);
   }
   else
   {
     // We're not in a transaction.  Set a session variable.
-    if (is_open()) RawSetVar(Var, Value);
+    if (is_open()) raw_set_var(Var, Value);
     m_Vars[Var] = Value;
   }
 }
@@ -274,11 +274,11 @@ void pqxx::connection_base::set_variable(const std::string &Var,
 
 std::string pqxx::connection_base::get_variable(const std::string &Var)
 {
-  return m_Trans.get() ? m_Trans.get()->get_variable(Var) : RawGetVar(Var);
+  return m_trans.get() ? m_trans.get()->get_variable(Var) : raw_get_var(Var);
 }
 
 
-std::string pqxx::connection_base::RawGetVar(const std::string &Var)
+std::string pqxx::connection_base::raw_get_var(const std::string &Var)
 {
   // Is this variable in our local map of set variables?
   // TODO: Could we safely read-allocate variables into m_Vars?
@@ -299,16 +299,16 @@ void pqxx::connection_base::clearcaps() noexcept
  * recovered because the physical connection to the database was lost and is
  * being reset, or that may not have been initialized yet.
  */
-void pqxx::connection_base::SetupState()
+void pqxx::connection_base::set_up_state()
 {
   if (!m_Conn)
-    throw internal_error("SetupState() on no connection");
+    throw internal_error("set_up_state() on no connection");
 
-  if (Status() != CONNECTION_OK)
+  if (status() != CONNECTION_OK)
   {
-    const auto Msg = ErrMsg();
+    const auto msg = err_msg();
     m_Conn = m_policy.do_disconnect(m_Conn);
-    throw failure(Msg);
+    throw failure(msg);
   }
 
   read_capabilities();
@@ -317,7 +317,7 @@ void pqxx::connection_base::SetupState()
 
   PQsetNoticeProcessor(m_Conn, pqxx_notice_processor, this);
 
-  InternalSetTrace();
+  internal_set_trace();
 
   if (!m_receivers.empty() || !m_Vars.empty())
   {
@@ -363,7 +363,7 @@ void pqxx::connection_base::check_result(const result &R)
   if (!is_open()) throw broken_connection();
 
   // A shame we can't quite detect out-of-memory to turn this into a bad_alloc!
-  if (!gate::result_connection(R)) throw failure(ErrMsg());
+  if (!gate::result_connection(R)) throw failure(err_msg());
 
   gate::result_creation(R).CheckStatus();
 }
@@ -380,7 +380,7 @@ void pqxx::connection_base::disconnect() noexcept
 
 bool pqxx::connection_base::is_open() const noexcept
 {
-  return m_Conn && m_Completed && (Status() == CONNECTION_OK);
+  return m_Conn && m_Completed && (status() == CONNECTION_OK);
 }
 
 
@@ -457,7 +457,7 @@ void pqxx::connection_base::process_notice(const std::string &msg) noexcept
 void pqxx::connection_base::trace(FILE *Out) noexcept
 {
   m_Trace = Out;
-  if (m_Conn) InternalSetTrace();
+  if (m_Conn) internal_set_trace();
 }
 
 
@@ -601,7 +601,7 @@ int pqxx::connection_base::get_notifs()
 
   // Even if somehow we receive notifications during our transaction, don't
   // deliver them.
-  if (m_Trans.get()) return 0;
+  if (m_trans.get()) return 0;
 
   int notifs = 0;
   for (auto N = get_notif(m_Conn); N.get(); N = get_notif(m_Conn))
@@ -673,7 +673,7 @@ const char *pqxx::connection_base::port()
 }
 
 
-const char *pqxx::connection_base::ErrMsg() const noexcept
+const char *pqxx::connection_base::err_msg() const noexcept
 {
   return m_Conn ? PQerrorMessage(m_Conn) : "No connection to database";
 }
@@ -710,7 +710,7 @@ pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
   while ((Retries > 0) && !gate::result_connection(R) && !is_open())
   {
     Retries--;
-    Reset();
+    reset();
     if (is_open()) R = make_result(PQexec(m_Conn, Query), Query);
   }
 
@@ -835,7 +835,7 @@ bool pqxx::connection_base::prepared_exists(const std::string &statement) const
 }
 
 
-void pqxx::connection_base::Reset()
+void pqxx::connection_base::reset()
 {
   if (m_inhibit_reactivation)
     throw broken_connection(
@@ -851,7 +851,7 @@ void pqxx::connection_base::Reset()
   {
     // Reset existing connection
     PQreset(m_Conn);
-    SetupState();
+    set_up_state();
   }
   else
   {
@@ -868,9 +868,10 @@ void pqxx::connection_base::close() noexcept
   m_reactivation_avoidance.clear();
   try
   {
-    if (m_Trans.get())
-      process_notice("Closing connection while " +
-	             m_Trans.get()->description() + " still open");
+    if (m_trans.get())
+      process_notice(
+	"Closing connection while " +
+	m_trans.get()->description() + " still open");
 
     if (!m_receivers.empty())
     {
@@ -895,21 +896,21 @@ void pqxx::connection_base::close() noexcept
 }
 
 
-void pqxx::connection_base::RawSetVar(const std::string &Var,
+void pqxx::connection_base::raw_set_var(const std::string &Var,
 	const std::string &Value)
 {
     Exec(("SET " + Var + "=" + Value).c_str(), 0);
 }
 
 
-void pqxx::connection_base::AddVariables(
+void pqxx::connection_base::add_variables(
 	const std::map<std::string,std::string> &Vars)
 {
   for (auto &i: Vars) m_Vars[i.first] = i.second;
 }
 
 
-void pqxx::connection_base::InternalSetTrace() noexcept
+void pqxx::connection_base::internal_set_trace() noexcept
 {
   if (m_Conn)
   {
@@ -919,23 +920,24 @@ void pqxx::connection_base::InternalSetTrace() noexcept
 }
 
 
-int pqxx::connection_base::Status() const noexcept
+int pqxx::connection_base::status() const noexcept
 {
   return PQstatus(m_Conn);
 }
 
 
-void pqxx::connection_base::RegisterTransaction(transaction_base *T)
+void pqxx::connection_base::register_transaction(transaction_base *T)
 {
-  m_Trans.Register(T);
+  m_trans.Register(T);
 }
 
 
-void pqxx::connection_base::UnregisterTransaction(transaction_base *T) noexcept
+void pqxx::connection_base::unregister_transaction(transaction_base *T)
+	noexcept
 {
   try
   {
-    m_Trans.Unregister(T);
+    m_trans.Unregister(T);
   }
   catch (const std::exception &e)
   {
@@ -944,10 +946,10 @@ void pqxx::connection_base::UnregisterTransaction(transaction_base *T) noexcept
 }
 
 
-bool pqxx::connection_base::ReadCopyLine(std::string &Line)
+bool pqxx::connection_base::read_copy_line(std::string &Line)
 {
   if (!is_open())
-    throw internal_error("ReadCopyLine() without connection");
+    throw internal_error("read_copy_line() without connection");
 
   Line.erase();
   bool Result;
@@ -957,7 +959,7 @@ bool pqxx::connection_base::ReadCopyLine(std::string &Line)
   switch (PQgetCopyData(m_Conn, &Buf, false))
   {
   case -2:
-    throw failure("Reading of table data failed: " + std::string(ErrMsg()));
+    throw failure("Reading of table data failed: " + std::string(err_msg()));
 
   case -1:
     for (auto R = make_result(PQgetResult(m_Conn), query);
@@ -984,10 +986,10 @@ bool pqxx::connection_base::ReadCopyLine(std::string &Line)
 }
 
 
-void pqxx::connection_base::WriteCopyLine(const std::string &Line)
+void pqxx::connection_base::write_copy_line(const std::string &Line)
 {
   if (!is_open())
-    throw internal_error("WriteCopyLine() without connection");
+    throw internal_error("write_copy_line() without connection");
 
   const std::string L = Line + '\n';
   const char *const LC = L.c_str();
@@ -995,20 +997,21 @@ void pqxx::connection_base::WriteCopyLine(const std::string &Line)
 
   if (PQputCopyData(m_Conn, LC, int(Len)) <= 0)
   {
-    const std::string Msg = std::string("Error writing to table: ") + ErrMsg();
+    const std::string msg = (
+        std::string("Error writing to table: ") + err_msg());
     PQendcopy(m_Conn);
-    throw failure(Msg);
+    throw failure(msg);
   }
 }
 
 
-void pqxx::connection_base::EndCopyWrite()
+void pqxx::connection_base::end_copy_write()
 {
   int Res = PQputCopyEnd(m_Conn, nullptr);
   switch (Res)
   {
   case -1:
-    throw failure("Write to table failed: " + std::string(ErrMsg()));
+    throw failure("Write to table failed: " + std::string(err_msg()));
   case 0:
     throw internal_error("table write is inexplicably asynchronous");
   case 1:
@@ -1027,7 +1030,7 @@ void pqxx::connection_base::EndCopyWrite()
 void pqxx::connection_base::start_exec(const std::string &Q)
 {
   activate();
-  if (!PQsendQuery(m_Conn, Q.c_str())) throw failure(ErrMsg());
+  if (!PQsendQuery(m_Conn, Q.c_str())) throw failure(err_msg());
 }
 
 
@@ -1057,7 +1060,7 @@ std::string pqxx::connection_base::esc(const char str[], size_t maxlen)
   {
     int err = 0;
     PQescapeStringConn(m_Conn, buf, str, maxlen, &err);
-    if (err) throw argument_error(ErrMsg());
+    if (err) throw argument_error(err_msg());
     escaped = std::string(buf);
   }
   catch (const std::exception &)
@@ -1132,7 +1135,7 @@ std::string pqxx::connection_base::quote_name(const std::string &identifier)
   std::unique_ptr<char, void (*)(char *)> buf(
 	PQescapeIdentifier(m_Conn, identifier.c_str(), identifier.size()),
         freepqmem_templated<char>);
-  if (!buf.get()) throw failure(ErrMsg());
+  if (!buf.get()) throw failure(err_msg());
   return std::string(buf.get());
 }
 

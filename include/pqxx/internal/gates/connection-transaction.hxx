@@ -16,23 +16,23 @@ class PQXX_PRIVATE connection_transaction : callgate<connection_base>
 
   result Exec(const char query[], int retries)
 	{ return home().Exec(query, retries); }
-  void RegisterTransaction(transaction_base *t)
-	{ home().RegisterTransaction(t); }
-  void UnregisterTransaction(transaction_base *t) noexcept
-	{ home().UnregisterTransaction(t); }
+  void register_transaction(transaction_base *t)
+	{ home().register_transaction(t); }
+  void unregister_transaction(transaction_base *t) noexcept
+	{ home().unregister_transaction(t); }
 
-  bool ReadCopyLine(std::string &line)
-	{ return home().ReadCopyLine(line); }
-  void WriteCopyLine(const std::string &line)
-	{ home().WriteCopyLine(line); }
-  void EndCopyWrite() { home().EndCopyWrite(); }
+  bool read_copy_line(std::string &line)
+	{ return home().read_copy_line(line); }
+  void write_copy_line(const std::string &line)
+	{ home().write_copy_line(line); }
+  void end_copy_write() { home().end_copy_write(); }
 
-  std::string RawGetVar(const std::string &var)
-	{ return home().RawGetVar(var); }
-  void RawSetVar(const std::string &var, const std::string &value)
-	{ home().RawSetVar(var, value); }
-  void AddVariables(const std::map<std::string, std::string> &vars)
-	{ home().AddVariables(vars); }
+  std::string raw_get_var(const std::string &var)
+	{ return home().raw_get_var(var); }
+  void raw_set_var(const std::string &var, const std::string &value)
+	{ home().raw_set_var(var, value); }
+  void add_variables(const std::map<std::string, std::string> &vars)
+	{ home().add_variables(vars); }
 
   result prepared_exec(
 	const std::string &statement,

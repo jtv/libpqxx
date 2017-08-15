@@ -127,7 +127,8 @@ public:
   const std::string &name() const noexcept { return m_name; }		//[t81]
 
 protected:
-  cursor_base(connection_base &,
+  cursor_base(
+	connection_base &,
 	const std::string &Name,
 	bool embellish_name=true);
 
@@ -546,4 +547,3 @@ private:
 #include "pqxx/compiler-internal-post.hxx"
 
 #endif
-
