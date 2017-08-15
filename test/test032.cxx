@@ -73,7 +73,7 @@ public:
     if (Reason != LastReason)
     {
       pqxx::test::expected_exception(
-	"Transactor " + Name() + " failed: " + Reason);
+	"Transactor " + name() + " failed: " + Reason);
       LastReason = Reason;
     }
   }

@@ -71,7 +71,7 @@ public:
 
   void on_abort(const char Reason[]) noexcept
   {
-    pqxx::test::expected_exception(Name() + " failed: " + Reason);
+    pqxx::test::expected_exception(name() + " failed: " + Reason);
   }
 };
 

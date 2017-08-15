@@ -62,7 +62,7 @@ template<typename TRANSACTION=transaction<read_committed> >
 {
 public:
   explicit transactor(const std::string &TName="transactor") :		//[t4]
-    m_Name(TName) { }
+    m_name(TName) { }
 
   /// Overridable transaction definition; insert your database code here
   /** The operation will be retried if the connection to the backend is lost or
@@ -116,12 +116,11 @@ public:
    */
   void on_doubt() noexcept {}						//[t13]
 
-  // TODO: Rename Name()--is there a compatible way?
   /// The transactor's name.
-  std::string Name() const { return m_Name; }				//[t13]
+  std::string name() const { return m_name; }				//[t13]
 
 private:
-  std::string m_Name;
+  std::string m_name;
 };
 
 
@@ -146,7 +145,7 @@ inline void pqxx::connection_base::perform(const TRANSACTOR &T,
     TRANSACTOR T2(T);
     try
     {
-      typename TRANSACTOR::argument_type X(*this, T2.Name());
+      typename TRANSACTOR::argument_type X(*this, T2.name());
       T2(X);
       X.commit();
       Done = true;
