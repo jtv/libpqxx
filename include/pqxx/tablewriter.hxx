@@ -69,24 +69,24 @@ template<>
 {
 public:
   explicit back_insert_iterator(pqxx::tablewriter &W) noexcept :
-    m_Writer(&W) {}
+    m_writer(&W) {}
   back_insert_iterator &
     operator=(const back_insert_iterator &rhs) noexcept
   {
-    m_Writer = rhs.m_Writer;
+    m_writer = rhs.m_writer;
     return *this;
   }
   template<typename TUPLE>
   back_insert_iterator &operator=(const TUPLE &T)
   {
-    m_Writer->insert(T);
+    m_writer->insert(T);
     return *this;
   }
   back_insert_iterator &operator++() { return *this; }
   back_insert_iterator &operator++(int) { return *this; }
   back_insert_iterator &operator*() { return *this; }
 private:
-  pqxx::tablewriter *m_Writer;
+  pqxx::tablewriter *m_writer;
 };
 } // namespace std
 namespace pqxx

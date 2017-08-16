@@ -30,12 +30,12 @@ pqxx::basic_robusttransaction::basic_robusttransaction(
   dbtransaction(C, IsolationLevel),
   m_record_id(0),
   m_xid(),
-  m_LogTable(table_name),
+  m_log_table(table_name),
   m_sequence(),
   m_backendpid(-1)
 {
-  if (table_name.empty()) m_LogTable = "pqxx_robusttransaction_log";
-  m_sequence = m_LogTable + "_seq";
+  if (table_name.empty()) m_log_table = "pqxx_robusttransaction_log";
+  m_sequence = m_log_table + "_seq";
 }
 
 
@@ -138,7 +138,7 @@ void pqxx::basic_robusttransaction::do_commit()
 	"'" + name() + "' (id " + to_string(m_record_id) + ", "
 	"transaction_id " + m_xid + "). "
 	"Please check for this record in the "
-	"'" + m_LogTable + "' table.  "
+	"'" + m_log_table + "' table.  "
 	"If the record exists, the transaction was executed. "
 	"If not, then it wasn't.\n";
 
@@ -176,7 +176,7 @@ void pqxx::basic_robusttransaction::CreateLogTable()
   // Create log table in case it doesn't already exist.  This code must only be
   // executed before the backend transaction has properly started.
   std::string CrTab =
-	"CREATE TABLE \"" + m_LogTable + "\" ("
+	"CREATE TABLE \"" + m_log_table + "\" ("
 	"id INTEGER NOT NULL, "
         "username VARCHAR(256), "
 	"transaction_id xid, "
@@ -212,7 +212,7 @@ void pqxx::basic_robusttransaction::CreateTransactionRecord()
 
   // Clean up old transaction records.
   DirectExec((
-	"DELETE FROM " + m_LogTable + " "
+	"DELETE FROM " + m_log_table + " "
 	"WHERE date < CURRENT_TIMESTAMP - '30 days'::interval").c_str());
 
   // Allocate id.
@@ -220,7 +220,7 @@ void pqxx::basic_robusttransaction::CreateTransactionRecord()
   DirectExec(sql_get_id.c_str())[0][0].to(m_record_id);
 
   DirectExec((
-	"INSERT INTO \"" + m_LogTable + "\" "
+	"INSERT INTO \"" + m_log_table + "\" "
 	"(id, username, name, date) "
 	"VALUES "
 	"(" +
@@ -235,7 +235,7 @@ void pqxx::basic_robusttransaction::CreateTransactionRecord()
 std::string pqxx::basic_robusttransaction::sql_delete() const
 {
   return
-	"DELETE FROM \"" + m_LogTable + "\" "
+	"DELETE FROM \"" + m_log_table + "\" "
 	"WHERE id = " + to_string(m_record_id);
 }
 
@@ -313,7 +313,7 @@ bool pqxx::basic_robusttransaction::CheckTransactionRecord()
 
   // Now look for our transaction record
   const std::string Find =
-        "SELECT id FROM \"" + m_LogTable + "\" "
+        "SELECT id FROM \"" + m_log_table + "\" "
         "WHERE "
             "id = " + to_string(m_record_id) + " AND "
             "user = " + conn().username();

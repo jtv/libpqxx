@@ -399,17 +399,17 @@ class PQXX_LIBEXPORT namedclass
 public:
   namedclass(const std::string &Classname, const std::string &Name="") :
     m_classname(Classname),
-    m_Name(Name)
+    m_name(Name)
   {
   }
 
-  const std::string &name() const noexcept { return m_Name; }		//[t1]
+  const std::string &name() const noexcept { return m_name; }		//[t1]
   const std::string &classname() const noexcept				//[t73]
 	{return m_classname;}
   std::string description() const;
 
 private:
-  std::string m_classname, m_Name;
+  std::string m_classname, m_name;
 };
 
 
@@ -425,24 +425,24 @@ template<typename GUEST>
 class unique
 {
 public:
-  unique() : m_Guest(0) {}
+  unique() : m_guest(0) {}
 
-  GUEST *get() const noexcept { return m_Guest; }
+  GUEST *get() const noexcept { return m_guest; }
 
   void register_guest(GUEST *G)
   {
-    CheckUniqueRegistration(G, m_Guest);
-    m_Guest = G;
+    CheckUniqueRegistration(G, m_guest);
+    m_guest = G;
   }
 
   void unregister_guest(GUEST *G)
   {
-    CheckUniqueUnregistration(G, m_Guest);
-    m_Guest = 0;
+    CheckUniqueUnregistration(G, m_guest);
+    m_guest = 0;
   }
 
 private:
-  GUEST *m_Guest;
+  GUEST *m_guest;
 
   /// Not allowed
   unique(const unique &);

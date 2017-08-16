@@ -49,7 +49,7 @@ public:
    * large object identity.  Does not affect the database.
    * @param O Object identifier for the given object
    */
-  explicit largeobject(oid O) noexcept : m_ID(O) {}			//[t48]
+  explicit largeobject(oid O) noexcept : m_id(O) {}			//[t48]
 
   /// Import large object from a local file
   /** Creates a large object containing the data found in the given file.
@@ -70,7 +70,7 @@ public:
    * database we're connected to (or oid_none is returned if we refer to the
    * null object).
    */
-  oid id() const noexcept { return m_ID; }				//[t48]
+  oid id() const noexcept { return m_id; }				//[t48]
 
   /**
    * @name Identity comparisons
@@ -83,27 +83,27 @@ public:
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
   bool operator==(const largeobject &other) const			//[t51]
-	  { return m_ID == other.m_ID; }
+	  { return m_id == other.m_id; }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
   bool operator!=(const largeobject &other) const			//[t51]
-	  { return m_ID != other.m_ID; }
+	  { return m_id != other.m_id; }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
   bool operator<=(const largeobject &other) const			//[t51]
-	  { return m_ID <= other.m_ID; }
+	  { return m_id <= other.m_id; }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
   bool operator>=(const largeobject &other) const			//[t51]
-	  { return m_ID >= other.m_ID; }
+	  { return m_id >= other.m_id; }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
   bool operator<(const largeobject &other) const			//[t51]
-	  { return m_ID < other.m_ID; }
+	  { return m_id < other.m_id; }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
   bool operator>(const largeobject &other) const			//[t51]
-	  { return m_ID > other.m_ID; }
+	  { return m_id > other.m_id; }
   //@}
 
   /// Export large object's contents to a local file
@@ -127,7 +127,7 @@ protected:
   std::string reason(int err) const;
 
 private:
-  oid m_ID;
+  oid m_id;
 };
 
 
@@ -359,9 +359,9 @@ public:
 			openmode mode=std::ios::in|std::ios::out,
 			size_type BufSize=512) :			//[t48]
     m_bufsize(BufSize),
-    m_Obj(T, O, mode),
-    m_G(0),
-    m_P(0)
+    m_obj(T, O, mode),
+    m_g(0),
+    m_p(0)
 	{ initialize(mode); }
 
   largeobject_streambuf(dbtransaction &T,
@@ -369,17 +369,17 @@ public:
 			openmode mode=std::ios::in|std::ios::out,
 			size_type BufSize=512) :			//[t48]
     m_bufsize(BufSize),
-    m_Obj(T, O, mode),
-    m_G(0),
-    m_P(0)
+    m_obj(T, O, mode),
+    m_g(0),
+    m_p(0)
 	{ initialize(mode); }
 
   virtual ~largeobject_streambuf() noexcept
-	{ delete [] m_P; delete [] m_G; }
+	{ delete [] m_p; delete [] m_g; }
 
 
   /// For use by large object stream classes
-  void process_notice(const std::string &s) { m_Obj.process_notice(s); }
+  void process_notice(const std::string &s) { m_obj.process_notice(s); }
 
 protected:
   virtual int sync() override
@@ -394,12 +394,12 @@ protected:
 			   seekdir dir,
 			   openmode) override
   {
-    return AdjustEOF(m_Obj.cseek(largeobjectaccess::off_type(offset), dir));
+    return AdjustEOF(m_obj.cseek(largeobjectaccess::off_type(offset), dir));
   }
 
   virtual pos_type seekpos(pos_type pos, openmode) override
   {
-    const largeobjectaccess::pos_type newpos = m_Obj.cseek(
+    const largeobjectaccess::pos_type newpos = m_obj.cseek(
 	largeobjectaccess::off_type(pos),
 	std::ios::beg);
     return AdjustEOF(newpos);
@@ -412,8 +412,8 @@ protected:
     char *const pb = this->pbase();
     int_type res = 0;
 
-    if (pp > pb) res = int_type(AdjustEOF(m_Obj.cwrite(pb, pp-pb)));
-    this->setp(m_P, m_P + m_bufsize);
+    if (pp > pb) res = int_type(AdjustEOF(m_obj.cwrite(pb, pp-pb)));
+    this->setp(m_p, m_p + m_bufsize);
 
     // Write that one more character, if it's there.
     if (ch != EoF())
@@ -429,7 +429,7 @@ protected:
     if (!this->gptr()) return EoF();
     char *const eb = this->eback();
     const int_type res(static_cast<int_type>(
-	AdjustEOF(m_Obj.cread(this->eback(), m_bufsize))));
+	AdjustEOF(m_obj.cread(this->eback(), m_bufsize))));
     this->setg(eb, eb, eb + ((res==EoF()) ? 0 : res));
     return (!res || (res == EoF())) ? EoF() : *eb;
   }
@@ -447,21 +447,21 @@ private:
   {
     if (mode & std::ios::in)
     {
-      m_G = new char_type[unsigned(m_bufsize)];
-      this->setg(m_G, m_G, m_G);
+      m_g = new char_type[unsigned(m_bufsize)];
+      this->setg(m_g, m_g, m_g);
     }
     if (mode & std::ios::out)
     {
-      m_P = new char_type[unsigned(m_bufsize)];
-      this->setp(m_P, m_P + m_bufsize);
+      m_p = new char_type[unsigned(m_bufsize)];
+      this->setp(m_p, m_p + m_bufsize);
     }
   }
 
   const size_type m_bufsize;
-  largeobjectaccess m_Obj;
+  largeobjectaccess m_obj;
 
   // Get & put buffers
-  char_type *m_G, *m_P;
+  char_type *m_g, *m_p;
 };
 
 

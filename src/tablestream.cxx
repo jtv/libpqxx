@@ -18,8 +18,8 @@ pqxx::tablestream::tablestream(transaction_base &STrans,
 	const std::string &Null) :
   internal::namedclass("tablestream"),
   internal::transactionfocus(STrans),
-  m_Null(Null),
-  m_Finished(false)
+  m_null(Null),
+  m_finished(false)
 {
 }
 
@@ -33,7 +33,7 @@ void pqxx::tablestream::base_close()
 {
   if (!is_finished())
   {
-    m_Finished = true;
+    m_finished = true;
     unregister_me();
   }
 }

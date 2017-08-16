@@ -51,7 +51,7 @@ private:
   typedef unsigned long IDType;
   IDType m_record_id;
   std::string m_xid;
-  std::string m_LogTable;
+  std::string m_log_table;
   std::string m_sequence;
   int m_backendpid;
 

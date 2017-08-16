@@ -36,14 +36,14 @@ public:
   virtual ~tablestream() noexcept =0;
   virtual void complete() =0;
 protected:
-  const std::string &NullStr() const { return m_Null; }
-  bool is_finished() const noexcept { return m_Finished; }
+  const std::string &NullStr() const { return m_null; }
+  bool is_finished() const noexcept { return m_finished; }
   void base_close();
   template<typename ITER>
   static std::string columnlist(ITER colbegin, ITER colend);
 private:
-  std::string m_Null;
-  bool m_Finished;
+  std::string m_null;
+  bool m_finished;
   tablestream();
   tablestream(const tablestream &);
   tablestream &operator=(const tablestream &);

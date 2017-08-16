@@ -68,16 +68,16 @@ inline int StdDirToPQDir(std::ios::seekdir dir) noexcept
 
 
 pqxx::largeobject::largeobject() noexcept :
-  m_ID(oid_none)
+  m_id(oid_none)
 {
 }
 
 
 pqxx::largeobject::largeobject(dbtransaction &T) :
-  m_ID()
+  m_id()
 {
-  m_ID = lo_creat(raw_connection(T), INV_READ|INV_WRITE);
-  if (m_ID == oid_none)
+  m_id = lo_creat(raw_connection(T), INV_READ|INV_WRITE);
+  if (m_id == oid_none)
   {
     const int err = errno;
     if (err == ENOMEM) throw std::bad_alloc();
@@ -87,10 +87,10 @@ pqxx::largeobject::largeobject(dbtransaction &T) :
 
 
 pqxx::largeobject::largeobject(dbtransaction &T, const std::string &File) :
-  m_ID()
+  m_id()
 {
-  m_ID = lo_import(raw_connection(T), File.c_str());
-  if (m_ID == oid_none)
+  m_id = lo_import(raw_connection(T), File.c_str());
+  if (m_id == oid_none)
   {
     const int err = errno;
     if (err == ENOMEM) throw std::bad_alloc();
@@ -102,7 +102,7 @@ pqxx::largeobject::largeobject(dbtransaction &T, const std::string &File) :
 
 
 pqxx::largeobject::largeobject(const largeobjectaccess &O) noexcept :
-  m_ID(O.id())
+  m_id(O.id())
 {
 }
 
@@ -116,7 +116,7 @@ void pqxx::largeobject::to_file(
     const int err = errno;
     if (err == ENOMEM) throw std::bad_alloc();
     throw failure(
-	"Could not export large object " + to_string(m_ID) + " "
+	"Could not export large object " + to_string(m_id) + " "
 	"to file '" + File + "': " + reason(err));
   }
 }
@@ -129,7 +129,7 @@ void pqxx::largeobject::remove(dbtransaction &T) const
     const int err = errno;
     if (err == ENOMEM) throw std::bad_alloc();
     throw failure(
-	"Could not delete large object " + to_string(m_ID) + ": " +
+	"Could not delete large object " + to_string(m_id) + ": " +
 	reason(err));
   }
 }

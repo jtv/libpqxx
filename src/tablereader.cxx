@@ -24,7 +24,7 @@ pqxx::tablereader::tablereader(
 	const std::string &Null) :
   namedclass("tablereader", Name),
   tablestream(T, Null),
-  m_Done(true)
+  m_done(true)
 {
   setup(T, Name);
 }
@@ -36,7 +36,7 @@ void pqxx::tablereader::setup(
 {
   gate::transaction_tablereader(T).BeginCopyRead(Name, Columns);
   register_me();
-  m_Done = false;
+  m_done = false;
 }
 
 pqxx::tablereader::~tablereader() noexcept
@@ -54,16 +54,16 @@ pqxx::tablereader::~tablereader() noexcept
 
 bool pqxx::tablereader::get_raw_line(std::string &Line)
 {
-  if (!m_Done) try
+  if (!m_done) try
   {
-    m_Done = !gate::transaction_tablereader(m_trans).read_copy_line(Line);
+    m_done = !gate::transaction_tablereader(m_trans).read_copy_line(Line);
   }
   catch (const std::exception &)
   {
-    m_Done = true;
+    m_done = true;
     throw;
   }
-  return !m_Done;
+  return !m_done;
 }
 
 
@@ -80,7 +80,7 @@ void pqxx::tablereader::reader_close()
     base_close();
 
     // If any lines remain to be read, consume them to not confuse PQendcopy()
-    if (!m_Done)
+    if (!m_done)
     {
       try
       {

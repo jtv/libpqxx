@@ -130,7 +130,7 @@ public:
 class PQXX_LIBEXPORT sql_error : public failure
 {
   /// Query string.  Empty if unknown.
-  const std::string m_Q;
+  const std::string m_query;
   /// SQLSTATE string describing the error type, if known; or empty string.
   const std::string m_sqlstate;
 

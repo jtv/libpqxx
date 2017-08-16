@@ -43,8 +43,8 @@ public:
       const std::string &Null);
   ~tablereader() noexcept;
   template<typename TUPLE> tablereader &operator>>(TUPLE &);
-  operator bool() const noexcept { return !m_Done; }
-  bool operator!() const noexcept { return m_Done; }
+  operator bool() const noexcept { return !m_done; }
+  bool operator!() const noexcept { return m_done; }
   bool get_raw_line(std::string &Line);
   template<typename TUPLE>
   void tokenize(std::string, TUPLE &) const;
@@ -57,7 +57,7 @@ private:
   std::string extract_field(
 	const std::string &,
 	std::string::size_type &) const;
-  bool m_Done;
+  bool m_done;
 };
 template<typename ITER> inline
 tablereader::tablereader(transaction_base &T,
@@ -66,7 +66,7 @@ tablereader::tablereader(transaction_base &T,
     ITER endcolumns) :
   namedclass(Name, "tablereader"),
   tablestream(T, std::string()),
-  m_Done(true)
+  m_done(true)
 {
   setup(T, Name, columnlist(begincolumns, endcolumns));
 }
@@ -78,7 +78,7 @@ tablereader::tablereader(transaction_base &T,
     const std::string &Null) :
   namedclass(Name, "tablereader"),
   tablestream(T, Null),
-  m_Done(true)
+  m_done(true)
 {
   setup(T, Name, columnlist(begincolumns, endcolumns));
 }

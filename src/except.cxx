@@ -40,7 +40,7 @@ pqxx::sql_error::sql_error(
 	const std::string &Q,
 	const char sqlstate[]) :
   failure(whatarg),
-  m_Q(Q),
+  m_query(Q),
   m_sqlstate(sqlstate ? sqlstate : "")
 {
 }
@@ -53,7 +53,7 @@ pqxx::sql_error::~sql_error() noexcept
 
 PQXX_CONST const std::string &pqxx::sql_error::query() const noexcept
 {
-  return m_Q;
+  return m_query;
 }
 
 
