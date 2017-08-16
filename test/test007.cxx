@@ -72,7 +72,7 @@ public:
 
     // Note all different years currently occurring in the table, writing them
     // and their correct mappings to m_conversions.
-    for (auto r = R.begin(); r != R.end(); ++r)
+    for (const auto &r: R)
     {
       int Y;
 
@@ -80,11 +80,11 @@ public:
       if (r[0] >> Y) m_conversions[Y] = To4Digits(Y);
 
       // See if type identifiers are consistent
-      const oid tctype = r->column_type(0);
+      const oid tctype = r.column_type(0);
 
       PQXX_CHECK_EQUAL(
 	tctype,
-	r->column_type(pqxx::row::size_type(0)),
+	r.column_type(pqxx::row::size_type(0)),
 	"Inconsistent pqxx::row::column_type()");
 
       PQXX_CHECK_EQUAL(
@@ -93,14 +93,14 @@ public:
 	"pqxx::row::column_type() is inconsistent with "
 		"result::column_type().");
 
-      const oid ctctype = r->column_type(rcol);
+      const oid ctctype = r.column_type(rcol);
 
       PQXX_CHECK_EQUAL(
 	ctctype,
 	rctype,
 	"Column type lookup by column name is broken.");
 
-      const oid rawctctype = r->column_type(rcol.c_str());
+      const oid rawctctype = r.column_type(rcol.c_str());
 
       PQXX_CHECK_EQUAL(
 	rawctctype,

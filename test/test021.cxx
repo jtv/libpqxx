@@ -48,11 +48,10 @@ void test_021(transaction_base &)
 		   "\n");
 
   // Process each successive result row
-  for (auto c = R.begin(); c != R.end(); ++c)
+  for (const auto &c: R)
   {
     string N;
     c[0].to(N);
-
     cout << '\t' << to_string(c.num()) << '\t' << N << endl;
   }
 
