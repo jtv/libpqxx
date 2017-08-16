@@ -333,14 +333,14 @@ public:
   //@{
   /// Have connection process warning message
   void process_notice(const char Msg[]) const				//[t14]
-	{ m_Conn.process_notice(Msg); }
+	{ m_conn.process_notice(Msg); }
   /// Have connection process warning message
   void process_notice(const std::string &Msg) const			//[t14]
-	{ m_Conn.process_notice(Msg); }
+	{ m_conn.process_notice(Msg); }
   //@}
 
   /// Connection this transaction is running in
-  connection_base &conn() const { return m_Conn; }			//[t4]
+  connection_base &conn() const { return m_conn; }			//[t4]
 
   /// Set session variable in this connection
   /** The new value is typically forgotten if the transaction aborts.
@@ -455,9 +455,9 @@ private:
 	{ return false; }
 
   friend class pqxx::internal::gate::transaction_transactionfocus;
-  PQXX_PRIVATE void RegisterFocus(internal::transactionfocus *);
-  PQXX_PRIVATE void UnregisterFocus(internal::transactionfocus *) noexcept;
-  PQXX_PRIVATE void RegisterPendingError(const std::string &) noexcept;
+  PQXX_PRIVATE void register_focus(internal::transactionfocus *);
+  PQXX_PRIVATE void unregister_focus(internal::transactionfocus *) noexcept;
+  PQXX_PRIVATE void register_pending_error(const std::string &) noexcept;
 
   friend class pqxx::internal::gate::transaction_tablereader;
   PQXX_PRIVATE void BeginCopyRead(const std::string &, const std::string &);
@@ -472,13 +472,13 @@ private:
 
   friend class pqxx::internal::gate::transaction_subtransaction;
 
-  connection_base &m_Conn;
+  connection_base &m_conn;
 
-  internal::unique<internal::transactionfocus> m_Focus;
-  Status m_Status;
-  bool m_Registered;
-  std::map<std::string, std::string> m_Vars;
-  std::string m_PendingError;
+  internal::unique<internal::transactionfocus> m_focus;
+  Status m_status;
+  bool m_registered;
+  std::map<std::string, std::string> m_vars;
+  std::string m_pending_error;
 
   /// Not allowed
   transaction_base();

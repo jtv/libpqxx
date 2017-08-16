@@ -358,7 +358,7 @@ public:
 			largeobject O,
 			openmode mode=std::ios::in|std::ios::out,
 			size_type BufSize=512) :			//[t48]
-    m_BufSize(BufSize),
+    m_bufsize(BufSize),
     m_Obj(T, O, mode),
     m_G(0),
     m_P(0)
@@ -368,7 +368,7 @@ public:
 			oid O,
 			openmode mode=std::ios::in|std::ios::out,
 			size_type BufSize=512) :			//[t48]
-    m_BufSize(BufSize),
+    m_bufsize(BufSize),
     m_Obj(T, O, mode),
     m_G(0),
     m_P(0)
@@ -413,7 +413,7 @@ protected:
     int_type res = 0;
 
     if (pp > pb) res = int_type(AdjustEOF(m_Obj.cwrite(pb, pp-pb)));
-    this->setp(m_P, m_P + m_BufSize);
+    this->setp(m_P, m_P + m_bufsize);
 
     // Write that one more character, if it's there.
     if (ch != EoF())
@@ -429,7 +429,7 @@ protected:
     if (!this->gptr()) return EoF();
     char *const eb = this->eback();
     const int_type res(static_cast<int_type>(
-	AdjustEOF(m_Obj.cread(this->eback(), m_BufSize))));
+	AdjustEOF(m_Obj.cread(this->eback(), m_bufsize))));
     this->setg(eb, eb, eb + ((res==EoF()) ? 0 : res));
     return (!res || (res == EoF())) ? EoF() : *eb;
   }
@@ -447,17 +447,17 @@ private:
   {
     if (mode & std::ios::in)
     {
-      m_G = new char_type[unsigned(m_BufSize)];
+      m_G = new char_type[unsigned(m_bufsize)];
       this->setg(m_G, m_G, m_G);
     }
     if (mode & std::ios::out)
     {
-      m_P = new char_type[unsigned(m_BufSize)];
-      this->setp(m_P, m_P + m_BufSize);
+      m_P = new char_type[unsigned(m_bufsize)];
+      this->setp(m_P, m_P + m_bufsize);
     }
   }
 
-  const size_type m_BufSize;
+  const size_type m_bufsize;
   largeobjectaccess m_Obj;
 
   // Get & put buffers
@@ -497,8 +497,8 @@ public:
                   largeobject O,
 		  largeobject::size_type BufSize=512) :			//[t57]
     super(0),
-    m_Buf(T, O, std::ios::in, BufSize)
-	{ super::init(&m_Buf); }
+    m_buf(T, O, std::ios::in, BufSize)
+	{ super::init(&m_buf); }
 
   /// Create a basic_ilostream
   /**
@@ -510,11 +510,11 @@ public:
                   oid O,
 		  largeobject::size_type BufSize=512) :			//[t48]
     super(0),
-    m_Buf(T, O, std::ios::in, BufSize)
-	{ super::init(&m_Buf); }
+    m_buf(T, O, std::ios::in, BufSize)
+	{ super::init(&m_buf); }
 
 private:
-  largeobject_streambuf<CHAR,TRAITS> m_Buf;
+  largeobject_streambuf<CHAR,TRAITS> m_buf;
 };
 
 typedef basic_ilostream<char> ilostream;
@@ -551,8 +551,8 @@ public:
                   largeobject O,
 		  largeobject::size_type BufSize=512) :			//[t48]
     super(0),
-    m_Buf(T, O, std::ios::out, BufSize)
-	{ super::init(&m_Buf); }
+    m_buf(T, O, std::ios::out, BufSize)
+	{ super::init(&m_buf); }
 
   /// Create a basic_olostream
   /**
@@ -564,23 +564,23 @@ public:
 		  oid O,
 		  largeobject::size_type BufSize=512) :			//[t57]
     super(0),
-    m_Buf(T, O, std::ios::out, BufSize)
-	{ super::init(&m_Buf); }
+    m_buf(T, O, std::ios::out, BufSize)
+	{ super::init(&m_buf); }
 
   ~basic_olostream()
   {
     try
     {
-      m_Buf.pubsync(); m_Buf.pubsync();
+      m_buf.pubsync(); m_buf.pubsync();
     }
     catch (const std::exception &e)
     {
-      m_Buf.process_notice(e.what());
+      m_buf.process_notice(e.what());
     }
   }
 
 private:
-  largeobject_streambuf<CHAR,TRAITS> m_Buf;
+  largeobject_streambuf<CHAR,TRAITS> m_buf;
 };
 
 typedef basic_olostream<char> olostream;
@@ -618,8 +618,8 @@ public:
 		 largeobject O,
 		 largeobject::size_type BufSize=512) :			//[t59]
     super(0),
-    m_Buf(T, O, std::ios::in | std::ios::out, BufSize)
-	{ super::init(&m_Buf); }
+    m_buf(T, O, std::ios::in | std::ios::out, BufSize)
+	{ super::init(&m_buf); }
 
   /// Create a basic_lostream
   /**
@@ -631,23 +631,23 @@ public:
 		 oid O,
 		 largeobject::size_type BufSize=512) :			//[t59]
     super(0),
-    m_Buf(T, O, std::ios::in | std::ios::out, BufSize)
-	{ super::init(&m_Buf); }
+    m_buf(T, O, std::ios::in | std::ios::out, BufSize)
+	{ super::init(&m_buf); }
 
   ~basic_lostream()
   {
     try
     {
-      m_Buf.pubsync(); m_Buf.pubsync();
+      m_buf.pubsync(); m_buf.pubsync();
     }
     catch (const std::exception &e)
     {
-      m_Buf.process_notice(e.what());
+      m_buf.process_notice(e.what());
     }
   }
 
 private:
-  largeobject_streambuf<CHAR,TRAITS> m_Buf;
+  largeobject_streambuf<CHAR,TRAITS> m_buf;
 };
 
 typedef basic_lostream<char> lostream;

@@ -18,9 +18,10 @@
 using namespace pqxx::internal;
 
 
-pqxx::tablereader::tablereader(transaction_base &T,
-    const std::string &Name,
-    const std::string &Null) :
+pqxx::tablereader::tablereader(
+	transaction_base &T,
+	const std::string &Name,
+	const std::string &Null) :
   namedclass("tablereader", Name),
   tablestream(T, Null),
   m_Done(true)
@@ -28,9 +29,10 @@ pqxx::tablereader::tablereader(transaction_base &T,
   setup(T, Name);
 }
 
-void pqxx::tablereader::setup(transaction_base &T,
-    const std::string &Name,
-    const std::string &Columns)
+void pqxx::tablereader::setup(
+	transaction_base &T,
+	const std::string &Name,
+	const std::string &Columns)
 {
   gate::transaction_tablereader(T).BeginCopyRead(Name, Columns);
   register_me();
@@ -109,7 +111,8 @@ inline bool is_octalchar(char o) noexcept
 /// Find first tab character at or after start position in string
 /** If not found, returns Line.size() rather than string::npos.
  */
-std::string::size_type findtab(const std::string &Line,
+std::string::size_type findtab(
+	const std::string &Line,
 	std::string::size_type start)
 {
   // TODO: Fix for multibyte encodings?
@@ -166,7 +169,8 @@ std::string pqxx::tablereader::extract_field(const std::string &Line,
 	    const char n2 = Line[++i];
 	    if (!is_octalchar(n1) || !is_octalchar(n2))
 	      throw failure("Invalid octal in encoded table stream");
-	    R += char((digit_to_number(n)<<6) |
+	    R += char(
+		(digit_to_number(n)<<6) |
 		(digit_to_number(n1)<<3) |
 		digit_to_number(n2));
           }
@@ -220,4 +224,3 @@ std::string pqxx::tablereader::extract_field(const std::string &Line,
 
   return R;
 }
-

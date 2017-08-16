@@ -133,8 +133,8 @@ void pqxx::basic_robusttransaction::do_commit()
   {
     // Couldn't check for transaction record.  We're still in doubt as to
     // whether the transaction was performed.
-    const std::string Msg = "WARNING: "
-	"Connection lost while committing transaction "
+    const std::string Msg =
+	"WARNING: Connection lost while committing transaction "
 	"'" + name() + "' (id " + to_string(m_record_id) + ", "
 	"transaction_id " + m_xid + "). "
 	"Please check for this record in the "
@@ -143,8 +143,9 @@ void pqxx::basic_robusttransaction::do_commit()
 	"If not, then it wasn't.\n";
 
     process_notice(Msg);
-    process_notice("Could not verify existence of transaction record "
-	"because of the following error:\n");
+    process_notice(
+	"Could not verify existence of transaction record because of the "
+	"following error:\n");
     process_notice(std::string(f.what()) + "\n");
 
     throw in_doubt_error(Msg);
@@ -174,7 +175,8 @@ void pqxx::basic_robusttransaction::CreateLogTable()
 {
   // Create log table in case it doesn't already exist.  This code must only be
   // executed before the backend transaction has properly started.
-  std::string CrTab = "CREATE TABLE \"" + m_LogTable + "\" ("
+  std::string CrTab =
+	"CREATE TABLE \"" + m_LogTable + "\" ("
 	"id INTEGER NOT NULL, "
         "username VARCHAR(256), "
 	"transaction_id xid, "
@@ -232,7 +234,8 @@ void pqxx::basic_robusttransaction::CreateTransactionRecord()
 
 std::string pqxx::basic_robusttransaction::sql_delete() const
 {
-  return "DELETE FROM \"" + m_LogTable + "\" "
+  return
+	"DELETE FROM \"" + m_LogTable + "\" "
 	"WHERE id = " + to_string(m_record_id);
 }
 

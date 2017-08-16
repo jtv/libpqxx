@@ -19,9 +19,10 @@
 using namespace pqxx::internal;
 
 
-pqxx::tablewriter::tablewriter(transaction_base &T,
-    const std::string &WName,
-    const std::string &Null) :
+pqxx::tablewriter::tablewriter(
+	transaction_base &T,
+	const std::string &WName,
+	const std::string &Null) :
   namedclass("tablewriter", WName),
   tablestream(T, Null)
 {
@@ -42,9 +43,10 @@ pqxx::tablewriter::~tablewriter() noexcept
 }
 
 
-void pqxx::tablewriter::setup(transaction_base &T,
-    const std::string &WName,
-    const std::string &Columns)
+void pqxx::tablewriter::setup(
+	transaction_base &T,
+	const std::string &WName,
+	const std::string &Columns)
 {
   gate::transaction_tablewriter(T).BeginCopyWrite(WName, Columns);
   register_me();

@@ -23,16 +23,16 @@
 
 pqxx::row::row(result r, size_t i) noexcept :
   m_result(r),
-  m_Index(i),
-  m_Begin(0),
-  m_End(internal::gate::result_row(r) ? r.columns() : 0)
+  m_index(i),
+  m_begin(0),
+  m_end(internal::gate::result_row(r) ? r.columns() : 0)
 {
 }
 
 
 pqxx::row::const_iterator pqxx::row::begin() const noexcept
 {
-  return const_iterator(*this, m_Begin);
+  return const_iterator(*this, m_begin);
 }
 
 
@@ -44,7 +44,7 @@ pqxx::row::const_iterator pqxx::row::cbegin() const noexcept
 
 pqxx::row::const_iterator pqxx::row::end() const noexcept
 {
-  return const_iterator(*this, m_End);
+  return const_iterator(*this, m_end);
 }
 
 
@@ -56,13 +56,13 @@ pqxx::row::const_iterator pqxx::row::cend() const noexcept
 
 pqxx::row::reference pqxx::row::front() const noexcept
 {
-  return field(*this, m_Begin);
+  return field(*this, m_begin);
 }
 
 
 pqxx::row::reference pqxx::row::back() const noexcept
 {
-  return field(*this, m_End - 1);
+  return field(*this, m_end - 1);
 }
 
 
@@ -103,7 +103,7 @@ bool pqxx::row::operator==(const row &rhs) const noexcept
 
 pqxx::row::reference pqxx::row::operator[](size_type i) const noexcept
 {
-  return field(*this, m_Begin + i);
+  return field(*this, m_begin + i);
 }
 
 
@@ -139,22 +139,22 @@ pqxx::row::reference pqxx::row::at(const std::string &s) const
 
 void pqxx::row::swap(row &rhs) noexcept
 {
-  const auto i = m_Index;
-  const auto b= m_Begin;
-  const auto e= m_End;
+  const auto i = m_index;
+  const auto b= m_begin;
+  const auto e = m_end;
   m_result.swap(rhs.m_result);
-  m_Index = rhs.m_Index;
-  m_Begin = rhs.m_Begin;
-  m_End = rhs.m_End;
-  rhs.m_Index = i;
-  rhs.m_Begin = b;
-  rhs.m_End = e;
+  m_index = rhs.m_index;
+  m_begin = rhs.m_begin;
+  m_end = rhs.m_end;
+  rhs.m_index = i;
+  rhs.m_begin = b;
+  rhs.m_end = e;
 }
 
 
 pqxx::field pqxx::row::at(const char f[]) const
 {
-  return field(*this, m_Begin + column_number(f));
+  return field(*this, m_begin + column_number(f));
 }
 
 
@@ -169,34 +169,34 @@ pqxx::field pqxx::row::at(pqxx::row::size_type i) const
 
 pqxx::oid pqxx::row::column_type(size_type ColNum) const
 {
-  return m_result.column_type(m_Begin + ColNum);
+  return m_result.column_type(m_begin + ColNum);
 }
 
 
 pqxx::oid pqxx::row::column_table(size_type ColNum) const
 {
-  return m_result.column_table(m_Begin + ColNum);
+  return m_result.column_table(m_begin + ColNum);
 }
 
 
 pqxx::row::size_type pqxx::row::table_column(size_type ColNum) const
 {
-  return m_result.table_column(m_Begin + ColNum);
+  return m_result.table_column(m_begin + ColNum);
 }
 
 
 pqxx::row::size_type pqxx::row::column_number(const char ColName[]) const
 {
   const auto n = m_result.column_number(ColName);
-  if (n >= m_End)
+  if (n >= m_end)
     return result().column_number(ColName);
-  if (n >= m_Begin)
-    return n - m_Begin;
+  if (n >= m_begin)
+    return n - m_begin;
 
   const char *const AdaptedColName = m_result.column_name(n);
-  for (auto i = m_Begin; i < m_End; ++i)
+  for (auto i = m_begin; i < m_end; ++i)
     if (strcmp(AdaptedColName, m_result.column_name(i)) == 0)
-      return i - m_Begin;
+      return i - m_begin;
 
   return result().column_number(ColName);
 }
@@ -220,15 +220,15 @@ pqxx::row pqxx::row::slice(size_type Begin, size_type End) const
     throw range_error("Invalid field range");
 
   row result(*this);
-  result.m_Begin = m_Begin + Begin;
-  result.m_End = m_Begin + End;
+  result.m_begin = m_begin + Begin;
+  result.m_end = m_begin + End;
   return result;
 }
 
 
 bool pqxx::row::empty() const noexcept
 {
-  return m_Begin == m_End;
+  return m_begin == m_end;
 }
 
 

@@ -32,11 +32,13 @@ std::string generate_set_transaction(
   if (rw != pqxx::read_write) args += " READ ONLY";
 
   return args.empty() ?
-	pqxx::internal::sql_begin_work :
+	pqxx::internal::sql_begin_work
+	:
 	(
           std::string(pqxx::internal::sql_begin_work) +
           "; SET TRANSACTION" +
-          args);
+          args
+	);
 }
 } // namespace
 

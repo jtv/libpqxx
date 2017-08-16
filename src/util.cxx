@@ -42,9 +42,10 @@
 using namespace pqxx::internal;
 
 
-const char pqxx::internal::sql_begin_work[] = "BEGIN",
-      pqxx::internal::sql_commit_work[] = "COMMIT",
-      pqxx::internal::sql_rollback_work[] = "ROLLBACK";
+const char
+	pqxx::internal::sql_begin_work[] = "BEGIN",
+	pqxx::internal::sql_commit_work[] = "COMMIT",
+	pqxx::internal::sql_rollback_work[] = "ROLLBACK";
 
 
 pqxx::thread_safety_model pqxx::describe_thread_safety() noexcept
@@ -107,8 +108,9 @@ void pqxx::internal::CheckUniqueRegistration(const namedclass *New,
   {
     if (Old == New)
       throw usage_error("Started twice: " + New->description());
-    throw usage_error("Started " + New->description() + " "
-		      "while " + Old->description() + " still active");
+    throw usage_error(
+	"Started " + New->description() + " while " + Old->description() +
+	" still active");
   }
 }
 
@@ -119,12 +121,14 @@ void pqxx::internal::CheckUniqueUnregistration(const namedclass *New,
   if (New != Old)
   {
     if (!New)
-      throw usage_error("Expected to close " + Old->description() + ", "
-			"but got null pointer instead");
+      throw usage_error(
+	"Expected to close " + Old->description() + ", "
+	"but got null pointer instead");
     if (!Old)
       throw usage_error("Closed while not open: " + New->description());
-    throw usage_error("Closed " + New->description() + "; "
-		      "expected to close " + Old->description());
+    throw usage_error(
+	"Closed " + New->description() + "; "
+	"expected to close " + Old->description());
   }
 }
 

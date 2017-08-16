@@ -236,7 +236,7 @@ public:
   typedef std::ios::seekdir seekdir;
 
   explicit field_streambuf(const field &F) :			//[t74]
-    m_Field(F)
+    m_field(F)
   {
     initialize();
   }
@@ -255,14 +255,14 @@ protected:
 	{ return traits_type::eof(); }
 
 private:
-  const field &m_Field;
+  const field &m_field;
 
   int_type initialize()
   {
     char_type *G =
-      reinterpret_cast<char_type *>(const_cast<char *>(m_Field.c_str()));
-    this->setg(G, G, G + m_Field.size());
-    return int_type(m_Field.size());
+      reinterpret_cast<char_type *>(const_cast<char *>(m_field.c_str()));
+    this->setg(G, G, G + m_field.size());
+    return int_type(m_field.size());
   }
 };
 
@@ -289,11 +289,11 @@ public:
   typedef typename traits_type::pos_type pos_type;
   typedef typename traits_type::off_type off_type;
 
-  basic_fieldstream(const field &F) : super(0), m_Buf(F)
-	{ super::init(&m_Buf); }
+  basic_fieldstream(const field &F) : super(0), m_buf(F)
+	{ super::init(&m_buf); }
 
 private:
-  field_streambuf<CHAR, TRAITS> m_Buf;
+  field_streambuf<CHAR, TRAITS> m_buf;
 };
 
 typedef basic_fieldstream<char> fieldstream;

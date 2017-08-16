@@ -398,18 +398,18 @@ class PQXX_LIBEXPORT namedclass
 {
 public:
   namedclass(const std::string &Classname, const std::string &Name="") :
-    m_Classname(Classname),
+    m_classname(Classname),
     m_Name(Name)
   {
   }
 
   const std::string &name() const noexcept { return m_Name; }		//[t1]
   const std::string &classname() const noexcept				//[t73]
-	{return m_Classname;}
+	{return m_classname;}
   std::string description() const;
 
 private:
-  std::string m_Classname, m_Name;
+  std::string m_classname, m_Name;
 };
 
 
@@ -429,13 +429,13 @@ public:
 
   GUEST *get() const noexcept { return m_Guest; }
 
-  void Register(GUEST *G)
+  void register_guest(GUEST *G)
   {
     CheckUniqueRegistration(G, m_Guest);
     m_Guest = G;
   }
 
-  void Unregister(GUEST *G)
+  void unregister_guest(GUEST *G)
   {
     CheckUniqueUnregistration(G, m_Guest);
     m_Guest = 0;

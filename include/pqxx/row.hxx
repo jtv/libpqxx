@@ -50,7 +50,7 @@ public:
   typedef const_reverse_row_iterator const_reverse_iterator;
   typedef const_reverse_iterator reverse_iterator;
 
-  row() : m_result(), m_Index(0), m_Begin(0), m_End(0) {}
+  row() : m_result(), m_index(0), m_begin(0), m_end(0) {}
 
   /// @deprecated Do not use this constructor.  It will become private.
   row(result r, size_t i) noexcept;
@@ -106,11 +106,11 @@ public:
   //@}
 
   size_type size() const noexcept					//[t11]
-						     { return m_End-m_Begin; }
+						     { return m_end-m_begin; }
 
   void swap(row &) noexcept;						//[t11]
 
-  size_t rownumber() const noexcept { return m_Index; }			//[t11]
+  size_t rownumber() const noexcept { return m_index; }			//[t11]
 
   /**
    * @name Column information
@@ -191,11 +191,11 @@ protected:
   /// Result set of which this is one row.
   result m_result;
   /// Row number.
-  size_t m_Index;
+  size_t m_index;
   /// First column in slice.  This row ignores lower-numbered columns.
-  size_type m_Begin;
+  size_type m_begin;
   /// End column in slice.  This row only sees lower-numbered columns.
-  size_type m_End;
+  size_type m_end;
 };
 
 

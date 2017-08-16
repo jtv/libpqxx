@@ -54,17 +54,17 @@ pqxx::result pqxx::internal::parameterized_invocation::exec()
 pqxx::transaction_base::transaction_base(connection_base &C, bool direct) :
   namedclass("transaction_base"),
   m_reactivation_avoidance(),
-  m_Conn(C),
-  m_Focus(),
-  m_Status(st_nascent),
-  m_Registered(false),
-  m_PendingError()
+  m_conn(C),
+  m_focus(),
+  m_status(st_nascent),
+  m_registered(false),
+  m_pending_error()
 {
   if (direct)
   {
     gate::connection_transaction gate(conn());
     gate.register_transaction(this);
-    m_Registered = true;
+    m_registered = true;
   }
 }
 
@@ -74,12 +74,12 @@ pqxx::transaction_base::~transaction_base()
   try
   {
     reactivation_avoidance_clear();
-    if (!m_PendingError.empty())
-      process_notice("UNPROCESSED ERROR: " + m_PendingError + "\n");
+    if (!m_pending_error.empty())
+      process_notice("UNPROCESSED ERROR: " + m_pending_error + "\n");
 
-    if (m_Registered)
+    if (m_registered)
     {
-      m_Conn.process_notice(description() + " was never closed properly!\n");
+      m_conn.process_notice(description() + " was never closed properly!\n");
       gate::connection_transaction gate(conn());
       gate.unregister_transaction(this);
     }
@@ -104,7 +104,7 @@ void pqxx::transaction_base::commit()
 
   // Check previous status code.  Caller should only call this function if
   // we're in "implicit" state, but multiple commits are silently accepted.
-  switch (m_Status)
+  switch (m_status)
   {
   case st_nascent:	// Empty transaction.  No skin off our nose.
     return;
@@ -121,14 +121,14 @@ void pqxx::transaction_base::commit()
     // that an abort is needed--which would only confuse things further at this
     // stage.
     // Therefore, multiple commits are accepted, though under protest.
-    m_Conn.process_notice(description() + " committed more than once\n");
+    m_conn.process_notice(description() + " committed more than once\n");
     return;
 
   case st_in_doubt:
     // Transaction may or may not have been committed.  The only thing we can
     // really do is keep telling the caller that the transaction is in doubt.
-    throw in_doubt_error(description() +
-		      " committed again while in an indeterminate state");
+    throw in_doubt_error(
+	description() + " committed again while in an indeterminate state");
 
   default:
     throw internal_error("pqxx::transaction: invalid status code");
@@ -138,37 +138,37 @@ void pqxx::transaction_base::commit()
   // the commit() will come before the stream is closed.  Which means the
   // commit is premature.  Punish this swiftly and without fail to discourage
   // the habit from forming.
-  if (m_Focus.get())
-    throw failure("Attempt to commit " + description() + " "
-		"with " + m_Focus.get()->description() + " "
-		"still open");
+  if (m_focus.get())
+    throw failure(
+	"Attempt to commit " + description() + " with " +
+	m_focus.get()->description() + " still open");
 
   // Check that we're still connected (as far as we know--this is not an
   // absolute thing!) before trying to commit.  If the connection was broken
   // already, the commit would fail anyway but this way at least we don't remain
   // in-doubt as to whether the backend got the commit order at all.
-  if (!m_Conn.is_open())
-    throw broken_connection("Broken connection to backend; "
-	"cannot complete transaction");
+  if (!m_conn.is_open())
+    throw broken_connection(
+	"Broken connection to backend; cannot complete transaction");
 
   try
   {
     do_commit();
-    m_Status = st_committed;
+    m_status = st_committed;
   }
   catch (const in_doubt_error &)
   {
-    m_Status = st_in_doubt;
+    m_status = st_in_doubt;
     throw;
   }
   catch (const std::exception &)
   {
-    m_Status = st_aborted;
+    m_status = st_aborted;
     throw;
   }
 
   gate::connection_transaction gate(conn());
-  gate.add_variables(m_Vars);
+  gate.add_variables(m_vars);
 
   End();
 }
@@ -178,7 +178,7 @@ void pqxx::transaction_base::abort()
 {
   // Check previous status code.  Quietly accept multiple aborts to
   // simplify emergency bailout code.
-  switch (m_Status)
+  switch (m_status)
   {
   case st_nascent:	// Never began transaction.  No need to issue rollback.
     break;
@@ -196,16 +196,16 @@ void pqxx::transaction_base::abort()
   case st_in_doubt:
     // Aborting an in-doubt transaction is probably a reasonably sane response
     // to an insane situation.  Log it, but do not complain.
-    m_Conn.process_notice("Warning: " + description() + " "
-		          "aborted after going into indeterminate state; "
-			  "it may have been executed anyway.\n");
+    m_conn.process_notice(
+	"Warning: " + description() + " aborted after going into "
+	"indeterminate state; it may have been executed anyway.\n");
     return;
 
   default:
     throw internal_error("invalid transaction status");
   }
 
-  m_Status = st_aborted;
+  m_status = st_aborted;
   End();
 }
 
@@ -226,7 +226,7 @@ std::string pqxx::transaction_base::quote_raw(const std::string &str) const
 
 void pqxx::transaction_base::activate()
 {
-  switch (m_Status)
+  switch (m_status)
   {
   case st_nascent:
     // Make sure transaction has begun before executing anything
@@ -257,11 +257,11 @@ pqxx::result pqxx::transaction_base::exec(
 
   const std::string N = (Desc.empty() ? "" : "'" + Desc + "' ");
 
-  if (m_Focus.get())
-    throw usage_error("Attempt to execute query " + N +
-		      "on " + description() + " "
-		      "with " + m_Focus.get()->description() + " "
-		      "still open");
+  if (m_focus.get())
+    throw usage_error(
+	"Attempt to execute query " + N +
+	"on " + description() + " "
+	"with " + m_focus.get()->description() + " still open");
 
   try
   {
@@ -318,37 +318,38 @@ pqxx::transaction_base::prepared(const std::string &statement)
 }
 
 
-void pqxx::transaction_base::set_variable(const std::string &Var,
-                                          const std::string &Value)
+void pqxx::transaction_base::set_variable(
+	const std::string &Var,
+	const std::string &Value)
 {
   // Before committing to this new value, see what the backend thinks about it
   gate::connection_transaction gate(conn());
   gate.raw_set_var(Var, Value);
-  m_Vars[Var] = Value;
+  m_vars[Var] = Value;
 }
 
 
 std::string pqxx::transaction_base::get_variable(const std::string &Var)
 {
-  const std::map<std::string,std::string>::const_iterator i = m_Vars.find(Var);
-  if (i != m_Vars.end()) return i->second;
+  const std::map<std::string,std::string>::const_iterator i = m_vars.find(Var);
+  if (i != m_vars.end()) return i->second;
   return gate::connection_transaction(conn()).raw_get_var(Var);
 }
 
 
 void pqxx::transaction_base::Begin()
 {
-  if (m_Status != st_nascent)
-    throw internal_error("pqxx::transaction: "
-		      "Begin() called while not in nascent state");
+  if (m_status != st_nascent)
+    throw internal_error(
+	"pqxx::transaction: Begin() called while not in nascent state");
 
   try
   {
     // Better handle any pending notifications before we begin
-    m_Conn.get_notifs();
+    m_conn.get_notifs();
 
     do_begin();
-    m_Status = st_active;
+    m_status = st_active;
   }
   catch (const std::exception &)
   {
@@ -358,30 +359,29 @@ void pqxx::transaction_base::Begin()
 }
 
 
-
 void pqxx::transaction_base::End() noexcept
 {
   try
   {
     try { CheckPendingError(); }
-    catch (const std::exception &e) { m_Conn.process_notice(e.what()); }
+    catch (const std::exception &e) { m_conn.process_notice(e.what()); }
 
-    if (m_Registered)
+    if (m_registered)
     {
-      m_Registered = false;
+      m_registered = false;
       gate::connection_transaction gate(conn());
       gate.unregister_transaction(this);
     }
 
-    if (m_Status != st_active) return;
+    if (m_status != st_active) return;
 
-    if (m_Focus.get())
-      m_Conn.process_notice("Closing " + description() + " "
-			    " with " + m_Focus.get()->description() + " "
-			    "still open\n");
+    if (m_focus.get())
+      m_conn.process_notice(
+	"Closing " + description() + "  with " +
+	m_focus.get()->description() + " still open\n");
 
     try { abort(); }
-    catch (const std::exception &e) { m_Conn.process_notice(e.what()); }
+    catch (const std::exception &e) { m_conn.process_notice(e.what()); }
 
     gate::connection_transaction gate(conn());
     gate.take_reactivation_avoidance(m_reactivation_avoidance.get());
@@ -389,28 +389,27 @@ void pqxx::transaction_base::End() noexcept
   }
   catch (const std::exception &e)
   {
-    try { m_Conn.process_notice(e.what()); } catch (const std::exception &) {}
+    try { m_conn.process_notice(e.what()); } catch (const std::exception &) {}
   }
 }
 
 
-
-void pqxx::transaction_base::RegisterFocus(internal::transactionfocus *S)
+void pqxx::transaction_base::register_focus(internal::transactionfocus *S)
 {
-  m_Focus.Register(S);
+  m_focus.register_guest(S);
 }
 
 
-void pqxx::transaction_base::UnregisterFocus(internal::transactionfocus *S)
+void pqxx::transaction_base::unregister_focus(internal::transactionfocus *S)
 	noexcept
 {
   try
   {
-    m_Focus.Unregister(S);
+    m_focus.unregister_guest(S);
   }
   catch (const std::exception &e)
   {
-    m_Conn.process_notice(std::string(e.what()) + "\n");
+    m_conn.process_notice(std::string(e.what()) + "\n");
   }
 }
 
@@ -422,14 +421,14 @@ pqxx::result pqxx::transaction_base::DirectExec(const char C[], int Retries)
 }
 
 
-void pqxx::transaction_base::RegisterPendingError(const std::string &Err)
+void pqxx::transaction_base::register_pending_error(const std::string &Err)
 	noexcept
 {
-  if (m_PendingError.empty() && !Err.empty())
+  if (m_pending_error.empty() && !Err.empty())
   {
     try
     {
-      m_PendingError = Err;
+      m_pending_error = Err;
     }
     catch (const std::exception &e)
     {
@@ -450,11 +449,11 @@ void pqxx::transaction_base::RegisterPendingError(const std::string &Err)
 
 void pqxx::transaction_base::CheckPendingError()
 {
-  if (!m_PendingError.empty())
+  if (!m_pending_error.empty())
   {
-    const std::string Err(m_PendingError);
-    m_PendingError.clear();
-    throw failure(m_PendingError);
+    const std::string Err(m_pending_error);
+    m_pending_error.clear();
+    throw failure(m_pending_error);
   }
 }
 
@@ -472,15 +471,17 @@ std::string MakeCopyString(
 } // namespace
 
 
-void pqxx::transaction_base::BeginCopyRead(const std::string &Table,
-    const std::string &Columns)
+void pqxx::transaction_base::BeginCopyRead(
+	const std::string &Table,
+	const std::string &Columns)
 {
   exec(MakeCopyString(Table, Columns) + "TO STDOUT");
 }
 
 
-void pqxx::transaction_base::BeginCopyWrite(const std::string &Table,
-    const std::string &Columns)
+void pqxx::transaction_base::BeginCopyWrite(
+	const std::string &Table,
+	const std::string &Columns)
 {
   exec(MakeCopyString(Table, Columns) + "FROM STDIN");
 }
@@ -509,7 +510,7 @@ void pqxx::transaction_base::end_copy_write()
 void pqxx::internal::transactionfocus::register_me()
 {
   gate::transaction_transactionfocus gate(m_trans);
-  gate.RegisterFocus(this);
+  gate.register_focus(this);
   m_registered = true;
 }
 
@@ -517,7 +518,7 @@ void pqxx::internal::transactionfocus::register_me()
 void pqxx::internal::transactionfocus::unregister_me() noexcept
 {
   gate::transaction_transactionfocus gate(m_trans);
-  gate.UnregisterFocus(this);
+  gate.unregister_focus(this);
   m_registered = false;
 }
 
@@ -526,5 +527,5 @@ pqxx::internal::transactionfocus::reg_pending_error(const std::string &err)
 	noexcept
 {
   gate::transaction_transactionfocus gate(m_trans);
-  gate.RegisterPendingError(err);
+  gate.register_pending_error(err);
 }

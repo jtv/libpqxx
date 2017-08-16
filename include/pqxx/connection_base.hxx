@@ -851,7 +851,7 @@ private:
   bool prepared_exists(const std::string &) const;
 
   /// Connection handle.
-  internal::pq::PGconn *m_Conn;
+  internal::pq::PGconn *m_conn;
 
   connectionpolicy &m_policy;
 
@@ -861,7 +861,7 @@ private:
   std::list<errorhandler *> m_errorhandlers;
 
   /// File to trace to, if any
-  std::FILE *m_Trace;
+  std::FILE *m_trace;
 
   typedef std::multimap<std::string, pqxx::notification_receiver *>
 	receiver_list;
@@ -869,7 +869,7 @@ private:
   receiver_list m_receivers;
 
   /// Variables set in this session
-  std::map<std::string, std::string> m_Vars;
+  std::map<std::string, std::string> m_vars;
 
   typedef std::map<std::string, prepare::internal::prepared_def> PSMap;
 
@@ -886,7 +886,7 @@ private:
   int m_unique_id;
 
   /// Have we successfully established this connection?
-  bool m_Completed;
+  bool m_completed;
 
   /// Is reactivation currently inhibited?
   bool m_inhibit_reactivation;
@@ -913,7 +913,7 @@ private:
   void PQXX_PRIVATE add_variables(const std::map<std::string, std::string> &);
 
   friend class internal::gate::connection_largeobject;
-  internal::pq::PGconn *raw_connection() const { return m_Conn; }
+  internal::pq::PGconn *raw_connection() const { return m_conn; }
 
   friend class internal::gate::connection_notification_receiver;
   void add_receiver(notification_receiver *);

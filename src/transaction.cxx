@@ -41,11 +41,11 @@ void pqxx::basic_transaction::do_commit()
       // telling what happened on the other end.  >8-O
       process_notice(e.what() + std::string("\n"));
 
-      const std::string Msg = "WARNING: "
-		  "Connection lost while committing transaction "
-		  "'" + name() + "'. "
-		  "There is no way to tell whether the transaction succeeded "
-		  "or was aborted except to check manually.";
+      const std::string Msg =
+	"WARNING: Connection lost while committing transaction "
+	"'" + name() + "'. "
+	"There is no way to tell whether the transaction succeeded "
+	"or was aborted except to check manually.";
 
       process_notice(Msg + "\n");
       throw in_doubt_error(Msg);

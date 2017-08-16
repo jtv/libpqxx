@@ -34,8 +34,9 @@ namespace
 
 inline int StdModeToPQMode(std::ios::openmode mode)
 {
-  return ((mode & std::ios::in)  ? INV_READ  : 0) |
-         ((mode & std::ios::out) ? INV_WRITE : 0);
+  return
+	((mode & std::ios::in)  ? INV_READ  : 0) |
+	((mode & std::ios::out) ? INV_WRITE : 0);
 }
 
 
@@ -106,7 +107,8 @@ pqxx::largeobject::largeobject(const largeobjectaccess &O) noexcept :
 }
 
 
-void pqxx::largeobject::to_file(dbtransaction &T,
+void pqxx::largeobject::to_file(
+	dbtransaction &T,
 	const std::string &File) const
 {
   if (lo_export(raw_connection(T), id(), File.c_str()) == -1)
@@ -159,9 +161,10 @@ pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T, openmode mode) :
 }
 
 
-pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
-					   oid O,
-					   openmode mode) :
+pqxx::largeobjectaccess::largeobjectaccess(
+	dbtransaction &T,
+	oid O,
+	openmode mode) :
   largeobject(O),
   m_trans(T),
   m_fd(-1)
@@ -170,9 +173,10 @@ pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
 }
 
 
-pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
-					   largeobject O,
-					   openmode mode) :
+pqxx::largeobjectaccess::largeobjectaccess(
+	dbtransaction &T,
+	largeobject O,
+	openmode mode) :
   largeobject(O),
   m_trans(T),
   m_fd(-1)
@@ -181,9 +185,10 @@ pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
 }
 
 
-pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T,
-					   const std::string &File,
-					   openmode mode) :
+pqxx::largeobjectaccess::largeobjectaccess(
+	dbtransaction &T,
+	const std::string &File,
+	openmode mode) :
   largeobject(T, File),
   m_trans(T),
   m_fd(-1)
@@ -254,9 +259,9 @@ void pqxx::largeobjectaccess::write(const char Buf[], size_type Len)
 	"Could not write to large object #" + to_string(id()) + ": " +
 	reason(err));
 
-    throw failure("Wanted to write " + to_string(Len) + " bytes "
-	"to large object #" + to_string(id()) + "; "
-	"could only write " + to_string(Bytes));
+    throw failure(
+	"Wanted to write " + to_string(Len) + " bytes to large object #" +
+	to_string(id()) + "; " "could only write " + to_string(Bytes));
   }
 }
 

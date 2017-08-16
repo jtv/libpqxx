@@ -27,6 +27,7 @@ template<typename T> inline void set_to_NaN(T &t)
   t = std::numeric_limits<T>::quiet_NaN();
 }
 
+
 template<typename T> inline void set_to_Inf(T &t, int sign=1)
 {
   T value = std::numeric_limits<T>::infinity();
@@ -112,8 +113,11 @@ template<typename T> void from_string_signed(const char Str[], T &Obj)
     for (++i; isdigit(Str[i]); ++i)
       result = absorb_digit(result, -digit_to_number(Str[i]));
   }
-  else for (; isdigit(Str[i]); ++i)
-    result = absorb_digit(result, digit_to_number(Str[i]));
+  else
+  {
+    for (; isdigit(Str[i]); ++i)
+      result = absorb_digit(result, digit_to_number(Str[i]));
+  }
 
   if (Str[i])
     throw pqxx::failure(
@@ -145,7 +149,6 @@ template<typename T> void from_string_unsigned(const char Str[], T &Obj)
 
 bool valid_infinity_string(const char str[])
 {
-  // TODO: Also accept less sensible case variations.
   return
 	strcmp("infinity", str) == 0 ||
 	strcmp("Infinity", str) == 0 ||
@@ -271,6 +274,7 @@ void throw_null_conversion(const std::string &type)
 }
 } // namespace pqxx::internal
 
+
 void string_traits<bool>::from_string(const char Str[], bool &Obj)
 {
   bool OK, result=false;
@@ -285,9 +289,10 @@ void string_traits<bool>::from_string(const char Str[], bool &Obj)
   case 'f':
   case 'F':
     result = false;
-    OK = !(Str[1] &&
-	   (strcmp(Str+1, "alse") != 0) &&
-	   (strcmp(Str+1, "ALSE") != 0));
+    OK = !(
+	Str[1] &&
+	(strcmp(Str+1, "alse") != 0) &&
+	(strcmp(Str+1, "ALSE") != 0));
     break;
 
   case '0':
@@ -307,9 +312,10 @@ void string_traits<bool>::from_string(const char Str[], bool &Obj)
   case 't':
   case 'T':
     result = true;
-    OK = !(Str[1] &&
-	   (strcmp(Str+1, "rue") != 0) &&
-	   (strcmp(Str+1, "RUE") != 0));
+    OK = !(
+	Str[1] &&
+	(strcmp(Str+1, "rue") != 0) &&
+	(strcmp(Str+1, "RUE") != 0));
     break;
 
   default:
@@ -323,20 +329,24 @@ void string_traits<bool>::from_string(const char Str[], bool &Obj)
   Obj = result;
 }
 
+
 std::string string_traits<bool>::to_string(bool Obj)
 {
   return Obj ? "true" : "false";
 }
+
 
 void string_traits<short>::from_string(const char Str[], short &Obj)
 {
   from_string_signed(Str, Obj);
 }
 
+
 std::string string_traits<short>::to_string(short Obj)
 {
   return to_string_signed(Obj);
 }
+
 
 void string_traits<unsigned short>::from_string(
 	const char Str[],
@@ -345,20 +355,24 @@ void string_traits<unsigned short>::from_string(
   from_string_unsigned(Str, Obj);
 }
 
+
 std::string string_traits<unsigned short>::to_string(unsigned short Obj)
 {
   return to_string_unsigned(Obj);
 }
+
 
 void string_traits<int>::from_string(const char Str[], int &Obj)
 {
   from_string_signed(Str, Obj);
 }
 
+
 std::string string_traits<int>::to_string(int Obj)
 {
   return to_string_signed(Obj);
 }
+
 
 void string_traits<unsigned int>::from_string(
 	const char Str[],
@@ -367,20 +381,24 @@ void string_traits<unsigned int>::from_string(
   from_string_unsigned(Str, Obj);
 }
 
+
 std::string string_traits<unsigned int>::to_string(unsigned int Obj)
 {
   return to_string_unsigned(Obj);
 }
+
 
 void string_traits<long>::from_string(const char Str[], long &Obj)
 {
   from_string_signed(Str, Obj);
 }
 
+
 std::string string_traits<long>::to_string(long Obj)
 {
   return to_string_signed(Obj);
 }
+
 
 void string_traits<unsigned long>::from_string(
 	const char Str[],
@@ -389,20 +407,24 @@ void string_traits<unsigned long>::from_string(
   from_string_unsigned(Str, Obj);
 }
 
+
 std::string string_traits<unsigned long>::to_string(unsigned long Obj)
 {
   return to_string_unsigned(Obj);
 }
+
 
 void string_traits<long long>::from_string(const char Str[], long long &Obj)
 {
   from_string_signed(Str, Obj);
 }
 
+
 std::string string_traits<long long>::to_string(long long Obj)
 {
   return to_string_signed(Obj);
 }
+
 
 void string_traits<unsigned long long>::from_string(
 	const char Str[],
@@ -411,36 +433,43 @@ void string_traits<unsigned long long>::from_string(
   from_string_unsigned(Str, Obj);
 }
 
+
 std::string string_traits<unsigned long long>::to_string(
         unsigned long long Obj)
 {
   return to_string_unsigned(Obj);
 }
 
+
 void string_traits<float>::from_string(const char Str[], float &Obj)
 {
   from_string_float(Str, Obj);
 }
+
 
 std::string string_traits<float>::to_string(float Obj)
 {
   return to_string_float(Obj);
 }
 
+
 void string_traits<double>::from_string(const char Str[], double &Obj)
 {
   from_string_float(Str, Obj);
 }
+
 
 std::string string_traits<double>::to_string(double Obj)
 {
   return to_string_float(Obj);
 }
 
+
 void string_traits<long double>::from_string(const char Str[], long double &Obj)
 {
   from_string_float(Str, Obj);
 }
+
 
 std::string string_traits<long double>::to_string(long double Obj)
 {

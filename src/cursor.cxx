@@ -41,7 +41,8 @@ inline bool useless_trail(char c)
 }
 
 
-pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
+pqxx::internal::sql_cursor::sql_cursor(
+	transaction_base &t,
 	const std::string &query,
 	const std::string &cname,
 	cursor_base::accesspolicy ap,
@@ -107,7 +108,8 @@ pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
 }
 
 
-pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
+pqxx::internal::sql_cursor::sql_cursor(
+	transaction_base &t,
 	const std::string &cname,
 	cursor_base::ownershippolicy op) :
   cursor_base(t.conn(), cname, false),
@@ -118,8 +120,8 @@ pqxx::internal::sql_cursor::sql_cursor(transaction_base &t,
   m_pos(-1),
   m_endpos(-1)
 {
-  // If we take responsibility for destroying the cursor, that's one less reason
-  // not to allow the connection to be deactivated and reactivated.
+  // If we take responsibility for destroying the cursor, that's one less
+  // reason not to allow the connection to be deactivated and reactivated.
   // TODO: Go over lifetime/reactivation rules again to be sure they work
   if (op==cursor_base::owned)
     gate::connection_sql_cursor(t.conn()).add_reactivation_avoidance_count(-1);
@@ -185,7 +187,8 @@ pqxx::internal::sql_cursor::adjust(difference_type hoped,
     if (direction > 0) hit_end = true;
     else if (m_pos == -1) m_pos = actual;
     else if (m_pos != actual)
-      throw internal_error("Moved back to beginning, but wrong position: "
+      throw internal_error(
+	"Moved back to beginning, but wrong position: "
         "hoped=" + to_string(hoped) + ", "
         "actual=" + to_string(actual) + ", "
         "m_pos=" + to_string(m_pos) + ", "
@@ -209,7 +212,8 @@ pqxx::internal::sql_cursor::adjust(difference_type hoped,
 }
 
 
-result pqxx::internal::sql_cursor::fetch(difference_type rows,
+result pqxx::internal::sql_cursor::fetch(
+	difference_type rows,
 	difference_type &displacement)
 {
   if (!rows)
@@ -260,7 +264,8 @@ std::string pqxx::internal::sql_cursor::stridestring(difference_type n)
 }
 
 
-pqxx::cursor_base::cursor_base(connection_base &context,
+pqxx::cursor_base::cursor_base(
+	connection_base &context,
 	const std::string &Name,
 	bool embellish_name) :
   m_name(embellish_name ? context.adorn_name(Name) : Name)
@@ -429,6 +434,7 @@ pqxx::icursor_iterator::icursor_iterator() noexcept :
 {
 }
 
+
 pqxx::icursor_iterator::icursor_iterator(istream_type &s) noexcept :
   m_stream(&s),
   m_here(),
@@ -438,6 +444,7 @@ pqxx::icursor_iterator::icursor_iterator(istream_type &s) noexcept :
 {
   gate::icursorstream_icursor_iterator(*m_stream).insert_iterator(this);
 }
+
 
 pqxx::icursor_iterator::icursor_iterator(const icursor_iterator &rhs)
 	noexcept :

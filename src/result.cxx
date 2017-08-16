@@ -262,8 +262,8 @@ const std::string &pqxx::result::query() const noexcept
 pqxx::oid pqxx::result::inserted_oid() const
 {
   if (!m_data.get())
-    throw usage_error("Attempt to read oid of inserted row without an INSERT "
-	"result");
+    throw usage_error(
+	"Attempt to read oid of inserted row without an INSERT result");
   return PQoidValue(const_cast<internal::pq::PGresult *>(m_data.get()));
 }
 
@@ -318,8 +318,9 @@ pqxx::oid pqxx::result::column_table(row::size_type ColNum) const
    * got an invalid row number.
    */
   if (T == oid_none && ColNum >= columns())
-    throw argument_error("Attempt to retrieve table ID for column " +
-	to_string(ColNum) + " out of " + to_string(columns()));
+    throw argument_error(
+	"Attempt to retrieve table ID for column " + to_string(ColNum) +
+	" out of " + to_string(columns()));
 
   return T;
 }
@@ -386,7 +387,7 @@ pqxx::row::size_type pqxx::result::columns() const noexcept
 pqxx::const_result_iterator pqxx::const_result_iterator::operator++(int)
 {
   const_result_iterator old(*this);
-  m_Index++;
+  m_index++;
   return old;
 }
 
@@ -394,7 +395,7 @@ pqxx::const_result_iterator pqxx::const_result_iterator::operator++(int)
 pqxx::const_result_iterator pqxx::const_result_iterator::operator--(int)
 {
   const_result_iterator old(*this);
-  m_Index--;
+  m_index--;
   return old;
 }
 

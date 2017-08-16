@@ -22,15 +22,18 @@ pqxx::failure::failure(const std::string &whatarg) :
 {
 }
 
+
 pqxx::broken_connection::broken_connection() :
   failure("Connection to database failed")
 {
 }
 
+
 pqxx::broken_connection::broken_connection(const std::string &whatarg) :
   failure(whatarg)
 {
 }
+
 
 pqxx::sql_error::sql_error(
 	const std::string &whatarg,
@@ -41,6 +44,7 @@ pqxx::sql_error::sql_error(
   m_sqlstate(sqlstate ? sqlstate : "")
 {
 }
+
 
 pqxx::sql_error::~sql_error() noexcept
 {

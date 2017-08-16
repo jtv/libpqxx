@@ -20,7 +20,7 @@
 pqxx::field::field(const pqxx::row &R, pqxx::row::size_type C) noexcept :
   m_col(C),
   m_home(&R.m_result),
-  m_row(R.m_Index)
+  m_row(R.m_index)
 {
 }
 

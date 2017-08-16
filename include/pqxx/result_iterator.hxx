@@ -74,14 +74,14 @@ public:
    */
   //@{
   const_result_iterator operator++(int);				//[t12]
-  const_result_iterator &operator++() { ++m_Index; return *this; }	//[t1]
+  const_result_iterator &operator++() { ++m_index; return *this; }	//[t1]
   const_result_iterator operator--(int);				//[t12]
-  const_result_iterator &operator--() { --m_Index; return *this; }	//[t12]
+  const_result_iterator &operator--() { --m_index; return *this; }	//[t12]
 
   const_result_iterator &operator+=(difference_type i)			//[t12]
-      { m_Index = size_type(difference_type(m_Index) + i); return *this; }
+      { m_index = size_type(difference_type(m_index) + i); return *this; }
   const_result_iterator &operator-=(difference_type i)			//[t12]
-      { m_Index = size_type(difference_type(m_Index) - i); return *this; }
+      { m_index = size_type(difference_type(m_index) - i); return *this; }
   //@}
 
   /**
@@ -89,17 +89,17 @@ public:
    */
   //@{
   bool operator==(const const_result_iterator &i) const			//[t12]
-      {return m_Index==i.m_Index;}
+      {return m_index==i.m_index;}
   bool operator!=(const const_result_iterator &i) const			//[t12]
-      {return m_Index!=i.m_Index;}
+      {return m_index!=i.m_index;}
   bool operator<(const const_result_iterator &i) const			//[t12]
-      {return m_Index<i.m_Index;}
+      {return m_index<i.m_index;}
   bool operator<=(const const_result_iterator &i) const			//[t12]
-      {return m_Index<=i.m_Index;}
+      {return m_index<=i.m_index;}
   bool operator>(const const_result_iterator &i) const			//[t12]
-      {return m_Index>i.m_Index;}
+      {return m_index>i.m_index;}
   bool operator>=(const const_result_iterator &i) const			//[t12]
-      {return m_Index>=i.m_Index;}
+      {return m_index>=i.m_index;}
   //@}
 
   /**
@@ -216,7 +216,7 @@ inline const_result_iterator
 const_result_iterator::operator+(result::difference_type o) const
 {
   return const_result_iterator(
-	&m_result, size_type(result::difference_type(m_Index) + o));
+	&m_result, size_type(result::difference_type(m_index) + o));
 }
 
 inline const_result_iterator
@@ -228,7 +228,7 @@ const_result_iterator::operator-(result::difference_type o) const
 {
   return const_result_iterator(
 	&m_result,
-	result_size_type(result::difference_type(m_Index) - o));
+	result_size_type(result::difference_type(m_index) - o));
 }
 
 inline result::difference_type

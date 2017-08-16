@@ -145,8 +145,9 @@ bool pqxx::pipeline::is_finished(pipeline::query_id q) const
   if (m_queries.find(q) == m_queries.end())
     throw std::logic_error(
       "Requested status for unknown query " + to_string(q));
-  return (QueryMap::const_iterator(m_issuedrange.first)==m_queries.end()) ||
-         (q < m_issuedrange.first->first && q < m_error);
+  return
+	(QueryMap::const_iterator(m_issuedrange.first)==m_queries.end()) ||
+	(q < m_issuedrange.first->first && q < m_error);
 }
 
 
@@ -161,7 +162,8 @@ std::pair<pipeline::query_id, result> pqxx::pipeline::retrieve()
 int pqxx::pipeline::retain(int retain_max)
 {
   if (retain_max < 0)
-    throw range_error("Attempt to make pipeline retain " +
+    throw range_error(
+	"Attempt to make pipeline retain " +
 	to_string(retain_max) + " queries");
 
   const int oldvalue = m_retain;
@@ -216,8 +218,8 @@ void pqxx::pipeline::issue()
   // Construct cumulative query string for entire batch
   std::string cum = separated_list(
           theSeparator, oldest, m_queries.end(), getquery());
-  const auto num_issued =
-    QueryMap::size_type(std::distance(oldest, m_queries.end()));
+  const auto num_issued = QueryMap::size_type(std::distance(
+	oldest, m_queries.end()));
   const bool prepend_dummy = (num_issued > 1);
   if (prepend_dummy) cum = theDummyQuery + cum;
 
@@ -374,8 +376,8 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
     throw std::logic_error("Attempt to retrieve result for unknown query");
 
   if (q->first >= m_error)
-    throw std::runtime_error("Could not complete query in pipeline "
-	"due to error in earlier query");
+    throw std::runtime_error(
+	"Could not complete query in pipeline due to error in earlier query");
 
   // If query hasn't issued yet, do it now
   if (m_issuedrange.second != m_queries.end() &&
@@ -405,8 +407,8 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
   pqxxassert((m_error <= q->first) || (q != m_issuedrange.first));
 
   if (q->first >= m_error)
-    throw std::runtime_error("Could not complete query in pipeline "
-	"due to error in earlier query");
+    throw std::runtime_error(
+	"Could not complete query in pipeline due to error in earlier query");
 
   // Don't leave the backend idle if there are queries waiting to be issued
   if (m_num_waiting && !have_pending() && (m_error==qid_limit())) issue();
