@@ -365,6 +365,6 @@ template<> struct string_traits<std::vector<std::string> >
   static subject_type null(); // Not needed
   static void from_string(const char Str[], subject_type &Obj); // Not needed
   static std::string to_string(const subject_type &Obj)
-				 { return separated_list("; ", Obj); }
+	{ return separated_list("; ", Obj); }
 };
 } // namespace pqxx
