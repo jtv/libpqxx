@@ -13,22 +13,21 @@ namespace
 {
 class ReadTables : public transactor<nontransaction>
 {
-  result m_Result;
+  result m_result;
 public:
   ReadTables() : transactor<nontransaction>("ReadTables") {}
 
   void operator()(argument_type &T)
   {
-    m_Result = T.exec("SELECT * FROM pg_tables");
+    m_result = T.exec("SELECT * FROM pg_tables");
   }
 
   void on_commit()
   {
-    for (auto c = m_Result.begin(); c != m_Result.end(); ++c)
+    for (const auto &c: m_result)
     {
       string N;
       c[0].to(N);
-
       cout << '\t' << to_string(c.num()) << '\t' << N << endl;
     }
   }

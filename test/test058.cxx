@@ -79,9 +79,6 @@ public:
     // Clean up after ourselves
     A.remove(T);
   }
-
-private:
-  largeobject m_Object;
 };
 
 

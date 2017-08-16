@@ -22,22 +22,22 @@ const int BoringYear = 1977;
 // former count in the result pair's first member, and the latter in second.
 class CountEvents : public transactor<>
 {
-  string m_Table;
-  pair<int, int> &m_Results;
+  string m_table;
+  pair<int, int> &m_results;
 public:
   CountEvents(string Table, pair<int,int> &Results) :
-    transactor<>("CountEvents"), m_Table(Table), m_Results(Results) {}
+    transactor<>("CountEvents"), m_table(Table), m_results(Results) {}
 
   void operator()(argument_type &T)
   {
-    const string CountQuery = "SELECT count(*) FROM " + m_Table;
+    const string CountQuery = "SELECT count(*) FROM " + m_table;
     row R;
 
     R = T.exec1(CountQuery);
-    R.front().to(m_Results.first);
+    R.front().to(m_results.first);
 
     R = T.exec1(CountQuery + " WHERE year=" + to_string(BoringYear));
-    R.front().to(m_Results.second);
+    R.front().to(m_results.second);
   }
 };
 
@@ -49,19 +49,19 @@ struct deliberate_error : exception
 
 class FailedInsert : public transactor<>
 {
-  string m_Table;
+  string m_table;
   static string LastReason;
 public:
   FailedInsert(string Table) :
     transactor<>("FailedInsert"),
-    m_Table(Table)
+    m_table(Table)
   {
   }
 
   void operator()(argument_type &T)
   {
     T.exec0(
-	"INSERT INTO " + m_Table + " VALUES (" +
+	"INSERT INTO " + m_table + " VALUES (" +
 	to_string(BoringYear) + ", "
 	"'yawn')");
 

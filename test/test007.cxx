@@ -71,13 +71,13 @@ public:
 	"Column type by C-style name is different.");
 
     // Note all different years currently occurring in the table, writing them
-    // and their correct mappings to m_Conversions
+    // and their correct mappings to m_conversions.
     for (auto r = R.begin(); r != R.end(); ++r)
     {
       int Y;
 
       // Read year, and if it is non-null, note its converted value
-      if (r[0] >> Y) m_Conversions[Y] = To4Digits(Y);
+      if (r[0] >> Y) m_conversions[Y] = To4Digits(Y);
 
       // See if type identifiers are consistent
       const oid tctype = r->column_type(0);
@@ -119,11 +119,13 @@ public:
     // For each occurring year, write converted date back to whereever it may
     // occur in the table.  Since we're in a transaction, any changes made by
     // others at the same time will not affect us.
-    for (auto c = m_Conversions.begin(); c != m_Conversions.end(); ++c)
+    for (const auto &c: m_conversions)
     {
-      R = T.exec0(("UPDATE pqxxevents "
-	          "SET year=" + to_string(c->second) + " "
-	          "WHERE year=" + to_string(c->first)).c_str());
+      const auto query = 
+	"UPDATE pqxxevents "
+	"SET year=" + to_string(c.second) + " "
+	"WHERE year=" + to_string(c.first);
+      R = T.exec0(query.c_str());
       AffectedRows += R.affected_rows();
     }
     cout << AffectedRows << " rows updated." << endl;
@@ -138,7 +140,7 @@ public:
     // somebody else between our attempts.
     // Even if this fails (eg. because we run out of memory), the actual
     // database transaction will still have been performed.
-    theConversions = m_Conversions;
+    theConversions = m_conversions;
   }
 
   // Postprocessing code for aborted execution attempt
@@ -157,7 +159,7 @@ public:
 
 private:
   // Local store of date conversions to be performed
-  map<int,int> m_Conversions;
+  map<int,int> m_conversions;
 };
 
 

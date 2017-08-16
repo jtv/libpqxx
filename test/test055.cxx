@@ -18,8 +18,8 @@ class ImportLargeObject : public transactor<>
 public:
   explicit ImportLargeObject(largeobject &O, const string &File) :
     transactor<>("ImportLargeObject"),
-    m_Object(O),
-    m_File(File)
+    m_object(O),
+    m_file(File)
   {
   }
 
@@ -27,9 +27,9 @@ public:
   {
 
     largeobjectaccess A(T, "pqxxlo.txt", ios::in);
-    m_Object = largeobject(A);
-    cout << "Imported '" << m_File << "' "
-            "to large object #" << m_Object.id() << endl;
+    m_object = largeobject(A);
+    cout << "Imported '" << m_file << "' "
+            "to large object #" << m_object.id() << endl;
 
     char Buf[200];
     const auto len = A.read(Buf, sizeof(Buf)-1);
@@ -40,23 +40,23 @@ public:
   }
 
 private:
-  largeobject &m_Object;
-  string m_File;
+  largeobject &m_object;
+  string m_file;
 };
 
 
 class DeleteLargeObject : public transactor<>
 {
 public:
-  explicit DeleteLargeObject(largeobject O) : m_Object(O) {}
+  explicit DeleteLargeObject(largeobject O) : m_object(O) {}
 
   void operator()(argument_type &T)
   {
-    m_Object.remove(T);
+    m_object.remove(T);
   }
 
 private:
-  largeobject m_Object;
+  largeobject m_object;
 };
 
 

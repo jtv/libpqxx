@@ -17,21 +17,21 @@ class ImportLargeObject : public transactor<>
 public:
   explicit ImportLargeObject(largeobject &O, const string &File) :
     transactor<>("ImportLargeObject"),
-    m_Object(O),
-    m_File(File)
+    m_object(O),
+    m_file(File)
   {
   }
 
   void operator()(argument_type &T)
   {
-    m_Object = largeobject(T, m_File);
-    cout << "Imported '" << m_File << "' "
-            "to large object #" << m_Object.id() << endl;
+    m_object = largeobject(T, m_file);
+    cout << "Imported '" << m_file << "' "
+            "to large object #" << m_object.id() << endl;
   }
 
 private:
-  largeobject &m_Object;
-  string m_File;
+  largeobject &m_object;
+  string m_file;
 };
 
 
@@ -40,14 +40,14 @@ class ReadLargeObject : public transactor<>
 public:
   explicit ReadLargeObject(largeobject &O) :
     transactor<>("ReadLargeObject"),
-    m_Object(O)
+    m_object(O)
   {
   }
 
   void operator()(argument_type &T)
   {
     char Buf[200];
-    largeobjectaccess O(T, m_Object, ios::in);
+    largeobjectaccess O(T, m_object, ios::in);
     const auto len = O.read(Buf, sizeof(Buf)-1);
     PQXX_CHECK_EQUAL(
 	string(Buf, string::size_type(len)),
@@ -56,22 +56,22 @@ public:
   }
 
 private:
-  largeobject m_Object;
+  largeobject m_object;
 };
 
 
 class DeleteLargeObject : public transactor<>
 {
 public:
-  explicit DeleteLargeObject(largeobject O) : m_Object(O) {}
+  explicit DeleteLargeObject(largeobject O) : m_object(O) {}
 
   void operator()(argument_type &T)
   {
-    m_Object.remove(T);
+    m_object.remove(T);
   }
 
 private:
-  largeobject m_Object;
+  largeobject m_object;
 };
 
 

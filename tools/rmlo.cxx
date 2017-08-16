@@ -9,13 +9,13 @@ namespace
 {
   class RemoveLO : public transactor<>
   {
-    oid m_O;
+    oid m_oid;
   public:
-    explicit RemoveLO(oid O) : m_O(O) {}
+    explicit RemoveLO(oid O) : m_oid(O) {}
 
     void operator()(argument_type &T)
     {
-      largeobject L(m_O);
+      largeobject L(m_oid);
       L.remove(T);
     }
   };

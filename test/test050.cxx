@@ -20,25 +20,25 @@ class CreateLargeObject : public transactor<>
 public:
   explicit CreateLargeObject(largeobject &O) :
     transactor<>("CreateLargeObject"),
-    m_Object(),
-    m_ObjectOutput(O)
+    m_object(),
+    m_object_output(O)
   {
   }
 
   void operator()(argument_type &T)
   {
-    m_Object = largeobject(T);
-    cout << "Created large object #" << m_Object.id() << endl;
+    m_object = largeobject(T);
+    cout << "Created large object #" << m_object.id() << endl;
   }
 
   void on_commit()
   {
-    m_ObjectOutput = m_Object;
+    m_object_output = m_object;
   }
 
 private:
-  largeobject m_Object;
-  largeobject &m_ObjectOutput;
+  largeobject m_object;
+  largeobject &m_object_output;
 };
 
 
@@ -47,13 +47,13 @@ class WriteLargeObject : public transactor<>
 public:
   explicit WriteLargeObject(largeobject &O) :
     transactor<>("WriteLargeObject"),
-    m_Object(O)
+    m_object(O)
   {
   }
 
   void operator()(argument_type &T)
   {
-    largeobjectaccess A(T, m_Object);
+    largeobjectaccess A(T, m_object);
     const auto
 	orgpos = A.ctell(),
 	copyorgpos = A.ctell();
@@ -113,22 +113,22 @@ public:
   }
 
 private:
-  largeobject m_Object;
+  largeobject m_object;
 };
 
 
 class DeleteLargeObject : public transactor<>
 {
 public:
-  explicit DeleteLargeObject(largeobject O) : m_Object(O) {}
+  explicit DeleteLargeObject(largeobject O) : m_object(O) {}
 
   void operator()(argument_type &T)
   {
-    m_Object.remove(T);
+    m_object.remove(T);
   }
 
 private:
-  largeobject m_Object;
+  largeobject m_object;
 };
 
 

@@ -17,8 +17,8 @@ class WriteLargeObject : public transactor<>
 public:
   explicit WriteLargeObject(largeobject &O) :
     transactor<>("WriteLargeObject"),
-    m_Object(),
-    m_ObjectOutput(O)
+    m_object(),
+    m_object_output(O)
   {
   }
 
@@ -26,7 +26,7 @@ public:
   {
     largeobjectaccess A(T);
     cout << "Created large object #" << A.id() << endl;
-    m_Object = largeobject(A);
+    m_object = largeobject(A);
 
     A.write(Contents);
 
@@ -69,55 +69,55 @@ public:
   void on_commit()
   {
     PQXX_CHECK(
-	m_ObjectOutput != m_Object,
+	m_object_output != m_object,
 	"Large objects: false negative on operator!=().");
 
     PQXX_CHECK(
-	!(m_ObjectOutput == m_Object),
+	!(m_object_output == m_object),
 	"Large objects: false positive on operator==().");
 
-    m_ObjectOutput = m_Object;
+    m_object_output = m_object;
 
     PQXX_CHECK(
-	!(m_ObjectOutput != m_Object),
+	!(m_object_output != m_object),
 	"Large objects: false positive on operator!=().");
     PQXX_CHECK(
-	m_ObjectOutput == m_Object,
+	m_object_output == m_object,
 	"Large objects: false negative on operator==().");
 
     PQXX_CHECK(
-	m_ObjectOutput <= m_Object,
+	m_object_output <= m_object,
 	"Large objects: false negative on operator<=().");
     PQXX_CHECK(
-	m_ObjectOutput >= m_Object,
+	m_object_output >= m_object,
 	"Large objects: false negative on operator>=().");
 
     PQXX_CHECK(
-	!(m_ObjectOutput < m_Object),
+	!(m_object_output < m_object),
 	"Large objects: false positive on operator<().");
     PQXX_CHECK(
-	!(m_ObjectOutput > m_Object),
+	!(m_object_output > m_object),
 	"Large objects: false positive on operator>().");
  }
 
 private:
-  largeobject m_Object;
-  largeobject &m_ObjectOutput;
+  largeobject m_object;
+  largeobject &m_object_output;
 };
 
 
 class DeleteLargeObject : public transactor<>
 {
 public:
-  explicit DeleteLargeObject(largeobject O) : m_Object(O) {}
+  explicit DeleteLargeObject(largeobject O) : m_object(O) {}
 
   void operator()(argument_type &T)
   {
-    m_Object.remove(T);
+    m_object.remove(T);
   }
 
 private:
-  largeobject m_Object;
+  largeobject m_object;
 };
 
 

@@ -43,24 +43,24 @@ public:
     result R( T.exec("SELECT year FROM pqxxevents") );
 
     // Note all different years currently occurring in the table, writing them
-    // and their correct mappings to m_Conversions
-    for (auto r = R.begin(); r != R.end(); ++r)
+    // and their correct mappings to m_conversions
+    for (const auto &r: R)
     {
       int Y;
 
       // Read year, and if it is non-null, note its converted value
       if (r[0].to(Y))
-	m_Conversions[Y] = To4Digits(Y);
+	m_conversions[Y] = To4Digits(Y);
     }
 
     // For each occurring year, write converted date back to whereever it may
     // occur in the table.  Since we're in a transaction, any changes made by
     // others at the same time will not affect us.
-    for (auto c = m_Conversions.begin(); c != m_Conversions.end(); ++c)
+    for (const auto &c: m_conversions)
       T.exec0(
 	"UPDATE pqxxevents "
-	"SET year=" + to_string(c->second) + " "
-	"WHERE year=" + to_string(c->first));
+	"SET year=" + to_string(c.second) + " "
+	"WHERE year=" + to_string(c.first));
   }
 
   // Postprocessing code for successful execution
@@ -72,7 +72,7 @@ public:
     // somebody else between our attempts.
     // Even if this fails (eg. because we run out of memory), the actual
     // database transaction will still have been performed.
-    theConversions = m_Conversions;
+    theConversions = m_conversions;
   }
 
   // Postprocessing code for aborted execution attempt
@@ -91,7 +91,7 @@ public:
 
 private:
   // Local store of date conversions to be performed
-  map<int,int> m_Conversions;
+  map<int,int> m_conversions;
 };
 
 

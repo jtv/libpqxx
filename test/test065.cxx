@@ -29,30 +29,30 @@ class WriteLargeObject : public transactor<>
 public:
   WriteLargeObject(const string &Contents, largeobject &O) :
     transactor<>("WriteLargeObject"),
-    m_Contents(Contents),
-    m_Object(),
-    m_ObjectOutput(O)
+    m_contents(Contents),
+    m_object(),
+    m_object_output(O)
   {
   }
 
   void operator()(argument_type &T)
   {
-    m_Object = largeobject(T);
-    cout << "Created large object #" << m_Object.id() << endl;
+    m_object = largeobject(T);
+    cout << "Created large object #" << m_object.id() << endl;
 
-    lostream S(T, m_Object.id());
-    S << m_Contents;
+    lostream S(T, m_object.id());
+    S << m_contents;
   }
 
   void on_commit()
   {
-    m_ObjectOutput = m_Object;
+    m_object_output = m_object;
   }
 
 private:
-  string m_Contents;
-  largeobject m_Object;
-  largeobject &m_ObjectOutput;
+  string m_contents;
+  largeobject m_object;
+  largeobject &m_object_output;
 };
 
 
@@ -61,42 +61,42 @@ class ReadLargeObject : public transactor<>
 public:
   ReadLargeObject(string &Contents, largeobject O) :
     transactor<>("ReadLargeObject"),
-    m_Contents(),
-    m_ContentsOutput(Contents),
-    m_Object(O)
+    m_contents(),
+    m_object_output(Contents),
+    m_object(O)
   {
   }
 
   void operator()(argument_type &T)
   {
-    lostream S(T, m_Object, ios::in);
-    m_Contents = UnStream(S);
+    lostream S(T, m_object, ios::in);
+    m_contents = UnStream(S);
   }
 
   void on_commit()
   {
-    m_ContentsOutput = m_Contents;
+    m_object_output = m_contents;
   }
 
 private:
-  string m_Contents;
-  string &m_ContentsOutput;
-  largeobject m_Object;
+  string m_contents;
+  string &m_object_output;
+  largeobject m_object;
 };
 
 
 class DeleteLargeObject : public transactor<>
 {
 public:
-  DeleteLargeObject(largeobject O) : m_Object(O) {}
+  DeleteLargeObject(largeobject O) : m_object(O) {}
 
   void operator()(argument_type &T)
   {
-    m_Object.remove(T);
+    m_object.remove(T);
   }
 
 private:
-  largeobject m_Object;
+  largeobject m_object;
 };
 
 
