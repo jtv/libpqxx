@@ -160,8 +160,9 @@ public:
    * @param T Backend transaction in which the object is to be created
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
-  explicit largeobjectaccess(dbtransaction &T,
-			     openmode mode=std::ios::in|std::ios::out);	//[t51]
+  explicit largeobjectaccess(						//[t51]
+	dbtransaction &T,
+	openmode mode=std::ios::in|std::ios::out);
 
   /// Open large object with given oid
   /** Convert combination of a transaction and object identifier into a
@@ -170,9 +171,10 @@ public:
    * @param O Object identifier for the given object
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
-  largeobjectaccess(dbtransaction &T,
-		    oid O,
-		    openmode mode=std::ios::in|std::ios::out);		//[t52]
+  largeobjectaccess(							//[t52]
+	dbtransaction &T,
+	oid O,
+	openmode mode=std::ios::in|std::ios::out);
 
   /// Open given large object
   /** Open a large object with the given identity for reading and/or writing
@@ -180,9 +182,10 @@ public:
    * @param O Identity for the large object to be accessed
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
-  largeobjectaccess(dbtransaction &T,
-		    largeobject O,
-		    openmode mode=std::ios::in|std::ios::out);		//[t50]
+  largeobjectaccess(							//[t50]
+	dbtransaction &T,
+	largeobject O,
+	openmode mode=std::ios::in|std::ios::out);
 
   /// Import large object from a local file and open it
   /** Creates a large object containing the data found in the given file.
@@ -190,9 +193,10 @@ public:
    * @param File A filename on the client program's filesystem
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
-  largeobjectaccess(dbtransaction &T,
-		    const std::string &File,
-		    openmode mode=std::ios::in|std::ios::out);		//[t55]
+  largeobjectaccess(							//[t55]
+	dbtransaction &T,
+	const std::string &File,
+	openmode mode=std::ios::in|std::ios::out);
 
   ~largeobjectaccess() noexcept { close(); }
 
@@ -354,20 +358,22 @@ public:
   typedef largeobjectaccess::openmode openmode;
   typedef largeobjectaccess::seekdir seekdir;
 
-  largeobject_streambuf(dbtransaction &T,
-			largeobject O,
-			openmode mode=std::ios::in|std::ios::out,
-			size_type BufSize=512) :			//[t48]
+  largeobject_streambuf(						//[t48]
+	dbtransaction &T,
+	largeobject O,
+	openmode mode=std::ios::in|std::ios::out,
+	size_type BufSize=512) :
     m_bufsize(BufSize),
     m_obj(T, O, mode),
     m_g(0),
     m_p(0)
 	{ initialize(mode); }
 
-  largeobject_streambuf(dbtransaction &T,
-			oid O,
-			openmode mode=std::ios::in|std::ios::out,
-			size_type BufSize=512) :			//[t48]
+  largeobject_streambuf(						//[t48]
+	dbtransaction &T,
+	oid O,
+	openmode mode=std::ios::in|std::ios::out,
+	size_type BufSize=512) :
     m_bufsize(BufSize),
     m_obj(T, O, mode),
     m_g(0),
@@ -390,9 +396,11 @@ protected:
   }
 
 protected:
-  virtual pos_type seekoff(off_type offset,
-			   seekdir dir,
-			   openmode) override
+  virtual pos_type seekoff(
+	off_type offset,
+	seekdir dir,
+	openmode)
+	override
   {
     return AdjustEOF(m_obj.cseek(largeobjectaccess::off_type(offset), dir));
   }
@@ -493,9 +501,10 @@ public:
    * @param O Large object to access
    * @param BufSize Size of buffer to use internally (optional)
    */
-  basic_ilostream(dbtransaction &T,
-                  largeobject O,
-		  largeobject::size_type BufSize=512) :			//[t57]
+  basic_ilostream(							//[t57]
+	dbtransaction &T,
+        largeobject O,
+	largeobject::size_type BufSize=512) :
     super(0),
     m_buf(T, O, std::ios::in, BufSize)
 	{ super::init(&m_buf); }
@@ -506,9 +515,10 @@ public:
    * @param O Identifier of a large object to access
    * @param BufSize Size of buffer to use internally (optional)
    */
-  basic_ilostream(dbtransaction &T,
-                  oid O,
-		  largeobject::size_type BufSize=512) :			//[t48]
+  basic_ilostream(							//[t48]
+	dbtransaction &T,
+        oid O,
+	largeobject::size_type BufSize=512) :
     super(0),
     m_buf(T, O, std::ios::in, BufSize)
 	{ super::init(&m_buf); }
@@ -547,9 +557,10 @@ public:
    * @param O a large object to access
    * @param BufSize size of buffer to use internally (optional)
    */
-  basic_olostream(dbtransaction &T,
-                  largeobject O,
-		  largeobject::size_type BufSize=512) :			//[t48]
+  basic_olostream(							//[t48]
+	dbtransaction &T,
+        largeobject O,
+	largeobject::size_type BufSize=512) :
     super(0),
     m_buf(T, O, std::ios::out, BufSize)
 	{ super::init(&m_buf); }
@@ -560,9 +571,10 @@ public:
    * @param O a large object to access
    * @param BufSize size of buffer to use internally (optional)
    */
-  basic_olostream(dbtransaction &T,
-		  oid O,
-		  largeobject::size_type BufSize=512) :			//[t57]
+  basic_olostream(							//[t57]
+	dbtransaction &T,
+	oid O,
+	largeobject::size_type BufSize=512) :
     super(0),
     m_buf(T, O, std::ios::out, BufSize)
 	{ super::init(&m_buf); }
@@ -614,9 +626,10 @@ public:
    * @param O Large object to access
    * @param BufSize Size of buffer to use internally (optional)
    */
-  basic_lostream(dbtransaction &T,
-		 largeobject O,
-		 largeobject::size_type BufSize=512) :			//[t59]
+  basic_lostream(							//[t59]
+	dbtransaction &T,
+	largeobject O,
+	largeobject::size_type BufSize=512) :
     super(0),
     m_buf(T, O, std::ios::in | std::ios::out, BufSize)
 	{ super::init(&m_buf); }
@@ -627,9 +640,10 @@ public:
    * @param O Large object to access
    * @param BufSize Size of buffer to use internally (optional)
    */
-  basic_lostream(dbtransaction &T,
-		 oid O,
-		 largeobject::size_type BufSize=512) :			//[t59]
+  basic_lostream(							//[t59]
+	dbtransaction &T,
+	oid O,
+	largeobject::size_type BufSize=512) :
     super(0),
     m_buf(T, O, std::ios::in | std::ios::out, BufSize)
 	{ super::init(&m_buf); }
@@ -657,4 +671,3 @@ typedef basic_lostream<char> lostream;
 #include "pqxx/compiler-internal-post.hxx"
 
 #endif
-

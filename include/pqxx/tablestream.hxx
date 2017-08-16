@@ -31,8 +31,9 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE tablestream :
   public internal::transactionfocus
 {
 public:
-  explicit tablestream(transaction_base &Trans,
-	      const std::string &Null=std::string());
+  explicit tablestream(
+	transaction_base &Trans,
+	const std::string &Null=std::string());
   virtual ~tablestream() noexcept =0;
   virtual void complete() =0;
 protected:
@@ -48,11 +49,14 @@ private:
   tablestream(const tablestream &);
   tablestream &operator=(const tablestream &);
 };
+
+
 template<typename ITER> inline
 std::string tablestream::columnlist(ITER colbegin, ITER colend)
 {
   return separated_list(",", colbegin, colend);
 }
 } // namespace pqxx
+
 #include "pqxx/compiler-internal-post.hxx"
 #endif

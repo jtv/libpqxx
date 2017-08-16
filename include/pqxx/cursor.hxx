@@ -175,7 +175,8 @@ namespace internal
 class PQXX_LIBEXPORT sql_cursor : public cursor_base
 {
 public:
-  sql_cursor(transaction_base &t,
+  sql_cursor(
+	transaction_base &t,
 	const std::string &query,
 	const std::string &cname,
 	cursor_base::accesspolicy ap,
@@ -183,7 +184,8 @@ public:
 	cursor_base::ownershippolicy op,
 	bool hold);
 
-  sql_cursor(transaction_base &t,
+  sql_cursor(
+	transaction_base &t,
 	const std::string &cname,
 	cursor_base::ownershippolicy op);
 
@@ -377,10 +379,11 @@ public:
    * @param sstride Number of rows to fetch per read operation; must be a
    * positive number
    */
-  icursorstream(transaction_base &context,
-      const std::string &query,
-      const std::string &basename,
-      difference_type sstride=1);					//[t81]
+  icursorstream(
+	transaction_base &context,
+	const std::string &query,
+	const std::string &basename,
+	difference_type sstride=1);					//[t81]
 
   /// Adopt existing SQL cursor.  Use with care.
   /** Forms a cursor stream around an existing SQL cursor, as returned by e.g. a
@@ -407,10 +410,11 @@ public:
    * @param op Ownership policy.  Determines whether the cursor underlying this
    * stream will be destroyed when the stream is closed.
    */
-  icursorstream(transaction_base &context,
-      const field &cname,
-      difference_type sstride=1,
-      cursor_base::ownershippolicy op=cursor_base::owned);		//[t84]
+  icursorstream(
+	transaction_base &context,
+	const field &cname,
+	difference_type sstride=1,
+	cursor_base::ownershippolicy op=cursor_base::owned);		//[t84]
 
   operator bool() const noexcept { return !m_done; }
 

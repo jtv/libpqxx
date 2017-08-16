@@ -106,4 +106,3 @@ private:
 #include "pqxx/compiler-internal-post.hxx"
 
 #endif
-

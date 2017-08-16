@@ -364,7 +364,6 @@ public:
    */
   std::string get_variable(const std::string &);			//[t61]
 
-
 protected:
   /// Create a transaction (to be called by implementation classes only)
   /** The optional name, if nonempty, must begin with a letter and may contain

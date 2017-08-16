@@ -28,19 +28,22 @@ namespace pqxx
 class PQXX_LIBEXPORT tablereader : public tablestream
 {
 public:
-  tablereader(transaction_base &,
-      const std::string &Name,
-      const std::string &Null=std::string());
+  tablereader(
+	transaction_base &,
+	const std::string &Name,
+	const std::string &Null=std::string());
   template<typename ITER>
-  tablereader(transaction_base &,
-      const std::string &Name,
-      ITER begincolumns,
-      ITER endcolumns);
-  template<typename ITER> tablereader(transaction_base &,
-      const std::string &Name,
-      ITER begincolumns,
-      ITER endcolumns,
-      const std::string &Null);
+  tablereader(
+	transaction_base &,
+	const std::string &Name,
+	ITER begincolumns,
+	ITER endcolumns);
+  template<typename ITER> tablereader(
+	transaction_base &,
+	const std::string &Name,
+	ITER begincolumns,
+	ITER endcolumns,
+	const std::string &Null);
   ~tablereader() noexcept;
   template<typename TUPLE> tablereader &operator>>(TUPLE &);
   operator bool() const noexcept { return !m_done; }
@@ -50,38 +53,47 @@ public:
   void tokenize(std::string, TUPLE &) const;
   virtual void complete() override;
 private:
-  void setup(transaction_base &T,
-      const std::string &RName,
-      const std::string &Columns=std::string());
+  void setup(
+	transaction_base &T,
+	const std::string &RName,
+	const std::string &Columns=std::string());
   PQXX_PRIVATE void reader_close();
   std::string extract_field(
 	const std::string &,
 	std::string::size_type &) const;
   bool m_done;
 };
+
+
 template<typename ITER> inline
-tablereader::tablereader(transaction_base &T,
-    const std::string &Name,
-    ITER begincolumns,
-    ITER endcolumns) :
+tablereader::tablereader(
+	transaction_base &T,
+	const std::string &Name,
+	ITER begincolumns,
+	ITER endcolumns) :
   namedclass(Name, "tablereader"),
   tablestream(T, std::string()),
   m_done(true)
 {
   setup(T, Name, columnlist(begincolumns, endcolumns));
 }
+
+
 template<typename ITER> inline
-tablereader::tablereader(transaction_base &T,
-    const std::string &Name,
-    ITER begincolumns,
-    ITER endcolumns,
-    const std::string &Null) :
+tablereader::tablereader(
+	transaction_base &T,
+	const std::string &Name,
+	ITER begincolumns,
+	ITER endcolumns,
+	const std::string &Null) :
   namedclass(Name, "tablereader"),
   tablestream(T, Null),
   m_done(true)
 {
   setup(T, Name, columnlist(begincolumns, endcolumns));
 }
+
+
 template<typename TUPLE>
 inline void tablereader::tokenize(std::string Line, TUPLE &T) const
 {
@@ -89,6 +101,8 @@ inline void tablereader::tokenize(std::string Line, TUPLE &T) const
   std::string::size_type here=0;
   while (here < Line.size()) *ins++ = extract_field(Line, here);
 }
+
+
 template<typename TUPLE>
 inline tablereader &pqxx::tablereader::operator>>(TUPLE &T)
 {

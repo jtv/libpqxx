@@ -146,8 +146,9 @@ public:
    * @param C Connection that this robusttransaction should live inside.
    * @param Name optional human-readable name for this transaction
    */
-  explicit robusttransaction(connection_base &C,
-      const std::string &Name=std::string()) :
+  explicit robusttransaction(
+	connection_base &C,
+	const std::string &Name=std::string()) :
     namedclass(fullname("robusttransaction",isolation_tag::name()), Name),
     basic_robusttransaction(C, isolation_tag::name())
 	{ Begin(); }
@@ -166,4 +167,3 @@ public:
 #include "pqxx/compiler-internal-post.hxx"
 
 #endif
-

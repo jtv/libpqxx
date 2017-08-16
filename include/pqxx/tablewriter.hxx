@@ -30,18 +30,21 @@ namespace pqxx
 class PQXX_LIBEXPORT tablewriter : public tablestream
 {
 public:
-  tablewriter(transaction_base &,
-      const std::string &WName,
-      const std::string &Null=std::string());
-  template<typename ITER> tablewriter(transaction_base &,
-      const std::string &WName,
-      ITER begincolumns,
-      ITER endcolumns);
-  template<typename ITER> tablewriter(transaction_base &T,
-      const std::string &WName,
-      ITER begincolumns,
-      ITER endcolumns,
-      const std::string &Null);
+  tablewriter(
+	transaction_base &,
+	const std::string &WName,
+	const std::string &Null=std::string());
+  template<typename ITER> tablewriter(
+	transaction_base &,
+	const std::string &WName,
+	ITER begincolumns,
+	ITER endcolumns);
+  template<typename ITER> tablewriter(
+	transaction_base &T,
+	const std::string &WName,
+	ITER begincolumns,
+	ITER endcolumns,
+	const std::string &Null);
   ~tablewriter() noexcept;
   template<typename IT> void insert(IT Begin, IT End);
   template<typename TUPLE> void insert(const TUPLE &);
@@ -55,12 +58,15 @@ public:
   virtual void complete() override;
   void write_raw_line(const std::string &);
 private:
-  void setup(transaction_base &,
-      const std::string &WName,
-      const std::string &Columns = std::string());
+  void setup(
+	transaction_base &,
+	const std::string &WName,
+	const std::string &Columns = std::string());
   PQXX_PRIVATE void writer_close();
 };
 } // namespace pqxx
+
+
 namespace std
 {
 template<>
@@ -70,63 +76,80 @@ template<>
 public:
   explicit back_insert_iterator(pqxx::tablewriter &W) noexcept :
     m_writer(&W) {}
+
   back_insert_iterator &
     operator=(const back_insert_iterator &rhs) noexcept
   {
     m_writer = rhs.m_writer;
     return *this;
   }
+
   template<typename TUPLE>
   back_insert_iterator &operator=(const TUPLE &T)
   {
     m_writer->insert(T);
     return *this;
   }
+
   back_insert_iterator &operator++() { return *this; }
   back_insert_iterator &operator++(int) { return *this; }
   back_insert_iterator &operator*() { return *this; }
+
 private:
   pqxx::tablewriter *m_writer;
 };
 } // namespace std
+
+
 namespace pqxx
 {
-template<typename ITER> inline tablewriter::tablewriter(transaction_base &T,
-    const std::string &WName,
-    ITER begincolumns,
-    ITER endcolumns) :
+template<typename ITER> inline tablewriter::tablewriter(
+	transaction_base &T,
+	const std::string &WName,
+	ITER begincolumns,
+	ITER endcolumns) :
   namedclass("tablewriter", WName),
   tablestream(T, std::string())
 {
   setup(T, WName, columnlist(begincolumns, endcolumns));
 }
-template<typename ITER> inline tablewriter::tablewriter(transaction_base &T,
-    const std::string &WName,
-    ITER begincolumns,
-    ITER endcolumns,
-    const std::string &Null) :
+
+
+template<typename ITER> inline tablewriter::tablewriter(
+	transaction_base &T,
+	const std::string &WName,
+	ITER begincolumns,
+	ITER endcolumns,
+	const std::string &Null) :
   namedclass("tablewriter", WName),
   tablestream(T, Null)
 {
   setup(T, WName, columnlist(begincolumns, endcolumns));
 }
+
+
 namespace internal
 {
 PQXX_LIBEXPORT std::string Escape(
 	const std::string &s,
 	const std::string &null);
+
 inline std::string EscapeAny(
 	const std::string &s,
 	const std::string &null)
 { return Escape(s, null); }
+
 inline std::string EscapeAny(
 	const char s[],
 	const std::string &null)
 { return s ? Escape(std::string(s), null) : "\\N"; }
+
 template<typename T> inline std::string EscapeAny(
 	const T &t,
 	const std::string &null)
 { return Escape(to_string(t), null); }
+
+
 template<typename IT> class Escaper
 {
   const std::string &m_null;
@@ -135,6 +158,8 @@ public:
   std::string operator()(IT i) const { return EscapeAny(*i, m_null); }
 };
 }
+
+
 template<typename IT>
 inline std::string tablewriter::generate(IT Begin, IT End) const
 {
@@ -145,30 +170,36 @@ inline std::string tablewriter::generate(const TUPLE &T) const
 {
   return generate(T.begin(), T.end());
 }
+
 template<typename IT> inline void tablewriter::insert(IT Begin, IT End)
 {
   write_raw_line(generate(Begin, End));
 }
+
 template<typename TUPLE> inline void tablewriter::insert(const TUPLE &T)
 {
   insert(T.begin(), T.end());
 }
+
 template<typename IT>
 inline void tablewriter::push_back(IT Begin, IT End)
 {
   insert(Begin, End);
 }
+
 template<typename TUPLE>
 inline void tablewriter::push_back(const TUPLE &T)
 {
   insert(T.begin(), T.end());
 }
+
 template<typename TUPLE>
 inline tablewriter &tablewriter::operator<<(const TUPLE &T)
 {
   insert(T);
   return *this;
 }
+
 } // namespace pqxx
 #include "pqxx/compiler-internal-post.hxx"
 #endif

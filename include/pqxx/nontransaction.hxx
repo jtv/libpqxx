@@ -62,8 +62,9 @@ public:
    * @param Name Optional name for the transaction, beginning with a letter
    * and containing only letters and digits.
    */
-  explicit nontransaction(connection_base &C,
-		          const std::string &Name=std::string()) :	//[t14]
+  explicit nontransaction(						//[t14]
+	connection_base &C,
+	const std::string &Name=std::string()) :
     namedclass("nontransaction", Name), transaction_base(C) { Begin(); }
 
   virtual ~nontransaction();						//[t14]
@@ -82,4 +83,3 @@ private:
 #include "pqxx/compiler-internal-post.hxx"
 
 #endif
-

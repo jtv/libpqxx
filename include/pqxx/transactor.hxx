@@ -123,13 +123,13 @@ private:
   std::string m_name;
 };
 
-
 }
 
 
 template<typename TRANSACTOR>
-inline void pqxx::connection_base::perform(const TRANSACTOR &T,
-                                           int Attempts)
+inline void pqxx::connection_base::perform(
+	const TRANSACTOR &T,
+        int Attempts)
 {
   if (Attempts <= 0) return;
 
@@ -175,8 +175,5 @@ inline void pqxx::connection_base::perform(const TRANSACTOR &T,
   } while (!Done);
 }
 
-
 #include "pqxx/compiler-internal-post.hxx"
-
 #endif
-

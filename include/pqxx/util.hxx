@@ -301,6 +301,7 @@ struct PQXX_LIBEXPORT thread_safety_model
   std::string description;
 };
 
+
 /// Describe thread safety available in this build.
 PQXX_LIBEXPORT thread_safety_model describe_thread_safety() noexcept;
 
@@ -328,10 +329,11 @@ template<typename T> struct deref_ptr { T operator()(T *i) const {return *i;} };
  * @param access functor defining how to dereference sequence elements
  */
 template<typename ITER, typename ACCESS> inline
-std::string separated_list(const std::string &sep,			//[t0]
-    ITER begin,
-    ITER end,
-    ACCESS access)
+std::string separated_list(						//[t0]
+	const std::string &sep,
+	ITER begin,
+	ITER end,
+	ACCESS access)
 {
   std::string result;
   if (begin != end)
@@ -345,6 +347,7 @@ std::string separated_list(const std::string &sep,			//[t0]
   }
   return result;
 }
+
 
 /**
  * @defgroup utility Utility functions
@@ -450,6 +453,7 @@ private:
   unique &operator=(const unique &);
 };
 
+
 /// Sleep for the given number of seconds
 /** May return early, e.g. when interrupted by a signal.  Completes instantly if
  * a zero or negative sleep time is requested.
@@ -480,4 +484,3 @@ extern const char sql_begin_work[], sql_commit_work[], sql_rollback_work[];
 } // namespace pqxx
 
 #endif
-

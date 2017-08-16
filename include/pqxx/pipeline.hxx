@@ -57,8 +57,9 @@ class PQXX_LIBEXPORT pipeline : public internal::transactionfocus
 public:
   typedef long query_id;
 
-  explicit pipeline(transaction_base &,
-      const std::string &Name=std::string());				//[t69]
+  explicit pipeline(							//[t69]
+	transaction_base &,
+	const std::string &Name=std::string());
 
   ~pipeline() noexcept;
 
@@ -222,4 +223,3 @@ private:
 #include "pqxx/compiler-internal-post.hxx"
 
 #endif
-

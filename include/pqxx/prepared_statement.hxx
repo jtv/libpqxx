@@ -207,4 +207,3 @@ struct PQXX_LIBEXPORT prepared_def
 #include "pqxx/compiler-internal-post.hxx"
 
 #endif
-

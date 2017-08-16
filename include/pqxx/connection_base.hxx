@@ -451,8 +451,9 @@ public:
    * @param Value Value vor Var to assume: an identifier, a quoted string, or a
    * number.
    */
-  void set_variable(const std::string &Var,
-		    const std::string &Value);				//[t60]
+  void set_variable(							//[t60]
+	const std::string &Var,
+	const std::string &Value);
 
   /// Read session variable
   /** Will try to read the value locally, from the list of variables set with
@@ -674,7 +675,8 @@ public:
    * program:
    *
    * @code
-   *	TX.exec("SELECT number,amount "
+   *	TX.exec(
+   *		"SELECT number,amount "
    *		"FROM accounts "
    *		"WHERE allowed_to_see('" + userid + "','" + password + "')");
    * @endcode
@@ -708,7 +710,8 @@ public:
    * To prevent this from happening, use the transaction's esc() function:
    *
    * @code
-   *	TX.exec("SELECT number,amount "
+   *	TX.exec(
+   *		"SELECT number,amount "
    *		"FROM accounts "
    *		"WHERE allowed_to_see('" + TX.esc(userid) + "', "
    *			"'" + TX.esc(password) + "')");

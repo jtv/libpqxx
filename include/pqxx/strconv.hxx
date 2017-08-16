@@ -157,9 +157,9 @@ template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
     throw 0;
   }
   static void from_string(const char Str[], std::stringstream &Obj)
-                                                    { Obj.clear(); Obj << Str; }
+	{ Obj.clear(); Obj << Str; }
   static std::string to_string(const std::stringstream &Obj)
-                                                           { return Obj.str(); }
+	{ return Obj.str(); }
 };
 
 
@@ -181,8 +181,7 @@ template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
 template<typename T>
   inline void from_string(const char Str[], T &Obj)
 {
-  if (!Str)
-    throw std::runtime_error("Attempt to read null string");
+  if (!Str) throw std::runtime_error("Attempt to read null string");
   string_traits<T>::from_string(Str, Obj);
 }
 
@@ -200,12 +199,12 @@ template<typename T> inline void from_string(const char Str[], T &Obj, size_t)
 }
 
 template<>
-  inline void from_string<std::string>(const char Str[],
+  inline void from_string<std::string>(					//[t0]
+	const char Str[],
 	std::string &Obj,
-	size_t len)							//[t0]
+	size_t len)
 {
-  if (!Str)
-    throw std::runtime_error("Attempt to read null string");
+  if (!Str) throw std::runtime_error("Attempt to read null string");
   Obj.assign(Str, len);
 }
 
@@ -244,4 +243,3 @@ template<typename T> inline std::string to_string(const T &Obj)
 } // namespace pqxx
 
 #endif
-

@@ -244,8 +244,9 @@ inline const_result_iterator result::cend() const noexcept
 
 
 inline const_reverse_result_iterator
-operator+(result::difference_type n,
-	  const const_reverse_result_iterator &i)
+operator+(
+	result::difference_type n,
+	const const_reverse_result_iterator &i)
 	{ return const_reverse_result_iterator(i.base() - n); }
 
 } // namespace pqxx

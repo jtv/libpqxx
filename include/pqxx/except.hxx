@@ -263,7 +263,8 @@ class PQXX_LIBEXPORT restrict_violation :
   public integrity_constraint_violation
 {
 public:
-  explicit restrict_violation(const std::string &err,
+  explicit restrict_violation(
+	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
     integrity_constraint_violation(err, Q, sqlstate) {}
@@ -273,7 +274,8 @@ class PQXX_LIBEXPORT not_null_violation :
   public integrity_constraint_violation
 {
 public:
-  explicit not_null_violation(const std::string &err,
+  explicit not_null_violation(
+	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
     integrity_constraint_violation(err, Q, sqlstate) {}
@@ -487,4 +489,3 @@ public:
 #include "pqxx/compiler-internal-post.hxx"
 
 #endif
-
