@@ -114,6 +114,7 @@ class PQXX_LIBEXPORT invocation : internal::statement_parameters
 {
 public:
   invocation(transaction_base &, const std::string &statement);
+  invocation &operator=(const invocation &) =delete;
 
   /// Execute!
   result exec() const;
@@ -174,9 +175,6 @@ public:
 	{ add_param(v, nonnull); return *this; }
 
 private:
-  /// Not allowed
-  invocation &operator=(const invocation &);
-
   transaction_base &m_home;
   const std::string m_statement;
   std::vector<std::string> m_values;
@@ -191,12 +189,12 @@ namespace internal
 /// Internal representation of a prepared statement definition
 struct PQXX_LIBEXPORT prepared_def
 {
-  /// Text of prepared query
+  /// Text of prepared query.
   std::string definition;
   /// Has this prepared statement been prepared in the current session?
-  bool registered;
+  bool registered = false;
 
-  prepared_def();
+  prepared_def() =default;
   explicit prepared_def(const std::string &);
 };
 

@@ -17,7 +17,6 @@ pqxx::pqxx_exception::~pqxx_exception() noexcept
 
 
 pqxx::failure::failure(const std::string &whatarg) :
-  pqxx_exception(),
   std::runtime_error(whatarg)
 {
 }

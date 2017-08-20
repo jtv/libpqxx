@@ -49,11 +49,11 @@ protected:
 
 private:
   typedef unsigned long IDType;
-  IDType m_record_id;
+  IDType m_record_id = 0;
   std::string m_xid;
   std::string m_log_table;
   std::string m_sequence;
-  int m_backendpid;
+  int m_backendpid = -1;
 
   virtual void do_begin() override;					//[t18]
   virtual void do_commit() override;					//[t16]
@@ -165,5 +165,4 @@ public:
 
 
 #include "pqxx/compiler-internal-post.hxx"
-
 #endif

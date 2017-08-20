@@ -47,14 +47,14 @@ class sql_cursor;
 class reactivation_avoidance_counter
 {
 public:
-  reactivation_avoidance_counter() : m_counter(0) {}
+  reactivation_avoidance_counter() =default;
 
   void add(int n) noexcept { m_counter += n; }
   void clear() noexcept { m_counter = 0; }
   int get() const noexcept { return m_counter; }
 
 private:
-  int m_counter;
+  int m_counter = 0;
 };
 
 }
@@ -854,7 +854,7 @@ private:
   bool prepared_exists(const std::string &) const;
 
   /// Connection handle.
-  internal::pq::PGconn *m_conn;
+  internal::pq::PGconn *m_conn = nullptr;
 
   connectionpolicy &m_policy;
 
@@ -864,7 +864,7 @@ private:
   std::list<errorhandler *> m_errorhandlers;
 
   /// File to trace to, if any
-  std::FILE *m_trace;
+  std::FILE *m_trace = nullptr;
 
   typedef std::multimap<std::string, pqxx::notification_receiver *>
 	receiver_list;
@@ -880,25 +880,25 @@ private:
   PSMap m_prepared;
 
   /// Server version
-  int m_serverversion;
+  int m_serverversion = 0;
 
   /// Stacking counter: known objects that can't be auto-reactivated
   internal::reactivation_avoidance_counter m_reactivation_avoidance;
 
   /// Unique number to use as suffix for identifiers (see adorn_name())
-  int m_unique_id;
+  int m_unique_id = 0;
 
   /// Have we successfully established this connection?
-  bool m_completed;
+  bool m_completed = false;
 
   /// Is reactivation currently inhibited?
-  bool m_inhibit_reactivation;
+  bool m_inhibit_reactivation = false;
 
   /// Set of session capabilities
   std::bitset<cap_end> m_caps;
 
   /// Current verbosity level
-  error_verbosity m_verbosity;
+  error_verbosity m_verbosity = normal;
 
   friend class internal::gate::connection_errorhandler;
   void PQXX_PRIVATE register_errorhandler(errorhandler *);

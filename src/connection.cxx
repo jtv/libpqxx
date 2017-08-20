@@ -67,13 +67,13 @@ pqxx::connectionpolicy::do_disconnect(handle orig) noexcept
 {
   orig = do_dropconnect(orig);
   if (orig) PQfinish(orig);
-  return 0;
+  return nullptr;
 }
 
 
 bool pqxx::connectionpolicy::is_ready(handle h) const noexcept
 {
-  return h != 0;
+  return h != nullptr;
 }
 
 
@@ -175,5 +175,5 @@ pqxx::connect_async::do_dropconnect(handle orig) noexcept
 
 bool pqxx::connect_async::is_ready(handle h) const noexcept
 {
-  return h && !m_connecting;
+  return h != nullptr && !m_connecting;
 }

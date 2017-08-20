@@ -53,12 +53,7 @@ pqxx::result pqxx::internal::parameterized_invocation::exec()
 
 pqxx::transaction_base::transaction_base(connection_base &C, bool direct) :
   namedclass("transaction_base"),
-  m_reactivation_avoidance(),
-  m_conn(C),
-  m_focus(),
-  m_status(st_nascent),
-  m_registered(false),
-  m_pending_error()
+  m_conn(C)
 {
   if (direct)
   {

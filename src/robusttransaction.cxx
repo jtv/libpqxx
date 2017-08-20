@@ -28,11 +28,7 @@ pqxx::basic_robusttransaction::basic_robusttransaction(
 	const std::string &table_name) :
   namedclass("robusttransaction"),
   dbtransaction(C, IsolationLevel),
-  m_record_id(0),
-  m_xid(),
-  m_log_table(table_name),
-  m_sequence(),
-  m_backendpid(-1)
+  m_log_table(table_name)
 {
   if (table_name.empty()) m_log_table = "pqxx_robusttransaction_log";
   m_sequence = m_log_table + "_seq";

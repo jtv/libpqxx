@@ -34,14 +34,7 @@ const std::string theDummyQuery("SELECT " + theDummyValue + theSeparator);
 
 pqxx::pipeline::pipeline(transaction_base &t, const std::string &Name) :
   namedclass("pipeline", Name),
-  transactionfocus(t),
-  m_queries(),
-  m_issuedrange(),
-  m_retain(0),
-  m_num_waiting(0),
-  m_q_id(0),
-  m_dummy_pending(false),
-  m_error(qid_limit())
+  transactionfocus(t)
 {
   m_issuedrange = make_pair(m_queries.end(), m_queries.end());
   attach();

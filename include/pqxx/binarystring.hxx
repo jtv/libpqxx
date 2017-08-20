@@ -62,7 +62,7 @@ public:
   typedef const_pointer const_iterator;
   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-  binarystring(const binarystring &);
+  binarystring(const binarystring &) =default;
 
   /// Read and unescape bytea field
   /** The field will be zero-terminated, even if the original bytea field isn't.
@@ -144,7 +144,6 @@ private:
   }
 
   smart_pointer_type m_buf;
-
   size_type m_size;
 };
 }

@@ -305,7 +305,7 @@ struct PQXX_LIBEXPORT thread_safety_model
 /// Describe thread safety available in this build.
 PQXX_LIBEXPORT thread_safety_model describe_thread_safety() noexcept;
 
-/// The "null" oid
+/// The "null" oid.
 const oid oid_none = 0;
 
 
@@ -428,7 +428,9 @@ template<typename GUEST>
 class unique
 {
 public:
-  unique() : m_guest(0) {}
+  unique() =default;
+  unique(const unique &) =delete;
+  unique &operator=(const unique &) =delete;
 
   GUEST *get() const noexcept { return m_guest; }
 
@@ -441,16 +443,11 @@ public:
   void unregister_guest(GUEST *G)
   {
     CheckUniqueUnregistration(G, m_guest);
-    m_guest = 0;
+    m_guest = nullptr;
   }
 
 private:
-  GUEST *m_guest;
-
-  /// Not allowed
-  unique(const unique &);
-  /// Not allowed
-  unique &operator=(const unique &);
+  GUEST *m_guest = nullptr;
 };
 
 

@@ -121,18 +121,7 @@ std::string pqxx::encrypt_password(
 
 
 pqxx::connection_base::connection_base(connectionpolicy &pol) :
-  m_conn(nullptr),
-  m_policy(pol),
-  m_trans(),
-  m_errorhandlers(),
-  m_trace(nullptr),
-  m_serverversion(0),
-  m_reactivation_avoidance(),
-  m_unique_id(0),
-  m_completed(false),
-  m_inhibit_reactivation(false),
-  m_caps(),
-  m_verbosity(normal)
+  m_policy(pol)
 {
   clearcaps();
 }
@@ -898,7 +887,8 @@ void pqxx::connection_base::close() noexcept
 }
 
 
-void pqxx::connection_base::raw_set_var(const std::string &Var,
+void pqxx::connection_base::raw_set_var(
+	const std::string &Var,
 	const std::string &Value)
 {
     Exec(("SET " + Var + "=" + Value).c_str(), 0);

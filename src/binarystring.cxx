@@ -73,13 +73,6 @@ buffer unescape(const unsigned char escaped[])
 } // namespace
 
 
-pqxx::binarystring::binarystring(const binarystring &rhs) :
-  m_buf(rhs.m_buf),
-  m_size(rhs.m_size)
-{
-}
-
-
 pqxx::binarystring::binarystring(const field &F) :
   m_buf(make_smart_pointer()),
   m_size(0)

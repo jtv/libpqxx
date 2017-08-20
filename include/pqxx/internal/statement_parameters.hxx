@@ -31,7 +31,8 @@ namespace internal
 class PQXX_LIBEXPORT statement_parameters
 {
 protected:
-  statement_parameters();
+  statement_parameters() =default;
+  statement_parameters &operator=(const statement_parameters &) =delete;
 
   void add_param() { this->add_checked_param("", false, false); }
   template<typename T> void add_param(const T &v, bool nonnull)
@@ -52,9 +53,6 @@ protected:
 	std::vector<int> &binaries) const;
 
 private:
-  // Not allowed
-  statement_parameters &operator=(const statement_parameters &);
-
   void add_checked_param(const std::string &, bool nonnull, bool binary);
 
   std::vector<std::string> m_values;

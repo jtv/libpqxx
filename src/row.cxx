@@ -24,7 +24,6 @@
 pqxx::row::row(result r, size_t i) noexcept :
   m_result(r),
   m_index(i),
-  m_begin(0),
   m_end(internal::gate::result_row(r) ? r.columns() : 0)
 {
 }

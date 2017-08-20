@@ -50,12 +50,12 @@ public:
   typedef const_reverse_row_iterator const_reverse_iterator;
   typedef const_reverse_iterator reverse_iterator;
 
-  row() : m_result(), m_index(0), m_begin(0), m_end(0) {}
+  row() =default;
 
   /// @deprecated Do not use this constructor.  It will become private.
   row(result r, size_t i) noexcept;
 
-  ~row() noexcept {} // Yes Scott Meyers, you're absolutely right[1]
+  ~row() noexcept =default; // Yes Scott Meyers, you're absolutely right[1]
 
   /**
    * @name Comparison
@@ -191,11 +191,11 @@ protected:
   /// Result set of which this is one row.
   result m_result;
   /// Row number.
-  size_t m_index;
+  size_t m_index = 0;
   /// First column in slice.  This row ignores lower-numbered columns.
-  size_type m_begin;
+  size_type m_begin = 0;
   /// End column in slice.  This row only sees lower-numbered columns.
-  size_type m_end;
+  size_type m_end = 0;
 };
 
 
@@ -399,8 +399,8 @@ const_row_iterator::operator-(const_row_iterator i) const
 /*
 [1] Scott Meyers, in one of his essential books, "Effective C++" and "More
 Effective C++", points out that it is good style to have any class containing
-a member of pointer type define a destructor--just to show that it knows what it
-is doing with the pointer.  This helps prevent nasty memory leak / double
+a member of pointer type define a destructor--just to show that it knows what
+it is doing with the pointer.  This helps prevent nasty memory leak / double
 deletion bugs typically resulting from programmers' omission to deal with such
 issues in their destructors.
 

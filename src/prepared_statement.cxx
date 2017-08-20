@@ -25,7 +25,6 @@ using namespace pqxx::internal;
 pqxx::prepare::invocation::invocation(
 	transaction_base &home,
 	const std::string &statement) :
-  statement_parameters(),
   m_home(home),
   m_statement(statement)
 {
@@ -55,15 +54,7 @@ bool pqxx::prepare::invocation::exists() const
 }
 
 
-pqxx::prepare::internal::prepared_def::prepared_def() :
-  definition(),
-  registered(false)
-{
-}
-
-
 pqxx::prepare::internal::prepared_def::prepared_def(const std::string &def) :
-  definition(def),
-  registered(false)
+  definition(def)
 {
 }

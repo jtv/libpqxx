@@ -51,11 +51,9 @@ pqxx::internal::sql_cursor::sql_cursor(
 	bool hold) :
   cursor_base(t.conn(), cname),
   m_home(t.conn()),
-  m_empty_result(),
   m_adopted(false),
   m_at_end(-1),
-  m_pos(0),
-  m_endpos(-1)
+  m_pos(0)
 {
   if (&t.conn() != &m_home) throw internal_error("Cursor in wrong connection");
   std::stringstream cq, qn;
@@ -117,8 +115,7 @@ pqxx::internal::sql_cursor::sql_cursor(
   m_empty_result(),
   m_adopted(true),
   m_at_end(0),
-  m_pos(-1),
-  m_endpos(-1)
+  m_pos(-1)
 {
   // If we take responsibility for destroying the cursor, that's one less
   // reason not to allow the connection to be deactivated and reactivated.
@@ -426,21 +423,14 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
 
 
 pqxx::icursor_iterator::icursor_iterator() noexcept :
-  m_stream(nullptr),
-  m_here(),
-  m_pos(0),
-  m_prev(nullptr),
-  m_next(nullptr)
+  m_pos(0)
 {
 }
 
 
 pqxx::icursor_iterator::icursor_iterator(istream_type &s) noexcept :
   m_stream(&s),
-  m_here(),
-  m_pos(difference_type(gate::icursorstream_icursor_iterator(s).forward(0))),
-  m_prev(nullptr),
-  m_next(nullptr)
+  m_pos(difference_type(gate::icursorstream_icursor_iterator(s).forward(0)))
 {
   gate::icursorstream_icursor_iterator(*m_stream).insert_iterator(this);
 }
@@ -450,9 +440,7 @@ pqxx::icursor_iterator::icursor_iterator(const icursor_iterator &rhs)
 	noexcept :
   m_stream(rhs.m_stream),
   m_here(rhs.m_here),
-  m_pos(rhs.m_pos),
-  m_prev(nullptr),
-  m_next(nullptr)
+  m_pos(rhs.m_pos)
 {
   if (m_stream)
     gate::icursorstream_icursor_iterator(*m_stream).insert_iterator(this);

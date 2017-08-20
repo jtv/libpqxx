@@ -15,13 +15,6 @@
 #include "pqxx/internal/statement_parameters.hxx"
 
 
-pqxx::internal::statement_parameters::statement_parameters() :
-  m_values(),
-  m_nonnull()
-{
-}
-
-
 void pqxx::internal::statement_parameters::add_checked_param(
 	const std::string &v,
 	bool nonnull,

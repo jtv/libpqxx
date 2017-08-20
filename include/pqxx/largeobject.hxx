@@ -37,7 +37,7 @@ public:
   typedef large_object_size_type size_type;
 
   /// Refer to a nonexistent large object (similar to what a null pointer does)
-  largeobject() noexcept;						//[t48]
+  largeobject() noexcept =default;					//[t48]
 
   /// Create new large object
   /** @param T Backend transaction in which the object is to be created
@@ -127,7 +127,7 @@ protected:
   std::string reason(int err) const;
 
 private:
-  oid m_id;
+  oid m_id = oid_none;
 };
 
 
@@ -327,7 +327,7 @@ private:
   void close() noexcept;
 
   dbtransaction &m_trans;
-  int m_fd;
+  int m_fd = -1;
 
   largeobjectaccess() =delete;
   largeobjectaccess(const largeobjectaccess &) =delete;

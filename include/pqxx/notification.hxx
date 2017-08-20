@@ -60,6 +60,8 @@ public:
    * @param channel Name of the notification to listen for.
    */
   notification_receiver(connection_base &c, const std::string &channel);
+  notification_receiver(const notification_receiver &) =delete;
+  notification_receiver &operator=(const notification_receiver &) =delete;
   virtual ~notification_receiver();
 
   /// The channel that this receiver listens on.
@@ -79,11 +81,6 @@ protected:
   connection_base &conn() const noexcept { return m_conn; }
 
 private:
-  // Not allowed.
-  notification_receiver(const notification_receiver &);
-  // Not allowed.
-  notification_receiver &operator=(const notification_receiver &);
-
   connection_base &m_conn;
   std::string m_channel;
 };

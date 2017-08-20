@@ -49,6 +49,10 @@ public:
   {
   }
 
+  transactionfocus() =delete;
+  transactionfocus(const transactionfocus &) =delete;
+  transactionfocus &operator=(const transactionfocus &) =delete;
+
 protected:
   void register_me();
   void unregister_me() noexcept;
@@ -59,13 +63,6 @@ protected:
 
 private:
   bool m_registered;
-
-  /// Not allowed
-  transactionfocus();
-  /// Not allowed
-  transactionfocus(const transactionfocus &);
-  /// Not allowed
-  transactionfocus &operator=(const transactionfocus &);
 };
 
 
@@ -126,6 +123,10 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE transaction_base :
 public:
   /// If nothing else is known, our isolation level is at least read_committed
   typedef isolation_traits<read_committed> isolation_tag;
+
+  transaction_base() =delete;
+  transaction_base(const transaction_base &) =delete;
+  transaction_base &operator=(const transaction_base &) =delete;
 
   virtual ~transaction_base() =0;					//[t1]
 
@@ -474,17 +475,10 @@ private:
   connection_base &m_conn;
 
   internal::unique<internal::transactionfocus> m_focus;
-  Status m_status;
-  bool m_registered;
+  Status m_status = st_nascent;
+  bool m_registered = false;
   std::map<std::string, std::string> m_vars;
   std::string m_pending_error;
-
-  /// Not allowed
-  transaction_base();
-  /// Not allowed
-  transaction_base(const transaction_base &);
-  /// Not allowed
-  transaction_base &operator=(const transaction_base &);
 };
 
 } // namespace pqxx

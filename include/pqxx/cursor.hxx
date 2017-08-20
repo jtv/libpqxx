@@ -94,6 +94,10 @@ public:
     loose
   };
 
+  cursor_base() =delete;
+  cursor_base(const cursor_base &) =delete;
+  cursor_base &operator=(const cursor_base &) =delete;
+
   /**
    * @name Special movement distances
    */
@@ -133,14 +137,6 @@ protected:
 	bool embellish_name=true);
 
   const std::string m_name;
-
-private:
-  /// Not allowed
-  cursor_base();
-  /// Not allowed
-  cursor_base(const cursor_base &);
-  /// Not allowed
-  cursor_base &operator=(const cursor_base &);
 };
 
 
@@ -248,7 +244,7 @@ private:
   difference_type m_pos;
 
   /// End position, or -1 for unknown
-  difference_type m_endpos;
+  difference_type m_endpos = -1;
 };
 
 
@@ -539,10 +535,10 @@ private:
   difference_type pos() const noexcept { return m_pos; }
   void fill(const result &);
 
-  icursorstream *m_stream;
+  icursorstream *m_stream = nullptr;
   result m_here;
   difference_type m_pos;
-  icursor_iterator *m_prev, *m_next;
+  icursor_iterator *m_prev = nullptr, *m_next = nullptr;
 };
 
 

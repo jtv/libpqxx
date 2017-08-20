@@ -67,12 +67,6 @@ inline int StdDirToPQDir(std::ios::seekdir dir) noexcept
 } // namespace
 
 
-pqxx::largeobject::largeobject() noexcept :
-  m_id(oid_none)
-{
-}
-
-
 pqxx::largeobject::largeobject(dbtransaction &T) :
   m_id()
 {
@@ -154,8 +148,7 @@ std::string pqxx::largeobject::reason(int err) const
 
 pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T, openmode mode) :
   largeobject(T),
-  m_trans(T),
-  m_fd(-1)
+  m_trans(T)
 {
   open(mode);
 }
@@ -166,8 +159,7 @@ pqxx::largeobjectaccess::largeobjectaccess(
 	oid O,
 	openmode mode) :
   largeobject(O),
-  m_trans(T),
-  m_fd(-1)
+  m_trans(T)
 {
   open(mode);
 }
@@ -178,8 +170,7 @@ pqxx::largeobjectaccess::largeobjectaccess(
 	largeobject O,
 	openmode mode) :
   largeobject(O),
-  m_trans(T),
-  m_fd(-1)
+  m_trans(T)
 {
   open(mode);
 }
@@ -190,8 +181,7 @@ pqxx::largeobjectaccess::largeobjectaccess(
 	const std::string &File,
 	openmode mode) :
   largeobject(T, File),
-  m_trans(T),
-  m_fd(-1)
+  m_trans(T)
 {
   open(mode);
 }

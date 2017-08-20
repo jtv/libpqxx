@@ -44,7 +44,7 @@ protected:
   static std::string columnlist(ITER colbegin, ITER colend);
 private:
   std::string m_null;
-  bool m_finished;
+  bool m_finished = false;
   tablestream();
   tablestream(const tablestream &);
   tablestream &operator=(const tablestream &);

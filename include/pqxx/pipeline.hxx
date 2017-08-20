@@ -57,6 +57,9 @@ class PQXX_LIBEXPORT pipeline : public internal::transactionfocus
 public:
   typedef long query_id;
 
+  pipeline(const pipeline &) =delete;
+  pipeline &operator=(const pipeline &) =delete;
+
   explicit pipeline(							//[t69]
 	transaction_base &,
 	const std::string &Name=std::string());
@@ -164,7 +167,7 @@ private:
   void detach();
 
   /// Upper bound to query id's
-  static query_id qid_limit() noexcept
+  static constexpr query_id qid_limit() noexcept
   {
     return std::numeric_limits<query_id>::max();
   }
@@ -200,20 +203,15 @@ private:
 
   QueryMap m_queries;
   std::pair<QueryMap::iterator,QueryMap::iterator> m_issuedrange;
-  int m_retain;
-  int m_num_waiting;
-  query_id m_q_id;
+  int m_retain = 0;
+  int m_num_waiting = 0;
+  query_id m_q_id = 0;
 
   /// Is there a "dummy query" pending?
-  bool m_dummy_pending;
+  bool m_dummy_pending = false;
 
   /// Point at which an error occurred; no results beyond it will be available
-  query_id m_error;
-
-  /// Not allowed
-  pipeline(const pipeline &);
-  /// Not allowed
-  pipeline &operator=(const pipeline &);
+  query_id m_error = qid_limit();
 };
 
 
