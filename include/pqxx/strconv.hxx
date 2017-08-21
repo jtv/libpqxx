@@ -49,8 +49,8 @@ namespace internal
 template<> struct PQXX_LIBEXPORT string_traits<T>			\
 {									\
   typedef T subject_type;						\
-  static const char *name() { return #T; }				\
-  static bool has_null() { return false; }				\
+  static constexpr const char *name() noexcept { return #T; }		\
+  static constexpr bool has_null() noexcept { return false; }		\
   static bool is_null(T) { return false; }				\
   static T null() 							\
     { internal::throw_null_conversion(name()); return subject_type(); }	\
@@ -78,8 +78,8 @@ PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long double)
 /// String traits for C-style string ("pointer to const char")
 template<> struct PQXX_LIBEXPORT string_traits<const char *>
 {
-  static const char *name() { return "const char *"; }
-  static bool has_null() { return true; }
+  static constexpr const char *name() noexcept { return "const char *"; }
+  static constexpr bool has_null() noexcept { return true; }
   static bool is_null(const char *t) { return !t; }
   static const char *null() { return nullptr; }
   static void from_string(const char Str[], const char *&Obj) { Obj = Str; }
@@ -89,8 +89,8 @@ template<> struct PQXX_LIBEXPORT string_traits<const char *>
 /// String traits for non-const C-style string ("pointer to char")
 template<> struct PQXX_LIBEXPORT string_traits<char *>
 {
-  static const char *name() { return "char *"; }
-  static bool has_null() { return true; }
+  static constexpr const char *name() noexcept { return "char *"; }
+  static constexpr bool has_null() noexcept { return true; }
   static bool is_null(const char *t) { return !t; }
   static const char *null() { return nullptr; }
 
@@ -103,8 +103,8 @@ template<> struct PQXX_LIBEXPORT string_traits<char *>
 /// String traits for C-style string constant ("array of char")
 template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
 {
-  static const char *name() { return "char[]"; }
-  static bool has_null() { return true; }
+  static constexpr const char *name() noexcept { return "char[]"; }
+  static constexpr bool has_null() noexcept { return true; }
   static bool is_null(const char t[]) { return !t; }
   static const char *null() { return nullptr; }
   static std::string to_string(const char Obj[]) { return Obj; }
@@ -116,8 +116,8 @@ template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
  */
 template<size_t N> struct PQXX_LIBEXPORT string_traits<const char[N]>
 {
-  static const char *name() { return "char[]"; }
-  static bool has_null() { return true; }
+  static constexpr const char *name() noexcept { return "char[]"; }
+  static constexpr bool has_null() noexcept { return true; }
   static bool is_null(const char t[]) { return !t; }
   static const char *null() { return nullptr; }
   static std::string to_string(const char Obj[]) { return Obj; }
@@ -126,8 +126,8 @@ template<size_t N> struct PQXX_LIBEXPORT string_traits<const char[N]>
 
 template<> struct PQXX_LIBEXPORT string_traits<std::string>
 {
-  static const char *name() { return "string"; }
-  static bool has_null() { return false; }
+  static constexpr const char *name() noexcept { return "string"; }
+  static constexpr bool has_null() noexcept { return false; }
   static bool is_null(const std::string &) { return false; }
   static std::string null()
 	{ internal::throw_null_conversion(name()); return std::string(); }
@@ -137,8 +137,8 @@ template<> struct PQXX_LIBEXPORT string_traits<std::string>
 
 template<> struct PQXX_LIBEXPORT string_traits<const std::string>
 {
-  static const char *name() { return "const string"; }
-  static bool has_null() { return false; }
+  static constexpr const char *name() noexcept { return "const string"; }
+  static constexpr bool has_null() noexcept { return false; }
   static bool is_null(const std::string &) { return false; }
   static const std::string null()
 	{ internal::throw_null_conversion(name()); return std::string(); }
@@ -147,8 +147,8 @@ template<> struct PQXX_LIBEXPORT string_traits<const std::string>
 
 template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
 {
-  static const char *name() { return "stringstream"; }
-  static bool has_null() { return false; }
+  static constexpr const char *name() noexcept { return "stringstream"; }
+  static constexpr bool has_null() noexcept { return false; }
   static bool is_null(const std::stringstream &) { return false; }
   static std::stringstream null()
   {
