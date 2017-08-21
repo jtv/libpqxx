@@ -306,7 +306,7 @@ struct PQXX_LIBEXPORT thread_safety_model
 PQXX_LIBEXPORT thread_safety_model describe_thread_safety() noexcept;
 
 /// The "null" oid.
-const oid oid_none = 0;
+constexpr oid oid_none = 0;
 
 
 namespace internal
