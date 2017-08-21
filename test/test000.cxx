@@ -16,9 +16,10 @@ void check(string ref, string val, string vdesc)
   PQXX_CHECK_EQUAL(val, ref, "String mismatch for " + vdesc);
 }
 
-template<typename T> inline void strconv(string type,
-    const T &Obj,
-    string expected)
+template<typename T> inline void strconv(
+	string type,
+	const T &Obj,
+	string expected)
 {
   const string Objstr(to_string(Obj));
 
@@ -47,7 +48,8 @@ struct intderef
 
 void test_000(transaction_base &)
 {
-  PQXX_CHECK_EQUAL(oid_none,
+  PQXX_CHECK_EQUAL(
+	oid_none,
 	0u,
 	"InvalidIod is not zero as it used to be.  This may conceivably "
 	"cause problems in libpqxx.");

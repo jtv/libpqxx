@@ -30,8 +30,8 @@ void test_014(transaction_base &orgT)
   result R( T.exec("SELECT * FROM pg_tables") );
 
   // Give some feedback to the test program's user prior to the real work
-  T.process_notice(to_string(R.size()) + " "
-	"result rows in transaction " +
+  T.process_notice(
+	to_string(R.size()) + " result rows in transaction " +
 	T.name() + "\n");
 
   for (const auto &c: R)

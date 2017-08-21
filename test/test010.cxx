@@ -23,9 +23,8 @@ const string Table("pqxxevents");
 pair<int,int> CountEvents(transaction_base &T)
 {
   const string EventsQuery = "SELECT count(*) FROM " + Table;
-  const string BoringQuery = EventsQuery +
-		             " WHERE year=" +
-			     to_string(BoringYear);
+  const string BoringQuery =
+	EventsQuery + " WHERE year=" + to_string(BoringYear);
   int EventsCount = 0,
       BoringCount = 0;
 

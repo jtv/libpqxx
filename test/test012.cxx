@@ -101,8 +101,9 @@ void test_012(transaction_base &orgT)
       {
         if (!j[f].is_null())
         {
-          const bool U = SortedUp[f],
-                     D = SortedDown[f];
+          const bool
+		U = SortedUp[f],
+		D = SortedDown[f];
 
           SortedUp[f] = U & (string(j[f].c_str()) <= string(i[f].c_str()));
           SortedDown[f] = D & (string(j[f].c_str()) >= string(i[f].c_str()));
