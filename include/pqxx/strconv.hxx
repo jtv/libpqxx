@@ -52,8 +52,8 @@ template<> struct PQXX_LIBEXPORT string_traits<T>			\
   static constexpr const char *name() noexcept { return #T; }		\
   static constexpr bool has_null() noexcept { return false; }		\
   static bool is_null(T) { return false; }				\
-  static T null() 							\
-    { internal::throw_null_conversion(name()); return subject_type(); }	\
+  [[noreturn]] static T null() 						\
+    { internal::throw_null_conversion(name()); }			\
   static void from_string(const char Str[], T &Obj);			\
   static std::string to_string(T Obj);					\
 };
