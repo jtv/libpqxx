@@ -62,22 +62,24 @@ enum isolation_level
 /// Traits class to describe an isolation level; primarly for libpqxx's own use
 template<isolation_level LEVEL> struct isolation_traits
 {
-  static isolation_level level() noexcept { return LEVEL; }
-  static const char *name() noexcept;
+  static constexpr isolation_level level() noexcept { return LEVEL; }
+  static constexpr const char *name() noexcept;
 };
 
 
-template<> inline const char *isolation_traits<read_committed>::name() noexcept
+template<>
+inline constexpr const char *isolation_traits<read_committed>::name() noexcept
 	{ return "READ COMMITTED"; }
 
-template<> inline const char *isolation_traits<repeatable_read>::name()
-	noexcept { return "REPEATABLE READ"; }
+template<>
+inline constexpr const char *isolation_traits<repeatable_read>::name() noexcept
+	{ return "REPEATABLE READ"; }
 
-template<> inline const char *isolation_traits<serializable>::name() noexcept
+template<>
+inline constexpr const char *isolation_traits<serializable>::name() noexcept
 	{ return "SERIALIZABLE"; }
 
 }
-
 
 #include "pqxx/compiler-internal-post.hxx"
 

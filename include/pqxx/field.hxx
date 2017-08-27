@@ -300,7 +300,6 @@ typedef basic_fieldstream<char> fieldstream;
 
 } // namespace pqxx
 
-
 #include "pqxx/compiler-internal-post.hxx"
 
 #endif

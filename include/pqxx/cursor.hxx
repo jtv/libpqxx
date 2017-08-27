@@ -541,7 +541,6 @@ private:
   icursor_iterator *m_prev = nullptr, *m_next = nullptr;
 };
 
-
 } // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"

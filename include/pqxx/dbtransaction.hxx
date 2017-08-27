@@ -102,7 +102,6 @@ private:
   std::string m_start_cmd;
 };
 
-
 } // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"

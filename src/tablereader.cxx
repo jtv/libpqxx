@@ -122,8 +122,9 @@ std::string::size_type findtab(
 } // namespace
 
 
-std::string pqxx::tablereader::extract_field(const std::string &Line,
-    std::string::size_type &i) const
+std::string pqxx::tablereader::extract_field(
+	const std::string &Line,
+	std::string::size_type &i) const
 {
   // TODO: Pick better exception types
   std::string R;

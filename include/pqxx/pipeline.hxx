@@ -214,9 +214,7 @@ private:
   query_id m_error = qid_limit();
 };
 
-
 } // namespace
-
 
 #include "pqxx/compiler-internal-post.hxx"
 

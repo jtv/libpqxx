@@ -846,7 +846,8 @@ private:
   prepare::internal::prepared_def &register_prepared(const std::string &);
 
   friend class internal::gate::connection_prepare_invocation;
-  result prepared_exec(const std::string &,
+  result prepared_exec(
+	const std::string &,
 	const char *const[],
 	const int[],
 	const int[],

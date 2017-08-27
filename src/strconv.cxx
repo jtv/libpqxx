@@ -22,11 +22,6 @@ using namespace pqxx::internal;
 
 namespace
 {
-template<typename T> inline void set_to_NaN(T &t)
-{
-  t = std::numeric_limits<T>::quiet_NaN();
-}
-
 
 template<typename T> inline void set_to_Inf(T &t, int sign=1)
 {
@@ -36,7 +31,7 @@ template<typename T> inline void set_to_Inf(T &t, int sign=1)
 }
 
 
-void report_overflow()
+[[noreturn]] void report_overflow()
 {
   throw pqxx::failure(
 	"Could not convert string to integer: value out of range.");
@@ -147,7 +142,7 @@ template<typename T> void from_string_unsigned(const char Str[], T &Obj)
 }
 
 
-bool valid_infinity_string(const char str[])
+bool valid_infinity_string(const char str[]) noexcept
 {
   return
 	strcmp("infinity", str) == 0 ||
@@ -172,7 +167,7 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
   case 'n':
     // Accept "NaN," "nan," etc.
     ok = ((Str[1]=='A'||Str[1]=='a') && (Str[2]=='N'||Str[2]=='n') && !Str[3]);
-    set_to_NaN(result);
+    result = std::numeric_limits<T>::quiet_NaN();
     break;
 
   case 'I':

@@ -98,7 +98,7 @@ void pqxx::tablewriter::writer_close()
 
 namespace
 {
-inline char escapechar(char i)
+inline char escapechar(char i) noexcept
 {
   char r = '\0';
   switch (i)
@@ -114,7 +114,7 @@ inline char escapechar(char i)
   return r;
 }
 
-inline bool unprintable(char i)
+inline bool unprintable(char i) noexcept
 {
   return i < ' ' || i > '~';
 }
