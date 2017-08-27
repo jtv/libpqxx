@@ -301,7 +301,7 @@ Programming with libpqxx
 
 Your first program will involve the libpqxx classes "connection" (see headers
 `pqxx/connection_base.hxx` and `pqxx/connection.hxx`), and `work` (a
-convenience typedef for `transaction<>` which conforms to the interface defined
+convenience alias for `transaction<>` which conforms to the interface defined
 in `pqxx/transaction_base.hxx`).
 
 These `*.hxx` headers are not the ones you include in your program.  Instead,

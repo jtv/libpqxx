@@ -78,9 +78,9 @@ template<
 class transaction : public basic_transaction
 {
 public:
-  typedef isolation_traits<ISOLATIONLEVEL> isolation_tag;
+  using isolation_tag = isolation_traits<ISOLATIONLEVEL>;
 
-  /// Create a transaction
+  /// Create a transaction.
   /**
    * @param C Connection for this transaction to operate on
    * @param TName Optional name for transaction; must begin with a letter and
@@ -99,16 +99,15 @@ public:
 };
 
 
-/// Bog-standard, default transaction type
-typedef transaction<> work;
+/// The default transaction type.
+using work = transaction<>;
 
-/// Read-only transaction
-typedef transaction<read_committed, read_only> read_transaction;
+/// Read-only transaction.
+using read_transaction = transaction<read_committed, read_only>;
 
 //@}
 
 }
-
 
 #include "pqxx/compiler-internal-post.hxx"
 

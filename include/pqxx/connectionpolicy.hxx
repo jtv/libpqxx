@@ -23,7 +23,6 @@
 namespace pqxx
 {
 
-
 /**
  * @addtogroup connection Connection classes
  */
@@ -32,7 +31,7 @@ namespace pqxx
 class PQXX_LIBEXPORT connectionpolicy
 {
 public:
-  typedef internal::pq::PGconn *handle;
+  using handle = internal::pq::PGconn *;
 
   explicit connectionpolicy(const std::string &opts);
   virtual ~connectionpolicy() noexcept;

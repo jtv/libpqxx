@@ -251,7 +251,7 @@ std::string pqxx::internal::sql_cursor::stridestring(difference_type n)
    * "infinities" for difference_type for this (the highest and lowest possible
    * values for "long"), but for PostgreSQL 8.0 at least, the backend appears to
    * expect a 32-bit number and fails to parse large 64-bit numbers.
-   * We could change the typedef to match this behaviour, but that would break
+   * We could change the alias to match this behaviour, but that would break
    * if/when Postgres is changed to accept 64-bit displacements.
    */
   static const std::string All("ALL"), BackAll("BACKWARD ALL");
@@ -400,7 +400,7 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
 {
   if (topos < m_realpos) return;
 
-  typedef std::multimap<difference_type,icursor_iterator*> todolist;
+  using todolist = std::multimap<difference_type,icursor_iterator*>;
   todolist todo;
   for (icursor_iterator *i = m_iterators, *next; i; i = next)
   {

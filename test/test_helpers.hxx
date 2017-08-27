@@ -30,7 +30,7 @@ void drop_table(transaction_base &, const std::string &table);
 
 
 class base_test;
-typedef std::map<std::string, base_test *> test_map;
+using test_map = std::map<std::string, base_test *>;
 
 /// Register test (if given); return test_map.
 const test_map &register_test(base_test *);
@@ -40,7 +40,7 @@ const test_map &register_test(base_test *);
 class base_test
 {
 public:
-  typedef void (*testfunc)(transaction_base &);
+  using testfunc = void (*)(transaction_base &);
 
   base_test(const std::string &tname, testfunc func);
 
@@ -344,7 +344,7 @@ template<> struct string_traits<result>
 // Support string conversion on result::const_iterator for debug output.
 template<> struct string_traits<result::const_iterator>
 {
-  typedef result::const_iterator subject_type;
+  using subject_type = result::const_iterator;
   static const char *name() { return "pqxx::result::const_iterator"; }
   static bool has_null() { return false; }
   static bool is_null(subject_type) { return false; }
@@ -358,7 +358,7 @@ template<> struct string_traits<result::const_iterator>
 // Support string conversion on vector<string> for debug output.
 template<> struct string_traits<std::vector<std::string> >
 {
-  typedef std::vector<std::string> subject_type;
+  using subject_type = std::vector<std::string>;
   static const char *name() { return "vector<string>"; }
   static bool has_null() { return false; }
   static bool is_null(subject_type) { return false; }

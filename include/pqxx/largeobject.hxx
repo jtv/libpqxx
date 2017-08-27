@@ -34,7 +34,7 @@ namespace pqxx
 class PQXX_LIBEXPORT largeobject
 {
 public:
-  typedef large_object_size_type size_type;
+  using size_type = large_object_size_type;
 
   /// Refer to a nonexistent large object (similar to what a null pointer does)
   largeobject() noexcept =default;					//[t48]
@@ -138,22 +138,22 @@ class PQXX_LIBEXPORT largeobjectaccess : private largeobject
 {
 public:
   using largeobject::size_type;
-  typedef long off_type;
-  typedef size_type pos_type;
+  using off_type = long;
+  using pos_type = size_type;
 
   /// Open mode: @c in, @c out (can be combined with the "or" operator)
   /** According to the C++ standard, these should be in @c std::ios_base.  We
    * take them from @c std::ios instead, which should be safe because it
    * inherits the same definition, to accommodate gcc 2.95 & 2.96.
    */
-  typedef std::ios::openmode openmode;
+  using openmode = std::ios::openmode;
 
   /// Seek direction: @c beg, @c cur, @c end
   /** According to the C++ standard, these should be in @c std::ios_base.  We
    * take them from @c std::ios instead, which should be safe because it
    * inherits the same definition, to accommodate gcc 2.95 & 2.96.
    */
-  typedef std::ios::seekdir seekdir;
+  using seekdir = std::ios::seekdir;
 
   /// Create new large object and open it
   /**
@@ -348,15 +348,15 @@ template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
   class largeobject_streambuf :
     public std::basic_streambuf<CHAR, TRAITS>
 {
-  typedef long size_type;
+  using size_type = long;
 public:
-  typedef CHAR   char_type;
-  typedef TRAITS traits_type;
-  typedef typename traits_type::int_type int_type;
-  typedef typename traits_type::pos_type pos_type;
-  typedef typename traits_type::off_type off_type;
-  typedef largeobjectaccess::openmode openmode;
-  typedef largeobjectaccess::seekdir seekdir;
+  using char_type = CHAR;
+  using traits_type = TRAITS;
+  using int_type = typename traits_type::int_type;
+  using pos_type = typename traits_type::pos_type;
+  using off_type = typename traits_type::off_type;
+  using openmode = largeobjectaccess::openmode;
+  using seekdir = largeobjectaccess::seekdir;
 
   largeobject_streambuf(						//[t48]
 	dbtransaction &T,
@@ -443,10 +443,10 @@ protected:
   }
 
 private:
-  /// Shortcut for traits_type::eof()
+  /// Shortcut for traits_type::eof().
   static int_type EoF() { return traits_type::eof(); }
 
-  /// Helper: change error position of -1 to EOF (probably a no-op)
+  /// Helper: change error position of -1 to EOF (probably a no-op).
   template<typename INTYPE>
   static std::streampos AdjustEOF(INTYPE pos)
 	{ return (pos==-1) ? std::streampos(EoF()) : std::streampos(pos); }
@@ -468,16 +468,16 @@ private:
   const size_type m_bufsize;
   largeobjectaccess m_obj;
 
-  // Get & put buffers
+  /// Get & put buffers.
   char_type *m_g, *m_p;
 };
 
 
-/// Input stream that gets its data from a large object
+/// Input stream that gets its data from a large object.
 /** Use this class exactly as you would any other istream to read data from a
  * large object.  All formatting and streaming operations of @c std::istream are
  * supported.  What you'll typically want to use, however, is the ilostream
- * typedef (which defines a basic_ilostream for @c char).  This is similar to
+ * alias (which defines a basic_ilostream for @c char).  This is similar to
  * how e.g. @c std::ifstream relates to @c std::basic_ifstream.
  *
  * Currently only works for <tt><char, std::char_traits<char> ></tt>.
@@ -486,14 +486,14 @@ template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
   class basic_ilostream :
     public std::basic_istream<CHAR, TRAITS>
 {
-  typedef std::basic_istream<CHAR, TRAITS> super;
+  using super = std::basic_istream<CHAR, TRAITS>;
 
 public:
-  typedef CHAR char_type;
-  typedef TRAITS traits_type;
-  typedef typename traits_type::int_type int_type;
-  typedef typename traits_type::pos_type pos_type;
-  typedef typename traits_type::off_type off_type;
+  using char_type = CHAR;
+  using traits_type = TRAITS;
+  using int_type = typename traits_type::int_type;
+  using pos_type = typename traits_type::pos_type;
+  using off_type = typename traits_type::off_type;
 
   /// Create a basic_ilostream
   /**
@@ -527,14 +527,14 @@ private:
   largeobject_streambuf<CHAR,TRAITS> m_buf;
 };
 
-typedef basic_ilostream<char> ilostream;
+using ilostream = basic_ilostream<char>;
 
 
 /// Output stream that writes data back to a large object
 /** Use this class exactly as you would any other ostream to write data to a
  * large object.  All formatting and streaming operations of @c std::ostream are
  * supported.  What you'll typically want to use, however, is the olostream
- * typedef (which defines a basic_olostream for @c char).  This is similar to
+ * alias (which defines a basic_olostream for @c char).  This is similar to
  * how e.g. @c std::ofstream is related to @c std::basic_ofstream.
  *
  * Currently only works for <tt><char, std::char_traits<char> ></tt>.
@@ -543,13 +543,13 @@ template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
   class basic_olostream :
     public std::basic_ostream<CHAR, TRAITS>
 {
-  typedef std::basic_ostream<CHAR, TRAITS> super;
+  using super = std::basic_ostream<CHAR, TRAITS>;
 public:
-  typedef CHAR char_type;
-  typedef TRAITS traits_type;
-  typedef typename traits_type::int_type int_type;
-  typedef typename traits_type::pos_type pos_type;
-  typedef typename traits_type::off_type off_type;
+  using char_type = CHAR;
+  using traits_type = TRAITS;
+  using int_type = typename traits_type::int_type;
+  using pos_type = typename traits_type::pos_type;
+  using off_type = typename traits_type::off_type;
 
   /// Create a basic_olostream
   /**
@@ -595,14 +595,14 @@ private:
   largeobject_streambuf<CHAR,TRAITS> m_buf;
 };
 
-typedef basic_olostream<char> olostream;
+using olostream = basic_olostream<char>;
 
 
 /// Stream that reads and writes a large object
 /** Use this class exactly as you would a std::iostream to read data from, or
  * write data to a large object.  All formatting and streaming operations of
  * @c std::iostream are supported.  What you'll typically want to use, however,
- * is the lostream typedef (which defines a basic_lostream for @c char).  This
+ * is the lostream alias (which defines a basic_lostream for @c char).  This
  * is similar to how e.g. @c std::fstream is related to @c std::basic_fstream.
  *
  * Currently only works for <tt><char, std::char_traits<char> ></tt>.
@@ -611,14 +611,14 @@ template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
   class basic_lostream :
     public std::basic_iostream<CHAR, TRAITS>
 {
-  typedef std::basic_iostream<CHAR, TRAITS> super;
+  using super = std::basic_iostream<CHAR, TRAITS>;
 
 public:
-  typedef CHAR char_type;
-  typedef TRAITS traits_type;
-  typedef typename traits_type::int_type int_type;
-  typedef typename traits_type::pos_type pos_type;
-  typedef typename traits_type::off_type off_type;
+  using char_type = CHAR;
+  using traits_type = TRAITS;
+  using int_type = typename traits_type::int_type;
+  using pos_type = typename traits_type::pos_type;
+  using off_type = typename traits_type::off_type;
 
   /// Create a basic_lostream
   /**
@@ -664,7 +664,7 @@ private:
   largeobject_streambuf<CHAR,TRAITS> m_buf;
 };
 
-typedef basic_lostream<char> lostream;
+using lostream = basic_lostream<char>;
 
 } // namespace pqxx
 

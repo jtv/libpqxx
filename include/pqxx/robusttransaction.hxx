@@ -36,8 +36,8 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE basic_robusttransaction :
   public dbtransaction
 {
 public:
-  /// Isolation level is read_committed by default
-  typedef isolation_traits<read_committed> isolation_tag;
+  /// Isolation level is read_committed by default.
+  using isolation_tag = isolation_traits<read_committed>;
 
   virtual ~basic_robusttransaction() =0;				//[t16]
 
@@ -48,7 +48,7 @@ protected:
 	const std::string &table_name=std::string());			//[t16]
 
 private:
-  typedef unsigned long IDType;
+  using IDType = unsigned long;
   IDType m_record_id = 0;
   std::string m_xid;
   std::string m_log_table;
@@ -139,7 +139,7 @@ template<isolation_level ISOLATIONLEVEL=read_committed>
 class robusttransaction : public basic_robusttransaction
 {
 public:
-  typedef isolation_traits<ISOLATIONLEVEL> isolation_tag;
+  using isolation_tag = isolation_traits<ISOLATIONLEVEL>;
 
   /// Constructor
   /** Creates robusttransaction of given name

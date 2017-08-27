@@ -22,13 +22,13 @@ namespace internal
 /// Forward declarations of libpq types as needed in libpqxx headers
 namespace pq
 {
-typedef pg_conn PGconn;
-typedef pg_result PGresult;
-typedef pgNotify PGnotify;
-typedef void (*PQnoticeProcessor)(void *, const char *);
+using PGconn = pg_conn;
+using PGresult = pg_result;
+using PGnotify = pgNotify;
+using PQnoticeProcessor = void (*)(void *, const char *);
 }
 }
 
 /// PostgreSQL database row identifier
-typedef unsigned int oid;
+using oid = unsigned int;
 } // extern "C"

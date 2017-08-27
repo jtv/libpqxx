@@ -23,8 +23,8 @@ using namespace pqxx::internal;
 
 namespace
 {
-typedef unsigned char unsigned_char;
-typedef std::pair<unsigned char *, size_t> buffer;
+using unsigned_char = unsigned char;
+using buffer = std::pair<unsigned char *, size_t>;
 
 
 buffer to_buffer(const void *data, size_t len)

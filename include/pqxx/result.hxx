@@ -68,14 +68,14 @@ class result_sql_cursor;
 class PQXX_LIBEXPORT result
 {
 public:
-  typedef result_size_type size_type;
-  typedef result_difference_type difference_type;
-  typedef row reference;
-  typedef const_result_iterator const_iterator;
-  typedef const_iterator pointer;
-  typedef const_iterator iterator;
-  typedef const_reverse_result_iterator const_reverse_iterator;
-  typedef const_reverse_iterator reverse_iterator;
+  using size_type = result_size_type;
+  using difference_type = result_difference_type;
+  using reference = row;
+  using const_iterator = const_result_iterator;
+  using pointer = const_iterator;
+  using iterator = const_iterator;
+  using const_reverse_iterator = const_reverse_result_iterator;
+  using reverse_iterator = const_reverse_iterator;
 
   result() noexcept : m_data(make_data_pointer()), m_query() {}		//[t3]
   result(const result &rhs) noexcept :					//[t1]
@@ -192,7 +192,7 @@ public:
 
 
 private:
-  typedef std::shared_ptr<const internal::pq::PGresult> data_pointer;
+  using data_pointer = std::shared_ptr<const internal::pq::PGresult>;
 
   /// Underlying libpq result set.
    data_pointer m_data;

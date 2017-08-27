@@ -122,7 +122,7 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE transaction_base :
 {
 public:
   /// If nothing else is known, our isolation level is at least read_committed
-  typedef isolation_traits<read_committed> isolation_tag;
+  using isolation_tag = isolation_traits<read_committed>;
 
   transaction_base() =delete;
   transaction_base(const transaction_base &) =delete;
@@ -483,8 +483,6 @@ private:
 
 } // namespace pqxx
 
-
 #include "pqxx/compiler-internal-post.hxx"
 
 #endif
-

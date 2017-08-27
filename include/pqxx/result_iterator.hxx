@@ -42,10 +42,10 @@ class PQXX_LIBEXPORT const_result_iterator :
   public row
 {
 public:
-  typedef const row *pointer;
-  typedef row reference;
-  typedef result_size_type size_type;
-  typedef result_difference_type difference_type;
+  using pointer = const row *;
+  using reference = row;
+  using size_type = result_size_type;
+  using difference_type = result_difference_type;
 
   const_result_iterator() noexcept : row(result(),0) {}
   const_result_iterator(const row &t) noexcept : row(t) {}
@@ -126,19 +126,13 @@ class PQXX_LIBEXPORT const_reverse_result_iterator :
   private const_result_iterator
 {
 public:
-  typedef const_result_iterator super;
-  typedef const_result_iterator iterator_type;
+  using super = const_result_iterator;
+  using iterator_type = const_result_iterator;
   using iterator_type::iterator_category;
   using iterator_type::difference_type;
   using iterator_type::pointer;
-#ifndef _MSC_VER
   using iterator_type::value_type;
   using iterator_type::reference;
-#else
-  // Workaround for Visual C++.NET 2003, which has access problems
-  typedef const row &reference;
-  typedef row value_type;
-#endif
 
   const_reverse_result_iterator(					//[t75]
 	const const_reverse_result_iterator &rhs) :

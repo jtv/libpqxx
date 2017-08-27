@@ -560,7 +560,7 @@ void pqxx::connection_base::set_verbosity(error_verbosity verbosity) noexcept
 namespace
 {
 /// Unique pointer to PGnotify.
-typedef std::unique_ptr<PGnotify, void (*)(PGnotify *)> notify_ptr;
+using notify_ptr = std::unique_ptr<PGnotify, void (*)(PGnotify *)>;
 
 
 /// Get one notification from a connection, or null.

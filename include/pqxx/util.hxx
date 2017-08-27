@@ -457,8 +457,9 @@ private:
  */
 PQXX_LIBEXPORT void sleep_seconds(int);
 
-/// Work around problem with library export directives and pointers
-typedef const char *cstring;
+/// Work around problem with library export directives and pointers.
+using cstring = const char *;
+
 
 /// Human-readable description for error code, possibly using given buffer
 /** Wrapper for @c strerror() or thread-safe variant, as available.  The

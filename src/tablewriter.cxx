@@ -121,7 +121,7 @@ inline bool unprintable(char i) noexcept
 
 inline char tooctdigit(char c, int n)
 {
-  typedef unsigned char unsigned_char;
+  using unsigned_char = unsigned char;
   unsigned int i = unsigned_char(c);
   return number_to_digit((i>>(3*n)) & 0x07);
 }

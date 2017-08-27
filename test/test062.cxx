@@ -69,7 +69,7 @@ void test_062(transaction_base &T)
 	r != B.rend(),
 	"Premature rend to binary string at " + to_string(i) + ".");
 
-    typedef unsigned char uchar;
+    using uchar = unsigned char;
     PQXX_CHECK_EQUAL(
 	int(B[i-1]),
 	int(uchar(TestStr.at(i-1))),

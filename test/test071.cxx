@@ -11,7 +11,7 @@ using namespace pqxx;
 // results both in-order and out-of-order.
 namespace
 {
-typedef map<pipeline::query_id, int> Exp;
+using Exp = map<pipeline::query_id, int>;
 
 template<typename PAIR>
 void checkresult(pipeline &P, PAIR c)

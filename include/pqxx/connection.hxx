@@ -38,7 +38,7 @@ namespace pqxx
  * of a connection.  Prepared statements are also defined here.
  *
  * Several types of connections are available, including plain connection and
- * lazyconnection.  These types are typedefs combining a derivative of the
+ * lazyconnection.  These types are aliases combining a derivative of the
  * connection_base class (where essentially all connection-related functionality
  * is defined) with a policy class which governs how the connection is to be
  * established.  You pass details such as the database you wish to connect to,
@@ -83,7 +83,7 @@ public:
 };
 
 /// The "standard" connection type: connect to database right now
-typedef basic_connection<connect_direct> connection;
+using connection = basic_connection<connect_direct>;
 
 
 /// Lazy connection policy; causes connection to be deferred until first use.
@@ -100,7 +100,7 @@ public:
 
 
 /// A "lazy" connection type: connect to database only when needed
-typedef basic_connection<connect_lazy> lazyconnection;
+using lazyconnection = basic_connection<connect_lazy>;
 
 
 /// Asynchronous connection policy; connects "in the background"
@@ -126,7 +126,7 @@ private:
 
 
 /// "Asynchronous" connection type: start connecting, but don't wait for it
-typedef basic_connection<connect_async> asyncconnection;
+using asyncconnection = basic_connection<connect_async>;
 
 
 /// Nonfunctional, always-down connection policy for testing/debugging purposes
@@ -142,7 +142,7 @@ public:
 
 
 /// A "dummy" connection type: don't connect to any database at all
-typedef basic_connection<connect_null> nullconnection;
+using nullconnection = basic_connection<connect_null>;
 
 /**
  * @}

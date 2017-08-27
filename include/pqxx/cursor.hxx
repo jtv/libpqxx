@@ -40,8 +40,8 @@ namespace pqxx
 class PQXX_LIBEXPORT cursor_base
 {
 public:
-  typedef result_size_type size_type;
-  typedef result_difference_type difference_type;
+  using size_type = result_size_type;
+  using difference_type = result_difference_type;
 
   /// Cursor access-pattern policy
   /** Allowing a cursor to move forward only can result in better performance,
@@ -269,8 +269,8 @@ template<cursor_base::updatepolicy up, cursor_base::ownershippolicy op>
 class stateless_cursor
 {
 public:
-  typedef result_size_type size_type;
-  typedef result_difference_type difference_type;
+  using size_type = result_size_type;
+  using difference_type = result_difference_type;
 
   /// Create cursor.
   stateless_cursor(
@@ -360,8 +360,8 @@ class icursorstream_icursor_iterator;
 class PQXX_LIBEXPORT icursorstream
 {
 public:
-  typedef cursor_base::size_type size_type;
-  typedef cursor_base::difference_type difference_type;
+  using size_type = cursor_base::size_type;
+  using difference_type = cursor_base::difference_type;
 
   /// Set up a read-only, forward-only cursor
   /** Roughly equivalent to a C++ Standard Library istream, this cursor type
@@ -501,9 +501,9 @@ class PQXX_LIBEXPORT icursor_iterator :
 	const result &>
 {
 public:
-  typedef icursorstream istream_type;
-  typedef istream_type::size_type size_type;
-  typedef istream_type::difference_type difference_type;
+  using istream_type = icursorstream;
+  using size_type = istream_type::size_type;
+  using difference_type = istream_type::difference_type;
 
   icursor_iterator() noexcept;						//[t84]
   explicit icursor_iterator(istream_type &) noexcept;			//[t84]

@@ -58,7 +58,7 @@ template<isolation_level ISOLATIONLEVEL=read_committed>
 class flakytransaction final : public basic_flakytransaction
 {
 public:
-  typedef isolation_traits<ISOLATIONLEVEL> isolation_tag;
+  using isolation_tag = isolation_traits<ISOLATIONLEVEL>;
 
   explicit flakytransaction(connection_base &C, const string &TName) :
     namedclass(fullname("transaction",isolation_tag::name()), TName),

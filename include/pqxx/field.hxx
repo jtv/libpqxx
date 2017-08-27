@@ -40,7 +40,7 @@ namespace pqxx
 class PQXX_LIBEXPORT field
 {
 public:
-  typedef field_size_type size_type;
+  using size_type = field_size_type;
 
   /// Constructor.
   /** Create field as reference to a field in a result set.
@@ -227,13 +227,13 @@ template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
   public std::basic_streambuf<CHAR, TRAITS>
 {
 public:
-  typedef CHAR char_type;
-  typedef TRAITS traits_type;
-  typedef typename traits_type::int_type int_type;
-  typedef typename traits_type::pos_type pos_type;
-  typedef typename traits_type::off_type off_type;
-  typedef std::ios::openmode openmode;
-  typedef std::ios::seekdir seekdir;
+  using char_type = CHAR;
+  using traits_type = TRAITS;
+  using int_type = typename traits_type::int_type;
+  using pos_type = typename traits_type::pos_type;
+  using off_type = typename traits_type::off_type;
+  using openmode = std::ios::openmode;
+  using seekdir = std::ios::seekdir;
 
   explicit field_streambuf(const field &F) :			//[t74]
     m_field(F)
@@ -271,7 +271,7 @@ private:
 /** Use this class exactly as you would any other istream to read data from a
  * field.  All formatting and streaming operations of @c std::istream are
  * supported.  What you'll typically want to use, however, is the fieldstream
- * typedef (which defines a basic_fieldstream for @c char).  This is similar to
+ * alias (which defines a basic_fieldstream for @c char).  This is similar to
  * how e.g. @c std::ifstream relates to @c std::basic_ifstream.
  *
  * This class has only been tested for the char type (and its default traits).
@@ -280,14 +280,14 @@ template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
   class basic_fieldstream :
     public std::basic_istream<CHAR, TRAITS>
 {
-  typedef std::basic_istream<CHAR, TRAITS> super;
+  using super = std::basic_istream<CHAR, TRAITS>;
 
 public:
-  typedef CHAR char_type;
-  typedef TRAITS traits_type;
-  typedef typename traits_type::int_type int_type;
-  typedef typename traits_type::pos_type pos_type;
-  typedef typename traits_type::off_type off_type;
+  using char_type = CHAR;
+  using traits_type = TRAITS;
+  using int_type = typename traits_type::int_type;
+  using pos_type = typename traits_type::pos_type;
+  using off_type = typename traits_type::off_type;
 
   basic_fieldstream(const field &F) : super(0), m_buf(F)
 	{ super::init(&m_buf); }
@@ -296,7 +296,7 @@ private:
   field_streambuf<CHAR, TRAITS> m_buf;
 };
 
-typedef basic_fieldstream<char> fieldstream;
+using fieldstream = basic_fieldstream<char>;
 
 } // namespace pqxx
 

@@ -85,8 +85,8 @@ void test_000(transaction_base &)
   lminstr << long_min;
   lmaxstr << long_max;
 
-  typedef long long longlong;
-  typedef unsigned long long ulonglong;
+  using longlong = long long;
+  using ulonglong = unsigned long long;
   const unsigned long long ullong_max = ~ulonglong(0);
   const long long llong_max = longlong(ullong_max >> 2),
 	llong_min = -1 - llong_max;

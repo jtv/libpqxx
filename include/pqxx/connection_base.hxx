@@ -867,16 +867,15 @@ private:
   /// File to trace to, if any
   std::FILE *m_trace = nullptr;
 
-  typedef std::multimap<std::string, pqxx::notification_receiver *>
-	receiver_list;
+  using receiver_list =
+	std::multimap<std::string, pqxx::notification_receiver *>;
   /// Notification receivers.
   receiver_list m_receivers;
 
   /// Variables set in this session
   std::map<std::string, std::string> m_vars;
 
-  typedef std::map<std::string, prepare::internal::prepared_def> PSMap;
-
+  using PSMap = std::map<std::string, prepare::internal::prepared_def>;
   /// Prepared statements existing in this section
   PSMap m_prepared;
 
@@ -973,7 +972,6 @@ void wait_read(const internal::pq::PGconn *);
 void wait_read(const internal::pq::PGconn *, long seconds, long microseconds);
 void wait_write(const internal::pq::PGconn *);
 } // namespace pqxx::internal
-
 
 } // namespace pqxx
 

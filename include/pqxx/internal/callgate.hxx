@@ -61,9 +61,9 @@ template<typename HOME> class PQXX_PRIVATE callgate
 {
 protected:
   /// This class, to keep constructors easy.
-  typedef callgate<HOME> super;
+  using super = callgate<HOME>;
   /// A reference to the host class.  Helps keep constructors easy.
-  typedef HOME &reference;
+  using reference = HOME &;
 
   callgate(reference x) : m_home(x) {}
 

@@ -41,14 +41,14 @@ namespace pqxx
 class PQXX_LIBEXPORT row
 {
 public:
-  typedef row_size_type size_type;
-  typedef row_difference_type difference_type;
-  typedef const_row_iterator const_iterator;
-  typedef const_iterator iterator;
-  typedef field reference;
-  typedef const_row_iterator pointer;
-  typedef const_reverse_row_iterator const_reverse_iterator;
-  typedef const_reverse_iterator reverse_iterator;
+  using size_type = row_size_type;
+  using difference_type = row_difference_type;
+  using const_iterator = const_row_iterator;
+  using iterator = const_iterator;
+  using reference = field;
+  using pointer = const_row_iterator;
+  using const_reverse_iterator = const_reverse_row_iterator;
+  using reverse_iterator = const_reverse_iterator;
 
   row() =default;
 
@@ -208,17 +208,16 @@ class PQXX_LIBEXPORT const_row_iterator :
 	>,
   public field
 {
-  typedef std::iterator<
+  using it = std::iterator<
 	std::random_access_iterator_tag,
 	const field,
 	row_size_type
-	>
-	it;
+	>;
 public:
   using it::pointer;
-  typedef row_size_type size_type;
-  typedef row_difference_type difference_type;
-  typedef field reference;
+  using size_type = row_size_type;
+  using difference_type = row_difference_type;
+  using reference = field;
 
   const_row_iterator(const row &T, row_size_type C) noexcept :		//[t82]
     field(T, C) {}
@@ -285,19 +284,13 @@ public:
 class PQXX_LIBEXPORT const_reverse_row_iterator : private const_row_iterator
 {
 public:
-  typedef const_row_iterator super;
-  typedef const_row_iterator iterator_type;
+  using super = const_row_iterator;
+  using iterator_type = const_row_iterator;
   using iterator_type::iterator_category;
   using iterator_type::difference_type;
   using iterator_type::pointer;
-#ifndef _MSC_VER
   using iterator_type::value_type;
   using iterator_type::reference;
-#else
-  // Workaround for Visual C++.NET 2003, which has access problems
-  typedef field value_type;
-  typedef const field &reference;
-#endif
 
   const_reverse_row_iterator(const const_reverse_row_iterator &r) :	//[t82]
     const_row_iterator(r) {}

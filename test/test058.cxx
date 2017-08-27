@@ -39,11 +39,9 @@ public:
     // Overwrite terminating zero
     auto Here = A.seek(-1, ios::cur);
 
-    // Redundant typedef to work around bug in Visual C++.NET
-    typedef largeobjectaccess::size_type loa_size;
     PQXX_CHECK_EQUAL(
 	Here,
-	loa_size(Contents.size()-1),
+	largeobject::size_type(Contents.size()-1),
 	"Ended up in wrong place after moving back 1 byte.");
 
     A.write("!", 1);
@@ -51,7 +49,7 @@ public:
     // Now check that we really did
     PQXX_CHECK_EQUAL(
 	A.seek(-1, ios::cur),
-	loa_size(Contents.size()-1),
+	largeobject::size_type(Contents.size()-1),
 	"Inconsistent seek.");
 
     char Check;

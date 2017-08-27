@@ -68,7 +68,7 @@ template<typename T> struct underflow_check<T, false>
 /// Return 10*n, or throw exception if it overflows.
 template<typename T> T safe_multiply_by_ten(T n)
 {
-  typedef std::numeric_limits<T> limits;
+  using limits = std::numeric_limits<T>;
   const T ten(10);
   if (n > 0 && (limits::max() / n) < ten) report_overflow();
   underflow_check<T, limits::is_signed>::check_before_adding_digit(n);

@@ -226,7 +226,7 @@
 
       <listitem>
 	<para>
-	  <literal>work</literal>, actually a typedef for the
+	  <literal>work</literal>, actually an alias for the
 	  <literal>transaction</literal> class template, represents a
 	  transaction being executed in the context of a
 	  <literal>connection</literal>. This is a unit of work that must be
@@ -433,8 +433,8 @@
 	</para>
 	<para>
 	  You'll usually want to refer to the default
-	  <literal>transaction</literal> type as <literal>work</literal>, a
-	  typedef that means "<literal>transaction</literal> with default
+	  <literal>transaction</literal> type as <literal>work</literal>, an
+	  alias that means "<literal>transaction</literal> with default
 	  (read-committed) isolation level."
 	</para>
       </listitem>

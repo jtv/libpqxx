@@ -48,7 +48,7 @@ namespace internal
 #define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(T)			\
 template<> struct PQXX_LIBEXPORT string_traits<T>			\
 {									\
-  typedef T subject_type;						\
+  using subject_type = T;						\
   static constexpr const char *name() noexcept { return #T; }		\
   static constexpr bool has_null() noexcept { return false; }		\
   static bool is_null(T) { return false; }				\
@@ -109,20 +109,6 @@ template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
   static const char *null() { return nullptr; }
   static std::string to_string(const char Obj[]) { return Obj; }
 };
-
-/// String traits for "array of const char."
-/** Visual Studio 2010 isn't happy without this redundant specialization.
- * Other compilers shouldn't need it.
- */
-template<size_t N> struct PQXX_LIBEXPORT string_traits<const char[N]>
-{
-  static constexpr const char *name() noexcept { return "char[]"; }
-  static constexpr bool has_null() noexcept { return true; }
-  static bool is_null(const char t[]) { return !t; }
-  static const char *null() { return nullptr; }
-  static std::string to_string(const char Obj[]) { return Obj; }
-};
-
 
 template<> struct PQXX_LIBEXPORT string_traits<std::string>
 {

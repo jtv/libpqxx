@@ -53,14 +53,14 @@ namespace pqxx
 class PQXX_LIBEXPORT binarystring
 {
 public:
-  typedef unsigned char char_type;
-  typedef std::char_traits<char_type>::char_type value_type;
-  typedef size_t size_type;
-  typedef long difference_type;
-  typedef const value_type &const_reference;
-  typedef const value_type *const_pointer;
-  typedef const_pointer const_iterator;
-  typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+  using char_type = unsigned char;
+  using value_type = std::char_traits<char_type>::char_type;
+  using size_type = size_t;
+  using difference_type = long;
+  using const_reference = const value_type &;
+  using const_pointer = const value_type *;
+  using const_iterator = const_pointer;
+  using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
   binarystring(const binarystring &) =default;
 
@@ -133,7 +133,7 @@ public:
   std::string str() const;						//[t62]
 
 private:
-  typedef std::shared_ptr<value_type> smart_pointer_type;
+  using smart_pointer_type = std::shared_ptr<value_type>;
 
   /// Shorthand: construct a smart_pointer_type.
   static smart_pointer_type make_smart_pointer(unsigned char *buf=nullptr)

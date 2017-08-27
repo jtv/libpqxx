@@ -55,7 +55,7 @@ namespace pqxx
 class PQXX_LIBEXPORT pipeline : public internal::transactionfocus
 {
 public:
-  typedef long query_id;
+  using query_id = long;
 
   pipeline(const pipeline &) =delete;
   pipeline &operator=(const pipeline &) =delete;
@@ -154,7 +154,7 @@ private:
     result m_res;
   };
 
-  typedef std::map<query_id,Query> QueryMap;
+  using QueryMap = std::map<query_id,Query>;
 
   struct getquery:std::unary_function<QueryMap::const_iterator,std::string>
   {

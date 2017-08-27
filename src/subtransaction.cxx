@@ -33,7 +33,7 @@ pqxx::subtransaction::subtransaction(
 
 namespace
 {
-typedef pqxx::dbtransaction &dbtransaction_ref;
+using dbtransaction_ref = pqxx::dbtransaction &;
 }
 
 
