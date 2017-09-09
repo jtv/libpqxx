@@ -16312,9 +16312,6 @@ then
 			-fnothrow-opt
 	fi
 
-	# The PostgreSQL headers now require "long long".
-	add_compiler_opts_if_ok -Wno-long-long
-
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ visibility attribute" >&5
 $as_echo_n "checking g++ visibility attribute... " >&6; }

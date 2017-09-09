@@ -135,9 +135,6 @@ then
 			-fnothrow-opt
 	fi
 
-	# The PostgreSQL headers now require "long long".
-	add_compiler_opts_if_ok -Wno-long-long
-
 
 AC_MSG_CHECKING([g++ visibility attribute])
 gcc_visibility=yes
