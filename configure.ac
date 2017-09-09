@@ -6,7 +6,7 @@ AC_PREREQ(2.59)
 AC_INIT(
 	libpqxx,
 	[m4_esyscmd_s([./tools/extract_version])],
-	[Jeroen T. Vermeulen <jtv@xs4all.nl>])
+	[Jeroen T. Vermeulen])
 AC_LANG(C++)
 AC_CONFIG_SRCDIR([src/connection.cxx])
 AC_CONFIG_AUX_DIR(config)

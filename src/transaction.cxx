@@ -2,7 +2,7 @@
  *
  * pqxx::transaction represents a regular database transaction.
  *
- * Copyright (c) 2001-2017, Jeroen T. Vermeulen <jtv@xs4all.nl>
+ * Copyright (c) 2001-2017, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
