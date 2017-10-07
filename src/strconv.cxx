@@ -185,7 +185,7 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
     else
     {
       std::stringstream S(Str);
-      S.imbue(std::locale("C"));
+      S.imbue(std::locale::classic());
       ok = static_cast<bool>(S >> result);
     }
     break;
@@ -220,7 +220,7 @@ template<typename T> inline std::string to_string_unsigned(T Obj)
 template<typename T> inline std::string to_string_fallback(T Obj)
 {
   std::stringstream S;
-  S.imbue(std::locale("C"));
+  S.imbue(std::locale::classic());
 
   // Kirit reports getting two more digits of precision than
   // numeric_limits::digits10 would give him, so we try not to make him lose
