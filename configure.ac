@@ -419,6 +419,16 @@ be several pages up from the end of the file.
 ])])
 AC_MSG_RESULT(yes)
 
+AC_MSG_CHECKING([for C++11 support])
+AC_TRY_COMPILE(
+        [using foo = int;], [], [],
+	[AC_MSG_ERROR([
+Compiler could not compile basic C++11.
+
+Your compiler may be too old, or you may be able to force C++11 by installing
+the autoconf archive before configuring.  THere may also be a compiler option
+you need to set, such as "-stdc++11".
+])])
 
 AC_MSG_CHECKING([that type of libpq's Oid is as expected])
 AC_TRY_COMPILE(
