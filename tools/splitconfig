@@ -19,6 +19,7 @@ from argparse import ArgumentParser
 import codecs
 from errno import ENOENT
 import os.path
+from os import getcwd
 import re
 
 __metaclass__ = type
@@ -165,17 +166,19 @@ def main():
     """Main program entry point."""
     args = parse_args()
     check_args(args)
+    # The configitems file is under revision control; it's in sourcetree.
     items = read_configitems(os.path.join(args.sourcetree, 'configitems'))
     publications = sorted(set(item[1] for item in items))
     factors = sorted(set(item[2] for item in items))
-    original_header = read_header(args.sourcetree, 'include/pqxx/config.h')
+    # The config.h header is generated; it's in the build tree, which should
+    # be where we are.
+    original_header = read_header(getcwd(), 'include/pqxx/config.h')
     items_map = map_configitems(items)
 
     for publication in publications:
         for factor in factors:
             generate_config(
-                args.sourcetree, original_header, items_map, publication,
-                factor)
+                getcwd(), original_header, items_map, publication, factor)
 
 
 if __name__ == '__main__':
