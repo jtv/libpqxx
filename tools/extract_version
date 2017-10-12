@@ -3,6 +3,9 @@ set -eu
 
 ARG="${1:-}"
 
+# Source directory.  In out-of-tree builds, Automake sets this for us.
+srcdir=${srcdir:-.}
+
 
 # Print usage information.
 usage() {
@@ -39,7 +42,7 @@ EOF
 case "$ARG" in
 ''|-f|--full)
 	# Default: Print full version.
-	cat VERSION
+	cat $srcdir/VERSION
 	;;
 
 -h|--help)
@@ -50,17 +53,17 @@ case "$ARG" in
 
 -a|--abi)
 	# Print just the ABI version (major & minor).
-	sed VERSION -e 's/^\([^.]*\.[^.]*\)\..*/\1/'
+	sed $srcdir/VERSION -e 's/^\([^.]*\.[^.]*\)\..*/\1/'
 	;;
 
 -M|--major)
 	# Print the major version number.
-	sed VERSION -e 's/^\([^.]*\)\..*/\1/'
+	sed $srcdir/VERSION -e 's/^\([^.]*\)\..*/\1/'
 	;;
 
 -m|--minor)
 	# Print the minor version number.
-	sed VERSION -e 's/^[^.]*\.\([^.]*\)\..*/\1/'
+	sed $srcdir/VERSION -e 's/^[^.]*\.\([^.]*\)\..*/\1/'
 	;;
 
 *)
