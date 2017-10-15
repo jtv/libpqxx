@@ -34,6 +34,7 @@ docs: $(DOCS)
 reference: reference-stamp
 reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
 	if test -x "$(DOXYGEN)"; then \
+	  $(MKDIR_P) html/Reference; \
 	  $(DOXYGEN) Doxyfile; \
 	  touch $@; \
 	else \
