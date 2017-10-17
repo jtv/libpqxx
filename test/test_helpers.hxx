@@ -356,7 +356,7 @@ template<> struct string_traits<result::const_iterator>
 
 
 // Support string conversion on vector<string> for debug output.
-template<> struct string_traits<std::vector<std::string> >
+template<> struct string_traits<std::vector<std::string>>
 {
   using subject_type = std::vector<std::string>;
   static const char *name() { return "vector<string>"; }

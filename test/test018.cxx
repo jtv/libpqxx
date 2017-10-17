@@ -48,7 +48,7 @@ struct deliberate_error : exception
 };
 
 
-class FailedInsert : public transactor<robusttransaction<serializable> >
+class FailedInsert : public transactor<robusttransaction<serializable>>
 {
   string m_table;
   static string LastReason;

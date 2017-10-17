@@ -75,12 +75,12 @@ public:
 
 
 // A transactor build to fail, at least for the first m_failcount commits
-class FlakyTransactor : public transactor<flakytransaction<> >
+class FlakyTransactor : public transactor<flakytransaction<>>
 {
   int m_failcount;
 public:
   explicit FlakyTransactor(int failcount=0) :
-    transactor<flakytransaction<> >("FlakyTransactor"),
+    transactor<flakytransaction<>>("FlakyTransactor"),
     m_failcount(failcount)
 	{}
 

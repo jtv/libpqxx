@@ -12,7 +12,7 @@ namespace
 /// Create a vector of vectors of ints: {{1}, {2}, {3}, ...}
 std::vector<std::vector<int>> make_contents()
 {
-  std::vector<std::vector<int> > contents;
+  std::vector<std::vector<int>> contents;
   for (int x=0; x<10; ++x) contents.push_back(std::vector<int>{x + 1});
   return contents;
 }

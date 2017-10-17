@@ -344,7 +344,7 @@ private:
  * @warning This class may not work properly in compiler environments that don't
  * fully support Standard-compliant streambufs, such as g++ 2.95 or older.
  */
-template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
+template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR>>
   class largeobject_streambuf :
     public std::basic_streambuf<CHAR, TRAITS>
 {
@@ -480,9 +480,9 @@ private:
  * alias (which defines a basic_ilostream for @c char).  This is similar to
  * how e.g. @c std::ifstream relates to @c std::basic_ifstream.
  *
- * Currently only works for <tt><char, std::char_traits<char> ></tt>.
+ * Currently only works for <tt><char, std::char_traits<char>></tt>.
  */
-template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
+template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR>>
   class basic_ilostream :
     public std::basic_istream<CHAR, TRAITS>
 {
@@ -537,9 +537,9 @@ using ilostream = basic_ilostream<char>;
  * alias (which defines a basic_olostream for @c char).  This is similar to
  * how e.g. @c std::ofstream is related to @c std::basic_ofstream.
  *
- * Currently only works for <tt><char, std::char_traits<char> ></tt>.
+ * Currently only works for <tt><char, std::char_traits<char>></tt>.
  */
-template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
+template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR>>
   class basic_olostream :
     public std::basic_ostream<CHAR, TRAITS>
 {
@@ -605,9 +605,9 @@ using olostream = basic_olostream<char>;
  * is the lostream alias (which defines a basic_lostream for @c char).  This
  * is similar to how e.g. @c std::fstream is related to @c std::basic_fstream.
  *
- * Currently only works for <tt><char, std::char_traits<char> ></tt>.
+ * Currently only works for <tt><char, std::char_traits<char>></tt>.
  */
-template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
+template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR>>
   class basic_lostream :
     public std::basic_iostream<CHAR, TRAITS>
 {

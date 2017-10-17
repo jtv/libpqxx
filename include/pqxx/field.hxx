@@ -154,11 +154,11 @@ public:
 #if defined(PQXX_HAVE_OPTIONAL)
   /// Return value as std::optional, or blank value if null.
   template<typename T> std::optional<T> get() const
-	{ return get_opt<T, std::optional<T> >(); }
+	{ return get_opt<T, std::optional<T>>(); }
 #elif defined(PQXX_HAVE_EXP_OPTIONAL)
   /// Return value as std::experimental::optional, or blank value if null.
   template<typename T> std::experimental::optional<T> get() const
-	{ return get_opt<T, std::experimental::optional<T> >(); }
+	{ return get_opt<T, std::experimental::optional<T>>(); }
 #endif
 
   /// Is this field's value null?
@@ -222,7 +222,7 @@ inline bool field::to<const char *>(const char *&Obj) const
 }
 
 
-template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
+template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR>>
   class field_streambuf :
   public std::basic_streambuf<CHAR, TRAITS>
 {
@@ -276,7 +276,7 @@ private:
  *
  * This class has only been tested for the char type (and its default traits).
  */
-template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR> >
+template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR>>
   class basic_fieldstream :
     public std::basic_istream<CHAR, TRAITS>
 {
