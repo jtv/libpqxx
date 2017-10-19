@@ -226,7 +226,30 @@ inline void end_of_statement()
 }
 
 
-// Verify that "action" throws "exception_type."
+// Verify that "action" throws an exception, of any std::exception-based type.
+#define PQXX_CHECK_THROWS_EXCEPTION(action, desc) \
+	{ \
+	  try \
+	  { \
+	    action ; \
+	    throw pqxx::test::failure_to_fail(); \
+	  } \
+	  catch (const pqxx::test::failure_to_fail &) \
+	  { \
+	    PQXX_CHECK_NOTREACHED( \
+		std::string(desc) + " (\"" #action "\" did not throw)"); \
+	  } \
+	  catch (const std::exception &) {} \
+          catch (...) \
+          { \
+            PQXX_CHECK_NOTREACHED( \
+		std::string(desc) + \
+		" (\"" #action "\" threw non-exception type)"); \
+          } \
+	} \
+        pqxx::test::internal::end_of_statement()
+
+// Verify that "action" throws "exception_type" (which is not std::exception).
 #define PQXX_CHECK_THROWS(action, exception_type, desc) \
 	{ \
 	  try \
@@ -241,13 +264,20 @@ inline void end_of_statement()
 		" (\"" #action "\" did not throw " #exception_type ")"); \
 	  } \
 	  catch (const exception_type &) {} \
-	  catch (...) \
+	  catch (const std::exception &e) \
 	  { \
 	    PQXX_CHECK_NOTREACHED( \
 		std::string(desc) + \
 		" (\"" #action "\" " \
-		"threw exception other than " #exception_type ")"); \
+		"threw exception other than " #exception_type ": " + \
+                e.what() + ")"); \
 	  } \
+          catch (...) \
+          { \
+            PQXX_CHECK_NOTREACHED( \
+		std::string(desc) + \
+		" (\"" #action "\" threw non-exception type)"); \
+          } \
 	} \
         pqxx::test::internal::end_of_statement()
 
