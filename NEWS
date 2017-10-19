@@ -4,6 +4,7 @@
  - Removed pqxx::items.  Use the new C++11 initialiser syntax.
  - Removed maketemporary.  We weren't using it.
  - Can now be built outside the source tree.
+ - New, simpler, lambda-friendly transactor framework.
 5.1.0
  - Releases after this will require C++11!
  - Internal simplification to pqxx::result.
