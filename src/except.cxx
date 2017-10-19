@@ -68,6 +68,32 @@ pqxx::in_doubt_error::in_doubt_error(const std::string &whatarg) :
 }
 
 
+pqxx::transaction_rollback::transaction_rollback(const std::string &whatarg) :
+  failure(whatarg)
+{
+}
+
+
+pqxx::serialization_failure::serialization_failure(
+	const std::string &whatarg) :
+  transaction_rollback(whatarg)
+{
+}
+
+
+pqxx::statement_completion_unknown::statement_completion_unknown(
+	const std::string &whatarg) :
+  transaction_rollback(whatarg)
+{
+}
+
+
+pqxx::deadlock_detected::deadlock_detected(const std::string &whatarg) :
+  transaction_rollback(whatarg)
+{
+}
+
+
 pqxx::internal_error::internal_error(const std::string &whatarg) :
   logic_error("libpqxx internal error: " + whatarg)
 {

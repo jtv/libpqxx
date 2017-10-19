@@ -608,33 +608,11 @@ public:
    * @}
    */
 
-
+  /// @deprecated Pre-C++11 transactor function.
   /**
-   * @name Transactor framework
+   * This has been superseded by the new transactor framework and
+   * @c pqxx::perform.
    *
-   * See the transactor class template for more about transactors.  To use the
-   * transactor framework, encapsulate your transaction code in a class derived
-   * from an instantiation of the pqxx::transactor template.  Then, to execute
-   * it, create an object of your transactor class and pass it to one of the
-   * perform() functions here.
-   *
-   * The perform() functions may create and execute several copies of the
-   * transactor before succeeding or ultimately giving up.  If there is any
-   * doubt over whether execution succeeded (this can happen if the connection
-   * to the server is lost just before the backend can confirm success), it is
-   * no longer retried and an in_doubt_error is thrown.
-   *
-   * Take care: no member functions will ever be invoked on the transactor
-   * object you pass into perform().  The object you pass in only serves as a
-   * "prototype" for the job to be done.  The perform() function will
-   * copy-construct transactors from the original you passed in, executing the
-   * copies only.  The original object remains "clean" in its original state.
-   *
-   * @{
-   */
-
-  /// Perform the transaction defined by a transactor-based object.
-  /**
    * Invokes the given transactor, making at most Attempts attempts to perform
    * the encapsulated code.  If the code throws any exception other than
    * broken_connection, it will be aborted right away.
@@ -645,16 +623,15 @@ public:
   template<typename TRANSACTOR>
   void perform(const TRANSACTOR &T, int Attempts);			//[t4]
 
-  /// Perform the transaction defined by a transactor-based object.
+  /// @deprecated Pre-C++11 transactor function.  Use @c pqxx::perform instead.
   /**
+   * This has been superseded by the new transactor framework and
+   * @c pqxx::perform.
+   *
    * @param T The transactor to be executed.
    */
   template<typename TRANSACTOR>
   void perform(const TRANSACTOR &T) { perform(T, 3); }
-
-  /**
-   * @}
-   */
 
   /// Suffix unique number to name to make it unique within session context
   /** Used internally to generate identifiers for SQL objects (such as cursors

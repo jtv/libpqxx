@@ -90,9 +90,8 @@ void test_070(transaction_base &W)
 
   // See if retrieve() fails on an empty pipeline, as it should
   quiet_errorhandler d(W.conn());
-  PQXX_CHECK_THROWS(
+  PQXX_CHECK_THROWS_EXCEPTION(
 	P.retrieve(),
-	exception,
 	"Empty pipeline allows retrieve().");
 }
 } // namespace

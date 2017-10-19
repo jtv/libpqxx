@@ -33,6 +33,18 @@ void pqxx::basic_transaction::do_commit()
   {
     DirectExec(internal::sql_commit_work);
   }
+  catch (const statement_completion_unknown &e)
+  {
+    // Outcome of "commit" is unknown.  This is a disaster: we don't know the
+    // resulting state of the database.
+    process_notice(e.what() + std::string("\n"));
+    const std::string msg =
+      "WARNING: Commit of transaction '" + name() + "' is unknown. "
+	"There is no way to tell whether the transaction succeeded "
+	"or was aborted except to check manually.";
+    process_notice(msg + "\n");
+    throw in_doubt_error(msg);
+  }
   catch (const std::exception &e)
   {
     if (!conn().is_open())

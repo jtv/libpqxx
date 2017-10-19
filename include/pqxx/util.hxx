@@ -52,6 +52,7 @@
  * \li \ref connection
  * \li \ref transaction
  * \li \ref performance
+ * \li \ref transactor
  *
  * @see http://pqxx.org/
  */

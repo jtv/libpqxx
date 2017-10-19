@@ -176,6 +176,12 @@ void pqxx::result::ThrowSQLError(
   case '4':
     switch (code[1])
     {
+    case '0':
+      if (strcmp(code, "40000")==0) throw transaction_rollback(Err);
+      if (strcmp(code, "40001")==0) throw serialization_failure(Err);
+      if (strcmp(code, "40001")==0) throw statement_completion_unknown(Err);
+      if (strcmp(code, "40P01")==0) throw deadlock_detected(Err);
+      break;
     case '2':
       if (strcmp(code,"42501")==0) throw insufficient_privilege(Err, Query);
       if (strcmp(code,"42601")==0)

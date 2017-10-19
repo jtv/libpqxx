@@ -1,4 +1,4 @@
-/** Definition of the pqxx::transactor class.
+/* Definition of the pqxx::transactor class.
  *
  * pqxx::transactor is a framework-style wrapper for safe transactions.
  *
@@ -23,28 +23,129 @@
 /* Methods tested in eg. self-test program test001 are marked with "//[t1]"
  */
 
+/**
+ * @defgroup transactor Transactor framework
+ *
+ * Sometimes your application needs to execute a transaction that should be
+ * retried if it fails.  For example, your REST API might be handling an HTTP
+ * request in its own database transaction, and if it fails for transient
+ * reasons, you simply want to "replay" the whole request from the start, in a
+ * fresh transaction.
+ *
+ * One of those transient reasons might be a deadlock during a SERIALIZABLE or
+ * REPEATABLE READ transaction.  Another reason might be that your network
+ * connection to the database fails, and perhaps you don't just want to give up
+ * when that happens.
+ *
+ * In situations like these, the right thing to do is often to restart your
+ * transaction from scratch.  You won't necessarily want to execute the exact
+ * same SQL commands with the exact same data, but you'll want to re-run the
+ * same application code that produced those SQL commands.
+ *
+ * The transactor framework makes it a little easier for you to do this safely,
+ * and avoid typical pitfalls.  You encapsulate the work that you want to do in
+ * a transaction into something that you pass to @c perform.
+ *
+ * Transactors come in two flavours.
+ *
+ * The old, pre-C++11 way is to derive a class from the @c transactor template,
+ * and pass an instance of it to your connection's @c connection_base::perform
+ * member function.  That function will create a transaction object and pass
+ * it to your @c transactor, handle any exceptions, commit or abort, and
+ * repeat as appropriate.
+ *
+ * The new, simpler C++11-based way is to write your transaction code as a
+ * lambda (or other callable), which creates its own transaction object, does
+ * its work, and commits at the end.  You pass that callback to pqxx::perform.
+ * If any given attempt fails, its transaction object goes out of scope and
+ * gets destroyed, so that it aborts implicitly.  Your callback can return its
+ * results to the calling code.
+ */
+//@{
+
 namespace pqxx
 {
-
-/// Wrapper for transactions that automatically restarts them on failure
+/// Simple way to execute a transaction with automatic retry.
 /**
- * @addtogroup transactor Transactor framework
+ * Executes your transaction code as a callback.  Repeats it until it completes
+ * normally, or it throws an error other than the few libpqxx-generated
+ * exceptions that the framework understands, or after a given number of failed
+ * attempts, or if the transaction ends in an "in-doubt" state.
  *
- * Some transactions may be replayed if their connection fails, until they do
- * succeed.  These can be encapsulated in a transactor-derived classes.  The
- * transactor framework will take care of setting up a backend transaction
- * context for the operation, and of aborting and retrying if its connection
- * goes bad.
+ * (An in-doubt state is one where libpqxx cannot determine whether the server
+ * finally committed a transaction or not.  This can happen if the network
+ * connection to the server is lost just while we're waiting for its reply to
+ * a "commit" statement.  The server may have completed the commit, or not, but
+ * it can't tell you because there's no longer a connection.
  *
- * The transactor framework also makes it easier for you to do this safely,
- * avoiding typical pitfalls and encouraging programmers to separate their
- * transaction definitions (essentially, business rules implementations) from
- * their higher-level code (application using those business rules).  The
- * former go into the transactor-based class.
+ * Using this still takes a bit of care.  If your callback makes use of data
+ * from the database, you'll probably have to query that data within your
+ * callback.  If the attempt to perform your callback fails, and the framework
+ * tries again, you'll be in a new transaction and the data in the database may
+ * have changed under your feet.
  *
+ * Also be careful about changing variables or data structures from within
+ * your callback.  The run may still fail, and perhaps get run again.  The
+ * ideal way to do it (in most cases) is to return your result from your
+ * callback, and change your program's data after @c perform completes
+ * successfully.
+ *
+ * This function replaces an older, more complicated transactor framework.
+ * The new function is a simpler, more lambda-friendly way of doing the same
+ * thing.
+ *
+ * @param callback Transaction code that can be called with no arguments.
+ * @param attempts Maximum number of times to attempt performing callback.
+ *	Must be greater than zero.
+ * @return Whatever your callback returns.
+ */
+template<typename TRANSACTION_CALLBACK>
+inline auto perform(const TRANSACTION_CALLBACK &callback, int attempts=3)
+  -> decltype(callback())
+{
+  if (attempts <= 0)
+    throw std::invalid_argument(
+	"Zero or negative number of attempts passed to pqxx::perform().");
+
+  for (; attempts > 0; --attempts)
+  {
+    try
+    {
+      return callback();
+    }
+    catch (const in_doubt_error &)
+    {
+      // Not sure whether transaction went through or not.  The last thing in
+      // the world that we should do now is try again!
+      throw;
+    }
+    catch (const statement_completion_unknown &)
+    {
+      // Not sure whether our last statement succeeded.  Don't risk running it
+      // again.
+      throw;
+    }
+    catch (const broken_connection &)
+    {
+      // Connection failed.  Definitely worth retrying.
+      if (attempts <= 1) throw;
+      continue;
+    }
+    catch (const transaction_rollback &)
+    {
+      // Some error that may well be transient, such as serialization failure
+      // or deadlock.  Worth retrying.
+      if (attempts <= 1) throw;
+      continue;
+    }
+  }
+  throw pqxx::internal_error("No outcome reached on perform().");
+}
+
+/// @deprecated Pre-C++11 wrapper for automatically retrying transactions.
+/**
  * Pass an object of your transactor-based class to connection_base::perform()
- * to execute the transaction code embedded in it (see the definitions in
- * pqxx/connection_base.hxx).
+ * to execute the transaction code embedded in it.
  *
  * connection_base::perform() is actually a template, specializing itself to any
  * transactor type you pass to it.  This means you will have to pass it a
@@ -123,11 +224,9 @@ private:
   std::string m_name;
 };
 
-}
-
 
 template<typename TRANSACTOR>
-inline void pqxx::connection_base::perform(
+inline void connection_base::perform(
 	const TRANSACTOR &T,
         int Attempts)
 {
@@ -174,6 +273,7 @@ inline void pqxx::connection_base::perform(
     T2.on_commit();
   } while (!Done);
 }
-
+//@}
+} // namespace pqxx
 #include "pqxx/compiler-internal-post.hxx"
 #endif

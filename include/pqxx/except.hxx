@@ -147,7 +147,6 @@ public:
 };
 
 
-// TODO: should this be called statement_completion_unknown!?
 /// "Help, I don't know whether transaction was committed successfully!"
 /** Exception that might be thrown in rare cases where the connection to the
  * database is lost while finishing a database transaction, and there's no way
@@ -159,6 +158,46 @@ class PQXX_LIBEXPORT in_doubt_error : public failure
 {
 public:
   explicit in_doubt_error(const std::string &);
+};
+
+
+/// The backend saw itself forced to roll back the ongoing transaction.
+class PQXX_LIBEXPORT transaction_rollback : public failure
+{
+public:
+  explicit transaction_rollback(const std::string &);
+};
+
+
+/// Transaction failed to serialize.  Please retry it.
+/** Can only happen at transaction isolation levels REPEATABLE READ and
+ * SERIALIZABLE.
+ *
+ * The current transaction cannot be committed without violating the guarantees
+ * made by its isolation level.  This is the effect of a conflict with another
+ * ongoing transaction.  The transaction may still succeed if you try to
+ * perform it again.
+ */
+class PQXX_LIBEXPORT serialization_failure : public transaction_rollback
+{
+public:
+  explicit serialization_failure(const std::string &);
+};
+
+
+/// We can't tell whether our last statement succeeded.
+class PQXX_LIBEXPORT statement_completion_unknown : public transaction_rollback
+{
+public:
+  explicit statement_completion_unknown(const std::string &);
+};
+
+
+/// The ongoing transaction has deadlocked.  Retrying it may help.
+class PQXX_LIBEXPORT deadlock_detected : public transaction_rollback
+{
+public:
+  explicit deadlock_detected(const std::string &);
 };
 
 

@@ -56,19 +56,16 @@ void test_093(transaction_base &T)
 	R.table_column(i),
 	"Bad result from column_table().");
 
-  PQXX_CHECK_THROWS(
+  PQXX_CHECK_THROWS_EXCEPTION(
 	R.table_column(3),
-	exception,
 	"table_column() with invalid index didn't fail.");
 
-  PQXX_CHECK_THROWS(
+  PQXX_CHECK_THROWS_EXCEPTION(
 	R.table_column("nonexistent"),
-	exception,
 	"table_column() with invalid column name didn't fail.");
 
-  PQXX_CHECK_THROWS(
+  PQXX_CHECK_THROWS_EXCEPTION(
 	X.table_column(3),
-	exception,
 	"table_column() on non-table didn't fail.");
 }
 } // namespace

@@ -103,9 +103,8 @@ void test_prepared_statement(transaction_base &T)
   // Drop prepared statement.
   C.unprepare("CountToTen");
 
-  PQXX_CHECK_THROWS(
+  PQXX_CHECK_THROWS_EXCEPTION(
 	C.prepare_now("CountToTen"),
-	exception,
 	"prepare_now() succeeded on dropped statement.");
 
   // It's okay to unprepare a statement repeatedly.
@@ -113,9 +112,8 @@ void test_prepared_statement(transaction_base &T)
   C.unprepare("CountToTen");
 
   // Executing an unprepared statement fails.
-  PQXX_CHECK_THROWS(
+  PQXX_CHECK_THROWS_EXCEPTION(
 	T.prepared("CountToTen").exec(),
-	exception,
 	"Execute unprepared statement didn't fail.");
 
   // Once unprepared, a statement can be prepared and used again.
@@ -132,11 +130,10 @@ void test_prepared_statement(transaction_base &T)
 	T.exec("SELECT * FROM generate_series(1, 10)"));
 
   // ...But a modified definition shouldn't.
-  PQXX_CHECK_THROWS(
+  PQXX_CHECK_THROWS_EXCEPTION(
 	C.prepare(
 		"CountToTen",
 		"SELECT generate_series FROM generate_series(1, 11)"),
-	exception,
 	"Bad redefinition of statement went unnoticed.");
 
   // Test prepared statement with parameter.

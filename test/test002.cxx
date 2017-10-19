@@ -19,9 +19,8 @@ void test_002(transaction_base &)
   // Before we really connect, test the expected behaviour of the default
   // connection type, where a failure to connect results in an immediate
   // exception rather than a silent retry.
-  PQXX_CHECK_THROWS(
+  PQXX_CHECK_THROWS_EXCEPTION(
         bad_connect(),
-	exception,
 	"Invalid connection string did not cause exception.");
 
   // Set up connection to database

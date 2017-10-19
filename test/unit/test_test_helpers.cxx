@@ -9,11 +9,11 @@ namespace
 {
 void empty() {}
 
-void test_test_helpers(transaction_base &)
-{
-  bool failed = true;
 
+void test_check_notreached()
+{
   // At a minimum, PQXX_CHECK_NOTREACHED must work.
+  bool failed = true;
   try
   {
     PQXX_CHECK_NOTREACHED("(expected)");
@@ -25,11 +25,15 @@ void test_test_helpers(transaction_base &)
   }
   if (!failed)
     throw test_failure(__FILE__, __LINE__, "PQXX_CHECK_NOTREACHED is broken.");
+}
 
-  // Another very basic test macro is PQXX_CHECK.
+
+// Test PQXX_CHECK.
+void test_check()
+{
   PQXX_CHECK(true, "PQXX_CHECK is broken.");
 
-  failed = true;
+  bool failed = true;
   try
   {
     PQXX_CHECK(false, "(expected)");
@@ -39,15 +43,68 @@ void test_test_helpers(transaction_base &)
   {
   }
   if (!failed) PQXX_CHECK_NOTREACHED("PQXX_CHECK failed to notice failure.");
+}
 
-  // PQXX_CHECK_THROWS is more complicated.
-  // It can handle a std::exception...
-  PQXX_CHECK_THROWS(
+
+// Test PQXX_CHECK_THROWS_EXCEPTION.
+void test_check_throws_exception()
+{
+  // PQXX_CHECK_THROWS_EXCEPTION expects std::exception...
+  PQXX_CHECK_THROWS_EXCEPTION(
 	throw exception(),
-	exception,
-	"Plain exception not handled properly by PQXX_CHECK_THROWS.");
+	"PQXX_CHECK_THROWS_EXCEPTION did not catch std::exception.");
 
-  // ...or any other type of exception.
+  // ...or any exception type derived from it.
+  PQXX_CHECK_THROWS_EXCEPTION(
+	throw test_failure(__FILE__, __LINE__, "(expected)"),
+	"PQXX_CHECK_THROWS_EXCEPTION() failed to catch expected exception.");
+
+  // Any other type is an error.
+  bool failed = true;
+  try
+  {
+    PQXX_CHECK_THROWS_EXCEPTION(throw 1, "(expected)");
+    failed = false;
+  }
+  catch (const test_failure &)
+  {
+  }
+  PQXX_CHECK(
+	failed,
+	"PQXX_CHECK_THROWS_EXCEPTION did not complain about non-exception.");
+
+  // But there _must_ be an exception.
+  failed = true;
+  try
+  {
+    // If the test fails to throw, this throws a failure.
+    PQXX_CHECK_THROWS_EXCEPTION(empty(), "(expected)");
+    // So we shouldn't get to this point.
+    failed = false;
+  }
+  catch (const test_failure &)
+  {
+    // Instead, we go straight here.
+  }
+  PQXX_CHECK(
+	failed,
+	"PQXX_CHECK_THROWS_EXCEPTION did not notice missing exception.");
+
+  // PQXX_CHECK_THROWS_EXCEPTION can test itself...
+  PQXX_CHECK_THROWS_EXCEPTION(
+	PQXX_CHECK_THROWS_EXCEPTION(empty(), "(expected)"),
+	"PQXX_CHECK_THROWS_EXCEPTION failed to throw for missing exception.");
+
+  PQXX_CHECK_THROWS_EXCEPTION(
+	PQXX_CHECK_THROWS_EXCEPTION(throw 1, "(expected)"),
+	"PQXX_CHECK_THROWS_EXCEPTION ignored wrong exception type.");
+
+}
+
+
+// Test PQXX_CHECK_THROWS.
+void test_check_throws()
+{
   PQXX_CHECK_THROWS(
 	throw test_failure(__FILE__, __LINE__, "(expected)"),
 	 test_failure,
@@ -57,11 +114,11 @@ void test_test_helpers(transaction_base &)
   PQXX_CHECK_THROWS(throw 1, int, "(expected)");
 
   // PQXX_CHECK_THROWS means there _must_ be an exception.
-  failed = true;
+  bool failed = true;
   try
   {
     // If the test fails to throw, PQXX_CHECK_THROWS throws a failure.
-    PQXX_CHECK_THROWS(empty(), exception, "(expected)");
+    PQXX_CHECK_THROWS(empty(), std::runtime_error, "(expected)");
     // So we shouldn't get to this point.
     failed = false;
   }
@@ -92,11 +149,21 @@ void test_test_helpers(transaction_base &)
 	"PQXX_CHECK_THROWS failed to throw for missing exception.");
 
   PQXX_CHECK_THROWS(
-	PQXX_CHECK_THROWS(throw 1, exception, "(expected)"),
+	PQXX_CHECK_THROWS(throw 1, std::runtime_error, "(expected)"),
 	test_failure,
 	"PQXX_CHECK_THROWS failed to throw for wrong exception type.");
 
-  // ...and other test helpers.
+}
+
+
+void test_test_helpers(transaction_base &)
+{
+  test_check_notreached();
+  test_check();
+  test_check_throws_exception();
+  test_check_throws();
+
+  // Test other helpers against PQXX_CHECK_THROWS.
   PQXX_CHECK_THROWS(
 	PQXX_CHECK_NOTREACHED("(expected)"),
 	test_failure,
