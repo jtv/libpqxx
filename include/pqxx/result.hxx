@@ -38,7 +38,7 @@ namespace pqxx
 {
 namespace internal
 {
-void clear_result(const pq::PGresult *);
+PQXX_LIBEXPORT void clear_result(const pq::PGresult *);
 
 namespace gate
 {
