@@ -18,7 +18,7 @@
 #ifndef PQXX_H_VERSION
 
 /// Full libpqxx version string.
-#define PQXX_VERSION "5.1.0"
+#define PQXX_VERSION "5.1.1"
 
 /// Major version number for this libpqxx release.
 #define PQXX_VERSION_MAJOR 5
