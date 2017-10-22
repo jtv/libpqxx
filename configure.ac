@@ -489,18 +489,6 @@ AC_MSG_RESULT($gnu_strerror_r)
 fi # strerror_r
 
 
-AC_MSG_CHECKING([for strlcpy])
-strlcpy=yes
-AC_TRY_COMPILE(
-	[
-		#include <cstring>
-		using namespace std;
-	],
-	[char buf[2];return strlcpy(buf,"",1)],
-	[AC_DEFINE(PQXX_HAVE_STRLCPY,1,[Define if strlcpy exists])],
-	strlcpy=no)
-AC_MSG_RESULT($strlcpy)
-
 AC_MSG_CHECKING([for working <sys/select.h>])
 select_h=yes
 AC_TRY_COMPILE(

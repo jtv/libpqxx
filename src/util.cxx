@@ -154,14 +154,13 @@ void pqxx::internal::sleep_seconds(int s)
 #if !defined(PQXX_HAVE_STRERROR_R) || !defined(PQXX_HAVE_STRERROR_R_GNU)
 namespace
 {
+/// Termination-safe strncpy variant.
 void cpymsg(char buf[], const char input[], size_t buflen) noexcept
 {
-#if defined(PQXX_HAVE_STRLCPY)
-  strlcpy(buf, input, buflen);
-#else
+  // Copy buffer, and ensure zero-termination.  Some systems have a strlcpy()
+  // function to do exactly this, but it's not worth the portability hassle.
   strncpy(buf, input, buflen);
   if (buflen) buf[buflen-1] = '\0';
-#endif
 }
 }
 #endif
@@ -175,6 +174,8 @@ cstring pqxx::internal::strerror_wrapper(int err, char buf[], std::size_t len)
   const char *res = buf;
 
 #if !defined(PQXX_HAVE_STRERROR_R) && !defined(PQXX_HAVE_STRERROR_S)
+  // We have no safe way of getting our error message!  All we can do is
+  // copy it immediately and hope for the best.
   cpymsg(buf, strerror(err), len);
 #elif defined(PQXX_HAVE_STRERROR_R_GNU)
   // GNU strerror_r returns error string (which may be anywhere).
