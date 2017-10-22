@@ -84,15 +84,6 @@
 /* Define if the system has the poll() function (mainly GNU/Linux) */
 #undef PQXX_HAVE_POLL
 
-/* Define if strerror_r exists */
-#undef PQXX_HAVE_STRERROR_R
-
-/* Define for GNU-style strerror_r */
-#undef PQXX_HAVE_STRERROR_R_GNU
-
-/* Define if strlcpy exists */
-#undef PQXX_HAVE_STRLCPY
-
 /* Define if the sys/select.h header defines a working select() and friends,
    as per POSIX 1003.1-2001 */
 #undef PQXX_HAVE_SYS_SELECT_H
