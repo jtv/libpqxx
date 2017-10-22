@@ -81,7 +81,7 @@ public:
    * }
    * @endcode
    */
-  PQXX_CONST virtual const std::exception &base() const noexcept =0;	//[t0]
+  PQXX_CONST virtual const std::exception &base() const noexcept =0;	//[t00]
 };
 
 

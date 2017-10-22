@@ -34,7 +34,7 @@
  * a connection object derived from connection_base.
  */
 
-/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+/* Methods tested in eg. self-test program test1 are marked with "//[t01]"
  */
 
 namespace pqxx
@@ -77,7 +77,7 @@ private:
  * }
  * @endcode
  */
-std::string PQXX_LIBEXPORT encrypt_password(				//[t0]
+std::string PQXX_LIBEXPORT encrypt_password(				//[t00]
 	const std::string &user,
 	const std::string &password);
 
@@ -139,14 +139,14 @@ class PQXX_LIBEXPORT connection_base
 {
 public:
   /// Explicitly close connection.
-  void disconnect() noexcept;						//[t2]
+  void disconnect() noexcept;						//[t02]
 
    /// Is this connection open at the moment?
   /** @warning This function is @b not needed in most code.  Resist the
    * temptation to check it after opening a connection; instead, rely on the
    * broken_connection exception that will be thrown on connection failure.
    */
-  bool PQXX_PURE is_open() const noexcept;				//[t1]
+  bool PQXX_PURE is_open() const noexcept;				//[t01]
 
  /**
    * @name Activation
@@ -245,7 +245,7 @@ public:
   void process_notice(const std::string &) noexcept;			//[t14]
 
   /// Enable tracing to a given output stream, or nullptr to disable.
-  void trace(std::FILE *) noexcept;					//[t3]
+  void trace(std::FILE *) noexcept;					//[t03]
 
   /**
    * @name Connection properties
@@ -259,25 +259,25 @@ public:
   /** @warning This activates the connection, which may fail with a
    * broken_connection exception.
    */
-  const char *dbname();							//[t1]
+  const char *dbname();							//[t01]
 
   /// Database user ID we're connected under, if any.
   /** @warning This activates the connection, which may fail with a
    * broken_connection exception.
    */
-  const char *username();						//[t1]
+  const char *username();						//[t01]
 
   /// Address of server, or nullptr if none specified (i.e. default or local)
   /** @warning This activates the connection, which may fail with a
    * broken_connection exception.
    */
-  const char *hostname();						//[t1]
+  const char *hostname();						//[t01]
 
   /// Server port number we're connected to.
   /** @warning This activates the connection, which may fail with a
    * broken_connection exception.
    */
-  const char *port();							//[t1]
+  const char *port();							//[t01]
 
   /// Process ID for backend process.
   /** Use with care: connections may be lost and automatically re-established
@@ -289,7 +289,7 @@ public:
    *
    * @return Process identifier, or 0 if not currently connected.
    */
-  int PQXX_PURE backendpid() const noexcept;				//[t1]
+  int PQXX_PURE backendpid() const noexcept;				//[t01]
 
   /// Socket currently used for connection, or -1 for none.  Use with care!
   /** Query the current socket number.  This is intended for event loops based
@@ -407,7 +407,7 @@ public:
    * happen if the server is upgraded without shutting down the client program,
    * for example.
    */
-  int PQXX_PURE protocol_version() const noexcept;			//[t1]
+  int PQXX_PURE protocol_version() const noexcept;			//[t01]
 
   /// What version of the PostgreSQL server are we connected to?
   /** The result is a bit complicated: each of the major, medium, and minor
@@ -422,7 +422,7 @@ public:
    * at all because there is no digit "8" in octal notation.  Use strictly
    * decimal notation when it comes to these version numbers.
    */
-  int PQXX_PURE server_version() const noexcept;			//[t1]
+  int PQXX_PURE server_version() const noexcept;			//[t01]
   //@}
 
   /// Set client-side character encoding
@@ -432,7 +432,7 @@ public:
    * with all client-side encodings or vice versa.
    * @param Encoding Name of the character set encoding to use
    */
-  void set_client_encoding(const std::string &Encoding)			//[t7]
+  void set_client_encoding(const std::string &Encoding)			//[t07]
 	{ set_variable("CLIENT_ENCODING", Encoding); }
 
   /// Set session variable
@@ -485,7 +485,7 @@ public:
    *
    * @return Number of notifications processed
    */
-  int get_notifs();							//[t4]
+  int get_notifs();							//[t04]
 
 
   /// Wait for a notification to come in
@@ -622,7 +622,7 @@ public:
    * @param Attempts Maximum number of attempts to be made to execute T.
    */
   template<typename TRANSACTOR>
-  void perform(const TRANSACTOR &T, int Attempts);			//[t4]
+  void perform(const TRANSACTOR &T, int Attempts);			//[t04]
 
   /// @deprecated Pre-C++11 transactor function.  Use @c pqxx::perform instead.
   /**

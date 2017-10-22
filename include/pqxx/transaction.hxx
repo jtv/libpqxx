@@ -18,7 +18,7 @@
 #include "pqxx/dbtransaction"
 
 
-/* Methods tested in eg. self-test program test1 are marked with "//[t1]"
+/* Methods tested in eg. self-test program test1 are marked with "//[t01]"
  */
 
 
@@ -33,13 +33,13 @@ namespace pqxx
 class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 {
 protected:
-  basic_transaction(							//[t1]
+  basic_transaction(							//[t01]
 	connection_base &C,
 	const std::string &IsolationLevel,
 	readwrite_policy);
 
 private:
-  virtual void do_commit() override;					//[t1]
+  virtual void do_commit() override;					//[t01]
 };
 
 
@@ -86,12 +86,12 @@ public:
    * @param TName Optional name for transaction; must begin with a letter and
    * may contain letters and digits only
    */
-  explicit transaction(connection_base &C, const std::string &TName):	//[t1]
+  explicit transaction(connection_base &C, const std::string &TName):	//[t01]
     namedclass(fullname("transaction", isolation_tag::name()), TName),
     basic_transaction(C, isolation_tag::name(), READWRITE)
 	{ Begin(); }
 
-  explicit transaction(connection_base &C) :				//[t1]
+  explicit transaction(connection_base &C) :				//[t01]
     transaction(C, "") {}
 
   virtual ~transaction() noexcept

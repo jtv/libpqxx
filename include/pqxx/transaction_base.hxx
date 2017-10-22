@@ -30,7 +30,7 @@
 #include "pqxx/isolation"
 #include "pqxx/result"
 
-/* Methods tested in eg. self-test program test001 are marked with "//[t1]"
+/* Methods tested in eg. self-test program test001 are marked with "//[t01]"
  */
 
 namespace pqxx
@@ -128,7 +128,7 @@ public:
   transaction_base(const transaction_base &) =delete;
   transaction_base &operator=(const transaction_base &) =delete;
 
-  virtual ~transaction_base() =0;					//[t1]
+  virtual ~transaction_base() =0;					//[t01]
 
   /// Commit the transaction
   /** Unless this function is called explicitly, the transaction will not be
@@ -143,7 +143,7 @@ public:
    * to make this fact known to the caller.  The robusttransaction
    * implementation takes some special precautions to reduce this risk.
    */
-  void commit();							//[t1]
+  void commit();							//[t01]
 
   /// Abort the transaction
   /** No special effort is required to call this function; it will be called
@@ -228,7 +228,7 @@ public:
    */
   result exec(
 	const std::string &Query,
-	const std::string &Desc=std::string());				//[t1]
+	const std::string &Desc=std::string());				//[t01]
 
   result exec(
 	const std::stringstream &Query,
@@ -341,7 +341,7 @@ public:
   //@}
 
   /// Connection this transaction is running in
-  connection_base &conn() const { return m_conn; }			//[t4]
+  connection_base &conn() const { return m_conn; }			//[t04]
 
   /// Set session variable in this connection
   /** The new value is typically forgotten if the transaction aborts.

@@ -185,7 +185,7 @@ template<typename T> inline void from_string(const char Str[], T &Obj, size_t)
 }
 
 template<>
-  inline void from_string<std::string>(					//[t0]
+  inline void from_string<std::string>(					//[t00]
 	const char Str[],
 	std::string &Obj,
 	size_t len)
@@ -199,7 +199,7 @@ template<typename T>
 	{ from_string(Str.c_str(), Obj); }
 
 template<typename T>
-  inline void from_string(const std::stringstream &Str, T &Obj)		//[t0]
+  inline void from_string(const std::stringstream &Str, T &Obj)		//[t00]
 	{ from_string(Str.str(), Obj); }
 
 template<> inline void

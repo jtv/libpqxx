@@ -20,7 +20,7 @@
 #include "pqxx/result"
 #include "pqxx/transaction_base"
 
-/* Methods tested in eg. self-test program test001 are marked with "//[t1]"
+/* Methods tested in eg. self-test program test001 are marked with "//[t01]"
  */
 
 

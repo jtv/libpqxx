@@ -117,12 +117,12 @@ public:
   /// Special value: read backwards, one row only.
   /** @return Unsurprisingly, -1.
    */
-  static difference_type prior() noexcept { return -1; }		//[t0]
+  static difference_type prior() noexcept { return -1; }		//[t00]
 
   /// Special value: read backwards from current position back to origin.
   /** @return Minimum value for result::difference_type.
    */
-  static difference_type backward_all() noexcept;			//[t0]
+  static difference_type backward_all() noexcept;			//[t00]
 
   //@}
 

@@ -21,7 +21,7 @@
 #include "pqxx/result"
 
 
-/* Methods tested in eg. self-test program test001 are marked with "//[t1]"
+/* Methods tested in eg. self-test program test001 are marked with "//[t01]"
  */
 
 namespace pqxx
@@ -84,7 +84,7 @@ public:
   const_reverse_row_iterator crend() const;
 
   reference operator[](size_type) const noexcept;			//[t11]
-  reference operator[](int) const noexcept;				//[t2]
+  reference operator[](int) const noexcept;				//[t02]
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
@@ -124,28 +124,28 @@ public:
   size_type column_number(const char[]) const;       			//[t30]
 
   /// Type of given column
-  oid column_type(size_type) const;					//[t7]
+  oid column_type(size_type) const;					//[t07]
 
   /// Type of given column
-  oid column_type(int ColNum) const					//[t7]
+  oid column_type(int ColNum) const					//[t07]
       { return column_type(size_type(ColNum)); }
 
   /// Type of given column
-  oid column_type(const std::string &ColName) const			//[t7]
+  oid column_type(const std::string &ColName) const			//[t07]
       { return column_type(column_number(ColName)); }
 
   /// Type of given column
-  oid column_type(const char ColName[]) const				//[t7]
+  oid column_type(const char ColName[]) const				//[t07]
       { return column_type(column_number(ColName)); }
 
   /// What table did this column come from?
-  oid column_table(size_type ColNum) const;				//[t2]
+  oid column_table(size_type ColNum) const;				//[t02]
 
   /// What table did this column come from?
-  oid column_table(int ColNum) const					//[t2]
+  oid column_table(int ColNum) const					//[t02]
       { return column_table(size_type(ColNum)); }
   /// What table did this column come from?
-  oid column_table(const std::string &ColName) const			//[t2]
+  oid column_table(const std::string &ColName) const			//[t02]
       { return column_table(column_number(ColName)); }
 
   /// What column number in its table did this result column come from?
@@ -167,7 +167,7 @@ public:
       { return table_column(column_number(ColName)); }
   //@}
 
-  size_t num() const { return rownumber(); }				//[t1]
+  size_t num() const { return rownumber(); }				//[t01]
 
   /** Produce a slice of this row, containing the given range of columns.
    *

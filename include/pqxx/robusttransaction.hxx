@@ -19,7 +19,7 @@
 #include "pqxx/dbtransaction"
 
 
-/* Methods tested in eg. self-test program test001 are marked with "//[t1]"
+/* Methods tested in eg. self-test program test001 are marked with "//[t01]"
  */
 
 

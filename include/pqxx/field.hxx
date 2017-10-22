@@ -28,7 +28,7 @@
 #include "pqxx/types"
 
 
-/* Methods tested in eg. self-test program test001 are marked with "//[t1]"
+/* Methods tested in eg. self-test program test001 are marked with "//[t01]"
  */
 
 namespace pqxx
@@ -47,7 +47,7 @@ public:
    * @param R Row that this field is part of.
    * @param C Column number of this field.
    */
-  field(const row &R, row_size_type C) noexcept;			//[t1]
+  field(const row &R, row_size_type C) noexcept;			//[t01]
 
   /**
    * @name Comparison
@@ -87,10 +87,10 @@ public:
   const char *name() const;						//[t11]
 
   /// Column type
-  oid type() const;							//[t7]
+  oid type() const;							//[t07]
 
   /// What table did this column come from?
-  oid table() const;							//[t2]
+  oid table() const;							//[t02]
 
   row_size_type num() const { return col(); }				//[t82]
 
@@ -108,10 +108,10 @@ public:
    * to() or as() functions to convert the string to other types such as
    * @c int, or to C++ strings.
    */
-  const char *c_str() const;						//[t2]
+  const char *c_str() const;						//[t02]
 
   /// Read value into Obj; or leave Obj untouched and return @c false if null
-  template<typename T> bool to(T &Obj) const				//[t3]
+  template<typename T> bool to(T &Obj) const				//[t03]
   {
     const char *const bytes = c_str();
     if (!bytes[0] && is_null()) return false;
@@ -120,7 +120,7 @@ public:
   }
 
   /// Read value into Obj; or leave Obj untouched and return @c false if null
-  template<typename T> bool operator>>(T &Obj) const			//[t7]
+  template<typename T> bool operator>>(T &Obj) const			//[t07]
       { return to(Obj); }
 
   /// Read value into Obj; or use Default & return @c false if null
@@ -135,7 +135,7 @@ public:
   /** Note that unless the function is instantiated with an explicit template
    * argument, the Default value's type also determines the result type.
    */
-  template<typename T> T as(const T &Default) const			//[t1]
+  template<typename T> T as(const T &Default) const			//[t01]
   {
     T Obj;
     to(Obj, Default);

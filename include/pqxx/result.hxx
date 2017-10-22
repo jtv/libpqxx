@@ -23,7 +23,7 @@
 #include "pqxx/field"
 #include "pqxx/util"
 
-/* Methods tested in eg. self-test program test001 are marked with "//[t1]"
+/* Methods tested in eg. self-test program test001 are marked with "//[t01]"
  */
 
 // TODO: Support SQL arrays
@@ -77,8 +77,8 @@ public:
   using const_reverse_iterator = const_reverse_result_iterator;
   using reverse_iterator = const_reverse_iterator;
 
-  result() noexcept : m_data(make_data_pointer()), m_query() {}		//[t3]
-  result(const result &rhs) noexcept :					//[t1]
+  result() noexcept : m_data(make_data_pointer()), m_query() {}		//[t03]
+  result(const result &rhs) noexcept :					//[t01]
 	m_data(rhs.m_data), m_query(rhs.m_query) {}
 
   result &operator=(const result &rhs) noexcept				//[t10]
@@ -102,21 +102,21 @@ public:
   const_reverse_iterator rend() const;					//[t75]
   const_reverse_iterator crend() const;
 
-  const_iterator begin() const noexcept;				//[t1]
+  const_iterator begin() const noexcept;				//[t01]
   const_iterator cbegin() const noexcept;
-  inline const_iterator end() const noexcept;				//[t1]
+  inline const_iterator end() const noexcept;				//[t01]
   inline const_iterator cend() const noexcept;
 
   reference front() const noexcept;					//[t74]
   reference back() const noexcept;					//[t75]
 
-  PQXX_PURE size_type size() const noexcept;				//[t2]
+  PQXX_PURE size_type size() const noexcept;				//[t02]
   PQXX_PURE bool empty() const noexcept;				//[t11]
   size_type capacity() const noexcept { return size(); }		//[t20]
 
   void swap(result &) noexcept;						//[t77]
 
-  const row operator[](size_type i) const noexcept;			//[t2]
+  const row operator[](size_type i) const noexcept;			//[t02]
   const row at(size_type) const;					//[t10]
 
   void clear() noexcept { m_data.reset(); m_query.erase(); }		//[t20]
@@ -139,28 +139,28 @@ public:
   const char *column_name(row_size_type Number) const;			//[t11]
 
   /// Type of given column
-  oid column_type(row_size_type ColNum) const;				//[t7]
+  oid column_type(row_size_type ColNum) const;				//[t07]
   /// Type of given column
-  oid column_type(int ColNum) const					//[t7]
+  oid column_type(int ColNum) const					//[t07]
 	{ return column_type(row_size_type(ColNum)); }
 
   /// Type of given column
-  oid column_type(const std::string &ColName) const			//[t7]
+  oid column_type(const std::string &ColName) const			//[t07]
 	{ return column_type(column_number(ColName)); }
 
   /// Type of given column
-  oid column_type(const char ColName[]) const				//[t7]
+  oid column_type(const char ColName[]) const				//[t07]
 	{ return column_type(column_number(ColName)); }
 
   /// What table did this column come from?
-  oid column_table(row_size_type ColNum) const;				//[t2]
+  oid column_table(row_size_type ColNum) const;				//[t02]
 
   /// What table did this column come from?
-  oid column_table(int ColNum) const					//[t2]
+  oid column_table(int ColNum) const					//[t02]
 	{ return column_table(row_size_type(ColNum)); }
 
   /// What table did this column come from?
-  oid column_table(const std::string &ColName) const			//[t2]
+  oid column_table(const std::string &ColName) const			//[t02]
 	{ return column_table(column_number(ColName)); }
 
   /// What column in its table did this column come from?
@@ -188,7 +188,7 @@ public:
   /** @return Number of affected rows if last command was @c INSERT, @c UPDATE,
    * or @c DELETE; zero for all other commands.
    */
-  PQXX_PURE size_type affected_rows() const;				//[t7]
+  PQXX_PURE size_type affected_rows() const;				//[t07]
 
 
 private:

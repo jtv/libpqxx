@@ -74,7 +74,7 @@ public:
    */
   //@{
   const_result_iterator operator++(int);				//[t12]
-  const_result_iterator &operator++() { ++m_index; return *this; }	//[t1]
+  const_result_iterator &operator++() { ++m_index; return *this; }	//[t01]
   const_result_iterator operator--(int);				//[t12]
   const_result_iterator &operator--() { --m_index; return *this; }	//[t12]
 

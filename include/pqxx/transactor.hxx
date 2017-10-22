@@ -20,7 +20,7 @@
 #include "pqxx/transaction"
 
 
-/* Methods tested in eg. self-test program test001 are marked with "//[t1]"
+/* Methods tested in eg. self-test program test001 are marked with "//[t01]"
  */
 
 /**
@@ -162,7 +162,7 @@ template<typename TRANSACTION=transaction<read_committed>>
     public std::unary_function<TRANSACTION, void>
 {
 public:
-  explicit transactor(const std::string &TName="transactor") :		//[t4]
+  explicit transactor(const std::string &TName="transactor") :		//[t04]
     m_name(TName) { }
 
   /// Overridable transaction definition; insert your database code here
@@ -177,7 +177,7 @@ public:
    * the transactor framework.
    * @param T Dedicated transaction context created to perform this operation.
    */
-  void operator()(TRANSACTION &T);					//[t4]
+  void operator()(TRANSACTION &T);					//[t04]
 
   // Overridable member functions, called by connection_base::perform() if an
   // attempt to run transaction fails/succeeds, respectively, or if the
@@ -201,7 +201,7 @@ public:
    * will remain committed, so any changes in the database remain regardless of
    * how this function terminates.
    */
-  void on_commit() {}							//[t7]
+  void on_commit() {}							//[t07]
 
   /// Overridable function to be called when "in doubt" about outcome
   /** This may happen if the connection to the backend is lost while attempting

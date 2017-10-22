@@ -66,7 +66,7 @@ public:
   ~basic_connection() noexcept
 	{ close(); }
 
-  const std::string &options() const noexcept				//[t1]
+  const std::string &options() const noexcept				//[t01]
 	{return m_policy.options();}
 
 private:

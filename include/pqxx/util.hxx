@@ -323,7 +323,7 @@ template<typename T> struct deref_ptr { T operator()(T *i) const {return *i;} };
  * @param access functor defining how to dereference sequence elements
  */
 template<typename ITER, typename ACCESS> inline
-std::string separated_list(						//[t0]
+std::string separated_list(						//[t00]
 	const std::string &sep,
 	ITER begin,
 	ITER end,
@@ -350,13 +350,13 @@ std::string separated_list(						//[t0]
 
 /// Render sequence as a string, using given separator between items
 template<typename ITER> inline std::string
-separated_list(const std::string &sep, ITER begin, ITER end)		//[t0]
+separated_list(const std::string &sep, ITER begin, ITER end)		//[t00]
 	{ return separated_list(sep,begin,end,internal::dereference<ITER>()); }
 
 
 /// Render array as a string, using given separator between items
 template<typename OBJ> inline std::string
-separated_list(const std::string &sep, OBJ *begin, OBJ *end)		//[t0]
+separated_list(const std::string &sep, OBJ *begin, OBJ *end)		//[t00]
 	{ return separated_list(sep,begin,end,internal::deref_ptr<OBJ>()); }
 
 
@@ -420,7 +420,7 @@ public:
   }
 
   /// Object name, or the empty string if no name was given.
-  const std::string &name() const noexcept { return m_name; }		//[t1]
+  const std::string &name() const noexcept { return m_name; }		//[t01]
 
   /// Class name.
   const std::string &classname() const noexcept				//[t73]
