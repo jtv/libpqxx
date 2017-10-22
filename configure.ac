@@ -429,6 +429,7 @@ Your compiler may be too old, or you may be able to force C++11 by installing
 the autoconf archive before configuring.  THere may also be a compiler option
 you need to set, such as "-stdc++11".
 ])])
+AC_MSG_RESULT(yes)
 
 AC_MSG_CHECKING([that type of libpq's Oid is as expected])
 AC_TRY_COMPILE(
