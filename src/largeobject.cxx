@@ -74,7 +74,7 @@ pqxx::largeobject::largeobject(dbtransaction &T) :
   {
     const int err = errno;
     if (err == ENOMEM) throw std::bad_alloc();
-    throw failure("Could not create large object: " + reason(err));
+    throw failure("Could not create large object: " + reason(T.conn(), err));
   }
 }
 
@@ -89,7 +89,7 @@ pqxx::largeobject::largeobject(dbtransaction &T, const std::string &File) :
     if (err == ENOMEM) throw std::bad_alloc();
     throw failure(
 	"Could not import file '" + File + "' to large object: " +
-	reason(err));
+	reason(T.conn(), err));
   }
 }
 
@@ -110,7 +110,7 @@ void pqxx::largeobject::to_file(
     if (err == ENOMEM) throw std::bad_alloc();
     throw failure(
 	"Could not export large object " + to_string(m_id) + " "
-	"to file '" + File + "': " + reason(err));
+	"to file '" + File + "': " + reason(T.conn(), err));
   }
 }
 
@@ -123,7 +123,7 @@ void pqxx::largeobject::remove(dbtransaction &T) const
     if (err == ENOMEM) throw std::bad_alloc();
     throw failure(
 	"Could not delete large object " + to_string(m_id) + ": " +
-	reason(err));
+	reason(T.conn(), err));
   }
 }
 
@@ -135,13 +135,11 @@ pqxx::internal::pq::PGconn *pqxx::largeobject::raw_connection(
 }
 
 
-std::string pqxx::largeobject::reason(int err) const
+std::string pqxx::largeobject::reason(const connection_base &c, int err) const
 {
   if (err == ENOMEM) return "Out of memory";
   if (id() == oid_none) return "No object selected";
-
-  char buf[500];
-  return std::string(strerror_wrapper(err, buf, sizeof(buf)));
+  return gate::const_connection_largeobject(c).error_message();
 }
 
 
@@ -301,7 +299,8 @@ pqxx::largeobjectaccess::size_type pqxx::largeobjectaccess::tell() const
 
 std::string pqxx::largeobjectaccess::reason(int err) const
 {
-  return (m_fd == -1) ? "No object opened" : largeobject::reason(err);
+  if (m_fd == -1) return "No object opened.";
+  return largeobject::reason(m_trans.conn(), err);
 }
 
 

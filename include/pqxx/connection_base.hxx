@@ -96,6 +96,7 @@ class connection_prepare_invocation;
 class connection_reactivation_avoidance_exemption;
 class connection_sql_cursor;
 class connection_transaction;
+class const_connection_largeobject;
 } // namespace pqxx::internal::gate
 } // namespace pqxx::internal
 
@@ -811,7 +812,10 @@ private:
 
   void PQXX_PRIVATE internal_set_trace() noexcept;
   int PQXX_PRIVATE PQXX_PURE status() const noexcept;
+
+  friend class internal::gate::const_connection_largeobject;
   const char * PQXX_PURE err_msg() const noexcept;
+
   void PQXX_PRIVATE reset();
   std::string PQXX_PRIVATE raw_get_var(const std::string &);
   void PQXX_PRIVATE process_notice_raw(const char msg[]) noexcept;

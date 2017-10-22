@@ -255,15 +255,8 @@ namespace pqxx
  */
 struct PQXX_LIBEXPORT thread_safety_model
 {
-  /// Does standard C library have a thread-safe alternative to @c strerror?
-  /** If not, its @c strerror implementation may still be thread-safe.  Check
-   * your compiler's manual.
-   *
-   * Without @c strerror_r (@c strerror_s in Visual C++) or a thread-safe @c
-   * strerror, the library can't safely obtain descriptions of certain run-time
-   * errors.  In that case, your application must serialize all use of libpqxx.
-   */
-  bool have_safe_strerror;
+  /// @deprecated Is error reporting thread-safe?  Now always true.
+  bool have_safe_strerror = true;
 
   /// Is the underlying libpq build thread-safe?
   /** A @c "false" here may mean one of two things: either the libpq build is
@@ -484,20 +477,6 @@ PQXX_LIBEXPORT void sleep_seconds(int);
 
 /// Work around problem with library export directives and pointers.
 using cstring = const char *;
-
-
-/// Human-readable description for error code, possibly using given buffer
-/** Wrapper for @c strerror() or thread-safe variant, as available.  The
- * default code copies the string to the provided buffer, but this may not
- * always be necessary.  The result is guaranteed to remain usable for as long
- * as the given buffer does.
- * @param err system error code as copied from errno
- * @param buf caller-provided buffer for message to be stored in, if needed
- * @param len usable size (in bytes) of provided buffer
- * @return human-readable error string, which may or may not reside in buf
- */
-PQXX_LIBEXPORT cstring strerror_wrapper(int err, char buf[], std::size_t len)
-  noexcept;
 
 
 /// Commonly used SQL commands

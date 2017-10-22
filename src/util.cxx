@@ -16,23 +16,6 @@
 #include <new>
 #include <thread>
 
-#ifdef PQXX_HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#else
-#include <sys/types.h>
-#if defined(_WIN32)
-#include <winsock2.h>
-#endif
-#endif // PQXX_HAVE_SYS_SELECT_H
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
 #include "libpq-fe.h"
 
 #include "pqxx/except"
@@ -51,13 +34,6 @@ constexpr char
 pqxx::thread_safety_model pqxx::describe_thread_safety() noexcept
 {
   thread_safety_model model;
-
-#if defined(PQXX_HAVE_STRERROR_R) || defined(PQXX_HAVE_STRERROR_S)
-  model.have_safe_strerror = true;
-#else
-  model.have_safe_strerror = false;
-  model.description += "The available strerror() may not be thread-safe.\n";
-#endif
 
   if (PQisthreadsafe())
   {
@@ -148,55 +124,4 @@ void pqxx::internal::freemallocmem(const void *p) noexcept
 void pqxx::internal::sleep_seconds(int s)
 {
   std::this_thread::sleep_for(std::chrono::seconds(s));
-}
-
-
-#if !defined(PQXX_HAVE_STRERROR_R) || !defined(PQXX_HAVE_STRERROR_R_GNU)
-namespace
-{
-/// Termination-safe strncpy variant.
-void cpymsg(char buf[], const char input[], size_t buflen) noexcept
-{
-  // Copy buffer, and ensure zero-termination.  Some systems have a strlcpy()
-  // function to do exactly this, but it's not worth the portability hassle.
-  strncpy(buf, input, buflen);
-  if (buflen) buf[buflen-1] = '\0';
-}
-}
-#endif
-
-
-cstring pqxx::internal::strerror_wrapper(int err, char buf[], std::size_t len)
-	noexcept
-{
-  if (!buf || len <= 0) return "No buffer provided for error message!";
-
-  const char *res = buf;
-
-#if !defined(PQXX_HAVE_STRERROR_R) && !defined(PQXX_HAVE_STRERROR_S)
-  // We have no safe way of getting our error message!  All we can do is
-  // copy it immediately and hope for the best.
-  cpymsg(buf, strerror(err), len);
-#elif defined(PQXX_HAVE_STRERROR_R_GNU)
-  // GNU strerror_r returns error string (which may be anywhere).
-  return strerror_r(err, buf, len);
-#elif defined(PQXX_HAVE_STRERROR_S)
-  // Windows equivalent of strerror_r returns result code.
-  if (strerror_s(buf, len, err) == 0) res = buf;
-  else cpymsg(buf, "Unknown error", len);
-#else
-  // Single Unix Specification version of strerror_r returns result code.
-  switch (strerror_r(err, buf, len))
-  {
-  case 0: res = buf; break;
-  case -1: cpymsg(buf, "Unknown error", len); break;
-  default:
-    cpymsg(
-	buf,
-	"Unexpected result from strerror_r()!  Is it really SUS-compliant?",
-	len);
-    break;
-  }
-#endif
-  return res;
 }

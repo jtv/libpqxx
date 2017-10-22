@@ -11,8 +11,7 @@ void test_thread_safety_model(transaction_base &)
 {
   const thread_safety_model model = describe_thread_safety();
 
-  if (model.have_safe_strerror &&
-      model.safe_libpq &&
+  if (model.safe_libpq &&
       model.safe_query_cancel &&
       model.safe_result_copy &&
       model.safe_kerberos)

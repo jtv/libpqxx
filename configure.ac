@@ -445,49 +445,6 @@ change!
 ])])
 AC_MSG_RESULT(yes)
 
-AC_MSG_CHECKING([for strerror_r])
-strerror_r=yes
-AC_TRY_COMPILE(
-	[
-		#include <cstring>
-		using namespace std;
-		bool f(char x[]) { return strerror_r(0,x,10) != 0; }
-	],
-	[],
-	[AC_DEFINE(PQXX_HAVE_STRERROR_R,1,[Define if strerror_r exists])],
-	[strerror_r=no])
-AC_MSG_RESULT($strerror_r)
-if test "$strerror_r" != "yes" ; then
-	AC_MSG_WARN([
-No definition of strerror_r, the thread-safe version of strerror(), was found in
-your <cstring> header.
-
-This may be because your implementation strerror() is threadsafe, in which case
-there is nothing to worry about.
-])
-else
-AC_MSG_CHECKING([for GNU-style strerror_r])
-gnu_strerror_r=yes
-AC_TRY_COMPILE(
-	[
-		#include <cstring>
-		using namespace std;
-		const char *it_is_a_string(char *x)
-		{
-			return strerror_r(0,x,10);
-		}
-	],
-	[],
-	[
-		AC_DEFINE(
-			PQXX_HAVE_STRERROR_R_GNU,
-			1,
-			[Define for GNU-style strerror_r])
-	],
-	[gnu_strerror_r=no])
-AC_MSG_RESULT($gnu_strerror_r)
-fi # strerror_r
-
 
 AC_MSG_CHECKING([for working <sys/select.h>])
 select_h=yes
