@@ -9,33 +9,6 @@
 #ifndef PQXX_H_COMPILER_PUBLIC
 #define PQXX_H_COMPILER_PUBLIC
 
-#ifdef _MSC_VER
-
-/* Work around a particularly pernicious and deliberate bug in Visual C++:
- * min() and max() are defined as macros, which can have some very nasty
- * consequences.  This compiler bug can be switched off by defining NOMINMAX.
- *
- * We don't like making choices for the user and defining environmental macros
- * of our own accord, but in this case it's the only way to compile without
- * incurring a significant risk of bugs--and there doesn't appear to be any
- * downside.  One wonders why this compiler wart is being maintained at all,
- * since the introduction of inline functions back in the 20th century.
- */
-#if defined(min) || defined(max)
-#error "Oops: min() and/or max() are defined as preprocessor macros.\
-  Define NOMINMAX macro before including any system headers!"
-#endif
-
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-
-// Suppress vtables on abstract classes.
-#define PQXX_NOVTABLE __declspec(novtable)
-
-#endif	// _MSC_VER
-
-
 // Workarounds & definitions that need to be included even in library's headers
 #include "pqxx/config-public-compiler.h"
 
@@ -82,6 +55,9 @@
 // Workarounds for Microsoft Visual C++
 #ifdef _MSC_VER
 
+// Suppress vtables on abstract classes.
+#define PQXX_NOVTABLE __declspec(novtable)
+
 // Automatically link with the appropriate libpq (static or dynamic, debug or
 // release).  The default is to use the release DLL.  Define PQXX_PQ_STATIC to
 // link to a static version of libpq, and _DEBUG to link to a debug version.
@@ -102,13 +78,14 @@
 #endif
 #endif
 
-// If we're not compiling libpqxx itself, automatically link with the correct
-// libpqxx library.  To link with the libpqxx DLL, define PQXX_SHARED; the
-// default is to link with the static library.  This is also the recommended
-// practice.
-// Note that the preprocessor macro PQXX_INTERNAL is used to detect whether we
-// are compiling the libpqxx library itself. When you compile the library
-// yourself using your own project file, make sure to include this define.
+// If we're not compiling libpqxx itself, automatically link with the
+// appropriate libpqxx library.  To link with the libpqxx DLL, define
+// PQXX_SHARED; the default is to link with the static library.  A static link
+// is the recommended practice.
+//
+// The preprocessor macro PQXX_INTERNAL is used to detect whether we
+// are compiling the libpqxx library itself.  When you compile the library
+// yourself using your own project file, make sure to include this macro.
 #if defined(PQXX_AUTOLINK) && !defined(PQXX_INTERNAL)
   #ifdef PQXX_SHARED
     #ifdef _DEBUG

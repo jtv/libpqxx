@@ -99,24 +99,28 @@ public:
   cursor_base &operator=(const cursor_base &) =delete;
 
   /**
-   * @name Special movement distances
+   * @name Special movement distances.
    */
   //@{
-  /// Special value: read until end
+
+  /// Special value: read until end.
   /** @return Maximum value for result::difference_type, so the cursor will
    * attempt to read the largest possible result set.
    */
   static difference_type all() noexcept;				//[t81]
-  /// Special value: read one row only
-  /** @return Unsurprisingly, 1
+
+  /// Special value: read one row only.
+  /** @return Unsurprisingly, 1.
    */
   static difference_type next() noexcept { return 1; }			//[t81]
-  /// Special value: read backwards, one row only
-  /** @return Unsurprisingly, -1
+
+  /// Special value: read backwards, one row only.
+  /** @return Unsurprisingly, -1.
    */
   static difference_type prior() noexcept { return -1; }		//[t0]
-  /// Special value: read backwards from current position back to origin
-  /** @return Minimum value for result::difference_type
+
+  /// Special value: read backwards from current position back to origin.
+  /** @return Minimum value for result::difference_type.
    */
   static difference_type backward_all() noexcept;			//[t0]
 
@@ -138,17 +142,6 @@ protected:
 
   const std::string m_name;
 };
-
-
-inline cursor_base::difference_type cursor_base::all() noexcept
-{
-  return std::numeric_limits<int>::max()-1;
-}
-
-inline cursor_base::difference_type cursor_base::backward_all() noexcept
-{
-  return std::numeric_limits<int>::min()+1;
-}
 
 
 namespace internal

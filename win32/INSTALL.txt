@@ -450,24 +450,3 @@ Project Properties::Linker::Input::Additional Dependencies
 
 We recommend that you specify libpqxx_static.lib and ws2_32.lib there, in that
 order.
-
-
-Visual C++: min() and max()
----------------------------
-This has been giving people no end of trouble.  The Visual C++ compiler, by
-default, defines min() and max() as preprocessor macros--meaning that a lot of
-correct, standard-conforming code will not compile properly.
-
-The libpqxx headers disable this feature by defining the NOMINMAX preprocessor
-macro, which tells the Visual C++ headers not to #define min() and max().
-However this seems to cause some of Visual C++'s own headers to fail to compile.
-
-One way around this is always to include libpqxx headers before system headers,
-and #undef NOMINMAX between the two sets of #includes.
-
-Another workaround, suggested by Trigve Siver, is to include first the system
-headers and then the libpqxx headers, and finally:
-
-    #include <algorithm>
-    #define max(x,y) std::max(x,y)
-    #define min(x,y) std::min(x,y)

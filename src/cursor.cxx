@@ -37,7 +37,22 @@ inline bool useless_trail(char c)
 {
   return isspace(c) || c==';';
 }
+}
 
+
+pqxx::cursor_base::difference_type pqxx::cursor_base::all() noexcept
+{
+  // Implemented out-of-line so we don't fall afoul of Visual Studio defining
+  // min() and max() macros, which turn this expression into malformed code:
+  return std::numeric_limits<int>::max() - 1;
+}
+
+
+pqxx::cursor_base::difference_type cursor_base::backward_all() noexcept
+{
+  // Implemented out-of-line so we don't fall afoul of Visual Studio defining
+  // min() and max() macros, which turn this expression into malformed code:
+  return std::numeric_limits<int>::min() + 1;
 }
 
 
