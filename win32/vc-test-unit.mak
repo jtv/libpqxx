@@ -47,7 +47,7 @@ PQXXLIBTYPESUFFIX=_static
 !ENDIF
 
 
-CXX_FLAGS_BASE=/nologo /W3 /EHsc /FD /GR /c \
+CXX_FLAGS_BASE=/nologo /W3 /EHsc /FD /GR /c /std:c++14 \
     /I "include" /I "test" /I $(PGSQLINC) /I $(LIBPQINC) \
     /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_WINDOWS" $(PQXX_SHARED)
 
