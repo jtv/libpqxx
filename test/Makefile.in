@@ -107,31 +107,30 @@ CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__EXEEXT_1 = runner$(EXEEXT)
-am_runner_OBJECTS = test000.$(OBJEXT) test001.$(OBJEXT) \
-	test002.$(OBJEXT) test004.$(OBJEXT) test007.$(OBJEXT) \
-	test010.$(OBJEXT) test011.$(OBJEXT) test012.$(OBJEXT) \
-	test013.$(OBJEXT) test014.$(OBJEXT) test015.$(OBJEXT) \
-	test016.$(OBJEXT) test017.$(OBJEXT) test018.$(OBJEXT) \
-	test020.$(OBJEXT) test021.$(OBJEXT) test023.$(OBJEXT) \
-	test026.$(OBJEXT) test029.$(OBJEXT) test030.$(OBJEXT) \
-	test031.$(OBJEXT) test032.$(OBJEXT) test033.$(OBJEXT) \
-	test034.$(OBJEXT) test035.$(OBJEXT) test036.$(OBJEXT) \
-	test037.$(OBJEXT) test039.$(OBJEXT) test046.$(OBJEXT) \
-	test048.$(OBJEXT) test049.$(OBJEXT) test050.$(OBJEXT) \
-	test051.$(OBJEXT) test052.$(OBJEXT) test053.$(OBJEXT) \
-	test054.$(OBJEXT) test055.$(OBJEXT) test056.$(OBJEXT) \
-	test057.$(OBJEXT) test058.$(OBJEXT) test059.$(OBJEXT) \
-	test060.$(OBJEXT) test061.$(OBJEXT) test062.$(OBJEXT) \
-	test063.$(OBJEXT) test064.$(OBJEXT) test065.$(OBJEXT) \
-	test066.$(OBJEXT) test067.$(OBJEXT) test069.$(OBJEXT) \
-	test070.$(OBJEXT) test071.$(OBJEXT) test072.$(OBJEXT) \
-	test073.$(OBJEXT) test074.$(OBJEXT) test075.$(OBJEXT) \
-	test076.$(OBJEXT) test077.$(OBJEXT) test078.$(OBJEXT) \
-	test079.$(OBJEXT) test082.$(OBJEXT) test083.$(OBJEXT) \
-	test084.$(OBJEXT) test086.$(OBJEXT) test087.$(OBJEXT) \
-	test088.$(OBJEXT) test089.$(OBJEXT) test090.$(OBJEXT) \
-	test092.$(OBJEXT) test093.$(OBJEXT) test094.$(OBJEXT) \
-	runner.$(OBJEXT)
+am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
+	test04.$(OBJEXT) test07.$(OBJEXT) test10.$(OBJEXT) \
+	test11.$(OBJEXT) test12.$(OBJEXT) test13.$(OBJEXT) \
+	test14.$(OBJEXT) test15.$(OBJEXT) test16.$(OBJEXT) \
+	test17.$(OBJEXT) test18.$(OBJEXT) test20.$(OBJEXT) \
+	test21.$(OBJEXT) test23.$(OBJEXT) test26.$(OBJEXT) \
+	test29.$(OBJEXT) test30.$(OBJEXT) test31.$(OBJEXT) \
+	test32.$(OBJEXT) test33.$(OBJEXT) test34.$(OBJEXT) \
+	test35.$(OBJEXT) test36.$(OBJEXT) test37.$(OBJEXT) \
+	test39.$(OBJEXT) test46.$(OBJEXT) test48.$(OBJEXT) \
+	test49.$(OBJEXT) test50.$(OBJEXT) test51.$(OBJEXT) \
+	test52.$(OBJEXT) test53.$(OBJEXT) test54.$(OBJEXT) \
+	test55.$(OBJEXT) test56.$(OBJEXT) test57.$(OBJEXT) \
+	test58.$(OBJEXT) test59.$(OBJEXT) test60.$(OBJEXT) \
+	test61.$(OBJEXT) test62.$(OBJEXT) test63.$(OBJEXT) \
+	test64.$(OBJEXT) test65.$(OBJEXT) test66.$(OBJEXT) \
+	test67.$(OBJEXT) test69.$(OBJEXT) test70.$(OBJEXT) \
+	test71.$(OBJEXT) test72.$(OBJEXT) test73.$(OBJEXT) \
+	test74.$(OBJEXT) test75.$(OBJEXT) test76.$(OBJEXT) \
+	test77.$(OBJEXT) test78.$(OBJEXT) test79.$(OBJEXT) \
+	test82.$(OBJEXT) test83.$(OBJEXT) test84.$(OBJEXT) \
+	test86.$(OBJEXT) test87.$(OBJEXT) test88.$(OBJEXT) \
+	test89.$(OBJEXT) test90.$(OBJEXT) test92.$(OBJEXT) \
+	test93.$(OBJEXT) test94.$(OBJEXT) runner.$(OBJEXT)
 runner_OBJECTS = $(am_runner_OBJECTS)
 am__DEPENDENCIES_1 =
 runner_DEPENDENCIES = $(top_builddir)/src/libpqxx.la \
@@ -614,77 +613,77 @@ MAINTAINERCLEANFILES = Makefile.in
 #TESTS_ENVIRONMENT=PGDATABASE=libpqxx
 # PGDATABASE, PGHOST, PGPORT, PGUSER
 runner_SOURCES = \
-  test000.cxx \
-  test001.cxx \
-  test002.cxx \
-  test004.cxx \
-  test007.cxx \
-  test010.cxx \
-  test011.cxx \
-  test012.cxx \
-  test013.cxx \
-  test014.cxx \
-  test015.cxx \
-  test016.cxx \
-  test017.cxx \
-  test018.cxx \
-  test020.cxx \
-  test021.cxx \
-  test023.cxx \
-  test026.cxx \
-  test029.cxx \
-  test030.cxx \
-  test031.cxx \
-  test032.cxx \
-  test033.cxx \
-  test034.cxx \
-  test035.cxx \
-  test036.cxx \
-  test037.cxx \
-  test039.cxx \
-  test046.cxx \
-  test048.cxx \
-  test049.cxx \
-  test050.cxx \
-  test051.cxx \
-  test052.cxx \
-  test053.cxx \
-  test054.cxx \
-  test055.cxx \
-  test056.cxx \
-  test057.cxx \
-  test058.cxx \
-  test059.cxx \
-  test060.cxx \
-  test061.cxx \
-  test062.cxx \
-  test063.cxx \
-  test064.cxx \
-  test065.cxx \
-  test066.cxx \
-  test067.cxx \
-  test069.cxx \
-  test070.cxx \
-  test071.cxx \
-  test072.cxx \
-  test073.cxx \
-  test074.cxx \
-  test075.cxx \
-  test076.cxx \
-  test077.cxx \
-  test078.cxx \
-  test079.cxx \
-  test082.cxx \
-  test083.cxx \
-  test084.cxx \
-  test086.cxx \
-  test087.cxx \
-  test088.cxx \
-  test089.cxx \
-  test090.cxx \
-  test092.cxx \
-  test093.cxx \
-  test094.cxx \
+  test00.cxx \
+  test01.cxx \
+  test02.cxx \
+  test04.cxx \
+  test07.cxx \
+  test10.cxx \
+  test11.cxx \
+  test12.cxx \
+  test13.cxx \
+  test14.cxx \
+  test15.cxx \
+  test16.cxx \
+  test17.cxx \
+  test18.cxx \
+  test20.cxx \
+  test21.cxx \
+  test23.cxx \
+  test26.cxx \
+  test29.cxx \
+  test30.cxx \
+  test31.cxx \
+  test32.cxx \
+  test33.cxx \
+  test34.cxx \
+  test35.cxx \
+  test36.cxx \
+  test37.cxx \
+  test39.cxx \
+  test46.cxx \
+  test48.cxx \
+  test49.cxx \
+  test50.cxx \
+  test51.cxx \
+  test52.cxx \
+  test53.cxx \
+  test54.cxx \
+  test55.cxx \
+  test56.cxx \
+  test57.cxx \
+  test58.cxx \
+  test59.cxx \
+  test60.cxx \
+  test61.cxx \
+  test62.cxx \
+  test63.cxx \
+  test64.cxx \
+  test65.cxx \
+  test66.cxx \
+  test67.cxx \
+  test69.cxx \
+  test70.cxx \
+  test71.cxx \
+  test72.cxx \
+  test73.cxx \
+  test74.cxx \
+  test75.cxx \
+  test76.cxx \
+  test77.cxx \
+  test78.cxx \
+  test79.cxx \
+  test82.cxx \
+  test83.cxx \
+  test84.cxx \
+  test86.cxx \
+  test87.cxx \
+  test88.cxx \
+  test89.cxx \
+  test90.cxx \
+  test92.cxx \
+  test93.cxx \
+  test94.cxx \
   runner.cxx
 
 runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
@@ -742,77 +741,77 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/runner.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test000.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test001.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test002.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test004.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test007.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test010.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test011.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test012.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test013.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test014.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test015.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test016.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test017.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test018.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test020.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test021.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test023.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test026.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test029.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test030.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test031.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test032.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test033.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test034.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test035.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test036.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test037.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test039.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test046.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test048.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test049.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test050.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test051.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test052.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test053.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test054.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test055.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test056.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test057.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test058.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test059.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test060.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test061.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test062.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test063.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test064.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test065.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test066.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test067.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test069.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test070.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test071.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test072.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test073.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test074.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test075.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test076.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test077.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test078.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test079.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test082.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test083.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test084.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test086.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test087.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test088.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test089.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test090.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test092.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test093.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test094.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test00.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test01.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test02.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test04.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test07.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test10.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test11.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test12.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test13.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test14.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test15.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test16.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test17.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test18.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test20.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test21.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test23.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test26.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test29.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test30.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test31.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test32.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test33.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test34.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test35.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test36.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test37.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test39.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test46.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test48.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test49.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test50.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test51.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test52.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test53.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test54.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test55.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test56.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test57.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test58.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test59.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test60.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test61.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test62.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test63.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test64.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test65.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test66.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test67.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test69.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test70.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test71.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test72.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test73.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test74.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test75.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test76.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test77.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test78.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test79.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test82.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test83.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test84.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test86.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test87.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test88.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test89.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test90.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test92.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test93.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test94.Po@am__quote@
 
 .cxx.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
