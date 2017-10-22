@@ -11,11 +11,11 @@ POSTGRES_VERSION_PATTERN="^v[91][0-9A-Za-z_.-]\+"
 POSTGRES_FTP_SERVER="${PG_FTPSERVER:-ftp.postgresql.org}"
 POSTGRES_FTP_DIR="${PG_FTPDIR:-pub/source}"
 
-if test -f /proc/cpuinfo
+if which nproc >/dev/null
 then
-	PROCESSORS=$(grep -c '^processor[[:space:]]*:' /proc/cpuinfo)
+        PROCESSORS=$(nproc)
 else
-	PROCESSORS=1
+        PROCESSORS=2
 fi
 
 CONCURRENCY_LEVEL="${CONCURRENCY_LEVEL:-${PROCESSORS}}"
