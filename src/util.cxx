@@ -45,9 +45,6 @@ pqxx::thread_safety_model pqxx::describe_thread_safety() noexcept
     model.description += "Using a libpq build that is not thread-safe.\n";
   }
 
-  model.safe_query_cancel = true;
-  model.safe_result_copy = true;
-
   // Sadly I'm not aware of any way to avoid this just yet.
   model.safe_kerberos = false;
   model.description +=

@@ -268,19 +268,11 @@ struct PQXX_LIBEXPORT thread_safety_model
    */
   bool safe_libpq;
 
-  /// Is canceling queries thread-safe?
-  /** If not, avoid use of the pqxx::pipeline class in threaded programs.  Or
-   * better, rebuild libpqxx against a newer libpq version.
-   */
-  bool safe_query_cancel;
+  /// @deprecated Query cancel is always thread-safe now.
+  bool safe_query_cancel = true;
 
-  /// Are copies of pqxx::result and pqxx::binarystring objects thread-safe?
-  /** If @c true, it's safe to copy an object of either of these types (copying
-   * these is done very efficiently, so don't worry about data size) and hand
-   * the copy off to another thread.  The other thread may access the copy
-   * freely without any concurrency concerns.
-   */
-  bool safe_result_copy;
+  /// @deprecated Always thread-safe to copy a 'result' or 'binarystring' now.
+  bool safe_result_copy = true;
 
   /// Is Kerberos thread-safe?
   /** @warning Is currently always @c false.
