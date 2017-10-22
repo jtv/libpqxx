@@ -5,6 +5,7 @@
  - Removed maketemporary.  We weren't using it.
  - Can now be built outside the source tree.
  - New, simpler, lambda-friendly transactor framework.
+ - No longer defines Visual Studio's NOMINMAX in headers.
 5.1.0
  - Releases after this will require C++11!
  - Internal simplification to pqxx::result.
