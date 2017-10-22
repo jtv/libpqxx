@@ -323,7 +323,7 @@ private:
   internal::pq::PGconn *raw_connection() const
 	{ return largeobject::raw_connection(m_trans); }
 
-  void open(openmode mode);
+  PQXX_PRIVATE void open(openmode mode);
   void close() noexcept;
 
   dbtransaction &m_trans;
@@ -395,7 +395,6 @@ protected:
     return overflow(EoF());
   }
 
-protected:
   virtual pos_type seekoff(
 	off_type offset,
 	seekdir dir,
