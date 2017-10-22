@@ -5,21 +5,6 @@
 
 using namespace pqxx;
 
-namespace
-{
-  class RemoveLO : public transactor<>
-  {
-    oid m_oid;
-  public:
-    explicit RemoveLO(oid O) : m_oid(O) {}
-
-    void operator()(argument_type &T)
-    {
-      largeobject L(m_oid);
-      L.remove(T);
-    }
-  };
-}
 
 int main(int, char *argv[])
 {
@@ -34,7 +19,12 @@ int main(int, char *argv[])
       from_string(argv[i], O);
       try
       {
-        C.perform(RemoveLO(O));
+        pqxx::perform([O, &C]{
+          work w{C};
+          largeobject l{O};
+          l.remove(w);
+          w.commit();
+          });
       }
       catch (const std::exception &e)
       {
