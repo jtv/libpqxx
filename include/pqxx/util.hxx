@@ -295,19 +295,7 @@ PQXX_LIBEXPORT thread_safety_model describe_thread_safety() noexcept;
 constexpr oid oid_none = 0;
 
 
-namespace internal
-{
-// TODO: Does standard library provide a ready-made version of this?
-/// Functor: dereference iterator
-template<typename ITER> struct dereference
-{
-  typename ITER::value_type operator()(ITER i) const { return *i; }
-};
-template<typename T> struct deref_ptr { T operator()(T *i) const {return *i;} };
-} // namespace internal
-
-
-/// Access iterators using ACCESS functor, returning separator-separated list
+/// Access iterators using ACCESS functor, returning separator-separated list.
 /**
  * @param sep separator string (to be placed between items)
  * @param begin beginning of items sequence
@@ -340,19 +328,13 @@ std::string separated_list(						//[t00]
  */
 //@{
 
-/// Render sequence as a string, using given separator between items
+/// Render sequence as a string, using given separator between items.
 template<typename ITER> inline std::string
 separated_list(const std::string &sep, ITER begin, ITER end)		//[t00]
-	{ return separated_list(sep,begin,end,internal::dereference<ITER>()); }
+	{ return separated_list(sep, begin, end, [](ITER i){ return *i; }); }
 
 
-/// Render array as a string, using given separator between items
-template<typename OBJ> inline std::string
-separated_list(const std::string &sep, OBJ *begin, OBJ *end)		//[t00]
-	{ return separated_list(sep,begin,end,internal::deref_ptr<OBJ>()); }
-
-
-/// Render items in a container as a string, using given separator
+/// Render items in a container as a string, using given separator.
 template<typename CONTAINER> inline std::string
 separated_list(const std::string &sep, const CONTAINER &c)		//[t10]
 	{ return separated_list(sep, c.begin(), c.end()); }
