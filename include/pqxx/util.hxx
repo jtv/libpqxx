@@ -398,18 +398,42 @@ template<typename P> inline void freemallocmem_templated(P *p) noexcept
 }
 
 
+/// Helper base class: object descriptions for error messages and such.
+/**
+ * Classes derived from namedclass have a class name (such as "transaction"),
+ * an optional object name (such as "delete-old-logs"), and a description
+ * generated from the two names (such as "transaction delete-old-logs").
+ *
+ * The class name is dynamic here, in order to support inheritance hierarchies
+ * where the exact class name may not be known statically.
+ *
+ * In inheritance hierarchies, make namedclass a virtual base class so that
+ * each class in the hierarchy can specify its own class name in its
+ * constructors.
+ */
 class PQXX_LIBEXPORT namedclass
 {
 public:
-  namedclass(const std::string &Classname, const std::string &Name="") :
+  explicit namedclass(const std::string &Classname) :
+    m_classname(Classname),
+    m_name()
+  {
+  }
+
+  namedclass(const std::string &Classname, const std::string &Name) :
     m_classname(Classname),
     m_name(Name)
   {
   }
 
+  /// Object name, or the empty string if no name was given.
   const std::string &name() const noexcept { return m_name; }		//[t1]
+
+  /// Class name.
   const std::string &classname() const noexcept				//[t73]
-	{return m_classname;}
+	{ return m_classname; }
+
+  /// Combination of class name and object name; or just class name.
   std::string description() const;
 
 private:
