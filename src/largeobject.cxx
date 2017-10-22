@@ -16,12 +16,6 @@
 
 #include "libpq-fe.h"
 
-//#include "libpq/libpq-fs.h"
-/// Copied from libpq/libpq-fs.h so we don't need that header anymore
-#define INV_WRITE		0x00020000
-/// Copied from libpq/libpq-fs.h so we don't need that header anymore
-#define INV_READ		0x00040000
-
 #include "pqxx/largeobject"
 
 #include "pqxx/internal/gates/connection-largeobject.hxx"
@@ -31,9 +25,13 @@ using namespace pqxx::internal;
 
 namespace
 {
-
 inline int StdModeToPQMode(std::ios::openmode mode)
 {
+  /// Mode bits, copied from libpq-fs.h so that we no longer need that header.
+  constexpr int
+    INV_WRITE = 0x00020000,
+    INV_READ = 0x00040000;
+
   return
 	((mode & std::ios::in)  ? INV_READ  : 0) |
 	((mode & std::ios::out) ? INV_WRITE : 0);
@@ -70,7 +68,8 @@ inline int StdDirToPQDir(std::ios::seekdir dir) noexcept
 pqxx::largeobject::largeobject(dbtransaction &T) :
   m_id()
 {
-  m_id = lo_creat(raw_connection(T), INV_READ|INV_WRITE);
+  // (Mode is ignored as of postgres 8.1.)
+  m_id = lo_creat(raw_connection(T), 0);
   if (m_id == oid_none)
   {
     const int err = errno;
