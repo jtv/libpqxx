@@ -66,6 +66,136 @@ AS_IF(
     [CPPFLAGS="$CPPFLAGS -DPQXX_SHARED"])
 
 
+AC_MSG_CHECKING([for C++11 support])
+AC_TRY_COMPILE(
+        [using foo = int;], [], [],
+	[AC_MSG_ERROR([
+Compiler could not compile basic C++11.
+
+Your compiler may be too old, or you may be able to force C++11 by installing
+the autoconf archive before configuring.  THere may also be a compiler option
+you need to set, such as "-stdc++11".
+])])
+AC_MSG_RESULT(yes)
+
+
+AC_MSG_CHECKING([C++14 deprecation attribute])
+deprecated=yes
+AC_TRY_COMPILE(
+	[[[deprecated]] void f();],
+	[],
+	AC_DEFINE(
+		[PQXX_HAVE_DEPRECATED],
+		1,
+		[Define if compiler supports [[deprecated]] attribute]),
+	deprecated=no)
+AC_MSG_RESULT($deprecated)
+
+
+AC_MSG_CHECKING([for C++17 std::optional support])
+have_optional=yes
+AC_TRY_COMPILE(
+	[#include <optional>],
+	[return std::optional<int>(0).value()],
+	AC_DEFINE(
+		[PQXX_HAVE_OPTIONAL],
+		1,
+		[Define if the compiler supports std::optional.]),
+	have_optional=no)
+AC_MSG_RESULT($have_optional)
+
+if test "$have_optional" != "yes"
+then
+AC_MSG_CHECKING([for experimental C++17 std::optional support])
+have_exp_optional=yes
+AC_TRY_COMPILE(
+	[#include <experimental/optional>],
+	[return std::experimental::optional<int>(0).value()],
+	AC_DEFINE(
+		[PQXX_HAVE_EXP_OPTIONAL],
+		1,
+		[Define if the compiler supports std::experimental::optional.]),
+	have_exp_optional=no)
+AC_MSG_RESULT($have_exp_optional)
+fi
+
+
+AC_MSG_CHECKING([for working <sys/select.h>])
+select_h=yes
+AC_TRY_COMPILE(
+	[
+		#include <cstring>
+		#include <sys/select.h>
+		using namespace std;
+	],
+	[select(0,0,0,0,0)],
+	AC_DEFINE(
+		PQXX_HAVE_SYS_SELECT_H,
+		1,
+		[
+			Define if the sys/select.h header defines a working
+			select() and friends, as per POSIX 1003.1-2001
+		]),
+	select_h=no)
+AC_MSG_RESULT($select_h)
+
+
+AC_MSG_CHECKING([for poll()])
+poll=yes
+AC_TRY_COMPILE(
+	[
+		#include <poll.h>
+		using namespace std;
+	],
+	[pollfd p = { 0,0,0 }; poll(&p,1,0)],
+	AC_DEFINE(
+		PQXX_HAVE_POLL,
+		1,
+		[
+			Define if the system has the poll() function
+			(mainly GNU/Linux)
+		]),
+	poll=no
+)
+AC_MSG_RESULT($poll)
+
+
+AC_MSG_CHECKING([if select() accepts NULL fdsets])
+select_accepts_null=yes
+AC_RUN_IFELSE([
+	AC_LANG_SOURCE(
+		[[
+			#ifdef PQXX_HAVE_SYS_SELECT_H
+			#include <sys/select.h>
+			#else
+			#include <ctime>
+			#include <sys/types.h>
+			#endif
+			#ifdef HAVE_UNISTD_H
+			#include <unistd.h>
+			#endif
+			#ifdef _WIN32
+			#include <winsock2.h>
+			#endif
+			using namespace std;
+			extern "C" int foo()
+			{
+				fd_set f;
+				FD_SET(1, &f);
+				return select(2,0,&f,&f,0) < 0;
+			}
+			int main() { return foo(); }
+		]])],
+	AC_DEFINE(
+		PQXX_SELECT_ACCEPTS_NULL,
+		1,
+		[Define if select() accepts NULL fd_set arguments]),
+	select_accepts_null=no,
+	select_accepts_null=no)
+AC_MSG_RESULT($select_accepts_null)
+
+
+
 # Add options to compiler command line, if compiler accepts it
 add_compiler_opts_if_ok() {
 	for option in $*
@@ -176,18 +306,6 @@ AC_TRY_COMPILE(
 	gcc_const_attr=yes)
 AC_MSG_RESULT($gcc_const_attr)
 
-AC_MSG_CHECKING([C++14 deprecation attribute])
-deprecated=yes
-AC_TRY_COMPILE(
-	[[[deprecated]] void f();],
-	[],
-	AC_DEFINE(
-		[PQXX_HAVE_DEPRECATED],
-		1,
-		[Define if compiler supports [[deprecated]] attribute]),
-	deprecated=no)
-AC_MSG_RESULT($deprecated)
-
 if test "$deprecated" != "yes"
 then
 AC_MSG_CHECKING([g++ deprecation attribute])
@@ -215,35 +333,7 @@ AC_TRY_COMPILE(
 	gcc_pure=yes)
 AC_MSG_RESULT($gcc_pure)
 
-fi
-
-
-AC_MSG_CHECKING([for C++17 std::optional support])
-have_optional=yes
-AC_TRY_COMPILE(
-	[#include <optional>],
-	[return std::optional<int>(0).value()],
-	AC_DEFINE(
-		[PQXX_HAVE_OPTIONAL],
-		1,
-		[Define if the compiler supports std::optional.]),
-	have_optional=no)
-AC_MSG_RESULT($have_optional)
-
-if test "$have_optional" != "yes"
-then
-AC_MSG_CHECKING([for experimental C++17 std::optional support])
-have_exp_optional=yes
-AC_TRY_COMPILE(
-	[#include <experimental/optional>],
-	[return std::experimental::optional<int>(0).value()],
-	AC_DEFINE(
-		[PQXX_HAVE_EXP_OPTIONAL],
-		1,
-		[Define if the compiler supports std::experimental::optional.]),
-	have_exp_optional=no)
-AC_MSG_RESULT($have_exp_optional)
-fi
+fi # End of gcc-specific part.
 
 
 # Find PostgreSQL includes and libraries
@@ -288,22 +378,6 @@ AC_MSG_NOTICE([using PostgreSQL libraries at $with_postgres_lib])
 AC_SUBST(with_postgres_lib)
 #POSTGRES_LIB="-R${with_postgres_lib}"
 AC_SUBST(POSTGRES_LIB)
-
-
-AC_HEADER_STDC
-
-
-AC_MSG_CHECKING([for C++11 support])
-AC_TRY_COMPILE(
-        [using foo = int;], [], [],
-	[AC_MSG_ERROR([
-Compiler could not compile basic C++11.
-
-Your compiler may be too old, or you may be able to force C++11 by installing
-the autoconf archive before configuring.  THere may also be a compiler option
-you need to set, such as "-stdc++11".
-])])
-AC_MSG_RESULT(yes)
 
 
 # We should be able to link socket-based programs.
@@ -404,81 +478,6 @@ The Oid typedef in libpq has changed.  Please notify the libpqxx authors of the
 change!
 ])])
 AC_MSG_RESULT(yes)
-
-
-AC_MSG_CHECKING([for working <sys/select.h>])
-select_h=yes
-AC_TRY_COMPILE(
-	[
-		#include <cstring>
-		#include <sys/select.h>
-		using namespace std;
-	],
-	[select(0,0,0,0,0)],
-	AC_DEFINE(
-		PQXX_HAVE_SYS_SELECT_H,
-		1,
-		[
-			Define if the sys/select.h header defines a working
-			select() and friends, as per POSIX 1003.1-2001
-		]),
-	select_h=no)
-AC_MSG_RESULT($select_h)
-
-
-AC_MSG_CHECKING([for poll()])
-poll=yes
-AC_TRY_COMPILE(
-	[
-		#include <poll.h>
-		using namespace std;
-	],
-	[pollfd p = { 0,0,0 }; poll(&p,1,0)],
-	AC_DEFINE(
-		PQXX_HAVE_POLL,
-		1,
-		[
-			Define if the system has the poll() function
-			(mainly GNU/Linux)
-		]),
-	poll=no
-)
-AC_MSG_RESULT($poll)
-
-
-AC_MSG_CHECKING([if select() accepts NULL fdsets])
-select_accepts_null=yes
-AC_RUN_IFELSE([
-	AC_LANG_SOURCE(
-		[[
-			#ifdef PQXX_HAVE_SYS_SELECT_H
-			#include <sys/select.h>
-			#else
-			#include <ctime>
-			#include <sys/types.h>
-			#endif
-			#ifdef HAVE_UNISTD_H
-			#include <unistd.h>
-			#endif
-			#ifdef _WIN32
-			#include <winsock2.h>
-			#endif
-			using namespace std;
-			extern "C" int foo()
-			{
-				fd_set f;
-				FD_SET(1, &f);
-				return select(2,0,&f,&f,0) < 0;
-			}
-			int main() { return foo(); }
-		]])],
-	AC_DEFINE(
-		PQXX_SELECT_ACCEPTS_NULL,
-		1,
-		[Define if select() accepts NULL fd_set arguments]),
-	select_accepts_null=no,
-	select_accepts_null=no)
-AC_MSG_RESULT($select_accepts_null)
 
 
 AC_PROG_MAKE_SET
