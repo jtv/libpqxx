@@ -52,9 +52,10 @@ buffer unescape(const unsigned char escaped[])
    * binarystring's buffer can be freed uniformly,
    */
   size_t unescaped_len = 0;
-  std::unique_ptr<unsigned char> A(
+  // TODO: Use make_unique once we require C++14.  Sooo much easier.
+  std::unique_ptr<unsigned char, void(*)(unsigned char *)> A(
 	PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped_len),
-	internal::freepqmem_templated<unsigned char>);
+	freepqmem_templated<unsigned char>);
   void *data = A.get();
   if (!data) throw std::bad_alloc();
   return to_buffer(data, unescaped_len);
