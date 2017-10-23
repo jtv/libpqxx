@@ -21,12 +21,11 @@ AC_SUBST(PQXX_ABI)
 
 AC_CONFIG_HEADER([include/pqxx/config.h])
 
-# default prefix for installs
+# Default prefix for installs.
 AC_PREFIX_DEFAULT(/usr/local)
 
 # Checks for programs.
 AC_PROG_CXX
-AC_PROG_CC
 AC_PROG_INSTALL
 AC_DISABLE_SHARED
 AC_PROG_LIBTOOL
@@ -55,7 +54,7 @@ fi
 
 AM_MAINTAINER_MODE
 
-# see if we want verbose compiler warnings
+# See if we want verbose compiler warnings.
 AC_MSG_CHECKING([maintainer mode])
 AC_ARG_ENABLE(maintainer-mode)
 AC_MSG_RESULT(${enable_maintainer_mode})
