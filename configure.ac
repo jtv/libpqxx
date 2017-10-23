@@ -293,6 +293,19 @@ AC_SUBST(POSTGRES_LIB)
 AC_HEADER_STDC
 
 
+AC_MSG_CHECKING([for C++11 support])
+AC_TRY_COMPILE(
+        [using foo = int;], [], [],
+	[AC_MSG_ERROR([
+Compiler could not compile basic C++11.
+
+Your compiler may be too old, or you may be able to force C++11 by installing
+the autoconf archive before configuring.  THere may also be a compiler option
+you need to set, such as "-stdc++11".
+])])
+AC_MSG_RESULT(yes)
+
+
 # We should be able to link socket-based programs.
 socklibok=no
 AC_SEARCH_LIBS(select, socket nsl ws2_32 wsock32 winsock, [socklibok=yes])
@@ -350,21 +363,7 @@ litmus test for a working libpq.
 AC_MSG_RESULT(yes)
 
 
-# Perform this check in C; autoconf's AC_HAVE_LIBRARY breaks in C++ because it
-# tries to call main()
-AC_LANG_PUSH(C)
-
 LDFLAGS="$LDFLAGS -L${with_postgres_lib}"
-
-AC_HAVE_LIBRARY(
-	pq,
-	[],
-	[AC_MSG_ERROR([
-Could not link to libpq.  Make sure you have the PostgreSQL client library
-installed, and that the library binary can be found in the location returned by
-"pg_config --libdir".
-])],
-	-L${with_postgres_lib})
 
 AC_CHECK_LIB(
 	[pq],
@@ -390,46 +389,6 @@ occurring in the file.
 # Remove redundant occurrances of -lpq
 LIBS=[$(echo "$LIBS" | sed -e 's/-lpq * -lpq\>/-lpq/g')]
 
-AC_LANG_POP(C)
-
-
-AC_MSG_CHECKING([for correct C++ linkage of basic libpq functions])
-AC_LINK_IFELSE([
-	AC_LANG_SOURCE([[
-		#include <${with_postgres_include}/libpq-fe.h>
-		int main(){return !PQexec(0,0);}
-		]])],
-	[],
-	[AC_MSG_ERROR([
-Linking a call to libpq failed in C++, even though it succeeded in C.  If your
-C and C++ compilers are very different beasts, this may mean that we do not have
-the right options for linking with it after all.  Alternatively, this may be
-caused by a bug in autoconf or automake.
-
-If you are configuring libpqxx using the --enable-maintainer-mode option, any
-compiler warnings for autoconf test programs will be treated as errors.  The
-problem may just go away if you run the configure script again but without the
-maintainer-mode option.  Please report such cases (including the config.log
-produced by the failed attempt) so future versions can attempt to work around
-the problem.
-
-Should this error occur even while not in maintainer mode, read the config.log
-file for more detailed information.  Look for the last error message, which may
-be several pages up from the end of the file.
-])])
-AC_MSG_RESULT(yes)
-
-AC_MSG_CHECKING([for C++11 support])
-AC_TRY_COMPILE(
-        [using foo = int;], [], [],
-	[AC_MSG_ERROR([
-Compiler could not compile basic C++11.
-
-Your compiler may be too old, or you may be able to force C++11 by installing
-the autoconf archive before configuring.  THere may also be a compiler option
-you need to set, such as "-stdc++11".
-])])
-AC_MSG_RESULT(yes)
 
 AC_MSG_CHECKING([that type of libpq's Oid is as expected])
 AC_TRY_COMPILE(
