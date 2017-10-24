@@ -677,6 +677,12 @@ FGREP
 EGREP
 GREP
 SED
+am__fastdepCC_FALSE
+am__fastdepCC_TRUE
+CCDEPMODE
+ac_ct_CC
+CFLAGS
+CC
 host_os
 host_vendor
 host_cpu
@@ -686,12 +692,6 @@ build_vendor
 build_cpu
 build
 LIBTOOL
-am__fastdepCC_FALSE
-am__fastdepCC_TRUE
-CCDEPMODE
-ac_ct_CC
-CFLAGS
-CC
 PQXX_ABI
 PQXXVERSION
 AM_BACKSLASH
@@ -4736,7 +4736,7 @@ PQXX_ABI=6.0
 ac_config_headers="$ac_config_headers include/pqxx/config.h"
 
 
-# default prefix for installs
+# Default prefix for installs.
 
 
 # Checks for programs.
@@ -4996,6 +4996,203 @@ ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+
+# Check whether --enable-shared was given.
+if test "${enable_shared+set}" = set; then :
+  enableval=$enable_shared; p=${PACKAGE-default}
+    case $enableval in
+    yes) enable_shared=yes ;;
+    no) enable_shared=no ;;
+    *)
+      enable_shared=no
+      # Look at the argument we got.  We use all the common list separators.
+      lt_save_ifs=$IFS; IFS=$IFS$PATH_SEPARATOR,
+      for pkg in $enableval; do
+	IFS=$lt_save_ifs
+	if test "X$pkg" = "X$p"; then
+	  enable_shared=yes
+	fi
+      done
+      IFS=$lt_save_ifs
+      ;;
+    esac
+else
+  enable_shared=no
+fi
+
+
+
+
+
+
+
+
+
+case `pwd` in
+  *\ * | *\	*)
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Libtool does not cope well with whitespace in \`pwd\`" >&5
+$as_echo "$as_me: WARNING: Libtool does not cope well with whitespace in \`pwd\`" >&2;} ;;
+esac
+
+
+
+macro_version='2.4.6'
+macro_revision='2.4.6'
+
+
+
+
+
+
+
+
+
+
+
+
+
+ltmain=$ac_aux_dir/ltmain.sh
+
+# Make sure we can run config.sub.
+$SHELL "$ac_aux_dir/config.sub" sun4 >/dev/null 2>&1 ||
+  as_fn_error $? "cannot run $SHELL $ac_aux_dir/config.sub" "$LINENO" 5
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking build system type" >&5
+$as_echo_n "checking build system type... " >&6; }
+if ${ac_cv_build+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_build_alias=$build_alias
+test "x$ac_build_alias" = x &&
+  ac_build_alias=`$SHELL "$ac_aux_dir/config.guess"`
+test "x$ac_build_alias" = x &&
+  as_fn_error $? "cannot guess build type; you must specify one" "$LINENO" 5
+ac_cv_build=`$SHELL "$ac_aux_dir/config.sub" $ac_build_alias` ||
+  as_fn_error $? "$SHELL $ac_aux_dir/config.sub $ac_build_alias failed" "$LINENO" 5
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_build" >&5
+$as_echo "$ac_cv_build" >&6; }
+case $ac_cv_build in
+*-*-*) ;;
+*) as_fn_error $? "invalid value of canonical build" "$LINENO" 5;;
+esac
+build=$ac_cv_build
+ac_save_IFS=$IFS; IFS='-'
+set x $ac_cv_build
+shift
+build_cpu=$1
+build_vendor=$2
+shift; shift
+# Remember, the first character of IFS is used to create $*,
+# except with old shells:
+build_os=$*
+IFS=$ac_save_IFS
+case $build_os in *\ *) build_os=`echo "$build_os" | sed 's/ /-/g'`;; esac
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking host system type" >&5
+$as_echo_n "checking host system type... " >&6; }
+if ${ac_cv_host+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test "x$host_alias" = x; then
+  ac_cv_host=$ac_cv_build
+else
+  ac_cv_host=`$SHELL "$ac_aux_dir/config.sub" $host_alias` ||
+    as_fn_error $? "$SHELL $ac_aux_dir/config.sub $host_alias failed" "$LINENO" 5
+fi
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_host" >&5
+$as_echo "$ac_cv_host" >&6; }
+case $ac_cv_host in
+*-*-*) ;;
+*) as_fn_error $? "invalid value of canonical host" "$LINENO" 5;;
+esac
+host=$ac_cv_host
+ac_save_IFS=$IFS; IFS='-'
+set x $ac_cv_host
+shift
+host_cpu=$1
+host_vendor=$2
+shift; shift
+# Remember, the first character of IFS is used to create $*,
+# except with old shells:
+host_os=$*
+IFS=$ac_save_IFS
+case $host_os in *\ *) host_os=`echo "$host_os" | sed 's/ /-/g'`;; esac
+
+
+# Backslashify metacharacters that are still active within
+# double-quoted strings.
+sed_quote_subst='s/\(["`$\\]\)/\\\1/g'
+
+# Same as above, but do not quote variable references.
+double_quote_subst='s/\(["`\\]\)/\\\1/g'
+
+# Sed substitution to delay expansion of an escaped shell variable in a
+# double_quote_subst'ed string.
+delay_variable_subst='s/\\\\\\\\\\\$/\\\\\\$/g'
+
+# Sed substitution to delay expansion of an escaped single quote.
+delay_single_quote_subst='s/'\''/'\'\\\\\\\'\''/g'
+
+# Sed substitution to avoid accidental globbing in evaled expressions
+no_glob_subst='s/\*/\\\*/g'
+
+ECHO='\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'
+ECHO=$ECHO$ECHO$ECHO$ECHO$ECHO
+ECHO=$ECHO$ECHO$ECHO$ECHO$ECHO$ECHO
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking how to print strings" >&5
+$as_echo_n "checking how to print strings... " >&6; }
+# Test print first, because it will be a builtin if present.
+if test "X`( print -r -- -n ) 2>/dev/null`" = X-n && \
+   test "X`print -r -- $ECHO 2>/dev/null`" = "X$ECHO"; then
+  ECHO='print -r --'
+elif test "X`printf %s $ECHO 2>/dev/null`" = "X$ECHO"; then
+  ECHO='printf %s\n'
+else
+  # Use this function as a fallback that always works.
+  func_fallback_echo ()
+  {
+    eval 'cat <<_LTECHO_EOF
+$1
+_LTECHO_EOF'
+  }
+  ECHO='func_fallback_echo'
+fi
+
+# func_echo_all arg...
+# Invoke $ECHO with all args, space-separated.
+func_echo_all ()
+{
+    $ECHO ""
+}
+
+case $ECHO in
+  printf*) { $as_echo "$as_me:${as_lineno-$LINENO}: result: printf" >&5
+$as_echo "printf" >&6; } ;;
+  print*) { $as_echo "$as_me:${as_lineno-$LINENO}: result: print -r" >&5
+$as_echo "print -r" >&6; } ;;
+  *) { $as_echo "$as_me:${as_lineno-$LINENO}: result: cat" >&5
+$as_echo "cat" >&6; } ;;
+esac
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -5721,203 +5918,6 @@ else
   am__fastdepCC_TRUE='#'
   am__fastdepCC_FALSE=
 fi
-
-
-
-# Check whether --enable-shared was given.
-if test "${enable_shared+set}" = set; then :
-  enableval=$enable_shared; p=${PACKAGE-default}
-    case $enableval in
-    yes) enable_shared=yes ;;
-    no) enable_shared=no ;;
-    *)
-      enable_shared=no
-      # Look at the argument we got.  We use all the common list separators.
-      lt_save_ifs=$IFS; IFS=$IFS$PATH_SEPARATOR,
-      for pkg in $enableval; do
-	IFS=$lt_save_ifs
-	if test "X$pkg" = "X$p"; then
-	  enable_shared=yes
-	fi
-      done
-      IFS=$lt_save_ifs
-      ;;
-    esac
-else
-  enable_shared=no
-fi
-
-
-
-
-
-
-
-
-
-case `pwd` in
-  *\ * | *\	*)
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Libtool does not cope well with whitespace in \`pwd\`" >&5
-$as_echo "$as_me: WARNING: Libtool does not cope well with whitespace in \`pwd\`" >&2;} ;;
-esac
-
-
-
-macro_version='2.4.6'
-macro_revision='2.4.6'
-
-
-
-
-
-
-
-
-
-
-
-
-
-ltmain=$ac_aux_dir/ltmain.sh
-
-# Make sure we can run config.sub.
-$SHELL "$ac_aux_dir/config.sub" sun4 >/dev/null 2>&1 ||
-  as_fn_error $? "cannot run $SHELL $ac_aux_dir/config.sub" "$LINENO" 5
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking build system type" >&5
-$as_echo_n "checking build system type... " >&6; }
-if ${ac_cv_build+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_build_alias=$build_alias
-test "x$ac_build_alias" = x &&
-  ac_build_alias=`$SHELL "$ac_aux_dir/config.guess"`
-test "x$ac_build_alias" = x &&
-  as_fn_error $? "cannot guess build type; you must specify one" "$LINENO" 5
-ac_cv_build=`$SHELL "$ac_aux_dir/config.sub" $ac_build_alias` ||
-  as_fn_error $? "$SHELL $ac_aux_dir/config.sub $ac_build_alias failed" "$LINENO" 5
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_build" >&5
-$as_echo "$ac_cv_build" >&6; }
-case $ac_cv_build in
-*-*-*) ;;
-*) as_fn_error $? "invalid value of canonical build" "$LINENO" 5;;
-esac
-build=$ac_cv_build
-ac_save_IFS=$IFS; IFS='-'
-set x $ac_cv_build
-shift
-build_cpu=$1
-build_vendor=$2
-shift; shift
-# Remember, the first character of IFS is used to create $*,
-# except with old shells:
-build_os=$*
-IFS=$ac_save_IFS
-case $build_os in *\ *) build_os=`echo "$build_os" | sed 's/ /-/g'`;; esac
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking host system type" >&5
-$as_echo_n "checking host system type... " >&6; }
-if ${ac_cv_host+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test "x$host_alias" = x; then
-  ac_cv_host=$ac_cv_build
-else
-  ac_cv_host=`$SHELL "$ac_aux_dir/config.sub" $host_alias` ||
-    as_fn_error $? "$SHELL $ac_aux_dir/config.sub $host_alias failed" "$LINENO" 5
-fi
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_host" >&5
-$as_echo "$ac_cv_host" >&6; }
-case $ac_cv_host in
-*-*-*) ;;
-*) as_fn_error $? "invalid value of canonical host" "$LINENO" 5;;
-esac
-host=$ac_cv_host
-ac_save_IFS=$IFS; IFS='-'
-set x $ac_cv_host
-shift
-host_cpu=$1
-host_vendor=$2
-shift; shift
-# Remember, the first character of IFS is used to create $*,
-# except with old shells:
-host_os=$*
-IFS=$ac_save_IFS
-case $host_os in *\ *) host_os=`echo "$host_os" | sed 's/ /-/g'`;; esac
-
-
-# Backslashify metacharacters that are still active within
-# double-quoted strings.
-sed_quote_subst='s/\(["`$\\]\)/\\\1/g'
-
-# Same as above, but do not quote variable references.
-double_quote_subst='s/\(["`\\]\)/\\\1/g'
-
-# Sed substitution to delay expansion of an escaped shell variable in a
-# double_quote_subst'ed string.
-delay_variable_subst='s/\\\\\\\\\\\$/\\\\\\$/g'
-
-# Sed substitution to delay expansion of an escaped single quote.
-delay_single_quote_subst='s/'\''/'\'\\\\\\\'\''/g'
-
-# Sed substitution to avoid accidental globbing in evaled expressions
-no_glob_subst='s/\*/\\\*/g'
-
-ECHO='\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'
-ECHO=$ECHO$ECHO$ECHO$ECHO$ECHO
-ECHO=$ECHO$ECHO$ECHO$ECHO$ECHO$ECHO
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking how to print strings" >&5
-$as_echo_n "checking how to print strings... " >&6; }
-# Test print first, because it will be a builtin if present.
-if test "X`( print -r -- -n ) 2>/dev/null`" = X-n && \
-   test "X`print -r -- $ECHO 2>/dev/null`" = "X$ECHO"; then
-  ECHO='print -r --'
-elif test "X`printf %s $ECHO 2>/dev/null`" = "X$ECHO"; then
-  ECHO='printf %s\n'
-else
-  # Use this function as a fallback that always works.
-  func_fallback_echo ()
-  {
-    eval 'cat <<_LTECHO_EOF
-$1
-_LTECHO_EOF'
-  }
-  ECHO='func_fallback_echo'
-fi
-
-# func_echo_all arg...
-# Invoke $ECHO with all args, space-separated.
-func_echo_all ()
-{
-    $ECHO ""
-}
-
-case $ECHO in
-  printf*) { $as_echo "$as_me:${as_lineno-$LINENO}: result: printf" >&5
-$as_echo "printf" >&6; } ;;
-  print*) { $as_echo "$as_me:${as_lineno-$LINENO}: result: print -r" >&5
-$as_echo "print -r" >&6; } ;;
-  *) { $as_echo "$as_me:${as_lineno-$LINENO}: result: cat" >&5
-$as_echo "cat" >&6; } ;;
-esac
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for a sed that does not truncate output" >&5
@@ -17439,7 +17439,7 @@ fi
 
 
 
-# see if we want verbose compiler warnings
+# See if we want verbose compiler warnings.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking maintainer mode" >&5
 $as_echo_n "checking maintainer mode... " >&6; }
 # Check whether --enable-maintainer-mode was given.
@@ -17458,6 +17458,223 @@ fi
 if test "${shared}" = "yes" ; then :
   CPPFLAGS="$CPPFLAGS -DPQXX_SHARED"
 fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for C++11 support" >&5
+$as_echo_n "checking for C++11 support... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+using foo = int;
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+else
+  as_fn_error $? "
+Compiler could not compile basic C++11.
+
+Your compiler may be too old, or you may be able to force C++11 by installing
+the autoconf archive before configuring.  THere may also be a compiler option
+you need to set, such as \"-stdc++11\".
+" "$LINENO" 5
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking C++14 deprecation attribute" >&5
+$as_echo_n "checking C++14 deprecation attribute... " >&6; }
+deprecated=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+[[deprecated]] void f();
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_DEPRECATED 1" >>confdefs.h
+
+else
+  deprecated=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $deprecated" >&5
+$as_echo "$deprecated" >&6; }
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for C++17 std::optional support" >&5
+$as_echo_n "checking for C++17 std::optional support... " >&6; }
+have_optional=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <optional>
+int
+main ()
+{
+return std::optional<int>(0).value()
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_OPTIONAL 1" >>confdefs.h
+
+else
+  have_optional=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_optional" >&5
+$as_echo "$have_optional" >&6; }
+
+if test "$have_optional" != "yes"
+then
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for experimental C++17 std::optional support" >&5
+$as_echo_n "checking for experimental C++17 std::optional support... " >&6; }
+have_exp_optional=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <experimental/optional>
+int
+main ()
+{
+return std::experimental::optional<int>(0).value()
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_EXP_OPTIONAL 1" >>confdefs.h
+
+else
+  have_exp_optional=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_exp_optional" >&5
+$as_echo "$have_exp_optional" >&6; }
+fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for working <sys/select.h>" >&5
+$as_echo_n "checking for working <sys/select.h>... " >&6; }
+select_h=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+		#include <cstring>
+		#include <sys/select.h>
+		using namespace std;
+
+int
+main ()
+{
+select(0,0,0,0,0)
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_SYS_SELECT_H 1" >>confdefs.h
+
+else
+  select_h=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $select_h" >&5
+$as_echo "$select_h" >&6; }
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for poll()" >&5
+$as_echo_n "checking for poll()... " >&6; }
+poll=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+		#include <poll.h>
+		using namespace std;
+
+int
+main ()
+{
+pollfd p = { 0,0,0 }; poll(&p,1,0)
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_POLL 1" >>confdefs.h
+
+else
+  poll=no
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $poll" >&5
+$as_echo "$poll" >&6; }
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if select() accepts NULL fdsets" >&5
+$as_echo_n "checking if select() accepts NULL fdsets... " >&6; }
+select_accepts_null=yes
+if test "$cross_compiling" = yes; then :
+  select_accepts_null=no
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+			#ifdef PQXX_HAVE_SYS_SELECT_H
+			#include <sys/select.h>
+			#else
+			#include <ctime>
+			#include <sys/types.h>
+			#endif
+			#ifdef HAVE_UNISTD_H
+			#include <unistd.h>
+			#endif
+			#ifdef _WIN32
+			#include <winsock2.h>
+			#endif
+			using namespace std;
+			extern "C" int foo()
+			{
+				fd_set f;
+				FD_SET(1, &f);
+				return select(2,0,&f,&f,0) < 0;
+			}
+			int main() { return foo(); }
+
+_ACEOF
+if ac_fn_cxx_try_run "$LINENO"; then :
+
+$as_echo "#define PQXX_SELECT_ACCEPTS_NULL 1" >>confdefs.h
+
+else
+  select_accepts_null=no
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $select_accepts_null" >&5
+$as_echo "$select_accepts_null" >&6; }
+
 
 
 # Add options to compiler command line, if compiler accepts it
@@ -17614,31 +17831,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_const_attr" >&5
 $as_echo "$gcc_const_attr" >&6; }
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking C++14 deprecation attribute" >&5
-$as_echo_n "checking C++14 deprecation attribute... " >&6; }
-deprecated=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-[[deprecated]] void f();
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_DEPRECATED 1" >>confdefs.h
-
-else
-  deprecated=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $deprecated" >&5
-$as_echo "$deprecated" >&6; }
-
 if test "$deprecated" != "yes"
 then
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ deprecation attribute" >&5
@@ -17692,61 +17884,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_pure" >&5
 $as_echo "$gcc_pure" >&6; }
 
-fi
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for C++17 std::optional support" >&5
-$as_echo_n "checking for C++17 std::optional support... " >&6; }
-have_optional=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <optional>
-int
-main ()
-{
-return std::optional<int>(0).value()
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_OPTIONAL 1" >>confdefs.h
-
-else
-  have_optional=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_optional" >&5
-$as_echo "$have_optional" >&6; }
-
-if test "$have_optional" != "yes"
-then
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for experimental C++17 std::optional support" >&5
-$as_echo_n "checking for experimental C++17 std::optional support... " >&6; }
-have_exp_optional=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <experimental/optional>
-int
-main ()
-{
-return std::experimental::optional<int>(0).value()
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_EXP_OPTIONAL 1" >>confdefs.h
-
-else
-  have_exp_optional=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_exp_optional" >&5
-$as_echo "$have_exp_optional" >&6; }
-fi
+fi # End of gcc-specific part.
 
 
 # Find PostgreSQL includes and libraries
@@ -17836,121 +17974,6 @@ fi
 $as_echo "$as_me: using PostgreSQL libraries at $with_postgres_lib" >&6;}
 
 #POSTGRES_LIB="-R${with_postgres_lib}"
-
-
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ANSI C header files" >&5
-$as_echo_n "checking for ANSI C header files... " >&6; }
-if ${ac_cv_header_stdc+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
-#include <float.h>
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-  ac_cv_header_stdc=yes
-else
-  ac_cv_header_stdc=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-if test $ac_cv_header_stdc = yes; then
-  # SunOS 4.x string.h does not declare mem*, contrary to ANSI.
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <string.h>
-
-_ACEOF
-if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  $EGREP "memchr" >/dev/null 2>&1; then :
-
-else
-  ac_cv_header_stdc=no
-fi
-rm -f conftest*
-
-fi
-
-if test $ac_cv_header_stdc = yes; then
-  # ISC 2.0.2 stdlib.h does not declare free, contrary to ANSI.
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <stdlib.h>
-
-_ACEOF
-if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  $EGREP "free" >/dev/null 2>&1; then :
-
-else
-  ac_cv_header_stdc=no
-fi
-rm -f conftest*
-
-fi
-
-if test $ac_cv_header_stdc = yes; then
-  # /bin/cc in Irix-4.0.5 gets non-ANSI ctype macros unless using -ansi.
-  if test "$cross_compiling" = yes; then :
-  :
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <ctype.h>
-#include <stdlib.h>
-#if ((' ' & 0x0FF) == 0x020)
-# define ISLOWER(c) ('a' <= (c) && (c) <= 'z')
-# define TOUPPER(c) (ISLOWER(c) ? 'A' + ((c) - 'a') : (c))
-#else
-# define ISLOWER(c) \
-		   (('a' <= (c) && (c) <= 'i') \
-		     || ('j' <= (c) && (c) <= 'r') \
-		     || ('s' <= (c) && (c) <= 'z'))
-# define TOUPPER(c) (ISLOWER(c) ? ((c) | 0x40) : (c))
-#endif
-
-#define XOR(e, f) (((e) && !(f)) || (!(e) && (f)))
-int
-main ()
-{
-  int i;
-  for (i = 0; i < 256; i++)
-    if (XOR (islower (i), ISLOWER (i))
-	|| toupper (i) != TOUPPER (i))
-      return 2;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_run "$LINENO"; then :
-
-else
-  ac_cv_header_stdc=no
-fi
-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-  conftest.$ac_objext conftest.beam conftest.$ac_ext
-fi
-
-fi
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_header_stdc" >&5
-$as_echo "$ac_cv_header_stdc" >&6; }
-if test $ac_cv_header_stdc = yes; then
-
-$as_echo "#define STDC_HEADERS 1" >>confdefs.h
-
-fi
 
 
 
@@ -18070,6 +18093,7 @@ the config.log file for more clues as to why this failed.
 fi
 
 
+
 as_ac_Header=`$as_echo "ac_cv_header_${with_postgres_include}/libpq-fe.h" | $as_tr_sh`
 ac_fn_cxx_check_header_mongrel "$LINENO" "${with_postgres_include}/libpq-fe.h" "$as_ac_Header" "$ac_includes_default"
 if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
@@ -18121,63 +18145,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 $as_echo "yes" >&6; }
 
 
-# Perform this check in C; autoconf's AC_HAVE_LIBRARY breaks in C++ because it
-# tries to call main()
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
 LDFLAGS="$LDFLAGS -L${with_postgres_lib}"
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lpq" >&5
-$as_echo_n "checking for main in -lpq... " >&6; }
-if ${ac_cv_lib_pq_main+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lpq -L${with_postgres_lib} $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-int
-main ()
-{
-return main ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_pq_main=yes
-else
-  ac_cv_lib_pq_main=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pq_main" >&5
-$as_echo "$ac_cv_lib_pq_main" >&6; }
-if test "x$ac_cv_lib_pq_main" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBPQ 1
-_ACEOF
-
-  LIBS="-lpq $LIBS"
-
-else
-  as_fn_error $? "
-Could not link to libpq.  Make sure you have the PostgreSQL client library
-installed, and that the library binary can be found in the location returned by
-\"pg_config --libdir\".
-" "$LINENO" 5
-fi
-ac_cv_lib_pq=ac_cv_lib_pq_main
-
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for PQexec in -lpq" >&5
 $as_echo_n "checking for PQexec in -lpq... " >&6; }
@@ -18204,7 +18172,7 @@ return PQexec ();
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
+if ac_fn_cxx_try_link "$LINENO"; then :
   ac_cv_lib_pq_PQexec=yes
 else
   ac_cv_lib_pq_PQexec=no
@@ -18244,75 +18212,6 @@ fi
 # Remove redundant occurrances of -lpq
 LIBS=$(echo "$LIBS" | sed -e 's/-lpq * -lpq\>/-lpq/g')
 
-ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for correct C++ linkage of basic libpq functions" >&5
-$as_echo_n "checking for correct C++ linkage of basic libpq functions... " >&6; }
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-		#include <${with_postgres_include}/libpq-fe.h>
-		int main(){return !PQexec(0,0);}
-
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-
-else
-  as_fn_error $? "
-Linking a call to libpq failed in C++, even though it succeeded in C.  If your
-C and C++ compilers are very different beasts, this may mean that we do not have
-the right options for linking with it after all.  Alternatively, this may be
-caused by a bug in autoconf or automake.
-
-If you are configuring libpqxx using the --enable-maintainer-mode option, any
-compiler warnings for autoconf test programs will be treated as errors.  The
-problem may just go away if you run the configure script again but without the
-maintainer-mode option.  Please report such cases (including the config.log
-produced by the failed attempt) so future versions can attempt to work around
-the problem.
-
-Should this error occur even while not in maintainer mode, read the config.log
-file for more detailed information.  Look for the last error message, which may
-be several pages up from the end of the file.
-" "$LINENO" 5
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for C++11 support" >&5
-$as_echo_n "checking for C++11 support... " >&6; }
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-using foo = int;
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-else
-  as_fn_error $? "
-Compiler could not compile basic C++11.
-
-Your compiler may be too old, or you may be able to force C++11 by installing
-the autoconf archive before configuring.  THere may also be a compiler option
-you need to set, such as \"-stdc++11\".
-" "$LINENO" 5
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking that type of libpq's Oid is as expected" >&5
 $as_echo_n "checking that type of libpq's Oid is as expected... " >&6; }
@@ -18342,113 +18241,6 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for working <sys/select.h>" >&5
-$as_echo_n "checking for working <sys/select.h>... " >&6; }
-select_h=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-		#include <cstring>
-		#include <sys/select.h>
-		using namespace std;
-
-int
-main ()
-{
-select(0,0,0,0,0)
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_SYS_SELECT_H 1" >>confdefs.h
-
-else
-  select_h=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $select_h" >&5
-$as_echo "$select_h" >&6; }
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for poll()" >&5
-$as_echo_n "checking for poll()... " >&6; }
-poll=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-		#include <poll.h>
-		using namespace std;
-
-int
-main ()
-{
-pollfd p = { 0,0,0 }; poll(&p,1,0)
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_POLL 1" >>confdefs.h
-
-else
-  poll=no
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $poll" >&5
-$as_echo "$poll" >&6; }
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if select() accepts NULL fdsets" >&5
-$as_echo_n "checking if select() accepts NULL fdsets... " >&6; }
-select_accepts_null=yes
-if test "$cross_compiling" = yes; then :
-  select_accepts_null=no
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-			#ifdef PQXX_HAVE_SYS_SELECT_H
-			#include <sys/select.h>
-			#else
-			#include <ctime>
-			#include <sys/types.h>
-			#endif
-			#ifdef HAVE_UNISTD_H
-			#include <unistd.h>
-			#endif
-			#ifdef _WIN32
-			#include <winsock2.h>
-			#endif
-			using namespace std;
-			extern "C" int foo()
-			{
-				fd_set f;
-				FD_SET(1, &f);
-				return select(2,0,&f,&f,0) < 0;
-			}
-			int main() { return foo(); }
-
-_ACEOF
-if ac_fn_cxx_try_run "$LINENO"; then :
-
-$as_echo "#define PQXX_SELECT_ACCEPTS_NULL 1" >>confdefs.h
-
-else
-  select_accepts_null=no
-fi
-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-  conftest.$ac_objext conftest.beam conftest.$ac_ext
-fi
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $select_accepts_null" >&5
-$as_echo "$select_accepts_null" >&6; }
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${MAKE-make} sets \$(MAKE)" >&5
