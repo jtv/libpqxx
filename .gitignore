@@ -18,6 +18,7 @@ pqxx-config
 test/pqxxlo.txt
 tools/pqxxthreadsafety
 tools/rmlo
+win32/common
 **/Makefile
 **/Makefile.in
 **/*.la

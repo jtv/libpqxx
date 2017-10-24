@@ -289,8 +289,8 @@ public:
   using iterator_type::iterator_category;
   using iterator_type::difference_type;
   using iterator_type::pointer;
-  using iterator_type::value_type;
-  using iterator_type::reference;
+  using value_type = iterator_type::value_type;
+  using reference = iterator_type::reference;
 
   const_reverse_row_iterator(const const_reverse_row_iterator &r) :	//[t82]
     const_row_iterator(r) {}
