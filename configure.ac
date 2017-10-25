@@ -119,26 +119,7 @@ AC_MSG_RESULT($have_exp_optional)
 fi
 
 
-AC_MSG_CHECKING([for working <sys/select.h>])
-select_h=yes
-AC_TRY_COMPILE(
-	[
-		#include <cstring>
-		#include <sys/select.h>
-		using namespace std;
-	],
-	[select(0,0,0,0,0)],
-	AC_DEFINE(
-		PQXX_HAVE_SYS_SELECT_H,
-		1,
-		[
-			Define if the sys/select.h header defines a working
-			select() and friends, as per POSIX 1003.1-2001
-		]),
-	select_h=no)
-AC_MSG_RESULT($select_h)
-
-
+# TODO: Use AX_HAVE_POLL()
 AC_MSG_CHECKING([for poll()])
 poll=yes
 AC_TRY_COMPILE(
@@ -158,6 +139,29 @@ AC_TRY_COMPILE(
 )
 AC_MSG_RESULT($poll)
 
+
+if test "$poll" != "yes"
+then
+# No poll(); try for select() instead.
+# TODO: Use AX_HAVE_SELECT()
+AC_MSG_CHECKING([for working <sys/select.h>])
+select_h=yes
+AC_TRY_COMPILE(
+	[
+		#include <cstring>
+		#include <sys/select.h>
+		using namespace std;
+	],
+	[select(0,0,0,0,0)],
+	AC_DEFINE(
+		PQXX_HAVE_SYS_SELECT_H,
+		1,
+		[
+			Define if the sys/select.h header defines a working
+			select() and friends, as per POSIX 1003.1-2001
+		]),
+	select_h=no)
+AC_MSG_RESULT($select_h)
 
 AC_MSG_CHECKING([if select() accepts NULL fdsets])
 select_accepts_null=yes
@@ -192,6 +196,7 @@ AC_RUN_IFELSE([
 	select_accepts_null=no,
 	select_accepts_null=no)
 AC_MSG_RESULT($select_accepts_null)
+fi # No poll()
 
 
 
@@ -293,6 +298,7 @@ then
     add_compiler_opts -fvisibility-inlines-hidden
 fi
 
+# TODO: Use AX_GCC_CONST_CALL()
 AC_MSG_CHECKING([g++ const attribute])
 gcc_const_attr=yes
 AC_TRY_COMPILE(
