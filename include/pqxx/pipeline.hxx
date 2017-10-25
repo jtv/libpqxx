@@ -156,7 +156,7 @@ private:
 
   using QueryMap = std::map<query_id,Query>;
 
-  struct getquery:std::unary_function<QueryMap::const_iterator,std::string>
+  struct getquery
   {
     getquery(){}	// Silences bogus warning in some gcc versions
     std::string operator()(QueryMap::const_iterator i) const

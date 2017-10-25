@@ -157,11 +157,10 @@ inline auto perform(const TRANSACTION_CALLBACK &callback, int attempts=3)
  * used to create a "clean" copy of your transactor for every attempt that
  * perform() makes to run it.
  */
-template<typename TRANSACTION=transaction<read_committed>>
-  class transactor :
-    public std::unary_function<TRANSACTION, void>
+template<typename TRANSACTION=transaction<read_committed>> class transactor
 {
 public:
+  using argument_type = TRANSACTION;
   explicit transactor(const std::string &TName="transactor") :		//[t04]
     m_name(TName) { }
 

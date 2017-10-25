@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <cstdio>
-#include <functional>
 #include <iostream>
 #include <iterator>
 
@@ -37,8 +36,12 @@ Add<CONTAINER> AdderFor(string K, CONTAINER &C)
 }
 
 
-struct Cmp : binary_function<pqxx::row, pqxx::row, bool>
+struct Cmp
 {
+  using first_argument_type = pqxx::row;
+  using second_argument_type = pqxx::row;
+  using result_type = bool;
+
   string Key;
 
   explicit Cmp(string K) : Key(K) {}
@@ -50,7 +53,7 @@ struct Cmp : binary_function<pqxx::row, pqxx::row, bool>
 };
 
 
-struct CountGreaterSmaller : unary_function<pqxx::row, void>
+struct CountGreaterSmaller
 {
   string Key;
   const result &R;

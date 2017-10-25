@@ -16,8 +16,6 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
-#include <functional>
-
 #include "pqxx/types"
 
 
@@ -48,8 +46,7 @@ class errorhandler_connection_base;
  * instruct the connection not to pass the message to further handlers by
  * returning "false."
  */
-class PQXX_LIBEXPORT errorhandler :
-	public std::unary_function<const char[], bool>
+class PQXX_LIBEXPORT errorhandler
 {
 public:
   explicit errorhandler(connection_base &);

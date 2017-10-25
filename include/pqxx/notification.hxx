@@ -50,8 +50,7 @@ namespace pqxx
  * same name.  An incoming notification is processed by invoking all receivers
  * (zero or more) of the same name.
  */
-class PQXX_LIBEXPORT PQXX_NOVTABLE notification_receiver :
-  public std::binary_function<const std::string &, int, void>
+class PQXX_LIBEXPORT PQXX_NOVTABLE notification_receiver
 {
 public:
   /// Register the receiver with a connection.
