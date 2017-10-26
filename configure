@@ -2949,7 +2949,7 @@ ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ex
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
-      ax_cxx_compile_cxx11_required=true
+  ax_cxx_compile_alternatives="11 0x"    ax_cxx_compile_cxx11_required=true
   ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -3264,7 +3264,8 @@ $as_echo "$ax_cv_cxx_compile_cxx11" >&6; }
   fi
 
     if test x$ac_success = xno; then
-    for switch in -std=gnu++11 -std=gnu++0x; do
+    for alternative in ${ax_cxx_compile_alternatives}; do
+      switch="-std=gnu++${alternative}"
       cachevar=`$as_echo "ax_cv_cxx_compile_cxx11_$switch" | $as_tr_sh`
       { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $CXX supports C++11 features with $switch" >&5
 $as_echo_n "checking whether $CXX supports C++11 features with $switch... " >&6; }
@@ -3585,16 +3586,17 @@ $as_echo "$ac_res" >&6; }
   fi
 
     if test x$ac_success = xno; then
-                for switch in -std=c++11 -std=c++0x +std=c++11 "-h std=c++11"; do
-      cachevar=`$as_echo "ax_cv_cxx_compile_cxx11_$switch" | $as_tr_sh`
-      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $CXX supports C++11 features with $switch" >&5
+                for alternative in ${ax_cxx_compile_alternatives}; do
+      for switch in -std=c++${alternative} +std=c++${alternative} "-h std=c++${alternative}"; do
+        cachevar=`$as_echo "ax_cv_cxx_compile_cxx11_$switch" | $as_tr_sh`
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $CXX supports C++11 features with $switch" >&5
 $as_echo_n "checking whether $CXX supports C++11 features with $switch... " >&6; }
 if eval \${$cachevar+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_save_CXX="$CXX"
-         CXX="$CXX $switch"
-         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+           CXX="$CXX $switch"
+           cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 
@@ -3889,17 +3891,21 @@ else
   eval $cachevar=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-         CXX="$ac_save_CXX"
+           CXX="$ac_save_CXX"
 fi
 eval ac_res=\$$cachevar
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
-      if eval test x\$$cachevar = xyes; then
-        CXX="$CXX $switch"
-        if test -n "$CXXCPP" ; then
-          CXXCPP="$CXXCPP $switch"
+        if eval test x\$$cachevar = xyes; then
+          CXX="$CXX $switch"
+          if test -n "$CXXCPP" ; then
+            CXXCPP="$CXXCPP $switch"
+          fi
+          ac_success=yes
+          break
         fi
-        ac_success=yes
+      done
+      if test x$ac_success = xyes; then
         break
       fi
     done
@@ -3925,6 +3931,7 @@ $as_echo "$as_me: No compiler with C++11 support was found" >&6;}
 $as_echo "#define HAVE_CXX11 1" >>confdefs.h
 
   fi
+
 
 
 
@@ -17569,36 +17576,7 @@ $as_echo "$have_exp_optional" >&6; }
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for working <sys/select.h>" >&5
-$as_echo_n "checking for working <sys/select.h>... " >&6; }
-select_h=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-		#include <cstring>
-		#include <sys/select.h>
-		using namespace std;
-
-int
-main ()
-{
-select(0,0,0,0,0)
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-$as_echo "#define PQXX_HAVE_SYS_SELECT_H 1" >>confdefs.h
-
-else
-  select_h=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $select_h" >&5
-$as_echo "$select_h" >&6; }
-
-
+# TODO: Use AX_HAVE_POLL()
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for poll()" >&5
 $as_echo_n "checking for poll()... " >&6; }
 poll=yes
@@ -17628,6 +17606,39 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $poll" >&5
 $as_echo "$poll" >&6; }
 
+
+if test "$poll" != "yes"
+then
+# No poll(); try for select() instead.
+# TODO: Use AX_HAVE_SELECT()
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for working <sys/select.h>" >&5
+$as_echo_n "checking for working <sys/select.h>... " >&6; }
+select_h=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+		#include <cstring>
+		#include <sys/select.h>
+		using namespace std;
+
+int
+main ()
+{
+select(0,0,0,0,0)
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_SYS_SELECT_H 1" >>confdefs.h
+
+else
+  select_h=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $select_h" >&5
+$as_echo "$select_h" >&6; }
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if select() accepts NULL fdsets" >&5
 $as_echo_n "checking if select() accepts NULL fdsets... " >&6; }
@@ -17674,6 +17685,7 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $select_accepts_null" >&5
 $as_echo "$select_accepts_null" >&6; }
+fi # No poll()
 
 
 
@@ -17806,6 +17818,7 @@ then
     add_compiler_opts -fvisibility-inlines-hidden
 fi
 
+# TODO: Use AX_GCC_CONST_CALL()
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ const attribute" >&5
 $as_echo_n "checking g++ const attribute... " >&6; }
 gcc_const_attr=yes
