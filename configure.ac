@@ -183,11 +183,37 @@ AC_RUN_IFELSE([
 	select_accepts_null=no,
 	select_accepts_null=no)
 AC_MSG_RESULT($select_accepts_null)
+
+# Some systems keep select() in a separate library which is not linked by
+# default.  See if we need one of those.
+socklibok=no
+AC_SEARCH_LIBS(select, socket nsl ws2_32 wsock32 winsock, [socklibok=yes])
+
+# Microsoft proprietary libraries do not work with code that is generated with
+# autoconf's SEARCH_LIBS macro, so we need to check manually and just use the
+# first socket library available.
+# We only do this if select() is not available by other means, to avoid picking
+# up an unnecessary Windows compatibility library on a non-Windows system.
+for l in ws2_32 wsock32 winsock
+do
+	if test "${socklibok}" != "yes"
+	then
+		AC_CHECK_LIB($l,main,LIBS="$LIBS -l$l";[socklibok=yes])
+	fi
+done
+
+if test "${socklibok}" != "yes"
+then
+	AC_MSG_ERROR([
+Could not figure out how to link a simple sockets-based program.  Please read
+the config.log file for more clues as to why this failed.
+])
+fi
+
 fi # No poll()
 
 
-
-# Add options to compiler command line, if compiler accepts it
+# Add options to compiler command line, if compiler accepts them.
 add_compiler_opts_if_ok() {
 	for option in $*
 	do
@@ -370,32 +396,6 @@ AC_MSG_NOTICE([using PostgreSQL libraries at $with_postgres_lib])
 AC_SUBST(with_postgres_lib)
 #POSTGRES_LIB="-R${with_postgres_lib}"
 AC_SUBST(POSTGRES_LIB)
-
-
-# We should be able to link socket-based programs.
-socklibok=no
-AC_SEARCH_LIBS(select, socket nsl ws2_32 wsock32 winsock, [socklibok=yes])
-
-# Microsoft proprietary libraries do not work with code that is generated with
-# autoconf's SEARCH_LIBS macro, so we need to check manually and just use the
-# first socket library available.
-# We only do this if select() is not available by other means, to avoid picking
-# up an unnecessary Windows compatibility library on a non-Windows system.
-for l in ws2_32 wsock32 winsock
-do
-	if test "${socklibok}" != "yes"
-	then
-		AC_CHECK_LIB($l,main,LIBS="$LIBS -l$l";[socklibok=yes])
-	fi
-done
-
-if test "${socklibok}" != "yes"
-then
-	AC_MSG_ERROR([
-Could not figure out how to link a simple sockets-based program.  Please read
-the config.log file for more clues as to why this failed.
-])
-fi
 
 
 AC_CHECK_HEADER(

@@ -17336,11 +17336,127 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $select_accepts_null" >&5
 $as_echo "$select_accepts_null" >&6; }
+
+# Some systems keep select() in a separate library which is not linked by
+# default.  See if we need one of those.
+socklibok=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing select" >&5
+$as_echo_n "checking for library containing select... " >&6; }
+if ${ac_cv_search_select+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_func_search_save_LIBS=$LIBS
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char select ();
+int
+main ()
+{
+return select ();
+  ;
+  return 0;
+}
+_ACEOF
+for ac_lib in '' socket nsl ws2_32 wsock32 winsock; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_cxx_try_link "$LINENO"; then :
+  ac_cv_search_select=$ac_res
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext
+  if ${ac_cv_search_select+:} false; then :
+  break
+fi
+done
+if ${ac_cv_search_select+:} false; then :
+
+else
+  ac_cv_search_select=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_select" >&5
+$as_echo "$ac_cv_search_select" >&6; }
+ac_res=$ac_cv_search_select
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+  socklibok=yes
+fi
+
+
+# Microsoft proprietary libraries do not work with code that is generated with
+# autoconf's SEARCH_LIBS macro, so we need to check manually and just use the
+# first socket library available.
+# We only do this if select() is not available by other means, to avoid picking
+# up an unnecessary Windows compatibility library on a non-Windows system.
+for l in ws2_32 wsock32 winsock
+do
+	if test "${socklibok}" != "yes"
+	then
+		as_ac_Lib=`$as_echo "ac_cv_lib_$l''_main" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -l$l" >&5
+$as_echo_n "checking for main in -l$l... " >&6; }
+if eval \${$as_ac_Lib+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-l$l  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  eval "$as_ac_Lib=yes"
+else
+  eval "$as_ac_Lib=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+eval ac_res=\$$as_ac_Lib
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
+  LIBS="$LIBS -l$l";socklibok=yes
+fi
+
+	fi
+done
+
+if test "${socklibok}" != "yes"
+then
+	as_fn_error $? "
+Could not figure out how to link a simple sockets-based program.  Please read
+the config.log file for more clues as to why this failed.
+" "$LINENO" 5
+fi
+
 fi # No poll()
 
 
-
-# Add options to compiler command line, if compiler accepts it
+# Add options to compiler command line, if compiler accepts them.
 add_compiler_opts_if_ok() {
 	for option in $*
 	do
@@ -17639,122 +17755,6 @@ $as_echo "$as_me: using PostgreSQL libraries at $with_postgres_lib" >&6;}
 
 #POSTGRES_LIB="-R${with_postgres_lib}"
 
-
-
-# We should be able to link socket-based programs.
-socklibok=no
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing select" >&5
-$as_echo_n "checking for library containing select... " >&6; }
-if ${ac_cv_search_select+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_func_search_save_LIBS=$LIBS
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char select ();
-int
-main ()
-{
-return select ();
-  ;
-  return 0;
-}
-_ACEOF
-for ac_lib in '' socket nsl ws2_32 wsock32 winsock; do
-  if test -z "$ac_lib"; then
-    ac_res="none required"
-  else
-    ac_res=-l$ac_lib
-    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
-  fi
-  if ac_fn_cxx_try_link "$LINENO"; then :
-  ac_cv_search_select=$ac_res
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext
-  if ${ac_cv_search_select+:} false; then :
-  break
-fi
-done
-if ${ac_cv_search_select+:} false; then :
-
-else
-  ac_cv_search_select=no
-fi
-rm conftest.$ac_ext
-LIBS=$ac_func_search_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_select" >&5
-$as_echo "$ac_cv_search_select" >&6; }
-ac_res=$ac_cv_search_select
-if test "$ac_res" != no; then :
-  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-  socklibok=yes
-fi
-
-
-# Microsoft proprietary libraries do not work with code that is generated with
-# autoconf's SEARCH_LIBS macro, so we need to check manually and just use the
-# first socket library available.
-# We only do this if select() is not available by other means, to avoid picking
-# up an unnecessary Windows compatibility library on a non-Windows system.
-for l in ws2_32 wsock32 winsock
-do
-	if test "${socklibok}" != "yes"
-	then
-		as_ac_Lib=`$as_echo "ac_cv_lib_$l''_main" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -l$l" >&5
-$as_echo_n "checking for main in -l$l... " >&6; }
-if eval \${$as_ac_Lib+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-l$l  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-int
-main ()
-{
-return main ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  eval "$as_ac_Lib=yes"
-else
-  eval "$as_ac_Lib=no"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-eval ac_res=\$$as_ac_Lib
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  LIBS="$LIBS -l$l";socklibok=yes
-fi
-
-	fi
-done
-
-if test "${socklibok}" != "yes"
-then
-	as_fn_error $? "
-Could not figure out how to link a simple sockets-based program.  Please read
-the config.log file for more clues as to why this failed.
-" "$LINENO" 5
-fi
 
 
 
