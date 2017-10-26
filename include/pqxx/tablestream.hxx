@@ -1,20 +1,14 @@
-/*-------------------------------------------------------------------------
+/** Definition of the pqxx::tablestream class.
  *
- *   FILE
- *	pqxx/tablestream.hxx
+ * pqxx::tablestream provides optimized batch access to a database table.
  *
- *   DESCRIPTION
- *      definition of the pqxx::tablestream class.
- *   pqxx::tablestream provides optimized batch access to a database table
- *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablestream instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablestream instead.
  *
  * Copyright (c) 2001-2017, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
- *
- *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_TABLESTREAM
 #define PQXX_H_TABLESTREAM
