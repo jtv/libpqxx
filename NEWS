@@ -5,6 +5,9 @@
  - Removed maketemporary.  We weren't using it.
  - Can now be built outside the source tree.
  - New, simpler, lambda-friendly transactor framework.
+ - Result rows can be passed around independently.
+ - New exec0(): perform query, expect zero rows of data.
+ - New exec1(): perform query, expect single row of data.
  - No longer defines Visual Studio's NOMINMAX in headers.
  - Much faster configure script.
 5.1.0
