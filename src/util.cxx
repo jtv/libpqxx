@@ -25,12 +25,6 @@
 using namespace pqxx::internal;
 
 
-constexpr char
-	pqxx::internal::sql_begin_work[] = "BEGIN",
-	pqxx::internal::sql_commit_work[] = "COMMIT",
-	pqxx::internal::sql_rollback_work[] = "ROLLBACK";
-
-
 pqxx::thread_safety_model pqxx::describe_thread_safety() noexcept
 {
   thread_safety_model model;
