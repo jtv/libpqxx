@@ -86,7 +86,7 @@
  *     // Start a transaction.  In libpqxx, you always work in one.
  *     pqxx::work w(c);
  *
- *     // connection::exec1() executes a query returning a single row of data.
+ *     // work::exec1() executes a query returning a single row of data.
  *     // We'll just ask the database to return the number 1 to us.
  *     pqxx::row r = w.exec1("SELECT 1");
  *
@@ -131,8 +131,8 @@
  *     pqxx::connection c;
  *     pqxx::work w(c);
  *
- *     // connection::exec() returns a full result set, which can consist of
- *     // any number of rows.
+ *     // work::exec() returns a full result set, which can consist of any
+ *     // number of rows.
  *     pqxx::result r = w.exec("SELECT " + w.quote(argv[1]));
  *
  *     // End our transaction here.  We can still use the result afterwards.
