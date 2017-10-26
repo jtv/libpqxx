@@ -2,14 +2,14 @@
 # likely to be faster than any other.
 LC_ALL=C
 
-AC_PREREQ(2.59)
+AC_PREREQ(2.69)
 AC_INIT(
 	libpqxx,
 	[m4_esyscmd_s([./tools/extract_version])],
 	[Jeroen T. Vermeulen])
 AC_LANG(C++)
 # Require C++11 at minimum.
-AX_CXX_COMPILE_STDCXX_11
+AX_CXX_COMPILE_STDCXX_11([noext])
 AC_CONFIG_SRCDIR([src/connection.cxx])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([config/m4])
@@ -63,19 +63,6 @@ AC_ARG_ENABLE(shared)
 AS_IF(
     [test "${shared}" = "yes" ],
     [CPPFLAGS="$CPPFLAGS -DPQXX_SHARED"])
-
-
-AC_MSG_CHECKING([for C++11 support])
-AC_TRY_COMPILE(
-        [using foo = int;], [], [],
-	[AC_MSG_ERROR([
-Compiler could not compile basic C++11.
-
-Your compiler may be too old, or you may be able to force C++11 by installing
-the autoconf archive before configuring.  THere may also be a compiler option
-you need to set, such as "-stdc++11".
-])])
-AC_MSG_RESULT(yes)
 
 
 AC_MSG_CHECKING([C++14 deprecation attribute])
