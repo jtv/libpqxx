@@ -139,7 +139,7 @@ AC_TRY_COMPILE(
 		#include <sys/select.h>
 		using namespace std;
 	],
-	[select(0,0,0,0,0)],
+	[select(0,nullptr,nullptr,nullptr,nullptr)],
 	AC_DEFINE(
 		PQXX_HAVE_SYS_SELECT_H,
 		1,
@@ -172,7 +172,7 @@ AC_RUN_IFELSE([
 			{
 				fd_set f;
 				FD_SET(1, &f);
-				return select(2,0,&f,&f,0) < 0;
+				return select(2,nullptr,&f,&f,nullptr) < 0;
 			}
 			int main() { return foo(); }
 		]])],
@@ -279,7 +279,14 @@ then
 		# "Iffy" g++ options.  Some reasonably current g++-like
 		# compilers may not support these.
 		add_compiler_opts_if_ok \
-			-fnothrow-opt
+			-fnothrow-opt \
+			-Wattribute-alias \
+			-Wcatch-value \
+			-Wformat=2 \
+			-Wstringop-overflow \
+			-Wsuggest-override \
+			-Wuninitialized \
+			-Wzero-as-null-pointer-constant
 	fi
 
 
@@ -416,7 +423,7 @@ In that case, make sure you have the latter installed as well.
 
 AC_MSG_CHECKING([for ability to compile source files using libpq])
 AC_TRY_COMPILE(
-	[#include<${with_postgres_include}/libpq-fe.h>],[PQexec(0,"")],
+	[#include<${with_postgres_include}/libpq-fe.h>],[PQexec(nullptr,"")],
 	[],
 	[AC_MSG_ERROR([
 Could not compile a call to a basic libpq function.  There must be something

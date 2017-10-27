@@ -17275,7 +17275,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 int
 main ()
 {
-select(0,0,0,0,0)
+select(0,nullptr,nullptr,nullptr,nullptr)
   ;
   return 0;
 }
@@ -17318,7 +17318,7 @@ else
 			{
 				fd_set f;
 				FD_SET(1, &f);
-				return select(2,0,&f,&f,0) < 0;
+				return select(2,nullptr,&f,&f,nullptr) < 0;
 			}
 			int main() { return foo(); }
 
@@ -17540,7 +17540,14 @@ then
 		# "Iffy" g++ options.  Some reasonably current g++-like
 		# compilers may not support these.
 		add_compiler_opts_if_ok \
-			-fnothrow-opt
+			-fnothrow-opt \
+			-Wattribute-alias \
+			-Wcatch-value \
+			-Wformat=2 \
+			-Wstringop-overflow \
+			-Wsuggest-override \
+			-Wuninitialized \
+			-Wzero-as-null-pointer-constant
 	fi
 
 
@@ -17787,7 +17794,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 int
 main ()
 {
-PQexec(0,"")
+PQexec(nullptr,"")
   ;
   return 0;
 }
