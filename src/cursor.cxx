@@ -398,7 +398,7 @@ void pqxx::icursorstream::remove_iterator(icursor_iterator *i) const noexcept
   {
     m_iterators = igate.get_next();
     if (m_iterators)
-      gate::icursor_iterator_icursorstream(*m_iterators).set_prev(0);
+      gate::icursor_iterator_icursorstream(*m_iterators).set_prev(nullptr);
   }
   else
   {
@@ -406,8 +406,8 @@ void pqxx::icursorstream::remove_iterator(icursor_iterator *i) const noexcept
     gate::icursor_iterator_icursorstream(*prev).set_next(next);
     if (next) gate::icursor_iterator_icursorstream(*next).set_prev(prev);
   }
-  igate.set_prev(0);
-  igate.set_next(0);
+  igate.set_prev(nullptr);
+  igate.set_next(nullptr);
 }
 
 

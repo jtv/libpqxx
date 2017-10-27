@@ -934,7 +934,7 @@ bool pqxx::connection_base::read_copy_line(std::string &Line)
   Line.erase();
   bool Result;
 
-  char *Buf = 0;
+  char *Buf = nullptr;
   const std::string query = "[END COPY]";
   switch (PQgetCopyData(m_conn, &Buf, false))
   {
@@ -1147,7 +1147,7 @@ pqxx::internal::reactivation_avoidance_exemption::
 
 namespace
 {
-void wait_fd(int fd, bool forwrite=false, timeval *tv=0)
+void wait_fd(int fd, bool forwrite=false, timeval *tv=nullptr)
 {
   if (fd < 0) throw pqxx::broken_connection();
 

@@ -73,7 +73,7 @@ void test_030(transaction_base &)
 	"Inconsistent field names.");
 
     PQXX_CHECK_EQUAL(
-	size_t(R[0][c].size()),
+	R[0][c].size(),
 	strlen(R[0][c].c_str()),
 	"Inconsistent field lengths.");
   }

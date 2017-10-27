@@ -128,7 +128,7 @@ void test_087(transaction_base &orgT)
     FD_ZERO(&fds);
     set_fdbit(fds,fd);
     timeval timeout = { 1, 0 };
-    select(fd+1, &fds, 0, &fds, &timeout);
+    select(fd+1, &fds, nullptr, &fds, &timeout);
     notifs = C.get_notifs();
   }
   cout << endl;

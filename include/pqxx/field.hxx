@@ -289,7 +289,7 @@ public:
   using pos_type = typename traits_type::pos_type;
   using off_type = typename traits_type::off_type;
 
-  basic_fieldstream(const field &F) : super(0), m_buf(F)
+  basic_fieldstream(const field &F) : super(nullptr), m_buf(F)
 	{ super::init(&m_buf); }
 
 private:

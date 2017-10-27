@@ -365,7 +365,7 @@ public:
 	size_type BufSize=512) :
     m_bufsize(BufSize),
     m_obj(T, O, mode),
-    m_g(0),
+    m_g(nullptr),
     m_p(nullptr)
 	{ initialize(mode); }
 
@@ -376,7 +376,7 @@ public:
 	size_type BufSize=512) :
     m_bufsize(BufSize),
     m_obj(T, O, mode),
-    m_g(0),
+    m_g(nullptr),
     m_p(nullptr)
 	{ initialize(mode); }
 
@@ -504,7 +504,7 @@ public:
 	dbtransaction &T,
         largeobject O,
 	largeobject::size_type BufSize=512) :
-    super(0),
+    super(nullptr),
     m_buf(T, O, std::ios::in, BufSize)
 	{ super::init(&m_buf); }
 
@@ -518,7 +518,7 @@ public:
 	dbtransaction &T,
         oid O,
 	largeobject::size_type BufSize=512) :
-    super(0),
+    super(nullptr),
     m_buf(T, O, std::ios::in, BufSize)
 	{ super::init(&m_buf); }
 
@@ -560,7 +560,7 @@ public:
 	dbtransaction &T,
         largeobject O,
 	largeobject::size_type BufSize=512) :
-    super(0),
+    super(nullptr),
     m_buf(T, O, std::ios::out, BufSize)
 	{ super::init(&m_buf); }
 
@@ -574,7 +574,7 @@ public:
 	dbtransaction &T,
 	oid O,
 	largeobject::size_type BufSize=512) :
-    super(0),
+    super(nullptr),
     m_buf(T, O, std::ios::out, BufSize)
 	{ super::init(&m_buf); }
 
@@ -629,7 +629,7 @@ public:
 	dbtransaction &T,
 	largeobject O,
 	largeobject::size_type BufSize=512) :
-    super(0),
+    super(nullptr),
     m_buf(T, O, std::ios::in | std::ios::out, BufSize)
 	{ super::init(&m_buf); }
 
@@ -643,7 +643,7 @@ public:
 	dbtransaction &T,
 	oid O,
 	largeobject::size_type BufSize=512) :
-    super(0),
+    super(nullptr),
     m_buf(T, O, std::ios::in | std::ios::out, BufSize)
 	{ super::init(&m_buf); }
 
