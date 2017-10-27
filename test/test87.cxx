@@ -124,11 +124,20 @@ void test_087(transaction_base &orgT)
 
     cout << ".";
     const int fd = C.sock();
-    fd_set fds;
-    FD_ZERO(&fds);
-    set_fdbit(fds,fd);
+
+    // File descriptor from which we wish to read.
+    fd_set read_fds;
+    FD_ZERO(&read_fds);
+    set_fdbit(read_fds,fd);
+
+    // File descriptor for which we want to see errors.  We can't just use
+    // the same fd_set for reading and errors: they're marked "restrict".
+    fd_set except_fds;
+    FD_ZERO(&except_fds);
+    set_fdbit(except_fds,fd);
+
     timeval timeout = { 1, 0 };
-    select(fd+1, &fds, nullptr, &fds, &timeout);
+    select(fd+1, &read_fds, nullptr, &except_fds, &timeout);
     notifs = C.get_notifs();
   }
   cout << endl;

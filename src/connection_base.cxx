@@ -1160,10 +1160,19 @@ void wait_fd(int fd, bool forwrite=false, timeval *tv=nullptr)
   poll(&pfd, 1, (tv ? int(tv->tv_sec*1000 + tv->tv_usec/1000) : -1));
 #elif PQXX_HAVE_SYS_SELECT_H
   // No poll()?  Our only alternative is select().  If that fails... fail.
-  fd_set s;
-  clear_fdmask(&s);
-  set_fdbit(fd, &s);
-  select(fd+1, (forwrite?fdset_none:&s), (forwrite?&s:fdset_none), &s, tv);
+  fd_set read_fds;
+  clear_fdmask(&read_fds);
+  if (!forwrite) set_fdbit(fd, &read_fds);
+
+  fd_set write_fds;
+  clear_fdmask(&write_fds);
+  if (forwrite) set_fdbit(fd, &write_fds);
+
+  fd_set except_fds;
+  clear_fdmask(&except_fds);
+  set_fdbit(fd, &except_fds);
+
+  select(fd+1, &read_fds, &write_fds, &except_fds, tv);
 #else
 #error "Could not find support for either poll() or select()."
 #endif
