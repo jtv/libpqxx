@@ -282,7 +282,12 @@ then
 			-fnothrow-opt \
 			-Wattribute-alias \
 			-Wcatch-value \
+			-Wextra-semi \
 			-Wformat=2 \
+			-Wint-in-bool-context \
+			-Wlogical-op \
+			-Wmissing-field-initializers \
+			-Wrestrict \
 			-Wstringop-overflow \
 			-Wsuggest-override \
 			-Wuninitialized \
