@@ -1,9 +1,13 @@
 autom4te.cache
 ChangeLog
+confdefs.h
 config.log
 config.status
 config/compile
 config/test-driver
+conftest
+conftest.cpp
+conftest.err
 doc/Doxyfile
 doc/html/Reference
 doc/html/Tutorial
