@@ -23,7 +23,7 @@ public:
   {
   }
 
-  virtual void operator()(const string &, int be_pid)
+  virtual void operator()(const string &, int be_pid) override
   {
     m_done = true;
     PQXX_CHECK_EQUAL(
