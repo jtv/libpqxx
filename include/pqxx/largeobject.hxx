@@ -366,7 +366,7 @@ public:
     m_bufsize(BufSize),
     m_obj(T, O, mode),
     m_g(0),
-    m_p(0)
+    m_p(nullptr)
 	{ initialize(mode); }
 
   largeobject_streambuf(						//[t48]
@@ -377,7 +377,7 @@ public:
     m_bufsize(BufSize),
     m_obj(T, O, mode),
     m_g(0),
-    m_p(0)
+    m_p(nullptr)
 	{ initialize(mode); }
 
   virtual ~largeobject_streambuf() noexcept
