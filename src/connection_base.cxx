@@ -1143,14 +1143,14 @@ void wait_fd(int fd, bool forwrite=false, timeval *tv=nullptr)
   if (fd < 0) throw pqxx::broken_connection();
 
 #if defined(_WIN32)
-  const short events = (forwrite? POLLWRNORM | POLLRDNORM);
+  const short events = (forwrite ? POLLWRNORM : POLLRDNORM);
   WSAPOLLFD fdarray{fd, events, 0};
-  WSAPoll(&fdarray, 1, tv_miliseconds(tv));
+  WSAPoll(&fdarray, 1, tv_milliseconds(tv));
   // TODO: Report errors.
 #elif defined(HAVE_POLL)
   const short events = short(
         POLLERR|POLLHUP|POLLNVAL | (forwrite?POLLOUT:POLLIN));
-  pollfd pfd = {fd, events, 0};
+  pollfd pfd{fd, events, 0};
   poll(&pfd, 1, tv_milliseconds(tv));
   // TODO: Report errors.
 #else
