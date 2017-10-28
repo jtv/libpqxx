@@ -48,7 +48,7 @@ public:
   using difference_type = result_difference_type;
 
   const_result_iterator() noexcept : row(result(), 0) {}
-  explicit const_result_iterator(const row &t) noexcept : row(t) {}
+  const_result_iterator(const row &t) noexcept : row(t) {}
 
   /**
    * @name Dereferencing operators
