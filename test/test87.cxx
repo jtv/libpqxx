@@ -4,18 +4,21 @@
 #include <ctime>
 #include <iostream>
 
-#if defined(PQXX_HAVE_SYS_SELECT_H)
+#if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
 #else
 #include <sys/types.h>
-#if defined(PQXX_HAVE_UNISTD_H)
+#if defined(HAVE_SYS_TIME_H)
+#include <sys/time.h>
+#endif
+#if defined(HAVE_UNISTD_H)
 #include <unistd.h>
 #endif
 #if defined(_WIN32)
 #define NOMINMAX
 #include <winsock2.h>
 #endif
-#endif // PQXX_HAVE_SYS_SELECT_H
+#endif // HAVE_SYS_SELECT_H
 
 #include "test_helpers.hxx"
 

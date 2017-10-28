@@ -106,83 +106,21 @@ AC_MSG_RESULT($have_exp_optional)
 fi
 
 
-# TODO: Use AX_HAVE_POLL()
-AC_MSG_CHECKING([for poll()])
-poll=yes
-AC_TRY_COMPILE(
-	[
-		#include <poll.h>
-		using namespace std;
-	],
-	[pollfd p = { 0,0,0 }; poll(&p,1,0)],
-	AC_DEFINE(
-		PQXX_HAVE_POLL,
-		1,
-		[
-			Define if the system has the poll() function
-			(mainly GNU/Linux)
-		]),
-	poll=no
-)
-AC_MSG_RESULT($poll)
+AX_HAVE_POLL(
+        [AX_CONFIG_FEATURE_ENABLE(poll)],
+        [AX_CONFIG_FEATURE_DISABLE(poll)])
+AX_CONFIG_FEATURE([poll], [System supports poll().], [HAVE_POLL], [System supports poll().])
 
-
-if test "$poll" != "yes"
+if test "$ax_cv_have_poll" != "yes"
 then
 # No poll(); try for select() instead.
-# TODO: Use AX_HAVE_SELECT()
-AC_MSG_CHECKING([for working <sys/select.h>])
-select_h=yes
-AC_TRY_COMPILE(
-	[
-		#include <cstring>
-		#include <sys/select.h>
-		using namespace std;
-	],
-	[select(0,nullptr,nullptr,nullptr,nullptr)],
-	AC_DEFINE(
-		PQXX_HAVE_SYS_SELECT_H,
-		1,
-		[
-			Define if the sys/select.h header defines a working
-			select() and friends, as per POSIX 1003.1-2001
-		]),
-	select_h=no)
-AC_MSG_RESULT($select_h)
+select_h=no
+AC_CHECK_HEADERS([sys/select.h], [select_h=yes])
 
-AC_MSG_CHECKING([if select() accepts NULL fdsets])
-select_accepts_null=yes
-AC_RUN_IFELSE([
-	AC_LANG_SOURCE(
-		[[
-			#ifdef PQXX_HAVE_SYS_SELECT_H
-			#include <sys/select.h>
-			#else
-			#include <ctime>
-			#include <sys/types.h>
-			#endif
-			#ifdef HAVE_UNISTD_H
-			#include <unistd.h>
-			#endif
-			#ifdef _WIN32
-			#include <winsock2.h>
-			#endif
-			using namespace std;
-			extern "C" int foo()
-			{
-				fd_set f;
-				FD_SET(1, &f);
-				return select(2,nullptr,&f,&f,nullptr) < 0;
-			}
-			int main() { return foo(); }
-		]])],
-	AC_DEFINE(
-		PQXX_SELECT_ACCEPTS_NULL,
-		1,
-		[Define if select() accepts NULL fd_set arguments]),
-	select_accepts_null=no,
-	select_accepts_null=no)
-AC_MSG_RESULT($select_accepts_null)
+if test "$select_h" != "yes"
+then
+AC_CHECK_HEADERS([sys/time.h])
+fi
 
 # Some systems keep select() in a separate library which is not linked by
 # default.  See if we need one of those.

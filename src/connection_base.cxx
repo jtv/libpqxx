@@ -19,20 +19,28 @@
 #include <memory>
 #include <stdexcept>
 
-#ifdef PQXX_HAVE_SYS_SELECT_H
+#if defined(_WIN32)
+// Includes for WSAPoll().
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <mstcpip.h>
+#elif defined(HAVE_POLL)
+// Include for poll().
+#include <poll.h>
+#elif defined(HAVE_SYS_SELECT_H)
+// Include for select() on (recent) POSIX systems.
 #include <sys/select.h>
 #else
+// Includes for select() according to various older standards.
+#if defined(HAVE_SYS_TYPES_H)
 #include <sys/types.h>
-#if defined(_WIN32)
-#include <winsock2.h>
 #endif
 #if defined(HAVE_UNISTD_H)
 #include <unistd.h>
 #endif
-#endif // PQXX_HAVE_SYS_SELECT_H
-
-#ifdef PQXX_HAVE_POLL
-#include <poll.h>
+#if defined(HAVE_SYS_TIME_H)
+#include <sys/time.h>
+#endif
 #endif
 
 #include "libpq-fe.h"
@@ -59,33 +67,6 @@ using namespace pqxx::prepare;
 
 namespace
 {
-#ifndef PQXX_HAVE_POLL
-#ifdef PQXX_SELECT_ACCEPTS_NULL
-  // The always-empty fd_set
-fd_set *const fdset_none = nullptr;
-#else	// PQXX_SELECT_ACCEPTS_NULL
-fd_set emptyfd;	// Relies on zero-initialization
-fd_set *const fdset_none = &emptyfd;
-#endif	// PQXX_SELECT_ACCEPTS_NULL
-#endif  // !PQXX_HAVE_POLL
-
-
-#ifndef PQXX_HAVE_POLL
-// Concentrate stupid "old-style cast" warnings for GNU libc in one place, and
-// by using "C" linkage, perhaps silence them altogether.
-void set_fdbit(int f, fd_set *s)
-{
-  FD_SET(f, s);
-}
-
-
-void clear_fdmask(fd_set *mask)
-{
-  FD_ZERO(mask);
-}
-#endif
-
-
 extern "C"
 {
 // The PQnoticeProcessor that receives an error or warning from libpq and sends
@@ -1147,34 +1128,47 @@ pqxx::internal::reactivation_avoidance_exemption::
 
 namespace
 {
+#if defined(_WIN32) || defined(HAVE_POLL)
+// Convert a timeval to milliseconds, or -1 if no timeval is given.
+inline int tv_milliseconds(timeval *tv = nullptr)
+{
+  return tv ? int(tv->tv_sec * 1000 + tv->tv_usec/1000) : -1;
+}
+#endif
+
+
+/// Wait for an fd to become free for reading/writing.  Optional timeout.
 void wait_fd(int fd, bool forwrite=false, timeval *tv=nullptr)
 {
   if (fd < 0) throw pqxx::broken_connection();
 
-#ifdef PQXX_HAVE_POLL
-  pollfd pfd = {
-    fd,
-    short(POLLERR|POLLHUP|POLLNVAL | (forwrite?POLLOUT:POLLIN)),
-    0,
-    };
-  poll(&pfd, 1, (tv ? int(tv->tv_sec*1000 + tv->tv_usec/1000) : -1));
-#elif PQXX_HAVE_SYS_SELECT_H
-  // No poll()?  Our only alternative is select().  If that fails... fail.
+#if defined(_WIN32)
+  const short events = (forwrite? POLLWRNORM | POLLRDNORM);
+  WSAPOLLFD fdarray{fd, events, 0};
+  WSAPoll(&fdarray, 1, tv_miliseconds(tv));
+  // TODO: Report errors.
+#elif defined(HAVE_POLL)
+  const short events = short(
+        POLLERR|POLLHUP|POLLNVAL | (forwrite?POLLOUT:POLLIN));
+  pollfd pfd = {fd, events, 0};
+  poll(&pfd, 1, tv_milliseconds(tv));
+  // TODO: Report errors.
+#else
+  // No poll()?  Our last option is select().
   fd_set read_fds;
-  clear_fdmask(&read_fds);
-  if (!forwrite) set_fdbit(fd, &read_fds);
+  FD_ZERO(&read_fds);
+  if (!forwrite) FD_SET(fd, &read_fds);
 
   fd_set write_fds;
-  clear_fdmask(&write_fds);
-  if (forwrite) set_fdbit(fd, &write_fds);
+  FD_ZERO(&write_fds);
+  if (forwrite) FD_SET(fd, &write_fds);
 
   fd_set except_fds;
-  clear_fdmask(&except_fds);
-  set_fdbit(fd, &except_fds);
+  FD_ZERO(&except_fds);
+  FD_SET(fd, &except_fds);
 
   select(fd+1, &read_fds, &write_fds, &except_fds, tv);
-#else
-#error "Could not find support for either poll() or select()."
+  // TODO: Report errors.
 #endif
 }
 } // namespace

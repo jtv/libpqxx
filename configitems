@@ -1,3 +1,6 @@
+HAVE_POLL       internal        compiler
+HAVE_SYS_SELECT_H	internal	compiler
+HAVE_SYS_TIME_H internal        compiler
 HAVE_SYS_TYPES_H	internal	compiler
 HAVE_UNISTD_H	internal	compiler
 PACKAGE	internal	autotools
@@ -13,9 +16,6 @@ PQXX_HAVE_DEPRECATED	public	compiler
 PQXX_HAVE_GCC_VISIBILITY	internal	compiler
 PQXX_HAVE_OPTIONAL	public	compiler
 PQXX_HAVE_EXP_OPTIONAL	public	compiler
-PQXX_HAVE_POLL	internal	compiler
-PQXX_HAVE_SYS_SELECT_H	internal	compiler
 PQXX_SEEKDIRS_MATCH_C	internal	compiler
 PQXX_PQ_IN_NAMESPACE	public	compiler
-PQXX_SELECT_ACCEPTS_NULL	internal	compiler
 VERSION	internal	autotools

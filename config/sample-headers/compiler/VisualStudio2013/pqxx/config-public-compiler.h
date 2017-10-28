@@ -1,2 +1,1 @@
 #define PQXX_PQ_IN_NAMESPACE 1
-#define PQXX_HAVE_STRERROR_S 1
