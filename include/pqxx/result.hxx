@@ -219,7 +219,7 @@ private:
   friend class pqxx::internal::gate::result_connection;
   friend class pqxx::internal::gate::result_row;
   bool operator!() const noexcept { return !m_data.get(); }
-  operator bool() const noexcept { return m_data.get(); }
+  operator bool() const noexcept { return m_data.get() != nullptr; }
 
   [[noreturn]] PQXX_PRIVATE void ThrowSQLError(
 	const std::string &Err,
