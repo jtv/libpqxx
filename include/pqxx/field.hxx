@@ -175,9 +175,13 @@ public:
 protected:
   const result *home() const noexcept { return m_home; }
   size_t idx() const noexcept { return m_row; }
-  row_size_type col() const noexcept { return m_col; }
+  row_size_type col() const noexcept { return row_size_type(m_col); }
 
-  row_size_type m_col;
+  /**
+   * You'd expect this to be a size_t, but due to the way reverse iterators
+   * are related to regular iterators, it must be allowed to underflow to -1.
+   */
+  long m_col;
 
 private:
   /// Implementation for get().
