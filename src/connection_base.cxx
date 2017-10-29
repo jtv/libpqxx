@@ -1144,7 +1144,7 @@ void wait_fd(int fd, bool forwrite=false, timeval *tv=nullptr)
 
 #if defined(_WIN32)
   const short events = (forwrite ? POLLWRNORM : POLLRDNORM);
-  WSAPOLLFD fdarray{fd, events, 0};
+  WSAPOLLFD fdarray{SOCKET(fd), events, 0};
   WSAPoll(&fdarray, 1, tv_milliseconds(tv));
   // TODO: Report errors.
 #elif defined(HAVE_POLL)
