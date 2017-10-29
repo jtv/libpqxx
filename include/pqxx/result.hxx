@@ -276,7 +276,7 @@ inline void from_string(const field &F, T &Obj)				//[t46]
 	{ from_string(F.c_str(), Obj, F.size()); }
 
 /// Convert a field to a string.
-template<> std::string to_string(const field &Obj);			//[t74]
+template<> PQXX_LIBEXPORT std::string to_string(const field &Obj);	//[t74]
 } // namespace pqxx
 #include "pqxx/compiler-internal-post.hxx"
 #endif
