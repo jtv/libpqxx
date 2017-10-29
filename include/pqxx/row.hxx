@@ -193,7 +193,7 @@ protected:
   /// Row number.
   /**
    * You'd expect this to be a size_t, but due to the way reverse iterators
-   * related to regular iterators, it must be allowed to underflow to -1.
+   * are related to regular iterators, it must be allowed to underflow to -1.
    */
   long m_index = 0;
   /// First column in slice.  This row ignores lower-numbered columns.
