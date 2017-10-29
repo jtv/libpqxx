@@ -41,6 +41,7 @@ class const_reverse_result_iterator;
 class const_reverse_row_iterator;
 class const_row_iterator;
 class dbtransaction;
+class field;
 class largeobjectaccess;
 class notification_receiver;
 class range_error;

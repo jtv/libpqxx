@@ -430,3 +430,10 @@ pqxx::const_reverse_result_iterator::operator--(int)
   iterator_type::operator++();
   return tmp;
 }
+
+
+template<>
+std::string pqxx::to_string(const field &Obj)
+{
+  return std::string(Obj.c_str(), Obj.size());
+}

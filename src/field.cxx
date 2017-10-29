@@ -39,41 +39,41 @@ bool pqxx::field::operator==(const field &rhs) const
 
 const char *pqxx::field::name() const
 {
-  return home()->column_name(col());
+  return home().column_name(col());
 }
 
 
 pqxx::oid pqxx::field::type() const
 {
-  return home()->column_type(col());
+  return home().column_type(col());
 }
 
 
 pqxx::oid pqxx::field::table() const
 {
-  return home()->column_table(col());
+  return home().column_table(col());
 }
 
 
 pqxx::row::size_type pqxx::field::table_column() const
 {
-  return home()->table_column(col());
+  return home().table_column(col());
 }
 
 
 const char *pqxx::field::c_str() const
 {
-  return home()->GetValue(idx(), col());
+  return home().GetValue(idx(), col());
 }
 
 
 bool pqxx::field::is_null() const noexcept
 {
-  return home()->GetIsNull(idx(), col());
+  return home().GetIsNull(idx(), col());
 }
 
 
 pqxx::field::size_type pqxx::field::size() const noexcept
 {
-  return home()->GetLength(idx(), col());
+  return home().GetLength(idx(), col());
 }

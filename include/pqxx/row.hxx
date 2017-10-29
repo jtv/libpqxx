@@ -369,7 +369,7 @@ inline const_row_iterator
 const_row_iterator::operator+(difference_type o) const
 {
   return const_row_iterator(
-	row(*home(), idx()),
+	row(home(), idx()),
 	size_type(difference_type(col()) + o));
 }
 
@@ -381,7 +381,7 @@ inline const_row_iterator
 const_row_iterator::operator-(difference_type o) const
 {
   return const_row_iterator(
-	row(*home(), idx()),
+	row(home(), idx()),
 	size_type(difference_type(col()) - o));
 }
 

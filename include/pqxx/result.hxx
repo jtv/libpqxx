@@ -20,7 +20,7 @@
 #include <stdexcept>
 
 #include "pqxx/except"
-#include "pqxx/field"
+#include "pqxx/types"
 #include "pqxx/util"
 
 /* Methods tested in eg. self-test program test001 are marked with "//[t01]"
@@ -230,8 +230,12 @@ private:
   friend class pqxx::internal::gate::result_sql_cursor;
   PQXX_PURE const char *CmdStatus() const noexcept;
 };
+} // namespace pqxx
 
+#include "pqxx/result_iterator.hxx"
 
+namespace pqxx
+{
 /// Write a result field to any type of stream
 /** This can be convenient when writing a field to an output stream.  More
  * importantly, it lets you write a field to e.g. a @c stringstream which you
@@ -262,20 +266,13 @@ inline std::basic_ostream<CHAR> &operator<<(
 }
 
 
-/// Convert a field's string contents to another type
+/// Convert a field's string contents to another type.
 template<typename T>
 inline void from_string(const field &F, T &Obj)				//[t46]
 	{ from_string(F.c_str(), Obj, F.size()); }
 
-/// Convert a field to a string
-template<>
-inline std::string to_string(const field &Obj)				//[t74]
-	{ return std::string(Obj.c_str(), Obj.size()); }
-
+/// Convert a field to a string.
+template<> std::string to_string(const field &Obj);			//[t74]
 } // namespace pqxx
-
-#include "pqxx/result_iterator.hxx"
-
 #include "pqxx/compiler-internal-post.hxx"
-
 #endif
