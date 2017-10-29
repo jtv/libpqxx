@@ -198,6 +198,7 @@ then
 			-Wendif-labels \
 			-Wextra \
 			-Wfloat-equal \
+			-Wformat=2 \
 			-Wformat-security \
 			-Wmissing-include-dirs \
 			-Wno-div-by-zero \
@@ -219,7 +220,6 @@ then
 			-fnothrow-opt \
 			-Wattribute-alias \
 			-Wextra-semi \
-			-Wformat=2 \
 			-Wlogical-op \
 			-Wrestrict \
 			-Wstringop-overflow \
