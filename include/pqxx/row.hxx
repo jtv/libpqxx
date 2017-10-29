@@ -110,7 +110,8 @@ public:
 
   void swap(row &) noexcept;						//[t11]
 
-  size_t rownumber() const noexcept { return m_index; }			//[t11]
+  /// Row number, assuming this is a real row and not end()/rend().
+  size_t rownumber() const noexcept { return size_t(m_index); }		//[t11]
 
   /**
    * @name Column information

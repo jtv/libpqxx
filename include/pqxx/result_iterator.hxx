@@ -79,9 +79,9 @@ public:
   const_result_iterator &operator--() { --m_index; return *this; }	//[t12]
 
   const_result_iterator &operator+=(difference_type i)			//[t12]
-      { m_index = size_type(difference_type(m_index) + i); return *this; }
+      { m_index += i; return *this; }
   const_result_iterator &operator-=(difference_type i)			//[t12]
-      { m_index = size_type(difference_type(m_index) - i); return *this; }
+      { m_index -= i; return *this; }
   //@}
 
   /**
