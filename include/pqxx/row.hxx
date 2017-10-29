@@ -191,7 +191,11 @@ protected:
   /// Result set of which this is one row.
   result m_result;
   /// Row number.
-  size_t m_index = 0;
+  /**
+   * You'd expect this to be a size_t, but due to the way reverse iterators
+   * related to regular iterators, it must be allowed to underflow to -1.
+   */
+  long m_index = 0;
   /// First column in slice.  This row ignores lower-numbered columns.
   size_type m_begin = 0;
   /// End column in slice.  This row only sees lower-numbered columns.
