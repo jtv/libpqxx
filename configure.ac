@@ -199,7 +199,6 @@ then
 			-Wextra \
 			-Wfloat-equal \
 			-Wformat-security \
-			-Winit-self \
 			-Wmissing-include-dirs \
 			-Wno-div-by-zero \
 			-Wnon-virtual-dtor \
@@ -219,16 +218,12 @@ then
 		add_compiler_opts_if_ok \
 			-fnothrow-opt \
 			-Wattribute-alias \
-			-Wcatch-value \
 			-Wextra-semi \
 			-Wformat=2 \
-			-Wint-in-bool-context \
 			-Wlogical-op \
-			-Wmissing-field-initializers \
 			-Wrestrict \
 			-Wstringop-overflow \
 			-Wsuggest-override \
-			-Wuninitialized \
 			-Wzero-as-null-pointer-constant
 	fi
 
