@@ -256,18 +256,15 @@ then
     add_compiler_opts -fvisibility-inlines-hidden
 fi
 
-# TODO: Use AX_GCC_CONST_CALL()
-AC_MSG_CHECKING([g++ const attribute])
-gcc_const_attr=yes
-AC_TRY_COMPILE(
-	[void __attribute__ ((const)) f();],
-	[],
+# Check gcc "const" attribute.  (More like a stricter version of "pure").
+AX_GCC_CONST_CALL
+if test "$ax_cv_gcc_const_call"
+then
 	AC_DEFINE(
 		[PQXX_HAVE_GCC_CONST],
 		1,
-		[Define if g++ supports const attribute]),
-	gcc_const_attr=yes)
-AC_MSG_RESULT($gcc_const_attr)
+		[Define if g++ supports const attribute.])
+fi
 
 if test "$deprecated" != "yes"
 then

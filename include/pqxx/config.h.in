@@ -1,5 +1,8 @@
 /* include/pqxx/config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* most gcc compilers know a function __attribute__((__const__)) */
+#undef GCC_CONST_CALL
+
 /* define if the compiler supports basic C++11 syntax */
 #undef HAVE_CXX11
 
@@ -75,7 +78,7 @@
 /* Define if the compiler supports std::experimental::optional. */
 #undef PQXX_HAVE_EXP_OPTIONAL
 
-/* Define if g++ supports const attribute */
+/* Define if g++ supports const attribute. */
 #undef PQXX_HAVE_GCC_CONST
 
 /* Define if g++ supports deprecated attribute, as in g++ 4.0 */
