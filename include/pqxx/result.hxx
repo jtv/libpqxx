@@ -232,8 +232,12 @@ private:
 };
 } // namespace pqxx
 
+// Now include some types which depend on result, but which the user will
+// expect to see defined after including this header.
 #include "pqxx/result_iterator.hxx"
+#include "pqxx/field.hxx"
 
+// Implementations depending on those other types which depend on result.
 namespace pqxx
 {
 /// Write a result field to any type of stream

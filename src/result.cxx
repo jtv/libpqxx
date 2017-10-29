@@ -17,9 +17,7 @@
 #include "libpq-fe.h"
 
 #include "pqxx/except"
-#include "pqxx/field"
 #include "pqxx/result"
-#include "pqxx/row"
 
 
 /// C++ wrapper for libpq's PQclear.
