@@ -43,7 +43,7 @@ if test "$enable_documentation" = "yes"
 then
 AC_PATH_PROG([DOXYGEN], [doxygen])
 AM_CONDITIONAL([BUILD_REFERENCE], [/bin/true])
-AC_CHECK_PROG(HAVE_DOT, dot, YES, NO)
+AC_CHECK_PROG(HAVE_DOT, dot, yes, no)
 AC_PATH_PROG([XMLTO], [xmlto])
 AM_CONDITIONAL([BUILD_TUTORIAL], [/bin/true])
 else
