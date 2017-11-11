@@ -1261,18 +1261,7 @@ void pqxx::connection_base::read_capabilities()
     break;
   }
 
-  m_caps[cap_prepared_statements] = true;
-  m_caps[cap_statement_varargs] = true;
-  m_caps[cap_prepare_unnamed_statement] = true;
-  m_caps[cap_cursor_scroll] = true;
-  m_caps[cap_cursor_with_hold] = true;
-  m_caps[cap_cursor_fetch_0] = true;
-  m_caps[cap_nested_transactions] = true;
-  m_caps[cap_create_table_with_oids] = true;
-  m_caps[cap_read_only_transactions] = true;
-  m_caps[cap_notify_payload] = true;
-  m_caps[cap_table_column] = true;
-  m_caps[cap_parameterized_statements] = true;
+  // TODO: Check for capabilities here.  Currently don't need any checks.
 }
 
 

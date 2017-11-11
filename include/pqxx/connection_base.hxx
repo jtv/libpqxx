@@ -303,8 +303,9 @@ public:
    * nonblocking fashion, check out the pipeline class.
    *
    * @warning Don't store this value anywhere, and always be prepared for the
-   * possibility that there is no socket.  The socket may change or even go away
-   * during any invocation of libpqxx code, no matter how trivial.
+   * possibility that, at any given time, there may not be a socket!  The
+   * socket may change or even go away or be established during any invocation
+   * of libpqxx code on the connection, no matter how trivial.
    */
   int PQXX_PURE sock() const noexcept;					//[t87]
 
@@ -317,64 +318,14 @@ public:
    */
   //@{
 
-  /// Session capabilities
+  /// Session capabilities.
+  /** No capabilities are defined at the moment: all capabilities that older
+   * versions checked for are now always supported.
+   */
   enum capability
   {
-    /** Does the backend support prepared statements?
-     * @deprecated Always supported in libpqxx 5.0 or better.
-     */
-    cap_prepared_statements,
-    /** Can we specify WITH OIDS with CREATE TABLE?
-     * @deprecated Always supported in libpqxx 5.0 or better.
-     */
-    cap_create_table_with_oids,
-    /** Can transactions be nested in other transactions?
-     * @deprecated Always supported in libpqxx 5.0 or better.
-     */
-    cap_nested_transactions,
-    /** Can cursors be declared SCROLL?
-     * @deprecated Always supported in libpqxx 5.0 or better.
-     */
-    cap_cursor_scroll,
-    /** Can cursors be declared WITH HOLD?
-     * @deprecated Always supported in libpqxx 5.0 or better.
-     */
-    cap_cursor_with_hold,
-    /** Can cursors be updateable?
-     * @deprecated Always supported in libpqxx 5.0 or better.
-     */
-    cap_cursor_update,
-    /** Can cursors fetch zero elements?  (Used to trigger a "fetch all")
-     * @deprecated Always supported in libpqxx 5.0 or better.
-     */
-    cap_cursor_fetch_0,
-    /** Can we ask what table column a result column came from?
-     * @deprecated Always supported in libpqxx 5.0 or better.
-     */
-    cap_table_column,
-    /** Can transactions be READ ONLY?
-     * @deprecated Always supported in libpqxx 5.0 or better.
-     */
-    cap_read_only_transactions,
-    /** Do prepared statements support varargs?
-     * @deprecated Always supported in libpqxx 5.0 or better.
-     */
-    cap_statement_varargs,
-    /** Is the unnamed prepared statement supported?
-     * @deprecated Always supported in libpqxx 5.0 or better.
-     */
-    cap_prepare_unnamed_statement,
-    /** Can this connection execute parameterized statements?
-     * @deprecated Always supported in libpqxx 5.0 or better.
-     */
-    cap_parameterized_statements,
-    /** Can notifications carry payloads?
-     * @deprecated Always supported in libpqxx 5.0 or better.
-     */
-    cap_notify_payload,
-
     /// Not a capability value; end-of-enumeration marker
-    cap_end
+    cap_end,
   };
 
 
