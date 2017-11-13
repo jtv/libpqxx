@@ -83,8 +83,11 @@ public:
 
   result &operator=(const result &rhs) noexcept				//[t10]
   {
-    m_data = rhs.m_data;
-    m_query = rhs.m_query;
+    if (&rhs != this)
+    {
+      m_data = rhs.m_data;
+      m_query = rhs.m_query;
+    }
     return *this;
   }
 
