@@ -292,6 +292,11 @@ public:
    * parameters in the query don't have to be neatly ordered from @c $1 to
    * @c $2 to @c $3 - but you must pass the argument for @c $1 first, the one
    * for @c $2 second, etc.
+   *
+   * @warning Beware of "nul" bytes.  Any string you pass as a parameter will
+   * end at the first char with value zero.  If you pass a @c std::string that
+   * contains a zero byte, the last byte in the value will be the one just
+   * before the zero.
    */
   //@{
   /// Execute an SQL statement with parameters.
@@ -344,12 +349,6 @@ public:
 
   /**
    * @name Prepared statements
-   *
-   * Prepared statements are defined using the connection classes' prepare()
-   * function, and continue to live on in the ongoing session regardless of
-   * the context they were defined in (unless explicitly dropped using the
-   * connection's unprepare() function).  Their execution however, like other
-   * forms of query execution, requires a transaction object.
    */
   //@{
 

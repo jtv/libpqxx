@@ -49,19 +49,17 @@ namespace prepare
  * @endcode
  *
  * Once you've done this, you'll be able to call @c my_statement from any
- * transaction you execute on the same connection.  You start an invocation by
- * looking up your statement using a member function called @c "prepared".  (The
- * definition used a different member function, called @c "prepare" ).
+ * transaction you execute on the same connection.
  *
  * @code
  * pqxx::result execute_my_statement(pqxx::transaction_base &t)
  * {
- *   return t.prepared("my_statement").exec();
+ *   return t.exec_prepared("my_statement");
  * }
  * @endcode
  *
  * Did I mention that prepared statements can have parameters?  The query text
- * can contain $@c 1, @c $2 etc. as placeholders for parameter values that you
+ * can contain @c $1, @c $2 etc. as placeholders for parameter values that you
  * will provide when you invoke the prepared satement.
  *
  * @code
@@ -75,16 +73,6 @@ namespace prepare
  * }
  * @endcode
  *
- * How do you pass those parameters?  C++ has no good way to let you pass an
- * unlimited, variable number of arguments to a function call, and the compiler
- * does not know how many you are going to pass.  There's a trick for that: you
- * can treat the value you get back from @c prepared as a function, which you
- * call to pass a parameter.  What you get back from that call is the same
- * again, so you can call it again to pass another parameter and so on.
- *
- * Once you've passed all parameters in this way, you invoke the statement with
- * the parameters by calling @c exec on the invocation.
- *
  * This example looks up the prepared statement "find," passes @c name and
  * @c min_salary as parameters, and invokes the statement with those values:
  *
@@ -92,7 +80,7 @@ namespace prepare
  * pqxx::result execute_find(
  *   pqxx::transaction_base &t, std::string name, int min_salary)
  * {
- *   return t.prepared("find")(name)(min_salary).exec();
+ *   return t.exec_prepared("find", name, min_salary);
  * }
  * @endcode
  *
@@ -107,9 +95,16 @@ namespace prepare
  * owners are "inactive."  A prepared statement must be planned to fit either
  * case, but a direct query can be optimized based on table statistics, partial
  * indexes, etc.
+ *
+ * @warning Beware of "nul" bytes.  Any string you pass as a parameter will
+ * end at the first char with value zero.  If you pass a @c std::string that
+ * contains a zero byte, the last byte in the value will be the one just
+ * before the zero.
  */
 
 /// Helper class for passing parameters to, and executing, prepared statements
+/** @deprecated As of 6.0, use @c transaction_base::exec_prepared and friends.
+ */
 class PQXX_LIBEXPORT invocation : internal::statement_parameters
 {
 public:
@@ -186,7 +181,7 @@ private:
 
 namespace internal
 {
-/// Internal representation of a prepared statement definition
+/// Internal representation of a prepared statement definition.
 struct PQXX_LIBEXPORT prepared_def
 {
   /// Text of prepared query.
