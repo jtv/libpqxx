@@ -411,7 +411,7 @@ and the actual C++ library, libpqxx.  On most Unix-style compilers, this can be
 done using the options
 
 ```
-	-lpq -lpqxx
+	-lpqxx -lpq
 ```
 
 while linking.  Note that both libraries must be in your link path, so the
