@@ -283,11 +283,38 @@ pqxx::result pqxx::transaction_base::exec_n(
     const std::string N = (Desc.empty() ? "" : "'" + Desc + "'");
     throw unexpected_rows(
 	"Expected " + to_string(rows) + " row(s) of data "
-        "from query " + N + ", got " + to_string(r.size()));
+        "from query " + N + ", got " + to_string(r.size()) + ".");
   }
   return r;
 }
 
+
+void pqxx::transaction_base::check_rowcount_prepared(
+	const std::string &statement,
+	size_t expected_rows,
+	size_t actual_rows)
+{
+  if (actual_rows != expected_rows)
+  {
+    throw unexpected_rows(
+	"Expected " + to_string(expected_rows) + " row(s) of data "
+	"from prepared statement '" + statement + "', got " +
+	to_string(actual_rows) + ".");
+  }
+}
+
+
+void pqxx::transaction_base::check_rowcount_params(
+	size_t expected_rows,
+	size_t actual_rows)
+{
+  if (actual_rows != expected_rows)
+  {
+    throw unexpected_rows(
+	"Expected " + to_string(expected_rows) + " row(s) of data "
+	"from parameterised query, got " + to_string(actual_rows) + ".");
+  }
+}
 
 
 pqxx::internal::parameterized_invocation
@@ -310,6 +337,24 @@ pqxx::transaction_base::prepared(const std::string &statement)
 	"Error executing prepared statement " + statement + ".  " + e.what());
   }
   return prepare::invocation(*this, statement);
+}
+
+
+pqxx::result pqxx::transaction_base::internal_exec_prepared(
+	const std::string &statement,
+	const internal::params &args)
+{
+  gate::connection_transaction gate(conn());
+  return gate.exec_prepared(statement, args);
+}
+
+
+pqxx::result pqxx::transaction_base::internal_exec_params(
+	const std::string &query,
+	const internal::params &args)
+{
+  gate::connection_transaction gate(conn());
+  return gate.exec_params(query, args);
 }
 
 

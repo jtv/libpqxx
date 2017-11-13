@@ -762,7 +762,6 @@ void pqxx::connection_base::prepare_now(const std::string &name)
 }
 
 
-// TODO: Can we make this work with std::string instead of C-style?
 pqxx::result pqxx::connection_base::prepared_exec(
 	const std::string &statement,
 	const char *const params[],
@@ -782,6 +781,27 @@ pqxx::result pqxx::connection_base::prepared_exec(
 		binary,
 		0),
     	statement);
+  check_result(r);
+  get_notifs();
+  return r;
+}
+
+
+pqxx::result pqxx::connection_base::exec_prepared(
+	const std::string &statement,
+	const internal::params &args)
+{
+  register_prepared(statement);
+  activate();
+  const auto pq_result = PQexecPrepared(
+	m_conn,
+	statement.c_str(),
+	int(args.values.size()),
+	&args.values[0],
+	&args.lengths[0],
+	&args.binaries[0],
+	0);
+  const auto r = make_result(pq_result, statement);
   check_result(r);
   get_notifs();
   return r;
@@ -1297,6 +1317,26 @@ pqxx::result pqxx::connection_base::parameterized_exec(
 		binaries,
 		0),
 	query);
+  check_result(r);
+  get_notifs();
+  return r;
+}
+
+
+pqxx::result pqxx::connection_base::exec_params(
+	const std::string &query,
+	const internal::params &args)
+{
+  const auto pq_result = PQexecParams(
+	m_conn,
+	query.c_str(),
+	int(args.values.size()),
+	nullptr,
+	&args.values[0],
+	&args.lengths[0],
+	&args.binaries[0],
+	0);
+  const auto r = make_result(pq_result, query);
   check_result(r);
   get_notifs();
   return r;

@@ -17,6 +17,7 @@ class PQXX_PRIVATE connection_prepare_invocation : callgate<connection_base>
 
   connection_prepare_invocation(reference x) : super(x) {}
 
+  /// @deprecated To be replaced by exec_prepared.
   result prepared_exec(
 	const std::string &statement,
 	const char *const params[],

@@ -34,6 +34,7 @@ class PQXX_PRIVATE connection_transaction : callgate<connection_base>
   void add_variables(const std::map<std::string, std::string> &vars)
 	{ home().add_variables(vars); }
 
+  /// @deprecated To be replaced by exec_prepared.
   result prepared_exec(
 	const std::string &statement,
 	const char *const params[],
@@ -47,6 +48,18 @@ class PQXX_PRIVATE connection_transaction : callgate<connection_base>
 	paramlengths,
 	binaries,
 	nparams);
+  }
+
+  result exec_prepared(
+	const std::string &statement,
+	const internal::params &args)
+  {
+    return home().exec_prepared(statement, args);
+  }
+
+  result exec_params(const std::string &query, const internal::params &args)
+  {
+    return home().exec_params(query, args);
   }
 
   bool prepared_exists(const std::string &statement) const

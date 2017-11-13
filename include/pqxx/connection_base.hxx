@@ -778,12 +778,14 @@ private:
   prepare::internal::prepared_def &register_prepared(const std::string &);
 
   friend class internal::gate::connection_prepare_invocation;
+  /// @deprecated To be replaced by exec_prepared.
   result prepared_exec(
 	const std::string &,
 	const char *const[],
 	const int[],
 	const int[],
 	int);
+  result exec_prepared(const std::string &statement, const internal::params &);
   bool prepared_exists(const std::string &) const;
 
   /// Connection handle.
@@ -869,12 +871,17 @@ private:
   friend class internal::gate::connection_reactivation_avoidance_exemption;
 
   friend class internal::gate::connection_parameterized_invocation;
+  /// @deprecated To be replaced with exec_params.
   result parameterized_exec(
 	const std::string &query,
 	const char *const params[],
 	const int paramlengths[],
 	const int binaries[],
 	int nparams);
+
+  result PQXX_LIBEXPORT exec_params(
+	const std::string &query,
+	const internal::params &args);
 
   connection_base(const connection_base &) =delete;
   connection_base &operator=(const connection_base &) =delete;

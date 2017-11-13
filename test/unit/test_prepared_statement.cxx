@@ -62,7 +62,8 @@ template<typename CNTNR> string subst(transaction_base &t,
 }
 
 
-void test_prepared_statement(transaction_base &T)
+/// @deprecated To be replaced with the C++11-style exec_prepared.
+void test_legacy_prepared_statement(transaction_base &T)
 {
   connection_base &C(T.conn());
 
@@ -71,31 +72,22 @@ void test_prepared_statement(transaction_base &T)
 	Q_seetable = Q_readpgtables + " WHERE tablename = $1",
 	Q_seetables = Q_seetable + " OR tablename = $2";
 
-  try
-  {
-    PQXX_CHECK(
+  PQXX_CHECK(
 	!(T.prepared("CountToTen").exists()),
 	"Nonexistent prepared statement thinks it exists.");
 
-    // Prepare a simple statement.
-    C.prepare("CountToTen", "SELECT * FROM generate_series(1, 10)");
+  // Prepare a simple statement.
+  C.prepare("CountToTen", "SELECT * FROM generate_series(1, 10)");
 
-    PQXX_CHECK(
+  PQXX_CHECK(
 	T.prepared("CountToTen").exists(),
 	"Prepared statement thinks it doesn't exist.");
 
-    // See if a basic prepared statement works just like a regular query.
-    PQXX_CHECK_EQUAL(
+  // See if a basic prepared statement works just like a regular query.
+  PQXX_CHECK_EQUAL(
 	T.prepared("CountToTen").exec(),
 	T.exec("SELECT * FROM generate_series(1, 10)"),
 	"CountToTen");
-  }
-  catch (const feature_not_supported &)
-  {
-    cout << "Backend version does not support prepared statements.  Skipping."
-         << endl;
-    return;
-  }
 
   // Try prepare_now() on an already prepared statement.
   C.prepare_now("CountToTen");
@@ -191,6 +183,177 @@ void test_prepared_statement(transaction_base &T)
   T.exec("SELECT 12");
   outcome = T.prepared()(3)(1).exec()[0][0].as<int>();
   PQXX_CHECK_EQUAL(outcome, 7, "Unnamed statement isn't what it was.");
+}
+
+
+void test_registration_and_invocation(transaction_base &T)
+{
+  constexpr auto count_to_5 = "SELECT * FROM generate_series(1, 5)";
+  PQXX_CHECK(
+	!T.prepared("CountToFive").exists(),
+	"Nonexistent prepared statement thinks it exists.");
+
+  // Prepare a simple statement.
+  T.conn().prepare("CountToFive", count_to_5);
+
+  PQXX_CHECK(
+	T.prepared("CountToFive").exists(),
+	"Prepared statement thinks it doesn't exist.");
+
+  // The statement returns exactly what you'd expect.
+  COMPARE_RESULTS(
+	"CountToFive",
+	T.exec_prepared("CountToFive"),
+	T.exec(count_to_5));
+
+  // It's OK to re-prepare the same statement.
+  T.conn().prepare("CountToFive", count_to_5);
+
+  // Results are still the same.
+  COMPARE_RESULTS(
+	"CountToFive",
+	T.exec_prepared("CountToFive"),
+	T.exec(count_to_5));
+
+  // But re-preparing it with a different definition is an error.
+  PQXX_CHECK_THROWS(
+	T.conn().prepare("CountToFive", "SELECT 5"),
+	pqxx::argument_error,
+	"Did not report conflicting re-definition of prepared statement.");
+
+  // Executing a nonexistent prepared statement is also an error.
+  PQXX_CHECK_THROWS(
+	T.exec_prepared("NonexistentStatement"),
+	pqxx::argument_error,
+	"Did not report invocation of nonexistent prepared statement.");
+}
+
+
+void test_basic_args(transaction_base &T)
+{
+  T.conn().prepare("EchoNum", "SELECT $1::int");
+  auto r = T.exec_prepared("EchoNum", 7);
+  PQXX_CHECK_EQUAL(r.size(), 1u, "Did not get 1 row from prepared statement.");
+  PQXX_CHECK_EQUAL(r.front().size(), 1u, "Did not get exactly one column.");
+  PQXX_CHECK_EQUAL(r[0][0].as<int>(), 7, "Got wrong result.");
+
+  auto rw = T.exec_prepared1("EchoNum", 8);
+  PQXX_CHECK_EQUAL(rw.size(), 1u, "Did not get 1 column from exec_prepared1.");
+  PQXX_CHECK_EQUAL(rw[0].as<int>(), 8, "Got wrong result.");
+}
+
+
+void test_multiple_params(transaction_base &T)
+{
+  T.conn().prepare(
+	"CountSeries",
+	"SELECT * FROM generate_series($1::int, $2::int)");
+  auto r = T.exec_prepared_n(4, "CountSeries", 7, 10);
+  PQXX_CHECK_EQUAL(r.size(), 4u, "Wrong number of rows, but no error raised.");
+  PQXX_CHECK_EQUAL(r.front().front().as<int>(), 7, "Wrong $1.");
+  PQXX_CHECK_EQUAL(r.back().front().as<int>(), 10, "Wrong $2.");
+
+  T.conn().prepare(
+	"Reversed",
+	"SELECT * FROM generate_series($2::int, $1::int)");
+  r = T.exec_prepared_n(3, "Reversed", 8, 6);
+  PQXX_CHECK_EQUAL(
+	r.front().front().as<int>(),
+	6,
+	"Did parameters get reordered?");
+  PQXX_CHECK_EQUAL(
+	r.back().front().as<int>(),
+	8,
+	"$2 did not come through properly.");
+}
+
+
+void test_nulls(transaction_base &T)
+{
+  T.conn().prepare("EchoStr", "SELECT $1::varchar");
+  auto rw = T.exec_prepared1("EchoStr", nullptr);
+  PQXX_CHECK(rw.front().is_null(), "nullptr did not translate to null.");
+
+  const char *n = nullptr;
+  rw = T.exec_prepared1("EchoStr", n);
+  PQXX_CHECK(rw.front().is_null(), "Null pointer did not translate to null.");
+}
+
+
+void test_strings(transaction_base &T)
+{
+  T.conn().prepare("EchoStr", "SELECT $1::varchar");
+  auto rw = T.exec_prepared1("EchoStr", "foo");
+  PQXX_CHECK_EQUAL(rw.front().as<string>(), "foo", "Wrong string result.");
+
+  const char nasty_string[] = "'\\\"";
+  rw = T.exec_prepared1("EchoStr", nasty_string);
+  PQXX_CHECK_EQUAL(
+	rw.front().as<string>(),
+	string(nasty_string),
+	"Prepared statement did not quote/escape correctly.");
+
+  rw = T.exec_prepared1("EchoStr", string(nasty_string));
+  PQXX_CHECK_EQUAL(
+	rw.front().as<string>(),
+	string(nasty_string),
+	"Quoting/escaping went wrong in std::string.");
+
+  char nonconst[] = "non-const C string";
+  rw = T.exec_prepared1("EchoStr", nonconst);
+  PQXX_CHECK_EQUAL(
+	rw.front().as<string>(),
+	string(nonconst),
+	"Non-const C string passed incorrectly.");
+}
+
+
+void test_binary(transaction_base &)
+{
+// TODO: Test binarystring params.
+}
+
+
+/// Test against std::optional<int>, or std::experimental::optional<int>.
+template<typename Opt>
+void test_optional(transaction_base &T)
+{
+  T.conn().prepare("EchoNum", "SELECT $1::int");
+  pqxx::row rw = T.exec_prepared1("EchoNum", Opt(10));
+  PQXX_CHECK_EQUAL(
+	rw.front().as<int>(),
+	10,
+	"C++17 'optional' (with value) did not return the right value.");
+
+  rw = T.exec_prepared1("EchoNum", Opt());
+  PQXX_CHECK(
+	rw.front().is_null(),
+	"C++17 'optional' without value did not come out as null.");
+}
+
+
+void test_prepared_statements(transaction_base &T)
+{
+  test_registration_and_invocation(T);
+  test_basic_args(T);
+  test_multiple_params(T);
+  test_nulls(T);
+  test_strings(T);
+  test_binary(T);
+
+#if defined(PQXX_HAVE_OPTIONAL)
+  test_optional<std::optional<int>>(T);
+#endif
+#if defined(PQXX_HAVE_EXP_OPTIONAL)
+  test_optional<std::experimental::optional<int>>(T);
+#endif
+}
+
+
+void test_prepared_statement(transaction_base &T)
+{
+  test_legacy_prepared_statement(T);
+  test_prepared_statements(T);
 }
 } // namespace
 

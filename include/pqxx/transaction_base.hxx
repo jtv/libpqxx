@@ -66,6 +66,9 @@ private:
 };
 
 
+/// Helper class to construct an invocation of a parameterised statement.
+/** @deprecated Use @c exec_params and friends instead.
+ */
 class PQXX_LIBEXPORT parameterized_invocation : statement_parameters
 {
 public:
@@ -267,26 +270,131 @@ public:
 	const std::string &Query,
 	const std::string &Desc=std::string());
 
-  /// Parameterize a statement.
+  /**
+   * @name Parameterized statements
+   *
+   * You'll often need parameters in the queries you execute: "select the
+   * car with this licence plate."  If the parameter is a string, you need to
+   * quote it and escape any special characters inside it, or it may become a
+   * target for an SQL injection attack.  If it's an integer (for example),
+   * you need to convert it to a string, but in the database's format, without
+   * locale-specific niceties like "," separators between the thousands.
+   *
+   * Parameterised statements are an easier and safer way to do this.  They're
+   * like prepared statements, but for a single use.  You don't need to name
+   * them, and you don't need to prepare them first.
+   *
+   * Your query will include placeholders like @c $1 and $2 etc. in the places
+   * where you want the arguments to go.  Then, you pass the argument values
+   * and the actual query is constructed for you.
+   *
+   * Pass the exact right number of parameters, and in the right order.  The
+   * parameters in the query don't have to be neatly ordered from @c $1 to
+   * @c $2 to @c $3 - but you must pass the argument for @c $1 first, the one
+   * for @c $2 second, etc.
+   */
+  //@{
+  /// Execute an SQL statement with parameters.
+  template<typename ...Args>
+  result exec_params(const std::string &query, Args ...args)
+  {
+    return internal_exec_params(query, internal::params(args...));
+  }
+
+  // Execute parameterised statement, expect a single-row result.
+  /** @throw unexpected_rows if the result does not consist of exactly one row.
+   */
+  template<typename ...Args>
+  row exec_params1(const std::string &query, Args... args)
+  {
+    return exec_params_n(1, query, args...).front();
+  }
+
+  // Execute parameterised statement, expect a result with zero rows.
+  /** @throw unexpected_rows if the result contains rows.
+   */
+  template<typename ...Args>
+  result exec_params0(const std::string &query, Args ...args)
+  {
+    return exec_params_n(0, query, args...);
+  }
+
+  // Execute parameterised statement, expect exactly a given number of rows.
+  /** @throw unexpected_rows if the result contains the wrong number of rows.
+   */
+  template<typename ...Args>
+  result exec_params_n(size_t rows, const std::string &query, Args ...args)
+  {
+    const auto r = exec_params(query, args...);
+    check_rowcount_params(rows, r.size());
+    return r;
+  }
+
+  /// Parameterize a statement.  @deprecated Use @c exec_params instead.
   /* Use this to build up a parameterized statement invocation, then invoke it
    * using @c exec()
    *
    * Example: @c trans.parameterized("SELECT $1 + 1")(1).exec();
+   *
+   * This is the old, pre-C++11 way of handling parameterised statements.  As
+   * of libpqxx 6.0, it's made much easier using variadic templates.
    */
   internal::parameterized_invocation parameterized(const std::string &query);
+  //@}
 
   /**
    * @name Prepared statements
-   */
-  //@{
-  /// Execute prepared statement.
-  /** Prepared statements are defined using the connection classes' prepare()
+   *
+   * Prepared statements are defined using the connection classes' prepare()
    * function, and continue to live on in the ongoing session regardless of
    * the context they were defined in (unless explicitly dropped using the
    * connection's unprepare() function).  Their execution however, like other
    * forms of query execution, requires a transaction object.
-   *
-   * Just like param_declaration is a helper class that lets you tag parameter
+   */
+  //@{
+
+  /// Execute a prepared statement, with optional arguments.
+  template<typename ...Args>
+  result exec_prepared(const std::string &statement, Args... args)
+  {
+    return internal_exec_prepared(statement, internal::params(args...));
+  }
+
+  /// Execute a prepared statement, and expect a single-row result.
+  /** @throw pqxx::unexpected_rows if the result was not exactly 1 row.
+   */
+  template<typename ...Args>
+  row exec_prepared1(const std::string &statement, Args... args)
+  {
+    return exec_prepared_n(1, statement, args...).front();
+  }
+
+  /// Execute a prepared statement, and expect a result with zero rows.
+  /** @throw pqxx::unexpected_rows if the result contained rows.
+   */
+  template<typename ...Args>
+  result exec_prepared0(const std::string &statement, Args... args)
+  {
+    return exec_prepared_n(0, statement, args...);
+  }
+
+  /// Execute a prepared statement, expect a result with given number of rows.
+  /** @throw pqxx::unexpected_rows if the result did not contain exactly the
+   *  given number of rows.
+   */
+  template<typename ...Args>
+  result exec_prepared_n(
+	size_t rows,
+	const std::string &statement,
+	Args... args)
+  {
+    const auto r = exec_prepared(statement, args...);
+    check_rowcount_prepared(statement, rows, r.size());
+    return r;
+  }
+
+  /// Execute prepared statement.  @deprecated Use exec_prepared instead.
+  /** Just like param_declaration is a helper class that lets you tag parameter
    * declarations onto the statement declaration, the invocation class returned
    * here lets you tag parameter values onto the call:
    *
@@ -453,6 +561,24 @@ private:
 	{ return !p; }
   template<typename T> bool parm_is_null(T) const noexcept
 	{ return false; }
+
+  PQXX_LIBEXPORT result internal_exec_prepared(
+	const std::string &statement,
+	const internal::params &args);
+
+  PQXX_LIBEXPORT result internal_exec_params(
+	const std::string &query,
+	const internal::params &args);
+
+  /// Throw unexpected_rows if prepared statement returned wrong no. of rows.
+  PQXX_LIBEXPORT void check_rowcount_prepared(
+	const std::string &statement,
+	size_t expected_rows,
+	size_t actual_rows);
+
+  /// Throw unexpected_rows if wrong row count from parameterised statement.
+  PQXX_LIBEXPORT void check_rowcount_params(
+	size_t expected_rows, size_t actual_rows);
 
   friend class pqxx::internal::gate::transaction_transactionfocus;
   PQXX_PRIVATE void register_focus(internal::transactionfocus *);
