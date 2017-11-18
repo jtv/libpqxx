@@ -73,7 +73,7 @@ void test_binarystring(transaction_base &T)
 	T.quote_raw(simple),
 	"Binary quoting is broken.");
   PQXX_CHECK_EQUAL(
-	binarystring(T.exec("SELECT " + T.quote(b))[0][0]).str(),
+	binarystring(T.exec1("SELECT " + T.quote(b))[0]).str(),
 	simple,
 	"Binary string is not idempotent.");
 

@@ -308,9 +308,18 @@ void test_strings(transaction_base &T)
 }
 
 
-void test_binary(transaction_base &)
+void test_binary(transaction_base &T)
 {
-// TODO: Test binarystring params.
+  T.conn().prepare("EchoBin", "SELECT $1::bytea");
+  const char raw_bytes[] = "Binary\0bytes'\"with\tweird\xff bytes";
+  const std::string input{raw_bytes, sizeof(raw_bytes)};
+  const binarystring bin{input};
+
+  auto rw = T.exec_prepared1("EchoBin", bin);
+  PQXX_CHECK_EQUAL(
+        binarystring(rw.front()).str(),
+        input,
+        "Binary string came out damaged.");
 }
 
 
