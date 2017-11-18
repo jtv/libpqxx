@@ -234,7 +234,6 @@ inline void connection_base::perform(
   bool Done = false;
 
   // Make attempts to perform T
-  // TODO: Differentiate between db-related exceptions and other exceptions?
   do
   {
     --Attempts;
