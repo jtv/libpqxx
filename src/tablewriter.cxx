@@ -128,7 +128,7 @@ inline char tooctdigit(char c, int n)
 } // namespace
 
 
-std::string pqxx::internal::Escape(
+std::string pqxx::internal::escape(
         const std::string &s,
         const std::string &null)
 {

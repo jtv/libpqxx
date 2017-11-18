@@ -130,24 +130,24 @@ template<typename ITER> inline tablewriter::tablewriter(
 
 namespace internal
 {
-PQXX_LIBEXPORT std::string Escape(
+PQXX_LIBEXPORT std::string escape(
 	const std::string &s,
 	const std::string &null);
 
-inline std::string EscapeAny(
+inline std::string escape_any(
 	const std::string &s,
 	const std::string &null)
-{ return Escape(s, null); }
+{ return escape(s, null); }
 
-inline std::string EscapeAny(
+inline std::string escape_any(
 	const char s[],
 	const std::string &null)
-{ return s ? Escape(std::string(s), null) : "\\N"; }
+{ return s ? escape(std::string(s), null) : "\\N"; }
 
-template<typename T> inline std::string EscapeAny(
+template<typename T> inline std::string escape_any(
 	const T &t,
 	const std::string &null)
-{ return Escape(to_string(t), null); }
+{ return escape(to_string(t), null); }
 
 
 template<typename IT> class Escaper
@@ -155,7 +155,7 @@ template<typename IT> class Escaper
   const std::string &m_null;
 public:
   explicit Escaper(const std::string &null) : m_null(null) {}
-  std::string operator()(IT i) const { return EscapeAny(*i, m_null); }
+  std::string operator()(IT i) const { return escape_any(*i, m_null); }
 };
 }
 
