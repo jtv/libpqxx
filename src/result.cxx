@@ -251,7 +251,7 @@ std::string pqxx::result::StatusError() const
 }
 
 
-const char *pqxx::result::CmdStatus() const noexcept
+const char *pqxx::result::cmd_status() const noexcept
 {
   return PQcmdStatus(const_cast<internal::pq::PGresult *>(m_data.get()));
 }

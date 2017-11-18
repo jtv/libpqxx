@@ -12,7 +12,7 @@ class PQXX_PRIVATE result_sql_cursor : callgate<const result>
 
   result_sql_cursor(reference x) : super(x) {}
 
-  const char *CmdStatus() const noexcept { return home().CmdStatus(); }
+  const char *cmd_status() const noexcept { return home().cmd_status(); }
 };
 } // namespace pqxx::internal::gate
 } // namespace pqxx::internal

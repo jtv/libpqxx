@@ -231,7 +231,7 @@ private:
   PQXX_PRIVATE std::string StatusError() const;
 
   friend class pqxx::internal::gate::result_sql_cursor;
-  PQXX_PURE const char *CmdStatus() const noexcept;
+  PQXX_PURE const char *cmd_status() const noexcept;
 };
 } // namespace pqxx
 
