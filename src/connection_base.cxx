@@ -243,7 +243,7 @@ std::string pqxx::connection_base::raw_get_var(const std::string &Var)
   const auto i = m_vars.find(Var);
   if (i != m_vars.end()) return i->second;
 
-  return Exec(("SHOW " + Var).c_str(), 0).at(0).at(0).as(std::string());
+  return exec(("SHOW " + Var).c_str(), 0).at(0).at(0).as(std::string());
 }
 
 
@@ -472,7 +472,7 @@ void pqxx::connection_base::remove_receiver(pqxx::notification_receiver *T)
       // come in and wreak havoc.  Thanks Dragan Milenkovic.
       const bool gone = (m_conn && (R.second == ++R.first));
       m_receivers.erase(i);
-      if (gone) Exec(("UNLISTEN \"" + needle.first + "\"").c_str(), 0);
+      if (gone) exec(("UNLISTEN \"" + needle.first + "\"").c_str(), 0);
     }
   }
   catch (const std::exception &e)
@@ -660,7 +660,7 @@ std::vector<errorhandler *> pqxx::connection_base::get_errorhandlers() const
 }
 
 
-pqxx::result pqxx::connection_base::Exec(const char Query[], int Retries)
+pqxx::result pqxx::connection_base::exec(const char Query[], int Retries)
 {
   activate();
 
@@ -719,7 +719,7 @@ void pqxx::connection_base::unprepare(const std::string &name)
   // Quietly ignore duplicated or spurious unprepare()s
   if (i == m_prepared.end()) return;
 
-  if (i->second.registered) Exec(("DEALLOCATE \"" + name + "\"").c_str(), 0);
+  if (i->second.registered) exec(("DEALLOCATE \"" + name + "\"").c_str(), 0);
 
   m_prepared.erase(i);
 }
@@ -880,7 +880,7 @@ void pqxx::connection_base::raw_set_var(
 	const std::string &Var,
 	const std::string &Value)
 {
-    Exec(("SET " + Var + "=" + Value).c_str(), 0);
+    exec(("SET " + Var + "=" + Value).c_str(), 0);
 }
 
 

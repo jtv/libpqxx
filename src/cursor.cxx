@@ -148,7 +148,7 @@ void pqxx::internal::sql_cursor::close() noexcept
   {
     try
     {
-      gate::connection_sql_cursor(m_home).Exec(
+      gate::connection_sql_cursor(m_home).exec(
 	("CLOSE \"" + name() + "\"").c_str(),
 	0);
     }
@@ -235,7 +235,7 @@ result pqxx::internal::sql_cursor::fetch(
   }
   const std::string query =
       "FETCH " + stridestring(rows) + " IN \"" + name() + "\"";
-  const result r(gate::connection_sql_cursor(m_home).Exec(query.c_str(), 0));
+  const result r(gate::connection_sql_cursor(m_home).exec(query.c_str(), 0));
   displacement = adjust(rows, difference_type(r.size()));
   return r;
 }
@@ -253,7 +253,7 @@ cursor_base::difference_type pqxx::internal::sql_cursor::move(
 
   const std::string query =
       "MOVE " + stridestring(rows) + " IN \"" + name() + "\"";
-  const result r(gate::connection_sql_cursor(m_home).Exec(query.c_str(), 0));
+  const result r(gate::connection_sql_cursor(m_home).exec(query.c_str(), 0));
   difference_type d = difference_type(r.affected_rows());
   displacement = adjust(rows, d);
   return d;

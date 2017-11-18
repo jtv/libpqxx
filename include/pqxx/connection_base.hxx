@@ -839,8 +839,7 @@ private:
   void PQXX_PRIVATE unregister_errorhandler(errorhandler *) noexcept;
 
   friend class internal::gate::connection_transaction;
-  // TODO: Rename to lower-case style.
-  result PQXX_PRIVATE Exec(const char[], int Retries);
+  result PQXX_PRIVATE exec(const char[], int Retries);
   void PQXX_PRIVATE register_transaction(transaction_base *);
   void PQXX_PRIVATE unregister_transaction(transaction_base *) noexcept;
   bool PQXX_PRIVATE read_copy_line(std::string &);

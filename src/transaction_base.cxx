@@ -457,7 +457,7 @@ void pqxx::transaction_base::unregister_focus(internal::transactionfocus *S)
 pqxx::result pqxx::transaction_base::DirectExec(const char C[], int Retries)
 {
   CheckPendingError();
-  return gate::connection_transaction(conn()).Exec(C, Retries);
+  return gate::connection_transaction(conn()).exec(C, Retries);
 }
 
 

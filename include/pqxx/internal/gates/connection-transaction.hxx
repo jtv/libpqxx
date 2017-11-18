@@ -14,8 +14,8 @@ class PQXX_PRIVATE connection_transaction : callgate<connection_base>
 
   connection_transaction(reference x) : super(x) {}
 
-  result Exec(const char query[], int retries)
-	{ return home().Exec(query, retries); }
+  result exec(const char query[], int retries)
+	{ return home().exec(query, retries); }
   void register_transaction(transaction_base *t)
 	{ home().register_transaction(t); }
   void unregister_transaction(transaction_base *t) noexcept
