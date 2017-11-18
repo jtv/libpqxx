@@ -60,10 +60,10 @@ void pqxx::basic_robusttransaction::do_begin()
   dbtransaction::do_begin();
 
   // If this transaction commits, the transaction record should also be gone.
-  DirectExec(sql_delete().c_str());
+  direct_exec(sql_delete().c_str());
 
   if (conn().server_version() >= 80300)
-    DirectExec("SELECT txid_current()")[0][0].to(m_xid);
+    direct_exec("SELECT txid_current()")[0][0].to(m_xid);
 }
 
 
@@ -77,7 +77,7 @@ void pqxx::basic_robusttransaction::do_commit()
   // work being done inside our in-doubt window.
   try
   {
-    DirectExec("SET CONSTRAINTS ALL IMMEDIATE");
+    direct_exec("SET CONSTRAINTS ALL IMMEDIATE");
   }
   catch (...)
   {
@@ -92,7 +92,7 @@ void pqxx::basic_robusttransaction::do_commit()
   // is.
   try
   {
-    DirectExec(sql_commit_work);
+    direct_exec(sql_commit_work);
 
     // If we make it here, great.  Normal, successful commit.
     m_record_id = 0;
@@ -182,7 +182,7 @@ void pqxx::basic_robusttransaction::CreateLogTable()
 
   try
   {
-    DirectExec(CrTab.c_str(), 1);
+    direct_exec(CrTab.c_str(), 1);
   }
   catch (const std::exception &e)
   {
@@ -192,7 +192,7 @@ void pqxx::basic_robusttransaction::CreateLogTable()
 
   try
   {
-    DirectExec(("CREATE SEQUENCE " + m_sequence).c_str());
+    direct_exec(("CREATE SEQUENCE " + m_sequence).c_str());
   }
   catch (const std::exception &e)
   {
@@ -207,15 +207,15 @@ void pqxx::basic_robusttransaction::CreateTransactionRecord()
   static const std::string Fail = "Could not create transaction log record: ";
 
   // Clean up old transaction records.
-  DirectExec((
+  direct_exec((
 	"DELETE FROM " + m_log_table + " "
 	"WHERE date < CURRENT_TIMESTAMP - '30 days'::interval").c_str());
 
   // Allocate id.
   const std::string sql_get_id("SELECT nextval(" + quote(m_sequence) + ")");
-  DirectExec(sql_get_id.c_str())[0][0].to(m_record_id);
+  direct_exec(sql_get_id.c_str())[0][0].to(m_record_id);
 
-  DirectExec((
+  direct_exec((
 	"INSERT INTO \"" + m_log_table + "\" "
 	"(id, username, name, date) "
 	"VALUES "
@@ -245,7 +245,7 @@ void pqxx::basic_robusttransaction::DeleteTransactionRecord() noexcept
     const std::string Del = sql_delete();
 
     reactivation_avoidance_exemption E(conn());
-    DirectExec(Del.c_str(), 20);
+    direct_exec(Del.c_str(), 20);
 
     // Now that we've arrived here, we're about as sure as we can be that that
     // record is quite dead.
@@ -279,7 +279,7 @@ bool pqxx::basic_robusttransaction::CheckTransactionRecord()
     {
       const std::string query(
 	"SELECT " + m_xid + " >= txid_snapshot_xmin(txid_current_snapshot())");
-      DirectExec(query.c_str())[0][0].to(hold);
+      direct_exec(query.c_str())[0][0].to(hold);
     }
     else
     {
@@ -295,7 +295,7 @@ bool pqxx::basic_robusttransaction::CheckTransactionRecord()
        * relation exists but no such record is found, then the transaction is no
        * longer running.
        */
-      const result R(DirectExec((
+      const result R(direct_exec((
 	"SELECT current_query "
 	"FROM pq_stat_activity "
 	"WHERE procpid = " + to_string(m_backendpid)).c_str()));
@@ -314,5 +314,5 @@ bool pqxx::basic_robusttransaction::CheckTransactionRecord()
             "id = " + to_string(m_record_id) + " AND "
             "user = " + conn().username();
 
-  return !DirectExec(Find.c_str(), 20).empty();
+  return !direct_exec(Find.c_str(), 20).empty();
 }

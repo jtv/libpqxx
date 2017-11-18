@@ -510,7 +510,7 @@ protected:
    * executing the latter part of the transaction without a backend transaction
    * being active (and with the former part aborted).
    */
-  result DirectExec(const char C[], int Retries=0);
+  result direct_exec(const char C[], int Retries=0);
 
   /// Forget about any reactivation-blocking resources we tried to allocate
   void reactivation_avoidance_clear() noexcept

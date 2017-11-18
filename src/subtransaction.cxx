@@ -49,7 +49,7 @@ void pqxx::subtransaction::do_begin()
 {
   try
   {
-    DirectExec(("SAVEPOINT \"" + name() + "\"").c_str());
+    direct_exec(("SAVEPOINT \"" + name() + "\"").c_str());
   }
   catch (const sql_error &)
   {
@@ -62,7 +62,7 @@ void pqxx::subtransaction::do_commit()
 {
   const int ra = m_reactivation_avoidance.get();
   m_reactivation_avoidance.clear();
-  DirectExec(("RELEASE SAVEPOINT \"" + name() + "\"").c_str());
+  direct_exec(("RELEASE SAVEPOINT \"" + name() + "\"").c_str());
   gate::transaction_subtransaction(m_parent).add_reactivation_avoidance_count(
 	ra);
 }
@@ -70,5 +70,5 @@ void pqxx::subtransaction::do_commit()
 
 void pqxx::subtransaction::do_abort()
 {
-  DirectExec(("ROLLBACK TO SAVEPOINT \"" + name() + "\"").c_str());
+  direct_exec(("ROLLBACK TO SAVEPOINT \"" + name() + "\"").c_str());
 }

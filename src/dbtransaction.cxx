@@ -74,7 +74,7 @@ void pqxx::dbtransaction::do_begin()
 {
   const gate::connection_dbtransaction gate(conn());
   const int avoidance_counter = gate.get_reactivation_avoidance_count();
-  DirectExec(m_start_cmd.c_str(), avoidance_counter ? 0 : 2);
+  direct_exec(m_start_cmd.c_str(), avoidance_counter ? 0 : 2);
 }
 
 
@@ -82,7 +82,7 @@ pqxx::result pqxx::dbtransaction::do_exec(const char Query[])
 {
   try
   {
-    return DirectExec(Query);
+    return direct_exec(Query);
   }
   catch (const std::exception &)
   {
@@ -95,7 +95,7 @@ pqxx::result pqxx::dbtransaction::do_exec(const char Query[])
 void pqxx::dbtransaction::do_abort()
 {
   reactivation_avoidance_clear();
-  DirectExec(internal::sql_rollback_work);
+  direct_exec(internal::sql_rollback_work);
 }
 
 

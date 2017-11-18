@@ -31,7 +31,7 @@ void pqxx::basic_transaction::do_commit()
 {
   try
   {
-    DirectExec(internal::sql_commit_work);
+    direct_exec(internal::sql_commit_work);
   }
   catch (const statement_completion_unknown &e)
   {

@@ -29,7 +29,7 @@ private:
 
     try
     {
-      DirectExec("COMMIT");
+      direct_exec("COMMIT");
     }
     catch (const exception &e)
     {
