@@ -67,11 +67,11 @@ const char *pqxx::field::c_str() const
 
 bool pqxx::field::is_null() const noexcept
 {
-  return home().GetIsNull(idx(), col());
+  return home().get_is_null(idx(), col());
 }
 
 
 pqxx::field::size_type pqxx::field::size() const noexcept
 {
-  return home().GetLength(idx(), col());
+  return home().get_length(idx(), col());
 }

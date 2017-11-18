@@ -212,7 +212,7 @@ void pqxx::result::ThrowSQLError(
   throw sql_error(Err, Query, code);
 }
 
-void pqxx::result::CheckStatus() const
+void pqxx::result::check_status() const
 {
   const std::string Err = StatusError();
   if (!Err.empty()) ThrowSQLError(Err, query());
@@ -288,14 +288,14 @@ const char *pqxx::result::GetValue(
 }
 
 
-bool pqxx::result::GetIsNull(
+bool pqxx::result::get_is_null(
 	pqxx::result::size_type Row,
 	pqxx::row::size_type Col) const
 {
   return PQgetisnull(m_data.get(), int(Row), int(Col)) != 0;
 }
 
-pqxx::field::size_type pqxx::result::GetLength(
+pqxx::field::size_type pqxx::result::get_length(
 	pqxx::result::size_type Row,
         pqxx::row::size_type Col) const noexcept
 {

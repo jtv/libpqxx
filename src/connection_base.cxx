@@ -323,7 +323,7 @@ void pqxx::connection_base::check_result(const result &R)
   // A shame we can't quite detect out-of-memory to turn this into a bad_alloc!
   if (!gate::result_connection(R)) throw failure(err_msg());
 
-  gate::result_creation(R).CheckStatus();
+  gate::result_creation(R).check_status();
 }
 
 

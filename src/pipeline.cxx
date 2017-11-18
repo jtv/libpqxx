@@ -287,7 +287,7 @@ void pqxx::pipeline::obtain_dummy()
   bool OK = false;
   try
   {
-    gate::result_creation(R).CheckStatus();
+    gate::result_creation(R).check_status();
     OK = true;
   }
   catch (const sql_error &)
@@ -338,7 +338,7 @@ void pqxx::pipeline::obtain_dummy()
       const std::string &query = m_issuedrange.first->second.get_query();
       const result res(m_trans.exec(query));
       m_issuedrange.first->second.set_result(res);
-      gate::result_creation(res).CheckStatus();
+      gate::result_creation(res).check_status();
       ++m_issuedrange.first;
     }
     while (m_issuedrange.first != stop);
@@ -411,7 +411,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 
   m_queries.erase(q);
 
-  gate::result_creation(R).CheckStatus();
+  gate::result_creation(R).check_status();
   return P;
 }
 

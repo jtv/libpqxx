@@ -210,14 +210,14 @@ private:
 
   friend class pqxx::field;
   PQXX_PURE const char *GetValue(size_type Row, row_size_type Col) const;
-  PQXX_PURE bool GetIsNull(size_type Row, row_size_type Col) const;
-  PQXX_PURE field_size_type GetLength(
+  PQXX_PURE bool get_is_null(size_type Row, row_size_type Col) const;
+  PQXX_PURE field_size_type get_length(
 	size_type,
 	row_size_type) const noexcept;
 
   friend class pqxx::internal::gate::result_creation;
   result(internal::pq::PGresult *rhs, const std::string &Query);
-  PQXX_PRIVATE void CheckStatus() const;
+  PQXX_PRIVATE void check_status() const;
 
   friend class pqxx::internal::gate::result_connection;
   friend class pqxx::internal::gate::result_row;

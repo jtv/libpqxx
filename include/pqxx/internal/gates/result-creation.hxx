@@ -18,7 +18,7 @@ class PQXX_PRIVATE result_creation : callgate<const result>
     return result(rhs, query);
   }
 
-  void CheckStatus() const { return home().CheckStatus(); }
+  void check_status() const { return home().check_status(); }
 };
 } // namespace pqxx::internal::gate
 } // namespace pqxx::internal
