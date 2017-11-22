@@ -561,22 +561,22 @@ private:
   template<typename T> bool parm_is_null(T) const noexcept
 	{ return false; }
 
-  PQXX_LIBEXPORT result internal_exec_prepared(
+  result internal_exec_prepared(
 	const std::string &statement,
 	const internal::params &args);
 
-  PQXX_LIBEXPORT result internal_exec_params(
+  result internal_exec_params(
 	const std::string &query,
 	const internal::params &args);
 
   /// Throw unexpected_rows if prepared statement returned wrong no. of rows.
-  PQXX_LIBEXPORT void check_rowcount_prepared(
+  void check_rowcount_prepared(
 	const std::string &statement,
 	size_t expected_rows,
 	size_t actual_rows);
 
   /// Throw unexpected_rows if wrong row count from parameterised statement.
-  PQXX_LIBEXPORT void check_rowcount_params(
+  void check_rowcount_params(
 	size_t expected_rows, size_t actual_rows);
 
   friend class pqxx::internal::gate::transaction_transactionfocus;

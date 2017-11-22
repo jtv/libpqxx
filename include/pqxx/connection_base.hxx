@@ -878,7 +878,7 @@ private:
 	const int binaries[],
 	int nparams);
 
-  result PQXX_LIBEXPORT exec_params(
+  result exec_params(
 	const std::string &query,
 	const internal::params &args);
 
