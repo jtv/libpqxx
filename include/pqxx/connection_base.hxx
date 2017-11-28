@@ -472,25 +472,13 @@ public:
    * a statement has been prepared, only closing the connection or explicitly
    * "unpreparing" it can make it go away.
    *
-   * Use the transaction classes' @c prepared().exec() function to execute a
+   * Use the @c pqxx::transaction_base::exec_prepared functions to execute a
    * prepared statement.  Use @c prepared().exists() to find out whether a
-   * statement has been prepared under a given name.
+   * statement has been prepared under a given name.  See \ref prepared for a
+   * full discussion.
    *
-   * A special case is the nameless prepared statement.  You may prepare a
-   * statement without a name.  The unnamed statement can be redefined at any
-   * time, without un-preparing it first.
-   *
-   * @warning Prepared statements are not necessarily defined on the backend
-   * right away; libpqxx generally does that lazily.  This means that you can
-   * prepare statements before the connection is fully established, and that
-   * it's relatively cheap to pre-prepare lots of statements that you may or may
-   * not use during the session.  On the other hand, it also means that errors
-   * in a prepared statement may not show up until you first try to invoke it.
-   * Such an error may then break the transaction it occurs in.
-   *
-   * @warning Never try to prepare, execute, or unprepare a prepared statement
-   * manually using direct SQL queries.  Always use the functions provided by
-   * libpqxx.
+   * Never try to prepare, execute, or unprepare a prepared statement manually
+   * using direct SQL queries.  Always use the functions provided by libpqxx.
    *
    * @{
    */
@@ -521,10 +509,10 @@ public:
    * have very specific realtime requirements, you can use the @c prepare_now()
    * function to force immediate preparation.
    *
-   * @warning The statement may not be registered with the backend until it is
-   * actually used.  So if, for example, the statement is syntactically
-   * incorrect, you may see a syntax_error here, or later when you try to call
-   * the statement, or in a prepare_now() call.
+   * The statement may not be registered with the backend until it is actually
+   * used.  So if, for example, the statement is syntactically incorrect, you
+   * may see a syntax_error here, or later when you try to call the statement,
+   * or during a @c prepare_now() call.
    *
    * @param name unique name for the new prepared statement.
    * @param definition SQL statement to prepare.

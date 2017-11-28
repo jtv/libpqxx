@@ -349,6 +349,26 @@ public:
 
   /**
    * @name Prepared statements
+   *
+   * These are very similar to parameterised statements.  The difference is
+   * that you prepare them in advance, giving them identifying names.  You can
+   * then call them by these names, passing in the argument values appropriate
+   * for that call.
+   *
+   * You prepare a statement on the connection, using
+   * @c pqxx::connection_base::prepare().  But you then call the statement in a
+   * transaction, using the functions you see here.
+   *
+   * Never try to prepare, execute, or unprepare a prepared statement manually
+   * using direct SQL queries.  Always use the functions provided by libpqxx.
+   * 
+   * See \ref prepared for a full discussion.
+   * 
+   * @warning Beware of "nul" bytes.  Any string you pass as a parameter will
+   * end at the first char with value zero.  If you pass a @c std::string that
+   * contains a zero byte, the last byte in the value will be the one just
+   * before the zero.  If you need a zero byte, consider using
+   * pqxx::binarystring and/or SQL's @c bytea type.
    */
   //@{
 
