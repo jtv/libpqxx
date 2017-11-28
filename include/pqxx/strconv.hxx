@@ -45,6 +45,14 @@ namespace internal
 	const std::string &type);
 } // namespace pqxx::internal
 
+
+/** Helper: declare a typical string_traits specialisation.
+ *
+ * It'd be great to do this without a preprocessor macro.  The problem is
+ * that we want to represent the parameter type's name to programmers.
+ * There's probably a better way in newer C++ versions, but I don't think there
+ * is one in C++11.
+ */
 #define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(T)			\
 template<> struct PQXX_LIBEXPORT string_traits<T>			\
 {									\
