@@ -1,4 +1,4 @@
-/** Performance features documentation.
+/* Performance features documentation.
  *
  * Documentation only: libpqxx performance features.
  *
