@@ -1166,13 +1166,11 @@ void wait_fd(int fd, bool forwrite=false, timeval *tv=nullptr)
   const short events = (forwrite ? POLLWRNORM : POLLRDNORM);
   WSAPOLLFD fdarray{SOCKET(fd), events, 0};
   WSAPoll(&fdarray, 1, tv_milliseconds(tv));
-  // TODO: Report errors.
 #elif defined(HAVE_POLL)
   const short events = short(
         POLLERR|POLLHUP|POLLNVAL | (forwrite?POLLOUT:POLLIN));
   pollfd pfd{fd, events, 0};
   poll(&pfd, 1, tv_milliseconds(tv));
-  // TODO: Report errors.
 #else
   // No poll()?  Our last option is select().
   fd_set read_fds;
@@ -1188,8 +1186,11 @@ void wait_fd(int fd, bool forwrite=false, timeval *tv=nullptr)
   FD_SET(fd, &except_fds);
 
   select(fd+1, &read_fds, &write_fds, &except_fds, tv);
-  // TODO: Report errors.
 #endif
+
+  // No need to report errors.  The caller will try to use the file
+  // descriptor right after we return, so if the file descriptor is broken,
+  // the caller will notice soon enough.
 }
 } // namespace
 
