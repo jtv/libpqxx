@@ -15,16 +15,15 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#
+
 import os
 import subprocess
-#import sys
-#sys.path.insert(0, os.path.abspath('.'))
 
-read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
+read_the_docs_build = os.environ.get('READTHEDOCS') == 'True'
 
 if read_the_docs_build:
-    subprocess.call('cd ..; ./configure; cd doc; doxygen', shell=True)
+    subprocess.check_call('./configure', cwd=os.path.pardir)
+    subprocess.check_call('doxygen', cwd=os.path.join(os.path.pardir, 'doc'))
 
 # -- General configuration ------------------------------------------------
 
