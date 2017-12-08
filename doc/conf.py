@@ -24,7 +24,7 @@ import subprocess
 read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
 
 if read_the_docs_build:
-	subprocess.call('cd ..; ./configure; cd doc; doxygen', shell=True)
+    subprocess.call('cd ..; ./configure; cd doc; doxygen', shell=True)
 
 # -- General configuration ------------------------------------------------
 
@@ -35,8 +35,10 @@ if read_the_docs_build:
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
-    'sphinx.ext.doctest']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
+    ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -170,6 +172,3 @@ texinfo_documents = [
      author, 'libpqxx', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-
