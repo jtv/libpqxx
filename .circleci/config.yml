@@ -1,0 +1,17 @@
+# CircleCI config for automated test builds triggered from Github.
+version: 2
+jobs:
+  build:
+    docker:
+      - image: debian:stretch
+    steps:
+      - checkout
+      - run:
+          name: Configure
+          command: ./configure CXXFLAGS=-O0 --enable-maintainer-mode --disable-docs
+      - run:
+          name: Make
+          command: make
+      - run:
+          name: Test
+          command: make check
