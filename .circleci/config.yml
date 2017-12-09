@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           name: Install
-          command: apt update && apt install -y g++ postgresql libpq-dev make autoconf dh-autoreconf automake
+          command: apt update && apt install -y python g++ postgresql libpq-dev make autoconf dh-autoreconf automake
       - run:
           name: Configure
           command: CXXFLAGS=-O0 ./autogen.sh
