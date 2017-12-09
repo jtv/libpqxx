@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           name: Install
-          command: apt update && apt install -y g++ postgresql libpq-dev make autoconf
+          command: apt update && apt install -y g++ postgresql libpq-dev make autoconf dh-autoreconf automake
       - run:
           name: Configure
           command: ./configure CXXFLAGS=-O0 --enable-maintainer-mode --disable-documentation
