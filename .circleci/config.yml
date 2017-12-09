@@ -7,6 +7,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install
+          command: sudo apt update && sudo apt upgrade && sudo apt install g++
+      - run:
           name: Configure
           command: ./configure CXXFLAGS=-O0 --enable-maintainer-mode --disable-documentation
       - run:
