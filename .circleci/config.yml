@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           name: Configure
-          command: ./configure CXXFLAGS=-O0 --enable-maintainer-mode --disable-docs
+          command: ./configure CXXFLAGS=-O0 --enable-maintainer-mode --disable-documentation
       - run:
           name: Make
           command: make
