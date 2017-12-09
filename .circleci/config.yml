@@ -11,7 +11,7 @@ jobs:
           command: apt update && apt install -y python g++ postgresql libpq-dev make autoconf dh-autoreconf autoconf-archive automake
       - run:
           name: Configure
-          command: CXXFLAGS=-O0 ./autogen.sh
+          command: CXXFLAGS=-O0 CONFIG_ARGS=--disable-documentation ./autogen.sh
       - run:
           name: Make
           command: make
