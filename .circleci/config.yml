@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           name: Install
-          command: apt install g++ postgresql
+          command: apt update && apt install g++ postgresql
       - run:
           name: Configure
           command: ./configure CXXFLAGS=-O0 --enable-maintainer-mode --disable-documentation
