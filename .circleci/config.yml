@@ -11,7 +11,7 @@ jobs:
           command: apt update && apt install -y python g++ postgresql libpq-dev make autoconf dh-autoreconf autoconf-archive automake
       - run:
           name: Set up database (experimental)
-          command: psql -c "SELECT 'yes'"
+          command: ME=$(whoami) && su postgres -c "createuser -d $ME" && createdb $ME
       - run:
           name: Configure
           command: CXXFLAGS=-O0 CONFIG_ARGS=--disable-documentation ./autogen.sh
