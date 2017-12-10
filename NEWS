@@ -15,6 +15,7 @@
  - Most configuration items are gone.
  - Retired all existing capability flags.
  - Uses WSAPoll() on Windows.
+ - Documentation on readthedocs.org, thanks Tim Sheerman-Chase.
 5.1.0
  - Releases after this will require C++11!
  - Internal simplification to pqxx::result.
