@@ -8,6 +8,7 @@ config/test-driver
 conftest
 conftest.cpp
 conftest.err
+doc/_build
 doc/Doxyfile
 doc/html/Reference
 doc/html/Tutorial
