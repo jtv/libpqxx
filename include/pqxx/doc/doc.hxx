@@ -55,7 +55,7 @@
  * destroyed.
  * \li Until then, use the transaction's @c exec() functions to execute
  * queries, which you pass in as simple strings.
- * \li Most of the @exec() functions return a pqxx::result object, which acts
+ * \li Most of the @c exec() functions return a pqxx::result object, which acts
  * as a standard container of rows.  Each row in itself acts as a container of
  * fields.  You can use array indexing and/or iterators to access either.
  * \li The field's data is stored as a text string.  You can read it as such
