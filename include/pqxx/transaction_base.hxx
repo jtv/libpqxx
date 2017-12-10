@@ -30,8 +30,7 @@
 #include "pqxx/isolation"
 #include "pqxx/result"
 
-/* Methods tested in eg. self-test program test001 are marked with "//[t01]"
- */
+// Methods tested in eg. test module test01 are marked with "//[t01]".
 
 namespace pqxx
 {
@@ -361,9 +360,9 @@ public:
    *
    * Never try to prepare, execute, or unprepare a prepared statement manually
    * using direct SQL queries.  Always use the functions provided by libpqxx.
-   * 
+   *
    * See \ref prepared for a full discussion.
-   * 
+   *
    * @warning Beware of "nul" bytes.  Any string you pass as a parameter will
    * end at the first char with value zero.  If you pass a @c std::string that
    * contains a zero byte, the last byte in the value will be the one just

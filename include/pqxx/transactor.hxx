@@ -1,6 +1,4 @@
-/* Definition of the pqxx::transactor class.
- *
- * pqxx::transactor is a framework-style wrapper for safe transactions.
+/* Transactor framework, a wrapper for safely retryable transactions.
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transactor instead.
  *
@@ -20,8 +18,7 @@
 #include "pqxx/transaction"
 
 
-/* Methods tested in eg. self-test program test001 are marked with "//[t01]"
- */
+// Methods tested in eg. test module test01 are marked with "//[t01]".
 
 /**
  * @defgroup transactor Transactor framework

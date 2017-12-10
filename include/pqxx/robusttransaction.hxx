@@ -19,9 +19,7 @@
 #include "pqxx/dbtransaction"
 
 
-/* Methods tested in eg. self-test program test001 are marked with "//[t01]"
- */
-
+// Methods tested in eg. test module test01 are marked with "//[t01]".
 
 namespace pqxx
 {
