@@ -14,7 +14,7 @@ jobs:
           command: mkdir db && PGDATA=db/data initdb && PGHOST=$(pwd)/db createdb $(whoami)
       - run:
           name: Start database
-          run: PGDATA=db/data postgres -- -F -h '' -k db &
+          command: PGDATA=db/data postgres -- -F -h '' -k db &
       - run:
           name: Configure
           command: CXXFLAGS=-O0 CONFIG_ARGS=--disable-documentation ./autogen.sh
