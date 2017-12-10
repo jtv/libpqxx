@@ -11,7 +11,7 @@ jobs:
           command: apt update && apt install -y python g++ postgresql libpq-dev make autoconf dh-autoreconf autoconf-archive automake
       - run:
           name: Set up database
-          command: mkdir db && PGDATA=db/data initdb && PGHOST=$(pwd)/db createdb $(whoami)
+          command: mkdir db && PGDATA=db/data $(pg_config --bindir)/initdb && PGHOST=$(pwd)/db createdb $(whoami)
       - run:
           name: Start database
           command: PGDATA=db/data postgres -- -F -h '' -k db &
