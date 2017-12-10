@@ -167,8 +167,19 @@
  *
  * Now how do you access the data inside @c r?
  *
- * The simplest way is array indexing.  A result acts as an array of rows,
- * and a row acts as an array of fields.
+ * Result sets act as standard C++ containers of rows.  Rows act as standard
+ * C++ containers of fields.  So the easiest way to go through them is:
+ *
+ * @code
+ * for (const auto &row: r)
+ * {
+ *    for (const auto &field: row) std::cout << field.c_str() << '\t';
+ *    std::cout << std::endl;
+ * }
+ * @endcode
+ *
+ * But results and rows also support other kinds of access.  Array-style
+ * indexing, for instance:
  *
  * @code
  * const int num_rows = r.size();
@@ -186,18 +197,20 @@
  * }
  * @endcode
  *
- * But results and rows also define @c const_iterator types:
+ * And of course you can use classic "begin/end" loops:
  *
  * @code
- * for (const auto &row: r)
- *  {
- *    for (const auto &field: row) std::cout << field.c_str() << '\t';
- *    std::cout << std::endl;
- *  }
+ * for (auto row = r.begin(); row != r.end(); row++)
+ * {
+ *   for (auto field = row.begin(); field != row.end(); field++)
+ *     std::cout << field->c_str() << '\t';
+ *     std::cout << std::endl;
+ * }
  * @endcode
  *
- * They also have @c const_reverse_iterator types, which iterate backwards from
- * @c rbegin() to @c rend() exclusive.
+ * Result sets are immutable, so all iterators on results and rows are actually
+ * @c const_iterators.  There are also @c const_reverse_iterator types, which
+ * iterate backwards from @c rbegin() to @c rend() exclusive.
  *
  * All these iterator types provide one extra bit of convenience that you won't
  * normally find in C++ iterators: referential transparency.  You don't need to
