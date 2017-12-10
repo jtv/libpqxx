@@ -20,6 +20,8 @@
 
 // Methods tested in eg. test module test01 are marked with "//[t01]".
 
+namespace pqxx
+{
 /**
  * @defgroup transactor Transactor framework
  *
@@ -60,8 +62,6 @@
  */
 //@{
 
-namespace pqxx
-{
 /// Simple way to execute a transaction with automatic retry.
 /**
  * Executes your transaction code as a callback.  Repeats it until it completes
@@ -268,7 +268,7 @@ inline void connection_base::perform(
     T2.on_commit();
   } while (!Done);
 }
-//@}
 } // namespace pqxx
+//@}
 #include "pqxx/compiler-internal-post.hxx"
 #endif
