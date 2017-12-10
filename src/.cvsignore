@@ -1,8 +1,0 @@
-.deps
-.libs
-.*.swp
-Makefile
-Makefile.in
-*.lo
-*.la
-

@@ -1,8 +1,0 @@
-.deps
-.libs
-Makefile
-Makefile.in
-pqxxbench
-rmlo
-.*.swp
-*.pyc
