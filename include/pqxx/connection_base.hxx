@@ -483,7 +483,7 @@ public:
    * @{
    */
 
-  /// Define a prepared statement
+  /// Define a prepared statement.
   /**
    * The statement's definition can refer to a parameter using the parameter's
    * positional number n in the definition.  For example, the first parameter
@@ -528,10 +528,10 @@ public:
    */
   void prepare(const std::string &definition);
 
-  /// Drop prepared statement
+  /// Drop prepared statement.
   void unprepare(const std::string &name);
 
-  /// Request that prepared statement be registered with the server
+  /// Request that prepared statement be registered with the server.
   /** If the statement had already been fully prepared, this will do nothing.
    *
    * If the connection should break and be transparently restored, then the new
