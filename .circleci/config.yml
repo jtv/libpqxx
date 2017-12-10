@@ -11,7 +11,7 @@ jobs:
           command: apt update && apt install -y python g++ libpq-dev make autoconf dh-autoreconf autoconf-archive automake
       - run: 
           name: Set up database
-          run: |
+          command: |
               createuser -h localhost -d $(whoami) &&
               createdb -h localhost $(whoami)
       - run:
