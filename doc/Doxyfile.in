@@ -461,6 +461,7 @@ WARN_LOGFILE           =
 # with spaces.
 
 INPUT                  = @top_srcdir@/include/pqxx \
+                         @top_srcdir@/include/pqxx/doc \
                          @top_srcdir@/src
 
 # This tag can be used to specify the character encoding of the source files 
