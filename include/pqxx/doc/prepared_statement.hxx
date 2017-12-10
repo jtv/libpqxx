@@ -1,4 +1,4 @@
-/** \defgroup prepared Prepared statements
+/** @defgroup prepared Prepared statements
  *
  * Prepared statements are SQL queries that you define once and then invoke
  * as many times as you like, typically with varying parameters.  It's basically
