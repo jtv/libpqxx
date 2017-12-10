@@ -5,11 +5,16 @@
  - Removed maketemporary.  We weren't using it.
  - Can now be built outside the source tree.
  - New, simpler, lambda-friendly transactor framework.
+ - New, simpler, prepared statements and parameterised statements.
  - Result rows can be passed around independently.
  - New exec0(): perform query, expect zero rows of data.
- - New exec1(): perform query, expect single row of data.
+ - New exec1(): perform query, expect (and return) a single row of data.
+ - New exec_n(): perform query, expect exactly n rows of data.
  - No longer defines Visual Studio's NOMINMAX in headers.
  - Much faster configure script.
+ - Most configuration items are gone.
+ - Retired all existing capability flags.
+ - Uses WSAPoll() on Windows.
 5.1.0
  - Releases after this will require C++11!
  - Internal simplification to pqxx::result.
