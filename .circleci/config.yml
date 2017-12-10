@@ -11,7 +11,10 @@ jobs:
           command: apt update && apt install -y python g++ postgresql libpq-dev make autoconf dh-autoreconf autoconf-archive automake
       - run:
           name: Set up database
-          command: mkdir -p db/data && PGDATA=db/data postgres -- -F -h '' -k db >db/backend.log &
+          command: mkdir db && PGDATA=db/data initdb && PGHOST=$(pwd)/db createdb $(whoami)
+      - run:
+          name: Start database
+          run: PGDATA=db/data postgres -- -F -h '' -k db &
       - run:
           name: Configure
           command: CXXFLAGS=-O0 CONFIG_ARGS=--disable-documentation ./autogen.sh
