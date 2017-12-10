@@ -10,8 +10,6 @@
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
  */
-#ifndef PQXX_H_DOC
-#define PQXX_H_DOC
 
 /** @mainpage
  * @author Jeroen T. Vermeulen
@@ -242,5 +240,3 @@
  * on.  A command-line utility @c tools/pqxxthreadsafety prints out the same
  * information.
  */
-
-#endif
