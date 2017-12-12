@@ -15,7 +15,7 @@
 #
 # Edit this to suit your installation.
 
-PGSQLSRC="C:\Sources\postgresql-9.1.1\src"
+PGSQLSRC=C:\Sources\postgresql-9.1.1\src
 
 
 # Directory where the Postgres header files, e.g. postgres_ext.h, are found.
