@@ -3,15 +3,17 @@ version: 2
 jobs:
   build:
     docker:
-      - image: debian:stretch
+      - image: postgres:latest
     steps:
       - checkout
       - run:
           name: Install
-          command: apt update && apt install -y python g++ postgresql libpq-dev make autoconf dh-autoreconf autoconf-archive automake
-      - run:
+          command: apt update && apt install -y python g++ libpq-dev make autoconf dh-autoreconf autoconf-archive automake
+      - run: 
           name: Set up database
-          command: systemctl start postgresql && ME=$(whoami) && DEFAULT_HOME=1 su -p postgres -c "createuser -d $ME" && createdb $ME
+          command: |
+              createuser -h localhost -d $(whoami) &&
+              createdb -h localhost $(whoami)
       - run:
           name: Configure
           command: CXXFLAGS=-O0 CONFIG_ARGS=--disable-documentation ./autogen.sh
@@ -20,4 +22,4 @@ jobs:
           command: make
       - run:
           name: Test
-          command: make check
+          command: PGDATA=db/data make check
