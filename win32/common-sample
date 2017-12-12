@@ -1,48 +1,41 @@
 # Common options for Visual C++ makefiles to build libpqxx and its regression
 # test.
+#
 # THE ORIGINAL OF THIS FILE IS CALLED common-sample; DON'T EDIT THE ORIGINAL or
 # you may lose your changes when you upgrade your libpqxx sources.
 # Instead, copy "common-sample" to "common" and edit just the file "common".
 
 # Caution: on Windows, some environments, such as the "make" that comes with
 # Visual C++, expect you to use backslashes as path separators (for example,
-# "C:\src\libpqxx") whereas others like MinGW want you to use more conventional
-# slashes (as in "C:/src/libpqxx").
+# "C:\src\libpqxx") whereas others like MinGW want you to use slashes (as in
+# "C:/src/libpqxx").
 
-# Depending on your STL library min/max need to be defined.  Using STLport
-# there is no need for libpqxx to redefine these for me.
-
-# The next line gives us the directory under which all PostgreSQL include
+# PGSQLSRC tells us the directory under which all PostgreSQL include
 # directories, DLLs and LIB files can be found.
 #
-# If you built PostgreSQL from source, this is probably the only line you
-# will need to change.
-#
-# If you installed PostgreSQL using the One Click Installer from EnterpriseDB,
-# comment out the following line and uncomment the line after it.
-#
-# Edit the appropriate line to match your specific installation.
+# Edit this to suit your installation.
 
 PGSQLSRC="C:\Sources\postgresql-9.1.1\src"
 
-#PGSQLSRC="C:\Program Files\PostgreSQL\9.1"
 
-# This is the directory where the Postgres header files, e.g. postgres_ext.h,
-# are found.
+# Directory where the Postgres header files, e.g. postgres_ext.h, are found.
+#
+# You shouldn't normally need to edit this; the default is to take them from
+# the PGSQLSRC directory.
 
 PGSQLINC=$(PGSQLSRC)\include
 
-# This is the directory where the libpq header files, e.g. libpq-fe.h,
-# are found.  If you used the One Click Installer, comment out the next line
-# and uncomment the one following it:
+# Directory where the libpq header files, e.g. libpq-fe.h, are found.  If you
+# used the One Click Installer, comment out the next line and uncomment the
+# one following it:
 
 LIBPQINC=$(PGSQLSRC)\interfaces\libpq
 
 #LIBPQINC=$(PGSQLSRC)\include
 
-# This is the directory where the release build of the libpq DLL
-# and its corresponding LIB file are found, as well as the names of
-# those two files.
+
+# Directory where the release build of the libpq DLL and its corresponding LIB
+# file are found, as well as the names of those two files.
 #
 # If you installed PostgreSQL using the One Click Installer from EnterpriseDB,
 # comment out the next three lines and uncomment the following three.
@@ -57,15 +50,14 @@ LIBPQLIB=libpqdll.lib
 #LIBPQDLL=libpq.dll
 #LIBPQLIB=libpq.lib
 
-# This is the directory where the debug build of the libpq DLL
-# and its corresponding LIB file are found, as well as the names of
-# those two files.
+
+# Directory where the debug build of the libpq DLL and its corresponding LIB
+#  file are found, as well as the names of those two files.
 #
-# NOTE: If you don't have access to a debug build of libpq, just
-# provide the same information as above here. The debug builds of
-# libpqxx will reference the release version of libpq, which will
-# only limit your ability to debug libpq sources but otherwise should
-# work just fine.
+# If you don't have access to a debug build of libpq, just provide the same
+# information as above here. The debug builds of libpqxx will reference the
+# release version of libpq, which will limit your ability to debug libpq
+# sources but otherwise should work just fine.
 #
 # If you installed PostgreSQL using the One Click Installer from EnterpriseDB,
 # comment out the next three lines and uncomment the following three.
