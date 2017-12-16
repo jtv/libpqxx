@@ -19,10 +19,11 @@ jobs:
           name: Run postgres
           command: su postgres -c 'postgres -D /tmp/db -k /tmp/pg' &
       - run:
+          name: Create postgres user
+          command: su postgres -c "createuser -h /tmp/pg -d root"
+      - run:
           name: Set up database
-          command: |
-              su postgres -c "createuser -h /tmp/pg -d root" &&
-              createdb -h /tmp/pg root
+          command: createdb -h /tmp/pg root
       - run:
           name: Configure
           command: CXXFLAGS=-O0 CONFIG_ARGS=--disable-documentation ./autogen.sh
