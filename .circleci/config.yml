@@ -13,7 +13,8 @@ jobs:
           name: Prepare postgres
           command: |
               mkdir /tmp/db &&
-              chown postgres -c 'initdb --pgdata /tmp/db --auth trust --nosync'
+              chown postgres /tmp/db &&
+              su postgres -c 'initdb --pgdata /tmp/db --auth trust --nosync'
       - run:
           name: Set up database
           command: |
