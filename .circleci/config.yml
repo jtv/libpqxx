@@ -21,9 +21,8 @@ jobs:
       - run:
           name: Set up database
           command: |
-              whoami &&
-              su postgres -c "createuser -h /tmp/pg -d $(whoami)" &&
-              createdb -h /tmp/pg $(whoami)
+              su postgres -c "createuser -h /tmp/pg -d root" &&
+              createdb -h /tmp/pg root
       - run:
           name: Configure
           command: CXXFLAGS=-O0 CONFIG_ARGS=--disable-documentation ./autogen.sh
