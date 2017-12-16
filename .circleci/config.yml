@@ -12,7 +12,8 @@ jobs:
       - run: 
           name: Set up database
           command: |
-              createuser -h localhost -d $(whoami) &&
+              ps -ef &&
+              su postgres -p -c "createuser -h localhost -d $(whoami)" &&
               createdb -h localhost $(whoami)
       - run:
           name: Configure
