@@ -21,7 +21,7 @@ jobs:
       - run:
           name: Create postgres user
           command: |
-              mkdir /root/project && chown postgres /root/project &&
+              chown postgres /root/project &&
               su postgres -c "createuser -h /tmp/pg -d root"
       - run:
           name: Set up database
