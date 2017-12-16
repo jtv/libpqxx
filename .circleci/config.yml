@@ -20,7 +20,9 @@ jobs:
           command: su postgres -c 'postgres -D /tmp/db -k /tmp/pg' &
       - run:
           name: Create postgres user
-          command: su postgres -c "createuser -h /tmp/pg -d root"
+          command: |
+              mkdir /root/project && chown postgres /root/project &&
+              su postgres -c "createuser -h /tmp/pg -d root"
       - run:
           name: Set up database
           command: createdb -h /tmp/pg root
