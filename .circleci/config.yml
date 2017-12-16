@@ -17,12 +17,12 @@ jobs:
               su postgres -c '/usr/lib/postgresql/*/bin/initdb --pgdata /tmp/db --auth trust --nosync'
       - run:
           name: Run postgres
-          command: su postgres -c 'postgres -D /tmp/db' &
+          command: su postgres -c 'postgres -D /tmp/db -k /tmp/pg' &
       - run:
           name: Set up database
           command: |
-              su postgres -c "createuser -h localhost -d $(whoami)" &&
-              createdb -h localhost $(whoami)
+              su postgres -c "createuser -h /tmp/pg -d $(whoami)" &&
+              createdb -h /tmp/pg $(whoami)
       - run:
           name: Configure
           command: CXXFLAGS=-O0 CONFIG_ARGS=--disable-documentation ./autogen.sh
