@@ -8,10 +8,11 @@ jobs:
       - checkout
       - run:
           name: Install
-          command: apt update && apt install -y python g++ libpq-dev make autoconf dh-autoreconf autoconf-archive automake
+          command: apt update && apt install -y python g++ libpq-dev postgresql build-essential make autoconf dh-autoreconf autoconf-archive automake
       - run: 
           name: Set up database
           command: |
+              dockerize -wait tcp://localhost:5432 -timeout 1m &&
               ps -ef &&
               su postgres -p -c "createuser -h localhost -d $(whoami)" &&
               createdb -h localhost $(whoami)
