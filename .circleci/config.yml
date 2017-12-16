@@ -14,7 +14,7 @@ jobs:
           command: |
               mkdir /tmp/db &&
               chown postgres /tmp/db &&
-              su postgres -c 'initdb --pgdata /tmp/db --auth trust --nosync'
+              su postgres -c '/usr/lib/postgresql/*/bin/initdb --pgdata /tmp/db --auth trust --nosync'
       - run:
           name: Set up database
           command: |
