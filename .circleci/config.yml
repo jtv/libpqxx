@@ -16,9 +16,11 @@ jobs:
               chown postgres /tmp/db &&
               su postgres -c '/usr/lib/postgresql/*/bin/initdb --pgdata /tmp/db --auth trust --nosync'
       - run:
+          name: Run postgres
+          command: su postgres -c 'postgres -D /tmp/db' &
+      - run:
           name: Set up database
           command: |
-              ps -ef &&
               su postgres -p -c "createuser -h localhost -d $(whoami)" &&
               createdb -h localhost $(whoami)
       - run:
