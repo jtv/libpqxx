@@ -9,10 +9,14 @@ jobs:
       - run:
           name: Install
           command: apt update && apt install -y python g++ libpq-dev postgresql build-essential make autoconf dh-autoreconf autoconf-archive automake
-      - run: 
+      - run:
+          name: Prepare postgres
+          command: |
+              mkdir /tmp/db &&
+              chown postgres -c 'initdb --pgdata /tmp/db --auth trust --nosync'
+      - run:
           name: Set up database
           command: |
-              dockerize -wait tcp://localhost:5432 -timeout 1m &&
               ps -ef &&
               su postgres -p -c "createuser -h localhost -d $(whoami)" &&
               createdb -h localhost $(whoami)
