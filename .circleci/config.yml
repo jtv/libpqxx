@@ -4,6 +4,8 @@ jobs:
   build:
     docker:
       - image: postgres:latest
+    environment:
+      - PGHOST: "/tmp"
     steps:
       - checkout
       - run:
@@ -20,10 +22,10 @@ jobs:
           command: (su postgres -c '/usr/lib/postgresql/*/bin/postgres -D /tmp/db -k /tmp' &) && sleep 5
       - run:
           name: Create postgres user
-          command: su postgres -c "createuser -w -d -h /tmp root"
+          command: su postgres -c "createuser -w -d root"
       - run:
           name: Set up database
-          command: createdb -h /tmp root
+          command: createdb root
       - run:
           name: Configure
           command: CXXFLAGS=-O0 CONFIG_ARGS=--disable-documentation ./autogen.sh
