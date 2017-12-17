@@ -17,7 +17,7 @@ jobs:
               su postgres -c '/usr/lib/postgresql/*/bin/initdb --pgdata /tmp/db --auth trust --nosync'
       - run:
           name: Run postgres
-          command: (su postgres -c 'postgres -D /tmp/db -k /tmp/pg' &) && sleep 5
+          command: (su postgres -c '/usr/lib/postgresql/*/bin/postgres -D /tmp/db -k /tmp/pg' &) && sleep 5
       - run:
           name: Create postgres user
           command: su postgres -c "createuser -w -d -h /tmp/pg root"
