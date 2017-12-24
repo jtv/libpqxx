@@ -18,11 +18,13 @@ include/pqxx/config-*-*.h
 include/pqxx/config.h
 include/pqxx/stamp-h1
 libpqxx.pc
+libpqxx-*.tar.gz
 libtool
 pqxx-config
 test/pqxxlo.txt
 tools/pqxxthreadsafety
 tools/rmlo
+README
 win32/common
 **/Makefile
 **/Makefile.in
