@@ -34,9 +34,6 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/util pqxx/util.hxx \
 	pqxx/types pqxx/types.hxx \
 	pqxx/version pqxx/version.hxx \
-	pqxx/doc/doc.hxx \
-	pqxx/doc/performance.hxx \
-	pqxx/doc/prepared_statement.hxx \
 	pqxx/internal/callgate.hxx \
 	pqxx/internal/libpq-forward.hxx \
 	pqxx/internal/statement_parameters.hxx \
@@ -67,5 +64,5 @@ nobase_nodist_include_HEADERS = \
 	pqxx/config-public-compiler.h
 
 EXTRA_DIST = \
-	pqxx/doc.hxx \
+	pqxx/doc/*.md \
 	pqxx/version.hxx.template

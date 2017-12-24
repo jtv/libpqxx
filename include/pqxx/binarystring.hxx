@@ -24,7 +24,7 @@ namespace pqxx
 {
 
 /// Binary data corresponding to PostgreSQL's "BYTEA" binary-string type.
-/** @addtogroup escaping String escaping
+/** @ingroup escaping-functions
  *
  * This class represents a binary string as stored in a field of type bytea.
  * The raw value returned by a bytea field contains escape sequences for certain

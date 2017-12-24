@@ -17,7 +17,7 @@
 #include "pqxx/transaction"
 
 
-pqxx::basic_transaction::basic_transaction(
+pqxx::internal::basic_transaction::basic_transaction(
 	connection_base &C,
 	const std::string &IsolationLevel,
 	readwrite_policy rw) :
@@ -27,7 +27,7 @@ pqxx::basic_transaction::basic_transaction(
 }
 
 
-void pqxx::basic_transaction::do_commit()
+void pqxx::internal::basic_transaction::do_commit()
 {
   try
   {

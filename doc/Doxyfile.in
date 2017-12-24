@@ -481,7 +481,8 @@ INPUT_ENCODING         = UTF-8
 
 FILE_PATTERNS          = *.cxx \
                          *.hxx \
-                         *.h
+                         *.h \
+                         *.md
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories 
 # should be searched for input files as well. Possible values are YES and NO. 

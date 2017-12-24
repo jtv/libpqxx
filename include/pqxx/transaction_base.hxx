@@ -108,16 +108,23 @@ class transaction_transactionfocus;
 } // namespace internal
 
 
-/// Interface definition (and common code) for "transaction" classes.
 /**
- * @addtogroup transaction Transaction classes
- * All database access must be channeled through one of these classes for
- * safety, although not all implementations of this interface need to provide
+ * @defgroup transaction Transaction classes
+ *
+ * All database access goes through instances of these classes.
+ * However, not all implementations of this interface need to provide
  * full transactional integrity.
  *
  * Several implementations of this interface are shipped with libpqxx, including
  * the plain transaction class, the entirely unprotected nontransaction, and the
- * more cautions robusttransaction.
+ * more cautious robusttransaction.
+ */
+
+/// Interface definition (and common code) for "transaction" classes.
+/**
+ * @ingroup transaction
+ *
+ * Abstract base class for all transaction types.
  */
 class PQXX_LIBEXPORT PQXX_NOVTABLE transaction_base :
   public virtual internal::namedclass
@@ -154,7 +161,7 @@ public:
   void abort();								//[t10]
 
   /**
-   * @addtogroup escaping String escaping
+   * @ingroup escaping-functions
    */
   //@{
   /// Escape string for use as SQL string literal in this transaction

@@ -25,11 +25,9 @@
 namespace pqxx
 {
 
-/**
- * @addtogroup transaction Transaction classes
- */
-//@{
-
+namespace internal
+{
+/// Helper base class for the @c transaction class template.
 class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 {
 protected:
@@ -41,7 +39,13 @@ protected:
 private:
   virtual void do_commit() override;					//[t01]
 };
+} // namespace internal
 
+
+/**
+ * @ingroup transaction
+ */
+//@{
 
 /// Standard back-end transaction, templatized on isolation level
 /** This is the type you'll normally want to use to represent a transaction on
@@ -75,7 +79,7 @@ private:
 template<
 	isolation_level ISOLATIONLEVEL=read_committed,
 	readwrite_policy READWRITE=read_write>
-class transaction : public basic_transaction
+class transaction : public internal::basic_transaction
 {
 public:
   using isolation_tag = isolation_traits<ISOLATIONLEVEL>;
@@ -88,7 +92,7 @@ public:
    */
   explicit transaction(connection_base &C, const std::string &TName):	//[t01]
     namedclass(fullname("transaction", isolation_tag::name()), TName),
-    basic_transaction(C, isolation_tag::name(), READWRITE)
+    internal::basic_transaction(C, isolation_tag::name(), READWRITE)
 	{ Begin(); }
 
   explicit transaction(connection_base &C) :				//[t01]

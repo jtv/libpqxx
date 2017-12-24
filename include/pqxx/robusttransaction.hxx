@@ -24,12 +24,9 @@
 namespace pqxx
 {
 
-/**
- * @addtogroup transaction Transaction classes
- *
- * @{
- */
-
+namespace internal
+{
+/// Helper base class for the @c robusttransaction class template.
 class PQXX_LIBEXPORT PQXX_NOVTABLE basic_robusttransaction :
   public dbtransaction
 {
@@ -63,8 +60,14 @@ private:
   PQXX_PRIVATE void DeleteTransactionRecord() noexcept;
   PQXX_PRIVATE bool CheckTransactionRecord();
 };
+} // namespace internal
 
 
+/**
+ * @ingroup transaction
+ *
+ * @{
+ */
 
 /// Slightly slower, better-fortified version of transaction
 /** robusttransaction is similar to transaction, but spends more effort (and
@@ -134,7 +137,7 @@ private:
  * attempt to recreate the table at its next time of use.
  */
 template<isolation_level ISOLATIONLEVEL=read_committed>
-class robusttransaction : public basic_robusttransaction
+class robusttransaction : public internal::basic_robusttransaction
 {
 public:
   using isolation_tag = isolation_traits<ISOLATIONLEVEL>;
@@ -148,7 +151,7 @@ public:
 	connection_base &C,
 	const std::string &Name=std::string()) :
     namedclass(fullname("robusttransaction",isolation_tag::name()), Name),
-    basic_robusttransaction(C, isolation_tag::name())
+    internal::basic_robusttransaction(C, isolation_tag::name())
 	{ Begin(); }
 
   virtual ~robusttransaction() noexcept

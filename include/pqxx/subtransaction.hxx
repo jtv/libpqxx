@@ -27,7 +27,7 @@ namespace pqxx
 {
 
 /**
- * @addtogroup transaction Transaction classes
+ * @ingroup transaction
  */
 /// "Transaction" nested within another transaction
 /** A subtransaction can be executed inside a backend transaction, or inside

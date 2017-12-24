@@ -22,7 +22,7 @@ using namespace pqxx::internal;
 
 // TODO: Log username in more places.
 
-pqxx::basic_robusttransaction::basic_robusttransaction(
+pqxx::internal::basic_robusttransaction::basic_robusttransaction(
 	connection_base &C,
 	const std::string &IsolationLevel,
 	const std::string &table_name) :
@@ -35,12 +35,12 @@ pqxx::basic_robusttransaction::basic_robusttransaction(
 }
 
 
-pqxx::basic_robusttransaction::~basic_robusttransaction()
+pqxx::internal::basic_robusttransaction::~basic_robusttransaction()
 {
 }
 
 
-void pqxx::basic_robusttransaction::do_begin()
+void pqxx::internal::basic_robusttransaction::do_begin()
 {
   try
   {
@@ -68,7 +68,7 @@ void pqxx::basic_robusttransaction::do_begin()
 
 
 
-void pqxx::basic_robusttransaction::do_commit()
+void pqxx::internal::basic_robusttransaction::do_commit()
 {
   if (!m_record_id)
     throw internal_error("transaction '" + name() + "' has no ID");
@@ -159,7 +159,7 @@ void pqxx::basic_robusttransaction::do_commit()
 }
 
 
-void pqxx::basic_robusttransaction::do_abort()
+void pqxx::internal::basic_robusttransaction::do_abort()
 {
   dbtransaction::do_abort();
   DeleteTransactionRecord();
@@ -167,7 +167,7 @@ void pqxx::basic_robusttransaction::do_abort()
 
 
 // Create transaction log table if it didn't already exist
-void pqxx::basic_robusttransaction::CreateLogTable()
+void pqxx::internal::basic_robusttransaction::CreateLogTable()
 {
   // Create log table in case it doesn't already exist.  This code must only be
   // executed before the backend transaction has properly started.
@@ -202,7 +202,7 @@ void pqxx::basic_robusttransaction::CreateLogTable()
 }
 
 
-void pqxx::basic_robusttransaction::CreateTransactionRecord()
+void pqxx::internal::basic_robusttransaction::CreateTransactionRecord()
 {
   static const std::string Fail = "Could not create transaction log record: ";
 
@@ -228,7 +228,7 @@ void pqxx::basic_robusttransaction::CreateTransactionRecord()
 }
 
 
-std::string pqxx::basic_robusttransaction::sql_delete() const
+std::string pqxx::internal::basic_robusttransaction::sql_delete() const
 {
   return
 	"DELETE FROM \"" + m_log_table + "\" "
@@ -236,7 +236,8 @@ std::string pqxx::basic_robusttransaction::sql_delete() const
 }
 
 
-void pqxx::basic_robusttransaction::DeleteTransactionRecord() noexcept
+void pqxx::internal::basic_robusttransaction::DeleteTransactionRecord()
+        noexcept
 {
   if (!m_record_id) return;
 
@@ -270,7 +271,7 @@ void pqxx::basic_robusttransaction::DeleteTransactionRecord() noexcept
 
 
 // Attempt to establish whether transaction record with given ID still exists
-bool pqxx::basic_robusttransaction::CheckTransactionRecord()
+bool pqxx::internal::basic_robusttransaction::CheckTransactionRecord()
 {
   bool hold = true;
   for (int c=20; hold && c; internal::sleep_seconds(5), --c)

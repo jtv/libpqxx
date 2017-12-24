@@ -1,4 +1,5 @@
-/** @defgroup prepared Prepared statements
+Prepared statements                    {#prepared}
+===================
 
 Prepared statements are SQL queries that you define once and then invoke
 as many times as you like, typically with varying parameters.  It's basically
@@ -11,59 +12,54 @@ figuring out an efficient execution plan.  Another nice side effect is that
 you don't need to worry about escaping parameters.
 
 You create a prepared statement by preparing it on the connection
-(using the @c pqxx::connection_base::prepare functions), passing an
+(using the `pqxx::connection_base::prepare` functions), passing an
 identifier and its SQL text.  The identifier is the name by which the
 prepared statement will be known; it should consist of ASCII letters,
 digits, and underscores only, and start with an ASCII letter.  The name is
 case-sensitive.
 
-@code
-void prepare_my_statement(pqxx::connection_base &c)
-{
-  c.prepare("my_statement", "SELECT * FROM Employee WHERE name = 'Xavier'");
-}
-@endcode
+    void prepare_my_statement(pqxx::connection_base &c)
+    {
+      c.prepare(
+          "my_statement",
+          "SELECT * FROM Employee WHERE name = 'Xavier'");
+    }
 
-Once you've done this, you'll be able to call @c my_statement from any
+Once you've done this, you'll be able to call `my_statement` from any
 transaction you execute on the same connection.  For this, use the
-@c pqxx::transaction_base::exec_prepared functions.
+`pqxx::transaction_base::exec_prepared` functions.
 
-@code
-pqxx::result execute_my_statement(pqxx::transaction_base &t)
-{
-  return t.exec_prepared("my_statement");
-}
-@endcode
+    pqxx::result execute_my_statement(pqxx::transaction_base &t)
+    {
+      return t.exec_prepared("my_statement");
+    }
 
 Did I mention that prepared statements can have parameters?  The query text
-can contain @c $1, @c $2 etc. as placeholders for parameter values that you
+can contain `$1`, `$2` etc. as placeholders for parameter values that you
 will provide when you invoke the prepared satement.
 
-@code
-void prepare_find(pqxx::connection_base &c)
-{
-  // Prepare a statement called "find" that looks for employees with a given
-  // name (parameter 1) whose salary exceeds a given number (parameter 2).
-  c.prepare(
-  	"find",
-  	"SELECT * FROM Employee WHERE name = $1 AND salary > $2");
-}
-@endcode
+    void prepare_find(pqxx::connection_base &c)
+    {
+      // Prepare a statement called "find" that looks for employees with a
+      // given name (parameter 1) whose salary exceeds a given number
+      // (parameter 2).
+      c.prepare(
+  	    "find",
+  	    "SELECT * FROM Employee WHERE name = $1 AND salary > $2");
+    }
 
-This example looks up the prepared statement "find," passes @c name and
-@c min_salary as parameters, and invokes the statement with those values:
+This example looks up the prepared statement "find," passes `name` and
+`min_salary` as parameters, and invokes the statement with those values:
 
-@code
-pqxx::result execute_find(
-  pqxx::transaction_base &t, std::string name, int min_salary)
-{
-  return t.exec_prepared("find", name, min_salary);
-}
-@endcode
+    pqxx::result execute_find(
+      pqxx::transaction_base &t, std::string name, int min_salary)
+    {
+      return t.exec_prepared("find", name, min_salary);
+    }
 
-A special case is the nameless prepared statement.  You may prepare a
-statement without a name.  The unnamed statement can be redefined at any
-time, without un-preparing it first.
+There is one special case: the _nameless_ prepared statement.  You may prepare
+a statement without a name, i.e. whose name is an empty string.  The unnamed
+statement can be redefined at any time, without un-preparing it first.
 
 Never try to prepare, execute, or unprepare a prepared statement
 manually using direct SQL queries.  Always use the functions provided by
@@ -90,8 +86,7 @@ prepared statement must be planned to fit either case, but a direct query
 will be optimised based on table statistics, partial indexes, etc.
 
 @warning Beware of "nul" bytes.  Any string you pass as a parameter will
-end at the first char with value zero.  If you pass a @c std::string that
+end at the first char with value zero.  If you pass a `std::string` that
 contains a zero byte, the last byte in the value will be the one just
 before the zero.  If you need a zero byte, consider using
-pqxx::binarystring and/or SQL's @c bytea type.
- */
+pqxx::binarystring and/or SQL's `bytea` type.
