@@ -1,0 +1,1 @@
+This directory is where documentation is generated.
