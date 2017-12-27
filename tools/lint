@@ -47,9 +47,8 @@ check_compiler_internal_headers() {
 	TEMPDIR="$(mktemp --tmpdir -d pqxx-lint.XXXX)"
 	if test -z "$TEMPDIR"
 	then
-		cat <<EOF >&2
-Argh: TEMPDIR is empty.  Don't know how, but would have caused nasty problems.
-EOF
+		echo >&2 "Could not create temporary directory."
+                exit 1
 	fi
 	PRE="$TEMPDIR/pre"
 	POST="$TEMPDIR/post"
@@ -57,7 +56,7 @@ EOF
 	count_includes $srcdir/pqxx/compiler-internal-pre.hxx $HEADERS >"$PRE"
 	count_includes $srcdir/pqxx/compiler-internal-post.hxx $HEADERS >"$POST"
 	DIFF="$(diff "$PRE" "$POST")" || /bin/true
-	rm -rf -- "$TEMPDIR"
+	rm -r -- "$TEMPDIR"
 	if test -n "$DIFF"
 	then
 		cat <<EOF >&2
