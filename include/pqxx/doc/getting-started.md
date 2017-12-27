@@ -12,7 +12,7 @@ They fit together as follows:
 
 * You create a transaction object (see @ref transaction) operating on that
   connection.  You'll usually want the `pqxx::work` variety.
-  
+
   Once you're done you call the transaction's `commit` function to make its
   work final.  If you don't call this, the work will be rolled back when the
   transaction object is destroyed.
@@ -27,7 +27,7 @@ They fit together as follows:
   array indexing or iterators to access either.
 
 * The field's data is stored internally as a text string.
-    
+
   You can read it as such using its `c_str` function, or convert it to other
   types using its `as` and `to` member functions.  These are templated on the
   destination type: `myfield.as<int>();` or `myfield.to(myint);`
@@ -41,7 +41,7 @@ an `int`, and prints it out.  It also contains some basic error handling.
 
     #include <iostream>
     #include <pqxx/pqxx>
-    
+
     int main()
     {
       try
@@ -49,20 +49,20 @@ an `int`, and prints it out.  It also contains some basic error handling.
         // Connect to the database.  In practice we may have to pass some
         // arguments to say where the database server is, and so on.
         pqxx::connection c;
-    
+
         // Start a transaction.  In libpqxx, you always work in one.
         pqxx::work w(c);
-    
+
         // work::exec1() executes a query returning a single row of data.
         // We'll just ask the database to return the number 1 to us.
         pqxx::row r = w.exec1("SELECT 1");
-    
+
         // Commit your transaction.  If an exception occurred before this
         // point, execution will have left the block, and the transaction will
         // have been destroyed along the way.  In that case, the failed
         // transaction would implicitly abort instead of getting to this point.
         w.commit();
-    
+
         // Look at the first and only field in the row, parse it as an integer,
         // and print it.
         std::cout << r[0].as<int>() << std::endl;

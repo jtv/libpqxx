@@ -17,7 +17,7 @@ C++ containers of fields.  So the easiest way to go through them is:
     }
 
 But results and rows also support other kinds of access.  Array-style
-indexing, for instance:
+indexing, for instance, such as `r[rownum]`:
 
     const int num_rows = r.size();
     for (int rownum=0; rownum < num_rows; ++rownum)

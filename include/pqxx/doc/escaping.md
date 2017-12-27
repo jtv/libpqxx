@@ -60,14 +60,14 @@ Here's how you can fix the problem in the example above:
     	"FROM accounts "
     	"WHERE allowed_to_see('" + TX.esc(userid) + "', "
     		"'" + TX.esc(password) + "')");
-   
+
 Now, the quotes embedded in the attacker's string will be neatly escaped so
 they can't "break out" of the quoted SQL string they were meant to go into:
-   
+
     SELECT number,amount
     FROM accounts
     WHERE allowed_to_see('user', 'x'') OR (''x'' = ''x')
-   
+
 If you look carefully, you'll see that thanks to the added escape characters
 (a single-quote is escaped in SQL by doubling it) all we get is a very
 strange-looking password string--but not a change in the SQL statement.
