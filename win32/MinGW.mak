@@ -19,6 +19,7 @@ include win32/common
 CXX = g++.exe
 
 OBJ = \
+  src/array.o \
   src/binarystring.o \
   src/connection.o \
   src/connection_base.o \
@@ -67,6 +68,9 @@ STATICLIB=libpqxx.a
 
 $(BIN): $(OBJ)
 	$(DLLWRAP) --output-def $(DEFFILE) --driver-name c++ --implib $(STATICLIB) $(OBJ) $(LDFLAGS) $(LIBS) -o $(BIN)
+
+src/array.o: src/array.cxx
+	$(CXX) $(CPPFLAGS) -c src/array.cxx -o src/array.o $(CXXFLAGS)
 
 src/binarystring.o: src/binarystring.cxx
 	$(CXX) $(CPPFLAGS) -c src/binarystring.cxx -o src/binarystring.o $(CXXFLAGS)

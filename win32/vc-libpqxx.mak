@@ -99,6 +99,7 @@ LIB_FLAGS=/nologo
 ########################################################
 
 OBJ_STATICDEBUG=\
+       "$(INTDIR_STATICDEBUG)\array.obj" \
        "$(INTDIR_STATICDEBUG)\binarystring.obj" \
        "$(INTDIR_STATICDEBUG)\connection.obj" \
        "$(INTDIR_STATICDEBUG)\connection_base.obj" \
@@ -126,6 +127,7 @@ OBJ_STATICDEBUG=\
        "$(INTDIR_STATICDEBUG)\util.obj" \
 
 OBJ_STATICRELEASE=\
+       "$(INTDIR_STATICRELEASE)\array.obj" \
        "$(INTDIR_STATICRELEASE)\binarystring.obj" \
        "$(INTDIR_STATICRELEASE)\connection.obj" \
        "$(INTDIR_STATICRELEASE)\connection_base.obj" \
@@ -153,6 +155,7 @@ OBJ_STATICRELEASE=\
        "$(INTDIR_STATICRELEASE)\util.obj" \
 
 OBJ_DLLDEBUG=\
+       "$(INTDIR_DLLDEBUG)\array.obj" \
        "$(INTDIR_DLLDEBUG)\binarystring.obj" \
        "$(INTDIR_DLLDEBUG)\connection.obj" \
        "$(INTDIR_DLLDEBUG)\connection_base.obj" \
@@ -181,6 +184,7 @@ OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\libpqxx.obj" \
 
 OBJ_DLLRELEASE=\
+       "$(INTDIR_DLLRELEASE)\array.obj" \
        "$(INTDIR_DLLRELEASE)\binarystring.obj" \
        "$(INTDIR_DLLRELEASE)\connection.obj" \
        "$(INTDIR_DLLRELEASE)\connection_base.obj" \
@@ -306,6 +310,13 @@ $(INTDIR_DLLRELEASE)::
 # Physical intermediate files
 ########################################################
 
+
+
+"$(INTDIR_STATICRELEASE)\array.obj": src/array.cxx $(INTDIR_STATICRELEASE)
+	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/array.cxx
+
+"$(INTDIR_STATICDEBUG)\array.obj": src/array.cxx $(INTDIR_STATICDEBUG)
+	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/array.cxx
 
 
 "$(INTDIR_STATICRELEASE)\binarystring.obj": src/binarystring.cxx $(INTDIR_STATICRELEASE)
@@ -483,6 +494,13 @@ $(INTDIR_DLLRELEASE)::
 	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/util.cxx
 
 
+
+
+"$(INTDIR_DLLRELEASE)\array.obj": src/array.cxx $(INTDIR_DLLRELEASE)
+	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/array.cxx
+
+"$(INTDIR_DLLDEBUG)\array.obj": src/array.cxx $(INTDIR_DLLDEBUG)
+	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/array.cxx
 
 
 "$(INTDIR_DLLRELEASE)\binarystring.obj": src/binarystring.cxx $(INTDIR_DLLRELEASE)

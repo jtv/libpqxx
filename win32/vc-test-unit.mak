@@ -80,6 +80,7 @@ DLLS=$(INTDIR)\$(LIBPQ)
 !ENDIF
 
 OBJS= \
+  $(INTDIR)\test_array.obj \
   $(INTDIR)\test_binarystring.obj \
   $(INTDIR)\test_cancel_query.obj \
   $(INTDIR)\test_error_verbosity.obj \
@@ -138,6 +139,8 @@ $(INTDIR)\runner.exe: $(OBJS) $(DLLS)
 
 $(INTDIR)\runner.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/runner.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
+$(INTDIR)\test_array.obj:
+	@$(CXX) $(CXX_FLAGS) test/unit/test_array.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_binarystring.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_binarystring.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_cancel_query.obj:

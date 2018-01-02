@@ -28,6 +28,7 @@ DEFAULT_INCLUDES=
 MAINTAINERCLEANFILES=Makefile.in
 
 runner_SOURCES = \
+  test_array.cxx \
   test_binarystring.cxx \
   test_cancel_query.cxx \
   test_error_verbosity.cxx \

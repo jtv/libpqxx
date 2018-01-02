@@ -1,3 +1,5 @@
+6.1.0
+ - Supports parsing of SQL arrays.
 6.0.0
  - C++11 is now required.  Your compiler must have shared_ptr, noexcept, etc.
  - Removed configure.ac.in; we now use configure.ac directly.

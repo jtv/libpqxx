@@ -1,5 +1,6 @@
 lib_LTLIBRARIES = libpqxx.la
 libpqxx_la_SOURCES = \
+	array.cxx \
 	binarystring.cxx \
 	connection_base.cxx \
 	connection.cxx \

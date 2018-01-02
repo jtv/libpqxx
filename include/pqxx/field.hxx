@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/field instead.
  *
- * Copyright (c) 2001-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -24,6 +24,7 @@
 #include <experimental/optional>
 #endif
 
+#include "pqxx/array"
 #include "pqxx/result"
 #include "pqxx/strconv"
 #include "pqxx/types"
@@ -110,6 +111,15 @@ public:
    */
   const char *c_str() const;						//[t02]
 
+  /// Is this field's value null?
+  bool is_null() const noexcept;					//[t12]
+
+  /// Return number of bytes taken up by the field's value.
+  /**
+   * Includes the terminating zero byte.
+   */
+  size_type size() const noexcept;					//[t11]
+
   /// Read value into Obj; or leave Obj untouched and return @c false if null
   template<typename T> bool to(T &Obj) const				//[t03]
   {
@@ -161,14 +171,14 @@ public:
 	{ return get_opt<T, std::experimental::optional<T>>(); }
 #endif
 
-  /// Is this field's value null?
-  bool is_null() const noexcept;					//[t12]
-
-  /// Return number of bytes taken up by the field's value.
-  /**
-   * Includes the terminating zero byte.
+  /// Parse the field as an SQL array.
+  /** Call the parser to retrieve values (and structure) from the array.
+   *
+   * Make sure the @c result object stays alive until parsing is finished.  If
+   * you keep the @c row of @c field object alive, it will keep the @c result
+   * object alive as well.
    */
-  size_type size() const noexcept;					//[t11]
+  array_parser as_array() const { return array_parser(c_str()); }
   //@}
 
 
