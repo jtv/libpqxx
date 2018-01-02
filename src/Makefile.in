@@ -133,7 +133,7 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libpqxx_la_LIBADD =
-am_libpqxx_la_OBJECTS = binarystring.lo connection_base.lo \
+am_libpqxx_la_OBJECTS = array.lo binarystring.lo connection_base.lo \
 	connection.lo cursor.lo dbtransaction.lo errorhandler.lo \
 	except.lo field.lo largeobject.lo nontransaction.lo \
 	notification.lo pipeline.lo prepared_statement.lo result.lo \
@@ -347,6 +347,7 @@ with_postgres_include = @with_postgres_include@
 with_postgres_lib = @with_postgres_lib@
 lib_LTLIBRARIES = libpqxx.la
 libpqxx_la_SOURCES = \
+	array.cxx \
 	binarystring.cxx \
 	connection_base.cxx \
 	connection.cxx \
@@ -464,6 +465,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/array.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/binarystring.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/connection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/connection_base.Plo@am__quote@
