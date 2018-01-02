@@ -11,13 +11,13 @@
 #ifndef PQXX_H_VERSION
 
 /// Full libpqxx version string.
-#define PQXX_VERSION "6.0.0"
+#define PQXX_VERSION "6.1.0"
 /// Library ABI version.
-#define PQXX_ABI "6.0"
+#define PQXX_ABI "6.1"
 
 /// Major version number.
 #define PQXX_VERSION_MAJOR 6
 /// Minor version number.
-#define PQXX_VERSION_MINOR 0
+#define PQXX_VERSION_MINOR 1
 
 #endif
