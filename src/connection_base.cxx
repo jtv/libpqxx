@@ -1038,22 +1038,11 @@ std::string pqxx::connection_base::esc(const char str[], size_t maxlen)
   // not const!
   if (!m_conn) activate();
 
-  char *const buf = new char[2*maxlen+1];
-  try
-  {
-    int err = 0;
-    PQescapeStringConn(m_conn, buf, str, maxlen, &err);
-    if (err) throw argument_error(err_msg());
-    escaped = std::string(buf);
-  }
-  catch (const std::exception &)
-  {
-    delete [] buf;
-    throw;
-  }
-  delete [] buf;
-
-  return escaped;
+  std::vector<char> buf(2 * maxlen + 1);
+  int err = 0;
+  PQescapeStringConn(m_conn, &buf[0], str, maxlen, &err);
+  if (err) throw argument_error(err_msg());
+  return std::string(&buf[0]);
 }
 
 
