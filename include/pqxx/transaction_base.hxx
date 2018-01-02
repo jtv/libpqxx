@@ -426,7 +426,7 @@ public:
    * @code
    * result run_mystatement(transaction_base &T)
    * {
-   *   return T.prepared("mystatement")("param1")(2)()(4).exec();
+   *   return T.exec_prepared("mystatement", "param1", 2, nullptr, 4);
    * }
    * @endcode
    *

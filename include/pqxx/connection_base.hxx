@@ -499,7 +499,7 @@ public:
    * {
    *   C.prepare("findtable", "select * from pg_tables where name=$1");
    *   work W(C);
-   *   result R = W.prepared("findtable")("mytable").exec();
+   *   result R = W.exec_prepared("findtable", "mytable");
    *   if (R.empty()) throw runtime_error("mytable not found!");
    * }
    * @endcode
