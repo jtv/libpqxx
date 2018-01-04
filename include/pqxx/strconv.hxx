@@ -56,7 +56,6 @@ namespace internal
 #define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(T)			\
 template<> struct PQXX_LIBEXPORT string_traits<T>			\
 {									\
-  using subject_type = T;						\
   static constexpr const char *name() noexcept { return #T; }		\
   static constexpr bool has_null() noexcept { return false; }		\
   static bool is_null(T) { return false; }				\

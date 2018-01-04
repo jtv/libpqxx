@@ -38,7 +38,6 @@ namespace pqxx
 {
 template<> struct string_traits<TestErrorHandler *>
 {
-  using subject_type = TestErrorHandler *;
   static const char *name() { return "TestErrorHandler"; }
   static bool has_null() { return true; }
   static bool is_null(TestErrorHandler *t) { return !t; }
