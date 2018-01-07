@@ -48,6 +48,9 @@ an `int`, and prints it out.  It also contains some basic error handling.
       {
         // Connect to the database.  In practice we may have to pass some
         // arguments to say where the database server is, and so on.
+        // The constructor parses options exactly like libpq's 
+        // PQconnectdb/PQconnect see:
+        // https://www.postgresql.org/docs/10/static/libpq-connect.html
         pqxx::connection c;
 
         // Start a transaction.  In libpqxx, you always work in one.

@@ -48,12 +48,15 @@ public:
     m_policy(m_options)
 	{ init(); }
 
+  /// The parsing of options is the same as libpq's PQConnect.
+  /// See: https://www.postgresql.org/docs/10/static/libpq-connect.html
   explicit basic_connection(const std::string &opt) :
     connection_base(m_policy),
     m_options(opt),
     m_policy(m_options)
 	{init();}
 
+  /// See: basic_connection(const std::string &oput)
   explicit basic_connection(const char opt[]) :
     basic_connection(opt ? std::string(opt) : std::string()) {}
 
