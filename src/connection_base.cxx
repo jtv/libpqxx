@@ -38,9 +38,9 @@
 #if defined(HAVE_UNISTD_H)
 #include <unistd.h>
 #endif
+#endif
 #if defined(HAVE_SYS_TIME_H)
 #include <sys/time.h>
-#endif
 #endif
 
 #include "libpq-fe.h"

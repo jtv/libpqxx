@@ -117,11 +117,6 @@ then
 select_h=no
 AC_CHECK_HEADERS([sys/select.h], [select_h=yes])
 
-if test "$select_h" != "yes"
-then
-AC_CHECK_HEADERS([sys/time.h])
-fi
-
 # Some systems keep select() in a separate library which is not linked by
 # default.  See if we need one of those.
 socklibok=no
@@ -150,6 +145,7 @@ fi
 
 fi # No poll()
 
+AC_CHECK_HEADERS([sys/time.h])
 
 # Add options to compiler command line, if compiler accepts them.
 add_compiler_opts_if_ok() {
