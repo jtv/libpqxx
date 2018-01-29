@@ -36,7 +36,7 @@ namespace pqxx
 /** Specialize this template for a type that you wish to add to_string and
  * from_string support for.
  */
-template<typename T> struct string_traits {};
+template<typename T, typename Enable = void> struct string_traits {};
 
 namespace internal
 {
@@ -81,6 +81,18 @@ PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(double)
 PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long double)
 
 #undef PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION
+
+/// String traits for all enum values
+template<typename T>
+struct PQXX_LIBEXPORT string_traits<T, typename std::enable_if<std::is_enum<T>::value>::type>
+{
+  static constexpr const char *name() noexcept { return typeid(T).name(); }
+  static constexpr bool has_null() noexcept { return false; }
+  static bool is_null(T ) { return false; }
+  [[noreturn]] static T null() { internal::throw_null_conversion(name()); }
+  static void from_string(const char Str[], T &Obj) { Obj = static_cast<T>(std::atoll(Str)); }
+  static std::string to_string(T Obj) { return std::to_string(static_cast<typename std::underlying_type<T>::type>(Obj)); }
+};
 
 /// String traits for C-style string ("pointer to const char")
 template<> struct PQXX_LIBEXPORT string_traits<const char *>
