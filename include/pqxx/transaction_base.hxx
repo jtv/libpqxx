@@ -5,7 +5,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction_base instead.
  *
- * Copyright (c) 2001-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -26,9 +26,10 @@
  * nontransaction.
  */
 
-#include "pqxx/connection_base"
-#include "pqxx/isolation"
-#include "pqxx/result"
+#include "pqxx/connection_base.hxx"
+#include "pqxx/isolation.hxx"
+#include "pqxx/result.hxx"
+#include "pqxx/row.hxx"
 
 // Methods tested in eg. test module test01 are marked with "//[t01]".
 

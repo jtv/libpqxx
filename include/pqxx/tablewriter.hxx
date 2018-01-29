@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablewriter.hxx instead.
  *
- * Copyright (c) 2001-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -18,7 +18,7 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
-#include "pqxx/tablestream"
+#include "pqxx/tablestream.hxx"
 
 
 namespace pqxx

@@ -2,7 +2,7 @@
  *
  * pqxx::result represents the set of result rows from a database query
  *
- * Copyright (c) 2001-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -10,3 +10,8 @@
  */
 // Actual definitions in .hxx file so editors and such recognize file type.
 #include "pqxx/result.hxx"
+
+// Now include some types which depend on result, but which the user will
+// expect to see defined after including this header.
+#include "pqxx/result_iterator.hxx"
+#include "pqxx/field.hxx"

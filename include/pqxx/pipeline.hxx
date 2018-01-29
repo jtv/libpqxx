@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/pipeline instead.
  *
- * Copyright (c) 2003-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2003-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -20,7 +20,7 @@
 #include <map>
 #include <string>
 
-#include "pqxx/transaction_base"
+#include "pqxx/transaction_base.hxx"
 
 
 // Methods tested in eg. test module test01 are marked with "//[t01]".

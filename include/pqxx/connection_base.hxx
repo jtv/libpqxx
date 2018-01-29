@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
  *
- * Copyright (c) 2001-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -21,11 +21,11 @@
 #include <map>
 #include <memory>
 
-#include "pqxx/errorhandler"
-#include "pqxx/except"
-#include "pqxx/prepared_statement"
-#include "pqxx/strconv"
-#include "pqxx/util"
+#include "pqxx/errorhandler.hxx"
+#include "pqxx/except.hxx"
+#include "pqxx/prepared_statement.hxx"
+#include "pqxx/strconv.hxx"
+#include "pqxx/util.hxx"
 
 
 /* Use of the libpqxx library starts here.

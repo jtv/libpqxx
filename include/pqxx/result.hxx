@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/result instead.
  *
- * Copyright (c) 2001-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -19,9 +19,9 @@
 #include <ios>
 #include <stdexcept>
 
-#include "pqxx/except"
-#include "pqxx/types"
-#include "pqxx/util"
+#include "pqxx/except.hxx"
+#include "pqxx/types.hxx"
+#include "pqxx/util.hxx"
 
 // Methods tested in eg. test module test01 are marked with "//[t01]".
 
@@ -232,53 +232,6 @@ private:
   friend class pqxx::internal::gate::result_sql_cursor;
   PQXX_PURE const char *cmd_status() const noexcept;
 };
-} // namespace pqxx
-
-// Now include some types which depend on result, but which the user will
-// expect to see defined after including this header.
-#include "pqxx/result_iterator.hxx"
-#include "pqxx/field.hxx"
-
-// Implementations depending on those other types which depend on result.
-namespace pqxx
-{
-/// Write a result field to any type of stream
-/** This can be convenient when writing a field to an output stream.  More
- * importantly, it lets you write a field to e.g. a @c stringstream which you
- * can then use to read, format and convert the field in ways that to() does not
- * support.
- *
- * Example: parse a field into a variable of the nonstandard
- * "<tt>long long</tt>" type.
- *
- * @code
- * extern result R;
- * long long L;
- * stringstream S;
- *
- * // Write field's string into S
- * S << R[0][0];
- *
- * // Parse contents of S into L
- * S >> L;
- * @endcode
- */
-template<typename CHAR>
-inline std::basic_ostream<CHAR> &operator<<(
-	std::basic_ostream<CHAR> &S, const pqxx::field &F)		//[t46]
-{
-  S.write(F.c_str(), std::streamsize(F.size()));
-  return S;
-}
-
-
-/// Convert a field's string contents to another type.
-template<typename T>
-inline void from_string(const field &F, T &Obj)				//[t46]
-	{ from_string(F.c_str(), Obj, F.size()); }
-
-/// Convert a field to a string.
-template<> PQXX_LIBEXPORT std::string to_string(const field &Obj);	//[t74]
 } // namespace pqxx
 #include "pqxx/compiler-internal-post.hxx"
 #endif

@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/nontransaction instead.
  *
- * Copyright (c) 2002-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2002-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -16,9 +16,9 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
-#include "pqxx/connection_base"
-#include "pqxx/result"
-#include "pqxx/transaction_base"
+#include "pqxx/connection_base.hxx"
+#include "pqxx/result.hxx"
+#include "pqxx/transaction_base.hxx"
 
 // Methods tested in eg. test module test01 are marked with "//[t01]".
 

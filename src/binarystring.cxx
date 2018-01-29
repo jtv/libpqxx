@@ -1,6 +1,6 @@
 /** Implementation of bytea (binary string) conversions.
  *
- * Copyright (c) 2003-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2003-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -17,6 +17,7 @@
 #include "libpq-fe.h"
 
 #include "pqxx/binarystring"
+#include "pqxx/field"
 
 
 using namespace pqxx::internal;

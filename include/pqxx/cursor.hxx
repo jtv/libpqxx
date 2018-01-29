@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/cursor instead.
  *
- * Copyright (c) 2004-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2004-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -19,8 +19,8 @@
 #include <limits>
 #include <stdexcept>
 
-#include "pqxx/result"
-#include "pqxx/transaction_base"
+#include "pqxx/result.hxx"
+#include "pqxx/transaction_base.hxx"
 
 
 namespace pqxx

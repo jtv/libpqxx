@@ -24,10 +24,10 @@
 #include <experimental/optional>
 #endif
 
-#include "pqxx/array"
-#include "pqxx/result"
-#include "pqxx/strconv"
-#include "pqxx/types"
+#include "pqxx/array.hxx"
+#include "pqxx/result.hxx"
+#include "pqxx/strconv.hxx"
+#include "pqxx/types.hxx"
 
 
 // Methods tested in eg. test module test01 are marked with "//[t01]".
@@ -312,8 +312,44 @@ private:
 
 using fieldstream = basic_fieldstream<char>;
 
+/// Write a result field to any type of stream
+/** This can be convenient when writing a field to an output stream.  More
+ * importantly, it lets you write a field to e.g. a @c stringstream which you
+ * can then use to read, format and convert the field in ways that to() does not
+ * support.
+ *
+ * Example: parse a field into a variable of the nonstandard
+ * "<tt>long long</tt>" type.
+ *
+ * @code
+ * extern result R;
+ * long long L;
+ * stringstream S;
+ *
+ * // Write field's string into S
+ * S << R[0][0];
+ *
+ * // Parse contents of S into L
+ * S >> L;
+ * @endcode
+ */
+template<typename CHAR>
+inline std::basic_ostream<CHAR> &operator<<(
+	std::basic_ostream<CHAR> &S, const field &F)		        //[t46]
+{
+  S.write(F.c_str(), std::streamsize(F.size()));
+  return S;
+}
+
+
+/// Convert a field's string contents to another type.
+template<typename T>
+inline void from_string(const field &F, T &Obj)				//[t46]
+	{ from_string(F.c_str(), Obj, F.size()); }
+
+/// Convert a field to a string.
+template<> PQXX_LIBEXPORT std::string to_string(const field &Obj);	//[t74]
+
 } // namespace pqxx
-
 #include "pqxx/compiler-internal-post.hxx"
-
 #endif
