@@ -52,7 +52,7 @@ public:
   row() =default;
 
   /// @deprecated Do not use this constructor.  It will become private.
-  row(result r, size_t i) noexcept;
+  PQXX_LIBEXPORT row(result r, size_t i) noexcept;
 
   ~row() noexcept =default; // Yes Scott Meyers, you're absolutely right[1]
 
