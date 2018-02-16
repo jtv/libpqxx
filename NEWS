@@ -1,7 +1,7 @@
 6.1.0
  - Dependencies among headers have changed.  You may need extra includes.
  - Library headers now include "*.hxx" directly, not the user-level headers.
- - Supports parsing of SQL arrays.
+ - Supports parsing of SQL arrays, when using "ASCII-like" encodings.
 6.0.0
  - C++11 is now required.  Your compiler must have shared_ptr, noexcept, etc.
  - Removed configure.ac.in; we now use configure.ac directly.
