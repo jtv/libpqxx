@@ -24,6 +24,9 @@ namespace pqxx
 /// Low-level array parser.
 /** Use this to read an array field retrieved from the database.
  *
+ * Use this only if your client encoding is UTF-8, ASCII, or a single-byte
+ * encoding which is a superset of ASCII.
+ *
  * The input is a C-style string containing the textual representation of an
  * array, as returned by the database.  The parser reads this representation
  * on the fly.  The string must remain in memory until parsing is done.
