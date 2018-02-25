@@ -257,7 +257,7 @@ public:
 
 
 /// Query returned an unexpected number of rows.
-class PQXX_LIBEXPORT unexpected_rows : range_error
+class PQXX_LIBEXPORT unexpected_rows : public range_error
 {
   virtual const std::exception &base() const noexcept override
 	{ return *this; }
