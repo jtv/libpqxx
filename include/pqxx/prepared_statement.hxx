@@ -94,8 +94,6 @@ public:
 private:
   transaction_base &m_home;
   const std::string m_statement;
-  std::vector<std::string> m_values;
-  std::vector<bool> m_nonnull;
 
   invocation &setparam(const std::string &, bool nonnull);
 };
