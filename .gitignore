@@ -4,7 +4,6 @@ confdefs.h
 config.log
 config.status
 config/compile
-config/test-driver
 conftest
 conftest.cpp
 conftest.err
