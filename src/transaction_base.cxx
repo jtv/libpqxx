@@ -493,7 +493,7 @@ void pqxx::transaction_base::CheckPendingError()
   {
     const std::string Err(m_pending_error);
     m_pending_error.clear();
-    throw failure(m_pending_error);
+    throw failure(Err);
   }
 }
 
