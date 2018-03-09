@@ -54,7 +54,7 @@ namespace internal
  * is one in C++11.
  */
 #define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(T)			\
-template<> struct PQXX_LIBEXPORT string_traits<T>			\
+template<> struct string_traits<T>					\
 {									\
   static constexpr const char *name() noexcept { return #T; }		\
   static constexpr bool has_null() noexcept { return false; }		\
@@ -83,7 +83,7 @@ PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long double)
 #undef PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION
 
 /// String traits for C-style string ("pointer to const char")
-template<> struct PQXX_LIBEXPORT string_traits<const char *>
+template<> struct string_traits<const char *>
 {
   static constexpr const char *name() noexcept { return "const char *"; }
   static constexpr bool has_null() noexcept { return true; }
@@ -94,7 +94,7 @@ template<> struct PQXX_LIBEXPORT string_traits<const char *>
 };
 
 /// String traits for non-const C-style string ("pointer to char")
-template<> struct PQXX_LIBEXPORT string_traits<char *>
+template<> struct string_traits<char *>
 {
   static constexpr const char *name() noexcept { return "char *"; }
   static constexpr bool has_null() noexcept { return true; }
@@ -108,7 +108,7 @@ template<> struct PQXX_LIBEXPORT string_traits<char *>
 };
 
 /// String traits for C-style string constant ("array of char")
-template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
+template<size_t N> struct string_traits<char[N]>
 {
   static constexpr const char *name() noexcept { return "char[]"; }
   static constexpr bool has_null() noexcept { return true; }
@@ -117,7 +117,7 @@ template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
   static std::string to_string(const char Obj[]) { return Obj; }
 };
 
-template<> struct PQXX_LIBEXPORT string_traits<std::string>
+template<> struct string_traits<std::string>
 {
   static constexpr const char *name() noexcept { return "string"; }
   static constexpr bool has_null() noexcept { return false; }
@@ -128,7 +128,7 @@ template<> struct PQXX_LIBEXPORT string_traits<std::string>
   static std::string to_string(const std::string &Obj) { return Obj; }
 };
 
-template<> struct PQXX_LIBEXPORT string_traits<const std::string>
+template<> struct string_traits<const std::string>
 {
   static constexpr const char *name() noexcept { return "const string"; }
   static constexpr bool has_null() noexcept { return false; }
@@ -138,7 +138,7 @@ template<> struct PQXX_LIBEXPORT string_traits<const std::string>
   static const std::string to_string(const std::string &Obj) { return Obj; }
 };
 
-template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
+template<> struct string_traits<std::stringstream>
 {
   static constexpr const char *name() noexcept { return "stringstream"; }
   static constexpr bool has_null() noexcept { return false; }
