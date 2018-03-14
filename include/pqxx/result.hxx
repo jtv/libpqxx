@@ -226,7 +226,7 @@ private:
   [[noreturn]] PQXX_PRIVATE void ThrowSQLError(
 	const std::string &Err,
 	const std::string &Query) const;
-  PQXX_PRIVATE PQXX_PURE int errorposition() const noexcept;
+  PQXX_PRIVATE PQXX_PURE int errorposition() const;
   PQXX_PRIVATE std::string StatusError() const;
 
   friend class pqxx::internal::gate::result_sql_cursor;

@@ -350,7 +350,7 @@ pqxx::row::size_type pqxx::result::table_column(row::size_type ColNum) const
     "not derived from table column");
 }
 
-int pqxx::result::errorposition() const noexcept
+int pqxx::result::errorposition() const
 {
   int pos = -1;
   if (m_data.get())
