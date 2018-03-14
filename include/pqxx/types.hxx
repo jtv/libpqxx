@@ -1,7 +1,7 @@
 /**
  * Basic type aliases and forward declarations.
  *
- * Copyright (c) 2017, Jeroen T. Vermeulen
+ * Copyright (c) 2018, Jeroen T. Vermeulen
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -9,6 +9,8 @@
  */
 #ifndef PQXX_H_TYPES
 #define PQXX_H_TYPES
+
+#include <cstddef>
 
 namespace pqxx
 {
@@ -25,7 +27,7 @@ using row_size_type = unsigned int;
 using row_difference_type = signed int;
 
 /// Number of bytes in a field of database data.
-using field_size_type = size_t;
+using field_size_type = std::size_t;
 
 /// Number of bytes in a large object.  (Unusual: it's signed.)
 using large_object_size_type = long;
