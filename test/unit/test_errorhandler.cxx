@@ -118,7 +118,7 @@ void test_destroying_connection_unregisters_handlers()
 class MinimalErrorHandler final : public errorhandler
 {
 public:
-  MinimalErrorHandler(connection_base &c) : errorhandler(c) {}
+  explicit MinimalErrorHandler(connection_base &c) : errorhandler(c) {}
   virtual bool operator()(const char[]) noexcept override
 	{ return true; }
 };

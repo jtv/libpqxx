@@ -147,7 +147,7 @@ inline void check_equal(
 	const char actual_text[],
 	EXPECTED expected,
 	const char expected_text[],
-	std::string desc)
+	const std::string &desc)
 {
   if (expected == actual) return;
   const std::string fulldesc =
@@ -175,7 +175,7 @@ inline void check_not_equal(
 	const char text1[],
 	VALUE2 value2,
 	const char text2[],
-	std::string desc)
+	const std::string &desc)
 {
   if (value1 != value2) return;
   const std::string fulldesc =
@@ -203,7 +203,7 @@ inline void check_less(
 	const char text1[],
 	VALUE2 value2,
 	const char text2[],
-	std::string desc)
+	const std::string &desc)
 {
   if (value1 < value2) return;
   const std::string fulldesc =

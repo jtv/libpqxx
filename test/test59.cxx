@@ -86,7 +86,7 @@ private:
 class DeleteLargeObject : public transactor<>
 {
 public:
-  DeleteLargeObject(largeobject O) : m_object(O) {}
+  explicit DeleteLargeObject(largeobject O) : m_object(O) {}
 
   void operator()(argument_type &T)
   {

@@ -11,7 +11,6 @@ class TestReceiver final : public notification_receiver
 public:
   string payload;
   int backend_pid;
-  bool done;
 
   TestReceiver(connection_base &c, const string &channel_name) :
     notification_receiver(c, channel_name),

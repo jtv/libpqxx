@@ -52,7 +52,7 @@ class FailedInsert : public transactor<>
   string m_table;
   static string LastReason;
 public:
-  FailedInsert(string Table) :
+  explicit FailedInsert(string Table) :
     transactor<>("FailedInsert"),
     m_table(Table)
   {

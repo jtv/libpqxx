@@ -503,7 +503,7 @@ class cancel_wrapper
   char m_errbuf[500];
 
 public:
-  cancel_wrapper(PGconn *conn) :
+  explicit cancel_wrapper(PGconn *conn) :
     m_cancel(nullptr),
     m_errbuf()
   {
@@ -1032,8 +1032,6 @@ void pqxx::connection_base::add_reactivation_avoidance_count(int n)
 
 std::string pqxx::connection_base::esc(const char str[], size_t maxlen)
 {
-  std::string escaped;
-
   // We need a connection object...  This is the one reason why this function is
   // not const!
   if (!m_conn) activate();

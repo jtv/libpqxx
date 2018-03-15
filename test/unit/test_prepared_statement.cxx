@@ -54,7 +54,8 @@ template<typename ITER> string subst(transaction_base &t,
 }
 
 
-template<typename CNTNR> string subst(transaction_base &t,
+template<typename CNTNR> string subst(
+	transaction_base &t,
 	string q,
 	const CNTNR &patterns)
 {
@@ -66,11 +67,6 @@ template<typename CNTNR> string subst(transaction_base &t,
 void test_legacy_prepared_statement(transaction_base &T)
 {
   connection_base &C(T.conn());
-
-  const string
-	Q_readpgtables = "SELECT * FROM pg_tables",
-	Q_seetable = Q_readpgtables + " WHERE tablename = $1",
-	Q_seetables = Q_seetable + " OR tablename = $2";
 
   PQXX_CHECK(
 	!(T.prepared("CountToTen").exists()),

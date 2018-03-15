@@ -204,8 +204,6 @@ void pqxx::internal::basic_robusttransaction::CreateLogTable()
 
 void pqxx::internal::basic_robusttransaction::CreateTransactionRecord()
 {
-  static const std::string Fail = "Could not create transaction log record: ";
-
   // Clean up old transaction records.
   direct_exec((
 	"DELETE FROM " + m_log_table + " "

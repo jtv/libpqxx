@@ -53,7 +53,7 @@ class FailedInsert : public transactor<robusttransaction<>>
   string m_table;
   static string LastReason;
 public:
-  FailedInsert(string Table) :
+  explicit FailedInsert(string Table) :
     transactor<argument_type>("FailedInsert037"),
     m_table(Table)
   {
