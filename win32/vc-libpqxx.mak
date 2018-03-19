@@ -125,6 +125,7 @@ OBJ_STATICDEBUG=\
        "$(INTDIR_STATICDEBUG)\transaction.obj" \
        "$(INTDIR_STATICDEBUG)\transaction_base.obj" \
        "$(INTDIR_STATICDEBUG)\util.obj" \
+       "$(INTDIR_STATICDEBUG)\version.obj" \
 
 OBJ_STATICRELEASE=\
        "$(INTDIR_STATICRELEASE)\array.obj" \
@@ -153,6 +154,7 @@ OBJ_STATICRELEASE=\
        "$(INTDIR_STATICRELEASE)\transaction.obj" \
        "$(INTDIR_STATICRELEASE)\transaction_base.obj" \
        "$(INTDIR_STATICRELEASE)\util.obj" \
+       "$(INTDIR_STATICRELEASE)\version.obj" \
 
 OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\array.obj" \
@@ -181,6 +183,7 @@ OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\transaction.obj" \
        "$(INTDIR_DLLDEBUG)\transaction_base.obj" \
        "$(INTDIR_DLLDEBUG)\util.obj" \
+       "$(INTDIR_DLLDEBUG)\version.obj" \
        "$(INTDIR_DLLDEBUG)\libpqxx.obj" \
 
 OBJ_DLLRELEASE=\
@@ -210,6 +213,7 @@ OBJ_DLLRELEASE=\
        "$(INTDIR_DLLRELEASE)\transaction.obj" \
        "$(INTDIR_DLLRELEASE)\transaction_base.obj" \
        "$(INTDIR_DLLRELEASE)\util.obj" \
+       "$(INTDIR_DLLRELEASE)\version.obj" \
        "$(INTDIR_DLLRELEASE)\libpqxx.obj" \
 
 
@@ -494,6 +498,13 @@ $(INTDIR_DLLRELEASE)::
 	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/util.cxx
 
 
+"$(INTDIR_STATICRELEASE)\version.obj": src/version.cxx $(INTDIR_STATICRELEASE)
+	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/version.cxx
+
+"$(INTDIR_STATICDEBUG)\version.obj": src/version.cxx $(INTDIR_STATICDEBUG)
+	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/version.cxx
+
+
 
 
 "$(INTDIR_DLLRELEASE)\array.obj": src/array.cxx $(INTDIR_DLLRELEASE)
@@ -676,6 +687,13 @@ $(INTDIR_DLLRELEASE)::
 
 "$(INTDIR_DLLDEBUG)\util.obj": src/util.cxx $(INTDIR_DLLDEBUG)
 	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/util.cxx
+
+
+"$(INTDIR_DLLRELEASE)\version.obj": src/version.cxx $(INTDIR_DLLRELEASE)
+	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/version.cxx
+
+"$(INTDIR_DLLDEBUG)\version.obj": src/version.cxx $(INTDIR_DLLDEBUG)
+	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/version.cxx
 
 
 "$(INTDIR_DLLRELEASE)\libpqxx.obj": win32/libpqxx.cxx $(INTDIR_DLLRELEASE)

@@ -45,6 +45,7 @@ OBJ = \
   src/transaction.o \
   src/transaction_base.o \
   src/util.o \
+  src/version.o \
 
 
 LDFLAGS = -L$(LIBPQPATH) --export-all-symbols --add-stdcall-alias -fpic
@@ -146,5 +147,8 @@ src/transaction_base.o: src/transaction_base.cxx
 
 src/util.o: src/util.cxx
 	$(CXX) $(CPPFLAGS) -c src/util.cxx -o src/util.o $(CXXFLAGS)
+
+src/version.o: src/version.cxx
+	$(CXX) $(CPPFLAGS) -c src/version.cxx -o src/version.o $(CXXFLAGS)
 
 

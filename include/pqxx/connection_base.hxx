@@ -26,6 +26,7 @@
 #include "pqxx/prepared_statement.hxx"
 #include "pqxx/strconv.hxx"
 #include "pqxx/util.hxx"
+#include "pqxx/version.hxx"
 
 
 /* Use of the libpqxx library starts here.
@@ -667,7 +668,35 @@ public:
   std::vector<errorhandler *> get_errorhandlers() const;
 
 protected:
-  explicit connection_base(connectionpolicy &);
+  explicit connection_base(connectionpolicy &pol) :
+	m_policy(pol)
+  {
+    // Check library version.  The check_library_version template is declared
+    // for any library version, but only actually defined for the version of
+    // the libpqxx binary against which the code is linked.
+    //
+    // If the library binary is a different version than the one declared in
+    // these headers, then this call will fail to link: there will be no
+    // definition for the function with these exact template parameter values.
+    // There will be a definition, but the version in the parameter values will
+    // be different.
+    //
+    // There is no particular reason to do this here in this constructor, except
+    // to ensure that every meaningful libpqxx client will execute it.  The call
+    // must be in the execution path somewhere or the compiler won't try to link
+    // it.  We can't use it to initialise a global or class-static variable,
+    // because a smart compiler might resolve it at compile time.
+    // 
+    // On the other hand, we don't want to make a useless function call too
+    // often for performance reasons.  A local static variable is initialised
+    // only on the definition's first execution.  Compilers will be well
+    // optimised for this behaviour, so there's a minimal one-time cost.
+    static const auto version_ok =
+      internal::check_library_version<PQXX_VERSION_MAJOR, PQXX_VERSION_MINOR>();
+    ignore_unused(version_ok);
+
+    clearcaps();
+  }
   void init();
 
   void close() noexcept;

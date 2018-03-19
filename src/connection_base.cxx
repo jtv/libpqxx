@@ -2,7 +2,7 @@
  *
  * pqxx::connection_base encapsulates a frontend to backend connection.
  *
- * Copyright (c) 2001-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -86,13 +86,6 @@ std::string pqxx::encrypt_password(
 	PQencryptPassword(password.c_str(), user.c_str()),
         freepqmem_templated<char>);
   return std::string(p.get());
-}
-
-
-pqxx::connection_base::connection_base(connectionpolicy &pol) :
-  m_policy(pol)
-{
-  clearcaps();
 }
 
 

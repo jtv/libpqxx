@@ -139,7 +139,7 @@ am_libpqxx_la_OBJECTS = array.lo binarystring.lo connection_base.lo \
 	notification.lo pipeline.lo prepared_statement.lo result.lo \
 	robusttransaction.lo statement_parameters.lo strconv.lo \
 	subtransaction.lo tablereader.lo tablestream.lo tablewriter.lo \
-	transaction.lo transaction_base.lo row.lo util.lo
+	transaction.lo transaction_base.lo row.lo util.lo version.lo
 libpqxx_la_OBJECTS = $(am_libpqxx_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -372,7 +372,8 @@ libpqxx_la_SOURCES = \
 	transaction.cxx \
 	transaction_base.cxx \
 	row.cxx \
-	util.cxx
+	util.cxx \
+	version.cxx
 
 libpqxx_version = -release $(PQXX_ABI)
 libpqxx_la_LDFLAGS = $(libpqxx_version) \
@@ -491,6 +492,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transaction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transaction_base.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/version.Plo@am__quote@
 
 .cxx.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

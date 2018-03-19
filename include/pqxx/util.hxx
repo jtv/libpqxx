@@ -32,6 +32,9 @@ namespace pqxx {}
 
 namespace pqxx
 {
+/// Suppress compiler warning about an unused item.
+template<typename T> inline void ignore_unused(T) {}
+
 /// Descriptor of library's thread-safety model.
 /** This describes what the library knows about various risks to thread-safety.
  */
