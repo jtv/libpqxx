@@ -9,6 +9,7 @@
 #include "pqxx/compiler-internal.hxx"
 
 #include <cassert>
+#include <cstddef>
 #include <cstring>
 #include <utility>
 
@@ -75,7 +76,7 @@ std::string parse_single_quoted_string(const char begin[], const char end[])
   // Maximum output size is same as the input size, minus the opening and
   // closing quotes.  In the worst case, the real number could be half that.
   // Usually it'll be a pretty close estimate.
-  output.reserve(end - begin - 2);
+  output.reserve(std::size_t(end - begin - 2));
   for (const char *here = begin + 1; here < end - 1; here++)
   {
     auto c = *here;
@@ -129,7 +130,7 @@ std::string parse_double_quoted_string(const char begin[], const char end[])
   // Maximum output size is same as the input size, minus the opening and
   // closing quotes.  In the worst case, the real number could be half that.
   // Usually it'll be a pretty close estimate.
-  output.reserve(end - begin - 2);
+  output.reserve(std::size_t(end - begin - 2));
   for (const char *here = begin + 1; here < end - 1; here++)
   {
     auto c = *here;
