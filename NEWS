@@ -1,5 +1,6 @@
-6.1.2
+6.2.0
  - At last!  A check against version mismatch between library and headers.
+ - Small compile fixes.
 6.1.1
  - Small compile fixes.
  - A particular error string would always come out empty.
