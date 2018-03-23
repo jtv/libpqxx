@@ -708,7 +708,7 @@ private:
 
   result make_result(internal::pq::PGresult *rhs, const std::string &query);
 
-  void PQXX_PRIVATE clearcaps() noexcept;
+  void clearcaps() noexcept;
   void PQXX_PRIVATE set_up_state();
   void PQXX_PRIVATE check_result(const result &);
 
