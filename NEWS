@@ -1,3 +1,5 @@
+6.2.1
+ - Compile fix for shared library: clearcaps wasn't exposed for linking.
 6.2.0
  - At last!  A check against version mismatch between library and headers.
  - Small compile fixes.
