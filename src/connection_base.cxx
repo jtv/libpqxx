@@ -786,11 +786,12 @@ pqxx::result pqxx::connection_base::exec_prepared(
 {
   register_prepared(statement);
   activate();
+  const auto pointers = args.get_pointers();
   const auto pq_result = PQexecPrepared(
 	m_conn,
 	statement.c_str(),
-	int(args.values.size()),
-	&args.values[0],
+	int(args.nonnulls.size()),
+	&pointers[0],
 	&args.lengths[0],
 	&args.binaries[0],
 	0);
@@ -1308,12 +1309,13 @@ pqxx::result pqxx::connection_base::exec_params(
 	const std::string &query,
 	const internal::params &args)
 {
+  const auto pointers = args.get_pointers();
   const auto pq_result = PQexecParams(
 	m_conn,
 	query.c_str(),
-	int(args.values.size()),
+	int(args.nonnulls.size()),
 	nullptr,
-	&args.values[0],
+	&pointers[0],
 	&args.lengths[0],
 	&args.binaries[0],
 	0);

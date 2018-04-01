@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY.  Other headers include it for you.
  *
- * Copyright (c) 2009-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2009-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -82,119 +82,108 @@ struct params
   /// Construct directly from a series of statement arguments.
   /** The arrays all default to zero, null, and empty strings.
    */
-  template<typename ...Args> params(Args... args) :
-    values(sizeof...(args), nullptr),
-    lengths(sizeof...(args), 0),
-    nonnulls(sizeof...(args), 0),
-    binaries(sizeof...(args), 0)
+  template<typename ...Args> params(Args... args)
   {
-    // Pre-allocate room for all strings.  There's no need to construct them
-    // now, but we *must* allocate the space here.  Otherwise, re-allocation
-    // inside the vector may invalidate the c_str() pointers that we store!
-    //
-    // How could re-allocation invalidate those pointers?  Possibly because
-    // the library implementation uses copy-construction instead of move
-    // construction when growing the vector, or possibly because of the
-    // Small String Optimisation.
-    m_strings.reserve(sizeof...(args));
+    strings.reserve(sizeof...(args));
+    lengths.reserve(sizeof...(args));
+    nonnulls.reserve(sizeof...(args));
+    binaries.reserve(sizeof...(args));
 
     // Start recursively storing parameters.
-    set_fields(0, args...);
+    add_fields(args...);
   }
 
-  /// As used by libpq: values, as C string pointers.
-  std::vector<const char *> values;
+  /// Compose a vector of pointers to parameter string values.
+  std::vector<const char *> get_pointers() const
+  {
+    const std::size_t num_fields = lengths.size();
+    std::size_t cur_string = 0, cur_bin_string = 0;
+    std::vector<const char *> pointers(num_fields);
+    for (std::size_t index = 0; index < num_fields; index++)
+    {
+      const char *value;
+      if (binaries[index])
+      {
+        value = bin_strings[cur_bin_string].get();
+        cur_bin_string++;
+      }
+      else if (nonnulls[index])
+      {
+        value = strings[cur_string].c_str();
+        cur_string++;
+      }
+      else
+      {
+         value = nullptr;
+      }
+      pointers[index] = value;
+    }
+    return std::move(pointers);
+  }
+
+  /// String values, for string parameters.
+  std::vector<std::string> strings;
   /// As used by libpq: lengths of non-null arguments, in bytes.
   std::vector<int> lengths;
   /// As used by libpq: boolean "is this parameter non-null?"
   std::vector<int> nonnulls;
   /// As used by libpq: boolean "is this parameter in binary format?"
   std::vector<int> binaries;
+  /// Binary string values, for binary parameters.
+  std::vector<pqxx::binarystring> bin_strings;
 
 private:
-  /// Compile one argument (default implementation).
-  /** Uses string_traits to represent the argument as a std::string.
-   */
-  template<typename Arg> void set_field(std::size_t index, Arg arg)
+  /// Add a non-null string field.
+  void add_field(const std::string &str)
   {
-    if (!string_traits<Arg>::is_null(arg))
-    {
-      nonnulls[index] = 1;
-      // Convert to string, store the result in m_strings so that we can pass
-      // a C-style pointer to its text.
-      m_strings.emplace_back(to_string(arg));
-      const auto &storage = m_strings.back();
-      values[index] = storage.c_str();
-      lengths[index] = int(storage.size());
-    }
+    lengths.push_back(int(str.size()));
+    nonnulls.push_back(1);
+    binaries.push_back(0);
+    strings.push_back(str);
   }
 
   /// Compile one argument (specialised for null pointer, a null value).
-  void set_field(std::size_t, std::nullptr_t)
+  void add_field(std::nullptr_t)
   {
-    // Nothing to do: using default values.
-  }
-
-  /// Compile one argument (specialised for C-style string).
-  void set_field(std::size_t index, const char arg[])
-  {
-    // This argument is already in exactly the right format.  Don't bother
-    // turning it into a std::string; just use the pointer we were given.
-    // Of course this would be a memory bug if the string's memory were
-    // deallocated before we made our actual call.
-    values[index] = arg;
-    if (arg != nullptr)
-    {
-      nonnulls[index] = 1;
-      lengths[index] = int(std::strlen(arg));
-    }
-  }
-
-  /// Compile one argument(specialised for C-style string, signed).
-  void set_field(std::size_t index, const signed char arg[])
-  {
-    // The type we got is close enough to the one we want.  Just cast it.
-    using target_type = const char *;
-    set_field(index, target_type(arg));
-  }
-
-  /// Compile one argument (specialised for C-style string, unsigned).
-  void set_field(std::size_t index, const unsigned char arg[])
-  {
-    // The type we got is close enough to the one we want.  Just cast it.
-    using target_type = const char *;
-    set_field(index, target_type(arg));
+    lengths.push_back(0);
+    nonnulls.push_back(0);
+    binaries.push_back(0);
   }
 
   /// Compile one argument (specialised for binarystring).
-  void set_field(std::size_t index, const binarystring &arg)
+  void add_field(const binarystring &arg)
   {
-    // Again, assume that the value will stay in memory until we're done.
-    values[index] = arg.get();
-    nonnulls[index] = 1;
-    binaries[index] = 1;
-    lengths[index] = int(arg.size());
+    lengths.push_back(int(arg.size()));
+    nonnulls.push_back(1);
+    binaries.push_back(1);
+    bin_strings.push_back(arg);
+  }
+
+  /// Compile one argument (default, generic implementation).
+  /** Uses string_traits to represent the argument as a std::string.
+   */
+  template<typename Arg> void add_field(Arg arg)
+  {
+    if (string_traits<Arg>::is_null(arg)) add_field(nullptr);
+    else add_field(to_string(arg));
   }
 
 #if defined(PQXX_HAVE_OPTIONAL)
   /// Compile one argument (specialised for std::optional<type>).
-  template<typename Arg> void set_field(
-	std::size_t index,
-	const std::optional<Arg> &arg)
+  template<typename Arg> void add_field(const std::optional<Arg> &arg)
   {
-    if (arg.has_value()) set_field(index, arg.value());
-    else set_field(index, nullptr);
+    if (arg.has_value()) add_field(arg.value());
+    else add_field(nullptr);
   }
 #endif
 
 #if defined(PQXX_HAVE_EXP_OPTIONAL)
   /// Compile one argument (specialised for std::experimental::optional<type>).
-  template<typename Arg> void set_field(
-	std::size_t index,
+  template<typename Arg> void add_field(
 	const std::experimental::optional<Arg> &arg)
   {
-    if (arg) set_field(index, arg.value());
-    else set_field(index, nullptr);
+    if (arg) add_field(arg.value());
+    else add_field(nullptr);
   }
 #endif
 
@@ -203,30 +192,24 @@ private:
    * information into its final form, and calls itself for the rest of the
    * list.
    *
-   * @param index Number of this argument, zero-based.
    * @param arg Current argument to be compiled.
    * @param args Optional remaining arguments, to be compiled recursively.
    */
   template<typename Arg, typename ...More>
-  void set_fields(std::size_t index, Arg arg, More... args)
+  void add_fields(Arg arg, More... args)
   {
-    set_field(index, arg);
+    add_field(arg);
     // Compile remaining arguments, if any.
-    set_fields(index + 1, args...);
+    add_fields(args...);
   }
 
-  /// Terminating version of set_fields, at the end of the list.
-  /** Recurstion in set_fields ends with this call.
+  /// Terminating version of add_fields, at the end of the list.
+  /** Recursion in add_fields ends with this call.
    */
-  void set_fields(std::size_t) {}
-
-  /// Storage for stringified parameter values.
-  std::vector<std::string> m_strings;
-
+  void add_fields() {}
 };
 } // namespace pqxx::internal
 } // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"
-
 #endif

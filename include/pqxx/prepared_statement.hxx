@@ -14,14 +14,49 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
-#include "pqxx/internal/statement_parameters.hxx"
-
 #include "pqxx/types.hxx"
 
 
 namespace pqxx
 {
 /// Dedicated namespace for helper types related to prepared statements.
+namespace prepare
+{
+/// Marker type: pass a dynamically-determined number of statement parameters.
+/** Normally when invoking a prepared or parameterised statement, the number
+ * of parameters is known at compile time.  For instance,
+ * @c t.exec_prepared("foo", 1, "x"); executes statement @c foo with two
+ * parameters, an @c int and a C string.
+ *
+ * But sometimes you may want to pass a number of parameters known only at run
+ * time.  In those cases, wrap a container or sequence of strings in a
+ * @c dynamic_params and pass it to @c exec_prepared as a single parameter.
+ */
+template<typename IT> class dynamic_params
+{
+public:
+  /// Wrap a sequence of pointers or iterators.
+  dynamic_params(IT begin, IT end) : m_begin(begin), m_end(end) {}
+
+  /// Wrap a container.
+  template<typename C> explicit dynamic_params(const C &container) :
+        m_begin(container.begin()),
+        m_end(container.end())
+  {}
+
+  IT begin() { return m_begin; }
+  IT end() { return m_end; }
+
+private:
+  const IT m_begin, m_end;
+};
+} // namespace prepare
+} // namespace pqxx
+
+#include "pqxx/internal/statement_parameters.hxx"
+
+namespace pqxx
+{
 namespace prepare
 {
 /// Helper class for passing parameters to, and executing, prepared statements
