@@ -1,3 +1,5 @@
+#include "pqxx/compiler-internal.hxx"
+
 #include "pqxx/version"
 
 namespace pqxx
