@@ -148,7 +148,7 @@ struct params
       }
       pointers[index] = value;
     }
-    return std::move(pointers);
+    return pointers;
   }
 
   /// String values, for string parameters.
