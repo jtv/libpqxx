@@ -92,7 +92,7 @@ protected:
 	std::vector<int> &binaries) const;
 
 private:
-  void add_checked_param(const std::string &, bool nonnull, bool binary);
+  void add_checked_param(const std::string &value, bool nonnull, bool binary);
 
   std::vector<std::string> m_values;
   std::vector<bool> m_nonnull;

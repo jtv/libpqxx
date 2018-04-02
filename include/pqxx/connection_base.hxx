@@ -581,7 +581,7 @@ public:
   std::string adorn_name(const std::string &);				//[90]
 
   /**
-   * @defgroup escaping-functions
+   * @defgroup escaping-functions String-escaping functions
    */
   //@{
   /// Escape string for use as SQL string literal on this connection

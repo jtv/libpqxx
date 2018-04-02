@@ -2,7 +2,7 @@
  *
  * See the connection_base hierarchy for more about prepared statements
  *
- * Copyright (c) 2006-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2006-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -16,12 +16,12 @@
 
 
 void pqxx::internal::statement_parameters::add_checked_param(
-	const std::string &v,
+	const std::string &value,
 	bool nonnull,
 	bool binary)
 {
   m_nonnull.push_back(nonnull);
-  if (nonnull) m_values.push_back(v);
+  if (nonnull) m_values.push_back(value);
   m_binary.push_back(binary);
 }
 

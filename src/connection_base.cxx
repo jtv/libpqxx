@@ -1176,14 +1176,14 @@ void wait_fd(int fd, bool forwrite=false, timeval *tv=nullptr)
 }
 } // namespace
 
-void pqxx::internal::wait_read(const pq::PGconn *c)
+void pqxx::internal::wait_read(const internal::pq::PGconn *c)
 {
   wait_fd(socket_of(c));
 }
 
 
 void pqxx::internal::wait_read(
-	const pq::PGconn *c,
+	const internal::pq::PGconn *c,
 	long seconds,
 	long microseconds)
 {
@@ -1196,7 +1196,7 @@ void pqxx::internal::wait_read(
 }
 
 
-void pqxx::internal::wait_write(const pq::PGconn *c)
+void pqxx::internal::wait_write(const internal::pq::PGconn *c)
 {
   wait_fd(socket_of(c), true);
 }
