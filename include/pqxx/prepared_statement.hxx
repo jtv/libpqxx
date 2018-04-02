@@ -59,8 +59,7 @@ make_dynamic_params(IT begin, IT end)
  * to insert dynamic parameter lists in any place, or places, among the call's
  * parameters.  You can even insert multiple dynamic containers.
  *
- * @param begin A pointer or iterator for iterating parameters.
- * @param end A pointer or iterator for iterating parameters.
+ * @param container A container of parameter values.
  * @return An object representing the parameters.
  */
 template<typename C>
