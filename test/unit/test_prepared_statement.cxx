@@ -319,6 +319,26 @@ void test_binary(transaction_base &T)
 }
 
 
+void test_dynamic_params(transaction_base &T)
+{
+  T.conn().prepare("Concat2Numbers", "SELECT 10 * $1 + $2");
+  const std::vector<int> values{3, 9};
+  const auto params = prepare::make_dynamic_params(values);
+  const auto rw39 = T.exec_prepared1("Concat2Numbers", params);
+  PQXX_CHECK_EQUAL(
+        rw39.front().as<int>(),
+        39,
+        "Dynamic prepared-statement parameters went wrong.");
+
+  T.conn().prepare("Concat4Numbers", "SELECT 1000*$1 + 100*$2 + 10*$3 + $4");
+  const auto rw1396 = T.exec_prepared1("Concat4Numbers", 1, params, 6);
+  PQXX_CHECK_EQUAL(
+        rw1396.front().as<int>(),
+        1396,
+        "Dynamic params did not interleave with static ones properly.");
+}
+
+
 /// Test against std::optional<int>, or std::experimental::optional<int>.
 template<typename Opt>
 void test_optional(transaction_base &T)
@@ -345,6 +365,7 @@ void test_prepared_statements(transaction_base &T)
   test_nulls(T);
   test_strings(T);
   test_binary(T);
+  test_dynamic_params(T);
 
 #if defined(PQXX_HAVE_OPTIONAL)
   test_optional<std::optional<int>>(T);

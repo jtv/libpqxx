@@ -37,6 +37,36 @@ namespace pqxx
 {
 namespace internal
 {
+/// Marker type: pass a dynamically-determined number of statement parameters.
+/** Normally when invoking a prepared or parameterised statement, the number
+ * of parameters is known at compile time.  For instance,
+ * @c t.exec_prepared("foo", 1, "x"); executes statement @c foo with two
+ * parameters, an @c int and a C string.
+ *
+ * But sometimes you may want to pass a number of parameters known only at run
+ * time.  In those cases, a @c dynamic_params encodes a dynamically
+ * determined number of parameters.
+ */
+template<typename IT> class dynamic_params
+{
+public:
+  /// Wrap a sequence of pointers or iterators.
+  dynamic_params(IT begin, IT end) : m_begin(begin), m_end(end) {}
+
+  /// Wrap a container.
+  template<typename C> explicit dynamic_params(const C &container) :
+        m_begin(container.begin()),
+        m_end(container.end())
+  {}
+
+  IT begin() const { return m_begin; }
+  IT end() const { return m_end; }
+
+private:
+  const IT m_begin, m_end;
+};
+
+
 class PQXX_LIBEXPORT statement_parameters
 {
 protected:
@@ -186,6 +216,12 @@ private:
     else add_field(nullptr);
   }
 #endif
+
+  /// Compile a dynamic_params object into a dynamic number of parameters.
+  template<typename IT> void add_field(const dynamic_params<IT> &parameters)
+  {
+    for (auto param: parameters) add_field(param);
+  }
 
   /// Compile argument list.
   /** This recursively "peels off" the next remaining element, compiles its

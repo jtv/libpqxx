@@ -15,6 +15,8 @@
 #include "pqxx/compiler-internal-pre.hxx"
 
 #include "pqxx/types.hxx"
+#include "pqxx/internal/statement_parameters.hxx"
+
 
 
 namespace pqxx
@@ -22,38 +24,53 @@ namespace pqxx
 /// Dedicated namespace for helper types related to prepared statements.
 namespace prepare
 {
-/// Marker type: pass a dynamically-determined number of statement parameters.
-/** Normally when invoking a prepared or parameterised statement, the number
- * of parameters is known at compile time.  For instance,
- * @c t.exec_prepared("foo", 1, "x"); executes statement @c foo with two
- * parameters, an @c int and a C string.
+/// Pass a number of statement parameters only known at runtime.
+/** When you call any of the @c exec_params functions, the number of arguments
+ * is normally known at compile time.  This helper function supports the case
+ * where it is not.
  *
- * But sometimes you may want to pass a number of parameters known only at run
- * time.  In those cases, wrap a container or sequence of strings in a
- * @c dynamic_params and pass it to @c exec_prepared as a single parameter.
+ * Use this function to pass a variable number of parameters, based on a
+ * sequence ranging from @c begin to @c end exclusively.
+ *
+ * The technique combines with the regular static parameters.  You can use it
+ * to insert dynamic parameter lists in any place, or places, among the call's
+ * parameters.  You can even insert multiple dynamic sequences.
+ *
+ * @param begin A pointer or iterator for iterating parameters.
+ * @param end A pointer or iterator for iterating parameters.
+ * @return An object representing the parameters.
  */
-template<typename IT> class dynamic_params
+template<typename IT> inline pqxx::internal::dynamic_params<IT>
+make_dynamic_params(IT begin, IT end)
 {
-public:
-  /// Wrap a sequence of pointers or iterators.
-  dynamic_params(IT begin, IT end) : m_begin(begin), m_end(end) {}
+  return pqxx::internal::dynamic_params<IT>(begin, end);
+}
 
-  /// Wrap a container.
-  template<typename C> explicit dynamic_params(const C &container) :
-        m_begin(container.begin()),
-        m_end(container.end())
-  {}
 
-  IT begin() { return m_begin; }
-  IT end() { return m_end; }
-
-private:
-  const IT m_begin, m_end;
-};
+/// Pass a number of statement parameters only known at runtime.
+/** When you call any of the @c exec_params functions, the number of arguments
+ * is normally known at compile time.  This helper function supports the case
+ * where it is not.
+ *
+ * Use this function to pass a variable number of parameters, based on a
+ * container of parameter values.
+ *
+ * The technique combines with the regular static parameters.  You can use it
+ * to insert dynamic parameter lists in any place, or places, among the call's
+ * parameters.  You can even insert multiple dynamic containers.
+ *
+ * @param begin A pointer or iterator for iterating parameters.
+ * @param end A pointer or iterator for iterating parameters.
+ * @return An object representing the parameters.
+ */
+template<typename C>
+inline pqxx::internal::dynamic_params<typename C::const_iterator>
+make_dynamic_params(const C &container)
+{
+  return pqxx::internal::dynamic_params<typename C::const_iterator>(container);
+}
 } // namespace prepare
 } // namespace pqxx
-
-#include "pqxx/internal/statement_parameters.hxx"
 
 namespace pqxx
 {
