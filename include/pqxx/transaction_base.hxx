@@ -308,36 +308,36 @@ public:
   //@{
   /// Execute an SQL statement with parameters.
   template<typename ...Args>
-  result exec_params(const std::string &query, Args ...args)
+  result exec_params(const std::string &query, Args &&...args)
   {
-    return internal_exec_params(query, internal::params(args...));
+    return internal_exec_params(query, internal::params(std::forward<Args>(args)...));
   }
 
   // Execute parameterised statement, expect a single-row result.
   /** @throw unexpected_rows if the result does not consist of exactly one row.
    */
   template<typename ...Args>
-  row exec_params1(const std::string &query, Args... args)
+  row exec_params1(const std::string &query, Args&&... args)
   {
-    return exec_params_n(1, query, args...).front();
+    return exec_params_n(1, query, std::forward<Args>(args)...).front();
   }
 
   // Execute parameterised statement, expect a result with zero rows.
   /** @throw unexpected_rows if the result contains rows.
    */
   template<typename ...Args>
-  result exec_params0(const std::string &query, Args ...args)
+  result exec_params0(const std::string &query, Args &&...args)
   {
-    return exec_params_n(0, query, args...);
+    return exec_params_n(0, query, std::foward<Args>(args)...);
   }
 
   // Execute parameterised statement, expect exactly a given number of rows.
   /** @throw unexpected_rows if the result contains the wrong number of rows.
    */
   template<typename ...Args>
-  result exec_params_n(size_t rows, const std::string &query, Args ...args)
+  result exec_params_n(size_t rows, const std::string &query, Args &&...args)
   {
-    const auto r = exec_params(query, args...);
+    const auto r = exec_params(query, std::forward<Args>(args)...);
     check_rowcount_params(rows, r.size());
     return r;
   }
@@ -381,27 +381,27 @@ public:
 
   /// Execute a prepared statement, with optional arguments.
   template<typename ...Args>
-  result exec_prepared(const std::string &statement, Args... args)
+  result exec_prepared(const std::string &statement, Args&&... args)
   {
-    return internal_exec_prepared(statement, internal::params(args...));
+    return internal_exec_prepared(statement, internal::params(std::forward<Args>(args)...));
   }
 
   /// Execute a prepared statement, and expect a single-row result.
   /** @throw pqxx::unexpected_rows if the result was not exactly 1 row.
    */
   template<typename ...Args>
-  row exec_prepared1(const std::string &statement, Args... args)
+  row exec_prepared1(const std::string &statement, Args&&... args)
   {
-    return exec_prepared_n(1, statement, args...).front();
+    return exec_prepared_n(1, statement, std::forward<Args>(args)...).front();
   }
 
   /// Execute a prepared statement, and expect a result with zero rows.
   /** @throw pqxx::unexpected_rows if the result contained rows.
    */
   template<typename ...Args>
-  result exec_prepared0(const std::string &statement, Args... args)
+  result exec_prepared0(const std::string &statement, Args&&... args)
   {
-    return exec_prepared_n(0, statement, args...);
+    return exec_prepared_n(0, statement, std::forward<Args>(args)...);
   }
 
   /// Execute a prepared statement, expect a result with given number of rows.
@@ -412,9 +412,9 @@ public:
   result exec_prepared_n(
 	size_t rows,
 	const std::string &statement,
-	Args... args)
+	Args&&... args)
   {
-    const auto r = exec_prepared(statement, args...);
+    const auto r = exec_prepared(statement, std::forward<Args>(args)...);
     check_rowcount_prepared(statement, rows, r.size());
     return r;
   }
