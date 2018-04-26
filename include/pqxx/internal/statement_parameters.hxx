@@ -112,7 +112,7 @@ struct params
   /// Construct directly from a series of statement arguments.
   /** The arrays all default to zero, null, and empty strings.
    */
-  template<typename ...Args> params(Args... args)
+  template<typename ...Args> params(Args && ... args)
   {
     strings.reserve(sizeof...(args));
     lengths.reserve(sizeof...(args));
@@ -120,7 +120,7 @@ struct params
     binaries.reserve(sizeof...(args));
 
     // Start recursively storing parameters.
-    add_fields(args...);
+    add_fields(std::forward<Args>(args)...);
   }
 
   /// Compose a vector of pointers to parameter string values.
@@ -164,12 +164,12 @@ struct params
 
 private:
   /// Add a non-null string field.
-  void add_field(const std::string &str)
+  void add_field(std::string str)
   {
     lengths.push_back(int(str.size()));
     nonnulls.push_back(1);
     binaries.push_back(0);
-    strings.push_back(str);
+    strings.emplace_back(std::move(str));
   }
 
   /// Compile one argument (specialised for null pointer, a null value).
@@ -232,11 +232,11 @@ private:
    * @param args Optional remaining arguments, to be compiled recursively.
    */
   template<typename Arg, typename ...More>
-  void add_fields(Arg arg, More... args)
+  void add_fields(Arg &&arg, More && ... args)
   {
-    add_field(arg);
+    add_field(std::forward<Arg>(arg));
     // Compile remaining arguments, if any.
-    add_fields(args...);
+    add_fields(std::forward<More>(args)...);
   }
 
   /// Terminating version of add_fields, at the end of the list.
