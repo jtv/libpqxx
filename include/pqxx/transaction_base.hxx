@@ -328,7 +328,7 @@ public:
   template<typename ...Args>
   result exec_params0(const std::string &query, Args &&...args)
   {
-    return exec_params_n(0, query, std::foward<Args>(args)...);
+    return exec_params_n(0, query, std::forward<Args>(args)...);
   }
 
   // Execute parameterised statement, expect exactly a given number of rows.
