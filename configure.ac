@@ -309,7 +309,7 @@ AC_ARG_WITH(
         [--with-postgres-include=DIR],
         [Use PostgreSQL includes from DIR.  Defaults to querying pg_config.])],
     AS_IF(
-        [test "x$with_postgres_include" == "xyes"],
+        [test "x$with_postgres_include" = "xyes"],
         [with_postgres_include=""]))
 AS_IF(
     [test -z "$with_postgres_include"],
@@ -325,7 +325,7 @@ AC_ARG_WITH(
         [--with-postgres-lib=DIR],
         [Use PostgreSQL libraries from DIR.  Defaults to querying pg_config.])],
     AS_IF(
-        [test "x$with_postgres_lib" == "xyes"],
+        [test "x$with_postgres_lib" = "xyes"],
         [with_postgres_lib=""]))
 AS_IF(
     [test -z "$with_postgres_lib"],
