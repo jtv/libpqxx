@@ -17707,7 +17707,7 @@ fi
 
 # Check whether --with-postgres-include was given.
 if test "${with_postgres_include+set}" = set; then :
-  withval=$with_postgres_include; if test "x$with_postgres_include" == "xyes"; then :
+  withval=$with_postgres_include; if test "x$with_postgres_include" = "xyes"; then :
   with_postgres_include=""
 fi
 fi
@@ -17724,7 +17724,7 @@ POSTGRES_INCLUDE="-I${with_postgres_include}"
 
 # Check whether --with-postgres-lib was given.
 if test "${with_postgres_lib+set}" = set; then :
-  withval=$with_postgres_lib; if test "x$with_postgres_lib" == "xyes"; then :
+  withval=$with_postgres_lib; if test "x$with_postgres_lib" = "xyes"; then :
   with_postgres_lib=""
 fi
 fi
