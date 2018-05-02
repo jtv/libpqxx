@@ -53,17 +53,17 @@ case "$ARG" in
 
 -a|--abi)
 	# Print just the ABI version (major & minor).
-	sed $srcdir/VERSION -e 's/^\([^.]*\.[^.]*\)\..*/\1/'
+	sed -e 's/^\([^.]*\.[^.]*\)\..*/\1/' $srcdir/VERSION
 	;;
 
 -M|--major)
 	# Print the major version number.
-	sed $srcdir/VERSION -e 's/^\([^.]*\)\..*/\1/'
+	sed -e 's/^\([^.]*\)\..*/\1/' $srcdir/VERSION
 	;;
 
 -m|--minor)
 	# Print the minor version number.
-	sed $srcdir/VERSION -e 's/^[^.]*\.\([^.]*\)\..*/\1/'
+	sed -e 's/^[^.]*\.\([^.]*\)\..*/\1/' $srcdir/VERSION
 	;;
 
 *)
