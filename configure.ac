@@ -38,19 +38,21 @@ AC_ARG_ENABLE(
 	documentation,
 	[AS_HELP_STRING([--enable-documentation], [Generate documentation])],
 	[],
-	[enable_documentation=yes])
-if test "$enable_documentation" = "yes"
-then
-AC_PATH_PROG([DOXYGEN], [doxygen])
-AM_CONDITIONAL([BUILD_REFERENCE], [/bin/true])
-AC_CHECK_PROG(HAVE_DOT, dot, yes, no)
-AC_PATH_PROG([XMLTO], [xmlto])
-AM_CONDITIONAL([BUILD_TUTORIAL], [/bin/true])
-else
-AM_CONDITIONAL(BUILD_REFERENCE, [/bin/false])
-AM_CONDITIONAL(BUILD_TUTORIAL, [/bin/false])
-fi
-
+	[enable_documentation=auto])
+AC_ARG_VAR([DOXYGEN],
+	[Path to doxygen needed to build reference documentation])
+AC_PATH_TOOL([DOXYGEN], [doxygen], [nodoxygen])
+AC_ARG_VAR([HAVE_DOT],
+	[Variable used by doxygen to declare availibility of dot])
+AC_CHECK_TOOL([HAVE_DOT], [dot], [YES], [NO])
+AC_ARG_VAR([XMLTO], [Path to xmlto needed to build tutorial documentation])
+AC_PATH_TOOL([XMLTO], [xmlto], [noxmlto])
+AS_IF([test "$enable_documentation" = "yes" && test "$DOXYGEN" = "nodoxygen" -o "$XMLTO" = "noxmlto"],
+	[AC_MSG_ERROR([could not files tools necessary to build documentation])])
+AM_CONDITIONAL([BUILD_REFERENCE],
+	[test "$enable_documentation" != "no" -a "$DOXYGEN" != "nodoxygen"])
+AM_CONDITIONAL([BUILD_TUTORIAL],
+	[test "$enable_documentation" != "no" -a "$XMLTO" != "xmlto"])
 
 AM_MAINTAINER_MODE
 
