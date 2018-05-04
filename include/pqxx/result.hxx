@@ -25,8 +25,6 @@
 
 // Methods tested in eg. test module test01 are marked with "//[t01]".
 
-// TODO: Support SQL arrays
-
 namespace pqxx
 {
 namespace internal
