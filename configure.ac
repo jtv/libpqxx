@@ -1,3 +1,6 @@
+# Generate configure script for libpqxx.  This needs the autoconf archive
+# package installed.  (The configure script itself does not require it though.)
+
 # All text in libpqxx is pure ASCII, so we can afford the "C" locale which is
 # likely to be faster than any other.
 LC_ALL=C
