@@ -67,88 +67,6 @@ AS_IF(
     [CPPFLAGS="$CPPFLAGS -DPQXX_SHARED"])
 
 
-AC_MSG_CHECKING([C++14 deprecation attribute])
-deprecated=yes
-AC_TRY_COMPILE(
-	[[[deprecated]] void f();],
-	[],
-	AC_DEFINE(
-		[PQXX_HAVE_DEPRECATED],
-		1,
-		[Define if compiler supports [[deprecated]] attribute]),
-	deprecated=no)
-AC_MSG_RESULT($deprecated)
-
-
-AC_MSG_CHECKING([for C++17 std::optional support])
-have_optional=yes
-AC_TRY_COMPILE(
-	[#include <optional>],
-	[return std::optional<int>(0).value()],
-	AC_DEFINE(
-		[PQXX_HAVE_OPTIONAL],
-		1,
-		[Define if the compiler supports std::optional.]),
-	have_optional=no)
-AC_MSG_RESULT($have_optional)
-
-if test "$have_optional" != "yes"
-then
-AC_MSG_CHECKING([for experimental C++17 std::optional support])
-have_exp_optional=yes
-AC_TRY_COMPILE(
-	[#include <experimental/optional>],
-	[return std::experimental::optional<int>(0).value()],
-	AC_DEFINE(
-		[PQXX_HAVE_EXP_OPTIONAL],
-		1,
-		[Define if the compiler supports std::experimental::optional.]),
-	have_exp_optional=no)
-AC_MSG_RESULT($have_exp_optional)
-fi
-
-
-AX_HAVE_POLL(
-        [AX_CONFIG_FEATURE_ENABLE(poll)],
-        [AX_CONFIG_FEATURE_DISABLE(poll)])
-AX_CONFIG_FEATURE([poll], [System supports poll().], [HAVE_POLL], [System supports poll().])
-
-if test "$ax_cv_have_poll" != "yes"
-then
-# No poll(); try for select() instead.
-select_h=no
-AC_CHECK_HEADERS([sys/select.h], [select_h=yes])
-
-# Some systems keep select() in a separate library which is not linked by
-# default.  See if we need one of those.
-socklibok=no
-AC_SEARCH_LIBS(select, socket nsl ws2_32 wsock32 winsock, [socklibok=yes])
-
-# Microsoft proprietary libraries do not work with code that is generated with
-# autoconf's SEARCH_LIBS macro, so we need to check manually and just use the
-# first socket library available.
-# We only do this if select() is not available by other means, to avoid picking
-# up an unnecessary Windows compatibility library on a non-Windows system.
-for l in ws2_32 wsock32 winsock
-do
-	if test "${socklibok}" != "yes"
-	then
-		AC_CHECK_LIB($l,main,LIBS="$LIBS -l$l";[socklibok=yes])
-	fi
-done
-
-if test "${socklibok}" != "yes"
-then
-	AC_MSG_ERROR([
-Could not figure out how to link a simple sockets-based program.  Please read
-the config.log file for more clues as to why this failed.
-])
-fi
-
-fi # No poll()
-
-AC_CHECK_HEADERS([sys/time.h])
-
 # Add options to compiler command line, if compiler accepts them.
 add_compiler_opts_if_ok() {
 	for option in $*
@@ -292,6 +210,90 @@ AC_TRY_COMPILE(
 AC_MSG_RESULT($gcc_pure)
 
 fi # End of gcc-specific part.
+
+
+AC_MSG_CHECKING([C++14 deprecation attribute])
+deprecated=yes
+AC_TRY_COMPILE(
+	[[[deprecated]] void f();],
+	[],
+	AC_DEFINE(
+		[PQXX_HAVE_DEPRECATED],
+		1,
+		[Define if compiler supports [[deprecated]] attribute]),
+	deprecated=no)
+AC_MSG_RESULT($deprecated)
+
+
+AC_MSG_CHECKING([for C++17 std::optional support])
+have_optional=yes
+AC_TRY_COMPILE(
+	[#include <optional>],
+	[return std::optional<int>(0).value()],
+	AC_DEFINE(
+		[PQXX_HAVE_OPTIONAL],
+		1,
+		[Define if the compiler supports std::optional.]),
+	have_optional=no)
+AC_MSG_RESULT($have_optional)
+
+if test "$have_optional" != "yes"
+then
+AC_MSG_CHECKING([for experimental C++17 std::optional support])
+have_exp_optional=yes
+AC_TRY_COMPILE(
+	[#include <experimental/optional>],
+	[return std::experimental::optional<int>(0).value()],
+	AC_DEFINE(
+		[PQXX_HAVE_EXP_OPTIONAL],
+		1,
+		[Define if the compiler supports std::experimental::optional.]),
+	have_exp_optional=no)
+AC_MSG_RESULT($have_exp_optional)
+fi
+
+
+AX_HAVE_POLL(
+        [AX_CONFIG_FEATURE_ENABLE(poll)],
+        [AX_CONFIG_FEATURE_DISABLE(poll)])
+AX_CONFIG_FEATURE([poll], [System supports poll().], [HAVE_POLL], [System supports poll().])
+
+if test "$ax_cv_have_poll" != "yes"
+then
+# No poll(); try for select() instead.
+select_h=no
+AC_CHECK_HEADERS([sys/select.h], [select_h=yes])
+
+# Some systems keep select() in a separate library which is not linked by
+# default.  See if we need one of those.
+socklibok=no
+AC_SEARCH_LIBS(select, socket nsl ws2_32 wsock32 winsock, [socklibok=yes])
+
+# Microsoft proprietary libraries do not work with code that is generated with
+# autoconf's SEARCH_LIBS macro, so we need to check manually and just use the
+# first socket library available.
+# We only do this if select() is not available by other means, to avoid picking
+# up an unnecessary Windows compatibility library on a non-Windows system.
+for l in ws2_32 wsock32 winsock
+do
+	if test "${socklibok}" != "yes"
+	then
+		AC_CHECK_LIB($l,main,LIBS="$LIBS -l$l";[socklibok=yes])
+	fi
+done
+
+if test "${socklibok}" != "yes"
+then
+	AC_MSG_ERROR([
+Could not figure out how to link a simple sockets-based program.  Please read
+the config.log file for more clues as to why this failed.
+])
+fi
+
+fi # No poll()
+
+
+AC_CHECK_HEADERS([sys/time.h])
 
 
 # Find PostgreSQL includes and libraries
