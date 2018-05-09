@@ -1,4 +1,5 @@
 function(detect_header_file file macro)
+  unset(exists CACHE)
   check_include_files("${file}" exists)
   if (exists)
     add_definitions("-D${macro}")
@@ -7,6 +8,7 @@ function(detect_header_file file macro)
 endfunction(detect_header_file)
 
 function(detect_function func macro)
+  unset(exists CACHE)
   check_function_exists("${func}" exists)
   if (exists)
     add_definitions("-D${macro}")
@@ -20,6 +22,27 @@ function(detect_cxx_feature feature macro)
     add_definitions("-D${macro}")
   endif ()
 endfunction(detect_cxx_feature)
+
+function(detect_optional om eom)
+  unset(exists CACHE)
+  check_cxx_source_compiles("
+    #include <optional>
+    int main() { std::optional<int> o; }
+  " exists)
+  if (exists)
+    add_definitions("-D${om}")
+    unset(exists CACHE)
+  else (exists)
+    check_cxx_source_compiles("
+      #include <experimental/optional>
+      int main() { std::experimental::optional<int> o; }
+    " exists)
+    if (exists)
+      add_definitions("-D${eom}")
+      unset(exists CACHE)
+    endif (exists)
+  endif (exists)
+endfunction(detect_optional)
 
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
@@ -44,25 +67,17 @@ detect_function("poll" HAVE_POLL)
 cmake_determine_compile_features(CXX)
 detect_cxx_feature("cxx_attribute_deprecated" "PQXX_HAVE_DEPRECATED")
 
+# check_cxx_source_compiles requires CMAKE_REQUIRED_DEFINITIONS to specify compiling arguments
+# Wordaround: Push CMAKE_REQUIRED_DEFINITIONS
 if (CMAKE_REQUIRED_DEFINITIONS)
   set(def "${CMAKE_REQUIRED_DEFINITIONS}")
 endif (CMAKE_REQUIRED_DEFINITIONS)
 set(CMAKE_REQUIRED_DEFINITIONS ${CMAKE_CXX17_STANDARD_COMPILE_OPTION})
-check_cxx_source_compiles("
-  #include <optional>
-  int main() { std::optional<int> o; }
-" PQXX_HAVE_OPTIONAL FAIL_REGEX "no member named")
-if (PQXX_HAVE_OPTIONAL)
-  add_definitions(-DPQXX_HAVE_OPTIONAL)
-else (PQXX_HAVE_OPTIONAL)
-  check_cxx_source_compiles("
-    #include <experimental/optional>
-    int main() { std::experimental::optional<int> o; }
-  " PQXX_HAVE_EXP_OPTIONAL)
-  if (PQXX_HAVE_EXP_OPTIONAL)
-    add_definitions(-DPQXX_HAVE_EXP_OPTIONAL)
-  endif (PQXX_HAVE_EXP_OPTIONAL)
-endif (PQXX_HAVE_OPTIONAL)
+
+detect_optional(PQXX_HAVE_OPTIONAL PQXX_HAVE_EXP_OPTIONAL)
+
+# check_cxx_source_compiles requires CMAKE_REQUIRED_DEFINITIONS to specify compiling arguments
+# Wordaround: Pop CMAKE_REQUIRED_DEFINITIONS
 if (def)
   set(CMAKE_REQUIRED_DEFINITIONS ${def})
   unset(def CACHE)
