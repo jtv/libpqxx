@@ -23,9 +23,7 @@
 
 #if defined(PQXX_HAVE_OPTIONAL)
 #include <optional>
-#endif
-
-#if defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
+#elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
 #include <experimental/optional>
 #endif
 
@@ -206,9 +204,7 @@ private:
     if (arg.has_value()) add_field(arg.value());
     else add_field(nullptr);
   }
-#endif
-
-#if defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
+#elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
   /// Compile one argument (specialised for std::experimental::optional<type>).
   template<typename Arg> void add_field(
 	const std::experimental::optional<Arg> &arg)

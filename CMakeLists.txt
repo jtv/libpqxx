@@ -13,7 +13,6 @@ include(config)
 find_package(PostgreSQL REQUIRED)
 include_directories(
   ${CMAKE_SOURCE_DIR}/include
-  config/sample-headers/compiler/gcc-7.2
   ${PostgreSQL_INCLUDE_DIRS}
 )
 link_libraries(${PostgreSQL_LIBRARIES})

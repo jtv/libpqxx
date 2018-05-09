@@ -369,8 +369,7 @@ void test_prepared_statements(transaction_base &T)
 
 #if defined(PQXX_HAVE_OPTIONAL)
   test_optional<std::optional<int>>(T);
-#endif
-#if defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
+#elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
   test_optional<std::experimental::optional<int>>(T);
 #endif
 }
