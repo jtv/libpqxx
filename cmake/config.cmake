@@ -81,14 +81,18 @@ else (def)
 endif (def)
 set(CMAKE_REQUIRED_QUIET OFF)
 
-configure_file(
-  "${CMAKE_SOURCE_DIR}/cmake/config.h.in"
-  "${CMAKE_BINARY_DIR}/include/pqxx/config-internal-compiler.h"
-  @ONLY
-)
-configure_file(
-  "${CMAKE_SOURCE_DIR}/cmake/config.h.in"
-  "${CMAKE_BINARY_DIR}/include/pqxx/config-public-compiler.h"
-  @ONLY
-)
+set(AC_CONFIG_H_IN "${CMAKE_SOURCE_DIR}/include/pqxx/config.h.in")
+set(CM_CONFIG_H_IN "${CMAKE_BINARY_DIR}/include/pqxx/config.h.in")
+set(CM_CONFIG_PUB "${CMAKE_BINARY_DIR}/include/pqxx/config-public-compiler.h")
+set(CM_CONFIG_INT "${CMAKE_BINARY_DIR}/include/pqxx/config-internal-compiler.h")
+message(STATUS "Generating config.h")
+file(WRITE "${CM_CONFIG_H_IN}" "")
+file(STRINGS "${AC_CONFIG_H_IN}" lines)
+foreach (line ${lines})
+  string(REGEX REPLACE "^#undef" "#cmakedefine" l "${line}")
+  file(APPEND "${CM_CONFIG_H_IN}" "${l}\n")
+endforeach (line)
+configure_file("${CM_CONFIG_H_IN}" "${CM_CONFIG_INT}" @ONLY)
+configure_file("${CM_CONFIG_H_IN}" "${CM_CONFIG_PUB}" @ONLY)
 include_directories("${CMAKE_BINARY_DIR}/include")
+message(STATUS "Generating config.h - done")
