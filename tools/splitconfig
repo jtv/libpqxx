@@ -21,14 +21,51 @@ from errno import ENOENT
 import os.path
 from os import getcwd
 import re
+from sys import (
+    getdefaultencoding,
+    getfilesystemencoding,
+    stdout,
+    )
 
 __metaclass__ = type
 
 
-def read_text_file(path):
+def guess_fs_encoding():
+    """Try to establish the filesystem encoding.
+
+    It's a sad thing: some guesswork is involved.  The encoding often seems to
+    be conservatively, and incorrectly, set to ascii.
+    """
+    candidates = [
+        getfilesystemencoding(),
+        getdefaultencoding(),
+        'utf-8',
+        ]
+    for encoding in candidates:
+        lower = encoding.lower()
+        if lower != 'ascii' and lower != 'ansi_x3.4-1968':
+            return encoding
+    raise AssertionError("unreachable code reached.")
+
+
+def decode_path(path):
+    """Decode a path element from bytes to unicode string."""
+    return path.decode(guess_fs_encoding())
+
+
+def encode_path(path):
+    """Encode a path element from unicode string to bytes."""
+    # Nasty detail: unicode strings are stored as UTF-16.  Which can contain
+    # surrogate pairs.  And those break in encoding, unless you use this
+    # special error handler.
+    return path.encode(guess_fs_encoding(), 'surrogateescape')
+
+
+def read_text_file(path, encoding='utf-8'):
     """Read text file, return as string, or `None` if file is not there."""
+    assert isinstance(path, type(''))
     try:
-        with codecs.open(path, encoding='ascii') as stream:
+        with codecs.open(encode_path(path), encoding=encoding) as stream:
             return stream.read()
     except IOError as error:
         if error.errno == ENOENT:
@@ -37,9 +74,10 @@ def read_text_file(path):
             raise
 
 
-def read_lines(path):
+def read_lines(path, encoding='utf-8'):
     """Read text file, return as list of lines."""
-    with codecs.open(path, encoding='ascii') as stream:
+    assert isinstance(path, type(''))
+    with codecs.open(encode_path(path), encoding=encoding) as stream:
         return list(stream)
 
 
@@ -71,6 +109,8 @@ def read_header(source_tree, filename):
     :param filename: Path to the config.h file.
     :return: Sequence of text lines from config.h.
     """
+    assert isinstance(source_tree, type(''))
+    assert isinstance(filename, type(''))
     return read_lines(os.path.join(source_tree, filename))
 
 
@@ -127,21 +167,24 @@ def generate_config(source_tree, header_lines, items, publication, factor):
     :param publication: Extract only macros for this publication tag.
     :param factor: Extract only macros for this environmental factor.
     """
+    assert isinstance(source_tree, type(''))
     config_file = os.path.join(
         source_tree, 'include', 'pqxx',
         'config-%s-%s.h' % (publication, factor))
+    unicode_path = config_file.encode(stdout.encoding, 'replace')
     section = extract_section(header_lines, items, publication, factor)
     if len(section) == 0:
-        print("Generating %s: no items--skipping." % config_file)
+        print("Generating %s: no items--skipping." % unicode_path)
         return
 
     contents = compose_header(section, publication, factor)
     if read_text_file(config_file) == contents:
-        print("Generating %s: no changes--skipping." % config_file)
+        print("Generating %s: no changes--skipping." % unicode_path)
         return
 
-    print("Generating %s: %d item(s)." % (config_file, len(section)))
-    with codecs.open(config_file, 'wb', encoding='ascii') as header:
+    print("Generating %s: %d item(s)." % (unicode_path, len(section)))
+    path = encode_path(config_file)
+    with codecs.open(path, 'wb', encoding='ascii') as header:
         header.write(contents)
 
 
@@ -162,6 +205,14 @@ def check_args(args):
         raise Exception("Not a directory: '%s'." % args.sourcetree)
 
 
+def get_current_dir():
+    cwd = getcwd()
+    if isinstance(cwd, bytes):
+        return decode_path(cwd)
+    else:
+        return cwd
+
+
 def main():
     """Main program entry point."""
     args = parse_args()
@@ -172,13 +223,16 @@ def main():
     factors = sorted(set(item[2] for item in items))
     # The config.h header is generated; it's in the build tree, which should
     # be where we are.
-    original_header = read_header(getcwd(), 'include/pqxx/config.h')
+    directory = get_current_dir()
+    original_header = read_header(
+        directory,
+        os.path.join('include', 'pqxx', 'config.h'))
     items_map = map_configitems(items)
 
     for publication in publications:
         for factor in factors:
             generate_config(
-                getcwd(), original_header, items_map, publication, factor)
+                directory, original_header, items_map, publication, factor)
 
 
 if __name__ == '__main__':
