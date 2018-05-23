@@ -50,10 +50,8 @@ conf_flags="--enable-maintainer-mode ${CONFIG_ARGS:-}"
 if [ -z "${NOCONFIGURE:-}" ]
 then
 	echo Running ./configure $conf_flags "$@" ...
-	if ./configure $conf_flags "$@"
-	then
-		echo "Now type 'make' to compile libpqxx"
-	fi
+	./configure $conf_flags "$@"
+	echo "Now type 'make' to compile libpqxx."
 else
 	echo Skipping configure process.
 fi
