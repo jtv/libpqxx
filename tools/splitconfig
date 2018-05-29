@@ -48,6 +48,15 @@ def guess_fs_encoding():
     raise AssertionError("unreachable code reached.")
 
 
+def guess_output_encoding():
+    """Return the encoding of standard output."""
+    # Apparently builds in Docker containers may have None as an encoding.
+    # Fall back to ASCII.  If this ever happens in a non-ASCII path, well,
+    # there may be a more difficult decision to be made.  We'll burn that
+    # bridge when we get to it, as they almost say.
+    return stdout.encoding or 'ascii'
+
+
 def decode_path(path):
     """Decode a path element from bytes to unicode string."""
     return path.decode(guess_fs_encoding())
