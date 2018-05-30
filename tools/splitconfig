@@ -180,7 +180,7 @@ def generate_config(source_tree, header_lines, items, publication, factor):
     config_file = os.path.join(
         source_tree, 'include', 'pqxx',
         'config-%s-%s.h' % (publication, factor))
-    unicode_path = config_file.encode(stdout.encoding, 'replace')
+    unicode_path = config_file.encode(guess_output_encoding(), 'replace')
     section = extract_section(header_lines, items, publication, factor)
     if len(section) == 0:
         print("Generating %s: no items--skipping." % unicode_path)
