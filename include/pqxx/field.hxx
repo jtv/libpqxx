@@ -20,7 +20,15 @@
 #include <optional>
 #endif
 
-#if defined(PQXX_HAVE_EXP_OPTIONAL)
+/* Use std::experimental::optional as a fallback for std::optional, if
+ * present.
+ *
+ * This may break compilation for some software, if using a libpqxx that was
+ * configured for a different language version.  To stop libpqxx headers from
+ * using or supporting std::experimental::optional, define a macro
+ * PQXX_HIDE_EXP_OPTIONAL when building your software.
+ */
+#if defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
 #include <experimental/optional>
 #endif
 
@@ -165,7 +173,7 @@ public:
   /// Return value as std::optional, or blank value if null.
   template<typename T> std::optional<T> get() const
 	{ return get_opt<T, std::optional<T>>(); }
-#elif defined(PQXX_HAVE_EXP_OPTIONAL)
+#elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
   /// Return value as std::experimental::optional, or blank value if null.
   template<typename T> std::experimental::optional<T> get() const
 	{ return get_opt<T, std::experimental::optional<T>>(); }
