@@ -168,7 +168,7 @@ inline std::string tablewriter::generate(IT Begin, IT End) const
 template<typename TUPLE>
 inline std::string tablewriter::generate(const TUPLE &T) const
 {
-  return generate(T.begin(), T.end());
+  return generate(std::begin(T), std::end(T));
 }
 
 template<typename IT> inline void tablewriter::insert(IT Begin, IT End)
@@ -178,7 +178,7 @@ template<typename IT> inline void tablewriter::insert(IT Begin, IT End)
 
 template<typename TUPLE> inline void tablewriter::insert(const TUPLE &T)
 {
-  insert(T.begin(), T.end());
+  insert(std::begin(T), std::end(T));
 }
 
 template<typename IT>
@@ -190,7 +190,7 @@ inline void tablewriter::push_back(IT Begin, IT End)
 template<typename TUPLE>
 inline void tablewriter::push_back(const TUPLE &T)
 {
-  insert(T.begin(), T.end());
+  insert(std::begin(T), std::end(T));
 }
 
 template<typename TUPLE>

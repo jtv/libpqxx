@@ -15,6 +15,7 @@
 
 #include <cstdio>
 #include <cctype>
+#include <iterator>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -125,7 +126,7 @@ separated_list(const std::string &sep, ITER begin, ITER end)		//[t00]
 /// Render items in a container as a string, using given separator.
 template<typename CONTAINER> inline std::string
 separated_list(const std::string &sep, const CONTAINER &c)		//[t10]
-	{ return separated_list(sep, c.begin(), c.end()); }
+	{ return separated_list(sep, std::begin(c), std::end(c)); }
 //@}
 
 

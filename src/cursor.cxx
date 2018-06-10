@@ -2,7 +2,7 @@
  *
  * These classes wrap SQL cursors in STL-like interfaces.
  *
- * Copyright (c) 2004-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2004-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -12,6 +12,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <iterator>
 
 #include "pqxx/cursor"
 #include "pqxx/result"
@@ -81,8 +82,8 @@ pqxx::internal::sql_cursor::sql_cursor(
    */
   auto last = query.end();
   // TODO: May break on multibyte encodings!
-  for (--last; last!=query.begin() && useless_trail(*last); --last) ;
-  if (last==query.begin() && useless_trail(*last))
+  for (--last; last!=std::begin(query) && useless_trail(*last); --last) ;
+  if (last==std::begin(query) && useless_trail(*last))
     throw argument_error("Cursor created on empty query");
   ++last;
 
@@ -97,7 +98,7 @@ pqxx::internal::sql_cursor::sql_cursor(
 
   if (hold) cq << "WITH HOLD ";
 
-  cq << "FOR " << std::string(query.begin(),last) << ' ';
+  cq << "FOR " << std::string(std::begin(query),last) << ' ';
 
   if (up != cursor_base::update) cq << "FOR READ ONLY ";
   else cq << "FOR UPDATE ";
@@ -425,8 +426,8 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
       todo.insert(todolist::value_type(ipos, i));
     next = gate.get_next();
   }
-  const auto todo_end = todo.end();
-  for (auto i = todo.begin(); i != todo_end; )
+  const auto todo_end = std::end(todo);
+  for (auto i = std::begin(todo); i != todo_end; )
   {
     const auto readpos = i->first;
     if (readpos > m_realpos) ignore(readpos - m_realpos);

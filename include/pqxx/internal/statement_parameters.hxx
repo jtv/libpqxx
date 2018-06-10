@@ -17,6 +17,7 @@
 #include "pqxx/compiler-internal-pre.hxx"
 
 #include <cstring>
+#include <iterator>
 #include <string>
 #include <vector>
 
@@ -55,8 +56,8 @@ public:
 
   /// Wrap a container.
   template<typename C> explicit dynamic_params(const C &container) :
-        m_begin(container.begin()),
-        m_end(container.end())
+        m_begin(std::begin(container)),
+        m_end(std::end(container))
   {}
 
   IT begin() const { return m_begin; }

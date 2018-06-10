@@ -16,6 +16,7 @@
 #include <cstdio>
 #include <cstring>
 #include <ctime>
+#include <iterator>
 #include <memory>
 #include <stdexcept>
 
@@ -649,7 +650,7 @@ void pqxx::connection_base::unregister_errorhandler(errorhandler *handler)
 std::vector<errorhandler *> pqxx::connection_base::get_errorhandlers() const
 {
   return std::vector<errorhandler *>(
-    m_errorhandlers.begin(), m_errorhandlers.end());
+    std::begin(m_errorhandlers), std::end(m_errorhandlers));
 }
 
 

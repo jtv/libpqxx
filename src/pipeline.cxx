@@ -2,7 +2,7 @@
  *
  * Throughput-optimized query interface.
  *
- * Copyright (c) 2003-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2003-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -148,7 +148,7 @@ std::pair<pipeline::query_id, result> pqxx::pipeline::retrieve()
 {
   if (m_queries.empty())
     throw std::logic_error("Attempt to retrieve result from empty pipeline");
-  return retrieve(m_queries.begin());
+  return retrieve(std::begin(m_queries));
 }
 
 
@@ -252,11 +252,11 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 
   pqxxassert(r);
   const result res = gate::result_creation::create(
-	r, m_queries.begin()->second.get_query());
+	r, std::begin(m_queries)->second.get_query());
 
   if (!have_pending())
   {
-    set_error_at(m_queries.begin()->first);
+    set_error_at(std::begin(m_queries)->first);
     throw std::logic_error(
       "Got more results from pipeline than there were queries");
   }
