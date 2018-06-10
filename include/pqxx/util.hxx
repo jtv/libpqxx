@@ -127,9 +127,8 @@ separated_list(const std::string &sep, ITER begin, ITER end)		//[t00]
 template<typename CONTAINER> inline auto
 separated_list(const std::string &sep, const CONTAINER &c)		//[t10]
 	/*
-	Always std::string; necessary because SFINAE doesn't seem to work with
-	contents of function body, so the check for iterability has to be in the
-	signature
+	Always std::string; necessary because SFINAE doesn't work with the contents
+	of function bodies, so the check for iterability has to be in the signature
 	*/
 	-> typename std::enable_if<
 		(
@@ -189,11 +188,7 @@ template<
 	>::type=0
 > inline std::string
 separated_list(const std::string &sep, const TUPLE &t)
-	{
-		return separated_list< TUPLE, INDEX >(
-			sep, t, internal::passthrough_access{}
-		);
-	}
+	{ return separated_list(sep, t, internal::passthrough_access{}); }
 //@}
 
 
