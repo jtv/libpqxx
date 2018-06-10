@@ -14,6 +14,7 @@
 #define PQXX_H_TABLEWRITER
 
 #include <iterator>
+#include <type_traits>
 
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
@@ -46,15 +47,73 @@ public:
 	ITER endcolumns,
 	const std::string &Null);
   ~tablewriter() noexcept;
+  
   template<typename IT> void insert(IT Begin, IT End);
-  template<typename TUPLE> void insert(const TUPLE &);
+  template<typename CONTAINER> auto insert(const CONTAINER &c)
+    -> typename std::enable_if<(
+      !std::is_void<decltype(begin(c))>::value
+      && !std::is_void<decltype(end(c))>::value
+    ), void>::type
+  ;
+  template<
+    typename TUPLE,
+    std::size_t INDEX=0,
+    typename std::enable_if<
+      (INDEX <= std::tuple_size<TUPLE>::value),
+      int
+    >::type=0
+  > void insert(const TUPLE &);
+  
   template<typename IT> void push_back(IT Begin, IT End);
-  template<typename TUPLE> void push_back(const TUPLE &);
+  template<typename CONTAINER> auto push_back(const CONTAINER &c)
+    -> typename std::enable_if<(
+      !std::is_void<decltype(begin(c))>::value
+      && !std::is_void<decltype(end(c))>::value
+    ), void>::type
+  ;
+  template<
+    typename TUPLE,
+    std::size_t INDEX=0,
+    typename std::enable_if<
+      (INDEX <= std::tuple_size<TUPLE>::value),
+      int
+    >::type=0
+  > void push_back(const TUPLE &);
+  
   template<typename SIZE> void reserve(SIZE) {}
-  template<typename TUPLE> tablewriter &operator<<(const TUPLE &);
+  
+  template<typename CONTAINER> auto operator<<(const CONTAINER &c)
+    -> typename std::enable_if<(
+      !std::is_void<decltype(begin(c))>::value
+      && !std::is_void<decltype(end(c))>::value
+    ), tablewriter &>::type
+  ;
   tablewriter &operator<<(tablereader &);
+  template<
+    typename TUPLE,
+    std::size_t INDEX=0,
+    typename std::enable_if<
+      (INDEX <= std::tuple_size<TUPLE>::value),
+      int
+    >::type=0
+  > tablewriter &operator<<(const TUPLE &);
+  
   template<typename IT> std::string generate(IT Begin, IT End) const;
-  template<typename TUPLE> std::string generate(const TUPLE &) const;
+  template<typename CONTAINER> auto generate(const CONTAINER &c) const
+    -> typename std::enable_if<(
+      !std::is_void<decltype(begin(c))>::value
+      && !std::is_void<decltype(end(c))>::value
+    ), std::string>::type
+  ;
+  template<
+    typename TUPLE,
+    std::size_t INDEX=0,
+    typename std::enable_if<
+      (INDEX <= std::tuple_size<TUPLE>::value),
+      int
+    >::type=0
+  > std::string generate(const TUPLE &);
+  
   virtual void complete() override;
   void write_raw_line(const std::string &);
 private:
@@ -84,10 +143,10 @@ public:
     return *this;
   }
 
-  template<typename TUPLE>
-  back_insert_iterator &operator=(const TUPLE &T)
+  template<typename CONTAINER>
+  back_insert_iterator &operator=(const CONTAINER &c)
   {
-    m_writer->insert(T);
+    m_writer->insert(c);
     return *this;
   }
 
@@ -150,12 +209,13 @@ template<typename T> inline std::string escape_any(
 { return escape(to_string(t), null); }
 
 
-template<typename IT> class Escaper
+class Escaper
 {
   const std::string &m_null;
 public:
   explicit Escaper(const std::string &null) : m_null(null) {}
-  std::string operator()(IT i) const { return escape_any(*i, m_null); }
+  template<typename IT> std::string operator()(IT i) const
+    { return escape_any(*i, m_null); }
 };
 }
 
@@ -163,12 +223,29 @@ public:
 template<typename IT>
 inline std::string tablewriter::generate(IT Begin, IT End) const
 {
-  return separated_list("\t", Begin, End, internal::Escaper<IT>(NullStr()));
+  return separated_list("\t", Begin, End, internal::Escaper(NullStr()));
 }
-template<typename TUPLE>
-inline std::string tablewriter::generate(const TUPLE &T) const
+
+template<typename CONTAINER>
+inline auto tablewriter::generate(const CONTAINER &c) const
+  -> typename std::enable_if<(
+    !std::is_void<decltype(begin(c))>::value
+    && !std::is_void<decltype(end(c))>::value
+  ), std::string>::type
 {
-  return generate(T.begin(), T.end());
+  return generate(begin(c), end(c));
+}
+
+template<
+  typename TUPLE,
+  std::size_t INDEX,
+  typename std::enable_if<
+    (INDEX <= std::tuple_size<TUPLE>::value),
+    int
+  >::type
+> std::string tablewriter::generate(const TUPLE &t)
+{
+  return separated_list("\t", t, internal::Escaper(NullStr()));
 }
 
 template<typename IT> inline void tablewriter::insert(IT Begin, IT End)
@@ -176,9 +253,25 @@ template<typename IT> inline void tablewriter::insert(IT Begin, IT End)
   write_raw_line(generate(Begin, End));
 }
 
-template<typename TUPLE> inline void tablewriter::insert(const TUPLE &T)
+template<typename CONTAINER> inline auto tablewriter::insert(const CONTAINER &c)
+  -> typename std::enable_if<(
+    !std::is_void<decltype(begin(c))>::value
+    && !std::is_void<decltype(end(c))>::value
+  ), void>::type
 {
-  insert(T.begin(), T.end());
+  insert(begin(c), end(c));
+}
+
+template<
+  typename TUPLE,
+  std::size_t INDEX,
+  typename std::enable_if<
+    (INDEX <= std::tuple_size<TUPLE>::value),
+    int
+  >::type
+> void tablewriter::insert(const TUPLE &t)
+{
+  write_raw_line(generate(t));
 }
 
 template<typename IT>
@@ -187,16 +280,49 @@ inline void tablewriter::push_back(IT Begin, IT End)
   insert(Begin, End);
 }
 
-template<typename TUPLE>
-inline void tablewriter::push_back(const TUPLE &T)
+template<typename CONTAINER>
+inline auto tablewriter::push_back(const CONTAINER &c)
+  -> typename std::enable_if<(
+    !std::is_void<decltype(begin(c))>::value
+    && !std::is_void<decltype(end(c))>::value
+  ), void>::type
 {
-  insert(T.begin(), T.end());
+  insert(begin(c), end(c));
 }
 
-template<typename TUPLE>
-inline tablewriter &tablewriter::operator<<(const TUPLE &T)
+template<
+  typename TUPLE,
+  std::size_t INDEX,
+  typename std::enable_if<
+    (INDEX <= std::tuple_size<TUPLE>::value),
+    int
+  >::type
+> void tablewriter::push_back(const TUPLE &t)
 {
-  insert(T);
+  insert(t);
+}
+
+template<typename CONTAINER>
+inline auto tablewriter::operator<<(const CONTAINER &c)
+  -> typename std::enable_if<(
+    !std::is_void<decltype(begin(c))>::value
+    && !std::is_void<decltype(end(c))>::value
+  ), tablewriter &>::type
+{
+  insert(c);
+  return *this;
+}
+
+template<
+  typename TUPLE,
+  std::size_t INDEX,
+  typename std::enable_if<
+    (INDEX <= std::tuple_size<TUPLE>::value),
+    int
+  >::type
+> tablewriter &tablewriter::operator<<(const TUPLE &t)
+{
+  insert(t);
   return *this;
 }
 
