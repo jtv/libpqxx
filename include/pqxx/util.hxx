@@ -132,12 +132,12 @@ separated_list(const std::string &sep, const CONTAINER &c)		//[t10]
 	*/
 	-> typename std::enable_if<
 		(
-			!std::is_void<decltype(begin(c))>::value
-			&& !std::is_void<decltype(end(c))>::value
+			!std::is_void<decltype(std::begin(c))>::value
+			&& !std::is_void<decltype(std::end(c))>::value
 		),
 		std::string
 	>::type
-	{ return separated_list(sep, begin(c), end(c)); }
+	{ return separated_list(sep, std::begin(c), std::end(c)); }
 
 
 namespace internal

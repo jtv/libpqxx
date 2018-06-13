@@ -51,8 +51,8 @@ public:
   template<typename IT> void insert(IT Begin, IT End);
   template<typename CONTAINER> auto insert(const CONTAINER &c)
     -> typename std::enable_if<(
-      !std::is_void<decltype(begin(c))>::value
-      && !std::is_void<decltype(end(c))>::value
+      !std::is_void<decltype(std::begin(c))>::value
+      && !std::is_void<decltype(std::end(c))>::value
     ), void>::type
   ;
   template<
@@ -67,8 +67,8 @@ public:
   template<typename IT> void push_back(IT Begin, IT End);
   template<typename CONTAINER> auto push_back(const CONTAINER &c)
     -> typename std::enable_if<(
-      !std::is_void<decltype(begin(c))>::value
-      && !std::is_void<decltype(end(c))>::value
+      !std::is_void<decltype(std::begin(c))>::value
+      && !std::is_void<decltype(std::end(c))>::value
     ), void>::type
   ;
   template<
@@ -84,8 +84,8 @@ public:
   
   template<typename CONTAINER> auto operator<<(const CONTAINER &c)
     -> typename std::enable_if<(
-      !std::is_void<decltype(begin(c))>::value
-      && !std::is_void<decltype(end(c))>::value
+      !std::is_void<decltype(std::begin(c))>::value
+      && !std::is_void<decltype(std::end(c))>::value
     ), tablewriter &>::type
   ;
   tablewriter &operator<<(tablereader &);
@@ -101,8 +101,8 @@ public:
   template<typename IT> std::string generate(IT Begin, IT End) const;
   template<typename CONTAINER> auto generate(const CONTAINER &c) const
     -> typename std::enable_if<(
-      !std::is_void<decltype(begin(c))>::value
-      && !std::is_void<decltype(end(c))>::value
+      !std::is_void<decltype(std::begin(c))>::value
+      && !std::is_void<decltype(std::end(c))>::value
     ), std::string>::type
   ;
   template<
@@ -229,11 +229,11 @@ inline std::string tablewriter::generate(IT Begin, IT End) const
 template<typename CONTAINER>
 inline auto tablewriter::generate(const CONTAINER &c) const
   -> typename std::enable_if<(
-    !std::is_void<decltype(begin(c))>::value
-    && !std::is_void<decltype(end(c))>::value
+    !std::is_void<decltype(std::begin(c))>::value
+    && !std::is_void<decltype(std::end(c))>::value
   ), std::string>::type
 {
-  return generate(begin(c), end(c));
+  return generate(std::begin(c), std::end(c));
 }
 
 template<
@@ -255,11 +255,11 @@ template<typename IT> inline void tablewriter::insert(IT Begin, IT End)
 
 template<typename CONTAINER> inline auto tablewriter::insert(const CONTAINER &c)
   -> typename std::enable_if<(
-    !std::is_void<decltype(begin(c))>::value
-    && !std::is_void<decltype(end(c))>::value
+    !std::is_void<decltype(std::begin(c))>::value
+    && !std::is_void<decltype(std::end(c))>::value
   ), void>::type
 {
-  insert(begin(c), end(c));
+  insert(std::begin(c), std::end(c));
 }
 
 template<
@@ -283,11 +283,11 @@ inline void tablewriter::push_back(IT Begin, IT End)
 template<typename CONTAINER>
 inline auto tablewriter::push_back(const CONTAINER &c)
   -> typename std::enable_if<(
-    !std::is_void<decltype(begin(c))>::value
-    && !std::is_void<decltype(end(c))>::value
+    !std::is_void<decltype(std::begin(c))>::value
+    && !std::is_void<decltype(std::end(c))>::value
   ), void>::type
 {
-  insert(begin(c), end(c));
+  insert(std::begin(c), std::end(c));
 }
 
 template<
@@ -305,8 +305,8 @@ template<
 template<typename CONTAINER>
 inline auto tablewriter::operator<<(const CONTAINER &c)
   -> typename std::enable_if<(
-    !std::is_void<decltype(begin(c))>::value
-    && !std::is_void<decltype(end(c))>::value
+    !std::is_void<decltype(std::begin(c))>::value
+    && !std::is_void<decltype(std::end(c))>::value
   ), tablewriter &>::type
 {
   insert(c);
