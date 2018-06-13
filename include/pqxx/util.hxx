@@ -145,7 +145,7 @@ namespace internal
 struct passthrough_access
 {
 	template<typename T> constexpr auto operator()( T t_p ) const
-		-> const decltype( *t_p )&
+		-> decltype( *t_p )
 		{ return *t_p; }
 };
 }
