@@ -45,12 +45,12 @@ public:
 	ITER endcolumns,
 	const std::string &Null);
   ~tablereader() noexcept;
-  template<typename TUPLE> tablereader &operator>>(TUPLE &);
+  template<typename CONTAINER> tablereader &operator>>(CONTAINER &);
   operator bool() const noexcept { return !m_done; }
   bool operator!() const noexcept { return m_done; }
   bool get_raw_line(std::string &Line);
-  template<typename TUPLE>
-  void tokenize(std::string, TUPLE &) const;
+  template<typename CONTAINER>
+  void tokenize(std::string, CONTAINER &) const;
   virtual void complete() override;
 private:
   void setup(
@@ -94,20 +94,20 @@ tablereader::tablereader(
 }
 
 
-template<typename TUPLE>
-inline void tablereader::tokenize(std::string Line, TUPLE &T) const
+template<typename CONTAINER>
+inline void tablereader::tokenize(std::string Line, CONTAINER &c) const
 {
-  std::back_insert_iterator<TUPLE> ins = std::back_inserter(T);
+  std::back_insert_iterator<CONTAINER> ins = std::back_inserter(c);
   std::string::size_type here=0;
   while (here < Line.size()) *ins++ = extract_field(Line, here);
 }
 
 
-template<typename TUPLE>
-inline tablereader &pqxx::tablereader::operator>>(TUPLE &T)
+template<typename CONTAINER>
+inline tablereader &pqxx::tablereader::operator>>(CONTAINER &c)
 {
   std::string Line;
-  if (get_raw_line(Line)) tokenize(Line, T);
+  if (get_raw_line(Line)) tokenize(Line, c);
   return *this;
 }
 } // namespace pqxx
