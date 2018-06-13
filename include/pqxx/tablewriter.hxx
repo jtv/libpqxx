@@ -55,14 +55,11 @@ public:
       && !std::is_void<decltype(std::end(c))>::value
     ), void>::type
   ;
-  template<
-    typename TUPLE,
-    std::size_t INDEX=0,
-    typename std::enable_if<
-      (INDEX <= std::tuple_size<TUPLE>::value),
-      int
-    >::type=0
-  > void insert(const TUPLE &);
+  template<typename TUPLE> auto insert(const TUPLE &)
+    -> typename std::enable_if<(
+      std::tuple_size<TUPLE>::value >= 0
+    ), void>::type
+  ;
   
   template<typename IT> void push_back(IT Begin, IT End);
   template<typename CONTAINER> auto push_back(const CONTAINER &c)
@@ -71,14 +68,11 @@ public:
       && !std::is_void<decltype(std::end(c))>::value
     ), void>::type
   ;
-  template<
-    typename TUPLE,
-    std::size_t INDEX=0,
-    typename std::enable_if<
-      (INDEX <= std::tuple_size<TUPLE>::value),
-      int
-    >::type=0
-  > void push_back(const TUPLE &);
+  template<typename TUPLE> auto push_back(const TUPLE &)
+    -> typename std::enable_if<(
+      std::tuple_size<TUPLE>::value >= 0
+    ), void>::type
+  ;
   
   template<typename SIZE> void reserve(SIZE) {}
   
@@ -89,14 +83,11 @@ public:
     ), tablewriter &>::type
   ;
   tablewriter &operator<<(tablereader &);
-  template<
-    typename TUPLE,
-    std::size_t INDEX=0,
-    typename std::enable_if<
-      (INDEX <= std::tuple_size<TUPLE>::value),
-      int
-    >::type=0
-  > tablewriter &operator<<(const TUPLE &);
+  template<typename TUPLE> auto &operator<<(const TUPLE &)
+    -> typename std::enable_if<(
+      std::tuple_size<TUPLE>::value >= 0
+    ), tablewriter>::type
+  ;
   
   template<typename IT> std::string generate(IT Begin, IT End) const;
   template<typename CONTAINER> auto generate(const CONTAINER &c) const
@@ -105,14 +96,11 @@ public:
       && !std::is_void<decltype(std::end(c))>::value
     ), std::string>::type
   ;
-  template<
-    typename TUPLE,
-    std::size_t INDEX=0,
-    typename std::enable_if<
-      (INDEX <= std::tuple_size<TUPLE>::value),
-      int
-    >::type=0
-  > std::string generate(const TUPLE &);
+  template<typename TUPLE> auto generate(const TUPLE &)
+    -> typename std::enable_if<(
+      std::tuple_size<TUPLE>::value >= 0
+    ), std::string>::type
+  ;
   
   virtual void complete() override;
   void write_raw_line(const std::string &);
@@ -236,14 +224,10 @@ inline auto tablewriter::generate(const CONTAINER &c) const
   return generate(std::begin(c), std::end(c));
 }
 
-template<
-  typename TUPLE,
-  std::size_t INDEX,
-  typename std::enable_if<
-    (INDEX <= std::tuple_size<TUPLE>::value),
-    int
-  >::type
-> std::string tablewriter::generate(const TUPLE &t)
+template<typename TUPLE> auto tablewriter::generate(const TUPLE &t)
+  -> typename std::enable_if<(
+    std::tuple_size<TUPLE>::value >= 0
+  ), std::string>::type
 {
   return separated_list("\t", t, internal::Escaper(NullStr()));
 }
@@ -262,14 +246,10 @@ template<typename CONTAINER> inline auto tablewriter::insert(const CONTAINER &c)
   insert(std::begin(c), std::end(c));
 }
 
-template<
-  typename TUPLE,
-  std::size_t INDEX,
-  typename std::enable_if<
-    (INDEX <= std::tuple_size<TUPLE>::value),
-    int
-  >::type
-> void tablewriter::insert(const TUPLE &t)
+template<typename TUPLE> auto tablewriter::insert(const TUPLE &t)
+  -> typename std::enable_if<(
+    std::tuple_size<TUPLE>::value >= 0
+  ), void>::type
 {
   write_raw_line(generate(t));
 }
@@ -290,14 +270,10 @@ inline auto tablewriter::push_back(const CONTAINER &c)
   insert(std::begin(c), std::end(c));
 }
 
-template<
-  typename TUPLE,
-  std::size_t INDEX,
-  typename std::enable_if<
-    (INDEX <= std::tuple_size<TUPLE>::value),
-    int
-  >::type
-> void tablewriter::push_back(const TUPLE &t)
+template<typename TUPLE> auto tablewriter::push_back(const TUPLE &t)
+  -> typename std::enable_if<(
+    std::tuple_size<TUPLE>::value >= 0
+  ), void>::type
 {
   insert(t);
 }
@@ -313,14 +289,10 @@ inline auto tablewriter::operator<<(const CONTAINER &c)
   return *this;
 }
 
-template<
-  typename TUPLE,
-  std::size_t INDEX,
-  typename std::enable_if<
-    (INDEX <= std::tuple_size<TUPLE>::value),
-    int
-  >::type
-> tablewriter &tablewriter::operator<<(const TUPLE &t)
+template<typename TUPLE> auto &tablewriter::operator<<(const TUPLE &t)
+  -> typename std::enable_if<(
+    std::tuple_size<TUPLE>::value >= 0
+  ), tablewriter>::type
 {
   insert(t);
   return *this;
