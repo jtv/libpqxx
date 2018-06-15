@@ -83,10 +83,10 @@ public:
     ), tablewriter &>::type
   ;
   tablewriter &operator<<(tablereader &);
-  template<typename TUPLE> auto &operator<<(const TUPLE &)
+  template<typename TUPLE> auto operator<<(const TUPLE &)
     -> typename std::enable_if<(
       std::tuple_size<TUPLE>::value >= 0
-    ), tablewriter>::type
+    ), tablewriter &>::type
   ;
   
   template<typename IT> std::string generate(IT Begin, IT End) const;
@@ -289,10 +289,10 @@ inline auto tablewriter::operator<<(const CONTAINER &c)
   return *this;
 }
 
-template<typename TUPLE> auto &tablewriter::operator<<(const TUPLE &t)
+template<typename TUPLE> auto tablewriter::operator<<(const TUPLE &t)
   -> typename std::enable_if<(
     std::tuple_size<TUPLE>::value >= 0
-  ), tablewriter>::type
+  ), tablewriter &>::type
 {
   insert(t);
   return *this;
