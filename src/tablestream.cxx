@@ -15,10 +15,11 @@
 
 
 pqxx::tablestream::tablestream(transaction_base &STrans,
-	const std::string &Null) :
+	const std::string &Null, const std::string &Delimiter) :
   internal::namedclass("tablestream"),
   internal::transactionfocus(STrans),
-  m_null(Null)
+  m_null(Null),
+  m_delim(Delimiter)
 {
 }
 
