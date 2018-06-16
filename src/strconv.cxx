@@ -152,6 +152,34 @@ bool valid_infinity_string(const char str[]) noexcept
 }
 
 
+/// Wrapper for std::stringstream with C locale.
+/** Some of our string conversions use the standard library.  But, they must
+ * _not_ obey the system's locale settings, or a value like 1000.0 might end
+ * up looking like "1.000,0".
+ *
+ * Initialising the stream (including locale and tweaked precision) seems to
+ * be expensive though.  So, create thread-local instances which we re-use.
+ * It's a lockless way of keeping global variables thread-safe, basically.
+ *
+ * The stream initialisation happens once per thread, in the constructor.
+ * And that's why we need to wrap this in a class.  We can't just do it at the
+ * call site, or we'd still be doing it for every call.
+ */
+template<typename T> class dumb_stringstream : public std::stringstream
+{
+public:
+  dumb_stringstream() : std::stringstream()
+  {
+    this->imbue(std::locale::classic());
+
+    // Kirit reports getting two more digits of precision than
+    // numeric_limits::digits10 would give him, so we try not to make him lose
+    // those last few bits.
+    this->precision(std::numeric_limits<T>::digits10 + 2);
+  }
+};
+
+
 /* These are hard.  Sacrifice performance of specialized, nonflexible,
  * non-localized code and lean on standard library.  Some special-case code
  * handles NaNs.
@@ -184,8 +212,9 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
     }
     else
     {
-      std::stringstream S(Str);
-      S.imbue(std::locale::classic());
+      thread_local dumb_stringstream<T> S;
+      S.seekg(0);
+      S.str(Str);
       ok = static_cast<bool>(S >> result);
     }
     break;
@@ -219,13 +248,8 @@ template<typename T> inline std::string to_string_unsigned(T Obj)
 
 template<typename T> inline std::string to_string_fallback(T Obj)
 {
-  std::stringstream S;
-  S.imbue(std::locale::classic());
-
-  // Kirit reports getting two more digits of precision than
-  // numeric_limits::digits10 would give him, so we try not to make him lose
-  // those last few bits.
-  S.precision(std::numeric_limits<T>::digits10 + 2);
+  thread_local dumb_stringstream<T> S;
+  S.str("");
   S << Obj;
   return S.str();
 }
