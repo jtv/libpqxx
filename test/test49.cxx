@@ -67,8 +67,8 @@ struct CountGreaterSmaller
     // using std::count_if<>()
     using namespace std::placeholders;
     const auto
-      Greater = count_if(R.begin(), R.end(), bind(Cmp(Key),_1,T)),
-      Smaller = count_if(R.begin(), R.end(), bind(Cmp(Key),T,_1));
+      Greater = count_if(R.begin(), R.end(), bind(Cmp(Key), _1, T)),
+      Smaller = count_if(R.begin(), R.end(), bind(Cmp(Key), T, _1));
 
     cout << "'" << T[Key] << "': "
          << Greater << " greater, "
