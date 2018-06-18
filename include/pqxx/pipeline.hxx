@@ -162,7 +162,11 @@ private:
   /// Upper bound to query id's
   static constexpr query_id qid_limit() noexcept
   {
-    return std::numeric_limits<query_id>::max();
+    // Parenthesise this to work around an eternal Visual C++ problem:
+    // Without the extra parentheses, unless NOMINMAX is defined, the
+    // preprocessor will mistake this "max" for its annoying built-in macro
+    // of the same name.
+    return (std::numeric_limits<query_id>::max)();
   }
 
   /// Create new query_id
