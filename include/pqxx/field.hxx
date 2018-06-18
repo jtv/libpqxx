@@ -18,7 +18,6 @@
 
 #if defined(PQXX_HAVE_OPTIONAL)
 #include <optional>
-#endif
 
 /* Use std::experimental::optional as a fallback for std::optional, if
  * present.
@@ -28,7 +27,7 @@
  * using or supporting std::experimental::optional, define a macro
  * PQXX_HIDE_EXP_OPTIONAL when building your software.
  */
-#if defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
+#elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
 #include <experimental/optional>
 #endif
 
