@@ -31,7 +31,6 @@ tools/rmlo
 README
 win32/common
 **/Makefile
-**/Makefile.in
 **/*.la
 **/*.lo
 **/*.o
