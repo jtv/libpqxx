@@ -72,13 +72,11 @@ Compilers and Options
 
    Some systems require unusual options for compilation or linking that
 the `configure' script does not know about.  You can give `configure'
-initial values for variables by setting them in the environment.  Using
-a Bourne-compatible shell, you can do that on the command line like
-this:
-     CC=c89 CFLAGS=-O2 LIBS=-lposix ./configure
+initial values for variables by setting them in the environment, or by
+adding them to the `configure` command line:
 
-Or on systems that have the `env' program, you can do it like this:
-     env CPPFLAGS=-I/usr/local/include LDFLAGS=-s ./configure
+     ./configure CXX='clang++' CXXFLAGS=-O3 LIBS=-lposix
+
 
 Compiling For Multiple Architectures
 ====================================
@@ -96,6 +94,7 @@ variable, you have to compile the package for one architecture at a time
 in the source code directory.  After you have installed the package for
 one architecture, use `make distclean' before reconfiguring for another
 architecture.
+
 
 Installation Names
 ==================
@@ -120,6 +119,7 @@ you can set and what kinds of files go in them.
 with an extra prefix or suffix on their names by giving `configure' the
 option `--program-prefix=PREFIX' or `--program-suffix=SUFFIX'.
 
+
 Optional Features
 =================
 
@@ -134,6 +134,7 @@ package recognizes.
 find the X include and library files automatically, but if it doesn't,
 you can use the `configure' options `--x-includes=DIR' and
 `--x-libraries=DIR' to specify their locations.
+
 
 Specifying the System Type
 ==========================
@@ -155,6 +156,7 @@ use the `--target=TYPE' option to select the type of system they will
 produce code for and the `--build=TYPE' option to select the type of
 system on which you are compiling the package.
 
+
 Sharing Defaults
 ================
 
@@ -165,6 +167,7 @@ default values for variables like `CC', `cache_file', and `prefix'.
 `PREFIX/etc/config.site' if it exists.  Or, you can set the
 `CONFIG_SITE' environment variable to the location of the site script.
 A warning: not all `configure' scripts look for a site script.
+
 
 Operation Controls
 ==================
