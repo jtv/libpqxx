@@ -58,7 +58,18 @@ CMake build
 -----------
 
 With CMake you can generate a build setup in your choice of build
-system.  The one I'm most familiar with is `make`.  It works like:
+system.  The one I'm most familiar with is `make`.
+
+Like the native build, the CMake build needs the libpq library and headers
+installed.  But in addition, it also needs the `pg_type.h` header installed.
+On some systems this will be in one of the `postgresql-server-dev-*` packages.
+
+That extra header is just to allow CMake to detect that you have a PostgreSQL
+development setup installed.  The build shouldn't actually need the file
+otherwise, so if you can't find the file, it may be enough to create an empty
+file in the right place.
+
+The CMake build works like:
  1. Go into the directory where you would like to build the library and
     its intermediate files.  This may be the source directory.
  2. Enter `cmake <sourcedir>`, where `<sourcedir>` is the location of
