@@ -158,7 +158,7 @@ public:
   const_reverse_result_iterator &operator=(				//[t75]
 	const const_reverse_result_iterator &r)
       { iterator_type::operator=(r); return *this; }
-  const_reverse_result_iterator operator++()				//[t75]
+  const_reverse_result_iterator &operator++()				//[t75]
       { iterator_type::operator--(); return *this; }
   const_reverse_result_iterator operator++(int);			//[t75]
   const_reverse_result_iterator &operator--()				//[t75]
