@@ -12,7 +12,6 @@ include(config)
 
 find_package(PostgreSQL REQUIRED)
 include_directories(
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${PostgreSQL_INCLUDE_DIRS}
 )
 link_libraries(${PostgreSQL_LIBRARIES})
