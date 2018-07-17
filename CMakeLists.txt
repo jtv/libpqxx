@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-option(BUILD_TEST "Build all test cases" ON)
+option(BUILD_TEST "Build all test cases" OFF)
 
 include(config)
 
