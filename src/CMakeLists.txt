@@ -1,4 +1,4 @@
-file(GLOB CXX_SOURCES "*.cxx")
+file(GLOB_RECURSE CXX_SOURCES "*.cxx")
 
 # Build a shared library
 add_library(pqxx_shared SHARED ${CXX_SOURCES})
