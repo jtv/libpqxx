@@ -6,7 +6,6 @@ MAINTAINERCLEANFILES = \
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpqxx.pc
-bin_SCRIPTS=pqxx-config
 
 TESTS = tools/lint
 

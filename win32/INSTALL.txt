@@ -318,16 +318,16 @@ enclosed in the source archive.
 Building libpqxx without MSYS
 -----------------------------
 
-	# (First set up configuration headers, see below)
-	export LDFLAGS=-lws2_32
-	make -f win32/MinGW.mak
-	# (Install library, headers and pqxx-config manually on your system)
+    # (First set up configuration headers, see below)
+    export LDFLAGS=-lws2_32
+    make -f win32/MinGW.mak
+    # (Also install library, headers, and pkg-config on your system)
 
 Having installed libpqxx, when compiling your own programs, use the following
 steps (examples only here):
 
-g++ -c -o myfile.o myfile.cpp `pqxx-config --cflags`
-g++ -o myexec myfile.o `pqxx-config --libs` -lws2_32
+    g++ -c -o myfile.o myfile.cpp `pkg-config libpqxx --cflags`
+    g++ -o myexec myfile.o `pkg-config libpqxx --libs` -lws2_32
 
 Note that the linker step (g++ -o myexec) will give a spurious warning
 about not knowing how to use the -R flag, but the executable will still

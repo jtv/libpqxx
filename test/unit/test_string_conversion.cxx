@@ -60,6 +60,33 @@ void test_string_conversion(transaction_base &)
 	pqxx::failure,
 	"Overflow not detected.");
   }
+
+  // We can convert to and from long double.  The implementation may fall
+  // back on a thread-local std::stringstream.  Each call does its own
+  // cleanup, so the conversion works multiple times.
+  constexpr long double ld1 = 123456789.25, ld2 = 9876543210.5;
+  constexpr char lds1[] = "123456789.25", lds2[] = "9876543210.5";
+  PQXX_CHECK_EQUAL(
+        to_string(ld1).substr(0, 12),
+        lds1,
+        "Wrong conversion from long double.");
+  PQXX_CHECK_EQUAL(
+        to_string(ld2).substr(0, 12),
+        lds2,
+        "Wrong value on repeated conversion from long double.");
+  long double ldi1, ldi2;
+  from_string(lds1, ldi1);
+  PQXX_CHECK_BOUNDS(
+        ldi1,
+        ld1 - 0.00001,
+        ld1 + 0.00001,
+        "Wrong conversion to long double.");
+  from_string(lds2, ldi2);
+  PQXX_CHECK_BOUNDS(
+        ldi2,
+        ld2 - 0.00001,
+        ld2 + 0.00001,
+        "Wrong repeated conversion to long double.");
 }
 }
 

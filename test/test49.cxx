@@ -65,9 +65,10 @@ struct CountGreaterSmaller
   {
     // Count number of entries with key greater/smaller than first row's key
     // using std::count_if<>()
+    using namespace std::placeholders;
     const auto
-      Greater = count_if(R.begin(), R.end(), bind2nd(Cmp(Key),T)),
-      Smaller = count_if(R.begin(), R.end(), bind1st(Cmp(Key),T));
+      Greater = count_if(R.begin(), R.end(), bind(Cmp(Key), _1, T)),
+      Smaller = count_if(R.begin(), R.end(), bind(Cmp(Key), T, _1));
 
     cout << "'" << T[Key] << "': "
          << Greater << " greater, "

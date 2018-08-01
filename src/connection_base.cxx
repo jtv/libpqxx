@@ -932,7 +932,8 @@ bool pqxx::connection_base::read_copy_line(std::string &Line)
 
   char *Buf = nullptr;
   const std::string query = "[END COPY]";
-  switch (PQgetCopyData(m_conn, &Buf, false))
+  const auto line_len = PQgetCopyData(m_conn, &Buf, false);
+  switch (line_len)
   {
   case -2:
     throw failure("Reading of table data failed: " + std::string(err_msg()));
@@ -955,7 +956,7 @@ bool pqxx::connection_base::read_copy_line(std::string &Line)
     {
       std::unique_ptr<char, void (*)(char *)> PQA(
           Buf, freepqmem_templated<char>);
-      Line = Buf;
+      Line.assign(Buf, line_len);
     }
     Result = true;
   }
