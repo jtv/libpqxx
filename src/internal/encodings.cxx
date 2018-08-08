@@ -12,44 +12,201 @@
 
 #include <exception>
 #include <iomanip>
+#include <map>
 #include <sstream>
 
 using namespace pqxx::internal;
 
-
-#define THROW_FOR_ENCODING_ERROR(ENCODING_NAME, BUFFER, START, COUNT) \
-{ \
-    std::stringstream s; \
-    s \
-        << "invalid sequence " \
-        << std::hex \
-        << std::setw(2) \
-        << std::setfill('0') \
-    ; \
-    for (std::size_t i{0}; i < COUNT; ++i) \
-        s \
-            << "0x" \
-            << static_cast<unsigned int>( \
-                static_cast<unsigned char>(BUFFER[START + i]) \
-            ) \
-            << " " \
-        ; \
-    s \
-        << "at byte " \
-        << std::dec \
-        << std::setw(0) \
-        << START \
-        << " for encoding " \
-        << ENCODING_NAME \
-    ; \
-    throw std::runtime_error{s.str()}; \
+extern "C"
+{
+#include "libpq-fe.h"
+// These headers would be needed (in this order) to use the libpq encodings enum
+// directly, which the pg_wchar.h header explicitly warns against doing:
+// #include "internal/c.h"
+// #include "server/mb/pg_wchar.h"
 }
 
 
+// Internal helper functions
 namespace
 {
 
-seq_position next_char_monobyte(
+[[noreturn]] void throw_for_encoding_error(
+  const char* encoding_name,
+  const char* buffer,
+  std::string::size_type start,
+  std::string::size_type count
+)
+{
+  std::stringstream s;
+  s
+    << "invalid sequence "
+    << std::hex
+    << std::setw(2)
+    << std::setfill('0')
+  ;
+  for (std::string::size_type i{0}; i < count; ++i)
+    s
+      << "0x"
+      << static_cast<unsigned int>(
+        static_cast<unsigned char>(buffer[start + i])
+      )
+      << " "
+    ;
+  s
+    << "at byte "
+    << std::dec
+    << std::setw(0)
+    << start
+    << " for encoding "
+    << encoding_name
+  ;
+  throw std::runtime_error{s.str()};
+}
+
+/*
+EUC-JP and EUC-JIS-2004 represent slightly different code points but iterate
+the same
+https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-JP
+http://x0213.org/codetable/index.en.html
+*/
+seq_position next_seq_for_euc_jplike(
+  const char* buffer,
+  std::string::size_type buffer_len,
+  std::string::size_type start,
+  const char* encoding_name
+)
+{
+  if (start >= buffer_len)
+    return {std::string::npos, std::string::npos};
+  else if (static_cast<unsigned char>(buffer[start] ) < 0x80)
+    return {start, start + 1};
+  else
+  {
+    if (
+         static_cast<unsigned char>(buffer[start]) == 0x8E
+      && start + 2 <= buffer_len
+    )
+    {
+      if (
+           static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
+        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+      )
+        return {start, start + 2};
+      else
+        throw_for_encoding_error(encoding_name, buffer, start, 2);
+    }
+    else if (
+         static_cast<unsigned char>(buffer[start]) >= 0xA1
+      && static_cast<unsigned char>(buffer[start]) <= 0xFE
+      && start + 2 <= buffer_len
+    )
+    {
+      if (
+           static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
+        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+      )
+        return {start, start + 2};
+      else
+        throw_for_encoding_error(encoding_name, buffer, start, 2);
+    }
+    else if (
+         static_cast<unsigned char>(buffer[start]) == 0x8F
+      && start + 3 <= buffer_len
+    )
+    {
+      if (
+           static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
+        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+        && static_cast<unsigned char>(buffer[start + 2]) >= 0xA1
+        && static_cast<unsigned char>(buffer[start + 2]) <= 0xFE
+      )
+        return {start, start + 3};
+      else
+        throw_for_encoding_error(encoding_name, buffer, start, 3);
+    }
+    else
+      throw_for_encoding_error(encoding_name, buffer, start, 1);
+  }
+}
+
+/*
+As far as I can tell, for the purposes of iterating the only difference between
+SJIS and SJIS-2004 is increased range in the first byte of two-byte sequences
+(0xEF increased to 0xFC).  Officially, that is; apparently the version of SJIS
+used by Postgres has the same range as SJIS-2004.  They both have increased
+range over the documented versions, not having the even/odd restriction for the
+first byte in 2-byte sequences.
+*/
+// https://en.wikipedia.org/wiki/Shift_JIS#Shift_JIS_byte_map
+// http://x0213.org/codetable/index.en.html
+seq_position next_seq_for_sjislike(
+  const char* buffer,
+  std::string::size_type buffer_len,
+  std::string::size_type start,
+  const char* encoding_name
+)
+{
+  if (start >= buffer_len)
+    return {std::string::npos, std::string::npos};
+  else if (
+    static_cast<unsigned char>(buffer[start]) < 0x80
+    || (
+         static_cast<unsigned char>(buffer[start]) >= 0xA1
+      && static_cast<unsigned char>(buffer[start]) <= 0xDF
+    )
+  )
+    return {start, start + 1};
+  else
+  {
+    if ((
+         static_cast<unsigned char>(buffer[start]) >= 0x81
+      && static_cast<unsigned char>(buffer[start]) <= 0x9F
+    ) || (
+         static_cast<unsigned char>(buffer[start]) >= 0xE0
+      // && static_cast<unsigned char>(buffer[start]) <= 0xEF
+      && static_cast<unsigned char>(buffer[start]) <= 0xFC
+    ))
+    {
+      if (start + 2 <= buffer_len)
+      {
+        if ((
+             /*static_cast<unsigned char>(buffer[start    ]) % 2 == 1
+          && */static_cast<unsigned char>(buffer[start + 1]) >= 0x40
+          && static_cast<unsigned char>(buffer[start + 1]) <= 0x9E
+          && static_cast<unsigned char>(buffer[start + 1]) != 0x7F
+        ) || (
+             /*static_cast<unsigned char>(buffer[start    ]) % 2 == 0
+          && */static_cast<unsigned char>(buffer[start + 1]) >= 0x9F
+          && static_cast<unsigned char>(buffer[start + 1]) <= 0xFC
+        ))
+          return {start, start + 2};
+        else
+          throw_for_encoding_error(encoding_name, buffer, start, 2);
+      }
+      else
+        throw_for_encoding_error(
+          encoding_name,
+          buffer,
+          start,
+          buffer_len - start
+        );
+    }
+    else
+      throw_for_encoding_error(encoding_name, buffer, start, 1);
+  }
+}
+
+} // namespace
+
+
+// Implement template specializations first
+namespace pqxx
+{
+namespace internal
+{
+
+template<> seq_position next_seq<encoding_group::MONOBYTE>(
   const char* buffer,
   std::string::size_type buffer_len,
   std::string::size_type start
@@ -62,7 +219,7 @@ seq_position next_char_monobyte(
 }
 
 // https://en.wikipedia.org/wiki/Big5#Organization
-seq_position next_char_BIG5(
+template<> seq_position next_seq<encoding_group::BIG5>(
   const char* buffer,
   std::string::size_type buffer_len,
   std::string::size_type start
@@ -89,10 +246,10 @@ seq_position next_char_BIG5(
       ))
         return {start, start + 2};
       else
-        THROW_FOR_ENCODING_ERROR("BIG5", buffer, start, 2)
+        throw_for_encoding_error("BIG5", buffer, start, 2);
     }
     else
-      THROW_FOR_ENCODING_ERROR("BIG5", buffer, start, 1)
+      throw_for_encoding_error("BIG5", buffer, start, 1);
   }
 }
 
@@ -108,7 +265,7 @@ depending on the specific extension:
 */
 
 // https://en.wikipedia.org/wiki/GB_2312#EUC-CN
-seq_position next_char_EUC_CN(
+template<> seq_position next_seq<encoding_group::EUC_CN>(
   const char* buffer,
   std::string::size_type buffer_len,
   std::string::size_type start
@@ -132,81 +289,33 @@ seq_position next_char_EUC_CN(
       )
         return {start, start + 2};
       else
-        THROW_FOR_ENCODING_ERROR("EUC_CN", buffer, start, 2)
+        throw_for_encoding_error("EUC_CN", buffer, start, 2);
     }
     else
-      THROW_FOR_ENCODING_ERROR("EUC_CN", buffer, start, 1)
+      throw_for_encoding_error("EUC_CN", buffer, start, 1);
   }
 }
 
-/*
-EUC-JP and EUC-JIS-2004 represent slightly different code points but iterate
-the same
-https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-JP
-http://x0213.org/codetable/index.en.html
-*/
-seq_position next_char_for_euc_jplike(
+template<> seq_position next_seq<encoding_group::EUC_JP>(
   const char* buffer,
   std::string::size_type buffer_len,
-  std::string::size_type start,
-  const char* encoding_name
+  std::string::size_type start
 )
 {
-  if (start >= buffer_len)
-    return {std::string::npos, std::string::npos};
-  else if (static_cast<unsigned char>(buffer[start] ) < 0x80)
-    return {start, start + 1};
-  else
-  {
-    if (
-         static_cast<unsigned char>(buffer[start]) == 0x8E
-      && start + 2 <= buffer_len
-    )
-    {
-      if (
-           static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
-      )
-        return {start, start + 2};
-      else
-        THROW_FOR_ENCODING_ERROR(encoding_name, buffer, start, 2)
-    }
-    else if (
-         static_cast<unsigned char>(buffer[start]) >= 0xA1
-      && static_cast<unsigned char>(buffer[start]) <= 0xFE
-      && start + 2 <= buffer_len
-    )
-    {
-      if (
-           static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
-      )
-        return {start, start + 2};
-      else
-        THROW_FOR_ENCODING_ERROR(encoding_name, buffer, start, 2)
-    }
-    else if (
-         static_cast<unsigned char>(buffer[start]) == 0x8F
-      && start + 3 <= buffer_len
-    )
-    {
-      if (
-           static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
-        && static_cast<unsigned char>(buffer[start + 2]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 2]) <= 0xFE
-      )
-        return {start, start + 3};
-      else
-        THROW_FOR_ENCODING_ERROR(encoding_name, buffer, start, 3)
-    }
-    else
-      THROW_FOR_ENCODING_ERROR(encoding_name, buffer, start, 1)
-  }
+  return next_seq_for_euc_jplike(buffer, buffer_len, start, "EUC_JP");
+}
+
+template<> seq_position next_seq<encoding_group::EUC_JIS_2004>(
+  const char* buffer,
+  std::string::size_type buffer_len,
+  std::string::size_type start
+)
+{
+  return next_seq_for_euc_jplike(buffer, buffer_len, start, "EUC_JIS_2004");
 }
 
 // https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-KR
-seq_position next_char_EUC_KR(
+template<> seq_position next_seq<encoding_group::EUC_KR>(
   const char* buffer,
   std::string::size_type buffer_len,
   std::string::size_type start
@@ -230,15 +339,15 @@ seq_position next_char_EUC_KR(
       )
         return {start, start + 2};
       else
-        THROW_FOR_ENCODING_ERROR("EUC_KR", buffer, start, 1)
+        throw_for_encoding_error("EUC_KR", buffer, start, 1);
     }
     else
-      THROW_FOR_ENCODING_ERROR("EUC_KR", buffer, start, 1)
+      throw_for_encoding_error("EUC_KR", buffer, start, 1);
   }
 }
 
 // https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-TW
-seq_position next_char_EUC_TW(
+template<> seq_position next_seq<encoding_group::EUC_TW>(
   const char* buffer,
   std::string::size_type buffer_len,
   std::string::size_type start
@@ -262,7 +371,7 @@ seq_position next_char_EUC_TW(
       )
         return {start, start + 2};
       else
-        THROW_FOR_ENCODING_ERROR("EUC_KR", buffer, start, 2)
+        throw_for_encoding_error("EUC_KR", buffer, start, 2);
     }
     else if (
          static_cast<unsigned char>(buffer[start]) == 0x8E
@@ -279,15 +388,15 @@ seq_position next_char_EUC_TW(
       )
         return {start, start + 4};
       else
-        THROW_FOR_ENCODING_ERROR("EUC_KR", buffer, start, 4)
+        throw_for_encoding_error("EUC_KR", buffer, start, 4);
     }
     else
-      THROW_FOR_ENCODING_ERROR("EUC_KR", buffer, start, 1)
+      throw_for_encoding_error("EUC_KR", buffer, start, 1);
   }
 }
 
 // https://en.wikipedia.org/wiki/GB_18030#Mapping
-seq_position next_char_GB18030(
+template<> seq_position next_seq<encoding_group::GB18030>(
   const char* buffer,
   std::string::size_type buffer_len,
   std::string::size_type start
@@ -311,7 +420,7 @@ seq_position next_char_GB18030(
       if (static_cast<unsigned char>(buffer[start + 1]) != 0x7F)
         return {start, start + 2};
       else
-        THROW_FOR_ENCODING_ERROR("GB18030", buffer, start, 2)
+        throw_for_encoding_error("GB18030", buffer, start, 2);
     }
     else
     {
@@ -327,21 +436,21 @@ seq_position next_char_GB18030(
         )
           return {start, start + 4};
         else
-          THROW_FOR_ENCODING_ERROR("GB18030", buffer, start, 4)
+          throw_for_encoding_error("GB18030", buffer, start, 4);
       }
       else
-        THROW_FOR_ENCODING_ERROR(
+        throw_for_encoding_error(
           "GB18030",
           buffer,
           start,
           buffer_len - start
-        )
+        );
     }
   }
 }
 
 // https://en.wikipedia.org/wiki/GBK_(character_encoding)#Encoding
-seq_position next_char_GBK(
+template<> seq_position next_seq<encoding_group::GBK>(
   const char* buffer,
   std::string::size_type buffer_len,
   std::string::size_type start
@@ -402,10 +511,10 @@ seq_position next_char_GBK(
       ))
         return {start, start + 2};
       else
-        THROW_FOR_ENCODING_ERROR("GBK", buffer, start, 2)
+        throw_for_encoding_error("GBK", buffer, start, 2);
     }
     else
-      THROW_FOR_ENCODING_ERROR("GBK", buffer, start, 1)
+      throw_for_encoding_error("GBK", buffer, start, 1);
   }
 }
 
@@ -416,7 +525,7 @@ The PostgreSQL documentation claims that the JOHAB encoding is 1-3 bytes, but
 */
 // CJKV Information Processing by Ken Lunde, pg. 269
 // https://books.google.com/books?id=SA92uQqTB-AC&pg=PA269&lpg=PA269&dq=JOHAB+encoding&source=bl&ots=GMvxWWl8Gx&sig=qLFQNkR4d7Rd-iqQy1lNh3oEdOE&hl=en&sa=X&ved=0ahUKEwizyoTDxePbAhWjpFkKHU65DSwQ6AEIajAH#v=onepage&q=JOHAB%20encoding&f=false
-seq_position next_char_JOHAB(
+template<> seq_position next_seq<encoding_group::JOHAB>(
   const char* buffer,
   std::string::size_type buffer_len,
   std::string::size_type start
@@ -458,82 +567,112 @@ seq_position next_char_JOHAB(
       ))
         return {start, start + 2};
       else
-        THROW_FOR_ENCODING_ERROR("JOHAB", buffer, start, 2)
+        throw_for_encoding_error("JOHAB", buffer, start, 2);
     }
     else
-      THROW_FOR_ENCODING_ERROR("JOHAB", buffer, start, 1)
+      throw_for_encoding_error("JOHAB", buffer, start, 1);
   }
 }
 
 /*
-As far as I can tell, for the purposes of iterating the only difference between
-SJIS and SJIS-2004 is increased range in the first byte of two-byte sequences
-(0xEF increased to 0xFC).  Officially, that is; apparently the version of SJIS
-used by Postgres has the same range as SJIS-2004.  They both have increased
-range over the documented versions, not having the even/odd restriction for the
-first byte in 2-byte sequences.
+PostgreSQL's MULE_INTERNAL is the emacs rather than Xemacs implementation;
+see the server/mb/pg_wchar.h PostgreSQL header file.
+This is implemented according to the description in said header file, but I was
+unable to get it to successfully iterate a MULE-encoded test CSV generated using
+PostgreSQL 9.2.23.  Use this at your own risk.
 */
-// https://en.wikipedia.org/wiki/Shift_JIS#Shift_JIS_byte_map
-// http://x0213.org/codetable/index.en.html
-seq_position next_char_sjis_like(
+template<> seq_position next_seq<encoding_group::MULE_INTERNAL>(
   const char* buffer,
   std::string::size_type buffer_len,
-  std::string::size_type start,
-  const char* encoding_name
+  std::string::size_type start
 )
 {
   if (start >= buffer_len)
     return {std::string::npos, std::string::npos};
-  else if (
-    static_cast<unsigned char>(buffer[start]) < 0x80
-    || (
-         static_cast<unsigned char>(buffer[start]) >= 0xA1
-      && static_cast<unsigned char>(buffer[start]) <= 0xDF
-    )
-  )
+  else if (static_cast<unsigned char>(buffer[start]) < 0x80)
     return {start, start + 1};
   else
   {
-    if ((
-         static_cast<unsigned char>(buffer[start]) >= 0x81
-      && static_cast<unsigned char>(buffer[start]) <= 0x9F
-    ) || (
-         static_cast<unsigned char>(buffer[start]) >= 0xE0
-      // && static_cast<unsigned char>(buffer[start]) <= 0xEF
-      && static_cast<unsigned char>(buffer[start]) <= 0xFC
-    ))
+    if (start + 2 <= buffer_len)
     {
-      if (start + 2 <= buffer_len)
+      if (
+           static_cast<unsigned char>(buffer[start    ]) >= 0x81
+        && static_cast<unsigned char>(buffer[start    ]) <= 0x8D
+        && static_cast<unsigned char>(buffer[start + 1]) >= 0xA0
+        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFF
+      )
+        return {start, start + 2};
+      else if (start + 3 <= buffer_len)
       {
-        if ((
-             /*static_cast<unsigned char>(buffer[start    ]) % 2 == 1
-          && */static_cast<unsigned char>(buffer[start + 1]) >= 0x40
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0x9E
-          && static_cast<unsigned char>(buffer[start + 1]) != 0x7F
+        if (((
+             static_cast<unsigned char>(buffer[start    ]) == 0x9A
+          && static_cast<unsigned char>(buffer[start + 1]) >= 0xA0
+          && static_cast<unsigned char>(buffer[start + 1]) <= 0xDF
         ) || (
-             /*static_cast<unsigned char>(buffer[start    ]) % 2 == 0
-          && */static_cast<unsigned char>(buffer[start + 1]) >= 0x9F
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0xFC
+             static_cast<unsigned char>(buffer[start    ]) == 0x9B
+          && static_cast<unsigned char>(buffer[start + 1]) >= 0xE0
+          && static_cast<unsigned char>(buffer[start + 1]) <= 0xEF
+        ) || (
+             static_cast<unsigned char>(buffer[start    ]) >= 0x90
+          && static_cast<unsigned char>(buffer[start    ]) <= 0x99
+          && static_cast<unsigned char>(buffer[start + 1]) >= 0xA0
+          && static_cast<unsigned char>(buffer[start + 1]) <= 0xFF
+        )) && (
+             static_cast<unsigned char>(buffer[start + 2]) >= 0xA0
+          && static_cast<unsigned char>(buffer[start + 2]) <= 0xFF
         ))
-          return {start, start + 2};
+          return {start, start + 3};
+        else if (start + 4 <= buffer_len)
+        {
+          if (((
+               static_cast<unsigned char>(buffer[start    ]) == 0x9C
+            && static_cast<unsigned char>(buffer[start + 1]) >= 0xF0
+            && static_cast<unsigned char>(buffer[start + 1]) <= 0xF4
+          ) || (
+               static_cast<unsigned char>(buffer[start    ]) == 0x9D
+            && static_cast<unsigned char>(buffer[start + 1]) >= 0xF5
+            && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+          )) && (
+               static_cast<unsigned char>(buffer[start + 2]) >= 0xA0
+            && static_cast<unsigned char>(buffer[start + 2]) <= 0xFF
+            && static_cast<unsigned char>(buffer[start + 4]) >= 0xA0
+            && static_cast<unsigned char>(buffer[start + 4]) <= 0xFF
+          ))
+            return {start, start + 4};
+          else
+            throw_for_encoding_error("MULE_INTERNAL", buffer, start, 4);
+        }
         else
-          THROW_FOR_ENCODING_ERROR(encoding_name, buffer, start, 2)
+          throw_for_encoding_error("MULE_INTERNAL", buffer, start, 3);
       }
       else
-        THROW_FOR_ENCODING_ERROR(
-          encoding_name,
-          buffer,
-          start,
-          buffer_len - start
-        )
+        throw_for_encoding_error("MULE_INTERNAL", buffer, start, 2);
     }
     else
-      THROW_FOR_ENCODING_ERROR(encoding_name, buffer, start, 1)
+      throw_for_encoding_error("MULE_INTERNAL", buffer, start, 1);
   }
 }
 
+template<> seq_position next_seq<encoding_group::SJIS>(
+  const char* buffer,
+  std::string::size_type buffer_len,
+  std::string::size_type start
+)
+{
+  return next_seq_for_sjislike(buffer, buffer_len, start, "SJIS");
+}
+
+template<> seq_position next_seq<encoding_group::SHIFT_JIS_2004>(
+  const char* buffer,
+  std::string::size_type buffer_len,
+  std::string::size_type start
+)
+{
+  return next_seq_for_sjislike(buffer, buffer_len, start, "SHIFT_JIS_2004");
+}
+
 // https://en.wikipedia.org/wiki/Unified_Hangul_Code
-seq_position next_char_UHC(
+template<> seq_position next_seq<encoding_group::UHC>(
   const char* buffer,
   std::string::size_type buffer_len,
   std::string::size_type start
@@ -564,15 +703,15 @@ seq_position next_char_UHC(
         ))
           return {start, start + 2};
         else
-          THROW_FOR_ENCODING_ERROR("UHC", buffer, start, 2)
+          throw_for_encoding_error("UHC", buffer, start, 2);
       }
       else
-        THROW_FOR_ENCODING_ERROR(
+        throw_for_encoding_error(
           "UHC",
           buffer,
           start,
           buffer_len - start
-        )
+        );
     }
     else if (
          static_cast<unsigned char>(buffer[start]) >= 0xA1
@@ -587,23 +726,23 @@ seq_position next_char_UHC(
         )
           return {start, start + 2};
         else
-          THROW_FOR_ENCODING_ERROR("UHC", buffer, start, 2)
+          throw_for_encoding_error("UHC", buffer, start, 2);
       }
       else
-        THROW_FOR_ENCODING_ERROR(
+        throw_for_encoding_error(
           "UHC",
           buffer,
           start,
           buffer_len - start
-        )
+        );
     }
     else
-      THROW_FOR_ENCODING_ERROR("UHC", buffer, start, 1)
+      throw_for_encoding_error("UHC", buffer, start, 1);
   }
 }
 
 // https://en.wikipedia.org/wiki/UTF-8#Description
-seq_position next_char_UTF8(
+template<> seq_position next_seq<encoding_group::UTF8>(
   const char* buffer,
   std::string::size_type buffer_len,
   std::string::size_type start
@@ -628,15 +767,15 @@ seq_position next_char_UTF8(
         )
           return {start, start + 2};
         else
-          THROW_FOR_ENCODING_ERROR("UTF8", buffer, start, 2)
+          throw_for_encoding_error("UTF8", buffer, start, 2);
       }
       else
-        THROW_FOR_ENCODING_ERROR(
+        throw_for_encoding_error(
           "UTF8",
           buffer,
           start,
           buffer_len - start
-        )
+        );
     }
     else if (
          static_cast<unsigned char>(buffer[start]) >= 0xE0
@@ -653,15 +792,15 @@ seq_position next_char_UTF8(
         )
           return {start, start + 3};
         else
-          THROW_FOR_ENCODING_ERROR("UTF8", buffer, start, 3)
+          throw_for_encoding_error("UTF8", buffer, start, 3);
       }
       else
-        THROW_FOR_ENCODING_ERROR(
+        throw_for_encoding_error(
           "UTF8",
           buffer,
           start,
           buffer_len - start
-        )
+        );
     }
     else if (
          static_cast<unsigned char>(buffer[start]) >= 0xF0
@@ -680,29 +819,92 @@ seq_position next_char_UTF8(
         )
           return {start, start + 4};
         else
-          THROW_FOR_ENCODING_ERROR("UTF8", buffer, start, 4)
+          throw_for_encoding_error("UTF8", buffer, start, 4);
       }
       else
-        THROW_FOR_ENCODING_ERROR(
+        throw_for_encoding_error(
           "UTF8",
           buffer,
           start,
           buffer_len - start
-        )
+        );
     }
     else
-      THROW_FOR_ENCODING_ERROR("UTF8", buffer, start, 1)
+      throw_for_encoding_error("UTF8", buffer, start, 1);
   }
 }
 
-} // namespace
+} // namespace pqxx::internal
+} // namespace pqxx
 
 
-#undef THROW_FOR_ENCODING_ERROR
+namespace pqxx
+{
+namespace internal
+{
 
+encoding_group enc_group(int libpq_enc_id)
+{
+  return enc_group(pg_encoding_to_char(libpq_enc_id));
+}
+
+encoding_group enc_group(const std::string& encoding_name)
+{
+  static const std::map<std::string, encoding_group> encoding_map{
+    { "BIG5", encoding_group::BIG5 },
+    { "EUC_CN", encoding_group::EUC_CN },
+    { "EUC_JP", encoding_group::EUC_JP },
+    { "EUC_JIS_2004", encoding_group::EUC_JIS_2004 },
+    { "EUC_KR", encoding_group::EUC_KR },
+    { "EUC_TW", encoding_group::EUC_TW },
+    { "GB18030", encoding_group::GB18030 },
+    { "GBK", encoding_group::GBK },
+    { "ISO_8859_5", encoding_group::MONOBYTE },
+    { "ISO_8859_6", encoding_group::MONOBYTE },
+    { "ISO_8859_7", encoding_group::MONOBYTE },
+    { "ISO_8859_8", encoding_group::MONOBYTE },
+    { "JOHAB", encoding_group::JOHAB },
+    { "KOI8R", encoding_group::MONOBYTE },
+    { "KOI8U", encoding_group::MONOBYTE },
+    { "LATIN1", encoding_group::MONOBYTE },
+    { "LATIN2", encoding_group::MONOBYTE },
+    { "LATIN3", encoding_group::MONOBYTE },
+    { "LATIN4", encoding_group::MONOBYTE },
+    { "LATIN5", encoding_group::MONOBYTE },
+    { "LATIN6", encoding_group::MONOBYTE },
+    { "LATIN7", encoding_group::MONOBYTE },
+    { "LATIN8", encoding_group::MONOBYTE },
+    { "LATIN9", encoding_group::MONOBYTE },
+    { "LATIN10", encoding_group::MONOBYTE },
+    { "MULE_INTERNAL", encoding_group::MULE_INTERNAL },
+    { "SJIS", encoding_group::SJIS },
+    { "SHIFT_JIS_2004", encoding_group::SHIFT_JIS_2004 },
+    { "SQL_ASCII", encoding_group::MONOBYTE },
+    { "UHC", encoding_group::UHC },
+    { "UTF8", encoding_group::UTF8 },
+    { "WIN866", encoding_group::MONOBYTE },
+    { "WIN874", encoding_group::MONOBYTE },
+    { "WIN1250", encoding_group::MONOBYTE },
+    { "WIN1251", encoding_group::MONOBYTE },
+    { "WIN1252", encoding_group::MONOBYTE },
+    { "WIN1253", encoding_group::MONOBYTE },
+    { "WIN1254", encoding_group::MONOBYTE },
+    { "WIN1255", encoding_group::MONOBYTE },
+    { "WIN1256", encoding_group::MONOBYTE },
+    { "WIN1257", encoding_group::MONOBYTE },
+    { "WIN1258", encoding_group::MONOBYTE },
+  };
+  
+  auto found_encoding_group{ encoding_map.find(encoding_name)};
+  if (found_encoding_group == encoding_map.end())
+    throw std::invalid_argument{
+      "unrecognized encoding '" + encoding_name + "'"
+    };
+  return found_encoding_group->second;
+}
 
 seq_position next_seq(
-  encoding enc,
+  encoding_group enc,
   const char* buffer,
   std::string::size_type buffer_len,
   std::string::size_type start
@@ -710,74 +912,38 @@ seq_position next_seq(
 {
   switch (enc)
   {
-  // Single-byte encodings
-
-  case encoding::ISO_8859_5:
-  case encoding::ISO_8859_6:
-  case encoding::ISO_8859_7:
-  case encoding::ISO_8859_8:
-  case encoding::KOI8R:
-  case encoding::KOI8U:
-  case encoding::LATIN1:
-  case encoding::LATIN2:
-  case encoding::LATIN3:
-  case encoding::LATIN4:
-  case encoding::LATIN5:
-  case encoding::LATIN6:
-  case encoding::LATIN7:
-  case encoding::LATIN8:
-  case encoding::LATIN9:
-  case encoding::LATIN10:
-  case encoding::SQL_ASCII:
-  case encoding::WIN866:
-  case encoding::WIN874:
-  case encoding::WIN1250:
-  case encoding::WIN1251:
-  case encoding::WIN1252:
-  case encoding::WIN1253:
-  case encoding::WIN1254:
-  case encoding::WIN1255:
-  case encoding::WIN1256:
-  case encoding::WIN1257:
-  case encoding::WIN1258:
-    return next_char_monobyte(buffer, buffer_len, start);
-
-  // Multi-byte encodings
-
-  case encoding::EUC_JP:
-  case encoding::EUC_JIS_2004:
-    return next_char_for_euc_jplike(
-      buffer,
-      buffer_len,
-      start,
-      (enc == encoding::EUC_JP ? "EUC_JP" : "EUC_JIS_2004")
-    );
-  case encoding::SJIS:
-  case encoding::SHIFT_JIS_2004:
-    return next_char_sjis_like(
-      buffer,
-      buffer_len,
-      start,
-      (enc == encoding::SJIS ? "SJIS" : "SHIFT_JIS_2004")
-    );
-
-  case encoding::BIG5:
-    return next_char_BIG5(buffer, buffer_len, start);
-  case encoding::EUC_CN:
-    return next_char_EUC_CN(buffer, buffer_len, start);
-  case encoding::EUC_KR:
-    return next_char_EUC_KR(buffer, buffer_len, start);
-  case encoding::EUC_TW:
-    return next_char_EUC_TW(buffer, buffer_len, start);
-  case encoding::GB18030:
-    return next_char_GB18030(buffer, buffer_len, start);
-  case encoding::GBK:
-    return next_char_GBK(buffer, buffer_len, start);
-  case encoding::JOHAB:
-    return next_char_JOHAB(buffer, buffer_len, start);
-  case encoding::UHC:
-    return next_char_UHC(buffer, buffer_len, start);
-  case encoding::UTF8:
-    return next_char_UTF8(buffer, buffer_len, start);
+  case encoding_group::MONOBYTE:
+    return next_seq<encoding_group::MONOBYTE>(buffer, buffer_len, start);
+  case encoding_group::BIG5:
+    return next_seq<encoding_group::BIG5>(buffer, buffer_len, start);
+  case encoding_group::EUC_CN:
+    return next_seq<encoding_group::EUC_CN>(buffer, buffer_len, start);
+  case encoding_group::EUC_JP:
+    return next_seq<encoding_group::EUC_JP>(buffer, buffer_len, start);
+  case encoding_group::EUC_JIS_2004:
+    return next_seq<encoding_group::EUC_JIS_2004>(buffer, buffer_len, start);
+  case encoding_group::EUC_KR:
+    return next_seq<encoding_group::EUC_KR>(buffer, buffer_len, start);
+  case encoding_group::EUC_TW:
+    return next_seq<encoding_group::EUC_TW>(buffer, buffer_len, start);
+  case encoding_group::GB18030:
+    return next_seq<encoding_group::GB18030>(buffer, buffer_len, start);
+  case encoding_group::GBK:
+    return next_seq<encoding_group::GBK>(buffer, buffer_len, start);
+  case encoding_group::JOHAB:
+    return next_seq<encoding_group::JOHAB>(buffer, buffer_len, start);
+  case encoding_group::MULE_INTERNAL:
+    return next_seq<encoding_group::MULE_INTERNAL>(buffer, buffer_len, start);
+  case encoding_group::SJIS:
+    return next_seq<encoding_group::SJIS>(buffer, buffer_len, start);
+  case encoding_group::SHIFT_JIS_2004:
+    return next_seq<encoding_group::SHIFT_JIS_2004>(buffer, buffer_len, start);
+  case encoding_group::UHC:
+    return next_seq<encoding_group::UHC>(buffer, buffer_len, start);
+  case encoding_group::UTF8:
+    return next_seq<encoding_group::UTF8>(buffer, buffer_len, start);
   }
 }
+
+} // namespace pqxx::internal
+} // namespace pqxx
