@@ -110,6 +110,73 @@ PQXX_INTERNAL_DECLARE_NEXT_SEQ_SPECIALIZATION( UTF8 )
 
 #undef PQXX_INTERNAL_DECLARE_NEXT_SEQ_SPECIALIZATION
 
+template<encoding_group E> std::string::size_type find_with_encoding(
+  const std::string& haystack,
+  char needle,
+  std::string::size_type start = 0
+)
+{
+  while (start < haystack.size())
+  {
+    auto here = next_seq<E>(
+      haystack.c_str(),
+      haystack.size(),
+      start
+    );
+    if (here.begin_byte == std::string::npos)
+      break;
+    else if (
+      here.end_byte - here.begin_byte == 1
+      && haystack[here.begin_byte] == needle
+    )
+      return here.begin_byte;
+    else
+      start = here.end_byte;
+  }
+  return std::string::npos;
+}
+std::string::size_type find_with_encoding(
+  encoding_group enc,
+  const std::string& haystack,
+  char needle,
+  std::string::size_type start = 0
+);
+
+template<encoding_group E> std::string::size_type find_with_encoding(
+  const std::string& haystack,
+  const std::string& needle,
+  std::string::size_type start = 0
+)
+{
+  while (start < haystack.size())
+  {
+    auto here = next_seq<E>(
+      haystack.c_str(),
+      haystack.size(),
+      start
+    );
+    if (here.begin_byte == std::string::npos)
+      break;
+    else
+    {
+      const char* ch{haystack.c_str() + start};
+      for (auto cn : needle)
+        if (*ch != cn) goto next;
+        else ++ch;
+      return here.begin_byte;
+    }
+  next:
+    start = here.end_byte;
+  }
+  return std::string::npos;
+}
+std::string::size_type find_with_encoding(
+  encoding_group enc,
+  const std::string& haystack,
+  const std::string& needle,
+  std::string::size_type start = 0
+);
+
 } // namespace pqxx::internal
 } // namespace pqxx
 

@@ -903,6 +903,43 @@ encoding_group enc_group(const std::string& encoding_name)
   return found_encoding_group->second;
 }
 
+// Utility macro for implementing rutime-switched versions of templated encoding
+// functions
+#define DISPATCH_ENCODING_OPERATION(ENC,FUNCTION,ARGS...) \
+switch (ENC) \
+{ \
+case encoding_group::MONOBYTE: \
+  return FUNCTION<encoding_group::MONOBYTE>(ARGS); \
+case encoding_group::BIG5: \
+  return FUNCTION<encoding_group::BIG5>(ARGS); \
+case encoding_group::EUC_CN: \
+  return FUNCTION<encoding_group::EUC_CN>(ARGS); \
+case encoding_group::EUC_JP: \
+  return FUNCTION<encoding_group::EUC_JP>(ARGS); \
+case encoding_group::EUC_JIS_2004: \
+  return FUNCTION<encoding_group::EUC_JIS_2004>(ARGS); \
+case encoding_group::EUC_KR: \
+  return FUNCTION<encoding_group::EUC_KR>(ARGS); \
+case encoding_group::EUC_TW: \
+  return FUNCTION<encoding_group::EUC_TW>(ARGS); \
+case encoding_group::GB18030: \
+  return FUNCTION<encoding_group::GB18030>(ARGS); \
+case encoding_group::GBK: \
+  return FUNCTION<encoding_group::GBK>(ARGS); \
+case encoding_group::JOHAB: \
+  return FUNCTION<encoding_group::JOHAB>(ARGS); \
+case encoding_group::MULE_INTERNAL: \
+  return FUNCTION<encoding_group::MULE_INTERNAL>(ARGS); \
+case encoding_group::SJIS: \
+  return FUNCTION<encoding_group::SJIS>(ARGS); \
+case encoding_group::SHIFT_JIS_2004: \
+  return FUNCTION<encoding_group::SHIFT_JIS_2004>(ARGS); \
+case encoding_group::UHC: \
+  return FUNCTION<encoding_group::UHC>(ARGS); \
+case encoding_group::UTF8: \
+  return FUNCTION<encoding_group::UTF8>(ARGS); \
+}
+
 seq_position next_seq(
   encoding_group enc,
   const char* buffer,
@@ -910,40 +947,30 @@ seq_position next_seq(
   std::string::size_type start
 )
 {
-  switch (enc)
-  {
-  case encoding_group::MONOBYTE:
-    return next_seq<encoding_group::MONOBYTE>(buffer, buffer_len, start);
-  case encoding_group::BIG5:
-    return next_seq<encoding_group::BIG5>(buffer, buffer_len, start);
-  case encoding_group::EUC_CN:
-    return next_seq<encoding_group::EUC_CN>(buffer, buffer_len, start);
-  case encoding_group::EUC_JP:
-    return next_seq<encoding_group::EUC_JP>(buffer, buffer_len, start);
-  case encoding_group::EUC_JIS_2004:
-    return next_seq<encoding_group::EUC_JIS_2004>(buffer, buffer_len, start);
-  case encoding_group::EUC_KR:
-    return next_seq<encoding_group::EUC_KR>(buffer, buffer_len, start);
-  case encoding_group::EUC_TW:
-    return next_seq<encoding_group::EUC_TW>(buffer, buffer_len, start);
-  case encoding_group::GB18030:
-    return next_seq<encoding_group::GB18030>(buffer, buffer_len, start);
-  case encoding_group::GBK:
-    return next_seq<encoding_group::GBK>(buffer, buffer_len, start);
-  case encoding_group::JOHAB:
-    return next_seq<encoding_group::JOHAB>(buffer, buffer_len, start);
-  case encoding_group::MULE_INTERNAL:
-    return next_seq<encoding_group::MULE_INTERNAL>(buffer, buffer_len, start);
-  case encoding_group::SJIS:
-    return next_seq<encoding_group::SJIS>(buffer, buffer_len, start);
-  case encoding_group::SHIFT_JIS_2004:
-    return next_seq<encoding_group::SHIFT_JIS_2004>(buffer, buffer_len, start);
-  case encoding_group::UHC:
-    return next_seq<encoding_group::UHC>(buffer, buffer_len, start);
-  case encoding_group::UTF8:
-    return next_seq<encoding_group::UTF8>(buffer, buffer_len, start);
-  }
+  DISPATCH_ENCODING_OPERATION(enc, next_seq, buffer, buffer_len, start)
 }
+
+std::string::size_type find_with_encoding(
+  encoding_group enc,
+  const std::string& haystack,
+  char needle,
+  std::string::size_type start
+)
+{
+  DISPATCH_ENCODING_OPERATION(enc, find_with_encoding, haystack, needle, start)
+}
+
+std::string::size_type find_with_encoding(
+  encoding_group enc,
+  const std::string& haystack,
+  const std::string& needle,
+  std::string::size_type start
+)
+{
+  DISPATCH_ENCODING_OPERATION(enc, find_with_encoding, haystack, needle, start)
+}
+
+#undef DISPATCH_ENCODING_OPERATION
 
 } // namespace pqxx::internal
 } // namespace pqxx
