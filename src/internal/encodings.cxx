@@ -895,7 +895,7 @@ encoding_group enc_group(const std::string& encoding_name)
     {"WIN1258", encoding_group::MONOBYTE},
   };
   
-  auto found_encoding_group{ encoding_map.find(encoding_name)};
+  auto found_encoding_group{encoding_map.find(encoding_name)};
   if (found_encoding_group == encoding_map.end())
     throw std::invalid_argument{
       "unrecognized encoding '" + encoding_name + "'"
