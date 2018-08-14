@@ -8,9 +8,9 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
+#include "pqxx/except.hxx"
 #include "pqxx/internal/encodings.hxx"
 
-#include <exception>
 #include <iomanip>
 #include <map>
 #include <sstream>
@@ -40,28 +40,23 @@ namespace
 {
   std::stringstream s;
   s
-    << "invalid sequence "
+    << "Invalid byte sequence for encoding "
+    << encoding_name
+    << " at byte "
+    << start
+    << ": "
     << std::hex
     << std::setw(2)
     << std::setfill('0')
   ;
   for (std::string::size_type i{0}; i < count; ++i)
-    s
-      << "0x"
-      << static_cast<unsigned int>(
-        static_cast<unsigned char>(buffer[start + i])
-      )
-      << " "
-    ;
-  s
-    << "at byte "
-    << std::dec
-    << std::setw(0)
-    << start
-    << " for encoding "
-    << encoding_name
-  ;
-  throw std::runtime_error{s.str()};
+  {
+    s << "0x" << static_cast<unsigned int>(
+      static_cast<unsigned char>(buffer[start + i])
+    );
+    if (i + 1 < count) s << " ";
+  }
+  throw pqxx::argument_error{s.str()};
 }
 
 /*
