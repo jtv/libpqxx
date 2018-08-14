@@ -900,7 +900,7 @@ encoding_group enc_group(const std::string& encoding_name)
 
 // Utility macro for implementing rutime-switched versions of templated encoding
 // functions
-#define DISPATCH_ENCODING_OPERATION(ENC,FUNCTION,ARGS...) \
+#define DISPATCH_ENCODING_OPERATION(ENC, FUNCTION, ARGS...) \
 switch (ENC) \
 { \
 case encoding_group::MONOBYTE: \

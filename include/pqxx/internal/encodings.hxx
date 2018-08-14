@@ -34,7 +34,7 @@ struct seq_position
 
 /** Convert an encoding enum (from libpq) or encoding name to its libpqxx group
  */
-encoding_group enc_group(int /* libpq encoding */);
+encoding_group enc_group(int /* libpq encoding ID */);
 encoding_group enc_group(const std::string&);
 
 /** Get the position & size of the next sequence representing a single glyph
@@ -55,13 +55,13 @@ encoding_group enc_group(const std::string&);
  *
  * Throws std::runtime_error for encoding errors (invalid/truncated sequence)
  */
-seq_position next_seq(
-  encoding_group enc,
+template<encoding_group E> seq_position next_seq(
   const char* buffer,
   std::string::size_type buffer_len,
   std::string::size_type start
 );
-template<encoding_group E> seq_position next_seq(
+seq_position next_seq(
+  encoding_group enc,
   const char* buffer,
   std::string::size_type buffer_len,
   std::string::size_type start
