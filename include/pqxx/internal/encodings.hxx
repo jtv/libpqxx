@@ -11,6 +11,7 @@
 
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/encoding_group.hxx"
 
 #include <string>
 
@@ -19,30 +20,6 @@ namespace pqxx
 {
 namespace internal
 {
-
-// Types of encodings supported by PostgreSQL, see
-// https://www.postgresql.org/docs/current/static/multibyte.html#CHARSET-TABLE
-enum class encoding_group
-{
-  // Handles all single-byte fixed-width encodings
-  MONOBYTE,
-  
-  // Multibyte encodings
-  BIG5,
-  EUC_CN,
-  EUC_JP,
-  EUC_JIS_2004,
-  EUC_KR,
-  EUC_TW,
-  GB18030,
-  GBK,
-  JOHAB,
-  MULE_INTERNAL,
-  SJIS,
-  SHIFT_JIS_2004,
-  UHC,
-  UTF8
-};
 
 /** Struct for representing position & size of multi-byte sequences
  *
