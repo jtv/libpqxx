@@ -27,6 +27,7 @@
  */
 
 #include "pqxx/connection_base.hxx"
+#include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/isolation.hxx"
 #include "pqxx/result.hxx"
 #include "pqxx/row.hxx"
@@ -623,6 +624,8 @@ private:
 	const std::string &Delimiter);
   void write_copy_line(const std::string &);
   void end_copy_write();
+
+  internal::encoding_group current_encoding();
 
   friend class pqxx::internal::gate::transaction_subtransaction;
 

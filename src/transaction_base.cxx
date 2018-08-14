@@ -22,6 +22,8 @@
 #include "pqxx/internal/gates/connection-parameterized_invocation.hxx"
 #include "pqxx/internal/gates/transaction-transactionfocus.hxx"
 
+#include "pqxx/internal/encodings.hxx"
+
 
 using namespace pqxx::internal;
 
@@ -559,6 +561,12 @@ void pqxx::transaction_base::end_copy_write()
 {
   gate::connection_transaction gate(conn());
   gate.end_copy_write();
+}
+
+
+encoding_group pqxx::transaction_base::current_encoding()
+{
+  return enc_group(get_variable("client_encoding"));
 }
 
 
