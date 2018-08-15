@@ -14,10 +14,8 @@ class PQXX_PRIVATE transaction_tablewriter : callgate<transaction_base>
 
   void BeginCopyWrite(
 	const std::string &table,
-	const std::string &columns = std::string(),
-	const std::string &null = std::string(),
-	const std::string &delim = "\t")
-	{ home().BeginCopyWrite(table, columns, null, delim); }
+	const std::string &columns = std::string())
+	{ home().BeginCopyWrite(table, columns); }
 
   void write_copy_line(const std::string &line)
 	{ home().write_copy_line(line); }

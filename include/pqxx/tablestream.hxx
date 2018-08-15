@@ -27,20 +27,17 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE tablestream :
 public:
   explicit tablestream(
 	transaction_base &Trans,
-	const std::string &Null=std::string(),
-	const std::string &Delimiter="\t");
+	const std::string &Null=std::string());
   virtual ~tablestream() noexcept =0;
   virtual void complete() =0;
 protected:
   const std::string &NullStr() const { return m_null; }
-  const std::string &DelimiterStr() const { return m_delim; }
   bool is_finished() const noexcept { return m_finished; }
   void base_close();
   template<typename ITER>
   static std::string columnlist(ITER colbegin, ITER colend);
 private:
   std::string m_null;
-  std::string m_delim;
   bool m_finished = false;
   tablestream();
   tablestream(const tablestream &);

@@ -151,7 +151,7 @@ struct passthrough_access
 };
 }
 
-/// Render items in a tuple as a string, using given separator; no NULLs
+/// Render items in a tuple as a string, using given separator.
 template<
 	typename TUPLE,
 	std::size_t INDEX=0,
@@ -190,67 +190,6 @@ template<
 > inline std::string
 separated_list(const std::string &sep, const TUPLE &t)
 	{ return separated_list(sep, t, internal::passthrough_access{}); }
-
-/// Render items in a tuple as a string, using given separator; supports NULLs
-/* TODO: Decide if args should be sep/null (like other separated_list()s) or
-null/sep like tablewriter/tablestrem/etc.
-*/
-template<
-	typename TUPLE,
-	std::size_t INDEX=0,
-	typename ACCESS,
-	typename std::enable_if<
-		(INDEX == std::tuple_size<TUPLE>::value-1),
-		int
-	>::type=0
-> inline std::string
-separated_list(
-	const std::string &sep,
-	const std::string &null,
-	const TUPLE &t,
-	const ACCESS& access)
-{
-  using element_type = typename std::tuple_element<INDEX, TUPLE>::type;
-  if(string_traits<element_type>::is_null(std::get<INDEX>(t)))
-    return null;
-  else
-    return to_string(access(&std::get<INDEX>(t)));
-}
-
-template<
-	typename TUPLE,
-	std::size_t INDEX=0,
-	typename ACCESS,
-	typename std::enable_if<
-		(INDEX < std::tuple_size<TUPLE>::value-1),
-		int
-	>::type=0
-> inline std::string
-separated_list(
-	const std::string &sep,
-	const std::string &null,
-	const TUPLE &t,
-	const ACCESS& access)
-{
-	using element_type = typename std::tuple_element<INDEX, TUPLE>::type;
-	if(string_traits<element_type>::is_null(std::get<INDEX>(t)))
-		return null + sep + separated_list<TUPLE, INDEX+1>(sep, null, t, access);
-	else
-		return to_string(access(&std::get<INDEX>(t)))
-			+ sep
-			+ separated_list<TUPLE, INDEX+1>(sep, null, t, access);
-}
-
-template<
-	typename TUPLE,
-	std::size_t INDEX=0,
-	typename std::enable_if<
-		(INDEX <= std::tuple_size<TUPLE>::value),
-		int
-	>::type=0
-> inline std::string
-separated_list(const std::string &sep, const std::string &null, const TUPLE &t)
-	{ return separated_list(sep, null, t, internal::passthrough_access{}); }
 //@}
 
 

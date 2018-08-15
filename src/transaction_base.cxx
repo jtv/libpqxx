@@ -520,27 +520,12 @@ void pqxx::transaction_base::BeginCopyRead(
   exec(MakeCopyString(Table, Columns) + "TO STDOUT");
 }
 
-// DEBUG:
-#include <iostream>
 
 void pqxx::transaction_base::BeginCopyWrite(
 	const std::string &Table,
-	const std::string &Columns,
-	const std::string &Null,
-	const std::string &Delimiter)
+	const std::string &Columns)
 {
-  // exec(MakeCopyString(Table, Columns) + "FROM STDIN NULL AS 'NULL'");
-  // DEBUG:
-  auto q = (
-    MakeCopyString(Table, Columns)
-    + "FROM STDIN (NULL '"
-    + Null
-    + "', DELIMITER '"
-    + Delimiter
-    + "')"
-  );
-  std::cout << q << std::endl;
-  exec(q);
+  exec(MakeCopyString(Table, Columns) + "FROM STDIN");
 }
 
 

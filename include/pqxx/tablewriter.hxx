@@ -34,8 +34,7 @@ public:
   tablewriter(
 	transaction_base &,
 	const std::string &WName,
-	const std::string &Null=std::string(),
-	const std::string &Delimiter="\t");
+	const std::string &Null=std::string());
   template<typename ITER> tablewriter(
 	transaction_base &,
 	const std::string &WName,
@@ -46,8 +45,7 @@ public:
 	const std::string &WName,
 	ITER begincolumns,
 	ITER endcolumns,
-	const std::string &Null,
-	const std::string &Delimiter);
+	const std::string &Null);
   ~tablewriter() noexcept;
   
   template<typename IT> void insert(IT Begin, IT End);
@@ -110,9 +108,7 @@ private:
   void setup(
 	transaction_base &,
 	const std::string &WName,
-	const std::string &Columns = std::string(),
-	const std::string &Null = std::string(),
-	const std::string &Delimiter = "\t");
+	const std::string &Columns = std::string());
   PQXX_PRIVATE void writer_close();
 };
 } // namespace pqxx
@@ -171,12 +167,11 @@ template<typename ITER> inline tablewriter::tablewriter(
 	const std::string &WName,
 	ITER begincolumns,
 	ITER endcolumns,
-	const std::string &Null,
-	const std::string &Delimiter) :
+	const std::string &Null) :
   namedclass("tablewriter", WName),
-  tablestream(T, Null, Delimiter)
+  tablestream(T, Null)
 {
-  setup(T, WName, columnlist(begincolumns, endcolumns), NullStr(), DelimiterStr());
+  setup(T, WName, columnlist(begincolumns, endcolumns));
 }
 
 
@@ -216,7 +211,7 @@ public:
 template<typename IT>
 inline std::string tablewriter::generate(IT Begin, IT End) const
 {
-  return separated_list(DelimiterStr(), Begin, End, internal::Escaper(NullStr()));
+  return separated_list("\t", Begin, End, internal::Escaper(NullStr()));
 }
 
 template<typename CONTAINER>
@@ -234,11 +229,7 @@ template<typename TUPLE> auto tablewriter::generate(const TUPLE &t)
     std::tuple_size<TUPLE>::value >= 0
   ), std::string>::type
 {
-  return separated_list(
-    DelimiterStr(),
-    NullStr(),
-    t,
-    internal::Escaper(NullStr()));
+  return separated_list("\t", t, internal::Escaper(NullStr()));
 }
 
 template<typename IT> inline void tablewriter::insert(IT Begin, IT End)

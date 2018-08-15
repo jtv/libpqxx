@@ -619,9 +619,7 @@ private:
   friend class pqxx::internal::gate::transaction_tablewriter;
   PQXX_PRIVATE void BeginCopyWrite(
 	const std::string &Table,
-	const std::string &Columns,
-	const std::string &Null,
-	const std::string &Delimiter);
+	const std::string &Columns);
   void write_copy_line(const std::string &);
   void end_copy_write();
 
