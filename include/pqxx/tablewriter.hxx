@@ -177,41 +177,64 @@ template<typename ITER> inline tablewriter::tablewriter(
 
 namespace internal
 {
-PQXX_LIBEXPORT std::string escape(
-	const std::string &s,
-	const std::string &null);
+PQXX_LIBEXPORT std::string escape(const std::string &s);
 
-inline std::string escape_any(
-	const std::string &s,
-	const std::string &null)
-{ return escape(s, null); }
-
-inline std::string escape_any(
-	const char s[],
-	const std::string &null)
-{ return s ? escape(std::string(s), null) : "\\N"; }
-
-template<typename T> inline std::string escape_any(
-	const T &t,
-	const std::string &null)
-{ return escape(to_string(t), null); }
+template<typename T> std::string escape_any(const T &t)
+{
+  return escape(to_string(t));
+}
+template<> std::string escape_any<std::string>(const std::string &s)
+{
+  return escape(s);
+}
 
 
-class Escaper
+class IteratorEscaper
 {
   const std::string &m_null;
 public:
-  explicit Escaper(const std::string &null) : m_null(null) {}
-  template<typename IT> std::string operator()(IT i) const
-    { return escape_any(*i, m_null); }
+  explicit IteratorEscaper(const std::string &null) : m_null(null) {}
+  
+  // Can't use a simple template specialization for these as we don't know ahead
+  // of time what iterator types could return `const char*`
+  template<typename IT> auto operator()(IT i) const
+    -> typename std::enable_if<
+      !std::is_same<decltype(*i), const char*>::value,
+      std::string
+    >::type
+  {
+    return *i == m_null ? "\\N" : escape_any(*i);
+  }
+  template<typename IT> auto operator()(IT i) const
+    -> typename std::enable_if<
+      std::is_same<decltype(*i), const char*>::value,
+      std::string
+    >::type
+  {
+    return i ? escape_any(std::string{i}) : "\\N";
+  }
 };
+
+class TypedEscaper
+{
+public:
+  template<typename T> std::string operator()(const T* t) const
+  {
+    return pqxx::string_traits<T>::is_null(*t) ? "\\N" : escape(to_string(*t));
+  }
+};
+// Explicit specialization so we don't need a string_traits<> for nullptr_t
+template<> inline std::string TypedEscaper::operator()<std::nullptr_t>(
+  const std::nullptr_t*
+) const
+  { return "\\N"; }
 }
 
 
 template<typename IT>
 inline std::string tablewriter::generate(IT Begin, IT End) const
 {
-  return separated_list("\t", Begin, End, internal::Escaper(NullStr()));
+  return separated_list("\t", Begin, End, internal::IteratorEscaper(NullStr()));
 }
 
 template<typename CONTAINER>
@@ -229,7 +252,7 @@ template<typename TUPLE> auto tablewriter::generate(const TUPLE &t)
     std::tuple_size<TUPLE>::value >= 0
   ), std::string>::type
 {
-  return separated_list("\t", t, internal::Escaper(NullStr()));
+  return separated_list("\t", t, internal::TypedEscaper());
 }
 
 template<typename IT> inline void tablewriter::insert(IT Begin, IT End)
