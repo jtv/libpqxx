@@ -13,6 +13,7 @@
 #include "pqxx/tablereader"
 #include "pqxx/transaction"
 
+#include "pqxx/internal/encodings.hxx"
 #include "pqxx/internal/gates/transaction-tablereader.hxx"
 
 using namespace pqxx::internal;
@@ -112,11 +113,12 @@ inline bool is_octalchar(char o) noexcept
 /** If not found, returns Line.size() rather than string::npos.
  */
 std::string::size_type findtab(
-	const std::string &Line,
-	std::string::size_type start)
+  pqxx::internal::encoding_group enc,
+  const std::string &Line,
+  std::string::size_type start)
 {
-  // TODO: Fix for multibyte encodings?
-  const auto here = Line.find('\t', start);
+  using namespace pqxx::internal;
+  auto here = find_with_encoding(enc, Line, '\t', start);
   return (here == std::string::npos) ? Line.size() : here;
 }
 } // namespace
@@ -126,102 +128,137 @@ std::string pqxx::tablereader::extract_field(
 	const std::string &Line,
 	std::string::size_type &i) const
 {
+  std::string s;
+  if (extract_field(Line, i, s))
+    return s;
+  else
+    return NullStr();
+}
+
+bool pqxx::tablereader::extract_field(
+	const std::string &Line,
+	std::string::size_type &i,
+	std::string &s) const
+{
+  using namespace pqxx::internal;
   // TODO: Pick better exception types
-  std::string R;
+  s.clear();
   bool isnull=false;
-  auto stop = findtab(Line, i);
-  for (; i < stop; ++i)
+  auto stop = findtab(
+    gate::transaction_tablereader(m_trans).current_encoding(),
+    Line,
+    i
+  );
+  while (i < stop)
   {
-    const char c = Line[i];
-    switch (c)
+    auto here = next_seq(
+      gate::transaction_tablereader(m_trans).current_encoding(),
+      Line.c_str(),
+      Line.size(),
+      i
+    );
+    auto seq_len = here.end_byte - here.begin_byte;
+    if (seq_len == 1)
     {
-    case '\n':			// End of row
-      // Shouldn't happen, but we may get old-style, newline-terminated lines
-      i = stop;
-      break;
-
-    case '\\':			// Escape sequence
+      switch (Line[here.begin_byte])
       {
-        const char n = Line[++i];
-        if (i >= Line.size())
-          throw failure("Row ends in backslash");
+      case '\n':                // End of row
+        // Shouldn't happen, but we may get old-style, newline-terminated lines
+        i = stop;
+        break;
 
-	switch (n)
-	{
-	case 'N':	// Null value
-	  if (!R.empty())
-	    throw failure("Null sequence found in nonempty field");
-	  R = NullStr();
-	  isnull = true;
-	  break;
+      case '\\':                // Escape sequence
+        {
+          if (i >= Line.size())
+            throw failure("Row ends in backslash");
+          const char n = Line[++i];
 
-	case '0':	// Octal sequence (3 digits)
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
+          switch (n)
           {
-	    if ((i+2) >= Line.size())
-	      throw failure("Row ends in middle of octal value");
-	    const char n1 = Line[++i];
-	    const char n2 = Line[++i];
-	    if (!is_octalchar(n1) || !is_octalchar(n2))
-	      throw failure("Invalid octal in encoded table stream");
-	    R += char(
-		(digit_to_number(n)<<6) |
-		(digit_to_number(n1)<<3) |
-		digit_to_number(n2));
+          case 'N':     // Null value
+            if (!s.empty())
+              throw failure("Null sequence found in nonempty field");
+            s = NullStr();
+            isnull = true;
+            break;
+
+          case '0':     // Octal sequence (3 digits)
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
+          case '7':
+            {
+              if ((i+2) >= Line.size())
+                throw failure("Row ends in middle of octal value");
+              const char n1 = Line[++i];
+              const char n2 = Line[++i];
+              if (!is_octalchar(n1) || !is_octalchar(n2))
+                throw failure("Invalid octal in encoded table stream");
+              s += char(
+                  (digit_to_number(n)<<6) |
+                  (digit_to_number(n1)<<3) |
+                  digit_to_number(n2));
+            }
+            break;
+
+          case 'b':     // Backspace
+            s += '\b';
+            break;
+          case 'v':     // Vertical tab
+            s += '\v';
+            break;
+          case 'f':     // Form feed
+            s += '\f';
+            break;
+          case 'n':     // Newline
+            s += '\n';
+            break;
+          case 't':     // Tab
+            s += '\t';
+            break;
+          case 'r':     // Carriage return;
+            s += '\r';
+            break;
+
+          default:      // Self-escaped character
+            s += n;
+            // This may be a self-escaped tab that we thought was a terminator
+            if (i == stop)
+            {
+              if ((i+1) >= Line.size())
+                throw internal_error("COPY line ends in backslash");
+              stop = findtab(
+                gate::transaction_tablereader(m_trans).current_encoding(),
+                Line,
+                i+1
+              );
+            }
+            break;
           }
-	  break;
+        }
+        break;
 
-	case 'b':
-	  // TODO: Escape code?
-	  R += char(8);
-	  break;	// Backspace
-	case 'v':
-	  // TODO: Escape code?
-	  R += char(11);
-	  break;	// Vertical tab
-	case 'f':
-	  // TODO: Escape code?
-	  R += char(12);
-	  break;	// Form feed
-	case 'n':
-	  R += '\n';
-	  break;	// Newline
-	case 't':
-	  R += '\t';
-	  break;	// Tab
-	case 'r':
-	  R += '\r';
-	  break;	// Carriage return;
-
-	default:	// Self-escaped character
-	  R += n;
-	  // This may be a self-escaped tab that we thought was a terminator...
-	  if (i == stop)
-	  {
-	    if ((i+1) >= Line.size())
-	      throw internal_error("COPY line ends in backslash");
-	    stop = findtab(Line, i+1);
-	  }
-	  break;
-	}
+      default:
+        s += Line[here.begin_byte];
+        break;
       }
-      break;
-
-    default:
-      R += c;
-      break;
+      ++i;
+    }
+    else // Multi-byte sequence; never treated specially, so just append
+    {
+      s.insert(s.size(), Line.c_str() + here.begin_byte, seq_len);
+      i += seq_len;
     }
   }
+
+  // Skip field separator
   ++i;
 
-  if (isnull && (R.size() != NullStr().size()))
+  if (isnull && (s.size() != NullStr().size()))
     throw failure("Field contains data behind null sequence");
 
-  return R;
+  return !isnull;
 }

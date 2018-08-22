@@ -15,6 +15,8 @@
 
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/except.hxx"
+#include "pqxx/internal/type_utils.hxx"
 #include "pqxx/result.hxx"
 #include "pqxx/tablestream.hxx"
 
@@ -45,12 +47,33 @@ public:
 	ITER endcolumns,
 	const std::string &Null);
   ~tablereader() noexcept;
-  template<typename CONTAINER> tablereader &operator>>(CONTAINER &);
+  template<typename CONTAINER> auto operator>>(CONTAINER &c)
+    -> typename std::enable_if<(
+      !std::is_void<decltype(std::begin(c))>::value
+      && !std::is_void<decltype(std::end(c))>::value
+    ), tablereader &>::type
+  ;
+  template< typename TUPLE > auto operator>>(TUPLE &)
+    -> typename std::enable_if<(
+      std::tuple_size<TUPLE>::value >= 0
+    ), tablereader &>::type
+  ;
   operator bool() const noexcept { return !m_done; }
   bool operator!() const noexcept { return m_done; }
   bool get_raw_line(std::string &Line);
   template<typename CONTAINER>
-  void tokenize(std::string, CONTAINER &) const;
+  auto tokenize(const std::string &, CONTAINER &c) const
+    -> typename std::enable_if<(
+      !std::is_void<decltype(std::begin(c))>::value
+      && !std::is_void<decltype(std::end(c))>::value
+    ), void>::type
+  ;
+  template<typename TUPLE>
+  auto tokenize(const std::string &, TUPLE &) const
+    -> typename std::enable_if<(
+      std::tuple_size<TUPLE>::value >= 0
+    ), void>::type
+  ;
   virtual void complete() override;
 private:
   void setup(
@@ -61,7 +84,48 @@ private:
   std::string extract_field(
 	const std::string &,
 	std::string::size_type &) const;
+  bool extract_field(
+	const std::string &,
+	std::string::size_type &,
+	std::string &) const;
   bool m_done;
+  template<typename TUPLE, std::size_t I> auto tokenize_ith(
+    const std::string &,
+    TUPLE &,
+    std::string::size_type,
+    std::string &
+  ) const -> typename std::enable_if<(
+      std::tuple_size<TUPLE>::value > I
+    ), void>::type
+  ;
+  template<typename TUPLE, std::size_t I> auto tokenize_ith(
+    const std::string &,
+    TUPLE &,
+    std::string::size_type,
+    std::string &
+  ) const -> typename std::enable_if<(
+      std::tuple_size<TUPLE>::value <= I
+    ), void>::type
+  ;
+  
+  template<typename T> auto extract_value(
+    const std::string &Line,
+    T& t,
+    std::string::size_type &here,
+    std::string &workspace
+  ) const -> typename std::enable_if<
+    internal::is_derefable<T>::value,
+    void
+  >::type;
+  template<typename T> auto extract_value(
+    const std::string &Line,
+    T& t,
+    std::string::size_type &here,
+    std::string &workspace
+  ) const -> typename std::enable_if<
+    !internal::is_derefable<T>::value,
+    void
+  >::type;
 };
 
 
@@ -95,19 +159,114 @@ tablereader::tablereader(
 
 
 template<typename CONTAINER>
-inline void tablereader::tokenize(std::string Line, CONTAINER &c) const
+inline auto tablereader::tokenize(const std::string &Line, CONTAINER &c) const
+  -> typename std::enable_if<(
+    !std::is_void<decltype(std::begin(c))>::value
+    && !std::is_void<decltype(std::end(c))>::value
+  ), void>::type
 {
   std::back_insert_iterator<CONTAINER> ins = std::back_inserter(c);
   std::string::size_type here=0;
   while (here < Line.size()) *ins++ = extract_field(Line, here);
 }
 
+template<typename TUPLE>
+inline auto tablereader::tokenize(const std::string &Line, TUPLE &t) const
+  -> typename std::enable_if<(
+    std::tuple_size<TUPLE>::value >= 0
+  ), void>::type
+{
+  std::string workspace;
+  tokenize_ith<TUPLE, 0>(Line, t, 0, workspace);
+}
+
+template<typename TUPLE, std::size_t I> auto tablereader::tokenize_ith(
+  const std::string &Line,
+  TUPLE &t,
+  std::string::size_type here,
+  std::string &workspace
+) const -> typename std::enable_if<(
+    std::tuple_size<TUPLE>::value > I
+  ), void>::type
+{
+  if (here < Line.size())
+  {
+    extract_value(Line, std::get<I>(t), here, workspace);
+    tokenize_ith<TUPLE, I+1>(Line, t, here, workspace);
+  }
+  else
+    throw pqxx::usage_error{"Too few fields to extract from tablereader line"};
+}
+
+template<typename TUPLE, std::size_t I> auto tablereader::tokenize_ith(
+  const std::string &Line,
+  TUPLE &t,
+  std::string::size_type here,
+  std::string &
+) const -> typename std::enable_if<(
+    std::tuple_size<TUPLE>::value <= I
+  ), void>::type
+{
+  // Zero-column line may still have a trailing newline
+  if (here < Line.size() && !(here == Line.size() - 1 && Line[here] == '\n'))
+    throw pqxx::usage_error{"Not all fields extracted from tablereader line"};
+}
+
+
+template<typename T> auto tablereader::extract_value(
+  const std::string &Line,
+  T& t,
+  std::string::size_type &here,
+  std::string &workspace
+) const -> typename std::enable_if<
+  internal::is_derefable<T>::value,
+  void
+>::type
+{
+  if (extract_field(Line, here, workspace))
+    from_string<
+      typename std::remove_reference<decltype(*(T{}))>::type
+    >(workspace, *t);
+  else
+    t = internal::null_value<T>();
+}
+template<typename T> auto tablereader::extract_value(
+  const std::string &Line,
+  T& t,
+  std::string::size_type &here,
+  std::string &workspace
+) const -> typename std::enable_if<
+  !internal::is_derefable<T>::value,
+  void
+>::type
+{
+  if (extract_field(Line, here, workspace))
+    from_string<T>(workspace, t);
+  else
+    t = internal::null_value<T>();
+}
+
 
 template<typename CONTAINER>
-inline tablereader &pqxx::tablereader::operator>>(CONTAINER &c)
+inline auto pqxx::tablereader::operator>>(CONTAINER &c)
+  -> typename std::enable_if<(
+    !std::is_void<decltype(std::begin(c))>::value
+    && !std::is_void<decltype(std::end(c))>::value
+  ), tablereader &>::type
 {
   std::string Line;
   if (get_raw_line(Line)) tokenize(Line, c);
+  return *this;
+}
+
+template< typename TUPLE >
+inline auto tablereader::operator>>(TUPLE &t)
+  -> typename std::enable_if<(
+    std::tuple_size<TUPLE>::value >= 0
+  ), tablereader &>::type
+{
+  std::string Line;
+  if (get_raw_line(Line)) tokenize(Line, t);
   return *this;
 }
 } // namespace pqxx
