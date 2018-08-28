@@ -15,6 +15,7 @@
 
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/type_utils.hxx"
 
 #if defined(PQXX_HAVE_OPTIONAL)
 #include <optional>
@@ -168,15 +169,44 @@ public:
     return Obj;
   }
 
+  /// Return value wrapped in some optional type (empty for nulls)
+  /**
+   * Use as `get<int>()` as before to obtain previous behavior (i.e. only
+   * usable when `std::optional` or `std::experimental::optional` are
+   * available), or specify container type with `get<int, std::optional>()`
+   */
+  template<typename T, template<typename> class O
 #if defined(PQXX_HAVE_OPTIONAL)
-  /// Return value as std::optional, or blank value if null.
-  template<typename T> std::optional<T> get() const
-	{ return get_opt<T, std::optional<T>>(); }
+  = std::optional
 #elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
-  /// Return value as std::experimental::optional, or blank value if null.
-  template<typename T> std::experimental::optional<T> get() const
-	{ return get_opt<T, std::experimental::optional<T>>(); }
+  = std::experimental::optional
 #endif
+  > auto get() const
+    -> typename std::enable_if<
+      !internal::is_optional<O<T>>::value,
+      O<T>
+    >::type
+  {
+    if (is_null()) return internal::null_value<O<T>>();
+    else return internal::make_optional<O<T>>(as<T>());
+  }
+  /**
+   * Use as `get<std::optional<int>>()` or `get<my_untemplated_optional_t>()`;
+   * disabled for use with raw pointers (other than C-strings) because storage
+   * for the value can't safely be allocated here
+   */
+  template<typename O> auto get() const
+    -> typename std::enable_if<(
+      internal::is_optional<O>::value
+      && (
+        !std::is_pointer<O>::value
+        || std::is_same<O, const char*>::value
+      )
+    ), O>::type
+  {
+    if (is_null()) return internal::null_value<O>();
+    else return internal::make_optional<O>(as<internal::inner_type<O>>());
+  }
 
   /// Parse the field as an SQL array.
   /** Call the parser to retrieve values (and structure) from the array.
@@ -201,18 +231,6 @@ protected:
   long m_col;
 
 private:
-  /// Implementation for get().
-  /**
-   * Abstracts away the difference between std::optional and
-   * std::experimental::optional.  Both can be supported at the same time,
-   * so pre-C++17 code can still work once the compiler defaults to C++17.
-   */
-  template<typename T, typename OPTIONAL_T> OPTIONAL_T get_opt() const
-  {
-    if (is_null()) return OPTIONAL_T();
-    else return OPTIONAL_T(as<T>());
-  }
-
   result m_home;
   size_t m_row;
 };
