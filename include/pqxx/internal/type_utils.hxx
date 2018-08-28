@@ -9,11 +9,12 @@
 #ifndef PQXX_H_TYPE_UTILS
 #define PQXX_H_TYPE_UTILS
 
+#include <memory>
 #include <type_traits>
 
-#ifdef PQXX_HAVE_OPTIONAL
+#if defined(PQXX_HAVE_OPTIONAL)
 #include <optional>
-#elif defined PQXX_HAVE_EXP_OPTIONAL
+#elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
 #include <experimental/optional>
 #endif
 
@@ -23,22 +24,52 @@ namespace pqxx
 namespace internal
 {
 
-// std::void_t<> available in C++17
+/// Replicate std::void_t<> (available in C++17)
 template<typename... T> using void_t = void;
 
-// Detect if the given type has an `operator *()`
+/// Shortcut for detecting type held by an optional-like wrapper type
+template<typename T> using inner_type = typename std::remove_reference<
+  decltype(*std::declval<T>())
+>::type;
+
+/// Detect if the given type has an `operator *()`
 template<typename T, typename = void> struct is_derefable : std::false_type {};
 template<typename T> struct is_derefable<T, void_t<
-  decltype(*(T{}))
+  // Disable for arrays so they don't erroneously decay to pointers
+  inner_type<typename std::enable_if<!std::is_array<T>::value, T>::type>
 >> : std::true_type {};
 
-// Detect if `std::nullopt_t`/`std::experimental::nullopt_t` can be implicitly
-// converted to the given type
+/// Detect if the given type has an explicit pqxx::string_traits specialization
+template<typename T, typename = void> struct has_string_traits : std::false_type {};
+template<typename T> struct has_string_traits<T, void_t<
+  decltype(pqxx::string_traits<T>::name),
+  decltype(pqxx::string_traits<T>::has_null),
+  decltype(pqxx::string_traits<T>::is_null),
+  decltype(pqxx::string_traits<T>::null),
+  decltype(pqxx::string_traits<T>::from_string),
+  decltype(pqxx::string_traits<T>::to_string)
+>> : std::true_type {};
+
+/// Detect if the given type should be treated as an optional-value wrapper type
+template<typename T, typename = void> struct is_optional : std::false_type {};
+template<typename T> struct is_optional<T, typename std::enable_if<
+  (
+    is_derefable<T>::value
+    // Check if an `explicit operator bool` exists for this type
+    && std::is_constructible<bool, T>::value 
+    // Disable if an explicit `pqxx::string_traits<>` exists for this type
+    && !has_string_traits<T>::value
+  ),
+  void
+>::type> : std::true_type {};
+
+/// Detect if `std::nullopt_t`/`std::experimental::nullopt_t` can be implicitly
+/// converted to the given type
 template<
   typename T,
   typename = void
 > struct takes_std_nullopt : std::false_type {};
-#ifdef PQXX_HAVE_OPTIONAL
+#if defined(PQXX_HAVE_OPTIONAL)
 template<typename T> struct takes_std_nullopt<
     T,
     typename std::enable_if<
@@ -46,7 +77,7 @@ template<typename T> struct takes_std_nullopt<
       void
     >::type
 > : std::true_type {};
-#elif defined PQXX_HAVE_EXP_OPTIONAL
+#elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
 template<typename T> struct takes_std_nullopt<
     T,
     typename std::enable_if<
@@ -56,8 +87,8 @@ template<typename T> struct takes_std_nullopt<
 > : std::true_type {};
 #endif
 
-/** Get an appropriate null value for the given type
- *
+/// Get an appropriate null value for the given type
+/**
  *  pointer types                         `nullptr`
  *  `std::optional<>`-like                `std::nullopt`
  *  `std::experimental::optional<>`-like  `std::experimental::nullopt`
@@ -65,24 +96,24 @@ template<typename T> struct takes_std_nullopt<
  */
 template<typename T> constexpr auto null_value()
   -> typename std::enable_if<
-    (is_derefable<T>::value && !takes_std_nullopt<T>::value),
+    (is_optional<T>::value && !takes_std_nullopt<T>::value),
     std::nullptr_t
   >::type
 { return nullptr; }
 template<typename T> constexpr auto null_value()
   -> typename std::enable_if<
-    (!is_derefable<T>::value && !takes_std_nullopt<T>::value),
+    (!is_optional<T>::value && !takes_std_nullopt<T>::value),
     decltype(pqxx::string_traits<T>::null())
   >::type
 { return pqxx::string_traits<T>::null(); }
-#ifdef PQXX_HAVE_OPTIONAL
+#if defined(PQXX_HAVE_OPTIONAL)
 template<typename T> constexpr auto null_value()
   -> typename std::enable_if<
     takes_std_nullopt<T>::value,
     std::nullopt_t
   >::type
 { return std::nullopt; }
-#elif defined PQXX_HAVE_EXP_OPTIONAL
+#elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
 template<typename T> constexpr auto null_value()
   -> typename std::enable_if<
     takes_std_nullopt<T>::value,
@@ -90,6 +121,32 @@ template<typename T> constexpr auto null_value()
   >::type
 { return std::experimental::nullopt; }
 #endif
+
+/// Construct an optional-like type from the stored type
+/** 
+ * While these may seem redundant, they are necessary to support smart pointers
+ * as optional sotrage types in a generic manner.
+ * Users may add support for their own pointer types following this pattern.
+ */
+// Enabled if the wrapper type can be directly constructed from the wrapped type
+// (e.g. std::optional)
+template<typename T> constexpr auto make_optional(inner_type<T> v)
+  -> decltype(T(v))
+{ return T(v); }
+// Enabled if T is a specialization of std::unique_ptr<>
+template<typename T> constexpr auto make_optional(inner_type<T> v)
+  -> typename std::enable_if<
+    std::is_same<T, std::unique_ptr<inner_type<T>>>::value,
+    std::unique_ptr<inner_type<T>>
+  >::type
+{ return std::make_unique<inner_type<T>>(v); }
+// Enabled if T is a specialization of std::shared_ptr<>
+template<typename T> constexpr auto make_optional(inner_type<T> v)
+  -> typename std::enable_if<
+    std::is_same<T, std::shared_ptr<inner_type<T>>>::value,
+    std::shared_ptr<inner_type<T>>
+  >::type
+{ return std::make_shared<inner_type<T>>(v); }
 
 } // namespace pqxx::internal
 } // namespace pqxx
