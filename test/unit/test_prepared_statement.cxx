@@ -3,7 +3,7 @@
 #include <iterator>
 #include <list>
 
-#include "test_helpers.hxx"
+#include "../test_helpers.hxx"
 
 using namespace std;
 using namespace pqxx;
@@ -339,21 +339,25 @@ void test_dynamic_params(transaction_base &T)
 }
 
 
-/// Test against std::optional<int>, or std::experimental::optional<int>.
+/// Test against any optional type, such as std::optional<int> or 
+/// std::experimental::optional<int>.
 template<typename Opt>
 void test_optional(transaction_base &T)
 {
   T.conn().prepare("EchoNum", "SELECT $1::int");
-  pqxx::row rw = T.exec_prepared1("EchoNum", Opt(10));
+  pqxx::row rw = T.exec_prepared1(
+    "EchoNum",
+    pqxx::internal::make_optional<Opt>(10)
+  );
   PQXX_CHECK_EQUAL(
 	rw.front().as<int>(),
 	10,
-	"C++17 'optional' (with value) did not return the right value.");
+	"optional (with value) did not return the right value.");
 
   rw = T.exec_prepared1("EchoNum", Opt());
   PQXX_CHECK(
 	rw.front().is_null(),
-	"C++17 'optional' without value did not come out as null.");
+	"optional without value did not come out as null.");
 }
 
 
@@ -372,6 +376,8 @@ void test_prepared_statements(transaction_base &T)
 #elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
   test_optional<std::experimental::optional<int>>(T);
 #endif
+  test_optional<std::unique_ptr<int>>(T);
+  test_optional<std::shared_ptr<int>>(T);
 }
 
 
