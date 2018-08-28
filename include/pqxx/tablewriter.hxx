@@ -179,11 +179,11 @@ namespace internal
 {
 PQXX_LIBEXPORT std::string escape(const std::string &s);
 
-template<typename T> std::string escape_any(const T &t)
+template<typename T> inline std::string escape_any(const T &t)
 {
   return escape(to_string(t));
 }
-template<> std::string escape_any<std::string>(const std::string &s)
+template<> inline std::string escape_any<std::string>(const std::string &s)
 {
   return escape(s);
 }
@@ -203,7 +203,7 @@ public:
       std::string
     >::type
   {
-    return *i == m_null ? "\\N" : escape_any(*i);
+    return to_string(*i) == m_null ? "\\N" : escape_any(*i);
   }
   template<typename IT> auto operator()(IT i) const
     -> typename std::enable_if<
