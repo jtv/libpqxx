@@ -89,6 +89,8 @@ private:
 	std::string::size_type &,
 	std::string &) const;
   bool m_done;
+  internal::encoding_group m_copy_encoding;
+  
   template<typename TUPLE, std::size_t I> auto tokenize_ith(
     const std::string &,
     TUPLE &,

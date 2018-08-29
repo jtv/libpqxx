@@ -35,6 +35,9 @@ void pqxx::tablereader::setup(
 	const std::string &Name,
 	const std::string &Columns)
 {
+  // Get the encoding before starting the COPY, otherwise reading the the
+  // variable will interrupt it
+  m_copy_encoding = gate::transaction_tablereader(m_trans).current_encoding();
   gate::transaction_tablereader(T).BeginCopyRead(Name, Columns);
   register_me();
   m_done = false;
@@ -144,19 +147,10 @@ bool pqxx::tablereader::extract_field(
   // TODO: Pick better exception types
   s.clear();
   bool isnull=false;
-  auto stop = findtab(
-    gate::transaction_tablereader(m_trans).current_encoding(),
-    Line,
-    i
-  );
+  auto stop = findtab(m_copy_encoding, Line, i);
   while (i < stop)
   {
-    auto here = next_seq(
-      gate::transaction_tablereader(m_trans).current_encoding(),
-      Line.c_str(),
-      Line.size(),
-      i
-    );
+    auto here = next_seq(m_copy_encoding, Line.c_str(), Line.size(), i);
     auto seq_len = here.end_byte - here.begin_byte;
     if (seq_len == 1)
     {
@@ -230,11 +224,7 @@ bool pqxx::tablereader::extract_field(
             {
               if ((i+1) >= Line.size())
                 throw internal_error("COPY line ends in backslash");
-              stop = findtab(
-                gate::transaction_tablereader(m_trans).current_encoding(),
-                Line,
-                i+1
-              );
+              stop = findtab(m_copy_encoding, Line, i+1);
             }
             break;
           }
