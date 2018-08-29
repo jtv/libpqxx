@@ -226,9 +226,7 @@ template<typename T> auto tablereader::extract_value(
 >::type
 {
   if (extract_field(Line, here, workspace))
-    from_string<
-      typename std::remove_reference<decltype(*(T{}))>::type
-    >(workspace, *t);
+    from_string<internal::inner_type<T>>(workspace, *t);
   else
     t = internal::null_value<T>();
 }

@@ -622,7 +622,6 @@ private:
 	const std::string &Columns);
   void write_copy_line(const std::string &);
   void end_copy_write();
-
   internal::encoding_group current_encoding();
 
   friend class pqxx::internal::gate::transaction_subtransaction;
