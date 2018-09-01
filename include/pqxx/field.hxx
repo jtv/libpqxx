@@ -183,7 +183,7 @@ public:
 #endif
   > auto get() const
     -> typename std::enable_if<
-      !internal::is_optional<O<T>>::value,
+      !internal::is_optional<T>::value,
       O<T>
     >::type
   {
