@@ -14,6 +14,11 @@
 
 #include "pqxx/result"
 
+#ifdef WIN32
+#pragma warning(push)
+// warning C4267 : conversion from 'size_t' to 'int', possible loss of data
+#pragma warning(disable : 4267)
+#endif
 
 pqxx::field::field(const pqxx::row &R, pqxx::row::size_type C) noexcept :
   m_col(C),
