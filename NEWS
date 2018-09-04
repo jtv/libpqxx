@@ -3,6 +3,7 @@
  - Build fix on Visual C++ when not defining NOMINMAX.
  - Reduce setup code for string conversions, hopefully improving speed.
  - Allow nul bytes in tablereader.
+ - Support defining string conversions for enum types.
 6.2.4
  - Fix builds in paths containing non-ASCII characters.
  - New macro: PQXX_HIDE_EXP_OPTIONAL (to work around a client build error).

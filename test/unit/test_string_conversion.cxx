@@ -3,6 +3,15 @@
 using namespace std;
 using namespace pqxx;
 
+// Some enums with string conversions.
+enum EnumA { ea0, ea1, ea2 };
+enum EnumB { eb0, eb1, eb2 };
+namespace pqxx
+{
+PQXX_DECLARE_ENUM_CONVERSION(EnumA);
+PQXX_DECLARE_ENUM_CONVERSION(EnumB);
+}
+
 namespace
 {
 void test_string_conversion(transaction_base &)
@@ -87,6 +96,24 @@ void test_string_conversion(transaction_base &)
         ld2 - 0.00001,
         ld2 + 0.00001,
         "Wrong repeated conversion to long double.");
+
+  // We can define string conversions for enums.
+  PQXX_CHECK_EQUAL(
+	to_string(ea0),
+	"0",
+	"Enum-to-string conversion is broken.");
+  PQXX_CHECK_EQUAL(
+	to_string(eb0),
+	"0",
+	"Enum-to-string conversion is inconsistent between enum types.");
+  PQXX_CHECK_EQUAL(
+	to_string(ea1),
+	"1",
+	"Enum-to-string conversion breaks for nonzero value.");
+
+  EnumA ea;
+  from_string("2", ea);
+  PQXX_CHECK_EQUAL(ea, ea2, "String-to-enum conversion is broken.");
 }
 }
 
