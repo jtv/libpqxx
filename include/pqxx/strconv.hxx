@@ -2,7 +2,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stringconv instead.
  *
- * Copyright (c) 2008-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2008-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -13,6 +13,7 @@
 
 #include "pqxx/compiler-public.hxx"
 
+#include <limits>
 #include <sstream>
 #include <stdexcept>
 
@@ -23,20 +24,32 @@ namespace pqxx
 /**
  * @defgroup stringconversion String conversion
  *
- * For purposes of communication with the server, values need to be converted
- * from and to a human-readable string format that (unlike the various functions
- * and templates in the C and C++ standard libraries) is not sensitive to locale
- * settings and internationalization.  This section contains functionality that
- * is used extensively by libpqxx itself, but is also available for use by other
- * programs.
+ * The PostgreSQL server accepts and represents data in string form.  It has
+ * its own formats for various data types.  The string conversions define how
+ * various C++ types translate to and from their respective PostgreSQL text
+ * representations.
+ *
+ * Each conversion is defined by a specialisation of the @c string_traits
+ * template.  This template implements some basic functions to support the
+ * conversion, ideally in both directions.
+ *
+ * If you need to convert a type which is not supported out of the box, define
+ * your own @c string_traits specialisation for that type, similar to the ones
+ * defined here.  Any conversion code which "sees" your specialisation will now
+ * support your conversion.  In particular, you'll be able to read result
+ * fields into a variable of the new type.
+ *
+ * There is a macro to help you define conversions for individual enumeration
+ * types.  The conversion will represent enumeration values as numeric strings.
  */
 //@{
 
+// TODO: Probably better not to supply a default template.
 /// Traits class for use in string conversions
 /** Specialize this template for a type that you wish to add to_string and
  * from_string support for.
  */
-template<typename T> struct string_traits {};
+template<typename T> struct string_traits;
 
 namespace internal
 {
@@ -81,6 +94,61 @@ PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(double)
 PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long double)
 
 #undef PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION
+
+
+/// Helper class for defining enum conversions.
+/** The conversion will convert enum values to numeric strings, and vice versa.
+ *
+ * To define a string conversion for an enum type, derive a @c string_traits
+ * specialisation for the enum from this struct.
+ *
+ * There's usually an easier way though: the @c PQXX_DECLARE_ENUM_CONVERSION
+ * macro.  Use @c enum_traits manually only if you need to customise your
+ * traits type in more detail, e.g. if your enum has a "null" value built in.
+ */
+template<typename ENUM>
+struct enum_traits
+{
+  using underlying_type = typename std::underlying_type<ENUM>::type;
+  using underlying_traits = string_traits<underlying_type>;
+
+  static constexpr bool has_null() noexcept { return false; }
+  [[noreturn]] static ENUM null()
+	{ internal::throw_null_conversion("enum type"); }
+
+  static void from_string(const char Str[], ENUM &Obj)
+  {
+    underlying_type tmp;
+    underlying_traits::from_string(Str, tmp);
+    Obj = ENUM(tmp);
+  }
+
+  static std::string to_string(ENUM Obj)
+	{ return underlying_traits::to_string(underlying_type(Obj)); }
+};
+
+
+/// Macro: Define a string conversion for an enum type.
+/** This specialises the @c pqxx::string_traits template, so use it in the
+ * @c ::pqxx namespace.
+ *
+ * For example:
+ *
+ *      #include <iostream>
+ *      #include <pqxx/strconv>
+ *      enum X { xa, xb };
+ *      namespace pqxx { PQXX_DECLARE_ENUM_CONVERSION(x); }
+ *      int main() { std::cout << to_string(xa) << std::endl; }
+ */
+#define PQXX_DECLARE_ENUM_CONVERSION(ENUM) \
+template<> \
+struct PQXX_LIBEXPORT string_traits<ENUM> : pqxx::enum_traits<ENUM> \
+{ \
+  static constexpr const char *name() noexcept { return #ENUM; } \
+  [[noreturn]] static ENUM null() \
+	{ internal::throw_null_conversion(name()); } \
+}
+
 
 /// String traits for C-style string ("pointer to const char")
 template<> struct PQXX_LIBEXPORT string_traits<const char *>
