@@ -187,17 +187,10 @@ private:
   /// Compile one argument (default, generic implementation).
   /** Uses string_traits to represent the argument as a std::string.
    */
-  template<typename Arg> auto add_field(const Arg &arg)
-    -> typename std::enable_if<!internal::is_optional<Arg>::value, void>::type
+  template<typename Arg> void add_field(const Arg &arg)
   {
     if (string_traits<Arg>::is_null(arg)) add_field(nullptr);
     else add_field(to_string(arg));
-  }
-  template<typename Arg> auto add_field(const Arg &arg)
-    -> typename std::enable_if<internal::is_optional<Arg>::value, void>::type
-  {
-    if (arg) add_field(*arg);
-    else add_field(nullptr);
   }
 
   /// Compile a dynamic_params object into a dynamic number of parameters.

@@ -110,24 +110,12 @@ private:
     ), void>::type
   ;
   
-  template<typename T> auto extract_value(
+  template<typename T> void extract_value(
     const std::string &Line,
     T& t,
     std::string::size_type &here,
     std::string &workspace
-  ) const -> typename std::enable_if<
-    internal::is_derefable<T>::value,
-    void
-  >::type;
-  template<typename T> auto extract_value(
-    const std::string &Line,
-    T& t,
-    std::string::size_type &here,
-    std::string &workspace
-  ) const -> typename std::enable_if<
-    !internal::is_derefable<T>::value,
-    void
-  >::type;
+  );
 };
 
 
@@ -215,30 +203,12 @@ template<typename TUPLE, std::size_t I> auto tablereader::tokenize_ith(
 }
 
 
-template<typename T> auto tablereader::extract_value(
+template<typename T> void tablereader::extract_value(
   const std::string &Line,
   T& t,
   std::string::size_type &here,
   std::string &workspace
-) const -> typename std::enable_if<
-  internal::is_derefable<T>::value,
-  void
->::type
-{
-  if (extract_field(Line, here, workspace))
-    from_string<internal::inner_type<T>>(workspace, *t);
-  else
-    t = internal::null_value<T>();
-}
-template<typename T> auto tablereader::extract_value(
-  const std::string &Line,
-  T& t,
-  std::string::size_type &here,
-  std::string &workspace
-) const -> typename std::enable_if<
-  !internal::is_derefable<T>::value,
-  void
->::type
+)
 {
   if (extract_field(Line, here, workspace))
     from_string<T>(workspace, t);

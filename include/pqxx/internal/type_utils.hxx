@@ -152,4 +152,35 @@ template<typename T> constexpr auto make_optional(inner_type<T> v)
 } // namespace pqxx
 
 
+// TODO: Move?
+namespace pqxx
+{
+
+/// Meta `pqxx::string_traits` for optional types
+template<typename T> struct string_traits<
+  T,
+  typename std::enable_if<internal::is_optional<T>::value, void>::type
+>
+{
+private:
+  using I = internal::inner_type<T>;
+public:
+  static constexpr const char *name() noexcept
+    { return string_traits<I>::name(); }
+  static constexpr bool has_null() noexcept { return true; }
+  static bool is_null(const T& v)
+    { return (!v || string_traits<I>::is_null(*v)); }
+  static constexpr T null() { return internal::null_value<T>(); }
+  static void from_string(const char Str[], T &Obj)
+  {
+    if (is_null(Obj)) return null();
+    else string_traits<I>::from_string(Str, *Obj);
+  }
+  static std::string to_string(const T& Obj)
+    { return string_traits<I>::to_string(*Obj); }
+};
+
+} // namespace pqxx
+
+
 #endif
