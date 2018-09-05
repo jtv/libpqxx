@@ -49,13 +49,12 @@ public:
   ~tablereader() noexcept;
   template<typename CONTAINER> auto operator>>(CONTAINER &c)
     -> typename std::enable_if<(
-      !std::is_void<decltype(std::begin(c))>::value
-      && !std::is_void<decltype(std::end(c))>::value
+      internal::is_container<CONTAINER>::value
     ), tablereader &>::type
   ;
   template< typename TUPLE > auto operator>>(TUPLE &)
     -> typename std::enable_if<(
-      std::tuple_size<TUPLE>::value >= 0
+      internal::is_tuple<TUPLE>::value
     ), tablereader &>::type
   ;
   operator bool() const noexcept { return !m_done; }
@@ -64,14 +63,13 @@ public:
   template<typename CONTAINER>
   auto tokenize(const std::string &, CONTAINER &c) const
     -> typename std::enable_if<(
-      !std::is_void<decltype(std::begin(c))>::value
-      && !std::is_void<decltype(std::end(c))>::value
+      internal::is_container<CONTAINER>::value
     ), void>::type
   ;
   template<typename TUPLE>
   auto tokenize(const std::string &, TUPLE &) const
     -> typename std::enable_if<(
-      std::tuple_size<TUPLE>::value >= 0
+      internal::is_tuple<TUPLE>::value
     ), void>::type
   ;
   virtual void complete() override;
@@ -151,8 +149,7 @@ tablereader::tablereader(
 template<typename CONTAINER>
 inline auto tablereader::tokenize(const std::string &Line, CONTAINER &c) const
   -> typename std::enable_if<(
-    !std::is_void<decltype(std::begin(c))>::value
-    && !std::is_void<decltype(std::end(c))>::value
+    internal::is_container<CONTAINER>::value
   ), void>::type
 {
   std::back_insert_iterator<CONTAINER> ins = std::back_inserter(c);
@@ -163,7 +160,7 @@ inline auto tablereader::tokenize(const std::string &Line, CONTAINER &c) const
 template<typename TUPLE>
 inline auto tablereader::tokenize(const std::string &Line, TUPLE &t) const
   -> typename std::enable_if<(
-    std::tuple_size<TUPLE>::value >= 0
+    internal::is_tuple<TUPLE>::value
   ), void>::type
 {
   std::string workspace;
@@ -220,8 +217,7 @@ template<typename T> void tablereader::extract_value(
 template<typename CONTAINER>
 inline auto pqxx::tablereader::operator>>(CONTAINER &c)
   -> typename std::enable_if<(
-    !std::is_void<decltype(std::begin(c))>::value
-    && !std::is_void<decltype(std::end(c))>::value
+    internal::is_container<CONTAINER>::value
   ), tablereader &>::type
 {
   std::string Line;
@@ -232,7 +228,7 @@ inline auto pqxx::tablereader::operator>>(CONTAINER &c)
 template< typename TUPLE >
 inline auto tablereader::operator>>(TUPLE &t)
   -> typename std::enable_if<(
-    std::tuple_size<TUPLE>::value >= 0
+    internal::is_tuple<TUPLE>::value
   ), tablereader &>::type
 {
   std::string Line;

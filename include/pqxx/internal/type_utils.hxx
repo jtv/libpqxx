@@ -87,6 +87,26 @@ template<typename T> struct takes_std_nullopt<
 > : std::true_type {};
 #endif
 
+/// Detect if type is a `std::tuple<>`
+template<typename T, typename = void> struct is_tuple : std::false_type {};
+template<typename T> struct is_tuple<
+  T,
+  typename std::enable_if<(std::tuple_size<T>::value >= 0), void>::type
+> : std::true_type {};
+
+/// Detect if a type is an iterable container
+template<typename T, typename = void> struct is_container : std::false_type {};
+template<typename T> struct is_container<
+  T,
+  void_t<
+    decltype(std::begin(std::declval<T>())),
+    decltype(std::end(std::declval<T>())),
+    // Some people might implement a `std::tuple<>` specialization that is
+    // iterable when all the contained types are the same ;)
+    typename std::enable_if<!is_tuple<T>::value, void>::type
+  >
+> : std::true_type {};
+
 /// Get an appropriate null value for the given type
 /**
  *  pointer types                         `nullptr`
