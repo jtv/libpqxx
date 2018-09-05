@@ -145,7 +145,7 @@ template<typename T> constexpr auto null_value()
 /// Construct an optional-like type from the stored type
 /** 
  * While these may seem redundant, they are necessary to support smart pointers
- * as optional sotrage types in a generic manner.
+ * as optional storage types in a generic manner.
  * Users may add support for their own pointer types following this pattern.
  */
 // Enabled if the wrapper type can be directly constructed from the wrapped type

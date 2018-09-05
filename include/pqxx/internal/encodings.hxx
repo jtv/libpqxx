@@ -28,8 +28,8 @@ namespace internal
  */
 struct seq_position
 {
-    std::string::size_type begin_byte;
-    std::string::size_type   end_byte;
+  std::string::size_type begin_byte;
+  std::string::size_type   end_byte;
 };
 
 /** Convert an encoding enum (from libpq) or encoding name to its libpqxx group
