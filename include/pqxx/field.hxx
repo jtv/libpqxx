@@ -129,7 +129,14 @@ public:
   size_type size() const noexcept;					//[t11]
 
   /// Read value into Obj; or leave Obj untouched and return @c false if null
-  template<typename T> bool to(T &Obj) const				//[t03]
+  /** Note this can be used with optional types (except pointers other than
+   * C-strings)
+   */
+  template<typename T> auto to(T &Obj) const				//[t03]
+    -> typename std::enable_if<(
+      !std::is_pointer<T>::value
+      || std::is_same<T, const char*>::value
+    ), bool>::type
   {
     const char *const bytes = c_str();
     if (!bytes[0] && is_null()) return false;
@@ -142,7 +149,14 @@ public:
       { return to(Obj); }
 
   /// Read value into Obj; or use Default & return @c false if null
-  template<typename T> bool to(T &Obj, const T &Default) const	//[t12]
+  /** Note this can be used with optional types (except pointers other than
+   * C-strings)
+   */
+  template<typename T> auto to(T &Obj, const T &Default) const	//[t12]
+    -> typename std::enable_if<(
+      !std::is_pointer<T>::value
+      || std::is_same<T, const char*>::value
+    ), bool>::type
   {
     const bool NotNull = to(Obj);
     if (!NotNull) Obj = Default;
@@ -161,52 +175,30 @@ public:
   }
 
   /// Return value as object of given type, or throw exception if null
+  /** Use as `as<std::optional<int>>()` or `as<my_untemplated_optional_t>()` as
+   * an alternative to `get<int>()`; this is disabled for use with raw pointers
+   * (other than C-strings) because storage for the value can't safely be
+   * allocated here
+   */
   template<typename T> T as() const					//[t45]
   {
     T Obj;
-    const bool NotNull = to(Obj);
-    if (!NotNull) Obj = string_traits<T>::null();
+    if (!to(Obj)) Obj = string_traits<T>::null();
     return Obj;
   }
 
   /// Return value wrapped in some optional type (empty for nulls)
-  /**
-   * Use as `get<int>()` as before to obtain previous behavior (i.e. only
+  /** Use as `get<int>()` as before to obtain previous behavior (i.e. only
    * usable when `std::optional` or `std::experimental::optional` are
    * available), or specify container type with `get<int, std::optional>()`
    */
   template<typename T, template<typename> class O
 #if defined(PQXX_HAVE_OPTIONAL)
-  = std::optional
+    = std::optional
 #elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
-  = std::experimental::optional
+    = std::experimental::optional
 #endif
-  > auto get() const
-    -> typename std::enable_if<
-      !internal::is_optional<T>::value,
-      O<T>
-    >::type
-  {
-    if (is_null()) return internal::null_value<O<T>>();
-    else return internal::make_optional<O<T>>(as<T>());
-  }
-  /**
-   * Use as `get<std::optional<int>>()` or `get<my_untemplated_optional_t>()`;
-   * disabled for use with raw pointers (other than C-strings) because storage
-   * for the value can't safely be allocated here
-   */
-  template<typename O> auto get() const
-    -> typename std::enable_if<(
-      internal::is_optional<O>::value
-      && (
-        !std::is_pointer<O>::value
-        || std::is_same<O, const char*>::value
-      )
-    ), O>::type
-  {
-    if (is_null()) return internal::null_value<O>();
-    else return internal::make_optional<O>(as<internal::inner_type<O>>());
-  }
+  > constexpr O<T> get() const { return as<O<T>>(); }
 
   /// Parse the field as an SQL array.
   /** Call the parser to retrieve values (and structure) from the array.
