@@ -197,7 +197,10 @@ public:
     else string_traits<I>::from_string(Str, *Obj);
   }
   static std::string to_string(const T& Obj)
-    { return string_traits<I>::to_string(*Obj); }
+  {
+    if (is_null(Obj)) internal::throw_null_conversion(name());
+    return string_traits<I>::to_string(*Obj);
+  }
 };
 
 } // namespace pqxx
