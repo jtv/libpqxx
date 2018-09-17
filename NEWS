@@ -4,6 +4,7 @@
  - Reduce setup code for string conversions, hopefully improving speed.
  - Allow nul bytes in tablereader.
  - Support defining string conversions for enum types.
+ - Fixed const/pure attributes warning in gcc 8.
 6.2.4
  - Fix builds in paths containing non-ASCII characters.
  - New macro: PQXX_HIDE_EXP_OPTIONAL (to work around a client build error).
