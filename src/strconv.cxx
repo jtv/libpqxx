@@ -213,6 +213,7 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
     else
     {
       thread_local dumb_stringstream<T> S;
+      S.clear();
       S.seekg(0);
       S.str(Str);
       ok = static_cast<bool>(S >> result);
