@@ -1,6 +1,6 @@
 /** Implementation of libpqxx exception classes.
  *
- * Copyright (c) 2005-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2005-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -50,13 +50,13 @@ pqxx::sql_error::~sql_error() noexcept
 }
 
 
-PQXX_CONST const std::string &pqxx::sql_error::query() const noexcept
+PQXX_PURE const std::string &pqxx::sql_error::query() const noexcept
 {
   return m_query;
 }
 
 
-PQXX_CONST const std::string &pqxx::sql_error::sqlstate() const noexcept
+PQXX_PURE const std::string &pqxx::sql_error::sqlstate() const noexcept
 {
   return m_sqlstate;
 }

@@ -1,4 +1,4 @@
-#include <test_helpers.hxx>
+#include "../test_helpers.hxx"
 
 using namespace std;
 using namespace pqxx;

@@ -1,4 +1,4 @@
-#include <test_helpers.hxx>
+#include "../test_helpers.hxx"
 
 #include <pqxx/util>
 

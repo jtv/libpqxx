@@ -24,8 +24,13 @@ namespace pqxx
 /// Low-level array parser.
 /** Use this to read an array field retrieved from the database.
  *
- * Use this only if your client encoding is UTF-8, ASCII, or a single-byte
- * encoding which is a superset of ASCII.
+ * This parser will only work reliably if your client encoding is UTF-8, ASCII,
+ * or a single-byte encoding which is a superset of ASCII (such as Latin-1).
+ *
+ * Also, the parser only supports array element types which use either a comma
+ * or a semicolon ("," or ";") as the separator between array elements.  All
+ * built-in types use comma, except for one which uses semicolon, but some
+ * custom types may not work.
  *
  * The input is a C-style string containing the textual representation of an
  * array, as returned by the database.  The parser reads this representation

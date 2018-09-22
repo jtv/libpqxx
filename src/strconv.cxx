@@ -1,6 +1,6 @@
 /** Implementation of string conversions.
  *
- * Copyright (c) 2008-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2008-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -213,6 +213,7 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
     else
     {
       thread_local dumb_stringstream<T> S;
+      S.clear();
       S.seekg(0);
       S.str(Str);
       ok = static_cast<bool>(S >> result);

@@ -18,12 +18,58 @@ Find libpqxx on Github: https://github.com/jtv/libpqxx
 Building libpqxx
 ----------------
 
+There are three very different ways of building libpqxx:
+ 1. Using CMake, on any system which supports it.
+ 2. On Unix-like systems, using a `configure` script.
+ 3. With Visual Studio on Windows, using supplied project files and headers.
+
+The CMake build should work on any system where CMake is supported.  This is a
+recently contributed alternative build, so if you run into problems, your help
+could be crucial in fixing them.
+
 The "Unix-like" section applies to systems that look like Unix: GNU/Linux,
 Apple OSX and the BSD family, AIX, HP-UX, Irix, Solaris, etc.  Microsoft
 Windows with a Unix-like environment such as Cygwin or MinGW installed should
 also work in the same way.
 
-There is a separate section below for Windows users without such an environment.
+There is a separate section below for a Visual C++ build on Windows.  It takes
+a bit of work, and if the CMake build works well, we may drop support for the
+Windows/Visual C++ build later.
+
+
+### Using CMake
+
+On CMake the standard way of working is to have the source tree in one
+directory, and build in another.  (The `configure` script supports this as
+well, but that build is neough work that I didn't bother documenting it.)
+Let's say you have the libpqxx source tree in a location `$SOURCE`, and are
+building in a different location `$BUILD`.
+
+CMake also lets you choose whether to run the ultimate build through `make`,
+or some other tool.  The default on Unix-like systems is `make`, but you may
+have to look in the CMake documentation what works well on your system.
+
+For a default build, using those two directories, go into `$BUILD` and run:
+
+```shell
+    cmake $SOURCE
+```
+
+This sets up the build, in your current directory.
+
+Stay in the `$SOURCE` directory, and run:
+
+```shell
+    make
+```
+
+If you have multiple cores that you want to put to good use, use the `-j`
+option to make it run multiple jobs in parallel.  For instance, if you have 8
+CPU cores, you'll probably want to be compiling about 8 files simultaneously:
+
+```shell
+    make -j8
+```
 
 
 ### On Unix-like systems
@@ -232,18 +278,21 @@ Enjoy!
 
 Project files for Visual C++ are provided in the win32 directory, along with
 some other Windows-specific material.  These are very old, so if you run into
-problems, please let us know what we can do to fix them.
+problems, please let us know what we can do to fix them.  One known problem is
+that _folder names with spaces in them_ cause trouble.  If you run into
+trouble, try using the alternative build using CMake!
 
-Instead of going this route, you may want to try if the Unix build procedure
-works for you instead, e.g. using the Cygwin tools.  In theory it should be
-possible to run the configure script and build with Visual C++ or any other
-compiler.
+As yet another alternative, if you are running a Unix-like environment such as
+Cygwin, you may want to try if the Unix build procedure works for you.  In
+theory it should be possible to run the configure script and build with Visual
+C++ or any other compiler, so long as you have a reasonably Unix-like shell
+environment.
 
-If you do proceed without the configure script, you'll need to copy the most
+If you do proceed with the Visual C++ files, you'll need to copy the most
 appropriate compile-time configuration files from various subdirectories in
-config/example-headers/ to include/pqxx.  You may need to tweak them manually
+config/example-headers/ to include/pqxx.  You'll want to tweak them manually
 to define the exact features your system, compiler, and PostgreSQL versions
-support.  Normally the configure script would do this for you.
+support.  On a Unix-like system the configure script would do this for you.
 
 Before trying to compile with Visual C++, you'll at least need to copy the file
 win32/common-sample to win32/common, and edit the latter to reflect the proper
@@ -407,16 +456,16 @@ Linking with libpqxx
 --------------------
 
 To link your final program, make sure you link to both the C-level libpq library
-and the actual C++ library, libpqxx.  On most Unix-style compilers, this can be
-done using the options
+and the actual C++ library, libpqxx.  With most Unix-style compilers, you'd do
+this using the options
 
 ```
 	-lpqxx -lpq
 ```
 
-while linking.  Note that both libraries must be in your link path, so the
-linker knows where to find them.  Any dynamic libraries you use must also be in
-a place where the loader can find them when loading your program at runtime.
+while linking.  Both libraries must be in your link path, so the linker knows
+where to find them.  Any dynamic libraries you use must also be in a place
+where the loader can find them when loading your program at runtime.
 
 Some users have reported problems using the above syntax, however, particularly
 when multiple versions of libpqxx are partially or incorrectly installed on the
