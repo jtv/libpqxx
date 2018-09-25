@@ -1,4 +1,6 @@
 6.2.6
+ - Fix Windows bug where WSAPoll was never used.  Thanks dpolunin.
+ - Fix Windows CMake build to link to socket libraries.  Thanks dpolunin.
 6.2.5
  - Removed deprecated pqxx-config.
  - Build fix on Visual C++ when not defining NOMINMAX.

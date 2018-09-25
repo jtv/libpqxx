@@ -8,3 +8,7 @@ set_target_properties(pqxx_shared PROPERTIES OUTPUT_NAME pqxx)
 # Build a static libary
 add_library(pqxx_static STATIC ${CXX_SOURCES})
 set_target_properties(pqxx_static PROPERTIES OUTPUT_NAME pqxx)
+
+if(WIN32)
+    target_link_libraries(pqxx_static PUBLIC wsock32 ws2_32)
+endif()
