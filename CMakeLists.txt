@@ -3,16 +3,21 @@ project(libpqxx)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAK_CXX_EXTENSIONS OFF)
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-option(BUILD_TEST "Build all test cases" ON)
+if(NOT SKIP_BUILD_TEST)
+	option(BUILD_TEST "Build all test cases" ON)
+endif()
 
 include(config)
 
-find_package(PostgreSQL REQUIRED)
+if(NOT PostgreSQL_INCLUDE_DIRS)
+	find_package(PostgreSQL REQUIRED)
+endif()
+
 include_directories(
-  ${CMAKE_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}/include
   ${PostgreSQL_INCLUDE_DIRS}
 )
 link_libraries(${PostgreSQL_LIBRARIES})
