@@ -1146,7 +1146,7 @@ void wait_fd(int fd, bool forwrite=false, timeval *tv=nullptr)
   if (fd < 0) throw pqxx::broken_connection();
 
 // WSAPoll is available in winsock2.h only for versions of Windows >= 0x0600
-#if defined(_WIN32) && (_WIN32_WINNT >= 0x6000)
+#if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
   const short events = (forwrite ? POLLWRNORM : POLLRDNORM);
   WSAPOLLFD fdarray{SOCKET(fd), events, 0};
   WSAPoll(&fdarray, 1, tv_milliseconds(tv));

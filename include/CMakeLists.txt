@@ -1,0 +1,15 @@
+install(DIRECTORY pqxx DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILES_MATCHING
+      PATTERN "*.hxx"
+      PATTERN "*.hxx.template"
+      REGEX "/[a-z_]+$"
+      PATTERN "doc" EXCLUDE
+)
+install(DIRECTORY ${PROJECT_BINARY_DIR}/include/pqxx DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILES_MATCHING
+      PATTERN "*.h"
+)
+install(DIRECTORY pqxx/doc/ DESTINATION ${CMAKE_INSTALL_DOCDIR}
+    FILES_MATCHING
+      PATTERN "*.md"
+)
