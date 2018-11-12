@@ -40,7 +40,8 @@ template<typename T> struct is_derefable<T, void_t<
 >> : std::true_type {};
 
 /// Detect if the given type has an explicit pqxx::string_traits specialization
-template<typename T, typename = void> struct has_string_traits : std::false_type {};
+template<typename T, typename = void>
+struct has_string_traits : std::false_type {};
 template<typename T> struct has_string_traits<T, void_t<
   decltype(pqxx::string_traits<T>::name),
   decltype(pqxx::string_traits<T>::has_null),
@@ -52,16 +53,13 @@ template<typename T> struct has_string_traits<T, void_t<
 
 /// Detect if the given type should be treated as an optional-value wrapper type
 template<typename T, typename = void> struct is_optional : std::false_type {};
-template<typename T> struct is_optional<T, typename std::enable_if<
-  (
-    is_derefable<T>::value
-    // Check if an `explicit operator bool` exists for this type
-    && std::is_constructible<bool, T>::value 
-    // Disable if an explicit `pqxx::string_traits<>` exists for this type
-    && !has_string_traits<T>::value
-  ),
-  void
->::type> : std::true_type {};
+template<typename T> struct is_optional<T, typename std::enable_if<(
+  is_derefable<T>::value
+  // Check if an `explicit operator bool` exists for this type
+  && std::is_constructible<bool, T>::value 
+  // Disable if an explicit `pqxx::string_traits<>` exists for this type
+  && !has_string_traits<T>::value
+)>::type> : std::true_type {};
 
 /// Detect if `std::nullopt_t`/`std::experimental::nullopt_t` can be implicitly
 /// converted to the given type
@@ -72,17 +70,13 @@ template<
 #if defined(PQXX_HAVE_OPTIONAL)
 template<typename T> struct takes_std_nullopt<
     T,
-    typename std::enable_if<
-      std::is_assignable<T, std::nullopt_t>::value,
-      void
-    >::type
+    typename std::enable_if<std::is_assignable<T, std::nullopt_t>::value>::type
 > : std::true_type {};
 #elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
 template<typename T> struct takes_std_nullopt<
     T,
     typename std::enable_if<
-      std::is_assignable<T, std::experimental::nullopt_t>::value,
-      void
+      std::is_assignable<T, std::experimental::nullopt_t>::value
     >::type
 > : std::true_type {};
 #endif
@@ -91,7 +85,7 @@ template<typename T> struct takes_std_nullopt<
 template<typename T, typename = void> struct is_tuple : std::false_type {};
 template<typename T> struct is_tuple<
   T,
-  typename std::enable_if<(std::tuple_size<T>::value >= 0), void>::type
+  typename std::enable_if<(std::tuple_size<T>::value >= 0)>::type
 > : std::true_type {};
 
 /// Detect if a type is an iterable container
@@ -103,7 +97,7 @@ template<typename T> struct is_container<
     decltype(std::end(std::declval<T>())),
     // Some people might implement a `std::tuple<>` specialization that is
     // iterable when all the contained types are the same ;)
-    typename std::enable_if<!is_tuple<T>::value, void>::type
+    typename std::enable_if<!is_tuple<T>::value>::type
   >
 > : std::true_type {};
 
@@ -179,7 +173,7 @@ namespace pqxx
 /// Meta `pqxx::string_traits` for optional types
 template<typename T> struct string_traits<
   T,
-  typename std::enable_if<internal::is_optional<T>::value, void>::type
+  typename std::enable_if<internal::is_optional<T>::value>::type
 >
 {
 private:
