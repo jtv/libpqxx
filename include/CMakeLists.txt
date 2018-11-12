@@ -2,7 +2,7 @@ install(DIRECTORY pqxx DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILES_MATCHING
       PATTERN "*.hxx"
       PATTERN "*.hxx.template"
-      REGEX "/[a-z_]+$"
+      REGEX "/[a-z0-9_]+$"
       PATTERN "doc" EXCLUDE
 )
 install(DIRECTORY ${PROJECT_BINARY_DIR}/include/pqxx DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
