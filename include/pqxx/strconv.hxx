@@ -285,9 +285,8 @@ from_string(const std::string &Str, std::string &Obj)			//[t46]
 namespace internal
 {
 /// Compute numeric value of given textual digit (assuming that it is a digit)
-inline int digit_to_number(char c) noexcept { return c-'0'; }
-inline char number_to_digit(int i) noexcept
-	{ return static_cast<char>(i+'0'); }
+constexpr int digit_to_number(char c) noexcept { return c-'0'; }
+constexpr char number_to_digit(int i) noexcept { return i+'0'; }
 } // namespace pqxx::internal
 
 
