@@ -15,8 +15,6 @@
 
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
-#include "pqxx/except.hxx"
-#include "pqxx/internal/type_utils.hxx"
 #include "pqxx/result.hxx"
 #include "pqxx/tablestream.hxx"
 
@@ -47,31 +45,12 @@ public:
 	ITER endcolumns,
 	const std::string &Null);
   ~tablereader() noexcept;
-  template<typename CONTAINER> auto operator>>(CONTAINER &c)
-    -> typename std::enable_if<(
-      internal::is_container<CONTAINER>::value
-    ), tablereader &>::type
-  ;
-  template< typename TUPLE > auto operator>>(TUPLE &)
-    -> typename std::enable_if<(
-      internal::is_tuple<TUPLE>::value
-    ), tablereader &>::type
-  ;
+  template<typename TUPLE> tablereader &operator>>(TUPLE &);
   operator bool() const noexcept { return !m_done; }
   bool operator!() const noexcept { return m_done; }
   bool get_raw_line(std::string &Line);
-  template<typename CONTAINER>
-  auto tokenize(const std::string &, CONTAINER &c) const
-    -> typename std::enable_if<(
-      internal::is_container<CONTAINER>::value
-    ), void>::type
-  ;
   template<typename TUPLE>
-  auto tokenize(const std::string &, TUPLE &) const
-    -> typename std::enable_if<(
-      internal::is_tuple<TUPLE>::value
-    ), void>::type
-  ;
+  void tokenize(std::string, TUPLE &) const;
   virtual void complete() override;
 private:
   void setup(
@@ -82,38 +61,7 @@ private:
   std::string extract_field(
 	const std::string &,
 	std::string::size_type &) const;
-  bool extract_field(
-	const std::string &,
-	std::string::size_type &,
-	std::string &) const;
   bool m_done;
-  internal::encoding_group m_copy_encoding;
-  
-  template<typename TUPLE, std::size_t I> auto tokenize_ith(
-    const std::string &,
-    TUPLE &,
-    std::string::size_type,
-    std::string &
-  ) const -> typename std::enable_if<(
-      std::tuple_size<TUPLE>::value > I
-    ), void>::type
-  ;
-  template<typename TUPLE, std::size_t I> auto tokenize_ith(
-    const std::string &,
-    TUPLE &,
-    std::string::size_type,
-    std::string &
-  ) const -> typename std::enable_if<(
-      std::tuple_size<TUPLE>::value <= I
-    ), void>::type
-  ;
-  
-  template<typename T> void extract_value(
-    const std::string &Line,
-    T& t,
-    std::string::size_type &here,
-    std::string &workspace
-  );
 };
 
 
@@ -146,93 +94,20 @@ tablereader::tablereader(
 }
 
 
-template<typename CONTAINER>
-inline auto tablereader::tokenize(const std::string &Line, CONTAINER &c) const
-  -> typename std::enable_if<(
-    internal::is_container<CONTAINER>::value
-  ), void>::type
+template<typename TUPLE>
+inline void tablereader::tokenize(std::string Line, TUPLE &T) const
 {
-  std::back_insert_iterator<CONTAINER> ins = std::back_inserter(c);
+  std::back_insert_iterator<TUPLE> ins = std::back_inserter(T);
   std::string::size_type here=0;
   while (here < Line.size()) *ins++ = extract_field(Line, here);
 }
 
+
 template<typename TUPLE>
-inline auto tablereader::tokenize(const std::string &Line, TUPLE &t) const
-  -> typename std::enable_if<(
-    internal::is_tuple<TUPLE>::value
-  ), void>::type
-{
-  std::string workspace;
-  tokenize_ith<TUPLE, 0>(Line, t, 0, workspace);
-}
-
-template<typename TUPLE, std::size_t I> auto tablereader::tokenize_ith(
-  const std::string &Line,
-  TUPLE &t,
-  std::string::size_type here,
-  std::string &workspace
-) const -> typename std::enable_if<(
-    std::tuple_size<TUPLE>::value > I
-  ), void>::type
-{
-  if (here < Line.size())
-  {
-    extract_value(Line, std::get<I>(t), here, workspace);
-    tokenize_ith<TUPLE, I+1>(Line, t, here, workspace);
-  }
-  else
-    throw pqxx::usage_error{"Too few fields to extract from tablereader line"};
-}
-
-template<typename TUPLE, std::size_t I> auto tablereader::tokenize_ith(
-  const std::string &Line,
-  TUPLE &t,
-  std::string::size_type here,
-  std::string &
-) const -> typename std::enable_if<(
-    std::tuple_size<TUPLE>::value <= I
-  ), void>::type
-{
-  // Zero-column line may still have a trailing newline
-  if (here < Line.size() && !(here == Line.size() - 1 && Line[here] == '\n'))
-    throw pqxx::usage_error{"Not all fields extracted from tablereader line"};
-}
-
-
-template<typename T> void tablereader::extract_value(
-  const std::string &Line,
-  T& t,
-  std::string::size_type &here,
-  std::string &workspace
-)
-{
-  if (extract_field(Line, here, workspace))
-    from_string<T>(workspace, t);
-  else
-    t = internal::null_value<T>();
-}
-
-
-template<typename CONTAINER>
-inline auto pqxx::tablereader::operator>>(CONTAINER &c)
-  -> typename std::enable_if<(
-    internal::is_container<CONTAINER>::value
-  ), tablereader &>::type
+inline tablereader &pqxx::tablereader::operator>>(TUPLE &T)
 {
   std::string Line;
-  if (get_raw_line(Line)) tokenize(Line, c);
-  return *this;
-}
-
-template< typename TUPLE >
-inline auto tablereader::operator>>(TUPLE &t)
-  -> typename std::enable_if<(
-    internal::is_tuple<TUPLE>::value
-  ), tablereader &>::type
-{
-  std::string Line;
-  if (get_raw_line(Line)) tokenize(Line, t);
+  if (get_raw_line(Line)) tokenize(Line, T);
   return *this;
 }
 } // namespace pqxx

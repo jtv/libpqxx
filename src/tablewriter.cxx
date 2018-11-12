@@ -103,9 +103,9 @@ inline char escapechar(char i) noexcept
   char r = '\0';
   switch (i)
   {
-    case '\b':	r='b';	break;	// backspace
-    case '\v':	r='v';	break;	// vertical tab
-    case '\f':	r='f';	break;	// form feed
+    case 8:	r='b';	break;	// backspace
+    case 11:	r='v';	break;	// vertical tab
+    case 12:	r='f';	break;	// form feed
     case '\n':	r='n';	break;	// newline
     case '\t':	r='t';	break;	// tab
     case '\r':	r='r';	break;	// carriage return
@@ -128,8 +128,11 @@ inline char tooctdigit(char c, int n)
 } // namespace
 
 
-std::string pqxx::internal::escape(const std::string &s)
+std::string pqxx::internal::escape(
+        const std::string &s,
+        const std::string &null)
 {
+  if (s == null) return "\\N";
   if (s.empty()) return s;
 
   std::string R;

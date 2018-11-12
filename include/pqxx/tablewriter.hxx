@@ -14,7 +14,6 @@
 #define PQXX_H_TABLEWRITER
 
 #include <iterator>
-#include <type_traits>
 
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
@@ -47,57 +46,15 @@ public:
 	ITER endcolumns,
 	const std::string &Null);
   ~tablewriter() noexcept;
-  
   template<typename IT> void insert(IT Begin, IT End);
-  template<typename CONTAINER> auto insert(const CONTAINER &c)
-    -> typename std::enable_if<(
-      internal::is_container<CONTAINER>::value
-    ), void>::type
-  ;
-  template<typename TUPLE> auto insert(const TUPLE &)
-    -> typename std::enable_if<(
-      internal::is_tuple<TUPLE>::value
-    ), void>::type
-  ;
-  
+  template<typename TUPLE> void insert(const TUPLE &);
   template<typename IT> void push_back(IT Begin, IT End);
-  template<typename CONTAINER> auto push_back(const CONTAINER &c)
-    -> typename std::enable_if<(
-      internal::is_container<CONTAINER>::value
-    ), void>::type
-  ;
-  template<typename TUPLE> auto push_back(const TUPLE &)
-    -> typename std::enable_if<(
-      internal::is_tuple<TUPLE>::value
-    ), void>::type
-  ;
-  
+  template<typename TUPLE> void push_back(const TUPLE &);
   template<typename SIZE> void reserve(SIZE) {}
-  
-  template<typename CONTAINER> auto operator<<(const CONTAINER &c)
-    -> typename std::enable_if<(
-      internal::is_container<CONTAINER>::value
-    ), tablewriter &>::type
-  ;
+  template<typename TUPLE> tablewriter &operator<<(const TUPLE &);
   tablewriter &operator<<(tablereader &);
-  template<typename TUPLE> auto operator<<(const TUPLE &)
-    -> typename std::enable_if<(
-      internal::is_tuple<TUPLE>::value
-    ), tablewriter &>::type
-  ;
-  
   template<typename IT> std::string generate(IT Begin, IT End) const;
-  template<typename CONTAINER> auto generate(const CONTAINER &c) const
-    -> typename std::enable_if<(
-      internal::is_container<CONTAINER>::value
-    ), std::string>::type
-  ;
-  template<typename TUPLE> auto generate(const TUPLE &)
-    -> typename std::enable_if<(
-      internal::is_tuple<TUPLE>::value
-    ), std::string>::type
-  ;
-  
+  template<typename TUPLE> std::string generate(const TUPLE &) const;
   virtual void complete() override;
   void write_raw_line(const std::string &);
 private:
@@ -127,10 +84,10 @@ public:
     return *this;
   }
 
-  template<typename CONTAINER>
-  back_insert_iterator &operator=(const CONTAINER &c)
+  template<typename TUPLE>
+  back_insert_iterator &operator=(const TUPLE &T)
   {
-    m_writer->insert(c);
+    m_writer->insert(T);
     return *this;
   }
 
@@ -173,81 +130,45 @@ template<typename ITER> inline tablewriter::tablewriter(
 
 namespace internal
 {
-PQXX_LIBEXPORT std::string escape(const std::string &s);
+PQXX_LIBEXPORT std::string escape(
+	const std::string &s,
+	const std::string &null);
 
-template<typename T> inline std::string escape_any(const T &t)
-{
-  return escape(to_string(t));
-}
-template<> inline std::string escape_any<std::string>(const std::string &s)
-{
-  return escape(s);
-}
+inline std::string escape_any(
+	const std::string &s,
+	const std::string &null)
+{ return escape(s, null); }
+
+inline std::string escape_any(
+	const char s[],
+	const std::string &null)
+{ return s ? escape(std::string(s), null) : "\\N"; }
+
+template<typename T> inline std::string escape_any(
+	const T &t,
+	const std::string &null)
+{ return escape(to_string(t), null); }
 
 
-class IteratorEscaper
+template<typename IT> class Escaper
 {
   const std::string &m_null;
 public:
-  explicit IteratorEscaper(const std::string &null) : m_null(null) {}
-  
-  // Can't use a simple template specialization for these as we don't know ahead
-  // of time what iterator types could return `const char*`
-  template<typename IT> auto operator()(IT i) const
-    -> typename std::enable_if<
-      !std::is_same<decltype(*i), const char*>::value,
-      std::string
-    >::type
-  {
-    return to_string(*i) == m_null ? "\\N" : escape_any(*i);
-  }
-  template<typename IT> auto operator()(IT i) const
-    -> typename std::enable_if<
-      std::is_same<decltype(*i), const char*>::value,
-      std::string
-    >::type
-  {
-    return i ? escape_any(std::string{i}) : "\\N";
-  }
+  explicit Escaper(const std::string &null) : m_null(null) {}
+  std::string operator()(IT i) const { return escape_any(*i, m_null); }
 };
-
-class TypedEscaper
-{
-public:
-  template<typename T> std::string operator()(const T* t) const
-  {
-    return pqxx::string_traits<T>::is_null(*t) ? "\\N" : escape(to_string(*t));
-  }
-};
-// Explicit specialization so we don't need a string_traits<> for nullptr_t
-template<> inline std::string TypedEscaper::operator()<std::nullptr_t>(
-  const std::nullptr_t*
-) const
-  { return "\\N"; }
 }
 
 
 template<typename IT>
 inline std::string tablewriter::generate(IT Begin, IT End) const
 {
-  return separated_list("\t", Begin, End, internal::IteratorEscaper(NullStr()));
+  return separated_list("\t", Begin, End, internal::Escaper<IT>(NullStr()));
 }
-
-template<typename CONTAINER>
-inline auto tablewriter::generate(const CONTAINER &c) const
-  -> typename std::enable_if<(
-    internal::is_container<CONTAINER>::value
-  ), std::string>::type
+template<typename TUPLE>
+inline std::string tablewriter::generate(const TUPLE &T) const
 {
-  return generate(std::begin(c), std::end(c));
-}
-
-template<typename TUPLE> auto tablewriter::generate(const TUPLE &t)
-  -> typename std::enable_if<(
-    internal::is_tuple<TUPLE>::value
-  ), std::string>::type
-{
-  return separated_list("\t", t, internal::TypedEscaper());
+  return generate(std::begin(T), std::end(T));
 }
 
 template<typename IT> inline void tablewriter::insert(IT Begin, IT End)
@@ -255,20 +176,9 @@ template<typename IT> inline void tablewriter::insert(IT Begin, IT End)
   write_raw_line(generate(Begin, End));
 }
 
-template<typename CONTAINER> inline auto tablewriter::insert(const CONTAINER &c)
-  -> typename std::enable_if<(
-    internal::is_container<CONTAINER>::value
-  ), void>::type
+template<typename TUPLE> inline void tablewriter::insert(const TUPLE &T)
 {
-  insert(std::begin(c), std::end(c));
-}
-
-template<typename TUPLE> auto tablewriter::insert(const TUPLE &t)
-  -> typename std::enable_if<(
-    internal::is_tuple<TUPLE>::value
-  ), void>::type
-{
-  write_raw_line(generate(t));
+  insert(std::begin(T), std::end(T));
 }
 
 template<typename IT>
@@ -277,39 +187,16 @@ inline void tablewriter::push_back(IT Begin, IT End)
   insert(Begin, End);
 }
 
-template<typename CONTAINER>
-inline auto tablewriter::push_back(const CONTAINER &c)
-  -> typename std::enable_if<(
-    internal::is_container<CONTAINER>::value
-  ), void>::type
+template<typename TUPLE>
+inline void tablewriter::push_back(const TUPLE &T)
 {
-  insert(std::begin(c), std::end(c));
+  insert(std::begin(T), std::end(T));
 }
 
-template<typename TUPLE> auto tablewriter::push_back(const TUPLE &t)
-  -> typename std::enable_if<(
-    internal::is_tuple<TUPLE>::value
-  ), void>::type
+template<typename TUPLE>
+inline tablewriter &tablewriter::operator<<(const TUPLE &T)
 {
-  insert(t);
-}
-
-template<typename CONTAINER>
-inline auto tablewriter::operator<<(const CONTAINER &c)
-  -> typename std::enable_if<(
-    internal::is_container<CONTAINER>::value
-  ), tablewriter &>::type
-{
-  insert(c);
-  return *this;
-}
-
-template<typename TUPLE> auto tablewriter::operator<<(const TUPLE &t)
-  -> typename std::enable_if<(
-    internal::is_tuple<TUPLE>::value
-  ), tablewriter &>::type
-{
-  insert(t);
+  insert(T);
   return *this;
 }
 
