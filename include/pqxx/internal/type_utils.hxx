@@ -193,8 +193,13 @@ public:
   static constexpr T null() { return internal::null_value<T>(); }
   static void from_string(const char Str[], T &Obj)
   {
-    if (is_null(Obj)) return null();
-    else string_traits<I>::from_string(Str, *Obj);
+    if (!Str) Obj = null();
+    else
+    {
+      I inner;
+      string_traits<I>::from_string(Str, inner);
+      Obj = inner;
+    }
   }
   static std::string to_string(const T& Obj)
   {
