@@ -222,6 +222,7 @@ bool pqxx::tablereader2::extract_field(
               break;
             }
         }
+        break;
 
       default:
         s += line[here.begin_byte];
