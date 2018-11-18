@@ -103,10 +103,11 @@ template<typename T> struct is_container<
 
 /// Get an appropriate null value for the given type
 /**
- *  pointer types                         `nullptr`
- *  `std::optional<>`-like                `std::nullopt`
- *  `std::experimental::optional<>`-like  `std::experimental::nullopt`
- *  other types                           `pqxx::string_traits<>::null()`
+ * pointer types                         `nullptr`
+ * `std::optional<>`-like                `std::nullopt`
+ * `std::experimental::optional<>`-like  `std::experimental::nullopt`
+ * other types                           `pqxx::string_traits<>::null()`
+ * Users may add support for their own wrapper types following this pattern.
  */
 template<typename T> constexpr auto null_value()
   -> typename std::enable_if<
@@ -139,22 +140,28 @@ template<typename T> constexpr auto null_value()
 /// Construct an optional-like type from the stored type
 /** 
  * While these may seem redundant, they are necessary to support smart pointers
- * as optional storage types in a generic manner.
- * Users may add support for their own pointer types following this pattern.
+ * as optional storage types in a generic manner.  It is suggested NOT to
+ * provide a version for `inner_type<T>*` as that will almost certainly leak
+ * memory.
+ * Users may add support for their own wrapper types following this pattern.
  */
 // Enabled if the wrapper type can be directly constructed from the wrapped type
-// (e.g. std::optional)
+// (e.g. `std::optional<>`); explicitly disabled for raw pointers in case the
+// inner type is convertible to a pointer (e.g. `int`)
 template<typename T> constexpr auto make_optional(inner_type<T> v)
-  -> decltype(T(v))
+  -> typename std::enable_if<
+    !std::is_same<T, inner_type<T>*>::value,
+    decltype(T(v))
+  >::type
 { return T(v); }
-// Enabled if T is a specialization of std::unique_ptr<>
+// Enabled if T is a specialization of `std::unique_ptr<>`
 template<typename T> constexpr auto make_optional(inner_type<T> v)
   -> typename std::enable_if<
     std::is_same<T, std::unique_ptr<inner_type<T>>>::value,
     std::unique_ptr<inner_type<T>>
   >::type
 { return std::make_unique<inner_type<T>>(v); }
-// Enabled if T is a specialization of std::shared_ptr<>
+// Enabled if T is a specialization of `std::shared_ptr<>`
 template<typename T> constexpr auto make_optional(inner_type<T> v)
   -> typename std::enable_if<
     std::is_same<T, std::shared_ptr<inner_type<T>>>::value,
@@ -192,7 +199,10 @@ public:
     {
       I inner;
       string_traits<I>::from_string(Str, inner);
-      Obj = inner;
+      // Utilize existing memory if possible (e.g. for pointer types)
+      if (Obj) *Obj = inner;
+      // Important to assign to set valid flag for smart optional types
+      else Obj = internal::make_optional<T>(inner);
     }
   }
   static std::string to_string(const T& Obj)
