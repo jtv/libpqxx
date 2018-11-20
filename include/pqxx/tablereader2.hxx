@@ -55,6 +55,8 @@ public:
 
 private:
   internal::encoding_group m_copy_encoding;
+  std::string m_current_line;
+  bool m_retry_line;
 
   void setup(transaction_base &, const std::string &table_name);
   void setup(
@@ -130,11 +132,19 @@ template<typename Tuple> tablereader2 & tablereader2::operator>>(
   Tuple &t
 )
 {
-  std::string line;
-  if (get_raw_line(line))
+  if (m_retry_line || get_raw_line(m_current_line))
   {
     std::string workspace;
-    tokenize_ith<Tuple, 0>(line, t, 0, workspace);
+    try
+    {
+      tokenize_ith<Tuple, 0>(m_current_line, t, 0, workspace);
+      m_retry_line = false;
+    }
+    catch (const conversion_error&)
+    {
+      m_retry_line = true;
+      throw;
+    }
   }
   return *this;
 }

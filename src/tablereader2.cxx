@@ -44,7 +44,8 @@ pqxx::tablereader2::tablereader2(
   const std::string &table_name
 ) :
   namedclass("tablereader2", table_name),
-  tablestream2(tb)
+  tablestream2(tb),
+  m_retry_line{false}
 {
   setup(tb, table_name);
 }
