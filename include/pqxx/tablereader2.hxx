@@ -197,6 +197,13 @@ template<typename T> void tablereader2::extract_value(
     t = internal::null_value<T>();
 }
 
+template<> void tablereader2::extract_value<std::nullptr_t>(
+  const std::string &line,
+  std::nullptr_t&,
+  std::string::size_type &here,
+  std::string &workspace
+) const;
+
 } // namespace pqxx
 
 

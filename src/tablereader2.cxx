@@ -244,3 +244,18 @@ bool pqxx::tablereader2::extract_field(
 
   return !is_null;
 }
+
+template<> void pqxx::tablereader2::extract_value<std::nullptr_t>(
+  const std::string &line,
+  std::nullptr_t&,
+  std::string::size_type &here,
+  std::string &workspace
+) const
+{
+  if (extract_field(line, here, workspace))
+    throw pqxx::conversion_error{
+      "Attempt to convert non-null '"
+      + workspace
+      + "' to null"
+    };
+}
