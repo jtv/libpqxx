@@ -45,9 +45,9 @@ private:
     };
     bool has_value;
 public:
-    custom_optional() : has_value{false}, _{} {}
-    custom_optional(std::nullptr_t) : has_value{false}, _{} {}
-    custom_optional(const custom_optional<T> &o) : has_value{o.has_value}, _{}
+    custom_optional() : has_value{false} {}
+    custom_optional(std::nullptr_t) : has_value{false} {}
+    custom_optional(const custom_optional<T> &o) : has_value{o.has_value}
     {
         if (has_value) new(&value) T(o.value);
     }
@@ -72,9 +72,12 @@ public:
         if (&o == this) return *this;
         if (has_value && o.has_value)
             value = o.value;
-        else if (has_value) value.~T();
+        else
+        {
+            if (has_value) value.~T();
+            if (o.has_value) new(&value) T(o.value);
+        }
         has_value = o.has_value;
-        if (has_value) new(&value) T(o.value);
         return *this;
     }
     custom_optional<T> &operator =(std::nullptr_t)
