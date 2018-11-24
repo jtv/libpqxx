@@ -47,7 +47,7 @@ private:
 public:
     custom_optional() : has_value{false} {}
     custom_optional(std::nullptr_t) : has_value{false} {}
-    custom_optional(const custom_optional<T> &o) : has_value{o.has_value}
+    custom_optional(const custom_optional &o) : has_value{o.has_value}
     {
         if (has_value) new(&value) T(o.value);
     }
@@ -67,7 +67,7 @@ public:
         if (has_value) return value;
         else throw std::logic_error{"bad optional access"};
     }
-    custom_optional<T> &operator =(const custom_optional<T> &o)
+    custom_optional &operator =(const custom_optional &o)
     {
         if (&o == this) return *this;
         if (has_value && o.has_value)
@@ -80,7 +80,7 @@ public:
         has_value = o.has_value;
         return *this;
     }
-    custom_optional<T> &operator =(std::nullptr_t)
+    custom_optional &operator =(std::nullptr_t)
     {
         if (has_value) value.~T();
         has_value = false;
