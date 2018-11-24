@@ -48,7 +48,7 @@ public:
 
   ~tablereader2() noexcept;
 
-  virtual void complete() override;
+  void complete() override;
 
   bool get_raw_line(std::string &);
   template<typename Tuple> tablereader2 & operator>>(Tuple &);
@@ -65,7 +65,7 @@ private:
     const std::string &columns
   );
 
-  virtual void close() override;
+  void close() override;
 
   bool extract_field(
     const std::string &,

@@ -49,7 +49,7 @@ public:
 
   ~tablewriter2() noexcept;
 
-  virtual void complete() override;
+  void complete() override;
 
   void write_raw_line(const std::string &);
   template<typename Tuple> tablewriter2 & operator<<(const Tuple &);
@@ -66,7 +66,7 @@ private:
     const std::string &columns
   );
 
-  virtual void close() override;
+  void close() override;
 
 };
 
