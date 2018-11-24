@@ -56,7 +56,7 @@ public:
     {
         if (has_value) value.~T();
     }
-    explicit operator bool() { return has_value; }
+    explicit operator bool() const { return has_value; }
     T &operator *()
     {
         if (has_value) return value;
