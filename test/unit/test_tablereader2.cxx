@@ -11,7 +11,7 @@
 
 #if defined PQXX_HAVE_OPTIONAL
 #include <optional>
-#elif defined PQXX_HAVE_EXP_OPTIONAL
+#elif defined PQXX_HAVE_EXP_OPTIONAL && !defined(PQXX_HIDE_EXP_OPTIONAL)
 #include <experimental/optional>
 #endif
 
@@ -52,18 +52,13 @@ void test_nonoptionals(pqxx::connection_base& connection)
     try
     {
         extractor >> got_tuple;
-        PQXX_CHECK(!extractor, "tablereader2 improperly read second row");
+        PQXX_CHECK_NOTREACHED("tablereader2 improperly read second row");
     }
     catch (const pqxx::conversion_error &e)
     {
-        PQXX_CHECK_EQUAL(
-            std::string{e.what()},
-            "Attempt to convert null to int",
-            "incorrect pqxx::usage_error thrown"
-        );
-        pqxx::test::expected_exception(
-            std::string{"Could not extract row: "} + e.what()
-        );
+        std::string what{e.what()};
+        if (what != "Attempt to convert null to int") throw;
+        pqxx::test::expected_exception("Could not extract row: " + what);
     }
 
     std::tuple<
@@ -86,15 +81,11 @@ void test_nonoptionals(pqxx::connection_base& connection)
     try
     {
         extractor >> got_tuple_nulls2;
-        PQXX_CHECK(!extractor, "tablereader2 improperly read second row");
+        PQXX_CHECK_NOTREACHED("tablereader2 improperly read second row");
     }
     catch (const pqxx::conversion_error &e)
     {
-        PQXX_CHECK_EQUAL(
-            (std::string{e.what(), 27}),
-            "Attempt to convert non-null",
-            "incorrect pqxx::usage_error thrown"
-        );
+        if (std::string{e.what(), 27} != "Attempt to convert non-null") throw;
         pqxx::test::expected_exception(
             std::string{"Could not extract row: "} + e.what()
         );
@@ -111,7 +102,7 @@ void test_nonoptionals(pqxx::connection_base& connection)
 }
 
 
-void test_field_bad_tuples(pqxx::connection_base& connection)
+void test_bad_tuples(pqxx::connection_base& connection)
 {
     pqxx::work transaction{ connection };
 
@@ -126,18 +117,13 @@ void test_field_bad_tuples(pqxx::connection_base& connection)
     try
     {
         extractor >> got_tuple_too_short;
-        PQXX_CHECK(!extractor, "tablereader2 improperly read first row");
+        PQXX_CHECK_NOTREACHED("tablereader2 improperly read first row");
     }
     catch (const pqxx::usage_error &e)
     {
-        PQXX_CHECK_EQUAL(
-            std::string{e.what()},
-            "Not all fields extracted from tablereader2 line",
-            "incorrect pqxx::usage_error thrown"
-        );
-        pqxx::test::expected_exception(
-            std::string{"Could not extract row: "} + e.what()
-        );
+        std::string what{e.what()};
+        if (what != "Not all fields extracted from tablereader2 line") throw;
+        pqxx::test::expected_exception("Could not extract row: " + what);
     }
 
     std::tuple<
@@ -152,18 +138,13 @@ void test_field_bad_tuples(pqxx::connection_base& connection)
     try
     {
         extractor >> got_tuple_too_long;
-        PQXX_CHECK(!extractor, "tablereader2 improperly read first row");
+        PQXX_CHECK_NOTREACHED("tablereader2 improperly read first row");
     }
     catch (const pqxx::usage_error &e)
     {
-        PQXX_CHECK_EQUAL(
-            std::string{e.what()},
-            "Too few fields to extract from tablereader2 line",
-            "incorrect pqxx::usage_error thrown"
-        );
-        pqxx::test::expected_exception(
-            std::string{"Could not extract row: "} + e.what()
-        );
+        std::string what{e.what()};
+        if (what != "Too few fields to extract from tablereader2 line") throw;
+        pqxx::test::expected_exception("Could not extract row: " + what);
     }
 
     extractor.complete();
@@ -279,7 +260,7 @@ void test_tablereader2(pqxx::transaction_base &nontrans)
     transaction.commit();
 
     test_nonoptionals(connection);
-    test_field_bad_tuples(connection);
+    test_bad_tuples(connection);
     std::cout << "testing `std::unique_ptr` as optional...\n";
     test_optional<std::unique_ptr>(connection);
     std::cout << "testing `custom_optional` as optional...\n";
@@ -287,7 +268,7 @@ void test_tablereader2(pqxx::transaction_base &nontrans)
     #if defined PQXX_HAVE_OPTIONAL
     std::cout << "testing `std::optional` as optional...\n";
     test_optional<std::optional>(connection);
-    #elif defined PQXX_HAVE_EXP_OPTIONAL
+    #elif defined PQXX_HAVE_EXP_OPTIONAL && !defined(PQXX_HIDE_EXP_OPTIONAL)
     std::cout << "testing `std::experimental::optional` as optional...\n";
     test_optional<std::experimental::optional>(connection);
     #endif
