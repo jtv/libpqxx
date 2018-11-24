@@ -51,7 +51,7 @@ CXX_FLAGS_BASE=/nologo /W3 /EHsc /FD /GR /c \
     /I "include" /I "test" /I $(PGSQLINC) /I $(LIBPQINC) \
     /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_WINDOWS" /D "NOMINMAX" $(PQXX_SHARED)
 
-LINK_FLAGS_BASE=kernel32.lib ws2_32.lib advapi32.lib /nologo /machine:x64 /libpath:"$(LIBDIR)"
+LINK_FLAGS_BASE=kernel32.lib ws2_32.lib advapi32.lib /nologo /libpath:"$(LIBDIR)"
 
 
 !IF "$(DEBUG)" == "1"

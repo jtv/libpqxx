@@ -2,7 +2,7 @@
  *
  * See the connection_base hierarchy for more about prepared statements.
  *
- * Copyright (c) 2006-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2006-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -40,9 +40,9 @@ pqxx::result pqxx::prepare::invocation::exec() const
 
   return gate::connection_prepare_invocation(m_home.conn()).prepared_exec(
 	m_statement,
-	&ptrs[0],
-	&lens[0],
-	&binaries[0],
+	ptrs.data(),
+	lens.data(),
+	binaries.data(),
 	elts);
 }
 

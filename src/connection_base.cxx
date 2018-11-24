@@ -792,9 +792,9 @@ pqxx::result pqxx::connection_base::exec_prepared(
 	m_conn,
 	statement.c_str(),
 	int(args.nonnulls.size()),
-	&pointers[0],
-	&args.lengths[0],
-	&args.binaries[0],
+	pointers.data(),
+	args.lengths.data(),
+	args.binaries.data(),
 	0);
   const auto r = make_result(pq_result, statement);
   check_result(r);
@@ -956,7 +956,7 @@ bool pqxx::connection_base::read_copy_line(std::string &Line)
     {
       std::unique_ptr<char, void (*)(char *)> PQA(
           Buf, freepqmem_templated<char>);
-      Line.assign(Buf, line_len);
+      Line.assign(Buf, unsigned(line_len));
     }
     Result = true;
   }
@@ -1034,9 +1034,9 @@ std::string pqxx::connection_base::esc(const char str[], size_t maxlen)
 
   std::vector<char> buf(2 * maxlen + 1);
   int err = 0;
-  PQescapeStringConn(m_conn, &buf[0], str, maxlen, &err);
+  PQescapeStringConn(m_conn, buf.data(), str, maxlen, &err);
   if (err) throw argument_error(err_msg());
-  return std::string(&buf[0]);
+  return std::string(buf.data());
 }
 
 
@@ -1318,9 +1318,9 @@ pqxx::result pqxx::connection_base::exec_params(
 	query.c_str(),
 	int(args.nonnulls.size()),
 	nullptr,
-	&pointers[0],
-	&args.lengths[0],
-	&args.binaries[0],
+	pointers.data(),
+	args.lengths.data(),
+	args.binaries.data(),
 	0);
   const auto r = make_result(pq_result, query);
   check_result(r);
