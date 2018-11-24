@@ -140,7 +140,7 @@ template<typename Tuple> tablereader2 & tablereader2::operator>>(
       tokenize_ith<Tuple, 0>(m_current_line, t, 0, workspace);
       m_retry_line = false;
     }
-    catch (const conversion_error&)
+    catch (...)
     {
       m_retry_line = true;
       throw;
