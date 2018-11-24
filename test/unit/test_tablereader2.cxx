@@ -56,6 +56,11 @@ void test_nonoptionals(pqxx::connection_base& connection)
     }
     catch (const pqxx::conversion_error &e)
     {
+        PQXX_CHECK_EQUAL(
+            std::string{e.what()},
+            "Attempt to convert null to int",
+            "incorrect pqxx::usage_error thrown"
+        );
         pqxx::test::expected_exception(
             std::string{"Could not extract row: "} + e.what()
         );
@@ -85,6 +90,11 @@ void test_nonoptionals(pqxx::connection_base& connection)
     }
     catch (const pqxx::conversion_error &e)
     {
+        PQXX_CHECK_EQUAL(
+            (std::string{e.what(), 27}),
+            "Attempt to convert non-null",
+            "incorrect pqxx::usage_error thrown"
+        );
         pqxx::test::expected_exception(
             std::string{"Could not extract row: "} + e.what()
         );
@@ -96,6 +106,65 @@ void test_nonoptionals(pqxx::connection_base& connection)
     PQXX_CHECK(extractor, "tablereader2 failed to reentrantly read third row");
     extractor >> got_tuple;
     PQXX_CHECK(!extractor, "tablereader2 failed to detect end of stream");
+
+    extractor.complete();
+}
+
+
+void test_field_bad_tuples(pqxx::connection_base& connection)
+{
+    pqxx::work transaction{ connection };
+
+    pqxx::tablereader2 extractor{
+        transaction,
+        "tablereader2_test"
+    };
+
+    PQXX_CHECK(extractor, "tablereader2 failed to initialize");
+
+    std::tuple< int > got_tuple_too_short;
+    try
+    {
+        extractor >> got_tuple_too_short;
+        PQXX_CHECK(!extractor, "tablereader2 improperly read first row");
+    }
+    catch (const pqxx::usage_error &e)
+    {
+        PQXX_CHECK_EQUAL(
+            std::string{e.what()},
+            "Not all fields extracted from tablereader2 line",
+            "incorrect pqxx::usage_error thrown"
+        );
+        pqxx::test::expected_exception(
+            std::string{"Could not extract row: "} + e.what()
+        );
+    }
+
+    std::tuple<
+        int,
+        std::string,
+        int,
+        ipv4,
+        std::string,
+        bytea,
+        std::string
+    > got_tuple_too_long;
+    try
+    {
+        extractor >> got_tuple_too_long;
+        PQXX_CHECK(!extractor, "tablereader2 improperly read first row");
+    }
+    catch (const pqxx::usage_error &e)
+    {
+        PQXX_CHECK_EQUAL(
+            std::string{e.what()},
+            "Too few fields to extract from tablereader2 line",
+            "incorrect pqxx::usage_error thrown"
+        );
+        pqxx::test::expected_exception(
+            std::string{"Could not extract row: "} + e.what()
+        );
+    }
 
     extractor.complete();
 }
@@ -210,6 +279,7 @@ void test_tablereader2(pqxx::transaction_base &nontrans)
     transaction.commit();
 
     test_nonoptionals(connection);
+    test_field_bad_tuples(connection);
     std::cout << "testing `std::unique_ptr` as optional...\n";
     test_optional<std::unique_ptr>(connection);
     std::cout << "testing `custom_optional` as optional...\n";
