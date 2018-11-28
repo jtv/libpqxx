@@ -148,26 +148,26 @@ template<typename T> constexpr auto null_value()
 // Enabled if the wrapper type can be directly constructed from the wrapped type
 // (e.g. `std::optional<>`); explicitly disabled for raw pointers in case the
 // inner type is convertible to a pointer (e.g. `int`)
-template<typename T> constexpr auto make_optional(inner_type<T> v)
+template<typename T, typename V> constexpr auto make_optional(V&& v)
   -> typename std::enable_if<
     !std::is_same<T, inner_type<T>*>::value,
-    decltype(T(v))
+    decltype(T(std::forward<V>(v)))
   >::type
-{ return T(v); }
+{ return T(std::forward<V>(v)); }
 // Enabled if T is a specialization of `std::unique_ptr<>`
-template<typename T> constexpr auto make_optional(inner_type<T> v)
+template<typename T, typename V> constexpr auto make_optional(V&& v)
   -> typename std::enable_if<
     std::is_same<T, std::unique_ptr<inner_type<T>>>::value,
     std::unique_ptr<inner_type<T>>
   >::type
-{ return std::make_unique<inner_type<T>>(v); }
+{ return std::make_unique<inner_type<T>>(std::forward<V>(v)); }
 // Enabled if T is a specialization of `std::shared_ptr<>`
-template<typename T> constexpr auto make_optional(inner_type<T> v)
+template<typename T, typename V> constexpr auto make_optional(V&& v)
   -> typename std::enable_if<
     std::is_same<T, std::shared_ptr<inner_type<T>>>::value,
     std::shared_ptr<inner_type<T>>
   >::type
-{ return std::make_shared<inner_type<T>>(v); }
+{ return std::make_shared<inner_type<T>>(std::forward<V>(v)); }
 
 } // namespace pqxx::internal
 } // namespace pqxx
