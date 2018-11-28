@@ -175,6 +175,11 @@ bool pqxx::stream_from::extract_field(
             throw failure{"Row ends in backslash"};
           char n = line[here.end_byte++];
           
+          /*
+           * "Presently, COPY TO will never emit an octal or hex-digits
+           * backslash sequence [...]"
+           *  - https://www.postgresql.org/docs/10/sql-copy.html
+           */
           // if (is_octalchar(n))
           // {
           //   if (here.end_byte+2 >= line.size())
