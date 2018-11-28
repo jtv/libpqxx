@@ -111,7 +111,11 @@ template<typename T> struct is_container<
  */
 template<typename T> constexpr auto null_value()
   -> typename std::enable_if<
-    (is_optional<T>::value && !takes_std_nullopt<T>::value),
+    (
+      is_optional<T>::value
+      && !takes_std_nullopt<T>::value
+      && std::is_assignable<T, std::nullptr_t>::value
+    ),
     std::nullptr_t
   >::type
 { return nullptr; }
