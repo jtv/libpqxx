@@ -1,6 +1,6 @@
-/** Implementation of the pqxx::tablestream2 class.
+/** Implementation of the pqxx::stream_base class.
  *
- * pqxx::tablestream2 provides optimized batch access to a database table.
+ * pqxx::stream_base provides optimized batch access to a database table.
  *
  * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
  *
@@ -10,34 +10,34 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
-#include "pqxx/tablestream2.hxx"
+#include "pqxx/stream_base.hxx"
 #include "pqxx/transaction"
 
 
-pqxx::tablestream2::tablestream2(transaction_base &tb) :
-  internal::namedclass("tablestream2"),
+pqxx::stream_base::stream_base(transaction_base &tb) :
+  internal::namedclass("stream_base"),
   internal::transactionfocus(tb),
   m_finished{false}
 {}
 
 
-pqxx::tablestream2::~tablestream2() noexcept
+pqxx::stream_base::~stream_base() noexcept
 {}
 
 
-pqxx::tablestream2::operator bool() const noexcept
+pqxx::stream_base::operator bool() const noexcept
 {
   return !m_finished;
 }
 
 
-bool pqxx::tablestream2::operator!() const noexcept
+bool pqxx::stream_base::operator!() const noexcept
 {
   return !static_cast<bool>(*this);
 }
 
 
-void pqxx::tablestream2::close()
+void pqxx::stream_base::close()
 {
   if (*this)
   {

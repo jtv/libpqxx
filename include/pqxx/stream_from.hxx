@@ -1,8 +1,8 @@
-/** Definition of the pqxx::tablereader2 class.
+/** Definition of the pqxx::stream_from class.
  *
- * pqxx::tablereader2 enables optimized batch reads from a database table.
+ * pqxx::stream_from enables optimized batch reads from a database table.
  *
- * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablereader2 instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stream_from instead.
  *
  * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
  *
@@ -10,13 +10,13 @@
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
  */
-#ifndef PQXX_H_TABLEREADER2
-#define PQXX_H_TABLEREADER2
+#ifndef PQXX_H_STREAM_FROM
+#define PQXX_H_STREAM_FROM
 
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 #include "pqxx/transaction_base.hxx"
-#include "pqxx/tablestream2.hxx"
+#include "pqxx/stream_base.hxx"
 #include "pqxx/internal/type_utils.hxx"
 
 #include <string>
@@ -26,32 +26,32 @@ namespace pqxx
 {
 
 /// Efficiently pull data directly out of a table.
-class PQXX_LIBEXPORT tablereader2 : public tablestream2
+class PQXX_LIBEXPORT stream_from : public stream_base
 {
-  friend class tablewriter2; // for tablewriter2::operator<<(tablereader2 &)
+  friend class stream_to; // for stream_to::operator<<(stream_from &)
 public:
-  tablereader2(
+  stream_from(
     transaction_base &,
     const std::string &table_name
   );
-  template<typename Columns> tablereader2(
+  template<typename Columns> stream_from(
     transaction_base &,
     const std::string &table_name,
     const Columns& columns
   );
-  template<typename Iter> tablereader2(
+  template<typename Iter> stream_from(
     transaction_base &,
     const std::string &table_name,
     Iter columns_begin,
     Iter columns_end
   );
 
-  ~tablereader2() noexcept;
+  ~stream_from() noexcept;
 
   void complete() override;
 
   bool get_raw_line(std::string &);
-  template<typename Tuple> tablereader2 & operator>>(Tuple &);
+  template<typename Tuple> stream_from & operator>>(Tuple &);
 
 private:
   internal::encoding_group m_copy_encoding;
@@ -99,11 +99,11 @@ private:
 };
 
 
-template<typename Columns> tablereader2::tablereader2(
+template<typename Columns> stream_from::stream_from(
   transaction_base &tb,
   const std::string &table_name,
   const Columns& columns
-) : tablereader2(
+) : stream_from(
   tb,
   table_name,
   std::begin(columns),
@@ -111,14 +111,14 @@ template<typename Columns> tablereader2::tablereader2(
 ) {}
 
 
-template<typename Iter> tablereader2::tablereader2(
+template<typename Iter> stream_from::stream_from(
   transaction_base &tb,
   const std::string &table_name,
   Iter columns_begin,
   Iter columns_end
 ) :
-  namedclass("tablereader2", table_name),
-  tablestream2(tb)
+  namedclass("stream_from", table_name),
+  stream_base(tb)
 {
   setup(
     tb,
@@ -128,7 +128,7 @@ template<typename Iter> tablereader2::tablereader2(
 }
 
 
-template<typename Tuple> tablereader2 & tablereader2::operator>>(
+template<typename Tuple> stream_from & stream_from::operator>>(
   Tuple &t
 )
 {
@@ -150,7 +150,7 @@ template<typename Tuple> tablereader2 & tablereader2::operator>>(
 }
 
 
-template<typename Tuple, std::size_t I> auto tablereader2::tokenize_ith(
+template<typename Tuple, std::size_t I> auto stream_from::tokenize_ith(
   const std::string &line,
   Tuple &t,
   std::string::size_type here,
@@ -165,11 +165,11 @@ template<typename Tuple, std::size_t I> auto tablereader2::tokenize_ith(
     tokenize_ith<Tuple, I+1>(line, t, here, workspace);
   }
   else
-    throw usage_error{"Too few fields to extract from tablereader2 line"};
+    throw usage_error{"Too few fields to extract from stream_from line"};
 }
 
 
-template<typename Tuple, std::size_t I> auto tablereader2::tokenize_ith(
+template<typename Tuple, std::size_t I> auto stream_from::tokenize_ith(
   const std::string &line,
   Tuple &t,
   std::string::size_type here,
@@ -180,11 +180,11 @@ template<typename Tuple, std::size_t I> auto tablereader2::tokenize_ith(
 {
   // Zero-column line may still have a trailing newline
   if (here < line.size() && !(here == line.size() - 1 && line[here] == '\n'))
-    throw usage_error{"Not all fields extracted from tablereader2 line"};
+    throw usage_error{"Not all fields extracted from stream_from line"};
 }
 
 
-template<typename T> void tablereader2::extract_value(
+template<typename T> void stream_from::extract_value(
   const std::string &line,
   T& t,
   std::string::size_type &here,
@@ -197,7 +197,7 @@ template<typename T> void tablereader2::extract_value(
     t = internal::null_value<T>();
 }
 
-template<> void tablereader2::extract_value<std::nullptr_t>(
+template<> void stream_from::extract_value<std::nullptr_t>(
   const std::string &line,
   std::nullptr_t&,
   std::string::size_type &here,

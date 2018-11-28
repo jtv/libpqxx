@@ -6,11 +6,11 @@ namespace internal
 {
 namespace gate
 {
-class PQXX_PRIVATE transaction_tablewriter2 : callgate<transaction_base>
+class PQXX_PRIVATE transaction_stream_to : callgate<transaction_base>
 {
-  friend class pqxx::tablewriter2;
+  friend class pqxx::stream_to;
 
-  transaction_tablewriter2(reference x) : super(x) {}
+  transaction_stream_to(reference x) : super(x) {}
 
   void BeginCopyWrite(
 	const std::string &table,

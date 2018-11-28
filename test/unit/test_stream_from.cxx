@@ -1,7 +1,7 @@
 #include "../test_helpers.hxx"
 #include "test_types.hxx"
 
-#include <pqxx/tablereader2>
+#include <pqxx/stream_from>
 
 #include <cstring>
 #include <iostream>
@@ -23,8 +23,8 @@ namespace
 void test_nonoptionals(pqxx::connection_base& connection)
 {
   pqxx::work transaction{connection};
-  pqxx::tablereader2 extractor{transaction, "tablereader2_test"};
-  PQXX_CHECK(extractor, "tablereader2 failed to initialize");
+  pqxx::stream_from extractor{transaction, "stream_from_test"};
+  PQXX_CHECK(extractor, "stream_from failed to initialize");
 
   std::tuple<
     int,
@@ -36,7 +36,7 @@ void test_nonoptionals(pqxx::connection_base& connection)
   > got_tuple;
 
   extractor >> got_tuple;
-  PQXX_CHECK(extractor, "tablereader2 failed to read first row");
+  PQXX_CHECK(extractor, "stream_from failed to read first row");
   PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 1234, "field value mismatch");
   // PQXX_CHECK_EQUAL(*std::get<1>(got_tuple), , "field value mismatch");
   PQXX_CHECK_EQUAL(std::get<2>(got_tuple), 4321, "field value mismatch");
@@ -47,7 +47,7 @@ void test_nonoptionals(pqxx::connection_base& connection)
   try
   {
     extractor >> got_tuple;
-    PQXX_CHECK_NOTREACHED("tablereader2 improperly read second row");
+    PQXX_CHECK_NOTREACHED("stream_from improperly read second row");
   }
   catch (const pqxx::conversion_error &e)
   {
@@ -76,7 +76,7 @@ void test_nonoptionals(pqxx::connection_base& connection)
   try
   {
     extractor >> got_tuple_nulls2;
-    PQXX_CHECK_NOTREACHED("tablereader2 improperly read second row");
+    PQXX_CHECK_NOTREACHED("stream_from improperly read second row");
   }
   catch (const pqxx::conversion_error &e)
   {
@@ -87,11 +87,11 @@ void test_nonoptionals(pqxx::connection_base& connection)
   }
 
   extractor >> got_tuple_nulls1;
-  PQXX_CHECK(extractor, "tablereader2 failed to reentrantly read second row");
+  PQXX_CHECK(extractor, "stream_from failed to reentrantly read second row");
   extractor >> got_tuple_nulls2;
-  PQXX_CHECK(extractor, "tablereader2 failed to reentrantly read third row");
+  PQXX_CHECK(extractor, "stream_from failed to reentrantly read third row");
   extractor >> got_tuple;
-  PQXX_CHECK(!extractor, "tablereader2 failed to detect end of stream");
+  PQXX_CHECK(!extractor, "stream_from failed to detect end of stream");
 
   extractor.complete();
 }
@@ -100,19 +100,19 @@ void test_nonoptionals(pqxx::connection_base& connection)
 void test_bad_tuples(pqxx::connection_base& connection)
 {
   pqxx::work transaction{connection};
-  pqxx::tablereader2 extractor{transaction, "tablereader2_test"};
-  PQXX_CHECK(extractor, "tablereader2 failed to initialize");
+  pqxx::stream_from extractor{transaction, "stream_from_test"};
+  PQXX_CHECK(extractor, "stream_from failed to initialize");
 
   std::tuple<int> got_tuple_too_short;
   try
   {
     extractor >> got_tuple_too_short;
-    PQXX_CHECK_NOTREACHED("tablereader2 improperly read first row");
+    PQXX_CHECK_NOTREACHED("stream_from improperly read first row");
   }
   catch (const pqxx::usage_error &e)
   {
     std::string what{e.what()};
-    if (what != "Not all fields extracted from tablereader2 line") throw;
+    if (what != "Not all fields extracted from stream_from line") throw;
     pqxx::test::expected_exception("Could not extract row: " + what);
   }
 
@@ -128,12 +128,12 @@ void test_bad_tuples(pqxx::connection_base& connection)
   try
   {
     extractor >> got_tuple_too_long;
-    PQXX_CHECK_NOTREACHED("tablereader2 improperly read first row");
+    PQXX_CHECK_NOTREACHED("stream_from improperly read first row");
   }
   catch (const pqxx::usage_error &e)
   {
     std::string what{e.what()};
-    if (what != "Too few fields to extract from tablereader2 line") throw;
+    if (what != "Too few fields to extract from stream_from line") throw;
     pqxx::test::expected_exception("Could not extract row: " + what);
   }
 
@@ -152,8 +152,8 @@ template<template<typename...> class O>
 void test_optional(pqxx::connection_base& connection)
 {
   pqxx::work transaction{connection};
-  pqxx::tablereader2 extractor{transaction, "tablereader2_test"};
-  PQXX_CHECK(extractor, "tablereader2 failed to initialize");
+  pqxx::stream_from extractor{transaction, "stream_from_test"};
+  PQXX_CHECK(extractor, "stream_from failed to initialize");
 
   std::tuple<
     int,
@@ -165,7 +165,7 @@ void test_optional(pqxx::connection_base& connection)
   > got_tuple;
 
   extractor >> got_tuple;
-  PQXX_CHECK(extractor, "tablereader2 failed to read first row");
+  PQXX_CHECK(extractor, "stream_from failed to read first row");
   PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 1234, "field value mismatch");
   PQXX_CHECK(static_cast<bool>(std::get<1>(got_tuple)), "unexpected null field");
   // PQXX_CHECK_EQUAL(*std::get<1>(got_tuple), , "field value mismatch");
@@ -175,7 +175,7 @@ void test_optional(pqxx::connection_base& connection)
   ASSERT_FIELD_EQUAL(std::get<5>(got_tuple), (bytea{'\x00', '\x01', '\x02'}));
 
   extractor >> got_tuple;
-  PQXX_CHECK(extractor, "tablereader2 failed to read second row");
+  PQXX_CHECK(extractor, "stream_from failed to read second row");
   PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 5678, "field value mismatch");
   ASSERT_FIELD_EQUAL(std::get<1>(got_tuple), "2018-11-17 21:23:00");
   ASSERT_FIELD_NULL(std::get<2>(got_tuple));
@@ -184,7 +184,7 @@ void test_optional(pqxx::connection_base& connection)
   ASSERT_FIELD_EQUAL(std::get<5>(got_tuple), (bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'}));
 
   extractor >> got_tuple;
-  PQXX_CHECK(extractor, "tablereader2 failed to read third row");
+  PQXX_CHECK(extractor, "stream_from failed to read third row");
   PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 910, "field value mismatch");
   ASSERT_FIELD_NULL(std::get<1>(got_tuple));
   ASSERT_FIELD_NULL(std::get<2>(got_tuple));
@@ -193,20 +193,20 @@ void test_optional(pqxx::connection_base& connection)
   ASSERT_FIELD_EQUAL(std::get<5>(got_tuple), bytea{});
 
   extractor >> got_tuple;
-  PQXX_CHECK(!extractor, "tablereader2 failed to detect end of stream");
+  PQXX_CHECK(!extractor, "stream_from failed to detect end of stream");
 
   extractor.complete();
 }
 
 
-void test_tablereader2(pqxx::transaction_base &nontrans)
+void test_stream_from(pqxx::transaction_base &nontrans)
 {
   auto& connection = nontrans.conn();
   nontrans.abort();
 
   pqxx::work transaction{connection};
   transaction.exec(
-    "CREATE TEMP TABLE tablereader2_test ("
+    "CREATE TEMP TABLE stream_from_test ("
     "number0 INT NOT NULL,"
     "ts1     TIMESTAMP NULL,"
     "number2 INT NULL,"
@@ -216,7 +216,7 @@ void test_tablereader2(pqxx::transaction_base &nontrans)
     ")"
   );
   transaction.exec_params(
-    "INSERT INTO tablereader2_test VALUES ($1,$2,$3,$4,$5,$6)",
+    "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)",
     1234,
     "now",
     4321,
@@ -225,7 +225,7 @@ void test_tablereader2(pqxx::transaction_base &nontrans)
     bytea{'\x00', '\x01', '\x02'}
   );
   transaction.exec_params(
-    "INSERT INTO tablereader2_test VALUES ($1,$2,$3,$4,$5,$6)",
+    "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)",
     5678,
     "2018-11-17 21:23:00",
     nullptr,
@@ -234,7 +234,7 @@ void test_tablereader2(pqxx::transaction_base &nontrans)
     bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'}
   );
   transaction.exec_params(
-    "INSERT INTO tablereader2_test VALUES ($1,$2,$3,$4,$5,$6)",
+    "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)",
     910,
     nullptr,
     nullptr,
@@ -263,4 +263,4 @@ void test_tablereader2(pqxx::transaction_base &nontrans)
 } // namespace
 
 
-PQXX_REGISTER_TEST_T(test_tablereader2, pqxx::nontransaction)
+PQXX_REGISTER_TEST_T(test_stream_from, pqxx::nontransaction)

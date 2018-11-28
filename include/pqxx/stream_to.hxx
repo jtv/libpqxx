@@ -1,8 +1,8 @@
-/** Definition of the pqxx::tablewriter2 class.
+/** Definition of the pqxx::stream_to class.
  *
- * pqxx::tablewriter2 enables optimized batch updates to a database table.
+ * pqxx::stream_to enables optimized batch updates to a database table.
  *
- * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablewriter2.hxx instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stream_to.hxx instead.
  *
  * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
  *
@@ -10,14 +10,14 @@
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
  */
-#ifndef PQXX_H_TABLEWRITER2
-#define PQXX_H_TABLEWRITER2
+#ifndef PQXX_H_STREAM_TO
+#define PQXX_H_STREAM_TO
 
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 #include "pqxx/transaction_base.hxx"
-#include "pqxx/tablestream2.hxx"
-#include "pqxx/tablereader2"
+#include "pqxx/stream_base.hxx"
+#include "pqxx/stream_from"
 #include "pqxx/internal/type_utils.hxx"
 
 #include <string>
@@ -27,36 +27,36 @@ namespace pqxx
 {
 
 /// Efficiently write data directly to a database table.
-class PQXX_LIBEXPORT tablewriter2 : public tablestream2
+class PQXX_LIBEXPORT stream_to : public stream_base
 {
-  friend class tablereader2; // for operator<<(tablereader2 &)
+  friend class stream_from; // for operator<<(stream_from &)
 public:
-  tablewriter2(
+  stream_to(
     transaction_base &,
     const std::string &table_name
   );
-  template<typename Columns> tablewriter2(
+  template<typename Columns> stream_to(
     transaction_base &,
     const std::string &table_name,
     const Columns& columns
   );
-  template<typename Iter> tablewriter2(
+  template<typename Iter> stream_to(
     transaction_base &,
     const std::string &table_name,
     Iter columns_begin,
     Iter columns_end
   );
 
-  ~tablewriter2() noexcept;
+  ~stream_to() noexcept;
 
   void complete() override;
 
   void write_raw_line(const std::string &);
-  template<typename Tuple> tablewriter2 & operator<<(const Tuple &);
+  template<typename Tuple> stream_to & operator<<(const Tuple &);
   // This is mostly useful for copying data between databases or servers, as
   // executing a query to copy the data within a single database will be much
   // more efficient
-  tablewriter2 &operator<<(tablereader2 &);
+  stream_to &operator<<(stream_from &);
 
 private:
   void setup(transaction_base &, const std::string &table_name);
@@ -71,11 +71,11 @@ private:
 };
 
 
-template<typename Columns> tablewriter2::tablewriter2(
+template<typename Columns> stream_to::stream_to(
   transaction_base &tb,
   const std::string &table_name,
   const Columns& columns
-) : tablewriter2(
+) : stream_to(
   tb,
   table_name,
   std::begin(columns),
@@ -84,14 +84,14 @@ template<typename Columns> tablewriter2::tablewriter2(
 {}
 
 
-template<typename Iter> tablewriter2::tablewriter2(
+template<typename Iter> stream_to::stream_to(
   transaction_base &tb,
   const std::string &table_name,
   Iter columns_begin,
   Iter columns_end
 ) :
-  namedclass("tablereader2", table_name),
-  tablestream2(tb)
+  namedclass("stream_from", table_name),
+  stream_base(tb)
 {
   setup(
     tb,
@@ -123,7 +123,7 @@ template<> inline std::string TypedCopyEscaper::operator()<std::nullptr_t>(
 } // namespace pqxx::internal
 
 
-template<typename Tuple> tablewriter2 & tablewriter2::operator<<(const Tuple &t)
+template<typename Tuple> stream_to & stream_to::operator<<(const Tuple &t)
 {
   write_raw_line(separated_list("\t", t, internal::TypedCopyEscaper()));
   return *this;

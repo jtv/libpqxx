@@ -1,6 +1,6 @@
-/** Implementation of the pqxx::tablewriter2 class.
+/** Implementation of the pqxx::stream_to class.
  *
- * pqxx::tablewriter2 enables optimized batch updates to a database table.
+ * pqxx::stream_to enables optimized batch updates to a database table.
  *
  * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
  *
@@ -10,23 +10,23 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
-#include "pqxx/tablewriter2"
+#include "pqxx/stream_to"
 
-#include "pqxx/internal/gates/transaction-tablewriter2.hxx"
+#include "pqxx/internal/gates/transaction-stream_to.hxx"
 
 
-pqxx::tablewriter2::tablewriter2(
+pqxx::stream_to::stream_to(
   transaction_base &tb,
   const std::string &table_name
 ) :
-  namedclass("tablereader2", table_name),
-  tablestream2(tb)
+  namedclass("stream_from", table_name),
+  stream_base(tb)
 {
   setup(tb, table_name);
 }
 
 
-pqxx::tablewriter2::~tablewriter2() noexcept
+pqxx::stream_to::~stream_to() noexcept
 {
   try
   {
@@ -39,19 +39,19 @@ pqxx::tablewriter2::~tablewriter2() noexcept
 }
 
 
-void pqxx::tablewriter2::complete()
+void pqxx::stream_to::complete()
 {
   close();
 }
 
 
-void pqxx::tablewriter2::write_raw_line(const std::string &line)
+void pqxx::stream_to::write_raw_line(const std::string &line)
 {
-  internal::gate::transaction_tablewriter2{m_trans}.write_copy_line(line);
+  internal::gate::transaction_stream_to{m_trans}.write_copy_line(line);
 }
 
 
-pqxx::tablewriter2 & pqxx::tablewriter2::operator<<(tablereader2 &tr)
+pqxx::stream_to & pqxx::stream_to::operator<<(stream_from &tr)
 {
   std::string line;
   while (tr)
@@ -63,7 +63,7 @@ pqxx::tablewriter2 & pqxx::tablewriter2::operator<<(tablereader2 &tr)
 }
 
 
-void pqxx::tablewriter2::setup(
+void pqxx::stream_to::setup(
   transaction_base &tb,
   const std::string &table_name
 )
@@ -72,13 +72,13 @@ void pqxx::tablewriter2::setup(
 }
 
 
-void pqxx::tablewriter2::setup(
+void pqxx::stream_to::setup(
   transaction_base &tb,
   const std::string &table_name,
   const std::string &columns
 )
 {
-  internal::gate::transaction_tablewriter2{tb}.BeginCopyWrite(
+  internal::gate::transaction_stream_to{tb}.BeginCopyWrite(
     table_name,
     columns
   );
@@ -86,20 +86,20 @@ void pqxx::tablewriter2::setup(
 }
 
 
-void pqxx::tablewriter2::close()
+void pqxx::stream_to::close()
 {
   if (*this)
   {
-    tablestream2::close();
+    stream_base::close();
     try
     {
-      internal::gate::transaction_tablewriter2{m_trans}.end_copy_write();
+      internal::gate::transaction_stream_to{m_trans}.end_copy_write();
     }
     catch (const std::exception &)
     {
       try
       {
-        tablestream2::close();
+        stream_base::close();
       }
       catch (const std::exception &) {}
       throw;

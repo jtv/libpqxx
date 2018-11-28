@@ -1,7 +1,7 @@
 #include "../test_helpers.hxx"
 #include "test_types.hxx"
 
-#include <pqxx/tablewriter2>
+#include <pqxx/stream_to>
 
 #include <iostream>
 
@@ -27,8 +27,8 @@ std::string truncate_sql_error(const std::string &what)
 void test_nonoptionals(pqxx::connection_base& connection)
 {
   pqxx::work transaction{connection};
-  pqxx::tablewriter2 inserter{transaction, "tablewriter2_test"};
-  PQXX_CHECK(inserter, "tablewriter2 failed to initialize");
+  pqxx::stream_to inserter{transaction, "stream_to_test"};
+  PQXX_CHECK(inserter, "stream_to failed to initialize");
 
   inserter << std::make_tuple(
     1234,
@@ -63,8 +63,8 @@ void test_nonoptionals(pqxx::connection_base& connection)
 void test_bad_null(pqxx::connection_base& connection)
 {
   pqxx::work transaction{connection};
-  pqxx::tablewriter2 inserter{transaction, "tablewriter2_test"};
-  PQXX_CHECK(inserter, "tablewriter2 failed to initialize");
+  pqxx::stream_to inserter{transaction, "stream_to_test"};
+  PQXX_CHECK(inserter, "stream_to failed to initialize");
 
   try
   {
@@ -78,7 +78,7 @@ void test_bad_null(pqxx::connection_base& connection)
     );
     inserter.complete();
     transaction.commit();
-    PQXX_CHECK_NOTREACHED("tablereader2 improperly inserted row");
+    PQXX_CHECK_NOTREACHED("stream_from improperly inserted row");
   }
   catch (const pqxx::sql_error& e)
   {
@@ -94,8 +94,8 @@ void test_bad_null(pqxx::connection_base& connection)
 void test_too_few_fields(pqxx::connection_base& connection)
 {
   pqxx::work transaction{connection};
-  pqxx::tablewriter2 inserter{transaction, "tablewriter2_test"};
-  PQXX_CHECK(inserter, "tablewriter2 failed to initialize");
+  pqxx::stream_to inserter{transaction, "stream_to_test"};
+  PQXX_CHECK(inserter, "stream_to failed to initialize");
 
   try
   {
@@ -107,7 +107,7 @@ void test_too_few_fields(pqxx::connection_base& connection)
     );
     inserter.complete();
     transaction.commit();
-    PQXX_CHECK_NOTREACHED("tablereader2 improperly inserted row");
+    PQXX_CHECK_NOTREACHED("stream_from improperly inserted row");
   }
   catch (const pqxx::sql_error& e)
   {
@@ -123,8 +123,8 @@ void test_too_few_fields(pqxx::connection_base& connection)
 void test_too_many_fields(pqxx::connection_base& connection)
 {
   pqxx::work transaction{connection};
-  pqxx::tablewriter2 inserter{transaction, "tablewriter2_test"};
-  PQXX_CHECK(inserter, "tablewriter2 failed to initialize");
+  pqxx::stream_to inserter{transaction, "stream_to_test"};
+  PQXX_CHECK(inserter, "stream_to failed to initialize");
 
   try
   {
@@ -139,7 +139,7 @@ void test_too_many_fields(pqxx::connection_base& connection)
     );
     inserter.complete();
     transaction.commit();
-    PQXX_CHECK_NOTREACHED("tablereader2 improperly inserted row");
+    PQXX_CHECK_NOTREACHED("stream_from improperly inserted row");
   }
   catch (const pqxx::sql_error& e)
   {
@@ -156,8 +156,8 @@ template<template<typename...> class O>
 void test_optional(pqxx::connection_base& connection)
 {
   pqxx::work transaction{connection};
-  pqxx::tablewriter2 inserter{transaction, "tablewriter2_test"};
-  PQXX_CHECK(inserter, "tablewriter2 failed to initialize");
+  pqxx::stream_to inserter{transaction, "stream_to_test"};
+  PQXX_CHECK(inserter, "stream_to failed to initialize");
 
   inserter << std::make_tuple(
     910,
@@ -173,14 +173,14 @@ void test_optional(pqxx::connection_base& connection)
 }
 
 
-void test_tablewriter2(pqxx::transaction_base &nontrans)
+void test_stream_to(pqxx::transaction_base &nontrans)
 {
   auto& connection = nontrans.conn();
   nontrans.abort();
 
   pqxx::work transaction{connection};
   transaction.exec(
-    "CREATE TEMP TABLE tablewriter2_test ("
+    "CREATE TEMP TABLE stream_to_test ("
     "number0 INT NOT NULL,"
     "ts1     TIMESTAMP NULL,"
     "number2 INT NULL,"
@@ -212,4 +212,4 @@ void test_tablewriter2(pqxx::transaction_base &nontrans)
 } // namespace
 
 
-PQXX_REGISTER_TEST_T(test_tablewriter2, pqxx::nontransaction)
+PQXX_REGISTER_TEST_T(test_stream_to, pqxx::nontransaction)

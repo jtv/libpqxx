@@ -1,6 +1,6 @@
-/** Implementation of the pqxx::tablereader2 class.
+/** Implementation of the pqxx::stream_from class.
  *
- * pqxx::tablereader2 enables optimized batch reads from a database table.
+ * pqxx::stream_from enables optimized batch reads from a database table.
  *
  * Copyright (c) 2001-2017, Jeroen T. Vermeulen.
  *
@@ -10,10 +10,10 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
-#include "pqxx/tablereader2"
+#include "pqxx/stream_from"
 
 #include "pqxx/internal/encodings.hxx"
-#include "pqxx/internal/gates/transaction-tablereader2.hxx"
+#include "pqxx/internal/gates/transaction-stream_from.hxx"
 
 
 namespace
@@ -39,19 +39,19 @@ namespace
 } // namespace
 
 
-pqxx::tablereader2::tablereader2(
+pqxx::stream_from::stream_from(
   transaction_base &tb,
   const std::string &table_name
 ) :
-  namedclass("tablereader2", table_name),
-  tablestream2(tb),
+  namedclass("stream_from", table_name),
+  stream_base(tb),
   m_retry_line{false}
 {
   setup(tb, table_name);
 }
 
 
-pqxx::tablereader2::~tablereader2() noexcept
+pqxx::stream_from::~stream_from() noexcept
 {
   try
   {
@@ -64,18 +64,18 @@ pqxx::tablereader2::~tablereader2() noexcept
 }
 
 
-void pqxx::tablereader2::complete()
+void pqxx::stream_from::complete()
 {
   close();
 }
 
 
-bool pqxx::tablereader2::get_raw_line(std::string &line)
+bool pqxx::stream_from::get_raw_line(std::string &line)
 {
   if (*this)
     try
     {
-      m_finished = !internal::gate::transaction_tablereader2{
+      m_finished = !internal::gate::transaction_stream_from{
         m_trans
       }.read_copy_line(
         line
@@ -90,7 +90,7 @@ bool pqxx::tablereader2::get_raw_line(std::string &line)
 }
 
 
-void pqxx::tablereader2::setup(
+void pqxx::stream_from::setup(
   transaction_base &tb,
   const std::string &table_name
 )
@@ -99,7 +99,7 @@ void pqxx::tablereader2::setup(
 }
 
 
-void pqxx::tablereader2::setup(
+void pqxx::stream_from::setup(
   transaction_base &tb,
   const std::string &table_name,
   const std::string &columns
@@ -107,10 +107,10 @@ void pqxx::tablereader2::setup(
 {
   // Get the encoding before starting the COPY, otherwise reading the the
   // variable will interrupt it
-  m_copy_encoding = internal::gate::transaction_tablereader2{
+  m_copy_encoding = internal::gate::transaction_stream_from{
     m_trans
   }.current_encoding();
-  internal::gate::transaction_tablereader2{tb}.BeginCopyRead(
+  internal::gate::transaction_stream_from{tb}.BeginCopyRead(
     table_name,
     columns
   );
@@ -118,9 +118,9 @@ void pqxx::tablereader2::setup(
 }
 
 
-void pqxx::tablereader2::close()
+void pqxx::stream_from::close()
 {
-  pqxx::tablestream2::close();
+  pqxx::stream_base::close();
   try
   {
     // Flush any remaining lines
@@ -131,7 +131,7 @@ void pqxx::tablereader2::close()
   {
     try
     {
-      pqxx::tablestream2::close();
+      pqxx::stream_base::close();
     }
     catch (const std::exception &) {}
     throw;
@@ -143,7 +143,7 @@ void pqxx::tablereader2::close()
 }
 
 
-bool pqxx::tablereader2::extract_field(
+bool pqxx::stream_from::extract_field(
   const std::string &line,
   std::string::size_type &i,
   std::string &s
@@ -245,7 +245,7 @@ bool pqxx::tablereader2::extract_field(
   return !is_null;
 }
 
-template<> void pqxx::tablereader2::extract_value<std::nullptr_t>(
+template<> void pqxx::stream_from::extract_value<std::nullptr_t>(
   const std::string &line,
   std::nullptr_t&,
   std::string::size_type &here,
