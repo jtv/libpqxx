@@ -202,7 +202,7 @@ namespace internal
 {
 
 template<> seq_position next_seq<encoding_group::MONOBYTE>(
-  const char* buffer,
+  const char * /* buffer */,
   std::string::size_type buffer_len,
   std::string::size_type start
 )
@@ -594,7 +594,7 @@ template<> seq_position next_seq<encoding_group::MULE_INTERNAL>(
            static_cast<unsigned char>(buffer[start    ]) >= 0x81
         && static_cast<unsigned char>(buffer[start    ]) <= 0x8D
         && static_cast<unsigned char>(buffer[start + 1]) >= 0xA0
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFF
+        // && static_cast<unsigned char>(buffer[start + 1]) <= 0xFF
       )
         return {start, start + 2};
       else if (start + 3 <= buffer_len)
@@ -611,10 +611,10 @@ template<> seq_position next_seq<encoding_group::MULE_INTERNAL>(
              static_cast<unsigned char>(buffer[start    ]) >= 0x90
           && static_cast<unsigned char>(buffer[start    ]) <= 0x99
           && static_cast<unsigned char>(buffer[start + 1]) >= 0xA0
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0xFF
+          // && static_cast<unsigned char>(buffer[start + 1]) <= 0xFF
         )) && (
              static_cast<unsigned char>(buffer[start + 2]) >= 0xA0
-          && static_cast<unsigned char>(buffer[start + 2]) <= 0xFF
+          // && static_cast<unsigned char>(buffer[start + 2]) <= 0xFF
         ))
           return {start, start + 3};
         else if (start + 4 <= buffer_len)
@@ -629,9 +629,9 @@ template<> seq_position next_seq<encoding_group::MULE_INTERNAL>(
             && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
           )) && (
                static_cast<unsigned char>(buffer[start + 2]) >= 0xA0
-            && static_cast<unsigned char>(buffer[start + 2]) <= 0xFF
+            // && static_cast<unsigned char>(buffer[start + 2]) <= 0xFF
             && static_cast<unsigned char>(buffer[start + 4]) >= 0xA0
-            && static_cast<unsigned char>(buffer[start + 4]) <= 0xFF
+            // && static_cast<unsigned char>(buffer[start + 4]) <= 0xFF
           ))
             return {start, start + 4};
           else
@@ -933,7 +933,8 @@ case encoding_group::UHC: \
   return FUNCTION<encoding_group::UHC>(ARGS); \
 case encoding_group::UTF8: \
   return FUNCTION<encoding_group::UTF8>(ARGS); \
-}
+} \
+throw pqxx::usage_error("Invalid encoding group code.")
 
 seq_position next_seq(
   encoding_group enc,
@@ -942,7 +943,7 @@ seq_position next_seq(
   std::string::size_type start
 )
 {
-  DISPATCH_ENCODING_OPERATION(enc, next_seq, buffer, buffer_len, start)
+  DISPATCH_ENCODING_OPERATION(enc, next_seq, buffer, buffer_len, start);
 }
 
 std::string::size_type find_with_encoding(
@@ -952,7 +953,7 @@ std::string::size_type find_with_encoding(
   std::string::size_type start
 )
 {
-  DISPATCH_ENCODING_OPERATION(enc, find_with_encoding, haystack, needle, start)
+  DISPATCH_ENCODING_OPERATION(enc, find_with_encoding, haystack, needle, start);
 }
 
 std::string::size_type find_with_encoding(
@@ -962,7 +963,7 @@ std::string::size_type find_with_encoding(
   std::string::size_type start
 )
 {
-  DISPATCH_ENCODING_OPERATION(enc, find_with_encoding, haystack, needle, start)
+  DISPATCH_ENCODING_OPERATION(enc, find_with_encoding, haystack, needle, start);
 }
 
 #undef DISPATCH_ENCODING_OPERATION
