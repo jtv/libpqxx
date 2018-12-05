@@ -6,6 +6,7 @@ libpqxx_la_SOURCES = \
 	connection.cxx \
 	cursor.cxx \
 	dbtransaction.cxx \
+	encodings.cxx \
 	errorhandler.cxx \
 	except.cxx \
 	field.cxx \

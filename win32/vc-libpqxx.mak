@@ -105,6 +105,7 @@ OBJ_STATICDEBUG=\
        "$(INTDIR_STATICDEBUG)\connection_base.obj" \
        "$(INTDIR_STATICDEBUG)\cursor.obj" \
        "$(INTDIR_STATICDEBUG)\dbtransaction.obj" \
+       "$(INTDIR_STATICDEBUG)\encodings.obj" \
        "$(INTDIR_STATICDEBUG)\errorhandler.obj" \
        "$(INTDIR_STATICDEBUG)\except.obj" \
        "$(INTDIR_STATICDEBUG)\field.obj" \
@@ -118,6 +119,9 @@ OBJ_STATICDEBUG=\
        "$(INTDIR_STATICDEBUG)\row.obj" \
        "$(INTDIR_STATICDEBUG)\statement_parameters.obj" \
        "$(INTDIR_STATICDEBUG)\strconv.obj" \
+       "$(INTDIR_STATICDEBUG)\stream_base.obj" \
+       "$(INTDIR_STATICDEBUG)\stream_from.obj" \
+       "$(INTDIR_STATICDEBUG)\stream_to.obj" \
        "$(INTDIR_STATICDEBUG)\subtransaction.obj" \
        "$(INTDIR_STATICDEBUG)\tablereader.obj" \
        "$(INTDIR_STATICDEBUG)\tablestream.obj" \
@@ -134,6 +138,7 @@ OBJ_STATICRELEASE=\
        "$(INTDIR_STATICRELEASE)\connection_base.obj" \
        "$(INTDIR_STATICRELEASE)\cursor.obj" \
        "$(INTDIR_STATICRELEASE)\dbtransaction.obj" \
+       "$(INTDIR_STATICRELEASE)\encodings.obj" \
        "$(INTDIR_STATICRELEASE)\errorhandler.obj" \
        "$(INTDIR_STATICRELEASE)\except.obj" \
        "$(INTDIR_STATICRELEASE)\field.obj" \
@@ -147,6 +152,9 @@ OBJ_STATICRELEASE=\
        "$(INTDIR_STATICRELEASE)\row.obj" \
        "$(INTDIR_STATICRELEASE)\statement_parameters.obj" \
        "$(INTDIR_STATICRELEASE)\strconv.obj" \
+       "$(INTDIR_STATICRELEASE)\stream_base.obj" \
+       "$(INTDIR_STATICRELEASE)\stream_from.obj" \
+       "$(INTDIR_STATICRELEASE)\stream_to.obj" \
        "$(INTDIR_STATICRELEASE)\subtransaction.obj" \
        "$(INTDIR_STATICRELEASE)\tablereader.obj" \
        "$(INTDIR_STATICRELEASE)\tablestream.obj" \
@@ -163,6 +171,7 @@ OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\connection_base.obj" \
        "$(INTDIR_DLLDEBUG)\cursor.obj" \
        "$(INTDIR_DLLDEBUG)\dbtransaction.obj" \
+       "$(INTDIR_DLLDEBUG)\encodings.obj" \
        "$(INTDIR_DLLDEBUG)\errorhandler.obj" \
        "$(INTDIR_DLLDEBUG)\except.obj" \
        "$(INTDIR_DLLDEBUG)\field.obj" \
@@ -176,6 +185,9 @@ OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\row.obj" \
        "$(INTDIR_DLLDEBUG)\statement_parameters.obj" \
        "$(INTDIR_DLLDEBUG)\strconv.obj" \
+       "$(INTDIR_DLLDEBUG)\stream_base.obj" \
+       "$(INTDIR_DLLDEBUG)\stream_from.obj" \
+       "$(INTDIR_DLLDEBUG)\stream_to.obj" \
        "$(INTDIR_DLLDEBUG)\subtransaction.obj" \
        "$(INTDIR_DLLDEBUG)\tablereader.obj" \
        "$(INTDIR_DLLDEBUG)\tablestream.obj" \
@@ -193,6 +205,7 @@ OBJ_DLLRELEASE=\
        "$(INTDIR_DLLRELEASE)\connection_base.obj" \
        "$(INTDIR_DLLRELEASE)\cursor.obj" \
        "$(INTDIR_DLLRELEASE)\dbtransaction.obj" \
+       "$(INTDIR_DLLRELEASE)\encodings.obj" \
        "$(INTDIR_DLLRELEASE)\errorhandler.obj" \
        "$(INTDIR_DLLRELEASE)\except.obj" \
        "$(INTDIR_DLLRELEASE)\field.obj" \
@@ -206,6 +219,9 @@ OBJ_DLLRELEASE=\
        "$(INTDIR_DLLRELEASE)\row.obj" \
        "$(INTDIR_DLLRELEASE)\statement_parameters.obj" \
        "$(INTDIR_DLLRELEASE)\strconv.obj" \
+       "$(INTDIR_DLLRELEASE)\stream_base.obj" \
+       "$(INTDIR_DLLRELEASE)\stream_from.obj" \
+       "$(INTDIR_DLLRELEASE)\stream_to.obj" \
        "$(INTDIR_DLLRELEASE)\subtransaction.obj" \
        "$(INTDIR_DLLRELEASE)\tablereader.obj" \
        "$(INTDIR_DLLRELEASE)\tablestream.obj" \
@@ -358,6 +374,13 @@ $(INTDIR_DLLRELEASE)::
 	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/dbtransaction.cxx
 
 
+"$(INTDIR_STATICRELEASE)\encodings.obj": src/encodings.cxx $(INTDIR_STATICRELEASE)
+	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/encodings.cxx
+
+"$(INTDIR_STATICDEBUG)\encodings.obj": src/encodings.cxx $(INTDIR_STATICDEBUG)
+	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/encodings.cxx
+
+
 "$(INTDIR_STATICRELEASE)\errorhandler.obj": src/errorhandler.cxx $(INTDIR_STATICRELEASE)
 	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/errorhandler.cxx
 
@@ -447,6 +470,27 @@ $(INTDIR_DLLRELEASE)::
 
 "$(INTDIR_STATICDEBUG)\strconv.obj": src/strconv.cxx $(INTDIR_STATICDEBUG)
 	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/strconv.cxx
+
+
+"$(INTDIR_STATICRELEASE)\stream_base.obj": src/stream_base.cxx $(INTDIR_STATICRELEASE)
+	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/stream_base.cxx
+
+"$(INTDIR_STATICDEBUG)\stream_base.obj": src/stream_base.cxx $(INTDIR_STATICDEBUG)
+	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/stream_base.cxx
+
+
+"$(INTDIR_STATICRELEASE)\stream_from.obj": src/stream_from.cxx $(INTDIR_STATICRELEASE)
+	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/stream_from.cxx
+
+"$(INTDIR_STATICDEBUG)\stream_from.obj": src/stream_from.cxx $(INTDIR_STATICDEBUG)
+	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/stream_from.cxx
+
+
+"$(INTDIR_STATICRELEASE)\stream_to.obj": src/stream_to.cxx $(INTDIR_STATICRELEASE)
+	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/stream_to.cxx
+
+"$(INTDIR_STATICDEBUG)\stream_to.obj": src/stream_to.cxx $(INTDIR_STATICDEBUG)
+	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/stream_to.cxx
 
 
 "$(INTDIR_STATICRELEASE)\subtransaction.obj": src/subtransaction.cxx $(INTDIR_STATICRELEASE)
@@ -549,6 +593,13 @@ $(INTDIR_DLLRELEASE)::
 	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/dbtransaction.cxx
 
 
+"$(INTDIR_DLLRELEASE)\encodings.obj": src/encodings.cxx $(INTDIR_DLLRELEASE)
+	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/encodings.cxx
+
+"$(INTDIR_DLLDEBUG)\encodings.obj": src/encodings.cxx $(INTDIR_DLLDEBUG)
+	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/encodings.cxx
+
+
 "$(INTDIR_DLLRELEASE)\errorhandler.obj": src/errorhandler.cxx $(INTDIR_DLLRELEASE)
 	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/errorhandler.cxx
 
@@ -638,6 +689,27 @@ $(INTDIR_DLLRELEASE)::
 
 "$(INTDIR_DLLDEBUG)\strconv.obj": src/strconv.cxx $(INTDIR_DLLDEBUG)
 	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/strconv.cxx
+
+
+"$(INTDIR_DLLRELEASE)\stream_base.obj": src/stream_base.cxx $(INTDIR_DLLRELEASE)
+	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/stream_base.cxx
+
+"$(INTDIR_DLLDEBUG)\stream_base.obj": src/stream_base.cxx $(INTDIR_DLLDEBUG)
+	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/stream_base.cxx
+
+
+"$(INTDIR_DLLRELEASE)\stream_from.obj": src/stream_from.cxx $(INTDIR_DLLRELEASE)
+	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/stream_from.cxx
+
+"$(INTDIR_DLLDEBUG)\stream_from.obj": src/stream_from.cxx $(INTDIR_DLLDEBUG)
+	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/stream_from.cxx
+
+
+"$(INTDIR_DLLRELEASE)\stream_to.obj": src/stream_to.cxx $(INTDIR_DLLRELEASE)
+	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/stream_to.cxx
+
+"$(INTDIR_DLLDEBUG)\stream_to.obj": src/stream_to.cxx $(INTDIR_DLLDEBUG)
+	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/stream_to.cxx
 
 
 "$(INTDIR_DLLRELEASE)\subtransaction.obj": src/subtransaction.cxx $(INTDIR_DLLRELEASE)
