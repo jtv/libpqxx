@@ -36,6 +36,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/types pqxx/types.hxx \
 	pqxx/version pqxx/version.hxx \
 	pqxx/internal/callgate.hxx \
+	pqxx/internal/encoding_group.hxx \
 	pqxx/internal/libpq-forward.hxx \
 	pqxx/internal/statement_parameters.hxx \
 	pqxx/internal/type_utils.hxx \
