@@ -38,6 +38,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/callgate.hxx \
 	pqxx/internal/libpq-forward.hxx \
 	pqxx/internal/statement_parameters.hxx \
+	pqxx/internal/type_utils.hxx \
 	pqxx/internal/gates/connection-dbtransaction.hxx \
 	pqxx/internal/gates/connection-errorhandler.hxx \
 	pqxx/internal/gates/connection-largeobject.hxx \
