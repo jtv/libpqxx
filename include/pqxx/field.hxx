@@ -15,6 +15,7 @@
 
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/type_utils.hxx"
 
 #if defined(PQXX_HAVE_OPTIONAL)
 #include <optional>
@@ -128,7 +129,14 @@ public:
   size_type size() const noexcept;					//[t11]
 
   /// Read value into Obj; or leave Obj untouched and return @c false if null
-  template<typename T> bool to(T &Obj) const				//[t03]
+  /** Note this can be used with optional types (except pointers other than
+   * C-strings)
+   */
+  template<typename T> auto to(T &Obj) const				//[t03]
+    -> typename std::enable_if<(
+      !std::is_pointer<T>::value
+      || std::is_same<T, const char*>::value
+    ), bool>::type
   {
     const char *const bytes = c_str();
     if (!bytes[0] && is_null()) return false;
@@ -141,7 +149,14 @@ public:
       { return to(Obj); }
 
   /// Read value into Obj; or use Default & return @c false if null
-  template<typename T> bool to(T &Obj, const T &Default) const	//[t12]
+  /** Note this can be used with optional types (except pointers other than
+   * C-strings)
+   */
+  template<typename T> auto to(T &Obj, const T &Default) const	//[t12]
+    -> typename std::enable_if<(
+      !std::is_pointer<T>::value
+      || std::is_same<T, const char*>::value
+    ), bool>::type
   {
     const bool NotNull = to(Obj);
     if (!NotNull) Obj = Default;
@@ -160,23 +175,30 @@ public:
   }
 
   /// Return value as object of given type, or throw exception if null
+  /** Use as `as<std::optional<int>>()` or `as<my_untemplated_optional_t>()` as
+   * an alternative to `get<int>()`; this is disabled for use with raw pointers
+   * (other than C-strings) because storage for the value can't safely be
+   * allocated here
+   */
   template<typename T> T as() const					//[t45]
   {
     T Obj;
-    const bool NotNull = to(Obj);
-    if (!NotNull) Obj = string_traits<T>::null();
+    if (!to(Obj)) Obj = string_traits<T>::null();
     return Obj;
   }
 
+  /// Return value wrapped in some optional type (empty for nulls)
+  /** Use as `get<int>()` as before to obtain previous behavior (i.e. only
+   * usable when `std::optional` or `std::experimental::optional` are
+   * available), or specify container type with `get<int, std::optional>()`
+   */
+  template<typename T, template<typename> class O
 #if defined(PQXX_HAVE_OPTIONAL)
-  /// Return value as std::optional, or blank value if null.
-  template<typename T> std::optional<T> get() const
-	{ return get_opt<T, std::optional<T>>(); }
+    = std::optional
 #elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
-  /// Return value as std::experimental::optional, or blank value if null.
-  template<typename T> std::experimental::optional<T> get() const
-	{ return get_opt<T, std::experimental::optional<T>>(); }
+    = std::experimental::optional
 #endif
+  > constexpr O<T> get() const { return as<O<T>>(); }
 
   /// Parse the field as an SQL array.
   /** Call the parser to retrieve values (and structure) from the array.
@@ -201,18 +223,6 @@ protected:
   long m_col;
 
 private:
-  /// Implementation for get().
-  /**
-   * Abstracts away the difference between std::optional and
-   * std::experimental::optional.  Both can be supported at the same time,
-   * so pre-C++17 code can still work once the compiler defaults to C++17.
-   */
-  template<typename T, typename OPTIONAL_T> OPTIONAL_T get_opt() const
-  {
-    if (is_null()) return OPTIONAL_T();
-    else return OPTIONAL_T(as<T>());
-  }
-
   result m_home;
   size_t m_row;
 };

@@ -6,11 +6,11 @@ namespace internal
 {
 namespace gate
 {
-class PQXX_PRIVATE transaction_tablereader : callgate<transaction_base>
+class PQXX_PRIVATE transaction_stream_from : callgate<transaction_base>
 {
-  friend class pqxx::tablereader;
+  friend class pqxx::stream_from;
 
-  transaction_tablereader(reference x) : super(x) {}
+  transaction_stream_from(reference x) : super(x) {}
 
   void BeginCopyRead(const std::string &table, const std::string &columns)
 	{ home().BeginCopyRead(table, columns); }

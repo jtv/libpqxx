@@ -22,7 +22,7 @@ macro(library_target_setup tgt)
     )
 endmacro()
 
-file(GLOB CXX_SOURCES "*.cxx")
+file(GLOB_RECURSE CXX_SOURCES "*.cxx")
 
 if(NOT SKIP_PQXX_SHARED)
 	# Build a shared library

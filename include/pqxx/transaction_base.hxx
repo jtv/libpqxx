@@ -27,6 +27,7 @@
  */
 
 #include "pqxx/connection_base.hxx"
+#include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/isolation.hxx"
 #include "pqxx/result.hxx"
 #include "pqxx/row.hxx"
@@ -103,7 +104,9 @@ namespace gate
 {
 class transaction_subtransaction;
 class transaction_tablereader;
+class transaction_stream_from;
 class transaction_tablewriter;
+class transaction_stream_to;
 class transaction_transactionfocus;
 } // namespace internal::gate
 } // namespace internal
@@ -612,15 +615,18 @@ private:
   PQXX_PRIVATE void register_pending_error(const std::string &) noexcept;
 
   friend class pqxx::internal::gate::transaction_tablereader;
+  friend class pqxx::internal::gate::transaction_stream_from;
   PQXX_PRIVATE void BeginCopyRead(const std::string &, const std::string &);
   bool read_copy_line(std::string &);
 
   friend class pqxx::internal::gate::transaction_tablewriter;
+  friend class pqxx::internal::gate::transaction_stream_to;
   PQXX_PRIVATE void BeginCopyWrite(
 	const std::string &Table,
 	const std::string &Columns);
   void write_copy_line(const std::string &);
   void end_copy_write();
+  internal::encoding_group current_encoding();
 
   friend class pqxx::internal::gate::transaction_subtransaction;
 

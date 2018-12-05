@@ -21,15 +21,11 @@
 #include <string>
 #include <vector>
 
-#if defined(PQXX_HAVE_OPTIONAL)
-#include <optional>
-#elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
-#include <experimental/optional>
-#endif
-
 #include "pqxx/binarystring"
 #include "pqxx/strconv"
 #include "pqxx/util"
+
+#include "pqxx/internal/type_utils.hxx"
 
 
 namespace pqxx
@@ -191,28 +187,11 @@ private:
   /// Compile one argument (default, generic implementation).
   /** Uses string_traits to represent the argument as a std::string.
    */
-  template<typename Arg> void add_field(Arg arg)
+  template<typename Arg> void add_field(const Arg &arg)
   {
     if (string_traits<Arg>::is_null(arg)) add_field(nullptr);
     else add_field(to_string(arg));
   }
-
-#if defined(PQXX_HAVE_OPTIONAL)
-  /// Compile one argument (specialised for std::optional<type>).
-  template<typename Arg> void add_field(const std::optional<Arg> &arg)
-  {
-    if (arg.has_value()) add_field(arg.value());
-    else add_field(nullptr);
-  }
-#elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
-  /// Compile one argument (specialised for std::experimental::optional<type>).
-  template<typename Arg> void add_field(
-	const std::experimental::optional<Arg> &arg)
-  {
-    if (arg) add_field(arg.value());
-    else add_field(nullptr);
-  }
-#endif
 
   /// Compile a dynamic_params object into a dynamic number of parameters.
   template<typename IT> void add_field(const dynamic_params<IT> &parameters)

@@ -19,6 +19,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <typeinfo>
 #include <vector>
 
@@ -124,9 +125,71 @@ separated_list(const std::string &sep, ITER begin, ITER end)		//[t00]
 
 
 /// Render items in a container as a string, using given separator.
-template<typename CONTAINER> inline std::string
+template<typename CONTAINER> inline auto
 separated_list(const std::string &sep, const CONTAINER &c)		//[t10]
+	/*
+	Always std::string; necessary because SFINAE doesn't work with the contents
+	of function bodies, so the check for iterability has to be in the signature
+	*/
+	-> typename std::enable_if<
+		(
+			!std::is_void<decltype(std::begin(c))>::value
+			&& !std::is_void<decltype(std::end(c))>::value
+		),
+		std::string
+	>::type
 	{ return separated_list(sep, std::begin(c), std::end(c)); }
+
+
+namespace internal
+{
+struct passthrough_access
+{
+	template<typename T> constexpr auto operator()( T t_p ) const
+		-> decltype( *t_p )
+		{ return *t_p; }
+};
+}
+
+/// Render items in a tuple as a string, using given separator.
+template<
+	typename TUPLE,
+	std::size_t INDEX=0,
+	typename ACCESS,
+	typename std::enable_if<
+		(INDEX == std::tuple_size<TUPLE>::value-1),
+		int
+	>::type=0
+> inline std::string
+separated_list(const std::string &sep, const TUPLE &t, const ACCESS& access)
+	{ return to_string(access(&std::get<INDEX>(t))); }
+
+template<
+	typename TUPLE,
+	std::size_t INDEX=0,
+	typename ACCESS,
+	typename std::enable_if<
+		(INDEX < std::tuple_size<TUPLE>::value-1),
+		int
+	>::type=0
+> inline std::string
+separated_list(const std::string &sep, const TUPLE &t, const ACCESS& access)
+{
+	return to_string(access(&std::get<INDEX>(t)))
+		+ sep
+		+ separated_list<TUPLE, INDEX+1>(sep, t, access);
+}
+
+template<
+	typename TUPLE,
+	std::size_t INDEX=0,
+	typename std::enable_if<
+		(INDEX <= std::tuple_size<TUPLE>::value),
+		int
+	>::type=0
+> inline std::string
+separated_list(const std::string &sep, const TUPLE &t)
+	{ return separated_list(sep, t, internal::passthrough_access{}); }
 //@}
 
 
