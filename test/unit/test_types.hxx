@@ -158,7 +158,8 @@ template<> struct pqxx::string_traits<ipv4>
 template<> struct pqxx::string_traits<bytea>
 {
 private:
-  static constexpr unsigned char from_hex(char c)
+// TODO: Make this constexpr once we require C++14.
+  static unsigned char from_hex(char c)
   {
     using uchar = unsigned char;
     if (c >= '0' && c <= '9')
@@ -169,14 +170,12 @@ private:
       return uchar(c - 'A' + 10);
     else
       throw std::range_error{
-        "character with value "
-        + std::to_string(static_cast<unsigned int>(c))
-        + " ("
-        + std::string{c}
-        + ") out-of-range for hexadecimal"
+        "Not a hexadecimal digit: " + std::string{c} +
+        " (value " + std::to_string(static_cast<unsigned int>(c)) + ")."
       };
   }
-  static constexpr unsigned char from_hex(char c1, char c2)
+// TODO: Make this constexpr once we require C++14.
+  static unsigned char from_hex(char c1, char c2)
   {
     using uchar = unsigned char;
     return uchar((from_hex(c1) << 4) | (from_hex(c2) & 0x0F));
