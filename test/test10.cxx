@@ -43,8 +43,6 @@ pair<int,int> CountEvents(transaction_base &T)
 // performed correctly.
 void Test(connection_base &C, bool ExplicitAbort)
 {
-  std::vector<std::string> BoringRow{to_string(BoringYear), "yawn"};
-
   pair<int,int> EventCounts;
 
   // First run our doomed transaction.  This will refuse to run if an event
@@ -63,18 +61,9 @@ void Test(connection_base &C, bool ExplicitAbort)
 	"Can't run, boring year is already in table.");
 
     // Now let's try to introduce a row for our Boring Year
-    {
-      tablewriter W(Doomed, Table);
-
-      PQXX_CHECK_EQUAL(W.name(), Table, "tablewriter's name changed.");
-
-      PQXX_CHECK_EQUAL(
-	W.generate(BoringRow),
-	separated_list("\t", BoringRow),
-	"tablewriter writes new row incorrectly.");
-
-      W.push_back(BoringRow);
-    }
+    Doomed.exec0(
+	"INSERT INTO " + Table + "(year, event) "
+        "VALUES (" + to_string(BoringYear) + ", 'yawn')");
 
     const auto Recount = CountEvents(Doomed);
     PQXX_CHECK_EQUAL(

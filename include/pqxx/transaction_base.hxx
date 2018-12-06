@@ -354,8 +354,7 @@ public:
    * This is the old, pre-C++11 way of handling parameterised statements.  As
    * of libpqxx 6.0, it's made much easier using variadic templates.
    */
-  PQXX_DEPRECATED internal::parameterized_invocation
-  parameterized(const std::string &query);
+  internal::parameterized_invocation parameterized(const std::string &query);
   //@}
 
   /**
@@ -462,8 +461,7 @@ public:
    * If you leave out the statement name, the call refers to the nameless
    * statement instead.
    */
-  PQXX_DEPRECATED prepare::invocation
-  prepared(const std::string &statement=std::string());
+  prepare::invocation prepared(const std::string &statement=std::string());
 
   //@}
 

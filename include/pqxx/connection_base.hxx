@@ -562,7 +562,7 @@ public:
    * @param Attempts Maximum number of attempts to be made to execute T.
    */
   template<typename TRANSACTOR>
-  PQXX_DEPRECATED void perform(const TRANSACTOR &T, int Attempts);	//[t04]
+  void perform(const TRANSACTOR &T, int Attempts);			//[t04]
 
   /// @deprecated Pre-C++11 transactor function.  Use @c pqxx::perform instead.
   /**
@@ -572,7 +572,7 @@ public:
    * @param T The transactor to be executed.
    */
   template<typename TRANSACTOR>
-  PQXX_DEPRECATED void perform(const TRANSACTOR &T) { perform(T, 3); }
+  void perform(const TRANSACTOR &T) { perform(T, 3); }
 
   /// Suffix unique number to name to make it unique within session context
   /** Used internally to generate identifiers for SQL objects (such as cursors

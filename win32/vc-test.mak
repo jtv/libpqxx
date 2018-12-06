@@ -140,7 +140,6 @@ OBJS= \
   $(INTDIR)\test78.obj \
   $(INTDIR)\test79.obj \
   $(INTDIR)\test82.obj \
-  $(INTDIR)\test83.obj \
   $(INTDIR)\test84.obj \
   $(INTDIR)\test86.obj \
   $(INTDIR)\test87.obj \
@@ -307,8 +306,6 @@ $(INTDIR)\test79.obj::
 	@$(CXX) $(CXX_FLAGS) test/test79.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test82.obj::
 	@$(CXX) $(CXX_FLAGS) test/test82.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test83.obj::
-	@$(CXX) $(CXX_FLAGS) test/test83.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test84.obj::
 	@$(CXX) $(CXX_FLAGS) test/test84.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test86.obj::

@@ -99,7 +99,6 @@ runner_SOURCES = \
   test78.cxx \
   test79.cxx \
   test82.cxx \
-  test83.cxx \
   test84.cxx \
   test86.cxx \
   test87.cxx \

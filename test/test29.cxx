@@ -65,17 +65,9 @@ void Test(connection_base &C, bool ExplicitAbort)
 	"Can't run; " + to_string(BoringYear) + " is already in the table.");
 
     // Now let's try to introduce a row for our Boring Year
-    {
-      tablewriter W(Doomed, Table);
-
-      PQXX_CHECK_EQUAL(W.name(), Table, "tablewriter name is not what I set.");
-
-      const string Literal = W.generate(BoringRow);
-      const string Expected = to_string(BoringYear) + "\t" + BoringRow[1];
-      PQXX_CHECK_EQUAL(Literal, Expected, "tablewriter mangles new row.");
-
-      W.push_back(BoringRow);
-    }
+    Doomed.exec0(
+	"INSERT INTO " + Table + "(year, event) "
+        "VALUES (" + to_string(BoringYear) + ", 'yawn')");
 
     auto Recount = CountEvents(Doomed);
     PQXX_CHECK_EQUAL(Recount.second, 1, "Unexpected number of events.");

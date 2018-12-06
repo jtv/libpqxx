@@ -127,10 +127,10 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	test71.$(OBJEXT) test72.$(OBJEXT) test73.$(OBJEXT) \
 	test74.$(OBJEXT) test75.$(OBJEXT) test76.$(OBJEXT) \
 	test77.$(OBJEXT) test78.$(OBJEXT) test79.$(OBJEXT) \
-	test82.$(OBJEXT) test83.$(OBJEXT) test84.$(OBJEXT) \
-	test86.$(OBJEXT) test87.$(OBJEXT) test88.$(OBJEXT) \
-	test89.$(OBJEXT) test90.$(OBJEXT) test92.$(OBJEXT) \
-	test93.$(OBJEXT) test94.$(OBJEXT) runner.$(OBJEXT)
+	test82.$(OBJEXT) test84.$(OBJEXT) test86.$(OBJEXT) \
+	test87.$(OBJEXT) test88.$(OBJEXT) test89.$(OBJEXT) \
+	test90.$(OBJEXT) test92.$(OBJEXT) test93.$(OBJEXT) \
+	test94.$(OBJEXT) runner.$(OBJEXT)
 runner_OBJECTS = $(am_runner_OBJECTS)
 am__DEPENDENCIES_1 =
 runner_DEPENDENCIES = $(top_builddir)/src/libpqxx.la \
@@ -497,7 +497,6 @@ runner_SOURCES = \
   test78.cxx \
   test79.cxx \
   test82.cxx \
-  test83.cxx \
   test84.cxx \
   test86.cxx \
   test87.cxx \
@@ -625,7 +624,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test78.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test79.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test82.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test83.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test84.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test86.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test87.Po@am__quote@
