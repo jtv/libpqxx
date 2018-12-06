@@ -171,9 +171,9 @@ template<typename Tuple, std::size_t I> auto stream_from::tokenize_ith(
 
 template<typename Tuple, std::size_t I> auto stream_from::tokenize_ith(
   const std::string &line,
-  Tuple &t,
+  Tuple &/*t*/,
   std::string::size_type here,
-  std::string &workspace
+  std::string &/*workspace*/
 ) const -> typename std::enable_if<(
   std::tuple_size<Tuple>::value <= I
 )>::type

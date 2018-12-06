@@ -51,7 +51,7 @@ public:
   {
     if (has_value) new(&value) T(o.value);
   }
-  custom_optional(const T& v) : has_value{true}, value{v} {}
+  custom_optional(const T& v) : value{v}, has_value{true} {}
   ~custom_optional()
   {
     if (has_value) value.~T();
@@ -123,7 +123,7 @@ template<> struct pqxx::string_traits<ipv4>
     try
     {
       for (std::size_t i{0}; i < 4; ++i)
-        ts.as_bytes[i] = std::stoi(match[i+1]);
+        ts.as_bytes[i] = static_cast<unsigned char>(std::stoi(match[i+1]));
     }
     catch (const std::invalid_argument&)
     {
@@ -157,14 +157,14 @@ template<> struct pqxx::string_traits<ipv4>
 template<> struct pqxx::string_traits<bytea>
 {
 private:
-  static constexpr unsigned char from_hex(char c)
+  static unsigned char from_hex(char c)
   {
     if (c >= '0' && c <= '9')
-      return c - '0';
-    else if (c >= 'a' || c <= 'f')
-      return c - 'a' + 10;
-    else if (c >= 'A' || c <= 'F')
-      return c - 'A' + 10;
+      return static_cast<unsigned char>(c - '0');
+    else if (c >= 'a' && c <= 'f')
+      return static_cast<unsigned char>(c - 'a' + 10);
+    else if (c >= 'A' && c <= 'F')
+      return static_cast<unsigned char>(c - 'A' + 10);
     else
       throw std::range_error{
         "character with value "
@@ -174,9 +174,11 @@ private:
         + ") out-of-range for hexadecimal"
       };
   }
-  static constexpr unsigned char from_hex(char c1, char c2)
+  static unsigned char from_hex(char c1, char c2)
   {
-    return (from_hex(c1) << 4) | (from_hex(c2) & 0x0F);
+    return static_cast<unsigned char>(
+        from_hex(c1) << 4) | (from_hex(c2) & 0x0F
+    );
   }
 
 public:
