@@ -19,6 +19,8 @@ libpqxx_la_SOURCES = \
 	robusttransaction.cxx \
 	statement_parameters.cxx \
 	strconv.cxx \
+	stream_from.cxx \
+	stream_to.cxx \
 	subtransaction.cxx \
 	tablereader.cxx \
 	tablestream.cxx \
