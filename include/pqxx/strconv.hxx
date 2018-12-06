@@ -142,7 +142,7 @@ struct enum_traits
  */
 #define PQXX_DECLARE_ENUM_CONVERSION(ENUM) \
 template<> \
-struct PQXX_LIBEXPORT string_traits<ENUM> : pqxx::enum_traits<ENUM> \
+struct string_traits<ENUM> : pqxx::enum_traits<ENUM> \
 { \
   static constexpr const char *name() noexcept { return #ENUM; } \
   [[noreturn]] static ENUM null() \
