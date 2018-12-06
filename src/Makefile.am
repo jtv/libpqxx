@@ -6,6 +6,7 @@ libpqxx_la_SOURCES = \
 	connection.cxx \
 	cursor.cxx \
 	dbtransaction.cxx \
+	encodings.cxx \
 	errorhandler.cxx \
 	except.cxx \
 	field.cxx \
@@ -18,6 +19,9 @@ libpqxx_la_SOURCES = \
 	robusttransaction.cxx \
 	statement_parameters.cxx \
 	strconv.cxx \
+	stream_base.cxx \
+	stream_from.cxx \
+	stream_to.cxx \
 	subtransaction.cxx \
 	tablereader.cxx \
 	tablestream.cxx \

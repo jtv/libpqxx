@@ -130,6 +130,7 @@ am_runner_OBJECTS = test_array.$(OBJEXT) test_binarystring.$(OBJEXT) \
 	test_result_iteration.$(OBJEXT) test_result_slicing.$(OBJEXT) \
 	test_row.$(OBJEXT) test_simultaneous_transactions.$(OBJEXT) \
 	test_sql_cursor.$(OBJEXT) test_stateless_cursor.$(OBJEXT) \
+	test_stream_from.$(OBJEXT) test_stream_to.$(OBJEXT) \
 	test_string_conversion.$(OBJEXT) test_subtransaction.$(OBJEXT) \
 	test_test_helpers.$(OBJEXT) test_thread_safety_model.$(OBJEXT) \
 	test_transaction_base.$(OBJEXT) test_transactor.$(OBJEXT) \
@@ -390,6 +391,8 @@ runner_SOURCES = \
   test_simultaneous_transactions.cxx \
   test_sql_cursor.cxx \
   test_stateless_cursor.cxx \
+  test_stream_from.cxx \
+  test_stream_to.cxx \
   test_string_conversion.cxx \
   test_subtransaction.cxx \
   test_test_helpers.cxx \
@@ -472,6 +475,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_simultaneous_transactions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_sql_cursor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stateless_cursor.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stream_from.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stream_to.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_string_conversion.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_subtransaction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_test_helpers.Po@am__quote@

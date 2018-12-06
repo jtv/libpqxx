@@ -1,9 +1,12 @@
-6.2.6
+6.3.0
+ - Still in progress.  Caution is advised!
  - Fix Windows bug where WSAPoll was never used.  Thanks dpolunin.
  - Fix Windows CMake build to link to socket libraries.  Thanks dpolunin.
  - Fix failure when doing multiple string conversions with Visual C++.
  - Fix nested project builds in CMake.  Thanks Andrew Brownsword.
  - In Visual Studio, build for host architecture, not "x64".
+ - Fix string conversion link error in Visual Studio.  Thanks Ivan Poiakov.
+ - Huge contribution from Joseph Durel; summaries to follow.
 6.2.5
  - Removed deprecated pqxx-config.
  - Build fix on Visual C++ when not defining NOMINMAX.

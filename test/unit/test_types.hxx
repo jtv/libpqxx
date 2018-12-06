@@ -167,11 +167,8 @@ private:
       return static_cast<unsigned char>(c - 'A' + 10);
     else
       throw std::range_error{
-        "character with value "
-        + std::to_string(static_cast<unsigned int>(c))
-        + " ("
-        + std::string{c}
-        + ") out-of-range for hexadecimal"
+        "Not a hexadecimal digit: " + std::string{c} +
+        " (value " + std::to_string(static_cast<unsigned int>(c)) + ")."
       };
   }
   static unsigned char from_hex(char c1, char c2)

@@ -20,7 +20,9 @@
 
 namespace pqxx
 {
-/// @deprecated Base class for obsolete tablereader/tablewriter classes.
+/// Base class for obsolete tablereader/tablewriter classes.
+/** @deprecated Use stream_from and stream_to instead.
+ */
 class PQXX_LIBEXPORT PQXX_NOVTABLE tablestream :
   public internal::transactionfocus
 {

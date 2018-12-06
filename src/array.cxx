@@ -79,9 +79,9 @@ std::string parse_single_quoted_string(const char begin[], const char end[])
   output.reserve(std::size_t(end - begin - 2));
   for (const char *here = begin + 1; here < end - 1; here++)
   {
-    auto c = *here;
     // Skip escapes.
-    if (c == '\'' || c == '\\') here++;
+    if (*here == '\'' || *here == '\\') here++;
+    auto c = *here;
     output.push_back(c);
   }
 
@@ -133,9 +133,9 @@ std::string parse_double_quoted_string(const char begin[], const char end[])
   output.reserve(std::size_t(end - begin - 2));
   for (const char *here = begin + 1; here < end - 1; here++)
   {
-    auto c = *here;
     // Skip escapes.
-    if (c == '\\') here++;
+    if (*here == '\\') here++;
+    auto c = *here;
     output.push_back(c);
   }
 

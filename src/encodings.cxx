@@ -202,7 +202,7 @@ namespace internal
 {
 
 template<> seq_position next_seq<encoding_group::MONOBYTE>(
-  const char* /*buffer*/,
+  const char * /* buffer */,
   std::string::size_type buffer_len,
   std::string::size_type start
 )

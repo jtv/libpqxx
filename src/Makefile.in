@@ -134,12 +134,14 @@ am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libpqxx_la_LIBADD =
 am_libpqxx_la_OBJECTS = array.lo binarystring.lo connection_base.lo \
-	connection.lo cursor.lo dbtransaction.lo errorhandler.lo \
-	except.lo field.lo largeobject.lo nontransaction.lo \
-	notification.lo pipeline.lo prepared_statement.lo result.lo \
-	robusttransaction.lo statement_parameters.lo strconv.lo \
-	subtransaction.lo tablereader.lo tablestream.lo tablewriter.lo \
-	transaction.lo transaction_base.lo row.lo util.lo version.lo
+	connection.lo cursor.lo dbtransaction.lo encodings.lo \
+	errorhandler.lo except.lo field.lo largeobject.lo \
+	nontransaction.lo notification.lo pipeline.lo \
+	prepared_statement.lo result.lo robusttransaction.lo \
+	statement_parameters.lo strconv.lo stream_base.lo \
+	stream_from.lo stream_to.lo subtransaction.lo tablereader.lo \
+	tablestream.lo tablewriter.lo transaction.lo \
+	transaction_base.lo row.lo util.lo version.lo
 libpqxx_la_OBJECTS = $(am_libpqxx_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -353,6 +355,7 @@ libpqxx_la_SOURCES = \
 	connection.cxx \
 	cursor.cxx \
 	dbtransaction.cxx \
+	encodings.cxx \
 	errorhandler.cxx \
 	except.cxx \
 	field.cxx \
@@ -365,6 +368,9 @@ libpqxx_la_SOURCES = \
 	robusttransaction.cxx \
 	statement_parameters.cxx \
 	strconv.cxx \
+	stream_base.cxx \
+	stream_from.cxx \
+	stream_to.cxx \
 	subtransaction.cxx \
 	tablereader.cxx \
 	tablestream.cxx \
@@ -472,6 +478,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/connection_base.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cursor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbtransaction.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/encodings.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/errorhandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/except.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/field.Plo@am__quote@
@@ -485,6 +492,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/row.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/statement_parameters.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strconv.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stream_base.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stream_from.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stream_to.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/subtransaction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tablereader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tablestream.Plo@am__quote@

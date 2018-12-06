@@ -142,7 +142,7 @@ struct enum_traits
  */
 #define PQXX_DECLARE_ENUM_CONVERSION(ENUM) \
 template<> \
-struct PQXX_LIBEXPORT string_traits<ENUM> : pqxx::enum_traits<ENUM> \
+struct string_traits<ENUM> : pqxx::enum_traits<ENUM> \
 { \
   static constexpr const char *name() noexcept { return #ENUM; } \
   [[noreturn]] static ENUM null() \
@@ -286,7 +286,8 @@ namespace internal
 {
 /// Compute numeric value of given textual digit (assuming that it is a digit)
 constexpr int digit_to_number(char c) noexcept { return c-'0'; }
-constexpr char number_to_digit(int i) noexcept { return i+'0'; }
+constexpr char number_to_digit(int i) noexcept
+	{ return static_cast<char>(i+'0'); }
 } // namespace pqxx::internal
 
 

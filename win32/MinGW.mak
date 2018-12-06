@@ -25,6 +25,7 @@ OBJ = \
   src/connection_base.o \
   src/cursor.o \
   src/dbtransaction.o \
+  src/encodings.o \
   src/errorhandler.o \
   src/except.o \
   src/field.o \
@@ -38,6 +39,9 @@ OBJ = \
   src/row.o \
   src/statement_parameters.o \
   src/strconv.o \
+  src/stream_base.o \
+  src/stream_from.o \
+  src/stream_to.o \
   src/subtransaction.o \
   src/tablereader.o \
   src/tablestream.o \
@@ -88,6 +92,9 @@ src/cursor.o: src/cursor.cxx
 src/dbtransaction.o: src/dbtransaction.cxx
 	$(CXX) $(CPPFLAGS) -c src/dbtransaction.cxx -o src/dbtransaction.o $(CXXFLAGS)
 
+src/encodings.o: src/encodings.cxx
+	$(CXX) $(CPPFLAGS) -c src/encodings.cxx -o src/encodings.o $(CXXFLAGS)
+
 src/errorhandler.o: src/errorhandler.cxx
 	$(CXX) $(CPPFLAGS) -c src/errorhandler.cxx -o src/errorhandler.o $(CXXFLAGS)
 
@@ -126,6 +133,15 @@ src/statement_parameters.o: src/statement_parameters.cxx
 
 src/strconv.o: src/strconv.cxx
 	$(CXX) $(CPPFLAGS) -c src/strconv.cxx -o src/strconv.o $(CXXFLAGS)
+
+src/stream_base.o: src/stream_base.cxx
+	$(CXX) $(CPPFLAGS) -c src/stream_base.cxx -o src/stream_base.o $(CXXFLAGS)
+
+src/stream_from.o: src/stream_from.cxx
+	$(CXX) $(CPPFLAGS) -c src/stream_from.cxx -o src/stream_from.o $(CXXFLAGS)
+
+src/stream_to.o: src/stream_to.cxx
+	$(CXX) $(CPPFLAGS) -c src/stream_to.cxx -o src/stream_to.o $(CXXFLAGS)
 
 src/subtransaction.o: src/subtransaction.cxx
 	$(CXX) $(CPPFLAGS) -c src/subtransaction.cxx -o src/subtransaction.o $(CXXFLAGS)
