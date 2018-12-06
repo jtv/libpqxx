@@ -163,7 +163,8 @@ template<
 > inline std::string
 separated_list(
 	const std::string & /* sep */,
-	const TUPLE &t, const ACCESS& access
+	const TUPLE &t,
+	const ACCESS& access
 ) { return to_string(access(&std::get<INDEX>(t))); }
 
 template<
