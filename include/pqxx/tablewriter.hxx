@@ -23,23 +23,26 @@
 
 namespace pqxx
 {
-/// @deprecated Efficiently write data directly to a database table.
-/** @warning This class does not work reliably with multibyte encodings.  Using
+/// @deprecated Use stream_to instead.
+/** Efficiently write data directly to a database table.
+ * @warning This class does not work reliably with multibyte encodings.  Using
  * it with some multi-byte encodings may pose a security risk.
  */
 class PQXX_LIBEXPORT tablewriter : public tablestream
 {
 public:
-  tablewriter(
+  PQXX_DEPRECATED tablewriter(
 	transaction_base &,
 	const std::string &WName,
 	const std::string &Null=std::string());
-  template<typename ITER> tablewriter(
+  template<typename ITER>
+        PQXX_DEPRECATED tablewriter(
 	transaction_base &,
 	const std::string &WName,
 	ITER begincolumns,
 	ITER endcolumns);
-  template<typename ITER> tablewriter(
+  template<typename ITER>
+        PQXX_DEPRECATED tablewriter(
 	transaction_base &T,
 	const std::string &WName,
 	ITER begincolumns,

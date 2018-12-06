@@ -21,24 +21,26 @@
 
 namespace pqxx
 {
-/// @deprecated Efficiently pull data directly out of a table.
-/** @warning This class does not work reliably with multibyte encodings.  Using
+/// @deprecated Use stream_from instead.
+/** Efficiently pull data directly out of a table.
+ * @warning This class does not work reliably with multibyte encodings.  Using
  * it with some multi-byte encodings may pose a security risk.
  */
 class PQXX_LIBEXPORT tablereader : public tablestream
 {
 public:
-  tablereader(
+  PQXX_DEPRECATED tablereader(
 	transaction_base &,
 	const std::string &Name,
 	const std::string &Null=std::string());
   template<typename ITER>
-  tablereader(
+  PQXX_DEPRECATED tablereader(
 	transaction_base &,
 	const std::string &Name,
 	ITER begincolumns,
 	ITER endcolumns);
-  template<typename ITER> tablereader(
+  template<typename ITER>
+  PQXX_DEPRECATED tablereader(
 	transaction_base &,
 	const std::string &Name,
 	ITER begincolumns,
