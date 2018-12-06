@@ -150,7 +150,9 @@ template<typename T, typename V> constexpr auto make_optional(V&& v)
     std::is_same<T, std::unique_ptr<inner_type<T>>>::value,
     std::unique_ptr<inner_type<T>>
   >::type
-{ return std::make_unique<inner_type<T>>(std::forward<V>(v)); }
+{
+  return std::unique_ptr<inner_type<T>>(new inner_type<T>(std::forward<V>(v)));
+}
 // Enabled if T is a specialization of `std::shared_ptr<>`
 template<typename T, typename V> constexpr auto make_optional(V&& v)
   -> typename std::enable_if<
