@@ -900,39 +900,39 @@ encoding_group enc_group(const std::string& encoding_name)
 
 // Utility macro for implementing rutime-switched versions of templated encoding
 // functions
-#define DISPATCH_ENCODING_OPERATION(ENC, FUNCTION, ARGS...) \
+#define DISPATCH_ENCODING_OPERATION(ENC, FUNCTION, ...) \
 switch (ENC) \
 { \
 case encoding_group::MONOBYTE: \
-  return FUNCTION<encoding_group::MONOBYTE>(ARGS); \
+  return FUNCTION<encoding_group::MONOBYTE>(__VA_ARGS__); \
 case encoding_group::BIG5: \
-  return FUNCTION<encoding_group::BIG5>(ARGS); \
+  return FUNCTION<encoding_group::BIG5>(__VA_ARGS__); \
 case encoding_group::EUC_CN: \
-  return FUNCTION<encoding_group::EUC_CN>(ARGS); \
+  return FUNCTION<encoding_group::EUC_CN>(__VA_ARGS__); \
 case encoding_group::EUC_JP: \
-  return FUNCTION<encoding_group::EUC_JP>(ARGS); \
+  return FUNCTION<encoding_group::EUC_JP>(__VA_ARGS__); \
 case encoding_group::EUC_JIS_2004: \
-  return FUNCTION<encoding_group::EUC_JIS_2004>(ARGS); \
+  return FUNCTION<encoding_group::EUC_JIS_2004>(__VA_ARGS__); \
 case encoding_group::EUC_KR: \
-  return FUNCTION<encoding_group::EUC_KR>(ARGS); \
+  return FUNCTION<encoding_group::EUC_KR>(__VA_ARGS__); \
 case encoding_group::EUC_TW: \
-  return FUNCTION<encoding_group::EUC_TW>(ARGS); \
+  return FUNCTION<encoding_group::EUC_TW>(__VA_ARGS__); \
 case encoding_group::GB18030: \
-  return FUNCTION<encoding_group::GB18030>(ARGS); \
+  return FUNCTION<encoding_group::GB18030>(__VA_ARGS__); \
 case encoding_group::GBK: \
-  return FUNCTION<encoding_group::GBK>(ARGS); \
+  return FUNCTION<encoding_group::GBK>(__VA_ARGS__); \
 case encoding_group::JOHAB: \
-  return FUNCTION<encoding_group::JOHAB>(ARGS); \
+  return FUNCTION<encoding_group::JOHAB>(__VA_ARGS__); \
 case encoding_group::MULE_INTERNAL: \
-  return FUNCTION<encoding_group::MULE_INTERNAL>(ARGS); \
+  return FUNCTION<encoding_group::MULE_INTERNAL>(__VA_ARGS__); \
 case encoding_group::SJIS: \
-  return FUNCTION<encoding_group::SJIS>(ARGS); \
+  return FUNCTION<encoding_group::SJIS>(__VA_ARGS__); \
 case encoding_group::SHIFT_JIS_2004: \
-  return FUNCTION<encoding_group::SHIFT_JIS_2004>(ARGS); \
+  return FUNCTION<encoding_group::SHIFT_JIS_2004>(__VA_ARGS__); \
 case encoding_group::UHC: \
-  return FUNCTION<encoding_group::UHC>(ARGS); \
+  return FUNCTION<encoding_group::UHC>(__VA_ARGS__); \
 case encoding_group::UTF8: \
-  return FUNCTION<encoding_group::UTF8>(ARGS); \
+  return FUNCTION<encoding_group::UTF8>(__VA_ARGS__); \
 } \
 throw pqxx::usage_error("Invalid encoding group code.")
 
