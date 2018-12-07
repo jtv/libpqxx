@@ -13,21 +13,49 @@
 #include <vector>
 
 
-union ipv4
+class ipv4
 {
-  uint32_t as_int;
-  unsigned char as_bytes[4];
-
-  ipv4() : as_int{0x00} {}
-  ipv4(const ipv4& o) : as_int{o.as_int} {}
-  ipv4(uint32_t i) : as_int{i} {}
+public:
+  ipv4() : m_as_int{0u} {}
+  ipv4(const ipv4 &o) : m_as_int(o.m_as_int) {}
+  ipv4(uint32_t i) : m_as_int{i} {}
   ipv4(
     unsigned char b1,
     unsigned char b2,
     unsigned char b3,
     unsigned char b4
-  ) : as_bytes{b1, b2, b3, b4} {}
-  bool operator ==(const ipv4 &o) const { return as_int == o.as_int; }
+  ) :
+    m_as_int{uint32_t(b1) << 24 | uint32_t(b2) << 16 | uint32_t(b3) << 8 | b4}
+  {}
+
+  bool operator==(const ipv4 &o) const { return m_as_int == o.m_as_int; }
+
+  /// Index bytes, from 0 to 3, in network (i.e. Big-Endian) byte order.
+  unsigned int operator[](int byte) const
+  {
+    if (byte < 0 || byte > 3)
+        throw pqxx::usage_error("Byte out of range.");
+    const auto shift = compute_shift(byte);
+    return static_cast<unsigned char>((m_as_int >> shift) & 0xff);
+  }
+
+  /// Set individual byte, in network byte order.
+  void set_byte(int byte, unsigned int value)
+  {
+    const auto shift = compute_shift(byte);
+    const auto blanked = m_as_int & ~(0x000000ff << shift);
+    m_as_int = blanked | ((value & 0xff) << shift);
+  }
+
+private:
+  static int compute_shift(int byte)
+  {
+    if (byte < 0 || byte > 3)
+        throw pqxx::usage_error("Byte out of range.");
+    return (3 - byte) * 8;
+  }
+
+  uint32_t m_as_int;
 };
 
 
@@ -40,6 +68,7 @@ template<typename T> class custom_optional
 private:
   union
   {
+    // "Blank" member just so no T object needs to be constructed here.
     void *_;
     T value;
   };
@@ -123,7 +152,7 @@ template<> struct pqxx::string_traits<ipv4>
     try
     {
       for (std::size_t i{0}; i < 4; ++i)
-        ts.as_bytes[i] = static_cast<unsigned char>(std::stoi(match[i+1]));
+        ts.set_byte(int(i), uint32_t(std::stoi(match[i+1])));
     }
     catch (const std::invalid_argument&)
     {
@@ -141,15 +170,15 @@ template<> struct pqxx::string_traits<ipv4>
 
   static std::string to_string(const subject_type &ts)
   {
-    return (
-        std::to_string(static_cast<int>(ts.as_bytes[0]))
+    return
+      std::to_string(ts[0])
       + "."
-      + std::to_string(static_cast<int>(ts.as_bytes[1]))
+      + std::to_string(ts[1])
       + "."
-      + std::to_string(static_cast<int>(ts.as_bytes[2]))
+      + std::to_string(ts[2])
       + "."
-      + std::to_string(static_cast<int>(ts.as_bytes[3]))
-    );
+      + std::to_string(ts[3])
+    ;
   }
 };
 
