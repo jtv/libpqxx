@@ -39,26 +39,12 @@ template<typename T> struct is_derefable<T, void_t<
   inner_type<typename std::enable_if<!std::is_array<T>::value, T>::type>
 >> : std::true_type {};
 
-/// Detect if the given type has an explicit pqxx::string_traits specialization
-template<typename T, typename = void>
-struct has_string_traits : std::false_type {};
-template<typename T> struct has_string_traits<T, void_t<
-  decltype(pqxx::string_traits<T>::name),
-  decltype(pqxx::string_traits<T>::has_null),
-  decltype(pqxx::string_traits<T>::is_null),
-  decltype(pqxx::string_traits<T>::null),
-  decltype(pqxx::string_traits<T>::from_string),
-  decltype(pqxx::string_traits<T>::to_string)
->> : std::true_type {};
-
 /// Detect if the given type should be treated as an optional-value wrapper type
 template<typename T, typename = void> struct is_optional : std::false_type {};
 template<typename T> struct is_optional<T, typename std::enable_if<(
   is_derefable<T>::value
   // Check if an `explicit operator bool` exists for this type
-  && std::is_constructible<bool, T>::value 
-  // Disable if an explicit `pqxx::string_traits<>` exists for this type
-  && !has_string_traits<T>::value
+  && std::is_constructible<bool, T>::value
 )>::type> : std::true_type {};
 
 /// Detect if `std::nullopt_t`/`std::experimental::nullopt_t` can be implicitly

@@ -161,8 +161,11 @@ template<
 		int
 	>::type=0
 > inline std::string
-separated_list(const std::string &, const TUPLE &t, const ACCESS& access)
-	{ return to_string(access(&std::get<INDEX>(t))); }
+separated_list(
+	const std::string & /* sep */,
+	const TUPLE &t,
+	const ACCESS& access
+) { return to_string(access(&std::get<INDEX>(t))); }
 
 template<
 	typename TUPLE,
