@@ -27,8 +27,10 @@ public:
   ) :
     m_as_int{uint32_t(b1) << 24 | uint32_t(b2) << 16 | uint32_t(b3) << 8 | b4}
   {}
+  ipv4(ipv4&&) =default;
 
   bool operator==(const ipv4 &o) const { return m_as_int == o.m_as_int; }
+  ipv4 &operator=(const ipv4 &) =default;
 
   /// Index bytes, from 0 to 3, in network (i.e. Big-Endian) byte order.
   unsigned int operator[](int byte) const
@@ -40,19 +42,19 @@ public:
   }
 
   /// Set individual byte, in network byte order.
-  void set_byte(int byte, unsigned int value)
+  void set_byte(int byte, uint32_t value)
   {
-    const auto shift = compute_shift(byte);
-    const auto blanked = m_as_int & ~(0x000000ff << shift);
+    const auto shift = unsigned(compute_shift(byte));
+    const auto blanked = m_as_int & ~uint32_t(0xff << shift);
     m_as_int = blanked | ((value & 0xff) << shift);
   }
 
 private:
-  static int compute_shift(int byte)
+  static uint32_t compute_shift(int byte)
   {
     if (byte < 0 || byte > 3)
         throw pqxx::usage_error("Byte out of range.");
-    return (3 - byte) * 8;
+    return uint32_t((3 - byte) * 8);
   }
 
   uint32_t m_as_int;
