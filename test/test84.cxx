@@ -48,15 +48,15 @@ void test_084(transaction_base &T)
   icursor_iterator i3(i2);
 
   PQXX_CHECK(
-	(i3 == i2) && !(i3 != i2),
+	(i3 == i2) and not (i3 != i2),
 	"Equality on copy-constructed icursor_iterator is broken.");
   PQXX_CHECK(
-	!(i3 > i2) && !(i3 < i2) && (i3 <= i2) && (i3 >= i2),
+	not (i3 > i2) and not (i3 < i2) and (i3 <= i2) and (i3 >= i2),
 	"Comparison on identical icursor_iterators is broken.");
 
   i3 += InitialSkip;
 
-  PQXX_CHECK(!(i3 <= i2), "icursor_iterator operator<=() is broken.");
+  PQXX_CHECK(not (i3 <= i2), "icursor_iterator operator<=() is broken.");
 
   icursor_iterator iend, i4;
   PQXX_CHECK(i3 != iend, "Early end to icursor_iterator iteration.");
@@ -88,14 +88,14 @@ void test_084(transaction_base &T)
 
   ++i2;
   R2 = *i2++;
-  for (int i=1; C.get(R) && i2 != iend; R2 = *i2++, ++i)
+  for (int i=1; C.get(R) and i2 != iend; R2 = *i2++, ++i)
     PQXX_CHECK_EQUAL(
 	R,
 	R2,
 	"Unexpected result in iteration at " + to_string(i));
 
   PQXX_CHECK(i2 == iend, "Adopted cursor terminated early.");
-  PQXX_CHECK(!(C >> R), "icursor_iterator terminated early.");
+  PQXX_CHECK(not (C >> R), "icursor_iterator terminated early.");
 }
 } // namespace
 

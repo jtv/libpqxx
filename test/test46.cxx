@@ -74,7 +74,7 @@ void test_046(transaction_base &T)
 	"1=1 doesn't yield 'true.'");
 
   PQXX_CHECK(
-	!T.exec1("SELECT 2+2=5").front().as<bool>(),
+	not T.exec1("SELECT 2+2=5").front().as<bool>(),
 	"2+2=5 yields 'true.'");
 }
 } // namespace

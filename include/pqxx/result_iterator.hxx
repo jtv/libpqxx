@@ -192,7 +192,7 @@ public:
       { return iterator_type::operator==(rhs); }
   bool operator!=(							//[t75]
 	const const_reverse_result_iterator &rhs) const noexcept
-      { return !operator==(rhs); }
+      { return not operator==(rhs); }
 
   bool operator<(const const_reverse_result_iterator &rhs) const	//[t75]
       { return iterator_type::operator>(rhs); }

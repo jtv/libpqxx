@@ -155,7 +155,7 @@ template<> struct PQXX_LIBEXPORT string_traits<const char *>
 {
   static constexpr const char *name() noexcept { return "const char *"; }
   static constexpr bool has_null() noexcept { return true; }
-  static bool is_null(const char *t) { return !t; }
+  static bool is_null(const char *t) { return t == nullptr; }
   static const char *null() { return nullptr; }
   static void from_string(const char Str[], const char *&Obj) { Obj = Str; }
   static std::string to_string(const char *Obj) { return Obj; }
@@ -166,7 +166,7 @@ template<> struct PQXX_LIBEXPORT string_traits<char *>
 {
   static constexpr const char *name() noexcept { return "char *"; }
   static constexpr bool has_null() noexcept { return true; }
-  static bool is_null(const char *t) { return !t; }
+  static bool is_null(const char *t) { return t == nullptr; }
   static const char *null() { return nullptr; }
 
   // Don't allow this conversion since it breaks const-safety.
@@ -180,7 +180,7 @@ template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
 {
   static constexpr const char *name() noexcept { return "char[]"; }
   static constexpr bool has_null() noexcept { return true; }
-  static bool is_null(const char t[]) { return !t; }
+  static bool is_null(const char t[]) { return t == nullptr; }
   static const char *null() { return nullptr; }
   static std::string to_string(const char Obj[]) { return Obj; }
 };
@@ -242,7 +242,7 @@ template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
 template<typename T>
   inline void from_string(const char Str[], T &Obj)
 {
-  if (!Str) throw std::runtime_error("Attempt to read null string");
+  if (Str == nullptr) throw std::runtime_error("Attempt to read null string");
   string_traits<T>::from_string(Str, Obj);
 }
 
@@ -265,7 +265,7 @@ template<>
 	std::string &Obj,
 	size_t len)
 {
-  if (!Str) throw std::runtime_error("Attempt to read null string");
+  if (Str == nullptr) throw std::runtime_error("Attempt to read null string");
   Obj.assign(Str, len);
 }
 

@@ -40,7 +40,7 @@ void test_016(transaction_base &T)
 	R.back()[i].as(nullstr),
 	"Value mismatch in back().");
     PQXX_CHECK(c == R.back(), "Row equality is broken.");
-    PQXX_CHECK(!(c != R.back()), "Row inequality is broken.");
+    PQXX_CHECK(not (c != R.back()), "Row inequality is broken.");
 
   // "Commit" the non-transaction.  This doesn't really do anything since
   // NonTransaction doesn't start a backend transaction.

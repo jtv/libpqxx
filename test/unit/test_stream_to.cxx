@@ -199,13 +199,13 @@ void test_stream_to(pqxx::transaction_base &nontrans)
   test_optional<std::unique_ptr>(connection);
   std::cout << "testing `custom_optional` as optional...\n";
   test_optional<custom_optional>(connection);
-  #if defined PQXX_HAVE_OPTIONAL
+#if defined PQXX_HAVE_OPTIONAL
   std::cout << "testing `std::optional` as optional...\n";
   test_optional<std::optional>(connection);
-  #elif defined PQXX_HAVE_EXP_OPTIONAL && !defined(PQXX_HIDE_EXP_OPTIONAL)
+#elif defined PQXX_HAVE_EXP_OPTIONAL && !defined(PQXX_HIDE_EXP_OPTIONAL)
   std::cout << "testing `std::experimental::optional` as optional...\n";
   test_optional<std::experimental::optional>(connection);
-  #endif
+#endif
 }
 
 

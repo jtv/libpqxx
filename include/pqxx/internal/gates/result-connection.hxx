@@ -13,7 +13,7 @@ class PQXX_PRIVATE result_connection : callgate<const result>
   result_connection(reference x) : super(x) {}
 
   operator bool() const { return bool(home()); }
-  bool operator!() const { return !home(); }
+  bool operator!() const { return not home(); }
 };
 } // namespace pqxx::internal::gate
 } // namespace pqxx::internal

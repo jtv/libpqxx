@@ -77,7 +77,7 @@ void check(
 	const char text[],
 	string desc)
 {
-  if (!condition)
+  if (not condition)
     throw test_failure(
 	file,
 	line,
@@ -144,7 +144,7 @@ int main(int, const char *argv[])
   int test_count = 0;
   list<string> failed;
   for (const auto &i: tests)
-    if (!test_name || test_name == i.first)
+    if (test_name == nullptr or test_name == i.first)
     {
       cout << endl << "Running: " << i.first << endl;
 
@@ -183,7 +183,7 @@ int main(int, const char *argv[])
         cerr << "Unknown exception" << endl;
       }
 
-      if (!success)
+      if (not success)
       {
         cerr << "FAILED: " << i.first << endl;
         failed.push_back(i.first);
@@ -193,7 +193,7 @@ int main(int, const char *argv[])
 
   cout << "Ran " << test_count << " test(s)." << endl;
 
-  if (!failed.empty())
+  if (not failed.empty())
   {
     cerr << "*** " << failed.size() << " test(s) failed: ***" << endl;
     for (const auto &i: failed) cerr << "\t" << i << endl;

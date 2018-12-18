@@ -51,7 +51,7 @@ const char*scan_single_quoted_string(const char begin[])
     case '\\':
       // Backslash escape.  Skip ahead by one more character.
       here++;
-      if (!*here)
+      if (*here == '\0')
         throw pqxx::argument_error(
           "SQL string ends in escape: " + std::string(begin));
       break;
@@ -80,7 +80,7 @@ std::string parse_single_quoted_string(const char begin[], const char end[])
   for (const char *here = begin + 1; here < end - 1; here++)
   {
     // Skip escapes.
-    if (*here == '\'' || *here == '\\') here++;
+    if (*here == '\'' or *here == '\\') here++;
     auto c = *here;
     output.push_back(c);
   }
@@ -103,7 +103,7 @@ const char *scan_double_quoted_string(const char begin[])
     case '\\':
       // Backslash escape.  Skip ahead by one more character.
       here++;
-      if (!*here)
+      if (*here == '\0')
         throw pqxx::argument_error(
           "SQL string ends in escape: " + std::string(begin));
       break;
@@ -154,7 +154,7 @@ const char *scan_unquoted_string(const char begin[])
   const char *p;
   for (
         p = begin;
-        *p != ',' && *p != ';' && *p != '}';
+        *p != ',' and *p != ';' and *p != '}';
         p++);
   return p;
 }
@@ -235,7 +235,7 @@ array_parser::get_next()
   }
 
   // Skip a field separator following a string (or null).
-  if (end != nullptr && (*end == ',' || *end == ';'))
+  if (end != nullptr and (*end == ',' or *end == ';'))
     end++;
 
   m_pos = end;

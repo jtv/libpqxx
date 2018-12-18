@@ -415,7 +415,7 @@ protected:
   virtual int_type overflow(int_type ch = EoF()) override
   {
     char *const pp = this->pptr();
-    if (!pp) return EoF();
+    if (pp == nullptr) return EoF();
     char *const pb = this->pbase();
     int_type res = 0;
 
@@ -433,12 +433,12 @@ protected:
 
   virtual int_type underflow() override
   {
-    if (!this->gptr()) return EoF();
+    if (this->gptr() == nullptr) return EoF();
     char *const eb = this->eback();
     const int_type res(static_cast<int_type>(
 	AdjustEOF(m_obj.cread(this->eback(), m_bufsize))));
     this->setg(eb, eb, eb + ((res==EoF()) ? 0 : res));
-    return (!res || (res == EoF())) ? EoF() : *eb;
+    return ((res == 0) or (res == EoF())) ? EoF() : *eb;
   }
 
 private:

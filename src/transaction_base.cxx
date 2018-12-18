@@ -71,7 +71,7 @@ pqxx::transaction_base::~transaction_base()
   try
   {
     reactivation_avoidance_clear();
-    if (!m_pending_error.empty())
+    if (not m_pending_error.empty())
       process_notice("UNPROCESSED ERROR: " + m_pending_error + "\n");
 
     if (m_registered)
@@ -144,7 +144,7 @@ void pqxx::transaction_base::commit()
   // absolute thing!) before trying to commit.  If the connection was broken
   // already, the commit would fail anyway but this way at least we don't remain
   // in-doubt as to whether the backend got the commit order at all.
-  if (!m_conn.is_open())
+  if (not m_conn.is_open())
     throw broken_connection(
 	"Broken connection to backend; cannot complete transaction");
 
@@ -466,7 +466,7 @@ pqxx::result pqxx::transaction_base::direct_exec(const char C[], int Retries)
 void pqxx::transaction_base::register_pending_error(const std::string &Err)
 	noexcept
 {
-  if (m_pending_error.empty() && !Err.empty())
+  if (m_pending_error.empty() and not Err.empty())
   {
     try
     {
@@ -491,7 +491,7 @@ void pqxx::transaction_base::register_pending_error(const std::string &Err)
 
 void pqxx::transaction_base::CheckPendingError()
 {
-  if (!m_pending_error.empty())
+  if (not m_pending_error.empty())
   {
     const std::string Err(m_pending_error);
     m_pending_error.clear();
@@ -507,7 +507,7 @@ std::string MakeCopyString(
         const std::string &Columns)
 {
   std::string Q = "COPY " + Table + " ";
-  if (!Columns.empty()) Q += "(" + Columns + ") ";
+  if (not Columns.empty()) Q += "(" + Columns + ") ";
   return Q;
 }
 } // namespace

@@ -50,7 +50,7 @@ pqxx::pipeline::~pipeline() noexcept
 
 void pqxx::pipeline::attach()
 {
-  if (!registered()) register_me();
+  if (not registered()) register_me();
 }
 
 
@@ -81,7 +81,7 @@ pipeline::query_id pqxx::pipeline::insert(const std::string &q)
   if (m_num_waiting > m_retain)
   {
     if (have_pending()) receive_if_available();
-    if (!have_pending()) issue();
+    if (not have_pending()) issue();
   }
 
   return qid;
@@ -91,25 +91,25 @@ pipeline::query_id pqxx::pipeline::insert(const std::string &q)
 void pqxx::pipeline::complete()
 {
   if (have_pending()) receive(m_issuedrange.second);
-  if (m_num_waiting && (m_error == qid_limit()))
+  if (m_num_waiting and (m_error == qid_limit()))
   {
-    pqxxassert(!have_pending());
+    pqxxassert(not have_pending());
     issue();
-    pqxxassert(!m_num_waiting);
+    pqxxassert(m_num_waiting != 0);
     pqxxassert(have_pending());
     pqxxassert(m_issuedrange.second == m_queries.end());
     receive(m_queries.end());
-    pqxxassert((m_error!=qid_limit()) || !have_pending());
+    pqxxassert((m_error!=qid_limit()) or not have_pending());
   }
   detach();
-  pqxxassert((m_num_waiting == 0) || (m_error != qid_limit()));
-  pqxxassert(!m_dummy_pending);
+  pqxxassert((m_num_waiting == 0) or (m_error != qid_limit()));
+  pqxxassert(not m_dummy_pending);
 }
 
 
 void pqxx::pipeline::flush()
 {
-  if (!m_queries.empty())
+  if (not m_queries.empty())
   {
     if (have_pending()) receive(m_issuedrange.second);
     m_issuedrange.first = m_issuedrange.second = m_queries.end();
@@ -139,8 +139,8 @@ bool pqxx::pipeline::is_finished(pipeline::query_id q) const
     throw std::logic_error(
       "Requested status for unknown query " + to_string(q));
   return
-	(QueryMap::const_iterator(m_issuedrange.first)==m_queries.end()) ||
-	(q < m_issuedrange.first->first && q < m_error);
+	(QueryMap::const_iterator(m_issuedrange.first)==m_queries.end()) or
+	(q < m_issuedrange.first->first and q < m_error);
 }
 
 
@@ -171,7 +171,7 @@ int pqxx::pipeline::retain(int retain_max)
 void pqxx::pipeline::resume()
 {
   if (have_pending()) receive_if_available();
-  if (!have_pending() && m_num_waiting)
+  if (not have_pending() and m_num_waiting)
   {
     issue();
     receive_if_available();
@@ -192,8 +192,8 @@ pipeline::query_id pqxx::pipeline::generate_id()
 void pqxx::pipeline::issue()
 {
   pqxxassert(m_num_waiting);
-  pqxxassert(!have_pending());
-  pqxxassert(!m_dummy_pending);
+  pqxxassert(not have_pending());
+  pqxxassert(not m_dummy_pending);
   pqxxassert(m_num_waiting);
 
   // TODO: Wrap in nested transaction if available, for extra "replayability"
@@ -235,14 +235,14 @@ void pqxx::pipeline::internal_error(const std::string &err)
 
 bool pqxx::pipeline::obtain_result(bool expect_none)
 {
-  pqxxassert(!m_dummy_pending);
-  pqxxassert(!m_queries.empty());
+  pqxxassert(not m_dummy_pending);
+  pqxxassert(not m_queries.empty());
 
   gate::connection_pipeline gate(m_trans.conn());
   const auto r = gate.get_result();
-  if (!r)
+  if (r == nullptr)
   {
-    if (have_pending() && !expect_none)
+    if (have_pending() and not expect_none)
     {
       set_error_at(m_issuedrange.first->first);
       m_issuedrange.second = m_issuedrange.first;
@@ -254,7 +254,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   const result res = gate::result_creation::create(
 	r, std::begin(m_queries)->second.get_query());
 
-  if (!have_pending())
+  if (not have_pending())
   {
     set_error_at(std::begin(m_queries)->first);
     throw std::logic_error(
@@ -262,7 +262,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   }
 
   // Must be the result for the oldest pending query
-  if (!m_issuedrange.first->second.get_result().empty())
+  if (not m_issuedrange.first->second.get_result().empty())
     internal_error("multiple results for one query");
 
   m_issuedrange.first->second.set_result(res);
@@ -279,7 +279,7 @@ void pqxx::pipeline::obtain_dummy()
   const auto r = gate.get_result();
   m_dummy_pending = false;
 
-  if (!r)
+  if (r == nullptr)
     internal_error("pipeline got no result from backend when it expected one");
 
   result R = gate::result_creation::create(r, "[DUMMY PIPELINE QUERY]");
@@ -324,8 +324,8 @@ void pqxx::pipeline::obtain_dummy()
   m_num_waiting += int(std::distance(m_issuedrange.first, stop));
   m_issuedrange.second = m_issuedrange.first;
 
-  pqxxassert(!m_dummy_pending);
-  pqxxassert(!have_pending());
+  pqxxassert(not m_dummy_pending);
+  pqxxassert(not have_pending());
   pqxxassert(m_num_waiting > 0);
 
   // Issue queries in failed batch one at a time.
@@ -373,7 +373,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 	"Could not complete query in pipeline due to error in earlier query");
 
   // If query hasn't issued yet, do it now
-  if (m_issuedrange.second != m_queries.end() &&
+  if (m_issuedrange.second != m_queries.end() and
       (q->first >= m_issuedrange.second->first))
   {
     pqxxassert(std::distance(m_issuedrange.second, q) >= 0);
@@ -397,14 +397,14 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
     }
   }
 
-  pqxxassert((m_error <= q->first) || (q != m_issuedrange.first));
+  pqxxassert((m_error <= q->first) or (q != m_issuedrange.first));
 
   if (q->first >= m_error)
     throw std::runtime_error(
 	"Could not complete query in pipeline due to error in earlier query");
 
   // Don't leave the backend idle if there are queries waiting to be issued
-  if (m_num_waiting && !have_pending() && (m_error==qid_limit())) issue();
+  if (m_num_waiting and not have_pending() and (m_error==qid_limit())) issue();
 
   const result R = q->second.get_result();
   const auto P = std::make_pair(q->first, R);
@@ -418,17 +418,17 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 
 void pqxx::pipeline::get_further_available_results()
 {
-  pqxxassert(!m_dummy_pending);
+  pqxxassert(not m_dummy_pending);
   gate::connection_pipeline gate(m_trans.conn());
-  while (!gate.is_busy() && obtain_result())
-    if (!gate.consume_input()) throw broken_connection();
+  while (not gate.is_busy() and obtain_result())
+    if (not gate.consume_input()) throw broken_connection();
 }
 
 
 void pqxx::pipeline::receive_if_available()
 {
   gate::connection_pipeline gate(m_trans.conn());
-  if (!gate.consume_input()) throw broken_connection();
+  if (not gate.consume_input()) throw broken_connection();
   if (gate.is_busy()) return;
 
   if (m_dummy_pending) obtain_dummy();
@@ -442,7 +442,7 @@ void pqxx::pipeline::receive(pipeline::QueryMap::const_iterator stop)
 
   if (m_dummy_pending) obtain_dummy();
 
-  while (obtain_result() &&
+  while (obtain_result() and
          QueryMap::const_iterator(m_issuedrange.first) != stop) ;
 
   // Also haul in any remaining "targets of opportunity"

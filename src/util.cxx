@@ -1,6 +1,6 @@
 /** Various utility functions.
  *
- * Copyright (c) 2003-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2003-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -54,7 +54,7 @@ std::string pqxx::internal::namedclass::description() const
   try
   {
     std::string desc = classname();
-    if (!name().empty()) desc += " '" + name() + "'";
+    if (not name().empty()) desc += " '" + name() + "'";
     return desc;
   }
   catch (const std::exception &)
@@ -69,7 +69,7 @@ std::string pqxx::internal::namedclass::description() const
 void pqxx::internal::CheckUniqueRegistration(const namedclass *New,
     const namedclass *Old)
 {
-  if (!New)
+  if (New == nullptr)
     throw internal_error("null pointer registered");
   if (Old)
   {
@@ -87,11 +87,11 @@ void pqxx::internal::CheckUniqueUnregistration(const namedclass *New,
 {
   if (New != Old)
   {
-    if (!New)
+    if (New == nullptr)
       throw usage_error(
 	"Expected to close " + Old->description() + ", "
 	"but got null pointer instead");
-    if (!Old)
+    if (Old == nullptr)
       throw usage_error("Closed while not open: " + New->description());
     throw usage_error(
 	"Closed " + New->description() + "; "

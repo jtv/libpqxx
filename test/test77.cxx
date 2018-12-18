@@ -15,12 +15,14 @@ void test_077(transaction_base &T)
   bool f, t;
   from_string(RFalse[0], f);
   from_string(RTrue[0],  t);
-  PQXX_CHECK(!f && t, "Booleans converted incorrectly; can't trust this test.");
+  PQXX_CHECK(
+	not f and t,
+	"Booleans converted incorrectly; can't trust this test.");
 
   RFalse.swap(RTrue);
   from_string(RFalse[0], f);
   from_string(RTrue[0],  t);
-  PQXX_CHECK(f && !t, "result::swap() is broken.");
+  PQXX_CHECK(f and not t, "result::swap() is broken.");
 }
 } // namespace
 

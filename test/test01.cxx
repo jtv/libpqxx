@@ -28,7 +28,7 @@ void test_001(transaction_base &trans)
   result R( T.exec("SELECT * FROM pg_tables") );
 
   // We're expecting to find some tables...
-  PQXX_CHECK(!R.empty(), "No tables found.  Cannot test.");
+  PQXX_CHECK(not R.empty(), "No tables found.  Cannot test.");
 
   // Process each successive result row
   for (const auto &c: R)

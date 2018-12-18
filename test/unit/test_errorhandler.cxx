@@ -40,7 +40,7 @@ template<> struct string_traits<TestErrorHandler *>
 {
   static const char *name() { return "TestErrorHandler"; }
   static bool has_null() { return true; }
-  static bool is_null(TestErrorHandler *t) { return !t; }
+  static bool is_null(TestErrorHandler *t) { return t == nullptr; }
   static string to_string(TestErrorHandler *t)
   {
     return "TestErrorHandler at " + pqxx::to_string(ptrdiff_t(t));

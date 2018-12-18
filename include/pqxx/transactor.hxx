@@ -266,7 +266,7 @@ inline void connection_base::perform(
     }
 
     T2.on_commit();
-  } while (!Done);
+  } while (not Done);
 }
 } // namespace pqxx
 //@}

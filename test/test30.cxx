@@ -20,7 +20,7 @@ void test_030(transaction_base &)
   work T(C, "test30");
 
   result R( T.exec(("SELECT * FROM " + Table).c_str()) );
-  PQXX_CHECK(!R.empty(), "Table " + Table + " is empty, cannot test.");
+  PQXX_CHECK(not R.empty(), "Table " + Table + " is empty, cannot test.");
 
   // Print column names
   for (pqxx::row::size_type c = 0; c < R.columns(); ++c)

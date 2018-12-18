@@ -21,7 +21,7 @@ string SetDatestyle(connection_base &C, string style)
   const string fullname = GetDatestyle(C);
   cout << "Set datestyle to " << style << ": " << fullname << endl;
   PQXX_CHECK(
-	!fullname.empty(),
+	not fullname.empty(),
 	"Setting datestyle to " + style + " makes it an empty string.");
 
   return fullname;
@@ -56,7 +56,7 @@ void test_064(transaction_base &)
 {
   asyncconnection C;
 
-  PQXX_CHECK(!GetDatestyle(C).empty(), "Initial datestyle not set.");
+  PQXX_CHECK(not GetDatestyle(C).empty(), "Initial datestyle not set.");
 
   const string ISOname = SetDatestyle(C, "ISO");
   const string SQLname = SetDatestyle(C, "SQL");

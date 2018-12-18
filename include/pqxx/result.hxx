@@ -94,7 +94,7 @@ public:
   //@{
   bool operator==(const result &) const noexcept;			//[t70]
   bool operator!=(const result &rhs) const noexcept			//[t70]
-	{ return !operator==(rhs); }
+	{ return not operator==(rhs); }
   //@}
 
   const_reverse_iterator rbegin() const;				//[t75]
@@ -218,7 +218,7 @@ private:
 
   friend class pqxx::internal::gate::result_connection;
   friend class pqxx::internal::gate::result_row;
-  bool operator!() const noexcept { return !m_data.get(); }
+  bool operator!() const noexcept { return not m_data.get(); }
   operator bool() const noexcept { return m_data.get() != nullptr; }
 
   [[noreturn]] PQXX_PRIVATE void ThrowSQLError(

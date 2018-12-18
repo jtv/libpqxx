@@ -587,7 +587,7 @@ private:
   PQXX_PRIVATE void CheckPendingError();
 
   template<typename T> bool parm_is_null(T *p) const noexcept
-	{ return !p; }
+	{ return p == nullptr; }
   template<typename T> bool parm_is_null(T) const noexcept
 	{ return false; }
 

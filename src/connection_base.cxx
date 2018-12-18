@@ -128,7 +128,7 @@ int pqxx::connection_base::sock() const noexcept
 
 void pqxx::connection_base::activate()
 {
-  if (!is_open())
+  if (not is_open())
   {
     if (m_inhibit_reactivation)
       throw broken_connection(
@@ -145,7 +145,7 @@ void pqxx::connection_base::activate()
       m_conn = m_policy.do_completeconnect(m_conn);
       m_completed = true;	// (But retracted if error is thrown below)
 
-      if (!is_open()) throw broken_connection();
+      if (not is_open()) throw broken_connection();
 
       set_up_state();
     }
@@ -166,7 +166,7 @@ void pqxx::connection_base::activate()
 
 void pqxx::connection_base::deactivate()
 {
-  if (!m_conn) return;
+  if (m_conn == nullptr) return;
 
   if (m_trans.get())
     throw usage_error(
@@ -253,7 +253,7 @@ void pqxx::connection_base::clearcaps() noexcept
  */
 void pqxx::connection_base::set_up_state()
 {
-  if (!m_conn)
+  if (m_conn == nullptr)
     throw internal_error("set_up_state() on no connection");
 
   if (status() != CONNECTION_OK)
@@ -271,7 +271,7 @@ void pqxx::connection_base::set_up_state()
 
   internal_set_trace();
 
-  if (!m_receivers.empty() || !m_vars.empty())
+  if (not m_receivers.empty() or not m_vars.empty())
   {
     std::stringstream restore_query;
 
@@ -279,7 +279,7 @@ void pqxx::connection_base::set_up_state()
     // send them over in one go.
 
     // Reinstate all active receivers
-    if (!m_receivers.empty())
+    if (not m_receivers.empty())
     {
       std::string Last;
       for (auto &i: m_receivers)
@@ -306,16 +306,16 @@ void pqxx::connection_base::set_up_state()
   }
 
   m_completed = true;
-  if (!is_open()) throw broken_connection();
+  if (not is_open()) throw broken_connection();
 }
 
 
 void pqxx::connection_base::check_result(const result &R)
 {
-  if (!is_open()) throw broken_connection();
+  if (not is_open()) throw broken_connection();
 
   // A shame we can't quite detect out-of-memory to turn this into a bad_alloc!
-  if (!gate::result_connection(R)) throw failure(err_msg());
+  if (not gate::result_connection(R)) throw failure(err_msg());
 
   gate::result_creation(R).check_status();
 }
@@ -332,23 +332,23 @@ void pqxx::connection_base::disconnect() noexcept
 
 bool pqxx::connection_base::is_open() const noexcept
 {
-  return m_conn && m_completed && (status() == CONNECTION_OK);
+  return m_conn and m_completed and (status() == CONNECTION_OK);
 }
 
 
 void pqxx::connection_base::process_notice_raw(const char msg[]) noexcept
 {
-  if (!msg || !*msg) return;
+  if ((msg == nullptr) or (*msg == '\0')) return;
   const auto
 	rbegin = m_errorhandlers.rbegin(),
 	rend = m_errorhandlers.rend();
-  for (auto i = rbegin; i != rend && (**i)(msg); ++i) ;
+  for (auto i = rbegin; i != rend and (**i)(msg); ++i) ;
 }
 
 
 void pqxx::connection_base::process_notice(const char msg[]) noexcept
 {
-  if (!msg) return;
+  if (msg == nullptr) return;
   const auto len = strlen(msg);
   if (len == 0) return;
   if (msg[len-1] == '\n')
@@ -416,7 +416,7 @@ void pqxx::connection_base::trace(FILE *Out) noexcept
 
 void pqxx::connection_base::add_receiver(pqxx::notification_receiver *T)
 {
-  if (!T) throw argument_error("Null receiver registered");
+  if (T == nullptr) throw argument_error("Null receiver registered");
 
   // Add to receiver list and attempt to start listening.
   const auto p = m_receivers.find(T->channel());
@@ -446,7 +446,7 @@ void pqxx::connection_base::add_receiver(pqxx::notification_receiver *T)
 void pqxx::connection_base::remove_receiver(pqxx::notification_receiver *T)
 	noexcept
 {
-  if (!T) return;
+  if (T == nullptr) return;
 
   try
   {
@@ -464,7 +464,7 @@ void pqxx::connection_base::remove_receiver(pqxx::notification_receiver *T)
     {
       // Erase first; otherwise a notification for the same receiver may yet
       // come in and wreak havoc.  Thanks Dragan Milenkovic.
-      const bool gone = (m_conn && (R.second == ++R.first));
+      const bool gone = (m_conn and (R.second == ++R.first));
       m_receivers.erase(i);
       if (gone) exec(("UNLISTEN \"" + needle.first + "\"").c_str(), 0);
     }
@@ -504,14 +504,15 @@ public:
     if (conn)
     {
       m_cancel = PQgetCancel(conn);
-      if (!m_cancel) throw std::bad_alloc();
+      if (m_cancel == nullptr) throw std::bad_alloc();
     }
   }
   ~cancel_wrapper() { if (m_cancel) PQfreeCancel(m_cancel); }
 
   void operator()()
   {
-    if (m_cancel && !PQcancel(m_cancel, m_errbuf, int(sizeof(m_errbuf))))
+    if (not m_cancel) return;
+    if (PQcancel(m_cancel, m_errbuf, int(sizeof(m_errbuf))) == 0)
       throw sql_error(std::string(m_errbuf));
   }
 };
@@ -548,9 +549,9 @@ notify_ptr get_notif(pqxx::internal::pq::PGconn *conn)
 
 int pqxx::connection_base::get_notifs()
 {
-  if (!is_open()) return 0;
+  if (not is_open()) return 0;
 
-  if (!consume_input()) throw broken_connection();
+  if (not consume_input()) throw broken_connection();
 
   // Even if somehow we receive notifications during our transaction, don't
   // deliver them.
@@ -600,28 +601,28 @@ int pqxx::connection_base::get_notifs()
 
 const char *pqxx::connection_base::dbname()
 {
-  if (!m_conn) activate();
+  if (m_conn == nullptr) activate();
   return PQdb(m_conn);
 }
 
 
 const char *pqxx::connection_base::username()
 {
-  if (!m_conn) activate();
+  if (m_conn == nullptr) activate();
   return PQuser(m_conn);
 }
 
 
 const char *pqxx::connection_base::hostname()
 {
-  if (!m_conn) activate();
+  if (m_conn == nullptr) activate();
   return PQhost(m_conn);
 }
 
 
 const char *pqxx::connection_base::port()
 {
-  if (!m_conn) activate();
+  if (m_conn == nullptr) activate();
   return PQport(m_conn);
 }
 
@@ -660,7 +661,7 @@ pqxx::result pqxx::connection_base::exec(const char Query[], int Retries)
 
   auto R = make_result(PQexec(m_conn, Query), Query);
 
-  while ((Retries > 0) && !gate::result_connection(R) && !is_open())
+  while ((Retries > 0) and not gate::result_connection(R) and not is_open())
   {
     Retries--;
     reset();
@@ -683,7 +684,7 @@ void pqxx::connection_base::prepare(
   {
     if (definition != i->second.definition)
     {
-      if (!name.empty())
+      if (not name.empty())
         throw argument_error(
 		"Inconsistent redefinition of prepared statement " + name);
 
@@ -736,13 +737,13 @@ pqxx::connection_base::register_prepared(const std::string &name)
   auto &s = find_prepared(name);
 
   // "Register" (i.e., define) prepared statement with backend on demand
-  if (!s.registered)
+  if (not s.registered)
   {
     auto r = make_result(
       PQprepare(m_conn, name.c_str(), s.definition.c_str(), 0, nullptr),
       "[PREPARE " + name + "]");
     check_result(r);
-    s.registered = !name.empty();
+    s.registered = not name.empty();
     return s;
   }
 
@@ -848,7 +849,7 @@ void pqxx::connection_base::close() noexcept
 	"Closing connection while " + m_trans.get()->description() +
 	" still open");
 
-    if (!m_receivers.empty())
+    if (not m_receivers.empty())
     {
       process_notice("Closing connection with outstanding receivers.");
       m_receivers.clear();
@@ -924,7 +925,7 @@ void pqxx::connection_base::unregister_transaction(transaction_base *T)
 
 bool pqxx::connection_base::read_copy_line(std::string &Line)
 {
-  if (!is_open())
+  if (not is_open())
     throw internal_error("read_copy_line() without connection");
 
   Line.erase();
@@ -967,7 +968,7 @@ bool pqxx::connection_base::read_copy_line(std::string &Line)
 
 void pqxx::connection_base::write_copy_line(const std::string &Line)
 {
-  if (!is_open())
+  if (not is_open())
     throw internal_error("write_copy_line() without connection");
 
   const std::string L = Line + '\n';
@@ -1009,13 +1010,13 @@ void pqxx::connection_base::end_copy_write()
 void pqxx::connection_base::start_exec(const std::string &Q)
 {
   activate();
-  if (!PQsendQuery(m_conn, Q.c_str())) throw failure(err_msg());
+  if (PQsendQuery(m_conn, Q.c_str()) == 0) throw failure(err_msg());
 }
 
 
 pqxx::internal::pq::PGresult *pqxx::connection_base::get_result()
 {
-  if (!m_conn) throw broken_connection();
+  if (m_conn == nullptr) throw broken_connection();
   return PQgetResult(m_conn);
 }
 
@@ -1030,7 +1031,7 @@ std::string pqxx::connection_base::esc(const char str[], size_t maxlen)
 {
   // We need a connection object...  This is the one reason why this function is
   // not const!
-  if (!m_conn) activate();
+  if (m_conn == nullptr) activate();
 
   std::vector<char> buf(2 * maxlen + 1);
   int err = 0;
@@ -1064,7 +1065,7 @@ std::string pqxx::connection_base::esc_raw(
   std::unique_ptr<unsigned char, void (*)(unsigned char *)> buf(
 	PQescapeByteaConn(m_conn, str, len, &bytes),
 	freepqmem_templated<unsigned char>);
-  if (!buf.get()) throw std::bad_alloc();
+  if (buf.get() == nullptr) throw std::bad_alloc();
   return std::string(reinterpret_cast<char *>(buf.get()));
 }
 
@@ -1101,7 +1102,7 @@ std::string pqxx::connection_base::quote_name(const std::string &identifier)
   std::unique_ptr<char, void (*)(char *)> buf(
 	PQescapeIdentifier(m_conn, identifier.c_str(), identifier.size()),
         freepqmem_templated<char>);
-  if (!buf.get()) throw failure(err_msg());
+  if (buf.get() == nullptr) throw failure(err_msg());
   return std::string(buf.get());
 }
 
@@ -1123,7 +1124,7 @@ pqxx::internal::reactivation_avoidance_exemption::
 {
   // Don't leave the connection open if reactivation avoidance is in effect and
   // the connection needed to be reactivated temporarily.
-  if (m_count && !m_open) m_home.deactivate();
+  if (m_count and not m_open) m_home.deactivate();
   gate::connection_reactivation_avoidance_exemption gate(m_home);
   gate.add_counter(m_count);
 }
@@ -1159,7 +1160,7 @@ void wait_fd(int fd, bool forwrite=false, timeval *tv=nullptr)
   // No poll()?  Our last option is select().
   fd_set read_fds;
   FD_ZERO(&read_fds);
-  if (!forwrite) FD_SET(fd, &read_fds);
+  if (not forwrite) FD_SET(fd, &read_fds);
 
   fd_set write_fds;
   FD_ZERO(&write_fds);
@@ -1226,7 +1227,7 @@ int pqxx::connection_base::await_notification()
 {
   activate();
   int notifs = get_notifs();
-  if (!notifs)
+  if (notifs == 0)
   {
     wait_read();
     notifs = get_notifs();
@@ -1239,7 +1240,7 @@ int pqxx::connection_base::await_notification(long seconds, long microseconds)
 {
   activate();
   int notifs = get_notifs();
-  if (!notifs)
+  if (notifs == 0)
   {
     wait_read(seconds, microseconds);
     notifs = get_notifs();

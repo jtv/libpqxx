@@ -2,7 +2,7 @@
  *
  * pqxx::dbtransaction represents a real backend transaction.
  *
- * Copyright (c) 2004-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2004-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -25,7 +25,7 @@ std::string generate_set_transaction(
 {
   std::string args;
 
-  if (!IsolationString.empty())
+  if (not IsolationString.empty())
     if (IsolationString != pqxx::isolation_traits<pqxx::read_committed>::name())
       args += " ISOLATION LEVEL " + IsolationString;
 

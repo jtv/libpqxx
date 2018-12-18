@@ -81,10 +81,10 @@ void test_031(transaction_base &orgT)
 
       PQXX_CHECK_NOT_EQUAL(j, i, "Iterator equals successor.");
       PQXX_CHECK(j != i, "Iterator is not different from successor.");
-      PQXX_CHECK(!(j >= i), "Iterator does not precede successor.");
-      PQXX_CHECK(!(j > i), "Iterator follows successor.");
-      PQXX_CHECK(!(i <= j), "operator<=() is asymmetric.");
-      PQXX_CHECK(!(i < j), "operator<() is asymmetric.");
+      PQXX_CHECK(not (j >= i), "Iterator does not precede successor.");
+      PQXX_CHECK(not (j > i), "Iterator follows successor.");
+      PQXX_CHECK(not (i <= j), "operator<=() is asymmetric.");
+      PQXX_CHECK(not (i < j), "operator<() is asymmetric.");
       PQXX_CHECK(j <= i, "operator<=() is inconsistent.");
       PQXX_CHECK(j < i, "operator<() is inconsistent.");
 
@@ -110,7 +110,7 @@ void test_031(transaction_base &orgT)
       // simple strings.
       for (pqxx::row::size_type f = 0; f < R.columns(); ++f)
       {
-        if (!j[f].is_null())
+        if (not j[f].is_null())
         {
           const bool U = SortedUp[f],
                      D = SortedDown[f];

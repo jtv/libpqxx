@@ -31,7 +31,7 @@ using buffer = std::pair<unsigned char *, size_t>;
 buffer to_buffer(const void *data, size_t len)
 {
   void *const output(malloc(len + 1));
-  if (!output) throw std::bad_alloc();
+  if (output == nullptr) throw std::bad_alloc();
   static_cast<char *>(output)[len] = '\0';
   memcpy(static_cast<char *>(output), data, len);
   return buffer(static_cast<unsigned char *>(output), len);
@@ -58,7 +58,7 @@ buffer unescape(const unsigned char escaped[])
 	PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped_len),
 	freepqmem_templated<unsigned char>);
   void *data = A.get();
-  if (!data) throw std::bad_alloc();
+  if (data == nullptr) throw std::bad_alloc();
   return to_buffer(data, unescaped_len);
 #else
   /* On non-Windows platforms, it's okay to free libpq-allocated memory using
@@ -67,7 +67,7 @@ buffer unescape(const unsigned char escaped[])
   buffer unescaped;
   unescaped.first = PQunescapeBytea(
 	const_cast<unsigned char *>(escaped), &unescaped.second);
-  if (!unescaped.first) throw std::bad_alloc();
+  if (unescaped.first == nullptr) throw std::bad_alloc();
   return unescaped;
 #endif
 }
@@ -121,7 +121,7 @@ pqxx::binarystring::const_reference pqxx::binarystring::at(size_type n) const
 {
   if (n >= m_size)
   {
-    if (!m_size)
+    if (m_size == 0)
       throw std::out_of_range("Accessing empty binarystring");
     throw std::out_of_range("binarystring index out of range: " +
 	to_string(n) + " (should be below " + to_string(m_size) + ")");

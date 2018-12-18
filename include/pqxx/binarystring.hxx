@@ -106,7 +106,7 @@ public:
 
   PQXX_PURE bool operator==(const binarystring &) const noexcept;	//[t62]
   bool operator!=(const binarystring &rhs) const noexcept		//[t62]
-	{ return !operator==(rhs); }
+	{ return not operator==(rhs); }
 
   binarystring &operator=(const binarystring &);
 

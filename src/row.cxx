@@ -2,7 +2,7 @@
  *
  * pqxx::result represents the set of result rows from a database query.
  *
- * Copyright (c) 2001-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -215,7 +215,7 @@ pqxx::row::size_type pqxx::result::column_number(const char ColName[]) const
 
 pqxx::row pqxx::row::slice(size_type Begin, size_type End) const
 {
-  if (Begin > End || End > size())
+  if (Begin > End or End > size())
     throw range_error("Invalid field range");
 
   row result(*this);

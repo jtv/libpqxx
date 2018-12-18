@@ -69,7 +69,7 @@ void test_legacy_prepared_statement(transaction_base &T)
   connection_base &C(T.conn());
 
   PQXX_CHECK(
-	!(T.prepared("CountToTen").exists()),
+	not (T.prepared("CountToTen").exists()),
 	"Nonexistent prepared statement thinks it exists.");
 
   // Prepare a simple statement.
@@ -186,7 +186,7 @@ void test_registration_and_invocation(transaction_base &T)
 {
   constexpr auto count_to_5 = "SELECT * FROM generate_series(1, 5)";
   PQXX_CHECK(
-	!T.prepared("CountToFive").exists(),
+	not T.prepared("CountToFive").exists(),
 	"Nonexistent prepared statement thinks it exists.");
 
   // Prepare a simple statement.

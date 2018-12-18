@@ -48,7 +48,10 @@ void test_receive(
   t.commit();
 
   int notifs = 0;
-  for (int i=0; (i < 10) && !notifs; ++i, pqxx::internal::sleep_seconds(1))
+  for (
+	int i=0;
+	(i < 10) and (notifs == 0);
+	++i, pqxx::internal::sleep_seconds(1))
     notifs = conn.get_notifs();
 
   PQXX_CHECK_EQUAL(notifs, 1, "Got wrong number of notifications.");

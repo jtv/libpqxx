@@ -89,7 +89,7 @@ void test_049(transaction_base &T)
 
   result R( T.exec("SELECT * FROM " + Table + " ORDER BY " + Key) );
   cout << "Read " << R.size() << " rows." << endl;
-  PQXX_CHECK(!R.empty(), "No rows in " + Table + ".");
+  PQXX_CHECK(not R.empty(), "No rows in " + Table + ".");
 
   // Verify that for each key in R, the number of greater and smaller keys
   // are sensible; use std::for_each<>() to iterate over rows in R

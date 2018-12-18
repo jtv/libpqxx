@@ -2,7 +2,7 @@
  *
  * pqxx::transaction represents a regular database transaction.
  *
- * Copyright (c) 2001-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -47,7 +47,7 @@ void pqxx::internal::basic_transaction::do_commit()
   }
   catch (const std::exception &e)
   {
-    if (!conn().is_open())
+    if (not conn().is_open())
     {
       // We've lost the connection while committing.  There is just no way of
       // telling what happened on the other end.  >8-O

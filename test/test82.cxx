@@ -16,7 +16,7 @@ void test_082(transaction_base &T)
   result R( T.exec("SELECT * FROM " + Table) );
   T.conn().disconnect();
 
-  PQXX_CHECK(!R.empty(), "Got empty result.");
+  PQXX_CHECK(not R.empty(), "Got empty result.");
 
   const string nullstr("[null]");
 
@@ -50,7 +50,7 @@ void test_082(transaction_base &T)
     PQXX_CHECK(f3 > r.begin(), "Row end() appears to precede its begin().");
 
     PQXX_CHECK(
-	f3 >= r.end() && r.begin() < f3,
+	f3 >= r.end() and r.begin() < f3,
 	"Row iterator operator<() is broken.");
 
     PQXX_CHECK(f3 > r.begin(), "Row end() not greater than begin().");
@@ -105,7 +105,7 @@ void test_082(transaction_base &T)
   PQXX_CHECK(ri2 == ri3 - 0, "reverse_iterator-0 gives strange result.");
 
   PQXX_CHECK(
-	!(ri3 < ri2),
+	not (ri3 < ri2),
 	"reverse_iterator operator<() breaks on identical iterators.");
   PQXX_CHECK(
 	ri2 <= ri3,

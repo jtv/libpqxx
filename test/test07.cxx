@@ -59,7 +59,7 @@ public:
     PQXX_CHECK(rctype > 0, "Got strange type ID for column: " + rct);
 
     const string rcol = R.column_name(0);
-    PQXX_CHECK( !rcol.empty(), "Didn't get a name for column.");
+    PQXX_CHECK(not rcol.empty(), "Didn't get a name for column.");
 
     const oid rcctype = R.column_type(rcol);
     PQXX_CHECK_EQUAL(rcctype, rctype, "Column type is not what it is by name.");

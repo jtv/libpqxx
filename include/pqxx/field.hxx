@@ -85,7 +85,7 @@ public:
   /** @warning See operator==() for important information about this operator
    */
   bool operator!=(const field &rhs) const				//[t82]
-						    {return !operator==(rhs);}
+						   {return not operator==(rhs);}
   //@}
 
   /**
@@ -134,12 +134,12 @@ public:
    */
   template<typename T> auto to(T &Obj) const				//[t03]
     -> typename std::enable_if<(
-      !std::is_pointer<T>::value
-      || std::is_same<T, const char*>::value
+      not std::is_pointer<T>::value
+      or std::is_same<T, const char*>::value
     ), bool>::type
   {
     const char *const bytes = c_str();
-    if (!bytes[0] && is_null()) return false;
+    if (bytes[0] == '\0' and is_null()) return false;
     from_string(bytes, Obj);
     return true;
   }
@@ -154,12 +154,12 @@ public:
    */
   template<typename T> auto to(T &Obj, const T &Default) const	//[t12]
     -> typename std::enable_if<(
-      !std::is_pointer<T>::value
-      || std::is_same<T, const char*>::value
+      not std::is_pointer<T>::value
+      or std::is_same<T, const char*>::value
     ), bool>::type
   {
     const bool NotNull = to(Obj);
-    if (!NotNull) Obj = Default;
+    if (not NotNull) Obj = Default;
     return NotNull;
   }
 
@@ -183,7 +183,7 @@ public:
   template<typename T> T as() const					//[t45]
   {
     T Obj;
-    if (!to(Obj)) Obj = string_traits<T>::null();
+    if (not to(Obj)) Obj = string_traits<T>::null();
     return Obj;
   }
 
@@ -233,7 +233,7 @@ template<>
 inline bool field::to<std::string>(std::string &Obj) const
 {
   const char *const bytes = c_str();
-  if (!bytes[0] && is_null()) return false;
+  if (bytes[0] == '\0' and is_null()) return false;
   Obj = std::string(bytes, size());
   return true;
 }

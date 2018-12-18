@@ -21,7 +21,7 @@ string SetDatestyle(transaction_base &T, string style)
   const string fullname = GetDatestyle(T);
   cout << "Set datestyle to " << style << ": " << fullname << endl;
   PQXX_CHECK(
-	!fullname.empty(),
+	not fullname.empty(),
 	"Setting datestyle to " + style + " makes it an empty string.");
 
   return fullname;
@@ -36,7 +36,7 @@ void RedoDatestyle(transaction_base &T, string style, string expected)
 
 void test_061(transaction_base &T)
 {
-  PQXX_CHECK(!GetDatestyle(T).empty(), "Initial datestyle not set.");
+  PQXX_CHECK(not GetDatestyle(T).empty(), "Initial datestyle not set.");
 
   const string ISOname = SetDatestyle(T, "ISO");
   const string SQLname = SetDatestyle(T, "SQL");

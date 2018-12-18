@@ -29,7 +29,7 @@ void test_binarystring(transaction_base &T)
 
   b = make_binarystring(T, "z");
   PQXX_CHECK_EQUAL(b.str(), "z", "Basic nonempty binarystring is broken.");
-  PQXX_CHECK(!b.empty(), "Nonempty binarystring is empty.");
+  PQXX_CHECK(not b.empty(), "Nonempty binarystring is empty.");
   PQXX_CHECK_EQUAL(b.size(), 1u, "Bad binarystring size.");
   PQXX_CHECK_EQUAL(b.length(), 1u, "Length/size mismatch.");
   PQXX_CHECK(b.begin() != b.end(), "Nonempty binarystring does not iterate.");

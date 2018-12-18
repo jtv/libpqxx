@@ -2,7 +2,7 @@
  *
  * pqxx::robusttransaction is a slower but safer transaction class.
  *
- * Copyright (c) 2002-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2002-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -70,7 +70,7 @@ void pqxx::internal::basic_robusttransaction::do_begin()
 
 void pqxx::internal::basic_robusttransaction::do_commit()
 {
-  if (!m_record_id)
+  if (m_record_id == 0)
     throw internal_error("transaction '" + name() + "' has no ID");
 
   // Check constraints before sending the COMMIT to the database to reduce the
@@ -237,7 +237,7 @@ std::string pqxx::internal::basic_robusttransaction::sql_delete() const
 void pqxx::internal::basic_robusttransaction::DeleteTransactionRecord()
         noexcept
 {
-  if (!m_record_id) return;
+  if (m_record_id == 0) return;
 
   try
   {
@@ -272,7 +272,7 @@ void pqxx::internal::basic_robusttransaction::DeleteTransactionRecord()
 bool pqxx::internal::basic_robusttransaction::CheckTransactionRecord()
 {
   bool hold = true;
-  for (int c=20; hold && c; internal::sleep_seconds(5), --c)
+  for (int c=20; hold and c; internal::sleep_seconds(5), --c)
   {
     if (conn().server_version() > 80300)
     {
@@ -298,7 +298,7 @@ bool pqxx::internal::basic_robusttransaction::CheckTransactionRecord()
 	"SELECT current_query "
 	"FROM pq_stat_activity "
 	"WHERE procpid = " + to_string(m_backendpid)).c_str()));
-      hold = !R.empty();
+      hold = not R.empty();
     }
   }
 
@@ -313,5 +313,5 @@ bool pqxx::internal::basic_robusttransaction::CheckTransactionRecord()
             "id = " + to_string(m_record_id) + " AND "
             "user = " + conn().username();
 
-  return !direct_exec(Find.c_str(), 20).empty();
+  return not direct_exec(Find.c_str(), 20).empty();
 }

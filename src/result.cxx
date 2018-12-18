@@ -2,7 +2,7 @@
  *
  * pqxx::result represents the set of result rows from a database query
  *
- * Copyright (c) 2001-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -91,7 +91,7 @@ pqxx::result::size_type pqxx::result::size() const noexcept
 
 bool pqxx::result::empty() const noexcept
 {
-  return !m_data.get() || !PQntuples(m_data.get());
+  return (m_data.get() == nullptr) or (PQntuples(m_data.get()) == 0);
 }
 
 
@@ -215,13 +215,13 @@ void pqxx::result::ThrowSQLError(
 void pqxx::result::check_status() const
 {
   const std::string Err = StatusError();
-  if (!Err.empty()) ThrowSQLError(Err, query());
+  if (not Err.empty()) ThrowSQLError(Err, query());
 }
 
 
 std::string pqxx::result::StatusError() const
 {
-  if (!m_data.get()) throw failure("No result set given");
+  if (m_data.get() == nullptr) throw failure("No result set given");
 
   std::string Err;
 
@@ -265,7 +265,7 @@ const std::string &pqxx::result::query() const noexcept
 
 pqxx::oid pqxx::result::inserted_oid() const
 {
-  if (!m_data.get())
+  if (m_data.get() == nullptr)
     throw usage_error(
 	"Attempt to read oid of inserted row without an INSERT result");
   return PQoidValue(const_cast<internal::pq::PGresult *>(m_data.get()));
@@ -321,7 +321,7 @@ pqxx::oid pqxx::result::column_table(row::size_type ColNum) const
   /* If we get oid_none, it may be because the column is computed, or because we
    * got an invalid row number.
    */
-  if (T == oid_none && ColNum >= columns())
+  if (T == oid_none and ColNum >= columns())
     throw argument_error(
 	"Attempt to retrieve table ID for column " + to_string(ColNum) +
 	" out of " + to_string(columns()));
@@ -340,7 +340,7 @@ pqxx::row::size_type pqxx::result::table_column(row::size_type ColNum) const
   if (ColNum > columns())
     throw range_error("Invalid column index in table_column(): " + col_num);
 
-  if (!m_data.get())
+  if (m_data.get() == nullptr)
     throw usage_error(
       "Can't query origin of column " + col_num + ": "
       "result is not initialized.");
@@ -367,9 +367,9 @@ int pqxx::result::errorposition() const
 const char *pqxx::result::column_name(pqxx::row::size_type Number) const
 {
   const char *const N = PQfname(m_data.get(), int(Number));
-  if (!N)
+  if (N == nullptr)
   {
-    if (!m_data.get())
+    if (m_data.get() == nullptr)
       throw usage_error("Queried column name on null result.");
     throw range_error(
 	"Invalid column number: " + to_string(Number) +

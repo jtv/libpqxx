@@ -2,7 +2,7 @@
  *
  * pqxx::tablewriter enables optimized batch updates to a database table.
  *
- * Copyright (c) 2001-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -66,7 +66,7 @@ void pqxx::tablewriter::write_raw_line(const std::string &Line)
 {
   const std::string::size_type len = Line.size();
   gate::transaction_tablewriter(m_trans).write_copy_line(
-	(!len || Line[len-1] != '\n') ?
+	((len == 0) or (Line[len-1] != '\n')) ?
 	Line :
         std::string(Line, 0, len-1));
 }
@@ -80,7 +80,7 @@ void pqxx::tablewriter::complete()
 
 void pqxx::tablewriter::writer_close()
 {
-  if (!is_finished())
+  if (not is_finished())
   {
     base_close();
     try
@@ -116,7 +116,7 @@ inline char escapechar(char i) noexcept
 
 inline bool unprintable(char i) noexcept
 {
-  return i < ' ' || i > '~';
+  return i < ' ' or i > '~';
 }
 
 inline char tooctdigit(char c, int n)

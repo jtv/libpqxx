@@ -2,7 +2,7 @@
  *
  * Different ways of setting up a backend connection.
  *
- * Copyright (c) 2001-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -33,7 +33,7 @@ pqxx::connectionpolicy::normalconnect(handle orig)
 {
   if (orig) return orig;
   orig = PQconnectdb(options().c_str());
-  if (!orig) throw std::bad_alloc();
+  if (orig == nullptr) throw std::bad_alloc();
   if (PQstatus(orig) != CONNECTION_OK)
   {
     const std::string msg(PQerrorMessage(orig));
@@ -108,10 +108,10 @@ pqxx::connect_async::connect_async(const std::string &opts) :
 pqxx::connectionpolicy::handle
 pqxx::connect_async::do_startconnect(handle orig)
 {
-  if (orig) return orig;	// Already connecting or connected
+  if (orig != nullptr) return orig;	// Already connecting or connected.
   m_connecting = false;
   orig = PQconnectStart(options().c_str());
-  if (!orig) throw std::bad_alloc();
+  if (orig == nullptr) throw std::bad_alloc();
   if (PQstatus(orig) == CONNECTION_BAD)
   {
     do_dropconnect(orig);
@@ -125,9 +125,9 @@ pqxx::connect_async::do_startconnect(handle orig)
 pqxx::connectionpolicy::handle
 pqxx::connect_async::do_completeconnect(handle orig)
 {
-  const bool makenew = !orig;
+  const bool makenew = (orig == nullptr);
   if (makenew) orig = do_startconnect(orig);
-  if (!m_connecting) return orig;
+  if (not m_connecting) return orig;
 
   // Our "attempt to connect" state ends here, for better or for worse
   m_connecting = false;
@@ -175,5 +175,5 @@ pqxx::connect_async::do_dropconnect(handle orig) noexcept
 
 bool pqxx::connect_async::is_ready(handle h) const noexcept
 {
-  return h != nullptr && !m_connecting;
+  return h != nullptr and not m_connecting;
 }

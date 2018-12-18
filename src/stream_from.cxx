@@ -2,7 +2,7 @@
  *
  * pqxx::stream_from enables optimized batch reads from a database table.
  *
- * Copyright (c) 2001-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -20,7 +20,7 @@ namespace
 {
   // bool is_octalchar(char o) noexcept
   // {
-  //   return (o>='0') && (o<='7');
+  //   return (o>='0') and (o<='7');
   // }
 
   /// Find first tab character at or after start position in string
@@ -75,7 +75,7 @@ bool pqxx::stream_from::get_raw_line(std::string &line)
   if (*this)
     try
     {
-      m_finished = !internal::gate::transaction_stream_from{
+      m_finished = not internal::gate::transaction_stream_from{
         m_trans
       }.read_copy_line(
         line
@@ -186,7 +186,7 @@ bool pqxx::stream_from::extract_field(
           //     throw failure{"Row ends in middle of octal value"};
           //   char n1 = line[here.end_byte++];
           //   char n2 = line[here.end_byte++];
-          //   if (!is_octalchar(n1) || !is_octalchar(n2))
+          //   if (not is_octalchar(n1) or not is_octalchar(n2))
           //     throw failure{
           //       "Invalid octal in encoded table stream"
           //     };
@@ -202,7 +202,7 @@ bool pqxx::stream_from::extract_field(
             {
             case 'N':
               // Null value
-              if (!s.empty())
+              if (not s.empty())
                 throw failure{
                   "Null sequence found in nonempty field"
                 };
@@ -247,7 +247,7 @@ bool pqxx::stream_from::extract_field(
   // Skip field separator
   i += 1;
 
-  return !is_null;
+  return not is_null;
 }
 
 template<> void pqxx::stream_from::extract_value<std::nullptr_t>(

@@ -15,14 +15,14 @@ void test_076(transaction_base &T)
   bool False, True;
   from_string(RFalse[0], False);
   from_string(RTrue[0],  True);
-  PQXX_CHECK(!False, "False bool converted to true.");
+  PQXX_CHECK(not False, "False bool converted to true.");
   PQXX_CHECK(True, "True bool converted to false.");
 
   RFalse = T.exec1("SELECT " + to_string(False));
   RTrue  = T.exec1("SELECT " + to_string(True));
   from_string(RFalse[0], False);
   from_string(RTrue[0],  True);
-  PQXX_CHECK(!False, "False bool converted to true.");
+  PQXX_CHECK(not False, "False bool converted to true.");
   PQXX_CHECK(True, "True bool converted to false.");
 
   const short svals[] = { -1, 1, 999, -32767, -32768, 32767, 0 };

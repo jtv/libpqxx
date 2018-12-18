@@ -36,7 +36,7 @@ namespace
  */
 inline bool useless_trail(char c)
 {
-  return isspace(c) || c==';';
+  return isspace(c) or c==';';
 }
 }
 
@@ -82,8 +82,8 @@ pqxx::internal::sql_cursor::sql_cursor(
    */
   auto last = query.end();
   // TODO: May break on multibyte encodings!
-  for (--last; last!=std::begin(query) && useless_trail(*last); --last) ;
-  if (last==std::begin(query) && useless_trail(*last))
+  for (--last; last!=std::begin(query) and useless_trail(*last); --last) ;
+  if (last==std::begin(query) and useless_trail(*last))
     throw argument_error("Cursor created on empty query");
   ++last;
 
@@ -217,7 +217,7 @@ pqxx::internal::sql_cursor::adjust(difference_type hoped,
   if (m_pos >= 0) m_pos += direction*actual;
   if (hit_end)
   {
-    if (m_endpos >= 0 && m_pos != m_endpos)
+    if (m_endpos >= 0 and m_pos != m_endpos)
       throw internal_error("Inconsistent cursor end positions");
     m_endpos = m_pos;
   }
@@ -229,7 +229,7 @@ result pqxx::internal::sql_cursor::fetch(
 	difference_type rows,
 	difference_type &displacement)
 {
-  if (!rows)
+  if (rows == 0)
   {
     displacement = 0;
     return m_empty_result;
@@ -246,7 +246,7 @@ cursor_base::difference_type pqxx::internal::sql_cursor::move(
 	difference_type rows,
 	difference_type &displacement)
 {
-  if (!rows)
+  if (rows == 0)
   {
     displacement = 0;
     return 0;
@@ -299,7 +299,7 @@ result pqxx::internal::stateless_cursor_retrieve(
 	result::difference_type begin_pos,
 	result::difference_type end_pos)
 {
-  if (begin_pos < 0 || begin_pos > size)
+  if (begin_pos < 0 or begin_pos > size)
     throw range_error("Starting position out of range");
 
   if (end_pos < -1) end_pos = -1;
@@ -422,7 +422,7 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
   {
     gate::icursor_iterator_icursorstream gate(*i);
     const auto ipos = gate.pos();
-    if (ipos >= m_realpos && ipos <= topos)
+    if (ipos >= m_realpos and ipos <= topos)
       todo.insert(todolist::value_type(ipos, i));
     next = gate.get_next();
   }
@@ -432,7 +432,7 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
     const auto readpos = i->first;
     if (readpos > m_realpos) ignore(readpos - m_realpos);
     const result r = fetchblock();
-    for ( ; i != todo_end && i->first == readpos; ++i)
+    for ( ; i != todo_end and i->first == readpos; ++i)
       gate::icursor_iterator_icursorstream(*i->second).fill(r);
   }
 }
@@ -493,7 +493,7 @@ icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
 {
   if (n <= 0)
   {
-    if (!n) return *this;
+    if (n == 0) return *this;
     throw argument_error("Advancing icursor_iterator by negative offset");
   }
   m_pos = difference_type(
@@ -529,10 +529,10 @@ pqxx::icursor_iterator::operator=(const icursor_iterator &rhs) noexcept
 bool pqxx::icursor_iterator::operator==(const icursor_iterator &rhs) const
 {
   if (m_stream == rhs.m_stream) return pos() == rhs.pos();
-  if (m_stream && rhs.m_stream) return false;
+  if (m_stream and rhs.m_stream) return false;
   refresh();
   rhs.refresh();
-  return m_here.empty() && rhs.m_here.empty();
+  return m_here.empty() and rhs.m_here.empty();
 }
 
 
@@ -541,7 +541,7 @@ bool pqxx::icursor_iterator::operator<(const icursor_iterator &rhs) const
   if (m_stream == rhs.m_stream) return pos() < rhs.pos();
   refresh();
   rhs.refresh();
-  return !m_here.empty();
+  return not m_here.empty();
 }
 
 

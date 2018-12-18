@@ -62,7 +62,7 @@ public:
   //@{
   PQXX_PURE bool operator==(const row &) const noexcept;		//[t75]
   bool operator!=(const row &rhs) const noexcept			//[t75]
-      { return !operator==(rhs); }
+      { return not operator==(rhs); }
   //@}
 
   const_iterator begin() const noexcept;				//[t82]

@@ -17,7 +17,9 @@ void TestPipeline(pipeline &P, int numqueries)
   for (int i=numqueries; i; --i) P.insert(Q);
   P.resume();
 
-  PQXX_CHECK(!numqueries || !P.empty(), "pipeline::empty() is broken.");
+  PQXX_CHECK(
+	(numqueries == 0) || not P.empty(),
+	"pipeline::empty() is broken.");
 
   int res = 0;
   result Prev;
@@ -25,7 +27,7 @@ void TestPipeline(pipeline &P, int numqueries)
 
   for (int i=numqueries; i; --i)
   {
-    PQXX_CHECK(!P.empty(), "Got no results from pipeline.");
+    PQXX_CHECK(not P.empty(), "Got no results from pipeline.");
 
     auto R = P.retrieve();
 
@@ -66,9 +68,9 @@ void test_070(transaction_base &W)
   // See if complete() breaks retain() as it should
   P.retain();
   P.insert(Q);
-  PQXX_CHECK(!P.empty(), "Pipeline was empty after insert().");
+  PQXX_CHECK(not P.empty(), "Pipeline was empty after insert().");
   P.complete();
-  PQXX_CHECK(!P.empty(), "complete() emptied pipeline.");
+  PQXX_CHECK(not P.empty(), "complete() emptied pipeline.");
 
   PQXX_CHECK_EQUAL(
 	P.retrieve().second.query(),

@@ -26,7 +26,7 @@ void test_011(transaction_base &T)
   }
 
   // If there are rows in R, compare their metadata to R's.
-  if (!R.empty())
+  if (not R.empty())
   {
     PQXX_CHECK_EQUAL(R[0].rownumber(), 0u, "Row 0 has wrong number.");
 

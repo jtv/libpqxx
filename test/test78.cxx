@@ -79,7 +79,7 @@ void test_078(transaction_base &orgT)
   C.perform(Notify(L.channel()));
 
   int notifs = 0;
-  for (int i=0; (i < 20) && !L.done(); ++i)
+  for (int i=0; (i < 20) and not L.done(); ++i)
   {
     PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
     cout << ".";

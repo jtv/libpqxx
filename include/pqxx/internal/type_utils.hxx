@@ -36,7 +36,7 @@ template<typename T> using inner_type = typename std::remove_reference<
 template<typename T, typename = void> struct is_derefable : std::false_type {};
 template<typename T> struct is_derefable<T, void_t<
   // Disable for arrays so they don't erroneously decay to pointers
-  inner_type<typename std::enable_if<!std::is_array<T>::value, T>::type>
+  inner_type<typename std::enable_if<not std::is_array<T>::value, T>::type>
 >> : std::true_type {};
 
 /// Detect if the given type should be treated as an optional-value wrapper type
@@ -83,7 +83,7 @@ template<typename T> struct is_container<
     decltype(std::end(std::declval<T>())),
     // Some people might implement a `std::tuple<>` specialization that is
     // iterable when all the contained types are the same ;)
-    typename std::enable_if<!is_tuple<T>::value>::type
+    typename std::enable_if<not is_tuple<T>::value>::type
   >
 > : std::true_type {};
 
@@ -99,7 +99,7 @@ template<typename T> constexpr auto null_value()
   -> typename std::enable_if<
     (
       is_optional<T>::value
-      && !takes_std_nullopt<T>::value
+      && not takes_std_nullopt<T>::value
       && std::is_assignable<T, std::nullptr_t>::value
     ),
     std::nullptr_t
@@ -107,7 +107,7 @@ template<typename T> constexpr auto null_value()
 { return nullptr; }
 template<typename T> constexpr auto null_value()
   -> typename std::enable_if<
-    (!is_optional<T>::value && !takes_std_nullopt<T>::value),
+    (not is_optional<T>::value && not takes_std_nullopt<T>::value),
     decltype(pqxx::string_traits<T>::null())
   >::type
 { return pqxx::string_traits<T>::null(); }
@@ -140,7 +140,7 @@ template<typename T> constexpr auto null_value()
 // inner type is convertible to a pointer (e.g. `int`)
 template<typename T, typename V> constexpr auto make_optional(V&& v)
   -> typename std::enable_if<
-    !std::is_same<T, inner_type<T>*>::value,
+    not std::is_same<T, inner_type<T>*>::value,
     decltype(T(std::forward<V>(v)))
   >::type
 { return T(std::forward<V>(v)); }
@@ -182,11 +182,11 @@ public:
     { return string_traits<I>::name(); }
   static constexpr bool has_null() noexcept { return true; }
   static bool is_null(const T& v)
-    { return (!v || string_traits<I>::is_null(*v)); }
+    { return (not v || string_traits<I>::is_null(*v)); }
   static constexpr T null() { return internal::null_value<T>(); }
   static void from_string(const char Str[], T &Obj)
   {
-    if (!Str) Obj = null();
+    if (not Str) Obj = null();
     else
     {
       I inner;

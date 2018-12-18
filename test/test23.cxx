@@ -75,7 +75,7 @@ void test_023(transaction_base &)
   C.perform(Notify(L.channel()));
 
   int notifs = 0;
-  for (int i=0; (i < 20) && !L.done(); ++i)
+  for (int i=0; (i < 20) and not L.done(); ++i)
   {
     PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
     pqxx::internal::sleep_seconds(1);

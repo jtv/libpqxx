@@ -127,7 +127,7 @@ std::string pqxx::internal::TypedCopyEscaper::escape(const std::string &s)
     case '\v': escaped += "\\v";  break; // Carriage return
     case '\\': escaped += "\\\\"; break; // Backslash
     default:
-      if (c < ' ' || c > '~')
+      if (c < ' ' or c > '~')
       {
         escaped += "\\";
         for (auto i = 2; i >= 0; --i)

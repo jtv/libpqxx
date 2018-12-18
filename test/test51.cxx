@@ -73,13 +73,13 @@ public:
 	"Large objects: false negative on operator!=().");
 
     PQXX_CHECK(
-	!(m_object_output == m_object),
+	not (m_object_output == m_object),
 	"Large objects: false positive on operator==().");
 
     m_object_output = m_object;
 
     PQXX_CHECK(
-	!(m_object_output != m_object),
+	not (m_object_output != m_object),
 	"Large objects: false positive on operator!=().");
     PQXX_CHECK(
 	m_object_output == m_object,
@@ -93,10 +93,10 @@ public:
 	"Large objects: false negative on operator>=().");
 
     PQXX_CHECK(
-	!(m_object_output < m_object),
+	not (m_object_output < m_object),
 	"Large objects: false positive on operator<().");
     PQXX_CHECK(
-	!(m_object_output > m_object),
+	not (m_object_output > m_object),
 	"Large objects: false positive on operator>().");
  }
 

@@ -132,7 +132,7 @@ template<typename Tuple> stream_from & stream_from::operator>>(
   Tuple &t
 )
 {
-  if (m_retry_line || get_raw_line(m_current_line))
+  if (m_retry_line or get_raw_line(m_current_line))
   {
     std::string workspace;
     try
@@ -179,7 +179,9 @@ template<typename Tuple, std::size_t I> auto stream_from::tokenize_ith(
 )>::type
 {
   // Zero-column line may still have a trailing newline
-  if (here < line.size() && !(here == line.size() - 1 && line[here] == '\n'))
+  if (
+	here < line.size() and
+        not (here == line.size() - 1 and line[here] == '\n'))
     throw usage_error{"Not all fields extracted from stream_from line"};
 }
 

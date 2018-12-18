@@ -15,14 +15,14 @@ void test_075(transaction_base &W)
 {
   test::create_pqxxevents(W);
   const result R( W.exec("SELECT year FROM pqxxevents") );
-  PQXX_CHECK(!R.empty(), "No events found, cannot test.");
+  PQXX_CHECK(not R.empty(), "No events found, cannot test.");
 
   PQXX_CHECK_EQUAL(R[0], R.at(0), "Inconsistent result indexing.");
-  PQXX_CHECK(!(R[0] != R.at(0)), "result::row::operator!=() is broken.");
+  PQXX_CHECK(not (R[0] != R.at(0)), "result::row::operator!=() is broken.");
 
   PQXX_CHECK_EQUAL(R[0][0], R[0].at(0), "Inconsistent row indexing.");
   PQXX_CHECK(
-	!(R[0][0] != R[0].at(0)),
+	not (R[0][0] != R[0].at(0)),
 	"result::field::operator!=() is broken.");
 
   vector<string> contents;
@@ -55,7 +55,7 @@ void test_075(transaction_base &W)
 
   PQXX_CHECK(ri2 == ri3 + 0, "reverse_iterator+0 gives strange result.");
   PQXX_CHECK(ri2 == ri3 - 0, "reverse_iterator-0 gives strange result.");
-  PQXX_CHECK(!(ri3 < ri2), "operator<() breaks on equal reverse_iterators.");
+  PQXX_CHECK(not (ri3 < ri2), "operator<() breaks on equal reverse_iterators.");
   PQXX_CHECK(ri2 <= ri3, "operator<=() breaks on equal reverse_iterators.");
 
   PQXX_CHECK(ri3++ == ri2, "reverse_iterator post-increment is broken.");
@@ -109,7 +109,7 @@ void test_075(transaction_base &W)
 
   PQXX_CHECK(l == contents.rend(), "Reverse iteration ended too soon.");
 
-  PQXX_CHECK(!R.empty(), "No events found in table, cannot test.");
+  PQXX_CHECK(not R.empty(), "No events found in table, cannot test.");
 }
 } // namespace
 

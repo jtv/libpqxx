@@ -91,7 +91,7 @@ void test_nonoptionals(pqxx::connection_base& connection)
   extractor >> got_tuple_nulls2;
   PQXX_CHECK(extractor, "stream_from failed to reentrantly read third row");
   extractor >> got_tuple;
-  PQXX_CHECK(!extractor, "stream_from failed to detect end of stream");
+  PQXX_CHECK(not extractor, "stream_from failed to detect end of stream");
 
   extractor.complete();
 }
@@ -145,7 +145,7 @@ void test_bad_tuples(pqxx::connection_base& connection)
   PQXX_CHECK(static_cast<bool>(OPT), "unexpected null field"); \
   PQXX_CHECK_EQUAL(*OPT, VAL, "field value mismatch")
 #define ASSERT_FIELD_NULL(OPT) \
-  PQXX_CHECK(!static_cast<bool>(OPT), "expected null field")
+  PQXX_CHECK(not static_cast<bool>(OPT), "expected null field")
 
 
 template<template<typename...> class O>
@@ -193,7 +193,7 @@ void test_optional(pqxx::connection_base& connection)
   ASSERT_FIELD_EQUAL(std::get<5>(got_tuple), bytea{});
 
   extractor >> got_tuple;
-  PQXX_CHECK(!extractor, "stream_from failed to detect end of stream");
+  PQXX_CHECK(not extractor, "stream_from failed to detect end of stream");
 
   extractor.complete();
 }
@@ -250,13 +250,13 @@ void test_stream_from(pqxx::transaction_base &nontrans)
   test_optional<std::unique_ptr>(connection);
   std::cout << "testing `custom_optional` as optional...\n";
   test_optional<custom_optional>(connection);
-  #if defined PQXX_HAVE_OPTIONAL
+#if defined PQXX_HAVE_OPTIONAL
   std::cout << "testing `std::optional` as optional...\n";
   test_optional<std::optional>(connection);
-  #elif defined PQXX_HAVE_EXP_OPTIONAL && !defined(PQXX_HIDE_EXP_OPTIONAL)
+#elif defined PQXX_HAVE_EXP_OPTIONAL && !defined(PQXX_HIDE_EXP_OPTIONAL)
   std::cout << "testing `std::experimental::optional` as optional...\n";
   test_optional<std::experimental::optional>(connection);
-  #endif
+#endif
 }
 
 

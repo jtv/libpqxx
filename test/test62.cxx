@@ -32,7 +32,7 @@ void test_062(transaction_base &T)
 
   binarystring B( R.at(0).at(0) );
 
-  PQXX_CHECK(!B.empty(), "Binary string became empty in conversion.");
+  PQXX_CHECK(not B.empty(), "Binary string became empty in conversion.");
 
   PQXX_CHECK_EQUAL(B.size(), TestStr.size(), "Binary string was mangled.");
 
@@ -84,11 +84,11 @@ void test_062(transaction_base &T)
   R = T.exec("SELECT * FROM pqxxbin");
   binarystring B2(R.front().front());
 
-  PQXX_CHECK(!(B2 == B), "False positive on binarystring::operator==().");
+  PQXX_CHECK(not (B2 == B), "False positive on binarystring::operator==().");
   PQXX_CHECK(B2 != B, "False negative on binarystring::operator!=().");
 
   binarystring B1c(B), B2c(B2);
-  PQXX_CHECK(!(B1c != B), "Copied binarystring differs from original.");
+  PQXX_CHECK(not (B1c != B), "Copied binarystring differs from original.");
   PQXX_CHECK(B2c == B2, "Copied binarystring not equal to original.");
 
   B1c.swap(B2c);

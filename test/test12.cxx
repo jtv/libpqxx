@@ -68,12 +68,12 @@ void test_012(transaction_base &orgT)
       // their interrelationship...
       PQXX_CHECK_EQUAL(i - j, 1, "Iterator is wrong distance from successor.");
 
-      PQXX_CHECK(!(j == i), "Iterator equals its successor.");
+      PQXX_CHECK(not (j == i), "Iterator equals its successor.");
       PQXX_CHECK(j != i, "Iterator inequality is inconsistent.");
-      PQXX_CHECK(!(j >= i), "Iterator doesn't come before its successor.");
-      PQXX_CHECK(!(j > i), "Iterator is preceded by its successor.");
-      PQXX_CHECK(!(i <= j), "Iterator doesn't come after its predecessor.");
-      PQXX_CHECK(!(i < j), "Iterator is succeded by its predecessor.");
+      PQXX_CHECK(not (j >= i), "Iterator doesn't come before its successor.");
+      PQXX_CHECK(not (j > i), "Iterator is preceded by its successor.");
+      PQXX_CHECK(not (i <= j), "Iterator doesn't come after its predecessor.");
+      PQXX_CHECK(not (i < j), "Iterator is succeded by its predecessor.");
       PQXX_CHECK(j <= i, "operator<=() doesn't mirror operator>=().");
       PQXX_CHECK(j < i, "operator<() doesn't mirror operator>().");
 
@@ -99,7 +99,7 @@ void test_012(transaction_base &orgT)
       // simple strings.
       for (pqxx::row::size_type f = 0; f < R.columns(); ++f)
       {
-        if (!j[f].is_null())
+        if (not j[f].is_null())
         {
           const bool
 		U = SortedUp[f],

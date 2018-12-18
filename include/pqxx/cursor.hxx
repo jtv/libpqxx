@@ -405,7 +405,7 @@ public:
 	difference_type sstride=1,
 	cursor_base::ownershippolicy op=cursor_base::owned);		//[t84]
 
-  operator bool() const noexcept { return !m_done; }
+  operator bool() const noexcept { return not m_done; }
 
   /// Read new value into given result object; same as operator >>
   /** The result set may continue any number of rows from zero to the chosen
@@ -512,14 +512,14 @@ public:
 
   bool operator==(const icursor_iterator &rhs) const;			//[t84]
   bool operator!=(const icursor_iterator &rhs) const noexcept		//[t84]
-	{ return !operator==(rhs); }
+	{ return not operator==(rhs); }
   bool operator<(const icursor_iterator &rhs) const;			//[t84]
   bool operator>(const icursor_iterator &rhs) const			//[t84]
 	{ return rhs < *this; }
   bool operator<=(const icursor_iterator &rhs) const			//[t84]
-	{ return !(*this > rhs); }
+	{ return not (*this > rhs); }
   bool operator>=(const icursor_iterator &rhs) const			//[t84]
-	{ return !(*this < rhs); }
+	{ return not (*this < rhs); }
 
 private:
   void refresh() const;

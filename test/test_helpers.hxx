@@ -318,7 +318,7 @@ inline void check_bounds(
   pqxx::test::check(
 	file,
 	line,
-	!(value < lower),
+	not (value < lower),
 	lower_check.c_str(),
 	desc + " (" + text + " is below lower bound " + lower_text + ")");
   pqxx::test::check(

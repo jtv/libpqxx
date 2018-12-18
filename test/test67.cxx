@@ -83,11 +83,11 @@ void test_067(transaction_base &orgT)
       // simple strings.
       for (pqxx::row::size_type f = 0; f < R.columns(); ++f)
       {
-	if (!j[f].is_null() && !i[f].is_null())
+	if (not j[f].is_null() and not i[f].is_null())
 	{
 	  const bool U = SortedUp[f], D = SortedDown[f];
-	  SortedUp[f] = (U && (j[f].as<string>() <= i[f].as<string>()));
-	  SortedDown[f] = (D && (j[f].as<string>() >= i[f].as<string>()));
+	  SortedUp[f] = (U and (j[f].as<string>() <= i[f].as<string>()));
+	  SortedDown[f] = (D and (j[f].as<string>() >= i[f].as<string>()));
 	}
       }
     }

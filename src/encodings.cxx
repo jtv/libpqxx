@@ -80,12 +80,12 @@ seq_position next_seq_for_euc_jplike(
   {
     if (
          static_cast<unsigned char>(buffer[start]) == 0x8E
-      && start + 2 <= buffer_len
+      and start + 2 <= buffer_len
     )
     {
       if (
            static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+        and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
       )
         return {start, start + 2};
       else
@@ -93,13 +93,13 @@ seq_position next_seq_for_euc_jplike(
     }
     else if (
          static_cast<unsigned char>(buffer[start]) >= 0xA1
-      && static_cast<unsigned char>(buffer[start]) <= 0xFE
-      && start + 2 <= buffer_len
+      and static_cast<unsigned char>(buffer[start]) <= 0xFE
+      and start + 2 <= buffer_len
     )
     {
       if (
            static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+        and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
       )
         return {start, start + 2};
       else
@@ -107,14 +107,14 @@ seq_position next_seq_for_euc_jplike(
     }
     else if (
          static_cast<unsigned char>(buffer[start]) == 0x8F
-      && start + 3 <= buffer_len
+      and start + 3 <= buffer_len
     )
     {
       if (
            static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
-        && static_cast<unsigned char>(buffer[start + 2]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 2]) <= 0xFE
+        and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+        and static_cast<unsigned char>(buffer[start + 2]) >= 0xA1
+        and static_cast<unsigned char>(buffer[start + 2]) <= 0xFE
       )
         return {start, start + 3};
       else
@@ -146,9 +146,9 @@ seq_position next_seq_for_sjislike(
     return {std::string::npos, std::string::npos};
   else if (
     static_cast<unsigned char>(buffer[start]) < 0x80
-    || (
+    or (
          static_cast<unsigned char>(buffer[start]) >= 0xA1
-      && static_cast<unsigned char>(buffer[start]) <= 0xDF
+      and static_cast<unsigned char>(buffer[start]) <= 0xDF
     )
   )
     return {start, start + 1};
@@ -156,24 +156,24 @@ seq_position next_seq_for_sjislike(
   {
     if ((
          static_cast<unsigned char>(buffer[start]) >= 0x81
-      && static_cast<unsigned char>(buffer[start]) <= 0x9F
-    ) || (
+      and static_cast<unsigned char>(buffer[start]) <= 0x9F
+    ) or (
          static_cast<unsigned char>(buffer[start]) >= 0xE0
-      // && static_cast<unsigned char>(buffer[start]) <= 0xEF
-      && static_cast<unsigned char>(buffer[start]) <= 0xFC
+      // and static_cast<unsigned char>(buffer[start]) <= 0xEF
+      and static_cast<unsigned char>(buffer[start]) <= 0xFC
     ))
     {
       if (start + 2 <= buffer_len)
       {
         if ((
              /*static_cast<unsigned char>(buffer[start    ]) % 2 == 1
-          && */static_cast<unsigned char>(buffer[start + 1]) >= 0x40
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0x9E
-          && static_cast<unsigned char>(buffer[start + 1]) != 0x7F
-        ) || (
+          and */static_cast<unsigned char>(buffer[start + 1]) >= 0x40
+          and static_cast<unsigned char>(buffer[start + 1]) <= 0x9E
+          and static_cast<unsigned char>(buffer[start + 1]) != 0x7F
+        ) or (
              /*static_cast<unsigned char>(buffer[start    ]) % 2 == 0
-          && */static_cast<unsigned char>(buffer[start + 1]) >= 0x9F
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0xFC
+          and */static_cast<unsigned char>(buffer[start + 1]) >= 0x9F
+          and static_cast<unsigned char>(buffer[start + 1]) <= 0xFC
         ))
           return {start, start + 2};
         else
@@ -228,16 +228,16 @@ template<> seq_position next_seq<encoding_group::BIG5>(
   {
     if (
          static_cast<unsigned char>(buffer[start]) >= 0x81
-      && static_cast<unsigned char>(buffer[start]) <= 0xFE
-      && start + 2 <= buffer_len
+      and static_cast<unsigned char>(buffer[start]) <= 0xFE
+      and start + 2 <= buffer_len
     )
     {
       if ((
            static_cast<unsigned char>(buffer[start + 1]) >= 0x40
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0x7E
-      ) || (
+        and static_cast<unsigned char>(buffer[start + 1]) <= 0x7E
+      ) or (
            static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+        and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
       ))
         return {start, start + 2};
       else
@@ -274,13 +274,13 @@ template<> seq_position next_seq<encoding_group::EUC_CN>(
   {
     if (
          static_cast<unsigned char>(buffer[start]) >= 0xA1
-      && static_cast<unsigned char>(buffer[start]) <= 0xF7
-      && start + 2 <= buffer_len
+      and static_cast<unsigned char>(buffer[start]) <= 0xF7
+      and start + 2 <= buffer_len
     )
     {
       if (
            static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+        and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
       )
         return {start, start + 2};
       else
@@ -324,13 +324,13 @@ template<> seq_position next_seq<encoding_group::EUC_KR>(
   {
     if (
          static_cast<unsigned char>(buffer[start]) >= 0xA1
-      && static_cast<unsigned char>(buffer[start]) <= 0xFE
-      && start + 2 <= buffer_len
+      and static_cast<unsigned char>(buffer[start]) <= 0xFE
+      and start + 2 <= buffer_len
     )
     {
       if (
            static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+        and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
       )
         return {start, start + 2};
       else
@@ -356,30 +356,30 @@ template<> seq_position next_seq<encoding_group::EUC_TW>(
   {
     if (
          static_cast<unsigned char>(buffer[start]) >= 0xA1
-      && static_cast<unsigned char>(buffer[start]) <= 0xFE
-      && start + 2 <= buffer_len
+      and static_cast<unsigned char>(buffer[start]) <= 0xFE
+      and start + 2 <= buffer_len
     )
     {
       if (
-           static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+            static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
+        and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
       )
         return {start, start + 2};
       else
         throw_for_encoding_error("EUC_KR", buffer, start, 2);
     }
     else if (
-         static_cast<unsigned char>(buffer[start]) == 0x8E
-      && start + 4 <= buffer_len
+          static_cast<unsigned char>(buffer[start]) == 0x8E
+      and start + 4 <= buffer_len
     )
     {
       if (
-           static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xB0
-        && static_cast<unsigned char>(buffer[start + 2]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 2]) <= 0xFE
-        && static_cast<unsigned char>(buffer[start + 3]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 3]) <= 0xFE
+            static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
+        and static_cast<unsigned char>(buffer[start + 1]) <= 0xB0
+        and static_cast<unsigned char>(buffer[start + 2]) >= 0xA1
+        and static_cast<unsigned char>(buffer[start + 2]) <= 0xFE
+        and static_cast<unsigned char>(buffer[start + 3]) >= 0xA1
+        and static_cast<unsigned char>(buffer[start + 3]) <= 0xFE
       )
         return {start, start + 4};
       else
@@ -401,15 +401,15 @@ template<> seq_position next_seq<encoding_group::GB18030>(
     return {std::string::npos, std::string::npos};
   else if (
        static_cast<unsigned char>(buffer[start]) <= 0x80
-    || static_cast<unsigned char>(buffer[start]) == 0xFF
+    or static_cast<unsigned char>(buffer[start]) == 0xFF
   )
     return {start, start + 1};
   else
   {
     if (
-         start + 2 <= buffer_len
-      && static_cast<unsigned char>(buffer[start + 1]) >= 0x40
-      && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+          start + 2 <= buffer_len
+      and static_cast<unsigned char>(buffer[start + 1]) >= 0x40
+      and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
     )
     {
       if (static_cast<unsigned char>(buffer[start + 1]) != 0x7F)
@@ -422,12 +422,12 @@ template<> seq_position next_seq<encoding_group::GB18030>(
       if (start + 4 <= buffer_len)
       {
         if (
-             static_cast<unsigned char>(buffer[start + 1]) >= 0x30
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0x39
-          && static_cast<unsigned char>(buffer[start + 2]) >= 0x81
-          && static_cast<unsigned char>(buffer[start + 2]) <= 0xFE
-          && static_cast<unsigned char>(buffer[start + 3]) >= 0x30
-          && static_cast<unsigned char>(buffer[start + 3]) <= 0x39
+              static_cast<unsigned char>(buffer[start + 1]) >= 0x30
+          and static_cast<unsigned char>(buffer[start + 1]) <= 0x39
+          and static_cast<unsigned char>(buffer[start + 2]) >= 0x81
+          and static_cast<unsigned char>(buffer[start + 2]) <= 0xFE
+          and static_cast<unsigned char>(buffer[start + 3]) >= 0x30
+          and static_cast<unsigned char>(buffer[start + 3]) <= 0x39
         )
           return {start, start + 4};
         else
@@ -460,49 +460,49 @@ template<> seq_position next_seq<encoding_group::GBK>(
     if (start + 2 <= buffer_len)
     {
       if ((
-           static_cast<unsigned char>(buffer[start    ]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start    ]) <= 0xA9
-        && static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
-      ) || (
-           static_cast<unsigned char>(buffer[start    ]) >= 0xB0
-        && static_cast<unsigned char>(buffer[start    ]) <= 0xF7
-        && static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
-      ) || (
-           static_cast<unsigned char>(buffer[start    ]) >= 0x81
-        && static_cast<unsigned char>(buffer[start    ]) <= 0xA0
-        && static_cast<unsigned char>(buffer[start + 1]) >= 0x40
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
-        && static_cast<unsigned char>(buffer[start + 1]) != 0x7F
-      ) || (
-           static_cast<unsigned char>(buffer[start    ]) >= 0xAA
-        && static_cast<unsigned char>(buffer[start    ]) <= 0xFE
-        && static_cast<unsigned char>(buffer[start + 1]) >= 0x40
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xA0
-        && static_cast<unsigned char>(buffer[start + 1]) != 0x7F
-      ) || (
-           static_cast<unsigned char>(buffer[start    ]) >= 0xA8
-        && static_cast<unsigned char>(buffer[start    ]) <= 0xA9
-        && static_cast<unsigned char>(buffer[start + 1]) >= 0x40
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xA0
-        && static_cast<unsigned char>(buffer[start + 1]) != 0x7F
-      ) || (
-           static_cast<unsigned char>(buffer[start    ]) >= 0xAA
-        && static_cast<unsigned char>(buffer[start    ]) <= 0xAF
-        && static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
-      ) || (
+            static_cast<unsigned char>(buffer[start    ]) >= 0xA1
+        and static_cast<unsigned char>(buffer[start    ]) <= 0xA9
+        and static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
+        and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+      ) or (
+            static_cast<unsigned char>(buffer[start    ]) >= 0xB0
+        and static_cast<unsigned char>(buffer[start    ]) <= 0xF7
+        and static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
+        and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+      ) or (
+            static_cast<unsigned char>(buffer[start    ]) >= 0x81
+        and static_cast<unsigned char>(buffer[start    ]) <= 0xA0
+        and static_cast<unsigned char>(buffer[start + 1]) >= 0x40
+        and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+        and static_cast<unsigned char>(buffer[start + 1]) != 0x7F
+      ) or (
+            static_cast<unsigned char>(buffer[start    ]) >= 0xAA
+        and static_cast<unsigned char>(buffer[start    ]) <= 0xFE
+        and static_cast<unsigned char>(buffer[start + 1]) >= 0x40
+        and static_cast<unsigned char>(buffer[start + 1]) <= 0xA0
+        and static_cast<unsigned char>(buffer[start + 1]) != 0x7F
+      ) or (
+            static_cast<unsigned char>(buffer[start    ]) >= 0xA8
+        and static_cast<unsigned char>(buffer[start    ]) <= 0xA9
+        and static_cast<unsigned char>(buffer[start + 1]) >= 0x40
+        and static_cast<unsigned char>(buffer[start + 1]) <= 0xA0
+        and static_cast<unsigned char>(buffer[start + 1]) != 0x7F
+      ) or (
+            static_cast<unsigned char>(buffer[start    ]) >= 0xAA
+        and static_cast<unsigned char>(buffer[start    ]) <= 0xAF
+        and static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
+        and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+      ) or (
            static_cast<unsigned char>(buffer[start    ]) >= 0xF8
-        && static_cast<unsigned char>(buffer[start    ]) <= 0xFE
-        && static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
-      ) || (
-           static_cast<unsigned char>(buffer[start    ]) >= 0xA1
-        && static_cast<unsigned char>(buffer[start    ]) <= 0xA7
-        && static_cast<unsigned char>(buffer[start + 1]) >= 0x40
-        && static_cast<unsigned char>(buffer[start + 1]) <= 0xA0
-        && static_cast<unsigned char>(buffer[start + 1]) != 0x7F
+        and static_cast<unsigned char>(buffer[start    ]) <= 0xFE
+        and static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
+        and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+      ) or (
+            static_cast<unsigned char>(buffer[start    ]) >= 0xA1
+        and static_cast<unsigned char>(buffer[start    ]) <= 0xA7
+        and static_cast<unsigned char>(buffer[start + 1]) >= 0x40
+        and static_cast<unsigned char>(buffer[start + 1]) <= 0xA0
+        and static_cast<unsigned char>(buffer[start + 1]) != 0x7F
       ))
         return {start, start + 2};
       else
@@ -535,29 +535,29 @@ template<> seq_position next_seq<encoding_group::JOHAB>(
     if (start + 2 <= buffer_len)
     {
       if ((
-           static_cast<unsigned char>(buffer[start]) >= 0x84
-        && static_cast<unsigned char>(buffer[start]) <= 0xD3
-        && ((
-             static_cast<unsigned char>(buffer[start + 1]) >= 0x41
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0x7E
-        ) || (
-             static_cast<unsigned char>(buffer[start + 1]) >= 0x81
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+            static_cast<unsigned char>(buffer[start]) >= 0x84
+        and static_cast<unsigned char>(buffer[start]) <= 0xD3
+        and ((
+              static_cast<unsigned char>(buffer[start + 1]) >= 0x41
+          and static_cast<unsigned char>(buffer[start + 1]) <= 0x7E
+        ) or (
+              static_cast<unsigned char>(buffer[start + 1]) >= 0x81
+          and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
         ))
-      ) || (
+      ) or (
         ((
-             static_cast<unsigned char>(buffer[start]) >= 0xD8
-          && static_cast<unsigned char>(buffer[start]) <= 0xDE
-        ) || (
-             static_cast<unsigned char>(buffer[start]) >= 0xE0
-          && static_cast<unsigned char>(buffer[start]) <= 0xF9
+              static_cast<unsigned char>(buffer[start]) >= 0xD8
+          and static_cast<unsigned char>(buffer[start]) <= 0xDE
+        ) or (
+              static_cast<unsigned char>(buffer[start]) >= 0xE0
+          and static_cast<unsigned char>(buffer[start]) <= 0xF9
         ))
-        && ((
-             static_cast<unsigned char>(buffer[start + 1]) >= 0x31
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0x7E
-        ) || (
-             static_cast<unsigned char>(buffer[start + 1]) >= 0x91
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+        and ((
+              static_cast<unsigned char>(buffer[start + 1]) >= 0x31
+          and static_cast<unsigned char>(buffer[start + 1]) <= 0x7E
+        ) or (
+              static_cast<unsigned char>(buffer[start + 1]) >= 0x91
+          and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
         ))
       ))
         return {start, start + 2};
@@ -591,47 +591,47 @@ template<> seq_position next_seq<encoding_group::MULE_INTERNAL>(
     if (start + 2 <= buffer_len)
     {
       if (
-           static_cast<unsigned char>(buffer[start    ]) >= 0x81
-        && static_cast<unsigned char>(buffer[start    ]) <= 0x8D
-        && static_cast<unsigned char>(buffer[start + 1]) >= 0xA0
-        // && static_cast<unsigned char>(buffer[start + 1]) <= 0xFF
+            static_cast<unsigned char>(buffer[start    ]) >= 0x81
+        and static_cast<unsigned char>(buffer[start    ]) <= 0x8D
+        and static_cast<unsigned char>(buffer[start + 1]) >= 0xA0
+        // and static_cast<unsigned char>(buffer[start + 1]) <= 0xFF
       )
         return {start, start + 2};
       else if (start + 3 <= buffer_len)
       {
         if (((
-             static_cast<unsigned char>(buffer[start    ]) == 0x9A
-          && static_cast<unsigned char>(buffer[start + 1]) >= 0xA0
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0xDF
-        ) || (
-             static_cast<unsigned char>(buffer[start    ]) == 0x9B
-          && static_cast<unsigned char>(buffer[start + 1]) >= 0xE0
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0xEF
-        ) || (
-             static_cast<unsigned char>(buffer[start    ]) >= 0x90
-          && static_cast<unsigned char>(buffer[start    ]) <= 0x99
-          && static_cast<unsigned char>(buffer[start + 1]) >= 0xA0
-          // && static_cast<unsigned char>(buffer[start + 1]) <= 0xFF
-        )) && (
+              static_cast<unsigned char>(buffer[start    ]) == 0x9A
+          and static_cast<unsigned char>(buffer[start + 1]) >= 0xA0
+          and static_cast<unsigned char>(buffer[start + 1]) <= 0xDF
+        ) or (
+              static_cast<unsigned char>(buffer[start    ]) == 0x9B
+          and static_cast<unsigned char>(buffer[start + 1]) >= 0xE0
+          and static_cast<unsigned char>(buffer[start + 1]) <= 0xEF
+        ) or (
+              static_cast<unsigned char>(buffer[start    ]) >= 0x90
+          and static_cast<unsigned char>(buffer[start    ]) <= 0x99
+          and static_cast<unsigned char>(buffer[start + 1]) >= 0xA0
+          // and static_cast<unsigned char>(buffer[start + 1]) <= 0xFF
+        )) and (
              static_cast<unsigned char>(buffer[start + 2]) >= 0xA0
-          // && static_cast<unsigned char>(buffer[start + 2]) <= 0xFF
+          // and static_cast<unsigned char>(buffer[start + 2]) <= 0xFF
         ))
           return {start, start + 3};
         else if (start + 4 <= buffer_len)
         {
           if (((
-               static_cast<unsigned char>(buffer[start    ]) == 0x9C
-            && static_cast<unsigned char>(buffer[start + 1]) >= 0xF0
-            && static_cast<unsigned char>(buffer[start + 1]) <= 0xF4
-          ) || (
-               static_cast<unsigned char>(buffer[start    ]) == 0x9D
-            && static_cast<unsigned char>(buffer[start + 1]) >= 0xF5
-            && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
-          )) && (
-               static_cast<unsigned char>(buffer[start + 2]) >= 0xA0
-            // && static_cast<unsigned char>(buffer[start + 2]) <= 0xFF
-            && static_cast<unsigned char>(buffer[start + 4]) >= 0xA0
-            // && static_cast<unsigned char>(buffer[start + 4]) <= 0xFF
+                static_cast<unsigned char>(buffer[start    ]) == 0x9C
+            and static_cast<unsigned char>(buffer[start + 1]) >= 0xF0
+            and static_cast<unsigned char>(buffer[start + 1]) <= 0xF4
+          ) or (
+                static_cast<unsigned char>(buffer[start    ]) == 0x9D
+            and static_cast<unsigned char>(buffer[start + 1]) >= 0xF5
+            and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+          )) and (
+                static_cast<unsigned char>(buffer[start + 2]) >= 0xA0
+            // and static_cast<unsigned char>(buffer[start + 2]) <= 0xFF
+            and static_cast<unsigned char>(buffer[start + 4]) >= 0xA0
+            // and static_cast<unsigned char>(buffer[start + 4]) <= 0xFF
           ))
             return {start, start + 4};
           else
@@ -680,21 +680,21 @@ template<> seq_position next_seq<encoding_group::UHC>(
   else
   {
     if (
-         static_cast<unsigned char>(buffer[start]) >= 0x80
-      && static_cast<unsigned char>(buffer[start]) <= 0xC6
+          static_cast<unsigned char>(buffer[start]) >= 0x80
+      and static_cast<unsigned char>(buffer[start]) <= 0xC6
     )
     {
       if (start + 2 <= buffer_len)
       {
         if ((
-             static_cast<unsigned char>(buffer[start + 1]) >= 0x41
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0x5A
-        ) || (
-             static_cast<unsigned char>(buffer[start + 1]) >= 0x61
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0x7A
-        ) || (
-             static_cast<unsigned char>(buffer[start + 1]) >= 0x80
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+              static_cast<unsigned char>(buffer[start + 1]) >= 0x41
+          and static_cast<unsigned char>(buffer[start + 1]) <= 0x5A
+        ) or (
+              static_cast<unsigned char>(buffer[start + 1]) >= 0x61
+          and static_cast<unsigned char>(buffer[start + 1]) <= 0x7A
+        ) or (
+              static_cast<unsigned char>(buffer[start + 1]) >= 0x80
+          and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
         ))
           return {start, start + 2};
         else
@@ -709,15 +709,15 @@ template<> seq_position next_seq<encoding_group::UHC>(
         );
     }
     else if (
-         static_cast<unsigned char>(buffer[start]) >= 0xA1
-      && static_cast<unsigned char>(buffer[start]) <= 0xFE
+          static_cast<unsigned char>(buffer[start]) >= 0xA1
+      and static_cast<unsigned char>(buffer[start]) <= 0xFE
     )
     {
       if (start + 2 <= buffer_len)
       {
         if (
-             static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
+              static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
+          and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
         )
           return {start, start + 2};
         else
@@ -750,15 +750,15 @@ template<> seq_position next_seq<encoding_group::UTF8>(
   else
   {
     if (
-         static_cast<unsigned char>(buffer[start]) >= 0xC0
-      && static_cast<unsigned char>(buffer[start]) <= 0xDF
+          static_cast<unsigned char>(buffer[start]) >= 0xC0
+      and static_cast<unsigned char>(buffer[start]) <= 0xDF
     )
     {
       if (start + 2 <= buffer_len)
       {
         if (
-             static_cast<unsigned char>(buffer[start + 1]) >= 0x80
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0xBF
+              static_cast<unsigned char>(buffer[start + 1]) >= 0x80
+          and static_cast<unsigned char>(buffer[start + 1]) <= 0xBF
         )
           return {start, start + 2};
         else
@@ -773,17 +773,17 @@ template<> seq_position next_seq<encoding_group::UTF8>(
         );
     }
     else if (
-         static_cast<unsigned char>(buffer[start]) >= 0xE0
-      && static_cast<unsigned char>(buffer[start]) <= 0xEF
+          static_cast<unsigned char>(buffer[start]) >= 0xE0
+      and static_cast<unsigned char>(buffer[start]) <= 0xEF
     )
     {
       if (start + 3 <= buffer_len)
       {
         if (
-             static_cast<unsigned char>(buffer[start + 1]) >= 0x80
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0xBF
-          && static_cast<unsigned char>(buffer[start + 2]) >= 0x80
-          && static_cast<unsigned char>(buffer[start + 2]) <= 0xBF
+              static_cast<unsigned char>(buffer[start + 1]) >= 0x80
+          and static_cast<unsigned char>(buffer[start + 1]) <= 0xBF
+          and static_cast<unsigned char>(buffer[start + 2]) >= 0x80
+          and static_cast<unsigned char>(buffer[start + 2]) <= 0xBF
         )
           return {start, start + 3};
         else
@@ -798,19 +798,19 @@ template<> seq_position next_seq<encoding_group::UTF8>(
         );
     }
     else if (
-         static_cast<unsigned char>(buffer[start]) >= 0xF0
-      && static_cast<unsigned char>(buffer[start]) <= 0xF7
+          static_cast<unsigned char>(buffer[start]) >= 0xF0
+      and static_cast<unsigned char>(buffer[start]) <= 0xF7
     )
     {
       if (start + 4 <= buffer_len)
       {
         if (
-             static_cast<unsigned char>(buffer[start + 1]) >= 0x80
-          && static_cast<unsigned char>(buffer[start + 1]) <= 0xBF
-          && static_cast<unsigned char>(buffer[start + 2]) >= 0x80
-          && static_cast<unsigned char>(buffer[start + 2]) <= 0xBF
-          && static_cast<unsigned char>(buffer[start + 3]) >= 0x80
-          && static_cast<unsigned char>(buffer[start + 3]) <= 0xBF
+              static_cast<unsigned char>(buffer[start + 1]) >= 0x80
+          and static_cast<unsigned char>(buffer[start + 1]) <= 0xBF
+          and static_cast<unsigned char>(buffer[start + 2]) >= 0x80
+          and static_cast<unsigned char>(buffer[start + 2]) <= 0xBF
+          and static_cast<unsigned char>(buffer[start + 3]) >= 0x80
+          and static_cast<unsigned char>(buffer[start + 3]) <= 0xBF
         )
           return {start, start + 4};
         else

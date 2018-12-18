@@ -48,7 +48,7 @@ public:
 	const std::string &Null);
   ~tablereader() noexcept;
   template<typename TUPLE> tablereader &operator>>(TUPLE &);
-  operator bool() const noexcept { return !m_done; }
+  operator bool() const noexcept { return not m_done; }
   bool operator!() const noexcept { return m_done; }
   bool get_raw_line(std::string &Line);
   template<typename TUPLE>

@@ -133,8 +133,8 @@ separated_list(const std::string &sep, const CONTAINER &c)		//[t10]
 	*/
 	-> typename std::enable_if<
 		(
-			!std::is_void<decltype(std::begin(c))>::value
-			&& !std::is_void<decltype(std::end(c))>::value
+			not std::is_void<decltype(std::begin(c))>::value
+			and not std::is_void<decltype(std::end(c))>::value
 		),
 		std::string
 	>::type

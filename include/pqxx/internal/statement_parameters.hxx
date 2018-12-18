@@ -71,7 +71,7 @@ protected:
   void add_param() { this->add_checked_param("", false, false); }
   template<typename T> void add_param(const T &v, bool nonnull)
   {
-    nonnull = (nonnull && !pqxx::string_traits<T>::is_null(v));
+    nonnull = (nonnull && not pqxx::string_traits<T>::is_null(v));
     this->add_checked_param(
 	(nonnull ? pqxx::to_string(v) : ""),
 	nonnull,

@@ -35,7 +35,9 @@ private:
     {
       if (conn().is_open())
       {
-        PQXX_CHECK(!simulate_failure, "Connection did not simulate failure.");
+        PQXX_CHECK(
+		not simulate_failure,
+		"Connection did not simulate failure.");
 	cerr << "Unexpected exception (connection still open)" << endl;
 	throw;
       }

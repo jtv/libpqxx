@@ -11,7 +11,7 @@ void test_thread_safety_model(transaction_base &)
 {
   const thread_safety_model model = describe_thread_safety();
 
-  if (model.safe_libpq && model.safe_kerberos)
+  if (model.safe_libpq and model.safe_kerberos)
     PQXX_CHECK_EQUAL(
 	model.description,
 	"",

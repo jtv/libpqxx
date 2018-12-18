@@ -55,7 +55,7 @@ void test_000(transaction_base &)
 	"cause problems in libpqxx.");
 
   PQXX_CHECK(
-	cursor_base::prior() < 0 && cursor_base::backward_all() < 0,
+	cursor_base::prior() < 0 and cursor_base::backward_all() < 0,
 	"cursor_base::difference_type appears to be unsigned.");
 
   const char weird[] = "foo\t\n\0bar";
@@ -132,7 +132,7 @@ void test_000(transaction_base &)
   // TODO: Test binarystring reversibility
 
   const string pw = encrypt_password("foo", "bar");
-  PQXX_CHECK(!pw.empty(), "Encrypting a password returned no data.");
+  PQXX_CHECK(not pw.empty(), "Encrypting a password returned no data.");
   PQXX_CHECK_NOT_EQUAL(
 	pw,
 	encrypt_password("splat", "blub"),

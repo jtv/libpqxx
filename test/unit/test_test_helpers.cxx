@@ -23,7 +23,7 @@ void test_check_notreached()
   {
     // This is what we expect.
   }
-  if (!failed)
+  if (not failed)
     throw test_failure(__FILE__, __LINE__, "PQXX_CHECK_NOTREACHED is broken.");
 }
 
@@ -42,7 +42,7 @@ void test_check()
   catch (const test_failure &)
   {
   }
-  if (!failed) PQXX_CHECK_NOTREACHED("PQXX_CHECK failed to notice failure.");
+  if (not failed) PQXX_CHECK_NOTREACHED("PQXX_CHECK failed to notice failure.");
 }
 
 

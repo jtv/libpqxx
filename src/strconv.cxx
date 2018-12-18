@@ -52,7 +52,7 @@ template<typename T> struct underflow_check<T, true>
   static void check_before_adding_digit(T n)
   {
     const T ten(10);
-    if (n < 0 && (std::numeric_limits<T>::min() / ten) > n) report_overflow();
+    if (n < 0 and (std::numeric_limits<T>::min() / ten) > n) report_overflow();
   }
 };
 
@@ -70,7 +70,7 @@ template<typename T> T safe_multiply_by_ten(T n)
 {
   using limits = std::numeric_limits<T>;
   const T ten(10);
-  if (n > 0 && (limits::max() / n) < ten) report_overflow();
+  if (n > 0 and (limits::max() / n) < ten) report_overflow();
   underflow_check<T, limits::is_signed>::check_before_adding_digit(n);
   return T(n * ten);
 }
@@ -79,9 +79,9 @@ template<typename T> T safe_multiply_by_ten(T n)
 /// Add a digit d to n, or throw exception if it overflows.
 template<typename T> T safe_add_digit(T n, T d)
 {
-  assert((n >= 0 && d >= 0) || (n <=0 && d <= 0));
-  if ((n > 0) && (n > (std::numeric_limits<T>::max() - d))) report_overflow();
-  if ((n < 0) && (n < (std::numeric_limits<T>::min() - d))) report_overflow();
+  assert((n >= 0 and d >= 0) or (n <=0 and d <= 0));
+  if ((n > 0) and (n > (std::numeric_limits<T>::max() - d))) report_overflow();
+  if ((n < 0) and (n < (std::numeric_limits<T>::min() - d))) report_overflow();
   return n + d;
 }
 
@@ -99,7 +99,7 @@ template<typename T> void from_string_signed(const char Str[], T &Obj)
   int i = 0;
   T result = 0;
 
-  if (!isdigit(Str[i]))
+  if (not isdigit(Str[i]))
   {
     if (Str[i] != '-')
       throw pqxx::failure(
@@ -126,7 +126,7 @@ template<typename T> void from_string_unsigned(const char Str[], T &Obj)
   int i = 0;
   T result = 0;
 
-  if (!isdigit(Str[i]))
+  if (not isdigit(Str[i]))
     throw pqxx::failure(
       "Could not convert string to unsigned integer: '" +
       std::string(Str) + "'");
@@ -145,9 +145,9 @@ template<typename T> void from_string_unsigned(const char Str[], T &Obj)
 bool valid_infinity_string(const char str[]) noexcept
 {
   return
-	strcmp("infinity", str) == 0 ||
-	strcmp("Infinity", str) == 0 ||
-	strcmp("INFINITY", str) == 0 ||
+	strcmp("infinity", str) == 0 or
+	strcmp("Infinity", str) == 0 or
+	strcmp("INFINITY", str) == 0 or
 	strcmp("inf", str) == 0;
 }
 
@@ -194,7 +194,10 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
   case 'N':
   case 'n':
     // Accept "NaN," "nan," etc.
-    ok = ((Str[1]=='A'||Str[1]=='a') && (Str[2]=='N'||Str[2]=='n') && !Str[3]);
+    ok = (
+      (Str[1]=='A' or Str[1]=='a') and
+      (Str[2]=='N' or Str[2]=='n') and
+      (Str[3] == '\0'));
     result = std::numeric_limits<T>::quiet_NaN();
     break;
 
@@ -205,7 +208,7 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
     break;
 
   default:
-    if (Str[0] == '-' && valid_infinity_string(&Str[1]))
+    if (Str[0] == '-' and valid_infinity_string(&Str[1]))
     {
       ok = true;
       set_to_Inf(result, -1);
@@ -224,7 +227,7 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
     break;
   }
 
-  if (!ok)
+  if (not ok)
     throw pqxx::failure(
       "Could not convert string to numeric value: '" +
       std::string(Str) + "'");
@@ -234,7 +237,7 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
 
 template<typename T> inline std::string to_string_unsigned(T Obj)
 {
-  if (!Obj) return "0";
+  if (not Obj) return "0";
 
   // Every byte of width on T adds somewhere between 3 and 4 digits to the
   // maximum length of our decimal string.
@@ -312,9 +315,9 @@ void string_traits<bool>::from_string(const char Str[], bool &Obj)
   case 'f':
   case 'F':
     result = false;
-    OK = !(
-	Str[1] &&
-	(strcmp(Str+1, "alse") != 0) &&
+    OK = not (
+	(Str[1] != '\0') and
+	(strcmp(Str+1, "alse") != 0) and
 	(strcmp(Str+1, "ALSE") != 0));
     break;
 
@@ -323,21 +326,21 @@ void string_traits<bool>::from_string(const char Str[], bool &Obj)
       int I;
       string_traits<int>::from_string(Str, I);
       result = (I != 0);
-      OK = ((I == 0) || (I == 1));
+      OK = ((I == 0) or (I == 1));
     }
     break;
 
   case '1':
     result = true;
-    OK = !Str[1];
+    OK = (Str[1] != '\0');
     break;
 
   case 't':
   case 'T':
     result = true;
-    OK = !(
-	Str[1] &&
-	(strcmp(Str+1, "rue") != 0) &&
+    OK = not (
+	(Str[1] != '\0') and
+	(strcmp(Str+1, "rue") != 0) and
 	(strcmp(Str+1, "RUE") != 0));
     break;
 
@@ -345,7 +348,7 @@ void string_traits<bool>::from_string(const char Str[], bool &Obj)
     OK = false;
   }
 
-  if (!OK)
+  if (not OK)
     throw argument_error(
       "Failed conversion to bool: '" + std::string(Str) + "'");
 
