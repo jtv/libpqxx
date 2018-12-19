@@ -40,9 +40,18 @@ void test_nonoptionals(pqxx::connection_base& connection)
   PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 1234, "field value mismatch");
   // PQXX_CHECK_EQUAL(*std::get<1>(got_tuple), , "field value mismatch");
   PQXX_CHECK_EQUAL(std::get<2>(got_tuple), 4321, "field value mismatch");
-  PQXX_CHECK_EQUAL(std::get<3>(got_tuple), (ipv4{8, 8, 8, 8}), "field value mismatch");
-  PQXX_CHECK_EQUAL(std::get<4>(got_tuple), "hello world", "field value mismatch");
-  PQXX_CHECK_EQUAL(std::get<5>(got_tuple), (bytea{'\x00', '\x01', '\x02'}), "field value mismatch");
+  PQXX_CHECK_EQUAL(
+	std::get<3>(got_tuple),
+	(ipv4{8, 8, 8, 8}),
+	"field value mismatch");
+  PQXX_CHECK_EQUAL(
+	std::get<4>(got_tuple),
+	"hello world",
+	"field value mismatch");
+  PQXX_CHECK_EQUAL(
+	std::get<5>(got_tuple),
+	(bytea{'\x00', '\x01', '\x02'}),
+	"field value mismatch");
 
   try
   {
@@ -133,7 +142,7 @@ void test_bad_tuples(pqxx::connection_base& connection)
   catch (const pqxx::usage_error &e)
   {
     std::string what{e.what()};
-    if (what != "Too few fields to extract from stream_from line") throw;
+    if (what != "Too few fields to extract from stream_from line.") throw;
     pqxx::test::expected_exception("Could not extract row: " + what);
   }
 
