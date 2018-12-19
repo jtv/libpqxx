@@ -10,7 +10,7 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
-#include "pqxx/stream_to"
+#include "pqxx/stream_to.hxx"
 
 #include "pqxx/internal/gates/transaction-stream_to.hxx"
 
