@@ -28,7 +28,6 @@ namespace pqxx
 /// Efficiently pull data directly out of a table.
 class PQXX_LIBEXPORT stream_from : public stream_base
 {
-  friend class stream_to; // for stream_to::operator<<(stream_from &)
 public:
   stream_from(
     transaction_base &,

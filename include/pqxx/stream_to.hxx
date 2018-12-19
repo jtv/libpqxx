@@ -17,7 +17,7 @@
 #include "pqxx/compiler-internal-pre.hxx"
 #include "pqxx/transaction_base.hxx"
 #include "pqxx/stream_base.hxx"
-#include "pqxx/stream_from"
+#include "pqxx/stream_from.hxx"
 #include "pqxx/internal/type_utils.hxx"
 
 #include <string>
@@ -29,7 +29,6 @@ namespace pqxx
 /// Efficiently write data directly to a database table.
 class PQXX_LIBEXPORT stream_to : public stream_base
 {
-  friend class stream_from; // for operator<<(stream_from &)
 public:
   stream_to(
     transaction_base &,
@@ -53,6 +52,7 @@ public:
 
   void write_raw_line(const std::string &);
   template<typename Tuple> stream_to & operator<<(const Tuple &);
+
   // This is mostly useful for copying data between databases or servers, as
   // executing a query to copy the data within a single database will be much
   // more efficient
@@ -67,7 +67,6 @@ private:
   );
 
   void close() override;
-
 };
 
 
