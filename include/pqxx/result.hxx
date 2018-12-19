@@ -17,6 +17,7 @@
 #include "pqxx/compiler-internal-pre.hxx"
 
 #include <ios>
+#include <memory>
 #include <stdexcept>
 
 #include "pqxx/except.hxx"
@@ -75,8 +76,7 @@ public:
   using reverse_iterator = const_reverse_iterator;
 
   result() noexcept : m_data(make_data_pointer()), m_query() {}		//[t03]
-  result(const result &rhs) noexcept :					//[t01]
-	m_data(rhs.m_data), m_query(rhs.m_query) {}
+  result(const result &rhs) noexcept =default;				//[t01]
 
   result &operator=(const result &rhs) noexcept				//[t10]
   {
@@ -119,7 +119,7 @@ public:
   const row operator[](size_type i) const noexcept;			//[t02]
   const row at(size_type) const;					//[t10]
 
-  void clear() noexcept { m_data.reset(); m_query.erase(); }		//[t20]
+  void clear() noexcept { m_data.reset(); m_query = nullptr; }		//[t20]
 
   /**
    * @name Column information
@@ -203,7 +203,9 @@ private:
 	{ return data_pointer(res, internal::clear_result); }
 
   /// Query string.
-  std::string m_query;
+  std::shared_ptr<std::string> m_query;
+
+  static const std::string s_empty_string;
 
   friend class pqxx::field;
   PQXX_PURE const char *GetValue(size_type Row, row_size_type Col) const;

@@ -7,6 +7,8 @@
  - In Visual Studio, build for host architecture, not "x64".
  - Fix string conversion link error in Visual Studio.  Thanks Ivan Poiakov.
  - Huge contribution from Joseph Durel; summaries to follow.
+ - When copying results, share the query string.  Thanks Vsevolod Strukchinsky.
+ - Instead of "!", "&&", and "||"; use "not", "and", and "or".
 6.2.5
  - Removed deprecated pqxx-config.
  - Build fix on Visual C++ when not defining NOMINMAX.

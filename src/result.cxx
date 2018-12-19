@@ -20,6 +20,9 @@
 #include "pqxx/result"
 
 
+const std::string pqxx::result::s_empty_string;
+
+
 /// C++ wrapper for libpq's PQclear.
 void pqxx::internal::clear_result(const pq::PGresult *data)
 {
@@ -31,7 +34,7 @@ pqxx::result::result(
 	pqxx::internal::pq::PGresult *rhs,
 	const std::string &Query) :
   m_data(make_data_pointer(rhs)),
-  m_query(Query)
+  m_query(std::make_shared<std::string>(Query))
 {
 }
 
@@ -259,7 +262,7 @@ const char *pqxx::result::cmd_status() const noexcept
 
 const std::string &pqxx::result::query() const noexcept
 {
-  return m_query;
+  return m_query ? *m_query : s_empty_string;
 }
 
 
