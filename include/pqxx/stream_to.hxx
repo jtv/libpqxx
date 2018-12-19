@@ -53,9 +53,11 @@ public:
   void write_raw_line(const std::string &);
   template<typename Tuple> stream_to & operator<<(const Tuple &);
 
-  // This is mostly useful for copying data between databases or servers, as
-  // executing a query to copy the data within a single database will be much
-  // more efficient
+  /// Stream a `stream_from` straight into a `stream_to`.
+  /** This can be useful when copying between different databases.  If the
+   * source and the destination are on the same database, you'll get better
+   * performance doing it all in a regular query.
+   */
   stream_to &operator<<(stream_from &);
 
 private:

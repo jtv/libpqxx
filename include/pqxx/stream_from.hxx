@@ -158,13 +158,11 @@ template<typename Tuple, std::size_t I> auto stream_from::tokenize_ith(
   std::tuple_size<Tuple>::value > I
 )>::type
 {
-  if (here < line.size())
-  {
-    extract_value(line, std::get<I>(t), here, workspace);
-    tokenize_ith<Tuple, I+1>(line, t, here, workspace);
-  }
-  else
-    throw usage_error{"Too few fields to extract from stream_from line"};
+  if (here >= line.size())
+    throw usage_error{"Too few fields to extract from stream_from line."};
+
+  extract_value(line, std::get<I>(t), here, workspace);
+  tokenize_ith<Tuple, I+1>(line, t, here, workspace);
 }
 
 
