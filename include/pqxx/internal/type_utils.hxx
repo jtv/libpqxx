@@ -24,18 +24,18 @@ namespace pqxx
 namespace internal
 {
 
-/// Replicate std::void_t<> (available in C++17)
+/// Replicate std::void_t<> (available in C++17).
 template<typename... T> using void_t = void;
 
-/// Shortcut for detecting type held by an optional-like wrapper type
+/// Extract the content type held by an `optional`-like wrapper type.
 template<typename T> using inner_type = typename std::remove_reference<
   decltype(*std::declval<T>())
 >::type;
 
-/// Detect if the given type has an `operator *()`
+/// Detect whether the given type has an `operator *()`.
 template<typename T, typename = void> struct is_derefable : std::false_type {};
 template<typename T> struct is_derefable<T, void_t<
-  // Disable for arrays so they don't erroneously decay to pointers
+  // Disable for arrays so they don't erroneously decay to pointers.
   inner_type<typename std::enable_if<not std::is_array<T>::value, T>::type>
 >> : std::true_type {};
 
