@@ -37,34 +37,21 @@ public:
 };
 
 
-// A transactor to trigger our notification receiver.
-class Notify : public transactor<>
-{
-  string m_channel;
-
-public:
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  explicit Notify(string channel) :
-    transactor<>("Notifier"), m_channel(channel) { }
-#include <pqxx/internal/ignore-deprecated-post.hxx>
-
-  void operator()(argument_type &T)
-  {
-    T.exec("NOTIFY \"" + m_channel + "\"");
-    Backend_PID = T.conn().backendpid();
-  }
-};
-
-
 void test_004(transaction_base &T)
 {
   T.abort();
+  connection_base &conn{T.conn()};
 
-  TestListener L(T.conn());
-
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  T.conn().perform(Notify(L.channel()));
-#include <pqxx/internal/ignore-deprecated-post.hxx>
+  TestListener L(conn);
+  // Trigger our notification receiver.
+  perform(
+    [&conn, &L]()
+    {
+      work T(conn);
+      T.exec("NOTIFY \"" + L.channel() + "\"");
+      Backend_PID = conn.backendpid();
+      T.commit();
+    });
 
   int notifs = 0;
   for (int i=0; (i < 20) and not L.done(); ++i)
