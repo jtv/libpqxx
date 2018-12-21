@@ -81,7 +81,7 @@ namespace prepare
 class PQXX_LIBEXPORT invocation : internal::statement_parameters
 {
 public:
-  invocation(transaction_base &, const std::string &statement);
+  PQXX_DEPRECATED invocation(transaction_base &, const std::string &statement);
   invocation &operator=(const invocation &) =delete;
 
   /// Execute!

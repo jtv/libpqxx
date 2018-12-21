@@ -18,6 +18,9 @@ namespace
 const unsigned int BoringYear = 1977;
 
 
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
+
+
 // Count events and specifically events occurring in Boring Year, leaving the
 // former count in the result pair's first member, and the latter in second.
 class CountEvents : public transactor<>
@@ -116,6 +119,10 @@ void test_013(transaction_base &T)
 	Before.second,
 	"abort() didn't reset event count for " + to_string(BoringYear));
 }
+
+
+#include <pqxx/internal/ignore-deprecated-post.hxx>
+
 
 } // namespace
 

@@ -19,11 +19,13 @@ void test_012(transaction_base &orgT)
 
   const string Table = "pg_tables";
 
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   // Tell C we won't be needing it for a while (not true, but let's pretend)
   C.deactivate();
 
   // ...And reactivate C (not really needed, but it sounds more polite)
   C.activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   work T(C, "test12");
 

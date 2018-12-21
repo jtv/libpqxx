@@ -10,6 +10,10 @@ using namespace pqxx;
 
 // Test program for libpqxx.  Test binary parameters to prepared statements.
 
+
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
+
+
 namespace
 {
 void test_092(transaction_base &T)
@@ -57,5 +61,8 @@ void test_092(transaction_base &T)
   PQXX_CHECK_EQUAL(t[0][1].c_str(), f, "Unexpected string result.");
 }
 } // namespace
+
+
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
 PQXX_REGISTER_TEST_CT(test_092, lazyconnection, nontransaction)

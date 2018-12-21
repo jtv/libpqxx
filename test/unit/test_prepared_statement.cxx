@@ -63,6 +63,9 @@ template<typename CNTNR> string subst(
 }
 
 
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
+
+
 /// @deprecated To be replaced with the C++11-style exec_prepared.
 void test_legacy_prepared_statement(transaction_base &T)
 {
@@ -379,6 +382,9 @@ void test_prepared_statements(transaction_base &T)
   test_optional<std::unique_ptr<int>>(T);
   test_optional<std::shared_ptr<int>>(T);
 }
+
+
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
 
 void test_prepared_statement(transaction_base &T)

@@ -22,6 +22,9 @@ namespace
 map<int,int> theConversions;
 
 
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
+
+
 // Convert year to 4-digit format.
 int To4Digits(int Y)
 {
@@ -186,6 +189,10 @@ void test_007(transaction_base &T)
   for (auto &i: theConversions)
     cout << '\t' << i.first << "\t-> " << i.second << endl;
 }
+
+
+#include <pqxx/internal/ignore-deprecated-post.hxx>
+
 
 } // namespace
 

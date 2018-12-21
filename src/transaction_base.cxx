@@ -322,7 +322,9 @@ void pqxx::transaction_base::check_rowcount_params(
 pqxx::internal::parameterized_invocation
 pqxx::transaction_base::parameterized(const std::string &query)
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   return internal::parameterized_invocation(conn(), query);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
@@ -338,7 +340,9 @@ pqxx::transaction_base::prepared(const std::string &statement)
     throw usage_error(
 	"Error executing prepared statement " + statement + ".  " + e.what());
   }
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   return prepare::invocation(*this, statement);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 

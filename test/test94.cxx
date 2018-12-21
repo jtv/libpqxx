@@ -9,6 +9,8 @@ using namespace pqxx;
 // Test program for libpqxx.  Simulate "in-doubt" transaction failure.
 namespace
 {
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
+
 // Transaction class that simulates connection failure during commit.
 class basic_flakytransaction : public dbtransaction
 {
@@ -129,6 +131,8 @@ void test_094(transaction_base &orgT)
 	in_doubt_error,
 	"Simulated failure did not lead to in-doubt error.");
 }
+
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 } // namespace
 
 PQXX_REGISTER_TEST_T(test_094, nontransaction)

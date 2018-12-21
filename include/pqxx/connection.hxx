@@ -37,6 +37,10 @@ namespace pqxx
  * warning messages, for example, is defined by @e errorhandlers in the context
  * of a connection.  Prepared statements are also defined here.
  *
+ * @warning In libpqxx 7, all built-in connection types will be implemented
+ * as a single class.  You'll specify the connection policy as an optional
+ * constructor argument.
+ *
  * Several types of connections are available, including plain connection and
  * lazyconnection.  These types are aliases combining a derivative of the
  * connection_base class (where essentially all connection-related functionality
@@ -53,6 +57,11 @@ namespace pqxx
  * transparently re-enabled when you use them again.  This is called
  * "reactivation," and you may need to understand it because you'll want it
  * disabled in certain situations.
+ *
+ * @warning Connection deactivation/reactivation will probably be removed in
+ * libpqxx 7.  If your application relies on an ability to "put connections to
+ * sleep" and reactivate them later, you'll need to wrap them in some way to
+ * handle this.
  *
  * You can also set certain variables defined by the backend to influence its
  * behaviour for the duration of your session, such as the applicable text
@@ -85,7 +94,7 @@ public:
 };
 
 /// The "standard" connection type: connect to database right now
-using connection = basic_connection<connect_direct>;
+using connection = basic_connection_base<connect_direct>;
 
 
 /// Lazy connection policy; causes connection to be deferred until first use.
@@ -104,7 +113,7 @@ public:
 
 
 /// A "lazy" connection type: connect to database only when needed
-using lazyconnection = basic_connection<connect_lazy>;
+using lazyconnection = basic_connection_base<connect_lazy>;
 
 
 /// Asynchronous connection policy; connects "in the background"
@@ -132,7 +141,7 @@ private:
 
 
 /// "Asynchronous" connection type: start connecting, but don't wait for it
-using asyncconnection = basic_connection<connect_async>;
+using asyncconnection = basic_connection_base<connect_async>;
 
 
 /// Nonfunctional, always-down connection policy for testing/debugging purposes
@@ -148,7 +157,7 @@ public:
 
 
 /// A "dummy" connection type: don't connect to any database at all
-using nullconnection = basic_connection<connect_null>;
+using nullconnection = basic_connection_base<connect_null>;
 
 /**
  * @}

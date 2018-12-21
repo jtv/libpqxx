@@ -17,8 +17,10 @@ void test_086(transaction_base &N1)
   cout << "Some datum: " << N1.exec(Query)[0][0] << endl;
   N1.commit();
 
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   C.inhibit_reactivation(true);
   C.deactivate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   quiet_errorhandler d(C);
   {
@@ -29,7 +31,9 @@ void test_086(transaction_base &N1)
 	"Deactivated connection did not throw broken_connection on exec().");
   }
 
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   C.inhibit_reactivation(false);
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   work W(C, "test86W");
   W.exec(Query);
   W.commit();

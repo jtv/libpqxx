@@ -47,7 +47,9 @@ void test_089(transaction_base &)
   do_test(A1, "asyncconnection (virgin)");
 
   asyncconnection A2;
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   A2.activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   do_test(A2, "asyncconnection (initialized)");
 
@@ -55,12 +57,16 @@ void test_089(transaction_base &)
   do_test(L1, "lazyconnection (virgin)");
 
   lazyconnection L2;
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   L2.activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   do_test(L2, "lazyconnection (initialized)");
 
   connection C;
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   C.activate();
   C.deactivate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   do_test(C, "connection (deactivated)");
 }
 } // namespace

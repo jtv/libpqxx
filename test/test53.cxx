@@ -12,6 +12,8 @@ namespace
 {
 const string Contents = "Large object test contents";
 
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
+
 class ImportLargeObject : public transactor<>
 {
 public:
@@ -86,6 +88,8 @@ void test_053(transaction_base &orgT)
   C.perform(ReadLargeObject(Obj));
   C.perform(DeleteLargeObject(Obj));
 }
+
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 } // namespace
 
 PQXX_REGISTER_TEST_T(test_053, nontransaction)

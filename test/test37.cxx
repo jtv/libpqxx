@@ -15,6 +15,8 @@ namespace
 const int BoringYear = 1977;
 
 
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
+
 // Count events and specifically events occurring in Boring Year, leaving the
 // former count in the result pair's first member, and the latter in second.
 class CountEvents : public transactor<nontransaction>
@@ -120,6 +122,8 @@ void test_037(transaction_base &)
 	Before.second,
 	"Number of events for " + to_string(BoringYear) + " changed.");
 }
+
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 } // namespace
 
 PQXX_REGISTER_TEST_NODB(test_037)

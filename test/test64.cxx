@@ -44,10 +44,14 @@ void ActivationTest(connection_base &C, string style, string expected)
 {
   RedoDatestyle(C, style, expected);
   cout << "Deactivating connection..." << endl;
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   C.deactivate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   CheckDatestyle(C, expected);
   cout << "Reactivating connection..." << endl;
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   C.activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   CheckDatestyle(C, expected);
 }
 

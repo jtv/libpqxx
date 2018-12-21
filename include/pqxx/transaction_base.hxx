@@ -73,7 +73,8 @@ private:
 class PQXX_LIBEXPORT parameterized_invocation : statement_parameters
 {
 public:
-  parameterized_invocation(connection_base &, const std::string &query);
+  PQXX_DEPRECATED parameterized_invocation(
+	connection_base &, const std::string &query);
 
   parameterized_invocation &operator()() { add_param(); return *this; }
   parameterized_invocation &operator()(const binarystring &v)
@@ -90,7 +91,8 @@ public:
 
 private:
   /// Not allowed
-  parameterized_invocation &operator=(const parameterized_invocation &);
+  parameterized_invocation &operator=(const parameterized_invocation &)
+	=delete;
 
   connection_base &m_home;
   const std::string m_query;
@@ -354,7 +356,8 @@ public:
    * This is the old, pre-C++11 way of handling parameterised statements.  As
    * of libpqxx 6.0, it's made much easier using variadic templates.
    */
-  internal::parameterized_invocation parameterized(const std::string &query);
+  PQXX_DEPRECATED internal::parameterized_invocation
+  parameterized(const std::string &query);
   //@}
 
   /**
@@ -461,7 +464,8 @@ public:
    * If you leave out the statement name, the call refers to the nameless
    * statement instead.
    */
-  prepare::invocation prepared(const std::string &statement=std::string());
+  PQXX_DEPRECATED prepare::invocation
+  prepared(const std::string &statement=std::string());
 
   //@}
 

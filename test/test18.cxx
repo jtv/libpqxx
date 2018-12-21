@@ -14,6 +14,7 @@ namespace
 // Let's take a boring year that is not going to be in the "pqxxevents" table
 const long BoringYear = 1977;
 
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
 
 // Count events and specifically events occurring in Boring Year, leaving the
 // former count in the result pair's first member, and the latter in second.
@@ -122,6 +123,8 @@ void test_018(transaction_base &T)
 	Before.second,
 	"Event count for " + to_string(BoringYear) + " changed.");
 }
+
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 } // namespace
 
 PQXX_REGISTER_TEST_T(test_018, nontransaction)

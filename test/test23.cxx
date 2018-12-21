@@ -37,6 +37,8 @@ public:
 };
 
 
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
+
 // A transactor to trigger our notification listener
 class Notify : public transactor<>
 {
@@ -64,6 +66,8 @@ public:
   }
 };
 
+#include <pqxx/internal/ignore-deprecated-post.hxx>
+
 
 void test_023(transaction_base &)
 {
@@ -72,7 +76,9 @@ void test_023(transaction_base &)
   TestListener L(C);
 
   cout << "Sending notification..." << endl;
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   C.perform(Notify(L.channel()));
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   int notifs = 0;
   for (int i=0; (i < 20) and not L.done(); ++i)

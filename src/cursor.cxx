@@ -89,7 +89,9 @@ pqxx::internal::sql_cursor::sql_cursor(
 
   cq << "DECLARE \"" << name() << "\" ";
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   m_home.activate();
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
   if (ap == cursor_base::forward_only) cq << "NO ";
   cq << "SCROLL ";

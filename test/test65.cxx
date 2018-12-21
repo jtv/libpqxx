@@ -24,6 +24,8 @@ template<typename T> string UnStream(T &Stream)
 }
 
 
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
+
 class WriteLargeObject : public transactor<>
 {
 public:
@@ -126,6 +128,8 @@ void test_065(transaction_base &)
 
   PQXX_CHECK_EQUAL(Readback, StreamedContents, "Large object was mangled.");
 }
+
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 } // namespace
 
 PQXX_REGISTER_TEST_NODB(test_065)

@@ -22,6 +22,8 @@ template<typename T> string UnStream(T &Stream)
 }
 
 
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
+
 class WriteLargeObject : public transactor<>
 {
 public:
@@ -128,6 +130,8 @@ void test_048(transaction_base &orgT)
 	StreamedContents,
 	"Got wrong number of bytes from large object.");
 }
+
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 } // namespace
 
 PQXX_REGISTER_TEST_T(test_048, nontransaction)

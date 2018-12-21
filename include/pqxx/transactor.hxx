@@ -158,7 +158,8 @@ template<typename TRANSACTION=transaction<read_committed>> class transactor
 {
 public:
   using argument_type = TRANSACTION;
-  explicit transactor(const std::string &TName="transactor") :		//[t04]
+  PQXX_DEPRECATED explicit transactor(					//[t04]
+	const std::string &TName="transactor") :
     m_name(TName) { }
 
   /// Overridable transaction definition; insert your database code here

@@ -15,7 +15,9 @@ class ReadTables : public transactor<nontransaction>
 {
   result m_result;
 public:
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   ReadTables() : transactor<nontransaction>("ReadTables") {}
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   void operator()(argument_type &T)
   {
@@ -40,10 +42,12 @@ void test_034(transaction_base &T)
   connection_base &C(T.conn());
   T.abort();
 
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   // See if deactivate() behaves...
   C.deactivate();
 
   C.perform(ReadTables());
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 }
 } // namespace
 

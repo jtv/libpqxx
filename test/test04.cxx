@@ -43,8 +43,10 @@ class Notify : public transactor<>
   string m_channel;
 
 public:
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   explicit Notify(string channel) :
     transactor<>("Notifier"), m_channel(channel) { }
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   void operator()(argument_type &T)
   {
@@ -60,7 +62,9 @@ void test_004(transaction_base &T)
 
   TestListener L(T.conn());
 
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   T.conn().perform(Notify(L.channel()));
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   int notifs = 0;
   for (int i=0; (i < 20) and not L.done(); ++i)

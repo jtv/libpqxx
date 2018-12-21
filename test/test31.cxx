@@ -28,13 +28,17 @@ void test_031(transaction_base &orgT)
   const string Table = "pg_tables";
 
   // Tell C we won't be needing it for a while (not true, but let's pretend)
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   C.deactivate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   vector<int> NullFields;		// Maps column to no. of null fields
   vector<bool> SortedUp, SortedDown;	// Does column appear to be sorted?
 
   // Reactivate C (not really needed, but it sounds more polite)
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   C.activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   work T(C, "test31");
 

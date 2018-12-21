@@ -22,12 +22,14 @@ class PQXX_PRIVATE connection_parameterized_invocation :
 	const int binaries[],
 	int nparams)
   {
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
     return home().parameterized_exec(
 	query,
 	params,
 	paramlengths,
 	binaries,
 	nparams);
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   }
 };
 } // namespace pqxx::internal::gate

@@ -43,8 +43,10 @@ class Notify : public transactor<>
   string m_notif;
 
 public:
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   explicit Notify(string NotifName) :
     transactor<>("Notifier"), m_notif(NotifName) { }
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   void operator()(argument_type &T)
   {
@@ -79,7 +81,9 @@ void test_079(transaction_base &orgT)
   PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notification.");
 
   cout << "Sending notification..." << endl;
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   C.perform(Notify(L.channel()));
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   for (int i=0; (i < 20) and not L.done(); ++i)
   {

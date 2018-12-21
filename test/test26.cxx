@@ -34,7 +34,9 @@ int To4Digits(int Y)
 class UpdateYears : public transactor<>
 {
 public:
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   UpdateYears() : transactor<>("YearUpdate") {}
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   // Transaction definition
   void operator()(argument_type &T)
@@ -106,7 +108,9 @@ void test_026(transaction_base &)
 
   // Perform (an instantiation of) the UpdateYears transactor we've defined
   // in the code above.  This is where the work gets done.
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   C.perform(UpdateYears());
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   // Just for fun, report the exact conversions performed.  Note that this
   // list will be accurate even if other people were modifying the database

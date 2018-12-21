@@ -152,6 +152,11 @@ public:
  /**
    * @name Activation
    *
+   * @warning Connection deactivation/reactivation will probably be removed in
+   * libpqxx 7.  If your application relies on an ability to "put connections
+   * to sleep" and reactivate them later, you'll need to wrap them in some way
+   * to handle this.
+   *
    * Connections can be temporarily deactivated, or they can break because of
    * overly impatient firewalls dropping TCP connections.  Where possible,
    * libpqxx will try to re-activate these when resume using them, or you can
@@ -159,7 +164,7 @@ public:
    * should be aware of it.
    */
   //@{
-  /// Explicitly activate deferred or deactivated connection.
+  /// @deprecated Explicitly activate deferred or deactivated connection.
   /** Use of this method is entirely optional.  Whenever a connection is used
    * while in a deferred or deactivated state, it will transparently try to
    * bring itself into an activated state.  This function is best viewed as an
@@ -170,9 +175,9 @@ public:
    * deactivate().  A good time to call activate() might be just before you
    * first open a transaction on a lazy connection.
    */
-  void activate();							//[t12]
+  PQXX_DEPRECATED void activate();					//[t12]
 
-  /// Explicitly deactivate connection.
+  /// @deprecated Explicitly deactivate connection.
   /** Like its counterpart activate(), this method is entirely optional.
    * Calling this function really only makes sense if you won't be using this
    * connection for a while and want to reduce the number of open connections on
@@ -181,9 +186,9 @@ public:
    * calls to activate(), but calling deactivate() during a transaction is an
    * error.
    */
-  void deactivate();							//[t12]
+  PQXX_DEPRECATED void deactivate();					//[t12]
 
-  /// Disallow (or permit) connection recovery
+  /// @deprecated Disallow (or permit) connection recovery
   /** A connection whose underlying socket is not currently connected to the
    * server will normally (re-)establish communication with the server whenever
    * needed, or when the client program requests it (although for reasons of
@@ -228,7 +233,7 @@ public:
    * connection first.  This will ensure that definite activation happens before
    * you inhibit it.
    */
-  void inhibit_reactivation(bool inhibit)				//[t86]
+  PQXX_DEPRECATED void inhibit_reactivation(bool inhibit)		//[t86]
 	{ m_inhibit_reactivation=inhibit; }
 
   /// Make the connection fail.  @warning Do not use this except for testing!
@@ -562,7 +567,7 @@ public:
    * @param Attempts Maximum number of attempts to be made to execute T.
    */
   template<typename TRANSACTOR>
-  void perform(const TRANSACTOR &T, int Attempts);			//[t04]
+  PQXX_DEPRECATED void perform(const TRANSACTOR &T, int Attempts);	//[t04]
 
   /// @deprecated Pre-C++11 transactor function.  Use @c pqxx::perform instead.
   /**
@@ -572,7 +577,12 @@ public:
    * @param T The transactor to be executed.
    */
   template<typename TRANSACTOR>
-  void perform(const TRANSACTOR &T) { perform(T, 3); }
+  PQXX_DEPRECATED void perform(const TRANSACTOR &T)
+  {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+    perform(T, 3);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+  }
 
   /// Suffix unique number to name to make it unique within session context
   /** Used internally to generate identifiers for SQL objects (such as cursors
@@ -729,8 +739,8 @@ private:
   prepare::internal::prepared_def &register_prepared(const std::string &);
 
   friend class internal::gate::connection_prepare_invocation;
-  /// @deprecated To be replaced by exec_prepared.
-  result prepared_exec(
+  /// @deprecated Use exec_prepared instead.
+  PQXX_DEPRECATED result prepared_exec(
 	const std::string &,
 	const char *const[],
 	const int[],
@@ -821,8 +831,8 @@ private:
   friend class internal::gate::connection_reactivation_avoidance_exemption;
 
   friend class internal::gate::connection_parameterized_invocation;
-  /// @deprecated To be replaced with exec_params.
-  result parameterized_exec(
+  /// @deprecated Use exec_params instead.
+  PQXX_DEPRECATED result parameterized_exec(
 	const std::string &query,
 	const char *const params[],
 	const int paramlengths[],

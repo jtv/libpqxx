@@ -17,10 +17,12 @@ const string Contents = "Large object test contents";
 class WriteLargeObject : public transactor<>
 {
 public:
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   explicit WriteLargeObject() :
     transactor<>("WriteLargeObject")
   {
   }
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   void operator()(argument_type &T)
   {
@@ -85,7 +87,9 @@ void test_058(transaction_base &orgT)
   connection_base &C(orgT.conn());
   orgT.abort();
 
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   C.perform(WriteLargeObject());
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 }
 } // namespace
 

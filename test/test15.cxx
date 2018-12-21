@@ -11,6 +11,8 @@ using namespace pqxx;
 
 namespace
 {
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
+
 class ReadTables : public transactor<nontransaction>
 {
   result m_result;
@@ -45,6 +47,7 @@ void test_015(transaction_base &orgT)
   C.perform(ReadTables());
 }
 
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 } // namespace
 
 PQXX_REGISTER_TEST_T(test_015, nontransaction)

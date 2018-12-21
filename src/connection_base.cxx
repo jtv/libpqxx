@@ -93,7 +93,9 @@ std::string pqxx::encrypt_password(
 void pqxx::connection_base::init()
 {
   m_conn = m_policy.do_startconnect(m_conn);
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   if (m_policy.is_ready(m_conn)) activate();
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
@@ -191,7 +193,9 @@ void pqxx::connection_base::simulate_failure()
   if (m_conn)
   {
     m_conn = m_policy.do_disconnect(m_conn);
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
     inhibit_reactivation(true);
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   }
 }
 
@@ -601,28 +605,36 @@ int pqxx::connection_base::get_notifs()
 
 const char *pqxx::connection_base::dbname()
 {
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   if (m_conn == nullptr) activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   return PQdb(m_conn);
 }
 
 
 const char *pqxx::connection_base::username()
 {
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   if (m_conn == nullptr) activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   return PQuser(m_conn);
 }
 
 
 const char *pqxx::connection_base::hostname()
 {
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   if (m_conn == nullptr) activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   return PQhost(m_conn);
 }
 
 
 const char *pqxx::connection_base::port()
 {
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   if (m_conn == nullptr) activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   return PQport(m_conn);
 }
 
@@ -657,7 +669,9 @@ std::vector<errorhandler *> pqxx::connection_base::get_errorhandlers() const
 
 pqxx::result pqxx::connection_base::exec(const char Query[], int Retries)
 {
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   auto R = make_result(PQexec(m_conn, Query), Query);
 
@@ -733,7 +747,9 @@ pqxx::connection_base::find_prepared(const std::string &statement)
 pqxx::prepare::internal::prepared_def &
 pqxx::connection_base::register_prepared(const std::string &name)
 {
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   auto &s = find_prepared(name);
 
   // "Register" (i.e., define) prepared statement with backend on demand
@@ -765,7 +781,9 @@ pqxx::result pqxx::connection_base::prepared_exec(
 	int nparams)
 {
   register_prepared(statement);
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   auto r = make_result(
 	PQexecPrepared(
 		m_conn,
@@ -787,7 +805,9 @@ pqxx::result pqxx::connection_base::exec_prepared(
 	const internal::params &args)
 {
   register_prepared(statement);
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   const auto pointers = args.get_pointers();
   const auto pq_result = PQexecPrepared(
 	m_conn,
@@ -832,7 +852,9 @@ void pqxx::connection_base::reset()
   else
   {
     // No existing connection--start a new one
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
     activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   }
 }
 
@@ -840,7 +862,9 @@ void pqxx::connection_base::reset()
 void pqxx::connection_base::close() noexcept
 {
   m_completed = false;
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   inhibit_reactivation(false);
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   m_reactivation_avoidance.clear();
   try
   {
@@ -1009,7 +1033,9 @@ void pqxx::connection_base::end_copy_write()
 
 void pqxx::connection_base::start_exec(const std::string &Q)
 {
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   if (PQsendQuery(m_conn, Q.c_str()) == 0) throw failure(err_msg());
 }
 
@@ -1031,7 +1057,9 @@ std::string pqxx::connection_base::esc(const char str[], size_t maxlen)
 {
   // We need a connection object...  This is the one reason why this function is
   // not const!
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   if (m_conn == nullptr) activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   std::vector<char> buf(2 * maxlen + 1);
   int err = 0;
@@ -1060,7 +1088,9 @@ std::string pqxx::connection_base::esc_raw(
   size_t bytes = 0;
   // We need a connection object...  This is the one reason why this function is
   // not const!
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   std::unique_ptr<unsigned char, void (*)(unsigned char *)> buf(
 	PQescapeByteaConn(m_conn, str, len, &bytes),
@@ -1098,7 +1128,9 @@ std::string pqxx::connection_base::quote_name(const std::string &identifier)
 {
   // We need a connection object...  This is the one reason why this function is
   // not const!
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   std::unique_ptr<char, void (*)(char *)> buf(
 	PQescapeIdentifier(m_conn, identifier.c_str(), identifier.size()),
         freepqmem_templated<char>);
@@ -1124,7 +1156,12 @@ pqxx::internal::reactivation_avoidance_exemption::
 {
   // Don't leave the connection open if reactivation avoidance is in effect and
   // the connection needed to be reactivated temporarily.
-  if (m_count and not m_open) m_home.deactivate();
+  if (m_count and not m_open)
+  {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+    m_home.deactivate();
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+  }
   gate::connection_reactivation_avoidance_exemption gate(m_home);
   gate.add_counter(m_count);
 }
@@ -1225,7 +1262,9 @@ void pqxx::connection_base::wait_write() const
 
 int pqxx::connection_base::await_notification()
 {
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   int notifs = get_notifs();
   if (notifs == 0)
   {
@@ -1238,7 +1277,9 @@ int pqxx::connection_base::await_notification()
 
 int pqxx::connection_base::await_notification(long seconds, long microseconds)
 {
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   int notifs = get_notifs();
   if (notifs == 0)
   {
@@ -1280,7 +1321,9 @@ std::string pqxx::connection_base::adorn_name(const std::string &n)
 
 int pqxx::connection_base::encoding_code()
 {
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   return PQclientEncoding(m_conn);
 }
 

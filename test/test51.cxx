@@ -15,12 +15,14 @@ const string Contents = "Large object test contents";
 class WriteLargeObject : public transactor<>
 {
 public:
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   explicit WriteLargeObject(largeobject &O) :
     transactor<>("WriteLargeObject"),
     m_object(),
     m_object_output(O)
   {
   }
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   void operator()(argument_type &T)
   {
@@ -109,7 +111,9 @@ private:
 class DeleteLargeObject : public transactor<>
 {
 public:
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   explicit DeleteLargeObject(largeobject O) : m_object(O) {}
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   void operator()(argument_type &T)
   {
@@ -128,8 +132,10 @@ void test_051(transaction_base &orgT)
 
   largeobject Obj;
 
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   C.perform(WriteLargeObject(Obj));
   C.perform(DeleteLargeObject(Obj));
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 }
 } // namespace
 

@@ -1,5 +1,8 @@
 6.3.0
  - Still in progress.  Caution is advised!
+ - Connection policies are deprecated.  It'll all be one class in 7.0!
+ - Connection deactivation/reactivation is deprecated.
+ - Some items that were documented as deprecated are now also declared as such.
  - Fix Windows bug where WSAPoll was never used.  Thanks dpolunin.
  - Fix Windows CMake build to link to socket libraries.  Thanks dpolunin.
  - Various other changes to the CMake build.
