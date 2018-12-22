@@ -18,13 +18,6 @@ using namespace pqxx;
 namespace
 {
 
-// Global list of converted year numbers and what they've been converted to
-map<int,int> theConversions;
-
-
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-
-
 // Convert year to 4-digit format.
 int To4Digits(int Y)
 {
@@ -37,133 +30,6 @@ int To4Digits(int Y)
 
   return Result;
 }
-
-
-// Transaction definition for year-field update
-class UpdateYears : public transactor<>
-{
-public:
-  UpdateYears() : transactor<>("YearUpdate") {}
-
-  // Transaction definition
-  void operator()(argument_type &T)
-  {
-    // First select all different years occurring in the table.
-    result R( T.exec("SELECT year FROM pqxxevents") );
-
-    // See if we get reasonable type identifier for this column
-    const oid rctype = R.column_type(0);
-    PQXX_CHECK_EQUAL(
-	R.column_type(pqxx::row::size_type(0)),
-	rctype,
-	"Inconsistent result::column_type().");
-
-    const string rct = to_string(rctype);
-    PQXX_CHECK(rctype > 0, "Got strange type ID for column: " + rct);
-
-    const string rcol = R.column_name(0);
-    PQXX_CHECK(not rcol.empty(), "Didn't get a name for column.");
-
-    const oid rcctype = R.column_type(rcol);
-    PQXX_CHECK_EQUAL(rcctype, rctype, "Column type is not what it is by name.");
-
-    const oid rawrcctype = R.column_type(rcol.c_str());
-    PQXX_CHECK_EQUAL(
-	rawrcctype,
-	rctype,
-	"Column type by C-style name is different.");
-
-    // Note all different years currently occurring in the table, writing them
-    // and their correct mappings to m_conversions.
-    for (const auto &r: R)
-    {
-      int Y;
-
-      // Read year, and if it is non-null, note its converted value
-      if (r[0] >> Y) m_conversions[Y] = To4Digits(Y);
-
-      // See if type identifiers are consistent
-      const oid tctype = r.column_type(0);
-
-      PQXX_CHECK_EQUAL(
-	tctype,
-	r.column_type(pqxx::row::size_type(0)),
-	"Inconsistent pqxx::row::column_type()");
-
-      PQXX_CHECK_EQUAL(
-	tctype,
-	rctype,
-	"pqxx::row::column_type() is inconsistent with "
-		"result::column_type().");
-
-      const oid ctctype = r.column_type(rcol);
-
-      PQXX_CHECK_EQUAL(
-	ctctype,
-	rctype,
-	"Column type lookup by column name is broken.");
-
-      const oid rawctctype = r.column_type(rcol.c_str());
-
-      PQXX_CHECK_EQUAL(
-	rawctctype,
-	rctype,
-	"Column type lookup by C-style name is broken.");
-
-      const oid fctype = r[0].type();
-      PQXX_CHECK_EQUAL(
-	fctype,
-	rctype,
-	"Field type lookup is broken.");
-    }
-
-    result::size_type AffectedRows = 0;
-
-    // For each occurring year, write converted date back to whereever it may
-    // occur in the table.  Since we're in a transaction, any changes made by
-    // others at the same time will not affect us.
-    for (const auto &c: m_conversions)
-    {
-      const auto query = 
-	"UPDATE pqxxevents "
-	"SET year=" + to_string(c.second) + " "
-	"WHERE year=" + to_string(c.first);
-      R = T.exec0(query.c_str());
-      AffectedRows += R.affected_rows();
-    }
-    cout << AffectedRows << " rows updated." << endl;
-  }
-
-  // Postprocessing code for successful execution
-  void on_commit()
-  {
-    // Report the conversions performed once the transaction has completed
-    // successfully.  Do not report conversions occurring in unsuccessful
-    // attempts, as some of those may have been removed from the table by
-    // somebody else between our attempts.
-    // Even if this fails (eg. because we run out of memory), the actual
-    // database transaction will still have been performed.
-    theConversions = m_conversions;
-  }
-
-  // Postprocessing code for aborted execution attempt
-  void on_abort(const char Reason[]) noexcept
-  {
-    try
-    {
-      // Notify user that the transaction attempt went wrong; we may retry.
-      cerr << "Transaction interrupted: " << Reason << endl;
-    }
-    catch (const exception &)
-    {
-      // Ignore any exceptions on cerr.
-    }
-  }
-
-private:
-  // Local store of date conversions to be performed
-  map<int,int> m_conversions;
-};
 
 
 void test_007(transaction_base &T)
@@ -180,20 +46,107 @@ void test_007(transaction_base &T)
 
   // Perform (an instantiation of) the UpdateYears transactor we've defined
   // in the code above.  This is where the work gets done.
-  C.perform(UpdateYears());
+  map<int,int> conversions;
+  perform(
+    [&conversions, &C]()
+    {
+      work tx(C);
+      // First select all different years occurring in the table.
+      result R(tx.exec("SELECT year FROM pqxxevents"));
+
+      // See if we get reasonable type identifier for this column.
+      const oid rctype = R.column_type(0);
+      PQXX_CHECK_EQUAL(
+	R.column_type(pqxx::row::size_type(0)),
+	rctype,
+	"Inconsistent result::column_type().");
+
+      const string rct = to_string(rctype);
+      PQXX_CHECK(rctype > 0, "Got strange type ID for column: " + rct);
+
+      const string rcol = R.column_name(0);
+      PQXX_CHECK(not rcol.empty(), "Didn't get a name for column.");
+
+      const oid rcctype = R.column_type(rcol);
+      PQXX_CHECK_EQUAL(
+        rcctype,
+        rctype,
+        "Column type is not what it is by name.");
+
+      const oid rawrcctype = R.column_type(rcol.c_str());
+      PQXX_CHECK_EQUAL(
+	rawrcctype,
+	rctype,
+	"Column type by C-style name is different.");
+
+      // Note all different years currently occurring in the table, writing
+      // them and their correct mappings to conversions.
+      for (const auto &r: R)
+      {
+        int Y;
+
+        // Read year, and if it is non-null, note its converted value
+        if (r[0] >> Y) conversions[Y] = To4Digits(Y);
+
+        // See if type identifiers are consistent
+        const oid tctype = r.column_type(0);
+
+        PQXX_CHECK_EQUAL(
+                tctype,
+                r.column_type(pqxx::row::size_type(0)),
+                "Inconsistent pqxx::row::column_type()");
+
+        PQXX_CHECK_EQUAL(
+                tctype,
+                rctype,
+                "pqxx::row::column_type() is inconsistent with "
+		"result::column_type().");
+
+        const oid ctctype = r.column_type(rcol);
+
+        PQXX_CHECK_EQUAL(
+        	ctctype,
+        	rctype,
+        	"Column type lookup by column name is broken.");
+
+        const oid rawctctype = r.column_type(rcol.c_str());
+
+        PQXX_CHECK_EQUAL(
+	        rawctctype,
+        	rctype,
+        	"Column type lookup by C-style name is broken.");
+
+        const oid fctype = r[0].type();
+        PQXX_CHECK_EQUAL(
+	        fctype,
+	        rctype,
+	        "Field type lookup is broken.");
+      }
+
+      result::size_type AffectedRows = 0;
+
+      // For each occurring year, write converted date back to whereever it may
+      // occur in the table.  Since we're in a transaction, any changes made by
+      // others at the same time will not affect us.
+      for (const auto &c: conversions)
+      {
+        const auto query = 
+        	"UPDATE pqxxevents "
+        	"SET year=" + to_string(c.second) + " "
+        	"WHERE year=" + to_string(c.first);
+        R = tx.exec0(query.c_str());
+        AffectedRows += R.affected_rows();
+      }
+      cout << AffectedRows << " rows updated." << endl;
+    });
 
   // Just for fun, report the exact conversions performed.  Note that this
   // list will be accurate even if other people were modifying the database
   // at the same time; this property was established through use of the
   // transactor framework.
-  for (auto &i: theConversions)
+  for (auto &i: conversions)
     cout << '\t' << i.first << "\t-> " << i.second << endl;
 }
-
-
-#include <pqxx/internal/ignore-deprecated-post.hxx>
-
-
 } // namespace
 
 PQXX_REGISTER_TEST(test_007)
