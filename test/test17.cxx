@@ -17,10 +17,10 @@ void test_017(transaction_base &T)
   perform(
     [&C]()
     {
-      nontransaction T{C};
-      const auto r = T.exec("SELECT * FROM generate_series(1, 4)");
+      nontransaction tx{C};
+      const auto r = tx.exec("SELECT * FROM generate_series(1, 4)");
       PQXX_CHECK_EQUAL(r.size(), 4ul, "Weird query result.");
-      T.commit();
+      tx.commit();
     });
 }
 } // namespace
