@@ -47,10 +47,10 @@ void test_004(transaction_base &T)
   perform(
     [&conn, &L]()
     {
-      work T(conn);
-      T.exec("NOTIFY \"" + L.channel() + "\"");
+      work tx(conn);
+      tx.exec("NOTIFY \"" + L.channel() + "\"");
       Backend_PID = conn.backendpid();
-      T.commit();
+      tx.commit();
     });
 
   int notifs = 0;
