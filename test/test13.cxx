@@ -20,9 +20,6 @@ namespace
 const unsigned int BoringYear = 1977;
 
 
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-
-
 // Count events and specifically events occurring in Boring Year, leaving the
 // former count in the result pair's first member, and the latter in second.
 pair<int, int> count_events(connection_base &conn, string table)
@@ -49,33 +46,17 @@ struct deliberate_error : exception
 };
 
 
-class FailedInsert : public transactor<>
+void failed_insert(connection_base &C, string table)
 {
-  string m_table;
-public:
-  explicit FailedInsert(string Table) :
-    transactor<>("FailedInsert"),
-    m_table(Table)
-  {
-  }
-
-  void operator()(argument_type &T)
-  {
-    result R = T.exec0(
-	"INSERT INTO " + m_table + " VALUES (" +
+  work tx(C);
+  result R = tx.exec0(
+	"INSERT INTO " + table + " VALUES (" +
 	to_string(BoringYear) + ", "
 	"'yawn')");
 
-    PQXX_CHECK_EQUAL(R.affected_rows(), 1u, "Bad affected_rows().");
-
-    throw deliberate_error();
-  }
-
-  void on_abort(const char Reason[]) noexcept
-  {
-    pqxx::test::expected_exception(name() + " failed: " + Reason);
-  }
-};
+  PQXX_CHECK_EQUAL(R.affected_rows(), 1u, "Bad affected_rows().");
+  throw deliberate_error();
+}
 
 
 void test_013(transaction_base &T)
@@ -97,10 +78,9 @@ void test_013(transaction_base &T)
 	0,
 	"Already have event for " + to_string(BoringYear) + "--can't test.");
 
-  const FailedInsert DoomedTransaction(Table);
   quiet_errorhandler d(C);
   PQXX_CHECK_THROWS(
-	C.perform(DoomedTransaction),
+	perform(bind(failed_insert,  ref(C), Table)),
 	deliberate_error,
 	"Failing transactor failed to throw correct exception.");
 
@@ -116,11 +96,6 @@ void test_013(transaction_base &T)
 	Before.second,
 	"abort() didn't reset event count for " + to_string(BoringYear));
 }
-
-
-#include <pqxx/internal/ignore-deprecated-post.hxx>
-
-
 } // namespace
 
 PQXX_REGISTER_TEST_T(test_013, nontransaction)
