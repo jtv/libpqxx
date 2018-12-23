@@ -1,3 +1,5 @@
+#include <functional>
+
 #include "test_helpers.hxx"
 
 using namespace std;
@@ -23,25 +25,22 @@ const unsigned int BoringYear = 1977;
 
 // Count events and specifically events occurring in Boring Year, leaving the
 // former count in the result pair's first member, and the latter in second.
-class CountEvents : public transactor<>
+pair<int, int> count_events(connection_base &conn, string table)
 {
-  string m_table;
-  pair<int, int> &m_results;
-public:
-  CountEvents(string Table, pair<int,int> &Results) :
-    transactor<>("CountEvents"), m_table(Table), m_results(Results) {}
+  int all_years, boring_year;
 
-  void operator()(argument_type &T)
-  {
-    const string CountQuery = "SELECT count(*) FROM " + m_table;
-    row R;
+  const string CountQuery = "SELECT count(*) FROM " + table;
 
-    R = T.exec1(CountQuery);
-    R.front().to(m_results.first);
+  work tx{conn};
+  row R;
 
-    R = T.exec1(CountQuery + " WHERE year=" + to_string(BoringYear));
-    R.front().to(m_results.second);
-  }
+  R = tx.exec1(CountQuery);
+  R.front().to(all_years);
+
+  R = tx.exec1(CountQuery + " WHERE year=" + to_string(BoringYear));
+  R.front().to(boring_year);
+
+  return std::make_pair(all_years, boring_year);
 };
 
 
@@ -81,7 +80,7 @@ public:
 
 void test_013(transaction_base &T)
 {
-  connection_base &C(T.conn());
+  connection_base &C{T.conn()};
   T.abort();
 
   {
@@ -92,8 +91,7 @@ void test_013(transaction_base &T)
 
   const string Table = "pqxxevents";
 
-  pair<int,int> Before;
-  C.perform(CountEvents(Table, Before));
+  const pair<int,int> Before = perform(bind(count_events, ref(C), Table));
   PQXX_CHECK_EQUAL(
 	Before.second,
 	0,
@@ -106,8 +104,7 @@ void test_013(transaction_base &T)
 	deliberate_error,
 	"Failing transactor failed to throw correct exception.");
 
-  pair<int,int> After;
-  C.perform(CountEvents(Table, After));
+  const pair<int,int> After = perform(bind(count_events, ref(C), Table));
 
   PQXX_CHECK_EQUAL(
 	After.first,
