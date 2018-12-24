@@ -13,67 +13,36 @@ namespace
 const string Contents = "Large object test contents";
 
 
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-
-class ImportLargeObject : public transactor<>
-{
-public:
-  explicit ImportLargeObject(largeobject &O, const string &File) :
-    transactor<>("ImportLargeObject"),
-    m_object(O),
-    m_file(File)
-  {
-  }
-
-  void operator()(argument_type &T)
-  {
-
-    largeobjectaccess A(T, "pqxxlo.txt", ios::in);
-    m_object = largeobject(A);
-    cout << "Imported '" << m_file << "' "
-            "to large object #" << m_object.id() << endl;
-
-    char Buf[200];
-    const auto len = A.read(Buf, sizeof(Buf)-1);
-    PQXX_CHECK_EQUAL(
-	string(Buf, string::size_type(len)),
-	Contents,
-	"Large object contents were mangled.");
-  }
-
-private:
-  largeobject &m_object;
-  string m_file;
-};
-
-
-class DeleteLargeObject : public transactor<>
-{
-public:
-  explicit DeleteLargeObject(largeobject O) : m_object(O) {}
-
-  void operator()(argument_type &T)
-  {
-    m_object.remove(T);
-  }
-
-private:
-  largeobject m_object;
-};
-
-
 void test_055(transaction_base &orgT)
 {
   connection_base &C(orgT.conn());
   orgT.abort();
 
-  largeobject Obj;
+  largeobject Obj = perform(
+    [&C]()
+    {
+      char Buf[200];
+      work tx{C};
+      largeobjectaccess A(tx, "pqxxlo.txt", ios::in);
+      auto new_obj = largeobject(A);
+      const auto len = A.read(Buf, sizeof(Buf)-1);
+      PQXX_CHECK_EQUAL(
+	string(Buf, string::size_type(len)),
+	Contents,
+	"Large object contents were mangled.");
 
-  C.perform(ImportLargeObject(Obj, "pqxxlo.txt"));
-  C.perform(DeleteLargeObject(Obj));
+      tx.commit();
+      return new_obj;
+    });
+
+  perform(
+    [&C, &Obj]()
+    {
+      work tx{C};
+      Obj.remove(tx);
+      tx.commit();
+    });
 }
-
-#include <pqxx/internal/ignore-deprecated-post.hxx>
 } // namespace
 
 PQXX_REGISTER_TEST_T(test_055, nontransaction)
