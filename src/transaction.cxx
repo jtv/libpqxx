@@ -22,7 +22,7 @@ pqxx::internal::basic_transaction::basic_transaction(
 	const std::string &IsolationLevel,
 	readwrite_policy rw) :
   namedclass{"transaction"},
-  dbtransaction{C, IsolationLevel, rw}
+  dbtransaction(C, IsolationLevel, rw)
 {
 }
 
