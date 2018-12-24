@@ -24,97 +24,33 @@ template<typename T> string UnStream(T &Stream)
 }
 
 
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-
-class WriteLargeObject : public transactor<>
-{
-public:
-  WriteLargeObject(const string &Contents, largeobject &O) :
-    transactor<>("WriteLargeObject"),
-    m_contents(Contents),
-    m_object(),
-    m_object_output(O)
-  {
-  }
-
-  void operator()(argument_type &T)
-  {
-    m_object = largeobject(T);
-    cout << "Created large object #" << m_object.id() << endl;
-
-    lostream S(T, m_object.id());
-    S << m_contents;
-  }
-
-  void on_commit()
-  {
-    m_object_output = m_object;
-  }
-
-private:
-  string m_contents;
-  largeobject m_object;
-  largeobject &m_object_output;
-};
-
-
-class ReadLargeObject : public transactor<>
-{
-public:
-  ReadLargeObject(string &Contents, largeobject O) :
-    transactor<>("ReadLargeObject"),
-    m_contents(),
-    m_object_output(Contents),
-    m_object(O)
-  {
-  }
-
-  void operator()(argument_type &T)
-  {
-    lostream S(T, m_object, ios::in);
-    m_contents = UnStream(S);
-  }
-
-  void on_commit()
-  {
-    m_object_output = m_contents;
-  }
-
-private:
-  string m_contents;
-  string &m_object_output;
-  largeobject m_object;
-};
-
-
-class DeleteLargeObject : public transactor<>
-{
-public:
-  explicit DeleteLargeObject(largeobject O) : m_object(O) {}
-
-  void operator()(argument_type &T)
-  {
-    m_object.remove(T);
-  }
-
-private:
-  largeobject m_object;
-};
-
-
 void test_065(transaction_base &)
 {
   asyncconnection C("");
 
-  largeobject Obj(oid_none);
   const string Contents = "Testing, testing, 1-2-3";
 
-  C.perform(WriteLargeObject(Contents, Obj));
+  largeobject Obj = perform(
+    [&C, &Contents]()
+    {
+      work tx{C};
+      auto new_obj = largeobject{tx};
+      lostream S{tx, new_obj.id()};
+      S << Contents;
+      S.flush();
+      tx.commit();
+      return new_obj;
+    });
 
-  string Readback;		// Contents as read back from large object
-  C.perform(ReadLargeObject(Readback, Obj));
+  const string Readback = perform(
+    [&C, &Obj]
+    {
+      work tx{C};
+      lostream S{tx, Obj, ios::in};
+      return UnStream(S);
+    });
 
-  C.perform(DeleteLargeObject(Obj));
+  perform([&C, &Obj](){ work tx{C}; Obj.remove(tx); tx.commit(); });
 
   /* Reconstruct what will happen to our contents string if we put it into a
    * stream and then read it back.  We can compare this with what comes back
@@ -128,8 +64,6 @@ void test_065(transaction_base &)
 
   PQXX_CHECK_EQUAL(Readback, StreamedContents, "Large object was mangled.");
 }
-
-#include <pqxx/internal/ignore-deprecated-post.hxx>
 } // namespace
 
 PQXX_REGISTER_TEST_NODB(test_065)
