@@ -12,130 +12,95 @@ namespace
 const string Contents = "Large object test contents";
 
 
-class WriteLargeObject : public transactor<>
-{
-public:
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  explicit WriteLargeObject(largeobject &O) :
-    transactor<>("WriteLargeObject"),
-    m_object(),
-    m_object_output(O)
-  {
-  }
-#include <pqxx/internal/ignore-deprecated-post.hxx>
-
-  void operator()(argument_type &T)
-  {
-    largeobjectaccess A(T);
-    cout << "Created large object #" << A.id() << endl;
-    m_object = largeobject(A);
-
-    A.write(Contents);
-
-    char Buf[200];
-    const auto Size = sizeof(Buf) - 1;
-
-    auto Offset = A.seek(0, ios::beg);
-    PQXX_CHECK_EQUAL(Offset, 0, "Wrong position after seek to beginning.");
-
-    PQXX_CHECK_EQUAL(
-	size_t(A.read(Buf, Size)),
-	Contents.size(),
-	"Unexpected read() result.");
-
-    PQXX_CHECK_EQUAL(
-	string(Buf, Contents.size()),
-	Contents,
-	"Large object contents were mutilated.");
-
-    // Now write contents again, this time as a C string
-    PQXX_CHECK_EQUAL(
-	A.seek(-int(Contents.size()), ios::end),
-	0,
-	"Bad position after seeking to beginning of large object.");
-
-    using lobj_size_t = largeobjectaccess::size_type;
-    A.write(Buf, lobj_size_t(Contents.size()));
-    A.seek(0, ios::beg);
-    PQXX_CHECK_EQUAL(
-	size_t(A.read(Buf, Size)),
-	Contents.size(),
-	"Bad length for rewritten large object.");
-
-    PQXX_CHECK_EQUAL(
-	string(Buf, Contents.size()),
-	Contents,
-	"Rewritten large object was mangled.");
-  }
-
-  void on_commit()
-  {
-    PQXX_CHECK(
-	m_object_output != m_object,
-	"Large objects: false negative on operator!=().");
-
-    PQXX_CHECK(
-	not (m_object_output == m_object),
-	"Large objects: false positive on operator==().");
-
-    m_object_output = m_object;
-
-    PQXX_CHECK(
-	not (m_object_output != m_object),
-	"Large objects: false positive on operator!=().");
-    PQXX_CHECK(
-	m_object_output == m_object,
-	"Large objects: false negative on operator==().");
-
-    PQXX_CHECK(
-	m_object_output <= m_object,
-	"Large objects: false negative on operator<=().");
-    PQXX_CHECK(
-	m_object_output >= m_object,
-	"Large objects: false negative on operator>=().");
-
-    PQXX_CHECK(
-	not (m_object_output < m_object),
-	"Large objects: false positive on operator<().");
-    PQXX_CHECK(
-	not (m_object_output > m_object),
-	"Large objects: false positive on operator>().");
- }
-
-private:
-  largeobject m_object;
-  largeobject &m_object_output;
-};
-
-
-class DeleteLargeObject : public transactor<>
-{
-public:
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  explicit DeleteLargeObject(largeobject O) : m_object(O) {}
-#include <pqxx/internal/ignore-deprecated-post.hxx>
-
-  void operator()(argument_type &T)
-  {
-    m_object.remove(T);
-  }
-
-private:
-  largeobject m_object;
-};
-
-
 void test_051(transaction_base &orgT)
 {
   connection_base &C(orgT.conn());
   orgT.abort();
 
-  largeobject Obj;
+  largeobject obj = perform(
+    [&C]()
+    {
+      work tx{C};
+      largeobjectaccess A(tx);
+      auto obj = largeobject(A);
 
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  C.perform(WriteLargeObject(Obj));
-  C.perform(DeleteLargeObject(Obj));
-#include <pqxx/internal/ignore-deprecated-post.hxx>
+      A.write(Contents);
+
+      char Buf[200];
+      const auto Size = sizeof(Buf) - 1;
+
+      auto Offset = A.seek(0, ios::beg);
+      PQXX_CHECK_EQUAL(Offset, 0, "Wrong position after seek to beginning.");
+
+      PQXX_CHECK_EQUAL(
+	size_t(A.read(Buf, Size)),
+	Contents.size(),
+	"Unexpected read() result.");
+
+      PQXX_CHECK_EQUAL(
+	string(Buf, Contents.size()),
+	Contents,
+	"Large object contents were mutilated.");
+
+      // Now write contents again, this time as a C string
+      PQXX_CHECK_EQUAL(
+	A.seek(-int(Contents.size()), ios::end),
+	0,
+	"Bad position after seeking to beginning of large object.");
+
+      using lobj_size_t = largeobjectaccess::size_type;
+      A.write(Buf, lobj_size_t(Contents.size()));
+      A.seek(0, ios::beg);
+      PQXX_CHECK_EQUAL(
+	size_t(A.read(Buf, Size)),
+	Contents.size(),
+	"Bad length for rewritten large object.");
+
+      PQXX_CHECK_EQUAL(
+	string(Buf, Contents.size()),
+	Contents,
+	"Rewritten large object was mangled.");
+
+      tx.commit();
+      return obj;
+    });
+
+  PQXX_CHECK(
+	obj != largeobject{},
+	"Large objects: false negative on operator!=().");
+
+  PQXX_CHECK(
+	not (obj == largeobject{}),
+	"Large objects: false positive on operator==().");
+
+  PQXX_CHECK(
+	not (obj != obj),
+	"Large objects: false positive on operator!=().");
+  PQXX_CHECK(
+	obj == obj,
+	"Large objects: false negative on operator==().");
+
+  PQXX_CHECK(
+	obj <= obj,
+	"Large objects: false negative on operator<=().");
+  PQXX_CHECK(
+	obj >= obj,
+	"Large objects: false negative on operator>=().");
+
+  PQXX_CHECK(
+	not (obj < obj),
+	"Large objects: false positive on operator<().");
+  PQXX_CHECK(
+	not (obj > obj),
+	"Large objects: false positive on operator>().");
+
+  perform(
+    [&C, &obj]()
+    {
+      work tx{C};
+      obj.remove(tx);
+      tx.commit();
+    });
 }
 } // namespace
 
