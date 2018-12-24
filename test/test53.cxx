@@ -12,84 +12,38 @@ namespace
 {
 const string Contents = "Large object test contents";
 
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-
-class ImportLargeObject : public transactor<>
-{
-public:
-  explicit ImportLargeObject(largeobject &O, const string &File) :
-    transactor<>("ImportLargeObject"),
-    m_object(O),
-    m_file(File)
-  {
-  }
-
-  void operator()(argument_type &T)
-  {
-    m_object = largeobject(T, m_file);
-    cout << "Imported '" << m_file << "' "
-            "to large object #" << m_object.id() << endl;
-  }
-
-private:
-  largeobject &m_object;
-  string m_file;
-};
-
-
-class ReadLargeObject : public transactor<>
-{
-public:
-  explicit ReadLargeObject(largeobject &O) :
-    transactor<>("ReadLargeObject"),
-    m_object(O)
-  {
-  }
-
-  void operator()(argument_type &T)
-  {
-    char Buf[200];
-    largeobjectaccess O(T, m_object, ios::in);
-    const auto len = O.read(Buf, sizeof(Buf)-1);
-    PQXX_CHECK_EQUAL(
-	string(Buf, string::size_type(len)),
-	Contents,
-	"Large object contents were mangled.");
-  }
-
-private:
-  largeobject m_object;
-};
-
-
-class DeleteLargeObject : public transactor<>
-{
-public:
-  explicit DeleteLargeObject(largeobject O) : m_object(O) {}
-
-  void operator()(argument_type &T)
-  {
-    m_object.remove(T);
-  }
-
-private:
-  largeobject m_object;
-};
-
 
 void test_053(transaction_base &orgT)
 {
   connection_base &C(orgT.conn());
   orgT.abort();
 
-  largeobject Obj;
+  largeobject Obj = perform(
+    [&C]()
+    {
+      work tx{C};
+      auto obj = largeobject{tx, "pqxxlo.txt"};
+      tx.commit();
+      return obj;
+    });
 
-  C.perform(ImportLargeObject(Obj, "pqxxlo.txt"));
-  C.perform(ReadLargeObject(Obj));
-  C.perform(DeleteLargeObject(Obj));
+  perform(
+    [&C, &Obj]()
+    {
+      char Buf[200];
+      work tx{C};
+      largeobjectaccess O(tx, Obj, ios::in);
+      const auto len = O.read(Buf, sizeof(Buf)-1);
+      PQXX_CHECK_EQUAL(
+	string(Buf, string::size_type(len)),
+	Contents,
+	"Large object contents were mangled.");
+      tx.commit();
+    });
+
+  perform([&C, &Obj](){ work tx{C}; Obj.remove(tx); tx.commit(); });
 }
 
-#include <pqxx/internal/ignore-deprecated-post.hxx>
 } // namespace
 
 PQXX_REGISTER_TEST_T(test_053, nontransaction)

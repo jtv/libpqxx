@@ -15,35 +15,6 @@ namespace
 const string Contents = "Large object test contents";
 
 
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-class CreateLargeObject : public transactor<>
-{
-public:
-  explicit CreateLargeObject(largeobject &O) :
-    transactor<>("CreateLargeObject"),
-    m_object(),
-    m_object_output(O)
-  {
-  }
-
-  void operator()(argument_type &T)
-  {
-    m_object = largeobject(T);
-    cout << "Created large object #" << m_object.id() << endl;
-  }
-
-  void on_commit()
-  {
-    m_object_output = m_object;
-  }
-
-private:
-  largeobject m_object;
-  largeobject &m_object_output;
-};
-#include <pqxx/internal/ignore-deprecated-post.hxx>
-
-
 void test_050(transaction_base &orgT)
 {
   connection_base &C(orgT.conn());
