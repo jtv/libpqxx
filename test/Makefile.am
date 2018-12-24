@@ -107,7 +107,6 @@ runner_SOURCES = \
   test90.cxx \
   test92.cxx \
   test93.cxx \
-  test94.cxx \
   runner.cxx
 
 runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}

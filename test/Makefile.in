@@ -130,7 +130,7 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	test82.$(OBJEXT) test84.$(OBJEXT) test86.$(OBJEXT) \
 	test87.$(OBJEXT) test88.$(OBJEXT) test89.$(OBJEXT) \
 	test90.$(OBJEXT) test92.$(OBJEXT) test93.$(OBJEXT) \
-	test94.$(OBJEXT) runner.$(OBJEXT)
+	runner.$(OBJEXT)
 runner_OBJECTS = $(am_runner_OBJECTS)
 am__DEPENDENCIES_1 =
 runner_DEPENDENCIES = $(top_builddir)/src/libpqxx.la \
@@ -505,7 +505,6 @@ runner_SOURCES = \
   test90.cxx \
   test92.cxx \
   test93.cxx \
-  test94.cxx \
   runner.cxx
 
 runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
@@ -632,7 +631,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test90.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test92.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test93.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test94.Po@am__quote@
 
 .cxx.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

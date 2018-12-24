@@ -8,7 +8,7 @@ namespace
 void test_transactor_newstyle_executes_simple_query(connection_base &c)
 {
   const auto r = pqxx::perform(
-    [&c]{return work(c).exec("SELECT generate_series(1, 4)");});
+    [&c]{return work{c}.exec("SELECT generate_series(1, 4)");});
 
   PQXX_CHECK_EQUAL(r.size(), 4u, "Unexpected result size.");
   PQXX_CHECK_EQUAL(r.columns(), 1u, "Unexpected number of columns.");
@@ -22,6 +22,14 @@ void test_transactor_newstyle_can_return_void()
   bool done = false;
   perform([&done]{ done = true; });
   PQXX_CHECK(done, "Callback was not executed.");
+}
+
+
+void test_transactor_newstyle_completes_upon_success()
+{
+  int attempts = 0;
+  perform([&attempts](){ attempts++; });
+  PQXX_CHECK_EQUAL(attempts, 1, "Successful transactor didn't run 1 time.");
 }
 
 
@@ -109,6 +117,7 @@ void test_transactor(transaction_base &trans)
   trans.abort();
   test_transactor_newstyle_executes_simple_query(trans.conn());
   test_transactor_newstyle_can_return_void();
+  test_transactor_newstyle_completes_upon_success();
   test_transactor_newstyle_retries_broken_connection();
   test_transactor_newstyle_retries_rollback();
   test_transactor_newstyle_does_not_retry_in_doubt_error();

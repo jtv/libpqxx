@@ -89,6 +89,7 @@ OBJS= \
   $(INTDIR)\test12.obj \
   $(INTDIR)\test13.obj \
   $(INTDIR)\test14.obj \
+  $(INTDIR)\test15.obj \
   $(INTDIR)\test16.obj \
   $(INTDIR)\test17.obj \
   $(INTDIR)\test18.obj \
@@ -147,7 +148,6 @@ OBJS= \
   $(INTDIR)\test90.obj \
   $(INTDIR)\test92.obj \
   $(INTDIR)\test93.obj \
-  $(INTDIR)\test94.obj \
   $(INTDIR)\runner.obj
 
 
@@ -203,6 +203,8 @@ $(INTDIR)\test13.obj::
 	@$(CXX) $(CXX_FLAGS) test/test13.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test14.obj::
 	@$(CXX) $(CXX_FLAGS) test/test14.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
+$(INTDIR)\test15.obj::
+	@$(CXX) $(CXX_FLAGS) test/test15.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test16.obj::
 	@$(CXX) $(CXX_FLAGS) test/test16.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test17.obj::
@@ -319,8 +321,6 @@ $(INTDIR)\test92.obj::
 	@$(CXX) $(CXX_FLAGS) test/test92.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test93.obj::
 	@$(CXX) $(CXX_FLAGS) test/test93.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test94.obj::
-	@$(CXX) $(CXX_FLAGS) test/test94.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 
 
 $(INTDIR)\$(LIBPQ)::

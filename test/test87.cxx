@@ -59,36 +59,6 @@ public:
 };
 
 
-// A transactor to trigger our notification listener
-class Notify final : public transactor<nontransaction>
-{
-  string m_channel;
-
-public:
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  explicit Notify(string NotifName) :
-    transactor<nontransaction>("Notifier"), m_channel(NotifName) { }
-#include <pqxx/internal/ignore-deprecated-post.hxx>
-
-  void operator()(argument_type &T)
-  {
-    T.exec("NOTIFY \"" + m_channel + "\"");
-  }
-
-  void on_abort(const char Reason[]) noexcept
-  {
-    try
-    {
-      cerr << "Notify failed!" << endl;
-      if (Reason) cerr << "Reason: " << Reason << endl;
-    }
-    catch (const exception &)
-    {
-    }
-  }
-};
-
-
 extern "C"
 {
 static void set_fdbit(fd_set &s, int b)
@@ -117,13 +87,15 @@ void test_087(transaction_base &orgT)
   orgT.abort();
 
   const string NotifName = "my notification";
-  cout << "Adding listener..." << endl;
   TestListener L(C, NotifName);
 
-  cout << "Sending notification..." << endl;
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  C.perform(Notify(L.channel()));
-#include <pqxx/internal/ignore-deprecated-post.hxx>
+  perform(
+    [&C, &L]()
+    {
+      work tx{C};
+      tx.exec0("NOTIFY \"" + L.channel() + "\"");
+      tx.commit();
+    });
 
   int notifs = 0;
   for (int i=0; (i < 20) and not L.done(); ++i)
