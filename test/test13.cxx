@@ -38,7 +38,7 @@ pair<int, int> count_events(connection_base &conn, string table)
   R.front().to(boring_year);
 
   return std::make_pair(all_years, boring_year);
-};
+}
 
 
 struct deliberate_error : exception
