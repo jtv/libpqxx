@@ -23,7 +23,7 @@ pqxx::tablereader::tablereader(
 	const std::string &Name,
 	const std::string &Null) :
   namedclass{"tablereader", Name},
-  tablestream{T, Null},
+  tablestream(T, Null),
   m_done{true}
 {
   set_up(T, Name);
