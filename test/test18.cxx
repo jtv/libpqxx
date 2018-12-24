@@ -32,7 +32,7 @@ pair<int, int> count_events(connection_base &C, string table)
   R = tx.exec1(CountQuery + " WHERE year=" + to_string(BoringYear));
   R.front().to(boring_year);
   return make_pair(all_years, boring_year);
-};
+}
 
 
 struct deliberate_error : exception
