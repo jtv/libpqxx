@@ -22,7 +22,7 @@ void test_051(transaction_base &orgT)
     {
       work tx{C};
       largeobjectaccess A(tx);
-      auto obj = largeobject(A);
+      auto new_obj = largeobject(A);
 
       A.write(Contents);
 
@@ -62,7 +62,7 @@ void test_051(transaction_base &orgT)
 	"Rewritten large object was mangled.");
 
       tx.commit();
-      return obj;
+      return new_obj;
     });
 
   PQXX_CHECK(
