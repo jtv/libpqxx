@@ -61,7 +61,7 @@ public:
   virtual void complete() override;
   void write_raw_line(const std::string &);
 private:
-  void setup(
+  void set_up(
 	transaction_base &,
 	const std::string &WName,
 	const std::string &Columns = std::string{});
@@ -114,7 +114,7 @@ template<typename ITER> inline tablewriter::tablewriter(
   namedclass{"tablewriter", WName},
   tablestream{T, std::string{}}
 {
-  setup(T, WName, columnlist(begincolumns, endcolumns));
+  set_up(T, WName, columnlist(begincolumns, endcolumns));
 }
 
 
@@ -127,7 +127,7 @@ template<typename ITER> inline tablewriter::tablewriter(
   namedclass{"tablewriter", WName},
   tablestream{T, Null}
 {
-  setup(T, WName, columnlist(begincolumns, endcolumns));
+  set_up(T, WName, columnlist(begincolumns, endcolumns));
 }
 
 

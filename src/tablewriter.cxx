@@ -26,7 +26,7 @@ pqxx::tablewriter::tablewriter(
   namedclass{"tablewriter", WName},
   tablestream{T, Null}
 {
-  setup(T, WName);
+  set_up(T, WName);
 }
 
 
@@ -43,7 +43,7 @@ pqxx::tablewriter::~tablewriter() noexcept
 }
 
 
-void pqxx::tablewriter::setup(
+void pqxx::tablewriter::set_up(
 	transaction_base &T,
 	const std::string &WName,
 	const std::string &Columns)

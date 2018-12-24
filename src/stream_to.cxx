@@ -22,7 +22,7 @@ pqxx::stream_to::stream_to(
   namedclass{"stream_to", table_name},
   stream_base{tb}
 {
-  setup(tb, table_name);
+  set_up(tb, table_name);
 }
 
 
@@ -63,16 +63,16 @@ pqxx::stream_to & pqxx::stream_to::operator<<(stream_from &tr)
 }
 
 
-void pqxx::stream_to::setup(
+void pqxx::stream_to::set_up(
   transaction_base &tb,
   const std::string &table_name
 )
 {
-  setup(tb, table_name, "");
+  set_up(tb, table_name, "");
 }
 
 
-void pqxx::stream_to::setup(
+void pqxx::stream_to::set_up(
   transaction_base &tb,
   const std::string &table_name,
   const std::string &columns

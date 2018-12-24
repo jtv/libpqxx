@@ -47,7 +47,7 @@ pqxx::stream_from::stream_from(
   stream_base{tb},
   m_retry_line{false}
 {
-  setup(tb, table_name);
+  set_up(tb, table_name);
 }
 
 
@@ -90,16 +90,16 @@ bool pqxx::stream_from::get_raw_line(std::string &line)
 }
 
 
-void pqxx::stream_from::setup(
+void pqxx::stream_from::set_up(
   transaction_base &tb,
   const std::string &table_name
 )
 {
-  setup(tb, table_name, "");
+  set_up(tb, table_name, "");
 }
 
 
-void pqxx::stream_from::setup(
+void pqxx::stream_from::set_up(
   transaction_base &tb,
   const std::string &table_name,
   const std::string &columns

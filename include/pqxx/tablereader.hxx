@@ -55,7 +55,7 @@ public:
   void tokenize(std::string, TUPLE &) const;
   virtual void complete() override;
 private:
-  void setup(
+  void set_up(
 	transaction_base &T,
 	const std::string &RName,
 	const std::string &Columns=std::string{});
@@ -77,7 +77,7 @@ tablereader::tablereader(
   tablestream{T, std::string{}},
   m_done{true}
 {
-  setup(T, Name, columnlist(begincolumns, endcolumns));
+  set_up(T, Name, columnlist(begincolumns, endcolumns));
 }
 
 
@@ -92,7 +92,7 @@ tablereader::tablereader(
   tablestream{T, Null},
   m_done{true}
 {
-  setup(T, Name, columnlist(begincolumns, endcolumns));
+  set_up(T, Name, columnlist(begincolumns, endcolumns));
 }
 
 

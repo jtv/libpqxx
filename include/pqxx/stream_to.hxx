@@ -61,8 +61,8 @@ public:
   stream_to &operator<<(stream_from &);
 
 private:
-  void setup(transaction_base &, const std::string &table_name);
-  void setup(
+  void set_up(transaction_base &, const std::string &table_name);
+  void set_up(
     transaction_base &,
     const std::string &table_name,
     const std::string &columns
@@ -94,7 +94,7 @@ template<typename Iter> stream_to::stream_to(
   namedclass{"stream_from", table_name},
   stream_base{tb}
 {
-  setup(
+  set_up(
     tb,
     table_name,
     columnlist(columns_begin, columns_end)

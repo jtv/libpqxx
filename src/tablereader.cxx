@@ -26,10 +26,10 @@ pqxx::tablereader::tablereader(
   tablestream{T, Null},
   m_done{true}
 {
-  setup(T, Name);
+  set_up(T, Name);
 }
 
-void pqxx::tablereader::setup(
+void pqxx::tablereader::set_up(
 	transaction_base &T,
 	const std::string &Name,
 	const std::string &Columns)
