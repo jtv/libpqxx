@@ -96,7 +96,7 @@ public:
 	{ Begin(); }
 
   explicit transaction(connection_base &C) :				//[t01]
-    transaction{C, ""} {}
+    transaction(C, "") {}
 
   virtual ~transaction() noexcept
 	{ End(); }
