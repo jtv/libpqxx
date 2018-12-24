@@ -151,7 +151,7 @@ public:
 	connection_base &C,
 	const std::string &Name=std::string{}) :
     namedclass{fullname("robusttransaction",isolation_tag::name()), Name},
-    internal::basic_robusttransaction{C, isolation_tag::name()}
+    internal::basic_robusttransaction(C, isolation_tag::name())
 	{ Begin(); }
 
   virtual ~robusttransaction() noexcept
