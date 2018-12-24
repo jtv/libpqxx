@@ -22,84 +22,6 @@ template<typename T> string UnStream(T &Stream)
 }
 
 
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-
-class WriteLargeObject : public transactor<>
-{
-public:
-  WriteLargeObject(const string &Contents, largeobject &O) :
-    transactor<>("WriteLargeObject"),
-    m_contents(Contents),
-    m_object(),
-    m_object_output(O)
-  {
-  }
-
-  void operator()(argument_type &T)
-  {
-    m_object = largeobject(T);
-    cout << "Created large object #" << m_object.id() << endl;
-
-    olostream S(T, m_object);
-    S << m_contents;
-  }
-
-  void on_commit()
-  {
-    m_object_output = m_object;
-  }
-
-private:
-  string m_contents;
-  largeobject m_object;
-  largeobject &m_object_output;
-};
-
-
-class ReadLargeObject : public transactor<>
-{
-public:
-  ReadLargeObject(string &Contents, largeobject O) :
-    transactor<>("ReadLargeObject"),
-    m_contents(),
-    m_contents_output(Contents),
-    m_object(O)
-  {
-  }
-
-  void operator()(argument_type &T)
-  {
-    ilostream S(T, m_object.id());
-    m_contents = UnStream(S);
-  }
-
-  void on_commit()
-  {
-    m_contents_output = m_contents;
-  }
-
-private:
-  string m_contents;
-  string &m_contents_output;
-  largeobject m_object;
-};
-
-
-class DeleteLargeObject : public transactor<>
-{
-public:
-  explicit DeleteLargeObject(largeobject O) : m_object(O) {}
-
-  void operator()(argument_type &T)
-  {
-    m_object.remove(T);
-  }
-
-private:
-  largeobject m_object;
-};
-
-
 void test_048(transaction_base &orgT)
 {
   connection_base &C(orgT.conn());
@@ -108,12 +30,33 @@ void test_048(transaction_base &orgT)
   largeobject Obj(oid_none);
   const string Contents = "Testing, testing, 1-2-3";
 
-  C.perform(WriteLargeObject(Contents, Obj));
+  perform(
+    [&C, &Obj, &Contents]()
+    {
+      work tx{C};
+      auto new_obj = largeobject(tx);
+      cout << "Created large object #" << new_obj.id() << endl;
 
-  string Readback;		// Contents as read back from large object
-  C.perform(ReadLargeObject(Readback, Obj));
+      olostream S(tx, new_obj);
+      S << Contents;
+      S.flush();
+      tx.commit();
+      Obj = new_obj;
+    });
 
-  C.perform(DeleteLargeObject(Obj));
+  const string Readback = perform(
+    [&C, &Obj]()
+    {
+      work tx{C};
+      ilostream S(tx, Obj.id());
+      return UnStream(S);
+    });
+
+  perform([&C, &Obj](){
+      work tx{C};
+      Obj.remove(tx);
+      tx.commit();
+  });
 
   /* Reconstruct what will happen to our contents string if we put it into a
    * stream and then read it back.  We can compare this with what comes back
@@ -130,8 +73,6 @@ void test_048(transaction_base &orgT)
 	StreamedContents,
 	"Got wrong number of bytes from large object.");
 }
-
-#include <pqxx/internal/ignore-deprecated-post.hxx>
 } // namespace
 
 PQXX_REGISTER_TEST_T(test_048, nontransaction)

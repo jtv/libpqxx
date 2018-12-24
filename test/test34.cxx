@@ -11,32 +11,6 @@ using namespace pqxx;
 // This test uses a lazy connection.
 namespace
 {
-class ReadTables : public transactor<nontransaction>
-{
-  result m_result;
-public:
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  ReadTables() : transactor<nontransaction>("ReadTables") {}
-#include <pqxx/internal/ignore-deprecated-post.hxx>
-
-  void operator()(argument_type &T)
-  {
-    m_result = T.exec("SELECT * FROM pg_tables");
-  }
-
-  void on_commit()
-  {
-    for (const auto &c: m_result)
-    {
-      string N;
-      c[0].to(N);
-
-      cout << '\t' << to_string(c.num()) << '\t' << N << endl;
-    }
-  }
-};
-
-
 void test_034(transaction_base &T)
 {
   connection_base &C(T.conn());
@@ -45,9 +19,14 @@ void test_034(transaction_base &T)
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
   // See if deactivate() behaves...
   C.deactivate();
-
-  C.perform(ReadTables());
 #include <pqxx/internal/ignore-deprecated-post.hxx>
+
+  const auto r = perform(
+    [&C](){
+	return nontransaction{C}.exec("SELECT generate_series(1, 4)");
+    });
+
+  PQXX_CHECK_EQUAL(r.size(), 4u, "Unexpected transactor result.");
 }
 } // namespace
 

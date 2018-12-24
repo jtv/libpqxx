@@ -10,38 +10,12 @@ using namespace pqxx;
 // a dummy transaction to gain nontransactional access, and perform a query.
 namespace
 {
-class ReadTables : public transactor<nontransaction>
-{
-  result m_result;
-public:
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  ReadTables() : transactor<nontransaction>("ReadTables") {}
-#include <pqxx/internal/ignore-deprecated-post.hxx>
-
-  void operator()(argument_type &T)
-  {
-    m_result = T.exec("SELECT * FROM pg_tables");
-  }
-
-  void on_commit()
-  {
-    for (const auto &c: m_result)
-    {
-      string N;
-      c[0].to(N);
-
-      cout << '\t' << to_string(c.num()) << '\t' << N << endl;
-    }
-  }
-};
-
-
 void test_036(transaction_base &)
 {
   lazyconnection C;
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  C.perform(ReadTables());
-#include <pqxx/internal/ignore-deprecated-post.hxx>
+  const auto r = perform(
+    [&C](){ return nontransaction{C}.exec("SELECT generate_series(1, 8)"); });
+  PQXX_CHECK_EQUAL(r.size(), 8u, "Unexpected transactor result.");
 }
 } // namespace
 
