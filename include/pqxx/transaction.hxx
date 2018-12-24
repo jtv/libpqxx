@@ -92,7 +92,7 @@ public:
    */
   explicit transaction(connection_base &C, const std::string &TName):	//[t01]
     namedclass{fullname("transaction", isolation_tag::name()), TName},
-    internal::basic_transaction{C, isolation_tag::name(), READWRITE}
+    internal::basic_transaction(C, isolation_tag::name(), READWRITE)
 	{ Begin(); }
 
   explicit transaction(connection_base &C) :				//[t01]
