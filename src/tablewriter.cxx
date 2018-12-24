@@ -24,7 +24,7 @@ pqxx::tablewriter::tablewriter(
 	const std::string &WName,
 	const std::string &Null) :
   namedclass{"tablewriter", WName},
-  tablestream{T, Null}
+  tablestream(T, Null)
 {
   set_up(T, WName);
 }
