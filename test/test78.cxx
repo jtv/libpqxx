@@ -50,7 +50,7 @@ void test_078(transaction_base &orgT)
     [&C, &L]()
     {
       work tx{C};
-      tx.exec0("NOTIFY \"" + L.channel() + "\"");
+      tx.exec0("NOTIFY " + tx.quote_name(L.channel()));
       tx.commit();
     });
 

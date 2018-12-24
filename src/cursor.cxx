@@ -87,7 +87,7 @@ pqxx::internal::sql_cursor::sql_cursor(
     throw argument_error("Cursor created on empty query");
   ++last;
 
-  cq << "DECLARE \"" << name() << "\" ";
+  cq << "DECLARE " << t.quote_name(name()) << " ";
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   m_home.activate();
@@ -152,7 +152,7 @@ void pqxx::internal::sql_cursor::close() noexcept
     try
     {
       gate::connection_sql_cursor(m_home).exec(
-	("CLOSE \"" + name() + "\"").c_str(),
+	("CLOSE " + m_home.quote_name(name())).c_str(),
 	0);
     }
     catch (const std::exception &)
@@ -170,7 +170,7 @@ void pqxx::internal::sql_cursor::close() noexcept
 void pqxx::internal::sql_cursor::init_empty_result(transaction_base &t)
 {
   if (pos() != 0) throw internal_error("init_empty_result() from bad pos()");
-  m_empty_result = t.exec("FETCH 0 IN \"" + name() + '"');
+  m_empty_result = t.exec("FETCH 0 IN " + m_home.quote_name(name()));
 }
 
 
@@ -237,7 +237,7 @@ result pqxx::internal::sql_cursor::fetch(
     return m_empty_result;
   }
   const std::string query =
-      "FETCH " + stridestring(rows) + " IN \"" + name() + "\"";
+      "FETCH " + stridestring(rows) + " IN " + m_home.quote_name(name());
   const result r(gate::connection_sql_cursor(m_home).exec(query.c_str(), 0));
   displacement = adjust(rows, difference_type(r.size()));
   return r;
@@ -255,7 +255,7 @@ cursor_base::difference_type pqxx::internal::sql_cursor::move(
   }
 
   const std::string query =
-      "MOVE " + stridestring(rows) + " IN \"" + name() + "\"";
+      "MOVE " + stridestring(rows) + " IN " + m_home.quote_name(name());
   const result r(gate::connection_sql_cursor(m_home).exec(query.c_str(), 0));
   difference_type d = difference_type(r.affected_rows());
   displacement = adjust(rows, d);

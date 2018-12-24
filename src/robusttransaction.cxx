@@ -172,7 +172,7 @@ void pqxx::internal::basic_robusttransaction::CreateLogTable()
   // Create log table in case it doesn't already exist.  This code must only be
   // executed before the backend transaction has properly started.
   std::string CrTab =
-	"CREATE TABLE \"" + m_log_table + "\" ("
+	"CREATE TABLE " + quote_name(m_log_table) + " ("
 	"id INTEGER NOT NULL, "
         "username VARCHAR(256), "
 	"transaction_id xid, "
@@ -214,8 +214,8 @@ void pqxx::internal::basic_robusttransaction::CreateTransactionRecord()
   direct_exec(sql_get_id.c_str())[0][0].to(m_record_id);
 
   direct_exec((
-	"INSERT INTO \"" + m_log_table + "\" "
-	"(id, username, name, date) "
+	"INSERT INTO " + quote_name(m_log_table) +
+	" (id, username, name, date) "
 	"VALUES "
 	"(" +
 	to_string(m_record_id) + ", " +
@@ -229,7 +229,7 @@ void pqxx::internal::basic_robusttransaction::CreateTransactionRecord()
 std::string pqxx::internal::basic_robusttransaction::sql_delete() const
 {
   return
-	"DELETE FROM \"" + m_log_table + "\" "
+	"DELETE FROM " + quote_name(m_log_table) + " "
 	"WHERE id = " + to_string(m_record_id);
 }
 
@@ -308,7 +308,7 @@ bool pqxx::internal::basic_robusttransaction::CheckTransactionRecord()
 
   // Now look for our transaction record
   const std::string Find =
-        "SELECT id FROM \"" + m_log_table + "\" "
+        "SELECT id FROM " + quote_name(m_log_table) + " "
         "WHERE "
             "id = " + to_string(m_record_id) + " AND "
             "user = " + conn().username();

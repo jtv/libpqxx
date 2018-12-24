@@ -292,7 +292,7 @@ void pqxx::connection_base::set_up_state()
         // issue just one LISTEN for each event.
         if (i.first != Last)
         {
-          restore_query << "LISTEN \"" << i.first << "\"; ";
+          restore_query << "LISTEN " << quote_name(i.first) << "; ";
           Last = i.first;
         }
       }
@@ -429,7 +429,7 @@ void pqxx::connection_base::add_receiver(pqxx::notification_receiver *T)
   if (p == m_receivers.end())
   {
     // Not listening on this event yet, start doing so.
-    const std::string LQ("LISTEN \"" + T->channel() + "\"");
+    const std::string LQ("LISTEN " + quote_name(T->channel()));
 
     if (is_open()) try
     {
@@ -470,7 +470,7 @@ void pqxx::connection_base::remove_receiver(pqxx::notification_receiver *T)
       // come in and wreak havoc.  Thanks Dragan Milenkovic.
       const bool gone = (m_conn and (R.second == ++R.first));
       m_receivers.erase(i);
-      if (gone) exec(("UNLISTEN \"" + needle.first + "\"").c_str(), 0);
+      if (gone) exec(("UNLISTEN " + quote_name(needle.first)).c_str(), 0);
     }
   }
   catch (const std::exception &e)
@@ -728,7 +728,8 @@ void pqxx::connection_base::unprepare(const std::string &name)
   // Quietly ignore duplicated or spurious unprepare()s
   if (i == m_prepared.end()) return;
 
-  if (i->second.registered) exec(("DEALLOCATE \"" + name + "\"").c_str(), 0);
+  if (i->second.registered)
+    exec(("DEALLOCATE " + quote_name(name)).c_str(), 0);
 
   m_prepared.erase(i);
 }

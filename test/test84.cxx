@@ -31,8 +31,10 @@ void test_084(transaction_base &T)
 	Query = "SELECT * FROM " + Table + " ORDER BY " + Key;
   const int InitialSkip = 2, GetRows = 3;
 
-  T.exec("DECLARE \"" + CurName + "\" CURSOR FOR " + Query);
-  T.exec("MOVE " + to_string(InitialSkip*GetRows) + " IN \""+CurName+'\"');
+  T.exec0("DECLARE " + T.quote_name(CurName) + " CURSOR FOR " + Query);
+  T.exec0(
+	"MOVE " + to_string(InitialSkip*GetRows) + " "
+	"IN " + T.quote_name(CurName));
 
   // Wrap cursor in cursor stream.  Apply some trickery to get its name inside
   // a result field for this purpose.  This isn't easy because it's not
