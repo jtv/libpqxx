@@ -37,7 +37,7 @@ void test_092(transaction_base &T)
 
   const binarystring roundtrip(R[0][0]);
 
-  PQXX_CHECK_EQUAL(string(roundtrip.str()), data, "Data came back different.");
+  PQXX_CHECK_EQUAL(string{roundtrip.str()}, data, "Data came back different.");
 
   PQXX_CHECK_EQUAL(roundtrip.size(),
 	data.size(),

@@ -65,13 +65,13 @@ pqxx::internal::sql_cursor::sql_cursor(
 	cursor_base::updatepolicy up,
 	cursor_base::ownershippolicy op,
 	bool hold) :
-  cursor_base(t.conn(), cname),
-  m_home(t.conn()),
-  m_adopted(false),
-  m_at_end(-1),
-  m_pos(0)
+  cursor_base{t.conn(), cname},
+  m_home{t.conn()},
+  m_adopted{false},
+  m_at_end{-1},
+  m_pos{0}
 {
-  if (&t.conn() != &m_home) throw internal_error("Cursor in wrong connection");
+  if (&t.conn() != &m_home) throw internal_error{"Cursor in wrong connection"};
   std::stringstream cq, qn;
 
   /* Strip trailing semicolons (and whitespace, as side effect) off query.  The
@@ -84,7 +84,7 @@ pqxx::internal::sql_cursor::sql_cursor(
   // TODO: May break on multibyte encodings!
   for (--last; last!=std::begin(query) and useless_trail(*last); --last) ;
   if (last==std::begin(query) and useless_trail(*last))
-    throw argument_error("Cursor created on empty query");
+    throw argument_error{"Cursor created on empty query."};
   ++last;
 
   cq << "DECLARE " << t.quote_name(name()) << " ";
@@ -100,7 +100,7 @@ pqxx::internal::sql_cursor::sql_cursor(
 
   if (hold) cq << "WITH HOLD ";
 
-  cq << "FOR " << std::string(std::begin(query),last) << ' ';
+  cq << "FOR " << std::string{std::begin(query),last} << ' ';
 
   if (up != cursor_base::update) cq << "FOR READ ONLY ";
   else cq << "FOR UPDATE ";
@@ -118,7 +118,7 @@ pqxx::internal::sql_cursor::sql_cursor(
   // after this transaction.  That means the connection cannot be deactivated
   // without losing the cursor.
   if (hold)
-    gate::connection_sql_cursor(t.conn()).add_reactivation_avoidance_count(1);
+    gate::connection_sql_cursor{t.conn()}.add_reactivation_avoidance_count(1);
 
   m_ownership = op;
 }
@@ -128,18 +128,18 @@ pqxx::internal::sql_cursor::sql_cursor(
 	transaction_base &t,
 	const std::string &cname,
 	cursor_base::ownershippolicy op) :
-  cursor_base(t.conn(), cname, false),
-  m_home(t.conn()),
-  m_empty_result(),
-  m_adopted(true),
-  m_at_end(0),
-  m_pos(-1)
+  cursor_base{t.conn(), cname, false},
+  m_home{t.conn()},
+  m_empty_result{},
+  m_adopted{true},
+  m_at_end{0},
+  m_pos{-1}
 {
   // If we take responsibility for destroying the cursor, that's one less
   // reason not to allow the connection to be deactivated and reactivated.
   // TODO: Go over lifetime/reactivation rules again to be sure they work
   if (op==cursor_base::owned)
-    gate::connection_sql_cursor(t.conn()).add_reactivation_avoidance_count(-1);
+    gate::connection_sql_cursor{t.conn()}.add_reactivation_avoidance_count(-1);
   m_adopted = true;
   m_ownership = op;
 }
@@ -151,7 +151,7 @@ void pqxx::internal::sql_cursor::close() noexcept
   {
     try
     {
-      gate::connection_sql_cursor(m_home).exec(
+      gate::connection_sql_cursor{m_home}.exec(
 	("CLOSE " + m_home.quote_name(name())).c_str(),
 	0);
     }
@@ -160,7 +160,7 @@ void pqxx::internal::sql_cursor::close() noexcept
     }
 
     if (m_adopted)
-      gate::connection_sql_cursor(m_home).add_reactivation_avoidance_count(-1);
+      gate::connection_sql_cursor{m_home}.add_reactivation_avoidance_count(-1);
 
     m_ownership = cursor_base::loose;
   }
@@ -169,7 +169,7 @@ void pqxx::internal::sql_cursor::close() noexcept
 
 void pqxx::internal::sql_cursor::init_empty_result(transaction_base &t)
 {
-  if (pos() != 0) throw internal_error("init_empty_result() from bad pos()");
+  if (pos() != 0) throw internal_error{"init_empty_result() from bad pos()."};
   m_empty_result = t.exec("FETCH 0 IN " + m_home.quote_name(name()));
 }
 
@@ -179,14 +179,14 @@ internal::sql_cursor::difference_type
 pqxx::internal::sql_cursor::adjust(difference_type hoped,
 	difference_type actual)
 {
-  if (actual < 0) throw internal_error("Negative rows in cursor movement");
+  if (actual < 0) throw internal_error{"Negative rows in cursor movement."};
   if (hoped == 0) return 0;
   const int direction = ((hoped < 0) ? -1 : 1);
   bool hit_end = false;
   if (actual != labs(hoped))
   {
     if (actual > labs(hoped))
-      throw internal_error("Cursor displacement larger than requested");
+      throw internal_error{"Cursor displacement larger than requested."};
 
     // If we see fewer rows than requested, then we've hit an end (on either
     // side) of the result set.  Wether we make an extra step to a one-past-end
@@ -202,12 +202,12 @@ pqxx::internal::sql_cursor::adjust(difference_type hoped,
     if (direction > 0) hit_end = true;
     else if (m_pos == -1) m_pos = actual;
     else if (m_pos != actual)
-      throw internal_error(
+      throw internal_error{
 	"Moved back to beginning, but wrong position: "
         "hoped=" + to_string(hoped) + ", "
         "actual=" + to_string(actual) + ", "
         "m_pos=" + to_string(m_pos) + ", "
-        "direction=" + to_string(direction));
+        "direction=" + to_string(direction) + "."};
 
     m_at_end = direction;
   }
@@ -220,7 +220,7 @@ pqxx::internal::sql_cursor::adjust(difference_type hoped,
   if (hit_end)
   {
     if (m_endpos >= 0 and m_pos != m_endpos)
-      throw internal_error("Inconsistent cursor end positions");
+      throw internal_error{"Inconsistent cursor end positions."};
     m_endpos = m_pos;
   }
   return direction*actual;
@@ -238,7 +238,7 @@ result pqxx::internal::sql_cursor::fetch(
   }
   const std::string query =
       "FETCH " + stridestring(rows) + " IN " + m_home.quote_name(name());
-  const result r(gate::connection_sql_cursor(m_home).exec(query.c_str(), 0));
+  const result r{gate::connection_sql_cursor{m_home}.exec(query.c_str(), 0)};
   displacement = adjust(rows, difference_type(r.size()));
   return r;
 }
@@ -256,7 +256,7 @@ cursor_base::difference_type pqxx::internal::sql_cursor::move(
 
   const std::string query =
       "MOVE " + stridestring(rows) + " IN " + m_home.quote_name(name());
-  const result r(gate::connection_sql_cursor(m_home).exec(query.c_str(), 0));
+  const result r(gate::connection_sql_cursor{m_home}.exec(query.c_str(), 0));
   difference_type d = difference_type(r.affected_rows());
   displacement = adjust(rows, d);
   return d;
@@ -272,7 +272,7 @@ std::string pqxx::internal::sql_cursor::stridestring(difference_type n)
    * We could change the alias to match this behaviour, but that would break
    * if/when Postgres is changed to accept 64-bit displacements.
    */
-  static const std::string All("ALL"), BackAll("BACKWARD ALL");
+  static const std::string All{"ALL"}, BackAll{"BACKWARD ALL"};
   if (n >= cursor_base::all()) return All;
   else if (n <= cursor_base::backward_all()) return BackAll;
   return to_string(n);
@@ -283,7 +283,7 @@ pqxx::cursor_base::cursor_base(
 	connection_base &context,
 	const std::string &Name,
 	bool embellish_name) :
-  m_name(embellish_name ? context.adorn_name(Name) : Name)
+  m_name{embellish_name ? context.adorn_name(Name) : Name}
 {
 }
 
@@ -302,7 +302,7 @@ result pqxx::internal::stateless_cursor_retrieve(
 	result::difference_type end_pos)
 {
   if (begin_pos < 0 or begin_pos > size)
-    throw range_error("Starting position out of range");
+    throw range_error{"Starting position out of range"};
 
   if (end_pos < -1) end_pos = -1;
   else if (end_pos > size) end_pos = size;
@@ -320,18 +320,18 @@ pqxx::icursorstream::icursorstream(
     const std::string &query,
     const std::string &basename,
     difference_type sstride) :
-  m_cur(context,
+  m_cur{context,
 	query,
 	basename,
 	cursor_base::forward_only,
 	cursor_base::read_only,
 	cursor_base::owned,
-	false),
-  m_stride(sstride),
-  m_realpos(0),
-  m_reqpos(0),
-  m_iterators(nullptr),
-  m_done(false)
+	false},
+  m_stride{sstride},
+  m_realpos{0},
+  m_reqpos{0},
+  m_iterators{nullptr},
+  m_done{false}
 {
   set_stride(sstride);
 }
@@ -342,12 +342,12 @@ pqxx::icursorstream::icursorstream(
     const field &cname,
     difference_type sstride,
     cursor_base::ownershippolicy op) :
-  m_cur(context, cname.c_str(), op),
-  m_stride(sstride),
-  m_realpos(0),
-  m_reqpos(0),
-  m_iterators(nullptr),
-  m_done(false)
+  m_cur{context, cname.c_str(), op},
+  m_stride{sstride},
+  m_realpos{0},
+  m_reqpos{0},
+  m_iterators{nullptr},
+  m_done{false}
 {
   set_stride(sstride);
 }
@@ -356,13 +356,13 @@ pqxx::icursorstream::icursorstream(
 void pqxx::icursorstream::set_stride(difference_type n)
 {
   if (n < 1)
-    throw argument_error("Attempt to set cursor stride to " + to_string(n));
+    throw argument_error{"Attempt to set cursor stride to " + to_string(n)};
   m_stride = n;
 }
 
 result pqxx::icursorstream::fetchblock()
 {
-  const result r(m_cur.fetch(m_stride));
+  const result r{m_cur.fetch(m_stride)};
   m_realpos += r.size();
   if (r.empty()) m_done = true;
   return r;
@@ -387,27 +387,27 @@ icursorstream::size_type pqxx::icursorstream::forward(size_type n)
 
 void pqxx::icursorstream::insert_iterator(icursor_iterator *i) noexcept
 {
-  gate::icursor_iterator_icursorstream(*i).set_next(m_iterators);
+  gate::icursor_iterator_icursorstream{*i}.set_next(m_iterators);
   if (m_iterators)
-    gate::icursor_iterator_icursorstream(*m_iterators).set_prev(i);
+    gate::icursor_iterator_icursorstream{*m_iterators}.set_prev(i);
   m_iterators = i;
 }
 
 
 void pqxx::icursorstream::remove_iterator(icursor_iterator *i) const noexcept
 {
-  gate::icursor_iterator_icursorstream igate(*i);
+  gate::icursor_iterator_icursorstream igate{*i};
   if (i == m_iterators)
   {
     m_iterators = igate.get_next();
     if (m_iterators)
-      gate::icursor_iterator_icursorstream(*m_iterators).set_prev(nullptr);
+      gate::icursor_iterator_icursorstream{*m_iterators}.set_prev(nullptr);
   }
   else
   {
     auto prev = igate.get_prev(), next = igate.get_next();
-    gate::icursor_iterator_icursorstream(*prev).set_next(next);
-    if (next) gate::icursor_iterator_icursorstream(*next).set_prev(prev);
+    gate::icursor_iterator_icursorstream{*prev}.set_next(next);
+    if (next) gate::icursor_iterator_icursorstream{*next}.set_prev(prev);
   }
   igate.set_prev(nullptr);
   igate.set_next(nullptr);
@@ -422,7 +422,7 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
   todolist todo;
   for (icursor_iterator *i = m_iterators, *next; i; i = next)
   {
-    gate::icursor_iterator_icursorstream gate(*i);
+    gate::icursor_iterator_icursorstream gate{*i};
     const auto ipos = gate.pos();
     if (ipos >= m_realpos and ipos <= topos)
       todo.insert(todolist::value_type(ipos, i));
@@ -435,48 +435,48 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
     if (readpos > m_realpos) ignore(readpos - m_realpos);
     const result r = fetchblock();
     for ( ; i != todo_end and i->first == readpos; ++i)
-      gate::icursor_iterator_icursorstream(*i->second).fill(r);
+      gate::icursor_iterator_icursorstream{*i->second}.fill(r);
   }
 }
 
 
 pqxx::icursor_iterator::icursor_iterator() noexcept :
-  m_pos(0)
+  m_pos{0}
 {
 }
 
 
 pqxx::icursor_iterator::icursor_iterator(istream_type &s) noexcept :
-  m_stream(&s),
-  m_pos(difference_type(gate::icursorstream_icursor_iterator(s).forward(0)))
+  m_stream{&s},
+  m_pos{difference_type(gate::icursorstream_icursor_iterator(s).forward(0))}
 {
-  gate::icursorstream_icursor_iterator(*m_stream).insert_iterator(this);
+  gate::icursorstream_icursor_iterator{*m_stream}.insert_iterator(this);
 }
 
 
 pqxx::icursor_iterator::icursor_iterator(const icursor_iterator &rhs)
 	noexcept :
-  m_stream(rhs.m_stream),
-  m_here(rhs.m_here),
-  m_pos(rhs.m_pos)
+  m_stream{rhs.m_stream},
+  m_here{rhs.m_here},
+  m_pos{rhs.m_pos}
 {
   if (m_stream)
-    gate::icursorstream_icursor_iterator(*m_stream).insert_iterator(this);
+    gate::icursorstream_icursor_iterator{*m_stream}.insert_iterator(this);
 }
 
 
 pqxx::icursor_iterator::~icursor_iterator() noexcept
 {
   if (m_stream)
-    gate::icursorstream_icursor_iterator(*m_stream).remove_iterator(this);
+    gate::icursorstream_icursor_iterator{*m_stream}.remove_iterator(this);
 }
 
 
 icursor_iterator pqxx::icursor_iterator::operator++(int)
 {
-  icursor_iterator old(*this);
+  icursor_iterator old{*this};
   m_pos = difference_type(
-	gate::icursorstream_icursor_iterator(*m_stream).forward());
+	gate::icursorstream_icursor_iterator{*m_stream}.forward());
   m_here.clear();
   return old;
 }
@@ -485,7 +485,7 @@ icursor_iterator pqxx::icursor_iterator::operator++(int)
 icursor_iterator &pqxx::icursor_iterator::operator++()
 {
   m_pos = difference_type(
-	gate::icursorstream_icursor_iterator(*m_stream).forward());
+	gate::icursorstream_icursor_iterator{*m_stream}.forward());
   m_here.clear();
   return *this;
 }
@@ -496,10 +496,10 @@ icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
   if (n <= 0)
   {
     if (n == 0) return *this;
-    throw argument_error("Advancing icursor_iterator by negative offset");
+    throw argument_error{"Advancing icursor_iterator by negative offset."};
   }
   m_pos = difference_type(
-	gate::icursorstream_icursor_iterator(*m_stream).forward(
+	gate::icursorstream_icursor_iterator{*m_stream}.forward(
 		icursorstream::size_type(n)));
   m_here.clear();
   return *this;
@@ -517,12 +517,12 @@ pqxx::icursor_iterator::operator=(const icursor_iterator &rhs) noexcept
   else
   {
     if (m_stream)
-      gate::icursorstream_icursor_iterator(*m_stream).remove_iterator(this);
+      gate::icursorstream_icursor_iterator{*m_stream}.remove_iterator(this);
     m_here = rhs.m_here;
     m_pos = rhs.m_pos;
     m_stream = rhs.m_stream;
     if (m_stream)
-      gate::icursorstream_icursor_iterator(*m_stream).insert_iterator(this);
+      gate::icursorstream_icursor_iterator{*m_stream}.insert_iterator(this);
   }
   return *this;
 }
@@ -550,7 +550,7 @@ bool pqxx::icursor_iterator::operator<(const icursor_iterator &rhs) const
 void pqxx::icursor_iterator::refresh() const
 {
   if (m_stream)
-    gate::icursorstream_icursor_iterator(*m_stream).service_iterators(pos());
+    gate::icursorstream_icursor_iterator{*m_stream}.service_iterators(pos());
 }
 
 

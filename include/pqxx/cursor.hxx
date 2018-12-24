@@ -271,7 +271,7 @@ public:
 	const std::string &query,
 	const std::string &cname,
 	bool hold) :
-    m_cur(trans, query, cname, cursor_base::random_access, up, op, hold)
+    m_cur{trans, query, cname, cursor_base::random_access, up, op, hold}
   {
   }
 
@@ -279,7 +279,7 @@ public:
   stateless_cursor(
 	transaction_base &trans,
 	const std::string adopted_cursor) :
-    m_cur(trans, adopted_cursor, op)
+    m_cur{trans, adopted_cursor, op}
   {
     // Put cursor in known position
     m_cur.move(cursor_base::backward_all());

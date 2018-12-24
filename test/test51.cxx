@@ -38,7 +38,7 @@ void test_051(transaction_base &orgT)
 	"Unexpected read() result.");
 
       PQXX_CHECK_EQUAL(
-	string(Buf, Contents.size()),
+	std::string(Buf, Contents.size()),
 	Contents,
 	"Large object contents were mutilated.");
 
@@ -57,7 +57,7 @@ void test_051(transaction_base &orgT)
 	"Bad length for rewritten large object.");
 
       PQXX_CHECK_EQUAL(
-	string(Buf, Contents.size()),
+	std::string(Buf, Contents.size()),
 	Contents,
 	"Rewritten large object was mangled.");
 

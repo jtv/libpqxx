@@ -15,7 +15,7 @@ void test_021(transaction_base &)
   lazyconnection C;
   C.process_notice("Printing details on deferred connection\n");
   const string HostName = (C.hostname() ? C.hostname() : "<local>");
-  C.process_notice(string() +
+  C.process_notice(string{} +
 		   "database=" + C.dbname() + ", "
 		   "username=" + C.username() + ", "
 		   "hostname=" + HostName + ", "
@@ -27,7 +27,7 @@ void test_021(transaction_base &)
 
   // By now our connection should really have been created
   C.process_notice("Printing details on actual connection\n");
-  C.process_notice(string() +
+  C.process_notice(string{} +
 		   "database=" + C.dbname() + ", "
 		   "username=" + C.username() + ", "
 		   "hostname=" + HostName + ", "

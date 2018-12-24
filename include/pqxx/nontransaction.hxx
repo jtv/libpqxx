@@ -62,8 +62,8 @@ public:
    */
   explicit nontransaction(						//[t14]
 	connection_base &C,
-	const std::string &Name=std::string()) :
-    namedclass("nontransaction", Name), transaction_base(C) { Begin(); }
+	const std::string &Name=std::string{}) :
+    namedclass{"nontransaction", Name}, transaction_base{C} { Begin(); }
 
   virtual ~nontransaction();						//[t14]
 
@@ -77,5 +77,4 @@ private:
 } // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"
-
 #endif

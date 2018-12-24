@@ -262,7 +262,7 @@ class PQXX_LIBEXPORT unexpected_rows : public range_error
   virtual const std::exception &base() const noexcept override
 	{ return *this; }
 public:
-  explicit unexpected_rows(const std::string &msg) : range_error(msg) {}
+  explicit unexpected_rows(const std::string &msg) : range_error{msg} {}
 };
 
 
@@ -274,7 +274,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    sql_error(err, Q, sqlstate) {}
+    sql_error{err, Q, sqlstate} {}
 };
 
 /// Error in data provided to SQL statement
@@ -285,7 +285,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    sql_error(err, Q, sqlstate) {}
+    sql_error{err, Q, sqlstate} {}
 };
 
 class PQXX_LIBEXPORT integrity_constraint_violation : public sql_error
@@ -295,7 +295,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    sql_error(err, Q, sqlstate) {}
+    sql_error{err, Q, sqlstate} {}
 };
 
 class PQXX_LIBEXPORT restrict_violation :
@@ -306,7 +306,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    integrity_constraint_violation(err, Q, sqlstate) {}
+    integrity_constraint_violation{err, Q, sqlstate} {}
 };
 
 class PQXX_LIBEXPORT not_null_violation :
@@ -317,7 +317,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    integrity_constraint_violation(err, Q, sqlstate) {}
+    integrity_constraint_violation{err, Q, sqlstate} {}
 };
 
 class PQXX_LIBEXPORT foreign_key_violation :
@@ -328,7 +328,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    integrity_constraint_violation(err, Q, sqlstate) {}
+    integrity_constraint_violation{err, Q, sqlstate} {}
 };
 
 class PQXX_LIBEXPORT unique_violation :
@@ -339,7 +339,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    integrity_constraint_violation(err, Q, sqlstate) {}
+    integrity_constraint_violation{err, Q, sqlstate} {}
 };
 
 class PQXX_LIBEXPORT check_violation :
@@ -350,7 +350,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    integrity_constraint_violation(err, Q, sqlstate) {}
+    integrity_constraint_violation{err, Q, sqlstate} {}
 };
 
 class PQXX_LIBEXPORT invalid_cursor_state : public sql_error
@@ -360,7 +360,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    sql_error(err, Q, sqlstate) {}
+    sql_error{err, Q, sqlstate} {}
 };
 
 class PQXX_LIBEXPORT invalid_sql_statement_name : public sql_error
@@ -370,7 +370,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    sql_error(err, Q, sqlstate) {}
+    sql_error{err, Q, sqlstate} {}
 };
 
 class PQXX_LIBEXPORT invalid_cursor_name : public sql_error
@@ -380,7 +380,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    sql_error(err, Q, sqlstate) {}
+    sql_error{err, Q, sqlstate} {}
 };
 
 class PQXX_LIBEXPORT syntax_error : public sql_error
@@ -394,7 +394,7 @@ public:
 	const std::string &Q="",
 	const char sqlstate[]=nullptr,
 	int pos=-1) :
-    sql_error(err, Q, sqlstate), error_position(pos) {}
+    sql_error{err, Q, sqlstate}, error_position{pos} {}
 };
 
 class PQXX_LIBEXPORT undefined_column : public syntax_error
@@ -404,7 +404,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    syntax_error(err, Q, sqlstate) {}
+    syntax_error{err, Q, sqlstate} {}
 };
 
 class PQXX_LIBEXPORT undefined_function : public syntax_error
@@ -414,7 +414,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    syntax_error(err, Q, sqlstate) {}
+    syntax_error{err, Q, sqlstate} {}
 };
 
 class PQXX_LIBEXPORT undefined_table : public syntax_error
@@ -424,7 +424,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    syntax_error(err, Q, sqlstate) {}
+    syntax_error{err, Q, sqlstate} {}
 };
 
 class PQXX_LIBEXPORT insufficient_privilege : public sql_error
@@ -434,7 +434,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    sql_error(err, Q, sqlstate) {}
+    sql_error{err, Q, sqlstate} {}
 };
 
 /// Resource shortage on the server
@@ -445,7 +445,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    sql_error(err,Q, sqlstate) {}
+    sql_error{err,Q, sqlstate} {}
 };
 
 class PQXX_LIBEXPORT disk_full : public insufficient_resources
@@ -455,7 +455,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    insufficient_resources(err, Q, sqlstate) {}
+    insufficient_resources{err, Q, sqlstate} {}
 };
 
 class PQXX_LIBEXPORT out_of_memory : public insufficient_resources
@@ -465,14 +465,14 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    insufficient_resources(err, Q, sqlstate) {}
+    insufficient_resources{err, Q, sqlstate} {}
 };
 
 class PQXX_LIBEXPORT too_many_connections : public broken_connection
 {
 public:
   explicit too_many_connections(const std::string &err) :
-	broken_connection(err) {}
+	broken_connection{err} {}
 };
 
 /// PL/pgSQL error
@@ -485,7 +485,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    sql_error(err, Q, sqlstate) {}
+    sql_error{err, Q, sqlstate} {}
 };
 
 /// Exception raised in PL/pgSQL procedure
@@ -496,7 +496,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    plpgsql_error(err, Q, sqlstate) {}
+    plpgsql_error{err, Q, sqlstate} {}
 };
 
 class PQXX_LIBEXPORT plpgsql_no_data_found : public plpgsql_error
@@ -506,7 +506,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    plpgsql_error(err, Q, sqlstate) {}
+    plpgsql_error{err, Q, sqlstate} {}
 };
 
 class PQXX_LIBEXPORT plpgsql_too_many_rows : public plpgsql_error
@@ -516,7 +516,7 @@ public:
 	const std::string &err,
 	const std::string &Q="",
 	const char sqlstate[]=nullptr) :
-    plpgsql_error(err, Q, sqlstate) {}
+    plpgsql_error{err, Q, sqlstate} {}
 };
 
 /**

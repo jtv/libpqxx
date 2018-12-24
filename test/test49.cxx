@@ -11,7 +11,7 @@ using namespace pqxx;
 
 
 // Test program for libpqxx.  Run a query and try various standard C++
-// algorithms on it.
+// algorithms on its result.
 namespace
 {
 
@@ -49,7 +49,7 @@ struct Cmp
 
   bool operator()(const pqxx::row &L, const pqxx::row &R) const
   {
-    return string(L[Key].c_str()) < string(R[Key].c_str());
+    return string{L[Key].c_str()} < string{R[Key].c_str()};
   }
 };
 

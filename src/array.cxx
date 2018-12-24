@@ -52,13 +52,13 @@ const char*scan_single_quoted_string(const char begin[])
       // Backslash escape.  Skip ahead by one more character.
       here++;
       if (*here == '\0')
-        throw pqxx::argument_error(
-          "SQL string ends in escape: " + std::string(begin));
+        throw pqxx::argument_error{
+          "SQL string ends in escape: " + std::string{begin}};
       break;
     }
   }
-  throw pqxx::argument_error(
-      "Null byte in SQL string: " + std::string(begin));
+  throw pqxx::argument_error{
+      "Null byte in SQL string: " + std::string{begin}};
 }
 
 
@@ -104,15 +104,15 @@ const char *scan_double_quoted_string(const char begin[])
       // Backslash escape.  Skip ahead by one more character.
       here++;
       if (*here == '\0')
-        throw pqxx::argument_error(
-          "SQL string ends in escape: " + std::string(begin));
+        throw pqxx::argument_error{
+          "SQL string ends in escape: " + std::string{begin}};
       break;
     case '"':
       return here + 1;
     }
   }
-  throw pqxx::argument_error(
-      "Null byte in SQL string: " + std::string(begin));
+  throw pqxx::argument_error{
+      "Null byte in SQL string: " + std::string{begin}};
 }
 
 
@@ -166,7 +166,7 @@ const char *scan_unquoted_string(const char begin[])
  */
 std::string parse_unquoted_string(const char begin[], const char end[])
 {
-  return std::string(begin, end);
+  return std::string{begin, end};
 }
 
 } // namespace

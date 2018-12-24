@@ -59,5 +59,3 @@ template<typename I> std::string stream_base::columnlist(I begin, I end)
 
 #include "pqxx/compiler-internal-post.hxx"
 #endif
-
-

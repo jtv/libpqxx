@@ -15,8 +15,8 @@
 
 
 pqxx::stream_base::stream_base(transaction_base &tb) :
-  internal::namedclass("stream_base"),
-  internal::transactionfocus(tb),
+  internal::namedclass{"stream_base"},
+  internal::transactionfocus{tb},
   m_finished{false}
 {}
 

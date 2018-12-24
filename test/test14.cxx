@@ -25,7 +25,7 @@ void test_014(transaction_base &orgT)
   // These simply pass the notice through to their connection, but this may
   // be more convenient in some cases.  All ProcessNotice() functions accept
   // C++ strings as well as C strings.
-  T.process_notice(string("Started nontransaction\n"));
+  T.process_notice(string{"Started nontransaction\n"});
 
   result R( T.exec("SELECT * FROM pg_tables") );
 

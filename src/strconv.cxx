@@ -33,8 +33,8 @@ template<typename T> inline void set_to_Inf(T &t, int sign=1)
 
 [[noreturn]] void report_overflow()
 {
-  throw pqxx::failure(
-	"Could not convert string to integer: value out of range.");
+  throw pqxx::failure{
+	"Could not convert string to integer: value out of range."};
 }
 
 
@@ -51,7 +51,7 @@ template<typename T> struct underflow_check<T, true>
 {
   static void check_before_adding_digit(T n)
   {
-    const T ten(10);
+    constexpr T ten{10};
     if (n < 0 and (std::numeric_limits<T>::min() / ten) > n) report_overflow();
   }
 };
@@ -69,7 +69,7 @@ template<typename T> struct underflow_check<T, false>
 template<typename T> T safe_multiply_by_ten(T n)
 {
   using limits = std::numeric_limits<T>;
-  const T ten(10);
+  constexpr T ten{10};
   if (n > 0 and (limits::max() / n) < ten) report_overflow();
   underflow_check<T, limits::is_signed>::check_before_adding_digit(n);
   return T(n * ten);
@@ -102,8 +102,8 @@ template<typename T> void from_string_signed(const char Str[], T &Obj)
   if (not isdigit(Str[i]))
   {
     if (Str[i] != '-')
-      throw pqxx::failure(
-        "Could not convert string to integer: '" + std::string(Str) + "'");
+      throw pqxx::failure{
+        "Could not convert string to integer: '" + std::string{Str} + "'."};
 
     for (++i; isdigit(Str[i]); ++i)
       result = absorb_digit(result, -digit_to_number(Str[i]));
@@ -115,8 +115,8 @@ template<typename T> void from_string_signed(const char Str[], T &Obj)
   }
 
   if (Str[i])
-    throw pqxx::failure(
-      "Unexpected text after integer: '" + std::string(Str) + "'");
+    throw pqxx::failure{
+      "Unexpected text after integer: '" + std::string{Str} + "'."};
 
   Obj = result;
 }
@@ -127,28 +127,38 @@ template<typename T> void from_string_unsigned(const char Str[], T &Obj)
   T result = 0;
 
   if (not isdigit(Str[i]))
-    throw pqxx::failure(
+    throw pqxx::failure{
       "Could not convert string to unsigned integer: '" +
-      std::string(Str) + "'");
+      std::string{Str} + "'."};
 
   for (; isdigit(Str[i]); ++i)
     result = absorb_digit(result, digit_to_number(Str[i]));
 
   if (Str[i])
-    throw pqxx::failure(
-      "Unexpected text after integer: '" + std::string(Str) + "'");
+    throw pqxx::failure{
+      "Unexpected text after integer: '" + std::string{Str} + "'."};
 
   Obj = result;
 }
 
 
+namespace
+{
+/// C string comparison.
+inline constexpr bool equal(const char lhs[], const char rhs[])
+{
+  return strcmp(lhs, rhs) == 0;
+}
+} // namespace
+
+
 bool valid_infinity_string(const char str[]) noexcept
 {
   return
-	strcmp("infinity", str) == 0 or
-	strcmp("Infinity", str) == 0 or
-	strcmp("INFINITY", str) == 0 or
-	strcmp("inf", str) == 0;
+	equal("infinity", str) or
+	equal("Infinity", str) or
+	equal("INFINITY", str) or
+	equal("inf", str);
 }
 
 
@@ -168,7 +178,7 @@ bool valid_infinity_string(const char str[]) noexcept
 template<typename T> class dumb_stringstream : public std::stringstream
 {
 public:
-  dumb_stringstream() : std::stringstream()
+  dumb_stringstream() : std::stringstream{}
   {
     this->imbue(std::locale::classic());
 
@@ -228,9 +238,9 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
   }
 
   if (not ok)
-    throw pqxx::failure(
+    throw pqxx::failure{
       "Could not convert string to numeric value: '" +
-      std::string(Str) + "'");
+      std::string{Str} + "'."};
 
   Obj = result;
 }
@@ -296,7 +306,7 @@ namespace internal
 {
 void throw_null_conversion(const std::string &type)
 {
-  throw conversion_error("Attempt to convert null to " + type);
+  throw conversion_error{"Attempt to convert null to " + type + "."};
 }
 } // namespace pqxx::internal
 
@@ -317,8 +327,8 @@ void string_traits<bool>::from_string(const char Str[], bool &Obj)
     result = false;
     OK = not (
 	(Str[1] != '\0') and
-	(strcmp(Str+1, "alse") != 0) and
-	(strcmp(Str+1, "ALSE") != 0));
+	(not equal(Str+1, "alse")) and
+	(not equal(Str+1, "ALSE")));
     break;
 
   case '0':
@@ -340,8 +350,8 @@ void string_traits<bool>::from_string(const char Str[], bool &Obj)
     result = true;
     OK = not (
 	(Str[1] != '\0') and
-	(strcmp(Str+1, "rue") != 0) and
-	(strcmp(Str+1, "RUE") != 0));
+	(not equal(Str+1, "rue")) and
+	(not equal(Str+1, "RUE")));
     break;
 
   default:
@@ -349,8 +359,8 @@ void string_traits<bool>::from_string(const char Str[], bool &Obj)
   }
 
   if (not OK)
-    throw argument_error(
-      "Failed conversion to bool: '" + std::string(Str) + "'");
+    throw argument_error{
+      "Failed conversion to bool: '" + std::string{Str} + "'."};
 
   Obj = result;
 }

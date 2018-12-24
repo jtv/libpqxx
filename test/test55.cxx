@@ -23,7 +23,7 @@ void test_055(transaction_base &orgT)
     {
       char Buf[200];
       work tx{C};
-      largeobjectaccess A(tx, "pqxxlo.txt", ios::in);
+      largeobjectaccess A{tx, "pqxxlo.txt", ios::in};
       auto new_obj = largeobject(A);
       const auto len = A.read(Buf, sizeof(Buf)-1);
       PQXX_CHECK_EQUAL(

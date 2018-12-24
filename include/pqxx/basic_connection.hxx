@@ -48,7 +48,7 @@ template<typename CONNECTPOLICY> class basic_connection_base :
 public:
   basic_connection_base() :
     connection_base(m_policy),
-    m_options(std::string()),
+    m_options(std::string{}),
     m_policy(m_options)
 	{ init(); }
 
@@ -62,7 +62,7 @@ public:
 
   /// See: @c basic_connection(const std::string &opt)
   explicit basic_connection_base(const char opt[]) :
-    basic_connection_base(opt ? std::string(opt) : std::string()) {}
+    basic_connection_base(opt ? std::string{opt} : std::string{}) {}
 
   explicit basic_connection_base(std::nullptr_t) : basic_connection_base() {}
 

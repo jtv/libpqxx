@@ -44,9 +44,9 @@ class PQXX_LIBEXPORT transactionfocus : public virtual namedclass
 {
 public:
   explicit transactionfocus(transaction_base &t) :
-    namedclass("transactionfocus"),
-    m_trans(t),
-    m_registered(false)
+    namedclass{"transactionfocus"},
+    m_trans{t},
+    m_registered{false}
   {
   }
 
@@ -243,11 +243,11 @@ public:
    */
   result exec(
 	const std::string &Query,
-	const std::string &Desc=std::string());				//[t01]
+	const std::string &Desc=std::string{});				//[t01]
 
   result exec(
 	const std::stringstream &Query,
-	const std::string &Desc=std::string())
+	const std::string &Desc=std::string{})
 	{ return exec(Query.str(), Desc); }
 
   /// Execute query, which should zero rows of data.
@@ -258,7 +258,7 @@ public:
    */
   result exec0(
 	const std::string &Query,
-	const std::string &Desc=std::string())
+	const std::string &Desc=std::string{})
 	{ return exec_n(0, Query, Desc); }
 
   /// Execute query returning a single row of data.
@@ -268,7 +268,7 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  row exec1(const std::string &Query, const std::string &Desc=std::string())
+  row exec1(const std::string &Query, const std::string &Desc=std::string{})
 	{ return exec_n(1, Query, Desc).front(); }
 
   /// Execute query, expect given number of rows.
@@ -280,7 +280,7 @@ public:
   result exec_n(
         size_t rows,
 	const std::string &Query,
-	const std::string &Desc=std::string());
+	const std::string &Desc=std::string{});
 
   /**
    * @name Parameterized statements
@@ -315,7 +315,8 @@ public:
   template<typename ...Args>
   result exec_params(const std::string &query, Args &&...args)
   {
-    return internal_exec_params(query, internal::params(std::forward<Args>(args)...));
+    return internal_exec_params(
+      query, internal::params(std::forward<Args>(args)...));
   }
 
   // Execute parameterised statement, expect a single-row result.
@@ -389,7 +390,8 @@ public:
   template<typename ...Args>
   result exec_prepared(const std::string &statement, Args&&... args)
   {
-    return internal_exec_prepared(statement, internal::params(std::forward<Args>(args)...));
+    return internal_exec_prepared(
+      statement, internal::params(std::forward<Args>(args)...));
   }
 
   /// Execute a prepared statement, and expect a single-row result.
@@ -465,7 +467,7 @@ public:
    * statement instead.
    */
   PQXX_DEPRECATED prepare::invocation
-  prepared(const std::string &statement=std::string());
+  prepared(const std::string &statement=std::string{});
 
   //@}
 
@@ -646,5 +648,4 @@ private:
 } // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"
-
 #endif

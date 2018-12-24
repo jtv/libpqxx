@@ -207,7 +207,7 @@ public:
    * you keep the @c row of @c field object alive, it will keep the @c result
    * object alive as well.
    */
-  array_parser as_array() const { return array_parser(c_str()); }
+  array_parser as_array() const { return array_parser{c_str()}; }
   //@}
 
 
@@ -234,7 +234,7 @@ inline bool field::to<std::string>(std::string &Obj) const
 {
   const char *const bytes = c_str();
   if (bytes[0] == '\0' and is_null()) return false;
-  Obj = std::string(bytes, size());
+  Obj = std::string{bytes, size()};
   return true;
 }
 
@@ -267,7 +267,7 @@ public:
   using seekdir = std::ios::seekdir;
 
   explicit field_streambuf(const field &F) :			//[t74]
-    m_field(F)
+    m_field{F}
   {
     initialize();
   }
@@ -320,7 +320,7 @@ public:
   using pos_type = typename traits_type::pos_type;
   using off_type = typename traits_type::off_type;
 
-  basic_fieldstream(const field &F) : super(nullptr), m_buf(F)
+  basic_fieldstream(const field &F) : super{nullptr}, m_buf{F}
 	{ super::init(&m_buf); }
 
 private:

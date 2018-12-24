@@ -66,7 +66,7 @@ void test_067(transaction_base &orgT)
       string A, B;
       PQXX_CHECK_EQUAL(
 	i[f].to(A),
-	i[f].to(B, string("")),
+	i[f].to(B, string{""}),
 	"Variants of to() disagree on nullness.");
 
       PQXX_CHECK_EQUAL(A, B, "to() variants return different values.");

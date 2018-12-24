@@ -18,7 +18,7 @@
 
 
 pqxx::connectionpolicy::connectionpolicy(const std::string &opts) :
-  m_options(opts)
+  m_options{opts}
 {
 }
 
@@ -33,12 +33,12 @@ pqxx::connectionpolicy::normalconnect(handle orig)
 {
   if (orig) return orig;
   orig = PQconnectdb(options().c_str());
-  if (orig == nullptr) throw std::bad_alloc();
+  if (orig == nullptr) throw std::bad_alloc{};
   if (PQstatus(orig) != CONNECTION_OK)
   {
-    const std::string msg(PQerrorMessage(orig));
+    const std::string msg{PQerrorMessage(orig)};
     PQfinish(orig);
-    throw broken_connection(msg);
+    throw broken_connection{msg};
   }
   return orig;
 }
@@ -84,9 +84,9 @@ pqxx::connect_direct::do_startconnect(handle orig)
   orig = normalconnect(orig);
   if (PQstatus(orig) != CONNECTION_OK)
   {
-    const std::string msg(PQerrorMessage(orig));
+    const std::string msg{PQerrorMessage(orig)};
     do_disconnect(orig);
-    throw broken_connection(msg);
+    throw broken_connection{msg};
   }
   return orig;
 }
@@ -100,8 +100,8 @@ pqxx::connect_lazy::do_completeconnect(handle orig)
 
 
 pqxx::connect_async::connect_async(const std::string &opts) :
-  connectionpolicy(opts),
-  m_connecting(false)
+  connectionpolicy{opts},
+  m_connecting{false}
 {
 }
 
@@ -111,11 +111,11 @@ pqxx::connect_async::do_startconnect(handle orig)
   if (orig != nullptr) return orig;	// Already connecting or connected.
   m_connecting = false;
   orig = PQconnectStart(options().c_str());
-  if (orig == nullptr) throw std::bad_alloc();
+  if (orig == nullptr) throw std::bad_alloc{};
   if (PQstatus(orig) == CONNECTION_BAD)
   {
     do_dropconnect(orig);
-    throw broken_connection(std::string(PQerrorMessage(orig)));
+    throw broken_connection{std::string{PQerrorMessage(orig)}};
   }
   m_connecting = true;
   return orig;
@@ -140,7 +140,7 @@ pqxx::connect_async::do_completeconnect(handle orig)
     {
     case PGRES_POLLING_FAILED:
       if (makenew) do_disconnect(orig);
-      throw broken_connection(std::string(PQerrorMessage(orig)));
+      throw broken_connection{std::string{PQerrorMessage(orig)}};
 
     case PGRES_POLLING_READING:
       internal::wait_read(orig);

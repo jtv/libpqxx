@@ -22,16 +22,16 @@
 
 
 pqxx::row::row(result r, size_t i) noexcept :
-  m_result(r),
-  m_index(long(i)),
-  m_end(internal::gate::result_row(r) ? r.columns() : 0)
+  m_result{r},
+  m_index{long(i)},
+  m_end{internal::gate::result_row(r) ? r.columns() : 0}
 {
 }
 
 
 pqxx::row::const_iterator pqxx::row::begin() const noexcept
 {
-  return const_iterator(*this, m_begin);
+  return const_iterator{*this, m_begin};
 }
 
 
@@ -43,7 +43,7 @@ pqxx::row::const_iterator pqxx::row::cbegin() const noexcept
 
 pqxx::row::const_iterator pqxx::row::end() const noexcept
 {
-  return const_iterator(*this, m_end);
+  return const_iterator{*this, m_end};
 }
 
 
@@ -55,19 +55,19 @@ pqxx::row::const_iterator pqxx::row::cend() const noexcept
 
 pqxx::row::reference pqxx::row::front() const noexcept
 {
-  return field(*this, m_begin);
+  return field{*this, m_begin};
 }
 
 
 pqxx::row::reference pqxx::row::back() const noexcept
 {
-  return field(*this, m_end - 1);
+  return field{*this, m_end - 1};
 }
 
 
 pqxx::row::const_reverse_iterator pqxx::row::rbegin() const
 {
-  return const_reverse_row_iterator(end());
+  return const_reverse_row_iterator{end()};
 }
 
 
@@ -79,7 +79,7 @@ pqxx::row::const_reverse_iterator pqxx::row::crbegin() const
 
 pqxx::row::const_reverse_iterator pqxx::row::rend() const
 {
-  return const_reverse_row_iterator(begin());
+  return const_reverse_row_iterator{begin()};
 }
 
 
@@ -102,7 +102,7 @@ bool pqxx::row::operator==(const row &rhs) const noexcept
 
 pqxx::row::reference pqxx::row::operator[](size_type i) const noexcept
 {
-  return field(*this, m_begin + i);
+  return field{*this, m_begin + i};
 }
 
 
@@ -153,14 +153,14 @@ void pqxx::row::swap(row &rhs) noexcept
 
 pqxx::field pqxx::row::at(const char f[]) const
 {
-  return field(*this, m_begin + column_number(f));
+  return field{*this, m_begin + column_number(f)};
 }
 
 
 pqxx::field pqxx::row::at(pqxx::row::size_type i) const
 {
   if (i >= size())
-    throw range_error("Invalid field number");
+    throw range_error{"Invalid field number."};
 
   return operator[](i);
 }
@@ -188,7 +188,7 @@ pqxx::row::size_type pqxx::row::column_number(const char ColName[]) const
 {
   const auto n = m_result.column_number(ColName);
   if (n >= m_end)
-    return result().column_number(ColName);
+    return result{}.column_number(ColName);
   if (n >= m_begin)
     return n - m_begin;
 
@@ -197,7 +197,7 @@ pqxx::row::size_type pqxx::row::column_number(const char ColName[]) const
     if (strcmp(AdaptedColName, m_result.column_name(i)) == 0)
       return i - m_begin;
 
-  return result().column_number(ColName);
+  return result{}.column_number(ColName);
 }
 
 
@@ -205,9 +205,9 @@ pqxx::row::size_type pqxx::result::column_number(const char ColName[]) const
 {
   const int N = PQfnumber(
 	const_cast<internal::pq::PGresult *>(m_data.get()), ColName);
-  // TODO: Should this be an out_of_range?
   if (N == -1)
-    throw argument_error("Unknown column name: '" + std::string(ColName) + "'");
+    throw argument_error{
+	"Unknown column name: '" + std::string{ColName} + "'."};
 
   return row::size_type(N);
 }
@@ -216,9 +216,9 @@ pqxx::row::size_type pqxx::result::column_number(const char ColName[]) const
 pqxx::row pqxx::row::slice(size_type Begin, size_type End) const
 {
   if (Begin > End or End > size())
-    throw range_error("Invalid field range");
+    throw range_error{"Invalid field range."};
 
-  row result(*this);
+  row result{*this};
   result.m_begin = m_begin + Begin;
   result.m_end = m_begin + End;
   return result;
@@ -233,7 +233,7 @@ bool pqxx::row::empty() const noexcept
 
 pqxx::const_row_iterator pqxx::const_row_iterator::operator++(int)
 {
-  const_row_iterator old(*this);
+  const_row_iterator old{*this};
   m_col++;
   return old;
 }
@@ -241,7 +241,7 @@ pqxx::const_row_iterator pqxx::const_row_iterator::operator++(int)
 
 pqxx::const_row_iterator pqxx::const_row_iterator::operator--(int)
 {
-  const_row_iterator old(*this);
+  const_row_iterator old{*this};
   m_col--;
   return old;
 }
@@ -250,7 +250,7 @@ pqxx::const_row_iterator pqxx::const_row_iterator::operator--(int)
 pqxx::const_row_iterator
 pqxx::const_reverse_row_iterator::base() const noexcept
 {
-  iterator_type tmp(*this);
+  iterator_type tmp{*this};
   return ++tmp;
 }
 
@@ -258,7 +258,7 @@ pqxx::const_reverse_row_iterator::base() const noexcept
 pqxx::const_reverse_row_iterator
 pqxx::const_reverse_row_iterator::operator++(int)
 {
-  const_reverse_row_iterator tmp(*this);
+  const_reverse_row_iterator tmp{*this};
   operator++();
   return tmp;
 }
@@ -267,7 +267,7 @@ pqxx::const_reverse_row_iterator::operator++(int)
 pqxx::const_reverse_row_iterator
 pqxx::const_reverse_row_iterator::operator--(int)
 {
-  const_reverse_row_iterator tmp(*this);
+  const_reverse_row_iterator tmp{*this};
   operator--();
   return tmp;
 }

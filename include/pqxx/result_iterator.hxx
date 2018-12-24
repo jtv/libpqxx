@@ -47,8 +47,8 @@ public:
   using size_type = result_size_type;
   using difference_type = result_difference_type;
 
-  const_result_iterator() noexcept : row(result(), 0) {}
-  const_result_iterator(const row &t) noexcept : row(t) {}
+  const_result_iterator() noexcept : row{result(), 0} {}
+  const_result_iterator(const row &t) noexcept : row{t} {}
 
   /**
    * @name Dereferencing operators
@@ -66,7 +66,7 @@ public:
    * distinguished company.
    */
   pointer operator->() const { return this; }				//[t12]
-  reference operator*() const { return row(*this); }			//[t12]
+  reference operator*() const { return row{*this}; }			//[t12]
   //@}
 
   /**
@@ -117,7 +117,7 @@ public:
 private:
   friend class pqxx::result;
   const_result_iterator(const pqxx::result *r, result_size_type i) noexcept :
-    row(*r, i) {}
+    row{*r, i} {}
 };
 
 
@@ -136,10 +136,10 @@ public:
 
   const_reverse_result_iterator(					//[t75]
 	const const_reverse_result_iterator &rhs) :
-    const_result_iterator(rhs) {}
+    const_result_iterator{rhs} {}
   explicit const_reverse_result_iterator(				//[t75]
 	const const_result_iterator &rhs) :
-    const_result_iterator(rhs) { super::operator--(); }
+    const_result_iterator{rhs} { super::operator--(); }
 
   PQXX_PURE const_result_iterator base() const noexcept;		//[t75]
 
@@ -209,8 +209,8 @@ public:
 inline const_result_iterator
 const_result_iterator::operator+(result::difference_type o) const
 {
-  return const_result_iterator(
-	&m_result, size_type(result::difference_type(m_index) + o));
+  return const_result_iterator{
+	&m_result, size_type(result::difference_type(m_index) + o)};
 }
 
 inline const_result_iterator
@@ -220,9 +220,9 @@ operator+(result::difference_type o, const_result_iterator i)
 inline const_result_iterator
 const_result_iterator::operator-(result::difference_type o) const
 {
-  return const_result_iterator(
+  return const_result_iterator{
 	&m_result,
-	result_size_type(result::difference_type(m_index) - o));
+	result_size_type(result::difference_type(m_index) - o)};
 }
 
 inline result::difference_type
@@ -230,7 +230,7 @@ const_result_iterator::operator-(const_result_iterator i) const
 	{ return result::difference_type(num() - i.num()); }
 
 inline const_result_iterator result::end() const noexcept
-	{ return const_result_iterator(this, size()); }
+	{ return const_result_iterator{this, size()}; }
 
 
 inline const_result_iterator result::cend() const noexcept
@@ -241,7 +241,7 @@ inline const_reverse_result_iterator
 operator+(
 	result::difference_type n,
 	const const_reverse_result_iterator &i)
-	{ return const_reverse_result_iterator(i.base() - n); }
+	{ return const_reverse_result_iterator{i.base() - n}; }
 
 } // namespace pqxx
 

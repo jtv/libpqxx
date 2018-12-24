@@ -253,14 +253,14 @@ class PQXX_LIBEXPORT namedclass
 {
 public:
   explicit namedclass(const std::string &Classname) :
-    m_classname(Classname),
-    m_name()
+    m_classname{Classname},
+    m_name{}
   {
   }
 
   namedclass(const std::string &Classname, const std::string &Name) :
-    m_classname(Classname),
-    m_name(Name)
+    m_classname{Classname},
+    m_name{Name}
   {
   }
 

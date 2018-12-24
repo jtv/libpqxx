@@ -99,7 +99,7 @@ void test_000(transaction_base &)
   strconv("long", long_min, lminstr.str());
   strconv("long", long_max, lmaxstr.str());
   strconv("double", not_a_number, "nan");
-  strconv("string", string(), "");
+  strconv("string", string{}, "");
   strconv("string", weirdstr, weirdstr);
   strconv("long long", 0LL, "0");
   strconv("long long", llong_min, llminstr.str());

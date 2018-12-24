@@ -2,7 +2,7 @@
  *
  * pqxx::field refers to a field in a query result.
  *
- * Copyright (c) 2001-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -16,9 +16,9 @@
 
 
 pqxx::field::field(const pqxx::row &R, pqxx::row::size_type C) noexcept :
-  m_col(C),
-  m_home(R.m_result),
-  m_row(pqxx::result_size_type(R.m_index))
+  m_col{C},
+  m_home{R.m_result},
+  m_row{pqxx::result_size_type(R.m_index)}
 {
 }
 
@@ -29,7 +29,7 @@ bool pqxx::field::operator==(const field &rhs) const
   // TODO: Verify null handling decision
   const size_type s = size();
   if (s != rhs.size()) return false;
-  const char *const l(c_str()), *const r(rhs.c_str());
+  const char *const l{c_str()}, *const r{rhs.c_str()};
   for (size_type i = 0; i < s; ++i) if (l[i] != r[i]) return false;
   return true;
 }

@@ -55,7 +55,7 @@ public:
 
   explicit pipeline(							//[t69]
 	transaction_base &,
-	const std::string &Name=std::string());
+	const std::string &Name=std::string{});
 
   ~pipeline() noexcept;
 
@@ -214,5 +214,4 @@ private:
 } // namespace
 
 #include "pqxx/compiler-internal-post.hxx"
-
 #endif

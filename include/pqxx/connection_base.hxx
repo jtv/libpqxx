@@ -504,9 +504,9 @@ public:
    * void foo(connection_base &C)
    * {
    *   C.prepare("findtable", "select * from pg_tables where name=$1");
-   *   work W(C);
+   *   work W{C};
    *   result R = W.exec_prepared("findtable", "mytable");
-   *   if (R.empty()) throw runtime_error("mytable not found!");
+   *   if (R.empty()) throw runtime_error{"mytable not found!"};
    * }
    * @endcode
    *
@@ -679,7 +679,7 @@ public:
 
 protected:
   explicit connection_base(connectionpolicy &pol) :
-	m_policy(pol)
+	m_policy{pol}
   {
     // Check library version.  The check_library_version template is declared
     // for any library version, but only actually defined for the version of

@@ -19,8 +19,8 @@ pqxx::stream_to::stream_to(
   transaction_base &tb,
   const std::string &table_name
 ) :
-  namedclass("stream_to", table_name),
-  stream_base(tb)
+  namedclass{"stream_to", table_name},
+  stream_base{tb}
 {
   setup(tb, table_name);
 }

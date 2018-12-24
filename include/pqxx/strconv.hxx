@@ -191,7 +191,7 @@ template<> struct PQXX_LIBEXPORT string_traits<std::string>
   static constexpr bool has_null() noexcept { return false; }
   static bool is_null(const std::string &) { return false; }
   static std::string null()
-	{ internal::throw_null_conversion(name()); return std::string(); }
+	{ internal::throw_null_conversion(name()); return std::string{}; }
   static void from_string(const char Str[], std::string &Obj) { Obj=Str; }
   static std::string to_string(const std::string &Obj) { return Obj; }
 };
@@ -202,7 +202,7 @@ template<> struct PQXX_LIBEXPORT string_traits<const std::string>
   static constexpr bool has_null() noexcept { return false; }
   static bool is_null(const std::string &) { return false; }
   static const std::string null()
-	{ internal::throw_null_conversion(name()); return std::string(); }
+	{ internal::throw_null_conversion(name()); return std::string{}; }
   static const std::string to_string(const std::string &Obj) { return Obj; }
 };
 
@@ -242,7 +242,7 @@ template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
 template<typename T>
   inline void from_string(const char Str[], T &Obj)
 {
-  if (Str == nullptr) throw std::runtime_error("Attempt to read null string");
+  if (Str == nullptr) throw std::runtime_error{"Attempt to read null string."};
   string_traits<T>::from_string(Str, Obj);
 }
 
@@ -265,7 +265,7 @@ template<>
 	std::string &Obj,
 	size_t len)
 {
-  if (Str == nullptr) throw std::runtime_error("Attempt to read null string");
+  if (Str == nullptr) throw std::runtime_error{"Attempt to read null string."};
   Obj.assign(Str, len);
 }
 

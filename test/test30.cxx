@@ -58,12 +58,12 @@ void test_030(transaction_base &)
     string N = R.column_name(c);
 
     PQXX_CHECK_EQUAL(
-	string(R[0].at(c).c_str()),
+	string{R[0].at(c).c_str()},
 	R[0].at(N).c_str(),
 	"Different field values by name and by number.");
 
     PQXX_CHECK_EQUAL(
-	string(R[0][c].c_str()),
+	string{R[0][c].c_str()},
 	R[0][N].c_str(),
 	"at() is inconsistent with operator[].");
 

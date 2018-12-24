@@ -17,7 +17,7 @@ void test_063(transaction_base &T)
   PQXX_CHECK(not R.empty(), "No tables found.  Cannot test.");
 
   for (const auto &c: R)
-    cout << '\t' << to_string(c.num()) << '\t' << c[0].as(string()) << endl;
+    cout << '\t' << to_string(c.num()) << '\t' << c[0].as(string{}) << endl;
 
   T.commit();
 }

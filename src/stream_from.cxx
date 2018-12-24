@@ -43,8 +43,8 @@ pqxx::stream_from::stream_from(
   transaction_base &tb,
   const std::string &table_name
 ) :
-  namedclass("stream_from", table_name),
-  stream_base(tb),
+  namedclass{"stream_from", table_name},
+  stream_base{tb},
   m_retry_line{false}
 {
   setup(tb, table_name);

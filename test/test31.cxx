@@ -68,7 +68,7 @@ void test_031(transaction_base &orgT)
       string A, B;
       PQXX_CHECK_EQUAL(
 		i[f].to(A),
-		i[f].to(B, string("")),
+		i[f].to(B, string{""}),
 		"Variants of to() disagree on nullness.");
 
       PQXX_CHECK_EQUAL(A, B, "Variants of to() produce different values.");
@@ -119,8 +119,8 @@ void test_031(transaction_base &orgT)
           const bool U = SortedUp[f],
                      D = SortedDown[f];
 
-          SortedUp[f] = U & (string(j[f].c_str()) <= string(i[f].c_str()));
-          SortedDown[f] = D & (string(j[f].c_str()) >= string(i[f].c_str()));
+          SortedUp[f] = U & (string{j[f].c_str()} <= string{i[f].c_str()});
+          SortedDown[f] = D & (string{j[f].c_str()} >= string{i[f].c_str()});
         }
       }
     }

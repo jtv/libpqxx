@@ -16,9 +16,9 @@
 
 pqxx::tablestream::tablestream(transaction_base &STrans,
 	const std::string &Null) :
-  internal::namedclass("tablestream"),
-  internal::transactionfocus(STrans),
-  m_null(Null)
+  internal::namedclass{"tablestream"},
+  internal::transactionfocus{STrans},
+  m_null{Null}
 {
 }
 

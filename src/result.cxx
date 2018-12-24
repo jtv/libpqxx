@@ -33,8 +33,8 @@ void pqxx::internal::clear_result(const pq::PGresult *data)
 pqxx::result::result(
 	pqxx::internal::pq::PGresult *rhs,
 	const std::string &Query) :
-  m_data(make_data_pointer(rhs)),
-  m_query(std::make_shared<std::string>(Query))
+  m_data{make_data_pointer(rhs)},
+  m_query{std::make_shared<std::string>(Query)}
 {
 }
 
@@ -52,7 +52,7 @@ bool pqxx::result::operator==(const result &rhs) const noexcept
 
 pqxx::result::const_reverse_iterator pqxx::result::rbegin() const
 {
-  return const_reverse_iterator(end());
+  return const_reverse_iterator{end()};
 }
 
 
@@ -64,7 +64,7 @@ pqxx::result::const_reverse_iterator pqxx::result::crbegin() const
 
 pqxx::result::const_reverse_iterator pqxx::result::rend() const
 {
-  return const_reverse_iterator(begin());
+  return const_reverse_iterator{begin()};
 }
 
 
@@ -76,7 +76,7 @@ pqxx::result::const_reverse_iterator pqxx::result::crend() const
 
 pqxx::result::const_iterator pqxx::result::begin() const noexcept
 {
-  return const_iterator(this, 0);
+  return const_iterator{this, 0};
 }
 
 
@@ -100,13 +100,13 @@ bool pqxx::result::empty() const noexcept
 
 pqxx::result::reference pqxx::result::front() const noexcept
 {
-  return row(*this, 0);
+  return row{*this, 0};
 }
 
 
 pqxx::result::reference pqxx::result::back() const noexcept
 {
-  return row(*this, size() - 1);
+  return row{*this, size() - 1};
 }
 
 
@@ -119,16 +119,25 @@ void pqxx::result::swap(result &rhs) noexcept
 
 const pqxx::row pqxx::result::operator[](result_size_type i) const noexcept
 {
-  return row(*this, i);
+  return row{*this, i};
 }
 
 
 const pqxx::row pqxx::result::at(pqxx::result::size_type i) const
 {
-  if (i >= size()) throw range_error("Row number out of range");
+  if (i >= size()) throw range_error{"Row number out of range."};
   return operator[](i);
 }
 
+
+namespace
+{
+/// C string comparison.
+inline constexpr bool equal(const char lhs[], const char rhs[])
+{
+  return strcmp(lhs, rhs) == 0;
+}
+} // namespace
 
 void pqxx::result::ThrowSQLError(
 	const std::string &Err,
@@ -143,76 +152,76 @@ void pqxx::result::ThrowSQLError(
     switch (code[1])
     {
     case '8':
-      throw broken_connection(Err);
+      throw broken_connection{Err};
     case 'A':
-      throw feature_not_supported(Err, Query, code);
+      throw feature_not_supported{Err, Query, code};
     }
     break;
   case '2':
     switch (code[1])
     {
     case '2':
-      throw data_exception(Err, Query, code);
+      throw data_exception{Err, Query, code};
     case '3':
-      if (strcmp(code,"23001")==0) throw restrict_violation(Err, Query, code);
-      if (strcmp(code,"23502")==0) throw not_null_violation(Err, Query, code);
-      if (strcmp(code,"23503")==0)
-        throw foreign_key_violation(Err, Query, code);
-      if (strcmp(code,"23505")==0) throw unique_violation(Err, Query, code);
-      if (strcmp(code,"23514")==0) throw check_violation(Err, Query, code);
-      throw integrity_constraint_violation(Err, Query, code);
+      if (equal(code,"23001")) throw restrict_violation{Err, Query, code};
+      if (equal(code,"23502")) throw not_null_violation{Err, Query, code};
+      if (equal(code,"23503"))
+        throw foreign_key_violation{Err, Query, code};
+      if (equal(code,"23505")) throw unique_violation{Err, Query, code};
+      if (equal(code,"23514")) throw check_violation{Err, Query, code};
+      throw integrity_constraint_violation{Err, Query, code};
     case '4':
-      throw invalid_cursor_state(Err, Query, code);
+      throw invalid_cursor_state{Err, Query, code};
     case '6':
-      throw invalid_sql_statement_name(Err, Query, code);
+      throw invalid_sql_statement_name{Err, Query, code};
     }
     break;
   case '3':
     switch (code[1])
     {
     case '4':
-      throw invalid_cursor_name(Err, Query, code);
+      throw invalid_cursor_name{Err, Query, code};
     }
     break;
   case '4':
     switch (code[1])
     {
     case '0':
-      if (strcmp(code, "40000")==0) throw transaction_rollback(Err);
-      if (strcmp(code, "40001")==0) throw serialization_failure(Err);
-      if (strcmp(code, "40001")==0) throw statement_completion_unknown(Err);
-      if (strcmp(code, "40P01")==0) throw deadlock_detected(Err);
+      if (equal(code, "40000")) throw transaction_rollback{Err};
+      if (equal(code, "40001")) throw serialization_failure{Err};
+      if (equal(code, "40001")) throw statement_completion_unknown{Err};
+      if (equal(code, "40P01")) throw deadlock_detected{Err};
       break;
     case '2':
-      if (strcmp(code,"42501")==0) throw insufficient_privilege(Err, Query);
-      if (strcmp(code,"42601")==0)
-        throw syntax_error(Err, Query, code, errorposition());
-      if (strcmp(code,"42703")==0) throw undefined_column(Err, Query, code);
-      if (strcmp(code,"42883")==0) throw undefined_function(Err, Query, code);
-      if (strcmp(code,"42P01")==0) throw undefined_table(Err, Query, code);
+      if (equal(code,"42501")) throw insufficient_privilege{Err, Query};
+      if (equal(code,"42601"))
+        throw syntax_error{Err, Query, code, errorposition()};
+      if (equal(code,"42703")) throw undefined_column{Err, Query, code};
+      if (equal(code,"42883")) throw undefined_function{Err, Query, code};
+      if (equal(code,"42P01")) throw undefined_table{Err, Query, code};
     }
     break;
   case '5':
     switch (code[1])
     {
     case '3':
-      if (strcmp(code,"53100")==0) throw disk_full(Err, Query, code);
-      if (strcmp(code,"53200")==0) throw out_of_memory(Err, Query, code);
-      if (strcmp(code,"53300")==0) throw too_many_connections(Err);
-      throw insufficient_resources(Err, Query, code);
+      if (equal(code,"53100")) throw disk_full{Err, Query, code};
+      if (equal(code,"53200")) throw out_of_memory{Err, Query, code};
+      if (equal(code,"53300")) throw too_many_connections{Err};
+      throw insufficient_resources{Err, Query, code};
     }
     break;
 
   case 'P':
-    if (strcmp(code, "P0001")==0) throw plpgsql_raise(Err, Query, code);
-    if (strcmp(code, "P0002")==0)
-      throw plpgsql_no_data_found(Err, Query, code);
-    if (strcmp(code, "P0003")==0)
-      throw plpgsql_too_many_rows(Err, Query, code);
-    throw plpgsql_error(Err, Query, code);
+    if (equal(code, "P0001")) throw plpgsql_raise{Err, Query, code};
+    if (equal(code, "P0002"))
+      throw plpgsql_no_data_found{Err, Query, code};
+    if (equal(code, "P0003"))
+      throw plpgsql_too_many_rows{Err, Query, code};
+    throw plpgsql_error{Err, Query, code};
   }
   // Fallback: No error code.
-  throw sql_error(Err, Query, code);
+  throw sql_error{Err, Query, code};
 }
 
 void pqxx::result::check_status() const
@@ -224,7 +233,7 @@ void pqxx::result::check_status() const
 
 std::string pqxx::result::StatusError() const
 {
-  if (m_data.get() == nullptr) throw failure("No result set given");
+  if (m_data.get() == nullptr) throw failure{"No result set given."};
 
   std::string Err;
 
@@ -246,9 +255,9 @@ std::string pqxx::result::StatusError() const
     break;
 
   default:
-    throw internal_error(
+    throw internal_error{
 	"pqxx::result: Unrecognized response code " +
-	to_string(int(PQresultStatus(m_data.get()))));
+	to_string(int(PQresultStatus(m_data.get())))};
   }
   return Err;
 }
@@ -269,8 +278,8 @@ const std::string &pqxx::result::query() const noexcept
 pqxx::oid pqxx::result::inserted_oid() const
 {
   if (m_data.get() == nullptr)
-    throw usage_error(
-	"Attempt to read oid of inserted row without an INSERT result");
+    throw usage_error{
+	"Attempt to read oid of inserted row without an INSERT result"};
   return PQoidValue(const_cast<internal::pq::PGresult *>(m_data.get()));
 }
 
@@ -310,9 +319,9 @@ pqxx::oid pqxx::result::column_type(row::size_type ColNum) const
 {
   const oid T = PQftype(m_data.get(), int(ColNum));
   if (T == oid_none)
-    throw argument_error(
+    throw argument_error{
 	"Attempt to retrieve type of nonexistent column " +
-	to_string(ColNum) + " of query result");
+	to_string(ColNum) + " of query result."};
   return T;
 }
 
@@ -325,9 +334,9 @@ pqxx::oid pqxx::result::column_table(row::size_type ColNum) const
    * got an invalid row number.
    */
   if (T == oid_none and ColNum >= columns())
-    throw argument_error(
+    throw argument_error{
 	"Attempt to retrieve table ID for column " + to_string(ColNum) +
-	" out of " + to_string(columns()));
+	" out of " + to_string(columns())};
 
   return T;
 }
@@ -341,16 +350,16 @@ pqxx::row::size_type pqxx::result::table_column(row::size_type ColNum) const
   // Failed.  Now find out why, so we can throw a sensible exception.
   const std::string col_num = to_string(ColNum);
   if (ColNum > columns())
-    throw range_error("Invalid column index in table_column(): " + col_num);
+    throw range_error{"Invalid column index in table_column(): " + col_num};
 
   if (m_data.get() == nullptr)
-    throw usage_error(
+    throw usage_error{
       "Can't query origin of column " + col_num + ": "
-      "result is not initialized.");
+      "result is not initialized."};
 
-  throw usage_error(
+  throw usage_error{
     "Can't query origin of column " + col_num + ": "
-    "not derived from table column");
+    "not derived from table column."};
 }
 
 int pqxx::result::errorposition() const
@@ -373,10 +382,10 @@ const char *pqxx::result::column_name(pqxx::row::size_type Number) const
   if (N == nullptr)
   {
     if (m_data.get() == nullptr)
-      throw usage_error("Queried column name on null result.");
-    throw range_error(
+      throw usage_error{"Queried column name on null result."};
+    throw range_error{
 	"Invalid column number: " + to_string(Number) +
-	" (maximum is " + to_string(columns() - 1) + ").");
+	" (maximum is " + to_string(columns() - 1) + ")."};
   }
   return N;
 }
@@ -393,7 +402,7 @@ pqxx::row::size_type pqxx::result::columns() const noexcept
 
 pqxx::const_result_iterator pqxx::const_result_iterator::operator++(int)
 {
-  const_result_iterator old(*this);
+  const_result_iterator old{*this};
   m_index++;
   return old;
 }
@@ -401,7 +410,7 @@ pqxx::const_result_iterator pqxx::const_result_iterator::operator++(int)
 
 pqxx::const_result_iterator pqxx::const_result_iterator::operator--(int)
 {
-  const_result_iterator old(*this);
+  const_result_iterator old{*this};
   m_index--;
   return old;
 }
@@ -410,7 +419,7 @@ pqxx::const_result_iterator pqxx::const_result_iterator::operator--(int)
 pqxx::result::const_iterator
 pqxx::result::const_reverse_iterator::base() const noexcept
 {
-  iterator_type tmp(*this);
+  iterator_type tmp{*this};
   return ++tmp;
 }
 
@@ -418,7 +427,7 @@ pqxx::result::const_reverse_iterator::base() const noexcept
 pqxx::const_reverse_result_iterator
 pqxx::const_reverse_result_iterator::operator++(int)
 {
-  const_reverse_result_iterator tmp(*this);
+  const_reverse_result_iterator tmp{*this};
   iterator_type::operator--();
   return tmp;
 }
@@ -427,7 +436,7 @@ pqxx::const_reverse_result_iterator::operator++(int)
 pqxx::const_reverse_result_iterator
 pqxx::const_reverse_result_iterator::operator--(int)
 {
-  const_reverse_result_iterator tmp(*this);
+  const_reverse_result_iterator tmp{*this};
   iterator_type::operator++();
   return tmp;
 }
@@ -436,5 +445,5 @@ pqxx::const_reverse_result_iterator::operator--(int)
 template<>
 std::string pqxx::to_string(const field &Obj)
 {
-  return std::string(Obj.c_str(), Obj.size());
+  return std::string{Obj.c_str(), Obj.size()};
 }

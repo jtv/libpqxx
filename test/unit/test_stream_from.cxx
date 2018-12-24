@@ -61,7 +61,7 @@ void test_nonoptionals(pqxx::connection_base& connection)
   catch (const pqxx::conversion_error &e)
   {
     std::string what{e.what()};
-    if (what != "Attempt to convert null to int") throw;
+    if (what != "Attempt to convert null to int.") throw;
     pqxx::test::expected_exception("Could not extract row: " + what);
   }
 

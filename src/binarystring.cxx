@@ -30,11 +30,11 @@ using buffer = std::pair<unsigned char *, size_t>;
 
 buffer to_buffer(const void *data, size_t len)
 {
-  void *const output(malloc(len + 1));
-  if (output == nullptr) throw std::bad_alloc();
+  void *const output{malloc(len + 1)};
+  if (output == nullptr) throw std::bad_alloc{};
   static_cast<char *>(output)[len] = '\0';
   memcpy(static_cast<char *>(output), data, len);
-  return buffer(static_cast<unsigned char *>(output), len);
+  return buffer{static_cast<unsigned char *>(output), len};
 }
 
 
@@ -58,7 +58,7 @@ buffer unescape(const unsigned char escaped[])
 	PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped_len),
 	freepqmem_templated<unsigned char>);
   void *data = A.get();
-  if (data == nullptr) throw std::bad_alloc();
+  if (data == nullptr) throw std::bad_alloc{};
   return to_buffer(data, unescaped_len);
 #else
   /* On non-Windows platforms, it's okay to free libpq-allocated memory using
@@ -67,7 +67,7 @@ buffer unescape(const unsigned char escaped[])
   buffer unescaped;
   unescaped.first = PQunescapeBytea(
 	const_cast<unsigned char *>(escaped), &unescaped.second);
-  if (unescaped.first == nullptr) throw std::bad_alloc();
+  if (unescaped.first == nullptr) throw std::bad_alloc{};
   return unescaped;
 #endif
 }
@@ -76,26 +76,26 @@ buffer unescape(const unsigned char escaped[])
 
 
 pqxx::binarystring::binarystring(const field &F) :
-  m_buf(make_smart_pointer()),
-  m_size(0)
+  m_buf{make_smart_pointer()},
+  m_size{0}
 {
-  buffer unescaped(unescape(reinterpret_cast<const_pointer>(F.c_str())));
+  buffer unescaped{unescape(reinterpret_cast<const_pointer>(F.c_str()))};
   m_buf = make_smart_pointer(unescaped.first);
   m_size = unescaped.second;
 }
 
 
 pqxx::binarystring::binarystring(const std::string &s) :
-  m_buf(make_smart_pointer()),
-  m_size(s.size())
+  m_buf{make_smart_pointer()},
+  m_size{s.size()}
 {
   m_buf = make_smart_pointer(to_buffer(s).first);
 }
 
 
 pqxx::binarystring::binarystring(const void *binary_data, size_t len) :
-  m_buf(make_smart_pointer()),
-  m_size(len)
+  m_buf{make_smart_pointer()},
+  m_size{len}
 {
   m_buf = make_smart_pointer(to_buffer(binary_data, len).first);
 }
@@ -122,9 +122,10 @@ pqxx::binarystring::const_reference pqxx::binarystring::at(size_type n) const
   if (n >= m_size)
   {
     if (m_size == 0)
-      throw std::out_of_range("Accessing empty binarystring");
-    throw std::out_of_range("binarystring index out of range: " +
-	to_string(n) + " (should be below " + to_string(m_size) + ")");
+      throw std::out_of_range{"Accessing empty binarystring"};
+    throw std::out_of_range{
+	"binarystring index out of range: " +
+	to_string(n) + " (should be below " + to_string(m_size) + ")"};
   }
   return data()[n];
 }
@@ -143,5 +144,5 @@ void pqxx::binarystring::swap(binarystring &rhs)
 
 std::string pqxx::binarystring::str() const
 {
-  return std::string(get(), m_size);
+  return std::string{get(), m_size};
 }

@@ -31,8 +31,8 @@ using namespace pqxx::internal;
 pqxx::internal::parameterized_invocation::parameterized_invocation(
 	connection_base &c,
 	const std::string &query) :
-  m_home(c),
-  m_query(query)
+  m_home{c},
+  m_query{query}
 {
 }
 
@@ -44,7 +44,7 @@ pqxx::result pqxx::internal::parameterized_invocation::exec()
   std::vector<int> binaries;
   const int elements = marshall(values, lengths, binaries);
 
-  return gate::connection_parameterized_invocation(m_home).parameterized_exec(
+  return gate::connection_parameterized_invocation{m_home}.parameterized_exec(
 	m_query,
 	values.data(),
 	lengths.data(),
@@ -54,12 +54,12 @@ pqxx::result pqxx::internal::parameterized_invocation::exec()
 
 
 pqxx::transaction_base::transaction_base(connection_base &C, bool direct) :
-  namedclass("transaction_base"),
-  m_conn(C)
+  namedclass{"transaction_base"},
+  m_conn{C}
 {
   if (direct)
   {
-    gate::connection_transaction gate(conn());
+    gate::connection_transaction gate{conn()};
     gate.register_transaction(this);
     m_registered = true;
   }
@@ -77,7 +77,7 @@ pqxx::transaction_base::~transaction_base()
     if (m_registered)
     {
       m_conn.process_notice(description() + " was never closed properly!\n");
-      gate::connection_transaction gate(conn());
+      gate::connection_transaction gate{conn()};
       gate.unregister_transaction(this);
     }
   }
@@ -85,7 +85,7 @@ pqxx::transaction_base::~transaction_base()
   {
     try
     {
-      process_notice(std::string(e.what()) + "\n");
+      process_notice(std::string{e.what()} + "\n");
     }
     catch (const std::exception &)
     {
@@ -110,7 +110,7 @@ void pqxx::transaction_base::commit()
     break;
 
   case st_aborted:
-    throw usage_error("Attempt to commit previously aborted " + description());
+    throw usage_error{"Attempt to commit previously aborted " + description()};
 
   case st_committed:
     // Transaction has been committed already.  This is not exactly proper
@@ -118,17 +118,17 @@ void pqxx::transaction_base::commit()
     // that an abort is needed--which would only confuse things further at this
     // stage.
     // Therefore, multiple commits are accepted, though under protest.
-    m_conn.process_notice(description() + " committed more than once\n");
+    m_conn.process_notice(description() + " committed more than once.\n");
     return;
 
   case st_in_doubt:
     // Transaction may or may not have been committed.  The only thing we can
     // really do is keep telling the caller that the transaction is in doubt.
-    throw in_doubt_error(
-	description() + " committed again while in an indeterminate state");
+    throw in_doubt_error{
+	description() + " committed again while in an indeterminate state."};
 
   default:
-    throw internal_error("pqxx::transaction: invalid status code");
+    throw internal_error{"pqxx::transaction: invalid status code."};
   }
 
   // Tricky one.  If stream is nested in transaction but inside the same scope,
@@ -136,17 +136,17 @@ void pqxx::transaction_base::commit()
   // commit is premature.  Punish this swiftly and without fail to discourage
   // the habit from forming.
   if (m_focus.get())
-    throw failure(
+    throw failure{
 	"Attempt to commit " + description() + " with " +
-	m_focus.get()->description() + " still open");
+	m_focus.get()->description() + " still open."};
 
   // Check that we're still connected (as far as we know--this is not an
   // absolute thing!) before trying to commit.  If the connection was broken
   // already, the commit would fail anyway but this way at least we don't remain
   // in-doubt as to whether the backend got the commit order at all.
   if (not m_conn.is_open())
-    throw broken_connection(
-	"Broken connection to backend; cannot complete transaction");
+    throw broken_connection{
+	"Broken connection to backend; cannot complete transaction."};
 
   try
   {
@@ -164,7 +164,7 @@ void pqxx::transaction_base::commit()
     throw;
   }
 
-  gate::connection_transaction gate(conn());
+  gate::connection_transaction gate{conn()};
   gate.add_variables(m_vars);
 
   End();
@@ -188,7 +188,7 @@ void pqxx::transaction_base::abort()
     return;
 
   case st_committed:
-    throw usage_error("Attempt to abort previously committed " + description());
+    throw usage_error{"Attempt to abort previously committed " + description()};
 
   case st_in_doubt:
     // Aborting an in-doubt transaction is probably a reasonably sane response
@@ -199,7 +199,7 @@ void pqxx::transaction_base::abort()
     return;
 
   default:
-    throw internal_error("invalid transaction status");
+    throw internal_error{"Invalid transaction status."};
   }
 
   m_status = st_aborted;
@@ -236,12 +236,12 @@ void pqxx::transaction_base::activate()
   case st_committed:
   case st_aborted:
   case st_in_doubt:
-    throw usage_error(
+    throw usage_error{
 	"Attempt to activate " + description() + " "
-	"which is already closed");
+	"which is already closed."};
 
   default:
-    throw internal_error("pqxx::transaction: invalid status code");
+    throw internal_error{"pqxx::transaction: invalid status code."};
   }
 }
 
@@ -255,10 +255,10 @@ pqxx::result pqxx::transaction_base::exec(
   const std::string N = (Desc.empty() ? "" : "'" + Desc + "' ");
 
   if (m_focus.get())
-    throw usage_error(
+    throw usage_error{
 	"Attempt to execute query " + N +
 	"on " + description() + " "
-	"with " + m_focus.get()->description() + " still open");
+	"with " + m_focus.get()->description() + " still open."};
 
   try
   {
@@ -266,7 +266,7 @@ pqxx::result pqxx::transaction_base::exec(
   }
   catch (const usage_error &e)
   {
-    throw usage_error("Error executing query " + N + ".  " + e.what());
+    throw usage_error{"Error executing query " + N + ".  " + e.what()};
   }
 
   // TODO: Pass Desc to do_exec(), and from there on down
@@ -283,9 +283,9 @@ pqxx::result pqxx::transaction_base::exec_n(
   if (r.size() != rows)
   {
     const std::string N = (Desc.empty() ? "" : "'" + Desc + "'");
-    throw unexpected_rows(
+    throw unexpected_rows{
 	"Expected " + to_string(rows) + " row(s) of data "
-        "from query " + N + ", got " + to_string(r.size()) + ".");
+        "from query " + N + ", got " + to_string(r.size()) + "."};
   }
   return r;
 }
@@ -298,10 +298,10 @@ void pqxx::transaction_base::check_rowcount_prepared(
 {
   if (actual_rows != expected_rows)
   {
-    throw unexpected_rows(
+    throw unexpected_rows{
 	"Expected " + to_string(expected_rows) + " row(s) of data "
 	"from prepared statement '" + statement + "', got " +
-	to_string(actual_rows) + ".");
+	to_string(actual_rows) + "."};
   }
 }
 
@@ -312,9 +312,9 @@ void pqxx::transaction_base::check_rowcount_params(
 {
   if (actual_rows != expected_rows)
   {
-    throw unexpected_rows(
+    throw unexpected_rows{
 	"Expected " + to_string(expected_rows) + " row(s) of data "
-	"from parameterised query, got " + to_string(actual_rows) + ".");
+	"from parameterised query, got " + to_string(actual_rows) + "."};
   }
 }
 
@@ -323,7 +323,7 @@ pqxx::internal::parameterized_invocation
 pqxx::transaction_base::parameterized(const std::string &query)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return internal::parameterized_invocation(conn(), query);
+  return internal::parameterized_invocation{conn(), query};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
@@ -337,11 +337,11 @@ pqxx::transaction_base::prepared(const std::string &statement)
   }
   catch (const usage_error &e)
   {
-    throw usage_error(
-	"Error executing prepared statement " + statement + ".  " + e.what());
+    throw usage_error{
+	"Error executing prepared statement " + statement + ".  " + e.what()};
   }
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return prepare::invocation(*this, statement);
+  return prepare::invocation{*this, statement};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
@@ -350,7 +350,7 @@ pqxx::result pqxx::transaction_base::internal_exec_prepared(
 	const std::string &statement,
 	const internal::params &args)
 {
-  gate::connection_transaction gate(conn());
+  gate::connection_transaction gate{conn()};
   return gate.exec_prepared(statement, args);
 }
 
@@ -359,7 +359,7 @@ pqxx::result pqxx::transaction_base::internal_exec_params(
 	const std::string &query,
 	const internal::params &args)
 {
-  gate::connection_transaction gate(conn());
+  gate::connection_transaction gate{conn()};
   return gate.exec_params(query, args);
 }
 
@@ -369,7 +369,7 @@ void pqxx::transaction_base::set_variable(
 	const std::string &Value)
 {
   // Before committing to this new value, see what the backend thinks about it
-  gate::connection_transaction gate(conn());
+  gate::connection_transaction gate{conn()};
   gate.raw_set_var(Var, Value);
   m_vars[Var] = Value;
 }
@@ -379,15 +379,15 @@ std::string pqxx::transaction_base::get_variable(const std::string &Var)
 {
   const std::map<std::string,std::string>::const_iterator i = m_vars.find(Var);
   if (i != m_vars.end()) return i->second;
-  return gate::connection_transaction(conn()).raw_get_var(Var);
+  return gate::connection_transaction{conn()}.raw_get_var(Var);
 }
 
 
 void pqxx::transaction_base::Begin()
 {
   if (m_status != st_nascent)
-    throw internal_error(
-	"pqxx::transaction: Begin() called while not in nascent state");
+    throw internal_error{
+	"pqxx::transaction: Begin() called while not in nascent state."};
 
   try
   {
@@ -415,7 +415,7 @@ void pqxx::transaction_base::End() noexcept
     if (m_registered)
     {
       m_registered = false;
-      gate::connection_transaction gate(conn());
+      gate::connection_transaction gate{conn()};
       gate.unregister_transaction(this);
     }
 
@@ -424,12 +424,12 @@ void pqxx::transaction_base::End() noexcept
     if (m_focus.get())
       m_conn.process_notice(
 	"Closing " + description() + "  with " +
-	m_focus.get()->description() + " still open\n");
+	m_focus.get()->description() + " still open.\n");
 
     try { abort(); }
     catch (const std::exception &e) { m_conn.process_notice(e.what()); }
 
-    gate::connection_transaction gate(conn());
+    gate::connection_transaction gate{conn()};
     gate.take_reactivation_avoidance(m_reactivation_avoidance.get());
     m_reactivation_avoidance.clear();
   }
@@ -455,7 +455,7 @@ void pqxx::transaction_base::unregister_focus(internal::transactionfocus *S)
   }
   catch (const std::exception &e)
   {
-    m_conn.process_notice(std::string(e.what()) + "\n");
+    m_conn.process_notice(std::string{e.what()} + "\n");
   }
 }
 
@@ -463,7 +463,7 @@ void pqxx::transaction_base::unregister_focus(internal::transactionfocus *S)
 pqxx::result pqxx::transaction_base::direct_exec(const char C[], int Retries)
 {
   CheckPendingError();
-  return gate::connection_transaction(conn()).exec(C, Retries);
+  return gate::connection_transaction{conn()}.exec(C, Retries);
 }
 
 
@@ -497,9 +497,9 @@ void pqxx::transaction_base::CheckPendingError()
 {
   if (not m_pending_error.empty())
   {
-    const std::string Err(m_pending_error);
+    const std::string Err{m_pending_error};
     m_pending_error.clear();
-    throw failure(Err);
+    throw failure{Err};
   }
 }
 
@@ -535,20 +535,20 @@ void pqxx::transaction_base::BeginCopyWrite(
 
 bool pqxx::transaction_base::read_copy_line(std::string &line)
 {
-  return gate::connection_transaction(conn()).read_copy_line(line);
+  return gate::connection_transaction{conn()}.read_copy_line(line);
 }
 
 
 void pqxx::transaction_base::write_copy_line(const std::string &line)
 {
-  gate::connection_transaction gate(conn());
+  gate::connection_transaction gate{conn()};
   gate.write_copy_line(line);
 }
 
 
 void pqxx::transaction_base::end_copy_write()
 {
-  gate::connection_transaction gate(conn());
+  gate::connection_transaction gate{conn()};
   gate.end_copy_write();
 }
 
@@ -561,7 +561,7 @@ encoding_group pqxx::transaction_base::current_encoding()
 
 void pqxx::internal::transactionfocus::register_me()
 {
-  gate::transaction_transactionfocus gate(m_trans);
+  gate::transaction_transactionfocus gate{m_trans};
   gate.register_focus(this);
   m_registered = true;
 }
@@ -569,7 +569,7 @@ void pqxx::internal::transactionfocus::register_me()
 
 void pqxx::internal::transactionfocus::unregister_me() noexcept
 {
-  gate::transaction_transactionfocus gate(m_trans);
+  gate::transaction_transactionfocus gate{m_trans};
   gate.unregister_focus(this);
   m_registered = false;
 }
@@ -578,6 +578,6 @@ void
 pqxx::internal::transactionfocus::reg_pending_error(const std::string &err)
 	noexcept
 {
-  gate::transaction_transactionfocus gate(m_trans);
+  gate::transaction_transactionfocus gate{m_trans};
   gate.register_pending_error(err);
 }

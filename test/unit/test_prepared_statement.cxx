@@ -153,7 +153,7 @@ void test_legacy_prepared_statement(transaction_base &T)
   // Test prepared statement with a binary parameter.
   C.prepare("GimmeBinary", "SELECT $1::bytea");
 
-  const binarystring bin_data(string("x \x01 \x02 \xff y"));
+  const binarystring bin_data{string{"x \x01 \x02 \xff y"}};
 
   PQXX_CHECK_EQUAL(
 	binarystring(T.prepared("GimmeBinary")(bin_data).exec()[0][0]).str(),
@@ -292,7 +292,7 @@ void test_strings(transaction_base &T)
 	string(nasty_string),
 	"Prepared statement did not quote/escape correctly.");
 
-  rw = T.exec_prepared1("EchoStr", string(nasty_string));
+  rw = T.exec_prepared1("EchoStr", string{nasty_string});
   PQXX_CHECK_EQUAL(
 	rw.front().as<string>(),
 	string(nasty_string),

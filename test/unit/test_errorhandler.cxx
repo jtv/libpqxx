@@ -22,7 +22,7 @@ public:
 
   virtual bool operator()(const char msg[]) noexcept override
   {
-    message = string(msg);
+    message = string{msg};
     handler_list.push_back(this);
     return return_value;
   }

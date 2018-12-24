@@ -101,8 +101,8 @@ inline auto perform(const TRANSACTION_CALLBACK &callback, int attempts=3)
   -> decltype(callback())
 {
   if (attempts <= 0)
-    throw std::invalid_argument(
-	"Zero or negative number of attempts passed to pqxx::perform().");
+    throw std::invalid_argument{
+	"Zero or negative number of attempts passed to pqxx::perform()."};
 
   for (; attempts > 0; --attempts)
   {
@@ -136,7 +136,7 @@ inline auto perform(const TRANSACTION_CALLBACK &callback, int attempts=3)
       continue;
     }
   }
-  throw pqxx::internal_error("No outcome reached on perform().");
+  throw pqxx::internal_error{"No outcome reached on perform()."};
 }
 
 /// @deprecated Pre-C++11 wrapper for automatically retrying transactions.
@@ -160,7 +160,7 @@ public:
   using argument_type = TRANSACTION;
   PQXX_DEPRECATED explicit transactor(					//[t04]
 	const std::string &TName="transactor") :
-    m_name(TName) { }
+    m_name{TName} { }
 
   /// Overridable transaction definition; insert your database code here
   /** The operation will be retried if the connection to the backend is lost or
@@ -237,10 +237,10 @@ inline void connection_base::perform(
     --Attempts;
 
     // Work on a copy of T2 so we can restore the starting situation if need be
-    TRANSACTOR T2(T);
+    TRANSACTOR T2{T};
     try
     {
-      typename TRANSACTOR::argument_type X(*this, T2.name());
+      typename TRANSACTOR::argument_type X{*this, T2.name()};
       T2(X);
       X.commit();
       Done = true;

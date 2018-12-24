@@ -23,8 +23,8 @@ pqxx::tablewriter::tablewriter(
 	transaction_base &T,
 	const std::string &WName,
 	const std::string &Null) :
-  namedclass("tablewriter", WName),
-  tablestream(T, Null)
+  namedclass{"tablewriter", WName},
+  tablestream{T, Null}
 {
   setup(T, WName);
 }
@@ -48,7 +48,7 @@ void pqxx::tablewriter::setup(
 	const std::string &WName,
 	const std::string &Columns)
 {
-  gate::transaction_tablewriter(T).BeginCopyWrite(WName, Columns);
+  gate::transaction_tablewriter{T}.BeginCopyWrite(WName, Columns);
   register_me();
 }
 
@@ -65,10 +65,10 @@ pqxx::tablewriter &pqxx::tablewriter::operator<<(pqxx::tablereader &R)
 void pqxx::tablewriter::write_raw_line(const std::string &Line)
 {
   const std::string::size_type len = Line.size();
-  gate::transaction_tablewriter(m_trans).write_copy_line(
+  gate::transaction_tablewriter{m_trans}.write_copy_line(
 	((len == 0) or (Line[len-1] != '\n')) ?
 	Line :
-        std::string(Line, 0, len-1));
+        std::string{Line, 0, len-1});
 }
 
 
@@ -85,7 +85,7 @@ void pqxx::tablewriter::writer_close()
     base_close();
     try
     {
-      gate::transaction_tablewriter(m_trans).end_copy_write();
+      gate::transaction_tablewriter{m_trans}.end_copy_write();
     }
     catch (const std::exception &)
     {

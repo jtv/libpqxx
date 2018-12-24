@@ -83,10 +83,10 @@ void pqxx_notice_processor(void *conn, const char *msg)
 std::string pqxx::encrypt_password(
         const std::string &user, const std::string &password)
 {
-  std::unique_ptr<char, void (*)(char *)> p(
+  std::unique_ptr<char, void (*)(char *)> p{
 	PQencryptPassword(password.c_str(), user.c_str()),
-        freepqmem_templated<char>);
-  return std::string(p.get());
+        freepqmem_templated<char>};
+  return std::string{p.get()};
 }
 
 
@@ -133,9 +133,9 @@ void pqxx::connection_base::activate()
   if (not is_open())
   {
     if (m_inhibit_reactivation)
-      throw broken_connection(
+      throw broken_connection{
 	"Could not reactivate connection; "
-	"reactivation is inhibited");
+	"reactivation is inhibited"};
 
     // If any objects were open that didn't survive the closing of our
     // connection, don't try to reactivate
@@ -147,7 +147,7 @@ void pqxx::connection_base::activate()
       m_conn = m_policy.do_completeconnect(m_conn);
       m_completed = true;	// (But retracted if error is thrown below)
 
-      if (not is_open()) throw broken_connection();
+      if (not is_open()) throw broken_connection{};
 
       set_up_state();
     }
@@ -155,7 +155,7 @@ void pqxx::connection_base::activate()
     {
       disconnect();
       m_completed = false;
-      throw broken_connection(e.what());
+      throw broken_connection{e.what()};
     }
     catch (const std::exception &)
     {
@@ -171,9 +171,9 @@ void pqxx::connection_base::deactivate()
   if (m_conn == nullptr) return;
 
   if (m_trans.get())
-    throw usage_error(
+    throw usage_error{
 	"Attempt to deactivate connection while " +
-	m_trans.get()->description() + " still open");
+	m_trans.get()->description() + " still open"};
 
   if (m_reactivation_avoidance.get())
   {
@@ -241,7 +241,7 @@ std::string pqxx::connection_base::raw_get_var(const std::string &Var)
   const auto i = m_vars.find(Var);
   if (i != m_vars.end()) return i->second;
 
-  return exec(("SHOW " + Var).c_str(), 0).at(0).at(0).as(std::string());
+  return exec(("SHOW " + Var).c_str(), 0).at(0).at(0).as(std::string{});
 }
 
 
@@ -258,13 +258,13 @@ void pqxx::connection_base::clearcaps() noexcept
 void pqxx::connection_base::set_up_state()
 {
   if (m_conn == nullptr)
-    throw internal_error("set_up_state() on no connection");
+    throw internal_error{"set_up_state() on no connection"};
 
   if (status() != CONNECTION_OK)
   {
     const auto msg = err_msg();
     m_conn = m_policy.do_disconnect(m_conn);
-    throw failure(msg);
+    throw failure{msg};
   }
 
   read_capabilities();
@@ -310,18 +310,18 @@ void pqxx::connection_base::set_up_state()
   }
 
   m_completed = true;
-  if (not is_open()) throw broken_connection();
+  if (not is_open()) throw broken_connection{};
 }
 
 
 void pqxx::connection_base::check_result(const result &R)
 {
-  if (not is_open()) throw broken_connection();
+  if (not is_open()) throw broken_connection{};
 
   // A shame we can't quite detect out-of-memory to turn this into a bad_alloc!
-  if (not gate::result_connection(R)) throw failure(err_msg());
+  if (not gate::result_connection{R}) throw failure(err_msg());
 
-  gate::result_creation(R).check_status();
+  gate::result_creation{R}.check_status();
 }
 
 
@@ -362,7 +362,7 @@ void pqxx::connection_base::process_notice(const char msg[]) noexcept
   else try
   {
     // Newline is missing.  Try the C++ string version of this function.
-    process_notice(std::string(msg));
+    process_notice(std::string{msg});
   }
   catch (const std::exception &)
   {
@@ -420,7 +420,7 @@ void pqxx::connection_base::trace(FILE *Out) noexcept
 
 void pqxx::connection_base::add_receiver(pqxx::notification_receiver *T)
 {
-  if (T == nullptr) throw argument_error("Null receiver registered");
+  if (T == nullptr) throw argument_error{"Null receiver registered"};
 
   // Add to receiver list and attempt to start listening.
   const auto p = m_receivers.find(T->channel());
@@ -454,8 +454,8 @@ void pqxx::connection_base::remove_receiver(pqxx::notification_receiver *T)
 
   try
   {
-    const std::pair<const std::string, notification_receiver *> needle(
-	T->channel(), T);
+    const std::pair<const std::string, notification_receiver *> needle{
+	T->channel(), T};
     auto R = m_receivers.equal_range(needle.first);
     const auto i = find(R.first, R.second, needle);
 
@@ -502,13 +502,13 @@ class cancel_wrapper
 
 public:
   explicit cancel_wrapper(PGconn *conn) :
-    m_cancel(nullptr),
-    m_errbuf()
+    m_cancel{nullptr},
+    m_errbuf{}
   {
     if (conn)
     {
       m_cancel = PQgetCancel(conn);
-      if (m_cancel == nullptr) throw std::bad_alloc();
+      if (m_cancel == nullptr) throw std::bad_alloc{};
     }
   }
   ~cancel_wrapper() { if (m_cancel) PQfreeCancel(m_cancel); }
@@ -516,8 +516,8 @@ public:
   void operator()()
   {
     if (not m_cancel) return;
-    if (PQcancel(m_cancel, m_errbuf, int(sizeof(m_errbuf))) == 0)
-      throw sql_error(std::string(m_errbuf));
+    if (PQcancel(m_cancel, m_errbuf, int{sizeof(m_errbuf)}) == 0)
+      throw sql_error{std::string{m_errbuf}};
   }
 };
 }
@@ -525,7 +525,7 @@ public:
 
 void pqxx::connection_base::cancel_query()
 {
-  cancel_wrapper cancel(m_conn);
+  cancel_wrapper cancel{m_conn};
   cancel();
 }
 
@@ -555,7 +555,7 @@ int pqxx::connection_base::get_notifs()
 {
   if (not is_open()) return 0;
 
-  if (not consume_input()) throw broken_connection();
+  if (not consume_input()) throw broken_connection{};
 
   // Even if somehow we receive notifications during our transaction, don't
   // deliver them.
@@ -566,7 +566,7 @@ int pqxx::connection_base::get_notifs()
   {
     notifs++;
 
-    const auto Hit = m_receivers.equal_range(std::string(N->relname));
+    const auto Hit = m_receivers.equal_range(std::string{N->relname});
     for (auto i = Hit.first; i != Hit.second; ++i) try
     {
       (*i->second)(N->extra, N->be_pid);
@@ -662,8 +662,8 @@ void pqxx::connection_base::unregister_errorhandler(errorhandler *handler)
 
 std::vector<errorhandler *> pqxx::connection_base::get_errorhandlers() const
 {
-  return std::vector<errorhandler *>(
-    std::begin(m_errorhandlers), std::end(m_errorhandlers));
+  return std::vector<errorhandler *>{
+    std::begin(m_errorhandlers), std::end(m_errorhandlers)};
 }
 
 
@@ -675,7 +675,7 @@ pqxx::result pqxx::connection_base::exec(const char Query[], int Retries)
 
   auto R = make_result(PQexec(m_conn, Query), Query);
 
-  while ((Retries > 0) and not gate::result_connection(R) and not is_open())
+  while ((Retries > 0) and not gate::result_connection{R} and not is_open())
   {
     Retries--;
     reset();
@@ -699,8 +699,8 @@ void pqxx::connection_base::prepare(
     if (definition != i->second.definition)
     {
       if (not name.empty())
-        throw argument_error(
-		"Inconsistent redefinition of prepared statement " + name);
+        throw argument_error{
+		"Inconsistent redefinition of prepared statement " + name};
 
       i->second.registered = false;
       i->second.definition = definition;
@@ -710,14 +710,14 @@ void pqxx::connection_base::prepare(
   {
     m_prepared.insert(make_pair(
 	name,
-	prepare::internal::prepared_def(definition)));
+	prepare::internal::prepared_def{definition}));
   }
 }
 
 
 void pqxx::connection_base::prepare(const std::string &definition)
 {
-  this->prepare(std::string(), definition);
+  this->prepare(std::string{}, definition);
 }
 
 
@@ -740,7 +740,7 @@ pqxx::connection_base::find_prepared(const std::string &statement)
 {
   auto s = m_prepared.find(statement);
   if (s == m_prepared.end())
-    throw argument_error("Unknown prepared statement '" + statement + "'");
+    throw argument_error{"Unknown prepared statement '" + statement + "'"};
   return s->second;
 }
 
@@ -835,8 +835,8 @@ bool pqxx::connection_base::prepared_exists(const std::string &statement) const
 void pqxx::connection_base::reset()
 {
   if (m_inhibit_reactivation)
-    throw broken_connection(
-	"Could not reset connection: reactivation is inhibited");
+    throw broken_connection{
+	"Could not reset connection: reactivation is inhibited"};
   if (m_reactivation_avoidance.get()) return;
 
   // TODO: Probably need to go through a full disconnect/reconnect!
@@ -887,7 +887,7 @@ void pqxx::connection_base::close() noexcept
 	rbegin = old_handlers.rbegin(),
 	rend = old_handlers.rend();
     for (auto i = rbegin; i!=rend; ++i)
-      gate::errorhandler_connection_base(**i).unregister();
+      gate::errorhandler_connection_base{**i}.unregister();
 
     m_conn = m_policy.do_disconnect(m_conn);
   }
@@ -951,7 +951,7 @@ void pqxx::connection_base::unregister_transaction(transaction_base *T)
 bool pqxx::connection_base::read_copy_line(std::string &Line)
 {
   if (not is_open())
-    throw internal_error("read_copy_line() without connection");
+    throw internal_error{"read_copy_line() without connection"};
 
   Line.erase();
   bool Result;
@@ -962,7 +962,7 @@ bool pqxx::connection_base::read_copy_line(std::string &Line)
   switch (line_len)
   {
   case -2:
-    throw failure("Reading of table data failed: " + std::string(err_msg()));
+    throw failure{"Reading of table data failed: " + std::string{err_msg()}};
 
   case -1:
     for (
@@ -975,7 +975,7 @@ bool pqxx::connection_base::read_copy_line(std::string &Line)
     break;
 
   case 0:
-    throw internal_error("table read inexplicably went asynchronous");
+    throw internal_error{"table read inexplicably went asynchronous"};
 
   default:
     if (Buf)
@@ -994,7 +994,7 @@ bool pqxx::connection_base::read_copy_line(std::string &Line)
 void pqxx::connection_base::write_copy_line(const std::string &Line)
 {
   if (not is_open())
-    throw internal_error("write_copy_line() without connection");
+    throw internal_error{"write_copy_line() without connection"};
 
   const std::string L = Line + '\n';
   const char *const LC = L.c_str();
@@ -1003,9 +1003,9 @@ void pqxx::connection_base::write_copy_line(const std::string &Line)
   if (PQputCopyData(m_conn, LC, int(Len)) <= 0)
   {
     const std::string msg = (
-        std::string("Error writing to table: ") + err_msg());
+        std::string{"Error writing to table: "} + err_msg());
     PQendcopy(m_conn);
-    throw failure(msg);
+    throw failure{msg};
   }
 }
 
@@ -1016,16 +1016,16 @@ void pqxx::connection_base::end_copy_write()
   switch (Res)
   {
   case -1:
-    throw failure("Write to table failed: " + std::string(err_msg()));
+    throw failure{"Write to table failed: " + std::string{err_msg()}};
   case 0:
-    throw internal_error("table write is inexplicably asynchronous");
+    throw internal_error{"table write is inexplicably asynchronous"};
   case 1:
     // Normal termination.  Retrieve result object.
     break;
 
   default:
-    throw internal_error(
-	"unexpected result " + to_string(Res) + " from PQputCopyEnd()");
+    throw internal_error{
+	"unexpected result " + to_string(Res) + " from PQputCopyEnd()"};
   }
 
   check_result(make_result(PQgetResult(m_conn), "[END COPY]"));
@@ -1037,13 +1037,13 @@ void pqxx::connection_base::start_exec(const std::string &Q)
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
   activate();
 #include <pqxx/internal/ignore-deprecated-post.hxx>
-  if (PQsendQuery(m_conn, Q.c_str()) == 0) throw failure(err_msg());
+  if (PQsendQuery(m_conn, Q.c_str()) == 0) throw failure{err_msg()};
 }
 
 
 pqxx::internal::pq::PGresult *pqxx::connection_base::get_result()
 {
-  if (m_conn == nullptr) throw broken_connection();
+  if (m_conn == nullptr) throw broken_connection{};
   return PQgetResult(m_conn);
 }
 
@@ -1065,8 +1065,8 @@ std::string pqxx::connection_base::esc(const char str[], size_t maxlen)
   std::vector<char> buf(2 * maxlen + 1);
   int err = 0;
   PQescapeStringConn(m_conn, buf.data(), str, maxlen, &err);
-  if (err) throw argument_error(err_msg());
-  return std::string(buf.data());
+  if (err) throw argument_error{err_msg()};
+  return std::string{buf.data()};
 }
 
 
@@ -1093,11 +1093,11 @@ std::string pqxx::connection_base::esc_raw(
   activate();
 #include <pqxx/internal/ignore-deprecated-post.hxx>
 
-  std::unique_ptr<unsigned char, void (*)(unsigned char *)> buf(
+  std::unique_ptr<unsigned char, void (*)(unsigned char *)> buf{
 	PQescapeByteaConn(m_conn, str, len, &bytes),
-	freepqmem_templated<unsigned char>);
-  if (buf.get() == nullptr) throw std::bad_alloc();
-  return std::string(reinterpret_cast<char *>(buf.get()));
+	freepqmem_templated<unsigned char>};
+  if (buf.get() == nullptr) throw std::bad_alloc{};
+  return std::string{reinterpret_cast<char *>(buf.get())};
 }
 
 
@@ -1107,7 +1107,7 @@ std::string pqxx::connection_base::unesc_raw(const char *text)
   unsigned char *bytes = const_cast<unsigned char *>(
 	reinterpret_cast<const unsigned char *>(text));
   const unsigned char *const buf = PQunescapeBytea(bytes, &len);
-  return std::string(buf, buf + len);
+  return std::string{buf, buf + len};
 }
 
 
@@ -1132,22 +1132,22 @@ std::string pqxx::connection_base::quote_name(const std::string &identifier)
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
   activate();
 #include <pqxx/internal/ignore-deprecated-post.hxx>
-  std::unique_ptr<char, void (*)(char *)> buf(
+  std::unique_ptr<char, void (*)(char *)> buf{
 	PQescapeIdentifier(m_conn, identifier.c_str(), identifier.size()),
-        freepqmem_templated<char>);
-  if (buf.get() == nullptr) throw failure(err_msg());
-  return std::string(buf.get());
+        freepqmem_templated<char>};
+  if (buf.get() == nullptr) throw failure{err_msg()};
+  return std::string{buf.get()};
 }
 
 
 pqxx::internal::reactivation_avoidance_exemption::
   reactivation_avoidance_exemption(
 	connection_base &C) :
-  m_home(C),
-  m_count(gate::connection_reactivation_avoidance_exemption(C).get_counter()),
-  m_open(C.is_open())
+  m_home{C},
+  m_count{gate::connection_reactivation_avoidance_exemption(C).get_counter()},
+  m_open{C.is_open()}
 {
-  gate::connection_reactivation_avoidance_exemption gate(C);
+  gate::connection_reactivation_avoidance_exemption gate{C};
   gate.clear_counter();
 }
 
@@ -1163,7 +1163,7 @@ pqxx::internal::reactivation_avoidance_exemption::
     m_home.deactivate();
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   }
-  gate::connection_reactivation_avoidance_exemption gate(m_home);
+  gate::connection_reactivation_avoidance_exemption gate{m_home};
   gate.add_counter(m_count);
 }
 
@@ -1174,7 +1174,7 @@ namespace
 // Convert a timeval to milliseconds, or -1 if no timeval is given.
 inline int tv_milliseconds(timeval *tv = nullptr)
 {
-  return tv ? int(tv->tv_sec * 1000 + tv->tv_usec/1000) : -1;
+  return tv ? int{tv->tv_sec * 1000 + tv->tv_usec/1000} : -1;
 }
 #endif
 
@@ -1182,7 +1182,7 @@ inline int tv_milliseconds(timeval *tv = nullptr)
 /// Wait for an fd to become free for reading/writing.  Optional timeout.
 void wait_fd(int fd, bool forwrite=false, timeval *tv=nullptr)
 {
-  if (fd < 0) throw pqxx::broken_connection();
+  if (fd < 0) throw pqxx::broken_connection{};
 
 // WSAPoll is available in winsock2.h only for versions of Windows >= 0x0600
 #if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
@@ -1190,8 +1190,8 @@ void wait_fd(int fd, bool forwrite=false, timeval *tv=nullptr)
   WSAPOLLFD fdarray{SOCKET(fd), events, 0};
   WSAPoll(&fdarray, 1, tv_milliseconds(tv));
 #elif defined(HAVE_POLL)
-  const short events = short(
-        POLLERR|POLLHUP|POLLNVAL | (forwrite?POLLOUT:POLLIN));
+  const short events = short{
+        POLLERR|POLLHUP|POLLNVAL | (forwrite?POLLOUT:POLLIN)};
   pollfd pfd{fd, events, 0};
   poll(&pfd, 1, tv_milliseconds(tv));
 #else
@@ -1295,16 +1295,16 @@ void pqxx::connection_base::read_capabilities()
 {
   m_serverversion = PQserverVersion(m_conn);
   if (m_serverversion <= 90000)
-    throw feature_not_supported(
-	"Unsupported server version; 9.0 is the minimum.");
+    throw feature_not_supported{
+	"Unsupported server version; 9.0 is the minimum."};
 
   switch (protocol_version()) {
   case 0:
-    throw broken_connection();
+    throw broken_connection{};
   case 1:
   case 2:
-    throw feature_not_supported(
-        "Unsupported frontend/backend protocol version; 3.0 is the minimum.");
+    throw feature_not_supported{
+        "Unsupported frontend/backend protocol version; 3.0 is the minimum."};
   default:
     break;
   }

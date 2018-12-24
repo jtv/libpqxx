@@ -102,12 +102,12 @@ template<typename Columns> stream_from::stream_from(
   transaction_base &tb,
   const std::string &table_name,
   const Columns& columns
-) : stream_from(
+) : stream_from{
   tb,
   table_name,
   std::begin(columns),
   std::end(columns)
-) {}
+} {}
 
 
 template<typename Iter> stream_from::stream_from(
@@ -116,8 +116,8 @@ template<typename Iter> stream_from::stream_from(
   Iter columns_begin,
   Iter columns_end
 ) :
-  namedclass("stream_from", table_name),
-  stream_base(tb)
+  namedclass{"stream_from", table_name},
+  stream_base{tb}
 {
   setup(
     tb,

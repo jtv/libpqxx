@@ -92,10 +92,10 @@ public:
 	{ return *(data()+m_size-1); }
 
   const_reverse_iterator rbegin() const					//[t62]
-	{ return const_reverse_iterator(end()); }
+	{ return const_reverse_iterator{end()}; }
   const_reverse_iterator crbegin() const { return rbegin(); }
   const_reverse_iterator rend() const					//[t62]
-	{ return const_reverse_iterator(begin()); }
+	{ return const_reverse_iterator{begin()}; }
   const_reverse_iterator crend() const { return rend(); }
 
   /// Unescaped field contents
@@ -138,9 +138,9 @@ private:
   /// Shorthand: construct a smart_pointer_type.
   static smart_pointer_type make_smart_pointer(unsigned char *buf=nullptr)
   {
-    return smart_pointer_type(
+    return smart_pointer_type{
 	buf,
-	internal::freemallocmem_templated<unsigned char>);
+	internal::freemallocmem_templated<unsigned char>};
   }
 
   smart_pointer_type m_buf;

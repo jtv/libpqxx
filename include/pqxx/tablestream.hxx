@@ -29,7 +29,7 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE tablestream :
 public:
   explicit tablestream(
 	transaction_base &Trans,
-	const std::string &Null=std::string());
+	const std::string &Null=std::string{});
   virtual ~tablestream() noexcept =0;
   virtual void complete() =0;
 protected:

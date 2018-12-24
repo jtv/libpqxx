@@ -34,7 +34,7 @@ public:
   PQXX_DEPRECATED tablewriter(
 	transaction_base &,
 	const std::string &WName,
-	const std::string &Null=std::string());
+	const std::string &Null=std::string{});
   template<typename ITER>
         PQXX_DEPRECATED tablewriter(
 	transaction_base &,
@@ -64,7 +64,7 @@ private:
   void setup(
 	transaction_base &,
 	const std::string &WName,
-	const std::string &Columns = std::string());
+	const std::string &Columns = std::string{});
   PQXX_PRIVATE void writer_close();
 };
 } // namespace pqxx
@@ -78,7 +78,7 @@ template<>
 {
 public:
   explicit back_insert_iterator(pqxx::tablewriter &W) noexcept :
-    m_writer(&W) {}
+    m_writer{&W} {}
 
   back_insert_iterator &
     operator=(const back_insert_iterator &rhs) noexcept
@@ -111,8 +111,8 @@ template<typename ITER> inline tablewriter::tablewriter(
 	const std::string &WName,
 	ITER begincolumns,
 	ITER endcolumns) :
-  namedclass("tablewriter", WName),
-  tablestream(T, std::string())
+  namedclass{"tablewriter", WName},
+  tablestream{T, std::string{}}
 {
   setup(T, WName, columnlist(begincolumns, endcolumns));
 }
@@ -124,8 +124,8 @@ template<typename ITER> inline tablewriter::tablewriter(
 	ITER begincolumns,
 	ITER endcolumns,
 	const std::string &Null) :
-  namedclass("tablewriter", WName),
-  tablestream(T, Null)
+  namedclass{"tablewriter", WName},
+  tablestream{T, Null}
 {
   setup(T, WName, columnlist(begincolumns, endcolumns));
 }
@@ -145,7 +145,7 @@ inline std::string escape_any(
 inline std::string escape_any(
 	const char s[],
 	const std::string &null)
-{ return s ? escape(std::string(s), null) : "\\N"; }
+{ return s ? escape(std::string{s}, null) : "\\N"; }
 
 template<typename T> inline std::string escape_any(
 	const T &t,
@@ -157,7 +157,7 @@ template<typename IT> class Escaper
 {
   const std::string &m_null;
 public:
-  explicit Escaper(const std::string &null) : m_null(null) {}
+  explicit Escaper(const std::string &null) : m_null{null} {}
   std::string operator()(IT i) const { return escape_any(*i, m_null); }
 };
 }
@@ -166,7 +166,7 @@ public:
 template<typename IT>
 inline std::string tablewriter::generate(IT Begin, IT End) const
 {
-  return separated_list("\t", Begin, End, internal::Escaper<IT>(NullStr()));
+  return separated_list("\t", Begin, End, internal::Escaper<IT>{NullStr()});
 }
 template<typename TUPLE>
 inline std::string tablewriter::generate(const TUPLE &T) const

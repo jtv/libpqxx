@@ -23,10 +23,10 @@ using namespace pqxx::internal;
 pqxx::subtransaction::subtransaction(
 	dbtransaction &T,
 	const std::string &Name) :
-  namedclass("subtransaction", T.conn().adorn_name(Name)),
-  transactionfocus(T),
-  dbtransaction(T.conn(), false),
-  m_parent(T)
+  namedclass{"subtransaction", T.conn().adorn_name(Name)},
+  transactionfocus{T},
+  dbtransaction{T.conn(), false},
+  m_parent{T}
 {
 }
 
@@ -40,7 +40,7 @@ using dbtransaction_ref = pqxx::dbtransaction &;
 pqxx::subtransaction::subtransaction(
 	subtransaction &T,
 	const std::string &Name) :
-  subtransaction(dbtransaction_ref(T), Name)
+  subtransaction{dbtransaction_ref(T), Name}
 {
 }
 
@@ -63,7 +63,7 @@ void pqxx::subtransaction::do_commit()
   const int ra = m_reactivation_avoidance.get();
   m_reactivation_avoidance.clear();
   direct_exec(("RELEASE SAVEPOINT " + quote_name(name())).c_str());
-  gate::transaction_subtransaction(m_parent).add_reactivation_avoidance_count(
+  gate::transaction_subtransaction{m_parent}.add_reactivation_avoidance_count(
 	ra);
 }
 

@@ -200,7 +200,7 @@ private:
   /// Factory for data_pointer.
   static data_pointer make_data_pointer(
 	const internal::pq::PGresult *res=nullptr)
-	{ return data_pointer(res, internal::clear_result); }
+	{ return data_pointer{res, internal::clear_result}; }
 
   /// Query string.
   std::shared_ptr<std::string> m_query;

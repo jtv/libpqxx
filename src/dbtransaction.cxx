@@ -21,7 +21,7 @@ namespace
 {
 std::string generate_set_transaction(
 	pqxx::readwrite_policy rw,
-	const std::string &IsolationString=std::string())
+	const std::string &IsolationString=std::string{})
 {
   std::string args;
 
@@ -35,7 +35,7 @@ std::string generate_set_transaction(
 	pqxx::internal::sql_begin_work
 	:
 	(
-          std::string(pqxx::internal::sql_begin_work) +
+          std::string{pqxx::internal::sql_begin_work} +
           "; SET TRANSACTION" +
           args
 	);
@@ -47,8 +47,8 @@ pqxx::dbtransaction::dbtransaction(
 	connection_base &C,
 	const std::string &IsolationString,
 	readwrite_policy rw) :
-  namedclass("dbtransaction"),
-  transaction_base(C),
+  namedclass{"dbtransaction"},
+  transaction_base{C},
   m_start_cmd(generate_set_transaction(rw, IsolationString))
 {
 }
@@ -58,9 +58,9 @@ pqxx::dbtransaction::dbtransaction(
 	connection_base &C,
 	bool direct,
 	readwrite_policy rw) :
-  namedclass("dbtransaction"),
-  transaction_base(C, direct),
-  m_start_cmd(generate_set_transaction(rw))
+  namedclass{"dbtransaction"},
+  transaction_base{C, direct},
+  m_start_cmd{generate_set_transaction(rw)}
 {
 }
 

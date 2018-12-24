@@ -26,9 +26,9 @@ pqxx::internal::basic_robusttransaction::basic_robusttransaction(
 	connection_base &C,
 	const std::string &IsolationLevel,
 	const std::string &table_name) :
-  namedclass("robusttransaction"),
-  dbtransaction(C, IsolationLevel),
-  m_log_table(table_name)
+  namedclass{"robusttransaction"},
+  dbtransaction{C, IsolationLevel},
+  m_log_table{table_name}
 {
   if (table_name.empty()) m_log_table = "pqxx_robusttransaction_log";
   m_sequence = m_log_table + "_seq";
@@ -71,7 +71,7 @@ void pqxx::internal::basic_robusttransaction::do_begin()
 void pqxx::internal::basic_robusttransaction::do_commit()
 {
   if (m_record_id == 0)
-    throw internal_error("transaction '" + name() + "' has no ID");
+    throw internal_error{"transaction '" + name() + "' has no ID."};
 
   // Check constraints before sending the COMMIT to the database to reduce the
   // work being done inside our in-doubt window.
@@ -142,9 +142,9 @@ void pqxx::internal::basic_robusttransaction::do_commit()
     process_notice(
 	"Could not verify existence of transaction record because of the "
 	"following error:\n");
-    process_notice(std::string(f.what()) + "\n");
+    process_notice(std::string{f.what()} + "\n");
 
-    throw in_doubt_error(Msg);
+    throw in_doubt_error{Msg};
   }
 
   // Transaction record is still there, so the transaction failed and all we
@@ -152,7 +152,7 @@ void pqxx::internal::basic_robusttransaction::do_commit()
   if (exists)
   {
     do_abort();
-    throw broken_connection("Connection lost while committing.");
+    throw broken_connection{"Connection lost while committing."};
   }
 
   // Otherwise, the transaction succeeded.  Forget there was ever an error.
@@ -187,7 +187,7 @@ void pqxx::internal::basic_robusttransaction::CreateLogTable()
   catch (const std::exception &e)
   {
     conn().process_notice(
-	"Could not create transaction log table: " + std::string(e.what()));
+	"Could not create transaction log table: " + std::string{e.what()});
   }
 
   try
@@ -197,7 +197,7 @@ void pqxx::internal::basic_robusttransaction::CreateLogTable()
   catch (const std::exception &e)
   {
     conn().process_notice(
-	"Could not create transaction log sequence: " + std::string(e.what()));
+	"Could not create transaction log sequence: " + std::string{e.what()});
   }
 }
 
@@ -210,7 +210,7 @@ void pqxx::internal::basic_robusttransaction::CreateTransactionRecord()
 	"WHERE date < CURRENT_TIMESTAMP - '30 days'::interval").c_str());
 
   // Allocate id.
-  const std::string sql_get_id("SELECT nextval(" + quote(m_sequence) + ")");
+  const std::string sql_get_id{"SELECT nextval(" + quote(m_sequence) + ")"};
   direct_exec(sql_get_id.c_str())[0][0].to(m_record_id);
 
   direct_exec((
@@ -276,8 +276,8 @@ bool pqxx::internal::basic_robusttransaction::CheckTransactionRecord()
   {
     if (conn().server_version() > 80300)
     {
-      const std::string query(
-	"SELECT " + m_xid + " >= txid_snapshot_xmin(txid_current_snapshot())");
+      const std::string query{
+	"SELECT " + m_xid + " >= txid_snapshot_xmin(txid_current_snapshot())"};
       direct_exec(query.c_str())[0][0].to(hold);
     }
     else
@@ -294,17 +294,17 @@ bool pqxx::internal::basic_robusttransaction::CheckTransactionRecord()
        * relation exists but no such record is found, then the transaction is no
        * longer running.
        */
-      const result R(direct_exec((
+      const result R{direct_exec((
 	"SELECT current_query "
 	"FROM pq_stat_activity "
-	"WHERE procpid = " + to_string(m_backendpid)).c_str()));
+	"WHERE procpid = " + to_string(m_backendpid)).c_str())};
       hold = not R.empty();
     }
   }
 
   if (hold)
-    throw in_doubt_error(
-	"Old backend process stays alive too long to wait for.");
+    throw in_doubt_error{
+	"Old backend process stays alive too long to wait for."};
 
   // Now look for our transaction record
   const std::string Find =

@@ -17,19 +17,19 @@ pqxx::pqxx_exception::~pqxx_exception() noexcept
 
 
 pqxx::failure::failure(const std::string &whatarg) :
-  std::runtime_error(whatarg)
+  std::runtime_error{whatarg}
 {
 }
 
 
 pqxx::broken_connection::broken_connection() :
-  failure("Connection to database failed")
+  failure{"Connection to database failed"}
 {
 }
 
 
 pqxx::broken_connection::broken_connection(const std::string &whatarg) :
-  failure(whatarg)
+  failure{whatarg}
 {
 }
 
@@ -38,9 +38,9 @@ pqxx::sql_error::sql_error(
 	const std::string &whatarg,
 	const std::string &Q,
 	const char sqlstate[]) :
-  failure(whatarg),
-  m_query(Q),
-  m_sqlstate(sqlstate ? sqlstate : "")
+  failure{whatarg},
+  m_query{Q},
+  m_sqlstate{sqlstate ? sqlstate : ""}
 {
 }
 
@@ -63,62 +63,62 @@ PQXX_PURE const std::string &pqxx::sql_error::sqlstate() const noexcept
 
 
 pqxx::in_doubt_error::in_doubt_error(const std::string &whatarg) :
-  failure(whatarg)
+  failure{whatarg}
 {
 }
 
 
 pqxx::transaction_rollback::transaction_rollback(const std::string &whatarg) :
-  failure(whatarg)
+  failure{whatarg}
 {
 }
 
 
 pqxx::serialization_failure::serialization_failure(
 	const std::string &whatarg) :
-  transaction_rollback(whatarg)
+  transaction_rollback{whatarg}
 {
 }
 
 
 pqxx::statement_completion_unknown::statement_completion_unknown(
 	const std::string &whatarg) :
-  transaction_rollback(whatarg)
+  transaction_rollback{whatarg}
 {
 }
 
 
 pqxx::deadlock_detected::deadlock_detected(const std::string &whatarg) :
-  transaction_rollback(whatarg)
+  transaction_rollback{whatarg}
 {
 }
 
 
 pqxx::internal_error::internal_error(const std::string &whatarg) :
-  logic_error("libpqxx internal error: " + whatarg)
+  logic_error{"libpqxx internal error: " + whatarg}
 {
 }
 
 
 pqxx::usage_error::usage_error(const std::string &whatarg) :
-  logic_error(whatarg)
+  logic_error{whatarg}
 {
 }
 
 
 pqxx::argument_error::argument_error(const std::string &whatarg) :
-  invalid_argument(whatarg)
+  invalid_argument{whatarg}
 {
 }
 
 
 pqxx::conversion_error::conversion_error(const std::string &whatarg) :
-  domain_error(whatarg)
+  domain_error{whatarg}
 {
 }
 
 
 pqxx::range_error::range_error(const std::string &whatarg) :
-  out_of_range(whatarg)
+  out_of_range{whatarg}
 {
 }

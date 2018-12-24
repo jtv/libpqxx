@@ -237,13 +237,13 @@ inline void end_of_statement()
 	  catch (const pqxx::test::failure_to_fail &) \
 	  { \
 	    PQXX_CHECK_NOTREACHED( \
-		std::string(desc) + " (\"" #action "\" did not throw)"); \
+		std::string{desc} + " (\"" #action "\" did not throw)"); \
 	  } \
 	  catch (const std::exception &) {} \
           catch (...) \
           { \
             PQXX_CHECK_NOTREACHED( \
-		std::string(desc) + \
+		std::string{desc} + \
 		" (\"" #action "\" threw non-exception type)"); \
           } \
 	} \
@@ -260,14 +260,14 @@ inline void end_of_statement()
 	  catch (const pqxx::test::failure_to_fail &) \
 	  { \
 	    PQXX_CHECK_NOTREACHED( \
-		std::string(desc) + \
+		std::string{desc} + \
 		" (\"" #action "\" did not throw " #exception_type ")"); \
 	  } \
 	  catch (const exception_type &) {} \
 	  catch (const std::exception &e) \
 	  { \
 	    PQXX_CHECK_NOTREACHED( \
-		std::string(desc) + \
+		std::string{desc} + \
 		" (\"" #action "\" " \
 		"threw exception other than " #exception_type ": " + \
                 e.what() + ")"); \
@@ -275,7 +275,7 @@ inline void end_of_statement()
           catch (...) \
           { \
             PQXX_CHECK_NOTREACHED( \
-		std::string(desc) + \
+		std::string{desc} + \
 		" (\"" #action "\" threw non-exception type)"); \
           } \
 	} \
@@ -305,9 +305,9 @@ inline void check_bounds(
 	const std::string &desc)
 {
   const std::string
-	range_check = std::string(lower_text) + " < " + upper_text,
-	lower_check = std::string("!(") + text + " < " + lower_text + ")",
-	upper_check = std::string(text) + " < " + upper_text;
+	range_check = std::string{lower_text} + " < " + upper_text,
+	lower_check = std::string{"!("} + text + " < " + lower_text + ")",
+	upper_check = std::string{text} + " < " + upper_text;
 
   pqxx::test::check(
 	file,

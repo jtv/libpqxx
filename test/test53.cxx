@@ -32,7 +32,7 @@ void test_053(transaction_base &orgT)
     {
       char Buf[200];
       work tx{C};
-      largeobjectaccess O(tx, Obj, ios::in);
+      largeobjectaccess O{tx, Obj, ios::in};
       const auto len = O.read(Buf, sizeof(Buf)-1);
       PQXX_CHECK_EQUAL(
 	string(Buf, string::size_type(len)),

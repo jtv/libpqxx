@@ -52,7 +52,7 @@ void test_046(transaction_base &T)
 
   string S, S2, S3;
   from_string(R[0].c_str(), S);
-  from_string(string(R[0].c_str()), S2);
+  from_string(string{R[0].c_str()}, S2);
   from_string(R[0], S3);
 
   PQXX_CHECK_EQUAL(

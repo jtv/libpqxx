@@ -91,12 +91,12 @@ public:
    * may contain letters and digits only
    */
   explicit transaction(connection_base &C, const std::string &TName):	//[t01]
-    namedclass(fullname("transaction", isolation_tag::name()), TName),
-    internal::basic_transaction(C, isolation_tag::name(), READWRITE)
+    namedclass{fullname("transaction", isolation_tag::name()), TName},
+    internal::basic_transaction{C, isolation_tag::name(), READWRITE}
 	{ Begin(); }
 
   explicit transaction(connection_base &C) :				//[t01]
-    transaction(C, "") {}
+    transaction{C, ""} {}
 
   virtual ~transaction() noexcept
 	{ End(); }

@@ -52,7 +52,7 @@ namespace pqxx
  *   try
  *   {
  *     subtransaction S(W, "droptemp");
- *     S.exec("DROP TABLE " + temptable);
+ *     S.exec0("DROP TABLE " + temptable);
  *     S.commit();
  *   }
  *   catch (const undefined_table &)
@@ -83,11 +83,11 @@ class PQXX_LIBEXPORT subtransaction :
 public:
   /// Nest a subtransaction nested in another transaction.
   explicit subtransaction(						//[t88]
-	dbtransaction &T, const std::string &Name=std::string());
+	dbtransaction &T, const std::string &Name=std::string{});
 
   /// Nest a subtransaction in another subtransaction.
   explicit subtransaction(
-	subtransaction &T, const std::string &Name=std::string());
+	subtransaction &T, const std::string &Name=std::string{});
 
   virtual ~subtransaction() noexcept
 	{ End(); }
@@ -99,10 +99,7 @@ private:
 
   dbtransaction &m_parent;
 };
-
 }
 
-
 #include "pqxx/compiler-internal-post.hxx"
-
 #endif
