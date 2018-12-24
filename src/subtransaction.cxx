@@ -40,7 +40,7 @@ using dbtransaction_ref = pqxx::dbtransaction &;
 pqxx::subtransaction::subtransaction(
 	subtransaction &T,
 	const std::string &Name) :
-  subtransaction{dbtransaction_ref(T), Name}
+  subtransaction(dbtransaction_ref(T), Name)
 {
 }
 
