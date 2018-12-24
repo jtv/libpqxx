@@ -49,7 +49,7 @@ pqxx::dbtransaction::dbtransaction(
 	readwrite_policy rw) :
   namedclass{"dbtransaction"},
   transaction_base{C},
-  m_start_cmd(generate_set_transaction(rw, IsolationString))
+  m_start_cmd{generate_set_transaction(rw, IsolationString)}
 {
 }
 
@@ -59,7 +59,7 @@ pqxx::dbtransaction::dbtransaction(
 	bool direct,
 	readwrite_policy rw) :
   namedclass{"dbtransaction"},
-  transaction_base{C, direct},
+  transaction_base(C, direct),
   m_start_cmd{generate_set_transaction(rw)}
 {
 }
