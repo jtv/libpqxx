@@ -27,7 +27,7 @@ pqxx::internal::basic_robusttransaction::basic_robusttransaction(
 	const std::string &IsolationLevel,
 	const std::string &table_name) :
   namedclass{"robusttransaction"},
-  dbtransaction{C, IsolationLevel},
+  dbtransaction(C, IsolationLevel),
   m_log_table{table_name}
 {
   if (table_name.empty()) m_log_table = "pqxx_robusttransaction_log";
