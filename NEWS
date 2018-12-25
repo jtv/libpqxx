@@ -1,6 +1,8 @@
 6.3.0
  - Still in progress.  Caution is advised!
- - Cursor, subtransaction, and notifier names are now *case-sensitive.*
+ - Notification receivers are now *case-sensitive.*  Spell them right!
+ - New "table stream" classes by Joseph Durel: stream_from/stream_to.
+ - Support weird characters in more identifiers.
  - Connection policies are deprecated.  It'll all be one class in 7.0!
  - Connection deactivation/reactivation is deprecated.
  - Some items that were documented as deprecated are now also declared as such.
@@ -12,11 +14,8 @@
  - In Visual Studio, build for host architecture, not "x64".
  - Fix string conversion link error in Visual Studio.  Thanks Ivan Poiakov.
  - Fix in escaping of strings in arrays.  Thanks smirql.
- - When copying results, share the query string.  Thanks Vsevolod Strukchinsky.
- - Instead of "!", "&&", and "||"; use "not", "and", and "or".
- - Starting to handle encodings properly, thanks to Joseph Durel.
- - New "table stream" classes by Joseph Durel: stream_from/stream_to.
- - Support weird characters in more identifiers.
+ - Faster copying of results of large queries.  Thanks Vsevolod Strukchinsky.
+ - Starting to handle encodings properly!  Thanks to Joseph Durel.
 6.2.5
  - Removed deprecated pqxx-config.
  - Build fix on Visual C++ when not defining NOMINMAX.
