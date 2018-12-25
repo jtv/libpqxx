@@ -145,7 +145,7 @@ template<typename T> void from_string_unsigned(const char Str[], T &Obj)
 namespace
 {
 /// C string comparison.
-inline constexpr bool equal(const char lhs[], const char rhs[])
+inline bool equal(const char lhs[], const char rhs[])
 {
   return strcmp(lhs, rhs) == 0;
 }

@@ -133,7 +133,7 @@ const pqxx::row pqxx::result::at(pqxx::result::size_type i) const
 namespace
 {
 /// C string comparison.
-inline constexpr bool equal(const char lhs[], const char rhs[])
+inline bool equal(const char lhs[], const char rhs[])
 {
   return strcmp(lhs, rhs) == 0;
 }
