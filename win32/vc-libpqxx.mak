@@ -117,6 +117,7 @@ OBJ_STATICDEBUG=\
        "$(INTDIR_STATICDEBUG)\result.obj" \
        "$(INTDIR_STATICDEBUG)\robusttransaction.obj" \
        "$(INTDIR_STATICDEBUG)\row.obj" \
+       "$(INTDIR_STATICDEBUG)\sql_cursor.obj" \
        "$(INTDIR_STATICDEBUG)\statement_parameters.obj" \
        "$(INTDIR_STATICDEBUG)\strconv.obj" \
        "$(INTDIR_STATICDEBUG)\stream_base.obj" \
@@ -150,6 +151,7 @@ OBJ_STATICRELEASE=\
        "$(INTDIR_STATICRELEASE)\result.obj" \
        "$(INTDIR_STATICRELEASE)\robusttransaction.obj" \
        "$(INTDIR_STATICRELEASE)\row.obj" \
+       "$(INTDIR_STATICRELEASE)\sql_cursor.obj" \
        "$(INTDIR_STATICRELEASE)\statement_parameters.obj" \
        "$(INTDIR_STATICRELEASE)\strconv.obj" \
        "$(INTDIR_STATICRELEASE)\stream_base.obj" \
@@ -183,6 +185,7 @@ OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\result.obj" \
        "$(INTDIR_DLLDEBUG)\robusttransaction.obj" \
        "$(INTDIR_DLLDEBUG)\row.obj" \
+       "$(INTDIR_DLLDEBUG)\sql_cursor.obj" \
        "$(INTDIR_DLLDEBUG)\statement_parameters.obj" \
        "$(INTDIR_DLLDEBUG)\strconv.obj" \
        "$(INTDIR_DLLDEBUG)\stream_base.obj" \
@@ -217,6 +220,7 @@ OBJ_DLLRELEASE=\
        "$(INTDIR_DLLRELEASE)\result.obj" \
        "$(INTDIR_DLLRELEASE)\robusttransaction.obj" \
        "$(INTDIR_DLLRELEASE)\row.obj" \
+       "$(INTDIR_DLLRELEASE)\sql_cursor.obj" \
        "$(INTDIR_DLLRELEASE)\statement_parameters.obj" \
        "$(INTDIR_DLLRELEASE)\strconv.obj" \
        "$(INTDIR_DLLRELEASE)\stream_base.obj" \
@@ -458,6 +462,13 @@ $(INTDIR_DLLRELEASE)::
 	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/row.cxx
 
 
+"$(INTDIR_STATICRELEASE)\sql_cursor.obj": src/sql_cursor.cxx $(INTDIR_STATICRELEASE)
+	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/sql_cursor.cxx
+
+"$(INTDIR_STATICDEBUG)\sql_cursor.obj": src/sql_cursor.cxx $(INTDIR_STATICDEBUG)
+	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/sql_cursor.cxx
+
+
 "$(INTDIR_STATICRELEASE)\statement_parameters.obj": src/statement_parameters.cxx $(INTDIR_STATICRELEASE)
 	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/statement_parameters.cxx
 
@@ -675,6 +686,13 @@ $(INTDIR_DLLRELEASE)::
 
 "$(INTDIR_DLLDEBUG)\row.obj": src/row.cxx $(INTDIR_DLLDEBUG)
 	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/row.cxx
+
+
+"$(INTDIR_DLLRELEASE)\sql_cursor.obj": src/sql_cursor.cxx $(INTDIR_DLLRELEASE)
+	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/sql_cursor.cxx
+
+"$(INTDIR_DLLDEBUG)\sql_cursor.obj": src/sql_cursor.cxx $(INTDIR_DLLDEBUG)
+	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/sql_cursor.cxx
 
 
 "$(INTDIR_DLLRELEASE)\statement_parameters.obj": src/statement_parameters.cxx $(INTDIR_DLLRELEASE)

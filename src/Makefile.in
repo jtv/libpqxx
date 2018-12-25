@@ -138,9 +138,9 @@ am_libpqxx_la_OBJECTS = array.lo binarystring.lo connection_base.lo \
 	errorhandler.lo except.lo field.lo largeobject.lo \
 	nontransaction.lo notification.lo pipeline.lo \
 	prepared_statement.lo result.lo robusttransaction.lo \
-	statement_parameters.lo strconv.lo stream_base.lo \
-	stream_from.lo stream_to.lo subtransaction.lo tablereader.lo \
-	tablestream.lo tablewriter.lo transaction.lo \
+	sql_cursor.lo statement_parameters.lo strconv.lo \
+	stream_base.lo stream_from.lo stream_to.lo subtransaction.lo \
+	tablereader.lo tablestream.lo tablewriter.lo transaction.lo \
 	transaction_base.lo row.lo util.lo version.lo
 libpqxx_la_OBJECTS = $(am_libpqxx_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -366,6 +366,7 @@ libpqxx_la_SOURCES = \
 	prepared_statement.cxx \
 	result.cxx \
 	robusttransaction.cxx \
+	sql_cursor.cxx \
 	statement_parameters.cxx \
 	strconv.cxx \
 	stream_base.cxx \
@@ -490,6 +491,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/result.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/robusttransaction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/row.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sql_cursor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/statement_parameters.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strconv.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stream_base.Plo@am__quote@

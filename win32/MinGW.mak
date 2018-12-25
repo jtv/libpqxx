@@ -37,6 +37,7 @@ OBJ = \
   src/result.o \
   src/robusttransaction.o \
   src/row.o \
+  src/sql_cursor.o \
   src/statement_parameters.o \
   src/strconv.o \
   src/stream_base.o \
@@ -127,6 +128,9 @@ src/robusttransaction.o: src/robusttransaction.cxx
 
 src/row.o: src/row.cxx
 	$(CXX) $(CPPFLAGS) -c src/row.cxx -o src/row.o $(CXXFLAGS)
+
+src/sql_cursor.o: src/sql_cursor.cxx
+	$(CXX) $(CPPFLAGS) -c src/sql_cursor.cxx -o src/sql_cursor.o $(CXXFLAGS)
 
 src/statement_parameters.o: src/statement_parameters.cxx
 	$(CXX) $(CPPFLAGS) -c src/statement_parameters.cxx -o src/statement_parameters.o $(CXXFLAGS)

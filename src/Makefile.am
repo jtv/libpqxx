@@ -17,6 +17,7 @@ libpqxx_la_SOURCES = \
 	prepared_statement.cxx \
 	result.cxx \
 	robusttransaction.cxx \
+	sql_cursor.cxx \
 	statement_parameters.cxx \
 	strconv.cxx \
 	stream_base.cxx \
