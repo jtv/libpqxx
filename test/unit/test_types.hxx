@@ -17,8 +17,9 @@ class ipv4
 {
 public:
   ipv4() : m_as_int{0u} {}
-  ipv4(const ipv4 &o) : m_as_int(o.m_as_int) {}
-  ipv4(uint32_t i) : m_as_int{i} {}
+  ipv4(const ipv4 &) =default;
+  ipv4(ipv4 &&) =default;
+  explicit ipv4(uint32_t i) : m_as_int{i} {}
   ipv4(
     unsigned char b1,
     unsigned char b2,
@@ -27,7 +28,6 @@ public:
   ) :
     m_as_int{uint32_t(b1) << 24 | uint32_t(b2) << 16 | uint32_t(b3) << 8 | b4}
   {}
-  ipv4(ipv4&&) =default;
 
   bool operator==(const ipv4 &o) const { return m_as_int == o.m_as_int; }
   ipv4 &operator=(const ipv4 &) =default;
