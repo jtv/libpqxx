@@ -21,32 +21,31 @@ namespace pqxx
 namespace internal
 {
 
-/** Struct for representing position & size of multi-byte sequences
- *
- * begin_byte - First byte in the sequence
- * end_byte   - One more than last byte in the sequence
- */
+/// Reference to a glyph (possibly multi-byte) in a string.
 struct seq_position
 {
+  /// Offset within the string of glyph's starting byte.
   std::string::size_type begin_byte;
-  std::string::size_type   end_byte;
+  /// One byte past the offset within the string of the glyph's final byte.
+  std::string::size_type end_byte;
 };
 
-/** Convert an encoding enum (from libpq) or encoding name to its libpqxx group
- */
+
+/// Convert libpq encoding enum or encoding name to its libpqxx group.
 encoding_group enc_group(int /* libpq encoding ID */);
 encoding_group enc_group(const std::string&);
 
-/** Get the position & size of the next sequence representing a single glyph
+
+/** Get the position & size of the next sequence representing a single glyph.
+ *
+ * Statically specialised for a single encoding.  There is also a dynamic,
+ * non-templated version which does a bit more work at runtime.
  *
  * The begin_byte will be std::string::npos if there are no more glyphs to
  * extract from the buffer.  For single-byte encodings such as ASCII,
  * (end_byte - begin_byte) will always equal 1 unless begin_byte is npos.
  *
- * The reason the signature is not simpler is so that more informative error
- * messages can be generated.
- *
- * Both runtime and templated versions are available.
+ * Some arguments serve only to generate more helpful error messages.
  *
  * enc/E      - The character encoding group used by the string in the buffer
  * buffer     - The buffer to read from
