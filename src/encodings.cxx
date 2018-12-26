@@ -33,7 +33,7 @@ namespace
 
 [[noreturn]] void throw_for_encoding_error(
   const char* encoding_name,
-  const char* buffer,
+  const char buffer[],
   std::string::size_type start,
   std::string::size_type count
 )
@@ -66,7 +66,7 @@ https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-JP
 http://x0213.org/codetable/index.en.html
 */
 seq_position next_seq_for_euc_jplike(
-  const char* buffer,
+  const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start,
   const char* encoding_name
@@ -136,7 +136,7 @@ first byte in 2-byte sequences.
 // https://en.wikipedia.org/wiki/Shift_JIS#Shift_JIS_byte_map
 // http://x0213.org/codetable/index.en.html
 seq_position next_seq_for_sjislike(
-  const char* buffer,
+  const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start,
   const char* encoding_name
@@ -202,7 +202,7 @@ namespace internal
 {
 
 template<> seq_position next_seq<encoding_group::MONOBYTE>(
-  const char * /* buffer */,
+  const char /* buffer */[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
@@ -215,7 +215,7 @@ template<> seq_position next_seq<encoding_group::MONOBYTE>(
 
 // https://en.wikipedia.org/wiki/Big5#Organization
 template<> seq_position next_seq<encoding_group::BIG5>(
-  const char* buffer,
+  const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
@@ -261,7 +261,7 @@ depending on the specific extension:
 
 // https://en.wikipedia.org/wiki/GB_2312#EUC-CN
 template<> seq_position next_seq<encoding_group::EUC_CN>(
-  const char* buffer,
+  const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
@@ -292,7 +292,7 @@ template<> seq_position next_seq<encoding_group::EUC_CN>(
 }
 
 template<> seq_position next_seq<encoding_group::EUC_JP>(
-  const char* buffer,
+  const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
@@ -301,7 +301,7 @@ template<> seq_position next_seq<encoding_group::EUC_JP>(
 }
 
 template<> seq_position next_seq<encoding_group::EUC_JIS_2004>(
-  const char* buffer,
+  const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
@@ -311,7 +311,7 @@ template<> seq_position next_seq<encoding_group::EUC_JIS_2004>(
 
 // https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-KR
 template<> seq_position next_seq<encoding_group::EUC_KR>(
-  const char* buffer,
+  const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
@@ -343,7 +343,7 @@ template<> seq_position next_seq<encoding_group::EUC_KR>(
 
 // https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-TW
 template<> seq_position next_seq<encoding_group::EUC_TW>(
-  const char* buffer,
+  const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
@@ -392,7 +392,7 @@ template<> seq_position next_seq<encoding_group::EUC_TW>(
 
 // https://en.wikipedia.org/wiki/GB_18030#Mapping
 template<> seq_position next_seq<encoding_group::GB18030>(
-  const char* buffer,
+  const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
@@ -446,7 +446,7 @@ template<> seq_position next_seq<encoding_group::GB18030>(
 
 // https://en.wikipedia.org/wiki/GBK_(character_encoding)#Encoding
 template<> seq_position next_seq<encoding_group::GBK>(
-  const char* buffer,
+  const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
@@ -521,7 +521,7 @@ The PostgreSQL documentation claims that the JOHAB encoding is 1-3 bytes, but
 // CJKV Information Processing by Ken Lunde, pg. 269
 // https://books.google.com/books?id=SA92uQqTB-AC&pg=PA269&lpg=PA269&dq=JOHAB+encoding&source=bl&ots=GMvxWWl8Gx&sig=qLFQNkR4d7Rd-iqQy1lNh3oEdOE&hl=en&sa=X&ved=0ahUKEwizyoTDxePbAhWjpFkKHU65DSwQ6AEIajAH#v=onepage&q=JOHAB%20encoding&f=false
 template<> seq_position next_seq<encoding_group::JOHAB>(
-  const char* buffer,
+  const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
@@ -577,7 +577,7 @@ unable to get it to successfully iterate a MULE-encoded test CSV generated using
 PostgreSQL 9.2.23.  Use this at your own risk.
 */
 template<> seq_position next_seq<encoding_group::MULE_INTERNAL>(
-  const char* buffer,
+  const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
@@ -649,7 +649,7 @@ template<> seq_position next_seq<encoding_group::MULE_INTERNAL>(
 }
 
 template<> seq_position next_seq<encoding_group::SJIS>(
-  const char* buffer,
+  const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
@@ -658,7 +658,7 @@ template<> seq_position next_seq<encoding_group::SJIS>(
 }
 
 template<> seq_position next_seq<encoding_group::SHIFT_JIS_2004>(
-  const char* buffer,
+  const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
@@ -668,7 +668,7 @@ template<> seq_position next_seq<encoding_group::SHIFT_JIS_2004>(
 
 // https://en.wikipedia.org/wiki/Unified_Hangul_Code
 template<> seq_position next_seq<encoding_group::UHC>(
-  const char* buffer,
+  const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
@@ -738,7 +738,7 @@ template<> seq_position next_seq<encoding_group::UHC>(
 
 // https://en.wikipedia.org/wiki/UTF-8#Description
 template<> seq_position next_seq<encoding_group::UTF8>(
-  const char* buffer,
+  const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
@@ -938,7 +938,7 @@ throw pqxx::usage_error("Invalid encoding group code.")
 
 seq_position next_seq(
   encoding_group enc,
-  const char* buffer,
+  const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
