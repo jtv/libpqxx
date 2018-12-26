@@ -65,7 +65,7 @@ the same
 https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-JP
 http://x0213.org/codetable/index.en.html
 */
-seq_position next_seq_for_euc_jplike(
+std::string::size_type next_seq_for_euc_jplike(
   const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start,
@@ -73,9 +73,9 @@ seq_position next_seq_for_euc_jplike(
 )
 {
   if (start >= buffer_len)
-    return {std::string::npos, std::string::npos};
+    return std::string::npos;
   else if (static_cast<unsigned char>(buffer[start]) < 0x80)
-    return {start, start + 1};
+    return start + 1;
   else
   {
     if (
@@ -87,7 +87,7 @@ seq_position next_seq_for_euc_jplike(
            static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
         and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
       )
-        return {start, start + 2};
+        return start + 2;
       else
         throw_for_encoding_error(encoding_name, buffer, start, 2);
     }
@@ -101,7 +101,7 @@ seq_position next_seq_for_euc_jplike(
            static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
         and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
       )
-        return {start, start + 2};
+        return start + 2;
       else
         throw_for_encoding_error(encoding_name, buffer, start, 2);
     }
@@ -116,7 +116,7 @@ seq_position next_seq_for_euc_jplike(
         and static_cast<unsigned char>(buffer[start + 2]) >= 0xA1
         and static_cast<unsigned char>(buffer[start + 2]) <= 0xFE
       )
-        return {start, start + 3};
+        return start + 3;
       else
         throw_for_encoding_error(encoding_name, buffer, start, 3);
     }
@@ -135,7 +135,7 @@ first byte in 2-byte sequences.
 */
 // https://en.wikipedia.org/wiki/Shift_JIS#Shift_JIS_byte_map
 // http://x0213.org/codetable/index.en.html
-seq_position next_seq_for_sjislike(
+std::string::size_type next_seq_for_sjislike(
   const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start,
@@ -143,7 +143,7 @@ seq_position next_seq_for_sjislike(
 )
 {
   if (start >= buffer_len)
-    return {std::string::npos, std::string::npos};
+    return std::string::npos;
   else if (
     static_cast<unsigned char>(buffer[start]) < 0x80
     or (
@@ -151,7 +151,7 @@ seq_position next_seq_for_sjislike(
       and static_cast<unsigned char>(buffer[start]) <= 0xDF
     )
   )
-    return {start, start + 1};
+    return start + 1;
   else
   {
     if ((
@@ -175,7 +175,7 @@ seq_position next_seq_for_sjislike(
           and */static_cast<unsigned char>(buffer[start + 1]) >= 0x9F
           and static_cast<unsigned char>(buffer[start + 1]) <= 0xFC
         ))
-          return {start, start + 2};
+          return start + 2;
         else
           throw_for_encoding_error(encoding_name, buffer, start, 2);
       }
@@ -201,29 +201,29 @@ namespace pqxx
 namespace internal
 {
 
-template<> seq_position next_seq<encoding_group::MONOBYTE>(
+template<> std::string::size_type next_seq<encoding_group::MONOBYTE>(
   const char /* buffer */[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
 {
   if (start >= buffer_len)
-    return {std::string::npos, std::string::npos};
+    return std::string::npos;
   else
-    return {start, start + 1};
+    return start + 1;
 }
 
 // https://en.wikipedia.org/wiki/Big5#Organization
-template<> seq_position next_seq<encoding_group::BIG5>(
+template<> std::string::size_type next_seq<encoding_group::BIG5>(
   const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
 {
   if (start >= buffer_len)
-    return {std::string::npos, std::string::npos};
+    return std::string::npos;
   else if (static_cast<unsigned char>(buffer[start]) < 0x80)
-    return {start, start + 1};
+    return start + 1;
   else
   {
     if (
@@ -239,7 +239,7 @@ template<> seq_position next_seq<encoding_group::BIG5>(
            static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
         and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
       ))
-        return {start, start + 2};
+        return start + 2;
       else
         throw_for_encoding_error("BIG5", buffer, start, 2);
     }
@@ -260,16 +260,16 @@ depending on the specific extension:
 */
 
 // https://en.wikipedia.org/wiki/GB_2312#EUC-CN
-template<> seq_position next_seq<encoding_group::EUC_CN>(
+template<> std::string::size_type next_seq<encoding_group::EUC_CN>(
   const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
 {
   if (start >= buffer_len)
-    return {std::string::npos, std::string::npos};
+    return std::string::npos;
   else if (static_cast<unsigned char>(buffer[start]) < 0x80)
-    return {start, start + 1};
+    return start + 1;
   else
   {
     if (
@@ -282,7 +282,7 @@ template<> seq_position next_seq<encoding_group::EUC_CN>(
            static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
         and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
       )
-        return {start, start + 2};
+        return start + 2;
       else
         throw_for_encoding_error("EUC_CN", buffer, start, 2);
     }
@@ -291,7 +291,7 @@ template<> seq_position next_seq<encoding_group::EUC_CN>(
   }
 }
 
-template<> seq_position next_seq<encoding_group::EUC_JP>(
+template<> std::string::size_type next_seq<encoding_group::EUC_JP>(
   const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
@@ -300,7 +300,7 @@ template<> seq_position next_seq<encoding_group::EUC_JP>(
   return next_seq_for_euc_jplike(buffer, buffer_len, start, "EUC_JP");
 }
 
-template<> seq_position next_seq<encoding_group::EUC_JIS_2004>(
+template<> std::string::size_type next_seq<encoding_group::EUC_JIS_2004>(
   const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
@@ -310,16 +310,16 @@ template<> seq_position next_seq<encoding_group::EUC_JIS_2004>(
 }
 
 // https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-KR
-template<> seq_position next_seq<encoding_group::EUC_KR>(
+template<> std::string::size_type next_seq<encoding_group::EUC_KR>(
   const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
 {
   if (start >= buffer_len)
-    return {std::string::npos, std::string::npos};
+    return std::string::npos;
   else if (static_cast<unsigned char>(buffer[start]) < 0x80)
-    return {start, start + 1};
+    return start + 1;
   else
   {
     if (
@@ -332,7 +332,7 @@ template<> seq_position next_seq<encoding_group::EUC_KR>(
            static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
         and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
       )
-        return {start, start + 2};
+        return start + 2;
       else
         throw_for_encoding_error("EUC_KR", buffer, start, 1);
     }
@@ -342,16 +342,16 @@ template<> seq_position next_seq<encoding_group::EUC_KR>(
 }
 
 // https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-TW
-template<> seq_position next_seq<encoding_group::EUC_TW>(
+template<> std::string::size_type next_seq<encoding_group::EUC_TW>(
   const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
 {
   if (start >= buffer_len)
-    return {std::string::npos, std::string::npos};
+    return std::string::npos;
   else if (static_cast<unsigned char>(buffer[start]) < 0x80)
-    return {start, start + 1};
+    return start + 1;
   else
   {
     if (
@@ -364,7 +364,7 @@ template<> seq_position next_seq<encoding_group::EUC_TW>(
             static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
         and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
       )
-        return {start, start + 2};
+        return start + 2;
       else
         throw_for_encoding_error("EUC_KR", buffer, start, 2);
     }
@@ -381,7 +381,7 @@ template<> seq_position next_seq<encoding_group::EUC_TW>(
         and static_cast<unsigned char>(buffer[start + 3]) >= 0xA1
         and static_cast<unsigned char>(buffer[start + 3]) <= 0xFE
       )
-        return {start, start + 4};
+        return start + 4;
       else
         throw_for_encoding_error("EUC_KR", buffer, start, 4);
     }
@@ -391,19 +391,19 @@ template<> seq_position next_seq<encoding_group::EUC_TW>(
 }
 
 // https://en.wikipedia.org/wiki/GB_18030#Mapping
-template<> seq_position next_seq<encoding_group::GB18030>(
+template<> std::string::size_type next_seq<encoding_group::GB18030>(
   const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
 {
   if (start >= buffer_len)
-    return {std::string::npos, std::string::npos};
+    return std::string::npos;
   else if (
        static_cast<unsigned char>(buffer[start]) <= 0x80
     or static_cast<unsigned char>(buffer[start]) == 0xFF
   )
-    return {start, start + 1};
+    return start + 1;
   else
   {
     if (
@@ -413,7 +413,7 @@ template<> seq_position next_seq<encoding_group::GB18030>(
     )
     {
       if (static_cast<unsigned char>(buffer[start + 1]) != 0x7F)
-        return {start, start + 2};
+        return start + 2;
       else
         throw_for_encoding_error("GB18030", buffer, start, 2);
     }
@@ -429,7 +429,7 @@ template<> seq_position next_seq<encoding_group::GB18030>(
           and static_cast<unsigned char>(buffer[start + 3]) >= 0x30
           and static_cast<unsigned char>(buffer[start + 3]) <= 0x39
         )
-          return {start, start + 4};
+          return start + 4;
         else
           throw_for_encoding_error("GB18030", buffer, start, 4);
       }
@@ -445,16 +445,16 @@ template<> seq_position next_seq<encoding_group::GB18030>(
 }
 
 // https://en.wikipedia.org/wiki/GBK_(character_encoding)#Encoding
-template<> seq_position next_seq<encoding_group::GBK>(
+template<> std::string::size_type next_seq<encoding_group::GBK>(
   const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
 {
   if (start >= buffer_len)
-    return {std::string::npos, std::string::npos};
+    return std::string::npos;
   else if (static_cast<unsigned char>(buffer[start]) < 0x80)
-    return {start, start + 1};
+    return start + 1;
   else
   {
     if (start + 2 <= buffer_len)
@@ -504,7 +504,7 @@ template<> seq_position next_seq<encoding_group::GBK>(
         and static_cast<unsigned char>(buffer[start + 1]) <= 0xA0
         and static_cast<unsigned char>(buffer[start + 1]) != 0x7F
       ))
-        return {start, start + 2};
+        return start + 2;
       else
         throw_for_encoding_error("GBK", buffer, start, 2);
     }
@@ -520,16 +520,16 @@ The PostgreSQL documentation claims that the JOHAB encoding is 1-3 bytes, but
 */
 // CJKV Information Processing by Ken Lunde, pg. 269
 // https://books.google.com/books?id=SA92uQqTB-AC&pg=PA269&lpg=PA269&dq=JOHAB+encoding&source=bl&ots=GMvxWWl8Gx&sig=qLFQNkR4d7Rd-iqQy1lNh3oEdOE&hl=en&sa=X&ved=0ahUKEwizyoTDxePbAhWjpFkKHU65DSwQ6AEIajAH#v=onepage&q=JOHAB%20encoding&f=false
-template<> seq_position next_seq<encoding_group::JOHAB>(
+template<> std::string::size_type next_seq<encoding_group::JOHAB>(
   const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
 {
   if (start >= buffer_len)
-    return {std::string::npos, std::string::npos};
+    return std::string::npos;
   else if (static_cast<unsigned char>(buffer[start]) < 0x80)
-    return {start, start + 1};
+    return start + 1;
   else
   {
     if (start + 2 <= buffer_len)
@@ -560,7 +560,7 @@ template<> seq_position next_seq<encoding_group::JOHAB>(
           and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
         ))
       ))
-        return {start, start + 2};
+        return start + 2;
       else
         throw_for_encoding_error("JOHAB", buffer, start, 2);
     }
@@ -576,16 +576,16 @@ This is implemented according to the description in said header file, but I was
 unable to get it to successfully iterate a MULE-encoded test CSV generated using
 PostgreSQL 9.2.23.  Use this at your own risk.
 */
-template<> seq_position next_seq<encoding_group::MULE_INTERNAL>(
+template<> std::string::size_type next_seq<encoding_group::MULE_INTERNAL>(
   const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
 {
   if (start >= buffer_len)
-    return {std::string::npos, std::string::npos};
+    return std::string::npos;
   else if (static_cast<unsigned char>(buffer[start]) < 0x80)
-    return {start, start + 1};
+    return start + 1;
   else
   {
     if (start + 2 <= buffer_len)
@@ -596,7 +596,7 @@ template<> seq_position next_seq<encoding_group::MULE_INTERNAL>(
         and static_cast<unsigned char>(buffer[start + 1]) >= 0xA0
         // and static_cast<unsigned char>(buffer[start + 1]) <= 0xFF
       )
-        return {start, start + 2};
+        return start + 2;
       else if (start + 3 <= buffer_len)
       {
         if (((
@@ -616,7 +616,7 @@ template<> seq_position next_seq<encoding_group::MULE_INTERNAL>(
              static_cast<unsigned char>(buffer[start + 2]) >= 0xA0
           // and static_cast<unsigned char>(buffer[start + 2]) <= 0xFF
         ))
-          return {start, start + 3};
+          return start + 3;
         else if (start + 4 <= buffer_len)
         {
           if (((
@@ -633,7 +633,7 @@ template<> seq_position next_seq<encoding_group::MULE_INTERNAL>(
             and static_cast<unsigned char>(buffer[start + 4]) >= 0xA0
             // and static_cast<unsigned char>(buffer[start + 4]) <= 0xFF
           ))
-            return {start, start + 4};
+            return start + 4;
           else
             throw_for_encoding_error("MULE_INTERNAL", buffer, start, 4);
         }
@@ -648,7 +648,7 @@ template<> seq_position next_seq<encoding_group::MULE_INTERNAL>(
   }
 }
 
-template<> seq_position next_seq<encoding_group::SJIS>(
+template<> std::string::size_type next_seq<encoding_group::SJIS>(
   const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
@@ -657,7 +657,7 @@ template<> seq_position next_seq<encoding_group::SJIS>(
   return next_seq_for_sjislike(buffer, buffer_len, start, "SJIS");
 }
 
-template<> seq_position next_seq<encoding_group::SHIFT_JIS_2004>(
+template<> std::string::size_type next_seq<encoding_group::SHIFT_JIS_2004>(
   const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
@@ -667,16 +667,16 @@ template<> seq_position next_seq<encoding_group::SHIFT_JIS_2004>(
 }
 
 // https://en.wikipedia.org/wiki/Unified_Hangul_Code
-template<> seq_position next_seq<encoding_group::UHC>(
+template<> std::string::size_type next_seq<encoding_group::UHC>(
   const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
 {
   if (start >= buffer_len)
-    return {std::string::npos, std::string::npos};
+    return std::string::npos;
   else if (static_cast<unsigned char>(buffer[start]) < 0x80)
-    return {start, start + 1};
+    return start + 1;
   else
   {
     if (
@@ -696,7 +696,7 @@ template<> seq_position next_seq<encoding_group::UHC>(
               static_cast<unsigned char>(buffer[start + 1]) >= 0x80
           and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
         ))
-          return {start, start + 2};
+          return start + 2;
         else
           throw_for_encoding_error("UHC", buffer, start, 2);
       }
@@ -719,7 +719,7 @@ template<> seq_position next_seq<encoding_group::UHC>(
               static_cast<unsigned char>(buffer[start + 1]) >= 0xA1
           and static_cast<unsigned char>(buffer[start + 1]) <= 0xFE
         )
-          return {start, start + 2};
+          return start + 2;
         else
           throw_for_encoding_error("UHC", buffer, start, 2);
       }
@@ -737,16 +737,16 @@ template<> seq_position next_seq<encoding_group::UHC>(
 }
 
 // https://en.wikipedia.org/wiki/UTF-8#Description
-template<> seq_position next_seq<encoding_group::UTF8>(
+template<> std::string::size_type next_seq<encoding_group::UTF8>(
   const char buffer[],
   std::string::size_type buffer_len,
   std::string::size_type start
 )
 {
   if (start >= buffer_len)
-    return {std::string::npos, std::string::npos};
+    return std::string::npos;
   else if (static_cast<unsigned char>(buffer[start]) < 0x80)
-    return {start, start + 1};
+    return start + 1;
   else
   {
     if (
@@ -760,7 +760,7 @@ template<> seq_position next_seq<encoding_group::UTF8>(
               static_cast<unsigned char>(buffer[start + 1]) >= 0x80
           and static_cast<unsigned char>(buffer[start + 1]) <= 0xBF
         )
-          return {start, start + 2};
+          return start + 2;
         else
           throw_for_encoding_error("UTF8", buffer, start, 2);
       }
@@ -785,7 +785,7 @@ template<> seq_position next_seq<encoding_group::UTF8>(
           and static_cast<unsigned char>(buffer[start + 2]) >= 0x80
           and static_cast<unsigned char>(buffer[start + 2]) <= 0xBF
         )
-          return {start, start + 3};
+          return start + 3;
         else
           throw_for_encoding_error("UTF8", buffer, start, 3);
       }
@@ -812,7 +812,7 @@ template<> seq_position next_seq<encoding_group::UTF8>(
           and static_cast<unsigned char>(buffer[start + 3]) >= 0x80
           and static_cast<unsigned char>(buffer[start + 3]) <= 0xBF
         )
-          return {start, start + 4};
+          return start + 4;
         else
           throw_for_encoding_error("UTF8", buffer, start, 4);
       }
@@ -936,7 +936,7 @@ case encoding_group::UTF8: \
 } \
 throw pqxx::usage_error("Invalid encoding group code.")
 
-seq_position next_seq(
+std::string::size_type next_seq(
   encoding_group enc,
   const char buffer[],
   std::string::size_type buffer_len,

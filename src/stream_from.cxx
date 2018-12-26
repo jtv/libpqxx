@@ -156,11 +156,11 @@ bool pqxx::stream_from::extract_field(
   auto stop = find_tab(m_copy_encoding, line, i);
   while (i < stop)
   {
-    auto here = next_seq(m_copy_encoding, line.c_str(), line.size(), i);
-    auto seq_len = here.end_byte - here.begin_byte;
+    auto glyph_end = next_seq(m_copy_encoding, line.c_str(), line.size(), i);
+    auto seq_len = glyph_end - i;
     if (seq_len == 1)
     {
-      switch (line[here.begin_byte])
+      switch (line[i])
       {
       case '\n':
         // End-of-row; shouldn't happen, but we may get old-style
@@ -171,9 +171,9 @@ bool pqxx::stream_from::extract_field(
       case '\\':
         {
         // Escape sequence
-          if (here.end_byte >= line.size())
+          if (glyph_end >= line.size())
             throw failure{"Row ends in backslash"};
-          char n = line[here.end_byte++];
+          char n = line[glyph_end++];
           
           /*
            * "Presently, COPY TO will never emit an octal or hex-digits
@@ -231,17 +231,17 @@ bool pqxx::stream_from::extract_field(
         break;
 
       default:
-        s += line[here.begin_byte];
+        s += line[i];
         break;
       }
     }
     else
     {
       // Multi-byte sequence; never treated specially, so just append
-      s.insert(s.size(), line.c_str() + here.begin_byte, seq_len);
+      s.insert(s.size(), line.c_str() + i, seq_len);
     }
 
-    i = here.end_byte;
+    i = glyph_end;
   }
 
   // Skip field separator

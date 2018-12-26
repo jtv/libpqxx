@@ -20,30 +20,21 @@ namespace pqxx
 {
 namespace internal
 {
-
-/// Reference to a glyph (possibly multi-byte) in a string.
-struct seq_position
-{
-  /// Offset within the string of glyph's starting byte.
-  std::string::size_type begin_byte;
-  /// One byte past the offset within the string of the glyph's final byte.
-  std::string::size_type end_byte;
-};
-
-
 /// Convert libpq encoding enum or encoding name to its libpqxx group.
 encoding_group enc_group(int /* libpq encoding ID */);
 encoding_group enc_group(const std::string&);
 
 
-/** Get the position & size of the next sequence representing a single glyph.
+/** Find the end of the current glyph, or npos if there is no glyph.
+ *
+ * Returns the offset of one byte beyond the last byte in the current glyph.
+ * If the start is already at the end of the string, returns std::string::npos.
+ *
+ * For single-byte encodings such as ASCII, (end_byte - begin_byte) will always
+ * equal 1 unless begin_byte is npos.
  *
  * Statically specialised for a single encoding.  There is also a dynamic,
  * non-templated version which does a bit more work at runtime.
- *
- * The begin_byte will be std::string::npos if there are no more glyphs to
- * extract from the buffer.  For single-byte encodings such as ASCII,
- * (end_byte - begin_byte) will always equal 1 unless begin_byte is npos.
  *
  * Some arguments serve only to generate more helpful error messages.
  *
@@ -52,14 +43,15 @@ encoding_group enc_group(const std::string&);
  * buffer_len - Total size of the buffer
  * start      - Offset in the buffer to start looking for a sequence
  *
- * Throws std::runtime_error for encoding errors (invalid/truncated sequence)
+ * Throws std::runtime_error for encoding errors (invalid/truncated sequence).
  */
-template<encoding_group E> seq_position next_seq(
+template<encoding_group E> std::string::size_type next_seq(
   const char* buffer,
   std::string::size_type buffer_len,
   std::string::size_type start
 );
-seq_position next_seq(
+
+std::string::size_type next_seq(
   encoding_group enc,
   const char* buffer,
   std::string::size_type buffer_len,
@@ -68,7 +60,7 @@ seq_position next_seq(
 
 // Template specializations for next_seq<>()
 #define PQXX_INTERNAL_DECLARE_NEXT_SEQ_SPECIALIZATION(ENC_GROUP) \
-template<> seq_position next_seq<encoding_group::ENC_GROUP>( \
+template<> std::string::size_type next_seq<encoding_group::ENC_GROUP>( \
   const char* buffer, \
   std::string::size_type buffer_len, \
   std::string::size_type start \
@@ -96,20 +88,17 @@ template<encoding_group E> std::string::size_type find_with_encoding(
 {
   while (start < haystack.size())
   {
-    auto here = next_seq<E>(
+    auto glyph_end = next_seq<E>(
       haystack.c_str(),
       haystack.size(),
       start
     );
-    if (here.begin_byte == std::string::npos)
+    if (glyph_end == std::string::npos)
       break;
-    else if (
-      here.end_byte - here.begin_byte == 1
-      && haystack[here.begin_byte] == needle
-    )
-      return here.begin_byte;
+    else if (glyph_end - start == 1 && haystack[start] == needle)
+      return start;
     else
-      start = here.end_byte;
+      start = glyph_end;
   }
   return std::string::npos;
 }
@@ -128,12 +117,12 @@ template<encoding_group E> std::string::size_type find_with_encoding(
 {
   while (start < haystack.size())
   {
-    auto here = next_seq<E>(
+    auto glyph_end = next_seq<E>(
       haystack.c_str(),
       haystack.size(),
       start
     );
-    if (here.begin_byte == std::string::npos)
+    if (glyph_end == std::string::npos)
       break;
     else
     {
@@ -141,10 +130,10 @@ template<encoding_group E> std::string::size_type find_with_encoding(
       for (auto cn : needle)
         if (*ch != cn) goto next;
         else ++ch;
-      return here.begin_byte;
+      return start;
     }
   next:
-    start = here.end_byte;
+    start = glyph_end;
   }
   return std::string::npos;
 }
