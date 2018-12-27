@@ -83,38 +83,37 @@ std::string::size_type next_seq_for_euc_jplike(
 	std::string::size_type start,
 	const char encoding_name[])
 {
-  if (start >= buffer_len)
-    return std::string::npos;
+  if (start >= buffer_len) return std::string::npos;
 
-  const auto first_byte = get_byte(buffer, start);
-  if (first_byte < 0x80) return start + 1;
+  const auto byte1 = get_byte(buffer, start);
+  if (byte1 < 0x80) return start + 1;
 
   if (start + 2 > buffer_len)
     throw_for_encoding_error(encoding_name, buffer, start, 1);
 
-  const auto second_byte = get_byte(buffer, start + 1);
-  if (first_byte == 0x8e)
+  const auto byte2 = get_byte(buffer, start + 1);
+  if (byte1 == 0x8e)
   {
-    if (not between_inc(second_byte, 0xa1, 0xfe))
+    if (not between_inc(byte2, 0xa1, 0xfe))
       throw_for_encoding_error(encoding_name, buffer, start, 2);
 
     return start + 2;
   }
 
-  if (between_inc(first_byte, 0xa1, 0xfe))
+  if (between_inc(byte1, 0xa1, 0xfe))
   {
-    if (not between_inc(second_byte, 0xa1, 0xfe))
+    if (not between_inc(byte2, 0xa1, 0xfe))
       throw_for_encoding_error(encoding_name, buffer, start, 2);
 
     return start + 2;
   }
 
-  if (first_byte == 0x8f and start + 3 <= buffer_len)
+  if (byte1 == 0x8f and start + 3 <= buffer_len)
   {
-    const auto third_byte = get_byte(buffer, start + 2);
+    const auto byte3 = get_byte(buffer, start + 2);
     if (
-	not between_inc(second_byte, 0xa1, 0xfe) or
-        not between_inc(third_byte, 0xa1, 0xfe)
+	not between_inc(byte2, 0xa1, 0xfe) or
+        not between_inc(byte3, 0xa1, 0xfe)
       )
       throw_for_encoding_error(encoding_name, buffer, start, 3);
 
@@ -141,16 +140,14 @@ std::string::size_type next_seq_for_sjislike(
   const char* encoding_name
 )
 {
-  if (start >= buffer_len)
-    return std::string::npos;
+  if (start >= buffer_len) return std::string::npos;
 
-  const auto first_byte = get_byte(buffer, start);
-  if (first_byte < 0x80 or between_inc(first_byte, 0xa1, 0xdf))
-    return start + 1;
+  const auto byte1 = get_byte(buffer, start);
+  if (byte1 < 0x80 or between_inc(byte1, 0xa1, 0xdf)) return start + 1;
 
   if (
-	not between_inc(first_byte, 0x81, 0x9f) and
-	not between_inc(first_byte, 0xe0, 0xfc)
+	not between_inc(byte1, 0x81, 0x9f) and
+	not between_inc(byte1, 0xe0, 0xfc)
   )
     throw_for_encoding_error(encoding_name, buffer, start, 1);
 
@@ -161,14 +158,10 @@ std::string::size_type next_seq_for_sjislike(
 	start,
 	buffer_len - start);
 
-  const auto second_byte = get_byte(buffer, start + 1);
-  if (second_byte == 0x7f)
-    throw_for_encoding_error(encoding_name, buffer, start, 2);
+  const auto byte2 = get_byte(buffer, start + 1);
+  if (byte2 == 0x7f) throw_for_encoding_error(encoding_name, buffer, start, 2);
 
-  if (
-	between_inc(second_byte, 0x40, 0x9e) or
-	between_inc(second_byte, 0x9f, 0xfc)
-  )
+  if (between_inc(byte2, 0x40, 0x9e) or between_inc(byte2, 0x9f, 0xfc))
     return start + 2;
 
   throw_for_encoding_error(encoding_name, buffer, start, 2);
@@ -188,10 +181,8 @@ template<> std::string::size_type next_seq<encoding_group::MONOBYTE>(
   std::string::size_type start
 )
 {
-  if (start >= buffer_len)
-    return std::string::npos;
-  else
-    return start + 1;
+  if (start >= buffer_len) return std::string::npos;
+  else return start + 1;
 }
 
 // https://en.wikipedia.org/wiki/Big5#Organization
@@ -201,20 +192,18 @@ template<> std::string::size_type next_seq<encoding_group::BIG5>(
   std::string::size_type start
 )
 {
-  if (start >= buffer_len)
-    return std::string::npos;
+  if (start >= buffer_len) return std::string::npos;
 
-  const auto first_byte = get_byte(buffer, start);
-  if (first_byte < 0x80)
-    return start + 1;
+  const auto byte1 = get_byte(buffer, start);
+  if (byte1 < 0x80) return start + 1;
 
-  if (not between_inc(first_byte, 0x81, 0xfe) or (start + 2 > buffer_len))
+  if (not between_inc(byte1, 0x81, 0xfe) or (start + 2 > buffer_len))
     throw_for_encoding_error("BIG5", buffer, start, 1);
 
-  const auto second_byte = get_byte(buffer, start + 1);
+  const auto byte2 = get_byte(buffer, start + 1);
   if (
-	not between_inc(second_byte, 0x40, 0x7e) and
-	not between_inc(second_byte, 0xa1, 0xfe))
+	not between_inc(byte2, 0x40, 0x7e) and
+	not between_inc(byte2, 0xa1, 0xfe))
     throw_for_encoding_error("BIG5", buffer, start, 2);
 
   return start + 2;
@@ -238,18 +227,16 @@ template<> std::string::size_type next_seq<encoding_group::EUC_CN>(
   std::string::size_type start
 )
 {
-  if (start >= buffer_len)
-    return std::string::npos;
+  if (start >= buffer_len) return std::string::npos;
 
-  const auto first_byte = get_byte(buffer, start);
-  if (first_byte < 0x80)
-    return start + 1;
+  const auto byte1 = get_byte(buffer, start);
+  if (byte1 < 0x80) return start + 1;
 
-  if (not between_inc(first_byte, 0xa1, 0xf7) or start + 2 > buffer_len)
+  if (not between_inc(byte1, 0xa1, 0xf7) or start + 2 > buffer_len)
     throw_for_encoding_error("EUC_CN", buffer, start, 1);
 
-  const auto second_byte = get_byte(buffer, start + 1);
-  if (not between_inc(second_byte, 0xa1, 0xfe))
+  const auto byte2 = get_byte(buffer, start + 1);
+  if (not between_inc(byte2, 0xa1, 0xfe))
     throw_for_encoding_error("EUC_CN", buffer, start, 2);
 
   return start + 2;
@@ -280,18 +267,16 @@ template<> std::string::size_type next_seq<encoding_group::EUC_KR>(
   std::string::size_type start
 )
 {
-  if (start >= buffer_len)
-    return std::string::npos;
+  if (start >= buffer_len) return std::string::npos;
 
-  const auto first_byte = get_byte(buffer, start);
-  if (first_byte < 0x80)
-    return start + 1;
+  const auto byte1 = get_byte(buffer, start);
+  if (byte1 < 0x80) return start + 1;
 
-  if (not between_inc(first_byte, 0xa1, 0xfe) or start + 2 > buffer_len)
+  if (not between_inc(byte1, 0xa1, 0xfe) or start + 2 > buffer_len)
     throw_for_encoding_error("EUC_KR", buffer, start, 1);
 
-  const auto second_byte = get_byte(buffer, start + 1);
-  if (not between_inc(second_byte, 0xa1, 0xfe))
+  const auto byte2 = get_byte(buffer, start + 1);
+  if (not between_inc(byte2, 0xa1, 0xfe))
     throw_for_encoding_error("EUC_KR", buffer, start, 1);
 
   return start + 2;
@@ -304,32 +289,30 @@ template<> std::string::size_type next_seq<encoding_group::EUC_TW>(
   std::string::size_type start
 )
 {
-  if (start >= buffer_len)
-    return std::string::npos;
+  if (start >= buffer_len) return std::string::npos;
 
-  const auto first_byte = get_byte(buffer, start);
-  if (first_byte < 0x80)
-    return start + 1;
+  const auto byte1 = get_byte(buffer, start);
+  if (byte1 < 0x80) return start + 1;
 
   if (start + 2 > buffer_len)
     throw_for_encoding_error("EUC_KR", buffer, start, 1);
 
-  const auto second_byte = get_byte(buffer, start + 1);
-  if (between_inc(first_byte, 0xa1, 0xfe))
+  const auto byte2 = get_byte(buffer, start + 1);
+  if (between_inc(byte1, 0xa1, 0xfe))
   {
-    if (not between_inc(second_byte, 0xa1, 0xfe))
+    if (not between_inc(byte2, 0xa1, 0xfe))
       throw_for_encoding_error("EUC_KR", buffer, start, 2);
 
     return start + 2;
   }
 
-  if (first_byte != 0x8e or start + 4 > buffer_len)
+  if (byte1 != 0x8e or start + 4 > buffer_len)
     throw_for_encoding_error("EUC_KR", buffer, start, 1);
 
   if (
-            between_inc(second_byte, 0xa1, 0xb0)
-        and between_inc(get_byte(buffer, start + 2), 0xa1, 0xfe)
-        and between_inc(get_byte(buffer, start + 3), 0xa1, 0xfe)
+        between_inc(byte2, 0xa1, 0xb0) and
+        between_inc(get_byte(buffer, start + 2), 0xa1, 0xfe) and
+        between_inc(get_byte(buffer, start + 3), 0xa1, 0xfe)
   )
     return start + 4;
 
@@ -343,20 +326,18 @@ template<> std::string::size_type next_seq<encoding_group::GB18030>(
   std::string::size_type start
 )
 {
-  if (start >= buffer_len)
-    return std::string::npos;
+  if (start >= buffer_len) return std::string::npos;
 
-  const auto first_byte = get_byte(buffer, start);
-  if (between_inc(first_byte, 0x80, 0xff))
-    return start + 1;
+  const auto byte1 = get_byte(buffer, start);
+  if (between_inc(byte1, 0x80, 0xff)) return start + 1;
 
   if (start + 2 > buffer_len)
     throw_for_encoding_error("GB18030", buffer, start, buffer_len - start);
 
-  const auto second_byte = get_byte(buffer, start + 1);
-  if (between_inc(second_byte, 0x40, 0xfe))
+  const auto byte2 = get_byte(buffer, start + 1);
+  if (between_inc(byte2, 0x40, 0xfe))
   {
-    if (second_byte == 0x7f)
+    if (byte2 == 0x7f)
       throw_for_encoding_error("GB18030", buffer, start, 2);
 
     return start + 2;
@@ -366,7 +347,7 @@ template<> std::string::size_type next_seq<encoding_group::GB18030>(
     throw_for_encoding_error("GB18030", buffer, start, buffer_len - start);
 
   if (
-	between_inc(second_byte, 0x30, 0x39) and
+	between_inc(byte2, 0x30, 0x39) and
 	between_inc(get_byte(buffer, start + 2), 0x81, 0xfe) and
 	between_inc(get_byte(buffer, start + 3), 0x30, 0x39)
   )
@@ -382,47 +363,48 @@ template<> std::string::size_type next_seq<encoding_group::GBK>(
   std::string::size_type start
 )
 {
-  if (start >= buffer_len)
-    return std::string::npos;
+  if (start >= buffer_len) return std::string::npos;
 
-  if (static_cast<unsigned char>(buffer[start]) < 0x80)
-    return start + 1;
+  const auto byte1 = get_byte(buffer, start);
+  if (byte1 < 0x80) return start + 1;
 
   if (start + 2 > buffer_len)
     throw_for_encoding_error("GBK", buffer, start, 1);
 
-  const auto first_byte = get_byte(buffer, start);
-  const auto second_byte = get_byte(buffer, start + 1);
+  const auto byte2 = get_byte(buffer, start + 1);
   if (
+    (between_inc(byte1, 0xa1, 0xa9) and between_inc(byte2, 0xa1, 0xfe))
+    or
+    (between_inc(byte1, 0xb0, 0xf7) and between_inc(byte2, 0xa1, 0xfe))
+    or
     (
-	between_inc(first_byte, 0xa1, 0xa9) and
-        between_inc(second_byte, 0xa1, 0xfe)
-    ) or (
-	between_inc(first_byte, 0xb0, 0xf7) and
-        between_inc(second_byte, 0xa1, 0xfe)
-      ) or (
-        between_inc(first_byte, 0x81, 0xa0) and
-        between_inc(second_byte, 0x40, 0xfe) and
-        second_byte != 0x7f
-      ) or (
-        between_inc(first_byte, 0xaa, 0xfe) and
-        between_inc(second_byte, 0x40, 0xa0) and
-        second_byte != 0x7f
-      ) or (
-        between_inc(first_byte, 0xa8, 0xa9) and
-        between_inc(second_byte, 0x40, 0xa0) and
-        second_byte != 0x7f
-      ) or (
-        between_inc(first_byte, 0xaa, 0xaf) and
-        between_inc(second_byte, 0xa1, 0xfe)
-      ) or (
-        between_inc(first_byte, 0xf8, 0xfe) and
-        between_inc(second_byte, 0xa1, 0xfe)
-      ) or (
-        between_inc(first_byte, 0xa1, 0xa7) and
-        between_inc(second_byte, 0x40, 0xa0) and
-        second_byte != 0x7f
-  ))
+      between_inc(byte1, 0x81, 0xa0) and
+      between_inc(byte2, 0x40, 0xfe) and
+      byte2 != 0x7f
+    )
+    or
+    (
+      between_inc(byte1, 0xaa, 0xfe) and
+      between_inc(byte2, 0x40, 0xa0) and
+      byte2 != 0x7f
+    )
+    or
+    (
+      between_inc(byte1, 0xa8, 0xa9) and
+      between_inc(byte2, 0x40, 0xa0) and
+      byte2 != 0x7f
+    )
+    or
+    (between_inc(byte1, 0xaa, 0xaf) and between_inc(byte2, 0xa1, 0xfe))
+    or
+    (between_inc(byte1, 0xf8, 0xfe) and between_inc(byte2, 0xa1, 0xfe))
+    or
+    (
+      between_inc(byte1, 0xa1, 0xa7) and
+      between_inc(byte2, 0x40, 0xa0) and
+      byte2 != 0x7f
+    )
+  )
     return start + 2;
 
   throw_for_encoding_error("GBK", buffer, start, 2);
@@ -443,36 +425,24 @@ template<> std::string::size_type next_seq<encoding_group::JOHAB>(
   std::string::size_type start
 )
 {
-  if (start >= buffer_len)
-    return std::string::npos;
+  if (start >= buffer_len) return std::string::npos;
 
-  const auto first_byte = get_byte(buffer, start);
-  if (first_byte < 0x80)
-    return start + 1;
+  const auto byte1 = get_byte(buffer, start);
+  if (byte1 < 0x80) return start + 1;
 
   if (start + 2 > buffer_len)
     throw_for_encoding_error("JOHAB", buffer, start, 1);
 
-  const auto second_byte = get_byte(buffer, start);
+  const auto byte2 = get_byte(buffer, start);
   if (
     (
-      between_inc(first_byte, 0x84, 0xd3) and
-      (
-        between_inc(second_byte, 0x41, 0x7e) or
-        between_inc(second_byte, 0x81, 0xfe)
-      )
+      between_inc(byte1, 0x84, 0xd3) and
+      (between_inc(byte2, 0x41, 0x7e) or between_inc(byte2, 0x81, 0xfe))
     )
     or
     (
-      (
-        between_inc(first_byte, 0xd8, 0xde) or
-        between_inc(first_byte, 0xe0, 0xf9)
-      )
-      and
-      (
-        between_inc(second_byte, 0x31, 0x7e) or
-        between_inc(second_byte, 0x91, 0xfe)
-      )
+      (between_inc(byte1, 0xd8, 0xde) or between_inc(byte1, 0xe0, 0xf9)) and
+      (between_inc(byte2, 0x31, 0x7e) or between_inc(byte2, 0x91, 0xfe))
     )
   )
     return start + 2;
@@ -493,18 +463,16 @@ template<> std::string::size_type next_seq<encoding_group::MULE_INTERNAL>(
   std::string::size_type start
 )
 {
-  if (start >= buffer_len)
-    return std::string::npos;
+  if (start >= buffer_len) return std::string::npos;
 
-  const auto first_byte = get_byte(buffer, start);
-  if (first_byte < 0x80)
-    return start + 1;
+  const auto byte1 = get_byte(buffer, start);
+  if (byte1 < 0x80) return start + 1;
 
   if (start + 2 > buffer_len)
     throw_for_encoding_error("MULE_INTERNAL", buffer, start, 1);
 
-  const auto second_byte = get_byte(buffer, start + 1);
-  if (between_inc(first_byte, 0x81, 0x8d) and second_byte >= 0xA0)
+  const auto byte2 = get_byte(buffer, start + 1);
+  if (between_inc(byte1, 0x81, 0x8d) and byte2 >= 0xA0)
     return start + 2;
 
   if (start + 3 > buffer_len)
@@ -512,13 +480,13 @@ template<> std::string::size_type next_seq<encoding_group::MULE_INTERNAL>(
 
   if (
     (
-      (first_byte == 0x9A and between_inc(second_byte, 0xa0, 0xdf)) or
-      (first_byte == 0x9B and between_inc(second_byte, 0xe0, 0xef)) or
-      (between_inc(first_byte, 0x90, 0x99) and second_byte >= 0xa0)
+      (byte1 == 0x9A and between_inc(byte2, 0xa0, 0xdf)) or
+      (byte1 == 0x9B and between_inc(byte2, 0xe0, 0xef)) or
+      (between_inc(byte1, 0x90, 0x99) and byte2 >= 0xa0)
     )
     and
     (
-      second_byte >= 0xA0
+      byte2 >= 0xA0
     )
   )
     return start + 3;
@@ -528,8 +496,8 @@ template<> std::string::size_type next_seq<encoding_group::MULE_INTERNAL>(
 
   if (
     (
-      (first_byte == 0x9C and between_inc(second_byte, 0xf0, 0xf4)) or
-      (first_byte == 0x9D and between_inc(second_byte, 0xf5, 0xfe))
+      (byte1 == 0x9C and between_inc(byte2, 0xf0, 0xf4)) or
+      (byte1 == 0x9D and between_inc(byte2, 0xf5, 0xfe))
     )
     and
     get_byte(buffer, start + 2) >= 0xa0 and
@@ -565,32 +533,30 @@ template<> std::string::size_type next_seq<encoding_group::UHC>(
   std::string::size_type start
 )
 {
-  if (start >= buffer_len)
-    return std::string::npos;
+  if (start >= buffer_len) return std::string::npos;
 
-  const auto first_byte = get_byte(buffer, start);
-  if (first_byte < 0x80)
-    return start + 1;
+  const auto byte1 = get_byte(buffer, start);
+  if (byte1 < 0x80) return start + 1;
 
   if (start + 2 > buffer_len)
     throw_for_encoding_error("UHC", buffer, start, buffer_len - start);
 
-  const auto second_byte = get_byte(buffer, start + 1);
-  if (between_inc(first_byte, 0x80, 0xc6))
+  const auto byte2 = get_byte(buffer, start + 1);
+  if (between_inc(byte1, 0x80, 0xc6))
   {
     if (
-      between_inc(second_byte, 0x41, 0x5a) or
-      between_inc(second_byte, 0x61, 0x7a) or
-      between_inc(second_byte, 0x80, 0xfe)
+      between_inc(byte2, 0x41, 0x5a) or
+      between_inc(byte2, 0x61, 0x7a) or
+      between_inc(byte2, 0x80, 0xfe)
     )
       return start + 2;
 
     throw_for_encoding_error("UHC", buffer, start, 2);
   }
 
-  if (between_inc(first_byte, 0xa1, 0xfe))
+  if (between_inc(byte1, 0xa1, 0xfe))
   {
-    if (not between_inc(second_byte, 0xa1, 0xfe))
+    if (not between_inc(byte2, 0xa1, 0xfe))
       throw_for_encoding_error("UHC", buffer, start, 2);
 
    return start + 2;
@@ -606,20 +572,18 @@ template<> std::string::size_type next_seq<encoding_group::UTF8>(
   std::string::size_type start
 )
 {
-  if (start >= buffer_len)
-    return std::string::npos;
+  if (start >= buffer_len) return std::string::npos;
 
-  const auto first_byte = get_byte(buffer, start);
-  if (first_byte < 0x80)
-    return start + 1;
+  const auto byte1 = get_byte(buffer, start);
+  if (byte1 < 0x80) return start + 1;
 
   if (start + 2 > buffer_len)
       throw_for_encoding_error("UTF8", buffer, start, buffer_len - start);
 
-  const auto second_byte = get_byte(buffer, start + 1);
-  if (between_inc(first_byte, 0xc0, 0xdf))
+  const auto byte2 = get_byte(buffer, start + 1);
+  if (between_inc(byte1, 0xc0, 0xdf))
   {
-    if (not between_inc(second_byte, 0x80, 0xbf))
+    if (not between_inc(byte2, 0x80, 0xbf))
       throw_for_encoding_error("UTF8", buffer, start, 2);
 
     return start + 2;
@@ -628,13 +592,10 @@ template<> std::string::size_type next_seq<encoding_group::UTF8>(
   if (start + 3 > buffer_len)
       throw_for_encoding_error("UTF8", buffer, start, buffer_len - start);
 
-  const auto third_byte = get_byte(buffer, start + 2);
-  if (between_inc(first_byte, 0xe0, 0xef))
+  const auto byte3 = get_byte(buffer, start + 2);
+  if (between_inc(byte1, 0xe0, 0xef))
   {
-    if (
-      between_inc(second_byte, 0x80, 0xbf) and
-      between_inc(third_byte, 0x80, 0xbf)
-    )
+    if (between_inc(byte2, 0x80, 0xbf) and between_inc(byte3, 0x80, 0xbf))
       return start + 3;
 
     throw_for_encoding_error("UTF8", buffer, start, 3);
@@ -643,11 +604,11 @@ template<> std::string::size_type next_seq<encoding_group::UTF8>(
   if (start + 4 > buffer_len)
       throw_for_encoding_error("UTF8", buffer, start, buffer_len - start);
 
-  if (between_inc(first_byte, 0xf0, 0xf7))
+  if (between_inc(byte1, 0xf0, 0xf7))
   {
     if (
-      between_inc(second_byte, 0x80, 0xbf) and
-      between_inc(third_byte, 0x80, 0xbf) and
+      between_inc(byte2, 0x80, 0xbf) and
+      between_inc(byte3, 0x80, 0xbf) and
       between_inc(get_byte(buffer, start + 3), 0x80, 0xbf)
     )
       return start + 4;
