@@ -1004,6 +1004,7 @@ void pqxx::connection_base::write_copy_line(const std::string &Line)
   {
     const std::string msg = (
         std::string{"Error writing to table: "} + err_msg());
+// TODO: PQendcopy() is documented as obsolete!
     PQendcopy(m_conn);
     throw failure{msg};
   }
