@@ -776,7 +776,7 @@ template<encoding_group E> struct string_finder
 	here = glyph_scanner<E>::call(buffer, size, here)
     )
     {
-      if (std::strncmp(buffer + here, needle.c_str(), needle_size) == 0)
+      if (std::memcmp(buffer + here, needle.c_str(), needle_size) == 0)
         return here;
     }
     return std::string::npos;
