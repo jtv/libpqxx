@@ -1,8 +1,7 @@
 6.3.0
  - Still in progress.  Caution is advised!
- - Notification receivers are now *case-sensitive.*  Spell them right!
  - New "table stream" classes by Joseph Durel: stream_from/stream_to.
- - Support weird characters in more identifiers.
+ - Support weird characters in more identifiers: cursors, notifcations, etc.
  - Connection policies are deprecated.  It'll all be one class in 7.0!
  - Connection deactivation/reactivation is deprecated.
  - Some items that were documented as deprecated are now also declared as such.
