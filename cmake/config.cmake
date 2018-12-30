@@ -20,16 +20,15 @@ function(detect_attribute attr macro)
   " "${macro}" "__attribute__ ((${attr_name}))")
 endfunction(detect_attribute)
 
-include(CheckIncludeFiles)
+include(CheckIncludeFileCXX)
 include(CheckFunctionExists)
 include(CMakeDetermineCompileFeatures)
 include(CheckCXXSourceCompiles)
 
-check_include_files("sys/select.h" HAVE_SYS_SELECT_H)
-check_include_files("sys/stat.h" HAVE_SYS_STAT_H)
-check_include_files("sys/time.h" HAVE_SYS_TIME_H)
-check_include_files("sys/types.h" HAVE_SYS_TYPES_H)
-check_include_files("unistd.h" HAVE_UNISTD_H)
+check_include_file_cxx("sys/select.h" HAVE_SYS_SELECT_H)
+check_include_file_cxx("sys/time.h" HAVE_SYS_TIME_H)
+check_include_file_cxx("sys/types.h" HAVE_SYS_TYPES_H)
+check_include_file_cxx("unistd.h" HAVE_UNISTD_H)
 
 check_function_exists("poll" HAVE_POLL)
 
