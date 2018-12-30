@@ -11,6 +11,7 @@
 #
 # Generated from template './include/CMakeLists.txt.template'.
 ################################################################################
+# TODO: We're giving exact filenames here.  Don't pretend they're globs.
 install(
     DIRECTORY pqxx
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
@@ -94,6 +95,8 @@ install(
         PATTERN version.hxx
         PATTERN version
 )
+
+# TODO: We're giving exact filenames here.  Don't pretend they're globs.
 install(
     DIRECTORY ${PROJECT_BINARY_DIR}/include/pqxx
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
@@ -103,6 +106,8 @@ install(
         PATTERN config-public-compiler.h
         PATTERN config.h
 )
+
+# TODO: We're giving exact filenames here.  Don't pretend they're globs.
 install(
     DIRECTORY pqxx/doc/
     DESTINATION ${CMAKE_INSTALL_DOCDIR}

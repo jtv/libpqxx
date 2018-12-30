@@ -15,6 +15,7 @@ if(NOT PostgreSQL_INCLUDE_DIRS)
     find_package(PostgreSQL REQUIRED)
 endif()
 
+# TODO: We're giving exact filenames here.  Don't pretend they're globs.
 file(
     GLOB UNIT_TEST_SOURCES
     runner.cxx

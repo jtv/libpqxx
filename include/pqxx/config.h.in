@@ -81,13 +81,13 @@
 /* Define if g++ supports const attribute. */
 #undef PQXX_HAVE_GCC_CONST
 
-/* Define if g++ supports deprecated attribute, as in g++ 4.0 */
+/* Define if g++ supports deprecated attribute. */
 #undef PQXX_HAVE_GCC_DEPRECATED
 
 /* Define if g++ supports pure attribute */
 #undef PQXX_HAVE_GCC_PURE
 
-/* Define if g++ supports visibility attribute, as in g++ 4.0 */
+/* Define if g++ supports visibility attribute. */
 #undef PQXX_HAVE_GCC_VISIBILITY
 
 /* Define if the compiler supports std::optional. */
