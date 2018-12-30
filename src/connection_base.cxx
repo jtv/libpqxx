@@ -1175,7 +1175,7 @@ namespace
 // Convert a timeval to milliseconds, or -1 if no timeval is given.
 inline int tv_milliseconds(timeval *tv = nullptr)
 {
-  return tv ? int{tv->tv_sec * 1000 + tv->tv_usec/1000} : -1;
+  return tv ? int(tv->tv_sec * 1000 + tv->tv_usec/1000) : -1;
 }
 #endif
 
@@ -1191,8 +1191,8 @@ void wait_fd(int fd, bool forwrite=false, timeval *tv=nullptr)
   WSAPOLLFD fdarray{SOCKET(fd), events, 0};
   WSAPoll(&fdarray, 1, tv_milliseconds(tv));
 #elif defined(HAVE_POLL)
-  const short events = short{
-        POLLERR|POLLHUP|POLLNVAL | (forwrite?POLLOUT:POLLIN)};
+  const short events = short(
+        POLLERR|POLLHUP|POLLNVAL | (forwrite?POLLOUT:POLLIN));
   pollfd pfd{fd, events, 0};
   poll(&pfd, 1, tv_milliseconds(tv));
 #else
