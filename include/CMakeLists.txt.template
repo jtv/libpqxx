@@ -1,0 +1,30 @@
+# TODO: We're giving exact filenames here.  Don't pretend they're globs.
+install(
+    DIRECTORY pqxx
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILES_MATCHING
+###MAKTEMPLATE:FOREACH include/pqxx/*.hxx
+        PATTERN ###BASENAME###.hxx
+        PATTERN ###BASENAME###
+###MAKTEMPLATE:ENDFOREACH
+)
+
+# TODO: We're giving exact filenames here.  Don't pretend they're globs.
+install(
+    DIRECTORY ${PROJECT_BINARY_DIR}/include/pqxx
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILES_MATCHING
+###MAKTEMPLATE:FOREACH include/pqxx/*.h
+        PATTERN ###BASENAME###.h
+###MAKTEMPLATE:ENDFOREACH
+)
+
+# TODO: We're giving exact filenames here.  Don't pretend they're globs.
+install(
+    DIRECTORY pqxx/doc/
+    DESTINATION ${CMAKE_INSTALL_DOCDIR}
+    FILES_MATCHING
+###MAKTEMPLATE:FOREACH include/pqxx/doc/*.md
+        PATTERN ###BASENAME###.md
+###MAKTEMPLATE:ENDFOREACH
+)

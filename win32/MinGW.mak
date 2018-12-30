@@ -9,7 +9,7 @@
 # The template2mak.py script should be available in the tools directory of the
 # libpqxx source archive.
 #
-# Generated from template 'win32/MinGW.mak.template'.
+# Generated from template './win32/MinGW.mak.template'.
 ################################################################################
 # MinGW makefile for libpqxx.  Don't use this; use the configure script instead!
 # Based on original contributed by Pasquale Fersini <basquale.fersini@libero.it>

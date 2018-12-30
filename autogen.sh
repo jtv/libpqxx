@@ -20,9 +20,6 @@ substitute() {
 		"$1"
 }
 
-# Generate version header.
-substitute include/pqxx/version.hxx.template >include/pqxx/version.hxx
-
 # Generate Windows makefiles.
 # Add carriage returns to turn them into MS-DOS format.
 makewinmake() {
@@ -31,14 +28,28 @@ makewinmake() {
 
 
 # Use templating system to generate various Makefiles.
-for output in test/Makefile.am test/unit/Makefile.am
-do
-	./tools/template2mak.py $output.template $output
-done
-for output in vc-libpqxx vc-test vc-test-unit MinGW
-do
-	makewinmake win32/$output.mak.template win32/$output.mak
-done
+expand_templates() {
+	for template in $@
+	do
+		./tools/template2mak.py "$template" "${template%.template}"
+	done
+
+	# Ensure CR/LF line endings for the Windows files we generate.
+	for template in win32/*.mak.template
+	do
+		sed "${template%.template}" -i -e 's/\r*$/\r/'
+	done
+}
+
+
+# Expand templates using our custom templating tool.  Skip the version.hxx
+# template; that header gets generated in a completely different way.
+expand_templates $(find -name \*.template | grep -v version.hxx)
+
+
+# Generate version header.
+substitute include/pqxx/version.hxx.template >include/pqxx/version.hxx
+
 
 autoheader
 libtoolize --force --automake --copy

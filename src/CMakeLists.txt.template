@@ -1,16 +1,3 @@
-################################################################################
-# AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
-#
-# This file is generated automatically by libpqxx's template2mak.py script, and
-# will be rewritten from time to time.
-#
-# If you modify this file, chances are your modifications will be lost.
-#
-# The template2mak.py script should be available in the tools directory of the
-# libpqxx source archive.
-#
-# Generated from template './src/CMakeLists.txt.template'.
-################################################################################
 if(NOT PostgreSQL_INCLUDE_DIRS)
         find_package(PostgreSQL REQUIRED)
 endif()
@@ -35,40 +22,12 @@ macro(library_target_setup tgt)
     )
 endmacro()
 
+# TODO: We're giving exact filenames here.  Don't pretend they're globs.
 file(
     GLOB CXX_SOURCES
-    array.cxx
-    binarystring.cxx
-    connection.cxx
-    connection_base.cxx
-    cursor.cxx
-    dbtransaction.cxx
-    encodings.cxx
-    errorhandler.cxx
-    except.cxx
-    field.cxx
-    largeobject.cxx
-    nontransaction.cxx
-    notification.cxx
-    pipeline.cxx
-    prepared_statement.cxx
-    result.cxx
-    robusttransaction.cxx
-    row.cxx
-    sql_cursor.cxx
-    statement_parameters.cxx
-    strconv.cxx
-    stream_base.cxx
-    stream_from.cxx
-    stream_to.cxx
-    subtransaction.cxx
-    tablereader.cxx
-    tablestream.cxx
-    tablewriter.cxx
-    transaction.cxx
-    transaction_base.cxx
-    util.cxx
-    version.cxx
+###MAKTEMPLATE:FOREACH src/*.cxx
+    ###BASENAME###.cxx
+###MAKTEMPLATE:ENDFOREACH
 )
 
 if(NOT SKIP_PQXX_SHARED)

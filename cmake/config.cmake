@@ -47,7 +47,8 @@ if (cxx_attribute_deprecated IN_LIST CMAKE_CXX_COMPILE_FEATURES)
 endif ()
 # detect_cxx_feature("cxx_attribute_deprecated" "PQXX_HAVE_DEPRECATED")
 
-# check_cxx_source_compiles requires CMAKE_REQUIRED_DEFINITIONS to specify compiling arguments
+# check_cxx_source_compiles requires CMAKE_REQUIRED_DEFINITIONS to specify
+# compiling arguments.
 # Wordaround: Push CMAKE_REQUIRED_DEFINITIONS
 if (CMAKE_REQUIRED_DEFINITIONS)
   set(def "${CMAKE_REQUIRED_DEFINITIONS}")
@@ -71,7 +72,8 @@ detect_attribute("const" PQXX_HAVE_GCC_CONST)
 detect_attribute("pure" PQXX_HAVE_GCC_PURE)
 detect_attribute("visibility(\"default\")" PQXX_HAVE_GCC_VISIBILITY "visibility")
 
-# check_cxx_source_compiles requires CMAKE_REQUIRED_DEFINITIONS to specify compiling arguments
+# check_cxx_source_compiles requires CMAKE_REQUIRED_DEFINITIONS to specify
+# compiling arguments.
 # Wordaround: Pop CMAKE_REQUIRED_DEFINITIONS
 if (def)
   set(CMAKE_REQUIRED_DEFINITIONS ${def})
