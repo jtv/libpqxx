@@ -159,7 +159,7 @@ AC_TRY_COMPILE(
 	AC_DEFINE(
 		[PQXX_HAVE_GCC_VISIBILITY],
 		1,
-		[Define if g++ supports visibility attribute, as in g++ 4.0]),
+		[Define if g++ supports visibility attribute.]),
 	gcc_visibility=no)
 AC_MSG_RESULT($gcc_visibility)
 CXXFLAGS="$SAVE_CXXFLAGS"
@@ -191,7 +191,7 @@ AC_TRY_COMPILE(
 	AC_DEFINE(
 		[PQXX_HAVE_GCC_DEPRECATED],
 		1,
-		[Define if g++ supports deprecated attribute, as in g++ 4.0]),
+		[Define if g++ supports deprecated attribute.]),
 	gcc_deprecated=no)
 AC_MSG_RESULT($gcc_deprecated)
 fi
