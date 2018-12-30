@@ -70,6 +70,7 @@ std::string::size_type find_query_end(
   {
     // Complex encoding.  We only know how to iterate forwards, so start from
     // the beginning.
+    end = 0;
     const auto scan = pqxx::internal::get_glyph_scanner(enc);
     for (
 	auto here = 0ul, next = 0ul;
@@ -108,10 +109,10 @@ pqxx::internal::sql_cursor::sql_cursor(
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   if (query.empty()) throw usage_error{"Cursor has empty query."};
-  const auto end = find_query_end(
+  const auto qend = find_query_end(
 	query,
 	internal::gate::transaction_sql_cursor{t}.current_encoding());
-  if (end == 0) throw usage_error{"Cursor has effectively empty query."};
+  if (qend == 0) throw usage_error{"Cursor has effectively empty query."};
 
   std::stringstream cq, qn;
 
@@ -125,7 +126,7 @@ pqxx::internal::sql_cursor::sql_cursor(
   if (hold) cq << "WITH HOLD ";
 
   cq << "FOR ";
-  cq.write(query.c_str(), end);
+  cq.write(query.c_str(), qend);
   cq << ' ';
 
   if (up != cursor_base::update) cq << "FOR READ ONLY ";
