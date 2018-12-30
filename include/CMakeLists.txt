@@ -101,10 +101,7 @@ install(
     DIRECTORY ${PROJECT_BINARY_DIR}/include/pqxx
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILES_MATCHING
-        PATTERN config-internal-autotools.h
-        PATTERN config-internal-compiler.h
         PATTERN config-public-compiler.h
-        PATTERN config.h
 )
 
 # TODO: We're giving exact filenames here.  Don't pretend they're globs.

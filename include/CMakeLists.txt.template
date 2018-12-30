@@ -14,9 +14,7 @@ install(
     DIRECTORY ${PROJECT_BINARY_DIR}/include/pqxx
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILES_MATCHING
-###MAKTEMPLATE:FOREACH include/pqxx/*.h
-        PATTERN ###BASENAME###.h
-###MAKTEMPLATE:ENDFOREACH
+        PATTERN config-public-compiler.h
 )
 
 # TODO: We're giving exact filenames here.  Don't pretend they're globs.
