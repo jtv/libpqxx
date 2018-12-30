@@ -106,6 +106,7 @@ namespace gate
 {
 class transaction_subtransaction;
 class transaction_tablereader;
+class transaction_sql_cursor;
 class transaction_stream_from;
 class transaction_tablewriter;
 class transaction_stream_to;
@@ -632,7 +633,9 @@ private:
 	const std::string &Columns);
   void write_copy_line(const std::string &);
   void end_copy_write();
-  internal::encoding_group current_encoding();
+
+  friend class pqxx::internal::gate::transaction_sql_cursor;
+  PQXX_PRIVATE internal::encoding_group current_encoding();
 
   friend class pqxx::internal::gate::transaction_subtransaction;
 

@@ -14,7 +14,9 @@
 
 #include "pqxx/cursor"
 
+#include "pqxx/internal/encodings.hxx"
 #include "pqxx/internal/gates/connection-sql_cursor.hxx"
+#include "pqxx/internal/gates/transaction-sql_cursor.hxx"
 
 using namespace pqxx;
 using namespace pqxx::internal;
@@ -30,7 +32,59 @@ inline bool useless_trail(char c)
 {
   return isspace(c) or c==';';
 }
+
+
+/// Find end of nonempty query, stripping off any trailing semicolon.
+/** When executing a normal query, a trailing semicolon is meaningless but
+ * won't hurt.  That's why we can't rule out that some code may include one.
+ *
+ * But for cursor queries, a trailing semicolon is a problem.  The query gets
+ * embedded in a larger statement, which a semicolon would break into two.
+ * We'll have to remove it if present.
+ *
+ * A trailing semicolon may not actually be at the end.  It could be masked by
+ * subsequent whitespace.  If there's also a comment though, that's the
+ * caller's own lookout.  We can't guard against every possible mistake, and
+ * text processing is actually remarkably sensitive to mistakes in a
+ * multi-encoding world.
+ *
+ * If there is a trailing semicolon, this function returns its offset.  If
+ * there are more than one, it returns the offset of the first one.  If there
+ * is no trailing semicolon, it returns the length of the query string.
+ *
+ * The query must be nonempty.
+ */
+std::string::size_type find_query_end(
+	const std::string &query,
+	encoding_group enc)
+{
+  const auto text = query.c_str();
+  const auto size = query.size();
+  std::string::size_type end;
+  if (enc == encoding_group::MONOBYTE)
+  {
+    // This is an encoding where we can scan backwards from the end.
+    for (end = query.size(); end > 0 and useless_trail(text[end-1]); --end);
+  }
+  else
+  {
+    // Complex encoding.  We only know how to iterate forwards, so start from
+    // the beginning.
+    const auto scan = pqxx::internal::get_glyph_scanner(enc);
+    for (
+	auto here = 0ul, next = 0ul;
+	here < size;
+	here = next
+    )
+    {
+      next = scan(text, size, here);
+      if (next - here > 1 or not useless_trail(text[here]))
+        end = next;
+    }
+  }
+    return end;
 }
+} // namespace
 
 
 pqxx::internal::sql_cursor::sql_cursor(
@@ -48,26 +102,20 @@ pqxx::internal::sql_cursor::sql_cursor(
   m_pos{0}
 {
   if (&t.conn() != &m_home) throw internal_error{"Cursor in wrong connection"};
-  std::stringstream cq, qn;
-
-  /* Strip trailing semicolons (and whitespace, as side effect) off query.  The
-   * whitespace is stripped because it might otherwise mask a semicolon.  After
-   * this, the remaining useful query will be the sequence defined by
-   * query.begin() and last, i.e. last may be equal to query.end() or point to
-   * the first useless trailing character.
-   */
-  auto last = query.end();
-  // TODO: May break on multibyte encodings!
-  for (--last; last!=std::begin(query) and useless_trail(*last); --last) ;
-  if (last==std::begin(query) and useless_trail(*last))
-    throw argument_error{"Cursor created on empty query."};
-  ++last;
-
-  cq << "DECLARE " << t.quote_name(name()) << " ";
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   m_home.activate();
 #include "pqxx/internal/ignore-deprecated-post.hxx"
+
+  if (query.empty()) throw usage_error{"Cursor has empty query."};
+  const auto end = find_query_end(
+	query,
+	internal::gate::transaction_sql_cursor{t}.current_encoding());
+  if (end == 0) throw usage_error{"Cursor has effectively empty query."};
+
+  std::stringstream cq, qn;
+
+  cq << "DECLARE " << t.quote_name(name()) << " ";
 
   if (ap == cursor_base::forward_only) cq << "NO ";
   cq << "SCROLL ";
@@ -76,7 +124,9 @@ pqxx::internal::sql_cursor::sql_cursor(
 
   if (hold) cq << "WITH HOLD ";
 
-  cq << "FOR " << std::string{std::begin(query),last} << ' ';
+  cq << "FOR ";
+  cq.write(query.c_str(), end);
+  cq << ' ';
 
   if (up != cursor_base::update) cq << "FOR READ ONLY ";
   else cq << "FOR UPDATE ";
