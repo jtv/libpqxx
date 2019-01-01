@@ -41,7 +41,7 @@ Windows/Visual C++ build later.
 
 On CMake the standard way of working is to have the source tree in one
 directory, and build in another.  (The `configure` script supports this as
-well, but that build is neough work that I didn't bother documenting it.)
+well, but that build is enough work that I didn't bother documenting it.)
 Let's say you have the libpqxx source tree in a location `$SOURCE`, and are
 building in a different location `$BUILD`.
 
@@ -420,30 +420,30 @@ PostgreSQL documentation for authoritative information.
 The connection string consists of attribute=value pairs separated by spaces,
 e.g. "user=john password=1x2y3z4".  The valid attributes include:
 
-host
+- `host`
 	Name of server to connect to, or the full file path (beginning with a
 	slash) to a Unix-domain socket on the local machine.  Defaults to
 	"/tmp".  Equivalent to (but overrides) environment variable PGHOST.
 
-hostaddr
+- `hostaddr`
 	IP address of a server to connect to; mutually exclusive with "host".
 
-port
+- `port`
 	Port number at the server host to connect to, or socket file name
 	extension for Unix-domain connections.  Equivalent to (but overrides)
 	environment variable PGPORT.
 
-dbname
+- `dbname`
 	Name of the database to connect to.  A single server may host multiple
 	databases.  Defaults to the same name as the current user's name.
 	Equivalent to (but overrides) environment variable PGDATABASE.
 
-user
+- `user`
 	User name to connect under.  This defaults to the name of the current
 	user, although PostgreSQL users are not necessarily the same thing as
 	system users.
 
-requiressl
+- `requiressl`
 	If set to 1, demands an encrypted SSL connection (and fails if no SSL
 	connection can be created).
 
