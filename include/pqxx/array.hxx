@@ -70,8 +70,11 @@ public:
   std::pair<juncture, std::string> get_next();
 
 private:
+  const char *const m_input;
+  const std::string::size_type m_end;
+
   /// Current parsing position in the input.
-  const char *m_pos;
+  std::string::size_type m_pos;
 };
 } // namespace pqxx
 

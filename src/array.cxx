@@ -28,61 +28,67 @@ namespace
  * This is used for array parsing, where the database may send us strings
  * stored in the array, in a quoted and escaped format.
  *
- * Returns the address of the first character after the closing quote.
+ * Returns the offset of the first character after the closing quote.
  */
-const char*scan_single_quoted_string(const char begin[])
+std::string::size_type scan_single_quoted_string(
+	const char buffer[],
+	std::string::size_type pos,
+	std::string::size_type end)
 {
-  const char *here = begin;
-  assert(*here == '\'');
-  for (here++; *here; here++)
+  // TODO: Use glyph_scanner_func.
+  assert((pos < end) and (buffer[pos] == '\''));
+  for (pos++; buffer[pos]; pos++)
   {
-    switch (*here)
+    switch (buffer[pos])
     {
     case '\'':
       // Escaped quote, or closing quote.
-      here++;
+      pos++;
       // If the next character is a quote, we've got a double single quote.
       // That's how SQL escapes embedded quotes in a string.  Terrible idea,
       // but it's what we have.
-      if (*here != '\'') return here;
+      if (buffer[pos] != '\'') return pos;
       // Otherwise, we've found the end of the string.  Return the address of
       // the very next byte.
       break;
     case '\\':
       // Backslash escape.  Skip ahead by one more character.
-      here++;
-      if (*here == '\0')
+      pos++;
+      if (buffer[pos] == '\0')
         throw pqxx::argument_error{
-          "SQL string ends in escape: " + std::string{begin}};
+          "SQL string ends in escape: " + std::string{buffer}};
       break;
     }
   }
   throw pqxx::argument_error{
-      "Null byte in SQL string: " + std::string{begin}};
+      "Null byte in SQL string: " + std::string{buffer}};
 }
 
 
 /// Parse a single-quoted SQL string: un-quote it and un-escape it.
 /** Assumes UTF-8 or an ASCII-superset single-byte encoding.
  */
-std::string parse_single_quoted_string(const char begin[], const char end[])
+std::string parse_single_quoted_string(
+	const char buffer[],
+        std::string::size_type pos,
+	std::string::size_type end)
 {
   // There have to be at least 2 characters: the opening and closing quotes.
-  assert(begin + 1 < end);
-  assert(*begin == '\'');
-  assert(*(end - 1) == '\'');
+// TODO: Check for correct buffer size.
+  assert(pos + 1 < end);
+  assert(buffer[pos] == '\'');
+  assert(buffer[end - 1] == '\'');
 
   std::string output;
   // Maximum output size is same as the input size, minus the opening and
   // closing quotes.  In the worst case, the real number could be half that.
   // Usually it'll be a pretty close estimate.
-  output.reserve(std::size_t(end - begin - 2));
-  for (const char *here = begin + 1; here < end - 1; here++)
+  output.reserve(std::size_t(end - pos - 2));
+  for (auto here = pos + 1; here < end - 1; here++)
   {
     // Skip escapes.
-    if (*here == '\'' or *here == '\\') here++;
-    auto c = *here;
-    output.push_back(c);
+    if (buffer[here] == '\'' or buffer[here] == '\\') here++;
+    output.push_back(buffer[here]);
   }
 
   return output;
@@ -92,51 +98,55 @@ std::string parse_single_quoted_string(const char begin[], const char end[])
 /// Find the end of a double-quoted SQL string in an SQL array.
 /** Assumes UTF-8 or an ASCII-superset single-byte encoding.
  */
-const char *scan_double_quoted_string(const char begin[])
+std::string::size_type scan_double_quoted_string(
+	const char buffer[],
+	std::string::size_type pos,
+	std::string::size_type /* end */)
 {
-  const char *here = begin;
-  assert(*here == '"');
-  for (here++; *here; here++)
+  assert(buffer[pos] == '"');
+  for (pos++; buffer[pos]; pos++)
   {
-    switch (*here)
+    switch (buffer[pos])
     {
     case '\\':
       // Backslash escape.  Skip ahead by one more character.
-      here++;
-      if (*here == '\0')
+      pos++;
+      if (buffer[pos] == '\0')
         throw pqxx::argument_error{
-          "SQL string ends in escape: " + std::string{begin}};
+          "SQL string ends in escape: " + std::string{buffer}};
       break;
     case '"':
-      return here + 1;
+      return pos + 1;
     }
   }
   throw pqxx::argument_error{
-      "Null byte in SQL string: " + std::string{begin}};
+      "Null byte in SQL string: " + std::string{buffer}};
 }
 
 
 /// Parse a double-quoted SQL string: un-quote it and un-escape it.
 /** Assumes UTF-8 or an ASCII-superset single-byte encoding.
  */
-std::string parse_double_quoted_string(const char begin[], const char end[])
+std::string parse_double_quoted_string(
+	const char buffer[],
+	std::string::size_type pos,
+	std::string::size_type end)
 {
   // There have to be at least 2 characters: the opening and closing quotes.
-  assert(begin + 1 < end);
-  assert(*begin == '"');
-  assert(*(end - 1) == '"');
+  assert(pos + 1 < end);
+  assert(buffer[pos] == '"');
+  assert(buffer[end - 1] == '"');
 
   std::string output;
   // Maximum output size is same as the input size, minus the opening and
   // closing quotes.  In the worst case, the real number could be half that.
   // Usually it'll be a pretty close estimate.
-  output.reserve(std::size_t(end - begin - 2));
-  for (const char *here = begin + 1; here < end - 1; here++)
+  output.reserve(std::size_t(end - pos - 2));
+  for (auto here = pos + 1; here < end - 1; here++)
   {
     // Skip escapes.
-    if (*here == '\\') here++;
-    auto c = *here;
-    output.push_back(c);
+    if (buffer[here] == '\\') here++;
+    output.push_back(buffer[here]);
   }
 
   return output;
@@ -146,17 +156,18 @@ std::string parse_double_quoted_string(const char begin[], const char end[])
 /// Find the end of an unquoted string in an SQL array.
 /** Assumes UTF-8 or an ASCII-superset single-byte encoding.
  */
-const char *scan_unquoted_string(const char begin[])
+std::string::size_type scan_unquoted_string(
+	const char buffer[],
+	std::string::size_type pos,
+	std::string::size_type end)
 {
-  assert(*begin != '\'');
-  assert(*begin != '"');
+  assert(pos < end);
+  assert(buffer[pos] != '\'');
+  assert(buffer[pos] != '"');
 
-  const char *p;
-  for (
-        p = begin;
-        *p != ',' and *p != ';' and *p != '}';
-        p++);
-  return p;
+  while (buffer[pos] != ',' and buffer[pos] != ';' and buffer[pos] != '}')
+    ++pos;
+  return pos;
 }
 
 
@@ -164,9 +175,12 @@ const char *scan_unquoted_string(const char begin[])
 /** Here, the special unquoted value NULL means a null value, not a string
  * that happens to spell "NULL".
  */
-std::string parse_unquoted_string(const char begin[], const char end[])
+std::string parse_unquoted_string(
+	const char buffer[],
+	std::string::size_type pos,
+	std::string::size_type end)
 {
-  return std::string{begin, end};
+  return std::string{buffer + pos, buffer + end};
 }
 
 } // namespace
@@ -174,7 +188,10 @@ std::string parse_unquoted_string(const char begin[], const char end[])
 
 namespace pqxx
 {
-array_parser::array_parser(const char input[]) : m_pos(input)
+array_parser::array_parser(const char input[]) :
+  m_input(input),
+  m_end(input == nullptr ? 0 : std::strlen(input)),
+  m_pos(0)
 {
 }
 
@@ -184,14 +201,14 @@ array_parser::get_next()
 {
   pqxx::array_parser::juncture found;
   std::string value;
-  const char *end;
+  std::string::size_type end;
 
-  if (m_pos == nullptr)
+  if (m_input == nullptr)
   {
     found = juncture::done;
-    end = nullptr;
+    end = 0;
   }
-  else switch (*m_pos)
+  else switch (m_input[m_pos])
   {
   case '\0':
     found = juncture::done;
@@ -207,17 +224,17 @@ array_parser::get_next()
     break;
   case '\'':
     found = juncture::string_value;
-    end = scan_single_quoted_string(m_pos);
-    value = parse_single_quoted_string(m_pos, end);
+    end = scan_single_quoted_string(m_input, m_pos, m_end);
+    value = parse_single_quoted_string(m_input, m_pos, end);
     break;
   case '"':
     found = juncture::string_value;
-    end = scan_double_quoted_string(m_pos);
-    value = parse_double_quoted_string(m_pos, end);
+    end = scan_double_quoted_string(m_input, m_pos, m_end);
+    value = parse_double_quoted_string(m_input, m_pos, end);
     break;
   default:
-    end = scan_unquoted_string(m_pos);
-    value = parse_unquoted_string(m_pos, end);
+    end = scan_unquoted_string(m_input, m_pos, m_end);
+    value = parse_unquoted_string(m_input, m_pos, end);
     if (value == "NULL")
     {
       // In this one situation, as a special case, NULL means a null field,
@@ -235,7 +252,7 @@ array_parser::get_next()
   }
 
   // Skip a field separator following a string (or null).
-  if (end != nullptr and (*end == ',' or *end == ';'))
+  if (end > 0 and (m_input[end] == ',' or m_input[end] == ';'))
     end++;
 
   m_pos = end;
