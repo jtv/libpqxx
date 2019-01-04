@@ -19,34 +19,66 @@
 
 namespace pqxx
 {
+/// Scan to next glyph in the buffer.  Assumes there is one.
+std::string::size_type array_parser::scan_glyph(
+	std::string::size_type pos) const
+{
+  assert(pos < m_end);
+  return m_scan(m_input, m_end, pos);
+}
+
+
+/// Scan to next glyph in a substring.  Assumes there is one.
+std::string::size_type array_parser::scan_glyph(
+	std::string::size_type pos,
+	std::string::size_type end) const
+{
+  assert(pos < end);
+  assert(end <= m_end);
+  return m_scan(m_input, end, pos);
+}
+
+
 /// Find the end of a single-quoted SQL string in an SQL array.
 /** Returns the offset of the first character after the closing quote.
  */
 std::string::size_type array_parser::scan_single_quoted_string() const
 {
-  // TODO: Use m_scan.
-  auto here = m_pos;
-  assert((here < m_end) and (m_input[here] == '\''));
-  for (here++; m_input[here]; here++)
+  auto here = m_pos, next = scan_glyph(here);
+  assert(next < m_end);
+  assert(next - here == 1);
+  assert(m_input[here] == '\'');
+  for (
+	here = next, next = scan_glyph(here);
+	here < m_end;
+	here = next, next = scan_glyph(here)
+  )
   {
-    switch (m_input[here])
+    if (next - here == 1) switch (m_input[here])
     {
     case '\'':
-      // Escaped quote, or closing quote.
-      here++;
-      // If the next character is a quote, we've got a double single quote.
-      // That's how SQL escapes embedded quotes in a string.  Terrible idea,
-      // but it's what we have.
-      if (m_input[here] != '\'') return here;
-      // Otherwise, we've found the end of the string.  Return the address of
-      // the very next byte.
+      // SQL escapes single quotes by doubling them.  Terrible idea, but it's
+      // what we have.  Inspect the next character to find out whether this is
+      // the closing quote, or an escaped one inside the string.
+      here = next;
+      // (We can read beyond this quote because the array will always end in
+      // a closing brace.)
+      next = scan_glyph(here);
+
+      if ((here + 1 < next) or (m_input[here] != '\''))
+      {
+        // Our lookahead character is not an escaped quote.  It's the first
+        // character outside our string.  So, return it.
+        return here;
+      }
+
+      // We've just scanned an escaped quote.  Keep going.
       break;
+
     case '\\':
       // Backslash escape.  Skip ahead by one more character.
-      here++;
-      if (m_input[here] == '\0')
-        throw argument_error{
-          "SQL string ends in escape: " + std::string{m_input}};
+      here = next;
+      next = scan_glyph(here);
       break;
     }
   }
@@ -58,7 +90,6 @@ std::string::size_type array_parser::scan_single_quoted_string() const
 std::string array_parser::parse_single_quoted_string(
 	std::string::size_type end) const
 {
-  // TODO: Use m_scan.
   // There have to be at least 2 characters: the opening and closing quotes.
   assert(m_pos + 1 < end);
   assert(m_input[m_pos] == '\'');
@@ -69,11 +100,23 @@ std::string array_parser::parse_single_quoted_string(
   // closing quotes.  In the worst case, the real number could be half that.
   // Usually it'll be a pretty close estimate.
   output.reserve(end - m_pos - 2);
-  for (auto here = m_pos + 1; here < end - 1; here++)
+  for (
+	auto here = m_pos + 1, next = scan_glyph(here, end);
+	here < end - 1;
+	here = next, next = scan_glyph(here, end)
+  )
   {
-    // Skip escapes.
-    if (m_input[here] == '\'' or m_input[here] == '\\') here++;
-    output.push_back(m_input[here]);
+    if (
+	next - here == 1 and
+        (m_input[here] == '\'' or m_input[here] == '\\')
+    )
+    {
+      // Skip escape.
+      here = next;
+      next = scan_glyph(here, end);
+    }
+
+    output.append(m_input + here, m_input + next);
   }
 
   return output;
@@ -85,20 +128,26 @@ std::string::size_type array_parser::scan_double_quoted_string() const
 {
   auto here = m_pos;
   assert(here < m_end);
+  auto next = scan_glyph(here);
+  assert(next - here == 1);
   assert(m_input[here] == '"');
-  for (here++; m_input[here]; here++)
+  for (
+	here = next, next = scan_glyph(here);
+	here < m_end;
+	here = next, next = scan_glyph(here)
+  )
   {
-    switch (m_input[here])
+    if (next - here == 1) switch (m_input[here])
     {
     case '\\':
       // Backslash escape.  Skip ahead by one more character.
-      here++;
-      if (m_input[here] == '\0')
-        throw argument_error{
-          "SQL string ends in escape: " + std::string{m_input}};
+      here = next;
+      next = scan_glyph(here);
       break;
+
     case '"':
-      return here + 1;
+      // Closing quote.  Return the position right after.
+      return next;
     }
   }
   throw argument_error{"Null byte in SQL string: " + std::string{m_input}};
@@ -119,11 +168,21 @@ std::string array_parser::parse_double_quoted_string(
   // closing quotes.  In the worst case, the real number could be half that.
   // Usually it'll be a pretty close estimate.
   output.reserve(std::size_t(end - m_pos - 2));
-  for (auto here = m_pos + 1; here < end - 1; here++)
+
+  for (
+	auto here = scan_glyph(m_pos, end), next = scan_glyph(here, end);
+	here < end - 1;
+	here = next, next = scan_glyph(here, end)
+  )
   {
-    // Skip escapes.
-    if (m_input[here] == '\\') here++;
-    output.push_back(m_input[here]);
+    if ((next - here == 1) and (m_input[here] == '\\'))
+    {
+      // Skip escape.
+      here = next;
+      next = scan_glyph(here, end);
+    }
+
+    output.append(m_input + here, m_input + next);
   }
 
   return output;
@@ -135,17 +194,23 @@ std::string array_parser::parse_double_quoted_string(
  */
 std::string::size_type array_parser::scan_unquoted_string() const
 {
-  auto here = m_pos;
+  auto here = m_pos, next = scan_glyph(here);
   assert(here < m_end);
-  assert(m_input[here] != '\'');
-  assert(m_input[here] != '"');
+  assert((next - here > 1) or (m_input[here] != '\''));
+  assert((next - here > 1) or (m_input[here] != '"'));
 
   while (
-	m_input[here] != ',' and
-	m_input[here] != ';' and
-	m_input[here] != '}'
+        (next - here) > 1 or
+        (
+	  m_input[here] != ',' and
+	  m_input[here] != ';' and
+	  m_input[here] != '}'
+        )
   )
-    ++here;
+  {
+    here = next;
+    next = scan_glyph(here);
+  }
   return here;
 }
 
@@ -179,24 +244,30 @@ array_parser::get_next()
   std::string value;
   std::string::size_type end;
 
-  if (m_input == nullptr)
+  if (m_input == nullptr or (m_pos >= m_end))
+    return std::make_pair(juncture::done, value);
+
+  if (scan_glyph(m_pos) - m_pos > 1)
   {
-    found = juncture::done;
-    end = 0;
+    // Non-ASCII unquoted string.
+    end = scan_unquoted_string();
+    value = parse_unquoted_string(end);
+    found = juncture::string_value;
   }
   else switch (m_input[m_pos])
   {
   case '\0':
+    // TODO: Maybe just raise an error?
     found = juncture::done;
     end = m_pos;
     break;
   case '{':
     found = juncture::row_start;
-    end = m_pos + 1;
+    end = scan_glyph(m_pos);
     break;
   case '}':
     found = juncture::row_end;
-    end = m_pos + 1;
+    end = scan_glyph(m_pos);
     break;
   case '\'':
     found = juncture::string_value;
@@ -227,9 +298,13 @@ array_parser::get_next()
     break;
   }
 
-  // Skip a field separator following a string (or null).
-  if (end > 0 and (m_input[end] == ',' or m_input[end] == ';'))
-    end++;
+  // Skip a trailing field separator, if present.
+  if (end < m_end)
+  {
+    auto next = scan_glyph(end);
+    if (next - end == 1 and (m_input[end] == ',' or m_input[end] == ';'))
+      end = next;
+  }
 
   m_pos = end;
   return std::make_pair(found, value);

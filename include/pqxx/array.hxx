@@ -61,6 +61,7 @@ public:
     done,
   };
 
+// XXX: Actually _pass_ encoding group!
   /// Constructor.  You don't need this; use @c field::as_array instead.
   array_parser(
 	const char input[],
@@ -88,6 +89,11 @@ private:
   std::string parse_double_quoted_string(std::string::size_type end) const;
   std::string::size_type scan_unquoted_string() const;
   std::string parse_unquoted_string(std::string::size_type end) const;
+
+  std::string::size_type scan_glyph(std::string::size_type pos) const;
+  std::string::size_type scan_glyph(
+	std::string::size_type pos,
+	std::string::size_type end) const;
 };
 } // namespace pqxx
 
