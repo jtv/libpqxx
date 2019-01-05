@@ -17,9 +17,6 @@ class PQXX_PRIVATE transaction_tablereader : callgate<transaction_base>
 
   bool read_copy_line(std::string &line)
 	{ return home().read_copy_line(line); }
-
-  internal::encoding_group current_encoding()
-	{ return home().current_encoding(); }
 };
 } // namespace pqxx::internal::gate
 } // namespace pqxx::internal

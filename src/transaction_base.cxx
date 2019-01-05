@@ -3,7 +3,7 @@
  * pqxx::transaction_base defines the interface for any abstract class that
  * represents a database transaction.
  *
- * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -550,12 +550,6 @@ void pqxx::transaction_base::end_copy_write()
 {
   gate::connection_transaction gate{conn()};
   gate.end_copy_write();
-}
-
-
-encoding_group pqxx::transaction_base::current_encoding()
-{
-  return enc_group(get_variable("client_encoding"));
 }
 
 

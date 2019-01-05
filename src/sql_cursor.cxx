@@ -2,7 +2,7 @@
  *
  * These classes wrap SQL cursors in STL-like interfaces.
  *
- * Copyright (c) 2004-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2004-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -109,9 +109,8 @@ pqxx::internal::sql_cursor::sql_cursor(
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   if (query.empty()) throw usage_error{"Cursor has empty query."};
-  const auto qend = find_query_end(
-	query,
-	internal::gate::transaction_sql_cursor{t}.current_encoding());
+  const auto enc = enc_group(t.conn().encoding_code());
+  const auto qend = find_query_end(query, enc);
   if (qend == 0) throw usage_error{"Cursor has effectively empty query."};
 
   std::stringstream cq, qn;

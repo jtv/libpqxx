@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
  *
- * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -382,15 +382,32 @@ public:
   int PQXX_PURE server_version() const noexcept;			//[t01]
   //@}
 
-  /// Set client-side character encoding
+  /// @name Text encoding
+  /**
+   * Each connection is governed by a "client encoding," which dictates how
+   * strings and other text is represented in bytes.  The database server will
+   * send text data to you in this encoding, and you should use it for the
+   * queries and data which you send to the server.
+   */
+  //@{
+  /// Set client-side character encoding, by name.
   /** Search the PostgreSQL documentation for "multibyte" or "character set
    * encodings" to find out more about the available encodings, how to extend
    * them, and how to use them.  Not all server-side encodings are compatible
    * with all client-side encodings or vice versa.
+   *
    * @param Encoding Name of the character set encoding to use
    */
   void set_client_encoding(const std::string &Encoding)			//[t07]
 	{ set_variable("CLIENT_ENCODING", Encoding); }
+
+  // TODO: Set client-side character encoding, by code.
+
+  /// Get the connection's encoding, as a PostgreSQL-defined code.
+  int PQXX_PRIVATE encoding_code();
+
+  /// TODO: Get the connection's encoding, by name.
+  //@}
 
   /// Set session variable
   /** Set a session variable for this connection, using the SET command.  If the
@@ -820,7 +837,6 @@ private:
   void PQXX_PRIVATE start_exec(const std::string &);
   bool PQXX_PRIVATE consume_input() noexcept;
   bool PQXX_PRIVATE is_busy() const noexcept;
-  int PQXX_PRIVATE encoding_code();
   internal::pq::PGresult *get_result();
 
   friend class internal::gate::connection_dbtransaction;

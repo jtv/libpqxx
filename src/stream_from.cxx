@@ -2,7 +2,7 @@
  *
  * pqxx::stream_from enables optimized batch reads from a database table.
  *
- * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -106,9 +106,7 @@ void pqxx::stream_from::set_up(
 {
   // Get the encoding before starting the COPY, otherwise reading the the
   // variable will interrupt it
-  m_copy_encoding = internal::gate::transaction_stream_from{
-    m_trans
-  }.current_encoding();
+  m_copy_encoding = internal::enc_group(m_trans.conn().encoding_code());
   internal::gate::transaction_stream_from{tb}.BeginCopyRead(
     table_name,
     columns
