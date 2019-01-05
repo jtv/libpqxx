@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/field instead.
  *
- * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -207,7 +207,8 @@ public:
    * you keep the @c row of @c field object alive, it will keep the @c result
    * object alive as well.
    */
-  array_parser as_array() const { return array_parser{c_str()}; }
+  array_parser as_array() const
+        { return array_parser{c_str(), m_home.m_encoding}; }
   //@}
 
 
