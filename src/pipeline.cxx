@@ -2,7 +2,7 @@
  *
  * Throughput-optimized query interface.
  *
- * Copyright (c) 2003-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2003-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -252,7 +252,8 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 
   pqxxassert(r);
   const result res = gate::result_creation::create(
-	r, std::begin(m_queries)->second.get_query());
+	r, std::begin(m_queries)->second.get_query(),
+        internal::enc_group(m_trans.conn().encoding_code()));
 
   if (not have_pending())
   {
@@ -282,7 +283,10 @@ void pqxx::pipeline::obtain_dummy()
   if (r == nullptr)
     internal_error("Pipeline got no result from backend when it expected one.");
 
-  result R = gate::result_creation::create(r, "[DUMMY PIPELINE QUERY]");
+  result R = gate::result_creation::create(
+        r,
+        "[DUMMY PIPELINE QUERY]",
+        internal::enc_group(m_trans.conn().encoding_code()));
 
   bool OK = false;
   try

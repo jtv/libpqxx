@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/result instead.
  *
- * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -23,6 +23,9 @@
 #include "pqxx/except.hxx"
 #include "pqxx/types.hxx"
 #include "pqxx/util.hxx"
+
+#include "pqxx/internal/encodings.hxx"
+
 
 // Methods tested in eg. test module test01 are marked with "//[t01]".
 
@@ -75,18 +78,14 @@ public:
   using const_reverse_iterator = const_reverse_result_iterator;
   using reverse_iterator = const_reverse_iterator;
 
-  result() noexcept : m_data(make_data_pointer()), m_query() {}		//[t03]
+  result() noexcept :		                                        //[t03]
+      m_data(make_data_pointer()),
+      m_query(),
+      m_encoding(internal::encoding_group::MONOBYTE)
+    {}
   result(const result &rhs) noexcept =default;				//[t01]
 
-  result &operator=(const result &rhs) noexcept				//[t10]
-  {
-    if (&rhs != this)
-    {
-      m_data = rhs.m_data;
-      m_query = rhs.m_query;
-    }
-    return *this;
-  }
+  result &operator=(const result &rhs) noexcept =default;		//[t10]
 
   /**
    * @name Comparisons
@@ -205,6 +204,8 @@ private:
   /// Query string.
   std::shared_ptr<std::string> m_query;
 
+  internal::encoding_group m_encoding;
+
   static const std::string s_empty_string;
 
   friend class pqxx::field;
@@ -215,7 +216,11 @@ private:
 	row_size_type) const noexcept;
 
   friend class pqxx::internal::gate::result_creation;
-  result(internal::pq::PGresult *rhs, const std::string &Query);
+  result(
+        internal::pq::PGresult *rhs,
+        const std::string &Query,
+        internal::encoding_group enc);
+
   PQXX_PRIVATE void check_status() const;
 
   friend class pqxx::internal::gate::result_connection;

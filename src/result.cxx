@@ -2,7 +2,7 @@
  *
  * pqxx::result represents the set of result rows from a database query
  *
- * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -32,9 +32,11 @@ void pqxx::internal::clear_result(const pq::PGresult *data)
 
 pqxx::result::result(
 	pqxx::internal::pq::PGresult *rhs,
-	const std::string &Query) :
+	const std::string &Query,
+        internal::encoding_group enc) :
   m_data{make_data_pointer(rhs)},
-  m_query{std::make_shared<std::string>(Query)}
+  m_query{std::make_shared<std::string>(Query)},
+  m_encoding(enc)
 {
 }
 
