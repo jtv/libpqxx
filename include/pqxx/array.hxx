@@ -63,7 +63,7 @@ public:
 
 // XXX: Actually _pass_ encoding group!
   /// Constructor.  You don't need this; use @c field::as_array instead.
-  array_parser(
+  explicit array_parser(
 	const char input[],
 	internal::encoding_group=internal::encoding_group::MONOBYTE);
 
