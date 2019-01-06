@@ -10,9 +10,11 @@ using namespace pqxx;
 // a dummy transaction to gain nontransactional access, and perform a query.
 namespace
 {
-void test_033(transaction_base &T)
+void test_033()
 {
-  result R( T.exec("SELECT * FROM pg_tables") );
+  lazyconnection conn;
+  nontransaction tx{conn};
+  result R( tx.exec("SELECT * FROM pg_tables") );
 
   for (const auto &c: R)
   {
@@ -24,8 +26,9 @@ void test_033(transaction_base &T)
 
   // "Commit" the non-transaction.  This doesn't really do anything since
   // nontransaction doesn't start a backend transaction.
-  T.commit();
+  tx.commit();
 }
 } // namespace
 
-PQXX_REGISTER_TEST_CT(test_033, lazyconnection, nontransaction)
+
+PQXX_REGISTER_TEST(test_033);

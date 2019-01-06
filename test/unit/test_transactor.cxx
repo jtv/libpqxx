@@ -5,10 +5,11 @@ using namespace pqxx;
 
 namespace
 {
-void test_transactor_newstyle_executes_simple_query(connection_base &c)
+void test_transactor_newstyle_executes_simple_query()
 {
+  connection conn;
   const auto r = pqxx::perform(
-    [&c]{return work{c}.exec("SELECT generate_series(1, 4)");});
+    [&conn]{return work{conn}.exec("SELECT generate_series(1, 4)");});
 
   PQXX_CHECK_EQUAL(r.size(), 4u, "Unexpected result size.");
   PQXX_CHECK_EQUAL(r.columns(), 1u, "Unexpected number of columns.");
@@ -112,10 +113,9 @@ void test_transactor_newstyle_repeats_up_to_given_number_of_attempts()
 }
 
 
-void test_transactor(transaction_base &trans)
+void test_transactor()
 {
-  trans.abort();
-  test_transactor_newstyle_executes_simple_query(trans.conn());
+  test_transactor_newstyle_executes_simple_query();
   test_transactor_newstyle_can_return_void();
   test_transactor_newstyle_completes_upon_success();
   test_transactor_newstyle_retries_broken_connection();
@@ -126,4 +126,4 @@ void test_transactor(transaction_base &trans)
 }
 } // namespace
 
-PQXX_REGISTER_TEST(test_transactor)
+PQXX_REGISTER_TEST(test_transactor);

@@ -2,9 +2,11 @@
 
 namespace
 {
-void test_row(pqxx::transaction_base &trans)
+void test_row()
 {
-  pqxx::result rows = trans.exec("SELECT 1, 2, 3");
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  pqxx::result rows = tx.exec("SELECT 1, 2, 3");
   pqxx::row r = rows[0];
   PQXX_CHECK_EQUAL(r.size(), 3u, "Unexpected row size.");
   PQXX_CHECK_EQUAL(r.at(0).as<int>(), 1, "Wrong value at index 0.");
@@ -20,4 +22,4 @@ void test_row(pqxx::transaction_base &trans)
 }
 } // namespace
 
-PQXX_REGISTER_TEST(test_row)
+PQXX_REGISTER_TEST(test_row);

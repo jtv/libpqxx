@@ -41,12 +41,15 @@ void TestPipeline(pipeline &P, int numqueries)
 }
 
 
-void test_069(transaction_base &W)
+void test_069()
 {
-  pipeline P(W);
+  asyncconnection conn;
+  work tx{conn};
+  pipeline P(tx);
   PQXX_CHECK(P.empty(), "Pipeline is not empty initially.");
   for (int i=0; i<5; ++i) TestPipeline(P, i);
 }
 } // namespace
 
-PQXX_REGISTER_TEST_C(test_069, asyncconnection)
+
+PQXX_REGISTER_TEST(test_069);

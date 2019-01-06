@@ -5,11 +5,14 @@ using namespace pqxx;
 
 namespace
 {
-void test_forward_sql_cursor(transaction_base &trans)
+void test_forward_sql_cursor()
 {
+  connection conn;
+  work tx{conn};
+
   // Plain owned, scoped, forward-only read-only cursor.
   internal::sql_cursor forward(
-	trans,
+	tx,
 	"SELECT generate_series(1, 4)",
 	"forward",
 	cursor_base::forward_only,
@@ -69,7 +72,7 @@ void test_forward_sql_cursor(transaction_base &trans)
 
   // Move through entire result set at once.
   internal::sql_cursor forward2(
-	trans,
+	tx,
 	"SELECT generate_series(1, 4)",
 	"forward",
 	cursor_base::forward_only,
@@ -85,7 +88,7 @@ void test_forward_sql_cursor(transaction_base &trans)
   PQXX_CHECK_EQUAL(forward2.endpos(), 5, "Bad endpos() after skipping");
 
   internal::sql_cursor forward3(
-	trans,
+	tx,
 	"SELECT generate_series(1, 4)",
 	"forward",
 	cursor_base::forward_only,
@@ -101,7 +104,7 @@ void test_forward_sql_cursor(transaction_base &trans)
   PQXX_CHECK_EQUAL(forward3.endpos(), 5, "Bad endpos() after fetching");
 
   internal::sql_cursor forward_empty(
-	trans,
+	tx,
 	"SELECT generate_series(0, -1)",
 	"forward_empty",
 	cursor_base::forward_only,
@@ -116,10 +119,12 @@ void test_forward_sql_cursor(transaction_base &trans)
   PQXX_CHECK_EQUAL(offset, 0, "move() in empty result counted rows");
 }
 
-void test_scroll_sql_cursor(transaction_base &trans)
+void test_scroll_sql_cursor()
 {
+  connection conn;
+  work tx{conn};
   internal::sql_cursor scroll(
-	trans,
+	tx,
 	"SELECT generate_series(1, 10)",
 	"scroll",
 	cursor_base::random_access,
@@ -180,12 +185,15 @@ void test_scroll_sql_cursor(transaction_base &trans)
 }
 
 
-void test_adopted_sql_cursor(connection_base &, transaction_base &trans)
+void test_adopted_sql_cursor()
 {
-  trans.exec(
+  connection conn;
+  work tx{conn};
+
+  tx.exec(
 	"DECLARE adopted SCROLL CURSOR FOR "
 	"SELECT generate_series(1, 3)");
-  internal::sql_cursor adopted(trans, "adopted", cursor_base::owned);
+  internal::sql_cursor adopted(tx, "adopted", cursor_base::owned);
   PQXX_CHECK_EQUAL(adopted.pos(), -1, "Adopted cursor has known pos()");
   PQXX_CHECK_EQUAL(adopted.endpos(), -1, "Adopted cursor has known endpos()");
 
@@ -213,18 +221,18 @@ void test_adopted_sql_cursor(connection_base &, transaction_base &trans)
 
   // Owned adopted cursors are cleaned up on destruction.
   connection conn2;
-  work trans2(conn2, "trans2");
-  trans2.exec(
+  work tx2(conn2, "tx2");
+  tx2.exec(
 	"DECLARE adopted2 CURSOR FOR "
 	"SELECT generate_series(1, 3)");
   {
-    internal::sql_cursor(trans2, "adopted2", cursor_base::owned);
+    internal::sql_cursor(tx2, "adopted2", cursor_base::owned);
   }
   if (conn2.server_version() >= 80000)
   {
     // Modern backends: accessing the cursor now is an error, as you'd expect.
     PQXX_CHECK_THROWS(
-	trans2.exec("FETCH 1 IN adopted2"),
+	tx2.exec("FETCH 1 IN adopted2"),
 	 sql_error,
 	 "Owned adopted cursor not cleaned up");
   }
@@ -232,59 +240,62 @@ void test_adopted_sql_cursor(connection_base &, transaction_base &trans)
   {
     // Old backends: see that we can at least create a new cursor with the same
     // name.
-    trans2.exec("DECLARE adopted2 CURSOR FOR SELECT TRUE");
+    tx2.exec("DECLARE adopted2 CURSOR FOR SELECT TRUE");
   }
 
-  trans2.abort();
+  tx2.abort();
 
-  work trans3(conn2, "trans3");
-  trans3.exec(
+  work tx3(conn2, "tx3");
+  tx3.exec(
 	"DECLARE adopted3 CURSOR FOR "
 	"SELECT generate_series(1, 3)");
   {
-    internal::sql_cursor(trans3, "adopted3", cursor_base::loose);
+    internal::sql_cursor(tx3, "adopted3", cursor_base::loose);
   }
-  trans3.exec("MOVE 1 IN adopted3");
+  tx3.exec("MOVE 1 IN adopted3");
 }
 
-void test_hold_cursor(connection_base &conn, transaction_base &trans)
+void test_hold_cursor()
 {
+  connection conn;
+  work tx{conn};
+
   // "With hold" cursor is kept after commit.
   internal::sql_cursor with_hold(
-	trans,
+	tx,
 	"SELECT generate_series(1, 3)",
 	"hold_cursor",
 	cursor_base::forward_only,
 	cursor_base::read_only,
 	cursor_base::owned,
 	true);
-  trans.commit();
-  work trans2(conn, "trans2");
+  tx.commit();
+  work tx2(conn, "tx2");
   result rows = with_hold.fetch(1);
   PQXX_CHECK_EQUAL(rows.size(), 1u, "Did not get 1 row from with-hold cursor");
 
   // Cursor without hold is closed on commit.
   internal::sql_cursor no_hold(
-	trans2,
+	tx2,
 	"SELECT generate_series(1, 3)",
 	"no_hold_cursor",
 	cursor_base::forward_only,
 	cursor_base::read_only,
 	cursor_base::owned,
 	false);
-  trans2.commit();
-  work trans3(conn, "trans3");
+  tx2.commit();
+  work tx3(conn, "tx3");
   PQXX_CHECK_THROWS(no_hold.fetch(1), sql_error, "Cursor not closed on commit");
 }
 
 
-void cursor_tests(transaction_base &t)
+void cursor_tests()
 {
-  test_forward_sql_cursor(t);
-  test_scroll_sql_cursor(t);
-  test_adopted_sql_cursor(t.conn(), t);
-  test_hold_cursor(t.conn(), t);
+  test_forward_sql_cursor();
+  test_scroll_sql_cursor();
+  test_adopted_sql_cursor();
+  test_hold_cursor();
 }
 } // namespace
 
-PQXX_REGISTER_TEST(cursor_tests)
+PQXX_REGISTER_TEST(cursor_tests);

@@ -7,16 +7,18 @@ using namespace pqxx;
 
 namespace
 {
-void test_090(transaction_base &N)
+void test_090()
 {
-  connection_base &C(N.conn());
+  connection conn;
+
   // Test connection's adorn_name() function for uniqueness
   const string nametest = "basename";
 
-  PQXX_CHECK_NOT_EQUAL(C.adorn_name(nametest),
-	C.adorn_name(nametest),
+  PQXX_CHECK_NOT_EQUAL(conn.adorn_name(nametest),
+	conn.adorn_name(nametest),
 	"\"Unique\" names are not unique.");
 }
 } // namespace
 
-PQXX_REGISTER_TEST(test_090)
+
+PQXX_REGISTER_TEST(test_090);

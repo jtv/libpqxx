@@ -83,11 +83,13 @@ struct CountGreaterSmaller
 };
 
 
-void test_049(transaction_base &T)
+void test_049()
 {
+  connection conn;
+  work tx{conn};
   string Table="pg_tables", Key="tablename";
 
-  result R( T.exec("SELECT * FROM " + Table + " ORDER BY " + Key) );
+  result R( tx.exec("SELECT * FROM " + Table + " ORDER BY " + Key) );
   cout << "Read " << R.size() << " rows." << endl;
   PQXX_CHECK(not R.empty(), "No rows in " + Table + ".");
 
@@ -97,4 +99,5 @@ void test_049(transaction_base &T)
 }
 } // namespace
 
-PQXX_REGISTER_TEST(test_049)
+
+PQXX_REGISTER_TEST(test_049);

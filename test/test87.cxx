@@ -39,8 +39,8 @@ class TestListener final : public notification_receiver
   bool m_done;
 
 public:
-  explicit TestListener(connection_base &C, string Name) :
-    notification_receiver(C, Name), m_done(false)
+  explicit TestListener(connection_base &conn, string Name) :
+    notification_receiver(conn, Name), m_done(false)
   {
   }
 
@@ -81,18 +81,17 @@ static void set_fdbit(fd_set &s, int b)
 }
 
 
-void test_087(transaction_base &orgT)
+void test_087()
 {
-  connection_base &C(orgT.conn());
-  orgT.abort();
+  connection conn;
 
   const string NotifName = "my notification";
-  TestListener L(C, NotifName);
+  TestListener L{conn, NotifName};
 
   perform(
-    [&C, &L]()
+    [&conn, &L]()
     {
-      work tx{C};
+      work tx{conn};
       tx.exec0("NOTIFY " + tx.quote_name(L.channel()));
       tx.commit();
     });
@@ -103,7 +102,7 @@ void test_087(transaction_base &orgT)
     PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
 
     cout << ".";
-    const int fd = C.sock();
+    const int fd = conn.sock();
 
     // File descriptor from which we wish to read.
     fd_set read_fds;
@@ -118,7 +117,7 @@ void test_087(transaction_base &orgT)
 
     timeval timeout = { 1, 0 };
     select(fd+1, &read_fds, nullptr, &except_fds, &timeout);
-    notifs = C.get_notifs();
+    notifs = conn.get_notifs();
   }
   cout << endl;
 
@@ -127,4 +126,5 @@ void test_087(transaction_base &orgT)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_087, nontransaction)
+
+PQXX_REGISTER_TEST(test_087);

@@ -11,9 +11,11 @@ using namespace pqxx;
 // This test combines a lazy connection with a robust transaction.
 namespace
 {
-void test_035(transaction_base &T)
+void test_035()
 {
-  result R( T.exec("SELECT * FROM pg_tables") );
+  lazyconnection conn;
+  robusttransaction<> tx{conn};
+  result R( tx.exec("SELECT * FROM pg_tables") );
 
   for (const auto &c: R)
   {
@@ -22,10 +24,9 @@ void test_035(transaction_base &T)
     cout << '\t' << to_string(c.num()) << '\t' << N << endl;
   }
 
-  // "Commit" the non-transaction.  This doesn't really do anything since
-  // NonTransaction doesn't start a backend transaction.
-  T.commit();
+  tx.commit();
 }
 } // namespace
 
-PQXX_REGISTER_TEST_CT(test_035, lazyconnection, robusttransaction<>)
+
+PQXX_REGISTER_TEST(test_035);

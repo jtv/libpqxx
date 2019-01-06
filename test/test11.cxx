@@ -11,11 +11,13 @@ using namespace pqxx;
 // Test program for libpqxx.  Query a table and report its metadata.
 namespace
 {
-void test_011(transaction_base &T)
+void test_011()
 {
+  connection conn;
+  work tx{conn};
   const string Table = "pg_tables";
 
-  result R( T.exec("SELECT * FROM " + Table) );
+  result R( tx.exec("SELECT * FROM " + Table) );
 
   // Print column names
   for (pqxx::row::size_type c = 0; c < R.columns(); ++c)
@@ -76,4 +78,5 @@ void test_011(transaction_base &T)
 }
 } // namespace
 
-PQXX_REGISTER_TEST(test_011)
+
+PQXX_REGISTER_TEST(test_011);

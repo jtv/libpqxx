@@ -18,8 +18,8 @@ class TestListener : public notification_receiver
   bool m_done;
 
 public:
-  explicit TestListener(connection_base &C, string Name) :
-    notification_receiver(C, Name), m_done(false)
+  explicit TestListener(connection_base &conn, string Name) :
+    notification_receiver(conn, Name), m_done(false)
   {
   }
 
@@ -38,18 +38,17 @@ public:
 };
 
 
-void test_078(transaction_base &orgT)
+void test_078()
 {
-  connection_base &C(orgT.conn());
-  orgT.abort();
+  connection conn;
 
   const string NotifName = "my listener";
-  TestListener L(C, NotifName);
+  TestListener L{conn, NotifName};
 
   perform(
-    [&C, &L]()
+    [&conn, &L]()
     {
-      work tx{C};
+      work tx{conn};
       tx.exec0("NOTIFY " + tx.quote_name(L.channel()));
       tx.commit();
     });
@@ -59,7 +58,7 @@ void test_078(transaction_base &orgT)
   {
     PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
     cout << ".";
-    notifs = C.await_notification();
+    notifs = conn.await_notification();
   }
   cout << endl;
 
@@ -68,4 +67,5 @@ void test_078(transaction_base &orgT)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_078, nontransaction)
+
+PQXX_REGISTER_TEST(test_078);

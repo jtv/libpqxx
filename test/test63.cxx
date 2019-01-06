@@ -11,16 +11,19 @@ using namespace pqxx;
 // it.
 namespace
 {
-void test_063(transaction_base &T)
+void test_063()
 {
-  result R( T.exec("SELECT * FROM pg_tables") );
+  asyncconnection conn;
+  work tx{conn};
+  result R( tx.exec("SELECT * FROM pg_tables") );
   PQXX_CHECK(not R.empty(), "No tables found.  Cannot test.");
 
   for (const auto &c: R)
     cout << '\t' << to_string(c.num()) << '\t' << c[0].as(string{}) << endl;
 
-  T.commit();
+  tx.commit();
 }
 } // namespace
 
-PQXX_REGISTER_TEST_C(test_063, asyncconnection)
+
+PQXX_REGISTER_TEST(test_063);

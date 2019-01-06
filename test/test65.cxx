@@ -24,16 +24,16 @@ template<typename T> string UnStream(T &Stream)
 }
 
 
-void test_065(transaction_base &)
+void test_065()
 {
-  asyncconnection C("");
+  asyncconnection conn("");
 
   const string Contents = "Testing, testing, 1-2-3";
 
   largeobject Obj = perform(
-    [&C, &Contents]()
+    [&conn, &Contents]()
     {
-      work tx{C};
+      work tx{conn};
       auto new_obj = largeobject{tx};
       lostream S{tx, new_obj.id()};
       S << Contents;
@@ -43,14 +43,14 @@ void test_065(transaction_base &)
     });
 
   const string Readback = perform(
-    [&C, &Obj]
+    [&conn, &Obj]
     {
-      work tx{C};
+      work tx{conn};
       lostream S{tx, Obj, ios::in};
       return UnStream(S);
     });
 
-  perform([&C, &Obj](){ work tx{C}; Obj.remove(tx); tx.commit(); });
+  perform([&conn, &Obj](){ work tx{conn}; Obj.remove(tx); tx.commit(); });
 
   /* Reconstruct what will happen to our contents string if we put it into a
    * stream and then read it back.  We can compare this with what comes back
@@ -66,4 +66,5 @@ void test_065(transaction_base &)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_NODB(test_065)
+
+PQXX_REGISTER_TEST(test_065);

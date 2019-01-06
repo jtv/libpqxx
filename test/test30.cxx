@@ -12,20 +12,20 @@ using namespace pqxx;
 // connection.
 namespace
 {
-void test_030(transaction_base &)
+void test_030()
 {
   const string Table = "pg_tables";
 
-  lazyconnection C;
-  work T(C, "test30");
+  lazyconnection conn;
+  work tx{conn, "test30"};
 
-  result R( T.exec(("SELECT * FROM " + Table).c_str()) );
+  result R( tx.exec(("SELECT * FROM " + Table).c_str()) );
   PQXX_CHECK(not R.empty(), "Table " + Table + " is empty, cannot test.");
 
   // Print column names
   for (pqxx::row::size_type c = 0; c < R.columns(); ++c)
   {
-    string N= R.column_name(c);
+    string N = R.column_name(c);
     cout << c << ":\t" << N << endl;
 
     PQXX_CHECK_EQUAL(
@@ -80,4 +80,5 @@ void test_030(transaction_base &)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_NODB(test_030)
+
+PQXX_REGISTER_TEST(test_030);

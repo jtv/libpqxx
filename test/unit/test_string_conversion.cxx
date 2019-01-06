@@ -14,7 +14,7 @@ PQXX_DECLARE_ENUM_CONVERSION(EnumB);
 
 namespace
 {
-void test_string_conversion(transaction_base &)
+void test_string_conversion()
 {
   PQXX_CHECK_EQUAL(
 	"C string array",
@@ -117,4 +117,4 @@ void test_string_conversion(transaction_base &)
 }
 }
 
-PQXX_REGISTER_TEST_NODB(test_string_conversion)
+PQXX_REGISTER_TEST(test_string_conversion);

@@ -60,18 +60,18 @@ map<int, int> update_years(connection_base &C)
 }
 
 
-void test_026(transaction_base &)
+void test_026()
 {
-  lazyconnection C;
+  lazyconnection conn;
   {
-    nontransaction T(C);
-    test::create_pqxxevents(T);
-    T.commit();
+    nontransaction tx{conn};
+    test::create_pqxxevents(tx);
+    tx.commit();
   }
 
   // Perform (an instantiation of) the UpdateYears transactor we've defined
   // in the code above.  This is where the work gets done.
-  const auto conversions = perform(bind(update_years, ref(C)));
+  const auto conversions = perform(bind(update_years, ref(conn)));
 
   // Just for fun, report the exact conversions performed.  Note that this
   // list will be accurate even if other people were modifying the database
@@ -82,4 +82,5 @@ void test_026(transaction_base &)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_NODB(test_026)
+
+PQXX_REGISTER_TEST(test_026);

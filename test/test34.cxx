@@ -11,23 +11,23 @@ using namespace pqxx;
 // This test uses a lazy connection.
 namespace
 {
-void test_034(transaction_base &T)
+void test_034()
 {
-  connection_base &C(T.conn());
-  T.abort();
+  lazyconnection conn;
 
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
   // See if deactivate() behaves...
-  C.deactivate();
+  conn.deactivate();
 #include <pqxx/internal/ignore-deprecated-post.hxx>
 
   const auto r = perform(
-    [&C](){
-	return nontransaction{C}.exec("SELECT generate_series(1, 4)");
+    [&conn](){
+	return nontransaction{conn}.exec("SELECT generate_series(1, 4)");
     });
 
   PQXX_CHECK_EQUAL(r.size(), 4u, "Unexpected transactor result.");
 }
 } // namespace
 
-PQXX_REGISTER_TEST_CT(test_034, lazyconnection, nontransaction)
+
+PQXX_REGISTER_TEST(test_034);

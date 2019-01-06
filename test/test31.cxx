@@ -20,29 +20,28 @@ void InitVector(VEC &V, typename VEC::size_type s, VAL val)
 }
 
 
-void test_031(transaction_base &orgT)
+void test_031()
 {
-  connection_base &C(orgT.conn());
-  orgT.abort();
+  lazyconnection conn;
 
   const string Table = "pg_tables";
 
-  // Tell C we won't be needing it for a while (not true, but let's pretend)
+  // Tell conn we won't be needing it for a while (not true, but let's pretend).
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
-  C.deactivate();
+  conn.deactivate();
 #include <pqxx/internal/ignore-deprecated-post.hxx>
 
   vector<int> NullFields;		// Maps column to no. of null fields
   vector<bool> SortedUp, SortedDown;	// Does column appear to be sorted?
 
-  // Reactivate C (not really needed, but it sounds more polite)
+  // Reactivate conn (not really needed, but it sounds more polite).
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
-  C.activate();
+  conn.activate();
 #include <pqxx/internal/ignore-deprecated-post.hxx>
 
-  work T(C, "test31");
+  work tx(conn, "test31");
 
-  result R( T.exec("SELECT * FROM " + Table) );
+  result R( tx.exec("SELECT * FROM " + Table) );
 
   InitVector(NullFields, R.columns(), 0);
   InitVector(SortedUp, R.columns(), true);
@@ -149,4 +148,5 @@ void test_031(transaction_base &orgT)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_CT(test_031, lazyconnection, nontransaction)
+
+PQXX_REGISTER_TEST(test_031);

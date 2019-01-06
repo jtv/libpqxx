@@ -6,8 +6,9 @@ using namespace pqxx;
 
 namespace
 {
-void test_stateless_cursor_provides_random_access(transaction_base &tx)
+void test_stateless_cursor_provides_random_access(connection_base &conn)
 {
+  work tx{conn};
   stateless_cursor<cursor_base::read_only, cursor_base::owned> c{
 	tx,
 	"SELECT * FROM generate_series(0, 3)",
@@ -28,8 +29,9 @@ void test_stateless_cursor_provides_random_access(transaction_base &tx)
 }
 
 
-void test_stateless_cursor_ignores_trailing_semicolon(transaction_base &tx)
+void test_stateless_cursor_ignores_trailing_semicolon(connection_base &conn)
 {
+  work tx{conn};
   stateless_cursor<cursor_base::read_only, cursor_base::owned> c{
 	tx,
 	"SELECT * FROM generate_series(0, 3)  ;; ; \n \t  ",
@@ -42,11 +44,12 @@ void test_stateless_cursor_ignores_trailing_semicolon(transaction_base &tx)
 }
 
 
-void test_cursor(transaction_base &tx)
+void test_cursor()
 {
-  test_stateless_cursor_provides_random_access(tx);
-  test_stateless_cursor_ignores_trailing_semicolon(tx);
+  connection conn;
+  test_stateless_cursor_provides_random_access(conn);
+  test_stateless_cursor_ignores_trailing_semicolon(conn);
 }
 } // namespace
 
-PQXX_REGISTER_TEST(test_cursor)
+PQXX_REGISTER_TEST(test_cursor);

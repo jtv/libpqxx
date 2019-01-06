@@ -9,54 +9,56 @@ using namespace pqxx;
 // Test program for libpqxx.  Attempt to perform nested transactions.
 namespace
 {
-void test_088(transaction_base &T0)
+void test_088()
 {
-  test::create_pqxxevents(T0);
-  connection_base &C(T0.conn());
+  connection conn;
+  
+  work tx0{conn};
+  test::create_pqxxevents(tx0);
 
   // Trivial test: create subtransactions, and commit/abort
-  cout << T0.exec1("SELECT 'T0 starts'")[0].c_str() << endl;
+  cout << tx0.exec1("SELECT 'tx0 starts'")[0].c_str() << endl;
 
-  subtransaction T0a(static_cast<dbtransaction &>(T0), "T0a");
+  subtransaction T0a(static_cast<dbtransaction &>(tx0), "T0a");
   T0a.commit();
 
-  subtransaction T0b(static_cast<dbtransaction &>(T0), "T0b");
+  subtransaction T0b(static_cast<dbtransaction &>(tx0), "T0b");
   T0b.abort();
-  cout << T0.exec1("SELECT 'T0 ends'")[0].c_str() << endl;
-  T0.commit();
+  cout << tx0.exec1("SELECT 'tx0 ends'")[0].c_str() << endl;
+  tx0.commit();
 
   // Basic functionality: perform query in subtransaction; abort, continue
-  work T1(C, "T1");
-  cout << T1.exec1("SELECT 'T1 starts'")[0].c_str() << endl;
-  subtransaction T1a(T1, "T1a");
-    cout << T1a.exec1("SELECT '  a'")[0].c_str() << endl;
-    T1a.commit();
-  subtransaction T1b(T1, "T1b");
-    cout << T1b.exec1("SELECT '  b'")[0].c_str() << endl;
-    T1b.abort();
-  subtransaction T1c(T1, "T1c");
-    cout << T1c.exec1("SELECT '  c'")[0].c_str() << endl;
-    T1c.commit();
-  cout << T1.exec1("SELECT 'T1 ends'")[0].c_str() << endl;
-  T1.commit();
+  work tx1{conn, "tx1"};
+  cout << tx1.exec1("SELECT 'tx1 starts'")[0].c_str() << endl;
+  subtransaction tx1a{tx1, "tx1a"};
+    cout << tx1a.exec1("SELECT '  a'")[0].c_str() << endl;
+    tx1a.commit();
+  subtransaction tx1b{tx1, "tx1b"};
+    cout << tx1b.exec1("SELECT '  b'")[0].c_str() << endl;
+    tx1b.abort();
+  subtransaction tx1c{tx1, "tx1c"};
+    cout << tx1c.exec1("SELECT '  c'")[0].c_str() << endl;
+    tx1c.commit();
+  cout << tx1.exec1("SELECT 'tx1 ends'")[0].c_str() << endl;
+  tx1.commit();
 
   // Commit/rollback functionality
-  work T2(C, "T2");
+  work tx2{conn, "tx2"};
   const string Table = "test088";
-  T2.exec0("CREATE TEMP TABLE " + Table + "(no INTEGER, text VARCHAR)");
+  tx2.exec0("CREATE TEMP TABLE " + Table + "(no INTEGER, text VARCHAR)");
 
-  T2.exec0("INSERT INTO " + Table + " VALUES(1,'T2')");
+  tx2.exec0("INSERT INTO " + Table + " VALUES(1,'tx2')");
 
-  subtransaction T2a(T2, "T2a");
-    T2a.exec0("INSERT INTO "+Table+" VALUES(2,'T2a')");
-    T2a.commit();
-  subtransaction T2b(T2, "T2b");
-    T2b.exec0("INSERT INTO "+Table+" VALUES(3,'T2b')");
-    T2b.abort();
-  subtransaction T2c(T2, "T2c");
-    T2c.exec0("INSERT INTO "+Table+" VALUES(4,'T2c')");
-    T2c.commit();
-  const result R = T2.exec("SELECT * FROM " + Table + " ORDER BY no");
+  subtransaction tx2a{tx2, "tx2a"};
+    tx2a.exec0("INSERT INTO "+Table+" VALUES(2,'tx2a')");
+    tx2a.commit();
+  subtransaction tx2b{tx2, "tx2b"};
+    tx2b.exec0("INSERT INTO "+Table+" VALUES(3,'tx2b')");
+    tx2b.abort();
+  subtransaction tx2c{tx2, "tx2c"};
+    tx2c.exec0("INSERT INTO "+Table+" VALUES(4,'tx2c')");
+    tx2c.commit();
+  const result R = tx2.exec("SELECT * FROM " + Table + " ORDER BY no");
   for (const auto &i: R)
     cout << '\t' << i[0].c_str() << '\t' << i[1].c_str() << endl;
 
@@ -69,23 +71,24 @@ void test_088(transaction_base &T0)
 	expected[n],
 	"Hit unexpected row number.");
 
-  T2.abort();
+  tx2.abort();
 
   // Auto-abort should only roll back the subtransaction.
-  work T3(C, "T3");
-  subtransaction T3a(T3, "T3a");
+  work tx3{conn, "tx3"};
+  subtransaction tx3a(tx3, "tx3a");
   PQXX_CHECK_THROWS(
-	T3a.exec("SELECT * FROM nonexistent_table WHERE nonattribute=0"),
+	tx3a.exec("SELECT * FROM nonexistent_table WHERE nonattribute=0"),
 	sql_error,
 	"Bogus query did not fail.");
 
   // Subtransaction can only be aborted now, because there was an error.
-  T3a.abort();
+  tx3a.abort();
   // We're back in our top-level transaction.  This did not abort.
-  T3.exec1("SELECT count(*) FROM pqxxevents");
+  tx3.exec1("SELECT count(*) FROM pqxxevents");
   // Make sure we can commit exactly one more level of transaction.
-  T3.commit();
+  tx3.commit();
 }
 } // namespace
 
-PQXX_REGISTER_TEST(test_088)
+
+PQXX_REGISTER_TEST(test_088);

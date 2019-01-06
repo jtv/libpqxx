@@ -198,15 +198,16 @@ void test_get_errorhandlers(connection_base &c)
 }
 
 
-void test_errorhandler(transaction_base &t)
+void test_errorhandler()
 {
-  test_process_notice_calls_errorhandler(t.conn());
-  test_error_handlers_get_called_newest_to_oldest(t.conn());
-  test_returning_false_stops_error_handling(t.conn());
-  test_destroyed_error_handlers_are_not_called(t.conn());
+  connection conn;
+  test_process_notice_calls_errorhandler(conn);
+  test_error_handlers_get_called_newest_to_oldest(conn);
+  test_returning_false_stops_error_handling(conn);
+  test_destroyed_error_handlers_are_not_called(conn);
   test_destroying_connection_unregisters_handlers();
-  test_get_errorhandlers(t.conn());
+  test_get_errorhandlers(conn);
 }
 } // namespace
 
-PQXX_REGISTER_TEST(test_errorhandler)
+PQXX_REGISTER_TEST(test_errorhandler);

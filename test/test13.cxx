@@ -59,32 +59,30 @@ void failed_insert(connection_base &C, string table)
 }
 
 
-void test_013(transaction_base &T)
+void test_013()
 {
-  connection_base &C{T.conn()};
-  T.abort();
-
+  connection conn;
   {
-    work T2(C);
-    test::create_pqxxevents(T2);
-    T2.commit();
+    work tx{conn};
+    test::create_pqxxevents(tx);
+    tx.commit();
   }
 
   const string Table = "pqxxevents";
 
-  const pair<int,int> Before = perform(bind(count_events, ref(C), Table));
+  const pair<int,int> Before = perform(bind(count_events, ref(conn), Table));
   PQXX_CHECK_EQUAL(
 	Before.second,
 	0,
 	"Already have event for " + to_string(BoringYear) + "--can't test.");
 
-  quiet_errorhandler d(C);
+  quiet_errorhandler d(conn);
   PQXX_CHECK_THROWS(
-	perform(bind(failed_insert,  ref(C), Table)),
+	perform(bind(failed_insert,  ref(conn), Table)),
 	deliberate_error,
 	"Failing transactor failed to throw correct exception.");
 
-  const pair<int,int> After = perform(bind(count_events, ref(C), Table));
+  const pair<int,int> After = perform(bind(count_events, ref(conn), Table));
 
   PQXX_CHECK_EQUAL(
 	After.first,
@@ -98,4 +96,5 @@ void test_013(transaction_base &T)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_013, nontransaction)
+
+PQXX_REGISTER_TEST(test_013);

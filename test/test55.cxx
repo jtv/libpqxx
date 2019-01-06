@@ -13,16 +13,15 @@ namespace
 const string Contents = "Large object test contents";
 
 
-void test_055(transaction_base &orgT)
+void test_055()
 {
-  connection_base &C(orgT.conn());
-  orgT.abort();
+  connection conn;
 
   largeobject Obj = perform(
-    [&C]()
+    [&conn]()
     {
       char Buf[200];
-      work tx{C};
+      work tx{conn};
       largeobjectaccess A{tx, "pqxxlo.txt", ios::in};
       auto new_obj = largeobject(A);
       const auto len = A.read(Buf, sizeof(Buf)-1);
@@ -36,13 +35,14 @@ void test_055(transaction_base &orgT)
     });
 
   perform(
-    [&C, &Obj]()
+    [&conn, &Obj]()
     {
-      work tx{C};
+      work tx{conn};
       Obj.remove(tx);
       tx.commit();
     });
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_055, nontransaction)
+
+PQXX_REGISTER_TEST(test_055);

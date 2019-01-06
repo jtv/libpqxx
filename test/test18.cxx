@@ -19,9 +19,9 @@ const long BoringYear = 1977;
 
 // Count events and specifically events occurring in Boring Year, leaving the
 // former count in the result pair's first member, and the latter in second.
-pair<int, int> count_events(connection_base &C, string table)
+pair<int, int> count_events(connection_base &conn, string table)
 {
-  nontransaction tx{C};
+  nontransaction tx{conn};
   const string CountQuery = "SELECT count(*) FROM " + table;
   int all_years, boring_year;
   row R;
@@ -40,32 +40,30 @@ struct deliberate_error : exception
 };
 
 
-void test_018(transaction_base &T)
+void test_018()
 {
-  connection_base &C(T.conn());
-  T.abort();
-
+  connection conn;
   {
-    work T2(C);
-    test::create_pqxxevents(T2);
-    T2.commit();
+    work tx{conn};
+    test::create_pqxxevents(tx);
+    tx.commit();
   }
 
   const string Table = "pqxxevents";
 
-  const pair<int,int> Before = perform(bind(count_events, ref(C), Table));
+  const pair<int,int> Before = perform(bind(count_events, ref(conn), Table));
   PQXX_CHECK_EQUAL(
 	Before.second,
 	0,
 	"Already have event for " + to_string(BoringYear) + ", cannot run.");
 
   {
-    quiet_errorhandler d(C);
+    quiet_errorhandler d{conn};
     PQXX_CHECK_THROWS(
 	perform(
-          [&C, Table]()
+          [&conn, Table]()
           {
-            robusttransaction<serializable> tx{C};
+            robusttransaction<serializable> tx{conn};
             tx.exec0(
 		"INSERT INTO " + Table + " VALUES (" +
 		to_string(BoringYear) + ", '" + tx.esc("yawn") + "')");
@@ -76,7 +74,7 @@ void test_018(transaction_base &T)
 	"Not getting expected exception from failing transactor.");
   }
 
-  const pair<int,int> After = perform(bind(count_events, ref(C), Table));
+  const pair<int,int> After = perform(bind(count_events, ref(conn), Table));
 
   PQXX_CHECK_EQUAL(After.first, Before.first, "Event count changed.");
   PQXX_CHECK_EQUAL(
@@ -86,4 +84,5 @@ void test_018(transaction_base &T)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_018, nontransaction)
+
+PQXX_REGISTER_TEST(test_018);

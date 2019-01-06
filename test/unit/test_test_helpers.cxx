@@ -156,7 +156,7 @@ void test_check_throws()
 }
 
 
-void test_test_helpers(transaction_base &)
+void test_test_helpers()
 {
   test_check_notreached();
   test_check();
@@ -227,4 +227,4 @@ void test_test_helpers(transaction_base &)
 } // namespace
 
 
-PQXX_REGISTER_TEST_NODB(test_test_helpers)
+PQXX_REGISTER_TEST(test_test_helpers);

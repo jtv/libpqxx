@@ -41,7 +41,7 @@ void do_test(connection_base &C, const string &desc)
 }
 
 
-void test_089(transaction_base &)
+void test_089()
 {
   asyncconnection A1;
   do_test(A1, "asyncconnection (virgin)");
@@ -71,4 +71,5 @@ void test_089(transaction_base &)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_NODB(test_089)
+
+PQXX_REGISTER_TEST(test_089);

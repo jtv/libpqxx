@@ -12,15 +12,14 @@ namespace
 const string Contents = "Large object test contents";
 
 
-void test_051(transaction_base &orgT)
+void test_051()
 {
-  connection_base &C(orgT.conn());
-  orgT.abort();
+  connection conn;
 
   largeobject obj = perform(
-    [&C]()
+    [&conn]()
     {
-      work tx{C};
+      work tx{conn};
       largeobjectaccess A(tx);
       auto new_obj = largeobject(A);
 
@@ -42,7 +41,7 @@ void test_051(transaction_base &orgT)
 	Contents,
 	"Large object contents were mutilated.");
 
-      // Now write contents again, this time as a C string
+      // Now write contents again, this time as a conn string
       PQXX_CHECK_EQUAL(
 	A.seek(-int(Contents.size()), ios::end),
 	0,
@@ -95,13 +94,14 @@ void test_051(transaction_base &orgT)
 	"Large objects: false positive on operator>().");
 
   perform(
-    [&C, &obj]()
+    [&conn, &obj]()
     {
-      work tx{C};
+      work tx{conn};
       obj.remove(tx);
       tx.commit();
     });
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_051, nontransaction)
+
+PQXX_REGISTER_TEST(test_051);

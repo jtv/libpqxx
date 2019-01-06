@@ -71,15 +71,14 @@ void test_subtransaction_aborts_implicitly(connection_base &conn)
 }
 
 
-void test_subtransaction(transaction_base &nontrans)
+void test_subtransaction()
 {
-  connection_base &conn(nontrans.conn());
-  nontrans.abort();
+  connection conn;
   test_subtransaction_commits_if_commit_called(conn);
   test_subtransaction_aborts_if_abort_called(conn);
   test_subtransaction_aborts_implicitly(conn);
 }
-}
+} // namespace
 
 
-PQXX_REGISTER_TEST_T(test_subtransaction, nontransaction)
+PQXX_REGISTER_TEST(test_subtransaction);

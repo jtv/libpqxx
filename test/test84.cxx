@@ -15,12 +15,15 @@ using namespace pqxx;
 // Compare results against an icursor_iterator so that is tested as well.
 namespace
 {
-void test_084(transaction_base &T)
+void test_084()
 {
+  connection conn;
+  transaction<serializable> tx{conn};
+
   const string Table = "pg_tables", Key = "tablename";
 
   // Count rows.
-  result R( T.exec("SELECT count(*) FROM " + Table) );
+  result R( tx.exec("SELECT count(*) FROM " + Table) );
 
   PQXX_CHECK(
 	R.at(0).at(0).as<long>() > 20,
@@ -31,20 +34,20 @@ void test_084(transaction_base &T)
 	Query = "SELECT * FROM " + Table + " ORDER BY " + Key;
   const int InitialSkip = 2, GetRows = 3;
 
-  T.exec0("DECLARE " + T.quote_name(CurName) + " CURSOR FOR " + Query);
-  T.exec0(
+  tx.exec0("DECLARE " + tx.quote_name(CurName) + " CURSOR FOR " + Query);
+  tx.exec0(
 	"MOVE " + to_string(InitialSkip*GetRows) + " "
-	"IN " + T.quote_name(CurName));
+	"IN " + tx.quote_name(CurName));
 
   // Wrap cursor in cursor stream.  Apply some trickery to get its name inside
   // a result field for this purpose.  This isn't easy because it's not
   // supposed to be easy; normally we'd only construct streams around existing
   // SQL cursors if they were being returned by functions.
-  icursorstream C(T, T.exec("SELECT '"+T.esc(CurName)+"'")[0][0], GetRows);
+  icursorstream C{tx, tx.exec("SELECT '"+tx.esc(CurName)+"'")[0][0], GetRows};
 
   // Create parallel cursor to check results
-  icursorstream C2(T, Query, "CHECKCUR", GetRows);
-  icursor_iterator i2(C2);
+  icursorstream C2{tx, Query, "CHECKCUR", GetRows};
+  icursor_iterator i2{C2};
 
   // Remember, our adopted cursor is at position (InitialSkip*GetRows)
   icursor_iterator i3(i2);
@@ -101,4 +104,5 @@ void test_084(transaction_base &T)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_084, transaction<serializable>)
+
+PQXX_REGISTER_TEST(test_084);

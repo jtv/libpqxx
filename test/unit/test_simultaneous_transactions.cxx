@@ -5,17 +5,16 @@ using namespace pqxx;
 
 namespace
 {
-void test_simultaneous_transactions(transaction_base &t)
+void test_simultaneous_transactions()
 {
-  connection_base &c(t.conn());
-  t.abort();
+  connection conn;
 
-  nontransaction n1(c);
+  nontransaction n1{conn};
   PQXX_CHECK_THROWS(
-	nontransaction n2(c),
+	nontransaction n2{conn},
 	logic_error,
 	"Allowed to open simultaneous nontransactions.");
 }
 } // namespace
 
-PQXX_REGISTER_TEST(test_simultaneous_transactions)
+PQXX_REGISTER_TEST(test_simultaneous_transactions);

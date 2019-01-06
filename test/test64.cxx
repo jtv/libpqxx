@@ -9,16 +9,16 @@ using namespace pqxx;
 // Example program for libpqxx.  Test session variables with asyncconnection.
 namespace
 {
-string GetDatestyle(connection_base &C)
+string GetDatestyle(connection_base &conn)
 {
-  return nontransaction(C, "getdatestyle").get_variable("DATESTYLE");
+  return nontransaction(conn, "getdatestyle").get_variable("DATESTYLE");
 }
 
 
-string SetDatestyle(connection_base &C, string style)
+string SetDatestyle(connection_base &conn, string style)
 {
-  C.set_variable("DATESTYLE", style);
-  const string fullname = GetDatestyle(C);
+  conn.set_variable("DATESTYLE", style);
+  const string fullname = GetDatestyle(conn);
   cout << "Set datestyle to " << style << ": " << fullname << endl;
   PQXX_CHECK(
 	not fullname.empty(),
@@ -28,57 +28,58 @@ string SetDatestyle(connection_base &C, string style)
 }
 
 
-void CheckDatestyle(connection_base &C, string expected)
+void CheckDatestyle(connection_base &conn, string expected)
 {
-  PQXX_CHECK_EQUAL(GetDatestyle(C), expected, "Got wrong datestyle.");
+  PQXX_CHECK_EQUAL(GetDatestyle(conn), expected, "Got wrong datestyle.");
 }
 
 
-void RedoDatestyle(connection_base &C, string style, string expected)
+void RedoDatestyle(connection_base &conn, string style, string expected)
 {
-  PQXX_CHECK_EQUAL(SetDatestyle(C, style), expected, "Set wrong datestyle.");
+  PQXX_CHECK_EQUAL(SetDatestyle(conn, style), expected, "Set wrong datestyle.");
 }
 
 
-void ActivationTest(connection_base &C, string style, string expected)
+void ActivationTest(connection_base &conn, string style, string expected)
 {
-  RedoDatestyle(C, style, expected);
+  RedoDatestyle(conn, style, expected);
   cout << "Deactivating connection..." << endl;
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
-  C.deactivate();
+  conn.deactivate();
 #include <pqxx/internal/ignore-deprecated-post.hxx>
-  CheckDatestyle(C, expected);
+  CheckDatestyle(conn, expected);
   cout << "Reactivating connection..." << endl;
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
-  C.activate();
+  conn.activate();
 #include <pqxx/internal/ignore-deprecated-post.hxx>
-  CheckDatestyle(C, expected);
+  CheckDatestyle(conn, expected);
 }
 
 
-void test_064(transaction_base &)
+void test_064()
 {
-  asyncconnection C;
+  asyncconnection conn;
 
-  PQXX_CHECK(not GetDatestyle(C).empty(), "Initial datestyle not set.");
+  PQXX_CHECK(not GetDatestyle(conn).empty(), "Initial datestyle not set.");
 
-  const string ISOname = SetDatestyle(C, "ISO");
-  const string SQLname = SetDatestyle(C, "SQL");
+  const string ISOname = SetDatestyle(conn, "ISO");
+  const string SQLname = SetDatestyle(conn, "SQL");
 
   PQXX_CHECK_NOT_EQUAL(ISOname, SQLname, "Same datestyle in SQL and ISO.");
 
-  RedoDatestyle(C, "SQL", SQLname);
+  RedoDatestyle(conn, "SQL", SQLname);
 
-  ActivationTest(C, "ISO", ISOname);
-  ActivationTest(C, "SQL", SQLname);
+  ActivationTest(conn, "ISO", ISOname);
+  ActivationTest(conn, "SQL", SQLname);
 
   // Prove that setting an unknown variable causes an error, as expected
-  quiet_errorhandler d(C);
+  quiet_errorhandler d(conn);
   PQXX_CHECK_THROWS(
-	C.set_variable("NONEXISTENT_VARIABLE_I_HOPE", "1"),
+	conn.set_variable("NONEXISTENT_VARIABLE_I_HOPE", "1"),
 	sql_error,
 	"Setting unknown variable failed to fail.");
 }
 } // namespace
 
-PQXX_REGISTER_TEST_NODB(test_064)
+
+PQXX_REGISTER_TEST(test_064);

@@ -9,35 +9,39 @@ using namespace pqxx;
 // Test inhibition of connection reactivation
 namespace
 {
-void test_086(transaction_base &N1)
+void test_086()
 {
-  connection_base &C(N1.conn());
+  connection conn;
+  nontransaction tx1{conn};
+
   const string Query = "SELECT * from pg_tables";
 
-  cout << "Some datum: " << N1.exec(Query)[0][0] << endl;
-  N1.commit();
+  cout << "Some datum: " << tx1.exec(Query)[0][0] << endl;
+  tx1.commit();
 
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
-  C.inhibit_reactivation(true);
-  C.deactivate();
+  conn.inhibit_reactivation(true);
+  conn.deactivate();
 #include <pqxx/internal/ignore-deprecated-post.hxx>
 
-  quiet_errorhandler d(C);
+  quiet_errorhandler d{conn};
   {
-    nontransaction N2(C, "test86N2");
+    nontransaction tx2{conn, "tx2"};
     PQXX_CHECK_THROWS(
-	N2.exec(Query),
+	tx2.exec(Query),
 	broken_connection,
 	"Deactivated connection did not throw broken_connection on exec().");
   }
 
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
-  C.inhibit_reactivation(false);
+  conn.inhibit_reactivation(false);
 #include <pqxx/internal/ignore-deprecated-post.hxx>
-  work W(C, "test86W");
-  W.exec(Query);
-  W.commit();
+  
+  work tx3{conn, "tx3"};
+  tx3.exec(Query);
+  tx3.commit();
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_086, nontransaction)
+
+PQXX_REGISTER_TEST(test_086);

@@ -9,12 +9,15 @@ using namespace pqxx;
 // Test program for libpqxx.  Read and print table using row iterators.
 namespace
 {
-void test_082(transaction_base &T)
+void test_082()
 {
-  test::create_pqxxevents(T);
+  connection conn;
+  nontransaction tx{conn};
+
+  test::create_pqxxevents(tx);
   const string Table = "pqxxevents";
-  result R( T.exec("SELECT * FROM " + Table) );
-  T.conn().disconnect();
+  result R{ tx.exec("SELECT * FROM " + Table) };
+  conn.disconnect();
 
   PQXX_CHECK(not R.empty(), "Got empty result.");
 
@@ -168,4 +171,5 @@ void test_082(transaction_base &T)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_082, nontransaction)
+
+PQXX_REGISTER_TEST(test_082);

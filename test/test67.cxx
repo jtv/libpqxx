@@ -20,16 +20,15 @@ void InitVector(VEC &V, typename VEC::size_type s, VAL val)
 }
 
 
-void test_067(transaction_base &orgT)
+void test_067()
 {
-  connection_base &C(orgT.conn());
-  orgT.abort();
+  asyncconnection conn;
 
   const string Table = "pg_tables";
 
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
-  // Tell C we won't be needing it for a while (not true, but let's pretend)
-  C.deactivate();
+  // Tell conn we won't be needing it for a while (not true, but let's pretend).
+  conn.deactivate();
 #include <pqxx/internal/ignore-deprecated-post.hxx>
 
   // Now set up some data structures
@@ -37,13 +36,13 @@ void test_067(transaction_base &orgT)
   vector<bool> SortedUp, SortedDown;	// Does column appear to be sorted?
 
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
-  // ...And reactivate C (not really needed, but it sounds more polite)
-  C.activate();
+  // ...And reactivate conn (not really needed, but it sounds more polite).
+  conn.activate();
 #include <pqxx/internal/ignore-deprecated-post.hxx>
 
-  work T(C, "test67");
+  work tx{conn, "test67"};
 
-  result R( T.exec("SELECT * FROM " + Table) );
+  result R{ tx.exec("SELECT * FROM " + Table) };
 
   InitVector(NullFields, R.columns(), 0);
   InitVector(SortedUp, R.columns(), true);
@@ -120,4 +119,5 @@ void test_067(transaction_base &orgT)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_CT(test_067, asyncconnection, nontransaction)
+
+PQXX_REGISTER_TEST(test_067);

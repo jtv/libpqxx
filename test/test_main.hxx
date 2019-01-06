@@ -38,7 +38,7 @@ test_failure::test_failure(const string &ffile, int fline, const string &desc) :
 test_failure::~test_failure() noexcept {}
 
 
-base_test::base_test(const string &tname, testfunc func) :
+test_case::test_case(const string &tname, testfunc func) :
   m_name(tname),
   m_func(func)
 {
@@ -46,10 +46,7 @@ base_test::base_test(const string &tname, testfunc func) :
 }
 
 
-base_test::~base_test() {}
-
-
-const test_map &register_test(base_test *tc)
+const test_map &register_test(test_case *tc)
 {
   static test_map tests;
   if (tc) tests[tc->name()] = tc;

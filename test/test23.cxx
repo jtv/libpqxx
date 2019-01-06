@@ -37,7 +37,7 @@ public:
 };
 
 
-void test_023(transaction_base &)
+void test_023()
 {
   lazyconnection C;
   cout << "Adding listener..." << endl;
@@ -62,4 +62,5 @@ void test_023(transaction_base &)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_NODB(test_023)
+
+PQXX_REGISTER_TEST(test_023);

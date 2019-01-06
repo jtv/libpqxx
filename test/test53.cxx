@@ -13,25 +13,24 @@ namespace
 const string Contents = "Large object test contents";
 
 
-void test_053(transaction_base &orgT)
+void test_053()
 {
-  connection_base &C(orgT.conn());
-  orgT.abort();
+  connection conn;
 
   largeobject Obj = perform(
-    [&C]()
+    [&conn]()
     {
-      work tx{C};
+      work tx{conn};
       auto obj = largeobject{tx, "pqxxlo.txt"};
       tx.commit();
       return obj;
     });
 
   perform(
-    [&C, &Obj]()
+    [&conn, &Obj]()
     {
       char Buf[200];
-      work tx{C};
+      work tx{conn};
       largeobjectaccess O{tx, Obj, ios::in};
       const auto len = O.read(Buf, sizeof(Buf)-1);
       PQXX_CHECK_EQUAL(
@@ -41,9 +40,9 @@ void test_053(transaction_base &orgT)
       tx.commit();
     });
 
-  perform([&C, &Obj](){ work tx{C}; Obj.remove(tx); tx.commit(); });
+  perform([&conn, &Obj](){ work tx{conn}; Obj.remove(tx); tx.commit(); });
 }
-
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_053, nontransaction)
+
+PQXX_REGISTER_TEST(test_053);

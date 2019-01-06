@@ -10,13 +10,17 @@ using namespace pqxx;
 // a dummy transaction to gain nontransactional access, and perform a query.
 namespace
 {
-void test_036(transaction_base &)
+void test_036()
 {
-  lazyconnection C;
+  lazyconnection conn;
   const auto r = perform(
-    [&C](){ return nontransaction{C}.exec("SELECT generate_series(1, 8)"); });
+    [&conn]()
+    {
+      return nontransaction{conn}.exec("SELECT generate_series(1, 8)");
+    });
   PQXX_CHECK_EQUAL(r.size(), 8u, "Unexpected transactor result.");
 }
 } // namespace
 
-PQXX_REGISTER_TEST_NODB(test_036)
+
+PQXX_REGISTER_TEST(test_036);

@@ -10,9 +10,11 @@ using namespace pqxx;
 // a dummy transaction to gain nontransactional access, and perform a query.
 namespace
 {
-void test_016(transaction_base &T)
+void test_016()
 {
-  result R( T.exec("SELECT * FROM pg_tables") );
+  connection conn;
+  robusttransaction<> tx{conn};
+  result R{ tx.exec("SELECT * FROM pg_tables") };
 
   result::const_iterator c;
   for (c = R.begin(); c != R.end(); ++c)
@@ -44,8 +46,9 @@ void test_016(transaction_base &T)
 
   // "Commit" the non-transaction.  This doesn't really do anything since
   // NonTransaction doesn't start a backend transaction.
-  T.commit();
+  tx.commit();
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_016, robusttransaction<>)
+
+PQXX_REGISTER_TEST(test_016);

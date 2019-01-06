@@ -32,7 +32,7 @@ template<typename T> void infinity_test()
 	"Negative infinity is broken");
 }
 
-void test_infinities(transaction_base &)
+void test_infinities()
 {
   infinity_test<float>();
   infinity_test<double>();
@@ -40,4 +40,4 @@ void test_infinities(transaction_base &)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_NODB(test_infinities)
+PQXX_REGISTER_TEST(test_infinities);

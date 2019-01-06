@@ -7,19 +7,22 @@ using namespace pqxx;
 // Simple test program for libpqxx.  Test string conversion routines.
 namespace
 {
-void test_076(transaction_base &T)
+void test_076()
 {
+  connection conn;
+  nontransaction tx{conn};
+
   row
-	RFalse = T.exec1("SELECT 1=0"),
-	RTrue  = T.exec1("SELECT 1=1");
+	RFalse = tx.exec1("SELECT 1=0"),
+	RTrue  = tx.exec1("SELECT 1=1");
   bool False, True;
   from_string(RFalse[0], False);
   from_string(RTrue[0],  True);
   PQXX_CHECK(not False, "False bool converted to true.");
   PQXX_CHECK(True, "True bool converted to false.");
 
-  RFalse = T.exec1("SELECT " + to_string(False));
-  RTrue  = T.exec1("SELECT " + to_string(True));
+  RFalse = tx.exec1("SELECT " + to_string(False));
+  RTrue  = tx.exec1("SELECT " + to_string(True));
   from_string(RFalse[0], False);
   from_string(RTrue[0],  True);
   PQXX_CHECK(not False, "False bool converted to true.");
@@ -31,7 +34,7 @@ void test_076(transaction_base &T)
     short s;
     from_string(to_string(svals[i]), s);
     PQXX_CHECK_EQUAL(s, svals[i], "short/string conversion not bijective.");
-    from_string(T.exec("SELECT " + to_string(svals[i]))[0][0].c_str(), s);
+    from_string(tx.exec("SELECT " + to_string(svals[i]))[0][0].c_str(), s);
     PQXX_CHECK_EQUAL(s, svals[i], "Roundtrip through backend changed short.");
   }
 
@@ -45,7 +48,7 @@ void test_076(transaction_base &T)
 	uvals[i],
 	"unsigned short/string conversion not bijective.");
 
-    from_string(T.exec("SELECT " + to_string(uvals[i]))[0][0].c_str(), u);
+    from_string(tx.exec("SELECT " + to_string(uvals[i]))[0][0].c_str(), u);
     PQXX_CHECK_EQUAL(
 	u,
 	uvals[i],
@@ -54,4 +57,5 @@ void test_076(transaction_base &T)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_076, nontransaction)
+
+PQXX_REGISTER_TEST(test_076);

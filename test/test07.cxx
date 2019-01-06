@@ -32,25 +32,24 @@ int To4Digits(int Y)
 }
 
 
-void test_007(transaction_base &T)
+void test_007()
 {
-  connection_base &C(T.conn());
-  T.abort();
-  C.set_client_encoding("SQL_ASCII");
+  connection conn;
+  conn.set_client_encoding("SQL_ASCII");
 
   {
-    work T2(C);
-    test::create_pqxxevents(T2);
-    T2.commit();
+    work tx{conn};
+    test::create_pqxxevents(tx);
+    tx.commit();
   }
 
   // Perform (an instantiation of) the UpdateYears transactor we've defined
   // in the code above.  This is where the work gets done.
   map<int,int> conversions;
   perform(
-    [&conversions, &C]()
+    [&conversions, &conn]()
     {
-      work tx(C);
+      work tx{conn};
       // First select all different years occurring in the table.
       result R(tx.exec("SELECT year FROM pqxxevents"));
 
@@ -149,4 +148,4 @@ void test_007(transaction_base &T)
 }
 } // namespace
 
-PQXX_REGISTER_TEST(test_007)
+PQXX_REGISTER_TEST(test_007);

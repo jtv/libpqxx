@@ -46,7 +46,7 @@ struct intderef
 };
 
 
-void test_000(transaction_base &)
+void test_000()
 {
   PQXX_CHECK_EQUAL(
 	oid_none,
@@ -184,7 +184,6 @@ void test_000(transaction_base &)
 	"Inconsistent what() message in exception.");
   }
 }
-
 } // namespace
 
-PQXX_REGISTER_TEST_NODB(test_000)
+PQXX_REGISTER_TEST(test_000);

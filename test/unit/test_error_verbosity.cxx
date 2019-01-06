@@ -10,7 +10,7 @@ using namespace pqxx;
 
 namespace
 {
-void test_error_verbosity(transaction_base &trans)
+void test_error_verbosity()
 {
   PQXX_CHECK_EQUAL(
 	int(connection_base::terse),
@@ -25,18 +25,19 @@ void test_error_verbosity(transaction_base &trans)
 	int(PQERRORS_VERBOSE),
 	"error_verbosity enum should match PGVerbosity.");
 
+  connection conn;
   PQXX_CHECK_EQUAL(
-	int(trans.conn().get_verbosity()),
+	int(conn.get_verbosity()),
 	int(connection_base::normal),
 	"Unexpected initial error verbosity.");
 
-  trans.conn().set_verbosity(connection_base::terse);
+  conn.set_verbosity(connection_base::terse);
 
   PQXX_CHECK_EQUAL(
-	int(trans.conn().get_verbosity()),
+	int(conn.get_verbosity()),
 	int(connection_base::terse),
 	"Setting verbosity did not work.");
 }
 } // namespace
 
-PQXX_REGISTER_TEST(test_error_verbosity)
+PQXX_REGISTER_TEST(test_error_verbosity);

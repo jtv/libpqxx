@@ -12,24 +12,22 @@ using namespace pqxx;
 
 namespace
 {
-void test_012(transaction_base &orgT)
+void test_012()
 {
-  connection_base &C(orgT.conn());
-  orgT.abort();
-
+  connection conn;
   const string Table = "pg_tables";
 
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
   // Tell C we won't be needing it for a while (not true, but let's pretend)
-  C.deactivate();
+  conn.deactivate();
 
   // ...And reactivate C (not really needed, but it sounds more polite)
-  C.activate();
+  conn.activate();
 #include <pqxx/internal/ignore-deprecated-post.hxx>
 
-  work T(C, "test12");
+  work tx{conn, "test12"};
 
-  result R( T.exec("SELECT * FROM " + Table) );
+  result R( tx.exec("SELECT * FROM " + Table) );
 
   // Map column to no. of null fields.
   vector<int> NullFields(R.columns(), 0);
@@ -121,4 +119,5 @@ void test_012(transaction_base &orgT)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_012, nontransaction)
+
+PQXX_REGISTER_TEST(test_012);

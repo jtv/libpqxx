@@ -22,17 +22,16 @@ template<typename T> string UnStream(T &Stream)
 }
 
 
-void test_057(transaction_base &orgT)
+void test_057()
 {
-  connection_base &C(orgT.conn());
-  orgT.abort();
+  connection conn;
 
   const string Contents = "Testing, testing, 1-2-3";
 
   largeobject Obj = perform(
-    [&C, &Contents]()
+    [&conn, &Contents]()
     {
-      work tx{C};
+      work tx{conn};
       auto new_obj = largeobject{tx};
       olostream S(tx, new_obj.id());
       S << Contents;
@@ -42,17 +41,17 @@ void test_057(transaction_base &orgT)
     });
 
   const string Readback = perform(
-    [&C, &Obj]()
+    [&conn, &Obj]()
     {
-      work tx{C};
+      work tx{conn};
       ilostream S(tx, Obj);
       return UnStream(S);
     });
 
   perform(
-    [&C, &Obj]()
+    [&conn, &Obj]()
     {
-      work tx{C};
+      work tx{conn};
       Obj.remove(tx);
       tx.commit();
     });
@@ -71,4 +70,5 @@ void test_057(transaction_base &orgT)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_057, nontransaction)
+
+PQXX_REGISTER_TEST(test_057);

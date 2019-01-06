@@ -7,7 +7,7 @@ using namespace pqxx;
 
 namespace
 {
-void test_thread_safety_model(transaction_base &)
+void test_thread_safety_model()
 {
   const thread_safety_model model = describe_thread_safety();
 
@@ -24,4 +24,4 @@ void test_thread_safety_model(transaction_base &)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_NODB(test_thread_safety_model)
+PQXX_REGISTER_TEST(test_thread_safety_model);

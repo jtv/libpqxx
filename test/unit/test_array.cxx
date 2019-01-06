@@ -430,7 +430,7 @@ void test_nested_array_with_multiple_entries()
 }
 
 
-void test_array_parse(transaction_base &)
+void test_array_parse()
 {
   test_empty_arrays();
   test_null_value();
@@ -445,4 +445,4 @@ void test_array_parse(transaction_base &)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_NODB(test_array_parse)
+PQXX_REGISTER_TEST(test_array_parse);

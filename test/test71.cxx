@@ -22,9 +22,11 @@ void checkresult(pipeline &P, PAIR c)
 }
 
 
-void test_071(transaction_base &W)
+void test_071()
 {
-  pipeline P(W);
+  asyncconnection conn;
+  work tx{conn};
+  pipeline P(tx);
 
   // Keep expected result for every query we issue
   Exp values;
@@ -65,4 +67,5 @@ void test_071(transaction_base &W)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_C(test_071, asyncconnection)
+
+PQXX_REGISTER_TEST(test_071);

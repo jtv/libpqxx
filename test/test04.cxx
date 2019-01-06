@@ -21,8 +21,8 @@ class TestListener final : public notification_receiver
   bool m_done;
 
 public:
-  explicit TestListener(connection_base &C) :
-	notification_receiver(C, "listen"), m_done(false) {}
+  explicit TestListener(connection_base &conn) :
+	notification_receiver(conn, "listen"), m_done(false) {}
 
   virtual void operator()(const string &, int be_pid) override
   {
@@ -37,12 +37,11 @@ public:
 };
 
 
-void test_004(transaction_base &T)
+void test_004()
 {
-  T.abort();
-  connection_base &conn{T.conn()};
+  connection conn;
 
-  TestListener L(conn);
+  TestListener L{conn};
   // Trigger our notification receiver.
   perform(
     [&conn, &L]()
@@ -62,13 +61,12 @@ void test_004(transaction_base &T)
     // this at home!  The pqxx::internal namespace is not for third-party use
     // and may change radically at any time.
     pqxx::internal::sleep_seconds(1);
-    notifs = T.conn().get_notifs();
+    notifs = conn.get_notifs();
   }
 
   PQXX_CHECK_NOT_EQUAL(L.done(), false, "No notification received.");
   PQXX_CHECK_EQUAL(notifs, 1, "Got too many notifications.");
 }
-
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_004, nontransaction)
+PQXX_REGISTER_TEST(test_004);

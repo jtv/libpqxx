@@ -9,16 +9,19 @@ using namespace pqxx;
 // Test program for libpqxx.  Test fieldstream.
 namespace
 {
-void test_074(transaction_base &W)
+void test_074()
 {
-  result R = W.exec("SELECT * FROM pg_tables");
+  connection conn;
+  work tx{conn};
+
+  result R = tx.exec("SELECT * FROM pg_tables");
   const string sval = R.at(0).at(1).c_str();
   string sval2;
   fieldstream fs1(R.front()[1]);
   fs1 >> sval2;
   PQXX_CHECK_EQUAL(sval2, sval, "fieldstream returned wrong value.");
 
-  R = W.exec("SELECT count(*) FROM pg_tables");
+  R = tx.exec("SELECT count(*) FROM pg_tables");
   int ival;
   fieldstream fs2(R.at(0).at(0));
   fs2 >> ival;
@@ -36,7 +39,7 @@ void test_074(transaction_base &W)
 	"Got wrong double from fieldstream.");
 
   const float roughpi = static_cast<float>(3.1415926435);
-  R = W.exec("SELECT " + to_string(roughpi));
+  R = tx.exec("SELECT " + to_string(roughpi));
   float pival;
   (fieldstream(R.at(0).at(0))) >> pival;
   PQXX_CHECK_BOUNDS(
@@ -77,4 +80,5 @@ void test_074(transaction_base &W)
 }
 } // namespace
 
-PQXX_REGISTER_TEST(test_074)
+
+PQXX_REGISTER_TEST(test_074);

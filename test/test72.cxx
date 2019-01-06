@@ -9,9 +9,11 @@ using namespace pqxx;
 // Test program for libpqxx.  Test error handling for pipeline.
 namespace
 {
-void test_072(transaction_base &W)
+void test_072()
 {
-  pipeline P(W);
+  asyncconnection conn;
+  work tx{conn};
+  pipeline P{tx};
 
   // Ensure all queries are issued at once to make the test more interesting
   P.retain();
@@ -33,7 +35,7 @@ void test_072(transaction_base &W)
   // We should *not* get a result for the query behind the error
   cout << "Retrieving post-error result..." << endl;
   {
-    quiet_errorhandler d(W.conn());
+    quiet_errorhandler d{conn};
     PQXX_CHECK_THROWS(
 	P.retrieve(id_2).at(0).at(0).as<int>(),
 	runtime_error,
@@ -43,7 +45,7 @@ void test_072(transaction_base &W)
   // Now see that we get an exception when we touch the failed result
   cout << "Retrieving result for failed query..." << endl;
   {
-    quiet_errorhandler d(W.conn());
+    quiet_errorhandler d{conn};
     PQXX_CHECK_THROWS(
 	P.retrieve(id_f),
 	sql_error,
@@ -52,4 +54,5 @@ void test_072(transaction_base &W)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_CT(test_072, asyncconnection, nontransaction)
+
+PQXX_REGISTER_TEST(test_072);

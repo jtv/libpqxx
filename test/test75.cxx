@@ -11,10 +11,13 @@ using namespace pqxx;
 // result to a regular, const_iterator iteration.
 namespace
 {
-void test_075(transaction_base &W)
+void test_075()
 {
-  test::create_pqxxevents(W);
-  const result R( W.exec("SELECT year FROM pqxxevents") );
+  connection conn;
+  work tx{conn};
+
+  test::create_pqxxevents(tx);
+  const result R( tx.exec("SELECT year FROM pqxxevents") );
   PQXX_CHECK(not R.empty(), "No events found, cannot test.");
 
   PQXX_CHECK_EQUAL(R[0], R.at(0), "Inconsistent result indexing.");
@@ -113,4 +116,5 @@ void test_075(transaction_base &W)
 }
 } // namespace
 
-PQXX_REGISTER_TEST(test_075)
+
+PQXX_REGISTER_TEST(test_075);

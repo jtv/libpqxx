@@ -14,16 +14,17 @@ namespace
 const unsigned long BoringYear = 1977;
 
 
-void test_020(transaction_base &T1)
+void test_020()
 {
-  test::create_pqxxevents(T1);
-  connection_base &C(T1.conn());
+  connection conn;
+  nontransaction t1{conn};
+  test::create_pqxxevents(t1);
 
   const string Table = "pqxxevents";
 
   // Verify our start condition before beginning: there must not be a 1977
   // record already.
-  result R( T1.exec(("SELECT * FROM " + Table + " "
+  result R( t1.exec(("SELECT * FROM " + Table + " "
 	               "WHERE year=" + to_string(BoringYear)).c_str()) );
   PQXX_CHECK_EQUAL(
 	R.size(),
@@ -35,7 +36,7 @@ void test_020(transaction_base &T1)
   PQXX_CHECK(R.empty(), "result::clear() is broken.");
 
   // OK.  Having laid that worry to rest, add a record for 1977.
-  T1.exec0(("INSERT INTO " + Table + " VALUES"
+  t1.exec0(("INSERT INTO " + Table + " VALUES"
            "(" +
 	   to_string(BoringYear) + ","
 	   "'Yawn'"
@@ -44,11 +45,11 @@ void test_020(transaction_base &T1)
   // Abort T1.  Since T1 is a nontransaction, which provides only the
   // transaction class interface without providing any form of transactional
   // integrity, this is not going to undo our work.
-  T1.abort();
+  t1.abort();
 
   // Verify that our record was added, despite the Abort()
-  nontransaction T2(C, "T2");
-  R = T2.exec(("SELECT * FROM " + Table + " "
+  nontransaction t2{conn, "t2"};
+  R = t2.exec(("SELECT * FROM " + Table + " "
 	"WHERE year=" + to_string(BoringYear)).c_str());
 
   PQXX_CHECK_EQUAL(
@@ -62,19 +63,20 @@ void test_020(transaction_base &T1)
   PQXX_CHECK(R.empty(), "result::clear() doesn't work.");
 
   // Now remove our record again
-  T2.exec0(("DELETE FROM " + Table + " "
+  t2.exec0(("DELETE FROM " + Table + " "
 	   "WHERE year=" + to_string(BoringYear)).c_str());
 
-  T2.commit();
+  t2.commit();
 
   // And again, verify results
-  nontransaction T3(C, "T3");
+  nontransaction t3{conn, "t3"};
 
-  R = T3.exec(("SELECT * FROM " + Table + " "
+  R = t3.exec(("SELECT * FROM " + Table + " "
 	       "WHERE year=" + to_string(BoringYear)).c_str());
 
   PQXX_CHECK_EQUAL(R.size(), 0u, "Record still found after removal.");
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_020, nontransaction)
+
+PQXX_REGISTER_TEST(test_020);

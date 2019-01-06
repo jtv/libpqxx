@@ -12,9 +12,12 @@ using namespace pqxx;
 // types of streams.
 namespace
 {
-void test_046(transaction_base &T)
+void test_046()
 {
-  row R( T.exec1("SELECT count(*) FROM pg_tables") );
+  connection conn;
+  work tx{conn};
+
+  row R{ tx.exec1("SELECT count(*) FROM pg_tables") };
 
   cout << "Count was " << R.front() << endl;
 
@@ -70,13 +73,13 @@ void test_046(transaction_base &T)
 	"from _string(const std::string &, std::string &).");
 
   PQXX_CHECK(
-	T.exec1("SELECT 1=1").front().as<bool>(),
+	tx.exec1("SELECT 1=1").front().as<bool>(),
 	"1=1 doesn't yield 'true.'");
 
   PQXX_CHECK(
-	not T.exec1("SELECT 2+2=5").front().as<bool>(),
+	not tx.exec1("SELECT 2+2=5").front().as<bool>(),
 	"2+2=5 yields 'true.'");
 }
 } // namespace
 
-PQXX_REGISTER_TEST(test_046)
+PQXX_REGISTER_TEST(test_046);

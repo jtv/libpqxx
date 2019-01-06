@@ -11,10 +11,10 @@ namespace
 {
 void bad_connect()
 {
-  connection C("totally#invalid@connect$string!?");
+  connection conn{"totally#invalid@connect$string!?"};
 }
 
-void test_002(transaction_base &)
+void test_002()
 {
   // Before we really connect, test the expected behaviour of the default
   // connection type, where a failure to connect results in an immediate
@@ -25,10 +25,10 @@ void test_002(transaction_base &)
 
   // Set up connection to database
   string ConnectString = "";
-  connection C(ConnectString);
+  connection C{ConnectString};
 
   // Start transaction within context of connection
-  work T(C, "test2");
+  work T{C, "test2"};
 
   // Perform query within transaction
   result R( T.exec("SELECT * FROM pg_tables") );
@@ -81,7 +81,7 @@ void test_002(transaction_base &)
 	"pqxx::row::column_table() is broken.");
   }
 }
-
 } // namespace
 
-PQXX_REGISTER_TEST_NODB(test_002)
+
+PQXX_REGISTER_TEST(test_002);

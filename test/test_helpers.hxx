@@ -29,26 +29,25 @@ public:
 void drop_table(transaction_base &, const std::string &table);
 
 
-class base_test;
-using test_map = std::map<std::string, base_test *>;
+class test_case;
+using test_map = std::map<std::string, test_case *>;
 
 /// Register test (if given); return test_map.
-const test_map &register_test(base_test *);
+const test_map &register_test(test_case *);
 
 
-/// Base class for test cases.
-class base_test
+/// Test case class.  Registers itself, so test runner can run its function.
+class test_case
 {
 public:
-  using testfunc = void (*)(transaction_base &);
+  using testfunc = void (*)();
 
-  base_test(const std::string &tname, testfunc func);
+  test_case(const std::string &tname, testfunc func);
 
-  /// Overridable: run test case.
-  virtual void run() =0;
+  void run() { m_func(); }
 
-  virtual ~base_test() =0;
   const std::string &name() const noexcept { return m_name; }
+
 private:
   std::string m_name;
 protected:
@@ -56,59 +55,10 @@ protected:
 };
 
 
-/// Runner class for libpqxx tests.  Sets up a connection and transaction.
-template<typename CONNECTION=connection, typename TRANSACTION=work>
-class test_case final : public base_test
-{
-public:
-  // func takes connection and transaction as arguments.
-  test_case(const std::string &tname, testfunc func) :
-    base_test(tname, func)
-  {
-  }
-
-  ~test_case() {}
-
-  virtual void run() override
-  {
-    CONNECTION c;
-    TRANSACTION t(c, name());
-    m_func(t);
-  }
-};
-
-
-// Register a function taking (connection_base &, transaction_base &) as a test.
+// Register a test function, so the runner will run it.
 #define PQXX_REGISTER_TEST(function) \
-	namespace \
-	{ \
-	pqxx::test::test_case<> test(#function, function); \
-	}
-
-// Register a test function using given connection and transaction types.
-#define PQXX_REGISTER_TEST_CT(function, connection_type, transaction_type) \
-	namespace \
-	{ \
-	pqxx::test::test_case< connection_type, transaction_type > \
-		test(#function, function); \
-	}
-
-// Register a test function using a given connection type (instead of the
-// default "connection").
-#define PQXX_REGISTER_TEST_C(function, connection_type) \
-	PQXX_REGISTER_TEST_CT(function, connection_type, pqxx::work)
-
-// Register a test function using a given transaction type (default is "work").
-#define PQXX_REGISTER_TEST_T(function, transaction_type) \
-	PQXX_REGISTER_TEST_CT(function, pqxx::connection, transaction_type)
-
-
-// Register test function that takes a nullconnection and nontransaction.
-#define PQXX_REGISTER_TEST_NODB(function) \
-	PQXX_REGISTER_TEST_CT( \
-		function, \
-		pqxx::nullconnection, \
-		pqxx::nontransaction)
+	namespace { pqxx::test::test_case test{#function, function}; } \
+	struct accept_semicolon {}
 
 
 // Unconditional test failure.

@@ -12,9 +12,11 @@ binarystring make_binarystring(transaction_base &T, string content)
 }
 
 
-void test_binarystring(transaction_base &T)
+void test_binarystring()
 {
-  binarystring b = make_binarystring(T, "");
+  connection conn;
+  work tx{conn};
+  binarystring b = make_binarystring(tx, "");
   PQXX_CHECK(b.empty(), "Empty binarystring is not empty.");
   PQXX_CHECK_EQUAL(b.str(), "", "Empty binarystring doesn't work.");
   PQXX_CHECK_EQUAL(b.size(), 0u, "Empty binarystring has nonzero size.");
@@ -27,7 +29,7 @@ void test_binarystring(transaction_base &T)
 	"Wrong crbegin for empty binarystring.");
   PQXX_CHECK_THROWS(b.at(0), out_of_range, "Empty binarystring accepts at().");
 
-  b = make_binarystring(T, "z");
+  b = make_binarystring(tx, "z");
   PQXX_CHECK_EQUAL(b.str(), "z", "Basic nonempty binarystring is broken.");
   PQXX_CHECK(not b.empty(), "Nonempty binarystring is empty.");
   PQXX_CHECK_EQUAL(b.size(), 1u, "Bad binarystring size.");
@@ -48,14 +50,14 @@ void test_binarystring(transaction_base &T)
   PQXX_CHECK_THROWS(b.at(1), out_of_range, "Failed to catch range error.");
 
   const string simple("ab");
-  b = make_binarystring(T, simple);
+  b = make_binarystring(tx, simple);
   PQXX_CHECK_EQUAL(
 	b.str(),
 	simple,
 	"Binary (un)escaping went wrong somewhere.");
   PQXX_CHECK_EQUAL(b.size(), simple.size(), "Escaping confuses length.");
 
-  const string simple_escaped(T.esc_raw(simple));
+  const string simple_escaped(tx.esc_raw(simple));
   for (string::size_type i=0; i<simple_escaped.size(); ++i)
   {
     const unsigned char uc = static_cast<unsigned char>(simple_escaped[i]);
@@ -63,33 +65,33 @@ void test_binarystring(transaction_base &T)
   }
 
   PQXX_CHECK_EQUAL(
-	T.quote_raw(
+	tx.quote_raw(
 		reinterpret_cast<const unsigned char *>(simple.c_str()),
 		 simple.size()),
-	T.quote(b),
+	tx.quote(b),
 	"quote_raw is broken");
   PQXX_CHECK_EQUAL(
-	T.quote(b),
-	T.quote_raw(simple),
+	tx.quote(b),
+	tx.quote_raw(simple),
 	"Binary quoting is broken.");
   PQXX_CHECK_EQUAL(
-	binarystring(T.exec1("SELECT " + T.quote(b))[0]).str(),
+	binarystring(tx.exec1("SELECT " + tx.quote(b))[0]).str(),
 	simple,
 	"Binary string is not idempotent.");
 
   const string bytes("\x01\x23\x23\xa1\x2b\x0c\xff");
-  b = make_binarystring(T, bytes);
+  b = make_binarystring(tx, bytes);
   PQXX_CHECK_EQUAL(b.str(), bytes, "Binary data breaks (un)escaping.");
 
   const string nully("a\0b", 3);
-  b = make_binarystring(T, nully);
+  b = make_binarystring(tx, nully);
   PQXX_CHECK_EQUAL(b.str(), nully, "Nul byte broke binary (un)escaping.");
   PQXX_CHECK_EQUAL(b.size(), 3u, "Nul byte broke binarystring size.");
 
-  b = make_binarystring(T, "foo");
+  b = make_binarystring(tx, "foo");
   PQXX_CHECK_EQUAL(string(b.get(), 3), "foo", "get() appears broken.");
 
-  binarystring b1 = make_binarystring(T, "1"), b2 = make_binarystring(T, "2");
+  binarystring b1 = make_binarystring(tx, "1"), b2 = make_binarystring(tx, "2");
   PQXX_CHECK_NOT_EQUAL(b1.get(), b2.get(), "Madness rules.");
   PQXX_CHECK_NOT_EQUAL(b1.str(), b2.str(), "Logic has no more meaning.");
   b1.swap(b2);
@@ -98,13 +100,13 @@ void test_binarystring(transaction_base &T)
   PQXX_CHECK_EQUAL(b1.str(), "2", "swap() is broken.");
   PQXX_CHECK_EQUAL(b2.str(), "1", "swap() went insane.");
 
-  b = make_binarystring(T, "bar");
+  b = make_binarystring(tx, "bar");
   b.swap(b);
   PQXX_CHECK_EQUAL(b.str(), "bar", "Self-swap confuses binarystring.");
 
-  b = make_binarystring(T, "\\x");
+  b = make_binarystring(tx, "\\x");
   PQXX_CHECK_EQUAL(b.str(), "\\x", "Hex-escape header confused (un)escaping.");
 }
 } // namespace
 
-PQXX_REGISTER_TEST(test_binarystring)
+PQXX_REGISTER_TEST(test_binarystring);

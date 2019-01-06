@@ -15,16 +15,15 @@ namespace
 const string Contents = "Large object test contents";
 
 
-void test_050(transaction_base &orgT)
+void test_050()
 {
-  connection_base &C(orgT.conn());
-  orgT.abort();
+  connection conn;
 
   // Create a large object.
   largeobject Obj = perform(
-    [&C]()
+    [&conn]()
     {
-      work tx{C};
+      work tx{conn};
       const auto obj = largeobject(tx);
       tx.commit();
       return obj;
@@ -32,9 +31,9 @@ void test_050(transaction_base &orgT)
 
   // Write to the large object, and play with it a little.
   perform(
-    [&C, &Obj]()
+    [&conn, &Obj]()
     {
-      work tx{C};
+      work tx{conn};
       largeobjectaccess A(tx, Obj);
 
       const auto
@@ -98,13 +97,14 @@ void test_050(transaction_base &orgT)
     });
 
   perform(
-    [&C, &Obj]()
+    [&conn, &Obj]()
     {
-      work tx{C};
+      work tx{conn};
       Obj.remove(tx);
       tx.commit();
     });
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_050, nontransaction)
+
+PQXX_REGISTER_TEST(test_050);

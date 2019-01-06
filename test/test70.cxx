@@ -51,9 +51,11 @@ void TestPipeline(pipeline &P, int numqueries)
 
 // Test program for libpqxx.  Issue a query repeatedly through a pipeline, and
 // compare results.  Use retain() and resume() for performance.
-void test_070(transaction_base &W)
+void test_070()
 {
-  pipeline P(W);
+  asyncconnection conn;
+  work tx{conn};
+  pipeline P(tx);
 
   PQXX_CHECK(P.empty(), "Pipeline is not empty initially.");
 
@@ -91,11 +93,12 @@ void test_070(transaction_base &W)
   for (int i=0; i<5; ++i) TestPipeline(P, i);
 
   // See if retrieve() fails on an empty pipeline, as it should
-  quiet_errorhandler d(W.conn());
+  quiet_errorhandler d(conn);
   PQXX_CHECK_THROWS_EXCEPTION(
 	P.retrieve(),
 	"Empty pipeline allows retrieve().");
 }
 } // namespace
 
-PQXX_REGISTER_TEST_C(test_070, asyncconnection)
+
+PQXX_REGISTER_TEST(test_070);

@@ -19,13 +19,13 @@ namespace
 // Let's take a boring year that is not going to be in the "pqxxevents" table
 const int BoringYear = 1977;
 
-pair<int, int> count_events(connection_base &C, string table)
+pair<int, int> count_events(connection_base &conn, string table)
 {
   const string CountQuery = "SELECT count(*) FROM " + table;
   row R;
   int all_years, boring_year;
 
-  work tx{C};
+  work tx{conn};
   R = tx.exec1(CountQuery);
   R.front().to(all_years);
 
@@ -41,29 +41,29 @@ struct deliberate_error : exception
 };
 
 
-void test_032(transaction_base &)
+void test_032()
 {
-  lazyconnection C;
+  lazyconnection conn;
   {
-    nontransaction W(C);
-    test::create_pqxxevents(W);
+    nontransaction tx{conn};
+    test::create_pqxxevents(tx);
   }
 
   const string Table = "pqxxevents";
 
-  const pair<int,int> Before = perform(bind(count_events, ref(C), Table));
+  const pair<int,int> Before = perform(bind(count_events, ref(conn), Table));
   PQXX_CHECK_EQUAL(
 	Before.second,
 	0,
 	"Already have event for " + to_string(BoringYear) + ", cannot test.");
 
   {
-    quiet_errorhandler d(C);
+    quiet_errorhandler d(conn);
     PQXX_CHECK_THROWS(
 	perform(
-          [&C, &Table]()
+          [&conn, &Table]()
           {
-            work{C}.exec0(
+            work{conn}.exec0(
 		"INSERT INTO " + Table + " VALUES (" +
 		to_string(BoringYear) + ", "
 		"'yawn')");
@@ -73,7 +73,7 @@ void test_032(transaction_base &)
 	"Did not get expected exception from failing transactor.");
   }
 
-  const pair<int,int> After = perform(bind(count_events, ref(C), Table));
+  const pair<int,int> After = perform(bind(count_events, ref(conn), Table));
 
   PQXX_CHECK_EQUAL(After.first, Before.first, "Event count changed.");
   PQXX_CHECK_EQUAL(
@@ -83,4 +83,5 @@ void test_032(transaction_base &)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_NODB(test_032)
+
+PQXX_REGISTER_TEST(test_032);

@@ -13,15 +13,14 @@ const string Contents = "Large object test contents";
 
 
 // Mixed-mode, seeking test program for libpqxx's Large Objects interface.
-void test_058(transaction_base &orgT)
+void test_058()
 {
-  connection_base &C(orgT.conn());
-  orgT.abort();
+  connection conn;
 
   perform(
-    [&C]()
+    [&conn]()
     {
-      work tx{C};
+      work tx{conn};
       largeobjectaccess A(tx);
       A.write(Contents);
 
@@ -76,4 +75,4 @@ void test_058(transaction_base &orgT)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_058, nontransaction)
+PQXX_REGISTER_TEST(test_058);

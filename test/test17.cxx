@@ -10,14 +10,13 @@ using namespace pqxx;
 // a dummy transaction to gain nontransactional access, and perform a query.
 namespace
 {
-void test_017(transaction_base &T)
+void test_017()
 {
-  connection_base &C(T.conn());
-  T.abort();
+  connection conn;
   perform(
-    [&C]()
+    [&conn]()
     {
-      nontransaction tx{C};
+      nontransaction tx{conn};
       const auto r = tx.exec("SELECT * FROM generate_series(1, 4)");
       PQXX_CHECK_EQUAL(r.size(), 4ul, "Weird query result.");
       tx.commit();
@@ -25,4 +24,4 @@ void test_017(transaction_base &T)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_017, nontransaction)
+PQXX_REGISTER_TEST(test_017);

@@ -50,7 +50,7 @@ void Test(connection_base &C, bool ExplicitAbort)
   {
     // Begin a transaction acting on our current connection; we'll abort it
     // later though.
-    work Doomed(C, "Doomed");
+    work Doomed{C, "Doomed"};
 
     // Verify that our Boring Year was not yet in the events table
     EventCounts = CountEvents(Doomed);
@@ -103,8 +103,10 @@ void Test(connection_base &C, bool ExplicitAbort)
 }
 
 
-void test_abort(transaction_base &t)
+void test_abort()
 {
+  connection conn;
+  nontransaction t{conn};
   test::create_pqxxevents(t);
   connection_base &c(t.conn());
   t.commit();
@@ -114,4 +116,4 @@ void test_abort(transaction_base &t)
 } // namespace
 
 
-PQXX_REGISTER_TEST_T(test_abort, nontransaction)
+PQXX_REGISTER_TEST(test_abort);

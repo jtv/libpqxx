@@ -50,12 +50,15 @@ void test_exec_n(transaction_base &trans)
 }
 
 
-void test_transaction_base(transaction_base &trans)
+void test_transaction_base()
 {
-  test_exec_n(trans);
-  test_exec0(trans);
-  test_exec1(trans);
+  connection conn;
+  work tx{conn};
+  test_exec_n(tx);
+  test_exec0(tx);
+  test_exec1(tx);
 }
 } // namespace
 
-PQXX_REGISTER_TEST(test_transaction_base)
+
+PQXX_REGISTER_TEST(test_transaction_base);

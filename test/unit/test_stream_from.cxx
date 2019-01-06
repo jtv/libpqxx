@@ -106,10 +106,10 @@ void test_nonoptionals(pqxx::connection_base& connection)
 }
 
 
-void test_bad_tuples(pqxx::connection_base& connection)
+void test_bad_tuples(pqxx::connection_base &conn)
 {
-  pqxx::work transaction{connection};
-  pqxx::stream_from extractor{transaction, "stream_from_test"};
+  pqxx::work tx{conn};
+  pqxx::stream_from extractor{tx, "stream_from_test"};
   PQXX_CHECK(extractor, "stream_from failed to initialize");
 
   std::tuple<int> got_tuple_too_short;
@@ -208,13 +208,11 @@ void test_optional(pqxx::connection_base& connection)
 }
 
 
-void test_stream_from(pqxx::transaction_base &nontrans)
+void test_stream_from()
 {
-  auto& connection = nontrans.conn();
-  nontrans.abort();
-
-  pqxx::work transaction{connection};
-  transaction.exec(
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  tx.exec(
     "CREATE TEMP TABLE stream_from_test ("
     "number0 INT NOT NULL,"
     "ts1     TIMESTAMP NULL,"
@@ -224,7 +222,7 @@ void test_stream_from(pqxx::transaction_base &nontrans)
     "bin5    BYTEA NOT NULL"
     ")"
   );
-  transaction.exec_params(
+  tx.exec_params(
     "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)",
     1234,
     "now",
@@ -233,7 +231,7 @@ void test_stream_from(pqxx::transaction_base &nontrans)
     "hello world",
     bytea{'\x00', '\x01', '\x02'}
   );
-  transaction.exec_params(
+  tx.exec_params(
     "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)",
     5678,
     "2018-11-17 21:23:00",
@@ -242,7 +240,7 @@ void test_stream_from(pqxx::transaction_base &nontrans)
     "こんにちは",
     bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'}
   );
-  transaction.exec_params(
+  tx.exec_params(
     "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)",
     910,
     nullptr,
@@ -251,25 +249,23 @@ void test_stream_from(pqxx::transaction_base &nontrans)
     "\\N",
     bytea{}
   );
-  transaction.commit();
+  tx.commit();
 
-  test_nonoptionals(connection);
-  test_bad_tuples(connection);
+  test_nonoptionals(conn);
+  test_bad_tuples(conn);
   std::cout << "testing `std::unique_ptr` as optional...\n";
-  test_optional<std::unique_ptr>(connection);
+  test_optional<std::unique_ptr>(conn);
   std::cout << "testing `custom_optional` as optional...\n";
-  test_optional<custom_optional>(connection);
+  test_optional<custom_optional>(conn);
 #if defined PQXX_HAVE_OPTIONAL
   std::cout << "testing `std::optional` as optional...\n";
-  test_optional<std::optional>(connection);
+  test_optional<std::optional>(conn);
 #elif defined PQXX_HAVE_EXP_OPTIONAL && !defined(PQXX_HIDE_EXP_OPTIONAL)
   std::cout << "testing `std::experimental::optional` as optional...\n";
-  test_optional<std::experimental::optional>(connection);
+  test_optional<std::experimental::optional>(conn);
 #endif
 }
-
-
 } // namespace
 
 
-PQXX_REGISTER_TEST_T(test_stream_from, pqxx::nontransaction)
+PQXX_REGISTER_TEST(test_stream_from);

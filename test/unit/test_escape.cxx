@@ -119,13 +119,15 @@ void test_esc_raw_unesc_raw(transaction_base &t)
 }
 
 
-void test_escaping(transaction_base &t)
+void test_escaping()
 {
-  test_esc(t.conn(), t);
-  test_quote(t.conn(), t);
-  test_quote_name(t);
-  test_esc_raw_unesc_raw(t);
+  connection conn;
+  work tx{conn};
+  test_esc(conn, tx);
+  test_quote(conn, tx);
+  test_quote_name(tx);
+  test_esc_raw_unesc_raw(tx);
 }
 } // namespace
 
-PQXX_REGISTER_TEST(test_escaping)
+PQXX_REGISTER_TEST(test_escaping);

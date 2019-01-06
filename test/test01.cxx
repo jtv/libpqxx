@@ -11,27 +11,25 @@ namespace
 
 // Simple test program for libpqxx.  Open connection to database, start
 // a transaction, and perform a query inside it.
-void test_001(transaction_base &trans)
+void test_001()
 {
+  connection conn;
   cout << "Connected to database." << endl
-       << "Backend version: " << trans.conn().server_version() << endl
-       << "Protocol version: " << trans.conn().protocol_version() << endl;
-
-  // Close old transaction.
-  trans.abort();
+       << "Backend version: " << conn.server_version() << endl
+       << "Protocol version: " << conn.protocol_version() << endl;
 
   // Begin a transaction acting on our current connection.  Give it a human-
   // readable name so the library can include it in error messages.
-  work T(trans.conn(), "test1");
+  work tx{conn, "test1"};
 
   // Perform a query on the database, storing result rows in R.
-  result R( T.exec("SELECT * FROM pg_tables") );
+  result r( tx.exec("SELECT * FROM pg_tables") );
 
   // We're expecting to find some tables...
-  PQXX_CHECK(not R.empty(), "No tables found.  Cannot test.");
+  PQXX_CHECK(not r.empty(), "No tables found.  Cannot test.");
 
   // Process each successive result row
-  for (const auto &c: R)
+  for (const auto &c: r)
   {
     // Dump row number and column 0 value to cout.  Read the value using
     // as(), which converts the field to the same type as the default value
@@ -39,9 +37,9 @@ void test_001(transaction_base &trans)
     cout << '\t' << to_string(c.num()) << '\t' << c[0].as(string{}) << endl;
   }
 
-  T.commit();
+  tx.commit();
 }
-
 } // namespace
 
-PQXX_REGISTER_TEST(test_001)
+
+PQXX_REGISTER_TEST(test_001);

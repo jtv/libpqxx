@@ -17,8 +17,8 @@ class TestListener final : public notification_receiver
   bool m_done;
 
 public:
-  explicit TestListener(connection_base &C, string Name) :
-    notification_receiver(C, Name), m_done(false)
+  explicit TestListener(connection_base &conn, string Name) :
+    notification_receiver(conn, Name), m_done(false)
   {
   }
 
@@ -37,22 +37,21 @@ public:
 };
 
 
-void test_079(transaction_base &orgT)
+void test_079()
 {
-  connection_base &C(orgT.conn());
-  orgT.abort();
+  connection conn;
 
   const string NotifName = "mylistener";
-  TestListener L(C, NotifName);
+  TestListener L(conn, NotifName);
 
   // First see if the timeout really works: we're not expecting any notifs
-  int notifs = C.await_notification(0, 1);
+  int notifs = conn.await_notification(0, 1);
   PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notification.");
 
   perform(
-    [&C, &L]()
+    [&conn, &L]()
     {
-      work tx{C};
+      work tx{conn};
       tx.exec0("NOTIFY " + L.channel());
       tx.commit();
     });
@@ -61,7 +60,7 @@ void test_079(transaction_base &orgT)
   {
     PQXX_CHECK_EQUAL(notifs, 0, "Got notifications, but no handler called.");
     cout << ".";
-    notifs = C.await_notification(1,0);
+    notifs = conn.await_notification(1,0);
   }
   cout << endl;
 
@@ -70,4 +69,5 @@ void test_079(transaction_base &orgT)
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_079, nontransaction)
+
+PQXX_REGISTER_TEST(test_079);

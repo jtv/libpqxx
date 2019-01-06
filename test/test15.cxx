@@ -11,25 +11,25 @@ using namespace pqxx;
 
 namespace
 {
-void test_015(transaction_base &orgT)
+void test_015()
 {
-  connection_base &C(orgT.conn());
-  orgT.abort();
+  connection conn;
 
   // See if deactivate() behaves...
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
-  C.deactivate();
+  conn.deactivate();
 #include <pqxx/internal/ignore-deprecated-post.hxx>
 
   perform(
-    [&C]()
+    [&conn]()
     {
-      nontransaction T{C};
-      const auto r = T.exec("SELECT * FROM generate_series(1, 5)");
+      nontransaction tx{conn};
+      const auto r = tx.exec("SELECT * FROM generate_series(1, 5)");
       PQXX_CHECK_EQUAL(r.size(), 5ul, "Weird query result.");
-      T.commit();
+      tx.commit();
     });
 }
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_015, nontransaction)
+
+PQXX_REGISTER_TEST(test_015);

@@ -12,46 +12,45 @@ namespace
 const string Contents = "Large object test contents";
 
 
-void test_052(transaction_base &orgT)
+void test_052()
 {
-  connection_base &C(orgT.conn());
-  orgT.abort();
+  connection conn;
 
   largeobject Obj = perform(
-    [&C]()
+    [&conn]()
     {
-      work tx{C};
+      work tx{conn};
       auto obj = largeobject{tx};
       tx.commit();
       return obj;
     });
 
   perform(
-    [&C, &Obj]()
+    [&conn, &Obj]()
     {
-      work tx{C};
+      work tx{conn};
       largeobjectaccess A{tx, Obj.id(), ios::out};
       A.write(Contents);
       tx.commit();
     });
 
   perform(
-    [&C, &Obj]()
+    [&conn, &Obj]()
     {
-      work tx{C};
+      work tx{conn};
       Obj.to_file(tx, "pqxxlo.txt");
       tx.commit();
     });
 
   perform(
-    [&C, &Obj]()
+    [&conn, &Obj]()
     {
-      work tx{C};
+      work tx{conn};
       Obj.remove(tx);
       tx.commit();
     });
 }
-
 } // namespace
 
-PQXX_REGISTER_TEST_T(test_052, nontransaction)
+
+PQXX_REGISTER_TEST(test_052);
