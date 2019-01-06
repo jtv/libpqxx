@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/tablestream instead.
  *
- * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -41,9 +41,10 @@ protected:
 private:
   std::string m_null;
   bool m_finished = false;
-  tablestream();
-  tablestream(const tablestream &);
-  tablestream &operator=(const tablestream &);
+
+  tablestream() =delete;
+  tablestream(const tablestream &) =delete;
+  tablestream &operator=(const tablestream &) =delete;
 };
 
 
