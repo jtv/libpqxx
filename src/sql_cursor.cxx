@@ -109,7 +109,7 @@ pqxx::internal::sql_cursor::sql_cursor(
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   if (query.empty()) throw usage_error{"Cursor has empty query."};
-  const auto enc = enc_group(t.conn().encoding_code());
+  const auto enc = enc_group(t.conn().encoding_id());
   const auto qend = find_query_end(query, enc);
   if (qend == 0) throw usage_error{"Cursor has effectively empty query."};
 

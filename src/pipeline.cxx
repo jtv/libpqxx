@@ -253,7 +253,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   pqxxassert(r);
   const result res = gate::result_creation::create(
 	r, std::begin(m_queries)->second.get_query(),
-        internal::enc_group(m_trans.conn().encoding_code()));
+        internal::enc_group(m_trans.conn().encoding_id()));
 
   if (not have_pending())
   {
@@ -286,7 +286,7 @@ void pqxx::pipeline::obtain_dummy()
   result R = gate::result_creation::create(
         r,
         "[DUMMY PIPELINE QUERY]",
-        internal::enc_group(m_trans.conn().encoding_code()));
+        internal::enc_group(m_trans.conn().encoding_id()));
 
   bool OK = false;
   try

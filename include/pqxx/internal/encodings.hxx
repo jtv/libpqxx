@@ -1,6 +1,6 @@
 /** Internal string encodings support for libpqxx
  *
- * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -20,6 +20,8 @@ namespace pqxx
 {
 namespace internal
 {
+const char *name_encoding(int encoding_id);
+
 /// Convert libpq encoding enum or encoding name to its libpqxx group.
 encoding_group enc_group(int /* libpq encoding ID */);
 encoding_group enc_group(const std::string&);

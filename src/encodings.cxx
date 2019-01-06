@@ -1,6 +1,6 @@
 /** Implementation of string encodings support
  *
- * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -21,10 +21,6 @@ using namespace pqxx::internal;
 extern "C"
 {
 #include "libpq-fe.h"
-// These headers would be needed (in this order) to use the libpq encodings enum
-// directly, which the pg_wchar.h header explicitly warns against doing:
-// #include "internal/c.h"
-// #include "server/mb/pg_wchar.h"
 }
 
 
@@ -632,10 +628,17 @@ template<> std::string::size_type glyph_scanner<encoding_group::UTF8>::call(
 }
 
 
+const char *name_encoding(int encoding_id)
+{
+  return pg_encoding_to_char(encoding_id);
+}
+
+
 encoding_group enc_group(int libpq_enc_id)
 {
-  return enc_group(pg_encoding_to_char(libpq_enc_id));
+  return enc_group(name_encoding(libpq_enc_id));
 }
+
 
 encoding_group enc_group(const std::string& encoding_name)
 {

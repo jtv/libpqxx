@@ -106,7 +106,7 @@ void pqxx::stream_from::set_up(
 {
   // Get the encoding before starting the COPY, otherwise reading the the
   // variable will interrupt it
-  m_copy_encoding = internal::enc_group(m_trans.conn().encoding_code());
+  m_copy_encoding = internal::enc_group(m_trans.conn().encoding_id());
   internal::gate::transaction_stream_from{tb}.BeginCopyRead(
     table_name,
     columns

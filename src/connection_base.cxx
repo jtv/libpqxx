@@ -106,7 +106,7 @@ pqxx::result pqxx::connection_base::make_result(
   return gate::result_creation::create(
         rhs,
         query,
-        internal::enc_group(encoding_code()));
+        internal::enc_group(encoding_id()));
 }
 
 
@@ -1324,11 +1324,38 @@ std::string pqxx::connection_base::adorn_name(const std::string &n)
 }
 
 
-int pqxx::connection_base::encoding_code()
+std::string pqxx::connection_base::get_client_encoding() const
 {
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
+  return internal::name_encoding(encoding_id());
+}
+
+
+void pqxx::connection_base::set_client_encoding(const char encoding[])
+{
+  const auto retval = PQsetClientEncoding(m_conn, encoding);
+  switch (retval)
+  {
+  case 0:
+    // OK.
+    break;
+  case -1:
+    // TODO: Any helpful information we could give here?
+    throw failure{"Setting client encoding failed."};
+  default:
+    throw internal_error{
+	"Unexpected result from PQsetClientEncoding: " + to_string(retval)};
+  }
+}
+
+
+void pqxx::connection_base::set_client_encoding(const std::string &encoding)
+{
+  set_client_encoding(encoding.c_str());
+}
+
+
+int pqxx::connection_base::encoding_id() const
+{
   return PQclientEncoding(m_conn);
 }
 

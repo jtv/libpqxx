@@ -388,25 +388,39 @@ public:
    * strings and other text is represented in bytes.  The database server will
    * send text data to you in this encoding, and you should use it for the
    * queries and data which you send to the server.
+   *
+   * Search the PostgreSQL documentation for "character set encodings" to find
+   * out more about the available encodings, how to extend them, and how to use
+   * them.  Not all server-side encodings are compatible with all client-side
+   * encodings or vice versa.
+   *
+   * Encoding names are case-insensitive, so e.g. "UTF8" is equivalent to
+   * "utf8".
+   *
+   * You can change the client encoding, but this may not work when the
+   * connection is in a special state, such as when streaming a table.  It's
+   * not clear what happens if you change the encoding during a transaction,
+   * and then abort the transaction.
    */
   //@{
-  /// Set client-side character encoding, by name.
-  /** Search the PostgreSQL documentation for "multibyte" or "character set
-   * encodings" to find out more about the available encodings, how to extend
-   * them, and how to use them.  Not all server-side encodings are compatible
-   * with all client-side encodings or vice versa.
-   *
-   * @param Encoding Name of the character set encoding to use
-   */
-  void set_client_encoding(const std::string &Encoding)			//[t07]
-	{ set_variable("CLIENT_ENCODING", Encoding); }
+  /// Get client-side character encoding, by name.
+  std::string get_client_encoding() const;
 
-  // TODO: Set client-side character encoding, by code.
+  /// Set client-side character encoding, by name.
+  /**
+   * @param Encoding Name of the character set encoding to use.
+   */
+  void set_client_encoding(const std::string &encoding);		//[t07]
+
+  /// Set client-side character encoding, by name.
+  /**
+   * @param Encoding Name of the character set encoding to use.
+   */
+  void set_client_encoding(const char encoding[]);			//[t07]
 
   /// Get the connection's encoding, as a PostgreSQL-defined code.
-  int PQXX_PRIVATE encoding_code();
+  int PQXX_PRIVATE encoding_id() const;
 
-  /// TODO: Get the connection's encoding, by name.
   //@}
 
   /// Set session variable
