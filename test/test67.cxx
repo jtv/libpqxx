@@ -117,7 +117,7 @@ void test_067()
 	"Found impossible number of nulls.");
   }
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_067);
+} // namespace

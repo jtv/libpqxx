@@ -110,6 +110,7 @@ void test_result_slicing()
   s = r[0].slice(1, 2);
   PQXX_CHECK_EQUAL(s["x"].as<int>(), 2, "Identical column names break slice.");
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_result_slicing);
+} // namespace

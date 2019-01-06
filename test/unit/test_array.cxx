@@ -443,6 +443,7 @@ void test_array_parse()
   test_nested_array();
   test_nested_array_with_multiple_entries();
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_array_parse);
+} // namespace

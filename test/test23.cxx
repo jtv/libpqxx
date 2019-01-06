@@ -60,7 +60,7 @@ void test_023()
 
   PQXX_CHECK_EQUAL(notifs, 1, "Unexpected number of notifications.");
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_023);
+} // namespace

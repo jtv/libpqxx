@@ -73,6 +73,7 @@ void test_notification()
   nontransaction u(conn);
   test_receive(u, "channel2", "payload");
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_notification);
+} // namespace

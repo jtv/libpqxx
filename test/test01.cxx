@@ -39,7 +39,7 @@ void test_001()
 
   tx.commit();
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_001);
+} // namespace

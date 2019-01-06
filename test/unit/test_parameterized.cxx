@@ -25,6 +25,7 @@ void test_exec_params()
 	"foobar",
 	"Incorrect string result from parameterized statement.");
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_exec_params);
+} // namespace

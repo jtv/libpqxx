@@ -76,7 +76,7 @@ void test_020()
 
   PQXX_CHECK_EQUAL(R.size(), 0u, "Record still found after removal.");
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_020);
+} // namespace

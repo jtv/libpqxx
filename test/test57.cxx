@@ -68,7 +68,7 @@ void test_057()
 
   PQXX_CHECK_EQUAL(Readback, StreamedContents, "Contents were mangled.");
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_057);
+} // namespace

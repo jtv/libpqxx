@@ -50,6 +50,7 @@ void test_cursor()
   test_stateless_cursor_provides_random_access(conn);
   test_stateless_cursor_ignores_trailing_semicolon(conn);
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_cursor);
+} // namespace

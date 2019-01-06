@@ -296,6 +296,7 @@ void cursor_tests()
   test_adopted_sql_cursor();
   test_hold_cursor();
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(cursor_tests);
+} // namespace

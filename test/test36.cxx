@@ -20,7 +20,7 @@ void test_036()
     });
   PQXX_CHECK_EQUAL(r.size(), 8u, "Unexpected transactor result.");
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_036);
+} // namespace

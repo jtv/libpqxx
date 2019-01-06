@@ -128,6 +128,7 @@ void test_escaping()
   test_quote_name(tx);
   test_esc_raw_unesc_raw(tx);
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_escaping);
+} // namespace

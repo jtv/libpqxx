@@ -113,7 +113,7 @@ void test_abort()
   Test(c, true);
   Test(c, false);
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_abort);
+} // namespace

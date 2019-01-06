@@ -65,7 +65,7 @@ void test_059()
 	StreamedContents,
 	"Large object contents were mangled.");
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_059);
+} // namespace

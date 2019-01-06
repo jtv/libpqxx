@@ -102,7 +102,7 @@ void test_062()
   PQXX_CHECK(B2c == B, "binarystring::swap() is broken.");
   PQXX_CHECK(B1c == B2, "Cross-check of swapped binarystrings failed.");
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_062);
+} // namespace

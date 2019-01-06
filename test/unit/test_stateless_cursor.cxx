@@ -83,8 +83,8 @@ void test_stateless_cursor()
   PQXX_CHECK_EQUAL(rows.size(), 2u, "Wrong batch size");
   PQXX_CHECK_EQUAL(rows[0][0].as<int>(), 8, "Batch in wrong place");
   PQXX_CHECK_EQUAL(rows[1][0].as<int>(), 9, "Batch in wrong place");
-
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_stateless_cursor);
+} // namespace

@@ -50,7 +50,7 @@ void test_052()
       tx.commit();
     });
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_052);
+} // namespace

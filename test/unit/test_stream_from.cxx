@@ -18,8 +18,6 @@
 
 namespace
 {
-
-
 void test_nonoptionals(pqxx::connection_base& connection)
 {
   pqxx::work transaction{connection};
@@ -265,7 +263,7 @@ void test_stream_from()
   test_optional<std::experimental::optional>(conn);
 #endif
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_stream_from);
+} // namespace

@@ -58,7 +58,7 @@ void test_transaction_base()
   test_exec0(tx);
   test_exec1(tx);
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_transaction_base);
+} // namespace

@@ -22,6 +22,7 @@ void test_thread_safety_model()
 	"",
 	"Thread-safety model is imperfect but lacks description.");
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_thread_safety_model);
+} // namespace

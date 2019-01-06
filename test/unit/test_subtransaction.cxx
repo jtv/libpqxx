@@ -78,7 +78,7 @@ void test_subtransaction()
   test_subtransaction_aborts_if_abort_called(conn);
   test_subtransaction_aborts_implicitly(conn);
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_subtransaction);
+} // namespace

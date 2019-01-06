@@ -45,7 +45,7 @@ void test_014()
   // NonTransaction doesn't start a backend transaction.
   tx.commit();
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_014);
+} // namespace

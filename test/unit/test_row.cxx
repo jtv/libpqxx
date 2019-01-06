@@ -20,6 +20,7 @@ void test_row()
   PQXX_CHECK_EQUAL(r.front().as<int>(), 1, "Wrong row front().");
   PQXX_CHECK_EQUAL(r.back().as<int>(), 3, "Wrong row back().");
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_row);
+} // namespace

@@ -67,6 +67,7 @@ void test_004()
   PQXX_CHECK_NOT_EQUAL(L.done(), false, "No notification received.");
   PQXX_CHECK_EQUAL(notifs, 1, "Got too many notifications.");
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_004);
+} // namespace

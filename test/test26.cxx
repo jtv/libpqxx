@@ -80,7 +80,7 @@ void test_026()
   for (const auto &i: conversions)
     cout << '\t' << i.first << "\t-> " << i.second << endl;
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_026);
+} // namespace

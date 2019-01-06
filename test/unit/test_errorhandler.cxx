@@ -208,6 +208,7 @@ void test_errorhandler()
   test_destroying_connection_unregisters_handlers();
   test_get_errorhandlers(conn);
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_errorhandler);
+} // namespace

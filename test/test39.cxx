@@ -71,7 +71,7 @@ void test_039()
 
   PQXX_CHECK_EQUAL(R.size(), 0u, "Record is not gone as expected.");
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_039);
+} // namespace

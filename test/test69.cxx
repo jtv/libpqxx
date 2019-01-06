@@ -49,7 +49,7 @@ void test_069()
   PQXX_CHECK(P.empty(), "Pipeline is not empty initially.");
   for (int i=0; i<5; ++i) TestPipeline(P, i);
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_069);
+} // namespace

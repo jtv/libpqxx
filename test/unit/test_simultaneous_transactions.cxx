@@ -15,6 +15,7 @@ void test_simultaneous_transactions()
 	logic_error,
 	"Allowed to open simultaneous nontransactions.");
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_simultaneous_transactions);
+} // namespace

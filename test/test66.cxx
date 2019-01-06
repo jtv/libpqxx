@@ -79,7 +79,7 @@ void test_066()
 	0u,
 	"Deleted row still seems to be there.");
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_066);
+} // namespace

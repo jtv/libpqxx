@@ -81,7 +81,7 @@ void test_037()
 	Before.second,
 	"Number of events for " + to_string(BoringYear) + " changed.");
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_037);
+} // namespace

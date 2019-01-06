@@ -79,7 +79,7 @@ void test_064()
 	sql_error,
 	"Setting unknown variable failed to fail.");
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_064);
+} // namespace

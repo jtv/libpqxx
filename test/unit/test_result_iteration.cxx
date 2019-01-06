@@ -19,6 +19,7 @@ void test_result_iteration()
   PQXX_CHECK_EQUAL(r.front().front().as<int>(), 1, "Unexpected front().");
   PQXX_CHECK_EQUAL(r.back().front().as<int>(), 3, "Unexpected back().");
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_result_iteration);
+} // namespace

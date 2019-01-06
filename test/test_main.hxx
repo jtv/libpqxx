@@ -1,5 +1,6 @@
 /* main() definition for libpqxx test runners.
  */
+#include <cassert>
 #include <iostream>
 #include <list>
 #include <new>
@@ -36,22 +37,6 @@ test_failure::test_failure(const string &ffile, int fline, const string &desc) :
 }
 
 test_failure::~test_failure() noexcept {}
-
-
-test_case::test_case(const string &tname, testfunc func) :
-  m_name(tname),
-  m_func(func)
-{
-  register_test(this);
-}
-
-
-const test_map &register_test(test_case *tc)
-{
-  static test_map tests;
-  if (tc) tests[tc->name()] = tc;
-  return tests;
-}
 
 
 /// Drop table, if it exists.
@@ -133,14 +118,38 @@ void create_pqxxevents(transaction_base &t)
 } // namespace pqxx
 
 
+namespace
+{
+std::map<const char *, testfunc> *all_tests = nullptr;
+} // namespace
+
+
+namespace pqxx
+{
+namespace test
+{
+void register_test(const char name[], testfunc func)
+{
+  if (all_tests == nullptr)
+  {
+    all_tests = new std::map<const char *, testfunc>();
+  }
+  else
+  {
+    assert(all_tests->find(name) == all_tests->end());
+  }
+  (*all_tests)[name] = func;
+}
+} // namespace pqxx::test
+} // namespace pqxx
+
 int main(int, const char *argv[])
 {
   const char *const test_name = argv[1];
-  const test_map &tests = register_test(nullptr);
 
   int test_count = 0;
   list<string> failed;
-  for (const auto &i: tests)
+  for (const auto &i: *all_tests)
     if (test_name == nullptr or test_name == i.first)
     {
       cout << endl << "Running: " << i.first << endl;
@@ -148,7 +157,7 @@ int main(int, const char *argv[])
       bool success = false;
       try
       {
-        i.second->run();
+        i.second();
         success = true;
       }
       catch (const test_failure &e)

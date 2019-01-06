@@ -38,6 +38,7 @@ void test_error_verbosity()
 	int(connection_base::terse),
 	"Setting verbosity did not work.");
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_error_verbosity);
+} // namespace

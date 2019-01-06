@@ -72,7 +72,7 @@ void test_048()
 	StreamedContents,
 	"Got wrong number of bytes from large object.");
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_048);
+} // namespace

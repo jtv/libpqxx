@@ -124,6 +124,7 @@ void test_transactor()
   test_transactor_newstyle_does_not_retry_other_error();
   test_transactor_newstyle_repeats_up_to_given_number_of_attempts();
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_transactor);
+} // namespace

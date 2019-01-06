@@ -78,7 +78,7 @@ void test_030()
 	"Inconsistent field lengths.");
   }
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_030);
+} // namespace

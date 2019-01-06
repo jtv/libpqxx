@@ -64,7 +64,7 @@ void test_065()
 
   PQXX_CHECK_EQUAL(Readback, StreamedContents, "Large object was mangled.");
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_065);
+} // namespace

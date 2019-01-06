@@ -110,7 +110,7 @@ void test_029()
   Test(conn, true);
   Test(conn, false);
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_029);
+} // namespace

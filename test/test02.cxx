@@ -81,7 +81,7 @@ void test_002()
 	"pqxx::row::column_table() is broken.");
   }
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_002);
+} // namespace

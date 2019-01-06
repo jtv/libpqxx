@@ -38,6 +38,7 @@ void test_infinities()
   infinity_test<double>();
   infinity_test<long double>();
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_infinities);
+} // namespace

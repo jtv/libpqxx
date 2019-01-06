@@ -80,6 +80,7 @@ void test_046()
 	not tx.exec1("SELECT 2+2=5").front().as<bool>(),
 	"2+2=5 yields 'true.'");
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_046);
+} // namespace

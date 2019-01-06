@@ -94,7 +94,7 @@ void test_013()
 	Before.second,
 	"abort() didn't reset event count for " + to_string(BoringYear));
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_013);
+} // namespace

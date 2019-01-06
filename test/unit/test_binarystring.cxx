@@ -107,6 +107,7 @@ void test_binarystring()
   b = make_binarystring(tx, "\\x");
   PQXX_CHECK_EQUAL(b.str(), "\\x", "Hex-escape header confused (un)escaping.");
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_binarystring);
+} // namespace

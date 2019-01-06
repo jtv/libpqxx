@@ -76,7 +76,7 @@ void test_011()
     cout << "(Table is empty.)" << endl;
   }
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_011);
+} // namespace

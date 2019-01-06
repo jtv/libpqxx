@@ -42,7 +42,7 @@ void test_053()
 
   perform([&conn, &Obj](){ work tx{conn}; Obj.remove(tx); tx.commit(); });
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_053);
+} // namespace

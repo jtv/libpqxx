@@ -14,8 +14,6 @@
 
 namespace
 {
-
-
 std::string truncate_sql_error(const std::string &what)
 {
   auto trunc = what.substr(0, what.find('\n'));
@@ -206,7 +204,7 @@ void test_stream_to()
   test_optional<std::experimental::optional>(conn);
 #endif
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_stream_to);
+} // namespace

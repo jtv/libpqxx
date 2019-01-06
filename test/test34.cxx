@@ -27,7 +27,7 @@ void test_034()
 
   PQXX_CHECK_EQUAL(r.size(), 4u, "Unexpected transactor result.");
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_034);
+} // namespace

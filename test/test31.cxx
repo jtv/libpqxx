@@ -146,7 +146,7 @@ void test_031()
 	"Found more nulls than there were rows.");
   }
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_031);
+} // namespace

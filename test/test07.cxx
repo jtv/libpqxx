@@ -146,6 +146,7 @@ void test_007()
   for (auto &i: conversions)
     cout << '\t' << i.first << "\t-> " << i.second << endl;
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_007);
+} // namespace

@@ -97,7 +97,7 @@ void test_049()
   // are sensible; use std::for_each<>() to iterate over rows in R
   for_each(R.begin(), R.end(), CountGreaterSmaller(Key, R));
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_049);
+} // namespace

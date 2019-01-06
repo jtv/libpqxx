@@ -29,36 +29,24 @@ public:
 void drop_table(transaction_base &, const std::string &table);
 
 
-class test_case;
-using test_map = std::map<std::string, test_case *>;
-
-/// Register test (if given); return test_map.
-const test_map &register_test(test_case *);
+using testfunc = void (*)();
 
 
-/// Test case class.  Registers itself, so test runner can run its function.
-class test_case
+void register_test(const char name[], testfunc func);
+
+
+/// Register a test while not inside a function.
+struct registrar
 {
-public:
-  using testfunc = void (*)();
-
-  test_case(const std::string &tname, testfunc func);
-
-  void run() { m_func(); }
-
-  const std::string &name() const noexcept { return m_name; }
-
-private:
-  std::string m_name;
-protected:
-  testfunc m_func;
+  registrar(const char name[], testfunc func)
+  {
+    pqxx::test::register_test(name, func);
+  }
 };
 
 
 // Register a test function, so the runner will run it.
-#define PQXX_REGISTER_TEST(function) \
-	namespace { pqxx::test::test_case test{#function, function}; } \
-	struct accept_semicolon {}
+#define PQXX_REGISTER_TEST(func) pqxx::test::registrar tst_##func{#func, func}
 
 
 // Unconditional test failure.

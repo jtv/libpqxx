@@ -18,7 +18,7 @@ void test_056()
 	sql_error,
 	"SQL syntax error did not raise expected exception.");
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_056);
+} // namespace

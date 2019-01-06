@@ -19,6 +19,7 @@ void test_cancel_query()
   p.insert("SELECT pg_sleep(1)");
   conn.cancel_query();
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_cancel_query);
+} // namespace

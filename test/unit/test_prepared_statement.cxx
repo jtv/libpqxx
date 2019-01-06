@@ -402,6 +402,7 @@ void test_prepared_statement()
   test_legacy_prepared_statement();
   test_prepared_statements();
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_prepared_statement);
+} // namespace

@@ -19,6 +19,7 @@ void test_read_transaction()
 	sql_error,
 	"Read-only transaction allows database to be modified.");
 }
-}
+
 
 PQXX_REGISTER_TEST(test_read_transaction);
+}

@@ -224,7 +224,7 @@ void test_test_helpers()
 	test_failure,
 	"PQXX_CHECK_BOUNDS did not detect empty interval.");
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_test_helpers);
+} // namespace

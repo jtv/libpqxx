@@ -184,6 +184,7 @@ void test_000()
 	"Inconsistent what() message in exception.");
   }
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_000);
+} // namespace

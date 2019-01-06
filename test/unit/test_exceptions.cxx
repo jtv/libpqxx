@@ -41,6 +41,7 @@ void test_exceptions()
 	e.sqlstate(), "42601", "Unexpected sqlstate on syntax error.");
   }
 }
-} // namespace
+
 
 PQXX_REGISTER_TEST(test_exceptions);
+} // namespace

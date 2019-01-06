@@ -117,7 +117,7 @@ void test_012()
 	NullFields[f] <= int(R.size()),
 	"Found more nulls than there were rows.");
 }
-} // namespace
 
 
 PQXX_REGISTER_TEST(test_012);
+} // namespace
