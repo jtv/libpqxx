@@ -2,13 +2,15 @@
  *
  * pqxx::field refers to a field in a query result.
  *
- * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
  */
 #include "pqxx/compiler-internal.hxx"
+
+#include <cstring>
 
 #include "pqxx/internal/libpq-forward.hxx"
 
@@ -29,9 +31,7 @@ bool pqxx::field::operator==(const field &rhs) const
   // TODO: Verify null handling decision
   const size_type s = size();
   if (s != rhs.size()) return false;
-  const char *const l{c_str()}, *const r{rhs.c_str()};
-  for (size_type i = 0; i < s; ++i) if (l[i] != r[i]) return false;
-  return true;
+  return std::memcmp(c_str(), rhs.c_str(), s) == 0;
 }
 
 
