@@ -2,7 +2,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transactor instead.
  *
- * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -25,40 +25,43 @@ namespace pqxx
 /**
  * @defgroup transactor Transactor framework
  *
- * Sometimes your application needs to execute a transaction that should be
- * retried if it fails.  For example, your REST API might be handling an HTTP
- * request in its own database transaction, and if it fails for transient
- * reasons, you simply want to "replay" the whole request from the start, in a
- * fresh transaction.
+ * Sometimes a transaction can fail for completely transient reasons, such as a
+ * conflict with another transaction in SERIALIZABLE isolation.  The right way
+ * to handle those failures is often just to re-run the transaction from
+ * scratch.
  *
- * One of those transient reasons might be a deadlock during a SERIALIZABLE or
- * REPEATABLE READ transaction.  Another reason might be that your network
- * connection to the database fails, and perhaps you don't just want to give up
- * when that happens.
+ * For example, your REST API might be handling each HTTP request in its own
+ * database transaction, and if this kind of transient failure happens, you
+ * simply want to "replay" the whole request, in a fresh transaction.
  *
- * In situations like these, the right thing to do is often to restart your
- * transaction from scratch.  You won't necessarily want to execute the exact
- * same SQL commands with the exact same data, but you'll want to re-run the
- * same application code that produced those SQL commands.
+ * You won't necessarily want to execute the exact same SQL commands with the
+ * exact same data.  Some of your SQL statements may depend on state that can
+ * vary between retries.  So instead of dumbly replaying the SQL, you re-run
+ * the same application code that produced those SQL commands.
  *
  * The transactor framework makes it a little easier for you to do this safely,
- * and avoid typical pitfalls.  You encapsulate the work that you want to do in
- * a transaction into something that you pass to @c perform.
+ * and avoid typical pitfalls.  You encapsulate the work that you want to do
+ * into a callable that you pass to the @c perform function.
  *
- * Transactors come in two flavours.
+ * Here's how it works.  You write your transaction code as a lambda or
+ * function, which creates its own transaction object, does its work, and
+ * commits at the end.  You pass that callback to @c pqxx::perform, which runs
+ * it for you.
  *
- * The old, pre-C++11 way is to derive a class from the @c transactor template,
- * and pass an instance of it to your connection's @c connection_base::perform
- * member function.  That function will create a transaction object and pass
- * it to your @c transactor, handle any exceptions, commit or abort, and
- * repeat as appropriate.
+ * If there's a failure inside your callback, there will be an exception.  Your
+ * transaction object goes out of scope and gets destroyed, so that it aborts
+ * implicitly.  Seeing this, @c perform tries running your callback again.  It
+ * stops doing that when the callback succeeds, or when it has failed too many
+ * times, or when there's an error that leaves the database in an unknown
+ * state, such as a lost connection just while we're waiting for the database
+ * to confirm a commit.  It all depends on the type of exception.
  *
- * The new, simpler C++11-based way is to write your transaction code as a
- * lambda (or other callable), which creates its own transaction object, does
- * its work, and commits at the end.  You pass that callback to pqxx::perform.
- * If any given attempt fails, its transaction object goes out of scope and
- * gets destroyed, so that it aborts implicitly.  Your callback can return its
- * results to the calling code.
+ * The callback takes no arguments.  If you're using lambdas, the easy way to
+ * pass arguments is for the lambda to "capture" them from your variables.  Or,
+ * if you're using functions, you may want to use @c std::bind.
+ *
+ * Once your callback succeeds, it can return a result, and @c perform will
+ * return that result back to you.
  */
 //@{
 
@@ -84,12 +87,8 @@ namespace pqxx
  * Also be careful about changing variables or data structures from within
  * your callback.  The run may still fail, and perhaps get run again.  The
  * ideal way to do it (in most cases) is to return your result from your
- * callback, and change your program's data after @c perform completes
- * successfully.
- *
- * This function replaces an older, more complicated transactor framework.
- * The new function is a simpler, more lambda-friendly way of doing the same
- * thing.
+ * callback, and change your program's data state only after @c perform
+ * completes successfully.
  *
  * @param callback Transaction code that can be called with no arguments.
  * @param attempts Maximum number of times to attempt performing callback.
