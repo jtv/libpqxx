@@ -6,8 +6,7 @@ using namespace std;
 using namespace pqxx;
 
 
-// Simple test program for libpqxx.  Open connection to database, start
-// a dummy transaction to gain nontransactional access, and perform a query.
+// Test robusttransaction.
 namespace
 {
 void test_016()
@@ -44,8 +43,6 @@ void test_016()
     PQXX_CHECK(c == R.back(), "Row equality is broken.");
     PQXX_CHECK(not (c != R.back()), "Row inequality is broken.");
 
-  // "Commit" the non-transaction.  This doesn't really do anything since
-  // NonTransaction doesn't start a backend transaction.
   tx.commit();
 }
 

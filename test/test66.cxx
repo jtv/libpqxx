@@ -4,9 +4,8 @@ using namespace std;
 using namespace pqxx;
 
 
-// Test program for libpqxx.  Modify the database inside a NonTransaction, and
-// verify that the change gets made regardless of whether the NonTransaction is
-// eventually committed or aborted.  An asynchronous connection is used.
+// Test: nontransaction changes are committed immediately (tested here against
+// an asyncconnection).
 namespace
 {
 int BoringYear = 1977;
@@ -43,7 +42,7 @@ void test_066()
 	"'Yawn'"
 	")");
 
-  // Abort T1.  Since T1 is a NonTransaction, which provides only the
+  // Abort T1.  Since T1 is a nontransaction, which provides only the
   // transaction class interface without providing any form of transactional
   // integrity, this is not going to undo our work.
   tx1.abort();

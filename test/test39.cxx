@@ -4,9 +4,8 @@ using namespace std;
 using namespace pqxx;
 
 
-// Test program for libpqxx.  Modify the database inside a NonTransaction, and
-// verify that the change gets made regardless of whether the NonTransaction is
-// eventually committed or aborted.  A lazy connection is used.
+// Test: nontransaction changes are committed immediately (tested here against
+// a lazyconnection).
 namespace
 {
 int BoringYear = 1977;
@@ -41,7 +40,7 @@ void test_039()
 	"'Yawn'"
 	")");
 
-  // Abort tx1.  Since tx1 is a NonTransaction, which provides only the
+  // Abort tx1.  Since tx1 is a nontransaction, which provides only the
   // transaction class interface without providing any form of transactional
   // integrity, this is not going to undo our work.
   tx1.abort();

@@ -6,9 +6,7 @@ using namespace std;
 using namespace pqxx;
 
 
-// Test program for libpqxx.  Modify the database inside a NonTransaction, and
-// verify that the change gets made regardless of whether the NonTransaction is
-// eventually committed or aborted.
+// Test: nontransaction changes are not rolled back on abort.
 namespace
 {
 const unsigned long BoringYear = 1977;

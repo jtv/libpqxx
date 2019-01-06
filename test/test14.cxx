@@ -6,8 +6,7 @@ using namespace std;
 using namespace pqxx;
 
 
-// Simple test program for libpqxx.  Open connection to database, start
-// a dummy transaction to gain nontransactional access, and perform a query.
+// Test nontransaction.
 
 namespace
 {
@@ -26,23 +25,18 @@ void test_014()
   // C++ strings as well as C strings.
   tx.process_notice(string{"Started nontransaction\n"});
 
-  result R( tx.exec("SELECT * FROM pg_tables") );
+  result r{ tx.exec("SELECT * FROM pg_tables") };
 
-  // Give some feedback to the test program's user prior to the real work
-  tx.process_notice(
-	to_string(R.size()) + " result rows in transaction " +
-	tx.name() + "\n");
-
-  for (const auto &c: R)
+  for (const auto &c: r)
   {
-    string N;
-    c[0].to(N);
+    string n;
+    c[0].to(n);
 
-    cout << '\t' << to_string(c.num()) << '\t' << N << endl;
+    cout << '\t' << to_string(c.num()) << '\t' << n << endl;
   }
 
   // "Commit" the non-transaction.  This doesn't really do anything since
-  // NonTransaction doesn't start a backend transaction.
+  // nontransaction doesn't start a backend transaction.
   tx.commit();
 }
 
