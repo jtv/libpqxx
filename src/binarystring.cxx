@@ -1,6 +1,6 @@
 /** Implementation of bytea (binary string) conversions.
  *
- * Copyright (c) 2003-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2003-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -104,8 +104,7 @@ pqxx::binarystring::binarystring(const void *binary_data, size_t len) :
 bool pqxx::binarystring::operator==(const binarystring &rhs) const noexcept
 {
   if (rhs.size() != size()) return false;
-  for (size_type i=0; i<size(); ++i) if (rhs[i] != data()[i]) return false;
-  return true;
+  return std::memcmp(data(), rhs.data(), size()) == 0;
 }
 
 
