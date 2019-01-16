@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/except instead.
  *
- * Copyright (c) 2003-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2003-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -143,6 +143,8 @@ public:
 
   /// The query whose execution triggered the exception
   PQXX_PURE const std::string &query() const noexcept;			//[t56]
+
+  /// SQLSTATE error code if known, or empty string otherwise.
   PQXX_PURE const std::string &sqlstate() const noexcept;
 };
 
