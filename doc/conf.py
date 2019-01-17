@@ -128,7 +128,6 @@ html_sidebars = {
     ]
 }
 
-html_extra_path = ['html/Reference']
 
 # -- Options for HTMLHelp output ------------------------------------------
 
