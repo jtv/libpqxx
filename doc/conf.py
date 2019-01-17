@@ -57,7 +57,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'libpqxx'
-copyright = u'2017, Jeroen T. Vermeulen'
+copyright = u'2000-2019, Jeroen T. Vermeulen'
 author = u'Jeroen T. Vermeulen'
 
 
