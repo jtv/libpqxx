@@ -128,6 +128,11 @@ html_sidebars = {
     ]
 }
 
+# Looks like the setup is that our build generates the HTML itself, and then
+# has readthedocs copy the full generated HTML tree to the output directory.
+#
+# Problem is, that doesn't seem to be working now.  This needs debugging.
+html_extra_path = ["html/Reference"]
 
 # -- Options for HTMLHelp output ------------------------------------------
 
