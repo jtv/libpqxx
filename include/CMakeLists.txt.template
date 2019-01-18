@@ -1,4 +1,3 @@
-# TODO: We're giving exact filenames here.  Don't pretend they're globs.
 install(
     DIRECTORY pqxx
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
@@ -7,17 +6,17 @@ install(
         PATTERN ###BASENAME###.hxx
         PATTERN ###BASENAME###
 ###MAKTEMPLATE:ENDFOREACH
-)
-
-# TODO: We're giving exact filenames here.  Don't pretend they're globs.
-install(
-    DIRECTORY ${PROJECT_BINARY_DIR}/include/pqxx
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    FILES_MATCHING
+###MAKTEMPLATE:FOREACH include/pqxx/internal/*.hxx
+        PATTERN internal/###BASENAME###.hxx
+        PATTERN internal/###BASENAME###
+###MAKTEMPLATE:ENDFOREACH
+###MAKTEMPLATE:FOREACH include/pqxx/internal/gates/*.hxx
+        PATTERN internal/gates/###BASENAME###.hxx
+        PATTERN internal/gates/###BASENAME###
+###MAKTEMPLATE:ENDFOREACH
         PATTERN config-public-compiler.h
 )
 
-# TODO: We're giving exact filenames here.  Don't pretend they're globs.
 install(
     DIRECTORY pqxx/doc/
     DESTINATION ${CMAKE_INSTALL_DOCDIR}

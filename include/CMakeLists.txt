@@ -11,7 +11,6 @@
 #
 # Generated from template './include/CMakeLists.txt.template'.
 ################################################################################
-# TODO: We're giving exact filenames here.  Don't pretend they're globs.
 install(
     DIRECTORY pqxx
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
@@ -94,17 +93,75 @@ install(
         PATTERN util
         PATTERN version.hxx
         PATTERN version
-)
-
-# TODO: We're giving exact filenames here.  Don't pretend they're globs.
-install(
-    DIRECTORY ${PROJECT_BINARY_DIR}/include/pqxx
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    FILES_MATCHING
+        PATTERN internal/callgate.hxx
+        PATTERN internal/callgate
+        PATTERN internal/encoding_group.hxx
+        PATTERN internal/encoding_group
+        PATTERN internal/encodings.hxx
+        PATTERN internal/encodings
+        PATTERN internal/ignore-deprecated-post.hxx
+        PATTERN internal/ignore-deprecated-post
+        PATTERN internal/ignore-deprecated-pre.hxx
+        PATTERN internal/ignore-deprecated-pre
+        PATTERN internal/libpq-forward.hxx
+        PATTERN internal/libpq-forward
+        PATTERN internal/sql_cursor.hxx
+        PATTERN internal/sql_cursor
+        PATTERN internal/statement_parameters.hxx
+        PATTERN internal/statement_parameters
+        PATTERN internal/type_utils.hxx
+        PATTERN internal/type_utils
+        PATTERN internal/gates/connection-dbtransaction.hxx
+        PATTERN internal/gates/connection-dbtransaction
+        PATTERN internal/gates/connection-errorhandler.hxx
+        PATTERN internal/gates/connection-errorhandler
+        PATTERN internal/gates/connection-largeobject.hxx
+        PATTERN internal/gates/connection-largeobject
+        PATTERN internal/gates/connection-notification_receiver.hxx
+        PATTERN internal/gates/connection-notification_receiver
+        PATTERN internal/gates/connection-parameterized_invocation.hxx
+        PATTERN internal/gates/connection-parameterized_invocation
+        PATTERN internal/gates/connection-pipeline.hxx
+        PATTERN internal/gates/connection-pipeline
+        PATTERN internal/gates/connection-prepare-invocation.hxx
+        PATTERN internal/gates/connection-prepare-invocation
+        PATTERN internal/gates/connection-reactivation_avoidance_exemption.hxx
+        PATTERN internal/gates/connection-reactivation_avoidance_exemption
+        PATTERN internal/gates/connection-sql_cursor.hxx
+        PATTERN internal/gates/connection-sql_cursor
+        PATTERN internal/gates/connection-transaction.hxx
+        PATTERN internal/gates/connection-transaction
+        PATTERN internal/gates/errorhandler-connection.hxx
+        PATTERN internal/gates/errorhandler-connection
+        PATTERN internal/gates/icursor_iterator-icursorstream.hxx
+        PATTERN internal/gates/icursor_iterator-icursorstream
+        PATTERN internal/gates/icursorstream-icursor_iterator.hxx
+        PATTERN internal/gates/icursorstream-icursor_iterator
+        PATTERN internal/gates/result-connection.hxx
+        PATTERN internal/gates/result-connection
+        PATTERN internal/gates/result-creation.hxx
+        PATTERN internal/gates/result-creation
+        PATTERN internal/gates/result-row.hxx
+        PATTERN internal/gates/result-row
+        PATTERN internal/gates/result-sql_cursor.hxx
+        PATTERN internal/gates/result-sql_cursor
+        PATTERN internal/gates/transaction-sql_cursor.hxx
+        PATTERN internal/gates/transaction-sql_cursor
+        PATTERN internal/gates/transaction-stream_from.hxx
+        PATTERN internal/gates/transaction-stream_from
+        PATTERN internal/gates/transaction-stream_to.hxx
+        PATTERN internal/gates/transaction-stream_to
+        PATTERN internal/gates/transaction-subtransaction.hxx
+        PATTERN internal/gates/transaction-subtransaction
+        PATTERN internal/gates/transaction-tablereader.hxx
+        PATTERN internal/gates/transaction-tablereader
+        PATTERN internal/gates/transaction-tablewriter.hxx
+        PATTERN internal/gates/transaction-tablewriter
+        PATTERN internal/gates/transaction-transactionfocus.hxx
+        PATTERN internal/gates/transaction-transactionfocus
         PATTERN config-public-compiler.h
 )
 
-# TODO: We're giving exact filenames here.  Don't pretend they're globs.
 install(
     DIRECTORY pqxx/doc/
     DESTINATION ${CMAKE_INSTALL_DOCDIR}
