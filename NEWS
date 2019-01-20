@@ -15,6 +15,7 @@
  - Fix in escaping of strings in arrays.  Thanks smirql.
  - Faster copying of results of large queries.  Thanks Vsevolod Strukchinsky.
  - Starting to handle encodings properly!  Thanks to Joseph Durel.
+ - No longer using std::iterator (deprecated in C++17).
 6.2.5
  - Removed deprecated pqxx-config.
  - Build fix on Visual C++ when not defining NOMINMAX.

@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/cursor instead.
  *
- * Copyright (c) 2004-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2004-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -385,14 +385,13 @@ private:
  * stream is <em>not thread-safe</em>.  Creating a new iterator, copying one, or
  * destroying one affects the stream as a whole.
  */
-class PQXX_LIBEXPORT icursor_iterator :
-  public std::iterator<std::input_iterator_tag,
-	result,
-	cursor_base::size_type,
-	const result *,
-	const result &>
+class PQXX_LIBEXPORT icursor_iterator
 {
 public:
+  using iterator_category = std::input_iterator_tag;
+  using value_type = result;
+  using pointer = const result *;
+  using reference = const result &;
   using istream_type = icursorstream;
   using size_type = istream_type::size_type;
   using difference_type = istream_type::difference_type;

@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/result instead.
  *
- * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -32,16 +32,11 @@ namespace pqxx
  * plain iterator type for result.  However its const_iterator type can be
  * used to inspect its rows without changing them.
  */
-class PQXX_LIBEXPORT const_result_iterator :
-  public std::iterator<
-	std::random_access_iterator_tag,
-	const row,
-	result::difference_type,
-	const_result_iterator,
-	row>,
-  public row
+class PQXX_LIBEXPORT const_result_iterator : public row
 {
 public:
+  using iterator_category = std::random_access_iterator_tag;
+  using value_type = const row;
   using pointer = const row *;
   using reference = row;
   using size_type = result_size_type;

@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/result instead.
  *
- * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -204,21 +204,12 @@ protected:
 
 
 /// Iterator for fields in a row.  Use as row::const_iterator.
-class PQXX_LIBEXPORT const_row_iterator :
-  public std::iterator<
-	std::random_access_iterator_tag,
-	const field,
-	row_size_type
-	>,
-  public field
+class PQXX_LIBEXPORT const_row_iterator : public field
 {
-  using it = std::iterator<
-	std::random_access_iterator_tag,
-	const field,
-	row_size_type
-	>;
 public:
-  using it::pointer;
+  using iterator_category = std::random_access_iterator_tag;
+  using value_type = const field;
+  using pointer = const field *;
   using size_type = row_size_type;
   using difference_type = row_difference_type;
   using reference = field;
