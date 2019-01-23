@@ -389,6 +389,7 @@ nobase_include_HEADERS = pqxx/pqxx \
 	pqxx/version pqxx/version.hxx \
 	pqxx/internal/callgate.hxx \
 	pqxx/internal/encoding_group.hxx \
+	pqxx/internal/encodings.hxx \
 	pqxx/internal/libpq-forward.hxx \
 	pqxx/internal/sql_cursor.hxx \
 	pqxx/internal/statement_parameters.hxx \

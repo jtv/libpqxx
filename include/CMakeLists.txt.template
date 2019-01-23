@@ -8,11 +8,9 @@ install(
 ###MAKTEMPLATE:ENDFOREACH
 ###MAKTEMPLATE:FOREACH include/pqxx/internal/*.hxx
         PATTERN internal/###BASENAME###.hxx
-        PATTERN internal/###BASENAME###
 ###MAKTEMPLATE:ENDFOREACH
 ###MAKTEMPLATE:FOREACH include/pqxx/internal/gates/*.hxx
         PATTERN internal/gates/###BASENAME###.hxx
-        PATTERN internal/gates/###BASENAME###
 ###MAKTEMPLATE:ENDFOREACH
         PATTERN config-public-compiler.h
 )
