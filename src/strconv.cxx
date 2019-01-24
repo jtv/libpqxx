@@ -178,7 +178,7 @@ bool valid_infinity_string(const char str[]) noexcept
 template<typename T> class dumb_stringstream : public std::stringstream
 {
 public:
-  dumb_stringstream() : std::stringstream{}
+  dumb_stringstream() : std::stringstream()
   {
     this->imbue(std::locale::classic());
 
@@ -232,8 +232,7 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
       S.seekg(0);
       S.clear();
       S.str(Str);
-      S >> result;
-      ok = S.good() || S.eof();
+      ok = static_cast<bool>(S >> result);
     }
     break;
   }
