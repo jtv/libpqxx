@@ -178,7 +178,10 @@ bool valid_infinity_string(const char str[]) noexcept
 template<typename T> class dumb_stringstream : public std::stringstream
 {
 public:
-  dumb_stringstream() : std::stringstream()
+  // Do not initialise the base-class object using "stringstream{}" (with curly
+  // braces): that breaks on Visual C++.  The classic "stringstream()" syntax
+  // (with parentheses) does work.
+  dumb_stringstream()
   {
     this->imbue(std::locale::classic());
 
