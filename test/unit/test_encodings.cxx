@@ -89,6 +89,23 @@ void test_for_glyphs_utf8()
   PQXX_CHECK_EQUAL(points.size(), 2u, "Wrong number of UTF-8 iterations.");
   PQXX_CHECK_EQUAL(points[0], 2u, "UTF-8 iteration started off wrong.");
   PQXX_CHECK_EQUAL(points[1], 2u, "ASCII iteration was inconsistent.");
+
+  // Greek lambda, ASCII plus sign, Old Persian Gu.
+  const std::string mix{"\xce\xbb+\xf0\x90\x8e\xa6"};
+  points.clear();
+
+  pqxx::internal::for_glyphs(
+	pqxx::internal::encoding_group::UTF8,
+	[&points](const char *gbegin, const char *gend){
+	  points.push_back(gend - gbegin);
+	},
+	mix.c_str(),
+	mix.size());
+
+  PQXX_CHECK_EQUAL(points.size(), 3u, "Mixed UTF-8 iteration is broken.");
+  PQXX_CHECK_EQUAL(points[0], 2u, "Mixed UTF-8 iteration started off wrong.");
+  PQXX_CHECK_EQUAL(points[1], 1u, "Mixed UTF-8 iteration got ASCII wrong.");
+  PQXX_CHECK_EQUAL(points[2], 4u, "Mixed UTF-8 iteration got long char wrong.");
 }
 
 
