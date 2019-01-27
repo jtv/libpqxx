@@ -84,6 +84,7 @@ OBJS= \
   $(INTDIR)\test_binarystring.obj \
   $(INTDIR)\test_cancel_query.obj \
   $(INTDIR)\test_cursor.obj \
+  $(INTDIR)\test_encodings.obj \
   $(INTDIR)\test_error_verbosity.obj \
   $(INTDIR)\test_errorhandler.obj \
   $(INTDIR)\test_escape.obj \
@@ -150,6 +151,8 @@ $(INTDIR)\test_cancel_query.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_cancel_query.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_cursor.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_cursor.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
+$(INTDIR)\test_encodings.obj:
+	@$(CXX) $(CXX_FLAGS) test/unit/test_encodings.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_error_verbosity.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_error_verbosity.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_errorhandler.obj:

@@ -32,6 +32,7 @@ runner_SOURCES = \
   test_binarystring.cxx \
   test_cancel_query.cxx \
   test_cursor.cxx \
+  test_encodings.cxx \
   test_error_verbosity.cxx \
   test_errorhandler.cxx \
   test_escape.cxx \
