@@ -71,19 +71,18 @@ std::string::size_type find_query_end(
     // Complex encoding.  We only know how to iterate forwards, so start from
     // the beginning.
     end = 0;
-    const auto scan = pqxx::internal::get_glyph_scanner(enc);
-    for (
-	auto here = 0ul, next = 0ul;
-	here < size;
-	here = next
-    )
-    {
-      next = scan(text, size, here);
-      if (next - here > 1 or not useless_trail(text[here]))
-        end = next;
-    }
+
+    pqxx::internal::for_glyphs(
+        enc,
+        [text, &end](const char *gbegin, const char *gend)
+        {
+          if (gend - gbegin > 1 or not useless_trail(*gbegin))
+            end = gend - text;
+        },
+        text, size);
   }
-    return end;
+
+  return end;
 }
 } // namespace
 
