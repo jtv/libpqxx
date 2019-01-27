@@ -119,6 +119,23 @@ void test_esc_raw_unesc_raw(transaction_base &t)
 }
 
 
+void test_esc_like(transaction_base &tx)
+{
+  PQXX_CHECK_EQUAL(tx.esc_like(""), "", "esc_like breaks on empty string.");
+  PQXX_CHECK_EQUAL(tx.esc_like("abc"), "abc", "esc_like is broken.");
+  PQXX_CHECK_EQUAL(tx.esc_like("_"), "\\_", "esc_like fails on underscore.");
+  PQXX_CHECK_EQUAL(tx.esc_like("%"), "\\%", "esc_like fails on %.");
+  PQXX_CHECK_EQUAL(
+	tx.esc_like("a%b_c"),
+	"a\\%b\\_c",
+	"esc_like breaks on mix.");
+  PQXX_CHECK_EQUAL(
+	tx.esc_like("_", '+'),
+	"+_",
+	"esc_like ignores escape character.");
+}
+
+
 void test_escaping()
 {
   connection conn;
@@ -127,6 +144,7 @@ void test_escaping()
   test_quote(conn, tx);
   test_quote_name(tx);
   test_esc_raw_unesc_raw(tx);
+  test_esc_like(tx);
 }
 
 

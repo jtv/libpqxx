@@ -1144,6 +1144,27 @@ std::string pqxx::connection_base::quote_name(const std::string &identifier)
 }
 
 
+std::string pqxx::connection_base::esc_like(
+	const std::string &str,
+	char escape_char) const
+{
+  std::string out;
+  out.reserve(str.size());
+  internal::for_glyphs(
+	internal::enc_group(encoding_id()),
+	[&out, escape_char](const char *gbegin, const char *gend)
+	{
+	  if ((gend - gbegin == 1) and (*gbegin == '_' or *gbegin == '%'))
+	    out.push_back(escape_char);
+
+          for (; gbegin != gend; ++gbegin) out.push_back(*gbegin);
+	},
+	str.c_str(),
+	str.size());
+  return out;
+}
+
+
 pqxx::internal::reactivation_avoidance_exemption::
   reactivation_avoidance_exemption(
 	connection_base &C) :

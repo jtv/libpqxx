@@ -224,6 +224,10 @@ public:
   /// Escape an SQL identifier for use in a query.
   std::string quote_name(const std::string &identifier) const
 				       { return conn().quote_name(identifier); }
+
+  /// Escape string for literal LIKE match.
+  std::string esc_like(const std::string &str, char escape_char='\\') const
+				   { return conn().esc_like(str, escape_char); }
   //@}
 
   /// Execute query

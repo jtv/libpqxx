@@ -666,6 +666,32 @@ public:
   }
 
   std::string quote(const binarystring &);
+
+  /// Escape string for literal LIKE match.
+  /** Use this when part of an SQL "LIKE" pattern should match only as a
+   * literal string, not as a pattern, even if it contains "%" or "_"
+   * characters that would normally act as wildcards.
+   *
+   * The string does not get string-escaped or quoted.  You do that later.
+   *
+   * For instance, let's say you have a string @c name entered by the user,
+   * and you're searching a @c file column for items that match @c name
+   * followed by a dot and three letters.  Even if @c name contains wildcard
+   * characters "%" or "_", you only want those to match literally, so "_"
+   * only matches "_" and "%" only matches a single "%".
+   *
+   * You do that by "like-escaping" @c name, appending the wildcard pattern
+   * @c ".___", and finally, escaping and quoting the result for inclusion in
+   * your query:
+   *
+   *    tx.exec(
+   *        "SELECT file FROM item WHERE file LIKE " +
+   *        tx.quote(tx.esc_like(name) + ".___"));
+   *
+   * The SQL "LIKE" operator also lets you choose your own escape character.
+   * This is supported, but must be a single-byte character.
+   */
+  std::string esc_like(const std::string &str, char escape_char='\\') const;
   //@}
 
   /// Attempt to cancel the ongoing query, if any.
