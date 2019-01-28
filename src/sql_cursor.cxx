@@ -77,7 +77,7 @@ std::string::size_type find_query_end(
         [text, &end](const char *gbegin, const char *gend)
         {
           if (gend - gbegin > 1 or not useless_trail(*gbegin))
-            end = gend - text;
+            end = std::string::size_type(gend - text);
         },
         text, size);
   }
@@ -124,7 +124,7 @@ pqxx::internal::sql_cursor::sql_cursor(
   if (hold) cq << "WITH HOLD ";
 
   cq << "FOR ";
-  cq.write(query.c_str(), qend);
+  cq.write(query.c_str(), std::streamsize(qend));
   cq << ' ';
 
   if (up != cursor_base::update) cq << "FOR READ ONLY ";

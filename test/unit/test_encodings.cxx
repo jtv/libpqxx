@@ -56,7 +56,7 @@ void test_for_glyphs_empty()
 void test_for_glyphs_ascii()
 {
   const std::string text{"hi"};
-  std::vector<std::size_t> points;
+  std::vector<std::ptrdiff_t> points;
 
   pqxx::internal::for_glyphs(
 	pqxx::internal::encoding_group::UTF8,
@@ -66,7 +66,7 @@ void test_for_glyphs_ascii()
 	text.c_str(),
 	text.size());
 
-  PQXX_CHECK_EQUAL(points.size(), 2ul, "Wrong number of ASCII iterations.");
+  PQXX_CHECK_EQUAL(points.size(), 2u, "Wrong number of ASCII iterations.");
   PQXX_CHECK_EQUAL(points[0], 1u, "ASCII iteration started off wrong.");
   PQXX_CHECK_EQUAL(points[1], 1u, "ASCII iteration was inconsistent.");
 }
@@ -76,7 +76,7 @@ void test_for_glyphs_utf8()
 {
   // Greek: alpha omega.
   const std::string text{"\xce\x91\xce\xa9"};
-  std::vector<std::size_t> points;
+  std::vector<std::ptrdiff_t> points;
 
   pqxx::internal::for_glyphs(
 	pqxx::internal::encoding_group::UTF8,
