@@ -49,7 +49,7 @@ using glyph_scanner_func =
  * scanner function appropriate for the buffer's encoding.  Then, repeatedly
  * call the scanner function to find the glyphs.
  */
-glyph_scanner_func *get_glyph_scanner(encoding_group);
+PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group);
 
 
 /// Find a single-byte "needle" character in a "haystack" text buffer.
@@ -61,7 +61,7 @@ std::string::size_type find_with_encoding(
 );
 
 
-std::string::size_type find_with_encoding(
+PQXX_LIBEXPORT std::string::size_type find_with_encoding(
   encoding_group enc,
   const std::string& haystack,
   const std::string& needle,
@@ -73,7 +73,7 @@ std::string::size_type find_with_encoding(
 /** Scans the glyphs in the buffer, and for each, passes its begin and its
  * one-past-end pointers to @c callback.
  */
-template<typename CALLBACK> inline void for_glyphs(
+template<typename CALLBACK> PQXX_LIBEXPORT inline void for_glyphs(
         encoding_group enc,
         CALLBACK callback,
         const char buffer[],
