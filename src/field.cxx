@@ -18,7 +18,7 @@
 
 
 pqxx::field::field(const pqxx::row &R, pqxx::row::size_type C) noexcept :
-  m_col{C},
+  m_col{static_cast<decltype(m_col)>(C)},
   m_home{R.m_result},
   m_row{pqxx::result_size_type(R.m_index)}
 {
