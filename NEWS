@@ -12,6 +12,7 @@
  - Fix nested project builds in CMake.  Thanks Andrew Brownsword.
  - In Visual Studio, build for host architecture, not "x64".
  - Fix string conversion link error in Visual Studio.  Thanks Ivan Poiakov.
+ - Fix string conversion to bool for "1".  Thanks Amaracs.
  - Fix in escaping of strings in arrays.  Thanks smirql.
  - Faster copying of results of large queries.  Thanks Vsevolod Strukchinsky.
  - Starting to handle encodings properly!  Thanks to Joseph Durel.

@@ -345,7 +345,7 @@ void string_traits<bool>::from_string(const char Str[], bool &Obj)
 
   case '1':
     result = true;
-    OK = (Str[1] != '\0');
+    OK = (Str[1] == '\0');
     break;
 
   case 't':
