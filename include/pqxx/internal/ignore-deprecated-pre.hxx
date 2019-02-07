@@ -11,5 +11,9 @@
  * "ignore-deprecated-post.hxx".  To avoid mistakes, keep the enclosed area as
  * small as possible.
  */
+#if defined(__GNUC__)
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
+#endif // __GNUC__
