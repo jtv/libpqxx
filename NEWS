@@ -1,5 +1,6 @@
 6.3.1
  - Windows compile fix (CALLBACK is a macro there).
+ - Work around Visual Studio 2017 not supporting ISO 646.
 6.3.0
  - New "table stream" classes by Joseph Durel: stream_from/stream_to.
  - Support weird characters in more identifiers: cursors, notifcations, etc.

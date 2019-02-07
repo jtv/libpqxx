@@ -1,6 +1,6 @@
 /** Compiler deficiency workarounds for libpqxx clients.
  *
- * Copyright (c) 2002-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2002-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -12,10 +12,9 @@
 // Workarounds & definitions that need to be included even in library's headers
 #include "pqxx/config-public-compiler.h"
 
-// Workarounds for SUN Workshop 6
-#if defined(__SUNPRO_CC)
-#define PQXX_PRIVATE __hidden
-#endif	// __SUNPRO_CC
+// Some compilers, Visual Studio in particular, don't seem to support the
+// standard's ISO-646 keywords out of the box.
+#include <ciso646>
 
 
 #if defined(__GNUC__) && defined(PQXX_HAVE_GCC_CONST)
