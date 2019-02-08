@@ -1,3 +1,5 @@
+6.3.2
+ - Query numeric precision in a more sensible, standard way.
 6.3.1
  - Windows compile fix (CALLBACK is a macro there).
  - Work around Visual Studio 2017 not supporting ISO 646.

@@ -184,11 +184,7 @@ public:
   dumb_stringstream()
   {
     this->imbue(std::locale::classic());
-
-    // Kirit reports getting two more digits of precision than
-    // numeric_limits::digits10 would give him, so we try not to make him lose
-    // those last few bits.
-    this->precision(std::numeric_limits<T>::digits10 + 2);
+    this->precision(std::numeric_limits<T>::max_digits10);
   }
 };
 
