@@ -15,6 +15,17 @@
 #include <locale>
 #include <system_error>
 
+#if __cplusplus < 201703
+// This is not C++17 or better.  Don't use to_chars/from_chars; the code which
+// uses those also relies on other C++17 features.
+#if defined(PQXX_HAVE_CHARCONV_INT)
+#undef PQXX_HAVE_CHARCONV_INT
+#endif
+#if defined(PQXX_HAVE_CHARCONV_FLOAT)
+#undef PQXX_HAVE_CHARCONV_FLOAT
+#endif
+#endif
+
 #if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
 #include <charconv>
 #endif
