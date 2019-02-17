@@ -84,11 +84,10 @@ void test_000()
   lminstr << long_min;
   lmaxstr << long_max;
 
-  using longlong = long long;
-  using ulonglong = unsigned long long;
-  const unsigned long long ullong_max = ~ulonglong(0);
-  const long long llong_max = longlong(ullong_max >> 2),
-	llong_min = -1 - llong_max;
+  const auto ullong_max = std::numeric_limits<unsigned long long>::max();
+  const auto
+	llong_max = std::numeric_limits<long long>::max(),
+	llong_min = std::numeric_limits<long long>::min();
 
   llminstr << llong_min;
   llmaxstr << llong_max;
