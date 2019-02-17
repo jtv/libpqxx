@@ -27,8 +27,16 @@ jobs:
           name: Set up database
           command: createdb root
       - run:
+          name: Autogen
+          command: NOCONFIGURE=1 ./autogen.sh
+      - run:
           name: Configure
-          command: CXXFLAGS=-O0 CONFIG_ARGS=--disable-documentation ./autogen.sh
+          command: |
+              ./configure \
+                  CXXFLAGS='-O0 -std=c++17' \
+                  --enable-maintainer-mode \
+                  --disable-documentation \
+                  --enable-shared --disable-static
       - run:
           name: Make
           command: make
