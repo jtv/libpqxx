@@ -54,7 +54,7 @@ substitute include/pqxx/version.hxx.template >include/pqxx/version.hxx
 autoheader
 libtoolize --force --automake --copy
 aclocal -I . -I config/m4
-automake --verbose --add-missing --copy
+automake --add-missing --copy
 autoconf
 
 conf_flags="--enable-maintainer-mode ${CONFIG_ARGS:-}"
