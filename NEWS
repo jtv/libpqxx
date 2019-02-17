@@ -3,6 +3,7 @@
  - Use C++17's built-in numeric string conversions, if available.
  - Query numeric precision in a more sensible, standard way.
  - Avoid "dead code" warning.
+ - Replace obsolete autoconf macros.
 6.3.1
  - Windows compile fix (CALLBACK is a macro there).
  - Work around Visual Studio 2017 not supporting ISO 646.

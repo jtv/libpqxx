@@ -17371,16 +17371,17 @@ CXXFLAGS="$CXXFLAGS -Werror"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-		struct __attribute__ ((visibility("hidden"))) d
-		{
-			d() {}
-			void f() {}
-		};
+			struct __attribute__ ((visibility("hidden"))) d
+			{
+				d() {}
+				void f() {}
+			};
 
 int
 main ()
 {
 d D; D.f()
+
   ;
   return 0;
 }
@@ -17457,6 +17458,7 @@ int
 main ()
 {
 
+
   ;
   return 0;
 }
@@ -17506,7 +17508,7 @@ $as_echo_n "checking C++14 deprecation attribute... " >&6; }
 deprecated=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-[[deprecated]] void f();
+/* */ [[deprecated]] void f();
 int
 main ()
 {
@@ -17537,6 +17539,7 @@ int
 main ()
 {
 return std::optional<int>(0).value()
+
   ;
   return 0;
 }
@@ -17564,6 +17567,7 @@ int
 main ()
 {
 return std::experimental::optional<int>(0).value()
+
   ;
   return 0;
 }
@@ -17600,10 +17604,10 @@ main ()
 
 			char z[100];
 			using ull = unsigned long long;
-                	auto rt = std::to_chars(z, z + sizeof(z), ull{0});
+			auto rt = std::to_chars(z, z + sizeof(z), ull{0});
 			if (rt.ec != std::errc{}) return 1;
 			ull n;
-                	auto rf = std::from_chars(z, z + sizeof(z), n);
+			auto rf = std::from_chars(z, z + sizeof(z), n);
 			if (rf.ec != std::errc{}) return 2;
 			return int(n)
 
@@ -17636,12 +17640,12 @@ main ()
 
 			char z[100];
 			using ld = long double;
-                	auto rt = std::to_chars(
+			auto rt = std::to_chars(
 				z, z + sizeof(z), ld{0.1},
 				std::chars_format::generic);
 			if (rt.ec != std::errc{}) return 1;
 			ld n;
-                	auto rf = std::from_chars(z, z + sizeof(z), n);
+			auto rf = std::from_chars(z, z + sizeof(z), n);
 			if (rf.ec != std::errc{}) return 2;
 			return int(n)
 
@@ -18013,6 +18017,7 @@ int
 main ()
 {
 PQexec(nullptr,"")
+
   ;
   return 0;
 }
@@ -18107,9 +18112,9 @@ $as_echo_n "checking that type of libpq's Oid is as expected... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-		#include<${with_postgres_include}/libpq-fe.h>
-		#include"${srcdir}/include/pqxx/internal/libpq-forward.hxx"
-		extern void f(pqxx::oid&);
+			#include<${with_postgres_include}/libpq-fe.h>
+			#include"${srcdir}/include/pqxx/internal/libpq-forward.hxx"
+			extern void f(pqxx::oid&);
 
 int
 main ()
