@@ -4,7 +4,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -24,15 +23,15 @@ void test_031()
 {
   lazyconnection conn;
 
-  const string Table = "pg_tables";
+  const std::string Table = "pg_tables";
 
   // Tell conn we won't be needing it for a while (not true, but let's pretend).
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
   conn.deactivate();
 #include <pqxx/internal/ignore-deprecated-post.hxx>
 
-  vector<int> NullFields;		// Maps column to no. of null fields
-  vector<bool> SortedUp, SortedDown;	// Does column appear to be sorted?
+  std::vector<int> NullFields;	// Maps column to no. of null fields
+  std::vector<bool> SortedUp, SortedDown; // Does column appear to be sorted?
 
   // Reactivate conn (not really needed, but it sounds more polite).
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
@@ -64,10 +63,10 @@ void test_031()
     {
       NullFields[f] += i.at(f).is_null();
 
-      string A, B;
+      std::string A, B;
       PQXX_CHECK_EQUAL(
 		i[f].to(A),
-		i[f].to(B, string{""}),
+		i[f].to(B, std::string{}),
 		"Variants of to() disagree on nullness.");
 
       PQXX_CHECK_EQUAL(A, B, "Variants of to() produce different values.");
@@ -118,26 +117,28 @@ void test_031()
           const bool U = SortedUp[f],
                      D = SortedDown[f];
 
-          SortedUp[f] = U & (string{j[f].c_str()} <= string{i[f].c_str()});
-          SortedDown[f] = D & (string{j[f].c_str()} >= string{i[f].c_str()});
+          SortedUp[f] = U & (
+		std::string{j[f].c_str()} <= std::string{i[f].c_str()});
+          SortedDown[f] = D & (
+		std::string{j[f].c_str()} >= std::string{i[f].c_str()});
         }
       }
     }
   }
 
   // Now report on what we've found
-  cout << "Read " << to_string(R.size()) << " rows." << endl;
-  cout << "Field \t Field Name\t Nulls\t Sorted" << endl;
+  std::cout << "Read " << to_string(R.size()) << " rows." << std::endl;
+  std::cout << "Field \t Field Name\t Nulls\t Sorted" << std::endl;
 
   for (pqxx::row::size_type f = 0; f < R.columns(); ++f)
   {
-    cout << to_string(f) << ":\t"
+    std::cout << to_string(f) << ":\t"
          << R.column_name(f) << '\t'
          << NullFields[f] << '\t'
          << (SortedUp[f] ?
 		(SortedDown[f] ? "equal" : "up" ) :
 		(SortedDown[f] ? "down" : "no" ) )
-         << endl;
+         << std::endl;
 
     PQXX_CHECK_BOUNDS(
 	NullFields[f],

@@ -2,7 +2,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -15,22 +14,22 @@ void test_082()
   nontransaction tx{conn};
 
   test::create_pqxxevents(tx);
-  const string Table = "pqxxevents";
+  const std::string Table = "pqxxevents";
   result R{ tx.exec("SELECT * FROM " + Table) };
   conn.disconnect();
 
   PQXX_CHECK(not R.empty(), "Got empty result.");
 
-  const string nullstr("[null]");
+  const std::string nullstr("[null]");
 
-  for (const auto &f: R[0]) cout << f.name() << '\t';
-  cout << endl << endl;
+  for (const auto &f: R[0]) std::cout << f.name() << '\t';
+  std::cout << std::endl << std::endl;
   for (const auto &r: R)
   {
     pqxx::row::const_iterator f2(r[0]);
     for (const auto &f: r)
     {
-      cout << f.c_str() << '\t';
+      std::cout << f.c_str() << '\t';
       PQXX_CHECK_EQUAL(
 	(*f2).as(nullstr),
 	f.as(nullstr),
@@ -82,7 +81,7 @@ void test_082()
 	*f3,
 	"Reverse traversal is not consistent with forward traversal.");
 
-    cout <<endl;
+    std::cout << std::endl;
   }
 
   // Thorough test for row::const_reverse_iterator

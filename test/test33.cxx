@@ -2,7 +2,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -18,10 +17,10 @@ void test_033()
 
   for (const auto &c: R)
   {
-    string N;
+    std::string N;
     c[0].to(N);
 
-    cout << '\t' << to_string(c.num()) << '\t' << N << endl;
+    std::cout << '\t' << to_string(c.num()) << '\t' << N << std::endl;
   }
 
   // "Commit" the non-transaction.  This doesn't really do anything since

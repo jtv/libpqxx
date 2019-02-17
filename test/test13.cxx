@@ -2,7 +2,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -22,11 +21,11 @@ const unsigned int BoringYear = 1977;
 
 // Count events and specifically events occurring in Boring Year, leaving the
 // former count in the result pair's first member, and the latter in second.
-pair<int, int> count_events(connection_base &conn, string table)
+std::pair<int, int> count_events(connection_base &conn, std::string table)
 {
   int all_years, boring_year;
 
-  const string CountQuery = "SELECT count(*) FROM " + table;
+  const std::string CountQuery = "SELECT count(*) FROM " + table;
 
   work tx{conn};
   row R;
@@ -41,12 +40,12 @@ pair<int, int> count_events(connection_base &conn, string table)
 }
 
 
-struct deliberate_error : exception
+struct deliberate_error : std::exception
 {
 };
 
 
-void failed_insert(connection_base &C, string table)
+void failed_insert(connection_base &C, std::string table)
 {
   work tx(C);
   result R = tx.exec0(
@@ -68,9 +67,10 @@ void test_013()
     tx.commit();
   }
 
-  const string Table = "pqxxevents";
+  const std::string Table = "pqxxevents";
 
-  const pair<int,int> Before = perform(bind(count_events, ref(conn), Table));
+  const std::pair<int,int> Before = perform(
+	std::bind(count_events, std::ref(conn), Table));
   PQXX_CHECK_EQUAL(
 	Before.second,
 	0,
@@ -78,11 +78,12 @@ void test_013()
 
   quiet_errorhandler d(conn);
   PQXX_CHECK_THROWS(
-	perform(bind(failed_insert,  ref(conn), Table)),
+	perform(std::bind(failed_insert,  std::ref(conn), Table)),
 	deliberate_error,
 	"Failing transactor failed to throw correct exception.");
 
-  const pair<int,int> After = perform(bind(count_events, ref(conn), Table));
+  const std::pair<int,int> After = perform(
+	std::bind(count_events, std::ref(conn), Table));
 
   PQXX_CHECK_EQUAL(
 	After.first,

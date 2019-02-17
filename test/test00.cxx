@@ -2,7 +2,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -11,17 +10,17 @@ using namespace pqxx;
 
 namespace
 {
-void check(string ref, string val, string vdesc)
+void check(std::string ref, std::string val, std::string vdesc)
 {
   PQXX_CHECK_EQUAL(val, ref, "String mismatch for " + vdesc);
 }
 
 template<typename T> inline void strconv(
-	string type,
+	std::string type,
 	const T &Obj,
-	string expected)
+	std::string expected)
 {
-  const string Objstr(to_string(Obj));
+  const std::string Objstr(to_string(Obj));
 
   check(expected, Objstr, type);
   T NewObj;
@@ -30,13 +29,13 @@ template<typename T> inline void strconv(
 }
 
 // There's no from_string<const char *>()...
-inline void strconv(string type, const char Obj[], string expected)
+inline void strconv(std::string type, const char Obj[], std::string expected)
 {
-  const string Objstr(to_string(Obj));
+  const std::string Objstr(to_string(Obj));
   check(expected, Objstr, type);
 }
 
-const double not_a_number = numeric_limits<double>::quiet_NaN();
+const double not_a_number = std::numeric_limits<double>::quiet_NaN();
 
 struct intderef
 {
@@ -59,7 +58,7 @@ void test_000()
 	"cursor_base::difference_type appears to be unsigned.");
 
   const char weird[] = "foo\t\n\0bar";
-  const string weirdstr(weird, sizeof(weird)-1);
+  const std::string weirdstr(weird, sizeof(weird)-1);
 
   // Test string conversions
   strconv("const char[]", "", "");
@@ -75,12 +74,12 @@ void test_000()
 	long_max = std::numeric_limits<long>::max();
 #endif
 
-  stringstream lminstr, lmaxstr, llminstr, llmaxstr, ullmaxstr;
-  lminstr.imbue(locale("C"));
-  lmaxstr.imbue(locale("C"));
-  llminstr.imbue(locale("C"));
-  llmaxstr.imbue(locale("C"));
-  ullmaxstr.imbue(locale("C"));
+  std::stringstream lminstr, lmaxstr, llminstr, llmaxstr, ullmaxstr;
+  lminstr.imbue(std::locale("C"));
+  lmaxstr.imbue(std::locale("C"));
+  llminstr.imbue(std::locale("C"));
+  llmaxstr.imbue(std::locale("C"));
+  ullmaxstr.imbue(std::locale("C"));
 
   lminstr << long_min;
   lmaxstr << long_max;
@@ -99,7 +98,7 @@ void test_000()
   strconv("long", long_min, lminstr.str());
   strconv("long", long_max, lmaxstr.str());
   strconv("double", not_a_number, "nan");
-  strconv("string", string{}, "");
+  strconv("string", std::string{}, "");
   strconv("string", weirdstr, weirdstr);
   strconv("long long", 0LL, "0");
   strconv("long long", llong_min, llminstr.str());
@@ -108,7 +107,7 @@ void test_000()
   strconv("unsigned long long", ullong_max, ullmaxstr.str());
 
   const char zerobuf[] = "0";
-  string zero;
+  std::string zero;
   from_string(zerobuf, zero, sizeof(zerobuf)-1);
   PQXX_CHECK_EQUAL(
 	zero,
@@ -116,29 +115,29 @@ void test_000()
 	"Converting \"0\" with explicit length failed.");
 
   const char nulbuf[] = "\0string\0with\0nuls\0";
-  const string nully(nulbuf, sizeof(nulbuf)-1);
-  string nully_parsed;
+  const std::string nully(nulbuf, sizeof(nulbuf)-1);
+  std::string nully_parsed;
   from_string(nulbuf, nully_parsed, sizeof(nulbuf)-1);
   PQXX_CHECK_EQUAL(nully_parsed.size(), nully.size(), "Nul truncates string.");
   PQXX_CHECK_EQUAL(nully_parsed, nully, "String conversion breaks on nuls.");
   from_string(nully.c_str(), nully_parsed, nully.size());
   PQXX_CHECK_EQUAL(nully_parsed, nully, "Nul conversion breaks on strings.");
 
-  stringstream ss;
+  std::stringstream ss;
   strconv("empty stringstream", ss, "");
   ss << -3.1415;
   strconv("stringstream", ss, ss.str());
 
   // TODO: Test binarystring reversibility
 
-  const string pw = encrypt_password("foo", "bar");
+  const std::string pw = encrypt_password("foo", "bar");
   PQXX_CHECK(not pw.empty(), "Encrypting a password returned no data.");
   PQXX_CHECK_NOT_EQUAL(
 	pw,
 	encrypt_password("splat", "blub"),
 	"Password encryption is broken.");
   PQXX_CHECK(
-	pw.find("bar") == string::npos,
+	pw.find("bar") == std::string::npos,
 	"Encrypted password contains original.");
 
   // Test error handling for failed connections
@@ -157,7 +156,7 @@ void test_000()
 	"nullconnection(const char[]) is broken.");
   }
   {
-    string n;
+    std::string n;
     nullconnection nc(n);
     PQXX_CHECK_THROWS(
 	work w(nc),

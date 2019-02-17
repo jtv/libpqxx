@@ -2,7 +2,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -17,34 +16,34 @@ void test_088()
   test::create_pqxxevents(tx0);
 
   // Trivial test: create subtransactions, and commit/abort
-  cout << tx0.exec1("SELECT 'tx0 starts'")[0].c_str() << endl;
+  std::cout << tx0.exec1("SELECT 'tx0 starts'")[0].c_str() << std::endl;
 
   subtransaction T0a(static_cast<dbtransaction &>(tx0), "T0a");
   T0a.commit();
 
   subtransaction T0b(static_cast<dbtransaction &>(tx0), "T0b");
   T0b.abort();
-  cout << tx0.exec1("SELECT 'tx0 ends'")[0].c_str() << endl;
+  std::cout << tx0.exec1("SELECT 'tx0 ends'")[0].c_str() << std::endl;
   tx0.commit();
 
   // Basic functionality: perform query in subtransaction; abort, continue
   work tx1{conn, "tx1"};
-  cout << tx1.exec1("SELECT 'tx1 starts'")[0].c_str() << endl;
+  std::cout << tx1.exec1("SELECT 'tx1 starts'")[0].c_str() << std::endl;
   subtransaction tx1a{tx1, "tx1a"};
-    cout << tx1a.exec1("SELECT '  a'")[0].c_str() << endl;
+    std::cout << tx1a.exec1("SELECT '  a'")[0].c_str() << std::endl;
     tx1a.commit();
   subtransaction tx1b{tx1, "tx1b"};
-    cout << tx1b.exec1("SELECT '  b'")[0].c_str() << endl;
+    std::cout << tx1b.exec1("SELECT '  b'")[0].c_str() << std::endl;
     tx1b.abort();
   subtransaction tx1c{tx1, "tx1c"};
-    cout << tx1c.exec1("SELECT '  c'")[0].c_str() << endl;
+    std::cout << tx1c.exec1("SELECT '  c'")[0].c_str() << std::endl;
     tx1c.commit();
-  cout << tx1.exec1("SELECT 'tx1 ends'")[0].c_str() << endl;
+  std::cout << tx1.exec1("SELECT 'tx1 ends'")[0].c_str() << std::endl;
   tx1.commit();
 
   // Commit/rollback functionality
   work tx2{conn, "tx2"};
-  const string Table = "test088";
+  const std::string Table = "test088";
   tx2.exec0("CREATE TEMP TABLE " + Table + "(no INTEGER, text VARCHAR)");
 
   tx2.exec0("INSERT INTO " + Table + " VALUES(1,'tx2')");
@@ -60,7 +59,7 @@ void test_088()
     tx2c.commit();
   const result R = tx2.exec("SELECT * FROM " + Table + " ORDER BY no");
   for (const auto &i: R)
-    cout << '\t' << i[0].c_str() << '\t' << i[1].c_str() << endl;
+    std::cout << '\t' << i[0].c_str() << '\t' << i[1].c_str() << std::endl;
 
   PQXX_CHECK_EQUAL(R.size(), 3u, "Wrong number of results.");
 

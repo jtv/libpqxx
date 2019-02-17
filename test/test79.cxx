@@ -4,7 +4,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -17,12 +16,12 @@ class TestListener final : public notification_receiver
   bool m_done;
 
 public:
-  explicit TestListener(connection_base &conn, string Name) :
+  explicit TestListener(connection_base &conn, std::string Name) :
     notification_receiver(conn, Name), m_done(false)
   {
   }
 
-  virtual void operator()(const string &, int be_pid) override
+  virtual void operator()(const std::string &, int be_pid) override
   {
     m_done = true;
     PQXX_CHECK_EQUAL(
@@ -30,7 +29,9 @@ public:
 	conn().backendpid(),
 	"Notification came from wrong backend.");
 
-    cout << "Received notification: " << channel() << " pid=" << be_pid << endl;
+    std::cout
+	<< "Received notification: " << channel() << " pid=" << be_pid
+	<< std::endl;
   }
 
   bool done() const { return m_done; }
@@ -41,7 +42,7 @@ void test_079()
 {
   connection conn;
 
-  const string NotifName = "mylistener";
+  const std::string NotifName = "mylistener";
   TestListener L(conn, NotifName);
 
   // First see if the timeout really works: we're not expecting any notifs
@@ -59,10 +60,10 @@ void test_079()
   for (int i=0; (i < 20) and not L.done(); ++i)
   {
     PQXX_CHECK_EQUAL(notifs, 0, "Got notifications, but no handler called.");
-    cout << ".";
+    std::cout << ".";
     notifs = conn.await_notification(1,0);
   }
-  cout << endl;
+  std::cout << std::endl;
 
   PQXX_CHECK(L.done(), "No notifications received.");
   PQXX_CHECK_EQUAL(notifs, 1, "Got unexpected notifications.");

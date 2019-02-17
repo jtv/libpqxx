@@ -2,7 +2,6 @@
 
 #include "../test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 // Some enums with string conversions.
@@ -36,7 +35,7 @@ void test_string_conversion()
 	to_string(text_ptr),
 	"C-style string pointer does not convert to string properly.");
 
-  const string cxx_string = "C++ string";
+  const std::string cxx_string = "C++ string";
   PQXX_CHECK_EQUAL(
 	"C++ string",
 	to_string(cxx_string),

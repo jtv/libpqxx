@@ -1,25 +1,21 @@
-#include <iostream>
-
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
 // Example program for libpqxx.  Test session variables with asyncconnection.
 namespace
 {
-string GetDatestyle(connection_base &conn)
+std::string GetDatestyle(connection_base &conn)
 {
   return nontransaction(conn, "getdatestyle").get_variable("DATESTYLE");
 }
 
 
-string SetDatestyle(connection_base &conn, string style)
+std::string SetDatestyle(connection_base &conn, std::string style)
 {
   conn.set_variable("DATESTYLE", style);
-  const string fullname = GetDatestyle(conn);
-  cout << "Set datestyle to " << style << ": " << fullname << endl;
+  const std::string fullname = GetDatestyle(conn);
   PQXX_CHECK(
 	not fullname.empty(),
 	"Setting datestyle to " + style + " makes it an empty string.");
@@ -28,27 +24,31 @@ string SetDatestyle(connection_base &conn, string style)
 }
 
 
-void CheckDatestyle(connection_base &conn, string expected)
+void CheckDatestyle(connection_base &conn, std::string expected)
 {
   PQXX_CHECK_EQUAL(GetDatestyle(conn), expected, "Got wrong datestyle.");
 }
 
 
-void RedoDatestyle(connection_base &conn, string style, string expected)
+void RedoDatestyle(
+	connection_base &conn,
+	std::string style,
+	std::string expected)
 {
   PQXX_CHECK_EQUAL(SetDatestyle(conn, style), expected, "Set wrong datestyle.");
 }
 
 
-void ActivationTest(connection_base &conn, string style, string expected)
+void ActivationTest(
+	connection_base &conn,
+	std::string style,
+	std::string expected)
 {
   RedoDatestyle(conn, style, expected);
-  cout << "Deactivating connection..." << endl;
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
   conn.deactivate();
 #include <pqxx/internal/ignore-deprecated-post.hxx>
   CheckDatestyle(conn, expected);
-  cout << "Reactivating connection..." << endl;
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
   conn.activate();
 #include <pqxx/internal/ignore-deprecated-post.hxx>
@@ -62,8 +62,8 @@ void test_064()
 
   PQXX_CHECK(not GetDatestyle(conn).empty(), "Initial datestyle not set.");
 
-  const string ISOname = SetDatestyle(conn, "ISO");
-  const string SQLname = SetDatestyle(conn, "SQL");
+  const std::string ISOname = SetDatestyle(conn, "ISO");
+  const std::string SQLname = SetDatestyle(conn, "SQL");
 
   PQXX_CHECK_NOT_EQUAL(ISOname, SQLname, "Same datestyle in SQL and ISO.");
 

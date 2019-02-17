@@ -1,6 +1,5 @@
 #include "../test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 namespace
@@ -29,7 +28,7 @@ void test_forward_sql_cursor()
   cursor_base::difference_type displacement = 0;
   result one = forward.fetch(1, displacement);
   PQXX_CHECK_EQUAL(one.size(), 1u, "Fetched wrong number of rows");
-  PQXX_CHECK_EQUAL(one[0][0].as<string>(), "1", "Unexpected result");
+  PQXX_CHECK_EQUAL(one[0][0].as<std::string>(), "1", "Unexpected result");
   PQXX_CHECK_EQUAL(displacement, 1, "Wrong displacement");
   PQXX_CHECK_EQUAL(forward.pos(), 1, "In wrong position");
 
@@ -56,7 +55,7 @@ void test_forward_sql_cursor()
   row = forward.fetch(1);
   PQXX_CHECK_EQUAL(row.size(), 1u, "fetch(1) returned wrong number of rows");
   PQXX_CHECK_EQUAL(forward.pos(), 4, "fetch(1) results in bad pos()");
-  PQXX_CHECK_EQUAL(row[0][0].as<string>(), "4", "pos() is lying");
+  PQXX_CHECK_EQUAL(row[0][0].as<std::string>(), "4", "pos() is lying");
 
   empty_result = forward.fetch(1, displacement);
   PQXX_CHECK_EQUAL(empty_result.size(), 0u, "Got rows at end of cursor");

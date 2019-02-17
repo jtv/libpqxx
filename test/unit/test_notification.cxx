@@ -1,6 +1,5 @@
 #include "../test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -9,17 +8,18 @@ namespace
 class TestReceiver final : public notification_receiver
 {
 public:
-  string payload;
+  std::string payload;
   int backend_pid;
 
-  TestReceiver(connection_base &c, const string &channel_name) :
+  TestReceiver(connection_base &c, const std::string &channel_name) :
     notification_receiver(c, channel_name),
     payload(),
     backend_pid(0)
   {
   }
 
-  virtual void operator()(const string &payload_string, int backend) override
+  virtual void operator()(const std::string &payload_string, int backend)
+	override
   {
     this->payload = payload_string;
     this->backend_pid = backend;
@@ -29,12 +29,12 @@ public:
 
 void test_receive(
 	transaction_base &t,
-	const string &channel,
+	const std::string &channel,
 	const char payload[] = nullptr)
 {
   connection_base &conn(t.conn());
 
-  string SQL = "NOTIFY \"" + channel + "\"";
+  std::string SQL = "NOTIFY \"" + channel + "\"";
   if (payload) SQL += ", " + t.quote(payload);
 
   TestReceiver receiver(t.conn(), channel);

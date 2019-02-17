@@ -1,20 +1,19 @@
 #include "../test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 namespace
 {
 template<typename T> T make_infinity()
 {
-  return numeric_limits<T>::infinity();
+  return std::numeric_limits<T>::infinity();
 }
 
 /// Test conversions for some floating-point type.
 template<typename T> void infinity_test()
 {
   T inf = make_infinity<T>();
-  string inf_string;
+  std::string inf_string;
   T back_conversion;
 
   inf_string = to_string(inf);

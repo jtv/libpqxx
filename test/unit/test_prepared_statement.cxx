@@ -5,7 +5,6 @@
 
 #include "../test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -19,13 +18,13 @@ using namespace pqxx;
 
 namespace
 {
-string stringize(transaction_base &t, const string &arg)
+std::string stringize(transaction_base &t, const std::string &arg)
 {
   return "'" + t.esc(arg) + "'";
 }
 
 
-template<typename T> string stringize(transaction_base &t, T i)
+template<typename T> std::string stringize(transaction_base &t, T i)
 {
   return stringize(t, to_string(i));
 }
@@ -36,9 +35,9 @@ template<typename T> string stringize(transaction_base &t, T i)
 // and not knowing when to quote the variables.
 // Note we do the replacement backwards (meaning forward_only iterators won't
 // do!) to avoid substituting e.g. "$12" as "$1" first.
-template<typename ITER> string subst(
+template<typename ITER> std::string subst(
 	transaction_base &t,
-	string q,
+	std::string q,
 	ITER patbegin,
 	ITER patend)
 {
@@ -46,18 +45,19 @@ template<typename ITER> string subst(
   for (ITER arg = patend; i > 0; --i)
   {
    --arg;
-    const string marker = "$" + to_string(i),
+    const std::string marker = "$" + to_string(i),
 	  var = stringize(t, *arg);
-    const string::size_type msz = marker.size();
-    while (q.find(marker) != string::npos) q.replace(q.find(marker),msz,var);
+    const std::string::size_type msz = marker.size();
+    while (q.find(marker) != std::string::npos)
+	q.replace(q.find(marker),msz,var);
   }
   return q;
 }
 
 
-template<typename CNTNR> string subst(
+template<typename CNTNR> std::string subst(
 	transaction_base &t,
-	string q,
+	std::string q,
 	const CNTNR &patterns)
 {
   return subst(t, q, patterns.begin(), patterns.end());
@@ -137,7 +137,7 @@ void test_legacy_prepared_statement()
 
   conn.prepare("CountUpToTen", "SELECT * FROM generate_series($1, 10)");
 
-  vector<int> args = {2};
+  std::vector<int> args = {2};
   COMPARE_RESULTS("CountUpToTen_seq",
 	tx.prepared("CountUpToTen")(args[0]).exec(),
 	tx.exec(subst(tx, "SELECT * FROM generate_series($1, 10)", args)));
@@ -152,7 +152,7 @@ void test_legacy_prepared_statement()
       tx.exec("SELECT * FROM generate_series(2, 5)"));
 
   // Test prepared statement with a null parameter.
-  vector<const char *> ptrs = {nullptr, "99"};
+  std::vector<const char *> ptrs = {nullptr, "99"};
 
   COMPARE_RESULTS("CountRange_null1",
 	tx.prepared("CountRange")(ptrs[0])(ptrs[1]).exec(),
@@ -161,7 +161,7 @@ void test_legacy_prepared_statement()
   // Test prepared statement with a binary parameter.
   conn.prepare("GimmeBinary", "SELECT $1::bytea");
 
-  const binarystring bin_data{string{"x \x01 \x02 \xff y"}};
+  const binarystring bin_data{std::string{"x \x01 \x02 \xff y"}};
 
   PQXX_CHECK_EQUAL(
 	binarystring(tx.prepared("GimmeBinary")(bin_data).exec()[0][0]).str(),
@@ -291,26 +291,26 @@ void test_strings(transaction_base &T)
 {
   T.conn().prepare("EchoStr", "SELECT $1::varchar");
   auto rw = T.exec_prepared1("EchoStr", "foo");
-  PQXX_CHECK_EQUAL(rw.front().as<string>(), "foo", "Wrong string result.");
+  PQXX_CHECK_EQUAL(rw.front().as<std::string>(), "foo", "Wrong string result.");
 
   const char nasty_string[] = "'\\\"\\";
   rw = T.exec_prepared1("EchoStr", nasty_string);
   PQXX_CHECK_EQUAL(
-	rw.front().as<string>(),
-	string(nasty_string),
+	rw.front().as<std::string>(),
+	std::string(nasty_string),
 	"Prepared statement did not quote/escape correctly.");
 
-  rw = T.exec_prepared1("EchoStr", string{nasty_string});
+  rw = T.exec_prepared1("EchoStr", std::string{nasty_string});
   PQXX_CHECK_EQUAL(
-	rw.front().as<string>(),
-	string(nasty_string),
+	rw.front().as<std::string>(),
+	std::string(nasty_string),
 	"Quoting/escaping went wrong in std::string.");
 
   char nonconst[] = "non-const C string";
   rw = T.exec_prepared1("EchoStr", nonconst);
   PQXX_CHECK_EQUAL(
-	rw.front().as<string>(),
-	string(nonconst),
+	rw.front().as<std::string>(),
+	std::string(nonconst),
 	"Non-const C string passed incorrectly.");
 }
 

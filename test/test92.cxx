@@ -5,7 +5,6 @@
 #include "test_helpers.hxx"
 
 
-using namespace std;
 using namespace pqxx;
 
 // Test program for libpqxx.  Test binary parameters to prepared statements.
@@ -18,10 +17,10 @@ void test_092()
   nontransaction tx{conn};
 
   const char databuf[] = "Test\0data";
-  const string data(databuf, sizeof(databuf));
+  const std::string data(databuf, sizeof(databuf));
   PQXX_CHECK(data.size() > strlen(databuf), "Unknown data length problem.");
 
-  const string Table = "pqxxbin", Field = "binfield", Stat = "nully";
+  const std::string Table = "pqxxbin", Field = "binfield", Stat = "nully";
   tx.exec0("CREATE TEMP TABLE " + Table + " (" + Field + " BYTEA)");
 
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
@@ -37,7 +36,10 @@ void test_092()
 
   const binarystring roundtrip(R[0][0]);
 
-  PQXX_CHECK_EQUAL(string{roundtrip.str()}, data, "Data came back different.");
+  PQXX_CHECK_EQUAL(
+	std::string{roundtrip.str()},
+	data,
+	"Data came back different.");
 
   PQXX_CHECK_EQUAL(roundtrip.size(),
 	data.size(),
@@ -50,7 +52,7 @@ void test_092()
   conn.prepare("makerow", "INSERT INTO row VALUES ($1, $2)");
 
   pqxx::prepare::invocation i{ tx.prepared("makerow") };
-  const string f = "frobnalicious";
+  const std::string f = "frobnalicious";
   i(6);
   i(f);
   i.exec();
@@ -58,7 +60,10 @@ void test_092()
 
   const result t{ tx.exec("SELECT * FROM row") };
   PQXX_CHECK_EQUAL(t.size(), 1u, "Wrong result size.");
-  PQXX_CHECK_EQUAL(t[0][0].as<string>(), "6", "Unexpected result value.");
+  PQXX_CHECK_EQUAL(
+	t[0][0].as<std::string>(),
+	"6",
+	"Unexpected result value.");
   PQXX_CHECK_EQUAL(t[0][1].c_str(), f, "Unexpected string result.");
 }
 } // namespace

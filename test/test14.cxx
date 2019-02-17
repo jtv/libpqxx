@@ -2,7 +2,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -23,16 +22,16 @@ void test_014()
   // These simply pass the notice through to their connection, but this may
   // be more convenient in some cases.  All process_notice() functions accept
   // C++ strings as well as C strings.
-  tx.process_notice(string{"Started nontransaction\n"});
+  tx.process_notice(std::string{"Started nontransaction\n"});
 
   result r{ tx.exec("SELECT * FROM pg_tables") };
 
   for (const auto &c: r)
   {
-    string n;
+    std::string n;
     c[0].to(n);
 
-    cout << '\t' << to_string(c.num()) << '\t' << n << endl;
+    std::cout << '\t' << to_string(c.num()) << '\t' << n << std::endl;
   }
 
   // "Commit" the non-transaction.  This doesn't really do anything since

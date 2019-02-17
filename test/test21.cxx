@@ -2,7 +2,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -14,8 +13,8 @@ void test_021()
 {
   lazyconnection conn;
   conn.process_notice("Printing details on deferred connection\n");
-  const string HostName = (conn.hostname() ? conn.hostname() : "<local>");
-  conn.process_notice(string{} +
+  const std::string HostName = (conn.hostname() ? conn.hostname() : "<local>");
+  conn.process_notice(std::string{} +
 	"database=" + conn.dbname() + ", "
 	"username=" + conn.username() + ", "
 	"hostname=" + HostName + ", "
@@ -27,7 +26,7 @@ void test_021()
 
   // By now our connection should really have been created
   conn.process_notice("Printing details on actual connection\n");
-  conn.process_notice(string{} +
+  conn.process_notice(std::string{} +
 	"database=" + conn.dbname() + ", "
 	"username=" + conn.username() + ", "
 	"hostname=" + HostName + ", "
@@ -35,7 +34,7 @@ void test_021()
 	"options='" + conn.options() + "', "
 	"backendpid=" + to_string(conn.backendpid()) + "\n");
 
-  string P;
+  std::string P;
   from_string(conn.port(), P);
   PQXX_CHECK_EQUAL(
 	P,
@@ -53,9 +52,9 @@ void test_021()
   // Process each successive result row
   for (const auto &c: R)
   {
-    string N;
+    std::string N;
     c[0].to(N);
-    cout << '\t' << to_string(c.num()) << '\t' << N << endl;
+    std::cout << '\t' << to_string(c.num()) << '\t' << N << std::endl;
   }
 
   tx.commit();

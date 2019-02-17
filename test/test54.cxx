@@ -3,14 +3,13 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
 // Test program for libpqxx: write large object to test files.
 namespace
 {
-const string Contents = "Large object test contents";
+const std::string Contents = "Large object test contents";
 
 
 void test_054()

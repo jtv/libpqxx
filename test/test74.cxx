@@ -2,7 +2,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -15,8 +14,8 @@ void test_074()
   work tx{conn};
 
   result R = tx.exec("SELECT * FROM pg_tables");
-  const string sval = R.at(0).at(1).c_str();
-  string sval2;
+  const std::string sval = R.at(0).at(1).c_str();
+  std::string sval2;
   fieldstream fs1(R.front()[1]);
   fs1 >> sval2;
   PQXX_CHECK_EQUAL(sval2, sval, "fieldstream returned wrong value.");

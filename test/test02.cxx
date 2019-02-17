@@ -1,6 +1,5 @@
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -24,7 +23,7 @@ void test_002()
 	"Invalid connection string did not cause exception.");
 
   // Set up connection to database
-  string ConnectString = "";
+  std::string ConnectString = "";
   connection C{ConnectString};
 
   // Start transaction within context of connection
@@ -51,7 +50,7 @@ void test_002()
 	R.column_table(pqxx::row::size_type(0)),
 	"Inconsistent answers from column_table()");
 
-  const string rcol = R.column_name(0);
+  const std::string rcol = R.column_name(0);
   const oid crtable = R.column_table(rcol);
   PQXX_CHECK_EQUAL(
 	crtable,

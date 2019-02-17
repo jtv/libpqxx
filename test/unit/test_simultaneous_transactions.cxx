@@ -1,6 +1,5 @@
 #include "../test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 namespace
@@ -12,7 +11,7 @@ void test_simultaneous_transactions()
   nontransaction n1{conn};
   PQXX_CHECK_THROWS(
 	nontransaction n2{conn},
-	logic_error,
+	std::logic_error,
 	"Allowed to open simultaneous nontransactions.");
 }
 

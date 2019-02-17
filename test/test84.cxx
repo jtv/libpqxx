@@ -6,7 +6,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -20,7 +19,7 @@ void test_084()
   connection conn;
   transaction<serializable> tx{conn};
 
-  const string Table = "pg_tables", Key = "tablename";
+  const std::string Table = "pg_tables", Key = "tablename";
 
   // Count rows.
   result R( tx.exec("SELECT count(*) FROM " + Table) );
@@ -30,7 +29,7 @@ void test_084()
 	"Not enough rows in " + Table + ", cannot test.");
 
   // Create an SQL cursor and, for good measure, muddle up its state a bit.
-  const string CurName = "MYCUR",
+  const std::string CurName = "MYCUR",
 	Query = "SELECT * FROM " + Table + " ORDER BY " + Key;
   const int InitialSkip = 2, GetRows = 3;
 

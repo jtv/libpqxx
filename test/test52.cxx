@@ -3,13 +3,12 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 // Test program for libpqxx: write large object to test files.
 namespace
 {
-const string Contents = "Large object test contents";
+const std::string Contents = "Large object test contents";
 
 
 void test_052()
@@ -29,7 +28,7 @@ void test_052()
     [&conn, &Obj]()
     {
       work tx{conn};
-      largeobjectaccess A{tx, Obj.id(), ios::out};
+      largeobjectaccess A{tx, Obj.id(), std::ios::out};
       A.write(Contents);
       tx.commit();
     });

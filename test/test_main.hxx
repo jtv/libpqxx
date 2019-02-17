@@ -9,14 +9,13 @@
 #include "test_helpers.hxx"
 
 
-using namespace std;
 using namespace pqxx;
 using namespace pqxx::test;
 
 
 namespace
 {
-string deref_field(const field &f)
+std::string deref_field(const field &f)
 {
   return f.c_str();
 }
@@ -29,7 +28,10 @@ namespace pqxx
 {
 namespace test
 {
-test_failure::test_failure(const string &ffile, int fline, const string &desc) :
+test_failure::test_failure(
+	const std::string &ffile,
+	int fline,
+	const std::string &desc) :
   logic_error(desc),
   m_file(ffile),
   m_line(fline)
@@ -46,7 +48,10 @@ void drop_table(transaction_base &t, const std::string &table)
 }
 
 
-[[noreturn]] void check_notreached(const char file[], int line, string desc)
+[[noreturn]] void check_notreached(
+	const char file[],
+	int line,
+	std::string desc)
 {
   throw test_failure(file, line, desc);
 }
@@ -57,7 +62,7 @@ void check(
 	int line,
 	bool condition,
 	const char text[],
-	string desc)
+	std::string desc)
 {
   if (not condition)
     throw test_failure(
@@ -67,26 +72,26 @@ void check(
 }
 
 
-void expected_exception(const string &message)
+void expected_exception(const std::string &message)
 {
-  cout << "(Expected) " << message << endl;
+  std::cout << "(Expected) " << message << std::endl;
 }
 
 
-string list_row(row Obj)
+std::string list_row(row Obj)
 {
   return separated_list(", ", Obj.begin(), Obj.end(), deref_field);
 }
 
 
-string list_result(result Obj)
+std::string list_result(result Obj)
 {
   if (Obj.empty()) return "<empty>";
   return "{" + separated_list("}\n{", Obj) + "}";
 }
 
 
-string list_result_iterator(result::const_iterator Obj)
+std::string list_result_iterator(result::const_iterator Obj)
 {
   return "<iterator at " + to_string(Obj.rownumber()) + ">";
 }
@@ -148,11 +153,11 @@ int main(int, const char *argv[])
   const char *const test_name = argv[1];
 
   int test_count = 0;
-  list<string> failed;
+  std::list<std::string> failed;
   for (const auto &i: *all_tests)
     if (test_name == nullptr or test_name == i.first)
     {
-      cout << endl << "Running: " << i.first << endl;
+      std::cout << std::endl << "Running: " << i.first << std::endl;
 
       bool success = false;
       try
@@ -162,47 +167,49 @@ int main(int, const char *argv[])
       }
       catch (const test_failure &e)
       {
-        cerr << "Test failure in " + e.file() + " line " +
-	    to_string(e.line()) << ": " << e.what() << endl;
+        std::cerr << "Test failure in " + e.file() + " line " +
+	    to_string(e.line()) << ": " << e.what() << std::endl;
       }
-      catch (const bad_alloc &)
+      catch (const std::bad_alloc &)
       {
-        cerr << "Out of memory!" << endl;
+        std::cerr << "Out of memory!" << std::endl;
       }
       catch (const feature_not_supported &e)
       {
-        cerr << "Not testing unsupported feature: " << e.what() << endl;
+        std::cerr
+		<< "Not testing unsupported feature: " << e.what() << std::endl;
         success = true;
         --test_count;
       }
       catch (const sql_error &e)
       {
-        cerr << "SQL error: " << e.what() << endl
-             << "Query was: " << e.query() << endl;
+        std::cerr
+		<< "SQL error: " << e.what() << std::endl
+		<< "Query was: " << e.query() << std::endl;
       }
-      catch (const exception &e)
+      catch (const std::exception &e)
       {
-        cerr << "Exception: " << e.what() << endl;
+        std::cerr << "Exception: " << e.what() << std::endl;
       }
       catch (...)
       {
-        cerr << "Unknown exception" << endl;
+        std::cerr << "Unknown exception" << std::endl;
       }
 
       if (not success)
       {
-        cerr << "FAILED: " << i.first << endl;
+        std::cerr << "FAILED: " << i.first << std::endl;
         failed.push_back(i.first);
       }
       ++test_count;
     }
 
-  cout << "Ran " << test_count << " test(s)." << endl;
+  std::cout << "Ran " << test_count << " test(s)." << std::endl;
 
   if (not failed.empty())
   {
-    cerr << "*** " << failed.size() << " test(s) failed: ***" << endl;
-    for (const auto &i: failed) cerr << "\t" << i << endl;
+    std::cerr << "*** " << failed.size() << " test(s) failed: ***" << std::endl;
+    for (const auto &i: failed) std::cerr << "\t" << i << std::endl;
   }
 
   return int(failed.size());

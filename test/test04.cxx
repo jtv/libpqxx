@@ -4,7 +4,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 // Example program for libpqxx.  Send notification to self.
@@ -24,7 +23,7 @@ public:
   explicit TestListener(connection_base &conn) :
 	notification_receiver(conn, "listen"), m_done(false) {}
 
-  virtual void operator()(const string &, int be_pid) override
+  virtual void operator()(const std::string &, int be_pid) override
   {
     m_done = true;
     PQXX_CHECK_EQUAL(

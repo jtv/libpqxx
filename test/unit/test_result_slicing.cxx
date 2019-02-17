@@ -1,6 +1,5 @@
 #include "../test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 namespace pqxx
@@ -10,7 +9,7 @@ template<> struct PQXX_PRIVATE string_traits<row::const_iterator>
   static const char *name() { return "row::const_iterator"; }
   static bool has_null() { return false; }
   static bool is_null(row::const_iterator) { return false; }
-  static string to_string(row::const_iterator)
+  static std::string to_string(row::const_iterator)
 	{ return "[row::const_iterator]"; }
 };
 template<>
@@ -19,7 +18,7 @@ struct PQXX_PRIVATE string_traits<row::const_reverse_iterator>
   static const char *name() { return "row::const_reverse_iterator"; }
   static bool has_null() { return false; }
   static bool is_null(row::const_reverse_iterator) { return false; }
-  static string to_string(row::const_reverse_iterator)
+  static std::string to_string(row::const_reverse_iterator)
 	{ return "[row::const_reverse_iterator]"; }
 };
 }

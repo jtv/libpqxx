@@ -1,6 +1,5 @@
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -16,7 +15,7 @@ void test_039()
   lazyconnection conn;
   nontransaction tx1{conn};
   test::create_pqxxevents(tx1);
-  const string Table = "pqxxevents";
+  const std::string Table = "pqxxevents";
 
   // Verify our start condition before beginning: there must not be a 1977
   // record already.

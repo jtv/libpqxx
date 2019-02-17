@@ -1,6 +1,5 @@
 #include "../test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 namespace
@@ -21,7 +20,7 @@ void test_exec_params()
   r = tx.parameterized("SELECT $1 || 'bar'")("foo").exec();
 #include <pqxx/internal/ignore-deprecated-post.hxx>
   PQXX_CHECK_EQUAL(
-	r[0][0].as<string>(),
+	r[0][0].as<std::string>(),
 	"foobar",
 	"Incorrect string result from parameterized statement.");
 }

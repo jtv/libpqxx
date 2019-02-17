@@ -23,7 +23,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -39,12 +38,12 @@ class TestListener final : public notification_receiver
   bool m_done;
 
 public:
-  explicit TestListener(connection_base &conn, string Name) :
+  explicit TestListener(connection_base &conn, std::string Name) :
     notification_receiver(conn, Name), m_done(false)
   {
   }
 
-  virtual void operator()(const string &, int be_pid) override
+  virtual void operator()(const std::string &, int be_pid) override
   {
     m_done = true;
     PQXX_CHECK_EQUAL(
@@ -52,7 +51,9 @@ public:
 	conn().backendpid(),
 	"Notification came from wrong backend process.");
 
-    cout << "Received notification: " << channel() << " pid=" << be_pid << endl;
+    std::cout
+	<< "Received notification: " << channel() << " pid=" << be_pid
+	<< std::endl;
   }
 
   bool done() const { return m_done; }
@@ -85,7 +86,7 @@ void test_087()
 {
   connection conn;
 
-  const string NotifName = "my notification";
+  const std::string NotifName = "my notification";
   TestListener L{conn, NotifName};
 
   perform(
@@ -101,7 +102,7 @@ void test_087()
   {
     PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
 
-    cout << ".";
+    std::cout << ".";
     const int fd = conn.sock();
 
     // File descriptor from which we wish to read.
@@ -119,7 +120,7 @@ void test_087()
     select(fd+1, &read_fds, nullptr, &except_fds, &timeout);
     notifs = conn.get_notifs();
   }
-  cout << endl;
+  std::cout << std::endl;
 
   PQXX_CHECK(L.done(), "No notification received.");
   PQXX_CHECK_EQUAL(notifs, 1, "Got unexpected number of notifications.");

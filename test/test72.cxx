@@ -2,7 +2,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -27,23 +26,23 @@ void test_072()
   P.complete();
 
   // We should be able to get the first result, which preceeds the error
-  cout << "Retrieving initial result..." << endl;
+  std::cout << "Retrieving initial result..." << std::endl;
   const int res_1 = P.retrieve(id_1).at(0).at(0).as<int>();
-  cout << " - result was " << res_1 << endl;
+  std::cout << " - result was " << res_1 << std::endl;
   PQXX_CHECK_EQUAL(res_1, 1, "Got wrong result from pipeline.");
 
   // We should *not* get a result for the query behind the error
-  cout << "Retrieving post-error result..." << endl;
+  std::cout << "Retrieving post-error result..." << std::endl;
   {
     quiet_errorhandler d{conn};
     PQXX_CHECK_THROWS(
 	P.retrieve(id_2).at(0).at(0).as<int>(),
-	runtime_error,
+	std::runtime_error,
 	"Pipeline wrongly resumed after SQL error.");
   }
 
   // Now see that we get an exception when we touch the failed result
-  cout << "Retrieving result for failed query..." << endl;
+  std::cout << "Retrieving result for failed query..." << std::endl;
   {
     quiet_errorhandler d{conn};
     PQXX_CHECK_THROWS(

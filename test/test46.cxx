@@ -4,7 +4,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -19,25 +18,25 @@ void test_046()
 
   row R{ tx.exec1("SELECT count(*) FROM pg_tables") };
 
-  cout << "Count was " << R.front() << endl;
+  std::cout << "Count was " << R.front() << std::endl;
 
   // Read the value into a stringstream
-  stringstream I;
+  std::stringstream I;
   I << R[0];
 
   // Now convert the stringstream into a numeric type
   long L, L2;
   I >> L;
-  cout << "As a long, it's " << L << endl;
+  std::cout << "As a long, it's " << L << std::endl;
 
   R[0].to(L2);
   PQXX_CHECK_EQUAL(L, L2, "Inconsistency between conversion methods.");
 
   float F, F2;
-  stringstream I2;
+  std::stringstream I2;
   I2 << R[0];
   I2 >> F;
-  cout << "As a float, it's " << F << endl;
+  std::cout << "As a float, it's " << F << std::endl;
   R[0].to(F2);
   PQXX_CHECK_BOUNDS(F2, F-0.01, F+0.01, "Bad floating-point result.");
 
@@ -53,9 +52,9 @@ void test_046()
   from_string(R[0].c_str(), LD);
   PQXX_CHECK_BOUNDS(LD, F-0.01, F+0.01, "Bad long double from from_string.");
 
-  string S, S2, S3;
+  std::string S, S2, S3;
   from_string(R[0].c_str(), S);
-  from_string(string{R[0].c_str()}, S2);
+  from_string(std::string{R[0].c_str()}, S2);
   from_string(R[0], S3);
 
   PQXX_CHECK_EQUAL(

@@ -5,14 +5,13 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
 // Simple test program for libpqxx's Large Objects interface.
 namespace
 {
-const string Contents = "Large object test contents";
+const std::string Contents = "Large object test contents";
 
 
 void test_050()
@@ -72,24 +71,24 @@ void test_050()
 	"Bad return value from cread() after writing.");
 
       PQXX_CHECK_EQUAL(
-	size_t(A.cseek(0, ios::cur)),
+	size_t(A.cseek(0, std::ios::cur)),
 	Contents.size(),
 	"Unexpected position after cseek(0, cur).");
 
       PQXX_CHECK_EQUAL(
-	A.cseek(1, ios::beg),
+	A.cseek(1, std::ios::beg),
 	1,
 	"Unexpected cseek() result after seeking to position 1.");
 
       PQXX_CHECK_EQUAL(
-	A.cseek(-1, ios::cur),
+	A.cseek(-1, std::ios::cur),
 	0,
 	"Unexpected cseek() result after seeking -1 from position 1.");
 
       PQXX_CHECK(size_t(A.read(Buf, Size)) <= Size, "Got too many bytes.");
 
       PQXX_CHECK_EQUAL(
-	string(Buf, string::size_type(Bytes)),
+	std::string(Buf, std::string::size_type(Bytes)),
 	Contents,
 	"Large-object contents were mutilated.");
 

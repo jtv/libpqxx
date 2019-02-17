@@ -6,7 +6,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -19,9 +18,9 @@ namespace
 template<typename CONTAINER> struct Add
 {
   CONTAINER &Container;
-  string Key;
+  std::string Key;
 
-  Add(string K, CONTAINER &C) : Container(C), Key(K) {}
+  Add(std::string K, CONTAINER &C) : Container(C), Key(K) {}
 
   void operator()(const pqxx::row &T)
   {
@@ -31,7 +30,7 @@ template<typename CONTAINER> struct Add
 
 
 template<typename CONTAINER>
-Add<CONTAINER> AdderFor(string K, CONTAINER &C)
+Add<CONTAINER> AdderFor(std::string K, CONTAINER &C)
 {
   return Add<CONTAINER>(K, C);
 }
@@ -43,23 +42,23 @@ struct Cmp
   using second_argument_type = pqxx::row;
   using result_type = bool;
 
-  string Key;
+  std::string Key;
 
-  explicit Cmp(string K) : Key(K) {}
+  explicit Cmp(std::string K) : Key(K) {}
 
   bool operator()(const pqxx::row &L, const pqxx::row &R) const
   {
-    return string{L[Key].c_str()} < string{R[Key].c_str()};
+    return std::string{L[Key].c_str()} < std::string{R[Key].c_str()};
   }
 };
 
 
 struct CountGreaterSmaller
 {
-  string Key;
+  std::string Key;
   const result &R;
 
-  CountGreaterSmaller(string K, const result &X) : Key(K), R(X) {}
+  CountGreaterSmaller(std::string K, const result &X) : Key(K), R(X) {}
 
   void operator()(const pqxx::row &T) const
   {
@@ -70,11 +69,12 @@ struct CountGreaterSmaller
       Greater = count_if(R.begin(), R.end(), bind(Cmp(Key), _1, T)),
       Smaller = count_if(R.begin(), R.end(), bind(Cmp(Key), T, _1));
 
-    cout << "'" << T[Key] << "': "
-         << Greater << " greater, "
-         << Smaller << " smaller "
-	 << "(" << (Greater + Smaller) << " total)"
-	 << endl;
+    std::cout
+	<< "'" << T[Key] << "': "
+	<< Greater << " greater, "
+	<< Smaller << " smaller "
+	<< "(" << (Greater + Smaller) << " total)"
+	<< std::endl;
 
     PQXX_CHECK(
 	Greater + Smaller < ptrdiff_t(R.size()),
@@ -87,15 +87,15 @@ void test_049()
 {
   connection conn;
   work tx{conn};
-  string Table="pg_tables", Key="tablename";
+  std::string Table="pg_tables", Key="tablename";
 
   result R( tx.exec("SELECT * FROM " + Table + " ORDER BY " + Key) );
-  cout << "Read " << R.size() << " rows." << endl;
+  std::cout << "Read " << R.size() << " rows." << std::endl;
   PQXX_CHECK(not R.empty(), "No rows in " + Table + ".");
 
   // Verify that for each key in R, the number of greater and smaller keys
   // are sensible; use std::for_each<>() to iterate over rows in R
-  for_each(R.begin(), R.end(), CountGreaterSmaller(Key, R));
+  std::for_each(R.begin(), R.end(), CountGreaterSmaller(Key, R));
 }
 
 

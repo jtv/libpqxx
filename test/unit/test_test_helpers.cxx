@@ -1,6 +1,5 @@
 #include "../test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 using namespace pqxx::test;
 
@@ -51,7 +50,7 @@ void test_check_throws_exception()
 {
   // PQXX_CHECK_THROWS_EXCEPTION expects std::exception...
   PQXX_CHECK_THROWS_EXCEPTION(
-	throw exception(),
+	throw std::exception(),
 	"PQXX_CHECK_THROWS_EXCEPTION did not catch std::exception.");
 
   // ...or any exception type derived from it.
@@ -133,7 +132,7 @@ void test_check_throws()
   try
   {
     // If the test throws the wrong type, PQXX_CHECK_THROWS throws a failure.
-    PQXX_CHECK_THROWS(throw exception(), test_failure, "(expected)");
+    PQXX_CHECK_THROWS(throw std::exception(), test_failure, "(expected)");
     failed = false;
   }
   catch (const test_failure &)

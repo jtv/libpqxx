@@ -3,7 +3,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -15,7 +14,7 @@ namespace
 void test_012()
 {
   connection conn;
-  const string Table = "pg_tables";
+  const std::string Table = "pg_tables";
 
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
   // Tell C we won't be needing it for a while (not true, but let's pretend)
@@ -30,9 +29,9 @@ void test_012()
   result R( tx.exec("SELECT * FROM " + Table) );
 
   // Map column to no. of null fields.
-  vector<int> NullFields(R.columns(), 0);
+  std::vector<int> NullFields(R.columns(), 0);
   // Does column appear to be sorted?
-  vector<bool>
+  std::vector<bool>
 	SortedUp(R.columns(), true),
 	SortedDown(R.columns(), true);
 
@@ -50,10 +49,10 @@ void test_012()
     {
       NullFields[f] += i.at(f).is_null();
 
-      string A, B;
+      std::string A, B;
       PQXX_CHECK_EQUAL(
 	i[f].to(A),
-	i[f].to(B, string{""}),
+	i[f].to(B, std::string{}),
 	"Variants of to() disagree on nullness.");
 
       PQXX_CHECK_EQUAL(A, B, "Inconsistent field contents.");
@@ -105,8 +104,10 @@ void test_012()
 		U = SortedUp[f],
 		D = SortedDown[f];
 
-          SortedUp[f] = U & (string{j[f].c_str()} <= string{i[f].c_str()});
-          SortedDown[f] = D & (string{j[f].c_str()} >= string{i[f].c_str()});
+          SortedUp[f] = U & (
+		std::string{j[f].c_str()} <= std::string{i[f].c_str()});
+          SortedDown[f] = D & (
+		std::string{j[f].c_str()} >= std::string{i[f].c_str()});
         }
       }
     }

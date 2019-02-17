@@ -1,6 +1,5 @@
 #include "../test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 namespace
@@ -14,7 +13,7 @@ void test_pipeline()
   pipeline pipe(tx, "test_pipeline_detach");
   PQXX_CHECK_THROWS(
 	tx.exec("SELECT 1"),
-	logic_error,
+	std::logic_error,
 	"Pipeline does not block regular queries");
 
   // Flushing a pipeline relinquishes transaction focus.
@@ -30,7 +29,7 @@ void test_pipeline()
   pipeline::query_id q = pipe.insert("SELECT 2");
   PQXX_CHECK_THROWS(
 	tx.exec("SELECT 3"),
-	logic_error,
+	std::logic_error,
 	"Pipeline does not block regular queries");
 
   // Invoking complete() also detaches the pipeline from the transaction.

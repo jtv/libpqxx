@@ -3,7 +3,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -45,7 +44,7 @@ void test_007()
 
   // Perform (an instantiation of) the UpdateYears transactor we've defined
   // in the code above.  This is where the work gets done.
-  map<int,int> conversions;
+  std::map<int,int> conversions;
   perform(
     [&conversions, &conn]()
     {
@@ -60,10 +59,10 @@ void test_007()
 	rctype,
 	"Inconsistent result::column_type().");
 
-      const string rct = to_string(rctype);
+      const std::string rct = to_string(rctype);
       PQXX_CHECK(rctype > 0, "Got strange type ID for column: " + rct);
 
-      const string rcol = R.column_name(0);
+      const std::string rcol = R.column_name(0);
       PQXX_CHECK(not rcol.empty(), "Didn't get a name for column.");
 
       const oid rcctype = R.column_type(rcol);
@@ -136,7 +135,7 @@ void test_007()
         R = tx.exec0(query.c_str());
         AffectedRows += R.affected_rows();
       }
-      cout << AffectedRows << " rows updated." << endl;
+      std::cout << AffectedRows << " rows updated." << std::endl;
     });
 
   // Just for fun, report the exact conversions performed.  Note that this
@@ -144,7 +143,7 @@ void test_007()
   // at the same time; this property was established through use of the
   // transactor framework.
   for (auto &i: conversions)
-    cout << '\t' << i.first << "\t-> " << i.second << endl;
+    std::cout << '\t' << i.first << "\t-> " << i.second << std::endl;
 }
 
 

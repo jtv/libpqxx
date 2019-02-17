@@ -4,7 +4,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -15,15 +14,15 @@ void test_011()
 {
   connection conn;
   work tx{conn};
-  const string Table = "pg_tables";
+  const std::string Table = "pg_tables";
 
   result R( tx.exec("SELECT * FROM " + Table) );
 
   // Print column names
   for (pqxx::row::size_type c = 0; c < R.columns(); ++c)
   {
-    string N = R.column_name(c);
-    cout << c << ":\t" << N << endl;
+    std::string N = R.column_name(c);
+    std::cout << c << ":\t" << N << std::endl;
     PQXX_CHECK_EQUAL(R.column_number(N), c, "Inconsistent column numbers.");
   }
 
@@ -33,7 +32,7 @@ void test_011()
     PQXX_CHECK_EQUAL(R[0].rownumber(), 0u, "Row 0 has wrong number.");
 
     if (R.size() < 2)
-      cout << "(Only one row in table.)" << endl;
+      std::cout << "(Only one row in table.)" << std::endl;
     else
       PQXX_CHECK_EQUAL(R[1].rownumber(), 1u, "Row 1 has wrong number.");
 
@@ -51,15 +50,15 @@ void test_011()
 
     for (pqxx::row::size_type c = 0; c < R[0].size(); ++c)
     {
-      string N = R.column_name(c);
+      std::string N = R.column_name(c);
 
       PQXX_CHECK_EQUAL(
-	string{R[0].at(c).c_str()},
+	std::string{R[0].at(c).c_str()},
 	R[0].at(N).c_str(),
 	"Field by name != field by number.");
 
       PQXX_CHECK_EQUAL(
-	string{R[0][c].c_str()},
+	std::string{R[0][c].c_str()},
 	R[0][N].c_str(),
 	"at() is inconsistent with operator[].");
 
@@ -73,7 +72,7 @@ void test_011()
   }
   else
   {
-    cout << "(Table is empty.)" << endl;
+    std::cout << "(Table is empty.)" << std::endl;
   }
 }
 

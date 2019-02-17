@@ -3,14 +3,13 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
 // Test program for libpqxx: import file to large object
 namespace
 {
-const string Contents = "Large object test contents";
+const std::string Contents = "Large object test contents";
 
 
 void test_055()
@@ -22,11 +21,11 @@ void test_055()
     {
       char Buf[200];
       work tx{conn};
-      largeobjectaccess A{tx, "pqxxlo.txt", ios::in};
+      largeobjectaccess A{tx, "pqxxlo.txt", std::ios::in};
       auto new_obj = largeobject(A);
       const auto len = A.read(Buf, sizeof(Buf)-1);
       PQXX_CHECK_EQUAL(
-	string(Buf, string::size_type(len)),
+	std::string(Buf, std::string::size_type(len)),
 	Contents,
 	"Large object contents were mangled.");
 

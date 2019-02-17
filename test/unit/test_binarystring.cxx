@@ -1,12 +1,11 @@
 #include "../test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
 namespace
 {
-binarystring make_binarystring(transaction_base &T, string content)
+binarystring make_binarystring(transaction_base &T, std::string content)
 {
   return binarystring(T.exec("SELECT " + T.quote_raw(content))[0][0]);
 }
@@ -27,7 +26,10 @@ void test_binarystring()
   PQXX_CHECK(
 	b.crbegin() == b.rbegin(),
 	"Wrong crbegin for empty binarystring.");
-  PQXX_CHECK_THROWS(b.at(0), out_of_range, "Empty binarystring accepts at().");
+  PQXX_CHECK_THROWS(
+	b.at(0),
+	std::out_of_range,
+	"Empty binarystring accepts at().");
 
   b = make_binarystring(tx, "z");
   PQXX_CHECK_EQUAL(b.str(), "z", "Basic nonempty binarystring is broken.");
@@ -47,9 +49,9 @@ void test_binarystring()
   PQXX_CHECK(b.front() == 'z', "Unexpected front().");
   PQXX_CHECK(b.back() == 'z', "Unexpected back().");
   PQXX_CHECK(b.at(0) == 'z', "Unexpected data at index 0.");
-  PQXX_CHECK_THROWS(b.at(1), out_of_range, "Failed to catch range error.");
+  PQXX_CHECK_THROWS(b.at(1), std::out_of_range, "Failed to catch range error.");
 
-  const string simple("ab");
+  const std::string simple("ab");
   b = make_binarystring(tx, simple);
   PQXX_CHECK_EQUAL(
 	b.str(),
@@ -57,8 +59,8 @@ void test_binarystring()
 	"Binary (un)escaping went wrong somewhere.");
   PQXX_CHECK_EQUAL(b.size(), simple.size(), "Escaping confuses length.");
 
-  const string simple_escaped(tx.esc_raw(simple));
-  for (string::size_type i=0; i<simple_escaped.size(); ++i)
+  const std::string simple_escaped(tx.esc_raw(simple));
+  for (std::string::size_type i=0; i<simple_escaped.size(); ++i)
   {
     const unsigned char uc = static_cast<unsigned char>(simple_escaped[i]);
     PQXX_CHECK(uc <= 127, "Non-ASCII byte in escaped string.");
@@ -79,17 +81,17 @@ void test_binarystring()
 	simple,
 	"Binary string is not idempotent.");
 
-  const string bytes("\x01\x23\x23\xa1\x2b\x0c\xff");
+  const std::string bytes("\x01\x23\x23\xa1\x2b\x0c\xff");
   b = make_binarystring(tx, bytes);
   PQXX_CHECK_EQUAL(b.str(), bytes, "Binary data breaks (un)escaping.");
 
-  const string nully("a\0b", 3);
+  const std::string nully("a\0b", 3);
   b = make_binarystring(tx, nully);
   PQXX_CHECK_EQUAL(b.str(), nully, "Nul byte broke binary (un)escaping.");
   PQXX_CHECK_EQUAL(b.size(), 3u, "Nul byte broke binarystring size.");
 
   b = make_binarystring(tx, "foo");
-  PQXX_CHECK_EQUAL(string(b.get(), 3), "foo", "get() appears broken.");
+  PQXX_CHECK_EQUAL(std::string(b.get(), 3), "foo", "get() appears broken.");
 
   binarystring b1 = make_binarystring(tx, "1"), b2 = make_binarystring(tx, "2");
   PQXX_CHECK_NOT_EQUAL(b1.get(), b2.get(), "Madness rules.");

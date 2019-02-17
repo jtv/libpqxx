@@ -2,14 +2,13 @@
 
 #include <pqxx/except>
 
-using namespace std;
 using namespace pqxx;
 
 namespace
 {
 void test_exceptions()
 {
-  const string
+  const std::string
     broken_query = "SELECT HORRIBLE ERROR",
     err = "Error message";
 

@@ -1,6 +1,5 @@
 #include "../test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 namespace
@@ -25,7 +24,7 @@ void test_stateless_cursor()
 
   PQXX_CHECK_THROWS(
     empty.retrieve(1, 0),
-    out_of_range,
+    std::out_of_range,
     "Empty cursor tries to retrieve");
 
   stateless_cursor<cursor_base::read_only, cursor_base::owned> stateless(

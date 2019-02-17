@@ -2,7 +2,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -14,9 +13,10 @@ namespace
 void test_001()
 {
   connection conn;
-  cout << "Connected to database." << endl
-       << "Backend version: " << conn.server_version() << endl
-       << "Protocol version: " << conn.protocol_version() << endl;
+  std::cout
+	<< "Connected to database." << std::endl
+	<< "Backend version: " << conn.server_version() << std::endl
+	<< "Protocol version: " << conn.protocol_version() << std::endl;
 
   // Begin a transaction acting on our current connection.  Give it a human-
   // readable name so the library can include it in error messages.
@@ -34,7 +34,9 @@ void test_001()
     // Dump row number and column 0 value to cout.  Read the value using
     // as(), which converts the field to the same type as the default value
     // you give it (or returns the default value if the field is null).
-    cout << '\t' << to_string(c.num()) << '\t' << c[0].as(string{}) << endl;
+    std::cout
+	<< '\t' << to_string(c.num()) << '\t' << c[0].as(std::string{})
+	<< std::endl;
   }
 
   tx.commit();

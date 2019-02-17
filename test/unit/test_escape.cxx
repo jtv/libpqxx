@@ -2,14 +2,13 @@
 
 #include "../test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 namespace
 {
 void compare_esc(connection_base &c, transaction_base &t, const char str[])
 {
-  const size_t len = string{str}.size();
+  const size_t len = std::string{str}.size();
   PQXX_CHECK_EQUAL(c.esc(str, len),
 	t.esc(str, len),
 	"Connection & transaction escape differently.");
@@ -18,12 +17,12 @@ void compare_esc(connection_base &c, transaction_base &t, const char str[])
 	t.esc(str),
 	"Length argument to esc() changes result.");
 
-  PQXX_CHECK_EQUAL(t.esc(string{str}),
+  PQXX_CHECK_EQUAL(t.esc(std::string{str}),
 	t.esc(str),
 	"esc(std::string()) differs from esc(const char[]).");
 
   PQXX_CHECK_EQUAL(str,
-	t.exec("SELECT '" + t.esc(str, len) + "'")[0][0].as<string>(),
+	t.exec("SELECT '" + t.esc(str, len) + "'")[0][0].as<std::string>(),
 	"esc() is not idempotent.");
 
   PQXX_CHECK_EQUAL(t.esc(str, len),
@@ -53,7 +52,10 @@ void test_quote(connection_base &c, transaction_base &t)
   PQXX_CHECK_EQUAL(t.quote(0), "'0'", "Quoting zero is a problem.");
   const char *const null_ptr = nullptr;
   PQXX_CHECK_EQUAL(t.quote(null_ptr), "NULL", "Not quoting NULL correctly.");
-  PQXX_CHECK_EQUAL(t.quote(string{"'"}), "''''", "Escaping quotes goes wrong.");
+  PQXX_CHECK_EQUAL(
+	t.quote(std::string{"'"}),
+	"''''",
+	"Escaping quotes goes wrong.");
 
   PQXX_CHECK_EQUAL(t.quote("x"),
 	c.quote("x"),
@@ -76,7 +78,7 @@ void test_quote(connection_base &c, transaction_base &t)
   {
     result r = t.exec("SELECT " + t.quote(test_strings[i]));
     PQXX_CHECK_EQUAL(
-	r[0][0].as<string>(),
+	r[0][0].as<std::string>(),
 	test_strings[i],
 	"Selecting quoted string does not come back equal.");
   }
@@ -90,7 +92,7 @@ void test_quote_name(transaction_base &t)
 	t.quote_name("A b"),
 	"Escaped identifier is not as expected.");
   PQXX_CHECK_EQUAL(
-	string{"A b"},
+	std::string{"A b"},
 	t.exec("SELECT 1 AS " + t.quote_name("A b")).column_name(0),
 	"Escaped identifier does not work in SQL.");
 }
@@ -99,10 +101,10 @@ void test_quote_name(transaction_base &t)
 void test_esc_raw_unesc_raw(transaction_base &t)
 {
   const char binary[] = "1\0023\\4x5";
-  const string data(binary, sizeof(binary));
-  const string escaped = t.esc_raw(data);
+  const std::string data(binary, sizeof(binary));
+  const std::string escaped = t.esc_raw(data);
 
-  cout << "Escaped data: " << escaped << endl;
+  std::cout << "Escaped data: " << escaped << std::endl;
 
   for (const auto i: escaped)
     PQXX_CHECK(isascii(i), "Non-ASCII character in escaped data: " + escaped);

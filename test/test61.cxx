@@ -2,24 +2,23 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
 // Example program for libpqxx.  Test local variable functionality.
 namespace
 {
-string GetDatestyle(transaction_base &T)
+std::string GetDatestyle(transaction_base &T)
 {
   return T.get_variable("DATESTYLE");
 }
 
 
-string SetDatestyle(transaction_base &T, string style)
+std::string SetDatestyle(transaction_base &T, std::string style)
 {
   T.set_variable("DATESTYLE", style);
-  const string fullname = GetDatestyle(T);
-  cout << "Set datestyle to " << style << ": " << fullname << endl;
+  const std::string fullname = GetDatestyle(T);
+  std::cout << "Set datestyle to " << style << ": " << fullname << std::endl;
   PQXX_CHECK(
 	not fullname.empty(),
 	"Setting datestyle to " + style + " makes it an empty string.");
@@ -28,7 +27,7 @@ string SetDatestyle(transaction_base &T, string style)
 }
 
 
-void RedoDatestyle(transaction_base &T, string style, string expected)
+void RedoDatestyle(transaction_base &T, std::string style, std::string expected)
 {
   PQXX_CHECK_EQUAL(SetDatestyle(T, style), expected, "Set wrong datestyle.");
 }
@@ -41,8 +40,8 @@ void test_061()
 
   PQXX_CHECK(not GetDatestyle(tx).empty(), "Initial datestyle not set.");
 
-  const string ISOname = SetDatestyle(tx, "ISO");
-  const string SQLname = SetDatestyle(tx, "SQL");
+  const std::string ISOname = SetDatestyle(tx, "ISO");
+  const std::string SQLname = SetDatestyle(tx, "SQL");
 
   PQXX_CHECK_NOT_EQUAL(ISOname, SQLname, "Same datestyle in SQL and ISO.");
 

@@ -3,13 +3,12 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 // Test program for libpqxx's Large Objects interface.
 namespace
 {
-const string Contents = "Large object test contents";
+const std::string Contents = "Large object test contents";
 
 
 void test_051()
@@ -28,7 +27,7 @@ void test_051()
       char Buf[200];
       const auto Size = sizeof(Buf) - 1;
 
-      auto Offset = A.seek(0, ios::beg);
+      auto Offset = A.seek(0, std::ios::beg);
       PQXX_CHECK_EQUAL(Offset, 0, "Wrong position after seek to beginning.");
 
       PQXX_CHECK_EQUAL(
@@ -43,13 +42,13 @@ void test_051()
 
       // Now write contents again, this time as a conn string
       PQXX_CHECK_EQUAL(
-	A.seek(-int(Contents.size()), ios::end),
+	A.seek(-int(Contents.size()), std::ios::end),
 	0,
 	"Bad position after seeking to beginning of large object.");
 
       using lobj_size_t = largeobjectaccess::size_type;
       A.write(Buf, lobj_size_t(Contents.size()));
-      A.seek(0, ios::beg);
+      A.seek(0, std::ios::beg);
       PQXX_CHECK_EQUAL(
 	size_t(A.read(Buf, Size)),
 	Contents.size(),

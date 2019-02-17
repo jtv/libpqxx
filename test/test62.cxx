@@ -4,7 +4,6 @@
 #include "test_helpers.hxx"
 
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -16,13 +15,13 @@ void test_062()
   connection conn;
   work tx{conn};
 
-  const string TestStr =
+  const std::string TestStr =
 	"Nasty\n\030Test\n\t String with \200\277 weird bytes "
 	"\r\0 and Trailer\\\\\0";
 
   tx.exec0("CREATE TEMP TABLE pqxxbin (binfield bytea)");
 
-  const string
+  const std::string
 	Esc = tx.esc_raw(TestStr),
 	Chk = tx.esc_raw(
 		reinterpret_cast<const unsigned char *>(TestStr.c_str()),
@@ -50,13 +49,13 @@ void test_062()
     const char x = TestStr.at(i), y = char(B.at(i)), z = char(B.data()[i]);
 
     PQXX_CHECK_EQUAL(
-	string(&x, 1),
-	string(&y, 1),
+	std::string(&x, 1),
+	std::string(&y, 1),
 	"Binary string byte changed.");
 
     PQXX_CHECK_EQUAL(
-	string(&y, 1),
-	string(&z, 1),
+	std::string(&y, 1),
+	std::string(&z, 1),
 	"Inconsistent byte at offset " + to_string(i) + ".");
   }
 
@@ -84,7 +83,7 @@ void test_062()
 
   PQXX_CHECK_EQUAL(B.str(), TestStr, "Binary string was mangled.");
 
-  const string TestStr2("(More conventional text)");
+  const std::string TestStr2("(More conventional text)");
   tx.exec0("INSERT INTO pqxxbin VALUES ('" + TestStr2 + "')");
   R = tx.exec("SELECT * FROM pqxxbin");
   binarystring B2(R.front().front());

@@ -3,7 +3,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -28,13 +27,13 @@ void test_075()
 	not (R[0][0] != R[0].at(0)),
 	"result::field::operator!=() is broken.");
 
-  vector<string> contents;
-  for (const auto &i: R) contents.push_back(i.at(0).as<string>());
-  cout << to_string(contents.size()) << " years read" << endl;
+  std::vector<std::string> contents;
+  for (const auto &i: R) contents.push_back(i.at(0).as<std::string>());
+  std::cout << to_string(contents.size()) << " years read" << std::endl;
 
   PQXX_CHECK_EQUAL(
 	contents.size(),
-	vector<string>::size_type(R.size()),
+	std::vector<std::string>::size_type(R.size()),
 	"Number of values does not match result size.");
 
   for (result::size_type i=0; i<R.size(); ++i)
@@ -43,7 +42,7 @@ void test_075()
 	R.at(i).at(0).c_str(),
 	"Inconsistent iteration.");
 
-  cout << to_string(R.size()) << " years checked" << endl;
+  std::cout << to_string(R.size()) << " years checked" << std::endl;
 
   // Thorough test for result::const_reverse_iterator
   result::const_reverse_iterator ri1(R.rbegin()), ri2(ri1), ri3(R.end());

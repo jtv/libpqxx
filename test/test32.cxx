@@ -2,7 +2,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -19,9 +18,9 @@ namespace
 // Let's take a boring year that is not going to be in the "pqxxevents" table
 const int BoringYear = 1977;
 
-pair<int, int> count_events(connection_base &conn, string table)
+std::pair<int, int> count_events(connection_base &conn, std::string table)
 {
-  const string CountQuery = "SELECT count(*) FROM " + table;
+  const std::string CountQuery = "SELECT count(*) FROM " + table;
   row R;
   int all_years, boring_year;
 
@@ -32,11 +31,11 @@ pair<int, int> count_events(connection_base &conn, string table)
   R = tx.exec1(CountQuery + " WHERE year=" + to_string(BoringYear));
   R.front().to(boring_year);
 
-  return make_pair(all_years, boring_year);
+  return std::make_pair(all_years, boring_year);
 }
 
 
-struct deliberate_error : exception
+struct deliberate_error : std::exception
 {
 };
 
@@ -49,9 +48,10 @@ void test_032()
     test::create_pqxxevents(tx);
   }
 
-  const string Table = "pqxxevents";
+  const std::string Table = "pqxxevents";
 
-  const pair<int,int> Before = perform(bind(count_events, ref(conn), Table));
+  const std::pair<int,int> Before = perform(
+	std::bind(count_events, std::ref(conn), Table));
   PQXX_CHECK_EQUAL(
 	Before.second,
 	0,
@@ -73,7 +73,8 @@ void test_032()
 	"Did not get expected exception from failing transactor.");
   }
 
-  const pair<int,int> After = perform(bind(count_events, ref(conn), Table));
+  const std::pair<int,int> After = perform(
+	std::bind(count_events, std::ref(conn), Table));
 
   PQXX_CHECK_EQUAL(After.first, Before.first, "Event count changed.");
   PQXX_CHECK_EQUAL(

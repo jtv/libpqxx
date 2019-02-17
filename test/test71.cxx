@@ -3,7 +3,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -11,7 +10,7 @@ using namespace pqxx;
 // results both in-order and out-of-order.
 namespace
 {
-using Exp = map<pipeline::query_id, int>;
+using Exp = std::map<pipeline::query_id, int>;
 
 template<typename PAIR>
 void checkresult(pipeline &P, PAIR c)
@@ -57,7 +56,8 @@ void test_071()
   for (auto &c: values)
   {
     if (P.is_finished(c.first))
-      cout << "Query #" << c.first << " completed despite retain()" << endl;
+      std::cout
+	<< "Query #" << c.first << " completed despite retain()" << std::endl;
   }
 
   // See that all results are retrieved by complete()

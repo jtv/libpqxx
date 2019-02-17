@@ -2,7 +2,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -14,9 +13,9 @@ void test_086()
   connection conn;
   nontransaction tx1{conn};
 
-  const string Query = "SELECT * from pg_tables";
+  const std::string Query = "SELECT * from pg_tables";
 
-  cout << "Some datum: " << tx1.exec(Query)[0][0] << endl;
+  std::cout << "Some datum: " << tx1.exec(Query)[0][0] << std::endl;
   tx1.commit();
 
 #include <pqxx/internal/ignore-deprecated-pre.hxx>

@@ -2,7 +2,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -19,7 +18,9 @@ void test_063()
   PQXX_CHECK(not R.empty(), "No tables found.  Cannot test.");
 
   for (const auto &c: R)
-    cout << '\t' << to_string(c.num()) << '\t' << c[0].as(string{}) << endl;
+    std::cout
+	<< '\t' << to_string(c.num()) << '\t' << c[0].as(std::string{})
+	<< std::endl;
 
   tx.commit();
 }

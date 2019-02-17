@@ -3,7 +3,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -14,9 +13,9 @@ namespace
  * input formatting, so whitespace will be taken as separators between chunks
  * of data.
  */
-template<typename T> string UnStream(T &Stream)
+template<typename T> std::string UnStream(T &Stream)
 {
-  string Result, X;
+  std::string Result, X;
   while (Stream >> X) Result += X;
   return Result;
 }
@@ -26,7 +25,7 @@ void test_057()
 {
   connection conn;
 
-  const string Contents = "Testing, testing, 1-2-3";
+  const std::string Contents = "Testing, testing, 1-2-3";
 
   largeobject Obj = perform(
     [&conn, &Contents]()
@@ -40,7 +39,7 @@ void test_057()
       return new_obj;
     });
 
-  const string Readback = perform(
+  const std::string Readback = perform(
     [&conn, &Obj]()
     {
       work tx{conn};
@@ -60,11 +59,11 @@ void test_057()
    * stream and then read it back.  We can compare this with what comes back
    * from our large object stream.
    */
-  stringstream TestStream;
+  std::stringstream TestStream;
   TestStream << Contents;
-  const string StreamedContents = UnStream(TestStream);
+  const std::string StreamedContents = UnStream(TestStream);
 
-  cout << StreamedContents << endl << Readback << endl;
+  std::cout << StreamedContents << std::endl << Readback << std::endl;
 
   PQXX_CHECK_EQUAL(Readback, StreamedContents, "Contents were mangled.");
 }

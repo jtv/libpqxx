@@ -2,7 +2,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -18,10 +17,10 @@ void test_016()
   result::const_iterator c;
   for (c = R.begin(); c != R.end(); ++c)
   {
-    string N;
+    std::string N;
     c[0].to(N);
 
-    cout << '\t' << to_string(c.num()) << '\t' << N << endl;
+    std::cout << '\t' << to_string(c.num()) << '\t' << N << std::endl;
   }
 
   // See if back() and row comparison work properly
@@ -34,7 +33,7 @@ void test_016()
 	R.back().size(),
 	"Size mismatch between row iterator and back().");
 
-  const string nullstr;
+  const std::string nullstr;
   for (pqxx::row::size_type i = 0; i < c->size(); ++i)
     PQXX_CHECK_EQUAL(
 	c[i].as(nullstr),

@@ -4,7 +4,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -22,7 +21,7 @@ public:
   explicit TestListener(connection_base &C) :
 	notification_receiver(C, "listen"), m_done(false) {}
 
-  virtual void operator()(const string &, int be_pid) override
+  virtual void operator()(const std::string &, int be_pid) override
   {
     m_done = true;
     PQXX_CHECK_EQUAL(
@@ -30,7 +29,9 @@ public:
 	conn().backendpid(),
 	"Notification came from wrong backend process.");
 
-    cout << "Received notification: " << channel() << " pid=" << be_pid << endl;
+    std::cout
+	<< "Received notification: " << channel() << " pid=" << be_pid
+	<< std::endl;
   }
 
   bool done() const { return m_done; }
@@ -40,10 +41,10 @@ public:
 void test_023()
 {
   lazyconnection C;
-  cout << "Adding listener..." << endl;
+  std::cout << "Adding listener..." << std::endl;
   TestListener L{C};
 
-  cout << "Sending notification..." << endl;
+  std::cout << "Sending notification..." << std::endl;
   perform([&C, &L](){ nontransaction{C}.exec("NOTIFY " + L.channel()); });
 
   int notifs = 0;
@@ -52,9 +53,9 @@ void test_023()
     PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
     pqxx::internal::sleep_seconds(1);
     notifs = C.get_notifs();
-    cout << ".";
+    std::cout << ".";
   }
-  cout << endl;
+  std::cout << std::endl;
 
   PQXX_CHECK(L.done(), "No notification received.");
 

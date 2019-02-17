@@ -4,7 +4,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -27,9 +26,9 @@ int To4Digits(int Y)
 
 
 // Transaction definition for year-field update.  Returns conversions done.
-map<int, int> update_years(connection_base &C)
+std::map<int, int> update_years(connection_base &C)
 {
-  map<int, int> conversions;
+  std::map<int, int> conversions;
   work tx{C};
 
   // First select all different years occurring in the table.
@@ -71,14 +70,14 @@ void test_026()
 
   // Perform (an instantiation of) the UpdateYears transactor we've defined
   // in the code above.  This is where the work gets done.
-  const auto conversions = perform(bind(update_years, ref(conn)));
+  const auto conversions = perform(std::bind(update_years, std::ref(conn)));
 
   // Just for fun, report the exact conversions performed.  Note that this
   // list will be accurate even if other people were modifying the database
   // at the same time; this property was established through use of the
   // transactor framework.
   for (const auto &i: conversions)
-    cout << '\t' << i.first << "\t-> " << i.second << endl;
+    std::cout << '\t' << i.first << "\t-> " << i.second << std::endl;
 }
 
 

@@ -2,7 +2,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -12,7 +11,7 @@ namespace
 {
 void TestPipeline(pipeline &P, int numqueries)
 {
-  const string Q("SELECT 99");
+  const std::string Q("SELECT 99");
 
   for (int i=numqueries; i; --i) P.insert(Q);
 
@@ -25,9 +24,10 @@ void TestPipeline(pipeline &P, int numqueries)
   {
     PQXX_CHECK(not P.empty(), "Got wrong number of queries from pipeline.");
 
-    pair<pipeline::query_id, result> R = P.retrieve();
+    std::pair<pipeline::query_id, result> R = P.retrieve();
 
-    cout << "Query #" << R.first << ": " << R.second.at(0).at(0) << endl;
+    std::cout
+	<< "Query #" << R.first << ": " << R.second.at(0).at(0) << std::endl;
     if (res)
       PQXX_CHECK_EQUAL(
 	R.second[0][0].as<int>(),

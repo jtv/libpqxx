@@ -4,7 +4,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 
@@ -16,14 +15,14 @@ namespace
 // Let's take a boring year that is not going to be in the "pqxxevents" table
 const int BoringYear = 1977;
 
-const string Table("pqxxevents");
+const std::string Table("pqxxevents");
 
 
 // Count events, and boring events, in table
-pair<int,int> CountEvents(transaction_base &T)
+std::pair<int,int> CountEvents(transaction_base &T)
 {
-  const string EventsQuery = "SELECT count(*) FROM " + Table;
-  const string BoringQuery =
+  const std::string EventsQuery = "SELECT count(*) FROM " + Table;
+  const std::string BoringQuery =
 	EventsQuery + " WHERE year=" + to_string(BoringYear);
   int EventsCount = 0,
       BoringCount = 0;
@@ -34,7 +33,7 @@ pair<int,int> CountEvents(transaction_base &T)
   R = T.exec1(BoringQuery);
   R.front().to(BoringCount);
 
-  return make_pair(EventsCount, BoringCount);
+  return std::make_pair(EventsCount, BoringCount);
 }
 
 
@@ -43,7 +42,7 @@ pair<int,int> CountEvents(transaction_base &T)
 // performed correctly.
 void Test(connection_base &C, bool ExplicitAbort)
 {
-  pair<int,int> EventCounts;
+  std::pair<int,int> EventCounts;
 
   // First run our doomed transaction.  This will refuse to run if an event
   // exists for our Boring Year.

@@ -4,12 +4,11 @@
 
 #include "test_helpers.hxx"
 
-using namespace std;
 using namespace pqxx;
 
 namespace
 {
-const string Contents = "Large object test contents";
+const std::string Contents = "Large object test contents";
 
 
 // Mixed-mode, seeking test program for libpqxx's Large Objects interface.
@@ -32,7 +31,7 @@ void test_058()
 	"Could read bytes from large object after writing.");
 
       // Overwrite terminating zero.
-      auto Here = A.seek(-1, ios::cur);
+      auto Here = A.seek(-1, std::ios::cur);
       PQXX_CHECK_EQUAL(
 	Here,
 	largeobject::size_type(Contents.size()-1),
@@ -42,7 +41,7 @@ void test_058()
 
       // Now check that we really did.
       PQXX_CHECK_EQUAL(
-	A.seek(-1, ios::cur),
+	A.seek(-1, std::ios::cur),
 	largeobject::size_type(Contents.size()-1),
 	"Inconsistent seek.");
 
@@ -51,10 +50,13 @@ void test_058()
 	A.read(&Check, 1),
 	1,
 	"Unexpected result from read().");
-      PQXX_CHECK_EQUAL(string(&Check, 1), "!", "Read back wrong character.");
+      PQXX_CHECK_EQUAL(
+	std::string(&Check, 1),
+	"!",
+	"Read back wrong character.");
 
       PQXX_CHECK_EQUAL(
-	A.seek(0, ios::beg),
+	A.seek(0, std::ios::beg),
 	0,
 	"Ended up in wrong place after seeking back to beginning.");
 
@@ -64,8 +66,8 @@ void test_058()
 	"Unexpected result when trying to read back 1st byte.");
 
       PQXX_CHECK_EQUAL(
-	string(&Check, 1),
-	string(Contents, 0, 1),
+	std::string(&Check, 1),
+	std::string(Contents, 0, 1),
 	"Wrong first character in large object.");
 
       // Clean up after ourselves
