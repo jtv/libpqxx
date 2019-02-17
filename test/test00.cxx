@@ -20,7 +20,7 @@ template<typename T> inline void strconv(
 	const T &Obj,
 	std::string expected)
 {
-  const std::string Objstr(to_string(Obj));
+  const std::string Objstr{to_string(Obj)};
 
   check(expected, Objstr, type);
   T NewObj;
