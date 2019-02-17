@@ -576,6 +576,16 @@ std::string string_traits<unsigned long>::to_string(unsigned long Obj)
   return wrap_to_chars(Obj, 10);
 }
 
+std::string string_traits<long long>::to_string(long long Obj)
+{
+  return wrap_to_chars(Obj, 10);
+}
+
+std::string string_traits<unsigned long long>::to_string(unsigned long long Obj)
+{
+  return wrap_to_chars(Obj, 10);
+}
+
 #endif
 
 
