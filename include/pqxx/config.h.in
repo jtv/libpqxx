@@ -72,6 +72,12 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
+/* Define if <charconv> supports floating-point conversion. */
+#undef PQXX_HAVE_CHARCONV_FLOAT
+
+/* Define if <charconv> supports integer conversion. */
+#undef PQXX_HAVE_CHARCONV_INT
+
 /* Define if compiler supports [[deprecated]] attribute */
 #undef PQXX_HAVE_DEPRECATED
 

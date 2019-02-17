@@ -8,10 +8,20 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
+#include <algorithm>
 #include <cmath>
 #include <cstring>
 #include <limits>
 #include <locale>
+#include <system_error>
+
+#if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
+#include <charconv>
+#endif
+
+#if __cplusplus >= 201703
+#include <string_view>
+#endif
 
 #include "pqxx/except"
 #include "pqxx/strconv"
@@ -23,17 +33,98 @@ using namespace pqxx::internal;
 namespace
 {
 
+/// C string comparison.
+inline bool equal(const char lhs[], const char rhs[])
+{
+  return strcmp(lhs, rhs) == 0;
+}
+
+
+#if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
+
+template<typename T> void wrap_from_chars(std::string_view in, T &out)
+{
+  using traits = pqxx::string_traits<T>;
+  const char *end = in.data() + in.size();
+  const auto res = std::from_chars(in.data(), end, out);
+  if (res.ec == std::errc() and res.ptr == end) return;
+
+  std::string msg;
+  if (res.ec == std::errc())
+  {
+    msg = "Could not parse full string.";
+  }
+  else switch (res.ec)
+  {
+  case std::errc::result_out_of_range:
+    msg = "Value out of range.";
+    break;
+  case std::errc::invalid_argument:
+    msg = "Invalid argument.";
+    break;
+  default:
+    break;
+  }
+
+  const std::string base =
+	"Could not convert '" + std::string(in) + "' "
+	"to " + traits::name();
+  if (msg.empty()) throw pqxx::conversion_error{base + "."};
+  else throw pqxx::conversion_error{base + ": " + msg};
+}
+
+/// How big of a buffer do we want for representing a T?
+template<typename T> constexpr int size_buffer()
+{
+  using lim = std::numeric_limits<T>;
+  // Allocate room for how many digits?  There's "max_digits10" for
+  // floating-point numbers, but only "digits10" for integer types.
+  constexpr auto digits = std::max({lim::digits10, lim::max_digits10});
+  // Leave a little bit of extra room for signs, decimal points, and the like.
+  return digits + 4;
+}
+
+template<typename T, typename X> std::string wrap_to_chars(T in, X x)
+{
+  using traits = pqxx::string_traits<T>;
+  char buf[size_buffer<T>()];
+  const auto res = std::to_chars(buf, buf + sizeof(buf), in, x);
+  if (res.ec == std::errc()) return std::string(buf, res.ptr);
+
+  std::string msg;
+  switch (res.ec)
+  {
+  case std::errc::value_too_large:
+    msg = "Value too large.";
+    break;
+  default:
+    break;
+  }
+
+  const std::string base =
+    std::string{"Could not convert "} + traits::name() + " to string";
+  if (msg.empty()) throw pqxx::conversion_error{base + "."};
+  else throw pqxx::conversion_error{base + ": " + msg};
+}
+
+#endif
+
+
+#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 template<typename T> inline void set_to_Inf(T &t, int sign=1)
 {
   T value = std::numeric_limits<T>::infinity();
   if (sign < 0) value = -value;
   t = value;
 }
+#endif
 
+
+#if !defined(PQXX_HAVE_CHARCONV_INT)
 
 [[noreturn]] void report_overflow()
 {
-  throw pqxx::failure{
+  throw pqxx::conversion_error{
 	"Could not convert string to integer: value out of range."};
 }
 
@@ -102,7 +193,7 @@ template<typename T> void from_string_signed(const char Str[], T &Obj)
   if (not isdigit(Str[i]))
   {
     if (Str[i] != '-')
-      throw pqxx::failure{
+      throw pqxx::conversion_error{
         "Could not convert string to integer: '" + std::string{Str} + "'."};
 
     for (++i; isdigit(Str[i]); ++i)
@@ -115,7 +206,7 @@ template<typename T> void from_string_signed(const char Str[], T &Obj)
   }
 
   if (Str[i])
-    throw pqxx::failure{
+    throw pqxx::conversion_error{
       "Unexpected text after integer: '" + std::string{Str} + "'."};
 
   Obj = result;
@@ -127,7 +218,7 @@ template<typename T> void from_string_unsigned(const char Str[], T &Obj)
   T result = 0;
 
   if (not isdigit(Str[i]))
-    throw pqxx::failure{
+    throw pqxx::conversion_error{
       "Could not convert string to unsigned integer: '" +
       std::string{Str} + "'."};
 
@@ -135,22 +226,15 @@ template<typename T> void from_string_unsigned(const char Str[], T &Obj)
     result = absorb_digit(result, digit_to_number(Str[i]));
 
   if (Str[i])
-    throw pqxx::failure{
+    throw pqxx::conversion_error{
       "Unexpected text after integer: '" + std::string{Str} + "'."};
 
   Obj = result;
 }
+#endif
 
 
-namespace
-{
-/// C string comparison.
-inline bool equal(const char lhs[], const char rhs[])
-{
-  return strcmp(lhs, rhs) == 0;
-}
-} // namespace
-
+#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 
 bool valid_infinity_string(const char str[]) noexcept
 {
@@ -237,12 +321,17 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
   }
 
   if (not ok)
-    throw pqxx::failure{
+    throw pqxx::conversion_error{
       "Could not convert string to numeric value: '" +
       std::string{Str} + "'."};
 
   Obj = result;
 }
+
+#endif
+
+
+#if !defined(PQXX_HAVE_CHARCONV_INT)
 
 template<typename T> inline std::string to_string_unsigned(T Obj)
 {
@@ -262,6 +351,9 @@ template<typename T> inline std::string to_string_unsigned(T Obj)
   return p;
 }
 
+#endif
+
+#if !defined(PQXX_HAVE_CHARCONV_INT) || !defined(PQXX_HAVE_CHARCONV_FLOAT)
 template<typename T> inline std::string to_string_fallback(T Obj)
 {
   thread_local dumb_stringstream<T> S;
@@ -269,16 +361,20 @@ template<typename T> inline std::string to_string_fallback(T Obj)
   S << Obj;
   return S.str();
 }
+#endif
 
 
+#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 template<typename T> inline std::string to_string_float(T Obj)
 {
   if (std::isnan(Obj)) return "nan";
   if (std::isinf(Obj)) return Obj > 0 ? "infinity" : "-infinity";
   return to_string_fallback(Obj);
 }
+#endif
 
 
+#if !defined(PQXX_HAVE_CHARCONV_INT)
 template<typename T> inline std::string to_string_signed(T Obj)
 {
   if (Obj < 0)
@@ -294,6 +390,7 @@ template<typename T> inline std::string to_string_signed(T Obj)
 
   return to_string_unsigned(Obj);
 }
+#endif
 
 } // namespace
 
@@ -358,7 +455,7 @@ void string_traits<bool>::from_string(const char Str[], bool &Obj)
   }
 
   if (not OK)
-    throw argument_error{
+    throw conversion_error{
       "Failed conversion to bool: '" + std::string{Str} + "'."};
 
   Obj = result;
@@ -370,6 +467,139 @@ std::string string_traits<bool>::to_string(bool Obj)
   return Obj ? "true" : "false";
 }
 
+
+#if defined(PQXX_HAVE_CHARCONV_INT)
+
+void string_traits<short>::from_string(const char Str[], short &Obj)
+{
+  wrap_from_chars(std::string_view{Str}, Obj);
+}
+
+void string_traits<unsigned short>::from_string(
+	const char Str[],
+	unsigned short &Obj)
+{
+  wrap_from_chars(std::string_view{Str}, Obj);
+}
+
+
+void string_traits<int>::from_string(const char Str[], int &Obj)
+{
+  wrap_from_chars(std::string_view{Str}, Obj);
+}
+
+void string_traits<unsigned int>::from_string(
+	const char Str[],
+	unsigned int &Obj)
+{
+  wrap_from_chars(std::string_view{Str}, Obj);
+}
+
+void string_traits<long>::from_string(const char Str[], long &Obj)
+{
+  wrap_from_chars(std::string_view{Str}, Obj);
+}
+
+void string_traits<unsigned long>::from_string(
+	const char Str[],
+	unsigned long &Obj)
+{
+  wrap_from_chars(std::string_view{Str}, Obj);
+}
+
+void string_traits<long long>::from_string(const char Str[], long long &Obj)
+{
+  wrap_from_chars(std::string_view{Str}, Obj);
+}
+
+void string_traits<unsigned long long>::from_string(
+	const char Str[],
+	unsigned long long &Obj)
+{
+  wrap_from_chars(std::string_view{Str}, Obj);
+}
+
+#endif
+
+
+#if defined(PQXX_HAVE_CHARCONV_FLOAT)
+
+void string_traits<float>::from_string(const char Str[], float &Obj)
+{
+  wrap_from_chars(std::string_view{Str}, Obj);
+}
+
+void string_traits<double>::from_string(const char Str[], double &Obj)
+{
+  wrap_from_chars(std::string_view{Str}, Obj);
+}
+
+void string_traits<long double>::from_string(
+	const char Str[],
+	long double &Obj)
+{
+  wrap_from_chars(std::string_view{Str}, Obj);
+}
+
+#endif
+
+
+#if defined(PQXX_HAVE_CHARCONV_INT)
+
+std::string string_traits<short>::to_string(short Obj)
+{
+  return wrap_to_chars(Obj, 10);
+}
+
+std::string string_traits<unsigned short>::to_string(unsigned short Obj)
+{
+  return wrap_to_chars(Obj, 10);
+}
+
+std::string string_traits<int>::to_string(int Obj)
+{
+  return wrap_to_chars(Obj, 10);
+}
+
+std::string string_traits<unsigned int>::to_string(unsigned int Obj)
+{
+  return wrap_to_chars(Obj, 10);
+}
+
+std::string string_traits<long>::to_string(long Obj)
+{
+  return wrap_to_chars(Obj, 10);
+}
+
+std::string string_traits<unsigned long>::to_string(unsigned long Obj)
+{
+  return wrap_to_chars(Obj, 10);
+}
+
+#endif
+
+
+#if defined(PQXX_HAVE_CHARCONV_FLOAT)
+
+std::string string_traits<float>::to_string(float Obj)
+{
+  return wrap_to_chars(Obj, std::chars_format::general);
+}
+
+std::string string_traits<double>::to_string(double Obj)
+{
+  return wrap_to_chars(Obj, std::chars_format::general);
+}
+
+std::string string_traits<long double>::to_string(long double Obj)
+{
+  return wrap_to_chars(Obj, std::chars_format::general);
+}
+
+#endif
+
+
+#if !defined(PQXX_HAVE_CHARCONV_INT)
 
 void string_traits<short>::from_string(const char Str[], short &Obj)
 {
@@ -475,6 +705,10 @@ std::string string_traits<unsigned long long>::to_string(
   return to_string_unsigned(Obj);
 }
 
+#endif
+
+
+#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 
 void string_traits<float>::from_string(const char Str[], float &Obj)
 {
@@ -510,5 +744,7 @@ std::string string_traits<long double>::to_string(long double Obj)
 {
   return to_string_float(Obj);
 }
+
+#endif
 
 } // namespace pqxx

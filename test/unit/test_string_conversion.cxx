@@ -1,3 +1,5 @@
+#include <cstdint>
+
 #include "../test_helpers.hxx"
 
 using namespace std;
@@ -64,10 +66,10 @@ void test_string_conversion()
   // Bug #263 describes a case where this kind of overflow went undetected.
   if (sizeof(unsigned int) == 4)
   {
-    unsigned int u;
+    std::uint32_t u;
     PQXX_CHECK_THROWS(
 	from_string("4772185884", u),
-	pqxx::failure,
+	pqxx::conversion_error,
 	"Overflow not detected.");
   }
 

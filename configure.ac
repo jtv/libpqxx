@@ -252,10 +252,69 @@ AC_MSG_RESULT($have_exp_optional)
 fi
 
 
+# It's early 2019, and gcc's charconv supports integers but not yet floats.
+# So for now, we test for int and float conversion... separately.
+#
+# It's worse for clang, which compiles the integer conversions but then fails
+# at link time because of a missing symbol "__muloti4" when compiling
+# "long long" code.  I couldn't resolve that symbol by adding -lm either.  So
+# don't just compile these tests; link them as well.
+AC_MSG_CHECKING([for C++17 charconv integer conversion])
+have_charconv_int=yes
+AC_LINK_IFELSE(
+	[AC_LANG_PROGRAM(
+		[#include <charconv>],
+		[[
+			char z[100];
+			using ull = unsigned long long;
+			auto rt = std::to_chars(z, z + sizeof(z), ull{0});
+			if (rt.ec != std::errc{}) return 1;
+			ull n;
+			auto rf = std::from_chars(z, z + sizeof(z), n);
+			if (rf.ec != std::errc{}) return 2;
+			return int(n)
+		]]
+	)],
+	AC_DEFINE(
+		[PQXX_HAVE_CHARCONV_INT],
+		1,
+		[Define if <charconv> supports integer conversion.]),
+	have_charconv_int=no)
+AC_MSG_RESULT($have_charconv_int)
+
+AC_MSG_CHECKING([for C++17 charconv floating-point conversion])
+have_charconv_float=yes
+AC_LINK_IFELSE(
+	[AC_LANG_PROGRAM(
+		[#include <charconv>],
+		[[
+			char z[100];
+			using ld = long double;
+			auto rt = std::to_chars(
+				z, z + sizeof(z), ld{0.1},
+				std::chars_format::generic);
+			if (rt.ec != std::errc{}) return 1;
+			ld n;
+			auto rf = std::from_chars(z, z + sizeof(z), n);
+			if (rf.ec != std::errc{}) return 2;
+			return int(n)
+		]]
+	)],
+	AC_DEFINE(
+		[PQXX_HAVE_CHARCONV_FLOAT],
+		1,
+		[Define if <charconv> supports floating-point conversion.]),
+	have_charconv_float=no)
+AC_MSG_RESULT($have_charconv_float)
+
 AX_HAVE_POLL(
         [AX_CONFIG_FEATURE_ENABLE(poll)],
         [AX_CONFIG_FEATURE_DISABLE(poll)])
-AX_CONFIG_FEATURE([poll], [System supports poll().], [HAVE_POLL], [System supports poll().])
+AX_CONFIG_FEATURE(
+	[poll],
+	[System supports poll().],
+	[HAVE_POLL],
+	[System supports poll().])
 
 if test "$ax_cv_have_poll" != "yes"
 then
