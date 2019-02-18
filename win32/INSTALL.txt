@@ -10,7 +10,7 @@ they are for other environments.
 
 The only Windows compilers currently documented here are:
 
-	Visual C++ (2015 or above)
+	Visual C++ (the newer the better)
 	MinGW
 
 If you are using a different compiler, you should still be able to get it to
