@@ -2,7 +2,7 @@
  *
  * DO NOT INCLUDE THIS FILE when building client programs.
  *
- * Copyright (c) 2002-2017, Jeroen T. Vermeulen.
+ * Copyright (c) 2002-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -20,7 +20,6 @@
 #ifdef PQXX_SHARED
 #undef  PQXX_LIBEXPORT
 #define PQXX_LIBEXPORT	__declspec(dllexport)
-// TODO: Does Windows have a way to "unexport" a symbol in an exported class?
 #define PQXX_PRIVATE	__declspec()
 #endif	// PQXX_SHARED
 

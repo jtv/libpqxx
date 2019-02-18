@@ -44,7 +44,6 @@ namespace pqxx
  */
 //@{
 
-// TODO: Probably better not to supply a default template.
 /// Traits class for use in string conversions
 /** Specialize this template for a type that you wish to add to_string and
  * from_string support for.
@@ -220,7 +219,7 @@ template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
 };
 
 
-// TODO: Implement date conversions
+// TODO: Implement date conversions.
 
 /// Attempt to convert postgres-generated string to given built-in type
 /** If the form of the value found in the string does not match the expected

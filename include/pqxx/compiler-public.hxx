@@ -48,7 +48,6 @@
  * by the compiler when linking to the dynamic version of the runtime library,
  * according to "gzh"
  */
-// TODO: Define custom macro to govern how libpqxx will be linked to client
 #if !defined(PQXX_LIBEXPORT) && defined(PQXX_SHARED)
 #define PQXX_LIBEXPORT __declspec(dllimport)
 #endif	// !PQXX_LIBEXPORT && PQXX_SHARED
