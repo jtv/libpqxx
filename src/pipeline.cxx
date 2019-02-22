@@ -26,9 +26,9 @@ using namespace pqxx::internal;
 
 namespace
 {
-const std::string theSeparator("; ");
-const std::string theDummyValue("1");
-const std::string theDummyQuery("SELECT " + theDummyValue + theSeparator);
+const std::string theSeparator{"; "};
+const std::string theDummyValue{"1"};
+const std::string theDummyQuery{"SELECT " + theDummyValue + theSeparator};
 }
 
 
