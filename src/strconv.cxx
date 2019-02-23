@@ -43,16 +43,93 @@ using namespace pqxx::internal;
 
 namespace
 {
-
 /// C string comparison.
 inline bool equal(const char lhs[], const char rhs[])
 {
   return strcmp(lhs, rhs) == 0;
 }
+} // namespace
+
+
+namespace pqxx
+{
+namespace internal
+{
+void throw_null_conversion(const std::string &type)
+{
+  throw conversion_error{"Attempt to convert null to " + type + "."};
+}
+} // namespace pqxx::internal
+} // namespace pqxx
+
+
+namespace pqxx
+{
+void string_traits<bool>::from_string(const char Str[], bool &Obj)
+{
+  bool OK, result=false;
+
+  switch (Str[0])
+  {
+  case 0:
+    result = false;
+    OK = true;
+    break;
+
+  case 'f':
+  case 'F':
+    result = false;
+    OK = not (
+	(Str[1] != '\0') and
+	(not equal(Str+1, "alse")) and
+	(not equal(Str+1, "ALSE")));
+    break;
+
+  case '0':
+    {
+      int I;
+      string_traits<int>::from_string(Str, I);
+      result = (I != 0);
+      OK = ((I == 0) or (I == 1));
+    }
+    break;
+
+  case '1':
+    result = true;
+    OK = (Str[1] == '\0');
+    break;
+
+  case 't':
+  case 'T':
+    result = true;
+    OK = not (
+	(Str[1] != '\0') and
+	(not equal(Str+1, "rue")) and
+	(not equal(Str+1, "RUE")));
+    break;
+
+  default:
+    OK = false;
+  }
+
+  if (not OK)
+    throw conversion_error{
+      "Failed conversion to bool: '" + std::string{Str} + "'."};
+
+  Obj = result;
+}
+
+
+std::string string_traits<bool>::to_string(bool Obj)
+{
+  return Obj ? "true" : "false";
+}
+} // namespace pqxx
 
 
 #if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
-
+namespace
+{
 template<typename T> void wrap_from_chars(std::string_view in, T &out)
 {
   using traits = pqxx::string_traits<T>;
@@ -117,22 +194,26 @@ template<typename T, typename X> std::string wrap_to_chars(T in, X x)
   if (msg.empty()) throw pqxx::conversion_error{base + "."};
   else throw pqxx::conversion_error{base + ": " + msg};
 }
-
-#endif
+} // namespace
+#endif // PQXX_HAVE_CHARCONV_INT || PQXX_HAVE_CHARCONV_FLOAT
 
 
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
+namespace
+{
 template<typename T> inline void set_to_Inf(T &t, int sign=1)
 {
   T value = std::numeric_limits<T>::infinity();
   if (sign < 0) value = -value;
   t = value;
 }
-#endif
+} // namespace
+#endif // !PQXX_HAVE_CHARCONV_FLOAT
 
 
 #if !defined(PQXX_HAVE_CHARCONV_INT)
-
+namespace
+{
 [[noreturn]] void report_overflow()
 {
   throw pqxx::conversion_error{
@@ -242,11 +323,13 @@ template<typename T> void from_string_unsigned(const char Str[], T &Obj)
 
   Obj = result;
 }
-#endif
+} // namespace
+#endif // !PQXX_HAVE_CHARCONV_INT
 
 
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
-
+namespace
+{
 bool valid_infinity_string(const char str[]) noexcept
 {
   return
@@ -338,12 +421,13 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
 
   Obj = result;
 }
-
-#endif
+} // namespace
+#endif // !PQXX_HAVE_CHARCONV_FLOAT
 
 
 #if !defined(PQXX_HAVE_CHARCONV_INT)
-
+namespace
+{
 template<typename T> inline std::string to_string_unsigned(T Obj)
 {
   if (not Obj) return "0";
@@ -361,10 +445,13 @@ template<typename T> inline std::string to_string_unsigned(T Obj)
   }
   return p;
 }
+} // namespace
+#endif // !PQXX_HAVE_CHARCONV_INT
 
-#endif
 
 #if !defined(PQXX_HAVE_CHARCONV_INT) || !defined(PQXX_HAVE_CHARCONV_FLOAT)
+namespace
+{
 template<typename T> inline std::string to_string_fallback(T Obj)
 {
   thread_local dumb_stringstream<T> S;
@@ -372,20 +459,26 @@ template<typename T> inline std::string to_string_fallback(T Obj)
   S << Obj;
   return S.str();
 }
-#endif
+} // namespace
+#endif // !PQXX_HAVE_CHARCONV_INT || !PQXX_HAVE_CHARCONV_FLOAT
 
 
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
+namespace
+{
 template<typename T> inline std::string to_string_float(T Obj)
 {
   if (std::isnan(Obj)) return "nan";
   if (std::isinf(Obj)) return Obj > 0 ? "infinity" : "-infinity";
   return to_string_fallback(Obj);
 }
-#endif
+} // namespace
+#endif // !PQXX_HAVE_CHARCONV_FLOAT
 
 
 #if !defined(PQXX_HAVE_CHARCONV_INT)
+namespace
+{
 template<typename T> inline std::string to_string_signed(T Obj)
 {
   if (Obj < 0)
@@ -401,371 +494,154 @@ template<typename T> inline std::string to_string_signed(T Obj)
 
   return to_string_unsigned(Obj);
 }
-#endif
-
 } // namespace
-
-
-namespace pqxx
-{
-
-namespace internal
-{
-void throw_null_conversion(const std::string &type)
-{
-  throw conversion_error{"Attempt to convert null to " + type + "."};
-}
-} // namespace pqxx::internal
-
-
-void string_traits<bool>::from_string(const char Str[], bool &Obj)
-{
-  bool OK, result=false;
-
-  switch (Str[0])
-  {
-  case 0:
-    result = false;
-    OK = true;
-    break;
-
-  case 'f':
-  case 'F':
-    result = false;
-    OK = not (
-	(Str[1] != '\0') and
-	(not equal(Str+1, "alse")) and
-	(not equal(Str+1, "ALSE")));
-    break;
-
-  case '0':
-    {
-      int I;
-      string_traits<int>::from_string(Str, I);
-      result = (I != 0);
-      OK = ((I == 0) or (I == 1));
-    }
-    break;
-
-  case '1':
-    result = true;
-    OK = (Str[1] == '\0');
-    break;
-
-  case 't':
-  case 'T':
-    result = true;
-    OK = not (
-	(Str[1] != '\0') and
-	(not equal(Str+1, "rue")) and
-	(not equal(Str+1, "RUE")));
-    break;
-
-  default:
-    OK = false;
-  }
-
-  if (not OK)
-    throw conversion_error{
-      "Failed conversion to bool: '" + std::string{Str} + "'."};
-
-  Obj = result;
-}
-
-
-std::string string_traits<bool>::to_string(bool Obj)
-{
-  return Obj ? "true" : "false";
-}
+#endif // !PQXX_HAVE_CHARCONV_INT
 
 
 #if defined(PQXX_HAVE_CHARCONV_INT)
-
-void string_traits<short>::from_string(const char Str[], short &Obj)
+namespace pqxx
 {
-  wrap_from_chars(std::string_view{Str}, Obj);
-}
-
+void string_traits<short>::from_string(const char Str[], short &Obj)
+	{ wrap_from_chars(std::string_view{Str}, Obj); }
 void string_traits<unsigned short>::from_string(
 	const char Str[],
 	unsigned short &Obj)
-{
-  wrap_from_chars(std::string_view{Str}, Obj);
-}
-
-
+	{ wrap_from_chars(std::string_view{Str}, Obj); }
 void string_traits<int>::from_string(const char Str[], int &Obj)
-{
-  wrap_from_chars(std::string_view{Str}, Obj);
-}
-
+	{ wrap_from_chars(std::string_view{Str}, Obj); }
 void string_traits<unsigned int>::from_string(
 	const char Str[],
 	unsigned int &Obj)
-{
-  wrap_from_chars(std::string_view{Str}, Obj);
-}
-
+	{ wrap_from_chars(std::string_view{Str}, Obj); }
 void string_traits<long>::from_string(const char Str[], long &Obj)
-{
-  wrap_from_chars(std::string_view{Str}, Obj);
-}
-
+	{ wrap_from_chars(std::string_view{Str}, Obj); }
 void string_traits<unsigned long>::from_string(
 	const char Str[],
 	unsigned long &Obj)
-{
-  wrap_from_chars(std::string_view{Str}, Obj);
-}
-
+	{ wrap_from_chars(std::string_view{Str}, Obj); }
 void string_traits<long long>::from_string(const char Str[], long long &Obj)
-{
-  wrap_from_chars(std::string_view{Str}, Obj);
-}
-
+	{ wrap_from_chars(std::string_view{Str}, Obj); }
 void string_traits<unsigned long long>::from_string(
 	const char Str[],
 	unsigned long long &Obj)
-{
-  wrap_from_chars(std::string_view{Str}, Obj);
-}
-
-#endif
+	{ wrap_from_chars(std::string_view{Str}, Obj); }
+} // namespace pqxx
+#endif // PQXX_HAVE_CHARCONV_INT
 
 
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
-
+namespace pqxx
+{
 void string_traits<float>::from_string(const char Str[], float &Obj)
-{
-  wrap_from_chars(std::string_view{Str}, Obj);
-}
-
+	{ wrap_from_chars(std::string_view{Str}, Obj); }
 void string_traits<double>::from_string(const char Str[], double &Obj)
-{
-  wrap_from_chars(std::string_view{Str}, Obj);
-}
-
+	{ wrap_from_chars(std::string_view{Str}, Obj); }
 void string_traits<long double>::from_string(
 	const char Str[],
 	long double &Obj)
-{
-  wrap_from_chars(std::string_view{Str}, Obj);
-}
-
-#endif
+	{ wrap_from_chars(std::string_view{Str}, Obj); }
+} // namespace pqxx
+#endif // PQXX_HAVE_CHARCONV_FLOAT
 
 
 #if defined(PQXX_HAVE_CHARCONV_INT)
-
+namespace pqxx
+{
 std::string string_traits<short>::to_string(short Obj)
-{
-  return wrap_to_chars(Obj, 10);
-}
-
+	{ return wrap_to_chars(Obj, 10); }
 std::string string_traits<unsigned short>::to_string(unsigned short Obj)
-{
-  return wrap_to_chars(Obj, 10);
-}
-
+	{ return wrap_to_chars(Obj, 10); }
 std::string string_traits<int>::to_string(int Obj)
-{
-  return wrap_to_chars(Obj, 10);
-}
-
+	{ return wrap_to_chars(Obj, 10); }
 std::string string_traits<unsigned int>::to_string(unsigned int Obj)
-{
-  return wrap_to_chars(Obj, 10);
-}
-
+	{ return wrap_to_chars(Obj, 10); }
 std::string string_traits<long>::to_string(long Obj)
-{
-  return wrap_to_chars(Obj, 10);
-}
-
+	{ return wrap_to_chars(Obj, 10); }
 std::string string_traits<unsigned long>::to_string(unsigned long Obj)
-{
-  return wrap_to_chars(Obj, 10);
-}
-
+	{ return wrap_to_chars(Obj, 10); }
 std::string string_traits<long long>::to_string(long long Obj)
-{
-  return wrap_to_chars(Obj, 10);
-}
-
+	{ return wrap_to_chars(Obj, 10); }
 std::string string_traits<unsigned long long>::to_string(unsigned long long Obj)
-{
-  return wrap_to_chars(Obj, 10);
-}
-
-#endif
+	{ return wrap_to_chars(Obj, 10); }
+} // namespace pqxx
+#endif // PQXX_HAVE_CHARCONV_INT
 
 
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
-
+namespace pqxx
+{
 std::string string_traits<float>::to_string(float Obj)
-{
-  return wrap_to_chars(Obj, std::chars_format::general);
-}
-
+	{ return wrap_to_chars(Obj, std::chars_format::general); }
 std::string string_traits<double>::to_string(double Obj)
-{
-  return wrap_to_chars(Obj, std::chars_format::general);
-}
-
+	{ return wrap_to_chars(Obj, std::chars_format::general); }
 std::string string_traits<long double>::to_string(long double Obj)
-{
-  return wrap_to_chars(Obj, std::chars_format::general);
-}
-
-#endif
+	{ return wrap_to_chars(Obj, std::chars_format::general); }
+} // namespace pqxx
+#endif // PQXX_HAVE_CHARCONV_FLOAT
 
 
 #if !defined(PQXX_HAVE_CHARCONV_INT)
-
+namespace pqxx
+{
 void string_traits<short>::from_string(const char Str[], short &Obj)
-{
-  from_string_signed(Str, Obj);
-}
-
-
+	{ from_string_signed(Str, Obj); }
 std::string string_traits<short>::to_string(short Obj)
-{
-  return to_string_signed(Obj);
-}
-
-
+	{ return to_string_signed(Obj); }
 void string_traits<unsigned short>::from_string(
 	const char Str[],
 	unsigned short &Obj)
-{
-  from_string_unsigned(Str, Obj);
-}
-
-
+	{ from_string_unsigned(Str, Obj); }
 std::string string_traits<unsigned short>::to_string(unsigned short Obj)
-{
-  return to_string_unsigned(Obj);
-}
-
-
+	{ return to_string_unsigned(Obj); }
 void string_traits<int>::from_string(const char Str[], int &Obj)
-{
-  from_string_signed(Str, Obj);
-}
-
-
+	{ from_string_signed(Str, Obj); }
 std::string string_traits<int>::to_string(int Obj)
-{
-  return to_string_signed(Obj);
-}
-
-
+	{ return to_string_signed(Obj); }
 void string_traits<unsigned int>::from_string(
 	const char Str[],
 	unsigned int &Obj)
-{
-  from_string_unsigned(Str, Obj);
-}
-
-
+	{ from_string_unsigned(Str, Obj); }
 std::string string_traits<unsigned int>::to_string(unsigned int Obj)
-{
-  return to_string_unsigned(Obj);
-}
-
-
+	{ return to_string_unsigned(Obj); }
 void string_traits<long>::from_string(const char Str[], long &Obj)
-{
-  from_string_signed(Str, Obj);
-}
-
-
+	{ from_string_signed(Str, Obj); }
 std::string string_traits<long>::to_string(long Obj)
-{
-  return to_string_signed(Obj);
-}
-
-
+	{ return to_string_signed(Obj); }
 void string_traits<unsigned long>::from_string(
 	const char Str[],
 	unsigned long &Obj)
-{
-  from_string_unsigned(Str, Obj);
-}
-
-
+	{ from_string_unsigned(Str, Obj); }
 std::string string_traits<unsigned long>::to_string(unsigned long Obj)
-{
-  return to_string_unsigned(Obj);
-}
-
-
+	{ return to_string_unsigned(Obj); }
 void string_traits<long long>::from_string(const char Str[], long long &Obj)
-{
-  from_string_signed(Str, Obj);
-}
-
-
+	{ from_string_signed(Str, Obj); }
 std::string string_traits<long long>::to_string(long long Obj)
-{
-  return to_string_signed(Obj);
-}
-
-
+	{ return to_string_signed(Obj); }
 void string_traits<unsigned long long>::from_string(
 	const char Str[],
 	unsigned long long &Obj)
-{
-  from_string_unsigned(Str, Obj);
-}
-
-
+	{ from_string_unsigned(Str, Obj); }
 std::string string_traits<unsigned long long>::to_string(
         unsigned long long Obj)
-{
-  return to_string_unsigned(Obj);
-}
-
-#endif
+	{ return to_string_unsigned(Obj); }
+} // namespace pqxx
+#endif // !PQXX_HAVE_CHARCONV_INT
 
 
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
-
+namespace pqxx
+{
 void string_traits<float>::from_string(const char Str[], float &Obj)
-{
-  from_string_float(Str, Obj);
-}
-
-
+	{ from_string_float(Str, Obj); }
 std::string string_traits<float>::to_string(float Obj)
-{
-  return to_string_float(Obj);
-}
-
-
+	{ return to_string_float(Obj); }
 void string_traits<double>::from_string(const char Str[], double &Obj)
-{
-  from_string_float(Str, Obj);
-}
-
-
+	{ from_string_float(Str, Obj); }
 std::string string_traits<double>::to_string(double Obj)
-{
-  return to_string_float(Obj);
-}
-
-
+	{ return to_string_float(Obj); }
 void string_traits<long double>::from_string(const char Str[], long double &Obj)
-{
-  from_string_float(Str, Obj);
-}
-
-
+	{ from_string_float(Str, Obj); }
 std::string string_traits<long double>::to_string(long double Obj)
-{
-  return to_string_float(Obj);
-}
-
-#endif
-
+	{ return to_string_float(Obj); }
 } // namespace pqxx
+#endif // !PQXX_HAVE_CHARCONV_FLOAT
