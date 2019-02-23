@@ -2,7 +2,7 @@
  *
  * pqxx::transaction represents a regular database transaction.
  *
- * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -31,7 +31,7 @@ void pqxx::internal::basic_transaction::do_commit()
 {
   try
   {
-    direct_exec(internal::sql_commit_work);
+    direct_exec("COMMIT");
   }
   catch (const statement_completion_unknown &e)
   {

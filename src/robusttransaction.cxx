@@ -2,7 +2,7 @@
  *
  * pqxx::robusttransaction is a slower but safer transaction class.
  *
- * Copyright (c) 2002-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2002-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -92,7 +92,7 @@ void pqxx::internal::basic_robusttransaction::do_commit()
   // is.
   try
   {
-    direct_exec(sql_commit_work);
+    direct_exec("COMMIT");
 
     // If we make it here, great.  Normal, successful commit.
     m_record_id = 0;

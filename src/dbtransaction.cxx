@@ -2,7 +2,7 @@
  *
  * pqxx::dbtransaction represents a real backend transaction.
  *
- * Copyright (c) 2004-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2004-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -31,14 +31,7 @@ std::string generate_set_transaction(
 
   if (rw != pqxx::read_write) args += " READ ONLY";
 
-  return args.empty() ?
-	pqxx::internal::sql_begin_work
-	:
-	(
-          std::string{pqxx::internal::sql_begin_work} +
-          "; SET TRANSACTION" +
-          args
-	);
+  return args.empty() ? "BEGIN" : ("BEGIN; SET TRANSACTION" + args);
 }
 } // namespace
 
@@ -95,7 +88,7 @@ pqxx::result pqxx::dbtransaction::do_exec(const char Query[])
 void pqxx::dbtransaction::do_abort()
 {
   reactivation_avoidance_clear();
-  direct_exec(internal::sql_rollback_work);
+  direct_exec("ROLLBACK");
 }
 
 
