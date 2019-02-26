@@ -1,6 +1,6 @@
 /** Type/template metaprogramming utilities for use internally in libpqxx
  *
- * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2001-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -32,14 +32,14 @@ template<typename T> using inner_type = typename std::remove_reference<
   decltype(*std::declval<T>())
 >::type;
 
-/// Detect whether the given type has an `operator *()`.
+/// Does the given type have an `operator *()`?
 template<typename T, typename = void> struct is_derefable : std::false_type {};
 template<typename T> struct is_derefable<T, void_t<
   // Disable for arrays so they don't erroneously decay to pointers.
   inner_type<typename std::enable_if<not std::is_array<T>::value, T>::type>
 >> : std::true_type {};
 
-/// Detect if the given type should be treated as an optional-value wrapper type
+/// Should the given type be treated as an optional-value wrapper type?
 template<typename T, typename = void> struct is_optional : std::false_type {};
 template<typename T> struct is_optional<T, typename std::enable_if<(
   is_derefable<T>::value
@@ -47,8 +47,7 @@ template<typename T> struct is_optional<T, typename std::enable_if<(
   && std::is_constructible<bool, T>::value
 )>::type> : std::true_type {};
 
-/// Detect if `std::nullopt_t`/`std::experimental::nullopt_t` can be implicitly
-/// converted to the given type
+/// Can `nullopt_t` implicitly convert to type T?
 template<
   typename T,
   typename = void
@@ -67,14 +66,14 @@ template<typename T> struct takes_std_nullopt<
 > : std::true_type {};
 #endif
 
-/// Detect if type is a `std::tuple<>`
+/// Is type T a `std::tuple<>`?
 template<typename T, typename = void> struct is_tuple : std::false_type {};
 template<typename T> struct is_tuple<
   T,
   typename std::enable_if<(std::tuple_size<T>::value >= 0)>::type
 > : std::true_type {};
 
-/// Detect if a type is an iterable container
+/// Is type T an iterable container?
 template<typename T, typename = void> struct is_container : std::false_type {};
 template<typename T> struct is_container<
   T,
@@ -87,7 +86,7 @@ template<typename T> struct is_container<
   >
 > : std::true_type {};
 
-/// Get an appropriate null value for the given type
+/// Get an appropriate null value for the given type.
 /**
  * pointer types                         `nullptr`
  * `std::optional<>`-like                `std::nullopt`
@@ -127,7 +126,7 @@ template<typename T> constexpr auto null_value()
 { return std::experimental::nullopt; }
 #endif
 
-/// Construct an optional-like type from the stored type
+/// Construct an optional-like type from the stored type.
 /** 
  * While these may seem redundant, they are necessary to support smart pointers
  * as optional storage types in a generic manner.  It is suggested NOT to
@@ -144,7 +143,7 @@ template<typename T, typename V> constexpr auto make_optional(V&& v)
     decltype(T(std::forward<V>(v)))
   >::type
 { return T(std::forward<V>(v)); }
-// Enabled if T is a specialization of `std::unique_ptr<>`
+// Enabled if T is a specialization of `std::unique_ptr<>`.
 template<typename T, typename V> constexpr auto make_optional(V&& v)
   -> typename std::enable_if<
     std::is_same<T, std::unique_ptr<inner_type<T>>>::value,
@@ -153,7 +152,7 @@ template<typename T, typename V> constexpr auto make_optional(V&& v)
 {
   return std::unique_ptr<inner_type<T>>(new inner_type<T>(std::forward<V>(v)));
 }
-// Enabled if T is a specialization of `std::shared_ptr<>`
+// Enabled if T is a specialization of `std::shared_ptr<>`.
 template<typename T, typename V> constexpr auto make_optional(V&& v)
   -> typename std::enable_if<
     std::is_same<T, std::shared_ptr<inner_type<T>>>::value,
@@ -169,7 +168,7 @@ template<typename T, typename V> constexpr auto make_optional(V&& v)
 namespace pqxx
 {
 
-/// Meta `pqxx::string_traits` for optional types
+/// Meta `pqxx::string_traits` for std::optional-like types.
 template<typename T> struct string_traits<
   T,
   typename std::enable_if<internal::is_optional<T>::value>::type
@@ -191,9 +190,9 @@ public:
     {
       I inner;
       string_traits<I>::from_string(Str, inner);
-      // Utilize existing memory if possible (e.g. for pointer types)
+      // Utilize existing memory if possible (e.g. for pointer types).
       if (Obj) *Obj = inner;
-      // Important to assign to set valid flag for smart optional types
+      // Important to assign to set valid flag for smart optional types.
       else Obj = internal::make_optional<T>(inner);
     }
   }
@@ -205,6 +204,4 @@ public:
 };
 
 } // namespace pqxx
-
-
 #endif

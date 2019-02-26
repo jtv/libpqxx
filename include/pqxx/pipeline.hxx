@@ -98,7 +98,7 @@ public:
   /// Is result for given query available?
   bool is_finished(query_id) const;					//[t71]
 
-  /// Retrieve result for given query
+  /// Retrieve result for given query.
   /** If the query failed for whatever reason, this will throw an exception.
    * The function will block if the query has not finished yet.
    * @warning If results are retrieved out-of-order, i.e. in a different order
