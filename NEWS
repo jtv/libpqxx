@@ -5,6 +5,7 @@
  - Avoid "dead code" warning.
  - Replace obsolete autoconf macros.
  - Remove all "using namespace std".
+ - CMake build fixes.
 6.3.1
  - Windows compile fix (CALLBACK is a macro there).
  - Work around Visual Studio 2017 not supporting ISO 646.
