@@ -13,6 +13,7 @@ install(
         PATTERN internal/gates/###BASENAME###.hxx
 ###MAKTEMPLATE:ENDFOREACH
         PATTERN config-public-compiler.h
+        PATTERN pqxx
 )
 
 install(

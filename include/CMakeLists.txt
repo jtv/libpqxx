@@ -127,6 +127,7 @@ install(
         PATTERN internal/gates/transaction-tablewriter.hxx
         PATTERN internal/gates/transaction-transactionfocus.hxx
         PATTERN config-public-compiler.h
+        PATTERN pqxx
 )
 
 install(

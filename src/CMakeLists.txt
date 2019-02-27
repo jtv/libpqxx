@@ -73,8 +73,14 @@ file(
 )
 
 if(NOT SKIP_PQXX_SHARED)
+    set(CXX_SHARED_EXTRA_SOURCE)
+    if(WIN32)
+        # Add extra source
+        list(APPEND CXX_SHARED_EXTRA_SOURCE "${PROJECT_SOURCE_DIR}/win32/libpqxx.cxx")
+    endif()
+
 	# Build a shared library
-	add_library(pqxx_shared SHARED ${CXX_SOURCES})
+	add_library(pqxx_shared SHARED ${CXX_SOURCES} ${CXX_SHARED_EXTRA_SOURCE})
 	target_compile_definitions(pqxx_shared PUBLIC -DPQXX_SHARED)
 	set_target_properties(pqxx_shared PROPERTIES OUTPUT_NAME pqxx)
 	library_target_setup(pqxx_shared)
