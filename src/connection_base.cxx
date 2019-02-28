@@ -1377,7 +1377,15 @@ void pqxx::connection_base::set_client_encoding(const std::string &encoding)
 
 int pqxx::connection_base::encoding_id() const
 {
-  return PQclientEncoding(m_conn);
+  const int enc = PQclientEncoding(m_conn);
+  if (enc == -1)
+  {
+    if (not is_open())
+      throw broken_connection{
+	"Could not obtain client encoding: not connected."};
+    throw failure{"Could not obtain client encoding."};
+  }
+  return enc;
 }
 
 
