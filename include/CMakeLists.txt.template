@@ -1,5 +1,5 @@
 install(
-    DIRECTORY pqxx
+    DIRECTORY pqxx "${PROJECT_BINARY_DIR}/include/pqxx"
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILES_MATCHING
 ###MAKTEMPLATE:FOREACH include/pqxx/*.hxx
