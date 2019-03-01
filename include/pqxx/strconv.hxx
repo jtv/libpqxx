@@ -55,20 +55,41 @@ namespace internal
 /// Throw exception for attempt to convert null to given type.
 [[noreturn]] PQXX_LIBEXPORT void throw_null_conversion(
 	const std::string &type);
+
+/// Give a human-readable name for a type, at compile time.
+/** Each instantiation contains a static member called @c value which is the
+ * type's name, as a string.
+ *
+ * This template should not be around for long.  C++14's variable templates
+ * make it easier (eliminating the cumbersome struct) and C++20's introspection
+ * should obviate it completely.
+ */
+template<typename TYPE> struct type_name;
+#define PQXX_DECLARE_TYPE_NAME(TYPE) \
+  template<> struct type_name<TYPE> \
+  { static constexpr const char *value = #TYPE; }
+
+PQXX_DECLARE_TYPE_NAME(bool);
+PQXX_DECLARE_TYPE_NAME(short);
+PQXX_DECLARE_TYPE_NAME(unsigned short);
+PQXX_DECLARE_TYPE_NAME(int);
+PQXX_DECLARE_TYPE_NAME(unsigned int);
+PQXX_DECLARE_TYPE_NAME(long);
+PQXX_DECLARE_TYPE_NAME(unsigned long);
+PQXX_DECLARE_TYPE_NAME(long long);
+PQXX_DECLARE_TYPE_NAME(unsigned long long);
+PQXX_DECLARE_TYPE_NAME(float);
+PQXX_DECLARE_TYPE_NAME(double);
+PQXX_DECLARE_TYPE_NAME(long double);
 } // namespace pqxx::internal
 
 
-/** Helper: declare a typical string_traits specialisation.
- *
- * It'd be great to do this without a preprocessor macro.  The problem is
- * that we want to represent the parameter type's name to programmers.
- * There's probably a better way in newer C++ versions, but I don't think there
- * is one in C++11.
- */
+/// Helper: declare a typical string_traits specialisation.
 #define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(T)			\
 template<> struct PQXX_LIBEXPORT string_traits<T>			\
 {									\
-  static constexpr const char *name() noexcept { return #T; }		\
+  static constexpr const char *name() noexcept                          \
+    { return internal::type_name<T>::value; }	                	\
   static constexpr bool has_null() noexcept { return false; }		\
   static bool is_null(T) { return false; }				\
   [[noreturn]] static T null() 						\
