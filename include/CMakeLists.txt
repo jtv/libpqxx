@@ -12,7 +12,7 @@
 # Generated from template './include/CMakeLists.txt.template'.
 ################################################################################
 install(
-    DIRECTORY pqxx
+    DIRECTORY pqxx "${PROJECT_BINARY_DIR}/include/pqxx"
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILES_MATCHING
         PATTERN array.hxx
