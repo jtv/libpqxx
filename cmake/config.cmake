@@ -76,7 +76,7 @@ endif (def)
 set(CMAKE_REQUIRED_QUIET OFF)
 
 set(AC_CONFIG_H_IN "${PROJECT_SOURCE_DIR}/include/pqxx/config.h.in")
-set(CM_CONFIG_H_IN "${PROJECT_BINARY_DIR}/include/pqxx/config.h.in")
+set(CM_CONFIG_H_IN "${PROJECT_BINARY_DIR}/include/pqxx/config_cmake.h.in")
 set(CM_CONFIG_PUB "${PROJECT_BINARY_DIR}/include/pqxx/config-public-compiler.h")
 set(CM_CONFIG_INT "${PROJECT_BINARY_DIR}/include/pqxx/config-internal-compiler.h")
 message(STATUS "Generating config.h")
