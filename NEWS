@@ -1,5 +1,6 @@
 6.3.3
  - Throw more appropriate error when unable to read client encoding.
+ - CMake build fixes.
 6.3.2
  - Conversion errors no longer throw pqxx::failure; always conversion_error!
  - Use C++17's built-in numeric string conversions, if available.
