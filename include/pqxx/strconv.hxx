@@ -81,22 +81,41 @@ PQXX_DECLARE_TYPE_NAME(unsigned long long);
 PQXX_DECLARE_TYPE_NAME(float);
 PQXX_DECLARE_TYPE_NAME(double);
 PQXX_DECLARE_TYPE_NAME(long double);
+PQXX_DECLARE_TYPE_NAME(char *);
+PQXX_DECLARE_TYPE_NAME(const char *);
+PQXX_DECLARE_TYPE_NAME(std::string);
+PQXX_DECLARE_TYPE_NAME(const std::string);
+PQXX_DECLARE_TYPE_NAME(std::stringstream);
+#undef PQXX_DECLARE_TYPE_NAME
+
+template<size_t N> struct type_name<char[N]>
+{ static constexpr const char *value = "char[]"; };
+
+
+/// Helper: string traits implementation for built-in types.
+/** These types all look much alike, so they can share much of their traits
+ * classes (though templatised, of course).
+ *
+ * The actual `to_string` and `from_string` are implemented in the library,
+ * but the rest is defined inline.
+ */
+template<typename TYPE> struct PQXX_LIBEXPORT builtin_traits
+{
+  static constexpr const char *name() noexcept
+	{ return internal::type_name<TYPE>::value; }
+  static constexpr bool has_null() noexcept { return false; }
+  static bool is_null(TYPE) { return false; }
+  [[noreturn]] static TYPE null() { throw_null_conversion(name()); }
+  static void from_string(const char Str[], TYPE &Obj);
+  static std::string to_string(TYPE Obj);
+};
 } // namespace pqxx::internal
 
 
-/// Helper: declare a typical string_traits specialisation.
-#define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(T)			\
-template<> struct PQXX_LIBEXPORT string_traits<T>			\
-{									\
-  static constexpr const char *name() noexcept                          \
-    { return internal::type_name<T>::value; }	                	\
-  static constexpr bool has_null() noexcept { return false; }		\
-  static bool is_null(T) { return false; }				\
-  [[noreturn]] static T null() 						\
-    { internal::throw_null_conversion(name()); }			\
-  static void from_string(const char Str[], T &Obj);			\
-  static std::string to_string(T Obj);					\
-};
+/// Helper: declare a string_traits specialisation for a builtin type.
+#define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(TYPE) \
+  template<> struct PQXX_LIBEXPORT string_traits<TYPE> : \
+    internal::builtin_traits<TYPE> {};
 
 PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(bool)
 
