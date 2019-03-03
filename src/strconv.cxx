@@ -97,6 +97,7 @@ template<typename T> void wrap_from_chars(std::string_view in, T &out)
   else throw pqxx::conversion_error{base + ": " + msg};
 }
 
+
 /// How big of a buffer do we want for representing a T?
 template<typename T> constexpr int size_buffer()
 {
@@ -108,11 +109,46 @@ template<typename T> constexpr int size_buffer()
   return digits + 4;
 }
 
-template<typename T, typename X> std::string wrap_to_chars(T in, X x)
+
+/// Call @c std::to_chars.  It differs for integer vs. floating-point types.
+template<typename TYPE, bool INTEGRAL> struct to_chars_caller;
+
+#if defined(PQXX_HAVE_CHARCONV_INT)
+/// For integer types, we pass "base 10" to @c std::to_chars.
+template<typename TYPE> struct to_chars_caller<TYPE, true>
+{
+  static std::to_chars_result call(char *begin, char *end, TYPE in)
+	{ return std::to_chars(begin, end, in, 10); }
+};
+#endif
+
+#if defined(PQXX_HAVE_CHARCONV_FLOAT)
+/// For floating-point types, we pass "general format" to @c std::to_chars.
+template<typename TYPE>
+template<typename TYPE> struct to_chars_caller<TYPE, true>
+{
+  static std::to_chars_result call(char *begin, char *end, TYPE in)
+	{ return std::to_chars(begin, end, in, std::chars_format::general); }
+};
+#endif
+} // namespace
+
+
+namespace pqxx
+{
+namespace internal
+{
+template<typename T> std::string builtin_traits<T>::to_string(T in)
 {
   using traits = pqxx::string_traits<T>;
   char buf[size_buffer<T>()];
-  const auto res = std::to_chars(buf, buf + sizeof(buf), in, x);
+
+  // Annoying: we need to make slightly different calls to std::to_chars
+  // depending on whether this is an integral type or a floating-point type.
+  // Use to_chars_caller to hide the difference.
+  constexpr bool is_integer = std::numeric_limits<T>::is_integer;
+  const auto res = to_chars_caller<T, is_integer>::call(
+	buf, buf + sizeof(buf), in);
   if (res.ec == std::errc()) return std::string(buf, res.ptr);
 
   std::string msg;
@@ -130,7 +166,16 @@ template<typename T, typename X> std::string wrap_to_chars(T in, X x)
   if (msg.empty()) throw pqxx::conversion_error{base + "."};
   else throw pqxx::conversion_error{base + ": " + msg};
 }
-} // namespace
+
+
+/// Translate @c from_string calls to @c wrap_from_chars calls.
+/** The only difference is the type of the string.
+ */
+template<typename TYPE>
+void builtin_traits<TYPE>::from_string(const char Str[], TYPE &Obj)
+	{ wrap_from_chars(std::string_view{Str}, Obj); }
+} // namespace pqxx::internal
+} // namespace pqxx
 #endif // PQXX_HAVE_CHARCONV_INT || PQXX_HAVE_CHARCONV_FLOAT
 
 
@@ -437,10 +482,6 @@ template<typename T> inline std::string to_string_signed(T Obj)
 #if defined(PQXX_HAVE_CHARCONV_INT)
 namespace pqxx
 {
-template<typename TYPE>
-void builtin_traits<TYPE>::from_string(const char Str[], TYPE &Obj)
-	{ wrap_from_chars(std::string_view{Str}, Obj); }
-
 template void
 builtin_traits<short>::from_string(const char[], short &);
 template void
@@ -465,14 +506,14 @@ builtin_traits<unsigned long long>::from_string(
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
 namespace pqxx
 {
-void string_traits<float>::from_string(const char Str[], float &Obj)
-	{ wrap_from_chars(std::string_view{Str}, Obj); }
-void string_traits<double>::from_string(const char Str[], double &Obj)
-	{ wrap_from_chars(std::string_view{Str}, Obj); }
+template
+void string_traits<float>::from_string(const char Str[], float &Obj);
+template
+void string_traits<double>::from_string(const char Str[], double &Obj);
+template
 void string_traits<long double>::from_string(
 	const char Str[],
-	long double &Obj)
-	{ wrap_from_chars(std::string_view{Str}, Obj); }
+	long double &Obj);
 } // namespace pqxx
 #endif // PQXX_HAVE_CHARCONV_FLOAT
 
@@ -482,10 +523,6 @@ namespace pqxx
 {
 namespace internal
 {
-template<typename TYPE>
-std::string builtin_traits<TYPE>::to_string(TYPE Obj)
-	{ return wrap_to_chars(Obj, 10); }
-
 template
 std::string builtin_traits<short>::to_string(short Obj);
 template
@@ -511,12 +548,15 @@ std::string builtin_traits<unsigned long long>::to_string(
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
 namespace pqxx
 {
-std::string string_traits<float>::to_string(float Obj)
-	{ return wrap_to_chars(Obj, std::chars_format::general); }
-std::string string_traits<double>::to_string(double Obj)
-	{ return wrap_to_chars(Obj, std::chars_format::general); }
-std::string string_traits<long double>::to_string(long double Obj)
-	{ return wrap_to_chars(Obj, std::chars_format::general); }
+namespace internal
+{
+template
+std::string builtin_traits<float>::to_string(float Obj);
+template
+std::string builtin_traits<double>::to_string(double Obj);
+template
+std::string builtin_traits<long double>::to_string(long double Obj);
+} // namespace pqxx::internal
 } // namespace pqxx
 #endif // PQXX_HAVE_CHARCONV_FLOAT
 
