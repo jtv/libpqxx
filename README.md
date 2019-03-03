@@ -3,14 +3,25 @@ libpqxx
 
 Welcome to libpqxx, the C++ API to the PostgreSQL database management system.
 
-This package requires PostgreSQL to be installed -- including the C headers for
-client development.  The library builds on top of PostgreSQL's standard C API,
-libpq, though this fact is almost completely hidden from programs that use
-libpqxx.
+Compiling this package requires PostgreSQL to be installed -- including the C
+headers for client development.  The library builds on top of PostgreSQL's
+standard C API, libpq, though this fact is almost completely hidden from
+programmes which use libpqxx.
 
 As of release 6.0, C++11 is the minimum supported C++ version.  Make sure your
 compiler supports this, and if necessary, that you have support for C++11
 configured.
+
+**Version 7.0 will require C++17.**  However, it's probably not a problem if
+your compiler does not implement C++17 fully.  Initially the 7.x series will
+only require some basic C++17 features such as `std::string_view`.  More
+advanced use may follow later.
+
+Also, **7.0 will make some breaking changes in rarely used APIs:**
+ * All `connection` classes will be folded into a single class.
+ * Custom `connection` classes will no longer be supported.
+ * Connection reactivation will be explicit: _you_ call `activate()` if needed.
+ * "String traits" (for string conversions) will have a slightly different API.
 
 Find libpqxx on Github: https://github.com/jtv/libpqxx
 
