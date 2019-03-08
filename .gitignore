@@ -25,6 +25,7 @@ libpqxx.pc
 libpqxx-*.tar.gz
 libtool
 pqxx-config
+pqxxlo.txt
 test/pqxxlo.txt
 tools/pqxxthreadsafety
 tools/rmlo
