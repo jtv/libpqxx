@@ -155,7 +155,7 @@ int main(int, const char *argv[])
   int test_count = 0;
   std::list<std::string> failed;
   for (const auto &i: *all_tests)
-    if (test_name == nullptr or test_name == i.first)
+    if (test_name == nullptr or std::string{test_name} == std::string{i.first})
     {
       std::cout << std::endl << "Running: " << i.first << std::endl;
 
