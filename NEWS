@@ -1,5 +1,6 @@
 6.4.0
  - Fix selective running of tests: "runner test_093".
+ - Added some missing `std::` qualifications.
 6.3.3
  - Throw more appropriate error when unable to read client encoding.
  - CMake build fixes.
