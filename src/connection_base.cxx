@@ -349,7 +349,7 @@ void pqxx::connection_base::process_notice_raw(const char msg[]) noexcept
   const auto
 	rbegin = m_errorhandlers.rbegin(),
 	rend = m_errorhandlers.rend();
-  for (auto i = rbegin; i != rend and (**i)(msg); ++i) ;
+  for (auto i = rbegin; (i != rend) and (**i)(msg); ++i) ;
 }
 
 
