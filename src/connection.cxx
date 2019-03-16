@@ -12,7 +12,10 @@
 
 #include <stdexcept>
 
+extern "C"
+{
 #include "libpq-fe.h"
+}
 
 #include "pqxx/connection"
 

@@ -44,7 +44,10 @@
 #include <sys/time.h>
 #endif
 
+extern "C"
+{
 #include "libpq-fe.h"
+}
 
 #include "pqxx/binarystring"
 #include "pqxx/connection"
@@ -66,18 +69,12 @@ using namespace pqxx::internal;
 using namespace pqxx::prepare;
 
 
-namespace
-{
-extern "C"
-{
 // The PQnoticeProcessor that receives an error or warning from libpq and sends
 // it to the appropriate connection for processing.
-void pqxx_notice_processor(void *conn, const char *msg)
+extern "C" void pqxx_notice_processor(void *conn, const char *msg)
 {
   reinterpret_cast<pqxx::connection_base *>(conn)->process_notice(msg);
 }
-} // extern "C"
-} // namespace
 
 
 std::string pqxx::encrypt_password(
@@ -274,7 +271,7 @@ void pqxx::connection_base::set_up_state()
 
   for (auto &p: m_prepared) p.second.registered = false;
 
-  PQsetNoticeProcessor(m_conn, pqxx_notice_processor, this);
+  PQsetNoticeProcessor(m_conn, pqxx_notice_processor, static_cast<connection_base *>(this));
 
   internal_set_trace();
 

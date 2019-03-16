@@ -14,7 +14,10 @@
 #include <new>
 #include <stdexcept>
 
+extern "C"
+{
 #include "libpq-fe.h"
+}
 
 #include "pqxx/binarystring"
 #include "pqxx/field"

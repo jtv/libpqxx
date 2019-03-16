@@ -16,7 +16,10 @@
 #include <new>
 #include <thread>
 
+extern "C"
+{
 #include "libpq-fe.h"
+}
 
 #include "pqxx/except"
 #include "pqxx/util"

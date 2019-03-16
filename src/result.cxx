@@ -14,7 +14,10 @@
 #include <cstring>
 #include <stdexcept>
 
+extern "C"
+{
 #include "libpq-fe.h"
+}
 
 #include "pqxx/except"
 #include "pqxx/result"
