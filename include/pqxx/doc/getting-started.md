@@ -78,7 +78,12 @@ an `int`, and prints it out.  It also contains some basic error handling.
     }
 
 This prints the number 1.  Notice that you can keep the result object
-around after the transaction (or even the connection) has been closed.
+around after the transaction (or even the connection) has been closed.  There
+are situations where you can't do it, but generally it's fine.  If you're
+interested: you can install your own callbacks for receiving error messages
+from the database, and in that case you'll have to keep the connection object
+alive.  But otherwise, it's nice to be able to "fire and forget" your
+connection and deal with the data.
 
 Here's a slightly more complicated example.  It takes an argument from the
 command line and retrieves a string with that value.  The interesting part is

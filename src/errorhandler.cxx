@@ -2,7 +2,7 @@
  *
  * pqxx::errorhandler allows programs to receive errors and warnings.
  *
- * Copyright (c) 2011-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2011-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -35,7 +35,7 @@ pqxx::errorhandler::~errorhandler()
 
 void pqxx::errorhandler::unregister() noexcept
 {
-  if (m_home)
+  if (m_home != nullptr)
   {
     gate::connection_errorhandler connection_gate{*m_home};
     m_home = nullptr;

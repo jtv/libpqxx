@@ -350,7 +350,7 @@ pqxx::oid pqxx::result::column_table(row::size_type ColNum) const
 pqxx::row::size_type pqxx::result::table_column(row::size_type ColNum) const
 {
   const auto n = row::size_type(PQftablecol(m_data.get(), int(ColNum)));
-  if (n) return n-1;
+  if (n != 0) return n-1;
 
   // Failed.  Now find out why, so we can throw a sensible exception.
   const std::string col_num = to_string(ColNum);

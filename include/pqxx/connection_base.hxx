@@ -814,6 +814,10 @@ private:
   /// Active transaction on connection, if any.
   internal::unique<transaction_base> m_trans;
 
+  /// Set libpq notice processor to call connection's error handlers chain.
+  void set_notice_processor();
+  /// Clear libpq notice processor.
+  void clear_notice_processor();
   std::list<errorhandler *> m_errorhandlers;
 
   /// File to trace to, if any

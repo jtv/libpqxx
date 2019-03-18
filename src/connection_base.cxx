@@ -69,11 +69,19 @@ using namespace pqxx::internal;
 using namespace pqxx::prepare;
 
 
+extern "C"
+{
 // The PQnoticeProcessor that receives an error or warning from libpq and sends
 // it to the appropriate connection for processing.
-extern "C" void pqxx_notice_processor(void *conn, const char *msg)
+void pqxx_notice_processor(void *conn, const char *msg) noexcept
 {
   reinterpret_cast<pqxx::connection_base *>(conn)->process_notice(msg);
+}
+
+
+// There's no way in libpq to disable a connection's notice processor.  So,
+// set an inert one to get the same effect.
+void inert_notice_processor(void *, const char *) noexcept {}
 }
 
 
@@ -271,7 +279,14 @@ void pqxx::connection_base::set_up_state()
 
   for (auto &p: m_prepared) p.second.registered = false;
 
-  PQsetNoticeProcessor(m_conn, pqxx_notice_processor, static_cast<connection_base *>(this));
+  // The default notice processor in libpq writes to stderr.  Ours does
+  // nothing.
+  // If the caller registers an error handler, this gets replaced with an
+  // error handler that walks down the connection's chain of handlers.  We
+  // don't do that by default because there's a danger: libpq may call the
+  // notice processor via a result object, even after the connection has been
+  // destroyed and the handlers list no longer exists.
+  clear_notice_processor();
 
   internal_set_trace();
 
@@ -344,8 +359,8 @@ void pqxx::connection_base::process_notice_raw(const char msg[]) noexcept
 {
   if ((msg == nullptr) or (*msg == '\0')) return;
   const auto
-	rbegin = m_errorhandlers.rbegin(),
-	rend = m_errorhandlers.rend();
+	rbegin = m_errorhandlers.crbegin(),
+	rend = m_errorhandlers.crend();
   for (auto i = rbegin; (i != rend) and (**i)(msg); ++i) ;
 }
 
@@ -645,8 +660,30 @@ const char *pqxx::connection_base::err_msg() const noexcept
 }
 
 
+void pqxx::connection_base::clear_notice_processor()
+{
+  PQsetNoticeProcessor(m_conn, inert_notice_processor, nullptr);
+}
+
+
+void pqxx::connection_base::set_notice_processor()
+{
+  PQsetNoticeProcessor(m_conn, pqxx_notice_processor, this);
+}
+
+
 void pqxx::connection_base::register_errorhandler(errorhandler *handler)
 {
+  // Set notice processor on demand, i.e. only when the caller actually
+  // registers an error handler.
+  // We do this just to make it less likely that users fall into the trap
+  // where a result object may hold a notice processor derived from its parent
+  // connection which has already been destroyed.  Our notice processor goes
+  // through the connection's list of error handlers.  If the connection object
+  // has already been destroyed though, that list no longer exists.
+  // By setting the notice processor on demand, we absolve users who never
+  // register an error handler from ahving to care about this nasty subtlety.
+  if (m_errorhandlers.empty()) set_notice_processor();
   m_errorhandlers.push_back(handler);
 }
 
@@ -657,6 +694,7 @@ void pqxx::connection_base::unregister_errorhandler(errorhandler *handler)
   // The errorhandler itself will take care of nulling its pointer to this
   // connection.
   m_errorhandlers.remove(handler);
+  if (m_errorhandlers.empty()) clear_notice_processor();
 }
 
 
@@ -880,12 +918,11 @@ void pqxx::connection_base::close() noexcept
       m_receivers.clear();
     }
 
-    PQsetNoticeProcessor(m_conn, nullptr, nullptr);
     std::list<errorhandler *> old_handlers;
     m_errorhandlers.swap(old_handlers);
     const auto
-	rbegin = old_handlers.rbegin(),
-	rend = old_handlers.rend();
+	rbegin = old_handlers.crbegin(),
+	rend = old_handlers.crend();
     for (auto i = rbegin; i!=rend; ++i)
       gate::errorhandler_connection_base{**i}.unregister();
 

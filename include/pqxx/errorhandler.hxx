@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
  *
- * Copyright (c) 2012-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2012-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -45,6 +45,11 @@ class errorhandler_connection_base;
  * progressing towards the oldest one.  However an error handler may also
  * instruct the connection not to pass the message to further handlers by
  * returning "false."
+ *
+ * @warning Strange things happen when a result object outlives its parent
+ * connection.  If you register an error handler on a connection, then you must
+ * not access the result after destroying the connection.  This applies even if
+ * you destroy the error handler first!
  */
 class PQXX_LIBEXPORT errorhandler
 {

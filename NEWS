@@ -1,5 +1,6 @@
 6.4.0
- - Fix selective running of tests: "runner test_093".
+ - Half fix, half work around nasty notice processor life time bug.
+ - Fix selective running of tests: "test/unit/runner test_infinities".
  - Added some missing `std::` qualifications.
 6.3.3
  - Throw more appropriate error when unable to read client encoding.
