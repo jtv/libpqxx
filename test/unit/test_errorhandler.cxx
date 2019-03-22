@@ -111,6 +111,7 @@ void test_destroying_connection_unregisters_handlers()
 	handlers.size(),
 	1u,
 	"Ghost of dead ex-connection haunts handler.");
+  delete survivor;
 }
 
 
