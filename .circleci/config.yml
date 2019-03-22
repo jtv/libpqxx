@@ -7,13 +7,13 @@ jobs:
     environment:
       - PGHOST: "/tmp"
     steps:
-      - run:
-          name: Identify
-          command: lsb_release -a && g++ --version
       - checkout
       - run:
           name: Install
           command: apt update && apt install -y python g++ libpq-dev postgresql build-essential make autoconf dh-autoreconf autoconf-archive automake cppcheck
+      - run:
+          name: Identify
+          command: lsb_release -a && c++ --version
       - run:
           name: Prepare postgres
           command: |
