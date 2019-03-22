@@ -33,9 +33,9 @@ jobs:
           name: Configure
           command: |
               ./configure \
-                  CXXFLAGS='-O0 -std=c++17' \
+                  CXXFLAGS='-std=c++17' \
                   --enable-maintainer-mode \
-                  --disable-documentation \
+                  --enable-audit \
                   --enable-shared --disable-static
       - run:
           name: Make
