@@ -60,6 +60,12 @@ AC_MSG_CHECKING([maintainer mode])
 AC_ARG_ENABLE(maintainer-mode)
 AC_MSG_RESULT(${enable_maintainer_mode})
 
+# See if we want "audit," with loads of runtime checking.
+AC_MSG_CHECKING([audit])
+AC_ARG_ENABLE(audit)
+AC_MSG_RESULT(${enable_audit})
+
+
 AC_ARG_ENABLE(shared)
 AS_IF(
     [test "${shared}" = "yes" ],
@@ -143,6 +149,17 @@ then
 			-Wstringop-overflow \
 			-Wsuggest-override \
 			-Wzero-as-null-pointer-constant
+	fi
+
+	# In "audit," enable all runtime checks we can.
+	if test "$enable_audit" = "yes"
+	then
+		add_compiler_opts_if_ok \
+			-fsanitize=address \
+			-fsanitize=leak \
+			-fsanitize=undefined \
+			-fsanitize-address-use-after-scope \
+			-fstack-protector-all
 	fi
 
 

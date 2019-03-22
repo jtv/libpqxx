@@ -1,3 +1,6 @@
+6.4.2
+ - Fix mistake for Windows in 6.4.1: use PQfreemem, not std::free.
+ - Easily enable runtime checks in configure: "--enable-audit".
 6.4.1
  - Fixed more memory leaks.
 6.4.0
