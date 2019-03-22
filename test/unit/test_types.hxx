@@ -210,7 +210,7 @@ private:
   static unsigned char from_hex(char c1, char c2)
   {
     return static_cast<unsigned char>(
-        from_hex(c1) << 4) | (from_hex(c2) & 0x0F
+        (from_hex(c1) << 4) | (from_hex(c2) & 0x0f)
     );
   }
 
