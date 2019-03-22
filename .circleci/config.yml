@@ -39,7 +39,6 @@ jobs:
                   CXXFLAGS='-std=c++17' \
                   --disable-documentation \
                   --enable-maintainer-mode \
-                  --enable-audit \
                   --enable-shared --disable-static
       - run:
           name: Make
