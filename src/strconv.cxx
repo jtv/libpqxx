@@ -422,7 +422,7 @@ template<typename T> inline std::string to_string_unsigned(T Obj)
   while (Obj > 0)
   {
     *--p = number_to_digit(int(Obj%10));
-    Obj /= 10;
+    Obj = T(Obj / 10);
   }
   return p;
 }
