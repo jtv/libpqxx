@@ -7,6 +7,9 @@ jobs:
     environment:
       - PGHOST: "/tmp"
     steps:
+      - run:
+          name: Identify
+          command: lsb_release -a && c++ --version
       - checkout
       - run:
           name: Install
