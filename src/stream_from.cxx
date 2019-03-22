@@ -71,18 +71,15 @@ void pqxx::stream_from::complete()
 
 bool pqxx::stream_from::get_raw_line(std::string &line)
 {
+  internal::gate::transaction_stream_from gate{m_trans};
   if (*this)
     try
     {
-      m_finished = not internal::gate::transaction_stream_from{
-        m_trans
-      }.read_copy_line(
-        line
-      );
+      if (not gate.read_copy_line(line)) close();
     }
     catch (const std::exception &)
     {
-      m_finished = true;
+      close();
       throw;
     }
   return *this;
