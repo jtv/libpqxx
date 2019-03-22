@@ -14,6 +14,7 @@
 #include <cassert>
 #include <cerrno>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <ctime>
 #include <iterator>
@@ -1144,8 +1145,10 @@ std::string pqxx::connection_base::unesc_raw(const char *text)
   size_t len;
   unsigned char *bytes = const_cast<unsigned char *>(
 	reinterpret_cast<const unsigned char *>(text));
-  const unsigned char *const buf = PQunescapeBytea(bytes, &len);
-  return std::string{buf, buf + len};
+  const std::unique_ptr<unsigned char, decltype(std::free)*> ptr{
+    PQunescapeBytea(bytes, &len),
+    std::free};
+  return std::string{ptr.get(), ptr.get() + len};
 }
 
 
