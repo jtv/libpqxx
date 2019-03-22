@@ -1145,9 +1145,9 @@ std::string pqxx::connection_base::unesc_raw(const char *text)
   size_t len;
   unsigned char *bytes = const_cast<unsigned char *>(
 	reinterpret_cast<const unsigned char *>(text));
-  const std::unique_ptr<unsigned char, decltype(std::free)*> ptr{
+  const std::unique_ptr<unsigned char, decltype(internal::freepqmem)*> ptr{
     PQunescapeBytea(bytes, &len),
-    std::free};
+    internal::freepqmem};
   return std::string{ptr.get(), ptr.get() + len};
 }
 
