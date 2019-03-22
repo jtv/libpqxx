@@ -1,3 +1,5 @@
+6.4.1
+ - Fixed more memory leaks.
 6.4.0
  - Half fix, half work around nasty notice processor life time bug.
  - Fix selective running of tests: "test/unit/runner test_infinities".
