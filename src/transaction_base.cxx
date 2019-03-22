@@ -412,10 +412,10 @@ void pqxx::transaction_base::End() noexcept
     try { CheckPendingError(); }
     catch (const std::exception &e) { m_conn.process_notice(e.what()); }
 
+    gate::connection_transaction gate{conn()};
     if (m_registered)
     {
       m_registered = false;
-      gate::connection_transaction gate{conn()};
       gate.unregister_transaction(this);
     }
 
@@ -429,7 +429,6 @@ void pqxx::transaction_base::End() noexcept
     try { abort(); }
     catch (const std::exception &e) { m_conn.process_notice(e.what()); }
 
-    gate::connection_transaction gate{conn()};
     gate.take_reactivation_avoidance(m_reactivation_avoidance.get());
     m_reactivation_avoidance.clear();
   }
