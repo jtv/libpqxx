@@ -34,6 +34,7 @@ jobs:
           command: NOCONFIGURE=1 ./autogen.sh
       - run:
           name: Configure
+          # TODO: Add --enable-audit once container has a recent compiler.
           command: |
               ./configure \
                   CXXFLAGS='-std=c++17' \
