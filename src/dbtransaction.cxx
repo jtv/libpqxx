@@ -2,7 +2,7 @@
  *
  * pqxx::dbtransaction represents a real backend transaction.
  *
- * Copyright (c) 2004-2019, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
