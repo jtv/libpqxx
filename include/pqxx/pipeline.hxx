@@ -151,7 +151,7 @@ private:
 
   struct getquery
   {
-    getquery(){}	// Silences bogus warning in some gcc versions
+    getquery() =default;
     std::string operator()(QueryMap::const_iterator i) const
 	{ return i->second.get_query(); }
   };

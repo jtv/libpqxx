@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stream_base instead.
  *
- * Copyright (c) 2001-2018, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this mistake,
@@ -29,7 +29,8 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE stream_base :
 {
 public:
   explicit stream_base(transaction_base &);
-  virtual ~stream_base() noexcept;
+  // TODO: Can we get rid of the vtable?
+  virtual ~stream_base() noexcept =default;
   virtual void complete() = 0;
   operator bool() const noexcept;
   bool operator!() const noexcept;
