@@ -1,10 +1,4 @@
 /** libpqxx version info.
- *
- * Copyright (c) 2009-2017, Jeroen T. Vermeulen.
- *
- * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
  */
 // Actual definitions in .hxx file so editors and such recognize file type.
 #include "pqxx/version.hxx"
