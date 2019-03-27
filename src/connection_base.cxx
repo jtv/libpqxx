@@ -1103,6 +1103,8 @@ std::string pqxx::connection_base::esc(const char str[], size_t maxlen)
 
   std::vector<char> buf(2 * maxlen + 1);
   int err = 0;
+  // TODO: Can we make a callback-based string_view alternative to this?
+  // TODO: If we can, then quote() can wrap PQescapeLiteral()!
   PQescapeStringConn(m_conn, buf.data(), str, maxlen, &err);
   if (err) throw argument_error{err_msg()};
   return std::string{buf.data()};
