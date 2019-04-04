@@ -24,6 +24,9 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/result_iterator.hxx \
 	pqxx/robusttransaction pqxx/robusttransaction.hxx \
 	pqxx/strconv pqxx/strconv.hxx \
+	pqxx/stream_base.hxx \
+	pqxx/stream_from pqxx/stream_from.hxx \
+	pqxx/stream_to pqxx/stream_to.hxx \
 	pqxx/subtransaction pqxx/subtransaction.hxx \
 	pqxx/tablereader pqxx/tablereader.hxx \
 	pqxx/tablestream pqxx/tablestream.hxx \
@@ -60,6 +63,8 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/gates/result-row.hxx \
 	pqxx/internal/gates/result-sql_cursor.hxx \
 	pqxx/internal/gates/transaction-sql_cursor.hxx \
+	pqxx/internal/gates/transaction-stream_from.hxx \
+	pqxx/internal/gates/transaction-stream_to.hxx \
 	pqxx/internal/gates/transaction-subtransaction.hxx \
 	pqxx/internal/gates/transaction-tablereader.hxx \
 	pqxx/internal/gates/transaction-tablewriter.hxx \
