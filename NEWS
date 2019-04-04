@@ -1,5 +1,6 @@
 6.4.3
  - Updated copyright strings.
+ - Added missing "stream" headers to autotools-based install.
 6.4.2
  - Fix mistake for Windows in 6.4.1: use PQfreemem, not std::free.
  - Easily enable runtime checks in configure: "--enable-audit".
