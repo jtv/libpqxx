@@ -1,3 +1,4 @@
+6.4.4
 6.4.3
  - Updated copyright strings.
  - Added missing "stream" headers to autotools-based install.
