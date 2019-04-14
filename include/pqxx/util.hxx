@@ -138,18 +138,6 @@ separated_list(const std::string &sep, const CONTAINER &c)		//[t10]
 }
 
 
-namespace internal
-{
-struct passthrough_access
-{
-  template<typename T> constexpr auto operator()( T t_p ) const
-	-> decltype( *t_p )
-  {
-    return *t_p;
-  }
-};
-}
-
 /// Render items in a tuple as a string, using given separator.
 template<
 	typename TUPLE,
@@ -199,7 +187,7 @@ template<
 inline std::string
 separated_list(const std::string &sep, const TUPLE &t)
 {
-  return separated_list(sep, t, internal::passthrough_access{});
+  return separated_list(sep, t, [](const TUPLE &tup){return *tup;});
 }
 //@}
 
