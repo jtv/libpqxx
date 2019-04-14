@@ -22,7 +22,6 @@
 using namespace pqxx;
 using namespace pqxx::internal;
 
-#define pqxxassert(ARG) /* ignore */
 
 namespace
 {
@@ -64,8 +63,6 @@ pipeline::query_id pqxx::pipeline::insert(const std::string &q)
 {
   attach();
   const query_id qid = generate_id();
-  pqxxassert(qid > 0);
-  pqxxassert(m_queries.lower_bound(qid)==m_queries.end());
   const auto i = m_queries.insert(std::make_pair(qid,Query(q))).first;
 
   if (m_issuedrange.second == m_queries.end())
@@ -74,9 +71,6 @@ pipeline::query_id pqxx::pipeline::insert(const std::string &q)
     if (m_issuedrange.first == m_queries.end()) m_issuedrange.first = i;
   }
   m_num_waiting++;
-
-  pqxxassert(m_issuedrange.first != m_queries.end());
-  pqxxassert(m_issuedrange.second != m_queries.end());
 
   if (m_num_waiting > m_retain)
   {
@@ -93,17 +87,10 @@ void pqxx::pipeline::complete()
   if (have_pending()) receive(m_issuedrange.second);
   if (m_num_waiting and (m_error == qid_limit()))
   {
-    pqxxassert(not have_pending());
     issue();
-    pqxxassert(m_num_waiting != 0);
-    pqxxassert(have_pending());
-    pqxxassert(m_issuedrange.second == m_queries.end());
     receive(m_queries.end());
-    pqxxassert((m_error!=qid_limit()) or not have_pending());
   }
   detach();
-  pqxxassert((m_num_waiting == 0) or (m_error != qid_limit()));
-  pqxxassert(not m_dummy_pending);
 }
 
 
@@ -191,11 +178,6 @@ pipeline::query_id pqxx::pipeline::generate_id()
 
 void pqxx::pipeline::issue()
 {
-  pqxxassert(m_num_waiting);
-  pqxxassert(not have_pending());
-  pqxxassert(not m_dummy_pending);
-  pqxxassert(m_num_waiting);
-
   // TODO: Wrap in nested transaction if available, for extra "replayability"
 
   // Retrieve that null result for the last query, if needed
@@ -206,7 +188,6 @@ void pqxx::pipeline::issue()
 
   // Start with oldest query (lowest id) not in previous issue range
   auto oldest = m_issuedrange.second;
-  pqxxassert(oldest != m_queries.end());
 
   // Construct cumulative query string for entire batch
   std::string cum = separated_list(
@@ -235,9 +216,6 @@ void pqxx::pipeline::internal_error(const std::string &err)
 
 bool pqxx::pipeline::obtain_result(bool expect_none)
 {
-  pqxxassert(not m_dummy_pending);
-  pqxxassert(not m_queries.empty());
-
   gate::connection_pipeline gate{m_trans.conn()};
   const auto r = gate.get_result();
   if (r == nullptr)
@@ -250,7 +228,6 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
     return false;
   }
 
-  pqxxassert(r);
   const result res = gate::result_creation::create(
 	r, std::begin(m_queries)->second.get_query(),
         internal::enc_group(m_trans.conn().encoding_id()));
@@ -275,7 +252,6 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 
 void pqxx::pipeline::obtain_dummy()
 {
-  pqxxassert(m_dummy_pending);
   gate::connection_pipeline gate{m_trans.conn()};
   const auto r = gate.get_result();
   m_dummy_pending = false;
@@ -328,10 +304,6 @@ void pqxx::pipeline::obtain_dummy()
   m_num_waiting += int(std::distance(m_issuedrange.first, stop));
   m_issuedrange.second = m_issuedrange.first;
 
-  pqxxassert(not m_dummy_pending);
-  pqxxassert(not have_pending());
-  pqxxassert(m_num_waiting > 0);
-
   // Issue queries in failed batch one at a time.
   unregister_me();
   try
@@ -349,20 +321,12 @@ void pqxx::pipeline::obtain_dummy()
   }
   catch (const std::exception &)
   {
-    pqxxassert(m_issuedrange.first != m_queries.end());
-
     const query_id thud = m_issuedrange.first->first;
     ++m_issuedrange.first;
     m_issuedrange.second = m_issuedrange.first;
     auto q = m_issuedrange.first;
     set_error_at( (q == m_queries.end()) ?  thud + 1 : q->first);
-
-    pqxxassert(
-	m_num_waiting == std::distance(m_issuedrange.second, m_queries.end()));
   }
-
-  pqxxassert(m_issuedrange.first != m_queries.end());
-  pqxxassert(m_error <= m_q_id);
 }
 
 
@@ -380,8 +344,6 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
   if (m_issuedrange.second != m_queries.end() and
       (q->first >= m_issuedrange.second->first))
   {
-    pqxxassert(std::distance(m_issuedrange.second, q) >= 0);
-
     if (have_pending()) receive(m_issuedrange.second);
     if (m_error == qid_limit()) issue();
   }
@@ -400,8 +362,6 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
       receive_if_available();
     }
   }
-
-  pqxxassert((m_error <= q->first) or (q != m_issuedrange.first));
 
   if (q->first >= m_error)
     throw std::runtime_error{
@@ -422,7 +382,6 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 
 void pqxx::pipeline::get_further_available_results()
 {
-  pqxxassert(not m_dummy_pending);
   gate::connection_pipeline gate{m_trans.conn()};
   while (not gate.is_busy() and obtain_result())
     if (not gate.consume_input()) throw broken_connection{};
@@ -442,8 +401,6 @@ void pqxx::pipeline::receive_if_available()
 
 void pqxx::pipeline::receive(pipeline::QueryMap::const_iterator stop)
 {
-  pqxxassert(have_pending());
-
   if (m_dummy_pending) obtain_dummy();
 
   while (obtain_result() and
