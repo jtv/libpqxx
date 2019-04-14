@@ -191,7 +191,8 @@ void pqxx::pipeline::issue()
 
   // Construct cumulative query string for entire batch
   std::string cum = separated_list(
-          theSeparator, oldest, m_queries.end(), getquery());
+          theSeparator, oldest, m_queries.end(),
+          [](QueryMap::const_iterator i){return i->second.get_query();});
   const auto num_issued = QueryMap::size_type(std::distance(
 	oldest, m_queries.end()));
   const bool prepend_dummy = (num_issued > 1);

@@ -149,13 +149,6 @@ private:
 
   using QueryMap = std::map<query_id,Query>;
 
-  struct getquery
-  {
-    getquery() =default;
-    std::string operator()(QueryMap::const_iterator i) const
-	{ return i->second.get_query(); }
-  };
-
   void attach();
   void detach();
 
