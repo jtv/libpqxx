@@ -393,6 +393,13 @@ AC_ARG_WITH(
         [with_postgres_include=""]))
 
 if test -n "$PG_CONFIG" && test -r "$PG_CONFIG"; then
+AS_IF(
+    [test -z "$with_postgres_include"],
+    [with_postgres_include=$($PG_CONFIG --includedir)])
+AC_MSG_NOTICE([using PostgreSQL headers at $with_postgres_include])
+AC_SUBST(with_postgres_include)
+POSTGRES_INCLUDE="-I${with_postgres_include}"
+AC_SUBST(POSTGRES_INCLUDE)
 elif test -n "$PKG_CONFIG" && test -r "$PKG_CONFIG"; then
 AS_IF(
     [test -z "$with_postgres_include"],
