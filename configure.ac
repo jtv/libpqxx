@@ -30,7 +30,6 @@ AC_DISABLE_SHARED
 AC_PROG_LIBTOOL
 AC_PROG_MAKE_SET
 AC_PATH_PROG([MKDIR], [mkdir])
-AC_PATH_PROG([PKG_CONFIG], [pkg-config])
 
 # Documentation.
 AC_ARG_ENABLE(
@@ -382,23 +381,18 @@ AC_CHECK_HEADERS([sys/time.h])
 
 # Find PostgreSQL includes and libraries
 AC_PATH_PROGS(PG_CONFIG, pg_config)
-if test -z "$PG_CONFIG" || test ! -r "$PG_CONFIG"
-then
-	AC_MSG_ERROR([
-PostgreSQL configuration script pg_config not found.  Make sure this is in your
-command path before configuring.  Without it, the configure script has no way to
-find the right location for the libpq library and its headers.
-])
-fi
+AC_PATH_PROG([PKG_CONFIG], [pkg-config])
 
 AC_ARG_WITH(
     [postgres-include],
     [AS_HELP_STRING(
         [--with-postgres-include=DIR],
-        [Use PostgreSQL includes from DIR.  Defaults to querying pg_config.])],
+        [Use PostgreSQL includes from DIR.  Defaults to querying pg_config or pkg-config, whichever is available.])],
     AS_IF(
         [test "x$with_postgres_include" = "xyes"],
         [with_postgres_include=""]))
+
+if test -n "$PG_CONFIG" && test -r "$PG_CONFIG"; then
 AS_IF(
     [test -z "$with_postgres_include"],
     [with_postgres_include=$($PG_CONFIG --includedir)])
@@ -406,6 +400,22 @@ AC_MSG_NOTICE([using PostgreSQL headers at $with_postgres_include])
 AC_SUBST(with_postgres_include)
 POSTGRES_INCLUDE="-I${with_postgres_include}"
 AC_SUBST(POSTGRES_INCLUDE)
+elif test -n "$PKG_CONFIG" && test -r "$PKG_CONFIG"; then
+AS_IF(
+    [test -z "$with_postgres_include"],
+    [with_postgres_include=$($PKG_CONFIG libpq --cflags | sed 's/^-I//')])
+AC_MSG_NOTICE([using PostgreSQL headers at $with_postgres_include])
+AC_SUBST(with_postgres_include)
+POSTGRES_INCLUDE="-I${with_postgres_include}"
+AC_SUBST(POSTGRES_INCLUDE)
+else
+       AC_MSG_ERROR([
+Neither PostgreSQL configuration script pg_config nor pkg-config found.
+Make sure at least one of these is in your command path before configuring.
+Without either of them, the configure script has no way to find the right
+location for the libpq library and its headers.
+])
+fi
 
 AC_ARG_WITH(
     [postgres-lib],
@@ -415,13 +425,25 @@ AC_ARG_WITH(
     AS_IF(
         [test "x$with_postgres_lib" = "xyes"],
         [with_postgres_lib=""]))
-AS_IF(
-    [test -z "$with_postgres_lib"],
-    [with_postgres_lib=$($PG_CONFIG --libdir)])
-AC_MSG_NOTICE([using PostgreSQL libraries at $with_postgres_lib])
-AC_SUBST(with_postgres_lib)
-#POSTGRES_LIB="-R${with_postgres_lib}"
-AC_SUBST(POSTGRES_LIB)
+
+if test -n "$PG_CONFIG" && test -r "$PG_CONFIG"; then
+    AS_IF(
+       [test -z "$with_postgres_lib"],
+       [with_postgres_lib=$($PG_CONFIG --libdir)])
+    AC_MSG_NOTICE([using PostgreSQL libraries at $with_postgres_lib])
+    AC_SUBST(with_postgres_lib)
+    #POSTGRES_LIB="-R${with_postgres_lib}"
+    AC_SUBST(POSTGRES_LIB)
+elif test -n "$PKG_CONFIG" && test -r "$PKG_CONFIG"; then
+    AS_IF(
+       [test -z "$with_postgres_lib"],
+       [with_postgres_lib=$($PKG_CONFIG libpq --libs-only-L | sed 's/^-L//')])
+    AC_MSG_NOTICE([using PostgreSQL libraries at $with_postgres_lib])
+    # configure insists on inserting a library search path, so give him a standard one ...
+    AC_SUBST(with_postgres_lib, "")
+    #POSTGRES_LIB="-R${with_postgres_lib}"
+    AC_SUBST(POSTGRES_LIB)
+fi
 
 
 AC_CHECK_HEADER(
@@ -430,7 +452,7 @@ AC_CHECK_HEADER(
 	[AC_MSG_ERROR([
 Can't find libpq-fe.h in ${with_postgres_include}.  Are you sure the libpq
 headers are installed correctly?  They should be in the directory returned by
-"pg_config --includedir".
+"pg_config --includedir" or "pkg-config libpq --cflags".
 
 If you do have libpq (the C-language client library for PostgreSQL) installed,
 make sure you have the related development materials--mainly its header files--
@@ -449,8 +471,9 @@ AC_COMPILE_IFELSE(
 	[],
 	[AC_MSG_ERROR([
 Could not compile a call to a basic libpq function.  There must be something
-seriously wrong with the headers that "pg_config --includedir" pointed to; the
-contents of config.log may give you a clue about the nature of the failure.
+seriously wrong with the headers that "pg_config --includedir" or "pkg-config
+libpq --cflags" pointed to; the contents of config.log may give you a clue
+about the nature of the failure.
 Source including the libpq header libpq-fe.h can be compiled, but a call to the
 most basic libpq function PQexec() failed to compile successfully.  This is the
 litmus test for a working libpq.
@@ -458,7 +481,12 @@ litmus test for a working libpq.
 AC_MSG_RESULT(yes)
 
 
-LDFLAGS="$LDFLAGS -L${with_postgres_lib}"
+if test "x${with_postgres_lib}" = "x"; then
+    with_postgres_libpath=""
+else
+    with_postgres_libpath="-L${with_postgres_lib}"
+fi
+LDFLAGS="$LDFLAGS ${with_postgres_libpath}"
 
 AC_CHECK_LIB(
 	[pq],
@@ -479,7 +507,7 @@ The last parts of config.log may give you a clue as to what really went wrong,
 but be warned that this is no easy reading.  Look for the last error message
 occurring in the file.
 ])],
-	-L${with_postgres_lib})
+	${with_postgres_libpath})
 
 # Remove redundant occurrances of -lpq
 LIBS=[$(echo "$LIBS" | sed -e 's/-lpq * -lpq\>/-lpq/g')]
