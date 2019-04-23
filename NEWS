@@ -1,5 +1,6 @@
 6.4.4
  - Use pkg-config if pg-config is not available.
+ - In CMake build, prefer CMake's config headers over any found in source tree.
 6.4.3
  - Updated copyright strings.
  - Added missing "stream" headers to autotools-based install.

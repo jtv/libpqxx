@@ -15,11 +15,15 @@ if(NOT PostgreSQL_INCLUDE_DIRS)
         find_package(PostgreSQL REQUIRED)
 endif()
 
+# When setting up the include paths, mention the binary tree's include
+# directory *before* the source tree's include directory.  If the source tree
+# happens to contain autoconf-generated config headers, we should still prefer
+# the ones in the binary tree.
 macro(library_target_setup tgt)
     target_include_directories(${tgt}
         PUBLIC
-            $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
             $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+            $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
         PRIVATE
             ${PostgreSQL_INCLUDE_DIRS}
