@@ -392,18 +392,18 @@ AC_ARG_WITH(
         [test "x$with_postgres_include" = "xyes"],
         [with_postgres_include=""]))
 
-if test -n "$PG_CONFIG" && test -r "$PG_CONFIG"; then
+if test -n "$PKG_CONFIG" && test -r "$PKG_CONFIG"; then
 AS_IF(
     [test -z "$with_postgres_include"],
-    [with_postgres_include=$($PG_CONFIG --includedir)])
+    [with_postgres_include=$($PKG_CONFIG libpq --cflags | sed 's/^-I//')])
 AC_MSG_NOTICE([using PostgreSQL headers at $with_postgres_include])
 AC_SUBST(with_postgres_include)
 POSTGRES_INCLUDE="-I${with_postgres_include}"
 AC_SUBST(POSTGRES_INCLUDE)
-elif test -n "$PKG_CONFIG" && test -r "$PKG_CONFIG"; then
+elif test -n "$PG_CONFIG" && test -r "$PG_CONFIG"; then
 AS_IF(
     [test -z "$with_postgres_include"],
-    [with_postgres_include=$($PKG_CONFIG libpq --cflags | sed 's/^-I//')])
+    [with_postgres_include=$($PG_CONFIG --includedir)])
 AC_MSG_NOTICE([using PostgreSQL headers at $with_postgres_include])
 AC_SUBST(with_postgres_include)
 POSTGRES_INCLUDE="-I${with_postgres_include}"
@@ -426,21 +426,21 @@ AC_ARG_WITH(
         [test "x$with_postgres_lib" = "xyes"],
         [with_postgres_lib=""]))
 
-if test -n "$PG_CONFIG" && test -r "$PG_CONFIG"; then
-    AS_IF(
-       [test -z "$with_postgres_lib"],
-       [with_postgres_lib=$($PG_CONFIG --libdir)])
-    AC_MSG_NOTICE([using PostgreSQL libraries at $with_postgres_lib])
-    AC_SUBST(with_postgres_lib)
-    #POSTGRES_LIB="-R${with_postgres_lib}"
-    AC_SUBST(POSTGRES_LIB)
-elif test -n "$PKG_CONFIG" && test -r "$PKG_CONFIG"; then
+if test -n "$PKG_CONFIG" && test -r "$PKG_CONFIG"; then
     AS_IF(
        [test -z "$with_postgres_lib"],
        [with_postgres_lib=$($PKG_CONFIG libpq --libs-only-L | sed 's/^-L//')])
     AC_MSG_NOTICE([using PostgreSQL libraries at $with_postgres_lib])
     # configure insists on inserting a library search path, so give him a standard one ...
     AC_SUBST(with_postgres_lib, "")
+    #POSTGRES_LIB="-R${with_postgres_lib}"
+    AC_SUBST(POSTGRES_LIB)
+elif test -n "$PG_CONFIG" && test -r "$PG_CONFIG"; then
+    AS_IF(
+       [test -z "$with_postgres_lib"],
+       [with_postgres_lib=$($PG_CONFIG --libdir)])
+    AC_MSG_NOTICE([using PostgreSQL libraries at $with_postgres_lib])
+    AC_SUBST(with_postgres_lib)
     #POSTGRES_LIB="-R${with_postgres_lib}"
     AC_SUBST(POSTGRES_LIB)
 fi
