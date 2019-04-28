@@ -434,7 +434,7 @@ public:
    *
    * @warning Do not mix the set_variable interface with manual setting of
    * variables by executing the corresponding SQL commands, and do not get or
-   * set variables while a tablestream or pipeline is active on the same
+   * set variables while a table stream or pipeline is active on the same
    * connection.
    * @param Var Variable to set
    * @param Value Value vor Var to assume: an identifier, a quoted string, or a
@@ -449,7 +449,7 @@ public:
    * the set_variable function.  If that fails, the database is queried.
    * @warning Do not mix the set_variable interface with manual setting of
    * variables by executing the corresponding SQL commands, and do not get or
-   * set variables while a tablestream or pipeline is active on the same
+   * set variables while a table stream or pipeline is active on the same
    * connection.
    */
   std::string get_variable(const std::string &);			//[t60]

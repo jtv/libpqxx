@@ -49,7 +49,6 @@ class notification_receiver;
 class range_error;
 class result;
 class row;
-class tablereader;
 class transaction_base;
 
 } // namespace pqxx

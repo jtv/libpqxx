@@ -105,10 +105,8 @@ namespace internal
 namespace gate
 {
 class transaction_subtransaction;
-class transaction_tablereader;
 class transaction_sql_cursor;
 class transaction_stream_from;
-class transaction_tablewriter;
 class transaction_stream_to;
 class transaction_transactionfocus;
 } // namespace internal::gate
@@ -625,12 +623,10 @@ private:
   PQXX_PRIVATE void unregister_focus(internal::transactionfocus *) noexcept;
   PQXX_PRIVATE void register_pending_error(const std::string &) noexcept;
 
-  friend class pqxx::internal::gate::transaction_tablereader;
   friend class pqxx::internal::gate::transaction_stream_from;
   PQXX_PRIVATE void BeginCopyRead(const std::string &, const std::string &);
   bool read_copy_line(std::string &);
 
-  friend class pqxx::internal::gate::transaction_tablewriter;
   friend class pqxx::internal::gate::transaction_stream_to;
   PQXX_PRIVATE void BeginCopyWrite(
 	const std::string &Table,
