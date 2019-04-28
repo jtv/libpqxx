@@ -100,7 +100,6 @@ install(
         PATTERN internal/gates/connection-errorhandler.hxx
         PATTERN internal/gates/connection-largeobject.hxx
         PATTERN internal/gates/connection-notification_receiver.hxx
-        PATTERN internal/gates/connection-parameterized_invocation.hxx
         PATTERN internal/gates/connection-pipeline.hxx
         PATTERN internal/gates/connection-prepare-invocation.hxx
         PATTERN internal/gates/connection-reactivation_avoidance_exemption.hxx

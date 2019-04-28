@@ -91,7 +91,6 @@ class connection_dbtransaction;
 class connection_errorhandler;
 class connection_largeobject;
 class connection_notification_receiver;
-class connection_parameterized_invocation;
 class connection_pipeline;
 class connection_prepare_invocation;
 class connection_reactivation_avoidance_exemption;
@@ -852,15 +851,6 @@ private:
   void add_reactivation_avoidance_count(int);
 
   friend class internal::gate::connection_reactivation_avoidance_exemption;
-
-  friend class internal::gate::connection_parameterized_invocation;
-  /// @deprecated Use exec_params instead.
-  PQXX_DEPRECATED result parameterized_exec(
-	const std::string &query,
-	const char *const params[],
-	const int paramlengths[],
-	const int binaries[],
-	int nparams);
 
   result exec_params(
 	const std::string &query,

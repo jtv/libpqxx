@@ -19,38 +19,12 @@
 #include "pqxx/transaction_base"
 
 #include "pqxx/internal/gates/connection-transaction.hxx"
-#include "pqxx/internal/gates/connection-parameterized_invocation.hxx"
 #include "pqxx/internal/gates/transaction-transactionfocus.hxx"
 
 #include "pqxx/internal/encodings.hxx"
 
 
 using namespace pqxx::internal;
-
-
-pqxx::internal::parameterized_invocation::parameterized_invocation(
-	connection_base &c,
-	const std::string &query) :
-  m_home{c},
-  m_query{query}
-{
-}
-
-
-pqxx::result pqxx::internal::parameterized_invocation::exec()
-{
-  std::vector<const char *> values;
-  std::vector<int> lengths;
-  std::vector<int> binaries;
-  const int elements = marshall(values, lengths, binaries);
-
-  return gate::connection_parameterized_invocation{m_home}.parameterized_exec(
-	m_query,
-	values.data(),
-	lengths.data(),
-	binaries.data(),
-	elements);
-}
 
 
 pqxx::transaction_base::transaction_base(connection_base &C, bool direct) :
@@ -316,15 +290,6 @@ void pqxx::transaction_base::check_rowcount_params(
 	"Expected " + to_string(expected_rows) + " row(s) of data "
 	"from parameterised query, got " + to_string(actual_rows) + "."};
   }
-}
-
-
-pqxx::internal::parameterized_invocation
-pqxx::transaction_base::parameterized(const std::string &query)
-{
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return internal::parameterized_invocation{conn(), query};
-#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 

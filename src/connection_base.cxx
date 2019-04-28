@@ -1401,30 +1401,6 @@ int pqxx::connection_base::encoding_id() const
 }
 
 
-pqxx::result pqxx::connection_base::parameterized_exec(
-	const std::string &query,
-	const char *const params[],
-	const int paramlengths[],
-	const int binaries[],
-	int nparams)
-{
-  auto r = make_result(
-  	PQexecParams(
-		m_conn,
-		query.c_str(),
-		nparams,
-		nullptr,
-		params,
-		paramlengths,
-		binaries,
-		0),
-	query);
-  check_result(r);
-  get_notifs();
-  return r;
-}
-
-
 pqxx::result pqxx::connection_base::exec_params(
 	const std::string &query,
 	const internal::params &args)

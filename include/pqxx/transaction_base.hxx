@@ -65,38 +65,6 @@ protected:
 private:
   bool m_registered;
 };
-
-
-/// Helper class to construct an invocation of a parameterised statement.
-/** @deprecated Use @c exec_params and friends instead.
- */
-class PQXX_LIBEXPORT parameterized_invocation : statement_parameters
-{
-public:
-  PQXX_DEPRECATED parameterized_invocation(
-	connection_base &, const std::string &query);
-
-  parameterized_invocation &operator()() { add_param(); return *this; }
-  parameterized_invocation &operator()(const binarystring &v)
-	{ add_binary_param(v, true); return *this; }
-  template<typename T> parameterized_invocation &operator()(const T &v)
-	{ add_param(v, true); return *this; }
-  parameterized_invocation &operator()(const binarystring &v, bool nonnull)
-	{ add_binary_param(v, nonnull); return *this; }
-  template<typename T>
-	parameterized_invocation &operator()(const T &v, bool nonnull)
-	{ add_param(v, nonnull); return *this; }
-
-  result exec();
-
-private:
-  /// Not allowed
-  parameterized_invocation &operator=(const parameterized_invocation &)
-	=delete;
-
-  connection_base &m_home;
-  const std::string m_query;
-};
 } // namespace internal
 
 
@@ -350,18 +318,6 @@ public:
     check_rowcount_params(rows, r.size());
     return r;
   }
-
-  /// Parameterize a statement.  @deprecated Use @c exec_params instead.
-  /* Use this to build up a parameterized statement invocation, then invoke it
-   * using @c exec()
-   *
-   * Example: @c trans.parameterized("SELECT $1 + 1")(1).exec();
-   *
-   * This is the old, pre-C++11 way of handling parameterised statements.  As
-   * of libpqxx 6.0, it's made much easier using variadic templates.
-   */
-  PQXX_DEPRECATED internal::parameterized_invocation
-  parameterized(const std::string &query);
   //@}
 
   /**

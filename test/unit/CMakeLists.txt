@@ -30,7 +30,6 @@ file(
     test_exceptions.cxx
     test_float.cxx
     test_notification.cxx
-    test_parameterized.cxx
     test_pipeline.cxx
     test_prepared_statement.cxx
     test_read_transaction.cxx

@@ -91,7 +91,6 @@ OBJS= \
   $(INTDIR)\test_exceptions.obj \
   $(INTDIR)\test_float.obj \
   $(INTDIR)\test_notification.obj \
-  $(INTDIR)\test_parameterized.obj \
   $(INTDIR)\test_pipeline.obj \
   $(INTDIR)\test_prepared_statement.obj \
   $(INTDIR)\test_read_transaction.obj \
@@ -165,8 +164,6 @@ $(INTDIR)\test_float.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_float.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_notification.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_notification.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test_parameterized.obj:
-	@$(CXX) $(CXX_FLAGS) test/unit/test_parameterized.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_pipeline.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_pipeline.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_prepared_statement.obj:
