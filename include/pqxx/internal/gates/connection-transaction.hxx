@@ -46,9 +46,6 @@ class PQXX_PRIVATE connection_transaction : callgate<connection_base>
     return home().exec_params(query, args);
   }
 
-  bool prepared_exists(const std::string &statement) const
-	{ return home().prepared_exists(statement); }
-
   void take_reactivation_avoidance(int counter)
 	{ home().m_reactivation_avoidance.add(counter); }
 };

@@ -92,7 +92,6 @@ class connection_errorhandler;
 class connection_largeobject;
 class connection_notification_receiver;
 class connection_pipeline;
-class connection_prepare_invocation;
 class connection_reactivation_avoidance_exemption;
 class connection_sql_cursor;
 class connection_transaction;
@@ -764,9 +763,7 @@ private:
 
   prepare::internal::prepared_def &register_prepared(const std::string &);
 
-  friend class internal::gate::connection_prepare_invocation;
   result exec_prepared(const std::string &statement, const internal::params &);
-  bool prepared_exists(const std::string &) const;
 
   /// Connection handle.
   internal::pq::PGconn *m_conn = nullptr;

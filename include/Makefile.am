@@ -47,7 +47,6 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/gates/connection-largeobject.hxx \
 	pqxx/internal/gates/connection-notification_receiver.hxx \
 	pqxx/internal/gates/connection-pipeline.hxx \
-	pqxx/internal/gates/connection-prepare-invocation.hxx \
 	pqxx/internal/gates/connection-reactivation_avoidance_exemption.hxx \
 	pqxx/internal/gates/connection-sql_cursor.hxx \
 	pqxx/internal/gates/connection-transaction.hxx \

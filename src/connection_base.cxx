@@ -837,13 +837,6 @@ pqxx::result pqxx::connection_base::exec_prepared(
 }
 
 
-bool pqxx::connection_base::prepared_exists(const std::string &statement) const
-{
-  auto s = m_prepared.find(statement);
-  return s != PSMap::const_iterator(m_prepared.end());
-}
-
-
 void pqxx::connection_base::reset()
 {
   if (m_inhibit_reactivation)
