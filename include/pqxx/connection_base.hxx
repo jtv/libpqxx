@@ -585,36 +585,6 @@ public:
    * @}
    */
 
-  /// @deprecated Pre-C++11 transactor function.
-  /**
-   * This has been superseded by the new transactor framework and
-   * @c pqxx::perform.
-   *
-   * Invokes the given transactor, making at most Attempts attempts to perform
-   * the encapsulated code.  If the code throws any exception other than
-   * broken_connection, it will be aborted right away.
-   *
-   * @param T The transactor to be executed.
-   * @param Attempts Maximum number of attempts to be made to execute T.
-   */
-  template<typename TRANSACTOR>
-  PQXX_DEPRECATED void perform(const TRANSACTOR &T, int Attempts);	//[t04]
-
-  /// @deprecated Pre-C++11 transactor function.  Use @c pqxx::perform instead.
-  /**
-   * This has been superseded by the new transactor framework and
-   * @c pqxx::perform.
-   *
-   * @param T The transactor to be executed.
-   */
-  template<typename TRANSACTOR>
-  PQXX_DEPRECATED void perform(const TRANSACTOR &T)
-  {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-    perform(T, 3);
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-  }
-
   /// Suffix unique number to name to make it unique within session context
   /** Used internally to generate identifiers for SQL objects (such as cursors
    * and nested transactions) based on a given human-readable base name.
