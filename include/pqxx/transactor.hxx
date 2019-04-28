@@ -36,8 +36,9 @@ namespace pqxx
  *
  * You won't necessarily want to execute the exact same SQL commands with the
  * exact same data.  Some of your SQL statements may depend on state that can
- * vary between retries.  So instead of dumbly replaying the SQL, you re-run
- * the same application code that produced those SQL commands.
+ * vary between retries.  Data in the database may already have changed, for
+ * instance.  So instead of dumbly replaying the SQL, you re-run the same
+ * application code that produced those SQL commands, from the start.
  *
  * The transactor framework makes it a little easier for you to do this safely,
  * and avoid typical pitfalls.  You encapsulate the work that you want to do
@@ -136,137 +137,6 @@ inline auto perform(const TRANSACTION_CALLBACK &callback, int attempts=3)
     }
   }
   throw pqxx::internal_error{"No outcome reached on perform()."};
-}
-
-/// @deprecated Pre-C++11 wrapper for automatically retrying transactions.
-/**
- * Pass an object of your transactor-based class to connection_base::perform()
- * to execute the transaction code embedded in it.
- *
- * connection_base::perform() is actually a template, specializing itself to any
- * transactor type you pass to it.  This means you will have to pass it a
- * reference of your object's ultimate static type; runtime polymorphism is
- * not allowed.  Hence the absence of virtual methods in transactor.  The
- * exact methods to be called at runtime *must* be resolved at compile time.
- *
- * Your transactor-derived class must define a copy constructor.  This will be
- * used to create a "clean" copy of your transactor for every attempt that
- * perform() makes to run it.
- */
-template<typename TRANSACTION=transaction<read_committed>> class transactor
-{
-public:
-  using argument_type = TRANSACTION;
-  PQXX_DEPRECATED explicit transactor(					//[t04]
-	const std::string &TName="transactor") :
-    m_name{TName} { }
-
-  /// Overridable transaction definition; insert your database code here
-  /** The operation will be retried if the connection to the backend is lost or
-   * the operation fails, but not if the connection is broken in such a way as
-   * to leave the library in doubt as to whether the operation succeeded.  In
-   * that case, an in_doubt_error will be thrown.
-   *
-   * Recommended practice is to allow this operator to modify only the
-   * transactor itself, and the dedicated transaction object it is passed as an
-   * argument.  This is what makes side effects, retrying etc. controllable in
-   * the transactor framework.
-   * @param T Dedicated transaction context created to perform this operation.
-   */
-  void operator()(TRANSACTION &T);					//[t04]
-
-  // Overridable member functions, called by connection_base::perform() if an
-  // attempt to run transaction fails/succeeds, respectively, or if the
-  // connection is lost at just the wrong moment, goes into an indeterminate
-  // state.  Use these to patch up runtime state to match events, if needed, or
-  // to report failure conditions.
-
-  /// Optional overridable function to be called if transaction is aborted
-  /** This need not imply complete failure; the transactor will automatically
-   * retry the operation a number of times before giving up.  on_abort() will be
-   * called for each of the failed attempts.
-   *
-   * One parameter is passed in by the framework: an error string describing why
-   * the transaction failed.  This will also be logged to the connection's
-   * notice processor.
-   */
-  void on_abort(const char[]) noexcept {}				//[t13]
-
-  /// Optional overridable function to be called after successful commit
-  /** If your on_commit() throws an exception, the actual back-end transaction
-   * will remain committed, so any changes in the database remain regardless of
-   * how this function terminates.
-   */
-  void on_commit() {}							//[t07]
-
-  /// Overridable function to be called when "in doubt" about outcome
-  /** This may happen if the connection to the backend is lost while attempting
-   * to commit.  In that case, the backend may have committed the transaction
-   * but is unable to confirm this to the frontend; or the transaction may have
-   * failed, causing it to be rolled back, but again without acknowledgement to
-   * the client program.  The best way to deal with this situation is typically
-   * to wave red flags in the user's face and ask him to investigate.
-   *
-   * The robusttransaction class is intended to reduce the chances of this
-   * error occurring, at a certain cost in performance.
-   * @see robusttransaction
-   */
-  void on_doubt() noexcept {}						//[t13]
-
-  /// The transactor's name.
-  std::string name() const { return m_name; }				//[t13]
-
-private:
-  std::string m_name;
-};
-
-
-template<typename TRANSACTOR>
-inline void connection_base::perform(
-	const TRANSACTOR &T,
-        int Attempts)
-{
-  if (Attempts <= 0) return;
-
-  bool Done = false;
-
-  // Make attempts to perform T
-  do
-  {
-    --Attempts;
-
-    // Work on a copy of T2 so we can restore the starting situation if need be
-    TRANSACTOR T2{T};
-    try
-    {
-      typename TRANSACTOR::argument_type X{*this, T2.name()};
-      T2(X);
-      X.commit();
-      Done = true;
-    }
-    catch (const in_doubt_error &)
-    {
-      // Not sure whether transaction went through or not.  The last thing in
-      // the world that we should do now is retry.
-      T2.on_doubt();
-      throw;
-    }
-    catch (const std::exception &e)
-    {
-      // Could be any kind of error.
-      T2.on_abort(e.what());
-      if (Attempts <= 0) throw;
-      continue;
-    }
-    catch (...)
-    {
-      // Don't try to forge ahead if we don't even know what happened
-      T2.on_abort("Unknown exception");
-      throw;
-    }
-
-    T2.on_commit();
-  } while (not Done);
 }
 } // namespace pqxx
 //@}
