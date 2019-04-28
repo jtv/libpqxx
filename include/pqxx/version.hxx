@@ -14,14 +14,14 @@
 #include "pqxx/compiler-internal-pre.hxx"
 
 /// Full libpqxx version string.
-#define PQXX_VERSION "6.4.4"
+#define PQXX_VERSION "7.0.0"
 /// Library ABI version.
-#define PQXX_ABI "6.4"
+#define PQXX_ABI "7.0"
 
 /// Major version number.
-#define PQXX_VERSION_MAJOR 6
+#define PQXX_VERSION_MAJOR 7
 /// Minor version number.
-#define PQXX_VERSION_MINOR 4
+#define PQXX_VERSION_MINOR 0
 
 namespace pqxx
 {
