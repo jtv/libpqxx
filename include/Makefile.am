@@ -28,9 +28,6 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/stream_from pqxx/stream_from.hxx \
 	pqxx/stream_to pqxx/stream_to.hxx \
 	pqxx/subtransaction pqxx/subtransaction.hxx \
-	pqxx/tablereader pqxx/tablereader.hxx \
-	pqxx/tablestream pqxx/tablestream.hxx \
-	pqxx/tablewriter pqxx/tablewriter.hxx \
 	pqxx/transaction pqxx/transaction.hxx \
 	pqxx/transaction_base pqxx/transaction_base.hxx \
 	pqxx/transactor pqxx/transactor.hxx \
@@ -66,8 +63,6 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/gates/transaction-stream_from.hxx \
 	pqxx/internal/gates/transaction-stream_to.hxx \
 	pqxx/internal/gates/transaction-subtransaction.hxx \
-	pqxx/internal/gates/transaction-tablereader.hxx \
-	pqxx/internal/gates/transaction-tablewriter.hxx \
 	pqxx/internal/gates/transaction-transactionfocus.hxx \
 	pqxx/internal/ignore-deprecated-pre.hxx \
 	pqxx/internal/ignore-deprecated-post.hxx

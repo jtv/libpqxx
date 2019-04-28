@@ -124,9 +124,6 @@ OBJ_STATICDEBUG=\
        "$(INTDIR_STATICDEBUG)\stream_from.obj" \
        "$(INTDIR_STATICDEBUG)\stream_to.obj" \
        "$(INTDIR_STATICDEBUG)\subtransaction.obj" \
-       "$(INTDIR_STATICDEBUG)\tablereader.obj" \
-       "$(INTDIR_STATICDEBUG)\tablestream.obj" \
-       "$(INTDIR_STATICDEBUG)\tablewriter.obj" \
        "$(INTDIR_STATICDEBUG)\transaction.obj" \
        "$(INTDIR_STATICDEBUG)\transaction_base.obj" \
        "$(INTDIR_STATICDEBUG)\util.obj" \
@@ -158,9 +155,6 @@ OBJ_STATICRELEASE=\
        "$(INTDIR_STATICRELEASE)\stream_from.obj" \
        "$(INTDIR_STATICRELEASE)\stream_to.obj" \
        "$(INTDIR_STATICRELEASE)\subtransaction.obj" \
-       "$(INTDIR_STATICRELEASE)\tablereader.obj" \
-       "$(INTDIR_STATICRELEASE)\tablestream.obj" \
-       "$(INTDIR_STATICRELEASE)\tablewriter.obj" \
        "$(INTDIR_STATICRELEASE)\transaction.obj" \
        "$(INTDIR_STATICRELEASE)\transaction_base.obj" \
        "$(INTDIR_STATICRELEASE)\util.obj" \
@@ -192,9 +186,6 @@ OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\stream_from.obj" \
        "$(INTDIR_DLLDEBUG)\stream_to.obj" \
        "$(INTDIR_DLLDEBUG)\subtransaction.obj" \
-       "$(INTDIR_DLLDEBUG)\tablereader.obj" \
-       "$(INTDIR_DLLDEBUG)\tablestream.obj" \
-       "$(INTDIR_DLLDEBUG)\tablewriter.obj" \
        "$(INTDIR_DLLDEBUG)\transaction.obj" \
        "$(INTDIR_DLLDEBUG)\transaction_base.obj" \
        "$(INTDIR_DLLDEBUG)\util.obj" \
@@ -227,9 +218,6 @@ OBJ_DLLRELEASE=\
        "$(INTDIR_DLLRELEASE)\stream_from.obj" \
        "$(INTDIR_DLLRELEASE)\stream_to.obj" \
        "$(INTDIR_DLLRELEASE)\subtransaction.obj" \
-       "$(INTDIR_DLLRELEASE)\tablereader.obj" \
-       "$(INTDIR_DLLRELEASE)\tablestream.obj" \
-       "$(INTDIR_DLLRELEASE)\tablewriter.obj" \
        "$(INTDIR_DLLRELEASE)\transaction.obj" \
        "$(INTDIR_DLLRELEASE)\transaction_base.obj" \
        "$(INTDIR_DLLRELEASE)\util.obj" \
@@ -511,27 +499,6 @@ $(INTDIR_DLLRELEASE)::
 	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/subtransaction.cxx
 
 
-"$(INTDIR_STATICRELEASE)\tablereader.obj": src/tablereader.cxx $(INTDIR_STATICRELEASE)
-	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/tablereader.cxx
-
-"$(INTDIR_STATICDEBUG)\tablereader.obj": src/tablereader.cxx $(INTDIR_STATICDEBUG)
-	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/tablereader.cxx
-
-
-"$(INTDIR_STATICRELEASE)\tablestream.obj": src/tablestream.cxx $(INTDIR_STATICRELEASE)
-	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/tablestream.cxx
-
-"$(INTDIR_STATICDEBUG)\tablestream.obj": src/tablestream.cxx $(INTDIR_STATICDEBUG)
-	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/tablestream.cxx
-
-
-"$(INTDIR_STATICRELEASE)\tablewriter.obj": src/tablewriter.cxx $(INTDIR_STATICRELEASE)
-	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/tablewriter.cxx
-
-"$(INTDIR_STATICDEBUG)\tablewriter.obj": src/tablewriter.cxx $(INTDIR_STATICDEBUG)
-	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/tablewriter.cxx
-
-
 "$(INTDIR_STATICRELEASE)\transaction.obj": src/transaction.cxx $(INTDIR_STATICRELEASE)
 	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/transaction.cxx
 
@@ -735,27 +702,6 @@ $(INTDIR_DLLRELEASE)::
 
 "$(INTDIR_DLLDEBUG)\subtransaction.obj": src/subtransaction.cxx $(INTDIR_DLLDEBUG)
 	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/subtransaction.cxx
-
-
-"$(INTDIR_DLLRELEASE)\tablereader.obj": src/tablereader.cxx $(INTDIR_DLLRELEASE)
-	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/tablereader.cxx
-
-"$(INTDIR_DLLDEBUG)\tablereader.obj": src/tablereader.cxx $(INTDIR_DLLDEBUG)
-	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/tablereader.cxx
-
-
-"$(INTDIR_DLLRELEASE)\tablestream.obj": src/tablestream.cxx $(INTDIR_DLLRELEASE)
-	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/tablestream.cxx
-
-"$(INTDIR_DLLDEBUG)\tablestream.obj": src/tablestream.cxx $(INTDIR_DLLDEBUG)
-	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/tablestream.cxx
-
-
-"$(INTDIR_DLLRELEASE)\tablewriter.obj": src/tablewriter.cxx $(INTDIR_DLLRELEASE)
-	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/tablewriter.cxx
-
-"$(INTDIR_DLLDEBUG)\tablewriter.obj": src/tablewriter.cxx $(INTDIR_DLLDEBUG)
-	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/tablewriter.cxx
 
 
 "$(INTDIR_DLLRELEASE)\transaction.obj": src/transaction.cxx $(INTDIR_DLLRELEASE)

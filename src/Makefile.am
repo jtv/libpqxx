@@ -24,9 +24,6 @@ libpqxx_la_SOURCES = \
 	stream_from.cxx \
 	stream_to.cxx \
 	subtransaction.cxx \
-	tablereader.cxx \
-	tablestream.cxx \
-	tablewriter.cxx \
 	transaction.cxx \
 	transaction_base.cxx \
 	row.cxx \

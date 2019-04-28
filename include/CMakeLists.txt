@@ -75,12 +75,6 @@ install(
         PATTERN stream_to
         PATTERN subtransaction.hxx
         PATTERN subtransaction
-        PATTERN tablereader.hxx
-        PATTERN tablereader
-        PATTERN tablestream.hxx
-        PATTERN tablestream
-        PATTERN tablewriter.hxx
-        PATTERN tablewriter
         PATTERN transaction.hxx
         PATTERN transaction
         PATTERN transaction_base.hxx
@@ -123,8 +117,6 @@ install(
         PATTERN internal/gates/transaction-stream_from.hxx
         PATTERN internal/gates/transaction-stream_to.hxx
         PATTERN internal/gates/transaction-subtransaction.hxx
-        PATTERN internal/gates/transaction-tablereader.hxx
-        PATTERN internal/gates/transaction-tablewriter.hxx
         PATTERN internal/gates/transaction-transactionfocus.hxx
         PATTERN config-public-compiler.h
         PATTERN pqxx

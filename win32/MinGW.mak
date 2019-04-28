@@ -44,9 +44,6 @@ OBJ = \
   src/stream_from.o \
   src/stream_to.o \
   src/subtransaction.o \
-  src/tablereader.o \
-  src/tablestream.o \
-  src/tablewriter.o \
   src/transaction.o \
   src/transaction_base.o \
   src/util.o \
@@ -149,15 +146,6 @@ src/stream_to.o: src/stream_to.cxx
 
 src/subtransaction.o: src/subtransaction.cxx
 	$(CXX) $(CPPFLAGS) -c src/subtransaction.cxx -o src/subtransaction.o $(CXXFLAGS)
-
-src/tablereader.o: src/tablereader.cxx
-	$(CXX) $(CPPFLAGS) -c src/tablereader.cxx -o src/tablereader.o $(CXXFLAGS)
-
-src/tablestream.o: src/tablestream.cxx
-	$(CXX) $(CPPFLAGS) -c src/tablestream.cxx -o src/tablestream.o $(CXXFLAGS)
-
-src/tablewriter.o: src/tablewriter.cxx
-	$(CXX) $(CPPFLAGS) -c src/tablewriter.cxx -o src/tablewriter.o $(CXXFLAGS)
 
 src/transaction.o: src/transaction.cxx
 	$(CXX) $(CPPFLAGS) -c src/transaction.cxx -o src/transaction.o $(CXXFLAGS)
