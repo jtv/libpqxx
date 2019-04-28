@@ -18,12 +18,6 @@ using namespace pqxx;
 
 namespace
 {
-std::string stringize(transaction_base &t, const std::string &arg)
-{
-  return "'" + t.esc(arg) + "'";
-}
-
-
 template<typename T> std::string stringize(transaction_base &t, T i)
 {
   return stringize(t, to_string(i));
@@ -64,148 +58,12 @@ template<typename CNTNR> std::string subst(
 }
 
 
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-
-
-/// @deprecated To be replaced with the C++11-style exec_prepared.
-void test_legacy_prepared_statement()
-{
-  connection conn;
-  work tx{conn};
-
-  PQXX_CHECK(
-	not tx.prepared("CountToTen").exists(),
-	"Nonexistent prepared statement thinks it exists.");
-
-  // Prepare a simple statement.
-  conn.prepare("CountToTen", "SELECT * FROM generate_series(1, 10)");
-
-  PQXX_CHECK(
-	tx.prepared("CountToTen").exists(),
-	"Prepared statement thinks it doesn't exist.");
-
-  // See if a basic prepared statement works just like a regular query.
-  PQXX_CHECK_EQUAL(
-	tx.prepared("CountToTen").exec(),
-	tx.exec("SELECT * FROM generate_series(1, 10)"),
-	"CountToTen");
-
-  // Try prepare_now() on an already prepared statement.
-  conn.prepare_now("CountToTen");
-
-  // Drop prepared statement.
-  conn.unprepare("CountToTen");
-
-  PQXX_CHECK_THROWS_EXCEPTION(
-	conn.prepare_now("CountToTen"),
-	"prepare_now() succeeded on dropped statement.");
-
-  // It's okay to unprepare a statement repeatedly.
-  conn.unprepare("CountToTen");
-  conn.unprepare("CountToTen");
-
-  // Executing an unprepared statement fails.
-  PQXX_CHECK_THROWS_EXCEPTION(
-	tx.prepared("CountToTen").exec(),
-	"Execute unprepared statement didn't fail.");
-
-  // Once unprepared, a statement can be prepared and used again.
-  conn.prepare(
-	"CountToTen",
-	"SELECT generate_series FROM generate_series(1, 10)");
-  conn.prepare_now("CountToTen");
-  COMPARE_RESULTS("CountToTen_2",
-	tx.prepared("CountToTen").exec(),
-	tx.exec("SELECT * FROM generate_series(1, 10)"));
-
-  // Double preparation of identical statement should be ignored...
-  conn.prepare(
-	"CountToTen",
-	"SELECT generate_series FROM generate_series(1, 10)");
-  COMPARE_RESULTS("CountToTen_double",
-	tx.prepared("CountToTen").exec(),
-	tx.exec("SELECT * FROM generate_series(1, 10)"));
-
-  // ...But a modified definition shouldn't.
-  PQXX_CHECK_THROWS_EXCEPTION(
-	conn.prepare(
-		"CountToTen",
-		"SELECT generate_series FROM generate_series(1, 11)"),
-	"Bad redefinition of statement went unnoticed.");
-
-  // Test prepared statement with parameter.
-
-  conn.prepare("CountUpToTen", "SELECT * FROM generate_series($1, 10)");
-
-  std::vector<int> args = {2};
-  COMPARE_RESULTS("CountUpToTen_seq",
-	tx.prepared("CountUpToTen")(args[0]).exec(),
-	tx.exec(subst(tx, "SELECT * FROM generate_series($1, 10)", args)));
-
-  // Test prepared statement with 2 parameters.
-
-  conn.prepare(
-	"CountRange",
-	"SELECT * FROM generate_series($1::int, $2::int)");
-  COMPARE_RESULTS("CountRange_seq",
-      tx.prepared("CountRange")(2)(5).exec(),
-      tx.exec("SELECT * FROM generate_series(2, 5)"));
-
-  // Test prepared statement with a null parameter.
-  std::vector<const char *> ptrs = {nullptr, "99"};
-
-  COMPARE_RESULTS("CountRange_null1",
-	tx.prepared("CountRange")(ptrs[0])(ptrs[1]).exec(),
-	tx.exec("SELECT * FROM generate_series(NULL, 99)"));
-
-  // Test prepared statement with a binary parameter.
-  conn.prepare("GimmeBinary", "SELECT $1::bytea");
-
-  const binarystring bin_data{std::string{"x \x01 \x02 \xff y"}};
-
-  PQXX_CHECK_EQUAL(
-	binarystring(tx.prepared("GimmeBinary")(bin_data).exec()[0][0]).str(),
-	bin_data.str(),
-	"Binary parameter was mangled somewhere along the way.");
-
-  const binarystring nully("x\0y", 3);
-  PQXX_CHECK_EQUAL(
-	binarystring(tx.prepared("GimmeBinary")(nully).exec()[0][0]).str(),
-	nully.str(),
-	"Binary string breaks on nul byte.");
-
-  // Test unnamed prepared statement.
-  conn.prepare("SELECT 2*$1");
-  int outcome = tx.prepared()(9).exec()[0][0].as<int>();
-  PQXX_CHECK_EQUAL(outcome, 18, "Unnamed prepared statement went mad.");
-
-  // Redefine unnamed prepared statement.  Does not need to be unprepared
-  // first.
-  conn.prepare("SELECT 2*$1 + $2");
-  outcome = tx.prepared()(9)(2).exec()[0][0].as<int>();
-  PQXX_CHECK_EQUAL(outcome, 20, "Unnamed statement not properly redefined.");
-
-  // Unlike how the unnamed prepared statement works in libpq, we can issue
-  // other queries and then re-use the unnamed prepared statement.
-  tx.exec("SELECT 12");
-  outcome = tx.prepared()(3)(1).exec()[0][0].as<int>();
-  PQXX_CHECK_EQUAL(outcome, 7, "Unnamed statement isn't what it was.");
-}
-
-
 void test_registration_and_invocation(transaction_base &T)
 {
   constexpr auto count_to_5 = "SELECT * FROM generate_series(1, 5)";
-  PQXX_CHECK(
-	not T.prepared("CountToFive").exists(),
-	"Nonexistent prepared statement thinks it exists.");
 
   // Prepare a simple statement.
   T.conn().prepare("CountToFive", count_to_5);
-
-  PQXX_CHECK(
-	T.prepared("CountToFive").exists(),
-	"Prepared statement thinks it doesn't exist.");
 
   // The statement returns exactly what you'd expect.
   COMPARE_RESULTS(
@@ -394,15 +252,5 @@ void test_prepared_statements()
 }
 
 
-#include <pqxx/internal/ignore-deprecated-post.hxx>
-
-
-void test_prepared_statement()
-{
-  test_legacy_prepared_statement();
-  test_prepared_statements();
-}
-
-
-PQXX_REGISTER_TEST(test_prepared_statement);
+PQXX_REGISTER_TEST(test_prepared_statements);
 } // namespace

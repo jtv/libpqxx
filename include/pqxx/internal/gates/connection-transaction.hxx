@@ -34,24 +34,6 @@ class PQXX_PRIVATE connection_transaction : callgate<connection_base>
   void add_variables(const std::map<std::string, std::string> &vars)
 	{ home().add_variables(vars); }
 
-  /// @deprecated To be replaced by exec_prepared.
-  result prepared_exec(
-	const std::string &statement,
-	const char *const params[],
-	const int paramlengths[],
-	const int binaries[],
-	int nparams)
-  {
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-    return home().prepared_exec(
-	statement,
-	params,
-	paramlengths,
-	binaries,
-	nparams);
-#include <pqxx/internal/ignore-deprecated-post.hxx>
-  }
-
   result exec_prepared(
 	const std::string &statement,
 	const internal::params &args)

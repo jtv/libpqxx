@@ -813,33 +813,6 @@ void pqxx::connection_base::prepare_now(const std::string &name)
 }
 
 
-pqxx::result pqxx::connection_base::prepared_exec(
-	const std::string &statement,
-	const char *const params[],
-	const int paramlengths[],
-	const int binary[],
-	int nparams)
-{
-  register_prepared(statement);
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
-  auto r = make_result(
-	PQexecPrepared(
-		m_conn,
-		statement.c_str(),
-		nparams,
-		params,
-		paramlengths,
-		binary,
-		0),
-    	statement);
-  check_result(r);
-  get_notifs();
-  return r;
-}
-
-
 pqxx::result pqxx::connection_base::exec_prepared(
 	const std::string &statement,
 	const internal::params &args)

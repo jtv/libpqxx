@@ -430,48 +430,6 @@ public:
     return r;
   }
 
-  /// Execute prepared statement.  @deprecated Use exec_prepared instead.
-  /** Just like param_declaration is a helper class that lets you tag parameter
-   * declarations onto the statement declaration, the invocation class returned
-   * here lets you tag parameter values onto the call:
-   *
-   * @code
-   * result run_mystatement(transaction_base &T)
-   * {
-   *   return T.exec_prepared("mystatement", "param1", 2, nullptr, 4);
-   * }
-   * @endcode
-   *
-   * Here, parameter 1 (written as "<tt>$1</tt>" in the statement's body) is a
-   * string that receives the value "param1"; the second parameter is an integer
-   * with the value 2; the third receives a null, making its type irrelevant;
-   * and number 4 again is an integer.  The ultimate invocation of exec() is
-   * essential; if you forget this, nothing happens.
-   *
-   * To see whether any prepared statement has been defined under a given name,
-   * use:
-   *
-   * @code
-   * T.prepared("mystatement").exists()
-   * @endcode
-   *
-   * @warning Do not try to execute a prepared statement manually through direct
-   * SQL statements.  This is likely not to work, and even if it does, is likely
-   * to be slower than using the proper libpqxx functions.  Also, libpqxx knows
-   * how to emulate prepared statements if some part of the infrastructure does
-   * not support them.
-   *
-   * @warning Actual definition of the prepared statement on the backend may be
-   * deferred until its first use, which means that any errors in the prepared
-   * statement may not show up until it is executed--and perhaps abort the
-   * ongoing transaction in the process.
-   *
-   * If you leave out the statement name, the call refers to the nameless
-   * statement instead.
-   */
-  PQXX_DEPRECATED prepare::invocation
-  prepared(const std::string &statement=std::string{});
-
   //@}
 
   /**

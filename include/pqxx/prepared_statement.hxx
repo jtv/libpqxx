@@ -75,81 +75,6 @@ namespace pqxx
 {
 namespace prepare
 {
-/// Helper class for passing parameters to, and executing, prepared statements
-/** @deprecated As of 6.0, use @c transaction_base::exec_prepared and friends.
- */
-class PQXX_LIBEXPORT invocation : internal::statement_parameters
-{
-public:
-  PQXX_DEPRECATED invocation(transaction_base &, const std::string &statement);
-  invocation &operator=(const invocation &) =delete;
-
-  /// Execute!
-  result exec() const;
-
-  /// Has a statement of this name been defined?
-  bool exists() const;
-
-  /// Pass null parameter.
-  invocation &operator()() { add_param(); return *this; }
-
-  /// Pass parameter value.
-  /**
-   * @param v parameter value; will be represented as a string internally.
-   */
-  template<typename T> invocation &operator()(const T &v)
-	{ add_param(v, true); return *this; }
-
-  /// Pass binary parameter value for a BYTEA field.
-  /**
-   * @param v binary string; will be passed on directly in binary form.
-   */
-  invocation &operator()(const binarystring &v)
-	{ add_binary_param(v, true); return *this; }
-
-  /// Pass parameter value.
-  /**
-   * @param v parameter value (will be represented as a string internally).
-   * @param nonnull replaces value with null if set to false.
-   */
-  template<typename T> invocation &operator()(const T &v, bool nonnull)
-	{ add_param(v, nonnull); return *this; }
-
-  /// Pass binary parameter value for a BYTEA field.
-  /**
-   * @param v binary string; will be passed on directly in binary form.
-   * @param nonnull determines whether to pass a real value, or nullptr.
-   */
-  invocation &operator()(const binarystring &v, bool nonnull)
-	{ add_binary_param(v, nonnull); return *this; }
-
-  /// Pass C-style parameter string, or null if pointer is null.
-  /**
-   * This version is for passing C-style strings; it's a template, so any
-   * pointer type that @c to_string accepts will do.
-   *
-   * @param v parameter value (will be represented as a C++ string internally)
-   * @param nonnull replaces value with null if set to @c false
-   */
-  template<typename T> invocation &operator()(T *v, bool nonnull=true)
-	{ add_param(v, nonnull); return *this; }
-
-  /// Pass C-style string parameter, or null if pointer is null.
-  /** This duplicates the pointer-to-template-argument-type version of the
-   * operator, but helps compilers with less advanced template implementations
-   * disambiguate calls where C-style strings are passed.
-   */
-  invocation &operator()(const char *v, bool nonnull=true)
-	{ add_param(v, nonnull); return *this; }
-
-private:
-  transaction_base &m_home;
-  const std::string m_statement;
-
-  invocation &setparam(const std::string &, bool nonnull);
-};
-
-
 namespace internal
 {
 /// Internal representation of a prepared statement definition.
@@ -163,7 +88,6 @@ struct PQXX_LIBEXPORT prepared_def
   prepared_def() =default;
   explicit prepared_def(const std::string &);
 };
-
 } // namespace pqxx::prepare::internal
 } // namespace pqxx::prepare
 } // namespace pqxx

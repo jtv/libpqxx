@@ -328,24 +328,6 @@ pqxx::transaction_base::parameterized(const std::string &query)
 }
 
 
-pqxx::prepare::invocation
-pqxx::transaction_base::prepared(const std::string &statement)
-{
-  try
-  {
-    activate();
-  }
-  catch (const usage_error &e)
-  {
-    throw usage_error{
-	"Error executing prepared statement " + statement + ".  " + e.what()};
-  }
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return prepare::invocation{*this, statement};
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-}
-
-
 pqxx::result pqxx::transaction_base::internal_exec_prepared(
 	const std::string &statement,
 	const internal::params &args)

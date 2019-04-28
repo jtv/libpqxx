@@ -766,13 +766,6 @@ private:
   prepare::internal::prepared_def &register_prepared(const std::string &);
 
   friend class internal::gate::connection_prepare_invocation;
-  /// @deprecated Use exec_prepared instead.
-  PQXX_DEPRECATED result prepared_exec(
-	const std::string &,
-	const char *const[],
-	const int[],
-	const int[],
-	int);
   result exec_prepared(const std::string &statement, const internal::params &);
   bool prepared_exists(const std::string &) const;
 

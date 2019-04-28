@@ -25,7 +25,7 @@ void test_092()
 
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
   conn.prepare(Stat, "INSERT INTO " + Table + " VALUES ($1)");
-  tx.prepared(Stat)(binarystring(data)).exec();
+  tx.exec_prepared(Stat, binarystring{data});
 
   const result L{ tx.exec("SELECT length("+Field+") FROM " + Table) };
   PQXX_CHECK_EQUAL(L[0][0].as<size_t>(),
@@ -44,27 +44,6 @@ void test_092()
   PQXX_CHECK_EQUAL(roundtrip.size(),
 	data.size(),
 	"Binary string reports wrong size.");
-
-  // People seem to like the multi-line invocation style, where you get your
-  // invocation object first, then add parameters in separate C++ statements.
-  // As John Mudd found, that used to break the code.  Let's test it.
-  tx.exec0("CREATE TEMP TABLE row (one INTEGER, two VARCHAR)");
-  conn.prepare("makerow", "INSERT INTO row VALUES ($1, $2)");
-
-  pqxx::prepare::invocation i{ tx.prepared("makerow") };
-  const std::string f = "frobnalicious";
-  i(6);
-  i(f);
-  i.exec();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
-
-  const result t{ tx.exec("SELECT * FROM row") };
-  PQXX_CHECK_EQUAL(t.size(), 1u, "Wrong result size.");
-  PQXX_CHECK_EQUAL(
-	t[0][0].as<std::string>(),
-	"6",
-	"Unexpected result value.");
-  PQXX_CHECK_EQUAL(t[0][1].c_str(), f, "Unexpected string result.");
 }
 } // namespace
 
