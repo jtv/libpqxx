@@ -11,6 +11,7 @@ namespace
 void test_072()
 {
   asyncconnection conn;
+  conn.activate();
   work tx{conn};
   pipeline P{tx};
 

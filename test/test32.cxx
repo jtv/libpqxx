@@ -43,6 +43,7 @@ struct deliberate_error : std::exception
 void test_032()
 {
   lazyconnection conn;
+  conn.activate();
   {
     nontransaction tx{conn};
     test::create_pqxxevents(tx);

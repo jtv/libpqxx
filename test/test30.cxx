@@ -16,6 +16,7 @@ void test_030()
   const std::string Table = "pg_tables";
 
   lazyconnection conn;
+  conn.activate();
   work tx{conn, "test30"};
 
   result R( tx.exec(("SELECT * FROM " + Table).c_str()) );

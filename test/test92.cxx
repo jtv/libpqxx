@@ -14,6 +14,7 @@ namespace
 void test_092()
 {
   lazyconnection conn;
+  conn.activate();
   nontransaction tx{conn};
 
   const char databuf[] = "Test\0data";

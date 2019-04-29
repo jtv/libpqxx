@@ -13,6 +13,7 @@ namespace
 void test_063()
 {
   asyncconnection conn;
+  conn.activate();
   work tx{conn};
   result R( tx.exec("SELECT * FROM pg_tables") );
   PQXX_CHECK(not R.empty(), "No tables found.  Cannot test.");

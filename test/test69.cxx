@@ -44,6 +44,7 @@ void TestPipeline(pipeline &P, int numqueries)
 void test_069()
 {
   asyncconnection conn;
+  conn.activate();
   work tx{conn};
   pipeline P(tx);
   PQXX_CHECK(P.empty(), "Pipeline is not empty initially.");

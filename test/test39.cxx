@@ -13,6 +13,7 @@ int BoringYear = 1977;
 void test_039()
 {
   lazyconnection conn;
+  conn.activate();
   nontransaction tx1{conn};
   test::create_pqxxevents(tx1);
   const std::string Table = "pqxxevents";

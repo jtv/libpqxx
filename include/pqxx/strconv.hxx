@@ -86,6 +86,7 @@ PQXX_DECLARE_TYPE_NAME(const char *);
 PQXX_DECLARE_TYPE_NAME(std::string);
 PQXX_DECLARE_TYPE_NAME(const std::string);
 PQXX_DECLARE_TYPE_NAME(std::stringstream);
+PQXX_DECLARE_TYPE_NAME(std::nullptr_t);
 #undef PQXX_DECLARE_TYPE_NAME
 
 template<size_t N> struct type_name<char[N]>
@@ -256,6 +257,15 @@ template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
 	{ Obj.clear(); Obj << Str; }
   static std::string to_string(const std::stringstream &Obj)
 	{ return Obj.str(); }
+};
+
+/// Weird case: nullptr_t.  We don't fully support it.
+template<> struct PQXX_LIBEXPORT string_traits<std::nullptr_t>
+{
+  static constexpr const char *name() noexcept { return "nullptr_t"; }
+  static constexpr bool has_null() noexcept { return true; }
+  static std::nullptr_t null() { return nullptr; }
+  static std::string to_string(const nullptr_t &) { return "null"; }
 };
 
 

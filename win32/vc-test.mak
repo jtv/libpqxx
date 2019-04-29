@@ -89,7 +89,6 @@ OBJS= \
   $(INTDIR)\test12.obj \
   $(INTDIR)\test13.obj \
   $(INTDIR)\test14.obj \
-  $(INTDIR)\test15.obj \
   $(INTDIR)\test16.obj \
   $(INTDIR)\test17.obj \
   $(INTDIR)\test18.obj \
@@ -101,10 +100,7 @@ OBJS= \
   $(INTDIR)\test30.obj \
   $(INTDIR)\test31.obj \
   $(INTDIR)\test32.obj \
-  $(INTDIR)\test33.obj \
-  $(INTDIR)\test34.obj \
   $(INTDIR)\test35.obj \
-  $(INTDIR)\test36.obj \
   $(INTDIR)\test37.obj \
   $(INTDIR)\test39.obj \
   $(INTDIR)\test46.obj \
@@ -141,7 +137,6 @@ OBJS= \
   $(INTDIR)\test79.obj \
   $(INTDIR)\test82.obj \
   $(INTDIR)\test84.obj \
-  $(INTDIR)\test86.obj \
   $(INTDIR)\test87.obj \
   $(INTDIR)\test88.obj \
   $(INTDIR)\test89.obj \
@@ -203,8 +198,6 @@ $(INTDIR)\test13.obj::
 	@$(CXX) $(CXX_FLAGS) test/test13.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test14.obj::
 	@$(CXX) $(CXX_FLAGS) test/test14.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test15.obj::
-	@$(CXX) $(CXX_FLAGS) test/test15.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test16.obj::
 	@$(CXX) $(CXX_FLAGS) test/test16.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test17.obj::
@@ -227,14 +220,8 @@ $(INTDIR)\test31.obj::
 	@$(CXX) $(CXX_FLAGS) test/test31.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test32.obj::
 	@$(CXX) $(CXX_FLAGS) test/test32.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test33.obj::
-	@$(CXX) $(CXX_FLAGS) test/test33.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test34.obj::
-	@$(CXX) $(CXX_FLAGS) test/test34.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test35.obj::
 	@$(CXX) $(CXX_FLAGS) test/test35.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test36.obj::
-	@$(CXX) $(CXX_FLAGS) test/test36.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test37.obj::
 	@$(CXX) $(CXX_FLAGS) test/test37.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test39.obj::
@@ -307,8 +294,6 @@ $(INTDIR)\test82.obj::
 	@$(CXX) $(CXX_FLAGS) test/test82.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test84.obj::
 	@$(CXX) $(CXX_FLAGS) test/test84.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test86.obj::
-	@$(CXX) $(CXX_FLAGS) test/test86.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test87.obj::
 	@$(CXX) $(CXX_FLAGS) test/test87.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test88.obj::

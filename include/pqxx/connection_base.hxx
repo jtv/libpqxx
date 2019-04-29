@@ -150,39 +150,24 @@ public:
  /**
    * @name Activation
    *
-   * @warning Connection deactivation/reactivation will probably be removed in
-   * libpqxx 7.  If your application relies on an ability to "put connections
-   * to sleep" and reactivate them later, you'll need to wrap them in some way
-   * to handle this.
+   * Connections can be "inactive": they can be temporarily deactivated, or
+   * they can break because of firewalls dropping TCP connections.  You can
+   * also start connection in a "lazy" way, or "asynchronously," so they start
+   * out in an inactive state.
    *
-   * Connections can be temporarily deactivated, or they can break because of
-   * overly impatient firewalls dropping TCP connections.  Where possible,
-   * libpqxx will try to re-activate these when resume using them, or you can
-   * wake them up explicitly.  You probably won't need this feature, but you
-   * should be aware of it.
+   * To make use of an inactive connection, call its @c activate() first.
+   * Doing so does not make sense inside a database transaction, and there are
+   * other situations where it won't work, e.g. while streaming, or when a
+   * @c pipeline is active.
    */
   //@{
-  /// @deprecated Explicitly activate deferred or deactivated connection.
-  /** Use of this method is entirely optional.  Whenever a connection is used
-   * while in a deferred or deactivated state, it will transparently try to
-   * bring itself into an activated state.  This function is best viewed as an
-   * explicit hint to the connection that "if you're not in an active state, now
-   * would be a good time to get into one."  Whether a connection is currently
-   * in an active state or not makes no real difference to its functionality.
-   * There is also no particular need to match calls to activate() with calls to
-   * deactivate().  A good time to call activate() might be just before you
-   * first open a transaction on a lazy connection.
-   */
+  /// Explicitly activate the connection if it's in an inactive state.
   void activate();							//[t12]
 
-  /// @deprecated Explicitly deactivate connection.
-  /** Like its counterpart activate(), this method is entirely optional.
-   * Calling this function really only makes sense if you won't be using this
-   * connection for a while and want to reduce the number of open connections on
-   * the database server.
-   * There is no particular need to match or pair calls to deactivate() with
-   * calls to activate(), but calling deactivate() during a transaction is an
-   * error.
+  /// Explicitly deactivate connection, if it was active.
+  /** Calling this function really only makes sense if you won't be using this
+   * connection for a while and want to reduce the number of open connections
+   * on the database server.
    */
   void deactivate();							//[t12]
 
@@ -270,9 +255,6 @@ public:
   const char *username() const;						//[t01]
 
   /// Address of server, or nullptr if none specified (i.e. default or local)
-  /** @warning This activates the connection, which may fail with a
-   * broken_connection exception.
-   */
   const char *hostname() const;						//[t01]
 
   /// Server port number we're connected to.

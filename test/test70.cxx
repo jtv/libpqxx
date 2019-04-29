@@ -53,6 +53,7 @@ void TestPipeline(pipeline &P, int numqueries)
 void test_070()
 {
   asyncconnection conn;
+  conn.activate();
   work tx{conn};
   pipeline P(tx);
 

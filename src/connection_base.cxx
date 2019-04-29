@@ -703,9 +703,8 @@ std::vector<errorhandler *> pqxx::connection_base::get_errorhandlers() const
 
 pqxx::result pqxx::connection_base::exec(const char Query[], int Retries)
 {
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
+  if (m_conn == nullptr) throw broken_connection{
+    "Could not execute query: connection is inactive."};
 
   auto R = make_result(PQexec(m_conn, Query), Query);
 
@@ -782,9 +781,8 @@ pqxx::connection_base::find_prepared(const std::string &statement)
 pqxx::prepare::internal::prepared_def &
 pqxx::connection_base::register_prepared(const std::string &name)
 {
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
+  if (m_conn == nullptr) throw broken_connection{
+    "Could not prepare statement: connection is inactive."};
   auto &s = find_prepared(name);
 
   // "Register" (i.e., define) prepared statement with backend on demand
@@ -813,9 +811,6 @@ pqxx::result pqxx::connection_base::exec_prepared(
 	const internal::params &args)
 {
   register_prepared(statement);
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
   const auto pointers = args.get_pointers();
   const auto pq_result = PQexecPrepared(
 	m_conn,
@@ -1034,9 +1029,8 @@ void pqxx::connection_base::end_copy_write()
 
 void pqxx::connection_base::start_exec(const std::string &Q)
 {
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
+  if (m_conn == nullptr) throw broken_connection{
+    "Can't execute query: connection is inactive."};
   if (PQsendQuery(m_conn, Q.c_str()) == 0) throw failure{err_msg()};
 }
 

@@ -59,6 +59,7 @@ void ActivationTest(
 void test_064()
 {
   asyncconnection conn;
+  conn.activate();
 
   PQXX_CHECK(not GetDatestyle(conn).empty(), "Initial datestyle not set.");
 

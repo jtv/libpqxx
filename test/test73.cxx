@@ -6,13 +6,13 @@ using namespace pqxx;
 
 
 // Test program for libpqxx.  Test pipeline's handling of SQL syntax errors on a
-// more exotic connection type.  Using nontransaction so the pipeline gets to
-// trigger the setup of the real connection.
+// more exotic connection type.
 namespace
 {
 void test_073()
 {
   asyncconnection conn;
+  conn.activate();
   nontransaction tx{conn};
   pipeline P{tx, "pipe73"};
 

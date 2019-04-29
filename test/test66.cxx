@@ -13,6 +13,7 @@ int BoringYear = 1977;
 void test_066()
 {
   asyncconnection conn;
+  conn.activate();
   nontransaction tx1{conn};
 
   test::create_pqxxevents(tx1);

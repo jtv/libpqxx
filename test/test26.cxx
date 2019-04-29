@@ -62,6 +62,7 @@ std::map<int, int> update_years(connection_base &C)
 void test_026()
 {
   lazyconnection conn;
+  conn.activate();
   {
     nontransaction tx{conn};
     test::create_pqxxevents(tx);

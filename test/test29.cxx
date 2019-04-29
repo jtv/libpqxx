@@ -99,6 +99,7 @@ void Test(connection_base &conn, bool ExplicitAbort)
 void test_029()
 {
   lazyconnection conn;
+  conn.activate();
   {
     nontransaction tx{conn};
     test::create_pqxxevents(tx);

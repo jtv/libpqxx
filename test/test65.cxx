@@ -8,7 +8,7 @@
 using namespace pqxx;
 
 
-// Simple test program for libpqxx's large objects on asynchronous connection.
+// Test large objects on asynchronous connection.
 namespace
 {
 /* Read contents of Stream into a single string.  The data will go through
@@ -26,6 +26,7 @@ template<typename T> std::string UnStream(T &Stream)
 void test_065()
 {
   asyncconnection conn("");
+  conn.activate();
 
   const std::string Contents = "Testing, testing, 1-2-3";
 
