@@ -103,10 +103,6 @@ pqxx::internal::sql_cursor::sql_cursor(
 {
   if (&t.conn() != &m_home) throw internal_error{"Cursor in wrong connection"};
 
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  m_home.activate();
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-
   if (query.empty()) throw usage_error{"Cursor has empty query."};
   const auto enc = enc_group(t.conn().encoding_id());
   const auto qend = find_query_end(query, enc);

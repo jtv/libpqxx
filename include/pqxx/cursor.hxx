@@ -260,12 +260,12 @@ public:
    * supports only two operations: reading a block of rows while moving forward,
    * and moving forward without reading any data.
    *
-   * @param context Transaction context that this cursor will be active in
-   * @param query SQL query whose results this cursor shall iterate
-   * @param basename Suggested name for the SQL cursor; a unique code will be
-   * appended by the library to ensure its uniqueness
+   * @param context Transaction context in which this cursor will be active.
+   * @param query SQL query whose results this cursor shall iterate.
+   * @param basename Suggested name for the SQL cursor; the library will append
+   * a unique code to ensure its uniqueness.
    * @param sstride Number of rows to fetch per read operation; must be a
-   * positive number
+   * positive number.
    */
   icursorstream(
 	transaction_base &context,
@@ -291,7 +291,7 @@ public:
    * defer doing so until after entering the transaction context that will
    * eventually destroy it.
    *
-   * @param context Transaction context that this cursor will be active in.
+   * @param context Transaction context in which this cursor will be active.
    * @param cname Result field containing the name of the SQL cursor to adopt.
    * @param sstride Number of rows to fetch per read operation; must be a
    * positive number.
