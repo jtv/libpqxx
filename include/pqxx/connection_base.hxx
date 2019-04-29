@@ -173,7 +173,7 @@ public:
    * deactivate().  A good time to call activate() might be just before you
    * first open a transaction on a lazy connection.
    */
-  PQXX_DEPRECATED void activate();					//[t12]
+  void activate();							//[t12]
 
   /// @deprecated Explicitly deactivate connection.
   /** Like its counterpart activate(), this method is entirely optional.
@@ -184,7 +184,7 @@ public:
    * calls to activate(), but calling deactivate() during a transaction is an
    * error.
    */
-  PQXX_DEPRECATED void deactivate();					//[t12]
+  void deactivate();							//[t12]
 
   /// @deprecated Disallow (or permit) connection recovery
   /** A connection whose underlying socket is not currently connected to the
