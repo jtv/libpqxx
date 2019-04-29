@@ -265,7 +265,7 @@ template<> struct PQXX_LIBEXPORT string_traits<std::nullptr_t>
   static constexpr const char *name() noexcept { return "nullptr_t"; }
   static constexpr bool has_null() noexcept { return true; }
   static std::nullptr_t null() { return nullptr; }
-  static std::string to_string(const nullptr_t &) { return "null"; }
+  static std::string to_string(const std::nullptr_t &) { return "null"; }
 };
 
 
