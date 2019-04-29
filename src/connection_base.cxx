@@ -139,38 +139,37 @@ int pqxx::connection_base::sock() const noexcept
 
 void pqxx::connection_base::activate()
 {
-  if (not is_open())
-  {
-    if (m_inhibit_reactivation)
-      throw broken_connection{
+  if (is_open()) return;
+
+  if (m_inhibit_reactivation)
+    throw broken_connection{
 	"Could not reactivate connection; "
 	"reactivation is inhibited"};
 
-    // If any objects were open that didn't survive the closing of our
-    // connection, don't try to reactivate
-    if (m_reactivation_avoidance.get()) return;
+  // If any objects were open that didn't survive the closing of our
+  // connection, don't try to reactivate
+  if (m_reactivation_avoidance.get()) return;
 
-    try
-    {
-      m_conn = m_policy.do_startconnect(m_conn);
-      m_conn = m_policy.do_completeconnect(m_conn);
-      m_completed = true;	// (But retracted if error is thrown below)
+  try
+  {
+    m_conn = m_policy.do_startconnect(m_conn);
+    m_conn = m_policy.do_completeconnect(m_conn);
+    m_completed = true;	// (But retracted if error is thrown below)
 
-      if (not is_open()) throw broken_connection{};
+    if (not is_open()) throw broken_connection{};
 
-      set_up_state();
-    }
-    catch (const broken_connection &e)
-    {
-      disconnect();
-      m_completed = false;
-      throw broken_connection{e.what()};
-    }
-    catch (const std::exception &)
-    {
-      m_completed = false;
-      throw;
-    }
+    set_up_state();
+  }
+  catch (const broken_connection &e)
+  {
+    disconnect();
+    m_completed = false;
+    throw broken_connection{e.what()};
+  }
+  catch (const std::exception &)
+  {
+    m_completed = false;
+    throw;
   }
 }
 
