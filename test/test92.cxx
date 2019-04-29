@@ -24,7 +24,6 @@ void test_092()
   const std::string Table = "pqxxbin", Field = "binfield", Stat = "nully";
   tx.exec0("CREATE TEMP TABLE " + Table + " (" + Field + " BYTEA)");
 
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
   conn.prepare(Stat, "INSERT INTO " + Table + " VALUES ($1)");
   tx.exec_prepared(Stat, binarystring{data});
 

@@ -45,13 +45,9 @@ void ActivationTest(
 	std::string expected)
 {
   RedoDatestyle(conn, style, expected);
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
   conn.deactivate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
   CheckDatestyle(conn, expected);
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
   conn.activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
   CheckDatestyle(conn, expected);
 }
 

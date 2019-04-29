@@ -45,14 +45,10 @@ void ActivationTest(
 {
   RedoDatestyle(conn, style, expected);
   std::cout << "Deactivating connection..." << std::endl;
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
   conn.deactivate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
   CheckDatestyle(conn, expected);
   std::cout << "Reactivating connection..." << std::endl;
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
   conn.activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
   CheckDatestyle(conn, expected);
 }
 

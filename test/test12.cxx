@@ -16,13 +16,11 @@ void test_012()
   connection conn;
   const std::string Table = "pg_tables";
 
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
   // Tell C we won't be needing it for a while (not true, but let's pretend)
   conn.deactivate();
 
   // ...And reactivate C (not really needed, but it sounds more polite)
   conn.activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   work tx{conn, "test12"};
 

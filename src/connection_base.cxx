@@ -99,9 +99,7 @@ std::string pqxx::encrypt_password(
 void pqxx::connection_base::init()
 {
   m_conn = m_policy.do_startconnect(m_conn);
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
   if (m_policy.is_ready(m_conn)) activate();
-#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
@@ -848,9 +846,7 @@ void pqxx::connection_base::reset()
   else
   {
     // No existing connection--start a new one
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
     activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
   }
 }
 

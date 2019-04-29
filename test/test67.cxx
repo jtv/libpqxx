@@ -25,19 +25,15 @@ void test_067()
 
   const std::string Table = "pg_tables";
 
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
   // Tell conn we won't be needing it for a while (not true, but let's pretend).
   conn.deactivate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   // Now set up some data structures
   std::vector<int> NullFields;		// Maps column to no. of null fields
   std::vector<bool> SortedUp, SortedDown; // Does column appear to be sorted?
 
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
   // ...And reactivate conn (not really needed, but it sounds more polite).
   conn.activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   work tx{conn, "test67"};
 
