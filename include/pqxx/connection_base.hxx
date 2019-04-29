@@ -257,31 +257,26 @@ public:
    * These are probably not of great interest, since most are derived from
    * information supplied by the client program itself, but they are included
    * for completeness.
+   *
+   * The connection needs to be currently active for these to work.  Do not
+   * call them if the connection is broken, or after a call to its
+   * @c deactivate.
    */
   //@{
   /// Name of database we're connected to, if any.
-  /** @warning This activates the connection, which may fail with a
-   * broken_connection exception.
-   */
-  const char *dbname();							//[t01]
+  const char *dbname() const;						//[t01]
 
   /// Database user ID we're connected under, if any.
-  /** @warning This activates the connection, which may fail with a
-   * broken_connection exception.
-   */
-  const char *username();						//[t01]
+  const char *username() const;						//[t01]
 
   /// Address of server, or nullptr if none specified (i.e. default or local)
   /** @warning This activates the connection, which may fail with a
    * broken_connection exception.
    */
-  const char *hostname();						//[t01]
+  const char *hostname() const;						//[t01]
 
   /// Server port number we're connected to.
-  /** @warning This activates the connection, which may fail with a
-   * broken_connection exception.
-   */
-  const char *port();							//[t01]
+  const char *port() const;						//[t01]
 
   /// Process ID for backend process.
   /** Use with care: connections may be lost and automatically re-established

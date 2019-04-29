@@ -13,6 +13,11 @@ void test_021()
 {
   lazyconnection conn;
   conn.process_notice("Printing details on deferred connection\n");
+
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
+  conn.activate();
+#include <pqxx/internal/ignore-deprecated-post.hxx>
+
   const std::string HostName = (conn.hostname() ? conn.hostname() : "<local>");
   conn.process_notice(std::string{} +
 	"database=" + conn.dbname() + ", "

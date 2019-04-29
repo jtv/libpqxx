@@ -618,38 +618,34 @@ int pqxx::connection_base::get_notifs()
 }
 
 
-const char *pqxx::connection_base::dbname()
+const char *pqxx::connection_base::dbname() const
 {
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  if (m_conn == nullptr) activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
+  if (m_conn == nullptr) throw broken_connection{
+	"Can't get database name: connection is inactive."};
   return PQdb(m_conn);
 }
 
 
-const char *pqxx::connection_base::username()
+const char *pqxx::connection_base::username() const
 {
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  if (m_conn == nullptr) activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
+  if (m_conn == nullptr) throw broken_connection{
+	"Can't get user name: connection is inactive."};
   return PQuser(m_conn);
 }
 
 
-const char *pqxx::connection_base::hostname()
+const char *pqxx::connection_base::hostname() const
 {
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  if (m_conn == nullptr) activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
+  if (m_conn == nullptr) throw broken_connection{
+	"Can't get server name: connection is inactive."};
   return PQhost(m_conn);
 }
 
 
-const char *pqxx::connection_base::port()
+const char *pqxx::connection_base::port() const
 {
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  if (m_conn == nullptr) activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
+  if (m_conn == nullptr) throw broken_connection{
+	"Can't get database port: connection is inactive."};
   return PQport(m_conn);
 }
 
