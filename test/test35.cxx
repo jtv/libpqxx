@@ -13,6 +13,7 @@ namespace
 void test_035()
 {
   lazyconnection conn;
+  conn.activate();
   robusttransaction<> tx{conn};
   result R( tx.exec("SELECT * FROM pg_tables") );
 

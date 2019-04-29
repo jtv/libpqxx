@@ -41,6 +41,7 @@ public:
 void test_023()
 {
   lazyconnection C;
+  C.activate();
   std::cout << "Adding listener..." << std::endl;
   TestListener L{C};
 

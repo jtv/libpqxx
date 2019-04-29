@@ -571,46 +571,46 @@ public:
    */
   //@{
   /// Escape string for use as SQL string literal on this connection
-  std::string esc(const char str[]);
+  std::string esc(const char str[]) const;
 
   /// Escape string for use as SQL string literal on this connection
-  std::string esc(const char str[], size_t maxlen);
+  std::string esc(const char str[], size_t maxlen) const;
 
   /// Escape string for use as SQL string literal on this connection
-  std::string esc(const std::string &str);
+  std::string esc(const std::string &str) const;
 
   /// Escape binary string for use as SQL string literal on this connection
-  std::string esc_raw(const unsigned char str[], size_t len);
+  std::string esc_raw(const unsigned char str[], size_t len) const;
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  std::string unesc_raw(const std::string &text)
+  std::string unesc_raw(const std::string &text) const
 					     { return unesc_raw(text.c_str()); }
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  std::string unesc_raw(const char *text);
+  std::string unesc_raw(const char *text) const;
 
   /// Escape and quote a string of binary data.
-  std::string quote_raw(const unsigned char str[], size_t len);
+  std::string quote_raw(const unsigned char str[], size_t len) const;
 
   /// Escape and quote an SQL identifier for use in a query.
-  std::string quote_name(const std::string &identifier);
+  std::string quote_name(const std::string &identifier) const;
 
   /// Represent object as SQL string, including quoting & escaping.
   /** Nulls are recognized and represented as SQL nulls. */
   template<typename T>
-  std::string quote(const T &t)
+  std::string quote(const T &t) const
   {
     if (string_traits<T>::is_null(t)) return "NULL";
     return "'" + this->esc(to_string(t)) + "'";
   }
 
-  std::string quote(const binarystring &);
+  std::string quote(const binarystring &) const;
 
   /// Escape string for literal LIKE match.
   /** Use this when part of an SQL "LIKE" pattern should match only as a

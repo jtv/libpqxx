@@ -1044,13 +1044,10 @@ void pqxx::connection_base::add_reactivation_avoidance_count(int n)
 }
 
 
-std::string pqxx::connection_base::esc(const char str[], size_t maxlen)
+std::string pqxx::connection_base::esc(const char str[], size_t maxlen) const
 {
-  // We need a connection object...  This is the one reason why this function is
-  // not const!
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  if (m_conn == nullptr) activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
+  if (m_conn == nullptr) throw broken_connection{
+    "Can't escape string: connection is not active."};
 
   std::vector<char> buf(2 * maxlen + 1);
   int err = 0;
@@ -1062,13 +1059,13 @@ std::string pqxx::connection_base::esc(const char str[], size_t maxlen)
 }
 
 
-std::string pqxx::connection_base::esc(const char str[])
+std::string pqxx::connection_base::esc(const char str[]) const
 {
   return this->esc(str, strlen(str));
 }
 
 
-std::string pqxx::connection_base::esc(const std::string &str)
+std::string pqxx::connection_base::esc(const std::string &str) const
 {
   return this->esc(str.c_str(), str.size());
 }
@@ -1076,14 +1073,12 @@ std::string pqxx::connection_base::esc(const std::string &str)
 
 std::string pqxx::connection_base::esc_raw(
         const unsigned char str[],
-        size_t len)
+        size_t len) const
 {
+  if (m_conn == nullptr) throw broken_connection{
+    "Can't escape raw data: connection is not active."};
+
   size_t bytes = 0;
-  // We need a connection object...  This is the one reason why this function is
-  // not const!
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
 
   std::unique_ptr<unsigned char, void (*)(unsigned char *)> buf{
 	PQescapeByteaConn(m_conn, str, len, &bytes),
@@ -1093,7 +1088,7 @@ std::string pqxx::connection_base::esc_raw(
 }
 
 
-std::string pqxx::connection_base::unesc_raw(const char *text)
+std::string pqxx::connection_base::unesc_raw(const char *text) const
 {
   size_t len;
   unsigned char *bytes = const_cast<unsigned char *>(
@@ -1107,25 +1102,24 @@ std::string pqxx::connection_base::unesc_raw(const char *text)
 
 std::string pqxx::connection_base::quote_raw(
         const unsigned char str[],
-        size_t len)
+        size_t len) const
 {
   return "'" + esc_raw(str, len) + "'::bytea";
 }
 
 
-std::string pqxx::connection_base::quote(const binarystring &b)
+std::string pqxx::connection_base::quote(const binarystring &b) const
 {
   return quote_raw(b.data(), b.size());
 }
 
 
 std::string pqxx::connection_base::quote_name(const std::string &identifier)
+	const
 {
-  // We need a connection object...  This is the one reason why this function is
-  // not const!
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
+  if (m_conn == nullptr) throw broken_connection{
+    "Can't escape identifier: connection is not active."};
+
   std::unique_ptr<char, void (*)(char *)> buf{
 	PQescapeIdentifier(m_conn, identifier.c_str(), identifier.size()),
         freepqmem_templated<char>};
