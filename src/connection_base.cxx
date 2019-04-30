@@ -1272,9 +1272,8 @@ void pqxx::connection_base::wait_write() const
 
 int pqxx::connection_base::await_notification()
 {
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
+  if (m_conn == nullptr) throw broken_connection{
+    "Can't wait for notifications: connection is not active."};
   int notifs = get_notifs();
   if (notifs == 0)
   {
@@ -1287,9 +1286,8 @@ int pqxx::connection_base::await_notification()
 
 int pqxx::connection_base::await_notification(long seconds, long microseconds)
 {
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  activate();
-#include <pqxx/internal/ignore-deprecated-post.hxx>
+  if (m_conn == nullptr) throw broken_connection{
+    "Can't wait for notifications: connection is not active."};
   int notifs = get_notifs();
   if (notifs == 0)
   {
