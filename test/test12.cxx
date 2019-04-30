@@ -16,12 +16,6 @@ void test_012()
   connection conn;
   const std::string Table = "pg_tables";
 
-  // Tell C we won't be needing it for a while (not true, but let's pretend)
-  conn.deactivate();
-
-  // ...And reactivate C (not really needed, but it sounds more polite)
-  conn.activate();
-
   work tx{conn, "test12"};
 
   result R( tx.exec("SELECT * FROM " + Table) );

@@ -4,10 +4,8 @@ namespace
 {
 void test_inactive_connection()
 {
-  pqxx::connection conn;
-  PQXX_CHECK_NOT_EQUAL(conn.port(), nullptr, "No port on active connection.");
+  pqxx::lazyconnection conn;
 
-  conn.deactivate();
   PQXX_CHECK_THROWS(
 	conn.port(),
 	pqxx::broken_connection,
@@ -18,11 +16,16 @@ void test_inactive_connection()
 	pqxx::broken_connection,
 	"No exception starting transaction on inactive connection.");
 
-  pqxx::nontransaction tx{conn};
-  PQXX_CHECK_THROWS(
+  {
+    pqxx::nontransaction tx{conn};
+    PQXX_CHECK_THROWS(
 	tx.exec("SELECT 0"),
 	pqxx::broken_connection,
 	"No exception executing query on inactive connection.");
+  }
+
+  conn.activate();
+  PQXX_CHECK_NOT_EQUAL(conn.port(), nullptr, "No port on active connection.");
 }
 
 

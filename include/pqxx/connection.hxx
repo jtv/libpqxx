@@ -50,19 +50,6 @@ namespace pqxx
  * certain environment variables that you can learn more about from the core
  * postgres documentation.
  *
- * See the connection_base documentation for a full list of features inherited
- * by all connection classes.  Connections can be deactivated and reactivated if
- * needed (within reason, of course--you can't do this in the middle of a
- * transaction), and where possible, disabled or broken connections are
- * transparently re-enabled when you use them again.  This is called
- * "reactivation," and you may need to understand it because you'll want it
- * disabled in certain situations.
- *
- * @warning Connection deactivation/reactivation will probably be removed in
- * libpqxx 7.  If your application relies on an ability to "put connections to
- * sleep" and reactivate them later, you'll need to wrap them in some way to
- * handle this.
- *
  * You can also set certain variables defined by the backend to influence its
  * behaviour for the duration of your session, such as the applicable text
  * encoding.  You can query the connection's capabilities (because some features

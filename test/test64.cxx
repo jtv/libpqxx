@@ -45,9 +45,7 @@ void ActivationTest(
 	std::string expected)
 {
   RedoDatestyle(conn, style, expected);
-  conn.deactivate();
   CheckDatestyle(conn, expected);
-  conn.activate();
   CheckDatestyle(conn, expected);
 }
 

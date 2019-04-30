@@ -42,14 +42,8 @@ void do_test(connection_base &C, const std::string &desc)
 
 void test_089()
 {
-  connection C1;
-  do_test(C1, "connection");
-
-  connection C2;
-  C2.activate();
-  C2.deactivate();
-  C2.activate();
-  do_test(C2, "reactivated connection");
+  connection C;
+  do_test(C, "connection");
 
   asyncconnection A;
   A.activate();

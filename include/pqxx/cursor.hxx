@@ -83,8 +83,8 @@ public:
    * should be responsible for any one underlying SQL cursor at any given time.
    *
    * @warning Don't "leak" cursors!  As long as any "loose" cursor exists,
-   * any attempts to deactivate or reactivate the connection, implicitly or
-   * explicitly, are quietly ignored.
+   * any attempts to reactivate a broken connection explicitly are quietly
+   * ignored.
    */
   enum ownershippolicy
   {

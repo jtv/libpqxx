@@ -103,22 +103,13 @@ class const_connection_largeobject;
 /// connection_base abstract base class; represents a connection to a database.
 /** This is the first class to look at when you wish to work with a database
  * through libpqxx.  Depending on the implementing concrete child class, a
- * connection can be automatically opened when it is constructed, or when it is
- * first used, or somewhere inbetween.  The connection is automatically closed
- * upon destruction (if it hasn't been closed already).
+ * connection can be automatically opened when it is constructed, or later when
+ * you ask for it, or evmesen between those ti.  The connection automatically
+ * closes upon destruction, if it hasn't been closed already.
  *
  * To query or manipulate the database once connected, use one of the
  * transaction classes (see pqxx/transaction_base.hxx) or preferably the
  * transactor framework (see pqxx/transactor.hxx).
- *
- * If a network connection to the database server fails, the connection will be
- * restored automatically (although any transaction going on at the time will
- * have to be aborted).  This also means that any information set in previous
- * transactions that is not stored in the database, such as temp tables or
- * connection-local variables defined with PostgreSQL's SET command, will be
- * lost.  Whenever you create such state, either keept it local to one
- * transaction, where possible, or inhibit automatic reactivation of the
- * connection using the inhibit_reactivation() method.
  *
  * When a connection breaks, you will typically get a broken_connection
  * exception.  This can happen at almost any point, and the details may depend
@@ -126,8 +117,9 @@ class const_connection_largeobject;
  *
  * As a general rule, always avoid raw queries if libpqxx offers a dedicated
  * function for the same purpose.  There may be hidden logic to hide certain
- * complications from you, such as reinstating session variables when a
- * broken or disabled connection is reactivated.
+ * complications from you, such as reinstating session variables when you
+ * activate a connection which has not yet been fully established, or one which
+ * was broken at the networking level.
  *
  * @warning On Unix-like systems, including GNU and BSD systems, your program
  * may receive the SIGPIPE signal when the connection to the backend breaks.  By
@@ -150,26 +142,35 @@ public:
  /**
    * @name Activation
    *
-   * Connections can be "inactive": they can be temporarily deactivated, or
-   * they can break because of firewalls dropping TCP connections.  You can
-   * also start connection in a "lazy" way, or "asynchronously," so they start
-   * out in an inactive state.
+   * Connections can be "inactive".  You can create "lazy" connections which
+   * don't actually connect to the server until you ask them to, or "async"
+   * ones which will start connecting but may not complete until you ask for
+   * it.  Also, a network connection to the database server may simply break,
+   * or the server may restart the database.
    *
    * To make use of an inactive connection, call its @c activate() first.
    * Doing so does not make sense inside a database transaction, and there are
    * other situations where it won't work, e.g. while streaming, or when a
    * @c pipeline is active.
+   *
+   * You can also reset a connection.  This is essentially breaks and then
+   * reactivates the connection.
+   *
+   * @warning When you reactivate an inactive connectioon, any information set
+   * in previous transactions that is not stored in the database, such as temp
+   * tables or connection-local variables defined with PostgreSQL's SET
+   * command, will be lost.  There are two things you can do about this: One,
+   * keep all state local to a transaction.  And two, prefer specialised
+   * libpqxx functions over raw SQL statements for such things as setting
+   * variables.  When you reactivate a connection, libpqxx will try to restore
+   * any state set in its own functions.
    */
   //@{
   /// Explicitly activate the connection if it's in an inactive state.
   void activate();							//[t12]
 
-  /// Explicitly deactivate connection, if it was active.
-  /** Calling this function really only makes sense if you won't be using this
-   * connection for a while and want to reduce the number of open connections
-   * on the database server.
-   */
-  void deactivate();							//[t12]
+  /// @deprecated Explicitly deactivate connection, if it was active.
+  PQXX_DEPRECATED void deactivate();
 
   /// @deprecated Disallow (or permit) connection recovery
   /** A connection whose underlying socket is not currently connected to the
@@ -243,9 +244,7 @@ public:
    * information supplied by the client program itself, but they are included
    * for completeness.
    *
-   * The connection needs to be currently active for these to work.  Do not
-   * call them if the connection is broken, or after a call to its
-   * @c deactivate.
+   * The connection needs to be currently active for these to work.
    */
   //@{
   /// Name of database we're connected to, if any.
@@ -314,18 +313,16 @@ public:
   /** Don't try to be smart by caching this information anywhere.  Obtaining it
    * is quite fast (especially after the first time) and what's more, a
    * capability may "suddenly" appear or disappear if the connection is broken
-   * or deactivated, and then restored.  This may happen silently any time no
-   * backend transaction is active; if it turns out that the server was upgraded
-   * or restored from an older backup, or the new connection goes to a different
-   * backend, then the restored session may have different capabilities than
-   * were available previously.
+   * and then restored.  If the server was upgraded or restored from an older
+   * backup, or the new connection goes to a different backend, then the
+   * restored session may have different capabilities than were available
+   * previously.
    *
    * Some guesswork is involved in establishing the presence of any capability;
    * try not to rely on this function being exactly right.
    *
    * @warning Make sure your connection is active before calling this function,
-   * or the answer will always be "no."  In particular, if you are using this
-   * function on a newly-created lazyconnection, activate the connection first.
+   * or the answer will always be "no."
    */
   bool supports(capability c) const noexcept				//[t88]
 	{ return m_caps.test(c); }

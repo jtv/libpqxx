@@ -25,15 +25,10 @@ void test_031()
 
   const std::string Table = "pg_tables";
 
-  // Tell conn we won't be needing it for a while (not true, but let's pretend).
-  conn.deactivate();
-
   std::vector<int> NullFields;	// Maps column to no. of null fields
   std::vector<bool> SortedUp, SortedDown; // Does column appear to be sorted?
 
-  // Reactivate conn (not really needed, but it sounds more polite).
   conn.activate();
-
   work tx(conn, "test31");
 
   result R( tx.exec("SELECT * FROM " + Table) );
