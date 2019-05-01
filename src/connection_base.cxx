@@ -190,7 +190,6 @@ void pqxx::connection_base::set_variable(const std::string &Var,
   {
     // We're not in a transaction.  Set a session variable.
     if (is_open()) raw_set_var(Var, Value);
-    m_vars[Var] = Value;
   }
 }
 
@@ -203,10 +202,6 @@ std::string pqxx::connection_base::get_variable(const std::string &Var)
 
 std::string pqxx::connection_base::raw_get_var(const std::string &Var)
 {
-  // Is this variable in our local map of set variables?
-  const auto i = m_vars.find(Var);
-  if (i != m_vars.end()) return i->second;
-
   return exec(("SHOW " + Var).c_str()).at(0).at(0).as(std::string{});
 }
 
@@ -232,14 +227,15 @@ void pqxx::connection_base::set_up_state()
 
   internal_set_trace();
 
-  if (not m_receivers.empty() or not m_vars.empty())
+  if (not m_receivers.empty())
   {
     std::stringstream restore_query;
 
-    // Pipeline all queries needed to restore receivers and variables, so we can
-    // send them over in one go.
+    // Pipeline all queries needed to restore receivers, so we can send them
+    // over in one go.
 
-    // Reinstate all active receivers
+// TODO: Do we still need this, now that we no longer support reactivation?
+    // Reinstate all active receivers.
     if (not m_receivers.empty())
     {
       std::string Last;
@@ -254,9 +250,6 @@ void pqxx::connection_base::set_up_state()
         }
       }
     }
-
-    for (auto &i: m_vars)
-      restore_query << "SET " << i.first << "=" << i.second << "; ";
 
     // Now do the whole batch at once
     PQsendQuery(m_conn, restore_query.str().c_str());
@@ -792,13 +785,6 @@ void pqxx::connection_base::raw_set_var(
 	const std::string &Value)
 {
     exec(("SET " + Var + "=" + Value).c_str());
-}
-
-
-void pqxx::connection_base::add_variables(
-	const std::map<std::string,std::string> &Vars)
-{
-  for (auto &i: Vars) m_vars[i.first] = i.second;
 }
 
 

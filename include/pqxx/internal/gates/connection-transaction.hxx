@@ -30,8 +30,6 @@ class PQXX_PRIVATE connection_transaction : callgate<connection_base>
 	{ return home().raw_get_var(var); }
   void raw_set_var(const std::string &var, const std::string &value)
 	{ home().raw_set_var(var, value); }
-  void add_variables(const std::map<std::string, std::string> &vars)
-	{ home().add_variables(vars); }
 
   result exec_prepared(
 	const std::string &statement,

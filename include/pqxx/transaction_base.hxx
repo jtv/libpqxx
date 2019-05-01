@@ -403,25 +403,22 @@ public:
   /// Connection this transaction is running in
   connection_base &conn() const { return m_conn; }			//[t04]
 
-  /// Set session variable in this connection
+  /// Set session variable using SQL "SET" command.
   /** The new value is typically forgotten if the transaction aborts.
-   * However nontransaction is an exception to this rule: in that case the set
-   * value will be kept regardless.  Also, if the connection ever needs to be
-   * recovered, a value you set in a nontransaction will not be restored.
-   * @param Var The variable to set
-   * @param Val The new value to store in the variable
+   * Not for nontransaction though: in that case the set value will be kept
+   * regardless.
+   *
+   * @warning This executes SQL.  Do not try to set or get variables while a
+   * pipeline or table stream is active.
+   *
+   * @param Var The variable to set.
+   * @param Val The new value to store in the variable.
    */
   void set_variable(const std::string &Var, const std::string &Val);	//[t61]
 
-  /// Get currently applicable value of variable
-  /** First consults an internal cache of variables that have been set (whether
-   * in the ongoing transaction or in the connection) using the set_variable
-   * functions.  If it is not found there, the database is queried.
-   *
-   * @warning Do not mix the set_variable with raw "SET" queries, and do not
-   * try to set or get variables while a pipeline or table stream is active.
-   *
-   * @warning This function used to be declared as @c const but isn't anymore.
+  /// Read session variable using SQL "SHOW" command.
+  /** @warning This executes SQL.  Do not try to set or get variables while a
+   * pipeline or table stream is active.
    */
   std::string get_variable(const std::string &);			//[t61]
 
@@ -537,7 +534,6 @@ private:
   internal::unique<internal::transactionfocus> m_focus;
   Status m_status = st_nascent;
   bool m_registered = false;
-  std::map<std::string, std::string> m_vars;
   std::string m_pending_error;
 };
 

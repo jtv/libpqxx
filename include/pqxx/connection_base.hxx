@@ -256,7 +256,6 @@ public:
 
   //@}
 
-// TODO: Drop the variable cache.
   /// Set session variable, using SQL's @c SET command.
   /** Set a session variable for this connection.  See the PostgreSQL
    * documentation for a list of variables that can be set and their
@@ -269,9 +268,6 @@ public:
    * @warning This executes an SQL query, so do not get or set variables while
    * a table stream or pipeline is active on the same connection.
    *
-   * @warning Variables may go into an internal cache.  So, don't mix these
-   * functions with raw SQL access to the variables!
-   *
    * @param Var Variable to set.
    * @param Value New value for Var: an identifier, a quoted string, or a
    * number.
@@ -281,14 +277,8 @@ public:
 	const std::string &Value);
 
   /// Read session variable, using SQL's @c SHOW command.
-  /** Will try to read the value locally, from its internal cache.  If the
-   * variable is not in cache, it queries the database.
-   *
-   * @warning This executes an SQL query, so do not get or set variables while
+  /** @warning This executes an SQL query, so do not get or set variables while
    * a table stream or pipeline is active on the same connection.
-   *
-   * @warning Variables go into an internal cache.  So, don't mix these
-   * functions with raw SQL access to the variables!
    */
   std::string get_variable(const std::string &);			//[t60]
   //@}
@@ -615,9 +605,6 @@ private:
   /// Notification receivers.
   receiver_list m_receivers;
 
-  /// Variables set in this session.
-  std::map<std::string, std::string> m_vars;
-
   using PSMap = std::map<std::string, prepare::internal::prepared_def>;
   /// Prepared statements existing in this section.
   PSMap m_prepared;
@@ -646,7 +633,6 @@ private:
   void PQXX_PRIVATE write_copy_line(const std::string &);
   void PQXX_PRIVATE end_copy_write();
   void PQXX_PRIVATE raw_set_var(const std::string &, const std::string &);
-  void PQXX_PRIVATE add_variables(const std::map<std::string, std::string> &);
 
   friend class internal::gate::connection_largeobject;
   internal::pq::PGconn *raw_connection() const { return m_conn; }

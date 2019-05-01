@@ -137,9 +137,6 @@ void pqxx::transaction_base::commit()
     throw;
   }
 
-  gate::connection_transaction gate{conn()};
-  gate.add_variables(m_vars);
-
   End();
 }
 
@@ -314,17 +311,13 @@ void pqxx::transaction_base::set_variable(
 	const std::string &Var,
 	const std::string &Value)
 {
-  // Before committing to this new value, see what the backend thinks about it
   gate::connection_transaction gate{conn()};
   gate.raw_set_var(Var, Value);
-  m_vars[Var] = Value;
 }
 
 
 std::string pqxx::transaction_base::get_variable(const std::string &Var)
 {
-  const std::map<std::string,std::string>::const_iterator i = m_vars.find(Var);
-  if (i != m_vars.end()) return i->second;
   return gate::connection_transaction{conn()}.raw_get_var(Var);
 }
 
