@@ -394,12 +394,10 @@ nobase_include_HEADERS = pqxx/pqxx \
 	pqxx/internal/sql_cursor.hxx \
 	pqxx/internal/statement_parameters.hxx \
 	pqxx/internal/type_utils.hxx \
-	pqxx/internal/gates/connection-dbtransaction.hxx \
 	pqxx/internal/gates/connection-errorhandler.hxx \
 	pqxx/internal/gates/connection-largeobject.hxx \
 	pqxx/internal/gates/connection-notification_receiver.hxx \
 	pqxx/internal/gates/connection-pipeline.hxx \
-	pqxx/internal/gates/connection-reactivation_avoidance_exemption.hxx \
 	pqxx/internal/gates/connection-sql_cursor.hxx \
 	pqxx/internal/gates/connection-transaction.hxx \
 	pqxx/internal/gates/errorhandler-connection.hxx \
@@ -412,7 +410,6 @@ nobase_include_HEADERS = pqxx/pqxx \
 	pqxx/internal/gates/transaction-sql_cursor.hxx \
 	pqxx/internal/gates/transaction-stream_from.hxx \
 	pqxx/internal/gates/transaction-stream_to.hxx \
-	pqxx/internal/gates/transaction-subtransaction.hxx \
 	pqxx/internal/gates/transaction-transactionfocus.hxx \
 	pqxx/internal/ignore-deprecated-pre.hxx \
 	pqxx/internal/ignore-deprecated-post.hxx

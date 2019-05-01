@@ -15,8 +15,6 @@
 #include "pqxx/connection_base"
 #include "pqxx/subtransaction"
 
-#include "pqxx/internal/gates/transaction-subtransaction.hxx"
-
 using namespace pqxx::internal;
 
 
@@ -60,11 +58,7 @@ void pqxx::subtransaction::do_begin()
 
 void pqxx::subtransaction::do_commit()
 {
-  const int ra = m_reactivation_avoidance.get();
-  m_reactivation_avoidance.clear();
   direct_exec(("RELEASE SAVEPOINT " + quote_name(name())).c_str());
-  gate::transaction_subtransaction{m_parent}.add_reactivation_avoidance_count(
-	ra);
 }
 
 

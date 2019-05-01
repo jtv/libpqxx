@@ -60,7 +60,6 @@ extern "C"
 #include "pqxx/transaction"
 #include "pqxx/notification"
 
-#include "pqxx/internal/gates/connection-reactivation_avoidance_exemption.hxx"
 #include "pqxx/internal/gates/errorhandler-connection.hxx"
 #include "pqxx/internal/gates/result-creation.hxx"
 #include "pqxx/internal/gates/result-connection.hxx"
@@ -137,72 +136,33 @@ int pqxx::connection_base::sock() const noexcept
 
 void pqxx::connection_base::activate()
 {
-  if (is_open()) return;
-
-  if (m_inhibit_reactivation)
-    throw broken_connection{
-	"Could not reactivate connection; "
-	"reactivation is inhibited"};
-
-  // If any objects were open that didn't survive the closing of our
-  // connection, don't try to reactivate
-  if (m_reactivation_avoidance.get()) return;
+  if (m_completed)
+  {
+    if (is_open()) return;
+    else throw broken_connection{"Broken connection."};
+  }
 
   try
   {
     m_conn = m_policy.do_startconnect(m_conn);
     m_conn = m_policy.do_completeconnect(m_conn);
-    m_completed = true;	// (But retracted if error is thrown below)
+    m_completed = true;
 
-    if (not is_open()) throw broken_connection{};
+    if (not is_open()) throw broken_connection{err_msg()};
 
     set_up_state();
   }
   catch (const broken_connection &e)
   {
     disconnect();
-    m_completed = false;
     throw broken_connection{e.what()};
   }
-  catch (const std::exception &)
-  {
-    m_completed = false;
-    throw;
-  }
-}
-
-
-void pqxx::connection_base::deactivate()
-{
-  if (m_conn == nullptr) return;
-
-  if (m_trans.get())
-    throw usage_error{
-	"Attempt to deactivate connection while " +
-	m_trans.get()->description() + " still open"};
-
-  if (m_reactivation_avoidance.get())
-  {
-    process_notice(
-	"Attempt to deactivate connection while it is in a state "
-	"that cannot be fully recovered later (ignoring)");
-    return;
-  }
-
-  m_completed = false;
-  m_conn = m_policy.do_disconnect(m_conn);
 }
 
 
 void pqxx::connection_base::simulate_failure()
 {
-  if (m_conn)
-  {
-    m_conn = m_policy.do_disconnect(m_conn);
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-    inhibit_reactivation(true);
-#include <pqxx/internal/ignore-deprecated-post.hxx>
-  }
+  if (m_conn) m_conn = m_policy.do_disconnect(m_conn);
 }
 
 
@@ -247,13 +207,7 @@ std::string pqxx::connection_base::raw_get_var(const std::string &Var)
   const auto i = m_vars.find(Var);
   if (i != m_vars.end()) return i->second;
 
-  return exec(("SHOW " + Var).c_str(), 0).at(0).at(0).as(std::string{});
-}
-
-
-void pqxx::connection_base::clearcaps() noexcept
-{
-  m_caps.reset();
+  return exec(("SHOW " + Var).c_str()).at(0).at(0).as(std::string{});
 }
 
 
@@ -263,16 +217,6 @@ void pqxx::connection_base::clearcaps() noexcept
  */
 void pqxx::connection_base::set_up_state()
 {
-  if (m_conn == nullptr)
-    throw internal_error{"set_up_state() on no connection"};
-
-  if (status() != CONNECTION_OK)
-  {
-    const auto msg = err_msg();
-    m_conn = m_policy.do_disconnect(m_conn);
-    throw failure{msg};
-  }
-
   read_capabilities();
 
   for (auto &p: m_prepared) p.second.registered = false;
@@ -322,7 +266,6 @@ void pqxx::connection_base::set_up_state()
     while (gate::result_connection(r));
   }
 
-  m_completed = true;
   if (not is_open()) throw broken_connection{};
 }
 
@@ -340,9 +283,6 @@ void pqxx::connection_base::check_result(const result &R)
 
 void pqxx::connection_base::disconnect() noexcept
 {
-  // When we activate again, the server may be different!
-  clearcaps();
-
   m_conn = m_policy.do_disconnect(m_conn);
 }
 
@@ -483,7 +423,7 @@ void pqxx::connection_base::remove_receiver(pqxx::notification_receiver *T)
       // come in and wreak havoc.  Thanks Dragan Milenkovic.
       const bool gone = (m_conn and (R.second == ++R.first));
       m_receivers.erase(i);
-      if (gone) exec(("UNLISTEN " + quote_name(needle.first)).c_str(), 0);
+      if (gone) exec(("UNLISTEN " + quote_name(needle.first)).c_str());
     }
   }
   catch (const std::exception &e)
@@ -699,20 +639,12 @@ std::vector<errorhandler *> pqxx::connection_base::get_errorhandlers() const
 }
 
 
-pqxx::result pqxx::connection_base::exec(const char Query[], int Retries)
+pqxx::result pqxx::connection_base::exec(const char Query[])
 {
   if (m_conn == nullptr) throw broken_connection{
     "Could not execute query: connection is inactive."};
 
   auto R = make_result(PQexec(m_conn, Query), Query);
-
-  while ((Retries > 0) and not gate::result_connection{R} and not is_open())
-  {
-    Retries--;
-    reset();
-    if (is_open()) R = make_result(PQexec(m_conn, Query), Query);
-  }
-
   check_result(R);
 
   get_notifs();
@@ -759,8 +691,7 @@ void pqxx::connection_base::unprepare(const std::string &name)
   // Quietly ignore duplicated or spurious unprepare()s
   if (i == m_prepared.end()) return;
 
-  if (i->second.registered)
-    exec(("DEALLOCATE " + quote_name(name)).c_str(), 0);
+  if (i->second.registered) exec(("DEALLOCATE " + quote_name(name)).c_str());
 
   m_prepared.erase(i);
 }
@@ -825,45 +756,14 @@ pqxx::result pqxx::connection_base::exec_prepared(
 }
 
 
-void pqxx::connection_base::reset()
-{
-  if (m_inhibit_reactivation)
-    throw broken_connection{
-	"Could not reset connection: reactivation is inhibited"};
-  if (m_reactivation_avoidance.get()) return;
-
-  // TODO: Probably need to go through a full disconnect/reconnect!
-  // Forget about any previously ongoing connection attempts
-  m_conn = m_policy.do_dropconnect(m_conn);
-  m_completed = false;
-
-  if (m_conn)
-  {
-    // Reset existing connection
-    PQreset(m_conn);
-    set_up_state();
-  }
-  else
-  {
-    // No existing connection--start a new one
-    activate();
-  }
-}
-
-
 void pqxx::connection_base::close() noexcept
 {
-  m_completed = false;
-#include <pqxx/internal/ignore-deprecated-pre.hxx>
-  inhibit_reactivation(false);
-#include <pqxx/internal/ignore-deprecated-post.hxx>
-  m_reactivation_avoidance.clear();
   try
   {
     if (m_trans.get())
       process_notice(
 	"Closing connection while " + m_trans.get()->description() +
-	" still open");
+	" is still open.");
 
     if (not m_receivers.empty())
     {
@@ -891,7 +791,7 @@ void pqxx::connection_base::raw_set_var(
 	const std::string &Var,
 	const std::string &Value)
 {
-    exec(("SET " + Var + "=" + Value).c_str(), 0);
+    exec(("SET " + Var + "=" + Value).c_str());
 }
 
 
@@ -1038,12 +938,6 @@ pqxx::internal::pq::PGresult *pqxx::connection_base::get_result()
 }
 
 
-void pqxx::connection_base::add_reactivation_avoidance_count(int n)
-{
-  m_reactivation_avoidance.add(n);
-}
-
-
 std::string pqxx::connection_base::esc(const char str[], size_t maxlen) const
 {
   if (m_conn == nullptr) throw broken_connection{
@@ -1146,34 +1040,6 @@ std::string pqxx::connection_base::esc_like(
 	str.c_str(),
 	str.size());
   return out;
-}
-
-
-pqxx::internal::reactivation_avoidance_exemption::
-  reactivation_avoidance_exemption(
-	connection_base &C) :
-  m_home{C},
-  m_count{gate::connection_reactivation_avoidance_exemption(C).get_counter()},
-  m_open{C.is_open()}
-{
-  gate::connection_reactivation_avoidance_exemption gate{C};
-  gate.clear_counter();
-}
-
-
-pqxx::internal::reactivation_avoidance_exemption::
-  ~reactivation_avoidance_exemption()
-{
-  // Don't leave the connection open if reactivation avoidance is in effect and
-  // the connection needed to be reactivated temporarily.
-  if (m_count and not m_open)
-  {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-    m_home.deactivate();
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-  }
-  gate::connection_reactivation_avoidance_exemption gate{m_home};
-  gate.add_counter(m_count);
 }
 
 
@@ -1305,18 +1171,12 @@ void pqxx::connection_base::read_capabilities()
     throw feature_not_supported{
 	"Unsupported server version; 9.0 is the minimum."};
 
-  switch (protocol_version()) {
-  case 0:
-    throw broken_connection{};
-  case 1:
-  case 2:
+  const auto proto_ver = protocol_version();
+  if (proto_ver == 0)
+    throw broken_connection{"No connection."};
+  if (proto_ver < 3)
     throw feature_not_supported{
         "Unsupported frontend/backend protocol version; 3.0 is the minimum."};
-  default:
-    break;
-  }
-
-  // TODO: Check for capabilities here.  Currently don't need any checks.
 }
 
 

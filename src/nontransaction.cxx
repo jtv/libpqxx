@@ -21,5 +21,5 @@ pqxx::nontransaction::~nontransaction()
 
 pqxx::result pqxx::nontransaction::do_exec(const char Query[])
 {
-  return direct_exec(Query, 0);
+  return direct_exec(Query);
 }

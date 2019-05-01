@@ -12,8 +12,6 @@
 
 #include "pqxx/dbtransaction"
 
-#include "pqxx/internal/gates/connection-dbtransaction.hxx"
-
 using namespace pqxx::internal;
 
 
@@ -65,9 +63,7 @@ pqxx::dbtransaction::~dbtransaction()
 
 void pqxx::dbtransaction::do_begin()
 {
-  const gate::connection_dbtransaction gate(conn());
-  const int avoidance_counter = gate.get_reactivation_avoidance_count();
-  direct_exec(m_start_cmd.c_str(), avoidance_counter ? 0 : 2);
+  direct_exec(m_start_cmd.c_str());
 }
 
 
@@ -87,7 +83,6 @@ pqxx::result pqxx::dbtransaction::do_exec(const char Query[])
 
 void pqxx::dbtransaction::do_abort()
 {
-  reactivation_avoidance_clear();
   direct_exec("ROLLBACK");
 }
 

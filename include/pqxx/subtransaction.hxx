@@ -43,7 +43,6 @@ namespace pqxx
  *
  *   // Since we're dealing with a temporary table here, disallow automatic
  *   // recovery of the connection in case it breaks.
- *   C.inhibit_reactivation(true);
  *
  *   work W(C, "do_job");
  *   do_firstpart(W);

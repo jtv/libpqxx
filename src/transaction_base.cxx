@@ -44,7 +44,6 @@ pqxx::transaction_base::~transaction_base()
 {
   try
   {
-    reactivation_avoidance_clear();
     if (not m_pending_error.empty())
       process_notice("UNPROCESSED ERROR: " + m_pending_error + "\n");
 
@@ -375,9 +374,6 @@ void pqxx::transaction_base::End() noexcept
 
     try { abort(); }
     catch (const std::exception &e) { m_conn.process_notice(e.what()); }
-
-    gate.take_reactivation_avoidance(m_reactivation_avoidance.get());
-    m_reactivation_avoidance.clear();
   }
   catch (const std::exception &e)
   {
@@ -406,10 +402,10 @@ void pqxx::transaction_base::unregister_focus(internal::transactionfocus *S)
 }
 
 
-pqxx::result pqxx::transaction_base::direct_exec(const char C[], int Retries)
+pqxx::result pqxx::transaction_base::direct_exec(const char C[])
 {
   CheckPendingError();
-  return gate::connection_transaction{conn()}.exec(C, Retries);
+  return gate::connection_transaction{conn()}.exec(C);
 }
 
 

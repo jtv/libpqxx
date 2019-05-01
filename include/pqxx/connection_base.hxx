@@ -42,22 +42,7 @@ namespace pqxx
 {
 namespace internal
 {
-class reactivation_avoidance_exemption;
 class sql_cursor;
-
-class reactivation_avoidance_counter
-{
-public:
-  reactivation_avoidance_counter() =default;
-
-  void add(int n) noexcept { m_counter += n; }
-  void clear() noexcept { m_counter = 0; }
-  int get() const noexcept { return m_counter; }
-
-private:
-  int m_counter = 0;
-};
-
 }
 
 
@@ -92,7 +77,6 @@ class connection_errorhandler;
 class connection_largeobject;
 class connection_notification_receiver;
 class connection_pipeline;
-class connection_reactivation_avoidance_exemption;
 class connection_sql_cursor;
 class connection_transaction;
 class const_connection_largeobject;
@@ -102,24 +86,21 @@ class const_connection_largeobject;
 
 /// connection_base abstract base class; represents a connection to a database.
 /** This is the first class to look at when you wish to work with a database
- * through libpqxx.  Depending on the implementing concrete child class, a
- * connection can be automatically opened when it is constructed, or later when
- * you ask for it, or evmesen between those ti.  The connection automatically
- * closes upon destruction, if it hasn't been closed already.
+ * through libpqxx.  Depending on which type of connection you choose, a
+ * connection can be automatically opened immediately when it is constructed,
+ * or later when you ask for it, or even somewhere inbetween.  The connection
+ * automatically closes upon destruction, if it hasn't been closed already.
  *
  * To query or manipulate the database once connected, use one of the
- * transaction classes (see pqxx/transaction_base.hxx) or preferably the
- * transactor framework (see pqxx/transactor.hxx).
+ * transaction classes (see pqxx/transaction_base.hxx) and perhaps also the
+  transactor framework (see pqxx/transactor.hxx).
  *
  * When a connection breaks, you will typically get a broken_connection
- * exception.  This can happen at almost any point, and the details may depend
- * on which connection class (all derived from this one) you use.
+ * exception.  This can happen at almost any point.
  *
  * As a general rule, always avoid raw queries if libpqxx offers a dedicated
  * function for the same purpose.  There may be hidden logic to hide certain
- * complications from you, such as reinstating session variables when you
- * activate a connection which has not yet been fully established, or one which
- * was broken at the networking level.
+ * complications from you, such as caching.
  *
  * @warning On Unix-like systems, including GNU and BSD systems, your program
  * may receive the SIGPIPE signal when the connection to the backend breaks.  By
@@ -134,8 +115,8 @@ public:
 
    /// Is this connection open at the moment?
   /** @warning This function is @b not needed in most code.  Resist the
-   * temptation to check it after opening a connection; instead, rely on the
-   * broken_connection exception that will be thrown on connection failure.
+   * temptation to check it after opening a connection.  Instead, just use the
+   * connection and rely on getting a broken_connection exception if it failed.
    */
   bool PQXX_PURE is_open() const noexcept;				//[t01]
 
@@ -145,86 +126,18 @@ public:
    * Connections can be "inactive".  You can create "lazy" connections which
    * don't actually connect to the server until you ask them to, or "async"
    * ones which will start connecting but may not complete until you ask for
-   * it.  Also, a network connection to the database server may simply break,
-   * or the server may restart the database.
-   *
-   * To make use of an inactive connection, call its @c activate() first.
-   * Doing so does not make sense inside a database transaction, and there are
-   * other situations where it won't work, e.g. while streaming, or when a
-   * @c pipeline is active.
-   *
-   * You can also reset a connection.  This is essentially breaks and then
-   * reactivates the connection.
-   *
-   * @warning When you reactivate an inactive connectioon, any information set
-   * in previous transactions that is not stored in the database, such as temp
-   * tables or connection-local variables defined with PostgreSQL's SET
-   * command, will be lost.  There are two things you can do about this: One,
-   * keep all state local to a transaction.  And two, prefer specialised
-   * libpqxx functions over raw SQL statements for such things as setting
-   * variables.  When you reactivate a connection, libpqxx will try to restore
-   * any state set in its own functions.
+   * it.  To make use of an inactive connection, call its @c activate() first.
+   * Doing so does not make sense inside a database transaction.
    */
   //@{
   /// Explicitly activate the connection if it's in an inactive state.
   void activate();							//[t12]
 
-  /// @deprecated Explicitly deactivate connection, if it was active.
-  PQXX_DEPRECATED void deactivate();
-
-  /// @deprecated Disallow (or permit) connection recovery
-  /** A connection whose underlying socket is not currently connected to the
-   * server will normally (re-)establish communication with the server whenever
-   * needed, or when the client program requests it (although for reasons of
-   * integrity, never inside a transaction; but retrying the whole transaction
-   * may implicitly cause the connection to be restored).  In normal use this is
-   * quite a convenient thing to have and presents a simple, safe, predictable
-   * interface.
-   *
-   * There is at least one situation where this feature is not desirable,
-   * however.  Although most session state (prepared statements, session
-   * variables) is automatically restored to its working state upon connection
-   * reactivation, temporary tables and so-called WITH HOLD cursors (which can
-   * live outside transactions) are not.
-   *
-   * Cursors that live outside transactions are automatically handled, and the
-   * library will quietly ignore requests to deactivate or reactivate
-   * connections while they exist; it does not want to give you the illusion of
-   * being back in your transaction when in reality you just dropped a cursor.
-   * With temporary tables this is not so easy: there is no easy way for the
-   * library to detect their creation or track their lifetimes.
-   *
-   * So if your program uses temporary tables, and any part of this use happens
-   * outside of any database transaction (or spans multiple transactions), some
-   * of the work you have done on these tables may unexpectedly be undone if the
-   * connection is broken or deactivated while any of these tables exists, and
-   * then reactivated or implicitly restored before you are finished with it.
-   *
-   * If this describes any part of your program, guard it against unexpected
-   * reconnections by inhibiting reconnection at the beginning.  And if you want
-   * to continue doing work on the connection afterwards that no longer requires
-   * the temp tables, you can permit it again to get the benefits of connection
-   * reactivation for the remainder of the program.
-   *
-   * @param inhibit should reactivation be inhibited from here on?
-   *
-   * @warning Some connection types (the lazy and asynchronous types) defer
-   * completion of the socket-level connection until it is actually needed by
-   * the client program.  Inhibiting reactivation before this connection is
-   * really established will prevent these connection types from doing their
-   * work.  For those connection types, if you are sure that reactivation needs
-   * to be inhibited before any query goes across the connection, activate() the
-   * connection first.  This will ensure that definite activation happens before
-   * you inhibit it.
-   */
-  PQXX_DEPRECATED void inhibit_reactivation(bool inhibit)		//[t86]
-	{ m_inhibit_reactivation=inhibit; }
-
   /// Make the connection fail.  @warning Do not use this except for testing!
   /** Breaks the connection in some unspecified, horrible, dirty way to enable
    * failure testing.
    *
-   * Do not use this in normal programs.  This is only meant for testing.
+   * Do not use this in normal code.  This is only meant for testing.
    */
   void simulate_failure();						//[t94]
   //@}
@@ -259,16 +172,7 @@ public:
   /// Server port number we're connected to.
   const char *port() const;						//[t01]
 
-  /// Process ID for backend process.
-  /** Use with care: connections may be lost and automatically re-established
-   * without your knowledge, in which case this process ID may no longer be
-   * correct.  You may, however, assume that this number remains constant and
-   * reliable within the span of a successful backend transaction.  If the
-   * transaction fails, which may be due to a lost connection, then this number
-   * will have become invalid at some point within the transaction.
-   *
-   * @return Process identifier, or 0 if not currently connected.
-   */
+  /// Process ID for backend process, or 0 if inactive.
   int PQXX_PURE backendpid() const noexcept;				//[t01]
 
   /// Socket currently used for connection, or -1 for none.  Use with care!
@@ -284,57 +188,14 @@ public:
    *
    * @warning Don't store this value anywhere, and always be prepared for the
    * possibility that, at any given time, there may not be a socket!  The
-   * socket may change or even go away or be established during any invocation
-   * of libpqxx code on the connection, no matter how trivial.
+   * socket may change or even go away during any invocation of libpqxx code on
+   * the connection.
    */
   int PQXX_PURE sock() const noexcept;					//[t87]
 
-  /**
-   * @name Capabilities
-   *
-   * Some functionality may only be available in certain versions of the
-   * backend, or only when speaking certain versions of the communications
-   * protocol that connects us to the backend.
-   */
-  //@{
-
-  /// Session capabilities.
-  /** No capabilities are defined at the moment: all capabilities that older
-   * versions checked for are now always supported.
-   */
-  enum capability
-  {
-    /// Not a capability value; end-of-enumeration marker
-    cap_end,
-  };
-
-
-  /// Does this connection seem to support the given capability?
-  /** Don't try to be smart by caching this information anywhere.  Obtaining it
-   * is quite fast (especially after the first time) and what's more, a
-   * capability may "suddenly" appear or disappear if the connection is broken
-   * and then restored.  If the server was upgraded or restored from an older
-   * backup, or the new connection goes to a different backend, then the
-   * restored session may have different capabilities than were available
-   * previously.
-   *
-   * Some guesswork is involved in establishing the presence of any capability;
-   * try not to rely on this function being exactly right.
-   *
-   * @warning Make sure your connection is active before calling this function,
-   * or the answer will always be "no."
-   */
-  bool supports(capability c) const noexcept				//[t88]
-	{ return m_caps.test(c); }
-
   /// What version of the PostgreSQL protocol is this connection using?
   /** The answer can be 0 (when there is no connection); 3 for protocol 3.0; or
-   * possibly higher values as newer protocol versions are taken into use.
-   *
-   * If the connection is broken and restored, the restored connection could
-   * possibly use a different server and protocol version.  This would normally
-   * happen if the server is upgraded without shutting down the client program,
-   * for example.
+   * possibly higher values as newer protocol versions come into use.
    */
   int PQXX_PURE protocol_version() const noexcept;			//[t01]
 
@@ -395,34 +256,39 @@ public:
 
   //@}
 
-  /// Set session variable
-  /** Set a session variable for this connection, using the SET command.  If the
-   * connection to the database is lost and recovered, the last-set value will
-   * be restored automatically.  See the PostgreSQL documentation for a list of
-   * variables that can be set and their permissible values.
-   * If a transaction is currently in progress, aborting that transaction will
-   * normally discard the newly set value.  However nontransaction (which
-   * doesn't start a real backend transaction) is an exception.
+// TODO: Drop the variable cache.
+  /// Set session variable, using SQL's @c SET command.
+  /** Set a session variable for this connection.  See the PostgreSQL
+   * documentation for a list of variables that can be set and their
+   * permissible values.
    *
-   * @warning Do not mix the set_variable interface with manual setting of
-   * variables by executing the corresponding SQL commands, and do not get or
-   * set variables while a table stream or pipeline is active on the same
-   * connection.
-   * @param Var Variable to set
-   * @param Value Value vor Var to assume: an identifier, a quoted string, or a
+   * If a transaction is currently in progress, aborting that transaction will
+   * normally discard the newly set value.  That is not true for nontransaction
+   * however, since it does not start a real backend transaction.
+   *
+   * @warning This executes an SQL query, so do not get or set variables while
+   * a table stream or pipeline is active on the same connection.
+   *
+   * @warning Variables may go into an internal cache.  So, don't mix these
+   * functions with raw SQL access to the variables!
+   *
+   * @param Var Variable to set.
+   * @param Value New value for Var: an identifier, a quoted string, or a
    * number.
    */
   void set_variable(							//[t60]
 	const std::string &Var,
 	const std::string &Value);
 
-  /// Read session variable
-  /** Will try to read the value locally, from the list of variables set with
-   * the set_variable function.  If that fails, the database is queried.
-   * @warning Do not mix the set_variable interface with manual setting of
-   * variables by executing the corresponding SQL commands, and do not get or
-   * set variables while a table stream or pipeline is active on the same
-   * connection.
+  /// Read session variable, using SQL's @c SHOW command.
+  /** Will try to read the value locally, from its internal cache.  If the
+   * variable is not in cache, it queries the database.
+   *
+   * @warning This executes an SQL query, so do not get or set variables while
+   * a table stream or pipeline is active on the same connection.
+   *
+   * @warning Variables go into an internal cache.  So, don't mix these
+   * functions with raw SQL access to the variables!
    */
   std::string get_variable(const std::string &);			//[t60]
   //@}
@@ -443,25 +309,29 @@ public:
    * connection's errorhandlers, but the exceptions themselves are not passed
    * on outside this function.
    *
-   * @return Number of notifications processed
+   * @return Number of notifications processed.
    */
   int get_notifs();							//[t04]
 
 
-  /// Wait for a notification to come in
+  /// Wait for a notification to come in.
   /** The wait may also be terminated by other events, such as the connection
-   * to the backend failing.  Any pending or received notifications are
-   * processed as part of the call.
+   * to the backend failing.
    *
-   * @return Number of notifications processed
+   * If a notification comes in, the call will process it.  It will also
+   * process any notifications that may have been pending.
+   *
+   * @return Number of notifications processed.
    */
   int await_notification();						//[t78]
 
-  /// Wait for a notification to come in, or for given timeout to pass
+  /// Wait for a notification to come in, or for given timeout to pass.
   /** The wait may also be terminated by other events, such as the connection
-   * to the backend failing.  Any pending or received notifications are
-   * processed as part of the call.
-
+   * to the backend failing.
+   *
+   * If a notification comes in, the call will process it.  It will also
+   * process any notifications that may have been pending.
+   *
    * @return Number of notifications processed
    */
   int await_notification(long seconds, long microseconds);		//[t79]
@@ -478,13 +348,11 @@ public:
    * Prepared statement definitions are not sensitive to transaction boundaries;
    * a statement defined inside a transaction will remain defined outside that
    * transaction, even if the transaction itself is subsequently aborted.  Once
-   * a statement has been prepared, only closing the connection or explicitly
-   * "unpreparing" it can make it go away.
+   * a statement has been prepared, it will only go away if you close the
+   * connection or explicitly "unprepare" the statement.
    *
    * Use the @c pqxx::transaction_base::exec_prepared functions to execute a
-   * prepared statement.  Use @c prepared().exists() to find out whether a
-   * statement has been prepared under a given name.  See \ref prepared for a
-   * full discussion.
+   * prepared statement.  See \ref prepared for a full discussion.
    *
    * Never try to prepare, execute, or unprepare a prepared statement manually
    * using direct SQL queries.  Always use the functions provided by libpqxx.
@@ -492,36 +360,33 @@ public:
    * @{
    */
 
+// TODO: Stop deferring prepared statement registration.
   /// Define a prepared statement.
   /**
    * The statement's definition can refer to a parameter using the parameter's
    * positional number n in the definition.  For example, the first parameter
    * can be used as a variable "$1", the second as "$2" and so on.
    *
-   * Here's an example of how to use prepared statements.  Note the unusual
-   * syntax for passing parameters: every new argument is a parenthesized
-   * expression that is simply tacked onto the end of the statement!
+   * Here's an example of how to use prepared statements.
    *
    * @code
    * using namespace pqxx;
-   * void foo(connection_base &C)
+   * void foo(connection_base &c)
    * {
-   *   C.prepare("findtable", "select * from pg_tables where name=$1");
-   *   work W{C};
-   *   result R = W.exec_prepared("findtable", "mytable");
-   *   if (R.empty()) throw runtime_error{"mytable not found!"};
+   *   c.prepare("findtable", "select * from pg_tables where name=$1");
+   *   work tx{c};
+   *   result r = tx.exec_prepared("findtable", "mytable");
+   *   if (r.empty()) throw runtime_error{"mytable not found!"};
    * }
    * @endcode
    *
-   * To save time, prepared statements aren't really registered with the backend
-   * until they are first used.  If this is not what you want, e.g. because you
-   * have very specific realtime requirements, you can use the @c prepare_now()
-   * function to force immediate preparation.
+   * Prepared statements aren't really registered with the backend until they
+   * are first used.  If this is not what you want, e.g. because you have very
+   * specific realtime requirements, you can use the @c prepare_now() function
+   * to force immediate preparation.
    *
-   * The statement may not be registered with the backend until it is actually
-   * used.  So if, for example, the statement is syntactically incorrect, you
-   * may see a syntax_error here, or later when you try to call the statement,
-   * or during a @c prepare_now() call.
+   * This also means that if there's a syntax error in the statement, you may
+   * only see it when you first try to call the statement.
    *
    * @param name unique name for the new prepared statement.
    * @param definition SQL statement to prepare.
@@ -540,24 +405,14 @@ public:
   /// Drop prepared statement.
   void unprepare(const std::string &name);
 
-  /// Request that prepared statement be registered with the server.
-  /** If the statement had already been fully prepared, this will do nothing.
-   *
-   * If the connection should break and be transparently restored, then the new
-   * connection will again defer registering the statement with the server.
-   * Since connections are never restored inside backend transactions, doing
-   * this once at the beginning of your transaction ensures that the statement
-   * will not be re-registered during that transaction.  In most cases, however,
-   * it's probably better not to use this and let the connection decide when and
-   * whether to register prepared statements that you've defined.
-   */
+  /// If prepared statement was not registered with the server yet, do it now.
   void prepare_now(const std::string &name);
 
   /**
    * @}
    */
 
-  /// Suffix unique number to name to make it unique within session context
+  /// Suffix unique number to name to make it unique within session context.
   /** Used internally to generate identifiers for SQL objects (such as cursors
    * and nested transactions) based on a given human-readable base name.
    */
@@ -567,16 +422,16 @@ public:
    * @defgroup escaping-functions String-escaping functions
    */
   //@{
-  /// Escape string for use as SQL string literal on this connection
+  /// Escape string for use as SQL string literal on this connection.
   std::string esc(const char str[]) const;
 
-  /// Escape string for use as SQL string literal on this connection
+  /// Escape string for use as SQL string literal on this connection.
   std::string esc(const char str[], size_t maxlen) const;
 
-  /// Escape string for use as SQL string literal on this connection
+  /// Escape string for use as SQL string literal on this connection.
   std::string esc(const std::string &str) const;
 
-  /// Escape binary string for use as SQL string literal on this connection
+  /// Escape binary string for use as SQL string literal on this connection.
   std::string esc_raw(const unsigned char str[], size_t len) const;
 
   /// Unescape binary data, e.g. from a table field or notification payload.
@@ -599,7 +454,9 @@ public:
   std::string quote_name(const std::string &identifier) const;
 
   /// Represent object as SQL string, including quoting & escaping.
-  /** Nulls are recognized and represented as SQL nulls. */
+  /**
+   * Nulls are recognized and represented as SQL nulls.  They get no quotes.
+   */
   template<typename T>
   std::string quote(const T &t) const
   {
@@ -658,7 +515,8 @@ public:
    *  might span multiple lines).  "verbose" includes all available fields.
    */
   void set_verbosity(error_verbosity verbosity) noexcept;
-   /// Retrieve current error verbosity
+
+   /// Retrieve current error verbosity.
   error_verbosity get_verbosity() const noexcept {return m_verbosity;}
 
   /// Return pointers to the active errorhandlers.
@@ -703,8 +561,6 @@ protected:
     static const auto version_ok =
       internal::check_library_version<PQXX_VERSION_MAJOR, PQXX_VERSION_MINOR>();
     ignore_unused(version_ok);
-
-    clearcaps();
   }
   void init();
 
@@ -717,7 +573,6 @@ private:
 
   result make_result(internal::pq::PGresult *rhs, const std::string &query);
 
-  void clearcaps() noexcept;
   void PQXX_PRIVATE set_up_state();
   void PQXX_PRIVATE check_result(const result &);
 
@@ -727,7 +582,6 @@ private:
   friend class internal::gate::const_connection_largeobject;
   const char * PQXX_PURE err_msg() const noexcept;
 
-  void PQXX_PRIVATE reset();
   std::string PQXX_PRIVATE raw_get_var(const std::string &);
   void PQXX_PRIVATE process_notice_raw(const char msg[]) noexcept;
 
@@ -753,7 +607,7 @@ private:
   void clear_notice_processor();
   std::list<errorhandler *> m_errorhandlers;
 
-  /// File to trace to, if any
+  /// File to trace to, if any.
   std::FILE *m_trace = nullptr;
 
   using receiver_list =
@@ -761,32 +615,23 @@ private:
   /// Notification receivers.
   receiver_list m_receivers;
 
-  /// Variables set in this session
+  /// Variables set in this session.
   std::map<std::string, std::string> m_vars;
 
   using PSMap = std::map<std::string, prepare::internal::prepared_def>;
-  /// Prepared statements existing in this section
+  /// Prepared statements existing in this section.
   PSMap m_prepared;
 
-  /// Server version
+  /// Server version.
   int m_serverversion = 0;
 
-  /// Stacking counter: known objects that can't be auto-reactivated
-  internal::reactivation_avoidance_counter m_reactivation_avoidance;
-
-  /// Unique number to use as suffix for identifiers (see adorn_name())
+  /// Unique number to use as suffix for identifiers (see adorn_name()).
   int m_unique_id = 0;
 
-  /// Have we successfully established this connection?
+  /// Have we finished our attempt to establish our connection?
   bool m_completed = false;
 
-  /// Is reactivation currently inhibited?
-  bool m_inhibit_reactivation = false;
-
-  /// Set of session capabilities
-  std::bitset<cap_end> m_caps;
-
-  /// Current verbosity level
+  /// Current verbosity level.
   error_verbosity m_verbosity = normal;
 
   friend class internal::gate::connection_errorhandler;
@@ -794,7 +639,7 @@ private:
   void PQXX_PRIVATE unregister_errorhandler(errorhandler *) noexcept;
 
   friend class internal::gate::connection_transaction;
-  result PQXX_PRIVATE exec(const char[], int Retries);
+  result PQXX_PRIVATE exec(const char[]);
   void PQXX_PRIVATE register_transaction(transaction_base *);
   void PQXX_PRIVATE unregister_transaction(transaction_base *) noexcept;
   bool PQXX_PRIVATE read_copy_line(std::string &);
@@ -817,11 +662,7 @@ private:
   internal::pq::PGresult *get_result();
 
   friend class internal::gate::connection_dbtransaction;
-
   friend class internal::gate::connection_sql_cursor;
-  void add_reactivation_avoidance_count(int);
-
-  friend class internal::gate::connection_reactivation_avoidance_exemption;
 
   result exec_params(
 	const std::string &query,
@@ -834,23 +675,6 @@ private:
 
 namespace internal
 {
-
-/// Scoped exemption to reactivation avoidance
-class PQXX_LIBEXPORT reactivation_avoidance_exemption
-{
-public:
-  explicit reactivation_avoidance_exemption(connection_base &C);
-  ~reactivation_avoidance_exemption();
-
-  void close_connection() noexcept { m_open = false; }
-
-private:
-  connection_base &m_home;
-  int m_count;
-  bool m_open;
-};
-
-
 void wait_read(const internal::pq::PGconn *);
 void wait_read(const internal::pq::PGconn *, long seconds, long microseconds);
 void wait_write(const internal::pq::PGconn *);
@@ -859,5 +683,4 @@ void wait_write(const internal::pq::PGconn *);
 } // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"
-
 #endif

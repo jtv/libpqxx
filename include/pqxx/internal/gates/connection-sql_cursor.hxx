@@ -14,11 +14,7 @@ class PQXX_PRIVATE connection_sql_cursor : callgate<connection_base>
 
   connection_sql_cursor(reference x) : super(x) {}
 
-  result exec(const char query[], int retries)
-	{ return home().exec(query, retries); }
-
-  void add_reactivation_avoidance_count(int n)
-	{ home().add_reactivation_avoidance_count(n); }
+  result exec(const char query[]) { return home().exec(query); }
 };
 } // namespace pqxx::internal::gate
 } // namespace pqxx::internal

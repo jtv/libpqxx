@@ -96,12 +96,10 @@ install(
         PATTERN internal/sql_cursor.hxx
         PATTERN internal/statement_parameters.hxx
         PATTERN internal/type_utils.hxx
-        PATTERN internal/gates/connection-dbtransaction.hxx
         PATTERN internal/gates/connection-errorhandler.hxx
         PATTERN internal/gates/connection-largeobject.hxx
         PATTERN internal/gates/connection-notification_receiver.hxx
         PATTERN internal/gates/connection-pipeline.hxx
-        PATTERN internal/gates/connection-reactivation_avoidance_exemption.hxx
         PATTERN internal/gates/connection-sql_cursor.hxx
         PATTERN internal/gates/connection-transaction.hxx
         PATTERN internal/gates/errorhandler-connection.hxx
@@ -114,7 +112,6 @@ install(
         PATTERN internal/gates/transaction-sql_cursor.hxx
         PATTERN internal/gates/transaction-stream_from.hxx
         PATTERN internal/gates/transaction-stream_to.hxx
-        PATTERN internal/gates/transaction-subtransaction.hxx
         PATTERN internal/gates/transaction-transactionfocus.hxx
         PATTERN config-public-compiler.h
         PATTERN pqxx

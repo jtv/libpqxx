@@ -79,31 +79,23 @@ protected:
   /// Start a transaction on the backend and set desired isolation level
   void start_backend_transaction();
 
-  /// Sensible default implemented here: begin backend transaction
+  /// Sensible default implemented here: begin backend transaction.
   virtual void do_begin() override;					//[t01]
-  /// Sensible default implemented here: perform query
+  /// Sensible default implemented here: perform query.
   virtual result do_exec(const char Query[]) override;
-  /// To be implemented by derived class: commit backend transaction
+  /// To be implemented by derived class: commit backend transaction.
   virtual void do_commit() override =0;
-  /// Sensible default implemented here: abort backend transaction
-  /** Default implementation does two things:
-   * <ol>
-   * <li>Clears the "connection reactivation avoidance counter"</li>
-   * <li>Executes a ROLLBACK statement</li>
-   * </ol>
-   */
+  /// Sensible default implemented here: abort backend transaction.
   virtual void do_abort() override;				//[t13]
 
   static std::string fullname(const std::string &ttype,
 	const std::string &isolation);
 
 private:
-  /// Precomputed SQL command to run at start of this transaction
+  /// Precomputed SQL command to run at start of this transaction.
   std::string m_start_cmd;
 };
-
 } // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"
-
 #endif

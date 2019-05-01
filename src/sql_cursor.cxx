@@ -135,12 +135,6 @@ pqxx::internal::sql_cursor::sql_cursor(
   // meaning of "FETCH 0."
   init_empty_result(t);
 
-  // If we're creating a WITH HOLD cursor, noone is going to destroy it until
-  // after this transaction.  That means the connection cannot be deactivated
-  // without losing the cursor.
-  if (hold)
-    gate::connection_sql_cursor{t.conn()}.add_reactivation_avoidance_count(1);
-
   m_ownership = op;
 }
 
@@ -156,11 +150,6 @@ pqxx::internal::sql_cursor::sql_cursor(
   m_at_end{0},
   m_pos{-1}
 {
-  // If we take responsibility for destroying the cursor, that's one less
-  // reason not to allow the connection to be deactivated and reactivated.
-  // TODO: Go over lifetime/reactivation rules again to be sure they work.
-  if (op==cursor_base::owned)
-    gate::connection_sql_cursor{t.conn()}.add_reactivation_avoidance_count(-1);
   m_adopted = true;
   m_ownership = op;
 }
@@ -173,16 +162,11 @@ void pqxx::internal::sql_cursor::close() noexcept
     try
     {
       gate::connection_sql_cursor{m_home}.exec(
-	("CLOSE " + m_home.quote_name(name())).c_str(),
-	0);
+	("CLOSE " + m_home.quote_name(name())).c_str());
     }
     catch (const std::exception &)
     {
     }
-
-    if (m_adopted)
-      gate::connection_sql_cursor{m_home}.add_reactivation_avoidance_count(-1);
-
     m_ownership = cursor_base::loose;
   }
 }
@@ -259,7 +243,7 @@ result pqxx::internal::sql_cursor::fetch(
   }
   const std::string query =
       "FETCH " + stridestring(rows) + " IN " + m_home.quote_name(name());
-  const result r{gate::connection_sql_cursor{m_home}.exec(query.c_str(), 0)};
+  const result r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
   displacement = adjust(rows, difference_type(r.size()));
   return r;
 }
@@ -277,7 +261,7 @@ cursor_base::difference_type pqxx::internal::sql_cursor::move(
 
   const std::string query =
       "MOVE " + stridestring(rows) + " IN " + m_home.quote_name(name());
-  const result r(gate::connection_sql_cursor{m_home}.exec(query.c_str(), 0));
+  const result r(gate::connection_sql_cursor{m_home}.exec(query.c_str()));
   difference_type d = difference_type(r.affected_rows());
   displacement = adjust(rows, d);
   return d;

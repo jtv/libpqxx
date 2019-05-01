@@ -454,26 +454,8 @@ protected:
 
   // For use by implementing class:
 
-  /// Execute query on connection directly
-  /**
-   * @param C Query or command to execute
-   * @param Retries Number of times to retry the query if it fails.  Be
-   * extremely careful with this option; if you retry in the middle of a
-   * transaction, you may be setting up a new connection transparently and
-   * executing the latter part of the transaction without a backend transaction
-   * being active (and with the former part aborted).
-   */
-  result direct_exec(const char C[], int Retries=0);
-
-  /// Forget about any reactivation-blocking resources we tried to allocate
-  void reactivation_avoidance_clear() noexcept
-	{m_reactivation_avoidance.clear();}
-
-protected:
-  /// Resources allocated in this transaction that make reactivation impossible
-  /** This number may be negative!
-   */
-  internal::reactivation_avoidance_counter m_reactivation_avoidance;
+  /// Execute query on connection directly.
+  result direct_exec(const char C[]);
 
 private:
   /* A transaction goes through the following stages in its lifecycle:

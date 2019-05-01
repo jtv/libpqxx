@@ -131,8 +131,6 @@ private:
 };
 
 
-// TODO: New hierarchy with separate read / write / mixed-mode access
-
 /// Accessor for large object's contents.
 class PQXX_LIBEXPORT largeobjectaccess : private largeobject
 {

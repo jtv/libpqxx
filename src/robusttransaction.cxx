@@ -182,7 +182,7 @@ void pqxx::internal::basic_robusttransaction::CreateLogTable()
 
   try
   {
-    direct_exec(CrTab.c_str(), 1);
+    direct_exec(CrTab.c_str());
   }
   catch (const std::exception &e)
   {
@@ -242,9 +242,8 @@ void pqxx::internal::basic_robusttransaction::DeleteTransactionRecord()
   try
   {
     const std::string Del = sql_delete();
-
-    reactivation_avoidance_exemption E(conn());
-    direct_exec(Del.c_str(), 20);
+    // TODO: Reimplement without reactivation!
+    direct_exec(Del.c_str());
 
     // Now that we've arrived here, we're about as sure as we can be that that
     // record is quite dead.
@@ -313,5 +312,6 @@ bool pqxx::internal::basic_robusttransaction::CheckTransactionRecord()
             "id = " + to_string(m_record_id) + " AND "
             "user = " + conn().username();
 
-  return not direct_exec(Find.c_str(), 20).empty();
+  // TODO: Re-implement without reactivation!
+  return not direct_exec(Find.c_str()).empty();
 }

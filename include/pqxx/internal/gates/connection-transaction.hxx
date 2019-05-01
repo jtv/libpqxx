@@ -14,8 +14,7 @@ class PQXX_PRIVATE connection_transaction : callgate<connection_base>
 
   connection_transaction(reference x) : super(x) {}
 
-  result exec(const char query[], int retries)
-	{ return home().exec(query, retries); }
+  result exec(const char query[]) { return home().exec(query); }
   void register_transaction(transaction_base *t)
 	{ home().register_transaction(t); }
   void unregister_transaction(transaction_base *t) noexcept
@@ -45,9 +44,6 @@ class PQXX_PRIVATE connection_transaction : callgate<connection_base>
   {
     return home().exec_params(query, args);
   }
-
-  void take_reactivation_avoidance(int counter)
-	{ home().m_reactivation_avoidance.add(counter); }
 };
 } // namespace pqxx::internal::gate
 } // namespace pqxx::internal
