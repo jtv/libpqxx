@@ -16,7 +16,6 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
-#include <bitset>
 #include <list>
 #include <map>
 #include <memory>
@@ -335,8 +334,8 @@ public:
    * registered under a client-provided name, optimized once by the backend, and
    * executed any number of times under the given name.
    *
-   * Prepared statement definitions are not sensitive to transaction boundaries;
-   * a statement defined inside a transaction will remain defined outside that
+   * Prepared statement definitions are not sensitive to transaction boundaries.
+   * A statement defined inside a transaction will remain defined outside that
    * transaction, even if the transaction itself is subsequently aborted.  Once
    * a statement has been prepared, it will only go away if you close the
    * connection or explicitly "unprepare" the statement.
@@ -344,13 +343,18 @@ public:
    * Use the @c pqxx::transaction_base::exec_prepared functions to execute a
    * prepared statement.  See \ref prepared for a full discussion.
    *
-   * Never try to prepare, execute, or unprepare a prepared statement manually
-   * using direct SQL queries.  Always use the functions provided by libpqxx.
+   * @warning Using prepared statements can save time, but if your statement
+   * takes parameters, it may also make your application significantly slower!
+   * The reason is that the server works out a plan for executing the query
+   * when you prepare it.  At that time, the values for the parameters are of
+   * course not yet known.  If you execute a query without preparing it, then
+   * the server works out the plan on the spot, with knowledge of the parameter
+   * values.  It can use knowlege about these values for optimisation, and the
+   * prepared version does not have this knowledge.
    *
    * @{
    */
 
-// TODO: Stop deferring prepared statement registration.
   /// Define a prepared statement.
   /**
    * The statement's definition can refer to a parameter using the parameter's
@@ -370,14 +374,6 @@ public:
    * }
    * @endcode
    *
-   * Prepared statements aren't really registered with the backend until they
-   * are first used.  If this is not what you want, e.g. because you have very
-   * specific realtime requirements, you can use the @c prepare_now() function
-   * to force immediate preparation.
-   *
-   * This also means that if there's a syntax error in the statement, you may
-   * only see it when you first try to call the statement.
-   *
    * @param name unique name for the new prepared statement.
    * @param definition SQL statement to prepare.
    */
@@ -394,9 +390,6 @@ public:
 
   /// Drop prepared statement.
   void unprepare(const std::string &name);
-
-  /// If prepared statement was not registered with the server yet, do it now.
-  void prepare_now(const std::string &name);
 
   /**
    * @}
@@ -577,10 +570,6 @@ private:
 
   void read_capabilities();
 
-  prepare::internal::prepared_def &find_prepared(const std::string &);
-
-  prepare::internal::prepared_def &register_prepared(const std::string &);
-
   result exec_prepared(const std::string &statement, const internal::params &);
 
   /// Connection handle.
@@ -604,10 +593,6 @@ private:
 	std::multimap<std::string, pqxx::notification_receiver *>;
   /// Notification receivers.
   receiver_list m_receivers;
-
-  using PSMap = std::map<std::string, prepare::internal::prepared_def>;
-  /// Prepared statements existing in this section.
-  PSMap m_prepared;
 
   /// Server version.
   int m_serverversion = 0;

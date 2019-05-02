@@ -61,7 +61,6 @@ public:
     done,
   };
 
-// XXX: Actually _pass_ encoding group!
   /// Constructor.  You don't need this; use @c field::as_array instead.
   explicit array_parser(
 	const char input[],

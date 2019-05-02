@@ -2,6 +2,13 @@
  - Removed tablereader/tablewriter, replaced by stream_from/stream_to.
  - Removed obsolete transactor framework, replaced by post-C++11 one.
  - Removed old ways of invoking parameterised and prepared statements.
+ - Session variables are no longer cached.
+ - If you do weird stuff with setting/getting variables, it may now break.
+ - Reading a variable written from raw SQL, procedures, etc, will now work.
+ - Prepared statements are now registered immediately.
+ - If you do weird stuff with preparing/unpreparing statements, it may break.
+ - Changed exceptions and errors for e.g. overwriting a prepared statement.
+ - Mishandling prepared statements will now break the connection.
 6.4.4
  - Use pkg-config if pg-config is not available.
  - In CMake build, prefer CMake's config headers over any found in source tree.

@@ -392,15 +392,15 @@ public:
    * @name Error/warning output
    */
   //@{
-  /// Have connection process warning message
+  /// Have connection process a warning message.
   void process_notice(const char Msg[]) const				//[t14]
 	{ m_conn.process_notice(Msg); }
-  /// Have connection process warning message
+  /// Have connection process a warning message.
   void process_notice(const std::string &Msg) const			//[t14]
 	{ m_conn.process_notice(Msg); }
   //@}
 
-  /// Connection this transaction is running in
+  /// Connection this transaction is running in.
   connection_base &conn() const { return m_conn; }			//[t04]
 
   /// Set session variable using SQL "SET" command.

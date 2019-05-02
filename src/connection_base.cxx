@@ -214,8 +214,6 @@ void pqxx::connection_base::set_up_state()
 {
   read_capabilities();
 
-  for (auto &p: m_prepared) p.second.registered = false;
-
   // The default notice processor in libpq writes to stderr.  Ours does
   // nothing.
   // If the caller registers an error handler, this gets replaced with an
@@ -259,7 +257,7 @@ void pqxx::connection_base::set_up_state()
     while (gate::result_connection(r));
   }
 
-  if (not is_open()) throw broken_connection{};
+  if (not is_open()) throw broken_connection{"Could not connect."};
 }
 
 
@@ -649,25 +647,13 @@ void pqxx::connection_base::prepare(
 	const std::string &name,
 	const std::string &definition)
 {
-  auto i = m_prepared.find(name);
-  if (i != m_prepared.end())
-  {
-    if (definition != i->second.definition)
-    {
-      if (not name.empty())
-        throw argument_error{
-		"Inconsistent redefinition of prepared statement " + name};
+  if (m_conn == nullptr) throw broken_connection{
+    "Could not prepare statement: connection is inactive."};
 
-      i->second.registered = false;
-      i->second.definition = definition;
-    }
-  }
-  else
-  {
-    m_prepared.insert(make_pair(
-	name,
-	prepare::internal::prepared_def{definition}));
-  }
+  auto r = make_result(
+    PQprepare(m_conn, name.c_str(), definition.c_str(), 0, nullptr),
+    "[PREPARE " + name + "]");
+  check_result(r);
 }
 
 
@@ -679,52 +665,7 @@ void pqxx::connection_base::prepare(const std::string &definition)
 
 void pqxx::connection_base::unprepare(const std::string &name)
 {
-  auto i = m_prepared.find(name);
-
-  // Quietly ignore duplicated or spurious unprepare()s
-  if (i == m_prepared.end()) return;
-
-  if (i->second.registered) exec(("DEALLOCATE " + quote_name(name)).c_str());
-
-  m_prepared.erase(i);
-}
-
-
-pqxx::prepare::internal::prepared_def &
-pqxx::connection_base::find_prepared(const std::string &statement)
-{
-  auto s = m_prepared.find(statement);
-  if (s == m_prepared.end())
-    throw argument_error{"Unknown prepared statement '" + statement + "'"};
-  return s->second;
-}
-
-
-pqxx::prepare::internal::prepared_def &
-pqxx::connection_base::register_prepared(const std::string &name)
-{
-  if (m_conn == nullptr) throw broken_connection{
-    "Could not prepare statement: connection is inactive."};
-  auto &s = find_prepared(name);
-
-  // "Register" (i.e., define) prepared statement with backend on demand
-  if (not s.registered)
-  {
-    auto r = make_result(
-      PQprepare(m_conn, name.c_str(), s.definition.c_str(), 0, nullptr),
-      "[PREPARE " + name + "]");
-    check_result(r);
-    s.registered = not name.empty();
-    return s;
-  }
-
-  return s;
-}
-
-
-void pqxx::connection_base::prepare_now(const std::string &name)
-{
-  register_prepared(name);
+  exec(("DEALLOCATE " + quote_name(name)).c_str());
 }
 
 
@@ -732,7 +673,6 @@ pqxx::result pqxx::connection_base::exec_prepared(
 	const std::string &statement,
 	const internal::params &args)
 {
-  register_prepared(statement);
   const auto pointers = args.get_pointers();
   const auto pq_result = PQexecPrepared(
 	m_conn,

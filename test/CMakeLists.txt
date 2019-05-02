@@ -13,7 +13,6 @@
 ################################################################################
 enable_testing()
 
-# TODO: We're giving exact filenames here.  Don't pretend they're globs.
 file(
     GLOB TEST_SOURCES
     test00.cxx

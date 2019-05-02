@@ -14,7 +14,6 @@ libpqxx_la_SOURCES = \
 	nontransaction.cxx \
 	notification.cxx \
 	pipeline.cxx \
-	prepared_statement.cxx \
 	result.cxx \
 	robusttransaction.cxx \
 	sql_cursor.cxx \

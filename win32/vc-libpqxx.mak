@@ -113,7 +113,6 @@ OBJ_STATICDEBUG=\
        "$(INTDIR_STATICDEBUG)\nontransaction.obj" \
        "$(INTDIR_STATICDEBUG)\notification.obj" \
        "$(INTDIR_STATICDEBUG)\pipeline.obj" \
-       "$(INTDIR_STATICDEBUG)\prepared_statement.obj" \
        "$(INTDIR_STATICDEBUG)\result.obj" \
        "$(INTDIR_STATICDEBUG)\robusttransaction.obj" \
        "$(INTDIR_STATICDEBUG)\row.obj" \
@@ -144,7 +143,6 @@ OBJ_STATICRELEASE=\
        "$(INTDIR_STATICRELEASE)\nontransaction.obj" \
        "$(INTDIR_STATICRELEASE)\notification.obj" \
        "$(INTDIR_STATICRELEASE)\pipeline.obj" \
-       "$(INTDIR_STATICRELEASE)\prepared_statement.obj" \
        "$(INTDIR_STATICRELEASE)\result.obj" \
        "$(INTDIR_STATICRELEASE)\robusttransaction.obj" \
        "$(INTDIR_STATICRELEASE)\row.obj" \
@@ -175,7 +173,6 @@ OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\nontransaction.obj" \
        "$(INTDIR_DLLDEBUG)\notification.obj" \
        "$(INTDIR_DLLDEBUG)\pipeline.obj" \
-       "$(INTDIR_DLLDEBUG)\prepared_statement.obj" \
        "$(INTDIR_DLLDEBUG)\result.obj" \
        "$(INTDIR_DLLDEBUG)\robusttransaction.obj" \
        "$(INTDIR_DLLDEBUG)\row.obj" \
@@ -207,7 +204,6 @@ OBJ_DLLRELEASE=\
        "$(INTDIR_DLLRELEASE)\nontransaction.obj" \
        "$(INTDIR_DLLRELEASE)\notification.obj" \
        "$(INTDIR_DLLRELEASE)\pipeline.obj" \
-       "$(INTDIR_DLLRELEASE)\prepared_statement.obj" \
        "$(INTDIR_DLLRELEASE)\result.obj" \
        "$(INTDIR_DLLRELEASE)\robusttransaction.obj" \
        "$(INTDIR_DLLRELEASE)\row.obj" \
@@ -422,13 +418,6 @@ $(INTDIR_DLLRELEASE)::
 	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/pipeline.cxx
 
 
-"$(INTDIR_STATICRELEASE)\prepared_statement.obj": src/prepared_statement.cxx $(INTDIR_STATICRELEASE)
-	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/prepared_statement.cxx
-
-"$(INTDIR_STATICDEBUG)\prepared_statement.obj": src/prepared_statement.cxx $(INTDIR_STATICDEBUG)
-	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/prepared_statement.cxx
-
-
 "$(INTDIR_STATICRELEASE)\result.obj": src/result.cxx $(INTDIR_STATICRELEASE)
 	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/result.cxx
 
@@ -625,13 +614,6 @@ $(INTDIR_DLLRELEASE)::
 
 "$(INTDIR_DLLDEBUG)\pipeline.obj": src/pipeline.cxx $(INTDIR_DLLDEBUG)
 	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/pipeline.cxx
-
-
-"$(INTDIR_DLLRELEASE)\prepared_statement.obj": src/prepared_statement.cxx $(INTDIR_DLLRELEASE)
-	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/prepared_statement.cxx
-
-"$(INTDIR_DLLDEBUG)\prepared_statement.obj": src/prepared_statement.cxx $(INTDIR_DLLDEBUG)
-	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/prepared_statement.cxx
 
 
 "$(INTDIR_DLLRELEASE)\result.obj": src/result.cxx $(INTDIR_DLLRELEASE)

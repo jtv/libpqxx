@@ -39,7 +39,6 @@ macro(library_target_setup tgt)
     )
 endmacro()
 
-# TODO: We're giving exact filenames here.  Don't pretend they're globs.
 file(
     GLOB CXX_SOURCES
     array.cxx
@@ -56,7 +55,6 @@ file(
     nontransaction.cxx
     notification.cxx
     pipeline.cxx
-    prepared_statement.cxx
     result.cxx
     robusttransaction.cxx
     row.cxx

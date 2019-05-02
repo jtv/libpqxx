@@ -71,26 +71,5 @@ make_dynamic_params(const C &container)
 } // namespace prepare
 } // namespace pqxx
 
-namespace pqxx
-{
-namespace prepare
-{
-namespace internal
-{
-/// Internal representation of a prepared statement definition.
-struct PQXX_LIBEXPORT prepared_def
-{
-  /// Text of prepared query.
-  std::string definition;
-  /// Has this prepared statement been prepared in the current session?
-  bool registered = false;
-
-  prepared_def() =default;
-  explicit prepared_def(const std::string &);
-};
-} // namespace pqxx::prepare::internal
-} // namespace pqxx::prepare
-} // namespace pqxx
-
 #include "pqxx/compiler-internal-post.hxx"
 #endif

@@ -33,7 +33,6 @@ OBJ = \
   src/nontransaction.o \
   src/notification.o \
   src/pipeline.o \
-  src/prepared_statement.o \
   src/result.o \
   src/robusttransaction.o \
   src/row.o \
@@ -113,9 +112,6 @@ src/notification.o: src/notification.cxx
 
 src/pipeline.o: src/pipeline.cxx
 	$(CXX) $(CPPFLAGS) -c src/pipeline.cxx -o src/pipeline.o $(CXXFLAGS)
-
-src/prepared_statement.o: src/prepared_statement.cxx
-	$(CXX) $(CPPFLAGS) -c src/prepared_statement.cxx -o src/prepared_statement.o $(CXXFLAGS)
 
 src/result.o: src/result.cxx
 	$(CXX) $(CPPFLAGS) -c src/result.cxx -o src/result.o $(CXXFLAGS)
