@@ -144,7 +144,6 @@ void pqxx::connection_base::activate()
 
   try
   {
-    m_conn = m_policy.do_startconnect(m_conn);
     m_conn = m_policy.do_completeconnect(m_conn);
     m_completed = true;
 

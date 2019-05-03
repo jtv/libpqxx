@@ -112,7 +112,6 @@ pqxx::connectionpolicy::handle
 pqxx::connect_async::do_startconnect(handle orig)
 {
   if (orig != nullptr) return orig;	// Already connecting or connected.
-  m_connecting = false;
   orig = PQconnectStart(options().c_str());
   if (orig == nullptr) throw std::bad_alloc{};
   if (PQstatus(orig) == CONNECTION_BAD)
@@ -128,11 +127,9 @@ pqxx::connect_async::do_startconnect(handle orig)
 pqxx::connectionpolicy::handle
 pqxx::connect_async::do_completeconnect(handle orig)
 {
-  const bool makenew = (orig == nullptr);
-  if (makenew) orig = do_startconnect(orig);
   if (not m_connecting) return orig;
 
-  // Our "attempt to connect" state ends here, for better or for worse
+  // Our "attempt to connect" state ends here, for better or for worse.
   m_connecting = false;
 
   PostgresPollingStatusType pollstatus = PGRES_POLLING_WRITING;
@@ -142,7 +139,6 @@ pqxx::connect_async::do_completeconnect(handle orig)
     switch (pollstatus)
     {
     case PGRES_POLLING_FAILED:
-      if (makenew) do_disconnect(orig);
       throw broken_connection{std::string{PQerrorMessage(orig)}};
 
     case PGRES_POLLING_READING:
