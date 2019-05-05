@@ -142,10 +142,6 @@ public:
    */
   bool PQXX_PURE is_open() const noexcept;				//[t01]
 
-// XXX: Remove.
-  /// Explicitly activate the connection if it's in an inactive state.
-  void activate();							//[t12]
-
   /// Make the connection fail.  @warning Do not use this except for testing!
   /** Breaks the connection in some unspecified, horrible, dirty way to enable
    * failure testing.
