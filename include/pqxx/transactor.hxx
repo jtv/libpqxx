@@ -124,7 +124,8 @@ inline auto perform(const TRANSACTION_CALLBACK &callback, int attempts=3)
     }
     catch (const broken_connection &)
     {
-      // Connection failed.  Definitely worth retrying.
+      // Connection failed.  May be worth retrying, if the transactor opens its
+      // own connection.
       if (attempts <= 1) throw;
       continue;
     }

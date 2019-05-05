@@ -64,14 +64,6 @@ Never try to prepare, execute, or unprepare a prepared statement
 manually using direct SQL queries.  Always use the functions provided by
 libpqxx.
 
-Prepared statements are not necessarily defined on the backend right away.
-It's usually done lazily.  This means that you can prepare statements before
-the connection is fully established, and that it's relatively cheap to
-pre-prepare lots of statements that you may or may not not use during the
-session.  On the other hand, it also means that errors in a prepared
-statement may not show up until you first try to invoke it.  Such an error
-may then break the transaction it occurs in.
-
 A performance note: There are cases where prepared statements are actually
 slower than plain SQL.  Sometimes the backend can produce a better execution
 plan when it knows the parameter values.  For example, say you've got a web

@@ -457,11 +457,9 @@ protected:
 private:
   /* A transaction goes through the following stages in its lifecycle:
    * <ul>
-   * <li> nascent: the transaction hasn't actually begun yet.  If our connection
-   *    fails at this stage, it may recover and the transaction can attempt to
-   *    establish itself again.
+   * <li> nascent: the transaction hasn't actually begun yet.
    * <li> active: the transaction has begun.  Since no commit command has been
-   *    issued, abortion is implicit if the connection fails now.
+   *    issued, rollback is implicit if the connection fails now.
    * <li> aborted: an abort has been issued; the transaction is terminated and
    *    its changes to the database rolled back.  It will accept no further
    *    commands.

@@ -144,8 +144,8 @@ public:
 
   /// Constructor
   /** Creates robusttransaction of given name
-   * @param C Connection that this robusttransaction should live inside.
-   * @param Name optional human-readable name for this transaction
+   * @param C Connection inside which this robusttransaction should live.
+   * @param Name optional human-readable name for this transaction.
    */
   explicit robusttransaction(
 	connection &C,

@@ -41,13 +41,10 @@ namespace pqxx
  * {
  *   const string temptable = "fleetingtable";
  *
- *   // Since we're dealing with a temporary table here, disallow automatic
- *   // recovery of the connection in case it breaks.
- *
  *   work W(C, "do_job");
  *   do_firstpart(W);
  *
- *   // Attempt to delete our temporary table if it already existed
+ *   // Attempt to delete our temporary table if it already existed.
  *   try
  *   {
  *     subtransaction S(W, "droptemp");

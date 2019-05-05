@@ -81,10 +81,6 @@ public:
    *
    * @warning Use this feature with care and moderation.  Only one cursor object
    * should be responsible for any one underlying SQL cursor at any given time.
-   *
-   * @warning Don't "leak" cursors!  As long as any "loose" cursor exists,
-   * any attempts to reactivate a broken connection explicitly are quietly
-   * ignored.
    */
   enum ownershippolicy
   {

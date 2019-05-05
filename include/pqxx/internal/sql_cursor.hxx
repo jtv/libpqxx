@@ -85,7 +85,7 @@ private:
   /// Initialize cached empty result.  Call only at beginning or end!
   void init_empty_result(transaction_base &);
 
-  /// Connection this cursor lives in
+  /// Connection in which this cursor lives.
   connection &m_home;
 
   /// Zero-row result from this cursor (or plain empty one if cursor is adopted)

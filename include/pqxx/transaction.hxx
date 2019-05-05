@@ -86,9 +86,9 @@ public:
 
   /// Create a transaction.
   /**
-   * @param C Connection for this transaction to operate on
-   * @param TName Optional name for transaction; must begin with a letter and
-   * may contain letters and digits only
+   * @param C Connection for this transaction to operate on.
+   * @param TName Optional name for transaction.  Must begin with a letter and
+   * may contain letters and digits only.
    */
   explicit transaction(connection &C, const std::string &TName):	//[t01]
     namedclass{fullname("transaction", isolation_tag::name()), TName},

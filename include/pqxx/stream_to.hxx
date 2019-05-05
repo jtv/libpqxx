@@ -91,7 +91,7 @@ public:
    * an error.  (In the case of an error, abort the transaction afterwards.)
    *
    * The only circumstance where it's safe to skip this is after an error, if
-   * you're discarding the entire connection right away.
+   * you're discarding the entire connection.
    */
   void complete() override;
 

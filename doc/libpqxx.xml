@@ -526,14 +526,6 @@
       </para>
 
       <para>
-	If no connection could be established, the <literal>connection</literal>
-	constructor may throw an exception immediately; or it may decide to
-	retry the connection later in case the problem is only temporary.  In
-	the latter case, an exception may occur at some later point if the
-	problem turns out not to be so temporary after all.
-      </para>
-
-      <para>
 	The <literal>connection</literal> can now act as a "service counter"
 	for our database; your client will use it to perform one or more
 	transactions related to the database.
@@ -583,9 +575,10 @@
 	<title>Creating a transaction object</title>
 
 	<para>
-	  Creating a transaction object is not normally something you will
-	  have to do.  The <literal>transactor</literal> class, discussed
-	  below, will take care of that and some other red tape besides.
+	  Creating a transaction object is not something you have to do
+          yourself, if you don't want to.  The <literal>transactor</literal>
+          class, discussed below, will take care of that and some other red
+          tape besides.
 	  Still, there are cases where creating the object is unavoidable
 	  (when acting on multiple database connections simultaneously) or
 	  just plain easier to do.  Please consider using a
@@ -985,7 +978,7 @@
       </para>
 
       <programlisting>
-	// Pay an employee his salary.  Add bonus for managers.
+	// Pay an employee their salary.  Add bonus for managers.
 	// The employee row must contain the fields
 	void PaySalary(result::const_iterator empl)
 	{
@@ -1015,251 +1008,6 @@
 	<literal>runtime_error</literal> reporting the problem in its
 	<function>what</function> message.
       </para>
-    </section>
-
-    <section id="transactors">
-      <title>Doing Transactions Right: Transactors</title>
-
-      <para>
-	Writing database code can be tricky.  One of the most complicated
-	areas is dealing with unexpected error conditions, such as losing
-	one's connection to the database server.  For long-running processes
-	you'll frequently find yourself rewriting code for a simple
-	transaction to make it:
-      </para>
-
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    Attempt to perform the transaction.
-	  </para>
-	</listitem>
-
-	<listitem>
-	  <para>
-	    Check for "connection lost" errors.
-	  </para>
-	</listitem>
-
-	<listitem>
-	  <para>
-	    Attempt to restore the connection.
-	  </para>
-	</listitem>
-
-	<listitem>
-	  <para>
-	    Repeat until the transaction succeeds.
-	  </para>
-	</listitem>
-      </itemizedlist>
-
-      <para>
-	This is bad for the heart, and clutters up your code besides.  The
-	<literal>transactor</literal> framework will take this work out of
-	your hands if you let it.
-      </para>
-
-      <section id="functors">
-	<title>Functors</title>
-
-	<para>
-	  The mechanism is based on the concept of
-	  <emphasis>Functors</emphasis>, a powerful object-oriented design
-	  pattern that replaces the older practice of passing callback
-	  functions (or hooks, as they're sometimes called, or exits) to
-	  foreign code.  Unlike classic callback functions, Functors provide
-	  an elegant way of maintaining custom state in your callback code,
-	  when the exact form or size of that state was not known in advance
-	  to the writer of the foreign code that will eventually invoke your
-	  callback.
-	</para>
-
-	<para>
-	  Functors in C++ are simple objects that can be invoked just like
-	  functions or function pointers can, by virtue of providing the
-	  function invocation operator, <function>operator()</function>.
-	</para>
-
-	<para>
-	  A simple functor could look like this:
-	</para>
-
-	<programlisting>
-	  struct HelloFunctor
-	  {
-	  void operator()() { cout &lt;&lt; "Hello World" &lt;&lt; endl; }
-	  };
-	</programlisting>
-
-	<para>
-	  ...And once an object of this functor type has been created, it can
-	  be "invoked" just as if it were a function:
-	</para>
-
-	<programlisting>
-	  HelloFunctor Hi;
-	  Hi();
-	</programlisting>
-
-	<para>
-	  But the invoking code may also be foreign code knowing nothing
-	  about the type of your functor.  The foreign code is usually a
-	  template, so it automatically becomes "specialized" to your type of
-	  functor when the one meets the other:
-	</para>
-
-	<programlisting>
-	  template&lt;typename FUNCTOR&gt; void DoFunctor(const FUNCTOR &amp;Hi)
-	  {
-	  Hi();
-	  }
-	</programlisting>
-
-	<para>
-	  The great thing about functors is that they can carry state.  This
-	  is most useful when you need to pass a functor object to foreign
-	  code like <function>DoFunctor</function> above, but you need
-	  certain extra parameters to be passed to your functor that the
-	  foreign code isn't going to pass.  The classic C solution to this
-	  problem is to let you pass both a function pointer and a
-	  pointer-to-<literal>void</literal> as a method of letting you
-	  provide any type of data of your liking to it.  This generally
-	  makes programs a little harder to read, and is not very safe or
-	  convenient.
-	</para>
-
-	<para>
-	  With functors, there is a better way to do the same thing.  Let's
-	  say you want to adapt the <literal>HelloFunctor</literal> class to
-	  print its output to a different output stream.  What you'd really
-	  like to do is add a parameter to your <literal>()</literal>
-	  operator to indicate which stream to print to:
-	</para>
-	<programlisting>
-	  void operator()(ostream &amp;Stream)
-	  {
-	  Stream &lt;&lt; "Hello World" &lt;&lt; endl;
-	  }
-	</programlisting>
-
-	<para>
-	  Unfortunately, <function>DoFunctor</function> doesn't know about
-	  this new parameter, let alone what argument to pass!  So instead,
-	  let's make this
-	  <literal>Stream</literal> a class member:
-	</para>
-	<programlisting>
-	  struct HelloFunctor
-	  {
-	  ostream &amp;Stream;
-
-	  // Set Stream when creating a HelloFunctor
-	  explicit HelloFunctor(ostream &amp;S) : Stream(S) { }
-
-	  // Print to output stream selected at construction time
-	  void operator()()
-	  {
-	  Stream &lt;&lt; "Hello World" &lt;&lt; endl;
-	  }
-	  };
-	</programlisting>
-
-	<para>
-	  We can now provide the necessary information (ie., which stream to
-	  print to) to our <literal>HelloFunctor</literal> before we pass it
-	  to <function>DoFunctor</function>:
-	</para>
-
-	<programlisting>
-	  HelloFunctor Hi1(cout), Hi2(cerr);
-
-	  DoFunctor(Hi1);  // Print to cout
-	  DoFunctor(Hi2);  // Print to cerr
-	</programlisting>
-
-	<para>
-	  Naturally a functor's <literal>()</literal> operator may also return
-	  some other type than <literal>void</literal>, and it may take
-	  arguments just like any other function.  This mechanism is used
-	  extensively by the STL to sort containers, to find items in sorted
-	  containers like <literal>set</literal> or <literal>map</literal>, and
-	  so on.
-	</para>
-      </section>
-
-      <section id="transactor-working">
-	<title>How Transactors Work</title>
-
-	<para>
-	  A transactor is a functor derived from an instantiation of
-	  <filename>libpqxx</filename>'s <literal>transactor</literal> class
-	  template.  Instead of writing your database transaction inline with
-	  the rest of your code, you encapsulate it in your functor's
-	  <literal>()</literal> operator.  When the time comes to execute
-	  your transaction, you create an object of your functor type and
-	  pass it to the <function>perform</function> method of your
-	  <literal>connection</literal> to the database.
-	</para>
-
-	<para>
-	  <function>perform</function> will make a copy of your transactor
-	  (which means it needs to be copy-constructible, by the way).  It
-	  will also create a transaction object and invoke your transactor's
-	  <literal>()</literal> operator, passing the transaction object to
-	  it.  All your transactor needs to do is perform its queries on this
-	  object and return, after which <function>perform</function> will
-	  commit the transaction.  If your <literal>()</literal> operator
-	  throws an exception instead, <function>perform</function> will
-	  discard the copy of your original transactor, and try again with a
-	  new copy until it either succeeds or eventually gives up
-	  <footnote>
-	    <para>
-	      <function>perform</function> gives up if the transaction fails
-	      too many times in succession.  The maximum number of attempts
-	      that are made can be passed to <function>perform</function> as
-	      an optional second argument.
-	    </para>
-	  </footnote>.
-	  If the connection is lost, the transaction will fail but
-	  <function>perform</function> will restore it transparently and
-	  simply try again.
-	</para>
-
-	<para>
-	  To make all this work, your transactor's <literal>()</literal>
-	  operator must make <emphasis>no</emphasis> changes to the rest of
-	  your program's state.  Any intermediate results, data to be
-	  processed, and so on, must stay within your transactor, and be
-	  destroyed when the transactor is.  That is the magic trick that
-	  allows <function>perform</function> to create copies of your
-	  transactor and use them to rerun the transaction as
-	  many times as needed, without your program noticing.
-	</para>
-
-	<para>
-	  So how does your transactor pass query results back to the outside
-	  world once it's done?  For this purpose, you may redefine
-	  <literal>transactor</literal>'s <function>on_commit</function>
-	  member function to pass any data back to the rest of your program.
-	  This member function will be called only if your transaction
-	  succeeded.
-	</para>
-
-	<para>
-	  (You may also wish to go the other route, storing data to variables
-	  outside the transactor right away, and override the
-	  <function>on_abort</function> and <function>on_doubt</function>
-	  functions to remove the data again if the transaction failed, but
-	  this is much more likely to cause subtle bugs.)
-	</para>
-
-	<para>
-	  Please refer to the reference manual, the source code, and the test
-	  programs that come with <filename>libpqxx</filename> to learn more
-	  about how transactors work.
-	</para>
-      </section>
     </section>
   </chapter>
 </book>
