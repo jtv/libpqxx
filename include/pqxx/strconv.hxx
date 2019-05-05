@@ -315,7 +315,7 @@ template<>
 }
 
 template<typename T>
-  inline void from_string(const std::string &Str, T &Obj)		//[t45]
+  inline void from_string(const std::string &Str, T &Obj)
 	{ from_string(Str.c_str(), Obj); }
 
 template<typename T>

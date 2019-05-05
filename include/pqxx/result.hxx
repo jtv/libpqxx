@@ -78,7 +78,7 @@ public:
   using const_reverse_iterator = const_reverse_result_iterator;
   using reverse_iterator = const_reverse_iterator;
 
-  result() noexcept :		                                        //[t03]
+  result() noexcept :
       m_data(make_data_pointer()),
       m_query(),
       m_encoding(internal::encoding_group::MONOBYTE)

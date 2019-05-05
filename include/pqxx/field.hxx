@@ -132,7 +132,7 @@ public:
   /** Note this can be used with optional types (except pointers other than
    * C-strings)
    */
-  template<typename T> auto to(T &Obj) const				//[t03]
+  template<typename T> auto to(T &Obj) const
     -> typename std::enable_if<(
       not std::is_pointer<T>::value
       or std::is_same<T, const char*>::value
@@ -180,7 +180,7 @@ public:
    * (other than C-strings) because storage for the value can't safely be
    * allocated here
    */
-  template<typename T> T as() const					//[t45]
+  template<typename T> T as() const
   {
     T Obj;
     if (not to(Obj)) Obj = string_traits<T>::null();

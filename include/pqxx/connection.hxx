@@ -148,7 +148,7 @@ public:
    *
    * Do not use this in normal code.  This is only meant for testing.
    */
-  void simulate_failure();						//[t94]
+  void simulate_failure();
 
   /// Invoke notice processor function.  The message should end in newline.
   void process_notice(const char[]) noexcept;				//[t14]
@@ -156,7 +156,7 @@ public:
   void process_notice(const std::string &) noexcept;			//[t14]
 
   /// Enable tracing to a given output stream, or nullptr to disable.
-  void trace(std::FILE *) noexcept;					//[t03]
+  void trace(std::FILE *) noexcept;
 
   /**
    * @name Connection properties
