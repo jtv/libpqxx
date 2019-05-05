@@ -38,10 +38,6 @@ void test_002()
   // we could in this case even omit it altogether.
   T.commit();
 
-  // Since we don't need the database anymore, we can be even more
-  // considerate and close the connection now.  This is optional.
-  C.disconnect();
-
   // Ah, this version of postgres will tell you which table a column in a
   // result came from.  Let's just test that functionality...
   const oid rtable = R.column_table(0);

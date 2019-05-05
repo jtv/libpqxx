@@ -51,8 +51,6 @@ extern "C"
 }
 
 #include "pqxx/binarystring"
-#include "pqxx/connection"
-#include "pqxx/connection_base"
 #include "pqxx/nontransaction"
 #include "pqxx/pipeline"
 #include "pqxx/result"
@@ -97,8 +95,15 @@ std::string pqxx::encrypt_password(
 
 void pqxx::connection_base::init()
 {
-  m_conn = m_policy.do_startconnect(m_conn);
-  if (m_policy.is_ready(m_conn)) activate();
+  m_conn = PQconnectdb(m_options.c_str());
+  if (m_conn == nullptr) throw std::bad_alloc{};
+  if (PQstatus(m_conn) != CONNECTION_OK)
+  {
+    const std::string msg{PQerrorMessage(m_conn)};
+    PQfinish(m_conn);
+    throw broken_connection{msg};
+  }
+  activate();
 }
 
 
@@ -150,7 +155,7 @@ void pqxx::connection_base::activate()
   }
   catch (const broken_connection &e)
   {
-    disconnect();
+    PQfinish(m_conn);
     throw broken_connection{e.what()};
   }
 }
@@ -158,7 +163,7 @@ void pqxx::connection_base::activate()
 
 void pqxx::connection_base::simulate_failure()
 {
-  if (m_conn) m_conn = m_policy.do_disconnect(m_conn);
+  if (m_conn) PQfinish(m_conn);
 }
 
 
@@ -265,12 +270,6 @@ void pqxx::connection_base::check_result(const result &R)
   if (not gate::result_connection{R}) throw failure(err_msg());
 
   gate::result_creation{R}.check_status();
-}
-
-
-void pqxx::connection_base::disconnect() noexcept
-{
-  m_conn = m_policy.do_disconnect(m_conn);
 }
 
 
@@ -708,7 +707,7 @@ void pqxx::connection_base::close() noexcept
     for (auto i = rbegin; i!=rend; ++i)
       gate::errorhandler_connection_base{**i}.unregister();
 
-    m_conn = m_policy.do_disconnect(m_conn);
+    PQfinish(m_conn);
   }
   catch (...)
   {

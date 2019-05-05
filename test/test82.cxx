@@ -16,7 +16,6 @@ void test_082()
   test::create_pqxxevents(tx);
   const std::string Table = "pqxxevents";
   result R{ tx.exec("SELECT * FROM " + Table) };
-  conn.disconnect();
 
   PQXX_CHECK(not R.empty(), "Got empty result.");
 

@@ -3,7 +3,6 @@ libpqxx_la_SOURCES = \
 	array.cxx \
 	binarystring.cxx \
 	connection_base.cxx \
-	connection.cxx \
 	cursor.cxx \
 	dbtransaction.cxx \
 	encodings.cxx \

@@ -1,6 +1,0 @@
-/** Connection classes.
- *
- * Different ways of setting up a backend connection.
- */
-// Actual definitions in .hxx file so editors and such recognize file type.
-#include "pqxx/connection.hxx"

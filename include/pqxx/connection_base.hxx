@@ -110,6 +110,39 @@ class const_connection_largeobject;
 class PQXX_LIBEXPORT connection_base
 {
 public:
+  explicit connection_base(std::string options=std::string{}) :
+	m_options{options}
+  {
+    // Check library version.  The check_library_version template is declared
+    // for any library version, but only actually defined for the version of
+    // the libpqxx binary against which the code is linked.
+    //
+    // If the library binary is a different version than the one declared in
+    // these headers, then this call will fail to link: there will be no
+    // definition for the function with these exact template parameter values.
+    // There will be a definition, but the version in the parameter values will
+    // be different.
+    //
+    // There is no particular reason to do this here in this constructor, except
+    // to ensure that every meaningful libpqxx client will execute it.  The call
+    // must be in the execution path somewhere or the compiler won't try to link
+    // it.  We can't use it to initialise a global or class-static variable,
+    // because a smart compiler might resolve it at compile time.
+    //
+    // On the other hand, we don't want to make a useless function call too
+    // often for performance reasons.  A local static variable is initialised
+    // only on the definition's first execution.  Compilers will be well
+    // optimised for this behaviour, so there's a minimal one-time cost.
+    static const auto version_ok =
+      internal::check_library_version<PQXX_VERSION_MAJOR, PQXX_VERSION_MINOR>();
+    ignore_unused(version_ok);
+
+    init();
+  }
+
+  ~connection_base() { close(); }
+
+// XXX: Remove.
   /// Explicitly close connection.
   void disconnect() noexcept;						//[t02]
 
@@ -508,34 +541,9 @@ public:
    */
   std::vector<errorhandler *> get_errorhandlers() const;
 
+  const std::string &options() const noexcept { return m_options; }
+
 protected:
-  explicit connection_base(connectionpolicy &pol) :
-	m_policy{pol}
-  {
-    // Check library version.  The check_library_version template is declared
-    // for any library version, but only actually defined for the version of
-    // the libpqxx binary against which the code is linked.
-    //
-    // If the library binary is a different version than the one declared in
-    // these headers, then this call will fail to link: there will be no
-    // definition for the function with these exact template parameter values.
-    // There will be a definition, but the version in the parameter values will
-    // be different.
-    //
-    // There is no particular reason to do this here in this constructor, except
-    // to ensure that every meaningful libpqxx client will execute it.  The call
-    // must be in the execution path somewhere or the compiler won't try to link
-    // it.  We can't use it to initialise a global or class-static variable,
-    // because a smart compiler might resolve it at compile time.
-    // 
-    // On the other hand, we don't want to make a useless function call too
-    // often for performance reasons.  A local static variable is initialised
-    // only on the definition's first execution.  Compilers will be well
-    // optimised for this behaviour, so there's a minimal one-time cost.
-    static const auto version_ok =
-      internal::check_library_version<PQXX_VERSION_MAJOR, PQXX_VERSION_MINOR>();
-    ignore_unused(version_ok);
-  }
   void init();
 
   void close() noexcept;
@@ -565,8 +573,6 @@ private:
   /// Connection handle.
   internal::pq::PGconn *m_conn = nullptr;
 
-  connectionpolicy &m_policy;
-
   /// Active transaction on connection, if any.
   internal::unique<transaction_base> m_trans;
 
@@ -595,6 +601,9 @@ private:
 
   /// Current verbosity level.
   error_verbosity m_verbosity = normal;
+
+  /// Connection string.
+  std::string m_options;
 
   friend class internal::gate::connection_errorhandler;
   void PQXX_PRIVATE register_errorhandler(errorhandler *);
@@ -632,6 +641,9 @@ private:
   connection_base(const connection_base &) =delete;
   connection_base &operator=(const connection_base &) =delete;
 };
+
+
+using connection = connection_base;
 
 
 namespace internal

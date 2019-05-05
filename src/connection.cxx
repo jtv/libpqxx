@@ -21,7 +21,7 @@ extern "C"
 
 
 pqxx::connectionpolicy::handle
-pqxx::connectionpolicy::normalconnect(handle orig)
+pqxx::connectionpolicy::do_startconnect(handle orig)
 {
   if (orig) return orig;
   orig = PQconnectdb(m_options.c_str());
@@ -33,32 +33,4 @@ pqxx::connectionpolicy::normalconnect(handle orig)
     throw broken_connection{msg};
   }
   return orig;
-}
-
-
-pqxx::connectionpolicy::handle
-pqxx::connectionpolicy::do_startconnect(handle orig)
-{
-  if (orig) return orig;
-  orig = normalconnect(orig);
-  if (PQstatus(orig) != CONNECTION_OK)
-  {
-    const std::string msg{PQerrorMessage(orig)};
-    do_disconnect(orig);
-    throw broken_connection{msg};
-  }
-  return orig;
-}
-
-pqxx::connectionpolicy::handle
-pqxx::connectionpolicy::do_disconnect(handle orig) noexcept
-{
-  if (orig) PQfinish(orig);
-  return nullptr;
-}
-
-
-bool pqxx::connectionpolicy::is_ready(handle h) const noexcept
-{
-  return h != nullptr;
 }

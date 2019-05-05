@@ -2,11 +2,9 @@ SUBDIRS = pqxx
 
 nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/array pqxx/array.hxx \
-	pqxx/basic_connection pqxx/basic_connection.hxx \
 	pqxx/binarystring pqxx/binarystring.hxx \
 	pqxx/compiler-public.hxx \
 	pqxx/compiler-internal-pre.hxx pqxx/compiler-internal-post.hxx \
-	pqxx/connection pqxx/connection.hxx \
 	pqxx/connection_base pqxx/connection_base.hxx \
 	pqxx/cursor pqxx/cursor.hxx \
 	pqxx/dbtransaction pqxx/dbtransaction.hxx \

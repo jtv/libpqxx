@@ -1,7 +1,7 @@
 /// Convenience header: include all libpqxx definitions.
 #include "pqxx/array"
 #include "pqxx/binarystring"
-#include "pqxx/connection"
+#include "pqxx/connection_base"
 #include "pqxx/cursor"
 #include "pqxx/errorhandler"
 #include "pqxx/except"

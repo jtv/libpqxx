@@ -134,13 +134,12 @@ am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libpqxx_la_LIBADD =
 am_libpqxx_la_OBJECTS = array.lo binarystring.lo connection_base.lo \
-	connection.lo cursor.lo dbtransaction.lo encodings.lo \
-	errorhandler.lo except.lo field.lo largeobject.lo \
-	nontransaction.lo notification.lo pipeline.lo result.lo \
-	robusttransaction.lo sql_cursor.lo statement_parameters.lo \
-	strconv.lo stream_base.lo stream_from.lo stream_to.lo \
-	subtransaction.lo transaction.lo transaction_base.lo row.lo \
-	util.lo version.lo
+	cursor.lo dbtransaction.lo encodings.lo errorhandler.lo \
+	except.lo field.lo largeobject.lo nontransaction.lo \
+	notification.lo pipeline.lo result.lo robusttransaction.lo \
+	sql_cursor.lo statement_parameters.lo strconv.lo \
+	stream_base.lo stream_from.lo stream_to.lo subtransaction.lo \
+	transaction.lo transaction_base.lo row.lo util.lo version.lo
 libpqxx_la_OBJECTS = $(am_libpqxx_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -351,7 +350,6 @@ libpqxx_la_SOURCES = \
 	array.cxx \
 	binarystring.cxx \
 	connection_base.cxx \
-	connection.cxx \
 	cursor.cxx \
 	dbtransaction.cxx \
 	encodings.cxx \
@@ -470,7 +468,6 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/array.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/binarystring.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/connection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/connection_base.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cursor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbtransaction.Plo@am__quote@

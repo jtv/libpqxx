@@ -29,8 +29,6 @@ install(
         PATTERN compiler-internal
         PATTERN compiler-public.hxx
         PATTERN compiler-public
-        PATTERN connection.hxx
-        PATTERN connection
         PATTERN connection_base.hxx
         PATTERN connection_base
         PATTERN cursor.hxx
