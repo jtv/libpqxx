@@ -1,6 +1,0 @@
-/** Base connection policy class.
- *
- * Interface for defining connection policies
- */
-// Actual definitions in .hxx file so editors and such recognize file type.
-#include "pqxx/connectionpolicy.hxx"

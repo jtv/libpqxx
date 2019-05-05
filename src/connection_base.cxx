@@ -144,11 +144,8 @@ void pqxx::connection_base::activate()
 
   try
   {
-    m_conn = m_policy.do_completeconnect(m_conn);
     m_completed = true;
-
     if (not is_open()) throw broken_connection{err_msg()};
-
     set_up_state();
   }
   catch (const broken_connection &e)

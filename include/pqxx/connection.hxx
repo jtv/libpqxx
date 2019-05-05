@@ -16,7 +16,6 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
-#include "pqxx/connectionpolicy.hxx"
 #include "pqxx/basic_connection.hxx"
 
 namespace pqxx
@@ -53,21 +52,28 @@ namespace pqxx
  * @{
  */
 
-/// Connection policy; creates an immediate connection to a database.
-/** This is the policy you typically need when you work with a database through
- * libpqxx.  It connects to the database immediately.
- */
-class PQXX_LIBEXPORT connect_direct : public connectionpolicy
+class PQXX_LIBEXPORT connectionpolicy
 {
 public:
+  using handle = internal::pq::PGconn *;
+
   /// The parsing of options is the same as in libpq's PQconnect.
   /// See: https://www.postgresql.org/docs/10/static/libpq-connect.html
-  explicit connect_direct(const std::string &opts) : connectionpolicy{opts} {}
-  virtual handle do_startconnect(handle) override;
+  explicit connectionpolicy(const std::string &opts) : m_options{opts} {}
+
+  handle do_startconnect(handle);
+  handle do_disconnect(handle) noexcept;
+  bool is_ready(handle) const noexcept;
+  const std::string &options() const noexcept { return m_options; }
+
+private:
+  handle normalconnect(handle);
+
+  std::string m_options;
 };
 
 /// The "standard" connection type: connect to database right now
-using connection = basic_connection_base<connect_direct>;
+using connection = basic_connection_base<connectionpolicy>;
 
 /**
  * @}

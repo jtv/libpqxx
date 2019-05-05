@@ -83,6 +83,7 @@ class const_connection_largeobject;
 } // namespace pqxx::internal
 
 
+// TODO: Document connection strings and environment variables.
 /// connection_base abstract base class; represents a connection to a database.
 /** This is the first class to look at when you wish to work with a database
  * through libpqxx.  Depending on which type of connection you choose, a

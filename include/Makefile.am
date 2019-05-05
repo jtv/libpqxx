@@ -8,7 +8,6 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/compiler-internal-pre.hxx pqxx/compiler-internal-post.hxx \
 	pqxx/connection pqxx/connection.hxx \
 	pqxx/connection_base pqxx/connection_base.hxx \
-	pqxx/connectionpolicy pqxx/connectionpolicy.hxx \
 	pqxx/cursor pqxx/cursor.hxx \
 	pqxx/dbtransaction pqxx/dbtransaction.hxx \
 	pqxx/errorhandler pqxx/errorhandler.hxx \

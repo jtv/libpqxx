@@ -33,8 +33,6 @@ install(
         PATTERN connection
         PATTERN connection_base.hxx
         PATTERN connection_base
-        PATTERN connectionpolicy.hxx
-        PATTERN connectionpolicy
         PATTERN cursor.hxx
         PATTERN cursor
         PATTERN dbtransaction.hxx
