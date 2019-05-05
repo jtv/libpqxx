@@ -138,49 +138,6 @@ void test_000()
   PQXX_CHECK(
 	pw.find("bar") == std::string::npos,
 	"Encrypted password contains original.");
-
-  // Test error handling for failed connections
-  {
-    nullconnection nc;
-    PQXX_CHECK_THROWS(
-    	work w(nc),
-	broken_connection,
-	"nullconnection fails to fail.");
-  }
-  {
-    nullconnection nc("");
-    PQXX_CHECK_THROWS(
-	work w(nc),
-	broken_connection,
-	"nullconnection(const char[]) is broken.");
-  }
-  {
-    std::string n;
-    nullconnection nc(n);
-    PQXX_CHECK_THROWS(
-	work w(nc),
-	broken_connection,
-	"nullconnection(const string &) is broken.");
-  }
-
-  // Now that we know nullconnections throw errors as expected, test
-  // pqxx_exception.
-  try
-  {
-    nullconnection nc;
-    work w(nc);
-  }
-  catch (const pqxx_exception &e)
-  {
-    PQXX_CHECK(
-	dynamic_cast<const broken_connection *>(&e.base()),
-	"Downcast pqxx_exception is not a broken_connection");
-    pqxx::test::expected_exception(e.base().what());
-    PQXX_CHECK_EQUAL(
-	dynamic_cast<const broken_connection &>(e.base()).what(),
-        e.base().what(),
-	"Inconsistent what() message in exception.");
-  }
 }
 
 

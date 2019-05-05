@@ -69,22 +69,6 @@ public:
 /// The "standard" connection type: connect to database right now
 using connection = basic_connection_base<connect_direct>;
 
-
-/// Nonfunctional, always-down connection policy for testing/debugging purposes
-/** @warning You don't want to use this policy in normal code.
- * Written for debugging and testing, this "connection policy" always fails to
- * connect, and the internal connection pointer always remains null.
- */
-class PQXX_LIBEXPORT connect_null  : public connectionpolicy
-{
-public:
-  explicit connect_null(const std::string &opts) : connectionpolicy{opts} {}
-};
-
-
-/// A "dummy" connection type: don't connect to any database at all
-using nullconnection = basic_connection_base<connect_null>;
-
 /**
  * @}
  */
@@ -92,5 +76,4 @@ using nullconnection = basic_connection_base<connect_null>;
 }
 
 #include "pqxx/compiler-internal-post.hxx"
-
 #endif
