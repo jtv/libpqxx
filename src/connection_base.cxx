@@ -1055,12 +1055,6 @@ void pqxx::connection_base::wait_read(long seconds, long microseconds) const
 }
 
 
-void pqxx::connection_base::wait_write() const
-{
-  internal::wait_write(m_conn);
-}
-
-
 int pqxx::connection_base::await_notification()
 {
   if (m_conn == nullptr) throw broken_connection{

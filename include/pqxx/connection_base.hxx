@@ -550,7 +550,6 @@ protected:
   void close() noexcept;
   void wait_read() const;
   void wait_read(long seconds, long microseconds) const;
-  void wait_write() const;
 
 private:
 
