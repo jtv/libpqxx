@@ -23,8 +23,7 @@ void checkresult(pipeline &P, PAIR c)
 
 void test_071()
 {
-  asyncconnection conn;
-  conn.activate();
+  connection conn;
   work tx{conn};
   pipeline P(tx);
 

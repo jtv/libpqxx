@@ -8,7 +8,7 @@ using namespace pqxx;
 
 int main(int, char *argv[])
 {
-  lazyconnection C;
+  connection C;
   bool failures = false;
 
   try

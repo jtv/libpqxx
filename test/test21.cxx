@@ -5,15 +5,13 @@
 using namespace pqxx;
 
 
-// Simple test program for libpqxx.  Open a lazy connection to database, start
-// a transaction, and perform a query inside it.
+// Simple test program for libpqxx.  Open a connection to database, start a
+// transaction, and perform a query inside it.
 namespace
 {
 void test_021()
 {
-  lazyconnection conn;
-  conn.process_notice("Printing details on deferred connection\n");
-  conn.activate();
+  connection conn;
 
   const std::string HostName = (conn.hostname() ? conn.hostname() : "<local>");
   conn.process_notice(std::string{} +

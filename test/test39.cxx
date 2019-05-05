@@ -3,8 +3,7 @@
 using namespace pqxx;
 
 
-// Test: nontransaction changes are committed immediately (tested here against
-// a lazyconnection).
+// Test: nontransaction changes are committed immediately.
 namespace
 {
 int BoringYear = 1977;
@@ -12,8 +11,7 @@ int BoringYear = 1977;
 
 void test_039()
 {
-  lazyconnection conn;
-  conn.activate();
+  connection conn;
   nontransaction tx1{conn};
   test::create_pqxxevents(tx1);
   const std::string Table = "pqxxevents";

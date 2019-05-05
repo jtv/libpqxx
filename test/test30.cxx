@@ -7,16 +7,14 @@
 using namespace pqxx;
 
 
-// Test program for libpqxx.  Query a table and report its metadata.  Use lazy
-// connection.
+// Test program for libpqxx.  Query a table and report its metadata.
 namespace
 {
 void test_030()
 {
   const std::string Table = "pg_tables";
 
-  lazyconnection conn;
-  conn.activate();
+  connection conn;
   work tx{conn, "test30"};
 
   result R( tx.exec(("SELECT * FROM " + Table).c_str()) );

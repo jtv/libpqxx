@@ -249,7 +249,7 @@ public:
   const std::string &name() const noexcept { return m_name; }		//[t01]
 
   /// Class name.
-  const std::string &classname() const noexcept				//[t73]
+  const std::string &classname() const noexcept
 	{ return m_classname; }
 
   /// Combination of class name and object name; or just class name.

@@ -8,7 +8,7 @@ using namespace pqxx;
 
 
 // Test program for libpqxx.  See which fields in a query are null, and figure
-// out whether any fields are lexicographically sorted.  Use lazy connection.
+// out whether any fields are lexicographically sorted.
 namespace
 {
 template<typename VEC, typename VAL>
@@ -21,14 +21,13 @@ void InitVector(VEC &V, typename VEC::size_type s, VAL val)
 
 void test_031()
 {
-  lazyconnection conn;
+  connection conn;
 
   const std::string Table = "pg_tables";
 
   std::vector<int> NullFields;	// Maps column to no. of null fields
   std::vector<bool> SortedUp, SortedDown; // Does column appear to be sorted?
 
-  conn.activate();
   work tx(conn, "test31");
 
   result R( tx.exec("SELECT * FROM " + Table) );

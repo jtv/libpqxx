@@ -112,22 +112,19 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	test11.$(OBJEXT) test12.$(OBJEXT) test13.$(OBJEXT) \
 	test14.$(OBJEXT) test16.$(OBJEXT) test17.$(OBJEXT) \
 	test18.$(OBJEXT) test20.$(OBJEXT) test21.$(OBJEXT) \
-	test23.$(OBJEXT) test26.$(OBJEXT) test29.$(OBJEXT) \
-	test30.$(OBJEXT) test31.$(OBJEXT) test32.$(OBJEXT) \
-	test35.$(OBJEXT) test37.$(OBJEXT) test39.$(OBJEXT) \
-	test46.$(OBJEXT) test48.$(OBJEXT) test49.$(OBJEXT) \
-	test50.$(OBJEXT) test51.$(OBJEXT) test52.$(OBJEXT) \
-	test53.$(OBJEXT) test54.$(OBJEXT) test55.$(OBJEXT) \
-	test56.$(OBJEXT) test57.$(OBJEXT) test58.$(OBJEXT) \
-	test59.$(OBJEXT) test60.$(OBJEXT) test61.$(OBJEXT) \
-	test62.$(OBJEXT) test63.$(OBJEXT) test64.$(OBJEXT) \
-	test65.$(OBJEXT) test66.$(OBJEXT) test67.$(OBJEXT) \
-	test69.$(OBJEXT) test70.$(OBJEXT) test71.$(OBJEXT) \
-	test72.$(OBJEXT) test73.$(OBJEXT) test74.$(OBJEXT) \
-	test75.$(OBJEXT) test76.$(OBJEXT) test77.$(OBJEXT) \
-	test78.$(OBJEXT) test79.$(OBJEXT) test82.$(OBJEXT) \
-	test84.$(OBJEXT) test87.$(OBJEXT) test88.$(OBJEXT) \
-	test89.$(OBJEXT) test90.$(OBJEXT) test92.$(OBJEXT) \
+	test26.$(OBJEXT) test29.$(OBJEXT) test30.$(OBJEXT) \
+	test31.$(OBJEXT) test32.$(OBJEXT) test37.$(OBJEXT) \
+	test39.$(OBJEXT) test46.$(OBJEXT) test48.$(OBJEXT) \
+	test49.$(OBJEXT) test50.$(OBJEXT) test51.$(OBJEXT) \
+	test52.$(OBJEXT) test53.$(OBJEXT) test54.$(OBJEXT) \
+	test55.$(OBJEXT) test56.$(OBJEXT) test57.$(OBJEXT) \
+	test58.$(OBJEXT) test59.$(OBJEXT) test60.$(OBJEXT) \
+	test61.$(OBJEXT) test62.$(OBJEXT) test69.$(OBJEXT) \
+	test70.$(OBJEXT) test71.$(OBJEXT) test72.$(OBJEXT) \
+	test74.$(OBJEXT) test75.$(OBJEXT) test76.$(OBJEXT) \
+	test77.$(OBJEXT) test78.$(OBJEXT) test79.$(OBJEXT) \
+	test82.$(OBJEXT) test84.$(OBJEXT) test87.$(OBJEXT) \
+	test88.$(OBJEXT) test89.$(OBJEXT) test90.$(OBJEXT) \
 	test93.$(OBJEXT) runner.$(OBJEXT)
 runner_OBJECTS = $(am_runner_OBJECTS)
 am__DEPENDENCIES_1 =
@@ -449,13 +446,11 @@ runner_SOURCES = \
   test18.cxx \
   test20.cxx \
   test21.cxx \
-  test23.cxx \
   test26.cxx \
   test29.cxx \
   test30.cxx \
   test31.cxx \
   test32.cxx \
-  test35.cxx \
   test37.cxx \
   test39.cxx \
   test46.cxx \
@@ -474,16 +469,10 @@ runner_SOURCES = \
   test60.cxx \
   test61.cxx \
   test62.cxx \
-  test63.cxx \
-  test64.cxx \
-  test65.cxx \
-  test66.cxx \
-  test67.cxx \
   test69.cxx \
   test70.cxx \
   test71.cxx \
   test72.cxx \
-  test73.cxx \
   test74.cxx \
   test75.cxx \
   test76.cxx \
@@ -496,7 +485,6 @@ runner_SOURCES = \
   test88.cxx \
   test89.cxx \
   test90.cxx \
-  test92.cxx \
   test93.cxx \
   runner.cxx
 
@@ -570,13 +558,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test18.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test20.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test21.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test23.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test26.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test29.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test30.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test31.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test32.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test35.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test37.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test39.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test46.Po@am__quote@
@@ -595,16 +581,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test60.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test61.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test62.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test63.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test64.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test65.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test66.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test67.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test69.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test70.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test71.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test72.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test73.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test74.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test75.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test76.Po@am__quote@
@@ -617,7 +597,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test88.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test89.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test90.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test92.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test93.Po@am__quote@
 
 .cxx.o:

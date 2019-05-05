@@ -8,7 +8,7 @@ using namespace pqxx;
 
 
 // Example program for libpqxx.  Modify the database, retaining transactional
-// integrity using the transactor framework, and using lazy connections.
+// integrity using the transactor framework.
 namespace
 {
 // Convert year to 4-digit format.
@@ -61,8 +61,7 @@ std::map<int, int> update_years(connection_base &C)
 
 void test_026()
 {
-  lazyconnection conn;
-  conn.activate();
+  connection conn;
   {
     nontransaction tx{conn};
     test::create_pqxxevents(tx);

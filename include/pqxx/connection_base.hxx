@@ -119,16 +119,7 @@ public:
    */
   bool PQXX_PURE is_open() const noexcept;				//[t01]
 
- /**
-   * @name Activation
-   *
-   * Connections can be "inactive".  You can create "lazy" connections which
-   * don't actually connect to the server until you ask them to, or "async"
-   * ones which will start connecting but may not complete until you ask for
-   * it.  To make use of an inactive connection, call its @c activate() first.
-   * Doing so does not make sense inside a database transaction.
-   */
-  //@{
+// XXX: Remove.
   /// Explicitly activate the connection if it's in an inactive state.
   void activate();							//[t12]
 
@@ -139,7 +130,6 @@ public:
    * Do not use this in normal code.  This is only meant for testing.
    */
   void simulate_failure();						//[t94]
-  //@}
 
   /// Invoke notice processor function.  The message should end in newline.
   void process_notice(const char[]) noexcept;				//[t14]

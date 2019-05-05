@@ -5,8 +5,7 @@
 using namespace pqxx;
 
 
-// Test program for libpqxx.  Verify abort behaviour of RobustTransaction with
-// a lazy connection.
+// Test program for libpqxx.  Verify abort behaviour of RobustTransaction.
 //
 // The program will attempt to add an entry to a table called "pqxxevents",
 // with a key column called "year"--and then abort the change.
@@ -41,8 +40,7 @@ struct deliberate_error : std::exception
 
 void test_037()
 {
-  lazyconnection conn;
-  conn.activate();
+  connection conn;
   {
     nontransaction tx{conn};
     test::create_pqxxevents(tx);

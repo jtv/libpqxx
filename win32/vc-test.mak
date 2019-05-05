@@ -94,13 +94,11 @@ OBJS= \
   $(INTDIR)\test18.obj \
   $(INTDIR)\test20.obj \
   $(INTDIR)\test21.obj \
-  $(INTDIR)\test23.obj \
   $(INTDIR)\test26.obj \
   $(INTDIR)\test29.obj \
   $(INTDIR)\test30.obj \
   $(INTDIR)\test31.obj \
   $(INTDIR)\test32.obj \
-  $(INTDIR)\test35.obj \
   $(INTDIR)\test37.obj \
   $(INTDIR)\test39.obj \
   $(INTDIR)\test46.obj \
@@ -119,16 +117,10 @@ OBJS= \
   $(INTDIR)\test60.obj \
   $(INTDIR)\test61.obj \
   $(INTDIR)\test62.obj \
-  $(INTDIR)\test63.obj \
-  $(INTDIR)\test64.obj \
-  $(INTDIR)\test65.obj \
-  $(INTDIR)\test66.obj \
-  $(INTDIR)\test67.obj \
   $(INTDIR)\test69.obj \
   $(INTDIR)\test70.obj \
   $(INTDIR)\test71.obj \
   $(INTDIR)\test72.obj \
-  $(INTDIR)\test73.obj \
   $(INTDIR)\test74.obj \
   $(INTDIR)\test75.obj \
   $(INTDIR)\test76.obj \
@@ -141,7 +133,6 @@ OBJS= \
   $(INTDIR)\test88.obj \
   $(INTDIR)\test89.obj \
   $(INTDIR)\test90.obj \
-  $(INTDIR)\test92.obj \
   $(INTDIR)\test93.obj \
   $(INTDIR)\runner.obj
 
@@ -208,8 +199,6 @@ $(INTDIR)\test20.obj::
 	@$(CXX) $(CXX_FLAGS) test/test20.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test21.obj::
 	@$(CXX) $(CXX_FLAGS) test/test21.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test23.obj::
-	@$(CXX) $(CXX_FLAGS) test/test23.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test26.obj::
 	@$(CXX) $(CXX_FLAGS) test/test26.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test29.obj::
@@ -220,8 +209,6 @@ $(INTDIR)\test31.obj::
 	@$(CXX) $(CXX_FLAGS) test/test31.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test32.obj::
 	@$(CXX) $(CXX_FLAGS) test/test32.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test35.obj::
-	@$(CXX) $(CXX_FLAGS) test/test35.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test37.obj::
 	@$(CXX) $(CXX_FLAGS) test/test37.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test39.obj::
@@ -258,16 +245,6 @@ $(INTDIR)\test61.obj::
 	@$(CXX) $(CXX_FLAGS) test/test61.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test62.obj::
 	@$(CXX) $(CXX_FLAGS) test/test62.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test63.obj::
-	@$(CXX) $(CXX_FLAGS) test/test63.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test64.obj::
-	@$(CXX) $(CXX_FLAGS) test/test64.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test65.obj::
-	@$(CXX) $(CXX_FLAGS) test/test65.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test66.obj::
-	@$(CXX) $(CXX_FLAGS) test/test66.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test67.obj::
-	@$(CXX) $(CXX_FLAGS) test/test67.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test69.obj::
 	@$(CXX) $(CXX_FLAGS) test/test69.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test70.obj::
@@ -276,8 +253,6 @@ $(INTDIR)\test71.obj::
 	@$(CXX) $(CXX_FLAGS) test/test71.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test72.obj::
 	@$(CXX) $(CXX_FLAGS) test/test72.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test73.obj::
-	@$(CXX) $(CXX_FLAGS) test/test73.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test74.obj::
 	@$(CXX) $(CXX_FLAGS) test/test74.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test75.obj::
@@ -302,8 +277,6 @@ $(INTDIR)\test89.obj::
 	@$(CXX) $(CXX_FLAGS) test/test89.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test90.obj::
 	@$(CXX) $(CXX_FLAGS) test/test90.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test92.obj::
-	@$(CXX) $(CXX_FLAGS) test/test92.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test93.obj::
 	@$(CXX) $(CXX_FLAGS) test/test93.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 

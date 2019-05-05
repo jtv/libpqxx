@@ -38,7 +38,6 @@ runner_SOURCES = \
   test_escape.cxx \
   test_exceptions.cxx \
   test_float.cxx \
-  test_inactive_connection.cxx \
   test_notification.cxx \
   test_pipeline.cxx \
   test_prepared_statement.cxx \

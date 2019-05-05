@@ -53,13 +53,11 @@ runner_SOURCES = \
   test18.cxx \
   test20.cxx \
   test21.cxx \
-  test23.cxx \
   test26.cxx \
   test29.cxx \
   test30.cxx \
   test31.cxx \
   test32.cxx \
-  test35.cxx \
   test37.cxx \
   test39.cxx \
   test46.cxx \
@@ -78,16 +76,10 @@ runner_SOURCES = \
   test60.cxx \
   test61.cxx \
   test62.cxx \
-  test63.cxx \
-  test64.cxx \
-  test65.cxx \
-  test66.cxx \
-  test67.cxx \
   test69.cxx \
   test70.cxx \
   test71.cxx \
   test72.cxx \
-  test73.cxx \
   test74.cxx \
   test75.cxx \
   test76.cxx \
@@ -100,7 +92,6 @@ runner_SOURCES = \
   test88.cxx \
   test89.cxx \
   test90.cxx \
-  test92.cxx \
   test93.cxx \
   runner.cxx
 

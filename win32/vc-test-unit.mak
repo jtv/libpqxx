@@ -90,7 +90,6 @@ OBJS= \
   $(INTDIR)\test_escape.obj \
   $(INTDIR)\test_exceptions.obj \
   $(INTDIR)\test_float.obj \
-  $(INTDIR)\test_inactive_connection.obj \
   $(INTDIR)\test_notification.obj \
   $(INTDIR)\test_pipeline.obj \
   $(INTDIR)\test_prepared_statement.obj \
@@ -163,8 +162,6 @@ $(INTDIR)\test_exceptions.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_exceptions.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_float.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_float.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
-$(INTDIR)\test_inactive_connection.obj:
-	@$(CXX) $(CXX_FLAGS) test/unit/test_inactive_connection.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_notification.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_notification.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_pipeline.obj:

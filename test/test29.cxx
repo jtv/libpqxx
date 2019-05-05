@@ -8,7 +8,7 @@ using namespace pqxx;
 
 
 // Test program for libpqxx.  Open connection to database, start a transaction,
-// abort it, and verify that it "never happened."  Use lazy connection.
+// abort it, and verify that it "never happened."
 //
 // The program will attempt to add an entry to a table called "pqxxevents",
 // with a key column called "year"--and then abort the change.
@@ -98,8 +98,7 @@ void Test(connection_base &conn, bool ExplicitAbort)
 
 void test_029()
 {
-  lazyconnection conn;
-  conn.activate();
+  connection conn;
   {
     nontransaction tx{conn};
     test::create_pqxxevents(tx);

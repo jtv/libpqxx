@@ -52,8 +52,7 @@ void TestPipeline(pipeline &P, int numqueries)
 // compare results.  Use retain() and resume() for performance.
 void test_070()
 {
-  asyncconnection conn;
-  conn.activate();
+  connection conn;
   work tx{conn};
   pipeline P(tx);
 

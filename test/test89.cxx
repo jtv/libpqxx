@@ -9,9 +9,9 @@ using namespace pqxx;
 // of connections.
 namespace
 {
-void do_test(connection_base &C, const std::string &desc)
+void test_089()
 {
-  std::cout << "Testing " << desc << ":" << std::endl;
+  connection C;
 
   // Trivial test: create subtransactions, and commit/abort
   work T0(C, "T0");
@@ -37,21 +37,6 @@ void do_test(connection_base &C, const std::string &desc)
     T1c.commit();
   std::cout << T1.exec1("SELECT 'T1 ends'")[0].c_str() << std::endl;
   T1.commit();
-}
-
-
-void test_089()
-{
-  connection C;
-  do_test(C, "connection");
-
-  asyncconnection A;
-  A.activate();
-  do_test(A, "asyncconnection");
-
-  lazyconnection L;
-  L.activate();
-  do_test(L, "lazyconnection");
 }
 } // namespace
 

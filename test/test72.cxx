@@ -10,8 +10,7 @@ namespace
 {
 void test_072()
 {
-  asyncconnection conn;
-  conn.activate();
+  connection conn;
   work tx{conn};
   pipeline P{tx};
 

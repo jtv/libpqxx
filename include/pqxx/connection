@@ -1,4 +1,4 @@
-/** pqxx::connection and pqxx::lazyconnection classes.
+/** Connection classes.
  *
  * Different ways of setting up a backend connection.
  */
