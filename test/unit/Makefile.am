@@ -37,6 +37,7 @@ runner_SOURCES = \
   test_errorhandler.cxx \
   test_escape.cxx \
   test_exceptions.cxx \
+  test_field.cxx \
   test_float.cxx \
   test_notification.cxx \
   test_pipeline.cxx \

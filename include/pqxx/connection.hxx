@@ -10,8 +10,8 @@
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
  */
-#ifndef PQXX_H_CONNECTION_BASE
-#define PQXX_H_CONNECTION_BASE
+#ifndef PQXX_H_CONNECTION
+#define PQXX_H_CONNECTION
 
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"

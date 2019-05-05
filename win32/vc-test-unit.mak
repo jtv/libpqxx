@@ -89,6 +89,7 @@ OBJS= \
   $(INTDIR)\test_errorhandler.obj \
   $(INTDIR)\test_escape.obj \
   $(INTDIR)\test_exceptions.obj \
+  $(INTDIR)\test_field.obj \
   $(INTDIR)\test_float.obj \
   $(INTDIR)\test_notification.obj \
   $(INTDIR)\test_pipeline.obj \
@@ -160,6 +161,8 @@ $(INTDIR)\test_escape.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_escape.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_exceptions.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_exceptions.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
+$(INTDIR)\test_field.obj:
+	@$(CXX) $(CXX_FLAGS) test/unit/test_field.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_float.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_float.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_notification.obj:
