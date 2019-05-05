@@ -22,7 +22,6 @@ OBJ = \
   src/array.o \
   src/binarystring.o \
   src/connection.o \
-  src/connection_base.o \
   src/cursor.o \
   src/dbtransaction.o \
   src/encodings.o \
@@ -79,9 +78,6 @@ src/binarystring.o: src/binarystring.cxx
 
 src/connection.o: src/connection.cxx
 	$(CXX) $(CPPFLAGS) -c src/connection.cxx -o src/connection.o $(CXXFLAGS)
-
-src/connection_base.o: src/connection_base.cxx
-	$(CXX) $(CPPFLAGS) -c src/connection_base.cxx -o src/connection_base.o $(CXXFLAGS)
 
 src/cursor.o: src/cursor.cxx
 	$(CXX) $(CPPFLAGS) -c src/cursor.cxx -o src/cursor.o $(CXXFLAGS)

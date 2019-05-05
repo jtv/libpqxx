@@ -136,7 +136,7 @@ public:
 
 protected:
   cursor_base(
-	connection_base &,
+	connection &,
 	const std::string &Name,
 	bool embellish_name=true);
 

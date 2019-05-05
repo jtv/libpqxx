@@ -357,7 +357,7 @@ nobase_include_HEADERS = pqxx/pqxx \
 	pqxx/binarystring pqxx/binarystring.hxx \
 	pqxx/compiler-public.hxx \
 	pqxx/compiler-internal-pre.hxx pqxx/compiler-internal-post.hxx \
-	pqxx/connection_base pqxx/connection_base.hxx \
+	pqxx/connection pqxx/connection.hxx \
 	pqxx/cursor pqxx/cursor.hxx \
 	pqxx/dbtransaction pqxx/dbtransaction.hxx \
 	pqxx/errorhandler pqxx/errorhandler.hxx \

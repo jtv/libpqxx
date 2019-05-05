@@ -8,7 +8,7 @@ class sql_cursor;
 
 namespace gate
 {
-class PQXX_PRIVATE connection_sql_cursor : callgate<connection_base>
+class PQXX_PRIVATE connection_sql_cursor : callgate<connection>
 {
   friend class pqxx::internal::sql_cursor;
 

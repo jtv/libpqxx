@@ -1,6 +1,6 @@
 /** Helper classes for defining and executing prepared statements.
  *
- * See the connection_base hierarchy for more about prepared statements.
+ * See the connection class for more about prepared statements.
  *
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *

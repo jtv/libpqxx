@@ -32,7 +32,7 @@ class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 {
 protected:
   basic_transaction(							//[t01]
-	connection_base &C,
+	connection &C,
 	const std::string &IsolationLevel,
 	readwrite_policy);
 
@@ -90,12 +90,12 @@ public:
    * @param TName Optional name for transaction; must begin with a letter and
    * may contain letters and digits only
    */
-  explicit transaction(connection_base &C, const std::string &TName):	//[t01]
+  explicit transaction(connection &C, const std::string &TName):	//[t01]
     namedclass{fullname("transaction", isolation_tag::name()), TName},
     internal::basic_transaction(C, isolation_tag::name(), READWRITE)
 	{ Begin(); }
 
-  explicit transaction(connection_base &C) :				//[t01]
+  explicit transaction(connection &C) :					//[t01]
     transaction(C, "") {}
 
   virtual ~transaction() noexcept

@@ -66,12 +66,12 @@ public:
 
 protected:
   dbtransaction(
-	connection_base &,
+	connection &,
 	const std::string &IsolationString,
 	readwrite_policy rw=read_write);
 
   explicit dbtransaction(
-	connection_base &,
+	connection &,
 	bool direct=true,
 	readwrite_policy rw=read_write);
 

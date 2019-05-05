@@ -10,7 +10,7 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
-#include "pqxx/connection_base"
+#include "pqxx/connection"
 #include "pqxx/errorhandler"
 
 #include "pqxx/internal/gates/connection-errorhandler.hxx"
@@ -20,7 +20,7 @@ using namespace pqxx;
 using namespace pqxx::internal;
 
 
-pqxx::errorhandler::errorhandler(connection_base &conn) :
+pqxx::errorhandler::errorhandler(connection &conn) :
   m_home{&conn}
 {
   gate::connection_errorhandler{*m_home}.register_errorhandler(this);

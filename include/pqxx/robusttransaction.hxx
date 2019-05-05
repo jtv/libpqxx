@@ -38,7 +38,7 @@ public:
 
 protected:
   basic_robusttransaction(
-	connection_base &C,
+	connection &C,
 	const std::string &IsolationLevel,
 	const std::string &table_name=std::string{});			//[t16]
 
@@ -148,7 +148,7 @@ public:
    * @param Name optional human-readable name for this transaction
    */
   explicit robusttransaction(
-	connection_base &C,
+	connection &C,
 	const std::string &Name=std::string{}) :
     namedclass{fullname("robusttransaction",isolation_tag::name()), Name},
     internal::basic_robusttransaction(C, isolation_tag::name())

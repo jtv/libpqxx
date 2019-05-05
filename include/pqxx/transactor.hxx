@@ -14,7 +14,7 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
-#include "pqxx/connection_base.hxx"
+#include "pqxx/connection.hxx"
 #include "pqxx/transaction.hxx"
 
 

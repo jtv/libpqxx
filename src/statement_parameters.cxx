@@ -1,6 +1,6 @@
 /** Common implementation for statement parameter lists.
  *
- * See the connection_base hierarchy for more about prepared statements
+ * See the connection class for more about prepared statements
  *
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *

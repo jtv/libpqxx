@@ -11,7 +11,7 @@ namespace internal
 {
 namespace gate
 {
-class PQXX_PRIVATE connection_largeobject : callgate<connection_base>
+class PQXX_PRIVATE connection_largeobject : callgate<connection>
 {
   friend class pqxx::largeobject;
 
@@ -21,8 +21,7 @@ class PQXX_PRIVATE connection_largeobject : callgate<connection_base>
 };
 
 
-class PQXX_PRIVATE const_connection_largeobject :
-	callgate<const connection_base>
+class PQXX_PRIVATE const_connection_largeobject : callgate<const connection>
 {
   friend class pqxx::largeobject;
 

@@ -138,7 +138,7 @@ pqxx::internal::pq::PGconn *pqxx::largeobject::raw_connection(
 }
 
 
-std::string pqxx::largeobject::reason(const connection_base &c, int err) const
+std::string pqxx::largeobject::reason(const connection &c, int err) const
 {
   if (err == ENOMEM) return "Out of memory";
   if (id() == oid_none) return "No object selected";

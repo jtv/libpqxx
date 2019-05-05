@@ -12,13 +12,13 @@
 
 #include <stdexcept>
 
-#include "pqxx/connection_base"
+#include "pqxx/connection"
 #include "pqxx/result"
 #include "pqxx/transaction"
 
 
 pqxx::internal::basic_transaction::basic_transaction(
-	connection_base &C,
+	connection &C,
 	const std::string &IsolationLevel,
 	readwrite_policy rw) :
   namedclass{"transaction"},

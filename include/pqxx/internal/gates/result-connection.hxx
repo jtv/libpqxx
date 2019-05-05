@@ -8,7 +8,7 @@ namespace gate
 {
 class PQXX_PRIVATE result_connection : callgate<const result>
 {
-  friend class pqxx::connection_base;
+  friend class pqxx::connection;
 
   result_connection(reference x) : super(x) {}
 

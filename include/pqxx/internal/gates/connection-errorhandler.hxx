@@ -2,14 +2,14 @@
 
 namespace pqxx
 {
-class connection_base;
+class connection;
 class errorhandler;
 
 namespace internal
 {
 namespace gate
 {
-class PQXX_PRIVATE connection_errorhandler : callgate<connection_base>
+class PQXX_PRIVATE connection_errorhandler : callgate<connection>
 {
   friend class pqxx::errorhandler;
 

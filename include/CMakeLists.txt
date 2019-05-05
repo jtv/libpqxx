@@ -17,8 +17,6 @@ install(
     FILES_MATCHING
         PATTERN array.hxx
         PATTERN array
-        PATTERN basic_connection.hxx
-        PATTERN basic_connection
         PATTERN binarystring.hxx
         PATTERN binarystring
         PATTERN compiler-internal-post.hxx
@@ -29,8 +27,8 @@ install(
         PATTERN compiler-internal
         PATTERN compiler-public.hxx
         PATTERN compiler-public
-        PATTERN connection_base.hxx
-        PATTERN connection_base
+        PATTERN connection.hxx
+        PATTERN connection
         PATTERN cursor.hxx
         PATTERN cursor
         PATTERN dbtransaction.hxx

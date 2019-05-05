@@ -37,7 +37,7 @@ namespace pqxx
  * before re-creating it, without failing if the table did not exist:
  *
  * @code
- * void do_job(connection_base &C)
+ * void do_job(connection &C)
  * {
  *   const string temptable = "fleetingtable";
  *

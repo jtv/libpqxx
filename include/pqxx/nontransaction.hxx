@@ -16,9 +16,9 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
-#include "pqxx/connection_base.hxx"
+#include "pqxx/connection.hxx"
 #include "pqxx/result.hxx"
-#include "pqxx/transaction_base.hxx"
+#include "pqxx/transaction.hxx"
 
 // Methods tested in eg. test module test01 are marked with "//[t01]".
 
@@ -61,7 +61,7 @@ public:
    * and containing only letters and digits.
    */
   explicit nontransaction(						//[t14]
-	connection_base &C,
+	connection &C,
 	const std::string &Name=std::string{}) :
     namedclass{"nontransaction", Name}, transaction_base{C} { Begin(); }
 

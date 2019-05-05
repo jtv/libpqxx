@@ -1,6 +1,0 @@
-/** Connection class template.
- *
- * Combines the components of a connection into something usable.
- */
-// Actual definitions in .hxx file so editors and such recognize file type
-#include "pqxx/basic_connection.hxx"

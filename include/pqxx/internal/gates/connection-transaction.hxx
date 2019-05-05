@@ -2,13 +2,13 @@
 
 namespace pqxx
 {
-class connection_base;
+class connection;
 
 namespace internal
 {
 namespace gate
 {
-class PQXX_PRIVATE connection_transaction : callgate<connection_base>
+class PQXX_PRIVATE connection_transaction : callgate<connection>
 {
   friend class pqxx::transaction_base;
 

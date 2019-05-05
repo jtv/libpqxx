@@ -23,7 +23,7 @@ pqxx::failure::failure(const std::string &whatarg) :
 
 
 pqxx::broken_connection::broken_connection() :
-  failure{"Connection to database failed"}
+  failure{"Connection to database failed."}
 {
 }
 

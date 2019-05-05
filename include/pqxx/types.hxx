@@ -37,7 +37,7 @@ using large_object_size_type = long;
 // These won't necessarily include all classes in libpqxx.
 class binarystring;
 class connectionpolicy;
-class connection_base;
+class connection;
 class const_result_iterator;
 class const_reverse_result_iterator;
 class const_reverse_row_iterator;

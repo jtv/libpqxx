@@ -60,7 +60,7 @@ public:
    * @param c Connnection to operate on.
    * @param channel Name of the notification to listen for.
    */
-  notification_receiver(connection_base &c, const std::string &channel);
+  notification_receiver(connection &c, const std::string &channel);
   notification_receiver(const notification_receiver &) =delete;
   notification_receiver &operator=(const notification_receiver &) =delete;
   virtual ~notification_receiver();
@@ -79,10 +79,10 @@ public:
   virtual void operator()(const std::string &payload, int backend_pid) =0;
 
 protected:
-  connection_base &conn() const noexcept { return m_conn; }
+  connection &conn() const noexcept { return m_conn; }
 
 private:
-  connection_base &m_conn;
+  connection &m_conn;
   std::string m_channel;
 };
 }

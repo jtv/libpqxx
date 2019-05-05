@@ -14,7 +14,7 @@
 #include <cstring>
 #include <stdexcept>
 
-#include "pqxx/connection_base"
+#include "pqxx/connection"
 #include "pqxx/result"
 #include "pqxx/transaction_base"
 
@@ -27,7 +27,7 @@
 using namespace pqxx::internal;
 
 
-pqxx::transaction_base::transaction_base(connection_base &C, bool direct) :
+pqxx::transaction_base::transaction_base(connection &C, bool direct) :
   namedclass{"transaction_base"},
   m_conn{C}
 {

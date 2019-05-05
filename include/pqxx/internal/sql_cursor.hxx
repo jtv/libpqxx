@@ -86,7 +86,7 @@ private:
   void init_empty_result(transaction_base &);
 
   /// Connection this cursor lives in
-  connection_base &m_home;
+  connection &m_home;
 
   /// Zero-row result from this cursor (or plain empty one if cursor is adopted)
   result m_empty_result;

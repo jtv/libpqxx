@@ -2,7 +2,7 @@
  *
  * pqxx::errorhandler handlers errors and warnings in a database session.
  *
- * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/errorhandler instead.
  *
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
@@ -25,7 +25,7 @@ namespace internal
 {
 namespace gate
 {
-class errorhandler_connection_base;
+class errorhandler_connection;
 }
 }
 
@@ -54,7 +54,7 @@ class errorhandler_connection_base;
 class PQXX_LIBEXPORT errorhandler
 {
 public:
-  explicit errorhandler(connection_base &);
+  explicit errorhandler(connection &);
   virtual ~errorhandler();
 
   /// Define in subclass: receive an error or warning message from the database.
@@ -65,9 +65,9 @@ public:
   virtual bool operator()(const char msg[]) noexcept =0;
 
 private:
-  connection_base *m_home;
+  connection *m_home;
 
-  friend class internal::gate::errorhandler_connection_base;
+  friend class internal::gate::errorhandler_connection;
   void unregister() noexcept;
 
   errorhandler() =delete;
@@ -80,7 +80,7 @@ private:
 class quiet_errorhandler : public errorhandler
 {
 public:
-  quiet_errorhandler(connection_base &conn) : errorhandler{conn} {}
+  quiet_errorhandler(connection &conn) : errorhandler{conn} {}
 
   virtual bool operator()(const char[]) noexcept override { return false; }
 };

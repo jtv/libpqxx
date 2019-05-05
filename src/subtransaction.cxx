@@ -12,7 +12,7 @@
 
 #include <stdexcept>
 
-#include "pqxx/connection_base"
+#include "pqxx/connection"
 #include "pqxx/subtransaction"
 
 using namespace pqxx::internal;

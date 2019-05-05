@@ -12,7 +12,7 @@
 
 #include <stdexcept>
 
-#include "pqxx/connection_base"
+#include "pqxx/connection"
 #include "pqxx/result"
 #include "pqxx/robusttransaction"
 
@@ -23,7 +23,7 @@ using namespace pqxx::internal;
 // TODO: Log username in more places.
 
 pqxx::internal::basic_robusttransaction::basic_robusttransaction(
-	connection_base &C,
+	connection &C,
 	const std::string &IsolationLevel,
 	const std::string &table_name) :
   namedclass{"robusttransaction"},

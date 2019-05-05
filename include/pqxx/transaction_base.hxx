@@ -26,7 +26,7 @@
  * nontransaction.
  */
 
-#include "pqxx/connection_base.hxx"
+#include "pqxx/connection.hxx"
 #include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/isolation.hxx"
 #include "pqxx/result.hxx"
@@ -329,7 +329,7 @@ public:
    * for that call.
    *
    * You prepare a statement on the connection, using
-   * @c pqxx::connection_base::prepare().  But you then call the statement in a
+   * @c pqxx::connection::prepare().  But you then call the statement in a
    * transaction, using the functions you see here.
    *
    * Never try to prepare, execute, or unprepare a prepared statement manually
@@ -400,8 +400,8 @@ public:
 	{ m_conn.process_notice(Msg); }
   //@}
 
-  /// Connection this transaction is running in.
-  connection_base &conn() const { return m_conn; }			//[t04]
+  /// The connection in which this transaction lives.
+  connection &conn() const { return m_conn; }				//[t04]
 
   /// Set session variable using SQL "SET" command.
   /** The new value is typically forgotten if the transaction aborts.
@@ -430,7 +430,7 @@ protected:
    * @param c The connection that this transaction is to act on.
    * @param direct Running directly in connection context (i.e. not nested)?
    */
-  explicit transaction_base(connection_base &c, bool direct=true);
+  explicit transaction_base(connection &c, bool direct=true);
 
   /// Begin transaction (to be called by implementing class)
   /** Will typically be called from implementing class' constructor.
@@ -529,7 +529,7 @@ private:
 
   friend class pqxx::internal::gate::transaction_subtransaction;
 
-  connection_base &m_conn;
+  connection &m_conn;
 
   internal::unique<internal::transactionfocus> m_focus;
   Status m_status = st_nascent;

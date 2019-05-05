@@ -44,7 +44,6 @@ file(
     array.cxx
     binarystring.cxx
     connection.cxx
-    connection_base.cxx
     cursor.cxx
     dbtransaction.cxx
     encodings.cxx

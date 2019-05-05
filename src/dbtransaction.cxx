@@ -35,7 +35,7 @@ std::string generate_set_transaction(
 
 
 pqxx::dbtransaction::dbtransaction(
-	connection_base &C,
+	connection &C,
 	const std::string &IsolationString,
 	readwrite_policy rw) :
   namedclass{"dbtransaction"},
@@ -46,7 +46,7 @@ pqxx::dbtransaction::dbtransaction(
 
 
 pqxx::dbtransaction::dbtransaction(
-	connection_base &C,
+	connection &C,
 	bool direct,
 	readwrite_policy rw) :
   namedclass{"dbtransaction"},

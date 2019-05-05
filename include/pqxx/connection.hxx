@@ -1,8 +1,8 @@
-/** Definition of the pqxx::connection_base abstract base class.
+/** Definition of the connection class.
  *
- * pqxx::connection_base encapsulates a frontend to backend connection
+ * pqxx::connection encapsulates a connection to a database.
  *
- * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection_base instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection instead.
  *
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
@@ -31,7 +31,7 @@
 /* Use of the libpqxx library starts here.
  *
  * Everything that can be done with a database through libpqxx must go through
- * a connection object derived from connection_base.
+ * a connection object derived from connection.
  */
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t01]"
@@ -84,12 +84,10 @@ class const_connection_largeobject;
 
 
 // TODO: Document connection strings and environment variables.
-/// connection_base abstract base class; represents a connection to a database.
+/// Connection to a database.
 /** This is the first class to look at when you wish to work with a database
- * through libpqxx.  Depending on which type of connection you choose, a
- * connection can be automatically opened immediately when it is constructed,
- * or later when you ask for it, or even somewhere inbetween.  The connection
- * automatically closes upon destruction, if it hasn't been closed already.
+ * through libpqxx.  The connection opens during construction, and closes upon
+ * destruction.
  *
  * To query or manipulate the database once connected, use one of the
  * transaction classes (see pqxx/transaction_base.hxx) and perhaps also the
@@ -98,20 +96,15 @@ class const_connection_largeobject;
  * When a connection breaks, you will typically get a broken_connection
  * exception.  This can happen at almost any point.
  *
- * As a general rule, always avoid raw queries if libpqxx offers a dedicated
- * function for the same purpose.  There may be hidden logic to hide certain
- * complications from you, such as caching.
- *
  * @warning On Unix-like systems, including GNU and BSD systems, your program
  * may receive the SIGPIPE signal when the connection to the backend breaks.  By
  * default this signal will abort your program.  Use "signal(SIGPIPE, SIG_IGN)"
  * if you want your program to continue running after a connection fails.
  */
-class PQXX_LIBEXPORT connection_base
+class PQXX_LIBEXPORT connection
 {
 public:
-  explicit connection_base(std::string options=std::string{}) :
-	m_options{options}
+  explicit connection(std::string options=std::string{}) : m_options{options}
   {
     // Check library version.  The check_library_version template is declared
     // for any library version, but only actually defined for the version of
@@ -140,11 +133,7 @@ public:
     init();
   }
 
-  ~connection_base() { close(); }
-
-// XXX: Remove.
-  /// Explicitly close connection.
-  void disconnect() noexcept;						//[t02]
+  ~connection() { close(); }
 
    /// Is this connection open at the moment?
   /** @warning This function is @b not needed in most code.  Resist the
@@ -389,7 +378,7 @@ public:
    *
    * @code
    * using namespace pqxx;
-   * void foo(connection_base &c)
+   * void foo(connection &c)
    * {
    *   c.prepare("findtable", "select * from pg_tables where name=$1");
    *   work tx{c};
@@ -596,9 +585,6 @@ private:
   /// Unique number to use as suffix for identifiers (see adorn_name()).
   int m_unique_id = 0;
 
-  /// Have we finished our attempt to establish our connection?
-  bool m_completed = false;
-
   /// Current verbosity level.
   error_verbosity m_verbosity = normal;
 
@@ -638,12 +624,12 @@ private:
 	const std::string &query,
 	const internal::params &args);
 
-  connection_base(const connection_base &) =delete;
-  connection_base &operator=(const connection_base &) =delete;
+  connection(const connection &) =delete;
+  connection&operator=(const connection &) =delete;
 };
 
 
-using connection = connection_base;
+using connection_base = connection;
 
 
 namespace internal

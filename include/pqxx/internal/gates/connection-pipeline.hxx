@@ -7,7 +7,7 @@ namespace internal
 {
 namespace gate
 {
-class PQXX_PRIVATE connection_pipeline : callgate<connection_base>
+class PQXX_PRIVATE connection_pipeline : callgate<connection>
 {
   friend class pqxx::pipeline;
 

@@ -102,7 +102,6 @@ OBJ_STATICDEBUG=\
        "$(INTDIR_STATICDEBUG)\array.obj" \
        "$(INTDIR_STATICDEBUG)\binarystring.obj" \
        "$(INTDIR_STATICDEBUG)\connection.obj" \
-       "$(INTDIR_STATICDEBUG)\connection_base.obj" \
        "$(INTDIR_STATICDEBUG)\cursor.obj" \
        "$(INTDIR_STATICDEBUG)\dbtransaction.obj" \
        "$(INTDIR_STATICDEBUG)\encodings.obj" \
@@ -132,7 +131,6 @@ OBJ_STATICRELEASE=\
        "$(INTDIR_STATICRELEASE)\array.obj" \
        "$(INTDIR_STATICRELEASE)\binarystring.obj" \
        "$(INTDIR_STATICRELEASE)\connection.obj" \
-       "$(INTDIR_STATICRELEASE)\connection_base.obj" \
        "$(INTDIR_STATICRELEASE)\cursor.obj" \
        "$(INTDIR_STATICRELEASE)\dbtransaction.obj" \
        "$(INTDIR_STATICRELEASE)\encodings.obj" \
@@ -162,7 +160,6 @@ OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\array.obj" \
        "$(INTDIR_DLLDEBUG)\binarystring.obj" \
        "$(INTDIR_DLLDEBUG)\connection.obj" \
-       "$(INTDIR_DLLDEBUG)\connection_base.obj" \
        "$(INTDIR_DLLDEBUG)\cursor.obj" \
        "$(INTDIR_DLLDEBUG)\dbtransaction.obj" \
        "$(INTDIR_DLLDEBUG)\encodings.obj" \
@@ -193,7 +190,6 @@ OBJ_DLLRELEASE=\
        "$(INTDIR_DLLRELEASE)\array.obj" \
        "$(INTDIR_DLLRELEASE)\binarystring.obj" \
        "$(INTDIR_DLLRELEASE)\connection.obj" \
-       "$(INTDIR_DLLRELEASE)\connection_base.obj" \
        "$(INTDIR_DLLRELEASE)\cursor.obj" \
        "$(INTDIR_DLLRELEASE)\dbtransaction.obj" \
        "$(INTDIR_DLLRELEASE)\encodings.obj" \
@@ -339,13 +335,6 @@ $(INTDIR_DLLRELEASE)::
 
 "$(INTDIR_STATICDEBUG)\connection.obj": src/connection.cxx $(INTDIR_STATICDEBUG)
 	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/connection.cxx
-
-
-"$(INTDIR_STATICRELEASE)\connection_base.obj": src/connection_base.cxx $(INTDIR_STATICRELEASE)
-	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/connection_base.cxx
-
-"$(INTDIR_STATICDEBUG)\connection_base.obj": src/connection_base.cxx $(INTDIR_STATICDEBUG)
-	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/connection_base.cxx
 
 
 "$(INTDIR_STATICRELEASE)\cursor.obj": src/cursor.cxx $(INTDIR_STATICRELEASE)
@@ -537,13 +526,6 @@ $(INTDIR_DLLRELEASE)::
 
 "$(INTDIR_DLLDEBUG)\connection.obj": src/connection.cxx $(INTDIR_DLLDEBUG)
 	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/connection.cxx
-
-
-"$(INTDIR_DLLRELEASE)\connection_base.obj": src/connection_base.cxx $(INTDIR_DLLRELEASE)
-	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/connection_base.cxx
-
-"$(INTDIR_DLLDEBUG)\connection_base.obj": src/connection_base.cxx $(INTDIR_DLLDEBUG)
-	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/connection_base.cxx
 
 
 "$(INTDIR_DLLRELEASE)\cursor.obj": src/cursor.cxx $(INTDIR_DLLRELEASE)

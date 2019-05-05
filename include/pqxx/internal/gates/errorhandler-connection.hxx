@@ -6,11 +6,11 @@ namespace internal
 {
 namespace gate
 {
-class PQXX_PRIVATE errorhandler_connection_base : callgate<errorhandler>
+class PQXX_PRIVATE errorhandler_connection : callgate<errorhandler>
 {
-  friend class pqxx::connection_base;
+  friend class pqxx::connection;
 
-  errorhandler_connection_base(reference x) : super(x) {}
+  errorhandler_connection(reference x) : super(x) {}
 
   void unregister() noexcept { home().unregister(); }
 };

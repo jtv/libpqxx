@@ -21,7 +21,7 @@ using namespace pqxx::internal;
 
 
 pqxx::notification_receiver::notification_receiver(
-	connection_base &c,
+	connection &c,
 	const std::string &channel_name) :
   m_conn{c},
   m_channel{channel_name}

@@ -11,14 +11,13 @@ This saves the database backend the effort of parsing complex SQL and
 figuring out an efficient execution plan.  Another nice side effect is that
 you don't need to worry about escaping parameters.
 
-You create a prepared statement by preparing it on the connection
-(using the `pqxx::connection_base::prepare` functions), passing an
-identifier and its SQL text.  The identifier is the name by which the
-prepared statement will be known; it should consist of ASCII letters,
-digits, and underscores only, and start with an ASCII letter.  The name is
-case-sensitive.
+You create a prepared statement by preparing it on the connection (using the
+`pqxx::connection::prepare` functions), passing an identifier and its SQL text.
+The identifier is the name by which the prepared statement will be known; it
+should consist of ASCII letters, digits, and underscores only, and start with
+an ASCII letter.  The name is case-sensitive.
 
-    void prepare_my_statement(pqxx::connection_base &c)
+    void prepare_my_statement(pqxx::connection &c)
     {
       c.prepare(
           "my_statement",
@@ -38,7 +37,7 @@ Did I mention that prepared statements can have parameters?  The query text
 can contain `$1`, `$2` etc. as placeholders for parameter values that you
 will provide when you invoke the prepared satement.
 
-    void prepare_find(pqxx::connection_base &c)
+    void prepare_find(pqxx::connection &c)
     {
       // Prepare a statement called "find" that looks for employees with a
       // given name (parameter 1) whose salary exceeds a given number

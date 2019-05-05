@@ -124,7 +124,7 @@ protected:
   PQXX_PURE static internal::pq::PGconn *raw_connection(
 	const dbtransaction &T);
 
-  PQXX_PRIVATE std::string reason(const connection_base &, int err) const;
+  PQXX_PRIVATE std::string reason(const connection &, int err) const;
 
 private:
   oid m_id = oid_none;

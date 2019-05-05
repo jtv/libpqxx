@@ -1,6 +1,6 @@
 #include <pqxx/internal/callgate.hxx>
 
-#include <pqxx/connection_base>
+#include <pqxx/connection>
 
 
 namespace pqxx
@@ -11,7 +11,7 @@ namespace internal
 {
 namespace gate
 {
-class PQXX_PRIVATE connection_notification_receiver : callgate<connection_base>
+class PQXX_PRIVATE connection_notification_receiver : callgate<connection>
 {
   friend class pqxx::notification_receiver;
 
