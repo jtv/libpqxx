@@ -9,6 +9,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Add backports
+          command: echo "deb http://deb.debian.org/debian stretch-backports main" >>/etc/apt/sources.list
+      - run:
           name: Install
           command: apt update && apt install -y python g++ libpq-dev postgresql build-essential make autoconf dh-autoreconf autoconf-archive automake cppcheck
       - run:
