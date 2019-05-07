@@ -215,8 +215,7 @@ void test_dynamic_params()
 }
 
 
-/// Test against any optional type, such as std::optional<int> or 
-/// std::experimental::optional<int>.
+/// Test against any optional type, such as std::optional<int>.
 template<typename Opt>
 void test_optional()
 {
@@ -249,11 +248,7 @@ void test_prepared_statements()
   test_binary();
   test_dynamic_params();
 
-#if defined(PQXX_HAVE_OPTIONAL)
   test_optional<std::optional<int>>();
-#elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
-  test_optional<std::experimental::optional<int>>();
-#endif
   test_optional<std::unique_ptr<int>>();
   test_optional<std::shared_ptr<int>>();
 }

@@ -7,8 +7,8 @@ AC_INIT(
 	[m4_esyscmd_s([./tools/extract_version])],
 	[Jeroen T. Vermeulen])
 AC_LANG(C++)
-# Require C++11 at minimum.
-AX_CXX_COMPILE_STDCXX_11([noext])
+# Require C++17 at minimum.
+AX_CXX_COMPILE_STDCXX_17([noext])
 AC_CONFIG_SRCDIR([src/connection.cxx])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([config/m4])
@@ -141,13 +141,17 @@ then
 		# compilers may not support these.
 		add_compiler_opts_if_ok \
 			-fnothrow-opt \
-			-Wattribute-alias \
+			-Wattribute-alias=2 \
 			-Wextra-semi \
 			-Wlogical-op \
 			-Wrestrict \
 			-Wstringop-overflow \
 			-Wsuggest-override \
-			-Wzero-as-null-pointer-constant
+			-Wzero-as-null-pointer-constant \
+			-Warray-bounds=2 \
+			-Wduplicated-branches \
+			-Wduplicated-cond \
+			-Wtrampolines
 	fi
 
 	# In "audit," enable all runtime checks we can.
@@ -192,33 +196,6 @@ then
     add_compiler_opts -fvisibility-inlines-hidden
 fi
 
-# Check gcc "const" attribute.  (More like a stricter version of "pure").
-AX_GCC_CONST_CALL
-if test "$ax_cv_gcc_const_call"
-then
-	AC_DEFINE(
-		[PQXX_HAVE_GCC_CONST],
-		1,
-		[Define if g++ supports const attribute.])
-fi
-
-if test "$deprecated" != "yes"
-then
-AC_MSG_CHECKING([g++ deprecation attribute])
-gcc_deprecated=yes
-AC_COMPILE_IFELSE(
-	[AC_LANG_PROGRAM(
-		[[__attribute__ ((deprecated)) void f();]],
-		[]
-	)],
-	AC_DEFINE(
-		[PQXX_HAVE_GCC_DEPRECATED],
-		1,
-		[Define if g++ supports deprecated attribute.]),
-	gcc_deprecated=no)
-AC_MSG_RESULT($gcc_deprecated)
-fi
-
 AC_MSG_CHECKING([g++ pure attribute])
 gcc_pure=yes
 AC_COMPILE_IFELSE(
@@ -231,50 +208,6 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT($gcc_pure)
 
 fi # End of gcc-specific part.
-
-
-AC_MSG_CHECKING([C++14 deprecation attribute])
-deprecated=yes
-AC_COMPILE_IFELSE(
-	[AC_LANG_PROGRAM([[/* */ [[deprecated]] void f(); ]], [])],
-	AC_DEFINE(
-		[PQXX_HAVE_DEPRECATED],
-		1,
-		[Define if compiler supports [[deprecated]] attribute]),
-	deprecated=no)
-AC_MSG_RESULT($deprecated)
-
-
-AC_MSG_CHECKING([for C++17 std::optional support])
-have_optional=yes
-AC_COMPILE_IFELSE(
-	[AC_LANG_PROGRAM(
-		[[#include <optional>]],
-		[return std::optional<int>(0).value()]
-	)],
-	AC_DEFINE(
-		[PQXX_HAVE_OPTIONAL],
-		1,
-		[Define if the compiler supports std::optional.]),
-	have_optional=no)
-AC_MSG_RESULT($have_optional)
-
-if test "$have_optional" != "yes"
-then
-AC_MSG_CHECKING([for experimental C++17 std::optional support])
-have_exp_optional=yes
-AC_COMPILE_IFELSE(
-	[AC_LANG_PROGRAM(
-		[#include <experimental/optional>],
-		[return std::experimental::optional<int>(0).value()]
-	)],
-	AC_DEFINE(
-		[PQXX_HAVE_EXP_OPTIONAL],
-		1,
-		[Define if the compiler supports std::experimental::optional.]),
-	have_exp_optional=no)
-AC_MSG_RESULT($have_exp_optional)
-fi
 
 
 # It's early 2019, and gcc's charconv supports integers but not yet floats.

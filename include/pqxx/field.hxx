@@ -17,20 +17,7 @@
 #include "pqxx/compiler-internal-pre.hxx"
 #include "pqxx/internal/type_utils.hxx"
 
-#if defined(PQXX_HAVE_OPTIONAL)
 #include <optional>
-
-/* Use std::experimental::optional as a fallback for std::optional, if
- * present.
- *
- * This may break compilation for some software, if using a libpqxx that was
- * configured for a different language version.  To stop libpqxx headers from
- * using or supporting std::experimental::optional, define a macro
- * PQXX_HIDE_EXP_OPTIONAL when building your software.
- */
-#elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
-#include <experimental/optional>
-#endif
 
 #include "pqxx/array.hxx"
 #include "pqxx/result.hxx"
@@ -187,18 +174,12 @@ public:
     return Obj;
   }
 
-  /// Return value wrapped in some optional type (empty for nulls)
-  /** Use as `get<int>()` as before to obtain previous behavior (i.e. only
-   * usable when `std::optional` or `std::experimental::optional` are
-   * available), or specify container type with `get<int, std::optional>()`
+  /// Return value wrapped in some optional type (empty for nulls).
+  /** Use as `get<int>()` as before to obtain previous behavior, or specify
+   * container type with `get<int, std::optional>()`
    */
-  template<typename T, template<typename> class O
-#if defined(PQXX_HAVE_OPTIONAL)
-    = std::optional
-#elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
-    = std::experimental::optional
-#endif
-  > constexpr O<T> get() const { return as<O<T>>(); }
+  template<typename T, template<typename> class O = std::optional>
+  constexpr O<T> get() const { return as<O<T>>(); }
 
   /// Parse the field as an SQL array.
   /** Call the parser to retrieve values (and structure) from the array.

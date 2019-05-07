@@ -12,11 +12,7 @@
 #include <memory>
 #include <type_traits>
 
-#if defined(PQXX_HAVE_OPTIONAL)
 #include <optional>
-#elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
-#include <experimental/optional>
-#endif
 
 
 namespace pqxx
@@ -52,19 +48,11 @@ template<
   typename T,
   typename = void
 > struct takes_std_nullopt : std::false_type {};
-#if defined(PQXX_HAVE_OPTIONAL)
+
 template<typename T> struct takes_std_nullopt<
     T,
     typename std::enable_if<std::is_assignable<T, std::nullopt_t>::value>::type
 > : std::true_type {};
-#elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
-template<typename T> struct takes_std_nullopt<
-    T,
-    typename std::enable_if<
-      std::is_assignable<T, std::experimental::nullopt_t>::value
-    >::type
-> : std::true_type {};
-#endif
 
 /// Is type T a `std::tuple<>`?
 template<typename T, typename = void> struct is_tuple : std::false_type {};
@@ -104,27 +92,20 @@ template<typename T> constexpr auto null_value()
     std::nullptr_t
   >::type
 { return nullptr; }
+
 template<typename T> constexpr auto null_value()
   -> typename std::enable_if<
     (not is_optional<T>::value && not takes_std_nullopt<T>::value),
     decltype(pqxx::string_traits<T>::null())
   >::type
 { return pqxx::string_traits<T>::null(); }
-#if defined(PQXX_HAVE_OPTIONAL)
+
 template<typename T> constexpr auto null_value()
   -> typename std::enable_if<
     takes_std_nullopt<T>::value,
     std::nullopt_t
   >::type
 { return std::nullopt; }
-#elif defined(PQXX_HAVE_EXP_OPTIONAL) && !defined(PQXX_HIDE_EXP_OPTIONAL)
-template<typename T> constexpr auto null_value()
-  -> typename std::enable_if<
-    takes_std_nullopt<T>::value,
-    std::experimental::nullopt_t
-  >::type
-{ return std::experimental::nullopt; }
-#endif
 
 /// Construct an optional-like type from the stored type.
 /** 

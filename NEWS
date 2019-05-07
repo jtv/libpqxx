@@ -1,9 +1,10 @@
 7.0.0
+ - Bumped minimum required C++ version to C++17.
  - Removed tablereader/tablewriter, replaced by stream_from/stream_to.
  - Removed obsolete transactor framework, replaced by post-C++11 one.
  - Removed old ways of invoking parameterised and prepared statements.
  - Session variables are no longer cached.
- - If you do weird stuff with setting/getting variables, it may now break.
+ - If you do weird stuff with setting/getting variables, it may break.
  - Reading a variable written from raw SQL, procedures, etc, will now work.
  - Prepared statements are now registered immediately.
  - If you do weird stuff with preparing/unpreparing statements, it may break.

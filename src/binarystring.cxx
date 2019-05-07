@@ -56,7 +56,6 @@ buffer unescape(const unsigned char escaped[])
    * binarystring's buffer can be freed uniformly,
    */
   size_t unescaped_len = 0;
-  // TODO: Use make_unique once we require C++14.  Sooo much easier.
   std::unique_ptr<unsigned char, void(*)(unsigned char *)> A(
 	PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped_len),
 	freepqmem_templated<unsigned char>);

@@ -9,11 +9,7 @@
 #include <tuple>
 #include <vector>
 
-#if defined PQXX_HAVE_OPTIONAL
 #include <optional>
-#elif defined PQXX_HAVE_EXP_OPTIONAL && !defined(PQXX_HIDE_EXP_OPTIONAL)
-#include <experimental/optional>
-#endif
 
 
 namespace
@@ -255,13 +251,8 @@ void test_stream_from()
   test_optional<std::unique_ptr>(conn);
   std::cout << "testing `custom_optional` as optional...\n";
   test_optional<custom_optional>(conn);
-#if defined PQXX_HAVE_OPTIONAL
   std::cout << "testing `std::optional` as optional...\n";
   test_optional<std::optional>(conn);
-#elif defined PQXX_HAVE_EXP_OPTIONAL && !defined(PQXX_HIDE_EXP_OPTIONAL)
-  std::cout << "testing `std::experimental::optional` as optional...\n";
-  test_optional<std::experimental::optional>(conn);
-#endif
 }
 
 

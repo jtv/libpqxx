@@ -59,15 +59,11 @@ namespace internal
 /// Give a human-readable name for a type, at compile time.
 /** Each instantiation contains a static member called @c value which is the
  * type's name, as a string.
- *
- * This template should not be around for long.  C++14's variable templates
- * make it easier (eliminating the cumbersome struct) and C++20's introspection
- * should obviate it completely.
  */
-template<typename TYPE> struct type_name;
+template<typename TYPE> const char *const type_name;
+
 #define PQXX_DECLARE_TYPE_NAME(TYPE) \
-  template<> struct type_name<TYPE> \
-  { static constexpr const char *value = #TYPE; }
+  template<> const char *const type_name<TYPE> = #TYPE
 
 PQXX_DECLARE_TYPE_NAME(bool);
 PQXX_DECLARE_TYPE_NAME(short);
@@ -89,8 +85,7 @@ PQXX_DECLARE_TYPE_NAME(std::stringstream);
 PQXX_DECLARE_TYPE_NAME(std::nullptr_t);
 #undef PQXX_DECLARE_TYPE_NAME
 
-template<size_t N> struct type_name<char[N]>
-{ static constexpr const char *value = "char[]"; };
+template<size_t N> const char *const type_name<char[N]> = "char[]";
 
 
 /// Helper: string traits implementation for built-in types.
@@ -103,7 +98,7 @@ template<size_t N> struct type_name<char[N]>
 template<typename TYPE> struct PQXX_LIBEXPORT builtin_traits
 {
   static constexpr const char *name() noexcept
-	{ return internal::type_name<TYPE>::value; }
+	{ return internal::type_name<TYPE>; }
   static constexpr bool has_null() noexcept { return false; }
   static bool is_null(TYPE) { return false; }
   [[noreturn]] static TYPE null() { throw_null_conversion(name()); }

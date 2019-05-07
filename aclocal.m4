@@ -1161,21 +1161,21 @@ namespace cxx17
 ]])
 
 # =============================================================================
-#  https://www.gnu.org/software/autoconf-archive/ax_cxx_compile_stdcxx_11.html
+#  https://www.gnu.org/software/autoconf-archive/ax_cxx_compile_stdcxx_17.html
 # =============================================================================
 #
 # SYNOPSIS
 #
-#   AX_CXX_COMPILE_STDCXX_11([ext|noext], [mandatory|optional])
+#   AX_CXX_COMPILE_STDCXX_17([ext|noext], [mandatory|optional])
 #
 # DESCRIPTION
 #
-#   Check for baseline language coverage in the compiler for the C++11
+#   Check for baseline language coverage in the compiler for the C++17
 #   standard; if necessary, add switches to CXX and CXXCPP to enable
 #   support.
 #
 #   This macro is a convenience alias for calling the AX_CXX_COMPILE_STDCXX
-#   macro with the version set to C++11.  The two optional arguments are
+#   macro with the version set to C++17.  The two optional arguments are
 #   forwarded literally as the second and third argument respectively.
 #   Please see the documentation for the AX_CXX_COMPILE_STDCXX macro for
 #   more information.  If you want to use this macro, you also need to
@@ -1183,81 +1183,18 @@ namespace cxx17
 #
 # LICENSE
 #
-#   Copyright (c) 2008 Benjamin Kosnik <bkoz@redhat.com>
-#   Copyright (c) 2012 Zack Weinberg <zackw@panix.com>
-#   Copyright (c) 2013 Roy Stogner <roystgnr@ices.utexas.edu>
-#   Copyright (c) 2014, 2015 Google Inc.; contributed by Alexey Sokolov <sokolov@google.com>
-#   Copyright (c) 2015 Paul Norman <penorman@mac.com>
 #   Copyright (c) 2015 Moritz Klammler <moritz@klammler.eu>
+#   Copyright (c) 2016 Krzesimir Nowak <qdlacz@gmail.com>
 #
 #   Copying and distribution of this file, with or without modification, are
 #   permitted in any medium without royalty provided the copyright notice
 #   and this notice are preserved. This file is offered as-is, without any
 #   warranty.
 
-#serial 18
+#serial 2
 
 AX_REQUIRE_DEFINED([AX_CXX_COMPILE_STDCXX])
-AC_DEFUN([AX_CXX_COMPILE_STDCXX_11], [AX_CXX_COMPILE_STDCXX([11], [$1], [$2])])
-
-# ===========================================================================
-#    https://www.gnu.org/software/autoconf-archive/ax_gcc_const_call.html
-# ===========================================================================
-#
-# SYNOPSIS
-#
-#   AX_GCC_CONST_CALL
-#
-# DESCRIPTION
-#
-#   The macro will compile a test program to see whether the compiler does
-#   understand the per-function postfix pragma.
-#
-# LICENSE
-#
-#   Copyright (c) 2008 Guido U. Draheim <guidod@gmx.de>
-#
-#   This program is free software; you can redistribute it and/or modify it
-#   under the terms of the GNU General Public License as published by the
-#   Free Software Foundation; either version 3 of the License, or (at your
-#   option) any later version.
-#
-#   This program is distributed in the hope that it will be useful, but
-#   WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-#   Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License along
-#   with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#   As a special exception, the respective Autoconf Macro's copyright owner
-#   gives unlimited permission to copy, distribute and modify the configure
-#   scripts that are the output of Autoconf when processing the Macro. You
-#   need not follow the terms of the GNU General Public License when using
-#   or distributing such scripts, even though portions of the text of the
-#   Macro appear in them. The GNU General Public License (GPL) does govern
-#   all other use of the material that constitutes the Autoconf Macro.
-#
-#   This special exception to the GPL applies to versions of the Autoconf
-#   Macro released by the Autoconf Archive. When you make and distribute a
-#   modified version of the Autoconf Macro, you may extend this special
-#   exception to the GPL to apply to your modified version as well.
-
-#serial 8
-
-AC_DEFUN([AX_GCC_CONST_CALL],[dnl
-AC_CACHE_CHECK(
- [whether the compiler supports function __attribute__((__const__))],
- ax_cv_gcc_const_call,[
- AC_TRY_COMPILE([__attribute__((__const__))
- int f(int i) { return i; }],
- [],
- ax_cv_gcc_const_call=yes, ax_cv_gcc_const_call=no)])
- if test "$ax_cv_gcc_const_call" = yes; then
-   AC_DEFINE([GCC_CONST_CALL],[__attribute__((__const__))],
-    [most gcc compilers know a function __attribute__((__const__))])
- fi
-])
+AC_DEFUN([AX_CXX_COMPILE_STDCXX_17], [AX_CXX_COMPILE_STDCXX([17], [$1], [$2])])
 
 # ===========================================================================
 #       https://www.gnu.org/software/autoconf-archive/ax_have_poll.html

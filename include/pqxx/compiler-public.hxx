@@ -17,22 +17,6 @@
 #include <ciso646>
 
 
-#if defined(__GNUC__) && defined(PQXX_HAVE_GCC_CONST)
-/// Declare function without effects and without reading anything but its args.
-#define PQXX_CONST __attribute__ ((const))
-#else
-#define PQXX_CONST
-#endif
-
-#if defined(PQXX_HAVE_DEPRECATED)
-/// Mark an item as deprecated.
-#define PQXX_DEPRECATED [[deprecated]]
-#elif defined(__GNUC__) && defined(PQXX_HAVE_GCC_DEPRECATED)
-#define PQXX_DEPRECATED __attribute__ ((deprecated))
-#else
-#define PQXX_DEPRECATED
-#endif
-
 #if defined(__GNUC__) && defined(PQXX_HAVE_GCC_PURE)
 /// Declare function "pure": no side effects, only reads globals and its args.
 #define PQXX_PURE __attribute__ ((pure))

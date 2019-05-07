@@ -1,10 +1,7 @@
 /* include/pqxx/config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* most gcc compilers know a function __attribute__((__const__)) */
-#undef GCC_CONST_CALL
-
-/* define if the compiler supports basic C++11 syntax */
-#undef HAVE_CXX11
+/* define if the compiler supports basic C++17 syntax */
+#undef HAVE_CXX17
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
@@ -78,26 +75,11 @@
 /* Define if <charconv> supports integer conversion. */
 #undef PQXX_HAVE_CHARCONV_INT
 
-/* Define if compiler supports [[deprecated]] attribute */
-#undef PQXX_HAVE_DEPRECATED
-
-/* Define if the compiler supports std::experimental::optional. */
-#undef PQXX_HAVE_EXP_OPTIONAL
-
-/* Define if g++ supports const attribute. */
-#undef PQXX_HAVE_GCC_CONST
-
-/* Define if g++ supports deprecated attribute. */
-#undef PQXX_HAVE_GCC_DEPRECATED
-
 /* Define if g++ supports pure attribute */
 #undef PQXX_HAVE_GCC_PURE
 
 /* Define if g++ supports visibility attribute. */
 #undef PQXX_HAVE_GCC_VISIBILITY
-
-/* Define if the compiler supports std::optional. */
-#undef PQXX_HAVE_OPTIONAL
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS

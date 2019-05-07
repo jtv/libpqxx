@@ -58,7 +58,7 @@ public:
   /// Support run-time polymorphism, and keep this class abstract
   virtual ~pqxx_exception() noexcept =0;
 
-  /// Return std::exception base-class object
+  /// Return std::exception base-class object.
   /** Use this to get at the exception's what() function, or to downcast to a
    * more specific type using dynamic_cast.
    *
@@ -81,7 +81,7 @@ public:
    * }
    * @endcode
    */
-  PQXX_CONST virtual const std::exception &base() const noexcept =0;	//[t00]
+  virtual const std::exception &base() const noexcept =0;	//[t00]
 };
 
 
