@@ -33,17 +33,21 @@ jobs:
           name: Set up database
           command: createdb root
       - run:
-          name: Autogen
-          command: NOCONFIGURE=1 ./autogen.sh
-      - run:
-          name: Configure
-          # TODO: Add --enable-audit once container has a recent compiler.
-          command: |
-              ./configure \
-                  CXXFLAGS='-std=c++17' \
-                  --disable-documentation \
-                  --enable-maintainer-mode \
-                  --enable-shared --disable-static
+          name: Build using CMake
+          command: (SRC="$(pwd)" && mkdir /tmp/build && cd /tmp/build && cmake "$SRC" && make -j4)
+# TODO: Re-enable once container has a recent autoconf-archive.
+#      - run:
+#          name: Autogen
+#          command: NOCONFIGURE=1 ./autogen.sh
+#      - run:
+#          name: Configure
+#          # TODO: Add --enable-audit once container has a recent compiler.
+#          command: |
+#              ./configure \
+#                  CXXFLAGS='-std=c++17' \
+#                  --disable-documentation \
+#                  --enable-maintainer-mode \
+#                  --enable-shared --disable-static
       - run:
           name: Make
           command: make
