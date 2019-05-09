@@ -13,7 +13,7 @@ jobs:
           command: echo "deb http://deb.debian.org/debian stretch-backports main" >>/etc/apt/sources.list
       - run:
           name: Install
-          command: apt update && apt install -y python cmake libpq-dev postgresql libpq-dev postgresql-server-dev-all build-essential autoconf dh-autoreconf autoconf-archive automake cppcheck
+          command: apt update && apt install -y -t backports python cmake libpq-dev postgresql libpq-dev postgresql-server-dev-all build-essential autoconf dh-autoreconf autoconf-archive automake cppcheck
       - run:
           name: Identify
           command: lsb_release -a && c++ --version
