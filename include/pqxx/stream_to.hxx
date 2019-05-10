@@ -93,7 +93,7 @@ public:
    * The only circumstance where it's safe to skip this is after an error, if
    * you're discarding the entire connection.
    */
-  void complete() override;
+  void complete();
 
   /// Insert a row of data.
   /** The data can be any type that can be iterated.  Each iterated item
@@ -123,7 +123,7 @@ private:
     const std::string &columns
   );
 
-  void close() override;
+  void close();
 };
 
 

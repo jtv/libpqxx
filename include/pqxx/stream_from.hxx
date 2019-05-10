@@ -47,7 +47,7 @@ public:
 
   ~stream_from() noexcept;
 
-  void complete() override;
+  void complete();
 
   bool get_raw_line(std::string &);
   template<typename Tuple> stream_from & operator>>(Tuple &);
@@ -64,7 +64,7 @@ private:
     const std::string &columns
   );
 
-  void close() override;
+  void close();
 
   bool extract_field(
     const std::string &,

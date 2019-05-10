@@ -24,19 +24,15 @@
 namespace pqxx
 {
 
-class PQXX_LIBEXPORT PQXX_NOVTABLE stream_base :
-  public internal::transactionfocus
+class PQXX_LIBEXPORT stream_base : public internal::transactionfocus
 {
 public:
   explicit stream_base(transaction_base &);
-  // TODO: Can we get rid of the vtable?
-  virtual ~stream_base() noexcept =default;
-  virtual void complete() = 0;
   operator bool() const noexcept;
   bool operator!() const noexcept;
 protected:
   bool m_finished;
-  virtual void close();
+  void close();
   template<typename C> static std::string columnlist(const C &);
   template<typename I> static std::string columnlist(I begin, I end);
 private:
@@ -54,9 +50,7 @@ template<typename I> std::string stream_base::columnlist(I begin, I end)
 {
   return separated_list(",", begin, end);
 }
-
 } // namespace pqxx
-
 
 #include "pqxx/compiler-internal-post.hxx"
 #endif
