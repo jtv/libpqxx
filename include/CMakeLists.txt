@@ -61,8 +61,6 @@ install(
         PATTERN row
         PATTERN strconv.hxx
         PATTERN strconv
-        PATTERN stream_base.hxx
-        PATTERN stream_base
         PATTERN stream_from.hxx
         PATTERN stream_from
         PATTERN stream_to.hxx

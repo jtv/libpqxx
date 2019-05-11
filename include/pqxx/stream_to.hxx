@@ -16,8 +16,7 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 #include "pqxx/transaction_base.hxx"
-#include "pqxx/stream_base.hxx"
-#include "pqxx/stream_from.hxx"
+#include "pqxx/util.hxx"
 #include "pqxx/internal/type_utils.hxx"
 
 #include <string>
@@ -56,7 +55,7 @@ namespace pqxx
  *
  * There is also a matching stream_from for reading data in bulk.
  */
-class PQXX_LIBEXPORT stream_to : public stream_base
+class PQXX_LIBEXPORT stream_to : internal::transactionfocus
 {
 public:
   /// Create a stream, without specifying columns.
@@ -86,6 +85,9 @@ public:
 
   ~stream_to() noexcept;
 
+  operator bool() const noexcept { return not m_finished; }
+  bool operator!() const noexcept { return m_finished; }
+
   /// Complete the operation, and check for errors.
   /** Always call this to close the stream in an orderly fashion, even after
    * an error.  (In the case of an error, abort the transaction afterwards.)
@@ -113,6 +115,8 @@ public:
   stream_to &operator<<(stream_from &);
 
 private:
+  bool m_finished = false;
+
   /// Write a row of data, as a line of text.
   void write_raw_line(const std::string &);
 
@@ -122,8 +126,6 @@ private:
     const std::string &table_name,
     const std::string &columns
   );
-
-  void close();
 };
 
 
@@ -146,13 +148,13 @@ template<typename Iter> inline stream_to::stream_to(
   Iter columns_begin,
   Iter columns_end
 ) :
-  namedclass{"stream_from", table_name},
-  stream_base{tb}
+  namedclass{"stream_to", table_name},
+  internal::transactionfocus{tb}
 {
   set_up(
     tb,
     table_name,
-    columnlist(columns_begin, columns_end)
+    separated_list(",", columns_begin, columns_end)
   );
 }
 

@@ -10,6 +10,7 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
+#include "pqxx/stream_from.hxx"
 #include "pqxx/stream_to.hxx"
 
 #include "pqxx/internal/gates/transaction-stream_to.hxx"
@@ -20,7 +21,7 @@ pqxx::stream_to::stream_to(
   const std::string &table_name
 ) :
   namedclass{"stream_to", table_name},
-  stream_base{tb}
+  internal::transactionfocus{tb}
 {
   set_up(tb, table_name);
 }
@@ -36,12 +37,6 @@ pqxx::stream_to::~stream_to() noexcept
   {
     reg_pending_error(e.what());
   }
-}
-
-
-void pqxx::stream_to::complete()
-{
-  close();
 }
 
 
@@ -86,24 +81,13 @@ void pqxx::stream_to::set_up(
 }
 
 
-void pqxx::stream_to::close()
+void pqxx::stream_to::complete()
 {
-  if (*this)
+  if (!m_finished)
   {
-    stream_base::close();
-    try
-    {
-      internal::gate::transaction_stream_to{m_trans}.end_copy_write();
-    }
-    catch (const std::exception &)
-    {
-      try
-      {
-        stream_base::close();
-      }
-      catch (const std::exception &) {}
-      throw;
-    }
+    m_finished = true;
+    unregister_me();
+    internal::gate::transaction_stream_to{m_trans}.end_copy_write();
   }
 }
 

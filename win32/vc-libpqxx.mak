@@ -118,7 +118,6 @@ OBJ_STATICDEBUG=\
        "$(INTDIR_STATICDEBUG)\sql_cursor.obj" \
        "$(INTDIR_STATICDEBUG)\statement_parameters.obj" \
        "$(INTDIR_STATICDEBUG)\strconv.obj" \
-       "$(INTDIR_STATICDEBUG)\stream_base.obj" \
        "$(INTDIR_STATICDEBUG)\stream_from.obj" \
        "$(INTDIR_STATICDEBUG)\stream_to.obj" \
        "$(INTDIR_STATICDEBUG)\subtransaction.obj" \
@@ -147,7 +146,6 @@ OBJ_STATICRELEASE=\
        "$(INTDIR_STATICRELEASE)\sql_cursor.obj" \
        "$(INTDIR_STATICRELEASE)\statement_parameters.obj" \
        "$(INTDIR_STATICRELEASE)\strconv.obj" \
-       "$(INTDIR_STATICRELEASE)\stream_base.obj" \
        "$(INTDIR_STATICRELEASE)\stream_from.obj" \
        "$(INTDIR_STATICRELEASE)\stream_to.obj" \
        "$(INTDIR_STATICRELEASE)\subtransaction.obj" \
@@ -176,7 +174,6 @@ OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\sql_cursor.obj" \
        "$(INTDIR_DLLDEBUG)\statement_parameters.obj" \
        "$(INTDIR_DLLDEBUG)\strconv.obj" \
-       "$(INTDIR_DLLDEBUG)\stream_base.obj" \
        "$(INTDIR_DLLDEBUG)\stream_from.obj" \
        "$(INTDIR_DLLDEBUG)\stream_to.obj" \
        "$(INTDIR_DLLDEBUG)\subtransaction.obj" \
@@ -206,7 +203,6 @@ OBJ_DLLRELEASE=\
        "$(INTDIR_DLLRELEASE)\sql_cursor.obj" \
        "$(INTDIR_DLLRELEASE)\statement_parameters.obj" \
        "$(INTDIR_DLLRELEASE)\strconv.obj" \
-       "$(INTDIR_DLLRELEASE)\stream_base.obj" \
        "$(INTDIR_DLLRELEASE)\stream_from.obj" \
        "$(INTDIR_DLLRELEASE)\stream_to.obj" \
        "$(INTDIR_DLLRELEASE)\subtransaction.obj" \
@@ -449,13 +445,6 @@ $(INTDIR_DLLRELEASE)::
 	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/strconv.cxx
 
 
-"$(INTDIR_STATICRELEASE)\stream_base.obj": src/stream_base.cxx $(INTDIR_STATICRELEASE)
-	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/stream_base.cxx
-
-"$(INTDIR_STATICDEBUG)\stream_base.obj": src/stream_base.cxx $(INTDIR_STATICDEBUG)
-	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/stream_base.cxx
-
-
 "$(INTDIR_STATICRELEASE)\stream_from.obj": src/stream_from.cxx $(INTDIR_STATICRELEASE)
 	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/stream_from.cxx
 
@@ -638,13 +627,6 @@ $(INTDIR_DLLRELEASE)::
 
 "$(INTDIR_DLLDEBUG)\strconv.obj": src/strconv.cxx $(INTDIR_DLLDEBUG)
 	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/strconv.cxx
-
-
-"$(INTDIR_DLLRELEASE)\stream_base.obj": src/stream_base.cxx $(INTDIR_DLLRELEASE)
-	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/stream_base.cxx
-
-"$(INTDIR_DLLDEBUG)\stream_base.obj": src/stream_base.cxx $(INTDIR_DLLDEBUG)
-	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/stream_base.cxx
 
 
 "$(INTDIR_DLLRELEASE)\stream_from.obj": src/stream_from.cxx $(INTDIR_DLLRELEASE)

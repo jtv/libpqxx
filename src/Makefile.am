@@ -18,7 +18,6 @@ libpqxx_la_SOURCES = \
 	sql_cursor.cxx \
 	statement_parameters.cxx \
 	strconv.cxx \
-	stream_base.cxx \
 	stream_from.cxx \
 	stream_to.cxx \
 	subtransaction.cxx \

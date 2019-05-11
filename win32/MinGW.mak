@@ -38,7 +38,6 @@ OBJ = \
   src/sql_cursor.o \
   src/statement_parameters.o \
   src/strconv.o \
-  src/stream_base.o \
   src/stream_from.o \
   src/stream_to.o \
   src/subtransaction.o \
@@ -126,9 +125,6 @@ src/statement_parameters.o: src/statement_parameters.cxx
 
 src/strconv.o: src/strconv.cxx
 	$(CXX) $(CPPFLAGS) -c src/strconv.cxx -o src/strconv.o $(CXXFLAGS)
-
-src/stream_base.o: src/stream_base.cxx
-	$(CXX) $(CPPFLAGS) -c src/stream_base.cxx -o src/stream_base.o $(CXXFLAGS)
 
 src/stream_from.o: src/stream_from.cxx
 	$(CXX) $(CPPFLAGS) -c src/stream_from.cxx -o src/stream_from.o $(CXXFLAGS)

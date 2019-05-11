@@ -21,7 +21,6 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/result_iterator.hxx \
 	pqxx/robusttransaction pqxx/robusttransaction.hxx \
 	pqxx/strconv pqxx/strconv.hxx \
-	pqxx/stream_base.hxx \
 	pqxx/stream_from pqxx/stream_from.hxx \
 	pqxx/stream_to pqxx/stream_to.hxx \
 	pqxx/subtransaction pqxx/subtransaction.hxx \

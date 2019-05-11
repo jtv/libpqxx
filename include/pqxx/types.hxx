@@ -49,6 +49,7 @@ class notification_receiver;
 class range_error;
 class result;
 class row;
+class stream_from;
 class transaction_base;
 
 } // namespace pqxx
