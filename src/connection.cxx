@@ -749,19 +749,13 @@ bool pqxx::connection::read_copy_line(std::string &Line)
 
 void pqxx::connection::write_copy_line(const std::string &Line)
 {
-  if (not is_open())
-    throw internal_error{"write_copy_line() without connection"};
-
-  const std::string L = Line + '\n';
+  const std::string L{Line + '\n'};
   const char *const LC = L.c_str();
   const auto Len = L.size();
 
   if (PQputCopyData(m_conn, LC, int(Len)) <= 0)
   {
-    const std::string msg = (
-        std::string{"Error writing to table: "} + err_msg());
-// TODO: PQendcopy() is documented as obsolete!
-    PQendcopy(m_conn);
+    const std::string msg{std::string{"Error writing to table: "} + err_msg()};
     throw failure{msg};
   }
 }

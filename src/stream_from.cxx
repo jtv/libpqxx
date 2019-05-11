@@ -18,12 +18,7 @@
 
 namespace
 {
-  // bool is_octalchar(char o) noexcept
-  // {
-  //   return (o>='0') and (o<='7');
-  // }
-
-  /// Find first tab character at or after start position in string
+  /// Find first tab character at or after start position in string.
   /** If not found, returns line.size() rather than string::npos.
    */
   std::string::size_type find_tab(
@@ -43,8 +38,7 @@ pqxx::stream_from::stream_from(
   const std::string &table_name
 ) :
   namedclass{"stream_from", table_name},
-  stream_base{tb},
-  m_retry_line{false}
+  transactionfocus{tb}
 {
   set_up(tb, table_name);
 }
@@ -54,18 +48,12 @@ pqxx::stream_from::~stream_from() noexcept
 {
   try
   {
-    complete();
+    close();
   }
   catch (const std::exception &e)
   {
     reg_pending_error(e.what());
   }
-}
-
-
-void pqxx::stream_from::complete()
-{
-  close();
 }
 
 
@@ -114,26 +102,34 @@ void pqxx::stream_from::set_up(
 
 void pqxx::stream_from::close()
 {
-  pqxx::stream_base::close();
+  if (!m_finished)
+  {
+    m_finished = true;
+    unregister_me();
+  }
+}
+
+
+void pqxx::stream_from::complete()
+{
+  if (m_finished) return;
   try
   {
-    // Flush any remaining lines
+    // Flush any remaining lines - libpq will automatically close the stream
+    // when it hits the end.
     std::string s;
     while (get_raw_line(s));
   }
   catch (const broken_connection &)
   {
-    try
-    {
-      pqxx::stream_base::close();
-    }
-    catch (const std::exception &) {}
+    close();
     throw;
   }
   catch (const std::exception &e)
   {
     reg_pending_error(e.what());
   }
+  close();
 }
 
 

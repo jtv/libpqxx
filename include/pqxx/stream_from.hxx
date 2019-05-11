@@ -16,7 +16,7 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 #include "pqxx/transaction_base.hxx"
-#include "pqxx/stream_base.hxx"
+#include "pqxx/util.hxx"
 #include "pqxx/internal/type_utils.hxx"
 
 #include <string>
@@ -26,7 +26,7 @@ namespace pqxx
 {
 
 /// Efficiently pull data directly out of a table.
-class PQXX_LIBEXPORT stream_from : public stream_base
+class PQXX_LIBEXPORT stream_from : internal::transactionfocus
 {
 public:
   stream_from(
@@ -47,6 +47,16 @@ public:
 
   ~stream_from() noexcept;
 
+  operator bool() const noexcept { return !m_finished; }
+  bool operator!() const noexcept { return m_finished; }
+
+  /// Finish this stream.  Call this before continuing to use the connection.
+  /** Consumes all remaining lines, and closes the stream.
+   *
+   * This may take a while if you're abandoning the stream before it's done, so
+   * skip it in error scenarios where you're not planning to use the connection
+   * again afterwards.
+   */
   void complete();
 
   bool get_raw_line(std::string &);
@@ -55,7 +65,8 @@ public:
 private:
   internal::encoding_group m_copy_encoding;
   std::string m_current_line;
-  bool m_retry_line;
+  bool m_finished = false;
+  bool m_retry_line = false;
 
   void set_up(transaction_base &, const std::string &table_name);
   void set_up(
@@ -98,7 +109,7 @@ private:
 };
 
 
-template<typename Columns> stream_from::stream_from(
+template<typename Columns> inline stream_from::stream_from(
   transaction_base &tb,
   const std::string &table_name,
   const Columns& columns
@@ -110,19 +121,19 @@ template<typename Columns> stream_from::stream_from(
 } {}
 
 
-template<typename Iter> stream_from::stream_from(
+template<typename Iter> inline stream_from::stream_from(
   transaction_base &tb,
   const std::string &table_name,
   Iter columns_begin,
   Iter columns_end
 ) :
   namedclass{"stream_from", table_name},
-  stream_base{tb}
+  transactionfocus{tb}
 {
   set_up(
     tb,
     table_name,
-    columnlist(columns_begin, columns_end)
+    separated_list(",", columns_begin, columns_end)
   );
 }
 
