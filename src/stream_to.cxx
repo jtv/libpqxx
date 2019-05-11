@@ -92,7 +92,7 @@ void pqxx::stream_to::complete()
 }
 
 
-std::string pqxx::internal::TypedCopyEscaper::escape(const std::string &s)
+std::string pqxx::internal::copy_string_escape(const std::string &s)
 {
   if (s.empty())
     return s;
