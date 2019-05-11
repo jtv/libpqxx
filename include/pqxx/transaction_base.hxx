@@ -534,7 +534,6 @@ private:
   bool m_registered = false;
   std::string m_pending_error;
 };
-
 } // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"

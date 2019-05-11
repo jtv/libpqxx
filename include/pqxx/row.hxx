@@ -54,8 +54,6 @@ public:
   /// @deprecated Do not use this constructor.  It will become private.
   row(result r, size_t i) noexcept;
 
-  ~row() noexcept =default; // Yes Scott Meyers, you're absolutely right[1]
-
   /**
    * @name Comparison
    */
@@ -380,24 +378,7 @@ inline const_row_iterator::difference_type
 const_row_iterator::operator-(const_row_iterator i) const
 	{ return difference_type(num() - i.num()); }
 
-
 } // namespace pqxx
 
-
-/*
-[1] Scott Meyers, in one of his essential books, "Effective C++" and "More
-Effective C++", points out that it is good style to have any class containing
-a member of pointer type define a destructor--just to show that it knows what
-it is doing with the pointer.  This helps prevent nasty memory leak / double
-deletion bugs typically resulting from programmers' omission to deal with such
-issues in their destructors.
-
-The @c -Weffc++ option in gcc generates warnings for noncompliance with Scott's
-style guidelines, and hence necessitates the definition of this destructor,
-trivial as it may be.
-*/
-
-
 #include "pqxx/compiler-internal-post.hxx"
-
 #endif

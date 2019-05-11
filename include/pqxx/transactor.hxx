@@ -141,5 +141,6 @@ inline auto perform(const TRANSACTION_CALLBACK &callback, int attempts=3)
 }
 } // namespace pqxx
 //@}
+
 #include "pqxx/compiler-internal-post.hxx"
 #endif

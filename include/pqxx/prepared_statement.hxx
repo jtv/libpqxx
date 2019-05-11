@@ -18,7 +18,6 @@
 #include "pqxx/internal/statement_parameters.hxx"
 
 
-
 namespace pqxx
 {
 /// Dedicated namespace for helper types related to prepared statements.

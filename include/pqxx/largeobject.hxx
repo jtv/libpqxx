@@ -662,9 +662,7 @@ private:
 };
 
 using lostream = basic_lostream<char>;
-
 } // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"
-
 #endif

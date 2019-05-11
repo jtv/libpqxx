@@ -524,9 +524,7 @@ public:
 /**
  * @}
  */
-
 }
 
 #include "pqxx/compiler-internal-post.hxx"
-
 #endif

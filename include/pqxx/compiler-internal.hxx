@@ -36,7 +36,5 @@
 
 #endif	// __GNUC__ && PQXX_HAVE_GCC_VISIBILITY
 
-
 #include "pqxx/compiler-public.hxx"
-
 #endif

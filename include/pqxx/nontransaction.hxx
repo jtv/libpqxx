@@ -73,7 +73,6 @@ private:
   virtual void do_commit() override {}					//[t14]
   virtual void do_abort() override {}					//[t14]
 };
-
 } // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"

@@ -14,8 +14,7 @@
  */
 // NO GUARDS HERE! This code should be executed every time!
 
-#ifdef _WIN32
-#ifdef _MSC_VER
+#if defined(_WIN32) && defined(_MSC_VER)
 
 // Save client program warning state, and set warning level 4.
 // Setting the warning level explicitly ensures that libpqxx
@@ -30,6 +29,4 @@
 #pragma warning (disable: 4512) // Assignment operator could not be generated.
 #pragma warning (disable: 4996) // Deprecation warning, e.g. about strncpy().
 
-#endif // _MSC_VER
-#endif // _WIN32
-
+#endif // _WIN32 && _MSC_VER

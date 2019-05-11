@@ -213,9 +213,7 @@ template<> void stream_from::extract_value<std::nullptr_t>(
   std::string::size_type &here,
   std::string &workspace
 ) const;
-
 } // namespace pqxx
-
 
 #include "pqxx/compiler-internal-post.hxx"
 #endif

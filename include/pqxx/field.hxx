@@ -348,7 +348,7 @@ inline void from_string(const field &F, T &Obj)				//[t46]
 
 /// Convert a field to a string.
 template<> PQXX_LIBEXPORT std::string to_string(const field &Obj);	//[t74]
-
 } // namespace pqxx
+
 #include "pqxx/compiler-internal-post.hxx"
 #endif

@@ -340,7 +340,6 @@ template<typename T> inline std::string to_string(const T &Obj)
 	{ return string_traits<T>::to_string(Obj); }
 
 //@}
-
 } // namespace pqxx
 
 #endif

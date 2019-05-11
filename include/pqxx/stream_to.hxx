@@ -186,9 +186,7 @@ template<typename Tuple> stream_to & stream_to::operator<<(const Tuple &t)
   write_raw_line(separated_list("\t", t, internal::TypedCopyEscaper()));
   return *this;
 }
-
 } // namespace pqxx
-
 
 #include "pqxx/compiler-internal-post.hxx"
 #endif

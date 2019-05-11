@@ -161,7 +161,6 @@ public:
 /**
  * @}
  */
-
 } // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"

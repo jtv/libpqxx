@@ -51,7 +51,6 @@ class result;
 class row;
 class stream_from;
 class transaction_base;
-
 } // namespace pqxx
 
 #endif

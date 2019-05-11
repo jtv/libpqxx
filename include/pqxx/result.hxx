@@ -238,5 +238,6 @@ private:
   PQXX_PURE const char *cmd_status() const noexcept;
 };
 } // namespace pqxx
+
 #include "pqxx/compiler-internal-post.hxx"
 #endif
