@@ -165,6 +165,29 @@ inline void end_of_statement()
 }
 
 
+// Verify that "action" does not throw an exception.
+#define PQXX_CHECK_SUCCEEDS(action, desc) \
+	{ \
+	  try \
+          { \
+            action; \
+          } \
+          catch (const std::exception &e) \
+          { \
+            PQXX_CHECK_NOTREACHED( \
+		std::string{desc} + \
+		" - \"" + #action "\" threw exception: " + \
+		e.what()); \
+          } \
+          catch (...) \
+          { \
+            PQXX_CHECK_NOTREACHED( \
+		std::string{desc} + \
+		" - \"" + #action "\" threw a non-exception!"); \
+          } \
+	} \
+        pqxx::test::internal::end_of_statement()
+
 // Verify that "action" throws an exception, of any std::exception-based type.
 #define PQXX_CHECK_THROWS_EXCEPTION(action, desc) \
 	{ \

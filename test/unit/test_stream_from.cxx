@@ -16,8 +16,8 @@ namespace
 {
 void test_nonoptionals(pqxx::connection_base& connection)
 {
-  pqxx::work transaction{connection};
-  pqxx::stream_from extractor{transaction, "stream_from_test"};
+  pqxx::work tx{connection};
+  pqxx::stream_from extractor{tx, "stream_from_test"};
   PQXX_CHECK(extractor, "stream_from failed to initialize");
 
   std::tuple<
@@ -97,6 +97,10 @@ void test_nonoptionals(pqxx::connection_base& connection)
   PQXX_CHECK(not extractor, "stream_from failed to detect end of stream");
 
   extractor.complete();
+
+  PQXX_CHECK_SUCCEEDS(
+	tx.exec1("SELECT 1"),
+	"Could not use transaction after stream_from.");
 }
 
 
@@ -154,8 +158,8 @@ void test_bad_tuples(pqxx::connection_base &conn)
 template<template<typename...> class O>
 void test_optional(pqxx::connection_base& connection)
 {
-  pqxx::work transaction{connection};
-  pqxx::stream_from extractor{transaction, "stream_from_test"};
+  pqxx::work tx{connection};
+  pqxx::stream_from extractor{tx, "stream_from_test"};
   PQXX_CHECK(extractor, "stream_from failed to initialize");
 
   std::tuple<
