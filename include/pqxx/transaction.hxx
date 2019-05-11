@@ -22,10 +22,7 @@
  */
 
 
-namespace pqxx
-{
-
-namespace internal
+namespace pqxx::internal
 {
 /// Helper base class for the @c transaction class template.
 class PQXX_LIBEXPORT basic_transaction : public dbtransaction
@@ -39,9 +36,11 @@ protected:
 private:
   virtual void do_commit() override;					//[t01]
 };
-} // namespace internal
+} // namespace pqxx::internal
 
 
+namespace pqxx
+{
 /**
  * @ingroup transaction
  */
@@ -110,7 +109,7 @@ using work = transaction<>;
 using read_transaction = transaction<read_committed, read_only>;
 
 //@}
-}
+} // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"
 #endif

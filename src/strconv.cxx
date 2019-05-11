@@ -51,16 +51,13 @@ inline bool equal(const char lhs[], const char rhs[])
 } // namespace
 
 
-namespace pqxx
-{
-namespace internal
+namespace pqxx::internal
 {
 void throw_null_conversion(const std::string &type)
 {
   throw conversion_error{"Attempt to convert null to " + type + "."};
 }
 } // namespace pqxx::internal
-} // namespace pqxx
 
 
 #if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
@@ -134,9 +131,7 @@ template<typename TYPE> struct to_chars_caller<TYPE, true>
 } // namespace
 
 
-namespace pqxx
-{
-namespace internal
+namespace pqxx::internal
 {
 template<typename T> std::string builtin_traits<T>::to_string(T in)
 {
@@ -175,7 +170,6 @@ template<typename TYPE>
 void builtin_traits<TYPE>::from_string(const char Str[], TYPE &Obj)
 	{ wrap_from_chars(std::string_view{Str}, Obj); }
 } // namespace pqxx::internal
-} // namespace pqxx
 #endif // PQXX_HAVE_CHARCONV_INT || PQXX_HAVE_CHARCONV_FLOAT
 
 
@@ -519,9 +513,7 @@ void string_traits<long double>::from_string(
 
 
 #if defined(PQXX_HAVE_CHARCONV_INT)
-namespace pqxx
-{
-namespace internal
+namespace pqxx::internal
 {
 template
 std::string builtin_traits<short>::to_string(short Obj);
@@ -541,14 +533,11 @@ template
 std::string builtin_traits<unsigned long long>::to_string(
 	unsigned long long Obj);
 } // namespace pqxx::internal
-} // namespace pqxx
 #endif // PQXX_HAVE_CHARCONV_INT
 
 
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
-namespace pqxx
-{
-namespace internal
+namespace pqxx::internal
 {
 template
 std::string builtin_traits<float>::to_string(float Obj);
@@ -557,14 +546,11 @@ std::string builtin_traits<double>::to_string(double Obj);
 template
 std::string builtin_traits<long double>::to_string(long double Obj);
 } // namespace pqxx::internal
-} // namespace pqxx
 #endif // PQXX_HAVE_CHARCONV_FLOAT
 
 
 #if !defined(PQXX_HAVE_CHARCONV_INT)
-namespace pqxx
-{
-namespace internal
+namespace pqxx::internal
 {
 template<>
 void builtin_traits<short>::from_string(const char Str[], short &Obj)
@@ -624,14 +610,11 @@ std::string builtin_traits<unsigned long long>::to_string(
         unsigned long long Obj)
 	{ return to_string_unsigned(Obj); }
 } // namespace pqxx::internal
-} // namespace pqxx
 #endif // !PQXX_HAVE_CHARCONV_INT
 
 
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
-namespace pqxx
-{
-namespace internal
+namespace pqxx::internal
 {
 template<>
 void builtin_traits<float>::from_string(const char Str[], float &Obj)
@@ -653,13 +636,10 @@ template<>
 std::string builtin_traits<long double>::to_string(long double Obj)
 	{ return to_string_float(Obj); }
 } // namespace pqxx::internal
-} // namespace pqxx
 #endif // !PQXX_HAVE_CHARCONV_FLOAT
 
 
-namespace pqxx
-{
-namespace internal
+namespace pqxx::internal
 {
 template<> void builtin_traits<bool>::from_string(const char Str[], bool &Obj)
 {
@@ -721,4 +701,3 @@ template<> std::string builtin_traits<bool>::to_string(bool Obj)
   return Obj ? "true" : "false";
 }
 } // namespace pqxx::internal
-} // namespace pqxx

@@ -63,8 +63,6 @@ inline int StdDirToPQDir(std::ios::seekdir dir) noexcept
   return pqdir;
 #endif
 }
-
-
 } // namespace
 
 

@@ -6,10 +6,10 @@
 namespace pqxx
 {
 class largeobject;
+}
 
-namespace internal
-{
-namespace gate
+
+namespace pqxx::internal::gate
 {
 class PQXX_PRIVATE connection_largeobject : callgate<connection>
 {
@@ -30,5 +30,3 @@ class PQXX_PRIVATE const_connection_largeobject : callgate<const connection>
   std::string error_message() const { return home().err_msg(); }
 };
 } // namespace pqxx::internal::gate
-} // namespace pqxx::internal
-} // namespace pqxx

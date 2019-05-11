@@ -11,9 +11,7 @@
 #ifndef PQXX_H_SQL_CURSOR
 #define PQXX_H_SQL_CURSOR
 
-namespace pqxx
-{
-namespace internal
+namespace pqxx::internal
 {
 /// Cursor with SQL positioning semantics.
 /** Thin wrapper around an SQL cursor, with SQL's ideas of positioning.
@@ -116,6 +114,5 @@ PQXX_LIBEXPORT result stateless_cursor_retrieve(
 	result::difference_type size,
 	result::difference_type begin_pos,
 	result::difference_type end_pos);
-} // namespace internal
-} // namespace pqxx
+} // namespace pqxx::internal
 #endif

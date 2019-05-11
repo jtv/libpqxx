@@ -18,39 +18,8 @@
 #include <stdexcept>
 
 
-namespace pqxx
-{
-
-/**
- * @defgroup stringconversion String conversion
- *
- * The PostgreSQL server accepts and represents data in string form.  It has
- * its own formats for various data types.  The string conversions define how
- * various C++ types translate to and from their respective PostgreSQL text
- * representations.
- *
- * Each conversion is defined by a specialisation of the @c string_traits
- * template.  This template implements some basic functions to support the
- * conversion, ideally in both directions.
- *
- * If you need to convert a type which is not supported out of the box, define
- * your own @c string_traits specialisation for that type, similar to the ones
- * defined here.  Any conversion code which "sees" your specialisation will now
- * support your conversion.  In particular, you'll be able to read result
- * fields into a variable of the new type.
- *
- * There is a macro to help you define conversions for individual enumeration
- * types.  The conversion will represent enumeration values as numeric strings.
- */
-//@{
-
-/// Traits class for use in string conversions
-/** Specialize this template for a type that you wish to add to_string and
- * from_string support for.
- */
-template<typename T, typename = void> struct string_traits;
-
-namespace internal
+// TODO: Move helpers to internal header.
+namespace pqxx::internal
 {
 /// Throw exception for attempt to convert null to given type.
 [[noreturn]] PQXX_LIBEXPORT void throw_null_conversion(
@@ -105,7 +74,45 @@ template<typename TYPE> struct PQXX_LIBEXPORT builtin_traits
   static void from_string(const char Str[], TYPE &Obj);
   static std::string to_string(TYPE Obj);
 };
+
+
+/// Compute numeric value of given textual digit (assuming that it is a digit)
+constexpr int digit_to_number(char c) noexcept { return c-'0'; }
+constexpr char number_to_digit(int i) noexcept
+	{ return static_cast<char>(i+'0'); }
 } // namespace pqxx::internal
+
+
+namespace pqxx
+{
+/**
+ * @defgroup stringconversion String conversion
+ *
+ * The PostgreSQL server accepts and represents data in string form.  It has
+ * its own formats for various data types.  The string conversions define how
+ * various C++ types translate to and from their respective PostgreSQL text
+ * representations.
+ *
+ * Each conversion is defined by a specialisation of the @c string_traits
+ * template.  This template implements some basic functions to support the
+ * conversion, ideally in both directions.
+ *
+ * If you need to convert a type which is not supported out of the box, define
+ * your own @c string_traits specialisation for that type, similar to the ones
+ * defined here.  Any conversion code which "sees" your specialisation will now
+ * support your conversion.  In particular, you'll be able to read result
+ * fields into a variable of the new type.
+ *
+ * There is a macro to help you define conversions for individual enumeration
+ * types.  The conversion will represent enumeration values as numeric strings.
+ */
+//@{
+
+/// Traits class for use in string conversions
+/** Specialize this template for a type that you wish to add to_string and
+ * from_string support for.
+ */
+template<typename T, typename = void> struct string_traits;
 
 
 /// Helper: declare a string_traits specialisation for a builtin type.
@@ -320,15 +327,6 @@ template<typename T>
 template<> inline void
 from_string(const std::string &Str, std::string &Obj)			//[t46]
 	{ Obj = Str; }
-
-
-namespace internal
-{
-/// Compute numeric value of given textual digit (assuming that it is a digit)
-constexpr int digit_to_number(char c) noexcept { return c-'0'; }
-constexpr char number_to_digit(int i) noexcept
-	{ return static_cast<char>(i+'0'); }
-} // namespace pqxx::internal
 
 
 /// Convert built-in type to a readable string that PostgreSQL will understand

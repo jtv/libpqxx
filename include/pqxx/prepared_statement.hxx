@@ -18,10 +18,8 @@
 #include "pqxx/internal/statement_parameters.hxx"
 
 
-namespace pqxx
-{
 /// Dedicated namespace for helper types related to prepared statements.
-namespace prepare
+namespace pqxx::prepare
 {
 /// Pass a number of statement parameters only known at runtime.
 /** When you call any of the @c exec_params functions, the number of arguments
@@ -67,8 +65,7 @@ make_dynamic_params(const C &container)
 {
   return pqxx::internal::dynamic_params<typename C::const_iterator>(container);
 }
-} // namespace prepare
-} // namespace pqxx
+} // namespace pqxx::prepare
 
 #include "pqxx/compiler-internal-post.hxx"
 #endif

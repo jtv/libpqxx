@@ -19,16 +19,14 @@
 #include "pqxx/types.hxx"
 
 
-namespace pqxx
-{
-namespace internal
-{
-namespace gate
+namespace pqxx::internal::gate
 {
 class errorhandler_connection;
 }
-}
 
+
+namespace pqxx
+{
 /**
  * @addtogroup errorhandler
  * @{

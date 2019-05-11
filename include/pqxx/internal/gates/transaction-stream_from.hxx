@@ -1,10 +1,6 @@
 #include <pqxx/internal/callgate.hxx>
 
-namespace pqxx
-{
-namespace internal
-{
-namespace gate
+namespace pqxx::internal::gate
 {
 class PQXX_PRIVATE transaction_stream_from : callgate<transaction_base>
 {
@@ -19,5 +15,3 @@ class PQXX_PRIVATE transaction_stream_from : callgate<transaction_base>
 	{ return home().read_copy_line(line); }
 };
 } // namespace pqxx::internal::gate
-} // namespace pqxx::internal
-} // namespace pqxx

@@ -20,7 +20,6 @@
 
 namespace pqxx
 {
-
 /// Transaction isolation levels.
 /** These are as defined in the SQL standard.  But there are a few notes
  * specific to PostgreSQL.
@@ -81,7 +80,7 @@ template<>
 inline constexpr const char *isolation_traits<serializable>::name() noexcept
 	{ return "SERIALIZABLE"; }
 
-}
+} // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"
 #endif

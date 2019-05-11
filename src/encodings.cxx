@@ -166,10 +166,8 @@ std::string::size_type next_seq_for_sjislike(
 } // namespace
 
 
-// Implement template specializations first
-namespace pqxx
-{
-namespace internal
+// Implement template specializations first.
+namespace pqxx::internal
 {
 template<encoding_group> struct glyph_scanner
 {
@@ -821,6 +819,4 @@ std::string::size_type find_with_encoding(
 }
 
 #undef DISPATCH_ENCODING_OPERATION
-
 } // namespace pqxx::internal
-} // namespace pqxx

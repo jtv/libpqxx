@@ -21,10 +21,7 @@
 
 // Methods tested in eg. test module test01 are marked with "//[t01]".
 
-namespace pqxx
-{
-
-namespace internal
+namespace pqxx::internal
 {
 /// Helper base class for the @c robusttransaction class template.
 class PQXX_LIBEXPORT PQXX_NOVTABLE basic_robusttransaction :
@@ -63,6 +60,8 @@ private:
 } // namespace internal
 
 
+namespace pqxx
+{
 /**
  * @ingroup transaction
  *

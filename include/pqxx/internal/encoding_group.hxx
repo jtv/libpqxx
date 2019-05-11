@@ -10,11 +10,8 @@
 #define PQXX_H_ENCODING_GROUP
 
 
-namespace pqxx
+namespace pqxx::internal
 {
-namespace internal
-{
-
 // Types of encodings supported by PostgreSQL, see
 // https://www.postgresql.org/docs/current/static/multibyte.html#CHARSET-TABLE
 enum class encoding_group
@@ -38,9 +35,6 @@ enum class encoding_group
   UHC,
   UTF8
 };
-
 } // namespace pqxx::internal
-} // namespace pqxx
-
 
 #endif

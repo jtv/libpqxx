@@ -15,11 +15,8 @@
 #include <optional>
 
 
-namespace pqxx
+namespace pqxx::internal
 {
-namespace internal
-{
-
 /// Replicate std::void_t<> (available in C++17).
 template<typename... T> using void_t = void;
 
@@ -142,13 +139,11 @@ template<typename T, typename V> constexpr auto make_optional(V&& v)
 { return std::make_shared<inner_type<T>>(std::forward<V>(v)); }
 
 } // namespace pqxx::internal
-} // namespace pqxx
 
 
 // TODO: Move?
 namespace pqxx
 {
-
 /// Meta `pqxx::string_traits` for std::optional-like types.
 template<typename T> struct string_traits<
   T,
@@ -183,6 +178,6 @@ public:
     return string_traits<I>::to_string(*Obj);
   }
 };
-
 } // namespace pqxx
+
 #endif

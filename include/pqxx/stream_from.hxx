@@ -24,7 +24,6 @@
 
 namespace pqxx
 {
-
 /// Efficiently pull data directly out of a table.
 class PQXX_LIBEXPORT stream_from : internal::transactionfocus
 {

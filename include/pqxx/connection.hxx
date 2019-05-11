@@ -37,14 +37,27 @@
 /* Methods tested in eg. self-test program test1 are marked with "//[t01]"
  */
 
-namespace pqxx
-{
-namespace internal
+namespace pqxx::internal
 {
 class sql_cursor;
-}
+} // namespace pqxx::internal
 
 
+namespace pqxx::internal::gate
+{
+class connection_dbtransaction;
+class connection_errorhandler;
+class connection_largeobject;
+class connection_notification_receiver;
+class connection_pipeline;
+class connection_sql_cursor;
+class connection_transaction;
+class const_connection_largeobject;
+} // namespace pqxx::internal::gate
+
+
+namespace pqxx
+{
 /// Encrypt password for given user.
 /** Use this when setting a new password for the user if password encryption is
  * enabled.  Inputs are the username the password is for, and the plaintext
@@ -65,22 +78,6 @@ class sql_cursor;
 std::string PQXX_LIBEXPORT encrypt_password(				//[t00]
 	const std::string &user,
 	const std::string &password);
-
-
-namespace internal
-{
-namespace gate
-{
-class connection_dbtransaction;
-class connection_errorhandler;
-class connection_largeobject;
-class connection_notification_receiver;
-class connection_pipeline;
-class connection_sql_cursor;
-class connection_transaction;
-class const_connection_largeobject;
-} // namespace pqxx::internal::gate
-} // namespace pqxx::internal
 
 
 // TODO: Document connection strings and environment variables.
@@ -625,17 +622,17 @@ private:
 };
 
 
+/// @deprecated Old base class for connection.  They are now the same class.
 using connection_base = connection;
+} // namespace pqxx
 
 
-namespace internal
+namespace pqxx::internal
 {
 void wait_read(const internal::pq::PGconn *);
 void wait_read(const internal::pq::PGconn *, long seconds, long microseconds);
 void wait_write(const internal::pq::PGconn *);
 } // namespace pqxx::internal
-
-} // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"
 #endif

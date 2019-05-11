@@ -1,10 +1,6 @@
 #include <pqxx/internal/callgate.hxx>
 
-namespace pqxx
-{
-namespace internal
-{
-namespace gate
+namespace pqxx::internal::gate
 {
 class PQXX_PRIVATE icursor_iterator_icursorstream : callgate<icursor_iterator>
 {
@@ -24,5 +20,3 @@ class PQXX_PRIVATE icursor_iterator_icursorstream : callgate<icursor_iterator>
   void fill(const result &r) { home().fill(r); }
 };
 } // namespace pqxx::internal::gate
-} // namespace pqxx::internal
-} // namespace pqxx

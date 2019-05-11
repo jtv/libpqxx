@@ -23,7 +23,6 @@
 
 namespace pqxx
 {
-
 /**
  * @addtogroup exception Exception classes
  *

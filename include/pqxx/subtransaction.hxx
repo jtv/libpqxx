@@ -25,7 +25,6 @@
 
 namespace pqxx
 {
-
 /**
  * @ingroup transaction
  */

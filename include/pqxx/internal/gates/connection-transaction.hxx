@@ -3,10 +3,9 @@
 namespace pqxx
 {
 class connection;
+}
 
-namespace internal
-{
-namespace gate
+namespace pqxx::internal::gate
 {
 class PQXX_PRIVATE connection_transaction : callgate<connection>
 {
@@ -44,5 +43,3 @@ class PQXX_PRIVATE connection_transaction : callgate<connection>
   }
 };
 } // namespace pqxx::internal::gate
-} // namespace pqxx::internal
-} // namespace pqxx

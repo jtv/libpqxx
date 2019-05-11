@@ -34,9 +34,7 @@
 
 // Methods tested in eg. test module test01 are marked with "//[t01]".
 
-namespace pqxx
-{
-namespace internal
+namespace pqxx::internal
 {
 class sql_cursor;
 
@@ -65,22 +63,21 @@ protected:
 private:
   bool m_registered;
 };
-} // namespace internal
+} // namespace pqxx::internal
 
 
-namespace internal
-{
-namespace gate
+namespace pqxx::internal::gate
 {
 class transaction_subtransaction;
 class transaction_sql_cursor;
 class transaction_stream_from;
 class transaction_stream_to;
 class transaction_transactionfocus;
-} // namespace internal::gate
-} // namespace internal
+} // namespace pqxx::internal::gate
 
 
+namespace pqxx
+{
 /**
  * @defgroup transaction Transaction classes
  *

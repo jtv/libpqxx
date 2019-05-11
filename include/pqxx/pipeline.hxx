@@ -27,7 +27,6 @@
 
 namespace pqxx
 {
-
 /// Processes several queries in FIFO manner, optimized for high throughput
 /** Use a pipeline if you want to execute queries without always sitting still
  * while they execute.  Result retrieval is decoupled from execution request;
@@ -203,7 +202,7 @@ private:
   /// Point at which an error occurred; no results beyond it will be available
   query_id m_error = qid_limit();
 };
-} // namespace
+} // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"
 #endif

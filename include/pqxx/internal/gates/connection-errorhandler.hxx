@@ -4,10 +4,9 @@ namespace pqxx
 {
 class connection;
 class errorhandler;
+}
 
-namespace internal
-{
-namespace gate
+namespace pqxx::internal::gate
 {
 class PQXX_PRIVATE connection_errorhandler : callgate<connection>
 {
@@ -21,5 +20,3 @@ class PQXX_PRIVATE connection_errorhandler : callgate<connection>
 					  { home().unregister_errorhandler(h); }
 };
 } // namespace pqxx::internal::gate
-} // namespace pqxx::internal
-} // namespace pqxx

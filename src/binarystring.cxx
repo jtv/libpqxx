@@ -73,7 +73,6 @@ buffer unescape(const unsigned char escaped[])
   return unescaped;
 #endif
 }
-
 } // namespace
 
 

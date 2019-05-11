@@ -1,12 +1,11 @@
 #include <pqxx/internal/callgate.hxx>
 
-namespace pqxx
-{
-namespace internal
+namespace pqxx::internal
 {
 class row;
+}
 
-namespace gate
+namespace pqxx::internal::gate
 {
 class PQXX_PRIVATE result_row : callgate<result>
 {
@@ -18,5 +17,3 @@ class PQXX_PRIVATE result_row : callgate<result>
 	{ return bool(home()); }
 };
 } // namespace pqxx::internal::gate
-} // namespace pqxx::internal
-} // namespace pqxx

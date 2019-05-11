@@ -15,20 +15,17 @@ struct pg_result;
 struct pgNotify;
 }
 
-namespace pqxx
-{
-namespace internal
-{
-/// Forward declarations of libpq types as needed in libpqxx headers
-namespace pq
+/// Forward declarations of libpq types as needed in libpqxx headers.
+namespace pqxx::internal::pq
 {
 using PGconn = pg_conn;
 using PGresult = pg_result;
 using PGnotify = pgNotify;
 using PQnoticeProcessor = void (*)(void *, const char *);
 }
-}
 
-/// PostgreSQL database row identifier
+namespace pqxx
+{
+/// PostgreSQL database row identifier.
 using oid = unsigned int;
-} // extern "C"
+}

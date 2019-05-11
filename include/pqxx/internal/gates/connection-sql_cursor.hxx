@@ -1,12 +1,12 @@
 #include <pqxx/internal/callgate.hxx>
 
-namespace pqxx
-{
-namespace internal
+namespace pqxx::internal
 {
 class sql_cursor;
+}
 
-namespace gate
+
+namespace pqxx::internal::gate
 {
 class PQXX_PRIVATE connection_sql_cursor : callgate<connection>
 {
@@ -17,5 +17,3 @@ class PQXX_PRIVATE connection_sql_cursor : callgate<connection>
   result exec(const char query[]) { return home().exec(query); }
 };
 } // namespace pqxx::internal::gate
-} // namespace pqxx::internal
-} // namespace pqxx

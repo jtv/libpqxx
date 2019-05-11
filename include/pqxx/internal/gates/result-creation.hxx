@@ -1,10 +1,6 @@
 #include <pqxx/internal/callgate.hxx>
 
-namespace pqxx
-{
-namespace internal
-{
-namespace gate
+namespace pqxx::internal::gate
 {
 class PQXX_PRIVATE result_creation : callgate<const result>
 {
@@ -24,5 +20,3 @@ class PQXX_PRIVATE result_creation : callgate<const result>
   void check_status() const { return home().check_status(); }
 };
 } // namespace pqxx::internal::gate
-} // namespace pqxx::internal
-} // namespace pqxx

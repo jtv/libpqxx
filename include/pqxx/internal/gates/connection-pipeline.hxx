@@ -1,11 +1,7 @@
 #include <pqxx/internal/callgate.hxx>
 #include "pqxx/internal/libpq-forward.hxx"
 
-namespace pqxx
-{
-namespace internal
-{
-namespace gate
+namespace pqxx::internal::gate
 {
 class PQXX_PRIVATE connection_pipeline : callgate<connection>
 {
@@ -23,5 +19,3 @@ class PQXX_PRIVATE connection_pipeline : callgate<connection>
   int encoding_id() { return home().encoding_id(); }
 };
 } // namespace pqxx::internal::gate
-} // namespace pqxx::internal
-} // namespace pqxx

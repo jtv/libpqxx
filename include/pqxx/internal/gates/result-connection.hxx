@@ -1,10 +1,6 @@
 #include <pqxx/internal/callgate.hxx>
 
-namespace pqxx
-{
-namespace internal
-{
-namespace gate
+namespace pqxx::internal::gate
 {
 class PQXX_PRIVATE result_connection : callgate<const result>
 {
@@ -16,5 +12,3 @@ class PQXX_PRIVATE result_connection : callgate<const result>
   bool operator!() const { return not home(); }
 };
 } // namespace pqxx::internal::gate
-} // namespace pqxx::internal
-} // namespace pqxx

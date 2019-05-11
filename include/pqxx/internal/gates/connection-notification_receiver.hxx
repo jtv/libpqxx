@@ -6,10 +6,10 @@
 namespace pqxx
 {
 class notification_receiver;
+}
 
-namespace internal
-{
-namespace gate
+
+namespace pqxx::internal::gate
 {
 class PQXX_PRIVATE connection_notification_receiver : callgate<connection>
 {
@@ -23,5 +23,3 @@ class PQXX_PRIVATE connection_notification_receiver : callgate<connection>
 	{ home().remove_receiver(receiver); }
 };
 } // namespace pqxx::internal::gate
-} // namespace pqxx::internal
-} // namespace pqxx

@@ -24,7 +24,6 @@
 
 namespace pqxx
 {
-
 /// Simple "transaction" class offering no transactional integrity.
 /**
  * @ingroup transaction

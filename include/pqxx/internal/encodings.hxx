@@ -16,9 +16,7 @@
 #include <string>
 
 
-namespace pqxx
-{
-namespace internal
+namespace pqxx::internal
 {
 const char *name_encoding(int encoding_id);
 
@@ -93,7 +91,6 @@ template<typename CALLABLE> PQXX_LIBEXPORT inline void for_glyphs(
   }
 }
 } // namespace pqxx::internal
-} // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"
 #endif

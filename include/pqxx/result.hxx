@@ -29,22 +29,23 @@
 
 // Methods tested in eg. test module test01 are marked with "//[t01]".
 
-namespace pqxx
-{
-namespace internal
+namespace pqxx::internal
 {
 PQXX_LIBEXPORT void clear_result(const pq::PGresult *);
+}
 
-namespace gate
+
+namespace pqxx::internal::gate
 {
 class result_connection;
 class result_creation;
 class result_row;
 class result_sql_cursor;
 } // namespace internal::gate
-} // namespace internal
 
 
+namespace pqxx
+{
 /// Result set containing data returned by a query or command.
 /** This behaves as a container (as defined by the C++ standard library) and
  * provides random access const iterators to iterate over its rows.  A row

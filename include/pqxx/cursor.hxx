@@ -217,18 +217,18 @@ private:
 
 
 class icursor_iterator;
+} // namespace pqxx
 
 
-namespace internal
-{
-namespace gate
+namespace pqxx::internal::gate
 {
 class icursor_iterator_icursorstream;
 class icursorstream_icursor_iterator;
 } // namespace internal::gate
-} // namespace internal
 
 
+namespace pqxx
+{
 /// Simple read-only cursor represented as a stream of results
 /** SQL cursors can be tricky, especially in C++ since the two languages seem to
  * have been designed on different planets.  An SQL cursor has two singular

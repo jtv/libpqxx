@@ -28,9 +28,7 @@
 #include "pqxx/internal/type_utils.hxx"
 
 
-namespace pqxx
-{
-namespace internal
+namespace pqxx::internal
 {
 /// Marker type: pass a dynamically-determined number of statement parameters.
 /** Normally when invoking a prepared or parameterised statement, the number
@@ -221,7 +219,6 @@ private:
   void add_fields() {}
 };
 } // namespace pqxx::internal
-} // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"
 #endif

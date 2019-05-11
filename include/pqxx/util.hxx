@@ -190,6 +190,7 @@ separated_list(const std::string &sep, const TUPLE &t)
   return separated_list(sep, t, [](const TUPLE &tup){return *tup;});
 }
 //@}
+} // namespace pqxx
 
 
 /// Private namespace for libpqxx's internal use; do not access.
@@ -202,7 +203,7 @@ separated_list(const std::string &sep, const TUPLE &t)
  *
  * @warning Here be dragons!
  */
-namespace internal
+namespace pqxx::internal
 {
 PQXX_LIBEXPORT void freepqmem(const void *) noexcept;
 template<typename P> inline void freepqmem_templated(P *p) noexcept
@@ -303,7 +304,6 @@ private:
  */
 PQXX_LIBEXPORT void sleep_seconds(int);
 
-} // namespace internal
-} // namespace pqxx
+} // namespace pqxx::internal
 
 #endif

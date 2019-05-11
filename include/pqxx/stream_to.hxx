@@ -22,9 +22,29 @@
 #include <string>
 
 
+namespace pqxx::internal
+{
+// TODO: Can we reduce the red tape?
+class PQXX_LIBEXPORT TypedCopyEscaper
+{
+  static std::string escape(const std::string &);
+public:
+  template<typename T> std::string operator()(const T* t) const
+  {
+    return string_traits<T>::is_null(*t) ? "\\N" : escape(to_string(*t));
+  }
+};
+
+// Explicit specialization so we don't need a string_traits<> for nullptr_t
+template<> inline std::string TypedCopyEscaper::operator()<std::nullptr_t>(
+  const std::nullptr_t*
+) const
+{ return "\\N"; }
+} // namespace pqxx::internal
+
+
 namespace pqxx
 {
-
 /// Efficiently write data directly to a database table.
 /** If you wish to insert rows of data into a table, you can compose INSERT
  * statements and execute them.  But it's slow and tedious, and you need to
@@ -157,28 +177,6 @@ template<typename Iter> inline stream_to::stream_to(
     separated_list(",", columns_begin, columns_end)
   );
 }
-
-
-namespace internal
-{
-
-class PQXX_LIBEXPORT TypedCopyEscaper
-{
-  static std::string escape(const std::string &);
-public:
-  template<typename T> std::string operator()(const T* t) const
-  {
-    return string_traits<T>::is_null(*t) ? "\\N" : escape(to_string(*t));
-  }
-};
-
-// Explicit specialization so we don't need a string_traits<> for nullptr_t
-template<> inline std::string TypedCopyEscaper::operator()<std::nullptr_t>(
-  const std::nullptr_t*
-) const
-{ return "\\N"; }
-
-} // namespace pqxx::internal
 
 
 template<typename Tuple> stream_to & stream_to::operator<<(const Tuple &t)
