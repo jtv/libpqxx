@@ -36,9 +36,9 @@ protected:
   template<typename C> static std::string columnlist(const C &);
   template<typename I> static std::string columnlist(I begin, I end);
 private:
-  stream_base();
-  stream_base(const stream_base&);
-  stream_base & operator=(const stream_base &);
+  stream_base() =delete;
+  stream_base(const stream_base&) =delete;
+  stream_base & operator=(const stream_base &) =delete;
 };
 
 template<typename C> std::string stream_base::columnlist(const C &c)
