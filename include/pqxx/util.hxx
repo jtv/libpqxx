@@ -91,7 +91,7 @@ constexpr oid oid_none = 0;
  * @param end end of items sequence
  * @param access functor defining how to dereference sequence elements
  */
-template<typename ITER, typename ACCESS> inline
+template<typename ITER, typename ACCESS> constexpr
 std::string separated_list(						//[t00]
 	const std::string &sep,
 	ITER begin,
@@ -113,13 +113,13 @@ std::string separated_list(						//[t00]
 
 
 /// Render sequence as a string, using given separator between items.
-template<typename ITER> inline std::string
+template<typename ITER> constexpr std::string
 separated_list(const std::string &sep, ITER begin, ITER end)		//[t00]
 	{ return separated_list(sep, begin, end, [](ITER i){ return *i; }); }
 
 
 /// Render items in a container as a string, using given separator.
-template<typename CONTAINER> inline auto
+template<typename CONTAINER> constexpr auto
 separated_list(const std::string &sep, const CONTAINER &c)		//[t10]
 	/*
 	Always std::string; necessary because SFINAE doesn't work with the
@@ -167,7 +167,7 @@ template<
 		int
 	>::type=0
 >
-inline std::string
+constexpr std::string
 separated_list(const std::string &sep, const TUPLE &t, const ACCESS& access)
 {
   return
@@ -184,7 +184,7 @@ template<
 		int
 	>::type=0
 >
-inline std::string
+constexpr std::string
 separated_list(const std::string &sep, const TUPLE &t)
 {
   return separated_list(sep, t, [](const TUPLE &tup){return *tup;});
