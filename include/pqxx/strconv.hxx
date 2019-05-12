@@ -69,7 +69,7 @@ template<typename TYPE> struct PQXX_LIBEXPORT builtin_traits
   static constexpr const char *name() noexcept
 	{ return internal::type_name<TYPE>; }
   static constexpr bool has_null() noexcept { return false; }
-  static bool is_null(TYPE) { return false; }
+  static constexpr bool is_null(TYPE) { return false; }
   [[noreturn]] static TYPE null() { throw_null_conversion(name()); }
   static void from_string(const char Str[], TYPE &Obj);
   static std::string to_string(TYPE Obj);
@@ -197,8 +197,8 @@ template<> struct PQXX_LIBEXPORT string_traits<const char *>
 {
   static constexpr const char *name() noexcept { return "const char *"; }
   static constexpr bool has_null() noexcept { return true; }
-  static bool is_null(const char *t) { return t == nullptr; }
-  static const char *null() { return nullptr; }
+  static constexpr bool is_null(const char *t) { return t == nullptr; }
+  static constexpr const char *null() { return nullptr; }
   static void from_string(const char Str[], const char *&Obj) { Obj = Str; }
   static std::string to_string(const char *Obj) { return Obj; }
 };
@@ -208,8 +208,8 @@ template<> struct PQXX_LIBEXPORT string_traits<char *>
 {
   static constexpr const char *name() noexcept { return "char *"; }
   static constexpr bool has_null() noexcept { return true; }
-  static bool is_null(const char *t) { return t == nullptr; }
-  static const char *null() { return nullptr; }
+  static constexpr bool is_null(const char *t) { return t == nullptr; }
+  static constexpr const char *null() { return nullptr; }
 
   // Don't allow this conversion since it breaks const-safety.
   // static void from_string(const char Str[], char *&Obj);
@@ -222,8 +222,8 @@ template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
 {
   static constexpr const char *name() noexcept { return "char[]"; }
   static constexpr bool has_null() noexcept { return true; }
-  static bool is_null(const char t[]) { return t == nullptr; }
-  static const char *null() { return nullptr; }
+  static constexpr bool is_null(const char t[]) { return t == nullptr; }
+  static constexpr const char *null() { return nullptr; }
   static std::string to_string(const char Obj[]) { return Obj; }
 };
 
@@ -231,7 +231,7 @@ template<> struct PQXX_LIBEXPORT string_traits<std::string>
 {
   static constexpr const char *name() noexcept { return "string"; }
   static constexpr bool has_null() noexcept { return false; }
-  static bool is_null(const std::string &) { return false; }
+  static constexpr bool is_null(const std::string &) { return false; }
   [[noreturn]] static std::string null()
 	{ internal::throw_null_conversion(name()); }
   static void from_string(const char Str[], std::string &Obj) { Obj=Str; }
@@ -242,17 +242,17 @@ template<> struct PQXX_LIBEXPORT string_traits<const std::string>
 {
   static constexpr const char *name() noexcept { return "const string"; }
   static constexpr bool has_null() noexcept { return false; }
-  static bool is_null(const std::string &) { return false; }
+  static constexpr bool is_null(const std::string &) { return false; }
   [[noreturn]] static const std::string null()
 	{ internal::throw_null_conversion(name()); }
-  static const std::string to_string(const std::string &Obj) { return Obj; }
+  static std::string to_string(const std::string &Obj) { return Obj; }
 };
 
 template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
 {
   static constexpr const char *name() noexcept { return "stringstream"; }
   static constexpr bool has_null() noexcept { return false; }
-  static bool is_null(const std::stringstream &) { return false; }
+  static constexpr bool is_null(const std::stringstream &) { return false; }
   [[noreturn]] static std::stringstream null()
 	{ internal::throw_null_conversion(name()); }
   static void from_string(const char Str[], std::stringstream &Obj)
@@ -267,8 +267,9 @@ template<> struct PQXX_LIBEXPORT string_traits<std::nullptr_t>
   static constexpr const char *name() noexcept { return "nullptr_t"; }
   static constexpr bool has_null() noexcept { return true; }
   static constexpr bool is_null(nullptr_t) noexcept { return true; }
-  static std::nullptr_t null() { return nullptr; }
-  static std::string to_string(const std::nullptr_t &) { return "null"; }
+  static constexpr std::nullptr_t null() { return nullptr; }
+  static std::string to_string(const std::nullptr_t &)
+	{ return "null"; }
 };
 
 
@@ -308,7 +309,7 @@ template<typename T> inline void from_string(const char Str[], T &Obj, size_t)
 }
 
 template<>
-  inline void from_string<std::string>(					//[t00]
+inline void from_string<std::string>(					//[t00]
 	const char Str[],
 	std::string &Obj,
 	size_t len)
@@ -318,11 +319,11 @@ template<>
 }
 
 template<typename T>
-  inline void from_string(const std::string &Str, T &Obj)
+inline void from_string(const std::string &Str, T &Obj)
 	{ from_string(Str.c_str(), Obj); }
 
 template<typename T>
-  inline void from_string(const std::stringstream &Str, T &Obj)		//[t00]
+inline void from_string(const std::stringstream &Str, T &Obj)		//[t00]
 	{ from_string(Str.str(), Obj); }
 
 template<> inline void
@@ -335,7 +336,7 @@ from_string(const std::string &Str, std::string &Obj)			//[t46]
  * resulting string will be human-readable and in a format suitable for use in
  * SQL queries.
  */
-template<typename T> inline std::string to_string(const T &Obj)
+template<typename T> constexpr std::string to_string(const T &Obj)
 	{ return string_traits<T>::to_string(Obj); }
 
 //@}
