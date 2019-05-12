@@ -336,7 +336,7 @@ from_string(const std::string &Str, std::string &Obj)			//[t46]
  * resulting string will be human-readable and in a format suitable for use in
  * SQL queries.
  */
-template<typename T> constexpr std::string to_string(const T &Obj)
+template<typename T> std::string to_string(const T &Obj)
 	{ return string_traits<T>::to_string(Obj); }
 
 //@}
