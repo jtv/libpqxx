@@ -308,17 +308,16 @@ pqxx::result pqxx::transaction_base::internal_exec_params(
 
 
 void pqxx::transaction_base::set_variable(
-	const std::string &Var,
-	const std::string &Value)
+	std::string_view var,
+	std::string_view value)
 {
-  gate::connection_transaction gate{conn()};
-  gate.raw_set_var(Var, Value);
+  conn().set_variable(var, value);
 }
 
 
-std::string pqxx::transaction_base::get_variable(const std::string &Var)
+std::string pqxx::transaction_base::get_variable(std::string_view var)
 {
-  return gate::connection_transaction{conn()}.raw_get_var(Var);
+  return conn().get_variable(var);
 }
 
 

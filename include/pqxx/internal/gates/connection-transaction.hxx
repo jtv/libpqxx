@@ -25,11 +25,6 @@ class PQXX_PRIVATE connection_transaction : callgate<connection>
 	{ home().write_copy_line(line); }
   void end_copy_write() { home().end_copy_write(); }
 
-  std::string raw_get_var(const std::string &var)
-	{ return home().raw_get_var(var); }
-  void raw_set_var(const std::string &var, const std::string &value)
-	{ home().raw_set_var(var, value); }
-
   result exec_prepared(
 	const std::string &statement,
 	const internal::params &args)

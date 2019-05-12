@@ -17,6 +17,8 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
 
+#include <string_view>
+
 /* End-user programs need not include this file, unless they define their own
  * transaction classes.  This is not something the typical program should want
  * to do.
@@ -408,16 +410,16 @@ public:
    * @warning This executes SQL.  Do not try to set or get variables while a
    * pipeline or table stream is active.
    *
-   * @param Var The variable to set.
-   * @param Val The new value to store in the variable.
+   * @param var The variable to set.
+   * @param value The new value to store in the variable.
    */
-  void set_variable(const std::string &Var, const std::string &Val);	//[t61]
+  void set_variable(std::string_view var, std::string_view value);	//[t61]
 
   /// Read session variable using SQL "SHOW" command.
   /** @warning This executes SQL.  Do not try to set or get variables while a
    * pipeline or table stream is active.
    */
-  std::string get_variable(const std::string &);			//[t61]
+  std::string get_variable(std::string_view);   			//[t61]
 
 protected:
   /// Create a transaction (to be called by implementation classes only)

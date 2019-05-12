@@ -10,6 +10,7 @@
  - If you do weird stuff with preparing/unpreparing statements, it may break.
  - Changed exceptions and errors for e.g. overwriting a prepared statement.
  - Mishandling prepared statements will now break the connection.
+ - Some string references and const char pointers are now std::string_view.
  - The stream_base abstract base class is gone.
 6.4.4
  - Use pkg-config if pg-config is not available.

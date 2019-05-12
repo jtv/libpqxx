@@ -162,31 +162,24 @@ int pqxx::connection::server_version() const noexcept
 }
 
 
-void pqxx::connection::set_variable(const std::string &Var,
-	const std::string &Value)
+void pqxx::connection::set_variable(
+        std::string_view var,
+	std::string_view value)
 {
-  if (m_trans.get())
-  {
-    // We're in a transaction.  The variable should go in there.
-    m_trans.get()->set_variable(Var, Value);
-  }
-  else
-  {
-    // We're not in a transaction.  Set a session variable.
-    if (is_open()) raw_set_var(Var, Value);
-  }
+  std::string cmd{"SET "};
+  cmd.reserve(cmd.size() + var.size() + 1 + value.size());
+  cmd.append(var);
+  cmd.push_back('=');
+  cmd.append(value);
+  exec(cmd.c_str());
 }
 
 
-std::string pqxx::connection::get_variable(const std::string &Var)
+std::string pqxx::connection::get_variable(std::string_view var)
 {
-  return m_trans.get() ? m_trans.get()->get_variable(Var) : raw_get_var(Var);
-}
-
-
-std::string pqxx::connection::raw_get_var(const std::string &Var)
-{
-  return exec(("SHOW " + Var).c_str()).at(0).at(0).as(std::string{});
+  std::string cmd{"SHOW "};
+  cmd.append(var);
+  return exec(cmd.c_str()).at(0).at(0).as(std::string{});
 }
 
 
@@ -660,14 +653,6 @@ void pqxx::connection::close() noexcept
 }
 
 
-void pqxx::connection::raw_set_var(
-	const std::string &Var,
-	const std::string &Value)
-{
-    exec(("SET " + Var + "=" + Value).c_str());
-}
-
-
 void pqxx::connection::internal_set_trace() noexcept
 {
   if (m_conn)
@@ -1045,12 +1030,6 @@ void pqxx::connection::set_client_encoding(const char encoding[])
     throw internal_error{
 	"Unexpected result from PQsetClientEncoding: " + to_string(retval)};
   }
-}
-
-
-void pqxx::connection::set_client_encoding(const std::string &encoding)
-{
-  set_client_encoding(encoding.c_str());
 }
 
 

@@ -19,6 +19,7 @@
 #include <list>
 #include <map>
 #include <memory>
+#include <string_view>
 
 #include "pqxx/errorhandler.hxx"
 #include "pqxx/except.hxx"
@@ -248,7 +249,8 @@ public:
   /**
    * @param Encoding Name of the character set encoding to use.
    */
-  void set_client_encoding(const std::string &encoding);		//[t07]
+  void set_client_encoding(std::string_view encoding)
+  { set_client_encoding(encoding.data()); }
 
   /// Set client-side character encoding, by name.
   /**
@@ -273,19 +275,19 @@ public:
    * @warning This executes an SQL query, so do not get or set variables while
    * a table stream or pipeline is active on the same connection.
    *
-   * @param Var Variable to set.
-   * @param Value New value for Var: an identifier, a quoted string, or a
+   * @param var Variable to set.
+   * @param value New value for Var: an identifier, a quoted string, or a
    * number.
    */
   void set_variable(							//[t60]
-	const std::string &Var,
-	const std::string &Value);
+	std::string_view var,
+	std::string_view value);
 
   /// Read session variable, using SQL's @c SHOW command.
   /** @warning This executes an SQL query, so do not get or set variables while
    * a table stream or pipeline is active on the same connection.
    */
-  std::string get_variable(const std::string &);			//[t60]
+  std::string get_variable(std::string_view);   			//[t60]
   //@}
 
 
@@ -545,7 +547,6 @@ private:
   friend class internal::gate::const_connection_largeobject;
   const char * PQXX_PURE err_msg() const noexcept;
 
-  std::string PQXX_PRIVATE raw_get_var(const std::string &);
   void PQXX_PRIVATE process_notice_raw(const char msg[]) noexcept;
 
   void read_capabilities();
@@ -595,7 +596,6 @@ private:
   bool PQXX_PRIVATE read_copy_line(std::string &);
   void PQXX_PRIVATE write_copy_line(const std::string &);
   void PQXX_PRIVATE end_copy_write();
-  void PQXX_PRIVATE raw_set_var(const std::string &, const std::string &);
 
   friend class internal::gate::connection_largeobject;
   internal::pq::PGconn *raw_connection() const { return m_conn; }
