@@ -480,32 +480,24 @@ int pqxx::connection::get_notifs()
 
 const char *pqxx::connection::dbname() const
 {
-  if (m_conn == nullptr) throw broken_connection{
-	"Can't get database name: connection is inactive."};
   return PQdb(m_conn);
 }
 
 
 const char *pqxx::connection::username() const
 {
-  if (m_conn == nullptr) throw broken_connection{
-	"Can't get user name: connection is inactive."};
   return PQuser(m_conn);
 }
 
 
 const char *pqxx::connection::hostname() const
 {
-  if (m_conn == nullptr) throw broken_connection{
-	"Can't get server name: connection is inactive."};
   return PQhost(m_conn);
 }
 
 
 const char *pqxx::connection::port() const
 {
-  if (m_conn == nullptr) throw broken_connection{
-	"Can't get database port: connection is inactive."};
   return PQport(m_conn);
 }
 
@@ -563,9 +555,6 @@ std::vector<pqxx::errorhandler *> pqxx::connection::get_errorhandlers() const
 
 pqxx::result pqxx::connection::exec(const char Query[])
 {
-  if (m_conn == nullptr) throw broken_connection{
-    "Could not execute query: connection is inactive."};
-
   auto R = make_result(PQexec(m_conn, Query), Query);
   check_result(R);
 
@@ -578,9 +567,6 @@ void pqxx::connection::prepare(
 	std::string_view name,
 	const std::string &definition)
 {
-  if (m_conn == nullptr) throw broken_connection{
-    "Could not prepare statement: connection is inactive."};
-
   auto r = make_result(
     PQprepare(m_conn, name.data(), definition.c_str(), 0, nullptr),
     "[PREPARE]");
