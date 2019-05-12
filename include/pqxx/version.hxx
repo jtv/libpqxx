@@ -23,9 +23,7 @@
 /// Minor version number.
 #define PQXX_VERSION_MINOR 0
 
-namespace pqxx
-{
-namespace internal
+namespace pqxx::internal
 {
 /// Library version check stub.
 /** Helps detect version mismatches between libpqxx headers and the libpqxx
@@ -51,7 +49,6 @@ namespace internal
  * exist for the given version number.
  */
 template<int, int> PQXX_LIBEXPORT int check_library_version() noexcept;
-}
 }
 #include "pqxx/compiler-internal-post.hxx"
 #endif
