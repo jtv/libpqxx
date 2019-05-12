@@ -80,10 +80,10 @@ void inert_notice_processor(void *, const char *) noexcept {}
 
 
 std::string pqxx::encrypt_password(
-        const std::string &user, const std::string &password)
+        std::string_view user, std::string_view password)
 {
   std::unique_ptr<char, void (*)(char *)> p{
-	PQencryptPassword(password.c_str(), user.c_str()),
+	PQencryptPassword(password.data(), user.data()),
         pqxx::internal::freepqmem_templated<char>};
   return std::string{p.get()};
 }

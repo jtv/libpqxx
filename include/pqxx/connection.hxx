@@ -77,8 +77,8 @@ namespace pqxx
  * @endcode
  */
 std::string PQXX_LIBEXPORT encrypt_password(				//[t00]
-	const std::string &user,
-	const std::string &password);
+	std::string_view user,
+	std::string_view password);
 
 
 // TODO: Document connection strings and environment variables.
