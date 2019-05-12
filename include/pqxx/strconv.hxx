@@ -29,7 +29,7 @@ namespace pqxx::internal
 /** Each instantiation contains a static member called @c value which is the
  * type's name, as a string.
  */
-template<typename TYPE> const char *const type_name;
+template<typename TYPE> const char *const type_name = nullptr;
 
 #define PQXX_DECLARE_TYPE_NAME(TYPE) \
   template<> const char *const type_name<TYPE> = #TYPE
