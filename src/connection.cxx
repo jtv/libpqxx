@@ -590,7 +590,7 @@ void pqxx::connection::prepare(
 
 void pqxx::connection::prepare(const std::string &definition)
 {
-  this->prepare(std::string{}, definition);
+  this->prepare("", definition);
 }
 
 
