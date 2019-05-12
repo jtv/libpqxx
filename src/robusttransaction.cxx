@@ -17,9 +17,6 @@
 #include "pqxx/robusttransaction"
 
 
-using namespace pqxx::internal;
-
-
 // TODO: Log username in more places.
 
 pqxx::internal::basic_robusttransaction::basic_robusttransaction(

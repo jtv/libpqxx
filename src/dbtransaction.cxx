@@ -12,8 +12,6 @@
 
 #include "pqxx/dbtransaction"
 
-using namespace pqxx::internal;
-
 
 namespace
 {

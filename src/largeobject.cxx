@@ -24,8 +24,6 @@ extern "C"
 #include "pqxx/internal/gates/connection-largeobject.hxx"
 
 
-using namespace pqxx::internal;
-
 namespace
 {
 inline int StdModeToPQMode(std::ios::openmode mode)
@@ -132,7 +130,9 @@ void pqxx::largeobject::remove(dbtransaction &T) const
 pqxx::internal::pq::PGconn *pqxx::largeobject::raw_connection(
 	const dbtransaction &T)
 {
-  return gate::connection_largeobject{T.conn()}.raw_connection();
+  return pqxx::internal::gate::connection_largeobject{
+	T.conn()
+	}.raw_connection();
 }
 
 
@@ -140,7 +140,7 @@ std::string pqxx::largeobject::reason(const connection &c, int err) const
 {
   if (err == ENOMEM) return "Out of memory";
   if (id() == oid_none) return "No object selected";
-  return gate::const_connection_largeobject{c}.error_message();
+  return pqxx::internal::gate::const_connection_largeobject{c}.error_message();
 }
 
 

@@ -18,9 +18,6 @@
 #include "pqxx/internal/gates/connection-sql_cursor.hxx"
 #include "pqxx/internal/gates/transaction-sql_cursor.hxx"
 
-using namespace pqxx;
-using namespace pqxx::internal;
-
 
 namespace
 {
@@ -56,12 +53,12 @@ inline bool useless_trail(char c)
  */
 std::string::size_type find_query_end(
 	const std::string &query,
-	encoding_group enc)
+	pqxx::internal::encoding_group enc)
 {
   const auto text = query.c_str();
   const auto size = query.size();
   std::string::size_type end;
-  if (enc == encoding_group::MONOBYTE)
+  if (enc == pqxx::internal::encoding_group::MONOBYTE)
   {
     // This is an encoding where we can scan backwards from the end.
     for (end = query.size(); end > 0 and useless_trail(text[end-1]); --end);
@@ -180,7 +177,7 @@ void pqxx::internal::sql_cursor::init_empty_result(transaction_base &t)
 
 
 /// Compute actual displacement based on requested and reported displacements.
-internal::sql_cursor::difference_type
+pqxx::internal::sql_cursor::difference_type
 pqxx::internal::sql_cursor::adjust(difference_type hoped,
 	difference_type actual)
 {
@@ -232,7 +229,8 @@ pqxx::internal::sql_cursor::adjust(difference_type hoped,
 }
 
 
-result pqxx::internal::sql_cursor::fetch(
+pqxx::result
+pqxx::internal::sql_cursor::fetch(
 	difference_type rows,
 	difference_type &displacement)
 {
@@ -249,7 +247,8 @@ result pqxx::internal::sql_cursor::fetch(
 }
 
 
-cursor_base::difference_type pqxx::internal::sql_cursor::move(
+pqxx::cursor_base::difference_type
+pqxx::internal::sql_cursor::move(
 	difference_type rows,
 	difference_type &displacement)
 {

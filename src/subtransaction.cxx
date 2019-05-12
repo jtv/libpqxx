@@ -15,8 +15,6 @@
 #include "pqxx/connection"
 #include "pqxx/subtransaction"
 
-using namespace pqxx::internal;
-
 
 pqxx::subtransaction::subtransaction(
 	dbtransaction &T,

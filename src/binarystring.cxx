@@ -23,8 +23,6 @@ extern "C"
 #include "pqxx/field"
 
 
-using namespace pqxx::internal;
-
 namespace
 {
 using unsigned_char = unsigned char;

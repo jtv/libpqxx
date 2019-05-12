@@ -16,14 +16,12 @@
 #include "pqxx/internal/gates/connection-errorhandler.hxx"
 
 
-using namespace pqxx;
-using namespace pqxx::internal;
-
-
 pqxx::errorhandler::errorhandler(connection &conn) :
   m_home{&conn}
 {
-  gate::connection_errorhandler{*m_home}.register_errorhandler(this);
+  pqxx::internal::gate::connection_errorhandler{
+	*m_home
+	}.register_errorhandler(this);
 }
 
 
@@ -37,7 +35,7 @@ void pqxx::errorhandler::unregister() noexcept
 {
   if (m_home != nullptr)
   {
-    gate::connection_errorhandler connection_gate{*m_home};
+    pqxx::internal::gate::connection_errorhandler connection_gate{*m_home};
     m_home = nullptr;
     connection_gate.unregister_errorhandler(this);
   }

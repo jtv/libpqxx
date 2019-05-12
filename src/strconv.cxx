@@ -38,9 +38,6 @@
 #include "pqxx/strconv"
 
 
-using namespace pqxx::internal;
-
-
 namespace
 {
 /// C string comparison.
@@ -264,12 +261,12 @@ template<typename T> void from_string_signed(const char Str[], T &Obj)
         "Could not convert string to integer: '" + std::string{Str} + "'."};
 
     for (++i; isdigit(Str[i]); ++i)
-      result = absorb_digit(result, -digit_to_number(Str[i]));
+      result = absorb_digit(result, -pqxx::internal::digit_to_number(Str[i]));
   }
   else
   {
     for (; isdigit(Str[i]); ++i)
-      result = absorb_digit(result, digit_to_number(Str[i]));
+      result = absorb_digit(result, pqxx::internal::digit_to_number(Str[i]));
   }
 
   if (Str[i])
@@ -290,7 +287,7 @@ template<typename T> void from_string_unsigned(const char Str[], T &Obj)
       std::string{Str} + "'."};
 
   for (; isdigit(Str[i]); ++i)
-    result = absorb_digit(result, digit_to_number(Str[i]));
+    result = absorb_digit(result, pqxx::internal::digit_to_number(Str[i]));
 
   if (Str[i])
     throw pqxx::conversion_error{
@@ -415,7 +412,7 @@ template<typename T> inline std::string to_string_unsigned(T Obj)
   *--p = '\0';
   while (Obj > 0)
   {
-    *--p = number_to_digit(int(Obj%10));
+    *--p = pqxx::internal::number_to_digit(int(Obj%10));
     Obj = T(Obj / 10);
   }
   return p;

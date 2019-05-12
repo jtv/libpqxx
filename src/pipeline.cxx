@@ -19,10 +19,6 @@
 #include "pqxx/internal/gates/result-creation.hxx"
 
 
-using namespace pqxx;
-using namespace pqxx::internal;
-
-
 namespace
 {
 const std::string theSeparator{"; "};
@@ -59,7 +55,8 @@ void pqxx::pipeline::detach()
 }
 
 
-pipeline::query_id pqxx::pipeline::insert(const std::string &q)
+pqxx::pipeline::query_id
+pqxx::pipeline::insert(const std::string &q)
 {
   attach();
   const query_id qid = generate_id();
@@ -112,7 +109,7 @@ void pqxx::pipeline::cancel()
 {
   while (have_pending())
   {
-    gate::connection_pipeline(m_trans.conn()).cancel_query();
+    pqxx::internal::gate::connection_pipeline(m_trans.conn()).cancel_query();
     auto canceled_query = m_issuedrange.first;
     ++m_issuedrange.first;
     m_queries.erase(canceled_query);
@@ -131,7 +128,8 @@ bool pqxx::pipeline::is_finished(pipeline::query_id q) const
 }
 
 
-std::pair<pipeline::query_id, result> pqxx::pipeline::retrieve()
+std::pair<pqxx::pipeline::query_id, pqxx::result>
+pqxx::pipeline::retrieve()
 {
   if (m_queries.empty())
     throw std::logic_error{"Attempt to retrieve result from empty pipeline."};
@@ -166,7 +164,7 @@ void pqxx::pipeline::resume()
 }
 
 
-pipeline::query_id pqxx::pipeline::generate_id()
+pqxx::pipeline::query_id pqxx::pipeline::generate_id()
 {
   if (m_q_id == qid_limit())
     throw std::overflow_error{"Too many queries went through pipeline."};
@@ -198,7 +196,7 @@ void pqxx::pipeline::issue()
   const bool prepend_dummy = (num_issued > 1);
   if (prepend_dummy) cum = theDummyQuery + cum;
 
-  gate::connection_pipeline{m_trans.conn()}.start_exec(cum);
+  pqxx::internal::gate::connection_pipeline{m_trans.conn()}.start_exec(cum);
 
   // Since we managed to send out these queries, update state to reflect this
   m_dummy_pending = prepend_dummy;
@@ -217,7 +215,7 @@ void pqxx::pipeline::internal_error(const std::string &err)
 
 bool pqxx::pipeline::obtain_result(bool expect_none)
 {
-  gate::connection_pipeline gate{m_trans.conn()};
+  pqxx::internal::gate::connection_pipeline gate{m_trans.conn()};
   const auto r = gate.get_result();
   if (r == nullptr)
   {
@@ -229,7 +227,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
     return false;
   }
 
-  const result res = gate::result_creation::create(
+  const result res = pqxx::internal::gate::result_creation::create(
 	r, std::begin(m_queries)->second.get_query(),
         internal::enc_group(m_trans.conn().encoding_id()));
 
@@ -253,14 +251,14 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 
 void pqxx::pipeline::obtain_dummy()
 {
-  gate::connection_pipeline gate{m_trans.conn()};
+  pqxx::internal::gate::connection_pipeline gate{m_trans.conn()};
   const auto r = gate.get_result();
   m_dummy_pending = false;
 
   if (r == nullptr)
     internal_error("Pipeline got no result from backend when it expected one.");
 
-  result R = gate::result_creation::create(
+  result R = pqxx::internal::gate::result_creation::create(
         r,
         "[DUMMY PIPELINE QUERY]",
         internal::enc_group(m_trans.conn().encoding_id()));
@@ -268,7 +266,7 @@ void pqxx::pipeline::obtain_dummy()
   bool OK = false;
   try
   {
-    gate::result_creation{R}.check_status();
+    pqxx::internal::gate::result_creation{R}.check_status();
     OK = true;
   }
   catch (const sql_error &)
@@ -315,7 +313,7 @@ void pqxx::pipeline::obtain_dummy()
       const std::string &query = m_issuedrange.first->second.get_query();
       const result res{m_trans.exec(query)};
       m_issuedrange.first->second.set_result(res);
-      gate::result_creation{res}.check_status();
+      pqxx::internal::gate::result_creation{res}.check_status();
       ++m_issuedrange.first;
     }
     while (m_issuedrange.first != stop);
@@ -331,7 +329,7 @@ void pqxx::pipeline::obtain_dummy()
 }
 
 
-std::pair<pipeline::query_id, result>
+std::pair<pqxx::pipeline::query_id, pqxx::result>
 pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 {
   if (q == m_queries.end())
@@ -376,14 +374,14 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 
   m_queries.erase(q);
 
-  gate::result_creation{R}.check_status();
+  pqxx::internal::gate::result_creation{R}.check_status();
   return P;
 }
 
 
 void pqxx::pipeline::get_further_available_results()
 {
-  gate::connection_pipeline gate{m_trans.conn()};
+  pqxx::internal::gate::connection_pipeline gate{m_trans.conn()};
   while (not gate.is_busy() and obtain_result())
     if (not gate.consume_input()) throw broken_connection{};
 }
@@ -391,7 +389,7 @@ void pqxx::pipeline::get_further_available_results()
 
 void pqxx::pipeline::receive_if_available()
 {
-  gate::connection_pipeline gate{m_trans.conn()};
+  pqxx::internal::gate::connection_pipeline gate{m_trans.conn()};
   if (not gate.consume_input()) throw broken_connection{};
   if (gate.is_busy()) return;
 

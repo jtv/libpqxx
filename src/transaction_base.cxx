@@ -24,16 +24,13 @@
 #include "pqxx/internal/encodings.hxx"
 
 
-using namespace pqxx::internal;
-
-
 pqxx::transaction_base::transaction_base(connection &C, bool direct) :
   namedclass{"transaction_base"},
   m_conn{C}
 {
   if (direct)
   {
-    gate::connection_transaction gate{conn()};
+    pqxx::internal::gate::connection_transaction gate{conn()};
     gate.register_transaction(this);
     m_registered = true;
   }
@@ -50,7 +47,7 @@ pqxx::transaction_base::~transaction_base()
     if (m_registered)
     {
       m_conn.process_notice(description() + " was never closed properly!\n");
-      gate::connection_transaction gate{conn()};
+      pqxx::internal::gate::connection_transaction gate{conn()};
       gate.unregister_transaction(this);
     }
   }
@@ -293,7 +290,7 @@ pqxx::result pqxx::transaction_base::internal_exec_prepared(
 	const std::string &statement,
 	const internal::params &args)
 {
-  gate::connection_transaction gate{conn()};
+  pqxx::internal::gate::connection_transaction gate{conn()};
   return gate.exec_prepared(statement, args);
 }
 
@@ -302,7 +299,7 @@ pqxx::result pqxx::transaction_base::internal_exec_params(
 	const std::string &query,
 	const internal::params &args)
 {
-  gate::connection_transaction gate{conn()};
+  pqxx::internal::gate::connection_transaction gate{conn()};
   return gate.exec_params(query, args);
 }
 
@@ -350,7 +347,7 @@ void pqxx::transaction_base::End() noexcept
     try { CheckPendingError(); }
     catch (const std::exception &e) { m_conn.process_notice(e.what()); }
 
-    gate::connection_transaction gate{conn()};
+    pqxx::internal::gate::connection_transaction gate{conn()};
     if (m_registered)
     {
       m_registered = false;
@@ -397,7 +394,7 @@ void pqxx::transaction_base::unregister_focus(internal::transactionfocus *S)
 pqxx::result pqxx::transaction_base::direct_exec(const char C[])
 {
   CheckPendingError();
-  return gate::connection_transaction{conn()}.exec(C);
+  return pqxx::internal::gate::connection_transaction{conn()}.exec(C);
 }
 
 
@@ -469,27 +466,29 @@ void pqxx::transaction_base::BeginCopyWrite(
 
 bool pqxx::transaction_base::read_copy_line(std::string &line)
 {
-  return gate::connection_transaction{conn()}.read_copy_line(line);
+  return pqxx::internal::gate::connection_transaction{
+	conn()
+	}.read_copy_line(line);
 }
 
 
 void pqxx::transaction_base::write_copy_line(const std::string &line)
 {
-  gate::connection_transaction gate{conn()};
+  pqxx::internal::gate::connection_transaction gate{conn()};
   gate.write_copy_line(line);
 }
 
 
 void pqxx::transaction_base::end_copy_write()
 {
-  gate::connection_transaction gate{conn()};
+  pqxx::internal::gate::connection_transaction gate{conn()};
   gate.end_copy_write();
 }
 
 
 void pqxx::internal::transactionfocus::register_me()
 {
-  gate::transaction_transactionfocus gate{m_trans};
+  pqxx::internal::gate::transaction_transactionfocus gate{m_trans};
   gate.register_focus(this);
   m_registered = true;
 }
@@ -497,7 +496,7 @@ void pqxx::internal::transactionfocus::register_me()
 
 void pqxx::internal::transactionfocus::unregister_me() noexcept
 {
-  gate::transaction_transactionfocus gate{m_trans};
+  pqxx::internal::gate::transaction_transactionfocus gate{m_trans};
   gate.unregister_focus(this);
   m_registered = false;
 }
@@ -506,6 +505,6 @@ void
 pqxx::internal::transactionfocus::reg_pending_error(const std::string &err)
 	noexcept
 {
-  gate::transaction_transactionfocus gate{m_trans};
+  pqxx::internal::gate::transaction_transactionfocus gate{m_trans};
   gate.register_pending_error(err);
 }

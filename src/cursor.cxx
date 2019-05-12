@@ -20,9 +20,6 @@
 #include "pqxx/internal/gates/icursor_iterator-icursorstream.hxx"
 #include "pqxx/internal/gates/icursorstream-icursor_iterator.hxx"
 
-using namespace pqxx;
-using namespace pqxx::internal;
-
 
 pqxx::cursor_base::difference_type pqxx::cursor_base::all() noexcept
 {
@@ -32,7 +29,7 @@ pqxx::cursor_base::difference_type pqxx::cursor_base::all() noexcept
 }
 
 
-pqxx::cursor_base::difference_type cursor_base::backward_all() noexcept
+pqxx::cursor_base::difference_type pqxx::cursor_base::backward_all() noexcept
 {
   // Implemented out-of-line so we don't fall afoul of Visual Studio defining
   // min() and max() macros, which turn this expression into malformed code:
@@ -49,14 +46,15 @@ pqxx::cursor_base::cursor_base(
 }
 
 
-result::size_type pqxx::internal::obtain_stateless_cursor_size(sql_cursor &cur)
+pqxx::result::size_type
+pqxx::internal::obtain_stateless_cursor_size(sql_cursor &cur)
 {
   if (cur.endpos() == -1) cur.move(cursor_base::all());
   return result::size_type(cur.endpos() - 1);
 }
 
 
-result pqxx::internal::stateless_cursor_retrieve(
+pqxx::result pqxx::internal::stateless_cursor_retrieve(
 	sql_cursor &cur,
 	result::difference_type size,
 	result::difference_type begin_pos,
@@ -121,7 +119,7 @@ void pqxx::icursorstream::set_stride(difference_type n)
   m_stride = n;
 }
 
-result pqxx::icursorstream::fetchblock()
+pqxx::result pqxx::icursorstream::fetchblock()
 {
   const result r{m_cur.fetch(m_stride)};
   m_realpos += r.size();
@@ -130,7 +128,7 @@ result pqxx::icursorstream::fetchblock()
 }
 
 
-icursorstream &pqxx::icursorstream::ignore(std::streamsize n)
+pqxx::icursorstream &pqxx::icursorstream::ignore(std::streamsize n)
 {
   auto offset = m_cur.move(difference_type(n));
   m_realpos += offset;
@@ -139,7 +137,7 @@ icursorstream &pqxx::icursorstream::ignore(std::streamsize n)
 }
 
 
-icursorstream::size_type pqxx::icursorstream::forward(size_type n)
+pqxx::icursorstream::size_type pqxx::icursorstream::forward(size_type n)
 {
   m_reqpos += difference_type(n) * m_stride;
   return icursorstream::size_type(m_reqpos);
@@ -148,27 +146,36 @@ icursorstream::size_type pqxx::icursorstream::forward(size_type n)
 
 void pqxx::icursorstream::insert_iterator(icursor_iterator *i) noexcept
 {
-  gate::icursor_iterator_icursorstream{*i}.set_next(m_iterators);
+  pqxx::internal::gate::icursor_iterator_icursorstream{
+	*i
+	}.set_next(m_iterators);
   if (m_iterators)
-    gate::icursor_iterator_icursorstream{*m_iterators}.set_prev(i);
+    pqxx::internal::gate::icursor_iterator_icursorstream{
+	*m_iterators
+	}.set_prev(i);
   m_iterators = i;
 }
 
 
 void pqxx::icursorstream::remove_iterator(icursor_iterator *i) const noexcept
 {
-  gate::icursor_iterator_icursorstream igate{*i};
+  pqxx::internal::gate::icursor_iterator_icursorstream igate{*i};
   if (i == m_iterators)
   {
     m_iterators = igate.get_next();
     if (m_iterators)
-      gate::icursor_iterator_icursorstream{*m_iterators}.set_prev(nullptr);
+      pqxx::internal::gate::icursor_iterator_icursorstream{
+	*m_iterators
+	}.set_prev(nullptr);
   }
   else
   {
     auto prev = igate.get_prev(), next = igate.get_next();
-    gate::icursor_iterator_icursorstream{*prev}.set_next(next);
-    if (next) gate::icursor_iterator_icursorstream{*next}.set_prev(prev);
+    pqxx::internal::gate::icursor_iterator_icursorstream{*prev}.set_next(next);
+    if (next)
+      pqxx::internal::gate::icursor_iterator_icursorstream{
+	*next
+	}.set_prev(prev);
   }
   igate.set_prev(nullptr);
   igate.set_next(nullptr);
@@ -183,7 +190,7 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
   todolist todo;
   for (icursor_iterator *i = m_iterators, *next; i; i = next)
   {
-    gate::icursor_iterator_icursorstream gate{*i};
+    pqxx::internal::gate::icursor_iterator_icursorstream gate{*i};
     const auto ipos = gate.pos();
     if (ipos >= m_realpos and ipos <= topos)
       todo.insert(todolist::value_type(ipos, i));
@@ -196,7 +203,7 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
     if (readpos > m_realpos) ignore(readpos - m_realpos);
     const result r = fetchblock();
     for ( ; i != todo_end and i->first == readpos; ++i)
-      gate::icursor_iterator_icursorstream{*i->second}.fill(r);
+      pqxx::internal::gate::icursor_iterator_icursorstream{*i->second}.fill(r);
   }
 }
 
@@ -209,9 +216,12 @@ pqxx::icursor_iterator::icursor_iterator() noexcept :
 
 pqxx::icursor_iterator::icursor_iterator(istream_type &s) noexcept :
   m_stream{&s},
-  m_pos{difference_type(gate::icursorstream_icursor_iterator(s).forward(0))}
+  m_pos{difference_type(
+	pqxx::internal::gate::icursorstream_icursor_iterator(s).forward(0))}
 {
-  gate::icursorstream_icursor_iterator{*m_stream}.insert_iterator(this);
+  pqxx::internal::gate::icursorstream_icursor_iterator{
+	*m_stream
+	}.insert_iterator(this);
 }
 
 
@@ -222,37 +232,45 @@ pqxx::icursor_iterator::icursor_iterator(const icursor_iterator &rhs)
   m_pos{rhs.m_pos}
 {
   if (m_stream)
-    gate::icursorstream_icursor_iterator{*m_stream}.insert_iterator(this);
+    pqxx::internal::gate::icursorstream_icursor_iterator{
+	*m_stream
+	}.insert_iterator(this);
 }
 
 
 pqxx::icursor_iterator::~icursor_iterator() noexcept
 {
   if (m_stream)
-    gate::icursorstream_icursor_iterator{*m_stream}.remove_iterator(this);
+    pqxx::internal::gate::icursorstream_icursor_iterator{
+	*m_stream
+	}.remove_iterator(this);
 }
 
 
-icursor_iterator pqxx::icursor_iterator::operator++(int)
+pqxx::icursor_iterator pqxx::icursor_iterator::operator++(int)
 {
   icursor_iterator old{*this};
   m_pos = difference_type(
-	gate::icursorstream_icursor_iterator{*m_stream}.forward());
+	pqxx::internal::gate::icursorstream_icursor_iterator{
+		*m_stream
+		}.forward());
   m_here.clear();
   return old;
 }
 
 
-icursor_iterator &pqxx::icursor_iterator::operator++()
+pqxx::icursor_iterator &pqxx::icursor_iterator::operator++()
 {
   m_pos = difference_type(
-	gate::icursorstream_icursor_iterator{*m_stream}.forward());
+	pqxx::internal::gate::icursorstream_icursor_iterator{
+		*m_stream
+	}.forward());
   m_here.clear();
   return *this;
 }
 
 
-icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
+pqxx::icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
 {
   if (n <= 0)
   {
@@ -260,14 +278,15 @@ icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
     throw argument_error{"Advancing icursor_iterator by negative offset."};
   }
   m_pos = difference_type(
-	gate::icursorstream_icursor_iterator{*m_stream}.forward(
-		icursorstream::size_type(n)));
+	pqxx::internal::gate::icursorstream_icursor_iterator{
+		*m_stream
+		}.forward(icursorstream::size_type(n)));
   m_here.clear();
   return *this;
 }
 
 
-icursor_iterator &
+pqxx::icursor_iterator &
 pqxx::icursor_iterator::operator=(const icursor_iterator &rhs) noexcept
 {
   if (rhs.m_stream == m_stream)
@@ -278,12 +297,16 @@ pqxx::icursor_iterator::operator=(const icursor_iterator &rhs) noexcept
   else
   {
     if (m_stream)
-      gate::icursorstream_icursor_iterator{*m_stream}.remove_iterator(this);
+      pqxx::internal::gate::icursorstream_icursor_iterator{
+	*m_stream
+	}.remove_iterator(this);
     m_here = rhs.m_here;
     m_pos = rhs.m_pos;
     m_stream = rhs.m_stream;
     if (m_stream)
-      gate::icursorstream_icursor_iterator{*m_stream}.insert_iterator(this);
+      pqxx::internal::gate::icursorstream_icursor_iterator{
+	*m_stream
+	}.insert_iterator(this);
   }
   return *this;
 }
@@ -311,7 +334,9 @@ bool pqxx::icursor_iterator::operator<(const icursor_iterator &rhs) const
 void pqxx::icursor_iterator::refresh() const
 {
   if (m_stream)
-    gate::icursorstream_icursor_iterator{*m_stream}.service_iterators(pos());
+    pqxx::internal::gate::icursorstream_icursor_iterator{
+	*m_stream
+	}.service_iterators(pos());
 }
 
 

@@ -62,10 +62,6 @@ extern "C"
 #include "pqxx/internal/gates/result-creation.hxx"
 #include "pqxx/internal/gates/result-connection.hxx"
 
-using namespace pqxx;
-using namespace pqxx::internal;
-using namespace pqxx::prepare;
-
 
 extern "C"
 {
@@ -88,7 +84,7 @@ std::string pqxx::encrypt_password(
 {
   std::unique_ptr<char, void (*)(char *)> p{
 	PQencryptPassword(password.c_str(), user.c_str()),
-        freepqmem_templated<char>};
+        pqxx::internal::freepqmem_templated<char>};
   return std::string{p.get()};
 }
 
@@ -116,7 +112,7 @@ pqxx::result pqxx::connection::make_result(
 	internal::pq::PGresult *rhs,
 	const std::string &query)
 {
-  return gate::result_creation::create(
+  return pqxx::internal::gate::result_creation::create(
         rhs,
         query,
         internal::enc_group(encoding_id()));
@@ -207,8 +203,8 @@ void pqxx::connection::set_up_state()
 void pqxx::connection::check_result(const result &R)
 {
   // A shame we can't quite detect out-of-memory to turn this into a bad_alloc!
-  if (not gate::result_connection{R}) throw failure(err_msg());
-  gate::result_creation{R}.check_status();
+  if (not pqxx::internal::gate::result_connection{R}) throw failure(err_msg());
+  pqxx::internal::gate::result_creation{R}.check_status();
 }
 
 
@@ -395,7 +391,7 @@ public:
   {
     if (not m_cancel) return;
     if (PQcancel(m_cancel, m_errbuf, int{sizeof(m_errbuf)}) == 0)
-      throw sql_error{std::string{m_errbuf}};
+      throw pqxx::sql_error{std::string{m_errbuf}};
   }
 };
 }
@@ -424,7 +420,9 @@ using notify_ptr = std::unique_ptr<PGnotify, void (*)(PGnotify *)>;
 /// Get one notification from a connection, or null.
 notify_ptr get_notif(pqxx::internal::pq::PGconn *conn)
 {
-  return notify_ptr(PQnotifies(conn), freepqmem_templated<PGnotify>);
+  return notify_ptr(
+	PQnotifies(conn),
+	pqxx::internal::freepqmem_templated<PGnotify>);
 }
 }
 
@@ -556,7 +554,7 @@ void pqxx::connection::unregister_errorhandler(errorhandler *handler)
 }
 
 
-std::vector<errorhandler *> pqxx::connection::get_errorhandlers() const
+std::vector<pqxx::errorhandler *> pqxx::connection::get_errorhandlers() const
 {
   return std::vector<errorhandler *>{
     std::begin(m_errorhandlers), std::end(m_errorhandlers)};
@@ -643,7 +641,7 @@ void pqxx::connection::close() noexcept
 	rbegin = old_handlers.crbegin(),
 	rend = old_handlers.crend();
     for (auto i = rbegin; i!=rend; ++i)
-      gate::errorhandler_connection{**i}.unregister();
+      pqxx::internal::gate::errorhandler_connection{**i}.unregister();
 
     PQfinish(m_conn);
   }
@@ -708,8 +706,8 @@ bool pqxx::connection::read_copy_line(std::string &Line)
   case -1:
     for (
 	auto R = make_result(PQgetResult(m_conn), query);
-        gate::result_connection(R);
-	R=make_result(PQgetResult(m_conn), query)
+        pqxx::internal::gate::result_connection(R);
+	R = make_result(PQgetResult(m_conn), query)
 	)
       check_result(R);
     Result = false;
@@ -722,7 +720,7 @@ bool pqxx::connection::read_copy_line(std::string &Line)
     if (Buf)
     {
       std::unique_ptr<char, void (*)(char *)> PQA(
-          Buf, freepqmem_templated<char>);
+          Buf, pqxx::internal::freepqmem_templated<char>);
       Line.assign(Buf, unsigned(line_len));
     }
     Result = true;
@@ -812,7 +810,7 @@ std::string pqxx::connection::esc_raw(
 
   std::unique_ptr<unsigned char, void (*)(unsigned char *)> buf{
 	PQescapeByteaConn(m_conn, str, len, &bytes),
-	freepqmem_templated<unsigned char>};
+	pqxx::internal::freepqmem_templated<unsigned char>};
   if (buf.get() == nullptr) throw std::bad_alloc{};
   return std::string{reinterpret_cast<char *>(buf.get())};
 }
@@ -844,12 +842,13 @@ std::string pqxx::connection::quote(const binarystring &b) const
 }
 
 
-std::string pqxx::connection::quote_name(const std::string &identifier)
+std::string
+pqxx::connection::quote_name(const std::string &identifier)
 	const
 {
   std::unique_ptr<char, void (*)(char *)> buf{
 	PQescapeIdentifier(m_conn, identifier.c_str(), identifier.size()),
-        freepqmem_templated<char>};
+        pqxx::internal::freepqmem_templated<char>};
   if (buf.get() == nullptr) throw failure{err_msg()};
   return std::string{buf.get()};
 }

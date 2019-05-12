@@ -16,7 +16,6 @@
 #include <map>
 #include <sstream>
 
-using namespace pqxx::internal;
 
 extern "C"
 {

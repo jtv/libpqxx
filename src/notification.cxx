@@ -17,20 +17,19 @@
 #include "pqxx/notification"
 
 
-using namespace pqxx::internal;
-
-
 pqxx::notification_receiver::notification_receiver(
 	connection &c,
 	const std::string &channel_name) :
   m_conn{c},
   m_channel{channel_name}
 {
-  gate::connection_notification_receiver{c}.add_receiver(this);
+  pqxx::internal::gate::connection_notification_receiver{c}.add_receiver(this);
 }
 
 
 pqxx::notification_receiver::~notification_receiver()
 {
-  gate::connection_notification_receiver{this->conn()}.remove_receiver(this);
+  pqxx::internal::gate::connection_notification_receiver{
+	this->conn()
+	}.remove_receiver(this);
 }
