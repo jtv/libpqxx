@@ -577,15 +577,15 @@ pqxx::result pqxx::connection::exec(const char Query[])
 
 
 void pqxx::connection::prepare(
-	const std::string &name,
+	std::string_view name,
 	const std::string &definition)
 {
   if (m_conn == nullptr) throw broken_connection{
     "Could not prepare statement: connection is inactive."};
 
   auto r = make_result(
-    PQprepare(m_conn, name.c_str(), definition.c_str(), 0, nullptr),
-    "[PREPARE " + name + "]");
+    PQprepare(m_conn, name.data(), definition.c_str(), 0, nullptr),
+    "[PREPARE]");
   check_result(r);
 }
 
