@@ -385,7 +385,7 @@ public:
    * @param name unique name for the new prepared statement.
    * @param definition SQL statement to prepare.
    */
-  void prepare(std::string_view name, const std::string &definition);
+  void prepare(std::string_view name, std::string_view definition);
 
   /// Define a nameless prepared statement.
   /**
@@ -394,10 +394,10 @@ public:
    * feature, always keep the definition and the use close together to avoid
    * the nameless statement being redefined unexpectedly by code somewhere else.
    */
-  void prepare(const std::string &definition);
+  void prepare(std::string_view definition);
 
   /// Drop prepared statement.
-  void unprepare(const std::string &name);
+  void unprepare(std::string_view name);
 
   /**
    * @}

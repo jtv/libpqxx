@@ -565,22 +565,22 @@ pqxx::result pqxx::connection::exec(const char Query[])
 
 void pqxx::connection::prepare(
 	std::string_view name,
-	const std::string &definition)
+	std::string_view definition)
 {
   auto r = make_result(
-    PQprepare(m_conn, name.data(), definition.c_str(), 0, nullptr),
+    PQprepare(m_conn, name.data(), definition.data(), 0, nullptr),
     "[PREPARE]");
   check_result(r);
 }
 
 
-void pqxx::connection::prepare(const std::string &definition)
+void pqxx::connection::prepare(std::string_view definition)
 {
   this->prepare("", definition);
 }
 
 
-void pqxx::connection::unprepare(const std::string &name)
+void pqxx::connection::unprepare(std::string_view name)
 {
   exec(("DEALLOCATE " + quote_name(name)).c_str());
 }
