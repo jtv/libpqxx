@@ -442,7 +442,7 @@ public:
   std::string quote_raw(const unsigned char str[], size_t len) const;
 
   /// Escape and quote an SQL identifier for use in a query.
-  std::string quote_name(const std::string &identifier) const;
+  std::string quote_name(std::string_view identifier) const;
 
   /// Represent object as SQL string, including quoting & escaping.
   /**
@@ -481,7 +481,7 @@ public:
    * The SQL "LIKE" operator also lets you choose your own escape character.
    * This is supported, but must be a single-byte character.
    */
-  std::string esc_like(const std::string &str, char escape_char='\\') const;
+  std::string esc_like(std::string_view str, char escape_char='\\') const;
   //@}
 
   /// Attempt to cancel the ongoing query, if any.

@@ -829,11 +829,11 @@ std::string pqxx::connection::quote(const binarystring &b) const
 
 
 std::string
-pqxx::connection::quote_name(const std::string &identifier)
+pqxx::connection::quote_name(std::string_view identifier)
 	const
 {
   std::unique_ptr<char, void (*)(char *)> buf{
-	PQescapeIdentifier(m_conn, identifier.c_str(), identifier.size()),
+	PQescapeIdentifier(m_conn, identifier.data(), identifier.size()),
         pqxx::internal::freepqmem_templated<char>};
   if (buf.get() == nullptr) throw failure{err_msg()};
   return std::string{buf.get()};
@@ -841,7 +841,7 @@ pqxx::connection::quote_name(const std::string &identifier)
 
 
 std::string pqxx::connection::esc_like(
-	const std::string &str,
+	std::string_view str,
 	char escape_char) const
 {
   std::string out;
@@ -855,7 +855,7 @@ std::string pqxx::connection::esc_like(
 
           for (; gbegin != gend; ++gbegin) out.push_back(*gbegin);
 	},
-	str.c_str(),
+	str.data(),
 	str.size());
   return out;
 }
