@@ -29,7 +29,7 @@ namespace pqxx::internal
 /** Each instantiation contains a static member called @c value which is the
  * type's name, as a string.
  */
-template<typename TYPE> const char *const type_name;
+template<typename TYPE> const char *const type_name = nullptr;
 
 #define PQXX_DECLARE_TYPE_NAME(TYPE) \
   template<> const char *const type_name<TYPE> = #TYPE
@@ -266,7 +266,7 @@ template<> struct PQXX_LIBEXPORT string_traits<std::nullptr_t>
 {
   static constexpr const char *name() noexcept { return "nullptr_t"; }
   static constexpr bool has_null() noexcept { return true; }
-  static constexpr bool is_null(nullptr_t) noexcept { return true; }
+  static constexpr bool is_null(std::nullptr_t) noexcept { return true; }
   static constexpr std::nullptr_t null() { return nullptr; }
   static std::string to_string(const std::nullptr_t &)
 	{ return "null"; }
@@ -336,7 +336,7 @@ from_string(const std::string &Str, std::string &Obj)			//[t46]
  * resulting string will be human-readable and in a format suitable for use in
  * SQL queries.
  */
-template<typename T> constexpr std::string to_string(const T &Obj)
+template<typename T> std::string to_string(const T &Obj)
 	{ return string_traits<T>::to_string(Obj); }
 
 //@}
