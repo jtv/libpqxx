@@ -89,7 +89,7 @@ public:
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  reference operator[](const std::string &) const;			//[t11]
+  reference operator[](std::string_view) const;				//[t11]
   reference at(size_type) const; 					//[t11]
   reference at(int) const;						//[t11]
   /** Address field by name.
@@ -99,7 +99,7 @@ public:
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  reference at(const std::string &) const;				//[t11]
+  reference at(std::string_view) const;					//[t11]
   //@}
 
   size_type size() const noexcept					//[t11]
@@ -115,8 +115,8 @@ public:
    */
   //@{
   /// Number of given column (throws exception if it doesn't exist)
-  size_type column_number(const std::string &ColName) const		//[t30]
-      { return column_number(ColName.c_str()); }
+  size_type column_number(std::string_view ColName) const		//[t30]
+      { return column_number(ColName.data()); }
 
   /// Number of given column (throws exception if it doesn't exist)
   size_type column_number(const char[]) const;       			//[t30]
@@ -129,7 +129,7 @@ public:
       { return column_type(size_type(ColNum)); }
 
   /// Type of given column
-  oid column_type(const std::string &ColName) const			//[t07]
+  oid column_type(std::string_view ColName) const			//[t07]
       { return column_type(column_number(ColName)); }
 
   /// Type of given column
@@ -143,7 +143,7 @@ public:
   oid column_table(int ColNum) const					//[t02]
       { return column_table(size_type(ColNum)); }
   /// What table did this column come from?
-  oid column_table(const std::string &ColName) const			//[t02]
+  oid column_table(std::string_view ColName) const			//[t02]
       { return column_table(column_number(ColName)); }
 
   /// What column number in its table did this result column come from?
@@ -161,7 +161,7 @@ public:
       { return table_column(size_type(ColNum)); }
 
   /// What column number in its table did this result column come from?
-  size_type table_column(const std::string &ColName) const		//[t93]
+  size_type table_column(std::string_view ColName) const		//[t93]
       { return table_column(column_number(ColName)); }
   //@}
 

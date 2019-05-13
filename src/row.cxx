@@ -121,9 +121,9 @@ pqxx::row::reference pqxx::row::operator[](const char f[]) const
 }
 
 
-pqxx::row::reference pqxx::row::operator[](const std::string &s) const
+pqxx::row::reference pqxx::row::operator[](std::string_view s) const
 {
-  return operator[](s.c_str());
+  return operator[](s.data());
 }
 
 
@@ -133,9 +133,9 @@ pqxx::row::reference pqxx::row::at(int i) const
 }
 
 
-pqxx::row::reference pqxx::row::at(const std::string &s) const
+pqxx::row::reference pqxx::row::at(std::string_view s) const
 {
-  return at(s.c_str());
+  return at(s.data());
 }
 
 

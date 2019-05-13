@@ -132,8 +132,8 @@ public:
   row_size_type column_number(const char ColName[]) const;		//[t11]
 
   /// Number of given column (throws exception if it doesn't exist).
-  row_size_type column_number(const std::string &Name) const		//[t11]
-	{return column_number(Name.c_str());}
+  row_size_type column_number(std::string_view Name) const		//[t11]
+	{return column_number(Name.data());}
 
   /// Name of column with this number (throws exception if it doesn't exist)
   const char *column_name(row_size_type Number) const;			//[t11]
@@ -145,7 +145,7 @@ public:
 	{ return column_type(row_size_type(ColNum)); }
 
   /// Type of given column
-  oid column_type(const std::string &ColName) const			//[t07]
+  oid column_type(std::string_view ColName) const			//[t07]
 	{ return column_type(column_number(ColName)); }
 
   /// Type of given column
@@ -160,7 +160,7 @@ public:
 	{ return column_table(row_size_type(ColNum)); }
 
   /// What table did this column come from?
-  oid column_table(const std::string &ColName) const			//[t02]
+  oid column_table(std::string_view ColName) const			//[t02]
 	{ return column_table(column_number(ColName)); }
 
   /// What column in its table did this column come from?
@@ -171,7 +171,7 @@ public:
 	{ return table_column(row_size_type(ColNum)); }
 
   /// What column in its table did this column come from?
-  row_size_type table_column(const std::string &ColName) const		//[t93]
+  row_size_type table_column(std::string_view ColName) const		//[t93]
 	{ return table_column(column_number(ColName)); }
   //@}
 
