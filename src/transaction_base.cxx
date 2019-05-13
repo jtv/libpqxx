@@ -472,7 +472,7 @@ bool pqxx::transaction_base::read_copy_line(std::string &line)
 }
 
 
-void pqxx::transaction_base::write_copy_line(const std::string &line)
+void pqxx::transaction_base::write_copy_line(std::string_view line)
 {
   pqxx::internal::gate::connection_transaction gate{conn()};
   gate.write_copy_line(line);

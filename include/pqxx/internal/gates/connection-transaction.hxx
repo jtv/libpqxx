@@ -21,7 +21,7 @@ class PQXX_PRIVATE connection_transaction : callgate<connection>
 
   bool read_copy_line(std::string &line)
 	{ return home().read_copy_line(line); }
-  void write_copy_line(const std::string &line)
+  void write_copy_line(std::string_view line)
 	{ home().write_copy_line(line); }
   void end_copy_write() { home().end_copy_write(); }
 

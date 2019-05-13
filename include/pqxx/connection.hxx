@@ -594,7 +594,7 @@ private:
   void PQXX_PRIVATE register_transaction(transaction_base *);
   void PQXX_PRIVATE unregister_transaction(transaction_base *) noexcept;
   bool PQXX_PRIVATE read_copy_line(std::string &);
-  void PQXX_PRIVATE write_copy_line(const std::string &);
+  void PQXX_PRIVATE write_copy_line(std::string_view);
   void PQXX_PRIVATE end_copy_write();
 
   friend class internal::gate::connection_largeobject;

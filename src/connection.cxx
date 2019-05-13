@@ -304,14 +304,7 @@ void pqxx::connection::add_receiver(pqxx::notification_receiver *T)
   {
     // Not listening on this event yet, start doing so.
     const std::string LQ("LISTEN " + quote_name(T->channel()));
-
-    if (is_open()) try
-    {
-      check_result(make_result(PQexec(m_conn, LQ.c_str()), LQ));
-    }
-    catch (const broken_connection &)
-    {
-    }
+    check_result(make_result(PQexec(m_conn, LQ.c_str()), LQ));
     m_receivers.insert(NewVal);
   }
   else
@@ -429,7 +422,6 @@ notify_ptr get_notif(pqxx::internal::pq::PGconn *conn)
 
 int pqxx::connection::get_notifs()
 {
-  if (not is_open()) return 0;
   if (not consume_input()) throw broken_connection{"Connection lost."};
 
   // Even if somehow we receive notifications during our transaction, don't
@@ -675,9 +667,6 @@ void pqxx::connection::unregister_transaction(transaction_base *T)
 
 bool pqxx::connection::read_copy_line(std::string &Line)
 {
-  if (not is_open())
-    throw internal_error{"read_copy_line() without connection"};
-
   Line.erase();
   bool Result;
 
@@ -716,17 +705,13 @@ bool pqxx::connection::read_copy_line(std::string &Line)
 }
 
 
-void pqxx::connection::write_copy_line(const std::string &Line)
+void pqxx::connection::write_copy_line(std::string_view line)
 {
-  const std::string L{Line + '\n'};
-  const char *const LC = L.c_str();
-  const auto Len = L.size();
-
-  if (PQputCopyData(m_conn, LC, int(Len)) <= 0)
-  {
-    const std::string msg{std::string{"Error writing to table: "} + err_msg()};
-    throw failure{msg};
-  }
+  static const std::string err_prefix{"Error writing to table: "};
+  if (PQputCopyData(m_conn, line.data(), int(line.size())) <= 0)
+    throw failure{err_prefix + err_msg()};
+  if (PQputCopyData(m_conn, "\n", 1) <= 0)
+    throw failure{err_prefix + err_msg()};
 }
 
 
@@ -1033,13 +1018,7 @@ void pqxx::connection::set_client_encoding(const char encoding[])
 int pqxx::connection::encoding_id() const
 {
   const int enc = PQclientEncoding(m_conn);
-  if (enc == -1)
-  {
-    if (not is_open())
-      throw broken_connection{
-	"Could not obtain client encoding: not connected."};
-    throw failure{"Could not obtain client encoding."};
-  }
+  if (enc == -1) throw failure{"Could not obtain client encoding."};
   return enc;
 }
 

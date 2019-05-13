@@ -13,7 +13,7 @@ class PQXX_PRIVATE transaction_stream_to : callgate<transaction_base>
 	const std::string &columns = std::string{})
 	{ home().BeginCopyWrite(table, columns); }
 
-  void write_copy_line(const std::string &line)
+  void write_copy_line(std::string_view line)
 	{ home().write_copy_line(line); }
 
   void end_copy_write() { home().end_copy_write(); }

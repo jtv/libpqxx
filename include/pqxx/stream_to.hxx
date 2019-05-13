@@ -133,7 +133,7 @@ private:
   bool m_finished = false;
 
   /// Write a row of data, as a line of text.
-  void write_raw_line(const std::string &);
+  void write_raw_line(std::string_view);
 
   void set_up(transaction_base &, const std::string &table_name);
   void set_up(
@@ -176,6 +176,7 @@ template<typename Iter> inline stream_to::stream_to(
 
 template<typename Tuple> stream_to & stream_to::operator<<(const Tuple &t)
 {
+// TODO: Probably better to let PQputCopyData() compose the buffer.
   write_raw_line(separated_list("\t", t, internal::TypedCopyEscaper()));
   return *this;
 }

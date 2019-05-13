@@ -521,7 +521,7 @@ private:
   PQXX_PRIVATE void BeginCopyWrite(
 	const std::string &Table,
 	const std::string &Columns);
-  void write_copy_line(const std::string &);
+  void write_copy_line(std::string_view);
   void end_copy_write();
 
   friend class pqxx::internal::gate::transaction_subtransaction;

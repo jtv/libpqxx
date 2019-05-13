@@ -40,7 +40,7 @@ pqxx::stream_to::~stream_to() noexcept
 }
 
 
-void pqxx::stream_to::write_raw_line(const std::string &line)
+void pqxx::stream_to::write_raw_line(std::string_view line)
 {
   internal::gate::transaction_stream_to{m_trans}.write_copy_line(line);
 }
