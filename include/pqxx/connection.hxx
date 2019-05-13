@@ -420,7 +420,7 @@ public:
   std::string esc(const char str[], size_t maxlen) const;
 
   /// Escape string for use as SQL string literal on this connection.
-  std::string esc(const std::string &str) const;
+  std::string esc(std::string_view str) const;
 
   /// Escape binary string for use as SQL string literal on this connection.
   std::string esc_raw(const unsigned char str[], size_t len) const;
@@ -429,8 +429,8 @@ public:
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  std::string unesc_raw(const std::string &text) const
-					     { return unesc_raw(text.c_str()); }
+  std::string unesc_raw(std::string_view text) const
+					     { return unesc_raw(text.data()); }
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
@@ -605,7 +605,7 @@ private:
   void remove_receiver(notification_receiver *) noexcept;
 
   friend class internal::gate::connection_pipeline;
-  void PQXX_PRIVATE start_exec(const std::string &);
+  void PQXX_PRIVATE start_exec(std::string_view);
   bool PQXX_PRIVATE consume_input() noexcept;
   bool PQXX_PRIVATE is_busy() const noexcept;
   internal::pq::PGresult *get_result();

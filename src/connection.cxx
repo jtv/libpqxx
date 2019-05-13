@@ -752,9 +752,9 @@ void pqxx::connection::end_copy_write()
 }
 
 
-void pqxx::connection::start_exec(const std::string &Q)
+void pqxx::connection::start_exec(std::string_view Q)
 {
-  if (PQsendQuery(m_conn, Q.c_str()) == 0) throw failure{err_msg()};
+  if (PQsendQuery(m_conn, Q.data()) == 0) throw failure{err_msg()};
 }
 
 
@@ -782,9 +782,9 @@ std::string pqxx::connection::esc(const char str[]) const
 }
 
 
-std::string pqxx::connection::esc(const std::string &str) const
+std::string pqxx::connection::esc(std::string_view str) const
 {
-  return this->esc(str.c_str(), str.size());
+  return this->esc(str.data(), str.size());
 }
 
 
@@ -990,7 +990,19 @@ void pqxx::connection::read_capabilities()
 std::string pqxx::connection::adorn_name(const std::string &n)
 {
   const std::string id = to_string(++m_unique_id);
-  return n.empty() ? ("x"+id) : (n+"_"+id);
+  if (n.empty())
+  {
+    return "x" + id;
+  }
+  else
+  {
+    std::string name;
+    name.reserve(n.size() + 1 + id.size());
+    name.append(n);
+    name.push_back('_');
+    name.append(id);
+    return name;
+  }
 }
 
 
