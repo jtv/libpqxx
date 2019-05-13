@@ -17,28 +17,38 @@ namespace
 {
 std::string generate_set_transaction(
 	pqxx::readwrite_policy rw,
-	const std::string &IsolationString=std::string{})
+	std::string_view isolation)
 {
+  const bool set_isolation = (
+	not isolation.empty() and
+	isolation!= pqxx::isolation_traits<pqxx::read_committed>::name());
+  const bool read_only = (rw != pqxx::read_write);
+
+  if (not read_only and not set_isolation) return "BEGIN";
+
+  static const std::string_view prefix = "BEGIN; SET TRANSACTION ";
+
   std::string args;
-
-  if (not IsolationString.empty())
-    if (IsolationString != pqxx::isolation_traits<pqxx::read_committed>::name())
-      args += " ISOLATION LEVEL " + IsolationString;
-
-  if (rw != pqxx::read_write) args += " READ ONLY";
-
-  return args.empty() ? "BEGIN" : ("BEGIN; SET TRANSACTION" + args);
+  args.reserve(prefix.size() + 30 + isolation.size());
+  args.append(prefix);
+  if (set_isolation)
+  {
+    args.append(" ISOLATION LEVEL ");
+    args.append(isolation);
+  }
+  if (read_only) args.append(" READ ONLY");
+  return args;
 }
 } // namespace
 
 
 pqxx::dbtransaction::dbtransaction(
 	connection &C,
-	const std::string &IsolationString,
+	std::string_view isolation,
 	readwrite_policy rw) :
   namedclass{"dbtransaction"},
   transaction_base{C},
-  m_start_cmd{generate_set_transaction(rw, IsolationString)}
+  m_start_cmd{generate_set_transaction(rw, isolation)}
 {
 }
 
@@ -49,7 +59,7 @@ pqxx::dbtransaction::dbtransaction(
 	readwrite_policy rw) :
   namedclass{"dbtransaction"},
   transaction_base(C, direct),
-  m_start_cmd{generate_set_transaction(rw)}
+  m_start_cmd{generate_set_transaction(rw, "")}
 {
 }
 
@@ -85,8 +95,15 @@ void pqxx::dbtransaction::do_abort()
 }
 
 
-std::string pqxx::dbtransaction::fullname(const std::string &ttype,
-	const std::string &isolation)
+std::string pqxx::dbtransaction::fullname(
+	std::string_view ttype,
+	std::string_view isolation)
 {
-  return ttype + "<" + isolation + ">";
+  std::string name;
+  name.reserve(ttype.size() + isolation.size() + 2);
+  name.push_back('<');
+  name.append(ttype);
+  name.append(isolation);
+  name.push_back('>');
+  return name;
 }

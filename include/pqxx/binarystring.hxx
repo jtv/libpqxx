@@ -16,6 +16,7 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
 
 #include "pqxx/result.hxx"
 
@@ -70,8 +71,8 @@ public:
    */
   explicit binarystring(const field &);					//[t62]
 
-  /// Copy binary data from std::string.
-  explicit binarystring(const std::string &);
+  /// Copy binary data from std::string_view.
+  explicit binarystring(std::string_view);
 
   /// Copy binary data of given length straight out of memory.
   binarystring(const void *, size_t);
@@ -123,12 +124,11 @@ public:
   const char *get() const noexcept					//[t62]
 	{ return reinterpret_cast<const char *>(m_buf.get()); }
 
-  /// Read as regular C++ string (may include null characters)
-  /** @warning libpqxx releases before 3.1 stored the string and returned a
-   * reference to it.  This is no longer the case!  It now creates and returns
-   * a new string object.  Avoid repeated use of this function; retrieve your
-   * string once and keep it in a local variable.  Also, do not expect to be
-   * able to compare the string's address to that of an earlier invocation.
+  /// Read as regular C++ string (may include null characters).
+  /** This creates and returns a new string object.  Don't call this
+   * repeatedly; retrieve your string once and keep it in a local variable.
+   * Also, do not expect to be able to compare the string's address to that of
+   * an earlier invocation.
    */
   std::string str() const;						//[t62]
 

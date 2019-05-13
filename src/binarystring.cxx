@@ -39,9 +39,9 @@ buffer to_buffer(const void *data, size_t len)
 }
 
 
-buffer to_buffer(const std::string &source)
+buffer to_buffer(std::string_view source)
 {
-  return to_buffer(source.c_str(), source.size());
+  return to_buffer(source.data(), source.size());
 }
 
 
@@ -84,7 +84,7 @@ pqxx::binarystring::binarystring(const field &F) :
 }
 
 
-pqxx::binarystring::binarystring(const std::string &s) :
+pqxx::binarystring::binarystring(std::string_view s) :
   m_buf{make_smart_pointer()},
   m_size{s.size()}
 {

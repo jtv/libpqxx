@@ -67,7 +67,7 @@ public:
 protected:
   dbtransaction(
 	connection &,
-	const std::string &IsolationString,
+	std::string_view isolation,
 	readwrite_policy rw=read_write);
 
   explicit dbtransaction(
@@ -86,12 +86,14 @@ protected:
   /// To be implemented by derived class: commit backend transaction.
   virtual void do_commit() override =0;
   /// Sensible default implemented here: abort backend transaction.
-  virtual void do_abort() override;				//[t13]
+  virtual void do_abort() override;					//[t13]
 
-  static std::string fullname(const std::string &ttype,
-	const std::string &isolation);
+  static std::string fullname(
+	std::string_view ttype,
+	std::string_view isolation);
 
 private:
+// TODO: Can we just inline this?
   /// Precomputed SQL command to run at start of this transaction.
   std::string m_start_cmd;
 };
