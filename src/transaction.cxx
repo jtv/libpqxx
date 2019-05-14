@@ -19,10 +19,10 @@
 
 pqxx::internal::basic_transaction::basic_transaction(
 	connection &C,
-	const std::string &IsolationLevel,
+	std::string_view isolation,
 	readwrite_policy rw) :
   namedclass{"transaction"},
-  dbtransaction(C, IsolationLevel, rw)
+  dbtransaction(C, isolation, rw)
 {
 }
 

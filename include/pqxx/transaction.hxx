@@ -30,7 +30,7 @@ class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 protected:
   basic_transaction(							//[t01]
 	connection &C,
-	const std::string &IsolationLevel,
+	std::string_view isolation,
 	readwrite_policy);
 
 private:
