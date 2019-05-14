@@ -972,7 +972,7 @@ void pqxx::connection::read_capabilities()
 }
 
 
-std::string pqxx::connection::adorn_name(const std::string &n)
+std::string pqxx::connection::adorn_name(std::string_view n)
 {
   const std::string id = to_string(++m_unique_id);
   if (n.empty())

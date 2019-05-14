@@ -407,7 +407,7 @@ public:
   /** Used internally to generate identifiers for SQL objects (such as cursors
    * and nested transactions) based on a given human-readable base name.
    */
-  std::string adorn_name(const std::string &);				//[90]
+  std::string adorn_name(std::string_view);				//[90]
 
   /**
    * @defgroup escaping-functions String-escaping functions
