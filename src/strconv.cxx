@@ -471,7 +471,7 @@ template<typename T> inline std::string to_string_signed(T Obj)
 
 
 #if defined(PQXX_HAVE_CHARCONV_INT)
-namespace pqxx
+namespace pqxx::internal
 {
 template void
 builtin_traits<short>::from_string(const char[], short &);
