@@ -93,12 +93,13 @@ constexpr oid oid_none = 0;
  */
 template<typename ITER, typename ACCESS>
 std::string separated_list(						//[t00]
-	const std::string &sep,
+	std::string_view sep,
 	ITER begin,
 	ITER end,
 	ACCESS access)
 {
   std::string result;
+// TODO: Can we pre-compute optimal length for result?
   if (begin != end)
   {
     result = to_string(access(begin));
@@ -114,13 +115,13 @@ std::string separated_list(						//[t00]
 
 /// Render sequence as a string, using given separator between items.
 template<typename ITER> std::string
-separated_list(const std::string &sep, ITER begin, ITER end)		//[t00]
+separated_list(std::string_view sep, ITER begin, ITER end)		//[t00]
 	{ return separated_list(sep, begin, end, [](ITER i){ return *i; }); }
 
 
 /// Render items in a container as a string, using given separator.
 template<typename CONTAINER> auto
-separated_list(const std::string &sep, const CONTAINER &c)		//[t10]
+separated_list(std::string_view sep, const CONTAINER &c)		//[t10]
 	/*
 	Always std::string; necessary because SFINAE doesn't work with the
 	contents of function bodies, so the check for iterability has to be in
@@ -150,7 +151,7 @@ template<
 >
 inline std::string
 separated_list(
-	const std::string & /* sep */,
+	std::string_view /* sep */,
 	const TUPLE &t,
 	const ACCESS& access
 )
@@ -168,12 +169,12 @@ template<
 	>::type=0
 >
 std::string
-separated_list(const std::string &sep, const TUPLE &t, const ACCESS& access)
+separated_list(std::string_view sep, const TUPLE &t, const ACCESS& access)
 {
-  return
-	to_string(access(&std::get<INDEX>(t))) +
-	sep +
-	separated_list<TUPLE, INDEX+1>(sep, t, access);
+  std::string out{to_string(access(&std::get<INDEX>(t)))};
+  out.append(sep);
+  out.append(separated_list<TUPLE, INDEX+1>(sep, t, access));
+  return out;
 }
 
 template<
@@ -185,7 +186,7 @@ template<
 	>::type=0
 >
 std::string
-separated_list(const std::string &sep, const TUPLE &t)
+separated_list(std::string_view sep, const TUPLE &t)
 {
   return separated_list(sep, t, [](const TUPLE &tup){return *tup;});
 }

@@ -78,16 +78,16 @@ pqxx::largeobject::largeobject(dbtransaction &T) :
 }
 
 
-pqxx::largeobject::largeobject(dbtransaction &T, const std::string &File) :
+pqxx::largeobject::largeobject(dbtransaction &T, std::string_view File) :
   m_id{}
 {
-  m_id = lo_import(raw_connection(T), File.c_str());
+  m_id = lo_import(raw_connection(T), File.data());
   if (m_id == oid_none)
   {
     const int err = errno;
     if (err == ENOMEM) throw std::bad_alloc{};
     throw failure{
-	"Could not import file '" + File + "' to large object: " +
+	"Could not import file '" + std::string{File} + "' to large object: " +
 	reason(T.conn(), err)};
   }
 }
@@ -99,17 +99,15 @@ pqxx::largeobject::largeobject(const largeobjectaccess &O) noexcept :
 }
 
 
-void pqxx::largeobject::to_file(
-	dbtransaction &T,
-	const std::string &File) const
+void pqxx::largeobject::to_file(dbtransaction &T, std::string_view File) const
 {
-  if (lo_export(raw_connection(T), id(), File.c_str()) == -1)
+  if (lo_export(raw_connection(T), id(), File.data()) == -1)
   {
     const int err = errno;
     if (err == ENOMEM) throw std::bad_alloc{};
     throw failure{
 	"Could not export large object " + to_string(m_id) + " "
-	"to file '" + File + "': " + reason(T.conn(), err)};
+	"to file '" + std::string{File} + "': " + reason(T.conn(), err)};
   }
 }
 
@@ -176,7 +174,7 @@ pqxx::largeobjectaccess::largeobjectaccess(
 
 pqxx::largeobjectaccess::largeobjectaccess(
 	dbtransaction &T,
-	const std::string &File,
+	std::string_view File,
 	openmode mode) :
   largeobject{T, File},
   m_trans{T}

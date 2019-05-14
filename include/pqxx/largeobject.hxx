@@ -56,7 +56,7 @@ public:
    * @param T Backend transaction in which the large object is to be created
    * @param File A filename on the client program's filesystem
    */
-  largeobject(dbtransaction &T, const std::string &File);		//[t53]
+  largeobject(dbtransaction &T, std::string_view File);			//[t53]
 
   /// Take identity of an opened large object
   /** Copy identity of already opened large object.  Note that this may be done
@@ -111,7 +111,7 @@ public:
    * @param T Transaction in which the object is to be accessed
    * @param File A filename on the client's filesystem
    */
-  void to_file(dbtransaction &T, const std::string &File) const;	//[t52]
+  void to_file(dbtransaction &T, std::string_view File) const;		//[t52]
 
   /// Delete large object from database
   /** Unlike its low-level equivalent cunlink, this will throw an exception if
@@ -193,7 +193,7 @@ public:
    */
   largeobjectaccess(							//[t55]
 	dbtransaction &T,
-	const std::string &File,
+	std::string_view File,
 	openmode mode=std::ios::in|std::ios::out);
 
   ~largeobjectaccess() noexcept { close(); }
@@ -208,7 +208,7 @@ public:
   /** Writes the data stored in the large object to the given file.
    * @param File A filename on the client's filesystem
    */
-  void to_file(const std::string &File) const				//[t54]
+  void to_file(std::string_view File) const				//[t54]
 	{ largeobject::to_file(m_trans, File); }
 
   using largeobject::to_file;
@@ -228,8 +228,8 @@ public:
   /** If not all bytes could be written, an exception is thrown.
    * @param Buf Data to write; no terminating zero is written
    */
-  void write(const std::string &Buf)					//[t50]
-	{ write(Buf.c_str(), static_cast<size_type>(Buf.size())); }
+  void write(std::string_view Buf)					//[t50]
+	{ write(Buf.data(), static_cast<size_type>(Buf.size())); }
 
   /// Read data from large object
   /** Throws an exception if an error occurs while reading.
