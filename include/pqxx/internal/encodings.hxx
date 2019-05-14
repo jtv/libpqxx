@@ -14,6 +14,7 @@
 #include "pqxx/internal/encoding_group.hxx"
 
 #include <string>
+#include <string_view>
 
 
 namespace pqxx::internal
@@ -22,7 +23,7 @@ const char *name_encoding(int encoding_id);
 
 /// Convert libpq encoding enum or encoding name to its libpqxx group.
 encoding_group enc_group(int /* libpq encoding ID */);
-encoding_group enc_group(const std::string&);
+encoding_group enc_group(std::string_view);
 
 
 /// Function type: "find the end of the current glyph."
@@ -53,7 +54,7 @@ PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group);
 /// Find a single-byte "needle" character in a "haystack" text buffer.
 std::string::size_type find_with_encoding(
   encoding_group enc,
-  const std::string& haystack,
+  std::string_view haystack,
   char needle,
   std::string::size_type start = 0
 );
@@ -61,8 +62,8 @@ std::string::size_type find_with_encoding(
 
 PQXX_LIBEXPORT std::string::size_type find_with_encoding(
   encoding_group enc,
-  const std::string& haystack,
-  const std::string& needle,
+  std::string_view haystack,
+  std::string_view needle,
   std::string::size_type start = 0
 );
 

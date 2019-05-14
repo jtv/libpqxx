@@ -637,9 +637,9 @@ encoding_group enc_group(int libpq_enc_id)
 }
 
 
-encoding_group enc_group(const std::string& encoding_name)
+encoding_group enc_group(std::string_view encoding_name)
 {
-  static const std::map<std::string, encoding_group> encoding_map{
+  static const std::map<std::string_view, encoding_group> encoding_map{
     {"BIG5", encoding_group::BIG5},
     {"EUC_CN", encoding_group::EUC_CN},
     {"EUC_JP", encoding_group::EUC_JP},
@@ -687,7 +687,7 @@ encoding_group enc_group(const std::string& encoding_name)
   const auto found_encoding_group = encoding_map.find(encoding_name);
   if (found_encoding_group == encoding_map.end())
     throw std::invalid_argument{
-      "unrecognized encoding '" + encoding_name + "'"
+      "unrecognized encoding '" + std::string{encoding_name} + "'"
     };
   return found_encoding_group->second;
 }
@@ -741,11 +741,11 @@ glyph_scanner_func *get_glyph_scanner(encoding_group enc)
 template<encoding_group E> struct char_finder
 {
   static std::string::size_type call(
-	const std::string &haystack,
+	std::string_view haystack,
 	char needle,
 	std::string::size_type start)
   {
-    const auto buffer = haystack.c_str();
+    const auto buffer = haystack.data();
     const auto size = haystack.size();
     for (
 	auto here = start;
@@ -763,11 +763,11 @@ template<encoding_group E> struct char_finder
 template<encoding_group E> struct string_finder
 {
   static std::string::size_type call(
-	const std::string &haystack,
-	const std::string &needle,
+	std::string_view haystack,
+	std::string_view needle,
 	std::string::size_type start)
   {
-    const auto buffer = haystack.c_str();
+    const auto buffer = haystack.data();
     const auto size = haystack.size();
     const auto needle_size = needle.size();
     for (
@@ -776,7 +776,7 @@ template<encoding_group E> struct string_finder
 	here = glyph_scanner<E>::call(buffer, size, here)
     )
     {
-      if (std::memcmp(buffer + here, needle.c_str(), needle_size) == 0)
+      if (std::memcmp(buffer + here, needle.data(), needle_size) == 0)
         return here;
     }
     return std::string::npos;
@@ -786,14 +786,14 @@ template<encoding_group E> struct string_finder
 
 std::string::size_type find_with_encoding(
 	encoding_group enc,
-	const std::string& haystack,
+	std::string_view haystack,
 	char needle,
 	std::string::size_type start
 )
 {
   using finder_func =
     std::string::size_type(
-	const std::string &haystack,
+	std::string_view haystack,
 	char needle,
 	std::string::size_type start);
   const auto finder = for_encoding<char_finder, finder_func>(enc);
@@ -803,15 +803,15 @@ std::string::size_type find_with_encoding(
 
 std::string::size_type find_with_encoding(
 	encoding_group enc,
-	const std::string& haystack,
-	const std::string& needle,
+	std::string_view haystack,
+	std::string_view needle,
 	std::string::size_type start
 )
 {
   using finder_func =
     std::string::size_type(
-	const std::string &haystack,
-	const std::string &needle,
+	std::string_view haystack,
+	std::string_view needle,
 	std::string::size_type start);
   const auto finder = for_encoding<string_finder, finder_func>(enc);
   return finder(haystack, needle, start);
