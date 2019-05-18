@@ -3,17 +3,15 @@ version: 2
 jobs:
   build:
     docker:
-      - image: postgres:latest
+      - image: circleci/postgres:latest
+#      - image: postgres:latest
     environment:
       - PGHOST: "/tmp"
     steps:
       - checkout
       - run:
-          name: Add backports
-          command: echo "deb http://deb.debian.org/debian stretch-backports main" >>/etc/apt/sources.list
-      - run:
           name: Install
-          command: apt update && apt install -y -t stretch-backports python cmake libpq-dev postgresql libpq-dev postgresql-server-dev-all build-essential autoconf dh-autoreconf autoconf-archive automake cppcheck
+          command: apt update && apt install -y python cmake libpq-dev postgresql libpq-dev postgresql-server-dev-all build-essential autoconf dh-autoreconf autoconf-archive automake cppcheck
       - run:
           name: Identify
           command: lsb_release -a && c++ --version
