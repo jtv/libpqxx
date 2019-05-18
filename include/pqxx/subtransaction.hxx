@@ -91,8 +91,6 @@ private:
   virtual void do_begin() override;					//[t88]
   virtual void do_commit() override;					//[t88]
   virtual void do_abort() override;					//[t88]
-
-  dbtransaction &m_parent;
 };
 }
 

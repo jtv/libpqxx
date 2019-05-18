@@ -21,8 +21,7 @@ pqxx::subtransaction::subtransaction(
 	const std::string &Name) :
   namedclass{"subtransaction", T.conn().adorn_name(Name)},
   transactionfocus{T},
-  dbtransaction(T.conn(), false),
-  m_parent{T}
+  dbtransaction(T.conn(), false)
 {
 }
 
