@@ -1,4 +1,4 @@
-/** Definition of the connection class.
+/* Definition of the connection class.
  *
  * pqxx::connection encapsulates a connection to a database.
  *
@@ -29,10 +29,31 @@
 #include "pqxx/version.hxx"
 
 
-/* Use of the libpqxx library starts here.
+/**
+ * @addtogroup connection
+ *
+ * Use of the libpqxx library starts here.
  *
  * Everything that can be done with a database through libpqxx must go through
- * a connection object derived from connection.
+ * a @c connection object.  It connects to a database when you create it, and
+ * it terminates that communication during destruction.
+ *
+ * Many things come together in this class.  Handling of error and warning
+ * messages, for example, is defined by @c errorhandler objects in the context
+ * of a connection.  Prepared statements are also defined here.
+ *
+ * When you connect to a database, you pass a connection string containing any
+ * parameters and options, such as the server address and the database name.
+ *
+ * These are identical to the ones in libpq, the C language binding upon which
+ * libpqxx itself is built:
+ *
+ * https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING
+ *
+ * There are also environment variables you can set to provide defaults, again
+ * as defined by libpq:
+ *
+ * https://www.postgresql.org/docs/current/libpq-envars.html
  */
 
 /* Methods tested in eg. self-test program test1 are marked with "//[t01]"
