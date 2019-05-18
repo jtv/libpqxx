@@ -17,6 +17,7 @@
 #include "pqxx/compiler-internal-pre.hxx"
 
 #include <cstring>
+#include <functional>
 #include <iterator>
 #include <string>
 #include <vector>
@@ -30,6 +31,14 @@
 
 namespace pqxx::internal
 {
+template<typename T> inline T identity(T x) { return x; }
+template<typename T> inline std::function<T(T)> identity_func = identity<T>;
+template<typename ITERATOR> const auto iterator_identity =
+	identity_func<decltype(*std::declval<ITERATOR>())>;
+
+
+// TODO: C++20 "ranges" alternative.
+
 /// Marker type: pass a dynamically-determined number of statement parameters.
 /** Normally when invoking a prepared or parameterised statement, the number
  * of parameters is known at compile time.  For instance,
@@ -38,25 +47,59 @@ namespace pqxx::internal
  *
  * But sometimes you may want to pass a number of parameters known only at run
  * time.  In those cases, a @c dynamic_params encodes a dynamically
- * determined number of parameters.
+ * determined number of parameters.  You can mix these with regular, static
+ * parameter lists, and you can re-use them for multiple statement invocations.
+ *
+ * A dynamic_params object does not store copies of its parameters, so make
+ * sure they remain accessible until you've executed the statement.
+ *
+ * The ACCESSOR is an optional callable (such as a lambda).  If you pass an
+ * accessor @c a, then each parameter @c p goes into your statement as @c a(p).
  */
-template<typename IT> class dynamic_params
+template<typename IT, typename ACCESSOR=decltype(iterator_identity<IT>)>
+class dynamic_params
 {
 public:
   /// Wrap a sequence of pointers or iterators.
   dynamic_params(IT begin, IT end) : m_begin(begin), m_end(end) {}
 
+  /// Wrap a sequence of pointers or iterators.
+  /** This version takes an accessor callable.  If you pass an accessor @c acc,
+   * then any parameter @c p will go into the statement's parameter list as
+   * @c acc(p).
+   */
+  dynamic_params(IT begin, IT end, ACCESSOR &acc) :
+	m_begin(begin), m_end(end), m_accessor(acc) {}
+
   /// Wrap a container.
-  template<typename C> explicit dynamic_params(const C &container) :
-        m_begin(std::begin(container)),
-        m_end(std::end(container))
+  template<typename C> explicit
+  dynamic_params(const C &container) :
+	dynamic_params( std::begin(container), std::end(container))
+  {}
+
+  /// Wrap a container.
+  /** This version takes an accessor callable.  If you pass an accessor @c acc,
+   * then any parameter @c p will go into the statement's parameter list as
+   * @c acc(p).
+   */
+  template<typename C> explicit
+  dynamic_params(const C &container, ACCESSOR &acc) :
+	dynamic_params(
+		std::begin(container),
+		std::end(container),
+		acc)
   {}
 
   IT begin() const { return m_begin; }
   IT end() const { return m_end; }
 
+  auto access(decltype(*std::declval<IT>()) value) const
+    -> decltype(std::declval<ACCESSOR>()(value))
+	{ return m_accessor(value); }
+
 private:
   const IT m_begin, m_end;
+  ACCESSOR m_accessor = iterator_identity<IT>;
 };
 
 
@@ -192,9 +235,10 @@ private:
   }
 
   /// Compile a dynamic_params object into a dynamic number of parameters.
-  template<typename IT> void add_field(const dynamic_params<IT> &parameters)
+  template<typename IT, typename ACCESSOR>
+  void add_field(const dynamic_params<IT, ACCESSOR> &parameters)
   {
-    for (auto param: parameters) add_field(param);
+    for (auto param: parameters) add_field(parameters.access(param));
   }
 
   /// Compile argument list.

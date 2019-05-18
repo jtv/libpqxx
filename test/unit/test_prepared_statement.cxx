@@ -212,6 +212,15 @@ void test_dynamic_params()
         rw1396.front().as<int>(),
         1396,
         "Dynamic params did not interleave with static ones properly.");
+
+  const auto doubled = tx.exec_prepared1(
+	"Concat2Numbers",
+	prepare::make_dynamic_params(
+		values, [](const int &i){ return 2 * i; }));
+  PQXX_CHECK_EQUAL(
+        doubled.at(0).as<int>(),
+        2 * 39,
+        "Dynamic prepared-statement parameters went wrong.");
 }
 
 

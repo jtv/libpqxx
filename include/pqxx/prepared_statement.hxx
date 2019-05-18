@@ -37,10 +37,13 @@ namespace pqxx::prepare
  * @param end A pointer or iterator for iterating parameters.
  * @return An object representing the parameters.
  */
-template<typename IT> inline pqxx::internal::dynamic_params<IT>
-make_dynamic_params(IT begin, IT end)
+template<typename IT>
+inline auto
+make_dynamic_params(
+	IT begin,
+	IT end)
 {
-  return pqxx::internal::dynamic_params<IT>(begin, end);
+  return pqxx::internal::dynamic_params(begin, end);
 }
 
 
@@ -60,10 +63,38 @@ make_dynamic_params(IT begin, IT end)
  * @return An object representing the parameters.
  */
 template<typename C>
-inline pqxx::internal::dynamic_params<typename C::const_iterator>
+inline auto
 make_dynamic_params(const C &container)
 {
-  return pqxx::internal::dynamic_params<typename C::const_iterator>(container);
+  using IT = typename C::const_iterator;
+  return pqxx::internal::dynamic_params<IT>{container};
+}
+
+
+/// Pass a number of statement parameters only known at runtime.
+/** When you call any of the @c exec_params functions, the number of arguments
+ * is normally known at compile time.  This helper function supports the case
+ * where it is not.
+ *
+ * Use this function to pass a variable number of parameters, based on a
+ * container of parameter values.
+ *
+ * The technique combines with the regular static parameters.  You can use it
+ * to insert dynamic parameter lists in any place, or places, among the call's
+ * parameters.  You can even insert multiple dynamic containers.
+ *
+ * @param container A container of parameter values.
+ * @param accessor For each parameter @c p, pass @c accessor(p).
+ * @return An object representing the parameters.
+ */
+template<typename C, typename ACCESSOR>
+inline auto
+make_dynamic_params(
+	const C &container,
+	ACCESSOR accessor)
+{
+  using IT = typename C::const_iterator;
+  return pqxx::internal::dynamic_params<IT, ACCESSOR>{container, accessor};
 }
 } // namespace pqxx::prepare
 
