@@ -1,4 +1,4 @@
-/** String conversion definitions.
+/* String conversion definitions.
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stringconv instead.
  *

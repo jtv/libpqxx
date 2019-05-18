@@ -1,4 +1,4 @@
-/** Definition of the pqxx::subtransaction class.
+/* Definition of the pqxx::subtransaction class.
  *
  * pqxx::subtransaction is a nested transaction, i.e. one within a transaction.
  *

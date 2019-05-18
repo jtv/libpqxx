@@ -1,4 +1,4 @@
-/** Definition of the pqxx::stream_to class.
+/* Definition of the pqxx::stream_to class.
  *
  * pqxx::stream_to enables optimized batch updates to a database table.
  *

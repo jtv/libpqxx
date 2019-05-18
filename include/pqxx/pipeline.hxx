@@ -1,4 +1,4 @@
-/** Definition of the pqxx::pipeline class.
+/* Definition of the pqxx::pipeline class.
  *
  *   Throughput-optimized query manager
  *

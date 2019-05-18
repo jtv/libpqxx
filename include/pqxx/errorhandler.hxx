@@ -1,4 +1,4 @@
-/** Definition of the pqxx::errorhandler class.
+/* Definition of the pqxx::errorhandler class.
  *
  * pqxx::errorhandler handlers errors and warnings in a database session.
  *

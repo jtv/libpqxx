@@ -1,4 +1,4 @@
-/** Version info for libpqxx.
+/* Version info for libpqxx.
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/version instead.
  *

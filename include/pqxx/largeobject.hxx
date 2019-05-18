@@ -1,4 +1,4 @@
-/** Large Objects interface.
+/* Large Objects interface.
  *
  * Allows access to large objects directly, or through I/O streams.
  *

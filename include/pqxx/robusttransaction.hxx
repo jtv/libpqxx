@@ -1,4 +1,4 @@
-/** Definition of the pqxx::robusttransaction class.
+/* Definition of the pqxx::robusttransaction class.
  *
  * pqxx::robusttransaction is a slower but safer transaction class.
  *

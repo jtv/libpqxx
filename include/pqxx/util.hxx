@@ -1,4 +1,4 @@
-/** Various utility definitions for libpqxx.
+/* Various utility definitions for libpqxx.
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/util instead.
  *

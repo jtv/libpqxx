@@ -1,5 +1,4 @@
-/**
- * Basic type aliases and forward declarations.
+/* Basic type aliases and forward declarations.
  *
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen
  *

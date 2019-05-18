@@ -1,4 +1,4 @@
-/** Representation for raw, binary data.
+/* Representation for raw, binary data.
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/binarystring instead.
  *

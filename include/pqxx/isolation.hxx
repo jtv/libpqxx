@@ -1,4 +1,4 @@
-/** Definitions of transaction isolation levels.
+/* Definitions of transaction isolation levels.
  *
  * Policies and traits describing SQL transaction isolation levels
  *

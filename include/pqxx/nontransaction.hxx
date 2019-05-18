@@ -1,4 +1,4 @@
-/** Definition of the pqxx::nontransaction class.
+/* Definition of the pqxx::nontransaction class.
  *
  * pqxx::nontransaction provides nontransactional database access
  *

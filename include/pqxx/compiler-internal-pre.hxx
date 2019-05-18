@@ -1,4 +1,4 @@
-/** Compiler deficiency workarounds for compiling libpqxx headers.
+/* Compiler deficiency workarounds for compiling libpqxx headers.
  *
  * To be called at the start of each libpqxx header, in order to push the
  * client program's settings and apply libpqxx's settings.

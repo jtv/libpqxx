@@ -1,4 +1,4 @@
-/** Definitions for the pqxx::result class and support classes.
+/* Definitions for the pqxx::result class and support classes.
  *
  * pqxx::result represents the set of result rows from a database query.
  *

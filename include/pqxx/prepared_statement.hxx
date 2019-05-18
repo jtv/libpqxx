@@ -1,4 +1,4 @@
-/** Helper classes for defining and executing prepared statements.
+/* Helper classes for defining and executing prepared statements.
  *
  * See the connection class for more about prepared statements.
  *

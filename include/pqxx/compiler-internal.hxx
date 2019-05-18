@@ -1,4 +1,4 @@
-/** Compiler deficiency workarounds for compiling libpqxx itself.
+/* Compiler deficiency workarounds for compiling libpqxx itself.
  *
  * DO NOT INCLUDE THIS FILE when building client programs.
  *

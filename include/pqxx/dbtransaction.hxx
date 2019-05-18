@@ -1,4 +1,4 @@
-/** Definition of the pqxx::dbtransaction abstract base class.
+/* Definition of the pqxx::dbtransaction abstract base class.
  *
  * pqxx::dbransaction defines a real transaction on the database.
  *

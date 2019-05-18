@@ -1,4 +1,4 @@
-/** Definitions for the pqxx::field class.
+/* Definitions for the pqxx::field class.
  *
  * pqxx::field refers to a field in a query result.
  *

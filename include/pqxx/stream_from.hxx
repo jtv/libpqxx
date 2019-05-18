@@ -1,4 +1,4 @@
-/** Definition of the pqxx::stream_from class.
+/* Definition of the pqxx::stream_from class.
  *
  * pqxx::stream_from enables optimized batch reads from a database table.
  *

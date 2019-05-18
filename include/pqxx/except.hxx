@@ -1,4 +1,4 @@
-/** Definition of libpqxx exception classes.
+/* Definition of libpqxx exception classes.
  *
  * pqxx::sql_error, pqxx::broken_connection, pqxx::in_doubt_error, ...
  *

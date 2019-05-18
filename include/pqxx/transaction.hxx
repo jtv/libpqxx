@@ -1,4 +1,4 @@
-/** Definition of the pqxx::transaction class.
+/* Definition of the pqxx::transaction class.
  * pqxx::transaction represents a standard database transaction.
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction instead.

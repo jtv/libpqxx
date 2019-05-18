@@ -1,6 +1,6 @@
-/** Definition of the iterator/container-style cursor classes.
+/* Definition of the iterator/container-style cursor classes.
  *
- * C++-style wrappers for SQL cursors
+ * C++-style wrappers for SQL cursors.
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/cursor instead.
  *

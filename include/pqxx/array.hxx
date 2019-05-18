@@ -1,4 +1,4 @@
-/** Handling of SQL arrays.
+/* Handling of SQL arrays.
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/field instead.
  *

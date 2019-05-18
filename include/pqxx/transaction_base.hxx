@@ -1,4 +1,4 @@
-/** Common code and definitions for the transaction classes.
+/* Common code and definitions for the transaction classes.
  *
  * pqxx::transaction_base defines the interface for any abstract class that
  * represents a database transaction.

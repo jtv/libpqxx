@@ -1,4 +1,4 @@
-/** Definition of the pqxx::notification_receiver functor interface.
+/* Definition of the pqxx::notification_receiver functor interface.
  *
  * pqxx::notification_receiver handles incoming notifications.
  *

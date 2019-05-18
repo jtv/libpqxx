@@ -1,4 +1,4 @@
-/** Compiler deficiency workarounds for libpqxx clients.
+/* Compiler deficiency workarounds for libpqxx clients.
  *
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
