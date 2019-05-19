@@ -18522,7 +18522,7 @@ main ()
 			using ld = long double;
 			auto rt = std::to_chars(
 				z, z + sizeof(z), ld{0.1},
-				std::chars_format::generic);
+				std::chars_format::general);
 			if (rt.ec != std::errc{}) return 1;
 			ld n;
 			auto rf = std::from_chars(z, z + sizeof(z), n);
