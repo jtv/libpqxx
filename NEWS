@@ -16,6 +16,7 @@
  - Transactions no longer have an `isolation_tag` type.
  - The `isolation_traits` type is gone.
  - Many `std::string` parameters are now `std::string_view`.
+ - There's no more `pqxx_exception`.  Complicated things too much.
 6.4.4
  - Use pkg-config if pg-config is not available.
  - In CMake build, prefer CMake's config headers over any found in source tree.

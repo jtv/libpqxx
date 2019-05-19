@@ -11,11 +11,6 @@
 #include "pqxx/except"
 
 
-pqxx::pqxx_exception::~pqxx_exception() noexcept
-{
-}
-
-
 pqxx::failure::failure(const std::string &whatarg) :
   std::runtime_error{whatarg}
 {

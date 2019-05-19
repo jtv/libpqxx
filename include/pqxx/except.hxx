@@ -28,69 +28,20 @@ namespace pqxx
  *
  * These exception classes follow, roughly, the two-level hierarchy defined by
  * the PostgreSQL error codes (see Appendix A of the PostgreSQL documentation
- * corresponding to your server version).  The hierarchy given here is, as yet,
- * not a complete mirror of the error codes.  There are some other differences
- * as well, e.g. the error code statement_completion_unknown has a separate
- * status in libpqxx as in_doubt_error, and too_many_connections is classified
- * as a broken_connection rather than a subtype of insufficient_resources.
+ * corresponding to your server version).  This is not a complete mapping
+ * though.  There are other differences as well, e.g. the error code
+ * @c statement_completion_unknown has a separate status in libpqxx as
+ * @c in_doubt_error, and @c too_many_connections is classified as a
+ * @c broken_connection rather than a subtype of @c insufficient_resources.
  *
  * @see http://www.postgresql.org/docs/9.4/interactive/errcodes-appendix.html
  *
  * @{
  */
 
-/// Mixin base class to identify libpqxx-specific exception types
-/**
- * If you wish to catch all exception types specific to libpqxx for some reason,
- * catch this type.  All of libpqxx's exception classes are derived from it
- * through multiple-inheritance (they also fit into the standard library's
- * exception hierarchy in more fitting places).
- *
- * This class is not derived from std::exception, since that could easily lead
- * to exception classes with multiple std::exception base-class objects.  As
- * Bart Samwel points out, "catch" is subject to some nasty fineprint in such
- * cases.
- */
-class PQXX_LIBEXPORT PQXX_NOVTABLE pqxx_exception
-{
-public:
-  /// Support run-time polymorphism, and keep this class abstract
-  virtual ~pqxx_exception() noexcept =0;
-
-  /// Return std::exception base-class object.
-  /** Use this to get at the exception's what() function, or to downcast to a
-   * more specific type using dynamic_cast.
-   *
-   * Casting directly from pqxx_exception to a specific exception type is not
-   * likely to work since pqxx_exception is not (and could not safely be)
-   * derived from std::exception.
-   *
-   * For example, to test dynamically whether an exception is an sql_error:
-   *
-   * @code
-   * try
-   * {
-   *   // ...
-   * }
-   * catch (const pqxx::pqxx_exception &e)
-   * {
-   *   std::cerr << e.base().what() << std::endl;
-   *   const pqxx::sql_error *s=dynamic_cast<const pqxx::sql_error*>(&e.base());
-   *   if (s) std::cerr << "Query was: " << s->query() << std::endl;
-   * }
-   * @endcode
-   */
-  virtual const std::exception &base() const noexcept =0;	//[t00]
-};
-
-
 /// Run-time failure encountered by libpqxx, similar to std::runtime_error
-class PQXX_LIBEXPORT failure :
-  public pqxx_exception, public std::runtime_error
+struct PQXX_LIBEXPORT failure : std::runtime_error
 {
-  virtual const std::exception &base() const noexcept override
-	{ return *this; }
-public:
   explicit failure(const std::string &);
 };
 
@@ -114,9 +65,8 @@ public:
  *   // ...
  * @endcode
  */
-class PQXX_LIBEXPORT broken_connection : public failure
+struct PQXX_LIBEXPORT broken_connection : failure
 {
-public:
   broken_connection();
   explicit broken_connection(const std::string &);
 };
@@ -155,17 +105,15 @@ public:
  * the database is left in an indeterminate (but consistent) state, and only
  * manual inspection will tell which is the case.
  */
-class PQXX_LIBEXPORT in_doubt_error : public failure
+struct PQXX_LIBEXPORT in_doubt_error : failure
 {
-public:
   explicit in_doubt_error(const std::string &);
 };
 
 
 /// The backend saw itself forced to roll back the ongoing transaction.
-class PQXX_LIBEXPORT transaction_rollback : public failure
+struct PQXX_LIBEXPORT transaction_rollback : failure
 {
-public:
   explicit transaction_rollback(const std::string &);
 };
 
@@ -179,98 +127,71 @@ public:
  * ongoing transaction.  The transaction may still succeed if you try to
  * perform it again.
  */
-class PQXX_LIBEXPORT serialization_failure : public transaction_rollback
+struct PQXX_LIBEXPORT serialization_failure : transaction_rollback
 {
-public:
   explicit serialization_failure(const std::string &);
 };
 
 
 /// We can't tell whether our last statement succeeded.
-class PQXX_LIBEXPORT statement_completion_unknown : public transaction_rollback
+struct PQXX_LIBEXPORT statement_completion_unknown : transaction_rollback
 {
-public:
   explicit statement_completion_unknown(const std::string &);
 };
 
 
 /// The ongoing transaction has deadlocked.  Retrying it may help.
-class PQXX_LIBEXPORT deadlock_detected : public transaction_rollback
+struct PQXX_LIBEXPORT deadlock_detected : transaction_rollback
 {
-public:
   explicit deadlock_detected(const std::string &);
 };
 
 
 /// Internal error in libpqxx library
-class PQXX_LIBEXPORT internal_error :
-  public pqxx_exception, public std::logic_error
+struct PQXX_LIBEXPORT internal_error : std::logic_error
 {
-  virtual const std::exception &base() const noexcept override
-	{ return *this; }
-public:
   explicit internal_error(const std::string &);
 };
 
 
 /// Error in usage of libpqxx library, similar to std::logic_error
-class PQXX_LIBEXPORT usage_error :
-  public pqxx_exception, public std::logic_error
+struct PQXX_LIBEXPORT usage_error : std::logic_error
 {
-  virtual const std::exception &base() const noexcept override
-	{ return *this; }
-public:
   explicit usage_error(const std::string &);
 };
 
 
 /// Invalid argument passed to libpqxx, similar to std::invalid_argument
-class PQXX_LIBEXPORT argument_error :
-  public pqxx_exception, public std::invalid_argument
+struct PQXX_LIBEXPORT argument_error : std::invalid_argument
 {
-  virtual const std::exception &base() const noexcept override
-	{ return *this; }
-public:
   explicit argument_error(const std::string &);
 };
 
 
 /// Value conversion failed, e.g. when converting "Hello" to int.
-class PQXX_LIBEXPORT conversion_error :
-  public pqxx_exception, public std::domain_error
+struct PQXX_LIBEXPORT conversion_error : std::domain_error
 {
-  virtual const std::exception &base() const noexcept override
-	{ return *this; }
-public:
   explicit conversion_error(const std::string &);
 };
 
 
 /// Something is out of range, similar to std::out_of_range
-class PQXX_LIBEXPORT range_error :
-  public pqxx_exception, public std::out_of_range
+struct PQXX_LIBEXPORT range_error : std::out_of_range
 {
-  virtual const std::exception &base() const noexcept override
-	{ return *this; }
-public:
   explicit range_error(const std::string &);
 };
 
 
 /// Query returned an unexpected number of rows.
-class PQXX_LIBEXPORT unexpected_rows : public range_error
+struct PQXX_LIBEXPORT unexpected_rows : public range_error
 {
-  virtual const std::exception &base() const noexcept override
-	{ return *this; }
-public:
   explicit unexpected_rows(const std::string &msg) : range_error{msg} {}
 };
 
 
 /// Database feature not supported in current setup
-class PQXX_LIBEXPORT feature_not_supported : public sql_error
+struct PQXX_LIBEXPORT feature_not_supported : sql_error
 {
-public:
   explicit feature_not_supported(
 	const std::string &err,
 	const std::string &Q="",
@@ -279,9 +200,8 @@ public:
 };
 
 /// Error in data provided to SQL statement
-class PQXX_LIBEXPORT data_exception : public sql_error
+struct PQXX_LIBEXPORT data_exception : sql_error
 {
-public:
   explicit data_exception(
 	const std::string &err,
 	const std::string &Q="",
@@ -289,9 +209,8 @@ public:
     sql_error{err, Q, sqlstate} {}
 };
 
-class PQXX_LIBEXPORT integrity_constraint_violation : public sql_error
+struct PQXX_LIBEXPORT integrity_constraint_violation : sql_error
 {
-public:
   explicit integrity_constraint_violation(
 	const std::string &err,
 	const std::string &Q="",
@@ -299,10 +218,8 @@ public:
     sql_error{err, Q, sqlstate} {}
 };
 
-class PQXX_LIBEXPORT restrict_violation :
-  public integrity_constraint_violation
+struct PQXX_LIBEXPORT restrict_violation : integrity_constraint_violation
 {
-public:
   explicit restrict_violation(
 	const std::string &err,
 	const std::string &Q="",
@@ -310,10 +227,8 @@ public:
     integrity_constraint_violation{err, Q, sqlstate} {}
 };
 
-class PQXX_LIBEXPORT not_null_violation :
-  public integrity_constraint_violation
+struct PQXX_LIBEXPORT not_null_violation : integrity_constraint_violation
 {
-public:
   explicit not_null_violation(
 	const std::string &err,
 	const std::string &Q="",
@@ -321,10 +236,8 @@ public:
     integrity_constraint_violation{err, Q, sqlstate} {}
 };
 
-class PQXX_LIBEXPORT foreign_key_violation :
-  public integrity_constraint_violation
+struct PQXX_LIBEXPORT foreign_key_violation : integrity_constraint_violation
 {
-public:
   explicit foreign_key_violation(
 	const std::string &err,
 	const std::string &Q="",
@@ -332,10 +245,8 @@ public:
     integrity_constraint_violation{err, Q, sqlstate} {}
 };
 
-class PQXX_LIBEXPORT unique_violation :
-  public integrity_constraint_violation
+struct PQXX_LIBEXPORT unique_violation : integrity_constraint_violation
 {
-public:
   explicit unique_violation(
 	const std::string &err,
 	const std::string &Q="",
@@ -343,10 +254,8 @@ public:
     integrity_constraint_violation{err, Q, sqlstate} {}
 };
 
-class PQXX_LIBEXPORT check_violation :
-  public integrity_constraint_violation
+struct PQXX_LIBEXPORT check_violation : integrity_constraint_violation
 {
-public:
   explicit check_violation(
 	const std::string &err,
 	const std::string &Q="",
@@ -354,9 +263,8 @@ public:
     integrity_constraint_violation{err, Q, sqlstate} {}
 };
 
-class PQXX_LIBEXPORT invalid_cursor_state : public sql_error
+struct PQXX_LIBEXPORT invalid_cursor_state : sql_error
 {
-public:
   explicit invalid_cursor_state(
 	const std::string &err,
 	const std::string &Q="",
@@ -364,9 +272,8 @@ public:
     sql_error{err, Q, sqlstate} {}
 };
 
-class PQXX_LIBEXPORT invalid_sql_statement_name : public sql_error
+struct PQXX_LIBEXPORT invalid_sql_statement_name : sql_error
 {
-public:
   explicit invalid_sql_statement_name(
 	const std::string &err,
 	const std::string &Q="",
@@ -374,9 +281,8 @@ public:
     sql_error{err, Q, sqlstate} {}
 };
 
-class PQXX_LIBEXPORT invalid_cursor_name : public sql_error
+struct PQXX_LIBEXPORT invalid_cursor_name : sql_error
 {
-public:
   explicit invalid_cursor_name(
 	const std::string &err,
 	const std::string &Q="",
@@ -384,9 +290,8 @@ public:
     sql_error{err, Q, sqlstate} {}
 };
 
-class PQXX_LIBEXPORT syntax_error : public sql_error
+struct PQXX_LIBEXPORT syntax_error : sql_error
 {
-public:
   /// Approximate position in string where error occurred, or -1 if unknown.
   const int error_position;
 
@@ -398,9 +303,8 @@ public:
     sql_error{err, Q, sqlstate}, error_position{pos} {}
 };
 
-class PQXX_LIBEXPORT undefined_column : public syntax_error
+struct PQXX_LIBEXPORT undefined_column : syntax_error
 {
-public:
   explicit undefined_column(
 	const std::string &err,
 	const std::string &Q="",
@@ -408,9 +312,8 @@ public:
     syntax_error{err, Q, sqlstate} {}
 };
 
-class PQXX_LIBEXPORT undefined_function : public syntax_error
+struct PQXX_LIBEXPORT undefined_function : syntax_error
 {
-public:
   explicit undefined_function(
 	const std::string &err,
 	const std::string &Q="",
@@ -418,9 +321,8 @@ public:
     syntax_error{err, Q, sqlstate} {}
 };
 
-class PQXX_LIBEXPORT undefined_table : public syntax_error
+struct PQXX_LIBEXPORT undefined_table : syntax_error
 {
-public:
   explicit undefined_table(
 	const std::string &err,
 	const std::string &Q="",
@@ -428,9 +330,8 @@ public:
     syntax_error{err, Q, sqlstate} {}
 };
 
-class PQXX_LIBEXPORT insufficient_privilege : public sql_error
+struct PQXX_LIBEXPORT insufficient_privilege : sql_error
 {
-public:
   explicit insufficient_privilege(
 	const std::string &err,
 	const std::string &Q="",
@@ -439,9 +340,8 @@ public:
 };
 
 /// Resource shortage on the server
-class PQXX_LIBEXPORT insufficient_resources : public sql_error
+struct PQXX_LIBEXPORT insufficient_resources : sql_error
 {
-public:
   explicit insufficient_resources(
 	const std::string &err,
 	const std::string &Q="",
@@ -449,9 +349,8 @@ public:
     sql_error{err,Q, sqlstate} {}
 };
 
-class PQXX_LIBEXPORT disk_full : public insufficient_resources
+struct PQXX_LIBEXPORT disk_full : insufficient_resources
 {
-public:
   explicit disk_full(
 	const std::string &err,
 	const std::string &Q="",
@@ -459,9 +358,8 @@ public:
     insufficient_resources{err, Q, sqlstate} {}
 };
 
-class PQXX_LIBEXPORT out_of_memory : public insufficient_resources
+struct PQXX_LIBEXPORT out_of_memory : insufficient_resources
 {
-public:
   explicit out_of_memory(
 	const std::string &err,
 	const std::string &Q="",
@@ -469,9 +367,8 @@ public:
     insufficient_resources{err, Q, sqlstate} {}
 };
 
-class PQXX_LIBEXPORT too_many_connections : public broken_connection
+struct PQXX_LIBEXPORT too_many_connections : broken_connection
 {
-public:
   explicit too_many_connections(const std::string &err) :
 	broken_connection{err} {}
 };
@@ -479,9 +376,8 @@ public:
 /// PL/pgSQL error
 /** Exceptions derived from this class are errors from PL/pgSQL procedures.
  */
-class PQXX_LIBEXPORT plpgsql_error : public sql_error
+struct PQXX_LIBEXPORT plpgsql_error : sql_error
 {
-public:
   explicit plpgsql_error(
 	const std::string &err,
 	const std::string &Q="",
@@ -490,9 +386,8 @@ public:
 };
 
 /// Exception raised in PL/pgSQL procedure
-class PQXX_LIBEXPORT plpgsql_raise : public plpgsql_error
+struct PQXX_LIBEXPORT plpgsql_raise : plpgsql_error
 {
-public:
   explicit plpgsql_raise(
 	const std::string &err,
 	const std::string &Q="",
@@ -500,9 +395,8 @@ public:
     plpgsql_error{err, Q, sqlstate} {}
 };
 
-class PQXX_LIBEXPORT plpgsql_no_data_found : public plpgsql_error
+struct PQXX_LIBEXPORT plpgsql_no_data_found : plpgsql_error
 {
-public:
   explicit plpgsql_no_data_found(
 	const std::string &err,
 	const std::string &Q="",
@@ -510,9 +404,8 @@ public:
     plpgsql_error{err, Q, sqlstate} {}
 };
 
-class PQXX_LIBEXPORT plpgsql_too_many_rows : public plpgsql_error
+struct PQXX_LIBEXPORT plpgsql_too_many_rows : plpgsql_error
 {
-public:
   explicit plpgsql_too_many_rows(
 	const std::string &err,
 	const std::string &Q="",

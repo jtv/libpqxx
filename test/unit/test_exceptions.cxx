@@ -16,18 +16,21 @@ void test_exceptions()
   {
     throw sql_error{err, broken_query};
   }
-  catch (const pqxx_exception &e)
+  catch (const std::exception &e)
   {
     PQXX_CHECK_EQUAL(
-	e.base().what(),
+	e.what(),
 	err,
 	"Exception contains wrong message.");
-    const sql_error *downcast = dynamic_cast<const sql_error *>(&e.base());
-    PQXX_CHECK(downcast, "pqxx_exception-to-sql_error downcast is broken.");
+    const sql_error *downcast{dynamic_cast<const sql_error *>(&e)};
+    PQXX_CHECK_NOT_EQUAL(
+	downcast,
+	nullptr,
+	"exception-to-sql_error downcast is broken.");
     PQXX_CHECK_EQUAL(
 	downcast->query(),
 	broken_query,
-	"Getting query from pqxx_exception is broken.");
+	"Getting query from pqxx exception is broken.");
   }
 
   connection conn;
