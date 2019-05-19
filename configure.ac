@@ -265,14 +265,32 @@ AC_LINK_IFELSE(
 	have_charconv_float=no)
 AC_MSG_RESULT($have_charconv_float)
 
-AX_HAVE_POLL(
-        [AX_CONFIG_FEATURE_ENABLE(poll)],
-        [AX_CONFIG_FEATURE_DISABLE(poll)])
-AX_CONFIG_FEATURE(
-	[poll],
-	[System supports poll().],
-	[HAVE_POLL],
-	[System supports poll().])
+# Doing my own test for poll() for now.  The test built into autoconf-archive
+# triggers a stupid warning for an unused variable.
+# TODO: Try newer version of autoconf-archive.
+#AX_HAVE_POLL(
+#        [AX_CONFIG_FEATURE_ENABLE(poll)],
+#        [AX_CONFIG_FEATURE_DISABLE(poll)])
+#AX_CONFIG_FEATURE(
+#	[poll],
+#	[System supports poll().],
+#	[HAVE_POLL],
+#	[System supports poll().])
+AC_MSG_CHECKING([for poll()])
+ax_cv_have_poll=yes
+AC_LINK_IFELSE(
+	[AC_LANG_PROGRAM(
+		[#include <poll.h>],
+		[[
+			return poll(nullptr, 0, 0);
+		]]
+	)],
+	AC_DEFINE(
+		[PQXX_HAVE_POLL],
+		1,
+		[Define if poll() is available.]),
+	ax_cv_have_poll=no)
+AC_MSG_RESULT($ax_cv_have_poll)
 
 if test "$ax_cv_have_poll" != "yes"
 then

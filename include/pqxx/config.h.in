@@ -15,9 +15,6 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
-/* System supports poll(). */
-#undef HAVE_POLL
-
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
@@ -80,6 +77,9 @@
 
 /* Define if g++ supports visibility attribute. */
 #undef PQXX_HAVE_GCC_VISIBILITY
+
+/* Define if poll() is available. */
+#undef PQXX_HAVE_POLL
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS

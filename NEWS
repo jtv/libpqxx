@@ -1,5 +1,6 @@
 7.0.0
  - Bumped minimum required C++ version to C++17.
+ - There is now only one connection class: `connection`.
  - Removed tablereader/tablewriter, replaced by stream_from/stream_to.
  - Removed obsolete transactor framework, replaced by post-C++11 one.
  - Removed old ways of invoking parameterised and prepared statements.
@@ -12,6 +13,9 @@
  - Mishandling prepared statements will now break the connection.
  - Some string references and const char pointers are now std::string_view.
  - The stream_base abstract base class is gone.
+ - Transactions no longer have an `isolation_tag` type.
+ - The `isolation_traits` type is gone.
+ - Many `std::string` parameters are now `std::string_view`.
 6.4.4
  - Use pkg-config if pg-config is not available.
  - In CMake build, prefer CMake's config headers over any found in source tree.

@@ -794,7 +794,6 @@ enable_libtool_lock
 enable_documentation
 enable_maintainer_mode
 enable_audit
-enable_poll
 with_postgres_include
 with_postgres_lib
 '
@@ -1460,7 +1459,6 @@ Optional Features:
                           enable make rules and dependencies not useful (and
                           sometimes confusing) to the casual installer
 
-  --enable-poll           System supports poll().
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -18548,85 +18546,45 @@ rm -f core conftest.err conftest.$ac_objext \
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_charconv_float" >&5
 $as_echo "$have_charconv_float" >&6; }
 
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for poll(2)" >&5
-$as_echo_n "checking for poll(2)... " >&6; }
-  if ${ax_cv_have_poll+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+# Doing my own test for poll() for now.  The test built into autoconf-archive
+# triggers a stupid warning for an unused variable.
+# TODO: Try newer version of autoconf-archive.
+#AX_HAVE_POLL(
+#        [AX_CONFIG_FEATURE_ENABLE(poll)],
+#        [AX_CONFIG_FEATURE_DISABLE(poll)])
+#AX_CONFIG_FEATURE(
+#	[poll],
+#	[System supports poll().],
+#	[HAVE_POLL],
+#	[System supports poll().])
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for poll()" >&5
+$as_echo_n "checking for poll()... " >&6; }
+ax_cv_have_poll=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-      #include <poll.h>
+#include <poll.h>
 int
 main ()
 {
-int rc; rc = poll((struct pollfd *)(0), 0, 0);
+
+			return poll(nullptr, 0, 0);
+
+
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
-  ax_cv_have_poll=yes
+
+$as_echo "#define PQXX_HAVE_POLL 1" >>confdefs.h
+
 else
   ax_cv_have_poll=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-fi
-
-  if test "${ax_cv_have_poll}" = "yes"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-   ax_config_feature_poll=yes
-
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-   ax_config_feature_poll=no
-
-fi
-
-
-# Check whether --enable-poll was given.
-if test "${enable_poll+set}" = set; then :
-  enableval=$enable_poll;
-case "${enableval}" in
-   yes)
-     ax_config_feature_poll="yes"
-     ;;
-   no)
-     ax_config_feature_poll="no"
-     ;;
-   *)
-     as_fn_error $? "bad value ${enableval} for feature --poll" "$LINENO" 5
-     ;;
-esac
-
-fi
-
-
-if test "$ax_config_feature_poll" = yes; then :
-     $as_echo "#define HAVE_POLL 1" >>confdefs.h
-
-
-  if test "$ax_config_feature_verbose" = yes; then :
-       { $as_echo "$as_me:${as_lineno-$LINENO}: Feature poll is enabled" >&5
-$as_echo "$as_me: Feature poll is enabled" >&6;}
-
-fi
-
-else
-
-  if test "$ax_config_feature_verbose" = yes; then :
-       { $as_echo "$as_me:${as_lineno-$LINENO}: Feature poll is disabled" >&5
-$as_echo "$as_me: Feature poll is disabled" >&6;}
-
-fi
-
-fi
-
-
-
-
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have_poll" >&5
+$as_echo "$ax_cv_have_poll" >&6; }
 
 if test "$ax_cv_have_poll" != "yes"
 then
