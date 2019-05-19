@@ -45,6 +45,7 @@ file(
     test_subtransaction.cxx
     test_test_helpers.cxx
     test_thread_safety_model.cxx
+    test_transaction.cxx
     test_transaction_base.cxx
     test_transactor.cxx
 )

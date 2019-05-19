@@ -14,11 +14,14 @@ void test_exceptions()
 
   try
   {
-    throw sql_error(err, broken_query);
+    throw sql_error{err, broken_query};
   }
   catch (const pqxx_exception &e)
   {
-    PQXX_CHECK_EQUAL(e.base().what(), err, "Exception contains wrong message.");
+    PQXX_CHECK_EQUAL(
+	e.base().what(),
+	err,
+	"Exception contains wrong message.");
     const sql_error *downcast = dynamic_cast<const sql_error *>(&e.base());
     PQXX_CHECK(downcast, "pqxx_exception-to-sql_error downcast is broken.");
     PQXX_CHECK_EQUAL(
