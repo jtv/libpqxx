@@ -28,15 +28,12 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE basic_robusttransaction :
   public dbtransaction
 {
 public:
-  /// Isolation level is read_committed by default.
-  using isolation_tag = isolation_traits<read_committed>;
-
   virtual ~basic_robusttransaction() =0;				//[t16]
 
 protected:
   basic_robusttransaction(
 	connection &C,
-	const std::string &IsolationLevel,
+	const char begin_command[],
 	const std::string &table_name=std::string{});			//[t16]
 
 private:
@@ -47,7 +44,6 @@ private:
   std::string m_sequence;
   int m_backendpid = -1;
 
-  virtual void do_begin() override;					//[t18]
   virtual void do_commit() override;					//[t16]
   virtual void do_abort() override;					//[t18]
 
@@ -135,26 +131,24 @@ namespace pqxx
  * records in it represent states 2-4 above).  Each robusttransaction will
  * attempt to recreate the table at its next time of use.
  */
-template<isolation_level ISOLATIONLEVEL=read_committed>
-class robusttransaction : public internal::basic_robusttransaction
+template<isolation_level ISOLATION=read_committed>
+class robusttransaction final : public internal::basic_robusttransaction
 {
 public:
-  using isolation_tag = isolation_traits<ISOLATIONLEVEL>;
-
-  /// Constructor
-  /** Creates robusttransaction of given name
+  /** Create robusttransaction of given name.
    * @param C Connection inside which this robusttransaction should live.
    * @param Name optional human-readable name for this transaction.
    */
   explicit robusttransaction(
 	connection &C,
 	const std::string &Name=std::string{}) :
-    namedclass{fullname("robusttransaction",isolation_tag::name()), Name},
-    internal::basic_robusttransaction(C, isolation_tag::name())
-	{ Begin(); }
+    namedclass{"robusttransaction", Name},
+    internal::basic_robusttransaction{
+	C, pqxx::internal::begin_cmd<ISOLATION, read_write>}
+  {}
 
   virtual ~robusttransaction() noexcept
-	{ End(); }
+	{ close(); }
 };
 
 /**

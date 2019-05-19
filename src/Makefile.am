@@ -4,13 +4,11 @@ libpqxx_la_SOURCES = \
 	binarystring.cxx \
 	connection.cxx \
 	cursor.cxx \
-	dbtransaction.cxx \
 	encodings.cxx \
 	errorhandler.cxx \
 	except.cxx \
 	field.cxx \
 	largeobject.cxx \
-	nontransaction.cxx \
 	notification.cxx \
 	pipeline.cxx \
 	result.cxx \

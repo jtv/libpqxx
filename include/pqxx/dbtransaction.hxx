@@ -20,15 +20,7 @@
 
 namespace pqxx
 {
-
-enum readwrite_policy
-{
-  read_only,
-  read_write
-};
-
-
-/// Abstract base class responsible for bracketing a backend transaction.
+/// Abstract transaction base class: bracket transactions on the database.
 /**
  * @ingroup transaction
  *
@@ -44,58 +36,26 @@ enum readwrite_policy
  *
  * It is an error to abort a transaction that has already been committed, or to
  * commit a transaction that has already been aborted.  Aborting an already
- * aborted transaction or committing an already committed one has been allowed
- * to make errors easier to deal with.  Repeated aborts or commits have no
- * effect after the first one.
+ * aborted transaction or committing an already committed one is allowed, to
+ * make error handling easier.  Repeated aborts or commits have no effect after
+ * the first one.
  *
  * Database transactions are not suitable for guarding long-running processes.
- * If your transaction code becomes too long or too complex, please consider
- * ways to break it up into smaller ones.  There's no easy, general way to do
- * this since application-specific considerations become important at this
- * point.
+ * If your transaction code becomes too long or too complex, consider ways to
+ * break it up into smaller ones.  Unfortunately there is no universal recipe
+ * for this.
  *
- * The actual operations for beginning and committing/aborting the backend
- * transaction are implemented by a derived class.  The implementing concrete
- * class must also call Begin() and End() from its constructors and destructors,
- * respectively, and implement do_exec().
+ * The actual operations for committing/aborting the backend transaction are
+ * implemented by a derived class.  The implementing concrete class must also
+ * call @c close() from its destructor.
  */
 class PQXX_LIBEXPORT PQXX_NOVTABLE dbtransaction : public transaction_base
 {
-public:
-  virtual ~dbtransaction();
-
 protected:
-  dbtransaction(
-	connection &,
-	std::string_view isolation,
-	readwrite_policy rw=read_write);
-
-  explicit dbtransaction(
-	connection &,
-	bool direct=true,
-	readwrite_policy rw=read_write);
-
-
-  /// Start a transaction on the backend and set desired isolation level
-  void start_backend_transaction();
-
-  /// Sensible default implemented here: begin backend transaction.
-  virtual void do_begin() override;					//[t01]
-  /// Sensible default implemented here: perform query.
-  virtual result do_exec(const char Query[]) override;
-  /// To be implemented by derived class: commit backend transaction.
-  virtual void do_commit() override =0;
-  /// Sensible default implemented here: abort backend transaction.
-  virtual void do_abort() override;					//[t13]
-
-  static std::string fullname(
-	std::string_view ttype,
-	std::string_view isolation);
-
-private:
-// TODO: Can we just inline this?
-  /// Precomputed SQL command to run at start of this transaction.
-  std::string m_start_cmd;
+  explicit dbtransaction(connection &C) :
+	namedclass{"dbtransaction"},
+	transaction_base{C}
+  {}
 };
 } // namespace pqxx
 

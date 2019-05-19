@@ -103,13 +103,11 @@ OBJ_STATICDEBUG=\
        "$(INTDIR_STATICDEBUG)\binarystring.obj" \
        "$(INTDIR_STATICDEBUG)\connection.obj" \
        "$(INTDIR_STATICDEBUG)\cursor.obj" \
-       "$(INTDIR_STATICDEBUG)\dbtransaction.obj" \
        "$(INTDIR_STATICDEBUG)\encodings.obj" \
        "$(INTDIR_STATICDEBUG)\errorhandler.obj" \
        "$(INTDIR_STATICDEBUG)\except.obj" \
        "$(INTDIR_STATICDEBUG)\field.obj" \
        "$(INTDIR_STATICDEBUG)\largeobject.obj" \
-       "$(INTDIR_STATICDEBUG)\nontransaction.obj" \
        "$(INTDIR_STATICDEBUG)\notification.obj" \
        "$(INTDIR_STATICDEBUG)\pipeline.obj" \
        "$(INTDIR_STATICDEBUG)\result.obj" \
@@ -131,13 +129,11 @@ OBJ_STATICRELEASE=\
        "$(INTDIR_STATICRELEASE)\binarystring.obj" \
        "$(INTDIR_STATICRELEASE)\connection.obj" \
        "$(INTDIR_STATICRELEASE)\cursor.obj" \
-       "$(INTDIR_STATICRELEASE)\dbtransaction.obj" \
        "$(INTDIR_STATICRELEASE)\encodings.obj" \
        "$(INTDIR_STATICRELEASE)\errorhandler.obj" \
        "$(INTDIR_STATICRELEASE)\except.obj" \
        "$(INTDIR_STATICRELEASE)\field.obj" \
        "$(INTDIR_STATICRELEASE)\largeobject.obj" \
-       "$(INTDIR_STATICRELEASE)\nontransaction.obj" \
        "$(INTDIR_STATICRELEASE)\notification.obj" \
        "$(INTDIR_STATICRELEASE)\pipeline.obj" \
        "$(INTDIR_STATICRELEASE)\result.obj" \
@@ -159,13 +155,11 @@ OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\binarystring.obj" \
        "$(INTDIR_DLLDEBUG)\connection.obj" \
        "$(INTDIR_DLLDEBUG)\cursor.obj" \
-       "$(INTDIR_DLLDEBUG)\dbtransaction.obj" \
        "$(INTDIR_DLLDEBUG)\encodings.obj" \
        "$(INTDIR_DLLDEBUG)\errorhandler.obj" \
        "$(INTDIR_DLLDEBUG)\except.obj" \
        "$(INTDIR_DLLDEBUG)\field.obj" \
        "$(INTDIR_DLLDEBUG)\largeobject.obj" \
-       "$(INTDIR_DLLDEBUG)\nontransaction.obj" \
        "$(INTDIR_DLLDEBUG)\notification.obj" \
        "$(INTDIR_DLLDEBUG)\pipeline.obj" \
        "$(INTDIR_DLLDEBUG)\result.obj" \
@@ -188,13 +182,11 @@ OBJ_DLLRELEASE=\
        "$(INTDIR_DLLRELEASE)\binarystring.obj" \
        "$(INTDIR_DLLRELEASE)\connection.obj" \
        "$(INTDIR_DLLRELEASE)\cursor.obj" \
-       "$(INTDIR_DLLRELEASE)\dbtransaction.obj" \
        "$(INTDIR_DLLRELEASE)\encodings.obj" \
        "$(INTDIR_DLLRELEASE)\errorhandler.obj" \
        "$(INTDIR_DLLRELEASE)\except.obj" \
        "$(INTDIR_DLLRELEASE)\field.obj" \
        "$(INTDIR_DLLRELEASE)\largeobject.obj" \
-       "$(INTDIR_DLLRELEASE)\nontransaction.obj" \
        "$(INTDIR_DLLRELEASE)\notification.obj" \
        "$(INTDIR_DLLRELEASE)\pipeline.obj" \
        "$(INTDIR_DLLRELEASE)\result.obj" \
@@ -340,13 +332,6 @@ $(INTDIR_DLLRELEASE)::
 	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/cursor.cxx
 
 
-"$(INTDIR_STATICRELEASE)\dbtransaction.obj": src/dbtransaction.cxx $(INTDIR_STATICRELEASE)
-	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/dbtransaction.cxx
-
-"$(INTDIR_STATICDEBUG)\dbtransaction.obj": src/dbtransaction.cxx $(INTDIR_STATICDEBUG)
-	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/dbtransaction.cxx
-
-
 "$(INTDIR_STATICRELEASE)\encodings.obj": src/encodings.cxx $(INTDIR_STATICRELEASE)
 	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/encodings.cxx
 
@@ -380,13 +365,6 @@ $(INTDIR_DLLRELEASE)::
 
 "$(INTDIR_STATICDEBUG)\largeobject.obj": src/largeobject.cxx $(INTDIR_STATICDEBUG)
 	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/largeobject.cxx
-
-
-"$(INTDIR_STATICRELEASE)\nontransaction.obj": src/nontransaction.cxx $(INTDIR_STATICRELEASE)
-	$(CXX) $(CXX_FLAGS_STATICRELEASE) /Fo"$(INTDIR_STATICRELEASE)\\" /Fd"$(INTDIR_STATICRELEASE)\\" src/nontransaction.cxx
-
-"$(INTDIR_STATICDEBUG)\nontransaction.obj": src/nontransaction.cxx $(INTDIR_STATICDEBUG)
-	$(CXX) $(CXX_FLAGS_STATICDEBUG) /Fo"$(INTDIR_STATICDEBUG)\\" /Fd"$(INTDIR_STATICDEBUG)\\" src/nontransaction.cxx
 
 
 "$(INTDIR_STATICRELEASE)\notification.obj": src/notification.cxx $(INTDIR_STATICRELEASE)
@@ -524,13 +502,6 @@ $(INTDIR_DLLRELEASE)::
 	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/cursor.cxx
 
 
-"$(INTDIR_DLLRELEASE)\dbtransaction.obj": src/dbtransaction.cxx $(INTDIR_DLLRELEASE)
-	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/dbtransaction.cxx
-
-"$(INTDIR_DLLDEBUG)\dbtransaction.obj": src/dbtransaction.cxx $(INTDIR_DLLDEBUG)
-	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/dbtransaction.cxx
-
-
 "$(INTDIR_DLLRELEASE)\encodings.obj": src/encodings.cxx $(INTDIR_DLLRELEASE)
 	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/encodings.cxx
 
@@ -564,13 +535,6 @@ $(INTDIR_DLLRELEASE)::
 
 "$(INTDIR_DLLDEBUG)\largeobject.obj": src/largeobject.cxx $(INTDIR_DLLDEBUG)
 	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/largeobject.cxx
-
-
-"$(INTDIR_DLLRELEASE)\nontransaction.obj": src/nontransaction.cxx $(INTDIR_DLLRELEASE)
-	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" src/nontransaction.cxx
-
-"$(INTDIR_DLLDEBUG)\nontransaction.obj": src/nontransaction.cxx $(INTDIR_DLLDEBUG)
-	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/nontransaction.cxx
 
 
 "$(INTDIR_DLLRELEASE)\notification.obj": src/notification.cxx $(INTDIR_DLLRELEASE)

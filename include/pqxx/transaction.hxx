@@ -21,20 +21,16 @@
 /* Methods tested in eg. self-test program test1 are marked with "//[t01]"
  */
 
-
 namespace pqxx::internal
 {
 /// Helper base class for the @c transaction class template.
 class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 {
 protected:
-  basic_transaction(							//[t01]
-	connection &C,
-	std::string_view isolation,
-	readwrite_policy);
-
+  basic_transaction(connection &C, const char begin_command[]);		//[t01]
 private:
   virtual void do_commit() override;					//[t01]
+  virtual void do_abort() override;
 };
 } // namespace pqxx::internal
 
@@ -50,15 +46,7 @@ namespace pqxx
 /** This is the type you'll normally want to use to represent a transaction on
  * the database.
  *
- * While you may choose to create your own transaction object to interface to
- * the database backend, it is recommended that you wrap your transaction code
- * into a transactor code instead and let the transaction be created for you.
- * @see pqxx/transactor.hxx
- *
- * If you should find that using a transactor makes your code less portable or
- * too complex, go ahead, create your own transaction anyway.
- *
- * Usage example: double all wages
+ * Usage example: double all wages.
  *
  * @code
  * extern connection C;
@@ -76,13 +64,11 @@ namespace pqxx
  * @endcode
  */
 template<
-	isolation_level ISOLATIONLEVEL=read_committed,
+	isolation_level ISOLATION=read_committed,
 	readwrite_policy READWRITE=read_write>
-class transaction : public internal::basic_transaction
+class transaction final : public internal::basic_transaction
 {
 public:
-  using isolation_tag = isolation_traits<ISOLATIONLEVEL>;
-
   /// Create a transaction.
   /**
    * @param C Connection for this transaction to operate on.
@@ -90,15 +76,15 @@ public:
    * may contain letters and digits only.
    */
   explicit transaction(connection &C, const std::string &TName):	//[t01]
-    namedclass{fullname("transaction", isolation_tag::name()), TName},
-    internal::basic_transaction(C, isolation_tag::name(), READWRITE)
-	{ Begin(); }
+    namedclass{"transaction", TName},
+    internal::basic_transaction(C, internal::begin_cmd<ISOLATION, READWRITE>)
+    {}
 
   explicit transaction(connection &C) :					//[t01]
     transaction(C, "") {}
 
   virtual ~transaction() noexcept
-	{ End(); }
+	{ close(); }
 };
 
 

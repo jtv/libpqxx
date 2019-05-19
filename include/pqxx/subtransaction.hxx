@@ -85,10 +85,10 @@ public:
 	subtransaction &T, const std::string &Name=std::string{});
 
   virtual ~subtransaction() noexcept
-	{ End(); }
+	{ close(); }
 
 private:
-  virtual void do_begin() override;					//[t88]
+  std::string quoted_name() const { return quote_name(name()); }
   virtual void do_commit() override;					//[t88]
   virtual void do_abort() override;					//[t88]
 };

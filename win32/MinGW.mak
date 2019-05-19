@@ -23,13 +23,11 @@ OBJ = \
   src/binarystring.o \
   src/connection.o \
   src/cursor.o \
-  src/dbtransaction.o \
   src/encodings.o \
   src/errorhandler.o \
   src/except.o \
   src/field.o \
   src/largeobject.o \
-  src/nontransaction.o \
   src/notification.o \
   src/pipeline.o \
   src/result.o \
@@ -81,9 +79,6 @@ src/connection.o: src/connection.cxx
 src/cursor.o: src/cursor.cxx
 	$(CXX) $(CPPFLAGS) -c src/cursor.cxx -o src/cursor.o $(CXXFLAGS)
 
-src/dbtransaction.o: src/dbtransaction.cxx
-	$(CXX) $(CPPFLAGS) -c src/dbtransaction.cxx -o src/dbtransaction.o $(CXXFLAGS)
-
 src/encodings.o: src/encodings.cxx
 	$(CXX) $(CPPFLAGS) -c src/encodings.cxx -o src/encodings.o $(CXXFLAGS)
 
@@ -98,9 +93,6 @@ src/field.o: src/field.cxx
 
 src/largeobject.o: src/largeobject.cxx
 	$(CXX) $(CPPFLAGS) -c src/largeobject.cxx -o src/largeobject.o $(CXXFLAGS)
-
-src/nontransaction.o: src/nontransaction.cxx
-	$(CXX) $(CPPFLAGS) -c src/nontransaction.cxx -o src/nontransaction.o $(CXXFLAGS)
 
 src/notification.o: src/notification.cxx
 	$(CXX) $(CPPFLAGS) -c src/notification.cxx -o src/notification.o $(CXXFLAGS)

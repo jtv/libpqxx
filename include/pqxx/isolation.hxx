@@ -1,6 +1,4 @@
-/* Definitions of transaction isolation levels.
- *
- * Policies and traits describing SQL transaction isolation levels
+/* Definitions for transaction isolation levels, and such.
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/isolation instead.
  *
@@ -20,6 +18,17 @@
 
 namespace pqxx
 {
+/// Should a transaction be read-only, or read-write?
+/** No, this is not an isolation level.  So it really doesn't belong here.
+ * But it's not really worth a separate header.
+ */
+enum readwrite_policy
+{
+  read_only,
+  read_write
+};
+
+
 /// Transaction isolation levels.
 /** These are as defined in the SQL standard.  But there are a few notes
  * specific to PostgreSQL.
@@ -54,33 +63,40 @@ namespace pqxx
  */
 enum isolation_level
 {
+  // PostgreSQL only has the better isolation levels.
   // read_uncommitted,
+
   read_committed,
   repeatable_read,
-  serializable
+  serializable,
 };
-
-/// Traits class to describe an isolation level; primarly for libpqxx's own use
-template<isolation_level LEVEL> struct isolation_traits
-{
-  static constexpr isolation_level level() noexcept { return LEVEL; }
-  static constexpr const char *name() noexcept;
-};
-
-
-template<>
-inline constexpr const char *isolation_traits<read_committed>::name() noexcept
-	{ return "READ COMMITTED"; }
-
-template<>
-inline constexpr const char *isolation_traits<repeatable_read>::name() noexcept
-	{ return "REPEATABLE READ"; }
-
-template<>
-inline constexpr const char *isolation_traits<serializable>::name() noexcept
-	{ return "SERIALIZABLE"; }
-
 } // namespace pqxx
+
+
+namespace pqxx::internal
+{
+template<pqxx::isolation_level isolation, pqxx::readwrite_policy rw>
+constexpr const char *begin_cmd = nullptr;
+
+template<>
+constexpr const char *begin_cmd<read_committed, read_write> =
+	"BEGIN";
+template<>
+constexpr const char *begin_cmd<read_committed, read_only> =
+	"BEGIN READ ONLY";
+template<>
+constexpr const char *begin_cmd<repeatable_read, read_write> =
+	"BEGIN ISOLATION LEVEL REPEATABLE READ";
+template<>
+constexpr const char *begin_cmd<repeatable_read, read_only> =
+	"BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY";
+template<>
+constexpr const char *begin_cmd<serializable, read_write> =
+	"BEGIN ISOLATION LEVEL SERIALIZABLE";
+template<>
+constexpr const char *begin_cmd<serializable, read_only> =
+	"BEGIN ISOLATION LEVEL SERIALIZABLE READ ONLY";
+} // namespace pqxx::internal
 
 #include "pqxx/compiler-internal-post.hxx"
 #endif

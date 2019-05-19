@@ -45,8 +45,7 @@ class PQXX_LIBEXPORT transactionfocus : public virtual namedclass
 public:
   explicit transactionfocus(transaction_base &t) :
     namedclass{"transactionfocus"},
-    m_trans{t},
-    m_registered{false}
+    m_trans{t}
   {
   }
 
@@ -63,7 +62,7 @@ protected:
   transaction_base &m_trans;
 
 private:
-  bool m_registered;
+  bool m_registered = false;
 };
 } // namespace pqxx::internal
 
@@ -102,9 +101,6 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE transaction_base :
   public virtual internal::namedclass
 {
 public:
-  /// If nothing else is known, our isolation level is at least read_committed
-  using isolation_tag = isolation_traits<read_committed>;
-
   transaction_base() =delete;
   transaction_base(const transaction_base &) =delete;
   transaction_base &operator=(const transaction_base &) =delete;
@@ -425,11 +421,11 @@ protected:
   /// Create a transaction (to be called by implementation classes only)
   /** The optional name, if nonempty, must begin with a letter and may contain
    * letters and digits only.
-   *
-   * @param c The connection that this transaction is to act on.
-   * @param direct Running directly in connection context (i.e. not nested)?
    */
-  explicit transaction_base(connection &c, bool direct=true);
+  explicit transaction_base(connection &c);
+
+  /// Register this transaction with the connection.
+  void register_transaction();
 
   /// Begin transaction (to be called by implementing class)
   /** Will typically be called from implementing class' constructor.
@@ -437,12 +433,8 @@ protected:
   void Begin();
 
   /// End transaction.  To be called by implementing class' destructor
-  void End() noexcept;
+  void close() noexcept;
 
-  /// To be implemented by derived implementation class: start transaction
-  virtual void do_begin() =0;
-  /// To be implemented by derived implementation class: perform query
-  virtual result do_exec(const char Query[]) =0;
   /// To be implemented by derived implementation class: commit transaction
   virtual void do_commit() =0;
   /// To be implemented by derived implementation class: abort transaction
@@ -454,23 +446,6 @@ protected:
   result direct_exec(const char C[]);
 
 private:
-  /* A transaction goes through the following stages in its lifecycle:
-   * <ul>
-   * <li> nascent: the transaction hasn't actually begun yet.
-   * <li> active: the transaction has begun.  Since no commit command has been
-   *    issued, rollback is implicit if the connection fails now.
-   * <li> aborted: an abort has been issued; the transaction is terminated and
-   *    its changes to the database rolled back.  It will accept no further
-   *    commands.
-   * <li> committed: the transaction has completed successfully, meaning that a
-   *    commit has been issued.  No further commands are accepted.
-   * <li> in_doubt: the connection was lost at the exact wrong time, and there
-   *    is no way of telling whether the transaction was committed or aborted.
-   * </ul>
-   *
-   * Checking and maintaining state machine logic is the responsibility of the
-   * base class (ie., this one).
-   */
   enum Status
   {
     st_nascent,
@@ -479,9 +454,6 @@ private:
     st_committed,
     st_in_doubt
   };
-
-  /// Make sure transaction is opened on backend, if appropriate
-  PQXX_PRIVATE void activate();
 
   PQXX_PRIVATE void CheckPendingError();
 
@@ -529,7 +501,7 @@ private:
   connection &m_conn;
 
   internal::unique<internal::transactionfocus> m_focus;
-  Status m_status = st_nascent;
+  Status m_status = st_active;
   bool m_registered = false;
   std::string m_pending_error;
 };

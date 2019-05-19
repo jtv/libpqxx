@@ -21,48 +21,48 @@
 
 pqxx::internal::basic_robusttransaction::basic_robusttransaction(
 	connection &C,
-	const std::string &IsolationLevel,
+        const char begin_command[],
 	const std::string &table_name) :
   namedclass{"robusttransaction"},
-  dbtransaction(C, IsolationLevel),
+  dbtransaction(C),
   m_log_table{table_name}
 {
+  register_transaction();
+
   if (table_name.empty()) m_log_table = "pqxx_robusttransaction_log";
   m_sequence = m_log_table + "_seq";
-}
 
-
-pqxx::internal::basic_robusttransaction::~basic_robusttransaction()
-{
-}
-
-
-void pqxx::internal::basic_robusttransaction::do_begin()
-{
   try
   {
     CreateTransactionRecord();
   }
   catch (const std::exception &)
   {
-    // The problem here *may* be that the log table doesn't exist yet.  Create
-    // one, start a new transaction, and try again.
-    try { dbtransaction::do_abort(); } catch (const std::exception &) {}
+    // The problem here *may* be that the log table doesn't exist yet.
     CreateLogTable();
-    dbtransaction::do_begin();
     m_backendpid = conn().backendpid();
     CreateTransactionRecord();
   }
 
-  dbtransaction::do_begin();
+  try
+  {
+    direct_exec(begin_command);
+  }
+  catch (const std::exception &)
+  {
+    DeleteTransactionRecord();
+    throw;
+  }
 
   // If this transaction commits, the transaction record should also be gone.
   direct_exec(sql_delete().c_str());
-
-  if (conn().server_version() >= 80300)
-    direct_exec("SELECT txid_current()")[0][0].to(m_xid);
+  direct_exec("SELECT txid_current()")[0][0].to(m_xid);
 }
 
+
+pqxx::internal::basic_robusttransaction::~basic_robusttransaction()
+{
+}
 
 
 void pqxx::internal::basic_robusttransaction::do_commit()
@@ -158,7 +158,7 @@ void pqxx::internal::basic_robusttransaction::do_commit()
 
 void pqxx::internal::basic_robusttransaction::do_abort()
 {
-  dbtransaction::do_abort();
+  direct_exec("ROLLBACK");
   DeleteTransactionRecord();
 }
 

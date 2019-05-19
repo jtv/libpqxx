@@ -50,7 +50,7 @@ namespace pqxx
  * Database features that require a backend transaction, such as cursors or
  * large objects, will not work in a nontransaction.
  */
-class PQXX_LIBEXPORT nontransaction : public transaction_base
+class PQXX_LIBEXPORT nontransaction final : public transaction_base
 {
 public:
   /// Constructor.
@@ -62,13 +62,13 @@ public:
   explicit nontransaction(						//[t14]
 	connection &C,
 	const std::string &Name=std::string{}) :
-    namedclass{"nontransaction", Name}, transaction_base{C} { Begin(); }
+    namedclass{"nontransaction", Name}, transaction_base{C}
+  { register_transaction(); }
 
-  virtual ~nontransaction();						//[t14]
+  virtual ~nontransaction()						//[t14]
+	{ close(); }
 
 private:
-  virtual void do_begin() override {}					//[t14]
-  virtual result do_exec(const char C[]) override;			//[t14]
   virtual void do_commit() override {}					//[t14]
   virtual void do_abort() override {}					//[t14]
 };

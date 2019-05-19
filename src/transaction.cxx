@@ -19,11 +19,12 @@
 
 pqxx::internal::basic_transaction::basic_transaction(
 	connection &C,
-	std::string_view isolation,
-	readwrite_policy rw) :
+	const char begin_command[]) :
   namedclass{"transaction"},
-  dbtransaction(C, isolation, rw)
+  dbtransaction(C)
 {
+  register_transaction();
+  direct_exec(begin_command);
 }
 
 
@@ -69,4 +70,10 @@ void pqxx::internal::basic_transaction::do_commit()
       throw;
     }
   }
+}
+
+
+void pqxx::internal::basic_transaction::do_abort()
+{
+  direct_exec("ROLLBACK");
 }

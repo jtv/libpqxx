@@ -35,7 +35,6 @@ using large_object_size_type = long;
 // Forward declarations, to help break compilation dependencies.
 // These won't necessarily include all classes in libpqxx.
 class binarystring;
-class connectionpolicy;
 class connection;
 class const_result_iterator;
 class const_reverse_result_iterator;
