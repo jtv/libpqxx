@@ -80,10 +80,10 @@ void inert_notice_processor(void *, const char *) noexcept {}
 
 
 std::string pqxx::encrypt_password(
-        std::string_view user, std::string_view password)
+        const char user[], const char password[])
 {
   std::unique_ptr<char, void (*)(char *)> p{
-	PQencryptPassword(password.data(), user.data()),
+	PQencryptPassword(password, user),
         pqxx::internal::freepqmem_templated<char>};
   return std::string{p.get()};
 }
@@ -556,17 +556,17 @@ pqxx::result pqxx::connection::exec(const char Query[])
 
 
 void pqxx::connection::prepare(
-	std::string_view name,
-	std::string_view definition)
+	const char name[],
+	const char definition[])
 {
   auto r = make_result(
-    PQprepare(m_conn, name.data(), definition.data(), 0, nullptr),
+    PQprepare(m_conn, name, definition, 0, nullptr),
     "[PREPARE]");
   check_result(r);
 }
 
 
-void pqxx::connection::prepare(std::string_view definition)
+void pqxx::connection::prepare(const char definition[])
 {
   this->prepare("", definition);
 }
@@ -737,9 +737,9 @@ void pqxx::connection::end_copy_write()
 }
 
 
-void pqxx::connection::start_exec(std::string_view Q)
+void pqxx::connection::start_exec(const char query[])
 {
-  if (PQsendQuery(m_conn, Q.data()) == 0) throw failure{err_msg()};
+  if (PQsendQuery(m_conn, query) == 0) throw failure{err_msg()};
 }
 
 
@@ -749,27 +749,16 @@ pqxx::internal::pq::PGresult *pqxx::connection::get_result()
 }
 
 
-std::string pqxx::connection::esc(const char str[], size_t maxlen) const
+std::string pqxx::connection::esc(std::string_view str) const
 {
-  std::vector<char> buf(2 * maxlen + 1);
+  // TODO: How can we avoid copying through this buffer?
+  std::vector<char> buf(2 * str.size() + 1);
   int err = 0;
   // TODO: Can we make a callback-based string_view alternative to this?
   // TODO: If we can, then quote() can wrap PQescapeLiteral()!
-  PQescapeStringConn(m_conn, buf.data(), str, maxlen, &err);
+  PQescapeStringConn(m_conn, buf.data(), str.data(), str.size(), &err);
   if (err) throw argument_error{err_msg()};
   return std::string{buf.data()};
-}
-
-
-std::string pqxx::connection::esc(const char str[]) const
-{
-  return this->esc(str, strlen(str));
-}
-
-
-std::string pqxx::connection::esc(std::string_view str) const
-{
-  return this->esc(str.data(), str.size());
 }
 
 
@@ -787,7 +776,7 @@ std::string pqxx::connection::esc_raw(
 }
 
 
-std::string pqxx::connection::unesc_raw(const char *text) const
+std::string pqxx::connection::unesc_raw(const char text[]) const
 {
   size_t len;
   unsigned char *bytes = const_cast<unsigned char *>(

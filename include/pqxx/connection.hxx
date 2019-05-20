@@ -80,6 +80,7 @@ class const_connection_largeobject;
 
 namespace pqxx
 {
+// TODO: Replace with a new connection method.
 /// Encrypt password for given user.
 /** Use this when setting a new password for the user if password encryption is
  * enabled.  Inputs are the username the password is for, and the plaintext
@@ -98,8 +99,14 @@ namespace pqxx
  * @endcode
  */
 std::string PQXX_LIBEXPORT encrypt_password(				//[t00]
-	std::string_view user,
-	std::string_view password);
+	const char user[],
+	const char password[]);
+
+/// Encrypt password for given user.
+inline std::string encrypt_password(
+	const std::string &user,
+	const std::string &password)
+{ return encrypt_password(user.c_str(), password.c_str()); }
 
 
 // TODO: Document connection strings and environment variables.
@@ -270,8 +277,8 @@ public:
   /**
    * @param Encoding Name of the character set encoding to use.
    */
-  void set_client_encoding(std::string_view encoding)
-  { set_client_encoding(encoding.data()); }
+  void set_client_encoding(const std::string &encoding)
+  { set_client_encoding(encoding.c_str()); }
 
   /// Set client-side character encoding, by name.
   /**
@@ -406,7 +413,10 @@ public:
    * @param name unique name for the new prepared statement.
    * @param definition SQL statement to prepare.
    */
-  void prepare(std::string_view name, std::string_view definition);
+  void prepare(const char name[], const char definition[]);
+
+  void prepare(const std::string &name, const std::string &definition)
+  { prepare(name.c_str(), definition.c_str()); }
 
   /// Define a nameless prepared statement.
   /**
@@ -415,7 +425,9 @@ public:
    * feature, always keep the definition and the use close together to avoid
    * the nameless statement being redefined unexpectedly by code somewhere else.
    */
-  void prepare(std::string_view definition);
+  void prepare(const char definition[]);
+  void prepare(const std::string &definition)
+  { return prepare(definition.c_str()); }
 
   /// Drop prepared statement.
   void unprepare(std::string_view name);
@@ -434,13 +446,23 @@ public:
    * @defgroup escaping-functions String-escaping functions
    */
   //@{
-  /// Escape string for use as SQL string literal on this connection.
-  std::string esc(const char str[]) const;
 
   /// Escape string for use as SQL string literal on this connection.
-  std::string esc(const char str[], size_t maxlen) const;
+  /** @warning This accepts a length, and it does not require a terminating
+   * zero byte.  But if there is a zero byte, escaping stops there even if
+   * it's not at the end of the string!
+   */
+  std::string esc(const char str[], size_t maxlen) const
+  { return esc(std::string_view(str, maxlen)); }
 
   /// Escape string for use as SQL string literal on this connection.
+  std::string esc(const char str[]) const
+  { return esc(std::string_view(str)); }
+
+  /// Escape string for use as SQL string literal on this connection.
+  /** @warning If the string contains a zero byte, escaping stops there even
+   * if it's not at the end of the string!
+   */
   std::string esc(std::string_view str) const;
 
   /// Escape binary string for use as SQL string literal on this connection.
@@ -450,14 +472,14 @@ public:
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  std::string unesc_raw(std::string_view text) const
-					     { return unesc_raw(text.data()); }
+  std::string unesc_raw(const std::string &text) const
+					    { return unesc_raw(text.c_str()); }
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  std::string unesc_raw(const char *text) const;
+  std::string unesc_raw(const char text[]) const;
 
   /// Escape and quote a string of binary data.
   std::string quote_raw(const unsigned char str[], size_t len) const;
@@ -626,7 +648,7 @@ private:
   void remove_receiver(notification_receiver *) noexcept;
 
   friend class internal::gate::connection_pipeline;
-  void PQXX_PRIVATE start_exec(std::string_view);
+  void PQXX_PRIVATE start_exec(const char query[]);
   bool PQXX_PRIVATE consume_input() noexcept;
   bool PQXX_PRIVATE is_busy() const noexcept;
   internal::pq::PGresult *get_result();

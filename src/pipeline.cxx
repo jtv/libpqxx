@@ -196,7 +196,9 @@ void pqxx::pipeline::issue()
   const bool prepend_dummy = (num_issued > 1);
   if (prepend_dummy) cum = theDummyQuery + cum;
 
-  pqxx::internal::gate::connection_pipeline{m_trans.conn()}.start_exec(cum);
+  pqxx::internal::gate::connection_pipeline{
+	m_trans.conn()
+	}.start_exec(cum.c_str());
 
   // Since we managed to send out these queries, update state to reflect this
   m_dummy_pending = prepend_dummy;

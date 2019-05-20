@@ -132,24 +132,22 @@ public:
   row_size_type column_number(const char ColName[]) const;		//[t11]
 
   /// Number of given column (throws exception if it doesn't exist).
-  row_size_type column_number(std::string_view Name) const		//[t11]
-	{return column_number(Name.data());}
+  row_size_type column_number(const std::string &Name) const		//[t11]
+	{return column_number(Name.c_str());}
 
   /// Name of column with this number (throws exception if it doesn't exist)
   const char *column_name(row_size_type Number) const;			//[t11]
 
-  /// Type of given column
+  /// Return column's type, as an OID from the system catalogue.
   oid column_type(row_size_type ColNum) const;				//[t07]
-  /// Type of given column
+
+  /// Return column's type, as an OID from the system catalogue.
   oid column_type(int ColNum) const					//[t07]
 	{ return column_type(row_size_type(ColNum)); }
 
-  /// Type of given column
-  oid column_type(std::string_view ColName) const			//[t07]
-	{ return column_type(column_number(ColName)); }
-
-  /// Type of given column
-  oid column_type(const char ColName[]) const				//[t07]
+  /// Return column's type, as an OID from the system catalogue.
+  template<typename STRING>
+  oid column_type(STRING ColName) const					//[t07]
 	{ return column_type(column_number(ColName)); }
 
   /// What table did this column come from?
@@ -160,7 +158,8 @@ public:
 	{ return column_table(row_size_type(ColNum)); }
 
   /// What table did this column come from?
-  oid column_table(std::string_view ColName) const			//[t02]
+  template<typename STRING>
+  oid column_table(STRING ColName) const				//[t02]
 	{ return column_table(column_number(ColName)); }
 
   /// What column in its table did this column come from?
@@ -171,7 +170,8 @@ public:
 	{ return table_column(row_size_type(ColNum)); }
 
   /// What column in its table did this column come from?
-  row_size_type table_column(std::string_view ColName) const		//[t93]
+  template<typename STRING>
+  row_size_type table_column(STRING ColName) const			//[t93]
 	{ return table_column(column_number(ColName)); }
   //@}
 
