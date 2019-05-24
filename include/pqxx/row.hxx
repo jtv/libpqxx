@@ -89,7 +89,9 @@ public:
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  reference operator[](std::string_view) const;				//[t11]
+  reference operator[](const std::string &s) const			//[t11]
+  { return (*this)[s.c_str()]; }
+
   reference at(size_type) const; 					//[t11]
   reference at(int) const;						//[t11]
   /** Address field by name.
@@ -99,7 +101,8 @@ public:
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  reference at(std::string_view) const;					//[t11]
+  reference at(const std::string &s) const				//[t11]
+  { return at(s.c_str()); }
   //@}
 
   size_type size() const noexcept					//[t11]
@@ -114,26 +117,23 @@ public:
    * @name Column information
    */
   //@{
-  /// Number of given column (throws exception if it doesn't exist)
-  size_type column_number(std::string_view ColName) const		//[t30]
-      { return column_number(ColName.data()); }
+  /// Number of given column (throws exception if it doesn't exist).
+  size_type column_number(const std::string &ColName) const		//[t30]
+      { return column_number(ColName.c_str()); }
 
-  /// Number of given column (throws exception if it doesn't exist)
+  /// Number of given column (throws exception if it doesn't exist).
   size_type column_number(const char[]) const;       			//[t30]
 
-  /// Type of given column
+  /// Return a column's type.
   oid column_type(size_type) const;					//[t07]
 
-  /// Type of given column
+  /// Return a column's type.
   oid column_type(int ColNum) const					//[t07]
       { return column_type(size_type(ColNum)); }
 
-  /// Type of given column
-  oid column_type(std::string_view ColName) const			//[t07]
-      { return column_type(column_number(ColName)); }
-
-  /// Type of given column
-  oid column_type(const char ColName[]) const				//[t07]
+  /// Return a column's type.
+  template<typename STRING>
+  oid column_type(STRING ColName) const					//[t07]
       { return column_type(column_number(ColName)); }
 
   /// What table did this column come from?
@@ -143,7 +143,8 @@ public:
   oid column_table(int ColNum) const					//[t02]
       { return column_table(size_type(ColNum)); }
   /// What table did this column come from?
-  oid column_table(std::string_view ColName) const			//[t02]
+  template<typename STRING>
+  oid column_table(STRING ColName) const				//[t02]
       { return column_table(column_number(ColName)); }
 
   /// What column number in its table did this result column come from?
@@ -161,7 +162,8 @@ public:
       { return table_column(size_type(ColNum)); }
 
   /// What column number in its table did this result column come from?
-  size_type table_column(std::string_view ColName) const		//[t93]
+  template<typename STRING>
+  size_type table_column(STRING ColName) const				//[t93]
       { return table_column(column_number(ColName)); }
   //@}
 

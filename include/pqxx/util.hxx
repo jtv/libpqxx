@@ -262,10 +262,10 @@ private:
 };
 
 
-PQXX_PRIVATE void CheckUniqueRegistration(
-        const namedclass *New, const namedclass *Old);
-PQXX_PRIVATE void CheckUniqueUnregistration(
-        const namedclass *New, const namedclass *Old);
+PQXX_PRIVATE void check_unique_registration(
+        const namedclass *new_ptr, const namedclass *old_ptr);
+PQXX_PRIVATE void check_unique_unregistration(
+        const namedclass *new_ptr, const namedclass *old_ptr);
 
 
 /// Ensure proper opening/closing of GUEST objects related to a "host" object
@@ -278,19 +278,26 @@ class unique
 public:
   unique() =default;
   unique(const unique &) =delete;
+  unique(unique &&rhs) : m_guest(rhs.m_guest) { rhs.m_guest = nullptr; }
   unique &operator=(const unique &) =delete;
+  unique &operator=(unique &&rhs)
+  {
+    m_guest = rhs.m_guest;
+    rhs.m_guest = nullptr;
+    return *this;
+  }
 
   GUEST *get() const noexcept { return m_guest; }
 
   void register_guest(GUEST *G)
   {
-    CheckUniqueRegistration(G, m_guest);
+    check_unique_registration(G, m_guest);
     m_guest = G;
   }
 
   void unregister_guest(GUEST *G)
   {
-    CheckUniqueUnregistration(G, m_guest);
+    check_unique_unregistration(G, m_guest);
     m_guest = nullptr;
   }
 

@@ -121,21 +121,9 @@ pqxx::row::reference pqxx::row::operator[](const char f[]) const
 }
 
 
-pqxx::row::reference pqxx::row::operator[](std::string_view s) const
-{
-  return operator[](s.data());
-}
-
-
 pqxx::row::reference pqxx::row::at(int i) const
 {
   return at(size_type(i));
-}
-
-
-pqxx::row::reference pqxx::row::at(std::string_view s) const
-{
-  return at(s.data());
 }
 
 

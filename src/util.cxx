@@ -66,36 +66,38 @@ std::string pqxx::internal::namedclass::description() const
 }
 
 
-void pqxx::internal::CheckUniqueRegistration(const namedclass *New,
-    const namedclass *Old)
+void pqxx::internal::check_unique_registration(
+	const namedclass *new_ptr,
+	const namedclass *old_ptr)
 {
-  if (New == nullptr)
+  if (new_ptr == nullptr)
     throw internal_error{"null pointer registered."};
-  if (Old)
+  if (old_ptr != nullptr)
   {
-    if (Old == New)
-      throw usage_error{"Started twice: " + New->description()};
+    if (old_ptr == new_ptr)
+      throw usage_error{"Started twice: " + new_ptr->description()};
     throw usage_error{
-	"Started " + New->description() + " while " + Old->description() +
-	" still active."};
+	"Started " + new_ptr->description() + " while " +
+	new_ptr->description() + " still active."};
   }
 }
 
 
-void pqxx::internal::CheckUniqueUnregistration(const namedclass *New,
-    const namedclass *Old)
+void pqxx::internal::check_unique_unregistration(
+	const namedclass *new_ptr,
+	const namedclass *old_ptr)
 {
-  if (New != Old)
+  if (new_ptr != old_ptr)
   {
-    if (New == nullptr)
+    if (new_ptr == nullptr)
       throw usage_error{
-	"Expected to close " + Old->description() + ", "
+	"Expected to close " + old_ptr->description() + ", "
 	"but got null pointer instead."};
-    if (Old == nullptr)
-      throw usage_error{"Closed while not open: " + New->description()};
+    if (old_ptr == nullptr)
+      throw usage_error{"Closed while not open: " + new_ptr->description()};
     throw usage_error{
-	"Closed " + New->description() + "; "
-	"expected to close " + Old->description()};
+	"Closed " + new_ptr->description() + "; "
+	"expected to close " + old_ptr->description()};
   }
 }
 
