@@ -197,7 +197,7 @@ PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long double);
 #undef PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION
 
 
-/// String traits for C-style string ("pointer to const char")
+/// String traits for C-style string ("pointer to const char").
 template<> struct PQXX_LIBEXPORT string_traits<const char *>
 {
   static constexpr bool has_null() noexcept { return true; }
@@ -208,7 +208,7 @@ template<> struct PQXX_LIBEXPORT string_traits<const char *>
   static std::string to_string(const char *obj) { return obj; }
 };
 
-/// String traits for non-const C-style string ("pointer to char")
+/// String traits for non-const C-style string ("pointer to char").
 template<> struct PQXX_LIBEXPORT string_traits<char *>
 {
   static constexpr bool has_null() noexcept { return true; }
@@ -221,7 +221,7 @@ template<> struct PQXX_LIBEXPORT string_traits<char *>
   static std::string to_string(char *obj) { return obj; }
 };
 
-/// String traits for C-style string constant ("array of char")
+/// String traits for C-style string constant ("array of char").
 template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
 {
   static constexpr bool has_null() noexcept { return true; }
