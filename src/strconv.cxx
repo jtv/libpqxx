@@ -86,7 +86,7 @@ template<typename T> void wrap_from_chars(std::string_view in, T &out)
 
   const std::string base =
 	"Could not convert '" + std::string(in) + "' "
-	"to " + traits::name();
+	"to " + type_name<T>;
   if (msg.empty()) throw pqxx::conversion_error{base + "."};
   else throw pqxx::conversion_error{base + ": " + msg};
 }
@@ -154,7 +154,7 @@ template<typename T> std::string builtin_traits<T>::to_string(T in)
   }
 
   const std::string base =
-    std::string{"Could not convert "} + traits::name() + " to string";
+    std::string{"Could not convert "} + type_name<T> + " to string";
   if (msg.empty()) throw pqxx::conversion_error{base + "."};
   else throw pqxx::conversion_error{base + ": " + msg};
 }
