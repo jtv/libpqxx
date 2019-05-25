@@ -445,13 +445,13 @@ protected:
   result direct_exec(const char C[]);
 
 private:
-  enum Status
+  enum class status
   {
-    st_nascent,
-    st_active,
-    st_aborted,
-    st_committed,
-    st_in_doubt
+    nascent,
+    active,
+    aborted,
+    committed,
+    in_doubt
   };
 
   PQXX_PRIVATE void CheckPendingError();
@@ -500,7 +500,7 @@ private:
   connection &m_conn;
 
   internal::unique<internal::transactionfocus> m_focus;
-  Status m_status = st_active;
+  status m_status = status::active;
   bool m_registered = false;
   std::string m_pending_error;
 };

@@ -77,18 +77,18 @@ void pqxx::transaction_base::commit()
   // we're in "implicit" state, but multiple commits are silently accepted.
   switch (m_status)
   {
-  case st_nascent:	// We never managed to start the transaction.
+  case status::nascent:	// We never managed to start the transaction.
     throw usage_error{
 	"Attempt to commit unserviceable " + description() + "."};
     return;
 
-  case st_active:	// Just fine.  This is what we expect.
+  case status::active:	// Just fine.  This is what we expect.
     break;
 
-  case st_aborted:
+  case status::aborted:
     throw usage_error{"Attempt to commit previously aborted " + description()};
 
-  case st_committed:
+  case status::committed:
     // Transaction has been committed already.  This is not exactly proper
     // behaviour, but throwing an exception here would only give the impression
     // that an abort is needed--which would only confuse things further at this
@@ -97,7 +97,7 @@ void pqxx::transaction_base::commit()
     m_conn.process_notice(description() + " committed more than once.\n");
     return;
 
-  case st_in_doubt:
+  case status::in_doubt:
     // Transaction may or may not have been committed.  The only thing we can
     // really do is keep telling the caller that the transaction is in doubt.
     throw in_doubt_error{
@@ -127,16 +127,16 @@ void pqxx::transaction_base::commit()
   try
   {
     do_commit();
-    m_status = st_committed;
+    m_status = status::committed;
   }
   catch (const in_doubt_error &)
   {
-    m_status = st_in_doubt;
+    m_status = status::in_doubt;
     throw;
   }
   catch (const std::exception &)
   {
-    m_status = st_aborted;
+    m_status = status::aborted;
     throw;
   }
 
@@ -150,20 +150,20 @@ void pqxx::transaction_base::abort()
   // simplify emergency bailout code.
   switch (m_status)
   {
-  case st_nascent:	// Never began transaction.  No need to issue rollback.
+  case status::nascent:	// Never began transaction.  No need to issue rollback.
     return;
 
-  case st_active:
+  case status::active:
     try { do_abort(); } catch (const std::exception &) { }
     break;
 
-  case st_aborted:
+  case status::aborted:
     return;
 
-  case st_committed:
+  case status::committed:
     throw usage_error{"Attempt to abort previously committed " + description()};
 
-  case st_in_doubt:
+  case status::in_doubt:
     // Aborting an in-doubt transaction is probably a reasonably sane response
     // to an insane situation.  Log it, but do not complain.
     m_conn.process_notice(
@@ -175,7 +175,7 @@ void pqxx::transaction_base::abort()
     throw internal_error{"Invalid transaction status."};
   }
 
-  m_status = st_aborted;
+  m_status = status::aborted;
   close();
 }
 
@@ -211,17 +211,17 @@ pqxx::result pqxx::transaction_base::exec(
 
   switch (m_status)
   {
-  case st_nascent:
+  case status::nascent:
     throw usage_error{
 	"Could not execute query " + N + ": "
         "transaction startup failed."};
 
-  case st_active:
+  case status::active:
     break;
 
-  case st_committed:
-  case st_aborted:
-  case st_in_doubt:
+  case status::committed:
+  case status::aborted:
+  case status::in_doubt:
     throw usage_error{
         "Could not execute query " + N + ": "
         "transaction is already closed."};
@@ -329,7 +329,7 @@ void pqxx::transaction_base::close() noexcept
 	}.unregister_transaction(this);
     }
 
-    if (m_status != st_active) return;
+    if (m_status != status::active) return;
 
     if (m_focus.get())
       m_conn.process_notice(
