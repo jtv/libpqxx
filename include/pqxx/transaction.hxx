@@ -64,8 +64,8 @@ namespace pqxx
  * @endcode
  */
 template<
-	isolation_level ISOLATION=read_committed,
-	readwrite_policy READWRITE=read_write>
+	isolation_level ISOLATION=isolation_level::read_committed,
+	readwrite_policy READWRITE=readwrite_policy::read_write>
 class transaction final : public internal::basic_transaction
 {
 public:
@@ -92,7 +92,10 @@ public:
 using work = transaction<>;
 
 /// Read-only transaction.
-using read_transaction = transaction<read_committed, read_only>;
+using read_transaction = transaction<
+	isolation_level::read_committed,
+	readwrite_policy::read_only
+>;
 
 //@}
 } // namespace pqxx

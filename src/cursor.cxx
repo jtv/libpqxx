@@ -100,7 +100,7 @@ pqxx::icursorstream::icursorstream(
     transaction_base &context,
     const field &cname,
     difference_type sstride,
-    cursor_base::ownershippolicy op) :
+    cursor_base::ownership_policy op) :
   m_cur{context, cname.c_str(), op},
   m_stride{sstride},
   m_realpos{0},

@@ -19,7 +19,8 @@
  - There's no more `pqxx_exception`.  Complicated things too much.
  - pqxx::string_traits<>::name() has been replaced with pqxx::type_name.
  - All from_string() that took a C string now take a std::string_view.
- - error_verbosity is now a scoped enum in pqxx, no longer in pqxx::connection.
+ - Many enums are now scoped enums, so qualify enum values with the enum name.
+ - error_verbosity is no longer nested in connection.
 6.4.4
  - Use pkg-config if pg-config is not available.
  - In CMake build, prefer CMake's config headers over any found in source tree.

@@ -35,15 +35,15 @@ public:
 	transaction_base &t,
 	const std::string &query,
 	const std::string &cname,
-	cursor_base::accesspolicy ap,
-	cursor_base::updatepolicy up,
-	cursor_base::ownershippolicy op,
+	cursor_base::access_policy ap,
+	cursor_base::update_policy up,
+	cursor_base::ownership_policy op,
 	bool hold);
 
   sql_cursor(
 	transaction_base &t,
 	const std::string &cname,
-	cursor_base::ownershippolicy op);
+	cursor_base::ownership_policy op);
 
   ~sql_cursor() noexcept { close(); }
 
@@ -95,7 +95,7 @@ private:
   bool m_adopted;
 
   /// Will this cursor object destroy its SQL cursor when it dies?
-  cursor_base::ownershippolicy m_ownership;
+  cursor_base::ownership_policy m_ownership;
 
   /// At starting position (-1), somewhere in the middle (0), or past end (1)
   int m_at_end;

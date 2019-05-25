@@ -47,7 +47,7 @@ public:
   /** Allowing a cursor to move forward only can result in better performance,
    * so use this access policy whenever possible.
    */
-  enum accesspolicy
+  enum access_policy
   {
     /// Cursor can move forward only
     forward_only,
@@ -59,7 +59,7 @@ public:
   /**
    * @warning Not all PostgreSQL versions support updatable cursors.
    */
-  enum updatepolicy
+  enum update_policy
   {
     /// Cursor can be used to read data but not to write
     read_only,
@@ -82,7 +82,7 @@ public:
    * @warning Use this feature with care and moderation.  Only one cursor object
    * should be responsible for any one underlying SQL cursor at any given time.
    */
-  enum ownershippolicy
+  enum ownership_policy
   {
     /// Destroy SQL cursor when cursor object is closed at end of transaction
     owned,
@@ -153,7 +153,7 @@ namespace pqxx
  * don't keep track of positions, fetches, and moves; you just say which rows
  * you want.  See the retrieve() member function.
  */
-template<cursor_base::updatepolicy up, cursor_base::ownershippolicy op>
+template<cursor_base::update_policy up, cursor_base::ownership_policy op>
 class stateless_cursor
 {
 public:
@@ -298,7 +298,7 @@ public:
 	transaction_base &context,
 	const field &cname,
 	difference_type sstride=1,
-	cursor_base::ownershippolicy op=cursor_base::owned);		//[t84]
+	cursor_base::ownership_policy op=cursor_base::owned);		//[t84]
 
   operator bool() const noexcept { return not m_done; }
 

@@ -88,9 +88,9 @@ pqxx::internal::sql_cursor::sql_cursor(
 	transaction_base &t,
 	const std::string &query,
 	const std::string &cname,
-	cursor_base::accesspolicy ap,
-	cursor_base::updatepolicy up,
-	cursor_base::ownershippolicy op,
+	cursor_base::access_policy ap,
+	cursor_base::update_policy up,
+	cursor_base::ownership_policy op,
 	bool hold) :
   cursor_base{t.conn(), cname},
   m_home{t.conn()},
@@ -139,7 +139,7 @@ pqxx::internal::sql_cursor::sql_cursor(
 pqxx::internal::sql_cursor::sql_cursor(
 	transaction_base &t,
 	const std::string &cname,
-	cursor_base::ownershippolicy op) :
+	cursor_base::ownership_policy op) :
   cursor_base{t.conn(), cname, false},
   m_home{t.conn()},
   m_empty_result{},
@@ -154,7 +154,7 @@ pqxx::internal::sql_cursor::sql_cursor(
 
 void pqxx::internal::sql_cursor::close() noexcept
 {
-  if (m_ownership==cursor_base::owned)
+  if (m_ownership == cursor_base::owned)
   {
     try
     {
