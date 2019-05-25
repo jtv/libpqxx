@@ -12,11 +12,10 @@
  - If you do weird stuff with preparing/unpreparing statements, it may break.
  - Changed exceptions and errors for e.g. overwriting a prepared statement.
  - Mishandling prepared statements will now break the connection.
- - Some string references and const char pointers are now std::string_view.
+ - Many string references and const char pointers are now std::string_view.
  - The stream_base abstract base class is gone.
- - Transactions no longer have an `isolation_tag` type.
+ - Transactions no longer have an `isolation_tag` nested type.
  - The `isolation_traits` type is gone.
- - Many `std::string` parameters are now `std::string_view`.
  - There's no more `pqxx_exception`.  Complicated things too much.
  - pqxx::string_traits<>::name() has been replaced with pqxx::type_name.
  - All from_string() that took a C string now take a std::string_view.

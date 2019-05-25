@@ -23,8 +23,8 @@ namespace pqxx
 std::string::size_type array_parser::scan_glyph(
 	std::string::size_type pos) const
 {
-  assert(pos < m_end);
-  return m_scan(m_input, m_end, pos);
+  assert(pos < m_input.size());
+  return m_scan(m_input.data(), m_input.size(), pos);
 }
 
 
@@ -34,8 +34,8 @@ std::string::size_type array_parser::scan_glyph(
 	std::string::size_type end) const
 {
   assert(pos < end);
-  assert(end <= m_end);
-  return m_scan(m_input, end, pos);
+  assert(end <= m_input.size());
+  return m_scan(m_input.data(), end, pos);
 }
 
 
@@ -45,12 +45,12 @@ std::string::size_type array_parser::scan_glyph(
 std::string::size_type array_parser::scan_single_quoted_string() const
 {
   auto here = m_pos, next = scan_glyph(here);
-  assert(next < m_end);
+  assert(next < m_input.size());
   assert(next - here == 1);
   assert(m_input[here] == '\'');
   for (
 	here = next, next = scan_glyph(here);
-	here < m_end;
+	here < m_input.size();
 	here = next, next = scan_glyph(here)
   )
   {
@@ -116,7 +116,7 @@ std::string array_parser::parse_single_quoted_string(
       next = scan_glyph(here, end);
     }
 
-    output.append(m_input + here, m_input + next);
+    output.append(m_input.data() + here, m_input.data() + next);
   }
 
   return output;
@@ -127,13 +127,13 @@ std::string array_parser::parse_single_quoted_string(
 std::string::size_type array_parser::scan_double_quoted_string() const
 {
   auto here = m_pos;
-  assert(here < m_end);
+  assert(here < m_input.size());
   auto next = scan_glyph(here);
   assert(next - here == 1);
   assert(m_input[here] == '"');
   for (
 	here = next, next = scan_glyph(here);
-	here < m_end;
+	here < m_input.size();
 	here = next, next = scan_glyph(here)
   )
   {
@@ -182,7 +182,7 @@ std::string array_parser::parse_double_quoted_string(
       next = scan_glyph(here, end);
     }
 
-    output.append(m_input + here, m_input + next);
+    output.append(m_input.data() + here, m_input.data() + next);
   }
 
   return output;
@@ -195,7 +195,7 @@ std::string array_parser::parse_double_quoted_string(
 std::string::size_type array_parser::scan_unquoted_string() const
 {
   auto here = m_pos, next = scan_glyph(here);
-  assert(here < m_end);
+  assert(here < m_input.size());
   assert((next - here > 1) or (m_input[here] != '\''));
   assert((next - here > 1) or (m_input[here] != '"'));
 
@@ -222,15 +222,14 @@ std::string::size_type array_parser::scan_unquoted_string() const
 std::string array_parser::parse_unquoted_string(
 	std::string::size_type end) const
 {
-  return std::string{m_input + m_pos, m_input + end};
+  return std::string{m_input.data() + m_pos, m_input.data() + end};
 }
 
 
 array_parser::array_parser(
-	const char input[],
+	std::string_view input,
 	internal::encoding_group enc) :
   m_input(input),
-  m_end(input == nullptr ? 0 : std::strlen(input)),
   m_scan(internal::get_glyph_scanner(enc)),
   m_pos(0)
 {
@@ -244,7 +243,7 @@ array_parser::get_next()
   std::string value;
   std::string::size_type end;
 
-  if (m_input == nullptr or (m_pos >= m_end))
+  if (m_input.data() == nullptr or (m_pos >= m_input.size()))
     return std::make_pair(juncture::done, value);
 
   if (scan_glyph(m_pos) - m_pos > 1)
@@ -299,7 +298,7 @@ array_parser::get_next()
   }
 
   // Skip a trailing field separator, if present.
-  if (end < m_end)
+  if (end < m_input.size())
   {
     auto next = scan_glyph(end);
     if (next - end == 1 and (m_input[end] == ',' or m_input[end] == ';'))

@@ -63,7 +63,7 @@ public:
 
   /// Constructor.  You don't need this; use @c field::as_array instead.
   explicit array_parser(
-	const char input[],
+	std::string_view input,
 	internal::encoding_group=internal::encoding_group::MONOBYTE);
 
   /// Parse the next step in the array.
@@ -75,8 +75,7 @@ public:
   std::pair<juncture, std::string> get_next();
 
 private:
-  const char *const m_input;
-  const std::string::size_type m_end;
+  std::string_view m_input;
   internal::glyph_scanner_func *const m_scan;
 
   /// Current parsing position in the input.
