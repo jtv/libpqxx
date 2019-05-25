@@ -3,7 +3,7 @@
 namespace
 {
   enum colour { red, green, blue };
-  enum class weather : int { hot, cold, wet };
+  enum class weather { hot, cold, wet };
 }
 
 namespace pqxx
