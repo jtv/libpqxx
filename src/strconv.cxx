@@ -26,7 +26,7 @@
 
 namespace
 {
-/// C string comparison.
+/// String comparison between string_view.
 inline bool equal(std::string_view lhs, std::string_view rhs)
 {
   return lhs.compare(rhs) == 0;
