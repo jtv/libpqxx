@@ -109,6 +109,16 @@ inline std::string encrypt_password(
 { return encrypt_password(user.c_str(), password.c_str()); }
 
 
+/// Error verbosity levels.
+enum class error_verbosity : int
+{
+    // These values must match those in libpq's PGVerbosity enum.
+    terse=0,
+    normal=1,
+    verbose=2
+};
+
+
 // TODO: Document connection strings and environment variables.
 /// Connection to a database.
 /** This is the first class to look at when you wish to work with a database
@@ -530,15 +540,6 @@ public:
   /// Attempt to cancel the ongoing query, if any.
   void cancel_query();
 
-  /// Error verbosity levels.
-  enum error_verbosity
-  {
-      // These values must match those in libpq's PGVerbosity enum.
-      terse=0,
-      normal=1,
-      verbose=2
-  };
-
   /// Set session verbosity.
   /** Set the verbosity of error messages to "terse", "normal" (i.e. default) or
    * "verbose."
@@ -623,7 +624,7 @@ private:
   int m_unique_id = 0;
 
   /// Current verbosity level.
-  error_verbosity m_verbosity = normal;
+  error_verbosity m_verbosity = error_verbosity::normal;
 
   /// Connection string.
   std::string m_options;
