@@ -18,43 +18,11 @@
 #include <stdexcept>
 
 
-// TODO: Move helpers to internal header.
 namespace pqxx::internal
 {
 /// Throw exception for attempt to convert null to given type.
 [[noreturn]] PQXX_LIBEXPORT void throw_null_conversion(
 	const std::string &type);
-
-/// Give a human-readable name for a type, at compile time.
-/** Each instantiation contains a static member called @c value which is the
- * type's name, as a string.
- */
-template<typename TYPE> const char *const type_name = nullptr;
-
-#define PQXX_DECLARE_TYPE_NAME(TYPE) \
-  template<> const char *const type_name<TYPE> = #TYPE
-
-PQXX_DECLARE_TYPE_NAME(bool);
-PQXX_DECLARE_TYPE_NAME(short);
-PQXX_DECLARE_TYPE_NAME(unsigned short);
-PQXX_DECLARE_TYPE_NAME(int);
-PQXX_DECLARE_TYPE_NAME(unsigned int);
-PQXX_DECLARE_TYPE_NAME(long);
-PQXX_DECLARE_TYPE_NAME(unsigned long);
-PQXX_DECLARE_TYPE_NAME(long long);
-PQXX_DECLARE_TYPE_NAME(unsigned long long);
-PQXX_DECLARE_TYPE_NAME(float);
-PQXX_DECLARE_TYPE_NAME(double);
-PQXX_DECLARE_TYPE_NAME(long double);
-PQXX_DECLARE_TYPE_NAME(char *);
-PQXX_DECLARE_TYPE_NAME(const char *);
-PQXX_DECLARE_TYPE_NAME(std::string);
-PQXX_DECLARE_TYPE_NAME(const std::string);
-PQXX_DECLARE_TYPE_NAME(std::stringstream);
-PQXX_DECLARE_TYPE_NAME(std::nullptr_t);
-#undef PQXX_DECLARE_TYPE_NAME
-
-template<size_t N> const char *const type_name<char[N]> = "char[]";
 
 
 /// Helper: string traits implementation for built-in types.
@@ -66,11 +34,8 @@ template<size_t N> const char *const type_name<char[N]> = "char[]";
  */
 template<typename TYPE> struct PQXX_LIBEXPORT builtin_traits
 {
-  static constexpr const char *name() noexcept
-	{ return internal::type_name<TYPE>; }
   static constexpr bool has_null() noexcept { return false; }
   static constexpr bool is_null(TYPE) { return false; }
-  [[noreturn]] static TYPE null() { throw_null_conversion(name()); }
   static void from_string(const char Str[], TYPE &Obj);
   static std::string to_string(TYPE Obj);
 };
@@ -108,34 +73,18 @@ namespace pqxx
  */
 //@{
 
+/// A human-readable name for a type, used in error messages and such.
+template<typename TYPE> const std::string type_name;
+
+/// Define @c type_name for TYPE.
+#define PQXX_DECLARE_TYPE_NAME(TYPE) \
+  template<> const std::string type_name<TYPE> = #TYPE
+
 /// Traits class for use in string conversions
 /** Specialize this template for a type that you wish to add to_string and
  * from_string support for.
  */
 template<typename T, typename = void> struct string_traits;
-
-
-/// Helper: declare a string_traits specialisation for a builtin type.
-#define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(TYPE) \
-  template<> struct PQXX_LIBEXPORT string_traits<TYPE> : \
-    internal::builtin_traits<TYPE> {};
-
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(bool)
-
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(short)
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned short)
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(int)
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned int)
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long)
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned long)
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long long)
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned long long)
-
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(float)
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(double)
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long double)
-
-#undef PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION
 
 
 /// Helper class for defining enum conversions.
@@ -183,19 +132,68 @@ struct enum_traits
  *      int main() { std::cout << to_string(xa) << std::endl; }
  */
 #define PQXX_DECLARE_ENUM_CONVERSION(ENUM) \
+PQXX_DECLARE_TYPE_NAME(ENUM); \
 template<> \
 struct string_traits<ENUM> : pqxx::enum_traits<ENUM> \
 { \
-  static constexpr const char *name() noexcept { return #ENUM; } \
   [[noreturn]] static ENUM null() \
-	{ internal::throw_null_conversion(name()); } \
+	{ internal::throw_null_conversion(type_name<ENUM>); } \
 }
+
+//@}
+} // namespace pqxx
+
+
+namespace pqxx
+{
+PQXX_DECLARE_TYPE_NAME(bool);
+PQXX_DECLARE_TYPE_NAME(short);
+PQXX_DECLARE_TYPE_NAME(unsigned short);
+PQXX_DECLARE_TYPE_NAME(int);
+PQXX_DECLARE_TYPE_NAME(unsigned int);
+PQXX_DECLARE_TYPE_NAME(long);
+PQXX_DECLARE_TYPE_NAME(unsigned long);
+PQXX_DECLARE_TYPE_NAME(long long);
+PQXX_DECLARE_TYPE_NAME(unsigned long long);
+PQXX_DECLARE_TYPE_NAME(float);
+PQXX_DECLARE_TYPE_NAME(double);
+PQXX_DECLARE_TYPE_NAME(long double);
+PQXX_DECLARE_TYPE_NAME(char *);
+PQXX_DECLARE_TYPE_NAME(const char *);
+PQXX_DECLARE_TYPE_NAME(std::string);
+PQXX_DECLARE_TYPE_NAME(const std::string);
+PQXX_DECLARE_TYPE_NAME(std::stringstream);
+PQXX_DECLARE_TYPE_NAME(std::nullptr_t);
+
+template<size_t N> const std::string type_name<char[N]> = "char[]";
+
+/// Helper: declare a string_traits specialisation for a builtin type.
+#define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(TYPE) \
+  template<> struct PQXX_LIBEXPORT string_traits<TYPE> : \
+    internal::builtin_traits<TYPE> \
+    { \
+      [[noreturn]] static TYPE null() \
+	{ pqxx::internal::throw_null_conversion(type_name<TYPE>); } \
+    }
+
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(bool);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(short);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned short);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(int);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned int);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned long);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long long);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned long long);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(float);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(double);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long double);
+#undef PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION
 
 
 /// String traits for C-style string ("pointer to const char")
 template<> struct PQXX_LIBEXPORT string_traits<const char *>
 {
-  static constexpr const char *name() noexcept { return "const char *"; }
   static constexpr bool has_null() noexcept { return true; }
   static constexpr bool is_null(const char *t) { return t == nullptr; }
   static constexpr const char *null() { return nullptr; }
@@ -206,7 +204,6 @@ template<> struct PQXX_LIBEXPORT string_traits<const char *>
 /// String traits for non-const C-style string ("pointer to char")
 template<> struct PQXX_LIBEXPORT string_traits<char *>
 {
-  static constexpr const char *name() noexcept { return "char *"; }
   static constexpr bool has_null() noexcept { return true; }
   static constexpr bool is_null(const char *t) { return t == nullptr; }
   static constexpr const char *null() { return nullptr; }
@@ -220,7 +217,6 @@ template<> struct PQXX_LIBEXPORT string_traits<char *>
 /// String traits for C-style string constant ("array of char")
 template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
 {
-  static constexpr const char *name() noexcept { return "char[]"; }
   static constexpr bool has_null() noexcept { return true; }
   static constexpr bool is_null(const char t[]) { return t == nullptr; }
   static constexpr const char *null() { return nullptr; }
@@ -229,32 +225,29 @@ template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
 
 template<> struct PQXX_LIBEXPORT string_traits<std::string>
 {
-  static constexpr const char *name() noexcept { return "string"; }
   static constexpr bool has_null() noexcept { return false; }
   static constexpr bool is_null(const std::string &) { return false; }
   [[noreturn]] static std::string null()
-	{ internal::throw_null_conversion(name()); }
+	{ internal::throw_null_conversion(type_name<std::string>); }
   static void from_string(const char Str[], std::string &Obj) { Obj=Str; }
   static std::string to_string(const std::string &Obj) { return Obj; }
 };
 
 template<> struct PQXX_LIBEXPORT string_traits<const std::string>
 {
-  static constexpr const char *name() noexcept { return "const string"; }
   static constexpr bool has_null() noexcept { return false; }
   static constexpr bool is_null(const std::string &) { return false; }
   [[noreturn]] static const std::string null()
-	{ internal::throw_null_conversion(name()); }
+	{ internal::throw_null_conversion(type_name<std::string>); }
   static std::string to_string(const std::string &Obj) { return Obj; }
 };
 
 template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
 {
-  static constexpr const char *name() noexcept { return "stringstream"; }
   static constexpr bool has_null() noexcept { return false; }
   static constexpr bool is_null(const std::stringstream &) { return false; }
   [[noreturn]] static std::stringstream null()
-	{ internal::throw_null_conversion(name()); }
+	{ internal::throw_null_conversion(type_name<std::stringstream>); }
   static void from_string(const char Str[], std::stringstream &Obj)
 	{ Obj.clear(); Obj << Str; }
   static std::string to_string(const std::stringstream &Obj)
@@ -264,7 +257,6 @@ template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
 /// Weird case: nullptr_t.  We don't fully support it.
 template<> struct PQXX_LIBEXPORT string_traits<std::nullptr_t>
 {
-  static constexpr const char *name() noexcept { return "nullptr_t"; }
   static constexpr bool has_null() noexcept { return true; }
   static constexpr bool is_null(std::nullptr_t) noexcept { return true; }
   static constexpr std::nullptr_t null() { return nullptr; }
@@ -339,7 +331,5 @@ from_string(const std::string &Str, std::string &Obj)			//[t46]
 template<typename T> std::string to_string(const T &Obj)
 	{ return string_traits<T>::to_string(Obj); }
 
-//@}
 } // namespace pqxx
-
 #endif

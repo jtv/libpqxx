@@ -17,6 +17,7 @@
  - The `isolation_traits` type is gone.
  - Many `std::string` parameters are now `std::string_view`.
  - There's no more `pqxx_exception`.  Complicated things too much.
+ - pqxx::string_traits<>::name() has been replaced with pqxx::type_name.
 6.4.4
  - Use pkg-config if pg-config is not available.
  - In CMake build, prefer CMake's config headers over any found in source tree.

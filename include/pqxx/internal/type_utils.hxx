@@ -150,11 +150,6 @@ template<typename T> struct string_traits<
   typename std::enable_if<internal::is_optional<T>::value>::type
 >
 {
-private:
-  using I = internal::inner_type<T>;
-public:
-  static constexpr const char *name() noexcept
-    { return string_traits<I>::name(); }
   static constexpr bool has_null() noexcept { return true; }
   static bool is_null(const T& v)
     { return (not v || string_traits<I>::is_null(*v)); }
@@ -174,10 +169,12 @@ public:
   }
   static std::string to_string(const T& Obj)
   {
-    if (is_null(Obj)) internal::throw_null_conversion(name());
+    if (is_null(Obj)) internal::throw_null_conversion(type_name<T>);
     return string_traits<I>::to_string(*Obj);
   }
+
+private:
+  using I = internal::inner_type<T>;
 };
 } // namespace pqxx
-
 #endif
