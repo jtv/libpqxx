@@ -39,13 +39,15 @@ recently contributed alternative build, so if you run into problems, your help
 could be crucial in fixing them.
 
 The "Unix-like" section applies to systems that look like Unix: GNU/Linux,
-Apple OSX and the BSD family, AIX, HP-UX, Irix, Solaris, etc.  Microsoft
-Windows with a Unix-like environment such as Cygwin or MinGW installed should
-also work in the same way.
+Apple macOS and the BSD family, AIX, HP-UX, Irix, Solaris, etc.  Even on
+Microsoft Windows, a Unix-like environment such as Cygwin or MinGW installed
+should work.
 
 There is a separate section below for a Visual C++ build on Windows.  It takes
 a bit of work, and if the CMake build works well, we may drop support for the
 Windows/Visual C++ build later.
+
+For any Windows builds though, also see win32/INSTALL.txt.
 
 
 ### Using CMake
