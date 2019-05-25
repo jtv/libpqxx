@@ -2,6 +2,18 @@
 
 namespace
 {
+  enum colour { red, green, blue };
+  enum class weather : int { hot, cold, wet };
+}
+
+namespace pqxx
+{
+  PQXX_DECLARE_ENUM_CONVERSION(colour);
+  PQXX_DECLARE_ENUM_CONVERSION(weather);
+}
+
+namespace
+{
 void test_strconv_bool()
 {
   PQXX_CHECK_EQUAL(pqxx::to_string(false), "false", "Wrong to_string(false).");
@@ -31,5 +43,39 @@ void test_strconv_bool()
 }
 
 
+void test_strconv_enum()
+{
+  PQXX_CHECK_EQUAL(pqxx::to_string(red), "0", "Enum value did not convert.");
+  PQXX_CHECK_EQUAL(pqxx::to_string(green), "1", "Enum value did not convert.");
+  PQXX_CHECK_EQUAL(pqxx::to_string(blue), "2", "Enum value did not convert.");
+
+  colour col;
+  pqxx::from_string("2", col);
+  PQXX_CHECK_EQUAL(col, blue, "Could not recover enum value from string.");
+}
+
+
+void test_strconv_class_enum()
+{
+  PQXX_CHECK_EQUAL(
+	pqxx::to_string(weather::hot),
+	"0",
+	"Class enum value did not convert.");
+  PQXX_CHECK_EQUAL(
+	pqxx::to_string(weather::wet),
+	"2",
+	"Enum value did not convert.");
+
+  weather w;
+  pqxx::from_string("2", w);
+  PQXX_CHECK_EQUAL(
+	w,
+	weather::wet,
+	"Could not recover class enum value from string.");
+}
+
+
 PQXX_REGISTER_TEST(test_strconv_bool);
+PQXX_REGISTER_TEST(test_strconv_enum);
+PQXX_REGISTER_TEST(test_strconv_class_enum);
 }
