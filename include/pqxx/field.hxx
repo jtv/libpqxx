@@ -118,11 +118,11 @@ public:
    */
   size_type size() const noexcept;					//[t11]
 
-  /// Read value into Obj; or leave Obj untouched and return @c false if null
-  /** Note this can be used with optional types (except pointers other than
-   * C-strings)
+  /// Read value into obj; or if null, leave obj untouched and return @c false.
+  /** This can be used with optional types (except pointers other than C-style
+   * strings).
    */
-  template<typename T> auto to(T &Obj) const
+  template<typename T> auto to(T &obj) const
     -> typename std::enable_if<(
       not std::is_pointer<T>::value
       or std::is_same<T, const char*>::value
@@ -130,41 +130,41 @@ public:
   {
     const char *const bytes = c_str();
     if (bytes[0] == '\0' and is_null()) return false;
-    from_string(bytes, Obj);
+    from_string(bytes, obj);
     return true;
   }
 
-  /// Read value into Obj; or leave Obj untouched and return @c false if null
-  template<typename T> bool operator>>(T &Obj) const			//[t07]
-      { return to(Obj); }
+  /// Read value into obj; or leave obj untouched and return @c false if null.
+  template<typename T> bool operator>>(T &obj) const			//[t07]
+      { return to(obj); }
 
-  /// Read value into Obj; or use Default & return @c false if null
+  /// Read value into obj; or if null, use default value and return @c false.
   /** Note this can be used with optional types (except pointers other than
    * C-strings)
    */
-  template<typename T> auto to(T &Obj, const T &Default) const	//[t12]
+  template<typename T> auto to(T &obj, const T &default_value) const	//[t12]
     -> typename std::enable_if<(
       not std::is_pointer<T>::value
       or std::is_same<T, const char*>::value
     ), bool>::type
   {
-    const bool NotNull = to(Obj);
-    if (not NotNull) Obj = Default;
-    return NotNull;
+    const bool has_value = to(obj);
+    if (not has_value) obj = default_value;
+    return has_value;
   }
 
-  /// Return value as object of given type, or Default if null
+  /// Return value as object of given type, or default value if null.
   /** Note that unless the function is instantiated with an explicit template
    * argument, the Default value's type also determines the result type.
    */
-  template<typename T> T as(const T &Default) const			//[t01]
+  template<typename T> T as(const T &default_value) const		//[t01]
   {
-    T Obj;
-    to(Obj, Default);
-    return Obj;
+    T obj;
+    to(obj, default_value);
+    return obj;
   }
 
-  /// Return value as object of given type, or throw exception if null
+  /// Return value as object of given type, or throw exception if null.
   /** Use as `as<std::optional<int>>()` or `as<my_untemplated_optional_t>()` as
    * an alternative to `get<int>()`; this is disabled for use with raw pointers
    * (other than C-strings) because storage for the value can't safely be
@@ -172,9 +172,9 @@ public:
    */
   template<typename T> T as() const
   {
-    T Obj;
-    if (not to(Obj)) Obj = string_traits<T>::null();
-    return Obj;
+    T obj;
+    if (not to(obj)) obj = string_traits<T>::null();
+    return obj;
   }
 
   /// Return value wrapped in some optional type (empty for nulls).
@@ -215,11 +215,11 @@ private:
 
 /// Specialization: <tt>to(string &)</tt>.
 template<>
-inline bool field::to<std::string>(std::string &Obj) const
+inline bool field::to<std::string>(std::string &obj) const
 {
   const char *const bytes = c_str();
   if (bytes[0] == '\0' and is_null()) return false;
-  Obj = std::string{bytes, size()};
+  obj = std::string{bytes, size()};
   return true;
 }
 
@@ -230,10 +230,10 @@ inline bool field::to<std::string>(std::string &Obj) const
  * destroyed.
  */
 template<>
-inline bool field::to<const char *>(const char *&Obj) const
+inline bool field::to<const char *>(const char *&obj) const
 {
   if (is_null()) return false;
-  Obj = c_str();
+  obj = c_str();
   return true;
 }
 
@@ -346,11 +346,11 @@ inline std::basic_ostream<CHAR> &operator<<(
 
 /// Convert a field's string contents to another type.
 template<typename T>
-inline void from_string(const field &F, T &Obj)				//[t46]
-	{ from_string(F.view(), Obj); }
+inline void from_string(const field &f, T &obj)				//[t46]
+	{ from_string(f.view(), obj); }
 
 /// Convert a field to a string.
-template<> PQXX_LIBEXPORT std::string to_string(const field &Obj);	//[t74]
+template<> PQXX_LIBEXPORT std::string to_string(const field &obj);	//[t74]
 } // namespace pqxx
 
 #include "pqxx/compiler-internal-post.hxx"

@@ -38,7 +38,7 @@ template<typename TYPE> struct PQXX_LIBEXPORT builtin_traits
   static constexpr bool has_null() noexcept { return false; }
   static constexpr bool is_null(TYPE) { return false; }
   static void from_string(std::string_view str, TYPE &obj);
-  static std::string to_string(TYPE Obj);
+  static std::string to_string(TYPE obj);
 };
 
 
@@ -86,9 +86,9 @@ template<typename TYPE> const std::string type_name<std::optional<TYPE>> =
   template<> const std::string type_name<TYPE> = #TYPE
 
 
-/// Traits class for use in string conversions
-/** Specialize this template for a type that you wish to add to_string and
- * from_string support for.
+/// Traits class for use in string conversions.
+/** Specialize this template for a type for which you wish to add to_string
+ * and from_string support.
  */
 template<typename T, typename = void> struct string_traits;
 
@@ -120,8 +120,8 @@ struct enum_traits
     obj = ENUM(tmp);
   }
 
-  static std::string to_string(ENUM Obj)
-	{ return underlying_traits::to_string(underlying_type(Obj)); }
+  static std::string to_string(ENUM obj)
+	{ return underlying_traits::to_string(underlying_type(obj)); }
 };
 
 
@@ -227,7 +227,7 @@ template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
   static constexpr bool has_null() noexcept { return true; }
   static constexpr bool is_null(const char t[]) { return t == nullptr; }
   static constexpr const char *null() { return nullptr; }
-  static std::string to_string(const char Obj[]) { return Obj; }
+  static std::string to_string(const char obj[]) { return obj; }
 };
 
 template<> struct PQXX_LIBEXPORT string_traits<std::string>
@@ -238,7 +238,7 @@ template<> struct PQXX_LIBEXPORT string_traits<std::string>
 	{ internal::throw_null_conversion(type_name<std::string>); }
   static void from_string(std::string_view str, std::string &obj)
 	{ obj = str; }
-  static std::string to_string(const std::string &Obj) { return Obj; }
+  static std::string to_string(const std::string &obj) { return obj; }
 };
 
 template<> struct PQXX_LIBEXPORT string_traits<const std::string>
@@ -247,7 +247,7 @@ template<> struct PQXX_LIBEXPORT string_traits<const std::string>
   static constexpr bool is_null(const std::string &) { return false; }
   [[noreturn]] static const std::string null()
 	{ internal::throw_null_conversion(type_name<std::string>); }
-  static std::string to_string(const std::string &Obj) { return Obj; }
+  static std::string to_string(const std::string &obj) { return obj; }
 };
 
 template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
@@ -258,8 +258,8 @@ template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
 	{ internal::throw_null_conversion(type_name<std::stringstream>); }
   static void from_string(std::string_view str, std::stringstream &obj)
 	{ obj.clear(); obj << str; }
-  static std::string to_string(const std::stringstream &Obj)
-	{ return Obj.str(); }
+  static std::string to_string(const std::stringstream &obj)
+	{ return obj.str(); }
 };
 
 /// Weird case: nullptr_t.  We don't fully support it.
@@ -306,8 +306,8 @@ inline void from_string(const std::stringstream &str, T &obj)		//[t00]
  * resulting string will be human-readable and in a format suitable for use in
  * SQL queries.
  */
-template<typename T> std::string to_string(const T &Obj)
-	{ return string_traits<T>::to_string(Obj); }
+template<typename T> std::string to_string(const T &obj)
+	{ return string_traits<T>::to_string(obj); }
 
 } // namespace pqxx
 #endif

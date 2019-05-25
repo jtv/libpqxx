@@ -403,9 +403,9 @@ template<typename T> inline void from_string_float(
 #if !defined(PQXX_HAVE_CHARCONV_INT)
 namespace
 {
-template<typename T> inline std::string to_string_unsigned(T Obj)
+template<typename T> inline std::string to_string_unsigned(T obj)
 {
-  if (not Obj) return "0";
+  if (not obj) return "0";
 
   // Every byte of width on T adds somewhere between 3 and 4 digits to the
   // maximum length of our decimal string.
@@ -413,10 +413,10 @@ template<typename T> inline std::string to_string_unsigned(T Obj)
 
   char *p = &buf[sizeof(buf)];
   *--p = '\0';
-  while (Obj > 0)
+  while (obj > 0)
   {
-    *--p = pqxx::internal::number_to_digit(int(Obj%10));
-    Obj = T(Obj / 10);
+    *--p = pqxx::internal::number_to_digit(int(obj % 10));
+    obj = T(obj / 10);
   }
   return p;
 }
@@ -427,12 +427,12 @@ template<typename T> inline std::string to_string_unsigned(T Obj)
 #if !defined(PQXX_HAVE_CHARCONV_INT) || !defined(PQXX_HAVE_CHARCONV_FLOAT)
 namespace
 {
-template<typename T> inline std::string to_string_fallback(T Obj)
+template<typename T> inline std::string to_string_fallback(T obj)
 {
-  thread_local dumb_stringstream<T> S;
-  S.str("");
-  S << Obj;
-  return S.str();
+  thread_local dumb_stringstream<T> s;
+  s.str("");
+  s << obj;
+  return s.str();
 }
 } // namespace
 #endif // !PQXX_HAVE_CHARCONV_INT || !PQXX_HAVE_CHARCONV_FLOAT
@@ -441,11 +441,11 @@ template<typename T> inline std::string to_string_fallback(T Obj)
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 namespace
 {
-template<typename T> inline std::string to_string_float(T Obj)
+template<typename T> inline std::string to_string_float(T obj)
 {
-  if (std::isnan(Obj)) return "nan";
-  if (std::isinf(Obj)) return Obj > 0 ? "infinity" : "-infinity";
-  return to_string_fallback(Obj);
+  if (std::isnan(obj)) return "nan";
+  if (std::isinf(obj)) return (obj > 0) ? "infinity" : "-infinity";
+  return to_string_fallback(obj);
 }
 } // namespace
 #endif // !PQXX_HAVE_CHARCONV_FLOAT
@@ -454,20 +454,20 @@ template<typename T> inline std::string to_string_float(T Obj)
 #if !defined(PQXX_HAVE_CHARCONV_INT)
 namespace
 {
-template<typename T> inline std::string to_string_signed(T Obj)
+template<typename T> inline std::string to_string_signed(T obj)
 {
-  if (Obj < 0)
+  if (obj < 0)
   {
     // Remember--the smallest negative number for a given two's-complement type
     // cannot be negated.
-    const bool negatable = (Obj != std::numeric_limits<T>::min());
+    const bool negatable = (obj != std::numeric_limits<T>::min());
     if (negatable)
-      return '-' + to_string_unsigned(-Obj);
+      return '-' + to_string_unsigned(-obj);
     else
-      return to_string_fallback(Obj);
+      return to_string_fallback(obj);
   }
 
-  return to_string_unsigned(Obj);
+  return to_string_unsigned(obj);
 }
 } // namespace
 #endif // !PQXX_HAVE_CHARCONV_INT
@@ -516,22 +516,22 @@ void string_traits<long double>::from_string(
 namespace pqxx::internal
 {
 template
-std::string builtin_traits<short>::to_string(short Obj);
+std::string builtin_traits<short>::to_string(short obj);
 template
-std::string builtin_traits<unsigned short>::to_string(unsigned short Obj);
+std::string builtin_traits<unsigned short>::to_string(unsigned short obj);
 template
-std::string builtin_traits<int>::to_string(int Obj);
+std::string builtin_traits<int>::to_string(int obj);
 template
-std::string builtin_traits<unsigned int>::to_string(unsigned int Obj);
+std::string builtin_traits<unsigned int>::to_string(unsigned int obj);
 template
-std::string builtin_traits<long>::to_string(long Obj);
+std::string builtin_traits<long>::to_string(long obj);
 template
-std::string builtin_traits<unsigned long>::to_string(unsigned long Obj);
+std::string builtin_traits<unsigned long>::to_string(unsigned long obj);
 template
-std::string builtin_traits<long long>::to_string(long long Obj);
+std::string builtin_traits<long long>::to_string(long long obj);
 template
 std::string builtin_traits<unsigned long long>::to_string(
-	unsigned long long Obj);
+	unsigned long long obj);
 } // namespace pqxx::internal
 #endif // PQXX_HAVE_CHARCONV_INT
 
@@ -540,11 +540,11 @@ std::string builtin_traits<unsigned long long>::to_string(
 namespace pqxx::internal
 {
 template
-std::string builtin_traits<float>::to_string(float Obj);
+std::string builtin_traits<float>::to_string(float obj);
 template
-std::string builtin_traits<double>::to_string(double Obj);
+std::string builtin_traits<double>::to_string(double obj);
 template
-std::string builtin_traits<long double>::to_string(long double Obj);
+std::string builtin_traits<long double>::to_string(long double obj);
 } // namespace pqxx::internal
 #endif // PQXX_HAVE_CHARCONV_FLOAT
 
