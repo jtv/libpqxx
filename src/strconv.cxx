@@ -41,9 +41,9 @@
 namespace
 {
 /// C string comparison.
-inline bool equal(const char lhs[], const char rhs[])
+inline bool equal(std::string_view lhs, std::string_view rhs)
 {
-  return strcmp(lhs, rhs) == 0;
+  return lhs.compare(rhs) == 0;
 }
 } // namespace
 
@@ -164,8 +164,8 @@ template<typename T> std::string builtin_traits<T>::to_string(T in)
 /** The only difference is the type of the string.
  */
 template<typename TYPE>
-void builtin_traits<TYPE>::from_string(const char Str[], TYPE &Obj)
-	{ wrap_from_chars(std::string_view{Str}, Obj); }
+void builtin_traits<TYPE>::from_string(std::string_view str, TYPE &obj)
+	{ wrap_from_chars(std::string_view{str}, obj); }
 } // namespace pqxx::internal
 #endif // PQXX_HAVE_CHARCONV_INT || PQXX_HAVE_CHARCONV_FLOAT
 
@@ -249,51 +249,51 @@ template<typename L, typename R>
 }
 
 
-template<typename T> void from_string_signed(const char Str[], T &Obj)
+template<typename T> void from_string_signed(std::string_view str, T &obj)
 {
   int i = 0;
   T result = 0;
 
-  if (not isdigit(Str[i]))
+  if (not isdigit(str[i]))
   {
-    if (Str[i] != '-')
+    if (str[i] != '-')
       throw pqxx::conversion_error{
-        "Could not convert string to integer: '" + std::string{Str} + "'."};
+        "Could not convert string to integer: '" + std::string{str} + "'."};
 
-    for (++i; isdigit(Str[i]); ++i)
-      result = absorb_digit(result, -pqxx::internal::digit_to_number(Str[i]));
+    for (++i; isdigit(str[i]); ++i)
+      result = absorb_digit(result, -pqxx::internal::digit_to_number(str[i]));
   }
   else
   {
-    for (; isdigit(Str[i]); ++i)
-      result = absorb_digit(result, pqxx::internal::digit_to_number(Str[i]));
+    for (; isdigit(str[i]); ++i)
+      result = absorb_digit(result, pqxx::internal::digit_to_number(str[i]));
   }
 
-  if (Str[i])
+  if (str[i])
     throw pqxx::conversion_error{
-      "Unexpected text after integer: '" + std::string{Str} + "'."};
+      "Unexpected text after integer: '" + std::string{str} + "'."};
 
-  Obj = result;
+  obj = result;
 }
 
-template<typename T> void from_string_unsigned(const char Str[], T &Obj)
+template<typename T> void from_string_unsigned(std::string_view str, T &obj)
 {
   int i = 0;
   T result = 0;
 
-  if (not isdigit(Str[i]))
+  if (not isdigit(str[i]))
     throw pqxx::conversion_error{
       "Could not convert string to unsigned integer: '" +
-      std::string{Str} + "'."};
+      std::string{str} + "'."};
 
-  for (; isdigit(Str[i]); ++i)
-    result = absorb_digit(result, pqxx::internal::digit_to_number(Str[i]));
+  for (; isdigit(str[i]); ++i)
+    result = absorb_digit(result, pqxx::internal::digit_to_number(str[i]));
 
-  if (Str[i])
+  if (str[i])
     throw pqxx::conversion_error{
-      "Unexpected text after integer: '" + std::string{Str} + "'."};
+      "Unexpected text after integer: '" + std::string{str} + "'."};
 
-  Obj = result;
+  obj = result;
 }
 } // namespace
 #endif // !PQXX_HAVE_CHARCONV_INT
@@ -302,7 +302,7 @@ template<typename T> void from_string_unsigned(const char Str[], T &Obj)
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 namespace
 {
-bool valid_infinity_string(const char str[]) noexcept
+bool valid_infinity_string(std::string_view str) noexcept
 {
   return
 	equal("infinity", str) or
@@ -343,31 +343,33 @@ public:
  * non-localized code and lean on standard library.  Some special-case code
  * handles NaNs.
  */
-template<typename T> inline void from_string_float(const char Str[], T &Obj)
+template<typename T> inline void from_string_float(
+	std::string_view str,
+	T &obj)
 {
   bool ok = false;
   T result;
 
-  switch (Str[0])
+  switch (str[0])
   {
   case 'N':
   case 'n':
     // Accept "NaN," "nan," etc.
     ok = (
-      (Str[1]=='A' or Str[1]=='a') and
-      (Str[2]=='N' or Str[2]=='n') and
-      (Str[3] == '\0'));
+      (str[1]=='A' or str[1]=='a') and
+      (str[2]=='N' or str[2]=='n') and
+      (str[3] == '\0'));
     result = std::numeric_limits<T>::quiet_NaN();
     break;
 
   case 'I':
   case 'i':
-    ok = valid_infinity_string(Str);
+    ok = valid_infinity_string(str);
     set_to_Inf(result);
     break;
 
   default:
-    if (Str[0] == '-' and valid_infinity_string(&Str[1]))
+    if (str[0] == '-' and valid_infinity_string(&str[1]))
     {
       ok = true;
       set_to_Inf(result, -1);
@@ -380,7 +382,8 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
       // and #125.
       S.seekg(0);
       S.clear();
-      S.str(Str);
+      // TODO: Inefficient.  Can we get good std::from_chars implementations?
+      S.str(std::string{str});
       ok = static_cast<bool>(S >> result);
     }
     break;
@@ -389,9 +392,9 @@ template<typename T> inline void from_string_float(const char Str[], T &Obj)
   if (not ok)
     throw pqxx::conversion_error{
       "Could not convert string to numeric value: '" +
-      std::string{Str} + "'."};
+      std::string{str} + "'."};
 
-  Obj = result;
+  obj = result;
 }
 } // namespace
 #endif // !PQXX_HAVE_CHARCONV_FLOAT
@@ -474,22 +477,22 @@ template<typename T> inline std::string to_string_signed(T Obj)
 namespace pqxx::internal
 {
 template void
-builtin_traits<short>::from_string(const char[], short &);
+builtin_traits<short>::from_string(std::string_view, short &);
 template void
-builtin_traits<unsigned short>::from_string(const char[], unsigned short &);
+builtin_traits<unsigned short>::from_string(std::string_view, unsigned short &);
 template void
-builtin_traits<int>::from_string(const char[], int &);
+builtin_traits<int>::from_string(std::string_view, int &);
 template void
-builtin_traits<unsigned int>::from_string(const char[], unsigned int &);
+builtin_traits<unsigned int>::from_string(std::string_view, unsigned int &);
 template void
-builtin_traits<long>::from_string(const char[], long &);
+builtin_traits<long>::from_string(std::string_view, long &);
 template void
-builtin_traits<unsigned long>::from_string(const char[], unsigned long &);
+builtin_traits<unsigned long>::from_string(std::string_view, unsigned long &);
 template void
-builtin_traits<long long>::from_string(const char[], long long &);
+builtin_traits<long long>::from_string(std::string_view, long long &);
 template void
 builtin_traits<unsigned long long>::from_string(
-	const char[], unsigned long long &);
+	std::string_view, unsigned long long &);
 } // namespace pqxx
 #endif // PQXX_HAVE_CHARCONV_INT
 
@@ -498,13 +501,13 @@ builtin_traits<unsigned long long>::from_string(
 namespace pqxx
 {
 template
-void string_traits<float>::from_string(const char Str[], float &Obj);
+void string_traits<float>::from_string(std::string_view str, float &obj);
 template
-void string_traits<double>::from_string(const char Str[], double &Obj);
+void string_traits<double>::from_string(std::string_view str, double &obj);
 template
 void string_traits<long double>::from_string(
-	const char Str[],
-	long double &Obj);
+	std::string_view str,
+	long double &obj);
 } // namespace pqxx
 #endif // PQXX_HAVE_CHARCONV_FLOAT
 
@@ -550,62 +553,64 @@ std::string builtin_traits<long double>::to_string(long double Obj);
 namespace pqxx::internal
 {
 template<>
-void builtin_traits<short>::from_string(const char Str[], short &Obj)
-	{ from_string_signed(Str, Obj); }
+void builtin_traits<short>::from_string(std::string_view str, short &obj)
+	{ from_string_signed(str, obj); }
 template<>
-std::string builtin_traits<short>::to_string(short Obj)
-	{ return to_string_signed(Obj); }
+std::string builtin_traits<short>::to_string(short obj)
+	{ return to_string_signed(obj); }
 template<>
 void builtin_traits<unsigned short>::from_string(
-	const char Str[],
-	unsigned short &Obj)
-	{ from_string_unsigned(Str, Obj); }
+	std::string_view str,
+	unsigned short &obj)
+	{ from_string_unsigned(str, obj); }
 template<>
-std::string builtin_traits<unsigned short>::to_string(unsigned short Obj)
-	{ return to_string_unsigned(Obj); }
+std::string builtin_traits<unsigned short>::to_string(unsigned short obj)
+	{ return to_string_unsigned(obj); }
 template<>
-void builtin_traits<int>::from_string(const char Str[], int &Obj)
-	{ from_string_signed(Str, Obj); }
+void builtin_traits<int>::from_string(std::string_view str, int &obj)
+	{ from_string_signed(str, obj); }
 template<>
-std::string builtin_traits<int>::to_string(int Obj)
-	{ return to_string_signed(Obj); }
+std::string builtin_traits<int>::to_string(int obj)
+	{ return to_string_signed(obj); }
 template<>
 void builtin_traits<unsigned int>::from_string(
-	const char Str[],
-	unsigned int &Obj)
-	{ from_string_unsigned(Str, Obj); }
+	std::string_view str,
+	unsigned int &obj)
+	{ from_string_unsigned(str, obj); }
 template<>
-std::string builtin_traits<unsigned int>::to_string(unsigned int Obj)
-	{ return to_string_unsigned(Obj); }
+std::string builtin_traits<unsigned int>::to_string(unsigned int obj)
+	{ return to_string_unsigned(obj); }
 template<>
-void builtin_traits<long>::from_string(const char Str[], long &Obj)
-	{ from_string_signed(Str, Obj); }
+void builtin_traits<long>::from_string(std::string_view str, long &obj)
+	{ from_string_signed(str, obj); }
 template<>
-std::string builtin_traits<long>::to_string(long Obj)
-	{ return to_string_signed(Obj); }
+std::string builtin_traits<long>::to_string(long obj)
+	{ return to_string_signed(obj); }
 template<>
 void builtin_traits<unsigned long>::from_string(
-	const char Str[],
-	unsigned long &Obj)
-	{ from_string_unsigned(Str, Obj); }
+	std::string_view str,
+	unsigned long &obj)
+	{ from_string_unsigned(str, obj); }
 template<>
-std::string builtin_traits<unsigned long>::to_string(unsigned long Obj)
-	{ return to_string_unsigned(Obj); }
+std::string builtin_traits<unsigned long>::to_string(unsigned long obj)
+	{ return to_string_unsigned(obj); }
 template<>
-void builtin_traits<long long>::from_string(const char Str[], long long &Obj)
-	{ from_string_signed(Str, Obj); }
+void builtin_traits<long long>::from_string(
+	std::string_view str,
+	long long &obj)
+	{ from_string_signed(str, obj); }
 template<>
-std::string builtin_traits<long long>::to_string(long long Obj)
-	{ return to_string_signed(Obj); }
+std::string builtin_traits<long long>::to_string(long long obj)
+	{ return to_string_signed(obj); }
 template<>
 void builtin_traits<unsigned long long>::from_string(
-	const char Str[],
-	unsigned long long &Obj)
-	{ from_string_unsigned(Str, Obj); }
+	std::string_view str,
+	unsigned long long &obj)
+	{ from_string_unsigned(str, obj); }
 template<>
 std::string builtin_traits<unsigned long long>::to_string(
-        unsigned long long Obj)
-	{ return to_string_unsigned(Obj); }
+        unsigned long long obj)
+	{ return to_string_unsigned(obj); }
 } // namespace pqxx::internal
 #endif // !PQXX_HAVE_CHARCONV_INT
 
@@ -614,87 +619,86 @@ std::string builtin_traits<unsigned long long>::to_string(
 namespace pqxx::internal
 {
 template<>
-void builtin_traits<float>::from_string(const char Str[], float &Obj)
-	{ from_string_float(Str, Obj); }
+void builtin_traits<float>::from_string(std::string_view str, float &obj)
+	{ from_string_float(str, obj); }
 template<>
-std::string builtin_traits<float>::to_string(float Obj)
-	{ return to_string_float(Obj); }
+std::string builtin_traits<float>::to_string(float obj)
+	{ return to_string_float(obj); }
 template<>
-void builtin_traits<double>::from_string(const char Str[], double &Obj)
-	{ from_string_float(Str, Obj); }
+void builtin_traits<double>::from_string(std::string_view str, double &obj)
+	{ from_string_float(str, obj); }
 template<>
-std::string builtin_traits<double>::to_string(double Obj)
-	{ return to_string_float(Obj); }
+std::string builtin_traits<double>::to_string(double obj)
+	{ return to_string_float(obj); }
 template<>
 void builtin_traits<long double>::from_string(
-	const char Str[], long double &Obj)
-	{ from_string_float(Str, Obj); }
+	std::string_view str, long double &obj)
+	{ from_string_float(str, obj); }
 template<>
-std::string builtin_traits<long double>::to_string(long double Obj)
-	{ return to_string_float(Obj); }
+std::string builtin_traits<long double>::to_string(long double obj)
+	{ return to_string_float(obj); }
 } // namespace pqxx::internal
 #endif // !PQXX_HAVE_CHARCONV_FLOAT
 
 
 namespace pqxx::internal
 {
-template<> void builtin_traits<bool>::from_string(const char Str[], bool &Obj)
+template<> void builtin_traits<bool>::from_string(
+	std::string_view str,
+	bool &obj)
 {
   bool OK, result=false;
 
-  switch (Str[0])
+  switch (str.size())
   {
   case 0:
     result = false;
     OK = true;
     break;
 
-  case 'f':
-  case 'F':
-    result = false;
-    OK = not (
-	(Str[1] != '\0') and
-	(not equal(Str+1, "alse")) and
-	(not equal(Str+1, "ALSE")));
+  case 1:
+    switch (str[0])
+    {
+    case 'f':
+    case 'F':
+    case '0':
+      result = false;
+      OK = true;
+      break;
+
+    case 't':
+    case 'T':
+    case '1':
+      result = true;
+      OK = true;
+      break;
+
+    default:
+      OK = false;
+      break;
+    }
     break;
 
   case '0':
     {
       int I;
-      string_traits<int>::from_string(Str, I);
+      string_traits<int>::from_string(str, I);
       result = (I != 0);
       OK = ((I == 0) or (I == 1));
     }
     break;
-
-  case '1':
-    result = true;
-    OK = (Str[1] == '\0');
-    break;
-
-  case 't':
-  case 'T':
-    result = true;
-    OK = not (
-	(Str[1] != '\0') and
-	(not equal(Str+1, "rue")) and
-	(not equal(Str+1, "RUE")));
-    break;
-
-  default:
-    OK = false;
   }
 
   if (not OK)
     throw conversion_error{
-      "Failed conversion to bool: '" + std::string{Str} + "'."};
+      "Failed conversion to bool: '" + std::string{str} + "'."};
 
-  Obj = result;
+  obj = result;
 }
 
 
-template<> std::string builtin_traits<bool>::to_string(bool Obj)
+template<> std::string builtin_traits<bool>::to_string(bool obj)
 {
-  return Obj ? "true" : "false";
+  return obj ? "true" : "false";
 }
 } // namespace pqxx::internal

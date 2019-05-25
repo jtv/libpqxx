@@ -1,5 +1,6 @@
 7.0.0
  - Bumped minimum required C++ version to C++17.
+ - Everything has changed.  If you're porting from older versions, be careful!
  - There is now only one connection class: `connection`.
  - Removed tablereader/tablewriter, replaced by stream_from/stream_to.
  - Removed obsolete transactor framework, replaced by post-C++11 one.
@@ -18,6 +19,7 @@
  - Many `std::string` parameters are now `std::string_view`.
  - There's no more `pqxx_exception`.  Complicated things too much.
  - pqxx::string_traits<>::name() has been replaced with pqxx::type_name.
+ - All from_string() that took a C string now take a std::string_view.
 6.4.4
  - Use pkg-config if pg-config is not available.
  - In CMake build, prefer CMake's config headers over any found in source tree.

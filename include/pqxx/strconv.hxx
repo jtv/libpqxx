@@ -14,6 +14,7 @@
 #include "pqxx/compiler-public.hxx"
 
 #include <limits>
+#include <optional>
 #include <sstream>
 #include <stdexcept>
 
@@ -36,7 +37,7 @@ template<typename TYPE> struct PQXX_LIBEXPORT builtin_traits
 {
   static constexpr bool has_null() noexcept { return false; }
   static constexpr bool is_null(TYPE) { return false; }
-  static void from_string(const char Str[], TYPE &Obj);
+  static void from_string(std::string_view str, TYPE &obj);
   static std::string to_string(TYPE Obj);
 };
 
@@ -76,9 +77,14 @@ namespace pqxx
 /// A human-readable name for a type, used in error messages and such.
 template<typename TYPE> const std::string type_name;
 
-/// Define @c type_name for TYPE.
+
+template<typename TYPE> const std::string type_name<std::optional<TYPE>> =
+	"opt<" + type_name<TYPE> + ">";
+
+/// Define a @c type_name for TYPE.  Use inside the @c pqxx namespace.
 #define PQXX_DECLARE_TYPE_NAME(TYPE) \
   template<> const std::string type_name<TYPE> = #TYPE
+
 
 /// Traits class for use in string conversions
 /** Specialize this template for a type that you wish to add to_string and
@@ -107,11 +113,11 @@ struct enum_traits
   [[noreturn]] static ENUM null()
 	{ internal::throw_null_conversion("enum type"); }
 
-  static void from_string(const char Str[], ENUM &Obj)
+  static void from_string(std::string_view str, ENUM &obj)
   {
     underlying_type tmp;
-    underlying_traits::from_string(Str, tmp);
-    Obj = ENUM(tmp);
+    underlying_traits::from_string(str, tmp);
+    obj = ENUM(tmp);
   }
 
   static std::string to_string(ENUM Obj)
@@ -197,8 +203,9 @@ template<> struct PQXX_LIBEXPORT string_traits<const char *>
   static constexpr bool has_null() noexcept { return true; }
   static constexpr bool is_null(const char *t) { return t == nullptr; }
   static constexpr const char *null() { return nullptr; }
-  static void from_string(const char Str[], const char *&Obj) { Obj = Str; }
-  static std::string to_string(const char *Obj) { return Obj; }
+  static void from_string(std::string_view str, const char *&obj)
+	{ obj = str.data(); }
+  static std::string to_string(const char *obj) { return obj; }
 };
 
 /// String traits for non-const C-style string ("pointer to char")
@@ -209,9 +216,9 @@ template<> struct PQXX_LIBEXPORT string_traits<char *>
   static constexpr const char *null() { return nullptr; }
 
   // Don't allow this conversion since it breaks const-safety.
-  // static void from_string(const char Str[], char *&Obj);
+  // static void from_string(std::string_view str, char *&obj);
 
-  static std::string to_string(char *Obj) { return Obj; }
+  static std::string to_string(char *obj) { return obj; }
 };
 
 /// String traits for C-style string constant ("array of char")
@@ -229,7 +236,8 @@ template<> struct PQXX_LIBEXPORT string_traits<std::string>
   static constexpr bool is_null(const std::string &) { return false; }
   [[noreturn]] static std::string null()
 	{ internal::throw_null_conversion(type_name<std::string>); }
-  static void from_string(const char Str[], std::string &Obj) { Obj=Str; }
+  static void from_string(std::string_view str, std::string &obj)
+	{ obj = str; }
   static std::string to_string(const std::string &Obj) { return Obj; }
 };
 
@@ -248,8 +256,8 @@ template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
   static constexpr bool is_null(const std::stringstream &) { return false; }
   [[noreturn]] static std::stringstream null()
 	{ internal::throw_null_conversion(type_name<std::stringstream>); }
-  static void from_string(const char Str[], std::stringstream &Obj)
-	{ Obj.clear(); Obj << Str; }
+  static void from_string(std::string_view str, std::stringstream &obj)
+	{ obj.clear(); obj << str; }
   static std::string to_string(const std::stringstream &Obj)
 	{ return Obj.str(); }
 };
@@ -280,47 +288,17 @@ template<> struct PQXX_LIBEXPORT string_traits<std::nullptr_t>
  * No whitespace is stripped away.  Only the kinds of strings that come out of
  * PostgreSQL and out of to_string() can be converted.
  */
-template<typename T>
-  inline void from_string(const char Str[], T &Obj)
+template<typename T> inline void from_string(std::string_view str, T &obj)
 {
-  if (Str == nullptr) throw std::runtime_error{"Attempt to read null string."};
-  string_traits<T>::from_string(Str, Obj);
+  if (str.data() == nullptr)
+    throw std::runtime_error{"Attempt to read null string."};
+  string_traits<T>::from_string(str, obj);
 }
 
 
-/// Conversion with known string length (for strings that may contain nuls)
-/** This is only used for strings, where embedded nul bytes should not determine
- * the end of the string.
- *
- * For all other types, this just uses the regular, nul-terminated version of
- * from_string().
- */
-template<typename T> inline void from_string(const char Str[], T &Obj, size_t)
-{
-  return from_string(Str, Obj);
-}
-
-template<>
-inline void from_string<std::string>(					//[t00]
-	const char Str[],
-	std::string &Obj,
-	size_t len)
-{
-  if (Str == nullptr) throw std::runtime_error{"Attempt to read null string."};
-  Obj.assign(Str, len);
-}
-
 template<typename T>
-inline void from_string(const std::string &Str, T &Obj)
-	{ from_string(Str.c_str(), Obj); }
-
-template<typename T>
-inline void from_string(const std::stringstream &Str, T &Obj)		//[t00]
-	{ from_string(Str.str(), Obj); }
-
-template<> inline void
-from_string(const std::string &Str, std::string &Obj)			//[t46]
-	{ Obj = Str; }
+inline void from_string(const std::stringstream &str, T &obj)		//[t00]
+	{ from_string(str.str(), obj); }
 
 
 /// Convert built-in type to a readable string that PostgreSQL will understand

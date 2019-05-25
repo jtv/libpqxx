@@ -69,7 +69,7 @@ void test_046()
 	S2,
 	"from_string(const result::field &, std::string &) "
 	"is inconsistent with "
-	"from _string(const std::string &, std::string &).");
+	"from_string(const std::string &, std::string &).");
 
   PQXX_CHECK(
 	tx.exec1("SELECT 1=1").front().as<bool>(),

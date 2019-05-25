@@ -122,27 +122,24 @@ public:
 
 namespace pqxx
 {
+PQXX_DECLARE_TYPE_NAME(ipv4);
+
 template<> struct string_traits<ipv4>
 {
   using subject_type = ipv4;
 
-  static constexpr const char* name() noexcept
-  {
-    return "ipv4";
-  }
-
   static constexpr bool has_null() noexcept { return false; }
-
-  static bool is_null(const subject_type &) { return false; }
+  static constexpr bool is_null(const subject_type &) { return false; }
 
   [[noreturn]] static subject_type null()
   {
-    internal::throw_null_conversion(name());
+    internal::throw_null_conversion(type_name<ipv4>);
   }
 
-  static void from_string(const char str[], subject_type &ts)
+  static void from_string(std::string_view str, subject_type &ts)
   {
-    if (str == nullptr) internal::throw_null_conversion(name());
+    if (str.data() == nullptr)
+      internal::throw_null_conversion(type_name<ipv4>);
     std::regex ipv4_regex{
       "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})"
     };
@@ -150,9 +147,7 @@ template<> struct string_traits<ipv4>
     // Need non-temporary for `std::regex_match()`
     std::string sstr{str};
     if (not std::regex_match(sstr, match, ipv4_regex) or match.size() != 5)
-      throw std::runtime_error{
-        "invalid ipv4 format: " + std::string{str}
-      };
+      throw std::runtime_error{"Invalid ipv4 format: " + std::string{str}};
     try
     {
       for (std::size_t i{0}; i < 4; ++i)
@@ -160,15 +155,11 @@ template<> struct string_traits<ipv4>
     }
     catch (const std::invalid_argument&)
     {
-      throw std::runtime_error{
-        "invalid ipv4 format: " + std::string{str}
-      };
+      throw std::runtime_error{"Invalid ipv4 format: " + std::string{str}};
     }
     catch (const std::out_of_range&)
     {
-      throw std::runtime_error{
-        "invalid ipv4 format: " + std::string{str}
-      };
+      throw std::runtime_error{"Invalid ipv4 format: " + std::string{str}};
     }
   }
 
@@ -190,6 +181,8 @@ template<> struct string_traits<ipv4>
 
 namespace pqxx
 {
+PQXX_DECLARE_TYPE_NAME(bytea);
+
 template<> struct string_traits<bytea>
 {
 private:
@@ -217,25 +210,20 @@ private:
 public:
   using subject_type = bytea;
 
-  static constexpr const char* name() noexcept
-  {
-    return "bytea";
-  }
-
   static constexpr bool has_null() noexcept { return false; }
 
   static bool is_null(const subject_type &) { return false; }
 
   [[noreturn]] static subject_type null()
   {
-    internal::throw_null_conversion( name() );
+    internal::throw_null_conversion(type_name<bytea>);
   }
 
-  static void from_string(const char str[], subject_type& bs)
+  static void from_string(std::string_view str, subject_type& bs)
   {
-    if (str == nullptr)
-      internal::throw_null_conversion(name());
-    auto len = strlen(str);
+    if (str.data() == nullptr)
+      internal::throw_null_conversion(type_name<bytea>);
+    auto len = str.size();
     if (len % 2 or len < 2 or str[0] != '\\' or str[1] != 'x')
       throw std::runtime_error{
         "invalid bytea format: " + std::string{str}

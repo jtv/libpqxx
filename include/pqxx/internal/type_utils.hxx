@@ -154,17 +154,17 @@ template<typename T> struct string_traits<
   static bool is_null(const T& v)
     { return (not v || string_traits<I>::is_null(*v)); }
   static constexpr T null() { return internal::null_value<T>(); }
-  static void from_string(const char Str[], T &Obj)
+  static void from_string(std::string_view str, T &obj)
   {
-    if (not Str) Obj = null();
+    if (str.data() == nullptr) obj = null();
     else
     {
       I inner;
-      string_traits<I>::from_string(Str, inner);
+      string_traits<I>::from_string(str, inner);
       // Utilize existing memory if possible (e.g. for pointer types).
-      if (Obj) *Obj = inner;
+      if (obj) *obj = inner;
       // Important to assign to set valid flag for smart optional types.
-      else Obj = internal::make_optional<T>(inner);
+      else obj = internal::make_optional<T>(inner);
     }
   }
   static std::string to_string(const T& Obj)

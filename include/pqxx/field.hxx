@@ -98,7 +98,10 @@ public:
    * @name Content access
    */
   //@{
-  /// Read as plain C string
+  /// Read as @c string_view.
+  std::string_view view() const { return std::string_view(c_str(), size()); }
+
+  /// Read as plain C string.
   /** Since the field's data is stored internally in the form of a
    * zero-terminated C string, this is the fastest way to read it.  Use the
    * to() or as() functions to convert the string to other types such as
@@ -344,7 +347,7 @@ inline std::basic_ostream<CHAR> &operator<<(
 /// Convert a field's string contents to another type.
 template<typename T>
 inline void from_string(const field &F, T &Obj)				//[t46]
-	{ from_string(F.c_str(), Obj, F.size()); }
+	{ from_string(F.view(), Obj); }
 
 /// Convert a field to a string.
 template<> PQXX_LIBEXPORT std::string to_string(const field &Obj);	//[t74]

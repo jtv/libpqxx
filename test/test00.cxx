@@ -105,23 +105,6 @@ void test_000()
   strconv("unsigned long long", 0ULL, "0");
   strconv("unsigned long long", ullong_max, ullmaxstr.str());
 
-  const char zerobuf[] = "0";
-  std::string zero;
-  from_string(zerobuf, zero, sizeof(zerobuf)-1);
-  PQXX_CHECK_EQUAL(
-	zero,
-	zerobuf,
-	"Converting \"0\" with explicit length failed.");
-
-  const char nulbuf[] = "\0string\0with\0nuls\0";
-  const std::string nully(nulbuf, sizeof(nulbuf)-1);
-  std::string nully_parsed;
-  from_string(nulbuf, nully_parsed, sizeof(nulbuf)-1);
-  PQXX_CHECK_EQUAL(nully_parsed.size(), nully.size(), "Nul truncates string.");
-  PQXX_CHECK_EQUAL(nully_parsed, nully, "String conversion breaks on nuls.");
-  from_string(nully.c_str(), nully_parsed, nully.size());
-  PQXX_CHECK_EQUAL(nully_parsed, nully, "Nul conversion breaks on strings.");
-
   std::stringstream ss;
   strconv("empty stringstream", ss, "");
   ss << -3.1415;
