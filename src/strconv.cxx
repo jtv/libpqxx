@@ -48,7 +48,6 @@ namespace
 {
 template<typename T> void wrap_from_chars(std::string_view in, T &out)
 {
-  using traits = pqxx::string_traits<T>;
   const char *end = in.data() + in.size();
   const auto res = std::from_chars(in.data(), end, out);
   if (res.ec == std::errc() and res.ptr == end) return;
@@ -72,7 +71,7 @@ template<typename T> void wrap_from_chars(std::string_view in, T &out)
 
   const std::string base =
 	"Could not convert '" + std::string(in) + "' "
-	"to " + type_name<T>;
+	"to " + pqxx::type_name<T>;
   if (msg.empty()) throw pqxx::conversion_error{base + "."};
   else throw pqxx::conversion_error{base + ": " + msg};
 }
@@ -118,7 +117,6 @@ namespace pqxx::internal
 {
 template<typename T> std::string builtin_traits<T>::to_string(T in)
 {
-  using traits = pqxx::string_traits<T>;
   char buf[size_buffer<T>()];
 
   // Annoying: we need to make slightly different calls to std::to_chars
@@ -665,13 +663,14 @@ template<> void builtin_traits<bool>::from_string(
     }
     break;
 
-  case '0':
-    {
-      int I;
-      string_traits<int>::from_string(str, I);
-      result = (I != 0);
-      OK = ((I == 0) or (I == 1));
-    }
+  case 4:
+    result = true;
+    OK = (equal(str, "true") or equal(str, "TRUE"));
+    break;
+
+  case 5:
+    result = false;
+    OK = (equal(str, "false") or equal(str, "FALSE"));
     break;
   }
 
