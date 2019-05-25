@@ -70,11 +70,11 @@ public:
 
   /// Overridable: action to invoke when notification arrives.
   /**
-   * @param payload On PostgreSQL 9.0 or later, an optional string that may have
-   * been passed to the NOTIFY command.
+   * @param payload An optional string that may have been passed to the NOTIFY
+   * command.
    * @param backend_pid Process ID of the database backend process that served
-   * our connection when the notification arrived.  The actual process ID behind
-   * the connection may have changed by the time this method is called.
+   * our connection when the notification arrived.  The actual process ID
+   * behind the connection may have changed by the time this method is called.
    */
   virtual void operator()(const std::string &payload, int backend_pid) =0;
 

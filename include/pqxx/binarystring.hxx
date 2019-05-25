@@ -31,9 +31,10 @@ namespace pqxx
  * The raw value returned by a bytea field contains escape sequences for certain
  * characters, which are filtered out by binarystring.
  *
- * Internally a binarystring is zero-terminated, but it may also contain zero
- * bytes, just like any other byte value.  So don't assume that it can be
- * treated as a C-style string unless you've made sure of this yourself.
+ * Internally a binarystring is zero-terminated, but it may also contain null
+ * bytes, they're just like any other byte value.  So don't assume that it's
+ * safe to treat the contents as a C-style string unless you've made sure of it
+ * yourself.
  *
  * The binarystring retains its value even if the result it was obtained from is
  * destroyed, but it cannot be copied or assigned.
@@ -123,6 +124,10 @@ public:
    */
   const char *get() const noexcept					//[t62]
 	{ return reinterpret_cast<const char *>(m_buf.get()); }
+
+  /// Read contents as a std::string_view.
+  std::string_view view() const noexcept
+	{ return std::string_view(get(), size()); }
 
   /// Read as regular C++ string (may include null characters).
   /** This creates and returns a new string object.  Don't call this
