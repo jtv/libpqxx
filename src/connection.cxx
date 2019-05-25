@@ -298,18 +298,18 @@ void pqxx::connection::add_receiver(pqxx::notification_receiver *T)
 
   // Add to receiver list and attempt to start listening.
   const auto p = m_receivers.find(T->channel());
-  const receiver_list::value_type NewVal(T->channel(), T);
+  const auto new_value = receiver_list::value_type{T->channel(), T};
 
   if (p == m_receivers.end())
   {
     // Not listening on this event yet, start doing so.
-    const std::string LQ("LISTEN " + quote_name(T->channel()));
+    const std::string LQ{"LISTEN " + quote_name(T->channel())};
     check_result(make_result(PQexec(m_conn, LQ.c_str()), LQ));
-    m_receivers.insert(NewVal);
+    m_receivers.insert(new_value);
   }
   else
   {
-    m_receivers.insert(p, NewVal);
+    m_receivers.insert(p, new_value);
   }
 }
 
@@ -321,10 +321,10 @@ void pqxx::connection::remove_receiver(pqxx::notification_receiver *T)
 
   try
   {
-    const std::pair<const std::string, notification_receiver *> needle{
+    auto needle = std::pair<const std::string, notification_receiver *>{
 	T->channel(), T};
     auto R = m_receivers.equal_range(needle.first);
-    const auto i = find(R.first, R.second, needle);
+    auto i = find(R.first, R.second, needle);
 
     if (i == R.second)
     {
@@ -335,7 +335,7 @@ void pqxx::connection::remove_receiver(pqxx::notification_receiver *T)
     {
       // Erase first; otherwise a notification for the same receiver may yet
       // come in and wreak havoc.  Thanks Dragan Milenkovic.
-      const bool gone = (m_conn and (R.second == ++R.first));
+      const bool gone = (R.second == ++R.first);
       m_receivers.erase(i);
       if (gone) exec(("UNLISTEN " + quote_name(needle.first)).c_str());
     }
