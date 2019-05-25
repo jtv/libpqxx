@@ -47,7 +47,7 @@ class PQXX_LIBEXPORT array_parser
 {
 public:
   /// What's the latest thing found in the array?
-  enum juncture
+  enum class juncture
   {
     /// Starting a new row.
     row_start,
