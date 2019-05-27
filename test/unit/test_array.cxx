@@ -12,7 +12,7 @@ void test_empty_arrays()
   std::pair<array_parser::juncture, std::string> output;
 
   // Parsing a null pointer just immediately returns "done".
-  output = array_parser(nullptr).get_next();
+  output = array_parser(std::string_view()).get_next();
   PQXX_CHECK_EQUAL(
         int(output.first),
         int(array_parser::juncture::done),

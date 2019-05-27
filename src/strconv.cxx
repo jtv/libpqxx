@@ -635,7 +635,7 @@ template<> void builtin_traits<bool>::from_string(
 	std::string_view str,
 	bool &obj)
 {
-  bool OK, result=false;
+  bool OK, result;
 
   switch (str.size())
   {
@@ -675,6 +675,10 @@ template<> void builtin_traits<bool>::from_string(
   case 5:
     result = false;
     OK = (equal(str, "false") or equal(str, "FALSE"));
+    break;
+
+  default:
+    OK = false;
     break;
   }
 
