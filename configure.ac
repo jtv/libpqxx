@@ -224,10 +224,9 @@ AC_LINK_IFELSE(
 		[#include <charconv>],
 		[[
 			char z[100];
-			using ull = unsigned long long;
-			auto rt = std::to_chars(z, z + sizeof(z), ull{0});
+			auto rt = std::to_chars(z, z + sizeof(z), 0ULL);
 			if (rt.ec != std::errc{}) return 1;
-			ull n;
+			unsigned long long n;
 			auto rf = std::from_chars(z, z + sizeof(z), n);
 			if (rf.ec != std::errc{}) return 2;
 			return int(n)
@@ -244,16 +243,19 @@ AC_MSG_CHECKING([for C++17 charconv floating-point conversion])
 have_charconv_float=yes
 AC_LINK_IFELSE(
 	[AC_LANG_PROGRAM(
-		[#include <charconv>],
+		[
+                        #include <charconv>
+                        #include <iterator>
+                ],
 		[[
 			char z[100];
-			using ld = long double;
 			auto rt = std::to_chars(
-				z, z + sizeof(z), ld{0.1},
+				std::begin(z), std::end(z), 0.1L,
 				std::chars_format::general);
 			if (rt.ec != std::errc{}) return 1;
-			ld n;
-			auto rf = std::from_chars(z, z + sizeof(z), n);
+			long double n;
+			auto rf = std::from_chars(
+                                std::cbegin(z), std::cend(z), n);
 			if (rf.ec != std::errc{}) return 2;
 			return int(n)
 		]]
