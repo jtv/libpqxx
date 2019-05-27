@@ -151,6 +151,9 @@ Building libpqxx
 
 The rest of the procedure depends on your compiler.
 
+
+### Visual Studio
+
 If you're using Visual C++:
 
 1) Select Visual Studio Command Prompt from the Start menu.  Alternatively,
@@ -185,6 +188,9 @@ If you're using Visual C++:
 
 5) At this point, you will no longer need to keep the postgres sources or
    binaries on your computer to build applications with libpqxx.
+
+
+### MinGW
 
 If you're using MinGW (but without a Unix-like environment, see above):
 
@@ -459,3 +465,8 @@ Project Properties::Linker::Input::Additional Dependencies
 
 We recommend that you specify libpqxx_static.lib and ws2_32.lib there, in that
 order.
+
+In MinGW, the problem may be that your MinGW environment does not inherit your
+Windows `PATH` like it used to, and so `ws2_32.lib` is not in your path.  Fix
+it by updating your `PATH`, or tell MinGW to start off by copying the Windows
+path, by setting `MSYS2_PATH_TYPE=inherit`.
