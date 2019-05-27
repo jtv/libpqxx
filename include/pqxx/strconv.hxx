@@ -42,8 +42,6 @@ template<typename TYPE> struct PQXX_LIBEXPORT builtin_traits
 };
 
 
-/// Compute numeric value of given textual digit (assuming that it is a digit)
-constexpr int digit_to_number(char c) noexcept { return c-'0'; }
 constexpr char number_to_digit(int i) noexcept
 	{ return static_cast<char>(i+'0'); }
 } // namespace pqxx::internal
