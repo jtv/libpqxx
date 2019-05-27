@@ -161,63 +161,36 @@ bool pqxx::stream_from::extract_field(
 
       case '\\':
         {
-        // Escape sequence.
-          if (glyph_end >= line.size())
-            throw failure{"Row ends in backslash"};
+          // Escape sequence.
+          if (glyph_end >= line.size()) throw failure{"Row ends in backslash"};
           char n = line[glyph_end++];
-          
-          /*
-           * "Presently, COPY TO will never emit an octal or hex-digits
-           * backslash sequence [...]"
-           *  - https://www.postgresql.org/docs/10/sql-copy.html
-           */
-          // if (is_octalchar(n))
-          // {
-          //   if (here.end_byte+2 >= line.size())
-          //     throw failure{"Row ends in middle of octal value"};
-          //   char n1 = line[here.end_byte++];
-          //   char n2 = line[here.end_byte++];
-          //   if (not is_octalchar(n1) or not is_octalchar(n2))
-          //     throw failure{
-          //       "Invalid octal in encoded table stream"
-          //     };
-          //   s += (
-          //     (digit_to_number(n)<<6) |
-          //     (digit_to_number(n1)<<3) |
-          //     digit_to_number(n2)
-          //   );
-          //   break;
-          // }
-          // else
-            switch (n)
-            {
-            case 'N':
-              // Null value
-              if (not s.empty())
-                throw failure{
-                  "Null sequence found in nonempty field"
-                };
-              is_null = true;
-              break;
+          switch (n)
+          {
+          case 'N':
+            // Null value
+            if (not s.empty())
+              throw failure{"Null sequence found in nonempty field"};
+            is_null = true;
+            break;
 
-            case 'b': // Backspace
-              s += '\b'; break;
-            case 'f': // Vertical tab
-              s += '\f'; break;
-            case 'n': // Form feed
-              s += '\n'; break;
-            case 'r': // Newline
-              s += '\r'; break;
-            case 't': // Tab
-              s += '\t'; break;
-            case 'v': // Carriage return
-              s += '\v'; break;
+          case 'b': // Backspace
+            s += '\b'; break;
+          case 'f': // Vertical tab
+            s += '\f'; break;
+          case 'n': // Form feed
+            s += '\n'; break;
+          case 'r': // Newline
+            s += '\r'; break;
+          case 't': // Tab
+            s += '\t'; break;
+          case 'v': // Carriage return
+            s += '\v'; break;
 
-            default:
-              // Self-escaped character
-              s += n;
-              break;
-            }
+          default:
+            // Self-escaped character
+            s += n;
+            break;
+          }
         }
         break;
 

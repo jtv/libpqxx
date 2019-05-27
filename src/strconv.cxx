@@ -31,6 +31,10 @@ inline bool equal(std::string_view lhs, std::string_view rhs)
 {
   return lhs.compare(rhs) == 0;
 }
+
+
+/// Compute numeric value of given textual digit (assuming that it is a digit).
+constexpr int digit_to_number(char c) noexcept { return c-'0'; }
 } // namespace
 
 
@@ -245,12 +249,12 @@ template<typename T> void from_string_signed(std::string_view str, T &obj)
         "Could not convert string to integer: '" + std::string{str} + "'."};
 
     for (++i; isdigit(str[i]); ++i)
-      result = absorb_digit(result, -pqxx::internal::digit_to_number(str[i]));
+      result = absorb_digit(result, -digit_to_number(str[i]));
   }
   else
   {
     for (; isdigit(str[i]); ++i)
-      result = absorb_digit(result, pqxx::internal::digit_to_number(str[i]));
+      result = absorb_digit(result, digit_to_number(str[i]));
   }
 
   if (str[i])
@@ -271,7 +275,7 @@ template<typename T> void from_string_unsigned(std::string_view str, T &obj)
       std::string{str} + "'."};
 
   for (; isdigit(str[i]); ++i)
-    result = absorb_digit(result, pqxx::internal::digit_to_number(str[i]));
+    result = absorb_digit(result, digit_to_number(str[i]));
 
   if (str[i])
     throw pqxx::conversion_error{
