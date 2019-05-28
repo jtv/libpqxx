@@ -144,7 +144,7 @@ public:
 	const std::string &Name=std::string{}) :
     namedclass{"robusttransaction", Name},
     internal::basic_robusttransaction{
-	C, pqxx::internal::begin_cmd<ISOLATION, read_write>}
+	C, pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>}
   {}
 
   virtual ~robusttransaction() noexcept

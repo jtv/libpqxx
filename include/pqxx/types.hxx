@@ -44,7 +44,7 @@ class dbtransaction;
 class field;
 class largeobjectaccess;
 class notification_receiver;
-class range_error;
+struct range_error;
 class result;
 class row;
 class stream_from;

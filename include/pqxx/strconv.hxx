@@ -79,10 +79,34 @@ template<typename TYPE> const std::string type_name;
 template<typename TYPE> const std::string type_name<std::optional<TYPE>> =
 	"opt<" + type_name<TYPE> + ">";
 
-/// Define a @c type_name for TYPE.  Use inside the @c pqxx namespace.
-#define PQXX_DECLARE_TYPE_NAME(TYPE) \
+/// Define a @c type_name for @c TYPE.  Use inside the @c pqxx namespace.
+#define PQXX_DEFINE_TYPE_NAME(TYPE) \
   template<> const std::string type_name<TYPE> = #TYPE
 
+/// Declare a @c type_name for @c TYPE, defined elsewhere.
+/** Put this in the @c pqxx namespace.
+ */
+#define PQXX_DECLARE_TYPE_NAME(TYPE) \
+  template<> extern const std::string type_name<TYPE>
+
+PQXX_DECLARE_TYPE_NAME(bool);
+PQXX_DECLARE_TYPE_NAME(short);
+PQXX_DECLARE_TYPE_NAME(unsigned short);
+PQXX_DECLARE_TYPE_NAME(int);
+PQXX_DECLARE_TYPE_NAME(unsigned int);
+PQXX_DECLARE_TYPE_NAME(long);
+PQXX_DECLARE_TYPE_NAME(unsigned long);
+PQXX_DECLARE_TYPE_NAME(long long);
+PQXX_DECLARE_TYPE_NAME(unsigned long long);
+PQXX_DECLARE_TYPE_NAME(float);
+PQXX_DECLARE_TYPE_NAME(double);
+PQXX_DECLARE_TYPE_NAME(long double);
+PQXX_DECLARE_TYPE_NAME(char *);
+PQXX_DECLARE_TYPE_NAME(const char *);
+PQXX_DECLARE_TYPE_NAME(std::string);
+PQXX_DECLARE_TYPE_NAME(const std::string);
+PQXX_DECLARE_TYPE_NAME(std::stringstream);
+PQXX_DECLARE_TYPE_NAME(std::nullptr_t);
 
 /// Traits class for use in string conversions.
 /** Specialize this template for a type for which you wish to add to_string
@@ -150,25 +174,6 @@ struct string_traits<ENUM> : pqxx::enum_traits<ENUM> \
 
 namespace pqxx
 {
-PQXX_DECLARE_TYPE_NAME(bool);
-PQXX_DECLARE_TYPE_NAME(short);
-PQXX_DECLARE_TYPE_NAME(unsigned short);
-PQXX_DECLARE_TYPE_NAME(int);
-PQXX_DECLARE_TYPE_NAME(unsigned int);
-PQXX_DECLARE_TYPE_NAME(long);
-PQXX_DECLARE_TYPE_NAME(unsigned long);
-PQXX_DECLARE_TYPE_NAME(long long);
-PQXX_DECLARE_TYPE_NAME(unsigned long long);
-PQXX_DECLARE_TYPE_NAME(float);
-PQXX_DECLARE_TYPE_NAME(double);
-PQXX_DECLARE_TYPE_NAME(long double);
-PQXX_DECLARE_TYPE_NAME(char *);
-PQXX_DECLARE_TYPE_NAME(const char *);
-PQXX_DECLARE_TYPE_NAME(std::string);
-PQXX_DECLARE_TYPE_NAME(const std::string);
-PQXX_DECLARE_TYPE_NAME(std::stringstream);
-PQXX_DECLARE_TYPE_NAME(std::nullptr_t);
-
 template<size_t N> const std::string type_name<char[N]> = "char[]";
 
 /// Helper: declare a string_traits specialisation for a builtin type.

@@ -18522,7 +18522,8 @@ main ()
 
 			char z[100];
 			auto rt = std::to_chars(
-				std::begin(z), std::end(z), 0.1L);
+				std::begin(z), std::end(z), 0.1L,
+				std::chars_format::general);
 			if (rt.ec != std::errc{}) return 1;
 			long double n;
 			auto rf = std::from_chars(

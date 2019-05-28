@@ -24,6 +24,29 @@
 #include "pqxx/strconv"
 
 
+namespace pqxx
+{
+PQXX_DEFINE_TYPE_NAME(bool);
+PQXX_DEFINE_TYPE_NAME(short);
+PQXX_DEFINE_TYPE_NAME(unsigned short);
+PQXX_DEFINE_TYPE_NAME(int);
+PQXX_DEFINE_TYPE_NAME(unsigned int);
+PQXX_DEFINE_TYPE_NAME(long);
+PQXX_DEFINE_TYPE_NAME(unsigned long);
+PQXX_DEFINE_TYPE_NAME(long long);
+PQXX_DEFINE_TYPE_NAME(unsigned long long);
+PQXX_DEFINE_TYPE_NAME(float);
+PQXX_DEFINE_TYPE_NAME(double);
+PQXX_DEFINE_TYPE_NAME(long double);
+PQXX_DEFINE_TYPE_NAME(char *);
+PQXX_DEFINE_TYPE_NAME(const char *);
+PQXX_DEFINE_TYPE_NAME(std::string);
+PQXX_DEFINE_TYPE_NAME(const std::string);
+PQXX_DEFINE_TYPE_NAME(std::stringstream);
+PQXX_DEFINE_TYPE_NAME(std::nullptr_t);
+} // namespace pqxx
+
+
 namespace
 {
 /// String comparison between string_view.
@@ -33,8 +56,10 @@ inline bool equal(std::string_view lhs, std::string_view rhs)
 }
 
 
+#if !defined(PQXX_HAVE_CHARCONV_INT)
 /// Compute numeric value of given textual digit (assuming that it is a digit).
 constexpr int digit_to_number(char c) noexcept { return c-'0'; }
+#endif
 } // namespace
 
 
