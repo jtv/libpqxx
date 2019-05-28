@@ -79,15 +79,16 @@ template<typename TYPE> const std::string type_name;
 template<typename TYPE> const std::string type_name<std::optional<TYPE>> =
 	"opt<" + type_name<TYPE> + ">";
 
-/// Define a @c type_name for @c TYPE.  Use inside the @c pqxx namespace.
-#define PQXX_DEFINE_TYPE_NAME(TYPE) \
-  template<> const std::string type_name<TYPE> = #TYPE
 
 /// Declare a @c type_name for @c TYPE, defined elsewhere.
 /** Put this in the @c pqxx namespace.
  */
 #define PQXX_DECLARE_TYPE_NAME(TYPE) \
-  template<> extern const std::string type_name<TYPE>
+  template<> PQXX_LIBEXPORT extern const std::string type_name<TYPE>
+
+/// Define a @c type_name for @c TYPE.  Use inside the @c pqxx namespace.
+#define PQXX_DEFINE_TYPE_NAME(TYPE) \
+  template<> const std::string type_name<TYPE> = #TYPE
 
 PQXX_DECLARE_TYPE_NAME(bool);
 PQXX_DECLARE_TYPE_NAME(short);

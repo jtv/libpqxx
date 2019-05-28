@@ -8,6 +8,8 @@ namespace
 
 namespace pqxx
 {
+  PQXX_DEFINE_TYPE_NAME(colour);
+  PQXX_DEFINE_TYPE_NAME(weather);
   PQXX_DECLARE_ENUM_CONVERSION(colour);
   PQXX_DECLARE_ENUM_CONVERSION(weather);
 }
