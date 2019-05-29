@@ -7,6 +7,7 @@
 #include <stdexcept>
 
 #include "test_helpers.hxx"
+#include "test_types.hxx"
 
 
 using namespace pqxx;
@@ -19,14 +20,18 @@ std::string deref_field(const field &f)
 {
   return f.c_str();
 }
-
-
 } // namespace
 
 
 namespace pqxx
 {
-namespace test
+// Define type names for test types defined in test_types.hxx.
+PQXX_DEFINE_TYPE_NAME(ipv4);
+PQXX_DEFINE_TYPE_NAME(bytea);
+}
+
+
+namespace pqxx::test
 {
 test_failure::test_failure(
 	const std::string &ffile,
@@ -120,7 +125,6 @@ void create_pqxxevents(transaction_base &t)
 	"INSERT INTO pqxxevents(year, event) VALUES (2001, 'A Space Odyssey')");
 }
 } // namespace pqxx::test
-} // namespace pqxx
 
 
 namespace
@@ -129,9 +133,7 @@ std::map<const char *, testfunc> *all_tests = nullptr;
 } // namespace
 
 
-namespace pqxx
-{
-namespace test
+namespace pqxx::test
 {
 void register_test(const char name[], testfunc func)
 {
@@ -146,7 +148,7 @@ void register_test(const char name[], testfunc func)
   (*all_tests)[name] = func;
 }
 } // namespace pqxx::test
-} // namespace pqxx
+
 
 int main(int, const char *argv[])
 {

@@ -72,31 +72,5 @@ enum isolation_level
 };
 } // namespace pqxx
 
-
-namespace pqxx::internal
-{
-template<pqxx::isolation_level isolation, pqxx::write_policy rw>
-constexpr const char *begin_cmd = nullptr;
-
-template<>
-constexpr const char *begin_cmd<read_committed, write_policy::read_write> =
-	"BEGIN";
-template<>
-constexpr const char *begin_cmd<read_committed, write_policy::read_only> =
-	"BEGIN READ ONLY";
-template<>
-constexpr const char *begin_cmd<repeatable_read, write_policy::read_write> =
-	"BEGIN ISOLATION LEVEL REPEATABLE READ";
-template<>
-constexpr const char *begin_cmd<repeatable_read, write_policy::read_only> =
-	"BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY";
-template<>
-constexpr const char *begin_cmd<serializable, write_policy::read_write> =
-	"BEGIN ISOLATION LEVEL SERIALIZABLE";
-template<>
-constexpr const char *begin_cmd<serializable, write_policy::read_only> =
-	"BEGIN ISOLATION LEVEL SERIALIZABLE READ ONLY";
-} // namespace pqxx::internal
-
 #include "pqxx/compiler-internal-post.hxx"
 #endif

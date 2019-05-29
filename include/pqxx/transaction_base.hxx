@@ -506,5 +506,13 @@ private:
 };
 } // namespace pqxx
 
+
+namespace pqxx::internal
+{
+/// The SQL command for starting a given type of transaction.
+template<pqxx::isolation_level isolation, pqxx::write_policy rw>
+const char *begin_cmd;
+} // namespace pqxx::internal
+
 #include "pqxx/compiler-internal-post.hxx"
 #endif

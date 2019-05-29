@@ -122,7 +122,7 @@ public:
 
 namespace pqxx
 {
-PQXX_DEFINE_TYPE_NAME(ipv4);
+PQXX_DECLARE_TYPE_NAME(ipv4);
 
 template<> struct string_traits<ipv4>
 {
@@ -181,7 +181,7 @@ template<> struct string_traits<ipv4>
 
 namespace pqxx
 {
-PQXX_DEFINE_TYPE_NAME(bytea);
+PQXX_DECLARE_TYPE_NAME(bytea);
 
 template<> struct string_traits<bytea>
 {
