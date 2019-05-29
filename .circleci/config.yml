@@ -10,11 +10,14 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Configure apt archives
+          command: echo >/etc/apt/sources.list.d/clang-upstream.list 'deb http://apt.llvm.org/stretch/ llvm-toolchain-stretch main'
+      - run:
           name: Install
-          command: apt update && apt install -y python cmake libpq-dev postgresql libpq-dev postgresql-server-dev-all build-essential autoconf dh-autoreconf autoconf-archive automake cppcheck
+          command: apt update && apt install -y python cmake libpq-dev postgresql libpq-dev postgresql-server-dev-all build-essential autoconf dh-autoreconf autoconf-archive automake cppcheck clang
       - run:
           name: Identify
-          command: lsb_release -a && c++ --version
+          command: lsb_release -a && c++ --version && clang++ --version
       - run:
           name: Prepare postgres
           command: |
@@ -46,9 +49,9 @@ jobs:
 #                  --disable-documentation \
 #                  --enable-maintainer-mode \
 #                  --enable-shared --disable-static
-      - run:
-          name: Make
-          command: make
-      - run:
-          name: Test
-          command: PGDATA=db/data make check
+#      - run:
+#          name: Make
+#          command: make
+#      - run:
+#          name: Test
+#          command: PGDATA=db/data make check
