@@ -11,7 +11,7 @@ jobs:
       - checkout
       - run:
           name: Configure apt archives
-          command: echo >/etc/apt/sources.list.d/clang-upstream.list 'deb http://apt.llvm.org/stretch/ llvm-toolchain-stretch main'
+          command: echo >/etc/apt/sources.list.d/clang-upstream.list 'deb http://apt.llvm.org/stretch/ llvm-toolchain-stretch main' && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
       - run:
           name: Install
           command: apt update && apt install -y python cmake libpq-dev postgresql libpq-dev postgresql-server-dev-all build-essential autoconf dh-autoreconf autoconf-archive automake cppcheck clang
