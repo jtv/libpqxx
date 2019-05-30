@@ -17,6 +17,41 @@
 #include <optional>
 #include <sstream>
 #include <stdexcept>
+#include <typeinfo>
+
+
+namespace pqxx
+{
+/**
+ * @defgroup stringconversion String conversion
+ *
+ * The PostgreSQL server accepts and represents data in string form.  It has
+ * its own formats for various data types.  The string conversions define how
+ * various C++ types translate to and from their respective PostgreSQL text
+ * representations.
+ *
+ * Each conversion is defined by a specialisation of the @c string_traits
+ * template.  This template implements some basic functions to support the
+ * conversion, ideally in both directions.
+ *
+ * If you need to convert a type which is not supported out of the box, define
+ * your own @c string_traits specialisation for that type, similar to the ones
+ * defined here.  Any conversion code which "sees" your specialisation will now
+ * support your conversion.  In particular, you'll be able to read result
+ * fields into a variable of the new type.
+ *
+ * There is a macro to help you define conversions for individual enumeration
+ * types.  The conversion will represent enumeration values as numeric strings.
+ */
+//@{
+
+// TODO: Do better!  Was having trouble with template variables.
+/// A human-readable name for a type, used in error messages and such.
+/** The default implementation falls back on @c std::type_info::name(), which
+ * isn't necessarily human-friendly.
+ */
+template<typename TYPE> const std::string type_name{typeid(TYPE).name()};
+} // namespace pqxx
 
 
 namespace pqxx::internal
@@ -49,66 +84,6 @@ constexpr char number_to_digit(int i) noexcept
 
 namespace pqxx
 {
-/**
- * @defgroup stringconversion String conversion
- *
- * The PostgreSQL server accepts and represents data in string form.  It has
- * its own formats for various data types.  The string conversions define how
- * various C++ types translate to and from their respective PostgreSQL text
- * representations.
- *
- * Each conversion is defined by a specialisation of the @c string_traits
- * template.  This template implements some basic functions to support the
- * conversion, ideally in both directions.
- *
- * If you need to convert a type which is not supported out of the box, define
- * your own @c string_traits specialisation for that type, similar to the ones
- * defined here.  Any conversion code which "sees" your specialisation will now
- * support your conversion.  In particular, you'll be able to read result
- * fields into a variable of the new type.
- *
- * There is a macro to help you define conversions for individual enumeration
- * types.  The conversion will represent enumeration values as numeric strings.
- */
-//@{
-
-/// A human-readable name for a type, used in error messages and such.
-template<typename TYPE> const std::string type_name;
-
-
-template<typename TYPE> const std::string type_name<std::optional<TYPE>> =
-	"opt<" + type_name<TYPE> + ">";
-
-
-/// Declare a @c type_name for @c TYPE, defined elsewhere.
-/** Put this in the @c pqxx namespace.
- */
-#define PQXX_DECLARE_TYPE_NAME(TYPE) \
-  template<> extern const std::string type_name<TYPE>
-
-/// Define a @c type_name for @c TYPE.  Use inside the @c pqxx namespace.
-#define PQXX_DEFINE_TYPE_NAME(TYPE) \
-  template<> const std::string type_name<TYPE>{#TYPE}
-
-PQXX_DECLARE_TYPE_NAME(bool);
-PQXX_DECLARE_TYPE_NAME(short);
-PQXX_DECLARE_TYPE_NAME(unsigned short);
-PQXX_DECLARE_TYPE_NAME(int);
-PQXX_DECLARE_TYPE_NAME(unsigned int);
-PQXX_DECLARE_TYPE_NAME(long);
-PQXX_DECLARE_TYPE_NAME(unsigned long);
-PQXX_DECLARE_TYPE_NAME(long long);
-PQXX_DECLARE_TYPE_NAME(unsigned long long);
-PQXX_DECLARE_TYPE_NAME(float);
-PQXX_DECLARE_TYPE_NAME(double);
-PQXX_DECLARE_TYPE_NAME(long double);
-PQXX_DECLARE_TYPE_NAME(char *);
-PQXX_DECLARE_TYPE_NAME(const char *);
-PQXX_DECLARE_TYPE_NAME(std::string);
-PQXX_DECLARE_TYPE_NAME(const std::string);
-PQXX_DECLARE_TYPE_NAME(std::stringstream);
-PQXX_DECLARE_TYPE_NAME(std::nullptr_t);
-
 /// Traits class for use in string conversions.
 /** Specialize this template for a type for which you wish to add to_string
  * and from_string support.
@@ -161,7 +136,6 @@ struct enum_traits
  *      int main() { std::cout << to_string(xa) << std::endl; }
  */
 #define PQXX_DECLARE_ENUM_CONVERSION(ENUM) \
-PQXX_DECLARE_TYPE_NAME(ENUM); \
 template<> \
 struct string_traits<ENUM> : pqxx::enum_traits<ENUM> \
 { \
@@ -175,8 +149,6 @@ struct string_traits<ENUM> : pqxx::enum_traits<ENUM> \
 
 namespace pqxx
 {
-template<size_t N> const std::string type_name<char[N]> = "char[]";
-
 /// Helper: declare a string_traits specialisation for a builtin type.
 #define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(TYPE) \
   template<> struct PQXX_LIBEXPORT string_traits<TYPE> : \

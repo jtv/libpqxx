@@ -24,29 +24,6 @@
 #include "pqxx/strconv"
 
 
-namespace pqxx
-{
-PQXX_DEFINE_TYPE_NAME(bool);
-PQXX_DEFINE_TYPE_NAME(short);
-PQXX_DEFINE_TYPE_NAME(unsigned short);
-PQXX_DEFINE_TYPE_NAME(int);
-PQXX_DEFINE_TYPE_NAME(unsigned int);
-PQXX_DEFINE_TYPE_NAME(long);
-PQXX_DEFINE_TYPE_NAME(unsigned long);
-PQXX_DEFINE_TYPE_NAME(long long);
-PQXX_DEFINE_TYPE_NAME(unsigned long long);
-PQXX_DEFINE_TYPE_NAME(float);
-PQXX_DEFINE_TYPE_NAME(double);
-PQXX_DEFINE_TYPE_NAME(long double);
-PQXX_DEFINE_TYPE_NAME(char *);
-PQXX_DEFINE_TYPE_NAME(const char *);
-PQXX_DEFINE_TYPE_NAME(std::string);
-PQXX_DEFINE_TYPE_NAME(const std::string);
-PQXX_DEFINE_TYPE_NAME(std::stringstream);
-PQXX_DEFINE_TYPE_NAME(std::nullptr_t);
-} // namespace pqxx
-
-
 namespace
 {
 /// String comparison between string_view.
@@ -267,22 +244,22 @@ template<typename T> void from_string_signed(std::string_view str, T &obj)
   int i = 0;
   T result = 0;
 
-  if (not isdigit(str[i]))
+  if (isdigit(str.data()[i]))
   {
-    if (str[i] != '-')
-      throw pqxx::conversion_error{
-        "Could not convert string to integer: '" + std::string{str} + "'."};
-
-    for (++i; isdigit(str[i]); ++i)
-      result = absorb_digit(result, -digit_to_number(str[i]));
+    for (; isdigit(str.data()[i]); ++i)
+      result = absorb_digit(result, digit_to_number(str.data()[i]));
   }
   else
   {
-    for (; isdigit(str[i]); ++i)
-      result = absorb_digit(result, digit_to_number(str[i]));
+    if (str.data()[i] != '-')
+      throw pqxx::conversion_error{
+        "Could not convert string to integer: '" + std::string{str} + "'."};
+
+    for (++i; isdigit(str.data()[i]); ++i)
+      result = absorb_digit(result, -digit_to_number(str.data()[i]));
   }
 
-  if (str[i])
+  if (str.data()[i])
     throw pqxx::conversion_error{
       "Unexpected text after integer: '" + std::string{str} + "'."};
 
@@ -294,15 +271,15 @@ template<typename T> void from_string_unsigned(std::string_view str, T &obj)
   int i = 0;
   T result = 0;
 
-  if (not isdigit(str[i]))
+  if (not isdigit(str.data()[i]))
     throw pqxx::conversion_error{
       "Could not convert string to unsigned integer: '" +
       std::string{str} + "'."};
 
-  for (; isdigit(str[i]); ++i)
-    result = absorb_digit(result, digit_to_number(str[i]));
+  for (; isdigit(str.data()[i]); ++i)
+    result = absorb_digit(result, digit_to_number(str.data()[i]));
 
-  if (str[i])
+  if (str.data()[i])
     throw pqxx::conversion_error{
       "Unexpected text after integer: '" + std::string{str} + "'."};
 

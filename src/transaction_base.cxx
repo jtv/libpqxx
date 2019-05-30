@@ -24,29 +24,6 @@
 #include "pqxx/internal/encodings.hxx"
 
 
-namespace pqxx::internal
-{
-template<>
-constexpr const char *begin_cmd<read_committed, write_policy::read_write> =
-	"BEGIN";
-template<>
-constexpr const char *begin_cmd<read_committed, write_policy::read_only> =
-	"BEGIN READ ONLY";
-template<>
-constexpr const char *begin_cmd<repeatable_read, write_policy::read_write> =
-	"BEGIN ISOLATION LEVEL REPEATABLE READ";
-template<>
-constexpr const char *begin_cmd<repeatable_read, write_policy::read_only> =
-	"BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY";
-template<>
-constexpr const char *begin_cmd<serializable, write_policy::read_write> =
-	"BEGIN ISOLATION LEVEL SERIALIZABLE";
-template<>
-constexpr const char *begin_cmd<serializable, write_policy::read_only> =
-	"BEGIN ISOLATION LEVEL SERIALIZABLE READ ONLY";
-}
-
-
 pqxx::transaction_base::transaction_base(connection &C) :
   namedclass{"transaction_base"},
   m_conn{C}

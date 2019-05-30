@@ -122,8 +122,6 @@ public:
 
 namespace pqxx
 {
-PQXX_DECLARE_TYPE_NAME(ipv4);
-
 template<> struct string_traits<ipv4>
 {
   using subject_type = ipv4;
@@ -181,8 +179,6 @@ template<> struct string_traits<ipv4>
 
 namespace pqxx
 {
-PQXX_DECLARE_TYPE_NAME(bytea);
-
 template<> struct string_traits<bytea>
 {
 private:

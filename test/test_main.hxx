@@ -7,7 +7,6 @@
 #include <stdexcept>
 
 #include "test_helpers.hxx"
-#include "test_types.hxx"
 
 
 using namespace pqxx;
@@ -21,14 +20,6 @@ std::string deref_field(const field &f)
   return f.c_str();
 }
 } // namespace
-
-
-namespace pqxx
-{
-// Define type names for test types defined in test_types.hxx.
-PQXX_DEFINE_TYPE_NAME(ipv4);
-PQXX_DEFINE_TYPE_NAME(bytea);
-}
 
 
 namespace pqxx::test
