@@ -33,7 +33,7 @@ namespace pqxx::internal
 {
 template<typename T> inline T identity(T x) { return x; }
 template<typename T> inline std::function<T(T)> identity_func = identity<T>;
-template<typename ITERATOR> const auto iterator_identity =
+template<typename ITERATOR> inline const auto iterator_identity =
 	identity_func<decltype(*std::declval<ITERATOR>())>;
 
 
@@ -61,7 +61,8 @@ class dynamic_params
 {
 public:
   /// Wrap a sequence of pointers or iterators.
-  dynamic_params(IT begin, IT end) : m_begin(begin), m_end(end) {}
+  dynamic_params(IT begin, IT end) :
+	m_begin(begin), m_end(end), m_accessor(iterator_identity<IT>) {}
 
   /// Wrap a sequence of pointers or iterators.
   /** This version takes an accessor callable.  If you pass an accessor @c acc,
@@ -74,7 +75,7 @@ public:
   /// Wrap a container.
   template<typename C> explicit
   dynamic_params(const C &container) :
-	dynamic_params( std::begin(container), std::end(container))
+	dynamic_params(std::begin(container), std::end(container))
   {}
 
   /// Wrap a container.
