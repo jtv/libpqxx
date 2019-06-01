@@ -16,7 +16,7 @@
 #include <string_view>
 #include <system_error>
 
-#if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
+#if __has_include(<charconv>)
 #include <charconv>
 #endif
 
@@ -33,10 +33,21 @@ inline bool equal(std::string_view lhs, std::string_view rhs)
 }
 
 
-#if !defined(PQXX_HAVE_CHARCONV_INT)
 /// Compute numeric value of given textual digit (assuming that it is a digit).
-constexpr int digit_to_number(char c) noexcept { return c-'0'; }
-#endif
+[[maybe_unused]] constexpr int digit_to_number(char c) noexcept
+{ return c - '0'; }
+
+
+/// How big of a buffer do we want for representing a TYPE object as text?
+template<typename TYPE> [[maybe_unused]] constexpr int size_buffer()
+{
+  using lim = std::numeric_limits<TYPE>;
+  // Allocate room for how many digits?  There's "max_digits10" for
+  // floating-point numbers, but only "digits10" for integer types.
+  constexpr auto digits = std::max({lim::digits10, lim::max_digits10});
+  // Leave a little bit of extra room for signs, decimal points, and the like.
+  return digits + 4;
+}
 } // namespace
 
 
@@ -50,9 +61,9 @@ void throw_null_conversion(const std::string &type)
 
 
 #if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
-namespace
-{
-template<typename T> void wrap_from_chars(std::string_view in, T &out)
+template<typename TYPE>
+void pqxx::internal::builtin_traits<TYPE>::from_string(
+	std::string_view in, TYPE &out)
 {
   const char *end = in.data() + in.size();
   const auto res = std::from_chars(in.data(), end, out);
@@ -77,24 +88,16 @@ template<typename T> void wrap_from_chars(std::string_view in, T &out)
 
   const std::string base =
 	"Could not convert '" + std::string(in) + "' "
-	"to " + pqxx::type_name<T>;
+	"to " + pqxx::type_name<TYPE>;
   if (msg.empty()) throw pqxx::conversion_error{base + "."};
   else throw pqxx::conversion_error{base + ": " + msg};
 }
+#endif
 
 
-/// How big of a buffer do we want for representing a T?
-template<typename T> constexpr int size_buffer()
+#if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
+namespace
 {
-  using lim = std::numeric_limits<T>;
-  // Allocate room for how many digits?  There's "max_digits10" for
-  // floating-point numbers, but only "digits10" for integer types.
-  constexpr auto digits = std::max({lim::digits10, lim::max_digits10});
-  // Leave a little bit of extra room for signs, decimal points, and the like.
-  return digits + 4;
-}
-
-
 /// Call @c std::to_chars.  It differs for integer vs. floating-point types.
 template<typename TYPE, bool INTEGRAL> struct to_chars_caller;
 
@@ -148,14 +151,6 @@ template<typename T> std::string builtin_traits<T>::to_string(T in)
   if (msg.empty()) throw pqxx::conversion_error{base + "."};
   else throw pqxx::conversion_error{base + ": " + msg};
 }
-
-
-/// Translate @c from_string calls to @c wrap_from_chars calls.
-/** The only difference is the type of the string.
- */
-template<typename TYPE>
-void builtin_traits<TYPE>::from_string(std::string_view str, TYPE &obj)
-	{ wrap_from_chars(std::string_view{str}, obj); }
 } // namespace pqxx::internal
 #endif // PQXX_HAVE_CHARCONV_INT || PQXX_HAVE_CHARCONV_FLOAT
 
@@ -393,22 +388,19 @@ template<typename T> inline void from_string_float(
 #if !defined(PQXX_HAVE_CHARCONV_INT)
 namespace
 {
-template<typename T> inline std::string to_string_unsigned(T obj)
+template<typename TYPE> inline std::string to_string_unsigned(TYPE obj)
 {
-  if (not obj) return "0";
+  if (obj == 0) return "0";
 
-  // Every byte of width on T adds somewhere between 3 and 4 digits to the
-  // maximum length of our decimal string.
-  char buf[4*sizeof(T)+1];
-
-  char *p = &buf[sizeof(buf)];
-  *--p = '\0';
-  while (obj > 0)
+  char buf[size_buffer<TYPE>()];
+  char *const end = std::end(buf);
+  char *begin = end;
+  do
   {
-    *--p = pqxx::internal::number_to_digit(int(obj % 10));
-    obj = T(obj / 10);
-  }
-  return p;
+    *--begin = pqxx::internal::number_to_digit(int(obj % 10));
+    obj = TYPE(obj / 10);
+  } while (obj > 0);
+  return std::string{begin, end};
 }
 } // namespace
 #endif // !PQXX_HAVE_CHARCONV_INT
