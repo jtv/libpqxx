@@ -210,13 +210,13 @@ AC_MSG_RESULT($gcc_pure)
 fi # End of gcc-specific part.
 
 
-# It's early 2019, and gcc's charconv supports integers but not yet floats.
+# It's mid-2019, and gcc's charconv supports integers but not yet floats.
 # So for now, we test for int and float conversion... separately.
 #
-# It's worse for clang, which compiles the integer conversions but then fails
-# at link time because of a missing symbol "__muloti4" when compiling
-# "long long" code.  I couldn't resolve that symbol by adding -lm either.  So
-# don't just compile these tests; link them as well.
+# It's worse for older clang versions, which compile the integer conversions
+# but then fail at link time because of a missing symbol "__muloti4" with the
+# "long long" version.  I couldn't resolve that symbol by adding -lm either.
+# So don't just compile these tests; link them as well.
 AC_MSG_CHECKING([for C++17 charconv integer conversion])
 have_charconv_int=yes
 AC_LINK_IFELSE(
@@ -330,9 +330,6 @@ the config.log file for more clues as to why this failed.
 fi
 
 fi # No poll()
-
-
-AC_CHECK_HEADERS([sys/time.h])
 
 
 # Find PostgreSQL includes and libraries
