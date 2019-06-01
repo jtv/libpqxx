@@ -221,15 +221,20 @@ AC_MSG_CHECKING([for C++17 charconv integer conversion])
 have_charconv_int=yes
 AC_LINK_IFELSE(
 	[AC_LANG_PROGRAM(
-		[#include <charconv>],
+		[
+			#include <charconv>
+			#include <iterator>
+		],
 		[[
 			char z[100];
-			auto rt = std::to_chars(z, z + sizeof(z), 0ULL);
+			auto rt = std::to_chars(
+				std::begin(z), std::end(z), 9ULL);
 			if (rt.ec != std::errc{}) return 1;
 			unsigned long long n;
-			auto rf = std::from_chars(z, z + sizeof(z), n);
+			auto rf = std::from_chars(
+				std::cbegin(z), std::cend(z), n);
 			if (rf.ec != std::errc{}) return 2;
-			return int(n)
+			return (n == 9ULL) ? 0 : 1
 		]]
 	)],
 	AC_DEFINE(
@@ -245,19 +250,19 @@ AC_LINK_IFELSE(
 	[AC_LANG_PROGRAM(
 		[
                         #include <charconv>
+                        #include <ciso646>
                         #include <iterator>
                 ],
 		[[
 			char z[100];
 			auto rt = std::to_chars(
-				std::begin(z), std::end(z), 0.1L,
-				std::chars_format::general);
+				std::begin(z), std::end(z), 3.14159L);
 			if (rt.ec != std::errc{}) return 1;
 			long double n;
 			auto rf = std::from_chars(
                                 std::cbegin(z), std::cend(z), n);
 			if (rf.ec != std::errc{}) return 2;
-			return int(n)
+			return (n > 3 and n < 4) ? 0 : 1
 		]]
 	)],
 	AC_DEFINE(

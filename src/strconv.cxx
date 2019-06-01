@@ -96,44 +96,11 @@ void pqxx::internal::builtin_traits<TYPE>::from_string(
 
 
 #if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
-namespace
-{
-/// Call @c std::to_chars.  It differs for integer vs. floating-point types.
-template<typename TYPE, bool INTEGRAL> struct to_chars_caller;
-
-#if defined(PQXX_HAVE_CHARCONV_INT)
-/// For integer types, we pass "base 10" to @c std::to_chars.
-template<typename TYPE> struct to_chars_caller<TYPE, true>
-{
-  static std::to_chars_result call(char *begin, char *end, TYPE in)
-	{ return std::to_chars(begin, end, in, 10); }
-};
-#endif
-
-#if defined(PQXX_HAVE_CHARCONV_FLOAT)
-/// For floating-point types, we pass "general format" to @c std::to_chars.
-template<typename TYPE>
-template<typename TYPE> struct to_chars_caller<TYPE, true>
-{
-  static std::to_chars_result call(char *begin, char *end, TYPE in)
-	{ return std::to_chars(begin, end, in, std::chars_format::general); }
-};
-#endif
-} // namespace
-
-
-namespace pqxx::internal
-{
-template<typename T> std::string builtin_traits<T>::to_string(T in)
+template<typename T> std::string
+pqxx::internal::builtin_traits<T>::to_string(T in)
 {
   char buf[size_buffer<T>()];
-
-  // Annoying: we need to make slightly different calls to std::to_chars
-  // depending on whether this is an integral type or a floating-point type.
-  // Use to_chars_caller to hide the difference.
-  constexpr bool is_integer = std::numeric_limits<T>::is_integer;
-  const auto res = to_chars_caller<T, is_integer>::call(
-	buf, buf + sizeof(buf), in);
+  const auto res = std::to_chars(buf, buf + sizeof(buf), in);
   if (res.ec == std::errc()) return std::string(buf, res.ptr);
 
   std::string msg;
@@ -151,7 +118,6 @@ template<typename T> std::string builtin_traits<T>::to_string(T in)
   if (msg.empty()) throw pqxx::conversion_error{base + "."};
   else throw pqxx::conversion_error{base + ": " + msg};
 }
-} // namespace pqxx::internal
 #endif // PQXX_HAVE_CHARCONV_INT || PQXX_HAVE_CHARCONV_FLOAT
 
 
