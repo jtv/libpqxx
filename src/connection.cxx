@@ -21,29 +21,38 @@
 #include <memory>
 #include <stdexcept>
 
-#if defined(_WIN32)
-// Includes for WSAPoll().
+// For WSAPoll():
+#if __has_include(<winsock2.h>)
 #include <winsock2.h>
+#endif
+#if __has_include(<ws2tcpip.h>)
 #include <ws2tcpip.h>
+#endif
+#if __has_include(<mstcpip.h>)
 #include <mstcpip.h>
-#elif defined(HAVE_POLL)
-// Include for poll().
+#endif
+
+// For poll():
+#if __has_include(<poll.h>)
 #include <poll.h>
-#elif defined(HAVE_SYS_SELECT_H)
-// Include for select() on (recent) POSIX systems.
+#endif
+
+// For select() on recent POSIX systems.
+#if __has_include(<sys/select.h>)
 #include <sys/select.h>
-#else
-// Includes for select() according to various older standards.
-#if defined(HAVE_SYS_TYPES_H)
+#endif
+
+// For select() on some older POSIX systems.
+#if __has_include(<sys/types.h>)
 #include <sys/types.h>
 #endif
-#if defined(HAVE_UNISTD_H)
+#if __has_include(<unistd.h>)
 #include <unistd.h>
 #endif
-#endif
-#if defined(HAVE_SYS_TIME_H)
+#if __has_include(<sys/time.h>)
 #include <sys/time.h>
 #endif
+
 
 extern "C"
 {
@@ -837,13 +846,11 @@ std::string pqxx::connection::esc_like(
 
 namespace
 {
-#if defined(_WIN32) || defined(HAVE_POLL)
 // Convert a timeval to milliseconds, or -1 if no timeval is given.
-inline int tv_milliseconds(timeval *tv = nullptr)
+[[maybe_unused]] constexpr int tv_milliseconds(timeval *tv = nullptr)
 {
   return tv ? int(tv->tv_sec * 1000 + tv->tv_usec/1000) : -1;
 }
-#endif
 
 
 /// Wait for an fd to become free for reading/writing.  Optional timeout.
@@ -857,7 +864,7 @@ void wait_fd(int fd, bool forwrite=false, timeval *tv=nullptr)
   WSAPOLLFD fdarray{SOCKET(fd), events, 0};
   WSAPoll(&fdarray, 1, tv_milliseconds(tv));
   // TODO: Check for errors.
-#elif defined(HAVE_POLL)
+#elif defined(PQXX_HAVE_POLL)
   const short events = short(
         POLLERR|POLLHUP|POLLNVAL | (forwrite?POLLOUT:POLLIN));
   pollfd pfd{fd, events, 0};

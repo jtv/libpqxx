@@ -18549,7 +18549,7 @@ rm -f core conftest.err conftest.$ac_objext \
 $as_echo "$have_charconv_float" >&6; }
 
 # Doing my own test for poll() for now.  The test built into autoconf-archive
-# triggers a stupid warning for an unused variable.
+# triggers stupid warnings.
 # TODO: Try newer version of autoconf-archive.
 #AX_HAVE_POLL(
 #        [AX_CONFIG_FEATURE_ENABLE(poll)],
@@ -18557,7 +18557,7 @@ $as_echo "$have_charconv_float" >&6; }
 #AX_CONFIG_FEATURE(
 #	[poll],
 #	[System supports poll().],
-#	[HAVE_POLL],
+#	[PQXX_HAVE_POLL],
 #	[System supports poll().])
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for poll()" >&5
 $as_echo_n "checking for poll()... " >&6; }

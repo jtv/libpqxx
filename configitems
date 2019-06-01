@@ -1,4 +1,3 @@
-HAVE_POLL       internal        compiler
 HAVE_SYS_SELECT_H	internal	compiler
 HAVE_SYS_TIME_H internal        compiler
 HAVE_SYS_TYPES_H	internal	compiler
@@ -11,11 +10,12 @@ PACKAGE_TARNAME	internal	autotools
 PACKAGE_VERSION	internal	autotools
 PQXX_HAVE_CHARCONV_INT	internal	compiler
 PQXX_HAVE_CHARCONV_FLOAT	internal	compiler
+PQXX_HAVE_EXP_OPTIONAL	public	compiler
 PQXX_HAVE_GCC_CONST	public	compiler
 PQXX_HAVE_GCC_PURE	public	compiler
 PQXX_HAVE_GCC_VISIBILITY	internal	compiler
 PQXX_HAVE_OPTIONAL	public	compiler
-PQXX_HAVE_EXP_OPTIONAL	public	compiler
+PQXX_HAVE_POLL       internal        compiler
 PQXX_SEEKDIRS_MATCH_C	internal	compiler
 PQXX_PQ_IN_NAMESPACE	public	compiler
 VERSION	internal	autotools
