@@ -296,9 +296,7 @@ AC_MSG_RESULT($ax_cv_have_poll)
 
 if test "$ax_cv_have_poll" != "yes"
 then
-# No poll(); try for select() instead.
-select_h=no
-AC_CHECK_HEADERS([sys/select.h], [select_h=yes])
+# No poll(); we'll fall back to select().
 
 # Some systems keep select() in a separate library which is not linked by
 # default.  See if we need one of those.

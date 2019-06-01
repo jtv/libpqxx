@@ -18590,21 +18590,7 @@ $as_echo "$ax_cv_have_poll" >&6; }
 
 if test "$ax_cv_have_poll" != "yes"
 then
-# No poll(); try for select() instead.
-select_h=no
-
-for ac_header in sys/select.h
-do :
-  ac_fn_cxx_check_header_mongrel "$LINENO" "sys/select.h" "ac_cv_header_sys_select_h" "$ac_includes_default"
-if test "x$ac_cv_header_sys_select_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_SYS_SELECT_H 1
-_ACEOF
- select_h=yes
-fi
-
-done
-
+# No poll(); we'll fall back to select().
 
 # Some systems keep select() in a separate library which is not linked by
 # default.  See if we need one of those.
@@ -18723,6 +18709,7 @@ the config.log file for more clues as to why this failed.
 fi
 
 fi # No poll()
+
 
 
 for ac_header in sys/time.h

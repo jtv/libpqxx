@@ -1,7 +1,3 @@
-HAVE_SYS_SELECT_H	internal	compiler
-HAVE_SYS_TIME_H internal        compiler
-HAVE_SYS_TYPES_H	internal	compiler
-HAVE_UNISTD_H	internal	compiler
 PACKAGE	internal	autotools
 PACKAGE_BUGREPORT	internal	autotools
 PACKAGE_NAME	internal	autotools

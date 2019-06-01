@@ -5,21 +5,22 @@
 #include <iostream>
 #include "pqxx/config-public-compiler.h"
 
-#if defined(HAVE_SYS_SELECT_H)
+#if __has_include(<sys/select.h>)
 #include <sys/select.h>
-#else
+#endif
+#if __has_include(<sys/types.h>)
 #include <sys/types.h>
-#if defined(HAVE_SYS_TIME_H)
+#endif
+#if __has_include(<sys/time.h>)
 #include <sys/time.h>
 #endif
-#if defined(HAVE_UNISTD_H)
+#if __has_include(<unistd.h>)
 #include <unistd.h>
 #endif
 #if defined(_WIN32)
 #define NOMINMAX
 #include <winsock2.h>
 #endif
-#endif // HAVE_SYS_SELECT_H
 
 #include "test_helpers.hxx"
 

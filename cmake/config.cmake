@@ -25,12 +25,7 @@ include(CheckFunctionExists)
 include(CMakeDetermineCompileFeatures)
 include(CheckCXXSourceCompiles)
 
-check_include_file_cxx("sys/select.h" HAVE_SYS_SELECT_H)
-check_include_file_cxx("sys/time.h" HAVE_SYS_TIME_H)
-check_include_file_cxx("sys/types.h" HAVE_SYS_TYPES_H)
-check_include_file_cxx("unistd.h" HAVE_UNISTD_H)
-
-check_function_exists("poll" HAVE_POLL)
+check_function_exists("poll" PQXX_HAVE_POLL)
 
 cmake_determine_compile_features(CXX)
 cmake_policy(SET CMP0057 NEW)

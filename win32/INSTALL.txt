@@ -438,14 +438,7 @@ configuration headers manually, resulting usually in compile errors, e.g. for
 missing header files.  Thus, if you get a compile error, the first places to
 look are the config-*-*.h and config-*-*.h files in include/pqxx.
 
-If, for instance, the error states that the header file <sys/select.h> is
-missing, you will find a configuration variable called PQXX_HAVE_SYS_SELECT_H,
-which should not be set if your system doesn't have sys/select.h.  Remove the
-line defining this variable from the configuration header where it is defined
-(see the configitems file for a list of locations) and the error should
-disappear on the next compilation attempt.
-
-If you have to edit your configuration headers, please send your results on
+If you have to edit your configuration headers, please send us your results on
 Github, so that headers corresponding to your environment can be included in
 later libpqxx releases.
 
