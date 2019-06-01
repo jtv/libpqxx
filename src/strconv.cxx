@@ -144,59 +144,54 @@ namespace
 }
 
 
-/** Helper to check for underflow before multiplying a number by 10.
- *
- * Needed just so the compiler doesn't get to complain about an "if (n < 0)"
- * clause that's pointless for unsigned numbers.
- */
-template<typename T, bool is_signed> struct underflow_check;
-
-/* Specialization for signed types: check.
- */
-template<typename T> struct underflow_check<T, true>
-{
-  static void check_before_adding_digit(T n)
-  {
-    constexpr T ten{10};
-    if (n < 0 and (std::numeric_limits<T>::min() / ten) > n) report_overflow();
-  }
-};
-
-/* Specialization for unsigned types: no check needed becaue negative
- * numbers don't exist.
- */
-template<typename T> struct underflow_check<T, false>
-{
-  static void check_before_adding_digit(T) {}
-};
-
-
 /// Return 10*n, or throw exception if it overflows.
-template<typename T> T safe_multiply_by_ten(T n)
+template<typename T> inline T safe_multiply_by_ten(T n)
 {
   using limits = std::numeric_limits<T>;
+
   constexpr T ten{10};
-  if (n > 0 and (limits::max() / n) < ten) report_overflow();
-  underflow_check<T, limits::is_signed>::check_before_adding_digit(n);
+  constexpr T high_threshold{std::numeric_limits<T>::max() / ten};
+  if (n > high_threshold) report_overflow();
+  if constexpr (limits::is_signed)
+  {
+    constexpr T low_threshold{std::numeric_limits<T>::min() / ten};
+    if (low_threshold > n) report_overflow();
+  }
   return T(n * ten);
 }
 
 
-/// Add a digit d to n, or throw exception if it overflows.
-template<typename T> T safe_add_digit(T n, T d)
+/// Add digit d to nonnegative n, or throw exception if it overflows.
+template<typename T> inline T safe_add_digit(T n, T d)
 {
-  assert((n >= 0 and d >= 0) or (n <=0 and d <= 0));
-  if ((n > 0) and (n > (std::numeric_limits<T>::max() - d))) report_overflow();
-  if ((n < 0) and (n < (std::numeric_limits<T>::min() - d))) report_overflow();
-  return n + d;
+  const T high_threshold{static_cast<T>(std::numeric_limits<T>::max() - d)};
+  if (n > high_threshold) report_overflow();
+  return static_cast<T>(n + d);
 }
 
 
-/// For use in string parsing: add new numeric digit to intermediate value
-template<typename L, typename R>
-  inline L absorb_digit(L value, R digit)
+/// Subtract digit d to nonpositive n, or throw exception if it overflows.
+template<typename T> inline T safe_sub_digit(T n, T d)
 {
-  return L(safe_multiply_by_ten(value) + L(digit));
+  const T low_threshold{static_cast<T>(std::numeric_limits<T>::min() + d)};
+  if (n < low_threshold) report_overflow();
+  return static_cast<T>(n - d);
+}
+
+
+/// For use in string parsing: add new numeric digit to intermediate value.
+template<typename L, typename R>
+  inline L absorb_digit_positive(L value, R digit)
+{
+  return safe_add_digit(safe_multiply_by_ten(value), L(digit));
+}
+
+
+/// For use in string parsing: subtract digit from intermediate value.
+template<typename L, typename R>
+  inline L absorb_digit_negative(L value, R digit)
+{
+  return safe_sub_digit(safe_multiply_by_ten(value), L(digit));
 }
 
 
@@ -208,7 +203,7 @@ template<typename T> void from_string_signed(std::string_view str, T &obj)
   if (isdigit(str.data()[i]))
   {
     for (; isdigit(str.data()[i]); ++i)
-      result = absorb_digit(result, digit_to_number(str.data()[i]));
+      result = absorb_digit_positive(result, digit_to_number(str.data()[i]));
   }
   else
   {
@@ -217,7 +212,7 @@ template<typename T> void from_string_signed(std::string_view str, T &obj)
         "Could not convert string to integer: '" + std::string{str} + "'."};
 
     for (++i; isdigit(str.data()[i]); ++i)
-      result = absorb_digit(result, -digit_to_number(str.data()[i]));
+      result = absorb_digit_negative(result, digit_to_number(str.data()[i]));
   }
 
   if (str.data()[i])
@@ -238,7 +233,7 @@ template<typename T> void from_string_unsigned(std::string_view str, T &obj)
       std::string{str} + "'."};
 
   for (; isdigit(str.data()[i]); ++i)
-    result = absorb_digit(result, digit_to_number(str.data()[i]));
+    result = absorb_digit_positive(result, digit_to_number(str.data()[i]));
 
   if (str.data()[i])
     throw pqxx::conversion_error{
@@ -261,8 +256,13 @@ bool valid_infinity_string(std::string_view str) noexcept
 	equal("INFINITY", str) or
 	equal("inf", str);
 }
+} // namespace
+#endif
 
 
+#if !defined(PQXX_HAVE_CHARCONV_INT) || !defined(PQXX_HAVE_CHARCONV_FLOAT)
+namespace
+{
 /// Wrapper for std::stringstream with C locale.
 /** Some of our string conversions use the standard library.  But, they must
  * _not_ obey the system's locale settings, or a value like 1000.0 might end
@@ -290,6 +290,22 @@ public:
 };
 
 
+template<typename T> [[maybe_unused]] inline
+std::string to_string_fallback(T obj)
+{
+  thread_local dumb_stringstream<T> s;
+  s.str("");
+  s << obj;
+  return s.str();
+}
+} // namespace
+#endif // !PQXX_HAVE_CHARCONV_INT || !PQXX_HAVE_CHARCONV_FLOAT
+
+
+
+#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
+namespace
+{
 /* These are hard.  Sacrifice performance of specialized, nonflexible,
  * non-localized code and lean on standard library.  Some special-case code
  * handles NaNs.
@@ -354,7 +370,16 @@ template<typename T> inline void from_string_float(
 #if !defined(PQXX_HAVE_CHARCONV_INT)
 namespace
 {
-template<typename TYPE> inline std::string to_string_unsigned(TYPE obj)
+/// Render nonnegative integral value as a string.
+/** This is in one way more efficient than what std::to_chars can probably do:
+ * since it allocates its own buffer, it can write the digits backwards from
+ * the end of the buffer, which is naturally fast in this case.
+ *
+ * A future string_view-based to_string based on this code could perhaps be
+ * more efficient than std::to_chars.
+ */
+template<typename TYPE> inline std::string to_string_unsigned(
+	TYPE obj, bool negative=false)
 {
   if (obj == 0) return "0";
 
@@ -366,24 +391,52 @@ template<typename TYPE> inline std::string to_string_unsigned(TYPE obj)
     *--begin = pqxx::internal::number_to_digit(int(obj % 10));
     obj = TYPE(obj / 10);
   } while (obj > 0);
+  if (negative) *--begin = '-';
   return std::string{begin, end};
+}
+
+
+/// Hard-coded strings for smallest possible integral values.
+/** In two's-complement systems (i.e. basically every system these days),
+ * any signed integral type has a lowest value which cannot be negated.
+ * This complicates rendering those values as strings.  Luckily, there are
+ * only a few of these values, so we can just hard-code them at compile time!
+ *
+ * Another way to do it would be to convert all values to the widest available
+ * signed integral type, and only hard-code that type.  But it might widen the
+ * division/remainder operations beyond what the processor is comfortable with.
+ */
+template<long long MIN> constexpr std::string_view minimum{};
+#define PQXX_DEFINE_MINIMUM(value) \
+	template<> [[maybe_unused]] \
+	constexpr std::string_view minimum<value>{#value}
+// For signed 8-bit integers:
+PQXX_DEFINE_MINIMUM(-128);
+// For signed 16-bit integers:
+PQXX_DEFINE_MINIMUM(-32768);
+// For signed 32-bit integers:
+PQXX_DEFINE_MINIMUM(-2147483648);
+// For signed 64-bit integers, but somehow too wide for my 64-bit compiler:
+// PQXX_DEFINE_MINIMUM(-9223372036854775808);
+#undef PQXX_DEFINE_MINIMUM
+
+
+template<typename T> inline std::string to_string_signed(T obj)
+{
+  constexpr T bottom{std::numeric_limits<T>::min()};
+  if (obj >= 0)
+    return to_string_unsigned(obj);
+  else if (obj != bottom)
+    return to_string_unsigned(-obj, true);
+  else if (not minimum<bottom>.empty())
+    // The type's minimum value.  Can't negate it without widening.
+    return std::string{std::begin(minimum<bottom>), std::end(minimum<bottom>)};
+  else
+    // The type's minimum value, and we don't have a hard-coded text for it.
+    return to_string_fallback(obj);
 }
 } // namespace
 #endif // !PQXX_HAVE_CHARCONV_INT
-
-
-#if !defined(PQXX_HAVE_CHARCONV_INT) || !defined(PQXX_HAVE_CHARCONV_FLOAT)
-namespace
-{
-template<typename T> inline std::string to_string_fallback(T obj)
-{
-  thread_local dumb_stringstream<T> s;
-  s.str("");
-  s << obj;
-  return s.str();
-}
-} // namespace
-#endif // !PQXX_HAVE_CHARCONV_INT || !PQXX_HAVE_CHARCONV_FLOAT
 
 
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
@@ -397,28 +450,6 @@ template<typename T> inline std::string to_string_float(T obj)
 }
 } // namespace
 #endif // !PQXX_HAVE_CHARCONV_FLOAT
-
-
-#if !defined(PQXX_HAVE_CHARCONV_INT)
-namespace
-{
-template<typename T> inline std::string to_string_signed(T obj)
-{
-  if (obj < 0)
-  {
-    // Remember--the smallest negative number for a given two's-complement type
-    // cannot be negated.
-    const bool negatable = (obj != std::numeric_limits<T>::min());
-    if (negatable)
-      return '-' + to_string_unsigned(-obj);
-    else
-      return to_string_fallback(obj);
-  }
-
-  return to_string_unsigned(obj);
-}
-} // namespace
-#endif // !PQXX_HAVE_CHARCONV_INT
 
 
 #if defined(PQXX_HAVE_CHARCONV_INT)
