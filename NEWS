@@ -23,6 +23,7 @@
  - error_verbosity is no longer nested in connection.
  - Some enums have changed names: accesspolicy to access_policy, and so on.
  - dynamic_params now takes an accessor.
+ - Fixed "const" support in arguments to parameterised/prepared statements.
 6.4.4
  - Use pkg-config if pg-config is not available.
  - In CMake build, prefer CMake's config headers over any found in source tree.
