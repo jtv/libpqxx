@@ -28,8 +28,11 @@ namespace internal
 template<typename... T> using void_t = void;
 
 /// Extract the content type held by an `optional`-like wrapper type.
-template<typename T> using inner_type = typename std::remove_reference<
-  decltype(*std::declval<T>())
+/* Replace nested `std::remove_*`s with `std::remove_cvref` in C++20 */
+template<typename T> using inner_type = typename std::remove_cv<
+  typename std::remove_reference<
+    decltype(*std::declval<T>())
+  >::type
 >::type;
 
 /// Does the given type have an `operator *()`?
