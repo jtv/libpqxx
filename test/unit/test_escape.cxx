@@ -22,7 +22,7 @@ void compare_esc(connection_base &c, transaction_base &t, const char str[])
 	"esc(std::string()) differs from esc(const char[]).");
 
   PQXX_CHECK_EQUAL(str,
-	t.exec("SELECT '" + t.esc(str, len) + "'")[0][0].as<std::string>(),
+	t.exec1("SELECT '" + t.esc(str, len) + "'")[0].as<std::string>(),
 	"esc() is not idempotent.");
 
   PQXX_CHECK_EQUAL(t.esc(str, len),
@@ -76,9 +76,9 @@ void test_quote(connection_base &c, transaction_base &t)
 
   for (size_t i=0; test_strings[i]; ++i)
   {
-    result r = t.exec("SELECT " + t.quote(test_strings[i]));
+    row r = t.exec1("SELECT " + t.quote(test_strings[i]));
     PQXX_CHECK_EQUAL(
-	r[0][0].as<std::string>(),
+	r[0].as<std::string>(),
 	test_strings[i],
 	"Selecting quoted string does not come back equal.");
   }
