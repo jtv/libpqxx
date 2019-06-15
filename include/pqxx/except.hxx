@@ -18,8 +18,6 @@
 
 #include <stdexcept>
 
-#include "pqxx/util.hxx"
-
 
 namespace pqxx
 {

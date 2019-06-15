@@ -8,13 +8,14 @@
  */
 #include "pqxx/compiler-internal.hxx"
 
-#include "pqxx/except.hxx"
-#include "pqxx/internal/encodings.hxx"
-
 #include <cstring>
 #include <iomanip>
 #include <map>
 #include <sstream>
+
+#include "pqxx/except.hxx"
+#include "pqxx/internal/encodings.hxx"
+#include "pqxx/strconv.hxx"
 
 
 extern "C"
