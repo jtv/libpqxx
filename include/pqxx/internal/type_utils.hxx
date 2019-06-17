@@ -17,9 +17,6 @@
 
 namespace pqxx::internal
 {
-/// Replicate std::void_t<> (available in C++17).
-template<typename... T> using void_t = void;
-
 /// Extract the content type held by an `optional`-like wrapper type.
 /* Replace nested `std::remove_*`s with `std::remove_cvref` in C++20 */
 template<typename T> using inner_type = typename std::remove_cv<
@@ -30,7 +27,7 @@ template<typename T> using inner_type = typename std::remove_cv<
 
 /// Does the given type have an `operator *()`?
 template<typename T, typename = void> struct is_derefable : std::false_type {};
-template<typename T> struct is_derefable<T, void_t<
+template<typename T> struct is_derefable<T, std::void_t<
   // Disable for arrays so they don't erroneously decay to pointers.
   inner_type<typename std::enable_if<not std::is_array<T>::value, T>::type>
 >> : std::true_type {};
@@ -65,7 +62,7 @@ template<typename T> struct is_tuple<
 template<typename T, typename = void> struct is_container : std::false_type {};
 template<typename T> struct is_container<
   T,
-  void_t<
+  std::void_t<
     decltype(std::begin(std::declval<T>())),
     decltype(std::end(std::declval<T>())),
     // Some people might implement a `std::tuple<>` specialization that is
