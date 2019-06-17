@@ -42,13 +42,11 @@ expand_templates() {
 }
 
 
-# Expand templates using our custom templating tool.  Skip the version.hxx
-# template; that header gets generated in a completely different way.
-expand_templates $(find -name \*.template | grep -v version.hxx)
-
-
-# Generate version header.
+# We have two kinds of templates.  One uses our custom templating tool.  And
+# a few others simply have some substitutions done.
+expand_templates $(find -name \*.template)
 substitute include/pqxx/version.hxx.template >include/pqxx/version.hxx
+substitute include/pqxx/doc/mainpage.md.template >include/pqxx/doc/mainpage.md
 
 
 autoheader
