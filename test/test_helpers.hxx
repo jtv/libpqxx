@@ -134,6 +134,16 @@ inline void check_not_equal(
 		(value2), \
 		#value2, \
 		(desc))
+// Verify that value1 is greater than value2.
+#define PQXX_CHECK_GREATER(value2, value1, desc) \
+	pqxx::test::check_less( \
+		__FILE__, \
+		__LINE__, \
+		(value1), \
+		#value1, \
+		(value2), \
+		#value2, \
+		(desc))
 template<typename VALUE1, typename VALUE2>
 inline void check_less(
 	const char file[],
@@ -147,6 +157,45 @@ inline void check_less(
   if (value1 < value2) return;
   const std::string fulldesc =
 	desc + " (" + text1 + " >= " + text2 + ": "
+	"\"lower\"=" + to_string(value1) + ", "
+	"\"upper\"=" + to_string(value2) + ")";
+  throw test_failure(file, line, fulldesc);
+}
+
+
+// Verify that value1 is less than or equal to value2.
+#define PQXX_CHECK_LESS_EQUAL(value1, value2, desc) \
+	pqxx::test::check_less_equal( \
+		__FILE__, \
+		__LINE__, \
+		(value1), \
+		#value1, \
+		(value2), \
+		#value2, \
+		(desc))
+// Verify that value1 is greater than or equal to value2.
+#define PQXX_CHECK_GREATER_EQUAL(value2, value1, desc) \
+	pqxx::test::check_less_equal( \
+		__FILE__, \
+		__LINE__, \
+		(value1), \
+		#value1, \
+		(value2), \
+		#value2, \
+		(desc))
+template<typename VALUE1, typename VALUE2>
+inline void check_less_equal(
+	const char file[],
+	int line,
+	VALUE1 value1,
+	const char text1[],
+	VALUE2 value2,
+	const char text2[],
+	const std::string &desc)
+{
+  if (value1 <= value2) return;
+  const std::string fulldesc =
+	desc + " (" + text1 + " > " + text2 + ": "
 	"\"lower\"=" + to_string(value1) + ", "
 	"\"upper\"=" + to_string(value2) + ")";
   throw test_failure(file, line, fulldesc);
