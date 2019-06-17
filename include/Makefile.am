@@ -64,4 +64,5 @@ nobase_nodist_include_HEADERS = \
 
 EXTRA_DIST = \
 	pqxx/doc/*.md \
+	pqxx/doc/mainpage.md.template \
 	pqxx/version.hxx.template
