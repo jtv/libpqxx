@@ -13,11 +13,16 @@
 
 #include "pqxx/compiler-public.hxx"
 
+#include <algorithm>
+#include <charconv>
+#include <cstring>
 #include <limits>
 #include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <typeinfo>
+
+#include "pqxx/except.hxx"
 
 
 namespace pqxx
@@ -51,11 +56,43 @@ namespace pqxx
  * isn't necessarily human-friendly.
  */
 template<typename TYPE> const std::string type_name{typeid(TYPE).name()};
+//@}
 } // namespace pqxx
 
 
 namespace pqxx::internal
 {
+/// How big of a buffer do we want for representing a TYPE object as text?
+template<typename TYPE> [[maybe_unused]] constexpr int size_buffer() noexcept
+{
+  using lim = std::numeric_limits<TYPE>;
+  // Allocate room for how many digits?  There's "max_digits10" for
+  // floating-point numbers, but only "digits10" for integer types.
+  constexpr auto digits = std::max({lim::digits10, lim::max_digits10});
+  // Leave a little bit of extra room for signs, decimal points, and the like.
+  return digits + 4;
+}
+
+
+/// Formulate an error message for a failed std::to_chars call.
+inline std::string make_conversion_error(
+	std::to_chars_result res, const std::string &type)
+{
+  std::string msg;
+  switch (res.ec)
+  {
+  case std::errc::value_too_large:
+    msg = ": Value too large.";
+    break;
+  default:
+    msg = ".";
+    break;
+  }
+
+  return std::string{"Could not convert "} + type + " to string" + msg;
+}
+
+
 /// Throw exception for attempt to convert null to given type.
 [[noreturn]] PQXX_LIBEXPORT void throw_null_conversion(
 	const std::string &type);
@@ -84,6 +121,8 @@ constexpr char number_to_digit(int i) noexcept
 
 namespace pqxx
 {
+/// @addtogroup stringconversion
+//@{
 /// Traits class for use in string conversions.
 /** Specialize this template for a type for which you wish to add to_string
  * and from_string support.
@@ -143,6 +182,118 @@ struct string_traits<ENUM> : pqxx::enum_traits<ENUM> \
 	{ internal::throw_null_conversion(type_name<ENUM>); } \
 }
 
+
+/// Return a @c string_view representing value, plus terminating zero.
+/** Produces a @c string_view, which will be null if @c value was null.
+ * Otherwise, it will contain the PostgreSQL string representation for
+ * @c value.  But in addition, if @c value is non-null then the result's
+ * @c end() is guaranteed to be addressable and contain a zero.  This means
+ * that you can also use its @c data() as a C-style string pointer.
+ *
+ * Uses the space from @c begin to @c end as a buffer, if needed.  The
+ * returned string may lie somewhere in that buffer, or it may be a
+ * compile-time constant, or it may be null if value was a null value.  Even
+ * if the string is stored in the buffer, its @c begin() may or may not be
+ * the same as @c begin.
+ *
+ * The @c string_view is guaranteed to be valid as long as the buffer from
+ * @c begin to @c end remains accessible and unmodified.
+ */
+template<typename T> inline std::string_view
+to_buf(char *begin, char *end, T value)
+{
+  const auto res = std::to_chars(begin, end - 1, value);
+  if (res.ec != std::errc())
+    throw conversion_error{
+	pqxx::internal::make_conversion_error(res, type_name<T>)};
+  *res.ptr = '\0';
+  return std::string_view{begin, std::size_t(res.ptr - begin)};
+}
+
+
+template<> inline std::string_view
+to_buf(char *, char *, bool value)
+{
+  // Define as char arrays first, to ensure trailing zero.
+  static const char true_ptr[]{"true"}, false_ptr[]{"false"};
+  static const std::string_view s_true{true_ptr}, s_false{false_ptr};
+  return value ? s_true : s_false;
+}
+
+
+template<> inline std::string_view
+to_buf(char *begin, char *end, const std::string &value)
+{
+  if (value.size() >= std::size_t(end - begin))
+    throw conversion_error{
+	"Could not convert string to string: too long for buffer."};
+  std::memcpy(begin, value.c_str(), value.size() + 1);
+  return std::string_view{begin, value.size()};
+}
+
+
+/// Value-to-string converter: represent value as a postgres-compatible string.
+/** @warning This feature is experimental.  It may change, or disappear.
+ * Turns a value of (more or less) any type into its PostgreSQL string
+ * representation.  The string representation is only "alive" in memory while
+ * the @c str object exists.
+ *
+ * If the value is null, the string value will be null.
+ *
+ * In situations where convenience matters more than performance, use the
+ * @c to_string functions.  They create and return a @c std::string.  But if
+ * performance is important, a @c std::string_view will be more efficient.
+ *
+ * @warning One thing you can @a not do with @c str is convert a value in a
+ * temporary object, e.g. @c pqxx::str(value).view().  The result is a
+ * @c std::string_view, which points to a buffer inside the @c str object.
+ * By the time you make use of the result, the @c str and its buffer no longer
+ * exist, and the @c string_view will be pointing to invalid memory.
+ */
+template<typename T> class str
+{
+public:
+  explicit str(T value) :
+    m_view{to_buf(std::begin(m_buf), std::end(m_buf), value)}
+  {}
+
+  constexpr operator std::string_view() const noexcept { return m_view; }
+  constexpr std::string_view view() const noexcept { return m_view; }
+  const char *c_str() const noexcept { return m_buf; }
+
+private:
+  char m_buf[pqxx::internal::size_buffer<T>()];
+  std::string_view m_view;
+};
+
+
+template<> class str<bool>
+{
+public:
+  explicit str(bool value) : m_view{to_buf(nullptr, nullptr, value)} {}
+
+  constexpr operator std::string_view() const noexcept { return m_view; }
+  constexpr std::string_view view() const noexcept { return m_view; }
+  const char *c_str() const noexcept { return m_view.data(); }
+
+private:
+  std::string_view m_view;
+};
+
+
+template<> class str<std::string>
+{
+public:
+  explicit str(const std::string &value) : m_str{value} {}
+  explicit str(std::string &&value) : m_str{std::move(value)} {}
+
+  operator std::string_view() const noexcept { return m_str; }
+  std::string_view view() const noexcept { return m_str; }
+  const char *c_str() const noexcept { return m_str.c_str(); }
+
+private:
+  std::string m_str;
+};
 //@}
 } // namespace pqxx
 

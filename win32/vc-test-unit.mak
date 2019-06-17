@@ -101,6 +101,7 @@ OBJS= \
   $(INTDIR)\test_simultaneous_transactions.obj \
   $(INTDIR)\test_sql_cursor.obj \
   $(INTDIR)\test_stateless_cursor.obj \
+  $(INTDIR)\test_str.obj \
   $(INTDIR)\test_strconv.obj \
   $(INTDIR)\test_stream_from.obj \
   $(INTDIR)\test_stream_to.obj \
@@ -187,6 +188,8 @@ $(INTDIR)\test_sql_cursor.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_sql_cursor.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_stateless_cursor.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_stateless_cursor.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
+$(INTDIR)\test_str.obj:
+	@$(CXX) $(CXX_FLAGS) test/unit/test_str.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_strconv.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_strconv.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_stream_from.obj:

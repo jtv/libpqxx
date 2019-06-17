@@ -16,10 +16,6 @@
 #include <string_view>
 #include <system_error>
 
-#if __has_include(<charconv>)
-#include <charconv>
-#endif
-
 #include "pqxx/except"
 #include "pqxx/strconv"
 
@@ -38,16 +34,6 @@ inline bool equal(std::string_view lhs, std::string_view rhs)
 { return c - '0'; }
 
 
-/// How big of a buffer do we want for representing a TYPE object as text?
-template<typename TYPE> [[maybe_unused]] constexpr int size_buffer()
-{
-  using lim = std::numeric_limits<TYPE>;
-  // Allocate room for how many digits?  There's "max_digits10" for
-  // floating-point numbers, but only "digits10" for integer types.
-  constexpr auto digits = std::max({lim::digits10, lim::max_digits10});
-  // Leave a little bit of extra room for signs, decimal points, and the like.
-  return digits + 4;
-}
 } // namespace
 
 
@@ -383,7 +369,7 @@ template<typename TYPE> inline std::string to_string_unsigned(
 {
   if (obj == 0) return "0";
 
-  char buf[size_buffer<TYPE>()];
+  char buf[pqxx::internal::size_buffer<TYPE>()];
   char *const end = std::end(buf);
   char *begin = end;
   do
