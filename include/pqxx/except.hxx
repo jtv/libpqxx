@@ -17,6 +17,7 @@
 #include "pqxx/compiler-internal-pre.hxx"
 
 #include <stdexcept>
+#include <string>
 
 
 namespace pqxx
