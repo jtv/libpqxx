@@ -14,13 +14,16 @@
 #include "pqxx/compiler-public.hxx"
 
 #include <algorithm>
-#include <charconv>
 #include <cstring>
 #include <limits>
 #include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <typeinfo>
+
+#if __has_include(<charconv>)
+#include <charconv>
+#endif
 
 #include "pqxx/except.hxx"
 
