@@ -188,7 +188,6 @@ struct string_traits<ENUM> : pqxx::enum_traits<ENUM> \
 }
 
 
-#if __has_include(<charconv>)
 /// Return a @c string_view representing value, plus terminating zero.
 /** Produces a @c string_view, which will be null if @c value was null.
  * Otherwise, it will contain the PostgreSQL string representation for
@@ -206,6 +205,11 @@ struct string_traits<ENUM> : pqxx::enum_traits<ENUM> \
  * @c begin to @c end remains accessible and unmodified.
  */
 template<typename T> inline std::string_view
+to_buf(char *begin, char *end, T value);
+
+
+#if __has_include(<charconv>)
+template<typename T> inline std::string_view
 to_buf(char *begin, char *end, T value)
 {
   const auto res = std::to_chars(begin, end - 1, value);
@@ -215,6 +219,7 @@ to_buf(char *begin, char *end, T value)
   *res.ptr = '\0';
   return std::string_view{begin, std::size_t(res.ptr - begin)};
 }
+#endif
 
 
 template<> inline std::string_view
@@ -300,7 +305,6 @@ public:
 private:
   std::string m_str;
 };
-#endif
 //@}
 } // namespace pqxx
 

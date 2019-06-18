@@ -2,7 +2,6 @@
 
 namespace
 {
-#if __has_include(<charconv>)
 void test_str_bool()
 {
   const pqxx::str f{false}, t{true};
@@ -17,6 +16,7 @@ void test_str_bool()
 }
 
 
+#if __has_include(<charconv>)
 template<typename T> constexpr std::size_t max_digits = std::max(
 	std::numeric_limits<T>::digits10,
 	std::numeric_limits<T>::max_digits10);
@@ -83,9 +83,12 @@ void test_str_integral_types()
   test_str_integral<unsigned long>();
   test_str_integral<unsigned long long>();
 }
+#endif
 
 
 PQXX_REGISTER_TEST(test_str_bool);
+
+#if __has_include(<charconv>)
 PQXX_REGISTER_TEST(test_str_integral_types);
 #endif
 } // namespace
