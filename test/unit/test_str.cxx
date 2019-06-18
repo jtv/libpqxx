@@ -2,6 +2,7 @@
 
 namespace
 {
+#if __has_include(<charconv>)
 void test_str_bool()
 {
   const pqxx::str f{false}, t{true};
@@ -86,4 +87,5 @@ void test_str_integral_types()
 
 PQXX_REGISTER_TEST(test_str_bool);
 PQXX_REGISTER_TEST(test_str_integral_types);
+#endif
 } // namespace

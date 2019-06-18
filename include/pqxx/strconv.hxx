@@ -77,6 +77,7 @@ template<typename TYPE> [[maybe_unused]] constexpr int size_buffer() noexcept
 }
 
 
+#if __has_include(<charconv>)
 /// Formulate an error message for a failed std::to_chars call.
 inline std::string make_conversion_error(
 	std::to_chars_result res, const std::string &type)
@@ -94,6 +95,7 @@ inline std::string make_conversion_error(
 
   return std::string{"Could not convert "} + type + " to string" + msg;
 }
+#endif
 
 
 /// Throw exception for attempt to convert null to given type.
@@ -186,6 +188,7 @@ struct string_traits<ENUM> : pqxx::enum_traits<ENUM> \
 }
 
 
+#if __has_include(<charconv>)
 /// Return a @c string_view representing value, plus terminating zero.
 /** Produces a @c string_view, which will be null if @c value was null.
  * Otherwise, it will contain the PostgreSQL string representation for
@@ -297,6 +300,7 @@ public:
 private:
   std::string m_str;
 };
+#endif
 //@}
 } // namespace pqxx
 
