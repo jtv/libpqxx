@@ -109,15 +109,8 @@ to_buf(char *begin, char *end, T value);
  * exist, and the @c string_view will be pointing to invalid memory.
  */
 template<typename T> class str;
-//@}
-} // namespace pqxx
 
 
-#include "pqxx/internal/conversions.hxx"
-
-
-namespace pqxx
-{
 /// Helper class for defining enum conversions.
 /** The conversion will convert enum values to numeric strings, and vice versa.
  *
@@ -135,8 +128,7 @@ struct enum_traits
   using underlying_traits = string_traits<underlying_type>;
 
   static constexpr bool has_null() noexcept { return false; }
-  [[noreturn]] static ENUM null()
-	{ internal::throw_null_conversion("enum type"); }
+  [[noreturn]] inline static ENUM null();
 
   static void from_string(std::string_view str, ENUM &obj)
   {
@@ -169,31 +161,6 @@ struct string_traits<ENUM> : pqxx::enum_traits<ENUM> \
   [[noreturn]] static ENUM null() \
 	{ internal::throw_null_conversion(type_name<ENUM>); } \
 }
-//@}
-
-
-/// Helper: declare a string_traits specialisation for a builtin type.
-#define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(TYPE) \
-  template<> struct PQXX_LIBEXPORT string_traits<TYPE> : \
-    internal::builtin_traits<TYPE> \
-    { \
-      [[noreturn]] static TYPE null() \
-	{ pqxx::internal::throw_null_conversion(type_name<TYPE>); } \
-    }
-
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(bool);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(short);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned short);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(int);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned int);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned long);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long long);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned long long);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(float);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(double);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long double);
-#undef PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION
 
 
 /// Attempt to convert postgres-generated string to given built-in type.
@@ -215,20 +182,9 @@ template<typename T> inline void from_string(std::string_view str, T &obj)
     throw std::runtime_error{"Attempt to read null string."};
   string_traits<T>::from_string(str, obj);
 }
-
-
-template<typename T>
-inline void from_string(const std::stringstream &str, T &obj)		//[t00]
-	{ from_string(str.str(), obj); }
-
-
-/// Convert built-in type to a readable string that PostgreSQL will understand
-/** No special formatting is done, and any locale settings are ignored.  The
- * resulting string will be human-readable and in a format suitable for use in
- * SQL queries.
- */
-template<typename T> std::string to_string(const T &obj)
-	{ return string_traits<T>::to_string(obj); }
-
+//@}
 } // namespace pqxx
+
+
+#include "pqxx/internal/conversions.hxx"
 #endif

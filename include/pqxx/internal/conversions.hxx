@@ -118,9 +118,6 @@ to_buf_integral(char *begin, char *end, T value)
 /// Helper: string traits implementation for built-in types.
 /** These types all look much alike, so they can share much of their traits
  * classes (though templatised, of course).
- *
- * The actual `to_string` and `from_string` are implemented in the library,
- * but the rest is defined inline.
  */
 template<typename TYPE> struct PQXX_LIBEXPORT builtin_traits
 {
@@ -134,6 +131,48 @@ template<typename TYPE> struct PQXX_LIBEXPORT builtin_traits
 
 namespace pqxx
 {
+/// Helper: declare a string_traits specialisation for a builtin type.
+#define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(TYPE) \
+  template<> struct PQXX_LIBEXPORT string_traits<TYPE> : \
+    internal::builtin_traits<TYPE> \
+    { \
+      [[noreturn]] static TYPE null() \
+	{ pqxx::internal::throw_null_conversion(type_name<TYPE>); } \
+    }
+
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(bool);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(short);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned short);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(int);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned int);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned long);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long long);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned long long);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(float);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(double);
+PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long double);
+#undef PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION
+
+
+template<typename ENUM> inline ENUM enum_traits<ENUM>::null()
+{ internal::throw_null_conversion("enum type"); }
+
+
+template<typename T>
+inline void from_string(const std::stringstream &str, T &obj)		//[t00]
+	{ from_string(str.str(), obj); }
+
+
+/// Convert built-in type to a readable string that PostgreSQL will understand
+/** No special formatting is done, and any locale settings are ignored.  The
+ * resulting string will be human-readable and in a format suitable for use in
+ * SQL queries.
+ */
+template<typename T> std::string to_string(const T &obj)
+	{ return string_traits<T>::to_string(obj); }
+
+
 #if __has_include(<charconv>)
 template<typename T> inline std::string_view
 to_buf(char *begin, char *end, T value)
