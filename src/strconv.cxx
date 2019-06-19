@@ -392,7 +392,7 @@ template<typename TYPE> inline std::string to_string_unsigned(
  * signed integral type, and only hard-code that type.  But it might widen the
  * division/remainder operations beyond what the processor is comfortable with.
  */
-template<long long MIN> constexpr std::string_view minimum{};
+template<auto MIN> constexpr std::string_view minimum{};
 #define PQXX_DEFINE_MINIMUM(value) \
 	template<> [[maybe_unused]] \
 	constexpr std::string_view minimum<value>{#value}
@@ -402,8 +402,8 @@ PQXX_DEFINE_MINIMUM(-128);
 PQXX_DEFINE_MINIMUM(-32768);
 // For signed 32-bit integers:
 PQXX_DEFINE_MINIMUM(-2147483648);
-// For signed 64-bit integers, but somehow too wide for my 64-bit compiler:
-// PQXX_DEFINE_MINIMUM(-9223372036854775808);
+// For signed 64-bit integers:
+//PQXX_DEFINE_MINIMUM(-9223372036854775808);
 #undef PQXX_DEFINE_MINIMUM
 
 
