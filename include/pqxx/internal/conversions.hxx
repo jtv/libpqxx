@@ -46,10 +46,12 @@ inline std::string make_conversion_error(
 
 
 /// Write nonnegative integral value at end of buffer.  Return start.
-/** Includes a single trailing null byte, right before @c *end.
+/** Assumes a sufficiently large buffer.
+ *
+ * Includes a single trailing null byte, right before @c *end.
  */
 template<typename T> inline char *
-nonneg_to_buf(char *begin, char *end, T value)
+nonneg_to_buf(char *end, T value)
 {
   char *pos = end;
   *--pos = '\0';
@@ -68,7 +70,7 @@ nonneg_to_buf(char *begin, char *end, T value)
  * number that doesn't have an absolute value, as is the case on
  * std::numeric_limits<long long>::min() in a two's-complement system.
  */
-template<auto MIN> constexpr const char *hard_neg;
+template<auto MIN> constexpr const char *hard_neg = nullptr;
 template<> constexpr const char *hard_neg<-126> = "-127";
 template<> constexpr const char *hard_neg<-127> = "-128";
 template<> constexpr const char *hard_neg<-32766> = "-32767";
@@ -92,14 +94,17 @@ to_buf_integral(char *begin, char *end, T value)
 
 
   if (value >= 0)
-    return std::string_view{nonneg_to_buf(begin, end - 1, value), end};
+  {
+    auto pos = nonneg_to_buf(end, value);
+    return std::string_view{pos, end - pos - 1};
+  }
 
   constexpr T bottom{std::numeric_limits<T>::min()};
   if (value != bottom)
   {
-    char *pos = nonneg_to_buf(begin, end, -value);
-    *--pos = '\0';
-    return std::string_view{pos, end - 1};
+    auto pos = nonneg_to_buf(begin, end, -value);
+    *--pos = '-';
+    return std::string_view{pos, end - pos - 1};
   }
   else
   {

@@ -80,6 +80,7 @@ install(
         PATTERN version.hxx
         PATTERN version
         PATTERN internal/callgate.hxx
+        PATTERN internal/conversions.hxx
         PATTERN internal/encoding_group.hxx
         PATTERN internal/encodings.hxx
         PATTERN internal/ignore-deprecated-post.hxx
