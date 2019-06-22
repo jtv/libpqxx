@@ -38,15 +38,18 @@ namespace pqxx
  * various C++ types translate to and from their respective PostgreSQL text
  * representations.
  *
- * Each conversion is defined by a specialisation of the @c string_traits
- * template.  This template implements some basic functions to support the
- * conversion, ideally in both directions.
+ * Each conversion is defined by specialisations of certain templates:
+ * @c string_traits, @c to_buf, and @c str.  It gets complicated if you want
+ * top performance, but until you do, all you really need to care about when
+ * converting values between C++ in-memory representations such as @c int and
+ * the postgres string representations is the @c pqxx::to_string and
+ * @c pqxx::from_string functions.
  *
- * If you need to convert a type which is not supported out of the box, define
- * your own @c string_traits specialisation for that type, similar to the ones
- * defined here.  Any conversion code which "sees" your specialisation will now
- * support your conversion.  In particular, you'll be able to read result
- * fields into a variable of the new type.
+ * If you need to convert a type which is not supported out of the box, you'll
+ * need to define your own specialisations for these templates, similar to the
+ * ones defined here and in `pqxx/conversions.hxx`.  Any conversion code which
+ * "sees" your specialisation will now support your conversion.  In particular,
+ * you'll be able to read result fields into a variable of the new type.
  *
  * There is a macro to help you define conversions for individual enumeration
  * types.  The conversion will represent enumeration values as numeric strings.
@@ -65,7 +68,9 @@ template<typename TYPE> const std::string type_name{typeid(TYPE).name()};
 //@{
 /// Traits class for use in string conversions.
 /** Specialize this template for a type for which you wish to add to_string
- * and from_string support.
+ * and from_string support.  It indicates whether the type has a natural null
+ * value (if not, consider using @c std::optional for that), and whether a
+ * given value is null, and so on.
  */
 template<typename T, typename = void> struct string_traits;
 
@@ -73,9 +78,11 @@ template<typename T, typename = void> struct string_traits;
 /// Return a @c string_view representing value, plus terminating zero.
 /** Produces a @c string_view, which will be null if @c value was null.
  * Otherwise, it will contain the PostgreSQL string representation for
- * @c value.  But in addition, if @c value is non-null then the result's
- * @c end() is guaranteed to be addressable and contain a zero.  This means
- * that you can also use its @c data() as a C-style string pointer.
+ * @c value.
+ *
+ * In addition, if @c value is non-null then the result's @c end() is
+ * guaranteed to be addressable and contain a zero.  This means that you can
+ * also use its @c data() as a C-style string pointer.
  *
  * Uses the space from @c begin to @c end as a buffer, if needed.  The
  * returned string may lie somewhere in that buffer, or it may be a
@@ -85,6 +92,11 @@ template<typename T, typename = void> struct string_traits;
  *
  * The @c string_view is guaranteed to be valid as long as the buffer from
  * @c begin to @c end remains accessible and unmodified.
+ *
+ * @throws pqxx::conversion_overrun if the provided buffer space may not be
+ * enough.  For maximum performance, this is a conservative estimate.  It may
+ * complain about a buffer which is actually large enough for your value, if
+ * an exact check gets too expensive.
  */
 template<typename T> inline std::string_view
 to_buf(char *begin, char *end, T value);
@@ -92,15 +104,20 @@ to_buf(char *begin, char *end, T value);
 
 /// Value-to-string converter: represent value as a postgres-compatible string.
 /** @warning This feature is experimental.  It may change, or disappear.
- * Turns a value of (more or less) any type into its PostgreSQL string
- * representation.  The string representation is only "alive" in memory while
- * the @c str object exists.
  *
- * If the value is null, the string value will be null.
+ * Turns a value of (more or less) any type into its PostgreSQL string
+ * representation.  It keeps the string representation "alive" in memory while
+ * the @c str object exists.  After that, accessing the string becomes
+ * undefined.
+ *
+ * If the value is null, the string value will be null.  That is, its @c data
+ * pointer will be null.
  *
  * In situations where convenience matters more than performance, use the
- * @c to_string functions.  They create and return a @c std::string.  But if
- * performance is important, a @c std::string_view will be more efficient.
+ * @c to_string functions which create and return a @c std::string.  It's
+ * expensive but convenient.  If you need extreme memory efficiency, consider
+ * using @c to_buf and allocating your own buffer.  In the space between those
+ * two extremes, use @c str.
  *
  * @warning One thing you can @a not do with @c str is convert a value in a
  * temporary object, e.g. @c pqxx::str(value).view().  The result is a
