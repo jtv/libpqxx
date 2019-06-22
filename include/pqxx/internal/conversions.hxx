@@ -18,9 +18,14 @@ template<typename TYPE> [[maybe_unused]] constexpr int size_buffer() noexcept
   using lim = std::numeric_limits<TYPE>;
   // Allocate room for how many digits?  There's "max_digits10" for
   // floating-point numbers, but only "digits10" for integer types.
-  constexpr auto digits = std::max({lim::digits10, lim::max_digits10});
-  // Leave a little bit of extra room for signs, decimal points, and the like.
-  return digits + 4;
+  // They're really different: digits10 is the maximum number of decimal
+  // digits that you can reliably fit into the type, but max_digits10 is the
+  // maximum number that you can get out.  The latter is what we want here,
+  // but we don't get it for integral types, where it's digits10 + 1.
+  constexpr auto digits = std::max({lim::digits10 + 1, lim::max_digits10});
+  // Leave a little bit of extra room for sign, decimal point, and trailing
+  // null byte.
+  return digits + 3;
 }
 
 
@@ -49,7 +54,6 @@ template<typename T> inline char *nonneg_to_buf(char *end, T value)
  * std::numeric_limits<long long>::min() in a two's-complement system.
  */
 template<long long MIN> inline constexpr const char *hard_neg = nullptr;
-template<> inline constexpr const char *hard_neg<1> = "0";
 template<> inline constexpr const char *hard_neg<-126LL> = "-127";
 template<> inline constexpr const char *hard_neg<-127LL> = "-128";
 template<> inline constexpr const char *hard_neg<-32766LL> = "-32767";
@@ -73,31 +77,38 @@ to_buf_integral(char *begin, char *end, T value)
     throw conversion_overrun{
 	"Could not convert " + type_name<T> + " to string: buffer too small."};
 
-
-  constexpr T bottom{std::numeric_limits<T>::min()};
-
-  if (value >= 0)
+  char *pos;
+  if constexpr (std::is_signed_v<T>)
   {
-    auto pos = nonneg_to_buf(end, value);
-    return std::string_view{pos, std::size_t(end - pos - 1)};
-  }
-  else if (value != bottom)
-  {
-    auto pos = nonneg_to_buf(end, -value);
-    *--pos = '-';
-    return std::string_view{pos, std::size_t(end - pos - 1)};
+    constexpr T bottom{std::numeric_limits<T>::min()};
+
+    if (value >= 0)
+    {
+      pos = nonneg_to_buf(end, value);
+    }
+    else if (value != bottom)
+    {
+      pos = nonneg_to_buf(end, -value);
+      *--pos = '-';
+    }
+    else
+    {
+      // This is the difficult case.  We can't negate the value, because on
+      // two's-complement systems (basically every system nowadays), we'll get
+      // the same value back.  We can't even check for that: the compiler is
+      // allowed to pretend that such a thing won't happen.
+      //
+      // Luckily, there's only a limited number of such numbers.  We can cheat
+      // and hard-code them all.
+      return std::string_view{hard_neg<bottom + 1LL>};
+    }
   }
   else
   {
-    // This is the difficult case.  We can't negate the value, because on
-    // two's-complement systems (basically every system nowadays), we'll get
-    // the same value back.  We can't even check for that: the compiler is
-    // allowed to pretend that such a thing won't happen.
-    //
-    // Luckily, there's only a limited number of such numbers.  We can cheat
-    // and hard-code them all.
-    return std::string_view{hard_neg<bottom + 1LL>};
+    // Unsigned type.
+    pos = nonneg_to_buf(end, value);
   }
+  return std::string_view{pos, std::size_t(end - pos - 1)};
 }
 } // namespace pqxx::internal
 
