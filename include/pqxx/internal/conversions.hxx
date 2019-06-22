@@ -210,11 +210,11 @@ to_buf(char *begin, char *end, T value)
   {
   case std::errc::value_too_large:
     throw conversion_overrun{
-	std::string{"Could not convert "} + type + " to string: "
+	std::string{"Could not convert "} + type_name<T> + " to string: "
 	"buffer too small."};
   default:
     throw conversion_error{
-	std::string{"Could not convert "} + type + " to string."};
+	std::string{"Could not convert "} + type_name<T> + " to string."};
   }
 
   *res.ptr = '\0';
@@ -311,6 +311,32 @@ public:
 private:
   std::string m_str;
 };
+
+
+#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
+/// Optimised @c str for environments without floating-point charconv.
+/** If the language implementation does not provide charconv for floating-point
+ * types, we convert floating-point values to strings using a costly little
+ * dance around @c std::stringstream, which naturally produces a
+ * @c std::string, not something more lightweight like @c string_view.
+ *
+ * The real drama is that the @c to_buf implementation in this situation is
+ * more expensive than converting to @c std::string.  So, we have a dedicated
+ * @c str implementation built on top of a @c string.
+ */
+template<> class str<float>
+{
+public:
+  explicit str(float value) : m_str{internal::to_string_float(value)} {}
+
+  operator std::string_view() const noexcept { return m_str; }
+  std::string_view view() const noexcept { return m_str; }
+  const char *c_str() const noexcept { return m_str.c_str(); }
+
+private:
+  std::string m_str;
+};
+#endif
 
 
 /// String traits for C-style string ("pointer to const char").
