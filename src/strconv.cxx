@@ -81,45 +81,6 @@ void pqxx::internal::builtin_traits<TYPE>::from_string(
 #endif
 
 
-#if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
-template<typename T> std::string
-pqxx::internal::builtin_traits<T>::to_string(T in)
-{
-  char buf[size_buffer<T>()];
-  const auto res = std::to_chars(buf, buf + sizeof(buf), in);
-  if (res.ec == std::errc()) return std::string(buf, res.ptr);
-
-  std::string msg;
-  switch (res.ec)
-  {
-  case std::errc::value_too_large:
-    msg = "Value too large.";
-    break;
-  default:
-    break;
-  }
-
-  const std::string base =
-    std::string{"Could not convert "} + type_name<T> + " to string";
-  if (msg.empty()) throw pqxx::conversion_error{base + "."};
-  else throw pqxx::conversion_error{base + ": " + msg};
-}
-#endif // PQXX_HAVE_CHARCONV_INT || PQXX_HAVE_CHARCONV_FLOAT
-
-
-#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
-namespace
-{
-template<typename T> inline void set_to_Inf(T &t, int sign=1)
-{
-  T value = std::numeric_limits<T>::infinity();
-  if (sign < 0) value = -value;
-  t = value;
-}
-} // namespace
-#endif // !PQXX_HAVE_CHARCONV_FLOAT
-
-
 #if !defined(PQXX_HAVE_CHARCONV_INT)
 namespace
 {
@@ -246,17 +207,15 @@ bool valid_infinity_string(std::string_view str) noexcept
 #endif
 
 
-#if !defined(PQXX_HAVE_CHARCONV_INT) || !defined(PQXX_HAVE_CHARCONV_FLOAT)
+#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 namespace
 {
 /// Wrapper for std::stringstream with C locale.
-/** Some of our string conversions use the standard library.  But, they must
- * _not_ obey the system's locale settings, or a value like 1000.0 might end
- * up looking like "1.000,0".
+/** We use this to work around missing std::to_chars for floating-point types.
  *
  * Initialising the stream (including locale and tweaked precision) seems to
- * be expensive though.  So, create thread-local instances which we re-use.
- * It's a lockless way of keeping global variables thread-safe, basically.
+ * be expensive.  So, create thread-local instances which we re-use.  It's a
+ * lockless way of keeping global variables thread-safe, basically.
  *
  * The stream initialisation happens once per thread, in the constructor.
  * And that's why we need to wrap this in a class.  We can't just do it at the
@@ -276,26 +235,15 @@ public:
 };
 
 
-template<typename T> [[maybe_unused]] inline
-std::string to_string_fallback(T obj)
+template<typename T> inline void set_to_Inf(T &t, int sign=1)
 {
-  thread_local dumb_stringstream<T> s;
-  s.str("");
-  s << obj;
-  return s.str();
+  T value = std::numeric_limits<T>::infinity();
+  if (sign < 0) value = -value;
+  t = value;
 }
-} // namespace
-#endif // !PQXX_HAVE_CHARCONV_INT || !PQXX_HAVE_CHARCONV_FLOAT
 
 
-
-#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
-namespace
-{
-/* These are hard.  Sacrifice performance of specialized, nonflexible,
- * non-localized code and lean on standard library.  Some special-case code
- * handles NaNs.
- */
+// These are hard, and popular compilers do not yet implement std::from_chars.
 template<typename T> inline void from_string_float(
 	std::string_view str,
 	T &obj)
@@ -353,88 +301,47 @@ template<typename T> inline void from_string_float(
 #endif // !PQXX_HAVE_CHARCONV_FLOAT
 
 
-#if !defined(PQXX_HAVE_CHARCONV_INT)
-namespace
-{
-/// Render nonnegative integral value as a string.
-/** This is in one way more efficient than what std::to_chars can probably do:
- * since it allocates its own buffer, it can write the digits backwards from
- * the end of the buffer, which is naturally fast in this case.
- *
- * A future string_view-based to_string based on this code could perhaps be
- * more efficient than std::to_chars.
- */
-template<typename TYPE> inline std::string to_string_unsigned(
-	TYPE obj, bool negative=false)
-{
-  if (obj == 0) return "0";
-
-  char buf[pqxx::internal::size_buffer<TYPE>()];
-  char *const end = std::end(buf);
-  char *begin = end;
-  do
-  {
-    *--begin = pqxx::internal::number_to_digit(int(obj % 10));
-    obj = TYPE(obj / 10);
-  } while (obj > 0);
-  if (negative) *--begin = '-';
-  return std::string{begin, end};
-}
-
-
-/// Hard-coded strings for smallest possible integral values.
-/** In two's-complement systems (i.e. basically every system these days),
- * any signed integral type has a lowest value which cannot be negated.
- * This complicates rendering those values as strings.  Luckily, there are
- * only a few of these values, so we can just hard-code them at compile time!
- *
- * Another way to do it would be to convert all values to the widest available
- * signed integral type, and only hard-code that type.  But it might widen the
- * division/remainder operations beyond what the processor is comfortable with.
- */
-template<auto MIN> constexpr std::string_view minimum{};
-#define PQXX_DEFINE_MINIMUM(value) \
-	template<> [[maybe_unused]] \
-	constexpr std::string_view minimum<value>{#value}
-// For signed 8-bit integers:
-PQXX_DEFINE_MINIMUM(-128);
-// For signed 16-bit integers:
-PQXX_DEFINE_MINIMUM(-32768);
-// For signed 32-bit integers:
-PQXX_DEFINE_MINIMUM(-2147483648);
-// For signed 64-bit integers:
-//PQXX_DEFINE_MINIMUM(-9223372036854775808);
-#undef PQXX_DEFINE_MINIMUM
-
-
-template<typename T> inline std::string to_string_signed(T obj)
-{
-  constexpr T bottom{std::numeric_limits<T>::min()};
-  if (obj >= 0)
-    return to_string_unsigned(obj);
-  else if (obj != bottom)
-    return to_string_unsigned(-obj, true);
-  else if (not minimum<bottom>.empty())
-    // The type's minimum value.  Can't negate it without widening.
-    return std::string{std::begin(minimum<bottom>), std::end(minimum<bottom>)};
-  else
-    // The type's minimum value, and we don't have a hard-coded text for it.
-    return to_string_fallback(obj);
-}
-} // namespace
-#endif // !PQXX_HAVE_CHARCONV_INT
-
-
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
-namespace
+namespace pqxx::internal
 {
-template<typename T> inline std::string to_string_float(T obj)
+/// Fallback floating-point implementation of @c pqxx::to_string().
+/** In this rare case, a @c std::string is easier to produce than a
+ * @c std::string_view.  So, we implement @c to_buf in terms of @c to_string
+ * instead of the other way around.
+ */
+template<typename T> PQXX_LIBEXPORT std::string to_string_float(T obj)
+{
+  thread_local dumb_stringstream<T> s;
+  s.str("");
+  s << obj;
+  return s.str();
+}
+
+
+template std::string to_string_float(float);
+template std::string to_string_float(double);
+template std::string to_string_float(long double);
+
+/// Floating-point to_buf implemented in terms of to_string.
+template<typename T>
+std::string_view to_buf_float(char *begin, char *end, T obj)
 {
   if (std::isnan(obj)) return "nan";
   if (std::isinf(obj)) return (obj > 0) ? "infinity" : "-infinity";
-  return to_string_fallback(obj);
+  auto text = to_string_float(obj);
+  if (text.size() >= std::size_t(end - begin))
+    throw conversion_error{
+	"Could not convert floating-point number to string: "
+	"buffer too small."};
+  std::memcpy(begin, text.c_str(), text.size() + 1);
+  return std::string_view{begin, text.size()};
 }
-} // namespace
+
+
+template std::string_view to_buf_float(char *, char *, float);
+template std::string_view to_buf_float(char *, char *, double);
+template std::string_view to_buf_float(char *, char *, long double);
+} // namespace pqxx::internal
 #endif // !PQXX_HAVE_CHARCONV_FLOAT
 
 
@@ -521,61 +428,36 @@ template<>
 void builtin_traits<short>::from_string(std::string_view str, short &obj)
 	{ from_string_signed(str, obj); }
 template<>
-std::string builtin_traits<short>::to_string(short obj)
-	{ return to_string_signed(obj); }
-template<>
 void builtin_traits<unsigned short>::from_string(
 	std::string_view str,
 	unsigned short &obj)
 	{ from_string_unsigned(str, obj); }
 template<>
-std::string builtin_traits<unsigned short>::to_string(unsigned short obj)
-	{ return to_string_unsigned(obj); }
-template<>
 void builtin_traits<int>::from_string(std::string_view str, int &obj)
 	{ from_string_signed(str, obj); }
-template<>
-std::string builtin_traits<int>::to_string(int obj)
-	{ return to_string_signed(obj); }
 template<>
 void builtin_traits<unsigned int>::from_string(
 	std::string_view str,
 	unsigned int &obj)
 	{ from_string_unsigned(str, obj); }
 template<>
-std::string builtin_traits<unsigned int>::to_string(unsigned int obj)
-	{ return to_string_unsigned(obj); }
-template<>
 void builtin_traits<long>::from_string(std::string_view str, long &obj)
 	{ from_string_signed(str, obj); }
-template<>
-std::string builtin_traits<long>::to_string(long obj)
-	{ return to_string_signed(obj); }
 template<>
 void builtin_traits<unsigned long>::from_string(
 	std::string_view str,
 	unsigned long &obj)
 	{ from_string_unsigned(str, obj); }
 template<>
-std::string builtin_traits<unsigned long>::to_string(unsigned long obj)
-	{ return to_string_unsigned(obj); }
-template<>
 void builtin_traits<long long>::from_string(
 	std::string_view str,
 	long long &obj)
 	{ from_string_signed(str, obj); }
 template<>
-std::string builtin_traits<long long>::to_string(long long obj)
-	{ return to_string_signed(obj); }
-template<>
 void builtin_traits<unsigned long long>::from_string(
 	std::string_view str,
 	unsigned long long &obj)
 	{ from_string_unsigned(str, obj); }
-template<>
-std::string builtin_traits<unsigned long long>::to_string(
-        unsigned long long obj)
-	{ return to_string_unsigned(obj); }
 } // namespace pqxx::internal
 #endif // !PQXX_HAVE_CHARCONV_INT
 
@@ -587,21 +469,12 @@ template<>
 void builtin_traits<float>::from_string(std::string_view str, float &obj)
 	{ from_string_float(str, obj); }
 template<>
-std::string builtin_traits<float>::to_string(float obj)
-	{ return to_string_float(obj); }
-template<>
 void builtin_traits<double>::from_string(std::string_view str, double &obj)
 	{ from_string_float(str, obj); }
-template<>
-std::string builtin_traits<double>::to_string(double obj)
-	{ return to_string_float(obj); }
 template<>
 void builtin_traits<long double>::from_string(
 	std::string_view str, long double &obj)
 	{ from_string_float(str, obj); }
-template<>
-std::string builtin_traits<long double>::to_string(long double obj)
-	{ return to_string_float(obj); }
 } // namespace pqxx::internal
 #endif // !PQXX_HAVE_CHARCONV_FLOAT
 
@@ -664,11 +537,5 @@ template<> void builtin_traits<bool>::from_string(
       "Failed conversion to bool: '" + std::string{str} + "'."};
 
   obj = result;
-}
-
-
-template<> std::string builtin_traits<bool>::to_string(bool obj)
-{
-  return obj ? "true" : "false";
 }
 } // namespace pqxx::internal

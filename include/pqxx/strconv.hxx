@@ -182,6 +182,15 @@ template<typename T> inline void from_string(std::string_view str, T &obj)
     throw std::runtime_error{"Attempt to read null string."};
   string_traits<T>::from_string(str, obj);
 }
+
+
+/// Convert built-in type to a readable string that PostgreSQL will understand
+/** No special formatting is done, and any locale settings are ignored.  The
+ * resulting string will be human-readable and in a format suitable for use in
+ * SQL queries.
+ */
+template<typename T> std::string to_string(const T &obj)
+	{ return string_traits<T>::to_string(obj); }
 //@}
 } // namespace pqxx
 

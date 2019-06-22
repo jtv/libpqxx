@@ -1,3 +1,6 @@
+#include <type_traits>
+
+
 /* Internal helpers for string conversion.
  *
  * Do not include this header directly.  The libpqxx headers do it for you.
@@ -50,15 +53,14 @@ inline std::string make_conversion_error(
  *
  * Includes a single trailing null byte, right before @c *end.
  */
-template<typename T> inline char *
-nonneg_to_buf(char *end, T value)
+template<typename T> inline char *nonneg_to_buf(char *end, T value)
 {
   char *pos = end;
   *--pos = '\0';
   do
   {
     *--pos = pqxx::internal::number_to_digit(int(value % 10));
-    value /= 10;
+    value = T(value / 10);
   } while (value > 0);
   return pos;
 }
@@ -70,16 +72,19 @@ nonneg_to_buf(char *end, T value)
  * number that doesn't have an absolute value, as is the case on
  * std::numeric_limits<long long>::min() in a two's-complement system.
  */
-template<auto MIN> constexpr const char *hard_neg = nullptr;
-template<> constexpr const char *hard_neg<-126> = "-127";
-template<> constexpr const char *hard_neg<-127> = "-128";
-template<> constexpr const char *hard_neg<-32766> = "-32767";
-template<> constexpr const char *hard_neg<-32767> = "-32768";
-template<> constexpr const char *hard_neg<-2147483646> = "-2147483647";
-template<> constexpr const char *hard_neg<-2147483647> = "-2147483648";
-template<> constexpr const char *hard_neg<-9223372036854775806> =
+template<long long MIN> inline constexpr const char *hard_neg = nullptr;
+template<> inline constexpr const char *hard_neg<1> = "0";
+template<> inline constexpr const char *hard_neg<-126LL> = "-127";
+template<> inline constexpr const char *hard_neg<-127LL> = "-128";
+template<> inline constexpr const char *hard_neg<-32766LL> = "-32767";
+template<> inline constexpr const char *hard_neg<-32767LL> = "-32768";
+template<> inline constexpr const char *hard_neg<-2147483646LL> =
+	"-2147483647";
+template<> inline constexpr const char *hard_neg<-2147483647LL> =
+	"-2147483648";
+template<> inline constexpr const char *hard_neg<-9223372036854775806LL> =
 	"-9223372036854775807";
-template<> constexpr const char *hard_neg<-9223372036854775807> =
+template<> inline constexpr const char *hard_neg<-9223372036854775807LL> =
 	"-9223372036854775808";
 
 
@@ -93,18 +98,18 @@ to_buf_integral(char *begin, char *end, T value)
 	"Could not convert " + type_name<T> + " to string: buffer too small."};
 
 
+  constexpr T bottom{std::numeric_limits<T>::min()};
+
   if (value >= 0)
   {
     auto pos = nonneg_to_buf(end, value);
-    return std::string_view{pos, end - pos - 1};
+    return std::string_view{pos, std::size_t(end - pos - 1)};
   }
-
-  constexpr T bottom{std::numeric_limits<T>::min()};
-  if (value != bottom)
+  else if (value != bottom)
   {
-    auto pos = nonneg_to_buf(begin, end, -value);
+    auto pos = nonneg_to_buf(end, -value);
     *--pos = '-';
-    return std::string_view{pos, end - pos - 1};
+    return std::string_view{pos, std::size_t(end - pos - 1)};
   }
   else
   {
@@ -115,11 +120,43 @@ to_buf_integral(char *begin, char *end, T value)
     //
     // Luckily, there's only a limited number of such numbers.  We can cheat
     // and hard-code them all.
-    return std::string_view{hard_neg<bottom + 1>};
+    return std::string_view{hard_neg<bottom + 1LL>};
   }
+}
+} // namespace pqxx::internal
+
+
+namespace pqxx
+{
+template<> inline std::string_view
+to_buf(char *begin, char *end, short value)
+{ return internal::to_buf_integral(begin, end, value); }
+template<> inline std::string_view
+to_buf(char *begin, char *end, unsigned short value)
+{ return internal::to_buf_integral(begin, end, value); }
+template<> inline std::string_view
+to_buf(char *begin, char *end, int value)
+{ return internal::to_buf_integral(begin, end, value); }
+template<> inline std::string_view
+to_buf(char *begin, char *end, unsigned value)
+{ return internal::to_buf_integral(begin, end, value); }
+template<> inline std::string_view
+to_buf(char *begin, char *end, long value)
+{ return internal::to_buf_integral(begin, end, value); }
+template<> inline std::string_view
+to_buf(char *begin, char *end, unsigned long value)
+{ return internal::to_buf_integral(begin, end, value); }
+template<> inline std::string_view
+to_buf(char *begin, char *end, long long value)
+{ return internal::to_buf_integral(begin, end, value); }
+template<> inline std::string_view
+to_buf(char *begin, char *end, unsigned long long value)
+{ return internal::to_buf_integral(begin, end, value); }
 }
 
 
+namespace pqxx::internal
+{
 /// Helper: string traits implementation for built-in types.
 /** These types all look much alike, so they can share much of their traits
  * classes (though templatised, of course).
@@ -131,6 +168,22 @@ template<typename TYPE> struct PQXX_LIBEXPORT builtin_traits
   static void from_string(std::string_view str, TYPE &obj);
   static std::string to_string(TYPE obj);
 };
+
+
+#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
+template<typename T>
+PQXX_LIBEXPORT std::string to_buf_float(char *, char *, T);
+
+template<typename T> PQXX_LIBEXPORT std::string to_string_float(T);
+
+template<> inline std::string builtin_traits<float>::to_string(float value)
+{ return to_string_float(value); }
+template<> inline std::string builtin_traits<double>::to_string(double value)
+{ return to_string_float(value); }
+template<> inline std::string
+builtin_traits<long double>::to_string(long double value)
+{ return to_string_float(value); }
+#endif
 } // namespace pqxx::internal
 
 
@@ -169,15 +222,6 @@ inline void from_string(const std::stringstream &str, T &obj)		//[t00]
 	{ from_string(str.str(), obj); }
 
 
-/// Convert built-in type to a readable string that PostgreSQL will understand
-/** No special formatting is done, and any locale settings are ignored.  The
- * resulting string will be human-readable and in a format suitable for use in
- * SQL queries.
- */
-template<typename T> std::string to_string(const T &obj)
-	{ return string_traits<T>::to_string(obj); }
-
-
 #if __has_include(<charconv>)
 template<typename T> inline std::string_view
 to_buf(char *begin, char *end, T value)
@@ -211,6 +255,28 @@ to_buf(char *begin, char *end, const std::string &value)
   std::memcpy(begin, value.c_str(), value.size() + 1);
   return std::string_view{begin, value.size()};
 }
+
+
+template<> inline std::string_view
+to_buf(char *begin, char *end, std::string &&value)
+{
+  if (value.size() >= std::size_t(end - begin))
+    throw conversion_error{
+	"Could not convert string to string: too long for buffer."};
+  std::memcpy(begin, value.c_str(), value.size() + 1);
+  return std::string_view{begin, value.size()};
+}
+
+
+#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
+template<> inline std::string_view to_buf(char *begin, char *end, float value)
+{ return internal::to_buf_float(begin, end, value); }
+template<> inline std::string_view to_buf(char *begin, char *end, double value)
+{ return internal::to_buf_float(begin, end, value); }
+template<> inline std::string_view
+to_buf(char *begin, char *end, long double value)
+{ return internal::to_buf_float(begin, end, value); }
+#endif
 
 
 /// Default implementation of str uses @c to_buf.
@@ -334,8 +400,15 @@ template<> struct PQXX_LIBEXPORT string_traits<std::nullptr_t>
   static std::string to_string(const std::nullptr_t &)
 	{ return "null"; }
 };
-
-
-// TODO: Implement date conversions.
-
 } // namespace pqxx
+
+
+namespace pqxx::internal
+{
+template<typename TYPE> inline std::string
+builtin_traits<TYPE>::to_string(TYPE obj)
+{
+  str<TYPE> buf{obj};
+  return std::string{buf};
+}
+} // namespace pqxx::internal
