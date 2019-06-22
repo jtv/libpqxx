@@ -113,6 +113,12 @@ pqxx::conversion_error::conversion_error(const std::string &whatarg) :
 }
 
 
+pqxx::conversion_overrun::conversion_overrun(const std::string &whatarg) :
+  conversion_error{whatarg}
+{
+}
+
+
 pqxx::range_error::range_error(const std::string &whatarg) :
   out_of_range{whatarg}
 {

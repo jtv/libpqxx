@@ -27,27 +27,6 @@ template<typename TYPE> [[maybe_unused]] constexpr int size_buffer() noexcept
 }
 
 
-#if __has_include(<charconv>)
-/// Formulate an error message for a failed std::to_chars call.
-inline std::string make_conversion_error(
-	std::to_chars_result res, const std::string &type)
-{
-  std::string msg;
-  switch (res.ec)
-  {
-  case std::errc::value_too_large:
-    msg = ": Value too large for buffer.";
-    break;
-  default:
-    msg = ".";
-    break;
-  }
-
-  return std::string{"Could not convert "} + type + " to string" + msg;
-}
-#endif
-
-
 /// Write nonnegative integral value at end of buffer.  Return start.
 /** Assumes a sufficiently large buffer.
  *
@@ -94,7 +73,7 @@ to_buf_integral(char *begin, char *end, T value)
 {
   // TODO: Conservative estimate.  We could do better, but will it cost time?
   if (end - begin < size_buffer<T>())
-    throw conversion_error{
+    throw conversion_overrun{
 	"Could not convert " + type_name<T> + " to string: buffer too small."};
 
 
@@ -227,9 +206,17 @@ template<typename T> inline std::string_view
 to_buf(char *begin, char *end, T value)
 {
   const auto res = std::to_chars(begin, end - 1, value);
-  if (res.ec != std::errc())
+  if (res.ec != std::errc()) switch (res.ec)
+  {
+  case std::errc::value_too_large:
+    throw conversion_overrun{
+	std::string{"Could not convert "} + type + " to string: "
+	"buffer too small."};
+  default:
     throw conversion_error{
-	pqxx::internal::make_conversion_error(res, type_name<T>)};
+	std::string{"Could not convert "} + type + " to string."};
+  }
+
   *res.ptr = '\0';
   return std::string_view{begin, std::size_t(res.ptr - begin)};
 }
@@ -250,7 +237,7 @@ template<> inline std::string_view
 to_buf(char *begin, char *end, const std::string &value)
 {
   if (value.size() >= std::size_t(end - begin))
-    throw conversion_error{
+    throw conversion_overrun{
 	"Could not convert string to string: too long for buffer."};
   std::memcpy(begin, value.c_str(), value.size() + 1);
   return std::string_view{begin, value.size()};
@@ -261,7 +248,7 @@ template<> inline std::string_view
 to_buf(char *begin, char *end, std::string &&value)
 {
   if (value.size() >= std::size_t(end - begin))
-    throw conversion_error{
+    throw conversion_overrun{
 	"Could not convert string to string: too long for buffer."};
   std::memcpy(begin, value.c_str(), value.size() + 1);
   return std::string_view{begin, value.size()};

@@ -174,6 +174,13 @@ struct PQXX_LIBEXPORT conversion_error : std::domain_error
 };
 
 
+/// Could not convert value to string: not enough buffer space.
+struct PQXX_LIBEXPORT conversion_overrun : conversion_error
+{
+  explicit conversion_overrun(const std::string &);
+};
+
+
 /// Something is out of range, similar to std::out_of_range
 struct PQXX_LIBEXPORT range_error : std::out_of_range
 {
