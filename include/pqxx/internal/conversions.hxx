@@ -1,6 +1,3 @@
-#include <type_traits>
-
-
 /* Internal helpers for string conversion.
  *
  * Do not include this header directly.  The libpqxx headers do it for you.
@@ -145,7 +142,11 @@ template<typename TYPE> struct PQXX_LIBEXPORT builtin_traits
   static constexpr bool has_null() noexcept { return false; }
   static constexpr bool is_null(TYPE) { return false; }
   static void from_string(std::string_view str, TYPE &obj);
-  static std::string to_string(TYPE obj);
+  static std::string to_string(TYPE obj)
+  {
+    str<TYPE> buf{obj};
+    return std::string{buf};
+  }
 };
 
 
@@ -414,14 +415,3 @@ template<> struct PQXX_LIBEXPORT string_traits<std::nullptr_t>
 	{ return "null"; }
 };
 } // namespace pqxx
-
-
-namespace pqxx::internal
-{
-template<typename TYPE> inline std::string
-builtin_traits<TYPE>::to_string(TYPE obj)
-{
-  str<TYPE> buf{obj};
-  return std::string{buf};
-}
-} // namespace pqxx::internal

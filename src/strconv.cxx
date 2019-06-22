@@ -27,13 +27,6 @@ inline bool equal(std::string_view lhs, std::string_view rhs)
 {
   return lhs.compare(rhs) == 0;
 }
-
-
-/// Compute numeric value of given textual digit (assuming that it is a digit).
-[[maybe_unused]] constexpr int digit_to_number(char c) noexcept
-{ return c - '0'; }
-
-
 } // namespace
 
 
@@ -140,6 +133,11 @@ template<typename L, typename R>
 {
   return safe_sub_digit(safe_multiply_by_ten(value), L(digit));
 }
+
+
+/// Compute numeric value of given textual digit (assuming that it is a digit).
+[[maybe_unused]] constexpr int digit_to_number(char c) noexcept
+{ return c - '0'; }
 
 
 template<typename T> void from_string_signed(std::string_view str, T &obj)
@@ -283,7 +281,6 @@ template<typename T> inline void from_string_float(
       // and #125.
       S.seekg(0);
       S.clear();
-      // TODO: Inefficient.  Can we get good std::from_chars implementations?
       S.str(std::string{str});
       ok = static_cast<bool>(S >> result);
     }
@@ -367,58 +364,6 @@ builtin_traits<unsigned long long>::from_string(
 	std::string_view, unsigned long long &);
 } // namespace pqxx
 #endif // PQXX_HAVE_CHARCONV_INT
-
-
-#if defined(PQXX_HAVE_CHARCONV_FLOAT)
-namespace pqxx
-{
-template
-void string_traits<float>::from_string(std::string_view str, float &obj);
-template
-void string_traits<double>::from_string(std::string_view str, double &obj);
-template
-void string_traits<long double>::from_string(
-	std::string_view str,
-	long double &obj);
-} // namespace pqxx
-#endif // PQXX_HAVE_CHARCONV_FLOAT
-
-
-#if defined(PQXX_HAVE_CHARCONV_INT)
-namespace pqxx::internal
-{
-template
-std::string builtin_traits<short>::to_string(short obj);
-template
-std::string builtin_traits<unsigned short>::to_string(unsigned short obj);
-template
-std::string builtin_traits<int>::to_string(int obj);
-template
-std::string builtin_traits<unsigned int>::to_string(unsigned int obj);
-template
-std::string builtin_traits<long>::to_string(long obj);
-template
-std::string builtin_traits<unsigned long>::to_string(unsigned long obj);
-template
-std::string builtin_traits<long long>::to_string(long long obj);
-template
-std::string builtin_traits<unsigned long long>::to_string(
-	unsigned long long obj);
-} // namespace pqxx::internal
-#endif // PQXX_HAVE_CHARCONV_INT
-
-
-#if defined(PQXX_HAVE_CHARCONV_FLOAT)
-namespace pqxx::internal
-{
-template
-std::string builtin_traits<float>::to_string(float obj);
-template
-std::string builtin_traits<double>::to_string(double obj);
-template
-std::string builtin_traits<long double>::to_string(long double obj);
-} // namespace pqxx::internal
-#endif // PQXX_HAVE_CHARCONV_FLOAT
 
 
 #if !defined(PQXX_HAVE_CHARCONV_INT)
