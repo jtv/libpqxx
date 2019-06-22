@@ -201,10 +201,16 @@ template<typename T> inline void from_string(std::string_view str, T &obj)
 }
 
 
-/// Convert built-in type to a readable string that PostgreSQL will understand
-/** No special formatting is done, and any locale settings are ignored.  The
- * resulting string will be human-readable and in a format suitable for use in
- * SQL queries.
+/// Convert built-in type to a readable string that PostgreSQL will understand.
+/** This is the convenient way to represent a value as text.  It's also fairly
+ * expensive, since it creates a @c std::string.  The @c pqxx::str class is a
+ * more efficient but slightly less convenient alternative.  Probably.
+ * Depending on the type of value you're trying to convert.
+ *
+ * The conversion does no special formatting, and ignores any locale settings.
+ * The resulting string will be human-readable and in a format suitable for use
+ * in SQL queries.  It won't have niceties such as "thousands separators"
+ * though.
  */
 template<typename T> std::string to_string(const T &obj)
 	{ return string_traits<T>::to_string(obj); }
