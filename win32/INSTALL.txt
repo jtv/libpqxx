@@ -81,8 +81,9 @@ Select a recent version of postgres and download the corrresponding .tar.gz or
 .tar.bz2 archive for that version.  Unpack the sources to some directory on your
 computer.
 
-Select "Visual Studio Command Prompt" from the Start menu.  Alternatively,
-open a Command Prompt window and run:
+Select "Visual Studio Command Prompt" from the Start menu ("Developer Command 
+Prompt" if building for x86 and "x64 Native Tools Command Prompt" if building 
+for x64). Alternatively, open a Command Prompt window and run:
 
     VCVARSALL.BAT amd64
 
@@ -156,8 +157,9 @@ The rest of the procedure depends on your compiler.
 
 If you're using Visual C++:
 
-1) Select Visual Studio Command Prompt from the Start menu.  Alternatively,
-   open a Command Prompt window and run
+1) Select Visual Studio Command Prompt from the Start menu ("Developer Command 
+   Prompt" if building for x86 and "x64 Native Tools Command Prompt" if building 
+   for x64). Alternatively, open a Command Prompt window and run
 
        VCVARSALL.BAT amd64
 
