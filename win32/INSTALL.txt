@@ -219,9 +219,9 @@ users, the following steps should accomplish the same:
     program "runner.exe," as well as any required DLLs.
 
  2) Make sure a PostgreSQL database is running and accessible, and set up the
-    environment variables PGDATABASE, PGHOST, PGPORT, and PGUSER as described
-    in the libpqxx README.md file so the test program can connect without
-    needing to pass a connection string.
+    environment variables PGDATABASE, PGHOST, PGPORT, PGUSER and PGPASSWORD as 
+    described in the libpqxx README.md file so the test program can connect 
+    without needing to pass a connection string.
 
  3) Run runner.exe from any of the test directories.  When runner.exe runs,
     it executes each of the test programs in order.  Some of the tests will
@@ -269,9 +269,9 @@ libpqxx (based on description by Alexandre Hanft, 2006-03-06):
     program.
  7) Your program should now be able to run.  However, you may need to tell it
     how to connect to a database.  If you set the environment variables
-    PGDATABASE, PGHOST, PGPORT, and PGUSER as described in the libpqxx
-    README.md file, your program should be able to connect without passing
-    further parameters.
+    PGDATABASE, PGHOST, PGPORT, PGUSER and PGPASSWORD as described in the 
+    libpqxx README.md file, your program should be able to connect without 
+    passing further parameters.
  8) Once your program gets to the point where users should be able to configure
     it properly, change it to pass a connection string where it connects to any
     databases, and include your user's configuration settings.  A typical
