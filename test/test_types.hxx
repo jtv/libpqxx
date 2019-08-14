@@ -5,6 +5,7 @@
 #include <pqxx/strconv>
 
 #include <cstdint>
+#include <cstring>
 #include <exception>
 #include <iomanip>
 #include <regex>
@@ -25,9 +26,13 @@ public:
     unsigned char b2,
     unsigned char b3,
     unsigned char b4
-  ) :
-    m_as_int{uint32_t(b1) << 24 | uint32_t(b2) << 16 | uint32_t(b3) << 8 | b4}
-  {}
+  ) : ipv4()
+  {
+    set_byte(0, b1);
+    set_byte(1, b2);
+    set_byte(2, b3);
+    set_byte(3, b4);
+  }
 
   bool operator==(const ipv4 &o) const { return m_as_int == o.m_as_int; }
   ipv4 &operator=(const ipv4 &) =default;
@@ -38,23 +43,23 @@ public:
     if (byte < 0 or byte > 3)
         throw pqxx::usage_error("Byte out of range.");
     const auto shift = compute_shift(byte);
-    return static_cast<unsigned char>((m_as_int >> shift) & 0xff);
+    return static_cast<unsigned int>((m_as_int >> shift) & 0xff);
   }
 
   /// Set individual byte, in network byte order.
   void set_byte(int byte, uint32_t value)
   {
-    const auto shift = unsigned(compute_shift(byte));
-    const auto blanked = m_as_int & ~uint32_t(0xff << shift);
-    m_as_int = blanked | ((value & 0xff) << shift);
+    const auto shift = compute_shift(byte);
+    const auto blanked = (m_as_int & ~uint32_t(0xff << shift));
+    m_as_int = (blanked | ((value & 0xff) << shift));
   }
 
 private:
-  static uint32_t compute_shift(int byte)
+  static unsigned compute_shift(int byte)
   {
     if (byte < 0 or byte > 3)
         throw pqxx::usage_error("Byte out of range.");
-    return uint32_t((3 - byte) * 8);
+    return static_cast<unsigned>((3 - byte) * 8);
   }
 
   uint32_t m_as_int;
@@ -64,77 +69,41 @@ private:
 using bytea = std::vector<unsigned char>;
 
 
-template<typename T> class custom_optional
-{
-  // Very basic, only has enough features for testing
-private:
-  union
-  {
-    // "Blank" member just so no T object needs to be constructed here.
-    void *_;
-    T value;
-  };
-  bool has_value;
-public:
-  custom_optional() : has_value{false} {}
-  custom_optional(std::nullptr_t) : has_value{false} {}
-  custom_optional(const custom_optional &o) : has_value{o.has_value}
-  {
-    if (has_value) new(&value) T(o.value);
-  }
-  custom_optional(const T& v) : value{v}, has_value{true} {}
-  ~custom_optional()
-  {
-    if (has_value) value.~T();
-  }
-  explicit operator bool() const { return has_value; }
-  T &operator *()
-  {
-    if (has_value) return value;
-    else throw std::logic_error{"bad optional access"};
-  }
-  const T &operator *() const
-  {
-    if (has_value) return value;
-    else throw std::logic_error{"bad optional access"};
-  }
-  custom_optional &operator =(const custom_optional &o)
-  {
-    if (&o == this) return *this;
-    if (has_value and o.has_value)
-      value = o.value;
-    else
-    {
-      if (has_value) value.~T();
-      if (o.has_value) new(&value) T(o.value);
-    }
-    has_value = o.has_value;
-    return *this;
-  }
-  custom_optional &operator =(std::nullptr_t)
-  {
-    if (has_value) value.~T();
-    has_value = false;
-    return *this;
-  }
-};
-
-
 namespace pqxx
 {
+template<> inline constexpr int buffer_budget<ipv4> = 50;
+
+
+template<> inline std::string_view
+to_buf(char *begin, char *end, const ipv4 &value)
+{
+  if (end - begin < buffer_budget<ipv4>)
+    throw conversion_overrun{"Not enough buffer to convert ipv4 to string."};
+
+  // Blindly assuming no errors here.
+  char *pos = std::to_chars(begin, end, value[0]).ptr;
+  for (int i = 1; i < 4; ++i)
+  {
+    *pos++ = '.';
+    // Blindly assuming no errors here.
+    pos = std::to_chars(pos, end, value[i]).ptr;
+  }
+  *pos = '\0';
+  return std::string_view(begin, std::size_t(pos - begin));
+}
+
+
 template<> struct string_traits<ipv4>
 {
-  using subject_type = ipv4;
-
   static constexpr bool has_null() noexcept { return false; }
-  static constexpr bool is_null(const subject_type &) { return false; }
+  static constexpr bool is_null(const ipv4 &) { return false; }
 
-  [[noreturn]] static subject_type null()
+  [[noreturn]] static ipv4 null()
   {
     internal::throw_null_conversion(type_name<ipv4>);
   }
 
-  static void from_string(std::string_view str, subject_type &ts)
+  static void from_string(std::string_view str, ipv4 &ts)
   {
     if (str.data() == nullptr)
       internal::throw_null_conversion(type_name<ipv4>);
@@ -160,89 +129,71 @@ template<> struct string_traits<ipv4>
       throw std::runtime_error{"Invalid ipv4 format: " + std::string{str}};
     }
   }
-
-  static std::string to_string(const subject_type &ts)
-  {
-    return
-      std::to_string(ts[0])
-      + "."
-      + std::to_string(ts[1])
-      + "."
-      + std::to_string(ts[2])
-      + "."
-      + std::to_string(ts[3])
-    ;
-  }
 };
-} // namespace pqxx
 
 
-namespace pqxx
+template<> inline constexpr int buffer_budget<bytea> = 1000;
+
+
+namespace
 {
+char nibble_to_hex(unsigned nibble)
+{
+  if (nibble < 10) return char('0' + nibble);
+  else if (nibble < 16) return char('a' + (nibble - 10));
+  else throw std::runtime_error{"Invalid digit going into bytea."};
+}
+
+
+unsigned hex_to_digit(char hex)
+{
+  auto x = static_cast<unsigned char>(hex);
+  if (x >= '0' and x <= '9') return x - '0';
+  else if (x >= 'a' and x <= 'f') return 10 + x - 'a';
+  else if (x >= 'A' and x <= 'F') return 10 + x - 'A';
+  else throw std::runtime_error{"Invalid hex in bytea."};
+}
+} // namespace
+
+
+template<> inline std::string_view
+to_buf(char *begin, char *end, const bytea &value)
+{
+  const auto need = 2 + value.size() + 1;
+  const auto have = end - begin;
+  if (std::size_t(have) < need)
+    throw pqxx::conversion_overrun{"Not enough space in buffer for bytea."};
+  char *pos = begin;
+  *pos++ = '\\';
+  *pos++ = 'x';
+  for (const unsigned char u : value)
+  {
+    *pos++ = nibble_to_hex(unsigned(u) >> 4);
+    *pos++ = nibble_to_hex(unsigned(u) & 0x0f);
+  }
+  *pos++ = '\0';
+  return std::string_view{begin, std::size_t(pos - begin - 1)};
+}
+
+
 template<> struct string_traits<bytea>
 {
-private:
-  static unsigned char from_hex(char c)
-  {
-    if (c >= '0' and c <= '9')
-      return static_cast<unsigned char>(c - '0');
-    else if (c >= 'a' and c <= 'f')
-      return static_cast<unsigned char>(c - 'a' + 10);
-    else if (c >= 'A' and c <= 'F')
-      return static_cast<unsigned char>(c - 'A' + 10);
-    else
-      throw std::range_error{
-        "Not a hexadecimal digit: " + std::string{c} +
-        " (value " + std::to_string(static_cast<unsigned int>(c)) + ")."
-      };
-  }
-  static unsigned char from_hex(char c1, char c2)
-  {
-    return static_cast<unsigned char>(
-        (from_hex(c1) << 4) | (from_hex(c2) & 0x0f)
-    );
-  }
-
-public:
-  using subject_type = bytea;
-
   static constexpr bool has_null() noexcept { return false; }
-
-  static bool is_null(const subject_type &) { return false; }
-
-  [[noreturn]] static subject_type null()
+  static constexpr bool is_null(const bytea &) { return false; }
+  [[noreturn]] static bytea null()
   {
-    internal::throw_null_conversion(type_name<bytea>);
+    internal::throw_null_conversion("bytea");
   }
 
-  static void from_string(std::string_view str, subject_type& bs)
+  static void from_string(std::string_view str, bytea &value)
   {
-    if (str.data() == nullptr)
-      internal::throw_null_conversion(type_name<bytea>);
-    auto len = str.size();
-    if (len % 2 or len < 2 or str[0] != '\\' or str[1] != 'x')
-      throw std::runtime_error{
-        "invalid bytea format: " + std::string{str}
-      };
-    bs.clear();
-    for (std::size_t i{2}; i < len; /**/)
+    if ((str.size() & 1) != 0) throw std::runtime_error{"Odd hex size."};
+    value.reserve((str.size() - 2) / 2);
+    for (size_t i = 2; i < str.size(); i += 2)
     {
-      bs.emplace_back(from_hex(str[i], str[i + 1]));
-      i += 2;
+      auto hi = hex_to_digit(str[i]), lo = hex_to_digit(str[i + 1]);
+      value.push_back(static_cast<unsigned char>((hi << 4) | lo));
     }
-  }
-
-  static std::string to_string(const subject_type &bs)
-  {
-    std::stringstream s;
-    s << "\\x" << std::hex;
-    for (auto b : bs)
-      s
-        << std::setw(2)
-        << std::setfill('0')
-        << static_cast<unsigned int>(b)
-      ;
-    return s.str();
   }
 };
 } // namespace pqxx

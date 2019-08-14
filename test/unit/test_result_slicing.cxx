@@ -4,23 +4,15 @@ using namespace pqxx;
 
 namespace pqxx
 {
-template<> struct PQXX_PRIVATE string_traits<row::const_iterator>
-{
-  static const char *name() { return "row::const_iterator"; }
-  static bool has_null() { return false; }
-  static bool is_null(row::const_iterator) { return false; }
-  static std::string to_string(row::const_iterator)
-	{ return "[row::const_iterator]"; }
-};
-template<>
-struct PQXX_PRIVATE string_traits<row::const_reverse_iterator>
-{
-  static const char *name() { return "row::const_reverse_iterator"; }
-  static bool has_null() { return false; }
-  static bool is_null(row::const_reverse_iterator) { return false; }
-  static std::string to_string(row::const_reverse_iterator)
-	{ return "[row::const_reverse_iterator]"; }
-};
+template<> inline std::string_view 
+to_buf(char *, char *, const row::const_iterator &)
+{ return "[row::const_iterator]"; }
+template<> inline std::string_view 
+to_buf(char *, char *, const row::const_reverse_iterator &)
+{ return "[row::const_reverse_iterator]"; }
+
+template<> inline constexpr int buffer_budget<row::const_iterator> = 0;
+template<> inline constexpr int buffer_budget<row::const_reverse_iterator> = 0;
 }
 
 namespace

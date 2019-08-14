@@ -36,6 +36,18 @@ void throw_null_conversion(const std::string &type)
 {
   throw conversion_error{"Attempt to convert null to " + type + "."};
 }
+
+
+std::string state_buffer_overrun(ptrdiff_t have_bytes, ptrdiff_t need_bytes)
+{
+  // We convert these in standard library terms, not for the localisation
+  // so much as to avoid "error cycles," if these values in turn should fail
+  // to get enough buffer space.
+  std::stringstream have, need;
+  have << have_bytes;
+  need << need_bytes;
+  return "Have " + have.str() + " bytes, need " + need.str() + ".";
+}
 } // namespace pqxx::internal
 
 
@@ -298,9 +310,9 @@ template<typename T> inline void from_string_float(
 #endif // !PQXX_HAVE_CHARCONV_FLOAT
 
 
-#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 namespace pqxx::internal
 {
+#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 /// Fallback floating-point implementation of @c pqxx::to_string().
 /** In this rare case, a @c std::string is easier to produce than a
  * @c std::string_view.  So, we implement @c to_buf in terms of @c to_string
@@ -318,21 +330,51 @@ template<typename T> PQXX_LIBEXPORT std::string to_string_float(T obj)
 template std::string to_string_float(float);
 template std::string to_string_float(double);
 template std::string to_string_float(long double);
+#endif // !PQXX_HAVE_CHARCONV_FLOAT
 
 
 /// Floating-point to_buf implemented in terms of to_string.
 template<typename T>
 std::string_view to_buf_float(char *begin, char *end, T obj)
 {
+#if defined(PQXX_HAVE_CHARCONV_FLOAT)
+
+  // Implement using std::to_chars.
+  const auto res = std::to_chars<T>(begin, end - 1, value);
+  if (res.ec != std::errc()) switch (res.ec)
+  {
+  case std::errc::value_too_large:
+    throw conversion_overrun{
+	std::string{"Could not convert "} + type_name<T> + " to string: "
+	"buffer too small (" + to_string(end - begin) + " bytes)."};
+  default:
+    throw conversion_error{
+	std::string{"Could not convert "} + type_name<T> + " to string."};
+  }
+
+  *res.ptr = '\0';
+  return std::string_view{begin, std::size_t(res.ptr - begin)};
+
+#else
+
+  // Implement it ourselves.  Weird detail: since this workaround is based on
+  // std::stringstream, which produces a std::string, it's actually easier to
+  // build the to_buf() on top of the to_string() than the other way around.
   if (std::isnan(obj)) return "nan";
   if (std::isinf(obj)) return (obj > 0) ? "infinity" : "-infinity";
   auto text = to_string_float(obj);
-  if (text.size() >= std::size_t(end - begin))
+  auto have = end - begin;
+  auto need = text.size() + 1;
+  if (need > std::size_t(have))
     throw conversion_error{
 	"Could not convert floating-point number to string: "
-	"buffer too small."};
-  std::memcpy(begin, text.c_str(), text.size() + 1);
+	"buffer too small.  " +
+        state_buffer_overrun(have, std::ptrdiff_t(need))
+	};
+  std::memcpy(begin, text.c_str(), need);
   return std::string_view{begin, text.size()};
+
+#endif // !PQXX_HAVE_CHARCONV_FLOAT
 }
 
 
@@ -340,7 +382,6 @@ template std::string_view to_buf_float(char *, char *, float);
 template std::string_view to_buf_float(char *, char *, double);
 template std::string_view to_buf_float(char *, char *, long double);
 } // namespace pqxx::internal
-#endif // !PQXX_HAVE_CHARCONV_FLOAT
 
 
 #if defined(PQXX_HAVE_CHARCONV_INT)

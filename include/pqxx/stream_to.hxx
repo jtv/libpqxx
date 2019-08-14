@@ -30,7 +30,8 @@ struct TypedCopyEscaper
 {
   template<typename T> std::string operator()(const T* t) const
   {
-    return string_traits<T>::is_null(*t) ?
+    return
+	(t == nullptr or string_traits<T>::is_null(*t)) ?
 	"\\N" :
 	copy_string_escape(to_string(*t));
   }
@@ -177,7 +178,7 @@ template<typename Iter> inline stream_to::stream_to(
 template<typename Tuple> stream_to & stream_to::operator<<(const Tuple &t)
 {
 // TODO: Probably better to let PQputCopyData() compose the buffer.
-  write_raw_line(separated_list("\t", t, internal::TypedCopyEscaper()));
+  write_raw_line(separated_list("\t", t, internal::TypedCopyEscaper{}));
   return *this;
 }
 } // namespace pqxx

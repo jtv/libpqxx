@@ -1,15 +1,23 @@
+#include <optional>
+
 #include "../test_helpers.hxx"
 
 namespace
 {
   enum colour { red, green, blue };
-  enum class weather { hot, cold, wet };
+  enum class weather : short { hot, cold, wet };
+  enum class many : unsigned long long
+  {
+    bottom = 0,
+    top = std::numeric_limits<unsigned long long>::max(),
+  };
 }
 
 namespace pqxx
 {
 PQXX_DECLARE_ENUM_CONVERSION(colour);
 PQXX_DECLARE_ENUM_CONVERSION(weather);
+PQXX_DECLARE_ENUM_CONVERSION(many);
 }
 
 
@@ -73,10 +81,30 @@ void test_strconv_class_enum()
 	w,
 	weather::wet,
 	"Could not recover class enum value from string.");
+
+  PQXX_CHECK_EQUAL(
+	pqxx::to_string(many::bottom),
+	"0",
+	"Small wide enum did not convert right.");
+  PQXX_CHECK_EQUAL(
+	pqxx::to_string(many::top),
+	pqxx::to_string(std::numeric_limits<unsigned long long>::max()),
+	"Large wide enum did not convert right.");
+}
+
+
+void test_strconv_optional()
+{
+  PQXX_CHECK_EQUAL(
+	pqxx::to_string(std::optional<int>{std::in_place, 10}),
+	"10",
+	"std::optional does not convert right.");
+// XXX:
 }
 
 
 PQXX_REGISTER_TEST(test_strconv_bool);
 PQXX_REGISTER_TEST(test_strconv_enum);
 PQXX_REGISTER_TEST(test_strconv_class_enum);
+PQXX_REGISTER_TEST(test_strconv_optional);
 }

@@ -137,9 +137,7 @@ template<typename Iter> inline stream_from::stream_from(
 }
 
 
-template<typename Tuple> stream_from & stream_from::operator>>(
-  Tuple &t
-)
+template<typename Tuple> stream_from &stream_from::operator>>(Tuple &t)
 {
   if (m_retry_line or get_raw_line(m_current_line))
   {
@@ -195,15 +193,13 @@ template<typename Tuple, std::size_t I> auto stream_from::tokenize_ith(
 
 template<typename T> void stream_from::extract_value(
   const std::string &line,
-  T& t,
+  T &t,
   std::string::size_type &here,
   std::string &workspace
 ) const
 {
-  if (extract_field(line, here, workspace))
-    from_string<T>(workspace, t);
-  else
-    t = internal::null_value<T>();
+  if (extract_field(line, here, workspace)) from_string<T>(workspace, t);
+  else t = string_traits<T>::null();
 }
 
 template<> void stream_from::extract_value<std::nullptr_t>(

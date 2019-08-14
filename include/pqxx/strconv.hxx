@@ -16,7 +16,6 @@
 #include <algorithm>
 #include <cstring>
 #include <limits>
-#include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <typeinfo>
@@ -26,6 +25,18 @@
 #endif
 
 #include "pqxx/except.hxx"
+
+
+namespace pqxx::internal
+{
+/// Implementation classes for @c str.
+/** We can't define these directly as @c str because of the way
+ * @c std::enable_if works: to make that work, we need an extra template
+ * parameter, which then seems to break template deduction when we define a
+ * @c str{value}.
+ */
+template<typename T, typename E> class str_impl;
+} // namespace pqxx::internal
 
 
 namespace pqxx
@@ -56,7 +67,7 @@ namespace pqxx
  */
 //@{
 
-// TODO: Do better!  Was having trouble with template variables.
+// TODO: Do better!
 /// A human-readable name for a type, used in error messages and such.
 /** The default implementation falls back on @c std::type_info::name(), which
  * isn't necessarily human-friendly.
@@ -99,7 +110,7 @@ template<typename T, typename = void> struct string_traits;
  * an exact check gets too expensive.
  */
 template<typename T> inline std::string_view
-to_buf(char *begin, char *end, T value);
+to_buf(char *begin, char *end, const T &value);
 
 
 /// Value-to-string converter: represent value as a postgres-compatible string.
@@ -118,14 +129,13 @@ to_buf(char *begin, char *end, T value);
  * expensive but convenient.  If you need extreme memory efficiency, consider
  * using @c to_buf and allocating your own buffer.  In the space between those
  * two extremes, use @c str.
- *
- * @warning One thing you can @a not do with @c str is convert a value in a
- * temporary object, e.g. @c pqxx::str(value).view().  The result is a
- * @c std::string_view, which points to a buffer inside the @c str object.
- * By the time you make use of the result, the @c str and its buffer no longer
- * exist, and the @c string_view will be pointing to invalid memory.
  */
-template<typename T> class str;
+template<typename T> class str : public pqxx::internal::str_impl<T, void>
+{
+public:
+  str() =default;
+  explicit str(const T &value) : pqxx::internal::str_impl<T, void>{value} {}
+};
 
 
 /// Helper class for defining enum conversions.
@@ -141,21 +151,17 @@ template<typename T> class str;
 template<typename ENUM>
 struct enum_traits
 {
-  using underlying_type = typename std::underlying_type<ENUM>::type;
-  using underlying_traits = string_traits<underlying_type>;
-
   static constexpr bool has_null() noexcept { return false; }
   [[noreturn]] inline static ENUM null();
 
-  static void from_string(std::string_view str, ENUM &obj)
+// TODO: Make use of RVO.  Return value instead of taking reference.
+  static void from_string(std::string_view text, ENUM &obj)
   {
+    using underlying_type = typename std::underlying_type_t<ENUM>;
     underlying_type tmp;
-    underlying_traits::from_string(str, tmp);
+    string_traits<underlying_type>::from_string(text, tmp);
     obj = ENUM(tmp);
   }
-
-  static std::string to_string(ENUM obj)
-	{ return underlying_traits::to_string(underlying_type(obj)); }
 };
 
 
@@ -169,9 +175,12 @@ struct enum_traits
  *      #include <pqxx/strconv>
  *      enum X { xa, xb };
  *      namespace pqxx { PQXX_DECLARE_ENUM_CONVERSION(x); }
- *      int main() { std::cout << to_string(xa) << std::endl; }
+ *      int main() { std::cout << pqxx::to_string(xa) << std::endl; }
  */
 #define PQXX_DECLARE_ENUM_CONVERSION(ENUM) \
+template<> inline std::string_view \
+to_buf(char *begin, char *end, const ENUM &value) \
+{ return to_buf(begin, end, std::underlying_type_t<ENUM>(value)); } \
 template<> \
 struct string_traits<ENUM> : pqxx::enum_traits<ENUM> \
 { \
@@ -193,15 +202,15 @@ struct string_traits<ENUM> : pqxx::enum_traits<ENUM> \
  * No whitespace is stripped away.  Only the kinds of strings that come out of
  * PostgreSQL and out of to_string() can be converted.
  */
-template<typename T> inline void from_string(std::string_view str, T &obj)
+template<typename T> inline void from_string(std::string_view text, T &obj)
 {
-  if (str.data() == nullptr)
+  if (text.data() == nullptr)
     throw std::runtime_error{"Attempt to read null string."};
-  string_traits<T>::from_string(str, obj);
+  string_traits<T>::from_string(text, obj);
 }
 
 
-/// Convert built-in type to a readable string that PostgreSQL will understand.
+/// Convert a value to a readable string that PostgreSQL will understand.
 /** This is the convenient way to represent a value as text.  It's also fairly
  * expensive, since it creates a @c std::string.  The @c pqxx::str class is a
  * more efficient but slightly less convenient alternative.  Probably.
@@ -212,8 +221,7 @@ template<typename T> inline void from_string(std::string_view str, T &obj)
  * in SQL queries.  It won't have niceties such as "thousands separators"
  * though.
  */
-template<typename T> std::string to_string(const T &obj)
-	{ return string_traits<T>::to_string(obj); }
+template<typename T> inline std::string to_string(const T &obj);
 //@}
 } // namespace pqxx
 

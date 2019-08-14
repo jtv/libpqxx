@@ -155,9 +155,9 @@ void test_optional(pqxx::connection_base& connection)
 
   inserter << std::make_tuple(
     910,
-    O<std::string>(pqxx::internal::null_value<O<std::string>>()),
-    O<int        >(pqxx::internal::null_value<O<int        >>()),
-    O<ipv4       >(pqxx::internal::null_value<O<ipv4       >>()),
+    O<std::string>{pqxx::string_traits<O<std::string>>::null()},
+    O<int>{pqxx::string_traits<O<int>>::null()},
+    O<ipv4>{pqxx::string_traits<O<ipv4>>::null()},
     "\\N",
     bytea{}
   );
@@ -190,8 +190,6 @@ void test_stream_to()
   test_too_many_fields(conn);
   std::cout << "testing `std::unique_ptr` as optional...\n";
   test_optional<std::unique_ptr>(conn);
-  std::cout << "testing `custom_optional` as optional...\n";
-  test_optional<custom_optional>(conn);
   std::cout << "testing `std::optional` as optional...\n";
   test_optional<std::optional>(conn);
 }
