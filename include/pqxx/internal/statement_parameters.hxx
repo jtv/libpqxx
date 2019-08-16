@@ -26,8 +26,6 @@
 #include "pqxx/strconv"
 #include "pqxx/util"
 
-#include "pqxx/internal/type_utils.hxx"
-
 
 namespace pqxx::internal
 {

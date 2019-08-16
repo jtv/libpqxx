@@ -17,7 +17,6 @@
 #include "pqxx/compiler-internal-pre.hxx"
 #include "pqxx/transaction_base.hxx"
 #include "pqxx/util.hxx"
-#include "pqxx/internal/type_utils.hxx"
 
 #include <string>
 

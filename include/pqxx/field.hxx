@@ -15,7 +15,6 @@
 
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
-#include "pqxx/internal/type_utils.hxx"
 
 #include <optional>
 

@@ -88,7 +88,6 @@ install(
         PATTERN internal/libpq-forward.hxx
         PATTERN internal/sql_cursor.hxx
         PATTERN internal/statement_parameters.hxx
-        PATTERN internal/type_utils.hxx
         PATTERN internal/gates/connection-errorhandler.hxx
         PATTERN internal/gates/connection-largeobject.hxx
         PATTERN internal/gates/connection-notification_receiver.hxx
