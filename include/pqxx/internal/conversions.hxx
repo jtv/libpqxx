@@ -278,7 +278,6 @@ template<typename ENUM> inline ENUM enum_traits<ENUM>::null()
 { internal::throw_null_conversion("enum type"); }
 
 
-// XXX: Have we got this for unique_ptr and shared_ptr as well?
 template<typename T> struct string_traits<std::optional<T>>
 {
   static constexpr bool has_null() noexcept { return true; }
