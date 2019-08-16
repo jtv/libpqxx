@@ -4,6 +4,16 @@ using namespace pqxx;
 
 namespace pqxx
 {
+template<> struct string_traits<row::const_iterator>
+{
+  static constexpr bool has_null() noexcept { return false; }
+};
+
+template<> struct string_traits<const_reverse_row_iterator>
+{
+  static constexpr bool has_null() noexcept { return false; }
+};
+
 template<> inline std::string_view 
 to_buf(char *, char *, const row::const_iterator &)
 { return "[row::const_iterator]"; }

@@ -121,8 +121,7 @@ to_buf(char *begin, char *end, const T &value);
  * the @c str object exists.  After that, accessing the string becomes
  * undefined.
  *
- * If the value is null, the string value will be null.  That is, its @c data
- * pointer will be null.
+ * @c warning The value cannot be null.
  *
  * In situations where convenience matters more than performance, use the
  * @c to_string functions which create and return a @c std::string.  It's
@@ -130,11 +129,22 @@ to_buf(char *begin, char *end, const T &value);
  * using @c to_buf and allocating your own buffer.  In the space between those
  * two extremes, use @c str.
  */
-template<typename T> class str : public pqxx::internal::str_impl<T, void>
+template<typename T> class str : internal::str_impl<T, void>
 {
 public:
-  str() =default;
-  explicit str(const T &value) : pqxx::internal::str_impl<T, void>{value} {}
+  str() =delete;
+  str(const str &) =delete;
+  str(str &&) =delete;
+
+  explicit str(const T &value) : internal::str_impl<T, void>{value} {}
+  explicit str(T &value) : internal::str_impl<T, void>{value} {}
+
+  str &operator=(const str &) =delete;
+  str &operator=(str &&) =delete;
+
+  using internal::str_impl<T, void>::view;
+  using internal::str_impl<T, void>::c_str;
+  operator std::string_view() const { return view(); }
 };
 
 
@@ -151,7 +161,10 @@ public:
 template<typename ENUM>
 struct enum_traits
 {
+// XXX: No reason this has to be a function any more.
   static constexpr bool has_null() noexcept { return false; }
+// XXX: No reason this has to be a function any more.
+// XXX: For null-less types, can we obviate this with "if constexpr"?
   [[noreturn]] inline static ENUM null();
 
 // TODO: Make use of RVO.  Return value instead of taking reference.
@@ -178,7 +191,7 @@ struct enum_traits
  *      int main() { std::cout << pqxx::to_string(xa) << std::endl; }
  */
 #define PQXX_DECLARE_ENUM_CONVERSION(ENUM) \
-template<> inline std::string_view \
+template<> [[maybe_unused]] std::string_view inline \
 to_buf(char *begin, char *end, const ENUM &value) \
 { return to_buf(begin, end, std::underlying_type_t<ENUM>(value)); } \
 template<> \

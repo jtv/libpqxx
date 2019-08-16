@@ -158,7 +158,7 @@ template<typename T> inline char *nonneg_to_buf(char *end, T value)
 
 /// A few hard-coded string versions of difficult negative numbers.
 /** For template argument n, this gives the string for n-1.
- * The reason is that compilers won't accept as a template argument negative
+ * The reason is that compilers won't accept as a template argument a negative
  * number that doesn't have an absolute value, as is the case on
  * std::numeric_limits<long long>::min() in a two's-complement system.
  */
@@ -278,6 +278,7 @@ template<typename ENUM> inline ENUM enum_traits<ENUM>::null()
 { internal::throw_null_conversion("enum type"); }
 
 
+// XXX: Have we got this for unique_ptr and shared_ptr as well?
 template<typename T> struct string_traits<std::optional<T>>
 {
   static constexpr bool has_null() noexcept { return true; }
@@ -436,12 +437,10 @@ template<
 class str_impl
 {
 public:
-  str_impl() =default;
   explicit str_impl(const T &value) :
     m_view(to_buf(m_buf.data(), m_buf.data() + m_buf.size(), value))
   {}
 
-  constexpr operator std::string_view() const noexcept { return m_view; }
   constexpr std::string_view view() const noexcept { return m_view; }
   const char *c_str() const noexcept { return m_buf; }
 
@@ -454,13 +453,9 @@ private:
 template<> class str_impl<std::string, void>
 {
 public:
-  str_impl() =default;
   explicit str_impl(const std::string &value) : m_str{value} {}
   explicit str_impl(std::string &&value) : m_str{std::move(value)} {}
-  str_impl(const str_impl &) =default;
-  str_impl(str_impl &&) =default;
 
-  operator std::string_view() const noexcept { return m_str; }
   std::string_view view() const noexcept { return m_str; }
   const char *c_str() const noexcept { return m_str.c_str(); }
 
@@ -478,11 +473,9 @@ template<std::size_t N>
 class str_impl<char[N], std::enable_if_t<(N < string_stack_threshold)>>
 {
 public:
-  str_impl() =delete;
   explicit str_impl(const char (&text)[N]) noexcept
   { std::memcpy(m_buf, text, N); }
 
-  operator std::string_view() const noexcept { return view(); }
   std::string_view view() const noexcept
   {
     // This is where we assume a terminating zero.  The string_view is one byte
@@ -507,12 +500,11 @@ template<std::size_t N>
 class str_impl<char[N], std::enable_if_t<(N >= string_stack_threshold)>>
 {
 public:
-  str_impl() =default;
   explicit str_impl(const char (&text)[N]) noexcept : m_str{text} {}
 
-  operator std::string_view() const noexcept { return m_str; }
   std::string_view view() const noexcept { return m_str; }
   const char *c_str() const noexcept { return m_str.c_str(); }
+
 private:
   std::string m_str;
 };
@@ -521,10 +513,8 @@ private:
 template<> class str_impl<const char *, void>
 {
 public:
-  str_impl() =default;
   explicit str_impl(const char value[]) : m_str{value} {}
 
-  operator std::string_view() const noexcept { return m_str; }
   std::string_view view() const noexcept { return m_str; }
   const char *c_str() const noexcept { return m_str.c_str(); }
 
@@ -536,7 +526,6 @@ private:
 template<> class str_impl<char *, void> : public str<const char *>
 {
 public:
-  str_impl() =default;
   explicit str_impl(const char value[]) : str<const char *>{value}
   {}
 };
@@ -556,10 +545,8 @@ public:
 template<> class str_impl<float, void>
 {
 public:
-  str_impl() =default;
   explicit str_impl(float value) : m_str{internal::to_string_float(value)} {}
 
-  operator std::string_view() const noexcept { return m_str; }
   std::string_view view() const noexcept { return m_str; }
   const char *c_str() const noexcept { return m_str.c_str(); }
 
@@ -573,17 +560,23 @@ template<typename TYPE> class str_impl<std::optional<TYPE>, void> :
   public str<TYPE>
 {
 public:
-  str_impl() =default;
+  explicit str_impl(const std::optional<TYPE> &value) : str<TYPE>{*value} {}
+};
 
-  explicit str_impl(const std::optional<TYPE> &value) : str<TYPE>{
-    // C++17 guarantees the Return Value Optimization (RVO).  This means that
-    // a lambda here won't _return_ an object, but rather, will _construct it
-    // in place_ where the caller wants it.  No copy or move constructor
-    // needed.
-    [&value]{ return value.has_value() ? str<TYPE>{*value} : str<TYPE>{}; }()
-  }
-  {
-  }
+
+template<typename TYPE> class str_impl<std::unique_ptr<TYPE>, void> :
+  public str<TYPE>
+{
+public:
+  explicit str_impl(const std::unique_ptr<TYPE> &value) : str<TYPE>{*value} {}
+};
+
+
+template<typename TYPE> class str_impl<std::shared_ptr<TYPE>, void> :
+  public str<TYPE>
+{
+public:
+  explicit str_impl(const std::shared_ptr<TYPE> &value) : str<TYPE>{*value} {}
 };
 } // namespace pqxx::internal
 
@@ -671,8 +664,29 @@ template<typename T> struct PQXX_LIBEXPORT string_traits<std::unique_ptr<T>>
 };
 
 
+/// A @c std::shared_ptr is a bit like a @c std::optional.
+template<typename T> struct PQXX_LIBEXPORT string_traits<std::shared_ptr<T>>
+{
+  static constexpr bool has_null() noexcept { return true; }
+  static constexpr bool is_null(const std::shared_ptr<T> &t) noexcept
+	{ return !t; }
+  static constexpr std::shared_ptr<T> null() { return std::shared_ptr<T>{}; }
+  static void from_string(std::string_view text, std::shared_ptr<T> &obj)
+  {
+    T value;
+    string_traits<T>::from_string(text, value);
+    obj = std::make_shared<T>(value);
+  }
+};
+
+
 template<typename T> inline std::string to_string(const T &value)
 {
+  if constexpr (string_traits<T>::has_null())
+    if (string_traits<T>::is_null(value))
+      throw conversion_error{
+	"Attempt to convert null " + type_name<T> + " to a string."};
+
   pqxx::str<T> text{value};
   return std::string{text.view()};
 }
@@ -681,6 +695,22 @@ template<typename T> inline std::string to_string(const T &value)
 template<typename T> inline std::string to_string(
 	const std::unique_ptr<T> &value)
 {
+  if (!value)
+      throw conversion_error{
+	"Attempt to convert null " + type_name<std::unique_ptr<T>> +
+        " to a string."};
+  str<T> text{*value};
+  return std::string{text.view()};
+}
+
+
+template<typename T> inline std::string to_string(
+	const std::shared_ptr<T> &value)
+{
+  if (!value)
+      throw conversion_error{
+	"Attempt to convert null " + type_name<std::shared_ptr<T>> +
+        " to a string."};
   str<T> text{*value};
   return std::string{text.view()};
 }

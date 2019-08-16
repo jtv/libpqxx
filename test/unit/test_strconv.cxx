@@ -1,3 +1,4 @@
+#include <memory>
 #include <optional>
 
 #include "../test_helpers.hxx"
@@ -95,11 +96,48 @@ void test_strconv_class_enum()
 
 void test_strconv_optional()
 {
+  PQXX_CHECK_THROWS(
+	pqxx::to_string(std::optional<int>{}),
+	pqxx::conversion_error,
+	"Converting an empty optional did not throw conversion error.");
   PQXX_CHECK_EQUAL(
 	pqxx::to_string(std::optional<int>{std::in_place, 10}),
 	"10",
-	"std::optional does not convert right.");
-// XXX:
+	"std::optional<int> does not convert right.");
+  PQXX_CHECK_EQUAL(
+	pqxx::to_string(std::optional<int>{std::in_place, -10000}),
+	"-10000",
+	"std::optional<int> does not convert right.");
+}
+
+
+void test_strconv_smart_pointer()
+{
+  PQXX_CHECK_THROWS(
+	pqxx::to_string(std::unique_ptr<int>{}),
+	pqxx::conversion_error,
+	"Converting an empty unique_ptr did not throw conversion error.");
+  PQXX_CHECK_EQUAL(
+	pqxx::to_string(std::make_unique<int>(10)),
+	"10",
+	"std::unique_ptr<int> does not convert right.");
+  PQXX_CHECK_EQUAL(
+	pqxx::to_string(std::make_unique<int>(-10000)),
+	"-10000",
+	"std::unique_ptr<int> does not convert right.");
+
+  PQXX_CHECK_THROWS(
+	pqxx::to_string(std::shared_ptr<int>{}),
+	pqxx::conversion_error,
+	"Converting an empty shared_ptr did not throw conversion error.");
+  PQXX_CHECK_EQUAL(
+	pqxx::to_string(std::make_shared<int>(10)),
+	"10",
+	"std::shared_ptr<int> does not convert right.");
+  PQXX_CHECK_EQUAL(
+	pqxx::to_string(std::make_shared<int>(-10000)),
+	"-10000",
+	"std::shared_ptr<int> does not convert right.");
 }
 
 
@@ -107,4 +145,5 @@ PQXX_REGISTER_TEST(test_strconv_bool);
 PQXX_REGISTER_TEST(test_strconv_enum);
 PQXX_REGISTER_TEST(test_strconv_class_enum);
 PQXX_REGISTER_TEST(test_strconv_optional);
+PQXX_REGISTER_TEST(test_strconv_smart_pointer);
 }
