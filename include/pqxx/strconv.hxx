@@ -162,8 +162,6 @@ template<typename ENUM>
 struct enum_traits
 {
   static constexpr bool has_null = false;
-// XXX: For null-less types, can we obviate this with "if constexpr"?
-  [[noreturn]] inline static ENUM null();
 
 // TODO: Make use of RVO.  Return value instead of taking reference.
   static void from_string(std::string_view text, ENUM &obj)
@@ -192,12 +190,7 @@ struct enum_traits
 template<> [[maybe_unused]] std::string_view inline \
 to_buf(char *begin, char *end, const ENUM &value) \
 { return to_buf(begin, end, std::underlying_type_t<ENUM>(value)); } \
-template<> \
-struct string_traits<ENUM> : pqxx::enum_traits<ENUM> \
-{ \
-  [[noreturn]] static ENUM null() \
-	{ internal::throw_null_conversion(type_name<ENUM>); } \
-}
+template<> struct string_traits<ENUM> : pqxx::enum_traits<ENUM> { }
 
 
 /// Attempt to convert postgres-generated string to given built-in type.

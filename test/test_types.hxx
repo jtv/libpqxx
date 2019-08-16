@@ -98,11 +98,6 @@ template<> struct string_traits<ipv4>
   static constexpr bool has_null = false;
   static constexpr bool is_null(const ipv4 &) { return false; }
 
-  [[noreturn]] static ipv4 null()
-  {
-    internal::throw_null_conversion(type_name<ipv4>);
-  }
-
   static void from_string(std::string_view str, ipv4 &ts)
   {
     if (str.data() == nullptr)
@@ -180,10 +175,6 @@ template<> struct string_traits<bytea>
 {
   static constexpr bool has_null = false;
   static constexpr bool is_null(const bytea &) { return false; }
-  [[noreturn]] static bytea null()
-  {
-    internal::throw_null_conversion("bytea");
-  }
 
   static void from_string(std::string_view str, bytea &value)
   {

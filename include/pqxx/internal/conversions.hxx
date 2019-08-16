@@ -253,11 +253,7 @@ namespace pqxx
 /// Helper: declare a string_traits specialisation for a builtin type.
 #define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(TYPE) \
   template<> struct PQXX_LIBEXPORT string_traits<TYPE> : \
-    internal::builtin_traits<TYPE> \
-    { \
-      [[noreturn]] static TYPE null() \
-	{ pqxx::internal::throw_null_conversion(type_name<TYPE>); } \
-    }
+    internal::builtin_traits<TYPE> { }
 
 PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(bool);
 PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(short);
@@ -272,10 +268,6 @@ PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(float);
 PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(double);
 PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long double);
 #undef PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION
-
-
-template<typename ENUM> inline ENUM enum_traits<ENUM>::null()
-{ internal::throw_null_conversion("enum type"); }
 
 
 template<typename T> struct string_traits<std::optional<T>>
@@ -615,8 +607,6 @@ template<> struct PQXX_LIBEXPORT string_traits<std::string>
 {
   static constexpr bool has_null = false;
   static constexpr bool is_null(const std::string &) { return false; }
-  [[noreturn]] static std::string null()
-	{ internal::throw_null_conversion(type_name<std::string>); }
   static void from_string(std::string_view text, std::string &obj)
 	{ obj = text; }
 };
@@ -625,16 +615,12 @@ template<> struct PQXX_LIBEXPORT string_traits<const std::string>
 {
   static constexpr bool has_null = false;
   static constexpr bool is_null(const std::string &) { return false; }
-  [[noreturn]] static const std::string null()
-	{ internal::throw_null_conversion(type_name<std::string>); }
 };
 
 template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
 {
   static constexpr bool has_null = false;
   static constexpr bool is_null(const std::stringstream &) { return false; }
-  [[noreturn]] static std::stringstream null()
-	{ internal::throw_null_conversion(type_name<std::stringstream>); }
   static void from_string(std::string_view text, std::stringstream &obj)
 	{ obj.clear(); obj << text; }
 };
