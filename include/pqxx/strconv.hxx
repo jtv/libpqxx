@@ -161,8 +161,7 @@ public:
 template<typename ENUM>
 struct enum_traits
 {
-// XXX: No reason this has to be a function any more.
-  static constexpr bool has_null() noexcept { return false; }
+  static constexpr bool has_null = false;
 // XXX: No reason this has to be a function any more.
 // XXX: For null-less types, can we obviate this with "if constexpr"?
   [[noreturn]] inline static ENUM null();

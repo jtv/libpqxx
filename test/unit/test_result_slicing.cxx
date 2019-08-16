@@ -6,12 +6,12 @@ namespace pqxx
 {
 template<> struct string_traits<row::const_iterator>
 {
-  static constexpr bool has_null() noexcept { return false; }
+  static constexpr bool has_null = false;
 };
 
 template<> struct string_traits<const_reverse_row_iterator>
 {
-  static constexpr bool has_null() noexcept { return false; }
+  static constexpr bool has_null = false;
 };
 
 template<> inline std::string_view 

@@ -37,7 +37,7 @@ namespace pqxx
 {
 template<> struct string_traits<TestErrorHandler *>
 {
-  static constexpr bool has_null() noexcept { return true; }
+  static constexpr bool has_null = true;
   static constexpr bool is_null(TestErrorHandler *e) noexcept
 	{ return e == nullptr; }
   static constexpr TestErrorHandler *null() noexcept { return nullptr; }

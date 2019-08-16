@@ -241,7 +241,7 @@ template<typename T> PQXX_LIBEXPORT std::string to_string_float(T);
  */
 template<typename TYPE> struct PQXX_LIBEXPORT builtin_traits
 {
-  static constexpr bool has_null() noexcept { return false; }
+  static constexpr bool has_null = false;
   static constexpr bool is_null(TYPE) { return false; }
   static void from_string(std::string_view text, TYPE &obj);
 };
@@ -280,7 +280,7 @@ template<typename ENUM> inline ENUM enum_traits<ENUM>::null()
 
 template<typename T> struct string_traits<std::optional<T>>
 {
-  static constexpr bool has_null() noexcept { return true; }
+  static constexpr bool has_null = true;
   static bool is_null(const std::optional<T> &v)
     { return ((not v.has_value()) or string_traits<T>::is_null(*v)); }
   static constexpr std::optional<T> null() { return std::optional<T>{}; }
@@ -585,7 +585,7 @@ namespace pqxx
 /// String traits for C-style string ("pointer to const char").
 template<> struct PQXX_LIBEXPORT string_traits<const char *>
 {
-  static constexpr bool has_null() noexcept { return true; }
+  static constexpr bool has_null = true;
   static constexpr bool is_null(const char *t) { return t == nullptr; }
   static constexpr const char *null() { return nullptr; }
   static void from_string(std::string_view text, const char *&obj)
@@ -595,7 +595,7 @@ template<> struct PQXX_LIBEXPORT string_traits<const char *>
 /// String traits for non-const C-style string ("pointer to char").
 template<> struct PQXX_LIBEXPORT string_traits<char *>
 {
-  static constexpr bool has_null() noexcept { return true; }
+  static constexpr bool has_null = true;
   static constexpr bool is_null(const char *t) { return t == nullptr; }
   static constexpr const char *null() { return nullptr; }
 
@@ -606,14 +606,14 @@ template<> struct PQXX_LIBEXPORT string_traits<char *>
 /// String traits for C-style string constant ("array of char").
 template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
 {
-  static constexpr bool has_null() noexcept { return true; }
+  static constexpr bool has_null = true;
   static constexpr bool is_null(const char t[]) { return t == nullptr; }
   static constexpr const char *null() { return nullptr; }
 };
 
 template<> struct PQXX_LIBEXPORT string_traits<std::string>
 {
-  static constexpr bool has_null() noexcept { return false; }
+  static constexpr bool has_null = false;
   static constexpr bool is_null(const std::string &) { return false; }
   [[noreturn]] static std::string null()
 	{ internal::throw_null_conversion(type_name<std::string>); }
@@ -623,7 +623,7 @@ template<> struct PQXX_LIBEXPORT string_traits<std::string>
 
 template<> struct PQXX_LIBEXPORT string_traits<const std::string>
 {
-  static constexpr bool has_null() noexcept { return false; }
+  static constexpr bool has_null = false;
   static constexpr bool is_null(const std::string &) { return false; }
   [[noreturn]] static const std::string null()
 	{ internal::throw_null_conversion(type_name<std::string>); }
@@ -631,7 +631,7 @@ template<> struct PQXX_LIBEXPORT string_traits<const std::string>
 
 template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
 {
-  static constexpr bool has_null() noexcept { return false; }
+  static constexpr bool has_null = false;
   static constexpr bool is_null(const std::stringstream &) { return false; }
   [[noreturn]] static std::stringstream null()
 	{ internal::throw_null_conversion(type_name<std::stringstream>); }
@@ -642,7 +642,7 @@ template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
 /// Weird case: nullptr_t.  We don't fully support it.
 template<> struct PQXX_LIBEXPORT string_traits<std::nullptr_t>
 {
-  static constexpr bool has_null() noexcept { return true; }
+  static constexpr bool has_null = true;
   static constexpr bool is_null(std::nullptr_t) noexcept { return true; }
   static constexpr std::nullptr_t null() { return nullptr; }
 };
@@ -650,7 +650,7 @@ template<> struct PQXX_LIBEXPORT string_traits<std::nullptr_t>
 /// A @c std::unique_ptr is a bit like a @c std::optional.
 template<typename T> struct PQXX_LIBEXPORT string_traits<std::unique_ptr<T>>
 {
-  static constexpr bool has_null() noexcept { return true; }
+  static constexpr bool has_null = true;
   static constexpr bool is_null(const std::unique_ptr<T> &t) noexcept
 	{ return !t; }
   static constexpr std::unique_ptr<T> null() { return std::unique_ptr<T>{}; }
@@ -666,7 +666,7 @@ template<typename T> struct PQXX_LIBEXPORT string_traits<std::unique_ptr<T>>
 /// A @c std::shared_ptr is a bit like a @c std::optional.
 template<typename T> struct PQXX_LIBEXPORT string_traits<std::shared_ptr<T>>
 {
-  static constexpr bool has_null() noexcept { return true; }
+  static constexpr bool has_null = true;
   static constexpr bool is_null(const std::shared_ptr<T> &t) noexcept
 	{ return !t; }
   static constexpr std::shared_ptr<T> null() { return std::shared_ptr<T>{}; }
@@ -681,7 +681,7 @@ template<typename T> struct PQXX_LIBEXPORT string_traits<std::shared_ptr<T>>
 
 template<typename T> inline std::string to_string(const T &value)
 {
-  if constexpr (string_traits<T>::has_null())
+  if constexpr (string_traits<T>::has_null)
     if (string_traits<T>::is_null(value))
       throw conversion_error{
 	"Attempt to convert null " + type_name<T> + " to a string."};
