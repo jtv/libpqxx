@@ -243,7 +243,7 @@ template<typename TYPE> struct PQXX_LIBEXPORT builtin_traits
 {
   static constexpr bool has_null = false;
   static constexpr bool is_null(TYPE) { return false; }
-  static void from_string(std::string_view text, TYPE &obj);
+  static TYPE from_string(std::string_view text);
 };
 } // namespace pqxx::internal
 
@@ -276,18 +276,11 @@ template<typename T> struct string_traits<std::optional<T>>
   static bool is_null(const std::optional<T> &v)
     { return ((not v.has_value()) or string_traits<T>::is_null(*v)); }
   static constexpr std::optional<T> null() { return std::optional<T>{}; }
-  static void from_string(std::string_view text, std::optional<T> &obj)
+  static std::optional<T> from_string(std::string_view text)
   {
-    if (text.data() == nullptr)
-    {
-      obj.reset();
-    }
-    else
-    {
-      T value;
-      string_traits<T>::from_string(text, value);
-      obj = std::optional<T>{std::in_place, value};
-    }
+    return (text.data() == nullptr) ?
+      std::optional<T>{} :
+      std::optional<T>{std::in_place, string_traits<T>::from_string(text)};
   }
 };
 
@@ -580,8 +573,7 @@ template<> struct PQXX_LIBEXPORT string_traits<const char *>
   static constexpr bool has_null = true;
   static constexpr bool is_null(const char *t) { return t == nullptr; }
   static constexpr const char *null() { return nullptr; }
-  static void from_string(std::string_view text, const char *&obj)
-	{ obj = text.data(); }
+  static const char *from_string(std::string_view text) { return text.data(); }
 };
 
 /// String traits for non-const C-style string ("pointer to char").
@@ -591,8 +583,7 @@ template<> struct PQXX_LIBEXPORT string_traits<char *>
   static constexpr bool is_null(const char *t) { return t == nullptr; }
   static constexpr const char *null() { return nullptr; }
 
-  // Don't allow this conversion since it breaks const-safety.
-  // static void from_string(std::string_view, char *&);
+  // Don't allow conversion to this type since it breaks const-safety.
 };
 
 /// String traits for C-style string constant ("array of char").
@@ -607,8 +598,8 @@ template<> struct PQXX_LIBEXPORT string_traits<std::string>
 {
   static constexpr bool has_null = false;
   static constexpr bool is_null(const std::string &) { return false; }
-  static void from_string(std::string_view text, std::string &obj)
-	{ obj = text; }
+  static std::string from_string(std::string_view text)
+	{ return std::string{text}; }
 };
 
 template<> struct PQXX_LIBEXPORT string_traits<const std::string>
@@ -621,8 +612,12 @@ template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
 {
   static constexpr bool has_null = false;
   static constexpr bool is_null(const std::stringstream &) { return false; }
-  static void from_string(std::string_view text, std::stringstream &obj)
-	{ obj.clear(); obj << text; }
+  static std::stringstream from_string(std::string_view text)
+  {
+    std::stringstream stream;
+    stream << text;
+    return stream;
+  }
 };
 
 /// Weird case: nullptr_t.  We don't fully support it.
@@ -640,12 +635,8 @@ template<typename T> struct PQXX_LIBEXPORT string_traits<std::unique_ptr<T>>
   static constexpr bool is_null(const std::unique_ptr<T> &t) noexcept
 	{ return !t; }
   static constexpr std::unique_ptr<T> null() { return std::unique_ptr<T>{}; }
-  static void from_string(std::string_view text, std::unique_ptr<T> &obj)
-  {
-    T value;
-    string_traits<T>::from_string(text, value);
-    obj = std::make_unique<T>(value);
-  }
+  static std::unique_ptr<T> from_string(std::string_view text)
+  { return std::make_unique<T>(string_traits<T>::from_string(text)); }
 };
 
 
@@ -656,12 +647,8 @@ template<typename T> struct PQXX_LIBEXPORT string_traits<std::shared_ptr<T>>
   static constexpr bool is_null(const std::shared_ptr<T> &t) noexcept
 	{ return !t; }
   static constexpr std::shared_ptr<T> null() { return std::shared_ptr<T>{}; }
-  static void from_string(std::string_view text, std::shared_ptr<T> &obj)
-  {
-    T value;
-    string_traits<T>::from_string(text, value);
-    obj = std::make_shared<T>(value);
-  }
+  static std::shared_ptr<T> from_string(std::string_view text)
+  { return std::make_shared<T>(string_traits<T>::from_string(text)); }
 };
 
 

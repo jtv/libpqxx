@@ -53,12 +53,12 @@ std::string state_buffer_overrun(ptrdiff_t have_bytes, ptrdiff_t need_bytes)
 
 #if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
 template<typename TYPE>
-void pqxx::internal::builtin_traits<TYPE>::from_string(
-	std::string_view in, TYPE &out)
+TYPE pqxx::internal::builtin_traits<TYPE>::from_string(std::string_view in)
 {
   const char *end = in.data() + in.size();
+  TYPE out;
   const auto res = std::from_chars(in.data(), end, out);
-  if (res.ec == std::errc() and res.ptr == end) return;
+  if (res.ec == std::errc() and res.ptr == end) return out;
 
   std::string msg;
   if (res.ec == std::errc())
@@ -254,9 +254,7 @@ template<typename T> inline void set_to_Inf(T &t, int sign=1)
 
 
 // These are hard, and popular compilers do not yet implement std::from_chars.
-template<typename T> inline void from_string_float(
-	std::string_view str,
-	T &obj)
+template<typename T> inline T from_string_float(std::string_view str)
 {
   bool ok = false;
   T result;
@@ -304,7 +302,7 @@ template<typename T> inline void from_string_float(
       "Could not convert string to numeric value: '" +
       std::string{str} + "'."};
 
-  obj = result;
+  return result;
 }
 } // namespace
 #endif // !PQXX_HAVE_CHARCONV_FLOAT
@@ -387,23 +385,22 @@ template std::string_view to_buf_float(char *, char *, long double);
 #if defined(PQXX_HAVE_CHARCONV_INT)
 namespace pqxx::internal
 {
-template void
-builtin_traits<short>::from_string(std::string_view, short &);
-template void
-builtin_traits<unsigned short>::from_string(std::string_view, unsigned short &);
-template void
-builtin_traits<int>::from_string(std::string_view, int &);
-template void
-builtin_traits<unsigned int>::from_string(std::string_view, unsigned int &);
-template void
-builtin_traits<long>::from_string(std::string_view, long &);
-template void
-builtin_traits<unsigned long>::from_string(std::string_view, unsigned long &);
-template void
-builtin_traits<long long>::from_string(std::string_view, long long &);
-template void
-builtin_traits<unsigned long long>::from_string(
-	std::string_view, unsigned long long &);
+template short
+builtin_traits<short>::from_string(std::string_view);
+template unsigned short
+builtin_traits<unsigned short>::from_string(std::string_view);
+template int
+builtin_traits<int>::from_string(std::string_view);
+template unsigned int
+builtin_traits<unsigned int>::from_string(std::string_view);
+template long
+builtin_traits<long>::from_string(std::string_view);
+template unsigned long
+builtin_traits<unsigned long>::from_string(std::string_view);
+template long long
+builtin_traits<long long>::from_string(std::string_view);
+template unsigned long long
+builtin_traits<unsigned long long>::from_string(std::string_view);
 } // namespace pqxx
 #endif // PQXX_HAVE_CHARCONV_INT
 
@@ -411,40 +408,30 @@ builtin_traits<unsigned long long>::from_string(
 #if !defined(PQXX_HAVE_CHARCONV_INT)
 namespace pqxx::internal
 {
+template<> short
+builtin_traits<short>::from_string(std::string_view str)
+	{ return from_string_signed(str, obj); }
+template<> unsigned short
+builtin_traits<unsigned short>::from_string(std::string_view str)
+	{ return from_string_unsigned(str, obj); }
+template<> int
+builtin_traits<int>::from_string(std::string_view str)
+	{ return from_string_signed(str, obj); }
+template<> unsigned int
+builtin_traits<unsigned int>::from_string(std::string_view str)
+	{ return from_string_unsigned(str, obj); }
+template<> long
+builtin_traits<long>::from_string(std::string_view str)
+	{ return from_string_signed(str, obj); }
 template<>
-void builtin_traits<short>::from_string(std::string_view str, short &obj)
-	{ from_string_signed(str, obj); }
-template<>
-void builtin_traits<unsigned short>::from_string(
-	std::string_view str,
-	unsigned short &obj)
-	{ from_string_unsigned(str, obj); }
-template<>
-void builtin_traits<int>::from_string(std::string_view str, int &obj)
-	{ from_string_signed(str, obj); }
-template<>
-void builtin_traits<unsigned int>::from_string(
-	std::string_view str,
-	unsigned int &obj)
-	{ from_string_unsigned(str, obj); }
-template<>
-void builtin_traits<long>::from_string(std::string_view str, long &obj)
-	{ from_string_signed(str, obj); }
-template<>
-void builtin_traits<unsigned long>::from_string(
-	std::string_view str,
-	unsigned long &obj)
-	{ from_string_unsigned(str, obj); }
-template<>
-void builtin_traits<long long>::from_string(
-	std::string_view str,
-	long long &obj)
-	{ from_string_signed(str, obj); }
-template<>
-void builtin_traits<unsigned long long>::from_string(
-	std::string_view str,
-	unsigned long long &obj)
-	{ from_string_unsigned(str, obj); }
+unsigned long builtin_traits<unsigned long>::from_string(std::string_view str)
+	{ return from_string_unsigned(str, obj); }
+template<> long long
+builtin_traits<long long>::from_string(std::string_view str)
+	{ return from_string_signed(str, obj); }
+template<> unsigned long long
+builtin_traits<unsigned long long>::from_string(std::string_view str)
+	{ return from_string_unsigned(str, obj); }
 } // namespace pqxx::internal
 #endif // !PQXX_HAVE_CHARCONV_INT
 
@@ -452,25 +439,22 @@ void builtin_traits<unsigned long long>::from_string(
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 namespace pqxx::internal
 {
-template<>
-void builtin_traits<float>::from_string(std::string_view str, float &obj)
-	{ from_string_float(str, obj); }
-template<>
-void builtin_traits<double>::from_string(std::string_view str, double &obj)
-	{ from_string_float(str, obj); }
-template<>
-void builtin_traits<long double>::from_string(
-	std::string_view str, long double &obj)
-	{ from_string_float(str, obj); }
+template<> float
+builtin_traits<float>::from_string(std::string_view str)
+	{ return from_string_float<float>(str); }
+template<> double
+builtin_traits<double>::from_string(std::string_view str)
+	{ return from_string_float<double>(str); }
+template<> long double
+builtin_traits<long double>::from_string(std::string_view str)
+	{ return from_string_float<long double>(str); }
 } // namespace pqxx::internal
 #endif // !PQXX_HAVE_CHARCONV_FLOAT
 
 
 namespace pqxx::internal
 {
-template<> void builtin_traits<bool>::from_string(
-	std::string_view str,
-	bool &obj)
+template<> bool builtin_traits<bool>::from_string(std::string_view str)
 {
   bool OK, result;
 
@@ -523,6 +507,6 @@ template<> void builtin_traits<bool>::from_string(
     throw conversion_error{
       "Failed conversion to bool: '" + std::string{str} + "'."};
 
-  obj = result;
+  return result;
 }
 } // namespace pqxx::internal

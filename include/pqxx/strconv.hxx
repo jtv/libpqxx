@@ -163,13 +163,10 @@ struct enum_traits
 {
   static constexpr bool has_null = false;
 
-// TODO: Make use of RVO.  Return value instead of taking reference.
-  static void from_string(std::string_view text, ENUM &obj)
+  static ENUM from_string(std::string_view text)
   {
-    using underlying_type = typename std::underlying_type_t<ENUM>;
-    underlying_type tmp;
-    string_traits<underlying_type>::from_string(text, tmp);
-    obj = ENUM(tmp);
+    using impl_type = std::underlying_type_t<ENUM>;
+    return static_cast<ENUM>(string_traits<impl_type>::from_string(text));
   }
 };
 
@@ -190,7 +187,8 @@ struct enum_traits
 template<> [[maybe_unused]] std::string_view inline \
 to_buf(char *begin, char *end, const ENUM &value) \
 { return to_buf(begin, end, std::underlying_type_t<ENUM>(value)); } \
-template<> struct string_traits<ENUM> : pqxx::enum_traits<ENUM> { }
+template<> struct string_traits<ENUM> : pqxx::enum_traits<ENUM> {}; \
+template<> const std::string type_name<ENUM>{#ENUM}
 
 
 /// Attempt to convert postgres-generated string to given built-in type.
@@ -206,11 +204,11 @@ template<> struct string_traits<ENUM> : pqxx::enum_traits<ENUM> { }
  * No whitespace is stripped away.  Only the kinds of strings that come out of
  * PostgreSQL and out of to_string() can be converted.
  */
-template<typename T> inline void from_string(std::string_view text, T &obj)
+template<typename T> inline void from_string(std::string_view text, T &out)
 {
   if (text.data() == nullptr)
     throw std::runtime_error{"Attempt to read null string."};
-  string_traits<T>::from_string(text, obj);
+  out = string_traits<T>::from_string(text);
 }
 
 

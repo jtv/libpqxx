@@ -98,8 +98,9 @@ template<> struct string_traits<ipv4>
   static constexpr bool has_null = false;
   static constexpr bool is_null(const ipv4 &) { return false; }
 
-  static void from_string(std::string_view str, ipv4 &ts)
+  static ipv4 from_string(std::string_view str)
   {
+    ipv4 ts;
     if (str.data() == nullptr)
       internal::throw_null_conversion(type_name<ipv4>);
     std::regex ipv4_regex{
@@ -123,6 +124,7 @@ template<> struct string_traits<ipv4>
     {
       throw std::runtime_error{"Invalid ipv4 format: " + std::string{str}};
     }
+    return ts;
   }
 };
 
@@ -176,15 +178,17 @@ template<> struct string_traits<bytea>
   static constexpr bool has_null = false;
   static constexpr bool is_null(const bytea &) { return false; }
 
-  static void from_string(std::string_view str, bytea &value)
+  static bytea from_string(std::string_view str)
   {
     if ((str.size() & 1) != 0) throw std::runtime_error{"Odd hex size."};
+    bytea value;
     value.reserve((str.size() - 2) / 2);
     for (size_t i = 2; i < str.size(); i += 2)
     {
       auto hi = hex_to_digit(str[i]), lo = hex_to_digit(str[i + 1]);
       value.push_back(static_cast<unsigned char>((hi << 4) | lo));
     }
+    return value;
   }
 };
 } // namespace pqxx
