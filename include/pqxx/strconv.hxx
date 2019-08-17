@@ -224,6 +224,15 @@ template<typename T> inline void from_string(std::string_view text, T &out)
  * though.
  */
 template<typename T> inline std::string to_string(const T &obj);
+
+
+/// Is @c value null?
+template<typename TYPE> inline bool is_null(const TYPE &value)
+{
+  using traits = string_traits<TYPE>;
+  if constexpr (traits::has_null) return traits::is_null(value);
+  else return false;
+}
 //@}
 } // namespace pqxx
 

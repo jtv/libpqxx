@@ -111,7 +111,7 @@ protected:
   void add_param() { this->add_checked_param("", false, false); }
   template<typename T> void add_param(const T &v, bool nonnull)
   {
-    nonnull = (nonnull && not pqxx::string_traits<T>::is_null(v));
+    nonnull = (nonnull && not is_null(v));
     this->add_checked_param(
 	(nonnull ? pqxx::to_string(v) : ""),
 	nonnull,
@@ -229,7 +229,7 @@ private:
    */
   template<typename Arg> void add_field(const Arg &arg)
   {
-    if (string_traits<Arg>::is_null(arg)) add_field(nullptr);
+    if (is_null(arg)) add_field(nullptr);
     else add_field(to_string(arg));
   }
 

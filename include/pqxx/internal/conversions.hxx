@@ -242,7 +242,6 @@ template<typename T> PQXX_LIBEXPORT std::string to_string_float(T);
 template<typename TYPE> struct PQXX_LIBEXPORT builtin_traits
 {
   static constexpr bool has_null = false;
-  static constexpr bool is_null(TYPE) { return false; }
   static TYPE from_string(std::string_view text);
 };
 } // namespace pqxx::internal
@@ -274,7 +273,7 @@ template<typename T> struct string_traits<std::optional<T>>
 {
   static constexpr bool has_null = true;
   static bool is_null(const std::optional<T> &v)
-    { return ((not v.has_value()) or string_traits<T>::is_null(*v)); }
+    { return ((not v.has_value()) or pqxx::is_null(*v)); }
   static constexpr std::optional<T> null() { return std::optional<T>{}; }
   static std::optional<T> from_string(std::string_view text)
   {
@@ -597,7 +596,6 @@ template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
 template<> struct PQXX_LIBEXPORT string_traits<std::string>
 {
   static constexpr bool has_null = false;
-  static constexpr bool is_null(const std::string &) { return false; }
   static std::string from_string(std::string_view text)
 	{ return std::string{text}; }
 };
@@ -605,13 +603,11 @@ template<> struct PQXX_LIBEXPORT string_traits<std::string>
 template<> struct PQXX_LIBEXPORT string_traits<const std::string>
 {
   static constexpr bool has_null = false;
-  static constexpr bool is_null(const std::string &) { return false; }
 };
 
 template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
 {
   static constexpr bool has_null = false;
-  static constexpr bool is_null(const std::stringstream &) { return false; }
   static std::stringstream from_string(std::string_view text)
   {
     std::stringstream stream;
@@ -633,7 +629,7 @@ template<typename T> struct PQXX_LIBEXPORT string_traits<std::unique_ptr<T>>
 {
   static constexpr bool has_null = true;
   static constexpr bool is_null(const std::unique_ptr<T> &t) noexcept
-	{ return !t; }
+	{ return not t or pqxx::is_null(*t); }
   static constexpr std::unique_ptr<T> null() { return std::unique_ptr<T>{}; }
   static std::unique_ptr<T> from_string(std::string_view text)
   { return std::make_unique<T>(string_traits<T>::from_string(text)); }
@@ -645,7 +641,7 @@ template<typename T> struct PQXX_LIBEXPORT string_traits<std::shared_ptr<T>>
 {
   static constexpr bool has_null = true;
   static constexpr bool is_null(const std::shared_ptr<T> &t) noexcept
-	{ return !t; }
+	{ return not t or pqxx::is_null(*t); }
   static constexpr std::shared_ptr<T> null() { return std::shared_ptr<T>{}; }
   static std::shared_ptr<T> from_string(std::string_view text)
   { return std::make_shared<T>(string_traits<T>::from_string(text)); }
@@ -654,9 +650,8 @@ template<typename T> struct PQXX_LIBEXPORT string_traits<std::shared_ptr<T>>
 
 template<typename T> inline std::string to_string(const T &value)
 {
-  if constexpr (string_traits<T>::has_null)
-    if (string_traits<T>::is_null(value))
-      throw conversion_error{
+  if (is_null(value))
+    throw conversion_error{
 	"Attempt to convert null " + type_name<T> + " to a string."};
 
   pqxx::str<T> text{value};

@@ -30,7 +30,7 @@ struct TypedCopyEscaper
   template<typename T> std::string operator()(const T* t) const
   {
     return
-	(t == nullptr or string_traits<T>::is_null(*t)) ?
+	(t == nullptr or is_null(*t)) ?
 	"\\N" :
 	copy_string_escape(to_string(*t));
   }

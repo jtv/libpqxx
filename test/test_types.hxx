@@ -96,7 +96,6 @@ to_buf(char *begin, char *end, const ipv4 &value)
 template<> struct string_traits<ipv4>
 {
   static constexpr bool has_null = false;
-  static constexpr bool is_null(const ipv4 &) { return false; }
 
   static ipv4 from_string(std::string_view str)
   {
@@ -176,7 +175,6 @@ to_buf(char *begin, char *end, const bytea &value)
 template<> struct string_traits<bytea>
 {
   static constexpr bool has_null = false;
-  static constexpr bool is_null(const bytea &) { return false; }
 
   static bytea from_string(std::string_view str)
   {
