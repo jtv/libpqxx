@@ -71,25 +71,38 @@ using bytea = std::vector<unsigned char>;
 
 namespace pqxx
 {
-template<> inline constexpr int buffer_budget<ipv4> = 50;
+template<> inline constexpr int buffer_budget<ipv4> = 16;
 
 
 template<> inline std::string_view
 to_buf(char *begin, char *end, const ipv4 &value)
 {
   if (end - begin < buffer_budget<ipv4>)
-    throw conversion_overrun{"Not enough buffer to convert ipv4 to string."};
+    throw conversion_error{"Buffer too small for ipv4."};
+  str o0{value[0]}, o1{value[1]}, o2{value[2]}, o3{value[3]};
+  char *pos = begin;
 
-  // Blindly assuming no errors here.
-  char *pos = std::to_chars(begin, end, value[0]).ptr;
-  for (int i = 1; i < 4; ++i)
-  {
-    *pos++ = '.';
-    // Blindly assuming no errors here.
-    pos = std::to_chars(pos, end, value[i]).ptr;
-  }
+  std::memcpy(pos, o0.c_str(), o0.view().size());
+  pos += o0.view().size();
+
+  *pos++ = '.';
+
+  std::memcpy(pos, o1.c_str(), o1.view().size());
+  pos += o1.view().size();
+
+  *pos++ = '.';
+
+  std::memcpy(pos, o2.c_str(), o2.view().size());
+  pos += o2.view().size();
+
+  *pos++ = '.';
+
+  std::memcpy(pos, o3.c_str(), o3.view().size());
+  pos += o3.view().size();
+
   *pos = '\0';
-  return std::string_view(begin, std::size_t(pos - begin));
+
+  return std::string_view{begin, std::size_t(pos - begin)};
 }
 
 

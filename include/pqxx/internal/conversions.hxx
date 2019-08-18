@@ -425,7 +425,7 @@ public:
   {}
 
   constexpr std::string_view view() const noexcept { return m_view; }
-  const char *c_str() const noexcept { return m_buf; }
+  const char *c_str() const noexcept { return m_view.data(); }
 
 private:
   std::array<char, buffer_budget<T>> m_buf;
