@@ -152,7 +152,7 @@ template<typename L, typename R>
 { return c - '0'; }
 
 
-template<typename T> void from_string_signed(std::string_view str, T &obj)
+template<typename T> T from_string_signed(std::string_view str)
 {
   int i = 0;
   T result = 0;
@@ -176,10 +176,10 @@ template<typename T> void from_string_signed(std::string_view str, T &obj)
     throw pqxx::conversion_error{
       "Unexpected text after integer: '" + std::string{str} + "'."};
 
-  obj = result;
+  return result;
 }
 
-template<typename T> void from_string_unsigned(std::string_view str, T &obj)
+template<typename T> T from_string_unsigned(std::string_view str)
 {
   int i = 0;
   T result = 0;
@@ -196,7 +196,7 @@ template<typename T> void from_string_unsigned(std::string_view str, T &obj)
     throw pqxx::conversion_error{
       "Unexpected text after integer: '" + std::string{str} + "'."};
 
-  obj = result;
+  return result;
 }
 } // namespace
 #endif // !PQXX_HAVE_CHARCONV_INT
@@ -410,28 +410,28 @@ namespace pqxx::internal
 {
 template<> short
 builtin_traits<short>::from_string(std::string_view str)
-	{ return from_string_signed(str, obj); }
+	{ return from_string_signed<short>(str); }
 template<> unsigned short
 builtin_traits<unsigned short>::from_string(std::string_view str)
-	{ return from_string_unsigned(str, obj); }
+	{ return from_string_unsigned<unsigned short>(str); }
 template<> int
 builtin_traits<int>::from_string(std::string_view str)
-	{ return from_string_signed(str, obj); }
+	{ return from_string_signed<int>(str); }
 template<> unsigned int
 builtin_traits<unsigned int>::from_string(std::string_view str)
-	{ return from_string_unsigned(str, obj); }
+	{ return from_string_unsigned<unsigned int>(str); }
 template<> long
 builtin_traits<long>::from_string(std::string_view str)
-	{ return from_string_signed(str, obj); }
+	{ return from_string_signed<long>(str); }
 template<>
 unsigned long builtin_traits<unsigned long>::from_string(std::string_view str)
-	{ return from_string_unsigned(str, obj); }
+	{ return from_string_unsigned<unsigned long>(str); }
 template<> long long
 builtin_traits<long long>::from_string(std::string_view str)
-	{ return from_string_signed(str, obj); }
+	{ return from_string_signed<long long>(str); }
 template<> unsigned long long
 builtin_traits<unsigned long long>::from_string(std::string_view str)
-	{ return from_string_unsigned(str, obj); }
+	{ return from_string_unsigned<unsigned long long>(str); }
 } // namespace pqxx::internal
 #endif // !PQXX_HAVE_CHARCONV_INT
 
