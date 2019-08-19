@@ -611,7 +611,7 @@ template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
   static std::stringstream from_string(std::string_view text)
   {
     std::stringstream stream;
-    stream << text;
+    stream.write(text.data(), std::streamsize(text.size()));
     return stream;
   }
 };
