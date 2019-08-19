@@ -345,11 +345,11 @@ inline void check_bounds(
 void expected_exception(const std::string &);
 
 
-// Represent result row as string
+// Represent result row as string.
 std::string list_row(row);
-// Represent result as string
+// Represent result as string.
 std::string list_result(result);
-// Represent result iterator as string
+// Represent result iterator as string.
 std::string list_result_iterator(result::const_iterator);
 
 
@@ -358,54 +358,22 @@ void create_pqxxevents(transaction_base &);
 } // namespace test
 
 
-// Support string conversion on result rows for debug output.
-template<> struct string_traits<row>
-{
-  static const char *name() { return "pqxx::row"; }
-  static bool has_null() { return false; }
-  static bool is_null(row) { return false; }
-  static result null(); // Not needed
-  static void from_string(const char Str[], result &Obj); // Not needed
-  static std::string to_string(row Obj)
-	{ return pqxx::test::list_row(Obj); }
-};
-
-// Support string conversion on result objects for debug output.
-template<> struct string_traits<result>
-{
-  static const char *name() { return "pqxx::result"; }
-  static bool has_null() { return true; }
-  static bool is_null(result r) { return r.empty(); }
-  static result null() { return result(); }
-  static void from_string(const char Str[], result &Obj); // Not needed
-  static std::string to_string(result Obj)
-	{ return pqxx::test::list_result(Obj); }
-};
-
-// Support string conversion on result::const_iterator for debug output.
-template<> struct string_traits<result::const_iterator>
-{
-  using subject_type = result::const_iterator;
-  static const char *name() { return "pqxx::result::const_iterator"; }
-  static bool has_null() { return false; }
-  static bool is_null(subject_type) { return false; }
-  static result null(); // Not needed
-  static void from_string(const char Str[], subject_type &Obj); // Not needed
-  static std::string to_string(subject_type Obj)
-	{ return pqxx::test::list_result_iterator(Obj); }
-};
+template<> inline std::string
+to_string(const row &r)
+{ return pqxx::test::list_row(r); }
 
 
-// Support string conversion on vector<string> for debug output.
-template<> struct string_traits<std::vector<std::string>>
-{
-  using subject_type = std::vector<std::string>;
-  static const char *name() { return "vector<string>"; }
-  static bool has_null() { return false; }
-  static bool is_null(subject_type) { return false; }
-  static subject_type null(); // Not needed
-  static void from_string(const char Str[], subject_type &Obj); // Not needed
-  static std::string to_string(const subject_type &Obj)
-	{ return separated_list("; ", Obj); }
-};
+template<> inline std::string
+to_string(const result &r)
+{ return pqxx::test::list_result(r); }
+
+
+template<> inline std::string
+to_string(const result::const_iterator &i)
+{ return pqxx::test::list_result_iterator(i); }
+
+
+template<> inline std::string
+to_string(const std::vector<std::string> &v)
+{ return separated_list("; ", v); }
 } // namespace pqxx

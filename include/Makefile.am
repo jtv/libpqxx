@@ -38,7 +38,6 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/libpq-forward.hxx \
 	pqxx/internal/sql_cursor.hxx \
 	pqxx/internal/statement_parameters.hxx \
-	pqxx/internal/type_utils.hxx \
 	pqxx/internal/gates/connection-errorhandler.hxx \
 	pqxx/internal/gates/connection-largeobject.hxx \
 	pqxx/internal/gates/connection-notification_receiver.hxx \

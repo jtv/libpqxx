@@ -15,7 +15,6 @@
 
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/compiler-internal-pre.hxx"
-#include "pqxx/internal/type_utils.hxx"
 
 #include <optional>
 
@@ -173,7 +172,13 @@ public:
   template<typename T> T as() const
   {
     T obj;
-    if (not to(obj)) obj = string_traits<T>::null();
+    if (not to(obj))
+    {
+      if constexpr (string_traits<T>::has_null)
+        obj = string_traits<T>::null();
+      else
+        internal::throw_null_conversion(type_name<T>);
+    }
     return obj;
   }
 

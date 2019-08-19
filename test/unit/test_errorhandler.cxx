@@ -37,13 +37,26 @@ namespace pqxx
 {
 template<> struct string_traits<TestErrorHandler *>
 {
-  static const char *name() { return "TestErrorHandler"; }
-  static bool has_null() { return true; }
-  static bool is_null(TestErrorHandler *t) { return t == nullptr; }
-  static std::string to_string(TestErrorHandler *t)
-  {
-    return "TestErrorHandler at " + pqxx::to_string(ptrdiff_t(t));
-  }
+  static constexpr bool has_null = true;
+  static constexpr bool is_null(TestErrorHandler *e) noexcept
+	{ return e == nullptr; }
+  static constexpr TestErrorHandler *null() noexcept { return nullptr; }
+};
+
+
+template<> class str<TestErrorHandler *>
+{
+public:
+  explicit str(TestErrorHandler *t) :
+    m_str("TestErrorHandler at " + pqxx::to_string(ptrdiff_t(t)))
+  {}
+
+  operator std::string_view() const noexcept { return m_str; }
+  std::string_view view() const noexcept { return m_str; }
+  const char *c_str() const noexcept { return m_str.c_str(); }
+
+private:
+  std::string m_str;
 };
 }
 

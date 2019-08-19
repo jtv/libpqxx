@@ -37,7 +37,7 @@ void test_receive(
   std::string SQL = "NOTIFY \"" + channel + "\"";
   if (payload) SQL += ", " + t.quote(payload);
 
-  TestReceiver receiver(t.conn(), channel);
+  TestReceiver receiver{t.conn(), channel};
 
   // Clear out any previously pending notifications that might otherwise
   // confuse the test.
