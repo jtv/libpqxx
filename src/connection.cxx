@@ -109,7 +109,7 @@ void pqxx::connection::init()
 
     set_up_state();
   }
-  catch (const std::exception &e)
+  catch (const std::exception &)
   {
     PQfinish(m_conn);
     throw;
