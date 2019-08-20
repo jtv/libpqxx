@@ -102,11 +102,11 @@ template<typename T> inline T safe_multiply_by_ten(T n)
   using limits = std::numeric_limits<T>;
 
   constexpr T ten{10};
-  constexpr T high_threshold{std::numeric_limits<T>::max() / ten};
+  constexpr T high_threshold(std::numeric_limits<T>::max() / ten);
   if (n > high_threshold) report_overflow();
   if constexpr (limits::is_signed)
   {
-    constexpr T low_threshold{std::numeric_limits<T>::min() / ten};
+    constexpr T low_threshold(std::numeric_limits<T>::min() / ten);
     if (low_threshold > n) report_overflow();
   }
   return T(n * ten);
