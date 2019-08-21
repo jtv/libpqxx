@@ -76,7 +76,7 @@ LINK=link.exe
 LIBTOOL=link.exe -lib
 
 # The options common to all the different builds.
-CXX_FLAGS_BASE=/nologo /W3 /EHsc /FD /GR /c \
+CXX_FLAGS_BASE=/std:c++17 /nologo /W3 /EHsc /FD /GR /c \
     /I "include" /I $(PGSQLINC) /I $(LIBPQINC) \
     /D "WIN32" /D "_MBCS" /D "_WINDOWS" /D "PQXX_INTERNAL" /D "NOMINMAX"
 
