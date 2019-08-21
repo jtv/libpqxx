@@ -164,14 +164,8 @@ void test_optional(pqxx::connection_base& connection)
   pqxx::stream_from extractor{tx, "stream_from_test"};
   PQXX_CHECK(extractor, "stream_from failed to initialize");
 
-  std::tuple<
-    int,
-    O<std::string>,
-    O<int        >,
-    O<ipv4       >,
-    O<std::string>,
-    O<bytea      >
-  > got_tuple;
+  std::tuple<int, O<std::string>, O<int>, O<ipv4>, O<std::string>, O<bytea>>
+	got_tuple;
 
   extractor >> got_tuple;
   PQXX_CHECK(extractor, "stream_from failed to read first row");
@@ -255,8 +249,6 @@ void test_stream_from()
   test_bad_tuples(conn);
   std::cout << "testing `std::unique_ptr` as optional...\n";
   test_optional<std::unique_ptr>(conn);
-  std::cout << "testing `custom_optional` as optional...\n";
-  test_optional<custom_optional>(conn);
   std::cout << "testing `std::optional` as optional...\n";
   test_optional<std::optional>(conn);
 }

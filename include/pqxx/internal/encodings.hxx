@@ -72,7 +72,7 @@ PQXX_LIBEXPORT std::string::size_type find_with_encoding(
 /** Scans the glyphs in the buffer, and for each, passes its begin and its
  * one-past-end pointers to @c callback.
  */
-template<typename CALLABLE> PQXX_LIBEXPORT inline void for_glyphs(
+template<typename CALLABLE> inline void for_glyphs(
         encoding_group enc,
         CALLABLE callback,
         const char buffer[],

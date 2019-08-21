@@ -16,7 +16,6 @@
 #include <algorithm>
 #include <cstring>
 #include <limits>
-#include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <typeinfo>
@@ -26,6 +25,18 @@
 #endif
 
 #include "pqxx/except.hxx"
+
+
+namespace pqxx::internal
+{
+/// Implementation classes for @c str.
+/** We can't define these directly as @c str because of the way
+ * @c std::enable_if works: to make that work, we need an extra template
+ * parameter, which then seems to break template deduction when we define a
+ * @c str{value}.
+ */
+template<typename T, typename E> class str_impl;
+} // namespace pqxx::internal
 
 
 namespace pqxx
@@ -56,7 +67,7 @@ namespace pqxx
  */
 //@{
 
-// TODO: Do better!  Was having trouble with template variables.
+// TODO: Do better!
 /// A human-readable name for a type, used in error messages and such.
 /** The default implementation falls back on @c std::type_info::name(), which
  * isn't necessarily human-friendly.
@@ -99,7 +110,7 @@ template<typename T, typename = void> struct string_traits;
  * an exact check gets too expensive.
  */
 template<typename T> inline std::string_view
-to_buf(char *begin, char *end, T value);
+to_buf(char *begin, char *end, const T &value);
 
 
 /// Value-to-string converter: represent value as a postgres-compatible string.
@@ -110,22 +121,31 @@ to_buf(char *begin, char *end, T value);
  * the @c str object exists.  After that, accessing the string becomes
  * undefined.
  *
- * If the value is null, the string value will be null.  That is, its @c data
- * pointer will be null.
+ * @c warning The value cannot be null.
  *
  * In situations where convenience matters more than performance, use the
  * @c to_string functions which create and return a @c std::string.  It's
  * expensive but convenient.  If you need extreme memory efficiency, consider
  * using @c to_buf and allocating your own buffer.  In the space between those
  * two extremes, use @c str.
- *
- * @warning One thing you can @a not do with @c str is convert a value in a
- * temporary object, e.g. @c pqxx::str(value).view().  The result is a
- * @c std::string_view, which points to a buffer inside the @c str object.
- * By the time you make use of the result, the @c str and its buffer no longer
- * exist, and the @c string_view will be pointing to invalid memory.
  */
-template<typename T> class str;
+template<typename T> class str : internal::str_impl<T, void>
+{
+public:
+  str() =delete;
+  str(const str &) =delete;
+  str(str &&) =delete;
+
+  explicit str(const T &value) : internal::str_impl<T, void>{value} {}
+  explicit str(T &value) : internal::str_impl<T, void>{value} {}
+
+  str &operator=(const str &) =delete;
+  str &operator=(str &&) =delete;
+
+  using internal::str_impl<T, void>::view;
+  using internal::str_impl<T, void>::c_str;
+  operator std::string_view() const { return view(); }
+};
 
 
 /// Helper class for defining enum conversions.
@@ -141,21 +161,13 @@ template<typename T> class str;
 template<typename ENUM>
 struct enum_traits
 {
-  using underlying_type = typename std::underlying_type<ENUM>::type;
-  using underlying_traits = string_traits<underlying_type>;
+  static constexpr bool has_null = false;
 
-  static constexpr bool has_null() noexcept { return false; }
-  [[noreturn]] inline static ENUM null();
-
-  static void from_string(std::string_view str, ENUM &obj)
+  static ENUM from_string(std::string_view text)
   {
-    underlying_type tmp;
-    underlying_traits::from_string(str, tmp);
-    obj = ENUM(tmp);
+    using impl_type = std::underlying_type_t<ENUM>;
+    return static_cast<ENUM>(string_traits<impl_type>::from_string(text));
   }
-
-  static std::string to_string(ENUM obj)
-	{ return underlying_traits::to_string(underlying_type(obj)); }
 };
 
 
@@ -169,15 +181,14 @@ struct enum_traits
  *      #include <pqxx/strconv>
  *      enum X { xa, xb };
  *      namespace pqxx { PQXX_DECLARE_ENUM_CONVERSION(x); }
- *      int main() { std::cout << to_string(xa) << std::endl; }
+ *      int main() { std::cout << pqxx::to_string(xa) << std::endl; }
  */
 #define PQXX_DECLARE_ENUM_CONVERSION(ENUM) \
-template<> \
-struct string_traits<ENUM> : pqxx::enum_traits<ENUM> \
-{ \
-  [[noreturn]] static ENUM null() \
-	{ internal::throw_null_conversion(type_name<ENUM>); } \
-}
+template<> [[maybe_unused]] std::string_view inline \
+to_buf(char *begin, char *end, const ENUM &value) \
+{ return to_buf(begin, end, std::underlying_type_t<ENUM>(value)); } \
+template<> struct string_traits<ENUM> : pqxx::enum_traits<ENUM> {}; \
+template<> const std::string type_name<ENUM>{#ENUM}
 
 
 /// Attempt to convert postgres-generated string to given built-in type.
@@ -193,15 +204,15 @@ struct string_traits<ENUM> : pqxx::enum_traits<ENUM> \
  * No whitespace is stripped away.  Only the kinds of strings that come out of
  * PostgreSQL and out of to_string() can be converted.
  */
-template<typename T> inline void from_string(std::string_view str, T &obj)
+template<typename T> inline void from_string(std::string_view text, T &out)
 {
-  if (str.data() == nullptr)
+  if (text.data() == nullptr)
     throw std::runtime_error{"Attempt to read null string."};
-  string_traits<T>::from_string(str, obj);
+  out = string_traits<T>::from_string(text);
 }
 
 
-/// Convert built-in type to a readable string that PostgreSQL will understand.
+/// Convert a value to a readable string that PostgreSQL will understand.
 /** This is the convenient way to represent a value as text.  It's also fairly
  * expensive, since it creates a @c std::string.  The @c pqxx::str class is a
  * more efficient but slightly less convenient alternative.  Probably.
@@ -212,8 +223,16 @@ template<typename T> inline void from_string(std::string_view str, T &obj)
  * in SQL queries.  It won't have niceties such as "thousands separators"
  * though.
  */
-template<typename T> std::string to_string(const T &obj)
-	{ return string_traits<T>::to_string(obj); }
+template<typename T> inline std::string to_string(const T &obj);
+
+
+/// Is @c value null?
+template<typename TYPE> inline bool is_null(const TYPE &value)
+{
+  using traits = string_traits<TYPE>;
+  if constexpr (traits::has_null) return traits::is_null(value);
+  else return false;
+}
 //@}
 } // namespace pqxx
 

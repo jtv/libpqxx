@@ -504,7 +504,7 @@ public:
   template<typename T>
   std::string quote(const T &t) const
   {
-    if (string_traits<T>::is_null(t)) return "NULL";
+    if (is_null(t)) return "NULL";
     return "'" + this->esc(to_string(t)) + "'";
   }
 

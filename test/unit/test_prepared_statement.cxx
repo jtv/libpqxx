@@ -224,23 +224,19 @@ void test_dynamic_params()
 }
 
 
-/// Test against any optional type, such as std::optional<int>.
-template<typename Opt>
 void test_optional()
 {
   connection c;
   work tx{c};
   c.prepare("EchoNum", "SELECT $1::int");
   pqxx::row rw = tx.exec_prepared1(
-    "EchoNum",
-    pqxx::internal::make_optional<Opt>(10)
-  );
+	"EchoNum", std::optional<int>{std::in_place, 10});
   PQXX_CHECK_EQUAL(
 	rw.front().as<int>(),
 	10,
 	"optional (with value) did not return the right value.");
 
-  rw = tx.exec_prepared1("EchoNum", Opt());
+  rw = tx.exec_prepared1("EchoNum", std::optional<int>{});
   PQXX_CHECK(
 	rw.front().is_null(),
 	"optional without value did not come out as null.");
@@ -257,9 +253,7 @@ void test_prepared_statements()
   test_binary();
   test_dynamic_params();
 
-  test_optional<std::optional<int>>();
-  test_optional<std::unique_ptr<int>>();
-  test_optional<std::shared_ptr<int>>();
+  test_optional();
 }
 
 
