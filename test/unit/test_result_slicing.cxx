@@ -14,10 +14,10 @@ template<> struct string_traits<const_reverse_row_iterator>
   static constexpr bool has_null = false;
 };
 
-template<> inline std::string_view 
+template<> inline pqxx::zview
 to_buf(char *, char *, const row::const_iterator &)
 { return "[row::const_iterator]"; }
-template<> inline std::string_view 
+template<> inline pqxx::zview
 to_buf(char *, char *, const row::const_reverse_iterator &)
 { return "[row::const_reverse_iterator]"; }
 

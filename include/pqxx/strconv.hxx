@@ -41,6 +41,25 @@ template<typename T, typename E> class str_impl;
 
 namespace pqxx
 {
+/// Marker-type wrapper: zero-terminated @c std::string_view.
+/** This is basically a @c std::string_view, but it adds the guarantee that
+ * there is a terminating zero byte right after its contents.
+ *
+ * This means that it can also be used as a C-style string, which often matters
+ * since libpqxx builds on top of a C library.  Therefore, it also adds a
+ * @c c_str method.
+ */
+class PQXX_LIBEXPORT zview : public std::string_view
+{
+public:
+  template<typename ...Args> zview(Args &&...args) :
+    std::string_view(std::forward<Args>(args)...)
+  {}
+
+  constexpr const char *c_str() noexcept { return data(); }
+};
+
+
 /**
  * @defgroup stringconversion String conversion
  *
@@ -109,7 +128,7 @@ template<typename T, typename = void> struct string_traits;
  * complain about a buffer which is actually large enough for your value, if
  * an exact check gets too expensive.
  */
-template<typename T> inline std::string_view
+template<typename T> inline zview
 to_buf(char *begin, char *end, const T &value);
 
 
@@ -144,7 +163,7 @@ public:
 
   using internal::str_impl<T, void>::view;
   using internal::str_impl<T, void>::c_str;
-  operator std::string_view() const { return view(); }
+  operator zview() const { return view(); }
 };
 
 
@@ -184,7 +203,7 @@ struct enum_traits
  *      int main() { std::cout << pqxx::to_string(xa) << std::endl; }
  */
 #define PQXX_DECLARE_ENUM_CONVERSION(ENUM) \
-template<> [[maybe_unused]] std::string_view inline \
+template<> [[maybe_unused]] zview inline \
 to_buf(char *begin, char *end, const ENUM &value) \
 { return to_buf(begin, end, std::underlying_type_t<ENUM>(value)); } \
 template<> struct string_traits<ENUM> : pqxx::enum_traits<ENUM> {}; \

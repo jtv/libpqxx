@@ -74,8 +74,7 @@ namespace pqxx
 template<> inline constexpr int buffer_budget<ipv4> = 16;
 
 
-template<> inline std::string_view
-to_buf(char *begin, char *end, const ipv4 &value)
+template<> inline zview to_buf(char *begin, char *end, const ipv4 &value)
 {
   if (end - begin < buffer_budget<ipv4>)
     throw conversion_error{"Buffer too small for ipv4."};
@@ -102,7 +101,7 @@ to_buf(char *begin, char *end, const ipv4 &value)
 
   *pos = '\0';
 
-  return std::string_view{begin, std::size_t(pos - begin)};
+  return zview{begin, std::size_t(pos - begin)};
 }
 
 
@@ -165,8 +164,7 @@ unsigned hex_to_digit(char hex)
 } // namespace
 
 
-template<> inline std::string_view
-to_buf(char *begin, char *end, const bytea &value)
+template<> inline zview to_buf(char *begin, char *end, const bytea &value)
 {
   const auto need = 2 + value.size() + 1;
   const auto have = end - begin;
@@ -181,7 +179,7 @@ to_buf(char *begin, char *end, const bytea &value)
     *pos++ = nibble_to_hex(unsigned(u) & 0x0f);
   }
   *pos++ = '\0';
-  return std::string_view{begin, std::size_t(pos - begin - 1)};
+  return zview{begin, std::size_t(pos - begin - 1)};
 }
 
 

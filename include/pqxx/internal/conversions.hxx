@@ -42,7 +42,7 @@ size_buffer(TYPE *)
 { return size_buffer(static_cast<std::underlying_type_t<TYPE> *>(nullptr)); }
 
 
-// No buffer space needed for bool: it's always just a null @c string_view.
+// No buffer space needed for bool: it's always just a null.
 constexpr int size_buffer(std::nullptr_t *) { return 0; }
 // No buffer space needed for bool: we use fixed strings for true/false.
 constexpr int size_buffer(bool *) { return 0; }
@@ -79,6 +79,7 @@ template<> inline const std::string type_name<signed char>{"signed char"};
 template<> inline const std::string type_name<unsigned char>{"unsigned char"};
 template<> inline const std::string type_name<std::string>{"std::string"};
 template<> inline const std::string type_name<std::string_view>{"std::string_view"};
+template<> inline const std::string type_name<zview>{"pqxx::zview"};
 template<typename TYPE> inline const std::string type_name<TYPE *>
 	{type_name<TYPE> + "*"};
 template<typename TYPE> inline const std::string type_name<TYPE &>
@@ -177,8 +178,8 @@ template<> inline constexpr const char *hard_neg<-9223372036854775807LL> =
 	"-9223372036854775808";
 
 
-/// Represent an integral value as a string_view.  May use given buffer.
-template<typename T> inline std::string_view
+/// Represent an integral value as a zview.  May use given buffer.
+template<typename T> inline zview
 to_buf_integral(char *begin, char *end, T value)
 {
   // TODO: Conservative estimate.  We could do better, but will it cost time?
@@ -215,7 +216,7 @@ to_buf_integral(char *begin, char *end, T value)
       //
       // Luckily, there's only a limited number of such numbers.  We can cheat
       // and hard-code them all.
-      return std::string_view{hard_neg<bottom + 1LL>};
+      return zview{hard_neg<bottom + 1LL>};
     }
   }
   else
@@ -223,7 +224,7 @@ to_buf_integral(char *begin, char *end, T value)
     // Unsigned type.
     pos = nonneg_to_buf(end, value);
   }
-  return std::string_view{pos, std::size_t(end - pos - 1)};
+  return zview{pos, std::size_t(end - pos - 1)};
 }
 
 
@@ -289,69 +290,62 @@ inline void from_string(const std::stringstream &text, T &obj)		//[t00]
 	{ from_string(text.str(), obj); }
 
 
-template<typename ENUM> inline std::string_view
+template<typename ENUM> inline zview
 to_buf(
 	char *begin,
 	char *end,
 	const std::enable_if_t<std::is_enum_v<ENUM>, ENUM> &value)
 { return to_buf(begin, end, std::underlying_type<ENUM>(value)); }
 
-template<> inline std::string_view
-to_buf(char *begin, char *end, const short &value)
+template<> inline zview to_buf(char *begin, char *end, const short &value)
 { return internal::to_buf_integral(begin, end, value); }
-template<> inline std::string_view
+template<> inline zview
 to_buf(char *begin, char *end, const unsigned short &value)
 { return internal::to_buf_integral(begin, end, value); }
-template<> inline std::string_view
-to_buf(char *begin, char *end, const int &value)
+template<> inline zview to_buf(char *begin, char *end, const int &value)
 { return internal::to_buf_integral(begin, end, value); }
-template<> inline std::string_view
-to_buf(char *begin, char *end, const unsigned &value)
+template<> inline zview to_buf(char *begin, char *end, const unsigned &value)
 { return internal::to_buf_integral(begin, end, value); }
-template<> inline std::string_view
-to_buf(char *begin, char *end, const long &value)
+template<> inline zview to_buf(char *begin, char *end, const long &value)
 { return internal::to_buf_integral(begin, end, value); }
-template<> inline std::string_view
+template<> inline zview
 to_buf(char *begin, char *end, const unsigned long &value)
 { return internal::to_buf_integral(begin, end, value); }
-template<> inline std::string_view
-to_buf(char *begin, char *end, const long long &value)
+template<> inline zview to_buf(char *begin, char *end, const long long &value)
 { return internal::to_buf_integral(begin, end, value); }
-template<> inline std::string_view
+template<> inline zview
 to_buf(char *begin, char *end, const unsigned long long &value)
 { return internal::to_buf_integral(begin, end, value); }
 
 
-template<> inline std::string_view
-to_buf(char *, char *, const std::nullptr_t &)
-{ return std::string_view{}; }
+template<> inline zview to_buf(char *, char *, const std::nullptr_t &)
+{ return zview{}; }
 
 
-template<> inline std::string_view
-to_buf(char *, char *, const bool &value)
+template<> inline zview to_buf(char *, char *, const bool &value)
 {
   // Define as char arrays first, to ensure trailing zero.
   static constexpr char true_ptr[]{"true"}, false_ptr[]{"false"};
-  static const std::string_view s_true{true_ptr}, s_false{false_ptr};
+  static const zview s_true{true_ptr}, s_false{false_ptr};
   return value ? s_true : s_false;
 }
 
 
-template<> inline std::string_view
+template<> inline zview
 to_buf(char *begin, char *end, const std::string &value)
 {
   if (value.size() >= std::size_t(end - begin))
     throw conversion_overrun{
 	"Could not convert string to string: too long for buffer."};
   std::memcpy(begin, value.c_str(), value.size() + 1);
-  return std::string_view{begin, value.size()};
+  return zview{begin, value.size()};
 }
 
 
-template<> inline std::string_view
+template<> inline zview
 to_buf(char *begin, char *end, const char * const &value)
 {
-  if (value == nullptr) return std::string_view{};
+  if (value == nullptr) return zview{};
   auto len = std::strlen(value);
   auto buf_size = end - begin;
   if (buf_size < ptrdiff_t(len))
@@ -362,46 +356,43 @@ to_buf(char *begin, char *end, const char * const &value)
 	};
   }
   std::memcpy(begin, value, len + 1);
-  return std::string_view{begin, len};
+  return zview{begin, len};
 }
 
 
-template<> inline std::string_view
-to_buf(char *begin, char *end, char * const &value)
+template<> inline zview to_buf(char *begin, char *end, char * const &value)
 { return to_buf<const char *>(begin, end, value); }
 
-template<> inline std::string_view to_buf(
-	char *begin, char *end, const float &value)
+template<> inline zview to_buf(char *begin, char *end, const float &value)
 { return internal::to_buf_float(begin, end, value); }
-template<> inline std::string_view to_buf(
-	char *begin, char *end, const double &value)
+template<> inline zview to_buf(char *begin, char *end, const double &value)
 { return internal::to_buf_float(begin, end, value); }
-template<> inline std::string_view
+template<> inline zview
 to_buf(char *begin, char *end, const long double &value)
 { return internal::to_buf_float(begin, end, value); }
 
 
-template<typename T> inline std::string_view
+template<typename T> inline zview
 to_buf(char *begin, char *end, const std::optional<T> &value)
 {
   if (value.has_value()) return to_buf(begin, end, *value);
-  else return std::string_view{};
+  else return zview{};
 }
 
 
-template<typename T> inline std::string_view
+template<typename T> inline zview
 to_buf(char *begin, char *end, const std::shared_ptr<T> &value)
 {
   if (value) return to_buf(begin, end, *value);
-  else return std::string_view{};
+  else return zview{};
 }
 
 
-template<typename T> inline std::string_view
+template<typename T> inline zview
 to_buf(char *begin, char *end, const std::unique_ptr<T> &value)
 {
   if (value) return to_buf(begin, end, *value);
-  else return std::string_view{};
+  else return zview{};
 }
 } // namespace pqxx
 
@@ -424,12 +415,12 @@ public:
     m_view(to_buf(m_buf.data(), m_buf.data() + m_buf.size(), value))
   {}
 
-  constexpr std::string_view view() const noexcept { return m_view; }
+  constexpr zview view() const noexcept { return m_view; }
   const char *c_str() const noexcept { return m_view.data(); }
 
 private:
   std::array<char, buffer_budget<T>> m_buf;
-  std::string_view m_view;
+  zview m_view;
 };
 
 
@@ -439,7 +430,7 @@ public:
   explicit str_impl(const std::string &value) : m_str{value} {}
   explicit str_impl(std::string &&value) : m_str{std::move(value)} {}
 
-  std::string_view view() const noexcept { return m_str; }
+  zview view() const noexcept { return zview(m_str); }
   const char *c_str() const noexcept { return m_str.c_str(); }
 
 private:
@@ -459,12 +450,12 @@ public:
   explicit str_impl(const char (&text)[N]) noexcept
   { std::memcpy(m_buf, text, N); }
 
-  std::string_view view() const noexcept
+  zview view() const noexcept
   {
     // This is where we assume a terminating zero.  The string_view is one byte
     // less than the size of the array, even though the c_str() may well be the
     // full length of the array.
-    return std::string_view{m_buf, N - 1};
+    return zview{m_buf, N - 1};
   }
   const char *c_str() const noexcept { return m_buf; }
 
@@ -485,7 +476,7 @@ class str_impl<char[N], std::enable_if_t<(N >= string_stack_threshold)>>
 public:
   explicit str_impl(const char (&text)[N]) noexcept : m_str{text} {}
 
-  std::string_view view() const noexcept { return m_str; }
+  zview view() const noexcept { return zview(m_str); }
   const char *c_str() const noexcept { return m_str.c_str(); }
 
 private:
@@ -498,7 +489,7 @@ template<> class str_impl<const char *, void>
 public:
   explicit str_impl(const char value[]) : m_str{value} {}
 
-  std::string_view view() const noexcept { return m_str; }
+  zview view() const noexcept { return zview(m_str); }
   const char *c_str() const noexcept { return m_str.c_str(); }
 
 private:
@@ -530,7 +521,7 @@ template<> class str_impl<float, void>
 public:
   explicit str_impl(float value) : m_str{internal::to_string_float(value)} {}
 
-  std::string_view view() const noexcept { return m_str; }
+  zview view() const noexcept { return zview(m_str); }
   const char *c_str() const noexcept { return m_str.c_str(); }
 
 private:
