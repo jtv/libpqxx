@@ -62,47 +62,47 @@ namespace pqxx
  * types, so let's just hard-code those until the standard provides a proper
  * human-readable name for a given type.
  */
-template<> const std::string type_name<short>{"short"};
-template<> const std::string type_name<int>{"int"};
-template<> const std::string type_name<long>{"long"};
-template<> const std::string type_name<long long>{"long long"};
-template<> const std::string type_name<unsigned short>{"unsigned short"};
-template<> const std::string type_name<unsigned int>{"unsigned int"};
-template<> const std::string type_name<unsigned long>{"unsigned long"};
-template<> const std::string type_name<unsigned long long>{
+template<> inline const std::string type_name<short>{"short"};
+template<> inline const std::string type_name<int>{"int"};
+template<> inline const std::string type_name<long>{"long"};
+template<> inline const std::string type_name<long long>{"long long"};
+template<> inline const std::string type_name<unsigned short>{"unsigned short"};
+template<> inline const std::string type_name<unsigned int>{"unsigned int"};
+template<> inline const std::string type_name<unsigned long>{"unsigned long"};
+template<> inline const std::string type_name<unsigned long long>{
 	"unsigned long long"};
-template<> const std::string type_name<float>{"float"};
-template<> const std::string type_name<double>{"double"};
-template<> const std::string type_name<long double>{"long double"};
-template<> const std::string type_name<char>{"char"};
-template<> const std::string type_name<signed char>{"signed char"};
-template<> const std::string type_name<unsigned char>{"unsigned char"};
-template<> const std::string type_name<std::string>{"std::string"};
-template<> const std::string type_name<std::string_view>{"std::string_view"};
-template<typename TYPE> const std::string type_name<TYPE *>
+template<> inline const std::string type_name<float>{"float"};
+template<> inline const std::string type_name<double>{"double"};
+template<> inline const std::string type_name<long double>{"long double"};
+template<> inline const std::string type_name<char>{"char"};
+template<> inline const std::string type_name<signed char>{"signed char"};
+template<> inline const std::string type_name<unsigned char>{"unsigned char"};
+template<> inline const std::string type_name<std::string>{"std::string"};
+template<> inline const std::string type_name<std::string_view>{"std::string_view"};
+template<typename TYPE> inline const std::string type_name<TYPE *>
 	{type_name<TYPE> + "*"};
-template<typename TYPE> const std::string type_name<TYPE &>
+template<typename TYPE> inline const std::string type_name<TYPE &>
 	{type_name<TYPE> + "&"};
-template<typename TYPE> const std::string type_name<const TYPE>
+template<typename TYPE> inline const std::string type_name<const TYPE>
 	{"const " + type_name<TYPE>};
-template<typename TYPE> const std::string type_name<volatile TYPE>
+template<typename TYPE> inline const std::string type_name<volatile TYPE>
 	{"volatile " + type_name<TYPE>};
-template<typename TYPE> const std::string type_name<std::optional<TYPE>>
+template<typename TYPE> inline const std::string type_name<std::optional<TYPE>>
 	{"std::optional<" + type_name<TYPE> + ">"};
-template<typename TYPE> const std::string type_name<std::unique_ptr<TYPE>>
+template<typename TYPE> inline const std::string type_name<std::unique_ptr<TYPE>>
 	{"std::unique_ptr<" + type_name<TYPE> + ">"};
-template<typename TYPE> const std::string type_name<std::shared_ptr<TYPE>>
+template<typename TYPE> inline const std::string type_name<std::shared_ptr<TYPE>>
 	{"std::shared_ptr<" + type_name<TYPE> + ">"};
-template<typename TYPE> const std::string type_name<std::vector<TYPE>>
+template<typename TYPE> inline const std::string type_name<std::vector<TYPE>>
 	{"std::vector<" + type_name<TYPE> + ">"};
 // TODO: Any way we can show the size without using to_string etc?
 template<typename TYPE, std::size_t N>
-const std::string type_name<std::array<TYPE, N>>
+inline const std::string type_name<std::array<TYPE, N>>
 	{"std::array<" + type_name<TYPE> + ">"};
 // TODO: Any way we can show the size without using to_string etc?
-template<typename TYPE, size_t SIZE> const std::string type_name<TYPE[SIZE]>
+template<typename TYPE, size_t SIZE> inline const std::string type_name<TYPE[SIZE]>
 	{type_name<TYPE> + "[]"};
-template<typename T1, typename T2> const std::string type_name<std::map<T1,T2>>
+template<typename T1, typename T2> inline const std::string type_name<std::map<T1,T2>>
 	{"std::map<" + type_name<T1> + "," + type_name<T2> + ">"};
 
 
