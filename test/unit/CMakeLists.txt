@@ -50,6 +50,7 @@ file(
     test_transaction.cxx
     test_transaction_base.cxx
     test_transactor.cxx
+    test_type_name.cxx
 )
 
 add_executable(unit_runner ${UNIT_TEST_SOURCES})

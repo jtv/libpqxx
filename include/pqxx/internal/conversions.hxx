@@ -58,55 +58,6 @@ template<typename TYPE> constexpr int size_buffer(std::shared_ptr<TYPE> *)
 
 namespace pqxx
 {
-/* The typeid strings can be particularly hard to read for the built-in
- * types, so let's just hard-code those until the standard provides a proper
- * human-readable name for a given type.
- */
-template<> inline const std::string type_name<short>{"short"};
-template<> inline const std::string type_name<int>{"int"};
-template<> inline const std::string type_name<long>{"long"};
-template<> inline const std::string type_name<long long>{"long long"};
-template<> inline const std::string type_name<unsigned short>{"unsigned short"};
-template<> inline const std::string type_name<unsigned int>{"unsigned int"};
-template<> inline const std::string type_name<unsigned long>{"unsigned long"};
-template<> inline const std::string type_name<unsigned long long>{
-	"unsigned long long"};
-template<> inline const std::string type_name<float>{"float"};
-template<> inline const std::string type_name<double>{"double"};
-template<> inline const std::string type_name<long double>{"long double"};
-template<> inline const std::string type_name<char>{"char"};
-template<> inline const std::string type_name<signed char>{"signed char"};
-template<> inline const std::string type_name<unsigned char>{"unsigned char"};
-template<> inline const std::string type_name<std::string>{"std::string"};
-template<> inline const std::string type_name<std::string_view>{"std::string_view"};
-template<> inline const std::string type_name<zview>{"pqxx::zview"};
-template<typename TYPE> inline const std::string type_name<TYPE *>
-	{type_name<TYPE> + "*"};
-template<typename TYPE> inline const std::string type_name<TYPE &>
-	{type_name<TYPE> + "&"};
-template<typename TYPE> inline const std::string type_name<const TYPE>
-	{"const " + type_name<TYPE>};
-template<typename TYPE> inline const std::string type_name<volatile TYPE>
-	{"volatile " + type_name<TYPE>};
-template<typename TYPE> inline const std::string type_name<std::optional<TYPE>>
-	{"std::optional<" + type_name<TYPE> + ">"};
-template<typename TYPE> inline const std::string type_name<std::unique_ptr<TYPE>>
-	{"std::unique_ptr<" + type_name<TYPE> + ">"};
-template<typename TYPE> inline const std::string type_name<std::shared_ptr<TYPE>>
-	{"std::shared_ptr<" + type_name<TYPE> + ">"};
-template<typename TYPE> inline const std::string type_name<std::vector<TYPE>>
-	{"std::vector<" + type_name<TYPE> + ">"};
-// TODO: Any way we can show the size without using to_string etc?
-template<typename TYPE, std::size_t N>
-inline const std::string type_name<std::array<TYPE, N>>
-	{"std::array<" + type_name<TYPE> + ">"};
-// TODO: Any way we can show the size without using to_string etc?
-template<typename TYPE, size_t SIZE> inline const std::string type_name<TYPE[SIZE]>
-	{type_name<TYPE> + "[]"};
-template<typename T1, typename T2> inline const std::string type_name<std::map<T1,T2>>
-	{"std::map<" + type_name<T1> + "," + type_name<T2> + ">"};
-
-
 /// How big of a buffer do we want for representing a TYPE object as text?
 /** Specialisations may be 0 to indicate that they don't need any buffer
  * space at all.  This would be the case for types where all strings are fixed:
@@ -416,7 +367,7 @@ public:
   {}
 
   constexpr zview view() const noexcept { return m_view; }
-  const char *c_str() const noexcept { return m_view.data(); }
+  constexpr const char *c_str() const noexcept { return m_view.data(); }
 
 private:
   std::array<char, buffer_budget<T>> m_buf;

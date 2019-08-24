@@ -36,6 +36,10 @@ namespace pqxx::internal
  * @c str{value}.
  */
 template<typename T, typename E> class str_impl;
+
+
+/// Attempt to demangle @c std::type_info::name() to something human-readable.
+PQXX_LIBEXPORT std::string demangle_type_name(const char[]);
 } // namespace pqxx::internal
 
 
@@ -52,7 +56,7 @@ namespace pqxx
 class PQXX_LIBEXPORT zview : public std::string_view
 {
 public:
-  template<typename ...Args> zview(Args &&...args) :
+  template<typename ...Args> constexpr zview(Args &&...args) :
     std::string_view(std::forward<Args>(args)...)
   {}
 
@@ -86,12 +90,17 @@ public:
  */
 //@{
 
-// TODO: Do better!
 /// A human-readable name for a type, used in error messages and such.
-/** The default implementation falls back on @c std::type_info::name(), which
- * isn't necessarily human-friendly.
+/** Actually this may not always be @i very user-friendly.  It uses
+ * @c std::type_info::name().  On gcc-like compilers we try to demangle its
+ * output.  Visual Studio produces human-friendly names out of the box.
+ *
+ * This variable is not inline.  Inlining it gives rise to "memory leak"
+ * warnings from asan, the address sanitizer, possibly from use of
+ * @c std::type_info::name.
  */
-template<typename TYPE> const std::string type_name{typeid(TYPE).name()};
+template<typename TYPE> const std::string type_name{
+	internal::demangle_type_name(typeid(TYPE).name())};
 
 
 /// @addtogroup stringconversion

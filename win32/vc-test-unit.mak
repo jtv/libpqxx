@@ -112,6 +112,7 @@ OBJS= \
   $(INTDIR)\test_transaction.obj \
   $(INTDIR)\test_transaction_base.obj \
   $(INTDIR)\test_transactor.obj \
+  $(INTDIR)\test_type_name.obj \
   $(INTDIR)\runner.obj
 
 
@@ -210,6 +211,8 @@ $(INTDIR)\test_transaction_base.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_transaction_base.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_transactor.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_transactor.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
+$(INTDIR)\test_type_name.obj:
+	@$(CXX) $(CXX_FLAGS) test/unit/test_type_name.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 
 
 $(INTDIR)\$(LIBPQ):
