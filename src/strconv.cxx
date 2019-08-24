@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <functional>
 #include <limits>
 #include <locale>
 #include <cstdlib>
@@ -41,7 +42,7 @@ std::string demangle_type_name(const char raw[])
 {
 #if defined(PQXX_HAVE_CXA_DEMANGLE)
   int status = 0;
-  std::unique_ptr<char, void(*)(char *)> name{
+  std::unique_ptr<char, std::function<void(char *)>> name{
 	abi::__cxa_demangle(raw, nullptr, nullptr, &status),
 	[](char *x){ std::free(x); }};
   if (status != 0)
