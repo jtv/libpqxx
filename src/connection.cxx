@@ -948,17 +948,17 @@ int pqxx::connection::await_notification(long seconds, long microseconds)
 
 void pqxx::connection::read_capabilities()
 {
-  m_serverversion = PQserverVersion(m_conn);
-  if (m_serverversion <= 90000)
-    throw feature_not_supported{
-	"Unsupported server version; 9.0 is the minimum."};
-
   const auto proto_ver = protocol_version();
   if (proto_ver == 0)
     throw broken_connection{"No connection."};
   if (proto_ver < 3)
     throw feature_not_supported{
         "Unsupported frontend/backend protocol version; 3.0 is the minimum."};
+
+  m_serverversion = PQserverVersion(m_conn);
+  if (m_serverversion <= 90000)
+    throw feature_not_supported{
+	"Unsupported server version; 9.0 is the minimum."};
 }
 
 
