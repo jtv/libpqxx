@@ -81,7 +81,7 @@ void test_007()
       // them and their correct mappings to conversions.
       for (const auto &r: R)
       {
-        int Y;
+        int Y = 0;
 
         // Read year, and if it is non-null, note its converted value
         if (r[0] >> Y) conversions[Y] = To4Digits(Y);

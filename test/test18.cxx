@@ -22,7 +22,7 @@ std::pair<int, int> count_events(connection_base &conn, std::string table)
 {
   nontransaction tx{conn};
   const std::string CountQuery = "SELECT count(*) FROM " + table;
-  int all_years, boring_year;
+  int all_years = 0, boring_year = 0;
   row R;
 
   R = tx.exec1(CountQuery);

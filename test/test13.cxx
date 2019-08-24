@@ -23,7 +23,7 @@ const unsigned int BoringYear = 1977;
 // former count in the result pair's first member, and the latter in second.
 std::pair<int, int> count_events(connection_base &conn, std::string table)
 {
-  int all_years, boring_year;
+  int all_years = 0, boring_year = 0;
 
   const std::string CountQuery = "SELECT count(*) FROM " + table;
 

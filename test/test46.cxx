@@ -25,14 +25,14 @@ void test_046()
   I << R[0];
 
   // Now convert the stringstream into a numeric type
-  long L, L2;
+  long L{}, L2{};
   I >> L;
   std::cout << "As a long, it's " << L << std::endl;
 
   R[0].to(L2);
   PQXX_CHECK_EQUAL(L, L2, "Inconsistency between conversion methods.");
 
-  float F, F2;
+  float F{}, F2{};
   std::stringstream I2;
   I2 << R[0];
   I2 >> F;
