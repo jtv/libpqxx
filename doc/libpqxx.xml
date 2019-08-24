@@ -506,7 +506,7 @@
       </para>
 
       <programlisting>
-	connection Conn("dbname=test");
+	connection Conn("postgresql://localhost/test");
       </programlisting>
 
       <para>

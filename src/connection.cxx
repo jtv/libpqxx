@@ -149,12 +149,6 @@ int pqxx::connection::sock() const noexcept
 }
 
 
-void pqxx::connection::simulate_failure()
-{
-  if (m_conn) PQfinish(m_conn);
-}
-
-
 int pqxx::connection::protocol_version() const noexcept
 {
   return m_conn ? PQprotocolVersion(m_conn) : 0;

@@ -26,7 +26,6 @@
 #include "pqxx/prepared_statement.hxx"
 #include "pqxx/strconv.hxx"
 #include "pqxx/util.hxx"
-#include "pqxx/version.hxx"
 
 
 /**
@@ -113,21 +112,34 @@ inline std::string encrypt_password(
 enum class error_verbosity : int
 {
     // These values must match those in libpq's PGVerbosity enum.
-    terse=0,
-    normal=1,
-    verbose=2
+    terse = 0,
+    normal = 1,
+    verbose = 2
 };
 
 
-// TODO: Document connection strings and environment variables.
 /// Connection to a database.
 /** This is the first class to look at when you wish to work with a database
  * through libpqxx.  The connection opens during construction, and closes upon
  * destruction.
  *
+ * When creating a connection, you can pass a connection URI or a postgres
+ * connection string, to specify the database server's address, a login
+ * username, and so on.  If none is given, the connection will try to obtain
+ * them from certain environment variables.  If those are not set either, the
+ * default is to try and connect to the local system's port 5432.
+ *
+ * Find more about connection strings here:
+ *
+ * https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING
+ *
+ * The variables are documented here:
+ *
+ * https://www.postgresql.org/docs/current/libpq-envars.html
+ *
  * To query or manipulate the database once connected, use one of the
  * transaction classes (see pqxx/transaction_base.hxx) and perhaps also the
-  transactor framework (see pqxx/transactor.hxx).
+ * transactor framework (see pqxx/transactor.hxx).
  *
  * When a connection breaks, you will typically get a broken_connection
  * exception.  This can happen at almost any point.
@@ -140,32 +152,21 @@ enum class error_verbosity : int
 class PQXX_LIBEXPORT connection
 {
 public:
-  explicit connection(std::string options=std::string{}) : m_options{options}
+  connection()
   {
-    // Check library version.  The check_library_version template is declared
-    // for any library version, but only actually defined for the version of
-    // the libpqxx binary against which the code is linked.
-    //
-    // If the library binary is a different version than the one declared in
-    // these headers, then this call will fail to link: there will be no
-    // definition for the function with these exact template parameter values.
-    // There will be a definition, but the version in the parameter values will
-    // be different.
-    //
-    // There is no particular reason to do this here in this constructor, except
-    // to ensure that every meaningful libpqxx client will execute it.  The call
-    // must be in the execution path somewhere or the compiler won't try to link
-    // it.  We can't use it to initialise a global or class-static variable,
-    // because a smart compiler might resolve it at compile time.
-    //
-    // On the other hand, we don't want to make a useless function call too
-    // often for performance reasons.  A local static variable is initialised
-    // only on the definition's first execution.  Compilers will be well
-    // optimised for this behaviour, so there's a minimal one-time cost.
-    static const auto version_ok =
-      internal::check_library_version<PQXX_VERSION_MAJOR, PQXX_VERSION_MINOR>();
-    ignore_unused(version_ok);
+    check_version();
+    init();
+  }
 
+  explicit connection(const std::string &options) : m_options{options}
+  {
+    check_version();
+    init();
+  }
+
+  explicit connection(std::string &&options) : m_options{std::move(options)}
+  {
+    check_version();
     init();
   }
 
@@ -177,14 +178,6 @@ public:
    * connection and rely on getting a broken_connection exception if it failed.
    */
   bool PQXX_PURE is_open() const noexcept;				//[t01]
-
-  /// Make the connection fail.  @warning Do not use this except for testing!
-  /** Breaks the connection in some unspecified, horrible, dirty way to enable
-   * failure testing.
-   *
-   * Do not use this in normal code.  This is only meant for testing.
-   */
-  void simulate_failure();
 
   /// Invoke notice processor function.  The message should end in newline.
   void process_notice(const char[]) noexcept;				//[t14]
@@ -579,7 +572,6 @@ protected:
   void wait_read(long seconds, long microseconds) const;
 
 private:
-
   result make_result(internal::pq::PGresult *rhs, const std::string &query);
 
   void PQXX_PRIVATE set_up_state();
