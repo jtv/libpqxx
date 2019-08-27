@@ -110,7 +110,7 @@ pqxx::connection::connection(connection &&rhs) :
     throw usage_error{"Moving a connection with a transaction open."};
   if (not rhs.m_errorhandlers.empty())
     throw usage_error{"Moving a connection with error handlers open."};
-  if (not m_receivers.empty())
+  if (not rhs.m_receivers.empty())
     throw usage_error{
 	"Moving a connection with notification receivers open."};
 
