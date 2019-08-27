@@ -962,11 +962,14 @@ int pqxx::connection::await_notification(long seconds, long microseconds)
 void pqxx::connection::read_capabilities()
 {
   const auto proto_ver = protocol_version();
-  if (proto_ver == 0)
-    throw broken_connection{"No connection."};
   if (proto_ver < 3)
-    throw feature_not_supported{
+  {
+    if (proto_ver == 0)
+      throw broken_connection{"No connection."};
+    else
+      throw feature_not_supported{
         "Unsupported frontend/backend protocol version; 3.0 is the minimum."};
+  }
 
   if (server_version() <= 90000)
     throw feature_not_supported{
