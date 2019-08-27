@@ -19,7 +19,6 @@ void test_021()
 	"username=" + conn.username() + ", "
 	"hostname=" + HostName + ", "
 	"port=" + to_string(conn.port()) + ", "
-	"options='" + conn.options() + "', "
 	"backendpid=" + to_string(conn.backendpid()) + "\n");
 
   work tx{conn, "test_021"};
@@ -31,7 +30,6 @@ void test_021()
 	"username=" + conn.username() + ", "
 	"hostname=" + HostName + ", "
 	"port=" + to_string(conn.port()) + ", "
-	"options='" + conn.options() + "', "
 	"backendpid=" + to_string(conn.backendpid()) + "\n");
 
   std::string P;

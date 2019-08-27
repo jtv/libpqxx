@@ -155,19 +155,25 @@ public:
   connection()
   {
     check_version();
-    init();
+    init("");
   }
 
-  explicit connection(const std::string &options) : m_options{options}
+  explicit connection(const std::string &options)
   {
     check_version();
-    init();
+    init(options.c_str());
   }
 
-  explicit connection(std::string &&options) : m_options{std::move(options)}
+  explicit connection(const char options[])
   {
     check_version();
-    init();
+    init(options);
+  }
+
+  explicit connection(zview options)
+  {
+    check_version();
+    init(options.c_str());
   }
 
   /** Move constructor.
@@ -543,8 +549,8 @@ public:
   void cancel_query();
 
   /// Set session verbosity.
-  /** Set the verbosity of error messages to "terse", "normal" (i.e. default) or
-   * "verbose."
+  /** Set the verbosity of error messages to "terse", "normal" (the default),
+   * or "verbose."
    *
    *  If "terse", returned messages include severity, primary text, and position
    *  only; this will normally fit on a single line. "normal" produces messages
@@ -552,9 +558,6 @@ public:
    *  might span multiple lines).  "verbose" includes all available fields.
    */
   void set_verbosity(error_verbosity verbosity) noexcept;
-
-   /// Retrieve current error verbosity.
-  error_verbosity get_verbosity() const noexcept {return m_verbosity;}
 
   /// Return pointers to the active errorhandlers.
   /** The entries are ordered from oldest to newest handler.
@@ -571,10 +574,8 @@ public:
    */
   std::vector<errorhandler *> get_errorhandlers() const;
 
-  const std::string &options() const noexcept { return m_options; }
-
 protected:
-  void init();
+  void init(const char options[]);
 
   void close() noexcept;
   void wait_read() const;
@@ -617,12 +618,6 @@ private:
 
   /// Unique number to use as suffix for identifiers (see adorn_name()).
   int m_unique_id = 0;
-
-  /// Current verbosity level.
-  error_verbosity m_verbosity = error_verbosity::normal;
-
-  /// Connection string.
-  std::string m_options;
 
   friend class internal::gate::connection_errorhandler;
   void PQXX_PRIVATE register_errorhandler(errorhandler *);

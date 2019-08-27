@@ -101,9 +101,7 @@ std::string pqxx::encrypt_password(
 
 pqxx::connection::connection(connection &&rhs) :
 	m_conn{rhs.m_conn},
-	m_unique_id{rhs.m_unique_id},
-	m_verbosity{rhs.m_verbosity},
-	m_options{}
+	m_unique_id{rhs.m_unique_id}
 {
   if (rhs.m_trans.get() != nullptr)
     throw usage_error{"Moving a connection with a transaction open."};
@@ -113,15 +111,13 @@ pqxx::connection::connection(connection &&rhs) :
     throw usage_error{
 	"Moving a connection with notification receivers open."};
 
-  m_options = std::move(rhs.m_options);
   rhs.m_conn = nullptr;
-  rhs.m_unique_id = 0;
 }
 
 
-void pqxx::connection::init()
+void pqxx::connection::init(const char options[])
 {
-  m_conn = PQconnectdb(m_options.c_str());
+  m_conn = PQconnectdb(options);
   if (m_conn == nullptr) throw std::bad_alloc{};
   try
   {
@@ -425,7 +421,6 @@ void pqxx::connection::cancel_query()
 void pqxx::connection::set_verbosity(error_verbosity verbosity) noexcept
 {
     PQsetErrorVerbosity(m_conn, static_cast<PGVerbosity>(verbosity));
-    m_verbosity = verbosity;
 }
 
 

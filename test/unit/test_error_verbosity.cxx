@@ -25,17 +25,11 @@ void test_error_verbosity()
 	"error_verbosity enum should match PGVerbosity.");
 
   connection conn;
-  PQXX_CHECK_EQUAL(
-	int(conn.get_verbosity()),
-	int(error_verbosity::normal),
-	"Unexpected initial error verbosity.");
-
+  work tx{conn};
   conn.set_verbosity(error_verbosity::terse);
-
-  PQXX_CHECK_EQUAL(
-	int(conn.get_verbosity()),
-	int(error_verbosity::terse),
-	"Setting verbosity did not work.");
+  tx.exec1("SELECT 1");
+  conn.set_verbosity(error_verbosity::verbose);
+  tx.exec1("SELECT 2");
 }
 
 

@@ -21,9 +21,12 @@
  - All from_string() that took a C string now take a std::string_view.
  - Enums outside classes are now scoped enums.
  - error_verbosity is no longer nested in connection.
+ - connection::get_verbosity is gone.
  - Some enums have changed names: accesspolicy to access_policy, and so on.
  - dynamic_params now takes an accessor.
  - Fixed "const" support in arguments to parameterised/prepared statements.
+ - connection has a move constructor.
+ - connections::options() is gone.
 6.4.4
  - Use pkg-config if pg-config is not available.
  - In CMake build, prefer CMake's config headers over any found in source tree.
