@@ -176,20 +176,24 @@ public:
     init(options.c_str());
   }
 
-  /** Move constructor.
-   *
-   * Moving a connection is not allowed if it has an open transaction, or has
-   * error handlers registered on it, and so on.  In those situations, other
-   * objects may hold references to the old object which would become invalid
-   * and might produce hard-to-diagnose bugs.
+  /// Move constructor.
+  /** Moving a connection is not allowed if it has an open transaction, or has
+   * error handlers or notification receivers registered on it.  In those
+   * situations, other objects may hold references to the old object which
+   * would become invalid and might produce hard-to-diagnose bugs.
    */
   connection(connection &&rhs);
 
-  ~connection() { close(); }
+  ~connection() { try { close(); } catch (const std::exception &) {} }
+
+  /// Move assignment.
+  /** Neither connection can have an open transaction, registered error
+   * handlers, or registered notification receivers.
+   */
+  connection &operator=(connection &&rhs);
 
   connection(const connection &) =delete;
   connection &operator=(const connection &) =delete;
-  connection &operator=(connection &&rhs) =delete;
 
    /// Is this connection open at the moment?
   /** @warning This function is @b not needed in most code.  Resist the
@@ -578,14 +582,15 @@ public:
    */
   std::vector<errorhandler *> get_errorhandlers() const;
 
-protected:
+  /// Close the connection now.
+  void close();
+
+private:
   void init(const char options[]);
 
-  void close() noexcept;
   void wait_read() const;
   void wait_read(long seconds, long microseconds) const;
 
-private:
   result make_result(internal::pq::PGresult *rhs, const std::string &query);
 
   void PQXX_PRIVATE set_up_state();
@@ -606,6 +611,11 @@ private:
   void set_notice_processor();
   /// Clear libpq notice processor.
   void clear_notice_processor();
+
+  /// Throw @c usage_error if this connection is not in a movable state.
+  void check_movable() const;
+  /// Throw @c usage_error if not in a state where it can be move-assigned.
+  void check_overwritable() const;
 
   friend class internal::gate::connection_errorhandler;
   void PQXX_PRIVATE register_errorhandler(errorhandler *);

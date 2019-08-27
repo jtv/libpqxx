@@ -25,7 +25,7 @@
  - Some enums have changed names: accesspolicy to access_policy, and so on.
  - dynamic_params now takes an accessor.
  - Fixed "const" support in arguments to parameterised/prepared statements.
- - connection has a move constructor.
+ - connection objects can now be moved.
  - connections::options() is gone.
 6.4.4
  - Use pkg-config if pg-config is not available.

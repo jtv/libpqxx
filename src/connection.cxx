@@ -103,14 +103,7 @@ pqxx::connection::connection(connection &&rhs) :
 	m_conn{rhs.m_conn},
 	m_unique_id{rhs.m_unique_id}
 {
-  if (rhs.m_trans.get() != nullptr)
-    throw usage_error{"Moving a connection with a transaction open."};
-  if (not rhs.m_errorhandlers.empty())
-    throw usage_error{"Moving a connection with error handlers open."};
-  if (not rhs.m_receivers.empty())
-    throw usage_error{
-	"Moving a connection with notification receivers open."};
-
+  rhs.check_movable();
   rhs.m_conn = nullptr;
 }
 
@@ -131,6 +124,50 @@ void pqxx::connection::init(const char options[])
     PQfinish(m_conn);
     throw;
   }
+}
+
+
+void pqxx::connection::check_movable() const
+{
+  if (m_trans.get() != nullptr)
+    throw pqxx::usage_error{"Moving a connection with a transaction open."};
+  if (not m_errorhandlers.empty())
+    throw pqxx::usage_error{
+	"Moving a connection with error handlers registered."};
+  if (not m_receivers.empty())
+    throw pqxx::usage_error{
+	"Moving a connection with notification receivers registered."};
+}
+
+
+void pqxx::connection::check_overwritable() const
+{
+  if (m_trans.get() != nullptr)
+    throw pqxx::usage_error{
+	"Moving a connection onto one with a transaction open."};
+  if (not m_errorhandlers.empty())
+    throw pqxx::usage_error{
+	"Moving a connection onto one with error handlers registered."};
+  if (not m_receivers.empty())
+    throw usage_error{
+	"Moving a connection onto one "
+	"with notification receivers registered."};
+}
+
+
+pqxx::connection &pqxx::connection::operator=(connection &&rhs)
+{
+  check_overwritable();
+  rhs.check_movable();
+
+  close();
+
+  m_conn = rhs.m_conn;
+  m_unique_id = rhs.m_unique_id;
+
+  rhs.m_conn = nullptr;
+
+  return *this;
 }
 
 
@@ -618,7 +655,7 @@ pqxx::result pqxx::connection::exec_prepared(
 }
 
 
-void pqxx::connection::close() noexcept
+void pqxx::connection::close()
 {
   try
   {
@@ -642,9 +679,12 @@ void pqxx::connection::close() noexcept
       pqxx::internal::gate::errorhandler_connection{**i}.unregister();
 
     PQfinish(m_conn);
+    m_conn = nullptr;
   }
-  catch (...)
+  catch (const std::exception &)
   {
+    m_conn = nullptr;
+    throw;
   }
 }
 
