@@ -587,7 +587,6 @@ private:
   void PQXX_PRIVATE set_up_state();
   void PQXX_PRIVATE check_result(const result &);
 
-  void PQXX_PRIVATE internal_set_trace() noexcept;
   int PQXX_PRIVATE PQXX_PURE status() const noexcept;
 
   friend class internal::gate::const_connection_largeobject;
@@ -611,10 +610,6 @@ private:
   internal::unique<transaction_base> m_trans;
 
   std::list<errorhandler *> m_errorhandlers;
-
-// TODO: Get rid of m_trace.
-  /// File to trace to, if any.
-  std::FILE *m_trace = nullptr;
 
   using receiver_list =
 	std::multimap<std::string, pqxx::notification_receiver *>;

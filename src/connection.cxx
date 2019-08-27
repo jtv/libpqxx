@@ -101,14 +101,12 @@ std::string pqxx::encrypt_password(
 
 pqxx::connection::connection(connection &&rhs) :
 	m_conn{rhs.m_conn},
-	m_trace{rhs.m_trace},
 	m_serverversion{rhs.m_serverversion},
 	m_unique_id{rhs.m_unique_id},
 	m_verbosity{rhs.m_verbosity},
 	m_options{std::move(rhs.m_options)}
 {
   rhs.m_conn = nullptr;
-  rhs.m_trace = nullptr;
   rhs.m_unique_id = 0;
 
   try
@@ -229,8 +227,6 @@ void pqxx::connection::set_up_state()
   // notice processor via a result object, even after the connection has been
   // destroyed and the handlers list no longer exists.
   clear_notice_processor();
-
-  internal_set_trace();
 }
 
 
@@ -321,8 +317,11 @@ void pqxx::connection::process_notice(const std::string &msg) noexcept
 
 void pqxx::connection::trace(FILE *Out) noexcept
 {
-  m_trace = Out;
-  if (m_conn) internal_set_trace();
+  if (m_conn)
+  {
+    if (Out) PQtrace(m_conn, Out);
+    else PQuntrace(m_conn);
+  }
 }
 
 
@@ -659,16 +658,6 @@ void pqxx::connection::close() noexcept
   }
   catch (...)
   {
-  }
-}
-
-
-void pqxx::connection::internal_set_trace() noexcept
-{
-  if (m_conn)
-  {
-    if (m_trace) PQtrace(m_conn, m_trace);
-    else PQuntrace(m_conn);
   }
 }
 
