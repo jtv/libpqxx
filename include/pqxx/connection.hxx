@@ -187,6 +187,10 @@ public:
 
   ~connection() { close(); }
 
+  connection(const connection &) =delete;
+  connection &operator=(const connection &) =delete;
+  connection &operator=(connection &&rhs) =delete;
+
    /// Is this connection open at the moment?
   /** @warning This function is @b not needed in most code.  Resist the
    * temptation to check it after opening a connection.  Instead, just use the
@@ -603,22 +607,6 @@ private:
   /// Clear libpq notice processor.
   void clear_notice_processor();
 
-  /// Connection handle.
-  internal::pq::PGconn *m_conn = nullptr;
-
-  /// Active transaction on connection, if any.
-  internal::unique<transaction_base> m_trans;
-
-  std::list<errorhandler *> m_errorhandlers;
-
-  using receiver_list =
-	std::multimap<std::string, pqxx::notification_receiver *>;
-  /// Notification receivers.
-  receiver_list m_receivers;
-
-  /// Unique number to use as suffix for identifiers (see adorn_name()).
-  int m_unique_id = 0;
-
   friend class internal::gate::connection_errorhandler;
   void PQXX_PRIVATE register_errorhandler(errorhandler *);
   void PQXX_PRIVATE unregister_errorhandler(errorhandler *) noexcept;
@@ -651,9 +639,21 @@ private:
 	const std::string &query,
 	const internal::params &args);
 
-  connection(const connection &) =delete;
-  connection &operator=(const connection &) =delete;
-  connection &operator=(connection &&rhs) =delete;
+ /// Connection handle.
+  internal::pq::PGconn *m_conn = nullptr;
+
+  /// Active transaction on connection, if any.
+  internal::unique<transaction_base> m_trans;
+
+  std::list<errorhandler *> m_errorhandlers;
+
+  using receiver_list =
+	std::multimap<std::string, pqxx::notification_receiver *>;
+  /// Notification receivers.
+  receiver_list m_receivers;
+
+  /// Unique number to use as suffix for identifiers (see adorn_name()).
+  int m_unique_id = 0;
 };
 
 
