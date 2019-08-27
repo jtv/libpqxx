@@ -101,7 +101,6 @@ std::string pqxx::encrypt_password(
 
 pqxx::connection::connection(connection &&rhs) :
 	m_conn{rhs.m_conn},
-	m_serverversion{rhs.m_serverversion},
 	m_unique_id{rhs.m_unique_id},
 	m_verbosity{rhs.m_verbosity},
 	m_options{}
@@ -179,7 +178,7 @@ int pqxx::connection::protocol_version() const noexcept
 
 int pqxx::connection::server_version() const noexcept
 {
-  return m_serverversion;
+  return PQserverVersion(m_conn);
 }
 
 
@@ -969,8 +968,7 @@ void pqxx::connection::read_capabilities()
     throw feature_not_supported{
         "Unsupported frontend/backend protocol version; 3.0 is the minimum."};
 
-  m_serverversion = PQserverVersion(m_conn);
-  if (m_serverversion <= 90000)
+  if (server_version() <= 90000)
     throw feature_not_supported{
 	"Unsupported server version; 9.0 is the minimum."};
 }

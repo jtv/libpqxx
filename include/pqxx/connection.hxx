@@ -615,9 +615,6 @@ private:
   /// Notification receivers.
   receiver_list m_receivers;
 
-  /// Server version.
-  int m_serverversion = 0;
-
   /// Unique number to use as suffix for identifiers (see adorn_name()).
   int m_unique_id = 0;
 
