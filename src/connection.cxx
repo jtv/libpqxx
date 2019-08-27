@@ -99,6 +99,36 @@ std::string pqxx::encrypt_password(
 }
 
 
+pqxx::connection::connection(connection &&rhs) :
+	m_conn{rhs.m_conn},
+	m_trace{rhs.m_trace},
+	m_serverversion{rhs.m_serverversion},
+	m_unique_id{rhs.m_unique_id},
+	m_verbosity{rhs.m_verbosity},
+	m_options{std::move(rhs.m_options)}
+{
+  rhs.m_conn = nullptr;
+  rhs.m_trace = nullptr;
+  rhs.m_unique_id = 0;
+
+  try
+  {
+    if (rhs.m_trans.get() != nullptr)
+      throw usage_error{"Moving a connection with a transaction open."};
+    if (not rhs.m_errorhandlers.empty())
+      throw usage_error{"Moving a connection with error handlers open."};
+    if (not m_receivers.empty())
+      throw usage_error{
+	"Moving a connection with notification receivers open."};
+  }
+  catch (const std::exception &)
+  {
+    close();
+    throw;
+  }
+}
+
+
 void pqxx::connection::init()
 {
   m_conn = PQconnectdb(m_options.c_str());

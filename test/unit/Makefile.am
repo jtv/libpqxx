@@ -31,6 +31,7 @@ runner_SOURCES = \
   test_array.cxx \
   test_binarystring.cxx \
   test_cancel_query.cxx \
+  test_connection.cxx \
   test_cursor.cxx \
   test_encodings.cxx \
   test_error_verbosity.cxx \

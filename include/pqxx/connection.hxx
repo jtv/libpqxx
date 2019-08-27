@@ -170,6 +170,16 @@ public:
     init();
   }
 
+  /** Move constructor.  Leaves the original in an unusable state, even if it
+   * fails.
+   *
+   * Moving a connection is not allowed if it has an open transaction, or has
+   * error handlers registered on it, and so on.  In those situations, other
+   * objects may hold references to the old object which would become invalid
+   * and might produce hard-to-diagnose bugs.
+   */
+  connection(connection &&rhs);
+
   ~connection() { close(); }
 
    /// Is this connection open at the moment?
@@ -589,18 +599,20 @@ private:
 
   result exec_prepared(const std::string &statement, const internal::params &);
 
+  /// Set libpq notice processor to call connection's error handlers chain.
+  void set_notice_processor();
+  /// Clear libpq notice processor.
+  void clear_notice_processor();
+
   /// Connection handle.
   internal::pq::PGconn *m_conn = nullptr;
 
   /// Active transaction on connection, if any.
   internal::unique<transaction_base> m_trans;
 
-  /// Set libpq notice processor to call connection's error handlers chain.
-  void set_notice_processor();
-  /// Clear libpq notice processor.
-  void clear_notice_processor();
   std::list<errorhandler *> m_errorhandlers;
 
+// TODO: Get rid of m_trace.
   /// File to trace to, if any.
   std::FILE *m_trace = nullptr;
 
@@ -654,7 +666,8 @@ private:
 	const internal::params &args);
 
   connection(const connection &) =delete;
-  connection&operator=(const connection &) =delete;
+  connection &operator=(const connection &) =delete;
+  connection &operator=(connection &&rhs) =delete;
 };
 
 

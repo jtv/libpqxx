@@ -83,6 +83,7 @@ OBJS= \
   $(INTDIR)\test_array.obj \
   $(INTDIR)\test_binarystring.obj \
   $(INTDIR)\test_cancel_query.obj \
+  $(INTDIR)\test_connection.obj \
   $(INTDIR)\test_cursor.obj \
   $(INTDIR)\test_encodings.obj \
   $(INTDIR)\test_error_verbosity.obj \
@@ -153,6 +154,8 @@ $(INTDIR)\test_binarystring.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_binarystring.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_cancel_query.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_cancel_query.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
+$(INTDIR)\test_connection.obj:
+	@$(CXX) $(CXX_FLAGS) test/unit/test_connection.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_cursor.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_cursor.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_encodings.obj:
