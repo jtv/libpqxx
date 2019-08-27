@@ -170,8 +170,7 @@ public:
     init();
   }
 
-  /** Move constructor.  Leaves the original in an unusable state, even if it
-   * fails.
+  /** Move constructor.
    *
    * Moving a connection is not allowed if it has an open transaction, or has
    * error handlers registered on it, and so on.  In those situations, other
