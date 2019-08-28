@@ -327,7 +327,10 @@ public:
    * transaction, using the functions you see here.
    *
    * Never try to prepare, execute, or unprepare a prepared statement manually
-   * using direct SQL queries.  Always use the functions provided by libpqxx.
+   * using direct SQL queries when you also use the libpqxx equivalents.  For
+   * any given statement, either prepare, manage, and execute it through the
+   * dedicated libpqxx functions; or do it all directly in SQL.  Don't mix the
+   * two, or the code may get confused.
    *
    * See \ref prepared for a full discussion.
    *
