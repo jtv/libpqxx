@@ -339,11 +339,11 @@ namespace pqxx::internal
  * @c std::string_view.  So, we implement @c to_buf in terms of @c to_string
  * instead of the other way around.
  */
-template<typename T> PQXX_LIBEXPORT std::string to_string_float(T obj)
+template<typename T> PQXX_LIBEXPORT std::string to_string_float(T value)
 {
   thread_local dumb_stringstream<T> s;
   s.str("");
-  s << obj;
+  s << value;
   return s.str();
 }
 
@@ -356,7 +356,7 @@ template std::string to_string_float(long double);
 
 /// Floating-point to_buf implemented in terms of to_string.
 template<typename T>
-std::string_view to_buf_float(char *begin, char *end, T obj)
+std::string_view to_buf_float(char *begin, char *end, T value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
 
@@ -381,9 +381,9 @@ std::string_view to_buf_float(char *begin, char *end, T obj)
   // Implement it ourselves.  Weird detail: since this workaround is based on
   // std::stringstream, which produces a std::string, it's actually easier to
   // build the to_buf() on top of the to_string() than the other way around.
-  if (std::isnan(obj)) return "nan";
-  if (std::isinf(obj)) return (obj > 0) ? "infinity" : "-infinity";
-  auto text = to_string_float(obj);
+  if (std::isnan(value)) return "nan";
+  if (std::isinf(value)) return (value > 0) ? "infinity" : "-infinity";
+  auto text = to_string_float(value);
   auto have = end - begin;
   auto need = text.size() + 1;
   if (need > std::size_t(have))
