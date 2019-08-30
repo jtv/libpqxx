@@ -204,10 +204,41 @@ AC_COMPILE_IFELSE(
 		[PQXX_HAVE_GCC_PURE],
 		1,
 		[Define if g++ supports pure attribute]),
-	gcc_pure=yes)
+	gcc_pure=no)
 AC_MSG_RESULT($gcc_pure)
 
 fi # End of gcc-specific part.
+
+
+# Check for __cxa_demangle.
+AC_MSG_CHECKING([__cxa_demangle])
+cxa_demangle=yes
+AC_COMPILE_IFELSE(
+	[AC_LANG_PROGRAM(
+		[
+		#include <cxxabi.h>
+		#include <cstdlib>
+		#include <cstring>
+		#include <stdexcept>
+		#include <typeinfo>
+		],
+		[
+		  int status = 0;
+		  char *name = abi::__cxa_demangle(
+			typeid(10).name(), nullptr, nullptr, &status);
+		  if (status != 0)
+		    throw std::runtime_error("Demangle failed!");
+		  int result = std::strcmp(name, "int");
+		  std::free(name);
+		  return result;
+		]
+	)],
+	AC_DEFINE(
+		[PQXX_HAVE_CXA_DEMANGLE],
+		1,
+		[Define if compiler supports __cxa_demangle]),
+	cxa_demangle=no)
+AC_MSG_RESULT($cxa_demangle)
 
 
 # It's mid-2019, and gcc's charconv supports integers but not yet floats.

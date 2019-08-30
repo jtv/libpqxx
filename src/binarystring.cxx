@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <functional>
 #include <new>
 #include <stdexcept>
 
@@ -54,7 +55,7 @@ buffer unescape(const unsigned char escaped[])
    * binarystring's buffer can be freed uniformly,
    */
   size_t unescaped_len = 0;
-  std::unique_ptr<unsigned char, void(*)(unsigned char *)> A(
+  std::unique_ptr<unsigned char, std::function<void(unsigned char *)>> A(
 	PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped_len),
 	pqxx::internal::freepqmem_templated<unsigned char>);
   void *data = A.get();

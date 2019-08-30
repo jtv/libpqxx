@@ -167,8 +167,8 @@ def compose_header(lines, publication, factor):
 def generate_config(source_tree, header_lines, items, publication, factor):
     """Generate config file for a given section, if appropriate.
 
-    Writes nothing if the configuration file ends up either empty, or
-    identical to one that's already there.
+    Writes nothing if the configuration file ends up identical to one that's
+    already there.
 
     :param source_tree: Location of the libpqxx source tree.
     :param header_lines: Sequence of header lines from config.h.
@@ -182,10 +182,6 @@ def generate_config(source_tree, header_lines, items, publication, factor):
         'config-%s-%s.h' % (publication, factor))
     unicode_path = config_file.encode(guess_output_encoding(), 'replace')
     section = extract_section(header_lines, items, publication, factor)
-    if len(section) == 0:
-        print("Generating %s: no items--skipping." % unicode_path)
-        return
-
     contents = compose_header(section, publication, factor)
     if read_text_file(config_file) == contents:
         print("Generating %s: no changes--skipping." % unicode_path)

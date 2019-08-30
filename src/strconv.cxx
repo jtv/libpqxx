@@ -11,10 +11,16 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <functional>
 #include <limits>
 #include <locale>
+#include <cstdlib>
 #include <string_view>
 #include <system_error>
+
+#if defined(PQXX_HAVE_CXA_DEMANGLE)
+#include <cxxabi.h>
+#endif
 
 #include "pqxx/except"
 #include "pqxx/strconv"
@@ -32,6 +38,23 @@ inline bool equal(std::string_view lhs, std::string_view rhs)
 
 namespace pqxx::internal
 {
+std::string demangle_type_name(const char raw[])
+{
+#if defined(PQXX_HAVE_CXA_DEMANGLE)
+  int status = 0;
+  std::unique_ptr<char, std::function<void(char *)>> name{
+	abi::__cxa_demangle(raw, nullptr, nullptr, &status),
+	[](char *x){ std::free(x); }};
+  if (status != 0)
+    throw std::runtime_error(
+	std::string{"Could not demangle type name '"} + name.get() + "': "
+	"__cxa_demangle failed.");
+  return std::string{name.get()};
+#else
+  return std::string{raw};
+#endif // PQXX_HAVE_CXA_DEMANGLE
+}
+
 void throw_null_conversion(const std::string &type)
 {
   throw conversion_error{"Attempt to convert null to " + type + "."};
@@ -316,11 +339,11 @@ namespace pqxx::internal
  * @c std::string_view.  So, we implement @c to_buf in terms of @c to_string
  * instead of the other way around.
  */
-template<typename T> PQXX_LIBEXPORT std::string to_string_float(T obj)
+template<typename T> PQXX_LIBEXPORT std::string to_string_float(T value)
 {
   thread_local dumb_stringstream<T> s;
   s.str("");
-  s << obj;
+  s << value;
   return s.str();
 }
 
@@ -333,7 +356,7 @@ template std::string to_string_float(long double);
 
 /// Floating-point to_buf implemented in terms of to_string.
 template<typename T>
-std::string_view to_buf_float(char *begin, char *end, T obj)
+std::string_view to_buf_float(char *begin, char *end, T value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
 
@@ -358,9 +381,9 @@ std::string_view to_buf_float(char *begin, char *end, T obj)
   // Implement it ourselves.  Weird detail: since this workaround is based on
   // std::stringstream, which produces a std::string, it's actually easier to
   // build the to_buf() on top of the to_string() than the other way around.
-  if (std::isnan(obj)) return "nan";
-  if (std::isinf(obj)) return (obj > 0) ? "infinity" : "-infinity";
-  auto text = to_string_float(obj);
+  if (std::isnan(value)) return "nan";
+  if (std::isinf(value)) return (value > 0) ? "infinity" : "-infinity";
+  auto text = to_string_float(value);
   auto have = end - begin;
   auto need = text.size() + 1;
   if (need > std::size_t(have))

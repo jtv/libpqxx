@@ -19,11 +19,13 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <typeinfo>
 #include <vector>
 
 #include "pqxx/strconv.hxx"
+#include "pqxx/version.hxx"
 
 
 /// The home of all libpqxx classes, functions, templates, etc.
@@ -36,6 +38,45 @@ namespace pqxx
 {
 /// Suppress compiler warning about an unused item.
 template<typename T> inline void ignore_unused(T) {}
+
+
+/** Check library version at link time.
+ *
+ * Ensures a failure when linking an application against a radically
+ * different libpqxx version than the one against which it was compiled.
+ *
+ * Sometimes application builds fail in unclear ways because they compile
+ * using headers from libpqxx version X, but then link against libpqxx
+ * binary version Y.  A typical scenario would be one where you're building
+ * against a libpqxx which you have built yourself, but a different version
+ * is installed on the system.
+ *
+ * The check_library_version template is declared for any library version,
+ * but only actually defined for the version of the libpqxx binary against
+ * which the code is linked.
+ *
+ * If the library binary is a different version than the one declared in
+ * these headers, then this call will fail to link: there will be no
+ * definition for the function with these exact template parameter values.
+ * There will be a definition, but the version in the parameter values will
+ * be different.
+ */
+inline PQXX_PRIVATE void check_version()
+{
+  // There is no particular reason to do this here in @c connection, except
+  // to ensure that every meaningful libpqxx client will execute it.  The call
+  // must be in the execution path somewhere or the compiler won't try to link
+  // it.  We can't use it to initialise a global or class-static variable,
+  // because a smart compiler might resolve it at compile time.
+  //
+  // On the other hand, we don't want to make a useless function call too
+  // often for performance reasons.  A local static variable is initialised
+  // only on the definition's first execution.  Compilers will be well
+  // optimised for this behaviour, so there's a minimal one-time cost.
+  static const auto version_ok =
+    internal::check_library_version<PQXX_VERSION_MAJOR, PQXX_VERSION_MINOR>();
+  ignore_unused(version_ok);
+}
 
 
 /// Descriptor of library's thread-safety model.

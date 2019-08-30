@@ -29,10 +29,8 @@
 
 namespace pqxx::internal
 {
-template<typename T> inline T identity(T x) { return x; }
-template<typename T> inline std::function<T(T)> identity_func = identity<T>;
 template<typename ITERATOR> inline const auto iterator_identity =
-	identity_func<decltype(*std::declval<ITERATOR>())>;
+	[](decltype(*std::declval<ITERATOR>()) x){ return x; };
 
 
 // TODO: C++20 "ranges" alternative.

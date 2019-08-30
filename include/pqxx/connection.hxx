@@ -26,7 +26,6 @@
 #include "pqxx/prepared_statement.hxx"
 #include "pqxx/strconv.hxx"
 #include "pqxx/util.hxx"
-#include "pqxx/version.hxx"
 
 
 /**
@@ -113,21 +112,34 @@ inline std::string encrypt_password(
 enum class error_verbosity : int
 {
     // These values must match those in libpq's PGVerbosity enum.
-    terse=0,
-    normal=1,
-    verbose=2
+    terse = 0,
+    normal = 1,
+    verbose = 2
 };
 
 
-// TODO: Document connection strings and environment variables.
 /// Connection to a database.
 /** This is the first class to look at when you wish to work with a database
  * through libpqxx.  The connection opens during construction, and closes upon
  * destruction.
  *
+ * When creating a connection, you can pass a connection URI or a postgres
+ * connection string, to specify the database server's address, a login
+ * username, and so on.  If none is given, the connection will try to obtain
+ * them from certain environment variables.  If those are not set either, the
+ * default is to try and connect to the local system's port 5432.
+ *
+ * Find more about connection strings here:
+ *
+ * https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING
+ *
+ * The variables are documented here:
+ *
+ * https://www.postgresql.org/docs/current/libpq-envars.html
+ *
  * To query or manipulate the database once connected, use one of the
  * transaction classes (see pqxx/transaction_base.hxx) and perhaps also the
-  transactor framework (see pqxx/transactor.hxx).
+ * transactor framework (see pqxx/transactor.hxx).
  *
  * When a connection breaks, you will typically get a broken_connection
  * exception.  This can happen at almost any point.
@@ -140,36 +152,48 @@ enum class error_verbosity : int
 class PQXX_LIBEXPORT connection
 {
 public:
-  explicit connection(std::string options=std::string{}) : m_options{options}
+  connection()
   {
-    // Check library version.  The check_library_version template is declared
-    // for any library version, but only actually defined for the version of
-    // the libpqxx binary against which the code is linked.
-    //
-    // If the library binary is a different version than the one declared in
-    // these headers, then this call will fail to link: there will be no
-    // definition for the function with these exact template parameter values.
-    // There will be a definition, but the version in the parameter values will
-    // be different.
-    //
-    // There is no particular reason to do this here in this constructor, except
-    // to ensure that every meaningful libpqxx client will execute it.  The call
-    // must be in the execution path somewhere or the compiler won't try to link
-    // it.  We can't use it to initialise a global or class-static variable,
-    // because a smart compiler might resolve it at compile time.
-    //
-    // On the other hand, we don't want to make a useless function call too
-    // often for performance reasons.  A local static variable is initialised
-    // only on the definition's first execution.  Compilers will be well
-    // optimised for this behaviour, so there's a minimal one-time cost.
-    static const auto version_ok =
-      internal::check_library_version<PQXX_VERSION_MAJOR, PQXX_VERSION_MINOR>();
-    ignore_unused(version_ok);
-
-    init();
+    check_version();
+    init("");
   }
 
-  ~connection() { close(); }
+  explicit connection(const std::string &options)
+  {
+    check_version();
+    init(options.c_str());
+  }
+
+  explicit connection(const char options[])
+  {
+    check_version();
+    init(options);
+  }
+
+  explicit connection(zview options)
+  {
+    check_version();
+    init(options.c_str());
+  }
+
+  /// Move constructor.
+  /** Moving a connection is not allowed if it has an open transaction, or has
+   * error handlers or notification receivers registered on it.  In those
+   * situations, other objects may hold references to the old object which
+   * would become invalid and might produce hard-to-diagnose bugs.
+   */
+  connection(connection &&rhs);
+
+  ~connection() { try { close(); } catch (const std::exception &) {} }
+
+  /// Move assignment.
+  /** Neither connection can have an open transaction, registered error
+   * handlers, or registered notification receivers.
+   */
+  connection &operator=(connection &&rhs);
+
+  connection(const connection &) =delete;
+  connection &operator=(const connection &) =delete;
 
    /// Is this connection open at the moment?
   /** @warning This function is @b not needed in most code.  Resist the
@@ -177,14 +201,6 @@ public:
    * connection and rely on getting a broken_connection exception if it failed.
    */
   bool PQXX_PURE is_open() const noexcept;				//[t01]
-
-  /// Make the connection fail.  @warning Do not use this except for testing!
-  /** Breaks the connection in some unspecified, horrible, dirty way to enable
-   * failure testing.
-   *
-   * Do not use this in normal code.  This is only meant for testing.
-   */
-  void simulate_failure();
 
   /// Invoke notice processor function.  The message should end in newline.
   void process_notice(const char[]) noexcept;				//[t14]
@@ -541,8 +557,8 @@ public:
   void cancel_query();
 
   /// Set session verbosity.
-  /** Set the verbosity of error messages to "terse", "normal" (i.e. default) or
-   * "verbose."
+  /** Set the verbosity of error messages to "terse", "normal" (the default),
+   * or "verbose."
    *
    *  If "terse", returned messages include severity, primary text, and position
    *  only; this will normally fit on a single line. "normal" produces messages
@@ -550,9 +566,6 @@ public:
    *  might span multiple lines).  "verbose" includes all available fields.
    */
   void set_verbosity(error_verbosity verbosity) noexcept;
-
-   /// Retrieve current error verbosity.
-  error_verbosity get_verbosity() const noexcept {return m_verbosity;}
 
   /// Return pointers to the active errorhandlers.
   /** The entries are ordered from oldest to newest handler.
@@ -569,23 +582,20 @@ public:
    */
   std::vector<errorhandler *> get_errorhandlers() const;
 
-  const std::string &options() const noexcept { return m_options; }
-
-protected:
-  void init();
-
-  void close() noexcept;
-  void wait_read() const;
-  void wait_read(long seconds, long microseconds) const;
+  /// Close the connection now.
+  void close();
 
 private:
+  void init(const char options[]);
+
+  void wait_read() const;
+  void wait_read(long seconds, long microseconds) const;
 
   result make_result(internal::pq::PGresult *rhs, const std::string &query);
 
   void PQXX_PRIVATE set_up_state();
   void PQXX_PRIVATE check_result(const result &);
 
-  void PQXX_PRIVATE internal_set_trace() noexcept;
   int PQXX_PRIVATE PQXX_PURE status() const noexcept;
 
   friend class internal::gate::const_connection_largeobject;
@@ -597,37 +607,15 @@ private:
 
   result exec_prepared(const std::string &statement, const internal::params &);
 
-  /// Connection handle.
-  internal::pq::PGconn *m_conn = nullptr;
-
-  /// Active transaction on connection, if any.
-  internal::unique<transaction_base> m_trans;
-
   /// Set libpq notice processor to call connection's error handlers chain.
   void set_notice_processor();
   /// Clear libpq notice processor.
   void clear_notice_processor();
-  std::list<errorhandler *> m_errorhandlers;
 
-  /// File to trace to, if any.
-  std::FILE *m_trace = nullptr;
-
-  using receiver_list =
-	std::multimap<std::string, pqxx::notification_receiver *>;
-  /// Notification receivers.
-  receiver_list m_receivers;
-
-  /// Server version.
-  int m_serverversion = 0;
-
-  /// Unique number to use as suffix for identifiers (see adorn_name()).
-  int m_unique_id = 0;
-
-  /// Current verbosity level.
-  error_verbosity m_verbosity = error_verbosity::normal;
-
-  /// Connection string.
-  std::string m_options;
+  /// Throw @c usage_error if this connection is not in a movable state.
+  void check_movable() const;
+  /// Throw @c usage_error if not in a state where it can be move-assigned.
+  void check_overwritable() const;
 
   friend class internal::gate::connection_errorhandler;
   void PQXX_PRIVATE register_errorhandler(errorhandler *);
@@ -661,8 +649,21 @@ private:
 	const std::string &query,
 	const internal::params &args);
 
-  connection(const connection &) =delete;
-  connection&operator=(const connection &) =delete;
+ /// Connection handle.
+  internal::pq::PGconn *m_conn = nullptr;
+
+  /// Active transaction on connection, if any.
+  internal::unique<transaction_base> m_trans;
+
+  std::list<errorhandler *> m_errorhandlers;
+
+  using receiver_list =
+	std::multimap<std::string, pqxx::notification_receiver *>;
+  /// Notification receivers.
+  receiver_list m_receivers;
+
+  /// Unique number to use as suffix for identifiers (see adorn_name()).
+  int m_unique_id = 0;
 };
 
 

@@ -17,6 +17,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
+#include <functional>
 #include <iterator>
 #include <memory>
 #include <stdexcept>
@@ -91,16 +92,25 @@ void inert_notice_processor(void *, const char *) noexcept {}
 std::string pqxx::encrypt_password(
         const char user[], const char password[])
 {
-  std::unique_ptr<char, void (*)(char *)> p{
+  std::unique_ptr<char, std::function<void(char *)>> p{
 	PQencryptPassword(password, user),
         pqxx::internal::freepqmem_templated<char>};
   return std::string{p.get()};
 }
 
 
-void pqxx::connection::init()
+pqxx::connection::connection(connection &&rhs) :
+	m_conn{rhs.m_conn},
+	m_unique_id{rhs.m_unique_id}
 {
-  m_conn = PQconnectdb(m_options.c_str());
+  rhs.check_movable();
+  rhs.m_conn = nullptr;
+}
+
+
+void pqxx::connection::init(const char options[])
+{
+  m_conn = PQconnectdb(options);
   if (m_conn == nullptr) throw std::bad_alloc{};
   try
   {
@@ -114,6 +124,50 @@ void pqxx::connection::init()
     PQfinish(m_conn);
     throw;
   }
+}
+
+
+void pqxx::connection::check_movable() const
+{
+  if (m_trans.get() != nullptr)
+    throw pqxx::usage_error{"Moving a connection with a transaction open."};
+  if (not m_errorhandlers.empty())
+    throw pqxx::usage_error{
+	"Moving a connection with error handlers registered."};
+  if (not m_receivers.empty())
+    throw pqxx::usage_error{
+	"Moving a connection with notification receivers registered."};
+}
+
+
+void pqxx::connection::check_overwritable() const
+{
+  if (m_trans.get() != nullptr)
+    throw pqxx::usage_error{
+	"Moving a connection onto one with a transaction open."};
+  if (not m_errorhandlers.empty())
+    throw pqxx::usage_error{
+	"Moving a connection onto one with error handlers registered."};
+  if (not m_receivers.empty())
+    throw usage_error{
+	"Moving a connection onto one "
+	"with notification receivers registered."};
+}
+
+
+pqxx::connection &pqxx::connection::operator=(connection &&rhs)
+{
+  check_overwritable();
+  rhs.check_movable();
+
+  close();
+
+  m_conn = rhs.m_conn;
+  m_unique_id = rhs.m_unique_id;
+
+  rhs.m_conn = nullptr;
+
+  return *this;
 }
 
 
@@ -149,12 +203,6 @@ int pqxx::connection::sock() const noexcept
 }
 
 
-void pqxx::connection::simulate_failure()
-{
-  if (m_conn) PQfinish(m_conn);
-}
-
-
 int pqxx::connection::protocol_version() const noexcept
 {
   return m_conn ? PQprotocolVersion(m_conn) : 0;
@@ -163,7 +211,7 @@ int pqxx::connection::protocol_version() const noexcept
 
 int pqxx::connection::server_version() const noexcept
 {
-  return m_serverversion;
+  return PQserverVersion(m_conn);
 }
 
 
@@ -204,8 +252,6 @@ void pqxx::connection::set_up_state()
   // notice processor via a result object, even after the connection has been
   // destroyed and the handlers list no longer exists.
   clear_notice_processor();
-
-  internal_set_trace();
 }
 
 
@@ -296,8 +342,11 @@ void pqxx::connection::process_notice(const std::string &msg) noexcept
 
 void pqxx::connection::trace(FILE *Out) noexcept
 {
-  m_trace = Out;
-  if (m_conn) internal_set_trace();
+  if (m_conn)
+  {
+    if (Out) PQtrace(m_conn, Out);
+    else PQuntrace(m_conn);
+  }
 }
 
 
@@ -409,14 +458,13 @@ void pqxx::connection::cancel_query()
 void pqxx::connection::set_verbosity(error_verbosity verbosity) noexcept
 {
     PQsetErrorVerbosity(m_conn, static_cast<PGVerbosity>(verbosity));
-    m_verbosity = verbosity;
 }
 
 
 namespace
 {
 /// Unique pointer to PGnotify.
-using notify_ptr = std::unique_ptr<PGnotify, void (*)(PGnotify *)>;
+using notify_ptr = std::unique_ptr<PGnotify, std::function<void(PGnotify *)>>;
 
 
 /// Get one notification from a connection, or null.
@@ -607,7 +655,7 @@ pqxx::result pqxx::connection::exec_prepared(
 }
 
 
-void pqxx::connection::close() noexcept
+void pqxx::connection::close()
 {
   try
   {
@@ -631,19 +679,12 @@ void pqxx::connection::close() noexcept
       pqxx::internal::gate::errorhandler_connection{**i}.unregister();
 
     PQfinish(m_conn);
+    m_conn = nullptr;
   }
-  catch (...)
+  catch (const std::exception &)
   {
-  }
-}
-
-
-void pqxx::connection::internal_set_trace() noexcept
-{
-  if (m_conn)
-  {
-    if (m_trace) PQtrace(m_conn, m_trace);
-    else PQuntrace(m_conn);
+    m_conn = nullptr;
+    throw;
   }
 }
 
@@ -703,7 +744,7 @@ bool pqxx::connection::read_copy_line(std::string &Line)
   default:
     if (Buf)
     {
-      std::unique_ptr<char, void (*)(char *)> PQA(
+      std::unique_ptr<char, std::function<void(char *)>> PQA(
           Buf, pqxx::internal::freepqmem_templated<char>);
       Line.assign(Buf, unsigned(line_len));
     }
@@ -777,7 +818,7 @@ std::string pqxx::connection::esc_raw(
 {
   size_t bytes = 0;
 
-  std::unique_ptr<unsigned char, void (*)(unsigned char *)> buf{
+  std::unique_ptr<unsigned char, std::function<void(unsigned char *)>> buf{
 	PQescapeByteaConn(m_conn, str, len, &bytes),
 	pqxx::internal::freepqmem_templated<unsigned char>};
   if (buf.get() == nullptr) throw std::bad_alloc{};
@@ -790,9 +831,10 @@ std::string pqxx::connection::unesc_raw(const char text[]) const
   size_t len;
   unsigned char *bytes = const_cast<unsigned char *>(
 	reinterpret_cast<const unsigned char *>(text));
-  const std::unique_ptr<unsigned char, void (*)(unsigned char *)> ptr{
-    PQunescapeBytea(bytes, &len),
-    internal::freepqmem_templated<unsigned char>};
+  const std::unique_ptr<unsigned char, std::function<void(unsigned char *)>>
+	ptr{
+		PQunescapeBytea(bytes, &len),
+		internal::freepqmem_templated<unsigned char>};
   return std::string{ptr.get(), ptr.get() + len};
 }
 
@@ -815,7 +857,7 @@ std::string
 pqxx::connection::quote_name(std::string_view identifier)
 	const
 {
-  std::unique_ptr<char, void (*)(char *)> buf{
+  std::unique_ptr<char, std::function<void(char *)>> buf{
 	PQescapeIdentifier(m_conn, identifier.data(), identifier.size()),
         pqxx::internal::freepqmem_templated<char>};
   if (buf.get() == nullptr) throw failure{err_msg()};
@@ -954,17 +996,19 @@ int pqxx::connection::await_notification(long seconds, long microseconds)
 
 void pqxx::connection::read_capabilities()
 {
-  m_serverversion = PQserverVersion(m_conn);
-  if (m_serverversion <= 90000)
+  const auto proto_ver = protocol_version();
+  if (proto_ver < 3)
+  {
+    if (proto_ver == 0)
+      throw broken_connection{"No connection."};
+    else
+      throw feature_not_supported{
+        "Unsupported frontend/backend protocol version; 3.0 is the minimum."};
+  }
+
+  if (server_version() <= 90000)
     throw feature_not_supported{
 	"Unsupported server version; 9.0 is the minimum."};
-
-  const auto proto_ver = protocol_version();
-  if (proto_ver == 0)
-    throw broken_connection{"No connection."};
-  if (proto_ver < 3)
-    throw feature_not_supported{
-        "Unsupported frontend/backend protocol version; 3.0 is the minimum."};
 }
 
 

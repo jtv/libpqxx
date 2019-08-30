@@ -18456,13 +18456,56 @@ if ac_fn_cxx_try_compile "$LINENO"; then :
 $as_echo "#define PQXX_HAVE_GCC_PURE 1" >>confdefs.h
 
 else
-  gcc_pure=yes
+  gcc_pure=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_pure" >&5
 $as_echo "$gcc_pure" >&6; }
 
 fi # End of gcc-specific part.
+
+
+# Check for __cxa_demangle.
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking __cxa_demangle" >&5
+$as_echo_n "checking __cxa_demangle... " >&6; }
+cxa_demangle=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+		#include <cxxabi.h>
+		#include <cstdlib>
+		#include <cstring>
+		#include <stdexcept>
+		#include <typeinfo>
+
+int
+main ()
+{
+
+		  int status = 0;
+		  char *name = abi::__cxa_demangle(
+			typeid(10).name(), nullptr, nullptr, &status);
+		  if (status != 0)
+		    throw std::runtime_error("Demangle failed!");
+		  int result = std::strcmp(name, "int");
+		  std::free(name);
+		  return result;
+
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_CXA_DEMANGLE 1" >>confdefs.h
+
+else
+  cxa_demangle=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cxa_demangle" >&5
+$as_echo "$cxa_demangle" >&6; }
 
 
 # It's mid-2019, and gcc's charconv supports integers but not yet floats.

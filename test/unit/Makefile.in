@@ -121,12 +121,13 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__EXEEXT_1 = runner$(EXEEXT)
 am_runner_OBJECTS = test_array.$(OBJEXT) test_binarystring.$(OBJEXT) \
-	test_cancel_query.$(OBJEXT) test_cursor.$(OBJEXT) \
-	test_encodings.$(OBJEXT) test_error_verbosity.$(OBJEXT) \
-	test_errorhandler.$(OBJEXT) test_escape.$(OBJEXT) \
-	test_exceptions.$(OBJEXT) test_field.$(OBJEXT) \
-	test_float.$(OBJEXT) test_notification.$(OBJEXT) \
-	test_pipeline.$(OBJEXT) test_prepared_statement.$(OBJEXT) \
+	test_cancel_query.$(OBJEXT) test_connection.$(OBJEXT) \
+	test_cursor.$(OBJEXT) test_encodings.$(OBJEXT) \
+	test_error_verbosity.$(OBJEXT) test_errorhandler.$(OBJEXT) \
+	test_escape.$(OBJEXT) test_exceptions.$(OBJEXT) \
+	test_field.$(OBJEXT) test_float.$(OBJEXT) \
+	test_notification.$(OBJEXT) test_pipeline.$(OBJEXT) \
+	test_prepared_statement.$(OBJEXT) \
 	test_read_transaction.$(OBJEXT) \
 	test_result_iteration.$(OBJEXT) test_result_slicing.$(OBJEXT) \
 	test_row.$(OBJEXT) test_simultaneous_transactions.$(OBJEXT) \
@@ -136,7 +137,8 @@ am_runner_OBJECTS = test_array.$(OBJEXT) test_binarystring.$(OBJEXT) \
 	test_string_conversion.$(OBJEXT) test_subtransaction.$(OBJEXT) \
 	test_test_helpers.$(OBJEXT) test_thread_safety_model.$(OBJEXT) \
 	test_transaction.$(OBJEXT) test_transaction_base.$(OBJEXT) \
-	test_transactor.$(OBJEXT) runner.$(OBJEXT)
+	test_transactor.$(OBJEXT) test_type_name.$(OBJEXT) \
+	runner.$(OBJEXT)
 runner_OBJECTS = $(am_runner_OBJECTS)
 am__DEPENDENCIES_1 =
 runner_DEPENDENCIES = $(top_builddir)/src/libpqxx.la \
@@ -377,6 +379,7 @@ runner_SOURCES = \
   test_array.cxx \
   test_binarystring.cxx \
   test_cancel_query.cxx \
+  test_connection.cxx \
   test_cursor.cxx \
   test_encodings.cxx \
   test_error_verbosity.cxx \
@@ -406,6 +409,7 @@ runner_SOURCES = \
   test_transaction.cxx \
   test_transaction_base.cxx \
   test_transactor.cxx \
+  test_type_name.cxx \
   runner.cxx
 
 runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
@@ -466,6 +470,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_array.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_binarystring.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_cancel_query.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_connection.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_cursor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_encodings.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_error_verbosity.Po@am__quote@
@@ -495,6 +500,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_transaction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_transaction_base.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_transactor.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_type_name.Po@am__quote@
 
 .cxx.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

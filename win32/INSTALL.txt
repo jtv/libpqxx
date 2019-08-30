@@ -273,10 +273,10 @@ libpqxx (based on description by Alexandre Hanft, 2006-03-06):
     libpqxx README.md file, your program should be able to connect without 
     passing further parameters.
  8) Once your program gets to the point where users should be able to configure
-    it properly, change it to pass a connection string where it connects to any
-    databases, and include your user's configuration settings.  A typical
+    it properly, change it to pass a connection string or URL where it connects
+    to a database, and include your user's configuration settings.  A typical
     connection string setting all parameters named above might look like:
-	"dbname=testbase user=testuser host=my.dbserver.somewhere.com"
+	"postgresql://myuser@dbserver.example.com:5432/my_database"
  9) For any other problems, please check the project homepage as listed in the
     main libpqxx README.md file.
 

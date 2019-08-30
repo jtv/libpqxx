@@ -83,6 +83,7 @@ OBJS= \
   $(INTDIR)\test_array.obj \
   $(INTDIR)\test_binarystring.obj \
   $(INTDIR)\test_cancel_query.obj \
+  $(INTDIR)\test_connection.obj \
   $(INTDIR)\test_cursor.obj \
   $(INTDIR)\test_encodings.obj \
   $(INTDIR)\test_error_verbosity.obj \
@@ -112,6 +113,7 @@ OBJS= \
   $(INTDIR)\test_transaction.obj \
   $(INTDIR)\test_transaction_base.obj \
   $(INTDIR)\test_transactor.obj \
+  $(INTDIR)\test_type_name.obj \
   $(INTDIR)\runner.obj
 
 
@@ -152,6 +154,8 @@ $(INTDIR)\test_binarystring.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_binarystring.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_cancel_query.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_cancel_query.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
+$(INTDIR)\test_connection.obj:
+	@$(CXX) $(CXX_FLAGS) test/unit/test_connection.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_cursor.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_cursor.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_encodings.obj:
@@ -210,6 +214,8 @@ $(INTDIR)\test_transaction_base.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_transaction_base.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 $(INTDIR)\test_transactor.obj:
 	@$(CXX) $(CXX_FLAGS) test/unit/test_transactor.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
+$(INTDIR)\test_type_name.obj:
+	@$(CXX) $(CXX_FLAGS) test/unit/test_type_name.cxx /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"
 
 
 $(INTDIR)\$(LIBPQ):
