@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 """Minimal macro processor.  Used for generating VC++ makefiles.
 
 The available template commands are:
