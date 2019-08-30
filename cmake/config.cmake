@@ -43,18 +43,6 @@ endif (CMAKE_REQUIRED_DEFINITIONS)
 set(CMAKE_REQUIRED_DEFINITIONS ${CMAKE_CXX${CMAKE_CXX_STANDARD}_STANDARD_COMPILE_OPTION})
 set(CMAKE_REQUIRED_QUIET ON)
 
-# Detect std::optional
-detect_code_compiled("
-  #include <optional>
-  int main() { std::optional<int> o; }
-" PQXX_HAVE_OPTIONAL "std::optional")
-
-# Detect std::experimental::optional
-detect_code_compiled("
-  #include <experimental/optional>
-  int main() { std::experimental::optional<int> o; }
-" PQXX_HAVE_EXP_OPTIONAL "std::experimental::optional")
-
 detect_attribute("const" PQXX_HAVE_GCC_CONST)
 detect_attribute("pure" PQXX_HAVE_GCC_PURE)
 detect_attribute("visibility(\"default\")" PQXX_HAVE_GCC_VISIBILITY "visibility")
