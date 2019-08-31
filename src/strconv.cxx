@@ -75,7 +75,7 @@ std::string state_buffer_overrun(ptrdiff_t have_bytes, ptrdiff_t need_bytes)
 
 
 #if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
-template<typename TYPE>
+template<typename TYPE> PQXX_LIBEXPORT
 TYPE pqxx::internal::builtin_traits<TYPE>::from_string(std::string_view in)
 {
   const char *end = in.data() + in.size();
@@ -361,7 +361,7 @@ std::string_view to_buf_float(char *begin, char *end, T value)
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
 
   // Implement using std::to_chars.
-  const auto res = std::to_chars<T>(begin, end - 1, value);
+  const auto res = std::to_chars(begin, end - 1, value);
   if (res.ec != std::errc()) switch (res.ec)
   {
   case std::errc::value_too_large:

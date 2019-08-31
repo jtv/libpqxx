@@ -227,17 +227,29 @@ template<> const std::string type_name<ENUM>{#ENUM}
  * be inappropriate, convert to something bigger such as @c long @c int first
  * and then truncate the resulting value.
  *
- * Only the simplest possible conversions are supported.  No fancy features
- * such as hexadecimal or octal, spurious signs, or exponent notation will work.
- * No whitespace is stripped away.  Only the kinds of strings that come out of
+ * Only the simplest possible conversions are supported.  Fancy features like
+ * hexadecimal or octal, spurious signs, or exponent notation won't work.
+ * Whitespace is not stripped away.  Only the kinds of strings that come out of
  * PostgreSQL and out of to_string() can be converted.
  */
-template<typename T> inline void from_string(std::string_view text, T &out)
+template<typename T> inline T from_string(std::string_view text)
 {
   if (text.data() == nullptr)
     throw std::runtime_error{"Attempt to read null string."};
-  out = string_traits<T>::from_string(text);
+  return string_traits<T>::from_string(text);
 }
+
+
+/// Attempt to convert postgres-generated string to given built-in object.
+/** This is like the single-argument form of the function, except instead of
+ * returning the value, it sets @c obj to the value.
+ *
+ * You may find this more convenient in that it infers the type you want from
+ * the argument you pass.  But there are disadvantages: it requires an
+ * assignment operator, and it may be less efficient.
+ */
+template<typename T> inline void from_string(std::string_view text, T &obj)
+{ obj = from_string<T>(text); }
 
 
 /// Convert a value to a readable string that PostgreSQL will understand.

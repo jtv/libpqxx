@@ -237,8 +237,8 @@ template<typename T> struct string_traits<std::optional<T>>
 
 
 template<typename T>
-inline void from_string(const std::stringstream &text, T &obj)		//[t00]
-	{ from_string(text.str(), obj); }
+inline T from_string(const std::stringstream &text)			//[t00]
+	{ return from_string<T>(text.str()); }
 
 
 template<typename ENUM> inline zview

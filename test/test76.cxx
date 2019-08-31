@@ -14,40 +14,40 @@ void test_076()
   row
 	RFalse = tx.exec1("SELECT 1=0"),
 	RTrue  = tx.exec1("SELECT 1=1");
-  bool False, True;
-  from_string(RFalse[0], False);
-  from_string(RTrue[0],  True);
+  bool
+	False = from_string<bool>(RFalse[0]),
+	True = from_string<bool>(RTrue[0]);
   PQXX_CHECK(not False, "False bool converted to true.");
   PQXX_CHECK(True, "True bool converted to false.");
 
   RFalse = tx.exec1("SELECT " + to_string(False));
   RTrue  = tx.exec1("SELECT " + to_string(True));
-  from_string(RFalse[0], False);
-  from_string(RTrue[0],  True);
+  False = from_string<bool>(RFalse[0]);
+  True = from_string<bool>(RTrue[0]);
   PQXX_CHECK(not False, "False bool converted to true.");
   PQXX_CHECK(True, "True bool converted to false.");
 
   const short svals[] = { -1, 1, 999, -32767, -32768, 32767, 0 };
   for (int i=0; svals[i]; ++i)
   {
-    short s;
-    from_string(to_string(svals[i]), s);
+    short s = from_string<short>(to_string(svals[i]));
     PQXX_CHECK_EQUAL(s, svals[i], "short/string conversion not bijective.");
-    from_string(tx.exec("SELECT " + to_string(svals[i]))[0][0].c_str(), s);
+    s = from_string<short>(
+	tx.exec1("SELECT " + to_string(svals[i]))[0].c_str());
     PQXX_CHECK_EQUAL(s, svals[i], "Roundtrip through backend changed short.");
   }
 
   const unsigned short uvals[] = { 1, 999, 32767, 32768, 65535, 0 };
   for (int i=0; uvals[i]; ++i)
   {
-    unsigned short u;
-    from_string(to_string(uvals[i]), u);
+    unsigned short u = from_string<unsigned short>(to_string(uvals[i]));
     PQXX_CHECK_EQUAL(
 	u,
 	uvals[i],
 	"unsigned short/string conversion not bijective.");
 
-    from_string(tx.exec("SELECT " + to_string(uvals[i]))[0][0].c_str(), u);
+    u = from_string<unsigned short>(
+	tx.exec1("SELECT " + to_string(uvals[i]))[0].c_str());
     PQXX_CHECK_EQUAL(
 	u,
 	uvals[i],

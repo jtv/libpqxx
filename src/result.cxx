@@ -375,7 +375,7 @@ int pqxx::result::errorposition() const
     const char *p = PQresultErrorField(
 	const_cast<internal::pq::PGresult *>(m_data.get()),
 	PG_DIAG_STATEMENT_POSITION);
-    if (p) from_string(p, pos);
+    if (p) pos = from_string<decltype(pos)>(p);
   }
   return pos;
 }

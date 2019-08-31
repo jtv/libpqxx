@@ -197,7 +197,7 @@ template<typename T> void stream_from::extract_value(
   std::string &workspace
 ) const
 {
-  if (extract_field(line, here, workspace)) from_string<T>(workspace, t);
+  if (extract_field(line, here, workspace)) t = from_string<T>(workspace);
   else if constexpr (string_traits<T>::has_null) t = string_traits<T>::null();
   else internal::throw_null_conversion(type_name<T>);
 }

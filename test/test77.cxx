@@ -14,16 +14,15 @@ void test_077()
   row
 	RFalse = tx.exec1("SELECT 1=0"),
 	RTrue  = tx.exec1("SELECT 1=1");
-  bool f, t;
-  from_string(RFalse[0], f);
-  from_string(RTrue[0],  t);
+  bool f = from_string<bool>(RFalse[0]);
+  bool t = from_string<bool>(RTrue[0]);
   PQXX_CHECK(
 	not f and t,
 	"Booleans converted incorrectly; can't trust this test.");
 
   RFalse.swap(RTrue);
-  from_string(RFalse[0], f);
-  from_string(RTrue[0],  t);
+  f = from_string<bool>(RFalse[0]);
+  t = from_string<bool>(RTrue[0]);
   PQXX_CHECK(f and not t, "result::swap() is broken.");
 }
 } // namespace

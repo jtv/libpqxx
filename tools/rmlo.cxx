@@ -15,8 +15,7 @@ int main(int, char *argv[])
   {
     for (int i=1; argv[i]; ++i)
     {
-      oid O;
-      from_string(argv[i], O);
+      auto O{from_string<oid>(argv[i])};
       try
       {
         pqxx::perform([O, &C]{

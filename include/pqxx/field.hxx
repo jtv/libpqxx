@@ -351,8 +351,8 @@ inline std::basic_ostream<CHAR> &operator<<(
 
 /// Convert a field's string contents to another type.
 template<typename T>
-inline void from_string(const field &f, T &obj)				//[t46]
-	{ from_string(f.view(), obj); }
+inline T from_string(const field &f)					//[t46]
+	{ return from_string<T>(f.view()); }
 
 /// Convert a field to a string.
 template<> PQXX_LIBEXPORT std::string to_string(const field &obj);	//[t74]
