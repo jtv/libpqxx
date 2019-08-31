@@ -48,7 +48,7 @@ PQXXLIBTYPESUFFIX=_static
 
 
 CXX_FLAGS_BASE=/std:c++17 /nologo /W3 /EHsc /FD /GR /c \
-    /I "include" /I "test" /I $(PGSQLINC) /I $(LIBPQINC) \
+    /I "include" /I "test" /I "$(PGSQLINC)" /I "$(LIBPQINC)" \
     /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_WINDOWS" /D "NOMINMAX" $(PQXX_SHARED)
 
 LINK_FLAGS_BASE=kernel32.lib ws2_32.lib advapi32.lib /nologo /libpath:"$(LIBDIR)"

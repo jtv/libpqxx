@@ -77,7 +77,7 @@ LIBTOOL=link.exe -lib
 
 # The options common to all the different builds.
 CXX_FLAGS_BASE=/std:c++17 /nologo /W3 /EHsc /FD /GR /c \
-    /I "include" /I $(PGSQLINC) /I $(LIBPQINC) \
+    /I "include" /I "$(PGSQLINC)" /I "$(LIBPQINC)" \
     /D "WIN32" /D "_MBCS" /D "_WINDOWS" /D "PQXX_INTERNAL" /D "NOMINMAX"
 
 CXX_FLAGS_DLLRELEASE=$(CXX_FLAGS_BASE) /MD  /D "NDEBUG" /D "PQXX_SHARED"
@@ -87,8 +87,8 @@ CXX_FLAGS_STATICDEBUG=$(CXX_FLAGS_BASE) /MDd /Gm /ZI /Od /D "_LIB" /D "_DEBUG" /
 
 LINK_FLAGS_BASE=kernel32.lib ws2_32.lib advapi32.lib /nologo /dll shell32.lib secur32.lib wldap32.lib
 
-LINK_FLAGS_DLLRELEASE=$(LINK_FLAGS_BASE) /libpath:$(LIBPQPATH) $(LIBPQLIB)
-LINK_FLAGS_DLLDEBUG=$(LINK_FLAGS_BASE) /libpath:$(LIBPQDPATH) $(LIBPQDLIB) /debug
+LINK_FLAGS_DLLRELEASE=$(LINK_FLAGS_BASE) /libpath:"$(LIBPQPATH)" "$(LIBPQLIB)"
+LINK_FLAGS_DLLDEBUG=$(LINK_FLAGS_BASE) /libpath:"$(LIBPQDPATH)" "$(LIBPQDLIB)" /debug
 
 LIB_FLAGS=/nologo
 
