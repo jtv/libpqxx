@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 """Extract configuration items into various configuration headers.
 
@@ -183,15 +183,15 @@ def generate_config(source_tree, header_lines, items, publication, factor):
     unicode_path = config_file.encode(guess_output_encoding(), 'replace')
     section = extract_section(header_lines, items, publication, factor)
     if len(section) == 0:
-        print("Generating %s: no items--skipping." % unicode_path)
+        print("Generating {}: no items--skipping.".format(unicode_path))
         return
 
     contents = compose_header(section, publication, factor)
     if read_text_file(config_file) == contents:
-        print("Generating %s: no changes--skipping." % unicode_path)
+        print("Generating {}: no changes--skipping.".format(unicode_path))
         return
 
-    print("Generating %s: %d item(s)." % (unicode_path, len(section)))
+    print("Generating {}: {} item(s).".format(unicode_path, len(section)))
     path = encode_path(config_file)
     with codecs.open(path, 'wb', encoding='ascii') as header:
         header.write(contents)

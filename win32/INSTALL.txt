@@ -137,7 +137,7 @@ iii) If you are building libpqxx from a development source tree rather than from
     a release distribution, you may not have the makefiles for your compiler.
     These makefiles should be in the `win32` directory and have names ending in
     ".mak": "mingw.mak," "vc-libpqxx.mak," "vc-test.mak," and so on.  If you
-    don't have these files but you do have a python interpreter, you can
+    don't have these files but you do have a python3 interpreter, you can
     generate them using the template2mak.py script in the tools directory:
 
     tools/template2mak.py win32/mingw.mak.template win32/mingw.mak
