@@ -38,7 +38,7 @@ std::map<int, int> update_years(connection_base &C)
   // and their correct mappings to m_conversions
   for (const auto &r: R)
   {
-    int Y;
+    int Y{};
 
     // Read year, and if it is non-null, note its converted value
     if (r[0].to(Y)) conversions[Y] = To4Digits(Y);
