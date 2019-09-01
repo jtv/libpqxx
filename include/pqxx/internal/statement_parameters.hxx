@@ -70,7 +70,7 @@ public:
 
   /// Wrap a container.
   template<typename C> explicit
-  dynamic_params(const C &container) :
+  dynamic_params(C &container) :
 	dynamic_params(std::begin(container), std::end(container))
   {}
 
@@ -80,7 +80,7 @@ public:
    * @c acc(p).
    */
   template<typename C> explicit
-  dynamic_params(const C &container, ACCESSOR &acc) :
+  dynamic_params(C &container, ACCESSOR &acc) :
 	dynamic_params(
 		std::begin(container),
 		std::end(container),

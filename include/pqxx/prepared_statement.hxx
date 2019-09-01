@@ -90,10 +90,10 @@ make_dynamic_params(const C &container)
 template<typename C, typename ACCESSOR>
 inline auto
 make_dynamic_params(
-	const C &container,
+	C &container,
 	ACCESSOR accessor)
 {
-  using IT = typename C::const_iterator;
+  using IT = decltype(std::begin(container));
   return pqxx::internal::dynamic_params<IT, ACCESSOR>{container, accessor};
 }
 } // namespace pqxx::prepare

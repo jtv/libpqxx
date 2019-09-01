@@ -198,7 +198,7 @@ void test_dynamic_params()
   connection c;
   work tx{c};
   c.prepare("Concat2Numbers", "SELECT 10 * $1 + $2");
-  const std::vector<int> values{3, 9};
+  std::vector<int> values{3, 9};
   const auto params = prepare::make_dynamic_params(values);
   const auto rw39 = tx.exec_prepared1("Concat2Numbers", params);
   PQXX_CHECK_EQUAL(
