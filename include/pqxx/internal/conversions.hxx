@@ -202,23 +202,23 @@ template<typename TYPE> struct PQXX_LIBEXPORT builtin_traits
 namespace pqxx
 {
 /// Helper: declare a string_traits specialisation for a builtin type.
-#define PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(TYPE) \
+#define PQXX_SPECIALIZE_STRING_TRAITS(TYPE) \
   template<> struct PQXX_LIBEXPORT string_traits<TYPE> : \
     internal::builtin_traits<TYPE> { }
 
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(bool);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(short);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned short);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(int);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned int);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned long);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long long);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(unsigned long long);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(float);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(double);
-PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION(long double);
-#undef PQXX_DECLARE_STRING_TRAITS_SPECIALIZATION
+PQXX_SPECIALIZE_STRING_TRAITS(bool);
+PQXX_SPECIALIZE_STRING_TRAITS(short);
+PQXX_SPECIALIZE_STRING_TRAITS(unsigned short);
+PQXX_SPECIALIZE_STRING_TRAITS(int);
+PQXX_SPECIALIZE_STRING_TRAITS(unsigned int);
+PQXX_SPECIALIZE_STRING_TRAITS(long);
+PQXX_SPECIALIZE_STRING_TRAITS(unsigned long);
+PQXX_SPECIALIZE_STRING_TRAITS(long long);
+PQXX_SPECIALIZE_STRING_TRAITS(unsigned long long);
+PQXX_SPECIALIZE_STRING_TRAITS(float);
+PQXX_SPECIALIZE_STRING_TRAITS(double);
+PQXX_SPECIALIZE_STRING_TRAITS(long double);
+#undef PQXX_SPECIALIZE_STRING_TRAITS
 
 
 template<typename T> struct string_traits<std::optional<T>>
@@ -540,6 +540,27 @@ template<> struct PQXX_LIBEXPORT string_traits<std::string>
   static constexpr bool has_null = false;
   static std::string from_string(std::string_view text)
 	{ return std::string{text}; }
+};
+
+/// String traits for `string_view`.
+template<> struct PQXX_LIBEXPORT string_traits<std::string_view>
+{
+  static constexpr bool has_null = true;
+  static constexpr bool is_null(std::string_view t)
+	{ return t.data() == nullptr; }
+  static constexpr std::string_view null() { return std::string_view{}; }
+
+  // Don't allow conversion to this type; it has nowhere to store its contents.
+};
+
+/// String traits for `zview`.
+template<> struct PQXX_LIBEXPORT string_traits<zview>
+{
+  static constexpr bool has_null = true;
+  static constexpr bool is_null(zview t) { return t.data() == nullptr; }
+  static constexpr zview null() { return zview{}; }
+
+  // Don't allow conversion to this type; it has nowhere to store its contents.
 };
 
 template<> struct PQXX_LIBEXPORT string_traits<const std::string>
