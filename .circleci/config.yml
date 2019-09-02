@@ -50,7 +50,7 @@ jobs:
                   CXXFLAGS=-O3
       - run:
           name: Make
-          command: make
+          command: make -j$(nproc)
       - run:
           name: Test
           command: PGDATA=db/data make check
