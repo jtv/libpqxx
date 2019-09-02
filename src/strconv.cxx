@@ -424,7 +424,7 @@ template long long
 builtin_traits<long long>::from_string(std::string_view);
 template unsigned long long
 builtin_traits<unsigned long long>::from_string(std::string_view);
-} // namespace pqxx
+} // namespace pqxx::internal
 #endif // PQXX_HAVE_CHARCONV_INT
 
 
@@ -457,6 +457,19 @@ builtin_traits<unsigned long long>::from_string(std::string_view str)
 	{ return from_string_unsigned<unsigned long long>(str); }
 } // namespace pqxx::internal
 #endif // !PQXX_HAVE_CHARCONV_INT
+
+
+#if defined(PQXX_HAVE_CHARCONV_FLOAT)
+namespace pqxx::internal
+{
+template float
+builtin_traits<float>::from_string(std::string_view);
+template double
+builtin_traits<double>::from_string(std::string_view);
+template long double
+builtin_traits<long double>::from_string(std::string_view);
+} // namespace pqxx::internal
+#endif // PQXX_HAVE_CHARCONV_FLOAT
 
 
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
