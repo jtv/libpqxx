@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/postgres:12
+      - image: circleci/buster
 #      - image: postgres:latest
     environment:
       - PGHOST: "/tmp"
