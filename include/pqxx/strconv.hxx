@@ -47,7 +47,8 @@ namespace pqxx
 {
 /// Marker-type wrapper: zero-terminated @c std::string_view.
 /** This is basically a @c std::string_view, but it adds the guarantee that
- * there is a terminating zero byte right after its contents.
+ * if its data pointer is non-null, there is a terminating zero byte right
+ * after the contents.
  *
  * This means that it can also be used as a C-style string, which often matters
  * since libpqxx builds on top of a C library.  Therefore, it also adds a
@@ -60,6 +61,7 @@ public:
     std::string_view(std::forward<Args>(args)...)
   {}
 
+  /// Either a null pointer, or a zero-terminated text buffer.
   constexpr const char *c_str() noexcept { return data(); }
 };
 
@@ -115,13 +117,9 @@ template<typename T, typename = void> struct string_traits;
 
 
 /// Return a @c string_view representing value, plus terminating zero.
-/** Produces a @c string_view, which will be null if @c value was null.
- * Otherwise, it will contain the PostgreSQL string representation for
+/** Produces a @c string_view, whose @c data() will be null if @c value was
+ * null.  Otherwise, it will contain the PostgreSQL string representation for
  * @c value.
- *
- * In addition, if @c value is non-null then the result's @c end() is
- * guaranteed to be addressable and contain a zero.  This means that you can
- * also use its @c data() as a C-style string pointer.
  *
  * Uses the space from @c begin to @c end as a buffer, if needed.  The
  * returned string may lie somewhere in that buffer, or it may be a
@@ -233,11 +231,7 @@ template<> const std::string type_name<ENUM>{#ENUM}
  * PostgreSQL and out of to_string() can be converted.
  */
 template<typename T> inline T from_string(std::string_view text)
-{
-  if (text.data() == nullptr)
-    throw std::runtime_error{"Attempt to read null string."};
-  return string_traits<T>::from_string(text);
-}
+{ return string_traits<T>::from_string(text); }
 
 
 /// Attempt to convert postgres-generated string to given built-in object.

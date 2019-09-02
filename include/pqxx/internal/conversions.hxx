@@ -229,9 +229,8 @@ template<typename T> struct string_traits<std::optional<T>>
   static constexpr std::optional<T> null() { return std::optional<T>{}; }
   static std::optional<T> from_string(std::string_view text)
   {
-    return (text.data() == nullptr) ?
-      std::optional<T>{} :
-      std::optional<T>{std::in_place, string_traits<T>::from_string(text)};
+    return std::optional<T>{
+	std::in_place, string_traits<T>::from_string(text)};
   }
 };
 
@@ -545,21 +544,14 @@ template<> struct PQXX_LIBEXPORT string_traits<std::string>
 /// String traits for `string_view`.
 template<> struct PQXX_LIBEXPORT string_traits<std::string_view>
 {
-  static constexpr bool has_null = true;
-  static constexpr bool is_null(std::string_view t)
-	{ return t.data() == nullptr; }
-  static constexpr std::string_view null() { return std::string_view{}; }
-
+  static constexpr bool has_null = false;
   // Don't allow conversion to this type; it has nowhere to store its contents.
 };
 
 /// String traits for `zview`.
 template<> struct PQXX_LIBEXPORT string_traits<zview>
 {
-  static constexpr bool has_null = true;
-  static constexpr bool is_null(zview t) { return t.data() == nullptr; }
-  static constexpr zview null() { return zview{}; }
-
+  static constexpr bool has_null = false;
   // Don't allow conversion to this type; it has nowhere to store its contents.
 };
 

@@ -243,8 +243,7 @@ array_parser::get_next()
   std::string value;
   std::string::size_type end;
 
-  if (m_input.data() == nullptr or (m_pos >= m_input.size()))
-    return std::make_pair(juncture::done, value);
+  if (m_pos >= m_input.size()) return std::make_pair(juncture::done, value);
 
   if (scan_glyph(m_pos) - m_pos > 1)
   {
