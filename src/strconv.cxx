@@ -339,7 +339,7 @@ namespace pqxx::internal
  * @c std::string_view.  So, we implement @c to_buf in terms of @c to_string
  * instead of the other way around.
  */
-template<typename T> PQXX_LIBEXPORT std::string to_string_float(T value)
+template<typename T> std::string to_string_float(T value)
 {
   thread_local dumb_stringstream<T> s;
   s.str("");
