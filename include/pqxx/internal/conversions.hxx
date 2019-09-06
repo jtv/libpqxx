@@ -179,12 +179,10 @@ to_buf_integral(char *begin, char *end, T value)
 }
 
 
-template<typename T>
-PQXX_LIBEXPORT std::string to_buf_float(char *, char *, T);
-
-#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
-template<typename T> PQXX_LIBEXPORT std::string to_string_float(T);
-#endif
+template<typename T> PQXX_LIBEXPORT extern
+std::string_view to_buf_float(char *, char *, T);
+template<typename T> PQXX_LIBEXPORT extern
+std::string to_string_float(T);
 
 
 /// Helper: string traits implementation for built-in types.
@@ -638,14 +636,12 @@ template<typename T> inline std::string to_string(
 }
 
 
-#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 template<> inline std::string to_string(const float &value)
 	{ return internal::to_string_float(value); }
 template<> inline std::string to_string(const double &value)
 	{ return internal::to_string_float(value); }
 template<> inline std::string to_string(const long double &value)
 	{ return internal::to_string_float(value); }
-#endif
 
 
 template<> inline std::string to_string(const std::stringstream &value)

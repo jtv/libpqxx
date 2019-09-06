@@ -333,29 +333,8 @@ template<typename T> inline T from_string_float(std::string_view str)
 
 namespace pqxx::internal
 {
-#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
-/// Fallback floating-point implementation of @c pqxx::to_string().
-/** In this rare case, a @c std::string is easier to produce than a
- * @c std::string_view.  So, we implement @c to_buf in terms of @c to_string
- * instead of the other way around.
- */
-template<typename T> std::string to_string_float(T value)
-{
-  thread_local dumb_stringstream<T> s;
-  s.str("");
-  s << value;
-  return s.str();
-}
-
-
-template std::string to_string_float(float);
-template std::string to_string_float(double);
-template std::string to_string_float(long double);
-#endif // !PQXX_HAVE_CHARCONV_FLOAT
-
-
 /// Floating-point to_buf implemented in terms of to_string.
-template<typename T>
+template<typename T> PQXX_LIBEXPORT
 std::string_view to_buf_float(char *begin, char *end, T value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
@@ -395,6 +374,24 @@ std::string_view to_buf_float(char *begin, char *end, T value)
   std::memcpy(begin, text.c_str(), need);
   return std::string_view{begin, text.size()};
 
+#endif // !PQXX_HAVE_CHARCONV_FLOAT
+}
+
+
+/// Floating-point implementations for @c pqxx::to_string().
+template<typename T> std::string to_string_float(T value)
+{
+#if defined(PQXX_HAVE_CHARCONV_FLOAT)
+  char buf[100];
+  return std::string{to_buf_float(std::begin(buf), std::end(buf), value)};
+#else // PQXX_HAVE_CHARCONV_FLOAT
+  // In this rare case, we can convert to std::string but not to a simple
+  // buffer.  So, implement to_buf_float in terms of to_string_float instead of
+  // the other way around.
+  thread_local dumb_stringstream<T> s;
+  s.str("");
+  s << value;
+  return s.str();
 #endif // !PQXX_HAVE_CHARCONV_FLOAT
 }
 
@@ -486,6 +483,14 @@ builtin_traits<long double>::from_string(std::string_view str)
 	{ return from_string_float<long double>(str); }
 } // namespace pqxx::internal
 #endif // !PQXX_HAVE_CHARCONV_FLOAT
+
+
+namespace pqxx::internal
+{
+template std::string to_string_float(float);
+template std::string to_string_float(double);
+template std::string to_string_float(long double);
+}
 
 
 namespace pqxx::internal
