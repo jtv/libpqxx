@@ -5437,6 +5437,11 @@ ac_config_headers="$ac_config_headers include/pqxx/config.h"
 # Default prefix for installs.
 
 
+
+# Read test programme from config-test.
+
+
+
 # Checks for programs.
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
@@ -18402,21 +18407,31 @@ SAVE_CXXFLAGS="$CXXFLAGS"
 CXXFLAGS="$CXXFLAGS -Werror"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+// Test for gcc-style "visibility" attribute.
 
-			struct __attribute__ ((visibility("hidden"))) d
-			{
-				d() {}
-				void f() {}
-			};
+struct __attribute__ ((visibility("hidden"))) D
 
-int
-main ()
 {
-d D; D.f()
 
-  ;
-  return 0;
+  D() {}
+
+  int f() { return 0; }
+
+};
+
+
+
+int main()
+
+{
+
+  D d;
+
+  return d.f();
+
 }
+
+
 _ACEOF
 if ac_fn_cxx_try_compile "$LINENO"; then :
 
@@ -18442,14 +18457,21 @@ $as_echo_n "checking g++ pure attribute... " >&6; }
 gcc_pure=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-void __attribute__ ((pure)) f();
-int
-main ()
+// Test for gcc-style "pure" attribute.
+
+int __attribute__ ((pure)) f() { return 0; }
+
+
+
+int main()
+
 {
 
-  ;
-  return 0;
+  return f();
+
 }
+
+
 _ACEOF
 if ac_fn_cxx_try_compile "$LINENO"; then :
 
@@ -18471,30 +18493,43 @@ $as_echo_n "checking __cxa_demangle... " >&6; }
 cxa_demangle=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+// Test for cross-vendor C++ ABI's __cxa_demangle function.
 
-		#include <cxxabi.h>
-		#include <cstdlib>
-		#include <cstring>
-		#include <stdexcept>
-		#include <typeinfo>
+#include <cxxabi.h>
 
-int
-main ()
+#include <cstdlib>
+
+#include <cstring>
+
+#include <stdexcept>
+
+#include <typeinfo>
+
+
+
+int main()
+
 {
 
-		  int status = 0;
-		  char *name = abi::__cxa_demangle(
-			typeid(10).name(), nullptr, nullptr, &status);
-		  if (status != 0)
-		    throw std::runtime_error("Demangle failed!");
-		  int result = std::strcmp(name, "int");
-		  std::free(name);
-		  return result;
+  int status = 0;
 
+  char *name = abi::__cxa_demangle(
 
-  ;
-  return 0;
+	typeid(10).name(), nullptr, nullptr, &status);
+
+  if (status != 0)
+
+    throw std::runtime_error("Demangle failed!");
+
+  int result = std::strcmp(name, "int");
+
+  std::free(name);
+
+  return result;
+
 }
+
+
 _ACEOF
 if ac_fn_cxx_try_compile "$LINENO"; then :
 
@@ -18520,28 +18555,35 @@ $as_echo_n "checking for C++17 charconv integer conversion... " >&6; }
 have_charconv_int=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+// Test for std::to_string/std::from_string for integral types.
 
-			#include <charconv>
-			#include <iterator>
+#include <charconv>
 
-int
-main ()
+#include <iterator>
+
+
+
+int main()
+
 {
 
-			char z[100];
-			auto rt = std::to_chars(
-				std::begin(z), std::end(z), 9ULL);
-			if (rt.ec != std::errc{}) return 1;
-			unsigned long long n;
-			auto rf = std::from_chars(
-				std::cbegin(z), std::cend(z), n);
-			if (rf.ec != std::errc{}) return 2;
-			return (n == 9ULL) ? 0 : 1
+  char z[100];
 
+  auto rt = std::to_chars(std::begin(z), std::end(z), 9ULL);
 
-  ;
-  return 0;
+  if (rt.ec != std::errc{}) return 1;
+
+  unsigned long long n;
+
+  auto rf = std::from_chars(std::cbegin(z), std::cend(z), n);
+
+  if (rf.ec != std::errc{}) return 2;
+
+  return (n == 9ULL) ? 0 : 1;
+
 }
+
+
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
 
@@ -18560,29 +18602,35 @@ $as_echo_n "checking for C++17 charconv floating-point conversion... " >&6; }
 have_charconv_float=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+// Test for std::to_string/std::from_string for floating-point types.
 
-                        #include <charconv>
-                        #include <ciso646>
-                        #include <iterator>
+#include <charconv>
 
-int
-main ()
+#include <iterator>
+
+
+
+int main()
+
 {
 
-			char z[100];
-			auto rt = std::to_chars(
-				std::begin(z), std::end(z), 3.14159L);
-			if (rt.ec != std::errc{}) return 1;
-			long double n;
-			auto rf = std::from_chars(
-                                std::cbegin(z), std::cend(z), n);
-			if (rf.ec != std::errc{}) return 2;
-			return (n > 3 and n < 4) ? 0 : 1
+  char z[100];
 
+  auto rt = std::to_chars(std::begin(z), std::end(z), 3.14159L);
 
-  ;
-  return 0;
+  if (rt.ec != std::errc{}) return 1;
+
+  long double n;
+
+  auto rf = std::from_chars(std::cbegin(z), std::cend(z), n);
+
+  if (rf.ec != std::errc{}) return 2;
+
+  return (n > 3 and n < 4) ? 0 : 1;
+
 }
+
+
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
 
@@ -18612,17 +18660,21 @@ $as_echo_n "checking for poll()... " >&6; }
 ax_cv_have_poll=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+// Test for poll().
+
 #include <poll.h>
-int
-main ()
+
+
+
+int main()
+
 {
 
-			return poll(nullptr, 0, 0);
+  return poll(nullptr, 0, 0);
 
-
-  ;
-  return 0;
 }
+
+
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
 

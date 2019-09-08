@@ -23,6 +23,12 @@ AC_CONFIG_HEADER([include/pqxx/config.h])
 # Default prefix for installs.
 AC_PREFIX_DEFAULT(/usr/local)
 
+
+# Read test programme from config-test.
+AC_DEFUN([read_test], [AC_LANG_SOURCE(
+	esyscmd(tools/m4esc.py --input=config-tests/$1))])
+
+
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_INSTALL
@@ -171,16 +177,7 @@ gcc_visibility=yes
 SAVE_CXXFLAGS="$CXXFLAGS"
 CXXFLAGS="$CXXFLAGS -Werror"
 AC_COMPILE_IFELSE(
-	[AC_LANG_PROGRAM(
-		[[
-			struct __attribute__ ((visibility("hidden"))) d
-			{
-				d() {}
-				void f() {}
-			};
-		]],
-		[[d D; D.f()]]
-	)],
+	[read_test(gcc_visibility.cxx)],
 	AC_DEFINE(
 		[PQXX_HAVE_GCC_VISIBILITY],
 		1,
@@ -199,7 +196,7 @@ fi
 AC_MSG_CHECKING([g++ pure attribute])
 gcc_pure=yes
 AC_COMPILE_IFELSE(
-	[AC_LANG_PROGRAM([void __attribute__ ((pure)) f();], [])],
+	[read_test(gcc_pure.cxx)],
 	AC_DEFINE(
 		[PQXX_HAVE_GCC_PURE],
 		1,
@@ -214,25 +211,7 @@ fi # End of gcc-specific part.
 AC_MSG_CHECKING([__cxa_demangle])
 cxa_demangle=yes
 AC_COMPILE_IFELSE(
-	[AC_LANG_PROGRAM(
-		[
-		#include <cxxabi.h>
-		#include <cstdlib>
-		#include <cstring>
-		#include <stdexcept>
-		#include <typeinfo>
-		],
-		[
-		  int status = 0;
-		  char *name = abi::__cxa_demangle(
-			typeid(10).name(), nullptr, nullptr, &status);
-		  if (status != 0)
-		    throw std::runtime_error("Demangle failed!");
-		  int result = std::strcmp(name, "int");
-		  std::free(name);
-		  return result;
-		]
-	)],
+	[read_test(cxa_demangle.cxx)],
 	AC_DEFINE(
 		[PQXX_HAVE_CXA_DEMANGLE],
 		1,
@@ -251,23 +230,7 @@ AC_MSG_RESULT($cxa_demangle)
 AC_MSG_CHECKING([for C++17 charconv integer conversion])
 have_charconv_int=yes
 AC_LINK_IFELSE(
-	[AC_LANG_PROGRAM(
-		[
-			#include <charconv>
-			#include <iterator>
-		],
-		[[
-			char z[100];
-			auto rt = std::to_chars(
-				std::begin(z), std::end(z), 9ULL);
-			if (rt.ec != std::errc{}) return 1;
-			unsigned long long n;
-			auto rf = std::from_chars(
-				std::cbegin(z), std::cend(z), n);
-			if (rf.ec != std::errc{}) return 2;
-			return (n == 9ULL) ? 0 : 1
-		]]
-	)],
+	[read_test(charconv_int.cxx)],
 	AC_DEFINE(
 		[PQXX_HAVE_CHARCONV_INT],
 		1,
@@ -278,24 +241,7 @@ AC_MSG_RESULT($have_charconv_int)
 AC_MSG_CHECKING([for C++17 charconv floating-point conversion])
 have_charconv_float=yes
 AC_LINK_IFELSE(
-	[AC_LANG_PROGRAM(
-		[
-                        #include <charconv>
-                        #include <ciso646>
-                        #include <iterator>
-                ],
-		[[
-			char z[100];
-			auto rt = std::to_chars(
-				std::begin(z), std::end(z), 3.14159L);
-			if (rt.ec != std::errc{}) return 1;
-			long double n;
-			auto rf = std::from_chars(
-                                std::cbegin(z), std::cend(z), n);
-			if (rf.ec != std::errc{}) return 2;
-			return (n > 3 and n < 4) ? 0 : 1
-		]]
-	)],
+	[read_test(charconv_float.cxx)],
 	AC_DEFINE(
 		[PQXX_HAVE_CHARCONV_FLOAT],
 		1,
@@ -317,12 +263,7 @@ AC_MSG_RESULT($have_charconv_float)
 AC_MSG_CHECKING([for poll()])
 ax_cv_have_poll=yes
 AC_LINK_IFELSE(
-	[AC_LANG_PROGRAM(
-		[#include <poll.h>],
-		[[
-			return poll(nullptr, 0, 0);
-		]]
-	)],
+	[read_test(poll.cxx)],
 	AC_DEFINE(
 		[PQXX_HAVE_POLL],
 		1,
