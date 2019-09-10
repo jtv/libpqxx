@@ -7,7 +7,6 @@ PACKAGE_VERSION	internal	autotools
 PQXX_HAVE_CHARCONV_INT	internal	compiler
 PQXX_HAVE_CHARCONV_FLOAT	internal	compiler
 PQXX_HAVE_CXA_DEMANGLE	internal	compiler
-PQXX_HAVE_GCC_CONST	public	compiler
 PQXX_HAVE_GCC_PURE	public	compiler
 PQXX_HAVE_GCC_VISIBILITY	internal	compiler
 PQXX_HAVE_POLL       internal        compiler
