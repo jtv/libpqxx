@@ -31,11 +31,26 @@ endif (CMAKE_REQUIRED_DEFINITIONS)
 set(CMAKE_REQUIRED_DEFINITIONS ${CMAKE_CXX${CMAKE_CXX_STANDARD}_STANDARD_COMPILE_OPTION})
 set(CMAKE_REQUIRED_QUIET ON)
 
-try_compile(PQXX_HAVE_GCC_PURE ${PROJECT_BINARY_DIR} SOURCES ${PROJECT_SOURCE_DIR}/config-tests/gcc_pure.cxx)
-try_compile(PQXX_HAVE_GCC_VISIBILITY ${PROJECT_BINARY_DIR} SOURCES ${PROJECT_SOURCE_DIR}/config-tests/gcc_visibility.cxx)
-try_compile(PQXX_HAVE_CXA_DEMANGLE ${PROJECT_BINARY_DIR} SOURCES ${PROJECT_SOURCE_DIR}/config-tests/cxa_demangle.cxx)
-try_compile(PQXX_HAVE_CHARCONV_FLOAT ${PROJECT_BINARY_DIR} SOURCES ${PROJECT_SOURCE_DIR}/config-tests/charconv_float.cxx)
-try_compile(PQXX_HAVE_CHARCONV_INT ${PROJECT_BINARY_DIR} SOURCES ${PROJECT_SOURCE_DIR}/config-tests/charconv_int.cxx)
+try_compile(
+  PQXX_HAVE_GCC_PURE
+  ${PROJECT_BINARY_DIR}
+  SOURCES ${PROJECT_SOURCE_DIR}/config-tests/gcc_pure.cxx)
+try_compile(
+  PQXX_HAVE_GCC_VISIBILITY
+  ${PROJECT_BINARY_DIR}
+  SOURCES ${PROJECT_SOURCE_DIR}/config-tests/gcc_visibility.cxx)
+try_compile(
+  PQXX_HAVE_CXA_DEMANGLE ${PROJECT_BINARY_DIR}
+  SOURCES
+  ${PROJECT_SOURCE_DIR}/config-tests/cxa_demangle.cxx)
+try_compile(
+  PQXX_HAVE_CHARCONV_FLOAT
+  ${PROJECT_BINARY_DIR}
+  SOURCES ${PROJECT_SOURCE_DIR}/config-tests/charconv_float.cxx)
+try_compile(
+  PQXX_HAVE_CHARCONV_INT
+  ${PROJECT_BINARY_DIR}
+  SOURCES ${PROJECT_SOURCE_DIR}/config-tests/charconv_int.cxx)
 
 # check_cxx_source_compiles requires CMAKE_REQUIRED_DEFINITIONS to specify
 # compiling arguments.
