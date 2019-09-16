@@ -1,5 +1,9 @@
 #! /usr/bin/env python3
+"""Brute-force test script: test libpqxx against many compilers etc."""
 
+from __future__ import print_function
+
+from argparse import ArgumentParser
 from subprocess import (
     CalledProcessError,
     check_call,
@@ -49,9 +53,22 @@ def build(configure, output):
         output.write("\n\nOK\n")
 
 
-def main():
-    for cxx in sorted(CXX):
-        for opt in sorted(OPT):
+def parse_args():
+    parser = ArgumentParser(description=__doc__)
+    parser.add_argument(
+        '--compilers', '-c', default=','.join(CXX),
+        help="Compilers to use, separated by commas.  Default is %(default)s.")
+    parser.add_argument(
+        '--optimize', '-O', default=','.join(OPT),
+        help=(
+            "Alternative optimisation options, separated by commas.  "
+            "Default is %(default)s."))
+    return parser.parse_args()
+
+
+def main(args):
+    for cxx in sorted(args.compilers.split(',')):
+        for opt in sorted(args.optimize.split(',')):
             for link, link_opts in sorted(LINK.items()):
                 for debug, debug_opts in sorted(DEBUG.items()):
                     log = 'build-%s.out' % '_'.join(
@@ -67,4 +84,4 @@ def main():
                         build(configure, output)
 
 if __name__ == '__main__':
-    main()
+    main(parse_args())
