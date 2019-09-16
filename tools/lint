@@ -71,10 +71,11 @@ EOF
 
 
 cpplint() {
-	if which cppcheck >/dev/null
-	then
-		cppcheck -q -j$(nproc) -I include src/*.cxx test/*.cxx test/unit/*.cxx
-	fi
+        echo "Skipping cppcheck; it's not up to date with C++17."
+	# if which cppcheck >/dev/null
+	# then
+	# 	cppcheck -q -j$(nproc) -I include src/*.cxx test/*.cxx test/unit/*.cxx
+	# fi
 }
 
 
@@ -82,7 +83,7 @@ pylint() {
 	local PYFILES="tools/*.py tools/splitconfig"
 	if which pocketlint >/dev/null
 	then
-    	pocketlint $PYFILES
+    	        pocketlint $PYFILES
 	fi
 
 	if which flake8 >/dev/null
