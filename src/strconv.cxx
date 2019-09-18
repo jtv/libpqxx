@@ -18,7 +18,7 @@
 #include <string_view>
 #include <system_error>
 
-#if defined(PQXX_HAVE_CXA_DEMANGLE)
+#if __has_include(<cxxabi.h>)
 #include <cxxabi.h>
 #endif
 
