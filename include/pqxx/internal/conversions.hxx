@@ -133,7 +133,6 @@ template<> inline constexpr const char *hard_neg<-9223372036854775807LL> =
 template<typename T> inline zview
 to_buf_integral(char *begin, char *end, T value)
 {
-  // TODO: Conservative estimate.  We could do better, but will it cost time?
   const ptrdiff_t
 	buf_size = end - begin,
 	need = buffer_budget<T>;
@@ -199,6 +198,7 @@ template<typename TYPE> struct PQXX_LIBEXPORT builtin_traits
 
 namespace pqxx
 {
+// XXX: Can we SFINAE this?
 /// Helper: declare a string_traits specialisation for a builtin type.
 #define PQXX_SPECIALIZE_STRING_TRAITS(TYPE) \
   template<> struct PQXX_LIBEXPORT string_traits<TYPE> : \
@@ -245,6 +245,7 @@ to_buf(
 	const std::enable_if_t<std::is_enum_v<ENUM>, ENUM> &value)
 { return to_buf(begin, end, std::underlying_type<ENUM>(value)); }
 
+// XXX: Can we SFINAE this?
 template<> inline zview to_buf(char *begin, char *end, const short &value)
 { return internal::to_buf_integral(begin, end, value); }
 template<> inline zview
@@ -311,6 +312,7 @@ to_buf(char *begin, char *end, const char * const &value)
 template<> inline zview to_buf(char *begin, char *end, char * const &value)
 { return to_buf<const char *>(begin, end, value); }
 
+// XXX: Can we SFINAE this?
 template<> inline zview to_buf(char *begin, char *end, const float &value)
 { return internal::to_buf_float(begin, end, value); }
 template<> inline zview to_buf(char *begin, char *end, const double &value)
@@ -636,6 +638,7 @@ template<typename T> inline std::string to_string(
 }
 
 
+// XXX: Can we SFINAE this?
 template<> inline std::string to_string(const float &value)
 	{ return internal::to_string_float(value); }
 template<> inline std::string to_string(const double &value)

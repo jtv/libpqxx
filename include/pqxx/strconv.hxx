@@ -116,6 +116,7 @@ template<typename TYPE> const std::string type_name{
 template<typename T, typename = void> struct string_traits;
 
 
+// XXX: Add template parameter for binary support.
 /// Return a @c string_view representing value, plus terminating zero.
 /** Produces a @c string_view, whose @c data() will be null if @c value was
  * null.  Otherwise, it will contain the PostgreSQL string representation for
@@ -138,7 +139,8 @@ template<typename T, typename = void> struct string_traits;
 template<typename T> inline zview
 to_buf(char *begin, char *end, const T &value);
 
-
+// XXX: Can we do this more efficiently for arbitrary tuples of values?
+// XXX: An "into_buf" might help: to_buf with exact placement.
 /// Value-to-string converter: represent value as a postgres-compatible string.
 /** @warning This feature is experimental.  It may change, or disappear.
  *
