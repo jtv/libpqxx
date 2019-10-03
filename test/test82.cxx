@@ -2,20 +2,18 @@
 
 #include "test_helpers.hxx"
 
-using namespace pqxx;
-
 
 // Test program for libpqxx.  Read and print table using row iterators.
 namespace
 {
 void test_082()
 {
-  connection conn;
-  nontransaction tx{conn};
+  pqxx::connection conn;
+  pqxx::nontransaction tx{conn};
 
-  test::create_pqxxevents(tx);
+  pqxx::test::create_pqxxevents(tx);
   const std::string Table = "pqxxevents";
-  result R{ tx.exec("SELECT * FROM " + Table) };
+  pqxx::result R{ tx.exec("SELECT * FROM " + Table) };
 
   PQXX_CHECK(not R.empty(), "Got empty result.");
 

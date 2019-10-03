@@ -3,8 +3,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace pqxx;
-
 
 // Test program for libpqxx.  Compare const_reverse_iterator iteration of a
 // result to a regular, const_iterator iteration.
@@ -12,11 +10,11 @@ namespace
 {
 void test_075()
 {
-  connection conn;
-  work tx{conn};
+  pqxx::connection conn;
+  pqxx::work tx{conn};
 
-  test::create_pqxxevents(tx);
-  const result R( tx.exec("SELECT year FROM pqxxevents") );
+  pqxx::test::create_pqxxevents(tx);
+  const auto R( tx.exec("SELECT year FROM pqxxevents") );
   PQXX_CHECK(not R.empty(), "No events found, cannot test.");
 
   PQXX_CHECK_EQUAL(R[0], R.at(0), "Inconsistent result indexing.");
@@ -29,23 +27,23 @@ void test_075()
 
   std::vector<std::string> contents;
   for (const auto &i: R) contents.push_back(i.at(0).as<std::string>());
-  std::cout << to_string(contents.size()) << " years read" << std::endl;
+  std::cout << pqxx::to_string(contents.size()) << " years read" << std::endl;
 
   PQXX_CHECK_EQUAL(
 	contents.size(),
 	std::vector<std::string>::size_type(R.size()),
 	"Number of values does not match result size.");
 
-  for (result::size_type i=0; i<R.size(); ++i)
+  for (pqxx::result::size_type i=0; i < R.size(); ++i)
     PQXX_CHECK_EQUAL(
 	contents[i],
 	R.at(i).at(0).c_str(),
 	"Inconsistent iteration.");
 
-  std::cout << to_string(R.size()) << " years checked" << std::endl;
+  std::cout << pqxx::to_string(R.size()) << " years checked" << std::endl;
 
   // Thorough test for result::const_reverse_iterator
-  result::const_reverse_iterator ri1(R.rbegin()), ri2(ri1), ri3(R.end());
+  pqxx::result::const_reverse_iterator ri1(R.rbegin()), ri2(ri1), ri3(R.end());
   ri2 = R.rbegin();
 
   PQXX_CHECK(ri2 == ri1, "reverse_iterator copy constructor is broken.");

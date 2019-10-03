@@ -2,69 +2,67 @@
 
 #include "test_helpers.hxx"
 
-using namespace pqxx;
-
 
 // Test program for libpqxx.  Attempt to perform nested transactions.
 namespace
 {
 void test_088()
 {
-  connection conn;
-  
-  work tx0{conn};
-  test::create_pqxxevents(tx0);
+  pqxx::connection conn;
+
+  pqxx::work tx0{conn};
+  pqxx::test::create_pqxxevents(tx0);
 
   // Trivial test: create subtransactions, and commit/abort
   std::cout << tx0.exec1("SELECT 'tx0 starts'")[0].c_str() << std::endl;
 
-  subtransaction T0a(static_cast<dbtransaction &>(tx0), "T0a");
+  pqxx::subtransaction T0a(static_cast<pqxx::dbtransaction &>(tx0), "T0a");
   T0a.commit();
 
-  subtransaction T0b(static_cast<dbtransaction &>(tx0), "T0b");
+  pqxx::subtransaction T0b(static_cast<pqxx::dbtransaction &>(tx0), "T0b");
   T0b.abort();
   std::cout << tx0.exec1("SELECT 'tx0 ends'")[0].c_str() << std::endl;
   tx0.commit();
 
   // Basic functionality: perform query in subtransaction; abort, continue
-  work tx1{conn, "tx1"};
+  pqxx::work tx1{conn, "tx1"};
   std::cout << tx1.exec1("SELECT 'tx1 starts'")[0].c_str() << std::endl;
-  subtransaction tx1a{tx1, "tx1a"};
+  pqxx::subtransaction tx1a{tx1, "tx1a"};
     std::cout << tx1a.exec1("SELECT '  a'")[0].c_str() << std::endl;
     tx1a.commit();
-  subtransaction tx1b{tx1, "tx1b"};
+  pqxx::subtransaction tx1b{tx1, "tx1b"};
     std::cout << tx1b.exec1("SELECT '  b'")[0].c_str() << std::endl;
     tx1b.abort();
-  subtransaction tx1c{tx1, "tx1c"};
+  pqxx::subtransaction tx1c{tx1, "tx1c"};
     std::cout << tx1c.exec1("SELECT '  c'")[0].c_str() << std::endl;
     tx1c.commit();
   std::cout << tx1.exec1("SELECT 'tx1 ends'")[0].c_str() << std::endl;
   tx1.commit();
 
   // Commit/rollback functionality
-  work tx2{conn, "tx2"};
+  pqxx::work tx2{conn, "tx2"};
   const std::string Table = "test088";
   tx2.exec0("CREATE TEMP TABLE " + Table + "(no INTEGER, text VARCHAR)");
 
   tx2.exec0("INSERT INTO " + Table + " VALUES(1,'tx2')");
 
-  subtransaction tx2a{tx2, "tx2a"};
+  pqxx::subtransaction tx2a{tx2, "tx2a"};
     tx2a.exec0("INSERT INTO "+Table+" VALUES(2,'tx2a')");
     tx2a.commit();
-  subtransaction tx2b{tx2, "tx2b"};
+  pqxx::subtransaction tx2b{tx2, "tx2b"};
     tx2b.exec0("INSERT INTO "+Table+" VALUES(3,'tx2b')");
     tx2b.abort();
-  subtransaction tx2c{tx2, "tx2c"};
+  pqxx::subtransaction tx2c{tx2, "tx2c"};
     tx2c.exec0("INSERT INTO "+Table+" VALUES(4,'tx2c')");
     tx2c.commit();
-  const result R = tx2.exec("SELECT * FROM " + Table + " ORDER BY no");
+  const auto R = tx2.exec("SELECT * FROM " + Table + " ORDER BY no");
   for (const auto &i: R)
     std::cout << '\t' << i[0].c_str() << '\t' << i[1].c_str() << std::endl;
 
   PQXX_CHECK_EQUAL(R.size(), 3u, "Wrong number of results.");
 
   int expected[3] = { 1, 2, 4 };
-  for (result::size_type n=0; n<R.size(); ++n)
+  for (pqxx::result::size_type n=0; n < R.size(); ++n)
     PQXX_CHECK_EQUAL(
 	R[n][0].as<int>(),
 	expected[n],
@@ -73,11 +71,11 @@ void test_088()
   tx2.abort();
 
   // Auto-abort should only roll back the subtransaction.
-  work tx3{conn, "tx3"};
-  subtransaction tx3a(tx3, "tx3a");
+  pqxx::work tx3{conn, "tx3"};
+  pqxx::subtransaction tx3a(tx3, "tx3a");
   PQXX_CHECK_THROWS(
 	tx3a.exec("SELECT * FROM nonexistent_table WHERE nonattribute=0"),
-	sql_error,
+	pqxx::sql_error,
 	"Bogus query did not fail.");
 
   // Subtransaction can only be aborted now, because there was an error.
