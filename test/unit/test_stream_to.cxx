@@ -1,11 +1,10 @@
 #include "../test_helpers.hxx"
 #include "../test_types.hxx"
 
-#include <pqxx/stream_to>
-
 #include <iostream>
-
 #include <optional>
+
+#include <pqxx/stream_to>
 
 
 namespace

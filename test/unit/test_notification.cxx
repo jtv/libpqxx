@@ -1,18 +1,15 @@
 #include "../test_helpers.hxx"
 
-using namespace pqxx;
-
-
 namespace
 {
-class TestReceiver final : public notification_receiver
+class TestReceiver final : public pqxx::notification_receiver
 {
 public:
   std::string payload;
   int backend_pid;
 
-  TestReceiver(connection_base &c, const std::string &channel_name) :
-    notification_receiver(c, channel_name),
+  TestReceiver(pqxx::connection_base &c, const std::string &channel_name) :
+    pqxx::notification_receiver(c, channel_name),
     payload(),
     backend_pid(0)
   {
@@ -28,11 +25,11 @@ public:
 
 
 void test_receive(
-	transaction_base &t,
+	pqxx::transaction_base &t,
 	const std::string &channel,
 	const char payload[] = nullptr)
 {
-  connection_base &conn(t.conn());
+  pqxx::connection_base &conn(t.conn());
 
   std::string SQL = "NOTIFY \"" + channel + "\"";
   if (payload) SQL += ", " + t.quote(payload);
@@ -49,7 +46,7 @@ void test_receive(
 
   int notifs = 0;
   for (
-	int i=0;
+	int i = 0;
 	(i < 10) and (notifs == 0);
 	++i, pqxx::internal::sleep_seconds(1))
     notifs = conn.get_notifs();
@@ -63,14 +60,14 @@ void test_receive(
 
 void test_notification()
 {
-  connection conn;
+  pqxx::connection conn;
   TestReceiver receiver(conn, "mychannel");
   PQXX_CHECK_EQUAL(receiver.channel(), "mychannel", "Bad channel.");
 
-  work tx{conn};
+  pqxx::work tx{conn};
   test_receive(tx, "channel1");
 
-  nontransaction u(conn);
+  pqxx::nontransaction u(conn);
   test_receive(u, "channel2", "payload");
 }
 

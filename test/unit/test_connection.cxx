@@ -59,4 +59,4 @@ void test_move_assign()
 
 PQXX_REGISTER_TEST(test_move_constructor);
 PQXX_REGISTER_TEST(test_move_assign);
-}
+} // namespace

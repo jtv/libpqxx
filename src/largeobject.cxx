@@ -42,9 +42,9 @@ inline int StdModeToPQMode(std::ios::openmode mode)
 constexpr int StdDirToPQDir(std::ios::seekdir dir) noexcept
 {
   if constexpr (
-	int(std::ios::beg) == int(SEEK_SET) and
-	int(std::ios::cur) == int(SEEK_CUR) and
-	int(std::ios::end) == int(SEEK_END)
+	static_cast<int>(std::ios::beg) == int(SEEK_SET) and
+	static_cast<int>(std::ios::cur) == int(SEEK_CUR) and
+	static_cast<int>(std::ios::end) == int(SEEK_END)
   )
   {
     // Easy optimisation: they're the same constants.  This is actually the
@@ -201,7 +201,8 @@ pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
 pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::cseek(off_type dest, seekdir dir) noexcept
 {
-  return lo_lseek(raw_connection(), m_fd, int(dest), StdDirToPQDir(dir));
+  return lo_lseek(
+	raw_connection(), m_fd, static_cast<int>(dest), StdDirToPQDir(dir));
 }
 
 
@@ -210,7 +211,7 @@ pqxx::largeobjectaccess::cwrite(const char Buf[], size_type Len) noexcept
 {
   return
     std::max(
-	lo_write(raw_connection(), m_fd,const_cast<char *>(Buf), size_t(Len)),
+	lo_write(raw_connection(), m_fd, const_cast<char *>(Buf), size_t(Len)),
         -1);
 }
 

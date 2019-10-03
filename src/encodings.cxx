@@ -565,7 +565,7 @@ template<> std::string::size_type glyph_scanner<encoding_group::UHC>::call(
     if (not between_inc(byte2, 0xa1, 0xfe))
       throw_for_encoding_error("UHC", buffer, start, 2);
 
-   return start + 2;
+    return start + 2;
   }
 
   throw_for_encoding_error("UHC", buffer, start, 1);
@@ -684,7 +684,7 @@ encoding_group enc_group(std::string_view encoding_name)
     {"WIN1257", encoding_group::MONOBYTE},
     {"WIN1258", encoding_group::MONOBYTE},
   };
-  
+
   const auto found_encoding_group = encoding_map.find(encoding_name);
   if (found_encoding_group == encoding_map.end())
     throw std::invalid_argument{
@@ -704,7 +704,6 @@ encoding_group enc_group(std::string_view encoding_name)
 template<template<encoding_group> class T, typename F>
 inline F *for_encoding(encoding_group enc)
 {
-
 #define CASE_GROUP(ENC) \
 	case encoding_group::ENC: return T<encoding_group::ENC>::call
 
@@ -726,8 +725,9 @@ inline F *for_encoding(encoding_group enc)
   CASE_GROUP(UHC);
   CASE_GROUP(UTF8);
   }
+  int code = static_cast<int>(enc);
   throw pqxx::usage_error{
-	"Unsupported encoding group code " + to_string(int(enc)) + "."};
+	"Unsupported encoding group code " + to_string(code) + "."};
 
 #undef CASE_GROUP
 }

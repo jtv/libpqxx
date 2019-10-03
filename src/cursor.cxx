@@ -186,7 +186,7 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
 {
   if (topos < m_realpos) return;
 
-  using todolist = std::multimap<difference_type,icursor_iterator*>;
+  using todolist = std::multimap<difference_type, icursor_iterator*>;
   todolist todo;
   for (icursor_iterator *i = m_iterators, *next; i; i = next)
   {

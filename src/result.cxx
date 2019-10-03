@@ -49,8 +49,7 @@ bool pqxx::result::operator==(const result &rhs) const noexcept
   if (&rhs == this) return true;
   const auto s = size();
   if (rhs.size() != s) return false;
-  for (size_type i=0; i<s; ++i)
-    if ((*this)[i] != rhs[i]) return false;
+  for (size_type i=0; i < s; ++i) if ((*this)[i] != rhs[i]) return false;
   return true;
 }
 
@@ -168,12 +167,12 @@ void pqxx::result::ThrowSQLError(
     case '2':
       throw data_exception{Err, Query, code};
     case '3':
-      if (equal(code,"23001")) throw restrict_violation{Err, Query, code};
-      if (equal(code,"23502")) throw not_null_violation{Err, Query, code};
-      if (equal(code,"23503"))
+      if (equal(code, "23001")) throw restrict_violation{Err, Query, code};
+      if (equal(code, "23502")) throw not_null_violation{Err, Query, code};
+      if (equal(code, "23503"))
         throw foreign_key_violation{Err, Query, code};
-      if (equal(code,"23505")) throw unique_violation{Err, Query, code};
-      if (equal(code,"23514")) throw check_violation{Err, Query, code};
+      if (equal(code, "23505")) throw unique_violation{Err, Query, code};
+      if (equal(code, "23514")) throw check_violation{Err, Query, code};
       throw integrity_constraint_violation{Err, Query, code};
     case '4':
       throw invalid_cursor_state{Err, Query, code};
@@ -198,21 +197,21 @@ void pqxx::result::ThrowSQLError(
       if (equal(code, "40P01")) throw deadlock_detected{Err};
       break;
     case '2':
-      if (equal(code,"42501")) throw insufficient_privilege{Err, Query};
-      if (equal(code,"42601"))
+      if (equal(code, "42501")) throw insufficient_privilege{Err, Query};
+      if (equal(code, "42601"))
         throw syntax_error{Err, Query, code, errorposition()};
-      if (equal(code,"42703")) throw undefined_column{Err, Query, code};
-      if (equal(code,"42883")) throw undefined_function{Err, Query, code};
-      if (equal(code,"42P01")) throw undefined_table{Err, Query, code};
+      if (equal(code, "42703")) throw undefined_column{Err, Query, code};
+      if (equal(code, "42883")) throw undefined_function{Err, Query, code};
+      if (equal(code, "42P01")) throw undefined_table{Err, Query, code};
     }
     break;
   case '5':
     switch (code[1])
     {
     case '3':
-      if (equal(code,"53100")) throw disk_full{Err, Query, code};
-      if (equal(code,"53200")) throw out_of_memory{Err, Query, code};
-      if (equal(code,"53300")) throw too_many_connections{Err};
+      if (equal(code, "53100")) throw disk_full{Err, Query, code};
+      if (equal(code, "53200")) throw out_of_memory{Err, Query, code};
+      if (equal(code, "53300")) throw too_many_connections{Err};
       throw insufficient_resources{Err, Query, code};
     }
     break;
@@ -262,7 +261,7 @@ std::string pqxx::result::StatusError() const
   default:
     throw internal_error{
 	"pqxx::result: Unrecognized response code " +
-	to_string(int(PQresultStatus(m_data.get())))};
+	to_string(static_cast<int>(PQresultStatus(m_data.get())))};
   }
   return Err;
 }
@@ -301,7 +300,7 @@ const char *pqxx::result::GetValue(
 	pqxx::result::size_type Row,
 	pqxx::row::size_type Col) const
 {
-  return PQgetvalue(m_data.get(), int(Row), int(Col));
+  return PQgetvalue(m_data.get(), static_cast<int>(Row), static_cast<int>(Col));
 }
 
 
@@ -309,20 +308,23 @@ bool pqxx::result::get_is_null(
 	pqxx::result::size_type Row,
 	pqxx::row::size_type Col) const
 {
-  return PQgetisnull(m_data.get(), int(Row), int(Col)) != 0;
+  auto res = PQgetisnull(
+	m_data.get(), static_cast<int>(Row), static_cast<int>(Col));
+  return res != 0;
 }
 
 pqxx::field::size_type pqxx::result::get_length(
 	pqxx::result::size_type Row,
         pqxx::row::size_type Col) const noexcept
 {
-  return field::size_type(PQgetlength(m_data.get(), int(Row), int(Col)));
+  return static_cast<field::size_type>(
+	PQgetlength(m_data.get(), static_cast<int>(Row), static_cast<int>(Col)));
 }
 
 
 pqxx::oid pqxx::result::column_type(row::size_type ColNum) const
 {
-  const oid T = PQftype(m_data.get(), int(ColNum));
+  const oid T = PQftype(m_data.get(), static_cast<int>(ColNum));
   if (T == oid_none)
     throw argument_error{
 	"Attempt to retrieve type of nonexistent column " +
@@ -333,7 +335,7 @@ pqxx::oid pqxx::result::column_type(row::size_type ColNum) const
 
 pqxx::oid pqxx::result::column_table(row::size_type ColNum) const
 {
-  const oid T = PQftable(m_data.get(), int(ColNum));
+  const oid T = PQftable(m_data.get(), static_cast<int>(ColNum));
 
   /* If we get oid_none, it may be because the column is computed, or because we
    * got an invalid row number.
@@ -349,7 +351,8 @@ pqxx::oid pqxx::result::column_table(row::size_type ColNum) const
 
 pqxx::row::size_type pqxx::result::table_column(row::size_type ColNum) const
 {
-  const auto n = row::size_type(PQftablecol(m_data.get(), int(ColNum)));
+  const auto n = row::size_type(
+	PQftablecol(m_data.get(), static_cast<int>(ColNum)));
   if (n != 0) return n-1;
 
   // Failed.  Now find out why, so we can throw a sensible exception.
@@ -383,7 +386,7 @@ int pqxx::result::errorposition() const
 
 const char *pqxx::result::column_name(pqxx::row::size_type Number) const
 {
-  const char *const N = PQfname(m_data.get(), int(Number));
+  const char *const N = PQfname(m_data.get(), static_cast<int>(Number));
   if (N == nullptr)
   {
     if (m_data.get() == nullptr)

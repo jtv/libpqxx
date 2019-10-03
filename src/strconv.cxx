@@ -268,14 +268,6 @@ public:
 };
 
 
-template<typename T> inline void set_to_Inf(T &t, int sign=1)
-{
-  T value = std::numeric_limits<T>::infinity();
-  if (sign < 0) value = -value;
-  t = value;
-}
-
-
 // These are hard, and popular compilers do not yet implement std::from_chars.
 template<typename T> inline T from_string_float(std::string_view str)
 {
@@ -288,8 +280,8 @@ template<typename T> inline T from_string_float(std::string_view str)
   case 'n':
     // Accept "NaN," "nan," etc.
     ok = (
-      (str[1]=='A' or str[1]=='a') and
-      (str[2]=='N' or str[2]=='n') and
+      (str[1] == 'A' or str[1] == 'a') and
+      (str[2] == 'N' or str[2] == 'n') and
       (str[3] == '\0'));
     result = std::numeric_limits<T>::quiet_NaN();
     break;
@@ -297,14 +289,14 @@ template<typename T> inline T from_string_float(std::string_view str)
   case 'I':
   case 'i':
     ok = valid_infinity_string(str);
-    set_to_Inf(result);
+    result = std::numeric_limits<T>::infinity();
     break;
 
   default:
     if (str[0] == '-' and valid_infinity_string(&str[1]))
     {
       ok = true;
-      set_to_Inf(result, -1);
+      result = -std::numeric_limits<T>::infinity();
     }
     else
     {

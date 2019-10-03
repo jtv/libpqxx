@@ -1,21 +1,21 @@
 #include "../test_helpers.hxx"
 
-using namespace pqxx;
-
 namespace
 {
 void test_stateless_cursor()
 {
-  connection conn;
-  work tx{conn};
+  pqxx::connection conn;
+  pqxx::work tx{conn};
 
-  stateless_cursor<cursor_base::read_only, cursor_base::owned> empty(
+  pqxx::stateless_cursor<
+	pqxx::cursor_base::read_only, pqxx::cursor_base::owned
+  > empty(
 	tx,
 	"SELECT generate_series(0, -1)",
 	"empty",
 	false);
 
-  result rows = empty.retrieve(0, 0);
+  auto rows = empty.retrieve(0, 0);
   PQXX_CHECK_EQUAL(rows.empty(), true, "Empty result not empty");
   rows = empty.retrieve(0, 1);
   PQXX_CHECK_EQUAL(rows.size(), 0u, "Empty result returned rows");
@@ -27,7 +27,10 @@ void test_stateless_cursor()
     std::out_of_range,
     "Empty cursor tries to retrieve");
 
-  stateless_cursor<cursor_base::read_only, cursor_base::owned> stateless(
+  pqxx::stateless_cursor<
+	pqxx::cursor_base::read_only,
+	pqxx::cursor_base::owned
+  > stateless(
 	tx,
 	"SELECT generate_series(0, 9)",
 	"stateless",

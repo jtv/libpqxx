@@ -27,7 +27,7 @@ namespace
  */
 inline bool useless_trail(char c)
 {
-  return isspace(c) or c==';';
+  return isspace(c) or c == ';';
 }
 
 

@@ -139,4 +139,4 @@ void test_transaction()
 
 
 PQXX_REGISTER_TEST(test_transaction);
-}
+} // namespace

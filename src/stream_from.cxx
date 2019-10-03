@@ -61,6 +61,7 @@ bool pqxx::stream_from::get_raw_line(std::string &line)
 {
   internal::gate::transaction_stream_from gate{m_trans};
   if (*this)
+  {
     try
     {
       if (not gate.read_copy_line(line)) close();
@@ -70,6 +71,7 @@ bool pqxx::stream_from::get_raw_line(std::string &line)
       close();
       throw;
     }
+  }
   return *this;
 }
 
@@ -93,9 +95,7 @@ void pqxx::stream_from::set_up(
   // variable will interrupt it
   m_copy_encoding = internal::enc_group(m_trans.conn().encoding_id());
   internal::gate::transaction_stream_from{tb}.BeginCopyRead(
-    table_name,
-    columns
-  );
+    table_name, columns);
   register_me();
 }
 
@@ -139,8 +139,6 @@ bool pqxx::stream_from::extract_field(
 	std::string &s
 ) const
 {
-  using namespace pqxx::internal;
-
   const auto next_seq = get_glyph_scanner(m_copy_encoding);
   s.clear();
   bool is_null{false};

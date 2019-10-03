@@ -1,21 +1,20 @@
 #include "../test_helpers.hxx"
 
-using namespace pqxx;
-
 
 namespace
 {
-binarystring make_binarystring(transaction_base &T, std::string content)
+pqxx::binarystring make_binarystring(
+	pqxx::transaction_base &T, std::string content)
 {
-  return binarystring(T.exec("SELECT " + T.quote_raw(content))[0][0]);
+  return pqxx::binarystring(T.exec("SELECT " + T.quote_raw(content))[0][0]);
 }
 
 
 void test_binarystring()
 {
-  connection conn;
-  work tx{conn};
-  binarystring b = make_binarystring(tx, "");
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  pqxx::binarystring b = make_binarystring(tx, "");
   PQXX_CHECK(b.empty(), "Empty binarystring is not empty.");
   PQXX_CHECK_EQUAL(b.str(), "", "Empty binarystring doesn't work.");
   PQXX_CHECK_EQUAL(b.size(), 0u, "Empty binarystring has nonzero size.");
@@ -60,7 +59,7 @@ void test_binarystring()
   PQXX_CHECK_EQUAL(b.size(), simple.size(), "Escaping confuses length.");
 
   const std::string simple_escaped(tx.esc_raw(simple));
-  for (std::string::size_type i=0; i<simple_escaped.size(); ++i)
+  for (std::string::size_type i = 0; i < simple_escaped.size(); ++i)
   {
     const unsigned char uc = static_cast<unsigned char>(simple_escaped[i]);
     PQXX_CHECK(uc <= 127, "Non-ASCII byte in escaped string.");
@@ -77,7 +76,7 @@ void test_binarystring()
 	tx.quote_raw(simple),
 	"Binary quoting is broken.");
   PQXX_CHECK_EQUAL(
-	binarystring(tx.exec1("SELECT " + tx.quote(b))[0]).str(),
+	pqxx::binarystring(tx.exec1("SELECT " + tx.quote(b))[0]).str(),
 	simple,
 	"Binary string is not idempotent.");
 
@@ -93,7 +92,7 @@ void test_binarystring()
   b = make_binarystring(tx, "foo");
   PQXX_CHECK_EQUAL(std::string(b.get(), 3), "foo", "get() appears broken.");
 
-  binarystring b1 = make_binarystring(tx, "1"), b2 = make_binarystring(tx, "2");
+  auto b1 = make_binarystring(tx, "1"), b2 = make_binarystring(tx, "2");
   PQXX_CHECK_NOT_EQUAL(b1.get(), b2.get(), "Madness rules.");
   PQXX_CHECK_NOT_EQUAL(b1.str(), b2.str(), "Logic has no more meaning.");
   b1.swap(b2);

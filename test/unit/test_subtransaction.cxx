@@ -1,34 +1,32 @@
 #include "../test_helpers.hxx"
 
-using namespace pqxx;
-
 namespace
 {
-void make_table(transaction_base &trans)
+void make_table(pqxx::transaction_base &trans)
 {
   trans.exec("CREATE TEMP TABLE foo (x INTEGER)");
 }
 
 
-void insert_row(transaction_base &trans)
+void insert_row(pqxx::transaction_base &trans)
 {
   trans.exec("INSERT INTO foo(x) VALUES (1)");
 }
 
 
-int count_rows(transaction_base &trans)
+int count_rows(pqxx::transaction_base &trans)
 {
-  const result r = trans.exec("SELECT count(*) FROM foo");
+  const pqxx::result r = trans.exec("SELECT count(*) FROM foo");
   return r[0][0].as<int>();
 }
 
 
-void test_subtransaction_commits_if_commit_called(connection_base &conn)
+void test_subtransaction_commits_if_commit_called(pqxx::connection_base &conn)
 {
-  work trans(conn);
+  pqxx::work trans(conn);
   make_table(trans);
   {
-    subtransaction sub(trans);
+    pqxx::subtransaction sub(trans);
     insert_row(sub);
     sub.commit();
   }
@@ -39,12 +37,12 @@ void test_subtransaction_commits_if_commit_called(connection_base &conn)
 }
 
 
-void test_subtransaction_aborts_if_abort_called(connection_base &conn)
+void test_subtransaction_aborts_if_abort_called(pqxx::connection_base &conn)
 {
-  work trans(conn);
+  pqxx::work trans(conn);
   make_table(trans);
   {
-    subtransaction sub(trans);
+    pqxx::subtransaction sub(trans);
     insert_row(sub);
     sub.abort();
   }
@@ -55,12 +53,12 @@ void test_subtransaction_aborts_if_abort_called(connection_base &conn)
 }
 
 
-void test_subtransaction_aborts_implicitly(connection_base &conn)
+void test_subtransaction_aborts_implicitly(pqxx::connection_base &conn)
 {
-  work trans(conn);
+  pqxx::work trans(conn);
   make_table(trans);
   {
-    subtransaction sub(trans);
+    pqxx::subtransaction sub(trans);
     insert_row(sub);
   }
   PQXX_CHECK_EQUAL(
@@ -72,7 +70,7 @@ void test_subtransaction_aborts_implicitly(connection_base &conn)
 
 void test_subtransaction()
 {
-  connection conn;
+  pqxx::connection conn;
   test_subtransaction_commits_if_commit_called(conn);
   test_subtransaction_aborts_if_abort_called(conn);
   test_subtransaction_aborts_implicitly(conn);

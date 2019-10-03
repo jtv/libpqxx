@@ -2,11 +2,10 @@
 
 #include "../test_helpers.hxx"
 
-using namespace pqxx;
-
 namespace
 {
-void compare_esc(connection_base &c, transaction_base &t, const char str[])
+void compare_esc(
+	pqxx::connection_base &c, pqxx::transaction_base &t, const char str[])
 {
   const size_t len = std::string{str}.size();
   PQXX_CHECK_EQUAL(c.esc(str, len),
@@ -31,7 +30,7 @@ void compare_esc(connection_base &c, transaction_base &t, const char str[])
 }
 
 
-void test_esc(connection_base &c, transaction_base &t)
+void test_esc(pqxx::connection_base &c, pqxx::transaction_base &t)
 {
   PQXX_CHECK_EQUAL(t.esc("", 0), "", "Empty string doesn't escape properly.");
   PQXX_CHECK_EQUAL(t.esc("'", 1), "''", "Single quote escaped incorrectly.");
@@ -45,7 +44,7 @@ void test_esc(connection_base &c, transaction_base &t)
 }
 
 
-void test_quote(connection_base &c, transaction_base &t)
+void test_quote(pqxx::connection_base &c, pqxx::transaction_base &t)
 {
   PQXX_CHECK_EQUAL(t.quote("x"), "'x'", "Basic quote() fails.");
   PQXX_CHECK_EQUAL(t.quote(1), "'1'", "quote() not dealing with int properly.");
@@ -76,7 +75,7 @@ void test_quote(connection_base &c, transaction_base &t)
 
   for (size_t i=0; test_strings[i]; ++i)
   {
-    row r = t.exec1("SELECT " + t.quote(test_strings[i]));
+    auto r = t.exec1("SELECT " + t.quote(test_strings[i]));
     PQXX_CHECK_EQUAL(
 	r[0].as<std::string>(),
 	test_strings[i],
@@ -85,7 +84,7 @@ void test_quote(connection_base &c, transaction_base &t)
 }
 
 
-void test_quote_name(transaction_base &t)
+void test_quote_name(pqxx::transaction_base &t)
 {
   PQXX_CHECK_EQUAL(
 	"\"A b\"",
@@ -98,7 +97,7 @@ void test_quote_name(transaction_base &t)
 }
 
 
-void test_esc_raw_unesc_raw(transaction_base &t)
+void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
 {
   const char binary[] = "1\0023\\4x5";
   const std::string data(binary, sizeof(binary));
@@ -121,7 +120,7 @@ void test_esc_raw_unesc_raw(transaction_base &t)
 }
 
 
-void test_esc_like(transaction_base &tx)
+void test_esc_like(pqxx::transaction_base &tx)
 {
   PQXX_CHECK_EQUAL(tx.esc_like(""), "", "esc_like breaks on empty string.");
   PQXX_CHECK_EQUAL(tx.esc_like("abc"), "abc", "esc_like is broken.");
@@ -140,8 +139,8 @@ void test_esc_like(transaction_base &tx)
 
 void test_escaping()
 {
-  connection conn;
-  work tx{conn};
+  pqxx::connection conn;
+  pqxx::work tx{conn};
   test_esc(conn, tx);
   test_quote(conn, tx);
   test_quote_name(tx);

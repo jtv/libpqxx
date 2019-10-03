@@ -1,16 +1,14 @@
 #include "../test_helpers.hxx"
 
-using namespace pqxx;
-
 namespace
 {
 void test_pipeline()
 {
-  connection conn;
-  work tx{conn};
+  pqxx::connection conn;
+  pqxx::work tx{conn};
 
   // A pipeline grabs transaction focus, blocking regular queries and such.
-  pipeline pipe(tx, "test_pipeline_detach");
+  pqxx::pipeline pipe(tx, "test_pipeline_detach");
   PQXX_CHECK_THROWS(
 	tx.exec("SELECT 1"),
 	std::logic_error,
@@ -18,7 +16,7 @@ void test_pipeline()
 
   // Flushing a pipeline relinquishes transaction focus.
   pipe.flush();
-  result r = tx.exec("SELECT 2");
+  auto r = tx.exec("SELECT 2");
   PQXX_CHECK_EQUAL(r.size(), 1u, "Wrong query result after flushing pipeline.");
   PQXX_CHECK_EQUAL(
     r[0][0].as<int>(),
@@ -26,7 +24,7 @@ void test_pipeline()
     "Query returns wrong data after flushing pipeline.");
 
   // Inserting a query makes the pipeline grab transaction focus back.
-  pipeline::query_id q = pipe.insert("SELECT 2");
+  pqxx::pipeline::query_id q = pipe.insert("SELECT 2");
   PQXX_CHECK_THROWS(
 	tx.exec("SELECT 3"),
 	std::logic_error,

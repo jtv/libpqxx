@@ -146,4 +146,4 @@ PQXX_REGISTER_TEST(test_strconv_enum);
 PQXX_REGISTER_TEST(test_strconv_class_enum);
 PQXX_REGISTER_TEST(test_strconv_optional);
 PQXX_REGISTER_TEST(test_strconv_smart_pointer);
-}
+} // namespace
