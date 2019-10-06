@@ -105,10 +105,11 @@ template<> inline zview to_buf(char *begin, char *end, const ipv4 &value)
 }
 
 
+template<> struct nullness<ipv4> : no_null<ipv4> {};
+
+
 template<> struct string_traits<ipv4>
 {
-  static constexpr bool has_null = false;
-
   static ipv4 from_string(std::string_view str)
   {
     ipv4 ts;
@@ -183,10 +184,11 @@ template<> inline zview to_buf(char *begin, char *end, const bytea &value)
 }
 
 
+template<> struct nullness<bytea> : no_null<bytea> {};
+
+
 template<> struct string_traits<bytea>
 {
-  static constexpr bool has_null = false;
-
   static bytea from_string(std::string_view str)
   {
     if ((str.size() & 1) != 0) throw std::runtime_error{"Odd hex size."};

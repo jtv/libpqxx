@@ -8,19 +8,19 @@
 
 namespace pqxx::internal
 {
-/// Estimate how much buffer space we need to render a TYPE object.
+/// Estimate how much buffer space we need to render a T object.
 /** Ignore the parameter.  It's just there to help us disable inappropriate
  * specialisations for the given type.
  */
-template<typename TYPE> constexpr
+template<typename T> constexpr
 std::enable_if_t<
 	(
-		std::numeric_limits<TYPE>::is_specialized and
-		std::numeric_limits<TYPE>::digits10 > 0
+		std::is_arithmetic_v<T> and
+		std::numeric_limits<T>::digits10 > 0
 	),
 	int
 >
-size_buffer(TYPE *)
+size_buffer(T *)
 {
   // Allocate room for how many digits?  There's "max_digits10" for
   // floating-point numbers, but only "digits10" for integer types.
@@ -31,42 +31,42 @@ size_buffer(TYPE *)
   // Leave a little bit of extra room for sign, decimal point, and trailing
   // null byte.
   return 3 + std::max({
-	std::numeric_limits<TYPE>::digits10 + 1,
-	std::numeric_limits<TYPE>::max_digits10});
+	std::numeric_limits<T>::digits10 + 1,
+	std::numeric_limits<T>::max_digits10});
 }
 
 
-template<typename TYPE> constexpr
-std::enable_if_t<std::is_enum_v<TYPE>, int>
-size_buffer(TYPE *)
-{ return size_buffer(static_cast<std::underlying_type_t<TYPE> *>(nullptr)); }
+template<typename T> constexpr
+std::enable_if_t<std::is_enum_v<T>, int>
+size_buffer(T *)
+{ return size_buffer(static_cast<std::underlying_type_t<T> *>(nullptr)); }
 
 
-// No buffer space needed for bool: it's always just a null.
+// No buffer space needed for nullptr_t: it's always just a null.
 constexpr int size_buffer(std::nullptr_t *) { return 0; }
 // No buffer space needed for bool: we use fixed strings for true/false.
 constexpr int size_buffer(bool *) { return 0; }
 
 
-template<typename TYPE> constexpr int size_buffer(std::optional<TYPE> *)
-{ return size_buffer(static_cast<TYPE *>(nullptr)); }
-template<typename TYPE> constexpr int size_buffer(std::unique_ptr<TYPE> *)
-{ return size_buffer(static_cast<TYPE *>(nullptr)); }
-template<typename TYPE> constexpr int size_buffer(std::shared_ptr<TYPE> *)
-{ return size_buffer(static_cast<TYPE *>(nullptr)); }
+template<typename T> constexpr int size_buffer(std::optional<T> *)
+{ return size_buffer(static_cast<T *>(nullptr)); }
+template<typename T> constexpr int size_buffer(std::unique_ptr<T> *)
+{ return size_buffer(static_cast<T *>(nullptr)); }
+template<typename T> constexpr int size_buffer(std::shared_ptr<T> *)
+{ return size_buffer(static_cast<T *>(nullptr)); }
 } // namespace pqxx::internal
 
 namespace pqxx
 {
-/// How big of a buffer do we want for representing a TYPE object as text?
+/// How big of a buffer do we want for representing a T object as text?
 /** Specialisations may be 0 to indicate that they don't need any buffer
  * space at all.  This would be the case for types where all strings are fixed:
  * @c bool and @c nullptr_t.  In such cases, @c to_buf must never dereference
  * its @c begin * and @c end arguments at all.
  */
-template<typename TYPE>
+template<typename T>
 inline constexpr int buffer_budget =
-	pqxx::internal::size_buffer(static_cast<TYPE *>(nullptr));
+	pqxx::internal::size_buffer(static_cast<T *>(nullptr));
 } // namespace pqxx
 
 
@@ -188,21 +188,26 @@ std::string to_string_float(T);
 /** These types all look much alike, so they can share much of their traits
  * classes (though templatised, of course).
  */
-template<typename TYPE> struct PQXX_LIBEXPORT builtin_traits
+template<typename T> struct PQXX_LIBEXPORT builtin_traits
 {
-  static constexpr bool has_null = false;
-  static TYPE from_string(std::string_view text);
+  static T from_string(std::string_view text);
 };
 } // namespace pqxx::internal
 
 
 namespace pqxx
 {
+/// The built-in arithmetic types do not have inherent null values.
+template<typename T>
+struct nullness<T, std::enable_if_t<std::is_arithmetic_v<T>>> : no_null<T>
+{
+};
+
+
 // XXX: Can we SFINAE this?
 /// Helper: declare a string_traits specialisation for a builtin type.
 #define PQXX_SPECIALIZE_STRING_TRAITS(TYPE) \
-  template<> struct PQXX_LIBEXPORT string_traits<TYPE> : \
-    internal::builtin_traits<TYPE> { }
+  template<> struct string_traits<TYPE> : internal::builtin_traits<TYPE> { }
 
 PQXX_SPECIALIZE_STRING_TRAITS(bool);
 PQXX_SPECIALIZE_STRING_TRAITS(short);
@@ -219,12 +224,17 @@ PQXX_SPECIALIZE_STRING_TRAITS(long double);
 #undef PQXX_SPECIALIZE_STRING_TRAITS
 
 
-template<typename T> struct string_traits<std::optional<T>>
+template<typename T> struct nullness<std::optional<T>>
 {
   static constexpr bool has_null = true;
-  static bool is_null(const std::optional<T> &v)
-    { return ((not v.has_value()) or pqxx::is_null(*v)); }
+  static constexpr bool is_null(const std::optional<T> &v) noexcept
+	{ return ((not v.has_value()) or pqxx::is_null(*v)); }
   static constexpr std::optional<T> null() { return std::optional<T>{}; }
+};
+
+
+template<typename T> struct string_traits<std::optional<T>>
+{
   static std::optional<T> from_string(std::string_view text)
   {
     return std::optional<T>{
@@ -344,6 +354,147 @@ to_buf(char *begin, char *end, const std::unique_ptr<T> &value)
   if (value) return to_buf(begin, end, *value);
   else return zview{};
 }
+} // namespace pqxx
+
+
+namespace pqxx
+{
+template<> struct nullness<const char *>
+{
+  static constexpr bool has_null = true;
+  static constexpr bool is_null(const char *t) noexcept
+	{ return t == nullptr; }
+  static constexpr const char *null() noexcept { return nullptr; }
+};
+
+
+/// String traits for C-style string ("pointer to const char").
+template<> struct string_traits<const char *>
+{
+  static const char *from_string(std::string_view text) { return text.data(); }
+};
+
+
+template<> struct nullness<char *>
+{
+  static constexpr bool has_null = true;
+  static constexpr bool is_null(const char *t) { return t == nullptr; }
+  static constexpr const char *null() { return nullptr; }
+};
+
+
+/// String traits for non-const C-style string ("pointer to char").
+template<> struct string_traits<char *>
+{
+  // Don't allow conversion to this type since it breaks const-safety.
+};
+
+
+template<size_t N> struct nullness<char[N]> : no_null<char[N]> {};
+
+
+/// String traits for C-style string constant ("array of char").
+template<size_t N> struct string_traits<char[N]>
+{
+  // Don't allow conversion to this type since it breaks const-safety.
+};
+
+
+template<> struct nullness<std::string> : no_null<std::string> {};
+
+
+template<> struct string_traits<std::string>
+{
+  static std::string from_string(std::string_view text)
+	{ return std::string{text}; }
+};
+
+
+/// There's no real null for @c std::string_view.
+/** I'm not sure how clear-cut this is: a @c string_view may have a null
+ * data pointer, which is analogous to a null @c char pointer.
+ */
+template<> struct nullness<std::string_view> : no_null<std::string_view> {};
+
+
+/// String traits for `string_view`.
+template<> struct string_traits<std::string_view>
+{
+  // Don't allow conversion to this type; it has nowhere to store its contents.
+};
+
+
+template<> struct nullness<zview> : no_null<zview> {};
+
+
+/// String traits for `zview`.
+template<> struct string_traits<zview>
+{
+  // Don't allow conversion to this type; it has nowhere to store its contents.
+};
+
+
+template<> struct string_traits<const std::string>
+{
+  // No conversions implemented.
+};
+
+
+template<> struct nullness<std::stringstream> : no_null<std::stringstream> {};
+
+
+template<> struct string_traits<std::stringstream>
+{
+  static std::stringstream from_string(std::string_view text)
+  {
+    std::stringstream stream;
+    stream.write(text.data(), std::streamsize(text.size()));
+    return stream;
+  }
+};
+
+
+template<> struct nullness<std::nullptr_t>
+{
+  static constexpr bool has_null = true;
+  static constexpr bool is_null(std::nullptr_t) noexcept { return true; }
+  static constexpr std::nullptr_t null() { return nullptr; }
+};
+
+
+template<typename T> struct nullness<std::unique_ptr<T>>
+{
+  static constexpr bool has_null = true;
+  static constexpr bool is_null(const std::unique_ptr<T> &t) noexcept
+	{ return not t or pqxx::is_null(*t); }
+  static constexpr std::unique_ptr<T> null()
+	{ return std::unique_ptr<T>{}; }
+};
+
+
+/// A @c std::unique_ptr is a bit like a @c std::optional.
+template<typename T> struct string_traits<std::unique_ptr<T>>
+{
+  static std::unique_ptr<T> from_string(std::string_view text)
+  { return std::make_unique<T>(string_traits<T>::from_string(text)); }
+};
+
+
+template<typename T> struct nullness<std::shared_ptr<T>>
+{
+  static constexpr bool has_null = true;
+  static constexpr bool is_null(const std::shared_ptr<T> &t) noexcept
+	{ return not t or pqxx::is_null(*t); }
+  static constexpr std::shared_ptr<T> null() { return std::shared_ptr<T>{}; }
+};
+
+
+/// A @c std::shared_ptr is a bit like a @c std::optional.
+template<typename T> struct string_traits<std::shared_ptr<T>>
+{
+  static std::shared_ptr<T> from_string(std::string_view text)
+  { return std::make_shared<T>(string_traits<T>::from_string(text)); }
+};
 } // namespace pqxx
 
 
@@ -480,129 +631,30 @@ private:
 #endif
 
 
-template<typename TYPE> class str_impl<std::optional<TYPE>, void> :
-  public str<TYPE>
+template<typename T> class str_impl<std::optional<T>, void> : public str<T>
 {
 public:
-  explicit str_impl(const std::optional<TYPE> &value) : str<TYPE>{*value} {}
+  explicit str_impl(const std::optional<T> &value) : str<T>{*value} {}
 };
 
 
-template<typename TYPE> class str_impl<std::unique_ptr<TYPE>, void> :
-  public str<TYPE>
+template<typename T> class str_impl<std::unique_ptr<T>, void> : public str<T>
 {
 public:
-  explicit str_impl(const std::unique_ptr<TYPE> &value) : str<TYPE>{*value} {}
+  explicit str_impl(const std::unique_ptr<T> &value) : str<T>{*value} {}
 };
 
 
-template<typename TYPE> class str_impl<std::shared_ptr<TYPE>, void> :
-  public str<TYPE>
+template<typename T> class str_impl<std::shared_ptr<T>, void> : public str<T>
 {
 public:
-  explicit str_impl(const std::shared_ptr<TYPE> &value) : str<TYPE>{*value} {}
+  explicit str_impl(const std::shared_ptr<T> &value) : str<T>{*value} {}
 };
 } // namespace pqxx::internal
 
 
 namespace pqxx
 {
-/// String traits for C-style string ("pointer to const char").
-template<> struct PQXX_LIBEXPORT string_traits<const char *>
-{
-  static constexpr bool has_null = true;
-  static constexpr bool is_null(const char *t) { return t == nullptr; }
-  static constexpr const char *null() { return nullptr; }
-  static const char *from_string(std::string_view text) { return text.data(); }
-};
-
-/// String traits for non-const C-style string ("pointer to char").
-template<> struct PQXX_LIBEXPORT string_traits<char *>
-{
-  static constexpr bool has_null = true;
-  static constexpr bool is_null(const char *t) { return t == nullptr; }
-  static constexpr const char *null() { return nullptr; }
-
-  // Don't allow conversion to this type since it breaks const-safety.
-};
-
-/// String traits for C-style string constant ("array of char").
-template<size_t N> struct PQXX_LIBEXPORT string_traits<char[N]>
-{
-  static constexpr bool has_null = true;
-  static constexpr bool is_null(const char t[]) { return t == nullptr; }
-  static constexpr const char *null() { return nullptr; }
-};
-
-template<> struct PQXX_LIBEXPORT string_traits<std::string>
-{
-  static constexpr bool has_null = false;
-  static std::string from_string(std::string_view text)
-	{ return std::string{text}; }
-};
-
-/// String traits for `string_view`.
-template<> struct PQXX_LIBEXPORT string_traits<std::string_view>
-{
-  static constexpr bool has_null = false;
-  // Don't allow conversion to this type; it has nowhere to store its contents.
-};
-
-/// String traits for `zview`.
-template<> struct PQXX_LIBEXPORT string_traits<zview>
-{
-  static constexpr bool has_null = false;
-  // Don't allow conversion to this type; it has nowhere to store its contents.
-};
-
-template<> struct PQXX_LIBEXPORT string_traits<const std::string>
-{
-  static constexpr bool has_null = false;
-};
-
-template<> struct PQXX_LIBEXPORT string_traits<std::stringstream>
-{
-  static constexpr bool has_null = false;
-  static std::stringstream from_string(std::string_view text)
-  {
-    std::stringstream stream;
-    stream.write(text.data(), std::streamsize(text.size()));
-    return stream;
-  }
-};
-
-/// Weird case: nullptr_t.  We don't fully support it.
-template<> struct PQXX_LIBEXPORT string_traits<std::nullptr_t>
-{
-  static constexpr bool has_null = true;
-  static constexpr bool is_null(std::nullptr_t) noexcept { return true; }
-  static constexpr std::nullptr_t null() { return nullptr; }
-};
-
-/// A @c std::unique_ptr is a bit like a @c std::optional.
-template<typename T> struct PQXX_LIBEXPORT string_traits<std::unique_ptr<T>>
-{
-  static constexpr bool has_null = true;
-  static constexpr bool is_null(const std::unique_ptr<T> &t) noexcept
-	{ return not t or pqxx::is_null(*t); }
-  static constexpr std::unique_ptr<T> null() { return std::unique_ptr<T>{}; }
-  static std::unique_ptr<T> from_string(std::string_view text)
-  { return std::make_unique<T>(string_traits<T>::from_string(text)); }
-};
-
-
-/// A @c std::shared_ptr is a bit like a @c std::optional.
-template<typename T> struct PQXX_LIBEXPORT string_traits<std::shared_ptr<T>>
-{
-  static constexpr bool has_null = true;
-  static constexpr bool is_null(const std::shared_ptr<T> &t) noexcept
-	{ return not t or pqxx::is_null(*t); }
-  static constexpr std::shared_ptr<T> null() { return std::shared_ptr<T>{}; }
-  static std::shared_ptr<T> from_string(std::string_view text)
-  { return std::make_shared<T>(string_traits<T>::from_string(text)); }
-};
-
-
 template<typename T> inline std::string to_string(const T &value)
 {
   if (is_null(value))

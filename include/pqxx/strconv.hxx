@@ -107,20 +107,52 @@ template<typename TYPE> const std::string type_name{
 
 /// @addtogroup stringconversion
 //@{
+/// Traits describing a type's "null value," if any.
+/** Some C++ types have a special value or state which correspond directly to
+ * SQL's NULL.
+ *
+ * The @c nullness traits describe whether it exists, and whether a particular
+ * value is null.
+ */
+template<typename TYPE, typename ENABLE = void> struct nullness
+{
+  /// Does this type have a null value?
+  static bool has_null;
+
+  /// Is @c value a null?
+  static bool is_null(const TYPE &value);
+
+  /// Return a null value.
+  /** Don't use this in generic code to compare a value and see whether it is
+   * null.  Some types may have multiple null values which do not compare as
+   * equal, or may define a null value which is not equal to anything including
+   * itself, like in SQL.
+   */
+  static TYPE null();
+};
+
+
+/// Nullness traits describing a type which does not have a null value.
+template<typename TYPE> struct no_null
+{
+  static constexpr bool has_null = false;
+  static constexpr bool is_null(const TYPE &) noexcept { return false; }
+};
+
+
 /// Traits class for use in string conversions.
 /** Specialize this template for a type for which you wish to add to_string
  * and from_string support.  It indicates whether the type has a natural null
  * value (if not, consider using @c std::optional for that), and whether a
  * given value is null, and so on.
  */
-template<typename T, typename = void> struct string_traits;
+template<typename T, typename ENABLE = void> struct string_traits;
 
 
 // XXX: Add template parameter for binary support.
 /// Return a @c string_view representing value, plus terminating zero.
-/** Produces a @c string_view, whose @c data() will be null if @c value was
- * null.  Otherwise, it will contain the PostgreSQL string representation for
- * @c value.
+/** Produces a @c string_view containing the PostgreSQL string representation
+ * for @c value.
  *
  * Uses the space from @c begin to @c end as a buffer, if needed.  The
  * returned string may lie somewhere in that buffer, or it may be a
@@ -176,6 +208,13 @@ public:
 };
 
 
+/// Nullness: Enums do not have an inherent null value.
+template<typename ENUM>
+struct nullness<ENUM, std::enable_if_t<std::is_enum_v<ENUM>>> : no_null<ENUM>
+{
+};
+
+
 /// Helper class for defining enum conversions.
 /** The conversion will convert enum values to numeric strings, and vice versa.
  *
@@ -189,8 +228,6 @@ public:
 template<typename ENUM>
 struct enum_traits
 {
-  static constexpr bool has_null = false;
-
   static ENUM from_string(std::string_view text)
   {
     using impl_type = std::underlying_type_t<ENUM>;
@@ -265,8 +302,7 @@ template<typename T> inline std::string to_string(const T &obj);
 /// Is @c value null?
 template<typename TYPE> inline bool is_null(const TYPE &value)
 {
-  using traits = string_traits<TYPE>;
-  if constexpr (traits::has_null) return traits::is_null(value);
+  if constexpr (nullness<TYPE>::has_null) return nullness<TYPE>::is_null(value);
   else return false;
 }
 //@}

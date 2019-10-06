@@ -174,8 +174,8 @@ public:
     T obj;
     if (not to(obj))
     {
-      if constexpr (string_traits<T>::has_null)
-        obj = string_traits<T>::null();
+      if constexpr (nullness<T>::has_null)
+        obj = nullness<T>::null();
       else
         internal::throw_null_conversion(type_name<T>);
     }

@@ -30,10 +30,10 @@ public:
 };
 } // namespace
 
-// Support printing of TestErrorHandler.
+
 namespace pqxx
 {
-template<> struct string_traits<TestErrorHandler *>
+template<> struct nullness<TestErrorHandler *>
 {
   static constexpr bool has_null = true;
   static constexpr bool is_null(TestErrorHandler *e) noexcept

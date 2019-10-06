@@ -154,9 +154,9 @@ void test_optional(pqxx::connection_base& connection)
 
   inserter << std::make_tuple(
     910,
-    O<std::string>{pqxx::string_traits<O<std::string>>::null()},
-    O<int>{pqxx::string_traits<O<int>>::null()},
-    O<ipv4>{pqxx::string_traits<O<ipv4>>::null()},
+    O<std::string>{pqxx::nullness<O<std::string>>::null()},
+    O<int>{pqxx::nullness<O<int>>::null()},
+    O<ipv4>{pqxx::nullness<O<ipv4>>::null()},
     "\\N",
     bytea{}
   );

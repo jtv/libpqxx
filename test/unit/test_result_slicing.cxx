@@ -2,14 +2,13 @@
 
 namespace pqxx
 {
-template<> struct string_traits<pqxx::row::const_iterator>
+template<> struct nullness<row::const_iterator> : no_null<row::const_iterator>
 {
-  static constexpr bool has_null = false;
 };
 
-template<> struct string_traits<pqxx::const_reverse_row_iterator>
+template<> struct nullness<const_reverse_row_iterator> :
+	no_null<const_reverse_row_iterator>
 {
-  static constexpr bool has_null = false;
 };
 
 template<> inline pqxx::zview

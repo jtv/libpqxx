@@ -4,9 +4,9 @@
 
 namespace pqxx
 {
-template<> struct string_traits<pqxx::array_parser::juncture>
+template<> struct nullness<array_parser::juncture> :
+	no_null<array_parser::juncture>
 {
-  static constexpr bool has_null = false;
 };
 
 
