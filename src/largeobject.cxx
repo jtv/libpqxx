@@ -39,27 +39,27 @@ inline int StdModeToPQMode(std::ios::openmode mode)
 }
 
 
-inline int StdDirToPQDir(std::ios::seekdir dir) noexcept
+constexpr int StdDirToPQDir(std::ios::seekdir dir) noexcept
 {
-  // TODO: Figure out whether seekdir values match C counterparts!
-#ifdef PQXX_SEEKDIRS_MATCH_C
-  return dir;
-#else
-  int pqdir;
-  switch (dir)
+  if constexpr (
+	static_cast<int>(std::ios::beg) == int(SEEK_SET) and
+	static_cast<int>(std::ios::cur) == int(SEEK_CUR) and
+	static_cast<int>(std::ios::end) == int(SEEK_END)
+  )
   {
-  case std::ios::beg: pqdir=SEEK_SET; break;
-  case std::ios::cur: pqdir=SEEK_CUR; break;
-  case std::ios::end: pqdir=SEEK_END; break;
-
-  /* Added mostly to silence compiler warning, but also to help compiler detect
-   * cases where this function can be optimized away completely.  This latter
-   * reason should go away as soon as PQXX_SEEKDIRS_MATCH_C works.
-   */
-  default: pqdir = dir; break;
+    // Easy optimisation: they're the same constants.  This is actually the
+    // case for the gcc I'm using.
+    return dir;
   }
-  return pqdir;
-#endif
+  else switch (dir)
+  {
+  case std::ios::beg: return SEEK_SET; break;
+  case std::ios::cur: return SEEK_CUR; break;
+  case std::ios::end: return SEEK_END; break;
+
+  // Shouldn't happen, but may silence compiler warning.
+  default: return dir; break;
+  }
 }
 } // namespace
 
@@ -201,7 +201,8 @@ pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
 pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::cseek(off_type dest, seekdir dir) noexcept
 {
-  return lo_lseek(raw_connection(), m_fd, int(dest), StdDirToPQDir(dir));
+  return lo_lseek(
+	raw_connection(), m_fd, static_cast<int>(dest), StdDirToPQDir(dir));
 }
 
 
@@ -210,7 +211,7 @@ pqxx::largeobjectaccess::cwrite(const char Buf[], size_type Len) noexcept
 {
   return
     std::max(
-	lo_write(raw_connection(), m_fd,const_cast<char *>(Buf), size_t(Len)),
+	lo_write(raw_connection(), m_fd, const_cast<char *>(Buf), size_t(Len)),
         -1);
 }
 

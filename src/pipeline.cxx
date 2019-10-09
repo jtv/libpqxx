@@ -60,7 +60,7 @@ pqxx::pipeline::insert(const std::string &q)
 {
   attach();
   const query_id qid = generate_id();
-  const auto i = m_queries.insert(std::make_pair(qid,Query(q))).first;
+  const auto i = m_queries.insert(std::make_pair(qid, Query(q))).first;
 
   if (m_issuedrange.second == m_queries.end())
   {
@@ -123,7 +123,7 @@ bool pqxx::pipeline::is_finished(pipeline::query_id q) const
     throw std::logic_error{
       "Requested status for unknown query '" + to_string(q) + "'."};
   return
-	(QueryMap::const_iterator(m_issuedrange.first)==m_queries.end()) or
+	(QueryMap::const_iterator(m_issuedrange.first) == m_queries.end()) or
 	(q < m_issuedrange.first->first and q < m_error);
 }
 
@@ -204,7 +204,7 @@ void pqxx::pipeline::issue()
   m_dummy_pending = prepend_dummy;
   m_issuedrange.first = oldest;
   m_issuedrange.second = m_queries.end();
-  m_num_waiting -= int(num_issued);
+  m_num_waiting -= static_cast<int>(num_issued);
 }
 
 
@@ -302,7 +302,7 @@ void pqxx::pipeline::obtain_dummy()
 
 
   // Reset internal state to forget botched batch attempt
-  m_num_waiting += int(std::distance(m_issuedrange.first, stop));
+  m_num_waiting += static_cast<int>(std::distance(m_issuedrange.first, stop));
   m_issuedrange.second = m_issuedrange.first;
 
   // Issue queries in failed batch one at a time.
@@ -326,7 +326,7 @@ void pqxx::pipeline::obtain_dummy()
     ++m_issuedrange.first;
     m_issuedrange.second = m_issuedrange.first;
     auto q = m_issuedrange.first;
-    set_error_at( (q == m_queries.end()) ?  thud + 1 : q->first);
+    set_error_at((q == m_queries.end()) ?  thud + 1 : q->first);
   }
 }
 
@@ -369,7 +369,8 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 	"Could not complete query in pipeline due to error in earlier query."};
 
   // Don't leave the backend idle if there are queries waiting to be issued
-  if (m_num_waiting and not have_pending() and (m_error==qid_limit())) issue();
+  if (m_num_waiting and not have_pending() and (m_error == qid_limit()))
+    issue();
 
   const result R = q->second.get_result();
   const auto P = std::make_pair(q->first, R);
@@ -404,8 +405,9 @@ void pqxx::pipeline::receive(pipeline::QueryMap::const_iterator stop)
 {
   if (m_dummy_pending) obtain_dummy();
 
-  while (obtain_result() and
-         QueryMap::const_iterator{m_issuedrange.first} != stop) ;
+  while (
+	obtain_result() and
+	QueryMap::const_iterator{m_issuedrange.first} != stop);
 
   // Also haul in any remaining "targets of opportunity"
   if (QueryMap::const_iterator{m_issuedrange.first} == stop)

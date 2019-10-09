@@ -5,9 +5,6 @@
 
 #include "../test_helpers.hxx"
 
-using namespace pqxx;
-
-
 // Test program for libpqxx.  Define and use prepared statements.
 
 #define COMPARE_RESULTS(name, lhs, rhs) \
@@ -18,9 +15,9 @@ using namespace pqxx;
 
 namespace
 {
-template<typename T> std::string stringize(transaction_base &t, T i)
+template<typename T> std::string stringize(pqxx::transaction_base &t, T i)
 {
-  return stringize(t, to_string(i));
+  return stringize(t, pqxx::to_string(i));
 }
 
 
@@ -30,7 +27,7 @@ template<typename T> std::string stringize(transaction_base &t, T i)
 // Note we do the replacement backwards (meaning forward_only iterators won't
 // do!) to avoid substituting e.g. "$12" as "$1" first.
 template<typename ITER> std::string subst(
-	transaction_base &t,
+	pqxx::transaction_base &t,
 	std::string q,
 	ITER patbegin,
 	ITER patend)
@@ -38,19 +35,19 @@ template<typename ITER> std::string subst(
   ptrdiff_t i = distance(patbegin, patend);
   for (ITER arg = patend; i > 0; --i)
   {
-   --arg;
-    const std::string marker = "$" + to_string(i),
+    --arg;
+    const std::string marker = "$" + pqxx::to_string(i),
 	  var = stringize(t, *arg);
     const std::string::size_type msz = marker.size();
     while (q.find(marker) != std::string::npos)
-	q.replace(q.find(marker),msz,var);
+	q.replace(q.find(marker), msz, var);
   }
   return q;
 }
 
 
 template<typename CNTNR> std::string subst(
-	transaction_base &t,
+	pqxx::transaction_base &t,
 	std::string q,
 	const CNTNR &patterns)
 {
@@ -62,8 +59,8 @@ void test_registration_and_invocation()
 {
   constexpr auto count_to_5 = "SELECT * FROM generate_series(1, 5)";
 
-  connection c;
-  work tx1{c};
+  pqxx::connection c;
+  pqxx::work tx1{c};
 
   // Prepare a simple statement.
   tx1.conn().prepare("CountToFive", count_to_5);
@@ -81,7 +78,7 @@ void test_registration_and_invocation()
 	"Did not report re-definition of prepared statement.");
 
   tx1.abort();
-  work tx2{c};
+  pqxx::work tx2{c};
 
   // Executing a nonexistent prepared statement is also an error.
   PQXX_CHECK_THROWS(
@@ -93,9 +90,9 @@ void test_registration_and_invocation()
 
 void test_basic_args()
 {
-  connection c;
+  pqxx::connection c;
   c.prepare("EchoNum", "SELECT $1::int");
-  work tx{c};
+  pqxx::work tx{c};
   auto r = tx.exec_prepared("EchoNum", 7);
   PQXX_CHECK_EQUAL(r.size(), 1u, "Did not get 1 row from prepared statement.");
   PQXX_CHECK_EQUAL(r.front().size(), 1u, "Did not get exactly one column.");
@@ -109,9 +106,9 @@ void test_basic_args()
 
 void test_multiple_params()
 {
-  connection c;
+  pqxx::connection c;
   c.prepare("CountSeries", "SELECT * FROM generate_series($1::int, $2::int)");
-  work tx{c};
+  pqxx::work tx{c};
   auto r = tx.exec_prepared_n(4, "CountSeries", 7, 10);
   PQXX_CHECK_EQUAL(r.size(), 4u, "Wrong number of rows, but no error raised.");
   PQXX_CHECK_EQUAL(r.front().front().as<int>(), 7, "Wrong $1.");
@@ -134,8 +131,8 @@ void test_multiple_params()
 
 void test_nulls()
 {
-  connection c;
-  work tx{c};
+  pqxx::connection c;
+  pqxx::work tx{c};
   c.prepare("EchoStr", "SELECT $1::varchar");
   auto rw = tx.exec_prepared1("EchoStr", nullptr);
   PQXX_CHECK(rw.front().is_null(), "nullptr did not translate to null.");
@@ -148,8 +145,8 @@ void test_nulls()
 
 void test_strings()
 {
-  connection c;
-  work tx{c};
+  pqxx::connection c;
+  pqxx::work tx{c};
   c.prepare("EchoStr", "SELECT $1::varchar");
   auto rw = tx.exec_prepared1("EchoStr", "foo");
   PQXX_CHECK_EQUAL(rw.front().as<std::string>(), "foo", "Wrong string result.");
@@ -178,16 +175,16 @@ void test_strings()
 
 void test_binary()
 {
-  connection c;
-  work tx{c};
+  pqxx::connection c;
+  pqxx::work tx{c};
   c.prepare("EchoBin", "SELECT $1::bytea");
   const char raw_bytes[] = "Binary\0bytes'\"with\tweird\xff bytes";
   const std::string input{raw_bytes, sizeof(raw_bytes)};
-  const binarystring bin{input};
+  const pqxx::binarystring bin{input};
 
   auto rw = tx.exec_prepared1("EchoBin", bin);
   PQXX_CHECK_EQUAL(
-        binarystring(rw.front()).str(),
+        pqxx::binarystring(rw.front()).str(),
         input,
         "Binary string came out damaged.");
 }
@@ -195,11 +192,11 @@ void test_binary()
 
 void test_dynamic_params()
 {
-  connection c;
-  work tx{c};
+  pqxx::connection c;
+  pqxx::work tx{c};
   c.prepare("Concat2Numbers", "SELECT 10 * $1 + $2");
   std::vector<int> values{3, 9};
-  const auto params = prepare::make_dynamic_params(values);
+  const auto params = pqxx::prepare::make_dynamic_params(values);
   const auto rw39 = tx.exec_prepared1("Concat2Numbers", params);
   PQXX_CHECK_EQUAL(
         rw39.front().as<int>(),
@@ -215,7 +212,7 @@ void test_dynamic_params()
 
   const auto doubled = tx.exec_prepared1(
 	"Concat2Numbers",
-	prepare::make_dynamic_params(
+	pqxx::prepare::make_dynamic_params(
 		values, [](const int &i){ return 2 * i; }));
   PQXX_CHECK_EQUAL(
         doubled.at(0).as<int>(),
@@ -226,8 +223,8 @@ void test_dynamic_params()
 
 void test_optional()
 {
-  connection c;
-  work tx{c};
+  pqxx::connection c;
+  pqxx::work tx{c};
   c.prepare("EchoNum", "SELECT $1::int");
   pqxx::row rw = tx.exec_prepared1(
 	"EchoNum", std::optional<int>{std::in_place, 10});

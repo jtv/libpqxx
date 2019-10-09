@@ -2,24 +2,22 @@
 
 #include "../test_helpers.hxx"
 
-using namespace pqxx;
-
 namespace
 {
-class TestErrorHandler final : public errorhandler
+class TestErrorHandler final : public pqxx::errorhandler
 {
 public:
   TestErrorHandler(
-	connection_base &c,
+	pqxx::connection_base &c,
 	std::vector<TestErrorHandler *> &activated_handlers,
 	bool retval=true) :
-    errorhandler(c),
+    pqxx::errorhandler(c),
     return_value(retval),
     message(),
     handler_list(activated_handlers)
   {}
 
-  virtual bool operator()(const char msg[]) noexcept override
+  bool operator()(const char msg[]) noexcept override
   {
     message = std::string{msg};
     handler_list.push_back(this);
@@ -30,12 +28,12 @@ public:
   std::string message;
   std::vector<TestErrorHandler *> &handler_list;
 };
-}
+} // namespace
 
-// Support printing of TestErrorHandler.
+
 namespace pqxx
 {
-template<> struct string_traits<TestErrorHandler *>
+template<> struct nullness<TestErrorHandler *>
 {
   static constexpr bool has_null = true;
   static constexpr bool is_null(TestErrorHandler *e) noexcept
@@ -58,12 +56,12 @@ public:
 private:
   std::string m_str;
 };
-}
+} // namespace pqxx
 
 
 namespace
 {
-void test_process_notice_calls_errorhandler(connection_base &c)
+void test_process_notice_calls_errorhandler(pqxx::connection_base &c)
 {
   std::vector<TestErrorHandler *> dummy;
   TestErrorHandler handler(c, dummy);
@@ -72,7 +70,7 @@ void test_process_notice_calls_errorhandler(connection_base &c)
 }
 
 
-void test_error_handlers_get_called_newest_to_oldest(connection_base &c)
+void test_error_handlers_get_called_newest_to_oldest(pqxx::connection_base &c)
 {
   std::vector<TestErrorHandler *> handlers;
   TestErrorHandler h1(c, handlers);
@@ -88,7 +86,7 @@ void test_error_handlers_get_called_newest_to_oldest(connection_base &c)
   PQXX_CHECK_EQUAL(&h1, handlers[2], "Impossible handling order.");
 }
 
-void test_returning_false_stops_error_handling(connection_base &c)
+void test_returning_false_stops_error_handling(pqxx::connection_base &c)
 {
   std::vector<TestErrorHandler *> handlers;
   TestErrorHandler starved(c, handlers);
@@ -100,7 +98,7 @@ void test_returning_false_stops_error_handling(connection_base &c)
   PQXX_CHECK_EQUAL(starved.message, "", "Message received; it shouldn't be.");
 }
 
-void test_destroyed_error_handlers_are_not_called(connection_base &c)
+void test_destroyed_error_handlers_are_not_called(pqxx::connection_base &c)
 {
   std::vector<TestErrorHandler *> handlers;
   {
@@ -115,7 +113,7 @@ void test_destroying_connection_unregisters_handlers()
   TestErrorHandler *survivor;
   std::vector<TestErrorHandler *> handlers;
   {
-    connection c;
+    pqxx::connection c;
     survivor = new TestErrorHandler(c, handlers);
   }
   // Make some pointless use of survivor just to prove that this doesn't crash.
@@ -128,24 +126,24 @@ void test_destroying_connection_unregisters_handlers()
 }
 
 
-class MinimalErrorHandler final : public errorhandler
+class MinimalErrorHandler final : public pqxx::errorhandler
 {
 public:
-  explicit MinimalErrorHandler(connection_base &c) : errorhandler(c) {}
-  virtual bool operator()(const char[]) noexcept override
-	{ return true; }
+  explicit MinimalErrorHandler(pqxx::connection_base &c) :
+	pqxx::errorhandler(c) {}
+  bool operator()(const char[]) noexcept override { return true; }
 };
 
 
-void test_get_errorhandlers(connection_base &c)
+void test_get_errorhandlers(pqxx::connection_base &c)
 {
   MinimalErrorHandler *eh3 = nullptr;
-  const std::vector<errorhandler *> handlers_before = c.get_errorhandlers();
+  const auto handlers_before = c.get_errorhandlers();
   const size_t base_handlers = handlers_before.size();
 
   {
     MinimalErrorHandler eh1(c);
-    const std::vector<errorhandler *> handlers_with_eh1 = c.get_errorhandlers();
+    const auto handlers_with_eh1 = c.get_errorhandlers();
     PQXX_CHECK_EQUAL(
 	handlers_with_eh1.size(),
 	base_handlers + 1,
@@ -157,8 +155,7 @@ void test_get_errorhandlers(connection_base &c)
 
     {
       MinimalErrorHandler eh2(c);
-      const std::vector<errorhandler *> handlers_with_eh2 =
-	c.get_errorhandlers();
+      const auto handlers_with_eh2 = c.get_errorhandlers();
       PQXX_CHECK_EQUAL(
 	handlers_with_eh2.size(),
 	base_handlers + 2,
@@ -171,8 +168,7 @@ void test_get_errorhandlers(connection_base &c)
 	size_t(*handlers_with_eh2.rbegin()),
 	size_t(&eh2), "Second handler isn't right.");
     }
-    const std::vector<errorhandler *> handlers_without_eh2 =
-	c.get_errorhandlers();
+    const auto handlers_without_eh2 = c.get_errorhandlers();
     PQXX_CHECK_EQUAL(
 	handlers_without_eh2.size(),
 	base_handlers + 1,
@@ -183,7 +179,7 @@ void test_get_errorhandlers(connection_base &c)
 	"Destroyed wrong handler.");
 
     eh3 = new MinimalErrorHandler(c);
-    const std::vector<errorhandler *> handlers_with_eh3 = c.get_errorhandlers();
+    const auto handlers_with_eh3 = c.get_errorhandlers();
     PQXX_CHECK_EQUAL(
 	handlers_with_eh3.size(),
 	base_handlers + 2,
@@ -193,8 +189,7 @@ void test_get_errorhandlers(connection_base &c)
 	size_t(eh3),
 	"Added wrong third handler.");
   }
-  const std::vector<errorhandler *> handlers_without_eh1 =
-	c.get_errorhandlers();
+  const auto handlers_without_eh1 = c.get_errorhandlers();
   PQXX_CHECK_EQUAL(
 	handlers_without_eh1.size(),
 	base_handlers + 1,
@@ -206,8 +201,7 @@ void test_get_errorhandlers(connection_base &c)
 
   delete eh3;
 
-  const std::vector<errorhandler *> handlers_without_all =
-	c.get_errorhandlers();
+  const auto handlers_without_all = c.get_errorhandlers();
   PQXX_CHECK_EQUAL(
 	handlers_without_all.size(),
 	base_handlers,
@@ -217,7 +211,7 @@ void test_get_errorhandlers(connection_base &c)
 
 void test_errorhandler()
 {
-  connection conn;
+  pqxx::connection conn;
   test_process_notice_calls_errorhandler(conn);
   test_error_handlers_get_called_newest_to_oldest(conn);
   test_returning_false_stops_error_handling(conn);

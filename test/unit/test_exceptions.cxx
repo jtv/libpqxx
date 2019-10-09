@@ -2,8 +2,6 @@
 
 #include <pqxx/except>
 
-using namespace pqxx;
-
 namespace
 {
 void test_exceptions()
@@ -14,7 +12,7 @@ void test_exceptions()
 
   try
   {
-    throw sql_error{err, broken_query};
+    throw pqxx::sql_error{err, broken_query};
   }
   catch (const std::exception &e)
   {
@@ -22,7 +20,7 @@ void test_exceptions()
 	e.what(),
 	err,
 	"Exception contains wrong message.");
-    const sql_error *downcast{dynamic_cast<const sql_error *>(&e)};
+    auto downcast{dynamic_cast<const pqxx::sql_error *>(&e)};
     PQXX_CHECK_NOT_EQUAL(
 	downcast,
 	nullptr,
@@ -33,13 +31,13 @@ void test_exceptions()
 	"Getting query from pqxx exception is broken.");
   }
 
-  connection conn;
-  work tx{conn};
+  pqxx::connection conn;
+  pqxx::work tx{conn};
   try
   {
     tx.exec("INVALID QUERY HERE");
   }
-  catch (const syntax_error &e)
+  catch (const pqxx::syntax_error &e)
   {
     // SQL syntax error has sqlstate error 42601.
     PQXX_CHECK_EQUAL(

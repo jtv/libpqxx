@@ -44,15 +44,15 @@ int pqxx::internal::statement_parameters::marshall(
     if (m_nonnull[param])
     {
       values[param] = m_values[arg].c_str();
-      lengths[param] = int(m_values[arg].size());
+      lengths[param] = static_cast<int>(m_values[arg].size());
       ++arg;
     }
 
   // The binaries array is simpler: it maps 1-on-1.
   binaries.resize(array_size);
   for (size_t param = 0; param < elements; ++param)
-    binaries[param] = int(m_binary[param]);
+    binaries[param] = static_cast<int>(m_binary[param]);
   binaries.back() = 0;
 
-  return int(elements);
+  return static_cast<int>(elements);
 }

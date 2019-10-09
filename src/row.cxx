@@ -130,7 +130,7 @@ pqxx::row::reference pqxx::row::at(int i) const
 void pqxx::row::swap(row &rhs) noexcept
 {
   const auto i = m_index;
-  const auto b= m_begin;
+  const auto b = m_begin;
   const auto e = m_end;
   m_result.swap(rhs.m_result);
   m_index = rhs.m_index;

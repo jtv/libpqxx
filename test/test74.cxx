@@ -61,7 +61,7 @@ void test_074()
 	"Float changed in conversion.");
 
   double double_pi;
-  from_string(to_string(double(roughpi)), double_pi);
+  pqxx::from_string(pqxx::to_string(static_cast<double>(roughpi)), double_pi);
   PQXX_CHECK_BOUNDS(
 	double_pi,
 	roughpi - 0.00001,

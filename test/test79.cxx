@@ -4,24 +4,22 @@
 
 #include "test_helpers.hxx"
 
-using namespace pqxx;
-
 
 // Example program for libpqxx.  Test waiting for notification with timeout.
 namespace
 {
 // Sample implementation of notification receiver.
-class TestListener final : public notification_receiver
+class TestListener final : public pqxx::notification_receiver
 {
   bool m_done;
 
 public:
-  explicit TestListener(connection_base &conn, std::string Name) :
-    notification_receiver(conn, Name), m_done(false)
+  explicit TestListener(pqxx::connection_base &conn, std::string Name) :
+    pqxx::notification_receiver(conn, Name), m_done(false)
   {
   }
 
-  virtual void operator()(const std::string &, int be_pid) override
+  void operator()(const std::string &, int be_pid) override
   {
     m_done = true;
     PQXX_CHECK_EQUAL(
@@ -40,7 +38,7 @@ public:
 
 void test_079()
 {
-  connection conn;
+  pqxx::connection conn;
 
   const std::string NotifName = "mylistener";
   TestListener L(conn, NotifName);
@@ -49,10 +47,10 @@ void test_079()
   int notifs = conn.await_notification(0, 1);
   PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notification.");
 
-  perform(
+  pqxx::perform(
     [&conn, &L]()
     {
-      work tx{conn};
+      pqxx::work tx{conn};
       tx.exec0("NOTIFY " + L.channel());
       tx.commit();
     });
@@ -61,7 +59,7 @@ void test_079()
   {
     PQXX_CHECK_EQUAL(notifs, 0, "Got notifications, but no handler called.");
     std::cout << ".";
-    notifs = conn.await_notification(1,0);
+    notifs = conn.await_notification(1, 0);
   }
   std::cout << std::endl;
 

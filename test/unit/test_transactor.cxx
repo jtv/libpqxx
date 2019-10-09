@@ -1,14 +1,12 @@
 #include "../test_helpers.hxx"
 
-using namespace pqxx;
-
 namespace
 {
 void test_transactor_newstyle_executes_simple_query()
 {
-  connection conn;
+  pqxx::connection conn;
   const auto r = pqxx::perform(
-    [&conn]{return work{conn}.exec("SELECT generate_series(1, 4)");});
+    [&conn]{return pqxx::work{conn}.exec("SELECT generate_series(1, 4)");});
 
   PQXX_CHECK_EQUAL(r.size(), 4u, "Unexpected result size.");
   PQXX_CHECK_EQUAL(r.columns(), 1u, "Unexpected number of columns.");
@@ -20,7 +18,7 @@ void test_transactor_newstyle_executes_simple_query()
 void test_transactor_newstyle_can_return_void()
 {
   bool done = false;
-  perform([&done]{ done = true; });
+  pqxx::perform([&done]{ done = true; });
   PQXX_CHECK(done, "Callback was not executed.");
 }
 
@@ -28,7 +26,7 @@ void test_transactor_newstyle_can_return_void()
 void test_transactor_newstyle_completes_upon_success()
 {
   int attempts = 0;
-  perform([&attempts](){ attempts++; });
+  pqxx::perform([&attempts](){ attempts++; });
   PQXX_CHECK_EQUAL(attempts, 1, "Successful transactor didn't run 1 time.");
 }
 
@@ -73,7 +71,7 @@ void test_transactor_newstyle_does_not_retry_in_doubt_error()
 
   PQXX_CHECK_THROWS(
 	pqxx::perform(callback),
-	in_doubt_error,
+	pqxx::in_doubt_error,
 	"Transactor did not propagate in_doubt_error.");
   PQXX_CHECK_EQUAL(counter, 1, "Transactor retried after in_doubt_error.");
 }

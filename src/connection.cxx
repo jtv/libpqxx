@@ -312,7 +312,7 @@ void pqxx::connection::process_notice(const char msg[]) noexcept
     bytes = len-written;
     memcpy(buf, &msg[written], bytes);
     // Add trailing nul byte, plus newline unless there already is one
-    strcpy(&buf[bytes], &"\n"[buf[bytes-1]=='\n']);
+    strcpy(&buf[bytes], &"\n"[buf[bytes-1] == '\n']);
     process_notice_raw(buf);
   }
 }
@@ -445,7 +445,7 @@ public:
       throw pqxx::sql_error{std::string{m_errbuf}};
   }
 };
-}
+} // namespace
 
 
 void pqxx::connection::cancel_query()
@@ -474,7 +474,7 @@ notify_ptr get_notif(pqxx::internal::pq::PGconn *conn)
 	PQnotifies(conn),
 	pqxx::internal::freepqmem_templated<PGnotify>);
 }
-}
+} // namespace
 
 
 int pqxx::connection::get_notifs()
@@ -643,7 +643,7 @@ pqxx::result pqxx::connection::exec_prepared(
   const auto pq_result = PQexecPrepared(
 	m_conn,
 	statement.c_str(),
-	int(args.nonnulls.size()),
+	static_cast<int>(args.nonnulls.size()),
 	pointers.data(),
 	args.lengths.data(),
 	args.binaries.data(),
@@ -675,7 +675,7 @@ void pqxx::connection::close()
     const auto
 	rbegin = old_handlers.crbegin(),
 	rend = old_handlers.crend();
-    for (auto i = rbegin; i!=rend; ++i)
+    for (auto i = rbegin; i != rend; ++i)
       pqxx::internal::gate::errorhandler_connection{**i}.unregister();
 
     PQfinish(m_conn);
@@ -758,7 +758,7 @@ bool pqxx::connection::read_copy_line(std::string &Line)
 void pqxx::connection::write_copy_line(std::string_view line)
 {
   static const std::string err_prefix{"Error writing to table: "};
-  if (PQputCopyData(m_conn, line.data(), int(line.size())) <= 0)
+  if (PQputCopyData(m_conn, line.data(), static_cast<int>(line.size())) <= 0)
     throw failure{err_prefix + err_msg()};
   if (PQputCopyData(m_conn, "\n", 1) <= 0)
     throw failure{err_prefix + err_msg()};
@@ -891,7 +891,7 @@ namespace
 // Convert a timeval to milliseconds, or -1 if no timeval is given.
 [[maybe_unused]] constexpr int tv_milliseconds(timeval *tv = nullptr)
 {
-  return tv ? int(tv->tv_sec * 1000 + tv->tv_usec/1000) : -1;
+  return tv ? static_cast<int>(tv->tv_sec * 1000 + tv->tv_usec / 1000) : -1;
 }
 
 
@@ -947,7 +947,7 @@ void pqxx::internal::wait_read(
   // platforms have that type; some use "long" instead, and some 64-bit
   // systems use 32-bit integers here.  So "int" seems to be the only really
   // safe type to use.
-  timeval tv = { time_t(seconds), int(microseconds) };
+  timeval tv = { static_cast<time_t>(seconds), static_cast<int>(microseconds) };
   wait_fd(socket_of(c), false, &tv);
 }
 
@@ -1071,7 +1071,7 @@ pqxx::result pqxx::connection::exec_params(
   const auto pq_result = PQexecParams(
 	m_conn,
 	query.c_str(),
-	int(args.nonnulls.size()),
+	static_cast<int>(args.nonnulls.size()),
 	nullptr,
 	pointers.data(),
 	args.lengths.data(),

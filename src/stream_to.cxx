@@ -74,9 +74,7 @@ void pqxx::stream_to::set_up(
 )
 {
   internal::gate::transaction_stream_to{tb}.BeginCopyWrite(
-    table_name,
-    columns
-  );
+	table_name, columns);
   register_me();
 }
 

@@ -198,7 +198,7 @@ template<typename T> void stream_from::extract_value(
 ) const
 {
   if (extract_field(line, here, workspace)) t = from_string<T>(workspace);
-  else if constexpr (string_traits<T>::has_null) t = string_traits<T>::null();
+  else if constexpr (nullness<T>::has_null) t = nullness<T>::null();
   else internal::throw_null_conversion(type_name<T>);
 }
 

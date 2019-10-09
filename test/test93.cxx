@@ -4,19 +4,17 @@
 
 #include "test_helpers.hxx"
 
-using namespace pqxx;
-
 
 // Test program for libpqxx.  Test querying of result column origins.
 namespace
 {
 void test_093()
 {
-  result R, X;
+  pqxx::result R, X;
 
   {
-    connection conn;
-    work tx{conn};
+    pqxx::connection conn;
+    pqxx::work tx{conn};
     tx.exec0("CREATE TEMP TABLE pqxxfoo (x varchar, y integer, z integer)");
     tx.exec0("INSERT INTO pqxxfoo VALUES ('xx', 1, 2)");
     R = tx.exec("SELECT z,y,x FROM pqxxfoo");
@@ -28,7 +26,7 @@ void test_093()
   pqxx::row::size_type
 	x = R.table_column(2),
 	y = R.table_column(1),
-	z = R.table_column(int(0));
+	z = R.table_column(static_cast<int>(0));
 
   PQXX_CHECK_EQUAL(x, 0u, "Wrong column number.");
   PQXX_CHECK_EQUAL(y, 1u, "Wrong column number.");
@@ -43,7 +41,7 @@ void test_093()
   PQXX_CHECK_EQUAL(z, 2u, "Wrong number for named column.");
 
   pqxx::row::size_type
-	xx = X[0].table_column(int(0)),
+	xx = X[0].table_column(static_cast<int>(0)),
 	yx = X[0].table_column(pqxx::row::size_type(1)),
 	zx = X[0].table_column("z");
 
@@ -51,7 +49,7 @@ void test_093()
   PQXX_CHECK_EQUAL(yx, 1u, "Bad result from table_column(size_type).");
   PQXX_CHECK_EQUAL(zx, 2u, "Bad result from table_column(string).");
 
-  for (pqxx::row::size_type i=0; i<R[0].size(); ++i)
+  for (pqxx::row::size_type i=0; i < R[0].size(); ++i)
     PQXX_CHECK_EQUAL(
 	R[0][i].table_column(),
 	R.table_column(i),

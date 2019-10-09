@@ -1,37 +1,42 @@
 #include "../test_helpers.hxx"
 
-using namespace pqxx;
-
 namespace pqxx
 {
+template<> struct nullness<row::const_iterator> : no_null<row::const_iterator>
+{
+};
+
+template<> struct nullness<row::const_reverse_iterator> :
+	no_null<const_reverse_row_iterator>
+{
+};
+
+
 template<> struct string_traits<row::const_iterator>
 {
-  static constexpr bool has_null = false;
+  static pqxx::zview to_buf(char *, char *, const row::const_iterator &)
+  { return "[row::const_iterator]"; }
 };
 
-template<> struct string_traits<const_reverse_row_iterator>
+
+template<> struct string_traits<row::const_reverse_iterator>
 {
-  static constexpr bool has_null = false;
+  static pqxx::zview to_buf(
+	char *, char *, const row::const_reverse_iterator &)
+  { return "[row::const_reverse_iterator]"; }
 };
-
-template<> inline pqxx::zview
-to_buf(char *, char *, const row::const_iterator &)
-{ return "[row::const_iterator]"; }
-template<> inline pqxx::zview
-to_buf(char *, char *, const row::const_reverse_iterator &)
-{ return "[row::const_reverse_iterator]"; }
 
 template<> inline constexpr int buffer_budget<row::const_iterator> = 0;
 template<> inline constexpr int buffer_budget<row::const_reverse_iterator> = 0;
-}
+} // namespace pqxx
 
 namespace
 {
 void test_result_slicing()
 {
-  connection conn;
-  work tx{conn};
-  result r = tx.exec("SELECT 1");
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  auto r = tx.exec("SELECT 1");
 
   PQXX_CHECK(not r[0].empty(), "A plain row shows up as empty.");
 
@@ -95,11 +100,11 @@ void test_result_slicing()
   PQXX_CHECK_EQUAL(s["two"].as<int>(), 2, "Column addressing breaks.");
   PQXX_CHECK_THROWS(
 	s.column_number("one"),
-	argument_error,
+	pqxx::argument_error,
 	"Can access column name before slice.");
   PQXX_CHECK_THROWS(
 	s.column_number("three"),
-	argument_error,
+	pqxx::argument_error,
 	"Can access column name after slice.");
   PQXX_CHECK_EQUAL(
 	s.column_number("Two"),

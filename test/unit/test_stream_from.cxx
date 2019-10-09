@@ -168,9 +168,10 @@ void test_optional(pqxx::connection_base& connection)
 	got_tuple;
 
   extractor >> got_tuple;
-  PQXX_CHECK(extractor, "stream_from failed to read first row");
-  PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 1234, "field value mismatch");
-  PQXX_CHECK(static_cast<bool>(std::get<1>(got_tuple)), "unexpected null field");
+  PQXX_CHECK(extractor, "stream_from failed to read first row.");
+  PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 1234, "Field value mismatch.");
+  PQXX_CHECK(
+	static_cast<bool>(std::get<1>(got_tuple)), "Unexpected null field.");
   // PQXX_CHECK_EQUAL(*std::get<1>(got_tuple), , "field value mismatch");
   ASSERT_FIELD_EQUAL(std::get<2>(got_tuple), 4321);
   ASSERT_FIELD_EQUAL(std::get<3>(got_tuple), (ipv4{8, 8, 8, 8}));
@@ -184,7 +185,9 @@ void test_optional(pqxx::connection_base& connection)
   ASSERT_FIELD_NULL(std::get<2>(got_tuple));
   ASSERT_FIELD_NULL(std::get<3>(got_tuple));
   ASSERT_FIELD_EQUAL(std::get<4>(got_tuple), "こんにちは");
-  ASSERT_FIELD_EQUAL(std::get<5>(got_tuple), (bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'}));
+  ASSERT_FIELD_EQUAL(
+	std::get<5>(got_tuple),
+	(bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'}));
 
   extractor >> got_tuple;
   PQXX_CHECK(extractor, "stream_from failed to read third row");

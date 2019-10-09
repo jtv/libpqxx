@@ -18,7 +18,7 @@
 #include <string_view>
 #include <system_error>
 
-#if defined(PQXX_HAVE_CXA_DEMANGLE)
+#if __has_include(<cxxabi.h>)
 #include <cxxabi.h>
 #endif
 
@@ -75,8 +75,10 @@ std::string state_buffer_overrun(ptrdiff_t have_bytes, ptrdiff_t need_bytes)
 
 
 #if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
-template<typename TYPE> PQXX_LIBEXPORT
-TYPE pqxx::internal::builtin_traits<TYPE>::from_string(std::string_view in)
+namespace
+{
+template<typename TYPE> inline
+TYPE from_string_arithmetic(std::string_view in)
 {
   const char *end = in.data() + in.size();
   TYPE out;
@@ -106,6 +108,7 @@ TYPE pqxx::internal::builtin_traits<TYPE>::from_string(std::string_view in)
   if (msg.empty()) throw pqxx::conversion_error{base + "."};
   else throw pqxx::conversion_error{base + ": " + msg};
 }
+} // namespace
 #endif
 
 
@@ -119,6 +122,7 @@ namespace
 }
 
 
+// TODO: Elide checks at compile time if string is short enough?
 /// Return 10*n, or throw exception if it overflows.
 template<typename T> inline T safe_multiply_by_ten(T n)
 {
@@ -175,49 +179,41 @@ template<typename L, typename R>
 { return c - '0'; }
 
 
-template<typename T> T from_string_signed(std::string_view str)
+template<typename T> T from_string_integer(std::string_view str)
 {
-  int i = 0;
-  T result = 0;
+  if (str.size() == 0)
+    throw pqxx::conversion_error{
+	"Attempt to convert empty string to " + pqxx::type_name<T> + "."};
 
-  if (isdigit(str.data()[i]))
+  const char initial{str.data()[0]};
+  std::size_t i{0};
+  T result{0};
+
+  if (isdigit(initial))
   {
     for (; isdigit(str.data()[i]); ++i)
       result = absorb_digit_positive(result, digit_to_number(str.data()[i]));
   }
-  else
+  else if (str.data()[0] == '-')
   {
-    if (str.data()[i] != '-')
+    if constexpr (not std::is_signed_v<T>)
       throw pqxx::conversion_error{
-        "Could not convert string to integer: '" + std::string{str} + "'."};
+	"Attempt to convert negative value to " + pqxx::type_name<T> + "."};
 
     for (++i; isdigit(str.data()[i]); ++i)
       result = absorb_digit_negative(result, digit_to_number(str.data()[i]));
   }
-
-  if (str.data()[i])
+  else
+  {
     throw pqxx::conversion_error{
-      "Unexpected text after integer: '" + std::string{str} + "'."};
+	"Could not convert string to " + pqxx::type_name<T> + ": "
+	"'" + std::string{str} + "'."};
+  }
 
-  return result;
-}
-
-template<typename T> T from_string_unsigned(std::string_view str)
-{
-  int i = 0;
-  T result = 0;
-
-  if (not isdigit(str.data()[i]))
+  if (i < str.size())
     throw pqxx::conversion_error{
-      "Could not convert string to unsigned integer: '" +
-      std::string{str} + "'."};
-
-  for (; isdigit(str.data()[i]); ++i)
-    result = absorb_digit_positive(result, digit_to_number(str.data()[i]));
-
-  if (str.data()[i])
-    throw pqxx::conversion_error{
-      "Unexpected text after integer: '" + std::string{str} + "'."};
+      "Unexpected text after " + pqxx::type_name<T> + ": "
+	"'" + std::string{str} + "'."};
 
   return result;
 }
@@ -235,6 +231,8 @@ bool valid_infinity_string(std::string_view str) noexcept
 	equal("Infinity", str) or
 	equal("INFINITY", str) or
 	equal("inf", str);
+	equal("Inf", str);
+	equal("INF", str);
 }
 } // namespace
 #endif
@@ -268,16 +266,8 @@ public:
 };
 
 
-template<typename T> inline void set_to_Inf(T &t, int sign=1)
-{
-  T value = std::numeric_limits<T>::infinity();
-  if (sign < 0) value = -value;
-  t = value;
-}
-
-
 // These are hard, and popular compilers do not yet implement std::from_chars.
-template<typename T> inline T from_string_float(std::string_view str)
+template<typename T> inline T from_string_awful_float(std::string_view str)
 {
   bool ok = false;
   T result;
@@ -288,8 +278,8 @@ template<typename T> inline T from_string_float(std::string_view str)
   case 'n':
     // Accept "NaN," "nan," etc.
     ok = (
-      (str[1]=='A' or str[1]=='a') and
-      (str[2]=='N' or str[2]=='n') and
+      (str[1] == 'A' or str[1] == 'a') and
+      (str[2] == 'N' or str[2] == 'n') and
       (str[3] == '\0'));
     result = std::numeric_limits<T>::quiet_NaN();
     break;
@@ -297,14 +287,14 @@ template<typename T> inline T from_string_float(std::string_view str)
   case 'I':
   case 'i':
     ok = valid_infinity_string(str);
-    set_to_Inf(result);
+    result = std::numeric_limits<T>::infinity();
     break;
 
   default:
     if (str[0] == '-' and valid_infinity_string(&str[1]))
     {
       ok = true;
-      set_to_Inf(result, -1);
+      result = -std::numeric_limits<T>::infinity();
     }
     else
     {
@@ -402,87 +392,44 @@ template std::string_view to_buf_float(char *, char *, long double);
 } // namespace pqxx::internal
 
 
+namespace pqxx::internal
+{
+template<typename T> T
+from_string_integral(std::string_view text)
+{
 #if defined(PQXX_HAVE_CHARCONV_INT)
-namespace pqxx::internal
+  return from_string_arithmetic<T>(text);
+#else
+  return from_string_integer<T>(text);
+#endif
+}
+
+template short from_string_integral<short>(std::string_view);
+template unsigned short from_string_integral<unsigned short>(std::string_view);
+template int from_string_integral<int>(std::string_view);
+template unsigned from_string_integral<unsigned>(std::string_view);
+template long from_string_integral<long>(std::string_view);
+template unsigned long from_string_integral<unsigned long>(std::string_view);
+template long long from_string_integral<long long>(std::string_view);
+template unsigned long long from_string_integral<unsigned long long>(
+	std::string_view);
+
+
+template<typename T> T
+from_string_float(std::string_view text)
 {
-template short
-builtin_traits<short>::from_string(std::string_view);
-template unsigned short
-builtin_traits<unsigned short>::from_string(std::string_view);
-template int
-builtin_traits<int>::from_string(std::string_view);
-template unsigned int
-builtin_traits<unsigned int>::from_string(std::string_view);
-template long
-builtin_traits<long>::from_string(std::string_view);
-template unsigned long
-builtin_traits<unsigned long>::from_string(std::string_view);
-template long long
-builtin_traits<long long>::from_string(std::string_view);
-template unsigned long long
-builtin_traits<unsigned long long>::from_string(std::string_view);
-} // namespace pqxx::internal
-#endif // PQXX_HAVE_CHARCONV_INT
-
-
-#if !defined(PQXX_HAVE_CHARCONV_INT)
-namespace pqxx::internal
-{
-template<> short
-builtin_traits<short>::from_string(std::string_view str)
-	{ return from_string_signed<short>(str); }
-template<> unsigned short
-builtin_traits<unsigned short>::from_string(std::string_view str)
-	{ return from_string_unsigned<unsigned short>(str); }
-template<> int
-builtin_traits<int>::from_string(std::string_view str)
-	{ return from_string_signed<int>(str); }
-template<> unsigned int
-builtin_traits<unsigned int>::from_string(std::string_view str)
-	{ return from_string_unsigned<unsigned int>(str); }
-template<> long
-builtin_traits<long>::from_string(std::string_view str)
-	{ return from_string_signed<long>(str); }
-template<>
-unsigned long builtin_traits<unsigned long>::from_string(std::string_view str)
-	{ return from_string_unsigned<unsigned long>(str); }
-template<> long long
-builtin_traits<long long>::from_string(std::string_view str)
-	{ return from_string_signed<long long>(str); }
-template<> unsigned long long
-builtin_traits<unsigned long long>::from_string(std::string_view str)
-	{ return from_string_unsigned<unsigned long long>(str); }
-} // namespace pqxx::internal
-#endif // !PQXX_HAVE_CHARCONV_INT
-
-
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
-namespace pqxx::internal
-{
-template float
-builtin_traits<float>::from_string(std::string_view);
-template double
-builtin_traits<double>::from_string(std::string_view);
-template long double
-builtin_traits<long double>::from_string(std::string_view);
-} // namespace pqxx::internal
-#endif // PQXX_HAVE_CHARCONV_FLOAT
+  return from_string_arithmetic<T>(text);
+#else
+  return from_string_awful_float<T>(text);
+#endif
+}
 
 
-#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
-namespace pqxx::internal
-{
-template<> float
-builtin_traits<float>::from_string(std::string_view str)
-	{ return from_string_float<float>(str); }
-template<> double
-builtin_traits<double>::from_string(std::string_view str)
-	{ return from_string_float<double>(str); }
-template<> long double
-builtin_traits<long double>::from_string(std::string_view str)
-	{ return from_string_float<long double>(str); }
+template float from_string_float<float>(std::string_view);
+template double from_string_float<double>(std::string_view);
+template long double from_string_float<long double>(std::string_view);
 } // namespace pqxx::internal
-#endif // !PQXX_HAVE_CHARCONV_FLOAT
 
 
 namespace pqxx::internal
@@ -495,7 +442,7 @@ template std::string to_string_float(long double);
 
 namespace pqxx::internal
 {
-template<> bool builtin_traits<bool>::from_string(std::string_view str)
+bool from_string_bool(std::string_view str)
 {
   bool OK, result;
 
@@ -550,4 +497,4 @@ template<> bool builtin_traits<bool>::from_string(std::string_view str)
 
   return result;
 }
-} // namespace pqxx::internal
+} // namespace pqxx

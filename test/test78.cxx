@@ -4,25 +4,23 @@
 
 #include "test_helpers.hxx"
 
-using namespace pqxx;
-
 
 // Example program for libpqxx.  Send notification to self, using a notification
 // name with unusal characters, and without polling.
 namespace
 {
 // Sample implementation of notification receiver.
-class TestListener : public notification_receiver
+class TestListener : public pqxx::notification_receiver
 {
   bool m_done;
 
 public:
-  explicit TestListener(connection_base &conn, std::string Name) :
-    notification_receiver(conn, Name), m_done(false)
+  explicit TestListener(pqxx::connection_base &conn, std::string Name) :
+    pqxx::notification_receiver(conn, Name), m_done(false)
   {
   }
 
-  virtual void operator()(const std::string &, int be_pid) override
+  void operator()(const std::string &, int be_pid) override
   {
     m_done = true;
     PQXX_CHECK_EQUAL(
@@ -41,15 +39,15 @@ public:
 
 void test_078()
 {
-  connection conn;
+  pqxx::connection conn;
 
   const std::string NotifName = "my listener";
   TestListener L{conn, NotifName};
 
-  perform(
+  pqxx::perform(
     [&conn, &L]()
     {
-      work tx{conn};
+      pqxx::work tx{conn};
       tx.exec0("NOTIFY " + tx.quote_name(L.channel()));
       tx.commit();
     });

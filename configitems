@@ -10,5 +10,4 @@ PQXX_HAVE_CXA_DEMANGLE	internal	compiler
 PQXX_HAVE_GCC_PURE	public	compiler
 PQXX_HAVE_GCC_VISIBILITY	internal	compiler
 PQXX_HAVE_POLL       internal        compiler
-PQXX_SEEKDIRS_MATCH_C	internal	compiler
 VERSION	internal	autotools

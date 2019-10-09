@@ -2,13 +2,11 @@
 
 #include <pqxx/util>
 
-using namespace pqxx;
-
 namespace
 {
 void test_thread_safety_model()
 {
-  const thread_safety_model model = describe_thread_safety();
+  const auto model = pqxx::describe_thread_safety();
 
   if (model.safe_libpq and model.safe_kerberos)
     PQXX_CHECK_EQUAL(

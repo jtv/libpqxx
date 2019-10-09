@@ -74,41 +74,11 @@ namespace pqxx
 template<> inline constexpr int buffer_budget<ipv4> = 16;
 
 
-template<> inline zview to_buf(char *begin, char *end, const ipv4 &value)
-{
-  if (end - begin < buffer_budget<ipv4>)
-    throw conversion_error{"Buffer too small for ipv4."};
-  str o0{value[0]}, o1{value[1]}, o2{value[2]}, o3{value[3]};
-  char *pos = begin;
-
-  std::memcpy(pos, o0.c_str(), o0.view().size());
-  pos += o0.view().size();
-
-  *pos++ = '.';
-
-  std::memcpy(pos, o1.c_str(), o1.view().size());
-  pos += o1.view().size();
-
-  *pos++ = '.';
-
-  std::memcpy(pos, o2.c_str(), o2.view().size());
-  pos += o2.view().size();
-
-  *pos++ = '.';
-
-  std::memcpy(pos, o3.c_str(), o3.view().size());
-  pos += o3.view().size();
-
-  *pos = '\0';
-
-  return zview{begin, std::size_t(pos - begin)};
-}
+template<> struct nullness<ipv4> : no_null<ipv4> {};
 
 
 template<> struct string_traits<ipv4>
 {
-  static constexpr bool has_null = false;
-
   static ipv4 from_string(std::string_view str)
   {
     ipv4 ts;
@@ -137,6 +107,36 @@ template<> struct string_traits<ipv4>
     }
     return ts;
   }
+
+  static zview to_buf(char *begin, char *end, const ipv4 &value)
+  {
+    if (end - begin < buffer_budget<ipv4>)
+      throw conversion_error{"Buffer too small for ipv4."};
+    str o0{value[0]}, o1{value[1]}, o2{value[2]}, o3{value[3]};
+    char *pos = begin;
+
+    std::memcpy(pos, o0.c_str(), o0.view().size());
+    pos += o0.view().size();
+
+    *pos++ = '.';
+
+    std::memcpy(pos, o1.c_str(), o1.view().size());
+    pos += o1.view().size();
+
+    *pos++ = '.';
+
+    std::memcpy(pos, o2.c_str(), o2.view().size());
+    pos += o2.view().size();
+
+    *pos++ = '.';
+
+    std::memcpy(pos, o3.c_str(), o3.view().size());
+    pos += o3.view().size();
+
+    *pos = '\0';
+
+    return zview{begin, std::size_t(pos - begin)};
+  }
 };
 
 
@@ -164,29 +164,11 @@ unsigned hex_to_digit(char hex)
 } // namespace
 
 
-template<> inline zview to_buf(char *begin, char *end, const bytea &value)
-{
-  const auto need = 2 + value.size() + 1;
-  const auto have = end - begin;
-  if (std::size_t(have) < need)
-    throw pqxx::conversion_overrun{"Not enough space in buffer for bytea."};
-  char *pos = begin;
-  *pos++ = '\\';
-  *pos++ = 'x';
-  for (const unsigned char u : value)
-  {
-    *pos++ = nibble_to_hex(unsigned(u) >> 4);
-    *pos++ = nibble_to_hex(unsigned(u) & 0x0f);
-  }
-  *pos++ = '\0';
-  return zview{begin, std::size_t(pos - begin - 1)};
-}
+template<> struct nullness<bytea> : no_null<bytea> {};
 
 
 template<> struct string_traits<bytea>
 {
-  static constexpr bool has_null = false;
-
   static bytea from_string(std::string_view str)
   {
     if ((str.size() & 1) != 0) throw std::runtime_error{"Odd hex size."};
@@ -198,6 +180,24 @@ template<> struct string_traits<bytea>
       value.push_back(static_cast<unsigned char>((hi << 4) | lo));
     }
     return value;
+  }
+
+  static zview to_buf(char *begin, char *end, const bytea &value)
+  {
+    const auto need = 2 + value.size() + 1;
+    const auto have = end - begin;
+    if (std::size_t(have) < need)
+      throw pqxx::conversion_overrun{"Not enough space in buffer for bytea."};
+    char *pos = begin;
+    *pos++ = '\\';
+    *pos++ = 'x';
+    for (const unsigned char u : value)
+    {
+      *pos++ = nibble_to_hex(unsigned(u) >> 4);
+      *pos++ = nibble_to_hex(unsigned(u) & 0x0f);
+    }
+    *pos++ = '\0';
+    return zview{begin, std::size_t(pos - begin - 1)};
   }
 };
 } // namespace pqxx

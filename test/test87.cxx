@@ -24,8 +24,6 @@
 
 #include "test_helpers.hxx"
 
-using namespace pqxx;
-
 
 // Test program for libpqxx.  Send notification to self, and select() on socket
 // as returned by the connection to wait for it to come in.  Normally one would
@@ -34,17 +32,17 @@ using namespace pqxx;
 namespace
 {
 // Sample implementation of notification receiver.
-class TestListener final : public notification_receiver
+class TestListener final : public pqxx::notification_receiver
 {
   bool m_done;
 
 public:
-  explicit TestListener(connection_base &conn, std::string Name) :
-    notification_receiver(conn, Name), m_done(false)
+  explicit TestListener(pqxx::connection_base &conn, std::string Name) :
+    pqxx::notification_receiver(conn, Name), m_done(false)
   {
   }
 
-  virtual void operator()(const std::string &, int be_pid) override
+  void operator()(const std::string &, int be_pid) override
   {
     m_done = true;
     PQXX_CHECK_EQUAL(
@@ -73,7 +71,7 @@ static void set_fdbit(fd_set &s, int b)
 #endif
 
   // Do the actual work.
-  FD_SET(b,&s);
+  FD_SET(b, &s);
 
 #ifdef _MSV_VER
 // Restore prevalent warning settings.
@@ -85,15 +83,15 @@ static void set_fdbit(fd_set &s, int b)
 
 void test_087()
 {
-  connection conn;
+  pqxx::connection conn;
 
   const std::string NotifName = "my notification";
   TestListener L{conn, NotifName};
 
-  perform(
+  pqxx::perform(
     [&conn, &L]()
     {
-      work tx{conn};
+      pqxx::work tx{conn};
       tx.exec0("NOTIFY " + tx.quote_name(L.channel()));
       tx.commit();
     });
@@ -109,13 +107,13 @@ void test_087()
     // File descriptor from which we wish to read.
     fd_set read_fds;
     FD_ZERO(&read_fds);
-    set_fdbit(read_fds,fd);
+    set_fdbit(read_fds, fd);
 
     // File descriptor for which we want to see errors.  We can't just use
     // the same fd_set for reading and errors: they're marked "restrict".
     fd_set except_fds;
     FD_ZERO(&except_fds);
-    set_fdbit(except_fds,fd);
+    set_fdbit(except_fds, fd);
 
     timeval timeout = { 1, 0 };
     select(fd+1, &read_fds, nullptr, &except_fds, &timeout);
