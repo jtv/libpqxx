@@ -6,22 +6,28 @@ template<> struct nullness<row::const_iterator> : no_null<row::const_iterator>
 {
 };
 
-template<> struct nullness<const_reverse_row_iterator> :
+template<> struct nullness<row::const_reverse_iterator> :
 	no_null<const_reverse_row_iterator>
 {
 };
 
-template<> inline pqxx::zview
-to_buf(char *, char *, const pqxx::row::const_iterator &)
-{ return "[row::const_iterator]"; }
-template<> inline pqxx::zview
-to_buf(char *, char *, const pqxx::row::const_reverse_iterator &)
-{ return "[row::const_reverse_iterator]"; }
 
-template<> inline constexpr int buffer_budget<pqxx::row::const_iterator> = 0;
-template<> inline constexpr int buffer_budget<
-	pqxx::row::const_reverse_iterator
-> = 0;
+template<> struct string_traits<row::const_iterator>
+{
+  static pqxx::zview to_buf(char *, char *, const row::const_iterator &)
+  { return "[row::const_iterator]"; }
+};
+
+
+template<> struct string_traits<row::const_reverse_iterator>
+{
+  static pqxx::zview to_buf(
+	char *, char *, const row::const_reverse_iterator &)
+  { return "[row::const_reverse_iterator]"; }
+};
+
+template<> inline constexpr int buffer_budget<row::const_iterator> = 0;
+template<> inline constexpr int buffer_budget<row::const_reverse_iterator> = 0;
 } // namespace pqxx
 
 namespace

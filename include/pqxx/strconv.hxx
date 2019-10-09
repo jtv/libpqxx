@@ -140,36 +140,36 @@ template<typename TYPE> struct no_null
 };
 
 
+// XXX: Add template parameter for binary support.
 /// Traits class for use in string conversions.
 /** Specialize this template for a type for which you wish to add to_string
- * and from_string support.  It indicates whether the type has a natural null
- * value (if not, consider using @c std::optional for that), and whether a
- * given value is null, and so on.
+ * and from_string support.
  */
-template<typename T, typename ENABLE = void> struct string_traits;
+template<typename TYPE, typename ENABLE = void> struct string_traits
+{
+  /// Return a @c string_view representing value, plus terminating zero.
+  /** Produces a @c string_view containing the PostgreSQL string representation
+   * for @c value.
+   *
+   * Uses the space from @c begin to @c end as a buffer, if needed.  The
+   * returned string may lie somewhere in that buffer, or it may be a
+   * compile-time constant, or it may be null if value was a null value.  Even
+   * if the string is stored in the buffer, its @c begin() may or may not be
+   * the same as @c begin.
+   *
+   * The @c string_view is guaranteed to be valid as long as the buffer from
+   * @c begin to @c end remains accessible and unmodified.
+   *
+   * @throws pqxx::conversion_overrun if the provided buffer space may not be
+   * enough.  For maximum performance, this is a conservative estimate.  It may
+   * complain about a buffer which is actually large enough for your value, if
+   * an exact check gets too expensive.
+   */
+  static inline zview to_buf(char *begin, char *end, const TYPE &value);
 
+  static inline TYPE from_string(std::string_view text);
+};
 
-// XXX: Add template parameter for binary support.
-/// Return a @c string_view representing value, plus terminating zero.
-/** Produces a @c string_view containing the PostgreSQL string representation
- * for @c value.
- *
- * Uses the space from @c begin to @c end as a buffer, if needed.  The
- * returned string may lie somewhere in that buffer, or it may be a
- * compile-time constant, or it may be null if value was a null value.  Even
- * if the string is stored in the buffer, its @c begin() may or may not be
- * the same as @c begin.
- *
- * The @c string_view is guaranteed to be valid as long as the buffer from
- * @c begin to @c end remains accessible and unmodified.
- *
- * @throws pqxx::conversion_overrun if the provided buffer space may not be
- * enough.  For maximum performance, this is a conservative estimate.  It may
- * complain about a buffer which is actually large enough for your value, if
- * an exact check gets too expensive.
- */
-template<typename T> inline zview
-to_buf(char *begin, char *end, const T &value);
 
 // XXX: Can we do this more efficiently for arbitrary tuples of values?
 // XXX: An "into_buf" might help: to_buf with exact placement.
@@ -215,6 +215,7 @@ struct nullness<ENUM, std::enable_if_t<std::is_enum_v<ENUM>>> : no_null<ENUM>
 };
 
 
+// XXX: Move to internal, or SFINAE a single string_traits for enums.
 /// Helper class for defining enum conversions.
 /** The conversion will convert enum values to numeric strings, and vice versa.
  *
@@ -223,16 +224,19 @@ struct nullness<ENUM, std::enable_if_t<std::is_enum_v<ENUM>>> : no_null<ENUM>
  *
  * There's usually an easier way though: the @c PQXX_DECLARE_ENUM_CONVERSION
  * macro.  Use @c enum_traits manually only if you need to customise your
- * traits type in more detail, e.g. if your enum has a "null" value built in.
+ * traits type in more detail.
  */
 template<typename ENUM>
 struct enum_traits
 {
+  using impl_type = std::underlying_type_t<ENUM>;
+  using impl_traits = string_traits<impl_type>;
+
+  static constexpr zview to_buf(char *begin, char *end, const ENUM &value)
+  { return impl_traits::to_buf(begin, end, static_cast<impl_type>(value)); }
+
   static ENUM from_string(std::string_view text)
-  {
-    using impl_type = std::underlying_type_t<ENUM>;
-    return static_cast<ENUM>(string_traits<impl_type>::from_string(text));
-  }
+  { return static_cast<ENUM>(impl_traits::from_string(text)); }
 };
 
 
@@ -249,9 +253,6 @@ struct enum_traits
  *      int main() { std::cout << pqxx::to_string(xa) << std::endl; }
  */
 #define PQXX_DECLARE_ENUM_CONVERSION(ENUM) \
-template<> [[maybe_unused]] zview inline \
-to_buf(char *begin, char *end, const ENUM &value) \
-{ return to_buf(begin, end, std::underlying_type_t<ENUM>(value)); } \
 template<> struct string_traits<ENUM> : pqxx::enum_traits<ENUM> {}; \
 template<> const std::string type_name<ENUM>{#ENUM}
 
@@ -296,7 +297,7 @@ template<typename T> inline void from_string(std::string_view text, T &obj)
  * in SQL queries.  It won't have niceties such as "thousands separators"
  * though.
  */
-template<typename T> inline std::string to_string(const T &obj);
+template<typename TYPE> inline std::string to_string(const TYPE &obj);
 
 
 /// Is @c value null?

@@ -58,6 +58,7 @@ template<typename T> constexpr int size_buffer(std::shared_ptr<T> *)
 
 namespace pqxx
 {
+// TODO: Move into string traits.
 /// How big of a buffer do we want for representing a T object as text?
 /** Specialisations may be 0 to indicate that they don't need any buffer
  * space at all.  This would be the case for types where all strings are fixed:
@@ -87,9 +88,11 @@ std::string PQXX_LIBEXPORT state_buffer_overrun(
 	const std::string &type);
 
 
+// XXX: You know what?  I'd like to move this out of the header after all.
 constexpr char number_to_digit(int i) noexcept
 	{ return static_cast<char>(i+'0'); }
 
+// XXX: You know what?  I'd like to move this out of the header after all.
 /// Write nonnegative integral value at end of buffer.  Return start.
 /** Assumes a sufficiently large buffer.
  *
@@ -108,6 +111,7 @@ template<typename T> inline char *nonneg_to_buf(char *end, T value)
 }
 
 
+// XXX: You know what?  I'd like to move this out of the header after all.
 /// A few hard-coded string versions of difficult negative numbers.
 /** For template argument n, this gives the string for n-1.
  * The reason is that compilers won't accept as a template argument a negative
@@ -129,6 +133,7 @@ template<> inline constexpr const char *hard_neg<-9223372036854775807LL> =
 	"-9223372036854775808";
 
 
+// XXX: You know what?  I'd like to move this out of the header after all.
 /// Represent an integral value as a zview.  May use given buffer.
 template<typename T> inline zview
 to_buf_integral(char *begin, char *end, T value)
@@ -182,17 +187,15 @@ template<typename T> PQXX_LIBEXPORT extern
 std::string_view to_buf_float(char *, char *, T);
 template<typename T> PQXX_LIBEXPORT extern
 std::string to_string_float(T);
-
-
-/// Helper: string traits implementation for built-in types.
-/** These types all look much alike, so they can share much of their traits
- * classes (though templatised, of course).
- */
-template<typename T> struct PQXX_LIBEXPORT builtin_traits
-{
-  static T from_string(std::string_view text);
-};
 } // namespace pqxx::internal
+
+
+namespace pqxx::internal
+{
+bool PQXX_LIBEXPORT from_string_bool(std::string_view);
+template<typename T> T PQXX_LIBEXPORT from_string_integral(std::string_view);
+template<typename T> T PQXX_LIBEXPORT from_string_float(std::string_view);
+}
 
 
 namespace pqxx
@@ -206,22 +209,58 @@ struct nullness<T, std::enable_if_t<std::is_arithmetic_v<T>>> : no_null<T>
 
 // XXX: Can we SFINAE this?
 /// Helper: declare a string_traits specialisation for a builtin type.
-#define PQXX_SPECIALIZE_STRING_TRAITS(TYPE) \
-  template<> struct string_traits<TYPE> : internal::builtin_traits<TYPE> { }
+#define PQXX_SPECIALIZE_STRING_TRAITS(TYPE, TO_BUF, FROM_STRING) \
+  template<> struct string_traits<TYPE> \
+  { \
+    static TYPE PQXX_LIBEXPORT from_string(std::string_view text) \
+    { return FROM_STRING<TYPE>(text); } \
+    static zview to_buf(char *begin, char *end, const TYPE &value) \
+    { return TO_BUF(begin, end, value); } \
+  }
 
-PQXX_SPECIALIZE_STRING_TRAITS(bool);
-PQXX_SPECIALIZE_STRING_TRAITS(short);
-PQXX_SPECIALIZE_STRING_TRAITS(unsigned short);
-PQXX_SPECIALIZE_STRING_TRAITS(int);
-PQXX_SPECIALIZE_STRING_TRAITS(unsigned int);
-PQXX_SPECIALIZE_STRING_TRAITS(long);
-PQXX_SPECIALIZE_STRING_TRAITS(unsigned long);
-PQXX_SPECIALIZE_STRING_TRAITS(long long);
-PQXX_SPECIALIZE_STRING_TRAITS(unsigned long long);
-PQXX_SPECIALIZE_STRING_TRAITS(float);
-PQXX_SPECIALIZE_STRING_TRAITS(double);
-PQXX_SPECIALIZE_STRING_TRAITS(long double);
+PQXX_SPECIALIZE_STRING_TRAITS(
+	short, internal::to_buf_integral, internal::from_string_integral);
+PQXX_SPECIALIZE_STRING_TRAITS(
+	unsigned short,
+	internal::to_buf_integral,
+	internal::from_string_integral);
+PQXX_SPECIALIZE_STRING_TRAITS(
+	int, internal::to_buf_integral, internal::from_string_integral);
+PQXX_SPECIALIZE_STRING_TRAITS(
+	unsigned int,
+	internal::to_buf_integral,
+	internal::from_string_integral);
+PQXX_SPECIALIZE_STRING_TRAITS(
+	long, internal::to_buf_integral, internal::from_string_integral);
+PQXX_SPECIALIZE_STRING_TRAITS(
+	unsigned long,
+	internal::to_buf_integral,
+	internal::from_string_integral);
+PQXX_SPECIALIZE_STRING_TRAITS(
+	long long,
+	internal::to_buf_integral,
+	internal::from_string_integral);
+PQXX_SPECIALIZE_STRING_TRAITS(
+	unsigned long long,
+	internal::to_buf_integral,
+	internal::from_string_integral);
+PQXX_SPECIALIZE_STRING_TRAITS(
+	float, internal::to_buf_float, internal::from_string_float);
+PQXX_SPECIALIZE_STRING_TRAITS(
+	double, internal::to_buf_float, internal::from_string_float);
+PQXX_SPECIALIZE_STRING_TRAITS(
+	long double, internal::to_buf_float, internal::from_string_float);
 #undef PQXX_SPECIALIZE_STRING_TRAITS
+
+
+template<> struct string_traits<bool>
+{
+  static bool from_string(std::string_view text)
+  { return internal::from_string_bool(text); }
+
+  static constexpr zview to_buf(char *, char *, const bool &value) noexcept
+  { return value ? "true" : "false"; }
+};
 
 
 template<typename T> struct nullness<std::optional<T>>
@@ -248,88 +287,13 @@ inline T from_string(const std::stringstream &text)			//[t00]
 	{ return from_string<T>(text.str()); }
 
 
-template<typename ENUM> inline zview
-to_buf(
-	char *begin,
-	char *end,
-	const std::enable_if_t<std::is_enum_v<ENUM>, ENUM> &value)
-{ return to_buf(begin, end, std::underlying_type<ENUM>(value)); }
-
-// XXX: Can we SFINAE this?
-template<> inline zview to_buf(char *begin, char *end, const short &value)
-{ return internal::to_buf_integral(begin, end, value); }
-template<> inline zview
-to_buf(char *begin, char *end, const unsigned short &value)
-{ return internal::to_buf_integral(begin, end, value); }
-template<> inline zview to_buf(char *begin, char *end, const int &value)
-{ return internal::to_buf_integral(begin, end, value); }
-template<> inline zview to_buf(char *begin, char *end, const unsigned &value)
-{ return internal::to_buf_integral(begin, end, value); }
-template<> inline zview to_buf(char *begin, char *end, const long &value)
-{ return internal::to_buf_integral(begin, end, value); }
-template<> inline zview
-to_buf(char *begin, char *end, const unsigned long &value)
-{ return internal::to_buf_integral(begin, end, value); }
-template<> inline zview to_buf(char *begin, char *end, const long long &value)
-{ return internal::to_buf_integral(begin, end, value); }
-template<> inline zview
-to_buf(char *begin, char *end, const unsigned long long &value)
-{ return internal::to_buf_integral(begin, end, value); }
-
-
-template<> inline zview to_buf(char *, char *, const std::nullptr_t &)
-{ return zview{}; }
-
-
-template<> inline zview to_buf(char *, char *, const bool &value)
+template<> struct string_traits<std::nullptr_t>
 {
-  // Define as char arrays first, to ensure trailing zero.
-  static constexpr char true_ptr[]{"true"}, false_ptr[]{"false"};
-  static const zview s_true{true_ptr}, s_false{false_ptr};
-  return value ? s_true : s_false;
-}
-
-
-template<> inline zview
-to_buf(char *begin, char *end, const std::string &value)
-{
-  if (value.size() >= std::size_t(end - begin))
-    throw conversion_overrun{
-	"Could not convert string to string: too long for buffer."};
-  std::memcpy(begin, value.c_str(), value.size() + 1);
-  return zview{begin, value.size()};
-}
-
-
-template<> inline zview
-to_buf(char *begin, char *end, const char * const &value)
-{
-  if (value == nullptr) return zview{};
-  auto len = std::strlen(value);
-  auto buf_size = end - begin;
-  if (buf_size < ptrdiff_t(len))
-  {
-    throw conversion_overrun{
-	"Could not copy string: buffer too small.  " +
-        pqxx::internal::state_buffer_overrun(buf_size, ptrdiff_t(len))
-	};
-  }
-  std::memcpy(begin, value, len + 1);
-  return zview{begin, len};
-}
-
-
-template<> inline zview to_buf(char *begin, char *end, char * const &value)
-{ return to_buf<const char *>(begin, end, value); }
-
-// XXX: Can we SFINAE this?
-template<> inline zview to_buf(char *begin, char *end, const float &value)
-{ return internal::to_buf_float(begin, end, value); }
-template<> inline zview to_buf(char *begin, char *end, const double &value)
-{ return internal::to_buf_float(begin, end, value); }
-template<> inline zview
-to_buf(char *begin, char *end, const long double &value)
-{ return internal::to_buf_float(begin, end, value); }
+  static constexpr zview to_buf(
+	char *, char *, const std::nullptr_t &
+  ) noexcept
+  { return zview{}; }
+};
 
 
 template<typename T> inline zview
@@ -372,6 +336,19 @@ template<> struct nullness<const char *>
 template<> struct string_traits<const char *>
 {
   static const char *from_string(std::string_view text) { return text.data(); }
+
+  static zview to_buf(char *begin, char *end, const char * const &value)
+  {
+    if (value == nullptr) return zview{};
+    auto len = std::strlen(value);
+    auto buf_size = end - begin;
+    if (buf_size < ptrdiff_t(len)) throw conversion_overrun{
+	"Could not copy string: buffer too small.  " +
+        pqxx::internal::state_buffer_overrun(buf_size, ptrdiff_t(len))
+	};
+    std::memcpy(begin, value, len + 1);
+    return zview{begin, len};
+  }
 };
 
 
@@ -386,6 +363,9 @@ template<> struct nullness<char *>
 /// String traits for non-const C-style string ("pointer to char").
 template<> struct string_traits<char *>
 {
+  static zview to_buf(char *begin, char *end, char * const &value)
+  { return string_traits<const char *>::to_buf(begin, end, value); }
+
   // Don't allow conversion to this type since it breaks const-safety.
 };
 
@@ -407,6 +387,15 @@ template<> struct string_traits<std::string>
 {
   static std::string from_string(std::string_view text)
 	{ return std::string{text}; }
+
+  static zview to_buf(char *begin, char *end, const std::string &value)
+  {
+    if (value.size() >= std::size_t(end - begin))
+      throw conversion_overrun{
+  	"Could not convert string to string: too long for buffer."};
+    std::memcpy(begin, value.c_str(), value.size() + 1);
+    return zview{begin, value.size()};
+  }
 };
 
 
@@ -507,13 +496,16 @@ namespace pqxx::internal
  */
 template<
 	typename T,
-	typename = std::enable_if_t<&to_buf<T> != nullptr>
+	typename = std::enable_if_t<&string_traits<T>::to_buf != nullptr>
 >
 class str_impl
 {
 public:
   explicit str_impl(const T &value) :
-    m_view(to_buf(m_buf.data(), m_buf.data() + m_buf.size(), value))
+    m_view(
+      string_traits<T>::to_buf(
+        m_buf.data(), m_buf.data() + m_buf.size(), value)
+    )
   {}
 
   constexpr zview view() const noexcept { return m_view; }
@@ -666,39 +658,12 @@ template<typename T> inline std::string to_string(const T &value)
 }
 
 
-template<typename T> inline std::string to_string(
-	const std::unique_ptr<T> &value)
-{
-  if (!value)
-      throw conversion_error{
-	"Attempt to convert null " + type_name<std::unique_ptr<T>> +
-        " to a string."};
-  str<T> text{*value};
-  return std::string{text.view()};
-}
-
-
-template<typename T> inline std::string to_string(
-	const std::shared_ptr<T> &value)
-{
-  if (!value)
-      throw conversion_error{
-	"Attempt to convert null " + type_name<std::shared_ptr<T>> +
-        " to a string."};
-  str<T> text{*value};
-  return std::string{text.view()};
-}
-
-
-// XXX: Can we SFINAE this?
 template<> inline std::string to_string(const float &value)
 	{ return internal::to_string_float(value); }
 template<> inline std::string to_string(const double &value)
 	{ return internal::to_string_float(value); }
 template<> inline std::string to_string(const long double &value)
 	{ return internal::to_string_float(value); }
-
-
 template<> inline std::string to_string(const std::stringstream &value)
 { return value.str(); }
 } // namespace pqxx
