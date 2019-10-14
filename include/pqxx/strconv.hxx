@@ -93,7 +93,7 @@ public:
 //@{
 
 /// A human-readable name for a type, used in error messages and such.
-/** Actually this may not always be @i very user-friendly.  It uses
+/** Actually this may not always be very user-friendly.  It uses
  * @c std::type_info::name().  On gcc-like compilers we try to demangle its
  * output.  Visual Studio produces human-friendly names out of the box.
  *
@@ -105,8 +105,6 @@ template<typename TYPE> const std::string type_name{
 	internal::demangle_type_name(typeid(TYPE).name())};
 
 
-/// @addtogroup stringconversion
-//@{
 /// Traits describing a type's "null value," if any.
 /** Some C++ types have a special value or state which correspond directly to
  * SQL's NULL.
