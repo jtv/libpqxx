@@ -83,5 +83,6 @@ def main(args):
                     with open(log, 'w') as output:
                         build(configure, output)
 
+
 if __name__ == '__main__':
     main(parse_args())
