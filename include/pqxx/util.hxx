@@ -317,26 +317,26 @@ template<typename GUEST>
 class unique
 {
 public:
-  unique() =default;
-  unique(const unique &) =delete;
-  unique(unique &&rhs) : m_guest(rhs.m_guest) { rhs.m_guest = nullptr; }
-  unique &operator=(const unique &) =delete;
-  unique &operator=(unique &&rhs)
+  constexpr unique() =default;
+  constexpr unique(const unique &) =delete;
+  constexpr unique(unique &&rhs) : m_guest(rhs.m_guest) { rhs.m_guest = nullptr; }
+  constexpr unique &operator=(const unique &) =delete;
+  constexpr unique &operator=(unique &&rhs)
   {
     m_guest = rhs.m_guest;
     rhs.m_guest = nullptr;
     return *this;
   }
 
-  GUEST *get() const noexcept { return m_guest; }
+  constexpr GUEST *get() const noexcept { return m_guest; }
 
-  void register_guest(GUEST *G)
+  constexpr void register_guest(GUEST *G)
   {
     check_unique_registration(G, m_guest);
     m_guest = G;
   }
 
-  void unregister_guest(GUEST *G)
+  constexpr void unregister_guest(GUEST *G)
   {
     check_unique_unregistration(G, m_guest);
     m_guest = nullptr;
