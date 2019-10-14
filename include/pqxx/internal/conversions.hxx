@@ -195,7 +195,29 @@ namespace pqxx::internal
 bool PQXX_LIBEXPORT from_string_bool(std::string_view);
 template<typename T> T PQXX_LIBEXPORT from_string_integral(std::string_view);
 template<typename T> T PQXX_LIBEXPORT from_string_float(std::string_view);
-}
+
+
+/// String traits for builtin integral types (though not bool).
+template<typename T>
+struct integral_traits
+{
+  static T from_string(std::string_view text)
+  { return from_string_integral<T>(text); }
+  static zview to_buf(char *begin, char *end, const T &value)
+  { return to_buf_integral(begin, end, value); }
+};
+
+
+/// String traits for builtin floating-point types.
+template<typename T>
+struct float_traits
+{
+  static T from_string(std::string_view text)
+  { return from_string_float<T>(text); }
+  static zview to_buf(char *begin, char *end, const T &value)
+  { return to_buf_float(begin, end, value); }
+};
+} // namespace pqxx::internal
 
 
 namespace pqxx
@@ -207,50 +229,28 @@ struct nullness<T, std::enable_if_t<std::is_arithmetic_v<T>>> : no_null<T>
 };
 
 
-// XXX: Can we SFINAE this?
-/// Helper: declare a string_traits specialisation for a builtin type.
-#define PQXX_SPECIALIZE_STRING_TRAITS(TYPE, TO_BUF, FROM_STRING) \
-  template<> struct string_traits<TYPE> \
-  { \
-    static TYPE PQXX_LIBEXPORT from_string(std::string_view text) \
-    { return FROM_STRING<TYPE>(text); } \
-    static zview to_buf(char *begin, char *end, const TYPE &value) \
-    { return TO_BUF(begin, end, value); } \
-  }
-
-PQXX_SPECIALIZE_STRING_TRAITS(
-	short, internal::to_buf_integral, internal::from_string_integral);
-PQXX_SPECIALIZE_STRING_TRAITS(
-	unsigned short,
-	internal::to_buf_integral,
-	internal::from_string_integral);
-PQXX_SPECIALIZE_STRING_TRAITS(
-	int, internal::to_buf_integral, internal::from_string_integral);
-PQXX_SPECIALIZE_STRING_TRAITS(
-	unsigned int,
-	internal::to_buf_integral,
-	internal::from_string_integral);
-PQXX_SPECIALIZE_STRING_TRAITS(
-	long, internal::to_buf_integral, internal::from_string_integral);
-PQXX_SPECIALIZE_STRING_TRAITS(
-	unsigned long,
-	internal::to_buf_integral,
-	internal::from_string_integral);
-PQXX_SPECIALIZE_STRING_TRAITS(
-	long long,
-	internal::to_buf_integral,
-	internal::from_string_integral);
-PQXX_SPECIALIZE_STRING_TRAITS(
-	unsigned long long,
-	internal::to_buf_integral,
-	internal::from_string_integral);
-PQXX_SPECIALIZE_STRING_TRAITS(
-	float, internal::to_buf_float, internal::from_string_float);
-PQXX_SPECIALIZE_STRING_TRAITS(
-	double, internal::to_buf_float, internal::from_string_float);
-PQXX_SPECIALIZE_STRING_TRAITS(
-	long double, internal::to_buf_float, internal::from_string_float);
-#undef PQXX_SPECIALIZE_STRING_TRAITS
+template<> struct string_traits<short> :
+	internal::integral_traits<short> {};
+template<> struct string_traits<unsigned short> :
+	internal::integral_traits<unsigned short> {};
+template<> struct string_traits<int> :
+	internal::integral_traits<int> {};
+template<> struct string_traits<unsigned> :
+	internal::integral_traits<unsigned> {};
+template<> struct string_traits<long> :
+	internal::integral_traits<long> {};
+template<> struct string_traits<unsigned long> :
+	internal::integral_traits<unsigned long> {};
+template<> struct string_traits<long long> :
+	internal::integral_traits<long long> {};
+template<> struct string_traits<unsigned long long> :
+	internal::integral_traits<unsigned long long> {};
+template<> struct string_traits<float> :
+	internal::float_traits<float> {};
+template<> struct string_traits<double> :
+	internal::float_traits<double> {};
+template<> struct string_traits<long double> :
+	internal::float_traits<long double> {};
 
 
 template<> struct string_traits<bool>
