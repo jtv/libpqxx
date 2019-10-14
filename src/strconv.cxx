@@ -124,7 +124,7 @@ namespace
 
 // TODO: Elide checks at compile time if string is short enough?
 /// Return 10*n, or throw exception if it overflows.
-template<typename T> inline T safe_multiply_by_ten(T n)
+template<typename T> constexpr inline T safe_multiply_by_ten(T n)
 {
   using limits = std::numeric_limits<T>;
 
@@ -141,7 +141,7 @@ template<typename T> inline T safe_multiply_by_ten(T n)
 
 
 /// Add digit d to nonnegative n, or throw exception if it overflows.
-template<typename T> inline T safe_add_digit(T n, T d)
+template<typename T> constexpr inline T safe_add_digit(T n, T d)
 {
   const T high_threshold{static_cast<T>(std::numeric_limits<T>::max() - d)};
   if (n > high_threshold) report_overflow();
@@ -150,7 +150,7 @@ template<typename T> inline T safe_add_digit(T n, T d)
 
 
 /// Subtract digit d to nonpositive n, or throw exception if it overflows.
-template<typename T> inline T safe_sub_digit(T n, T d)
+template<typename T> constexpr inline T safe_sub_digit(T n, T d)
 {
   const T low_threshold{static_cast<T>(std::numeric_limits<T>::min() + d)};
   if (n < low_threshold) report_overflow();
@@ -160,7 +160,7 @@ template<typename T> inline T safe_sub_digit(T n, T d)
 
 /// For use in string parsing: add new numeric digit to intermediate value.
 template<typename L, typename R>
-  inline L absorb_digit_positive(L value, R digit)
+  constexpr inline L absorb_digit_positive(L value, R digit)
 {
   return safe_add_digit(safe_multiply_by_ten(value), L(digit));
 }
@@ -168,14 +168,14 @@ template<typename L, typename R>
 
 /// For use in string parsing: subtract digit from intermediate value.
 template<typename L, typename R>
-  inline L absorb_digit_negative(L value, R digit)
+  constexpr inline L absorb_digit_negative(L value, R digit)
 {
   return safe_sub_digit(safe_multiply_by_ten(value), L(digit));
 }
 
 
 /// Compute numeric value of given textual digit (assuming that it is a digit).
-[[maybe_unused]] constexpr int digit_to_number(char c) noexcept
+constexpr int digit_to_number(char c) noexcept
 { return c - '0'; }
 
 

@@ -77,7 +77,8 @@ public:
    */
   explicit transaction(connection &C, const std::string &TName):	//[t01]
     namedclass{"transaction", TName},
-    internal::basic_transaction(C, internal::begin_cmd<ISOLATION, READWRITE>)
+    internal::basic_transaction(
+	C, internal::begin_cmd<ISOLATION, READWRITE>.c_str())
     {}
 
   explicit transaction(connection &C) :					//[t01]
