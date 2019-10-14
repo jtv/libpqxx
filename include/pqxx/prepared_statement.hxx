@@ -38,7 +38,7 @@ namespace pqxx::prepare
  * @return An object representing the parameters.
  */
 template<typename IT>
-inline auto
+constexpr inline auto
 make_dynamic_params(
 	IT begin,
 	IT end)
@@ -63,7 +63,7 @@ make_dynamic_params(
  * @return An object representing the parameters.
  */
 template<typename C>
-inline auto
+constexpr inline auto
 make_dynamic_params(const C &container)
 {
   using IT = typename C::const_iterator;
@@ -88,7 +88,7 @@ make_dynamic_params(const C &container)
  * @return An object representing the parameters.
  */
 template<typename C, typename ACCESSOR>
-inline auto
+constexpr inline auto
 make_dynamic_params(
 	C &container,
 	ACCESSOR accessor)

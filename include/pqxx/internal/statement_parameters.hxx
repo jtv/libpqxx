@@ -29,7 +29,7 @@
 
 namespace pqxx::internal
 {
-template<typename ITERATOR> inline const auto iterator_identity =
+template<typename ITERATOR> constexpr inline const auto iterator_identity =
 	[](decltype(*std::declval<ITERATOR>()) x){ return x; };
 
 
@@ -57,7 +57,7 @@ class dynamic_params
 {
 public:
   /// Wrap a sequence of pointers or iterators.
-  dynamic_params(IT begin, IT end) :
+  constexpr dynamic_params(IT begin, IT end) :
 	m_begin(begin), m_end(end), m_accessor(iterator_identity<IT>) {}
 
   /// Wrap a sequence of pointers or iterators.
@@ -65,11 +65,11 @@ public:
    * then any parameter @c p will go into the statement's parameter list as
    * @c acc(p).
    */
-  dynamic_params(IT begin, IT end, ACCESSOR &acc) :
+  constexpr dynamic_params(IT begin, IT end, ACCESSOR &acc) :
 	m_begin(begin), m_end(end), m_accessor(acc) {}
 
   /// Wrap a container.
-  template<typename C> explicit
+  template<typename C> explicit constexpr
   dynamic_params(C &container) :
 	dynamic_params(std::begin(container), std::end(container))
   {}
@@ -79,7 +79,7 @@ public:
    * then any parameter @c p will go into the statement's parameter list as
    * @c acc(p).
    */
-  template<typename C> explicit
+  template<typename C> explicit constexpr
   dynamic_params(C &container, ACCESSOR &acc) :
 	dynamic_params(
 		std::begin(container),
@@ -87,10 +87,10 @@ public:
 		acc)
   {}
 
-  IT begin() const { return m_begin; }
-  IT end() const { return m_end; }
+  constexpr IT begin() const { return m_begin; }
+  constexpr IT end() const { return m_end; }
 
-  auto access(decltype(*std::declval<IT>()) value) const
+  constexpr auto access(decltype(*std::declval<IT>()) value) const
     -> decltype(std::declval<ACCESSOR>()(value))
 	{ return m_accessor(value); }
 
@@ -145,7 +145,7 @@ struct params
   /// Construct directly from a series of statement arguments.
   /** The arrays all default to zero, null, and empty strings.
    */
-  template<typename ...Args> params(Args && ... args)
+  template<typename ...Args> constexpr params(Args && ... args)
   {
     strings.reserve(sizeof...(args));
     lengths.reserve(sizeof...(args));
