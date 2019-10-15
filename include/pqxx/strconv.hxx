@@ -211,9 +211,11 @@ template<typename ENUM>
 struct nullness<ENUM, std::enable_if_t<std::is_enum_v<ENUM>>> : no_null<ENUM>
 {
 };
+} // namespace pqxx
 
 
-// XXX: Move to internal, or SFINAE a single string_traits for enums.
+namespace pqxx::internal
+{
 /// Helper class for defining enum conversions.
 /** The conversion will convert enum values to numeric strings, and vice versa.
  *
@@ -236,6 +238,7 @@ struct enum_traits
   static ENUM from_string(std::string_view text)
   { return static_cast<ENUM>(impl_traits::from_string(text)); }
 };
+} // namespace pqxx::internal
 
 
 /// Macro: Define a string conversion for an enum type.
@@ -251,10 +254,12 @@ struct enum_traits
  *      int main() { std::cout << pqxx::to_string(xa) << std::endl; }
  */
 #define PQXX_DECLARE_ENUM_CONVERSION(ENUM) \
-template<> struct string_traits<ENUM> : pqxx::enum_traits<ENUM> {}; \
+template<> struct string_traits<ENUM> : pqxx::internal::enum_traits<ENUM> {}; \
 template<> const std::string type_name<ENUM>{#ENUM}
 
 
+namespace pqxx
+{
 /// Attempt to convert postgres-generated string to given built-in type.
 /** If the form of the value found in the string does not match the expected
  * type, e.g. if a decimal point is found when converting to an integer type,
