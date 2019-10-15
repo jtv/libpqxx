@@ -22,7 +22,6 @@ void test_011()
   for (pqxx::row::size_type c = 0; c < R.columns(); ++c)
   {
     std::string N = R.column_name(c);
-    std::cout << c << ":\t" << N << std::endl;
     PQXX_CHECK_EQUAL(R.column_number(N), c, "Inconsistent column numbers.");
   }
 
@@ -31,9 +30,7 @@ void test_011()
   {
     PQXX_CHECK_EQUAL(R[0].rownumber(), 0u, "Row 0 has wrong number.");
 
-    if (R.size() < 2)
-      std::cout << "(Only one row in table.)" << std::endl;
-    else
+    if (R.size() >= 2)
       PQXX_CHECK_EQUAL(R[1].rownumber(), 1u, "Row 1 has wrong number.");
 
     // Test row::swap()
@@ -69,10 +66,6 @@ void test_011()
 	strlen(R[0][c].c_str()),
 	"Field size is not what we expected.");
     }
-  }
-  else
-  {
-    std::cout << "(Table is empty.)" << std::endl;
   }
 }
 

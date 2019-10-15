@@ -15,13 +15,7 @@ void test_016()
   result R{ tx.exec("SELECT * FROM pg_tables") };
 
   result::const_iterator c;
-  for (c = R.begin(); c != R.end(); ++c)
-  {
-    std::string N;
-    c[0].to(N);
-
-    std::cout << '\t' << to_string(c.num()) << '\t' << N << std::endl;
-  }
+  for (c = R.begin(); c != R.end(); ++c);
 
   // See if back() and row comparison work properly
   PQXX_CHECK(R.size() >= 2, "Not enough rows in pg_tables to test, sorry!");

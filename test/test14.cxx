@@ -24,16 +24,6 @@ void test_014()
   // C++ strings as well as C strings.
   tx.process_notice(std::string{"Started nontransaction\n"});
 
-  result r{ tx.exec("SELECT * FROM pg_tables") };
-
-  for (const auto &c: r)
-  {
-    std::string n;
-    c[0].to(n);
-
-    std::cout << '\t' << to_string(c.num()) << '\t' << n << std::endl;
-  }
-
   // "Commit" the non-transaction.  This doesn't really do anything since
   // nontransaction doesn't start a backend transaction.
   tx.commit();

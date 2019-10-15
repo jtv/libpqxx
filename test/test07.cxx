@@ -121,8 +121,6 @@ void test_007()
 	        "Field type lookup is broken.");
       }
 
-      result::size_type AffectedRows = 0;
-
       // For each occurring year, write converted date back to whereever it may
       // occur in the table.  Since we're in a transaction, any changes made by
       // others at the same time will not affect us.
@@ -133,17 +131,8 @@ void test_007()
         	"SET year=" + to_string(c.second) + " "
         	"WHERE year=" + to_string(c.first);
         R = tx.exec0(query.c_str());
-        AffectedRows += R.affected_rows();
       }
-      std::cout << AffectedRows << " rows updated." << std::endl;
     });
-
-  // Just for fun, report the exact conversions performed.  Note that this
-  // list will be accurate even if other people were modifying the database
-  // at the same time; this property was established through use of the
-  // transactor framework.
-  for (auto &i: conversions)
-    std::cout << '\t' << i.first << "\t-> " << i.second << std::endl;
 }
 
 
