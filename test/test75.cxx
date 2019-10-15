@@ -27,7 +27,6 @@ void test_075()
 
   std::vector<std::string> contents;
   for (const auto &i: R) contents.push_back(i.at(0).as<std::string>());
-  std::cout << pqxx::to_string(contents.size()) << " years read" << std::endl;
 
   PQXX_CHECK_EQUAL(
 	contents.size(),
@@ -39,8 +38,6 @@ void test_075()
 	contents[i],
 	R.at(i).at(0).c_str(),
 	"Inconsistent iteration.");
-
-  std::cout << pqxx::to_string(R.size()) << " years checked" << std::endl;
 
   // Thorough test for result::const_reverse_iterator
   pqxx::result::const_reverse_iterator ri1(R.rbegin()), ri2(ri1), ri3(R.end());

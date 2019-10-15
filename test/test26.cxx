@@ -72,12 +72,7 @@ void test_026()
   // in the code above.  This is where the work gets done.
   const auto conversions = perform(std::bind(update_years, std::ref(conn)));
 
-  // Just for fun, report the exact conversions performed.  Note that this
-  // list will be accurate even if other people were modifying the database
-  // at the same time; this property was established through use of the
-  // transactor framework.
-  for (const auto &i: conversions)
-    std::cout << '\t' << i.first << "\t-> " << i.second << std::endl;
+  PQXX_CHECK(not conversions.empty(), "No conversions done!");
 }
 
 

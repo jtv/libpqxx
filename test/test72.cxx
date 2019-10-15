@@ -26,13 +26,10 @@ void test_072()
   P.complete();
 
   // We should be able to get the first result, which preceeds the error
-  std::cout << "Retrieving initial result..." << std::endl;
   const int res_1 = P.retrieve(id_1).at(0).at(0).as<int>();
-  std::cout << " - result was " << res_1 << std::endl;
   PQXX_CHECK_EQUAL(res_1, 1, "Got wrong result from pipeline.");
 
   // We should *not* get a result for the query behind the error
-  std::cout << "Retrieving post-error result..." << std::endl;
   {
     quiet_errorhandler d{conn};
     PQXX_CHECK_THROWS(
@@ -42,7 +39,6 @@ void test_072()
   }
 
   // Now see that we get an exception when we touch the failed result
-  std::cout << "Retrieving result for failed query..." << std::endl;
   {
     quiet_errorhandler d{conn};
     PQXX_CHECK_THROWS(

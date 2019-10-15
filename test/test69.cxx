@@ -26,8 +26,6 @@ void TestPipeline(pipeline &P, int numqueries)
 
     std::pair<pipeline::query_id, result> R = P.retrieve();
 
-    std::cout
-	<< "Query #" << R.first << ": " << R.second.at(0).at(0) << std::endl;
     if (res)
       PQXX_CHECK_EQUAL(
 	R.second[0][0].as<int>(),

@@ -57,8 +57,6 @@ void test_059()
   TestStream << Contents;
   const std::string StreamedContents = UnStream(TestStream);
 
-  std::cout << StreamedContents << std::endl << Readback << std::endl;
-
   PQXX_CHECK_EQUAL(
 	Readback,
 	StreamedContents,

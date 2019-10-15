@@ -18,7 +18,6 @@ std::string SetDatestyle(transaction_base &T, std::string style)
 {
   T.set_variable("DATESTYLE", style);
   const std::string fullname = GetDatestyle(T);
-  std::cout << "Set datestyle to " << style << ": " << fullname << std::endl;
   PQXX_CHECK(
 	not fullname.empty(),
 	"Setting datestyle to " + style + " makes it an empty string.");

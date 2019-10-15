@@ -19,14 +19,11 @@ void test_082()
 
   const std::string nullstr("[null]");
 
-  for (const auto &f: R[0]) std::cout << f.name() << '\t';
-  std::cout << std::endl << std::endl;
   for (const auto &r: R)
   {
     pqxx::row::const_iterator f2(r[0]);
     for (const auto &f: r)
     {
-      std::cout << f.c_str() << '\t';
       PQXX_CHECK_EQUAL(
 	(*f2).as(nullstr),
 	f.as(nullstr),
@@ -77,8 +74,6 @@ void test_082()
 	*fr,
 	*f3,
 	"Reverse traversal is not consistent with forward traversal.");
-
-    std::cout << std::endl;
   }
 
   // Thorough test for row::const_reverse_iterator

@@ -62,9 +62,6 @@ void test_057()
   std::stringstream TestStream;
   TestStream << Contents;
   const std::string StreamedContents = UnStream(TestStream);
-
-  std::cout << StreamedContents << std::endl << Readback << std::endl;
-
   PQXX_CHECK_EQUAL(Readback, StreamedContents, "Contents were mangled.");
 }
 
