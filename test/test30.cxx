@@ -24,7 +24,6 @@ void test_030()
   for (pqxx::row::size_type c = 0; c < R.columns(); ++c)
   {
     std::string N = R.column_name(c);
-    std::cout << c << ":\t" << N << std::endl;
 
     PQXX_CHECK_EQUAL(
 	R[0].column_number(N),
@@ -40,14 +39,14 @@ void test_030()
   // If there are rows in R, compare their metadata to R's.
   if (R.empty())
   {
-    std::cout << "(Table is empty.)" << std::endl;
+    std::cout << "(Table is empty.)\n";
     return;
   }
 
   PQXX_CHECK_EQUAL(R[0].rownumber(), 0u, "Row 0 reports wrong number.");
 
   if (R.size() < 2)
-    std::cout << "(Only one row in table.)" << std::endl;
+    std::cout << "(Only one row in table.)\n";
   else
     PQXX_CHECK_EQUAL(R[1].rownumber(), 1u, "Row 1 reports wrong number.");
 

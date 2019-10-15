@@ -18,16 +18,13 @@ void test_046()
 
   row R{ tx.exec1("SELECT count(*) FROM pg_tables") };
 
-  std::cout << "Count was " << R.front() << std::endl;
-
-  // Read the value into a stringstream
+  // Read the value into a stringstream.
   std::stringstream I;
   I << R[0];
 
   // Now convert the stringstream into a numeric type
   long L{}, L2{};
   I >> L;
-  std::cout << "As a long, it's " << L << std::endl;
 
   R[0].to(L2);
   PQXX_CHECK_EQUAL(L, L2, "Inconsistency between conversion methods.");
@@ -36,7 +33,6 @@ void test_046()
   std::stringstream I2;
   I2 << R[0];
   I2 >> F;
-  std::cout << "As a float, it's " << F << std::endl;
   R[0].to(F2);
   PQXX_CHECK_BOUNDS(F2, F-0.01, F+0.01, "Bad floating-point result.");
 

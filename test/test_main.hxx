@@ -197,12 +197,12 @@ int main(int, const char *argv[])
       ++test_count;
     }
 
-  std::cout << "Ran " << test_count << " test(s)." << std::endl;
+  std::cout << "Ran " << test_count << " test(s).\n";
 
   if (not failed.empty())
   {
-    std::cerr << "*** " << failed.size() << " test(s) failed: ***" << std::endl;
-    for (const auto &i: failed) std::cerr << "\t" << i << std::endl;
+    std::cerr << "*** " << failed.size() << " test(s) failed: ***\n";
+    for (const auto &i: failed) std::cerr << "\t" << i << '\n';
   }
 
   return int(failed.size());

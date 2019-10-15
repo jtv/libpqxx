@@ -103,8 +103,6 @@ void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
   const std::string data(binary, sizeof(binary));
   const std::string escaped = t.esc_raw(data);
 
-  std::cout << "Escaped data: " << escaped << std::endl;
-
   for (const auto i: escaped)
     PQXX_CHECK(isascii(i), "Non-ASCII character in escaped data: " + escaped);
 

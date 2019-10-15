@@ -69,13 +69,6 @@ struct CountGreaterSmaller
       Greater = std::count_if(R.begin(), R.end(), std::bind(Cmp(Key), _1, T)),
       Smaller = std::count_if(R.begin(), R.end(), std::bind(Cmp(Key), T, _1));
 
-    std::cout
-	<< "'" << T[Key] << "': "
-	<< Greater << " greater, "
-	<< Smaller << " smaller "
-	<< "(" << (Greater + Smaller) << " total)"
-	<< std::endl;
-
     PQXX_CHECK(
 	Greater + Smaller < ptrdiff_t(R.size()),
 	"More non-equal rows than rows.");
@@ -90,7 +83,6 @@ void test_049()
   std::string Table="pg_tables", Key="tablename";
 
   result R( tx.exec("SELECT * FROM " + Table + " ORDER BY " + Key) );
-  std::cout << "Read " << R.size() << " rows." << std::endl;
   PQXX_CHECK(not R.empty(), "No rows in " + Table + ".");
 
   // Verify that for each key in R, the number of greater and smaller keys

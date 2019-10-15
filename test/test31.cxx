@@ -116,26 +116,12 @@ void test_031()
     }
   }
 
-  // Now report on what we've found
-  std::cout << "Read " << to_string(R.size()) << " rows." << std::endl;
-  std::cout << "Field \t Field Name\t Nulls\t Sorted" << std::endl;
-
   for (pqxx::row::size_type f = 0; f < R.columns(); ++f)
-  {
-    std::cout << to_string(f) << ":\t"
-         << R.column_name(f) << '\t'
-         << NullFields[f] << '\t'
-         << (SortedUp[f] ?
-		(SortedDown[f] ? "equal" : "up" ) :
-		(SortedDown[f] ? "down" : "no" ) )
-         << std::endl;
-
     PQXX_CHECK_BOUNDS(
 	NullFields[f],
 	0,
 	int(R.size()) + 1,
 	"Found more nulls than there were rows.");
-  }
 }
 
 

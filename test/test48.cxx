@@ -33,7 +33,7 @@ void test_048()
     {
       work tx{conn};
       auto new_obj = largeobject(tx);
-      std::cout << "Created large object #" << new_obj.id() << std::endl;
+      std::cout << "Created large object #" << new_obj.id() << '\n';
 
       olostream S(tx, new_obj);
       S << Contents;
@@ -63,8 +63,6 @@ void test_048()
   std::stringstream TestStream;
   TestStream << Contents;
   const std::string StreamedContents = UnStream(TestStream);
-
-  std::cout << StreamedContents << std::endl << Readback << std::endl;
 
   PQXX_CHECK_EQUAL(
 	Readback,
