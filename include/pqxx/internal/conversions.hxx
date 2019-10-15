@@ -8,6 +8,11 @@
 
 namespace pqxx::internal
 {
+/// Convert a number in [0, 9] to its ASCII digit.
+inline constexpr char number_to_digit(int i) noexcept
+{ return static_cast<char>(i+'0'); }
+
+
 /// Estimate how much buffer space we need to render a T object.
 /** Ignore the parameter.  It's just there to help us disable inappropriate
  * specialisations for the given type.
@@ -88,101 +93,8 @@ std::string PQXX_LIBEXPORT state_buffer_overrun(
 	const std::string &type);
 
 
-// XXX: You know what?  I'd like to move this out of the header after all.
-constexpr char number_to_digit(int i) noexcept
-	{ return static_cast<char>(i+'0'); }
-
-// XXX: You know what?  I'd like to move this out of the header after all.
-/// Write nonnegative integral value at end of buffer.  Return start.
-/** Assumes a sufficiently large buffer.
- *
- * Includes a single trailing null byte, right before @c *end.
- */
-template<typename T> inline char *nonneg_to_buf(char *end, T value)
-{
-  char *pos = end;
-  *--pos = '\0';
-  do
-  {
-    *--pos = pqxx::internal::number_to_digit(int(value % 10));
-    value = T(value / 10);
-  } while (value > 0);
-  return pos;
-}
-
-
-// XXX: You know what?  I'd like to move this out of the header after all.
-/// A few hard-coded string versions of difficult negative numbers.
-/** For template argument n, this gives the string for n-1.
- * The reason is that compilers won't accept as a template argument a negative
- * number that doesn't have an absolute value, as is the case on
- * std::numeric_limits<long long>::min() in a two's-complement system.
- */
-template<long long MIN> inline constexpr const char *hard_neg = nullptr;
-template<> inline constexpr const char *hard_neg<-126LL> = "-127";
-template<> inline constexpr const char *hard_neg<-127LL> = "-128";
-template<> inline constexpr const char *hard_neg<-32766LL> = "-32767";
-template<> inline constexpr const char *hard_neg<-32767LL> = "-32768";
-template<> inline constexpr const char *hard_neg<-2147483646LL> =
-	"-2147483647";
-template<> inline constexpr const char *hard_neg<-2147483647LL> =
-	"-2147483648";
-template<> inline constexpr const char *hard_neg<-9223372036854775806LL> =
-	"-9223372036854775807";
-template<> inline constexpr const char *hard_neg<-9223372036854775807LL> =
-	"-9223372036854775808";
-
-
-// XXX: You know what?  I'd like to move this out of the header after all.
-/// Represent an integral value as a zview.  May use given buffer.
-template<typename T> inline zview
-to_buf_integral(char *begin, char *end, T value)
-{
-  const ptrdiff_t
-	buf_size = end - begin,
-	need = buffer_budget<T>;
-  if (buf_size < need)
-    throw conversion_overrun{
-	"Could not convert " + type_name<T> + " to string: "
-        "buffer too small.  " +
-         pqxx::internal::state_buffer_overrun(buf_size, need)
-	};
-
-  char *pos;
-  if constexpr (std::is_signed_v<T>)
-  {
-    constexpr T bottom{std::numeric_limits<T>::min()};
-
-    if (value >= 0)
-    {
-      pos = nonneg_to_buf(end, value);
-    }
-    else if (value != bottom)
-    {
-      pos = nonneg_to_buf(end, -value);
-      *--pos = '-';
-    }
-    else
-    {
-      // This is the difficult case.  We can't negate the value, because on
-      // two's-complement systems (basically every system nowadays), we'll get
-      // the same value back.  We can't even check for that: the compiler is
-      // allowed to pretend that such a thing won't happen.
-      //
-      // Luckily, there's only a limited number of such numbers.  We can cheat
-      // and hard-code them all.
-      return zview{hard_neg<bottom + 1LL>};
-    }
-  }
-  else
-  {
-    // Unsigned type.
-    pos = nonneg_to_buf(end, value);
-  }
-  return zview{pos, std::size_t(end - pos - 1)};
-}
-
-
+template<typename T> PQXX_LIBEXPORT extern
+zview to_buf_integral(char *, char *, T);
 template<typename T> PQXX_LIBEXPORT extern
 std::string_view to_buf_float(char *, char *, T);
 template<typename T> PQXX_LIBEXPORT extern
