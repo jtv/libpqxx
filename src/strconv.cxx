@@ -59,19 +59,24 @@ template<typename T> inline char *nonneg_to_buf(char *end, T value)
  * number that doesn't have an absolute value, as is the case on
  * std::numeric_limits<long long>::min() in a two's-complement system.
  */
-template<long long MIN> inline constexpr const char *hard_neg = nullptr;
-template<> inline constexpr const char *hard_neg<-126LL> = "-127";
-template<> inline constexpr const char *hard_neg<-127LL> = "-128";
-template<> inline constexpr const char *hard_neg<-32766LL> = "-32767";
-template<> inline constexpr const char *hard_neg<-32767LL> = "-32768";
-template<> inline constexpr const char *hard_neg<-2147483646LL> =
-	"-2147483647";
-template<> inline constexpr const char *hard_neg<-2147483647LL> =
-	"-2147483648";
-template<> inline constexpr const char *hard_neg<-9223372036854775806LL> =
-	"-9223372036854775807";
-template<> inline constexpr const char *hard_neg<-9223372036854775807LL> =
-	"-9223372036854775808";
+template<long long MIN> [[maybe_unused]] inline constexpr
+pqxx::zview hard_neg;
+template<> [[maybe_unused]] inline constexpr
+pqxx::zview hard_neg<-126LL>{"-127"};
+template<> [[maybe_unused]] inline constexpr
+pqxx::zview hard_neg<-127LL>{"-128"};
+template<> [[maybe_unused]] inline constexpr
+pqxx::zview hard_neg<-32766LL>{"-32767"};
+template<> [[maybe_unused]] inline constexpr
+pqxx::zview hard_neg<-32767LL>{"-32768"};
+template<> [[maybe_unused]] inline constexpr
+pqxx::zview hard_neg<-2147483646LL>{"-2147483647"};
+template<> [[maybe_unused]] inline constexpr
+pqxx::zview hard_neg<-2147483647LL>{"-2147483648"};
+template<> [[maybe_unused]] inline constexpr
+pqxx::zview hard_neg<-9223372036854775806LL>{"-9223372036854775807"};
+template<> [[maybe_unused]] inline constexpr
+pqxx::zview hard_neg<-9223372036854775807LL>{"-9223372036854775808"};
 } // namespace
 
 
