@@ -806,9 +806,9 @@ std::string pqxx::connection::esc(std::string_view str) const
   int err = 0;
   // TODO: Can we make a callback-based string_view alternative to this?
   // TODO: If we can, then quote() can wrap PQescapeLiteral()!
-  PQescapeStringConn(m_conn, buf.data(), str.data(), str.size(), &err);
+  const auto copied = PQescapeStringConn(m_conn, buf.data(), str.data(), str.size(), &err);
   if (err) throw argument_error{err_msg()};
-  return std::string{buf.data()};
+  return std::string{buf.data(), copied};
 }
 
 
