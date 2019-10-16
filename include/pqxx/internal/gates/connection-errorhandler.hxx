@@ -4,7 +4,7 @@ namespace pqxx
 {
 class connection;
 class errorhandler;
-}
+} // namespace pqxx
 
 namespace pqxx::internal::gate
 {
