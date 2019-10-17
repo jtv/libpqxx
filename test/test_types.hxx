@@ -71,14 +71,13 @@ using bytea = std::vector<unsigned char>;
 
 namespace pqxx
 {
-template<> inline constexpr int buffer_budget<ipv4> = 16;
-
-
 template<> struct nullness<ipv4> : no_null<ipv4> {};
 
 
 template<> struct string_traits<ipv4>
 {
+  static inline constexpr int buffer_budget = 16;
+
   static ipv4 from_string(std::string_view str)
   {
     ipv4 ts;
@@ -110,7 +109,7 @@ template<> struct string_traits<ipv4>
 
   static zview to_buf(char *begin, char *end, const ipv4 &value)
   {
-    if (end - begin < buffer_budget<ipv4>)
+    if (end - begin < buffer_budget)
       throw conversion_error{"Buffer too small for ipv4."};
     str o0{value[0]}, o1{value[1]}, o2{value[2]}, o3{value[3]};
     char *pos = begin;
@@ -140,9 +139,6 @@ template<> struct string_traits<ipv4>
 };
 
 
-template<> inline constexpr int buffer_budget<bytea> = 1000;
-
-
 namespace
 {
 char nibble_to_hex(unsigned nibble)
@@ -169,6 +165,8 @@ template<> struct nullness<bytea> : no_null<bytea> {};
 
 template<> struct string_traits<bytea>
 {
+  static inline constexpr int buffer_budget = 1000;
+
   static bytea from_string(std::string_view str)
   {
     if ((str.size() & 1) != 0) throw std::runtime_error{"Odd hex size."};

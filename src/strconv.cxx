@@ -88,7 +88,7 @@ to_buf_integral(char *begin, char *end, T value)
 {
   const ptrdiff_t
 	buf_size = end - begin,
-	need = buffer_budget<T>;
+	need = string_traits<T>::buffer_budget;
   if (buf_size < need)
     throw conversion_overrun{
 	"Could not convert " + type_name<T> + " to string: "

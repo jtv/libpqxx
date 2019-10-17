@@ -39,41 +39,7 @@ size_buffer(T *)
 	std::numeric_limits<T>::digits10 + 1,
 	std::numeric_limits<T>::max_digits10});
 }
-
-
-template<typename T> constexpr
-std::enable_if_t<std::is_enum_v<T>, int>
-size_buffer(T *)
-{ return size_buffer(static_cast<std::underlying_type_t<T> *>(nullptr)); }
-
-
-// No buffer space needed for nullptr_t: it's always just a null.
-constexpr int size_buffer(std::nullptr_t *) { return 0; }
-// No buffer space needed for bool: we use fixed strings for true/false.
-constexpr int size_buffer(bool *) { return 0; }
-
-
-template<typename T> constexpr int size_buffer(std::optional<T> *)
-{ return size_buffer(static_cast<T *>(nullptr)); }
-template<typename T> constexpr int size_buffer(std::unique_ptr<T> *)
-{ return size_buffer(static_cast<T *>(nullptr)); }
-template<typename T> constexpr int size_buffer(std::shared_ptr<T> *)
-{ return size_buffer(static_cast<T *>(nullptr)); }
 } // namespace pqxx::internal
-
-namespace pqxx
-{
-// TODO: Move into string traits.
-/// How big of a buffer do we want for representing a T object as text?
-/** Specialisations may be 0 to indicate that they don't need any buffer
- * space at all.  This would be the case for types where all strings are fixed:
- * @c bool and @c nullptr_t.  In such cases, @c to_buf must never dereference
- * its @c begin * and @c end arguments at all.
- */
-template<typename T>
-inline constexpr int buffer_budget =
-	pqxx::internal::size_buffer(static_cast<T *>(nullptr));
-} // namespace pqxx
 
 
 /* Internal helpers for string conversion.
@@ -113,6 +79,9 @@ template<typename T> T PQXX_LIBEXPORT from_string_float(std::string_view);
 template<typename T>
 struct integral_traits
 {
+  static inline constexpr int buffer_budget =
+	pqxx::internal::size_buffer(static_cast<T *>(nullptr));
+
   static T from_string(std::string_view text)
   { return from_string_integral<T>(text); }
   static zview to_buf(char *begin, char *end, const T &value)
@@ -124,6 +93,9 @@ struct integral_traits
 template<typename T>
 struct float_traits
 {
+  static inline constexpr int buffer_budget =
+	pqxx::internal::size_buffer(static_cast<T *>(nullptr));
+
   static T from_string(std::string_view text)
   { return from_string_float<T>(text); }
   static zview to_buf(char *begin, char *end, const T &value)
@@ -167,6 +139,8 @@ template<> struct string_traits<long double> :
 
 template<> struct string_traits<bool>
 {
+  static inline constexpr int buffer_budget = 0;
+
   static bool from_string(std::string_view text)
   { return internal::from_string_bool(text); }
 
@@ -186,6 +160,13 @@ template<typename T> struct nullness<std::optional<T>>
 
 template<typename T> struct string_traits<std::optional<T>>
 {
+// XXX: Can we do buffer_budget here?
+  zview to_buf(char *begin, char *end, const std::optional<T> &value)
+  {
+    if (value.has_value()) return to_buf(begin, end, *value);
+    else return zview{};
+  }
+
   static std::optional<T> from_string(std::string_view text)
   {
     return std::optional<T>{
@@ -201,35 +182,13 @@ inline T from_string(const std::stringstream &text)			//[t00]
 
 template<> struct string_traits<std::nullptr_t>
 {
+  static inline constexpr int buffer_budget = 0;
+
   static constexpr zview to_buf(
 	char *, char *, const std::nullptr_t &
   ) noexcept
   { return zview{}; }
 };
-
-
-template<typename T> inline zview
-to_buf(char *begin, char *end, const std::optional<T> &value)
-{
-  if (value.has_value()) return to_buf(begin, end, *value);
-  else return zview{};
-}
-
-
-template<typename T> inline zview
-to_buf(char *begin, char *end, const std::shared_ptr<T> &value)
-{
-  if (value) return to_buf(begin, end, *value);
-  else return zview{};
-}
-
-
-template<typename T> inline zview
-to_buf(char *begin, char *end, const std::unique_ptr<T> &value)
-{
-  if (value) return to_buf(begin, end, *value);
-  else return zview{};
-}
 } // namespace pqxx
 
 
@@ -373,11 +332,17 @@ template<typename T> struct nullness<std::unique_ptr<T>>
 };
 
 
-/// A @c std::unique_ptr is a bit like a @c std::optional.
 template<typename T> struct string_traits<std::unique_ptr<T>>
 {
+// XXX: Can we do buffer_budget here?
   static std::unique_ptr<T> from_string(std::string_view text)
   { return std::make_unique<T>(string_traits<T>::from_string(text)); }
+
+  zview to_buf(char *begin, char *end, const std::unique_ptr<T> &value)
+  {
+    if (value) return to_buf(begin, end, *value);
+    else return zview{};
+  }
 };
 
 
@@ -390,9 +355,9 @@ template<typename T> struct nullness<std::shared_ptr<T>>
 };
 
 
-/// A @c std::shared_ptr is a bit like a @c std::optional.
 template<typename T> struct string_traits<std::shared_ptr<T>>
 {
+// XXX: Can we do buffer_budget here?
   static std::shared_ptr<T> from_string(std::string_view text)
   { return std::make_shared<T>(string_traits<T>::from_string(text)); }
 };
@@ -424,7 +389,7 @@ public:
   constexpr const char *c_str() const noexcept { return m_view.data(); }
 
 private:
-  std::array<char, buffer_budget<T>> m_buf;
+  std::array<char, string_traits<T>::buffer_budget> m_buf;
   zview m_view;
 };
 
