@@ -160,7 +160,8 @@ template<typename T> struct nullness<std::optional<T>>
 
 template<typename T> struct string_traits<std::optional<T>>
 {
-// XXX: Can we do buffer_budget here?
+  static inline constexpr int buffer_budget = string_traits<T>::buffer_budget;
+
   zview to_buf(char *begin, char *end, const std::optional<T> &value)
   {
     if (value.has_value()) return to_buf(begin, end, *value);
@@ -334,7 +335,8 @@ template<typename T> struct nullness<std::unique_ptr<T>>
 
 template<typename T> struct string_traits<std::unique_ptr<T>>
 {
-// XXX: Can we do buffer_budget here?
+  static inline constexpr int buffer_budget = string_traits<T>::buffer_budget;
+
   static std::unique_ptr<T> from_string(std::string_view text)
   { return std::make_unique<T>(string_traits<T>::from_string(text)); }
 
@@ -357,7 +359,8 @@ template<typename T> struct nullness<std::shared_ptr<T>>
 
 template<typename T> struct string_traits<std::shared_ptr<T>>
 {
-// XXX: Can we do buffer_budget here?
+  static inline constexpr int buffer_budget = string_traits<T>::buffer_budget;
+
   static std::shared_ptr<T> from_string(std::string_view text)
   { return std::make_shared<T>(string_traits<T>::from_string(text)); }
 };
