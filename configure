@@ -18495,8 +18495,6 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 // Test for cross-vendor C++ ABI's __cxa_demangle function.
 
-#include <cxxabi.h>
-
 #include <cstdlib>
 
 #include <cstring>
@@ -18507,15 +18505,19 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 
 
+#include <cxxabi.h>
+
+
+
 int main()
 
 {
 
   int status = 0;
 
-  char *name = abi::__cxa_demangle(
+  char *name =
 
-	typeid(10).name(), nullptr, nullptr, &status);
+    abi::__cxa_demangle(typeid(10).name(), nullptr, nullptr, &status);
 
   if (status != 0)
 
