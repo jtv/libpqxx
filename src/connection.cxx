@@ -996,8 +996,7 @@ int pqxx::connection::await_notification(long seconds, long microseconds)
 
 void pqxx::connection::read_capabilities()
 {
-  const auto proto_ver = protocol_version();
-  if (proto_ver < 3)
+  if (const auto proto_ver = protocol_version(); proto_ver < 3)
   {
     if (proto_ver == 0)
       throw broken_connection{"No connection."};
@@ -1039,8 +1038,7 @@ std::string pqxx::connection::get_client_encoding() const
 
 void pqxx::connection::set_client_encoding(const char encoding[])
 {
-  const auto retval = PQsetClientEncoding(m_conn, encoding);
-  switch (retval)
+  switch (const auto retval = PQsetClientEncoding(m_conn, encoding); retval)
   {
   case 0:
     // OK.

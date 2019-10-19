@@ -230,8 +230,8 @@ void pqxx::result::ThrowSQLError(
 
 void pqxx::result::check_status() const
 {
-  const std::string Err = StatusError();
-  if (not Err.empty()) ThrowSQLError(Err, query());
+  if (const std::string Err = StatusError(); not Err.empty())
+    ThrowSQLError(Err, query());
 }
 
 

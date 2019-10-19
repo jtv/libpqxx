@@ -239,11 +239,12 @@ array_parser::array_parser(
 std::pair<array_parser::juncture, std::string>
 array_parser::get_next()
 {
-  juncture found;
   std::string value;
-  std::string::size_type end;
 
   if (m_pos >= m_input.size()) return std::make_pair(juncture::done, value);
+
+  juncture found;
+  std::string::size_type end;
 
   if (scan_glyph(m_pos) - m_pos > 1)
   {

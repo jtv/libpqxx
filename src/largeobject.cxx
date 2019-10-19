@@ -232,8 +232,7 @@ pqxx::largeobjectaccess::ctell() const noexcept
 
 void pqxx::largeobjectaccess::write(const char Buf[], size_type Len)
 {
-  const auto Bytes = cwrite(Buf, Len);
-  if (Bytes < Len)
+  if (const auto Bytes = cwrite(Buf, Len); Bytes < Len)
   {
     const int err = errno;
     if (err == ENOMEM) throw std::bad_alloc{};

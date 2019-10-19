@@ -146,8 +146,7 @@ bool pqxx::stream_from::extract_field(
   while (i < stop)
   {
     auto glyph_end = next_seq(line.c_str(), line.size(), i);
-    auto seq_len = glyph_end - i;
-    if (seq_len == 1)
+    if (auto seq_len = glyph_end - i; seq_len == 1)
     {
       switch (line[i])
       {

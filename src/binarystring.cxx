@@ -103,8 +103,9 @@ pqxx::binarystring::binarystring(const void *binary_data, size_t len) :
 
 bool pqxx::binarystring::operator==(const binarystring &rhs) const noexcept
 {
-  if (rhs.size() != size()) return false;
-  return std::memcmp(data(), rhs.data(), size()) == 0;
+  return
+        (rhs.size() == size()) and
+        (std::memcmp(data(), rhs.data(), size()) == 0);
 }
 
 
