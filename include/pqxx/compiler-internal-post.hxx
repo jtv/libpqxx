@@ -11,6 +11,6 @@
  */
 // NO GUARDS HERE! This code should be executed every time!
 
-#if defined(_WIN32) && defined(_MSC_VER)
-#pragma warning (pop) // Restore client program's warning state
+#if defined(_MSC_VER)
+#pragma warning (pop) // Restore compiler's warning state
 #endif

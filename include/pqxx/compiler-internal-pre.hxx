@@ -12,13 +12,13 @@
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
  */
-// NO GUARDS HERE! This code should be executed every time!
+// NO GUARD HERE! This code should be included every time this file is.
 
-#if defined(_WIN32) && defined(_MSC_VER)
+#if defined(_MSC_VER)
 
-// Save client program warning state, and set warning level 4.
+// Save compiler's warning state, and set warning level 4.
 // Setting the warning level explicitly ensures that libpqxx
-// headers will work with this warning level as well.
+// headers will compiler at this warning level as well.
 #pragma warning (push,4)
 
 #pragma warning (disable: 4251)
@@ -29,4 +29,4 @@
 #pragma warning (disable: 4512) // Assignment operator could not be generated.
 #pragma warning (disable: 4996) // Deprecation warning, e.g. about strncpy().
 
-#endif // _WIN32 && _MSC_VER
+#endif // _MSC_VER

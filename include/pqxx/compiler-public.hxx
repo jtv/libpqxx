@@ -1,4 +1,7 @@
-/* Compiler deficiency workarounds for libpqxx clients.
+/* Definitions and settings for compiling libpqxx, and client software.
+ *
+ * Include this before any other libpqxx code.  To do that, put it at the top
+ * of every public libpqxx header file.
  *
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
@@ -12,8 +15,8 @@
 // Workarounds & definitions that need to be included even in library's headers
 #include "pqxx/config-public-compiler.h"
 
-// Some compilers, Visual Studio in particular, don't seem to support the
-// standard's ISO-646 keywords out of the box.
+// Enable ISO-646 keywords: "and" instead of "&&" etc.  Some compilers have
+// them by default, others may need this header.
 #include <ciso646>
 
 

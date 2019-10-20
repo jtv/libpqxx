@@ -1,4 +1,10 @@
-/* Compiler deficiency workarounds for compiling libpqxx itself.
+/* Compiler settings for compiling libpqxx itself.
+ *
+ * Include this header in every source file that goes into the libpqxx library
+ * binary, and nowhere else.
+ *
+ * To ensure this, include this file once, as the very first header, in each
+ * compilation unit for the library.
  *
  * DO NOT INCLUDE THIS FILE when building client programs.
  *
@@ -15,9 +21,11 @@
 // Workarounds & definitions needed to compile libpqxx into a library
 #include "pqxx/config-internal-compiler.h"
 
+// TODO: Check for Visual Studio, not for Windows.
 #ifdef _WIN32
 
 #ifdef PQXX_SHARED
+// We're building libpqxx as a shared library.
 #undef  PQXX_LIBEXPORT
 #define PQXX_LIBEXPORT	__declspec(dllexport)
 #define PQXX_PRIVATE	__declspec()
