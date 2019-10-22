@@ -65,10 +65,6 @@ template<typename T> PQXX_LIBEXPORT extern std::string to_string_float(T);
 
 namespace pqxx::internal
 {
-bool PQXX_LIBEXPORT from_string_bool(std::string_view);
-template<typename T> T PQXX_LIBEXPORT from_string_float(std::string_view);
-
-
 /// String traits for builtin integral types (though not bool).
 template<typename T>
 struct integral_traits
@@ -88,8 +84,7 @@ struct float_traits
   static inline constexpr int buffer_budget =
 	pqxx::internal::size_buffer(static_cast<T *>(nullptr));
 
-  static T from_string(std::string_view text)
-  { return from_string_float<T>(text); }
+  static PQXX_LIBEXPORT T from_string(std::string_view text);
   static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, const T &value);
 };
 } // namespace pqxx::internal
@@ -132,8 +127,7 @@ template<> struct string_traits<bool>
 {
   static inline constexpr int buffer_budget = 0;
 
-  static bool from_string(std::string_view text)
-  { return internal::from_string_bool(text); }
+  static PQXX_LIBEXPORT bool from_string(std::string_view text);
 
   static constexpr zview to_buf(char *, char *, const bool &value) noexcept
   { return value ? "true" : "false"; }

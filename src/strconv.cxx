@@ -541,7 +541,7 @@ integral_traits<unsigned long long>::from_string(std::string_view);
 
 
 template<typename T> T
-from_string_float(std::string_view text)
+float_traits<T>::from_string(std::string_view text)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   return from_string_arithmetic<T>(text);
@@ -551,23 +551,18 @@ from_string_float(std::string_view text)
 }
 
 
-template float from_string_float<float>(std::string_view);
-template double from_string_float<double>(std::string_view);
-template long double from_string_float<long double>(std::string_view);
-} // namespace pqxx::internal
+template float float_traits<float>::from_string(std::string_view);
+template double float_traits<double>::from_string(std::string_view);
+template long double float_traits<long double>::from_string(std::string_view);
 
 
-namespace pqxx::internal
-{
 template std::string to_string_float(float);
 template std::string to_string_float(double);
 template std::string to_string_float(long double);
-}
+} // namespace pqxx::internal
 
 
-namespace pqxx::internal
-{
-bool from_string_bool(std::string_view str)
+bool pqxx::string_traits<bool>::from_string(std::string_view str)
 {
   bool OK, result;
 
@@ -622,4 +617,3 @@ bool from_string_bool(std::string_view str)
 
   return result;
 }
-} // namespace pqxx
