@@ -28,7 +28,8 @@ extern "C"
 namespace
 {
 /// Extract byte from buffer, return as unsigned char.
-unsigned char get_byte(const char buffer[], std::string::size_type offset)
+constexpr unsigned char
+get_byte(const char buffer[], std::string::size_type offset) noexcept
 {
   return static_cast<unsigned char>(buffer[offset]);
 }
@@ -177,16 +178,17 @@ template<encoding_group> struct glyph_scanner
 	std::string::size_type start);
 };
 
-template<>
-std::string::size_type glyph_scanner<encoding_group::MONOBYTE>::call(
-  const char /* buffer */[],
-  std::string::size_type buffer_len,
-  std::string::size_type start
-)
+template<> struct glyph_scanner<encoding_group::MONOBYTE>
 {
-  if (start >= buffer_len) return std::string::npos;
-  else return start + 1;
-}
+  static constexpr std::string::size_type call(
+	const char /* buffer */[],
+	std::string::size_type buffer_len,
+	std::string::size_type start) noexcept
+  {
+    if (start >= buffer_len) return std::string::npos;
+    else return start + 1;
+  }
+};
 
 // https://en.wikipedia.org/wiki/Big5#Organization
 template<> std::string::size_type glyph_scanner<encoding_group::BIG5>::call(
@@ -702,7 +704,7 @@ encoding_group enc_group(std::string_view encoding_name)
  * instantiation of T for encoding group enc.
  */
 template<template<encoding_group> class T, typename F>
-inline F *for_encoding(encoding_group enc)
+constexpr inline F *for_encoding(encoding_group enc)
 {
 #define CASE_GROUP(ENC) \
 	case encoding_group::ENC: return T<encoding_group::ENC>::call
@@ -741,7 +743,7 @@ glyph_scanner_func *get_glyph_scanner(encoding_group enc)
 
 template<encoding_group E> struct char_finder
 {
-  static std::string::size_type call(
+  constexpr static std::string::size_type call(
 	std::string_view haystack,
 	char needle,
 	std::string::size_type start)
@@ -763,7 +765,7 @@ template<encoding_group E> struct char_finder
 
 template<encoding_group E> struct string_finder
 {
-  static std::string::size_type call(
+  constexpr static std::string::size_type call(
 	std::string_view haystack,
 	std::string_view needle,
 	std::string::size_type start)

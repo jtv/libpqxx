@@ -26,7 +26,7 @@ extern "C"
 
 namespace
 {
-inline int StdModeToPQMode(std::ios::openmode mode)
+constexpr inline int StdModeToPQMode(std::ios::openmode mode)
 {
   /// Mode bits, copied from libpq-fs.h so that we no longer need that header.
   constexpr int
