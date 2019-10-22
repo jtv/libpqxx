@@ -280,12 +280,6 @@ template<> struct string_traits<zview>
 };
 
 
-template<> struct string_traits<const std::string>
-{
-  // No conversions implemented.
-};
-
-
 template<> struct nullness<std::stringstream> : no_null<std::stringstream> {};
 
 
