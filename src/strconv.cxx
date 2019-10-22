@@ -40,7 +40,7 @@ constexpr inline bool equal(std::string_view lhs, std::string_view rhs)
  *
  * Includes a single trailing null byte, right before @c *end.
  */
-template<typename T> inline char *nonneg_to_buf(char *end, T value)
+template<typename T> constexpr inline char *nonneg_to_buf(char *end, T value)
 {
   char *pos = end;
   *--pos = '\0';
@@ -293,7 +293,7 @@ constexpr int digit_to_number(char c) noexcept
 { return c - '0'; }
 
 
-template<typename T> T from_string_integer(std::string_view str)
+template<typename T> constexpr T from_string_integer(std::string_view str)
 {
   if (str.size() == 0)
     throw pqxx::conversion_error{
@@ -338,7 +338,7 @@ template<typename T> T from_string_integer(std::string_view str)
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 namespace
 {
-bool valid_infinity_string(std::string_view str) noexcept
+constexpr bool valid_infinity_string(std::string_view str) noexcept
 {
   return
 	equal("infinity", str) or
