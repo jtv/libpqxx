@@ -21,12 +21,7 @@
 // headers will compiler at this warning level as well.
 #pragma warning (push,4)
 
-#pragma warning (disable: 4251)
-#pragma warning (disable: 4273)
-#pragma warning (disable: 4275)
-#pragma warning (disable: 4355)
 #pragma warning (disable: 4511) // Copy constructor could not be generated.
 #pragma warning (disable: 4512) // Assignment operator could not be generated.
-#pragma warning (disable: 4996) // Deprecation warning, e.g. about strncpy().
 
 #endif // _MSC_VER

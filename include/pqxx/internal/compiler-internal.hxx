@@ -31,12 +31,6 @@
 #define PQXX_PRIVATE	__declspec()
 #endif	// PQXX_SHARED
 
-#ifdef _MSC_VER
-#pragma warning (disable: 4251 4275 4273)
-#pragma warning (disable: 4355)
-#pragma warning (disable: 4996) // Deprecation warning, e.g. about strncpy().
-#endif
-
 #elif defined(__GNUC__) && defined(PQXX_HAVE_GCC_VISIBILITY)	// !_WIN32
 
 #define PQXX_LIBEXPORT __attribute__ ((visibility("default")))
