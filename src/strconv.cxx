@@ -84,7 +84,7 @@ namespace pqxx::internal
 {
 /// Represent an integral value as a zview.  May use given buffer.
 template<typename T> zview
-to_buf_integral(char *begin, char *end, T value)
+integral_traits<T>::to_buf(char *begin, char *end, const T &value)
 {
   const ptrdiff_t
 	buf_size = end - begin,
@@ -131,14 +131,22 @@ to_buf_integral(char *begin, char *end, T value)
 }
 
 
-template zview to_buf_integral(char *, char *, short);
-template zview to_buf_integral(char *, char *, unsigned short);
-template zview to_buf_integral(char *, char *, int);
-template zview to_buf_integral(char *, char *, unsigned);
-template zview to_buf_integral(char *, char *, long);
-template zview to_buf_integral(char *, char *, unsigned long);
-template zview to_buf_integral(char *, char *, long long);
-template zview to_buf_integral(char *, char *, unsigned long long);
+template zview integral_traits<short>::to_buf(
+	char *, char *, const short &);
+template zview integral_traits<unsigned short>::to_buf(
+	char *, char *, const unsigned short &);
+template zview integral_traits<int>::to_buf(
+	char *, char *, const int &);
+template zview integral_traits<unsigned>::to_buf(
+	char *, char *, const unsigned &);
+template zview integral_traits<long>::to_buf(
+	char *, char *, const long &);
+template zview integral_traits<unsigned long>::to_buf(
+	char *, char *, const unsigned long &);
+template zview integral_traits<long long>::to_buf(
+	char *, char *, const long long &);
+template zview integral_traits<unsigned long long>::to_buf(
+	char *, char *, const unsigned long long &);
 } // namespace pqxx::internal
 
 
@@ -430,8 +438,8 @@ template<typename T> inline T from_string_awful_float(std::string_view str)
 namespace pqxx::internal
 {
 /// Floating-point to_buf implemented in terms of to_string.
-template<typename T> PQXX_LIBEXPORT
-std::string_view to_buf_float(char *begin, char *end, T value)
+template<typename T>
+zview float_traits<T>::to_buf(char *begin, char *end, const T &value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
 
@@ -449,7 +457,7 @@ std::string_view to_buf_float(char *begin, char *end, T value)
   }
 
   *res.ptr = '\0';
-  return std::string_view{begin, std::size_t(res.ptr - begin)};
+  return zview{begin, std::size_t(res.ptr - begin)};
 
 #else
 
@@ -468,7 +476,7 @@ std::string_view to_buf_float(char *begin, char *end, T value)
         state_buffer_overrun(have, std::ptrdiff_t(need))
 	};
   std::memcpy(begin, text.c_str(), need);
-  return std::string_view{begin, text.size()};
+  return zview{begin, text.size()};
 
 #endif // !PQXX_HAVE_CHARCONV_FLOAT
 }
@@ -478,12 +486,13 @@ std::string_view to_buf_float(char *begin, char *end, T value)
 template<typename T> std::string to_string_float(T value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  char buf[100];
-  return std::string{to_buf_float(std::begin(buf), std::end(buf), value)};
+  char buf[float_traits<T>::buffer_budget];
+  return std::string{
+	float_traits<T>::to_buf(std::begin(buf), std::end(buf), value)};
 #else // PQXX_HAVE_CHARCONV_FLOAT
   // In this rare case, we can convert to std::string but not to a simple
-  // buffer.  So, implement to_buf_float in terms of to_string_float instead of
-  // the other way around.
+  // buffer.  So, implement to_buf in terms of to_string instead of the other
+  // way around.
   thread_local dumb_stringstream<T> s;
   s.str("");
   s << value;
@@ -492,16 +501,19 @@ template<typename T> std::string to_string_float(T value)
 }
 
 
-template std::string_view to_buf_float(char *, char *, float);
-template std::string_view to_buf_float(char *, char *, double);
-template std::string_view to_buf_float(char *, char *, long double);
+template zview
+float_traits<float>::to_buf(char *, char *, const float &);
+template zview
+float_traits<double>::to_buf(char *, char *, const double &);
+template zview
+float_traits<long double>::to_buf(char *, char *, const long double &);
 } // namespace pqxx::internal
 
 
 namespace pqxx::internal
 {
 template<typename T> T
-from_string_integral(std::string_view text)
+integral_traits<T>::from_string(std::string_view text)
 {
 #if defined(PQXX_HAVE_CHARCONV_INT)
   return from_string_arithmetic<T>(text);
@@ -510,15 +522,22 @@ from_string_integral(std::string_view text)
 #endif
 }
 
-template short from_string_integral<short>(std::string_view);
-template unsigned short from_string_integral<unsigned short>(std::string_view);
-template int from_string_integral<int>(std::string_view);
-template unsigned from_string_integral<unsigned>(std::string_view);
-template long from_string_integral<long>(std::string_view);
-template unsigned long from_string_integral<unsigned long>(std::string_view);
-template long long from_string_integral<long long>(std::string_view);
-template unsigned long long from_string_integral<unsigned long long>(
-	std::string_view);
+template short
+integral_traits<short>::from_string(std::string_view);
+template unsigned short
+integral_traits<unsigned short>::from_string(std::string_view);
+template int
+integral_traits<int>::from_string(std::string_view);
+template unsigned
+integral_traits<unsigned>::from_string(std::string_view);
+template long
+integral_traits<long>::from_string(std::string_view);
+template unsigned long
+integral_traits<unsigned long>::from_string(std::string_view);
+template long long
+integral_traits<long long>::from_string(std::string_view);
+template unsigned long long
+integral_traits<unsigned long long>::from_string(std::string_view);
 
 
 template<typename T> T

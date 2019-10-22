@@ -59,19 +59,13 @@ std::string PQXX_LIBEXPORT state_buffer_overrun(
 	const std::string &type);
 
 
-template<typename T> PQXX_LIBEXPORT extern
-zview to_buf_integral(char *, char *, T);
-template<typename T> PQXX_LIBEXPORT extern
-std::string_view to_buf_float(char *, char *, T);
-template<typename T> PQXX_LIBEXPORT extern
-std::string to_string_float(T);
+template<typename T> PQXX_LIBEXPORT extern std::string to_string_float(T);
 } // namespace pqxx::internal
 
 
 namespace pqxx::internal
 {
 bool PQXX_LIBEXPORT from_string_bool(std::string_view);
-template<typename T> T PQXX_LIBEXPORT from_string_integral(std::string_view);
 template<typename T> T PQXX_LIBEXPORT from_string_float(std::string_view);
 
 
@@ -82,10 +76,8 @@ struct integral_traits
   static inline constexpr int buffer_budget =
 	pqxx::internal::size_buffer(static_cast<T *>(nullptr));
 
-  static T from_string(std::string_view text)
-  { return from_string_integral<T>(text); }
-  static zview to_buf(char *begin, char *end, const T &value)
-  { return to_buf_integral(begin, end, value); }
+  static PQXX_LIBEXPORT T from_string(std::string_view text);
+  static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, const T &value);
 };
 
 
@@ -98,8 +90,7 @@ struct float_traits
 
   static T from_string(std::string_view text)
   { return from_string_float<T>(text); }
-  static zview to_buf(char *begin, char *end, const T &value)
-  { return to_buf_float(begin, end, value); }
+  static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, const T &value);
 };
 } // namespace pqxx::internal
 
