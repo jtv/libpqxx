@@ -10,7 +10,7 @@
 #define PQXX_H_ENCODINGS
 
 #include "pqxx/compiler-public.hxx"
-#include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
 #include "pqxx/internal/encoding_group.hxx"
 
 #include <string>
@@ -93,5 +93,5 @@ template<typename CALLABLE> inline void for_glyphs(
 }
 } // namespace pqxx::internal
 
-#include "pqxx/compiler-internal-post.hxx"
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

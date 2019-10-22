@@ -14,7 +14,8 @@
 #define PQXX_H_STREAM_FROM
 
 #include "pqxx/compiler-public.hxx"
-#include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
+
 #include "pqxx/transaction_base.hxx"
 #include "pqxx/util.hxx"
 
@@ -210,5 +211,5 @@ template<> void PQXX_LIBEXPORT stream_from::extract_value<std::nullptr_t>(
 ) const;
 } // namespace pqxx
 
-#include "pqxx/compiler-internal-post.hxx"
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

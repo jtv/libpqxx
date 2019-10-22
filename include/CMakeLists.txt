@@ -19,12 +19,6 @@ install(
         PATTERN array
         PATTERN binarystring.hxx
         PATTERN binarystring
-        PATTERN compiler-internal-post.hxx
-        PATTERN compiler-internal-post
-        PATTERN compiler-internal-pre.hxx
-        PATTERN compiler-internal-pre
-        PATTERN compiler-internal.hxx
-        PATTERN compiler-internal
         PATTERN compiler-public.hxx
         PATTERN compiler-public
         PATTERN connection.hxx
@@ -80,6 +74,9 @@ install(
         PATTERN version.hxx
         PATTERN version
         PATTERN internal/callgate.hxx
+        PATTERN internal/compiler-internal-post.hxx
+        PATTERN internal/compiler-internal-pre.hxx
+        PATTERN internal/compiler-internal.hxx
         PATTERN internal/conversions.hxx
         PATTERN internal/encoding_group.hxx
         PATTERN internal/encodings.hxx

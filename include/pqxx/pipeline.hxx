@@ -14,7 +14,7 @@
 #define PQXX_H_PIPELINE
 
 #include "pqxx/compiler-public.hxx"
-#include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include <limits>
 #include <map>
@@ -204,5 +204,5 @@ private:
 };
 } // namespace pqxx
 
-#include "pqxx/compiler-internal-post.hxx"
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

@@ -12,7 +12,7 @@
 #define PQXX_H_ARRAY
 
 #include "pqxx/compiler-public.hxx"
-#include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/encodings.hxx"
@@ -95,5 +95,5 @@ private:
 };
 } // namespace pqxx
 
-#include "pqxx/compiler-internal-post.hxx"
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

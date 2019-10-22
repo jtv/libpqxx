@@ -11,7 +11,7 @@
 #ifndef PQXX_H_VERSION
 
 #include "pqxx/compiler-public.hxx"
-#include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
 
 /// Full libpqxx version string.
 #define PQXX_VERSION "@PQXXVERSION@"
@@ -50,5 +50,5 @@ namespace pqxx::internal
  */
 template<int, int> PQXX_LIBEXPORT int check_library_version() noexcept;
 }
-#include "pqxx/compiler-internal-post.hxx"
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

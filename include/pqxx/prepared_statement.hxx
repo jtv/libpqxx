@@ -12,7 +12,7 @@
 #define PQXX_H_PREPARED_STATEMENT
 
 #include "pqxx/compiler-public.hxx"
-#include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include "pqxx/types.hxx"
 #include "pqxx/internal/statement_parameters.hxx"
@@ -98,5 +98,5 @@ make_dynamic_params(
 }
 } // namespace pqxx::prepare
 
-#include "pqxx/compiler-internal-post.hxx"
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

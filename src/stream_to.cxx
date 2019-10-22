@@ -8,7 +8,7 @@
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
  */
-#include "pqxx/compiler-internal.hxx"
+#include "pqxx/internal/compiler-internal.hxx"
 
 #include "pqxx/stream_from.hxx"
 #include "pqxx/stream_to.hxx"

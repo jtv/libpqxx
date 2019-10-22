@@ -14,7 +14,7 @@
 #define PQXX_H_EXCEPT
 
 #include "pqxx/compiler-public.hxx"
-#include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include <stdexcept>
 #include <string>
@@ -424,5 +424,5 @@ struct PQXX_LIBEXPORT plpgsql_too_many_rows : plpgsql_error
  */
 }
 
-#include "pqxx/compiler-internal-post.hxx"
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

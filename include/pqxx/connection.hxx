@@ -14,7 +14,7 @@
 #define PQXX_H_CONNECTION
 
 #include "pqxx/compiler-public.hxx"
-#include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include <list>
 #include <map>
@@ -679,5 +679,5 @@ void wait_read(const internal::pq::PGconn *, long seconds, long microseconds);
 void wait_write(const internal::pq::PGconn *);
 } // namespace pqxx::internal
 
-#include "pqxx/compiler-internal-post.hxx"
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

@@ -53,8 +53,8 @@ check_compiler_internal_headers() {
 	PRE="$TEMPDIR/pre"
 	POST="$TEMPDIR/post"
 	HEADERS=$(find include/pqxx/* -type f)
-	count_includes pqxx/compiler-internal-pre.hxx $HEADERS >"$PRE"
-	count_includes pqxx/compiler-internal-post.hxx $HEADERS >"$POST"
+	count_includes pqxx/internal/compiler-internal-pre.hxx $HEADERS >"$PRE"
+	count_includes pqxx/internal/compiler-internal-post.hxx $HEADERS >"$POST"
 	DIFF="$(diff "$PRE" "$POST")" || /bin/true
 	rm -r -- "$TEMPDIR"
 	if test -n "$DIFF"

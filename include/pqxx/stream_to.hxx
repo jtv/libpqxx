@@ -14,7 +14,8 @@
 #define PQXX_H_STREAM_TO
 
 #include "pqxx/compiler-public.hxx"
-#include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
+
 #include "pqxx/transaction_base.hxx"
 #include "pqxx/util.hxx"
 
@@ -182,5 +183,5 @@ template<typename Tuple> stream_to & stream_to::operator<<(const Tuple &t)
 }
 } // namespace pqxx
 
-#include "pqxx/compiler-internal-post.hxx"
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

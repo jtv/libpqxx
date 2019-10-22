@@ -284,7 +284,6 @@ with_postgres_include = @with_postgres_include@
 with_postgres_lib = @with_postgres_lib@
 MAINTAINERCLEANFILES = Makefile.in stamp-h.in
 noinst_HEADERS = \
-	compiler-internal.hxx \
 	config-internal-autotools.h
 
 nodist_noinst_HEADERS = \

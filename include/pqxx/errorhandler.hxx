@@ -14,7 +14,7 @@
 #define PQXX_H_ERRORHANDLER
 
 #include "pqxx/compiler-public.hxx"
-#include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include "pqxx/types.hxx"
 
@@ -88,5 +88,5 @@ public:
  */
 } // namespace pqxx
 
-#include "pqxx/compiler-internal-post.hxx"
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

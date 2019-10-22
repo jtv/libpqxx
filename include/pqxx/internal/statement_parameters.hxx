@@ -14,7 +14,7 @@
 #define PQXX_H_STATEMENT_PARAMETER
 
 #include "pqxx/compiler-public.hxx"
-#include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include <cstring>
 #include <functional>
@@ -261,5 +261,5 @@ private:
 };
 } // namespace pqxx::internal
 
-#include "pqxx/compiler-internal-post.hxx"
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

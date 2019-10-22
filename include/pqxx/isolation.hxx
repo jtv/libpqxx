@@ -12,7 +12,7 @@
 #define PQXX_H_ISOLATION
 
 #include "pqxx/compiler-public.hxx"
-#include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include "pqxx/util.hxx"
 
@@ -72,5 +72,5 @@ enum isolation_level
 };
 } // namespace pqxx
 
-#include "pqxx/compiler-internal-post.hxx"
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

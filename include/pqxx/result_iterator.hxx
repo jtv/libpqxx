@@ -14,7 +14,7 @@
 #define PQXX_H_RESULT_ITERATOR
 
 #include "pqxx/compiler-public.hxx"
-#include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include "pqxx/row.hxx"
 
@@ -240,5 +240,5 @@ operator+(
 
 } // namespace pqxx
 
-#include "pqxx/compiler-internal-post.hxx"
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

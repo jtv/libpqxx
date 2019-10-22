@@ -14,7 +14,7 @@
 #define PQXX_H_NONTRANSACTION
 
 #include "pqxx/compiler-public.hxx"
-#include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include "pqxx/connection.hxx"
 #include "pqxx/result.hxx"
@@ -74,5 +74,5 @@ private:
 };
 } // namespace pqxx
 
-#include "pqxx/compiler-internal-post.hxx"
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

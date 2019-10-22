@@ -4,7 +4,9 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/array pqxx/array.hxx \
 	pqxx/binarystring pqxx/binarystring.hxx \
 	pqxx/compiler-public.hxx \
-	pqxx/compiler-internal-pre.hxx pqxx/compiler-internal-post.hxx \
+	pqxx/internal/compiler-internal.hxx \
+	pqxx/internal/compiler-internal-pre.hxx \
+	pqxx/internal/compiler-internal-post.hxx \
 	pqxx/connection pqxx/connection.hxx \
 	pqxx/cursor pqxx/cursor.hxx \
 	pqxx/dbtransaction pqxx/dbtransaction.hxx \

@@ -15,7 +15,7 @@
 #define PQXX_H_TRANSACTION_BASE
 
 #include "pqxx/compiler-public.hxx"
-#include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include <string_view>
 
@@ -537,5 +537,5 @@ begin_cmd<serializable, write_policy::read_only>{
 	"BEGIN ISOLATION LEVEL SERIALIZABLE READ ONLY"};
 } // namespace pqxx::internal
 
-#include "pqxx/compiler-internal-post.hxx"
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

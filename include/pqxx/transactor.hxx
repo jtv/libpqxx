@@ -12,7 +12,7 @@
 #define PQXX_H_TRANSACTOR
 
 #include "pqxx/compiler-public.hxx"
-#include "pqxx/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include "pqxx/connection.hxx"
 #include "pqxx/transaction.hxx"
@@ -142,5 +142,5 @@ inline auto perform(const TRANSACTION_CALLBACK &callback, int attempts=3)
 } // namespace pqxx
 //@}
 
-#include "pqxx/compiler-internal-post.hxx"
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif
