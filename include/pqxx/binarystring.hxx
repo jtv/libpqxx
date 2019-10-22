@@ -66,7 +66,7 @@ public:
 
   binarystring(const binarystring &) =default;
 
-  /// Read and unescape bytea field
+  /// Read and unescape bytea field.
   /** The field will be zero-terminated, even if the original bytea field isn't.
    * @param F the field to read; must be a bytea field
    */
@@ -78,9 +78,9 @@ public:
   /// Copy binary data of given length straight out of memory.
   binarystring(const void *, size_t);
 
-  /// Size of converted string in bytes
+  /// Size of converted string in bytes.
   size_type size() const noexcept { return m_size; }			//[t62]
-  /// Size of converted string in bytes
+  /// Size of converted string in bytes.
   size_type length() const noexcept { return size(); }			//[t62]
   bool empty() const noexcept { return size()==0; }			//[t62]
 
@@ -100,7 +100,7 @@ public:
 	{ return const_reverse_iterator{begin()}; }
   const_reverse_iterator crend() const { return rend(); }
 
-  /// Unescaped field contents
+  /// Unescaped field contents.
   const value_type *data() const noexcept {return m_buf.get();}		//[t62]
 
   const_reference operator[](size_type i) const noexcept		//[t62]
@@ -112,13 +112,13 @@ public:
 
   binarystring &operator=(const binarystring &);
 
-  /// Index contained string, checking for valid index
+  /// Index contained string, checking for valid index.
   const_reference at(size_type) const;					//[t62]
 
-  /// Swap contents with other binarystring
+  /// Swap contents with other binarystring.
   void swap(binarystring &);						//[t62]
 
-  /// Raw character buffer (no terminating zero is added)
+  /// Raw character buffer (no terminating zero is added).
   /** @warning No terminating zero is added!  If the binary data did not end in
    * a null character, you will not find one here.
    */
