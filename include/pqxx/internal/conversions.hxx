@@ -11,34 +11,6 @@ namespace pqxx::internal
 /// Convert a number in [0, 9] to its ASCII digit.
 inline constexpr char number_to_digit(int i) noexcept
 { return static_cast<char>(i+'0'); }
-
-
-/// Estimate how much buffer space we need to render a T object.
-/** Ignore the parameter.  It's just there to help us disable inappropriate
- * specialisations for the given type.
- */
-template<typename T> constexpr
-std::enable_if_t<
-	(
-		std::is_arithmetic_v<T> and
-		std::numeric_limits<T>::digits10 > 0
-	),
-	int
->
-size_buffer(T *)
-{
-  // Allocate room for how many digits?  There's "max_digits10" for
-  // floating-point numbers, but only "digits10" for integer types.
-  // They're really different: digits10 is the maximum number of decimal
-  // digits that you can reliably fit into the type, but max_digits10 is the
-  // maximum number that you can get out.  The latter is what we want here,
-  // but we don't get it for integral types, where it's digits10 + 1.
-  // Leave a little bit of extra room for sign, decimal point, and trailing
-  // null byte.
-  return 3 + std::max({
-	std::numeric_limits<T>::digits10 + 1,
-	std::numeric_limits<T>::max_digits10});
-}
 } // namespace pqxx::internal
 
 
@@ -69,8 +41,13 @@ namespace pqxx::internal
 template<typename T>
 struct integral_traits
 {
-  static inline constexpr int buffer_budget =
-	pqxx::internal::size_buffer(static_cast<T *>(nullptr));
+  /// Maximum buffer size needed to represent this type.
+  /** Includes a sign if needed; the number of base-10 digits which the type;
+   * can reliably represent; the one extra base-10 digit which the type can
+   * only partially represent; and the terminating zero.
+   */
+  static inline constexpr int buffer_budget{
+	std::is_signed_v<T> + std::numeric_limits<T>::digits10 + 1 + 1};
 
   static PQXX_LIBEXPORT T from_string(std::string_view text);
   static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, const T &value);
@@ -81,8 +58,13 @@ struct integral_traits
 template<typename T>
 struct float_traits
 {
+  /// Maximum buffer size needed to represent this type.
+  /** Includes a sign if needed; a possible leading zero before the decimal
+   * point; the full number of base-10 digits which may be needed; a decimal
+   * point if needed; and the terminating zero.
+   */
   static inline constexpr int buffer_budget =
-	pqxx::internal::size_buffer(static_cast<T *>(nullptr));
+	1 + 1 + std::numeric_limits<T>::max_digits10 + 1 + 1;
 
   static PQXX_LIBEXPORT T from_string(std::string_view text);
   static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, const T &value);
