@@ -16,6 +16,7 @@ CXX = (
     'clang++-6.0',
     'clang++-7',
     'clang++-9',
+    'clang++-10',
     )
 
 OPT = ('-O0', '-O3')
