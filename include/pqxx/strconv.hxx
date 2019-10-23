@@ -143,7 +143,7 @@ template<typename TYPE> struct no_null
 /** Specialize this template for a type for which you wish to add to_string
  * and from_string support.
  */
-template<typename TYPE, typename ENABLE = void> struct string_traits
+template<typename TYPE> struct string_traits
 {
   /// Return a @c string_view representing value, plus terminating zero.
   /** Produces a @c string_view containing the PostgreSQL string representation
