@@ -35,6 +35,12 @@ constexpr inline bool equal(std::string_view lhs, std::string_view rhs)
 }
 
 
+/// The lowest possible value of integral type T.
+template<typename T> constexpr T bottom{std::numeric_limits<T>::min()};
+
+/// The highest possible value of integral type T.
+template<typename T> constexpr T top{std::numeric_limits<T>::max()};
+
 /// Write nonnegative integral value at end of buffer.  Return start.
 /** Assumes a sufficiently large buffer.
  *
@@ -53,30 +59,48 @@ template<typename T> constexpr inline char *nonneg_to_buf(char *end, T value)
 }
 
 
-/// A few hard-coded string versions of difficult negative numbers.
-/** For template argument n, this gives the string for n-1.
- * The reason is that compilers won't accept as a template argument a negative
- * number that doesn't have an absolute value, as is the case on
- * std::numeric_limits<long long>::min() in a two's-complement system.
+/// Write negative version of value at end of buffer.  Return start.
+/** Like @c nonneg_to_buf, but prefixes a minus sign.
  */
-template<long long MIN> [[maybe_unused]] inline constexpr
-pqxx::zview hard_neg;
-template<> [[maybe_unused]] inline constexpr
-pqxx::zview hard_neg<-126LL>{"-127"};
-template<> [[maybe_unused]] inline constexpr
-pqxx::zview hard_neg<-127LL>{"-128"};
-template<> [[maybe_unused]] inline constexpr
-pqxx::zview hard_neg<-32766LL>{"-32767"};
-template<> [[maybe_unused]] inline constexpr
-pqxx::zview hard_neg<-32767LL>{"-32768"};
-template<> [[maybe_unused]] inline constexpr
-pqxx::zview hard_neg<-2147483646LL>{"-2147483647"};
-template<> [[maybe_unused]] inline constexpr
-pqxx::zview hard_neg<-2147483647LL>{"-2147483648"};
-template<> [[maybe_unused]] inline constexpr
-pqxx::zview hard_neg<-9223372036854775806LL>{"-9223372036854775807"};
-template<> [[maybe_unused]] inline constexpr
-pqxx::zview hard_neg<-9223372036854775807LL>{"-9223372036854775808"};
+template<typename T> constexpr inline char *neg_to_buf(char *end, T value)
+{
+  char *pos = nonneg_to_buf(end, value);
+  *--pos = '-';
+  return pos;
+}
+
+
+/// Write lowest possible negative value at end of buffer.
+/** Like @c neg_to_buf, but for the special case of the bottom value.
+ */
+template<typename T> constexpr inline char *bottom_to_buf(char *end)
+{
+  static_assert(std::is_signed_v<T>);
+
+  // This is the hard case.  In two's-complement systems, which includes
+  // any modern-day system I can think of, a signed type's bottom value
+  // has no positive equivalent.  Luckily the C++ standards committee can't
+  // think of any exceptions either, so it's the required representation as
+  // of C++20.  We'll assume it right now, while still on C++17.
+  static_assert(-(bottom<T> + 1) == top<T>);
+
+  // The unsigned version of T does have the unsigned version of bottom.
+  using unsigned_t = std::make_unsigned_t<T>;
+
+  // Careful though.  If we tried to negate value in order to promote to
+  // unsigned_t, the value will overflow, which means behaviour is
+  // undefined.  Promotion of a negative value to an unsigned type is
+  // well-defined, given a representation, so let's do that:
+  constexpr unsigned_t positive = static_cast<unsigned_t>(bottom<T>);
+
+  // As luck would have it, in two's complement, this gives us exactly the
+  // value we want.
+  static_assert(positive == top<unsigned_t> / 2 + 1);
+
+  // So the only thing we need to do differently from the regular negative
+  // case is to skip that overflowing negation and promote to an unsigned type!
+  return neg_to_buf(end, positive);
+}
 } // namespace
 
 
@@ -86,6 +110,7 @@ namespace pqxx::internal
 template<typename T> zview
 integral_traits<T>::to_buf(char *begin, char *end, const T &value)
 {
+  static_assert(std::is_integral_v<T>);
   const ptrdiff_t
 	buf_size = end - begin,
 	need = string_traits<T>::buffer_budget;
@@ -97,36 +122,11 @@ integral_traits<T>::to_buf(char *begin, char *end, const T &value)
 	};
 
   char *pos;
-  if constexpr (std::is_signed_v<T>)
-  {
-    constexpr T bottom{std::numeric_limits<T>::min()};
+  if constexpr (std::is_unsigned_v<T>) pos = nonneg_to_buf(end, value);
+  else if (value >= 0) pos = nonneg_to_buf(end, value);
+  else if (value > bottom<T>) pos = neg_to_buf(end, -value);
+  else pos = bottom_to_buf<T>(end);
 
-    if (value >= 0)
-    {
-      pos = nonneg_to_buf(end, value);
-    }
-    else if (value != bottom)
-    {
-      pos = nonneg_to_buf(end, -value);
-      *--pos = '-';
-    }
-    else
-    {
-      // This is the difficult case.  We can't negate the value, because on
-      // two's-complement systems (basically every system nowadays), we'll get
-      // the same value back.  We can't even check for that: the compiler is
-      // allowed to pretend that such a thing won't happen.
-      //
-      // Luckily, there's only a limited number of such numbers.  We can cheat
-      // and hard-code them all.
-      return zview{hard_neg<bottom + 1LL>};
-    }
-  }
-  else
-  {
-    // Unsigned type.
-    pos = nonneg_to_buf(end, value);
-  }
   return zview{pos, std::size_t(end - pos - 1)};
 }
 

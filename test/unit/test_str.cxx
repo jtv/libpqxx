@@ -17,9 +17,14 @@ void test_str_bool()
 
 
 #if __has_include(<charconv>)
-template<typename T> constexpr std::size_t max_digits = std::max(
-	std::numeric_limits<T>::digits10,
-	std::numeric_limits<T>::max_digits10);
+
+/// Get the standard, guaranteed-correct string representation of t.
+template<typename T> std::string represent(T t)
+{
+  std::stringstream output;
+  output << t;
+  return output.str();
+}
 
 
 template<typename T> void test_str_integral()
@@ -44,6 +49,12 @@ template<typename T> void test_str_integral()
 	"10",
 	"Bad " + type + " conversion.");
 
+  for (T i{2}; i < 127; ++i)
+    PQXX_CHECK_EQUAL(
+	std::string{pqxx::str<T>{i}.view()},
+	represent(i),
+	"Bad " + type + " conversion.");
+
   if constexpr (std::numeric_limits<T>::is_signed)
   {
     const pqxx::str
@@ -58,17 +69,25 @@ template<typename T> void test_str_integral()
 	std::string{mten.view()},
 	"-10",
 	"Bad " + type + " conversion.");
+
+    constexpr T bottom{std::numeric_limits<T>::min()};
+    PQXX_CHECK_EQUAL(
+	std::string{pqxx::str<T>{bottom}},
+	represent(bottom),
+	"Smallest " + type + " did not convert right.");
+
+    for (T i{-2}; i > -128; --i)
+      PQXX_CHECK_EQUAL(
+	  std::string{pqxx::str<T>{i}.view()},
+	  represent(i),
+	  "Bad " + type + " conversion.");
   }
 
-  const pqxx::str max{std::numeric_limits<T>::max()};
-  PQXX_CHECK_GREATER_EQUAL(
-	max.view().size(),
-	max_digits<T>,
-	"Largest " + type + " came out too short.");
-  PQXX_CHECK_LESS_EQUAL(
-	max.view().size(),
-	max_digits<T> + 1,
-	"Largest " + type + " came out too short.");
+  constexpr T top = std::numeric_limits<T>::max();
+  PQXX_CHECK_EQUAL(
+	std::string{pqxx::str<T>{top}},
+	represent(top),
+	"Largest " + type + " did not convert right.");
 }
 
 
