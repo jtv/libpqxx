@@ -16,8 +16,6 @@ void test_str_bool()
 }
 
 
-#if __has_include(<charconv>)
-
 /// Get the standard, guaranteed-correct string representation of t.
 template<typename T> std::string represent(T t)
 {
@@ -102,12 +100,8 @@ void test_str_integral_types()
   test_str_integral<unsigned long>();
   test_str_integral<unsigned long long>();
 }
-#endif
 
 
 PQXX_REGISTER_TEST(test_str_bool);
-
-#if __has_include(<charconv>)
 PQXX_REGISTER_TEST(test_str_integral_types);
-#endif
 } // namespace
