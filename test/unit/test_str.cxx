@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "../test_helpers.hxx"
 
 namespace
@@ -102,6 +104,28 @@ void test_str_integral_types()
 }
 
 
+template<typename T> void test_str_float()
+{
+// TODO: This could legitimately fail.  Can we test something less strict?
+  T n{-1.0};
+  for (int i{0}; i < 100'000; i++)
+    PQXX_CHECK_EQUAL(
+	std::string{pqxx::str<T>{n}},
+	represent(n),
+	"Differening conversions for " + pqxx::type_name<T> + ".");
+    n = std::nextafter(n, T{1.0});
+}
+
+
+void test_str_float_types()
+{
+  test_str_float<float>();
+  test_str_float<double>();
+  test_str_float<long double>();
+}
+
+
 PQXX_REGISTER_TEST(test_str_bool);
 PQXX_REGISTER_TEST(test_str_integral_types);
+PQXX_REGISTER_TEST(test_str_float_types);
 } // namespace
