@@ -68,8 +68,8 @@ def parse_args():
 
 
 def main(args):
-    for cxx in sorted(args.compilers.split(',')):
-        for opt in sorted(args.optimize.split(',')):
+    for opt in sorted(args.optimize.split(',')):
+        for cxx in sorted(args.compilers.split(',')):
             for link, link_opts in sorted(LINK.items()):
                 for debug, debug_opts in sorted(DEBUG.items()):
                     log = 'build-%s.out' % '_'.join(
