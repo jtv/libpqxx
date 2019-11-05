@@ -1,17 +1,14 @@
 #include <array>
+#include <cstring>
 #include <map>
 #include <memory>
 #include <optional>
 #include <type_traits>
 #include <vector>
 
-
-namespace pqxx::internal
-{
-/// Convert a number in [0, 9] to its ASCII digit.
-inline constexpr char number_to_digit(int i) noexcept
-{ return static_cast<char>(i+'0'); }
-} // namespace pqxx::internal
+#if __has_include(<string.h>)
+#include <string.h>
+#endif
 
 
 /* Internal helpers for string conversion.
@@ -20,10 +17,36 @@ inline constexpr char number_to_digit(int i) noexcept
  */
 namespace pqxx::internal
 {
+/// Convert a number in [0, 9] to its ASCII digit.
+inline constexpr char number_to_digit(int i) noexcept
+{ return static_cast<char>(i+'0'); }
+
+
+/// Like strlen, but allowed to stop at @c max bytes.
+inline size_t shortcut_strlen(const char text[], [[maybe_unused]] size_t max)
+{
+  // strnlen_s is in C11, but not (yet) in C++'s "std" namespace.
+  // But this may change, so don't qualify explicitly.
+  using namespace std;
+
+#if defined(PQXX_HAVE_STRNLEN_S)
+
+  return strnlen_s(text, max);
+
+#elif defined(PQXX_HAVE_STRNLEN)
+
+  return strnlen(text, max);
+
+#else
+
+  return strlen(text);
+
+#endif
+}
+
 /// Summarize buffer overrun.
-std::string PQXX_LIBEXPORT state_buffer_overrun(
-	ptrdiff_t have_bytes,
-	ptrdiff_t need_bytes);
+template<typename T1, typename T2> std::string PQXX_LIBEXPORT
+state_buffer_overrun(T1 have_bytes, T2 need_bytes);
 
 
 /// Throw exception for attempt to convert null to given type.
@@ -32,11 +55,25 @@ std::string PQXX_LIBEXPORT state_buffer_overrun(
 
 
 template<typename T> PQXX_LIBEXPORT extern std::string to_string_float(T);
-} // namespace pqxx::internal
 
 
-namespace pqxx::internal
+/// Generic implementation for into_buf, on top of to_buf.
+template<typename T> inline char *
+generic_into_buf(char *begin, char *end, const T &value)
 {
+  const zview text{string_traits<T>::to_buf(begin, end, value)};
+  const auto space = static_cast<size_t>(end - begin);
+  // Include the trailing zero.
+  const auto len = text.size() + 1;
+  if (len > space)
+    throw conversion_overrun{
+	"Not enough buffer space to insert " + type_name<T> + ".  " +
+	state_buffer_overrun(space, len)};
+  std::memmove(begin, text.data(), len);
+  return begin + len;
+}
+
+
 /// String traits for builtin integral types (though not bool).
 template<typename T>
 struct integral_traits
@@ -51,6 +88,7 @@ struct integral_traits
 
   static PQXX_LIBEXPORT T from_string(std::string_view text);
   static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, const T &value);
+  static PQXX_LIBEXPORT char *into_buf(char *begin, char *end, const T &value);
 };
 
 
@@ -68,6 +106,7 @@ struct float_traits
 
   static PQXX_LIBEXPORT T from_string(std::string_view text);
   static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, const T &value);
+  static PQXX_LIBEXPORT char *into_buf(char *begin, char *end, const T &value);
 };
 } // namespace pqxx::internal
 
@@ -113,6 +152,9 @@ template<> struct string_traits<bool>
 
   static constexpr zview to_buf(char *, char *, const bool &value) noexcept
   { return value ? "true" : "false"; }
+
+  static char *into_buf(char *begin, char *end, const bool &value)
+  { return pqxx::internal::generic_into_buf(begin, end, value); }
 };
 
 
@@ -129,6 +171,9 @@ template<typename T> struct string_traits<std::optional<T>>
 {
   static inline constexpr int buffer_budget = string_traits<T>::buffer_budget;
 
+  char *into_buf(char *begin, char *end, const std::optional<T> &value)
+  { return string_traits<T>::into_buf(begin, end, *value); }
+
   zview to_buf(char *begin, char *end, const std::optional<T> &value)
   {
     if (value.has_value()) return to_buf(begin, end, *value);
@@ -144,7 +189,7 @@ template<typename T> struct string_traits<std::optional<T>>
 
 
 template<typename T>
-inline T from_string(const std::stringstream &text)			//[t00]
+inline T from_string(const std::stringstream &text)
 	{ return from_string<T>(text.str()); }
 
 
@@ -157,11 +202,8 @@ template<> struct string_traits<std::nullptr_t>
   ) noexcept
   { return zview{}; }
 };
-} // namespace pqxx
 
 
-namespace pqxx
-{
 template<> struct nullness<const char *>
 {
   static constexpr bool has_null = true;
@@ -179,14 +221,24 @@ template<> struct string_traits<const char *>
   static zview to_buf(char *begin, char *end, const char * const &value)
   {
     if (value == nullptr) return zview{};
-    auto len = std::strlen(value);
-    auto buf_size = end - begin;
-    if (buf_size < ptrdiff_t(len)) throw conversion_overrun{
+    char *const next{string_traits<const char *>::into_buf(begin, end, value)};
+    // Don't count the trailing zero, even though into_buf does.
+    return zview{begin, static_cast<size_t>(next - begin - 1)};
+  }
+
+  static char *into_buf(char *begin, char *end, const char * const &value)
+  {
+    const auto space = end - begin;
+    // Count the trailing zero, even though std::strlen() and friends don't.
+    const auto len = pqxx::internal::shortcut_strlen(
+	value, static_cast<size_t>(space)
+	) + 1;
+    if (space < ptrdiff_t(len)) throw conversion_overrun{
 	"Could not copy string: buffer too small.  " +
-        pqxx::internal::state_buffer_overrun(buf_size, ptrdiff_t(len))
+        pqxx::internal::state_buffer_overrun(space, len)
 	};
-    std::memcpy(begin, value, len + 1);
-    return zview{begin, len};
+    std::memmove(begin, value, len);
+    return begin + len;
   }
 };
 
@@ -202,6 +254,8 @@ template<> struct nullness<char *>
 /// String traits for non-const C-style string ("pointer to char").
 template<> struct string_traits<char *>
 {
+  static char *into_buf(char *begin, char *end, char * const &value)
+  { return string_traits<const char *>::into_buf(begin, end, value); }
   static zview to_buf(char *begin, char *end, char * const &value)
   { return string_traits<const char *>::to_buf(begin, end, value); }
 
@@ -227,13 +281,22 @@ template<> struct string_traits<std::string>
   static std::string from_string(std::string_view text)
 	{ return std::string{text}; }
 
-  static zview to_buf(char *begin, char *end, const std::string &value)
+  static char *into_buf(char *begin, char *end, const std::string &value)
   {
     if (value.size() >= std::size_t(end - begin))
       throw conversion_overrun{
   	"Could not convert string to string: too long for buffer."};
-    std::memcpy(begin, value.c_str(), value.size() + 1);
-    return zview{begin, value.size()};
+    // Include the trailing zero.
+    const auto len = value.size() + 1;
+    std::memcpy(begin, value.c_str(), len);
+    return begin + len;
+  }
+
+  static zview to_buf(char *begin, char *end, const std::string &value)
+  {
+    char *const next = into_buf(begin, end, value);
+    // Don't count the trailing zero, even though into_buf() does.
+    return zview{begin, static_cast<size_t>(next - begin - 1)};
   }
 };
 
@@ -300,6 +363,9 @@ template<typename T> struct string_traits<std::unique_ptr<T>>
 
   static std::unique_ptr<T> from_string(std::string_view text)
   { return std::make_unique<T>(string_traits<T>::from_string(text)); }
+
+  char *into_buf(char *begin, char *end, const std::unique_ptr<T> &value)
+  { return string_traits<T>::into_buf(begin, end, *value); }
 
   zview to_buf(char *begin, char *end, const std::unique_ptr<T> &value)
   {
@@ -494,9 +560,13 @@ template<typename T> inline std::string to_string(const T &value)
     throw conversion_error{
 	"Attempt to convert null " + type_name<T> + " to a string."};
 
+// XXX: Can we into_buf directly into the string's buffer, then shrink to fit?
   pqxx::str<T> text{value};
   return std::string{text.view()};
 }
+
+
+// XXX: Worth adding into_string for reusing existing string?
 
 
 template<> inline std::string to_string(const float &value)

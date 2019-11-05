@@ -78,6 +78,12 @@
 /* Define if poll() is available. */
 #undef PQXX_HAVE_POLL
 
+/* Define if compiler provides strnlen */
+#undef PQXX_HAVE_STRNLEN
+
+/* Define if compiler provides strnlen_s */
+#undef PQXX_HAVE_STRNLEN_S
+
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
