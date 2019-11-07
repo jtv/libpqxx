@@ -19003,7 +19003,7 @@ fi
 
 if test -n "$PKG_CONFIG" && test -x "$PKG_CONFIG"; then
 if test -z "$with_postgres_include"; then :
-  with_postgres_include=$($PKG_CONFIG libpq --cflags | sed 's/^-I//')
+  with_postgres_include=$($PKG_CONFIG libpq --cflags | sed 's/^-I//' | sed 's/ *$//g')
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: using PostgreSQL headers at $with_postgres_include" >&5
 $as_echo "$as_me: using PostgreSQL headers at $with_postgres_include" >&6;}
