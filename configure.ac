@@ -346,7 +346,7 @@ AC_ARG_WITH(
 if test -n "$PKG_CONFIG" && test -x "$PKG_CONFIG"; then
 AS_IF(
     [test -z "$with_postgres_include"],
-    [with_postgres_include=$($PKG_CONFIG libpq --cflags | sed 's/^-I//')])
+    [with_postgres_include=$($PKG_CONFIG libpq --cflags | sed 's/^-I//' | sed 's/ *$//')])
 AC_MSG_NOTICE([using PostgreSQL headers at $with_postgres_include])
 AC_SUBST(with_postgres_include)
 POSTGRES_INCLUDE="-I${with_postgres_include}"
