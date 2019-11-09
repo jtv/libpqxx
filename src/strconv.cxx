@@ -108,7 +108,7 @@ template<typename T> constexpr inline char *bottom_to_buf(char *end)
 template<typename T> inline char *
 wrap_to_chars(char *begin, char *end, const T &value)
 {
-  const auto res = std::to_chars(begin, end - 1, value);
+  auto res = std::to_chars(begin, end - 1, value);
   if (res.ec != std::errc()) switch (res.ec)
   {
   case std::errc::value_too_large:
