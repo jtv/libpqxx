@@ -220,6 +220,32 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT($cxa_demangle)
 
 
+# Check for strnlen_s.
+AC_MSG_CHECKING([strnlen_s])
+strnlen_s=yes
+AC_COMPILE_IFELSE(
+	[read_test(strnlen_s.cxx)],
+	AC_DEFINE(
+		[PQXX_HAVE_STRNLEN_S],
+		1,
+		[Define if compiler provides strnlen_s]),
+	strnlen_s=no)
+AC_MSG_RESULT($strnlen_s)
+
+
+# Check for strnlen.
+AC_MSG_CHECKING([strnlen])
+strnlen=yes
+AC_COMPILE_IFELSE(
+	[read_test(strnlen.cxx)],
+	AC_DEFINE(
+		[PQXX_HAVE_STRNLEN],
+		1,
+		[Define if compiler provides strnlen]),
+	strnlen=no)
+AC_MSG_RESULT($strnlen)
+
+
 # It's mid-2019, and gcc's charconv supports integers but not yet floats.
 # So for now, we test for int and float conversion... separately.
 #
@@ -320,7 +346,7 @@ AC_ARG_WITH(
 if test -n "$PKG_CONFIG" && test -x "$PKG_CONFIG"; then
 AS_IF(
     [test -z "$with_postgres_include"],
-    [with_postgres_include=$($PKG_CONFIG libpq --cflags | sed 's/^-I//')])
+    [with_postgres_include=$($PKG_CONFIG libpq --cflags | sed 's/^-I//' | sed 's/ *$//')])
 AC_MSG_NOTICE([using PostgreSQL headers at $with_postgres_include])
 AC_SUBST(with_postgres_include)
 POSTGRES_INCLUDE="-I${with_postgres_include}"

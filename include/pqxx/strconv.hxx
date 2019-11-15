@@ -74,12 +74,11 @@ public:
  * various C++ types translate to and from their respective PostgreSQL text
  * representations.
  *
- * Each conversion is defined by specialisations of certain templates:
- * @c string_traits, @c to_buf, and @c str.  It gets complicated if you want
- * top performance, but until you do, all you really need to care about when
- * converting values between C++ in-memory representations such as @c int and
- * the postgres string representations is the @c pqxx::to_string and
- * @c pqxx::from_string functions.
+ * Each conversion is defined by a specialisations of @c string_traits.  It
+ * gets complicated if you want top performance, but until you do, all you
+ * really need to care about when converting values between C++ in-memory
+ * representations such as @c int and the postgres string representations is
+ * the @c pqxx::to_string and @c pqxx::from_string functions.
  *
  * If you need to convert a type which is not supported out of the box, you'll
  * need to define your own specialisations for these templates, similar to the
@@ -165,12 +164,21 @@ template<typename TYPE> struct string_traits
    */
   static inline zview to_buf(char *begin, char *end, const TYPE &value);
 
+  /// Write value's string representation into buffer at @c begin.
+  /** Assumes that value is non-null.
+   *
+   * Writes value's string representation into the buffer, starting exactly at
+   * @c begin, and ensuring a trailing zero.  Returns the address just beyond
+   * the trailing zero, so the caller could use it as the @c begin for another
+   * call to @c into_buf writing a next value.
+   */
+  static inline char *into_buf(char *begin, char *end, const TYPE &value);
+
   static inline TYPE from_string(std::string_view text);
 };
 
 
-// XXX: Can we do this more efficiently for arbitrary tuples of values?
-// XXX: An "into_buf" might help: to_buf with exact placement.
+// XXX: Can we do this more efficiently for arbitrary tuples or param packs?
 /// Value-to-string converter: represent value as a postgres-compatible string.
 /** @warning This feature is experimental.  It may change, or disappear.
  *
@@ -237,6 +245,9 @@ struct enum_traits
 
   static constexpr zview to_buf(char *begin, char *end, const ENUM &value)
   { return impl_traits::to_buf(begin, end, static_cast<impl_type>(value)); }
+
+  static constexpr char *into_buf(char *begin, char *end, const ENUM &value)
+  { return impl_traits::into_buf(begin, end, static_cast<impl_type>(value)); }
 
   static ENUM from_string(std::string_view text)
   { return static_cast<ENUM>(impl_traits::from_string(text)); }

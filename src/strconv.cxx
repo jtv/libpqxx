@@ -101,6 +101,30 @@ template<typename T> constexpr inline char *bottom_to_buf(char *end)
   // case is to skip that overflowing negation and promote to an unsigned type!
   return neg_to_buf(end, positive);
 }
+
+
+#if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
+/// Call to_chars, report errors as exceptions, add zero, return pointer.
+template<typename T> inline char *
+wrap_to_chars(char *begin, char *end, const T &value)
+{
+  auto res = std::to_chars(begin, end - 1, value);
+  if (res.ec != std::errc()) switch (res.ec)
+  {
+  case std::errc::value_too_large:
+    throw pqxx::conversion_overrun{
+	"Could not convert " + pqxx::type_name<T> + " to string: "
+	"buffer too small (" + pqxx::to_string(end - begin) + " bytes)."};
+  default:
+    throw pqxx::conversion_error{
+	"Could not convert " + pqxx::type_name<T> + " to string."};
+  }
+  // No need to check for overrun here: we never even told to_chars about that
+  // last byte in the buffer, so it didn't get used up.
+  *res.ptr++ = '\0';
+  return res.ptr;
+}
+#endif
 } // namespace
 
 
@@ -112,13 +136,13 @@ integral_traits<T>::to_buf(char *begin, char *end, const T &value)
 {
   static_assert(std::is_integral_v<T>);
   const ptrdiff_t
-	buf_size = end - begin,
+	space = end - begin,
 	need = string_traits<T>::buffer_budget;
-  if (buf_size < need)
+  if (space < need)
     throw conversion_overrun{
 	"Could not convert " + type_name<T> + " to string: "
         "buffer too small.  " +
-         pqxx::internal::state_buffer_overrun(buf_size, need)
+         pqxx::internal::state_buffer_overrun(space, need)
 	};
 
   char *pos;
@@ -146,6 +170,37 @@ template zview integral_traits<unsigned long>::to_buf(
 template zview integral_traits<long long>::to_buf(
 	char *, char *, const long long &);
 template zview integral_traits<unsigned long long>::to_buf(
+	char *, char *, const unsigned long long &);
+
+
+template<typename T> char *
+integral_traits<T>::into_buf(char *begin, char *end, const T &value)
+{
+#if defined(PQXX_HAVE_STRCONV_INT)
+  // This is exactly what to_chars is good at.  Trust standard library
+  // implementers to optimise better than we can.
+  return wrap_to_chars(begin, end, value);
+#else
+  return generic_into_buf(begin, end, value);
+#endif
+}
+
+
+template char *integral_traits<short>::into_buf(
+	char *, char *, const short &);
+template char *integral_traits<unsigned short>::into_buf(
+	char *, char *, const unsigned short &);
+template char *integral_traits<int>::into_buf(
+	char *, char *, const int &);
+template char *integral_traits<unsigned>::into_buf(
+	char *, char *, const unsigned &);
+template char *integral_traits<long>::into_buf(
+	char *, char *, const long &);
+template char *integral_traits<unsigned long>::into_buf(
+	char *, char *, const unsigned long &);
+template char *integral_traits<long long>::into_buf(
+	char *, char *, const long long &);
+template char *integral_traits<unsigned long long>::into_buf(
 	char *, char *, const unsigned long long &);
 } // namespace pqxx::internal
 
@@ -175,7 +230,8 @@ void throw_null_conversion(const std::string &type)
 }
 
 
-std::string state_buffer_overrun(ptrdiff_t have_bytes, ptrdiff_t need_bytes)
+template<typename T1, typename T2>
+std::string state_buffer_overrun(T1 have_bytes, T2 need_bytes)
 {
   // We convert these in standard library terms, not for the localisation
   // so much as to avoid "error cycles," if these values in turn should fail
@@ -185,6 +241,12 @@ std::string state_buffer_overrun(ptrdiff_t have_bytes, ptrdiff_t need_bytes)
   need << need_bytes;
   return "Have " + have.str() + " bytes, need " + need.str() + ".";
 }
+
+
+template std::string state_buffer_overrun<size_t, size_t>(size_t, size_t);
+template std::string state_buffer_overrun<size_t, ptrdiff_t>(size_t, ptrdiff_t);
+template std::string state_buffer_overrun<ptrdiff_t, size_t>(ptrdiff_t, size_t);
+template std::string state_buffer_overrun<ptrdiff_t, ptrdiff_t>(ptrdiff_t, ptrdiff_t);
 } // namespace pqxx::internal
 
 
@@ -443,21 +505,9 @@ zview float_traits<T>::to_buf(char *begin, char *end, const T &value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
 
-  // Implement using std::to_chars.
-  const auto res = std::to_chars(begin, end - 1, value);
-  if (res.ec != std::errc()) switch (res.ec)
-  {
-  case std::errc::value_too_large:
-    throw conversion_overrun{
-	std::string{"Could not convert "} + type_name<T> + " to string: "
-	"buffer too small (" + to_string(end - begin) + " bytes)."};
-  default:
-    throw conversion_error{
-	std::string{"Could not convert "} + type_name<T> + " to string."};
-  }
-
-  *res.ptr = '\0';
-  return zview{begin, std::size_t(res.ptr - begin)};
+  // Definitely prefer to let the standard library handle this!
+  const auto ptr = wrap_to_chars(begin, end, value);
+  return zview{begin, std::size_t(ptr - begin - 1)};
 
 #else
 
@@ -473,13 +523,44 @@ zview float_traits<T>::to_buf(char *begin, char *end, const T &value)
     throw conversion_error{
 	"Could not convert floating-point number to string: "
 	"buffer too small.  " +
-        state_buffer_overrun(have, std::ptrdiff_t(need))
+        state_buffer_overrun(have, need)
 	};
   std::memcpy(begin, text.c_str(), need);
   return zview{begin, text.size()};
 
 #endif // !PQXX_HAVE_CHARCONV_FLOAT
 }
+
+
+template zview
+float_traits<float>::to_buf(char *, char *, const float &);
+template zview
+float_traits<double>::to_buf(char *, char *, const double &);
+template zview
+float_traits<long double>::to_buf(char *, char *, const long double &);
+
+
+template<typename T> char *
+float_traits<T>::into_buf(char *begin, char *end, const T &value)
+{
+#if defined(PQXX_HAVE_CHARCONV_FLOAT)
+
+  return wrap_to_chars(begin, end, value);
+
+#else
+
+  return generic_into_buf(begin, end, value);
+
+#endif
+}
+
+
+template char *
+float_traits<float>::into_buf(char *, char *, const float &);
+template char *
+float_traits<double>::into_buf(char *, char *, const double &);
+template char *
+float_traits<long double>::into_buf(char *, char *, const long double &);
 
 
 /// Floating-point implementations for @c pqxx::to_string().
@@ -499,14 +580,6 @@ template<typename T> std::string to_string_float(T value)
   return s.str();
 #endif // !PQXX_HAVE_CHARCONV_FLOAT
 }
-
-
-template zview
-float_traits<float>::to_buf(char *, char *, const float &);
-template zview
-float_traits<double>::to_buf(char *, char *, const double &);
-template zview
-float_traits<long double>::to_buf(char *, char *, const long double &);
 } // namespace pqxx::internal
 
 
