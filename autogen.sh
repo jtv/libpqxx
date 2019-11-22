@@ -1,7 +1,5 @@
 #! /bin/sh
-# Run this to generate all the initial makefiles, etc.
-#
-# Set CONFIG_ARGS to the argument list you wish to pass to configure.
+# Run this to generate the configure script etc.
 
 set -eu
 
@@ -54,13 +52,3 @@ libtoolize --force --automake --copy
 aclocal -I . -I config/m4
 automake --add-missing --copy
 autoconf
-
-conf_flags="--enable-maintainer-mode ${CONFIG_ARGS:-}"
-if [ -z "${NOCONFIGURE:-}" ]
-then
-	echo Running ./configure $conf_flags "$@" ...
-	./configure $conf_flags "$@"
-	echo "Now type 'make' to compile libpqxx."
-else
-	echo Skipping configure process.
-fi
