@@ -327,6 +327,14 @@ template<typename T> inline void from_string(std::string_view text, T &obj)
 template<typename TYPE> inline std::string to_string(const TYPE &obj);
 
 
+/// Convert a value to a readable string that PostgreSQL will understand.
+/** This variant of to_string can sometimes save a bit of time in loops, by
+ * re-using a std::string for multiple conversions.
+ */
+template<typename TYPE> inline void
+into_string(const TYPE &obj, std::string &out);
+
+
 /// Is @c value null?
 template<typename TYPE> inline bool is_null(const TYPE &value)
 {

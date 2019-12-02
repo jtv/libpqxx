@@ -621,4 +621,19 @@ template<> inline std::string to_string(const long double &value)
 	{ return internal::to_string_float(value); }
 template<> inline std::string to_string(const std::stringstream &value)
 { return value.str(); }
+
+
+template<typename T> inline void into_string(const T &value, std::string &out)
+{
+  if (is_null(value))
+    throw conversion_error{
+	"Attempt to convert null " + type_name<T> + " to a string."};
+
+  // We can't just reserve() data; modifying the terminating zero leads to
+  // undefined behaviour.
+  out.resize(string_traits<T>::size_buffer(value) + 1);
+  const auto end{
+	string_traits<T>::into_buf(out.data(), out.data() + out.size(), value)};
+  out.resize(static_cast<std::string::size_type>(end - out.data() - 1));
+}
 } // namespace pqxx
