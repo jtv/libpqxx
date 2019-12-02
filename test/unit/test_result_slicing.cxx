@@ -14,18 +14,40 @@ template<> struct nullness<row::const_reverse_iterator> :
 
 template<> struct string_traits<row::const_iterator>
 {
+  static constexpr zview text{"[row::const_iterator]"};
   static inline constexpr int buffer_budget = 0;
-  static pqxx::zview to_buf(char *, char *, const row::const_iterator &)
-  { return "[row::const_iterator]"; }
+  static zview to_buf(char *, char *, const row::const_iterator &)
+  { return text; }
+  static char *into_buf(char *begin, char *end, const row::const_iterator &)
+  {
+    if ((end - begin) <= 30)
+      throw conversion_overrun{"Not enough buffer for const row iterator."};
+    std::strcpy(begin, text.c_str());
+    return begin + text.size();
+  }
+  static constexpr size_t size_buffer(const row::const_iterator &) noexcept
+  { return text.size() + 1; }
 };
 
 
 template<> struct string_traits<row::const_reverse_iterator>
 {
+  static constexpr zview text{"[row::const_reverse_iterator]"};
   static inline constexpr int buffer_budget = 0;
   static pqxx::zview to_buf(
 	char *, char *, const row::const_reverse_iterator &)
-  { return "[row::const_reverse_iterator]"; }
+  { return text; }
+  static char *into_buf(
+	char *begin, char *end, const row::const_reverse_iterator &)
+  {
+    if ((end - begin) <= 30)
+      throw conversion_overrun{"Not enough buffer for const row iterator."};
+    std::strcpy(begin, text.c_str());
+    return begin + text.size();
+  }
+  static constexpr size_t
+  size_buffer(const row::const_reverse_iterator &) noexcept
+  { return 100; }
 };
 } // namespace pqxx
 

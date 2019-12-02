@@ -175,6 +175,13 @@ template<typename TYPE> struct string_traits
   static inline char *into_buf(char *begin, char *end, const TYPE &value);
 
   static inline TYPE from_string(std::string_view text);
+
+  /// Estimate how much buffer space is needed to represent value.
+  /** The estimate may be a little pessimistic, if it saves time.
+   *
+   * The estimate includes the terminating zero.
+   */
+  static inline size_t size_buffer(const TYPE &value);
 };
 
 
@@ -251,6 +258,9 @@ struct enum_traits
 
   static ENUM from_string(std::string_view text)
   { return static_cast<ENUM>(impl_traits::from_string(text)); }
+
+  static size_t size_buffer(const ENUM &value)
+  { return impl_traits::size_buffer(static_cast<impl_type>(value)); }
 };
 } // namespace pqxx::internal
 

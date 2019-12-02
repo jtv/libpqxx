@@ -107,35 +107,28 @@ template<> struct string_traits<ipv4>
     return ts;
   }
 
-  static zview to_buf(char *begin, char *end, const ipv4 &value)
+  static char *into_buf(char *begin, char *end, const ipv4 &value)
   {
     if (end - begin < buffer_budget)
       throw conversion_error{"Buffer too small for ipv4."};
-    str o0{value[0]}, o1{value[1]}, o2{value[2]}, o3{value[3]};
-    char *pos = begin;
-
-    std::memcpy(pos, o0.c_str(), o0.view().size());
-    pos += o0.view().size();
-
-    *pos++ = '.';
-
-    std::memcpy(pos, o1.c_str(), o1.view().size());
-    pos += o1.view().size();
-
-    *pos++ = '.';
-
-    std::memcpy(pos, o2.c_str(), o2.view().size());
-    pos += o2.view().size();
-
-    *pos++ = '.';
-
-    std::memcpy(pos, o3.c_str(), o3.view().size());
-    pos += o3.view().size();
-
-    *pos = '\0';
-
-    return zview{begin, std::size_t(pos - begin)};
+    char *here = begin;
+    for (int i=0; i < 4; ++i)
+    {
+      here = string_traits<unsigned>::into_buf(here, end, value[i]);
+      *(here - 1) = '.';
+    }
+    *(here - 1) = '\0';
+    return here;
   }
+
+  static zview to_buf(char *begin, char *end, const ipv4 &value)
+  {
+    return zview{
+	begin, static_cast<std::size_t>(into_buf(begin, end, value) - begin)};
+  }
+
+  static constexpr size_t size_buffer(const ipv4 &) noexcept
+  { return buffer_budget; }
 };
 
 
@@ -182,7 +175,7 @@ template<> struct string_traits<bytea>
 
   static zview to_buf(char *begin, char *end, const bytea &value)
   {
-    const auto need = 2 + value.size() + 1;
+    const auto need = size_buffer(value);
     const auto have = end - begin;
     if (std::size_t(have) < need)
       throw pqxx::conversion_overrun{"Not enough space in buffer for bytea."};
@@ -197,5 +190,11 @@ template<> struct string_traits<bytea>
     *pos++ = '\0';
     return zview{begin, std::size_t(pos - begin - 1)};
   }
+
+  static char *into_buf(char *begin, char *end, const bytea &value)
+  { return begin + to_buf(begin, end, value).size() + 1; }
+
+  static size_t size_buffer(const bytea &value)
+  { return 2 * value.size() + 1; }
 };
 } // namespace pqxx

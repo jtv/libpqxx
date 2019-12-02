@@ -30,7 +30,12 @@ struct TypedCopyEscaper
 {
   template<typename T> std::string operator()(const T* t) const
   {
-    return
+    // gcc 9 complains when t is used only in one branch of the "if constexpr".
+    ignore_unused(t);
+    if constexpr (std::is_same_v<T, std::nullptr_t>)
+      return "\\N";
+    else
+      return
 	(t == nullptr or is_null(*t)) ?
 	"\\N" :
 	copy_string_escape(to_string(*t));

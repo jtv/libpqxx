@@ -56,6 +56,22 @@ public:
 private:
   std::string m_str;
 };
+
+
+template<> struct string_traits<TestErrorHandler *>
+{
+  static constexpr size_t size_buffer(TestErrorHandler *const &) noexcept
+  { return 100; }
+
+  static char *into_buf(char *begin, char *end, TestErrorHandler *const &value)
+  {
+    std::string text{"TestErrorHandler at " + pqxx::to_string(value)};
+    if (static_cast<ptrdiff_t>(text.size()) >= (end - begin))
+      throw conversion_overrun{"Not enough buffer for TestErrorHandler."};
+    std::strcpy(begin, text.c_str());
+    return begin + text.size() + 1;
+  }
+};
 } // namespace pqxx
 
 

@@ -130,7 +130,6 @@ wrap_to_chars(char *begin, char *end, const T &value)
 
 namespace pqxx::internal
 {
-/// Represent an integral value as a zview.  May use given buffer.
 template<typename T> zview
 integral_traits<T>::to_buf(char *begin, char *end, const T &value)
 {

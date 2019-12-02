@@ -21,9 +21,8 @@ void test_exceptions()
 	err,
 	"Exception contains wrong message.");
     auto downcast{dynamic_cast<const pqxx::sql_error *>(&e)};
-    PQXX_CHECK_NOT_EQUAL(
-	downcast,
-	nullptr,
+    PQXX_CHECK(
+	downcast != nullptr,
 	"exception-to-sql_error downcast is broken.");
     PQXX_CHECK_EQUAL(
 	downcast->query(),

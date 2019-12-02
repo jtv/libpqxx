@@ -89,6 +89,9 @@ struct integral_traits
   static PQXX_LIBEXPORT T from_string(std::string_view text);
   static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, const T &value);
   static PQXX_LIBEXPORT char *into_buf(char *begin, char *end, const T &value);
+
+  static constexpr size_t size_buffer(const T &) noexcept
+  { return buffer_budget; }
 };
 
 
@@ -107,6 +110,9 @@ struct float_traits
   static PQXX_LIBEXPORT T from_string(std::string_view text);
   static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, const T &value);
   static PQXX_LIBEXPORT char *into_buf(char *begin, char *end, const T &value);
+
+  static constexpr size_t size_buffer(const T &) noexcept
+  { return buffer_budget; }
 };
 } // namespace pqxx::internal
 
@@ -155,6 +161,9 @@ template<> struct string_traits<bool>
 
   static char *into_buf(char *begin, char *end, const bool &value)
   { return pqxx::internal::generic_into_buf(begin, end, value); }
+
+  static constexpr size_t size_buffer(const bool &) noexcept
+  { return 6; }
 };
 
 
@@ -171,7 +180,7 @@ template<typename T> struct string_traits<std::optional<T>>
 {
   static inline constexpr int buffer_budget = string_traits<T>::buffer_budget;
 
-  char *into_buf(char *begin, char *end, const std::optional<T> &value)
+  static char *into_buf(char *begin, char *end, const std::optional<T> &value)
   { return string_traits<T>::into_buf(begin, end, *value); }
 
   zview to_buf(char *begin, char *end, const std::optional<T> &value)
@@ -185,6 +194,9 @@ template<typename T> struct string_traits<std::optional<T>>
     return std::optional<T>{
 	std::in_place, string_traits<T>::from_string(text)};
   }
+
+  static size_t size_buffer(const std::optional<T> &value)
+  { return string_traits<T>::size_buffer(value.value()); }
 };
 
 
@@ -240,6 +252,9 @@ template<> struct string_traits<const char *>
     std::memmove(begin, value, len);
     return begin + len;
   }
+
+  static size_t size_buffer(const char *const &value)
+  { return std::strlen(value) + 1; }
 };
 
 
@@ -258,6 +273,8 @@ template<> struct string_traits<char *>
   { return string_traits<const char *>::into_buf(begin, end, value); }
   static zview to_buf(char *begin, char *end, char * const &value)
   { return string_traits<const char *>::to_buf(begin, end, value); }
+  static size_t size_buffer(char *const &value)
+  { return string_traits<const char *>::size_buffer(value); }
 
   // Don't allow conversion to this type since it breaks const-safety.
 };
@@ -269,6 +286,11 @@ template<size_t N> struct nullness<char[N]> : no_null<char[N]> {};
 /// String traits for C-style string constant ("array of char").
 template<size_t N> struct string_traits<char[N]>
 {
+  static char *into_buf(char *begin, char *end, const char (&value)[N])
+  { return string_traits<const char *>::into_buf(begin, end, value); }
+  static constexpr size_t size_buffer(const char (&)[N]) noexcept
+  { return N + 1; }
+
   // Don't allow conversion to this type since it breaks const-safety.
 };
 
@@ -298,6 +320,9 @@ template<> struct string_traits<std::string>
     // Don't count the trailing zero, even though into_buf() does.
     return zview{begin, static_cast<size_t>(next - begin - 1)};
   }
+
+  static size_t size_buffer(const std::string &value)
+  { return value.size() + 1; }
 };
 
 
@@ -312,6 +337,9 @@ template<> struct nullness<std::string_view> : no_null<std::string_view> {};
 template<> struct string_traits<std::string_view>
 {
   // Don't allow conversion to this type; it has nowhere to store its contents.
+
+  static constexpr size_t size_buffer(const std::string_view &value) noexcept
+  { return value.size() + 1; }
 };
 
 
@@ -322,6 +350,9 @@ template<> struct nullness<zview> : no_null<zview> {};
 template<> struct string_traits<zview>
 {
   // Don't allow conversion to this type; it has nowhere to store its contents.
+
+  static constexpr size_t size_buffer(const std::string_view &value) noexcept
+  { return value.size() + 1; }
 };
 
 
@@ -364,14 +395,18 @@ template<typename T> struct string_traits<std::unique_ptr<T>>
   static std::unique_ptr<T> from_string(std::string_view text)
   { return std::make_unique<T>(string_traits<T>::from_string(text)); }
 
-  char *into_buf(char *begin, char *end, const std::unique_ptr<T> &value)
+  static char *into_buf(
+	char *begin, char *end, const std::unique_ptr<T> &value)
   { return string_traits<T>::into_buf(begin, end, *value); }
 
-  zview to_buf(char *begin, char *end, const std::unique_ptr<T> &value)
+  static zview to_buf(char *begin, char *end, const std::unique_ptr<T> &value)
   {
     if (value) return to_buf(begin, end, *value);
     else return zview{};
   }
+
+  static size_t size_buffer(const std::unique_ptr<T> &value)
+  { return string_traits<T>::size_buffer(*value.get()); }
 };
 
 
@@ -390,6 +425,13 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
 
   static std::shared_ptr<T> from_string(std::string_view text)
   { return std::make_shared<T>(string_traits<T>::from_string(text)); }
+
+  static zview to_buf(char *begin, char *end, const std::shared_ptr<T> &value)
+  { return string_traits<T>::to_buf(begin, end, *value); }
+  static char *into_buf(char *begin, char *end, const std::shared_ptr<T> &value)
+  { return string_traits<T>::into_buf(begin, end, *value); }
+  static size_t size_buffer(const std::shared_ptr<T> &value)
+  { return string_traits<T>::size_buffer(*value); }
 };
 } // namespace pqxx
 
@@ -560,13 +602,15 @@ template<typename T> inline std::string to_string(const T &value)
     throw conversion_error{
 	"Attempt to convert null " + type_name<T> + " to a string."};
 
-// XXX: Can we into_buf directly into the string's buffer, then shrink to fit?
-  pqxx::str<T> text{value};
-  return std::string{text.view()};
+  std::string buf;
+  // We can't just reserve() data; modifying the terminating zero leads to
+  // undefined behaviour.
+  buf.resize(string_traits<T>::size_buffer(value) + 1);
+  const auto end{
+	string_traits<T>::into_buf(buf.data(), buf.data() + buf.size(), value)};
+  buf.resize(static_cast<std::string::size_type>(end - buf.data() - 1));
+  return buf;
 }
-
-
-// XXX: Worth adding into_string for reusing existing string?
 
 
 template<> inline std::string to_string(const float &value)
