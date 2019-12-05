@@ -37,7 +37,7 @@ namespace pqxx {}
 namespace pqxx
 {
 /// Suppress compiler warning about an unused item.
-template<typename T> inline void ignore_unused(T) {}
+template<typename T> inline void ignore_unused(T &&) {}
 
 
 /** Check library version at link time.
