@@ -37,7 +37,7 @@ namespace pqxx
  * first of these, but any fetch in the forward direction will move the cursor
  * off this position and onto the first row before returning anything.
  */
-class PQXX_LIBEXPORT cursor_base
+class cursor_base
 {
 public:
   using size_type = result_size_type;
@@ -103,22 +103,22 @@ public:
   /** @return Maximum value for result::difference_type, so the cursor will
    * attempt to read the largest possible result set.
    */
-  static difference_type all() noexcept;				//[t81]
+  PQXX_LIBEXPORT static difference_type all() noexcept;
 
   /// Special value: read one row only.
   /** @return Unsurprisingly, 1.
    */
-  static difference_type next() noexcept { return 1; }			//[t81]
+  static difference_type next() noexcept { return 1; }
 
   /// Special value: read backwards, one row only.
   /** @return Unsurprisingly, -1.
    */
-  static difference_type prior() noexcept { return -1; }		//[t00]
+  static difference_type prior() noexcept { return -1; }
 
   /// Special value: read backwards from current position back to origin.
   /** @return Minimum value for result::difference_type.
    */
-  static difference_type backward_all() noexcept;			//[t00]
+  PQXX_LIBEXPORT static difference_type backward_all() noexcept;
 
   //@}
 
@@ -128,7 +128,7 @@ public:
    * @warning Don't use this to access the SQL cursor directly without going
    * through the provided wrapper classes!
    */
-  const std::string &name() const noexcept { return m_name; }		//[t81]
+  const std::string &name() const noexcept { return m_name; }
 
 protected:
   cursor_base(
@@ -245,7 +245,7 @@ namespace pqxx
  * This class can create or adopt cursors that live outside any backend
  * transaction, which your backend version may not support.
  */
-class PQXX_LIBEXPORT icursorstream
+class icursorstream
 {
 public:
   using size_type = cursor_base::size_type;
@@ -263,11 +263,11 @@ public:
    * @param sstride Number of rows to fetch per read operation; must be a
    * positive number.
    */
-  icursorstream(
+  PQXX_LIBEXPORT icursorstream(
 	transaction_base &context,
 	const std::string &query,
 	const std::string &basename,
-	difference_type sstride=1);					//[t81]
+	difference_type sstride=1);
 
   /// Adopt existing SQL cursor.  Use with care.
   /** Forms a cursor stream around an existing SQL cursor, as returned by e.g. a
@@ -294,11 +294,11 @@ public:
    * @param op Ownership policy.  Determines whether the cursor underlying this
    * stream will be destroyed when the stream is closed.
    */
-  icursorstream(
+  PQXX_LIBEXPORT icursorstream(
 	transaction_base &context,
 	const field &cname,
 	difference_type sstride=1,
-	cursor_base::ownership_policy op=cursor_base::owned);		//[t84]
+	cursor_base::ownership_policy op=cursor_base::owned);
 
   operator bool() const noexcept { return not m_done; }
 
@@ -309,7 +309,7 @@ public:
    * @return Reference to this very stream, to facilitate "chained" invocations
    * ("C.get(r1).get(r2);")
    */
-  icursorstream &get(result &res) { res = fetchblock(); return *this; }	//[t81]
+  icursorstream &get(result &res) { res = fetchblock(); return *this; }
   /// Read new value into given result object; same as get(result &)
   /** The result set may continue any number of rows from zero to the chosen
    * stride, inclusive.  An empty result will only be returned if there are no
@@ -317,31 +317,31 @@ public:
    * @return Reference to this very stream, to facilitate "chained" invocations
    * ("C >> r1 >> r2;")
    */
-  icursorstream &operator>>(result &res) { return get(res); }		//[t81]
+  icursorstream &operator>>(result &res) { return get(res); }
 
   /// Move given number of rows forward (ignoring stride) without reading data
   /**
    * @return Reference to this very stream, to facilitate "chained" invocations
    * ("C.ignore(2).get(r).ignore(4);")
    */
-  icursorstream &ignore(std::streamsize n=1);				//[t81]
+  PQXX_LIBEXPORT icursorstream &ignore(std::streamsize n=1);
 
   /// Change stride, i.e. the number of rows to fetch per read operation
   /**
    * @param stride Must be a positive number
    */
-  void set_stride(difference_type stride);				//[t81]
-  difference_type stride() const noexcept { return m_stride; }		//[t81]
+  PQXX_LIBEXPORT void set_stride(difference_type stride);
+  difference_type stride() const noexcept { return m_stride; }
 
 private:
-  result fetchblock();
+  PQXX_LIBEXPORT result fetchblock();
 
   friend class internal::gate::icursorstream_icursor_iterator;
-  size_type forward(size_type n=1);
-  void insert_iterator(icursor_iterator *) noexcept;
-  void remove_iterator(icursor_iterator *) const noexcept;
+  PQXX_LIBEXPORT size_type forward(size_type n=1);
+  PQXX_LIBEXPORT void insert_iterator(icursor_iterator *) noexcept;
+  PQXX_LIBEXPORT void remove_iterator(icursor_iterator *) const noexcept;
 
-  void service_iterators(difference_type);
+  PQXX_LIBEXPORT void service_iterators(difference_type);
 
   internal::sql_cursor m_cur;
 
@@ -381,7 +381,7 @@ private:
  * stream is <em>not thread-safe</em>.  Creating a new iterator, copying one, or
  * destroying one affects the stream as a whole.
  */
-class PQXX_LIBEXPORT icursor_iterator
+class icursor_iterator
 {
 public:
   using iterator_category = std::input_iterator_tag;
@@ -392,35 +392,35 @@ public:
   using size_type = istream_type::size_type;
   using difference_type = istream_type::difference_type;
 
-  icursor_iterator() noexcept;						//[t84]
-  explicit icursor_iterator(istream_type &) noexcept;			//[t84]
-  icursor_iterator(const icursor_iterator &) noexcept;			//[t84]
-  ~icursor_iterator() noexcept;
+  PQXX_LIBEXPORT icursor_iterator() noexcept;
+  PQXX_LIBEXPORT explicit icursor_iterator(istream_type &) noexcept;
+  PQXX_LIBEXPORT icursor_iterator(const icursor_iterator &) noexcept;
+  PQXX_LIBEXPORT ~icursor_iterator() noexcept;
 
-  const result &operator*() const { refresh(); return m_here; }		//[t84]
-  const result *operator->() const { refresh(); return &m_here; }	//[t84]
-  icursor_iterator &operator++();					//[t84]
-  icursor_iterator operator++(int);					//[t84]
-  icursor_iterator &operator+=(difference_type);			//[t84]
-  icursor_iterator &operator=(const icursor_iterator &) noexcept;	//[t84]
+  const result &operator*() const { refresh(); return m_here; }
+  const result *operator->() const { refresh(); return &m_here; }
+  PQXX_LIBEXPORT icursor_iterator &operator++();
+  PQXX_LIBEXPORT icursor_iterator operator++(int);
+  PQXX_LIBEXPORT icursor_iterator &operator+=(difference_type);
+  PQXX_LIBEXPORT icursor_iterator &operator=(const icursor_iterator &) noexcept;
 
-  bool operator==(const icursor_iterator &rhs) const;			//[t84]
-  bool operator!=(const icursor_iterator &rhs) const noexcept		//[t84]
+  PQXX_LIBEXPORT bool operator==(const icursor_iterator &rhs) const;
+  bool operator!=(const icursor_iterator &rhs) const noexcept
 	{ return not operator==(rhs); }
-  bool operator<(const icursor_iterator &rhs) const;			//[t84]
-  bool operator>(const icursor_iterator &rhs) const			//[t84]
+  PQXX_LIBEXPORT bool operator<(const icursor_iterator &rhs) const;
+  bool operator>(const icursor_iterator &rhs) const
 	{ return rhs < *this; }
-  bool operator<=(const icursor_iterator &rhs) const			//[t84]
+  bool operator<=(const icursor_iterator &rhs) const
 	{ return not (*this > rhs); }
-  bool operator>=(const icursor_iterator &rhs) const			//[t84]
+  bool operator>=(const icursor_iterator &rhs) const
 	{ return not (*this < rhs); }
 
 private:
-  void refresh() const;
+  PQXX_LIBEXPORT void refresh() const;
 
   friend class internal::gate::icursor_iterator_icursorstream;
   difference_type pos() const noexcept { return m_pos; }
-  void fill(const result &);
+  PQXX_LIBEXPORT void fill(const result &);
 
   icursorstream *m_stream = nullptr;
   result m_here;
