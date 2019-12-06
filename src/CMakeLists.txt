@@ -74,16 +74,20 @@ if(NOT SKIP_PQXX_SHARED)
         list(APPEND CXX_SHARED_EXTRA_SOURCE "${PROJECT_SOURCE_DIR}/win32/libpqxx.cxx")
     endif()
 
-	# Build a shared library
-	add_library(pqxx_shared SHARED ${CXX_SOURCES} ${CXX_SHARED_EXTRA_SOURCE})
-	target_compile_definitions(pqxx_shared PUBLIC -DPQXX_SHARED)
-	set_target_properties(pqxx_shared PROPERTIES OUTPUT_NAME pqxx)
-	library_target_setup(pqxx_shared)
+    # Build a shared library
+    add_library(pqxx_shared SHARED ${CXX_SOURCES} ${CXX_SHARED_EXTRA_SOURCE})
+    target_compile_definitions(pqxx_shared PUBLIC -DPQXX_SHARED)
+    set_target_properties(pqxx_shared PROPERTIES
+        OUTPUT_NAME pqxx
+        VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
+        SOVERSION ${PROJECT_VERSION_MAJOR}
+    )
+    library_target_setup(pqxx_shared)
 endif()
 
 if(NOT SKIP_PQXX_STATIC)
-	# Build a static libary
-	add_library(pqxx_static STATIC ${CXX_SOURCES})
-	set_target_properties(pqxx_static PROPERTIES OUTPUT_NAME pqxx)
-	library_target_setup(pqxx_static)
+    # Build a static libary
+    add_library(pqxx_static STATIC ${CXX_SOURCES})
+    set_target_properties(pqxx_static PROPERTIES OUTPUT_NAME pqxx)
+    library_target_setup(pqxx_static)
 endif()
