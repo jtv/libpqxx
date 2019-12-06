@@ -312,10 +312,10 @@ public:
       { iterator_type::operator=(r); return *this; }
   const_reverse_row_iterator operator++()				//[t82]
       { iterator_type::operator--(); return *this; }
-  const_reverse_row_iterator operator++(int);				//[t82]
+  PQXX_LIBEXPORT const_reverse_row_iterator operator++(int);				//[t82]
   const_reverse_row_iterator &operator--()				//[t82]
       { iterator_type::operator++(); return *this; }
-  const_reverse_row_iterator operator--(int);				//[t82]
+  PQXX_LIBEXPORT const_reverse_row_iterator operator--(int);				//[t82]
   const_reverse_row_iterator &operator+=(difference_type i)		//[t82]
       { iterator_type::operator-=(i); return *this; }
   const_reverse_row_iterator &operator-=(difference_type i)		//[t82]
