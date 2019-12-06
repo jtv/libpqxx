@@ -54,7 +54,7 @@ namespace pqxx
  * since libpqxx builds on top of a C library.  Therefore, it also adds a
  * @c c_str method.
  */
-class PQXX_LIBEXPORT zview : public std::string_view
+class zview : public std::string_view
 {
 public:
   template<typename ...Args> constexpr zview(Args &&...args) :
